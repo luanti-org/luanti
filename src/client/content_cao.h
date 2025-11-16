@@ -14,18 +14,18 @@
 #include "itemgroup.h"
 #include "client/tile.h"
 #include <cassert>
-#include <map>
 #include <memory>
 
-namespace irr::scene {
+namespace scene {
 	class IMeshSceneNode;
 	class IBillboardSceneNode;
+	class AnimatedMeshSceneNode;
 }
 
-class Camera;
 class Client;
 struct Nametag;
 struct MinimapMarker;
+class WieldMeshSceneNode;
 
 /*
 	SmoothTranslator and other helpers
@@ -74,7 +74,6 @@ struct MeshAnimationInfo {
 class GenericCAO : public ClientActiveObject
 {
 private:
-	static constexpr auto EMT_INVALID = video::EMT_FORCE_32BIT;
 
 	// Only set at initialization
 	std::string m_name = "";
@@ -89,7 +88,7 @@ private:
 
 	// Visuals
 	scene::IMeshSceneNode *m_meshnode = nullptr;
-	scene::IAnimatedMeshSceneNode *m_animated_meshnode = nullptr;
+	scene::AnimatedMeshSceneNode *m_animated_meshnode = nullptr;
 	WieldMeshSceneNode *m_wield_meshnode = nullptr;
 	scene::IBillboardSceneNode *m_spritenode = nullptr;
 	scene::IDummyTransformationSceneNode *m_matrixnode = nullptr;
@@ -101,7 +100,7 @@ private:
 	std::vector<MeshAnimationInfo> m_meshnode_animation;
 
 	// Material
-	video::E_MATERIAL_TYPE m_material_type = EMT_INVALID;
+	video::E_MATERIAL_TYPE m_material_type = video::EMT_INVALID;
 
 	// Movement
 	v3f m_position = v3f(0.0f, 10.0f * BS, 0);
@@ -149,6 +148,7 @@ private:
 	bool visualExpiryRequired(const ObjectProperties &newprops) const;
 
 public:
+
 	GenericCAO(Client *client, ClientEnvironment *env);
 
 	~GenericCAO();
@@ -190,7 +190,7 @@ public:
 
 	scene::ISceneNode *getSceneNode() const override;
 
-	scene::IAnimatedMeshSceneNode *getAnimatedMeshSceneNode() const override;
+	scene::AnimatedMeshSceneNode *getAnimatedMeshSceneNode() const override;
 
 	// m_matrixnode controls the position and rotation of the child node
 	// for all scene nodes, as a workaround for an Irrlicht problem with
@@ -286,8 +286,6 @@ public:
 
 	void updateAnimationSpeed();
 
-	void updateBones(f32 dtime);
-
 	void processMessage(const std::string &data) override;
 
 	bool directReportPunch(v3f dir, const ItemStack *punchitem,
@@ -301,4 +299,10 @@ public:
 	}
 
 	void updateMeshCulling();
+
+private:
+
+	/// Update the parent chain so getPosition() returns an up to date position.
+	void updateParentChain() const;
+
 };

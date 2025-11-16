@@ -9,9 +9,6 @@
 #include "irrString.h"
 #include "IEventReceiver.h"
 
-namespace irr
-{
-
 //! Class for logging messages, warnings and errors to stdout
 class CLogger : public ILogger
 {
@@ -37,5 +34,3 @@ private:
 	ELOG_LEVEL LogLevel;
 	IEventReceiver *Receiver;
 };
-
-} // end namespace

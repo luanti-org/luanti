@@ -4,17 +4,13 @@
 
 #include "irrlichttypes_bloated.h"
 #include "mapnode.h"
-#include "porting.h"
 #include "nodedef.h"
 #include "map.h"
 #include "content_mapnode.h" // For mapnode_translate_*_internal
 #include "serialization.h" // For ser_ver_supported_*
 #include "util/serialize.h"
-#include "log.h"
 #include "util/directiontables.h"
-#include "util/numeric.h"
 #include <string>
-#include <sstream>
 
 static const Rotation wallmounted_to_rot[] = {
 	ROTATE_0, ROTATE_180, ROTATE_90, ROTATE_270
@@ -28,15 +24,6 @@ static const u8 rot_to_wallmounted[] = {
 /*
 	MapNode
 */
-
-void MapNode::getColor(const ContentFeatures &f, video::SColor *color) const
-{
-	if (f.palette) {
-		*color = (*f.palette)[param2];
-		return;
-	}
-	*color = f.color;
-}
 
 u8 MapNode::getFaceDir(const NodeDefManager *nodemgr,
 	bool allow_wallmounted) const
@@ -589,7 +576,7 @@ void MapNode::deSerialize(const u8 *source, u8 version)
 
 Buffer<u8> MapNode::serializeBulk(int version,
 		const MapNode *nodes, u32 nodecount,
-		u8 content_width, u8 params_width)
+		u8 content_width, u8 params_width, bool is_mono_block)
 {
 	if (!ser_ver_supported_write(version))
 		throw VersionMismatchException("ERROR: MapNode format not supported");
@@ -601,14 +588,22 @@ Buffer<u8> MapNode::serializeBulk(int version,
 
 	// Writing to the buffer linearly is faster
 	u8 *p = &databuf[0];
-	for (u32 i = 0; i < nodecount; i++, p += 2)
-		writeU16(p, nodes[i].param0);
-
-	for (u32 i = 0; i < nodecount; i++, p++)
-		writeU8(p, nodes[i].param1);
-
-	for (u32 i = 0; i < nodecount; i++, p++)
-		writeU8(p, nodes[i].param2);
+	if (is_mono_block) {
+		MapNode n = nodes[0];
+		for (u32 i = 0; i < nodecount; i++, p += 2)
+			writeU16(p, n.param0);
+		for (u32 i = 0; i < nodecount; i++, p++)
+			writeU8(p, n.param1);
+		for (u32 i = 0; i < nodecount; i++, p++)
+			writeU8(p, n.param2);
+	} else {
+		for (u32 i = 0; i < nodecount; i++, p += 2)
+			writeU16(p, nodes[i].param0);
+		for (u32 i = 0; i < nodecount; i++, p++)
+			writeU8(p, nodes[i].param1);
+		for (u32 i = 0; i < nodecount; i++, p++)
+			writeU8(p, nodes[i].param2);
+	}
 
 	return databuf;
 }

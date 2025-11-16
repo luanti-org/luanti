@@ -11,8 +11,6 @@
 #include "IMeshBuffer.h"
 #include "SVertexManipulator.h"
 
-namespace irr
-{
 namespace scene
 {
 
@@ -65,26 +63,6 @@ public:
 	cloned mesh, you should call SMesh::drop(). See
 	IReferenceCounted::drop() for more information. */
 	virtual SMesh *createMeshCopy(IMesh *mesh) const = 0;
-
-	//! Get amount of polygons in mesh.
-	/** \param mesh Input mesh
-	\return Number of polygons in mesh. */
-	virtual s32 getPolyCount(IMesh *mesh) const = 0;
-
-	//! Get amount of polygons in mesh.
-	/** \param mesh Input mesh
-	\return Number of polygons in mesh. */
-	virtual s32 getPolyCount(IAnimatedMesh *mesh) const = 0;
-
-	//! Create a new AnimatedMesh and adds the mesh to it
-	/** \param mesh Input mesh
-	\param type The type of the animated mesh to create.
-	\return Newly created animated mesh with mesh as its only
-	content. When you don't need the animated mesh anymore, you
-	should call IAnimatedMesh::drop(). See
-	IReferenceCounted::drop() for more information. */
-	virtual IAnimatedMesh *createAnimatedMesh(IMesh *mesh,
-			scene::E_ANIMATED_MESH_TYPE type = scene::EAMT_UNKNOWN) const = 0;
 
 	//! Apply a manipulator on the Meshbuffer
 	/** \param func A functor defining the mesh manipulation.
@@ -166,4 +144,3 @@ protected:
 };
 
 } // end namespace scene
-} // end namespace irr

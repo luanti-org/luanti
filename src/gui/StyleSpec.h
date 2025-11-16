@@ -236,25 +236,25 @@ public:
 		return def;
 	}
 
-	irr::core::rect<s32> getRect(Property prop, irr::core::rect<s32> def) const
+	core::rect<s32> getRect(Property prop, core::rect<s32> def) const
 	{
 		const auto &val = properties[prop];
 		if (val.empty())
 			return def;
 
-		irr::core::rect<s32> rect;
+		core::rect<s32> rect;
 		if (!parseRect(val, &rect))
 			return def;
 
 		return rect;
 	}
 
-	irr::core::rect<s32> getRect(Property prop) const
+	core::rect<s32> getRect(Property prop) const
 	{
 		const auto &val = properties[prop];
 		FATAL_ERROR_IF(val.empty(), "Unexpected missing property");
 
-		irr::core::rect<s32> rect;
+		core::rect<s32> rect;
 		parseRect(val, &rect);
 		return rect;
 	}
@@ -416,25 +416,25 @@ private:
 		return true;
 	}
 
-	bool parseRect(const std::string &value, irr::core::rect<s32> *parsed_rect) const
+	bool parseRect(const std::string &value, core::rect<s32> *parsed_rect) const
 	{
-		irr::core::rect<s32> rect;
+		core::rect<s32> rect;
 		std::vector<std::string> v_rect = split(value, ',');
 
 		if (v_rect.size() == 1) {
 			s32 x = stoi(v_rect[0]);
-			rect.UpperLeftCorner = irr::core::vector2di(x, x);
-			rect.LowerRightCorner = irr::core::vector2di(-x, -x);
+			rect.UpperLeftCorner = core::vector2di(x, x);
+			rect.LowerRightCorner = core::vector2di(-x, -x);
 		} else if (v_rect.size() == 2) {
 			s32 x = stoi(v_rect[0]);
 			s32 y =	stoi(v_rect[1]);
-			rect.UpperLeftCorner = irr::core::vector2di(x, y);
-			rect.LowerRightCorner = irr::core::vector2di(-x, -y);
+			rect.UpperLeftCorner = core::vector2di(x, y);
+			rect.LowerRightCorner = core::vector2di(-x, -y);
 			// `-x` is interpreted as `w - x`
 		} else if (v_rect.size() == 4) {
-			rect.UpperLeftCorner = irr::core::vector2di(
+			rect.UpperLeftCorner = core::vector2di(
 					stoi(v_rect[0]), stoi(v_rect[1]));
-			rect.LowerRightCorner = irr::core::vector2di(
+			rect.LowerRightCorner = core::vector2di(
 					stoi(v_rect[2]), stoi(v_rect[3]));
 		} else {
 			warningstream << "Invalid rectangle string format: \"" << value

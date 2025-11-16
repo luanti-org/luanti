@@ -2,21 +2,18 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include <iomanip>
-#include <cerrno>
 #include <algorithm>
 #include <cmath>
 #include "network/mtp/internal.h"
-#include "serialization.h"
 #include "log.h"
 #include "porting.h"
 #include "network/mtp/threads.h"
 #include "network/peerhandler.h"
+#include "network/networkexceptions.h"
 #include "network/networkpacket.h"
 #include "util/serialize.h"
 #include "util/numeric.h"
 #include "util/string.h"
-#include "settings.h"
 #include "profiler.h"
 
 namespace con
@@ -1313,11 +1310,6 @@ Connection::~Connection()
 	// request threads to stop
 	m_sendThread->stop();
 	m_receiveThread->stop();
-
-	//TODO for some unkonwn reason send/receive threads do not exit as they're
-	// supposed to be but wait on peer timeout. To speed up shutdown we reduce
-	// timeout to half a second.
-	m_sendThread->setPeerTimeout(0.5);
 
 	// wait for threads to finish
 	m_sendThread->wait();

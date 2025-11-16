@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "constants.h" // PEER_ID_INEXISTENT
 #include "player.h"
 #include "skyparams.h"
 #include "lighting.h"
@@ -121,7 +122,10 @@ public:
 	u16 protocol_version = 0;
 	u16 formspec_version = 0;
 
-	/// returns PEER_ID_INEXISTENT when PlayerSAO is not ready
+	bool inventory_formspec_overridden = false;
+
+	/// returns PEER_ID_INEXISTENT when PlayerSAO is either
+	/// not yet present or about to be removed (e.g. leave).
 	session_t getPeerId() const { return m_peer_id; }
 
 	void setPeerId(session_t peer_id) { m_peer_id = peer_id; }

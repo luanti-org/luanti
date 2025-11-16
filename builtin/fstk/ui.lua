@@ -118,7 +118,7 @@ function ui.update()
 
 		if (active_toplevel_ui_elements > 1) then
 			core.log("warning", "more than one active ui "..
-				"element, self most likely isn't intended")
+				"element, this most likely isn't intended")
 		end
 
 		if (active_toplevel_ui_elements == 0) then
@@ -166,6 +166,10 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 core.button_handler = function(fields)
+	if fields["try_quit"] and not fields["key_enter"] then
+		core.event_handler("MenuQuit")
+		return
+	end
 	if fields["btn_reconnect_yes"] then
 		gamedata.reconnect_requested = false
 		gamedata.errormessage = nil

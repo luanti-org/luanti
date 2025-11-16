@@ -40,6 +40,7 @@
 # `type_args` can be:
 #   * int:
 #            - default
+#            - default min
 #            - default min max
 #   * string:
 #            - default (if default is not specified then "" is set)
@@ -47,8 +48,10 @@
 #            - default
 #   * float:
 #            - default
+#            - default min
 #            - default min max
 #   * enum:
+#            Empty string "" is a valid enum value
 #            - default value1,value2,...
 #   * path:
 #            - default (if default is not specified then "" is set)
@@ -182,25 +185,19 @@ invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
 
 [**Keybindings]
 
-#    Key for moving the player forward.
-keymap_forward (Move forward) key KEY_KEY_W
+keymap_forward (Move forward) key SYSTEM_SCANCODE_26
 
-#    Key for moving the player backward.
 #    Will also disable autoforward, when active.
-keymap_backward (Move backward) key KEY_KEY_S
+keymap_backward (Move backward) key SYSTEM_SCANCODE_22
 
-#    Key for moving the player left.
-keymap_left (Move left) key KEY_KEY_A
+keymap_left (Move left) key SYSTEM_SCANCODE_4
 
-#    Key for moving the player right.
-keymap_right (Move right) key KEY_KEY_D
+keymap_right (Move right) key SYSTEM_SCANCODE_7
 
-#    Key for jumping.
-keymap_jump (Jump) key KEY_SPACE
+keymap_jump (Jump) key SYSTEM_SCANCODE_44
 
-#    Key for sneaking.
 #    Also used for climbing down and descending in water if aux1_descends is disabled.
-keymap_sneak (Sneak) key KEY_LSHIFT
+keymap_sneak (Sneak) key SYSTEM_SCANCODE_225
 
 #    Key for digging, punching or using something.
 #    (Note: The actual meaning might vary on a per-game basis.)
@@ -210,196 +207,141 @@ keymap_dig (Dig/punch/use) key KEY_LBUTTON
 #    (Note: The actual meaning might vary on a per-game basis.)
 keymap_place (Place/use) key KEY_RBUTTON
 
-#    Key for opening the inventory.
-keymap_inventory (Open inventory) key KEY_KEY_I
+keymap_inventory (Open inventory) key SYSTEM_SCANCODE_12
 
 #    Key for moving fast in fast mode.
-keymap_aux1 (Aux1) key KEY_KEY_E
+keymap_aux1 (Aux1) key SYSTEM_SCANCODE_8
 
-#    Key for opening the chat window.
-keymap_chat (Open chat) key KEY_KEY_T
+keymap_chat (Open chat) key SYSTEM_SCANCODE_23
 
 #    Key for opening the chat window to type commands.
-keymap_cmd (Command) key /
+keymap_cmd (Command) key SYSTEM_SCANCODE_56
 
 #    Key for opening the chat window to type local commands.
-keymap_cmd_local (Local command) key .
+keymap_cmd_local (Local command) key SYSTEM_SCANCODE_55
 
-#    Key for toggling unlimited view range.
-keymap_rangeselect (Range select) key
+keymap_rangeselect (Toggle unlimited view range) key
 
-#    Key for toggling flying.
-keymap_freemove (Toggle fly) key KEY_KEY_K
+keymap_freemove (Toggle fly) key SYSTEM_SCANCODE_14
 
-#    Key for toggling pitch move mode.
 keymap_pitchmove (Toggle pitchmove) key
 
-#    Key for toggling fast mode.
-keymap_fastmove (Toggle fast) key KEY_KEY_J
+keymap_fastmove (Toggle fast) key SYSTEM_SCANCODE_13
 
-#    Key for toggling noclip mode.
-keymap_noclip (Toggle noclip) key KEY_KEY_H
+keymap_noclip (Toggle noclip) key SYSTEM_SCANCODE_11
 
-#    Key for selecting the next item in the hotbar.
-keymap_hotbar_next (Hotbar: select next item) key KEY_KEY_N
+keymap_hotbar_next (Hotbar: select next item) key SYSTEM_SCANCODE_17
 
-#    Key for selecting the previous item in the hotbar.
-keymap_hotbar_previous (Hotbar: select previous item) key KEY_KEY_B
+keymap_hotbar_previous (Hotbar: select previous item) key SYSTEM_SCANCODE_5
 
-#    Key for muting the game.
-keymap_mute (Mute) key KEY_KEY_M
+keymap_mute (Mute) key SYSTEM_SCANCODE_16
 
-#    Key for increasing the volume.
 keymap_increase_volume (Increase volume) key
 
-#    Key for decreasing the volume.
 keymap_decrease_volume (Decrease volume) key
 
-#    Key for toggling autoforward.
 keymap_autoforward (Toggle automatic forward) key
 
-#    Key for toggling cinematic mode.
 keymap_cinematic (Toggle cinematic mode) key
 
-#    Key for toggling display of minimap.
-keymap_minimap (Toggle minimap) key KEY_KEY_V
+keymap_minimap (Toggle minimap) key SYSTEM_SCANCODE_25
 
-#    Key for taking screenshots.
-keymap_screenshot (Screenshot) key KEY_F12
+keymap_screenshot (Screenshot) key SYSTEM_SCANCODE_69
 
-#    Key for toggling fullscreen mode.
-keymap_fullscreen (Toggle fullscreen) key KEY_F11
+keymap_fullscreen (Toggle fullscreen) key SYSTEM_SCANCODE_68
 
-#    Key for dropping the currently selected item.
-keymap_drop (Drop item) key KEY_KEY_Q
+keymap_drop (Drop item) key SYSTEM_SCANCODE_20
 
-#    Key to use view zoom when possible.
-keymap_zoom (Zoom) key KEY_KEY_Z
+keymap_zoom (Zoom) key SYSTEM_SCANCODE_29
 
-#    Key for toggling the display of the HUD.
-keymap_toggle_hud (Toggle HUD) key KEY_F1
+keymap_toggle_hud (Toggle HUD) key SYSTEM_SCANCODE_58
 
-#    Key for toggling the display of chat.
-keymap_toggle_chat (Toggle chat log) key KEY_F2
+keymap_toggle_chat (Toggle chat log) key SYSTEM_SCANCODE_59
 
-#    Key for toggling the display of the large chat console.
-keymap_console (Large chat console) key KEY_F10
+keymap_console (Toggle large chat console) key SYSTEM_SCANCODE_67
 
-#    Key for toggling the display of fog.
-keymap_toggle_fog (Toggle fog) key KEY_F3
+keymap_toggle_fog (Toggle fog) key SYSTEM_SCANCODE_60
 
-#    Key for toggling the display of debug info.
-keymap_toggle_debug (Toggle debug info) key KEY_F5
+keymap_toggle_debug (Toggle debug info) key SYSTEM_SCANCODE_62
 
 #    Key for toggling the display of the profiler. Used for development.
-keymap_toggle_profiler (Toggle profiler) key KEY_F6
+keymap_toggle_profiler (Toggle profiler) key SYSTEM_SCANCODE_63
 
 #    Key for toggling the display of mapblock boundaries.
 keymap_toggle_block_bounds (Toggle block bounds) key
 
-#    Key for switching between first- and third-person camera.
-keymap_camera_mode (Toggle camera mode) key KEY_KEY_C
+keymap_camera_mode (Toggle camera mode) key SYSTEM_SCANCODE_6
 
-#    Key for increasing the viewing range.
-keymap_increase_viewing_range_min (Increase view range) key +
+keymap_increase_viewing_range_min (Increase view range) key SYSTEM_SCANCODE_46
 
-#    Key for decreasing the viewing range.
-keymap_decrease_viewing_range_min (Decrease view range) key -
+keymap_decrease_viewing_range_min (Decrease view range) key SYSTEM_SCANCODE_45
 
-#    Key for selecting the first hotbar slot.
-keymap_slot1 (Hotbar slot 1) key KEY_KEY_1
+#    Modifier key bind for closing your world.
+#    Requires ESC + the selected key to work.
+keymap_close_world (Return to Main Menu) key
 
-#    Key for selecting the second hotbar slot.
-keymap_slot2 (Hotbar slot 2) key KEY_KEY_2
+keymap_slot1 (Hotbar slot 1) key SYSTEM_SCANCODE_30
 
-#    Key for selecting the third hotbar slot.
-keymap_slot3 (Hotbar slot 3) key KEY_KEY_3
+keymap_slot2 (Hotbar slot 2) key SYSTEM_SCANCODE_31
 
-#    Key for selecting the fourth hotbar slot.
-keymap_slot4 (Hotbar slot 4) key KEY_KEY_4
+keymap_slot3 (Hotbar slot 3) key SYSTEM_SCANCODE_32
 
-#    Key for selecting the fifth hotbar slot.
-keymap_slot5 (Hotbar slot 5) key KEY_KEY_5
+keymap_slot4 (Hotbar slot 4) key SYSTEM_SCANCODE_33
 
-#    Key for selecting the sixth hotbar slot.
-keymap_slot6 (Hotbar slot 6) key KEY_KEY_6
+keymap_slot5 (Hotbar slot 5) key SYSTEM_SCANCODE_34
 
-#    Key for selecting the seventh hotbar slot.
-keymap_slot7 (Hotbar slot 7) key KEY_KEY_7
+keymap_slot6 (Hotbar slot 6) key SYSTEM_SCANCODE_35
 
-#    Key for selecting the eighth hotbar slot.
-keymap_slot8 (Hotbar slot 8) key KEY_KEY_8
+keymap_slot7 (Hotbar slot 7) key SYSTEM_SCANCODE_36
 
-#    Key for selecting the ninth hotbar slot.
-keymap_slot9 (Hotbar slot 9) key KEY_KEY_9
+keymap_slot8 (Hotbar slot 8) key SYSTEM_SCANCODE_37
 
-#    Key for selecting the tenth hotbar slot.
-keymap_slot10 (Hotbar slot 10) key KEY_KEY_0
+keymap_slot9 (Hotbar slot 9) key SYSTEM_SCANCODE_38
 
-#    Key for selecting the 11th hotbar slot.
+keymap_slot10 (Hotbar slot 10) key SYSTEM_SCANCODE_39
+
 keymap_slot11 (Hotbar slot 11) key
 
-#    Key for selecting the 12th hotbar slot.
 keymap_slot12 (Hotbar slot 12) key
 
-#    Key for selecting the 13th hotbar slot.
 keymap_slot13 (Hotbar slot 13) key
 
-#    Key for selecting the 14th hotbar slot.
 keymap_slot14 (Hotbar slot 14) key
 
-#    Key for selecting the 15th hotbar slot.
 keymap_slot15 (Hotbar slot 15) key
 
-#    Key for selecting the 16th hotbar slot.
 keymap_slot16 (Hotbar slot 16) key
 
-#    Key for selecting the 17th hotbar slot.
 keymap_slot17 (Hotbar slot 17) key
 
-#    Key for selecting the 18th hotbar slot.
 keymap_slot18 (Hotbar slot 18) key
 
-#    Key for selecting the 19th hotbar slot.
 keymap_slot19 (Hotbar slot 19) key
 
-#    Key for selecting the 20th hotbar slot.
 keymap_slot20 (Hotbar slot 20) key
 
-#    Key for selecting the 21st hotbar slot.
 keymap_slot21 (Hotbar slot 21) key
 
-#    Key for selecting the 22nd hotbar slot.
 keymap_slot22 (Hotbar slot 22) key
 
-#    Key for selecting the 23rd hotbar slot.
 keymap_slot23 (Hotbar slot 23) key
 
-#    Key for selecting the 24th hotbar slot.
 keymap_slot24 (Hotbar slot 24) key
 
-#    Key for selecting the 25th hotbar slot.
 keymap_slot25 (Hotbar slot 25) key
 
-#    Key for selecting the 26th hotbar slot.
 keymap_slot26 (Hotbar slot 26) key
 
-#    Key for selecting the 27th hotbar slot.
 keymap_slot27 (Hotbar slot 27) key
 
-#    Key for selecting the 28th hotbar slot.
 keymap_slot28 (Hotbar slot 28) key
 
-#    Key for selecting the 29th hotbar slot.
 keymap_slot29 (Hotbar slot 29) key
 
-#    Key for selecting the 30th hotbar slot.
 keymap_slot30 (Hotbar slot 30) key
 
-#    Key for selecting the 31st hotbar slot.
 keymap_slot31 (Hotbar slot 31) key
 
-#    Key for selecting the 32nd hotbar slot.
 keymap_slot32 (Hotbar slot 32) key
 
 [*Touchscreen]
@@ -492,7 +434,6 @@ window_maximized (Window maximized) bool false
 #    Save window size automatically when modified.
 #    If true, screen size is saved in screen_w and screen_h, and whether the window
 #    is maximized is stored in window_maximized.
-#    (Autosaving window_maximized only works if compiled with SDL.)
 #
 #    Requires: desktop
 autosave_screensize (Remember screen size) bool true
@@ -535,13 +476,12 @@ undersampling (Undersampling) int 1 1 8
 
 #    3D support.
 #    Currently supported:
-#    -    none: no 3d output.
-#    -    anaglyph: cyan/magenta color 3d.
-#    -    interlaced: odd/even line based polarization screen support.
-#    -    topbottom: split screen top/bottom.
-#    -    sidebyside: split screen side by side.
-#    -    crossview: Cross-eyed 3d
-3d_mode (3D mode) enum none none,anaglyph,interlaced,topbottom,sidebyside,crossview
+#    -    none: no 3D output
+#    -    anaglyph: cyan/magenta color 3D
+#    -    topbottom: split screen top/bottom
+#    -    sidebyside: split screen side-by-side
+#    -    crossview: cross-eyed 3D
+3d_mode (3D mode) enum none none,anaglyph,topbottom,sidebyside,crossview
 
 #    Strength of 3D mode parallax.
 3d_paralax_strength (3D mode parallax strength) float 0.025 -0.087 0.087
@@ -673,18 +613,21 @@ anisotropic_filter (Anisotropic filtering) bool false
 #             Also, if Post Processing is disabled, FSAA will not work together with
 #             undersampling or a non-default "3d_mode" setting.
 #
-#    * FXAA - Fast approximate antialiasing
-#             Applies a post-processing filter to detect and smoothen high-contrast edges.
-#             Provides balance between speed and image quality.
-#
 #    * SSAA - Super-sampling antialiasing
 #             Renders higher-resolution image of the scene, then scales down to reduce
 #             the aliasing effects. This is the slowest and the most accurate method.
-antialiasing (Antialiasing method) enum none none,fsaa,fxaa,ssaa
+antialiasing (Antialiasing method) enum none none,fsaa,ssaa
 
 #    Defines the size of the sampling grid for FSAA and SSAA antialiasing methods.
 #    Value of 2 means taking 2x2 = 4 samples.
 fsaa (Anti-aliasing scale) enum 2 2,4,8,16
+
+#    Applies a post-processing filter to detect and smoothen high-contrast edges.
+#    Provides balance between speed and image quality.
+#    fxaa can used in combination with the other anti-aliasing methods
+#
+#    Requires: enable_post_processing
+fxaa (Fast approximate antialiasing) bool false
 
 [**Occlusion Culling]
 
@@ -872,11 +815,6 @@ enable_volumetric_lighting (Volumetric lighting) bool false
 #   Requires: enable_dynamic_shadows
 enable_translucent_foliage (Translucent foliage) bool false
 
-#   Apply specular shading to nodes.
-#
-#   Requires: enable_dynamic_shadows
-enable_node_specular (Node specular) bool false
-
 #   When enabled, liquid reflections are simulated.
 #
 #   Requires: enable_waving_water, enable_dynamic_shadows
@@ -933,7 +871,7 @@ formspec_fullscreen_bg_color (Formspec Full-Screen Background Color) string (0,0
 gui_scaling_filter (GUI scaling filter) bool false
 
 #    Delay showing tooltips, stated in milliseconds.
-tooltip_show_delay (Tooltip delay) int 400 0 18446744073709551615
+tooltip_show_delay (Tooltip delay) int 400 0
 
 #    Append item name to tooltip.
 tooltip_append_itemname (Append item name) bool false
@@ -1119,10 +1057,6 @@ anticheat_flags (Anticheat flags) flags digging,interaction,movement digging,int
 #    Increase the value if players experience stuttery movement.
 anticheat_movement_tolerance (Anticheat movement tolerance) float 1.0 1.0
 
-#    If enabled, actions are recorded for rollback.
-#    This option is only read when server starts.
-enable_rollback_recording (Rollback recording) bool false
-
 [**Client-side Modding]
 
 #    Restricts the access of certain client-side functions on servers.
@@ -1145,7 +1079,7 @@ csm_restriction_noderange (Client-side node lookup range restriction) int 0 0 42
 
 #    Remove color codes from incoming chat messages
 #    Use this to stop players from being able to use color in their messages
-strip_color_codes (Strip color codes) bool false
+strip_color_codes (Strip color codes) bool true
 
 #    Set the maximum length of a chat message (in characters) sent by clients.
 chat_message_max_size (Chat message max length) int 500 10 65535
@@ -2010,6 +1944,14 @@ enable_mod_channels (Mod channels) [server] bool false
 #    Useful for mod developers and server operators.
 profiler.load (Load the game profiler) bool false
 
+#    Disable if you only want to instrument with Tracy.
+profiler.measure (Measure time samples) bool true
+
+#    Capture Tracy zones with the profiler's instrumentation.
+#    You need to build with Tracy to use this, see doc/developing/profiling.md
+#    for details.
+profiler.tracy (Capture Tracy zones) bool false
+
 #    The default format in which profiles are being saved,
 #    when calling `/profiler save [format]` without format.
 profiler.default_report_format (Default report format) enum txt txt,csv,lua,json,json_pretty
@@ -2079,11 +2021,11 @@ transparency_sorting_group_by_buffers (Transparency Sorting Group by Buffers) bo
 cloud_radius (Cloud radius) int 12 8 62
 
 #    Delay between mesh updates on the client in ms. Increasing this will slow
-#    down the rate of mesh updates, thus reducing jitter on slower clients.
-mesh_generation_interval (Mapblock mesh generation delay) int 0 0 50
+#    down the rate of mesh updates, which can help reduce jitter.
+mesh_generation_interval (Mapblock mesh generation delay) int 0 0 25
 
 #    Number of threads to use for mesh generation.
-#    Value of 0 (default) will let Luanti autodetect the number of available threads.
+#    Value of 0 (default) will let Luanti automatically choose the number of threads.
 mesh_generation_threads (Mapblock mesh generation threads) int 0 0 8
 
 #    All mesh buffers with less than this number of vertices will be merged
@@ -2110,6 +2052,10 @@ world_aligned_mode (World-aligned textures mode) enum enable disable,enable,forc
 #    See also texture_min_size.
 #    Warning: This option is EXPERIMENTAL!
 autoscale_mode (Autoscaling mode) enum disable disable,enable,force
+
+#    Caps the maximum number of layers used with array textures (if supported).
+#    This is only useful for debugging.
+array_texture_max (Array texture max layers) int 65535 0 65535
 
 #    When using bilinear/trilinear filtering, low-resolution textures
 #    can be blurred, so this option automatically upscales them to preserve
@@ -2263,10 +2209,10 @@ client_mapblock_limit (Mapblock limit) [client] int 7500 -1 2147483647
 #    Maximum number of blocks that are simultaneously sent per client.
 #    The maximum total count is calculated dynamically:
 #    max_total = ceil((#clients + max_users) * per_client / 4)
-max_simultaneous_block_sends_per_client (Maximum simultaneous block sends per client) [server] int 40 1 4294967295
+max_simultaneous_block_sends_per_client (Maximum simultaneous block sends per client) [server] int 40 1
 
-#    To reduce lag, block transfers are slowed down when a player is building something.
-#    This determines how long they are slowed down after placing or removing a node.
+#    To save bandwidth, block transfers are slowed down when a player is building something.
+#    This determines how long the throttling lasts after placing a node.
 full_block_send_enable_min_time_from_building (Delay in sending blocks after building) [server] float 2.0 0.0
 
 #    Maximum number of packets sent per send step in the low-level networking code.
@@ -2298,6 +2244,11 @@ kick_msg_crash (Crash message) string This server has experienced an internal er
 #    Whether to ask clients to reconnect after a (Lua) crash.
 #    Set this to true if your server is set up to restart automatically.
 ask_reconnect_on_crash (Ask to reconnect after crash) bool false
+
+#    If enabled, node and inventory actions are recorded for rollback.
+#    This option is only read on server start. Note that the engine will not
+#    automatically clean old entries from the rollback database.
+enable_rollback_recording (Rollback recording) bool false
 
 [**Server/Env Performance] [server]
 
@@ -2416,17 +2367,12 @@ emergequeue_limit_diskonly (Per-player limit of queued blocks load from disk) in
 #    This limit is enforced per player.
 emergequeue_limit_generate (Per-player limit of queued blocks to generate) int 128 1 1000000
 
-#    Number of emerge threads to use.
-#    Value 0:
-#    -    Automatic selection. The number of emerge threads will be
-#    -    'number of processors - 2', with a lower limit of 1.
-#    Any other value:
-#    -    Specifies the number of emerge threads, with a lower limit of 1.
-#    WARNING: Increasing the number of emerge threads increases engine mapgen
-#    speed, but this may harm game performance by interfering with other
-#    processes, especially in singleplayer and/or when running Lua code in
-#    'on_generated'. For many users the optimum setting may be '1'.
-num_emerge_threads (Number of emerge threads) int 1 0 32767
+#    Number of emerge threads (responsible for map generation and loading) to use.
+#    If 0 then the engine will automatically choose a suitable value depending
+#    on the hardware and type of map generator.
+#    WARNING: There are known bugs in the default map generators (v6, v7, ...)
+#    when using more than 1 thread. The automatic choice will avoid this.
+num_emerge_threads (Number of emerge threads) int 0 0 32767
 
 [**cURL] [common]
 

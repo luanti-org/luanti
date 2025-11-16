@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2015, 2016 est31 <MTest31@outlook.com>
 
-#include <algorithm>
 #include <string>
 #include "auth.h"
 #include "base64.h"
@@ -67,9 +66,9 @@ void generate_srp_verifier_and_salt(const std::string &name,
 	std::string *salt)
 {
 	char *bytes_v = nullptr;
-	size_t verifier_len;
+	size_t verifier_len = 0;
 	char *salt_ptr = nullptr;
-	size_t salt_len;
+	size_t salt_len = 0;
 	gen_srp_v(name, password, &salt_ptr, &salt_len, &bytes_v, &verifier_len);
 	*verifier = std::string(bytes_v, verifier_len);
 	*salt = std::string(salt_ptr, salt_len);

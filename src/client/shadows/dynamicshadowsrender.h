@@ -6,14 +6,15 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <IrrlichtDevice.h>
 #include "client/shadows/dynamicshadows.h"
 #include <ISceneNode.h>
 #include <ISceneManager.h>
 
-class ShadowDepthShaderCB;
-class shadowScreenQuad;
-class shadowScreenQuadCB;
+class ShadowDepthUniformSetter;
+class ShadowScreenQuad;
+class ShadowScreenQuadUniformSetter;
 class IWritableShaderSource;
 
 enum E_SHADOW_MODE : u8
@@ -137,25 +138,22 @@ private:
 	f32 m_perspective_bias_xy;
 	f32 m_perspective_bias_z;
 
-	video::ECOLOR_FORMAT m_texture_format{video::ECOLOR_FORMAT::ECF_R16F};
-	video::ECOLOR_FORMAT m_texture_format_color{video::ECOLOR_FORMAT::ECF_R16G16};
+	video::ECOLOR_FORMAT m_texture_format{video::ECF_R16F};
+	video::ECOLOR_FORMAT m_texture_format_color{video::ECF_R16G16};
 
 	// Shadow Shader stuff
 
 	void createShaders();
-	std::string readShaderFile(const std::string &path);
 
-	s32 depth_shader{-1};
-	s32 depth_shader_entities{-1};
-	s32 depth_shader_trans{-1};
-	s32 mixcsm_shader{-1};
+	// _a suffix is with support for array textures
+	video::E_MATERIAL_TYPE depth_shader{video::EMT_INVALID},
+		depth_shader_a{video::EMT_INVALID};
+	video::E_MATERIAL_TYPE depth_shader_trans{video::EMT_INVALID},
+		depth_shader_trans_a{video::EMT_INVALID};
 
-	ShadowDepthShaderCB *m_shadow_depth_cb{nullptr};
-	ShadowDepthShaderCB *m_shadow_depth_entity_cb{nullptr};
-	ShadowDepthShaderCB *m_shadow_depth_trans_cb{nullptr};
+	std::vector<ShadowDepthUniformSetter*> m_shadow_depth_cb;
 
-	shadowScreenQuad *m_screen_quad{nullptr};
-	shadowScreenQuadCB *m_shadow_mix_cb{nullptr};
+	ShadowScreenQuad *m_screen_quad{nullptr};
 };
 
 /**
@@ -165,4 +163,4 @@ private:
  * @param client Reference to the client context.
  * @return A new ShadowRenderer instance or nullptr if shadows are disabled or not supported.
  */
-ShadowRenderer *createShadowRenderer(IrrlichtDevice *device, Client *client);
+std::unique_ptr<ShadowRenderer> createShadowRenderer(IrrlichtDevice *device, Client *client);

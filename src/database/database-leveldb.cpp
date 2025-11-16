@@ -8,6 +8,7 @@
 
 #include "database-leveldb.h"
 
+#include "debug.h"
 #include "log.h"
 #include "filesys.h"
 #include "exceptions.h"

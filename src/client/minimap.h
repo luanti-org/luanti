@@ -7,8 +7,9 @@
 #include "irrlichttypes.h"
 #include "irr_ptr.h"
 #include "rect.h"
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 
+#include "constants.h"
 #include "../hud.h"
 #include "mapnode.h"
 #include "util/thread.h"
@@ -16,16 +17,14 @@
 #include <string>
 #include <vector>
 
-namespace irr {
-	namespace video {
-		class IVideoDriver;
-		class IImage;
-		class ITexture;
-	}
+namespace video {
+	class IVideoDriver;
+	class IImage;
+	class ITexture;
+}
 
-	namespace scene {
-		class ISceneNode;
-	}
+namespace scene {
+	class ISceneNode;
 }
 
 class Client;
@@ -66,7 +65,7 @@ struct MinimapPixel {
 };
 
 struct MinimapMapblock {
-	void getMinimapNodes(VoxelManipulator *vmanip, const v3s16 &pos);
+	void getMinimapNodes(VoxelManipulator *vmanip, const NodeDefManager *nodedef, const v3s16 &pos);
 
 	MinimapPixel data[MAP_BLOCKSIZE * MAP_BLOCKSIZE];
 };

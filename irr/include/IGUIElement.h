@@ -14,8 +14,6 @@
 #include <list>
 #include <vector>
 
-namespace irr
-{
 namespace gui
 {
 class IGUIEnvironment;
@@ -662,13 +660,6 @@ public:
 		return type == Type;
 	}
 
-	//! Returns the type name of the gui element.
-	/** This is needed serializing elements. */
-	virtual const c8 *getTypeName() const
-	{
-		return GUIElementTypeNames[Type];
-	}
-
 	//! Returns the name of the element.
 	/** \return Name as character string. */
 	virtual const c8 *getName() const
@@ -933,4 +924,3 @@ protected:
 };
 
 } // end namespace gui
-} // end namespace irr

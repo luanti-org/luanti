@@ -35,4 +35,10 @@ void migrate_settings()
 		g_settings->set("touch_interaction_style", value ? "tap_crosshair" : "tap");
 		g_settings->remove("touch_use_crosshair");
 	}
+
+	// turn FXAA into its own setting
+	if (g_settings->get("antialiasing") == "fxaa") {
+		g_settings->setBool("fxaa", true);
+		g_settings->remove("antialiasing");
+	}
 }

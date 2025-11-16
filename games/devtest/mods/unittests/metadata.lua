@@ -8,6 +8,8 @@ compare_meta:from_table({
 		c = "3",
 		d = "4",
 		e = "e",
+		["0.3"] = "0.29999999999999999",
+		["0.1+0.2"] = "0.30000000000000004",
 	},
 })
 
@@ -21,6 +23,9 @@ local function test_metadata(meta)
 	meta:set_string("", "!")
 	meta:set_string("", "")
 
+	meta:set_float("0.3", 0.3)
+	meta:set_float("0.1+0.2", 0.1 + 0.2)
+
 	assert(meta:equals(compare_meta))
 
 	local tab = meta:to_table()
@@ -29,6 +34,8 @@ local function test_metadata(meta)
 	assert(tab.fields.c == "3")
 	assert(tab.fields.d == "4")
 	assert(tab.fields.e == "e")
+	assert(tab.fields["0.3"] == "0.29999999999999999")
+	assert(tab.fields["0.1+0.2"] == "0.30000000000000004")
 
 	local keys = meta:get_keys()
 	assert(table.indexof(keys, "a") > 0)
@@ -36,7 +43,7 @@ local function test_metadata(meta)
 	assert(table.indexof(keys, "c") > 0)
 	assert(table.indexof(keys, "d") > 0)
 	assert(table.indexof(keys, "e") > 0)
-	assert(#keys == 5)
+	assert(#keys == 7)
 
 	assert(not meta:contains(""))
 	assert(meta:contains("a"))
@@ -55,6 +62,8 @@ local function test_metadata(meta)
 	assert(meta:get_float("a") == 1.0)
 	assert(meta:get_int("e") == 0)
 	assert(meta:get_float("e") == 0.0)
+	assert(meta:get_float("0.3") == 0.3)
+	assert(meta:get_float("0.1+0.2") == 0.1 + 0.2)
 
 	meta:set_float("f", 1.1)
 	meta:set_string("g", "${f}")
@@ -119,3 +128,42 @@ local function test_node_metadata(player, pos)
 	test_metadata(core.get_meta(pos))
 end
 unittests.register("test_node_metadata", test_node_metadata, {map=true})
+
+local function get_cracky_cap(item)
+	local value = item:get_tool_capabilities()
+	assert(type(value) == "table")
+	value = value.groupcaps
+	assert(type(value) == "table")
+	value = value.cracky
+	assert(type(value) == "table")
+	value = value.times
+	assert(type(value) == "table")
+	value = value[1]
+	assert(type(value) == "number")
+	return value
+end
+
+local function test_item_metadata_tool_capabilities()
+	local test_caps = {
+		groupcaps={
+			cracky={times={123}},
+		},
+	}
+
+	-- has no tool capabilities
+	local item = ItemStack("unittests:stick")
+	local item_meta = item:get_meta()
+	assert(dump(item:get_tool_capabilities()) == dump(ItemStack(""):get_tool_capabilities()))
+	item_meta:set_tool_capabilities(test_caps)
+	-- Can't directly compare the tables, because the pushback to Lua from get_tool_capabilities()
+	-- adds values to left out fields of the tool capabilities table.
+	assert(get_cracky_cap(item) == 123)
+
+	-- has preexisting tool capabilities in its definition table
+	item = ItemStack("unittests:unrepairable_tool")
+	item_meta = item:get_meta()
+	assert(get_cracky_cap(item) == 3)
+	item_meta:set_tool_capabilities(test_caps)
+	assert(get_cracky_cap(item) == 123)
+end
+unittests.register("test_item_metadata_tool_capabilities", test_item_metadata_tool_capabilities)

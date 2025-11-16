@@ -425,15 +425,14 @@ int LuaLocalPlayer::l_hud_get_all(lua_State *L)
 		return 0;
 
 	lua_newtable(L);
-	player->hudApply([&](const std::vector<HudElement*>& hud) {
-		for (std::size_t id = 0; id < hud.size(); ++id) {
-			HudElement *elem = hud[id];
-			if (elem != nullptr) {
-				push_hud_element(L, elem);
-				lua_rawseti(L, -2, id);
-			}
+	u32 id = 0;
+	for (HudElement *elem : player->getHudElements()) {
+		if (elem != nullptr) {
+			push_hud_element(L, elem);
+			lua_rawseti(L, -2, id);
 		}
-	});
+		++id;
+	}
 	return 1;
 }
 
@@ -464,7 +463,7 @@ void LuaLocalPlayer::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaLocalPlayer>(L, methods, metamethods);
 }
 
 const char LuaLocalPlayer::className[] = "LocalPlayer";

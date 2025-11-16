@@ -6,7 +6,6 @@
 
 #include "lua_api/l_base.h"
 
-class AsyncEngine;
 
 class ModApiUtil : public ModApiBase
 {
@@ -52,6 +51,9 @@ private:
 
 	// is_yes(arg)
 	static int l_is_yes(lua_State *L);
+
+	// path_exists(path)
+	static int l_path_exists(lua_State *L);
 
 	// get_builtin_path()
 	static int l_get_builtin_path(lua_State *L);
@@ -127,6 +129,9 @@ private:
 
 	// is_valid_player_name(name)
 	static int l_is_valid_player_name(lua_State *L);
+
+	// strip_escapes(str)
+	static int l_strip_escapes(lua_State *L);
 
 public:
 	static void Initialize(lua_State *L, int top);

@@ -28,7 +28,7 @@ Table of Contents
 Further documentation
 ----------------------
 - Website: https://www.luanti.org/
-- Wiki: https://wiki.luanti.org/
+- Luanti Documentation: https://docs.luanti.org/
 - Forum: https://forum.luanti.org/
 - GitHub: https://github.com/luanti-org/luanti/
 - [Developer documentation](doc/developing/)

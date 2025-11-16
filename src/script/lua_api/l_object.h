@@ -6,6 +6,7 @@
 
 #include "lua_api/l_base.h"
 #include "irrlichttypes.h"
+#include <lua.h>
 
 class ServerActiveObject;
 class LuaEntitySAO;
@@ -48,6 +49,9 @@ private:
 
 	// Exported functions
 
+	// __tostring metamethod
+	static int mt_tostring(lua_State *L);
+
 	// garbage collector
 	static int gc_object(lua_State *L);
 
@@ -56,6 +60,9 @@ private:
 
 	// is_valid(self)
 	static int l_is_valid(lua_State *L);
+
+	// get_guid()
+	static int l_get_guid(lua_State *L);
 
 	// get_pos(self)
 	static int l_get_pos(lua_State *L);

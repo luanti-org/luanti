@@ -7,8 +7,6 @@
 #include "Common.h"
 #include <cstddef>
 
-namespace irr
-{
 namespace video
 {
 
@@ -53,5 +51,4 @@ private:
 	size_t m_size = 0;
 };
 
-}
 }

@@ -12,11 +12,10 @@
 #include <queue>
 #include "gamedef.h"
 #include "inventory.h"
-#include "util/serialize.h"
+#include "itemdef.h"
 #include "util/string.h"
 #include "util/numeric.h"
 #include "util/strfnd.h"
-#include "exceptions.h"
 
 inline bool isGroupRecipeStr(const std::string &rec_name)
 {
@@ -273,6 +272,12 @@ std::string craftDumpMatrix(const std::vector<ItemStack> &items,
 /*
 	CraftInput
 */
+
+CraftInput::CraftInput(CraftMethod method_, unsigned int width_,
+		const std::vector<ItemStack> &items_):
+	method(method_), width(width_), items(items_)
+{
+}
 
 bool CraftInput::empty() const
 {

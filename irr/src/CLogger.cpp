@@ -4,9 +4,6 @@
 
 #include "CLogger.h"
 
-namespace irr
-{
-
 CLogger::CLogger(IEventReceiver *r) :
 		LogLevel(ELL_INFORMATION), Receiver(r)
 {}
@@ -58,5 +55,3 @@ void CLogger::setReceiver(IEventReceiver *r)
 {
 	Receiver = r;
 }
-
-} // end namespace irr

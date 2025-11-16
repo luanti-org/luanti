@@ -20,7 +20,7 @@
 template <typename T>
 std::shared_ptr<T> grab_gui_element(T *element)
 {
-	static_assert(std::is_base_of_v<irr::gui::IGUIElement, T>,
+	static_assert(std::is_base_of_v<gui::IGUIElement, T>,
 			"grab_gui_element only works for IGUIElement");
 	return std::shared_ptr<T>(element, [](T *e) {
 		e->remove();

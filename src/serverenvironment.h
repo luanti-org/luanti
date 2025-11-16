@@ -4,29 +4,37 @@
 
 #pragma once
 
+#include <memory> // std::unique_ptr
 #include <set>
-#include <utility>
+#include <unordered_map>
+#include <utility> // std::function
+#include <vector>
 
-#include "activeobject.h"
 #include "environment.h"
-#include "servermap.h"
-#include "settings.h"
+#include "util/guid.h"
+#include "map.h" // MapEventReceiver
 #include "server/activeobjectmgr.h"
 #include "server/blockmodifier.h"
 #include "util/numeric.h"
 #include "util/metricsbackend.h"
 
-class IGameDef;
-struct GameParams;
-class RemotePlayer;
-class PlayerDatabase;
 class AuthDatabase;
+class ActiveObject;
+class MetricsBackend;
+class PlayerDatabase;
 class PlayerSAO;
-class ServerEnvironment;
-struct StaticObject;
-class ServerActiveObject;
+class RemotePlayer;
 class Server;
+class ServerActiveObject;
+class ServerEnvironment;
 class ServerScripting;
+class Settings;
+struct ActiveObjectMessage;
+struct GameParams;
+struct StaticObject;
+
+class ServerMap;
+
 enum AccessDeniedCode : u8;
 typedef u16 session_t;
 
@@ -122,6 +130,9 @@ public:
 
 	float getSendRecommendedInterval()
 	{ return m_recommended_send_interval; }
+
+	GUIDGenerator & getGUIDGenerator()
+	{ return m_guid_generator; }
 
 	// Save players
 	void saveLoadedPlayers(bool force = false);
@@ -274,12 +285,15 @@ public:
 	const std::vector<RemotePlayer *> getPlayers() const { return m_players; }
 	u32 getPlayerCount() const { return m_players.size(); }
 
+	static std::vector<std::string> getPlayerDatabaseBackends();
 	static bool migratePlayersDatabase(const GameParams &game_params,
 			const Settings &cmd_args);
 
 	AuthDatabase *getAuthDatabase() { return m_auth_database; }
+	static std::vector<std::string> getAuthDatabaseBackends();
 	static bool migrateAuthDatabase(const GameParams &game_params,
 			const Settings &cmd_args);
+
 private:
 
 	/**
@@ -350,13 +364,14 @@ private:
 	// The map
 	std::unique_ptr<ServerMap> m_map;
 	// Lua state
-	ServerScripting* m_script;
+	ServerScripting *m_script = nullptr;
 	// Server definition
-	Server *m_server;
+	Server *m_server = nullptr;
 	// Active Object Manager
 	server::ActiveObjectMgr m_ao_manager;
 	// on_mapblocks_changed map event receiver
 	OnMapblocksChangedReceiver m_on_mapblocks_changed_receiver;
+	GUIDGenerator m_guid_generator;
 	// Outgoing network message buffer for active objects
 	std::queue<ActiveObjectMessage> m_active_object_messages;
 	// Some timers
@@ -370,6 +385,8 @@ private:
 	IntervalLimiter m_active_blocks_nodemetadata_interval;
 	// Whether the variables below have been read from file yet
 	bool m_meta_loaded = false;
+	// Are we shutting down?
+	bool m_shutting_down = false;
 	// Time from the beginning of the game in seconds.
 	// Incremented in step().
 	u32 m_game_time = 0;

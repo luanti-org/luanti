@@ -6,14 +6,11 @@
 
 #include "irr_v3d.h"
 #include <string>
-#include <iostream>
 #include <list>
-#include "exceptions.h"
 #include "inventory.h"
 
 class Map;
 class IGameDef;
-struct MapNode;
 class InventoryManager;
 
 struct RollbackNode
@@ -23,12 +20,15 @@ struct RollbackNode
 	int param2 = 0;
 	std::string meta;
 
-	bool operator == (const RollbackNode &other)
+	bool operator == (const RollbackNode &other) const
 	{
 		return (name == other.name && param1 == other.param1 &&
 				param2 == other.param2 && meta == other.meta);
 	}
-	bool operator != (const RollbackNode &other) { return !(*this == other); }
+	bool operator != (const RollbackNode &other) const
+	{
+		return !(*this == other);
+	}
 
 	RollbackNode() = default;
 
@@ -38,15 +38,16 @@ struct RollbackNode
 
 struct RollbackAction
 {
-	enum Type{
+	enum Type : u8 {
 		TYPE_NOTHING,
 		TYPE_SET_NODE,
 		TYPE_MODIFY_INVENTORY_STACK,
-	} type = TYPE_NOTHING;
+	};
 
 	time_t unix_time = 0;
 	std::string actor;
 	bool actor_is_guess = false;
+	Type type = TYPE_NOTHING;
 
 	v3s16 p;
 	RollbackNode n_old;

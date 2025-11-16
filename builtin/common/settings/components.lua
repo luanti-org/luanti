@@ -45,15 +45,32 @@ local function is_valid_number(value)
 end
 
 
-function make.heading(text)
+function make.heading(text, info_text)
 	return {
 		full_width = true,
+		info_text = info_text,
 		get_formspec = function(self, avail_w)
 			return ("label[0,0.6;%s]box[0,0.9;%f,0.05;#ccc6]"):format(core.formspec_escape(text), avail_w), 1.2
 		end,
 	}
 end
 
+
+function make.unavail_list(settings)
+	return {
+		full_width = true,
+		get_formspec = function(self, avail_w)
+			local h = 0.2
+			local fs = {}
+			for _, setting in ipairs(settings) do
+				fs[#fs + 1] = ("label[0.3,%f;%s]"):format(h,
+					core.colorize("#bbb", core.formspec_escape(get_label(setting))))
+				h = h + 0.4
+			end
+			return table.concat(fs, ""), h
+		end,
+	}
+end
 
 function make.note(text)
 	return {
@@ -438,11 +455,28 @@ function make.key(setting)
 		if value == "" then
 			return height
 		end
+
+		local critical_keys = {
+			keymap_drop = true,
+			keymap_dig = true,
+			keymap_place = true,
+		}
+
 		for _, o in ipairs(core.full_settingtypes) do
-			if o.type == "key" and o.name ~= setting.name and core.are_keycodes_equal(core.settings:get(o.name), value) then
-				table.insert(fs, ("label[0,%f;%s]"):format(height + 0.3,
-						core.colorize(mt_color_orange, fgettext([[Conflicts with "$1"]], fgettext(o.readable_name)))))
-				height = height + 0.6
+			if o.type == "key" and o.name ~= setting.name and
+					core.are_keycodes_equal(core.settings:get(o.name), value) then
+
+				local is_current_close_world = setting.name == "keymap_close_world"
+				local is_other_close_world = o.name == "keymap_close_world"
+				local is_current_critical = critical_keys[setting.name]
+				local is_other_critical = critical_keys[o.name]
+
+				if (is_other_critical or is_current_critical) or
+						(not is_current_close_world and not is_other_close_world) then
+					table.insert(fs, ("label[0,%f;%s]"):format(height + 0.3,
+							core.colorize(mt_color_orange, fgettext([[Conflicts with "$1"]], fgettext(o.readable_name)))))
+					height = height + 0.6
+				end
 			end
 		end
 		return height
@@ -454,12 +488,12 @@ function make.key(setting)
 
 		get_formspec = function(self, avail_w)
 			self.resettable = core.settings:has(setting.name)
-			local btn_bind_width = math.max(2.5, avail_w/2)
+			local btn_bind_width = math.max(2.5, avail_w / 2)
 			local value = core.settings:get(setting.name)
 			local fs = {
 				("label[0,0.4;%s]"):format(get_label(setting)),
 				("button_key[%f,0;%f,0.8;%s;%s]"):format(
-						btn_bind_width, btn_bind_width-0.8,
+						btn_bind_width, btn_bind_width - 0.8,
 						btn_bind, core.formspec_escape(value)),
 				("image_button[%f,0;0.8,0.8;%s;%s;]"):format(avail_w - 0.8,
 						core.formspec_escape(defaulttexturedir .. "clear.png"),

@@ -7,10 +7,10 @@
 #include <cassert>
 #include <unordered_set>
 #include <optional>
+#include <queue>
 #include "irrlichttypes_bloated.h"
 #include "activeobject.h"
 #include "itemgroup.h"
-#include "util/container.h"
 
 
 /*
@@ -140,6 +140,10 @@ public:
 	{}
 	virtual u16 getHP() const
 	{ return 0; }
+
+	/// @brief Returns an unique ID for this object (persistent across unload, server restarts).
+	/// @note Because these strings are very short, copying them is not expensive.
+	virtual std::string getGUID() const = 0;
 
 	virtual void setArmorGroups(const ItemGroupList &armor_groups)
 	{}

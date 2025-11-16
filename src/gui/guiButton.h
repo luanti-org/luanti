@@ -12,7 +12,6 @@
 #include "SColor.h"
 #include "StyleSpec.h"
 
-using namespace irr;
 
 class ISimpleTextureSource;
 

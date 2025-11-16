@@ -5,15 +5,12 @@
 
 #pragma once
 
-#include <map>
 #include "mg_decoration.h"
 #include "util/string.h"
 
 class Map;
 class ServerMap;
-class Mapgen;
 class MMVManip;
-class PseudoRandom;
 class NodeResolver;
 class Server;
 

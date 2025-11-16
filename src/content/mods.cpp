@@ -10,10 +10,7 @@
 #include "database/database.h"
 #include "filesys.h"
 #include "log.h"
-#include "content/subgames.h"
 #include "settings.h"
-#include "porting.h"
-#include "convert_json.h"
 #include "script/common/c_internal.h"
 #include "exceptions.h"
 

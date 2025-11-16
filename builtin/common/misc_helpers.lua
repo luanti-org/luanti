@@ -1,13 +1,21 @@
 --------------------------------------------------------------------------------
 -- Localize functions to avoid table lookups (better performance).
-local string_sub, string_find = string.sub, string.find
+local string_sub, string_find, string_rep = string.sub, string.find, string.rep
 local math = math
 
 --------------------------------------------------------------------------------
 local function basic_dump(o)
 	local tp = type(o)
 	if tp == "number" then
-		return tostring(o)
+		local s = tostring(o)
+		if tonumber(s) == o then
+			return s
+		end
+		-- Prefer an exact representation over a compact representation.
+		-- e.g. basic_dump(0.3) == "0.3",
+		-- but basic_dump(0.1 + 0.2) == "0.30000000000000004"
+		-- so the user can see that 0.1 + 0.2 ~= 0.3
+		return string.format("%.17g", o)
 	elseif tp == "string" then
 		return string.format("%q", o)
 	elseif tp == "boolean" then
@@ -100,65 +108,144 @@ function dump2(o, name, dumped)
 	return string.format("%s = {}\n%s", name, table.concat(t))
 end
 
---------------------------------------------------------------------------------
--- This dumps values in a one-statement format.
+
+-- This dumps values in a human-readable expression format.
+-- If possible, the resulting string should evaluate to an equivalent value if loaded and executed.
 -- For example, {test = {"Testing..."}} becomes:
 -- [[{
 -- 	test = {
 -- 		"Testing..."
 -- 	}
 -- }]]
--- This supports tables as keys, but not circular references.
--- It performs poorly with multiple references as it writes out the full
--- table each time.
--- The indent field specifies a indentation string, it defaults to a tab.
--- Use the empty string to disable indentation.
--- The dumped and level arguments are internal-only.
-
-function dump(o, indent, nested, level)
-	local t = type(o)
-	if not level and t == "userdata" then
-		-- when userdata (e.g. player) is passed directly, print its metatable:
-		return "userdata metatable: " .. dump(getmetatable(o))
-	end
-	if t ~= "table" then
-		return basic_dump(o)
-	end
-
-	-- Contains table -> true/nil of currently nested tables
-	nested = nested or {}
-	if nested[o] then
-		return "<circular reference>"
-	end
-	nested[o] = true
+function dump(value, indent)
 	indent = indent or "\t"
-	level = level or 1
 
-	local ret = {}
-	local dumped_indexes = {}
-	for i, v in ipairs(o) do
-		ret[#ret + 1] = dump(v, indent, nested, level + 1)
-		dumped_indexes[i] = true
-	end
-	for k, v in pairs(o) do
-		if not dumped_indexes[k] then
-			if type(k) ~= "string" or not is_valid_identifier(k) then
-				k = "["..dump(k, indent, nested, level + 1).."]"
-			end
-			v = dump(v, indent, nested, level + 1)
-			ret[#ret + 1] = k.." = "..v
+	assert(type(indent) == "string", "dump()'s second argument should be a string or nil.")
+
+	local newline = indent == "" and "" or "\n"
+
+	local rope = {}
+	local write
+	do
+		-- Keeping the length of the table as a local variable is *much*
+		-- faster than invoking the length operator.
+		-- See https://gitspartv.github.io/LuaJIT-Benchmarks/#test12.
+		local i = 0
+		function write(str)
+			i = i + 1
+			rope[i] = str
 		end
 	end
-	nested[o] = nil
-	if indent ~= "" then
-		local indent_str = "\n"..string.rep(indent, level)
-		local end_indent_str = "\n"..string.rep(indent, level - 1)
-		return string.format("{%s%s%s}",
-				indent_str,
-				table.concat(ret, ","..indent_str),
-				end_indent_str)
+
+	local n_refs = {}
+	local function count_refs(val)
+		if type(val) ~= "table" then
+			return
+		end
+		local tbl = val
+		if n_refs[tbl] then
+			n_refs[tbl] = n_refs[tbl] + 1
+			return
+		end
+		n_refs[tbl] = 1
+		for k, v in pairs(tbl) do
+			count_refs(k)
+			count_refs(v)
+		end
 	end
-	return "{"..table.concat(ret, ", ").."}"
+	count_refs(value)
+
+	local refs = {}
+	local cur_ref = 1
+	local function write_value(val, level)
+		if type(val) ~= "table" then
+			write(basic_dump(val))
+			return
+		end
+
+		local tbl = val
+		if refs[tbl] then
+			write(refs[tbl])
+			return
+		end
+
+		if n_refs[val] > 1 then
+			refs[val] = ("getref(%d)"):format(cur_ref)
+			write(("setref(%d)"):format(cur_ref))
+			cur_ref = cur_ref + 1
+		end
+		write("{")
+		if next(tbl) == nil then
+			write("}")
+			return
+		end
+		write(newline)
+
+		local function write_entry(k, v)
+			write(string_rep(indent, level))
+			write("[")
+			write_value(k, level + 1)
+			write("] = ")
+			write_value(v, level + 1)
+			write(",")
+			write(newline)
+		end
+
+		local keys = {string = {}, number = {}}
+		for k in pairs(tbl) do
+			local t = type(k)
+			if keys[t] then
+				table.insert(keys[t], k)
+			end
+		end
+
+		-- Write string-keyed entries
+		table.sort(keys.string)
+		for _, k in ipairs(keys.string) do
+			local v = val[k]
+			if is_valid_identifier(k) then
+				write(string_rep(indent, level))
+				write(k)
+				write(" = ")
+				write_value(v, level + 1)
+				write(",")
+				write(newline)
+			else
+				write_entry(k, v)
+			end
+		end
+
+		-- Write number-keyed entries
+		local len = 0
+		for i in ipairs(tbl) do
+			len = i
+		end
+		if #keys.number == len then -- table is a list
+			for _, v in ipairs(tbl) do
+				write(string_rep(indent, level))
+				write_value(v, level + 1)
+				write(",")
+				write(newline)
+			end
+		else -- table harbors arbitrary number keys
+			table.sort(keys.number)
+			for _, k in ipairs(keys.number) do
+				write_entry(k, tbl[k])
+			end
+		end
+
+		-- Write all remaining entries
+		for k, v in pairs(val) do
+			if not keys[type(k)] then
+				write_entry(k, v)
+			end
+		end
+
+		write(string_rep(indent, level - 1))
+		write("}")
+	end
+	write_value(value, 1)
+	return table.concat(rope)
 end
 
 --------------------------------------------------------------------------------
@@ -550,6 +637,10 @@ if core.gettext then -- for client and mainmenu
 	function fgettext(text, ...)
 		return core.formspec_escape(fgettext_ne(text, ...))
 	end
+
+	function hgettext(text, ...)
+		return core.hypertext_escape(fgettext_ne(text, ...))
+	end
 end
 
 local ESCAPE_CHAR = string.char(0x1b)
@@ -570,7 +661,7 @@ function core.colorize(color, message)
 		lines[i] = color_code .. line
 	end
 
-	return table.concat(lines, "\n") .. core.get_color_escape_sequence("#ffffff")
+	return table.concat(lines, "\n") .. core.get_color_escape_sequence("#fff")
 end
 
 
@@ -585,6 +676,7 @@ end
 function core.strip_colors(str)
 	return (str:gsub(ESCAPE_CHAR .. "%([bc]@[^)]+%)", ""))
 end
+
 
 local function translate(textdomain, str, num, ...)
 	local start_seq
@@ -765,22 +857,23 @@ Intended to be used in chat command parameter parsing.
 
 Parameters:
 * x, y, z: Parsed x, y, and z coordinates as strings
-* relative_to: Position to which to compare the position
+* relative_to: Optional position vector as reference point
 
 Syntax of x, y and z:
-* "<number>": return as number
-* "~<number>": return <number> + player position on this axis
-* "~": return player position on this axis
+* "<number>": use as number
+* "~<number>": use <number> + reference point on this axis
+* "~": use reference point on this axis
 
-Returns: a vector or nil for invalid input or if player does not exist
+Returns: a vector or nil for invalid input
 ]]
 function core.parse_coordinates(x, y, z, relative_to)
 	if not relative_to then
 		x, y, z = tonumber(x), tonumber(y), tonumber(z)
-		return x and y and z and { x = x, y = y, z = z }
+		return x and y and z and vector.new(x, y, z)
 	end
 	local rx = core.parse_relative_number(x, relative_to.x)
 	local ry = core.parse_relative_number(y, relative_to.y)
 	local rz = core.parse_relative_number(z, relative_to.z)
-	return rx and ry and rz and { x = rx, y = ry, z = rz }
+	return rx and ry and rz and vector.new(rx, ry, rz)
 end
+

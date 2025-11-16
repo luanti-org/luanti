@@ -12,11 +12,11 @@
 #include <unordered_map>
 
 class ISimpleTextureSource;
-namespace irr::gui
+namespace gui
 {
 	class IGUIStaticText;
 }
-namespace irr::video
+namespace video
 {
 	class ITexture;
 }

@@ -10,8 +10,6 @@
 #include "S3DVertex.h"
 #include <cassert>
 
-namespace irr
-{
 namespace scene
 {
 
@@ -92,7 +90,7 @@ struct SSkinMeshBuffer final : public IMeshBuffer
 	}
 
 	//! Get standard vertex at given index
-	virtual video::S3DVertex *getVertex(u32 index)
+	video::S3DVertex *getVertex(u32 index)
 	{
 		switch (VertexType) {
 		case video::EVT_2TCOORDS:
@@ -238,4 +236,3 @@ public:
 };
 
 } // end namespace scene
-} // end namespace irr

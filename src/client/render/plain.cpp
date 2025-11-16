@@ -5,6 +5,7 @@
 
 #include "plain.h"
 #include "secondstage.h"
+#include "settings.h"
 #include "client/camera.h"
 #include "client/client.h"
 #include "client/clientmap.h"

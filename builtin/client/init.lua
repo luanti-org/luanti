@@ -13,3 +13,6 @@ dofile(commonpath .. "information_formspecs.lua")
 dofile(clientpath .. "chatcommands.lua")
 dofile(clientpath .. "misc.lua")
 assert(loadfile(commonpath .. "item_s.lua"))({}) -- Just for push/read node functions
+
+-- unset, as promised in initializeSecurityClient()
+debug.getinfo = nil

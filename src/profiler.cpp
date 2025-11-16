@@ -3,6 +3,9 @@
 // Copyright (C) 2015 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "profiler.h"
+
+#include <cstring>
+#include "util/numeric.h"
 #include "porting.h"
 
 static Profiler main_profiler;
@@ -17,7 +20,7 @@ ScopeProfiler::ScopeProfiler(Profiler *profiler, const std::string &name,
 	m_time1 = porting::getTime(prec);
 }
 
-ScopeProfiler::~ScopeProfiler()
+void ScopeProfiler::stop() noexcept
 {
 	if (!m_profiler)
 		return;
@@ -38,6 +41,8 @@ ScopeProfiler::~ScopeProfiler()
 		m_profiler->max(m_name, duration);
 		break;
 	}
+
+	m_profiler = nullptr; // don't stop a second time
 }
 
 Profiler::Profiler()

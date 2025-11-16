@@ -375,6 +375,9 @@ endif()
 
 check_include_files(endian.h HAVE_ENDIAN_H)
 
+if((NOT PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR) AND EXISTS "${PROJECT_SOURCE_DIR}/cmake_config.h")
+	message(FATAL_ERROR "You are doing an out-of-tree build, but build artifacts are left in-tree. This will break the build!")
+endif()
 configure_file(
 	"${PROJECT_SOURCE_DIR}/cmake_config.h.in"
 	"${PROJECT_BINARY_DIR}/cmake_config.h"
@@ -442,8 +445,11 @@ set(independent_SRCS
 	${util_SRCS}
 )
 
+file(GLOB common_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
 # /!\ Consider carefully before adding files here /!\
 set(common_SRCS
+	${common_HDRS}
 	clientdynamicinfo.cpp
 	collision.cpp
 	content_mapnode.cpp
@@ -957,7 +963,7 @@ else()
 	set(MATH_FLAGS "-fno-math-errno -fno-trapping-math -fno-signed-zeros")
 
 	# Enable SSE for floating point math on 32-bit x86 by default
-	# reasoning see minetest issue #11810 and https://gcc.gnu.org/wiki/FloatingPointMath
+	# reasoning see luanti issue #11810 and https://gcc.gnu.org/wiki/FloatingPointMath
 	if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 		check_c_source_compiles("#ifndef __i686__\n#error\n#endif\nint main(){}" IS_I686)
 		if(IS_I686)
@@ -1124,20 +1130,17 @@ elseif (USE_GETTEXT)
 		set_mo_paths(MO_BUILD_PATH MO_DEST_PATH ${LOCALE})
 		set(MO_FILE_PATH "${MO_BUILD_PATH}/${PROJECT_NAME}.mo")
 
-		add_custom_command(OUTPUT ${MO_BUILD_PATH}
-			COMMAND ${CMAKE_COMMAND} -E make_directory ${MO_BUILD_PATH}
-			COMMENT "mo-update [${LOCALE}]: Creating locale directory.")
-
 		add_custom_command(
 			OUTPUT ${MO_FILE_PATH}
+			COMMAND ${CMAKE_COMMAND} -E make_directory ${MO_BUILD_PATH}
 			COMMAND ${GETTEXT_MSGFMT} -o ${MO_FILE_PATH} ${PO_FILE_PATH}
-			DEPENDS ${MO_BUILD_PATH} ${PO_FILE_PATH}
+			DEPENDS ${PO_FILE_PATH}
 			WORKING_DIRECTORY "${GETTEXT_PO_PATH}/${LOCALE}"
-			COMMENT "mo-update [${LOCALE}]: Creating mo file."
+			COMMENT "mo-update [${LOCALE}]: Creating mo file"
 			)
 
 		list(APPEND MO_FILES ${MO_FILE_PATH})
 	endforeach()
 
-	add_custom_target(translations ALL COMMENT "mo update" DEPENDS ${MO_FILES})
+	add_custom_target(translations ALL COMMENT "mo-update" DEPENDS ${MO_FILES})
 endif()

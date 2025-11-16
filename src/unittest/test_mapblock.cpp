@@ -10,6 +10,7 @@
 #include "serialization.h"
 #include "noise.h"
 #include "inventory.h"
+#include "voxel.h"
 
 class TestMapBlock : public TestBase
 {
@@ -33,6 +34,9 @@ public:
 
 	// Tests loading a non-standard MapBlock
 	void testLoadNonStd(IGameDef *gamedef);
+
+	// Tests blocks with a single recurring node
+	void testMonoblock(IGameDef *gamedef);
 };
 
 static TestMapBlock g_test_instance;
@@ -45,9 +49,109 @@ void TestMapBlock::runTests(IGameDef *gamedef)
 	TEST(testLoad29, gamedef);
 	TEST(testLoad20, gamedef);
 	TEST(testLoadNonStd, gamedef);
+	TEST(testMonoblock, gamedef);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void TestMapBlock::testMonoblock(IGameDef *gamedef)
+{
+	MapBlock block({}, gamedef);
+	UASSERT(!block.m_is_mono_block);
+
+	// make the array is expanded
+	block.expandNodesIfNeeded();
+	UASSERT(std::all_of(block.data, block.data + MapBlock::nodecount, [](MapNode &n) { return n == MapNode(CONTENT_IGNORE); }));
+
+	// covert to monoblock
+	block.tryShrinkNodes();
+	UASSERT(block.m_is_mono_block);
+	UASSERT(block.data[0].param0 == CONTENT_IGNORE);
+
+	block.data[0] = MapNode(CONTENT_AIR);
+	UASSERT(block.m_is_mono_block);
+	UASSERT(block.data[0].param0 == CONTENT_AIR);
+
+	block.expandNodesIfNeeded();
+	UASSERT(!block.m_is_mono_block);
+	UASSERT(std::all_of(block.data, block.data + MapBlock::nodecount, [](MapNode &n) { return n == MapNode(CONTENT_AIR); }));
+
+	// covert back to mono block
+	block.tryShrinkNodes();
+	UASSERT(block.m_is_mono_block);
+
+	// deconvert explicitly
+	block.expandNodesIfNeeded();
+	UASSERT(!block.m_is_mono_block);
+
+	// covert back to mono block
+	block.tryShrinkNodes();
+	UASSERT(block.m_is_mono_block);
+
+	static_assert(CONTENT_AIR != 42);
+	// set a node, should deconvert the block
+	block.setNode(5,5,5, MapNode(42));
+	UASSERT(!block.m_is_mono_block);
+
+	// cannot covert to mono block
+	block.tryShrinkNodes();
+	UASSERT(!block.m_is_mono_block);
+
+	// set all nodes to 42
+	for (size_t i = 0; i < MapBlock::nodecount; ++i) {
+		block.data[i] = MapNode(42);
+	}
+
+	// can covert to mono block
+	block.tryShrinkNodes();
+	UASSERT(block.m_is_mono_block);
+	UASSERT(block.data[0].param0 == 42);
+
+	VoxelManipulator vmm;
+	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
+	vmm.addArea(VoxelArea(block.getPosRelative(), block.getPosRelative() + data_size + v3s16(1,1,1)));
+	block.copyTo(vmm);
+	UASSERT(block.m_is_mono_block);
+	UASSERT(vmm.getNode({5,5,5}).param0 == 42);
+
+	block.setNode(5,5,5,MapNode(23));
+
+	block.copyFrom(vmm);
+	UASSERT(block.m_is_mono_block);
+	UASSERT(block.data[0].param0 == 42);
+
+	vmm.setNode({5,5,5}, MapNode(23));
+	block.copyFrom(vmm);
+	UASSERT(!block.m_is_mono_block);
+
+	vmm.setNode({5,5,5}, MapNode(42,1,0));
+	block.copyFrom(vmm);
+	UASSERT(!block.m_is_mono_block);
+
+	vmm.setNode({5,5,5}, MapNode(42,0,1));
+	block.copyFrom(vmm);
+	UASSERT(!block.m_is_mono_block);
+
+	vmm.setNode({5,5,5}, MapNode(42));
+	block.copyFrom(vmm);
+	UASSERT(block.m_is_mono_block);
+
+	block.setNode(5,5,5,MapNode(23));
+	block.tryShrinkNodes();
+	UASSERT(!block.m_is_mono_block);
+
+	block.setNode(5,5,5,MapNode(42, 1, 0));
+	block.tryShrinkNodes();
+	UASSERT(!block.m_is_mono_block);
+
+	block.setNode(5,5,5,MapNode(42, 0, 1));
+	block.tryShrinkNodes();
+	UASSERT(!block.m_is_mono_block);
+
+	block.setNode(5,5,5,MapNode(42));
+	block.tryShrinkNodes();
+	UASSERT(block.m_is_mono_block);
+}
 
 void TestMapBlock::testSaveLoad(IGameDef *gamedef, const u8 version)
 {
@@ -68,10 +172,12 @@ void TestMapBlock::testSaveLoad(IGameDef *gamedef, const u8 version)
 		MapBlock block({}, gamedef);
 		// Fill with data
 		PcgRandom r(seed);
-		for (size_t i = 0; i < MapBlock::nodecount; ++i) {
+		for (s16 z=0; z < MAP_BLOCKSIZE; z++)
+		for (s16 y=0; y < MAP_BLOCKSIZE; y++)
+		for (s16 x=0; x < MAP_BLOCKSIZE; x++) {
 			u32 rval = r.next();
-			block.getData()[i] =
-				MapNode(rval % max, (rval >> 16) & 0xff, (rval >> 24) & 0xff);
+			block.setNodeNoCheck(x, y, z,
+					MapNode(rval % max, (rval >> 16) & 0xff, (rval >> 24) & 0xff));
 		}
 
 		// Serialize
@@ -85,11 +191,13 @@ void TestMapBlock::testSaveLoad(IGameDef *gamedef, const u8 version)
 
 		// Check data
 		PcgRandom r(seed);
-		for (size_t i = 0; i < MapBlock::nodecount; ++i) {
+		for (s16 z=0; z < MAP_BLOCKSIZE; z++)
+		for (s16 y=0; y < MAP_BLOCKSIZE; y++)
+		for (s16 x=0; x < MAP_BLOCKSIZE; x++) {
 			u32 rval = r.next();
 			auto expect =
 				MapNode(rval % max, (rval >> 16) & 0xff, (rval >> 24) & 0xff);
-			UASSERT(block.getData()[i] == expect);
+			UASSERT(block.getNodeNoCheck(x, y, z) == expect);
 		}
 	}
 }
@@ -104,8 +212,11 @@ void TestMapBlock::testSave29(IGameDef *gamedef)
 	{
 		// Prepare test block
 		MapBlock block({}, gamedef);
-		for (size_t i = 0; i < MapBlock::nodecount; ++i)
-			block.getData()[i] = MapNode(CONTENT_AIR);
+		for (s16 z=0; z < MAP_BLOCKSIZE; z++)
+		for (s16 y=0; y < MAP_BLOCKSIZE; y++)
+		for (s16 x=0; x < MAP_BLOCKSIZE; x++) {
+			block.setNodeNoCheck(x, y, z, MapNode(CONTENT_AIR));
+		}
 		block.setNode({0, 0, 0}, MapNode(t_CONTENT_STONE));
 
 		block.serialize(ss, 29, true, -1);
@@ -294,8 +405,11 @@ void TestMapBlock::testLoad20(IGameDef *gamedef)
 	UASSERTEQ(auto, get_node(10, 6, 4), "air");
 	UASSERTEQ(auto, get_node(11, 6, 3), "default:furnace");
 
-	for (size_t i = 0; i < MapBlock::nodecount; ++i)
-		UASSERT(block.getData()[i].getContent() != CONTENT_IGNORE);
+	for (s16 z=0; z < MAP_BLOCKSIZE; z++)
+	for (s16 y=0; y < MAP_BLOCKSIZE; y++)
+	for (s16 x=0; x < MAP_BLOCKSIZE; x++) {
+		UASSERT(block.getNodeNoCheck(x, y, z).getContent() != CONTENT_IGNORE);
+	}
 
 	// metadata is also translated
 	auto *meta = block.m_node_metadata.get({11, 6, 3});

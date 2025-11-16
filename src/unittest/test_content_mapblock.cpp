@@ -8,12 +8,13 @@
 #include <numeric>
 
 #include "gamedef.h"
+#include "inventory.h" // ItemStack
 #include "dummygamedef.h"
 #include "client/content_mapblock.h"
 #include "client/mapblock_mesh.h"
 #include "client/meshgen/collector.h"
+#include "client/node_visuals.h"
 #include "mesh_compare.h"
-#include "util/directiontables.h"
 
 namespace {
 
@@ -27,13 +28,27 @@ public:
 		return const_cast<NodeDefManager *>(m_nodedef);
 	}
 
-	content_t registerNode(ItemDefinition itemdef, ContentFeatures nodedef) {
+	// ContentFeatures that doesn't destroy the visuals
+	// Needed because nodedef.set(feature) creates a copy of the ContentFeatures and since
+	// the NodeDefManager destructs its ContentFeatures, this prevents double free.
+	// Should only be used if the visuals get freed somewhere else.
+	struct CContentFeatures : public ContentFeatures {
+		~CContentFeatures() { visuals = nullptr; }
+	};
+
+	content_t registerNode(ItemDefinition itemdef, const CContentFeatures &nodedef) {
 		item_mgr()->registerItem(itemdef);
 		return node_mgr()->set(nodedef.name, nodedef);
 	}
 
 	void finalize() {
 		node_mgr()->resolveCrossrefs();
+
+		// Need to fill node visuals for predefined nodes
+		node_mgr()->applyFunction([] (ContentFeatures &f) {
+			if (!f.visuals)
+				f.visuals = constructNodeVisuals(&f);
+		});
 	}
 
 	MeshMakeData makeSingleNodeMMD(bool smooth_lighting = true)
@@ -57,14 +72,15 @@ public:
 		itemdef.name = "test:" + name;
 		itemdef.description = name;
 
-		ContentFeatures f;
+		CContentFeatures f;
+		f.visuals = constructNodeVisuals(&f);
 		f.name = itemdef.name;
 		f.drawtype = NDT_NORMAL;
-		f.solidness = 2;
+		f.visuals->solidness = 2;
 		f.alpha = ALPHAMODE_OPAQUE;
 		for (TileDef &tiledef : f.tiledef)
 			tiledef.name = name + ".png";
-		for (TileSpec &tile : f.tiles)
+		for (TileSpec &tile : f.visuals->tiles)
 			tile.layers[0].texture_id = texture;
 
 		return registerNode(itemdef, f);
@@ -77,10 +93,11 @@ public:
 		itemdef.name = "test:" + name + "_source";
 		itemdef.description = name;
 
-		ContentFeatures f;
+		CContentFeatures f;
+		f.visuals = constructNodeVisuals(&f);
 		f.name = itemdef.name;
 		f.drawtype = NDT_LIQUID;
-		f.solidness = 1;
+		f.visuals->solidness = 1;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;
@@ -91,7 +108,7 @@ public:
 		f.liquid_alternative_flowing = "test:" + name + "_flowing";
 		for (TileDef &tiledef : f.tiledef)
 			tiledef.name = name + ".png";
-		for (TileSpec &tile : f.tiles)
+		for (TileSpec &tile : f.visuals->tiles)
 			tile.layers[0].texture_id = texture;
 
 		return registerNode(itemdef, f);
@@ -104,10 +121,11 @@ public:
 		itemdef.name = "test:" + name + "_flowing";
 		itemdef.description = name;
 
-		ContentFeatures f;
+		CContentFeatures f;
+		f.visuals = constructNodeVisuals(&f);
 		f.name = itemdef.name;
 		f.drawtype = NDT_FLOWINGLIQUID;
-		f.solidness = 0;
+		f.visuals->solidness = 0;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;
@@ -118,8 +136,8 @@ public:
 		f.liquid_alternative_flowing = "test:" + name + "_flowing";
 		f.tiledef_special[0].name = name + "_top.png";
 		f.tiledef_special[1].name = name + "_side.png";
-		f.special_tiles[0].layers[0].texture_id = texture_top;
-		f.special_tiles[1].layers[0].texture_id = texture_side;
+		f.visuals->special_tiles[0].layers[0].texture_id = texture_top;
+		f.visuals->special_tiles[1].layers[0].texture_id = texture_side;
 
 		return registerNode(itemdef, f);
 	}

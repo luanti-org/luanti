@@ -6,8 +6,10 @@
 #include "clientiface.h"
 #include "debug.h"
 #include "network/connection.h"
+#include "network/networkexceptions.h"
 #include "network/networkpacket.h"
 #include "network/serveropcodes.h"
+#include "porting.h" // porting::getTimeS
 #include "remoteplayer.h"
 #include "serialization.h" // SER_FMT_VER_INVALID
 #include "settings.h"
@@ -47,7 +49,7 @@ const char *ClientInterface::statenames[] = {
 	"SudoMode",
 };
 
-std::string ClientInterface::state2Name(ClientState state)
+const char *ClientInterface::state2Name(ClientState state)
 {
 	return statenames[state];
 }
@@ -55,14 +57,16 @@ std::string ClientInterface::state2Name(ClientState state)
 RemoteClient::RemoteClient() :
 	serialization_version(SER_FMT_VER_INVALID),
 	m_pending_serialization_version(SER_FMT_VER_INVALID),
-	m_max_simul_sends(g_settings->getU16("max_simultaneous_block_sends_per_client")),
+	m_max_simul_sends(std::max<u16>(1,
+		g_settings->getU16("max_simultaneous_block_sends_per_client"))),
 	m_min_time_from_building(
 		g_settings->getFloat("full_block_send_enable_min_time_from_building")),
 	m_max_send_distance(g_settings->getS16("max_block_send_distance")),
 	m_block_optimize_distance(g_settings->getS16("block_send_optimize_distance")),
 	m_block_cull_optimize_distance(g_settings->getS16("block_cull_optimize_distance")),
 	m_max_gen_distance(g_settings->getS16("max_block_generate_distance")),
-	m_occ_cull(g_settings->getBool("server_side_occlusion_culling"))
+	m_occ_cull(g_settings->getBool("server_side_occlusion_culling")),
+	m_connection_time(porting::getTimeS())
 {
 }
 
@@ -147,14 +151,15 @@ void RemoteClient::GetNextBlocks (
 	u16 max_simul_sends_usually = m_max_simul_sends;
 
 	/*
-		Check the time from last addNode/removeNode.
-
 		Decrease send rate if player is building stuff.
+
+		The idea is that we can save some bandwidth since the player is busy
+		and not looking around.
 	*/
 	m_time_from_building += dtime;
 	if (m_time_from_building < m_min_time_from_building) {
-		max_simul_sends_usually
-			= LIMITED_MAX_SIMULTANEOUS_BLOCK_SENDS;
+		max_simul_sends_usually *= LIMITED_BLOCK_SENDS_FACTOR;
+		max_simul_sends_usually = MYMAX(1, max_simul_sends_usually);
 	}
 
 	/*
@@ -221,17 +226,19 @@ void RemoteClient::GetNextBlocks (
 	s16 d_max = full_d_max;
 
 	// Don't loop very much at a time
-	s16 max_d_increment_at_time = 2;
+	const s16 max_d_increment_at_time = 2;
 	if (d_max > d_start + max_d_increment_at_time)
 		d_max = d_start + max_d_increment_at_time;
 
-	// cos(angle between velocity and camera) * |velocity|
-	// Limit to 0.0f in case player moves backwards.
-	f32 dot = rangelim(camera_dir.dotProduct(playerspeed), 0.0f, 300.0f);
+	{
+		// cos(angle between velocity and camera) * |velocity|
+		// Limit to 0.0f in case player moves backwards.
+		f32 dot = rangelim(camera_dir.dotProduct(playerspeed), 0.0f, 300.0f);
 
-	// Reduce the field of view when a player moves and looks forward.
-	// limit max fov effect to 50%, 60% at 20n/s fly speed
-	camera_fov = camera_fov / (1 + dot / 300.0f);
+		// Reduce the field of view when a player moves and looks forward.
+		// limit max fov effect to 50%, 60% at 20n/s fly speed
+		camera_fov = camera_fov / (1 + dot / 300.0f);
+	}
 
 	s32 nearest_emerged_d = -1;
 	s32 nearest_sent_d = -1;
@@ -258,11 +265,9 @@ void RemoteClient::GetNextBlocks (
 				Also, don't send blocks that are already flying.
 			*/
 
-			// Start with the usual maximum
 			u16 max_simul_dynamic = max_simul_sends_usually;
-
 			// If block is very close, allow full maximum
-			if (d <= BLOCK_SEND_DISABLE_LIMITS_MAX_D)
+			if (d <= BLOCK_ALWAYS_SEND_MAX_D)
 				max_simul_dynamic = m_max_simul_sends;
 
 			/*
@@ -386,8 +391,8 @@ queue_full_break:
 			new_nearest_unsent_d = 0;
 			m_nothing_to_send_pause_timer = 2.0f;
 			infostream << "Server: Player " << m_name << ", peer_id=" << peer_id
-				<< ": full map send completed after " << m_map_send_completion_timer
-				<< "s, restarting" << std::endl;
+				<< ": full map send (d=" << d << ") completed after "
+				<< m_map_send_completion_timer << "s, restarting" << std::endl;
 			m_map_send_completion_timer = 0.0f;
 		} else {
 			if (nearest_sent_d != -1)
@@ -422,34 +427,30 @@ void RemoteClient::SentBlock(v3s16 p)
 				" already in m_blocks_sending"<<std::endl;
 }
 
-void RemoteClient::SetBlockNotSent(v3s16 p, bool low_priority)
+void RemoteClient::SetBlockNotSent(v3s16 p)
 {
 	m_nothing_to_send_pause_timer = 0;
 
 	// remove the block from sending and sent sets,
 	// and reset the scan loop if found
 	if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0) {
-		// If this is a low priority event, do not reset m_nearest_unsent_d.
-		// Instead, the send loop will get to the block in the next full loop iteration.
-		if (!low_priority) {
-			// Note that we do NOT use the euclidean distance here.
-			// getNextBlocks builds successive cube-surfaces in the send loop.
-			// This resets the distance to the maximum cube size that
-			// still guarantees that this block will be scanned again right away.
-			//
-			// Using m_last_center is OK, as a change in center
-			// will reset m_nearest_unsent_d to 0 anyway (see getNextBlocks).
-			p -= m_last_center;
-			s16 this_d = std::max({std::abs(p.X), std::abs(p.Y), std::abs(p.Z)});
-			m_nearest_unsent_d = std::min(m_nearest_unsent_d, this_d);
-		}
+		// Note that we do NOT use the euclidean distance here.
+		// getNextBlocks builds successive cube-surfaces in the send loop.
+		// This resets the distance to the maximum cube size that
+		// still guarantees that this block will be scanned again right away.
+		//
+		// Using m_last_center is OK, as a change in center
+		// will reset m_nearest_unsent_d to 0 anyway (see getNextBlocks).
+		p -= m_last_center;
+		s16 this_d = std::max({std::abs(p.X), std::abs(p.Y), std::abs(p.Z)});
+		m_nearest_unsent_d = std::min(m_nearest_unsent_d, this_d);
 	}
 }
 
-void RemoteClient::SetBlocksNotSent(const std::vector<v3s16> &blocks, bool low_priority)
+void RemoteClient::SetBlocksNotSent(const std::vector<v3s16> &blocks)
 {
 	for (v3s16 p : blocks) {
-		SetBlockNotSent(p, low_priority);
+		SetBlockNotSent(p);
 	}
 }
 
@@ -619,6 +620,11 @@ void RemoteClient::setEncryptedPassword(const std::string& pwd)
 	allowed_auth_mechs = AUTH_MECHANISM_SRP;
 }
 
+u64 RemoteClient::uptime() const
+{
+	return porting::getTimeS() - m_connection_time;
+}
+
 void RemoteClient::setVersionInfo(u8 major, u8 minor, u8 patch, const std::string &full)
 {
 	m_version_major = major;
@@ -659,7 +665,7 @@ std::vector<session_t> ClientInterface::getClientIDs(ClientState min_state)
 {
 	std::vector<session_t> reply;
 	RecursiveMutexAutoLock clientslock(m_clients_mutex);
-
+	reply.reserve(m_clients.size());
 	for (const auto &m_client : m_clients) {
 		if (m_client.second->getState() >= min_state)
 			reply.push_back(m_client.second->peer_id);
@@ -668,23 +674,19 @@ std::vector<session_t> ClientInterface::getClientIDs(ClientState min_state)
 	return reply;
 }
 
-void ClientInterface::markBlocksNotSent(const std::vector<v3s16> &positions, bool low_priority)
+void ClientInterface::markBlocksNotSent(const std::vector<v3s16> &positions)
 {
 	RecursiveMutexAutoLock clientslock(m_clients_mutex);
 	for (const auto &client : m_clients) {
 		if (client.second->getState() >= CS_Active)
-			client.second->SetBlocksNotSent(positions, low_priority);
+			client.second->SetBlocksNotSent(positions);
 	}
 }
 
-/**
- * Verify if user limit was reached.
- * User limit count all clients from HelloSent state (MT protocol user) to Active state
- * @return true if user limit was reached
- */
 bool ClientInterface::isUserLimitReached()
 {
-	return getClientIDs(CS_HelloSent).size() >= g_settings->getU16("max_users");
+	// Note that this only counts clients that have fully joined
+	return getClientIDs().size() >= g_settings->getU16("max_users");
 }
 
 void ClientInterface::step(float dtime)
@@ -703,21 +705,18 @@ void ClientInterface::step(float dtime)
 	RecursiveMutexAutoLock clientslock(m_clients_mutex);
 	for (const auto &it : m_clients) {
 		auto state = it.second->getState();
-		if (state >= CS_HelloSent)
+		if (state >= CS_InitDone)
 			continue;
 		if (it.second->uptime() <= LINGER_TIMEOUT)
 			continue;
-		// CS_Created means nobody has even noticed the client is there
-		//            (this is before on_prejoinplayer runs)
-		// CS_Invalid should not happen
-		// -> log those as warning, the rest as info
-		std::ostream &os = state == CS_Created || state == CS_Invalid ?
-			warningstream : infostream;
+		// Complain louder if this situation is unexpected
+		auto &os = state == CS_Disconnecting || state == CS_Denied ?
+			infostream : warningstream;
 		try {
 			Address addr = m_con->GetPeerAddress(it.second->peer_id);
 			os << "Disconnecting lingering client from "
-				<< addr.serializeString() << " (state="
-				<< state2Name(state) << ")" << std::endl;
+				<< addr.serializeString() << " peer_id=" << it.second->peer_id
+				<< " (" << state2Name(state) << ")" << std::endl;
 			m_con->DisconnectPeer(it.second->peer_id);
 		} catch (con::PeerNotFoundException &e) {
 		}
@@ -746,6 +745,7 @@ void ClientInterface::UpdatePlayerList()
 				RemoteClient* client = lockedGetClientNoEx(i);
 				if (client)
 					client->PrintInfo(infostream);
+				infostream << std::endl;
 			}
 
 			m_clients_names.emplace_back(player->getName());
@@ -770,33 +770,22 @@ void ClientInterface::sendCustom(session_t peer_id, u8 channel, NetworkPacket *p
 	m_con->Send(peer_id, channel, pkt, reliable);
 }
 
-void ClientInterface::sendToAll(NetworkPacket *pkt)
+void ClientInterface::sendToAll(NetworkPacket *pkt, ClientState state_min)
 {
+	auto &ccf = clientCommandFactoryTable[pkt->getCommand()];
+	FATAL_ERROR_IF(!ccf.name, "packet type missing in table");
 	RecursiveMutexAutoLock clientslock(m_clients_mutex);
-	for (auto &client_it : m_clients) {
-		RemoteClient *client = client_it.second;
-
-		if (client->net_proto_version != 0) {
-			auto &ccf = clientCommandFactoryTable[pkt->getCommand()];
-			FATAL_ERROR_IF(!ccf.name, "packet type missing in table");
-			m_con->Send(client->peer_id, ccf.channel, pkt, ccf.reliable);
-		}
+	for (auto &[peer_id, client] : m_clients) {
+		if (client->getState() >= state_min)
+			m_con->Send(peer_id, ccf.channel, pkt, ccf.reliable);
 	}
 }
 
 RemoteClient* ClientInterface::getClientNoEx(session_t peer_id, ClientState state_min)
 {
 	RecursiveMutexAutoLock clientslock(m_clients_mutex);
-	RemoteClientMap::const_iterator n = m_clients.find(peer_id);
-	// The client may not exist; clients are immediately removed if their
-	// access is denied, and this event occurs later then.
-	if (n == m_clients.end())
-		return NULL;
-
-	if (n->second->getState() >= state_min)
-		return n->second;
-
-	return NULL;
+	RemoteClient *client = lockedGetClientNoEx(peer_id, state_min);
+	return client;
 }
 
 RemoteClient* ClientInterface::lockedGetClientNoEx(session_t peer_id, ClientState state_min)
@@ -805,12 +794,13 @@ RemoteClient* ClientInterface::lockedGetClientNoEx(session_t peer_id, ClientStat
 	// The client may not exist; clients are immediately removed if their
 	// access is denied, and this event occurs later then.
 	if (n == m_clients.end())
-		return NULL;
+		return nullptr;
 
+	assert(n->second->peer_id == peer_id);
 	if (n->second->getState() >= state_min)
 		return n->second;
 
-	return NULL;
+	return nullptr;
 }
 
 ClientState ClientInterface::getClientState(session_t peer_id)
@@ -823,16 +813,6 @@ ClientState ClientInterface::getClientState(session_t peer_id)
 		return CS_Invalid;
 
 	return n->second->getState();
-}
-
-void ClientInterface::setPlayerName(session_t peer_id, const std::string &name)
-{
-	RecursiveMutexAutoLock clientslock(m_clients_mutex);
-	RemoteClientMap::iterator n = m_clients.find(peer_id);
-	// The client may not exist; clients are immediately removed if their
-	// access is denied, and this event occurs later then.
-	if (n != m_clients.end())
-		n->second->setName(name);
 }
 
 void ClientInterface::DeleteClient(session_t peer_id)
@@ -914,19 +894,4 @@ u16 ClientInterface::getProtocolVersion(session_t peer_id)
 		return 0;
 
 	return n->second->net_proto_version;
-}
-
-void ClientInterface::setClientVersion(session_t peer_id, u8 major, u8 minor, u8 patch,
-		const std::string &full)
-{
-	RecursiveMutexAutoLock conlock(m_clients_mutex);
-
-	// Error check
-	RemoteClientMap::iterator n = m_clients.find(peer_id);
-
-	// No client to set versions
-	if (n == m_clients.end())
-		return;
-
-	n->second->setVersionInfo(major, minor, patch, full);
 }

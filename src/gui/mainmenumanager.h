@@ -13,7 +13,7 @@
 
 #include "IGUIEnvironment.h"
 
-namespace irr::gui {
+namespace gui {
 	class IGUIStaticText;
 }
 
@@ -59,6 +59,8 @@ public:
 		if(!m_stack.empty()) {
 			m_stack.back()->setVisible(true);
 			guienv->setFocus(m_stack.back());
+		} else {
+			guienv->removeFocus(menu);
 		}
 	}
 
@@ -74,6 +76,13 @@ public:
 	size_t menuCount() const
 	{
 		return m_stack.size();
+	}
+
+	GUIModalMenu *tryGetTopMenu() const
+	{
+		if (m_stack.empty())
+			return nullptr;
+		return dynamic_cast<GUIModalMenu *>(m_stack.back());
 	}
 
 	void deleteFront()

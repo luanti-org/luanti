@@ -5,17 +5,15 @@
 #pragma once
 
 #include "player.h"
-#include "environment.h"
 #include "constants.h"
 #include "lighting.h"
 #include <string>
 
 class Client;
+class ClientActiveObject;
 class Environment;
 class GenericCAO;
-class ClientActiveObject;
-class ClientEnvironment;
-class IGameDef;
+class Map;
 struct CollisionInfo;
 struct collisionMoveResult;
 
@@ -99,6 +97,8 @@ public:
 
 	std::string hotbar_image = "";
 	std::string hotbar_selected_image = "";
+	/// Temporary player inventory formspec. Empty value = feature inactive.
+	std::string inventory_formspec_override;
 
 	video::SColor light_color = video::SColor(255, 255, 255, 255);
 
@@ -114,8 +114,6 @@ public:
 		assert(!m_cao); // Pre-condition
 		m_cao = toset;
 	}
-
-	u32 maxHudId() const { return hud.size(); }
 
 	u16 getBreath() const { return m_breath; }
 	void setBreath(u16 breath) { m_breath = breath; }

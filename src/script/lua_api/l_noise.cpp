@@ -7,9 +7,7 @@
 #include "common/c_converter.h"
 #include "common/c_content.h"
 #include "common/c_packer.h"
-#include "log.h"
 #include "porting.h"
-#include "util/numeric.h"
 
 ///////////////////////////////////////
 /*
@@ -101,7 +99,7 @@ void LuaValueNoise::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaValueNoise>(L, methods, metamethods);
 
 	lua_register(L, className, create_object);
 
@@ -360,7 +358,7 @@ void LuaValueNoiseMap::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaValueNoiseMap>(L, methods, metamethods);
 
 	lua_register(L, className, create_object);
 
@@ -449,7 +447,7 @@ void LuaPseudoRandom::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaPseudoRandom>(L, methods, metamethods);
 
 	lua_register(L, className, create_object);
 }
@@ -562,7 +560,7 @@ void LuaPcgRandom::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaPcgRandom>(L, methods, metamethods);
 
 	lua_register(L, className, create_object);
 }
@@ -652,7 +650,7 @@ void LuaSecureRandom::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaSecureRandom>(L, methods, metamethods);
 
 	lua_register(L, className, create_object);
 }

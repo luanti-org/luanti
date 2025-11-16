@@ -4,12 +4,12 @@
 
 #include <common/c_internal.h>
 #include "content/subgames.h"
+#include "constants.h"
 #include "porting.h"
 #include "filesys.h"
 #include "settings.h"
 #include "log.h"
 #include "util/strfnd.h"
-#include "defaultsettings.h" // for set_default_settings
 #include "map_settings_manager.h"
 #include "util/string.h"
 #include "exceptions.h"
@@ -237,9 +237,11 @@ std::vector<SubgameSpec> getAvailableGames()
 
 bool getWorldExists(const std::string &world_path)
 {
+	if (world_path.empty())
+		return false;
 	// Note: very old worlds are valid without a world.mt
-	return (fs::PathExists(world_path + DIR_DELIM + "map_meta.txt") ||
-			fs::PathExists(world_path + DIR_DELIM + "world.mt"));
+	return (fs::IsFile(world_path + DIR_DELIM + "map_meta.txt") ||
+			fs::IsFile(world_path + DIR_DELIM + "world.mt"));
 }
 
 //! Try to get the displayed name of a world

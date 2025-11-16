@@ -10,33 +10,17 @@
 #include "dimension2d.h"
 #include "SColor.h"
 #include "ESceneNodeTypes.h"
-#include "SceneParameters.h" // IWYU pragma: export
 
-namespace irr
-{
-struct SKeyMap;
 struct SEvent;
 
 namespace io
 {
 class IReadFile;
-class IAttributes;
-class IWriteFile;
-class IFileSystem;
 } // end namespace io
-
-namespace gui
-{
-class IGUIFont;
-class IGUIEnvironment;
-} // end namespace gui
 
 namespace video
 {
 class IVideoDriver;
-class SMaterial;
-class IImage;
-class ITexture;
 } // end namespace video
 
 namespace scene
@@ -87,20 +71,18 @@ enum E_SCENE_NODE_RENDER_PASS
 };
 
 class IAnimatedMesh;
-class IAnimatedMeshSceneNode;
+class AnimatedMeshSceneNode;
 class IBillboardSceneNode;
 class ICameraSceneNode;
 class IDummyTransformationSceneNode;
 class IMesh;
 class SkinnedMesh;
-class IMeshBuffer;
 class IMeshCache;
 class ISceneCollisionManager;
 class IMeshLoader;
 class IMeshManipulator;
 class IMeshSceneNode;
 class ISceneNode;
-class ISceneNodeFactory;
 
 //! The Scene Manager manages scene nodes, mesh resources, cameras and all the other stuff.
 /** All Scene nodes can be created only here.
@@ -151,7 +133,7 @@ public:
 	\param alsoAddIfMeshPointerZero: Add the scene node even if a 0 pointer is passed.
 	\return Pointer to the created scene node.
 	This pointer should not be dropped. See IReferenceCounted::drop() for more information. */
-	virtual IAnimatedMeshSceneNode *addAnimatedMeshSceneNode(IAnimatedMesh *mesh,
+	virtual AnimatedMeshSceneNode *addAnimatedMeshSceneNode(IAnimatedMesh *mesh,
 			ISceneNode *parent = 0, s32 id = -1,
 			const core::vector3df &position = core::vector3df(0, 0, 0),
 			const core::vector3df &rotation = core::vector3df(0, 0, 0),
@@ -373,11 +355,6 @@ public:
 	/** All scene nodes are removed. */
 	virtual void clear() = 0;
 
-	//! Get interface to the parameters set in this scene.
-	/** String parameters can be used by plugins and mesh loaders.
-	See	COLLADA_CREATE_SCENE_INSTANCES and DMF_USE_MATERIALS_DIRS */
-	virtual io::IAttributes *getParameters() = 0;
-
 	//! Get current render pass.
 	/** All scene nodes are being rendered in a specific order.
 	First lights, cameras, sky boxes, solid geometry, and then transparent
@@ -440,4 +417,3 @@ public:
 };
 
 } // end namespace scene
-} // end namespace irr

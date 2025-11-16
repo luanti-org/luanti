@@ -4,14 +4,16 @@
 
 #include "minimap.h"
 #include <cmath>
+#include "camera.h"
 #include "client.h"
-#include "clientmap.h"
+#include "mapblock.h" // getNodeBlockPos
+#include "node_visuals.h"
 #include "settings.h"
 #include "shader.h"
-#include "mapblock.h"
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
 #include "gettext.h"
+#include "voxel.h"
 
 ////
 //// MinimapUpdateThread
@@ -396,24 +398,30 @@ void Minimap::blitMinimapPixelsToImageRadar(video::IImage *map_image)
 void Minimap::blitMinimapPixelsToImageSurface(
 	video::IImage *map_image, video::IImage *heightmap_image)
 {
-	// This variable creation/destruction has a 1% cost on rendering minimap
+	assert(map_image && heightmap_image);
 	video::SColor tilecolor;
 	for (s16 x = 0; x < data->mode.map_size; x++)
 	for (s16 z = 0; z < data->mode.map_size; z++) {
 		MinimapPixel *mmpixel = &data->minimap_scan[x + z * data->mode.map_size];
 
 		const ContentFeatures &f = m_ndef->get(mmpixel->n);
-		const TileDef *tile = &f.tiledef[0];
+		const auto &tile = f.tiledef[0], &overlay = f.tiledef_overlay[0];
 
-		// Color of the 0th tile (mostly this is the topmost)
-		if(tile->has_color)
-			tilecolor = tile->color;
-		else
-			mmpixel->n.getColor(f, &tilecolor);
-
-		tilecolor.setRed(tilecolor.getRed() * f.minimap_color.getRed() / 255);
-		tilecolor.setGreen(tilecolor.getGreen() * f.minimap_color.getGreen() / 255);
-		tilecolor.setBlue(tilecolor.getBlue() * f.minimap_color.getBlue() / 255);
+		// Figure out the color of the top of the node
+		// Note that this is very simplified. The overlay and normal tile can be
+		// colored independently and the overlay might only cover half or less.
+		if (!overlay.name.empty() && overlay.has_color) {
+			tilecolor = overlay.color;
+		} else if (overlay.name.empty() && tile.has_color) {
+			tilecolor = tile.color;
+		} else {
+			f.visuals->getColor(mmpixel->n.param2, &tilecolor);
+		}
+		// Multiply with pre-generated "color of texture"
+		video::SColor &minimap_color = f.visuals->minimap_color;
+		tilecolor.setRed(tilecolor.getRed() * minimap_color.getRed() / 255);
+		tilecolor.setGreen(tilecolor.getGreen() * minimap_color.getGreen() / 255);
+		tilecolor.setBlue(tilecolor.getBlue() * minimap_color.getBlue() / 255);
 		tilecolor.setAlpha(240);
 
 		map_image->setPixel(x, data->mode.map_size - z - 1, tilecolor);
@@ -481,7 +489,7 @@ video::ITexture *Minimap::getMinimapTexture()
 
 		map_image->fill(video::SColor(255, 0, 0, 0));
 		image->copyTo(map_image,
-			irr::core::vector2d<int> {
+			core::vector2d<int> {
 				((data->mode.map_size - (static_cast<int>(dim.Width))) >> 1)
 					- data->pos.X / data->mode.scale,
 				((data->mode.map_size - (static_cast<int>(dim.Height))) >> 1)
@@ -713,9 +721,8 @@ void Minimap::updateActiveMarkers()
 //// MinimapMapblock
 ////
 
-void MinimapMapblock::getMinimapNodes(VoxelManipulator *vmanip, const v3s16 &pos)
+void MinimapMapblock::getMinimapNodes(VoxelManipulator *vmanip, const NodeDefManager *nodedef, const v3s16 &pos)
 {
-
 	for (s16 x = 0; x < MAP_BLOCKSIZE; x++)
 	for (s16 z = 0; z < MAP_BLOCKSIZE; z++) {
 		s16 air_count = 0;
@@ -725,11 +732,12 @@ void MinimapMapblock::getMinimapNodes(VoxelManipulator *vmanip, const v3s16 &pos
 		for (s16 y = MAP_BLOCKSIZE -1; y >= 0; y--) {
 			v3s16 p(x, y, z);
 			MapNode n = vmanip->getNodeNoEx(pos + p);
-			if (!surface_found && n.getContent() != CONTENT_AIR) {
+			const ContentFeatures &f = nodedef->get(n);
+			if (!surface_found && f.drawtype != NDT_AIRLIKE) {
 				mmpixel->height = y;
 				mmpixel->n = n;
 				surface_found = true;
-			} else if (n.getContent() == CONTENT_AIR) {
+			} else if (f.drawtype == NDT_AIRLIKE) {
 				air_count++;
 			}
 		}

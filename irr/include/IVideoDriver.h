@@ -21,11 +21,8 @@
 #include "S3DVertex.h" // E_VERTEX_TYPE
 #include "SVertexIndex.h" // E_INDEX_TYPE
 
-namespace irr
-{
 namespace io
 {
-class IAttributes;
 class IReadFile;
 class IWriteFile;
 } // end namespace io
@@ -65,12 +62,23 @@ struct SFrameStats {
 	u32 HWBuffersActive = 0;
 };
 
+struct SDriverLimits {
+	//! Major and minor GL version
+	core::vector2di GLVersion;
+	//! Maximum amount of primitives that can be rendered in a single call
+	u32 MaxPrimitiveCount = 0;
+	//! Maximum width/height for a texture
+	u32 MaxTextureSize = 0;
+	//! Maximum number of images in an array texture
+	u32 MaxArrayTextureImages = 0;
+};
+
 //! Interface to driver which is able to perform 2d and 3d graphics functions.
 /** This interface is one of the most important interfaces of
 the Irrlicht Engine: All rendering and texture manipulation is done with
 this interface. You are able to use the Irrlicht Engine by only
 invoking methods of this interface if you like to, although the
-irr::scene::ISceneManager interface provides a lot of powerful classes
+scene::ISceneManager interface provides a lot of powerful classes
 and methods to make the programmer's life easier.
 */
 class IVideoDriver : public virtual IReferenceCounted
@@ -127,23 +135,6 @@ public:
 	\param flag When true the feature is disabled, otherwise it is enabled. */
 	virtual void disableFeature(E_VIDEO_DRIVER_FEATURE feature, bool flag = true) = 0;
 
-	//! Get attributes of the actual video driver
-	/** The following names can be queried for the given types:
-	MaxTextures (int) The maximum number of simultaneous textures supported by the driver. This can be less than the supported number of textures of the driver. Use _IRR_MATERIAL_MAX_TEXTURES_ to adapt the number.
-	MaxSupportedTextures (int) The maximum number of simultaneous textures supported by the fixed function pipeline of the (hw) driver. The actual supported number of textures supported by the engine can be lower.
-	MaxAnisotropy (int) Number of anisotropy levels supported for filtering. At least 1, max is typically at 16 or 32.
-	MaxAuxBuffers (int) Special render buffers, which are currently not really usable inside Irrlicht. Only supported by OpenGL
-	MaxMultipleRenderTargets (int) Number of render targets which can be bound simultaneously. Rendering to MRTs is done via shaders.
-	MaxIndices (int) Number of indices which can be used in one render call (i.e. one mesh buffer).
-	MaxTextureSize (int) Dimension that a texture may have, both in width and height.
-	MaxGeometryVerticesOut (int) Number of vertices the geometry shader can output in one pass. Only OpenGL so far.
-	MaxTextureLODBias (float) Maximum value for LOD bias. Is usually at around 16, but can be lower on some systems.
-	Version (int) Version of the driver. Should be Major*100+Minor
-	ShaderLanguageVersion (int) Version of the high level shader language. Should be Major*100+Minor.
-	AntiAlias (int) Number of Samples the driver uses for each pixel. 0 and 1 means anti aliasing is off, typical values are 2,4,8,16,32
-	*/
-	virtual const io::IAttributes &getDriverAttributes() const = 0;
-
 	//! Sets transformation matrices.
 	/** \param state Transformation type to be set, e.g. view,
 	world, or projection.
@@ -190,7 +181,7 @@ public:
 	\return Pointer to the texture, or 0 if the texture
 	could not be loaded. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual ITexture *getTexture(const io::path &filename) = 0;
+	[[deprecated]] virtual ITexture *getTexture(const io::path &filename) = 0;
 
 	//! Get access to a named texture.
 	/** Loads the texture from disk if it is not
@@ -202,7 +193,7 @@ public:
 	\return Pointer to the texture, or 0 if the texture
 	could not be loaded. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual ITexture *getTexture(io::IReadFile *file) = 0;
+	[[deprecated]] virtual ITexture *getTexture(io::IReadFile *file) = 0;
 
 	//! Returns amount of textures currently loaded
 	/** \return Amount of textures currently loaded */
@@ -263,7 +254,7 @@ public:
 	that the driver may choose to create the texture in another
 	color format.
 	\return Pointer to the newly created texture. 	*/
-	virtual ITexture *addTextureCubemap(const irr::u32 sideLen, const io::path &name, ECOLOR_FORMAT format = ECF_A8R8G8B8) = 0;
+	virtual ITexture *addTextureCubemap(const u32 sideLen, const io::path &name, ECOLOR_FORMAT format = ECF_A8R8G8B8) = 0;
 
 	//! Adds a new render target texture to the texture cache.
 	/** \param size Size of the texture, in pixels. Width and
@@ -297,7 +288,7 @@ public:
 	\return Pointer to the created texture or 0 if the texture
 	could not be created. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual ITexture *addRenderTargetTextureCubemap(const irr::u32 sideLen,
+	virtual ITexture *addRenderTargetTextureCubemap(const u32 sideLen,
 			const io::path &name = "rt", const ECOLOR_FORMAT format = ECF_UNKNOWN) = 0;
 
 	//! Removes a texture from the texture cache and deletes it.
@@ -389,32 +380,6 @@ public:
 	//! Blit contents of one render target to another one.
 	/** This is glBlitFramebuffer in OpenGL. */
 	virtual void blitRenderTarget(IRenderTarget *from, IRenderTarget *to) = 0;
-
-	//! Sets a boolean alpha channel on the texture based on a color key.
-	/** This makes the texture fully transparent at the texels where
-	this color key can be found when using for example draw2DImage
-	with useAlphachannel==true.  The alpha of other texels is not modified.
-	\param texture Texture whose alpha channel is modified.
-	\param color Color key color. Every texel with this color will
-	become fully transparent as described above. Please note that the
-	colors of a texture may be converted when loading it, so the
-	color values may not be exactly the same in the engine and for
-	example in picture edit programs. To avoid this problem, you
-	could use the makeColorKeyTexture method, which takes the
-	position of a pixel instead a color value. */
-	virtual void makeColorKeyTexture(video::ITexture *texture,
-			video::SColor color) const = 0;
-
-	//! Sets a boolean alpha channel on the texture based on the color at a position.
-	/** This makes the texture fully transparent at the texels where
-	the color key can be found when using for example draw2DImage
-	with useAlphachannel==true.  The alpha of other texels is not modified.
-	\param texture Texture whose alpha channel is modified.
-	\param colorKeyPixelPos Position of a pixel with the color key
-	color. Every texel with this color will become fully transparent as
-	described above. */
-	virtual void makeColorKeyTexture(video::ITexture *texture,
-			core::position2d<s32> colorKeyPixelPos) const = 0;
 
 	//! Set a render target.
 	/** This will only work if the driver supports the
@@ -823,10 +788,6 @@ public:
 			f32 &start, f32 &end, f32 &density,
 			bool &pixelFog, bool &rangeFog) = 0;
 
-	//! Get the current color format of the color buffer
-	/** \return Color format of the color buffer. */
-	virtual ECOLOR_FORMAT getColorFormat() const = 0;
-
 	//! Get the size of the screen or render window.
 	/** \return Size of screen or render window. */
 	virtual const core::dimension2d<u32> &getScreenSize() const = 0;
@@ -837,14 +798,6 @@ public:
 	target is the screen.
 	\return Size of render target or screen/window */
 	virtual const core::dimension2d<u32> &getCurrentRenderTargetSize() const = 0;
-
-	//! Returns current frames per second value.
-	/** This value is updated approximately every 1.5 seconds and
-	is only intended to provide a rough guide to the average frame
-	rate. It is not suitable for use in performing timing
-	calculations or framerate independent movement.
-	\return Approximate amount of frames per second drawn. */
-	virtual s32 getFPS() const = 0;
 
 	//! Return some statistics about the last frame
 	virtual SFrameStats getFrameStats() const = 0;
@@ -872,11 +825,8 @@ public:
 	\param writer: Pointer to the external writer created. */
 	virtual void addExternalImageWriter(IImageWriter *writer) = 0;
 
-	//! Returns the maximum amount of primitives
-	/** (mostly vertices) which the device is able to render with
-	one drawVertexPrimitiveList call.
-	\return Maximum amount of primitives. */
-	virtual u32 getMaximalPrimitiveCount() const = 0;
+	//! Returns some common driver limits.
+	virtual SDriverLimits getLimits() const = 0;
 
 	//! Enables or disables a texture creation flag.
 	/** These flags define how textures should be created. By
@@ -1020,26 +970,6 @@ public:
 	/** \return Amount of currently available material renderers. */
 	virtual u32 getMaterialRendererCount() const = 0;
 
-	//! Get name of a material renderer
-	/** This string can, e.g., be used to test if a specific
-	renderer already has been registered/created, or use this
-	string to store data about materials: This returned name will
-	be also used when serializing materials.
-	\param idx Id of the material renderer. Can be a value of the
-	E_MATERIAL_TYPE enum or a value which was returned by
-	addMaterialRenderer().
-	\return String with the name of the renderer, or 0 if not
-	existing */
-	virtual const c8 *getMaterialRendererName(u32 idx) const = 0;
-
-	//! Sets the name of a material renderer.
-	/** Will have no effect on built-in material renderers.
-	\param idx: Id of the material renderer. Can be a value of the
-	E_MATERIAL_TYPE enum or a value which was returned by
-	addMaterialRenderer().
-	\param name: New name of the material renderer. */
-	virtual void setMaterialRendererName(u32 idx, const c8 *name) = 0;
-
 	//! Swap the material renderers used for certain id's
 	/** Swap the IMaterialRenderers responsible for rendering specific
 	 material-id's. This means every SMaterial using a MaterialType
@@ -1132,20 +1062,22 @@ public:
 
 	//! Only used by the engine internally.
 	/** Passes the global material flag AllowZWriteOnTransparent.
-	Use the SceneManager attribute to set this value from your app.
 	\param flag Default behavior is to disable ZWrite, i.e. false. */
 	virtual void setAllowZWriteOnTransparent(bool flag) = 0;
 
 	//! Get the maximum texture size supported.
-	virtual core::dimension2du getMaxTextureSize() const = 0;
+	inline core::dimension2du getMaxTextureSize() const
+	{
+		auto l = getLimits();
+		return {l.MaxTextureSize, l.MaxTextureSize};
+	}
 
 	//! Check if the driver supports creating textures with the given color format
 	/**	\return True if the format is available, false if not. */
 	virtual bool queryTextureFormat(ECOLOR_FORMAT format) const = 0;
 
 	//! Used by some SceneNodes to check if a material should be rendered in the transparent render pass
-	virtual bool needsTransparentRenderPass(const irr::video::SMaterial &material) const = 0;
+	virtual bool needsTransparentRenderPass(const video::SMaterial &material) const = 0;
 };
 
 } // end namespace video
-} // end namespace irr

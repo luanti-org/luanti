@@ -17,17 +17,9 @@
 #endif
 
 #include <SDL.h>
-// DirectFB is removed in SDL3, thou distribution as Alpine currently ships SDL2
-// with enabled DirectFB, but requiring another fix at a top of SDL2.
-// We don't need DirectFB in Irrlicht/Minetest, so simply disable it here to prevent issues.
-#undef SDL_VIDEO_DRIVER_DIRECTFB
-#include <SDL_syswm.h>
 
 #include <memory>
 #include <unordered_map>
-
-namespace irr
-{
 
 class CIrrDeviceSDL : public CIrrDeviceStub
 {
@@ -61,9 +53,6 @@ public:
 
 	//! returns if window is minimized.
 	bool isWindowMinimized() const override;
-
-	//! returns color format of the window.
-	video::ECOLOR_FORMAT getColorFormat() const override;
 
 	//! notifies the device that it should close itself
 	void closeDevice() override;
@@ -338,7 +327,5 @@ private:
 	s32 CurrentTouchCount;
 	bool IsInBackground;
 };
-
-} // end namespace irr
 
 #endif // _IRR_COMPILE_WITH_SDL_DEVICE_

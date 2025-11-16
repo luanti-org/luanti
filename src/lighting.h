@@ -5,7 +5,6 @@
 #pragma once
 #include "SColor.h"
 
-using namespace irr;
 
 /**
  * Parameters for automatic exposure compensation

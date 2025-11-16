@@ -6,13 +6,6 @@
 
 #include "SIrrCreationParameters.h"
 
-namespace irr
-{
-class CIrrDeviceWin32;
-class CIrrDeviceLinux;
-class CIrrDeviceSDL;
-class CIrrDeviceMacOSX;
-}
 
 #ifdef _IRR_COMPILE_WITH_OPENGL_
 
@@ -21,9 +14,6 @@ class CIrrDeviceMacOSX;
 
 #include "COpenGLExtensionHandler.h"
 #include "IContextManager.h"
-
-namespace irr
-{
 
 namespace video
 {
@@ -193,9 +183,6 @@ public:
 	//! Returns type of video driver
 	E_DRIVER_TYPE getDriverType() const override;
 
-	//! get color format of the current color buffer
-	ECOLOR_FORMAT getColorFormat() const override;
-
 	//! Returns the transformation set by setTransform
 	const core::matrix4 &getTransform(E_TRANSFORMATION_STATE state) const override;
 
@@ -251,10 +238,7 @@ public:
 	//! IMaterialRendererServices)
 	IVideoDriver *getVideoDriver() override;
 
-	//! Returns the maximum amount of primitives (mostly vertices) which
-	//! the device is able to render with one drawIndexedTriangleList
-	//! call.
-	u32 getMaximalPrimitiveCount() const override;
+	SDriverLimits getLimits() const override;
 
 	virtual ITexture *addRenderTargetTexture(const core::dimension2d<u32> &size,
 			const io::path &name, const ECOLOR_FORMAT format = ECF_UNKNOWN) override;
@@ -263,7 +247,7 @@ public:
 			const io::path &name = "rt", const ECOLOR_FORMAT format = ECF_UNKNOWN) override;
 
 	//! Creates a render target texture for a cubemap
-	ITexture *addRenderTargetTextureCubemap(const irr::u32 sideLen,
+	ITexture *addRenderTargetTextureCubemap(const u32 sideLen,
 			const io::path &name, const ECOLOR_FORMAT format) override;
 
 	virtual bool setRenderTargetEx(IRenderTarget *target, u16 clearFlag, SColor clearColor = SColor(255, 0, 0, 0),
@@ -284,9 +268,6 @@ public:
 	//! Returns the graphics card vendor name.
 	core::stringc getVendorInfo() override { return VendorName; }
 
-	//! Returns the maximum texture size supported.
-	core::dimension2du getMaxTextureSize() const override;
-
 	//! Removes a texture from the texture cache and deletes it, freeing lot of memory.
 	void removeTexture(ITexture *texture) override;
 
@@ -294,7 +275,7 @@ public:
 	bool queryTextureFormat(ECOLOR_FORMAT format) const override;
 
 	//! Used by some SceneNodes to check if a material should be rendered in the transparent render pass
-	bool needsTransparentRenderPass(const irr::video::SMaterial &material) const override;
+	bool needsTransparentRenderPass(const video::SMaterial &material) const override;
 
 	//! Convert E_PRIMITIVE_TYPE to OpenGL equivalent
 	GLenum primitiveTypeToGL(scene::E_PRIMITIVE_TYPE type) const;
@@ -384,9 +365,6 @@ private:
 
 	core::matrix4 TextureFlipMatrix;
 
-	//! Color buffer format
-	ECOLOR_FORMAT ColorFormat;
-
 	E_OPENGL_FIXED_PIPELINE_STATE FixedPipelineState;
 
 	SIrrlichtCreationParameters Params;
@@ -399,6 +377,5 @@ private:
 };
 
 } // end namespace video
-} // end namespace irr
 
 #endif // _IRR_COMPILE_WITH_OPENGL_

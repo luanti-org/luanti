@@ -5,6 +5,8 @@
 
 #include "anaglyph.h"
 #include "client/camera.h"
+#include "stereo.h"
+#include "plain.h"
 #include <IrrlichtDevice.h>
 #include <ISceneManager.h>
 

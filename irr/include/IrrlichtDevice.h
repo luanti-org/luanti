@@ -13,14 +13,11 @@
 #include "ITimer.h"
 #include "IOSOperator.h"
 #include "irrArray.h"
-#include "IrrCompileConfig.h"
 #include "position2d.h"
 #include "SColor.h" // video::ECOLOR_FORMAT
 #include <string>
 #include <variant>
 
-namespace irr
-{
 class ILogger;
 class IEventReceiver;
 
@@ -43,9 +40,8 @@ namespace video
 {
 class IContextManager;
 class IImage;
-class ITexture;
 class IVideoDriver;
-extern "C" IRRLICHT_API bool IRRCALLCONV isDriverSupported(E_DRIVER_TYPE driver);
+extern "C" bool isDriverSupported(E_DRIVER_TYPE driver);
 } // end namespace video
 
 //! The Irrlicht device. You can create it with createDevice() or createDeviceEx().
@@ -79,7 +75,7 @@ public:
 	also simply use your own message loop using GetMessage,
 	DispatchMessage and whatever and simply don't use this method.
 	But note that Irrlicht will not be able to fetch user input
-	then. See irr::SIrrlichtCreationParameters::WindowId for more
+	then. See SIrrlichtCreationParameters::WindowId for more
 	information and example code.
 	*/
 	virtual bool run() = 0;
@@ -200,10 +196,6 @@ public:
 	or similar. */
 	virtual bool supportsTouchEvents() const { return false; }
 
-	//! Get the current color format of the window
-	/** \return Color format of the window. */
-	virtual video::ECOLOR_FORMAT getColorFormat() const = 0;
-
 	//! Notifies the device that it should close itself.
 	/** IrrlichtDevice::run() will always return false after closeDevice() was called. */
 	virtual void closeDevice() = 0;
@@ -211,7 +203,7 @@ public:
 	//! Sets a new user event receiver which will receive events from the engine.
 	/** Return true in IEventReceiver::OnEvent to prevent the event from continuing along
 	the chain of event receivers. The path that an event takes through the system depends
-	on its type. See irr::EEVENT_TYPE for details.
+	on its type. See EEVENT_TYPE for details.
 	\param receiver New receiver to be used. */
 	virtual void setEventReceiver(IEventReceiver *receiver) = 0;
 
@@ -244,7 +236,7 @@ public:
 	It does set the drawing/clientDC size of the window, the window decorations are added to that.
 	You get the current window size with IVideoDriver::getScreenSize() (might be unified in future)
 	*/
-	virtual void setWindowSize(const irr::core::dimension2d<u32> &size) = 0;
+	virtual void setWindowSize(const core::dimension2d<u32> &size) = 0;
 
 	//! Minimizes the window if possible.
 	virtual void minimizeWindow() = 0;
@@ -261,7 +253,7 @@ public:
 	//! Activate any joysticks, and generate events for them.
 	/** Irrlicht contains support for joysticks, but does not generate joystick events by default,
 	as this would consume joystick info that 3rd party libraries might rely on. Call this method to
-	activate joystick support in Irrlicht and to receive irr::SJoystickEvent events.
+	activate joystick support in Irrlicht and to receive SJoystickEvent events.
 	\param joystickInfo On return, this will contain an array of each joystick that was found and activated.
 	\return true if joysticks are supported on this device, false if joysticks are not
 				 supported or support is compiled out.
@@ -372,5 +364,3 @@ public:
 		return Keycode(KEY_UNKNOWN, (wchar_t)scancode);
 	}
 };
-
-} // end namespace irr

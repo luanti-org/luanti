@@ -6,6 +6,7 @@
 #include "blockmodifier.h"
 #include "serverenvironment.h"
 #include "server.h"
+#include "servermap.h"
 #include "mapblock.h"
 #include "nodedef.h"
 #include "gamedef.h"

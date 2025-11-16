@@ -4,16 +4,37 @@
 
 #include "item_visuals_manager.h"
 
-#include "mesh.h"
+#include "wieldmesh.h"
 #include "client.h"
 #include "texturesource.h"
 #include "itemdef.h"
 #include "inventory.h"
+#include <IMesh.h>
 
-ItemVisualsManager::ItemVisuals::~ItemVisuals() {
-	if (wield_mesh.mesh)
-		wield_mesh.mesh->drop();
-}
+struct ItemVisualsManager::ItemVisuals
+{
+	ItemMesh item_mesh;
+	Palette *palette;
+
+	AnimationInfo inventory_normal;
+	AnimationInfo inventory_overlay;
+
+	// ItemVisuals owns the frames and AnimationInfo points to them
+	std::vector<FrameSpec> frames_normal;
+	std::vector<FrameSpec> frames_overlay;
+
+	ItemVisuals() :
+		palette(nullptr)
+	{}
+
+	~ItemVisuals()
+	{
+		if (item_mesh.mesh)
+			item_mesh.mesh->drop();
+	}
+
+	DISABLE_CLASS_COPY(ItemVisuals);
+};
 
 ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const ItemStack &item,
 		Client *client) const
@@ -24,13 +45,18 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	IItemDefManager *idef = client->idef();
 
 	const ItemDefinition &def = item.getDefinition(idef);
-	std::string inventory_image = item.getInventoryImage(idef);
-	std::string inventory_overlay = item.getInventoryOverlay(idef);
-	std::string cache_key = def.name;
-	if (!inventory_image.empty())
-		cache_key += "/" + inventory_image;
-	if (!inventory_overlay.empty())
-		cache_key += ":" + inventory_overlay;
+	ItemImageDef inventory_image = item.getInventoryImage(idef);
+	ItemImageDef inventory_overlay = item.getInventoryOverlay(idef);
+
+	// Key only consists of item name + image name,
+	// because animation currently cannot be overridden by meta
+	std::ostringstream os(def.name);
+	if (!inventory_image.name.empty())
+		os << "/" << inventory_image.name;
+	if (!inventory_overlay.name.empty())
+		os << ":" << inventory_overlay.name;
+	std::string cache_key = os.str();
+
 
 	// Skip if already in cache
 	auto it = m_cached_item_visuals.find(cache_key);
@@ -42,37 +68,94 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 
 	ITextureSource *tsrc = client->getTextureSource();
 
-	// Create new ItemVisuals
-	auto cc = std::make_unique<ItemVisuals>();
+	auto iv = std::make_unique<ItemVisuals>();
 
-	cc->inventory_texture = NULL;
-	if (!inventory_image.empty())
-		cc->inventory_texture = tsrc->getTexture(inventory_image);
-	getItemMesh(client, item, &(cc->wield_mesh));
+	// Create inventory image textures
+	int frame_length = 0;
+	iv->frames_normal = createAnimationFrames(tsrc, inventory_image.name,
+			inventory_image.animation, frame_length);
+	iv->inventory_normal = AnimationInfo(&iv->frames_normal, frame_length);
 
-	cc->palette = tsrc->getPalette(def.palette_image);
+	// Create inventory overlay textures
+	iv->frames_overlay = createAnimationFrames(tsrc, inventory_overlay.name,
+			inventory_overlay.animation, frame_length);
+	iv->inventory_overlay = AnimationInfo(&iv->frames_overlay, frame_length);
+
+	createItemMesh(client, def,
+			iv->inventory_normal,
+			iv->inventory_overlay,
+			&(iv->item_mesh));
+
+	iv->palette = tsrc->getPalette(def.palette_image);
 
 	// Put in cache
-	ItemVisuals *ptr = cc.get();
-	m_cached_item_visuals[cache_key] = std::move(cc);
+	ItemVisuals *ptr = iv.get();
+	m_cached_item_visuals[cache_key] = std::move(iv);
 	return ptr;
 }
 
-video::ITexture* ItemVisualsManager::getInventoryTexture(const ItemStack &item,
+// Needed because `ItemVisuals` is not known in the header.
+ItemVisualsManager::ItemVisualsManager()
+{
+	m_main_thread = std::this_thread::get_id();
+}
+
+ItemVisualsManager::~ItemVisualsManager()
+{
+}
+
+void ItemVisualsManager::clear()
+{
+	m_cached_item_visuals.clear();
+}
+
+
+video::ITexture *ItemVisualsManager::getInventoryTexture(const ItemStack &item,
 		Client *client) const
 {
 	ItemVisuals *iv = createItemVisuals(item, client);
 	if (!iv)
 		return nullptr;
-	return iv->inventory_texture;
+
+	// Texture animation update (if >1 frame)
+	return iv->inventory_normal.getTexture(client->getAnimationTime());
 }
 
-ItemMesh* ItemVisualsManager::getWieldMesh(const ItemStack &item, Client *client) const
+video::ITexture *ItemVisualsManager::getInventoryOverlayTexture(const ItemStack &item,
+		Client *client) const
 {
 	ItemVisuals *iv = createItemVisuals(item, client);
 	if (!iv)
 		return nullptr;
-	return &(iv->wield_mesh);
+
+	// Texture animation update (if >1 frame)
+	return iv->inventory_overlay.getTexture(client->getAnimationTime());
+}
+
+ItemMesh *ItemVisualsManager::getItemMesh(const ItemStack &item, Client *client) const
+{
+	ItemVisuals *iv = createItemVisuals(item, client);
+	return iv ? &(iv->item_mesh) : nullptr;
+}
+
+AnimationInfo *ItemVisualsManager::getInventoryAnimation(const ItemStack &item,
+		Client *client) const
+{
+	ItemVisuals *iv = createItemVisuals(item, client);
+	if (!iv || iv->inventory_normal.getFrameCount() <= 1)
+		return nullptr;
+	return &iv->inventory_normal;
+}
+
+// Get item inventory overlay animation
+// returns nullptr if it is not animated
+AnimationInfo *ItemVisualsManager::getInventoryOverlayAnimation(const ItemStack &item,
+		Client *client) const
+{
+	ItemVisuals *iv = createItemVisuals(item, client);
+	if (!iv || iv->inventory_overlay.getFrameCount() <= 1)
+		return nullptr;
+	return &iv->inventory_overlay;
 }
 
 Palette* ItemVisualsManager::getPalette(const ItemStack &item, Client *client) const

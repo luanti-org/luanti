@@ -6,7 +6,8 @@
 #include <IBillboardSceneNode.h>
 #include <ICameraSceneNode.h>
 #include <IMeshManipulator.h>
-#include <IAnimatedMeshSceneNode.h>
+#include <AnimatedMeshSceneNode.h>
+#include <ISceneNode.h>
 #include "client/client.h"
 #include "client/renderingengine.h"
 #include "client/sound.h"
@@ -37,9 +38,8 @@
 #include <quaternion.h>
 #include <SMesh.h>
 #include <IMeshBuffer.h>
-#include <SMeshBuffer.h>
+#include <CMeshBuffer.h>
 
-class Settings;
 struct ToolCapabilities;
 
 std::unordered_map<u16, ClientActiveObject::Factory> ClientActiveObject::m_types;
@@ -178,15 +178,6 @@ static void setBillboardTextureMatrix(scene::IBillboardSceneNode *bill,
 	matrix.setTextureScale(txs, tys);
 }
 
-// Evaluate transform chain recursively; irrlicht does not do this for us
-static void updatePositionRecursive(scene::ISceneNode *node)
-{
-	scene::ISceneNode *parent = node->getParent();
-	if (parent)
-		updatePositionRecursive(parent);
-	node->updateAbsolutePosition();
-}
-
 static bool logOnce(const std::ostringstream &from, std::ostream &log_to)
 {
 	thread_local std::vector<u64> logged;
@@ -221,6 +212,8 @@ static scene::SMesh *generateNodeMesh(Client *client, MapNode n,
 		MapblockMeshGenerator(&mmd, &collector).generate();
 	}
 
+	const AlphaMode alpha_mode = ndef->get(n).alpha;
+
 	auto mesh = make_irr<scene::SMesh>();
 	animation.clear();
 	for (int layer = 0; layer < MAX_TILE_LAYERS; layer++) {
@@ -233,10 +226,8 @@ static scene::SMesh *generateNodeMesh(Client *client, MapNode n,
 			p.applyTileColor();
 
 			if (p.layer.material_flags & MATERIAL_FLAG_ANIMATION) {
-				const FrameSpec &frame = (*p.layer.frames)[0];
-				p.layer.texture = frame.texture;
-
-				animation.emplace_back(MeshAnimationInfo{mesh->getMeshBufferCount(), 0, p.layer});
+				animation.emplace_back(MeshAnimationInfo{
+					mesh->getMeshBufferCount(), 0, p.layer});
 			}
 
 			auto buf = make_irr<scene::SMeshBuffer>();
@@ -245,9 +236,8 @@ static scene::SMesh *generateNodeMesh(Client *client, MapNode n,
 
 			// Set up material
 			auto &mat = buf->Material;
-			u32 shader_id = shdsrc->getShader("object_shader", p.layer.material_type, NDT_NORMAL);
-			mat.MaterialType = shdsrc->getShaderInfo(shader_id).material;
 			p.layer.applyMaterialOptions(mat, layer);
+			getAdHocNodeShader(mat, shdsrc, "object_shader", alpha_mode, layer == 1);
 
 			mesh->addMeshBuffer(buf.get());
 		}
@@ -352,6 +342,18 @@ bool GenericCAO::getSelectionBox(aabb3f *toset) const
 	return true;
 }
 
+void GenericCAO::updateParentChain() const
+{
+	if (!m_matrixnode)
+		return;
+	// Update the entire chain of nodes to ensure absolute position is correct
+	std::vector<scene::ISceneNode *> chain;
+	for (scene::ISceneNode *node = m_matrixnode; node; node = node->getParent())
+		chain.push_back(node);
+	for (auto it = chain.rbegin(); it != chain.rend(); ++it)
+		(*it)->updateAbsolutePosition();
+}
+
 const v3f GenericCAO::getPosition() const
 {
 	if (!getParent())
@@ -359,6 +361,11 @@ const v3f GenericCAO::getPosition() const
 
 	// Calculate real position in world based on MatrixNode
 	if (m_matrixnode) {
+		// FIXME work around #16221 which is caused by the camera position and thus
+		// offset not being in sync with the player (parent) CAO position.
+		// A better solution might restrict this update to the local player only
+		// or keep player and camera position in sync.
+		GenericCAO::updateParentChain();
 		v3s16 camera_offset = m_env->getCameraOffset();
 		return m_matrixnode->getAbsolutePosition() +
 				intToFloat(camera_offset, BS);
@@ -392,7 +399,7 @@ scene::ISceneNode *GenericCAO::getSceneNode() const
 	return NULL;
 }
 
-scene::IAnimatedMeshSceneNode *GenericCAO::getAnimatedMeshSceneNode() const
+scene::AnimatedMeshSceneNode *GenericCAO::getAnimatedMeshSceneNode() const
 {
 	return m_animated_meshnode;
 }
@@ -592,14 +599,14 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		m_material_type = shader_source->getShaderInfo(shader_id).material;
 	} else {
 		// Not used, so make sure it's not valid
-		m_material_type = EMT_INVALID;
+		m_material_type = video::EMT_INVALID;
 	}
 
 	m_matrixnode = m_smgr->addDummyTransformationSceneNode();
 	m_matrixnode->grab();
 
 	auto setMaterial = [this] (video::SMaterial &mat) {
-		if (m_material_type != EMT_INVALID)
+		if (m_material_type != video::EMT_INVALID)
 			mat.MaterialType = m_material_type;
 		mat.FogEnable = true;
 		mat.forEachTexture([] (auto &tex) {
@@ -682,7 +689,6 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 			m_animated_meshnode = m_smgr->addAnimatedMeshSceneNode(mesh, m_matrixnode);
 			m_animated_meshnode->grab();
 			mesh->drop(); // The scene node took hold of it
-			m_animated_meshnode->animateJoints(); // Needed for some animations
 			m_animated_meshnode->setScale(m_prop.visual_size);
 
 			// set vertex colors to ensure alpha is set
@@ -692,6 +698,25 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 
 			m_animated_meshnode->forEachMaterial([this] (auto &mat) {
 				mat.BackfaceCulling = m_prop.backface_culling;
+			});
+
+			m_animated_meshnode->setOnAnimateCallback([&](f32 dtime) {
+				for (auto it = m_bone_override.begin(); it != m_bone_override.end();) {
+					BoneOverride &props = it->second;
+					props.dtime_passed += dtime;
+
+					if (props.isIdentity()) {
+						it = m_bone_override.erase(it);
+						continue;
+					}
+
+					if (auto *bone = m_animated_meshnode->getJointNode(it->first.c_str())) {
+						bone->setPosition(props.getPosition(bone->getPosition()));
+						bone->setRotation(props.getRotationEulerDeg(bone->getRotation()));
+						bone->setScale(props.getScale(bone->getScale()));
+					}
+					++it;
+				}
 			});
 		} else
 			errorstream<<"GenericCAO::addToScene(): Could not load mesh "<<m_prop.mesh<<std::endl;
@@ -783,7 +808,6 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 	updateMarker();
 	updateNodePos();
 	updateAnimation();
-	updateBones(.0f);
 	updateAttachments();
 	setNodeLight(m_last_light);
 	updateMeshCulling();
@@ -926,17 +950,15 @@ void GenericCAO::updateNametag()
 
 	v3f pos;
 	pos.Y = m_prop.selectionbox.MaxEdge.Y + 0.3f;
+	// Add or update nametag
+	Nametag tmp{node, m_prop.nametag, m_prop.nametag_color,
+			m_prop.nametag_bgcolor, m_prop.nametag_fontsize, pos,
+			m_prop.nametag_scale_z};
 	if (!m_nametag) {
-		// Add nametag
-		m_nametag = m_client->getCamera()->addNametag(node,
-			m_prop.nametag, m_prop.nametag_color,
-			m_prop.nametag_bgcolor, pos);
+		m_nametag = m_client->getCamera()->addNametag(tmp);
+		assert(m_nametag);
 	} else {
-		// Update nametag
-		m_nametag->text = m_prop.nametag;
-		m_nametag->textcolor = m_prop.nametag_color;
-		m_nametag->bgcolor = m_prop.nametag_bgcolor;
-		m_nametag->pos = pos;
+		*m_nametag = tmp;
 	}
 }
 
@@ -1174,18 +1196,6 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 		rot_translator.val_current = m_rotation;
 		updateNodePos();
 	}
-
-	if (m_animated_meshnode) {
-		// Everything must be updated; the whole transform
-		// chain as well as the animated mesh node.
-		// Otherwise, bone attachments would be relative to
-		// a position that's one frame old.
-		if (m_matrixnode)
-			updatePositionRecursive(m_matrixnode);
-		m_animated_meshnode->updateAbsolutePosition();
-		m_animated_meshnode->animateJoints();
-		updateBones(dtime);
-	}
 }
 
 static void setMeshBufferTextureCoords(scene::IMeshBuffer *buf, const v2f *uv, u32 count)
@@ -1394,44 +1404,6 @@ void GenericCAO::updateAnimationSpeed()
 	m_animated_meshnode->setAnimationSpeed(m_animation_speed);
 }
 
-void GenericCAO::updateBones(f32 dtime)
-{
-	if (!m_animated_meshnode)
-		return;
-	if (m_bone_override.empty()) {
-		m_animated_meshnode->setJointMode(scene::EJUOR_NONE);
-		return;
-	}
-
-	m_animated_meshnode->setJointMode(scene::EJUOR_CONTROL); // To write positions to the mesh on render
-	for (auto &it : m_bone_override) {
-		std::string bone_name = it.first;
-		scene::IBoneSceneNode* bone = m_animated_meshnode->getJointNode(bone_name.c_str());
-		if (!bone)
-			continue;
-
-		BoneOverride &props = it.second;
-		props.dtime_passed += dtime;
-
-		bone->setPosition(props.getPosition(bone->getPosition()));
-		bone->setRotation(props.getRotationEulerDeg(bone->getRotation()));
-		bone->setScale(props.getScale(bone->getScale()));
-	}
-
-	// The following is needed for set_bone_pos to propagate to
-	// attached objects correctly.
-	// Irrlicht ought to do this, but doesn't when using EJUOR_CONTROL.
-	for (u32 i = 0; i < m_animated_meshnode->getJointCount(); ++i) {
-		auto bone = m_animated_meshnode->getJointNode(i);
-		// Look for the root bone.
-		if (bone && bone->getParent() == m_animated_meshnode) {
-			// Update entire skeleton.
-			bone->updateAbsolutePositionOfAllChildren();
-			break;
-		}
-	}
-}
-
 void GenericCAO::updateAttachments()
 {
 	ClientActiveObject *parent = getParent();
@@ -1464,7 +1436,7 @@ void GenericCAO::updateAttachments()
 	{
 		parent->updateAttachments();
 		scene::ISceneNode *parent_node = parent->getSceneNode();
-		scene::IAnimatedMeshSceneNode *parent_animated_mesh_node =
+		scene::AnimatedMeshSceneNode *parent_animated_mesh_node =
 				parent->getAnimatedMeshSceneNode();
 		if (parent_animated_mesh_node && !m_attachment_bone.empty()) {
 			parent_node = parent_animated_mesh_node->getJointNode(m_attachment_bone.c_str());
@@ -1720,9 +1692,9 @@ void GenericCAO::processMessage(const std::string &data)
 			props.scale.previous = props.scale.vector;
 		} else {
 			// Disable interpolation
-			props.position.interp_timer = 0.0f;
-			props.rotation.interp_timer = 0.0f;
-			props.scale.interp_timer = 0.0f;
+			props.position.interp_duration = 0.0f;
+			props.rotation.interp_duration = 0.0f;
+			props.scale.interp_duration = 0.0f;
 		}
 		// Read new values
 		props.position.vector = readV3F32(is);
@@ -1734,20 +1706,15 @@ void GenericCAO::processMessage(const std::string &data)
 			props.position.absolute = true;
 			props.rotation.absolute = true;
 		} else {
-			props.position.interp_timer = readF32(is);
-			props.rotation.interp_timer = readF32(is);
-			props.scale.interp_timer = readF32(is);
+			props.position.interp_duration = readF32(is);
+			props.rotation.interp_duration = readF32(is);
+			props.scale.interp_duration = readF32(is);
 			u8 absoluteFlag = readU8(is);
 			props.position.absolute = (absoluteFlag & 1) > 0;
 			props.rotation.absolute = (absoluteFlag & 2) > 0;
 			props.scale.absolute = (absoluteFlag & 4) > 0;
 		}
-		if (props.isIdentity()) {
-			m_bone_override.erase(bone);
-		} else {
-			m_bone_override[bone] = props;
-		}
-		// updateBones(); now called every step
+		m_bone_override[bone] = props;
 	} else if (cmd == AO_CMD_ATTACH_TO) {
 		u16 parent_id = readS16(is);
 		std::string bone = deSerializeString16(is);

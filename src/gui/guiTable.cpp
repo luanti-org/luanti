@@ -4,22 +4,18 @@
 
 
 #include "guiTable.h"
-#include <queue>
 #include <sstream>
 #include <utility>
 #include <cstring>
 #include <IGUISkin.h>
 #include <IGUIFont.h>
 #include "client/renderingengine.h"
-#include "debug.h"
 #include "irrlicht_changes/CGUITTFont.h"
 #include "log.h"
 #include "client/texturesource.h"
-#include "gettime.h"
 #include "util/string.h"
 #include "util/numeric.h"
 #include "util/string.h" // for parseColorString()
-#include "settings.h" // for settings
 #include "porting.h" // for dpi
 #include "client/guiscalingfilter.h"
 
@@ -32,7 +28,7 @@ GUITable::GUITable(gui::IGUIEnvironment *env,
 		core::rect<s32> rectangle,
 		ISimpleTextureSource *tsrc
 ):
-	gui::IGUIElement(gui::EGUIET_ELEMENT, env, parent, id, rectangle),
+	gui::IGUIElement(gui::EGUIET_TABLE, env, parent, id, rectangle),
 	m_tsrc(tsrc)
 {
 	assert(tsrc != NULL);
@@ -635,11 +631,6 @@ void GUITable::setDynamicData(const DynamicData &dyndata)
 	m_scrollbar->setPos(dyndata.scrollpos);
 }
 
-const c8* GUITable::getTypeName() const
-{
-	return "GUITable";
-}
-
 void GUITable::updateAbsolutePosition()
 {
 	IGUIElement::updateAbsolutePosition();
@@ -836,8 +827,10 @@ bool GUITable::OnEvent(const SEvent &event)
 			return true;
 		}
 		else if (event.KeyInput.Key == KEY_ESCAPE ||
-				event.KeyInput.Key == KEY_SPACE) {
+				event.KeyInput.Key == KEY_SPACE ||
+				(event.KeyInput.Key == KEY_TAB && event.KeyInput.Control)) {
 			// pass to parent
+			return IGUIElement::OnEvent(event);
 		}
 		else if (event.KeyInput.PressedDown && event.KeyInput.Char) {
 			// change selection based on text as it is typed

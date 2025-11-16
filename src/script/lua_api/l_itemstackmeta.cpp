@@ -7,7 +7,6 @@
 #include "lua_api/l_itemstackmeta.h"
 #include "lua_api/l_internal.h"
 #include "common/c_content.h"
-#include "common/c_converter.h"
 #include "tool.h"
 
 /*
@@ -81,7 +80,7 @@ void ItemStackMetaRef::create(lua_State *L, LuaItemStack *istack)
 
 void ItemStackMetaRef::Register(lua_State *L)
 {
-	registerMetadataClass(L, className, methods);
+	registerMetadataClass<ItemStackMetaRef>(L, methods);
 }
 
 const char ItemStackMetaRef::className[] = "ItemStackMetaRef";

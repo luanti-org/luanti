@@ -4,12 +4,15 @@
 
 #pragma once
 
+#include "debug.h" // FATAL_ERROR
 #include "irrlichttypes_bloated.h"
-#include <string>
-#include <sstream>
-#include <vector>
+#include "log.h"
+
+#include <istream>
 #include <map>
-#include "debug.h"
+#include <ostream>
+#include <string>
+#include <vector>
 
 class ServerActiveObject;
 

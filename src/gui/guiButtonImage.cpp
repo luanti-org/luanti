@@ -5,13 +5,12 @@
 #include "guiButtonImage.h"
 
 #include "client/guiscalingfilter.h"
-#include "debug.h"
 #include "IGUIEnvironment.h"
 #include "IGUIImage.h"
 #include "IVideoDriver.h"
 #include "StyleSpec.h"
 
-using namespace irr;
+
 using namespace gui;
 
 GUIButtonImage::GUIButtonImage(gui::IGUIEnvironment *environment,

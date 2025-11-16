@@ -5,6 +5,7 @@
 #include "test.h"
 
 #include <cmath>
+#include <limits>
 #include "util/enriched_string.h"
 #include "util/numeric.h"
 #include "util/string.h"
@@ -48,6 +49,8 @@ public:
 	void testColorizeURL();
 	void testSanitizeUntrusted();
 	void testReadSeed();
+	void testMyDoubleStringConversions();
+	void testGetMemorySize();
 };
 
 static TestUtilities g_test_instance;
@@ -84,6 +87,8 @@ void TestUtilities::runTests(IGameDef *gamedef)
 	TEST(testColorizeURL);
 	TEST(testSanitizeUntrusted);
 	TEST(testReadSeed);
+	TEST(testMyDoubleStringConversions);
+	TEST(testGetMemorySize);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -332,6 +337,8 @@ void TestUtilities::testRemoveEscapes()
 		L"abc\x1b(escaped)def") == L"abcdef");
 	UASSERT(unescape_enriched<wchar_t>(
 		L"abc\x1b((escaped with parenthesis\\))def") == L"abcdef");
+	UASSERTEQ(auto, unescape_enriched("abc\x1b(not this\\\\)def"),
+		"abcdef");
 	UASSERT(unescape_enriched<wchar_t>(
 		L"abc\x1b(incomplete") == L"abc");
 	UASSERT(unescape_enriched<wchar_t>(
@@ -339,6 +346,9 @@ void TestUtilities::testRemoveEscapes()
 	// Nested escapes not supported
 	UASSERT(unescape_enriched<wchar_t>(
 		L"abc\x1b(outer \x1b(inner escape)escape)def") == L"abcescape)def");
+	// Multiple
+	UASSERTEQ(auto, unescape_enriched("one\x1bX two \x1b(four)three"),
+		"one two three");
 }
 
 void TestUtilities::testWrapRows()
@@ -367,7 +377,7 @@ void TestUtilities::testWrapRows()
 void TestUtilities::testEnrichedString()
 {
 	EnrichedString str(L"Test bar");
-	irr::video::SColor color(0xFF, 0, 0, 0xFF);
+	video::SColor color(0xFF, 0, 0, 0xFF);
 
 	UASSERT(str.substr(1, 3).getString() == L"est");
 	str += L" BUZZ";
@@ -762,4 +772,58 @@ void TestUtilities::testReadSeed()
 	UASSERTEQ(int, read_seed("0x123"), 0x123);
 	// hashing should produce some non-zero number
 	UASSERT(read_seed("hello") != 0);
+}
+
+void TestUtilities::testMyDoubleStringConversions()
+{
+	const auto expect_parse_failure = [](const std::string &s) {
+		UASSERT(!my_string_to_double(s).has_value());
+	};
+	expect_parse_failure("");
+	expect_parse_failure("helloworld");
+	expect_parse_failure("42x");
+
+	const auto expect_double = [](const std::string &s, double expected) {
+		auto got = my_string_to_double(s);
+		UASSERT(got.has_value());
+		UASSERTEQ(double, *got, expected);
+	};
+	expect_double("1", 1.0);
+	expect_double("42", 42.0);
+	expect_double("42.25", 42.25);
+	expect_double("3e3", 3000.0);
+	expect_double("0xff", 255.0);
+	expect_double("0x1.0p+1", 2.0);
+
+	UASSERT(std::isnan(my_string_to_double(my_double_to_string(
+			std::numeric_limits<double>::quiet_NaN())).value()));
+	const auto test_round_trip = [](double number) {
+		auto got = my_string_to_double(my_double_to_string(number));
+		UASSERT(got.has_value());
+		UASSERTEQ(double, *got, number);
+	};
+	test_round_trip(std::numeric_limits<double>::infinity());
+	test_round_trip(-std::numeric_limits<double>::infinity());
+	test_round_trip(0.3);
+	test_round_trip(0.1 + 0.2);
+}
+
+void TestUtilities::testGetMemorySize()
+{
+#if defined(_WIN32) || defined(__linux__) || defined(__APPLE__)
+	const bool fail_ok = false;
+#else
+	const bool fail_ok = true;
+#endif
+
+	u32 total = porting::getMemorySizeMB();
+	UASSERT(total != 0 || fail_ok);
+	if (total != 0) {
+		infostream << "memory size in MB = " << total << std::endl;
+		// should be a sane value
+		UASSERTCMP(u32, >=, total, 130);
+		UASSERTCMP(u32, <, total, 8 * 1024 * 1024);
+	} else {
+		warningstream << "testGetMemorySize: retrieving failed" << std::endl;
+	}
 }

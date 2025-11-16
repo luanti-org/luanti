@@ -10,7 +10,6 @@
 #include "pathfinder.h"
 #include "map.h"
 #include "nodedef.h"
-#include "irrlicht_changes/printing.h"
 
 //#define PATHFINDER_DEBUG
 //#define PATHFINDER_CALC_TIME
@@ -169,8 +168,6 @@ public:
 	Pathfinder() = delete;
 	Pathfinder(Map *map, const NodeDefManager *ndef) : m_map(map), m_ndef(ndef) {}
 
-	~Pathfinder();
-
 	/**
 	 * path evaluation function
 	 * @param env environment to look for path
@@ -307,7 +304,7 @@ private:
 	/** contains all map data already collected and analyzed.
 		Access it via the getIndexElement/getIdxElem methods. */
 	friend class GridNodeContainer;
-	GridNodeContainer *m_nodes_container = nullptr;
+	std::unique_ptr<GridNodeContainer> m_nodes_container;
 
 	Map *m_map = nullptr;
 
@@ -639,11 +636,10 @@ std::vector<v3s16> Pathfinder::getPath(v3s16 source,
 	m_max_index_y = diff.Y;
 	m_max_index_z = diff.Z;
 
-	delete m_nodes_container;
 	if (diff.getLength() > 5) {
-		m_nodes_container = new MapGridNodeContainer(this);
+		m_nodes_container = std::make_unique<MapGridNodeContainer>(this);
 	} else {
-		m_nodes_container = new ArrayGridNodeContainer(this, diff);
+		m_nodes_container = std::make_unique<ArrayGridNodeContainer>(this, diff);
 	}
 #ifdef PATHFINDER_DEBUG
 	printType();
@@ -799,10 +795,6 @@ std::vector<v3s16> Pathfinder::getPath(v3s16 source,
 	return retval;
 }
 
-Pathfinder::~Pathfinder()
-{
-	delete m_nodes_container;
-}
 /******************************************************************************/
 v3s16 Pathfinder::getRealPos(v3s16 ipos)
 {

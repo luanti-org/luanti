@@ -8,8 +8,6 @@
 #include "mapgen.h"
 #include "noise.h"
 #include "map.h"
-#include "log.h"
-#include "util/numeric.h"
 #include <algorithm>
 #include <vector>
 #include "mapgen/treegen.h"
@@ -132,6 +130,10 @@ void Decoration::placeDeco(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax)
 
 	PcgRandom ps(blockseed + 53);
 	int carea_size = nmax.X - nmin.X + 1;
+	if (nmax.Z - nmin.Z + 1 != carea_size) {
+		// TODO: this is a stupid restriction, which we should lift
+		throw BaseException("Decoration::placeDeco requires a square area (XZ)");
+	}
 
 	// Divide area into parts
 	// If chunksize is changed it may no longer be divisable by sidelen

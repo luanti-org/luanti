@@ -3,15 +3,11 @@ uniform vec3 dayLight;
 uniform float animationTimer;
 uniform lowp vec4 materialColor;
 
-varying vec3 vNormal;
-varying vec3 vPosition;
-varying vec3 worldPosition;
-varying lowp vec4 varColor;
-#ifdef GL_ES
-varying mediump vec2 varTexCoord;
-#else
-centroid varying vec2 varTexCoord;
-#endif
+VARYING_ vec3 vNormal;
+VARYING_ vec3 worldPosition;
+VARYING_ lowp vec4 varColor;
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
+CENTROID_ VARYING_ float varTexLayer; // actually int
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// shadow uniforms
@@ -23,25 +19,24 @@ centroid varying vec2 varTexCoord;
 	uniform float f_timeofday;
 	uniform vec4 CameraPos;
 
-	varying float cosLight;
-	varying float adj_shadow_strength;
-	varying float f_normal_length;
-	varying vec3 shadow_position;
-	varying float perspective_factor;
+	VARYING_ float cosLight;
+	VARYING_ float adj_shadow_strength;
+	VARYING_ float f_normal_length;
+	VARYING_ vec3 shadow_position;
+	VARYING_ float perspective_factor;
 #endif
 
-varying highp vec3 eyeVec;
-varying float nightRatio;
+VARYING_ highp vec3 eyeVec;
+VARYING_ float nightRatio;
 // Color of the light emitted by the light sources.
 const vec3 artificialLight = vec3(1.04, 1.04, 1.04);
-varying float vIDiff;
-const float e = 2.718281828459;
-const float BS = 10.0;
+VARYING_ float vIDiff;
+
+#ifdef ENABLE_DYNAMIC_SHADOWS
+
 uniform float xyPerspectiveBias0;
 uniform float xyPerspectiveBias1;
 uniform float zPerspectiveBias;
-
-#ifdef ENABLE_DYNAMIC_SHADOWS
 
 vec4 getRelativePosition(in vec4 position)
 {
@@ -69,13 +64,16 @@ vec4 applyPerspectiveDistortion(in vec4 position)
 	return position;
 }
 
-// custom smoothstep implementation because it's not defined in glsl1.2
-// https://docs.gl/sl4/smoothstep
+#if __VERSION__ >= 130
+#define mtsmoothstep smoothstep
+#else
 float mtsmoothstep(in float edge0, in float edge1, in float x)
 {
 	float t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 	return t * t * (3.0 - 2.0 * t);
 }
+#endif
+
 #endif
 
 
@@ -91,10 +89,13 @@ float directional_ambient(vec3 normal)
 
 void main(void)
 {
+#ifdef USE_ARRAY_TEXTURE
+	varTexLayer = inVertexAux;
+#endif
 	varTexCoord = (mTexture * vec4(inTexCoord0.xy, 1.0, 1.0)).st;
+
 	gl_Position = mWorldViewProj * inVertexPosition;
 
-	vPosition = gl_Position.xyz;
 	vNormal = (mWorld * vec4(inVertexNormal, 0.0)).xyz;
 	worldPosition = (mWorld * inVertexPosition).xyz;
 	eyeVec = -(mWorldView * inVertexPosition).xyz;
@@ -104,9 +105,9 @@ void main(void)
 #else
 	// This is intentional comparison with zero without any margin.
 	// If normal is not equal to zero exactly, then we assume it's a valid, just not normalized vector
-	vIDiff = length(inVertexNormal) == 0.0
+	vIDiff = length(vNormal) == 0.0
 		? 1.0
-		: directional_ambient(normalize(inVertexNormal));
+		: directional_ambient(normalize(vNormal));
 #endif
 
 	vec4 color = inVertexColor;

@@ -5,13 +5,9 @@
 #include "log_internal.h"
 
 #include "threading/mutex_auto_lock.h"
-#include "debug.h"
 #include "gettime.h"
 #include "porting.h"
-#include "settings.h"
-#include "config.h"
 #include "exceptions.h"
-#include "util/numeric.h"
 #include "filesys.h"
 
 #ifdef __ANDROID__
@@ -220,7 +216,7 @@ const char *Logger::getLevelLabel(LogLevel lev)
 
 LogColor Logger::color_mode = LOG_COLOR_AUTO;
 
-const std::string &Logger::getThreadName()
+inline const std::string &Logger::getThreadName()
 {
 	std::thread::id id = std::this_thread::get_id();
 
@@ -237,6 +233,22 @@ const std::string &Logger::getThreadName()
 	return fallback_name;
 }
 
+LogTimestamp Logger::timestamp_mode = LOG_TIMESTAMP_WALL;
+
+inline std::string Logger::getLogTimestamp()
+{
+	const static u64 begin_of_time = porting::getTimeMs();
+	if (timestamp_mode == LOG_TIMESTAMP_NONE)
+		return std::string();
+	if (timestamp_mode == LOG_TIMESTAMP_WALL)
+		return getTimestamp();
+	// LOG_TIMESTAMP_RELATIVE
+	float rel = (porting::getTimeMs() - begin_of_time) / 1000.0f;
+	char s[24];
+	snprintf(s, sizeof(s), "[% 8.2f]", rel);
+	return s;
+}
+
 void Logger::log(LogLevel lev, std::string_view text)
 {
 	if (isLevelSilenced(lev))
@@ -244,10 +256,12 @@ void Logger::log(LogLevel lev, std::string_view text)
 
 	const std::string &thread_name = getThreadName();
 	const char *label = getLevelLabel(lev);
-	const std::string timestamp = getTimestamp();
+	const std::string timestamp = getLogTimestamp();
 
 	std::string line = timestamp;
-	line.append(": ").append(label).append("[").append(thread_name)
+	if (!line.empty())
+		line.append(": ");
+	line.append(label).append("[").append(thread_name)
 		.append("]: ").append(text);
 
 	logToOutputs(lev, line, timestamp, thread_name, text);

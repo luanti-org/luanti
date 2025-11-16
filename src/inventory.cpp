@@ -3,14 +3,13 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "inventory.h"
-#include "serialization.h"
-#include "debug.h"
 #include <algorithm>
 #include <sstream>
 #include "log.h"
 #include "util/strfnd.h"
 #include "content_mapnode.h" // For loading legacy MaterialItems
 #include "nameidmapping.h" // For loading legacy MaterialItems
+#include "itemdef.h"
 #include "util/serialize.h"
 #include "util/string.h"
 
@@ -256,40 +255,44 @@ std::string ItemStack::getShortDescription(const IItemDefManager *itemdef) const
 	return desc;
 }
 
-std::string ItemStack::getInventoryImage(const IItemDefManager *itemdef) const
+ItemImageDef ItemStack::getInventoryImage(const IItemDefManager *itemdef) const
 {
-	std::string texture = metadata.getString("inventory_image");
-	if (texture.empty())
-		texture = getDefinition(itemdef).inventory_image;
+	ItemImageDef image = getDefinition(itemdef).inventory_image;
+	std::string meta_image = metadata.getString("inventory_image");
+	if (!meta_image.empty())
+		image = meta_image;
 
-	return texture;
+	return image;
 }
 
-std::string ItemStack::getInventoryOverlay(const IItemDefManager *itemdef) const
+ItemImageDef ItemStack::getInventoryOverlay(const IItemDefManager *itemdef) const
 {
-	std::string texture = metadata.getString("inventory_overlay");
-	if (texture.empty())
-		texture = getDefinition(itemdef).inventory_overlay;
+	ItemImageDef image = getDefinition(itemdef).inventory_overlay;
+	std::string meta_image = metadata.getString("inventory_overlay");
+	if (!meta_image.empty())
+		image = meta_image;
 
-	return texture;
+	return image;
 }
 
-std::string ItemStack::getWieldImage(const IItemDefManager *itemdef) const
+ItemImageDef ItemStack::getWieldImage(const IItemDefManager *itemdef) const
 {
-	std::string texture = metadata.getString("wield_image");
-	if (texture.empty())
-		texture = getDefinition(itemdef).wield_image;
+	ItemImageDef image = getDefinition(itemdef).wield_image;
+	std::string meta_image = metadata.getString("wield_image");
+	if (!meta_image.empty())
+		image = meta_image;
 
-	return texture;
+	return image;
 }
 
-std::string ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
+ItemImageDef ItemStack::getWieldOverlay(const IItemDefManager *itemdef) const
 {
-	std::string texture = metadata.getString("wield_overlay");
-	if (texture.empty())
-		texture = getDefinition(itemdef).wield_overlay;
+	ItemImageDef image = getDefinition(itemdef).wield_overlay;
+	std::string meta_image = metadata.getString("wield_overlay");
+	if (!meta_image.empty())
+		image = meta_image;
 
-	return texture;
+	return image;
 }
 
 v3f ItemStack::getWieldScale(const IItemDefManager *itemdef) const
@@ -297,6 +300,74 @@ v3f ItemStack::getWieldScale(const IItemDefManager *itemdef) const
 	std::string scale = metadata.getString("wield_scale");
 
 	return str_to_v3f(scale).value_or(getDefinition(itemdef).wield_scale);
+}
+
+u16 ItemStack::getStackMax(const IItemDefManager *itemdef) const
+{
+	return itemdef->get(name).stack_max;
+}
+
+bool ItemStack::isKnown(const IItemDefManager *itemdef) const
+{
+	return itemdef->isKnown(name);
+}
+
+const ItemDefinition &ItemStack::getDefinition(
+		const IItemDefManager *itemdef) const
+{
+	return itemdef->get(name);
+}
+
+const ToolCapabilities &ItemStack::getToolCapabilities(
+		const IItemDefManager *itemdef, const ItemStack *hand) const
+{
+	// Check for override
+	auto &meta_item_cap = metadata.getToolCapabilitiesOverride();
+	if (meta_item_cap.has_value())
+		return meta_item_cap.value();
+
+	const ToolCapabilities *item_cap = itemdef->get(name).tool_capabilities;
+	if (item_cap)
+		return *item_cap;
+
+	// Fall back to the hand's tool capabilities
+	if (hand) {
+		auto &hand_meta_item_cap = hand->metadata.getToolCapabilitiesOverride();
+		if (hand_meta_item_cap.has_value())
+			return hand_meta_item_cap.value();
+
+		item_cap = itemdef->get(hand->name).tool_capabilities;
+		if (item_cap)
+			return *item_cap;
+	}
+
+	item_cap = itemdef->get("").tool_capabilities;
+	assert(item_cap);
+	return *item_cap;
+}
+
+const std::optional<WearBarParams> &ItemStack::getWearBarParams(
+		const IItemDefManager *itemdef) const
+{
+	auto &meta_override = metadata.getWearBarParamOverride();
+	if (meta_override.has_value())
+		return meta_override;
+	return itemdef->get(name).wear_bar_params;
+}
+
+bool ItemStack::addWear(s32 amount, const IItemDefManager *itemdef)
+{
+	if (getDefinition(itemdef).type == ITEM_TOOL) {
+		if(amount > 65535 - wear)
+			clear();
+		else if(amount < -wear)
+			wear = 0;
+		else
+			wear += amount;
+		return true;
+	}
+
+	return false;
 }
 
 ItemStack ItemStack::addItem(ItemStack newitem, IItemDefManager *itemdef)

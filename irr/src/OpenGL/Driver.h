@@ -16,13 +16,10 @@
 #include "ExtensionHandler.h"
 #include "IContextManager.h"
 
-namespace irr
-{
 namespace video
 {
 struct VertexType;
 
-class COpenGL3FixedPipelineRenderer;
 class COpenGL3Renderer2D;
 
 class COpenGL3DriverBase : public CNullDriver, public IMaterialRendererServices, public COpenGL3ExtensionHandler
@@ -138,9 +135,6 @@ public:
 	//! Returns the name of the video driver.
 	const char *getName() const override;
 
-	//! Returns the maximum texture size supported.
-	core::dimension2du getMaxTextureSize() const override;
-
 	//! sets a viewport
 	void setViewPort(const core::rect<s32> &area) override;
 
@@ -149,9 +143,6 @@ public:
 
 	//! Returns type of video driver
 	E_DRIVER_TYPE getDriverType() const override;
-
-	//! get color format of the current color buffer
-	ECOLOR_FORMAT getColorFormat() const override;
 
 	//! Returns the transformation set by setTransform
 	const core::matrix4 &getTransform(E_TRANSFORMATION_STATE state) const override;
@@ -205,8 +196,7 @@ public:
 	//! Returns a pointer to the IVideoDriver interface.
 	IVideoDriver *getVideoDriver() override;
 
-	//! Returns the maximum amount of primitives
-	u32 getMaximalPrimitiveCount() const override;
+	SDriverLimits getLimits() const override;
 
 	virtual ITexture *addRenderTargetTexture(const core::dimension2d<u32> &size,
 			const io::path &name, const ECOLOR_FORMAT format = ECF_UNKNOWN) override;
@@ -215,7 +205,7 @@ public:
 			const io::path &name, const ECOLOR_FORMAT format = ECF_UNKNOWN) override;
 
 	//! Creates a render target texture for a cubemap
-	ITexture *addRenderTargetTextureCubemap(const irr::u32 sideLen,
+	ITexture *addRenderTargetTextureCubemap(const u32 sideLen,
 			const io::path &name, const ECOLOR_FORMAT format) override;
 
 	virtual bool setRenderTargetEx(IRenderTarget *target, u16 clearFlag, SColor clearColor = SColor(255, 0, 0, 0),
@@ -242,7 +232,7 @@ public:
 	bool queryTextureFormat(ECOLOR_FORMAT format) const override;
 
 	//! Used by some SceneNodes to check if a material should be rendered in the transparent render pass
-	bool needsTransparentRenderPass(const irr::video::SMaterial &material) const override;
+	bool needsTransparentRenderPass(const video::SMaterial &material) const override;
 
 	//! Convert E_BLEND_FACTOR to OpenGL equivalent
 	GLenum getGLBlend(E_BLEND_FACTOR factor) const;
@@ -300,7 +290,7 @@ protected:
 
 	void loadShaderData(const io::path &vertexShaderName, const io::path &fragmentShaderName, c8 **vertexShaderData, c8 **fragmentShaderData);
 
-	bool setMaterialTexture(irr::u32 layerIdx, const irr::video::ITexture *texture);
+	bool setMaterialTexture(u32 layerIdx, const video::ITexture *texture);
 
 	//! Same as `CacheHandler->setViewport`, but also sets `ViewPort`
 	virtual void setViewPortRaw(u32 width, u32 height);
@@ -327,15 +317,13 @@ protected:
 	bool LockRenderStateMode;
 	u8 AntiAlias;
 
-	core::matrix4 TextureFlipMatrix;
-
 	using FColorConverter = void (*)(const void *source, s32 count, void *dest);
 	struct STextureFormatInfo
 	{
-		GLenum InternalFormat;
-		GLenum PixelFormat;
-		GLenum PixelType;
-		FColorConverter Converter;
+		GLenum InternalFormat = 0;
+		GLenum PixelFormat = 0;
+		GLenum PixelType = 0;
+		FColorConverter Converter = nullptr;
 	};
 	STextureFormatInfo TextureFormats[ECF_UNKNOWN] = {};
 
@@ -356,12 +344,9 @@ private:
 
 	E_RENDER_MODE CurrentRenderMode;
 	bool Transformation3DChanged;
-	irr::io::path OGLES2ShaderPath;
+	io::path OGLES2ShaderPath;
 
 	SMaterial Material, LastMaterial;
-
-	//! Color buffer format
-	ECOLOR_FORMAT ColorFormat;
 
 	IContextManager *ContextManager;
 
@@ -377,4 +362,3 @@ private:
 };
 
 } // end namespace video
-} // end namespace irr

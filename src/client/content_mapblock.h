@@ -5,6 +5,7 @@
 #pragma once
 
 #include "nodedef.h"
+#include "tile.h"
 
 struct MeshMakeData;
 struct MeshCollector;
@@ -27,7 +28,7 @@ struct LightInfo {
 	float light_night;
 	float light_boosted;
 
-	LightPair getPair(float sunlight_boost = 0.0) const
+	LightPair getPair(float sunlight_boost = 0.0f) const
 	{
 		return LightPair(
 			(1 - sunlight_boost) * light_day
@@ -72,7 +73,7 @@ private:
 	video::SColor blendLightColor(const v3f &vertex_pos);
 	video::SColor blendLightColor(const v3f &vertex_pos, const v3f &vertex_normal);
 
-	void useTile(TileSpec *tile_ret, int index = 0, u8 set_flags = MATERIAL_FLAG_CRACK_OVERLAY,
+	void useTile(TileSpec *tile_ret, int index = 0, u8 set_flags = 0,
 		u8 reset_flags = 0, bool special = false);
 	void getTile(int index, TileSpec *tile_ret);
 	void getTile(v3s16 direction, TileSpec *tile_ret);
@@ -86,7 +87,7 @@ private:
 	template <typename Fn>
 	void drawCuboid(const aabb3f &box, const TileSpec *tiles, int tilecount,
 			const f32 *txc, u8 mask, Fn &&face_lighter);
-	void generateCuboidTextureCoords(aabb3f const &box, f32 *coords);
+	static void generateCuboidTextureCoords(aabb3f const &box, f32 *coords);
 	void drawAutoLightedCuboid(aabb3f box, const TileSpec &tile, f32 const *txc	= nullptr, u8 mask = 0);
 	void drawAutoLightedCuboid(aabb3f box, const TileSpec *tiles, int tile_count, f32 const *txc = nullptr, u8 mask = 0);
 	u8 getNodeBoxMask(aabb3f box, u8 solid_neighbors, u8 sametype_neighbors) const;

@@ -1,12 +1,13 @@
 {
-  "builtin-baseline": "d5ec528843d29e3a52d745a64b469f810b2cedbf",
+  "builtin-baseline": "ce613c41372b23b1f51333815feb3edd87ef8a8b",
   "dependencies": [
     "zlib",
     "zstd",
+    "openssl",
     {
       "name": "curl",
       "features": [
-        "winssl"
+        "ssl"
       ]
     },
     "openal-soft",

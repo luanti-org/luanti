@@ -11,8 +11,6 @@
 #include <climits> // For INT_MAX / UINT_MAX
 #include <type_traits>
 
-namespace irr
-{
 namespace core
 {
 
@@ -199,8 +197,8 @@ union FloatIntUnion32
 	// Portable sign-extraction
 	bool sign() const { return (i >> 31) != 0; }
 
-	irr::s32 i;
-	irr::f32 f;
+	s32 i;
+	f32 f;
 };
 
 //! We compare the difference in ULP's (spacing between floating-point numbers, aka ULP=1 means there exists no float between).
@@ -314,13 +312,6 @@ typedef union
 	f32 f;
 } inttofloat;
 
-#define F32_AS_S32(f) (*((s32 *)&(f)))
-#define F32_AS_U32(f) (*((u32 *)&(f)))
-#define F32_AS_U32_POINTER(f) (((u32 *)&(f)))
-
-#define F32_VALUE_0 0x00000000
-#define F32_VALUE_1 0x3f800000
-
 //! code is taken from IceFPU
 //! Integer representation of a floating-point value.
 inline u32 IR(f32 x)
@@ -422,12 +413,6 @@ REALINLINE f64 reciprocal(const f64 f)
 	return 1.0 / f;
 }
 
-// calculate: 1 / x, low precision allowed
-REALINLINE f32 reciprocal_approxim(const f32 f)
-{
-	return 1.f / f;
-}
-
 REALINLINE s32 floor32(f32 x)
 {
 	return (s32)floorf(x);
@@ -444,23 +429,12 @@ REALINLINE s32 round32(f32 x)
 	return (s32)round_(x);
 }
 
-inline f32 f32_max3(const f32 a, const f32 b, const f32 c)
-{
-	return a > b ? (a > c ? a : c) : (b > c ? b : c);
-}
-
-inline f32 f32_min3(const f32 a, const f32 b, const f32 c)
-{
-	return a < b ? (a < c ? a : c) : (b < c ? b : c);
-}
-
 inline f32 fract(f32 x)
 {
 	return x - floorf(x);
 }
 
 } // end namespace core
-} // end namespace irr
 
-using irr::core::FR;
-using irr::core::IR;
+using core::FR;
+using core::IR;

@@ -11,8 +11,6 @@
 #include "COpenGLDriver.h"
 #include "COpenGLCacheHandler.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -330,6 +328,5 @@ protected:
 };
 
 } // end namespace video
-} // end namespace irr
 
 #endif

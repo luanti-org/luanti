@@ -6,7 +6,6 @@
 
 #include <vector>
 #include "util/string.h"
-#include "config.h"
 
 // These can be used in place of "caller" in to specify special handling.
 // Discard result (used as default value of "caller").
@@ -31,8 +30,10 @@ namespace {
 enum HttpMethod : u8
 {
 	HTTP_GET,
+	HTTP_HEAD,
 	HTTP_POST,
 	HTTP_PUT,
+	HTTP_PATCH,
 	HTTP_DELETE,
 };
 
@@ -55,23 +56,22 @@ struct HTTPFetchRequest
 	long connect_timeout;
 
 	// Indicates if this is multipart/form-data or
-	// application/x-www-form-urlencoded.  POST-only.
+	// application/x-www-form-urlencoded. Not allowed for GET.
 	bool multipart = false;
 
-	//  The Method to use default = GET
-	//  Avaible methods GET, POST, PUT, DELETE
+	// Method to use
 	HttpMethod method = HTTP_GET;
 
 	// Fields of the request
 	StringMap fields;
 
-	// Raw data of the request overrides fields
+	// Raw data of the request (instead of fields, ignored if multipart)
 	std::string raw_data;
 
 	// If not empty, should contain entries such as "Accept: text/html"
 	std::vector<std::string> extra_headers;
 
-	// useragent to use
+	// User agent to send
 	std::string useragent;
 
 	HTTPFetchRequest();

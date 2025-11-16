@@ -10,9 +10,6 @@
 #include "ILogger.h"
 #include "ITimer.h"
 
-namespace irr
-{
-
 namespace os
 {
 class Byteswap
@@ -87,4 +84,3 @@ private:
 };
 
 } // end namespace os
-} // end namespace irr

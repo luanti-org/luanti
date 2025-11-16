@@ -4,53 +4,11 @@
 
 #include "imagefilters.h"
 #include "util/numeric.h"
+#include "util/bitmap.h"
 #include <cmath>
 #include <cassert>
-#include <vector>
 #include <algorithm>
 #include <IVideoDriver.h>
-
-// Simple 2D bitmap class with just the functionality needed here
-class Bitmap {
-	u32 linesize, lines;
-	std::vector<u8> data;
-
-	static inline u32 bytepos(u32 index) { return index >> 3; }
-	static inline u8 bitpos(u32 index) { return index & 7; }
-
-public:
-	Bitmap(u32 width, u32 height) :  linesize(width), lines(height),
-		data(bytepos(width * height) + 1) {}
-
-	inline bool get(u32 x, u32 y) const {
-		u32 index = y * linesize + x;
-		return data[bytepos(index)] & (1 << bitpos(index));
-	}
-
-	inline void set(u32 x, u32 y) {
-		u32 index = y * linesize + x;
-		data[bytepos(index)] |= 1 << bitpos(index);
-	}
-
-	inline bool all() const {
-		for (u32 i = 0; i < data.size() - 1; i++) {
-			if (data[i] != 0xff)
-				return false;
-		}
-		// last byte not entirely filled
-		for (u8 i = 0; i < bitpos(linesize * lines); i++) {
-			bool value_of_bit = data.back() & (1 << i);
-			if (!value_of_bit)
-				return false;
-		}
-		return true;
-	}
-
-	inline void copy(Bitmap &to) const {
-		assert(to.linesize == linesize && to.lines == lines);
-		to.data = data;
-	}
-};
 
 template <bool IS_A8R8G8B8>
 static void imageCleanTransparentWithInlining(video::IImage *src, u32 threshold)
@@ -143,7 +101,7 @@ static void imageCleanTransparentWithInlining(video::IImage *src, u32 threshold)
 
 	// Apply changes to bitmap for next run. This is done so we don't introduce
 	// a bias in color propagation in the direction pixels are processed.
-	newmap.copy(bitmap);
+	bitmap = newmap;
 
 	}
 }
@@ -229,8 +187,8 @@ static video::SColor imageAverageColorInline(const video::IImage *src)
 	// limit runtime cost
 	const u32 stepx = std::max(1U, dim.Width / 16),
 		stepy = std::max(1U, dim.Height / 16);
-	for (u32 x = 0; x < dim.Width; x += stepx) {
-		for (u32 y = 0; y < dim.Height; y += stepy) {
+	for (u32 y = 0; y < dim.Height; y += stepy) {
+		for (u32 x = 0; x < dim.Width; x += stepx) {
 			video::SColor c = get_pixel(x, y);
 			if (c.getAlpha() > 0) {
 				total++;
@@ -261,15 +219,15 @@ video::SColor imageAverageColor(const video::IImage *img)
 
 void imageScaleNNAA(video::IImage *src, const core::rect<s32> &srcrect, video::IImage *dest)
 {
-	double sx, sy, minsx, maxsx, minsy, maxsy, area, ra, ga, ba, aa, pw, ph, pa;
+	f32 sx, sy, minsx, maxsx, minsy, maxsy, area, ra, ga, ba, aa, pw, ph, pa;
 	u32 dy, dx;
 	video::SColor pxl;
 
 	// Cache rectangle boundaries.
-	double sox = srcrect.UpperLeftCorner.X * 1.0;
-	double soy = srcrect.UpperLeftCorner.Y * 1.0;
-	double sw = srcrect.getWidth() * 1.0;
-	double sh = srcrect.getHeight() * 1.0;
+	const f32 sox = srcrect.UpperLeftCorner.X;
+	const f32 soy = srcrect.UpperLeftCorner.Y;
+	const f32 sw = srcrect.getWidth();
+	const f32 sh = srcrect.getHeight();
 
 	// Walk each destination image pixel.
 	// Note: loop y around x for better cache locality.
@@ -302,8 +260,8 @@ void imageScaleNNAA(video::IImage *src, const core::rect<s32> &srcrect, video::I
 		aa = 0;
 
 		// Loop over the integral pixel positions described by those bounds.
-		for (sy = floor(minsy); sy < maxsy; sy++)
-		for (sx = floor(minsx); sx < maxsx; sx++) {
+		for (sy = std::floor(minsy); sy < maxsy; sy++)
+		for (sx = std::floor(minsx); sx < maxsx; sx++) {
 
 			// Calculate width, height, then area of dest pixel
 			// that's covered by this source pixel.
@@ -331,10 +289,10 @@ void imageScaleNNAA(video::IImage *src, const core::rect<s32> &srcrect, video::I
 
 		// Set the destination image pixel to the average color.
 		if (area > 0) {
-			pxl.setRed(ra / area + 0.5);
-			pxl.setGreen(ga / area + 0.5);
-			pxl.setBlue(ba / area + 0.5);
-			pxl.setAlpha(aa / area + 0.5);
+			pxl.setRed(ra / area + 0.5f);
+			pxl.setGreen(ga / area + 0.5f);
+			pxl.setBlue(ba / area + 0.5f);
+			pxl.setAlpha(aa / area + 0.5f);
 		} else {
 			pxl.setRed(0);
 			pxl.setGreen(0);
@@ -343,39 +301,4 @@ void imageScaleNNAA(video::IImage *src, const core::rect<s32> &srcrect, video::I
 		}
 		dest->setPixel(dx, dy, pxl);
 	}
-}
-
-/* Check and align image to npot2 if required by hardware
- * @param image image to check for npot2 alignment
- * @param driver driver to use for image operations
- * @return image or copy of image aligned to npot2
- */
-video::IImage *Align2Npot2(video::IImage *image, video::IVideoDriver *driver)
-{
-	if (image == nullptr)
-		return image;
-
-	if (driver->queryFeature(video::EVDF_TEXTURE_NPOT))
-		return image;
-
-	core::dimension2d<u32> dim = image->getDimension();
-	unsigned int height = npot2(dim.Height);
-	unsigned int width  = npot2(dim.Width);
-
-	if (dim.Height == height && dim.Width == width)
-		return image;
-
-	if (dim.Height > height)
-		height *= 2;
-	if (dim.Width > width)
-		width *= 2;
-
-	video::IImage *targetimage =
-			driver->createImage(video::ECF_A8R8G8B8,
-					core::dimension2d<u32>(width, height));
-
-	if (targetimage != nullptr)
-		image->copyToScaling(targetimage);
-	image->drop();
-	return targetimage;
 }

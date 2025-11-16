@@ -3,12 +3,11 @@
 // Copyright (C) 2021 velartrill, Lexi Hale <lexi@hale.su>
 
 #pragma once
-#include "lua_api/l_particles.h"
 #include "lua_api/l_object.h"
-#include "lua_api/l_internal.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
 #include "server.h"
+#include "server/serveractiveobject.h"
 #include "particles.h"
 
 namespace LuaParticleParams

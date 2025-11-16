@@ -20,9 +20,10 @@ read_globals = {
 	"profiler",
 	"Settings",
 	"ValueNoise", "ValueNoiseMap",
+	"tracy",
 
 	string = {fields = {"split", "trim"}},
-	table  = {fields = {"copy", "copy_with_metatables", "getn", "indexof", "keyof", "insert_all"}},
+	table  = {fields = {"copy", "copy_with_metatables", "getn", "indexof", "keyof", "insert_all", "shuffle"}},
 	math   = {fields = {"hypot", "round"}},
 }
 
@@ -40,7 +41,7 @@ stds.menu_common = {
 	},
 }
 
-files["builtin/client/register.lua"] = {
+files["builtin/client/init.lua"] = {
 	globals = {
 		debug = {fields={"getinfo"}},
 	}

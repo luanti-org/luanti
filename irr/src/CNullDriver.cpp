@@ -3,15 +3,16 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "CNullDriver.h"
+#include "IVideoDriver.h"
+#include "SMaterial.h"
 #include "os.h"
 #include "CImage.h"
-#include "CAttributes.h"
 #include "IReadFile.h"
 #include "IWriteFile.h"
 #include "IImageLoader.h"
 #include "IImageWriter.h"
 #include "IMaterialRenderer.h"
-#include "IAnimatedMeshSceneNode.h"
+#include "AnimatedMeshSceneNode.h"
 #include "CMeshManipulator.h"
 #include "CColorConverter.h"
 #include "IReferenceCounted.h"
@@ -19,8 +20,6 @@
 
 #include <cassert>
 
-namespace irr
-{
 namespace video
 {
 
@@ -39,36 +38,12 @@ IImageWriter *createImageWriterJPG();
 //! creates a writer which is able to save png images
 IImageWriter *createImageWriterPNG();
 
-namespace
-{
-//! no-op material renderer
-class CDummyMaterialRenderer : public IMaterialRenderer
-{
-public:
-	CDummyMaterialRenderer() {}
-};
-}
-
 //! constructor
 CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &screenSize) :
 		SharedRenderTarget(0), CurrentRenderTarget(0), CurrentRenderTargetSize(0, 0), FileSystem(io), MeshManipulator(0),
 		ViewPort(0, 0, 0, 0), ScreenSize(screenSize), MinVertexCountForVBO(500),
 		TextureCreationFlags(0), OverrideMaterial2DEnabled(false), AllowZWriteOnTransparent(false)
 {
-	DriverAttributes = new io::CAttributes();
-	DriverAttributes->addInt("MaxTextures", MATERIAL_MAX_TEXTURES);
-	DriverAttributes->addInt("MaxSupportedTextures", MATERIAL_MAX_TEXTURES);
-	DriverAttributes->addInt("MaxAnisotropy", 1);
-	//	DriverAttributes->addInt("MaxAuxBuffers", 0);
-	DriverAttributes->addInt("MaxMultipleRenderTargets", 1);
-	DriverAttributes->addInt("MaxIndices", -1);
-	DriverAttributes->addInt("MaxTextureSize", -1);
-	//	DriverAttributes->addInt("MaxGeometryVerticesOut", 0);
-	//	DriverAttributes->addFloat("MaxTextureLODBias", 0.f);
-	DriverAttributes->addInt("Version", 1);
-	//	DriverAttributes->addInt("ShaderLanguageVersion", 0);
-	//	DriverAttributes->addInt("AntiAlias", 0);
-
 	setFog();
 
 	setTextureCreationFlag(ETCF_ALWAYS_32_BIT, true);
@@ -100,8 +75,16 @@ CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &scre
 	InitMaterial2D.ZWriteEnable = video::EZW_OFF;
 	InitMaterial2D.ZBuffer = video::ECFN_DISABLED;
 	InitMaterial2D.UseMipMaps = false;
-	InitMaterial2D.forEachTexture([](auto &tex) {
+	InitMaterial2D.forEachTexture([](video::SMaterialLayer &tex) {
+		// Best preset for 2D pixel-perfect graphics
 		tex.MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
+
+		// Best preset for downscaled 2D graphics using trilinear interpolation
+		//tex.MinFilter = video::ETMINF_LINEAR_MIPMAP_LINEAR;
+		// Lower bias  -> more crisp images, more jitter
+		// Higher bias -> burry images, less jitter
+		//tex.LODBias = -1;
+
 		tex.MagFilter = video::ETMAGF_NEAREST;
 		tex.TextureWrapU = video::ETC_REPEAT;
 		tex.TextureWrapV = video::ETC_REPEAT;
@@ -113,9 +96,6 @@ CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &scre
 //! destructor
 CNullDriver::~CNullDriver()
 {
-	if (DriverAttributes)
-		DriverAttributes->drop();
-
 	if (FileSystem)
 		FileSystem->drop();
 
@@ -218,7 +198,6 @@ bool CNullDriver::beginScene(u16 clearFlag, SColor clearColor, f32 clearDepth, u
 
 bool CNullDriver::endScene()
 {
-	FPSCounter.registerFrame(os::Timer::getRealTime());
 	expireHardwareBuffers();
 	updateAllOcclusionQueries();
 	return true;
@@ -234,12 +213,6 @@ void CNullDriver::disableFeature(E_VIDEO_DRIVER_FEATURE feature, bool flag)
 bool CNullDriver::queryFeature(E_VIDEO_DRIVER_FEATURE feature) const
 {
 	return false;
-}
-
-//! Get attributes of the actual video driver
-const io::IAttributes &CNullDriver::getDriverAttributes() const
-{
-	return *DriverAttributes;
 }
 
 //! sets transformation
@@ -376,7 +349,7 @@ ITexture *CNullDriver::addTextureCubemap(const io::path &name, IImage *imagePosX
 	return t;
 }
 
-ITexture *CNullDriver::addTextureCubemap(const irr::u32 sideLen, const io::path &name, ECOLOR_FORMAT format)
+ITexture *CNullDriver::addTextureCubemap(const u32 sideLen, const io::path &name, ECOLOR_FORMAT format)
 {
 	if (0 == sideLen)
 		return 0;
@@ -650,7 +623,7 @@ void CNullDriver::draw2DImageBatch(const video::ITexture *texture,
 		SColor color,
 		bool useAlphaChannelOfTexture)
 {
-	const irr::u32 drawCount = core::min_<u32>(positions.size(), sourceRects.size());
+	const u32 drawCount = core::min_<u32>(positions.size(), sourceRects.size());
 
 	for (u32 i = 0; i < drawCount; ++i) {
 		draw2DImage(texture, positions[i], sourceRects[i],
@@ -696,12 +669,6 @@ void CNullDriver::draw2DLine(const core::position2d<s32> &start,
 {
 }
 
-//! returns color format
-ECOLOR_FORMAT CNullDriver::getColorFormat() const
-{
-	return ECF_R5G6B5;
-}
-
 //! returns screen size
 const core::dimension2d<u32> &CNullDriver::getScreenSize() const
 {
@@ -722,12 +689,6 @@ const core::dimension2d<u32> &CNullDriver::getCurrentRenderTargetSize() const
 		return CurrentRenderTargetSize;
 }
 
-// returns current frames per second value
-s32 CNullDriver::getFPS() const
-{
-	return FPSCounter.getFPS();
-}
-
 SFrameStats CNullDriver::getFrameStats() const
 {
 	return FrameStats;
@@ -741,130 +702,18 @@ const char *CNullDriver::getName() const
 	return "Irrlicht NullDevice";
 }
 
-//! Creates a boolean alpha channel of the texture based of an color key.
-void CNullDriver::makeColorKeyTexture(video::ITexture *texture,
-		video::SColor color) const
+SDriverLimits CNullDriver::getLimits() const
 {
-	if (!texture)
-		return;
-
-	if (texture->getColorFormat() != ECF_A1R5G5B5 &&
-			texture->getColorFormat() != ECF_A8R8G8B8) {
-		os::Printer::log("Error: Unsupported texture color format for making color key channel.", ELL_ERROR);
-		return;
-	}
-
-	if (texture->getColorFormat() == ECF_A1R5G5B5) {
-		u16 *p = (u16 *)texture->lock();
-
-		if (!p) {
-			os::Printer::log("Could not lock texture for making color key channel.", ELL_ERROR);
-			return;
-		}
-
-		const core::dimension2d<u32> dim = texture->getSize();
-		const u32 pitch = texture->getPitch() / 2;
-
-		// color with alpha disabled (i.e. fully transparent)
-		const u16 refZeroAlpha = (0x7fff & color.toA1R5G5B5());
-
-		const u32 pixels = pitch * dim.Height;
-
-		for (u32 pixel = 0; pixel < pixels; ++pixel) {
-			// If the color matches the reference color, ignoring alphas,
-			// set the alpha to zero.
-			if (((*p) & 0x7fff) == refZeroAlpha)
-				(*p) = refZeroAlpha;
-
-			++p;
-		}
-
-		texture->unlock();
-	} else {
-		u32 *p = (u32 *)texture->lock();
-
-		if (!p) {
-			os::Printer::log("Could not lock texture for making color key channel.", ELL_ERROR);
-			return;
-		}
-
-		core::dimension2d<u32> dim = texture->getSize();
-		u32 pitch = texture->getPitch() / 4;
-
-		// color with alpha disabled (fully transparent)
-		const u32 refZeroAlpha = 0x00ffffff & color.color;
-
-		const u32 pixels = pitch * dim.Height;
-		for (u32 pixel = 0; pixel < pixels; ++pixel) {
-			// If the color matches the reference color, ignoring alphas,
-			// set the alpha to zero.
-			if (((*p) & 0x00ffffff) == refZeroAlpha)
-				(*p) = refZeroAlpha;
-
-			++p;
-		}
-
-		texture->unlock();
-	}
-	texture->regenerateMipMapLevels();
-}
-
-//! Creates an boolean alpha channel of the texture based of an color key position.
-void CNullDriver::makeColorKeyTexture(video::ITexture *texture,
-		core::position2d<s32> colorKeyPixelPos) const
-{
-	if (!texture)
-		return;
-
-	if (texture->getColorFormat() != ECF_A1R5G5B5 &&
-			texture->getColorFormat() != ECF_A8R8G8B8) {
-		os::Printer::log("Error: Unsupported texture color format for making color key channel.", ELL_ERROR);
-		return;
-	}
-
-	SColor colorKey;
-
-	if (texture->getColorFormat() == ECF_A1R5G5B5) {
-		u16 *p = (u16 *)texture->lock(ETLM_READ_ONLY);
-
-		if (!p) {
-			os::Printer::log("Could not lock texture for making color key channel.", ELL_ERROR);
-			return;
-		}
-
-		u32 pitch = texture->getPitch() / 2;
-
-		const u16 key16Bit = 0x7fff & p[colorKeyPixelPos.Y * pitch + colorKeyPixelPos.X];
-
-		colorKey = video::A1R5G5B5toA8R8G8B8(key16Bit);
-	} else {
-		u32 *p = (u32 *)texture->lock(ETLM_READ_ONLY);
-
-		if (!p) {
-			os::Printer::log("Could not lock texture for making color key channel.", ELL_ERROR);
-			return;
-		}
-
-		u32 pitch = texture->getPitch() / 4;
-		colorKey = 0x00ffffff & p[colorKeyPixelPos.Y * pitch + colorKeyPixelPos.X];
-	}
-
-	texture->unlock();
-	makeColorKeyTexture(texture, colorKey);
-}
-
-//! Returns the maximum amount of primitives (mostly vertices) which
-//! the device is able to render with one drawIndexedTriangleList
-//! call.
-u32 CNullDriver::getMaximalPrimitiveCount() const
-{
-	return 0xFFFFFFFF;
+	SDriverLimits ret;
+	ret.MaxPrimitiveCount = 0xFFFFFFFF;
+	ret.MaxTextureSize = 0x10000; // maybe large enough
+	return ret;
 }
 
 //! checks triangle count and print warning if wrong
 bool CNullDriver::checkPrimitiveCount(u32 prmCount) const
 {
-	const u32 m = getMaximalPrimitiveCount();
+	const u32 m = getLimits().MaxPrimitiveCount;
 
 	if (prmCount > m) {
 		char tmp[128];
@@ -1260,7 +1109,7 @@ void CNullDriver::addOcclusionQuery(scene::ISceneNode *node, const scene::IMesh 
 		else if (node->getType() == scene::ESNT_MESH)
 			mesh = static_cast<scene::IMeshSceneNode *>(node)->getMesh();
 		else
-			mesh = static_cast<scene::IAnimatedMeshSceneNode *>(node)->getMesh()->getMesh(0);
+			mesh = static_cast<scene::AnimatedMeshSceneNode *>(node)->getMesh();
 		if (!mesh)
 			return;
 	}
@@ -1443,15 +1292,6 @@ s32 CNullDriver::addMaterialRenderer(IMaterialRenderer *renderer, const char *na
 	return MaterialRenderers.size() - 1;
 }
 
-//! Sets the name of a material renderer.
-void CNullDriver::setMaterialRendererName(u32 idx, const char *name)
-{
-	if (idx < numBuiltInMaterials || idx >= MaterialRenderers.size())
-		return;
-
-	MaterialRenderers[idx].Name = name;
-}
-
 void CNullDriver::swapMaterialRenderers(u32 idx1, u32 idx2, bool swapNames)
 {
 	if (idx1 < MaterialRenderers.size() && idx2 < MaterialRenderers.size()) {
@@ -1497,15 +1337,6 @@ IMaterialRenderer *CNullDriver::getMaterialRenderer(u32 idx) const
 u32 CNullDriver::getMaterialRendererCount() const
 {
 	return MaterialRenderers.size();
-}
-
-//! Returns name of the material renderer
-const char *CNullDriver::getMaterialRendererName(u32 idx) const
-{
-	if (idx < MaterialRenderers.size())
-		return MaterialRenderers[idx].Name.c_str();
-
-	return 0;
 }
 
 //! Returns pointer to the IGPUProgrammingServices interface.
@@ -1664,7 +1495,7 @@ void CNullDriver::deleteShaderMaterial(s32 material)
 	auto &ref = MaterialRenderers[idx];
 	if (ref.Renderer)
 		ref.Renderer->drop();
-	ref.Renderer = new CDummyMaterialRenderer();
+	ref.Renderer = new IMaterialRenderer();
 	ref.Name.clear();
 }
 
@@ -1681,7 +1512,7 @@ ITexture *CNullDriver::addRenderTargetTextureMs(const core::dimension2d<u32> &si
 	return 0;
 }
 
-ITexture *CNullDriver::addRenderTargetTextureCubemap(const irr::u32 sideLen,
+ITexture *CNullDriver::addRenderTargetTextureCubemap(const u32 sideLen,
 		const io::path &name, const ECOLOR_FORMAT format)
 {
 	return 0;
@@ -1748,12 +1579,7 @@ void CNullDriver::enableMaterial2D(bool enable)
 	OverrideMaterial2DEnabled = enable;
 }
 
-core::dimension2du CNullDriver::getMaxTextureSize() const
-{
-	return core::dimension2du(0x10000, 0x10000); // maybe large enough
-}
-
-bool CNullDriver::needsTransparentRenderPass(const irr::video::SMaterial &material) const
+bool CNullDriver::needsTransparentRenderPass(const video::SMaterial &material) const
 {
 	// TODO: I suspect it would be nice if the material had an enum for further control.
 	//		Especially it probably makes sense to allow disabling transparent render pass as soon as material.ZWriteEnable is on.
@@ -1771,5 +1597,4 @@ bool CNullDriver::needsTransparentRenderPass(const irr::video::SMaterial &materi
 	return false;
 }
 
-} // end namespace
 } // end namespace

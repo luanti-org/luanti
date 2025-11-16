@@ -11,14 +11,7 @@
 #include "irrString.h"
 #include "irrArray.h"
 #include "IMeshLoader.h"
-#include "CAttributes.h"
 
-namespace irr
-{
-namespace io
-{
-class IFileSystem;
-}
 namespace scene
 {
 class IMeshCache;
@@ -47,7 +40,7 @@ public:
 	video::IVideoDriver *getVideoDriver() override;
 
 	//! adds a scene node for rendering an animated mesh model
-	virtual IAnimatedMeshSceneNode *addAnimatedMeshSceneNode(IAnimatedMesh *mesh, ISceneNode *parent = 0, s32 id = -1,
+	virtual AnimatedMeshSceneNode *addAnimatedMeshSceneNode(IAnimatedMesh *mesh, ISceneNode *parent = 0, s32 id = -1,
 			const core::vector3df &position = core::vector3df(0, 0, 0),
 			const core::vector3df &rotation = core::vector3df(0, 0, 0),
 			const core::vector3df &scale = core::vector3df(1.0f, 1.0f, 1.0f),
@@ -158,9 +151,6 @@ public:
 	//! Removes all children of this scene node
 	void removeAll() override;
 
-	//! Returns interface to the parameters set in this scene.
-	io::IAttributes *getParameters() override;
-
 	//! Returns current render pass.
 	E_SCENE_NODE_RENDER_PASS getSceneNodeRenderPass() const override;
 
@@ -266,10 +256,6 @@ private:
 	ICameraSceneNode *ActiveCamera;
 	core::vector3df camWorldPos; // Position of camera for transparent nodes.
 
-	//! String parameters
-	// NOTE: Attributes are slow and should only be used for debug-info and not in release
-	io::CAttributes *Parameters;
-
 	//! Mesh cache
 	IMeshCache *MeshCache;
 
@@ -280,4 +266,3 @@ private:
 };
 
 } // end namespace video
-} // end namespace scene

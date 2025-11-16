@@ -8,21 +8,15 @@
 #include "common/c_content.h"
 #include "cpp_api/s_base.h"
 #include "server.h"
-#include "environment.h"
+#include "serverenvironment.h"
 #include "database/database.h"
 #include <algorithm>
 
 // common start: ensure auth db
 AuthDatabase *ModApiAuth::getAuthDb(lua_State *L)
 {
-	ServerEnvironment *server_environment =
-			dynamic_cast<ServerEnvironment *>(getEnv(L));
-	if (!server_environment) {
-		luaL_error(L, "Attempt to access an auth function but the auth"
-			" system is yet not initialized. This causes bugs.");
-		return nullptr;
-	}
-	return server_environment->getAuthDatabase();
+	GET_ENV_PTR_NO_MAP_LOCK;
+	return env->getAuthDatabase();
 }
 
 void ModApiAuth::pushAuthEntry(lua_State *L, const AuthEntry &authEntry)

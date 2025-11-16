@@ -8,14 +8,13 @@
 #include "constants.h"
 #include "irr_ptr.h"
 #include "skyparams.h"
-#include <iostream>
 #include <ISceneNode.h>
 #include <SMaterial.h>
-#include <SMeshBuffer.h>
+#include <CMeshBuffer.h>
 
 class IShaderSource;
 
-namespace irr::scene
+namespace scene
 {
 	class ISceneManager;
 }

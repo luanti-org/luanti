@@ -5,6 +5,7 @@
 #include "texturepaths.h"
 
 #include "util/container.h"
+#include "util/thread.h"
 #include "settings.h"
 #include "filesys.h"
 #include "porting.h"
@@ -12,10 +13,13 @@
 
 // A cache from texture name to texture path
 static MutexedMap<std::string, std::string> g_texturename_to_path_cache;
+// Cached result of getTextureDirs()
+static MutexedVariable<std::vector<std::string>> g_texturedirs_cache;
 
 void clearTextureNameCache()
 {
 	g_texturename_to_path_cache.clear();
+	g_texturedirs_cache.set({});
 }
 
 // Find out the full path of an image by trying different filename extensions.
@@ -74,24 +78,28 @@ std::string getTexturePath(const std::string &filename, bool *is_base_pack)
 			break;
 	}
 
-	// Check from default data directory i.e. .../minetest/textures/base/pack
+	// Check from default data directory
 	if (fullpath.empty()) {
-		std::string base_path = porting::path_share + DIR_DELIM + "textures"
-				+ DIR_DELIM + "base" + DIR_DELIM + "pack";
+		std::string base_path = porting::path_share + DIR_DELIM "textures"
+				DIR_DELIM "base" DIR_DELIM "pack";
 		// Check all filename extensions. Returns "" if not found.
 		fullpath = getImagePath(base_path + DIR_DELIM + filename);
 		if (is_base_pack && !fullpath.empty())
 			*is_base_pack = true;
 	}
 
-	// Add to cache (also an empty result is cached)
+	// Add to cache (an empty result is cached too)
 	g_texturename_to_path_cache.set(filename, fullpath);
 
-	// Finally return it
 	return fullpath;
 }
 
 std::vector<std::string> getTextureDirs()
 {
-	return fs::GetRecursiveDirs(g_settings->get("texture_path"));
+	std::vector<std::string> ret = g_texturedirs_cache.get();
+	if (ret.empty()) {
+		ret = fs::GetRecursiveDirs(g_settings->get("texture_path"));
+		g_texturedirs_cache.set(ret);
+	}
+	return ret;
 }

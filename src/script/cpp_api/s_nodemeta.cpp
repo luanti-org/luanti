@@ -9,6 +9,7 @@
 #include "mapnode.h"
 #include "server.h"
 #include "environment.h"
+#include "inventorymanager.h"
 #include "lua_api/l_item.h"
 
 // Return number of accepted items to be moved

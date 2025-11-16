@@ -18,7 +18,6 @@
 #include "lualib.h"
 
 
-
 static lua_State *globalL = NULL;
 
 static const char *progname = LUA_PROGNAME;

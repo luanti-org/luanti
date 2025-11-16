@@ -1,5 +1,9 @@
+file(GLOB common_SCRIPT_LUA_API_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+
 set(common_SCRIPT_LUA_API_SRCS
+	${common_SCRIPT_LUA_API_HDRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/l_areastore.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/l_async.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/l_auth.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/l_base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/l_craft.cpp

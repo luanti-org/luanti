@@ -3,12 +3,13 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "l_camera.h"
-#include <cmath>
 #include "script/common/c_converter.h"
 #include "l_internal.h"
 #include "client/content_cao.h"
 #include "client/camera.h"
 #include "client/client.h"
+#include "client/localplayer.h"
+#include <ICameraSceneNode.h>
 
 LuaCamera::LuaCamera(Camera *m) : m_camera(m)
 {
@@ -175,7 +176,7 @@ void LuaCamera::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaCamera>(L, methods, metamethods);
 }
 
 const char LuaCamera::className[] = "Camera";

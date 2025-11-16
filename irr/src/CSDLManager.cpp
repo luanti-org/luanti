@@ -8,8 +8,6 @@
 
 #include "CIrrDeviceSDL.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -44,7 +42,6 @@ bool CSDLManager::swapBuffers()
 	return true;
 }
 
-}
 }
 
 #endif

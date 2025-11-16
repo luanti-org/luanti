@@ -7,7 +7,6 @@
 #include "irrlichttypes_bloated.h"
 #include "light.h"
 #include "util/pointer.h"
-#include <string>
 #include <vector>
 
 class NodeDefManager;
@@ -188,14 +187,6 @@ struct alignas(u32) MapNode
 		param2 = p;
 	}
 
-	/*!
-	 * Returns the color of the node.
-	 *
-	 * \param f content features of this node
-	 * \param color output, contains the node's color.
-	 */
-	void getColor(const ContentFeatures &f, video::SColor *color) const;
-
 	inline void setLight(LightBank bank, u8 a_light, ContentLightingFlags f) noexcept
 	{
 		// If node doesn't contain light data, ignore this
@@ -305,9 +296,10 @@ struct alignas(u32) MapNode
 	//   content_width = the number of bytes of content per node
 	//   params_width = the number of bytes of params per node
 	//   compressed = true to zlib-compress output
+	//   is_mono_block = if true, nodes is array of size 1
 	static Buffer<u8> serializeBulk(int version,
 			const MapNode *nodes, u32 nodecount,
-			u8 content_width, u8 params_width);
+			u8 content_width, u8 params_width, bool is_mono_block = false);
 	static void deSerializeBulk(std::istream &is, int version,
 			MapNode *nodes, u32 nodecount,
 			u8 content_width, u8 params_width);

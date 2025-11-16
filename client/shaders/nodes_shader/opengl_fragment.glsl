@@ -1,4 +1,10 @@
-uniform sampler2D baseTexture;
+#ifdef USE_ARRAY_TEXTURE
+	uniform mediump sampler2DArray baseTexture;
+#else
+	uniform sampler2D baseTexture;
+#endif
+#define crackTexture texture1
+uniform sampler2D crackTexture;
 
 uniform vec3 dayLight;
 uniform lowp vec4 fogColor;
@@ -9,6 +15,10 @@ uniform float fogShadingParameter;
 uniform highp vec3 cameraOffset;
 uniform vec3 cameraPosition;
 uniform float animationTimer;
+uniform float crackAnimationLength;
+uniform float crackLevel;
+uniform float crackTextureScale;
+
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// shadow texture
 	uniform sampler2D ShadowMapSampler;
@@ -23,32 +33,26 @@ uniform float animationTimer;
 	uniform float xyPerspectiveBias1;
 	uniform vec3 shadow_tint;
 
-	varying float adj_shadow_strength;
-	varying float cosLight;
-	varying float f_normal_length;
-	varying vec3 shadow_position;
-	varying float perspective_factor;
+	VARYING_ float adj_shadow_strength;
+	VARYING_ float cosLight;
+	VARYING_ float f_normal_length;
+	VARYING_ vec3 shadow_position;
+	VARYING_ float perspective_factor;
 #endif
 
 
-varying vec3 vNormal;
-varying vec3 vPosition;
+VARYING_ vec3 vNormal;
 // World position in the visible world (i.e. relative to the cameraOffset.)
 // This can be used for many shader effects without loss of precision.
 // If the absolute position is required it can be calculated with
 // cameraOffset + worldPosition (for large coordinates the limits of float
 // precision must be considered).
-varying vec3 worldPosition;
-#ifdef GL_ES
-varying lowp vec4 varColor;
-varying mediump vec2 varTexCoord;
-varying float nightRatio;
-#else
-centroid varying lowp vec4 varColor;
-centroid varying vec2 varTexCoord;
-centroid varying float nightRatio;
-#endif
-varying highp vec3 eyeVec;
+VARYING_ vec3 worldPosition;
+CENTROID_ VARYING_ lowp vec4 varColor;
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
+CENTROID_ VARYING_ float varTexLayer; // actually int
+CENTROID_ VARYING_ float nightRatio;
+VARYING_ highp vec3 eyeVec;
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 #if (defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS && ENABLE_WAVING_WATER)
@@ -58,7 +62,8 @@ vec4 perm(vec4 x)
 }
 
 // Corresponding gradient of snoise
-vec3 gnoise(vec3 p){
+vec3 gnoise(vec3 p)
+{
     vec3 a = floor(p);
     vec3 d = p - a;
     vec3 dd = 6.0 * d * (1.0 - d);
@@ -91,7 +96,10 @@ vec3 gnoise(vec3 p){
 }
 
 vec2 wave_noise(vec3 p, float off) {
-	return (gnoise(p + vec3(0.0, 0.0, off)) * 0.4 + gnoise(2.0 * p + vec3(0.0, off, off)) * 0.2 + gnoise(3.0 * p + vec3(0.0, off, off)) * 0.225 + gnoise(4.0 * p + vec3(-off, off, 0.0)) * 0.2).xz;
+	return (gnoise(p + vec3(0.0, 0.0, off)) * 0.4 +
+		gnoise(2.0 * p + vec3(0.0, off, off)) * 0.2 +
+		gnoise(3.0 * p + vec3(0.0, off, off)) * 0.225 +
+		gnoise(4.0 * p + vec3(-off, off, 0.0)) * 0.2).xz;
 }
 #endif
 
@@ -105,13 +113,16 @@ vec3 getLightSpacePosition()
 {
 	return shadow_position * 0.5 + 0.5;
 }
-// custom smoothstep implementation because it's not defined in glsl1.2
-// https://docs.gl/sl4/smoothstep
+
+#if __VERSION__ >= 130
+#define mtsmoothstep smoothstep
+#else
 float mtsmoothstep(in float edge0, in float edge1, in float x)
 {
 	float t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 	return t * t * (3.0 - 2.0 * t);
 }
+#endif
 
 float shadowCutoff(float x) {
 	#if defined(ENABLE_TRANSLUCENT_FOLIAGE) && MATERIAL_TYPE == TILE_MATERIAL_WAVING_LEAVES
@@ -411,15 +422,27 @@ float getShadow(sampler2D shadowsampler, vec2 smTexCoord, float realDistance)
 #endif
 #endif
 
+// maps [0, N] to [0, 1] like GL_REPEAT would
+vec2 uv_repeat(vec2 v)
+{
+	if (v.x > 1.0)
+		v.x = fract(v.x);
+	if (v.y > 1.0)
+		v.y = fract(v.y);
+	return v;
+}
+
 void main(void)
 {
-	vec3 color;
 	vec2 uv = varTexCoord.st;
 
+#ifdef USE_ARRAY_TEXTURE
+	vec4 base = texture(baseTexture, vec3(uv, varTexLayer)).rgba;
+#else
 	vec4 base = texture2D(baseTexture, uv).rgba;
-	// If alpha is zero, we can just discard the pixel. This fixes transparency
-	// on GPUs like GC7000L, where GL_ALPHA_TEST is not implemented in mesa,
-	// and also on GLES 2, where GL_ALPHA_TEST is missing entirely.
+#endif
+
+	// Handle transparency by discarding pixel as appropriate.
 #ifdef USE_DISCARD
 	if (base.a == 0.0)
 		discard;
@@ -429,8 +452,19 @@ void main(void)
 		discard;
 #endif
 
-	color = base.rgb;
-	vec4 col = vec4(color.rgb * varColor.rgb, 1.0);
+	// Apply crack overlay
+	float crack_progress = min(crackLevel, crackAnimationLength - 1.0);
+	if (crack_progress >= 0.0) {
+		// undo scaling of e.g. world-aligned nodes
+		vec2 orig_uv = uv_repeat(uv * vec2(crackTextureScale));
+
+		vec2 cuv_offset = vec2(0.0, crack_progress / crackAnimationLength);
+		vec2 cuv_factor = vec2(1.0, 1.0 / crackAnimationLength);
+		vec4 crack = texture2D(crackTexture, cuv_offset + orig_uv * cuv_factor);
+		base = mix(base, crack, crack.a);
+	}
+
+	vec4 col = vec4(base.rgb * varColor.rgb, 1.0);
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// Fragment normal, can differ from vNormal which is derived from vertex normals.
@@ -570,5 +604,5 @@ void main(void)
 	col = mix(fogColor * pow(fogColor / fogColorMax, vec4(2.0 * clarity)), col, clarity);
 	col = vec4(col.rgb, base.a);
 
-	gl_FragData[0] = col;
+	gl_FragColor = col;
 }

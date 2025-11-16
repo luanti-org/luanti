@@ -18,8 +18,6 @@
 #include <string>
 #include <cassert>
 
-namespace irr
-{
 namespace scene
 {
 class ISceneNode;
@@ -94,16 +92,12 @@ public:
 	\param timeMs Current time in milliseconds. */
 	virtual void OnAnimate(u32 timeMs)
 	{
-		if (IsVisible) {
-			// update absolute position
-			updateAbsolutePosition();
+		if (!IsVisible && Children.empty())
+			return;
 
-			// perform the post render process on all children
-
-			ISceneNodeList::iterator it = Children.begin();
-			for (; it != Children.end(); ++it)
-				(*it)->OnAnimate(timeMs);
-		}
+		updateAbsolutePosition();
+		for (auto *child : Children)
+			child->OnAnimate(timeMs);
 	}
 
 	//! Renders the node.
@@ -421,7 +415,7 @@ public:
 	}
 
 	//! Sets if debug data like bounding boxes should be drawn.
-	/** A bitwise OR of the types from @ref irr::scene::E_DEBUG_SCENE_TYPE.
+	/** A bitwise OR of the types from @ref scene::E_DEBUG_SCENE_TYPE.
 	Please note that not all scene nodes support all debug data types.
 	\param state The debug data visibility state to be used. */
 	virtual void setDebugDataVisible(u16 state)
@@ -431,7 +425,7 @@ public:
 
 	//! Returns if debug data like bounding boxes are drawn.
 	/** \return A bitwise OR of the debug data values from
-	@ref irr::scene::E_DEBUG_SCENE_TYPE that are currently visible. */
+	@ref scene::E_DEBUG_SCENE_TYPE that are currently visible. */
 	u16 isDebugDataVisible() const
 	{
 		return DebugDataVisible;
@@ -599,4 +593,3 @@ protected:
 };
 
 } // end namespace scene
-} // end namespace irr

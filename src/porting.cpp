@@ -41,6 +41,8 @@
 	#include <mach-o/dyld.h>
 	#import <Foundation/Foundation.h>
 	#include <CoreFoundation/CoreFoundation.h>
+	#include <sys/types.h>
+	#include <sys/sysctl.h>
 	// For _NSGetEnviron()
 	// Related: https://gitlab.haskell.org/ghc/ghc/issues/2458
 	#include <crt_externs.h>
@@ -61,13 +63,14 @@
 #include "util/string.h"
 #include "util/tracy_wrapper.h"
 #include <vector>
+#include <csignal>
 #include <cstdarg>
 #include <cstdio>
 #include <signal.h>
 #include <atomic>
 
 #if CHECK_CLIENT_BUILD() && defined(_WIN32)
-// On Windows export some driver-specific variables to encourage Minetest to be
+// On Windows export some driver-specific variables to encourage Luanti to be
 // executed on the discrete GPU in case of systems with two. Portability is fun.
 extern "C" {
 	__declspec(dllexport) DWORD NvOptimusEnablement = 1;
@@ -82,31 +85,28 @@ namespace porting
 	Signal handler (grabs Ctrl-C on POSIX systems)
 */
 
-static bool g_killed = false;
+volatile static std::sig_atomic_t g_killed = false;
 
-bool *signal_handler_killstatus()
+volatile std::sig_atomic_t *signal_handler_killstatus()
 {
 	return &g_killed;
 }
 
 #if !defined(_WIN32) // POSIX
+#define STDERR_FILENO 2
 
 static void signal_handler(int sig)
 {
 	if (!g_killed) {
 		if (sig == SIGINT) {
-			dstream << "INFO: signal_handler(): "
-				<< "Ctrl-C pressed, shutting down." << std::endl;
+			const char *dbg_text{"INFO: signal_handler(): "
+				"Ctrl-C pressed, shutting down.\n"};
+			write(STDERR_FILENO, dbg_text, strlen(dbg_text));
 		} else if (sig == SIGTERM) {
-			dstream << "INFO: signal_handler(): "
-				<< "got SIGTERM, shutting down." << std::endl;
+			const char *dbg_text{"INFO: signal_handler(): "
+				"got SIGTERM, shutting down.\n"};
+			write(STDERR_FILENO, dbg_text, strlen(dbg_text));
 		}
-
-		// Comment out for less clutter when testing scripts
-		/*dstream << "INFO: sigint_handler(): "
-				<< "Printing debug stacks" << std::endl;
-		debug_stacks_print();*/
-
 		g_killed = true;
 	} else {
 		(void)signal(sig, SIG_DFL);
@@ -270,6 +270,26 @@ const std::string &get_sysinfo()
 	return ret;
 }
 
+u32 getMemorySizeMB()
+{
+#ifdef _WIN32
+	MEMORYSTATUSEX status;
+	status.dwLength = sizeof(status);
+	if (GlobalMemoryStatusEx(&status))
+		return status.ullTotalPhys >> 20;
+#elif defined(__unix__) && defined(_SC_PHYS_PAGES) && defined(_SC_PAGE_SIZE)
+	long pages = sysconf(_SC_PHYS_PAGES);
+	long page_size = sysconf(_SC_PAGE_SIZE);
+	if (pages != -1 && page_size != -1)
+		return (pages * page_size) >> 20;
+#elif defined(__APPLE__)
+	int64_t memsize;
+	size_t len = sizeof(memsize);
+	if (sysctlbyname("hw.memsize", &memsize, &len, nullptr, 0) == 0)
+		return memsize >> 20;
+#endif
+	return 0;
+}
 
 [[maybe_unused]] static bool getCurrentWorkingDir(char *buf, size_t len)
 {

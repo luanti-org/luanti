@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2010-2024 celeron55, Perttu Ahola <celeron55@gmail.com>
 
+#include "servermap.h"
+
 #include "map.h"
 #include "mapsector.h"
 #include "filesys.h"
@@ -17,15 +19,14 @@
 #include "rollback_interface.h"
 #include "reflowscan.h"
 #include "emerge.h"
-#include "mapgen/mapgen_v6.h"
 #include "mapgen/mg_biome.h"
 #include "config.h"
 #include "server.h"
+#include "serverenvironment.h"
 #include "database/database.h"
 #include "database/database-dummy.h"
 #include "database/database-sqlite3.h"
 #include "script/scripting_server.h"
-#include "irrlicht_changes/printing.h"
 #if USE_LEVELDB
 #include "database/database-leveldb.h"
 #endif
@@ -58,8 +59,6 @@ ServerMap::ServerMap(const std::string &savedir, IGameDef *gamedef,
 	settings_mgr(savedir + DIR_DELIM + "map_meta.txt"),
 	m_emerge(emerge)
 {
-	verbosestream<<FUNCTION_NAME<<std::endl;
-
 	// Tell the EmergeManager about our MapSettingsManager
 	emerge->map_settings_mgr = &settings_mgr;
 
@@ -200,9 +199,9 @@ bool ServerMap::blockpos_over_mapgen_limit(v3s16 p)
 bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 {
 	assert(data);
-	s16 csize = getMapgenParams()->chunksize;
-	v3s16 bpmin = EmergeManager::getContainingChunk(blockpos, csize);
-	v3s16 bpmax = bpmin + v3s16(1, 1, 1) * (csize - 1);
+	const v3s16 csize = getMapgenParams()->chunksize;
+	const v3s16 bpmin = EmergeManager::getContainingChunk(blockpos, csize);
+	const v3s16 bpmax = bpmin + csize - v3s16(1);
 
 	if (!m_chunks_in_progress.insert(bpmin).second)
 		return false;
@@ -210,11 +209,10 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 	bool enable_mapgen_debug_info = m_emerge->enable_mapgen_debug_info;
 	EMERGE_DBG_OUT("initBlockMake(): " << bpmin << " - " << bpmax);
 
-	v3s16 extra_borders(1, 1, 1);
-	v3s16 full_bpmin = bpmin - extra_borders;
-	v3s16 full_bpmax = bpmax + extra_borders;
+	const v3s16 full_bpmin = bpmin - EMERGE_EXTRA_BORDER;
+	const v3s16 full_bpmax = bpmax + EMERGE_EXTRA_BORDER;
 
-	// Do nothing if not inside mapgen limits (+-1 because of neighbors)
+	// Do nothing if not fully inside mapgen limits
 	if (blockpos_over_mapgen_limit(full_bpmin) ||
 			blockpos_over_mapgen_limit(full_bpmax))
 		return false;
@@ -246,6 +244,7 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 				bool ug = m_emerge->isBlockUnderground(p);
 				block->setIsUnderground(ug);
 			}
+			block->refGrab();
 		}
 	}
 
@@ -263,13 +262,28 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 	return true;
 }
 
+void ServerMap::cancelBlockMake(BlockMakeData *data)
+{
+	assert(data->vmanip); // no vmanip = initBlockMake did not complete (caller mistake)
+
+	const v3s16 full_bpmin = data->blockpos_min - EMERGE_EXTRA_BORDER;
+	const v3s16 full_bpmax = data->blockpos_max + EMERGE_EXTRA_BORDER;
+	for (s16 x = full_bpmin.X; x <= full_bpmax.X; x++)
+	for (s16 z = full_bpmin.Z; z <= full_bpmax.Z; z++)
+	for (s16 y = full_bpmin.Y; y <= full_bpmax.Y; y++) {
+		MapBlock *block = getBlockNoCreateNoEx(v3s16(x, y, z));
+		if (block)
+			block->refDrop();
+	}
+}
+
 void ServerMap::finishBlockMake(BlockMakeData *data,
 	std::map<v3s16, MapBlock*> *changed_blocks, u32 now)
 {
 	assert(data);
 	assert(changed_blocks);
-	v3s16 bpmin = data->blockpos_min;
-	v3s16 bpmax = data->blockpos_max;
+	const v3s16 bpmin = data->blockpos_min;
+	const v3s16 bpmax = data->blockpos_max;
 
 	bool enable_mapgen_debug_info = m_emerge->enable_mapgen_debug_info;
 	EMERGE_DBG_OUT("finishBlockMake(): " << bpmin << " - " << bpmax);
@@ -306,17 +320,32 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 			MOD_REASON_EXPIRE_IS_AIR);
 	}
 
-	// Note: this does not apply to the extra border area
-	for (s16 x = bpmin.X; x <= bpmax.X; x++)
-	for (s16 z = bpmin.Z; z <= bpmax.Z; z++)
-	for (s16 y = bpmin.Y; y <= bpmax.Y; y++) {
-		MapBlock *block = getBlockNoCreateNoEx(v3s16(x, y, z));
-		if (!block)
-			continue;
+	const v3s16 full_bpmin = bpmin - EMERGE_EXTRA_BORDER;
+	const v3s16 full_bpmax = bpmax + EMERGE_EXTRA_BORDER;
 
-		block->setGenerated(true);
-		// Set timestamp to ensure correct application of LBMs and other stuff
-		block->setTimestampNoChangedFlag(now);
+	v3s16 bp;
+	for (bp.X = full_bpmin.X; bp.X <= full_bpmax.X; bp.X++)
+	for (bp.Z = full_bpmin.Z; bp.Z <= full_bpmax.Z; bp.Z++)
+	for (bp.Y = full_bpmin.Y; bp.Y <= full_bpmax.Y; bp.Y++) {
+		MapBlock *block = getBlockNoCreateNoEx(bp);
+		if (!block) {
+			warningstream << "ServerMap::finishBlockMake: block " << bp
+				<< " disappeared during generation" << std::endl;
+			continue;
+		}
+
+		block->refDrop();
+
+		/* Border blocks are grabbed during
+		   generation but mustn't be marked generated. */
+		if (bp.X >= bpmin.X && bp.X <= bpmax.X
+				&& bp.Y >= bpmin.Y && bp.Y <= bpmax.Y
+				&& bp.Z >= bpmin.Z && bp.Z <= bpmax.Z) {
+			block->setGenerated(true);
+			// Set timestamp to ensure correct application
+			// of LBMs and other stuff.
+			block->setTimestampNoChangedFlag(now);
+		}
 	}
 
 	m_chunks_in_progress.erase(bpmin);
@@ -570,35 +599,62 @@ void ServerMap::listAllLoadedBlocks(std::vector<v3s16> &dst)
 	}
 }
 
+std::vector<std::string> ServerMap::getDatabaseBackends()
+{
+	std::vector<std::string> ret;
+	ret.emplace_back("sqlite3");
+	ret.emplace_back("dummy");
+#if USE_LEVELDB
+	ret.emplace_back("leveldb");
+#endif
+#if USE_REDIS
+	ret.emplace_back("redis");
+#endif
+#if USE_POSTGRESQL
+	ret.emplace_back("postgresql");
+#endif
+	return ret;
+}
+
 MapDatabase *ServerMap::createDatabase(
 	const std::string &name,
 	const std::string &savedir,
 	Settings &conf)
 {
+	// Hopefully this way we don't forget to keep them in sync.
+	auto valid = getDatabaseBackends();
+	if (!CONTAINS(valid, name)) {
+		auto err = std::string("Database backend \"") + name + "\" unknown or not supported";
+		errorstream << err << std::endl;
+		throw BaseException(err);
+	}
+
 	MapDatabase *db = nullptr;
+	infostream << "Creating map database with backend \"" << name << "\"" << std::endl;
 
 	if (name == "sqlite3")
 		db = new MapDatabaseSQLite3(savedir);
-	if (name == "dummy")
+	else if (name == "dummy")
 		db = new Database_Dummy();
-	#if USE_LEVELDB
-	if (name == "leveldb")
+#if USE_LEVELDB
+	else if (name == "leveldb")
 		db = new Database_LevelDB(savedir);
-	#endif
-	#if USE_REDIS
-	if (name == "redis")
+#endif
+#if USE_REDIS
+	else if (name == "redis")
 		db = new Database_Redis(conf);
-	#endif
-	#if USE_POSTGRESQL
-	if (name == "postgresql") {
+#endif
+#if USE_POSTGRESQL
+	else if (name == "postgresql") {
 		std::string connect_string;
 		conf.getNoEx("pgsql_connection", connect_string);
 		db = new MapDatabasePostgreSQL(connect_string);
 	}
-	#endif
+#endif
 
-	if (!db)
-		throw BaseException(std::string("Database backend ") + name + " not supported.");
+	// Constructor can't return null, only throw
+	sanity_check(db);
+
 	// Do this to get feedback about errors asap
 	db->verifyDatabase();
 	assert(db->initialized());
@@ -714,7 +770,6 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 		if (!modified_blocks.empty()) {
 			MapEditEvent event;
 			event.type = MEET_OTHER;
-			event.low_priority = true;
 			event.setModifiedBlocks(modified_blocks);
 			dispatchEvent(event);
 		}

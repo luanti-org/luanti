@@ -6,8 +6,6 @@
 
 #include "ISceneNode.h"
 
-namespace irr
-{
 namespace scene
 {
 
@@ -32,7 +30,7 @@ public:
 
 	//! Get the currently defined mesh for display.
 	/** \return Pointer to mesh which is displayed by this node. */
-	virtual IMesh *getMesh(void) = 0;
+	virtual IMesh *getMesh() = 0;
 
 	//! Sets if the scene node should not copy the materials of the mesh but use them directly.
 	/** In this way it is possible to change the materials of a mesh
@@ -47,4 +45,3 @@ public:
 };
 
 } // end namespace scene
-} // end namespace irr

@@ -5,16 +5,13 @@
 #include "lua_api/l_mainmenu.h"
 #include "lua_api/l_internal.h"
 #include "common/c_content.h"
-#include "cpp_api/s_async.h"
 #include "scripting_mainmenu.h"
 #include "gui/guiEngine.h"
 #include "gui/guiMainMenu.h"
 #include "gui/guiPathSelectMenu.h"
 #include "gui/touchscreeneditor.h"
-#include "version.h"
 #include "porting.h"
 #include "filesys.h"
-#include "convert_json.h"
 #include "content/content.h"
 #include "content/subgames.h"
 #include "mapgen/mapgen.h"
@@ -25,7 +22,6 @@
 #include "client/texturepaths.h"
 #include "network/networkprotocol.h"
 #include "content/mod_configuration.h"
-#include "threading/mutex_auto_lock.h"
 #include "common/c_converter.h"
 #include "gui/guiOpenURL.h"
 #include "gettext.h"
@@ -1089,6 +1085,9 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(open_dir);
 	API_FCT(share_file);
 	API_FCT(do_async_callback);
+
+	lua_pushboolean(L, g_first_run);
+	lua_setfield(L, top, "is_first_run");
 }
 
 /******************************************************************************/

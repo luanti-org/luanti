@@ -6,9 +6,9 @@
 
 #include "irrlichttypes_bloated.h"
 #include "map.h"
-#include "camera.h"
-#include <set>
+#include <ISceneNode.h>
 #include <map>
+#include <functional>
 
 struct MapDrawControl
 {
@@ -23,15 +23,16 @@ struct MapDrawControl
 };
 
 class Client;
-class ITextureSource;
-class PartialMeshBuffer;
+class RenderingEngine;
 
-namespace irr::scene
+enum CameraMode : int;
+
+namespace scene
 {
 	class IMeshBuffer;
 }
 
-namespace irr::video
+namespace video
 {
 	class IVideoDriver;
 }
@@ -45,6 +46,7 @@ struct CachedMeshBuffer {
 
 using CachedMeshBuffers = std::unordered_map<std::string, CachedMeshBuffer>;
 
+using ModifyMaterialCallback = std::function<void(video::SMaterial& /* material */, bool /* is_foliage */)>;
 
 /*
 	ClientMap
@@ -89,16 +91,24 @@ public:
 
 	void getBlocksInViewRange(v3s16 cam_pos_nodes,
 		v3s16 *p_blocks_min, v3s16 *p_blocks_max, float range=-1.0f);
+
 	void updateDrawList();
-	// @brief Calculate statistics about the map and keep the blocks alive
+	/// @brief clears m_drawlist and m_keeplist
+	void clearDrawList();
+
+	/// @brief Calculate statistics about the map and keep the blocks alive
 	void touchMapBlocks();
+
 	void updateDrawListShadow(v3f shadow_light_pos, v3f shadow_light_dir, float radius, float length);
+	void clearDrawListShadow();
+
 	// Returns true if draw list needs updating before drawing the next frame.
 	bool needsUpdateDrawList() { return m_needs_update_drawlist; }
+
 	void renderMap(video::IVideoDriver* driver, s32 pass);
 
 	void renderMapShadows(video::IVideoDriver *driver,
-			const video::SMaterial &material, s32 pass, int frame, int total_frames);
+			ModifyMaterialCallback cb, s32 pass, int frame, int total_frames);
 
 	int getBackgroundBrightness(float max_d, u32 daylight_factor,
 			int oldvalue, bool *sunlight_seen_result);

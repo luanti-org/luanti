@@ -6,7 +6,6 @@
 
 #include "irrlichttypes.h"
 #include "itemgroup.h"
-#include "json-forwards.h"
 #include "util/enum_string.h"
 #include <SColor.h>
 
@@ -16,7 +15,8 @@
 #include <map>
 #include <optional>
 
-struct ItemDefinition;
+namespace Json { class Value; }
+
 class IItemDefManager;
 
 /*

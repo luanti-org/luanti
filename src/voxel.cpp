@@ -3,19 +3,17 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "voxel.h"
-#include "map.h"
-#include "gettime.h"
+
+#include "constants.h"
 #include "nodedef.h"
-#include "util/directiontables.h"
-#include "util/timetaker.h"
 #include "porting.h"
 #include <cstring>  // memcpy, memset
+#include <algorithm>
 
 /*
 	Debug stuff
 */
 u64 emerge_time = 0;
-u64 emerge_load_time = 0;
 
 VoxelManipulator::~VoxelManipulator()
 {
@@ -178,7 +176,7 @@ void VoxelManipulator::addArea(const VoxelArea &area)
 	delete[] old_flags;
 }
 
-void VoxelManipulator::copyFrom(MapNode *src, const VoxelArea& src_area,
+void VoxelManipulator::copyFrom(MapNode *src, bool is_mono_block, const VoxelArea& src_area,
 		v3s16 from_pos, v3s16 to_pos, const v3s16 &size)
 {
 	/* The reason for this optimised code is that we're a member function
@@ -217,8 +215,12 @@ void VoxelManipulator::copyFrom(MapNode *src, const VoxelArea& src_area,
 
 	for (s16 z = 0; z < size.Z; z++) {
 		for (s16 y = 0; y < size.Y; y++) {
-			memcpy(&m_data[i_local], &src[i_src], size.X * sizeof(*m_data));
-			memset(&m_flags[i_local], 0, size.X);
+			if (is_mono_block) {
+				std::fill_n(m_data + i_local, size.X, src[0]);
+			} else {
+				std::copy_n(src + i_src, size.X, m_data + i_local);
+			}
+			std::fill_n(m_flags + i_local, size.X, 0);
 			i_src += src_step;
 			i_local += dest_step;
 		}

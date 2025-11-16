@@ -20,8 +20,6 @@
 
 #include "mt_opengl.h"
 
-namespace irr
-{
 namespace video
 {
 
@@ -30,7 +28,7 @@ const u16 COpenGLDriver::Quad2DIndices[4] = {0, 1, 2, 3};
 
 COpenGLDriver::COpenGLDriver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager) :
 		CNullDriver(io, params.WindowSize), COpenGLExtensionHandler(), CacheHandler(0), CurrentRenderMode(ERM_NONE), ResetRenderStates(true),
-		Transformation3DChanged(true), AntiAlias(params.AntiAlias), ColorFormat(ECF_R8G8B8), FixedPipelineState(EOFPS_ENABLE), Params(params),
+		Transformation3DChanged(true), AntiAlias(params.AntiAlias), FixedPipelineState(EOFPS_ENABLE), Params(params),
 		ContextManager(contextManager)
 {}
 
@@ -45,10 +43,6 @@ bool COpenGLDriver::initDriver()
 	GL.LoadAllProcedures(ContextManager);
 
 	genericDriverInit();
-
-#if defined(_IRR_COMPILE_WITH_WINDOWS_DEVICE_) || defined(_IRR_COMPILE_WITH_X11_DEVICE_)
-	extGlSwapInterval(Params.Vsync ? 1 : 0);
-#endif
 
 	return true;
 }
@@ -116,18 +110,6 @@ bool COpenGLDriver::genericDriverInit()
 		os::Printer::log("GLSL version", buf, ELL_INFORMATION);
 	} else
 		os::Printer::log("GLSL not available.", ELL_INFORMATION);
-	DriverAttributes->setAttribute("MaxTextures", (s32)Feature.MaxTextureUnits);
-	DriverAttributes->setAttribute("MaxSupportedTextures", (s32)Feature.MaxTextureUnits);
-	DriverAttributes->setAttribute("MaxAnisotropy", MaxAnisotropy);
-	DriverAttributes->setAttribute("MaxAuxBuffers", MaxAuxBuffers);
-	DriverAttributes->setAttribute("MaxMultipleRenderTargets", (s32)Feature.MultipleRenderTarget);
-	DriverAttributes->setAttribute("MaxIndices", (s32)MaxIndices);
-	DriverAttributes->setAttribute("MaxTextureSize", (s32)MaxTextureSize);
-	DriverAttributes->setAttribute("MaxGeometryVerticesOut", (s32)MaxGeometryVerticesOut);
-	DriverAttributes->setAttribute("MaxTextureLODBias", MaxTextureLODBias);
-	DriverAttributes->setAttribute("Version", Version);
-	DriverAttributes->setAttribute("ShaderLanguageVersion", ShaderLanguageVersion);
-	DriverAttributes->setAttribute("AntiAlias", AntiAlias);
 
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 
@@ -1611,6 +1593,7 @@ inline void COpenGLDriver::getGLTextureMatrix(GLfloat *o, const core::matrix4 &m
 
 ITexture *COpenGLDriver::createDeviceDependentTexture(const io::path &name, E_TEXTURE_TYPE type, const std::vector<IImage*> &images)
 {
+	assert(type == ETT_2D);
 	return new COpenGLTexture(name, images, ETT_2D, this);
 }
 
@@ -1717,6 +1700,8 @@ void COpenGLDriver::setRenderStates3DMode()
 		if (static_cast<u32>(Material.MaterialType) < MaterialRenderers.size())
 			MaterialRenderers[Material.MaterialType].Renderer->OnSetMaterial(
 					Material, LastMaterial, ResetRenderStates, this);
+		else
+			os::Printer::log("Attempt to render with invalid material", ELL_WARNING);
 
 		LastMaterial = Material;
 		CacheHandler->correctCacheMaterial(LastMaterial);
@@ -2502,7 +2487,7 @@ bool COpenGLDriver::queryTextureFormat(ECOLOR_FORMAT format) const
 	return getColorFormatParameters(format, dummyInternalFormat, dummyPixelFormat, dummyPixelType, &dummyConverter);
 }
 
-bool COpenGLDriver::needsTransparentRenderPass(const irr::video::SMaterial &material) const
+bool COpenGLDriver::needsTransparentRenderPass(const video::SMaterial &material) const
 {
 	return CNullDriver::needsTransparentRenderPass(material) || material.isAlphaBlendOperation();
 }
@@ -2520,12 +2505,6 @@ void COpenGLDriver::OnResize(const core::dimension2d<u32> &size)
 E_DRIVER_TYPE COpenGLDriver::getDriverType() const
 {
 	return EDT_OPENGL;
-}
-
-//! returns color format
-ECOLOR_FORMAT COpenGLDriver::getColorFormat() const
-{
-	return ColorFormat;
 }
 
 //! Get a vertex shader constant index.
@@ -2627,10 +2606,6 @@ ITexture *COpenGLDriver::addRenderTargetTextureMs(const core::dimension2d<u32> &
 	if (IImage::isCompressedFormat(format))
 		return 0;
 
-	// disable mip-mapping
-	bool generateMipLevels = getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
-
 	bool supportForFBO = (Feature.ColorAttachment > 0);
 
 	core::dimension2du destSize(size);
@@ -2644,21 +2619,14 @@ ITexture *COpenGLDriver::addRenderTargetTextureMs(const core::dimension2d<u32> &
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
 
-	// restore mip-mapping
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, generateMipLevels);
-
 	return renderTargetTexture;
 }
 
 //! Creates a render target texture for a cubemap
-ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const irr::u32 sideLen, const io::path &name, const ECOLOR_FORMAT format)
+ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const u32 sideLen, const io::path &name, const ECOLOR_FORMAT format)
 {
 	if (IImage::isCompressedFormat(format))
 		return 0;
-
-	// disable mip-mapping
-	bool generateMipLevels = getTextureCreationFlag(ETCF_CREATE_MIP_MAPS);
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
 
 	bool supportForFBO = (Feature.ColorAttachment > 0);
 
@@ -2674,18 +2642,19 @@ ITexture *COpenGLDriver::addRenderTargetTextureCubemap(const irr::u32 sideLen, c
 	addTexture(renderTargetTexture);
 	renderTargetTexture->drop();
 
-	// restore mip-mapping
-	setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, generateMipLevels);
-
 	return renderTargetTexture;
 }
 
 //! Returns the maximum amount of primitives (mostly vertices) which
 //! the device is able to render with one drawIndexedTriangleList
 //! call.
-u32 COpenGLDriver::getMaximalPrimitiveCount() const
+SDriverLimits COpenGLDriver::getLimits() const
 {
-	return 0x7fffffff;
+	SDriverLimits ret;
+	ret.GLVersion = core::vector2di(Version / 100, Version % 100);
+	ret.MaxPrimitiveCount = 0x7fffffff;
+	ret.MaxTextureSize = MaxTextureSize;
+	return ret;
 }
 
 bool COpenGLDriver::setRenderTargetEx(IRenderTarget *target, u16 clearFlag, SColor clearColor, f32 clearDepth, u8 clearStencil)
@@ -2693,6 +2662,14 @@ bool COpenGLDriver::setRenderTargetEx(IRenderTarget *target, u16 clearFlag, SCol
 	if (target && target->getDriverType() != EDT_OPENGL) {
 		os::Printer::log("Fatal Error: Tried to set a render target not owned by this driver.", ELL_ERROR);
 		return false;
+	}
+
+	if (CurrentRenderTarget) {
+		// Update mip-map of the generated texture, if enabled.
+		auto textures = CurrentRenderTarget->getTexture();
+		for (size_t i = 0; i < textures.size(); ++i)
+			if (textures[i])
+				textures[i]->regenerateMipMapLevels();
 	}
 
 	bool supportForFBO = (Feature.ColorAttachment > 0);
@@ -2796,7 +2773,7 @@ IImage *COpenGLDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RE
 		return 0;
 
 	if (format == video::ECF_UNKNOWN)
-		format = getColorFormat();
+		format = video::ECF_R8G8B8;
 
 	// TODO: Maybe we could support more formats (floating point and some of those beyond ECF_R8), didn't really try yet
 	if (IImage::isCompressedFormat(format) || IImage::isDepthFormat(format) || IImage::isFloatingPointFormat(format) || format >= ECF_R8)
@@ -2884,11 +2861,6 @@ IImage *COpenGLDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RE
 		}
 	}
 	return newImage;
-}
-
-core::dimension2du COpenGLDriver::getMaxTextureSize() const
-{
-	return core::dimension2du(MaxTextureSize, MaxTextureSize);
 }
 
 //! Convert E_PRIMITIVE_TYPE to OpenGL equivalent
@@ -3182,5 +3154,4 @@ IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::
 }
 
 } // end namespace video
-} // end namespace irr
 #endif // opengl

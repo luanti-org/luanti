@@ -9,10 +9,11 @@
 #include "constants.h"
 #include "util/pointer.h"
 #include "util/container.h"
-#include "util/numeric.h"
 #include "porting.h"
+#include "network/address.h"
 #include "network/networkprotocol.h"
-#include <iostream>
+#include <atomic>
+#include <cfloat>
 #include <vector>
 #include <memory>
 #include <map>
@@ -301,7 +302,7 @@ private:
 	// Backwards compatibility
 	PeerHandler *m_bc_peerhandler;
 
-	bool m_shutting_down = false;
+	std::atomic<bool> m_shutting_down = false;
 };
 
 } // namespace

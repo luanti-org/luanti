@@ -19,11 +19,10 @@
 #include "remoteplayer.h"
 #include "scripting_server.h"
 #include "server.h"
-#include "util/serialize.h"
+#include "servermap.h"
 #include "util/numeric.h"
 #include "util/basic_macros.h"
 #include "util/pointedthing.h"
-#include "threading/mutex_auto_lock.h"
 #include "filesys.h"
 #include "gameparams.h"
 #include "database/database-dummy.h"
@@ -35,7 +34,6 @@
 #if USE_LEVELDB
 #include "database/database-leveldb.h"
 #endif
-#include "irrlicht_changes/printing.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 
@@ -55,15 +53,13 @@ static void fillRadiusBlock(v3s16 p0, s16 r, std::set<v3s16> &list)
 {
 	v3s16 p;
 	for(p.X=p0.X-r; p.X<=p0.X+r; p.X++)
-		for(p.Y=p0.Y-r; p.Y<=p0.Y+r; p.Y++)
-			for(p.Z=p0.Z-r; p.Z<=p0.Z+r; p.Z++)
-			{
-				// limit to a sphere
-				if (p.getDistanceFrom(p0) <= r) {
-					// Set in list
-					list.insert(p);
-				}
-			}
+	for(p.Y=p0.Y-r; p.Y<=p0.Y+r; p.Y++)
+	for(p.Z=p0.Z-r; p.Z<=p0.Z+r; p.Z++) {
+		// limit to a sphere
+		if (p.getDistanceFrom(p0) <= r) {
+			list.insert(p);
+		}
+	}
 }
 
 static void fillViewConeBlock(v3s16 p0,
@@ -119,30 +115,23 @@ void ActiveBlockList::update(std::vector<PlayerSAO*> &active_players,
 
 	m_abm_list = newlist;
 
-	/*
-		Find out which blocks on the new list are not on the old list
-	*/
+	// 1. Find out which blocks on the new list are not on the old list
+	std::set_difference(newlist.begin(), newlist.end(), m_list.begin(), m_list.end(),
+			std::inserter(blocks_added, blocks_added.end()));
+
+	// 2. remove duplicate blocks from the extra list
 	for (v3s16 p : newlist) {
-		// also remove duplicate blocks from the extra list
 		extralist.erase(p);
-		// If not on old list, it's been added
-		if (m_list.find(p) == m_list.end())
-			blocks_added.insert(p);
-	}
-	/*
-		Find out which blocks on the extra list are not on the old list
-	*/
-	for (v3s16 p : extralist) {
-		// also make sure newlist has all blocks
-		newlist.insert(p);
-		// If not on old list, it's been added
-		if (m_list.find(p) == m_list.end())
-			extra_blocks_added.insert(p);
 	}
 
-	/*
-		Find out which blocks on the old list are not on the new + extra list
-	*/
+	// 3. Find out which blocks on the extra list are not on the old list
+	std::set_difference(extralist.begin(), extralist.end(), m_list.begin(), m_list.end(),
+			std::inserter(extra_blocks_added, extra_blocks_added.end()));
+
+	// 4. make sure newlist has all new block
+	newlist.insert(extralist.begin(), extralist.end());
+
+	// 5. Find out which blocks on the old list are not on the new + extra list
 	std::set_difference(m_list.begin(), m_list.end(), newlist.begin(), newlist.end(),
 			std::inserter(blocks_removed, blocks_removed.end()));
 
@@ -167,9 +156,7 @@ void ActiveBlockList::update(std::vector<PlayerSAO*> &active_players,
 		assert(m_list.count(*blocks_removed.begin()) > 0);
 	}
 
-	/*
-		Update m_list
-	*/
+	// Update m_list
 	m_list = std::move(newlist);
 }
 
@@ -268,14 +255,14 @@ void ServerEnvironment::init()
 		warningstream << "/!\\ You are using old player file backend. "
 				<< "This backend is deprecated and will be removed in a future release /!\\"
 				<< std::endl << "Switching to SQLite3 or PostgreSQL is advised, "
-				<< "please read https://wiki.luanti.org/Database_backends." << std::endl;
+				<< "please read https://docs.luanti.org/for-server-hosts/database-backends." << std::endl;
 	}
 
 	if (auth_backend_name == "files") {
 		warningstream << "/!\\ You are using old auth file backend. "
 				<< "This backend is deprecated and will be removed in a future release /!\\"
 				<< std::endl << "Switching to SQLite3 is advised, "
-				<< "please read https://wiki.luanti.org/Database_backends." << std::endl;
+				<< "please read https://docs.luanti.org/for-server-hosts/database-backends." << std::endl;
 	}
 
 	m_player_database = openPlayerDatabase(player_backend_name, world_path, conf);
@@ -289,8 +276,12 @@ void ServerEnvironment::init()
 
 void ServerEnvironment::deactivateBlocksAndObjects()
 {
+	// Prevent any funny business from happening in case further callbacks
+	// try to add new objects.
+	m_shutting_down = true;
+
 	// Clear active block list.
-	// This makes the next one delete all active objects.
+	// This makes the next code delete all active objects.
 	m_active_blocks.clear();
 
 	deactivateFarObjects(true);
@@ -298,6 +289,7 @@ void ServerEnvironment::deactivateBlocksAndObjects()
 
 ServerEnvironment::~ServerEnvironment()
 {
+	m_script = nullptr;
 	assert(m_active_blocks.size() == 0); // deactivateBlocksAndObjects does this
 
 	// Drop/delete map
@@ -312,9 +304,12 @@ ServerEnvironment::~ServerEnvironment()
 	for (RemotePlayer *m_player : m_players) {
 		delete m_player;
 	}
+	m_players.clear();
 
 	delete m_player_database;
+	m_player_database = nullptr;
 	delete m_auth_database;
+	m_auth_database = nullptr;
 }
 
 Map & ServerEnvironment::getMap()
@@ -583,8 +578,8 @@ void ServerEnvironment::activateBlock(MapBlock *block)
 		return;
 
 	// Run node timers
-	block->step((float)dtime_s, [&](v3s16 p, MapNode n, f32 d) -> bool {
-		return m_script->node_on_timer(p, n, d);
+	block->step((float)dtime_s, [&](v3s16 p, MapNode n, NodeTimer t) -> bool {
+		return m_script->node_on_timer(p, n, t.elapsed, t.timeout);
 	});
 }
 
@@ -1010,8 +1005,8 @@ void ServerEnvironment::step(float dtime)
 			}
 
 			// Run node timers
-			block->step(dtime, [&](v3s16 p, MapNode n, f32 d) -> bool {
-				return m_script->node_on_timer(p, n, d);
+			block->step(dtime, [&](v3s16 p, MapNode n, NodeTimer t) -> bool {
+				return m_script->node_on_timer(p, n, t.elapsed, t.timeout);
 			});
 		}
 	}
@@ -1219,6 +1214,11 @@ void ServerEnvironment::deleteParticleSpawner(u32 id, bool remove_from_object)
 u16 ServerEnvironment::addActiveObject(std::unique_ptr<ServerActiveObject> object)
 {
 	assert(object);	// Pre-condition
+	if (m_shutting_down) {
+		warningstream << "ServerEnvironment: refusing to add active object "
+			"during shutdown: " << object->getDescription() << std::endl;
+		return 0;
+	}
 	m_added_objects++;
 	u16 id = addActiveObjectRaw(std::move(object), nullptr, 0);
 	return id;
@@ -1580,7 +1580,7 @@ std::unique_ptr<ServerActiveObject> ServerEnvironment::createSAO(ActiveObjectTyp
 */
 void ServerEnvironment::activateObjects(MapBlock *block, u32 dtime_s)
 {
-	if (block == NULL)
+	if (!block || m_shutting_down)
 		return;
 
 	if (!block->onObjectsActivation())
@@ -1839,6 +1839,21 @@ void ServerEnvironment::processActiveObjectRemove(ServerActiveObject *obj)
 	m_script->removeObjectReference(obj);
 }
 
+std::vector<std::string> ServerEnvironment::getPlayerDatabaseBackends()
+{
+	std::vector<std::string> ret;
+	ret.emplace_back("sqlite3");
+	ret.emplace_back("dummy");
+#if USE_POSTGRESQL
+	ret.emplace_back("postgresql");
+#endif
+#if USE_LEVELDB
+	ret.emplace_back("leveldb");
+#endif
+	ret.emplace_back("files");
+	return ret;
+}
+
 PlayerDatabase *ServerEnvironment::openPlayerDatabase(const std::string &name,
 		const std::string &savedir, const Settings &conf)
 {
@@ -1953,6 +1968,21 @@ bool ServerEnvironment::migratePlayersDatabase(const GameParams &game_params,
 		return false;
 	}
 	return true;
+}
+
+std::vector<std::string> ServerEnvironment::getAuthDatabaseBackends()
+{
+	std::vector<std::string> ret;
+	ret.emplace_back("sqlite3");
+	ret.emplace_back("dummy");
+#if USE_POSTGRESQL
+	ret.emplace_back("postgresql");
+#endif
+	ret.emplace_back("files");
+#if USE_LEVELDB
+	ret.emplace_back("leveldb");
+#endif
+	return ret;
 }
 
 AuthDatabase *ServerEnvironment::openAuthDatabase(

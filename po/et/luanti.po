@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Estonian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-24 16:51+0200\n"
+"POT-Creation-Date: 2025-09-23 19:19+0200\n"
 "PO-Revision-Date: 2023-10-22 17:18+0000\n"
 "Last-Translator: Janar Leas <janarleas+ubuntuone@googlemail.com>\n"
 "Language-Team: Estonian <https://hosted.weblate.org/projects/minetest/"
@@ -220,7 +220,7 @@ msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#: builtin/mainmenu/content/dlg_package.lua
+#: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
 msgid "Back"
 msgstr "Tagasi"
 
@@ -249,11 +249,6 @@ msgstr "Keelatud"
 #: builtin/common/settings/dlg_settings.lua
 msgid "Enabled"
 msgstr "Lubatud"
-
-#: builtin/common/settings/dlg_settings.lua src/gui/guiVolumeChange.cpp
-#: src/gui/touchscreenlayout.cpp
-msgid "Exit"
-msgstr "Välju"
 
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "General"
@@ -526,6 +521,7 @@ msgid "Error getting dependencies for package $1"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_install.lua
+#: builtin/mainmenu/content/dlg_package.lua
 msgid "Install"
 msgstr "Paigalda"
 
@@ -622,6 +618,11 @@ msgstr "Värskenda"
 #, fuzzy
 msgid "Website"
 msgstr "Külasta veebilehte"
+
+#: builtin/mainmenu/content/dlg_package.lua
+#, fuzzy
+msgid "by $1"
+msgstr "$1 $2 poolt"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -945,6 +946,31 @@ msgstr "PakiHaldur: väär asukoht „$1“"
 msgid "Delete World \"$1\"?"
 msgstr "Kustutad maailma \"$1\"?"
 
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "As a result, your keybindings may have been changed."
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Check out the key settings or refer to the documentation:"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Close"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "Keybindings changed"
+msgstr ""
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+#, fuzzy
+msgid "Open settings"
+msgstr "Sätted"
+
+#: builtin/mainmenu/dlg_rebind_keys.lua
+msgid "The input handling system was reworked in Luanti 5.12.0."
+msgstr ""
+
 #: builtin/mainmenu/dlg_register.lua src/gui/guiPasswordChange.cpp
 msgid "Confirm Password"
 msgstr "Kinnita salasõna"
@@ -1213,10 +1239,6 @@ msgid "New"
 msgstr "Uus"
 
 #: builtin/mainmenu/tab_local.lua
-msgid "No world created or selected!"
-msgstr "Pole valitud ega loodud ühtegi maailma!"
-
-#: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
 msgstr "Mängi"
 
@@ -1339,6 +1361,11 @@ msgid "Done!"
 msgstr "Valmis!"
 
 #: src/client/client.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr ""
+
+#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "Klotsidega täitmine"
 
@@ -1353,6 +1380,11 @@ msgstr "Tekstuuride laadimine ..."
 #: src/client/client.cpp
 msgid "Rebuilding shaders..."
 msgstr "Varjutajate taasloomine..."
+
+#: src/client/client.cpp
+#, fuzzy, c-format
+msgid "Saved screenshot to \"%s\""
+msgstr "Kuva pildistused"
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -1809,10 +1841,6 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Koormushinnang (%d leht %d-st)"
 
 #: src/client/keycode.cpp
-msgid "Apps"
-msgstr "Aplikatsioonid"
-
-#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Tagasinihe"
 
@@ -1846,44 +1874,19 @@ msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-msgid "End"
-msgstr "Lõpeta"
+#, fuzzy
+msgid "End Key"
+msgstr "Menüü"
 
 #: src/client/keycode.cpp
-msgid "Erase EOF"
-msgstr "Kustuta EOF"
+#, fuzzy
+msgid "Help Key"
+msgstr "Kustuta"
 
 #: src/client/keycode.cpp
-msgid "Execute"
-msgstr "Soorita"
-
-#: src/client/keycode.cpp
-msgid "Help"
-msgstr "Abi"
-
-#: src/client/keycode.cpp
-msgid "Home"
-msgstr "Kodu"
-
-#: src/client/keycode.cpp
-msgid "IME Accept"
-msgstr "Sisendviisiga nõustumine"
-
-#: src/client/keycode.cpp
-msgid "IME Convert"
-msgstr "Sisendviisi teisendamine"
-
-#: src/client/keycode.cpp
-msgid "IME Escape"
-msgstr "Sisendviisi paoklahv"
-
-#: src/client/keycode.cpp
-msgid "IME Mode Change"
-msgstr "Sisendviisi laadi vahetus"
-
-#: src/client/keycode.cpp
-msgid "IME Nonconvert"
-msgstr "Sisendviisi mitte-teisendada"
+#, fuzzy
+msgid "Home Key"
+msgstr "Suumi"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1895,8 +1898,9 @@ msgid "Left Arrow"
 msgstr "Vasak CTRL"
 
 #: src/client/keycode.cpp
-msgid "Left Button"
-msgstr "Vasak nupp"
+#, fuzzy
+msgid "Left Click"
+msgstr "Vasak CTRL"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1910,19 +1914,27 @@ msgstr "Vasak Menüü"
 msgid "Left Shift"
 msgstr "Vasak Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Vasak Windowsi nupp"
 
-#. ~ Key name, common on Windows keyboards
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Menu Key"
 msgstr "Menüü"
 
 #: src/client/keycode.cpp
-msgid "Middle Button"
-msgstr "Keskmine nupp"
+msgid "Middle Click"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X1"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Mouse X2"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -1989,10 +2001,6 @@ msgid "Numpad 9"
 msgstr "Numbrilaual 9"
 
 #: src/client/keycode.cpp
-msgid "OEM Clear"
-msgstr "OEM Tühi"
-
-#: src/client/keycode.cpp
 #, fuzzy
 msgid "Page Down"
 msgstr "Lehekülg alla"
@@ -2028,8 +2036,9 @@ msgid "Right Arrow"
 msgstr "Parem CTRL"
 
 #: src/client/keycode.cpp
-msgid "Right Button"
-msgstr "Parem nupp"
+#, fuzzy
+msgid "Right Click"
+msgstr "Parem CTRL"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2043,6 +2052,7 @@ msgstr "Parem Menüü"
 msgid "Right Shift"
 msgstr "Parem Shift"
 
+#. ~ Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Parem Windowsi nupp"
@@ -2051,10 +2061,10 @@ msgstr "Parem Windowsi nupp"
 msgid "Scroll Lock"
 msgstr "Scroll lukk"
 
-#. ~ Key name
 #: src/client/keycode.cpp
-msgid "Select"
-msgstr "Vali"
+#, fuzzy
+msgid "Select Key"
+msgstr "Kustuta"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2062,37 +2072,17 @@ msgid "Shift Key"
 msgstr "Shift,"
 
 #: src/client/keycode.cpp
-msgid "Sleep"
-msgstr "Maga"
-
-#: src/client/keycode.cpp
-msgid "Snapshot"
-msgstr "Mängupilt"
-
-#: src/client/keycode.cpp
 msgid "Space"
 msgstr "Tühik"
 
 #: src/client/keycode.cpp
-msgid "Tab"
-msgstr "Reavahetus"
+#, fuzzy
+msgid "Tab Key"
+msgstr "Hiilimis klahv"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
-
-#: src/client/keycode.cpp
-msgid "X Button 1"
-msgstr "X Nuppp 1"
-
-#: src/client/keycode.cpp
-msgid "X Button 2"
-msgstr "X Nupp 2"
-
-#: src/client/keycode.cpp
-#, fuzzy
-msgid "Zoom Key"
-msgstr "Suumi"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2246,6 +2236,10 @@ msgid "Drop"
 msgstr "Viska maha"
 
 #: src/gui/touchscreenlayout.cpp
+msgid "Exit"
+msgstr "Välju"
+
+#: src/gui/touchscreenlayout.cpp
 msgid "Inventory"
 msgstr "Seljakott"
 
@@ -2266,7 +2260,7 @@ msgstr ""
 msgid "Place/use"
 msgstr "Asetamis klahv"
 
-#: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
+#: src/gui/touchscreenlayout.cpp
 msgid "Range select"
 msgstr "Kauguse valik"
 
@@ -2493,12 +2487,11 @@ msgstr "Kolmemõõtmeline müra, mis määratleb kambristike sageduse kaardijaos
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
-"-    none: no 3d output.\n"
-"-    anaglyph: cyan/magenta color 3d.\n"
-"-    interlaced: odd/even line based polarization screen support.\n"
-"-    topbottom: split screen top/bottom.\n"
-"-    sidebyside: split screen side by side.\n"
-"-    crossview: Cross-eyed 3d"
+"-    none: no 3D output\n"
+"-    anaglyph: cyan/magenta color 3D\n"
+"-    topbottom: split screen top/bottom\n"
+"-    sidebyside: split screen side-by-side\n"
+"-    crossview: cross-eyed 3D"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2556,7 +2549,7 @@ msgid "Adjust the detected display density, used for scaling UI elements."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, c-format
+#, no-c-format
 msgid ""
 "Adjusts the density of the floatland layer.\n"
 "Increase value to increase density. Can be positive or negative.\n"
@@ -2585,6 +2578,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Allows liquids to be translucent."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Also used for climbing down and descending in water if aux1_descends is "
+"disabled."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2659,10 +2658,6 @@ msgid ""
 "to 8 bits.\n"
 "With OpenGL ES, dithering only works if the shader supports high\n"
 "floating-point precision and it may have a higher performance impact."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Apply specular shading to nodes."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2820,6 +2815,17 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Capture Tracy zones with the profiler's instrumentation.\n"
+"You need to build with Tracy to use this, see doc/developing/profiling.md\n"
+"for details."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3261,7 +3267,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
-"down the rate of mesh updates, thus reducing jitter on slower clients."
+"down the rate of mesh updates, which can help reduce jitter."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3305,6 +3311,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Developer Options"
 msgstr "Arendaja valikud"
+
+#: src/settings_translation_file.cpp
+msgid "Disable if you only want to instrument with Tracy."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -4211,6 +4221,7 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
@@ -4263,6 +4274,7 @@ msgid "In-game chat console background color (R,G,B)."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, no-c-format
 msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr ""
 
@@ -4432,14 +4444,6 @@ msgid "Jumping speed"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for decreasing the viewing range."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for decreasing the volume."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for decrementing the selected value in Quicktune."
 msgstr ""
 
@@ -4450,49 +4454,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for dropping the currently selected item."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the viewing range."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for increasing the volume."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for incrementing the selected value in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for jumping."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for moving the player backward.\n"
-"Will also disable autoforward, when active."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player forward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player left."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for moving the player right."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for muting the game."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4504,164 +4470,9 @@ msgid "Key for opening the chat window to type local commands."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for opening the chat window."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for opening the inventory."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 11th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 12th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 13th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 14th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 15th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 16th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 17th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 18th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 19th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 20th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 21st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 22nd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 23rd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 24th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 25th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 26th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 27th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 28th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 29th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 30th hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 31st hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the 32nd hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the eighth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fifth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the first hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the fourth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the next item in the hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the ninth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the previous item in the hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the second hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the seventh hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the sixth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the tenth hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for selecting the third hotbar slot."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"Key for sneaking.\n"
-"Also used for climbing down and descending in water if aux1_descends is "
-"disabled."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for switching between first- and third-person camera."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4673,55 +4484,7 @@ msgid "Key for switching to the previous entry in Quicktune."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for taking screenshots."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling autoforward."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling cinematic mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling display of minimap."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fast mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling flying."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling fullscreen mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling noclip mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling pitch move mode."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of chat."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of debug info."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of fog."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4729,24 +4492,7 @@ msgid "Key for toggling the display of mapblock boundaries."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the HUD."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Key for toggling the display of the large chat console."
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Key for toggling unlimited view range."
-msgstr "Piiramatu vaatamisulatus keelatud"
-
-#: src/settings_translation_file.cpp
-msgid "Key to use view zoom when possible."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4788,11 +4534,6 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
 msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Large chat console"
-msgstr "Suure vestlus-viiba klahv"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
@@ -5274,6 +5015,10 @@ msgid "Maximum users"
 msgstr "Enim kasutajaid"
 
 #: src/settings_translation_file.cpp
+msgid "Measure time samples"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr "Päevasõnum"
 
@@ -5327,6 +5072,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Mod channels"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Modifier key bind for closing your world.\n"
+"Requires ESC + the selected key to work."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5447,10 +5198,6 @@ msgid "Node highlighting"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Node specular"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
 msgstr ""
 
@@ -5490,7 +5237,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Number of threads to use for mesh generation.\n"
-"Value of 0 (default) will let Luanti autodetect the number of available "
+"Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
 
@@ -5738,6 +5485,11 @@ msgid ""
 "csm_restriction_noderange)\n"
 "READ_PLAYERINFO: 32 (disable get_player_names call client-side)"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Return to Main Menu"
+msgstr "Välju menüüsse"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -6622,6 +6374,11 @@ msgid "Toggle fullscreen"
 msgstr "Lülita lendamine sisse"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle large chat console"
+msgstr "Suure vestlus-viiba klahv"
+
+#: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
 msgstr "Lülita pitchmove sisse/välja"
 
@@ -6629,6 +6386,11 @@ msgstr "Lülita pitchmove sisse/välja"
 #, fuzzy
 msgid "Toggle profiler"
 msgstr "Lülita lendamine sisse"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Toggle unlimited view range"
+msgstr "Piiramatu vaatamisulatus keelatud"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7051,6 +6813,10 @@ msgid "Width of the selection box lines around nodes."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Will also disable autoforward, when active."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Window maximized"
 msgstr ""
 
@@ -7147,491 +6913,68 @@ msgstr "cURL-i interaktiivne aegumine"
 msgid "cURL parallel limit"
 msgstr ""
 
-#~ msgid "\"Aux1\" = climb down"
-#~ msgstr "\"Aux1\" = roni alla"
+#~ msgid "Apps"
+#~ msgstr "Aplikatsioonid"
 
-#~ msgid "- Address: "
-#~ msgstr "- Aadress: "
+#~ msgid "End"
+#~ msgstr "Lõpeta"
 
-#~ msgid "- Creative Mode: "
-#~ msgstr "- Kujunduslik mängumood: "
+#~ msgid "Erase EOF"
+#~ msgstr "Kustuta EOF"
 
-#~ msgid "- Damage: "
-#~ msgstr "- Valu: "
+#~ msgid "Execute"
+#~ msgstr "Soorita"
 
-#~ msgid "- Port: "
-#~ msgstr "- Port: "
+#~ msgid "Help"
+#~ msgstr "Abi"
 
-#~ msgid "2x"
-#~ msgstr "2x"
+#~ msgid "Home"
+#~ msgstr "Kodu"
 
-#~ msgid "3D Clouds"
-#~ msgstr "Ruumilised pilved"
+#~ msgid "IME Accept"
+#~ msgstr "Sisendviisiga nõustumine"
 
-#~ msgid "4x"
-#~ msgstr "4x"
+#~ msgid "IME Convert"
+#~ msgstr "Sisendviisi teisendamine"
 
-#~ msgid "8x"
-#~ msgstr "8x"
+#~ msgid "IME Escape"
+#~ msgstr "Sisendviisi paoklahv"
 
-#~ msgid "< Back to Settings page"
-#~ msgstr "< Tagasi lehele „Seaded“"
+#~ msgid "IME Mode Change"
+#~ msgstr "Sisendviisi laadi vahetus"
 
-#~ msgid "Address / Port"
-#~ msgstr "Aadress / kanal"
+#~ msgid "IME Nonconvert"
+#~ msgstr "Sisendviisi mitte-teisendada"
 
-#~ msgid "Adds particles when digging a node."
-#~ msgstr "Lendlevad osakesed klotsi kaevandamisel."
+#~ msgid "Left Button"
+#~ msgstr "Vasak nupp"
 
-#~ msgid "All Settings"
-#~ msgstr "Kõik sätted"
+#~ msgid "Middle Button"
+#~ msgstr "Keskmine nupp"
 
-#~ msgid "All packages"
-#~ msgstr "Kõik pakid"
+#~ msgid "No world created or selected!"
+#~ msgstr "Pole valitud ega loodud ühtegi maailma!"
 
-#~ msgid "Are you sure to reset your singleplayer world?"
-#~ msgstr "Kindlasti lähtestad oma üksikmängija maailma algseks?"
+#~ msgid "OEM Clear"
+#~ msgstr "OEM Tühi"
 
-#~ msgid "Autosave Screen Size"
-#~ msgstr "Mäleta ekraani suurust"
+#~ msgid "Right Button"
+#~ msgstr "Parem nupp"
 
-#~ msgid "Back to Main Menu"
-#~ msgstr "Tagasi peamenüüsse"
+#~ msgid "Select"
+#~ msgstr "Vali"
 
-#~ msgid "Backward key"
-#~ msgstr "Tagasi liikumise klahv"
+#~ msgid "Sleep"
+#~ msgstr "Maga"
 
-#~ msgid "Bilinear Filter"
-#~ msgstr "Bi-lineaarne filtreerimine"
+#~ msgid "Snapshot"
+#~ msgstr "Mängupilt"
 
-#~ msgid "Block bounds shown for all blocks"
-#~ msgstr "Ääriste kuvamine kõigil klotsidel"
+#~ msgid "Tab"
+#~ msgstr "Reavahetus"
 
-#~ msgid "Bump Mapping"
-#~ msgstr "Konarlik tapeet"
+#~ msgid "X Button 1"
+#~ msgstr "X Nuppp 1"
 
-#~ msgid "Bumpmapping"
-#~ msgstr "Muhkkaardistamine"
-
-#~ msgid "Change Keys"
-#~ msgstr "Vaheta klahve"
-
-#, fuzzy
-#~ msgid "Change keys"
-#~ msgstr "Vaheta klahve"
-
-#~ msgid "Chat key"
-#~ msgstr "Vestlusklahv"
-
-#~ msgid "Chat toggle key"
-#~ msgstr "Vestluse lülitusklahv"
-
-#~ msgid "Cinematic mode"
-#~ msgstr "Filmirežiim"
-
-#~ msgid "Cinematic mode key"
-#~ msgstr "Filmirežiimi klahv"
-
-#~ msgid "Command key"
-#~ msgstr "Käsuklahv"
-
-#~ msgid "Config mods"
-#~ msgstr "Seadista mod-e"
-
-#~ msgid "Configure"
-#~ msgstr "Kohanda"
-
-#~ msgid "Connect"
-#~ msgstr "Ühine"
-
-#~ msgid "Connected Glass"
-#~ msgstr "Ühendatud klaas"
-
-#~ msgid "Console"
-#~ msgstr "Konsool"
-
-#, fuzzy, c-format
-#~ msgid ""
-#~ "Controls:\n"
-#~ "- %s: move forwards\n"
-#~ "- %s: move backwards\n"
-#~ "- %s: move left\n"
-#~ "- %s: move right\n"
-#~ "- %s: jump/climb up\n"
-#~ "- %s: dig/punch/use\n"
-#~ "- %s: place/use\n"
-#~ "- %s: sneak/climb down\n"
-#~ "- %s: drop item\n"
-#~ "- %s: inventory\n"
-#~ "- Mouse: turn/look\n"
-#~ "- Mouse wheel: select item\n"
-#~ "- %s: chat\n"
-#~ msgstr ""
-#~ "Klahvid:\n"
-#~ "- %s: liigu edasi\n"
-#~ "- %s: liigu tagasi\n"
-#~ "- %s: liigu vasakule\n"
-#~ "- %s: liigu paremale\n"
-#~ "- %s: hüppa/roni\n"
-#~ "- %s: kaeva/viruta\n"
-#~ "- %s: paigalda/kasuta\n"
-#~ "- %s: hiili/mine alla\n"
-#~ "- %s: viska ese\n"
-#~ "- %s: seljakott\n"
-#~ "- Hiir: keera/vaata\n"
-#~ "- Hiireratas: vali ese\n"
-#~ "- %s: vestlus\n"
-
-#~ msgid "Creative"
-#~ msgstr "Loominguline"
-
-#~ msgid "Credits"
-#~ msgstr "Tegijad"
-
-#~ msgid "Damage"
-#~ msgstr "Vigastused"
-
-#~ msgid "Damage enabled"
-#~ msgstr "Ellujääja"
-
-#~ msgid "Darkness sharpness"
-#~ msgstr "Pimeduse teravus"
-
-#~ msgid "Debug info and profiler graph hidden"
-#~ msgstr "Siluri info ja profiileri graafik peidetud"
-
-#~ msgid "Debug info, profiler graph, and wireframe hidden"
-#~ msgstr "Siluri info, profiileri graafik ja sõrestik peidetud"
-
-#~ msgid "Default game"
-#~ msgstr "Vaikemäng"
-
-#~ msgid "Dig key"
-#~ msgstr "Kaevuri klahv"
-
-#~ msgid "Digging particles"
-#~ msgstr "Kaevamisel tekkivad osakesed"
-
-#~ msgid "Disable anticheat"
-#~ msgstr "Lülita sohituvastus välja"
-
-#~ msgid "Double tap \"jump\" to toggle fly"
-#~ msgstr "Topeltklõpsa \"Hüppamist\" et sisse lülitada lendamine"
-
-#~ msgid "Down"
-#~ msgstr "Alla"
-
-#~ msgid "Download a game, such as Minetest Game, from minetest.net"
-#~ msgstr "Lae alla mäng: näiteks „Minetest Game“, aadressilt: minetest.net"
-
-#~ msgid "Download one from minetest.net"
-#~ msgstr "Laadi minetest.net-st üks mäng alla"
-
-#~ msgid "Downloading and installing $1, please wait..."
-#~ msgstr "Palun oota $1 allalaadimist ja paigaldamist…"
-
-#~ msgid "Dynamic shadows:"
-#~ msgstr "Elavad varjud:"
-
-#, fuzzy
-#~ msgid "Enable"
-#~ msgstr "Lubatud"
-
-#~ msgid "Enable VBO"
-#~ msgstr "Luba VBO"
-
-#, fuzzy
-#~ msgid "Enables filmic tone mapping"
-#~ msgstr "Lubab filmic tone mapping"
-
-#~ msgid "Enables minimap."
-#~ msgstr "Lubab minikaarti."
-
-#~ msgid "Enter "
-#~ msgstr "Sisesta "
-
-#~ msgid "Fancy Leaves"
-#~ msgstr "Uhked lehed"
-
-#~ msgid "Filtering"
-#~ msgstr "Filtreerimine"
-
-#~ msgid "Flying"
-#~ msgstr "Lendamine"
-
-#~ msgid "Forward"
-#~ msgstr "Edasi"
-
-#~ msgid "Forward key"
-#~ msgstr "Edasi klahv"
-
-#~ msgid "Generate Normal Maps"
-#~ msgstr "Loo normaalkaardistusi"
-
-#, fuzzy
-#~ msgid "Hide: Temporary Settings"
-#~ msgstr "Ajutised sätted"
-
-#~ msgid "In-Game"
-#~ msgstr "Mängu-sisene"
-
-#~ msgid "Inc. volume key"
-#~ msgstr "Heli valjemaks"
-
-#~ msgid "Install Mod: Unable to find real mod name for: $1"
-#~ msgstr "Paigalda mod: Tegeliku nime leidmine ebaõnnestus mod-ile: $1"
-
-#~ msgid "Install: file: \"$1\""
-#~ msgstr "Paigaldus: fail: \"$1\""
-
-#~ msgid "Invalid gamespec."
-#~ msgstr "Vale mängu ID."
-
-#~ msgid "Inventory key"
-#~ msgstr "Varustuse klahv"
-
-#~ msgid "Jump key"
-#~ msgstr "Hüppa"
-
-#~ msgid "Key already in use"
-#~ msgstr "Nupp juba kasutuses"
-
-#~ msgid ""
-#~ "Keybindings. (If this menu screws up, remove stuff from minetest.conf)"
-#~ msgstr ""
-#~ "Nupusätted. (Kui see menüü sassi läheb, siis kustuta asju failist "
-#~ "minetest.conf)"
-
-#~ msgid "Left"
-#~ msgstr "Vasakule"
-
-#~ msgid "Left key"
-#~ msgstr "Vasak klahv"
-
-#~ msgid "Main"
-#~ msgstr "Peamine"
-
-#~ msgid "Main menu style"
-#~ msgstr "Peamenüü ilme"
-
-#~ msgid "Menus"
-#~ msgstr "Menüüd"
-
-#~ msgid "Minimap"
-#~ msgstr "Pisikaart"
-
-#~ msgid "Minimap in radar mode, Zoom x2"
-#~ msgstr "Radarkaart, Suurendus ×2"
-
-#~ msgid "Minimap in radar mode, Zoom x4"
-#~ msgstr "Radarkaart, Suurendus ×4"
-
-#~ msgid "Minimap in surface mode, Zoom x2"
-#~ msgstr "Pinnakaart, Suurendus ×2"
-
-#~ msgid "Minimap in surface mode, Zoom x4"
-#~ msgstr "Pinnakaart, Suurendus ×4"
-
-#~ msgid "Mipmap"
-#~ msgstr "KaugVaatEsemeKaart"
-
-#~ msgid "Mute key"
-#~ msgstr "Vaigista"
-
-#~ msgid "Name / Password"
-#~ msgstr "Nimi / salasõna"
-
-#~ msgid "Name/Password"
-#~ msgstr "Nimi/Salasõna"
-
-#~ msgid "Next item"
-#~ msgstr "Järgmine üksus"
-
-#~ msgid "No"
-#~ msgstr "Ei"
-
-#~ msgid "No Filter"
-#~ msgstr "Filtrita"
-
-#~ msgid "No Mipmap"
-#~ msgstr "Mipmapita"
-
-#~ msgid "Node Highlighting"
-#~ msgstr "Valitud klotsi ilme"
-
-#~ msgid "Node Outlining"
-#~ msgstr "Klotsi servad"
-
-#~ msgid "None"
-#~ msgstr "Puudub"
-
-#~ msgid "Ok"
-#~ msgstr "Olgu."
-
-#~ msgid "Opaque Leaves"
-#~ msgstr "Läbipaistmatud lehed"
-
-#~ msgid "Opaque Water"
-#~ msgstr "Läbipaistmatu vesi"
-
-#~ msgid "Particles"
-#~ msgstr "Osakesed"
-
-#~ msgid "Pitch move key"
-#~ msgstr "Kõrvale astumise klahv"
-
-#~ msgid "Please enter a valid integer."
-#~ msgstr "Palun sisesta korrektne täisarv."
-
-#~ msgid "Please enter a valid number."
-#~ msgstr "Palun sisesta korrektne arv."
-
-#~ msgid "PvP enabled"
-#~ msgstr "Vaenulikus lubatud"
-
-#~ msgid "Range select key"
-#~ msgstr "Valiku ulatuse klahv"
-
-#~ msgid "Reset singleplayer world"
-#~ msgstr "Lähtesta üksikmängija maailm"
-
-#~ msgid "Right"
-#~ msgstr "Paremale"
-
-#~ msgid "Right key"
-#~ msgstr "Parem klahv"
-
-#~ msgid "Screen:"
-#~ msgstr "Ekraan:"
-
-#, fuzzy
-#~ msgid "Select Package File:"
-#~ msgstr "Vali modifikatsiooni fail:"
-
-#~ msgid "Shaders"
-#~ msgstr "Varjutajad"
-
-#~ msgid "Shaders (experimental)"
-#~ msgstr "Shaderid (katselised)"
-
-#~ msgid "Shaders (unavailable)"
-#~ msgstr "Varjutajad (pole saadaval)"
-
-#, fuzzy
-#~ msgid "Shaders are disabled."
-#~ msgstr "Kaamera värskendamine on keelatud"
-
-#~ msgid "Simple Leaves"
-#~ msgstr "Lihtsad lehed"
-
-#~ msgid "Smooth Lighting"
-#~ msgstr "Sujuv valgustus"
-
-#~ msgid "Sound system is disabled"
-#~ msgstr "Heli süsteem on keelatud"
-
-#~ msgid "Special key"
-#~ msgstr "Eri klahv"
-
-#~ msgid "Start Singleplayer"
-#~ msgstr "Alusta üksikmängu"
-
-#~ msgid "Texture path"
-#~ msgstr "Tapeedi kaust"
-
-#~ msgid "Texturing:"
-#~ msgstr "Tekstureerimine:"
-
-#~ msgid "The value must be at least $1."
-#~ msgstr "Väärtus peab olema vähemalt $1."
-
-#~ msgid "The value must not be larger than $1."
-#~ msgstr "Väärtus ei tohi olla suurem kui $1."
-
-#~ msgid "To enable shaders the OpenGL driver needs to be used."
-#~ msgstr "Aktiveerimiseks varjud, nad vajavad OpenGL draiver."
-
-#~ msgid "Tone Mapping"
-#~ msgstr "Tooni kaardistamine"
-
-#~ msgid "Touch threshold (px):"
-#~ msgstr "Puutelävi (px):"
-
-#~ msgid "Trilinear Filter"
-#~ msgstr "Tri-lineaar filtreerimine"
-
-#~ msgid "Unable to install a game as a $1"
-#~ msgstr "Mängu nimega $1 paigaldamine nurjus"
-
-#~ msgid "Unable to install a modpack as a $1"
-#~ msgstr "Mod-komplekt nimega $1 paigaldamine nurjus"
-
-#~ msgid "Uninstall Package"
-#~ msgstr "Eemalda pakett"
-
-#~ msgid "Up"
-#~ msgstr "Üles"
-
-#~ msgid "View"
-#~ msgstr "Vaade"
-
-#~ msgid "View more information in a web browser"
-#~ msgstr "Vaata rohkem infot veebibrauseris"
-
-#, c-format
-#~ msgid "Viewing range is at maximum: %d"
-#~ msgstr "Vaate kaugus on suurim võimalik: %d"
-
-#~ msgid "Waving Leaves"
-#~ msgstr "Lehvivad lehed"
-
-#~ msgid "Waving Liquids"
-#~ msgstr "Lainetavad vedelikud"
-
-#~ msgid "Waving Plants"
-#~ msgstr "Lehvivad taimed"
-
-#~ msgid "Whether to allow players to damage and kill each other."
-#~ msgstr "Kas mängjail on võimalus teineteist tappa."
-
-#~ msgid "X"
-#~ msgstr "X"
-
-#~ msgid "Y"
-#~ msgstr "Y"
-
-#~ msgid "Yes"
-#~ msgstr "Jah"
-
-#, c-format
-#~ msgid ""
-#~ "You are about to join this server with the name \"%s\" for the first "
-#~ "time.\n"
-#~ "If you proceed, a new account using your credentials will be created on "
-#~ "this server.\n"
-#~ "Please retype your password and click 'Register and Join' to confirm "
-#~ "account creation, or click 'Cancel' to abort."
-#~ msgstr ""
-#~ "Oled esmakordselt liitumas selle võõrustajaga, kandes nime \"%s\".\n"
-#~ "Kui jätkad, siis luuakse sellele võõrustajale uus konto sinu volitus "
-#~ "andmetega.\n"
-#~ "Trüki salasõna uuesti ning klõpsa 'Registreeru ja ühine' konto loomisega "
-#~ "nõustumiseks, või 'Loobu' keeldumiseks."
-
-#~ msgid "You died."
-#~ msgstr "Said otsa."
-
-#~ msgid "You have no games installed."
-#~ msgstr "Sul pole ühtki mängu paigaldatud."
-
-#~ msgid "Z"
-#~ msgstr "Z"
-
-#~ msgid "needs_fallback_font"
-#~ msgstr "no"
-
-#~ msgid "ok"
-#~ msgstr "sobib"
-
-#~ msgid "press key"
-#~ msgstr "Vajuta nuppu"
+#~ msgid "X Button 2"
+#~ msgstr "X Nupp 2"

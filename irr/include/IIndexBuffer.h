@@ -9,9 +9,6 @@
 #include "EPrimitiveTypes.h"
 #include "SVertexIndex.h"
 
-namespace irr
-{
-
 namespace scene
 {
 
@@ -78,4 +75,3 @@ public:
 };
 
 } // end namespace scene
-} // end namespace irr

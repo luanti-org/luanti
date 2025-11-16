@@ -13,9 +13,9 @@
 #include "common/c_converter.h"
 #include "common/c_content.h"
 #include "scripting_server.h"
-#include "environment.h"
 #include "mapblock.h"
 #include "server.h"
+#include "serverenvironment.h"
 #include "nodedef.h"
 #include "daynightratio.h"
 #include "util/pointedthing.h"
@@ -24,6 +24,7 @@
 #include "pathfinder.h"
 #include "face_position_cache.h"
 #include "remoteplayer.h"
+#include "servermap.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 #include "util/string.h"
@@ -124,7 +125,7 @@ void LuaRaycast::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaRaycast>(L, methods, metamethods);
 
 	lua_register(L, className, create_object);
 }
@@ -266,15 +267,22 @@ int ModApiEnv::l_bulk_swap_node(lua_State *L)
 // get_node_raw(x, y, z) -> content, param1, param2, pos_ok
 int ModApiEnv::l_get_node_raw(lua_State *L)
 {
-	GET_ENV_PTR;
+	GET_PLAIN_ENV_PTR;
 
-	// pos
-	// mirrors implementation of read_v3s16 (with the exact same rounding)
-	double x = lua_tonumber(L, 1);
-	double y = lua_tonumber(L, 2);
-	double z = lua_tonumber(L, 3);
-	v3s16 pos = doubleToInt(v3d(x, y, z), 1.0);
-	// Do it
+	v3s16 pos;
+	// mirrors the implementation of read_v3s16 (with the exact same rounding)
+	{
+		if (lua_isnoneornil(L, 1))
+			log_deprecated(L, "X position is nil", 1, true);
+		if (lua_isnoneornil(L, 2))
+			log_deprecated(L, "Y position is nil", 1, true);
+		if (lua_isnoneornil(L, 3))
+			log_deprecated(L, "Z position is nil", 1, true);
+		double x = lua_tonumber(L, 1);
+		double y = lua_tonumber(L, 2);
+		double z = lua_tonumber(L, 3);
+		pos = doubleToInt(v3d(x, y, z), 1.0);
+	}
 	bool pos_ok;
 	MapNode n = env->getMap().getNode(pos, &pos_ok);
 	// Return node and pos_ok
@@ -1151,7 +1159,6 @@ int ModApiEnv::l_raycast(lua_State *L)
 int ModApiEnv::l_load_area(lua_State *L)
 {
 	GET_ENV_PTR;
-	MAP_LOCK_REQUIRED;
 
 	Map *map = &(env->getMap());
 	v3s16 bp1 = getNodeBlockPos(check_v3s16(L, 1));
@@ -1366,7 +1373,8 @@ int ModApiEnv::l_forceload_free_block(lua_State *L)
 // get_translated_string(lang_code, string)
 int ModApiEnv::l_get_translated_string(lua_State * L)
 {
-	GET_ENV_PTR;
+	NO_MAP_LOCK_REQUIRED;
+
 	std::string lang_code = luaL_checkstring(L, 1);
 	std::string string = luaL_checkstring(L, 2);
 

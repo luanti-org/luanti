@@ -6,66 +6,73 @@
 
 #include "irr_v3d.h"
 #include "map.h"
-#include "hud.h"
+#include "hud.h" // HudElementStat
 #include "gamedef.h"
-#include "content/mods.h"
-#include "inventorymanager.h"
 #include "content/subgames.h"
 #include "network/peerhandler.h"
-#include "network/connection.h"
-#include "util/numeric.h"
 #include "util/thread.h"
 #include "util/basic_macros.h"
 #include "util/metricsbackend.h"
-#include "serverenvironment.h"
 #include "server/clientiface.h"
 #include "threading/ordered_mutex.h"
-#include "chatmessage.h"
-#include "sound.h"
 #include "translation.h"
-#include "script/common/c_types.h" // LuaError
+#include "sound.h"
 #include <atomic>
+#include <csignal>
 #include <string>
 #include <list>
-#include <map>
 #include <vector>
+#include <unordered_map>
 #include <unordered_set>
 #include <optional>
 #include <string_view>
 #include <shared_mutex>
 #include <condition_variable>
 
-class ChatEvent;
-struct ChatEventChat;
-struct ChatInterface;
-class IWritableItemDefManager;
-class NodeDefManager;
-class IWritableCraftDefManager;
 class BanManager;
+class ChatEvent;
+class EmergeManager;
 class Inventory;
+class IRollbackManager;
+class IWritableCraftDefManager;
+class IWritableItemDefManager;
+class LuaError;
+class MetricsBackend;
 class ModChannelMgr;
-class RemotePlayer;
+class NodeDefManager;
 class Player;
 class PlayerSAO;
-struct PlayerHPChangeReason;
-class IRollbackManager;
-struct RollbackAction;
-class EmergeManager;
-class ServerScripting;
+class RemotePlayer;
 class ServerEnvironment;
-struct SoundSpec;
-struct CloudParams;
-struct SkyboxParams;
-struct SunParams;
-struct MoonParams;
-struct StarParams;
-struct Lighting;
-class ServerThread;
-class ServerModManager;
 class ServerInventoryManager;
+class ServerModManager;
+class ServerScripting;
+class ServerThread;
+class Settings;
+
+struct ChatEventChat;
+struct ChatInterface;
+struct ChatMessage;
+struct CloudParams;
+struct GameParams;
+struct Lighting;
+struct MoonParams;
 struct PackedValue;
 struct ParticleParameters;
 struct ParticleSpawnerParameters;
+struct PlayerHPChangeReason;
+struct RollbackAction;
+struct SkyboxParams;
+struct SoundSpec;
+struct StarParams;
+struct SunParams;
+
+namespace con {
+	class IConnection;
+	class IPeer;
+
+	enum rtt_stat_type : int;
+}
 
 // Anticheat flags
 enum {
@@ -93,6 +100,8 @@ struct MediaInfo
 	std::string sha1_digest;
 	// true = not announced in TOCLIENT_ANNOUNCE_MEDIA (at player join)
 	bool no_announce;
+	// if true, this is an ephemeral entry. used by dynamic media.
+	bool ephemeral;
 	// does what it says. used by some cases of dynamic media.
 	bool delete_at_shutdown;
 
@@ -101,6 +110,7 @@ struct MediaInfo
 		path(path_),
 		sha1_digest(sha1_digest_),
 		no_announce(false),
+		ephemeral(false),
 		delete_at_shutdown(false)
 	{
 	}
@@ -250,7 +260,7 @@ public:
 		This is accessed by the map, which is inside the environment,
 		so it shouldn't be a problem.
 	*/
-	void onMapEditEvent(const MapEditEvent &event);
+	void onMapEditEvent(const MapEditEvent &event) override;
 
 	// Connection must be locked when called
 	std::string getStatusString();
@@ -287,7 +297,8 @@ public:
 		const ParticleParameters &p);
 
 	u32 addParticleSpawner(const ParticleSpawnerParameters &p,
-		ServerActiveObject *attached, const std::string &playername);
+		ServerActiveObject *attached, const std::string &to_player,
+		const std::string &exclude_player);
 
 	void deleteParticleSpawner(const std::string &playername, u32 id);
 
@@ -298,6 +309,7 @@ public:
 		u32 token;
 		std::string to_player;
 		bool ephemeral = false;
+		bool client_cache = true;
 	};
 	bool dynamicAddMedia(const DynamicMediaArgs &args);
 
@@ -313,27 +325,28 @@ public:
 			std::list<std::string> *log);
 
 	// IGameDef interface
+	bool isClient() override { return false; }
 	// Under envlock
-	virtual IItemDefManager* getItemDefManager();
-	virtual const NodeDefManager* getNodeDefManager();
-	virtual ICraftDefManager* getCraftDefManager();
-	virtual u16 allocateUnknownNodeId(const std::string &name);
-	IRollbackManager *getRollbackManager() { return m_rollback; }
-	virtual EmergeManager *getEmergeManager() { return m_emerge.get(); }
-	virtual ModStorageDatabase *getModStorageDatabase() { return m_mod_storage_database; }
+	IItemDefManager* getItemDefManager() override;
+	const NodeDefManager* getNodeDefManager() override;
+	ICraftDefManager* getCraftDefManager() override;
+	u16 allocateUnknownNodeId(const std::string &name) override;
+	IRollbackManager *getRollbackManager() override { return m_rollback; }
+	EmergeManager *getEmergeManager() { return m_emerge.get(); }
+	ModStorageDatabase *getModStorageDatabase() override { return m_mod_storage_database; }
 
 	IWritableItemDefManager* getWritableItemDefManager();
 	NodeDefManager* getWritableNodeDefManager();
 	IWritableCraftDefManager* getWritableCraftDefManager();
 
 	// Not under envlock
-	virtual const std::vector<ModSpec> &getMods() const;
-	virtual const ModSpec* getModSpec(const std::string &modname) const;
-	virtual const SubgameSpec* getGameSpec() const { return &m_gamespec; }
+	const std::vector<ModSpec> &getMods() const override;
+	const ModSpec* getModSpec(const std::string &modname) const override;
+	const SubgameSpec* getGameSpec() const override { return &m_gamespec; }
 	static std::string getBuiltinLuaPath();
-	virtual std::string getWorldPath() const { return m_path_world; }
-	virtual std::string getModDataPath() const { return m_path_mod_data; }
-	virtual ModIPCStore *getModIPCStore() { return &m_ipcstore; }
+	std::string getWorldPath() const override { return m_path_world; }
+	std::string getModDataPath() const override { return m_path_mod_data; }
+	ModIPCStore *getModIPCStore() override { return &m_ipcstore; }
 
 	inline bool isSingleplayer() const
 			{ return m_simple_singleplayer_mode; }
@@ -347,16 +360,13 @@ public:
 	StepSettings getStepSettings() { return m_step_settings.load(); }
 
 	void setAsyncFatalError(const std::string &error);
-	inline void setAsyncFatalError(const LuaError &e)
-	{
-		setAsyncFatalError(std::string("Lua: ") + e.what());
-	}
+	void setAsyncFatalError(const LuaError &e);
 
 	// Not thread-safe.
 	void addShutdownError(const ModError &e);
 
 	bool showFormspec(const char *name, const std::string &formspec, const std::string &formname);
-	Map & getMap() { return m_env->getMap(); }
+	Map &getMap();
 	ServerEnvironment & getEnv() { return *m_env; }
 	v3f findSpawnPos();
 
@@ -368,6 +378,7 @@ public:
 	void hudSetHotbarImage(RemotePlayer *player, const std::string &name);
 	void hudSetHotbarSelectedImage(RemotePlayer *player, const std::string &name);
 
+	/// @note this is only available for client state >= CS_HelloSent
 	Address getPeerAddress(session_t peer_id);
 
 	void setLocalPlayerAnimations(RemotePlayer *player, v2f animation_frames[4],
@@ -386,8 +397,8 @@ public:
 	void setLighting(RemotePlayer *player, const Lighting &lighting);
 
 	/* con::PeerHandler implementation. */
-	void peerAdded(con::IPeer *peer);
-	void deletingPeer(con::IPeer *peer, bool timeout);
+	void peerAdded(con::IPeer *peer) override;
+	void deletingPeer(con::IPeer *peer, bool timeout) override;
 
 	void DenySudoAccess(session_t peer_id);
 	void DenyAccess(session_t peer_id, AccessDeniedCode reason,
@@ -418,10 +429,10 @@ public:
 
 	void sendDetachedInventories(session_t peer_id, bool incremental);
 
-	bool joinModChannel(const std::string &channel);
-	bool leaveModChannel(const std::string &channel);
-	bool sendModChannelMessage(const std::string &channel, const std::string &message);
-	ModChannel *getModChannel(const std::string &channel);
+	bool joinModChannel(const std::string &channel) override;
+	bool leaveModChannel(const std::string &channel) override;
+	bool sendModChannelMessage(const std::string &channel, const std::string &message) override;
+	ModChannel *getModChannel(const std::string &channel) override;
 
 	// Send block to specific player only
 	bool SendBlock(session_t peer_id, const v3s16 &blockpos);
@@ -432,6 +443,8 @@ public:
 	// Returns all media files the server knows about
 	// map key = binary sha1, map value = file path
 	std::unordered_map<std::string, std::string> getMediaList();
+
+	static std::vector<std::string> getModStorageDatabaseBackends();
 
 	static ModStorageDatabase *openModStorageDatabase(const std::string &world_path);
 
@@ -585,15 +598,21 @@ private:
 			const std::unordered_set<std::string> &tosend);
 	void stepPendingDynMediaCallbacks(float dtime);
 
-	// Adds a ParticleSpawner on peer with peer_id (PEER_ID_INEXISTENT == all)
+	/// @brief send particle spawner to a selection of clients
+	void SendAddParticleSpawner(const std::string &to_player,
+		const std::string &exclude_player,
+		const ParticleSpawnerParameters &p, u16 attached_id, u32 id);
+	/// @brief send particle spawner to one client (internal)
 	void SendAddParticleSpawner(session_t peer_id, u16 protocol_version,
 		const ParticleSpawnerParameters &p, u16 attached_id, u32 id);
 
 	void SendDeleteParticleSpawner(session_t peer_id, u32 id);
 
-	// Spawns particle on peer with peer_id (PEER_ID_INEXISTENT == all)
-	void SendSpawnParticle(session_t peer_id, u16 protocol_version,
-		const ParticleParameters &p);
+	// Spawn particles for a specific client, batching them if clients support it.
+	void SendSpawnParticles(RemotePlayer *player,
+			const std::vector<ParticleParameters> &particles);
+	// Spawn all particles for this step, batching them if clients support it.
+	void SendSpawnParticles();
 
 	void SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersao);
 	void SendActiveObjectMessages(session_t peer_id, const std::string &datas,
@@ -610,6 +629,10 @@ private:
 	bool checkInteractDistance(RemotePlayer *player, const f32 d, const std::string &what);
 
 	void handleChatInterfaceEvent(ChatEvent *evt);
+
+	/// @brief Checks if user limit allows a potential client to join
+	/// @return true if the client can NOT join
+	bool checkUserLimit(const std::string &player_name, const std::string &addr_s);
 
 	// This returns the answer to the sender of wmessage, or "" if there is none
 	std::wstring handleChat(const std::string &name, std::wstring wmessage_input,
@@ -693,6 +716,8 @@ private:
 	// Craft definition manager
 	IWritableCraftDefManager *m_craftdef;
 
+	// NOTE: Cannot use forward declaration of 'Translations'. Whereas most
+	// modern compilers support incomplete types here, it's not in the C++ spec.
 	std::unordered_map<std::string, Translations> server_translations;
 
 	ModIPCStore m_ipcstore;
@@ -787,6 +812,10 @@ private:
 	MetricCounterPtr m_packet_recv_counter;
 	MetricCounterPtr m_packet_recv_processed_counter;
 	MetricCounterPtr m_map_edit_event_counter;
+
+	// Particles to send this server step
+	// [playername] = list of params, empty playername for broadcast
+	std::unordered_map<std::string, std::vector<ParticleParameters>> m_particles_to_send;
 };
 
 /*
@@ -794,4 +823,4 @@ private:
 
 	Shuts down when kill is set to true.
 */
-void dedicated_server_loop(Server &server, bool &kill);
+void dedicated_server_loop(Server &server, volatile std::sig_atomic_t &kill);

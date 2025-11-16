@@ -15,7 +15,7 @@
 #include "StyleSpec.h"
 #include "util/numeric.h"
 
-using namespace irr;
+
 using namespace gui;
 
 // Multiply with a color to get the default corresponding hovered color
@@ -718,18 +718,23 @@ void GUIButton::setFromStyle(const StyleSpec& style)
 	setUseAlphaChannel(style.getBool(StyleSpec::ALPHA, true));
 	setOverrideFont(style.getFont());
 
+	BgMiddle = style.getRect(StyleSpec::BGIMG_MIDDLE, BgMiddle);
+
 	if (style.isNotDefault(StyleSpec::BGIMG)) {
 		video::ITexture *texture = style.getTexture(StyleSpec::BGIMG,
 				getTextureSource());
-		setImage(guiScalingImageButton(
-				Environment->getVideoDriver(), texture,
-						AbsoluteRect.getWidth(), AbsoluteRect.getHeight()));
+		if (BgMiddle.getArea() == 0) {
+			setImage(guiScalingImageButton(
+					Environment->getVideoDriver(), texture,
+							AbsoluteRect.getWidth(), AbsoluteRect.getHeight()));
+		} else {
+			// Scaling happens in `draw2DImage9Slice`
+			setImage(texture);
+		}
 		setScaleImage(true);
 	} else {
 		setImage(nullptr);
 	}
-
-	BgMiddle = style.getRect(StyleSpec::BGIMG_MIDDLE, BgMiddle);
 
 	// Child padding and offset
 	Padding = style.getRect(StyleSpec::PADDING, core::rect<s32>());
@@ -739,8 +744,8 @@ void GUIButton::setFromStyle(const StyleSpec& style)
 
 	IGUISkin *skin = Environment->getSkin();
 	core::vector2d<s32> defaultPressOffset(
-			skin->getSize(irr::gui::EGDS_BUTTON_PRESSED_IMAGE_OFFSET_X),
-			skin->getSize(irr::gui::EGDS_BUTTON_PRESSED_IMAGE_OFFSET_Y));
+			skin->getSize(gui::EGDS_BUTTON_PRESSED_IMAGE_OFFSET_X),
+			skin->getSize(gui::EGDS_BUTTON_PRESSED_IMAGE_OFFSET_Y));
 	ContentOffset = style.getVector2i(StyleSpec::CONTENT_OFFSET, isPressed()
 			? defaultPressOffset
 			: core::vector2d<s32>(0));

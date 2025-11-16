@@ -34,11 +34,8 @@
 #include "IEventReceiver.h"
 #include "irrTypes.h"
 #include "SIrrCreationParameters.h"
-#include "IrrCompileConfig.h" // for IRRLICHT_API and IRRCALLCONV
 
 //! Everything in the Irrlicht Engine can be found in this namespace.
-namespace irr
-{
 //! Creates an Irrlicht device. The Irrlicht device is the root object for using the engine.
 /** If you need more parameters to be passed to the creation of the Irrlicht Engine device,
 use the createDeviceEx() function.
@@ -56,7 +53,7 @@ for the vertical retrace period, otherwise not.
 \return Returns pointer to the created IrrlichtDevice or null if the
 device could not be created.
 */
-extern "C" IRRLICHT_API IrrlichtDevice *IRRCALLCONV createDevice(
+extern "C" IrrlichtDevice *createDevice(
 		video::E_DRIVER_TYPE driverType = video::EDT_OPENGL,
 		// parentheses are necessary for some compilers
 		const core::dimension2d<u32> &windowSize = (core::dimension2d<u32>(640, 480)),
@@ -71,10 +68,10 @@ extern "C" IRRLICHT_API IrrlichtDevice *IRRCALLCONV createDevice(
 Use this function only if you wish to specify advanced parameters like a window
 handle in which the device should be created.
 \param parameters: Structure containing advanced parameters for the creation of the device.
-See irr::SIrrlichtCreationParameters for details.
+See SIrrlichtCreationParameters for details.
 \return Returns pointer to the created IrrlichtDevice or null if the
 device could not be created. */
-extern "C" IRRLICHT_API IrrlichtDevice *IRRCALLCONV createDeviceEx(
+extern "C" IrrlichtDevice *createDeviceEx(
 		const SIrrlichtCreationParameters &parameters);
 
 // THE FOLLOWING IS AN EMPTY LIST OF ALL SUB NAMESPACES
@@ -103,7 +100,6 @@ namespace scene
 //! The video namespace contains classes for accessing the video driver. All 2d and 3d rendering is done here.
 namespace video
 {
-}
 }
 
 /*! \file irrlicht.h

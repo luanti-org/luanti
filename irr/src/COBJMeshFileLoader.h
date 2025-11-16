@@ -8,10 +8,8 @@
 #include "IMeshLoader.h"
 #include "ISceneManager.h"
 #include "irrString.h"
-#include "SMeshBuffer.h"
+#include "CMeshBuffer.h"
 
-namespace irr
-{
 namespace scene
 {
 
@@ -102,4 +100,3 @@ private:
 };
 
 } // end namespace scene
-} // end namespace irr

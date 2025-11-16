@@ -4,16 +4,15 @@
 
 
 #include <cstdlib>
-#include <cmath>
 #include <algorithm>
 #include <iterator>
 #include <limits>
-#include <sstream>
 #include "guiFormSpecMenu.h"
-#include "constants.h"
+#include "EGUIElementTypes.h"
+#include "itemdef.h"
 #include "gamedef.h"
 #include "client/keycode.h"
-#include "util/strfnd.h"
+#include "gui/guiTable.h"
 #include <IGUIButton.h>
 #include <IGUICheckBox.h>
 #include <IGUIComboBox.h>
@@ -21,22 +20,18 @@
 #include <IGUIFont.h>
 #include <IGUITabControl.h>
 #include <IGUIImage.h>
-#include <IAnimatedMeshSceneNode.h>
+#include <AnimatedMeshSceneNode.h>
 #include "client/renderingengine.h"
 #include "client/joystick_controller.h"
 #include "log.h"
 #include "drawItemStack.h"
-#include "filesys.h"
-#include "gettime.h"
 #include "gettext.h"
-#include "scripting_server.h"
 #include "mainmenumanager.h"
 #include "porting.h"
 #include "settings.h"
 #include "client/client.h"
 #include "client/fontengine.h"
 #include "client/sound.h"
-#include "util/hex.h"
 #include "util/numeric.h"
 #include "util/string.h" // for parseColorString()
 #include "irrlicht_changes/static_text.h"
@@ -74,6 +69,9 @@
 		errorstream << "Attempted to use element " << a << " with m_client == nullptr." << std::endl; \
 		return; \
 	}
+
+// Element ID of the "Proceed" button shown for sizeless formspecs
+constexpr s32 ID_PROCEED_BTN = 257;
 
 /*
 	GUIFormSpecMenu
@@ -115,7 +113,6 @@ GUIFormSpecMenu::~GUIFormSpecMenu()
 {
 	removeAll();
 
-	delete m_selected_item;
 	delete m_form_src;
 	delete m_text_dst;
 }
@@ -198,7 +195,7 @@ void GUIFormSpecMenu::setInitialFocus()
 
 	// 3. first table
 	for (gui::IGUIElement *it : children) {
-		if (it->getTypeName() == std::string("GUITable")) {
+		if (it->getType() == gui::EGUIET_TABLE) {
 			Environment->setFocus(it);
 			return;
 		}
@@ -1233,9 +1230,13 @@ void GUIFormSpecMenu::parseTable(parserData* data, const std::string &element)
 		item = wide_to_utf8(unescape_translate(utf8_to_wide(unescape_string(item))));
 	}
 
-	//now really show table
 	GUITable *e = new GUITable(Environment, data->current_parent, spec.fid,
 			rect, m_tsrc);
+
+	// Apply styling before calculating the cell sizes
+	auto style = getDefaultStyleForElement("table", name);
+	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+	e->setOverrideFont(style.getFont());
 
 	if (spec.fname == m_focused_element) {
 		Environment->setFocus(e);
@@ -1249,10 +1250,6 @@ void GUIFormSpecMenu::parseTable(parserData* data, const std::string &element)
 
 	if (!str_initial_selection.empty() && str_initial_selection != "0")
 		e->setSelected(stoi(str_initial_selection));
-
-	auto style = getDefaultStyleForElement("table", name);
-	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
-	e->setOverrideFont(style.getFont());
 
 	m_tables.emplace_back(spec, e);
 	m_fields.push_back(spec);
@@ -1501,7 +1498,7 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 	e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
 	e->setOverrideFont(style.getFont());
 
-	irr::SEvent evt;
+	SEvent evt;
 	evt.EventType            = EET_KEY_INPUT_EVENT;
 	evt.KeyInput.Key         = KEY_END;
 	evt.KeyInput.Char        = 0;
@@ -1556,7 +1553,7 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 			e->setWordWrap(true);
 			e->setTextAlignment(gui::EGUIA_UPPERLEFT, gui::EGUIA_UPPERLEFT);
 		} else {
-			irr::SEvent evt;
+			SEvent evt;
 			evt.EventType            = EET_KEY_INPUT_EVENT;
 			evt.KeyInput.Key         = KEY_END;
 			evt.KeyInput.Char        = 0;
@@ -2133,8 +2130,8 @@ void GUIFormSpecMenu::parseTabHeader(parserData* data, const std::string &elemen
 
 	gui::IGUITabControl *e = Environment->addTabControl(rect,
 			data->current_parent, show_background, show_border, spec.fid);
-	e->setAlignment(irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_UPPERLEFT,
-			irr::gui::EGUIA_UPPERLEFT, irr::gui::EGUIA_LOWERRIGHT);
+	e->setAlignment(gui::EGUIA_UPPERLEFT, gui::EGUIA_UPPERLEFT,
+			gui::EGUIA_UPPERLEFT, gui::EGUIA_LOWERRIGHT);
 	e->setTabHeight(geom.Y);
 
 	auto style = getDefaultStyleForElement("tabheader", name);
@@ -2847,12 +2844,13 @@ void GUIFormSpecMenu::parseModel(parserData *data, const std::string &element)
 	e->enableContinuousRotation(inf_rotation);
 	e->enableMouseControl(mousectrl);
 
-	s32 frame_loop_begin = 0;
-	s32 frame_loop_end = 0x7FFFFFFF;
+	f32 frame_loop_begin = 0;
+	// This will be clamped to the animation duration.
+	f32 frame_loop_end = std::numeric_limits<f32>::infinity();
 
 	if (frame_loop.size() == 2) {
-	    frame_loop_begin = stoi(frame_loop[0]);
-	    frame_loop_end = stoi(frame_loop[1]);
+	    frame_loop_begin = stof(frame_loop[0]);
+	    frame_loop_end = stof(frame_loop[1]);
 	}
 
 	e->setFrameLoop(frame_loop_begin, frame_loop_end);
@@ -2996,7 +2994,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		gui::IGUIElement *focused_element = Environment->getFocus();
 		if (focused_element && focused_element->getParent() == this) {
 			s32 focused_id = focused_element->getID();
-			if (focused_id > 257) {
+			if (focused_id > ID_PROCEED_BTN) {
 				for (const GUIFormSpecMenu::FieldSpec &field : m_fields) {
 					if (field.fid == focused_id) {
 						m_focused_element = field.fname;
@@ -3306,7 +3304,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 					size.X / 2 - 70,       pos.Y,
 					size.X / 2 - 70 + 140, pos.Y + m_btn_height * 2
 			);
-			GUIButton::addButton(Environment, mydata.rect, m_tsrc, this, 257,
+			GUIButton::addButton(Environment, mydata.rect, m_tsrc, this, ID_PROCEED_BTN,
 					wstrgettext("Proceed").c_str());
 		}
 	}
@@ -3395,7 +3393,7 @@ void GUIFormSpecMenu::getAndroidUIInput()
 			return;
 
 		auto element_type = element->getType();
-		if (dialog_type == porting::TEXT_INPUT && element_type == irr::gui::EGUIET_EDIT_BOX) {
+		if (dialog_type == porting::TEXT_INPUT && element_type == gui::EGUIET_EDIT_BOX) {
 			gui::IGUIEditBox *editbox = (gui::IGUIEditBox *)element;
 			std::string text = porting::getInputDialogMessage();
 			editbox->setText(utf8_to_wide(text).c_str());
@@ -3414,7 +3412,7 @@ void GUIFormSpecMenu::getAndroidUIInput()
 				editbox->getParent()->OnEvent(enter);
 			}
 		} else if (dialog_type == porting::SELECTION_INPUT &&
-				element_type == irr::gui::EGUIET_COMBO_BOX) {
+				element_type == gui::EGUIET_COMBO_BOX) {
 			auto dropdown = (gui::IGUIComboBox *) element;
 			int selected = porting::getInputDialogSelection();
 			dropdown->setAndSendSelected(selected);
@@ -3626,7 +3624,7 @@ void GUIFormSpecMenu::drawMenu()
 
 
 void GUIFormSpecMenu::showTooltip(const std::wstring &text,
-	const irr::video::SColor &color, const irr::video::SColor &bgcolor)
+	const video::SColor &color, const video::SColor &bgcolor)
 {
 	EnrichedString ntext(text);
 	ntext.setDefaultColor(color);
@@ -3751,7 +3749,7 @@ void GUIFormSpecMenu::updateSelectedItem()
 
 			} else {
 				// Grab selected item from the crafting result list
-				m_selected_item = new GUIInventoryList::ItemSpec(s);
+				m_selected_item = std::make_unique<GUIInventoryList::ItemSpec>(s);
 				m_selected_amount = item.count;
 				m_selected_dragging = false;
 			}
@@ -3793,8 +3791,7 @@ ItemStack GUIFormSpecMenu::verifySelectedItem()
 		}
 
 		// selection was not valid
-		delete m_selected_item;
-		m_selected_item = nullptr;
+		m_selected_item.reset();
 		m_selected_amount = 0;
 		m_selected_dragging = false;
 	}
@@ -3867,8 +3864,6 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 						fields[name] = table->checkEvent();
 					}
 				} else if (s.ftype == f_DropDown) {
-					// No dynamic cast possible due to some distributions shipped
-					// without rtti support in Irrlicht
 					IGUIElement *element = getElementFromId(s.fid, true);
 					gui::IGUIComboBox *e = NULL;
 					if ((element) && (element->getType() == gui::EGUIET_COMBO_BOX)) {
@@ -3891,8 +3886,6 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 						}
 					}
 				} else if (s.ftype == f_TabHeader) {
-					// No dynamic cast possible due to some distributions shipped
-					// without rtti support in Irrlicht
 					IGUIElement *element = getElementFromId(s.fid, true);
 					gui::IGUITabControl *e = nullptr;
 					if ((element) && (element->getType() == gui::EGUIET_TAB_CONTROL)) {
@@ -3903,8 +3896,6 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 						fields[name] = itos(e->getActiveTab() + 1);
 					}
 				} else if (s.ftype == f_CheckBox) {
-					// No dynamic cast possible due to some distributions shipped
-					// without rtti support in Irrlicht
 					IGUIElement *element = getElementFromId(s.fid, true);
 					gui::IGUICheckBox *e = nullptr;
 					if ((element) && (element->getType() == gui::EGUIET_CHECK_BOX)) {
@@ -3918,11 +3909,9 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 							fields[name] = "false";
 					}
 				} else if (s.ftype == f_ScrollBar) {
-					// No dynamic cast possible due to some distributions shipped
-					// without rtti support in Irrlicht
 					IGUIElement *element = getElementFromId(s.fid, true);
 					GUIScrollBar *e = nullptr;
-					if (element && element->getType() == gui::EGUIET_ELEMENT)
+					if (element && element->getType() == gui::EGUIET_SCROLL_BAR)
 						e = static_cast<GUIScrollBar *>(element);
 
 					if (e) {
@@ -3932,8 +3921,6 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 							fields[name] = "VAL:" + itos(e->getPos());
 					}
 				} else if (s.ftype == f_AnimatedImage) {
-					// No dynamic cast possible due to some distributions shipped
-					// without rtti support in Irrlicht
 					IGUIElement *element = getElementFromId(s.fid, true);
 					GUIAnimatedImage *e = nullptr;
 					if (element && element->getType() == gui::EGUIET_ELEMENT)
@@ -4020,7 +4007,7 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 		}
 	}
 
-	if (event.EventType == irr::EET_JOYSTICK_INPUT_EVENT) {
+	if (event.EventType == EET_JOYSTICK_INPUT_EVENT) {
 		if (event.JoystickEvent.Joystick != m_joystick->getJoystickId())
 			return false;
 
@@ -4029,12 +4016,7 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 			if (m_joystick->wasKeyDown(KeyType::ESC)) {
 				tryClose();
 			} else if (m_joystick->wasKeyDown(KeyType::JUMP)) {
-				if (m_allowclose) {
-					acceptInput(quit_mode_accept);
-					quitMenu();
-				} else {
-					acceptInput(quit_mode_try);
-				}
+				trySubmitClose();
 			}
 		}
 		return handled;
@@ -4051,7 +4033,16 @@ void GUIFormSpecMenu::tryClose()
 		quitMenu();
 	} else {
 		acceptInput(quit_mode_try);
-		m_text_dst->gotText(L"MenuQuit");
+	}
+}
+
+void GUIFormSpecMenu::trySubmitClose()
+{
+	if (m_allowclose) {
+		acceptInput(quit_mode_accept);
+		quitMenu();
+	} else {
+		acceptInput(quit_mode_try);
 	}
 }
 
@@ -4059,6 +4050,31 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 {
 	if (event.EventType==EET_KEY_INPUT_EVENT) {
 		KeyPress kp(event.KeyInput);
+		// Ctrl (+ Shift) + Tab: Select the (previous or) next tab of a TabControl instance.
+		bool shift = event.KeyInput.Shift;
+		bool ctrl = event.KeyInput.Control;
+		if (event.KeyInput.PressedDown && (event.KeyInput.Key == KEY_TAB && ctrl)) {
+			// Try to find a tab control among our elements
+			for (const FieldSpec &s : m_fields) {
+				if (s.ftype != f_TabHeader)
+					continue;
+
+				IGUIElement *element = getElementFromId(s.fid, true);
+				if (!element || element->getType() != gui::EGUIET_TAB_CONTROL)
+					continue;
+
+				gui::IGUITabControl *tabs = static_cast<gui::IGUITabControl *>(element);
+				s32 num_tabs = tabs->getTabCount();
+				if (num_tabs <= 1)
+					continue;
+
+				s32 active = tabs->getActiveTab();
+				// Shift: Previous tab, No shift: Next tab
+				active = (active + (shift ? -1 : 1) + num_tabs) % num_tabs;
+				tabs->setActiveTab(active);
+				return true; // handled
+			}
+		}
 		if (event.KeyInput.PressedDown && (
 				(kp == EscapeKey) ||
 				((m_client != NULL) && (kp == getKeySetting("keymap_inventory"))))) {
@@ -4098,12 +4114,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					break;
 			}
 			if (current_keys_pending.key_enter) {
-				if (m_allowclose) {
-					acceptInput(quit_mode_accept);
-					quitMenu();
-				} else {
-					acceptInput(quit_mode_try);
-				}
+				trySubmitClose();
 			} else {
 				acceptInput();
 			}
@@ -4303,7 +4314,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					shift_move_amount = button == BET_RIGHT ? 1 : count;
 				} else {
 					// No shift: select item
-					m_selected_item = new GUIInventoryList::ItemSpec(s);
+					m_selected_item = std::make_unique<GUIInventoryList::ItemSpec>(s);
 					m_selected_amount = count;
 					m_selected_dragging = button != BET_WHEEL_DOWN;
 				}
@@ -4498,7 +4509,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 
 			} else if (m_held_mouse_button == BET_LEFT) {
 				// Start picking up items
-				m_selected_item = new GUIInventoryList::ItemSpec(s);
+				m_selected_item = std::make_unique<GUIInventoryList::ItemSpec>(s);
 				m_selected_amount = s_count;
 				m_selected_dragging = true;
 			}
@@ -4805,8 +4816,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 		// and we are not left-dragging, deselect
 		if (m_selected_amount == 0 && !m_left_dragging) {
 			m_selected_swap.clear();
-			delete m_selected_item;
-			m_selected_item = nullptr;
+			m_selected_item.reset();
 			m_selected_amount = 0;
 			m_selected_dragging = false;
 		}
@@ -4817,12 +4827,18 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 	}
 
 	if (event.EventType == EET_GUI_EVENT) {
-		if (event.GUIEvent.EventType == gui::EGET_TAB_CHANGED
-				&& isVisible()) {
-			// find the element that was clicked
+		const s32 caller_id = event.GUIEvent.Caller->getID();
+		bool close_on_enter;
+
+		switch (event.GUIEvent.EventType) {
+		case gui::EGET_TAB_CHANGED:
+			if (!isVisible())
+				break;
+
+				// find the element that was clicked
 			for (GUIFormSpecMenu::FieldSpec &s : m_fields) {
-				if ((s.ftype == f_TabHeader) &&
-						(s.fid == event.GUIEvent.Caller->getID())) {
+				if (s.ftype == f_TabHeader &&
+						s.fid == caller_id) {
 					if (!s.sound.empty() && m_sound_manager)
 						m_sound_manager->playSound(0, SoundSpec(s.sound, 1.0f));
 					s.send = true;
@@ -4831,26 +4847,26 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					return true;
 				}
 			}
-		}
-		if (event.GUIEvent.EventType == gui::EGET_ELEMENT_FOCUS_LOST
-				&& isVisible()) {
+			break;
+
+		case gui::EGET_ELEMENT_FOCUS_LOST:
+			if (!isVisible())
+				break;
+
 			if (!canTakeFocus(event.GUIEvent.Element)) {
 				infostream<<"GUIFormSpecMenu: Not allowing focus change."
 						<<std::endl;
 				// Returning true disables focus change
 				return true;
 			}
-		}
-		if ((event.GUIEvent.EventType == gui::EGET_BUTTON_CLICKED) ||
-				(event.GUIEvent.EventType == gui::EGET_CHECKBOX_CHANGED) ||
-				(event.GUIEvent.EventType == gui::EGET_COMBO_BOX_CHANGED) ||
-				(event.GUIEvent.EventType == gui::EGET_SCROLL_BAR_CHANGED)) {
-			s32 caller_id = event.GUIEvent.Caller->getID();
+			break;
 
-			if (caller_id == 257) {
-				acceptInput(quit_mode_accept);
-				m_text_dst->gotText(L"ExitButton");
-				quitMenu();
+		case gui::EGET_BUTTON_CLICKED:
+		case gui::EGET_CHECKBOX_CHANGED:
+		case gui::EGET_COMBO_BOX_CHANGED:
+		case gui::EGET_SCROLL_BAR_CHANGED:
+			if (caller_id == ID_PROCEED_BTN) {
+				trySubmitClose();
 				return true;
 			}
 
@@ -4880,7 +4896,6 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 
 					if (s.is_exit) {
 						acceptInput(quit_mode_accept);
-						m_text_dst->gotText(L"ExitButton");
 						quitMenu();
 						return true;
 					}
@@ -4921,60 +4936,57 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 					s.send = false;
 				}
 			}
-		}
 
-		if (event.GUIEvent.EventType == gui::EGET_SCROLL_BAR_CHANGED) {
-			// move scroll_containers
-			for (const std::pair<std::string, GUIScrollContainer *> &c : m_scroll_containers)
-				c.second->onScrollEvent(event.GUIEvent.Caller);
-		}
+			if (event.GUIEvent.EventType == gui::EGET_SCROLL_BAR_CHANGED) {
+				// move scroll_containers
+				for (const std::pair<std::string, GUIScrollContainer *> &c : m_scroll_containers)
+					c.second->onScrollEvent(event.GUIEvent.Caller);
+			}
+			break;
 
-		if (event.GUIEvent.EventType == gui::EGET_EDITBOX_ENTER) {
-			if (event.GUIEvent.Caller->getID() > 257) {
-				bool close_on_enter = true;
-				for (GUIFormSpecMenu::FieldSpec &s : m_fields) {
-					if (s.ftype == f_Unknown &&
-							s.fid == event.GUIEvent.Caller->getID()) {
-						current_field_enter_pending = s.fname;
-						auto it = field_close_on_enter.find(s.fname);
-						if (it != field_close_on_enter.end())
-							close_on_enter = (*it).second;
+		case gui::EGET_EDITBOX_ENTER:
+			if (caller_id <= ID_PROCEED_BTN)
+				break;
 
-						break;
-					}
+			close_on_enter = true;
+			for (GUIFormSpecMenu::FieldSpec &s : m_fields) {
+				if (s.ftype == f_Unknown &&
+						s.fid == caller_id) {
+					current_field_enter_pending = s.fname;
+					auto it = field_close_on_enter.find(s.fname);
+					if (it != field_close_on_enter.end())
+						close_on_enter = (*it).second;
+
+					break;
 				}
+			}
 
-				current_keys_pending.key_enter = true;
+			current_keys_pending.key_enter = true;
 
-				if (close_on_enter) {
-					if (m_allowclose) {
-						acceptInput(quit_mode_accept);
-						quitMenu();
-					} else {
-						acceptInput(quit_mode_try);
-					}
-				} else {
+			if (close_on_enter)
+				trySubmitClose();
+			else
+				acceptInput();
+			return true;
+
+		case gui::EGET_TABLE_CHANGED:
+			if (caller_id <= ID_PROCEED_BTN)
+				break;
+
+			// find the element that was clicked
+			for (GUIFormSpecMenu::FieldSpec &s : m_fields) {
+				// if it's a table, set the send field
+				// so lua knows which table was changed
+				if (s.ftype == f_Table && s.fid == caller_id) {
+					s.send = true;
 					acceptInput();
+					s.send = false;
 				}
-				return true;
 			}
-		}
+			return true;
 
-		if (event.GUIEvent.EventType == gui::EGET_TABLE_CHANGED) {
-			int current_id = event.GUIEvent.Caller->getID();
-			if (current_id > 257) {
-				// find the element that was clicked
-				for (GUIFormSpecMenu::FieldSpec &s : m_fields) {
-					// if it's a table, set the send field
-					// so lua knows which table was changed
-					if ((s.ftype == f_Table) && (s.fid == current_id)) {
-						s.send = true;
-						acceptInput();
-						s.send=false;
-					}
-				}
-				return true;
-			}
+		default:
+			break;
 		}
 	}
 

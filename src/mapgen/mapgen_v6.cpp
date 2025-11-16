@@ -9,7 +9,6 @@
 #include "mapgen.h"
 #include "voxel.h"
 #include "noise.h"
-#include "mapblock.h"
 #include "mapnode.h"
 #include "map.h"
 #include "nodedef.h"
@@ -43,6 +42,18 @@ const FlagDesc flagdesc_mapgen_v6[] = {
 MapgenV6::MapgenV6(MapgenV6Params *params, EmergeParams *emerge)
 	: Mapgen(MAPGEN_V6, params, emerge)
 {
+	if (csize.X != csize.Y || csize.Y != csize.Z) {
+		// In practice:
+		// (5,2,1) segfaults in mudflow
+		// (5,2,5) generates very broken terrain
+		throw BaseException("MapgenV6: chunk size must be cubic");
+	}
+	if (csize.Y % (MAP_BLOCKSIZE * 2) == 0) {
+		// weird ledges appear in some places
+		warningstream << "MapgenV6: chunk heights divisible by two are known "
+			"to be buggy." << std::endl;
+	}
+
 	ystride = csize.X;
 
 	heightmap = new s16[csize.X * csize.Z];

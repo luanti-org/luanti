@@ -5,14 +5,12 @@
 #include "lua_api/l_item.h"
 #include "lua_api/l_itemstackmeta.h"
 #include "lua_api/l_internal.h"
-#include "common/c_converter.h"
 #include "common/c_content.h"
 #include "common/c_packer.h"
 #include "itemdef.h"
 #include "nodedef.h"
 #include "server.h"
 #include "inventory.h"
-#include "log.h"
 
 
 // garbage collector
@@ -524,7 +522,7 @@ void LuaItemStack::Register(lua_State *L)
 		{"__eq", l_equals},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaItemStack>(L, methods, metamethods);
 
 	// Can be created from Lua (ItemStack(itemstack or itemstring or table or nil))
 	lua_register(L, className, create_object);

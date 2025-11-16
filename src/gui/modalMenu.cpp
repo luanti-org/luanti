@@ -3,13 +3,11 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 // Copyright (C) 2018 stujones11, Stuart Jones <stujones111@gmail.com>
 
-#include <cstdlib>
 #include <IEventReceiver.h>
 #include <IGUIComboBox.h>
 #include <IGUIEditBox.h>
 #include "client/renderingengine.h"
 #include "modalMenu.h"
-#include "gettext.h"
 #include "gui/guiInventoryList.h"
 #include "porting.h"
 #include "settings.h"
@@ -246,12 +244,13 @@ bool GUIModalMenu::preprocessEvent(const SEvent &event)
 #ifdef __ANDROID__
 	// display software keyboard when clicking edit boxes
 	if (event.EventType == EET_MOUSE_INPUT_EVENT &&
-			event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN &&
-			!porting::hasPhysicalKeyboardAndroid()) {
+			((event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN &&
+			!porting::hasPhysicalKeyboardAndroid()) ||
+			event.MouseInput.Event == EMIE_LMOUSE_DOUBLE_CLICK)) {
 		gui::IGUIElement *hovered =
 			Environment->getRootGUIElement()->getElementFromPoint(
 				core::position2d<s32>(event.MouseInput.X, event.MouseInput.Y));
-		if ((hovered) && (hovered->getType() == irr::gui::EGUIET_EDIT_BOX)) {
+		if ((hovered) && (hovered->getType() == gui::EGUIET_EDIT_BOX)) {
 			bool retval = hovered->OnEvent(event);
 			if (retval)
 				Environment->setFocus(hovered);
@@ -276,7 +275,9 @@ bool GUIModalMenu::preprocessEvent(const SEvent &event)
 
 			porting::showTextInputDialog("",
 					wide_to_utf8(((gui::IGUIEditBox *) hovered)->getText()), type);
-			return retval;
+			// Since we have opened the dialog, we have to return true to mark
+			// the event as handled (avoids double-opening).
+			return true;
 		}
 	}
 

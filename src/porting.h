@@ -13,12 +13,12 @@
 #endif
 
 // Be mindful of what you include here!
+#include <csignal>
 #include <string>
 #include <optional>
 #include "config.h"
 #include "irrlichttypes.h" // u64
 #include "debug.h"
-#include "constants.h"
 #include "util/timetaker.h" // TimePrecision
 
 #ifdef _MSC_VER
@@ -78,7 +78,7 @@ namespace porting
 void signal_handler_init();
 // Returns a pointer to a bool.
 // When the bool is true, program should quit.
-[[nodiscard]] bool *signal_handler_killstatus();
+[[nodiscard]] volatile std::sig_atomic_t *signal_handler_killstatus();
 
 /*
 	Path of static data directory.
@@ -130,6 +130,12 @@ std::optional<std::string> getPlatformSpecificConfigFile();
 */
 const std::string &get_sysinfo();
 
+
+/*
+	Return size of system RAM in MB
+	(or 0 if unavailable/error)
+*/
+u32 getMemorySizeMB();
 
 // Monotonic timer
 

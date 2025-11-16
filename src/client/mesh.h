@@ -4,19 +4,20 @@
 
 #pragma once
 
-#include "SColor.h"
-#include "SMaterialLayer.h"
-#include "nodedef.h"
+#include "irrlichttypes_bloated.h"
 
-namespace irr {
-	namespace scene {
-		class IAnimatedMesh;
-		class IMesh;
-		class IMeshBuffer;
-	}
+namespace scene {
+	class IAnimatedMesh;
+	class IMesh;
+	class IMeshBuffer;
+	struct SMesh;
 }
 
-using namespace irr;
+namespace video {
+	class SMaterialLayer;
+	class SColor;
+}
+
 
 /*!
  * Applies shading to a color based on the surface's
@@ -93,10 +94,8 @@ void rotateMeshYZby (scene::IMesh *mesh, f64 degrees);
  */
 scene::IMeshBuffer* cloneMeshBuffer(scene::IMeshBuffer *mesh_buffer);
 
-/*
-	Clone the mesh.
-*/
-scene::SMesh* cloneMesh(scene::IMesh *src_mesh);
+/// Clone a mesh. For an animated mesh, this will clone the static pose.
+scene::SMesh* cloneStaticMesh(scene::IMesh *src_mesh);
 
 /*
 	Convert nodeboxes to mesh. Each tile goes into a different buffer.

@@ -28,17 +28,17 @@ public:
 	void node_on_destruct(v3s16 p, MapNode node);
 	bool node_on_flood(v3s16 p, MapNode node, MapNode newnode);
 	void node_after_destruct(v3s16 p, MapNode node);
-	bool node_on_timer(v3s16 p, MapNode node, f32 dtime);
+	bool node_on_timer(v3s16 p, MapNode node, f32 elapsed, f32 timeout);
 	void node_on_receive_fields(v3s16 p,
 			const std::string &formname,
 			const StringMap &fields,
 			ServerActiveObject *sender);
+
 public:
 	static struct EnumString es_DrawType[];
 	static struct EnumString es_ContentParamType[];
 	static struct EnumString es_ContentParamType2[];
 	static struct EnumString es_LiquidType[];
-	static struct EnumString es_LiquidMoveType[];
 	static struct EnumString es_NodeBoxType[];
 	static struct EnumString es_TextureAlphaMode[];
 };

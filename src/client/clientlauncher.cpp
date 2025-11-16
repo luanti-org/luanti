@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include "IAttributes.h"
 #include "gui/mainmenumanager.h"
 #include "clouds.h"
 #include "gui/touchcontrols.h"
@@ -20,6 +19,7 @@
 #include "version.h"
 #include "renderingengine.h"
 #include "settings.h"
+#include "util/numeric.h"
 #include "util/tracy_wrapper.h"
 #include <IGUISpriteBank.h>
 #include <ICameraSceneNode.h>
@@ -111,9 +111,6 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 
 	init_input();
 
-	m_rendering_engine->get_scene_manager()->getParameters()->
-		setAttribute(scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
-
 	guienv = m_rendering_engine->get_gui_env();
 	config_guienv();
 	g_settings->registerChangedCallback("dpi_change_notifier", setting_changed_callback, this);
@@ -126,7 +123,7 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 	// This is only global so it can be used by RenderingEngine::draw_load_screen().
 	assert(!g_menucloudsmgr && !g_menuclouds);
 	std::unique_ptr<IWritableShaderSource> ssrc(createShaderSource());
-	ssrc->addShaderUniformSetterFactory(new FogShaderUniformSetterFactory());
+	ssrc->addShaderUniformSetterFactory(std::make_unique<FogShaderUniformSetterFactory>());
 	g_menucloudsmgr = m_rendering_engine->get_scene_manager()->createNewSceneManager();
 	g_menuclouds = new Clouds(g_menucloudsmgr, ssrc.get(), -1, rand());
 	g_menuclouds->setHeight(100.0f);
@@ -151,8 +148,8 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 	/*
 		Menu-game loop
 	*/
-	bool retval = true;
-	bool *kill = porting::signal_handler_killstatus();
+	bool retval         = true;
+	volatile auto *kill = porting::signal_handler_killstatus();
 
 	while (m_rendering_engine->run() && !*kill &&
 		!g_gamecallback->shutdown_requested) {
@@ -278,6 +275,15 @@ void ClientLauncher::init_args(GameStartData &start_data, const Settings &cmd_ar
 	if (cmd_args.exists("name"))
 		start_data.name = cmd_args.get("name");
 
+	// If a world was commanded, select it
+	if (!start_data.world_path.empty()) {
+		auto &spec = start_data.world_spec;
+
+		spec.path = start_data.world_path;
+		spec.gameid = getWorldGameId(spec.path, true);
+		spec.name = _("[--world parameter]");
+	}
+
 	random_input = g_settings->getBool("random_input")
 			|| cmd_args.getFlag("random-input");
 }
@@ -306,8 +312,8 @@ void ClientLauncher::init_input()
 
 void ClientLauncher::init_joysticks()
 {
-	irr::core::array<irr::SJoystickInfo> infos;
-	std::vector<irr::SJoystickInfo> joystick_infos;
+	core::array<SJoystickInfo> infos;
+	std::vector<SJoystickInfo> joystick_infos;
 
 	// Make sure this is called maximum once per
 	// irrlicht device, otherwise it will give you
@@ -328,6 +334,18 @@ void ClientLauncher::init_joysticks()
 void ClientLauncher::setting_changed_callback(const std::string &name, void *data)
 {
 	static_cast<ClientLauncher*>(data)->config_guienv();
+}
+
+static video::ITexture *loadTexture(video::IVideoDriver *driver, const char *path)
+{
+	// FIXME?: it would be cleaner to do this through a ITextureSource, but we don't have one
+	video::ITexture *texture = nullptr;
+	verbosestream << "Loading texture " << path << std::endl;
+	if (auto *image = driver->createImageFromFile(path); image) {
+		texture = driver->addTexture(fs::GetFilenameFromPath(path), image);
+		image->drop();
+	}
+	return texture;
 }
 
 void ClientLauncher::config_guienv()
@@ -368,10 +386,9 @@ void ClientLauncher::config_guienv()
 		if (cached_id != sprite_ids.end()) {
 			skin->setIcon(gui::EGDI_CHECK_BOX_CHECKED, cached_id->second);
 		} else {
-			gui::IGUISpriteBank *sprites = skin->getSpriteBank();
-			video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
-			video::ITexture *texture = driver->getTexture(path.c_str());
-			s32 id = sprites->addTextureAsSprite(texture);
+			auto *driver = m_rendering_engine->get_video_driver();
+			auto *texture = loadTexture(driver, path.c_str());
+			s32 id = skin->getSpriteBank()->addTextureAsSprite(texture);
 			if (id != -1) {
 				skin->setIcon(gui::EGDI_CHECK_BOX_CHECKED, id);
 				sprite_ids.emplace(path, id);
@@ -406,17 +423,8 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		}
 	}
 
-	// If a world was commanded, append and select it
-	// This is provieded by "get_world_from_cmdline()", main.cpp
-	if (!start_data.world_path.empty()) {
-		auto &spec = start_data.world_spec;
-
-		spec.path = start_data.world_path;
-		spec.gameid = getWorldGameId(spec.path, true);
-		spec.name = _("[--world parameter]");
-	}
-
-	/* Show the GUI menu
+	/*
+	 * Show the GUI menu
 	 */
 	std::string server_name, server_description;
 	if (!skip_main_menu) {
@@ -433,7 +441,7 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		main_menu(&menudata);
 
 		// Skip further loading if there was an exit signal.
-		if (*porting::signal_handler_killstatus())
+		if (!m_rendering_engine->run() || *porting::signal_handler_killstatus())
 			return false;
 
 		if (!menudata.script_data.errormessage.empty()) {
@@ -454,6 +462,7 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		int world_index = menudata.selected_world;
 		if (world_index >= 0 && world_index < (int)worldspecs.size()) {
 			start_data.world_spec = worldspecs[world_index];
+			start_data.world_path = start_data.world_spec.path;
 		}
 
 		start_data.name = menudata.name;
@@ -469,9 +478,6 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		start_data.local_server = !start_data.world_path.empty() &&
 			start_data.address.empty() && !start_data.name.empty();
 	}
-
-	if (!m_rendering_engine->run())
-		return false;
 
 	if (!start_data.isSinglePlayer() && start_data.name.empty()) {
 		error_message = gettext("Please choose a name!");
@@ -495,12 +501,9 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		return false;
 	}
 
-	auto &worldspec = start_data.world_spec;
-	infostream << "Selected world: " << worldspec.name
-	           << " [" << worldspec.path << "]" << std::endl;
-
+	// For singleplayer and local server
 	if (start_data.address.empty()) {
-		// For singleplayer and local server
+		auto &worldspec = start_data.world_spec;
 		if (worldspec.path.empty()) {
 			error_message = gettext("No world selected and no address "
 					"provided. Nothing to do.");
@@ -508,33 +511,47 @@ bool ClientLauncher::launch_game(std::string &error_message,
 			return false;
 		}
 
-		if (!fs::PathExists(worldspec.path)) {
-			error_message = gettext("Provided world path doesn't exist: ")
-					+ worldspec.path;
-			errorstream << error_message << std::endl;
-			return false;
+		infostream << "Selected world: " << worldspec.name
+			<< " [" << worldspec.path << "]" << std::endl;
+
+		// Figure out which game we'll be using
+		// Note that start_data.game_spec contains the gameid from the command line
+		bool world_exists = getWorldExists(worldspec.path);
+		if (world_exists) {
+			auto world_game = findWorldSubgame(worldspec.path);
+			if (world_game.isValid())
+				start_data.game_spec = world_game;
 		}
 
-		// Load gamespec for required game
-		start_data.game_spec = findWorldSubgame(worldspec.path);
 		if (!start_data.game_spec.isValid()) {
-			error_message = gettext("Could not find or load game: ")
+			if (world_exists) {
+				error_message = gettext("Could not find or load game: ")
 					+ worldspec.gameid;
+			} else {
+				error_message = gettext("World does not exist and no game selected to create one.");
+			}
 			errorstream << error_message << std::endl;
 			return false;
 		}
-
-		return true;
 	}
 
-	start_data.world_path = start_data.world_spec.path;
 	return true;
 }
 
 void ClientLauncher::main_menu(MainMenuData *menudata)
 {
-	bool *kill = porting::signal_handler_killstatus();
+	volatile auto       *kill   = porting::signal_handler_killstatus();
 	video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
+	auto                *device = m_rendering_engine->get_raw_device();
+
+	// Wait until app is in foreground because of #15883
+	infostream << "Waiting for app to be in foreground" << std::endl;
+	while (m_rendering_engine->run() && !*kill) {
+		if (device->isWindowVisible())
+			break;
+		sleep_ms(25);
+	}
+	infostream << "Waited for app to be in foreground" << std::endl;
 
 	infostream << "Waiting for other menus" << std::endl;
 	auto framemarker = FrameMarker("ClientLauncher::main_menu()-wait-frame").started();
@@ -552,7 +569,7 @@ void ClientLauncher::main_menu(MainMenuData *menudata)
 	framemarker.end();
 	infostream << "Waited for other menus" << std::endl;
 
-	auto *cur_control = m_rendering_engine->get_raw_device()->getCursorControl();
+	auto *cur_control = device->getCursorControl();
 	if (cur_control) {
 		// Cursor can be non-visible when coming from the game
 		cur_control->setVisible(true);

@@ -8,4 +8,5 @@
     <string name="notification_channel_description">Obvestilo od Luantia</string>
     <string name="ime_dialog_done">Končano!l</string>
     <string name="unzip_notification_title">Nalaganje Luantia</string>
+    <string name="game_notification_title">Luanti deluje</string>
 </resources>

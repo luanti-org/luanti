@@ -10,7 +10,7 @@
 #include "irr_v3d.h"
 #include "util/areastore.h"
 #include "filesys.h"
-#include <fstream>
+#include <sstream>
 
 static inline void get_data_and_corner_flags(lua_State *L, u8 start_i,
 		bool *corners, bool *data)
@@ -330,7 +330,7 @@ void LuaAreaStore::Register(lua_State *L)
 		{"__gc", gc_object},
 		{0, 0}
 	};
-	registerClass(L, className, methods, metamethods);
+	registerClass<LuaAreaStore>(L, methods, metamethods);
 
 	// Can be created from Lua (AreaStore())
 	lua_register(L, className, create_object);

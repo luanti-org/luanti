@@ -14,10 +14,10 @@ It is highly recommended to use vcpkg as package manager.
 
 After you successfully built vcpkg you can easily install the required libraries:
 ```powershell
-vcpkg install zlib zstd curl[winssl] openal-soft libvorbis libogg libjpeg-turbo sqlite3 freetype luajit gmp jsoncpp gettext[tools] sdl2 --triplet x64-windows
+vcpkg install zlib zstd curl[ssl] openal-soft libvorbis libogg libjpeg-turbo sqlite3 freetype luajit gmp jsoncpp gettext[tools] sdl2 --triplet x64-windows
 ```
 
-- `curl` is optional, but required to read the serverlist, `curl[winssl]` is required to use the content store.
+- `curl` is optional, but required to read the serverlist, `curl[ssl]` is required to use the content store.
 - `openal-soft`, `libvorbis` and `libogg` are optional, but required to use sound.
 - `luajit` is optional, it replaces the integrated Lua interpreter with a faster just-in-time interpreter.
 - `gmp` and `jsoncpp` are optional, otherwise the bundled versions will be compiled

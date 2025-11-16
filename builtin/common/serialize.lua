@@ -218,9 +218,13 @@ function core.serialize(value)
 		core.log("deprecated", "Support for dumping functions in `core.serialize` is deprecated.")
 	end
 	local rope = {}
+	-- Keeping the length of the table as a local variable is *much*
+	-- faster than invoking the length operator.
+	-- See https://gitspartv.github.io/LuaJIT-Benchmarks/#test12.
+	local i = 0
 	serialize(value, function(text)
-		 -- Faster than table.insert(rope, text) on PUC Lua 5.1
-		rope[#rope + 1] = text
+		i = i + 1
+		rope[i] = text
 	end)
 	return table_concat(rope)
 end

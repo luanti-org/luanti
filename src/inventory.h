@@ -4,15 +4,17 @@
 
 #pragma once
 
-#include "itemdef.h"
 #include "irrlichttypes.h"
 #include "itemstackmetadata.h"
 #include <istream>
+#include <memory>
 #include <ostream>
 #include <string>
 #include <vector>
 #include <cassert>
 
+struct ItemDefinition;
+struct ItemImageDef;
 struct ToolCapabilities;
 
 struct ItemStack
@@ -36,10 +38,10 @@ struct ItemStack
 	std::string getDescription(const IItemDefManager *itemdef) const;
 	std::string getShortDescription(const IItemDefManager *itemdef) const;
 
-	std::string getInventoryImage(const IItemDefManager *itemdef) const;
-	std::string getInventoryOverlay(const IItemDefManager *itemdef) const;
-	std::string getWieldImage(const IItemDefManager *itemdef) const;
-	std::string getWieldOverlay(const IItemDefManager *itemdef) const;
+	ItemImageDef getInventoryImage(const IItemDefManager *itemdef) const;
+	ItemImageDef getInventoryOverlay(const IItemDefManager *itemdef) const;
+	ItemImageDef getWieldImage(const IItemDefManager *itemdef) const;
+	ItemImageDef getWieldOverlay(const IItemDefManager *itemdef) const;
 	v3f getWieldScale(const IItemDefManager *itemdef) const;
 
 	/*
@@ -73,10 +75,7 @@ struct ItemStack
 	}
 
 	// Maximum size of a stack
-	u16 getStackMax(const IItemDefManager *itemdef) const
-	{
-		return itemdef->get(name).stack_max;
-	}
+	u16 getStackMax(const IItemDefManager *itemdef) const;
 
 	// Number of items that can be added to this stack
 	u16 freeSpace(const IItemDefManager *itemdef) const
@@ -88,69 +87,24 @@ struct ItemStack
 	}
 
 	// Returns false if item is not known and cannot be used
-	bool isKnown(const IItemDefManager *itemdef) const
-	{
-		return itemdef->isKnown(name);
-	}
+	bool isKnown(const IItemDefManager *itemdef) const;
 
 	// Returns a pointer to the item definition struct,
 	// or a fallback one (name="unknown") if the item is unknown.
-	const ItemDefinition& getDefinition(
-			const IItemDefManager *itemdef) const
-	{
-		return itemdef->get(name);
-	}
+	const ItemDefinition &getDefinition(
+			const IItemDefManager *itemdef) const;
 
 	// Get tool digging properties, or those of the hand if not a tool
 	// If not hand assumes default hand ""
-	const ToolCapabilities& getToolCapabilities(
-			const IItemDefManager *itemdef, const ItemStack *hand = nullptr) const
-	{
-		const ToolCapabilities *item_cap = itemdef->get(name).tool_capabilities;
-
-		if (item_cap) {
-			return metadata.getToolCapabilities(*item_cap); // Check for override
-		}
-
-		// Fall back to the hand's tool capabilities
-		if (hand) {
-			item_cap = itemdef->get(hand->name).tool_capabilities;
-			if (item_cap) {
-				return hand->metadata.getToolCapabilities(*item_cap);
-			}
-		}
-
-		item_cap = itemdef->get("").tool_capabilities;
-		assert(item_cap);
-		return *item_cap;
-	}
+	const ToolCapabilities &getToolCapabilities(
+			const IItemDefManager *itemdef, const ItemStack *hand = nullptr) const;
 
 	const std::optional<WearBarParams> &getWearBarParams(
-			const IItemDefManager *itemdef) const
-	{
-		auto &meta_override = metadata.getWearBarParamOverride();
-		if (meta_override.has_value())
-			return meta_override;
-		return itemdef->get(name).wear_bar_params;
-	}
+			const IItemDefManager *itemdef) const;
 
 	// Wear out (only tools)
 	// Returns true if the item is (was) a tool
-	bool addWear(s32 amount, const IItemDefManager *itemdef)
-	{
-		if(getDefinition(itemdef).type == ITEM_TOOL)
-		{
-			if(amount > 65535 - wear)
-				clear();
-			else if(amount < -wear)
-				wear = 0;
-			else
-				wear += amount;
-			return true;
-		}
-
-		return false;
-	}
+	bool addWear(s32 amount, const IItemDefManager *itemdef);
 
 	// If possible, adds newitem to this item.
 	// If cannot be added at all, returns the item back.

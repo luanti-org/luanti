@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
-#include "settings.h"
+#include "settings.h" // SettingsHierarchy
 
 struct NoiseParams;
 struct MapgenParams;
@@ -51,12 +52,16 @@ public:
 
 	bool loadMapMeta();
 	bool saveMapMeta();
+
+	/// @brief Finalizes and creates the mapgen params
 	MapgenParams *makeMapgenParams();
+	/// @brief Creates a copy of the mapgen params without making the manager immutable
+	MapgenParams *makeMapgenParamsCopy() const;
 
 private:
 	std::string m_map_meta_path;
 
 	SettingsHierarchy m_hierarchy;
-	Settings *m_defaults;
-	Settings *m_map_settings;
+	std::unique_ptr<Settings> m_defaults;
+	std::unique_ptr<Settings> m_map_settings;
 };

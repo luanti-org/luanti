@@ -13,12 +13,14 @@ pkgs.mkShell {
     pkgs.libjpeg
     pkgs.libpng
     pkgs.libGL
+    pkgs.luajit
     pkgs.SDL2
     pkgs.openal
     pkgs.curl
     pkgs.libvorbis
     pkgs.libogg
     pkgs.gettext
+    pkgs.gmp
     pkgs.freetype
     pkgs.sqlite
   ];

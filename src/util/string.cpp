@@ -8,7 +8,7 @@
 #include "log.h"
 
 #include "hex.h"
-#include "porting.h"
+#include "porting.h" // strtok_r, strtoull and strncasecmp
 #include "translation.h"
 #include "strfnd.h"
 
@@ -1064,4 +1064,30 @@ std::optional<v3f> str_to_v3f(std::string_view str)
 		return std::nullopt;
 
 	return value;
+}
+
+std::string my_double_to_string(double number)
+{
+	if (std::isfinite(number)) {
+		char buf[64];
+		snprintf(buf, sizeof(buf), "%.17g", number);
+		return buf;
+	}
+	if (number < 0)
+		return "-inf";
+	if (number > 0)
+		return "inf";
+	return "nan";
+}
+
+std::optional<double> my_string_to_double(const std::string &s)
+{
+	if (s.empty())
+		return std::nullopt;
+	char *end = nullptr;
+	// Note: this also supports hexadecimal notation like "0x1.0p+1"
+	double number = std::strtod(s.c_str(), &end);
+	if (end && *end != '\0')
+		return std::nullopt;
+	return number;
 }
