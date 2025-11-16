@@ -63,8 +63,12 @@ public:
 
 		core::array<video::SMaterial> Materials; // material array
 
-		core::array<u32> WeightJoint;
-		core::array<u32> WeightNum;
+		struct Weight {
+			u16 joint_id;
+			u32 global_vertex_id;
+			f32 strength;
+		};
+		std::vector<Weight> Weights;
 
 		s32 AttachedJointID;
 
@@ -152,7 +156,7 @@ private:
 	bool readRGB(video::SColor &color);
 	bool readRGBA(video::SColor &color);
 
-	SkinnedMeshBuilder *AnimatedMesh;
+	SkinnedMeshBuilder AnimatedMesh;
 
 	c8 *Buffer;
 	const c8 *P;

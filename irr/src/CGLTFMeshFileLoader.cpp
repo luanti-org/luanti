@@ -345,15 +345,14 @@ IAnimatedMesh* SelfType::createMesh(io::IReadFile* file)
 	const char *filename = file->getFileName().c_str();
 	try {
 		tiniergltf::GlTF model = parseGLTF(file);
-		irr_ptr<SkinnedMeshBuilder> mesh(new SkinnedMeshBuilder(
-				SkinnedMesh::SourceFormat::GLTF));
-		MeshExtractor extractor(std::move(model), mesh.get());
+		SkinnedMeshBuilder mesh(SkinnedMesh::SourceFormat::GLTF);
+		MeshExtractor extractor(std::move(model));
 		try {
-			extractor.load();
+			auto *res = extractor.load();
 			for (const auto &warning : extractor.getWarnings()) {
 				os::Printer::log(filename, warning.c_str(), ELL_WARNING);
 			}
-			return mesh.release()->finalize();
+			return res;
 		} catch (const std::runtime_error &e) {
 			os::Printer::log("error converting gltf to irrlicht mesh", e.what(), ELL_ERROR);
 		}
@@ -423,15 +422,14 @@ void SelfType::MeshExtractor::addPrimitive(
 	}
 
 	auto *meshbuf = new SSkinMeshBuffer(std::move(*vertices), std::move(indices));
-	m_irr_model->addMeshBuffer(meshbuf);
-	const auto meshbufNr = m_irr_model->getMeshBufferCount() - 1;
+	const auto meshbufNr = m_irr_model.addMeshBuffer(meshbuf);
 
 	if (primitive.material.has_value()) {
 		const auto &material = m_gltf_model.materials->at(*primitive.material);
 		if (material.pbrMetallicRoughness.has_value()) {
 			const auto &texture = material.pbrMetallicRoughness->baseColorTexture;
 			if (texture.has_value()) {
-				m_irr_model->setTextureSlot(meshbufNr, static_cast<u32>(texture->index));
+				m_irr_model.setTextureSlot(meshbufNr, static_cast<u32>(texture->index));
 				const auto samplerIdx = m_gltf_model.textures->at(texture->index).sampler;
 				if (samplerIdx.has_value()) {
 					auto &sampler = m_gltf_model.samplers->at(*samplerIdx);
@@ -501,10 +499,8 @@ void SelfType::MeshExtractor::addPrimitive(
 				if (strength <= 0)
 					continue; // note: also ignores negative weights
 
-				SkinnedMesh::SWeight *weight = m_irr_model->addWeight(m_loaded_nodes.at(skin.joints.at(jointIdx)));
-				weight->buffer_id = meshbufNr;
-				weight->vertex_id = v;
-				weight->strength = strength;
+				m_irr_model.addWeight(m_loaded_nodes.at(skin.joints.at(jointIdx)),
+						meshbufNr, v, strength);
 			}
 		}
 		if (negative_weights)
@@ -571,7 +567,7 @@ void SelfType::MeshExtractor::loadNode(
 		SkinnedMesh::SJoint *parent)
 {
 	const auto &node = m_gltf_model.nodes->at(nodeIdx);
-	auto *joint = m_irr_model->addJoint(parent);
+	auto *joint = m_irr_model.addJoint(parent);
 	const core::matrix4 transform = loadTransform(node.transform, joint);
 	joint->GlobalMatrix = parent ? parent->GlobalMatrix * transform : transform;
 	if (node.name.has_value()) {
@@ -695,7 +691,7 @@ void SelfType::MeshExtractor::loadAnimation(const std::size_t animIdx)
 	}
 }
 
-void SelfType::MeshExtractor::load()
+SkinnedMesh *SelfType::MeshExtractor::load()
 {
 	if (m_gltf_model.extensionsRequired)
 		throw std::runtime_error("model requires extensions, but we support none");
@@ -723,8 +719,8 @@ void SelfType::MeshExtractor::load()
 				warn("multiple animations are not supported");
 
 			loadAnimation(0);
-			m_irr_model->setAnimationSpeed(1);
 		}
+		return std::move(m_irr_model).finalize();
 	} catch (const std::out_of_range &e) {
 		throw std::runtime_error(e.what());
 	} catch (const std::bad_optional_access &e) {

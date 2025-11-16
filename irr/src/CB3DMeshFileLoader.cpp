@@ -25,8 +25,11 @@ namespace scene
 
 //! Constructor
 CB3DMeshFileLoader::CB3DMeshFileLoader(scene::ISceneManager *smgr) :
-		AnimatedMesh(0), B3DFile(0), VerticesStart(0), NormalsInFile(false),
-		HasVertexColors(false), ShowWarning(true)
+		B3DFile(nullptr),
+		VerticesStart(0),
+		NormalsInFile(false),
+		HasVertexColors(false),
+		ShowWarning(true)
 {}
 
 //! returns true if the file maybe is able to be loaded by this class
@@ -43,21 +46,17 @@ bool CB3DMeshFileLoader::isALoadableFileExtension(const io::path &filename) cons
 IAnimatedMesh *CB3DMeshFileLoader::createMesh(io::IReadFile *file)
 {
 	if (!file)
-		return 0;
+		return nullptr;
 
 	B3DFile = file;
-	AnimatedMesh = new scene::SkinnedMeshBuilder(SkinnedMesh::SourceFormat::B3D);
+	AnimatedMesh = scene::SkinnedMeshBuilder(SkinnedMesh::SourceFormat::B3D);
 	ShowWarning = true; // If true a warning is issued if too many textures are used
 	VerticesStart = 0;
 
-	if (load()) {
-		return AnimatedMesh->finalize();
-	} else {
-		AnimatedMesh->drop();
-		AnimatedMesh = 0;
-	}
+	if (!load())
+		return nullptr;
 
-	return AnimatedMesh;
+	return std::move(AnimatedMesh).finalize();
 }
 
 bool CB3DMeshFileLoader::load()
@@ -130,7 +129,7 @@ bool CB3DMeshFileLoader::load()
 
 bool CB3DMeshFileLoader::readChunkNODE(SkinnedMesh::SJoint *inJoint)
 {
-	SkinnedMesh::SJoint *joint = AnimatedMesh->addJoint(inJoint);
+	SkinnedMesh::SJoint *joint = AnimatedMesh.addJoint(inJoint);
 	joint->Name = readString();
 
 #ifdef _B3D_READER_DEBUG
@@ -233,7 +232,7 @@ bool CB3DMeshFileLoader::readChunkMESH(SkinnedMesh::SJoint *inJoint)
 			if (!readChunkVRTS(inJoint))
 				return false;
 		} else if (strncmp(B3dStack.getLast().name, "TRIS", 4) == 0) {
-			scene::SSkinMeshBuffer *meshBuffer = AnimatedMesh->addMeshBuffer();
+			scene::SSkinMeshBuffer *meshBuffer = AnimatedMesh.addMeshBuffer();
 
 			if (brushID == -1) { /* ok */
 			} else if (brushID < 0 || (u32)brushID >= Materials.size()) {
@@ -243,7 +242,7 @@ bool CB3DMeshFileLoader::readChunkMESH(SkinnedMesh::SJoint *inJoint)
 				meshBuffer->Material = Materials[brushID].Material;
 			}
 
-			if (readChunkTRIS(meshBuffer, AnimatedMesh->getMeshBufferCount() - 1, VerticesStart) == false)
+			if (readChunkTRIS(meshBuffer, AnimatedMesh.getMeshBufferCount() - 1, VerticesStart) == false)
 				return false;
 
 			if (!NormalsInFile) {
@@ -541,11 +540,10 @@ bool CB3DMeshFileLoader::readChunkBONE(SkinnedMesh::SJoint *inJoint)
 			if (AnimatedVertices_VertexID[globalVertexID] == -1) {
 				os::Printer::log("B3dMeshLoader: Weight has bad vertex id (no link to meshbuffer index found)");
 			} else if (strength > 0) {
-				SkinnedMesh::SWeight *weight = AnimatedMesh->addWeight(inJoint);
-				weight->strength = strength;
-				// Find the meshbuffer and Vertex index from the Global Vertex ID:
-				weight->vertex_id = AnimatedVertices_VertexID[globalVertexID];
-				weight->buffer_id = AnimatedVertices_BufferID[globalVertexID];
+				AnimatedMesh.addWeight(inJoint,
+						AnimatedVertices_BufferID[globalVertexID],
+						AnimatedVertices_VertexID[globalVertexID],
+						strength);
 			}
 		}
 	}
@@ -591,15 +589,15 @@ bool CB3DMeshFileLoader::readChunkKEYS(SkinnedMesh::SJoint *inJoint)
 		f32 data[4];
 		if (flags & 1) {
 			readFloats(data, 3);
-			AnimatedMesh->addPositionKey(inJoint, frame - 1, {data[0], data[1], data[2]});
+			AnimatedMesh.addPositionKey(inJoint, frame - 1, {data[0], data[1], data[2]});
 		}
 		if (flags & 2) {
 			readFloats(data, 3);
-			AnimatedMesh->addScaleKey(inJoint, frame - 1, {data[0], data[1], data[2]});
+			AnimatedMesh.addScaleKey(inJoint, frame - 1, {data[0], data[1], data[2]});
 		}
 		if (flags & 4) {
 			readFloats(data, 4);
-			AnimatedMesh->addRotationKey(inJoint, frame - 1, core::quaternion(data[1], data[2], data[3], data[0]));
+			AnimatedMesh.addRotationKey(inJoint, frame - 1, core::quaternion(data[1], data[2], data[3], data[0]));
 		}
 	}
 
@@ -617,15 +615,13 @@ bool CB3DMeshFileLoader::readChunkANIM()
 	os::Printer::log(logStr.c_str(), ELL_DEBUG);
 #endif
 
-	s32 animFlags;  // not stored\used
-	s32 animFrames; // not stored\used
-	f32 animFPS;    // not stored\used
+	s32 animFlags;  // not stored/used
+	s32 animFrames; // not stored/used
+	f32 animFPS;    // not stored/used
 
 	B3DFile->read(&animFlags, sizeof(s32));
 	B3DFile->read(&animFrames, sizeof(s32));
 	readFloats(&animFPS, 1);
-	if (animFPS > 0.f)
-		AnimatedMesh->setAnimationSpeed(animFPS);
 	os::Printer::log("FPS", io::path((double)animFPS), ELL_DEBUG);
 
 #ifdef __BIG_ENDIAN__
