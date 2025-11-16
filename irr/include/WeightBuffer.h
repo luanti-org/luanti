@@ -1,6 +1,5 @@
-// Luanti
-// SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2025 Lars Müller
+// For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #pragma once
 

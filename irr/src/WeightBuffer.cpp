@@ -1,3 +1,6 @@
+// Copyright (C) 2025 Lars Müller
+// For conditions of distribution and use, see copyright notice in irrlicht.h
+
 #include "WeightBuffer.h"
 
 #include <algorithm>
