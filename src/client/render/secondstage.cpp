@@ -92,7 +92,7 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	video::ECOLOR_FORMAT depth_format = selectDepthFormat(driver);
 
 	verbosestream << "addPostProcessing(): color = "
-		<< video::ColorFormatName(color_format) << " depth = "
+		<< video::ColorFormatName(color_format) << ", depth = "
 		<< video::ColorFormatName(depth_format) << std::endl;
 
 	// init post-processing buffer
@@ -110,9 +110,23 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	static const u8 TEXTURE_SCALE_DOWN = 10;
 	static const u8 TEXTURE_SCALE_UP = 20;
 
-	const bool enable_bloom = g_settings->getBool("enable_bloom");
+	// because bloom_format is floating point
+	const bool bloom_available = driver->queryFeature(video::EVDF_RENDER_TO_FLOAT_TEXTURE);
+	const bool enable_bloom = g_settings->getBool("enable_bloom") && bloom_available;
 	const bool enable_volumetric_light = g_settings->getBool("enable_volumetric_lighting") && enable_bloom;
-	const bool enable_auto_exposure = g_settings->getBool("enable_auto_exposure");
+	const bool enable_auto_exposure = g_settings->getBool("enable_auto_exposure") && bloom_available;
+	if (g_settings->getBool("enable_bloom") && !bloom_available) {
+		warningstream << "Ignoring configured bloom since it's not supported by "
+			"the current video driver." << std::endl;
+	}
+	if (g_settings->getBool("enable_auto_exposure") && !bloom_available) {
+		warningstream << "Ignoring configured auto exposure since it's not supported by "
+			"the current video driver." << std::endl;
+	}
+
+	verbosestream << "addPostProcessing(): bloom = "
+		<< enable_bloom << (enable_volumetric_light ? " + volumetric" : "")
+		<< ", exposure = " << enable_auto_exposure << std::endl;
 
 	const std::string antialiasing = g_settings->get("antialiasing");
 	const u16 antialiasing_scale = MYMAX(2, g_settings->getU16("fsaa"));
@@ -126,9 +140,10 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 
 	const bool msaa_available = driver->queryFeature(video::EVDF_TEXTURE_MULTISAMPLE);
 	const bool enable_msaa = antialiasing == "fsaa" && msaa_available;
-	if (antialiasing == "fsaa" && !msaa_available)
-		warningstream << "Ignoring configured FSAA. FSAA is not supported in "
-			<< "combination with post-processing by the current video driver." << std::endl;
+	if (antialiasing == "fsaa" && !msaa_available) {
+		warningstream << "Ignoring configured FSAA since it's not supported in "
+			"combination with post-processing by the current video driver." << std::endl;
+	}
 
 	const bool enable_ssaa = antialiasing == "ssaa";
 	const bool enable_fxaa = g_settings->getBool("fxaa");
@@ -167,6 +182,7 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	u32 shader_id;
 
 	// Number of mipmap levels of the bloom downsampling texture
+	// (this affects the bloom strength, so don't blindly change it)
 	const u8 MIPMAP_LEVELS = 4;
 
 	// color_format can be a normalized integer format, but bloom requires

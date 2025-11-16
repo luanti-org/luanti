@@ -158,7 +158,8 @@ void populatePlainPipeline(RenderPipeline *pipeline, Client *client)
 video::ECOLOR_FORMAT selectColorFormat(video::IVideoDriver *driver)
 {
 	u32 bits = g_settings->getU32("post_processing_texture_bits");
-	if (bits >= 16 && driver->queryTextureFormat(video::ECF_A16B16G16R16F))
+	if (bits >= 16 && driver->queryTextureFormat(video::ECF_A16B16G16R16F) &&
+		driver->queryFeature(video::EVDF_RENDER_TO_FLOAT_TEXTURE))
 		return video::ECF_A16B16G16R16F;
 	if (bits >= 10 && driver->queryTextureFormat(video::ECF_A2R10G10B10))
 		return video::ECF_A2R10G10B10;
