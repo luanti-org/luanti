@@ -20,8 +20,9 @@ struct WeightBuffer
 	// ID-weight pairs for a joint
 	struct VertexWeights {
 		std::array<u16, MAX_WEIGHTS_PER_VERTEX> joint_ids = {};
-		std::array<f32, MAX_WEIGHTS_PER_VERTEX> strengths = {};
+		std::array<f32, MAX_WEIGHTS_PER_VERTEX> weights = {};
 		void addWeight(u16 joint_id, f32 weight);
+		/// Transform given position and normal with these weights
 		void skinVertex(core::vector3df &pos, core::vector3df &normal,
 				const std::vector<core::matrix4> &joint_transforms) const;
 	};
@@ -40,13 +41,14 @@ struct WeightBuffer
 	{ return weights[vertex_id].joint_ids; }
 
 	const std::array<f32, MAX_WEIGHTS_PER_VERTEX> &getWeights(u32 vertex_id) const
-	{ return weights[vertex_id].strengths; }
+	{ return weights[vertex_id].weights; }
 
 	size_t size() const
 	{ return weights.size(); }
 
 	void addWeight(u32 vertex_id, u16 joint_id, f32 weight);
 
+	/// Transform position and normal using the weights of the given vertex
 	void skinVertex(u32 vertex_id, core::vector3df &pos, core::vector3df &normal,
 			const std::vector<core::matrix4> &joint_transforms) const;
 

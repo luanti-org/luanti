@@ -11,12 +11,12 @@ namespace scene {
 void WeightBuffer::VertexWeights::addWeight(u16 joint_id, f32 weight)
 {
 	assert(weight >= 0.0f);
-	auto min_weight = std::min_element(strengths.begin(), strengths.end());
+	auto min_weight = std::min_element(weights.begin(), weights.end());
 	if (*min_weight > weight)
 		return;
 
 	*min_weight = weight;
-	joint_ids[std::distance(strengths.begin(), min_weight)] = joint_id;
+	joint_ids[std::distance(weights.begin(), min_weight)] = joint_id;
 }
 
 void WeightBuffer::addWeight(u32 vertex_id, u16 joint_id, f32 weight)
@@ -31,8 +31,8 @@ void WeightBuffer::VertexWeights::skinVertex(core::vector3df &pos, core::vector3
 	core::vector3df skinned_pos;
 	core::vector3df skinned_normal;
 	for (u16 i = 0; i < MAX_WEIGHTS_PER_VERTEX; ++i) {
-		u16 joint_id = joint_ids[i];
-		f32 weight = strengths[i];
+		const u16 joint_id = joint_ids[i];
+		const f32 weight = weights[i];
 		if (core::equals(weight, 0.0f))
 			continue;
 
@@ -81,16 +81,16 @@ void WeightBuffer::finalize()
 	assert(!animated_vertices.has_value());
 	animated_vertices.emplace();
 	for (u32 i = 0; i < size(); ++i) {
-		auto &strengths = weights[i].strengths;
-		f32 total_weight = std::accumulate(strengths.begin(), strengths.end(), 0.0f);
+		auto &weights_i = weights[i].weights;
+		f32 total_weight = std::accumulate(weights_i.begin(), weights_i.end(), 0.0f);
 		if (core::equals(total_weight, 0.0f)) {
-			std::fill(strengths.begin(), strengths.end(), 0.0f);
+			std::fill(weights_i.begin(), weights_i.end(), 0.0f);
 			continue;
 		}
 		animated_vertices->emplace_back(i);
 		if (core::equals(total_weight, 1.0f))
 			continue;
-		for (auto &strength : strengths)
+		for (auto &strength : weights_i)
 			strength /= total_weight;
 	}
 	animated_vertices->shrink_to_fit();

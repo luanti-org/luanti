@@ -276,21 +276,21 @@ void SkinnedMesh::calculateJointBoundingBoxes()
 		if (!weights)
 			continue;
 		for (u32 vert_id : weights->animated_vertices.value()) {
+			const auto pos = buf->getVertex(vert_id)->Pos;
 			for (u16 j = 0; j < WeightBuffer::MAX_WEIGHTS_PER_VERTEX; j++) {
-				const auto joint_id = weights->getJointIds(vert_id)[j];
-				const auto *joint = AllJoints[joint_id];
-				const auto strength = weights->getWeights(vert_id)[j];
-				if (core::equals(strength, 0.0f))
+				const u16 joint_id = weights->getJointIds(vert_id)[j];
+				const SJoint *joint = AllJoints[joint_id];
+				const f32 weight = weights->getWeights(vert_id)[j];
+				if (core::equals(weight, 0.0f))
 					continue;
-				auto pos = buf->getVertex(vert_id)->Pos;
-				joint->GlobalInversedMatrix.value().transformVect(pos);
+				auto trans_pos = pos;
+				joint->GlobalInversedMatrix.value().transformVect(trans_pos);
 				if (joint_boxes[joint_id]) {
-					joint_boxes[joint_id]->addInternalPoint(pos);
+					joint_boxes[joint_id]->addInternalPoint(trans_pos);
 				} else {
-					joint_boxes[joint_id] = core::aabbox3df{pos};
+					joint_boxes[joint_id] = core::aabbox3df{trans_pos};
 				}
 			}
-			weights->getWeights(vert_id);
 		}
 	}
 	for (u16 joint_id = 0; joint_id < AllJoints.size(); joint_id++) {
@@ -317,7 +317,7 @@ void SkinnedMesh::recalculateBaseBoundingBoxes() {
 void SkinnedMeshBuilder::topoSortJoints()
 {
 	auto &joints = getJoints();
-	size_t n = joints.size();
+	const size_t n = joints.size();
 
 	std::vector<u16> new_to_old_id;
 
@@ -365,6 +365,9 @@ SkinnedMesh *SkinnedMeshBuilder::finalize() &&
 {
 	os::Printer::log("Skinned Mesh - finalize", ELL_DEBUG);
 
+	// Topologically sort the joints such that parents come before their children.
+	// From this point on, transformations can be calculated in linear order.
+	// (see e.g. SkinnedMesh::calculateGlobalMatrices)
 	topoSortJoints();
 
 	mesh->prepareForSkinning();
