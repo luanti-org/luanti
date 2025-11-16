@@ -6,12 +6,14 @@ on:
     paths:
       - 'builtin/**.lua'
       - 'games/devtest/**.lua'
-      - '.github/workflows/**.yml'
+      - 'util/ci/**'
+      - '.github/workflows/lua.yml'
   pull_request:
     paths:
       - 'builtin/**.lua'
       - 'games/devtest/**.lua'
-      - '.github/workflows/**.yml'
+      - 'util/ci/**'
+      - '.github/workflows/lua.yml'
 
 jobs:
   # Note that the integration tests are also run in build.yml, but only when C++ code is changed.
