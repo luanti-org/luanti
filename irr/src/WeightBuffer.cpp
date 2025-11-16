@@ -30,6 +30,8 @@ void WeightBuffer::VertexWeights::skinVertex(core::vector3df &pos, core::vector3
 	for (u16 i = 0; i < MAX_WEIGHTS_PER_VERTEX; ++i) {
 		u16 joint_id = joint_ids[i];
 		f32 weight = strengths[i];
+		if (core::equals(weight, 0.0f))
+			continue;
 
 		const auto &transform = joint_transforms[joint_id];
 		core::vector3df transformed_pos = pos;

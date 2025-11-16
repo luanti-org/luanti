@@ -295,7 +295,7 @@ void SkinnedMesh::calculateJointBoundingBoxes()
 				const auto joint_id = weights->getJointIds(vert_id)[j];
 				const auto *joint = AllJoints[joint_id];
 				const auto strength = weights->getWeights(vert_id)[j];
-				if (strength < 1e-6)
+				if (core::equals(strength, 0.0f))
 					continue;
 				auto pos = buf->getVertex(vert_id)->Pos;
 				joint->GlobalInversedMatrix.value().transformVect(pos);
