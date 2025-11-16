@@ -95,8 +95,10 @@ void WeightBuffer::finalize()
 
 void WeightBuffer::updateStaticPose(const IVertexBuffer *vbuf)
 {
-	static_normals = std::make_unique<core::vector3df[]>(animated_vertices->size());
-	static_positions = std::make_unique<core::vector3df[]>(animated_vertices->size());
+	if (!static_normals)
+		static_normals = std::make_unique<core::vector3df[]>(animated_vertices->size());
+	if (!static_positions)
+		static_positions = std::make_unique<core::vector3df[]>(animated_vertices->size());
 	for (size_t idx = 0; idx < animated_vertices->size(); ++idx) {
 		u32 vertex_id = (*animated_vertices)[idx];
 		static_positions[idx] = vbuf->getPosition(vertex_id);
