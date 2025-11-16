@@ -59,15 +59,6 @@ public:
 	//! If the duration is 0, it is a static (=non animated) mesh.
 	f32 getMaxFrameNumber() const override;
 
-	//! Gets the default animation speed of the animated mesh.
-	/** \return Amount of frames per second. If the amount is 0, it is a static, non animated mesh. */
-	f32 getAnimationSpeed() const override;
-
-	//! Gets the frame count of the animated mesh.
-	/** \param fps Frames per second to play the animation with. If the amount is 0, it is not animated.
-	The actual speed is set in the scene node the mesh is instantiated in.*/
-	void setAnimationSpeed(f32 fps) override;
-
 	//! Turns the given array of local matrices into an array of global matrices
 	//! by multiplying with respective parent matrices.
 	void calculateGlobalMatrices(std::vector<core::matrix4> &matrices) const;

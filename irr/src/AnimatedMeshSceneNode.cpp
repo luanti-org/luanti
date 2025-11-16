@@ -514,10 +514,6 @@ void AnimatedMeshSceneNode::setMesh(IAnimatedMesh *mesh)
 		JointsUsed = false;
 		checkJoints();
 	}
-
-	// get start and begin time
-	setAnimationSpeed(Mesh->getAnimationSpeed()); // NOTE: This had been commented out (but not removed!) in r3526. Which caused meshloader-values for speed to be ignored unless users specified explicitly. Missing a test-case where this could go wrong so I put the code back in.
-	setFrameLoop(0, Mesh->getMaxFrameNumber());
 }
 
 //! updates the absolute position based on the relative and the parents position
