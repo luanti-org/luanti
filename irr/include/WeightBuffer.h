@@ -18,9 +18,15 @@ namespace scene
 struct WeightBuffer
 {
 	constexpr static u16 MAX_WEIGHTS_PER_VERTEX = 4;
-	size_t n_verts;
-	std::unique_ptr<u16[]> joint_idxs;
-	std::unique_ptr<f32[]> weights;
+	// ID-weight pairs for a joint
+	struct VertexWeights {
+		std::array<u16, MAX_WEIGHTS_PER_VERTEX> joint_ids = {};
+		std::array<f32, MAX_WEIGHTS_PER_VERTEX> strengths = {};
+		void addWeight(u16 joint_id, f32 weight);
+		void skinVertex(core::vector3df &pos, core::vector3df &normal,
+				const std::vector<core::matrix4> &joint_transforms) const;
+	};
+	std::vector<VertexWeights> weights;
 
 	std::optional<std::vector<u32>> animated_vertices;
 
@@ -29,17 +35,16 @@ struct WeightBuffer
 	std::unique_ptr<core::vector3df[]> static_positions;
 	std::unique_ptr<core::vector3df[]> static_normals;
 
-	WeightBuffer(size_t n_verts);
+	WeightBuffer(size_t n_verts) : weights(n_verts) {}
 
-	u16 *getJointIndices(u32 vertex_id)
-	{ return &joint_idxs[vertex_id * MAX_WEIGHTS_PER_VERTEX]; }
-	const u16 *getJointIndices(u32 vertex_id) const
-	{ return &joint_idxs[vertex_id * MAX_WEIGHTS_PER_VERTEX]; }
+	const std::array<u16, MAX_WEIGHTS_PER_VERTEX> &getJointIds(u32 vertex_id) const
+	{ return weights[vertex_id].joint_ids; }
 
-	f32 *getWeights(u32 vertex_id)
-	{ return &weights[vertex_id * MAX_WEIGHTS_PER_VERTEX]; }
-	const f32 *getWeights(u32 vertex_id) const
-	{ return &weights[vertex_id * MAX_WEIGHTS_PER_VERTEX]; }
+	const std::array<f32, MAX_WEIGHTS_PER_VERTEX> &getWeights(u32 vertex_id) const
+	{ return weights[vertex_id].strengths; }
+
+	size_t size() const
+	{ return weights.size(); }
 
 	void addWeight(u32 vertex_id, u16 joint_id, f32 weight);
 
@@ -50,8 +55,7 @@ struct WeightBuffer
 	void skin(IVertexBuffer *dst,
 			const std::vector<core::matrix4> &joint_transforms) const;
 
-	/// Normalizes weights so that they sum to 1.0 per vertex,
-	/// stores which vertices are animated.
+	/// Prepares this buffer for use in skinning.
 	void finalize();
 
 	void updateStaticPose(const IVertexBuffer *vbuf);

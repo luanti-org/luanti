@@ -292,7 +292,7 @@ void SkinnedMesh::calculateJointBoundingBoxes()
 			continue;
 		for (u32 vert_id : weights->animated_vertices.value()) {
 			for (u16 j = 0; j < WeightBuffer::MAX_WEIGHTS_PER_VERTEX; j++) {
-				const auto joint_id = weights->getJointIndices(vert_id)[j];
+				const auto joint_id = weights->getJointIds(vert_id)[j];
 				const auto *joint = AllJoints[joint_id];
 				const auto strength = weights->getWeights(vert_id)[j];
 				if (strength < 1e-6)
@@ -411,7 +411,7 @@ SkinnedMesh *SkinnedMeshBuilder::finalize() &&
 		auto *buf = mesh->LocalBuffers.at(weight.buffer_id);
 		if (!buf->Weights)
 			buf->Weights = WeightBuffer(buf->getVertexCount());
-		if (weight.vertex_id >= buf->Weights->n_verts) {
+		if (weight.vertex_id >= buf->Weights->size()) {
 			throw std::out_of_range("vertex id out of range");
 		}
 		buf->Weights->addWeight(weight.vertex_id, weight.joint_id, weight.strength);

@@ -438,12 +438,11 @@ SECTION("simple skin")
 		REQUIRE(buf->Weights.has_value());
 		std::vector<f32> weights(buf->getVertexCount(), 0.0f);
 		for (size_t i = 0; i < buf->getVertexCount(); ++i) {
-			const auto *joint_ids = buf->Weights->getJointIndices(i);
-			const auto *joint_ids_end = joint_ids + scene::WeightBuffer::MAX_WEIGHTS_PER_VERTEX;
-			auto *it = std::find(joint_ids, joint_ids_end, joint->JointID);
-			if (it == joint_ids_end)
+			const auto &joint_ids = buf->Weights->getJointIds(i);
+			const auto it = std::find(joint_ids.begin(), joint_ids.end(), joint->JointID);
+			if (it == joint_ids.end())
 				continue;
-			weights[i] = buf->Weights->getWeights(i)[it - joint_ids];
+			weights[i] = buf->Weights->getWeights(i)[std::distance(joint_ids.begin(), it)];
 		}
 		return weights;
 	};
