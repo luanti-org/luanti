@@ -399,9 +399,6 @@ SkinnedMesh *SkinnedMeshBuilder::finalize() &&
 		auto *buf = mesh->LocalBuffers.at(weight.buffer_id);
 		if (!buf->Weights)
 			buf->Weights = WeightBuffer(buf->getVertexCount());
-		if (weight.vertex_id >= buf->Weights->size()) {
-			throw std::out_of_range("vertex id out of range");
-		}
 		buf->Weights->addWeight(weight.vertex_id, weight.joint_id, weight.strength);
 	}
 

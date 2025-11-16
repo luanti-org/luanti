@@ -21,7 +21,7 @@ void WeightBuffer::VertexWeights::addWeight(u16 joint_id, f32 weight)
 
 void WeightBuffer::addWeight(u32 vertex_id, u16 joint_id, f32 weight)
 {
-	weights[vertex_id].addWeight(joint_id, weight);
+	weights.at(vertex_id).addWeight(joint_id, weight);
 }
 
 void WeightBuffer::VertexWeights::skinVertex(core::vector3df &pos, core::vector3df &normal,
