@@ -7,11 +7,16 @@
 /*
 	All kinds of stuff that needs to be exposed from main.cpp
 */
+#include "config.h"
 #include "modalMenu.h"
 #include <cassert>
 #include <list>
 
 #include "IGUIEnvironment.h"
+
+#if BUILD_UI
+#include "ui/manager.h"
+#endif
 
 namespace gui {
 	class IGUIStaticText;
@@ -67,10 +72,16 @@ public:
 	// Returns true to prevent further processing
 	virtual bool preprocessEvent(const SEvent& event)
 	{
-		if (m_stack.empty())
-			return false;
-		GUIModalMenu *mm = dynamic_cast<GUIModalMenu*>(m_stack.back());
-		return mm && mm->preprocessEvent(event);
+		if (!m_stack.empty()) {
+			GUIModalMenu *mm = dynamic_cast<GUIModalMenu*>(m_stack.back());
+			return mm && mm->preprocessEvent(event);
+#if BUILD_UI
+		} else if (ui::g_manager.isFocused() && event.SdlEvent != nullptr) {
+			return ui::g_manager.processInput(*event.SdlEvent);
+#endif
+		}
+
+		return false;
 	}
 
 	size_t menuCount() const
@@ -109,7 +120,11 @@ extern MainMenuManager g_menumgr;
 
 static inline bool isMenuActive()
 {
+#if BUILD_UI
+	return g_menumgr.menuCount() != 0 || ui::g_manager.isFocused();
+#else
 	return g_menumgr.menuCount() != 0;
+#endif
 }
 
 class MainGameCallback : public IGameCallback

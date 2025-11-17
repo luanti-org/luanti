@@ -4282,6 +4282,9 @@ Helper functions
 * `table.insert_all(table, other_table)`:
     * Appends all values in `other_table` to `table` - uses `#table + 1` to
       find new indices.
+* `table.merge(...)`:
+    * Merges multiple tables together into a new single table using
+      `table.insert_all()`.
 * `table.key_value_swap(t)`: returns a table with keys and values swapped
     * If multiple keys in `t` map to the same value, it is unspecified which
       value maps to that key.
@@ -6020,6 +6023,9 @@ Utilities
   form. If the ColorSpec is invalid, returns `nil`. You can use this to parse
   ColorStrings.
     * `colorspec`: The ColorSpec to convert
+* `core.colorspec_to_int(colorspec)`: Converts a ColorSpec to integer form.
+  If the ColorSpec is invalid, returns `nil`.
+    * `colorspec`: The ColorSpec to convert
 * `core.time_to_day_night_ratio(time_of_day)`: Returns a "day-night ratio" value
   (as accepted by `ObjectRef:override_day_night_ratio`) that is equivalent to
   the given "time of day" value (as returned by `core.get_timeofday`).
@@ -6028,8 +6034,8 @@ Utilities
     * `width`: Width of the image
     * `height`: Height of the image
     * `data`: Image data, one of:
-        * array table of ColorSpec, length must be width*height
-        * string with raw RGBA pixels, length must be width*height*4
+        * array table of ColorSpec, length must be `width * height`
+        * string with raw RGBA pixels, length must be `width * height * 4`
     * `compression`: Optional zlib compression level, number in range 0 to 9.
   The data is one-dimensional, starting in the upper left corner of the image
   and laid out in scanlines going from left to right, then top to bottom.
@@ -6039,6 +6045,63 @@ Utilities
 * `core.urlencode(str)`: Encodes reserved URI characters by a
   percent sign followed by two hex digits. See
   [RFC 3986, section 2.3](https://datatracker.ietf.org/doc/html/rfc3986#section-2.3).
+* `core.class([super])`: Creates a new metatable-based class.
+    * `super` (optional): The superclass of the newly created class, or nil if
+      the class should not have a superclass.
+    * The class table is given a metatable with an `__index` field that points
+      to `super` and a `__call` metamethod that constructs a new object.
+    * By default, the only field in the class table is an `__index` field that
+      points to itself. When an instance of the class is created, the class
+      table is set as the metatable for the object.
+    * When a new object is constructed via `__call`, the `new()` method will be
+      called if it exists. If `new()` returns a nonzero number of values, then
+      those values will be returned from `__call`. Otherwise, if `new()`
+      returned no values, the object iself will be returned.
+    * Extra Lua metamethods like `__add` may be added to the class table, but
+      note that these fields will not be inherited by subclasses since Lua
+      doesn't consult `__index` when searching for metamethods.
+    * Example: The following code, demonstrating a simple example of classes
+      and inheritance, will print `Rectangle[area=6, filled=true]`:
+      ```lua
+      local Shape = core.class()
+      Shape.name = "Shape"
+
+      function Shape:new(filled)
+          self.filled = filled
+      end
+
+      function Shape:describe()
+          return string.format("%s[area=%d, filled=%s]",
+                  self.name, self:get_area(), self.filled)
+      end
+
+      local Rectangle = core.class(Shape)
+      Rectangle.name = "Rectangle"
+
+      function Rectangle:new(filled, width, height)
+          Shape.new(self, filled)
+
+          self.width = width
+          self.height = height
+      end
+
+      function Rectangle:get_area()
+          return self.width * self.height
+      end
+
+      local shape = Rectangle(true, 2, 3)
+      print(shape:describe())
+
+      assert(core.is_instance(shape, Shape))
+      assert(core.is_subclass(Rectangle, Shape))
+      assert(core.super(Rectangle) == Shape)
+      ```
+* `core.super(class)`: Returns the superclass of `class`, or nil if the table
+  is not a class or has no superclass.
+* `core.is_subclass(class, super)`: Returns true if `class` is a subclass of
+  `super`.
+* `core.is_instance(obj, class)`: Returns true if `obj` is an instance of
+  `class` or any of its subclasses.
 
 Logging
 -------
@@ -7733,6 +7796,49 @@ Misc.
     * Example: `deserialize('print("foo")')`, returns `nil`
       (function call fails), returns
       `error:[string "print("foo")"]:1: attempt to call global 'print' (a nil value)`
+* `core.encode_network(format, ...)`: Encodes numbers and strings in binary
+  format suitable for network transfer according to a format string.
+    * Each character in the format string corresponds to an argument to the
+      function. Possible format characters:
+        * `b`: Signed 8-bit integer
+        * `h`: Signed 16-bit integer
+        * `i`: Signed 32-bit integer
+        * `l`: Signed 64-bit integer
+        * `B`: Unsigned 8-bit integer
+        * `H`: Unsigned 16-bit integer
+        * `I`: Unsigned 32-bit integer
+        * `L`: Unsigned 64-bit integer
+        * `f`: Single-precision floating point number
+        * `s`: 16-bit size-prefixed string. Max 64 KB in size
+        * `S`: 32-bit size-prefixed string. Max 64 MB in size
+        * `z`: Null-terminated string. Cannot have embedded null characters
+        * `Z`: Verbatim string with no size or terminator
+        * ` `: Spaces are ignored
+    * Integers are encoded in big-endian format, and floating point numbers are
+      encoded in IEEE-754 format. Note that the full range of 64-bit integers
+      cannot be represented in Lua's doubles.
+    * If integers outside of the range of the corresponding type are encoded,
+      integer wraparound will occur.
+    * If a string that is too long for a size-prefixed string is encoded, it
+      will be truncated.
+    * If a string with an embedded null character is encoded as a null
+      terminated string, it is truncated to the first null character.
+    * Verbatim strings are added directly to the output as-is and can therefore
+      have any size or contents, but the code on the decoding end cannot
+      automatically detect its length.
+* `core.decode_network(format, data, ...)`: Decodes numbers and strings from
+  binary format made by `core.encode_network()` according to a format string.
+    * The format string follows the same rules as `core.encode_network()`.
+      The decoded values are returned as individual values from the function.
+    * `Z` has special behavior; an extra argument has to be passed to the
+      function for every `Z` specifier denoting how many characters to read.
+      To read all remaining characters, use a size of `-1`.
+    * If the end of the data is encountered while still reading values from the
+      string, values of the correct type will still be returned, but strings of
+      variable length will be truncated, and numbers and verbatim strings will
+      use zeros for the missing bytes.
+    * If a size-prefixed string has a size that is greater than the maximum, it
+      will be truncated and the rest of the characters skipped.
 * `core.compress(data, method, ...)`: returns `compressed_data`
     * Compress a string of data.
     * `method` is a string identifying the compression method to be used.

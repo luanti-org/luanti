@@ -236,6 +236,7 @@ public:
 	void handleCommand_RemovedSounds(NetworkPacket* pkt);
 	void handleCommand_NodeMetaFields(NetworkPacket* pkt);
 	void handleCommand_InventoryFields(NetworkPacket* pkt);
+	void handleCommand_UiMessage(NetworkPacket* pkt);
 	void handleCommand_FirstSrp(NetworkPacket* pkt);
 	void handleCommand_SrpBytesA(NetworkPacket* pkt);
 	void handleCommand_SrpBytesM(NetworkPacket* pkt);
@@ -366,6 +367,8 @@ public:
 	void addShutdownError(const ModError &e);
 
 	bool showFormspec(const char *name, const std::string &formspec, const std::string &formname);
+	void sendUiMessage(const char *name, const char *data, size_t len);
+
 	Map &getMap();
 	ServerEnvironment & getEnv() { return *m_env; }
 	v3f findSpawnPos();
