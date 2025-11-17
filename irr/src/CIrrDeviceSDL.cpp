@@ -668,6 +668,8 @@ void CIrrDeviceSDL::createDriver()
 	}
 
 	ContextManager = new video::CSDLManager(this);
+	ContextManager->initialize(CreationParams, {});
+
 	switch (CreationParams.DriverType) {
 	case video::EDT_OPENGL:
 		VideoDriver = video::createOpenGLDriver(CreationParams, FileSystem, ContextManager);

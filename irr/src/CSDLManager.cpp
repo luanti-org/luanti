@@ -7,6 +7,7 @@
 #if defined(_IRR_COMPILE_WITH_SDL_DEVICE_)
 
 #include "CIrrDeviceSDL.h"
+#include "os.h"
 
 namespace video
 {
@@ -18,6 +19,14 @@ CSDLManager::CSDLManager(CIrrDeviceSDL *device) :
 bool CSDLManager::initialize(const SIrrlichtCreationParameters &params, const SExposedVideoData &data)
 {
 	Data = data;
+	int interval = params.Vsync ? 1 : 0;
+#ifdef _IRR_USE_SDL3_
+	bool ok = SDL_GL_SetSwapInterval(interval);
+#else
+	bool ok = SDL_GL_SetSwapInterval(interval) == 0;
+#endif
+	if (!ok)
+		os::Printer::log("Setting GL swap interval failed");
 	return true;
 }
 

@@ -455,7 +455,9 @@ pause_on_lost_focus (Pause on lost window focus) bool false
 #    to not waste CPU power for no benefit.
 fps_max (Maximum FPS) int 60 1 4294967295
 
-#    Vertical screen synchronization. Your system may still force VSync on even if this is disabled.
+#    Vertical screen synchronization.
+#    Note: A restart is required after changing this!
+#    Your system may still force VSync and ignore this setting.
 vsync (VSync) bool false
 
 #    Maximum FPS when the window is not focused.
