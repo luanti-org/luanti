@@ -706,7 +706,7 @@ water_wave_speed (Waving liquids wave speed) float 5.0
 #    Set to true to enable Shadow Mapping.
 #
 #    Requires: shadows_support
-enable_dynamic_shadows (Dynamic shadows) bool false
+enable_dynamic_shadows (Enable dynamic shadows) bool false
 
 #    Set the shadow strength gamma.
 #    Adjusts the intensity of in-game dynamic shadows.
@@ -718,7 +718,7 @@ shadow_strength_gamma (Shadow strength gamma) float 1.0 0.1 10.0
 #    Maximum distance to render shadows.
 #
 #    Requires: enable_dynamic_shadows, shadows_support
-shadow_map_max_distance (Shadow map max distance in nodes to render shadows) float 140.0 10.0 1000.0
+shadow_map_max_distance (Shadow map render distance) float 140.0 10.0 1000.0
 
 #    Texture size to render the shadow map on.
 #    This must be a power of two.
