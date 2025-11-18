@@ -29,7 +29,7 @@
  * \warning DO NOT USE this directly; it is here simply so that decode_light()
  * can be inlined.
  *
- * Array size is #LIGHTMAX+1
+ * Array size is #LIGHT_SUN
  *
  * The array is a lookup table to convert the internal representation of light
  * (brightness) to the display brightness.
@@ -41,7 +41,6 @@ extern const u8 *light_decode_table;
 // 0 <= return value <= 255
 inline u8 decode_light(u8 light)
 {
-	// assert(light <= LIGHT_SUN);
 	if (light > LIGHT_SUN)
 		light = LIGHT_SUN;
 	return light_decode_table[light];
@@ -51,7 +50,8 @@ inline u8 decode_light(u8 light)
 // 0.0 <= return value <= 1.0
 float decode_light_f(float light_f);
 
-void set_light_table(float gamma);
+// Update light value table using the specified gamma
+void set_light_curve(float gamma);
 
 #endif
 

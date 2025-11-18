@@ -15,64 +15,79 @@ static u8 light_LUT[LIGHT_SUN + 1];
 // The const ref to light_LUT is what is actually used in the code
 const u8 *light_decode_table = light_LUT;
 
+namespace {
 
-struct LightingParams {
+struct LightCurve {
 	float a, b, c; // Lighting curve polynomial coefficients
 	float boost, center, sigma; // Lighting curve parametric boost
 	float gamma; // Lighting curve gamma correction
+
+	float calculate(float x) const;
 };
 
-static LightingParams params;
-
-
-float decode_light_f(float x)
+float LightCurve::calculate(float x) const
 {
-	if (x >= 1.0f) // x is often 1.0f
+	if (x >= 1.0f)
 		return 1.0f;
 	x = std::fmax(x, 0.0f);
-	float brightness = ((params.a * x + params.b) * x + params.c) * x;
-	brightness += params.boost *
-		std::exp(-0.5f * sqr((x - params.center) / params.sigma));
+	float brightness = ((a * x + b) * x + c) * x;
+	brightness += boost *
+		std::exp(-0.5f * sqr((x - center) / sigma));
 	if (brightness <= 0.0f) // May happen if parameters are extreme
 		return 0.0f;
 	if (brightness >= 1.0f)
 		return 1.0f;
-	return powf(brightness, 1.0f / params.gamma);
+	return powf(brightness, 1.0f / gamma);
 }
 
+}
 
-// Initialize or update the light value tables using the specified gamma
-void set_light_table(float gamma)
+void set_light_curve(float gamma)
 {
-// Lighting curve bounding gradients
+	LightCurve params;
+	// bounding gradients
 	const float alpha = rangelim(g_settings->getFloat("lighting_alpha"), 0.0f, 3.0f);
 	const float beta  = rangelim(g_settings->getFloat("lighting_beta"), 0.0f, 3.0f);
-// Lighting curve polynomial coefficients
+	// polynomial coefficients
 	params.a = alpha + beta - 2.0f;
 	params.b = 3.0f - 2.0f * alpha - beta;
 	params.c = alpha;
-// Lighting curve parametric boost
+	// parametric boost
 	params.boost = rangelim(g_settings->getFloat("lighting_boost"), 0.0f, 0.4f);
 	params.center = rangelim(g_settings->getFloat("lighting_boost_center"), 0.0f, 1.0f);
 	params.sigma = rangelim(g_settings->getFloat("lighting_boost_spread"), 0.0f, 0.4f);
-// Lighting curve gamma correction
+	// gamma correction
 	params.gamma = rangelim(gamma, 0.33f, 3.0f);
 
-// Boundary values should be fixed
+	// Boundary values should be fixed
 	light_LUT[0] = 0;
 	light_LUT[LIGHT_SUN] = 255;
 
 	for (size_t i = 1; i < LIGHT_SUN; i++) {
-		float brightness = decode_light_f((float)i / LIGHT_SUN);
-		// Strictly speaking, rangelim is not necessary here—if the implementation
-		// is conforming. But we don’t want problems in any case.
+		float brightness = params.calculate((float)i / LIGHT_SUN);
+		// Strictly speaking, rangelim is not necessary here - if the implementation
+		// is conforming. But we don't want problems in any case.
 		light_LUT[i] = rangelim((s32)(255.0f * brightness), 0, 255);
 
 		// Ensure light brightens with each level
-		if (i > 0 && light_LUT[i] <= light_LUT[i - 1]) {
-			light_LUT[i] = std::min((u8)254, light_LUT[i - 1]) + 1;
+		if (light_LUT[i] <= light_LUT[i - 1]) {
+			light_LUT[i] = std::min<u8>(254, light_LUT[i - 1]) + 1;
 		}
 	}
+}
+
+float decode_light_f(float light_f)
+{
+	light_f = std::fmax(light_f, 0.0f);
+	float in;
+	float fr = std::modf(light_f * LIGHT_SUN, &in);
+	const u32 light_i = in;
+	if (light_i >= LIGHT_SUN)
+		return light_LUT[LIGHT_SUN] / 255.0f;
+	// interpolate two samples
+	u8 l0 = light_LUT[light_i], l1 = light_LUT[light_i+1];
+	float l0f = l0 / 255.0f, l1f = l1 / 255.0f;
+	return l0f * (1.0f - fr) + l1f * fr;
 }
 
 #endif
