@@ -14,6 +14,7 @@
 #include "client/meshgen/collector.h"
 #include "client/renderingengine.h"
 #include "client.h"
+#include "porting.h"
 
 #include "profiler.h"
 
@@ -66,20 +67,10 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 
 				bitset column = m_slices[slice_offset + u];
 				while (column) {
-					#if defined(__GNUC__) || defined(__clang__) || defined(__MINGW32__) || defined(__MINGW64__)
-						s32 v0 = __builtin_ctzll(column);
-						// Shift the bitset down, so it has no low 0s anymore,
-						// then count the numer of low 1s to get the length of the greedy quad.
-						s32 v1 = __builtin_ctzll(~(column >> v0));
-					#elif defined(_MSC_VER)
-						unsigned long int tmp;
-						_BitScanForward64(&tmp, column);
-						s32 v0 = static_cast<s32>(tmp);
-						// Shift the bitset down, so it has no low 0s anymore,
-						// then count the numer of low 1s to get the length of the greedy quad.
-						_BitScanForward64(&tmp, ~(column >> v0));
-						s32 v1 = static_cast<s32>(tmp);
-					#endif
+					s32 v0 = porting::ctzll(column);
+					// Shift the bitset down, so it has no low 0s anymore,
+					// then count the numer of low 1s to get the length of the greedy quad.
+					s32 v1 = porting::ctzll(~(column >> v0));
 					const bitset mask = ((1ULL << v1) - 1) << v0;
 					column ^= mask;
 					// Determine the width of the greedy quad
@@ -295,13 +286,7 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 				for (u8 v = 0; v < BITSET_MAX_NOPAD; v++) {
 					bitset column = m_nodes_faces[u_offset + v];
 					while (column) {
-						#if defined( __GNUC__ ) || defined( __clang__ ) || defined(__MINGW32__)
-							const u8 first_filled = __builtin_ctzll(column);
-						#elif defined(_MSC_VER)
-							unsigned long int tmp;
-							_BitScanForward64(&tmp, column);
-							const u8 first_filled = static_cast<u8>(tmp);
-						#endif
+						const u8 first_filled = porting::ctzll(column);
 						m_slices[direction_offset + BITSET_MAX_NOPAD * first_filled + u] |= 1ULL << v;
 						column &= column - 1;
 					}

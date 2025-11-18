@@ -341,6 +341,8 @@ bool open_url(const std::string &url);
  */
 bool open_directory(const std::string &path);
 
+u8 ctzll(u64 in);
+
 } // namespace porting
 
 #ifdef __ANDROID__
