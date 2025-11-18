@@ -830,9 +830,8 @@ void Sky::updateStars()
 	vertices.reserve(4 * m_star_params.count);
 	indices.reserve(6 * m_star_params.count);
 
-	if (m_star_params.star_seed != 0)
-		m_seed = m_star_params.star_seed;
-	PcgRandom rgen(m_seed);
+	u64 star_seed = m_star_params.star_seed == 0 ? m_seed : m_star_params.star_seed;
+	PcgRandom rgen(star_seed);
 	float d = (0.006 / 2) * m_star_params.scale;
 	for (u16 i = 0; i < m_star_params.count; i++) {
 		v3f r = v3f(
