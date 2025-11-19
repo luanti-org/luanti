@@ -2274,7 +2274,7 @@ const ClientEventHandler Game::clientEventHandler[CLIENTEVENT_MAX] = {
 	{&Game::handleClientEvent_SetSun},
 	{&Game::handleClientEvent_SetMoon},
 	{&Game::handleClientEvent_SetStars},
-	{&Game::handleClientEvent_OverrideDayNigthRatio},
+	{&Game::handleClientEvent_OverrideDayNightRatio},
 	{&Game::handleClientEvent_CloudParams},
 	{&Game::handleClientEvent_UpdateCamera},
 };
@@ -2567,7 +2567,7 @@ void Game::handleClientEvent_SetStars(ClientEvent *event, CameraOrientation *cam
 	delete event->star_params;
 }
 
-void Game::handleClientEvent_OverrideDayNigthRatio(ClientEvent *event,
+void Game::handleClientEvent_OverrideDayNightRatio(ClientEvent *event,
 		CameraOrientation *cam)
 {
 	client->getEnv().setDayNightRatioOverride(
