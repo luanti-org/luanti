@@ -16,17 +16,19 @@ if core.is_singleplayer() then
 
 	core.register_chatcommand("lua", {
 		params = "<code>",
-		description = "Execute Lua code",
+		description = "Execute Lua code (singleplayer-only)",
 		func = function(name, param)
-			local func, err = load("return "..param)
+			local func = load("return " .. param)
 			if not func then
+				local err
 				func, err = load(param)
 				if not func then
-					return false, "Syntax error: "..err
+					return false, "Syntax error: " .. err
 				end
 			end
 			setfenv(func, setmetatable({
-				me = core.get_player_by_name(name),
+				name = name,
+				player = core.get_player_by_name(name),
 			}, {__index = _G}))
 			return format_result(pcall(func))
 		end,
