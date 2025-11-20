@@ -116,12 +116,13 @@ bool MoveDir(const std::string &source, const std::string &target);
 // Ignores case differences and '/' vs. '\\' on Windows
 bool PathStartsWith(const std::string &path, const std::string &prefix);
 
-// Remove last path component and the dir delimiter before and/or after it,
-// returns "" if there is only one path component.
-// removed: If non-NULL, receives the removed component(s).
+// Remove last path component and the dir delimiter before and/or after it.
+// If there's only one path component it will refuse to remove it (if absolute)
+// or return "" (if relative).
+// removed: If non-NULL, receives the removed components
 // count: Number of components to remove
 std::string RemoveLastPathComponent(const std::string &path,
-		std::string *removed = NULL, int count = 1);
+		std::string *removed = nullptr, int count = 1);
 
 // Remove "." and ".." path components and for every ".." removed, remove
 // the last normal path component before it. Unlike AbsolutePath,

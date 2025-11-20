@@ -49,6 +49,12 @@ void TestFileSys::runTests(IGameDef *gamedef)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#if defined(_WIN32)
+static constexpr bool win32 = true;
+#else
+static constexpr bool win32 = false;
+#endif
+
 // adjusts a POSIX path to system-specific conventions
 // -> changes '/' to DIR_DELIM
 // -> absolute paths start with "C:\\" on windows
@@ -61,10 +67,10 @@ static std::string p(std::string path)
 		}
 	}
 
-	#ifdef _WIN32
+#ifdef _WIN32
 	if (path[0] == '\\')
-		path = "C:" + path;
-	#endif
+		path.insert(0, "C:");
+#endif
 
 	return path;
 }
@@ -75,11 +81,7 @@ void TestFileSys::testIsDirDelimiter()
 	UASSERT(fs::IsDirDelimiter('/') == true);
 	UASSERT(fs::IsDirDelimiter('A') == false);
 	UASSERT(fs::IsDirDelimiter(0) == false);
-#ifdef _WIN32
-	UASSERT(fs::IsDirDelimiter('\\') == true);
-#else
-	UASSERT(fs::IsDirDelimiter('\\') == false);
-#endif
+	UASSERT(fs::IsDirDelimiter('\\') == win32);
 }
 
 
@@ -127,33 +129,17 @@ void TestFileSys::testPathStartsWith()
 
 	for (int i = 0; i < numpaths; i++)
 	for (int j = 0; j < numpaths; j++){
-		/*verbosestream<<"testing fs::PathStartsWith(\""
-			<<paths[i]<<"\", \""
-			<<paths[j]<<"\")"<<std::endl;*/
 		bool starts = fs::PathStartsWith(paths[i], paths[j]);
 		int expected = expected_results[i][j];
 		if(expected == 0){
 			UASSERT(starts == false);
-		}
-		else if(expected == 1){
+		} else if(expected == 1) {
 			UASSERT(starts == true);
-		}
-		#ifdef _WIN32
-		else if(expected == 2){
-			UASSERT(starts == false);
-		}
-		else if(expected == 3){
-			UASSERT(starts == true);
-		}
-		#else
-		else if(expected == 2){
-			UASSERT(starts == true);
-		}
-		else if(expected == 3){
-			UASSERT(starts == false);
-		}
-		#endif
-		else if(expected == 4){
+		} else if(expected == 2) {
+			UASSERT(starts == !win32);
+		} else if(expected == 3) {
+			UASSERT(starts == win32);
+		} else if(expected == 4) {
 			UASSERT(starts == (bool)FILESYS_CASE_INSENSITIVE);
 		}
 	}
@@ -165,6 +151,7 @@ void TestFileSys::testRemoveLastPathComponent()
 	std::string path, result, removed;
 
 	UASSERT(fs::RemoveLastPathComponent("") == "");
+
 	path = p("/home/user/minetest/bin/..//worlds/world1");
 	result = fs::RemoveLastPathComponent(path, &removed, 0);
 	UASSERT(result == path);
@@ -188,12 +175,30 @@ void TestFileSys::testRemoveLastPathComponent()
 	UASSERT(result == p("/home"));
 	UASSERT(removed == p("user/minetest/bin/../worlds/world1"));
 	result = fs::RemoveLastPathComponent(path, &removed, 7);
-#ifdef _WIN32
-	UASSERT(result == "C:");
-#else
-	UASSERT(result == "");
-#endif
+	UASSERTEQ(auto, result, win32 ? "C:" : "/");
 	UASSERT(removed == p("home/user/minetest/bin/../worlds/world1"));
+
+	path = p("./README.txt");
+	result = fs::RemoveLastPathComponent(path, &removed);
+	UASSERT(result == ".");
+	UASSERT(removed == "README.txt");
+
+#ifdef __unix__
+	path = "/README.txt";
+	result = fs::RemoveLastPathComponent(path, &removed);
+	UASSERT(result == "/");
+	UASSERT(removed == "README.txt");
+
+	path = "README.txt";
+	result = fs::RemoveLastPathComponent(path, &removed);
+	UASSERT(result == ""); // working directory
+	UASSERT(removed == "README.txt");
+
+	path = "///";
+	result = fs::RemoveLastPathComponent(path, &removed);
+	UASSERT(result == "/");
+	UASSERT(removed == "");
+#endif
 }
 
 
@@ -224,11 +229,7 @@ void TestFileSys::testRemoveLastPathComponentWithTrailingDelimiter()
 	UASSERT(result == p("/home"));
 	UASSERT(removed == p("user/minetest/bin/../worlds/world1"));
 	result = fs::RemoveLastPathComponent(path, &removed, 7);
-#ifdef _WIN32
-	UASSERT(result == "C:");
-#else
-	UASSERT(result == "");
-#endif
+	UASSERTEQ(auto, result, win32 ? "C:" : "/");
 	UASSERT(removed == p("home/user/minetest/bin/../worlds/world1"));
 }
 

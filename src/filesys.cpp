@@ -610,14 +610,12 @@ bool RecursiveDeleteContent(const std::string &path)
 
 bool CreateAllDirs(const std::string &path)
 {
-
 	std::vector<std::string> tocreate;
-	std::string basepath = path;
-	while(!PathExists(basepath))
-	{
+	std::string basepath = path, removed;
+	while (!PathExists(basepath)) {
 		tocreate.push_back(basepath);
-		basepath = RemoveLastPathComponent(basepath);
-		if(basepath.empty())
+		basepath = RemoveLastPathComponent(basepath, &removed);
+		if (removed.empty())
 			break;
 	}
 	for(int i=tocreate.size()-1;i>=0;i--)
@@ -748,25 +746,31 @@ std::string RemoveLastPathComponent(const std::string &path,
 
 	size_t remaining = path.size();
 
-	for(int i = 0; i < count; ++i){
-		// strip a dir delimiter
-		while(remaining != 0 && IsDirDelimiter(path[remaining-1]))
+	for (int i = 0; i < count; ++i) {
+		// strip a dir delimiter, unless the path is empty
+		// because "" and "/" are not the same
+		// FIXME: same problem probably exists on win32 with "C:"
+		while (remaining > 1 && IsDirDelimiter(path[remaining-1]))
 			remaining--;
 		// strip a path component
 		size_t component_end = remaining;
-		while(remaining != 0 && !IsDirDelimiter(path[remaining-1]))
+		while (remaining != 0 && !IsDirDelimiter(path[remaining-1]))
 			remaining--;
 		size_t component_start = remaining;
-		// strip a dir delimiter
-		while(remaining != 0 && IsDirDelimiter(path[remaining-1]))
+		// strip another delimiter
+		while (remaining > 1 && IsDirDelimiter(path[remaining-1]))
 			remaining--;
-		if(removed){
+		if (component_start == component_end)
+			break; // could not remove anything
+		if (removed) {
 			std::string component = path.substr(component_start,
 					component_end - component_start);
-			if(i)
-				*removed = component + DIR_DELIM + *removed;
-			else
-				*removed = component;
+			if (i) {
+				removed->insert(0, DIR_DELIM);
+				removed->insert(0, component);
+			} else {
+				*removed = std::move(component);
+			}
 		}
 	}
 	return path.substr(0, remaining);
@@ -804,7 +808,7 @@ std::string RemoveRelativePathComponents(std::string path)
 			while (pos != 0 && IsDirDelimiter(path[pos-1]))
 				pos--;
 			if (component_start == 0) {
-				// We need to remove the delemiter too
+				// We need to remove the delimiter too
 				path = path.substr(component_with_delim_end, std::string::npos);
 			} else {
 				path = path.substr(0, pos) + DIR_DELIM +
