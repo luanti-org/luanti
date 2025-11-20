@@ -268,7 +268,7 @@ local function update_animation(meta, mode, speed, name)
 		meta:set_wield_overlay(animated_overlay_accelerated(speed_factor))
 		msg = S"Wield overlay animated"
 	end
-	core.chat_send_player(name, msg .. S", speed " .. speed)
+	core.chat_send_player(name, msg .. S", speed " .. speed+1)
 end
 
 local function toggle_red_string_meta_inventory_image(itemstack)
