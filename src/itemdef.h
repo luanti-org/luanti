@@ -75,6 +75,11 @@ struct ItemImageDef
 		name.clear();
 	}
 
+	bool empty() const
+	{
+		return name.empty();
+	}
+
 	void serialize(std::ostream &os, u16 protocol_version) const;
 	void deSerialize(std::istream &is, u16 protocol_version);
 

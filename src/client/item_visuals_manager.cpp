@@ -46,13 +46,13 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	ItemImageDef inventory_overlay = item.getInventoryOverlay(idef);
 
 	std::ostringstream os(def.name);
-	if (!inventory_image.name.empty()) {
+	if (!inventory_image.empty()) {
 		os << "/";
-		inventory_image.serializeJson(os);
+		inventory_image.serialize(os, LATEST_PROTOCOL_VERSION);
 	}
-	if (!inventory_overlay.name.empty()) {
+	if (!inventory_overlay.empty()) {
 		os << ":";
-		inventory_overlay.serializeJson(os);
+		inventory_overlay.serialize(os, LATEST_PROTOCOL_VERSION);
 	}
 
 	std::string cache_key = os.str();

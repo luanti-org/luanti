@@ -468,7 +468,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 	const v3f wield_scale = item.getWieldScale(idef);
 
 	// If wield_image needs to be checked and is defined, it overrides everything else
-	if (!wield_image.name.empty() && check_wield_image) {
+	if (!wield_image.empty() && check_wield_image) {
 		video::ITexture *wield_texture;
 		video::ITexture *wield_overlay_texture = nullptr;
 
@@ -486,7 +486,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		}
 
 		// Overlay
-		if (!wield_overlay.name.empty()) {
+		if (!wield_overlay.empty()) {
 			int overlay_frame_length_ms;
 			m_wield_overlay_frames = createAnimationFrames(tsrc,
 					wield_overlay.name, wield_overlay.animation, overlay_frame_length_ms);
