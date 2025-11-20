@@ -304,13 +304,29 @@ void TestFileSys::testAbsolutePath()
 
 void TestFileSys::testSafeWriteToFile()
 {
-	const std::string dest_path = getTestTempFile();
-	const std::string test_data("hello\0world", 11);
-	fs::safeWriteToFile(dest_path, test_data);
-	UASSERT(fs::PathExists(dest_path));
-	std::string contents_actual;
-	UASSERT(fs::ReadFile(dest_path, contents_actual));
-	UASSERTEQ(auto, contents_actual, test_data);
+	{
+		const std::string test_data("hello\0world", 11);
+		const std::string dest_path = getTestTempFile();
+		fs::safeWriteToFile(dest_path, test_data);
+		UASSERT(fs::PathExists(dest_path));
+		std::string contents_actual;
+		UASSERT(fs::ReadFile(dest_path, contents_actual));
+		UASSERTEQ(auto, contents_actual, test_data);
+	}
+
+	// Writing directly to /tmp could trigger an edge case
+	// also try with a bigger amount of data
+	{
+		std::string test_data;
+		test_data.append(499 * 1024, '\v');
+		const std::string filename = itos(rand()) + itos(rand());
+		const std::string dest_path = fs::TempPath() + DIR_DELIM + filename;
+
+		bool ok = fs::safeWriteToFile(dest_path, test_data);
+		ok &= fs::IsFile(dest_path);
+		fs::DeleteSingleFileOrEmptyDirectory(dest_path);
+		UASSERT(ok);
+	}
 }
 
 void TestFileSys::testCopyFileContents()

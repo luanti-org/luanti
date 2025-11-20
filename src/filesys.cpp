@@ -21,14 +21,6 @@
 #include <IFileSystem.h>
 #endif
 
-#ifdef __linux__
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#ifndef FICLONE
-#define FICLONE _IOW(0x94, 9, int)
-#endif
-#endif
-
 #ifdef _WIN32
 #include <windows.h>
 #include <shlwapi.h>
@@ -40,6 +32,14 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <fcntl.h>
+#endif
+
+#ifdef __linux__
+#include <sys/ioctl.h>
+#ifndef FICLONE
+#define FICLONE _IOW(0x94, 9, int)
+#endif
 #endif
 
 // Error from last OS call as string
@@ -487,7 +487,7 @@ bool CopyFileContents(const std::string &source, const std::string &target)
 			<< strerror(errno) << std::endl;
 		return false;
 	}
-	tgtfd = open(target.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	tgtfd = open(target.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0664);
 	if (tgtfd == -1) {
 		errorstream << target << ": can't open for writing: "
 			<< strerror(errno) << std::endl;
@@ -889,23 +889,38 @@ const char *GetFilenameFromPath(const char *path)
 	return filename ? filename + 1 : path;
 }
 
-// Note: this is not safe if two MT processes try this at the same time (FIXME?)
+/// @return short identifier unique across all current processes *and* threads
+static std::string get_unique()
+{
+	static std::atomic<u16> g_counter;
+	int pid;
+#ifdef _WIN32
+	pid = GetCurrentProcessId();
+#else
+	pid = getpid();
+#endif
+	return itos(pid) + "-" + itos(g_counter.fetch_add(1));
+}
+
 bool safeWriteToFile(const std::string &path, std::string_view content)
 {
-	// Prevent two threads from writing to the same temporary file
-	static std::atomic<u16> g_file_counter;
-	const std::string tmp_file = path + ".~mt" + itos(g_file_counter.fetch_add(1));
+	// Create it in the same directory
+	std::string tmp_file;
+	if (auto dir = RemoveLastPathComponent(path); !dir.empty()) {
+		tmp_file = dir + DIR_DELIM;
+	}
+	tmp_file += ".~mt" + get_unique();
 
 	// Write data to a temporary file
 	std::string write_error;
 
+	// We've observed behavior suggesting that std::ofstream::flush does not actually
+	// flush to disk, so we use the native APIs here for explicit control.
 #ifdef _WIN32
-	// We've observed behavior suggesting that the MSVC implementation of std::ofstream::flush doesn't
-	// actually flush, so we use win32 APIs.
 	HANDLE handle = CreateFile(tmp_file.c_str(), GENERIC_WRITE, 0, nullptr,
 		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (handle == INVALID_HANDLE_VALUE) {
-		errorstream << "Failed to open file: " << LAST_OS_ERROR() << std::endl;
+		errorstream << "Failed to open \"" << tmp_file << "\": " << LAST_OS_ERROR() << std::endl;
 		return false;
 	}
 	DWORD bytes_written;
@@ -913,15 +928,33 @@ bool safeWriteToFile(const std::string &path, std::string_view content)
 		write_error = LAST_OS_ERROR();
 	else if (!FlushFileBuffers(handle))
 		write_error = LAST_OS_ERROR();
+	else
+		assert(bytes_written == content.size());
 	CloseHandle(handle);
 #else
-	auto os = open_ofstream(tmp_file.c_str(), true);
-	if (!os.good())
+	int fd = open(tmp_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_NOFOLLOW, 0664);
+	if (fd == -1) {
+		errorstream << "Failed to open \"" << tmp_file << "\": " << LAST_OS_ERROR() << std::endl;
 		return false;
-	os << content << std::flush;
-	os.close();
-	if (os.fail())
-		write_error = "iostream fail";
+	}
+	size_t written = 0;
+	while (written < content.size()) {
+		ssize_t r = write(fd, &content[written], content.size() - written);
+		if (r <= 0) {
+			write_error = LAST_OS_ERROR();
+			break;
+		}
+		written += r;
+	}
+	// Flushes file data and inode to disk. fdatasync should be faster if available.
+#if defined(_POSIX_SYNCHRONIZED_IO) && _POSIX_SYNCHRONIZED_IO > 0
+	if (fdatasync(fd) != 0)
+		write_error = LAST_OS_ERROR();
+#else
+	if (fsync(fd) != 0)
+		write_error = LAST_OS_ERROR();
+#endif
+	close(fd);
 #endif
 
 	if (!write_error.empty()) {
