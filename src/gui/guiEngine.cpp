@@ -615,7 +615,7 @@ bool GUIEngine::downloadFile(const std::string &url, const std::string &target)
 
 	if (!completed || !fetch_result.succeeded) {
 		target_file.close();
-		fs::DeleteSingleFileOrEmptyDirectory(target);
+		fs::DeleteSingleFileOrEmptyDirectory(target, true);
 		return false;
 	}
 	// TODO: directly stream the response data into the file instead of first

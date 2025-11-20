@@ -16,6 +16,7 @@
 #include "filesys.h"
 #include "noise.h"
 #include <cctype>
+#include <set>
 #include <algorithm>
 
 Settings *g_settings = nullptr;

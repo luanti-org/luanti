@@ -5,6 +5,7 @@
 #include "test.h"
 
 #include <sstream>
+#include <algorithm>
 
 #include "log.h"
 #include "serialization.h"
@@ -29,6 +30,7 @@ public:
 	void testCopyFileContents();
 	void testNonExist();
 	void testRecursiveDelete();
+	void testGetRecursiveSubPaths();
 };
 
 static TestFileSys g_test_instance;
@@ -45,6 +47,7 @@ void TestFileSys::runTests(IGameDef *gamedef)
 	TEST(testCopyFileContents);
 	TEST(testNonExist);
 	TEST(testRecursiveDelete);
+	TEST(testGetRecursiveSubPaths);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -412,4 +415,51 @@ void TestFileSys::testRecursiveDelete()
 		UASSERT(!fs::IsDir(it));
 	for (auto &it : files)
 		UASSERT(!fs::IsFile(it));
+}
+
+void TestFileSys::testGetRecursiveSubPaths()
+{
+	const auto dir_path = getTestTempDirectory() + DIR_DELIM "recursivetest";
+	UASSERT(fs::CreateAllDirs(dir_path));
+
+	std::string dirs[] = {
+		dir_path + DIR_DELIM "d1",
+		dir_path + DIR_DELIM "d1" DIR_DELIM "d2",
+		dir_path + DIR_DELIM "_d3"
+	};
+	std::string files[] = {
+		dirs[0] + DIR_DELIM "f1",
+		dirs[1] + DIR_DELIM "f2",
+		dirs[0] + DIR_DELIM ".f3",
+	};
+
+	for (auto &it : dirs)
+		fs::CreateDir(it);
+	for (auto &it : files)
+		open_ofstream(it.c_str(), false).close();
+
+	std::vector<std::string> dst;
+	fs::GetRecursiveSubPaths(dir_path, dst, false);
+	UASSERT(CONTAINS(dst, dirs[0]));
+	UASSERT(CONTAINS(dst, dirs[1]));
+	UASSERT(CONTAINS(dst, dirs[2]));
+	UASSERTEQ(size_t, dst.size(), 3);
+
+	dst.clear();
+	fs::GetRecursiveSubPaths(dir_path, dst, true);
+	UASSERT(CONTAINS(dst, dirs[0]));
+	UASSERT(CONTAINS(dst, dirs[1]));
+	UASSERT(CONTAINS(dst, dirs[2]));
+	UASSERT(CONTAINS(dst, files[0]));
+	UASSERT(CONTAINS(dst, files[1]));
+	UASSERT(CONTAINS(dst, files[2]));
+	UASSERTEQ(size_t, dst.size(), 3+3);
+
+	dst.clear();
+	fs::GetRecursiveSubPaths(dir_path, dst, true, "_zzzabczzzz.");
+	UASSERT(CONTAINS(dst, dirs[0]));
+	UASSERT(CONTAINS(dst, dirs[1]));
+	UASSERT(CONTAINS(dst, files[0]));
+	UASSERT(CONTAINS(dst, files[1]));
+	UASSERTEQ(size_t, dst.size(), 2+2);
 }

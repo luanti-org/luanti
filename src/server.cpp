@@ -416,7 +416,7 @@ Server::~Server()
 	// Clean up files
 	for (auto &it : m_media) {
 		if (it.second.delete_at_shutdown) {
-			fs::DeleteSingleFileOrEmptyDirectory(it.second.path);
+			fs::DeleteSingleFileOrEmptyDirectory(it.second.path, true);
 		}
 	}
 
@@ -2913,7 +2913,7 @@ void Server::stepPendingDynMediaCallbacks(float dtime)
 			assert(m_media.count(name));
 			sanity_check(m_media[name].ephemeral);
 
-			fs::DeleteSingleFileOrEmptyDirectory(m_media[name].path);
+			fs::DeleteSingleFileOrEmptyDirectory(m_media[name].path, true);
 			m_media.erase(name);
 		}
 		getScriptIface()->freeDynamicMediaCallback(token);

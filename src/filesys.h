@@ -5,7 +5,6 @@
 #pragma once
 
 #include "config.h"
-#include <set>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -60,7 +59,7 @@ bool CreateDir(const std::string &path);
 // Only pass full paths to this one. returns true on success.
 bool RecursiveDelete(const std::string &path);
 
-bool DeleteSingleFileOrEmptyDirectory(const std::string &path);
+bool DeleteSingleFileOrEmptyDirectory(const std::string &path, bool log_error = false);
 
 /// Returns path to temp directory.
 /// You probably don't want to use this directly, see `CreateTempFile` or `CreateTempDir`.
@@ -79,23 +78,19 @@ bool DeleteSingleFileOrEmptyDirectory(const std::string &path);
        hidden directories (whose names start with . or _)
 */
 void GetRecursiveDirs(std::vector<std::string> &dirs, const std::string &dir);
+
 [[nodiscard]]
 std::vector<std::string> GetRecursiveDirs(const std::string &dir);
-
-/* Multiplatform */
 
 /* The path itself not included, returns a list of all subpaths.
    dst - vector that contains all the subpaths.
    list files - include files in the list of subpaths.
-   ignore - paths that start with these charcters will not be listed.
+   ignore - paths that start with one of these charcters will not be listed.
 */
 void GetRecursiveSubPaths(const std::string &path,
-		  std::vector<std::string> &dst,
-		  bool list_files,
-		  const std::set<char> &ignore = {});
-
-// Only pass full paths to this one. True on success.
-bool RecursiveDeleteContent(const std::string &path);
+		std::vector<std::string> &dst,
+		bool list_files,
+		std::string_view ignore = {});
 
 // Create all directories on the given path that don't already exist.
 bool CreateAllDirs(const std::string &path);
