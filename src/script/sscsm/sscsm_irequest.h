@@ -18,7 +18,9 @@ struct ISSCSMAnswer
 	virtual ~ISSCSMAnswer() = default;
 };
 
-// FIXME: actually serialize, and replace this with a std::vector<u8>
+// FIXME: actually serialize, and replace this with a std::vector<u8>.
+//        also update function argument declarations, to take
+//        `const SerializedSSCSMAnswer &` or whatever
 // (not polymorphic. the receiving side will know the answer type that is in here)
 using SerializedSSCSMAnswer = std::unique_ptr<ISSCSMAnswer>;
 
@@ -30,7 +32,7 @@ struct ISSCSMRequest
 	virtual SerializedSSCSMAnswer exec(Client *client) = 0;
 };
 
-// FIXME: actually serialize, and replace this with a std::vector<u8>
+// FIXME: as above, actually serialize
 // (polymorphic. this can be any ISSCSMRequest. ==> needs type tag)
 using SerializedSSCSMRequest = std::unique_ptr<ISSCSMRequest>;
 
