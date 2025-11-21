@@ -4,7 +4,7 @@
 ## Threat model
 
 * SSCSM scripts come from the server (potential malicious actor). We are the client.
-* Authenticity of server is not given (our networking is not secure). So we have
+* Authenticity of server is not given (Luanti's networking is not secure). So we have
   to expect anyone who can send us UDP packets to the appropriate IP address to be
   able to act on behalf of the server.
 * The server may not tamper with, or get access to information of, anything besides
@@ -12,8 +12,9 @@
   stuff, like map, node definitions, ...).
   In particular, this excludes for (non-exhaustive) example files, file paths,
   and settings.
-* DOS is not an issue (as it is already easily possible to DOS a client).
-* We already have an API via network packets (see `networkprotocol.h`).
+* DOS is not an issue (as it is already easily possible to DOS a client, and
+  because it's low risk (uninteresting target, and no catastrophic impact)).
+* There already is an API via network packets (see `networkprotocol.h`).
   This acts as upper bound: Every SSCSM API function could instead be a network
   packet endpoint. There are no efforts to make SSCSM more secure than this.
 
