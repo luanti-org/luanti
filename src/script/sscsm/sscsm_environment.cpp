@@ -7,6 +7,7 @@
 #include "sscsm_events.h"
 #include "sscsm_stupid_channel.h"
 #include "client/mod_vfs.h"
+#include "common/c_types.h" // LuaError
 
 
 SSCSMEnvironment::SSCSMEnvironment(std::shared_ptr<StupidChannel> channel) :
