@@ -439,7 +439,6 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 	static const char *string_whitelist[] = { // all but string.dump
 		"byte",
 		"char",
-		"dump",
 		"find",
 		"format",
 		"gmatch",
