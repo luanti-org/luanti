@@ -1421,6 +1421,7 @@ void Server::handleCommand_FirstSrp(NetworkPacket* pkt)
 	RemoteClient *client = getClient(peer_id, CS_Invalid);
 	ClientState cstate = client->getState();
 	const std::string playername = client->getName();
+
 	std::string salt, verification_key;
 
 	std::string addr_s = client->getAddress().serializeString();
@@ -1430,8 +1431,10 @@ void Server::handleCommand_FirstSrp(NetworkPacket* pkt)
 
 	verbosestream << "Server: Got TOSERVER_FIRST_SRP from " << addr_s
 		<< ", with is_empty=" << (is_empty == 1) << std::endl;
+
 	const bool empty_disallowed = !isSingleplayer() && is_empty == 1 &&
 		g_settings->getBool("disallow_empty_password");
+
 	// Either this packet is sent because the user is new or to change the password
 	if (cstate == CS_HelloSent) {
 		if (!client->isMechAllowed(AUTH_MECHANISM_FIRST_SRP)) {
@@ -1617,6 +1620,7 @@ void Server::handleCommand_SrpBytesM(NetworkPacket* pkt)
 	ClientState cstate = client->getState();
 	const std::string addr_s = client->getAddress().serializeString();
 	const std::string playername = client->getName();
+
 	const bool wantSudo = (cstate == CS_Active);
 
 	verbosestream << "Server: Received TOSERVER_SRP_BYTES_M." << std::endl;
