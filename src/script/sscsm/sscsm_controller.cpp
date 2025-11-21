@@ -53,6 +53,9 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 	while (true) {
 		auto request = deserializeSSCSMRequest(m_channel->exchangeB(std::move(answer)));
 
+		// SSCSMRequestPollNextEvent means `event` is finished and we need to
+		// answer with the next event (that will be passed in a subsequent runEvent()
+		// call)
 		if (dynamic_cast<SSCSMRequestPollNextEvent *>(request.get()) != nullptr) {
 			break;
 		}
