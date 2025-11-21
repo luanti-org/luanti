@@ -12,9 +12,9 @@
 #include "log_internal.h"
 
 // Poll the next event (e.g. on_globalstep)
-struct SSCSMRequestPollNextEvent : public ISSCSMRequest
+struct SSCSMRequestPollNextEvent final : public ISSCSMRequest
 {
-	struct Answer : public ISSCSMAnswer
+	struct Answer final : public ISSCSMAnswer
 	{
 		std::unique_ptr<ISSCSMEvent> next_event;
 	};
@@ -26,9 +26,9 @@ struct SSCSMRequestPollNextEvent : public ISSCSMRequest
 };
 
 // Some error occured in the SSCSM env
-struct SSCSMRequestSetFatalError : public ISSCSMRequest
+struct SSCSMRequestSetFatalError final : public ISSCSMRequest
 {
-	struct Answer : public ISSCSMAnswer
+	struct Answer final : public ISSCSMAnswer
 	{
 	};
 
@@ -44,9 +44,9 @@ struct SSCSMRequestSetFatalError : public ISSCSMRequest
 
 // print(text)
 // FIXME: override global loggers to use this in sscsm process
-struct SSCSMRequestPrint : public ISSCSMRequest
+struct SSCSMRequestPrint final : public ISSCSMRequest
 {
-	struct Answer : public ISSCSMAnswer
+	struct Answer final : public ISSCSMAnswer
 	{
 	};
 
@@ -62,9 +62,9 @@ struct SSCSMRequestPrint : public ISSCSMRequest
 
 // core.log(level, text)
 // FIXME: override global loggers to use this in sscsm process
-struct SSCSMRequestLog : public ISSCSMRequest
+struct SSCSMRequestLog final : public ISSCSMRequest
 {
-	struct Answer : public ISSCSMAnswer
+	struct Answer final : public ISSCSMAnswer
 	{
 	};
 
@@ -84,9 +84,9 @@ struct SSCSMRequestLog : public ISSCSMRequest
 };
 
 // core.get_node(pos)
-struct SSCSMRequestGetNode : public ISSCSMRequest
+struct SSCSMRequestGetNode final : public ISSCSMRequest
 {
-	struct Answer : public ISSCSMAnswer
+	struct Answer final : public ISSCSMAnswer
 	{
 		MapNode node;
 		bool is_pos_ok;
