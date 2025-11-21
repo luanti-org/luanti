@@ -47,7 +47,6 @@ local tabs = {
 	play_online = dofile(menupath .. DIR_DELIM .. "tab_online.lua")
 }
 
---------------------------------------------------------------------------------
 local function main_event_handler(tabview, event)
 	if event == "MenuQuit" then
 		local show_dialog = core.settings:get_bool("enable_esc_dialog")
@@ -64,8 +63,17 @@ local function main_event_handler(tabview, event)
 	return true
 end
 
---------------------------------------------------------------------------------
 local function init_globals()
+	-- Permanent warning if on an unoptimized debug build
+	if core.is_debug_build() then
+		local set_topleft_text = core.set_topleft_text
+		core.set_topleft_text = function(s)
+			s = (s or "") .. "\n"
+			s = s .. core.colorize("#f22", core.gettext("Debug build, expect worse performance"))
+			set_topleft_text(s)
+		end
+	end
+
 	-- Init gamedata
 	gamedata.worldindex = 0
 

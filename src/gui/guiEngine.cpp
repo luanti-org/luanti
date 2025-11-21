@@ -29,6 +29,7 @@
 	#include "client/sound/sound_openal.h"
 #endif
 
+#include <algorithm>
 #include <csignal>
 
 
@@ -638,9 +639,13 @@ void GUIEngine::setTopleftText(const std::string &text)
 /******************************************************************************/
 void GUIEngine::updateTopLeftTextSize()
 {
-	core::rect<s32> rect(0, 0, g_fontengine->getTextWidth(m_toplefttext.c_str()),
-		g_fontengine->getTextHeight());
-	rect += v2s32(4, 0);
+	const auto &str = m_toplefttext.getString();
+	u32 lines = std::count(str.begin(), str.end(), L'\n') + 1;
+	core::rect<s32> rect(0, 0,
+		g_fontengine->getTextWidth(str.c_str()),
+		g_fontengine->getTextHeight() * lines
+	);
+	rect += v2s32(4, 4);
 
 	m_irr_toplefttext->remove();
 	m_irr_toplefttext = gui::StaticText::add(m_rendering_engine->get_gui_env(),
