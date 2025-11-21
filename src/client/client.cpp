@@ -41,12 +41,17 @@
 #include "util/string.h"
 #include "version.h"
 
-// Modding
+// CPCSM
 #include "content/mod_configuration.h"
 #include "content/mods.h"
 #include "modchannels.h"
 #include "script/common/c_types.h" // LuaError
 #include "script/scripting_client.h"
+
+// SSCSM
+#include "client/mod_vfs.h"
+#include "script/sscsm/sscsm_controller.h"
+#include "script/sscsm/sscsm_events.h"
 
 // Network
 #include "network/clientopcodes.h"
@@ -67,11 +72,6 @@
 #include <algorithm>
 #include <sstream>
 #include <cmath>
-
-//TODO: move
-#include "client/mod_vfs.h"
-#include "script/sscsm/sscsm_controller.h"
-#include "script/sscsm/sscsm_events.h"
 
 extern gui::IGUIEnvironment* guienv;
 
