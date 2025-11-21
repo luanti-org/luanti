@@ -12,8 +12,8 @@
   stuff, like map, node definitions, ...).
   In particular, this excludes for (non-exhaustive) example files, file paths,
   and settings.
-* DOS is not an issue (as it is already easily possible to DOS a client, and
-  because it's low risk (uninteresting target, and no catastrophic impact)).
+* DOS is not an issue (as it is already easily possible to DOS a client).
+  (It's also low risk (uninteresting target, and no catastrophic impact).)
 * There already is an API via network packets (see `networkprotocol.h`).
   This acts as upper bound: Every SSCSM API function could instead be a network
   packet endpoint. There are no efforts to make SSCSM more secure than this.
