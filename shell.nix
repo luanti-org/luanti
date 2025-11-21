@@ -15,6 +15,7 @@ pkgs.mkShell {
     pkgs.libGL
     pkgs.luajit
     pkgs.SDL2
+    pkgs.sdl3
     pkgs.openal
     pkgs.curl
     pkgs.libvorbis
