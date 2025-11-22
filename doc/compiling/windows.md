@@ -1,4 +1,4 @@
-# Compiling on Windows with MSYS2
+# Compiling on Windows using MSYS2
 
 # Requirements
 
