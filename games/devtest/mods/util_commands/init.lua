@@ -18,18 +18,35 @@ if core.is_singleplayer() then
 		params = "<code>",
 		description = "Execute Lua code (singleplayer-only)",
 		func = function(name, param)
-			local func = load("return " .. param)
+			local func = loadstring("return " .. param)
 			if not func then
 				local err
-				func, err = load(param)
+				func, err = loadstring(param)
 				if not func then
 					return false, "Syntax error: " .. err
 				end
 			end
+			local me = core.get_player_by_name(name)
+			local testtools = rawget(_G, "testtools")
 			setfenv(func, setmetatable({
+				-- WorldEdit //lua compatibility
 				name = name,
-				player = core.get_player_by_name(name),
+				player = me,
+				-- luacmd compatibility
+				myname = name,
+				me = me,
+				here = me:get_pos(),
+				print = function(...)
+					local t = {}
+					for i = 1, select("#", ...) do
+						local v = select(i, ...)
+						t[i] = dump(v)
+					end
+					core.chat_send_player(name, "/lua: " .. table.concat(t, "\t"))
+				end,
+				branded = testtools.get_branded_object(name),
 			}, {__index = _G}))
+			core.chat_send_player(name, "Executing /lua " .. param)
 			return format_result(pcall(func))
 		end,
 	})
