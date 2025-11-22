@@ -321,6 +321,17 @@ void LuaEntitySAO::getStaticData(std::string *result) const
 	*result = os.str();
 }
 
+void LuaEntitySAO::getClearObjectsStaticData(std::string &static_data) const
+{
+	// state
+	if(m_registered){
+		static_data = m_env->getScriptIface()->
+			luaentity_GetStaticdata(m_id);
+	} else {
+		static_data = m_init_state;
+	}
+}
+
 u32 LuaEntitySAO::punch(v3f dir,
 		const ToolCapabilities *toolcap,
 		ServerActiveObject *puncher,
