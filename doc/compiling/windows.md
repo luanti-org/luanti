@@ -1,3 +1,56 @@
+# Compiling on Windows with MSYS2
+
+# Requirements
+
+- [MSYS2](https://msys2.org)
+
+
+## Installing dependencies
+
+Open MSYS2 CLANG64
+Update MSYS2
+```bash
+pacman -Syu
+```
+
+Install the dependencies
+```bash
+pacman -S git mingw-w64-clang-x86_64-{clang,cmake,ninja,curl-winssl,libpng,libjpeg-turbo,freetype,libogg,libvorbis,sqlite3,openal,zstd,gettext,luajit,SDL2}
+```
+## Prepare to build
+
+Go to the desktop folder
+```bash
+cd /c/Users/$USER/Desktop
+```
+
+Clone Luanti
+```bash
+git clone --depth 1 https://github.com/luanti-org/luanti.git
+cd luanti
+```
+## Build
+
+Compile Luanti
+```bash
+mkdir build
+cd build
+cmake .. -G="Ninja"
+ninja
+cd ..
+```
+
+Bundle the required DLLs
+```bash
+wget https://raw.githubusercontent.com/rollerozxa/msys2-bundledlls/master/bundledlls
+./bundledlls bin/luanti.exe bin/
+```
+
+Run Luanti
+```bash
+./bin/luanti.exe
+```
+
 # Compiling on Windows using MSVC
 
 ## Requirements
