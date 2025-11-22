@@ -8,6 +8,7 @@
 ## Installing dependencies
 
 Open MSYS2 CLANG64
+
 Update MSYS2
 ```bash
 pacman -Syu
