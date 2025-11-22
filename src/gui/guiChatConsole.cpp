@@ -15,6 +15,7 @@
 #include "irrlicht_changes/CGUITTFont.h"
 #include "util/string.h"
 #include "guiScrollBar.h"
+#include <IOSOperator.h>
 #include <string>
 
 inline u32 clamp_u8(s32 value)
