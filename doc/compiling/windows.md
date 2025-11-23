@@ -18,7 +18,7 @@ Install the dependencies
 ```bash
 pacman -S git mingw-w64-clang-x86_64-{clang,cmake,ninja,curl-winssl,libpng,libjpeg-turbo,freetype,libogg,libvorbis,sqlite3,openal,zstd,gettext,luajit,SDL2}
 ```
-## Prepare to build
+## Prepare to compile
 
 Go to the desktop folder
 ```bash
