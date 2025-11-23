@@ -5,7 +5,7 @@
 - [MSYS2](https://msys2.org)
 
 
-## Installing dependencies
+## Install dependencies
 
 Open MSYS2 CLANG64
 
