@@ -30,21 +30,21 @@ Clone Luanti
 git clone --depth 1 https://github.com/luanti-org/luanti.git
 cd luanti
 ```
-## Build
+## Compile
 
 Compile Luanti
 ```bash
 mkdir build
 cd build
-cmake .. -G="Ninja"
+cmake .. -G Ninja
 ninja
 cd ..
 ```
 
 Bundle the required DLLs
 ```bash
-wget https://raw.githubusercontent.com/rollerozxa/msys2-bundledlls/master/bundledlls
-./bundledlls bin/luanti.exe bin/
+curl https://raw.githubusercontent.com/rollerozxa/msys2-bundledlls/master/bundledlls > bundledlls.sh
+./bundledlls.sh bin/luanti.exe bin/
 ```
 
 Run Luanti
