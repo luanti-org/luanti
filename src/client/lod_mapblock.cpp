@@ -52,12 +52,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 				color_in.getGreen() * c2.getGreen() * c3.getGreen() / 65025U,
 				color_in.getBlue() * c2.getBlue() * c3.getBlue() / 65025U);
 		} else {
-			video::SColor c2 = tile.layers[0].color;
-			color = video::SColor(
-				color_in.getAlpha(),
-				color_in.getRed() * c2.getRed() * 255U,
-				color_in.getGreen() * c2.getGreen() * 255U,
-				color_in.getBlue() * c2.getBlue() * 255U);
+			color = color_in;
 		}
 
 		const u64 direction_offset = BITSET_MAX_NOPAD2 * direction;
