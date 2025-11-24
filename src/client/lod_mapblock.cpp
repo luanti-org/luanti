@@ -15,8 +15,11 @@
 #include "client/renderingengine.h"
 #include "client.h"
 #include "porting.h"
+#include "mesh.h"
 
 #include "profiler.h"
+#include "SMesh.h"
+#include "util/directiontables.h"
 
 static constexpr u16 quad_indices_02[] = {0, 1, 2, 2, 3, 0};
 static const auto &quad_indices = quad_indices_02;
@@ -28,6 +31,83 @@ LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output, c
 	m_blockpos_nodes(m_data->m_blockpos * MAP_BLOCKSIZE),
 	m_is_textureless(is_textureless)
 {
+	// transparents are always rendered separately
+	m_transparent_set.set(NDT_LIQUID);
+	m_transparent_set.set(NDT_GLASSLIKE);
+	m_transparent_set.set(NDT_MESH);
+
+	m_solid_set.set(NDT_NORMAL);
+	m_solid_set.set(NDT_NODEBOX);
+	m_solid_set.set(NDT_ALLFACES);
+}
+
+void LodMeshGenerator::drawMeshNode(const v3s16 pos, const MapNode n, const ContentFeatures *f) const
+{
+	u8 facedir = 0;
+	scene::IMesh* mesh;
+	int degrotate = 0;
+	video::SColor base_color = encode_light(LightPair(getInteriorLight(n, 0, m_nodedef)), f->light_source);
+
+	if (f->param_type_2 == CPT2_FACEDIR ||
+			f->param_type_2 == CPT2_COLORED_FACEDIR ||
+			f->param_type_2 == CPT2_4DIR ||
+			f->param_type_2 == CPT2_COLORED_4DIR) {
+		facedir = n.getFaceDir(m_nodedef);
+	} else if (f->param_type_2 == CPT2_WALLMOUNTED ||
+			f->param_type_2 == CPT2_COLORED_WALLMOUNTED) {
+		// Convert wallmounted to 6dfacedir.
+		facedir = n.getWallMounted(m_nodedef);
+		facedir = wallmounted_to_facedir[facedir];
+	} else if (f->param_type_2 == CPT2_DEGROTATE ||
+			f->param_type_2 == CPT2_COLORED_DEGROTATE) {
+		degrotate = n.getDegRotate(m_nodedef);
+	}
+
+	if (f->mesh_ptr) {
+		// clone and rotate mesh
+		mesh = cloneStaticMesh(f->mesh_ptr);
+		bool modified = true;
+		if (facedir)
+			rotateMeshBy6dFacedir(mesh, facedir);
+		else if (degrotate)
+			rotateMeshXZby(mesh, 1.5f * degrotate);
+		else
+			modified = false;
+		if (modified) {
+			recalculateBoundingBox(mesh);
+		}
+	} else {
+		warningstream << "drawMeshNode(): missing mesh" << std::endl;
+		return;
+	}
+
+	for (u32 j = 0; j < mesh->getMeshBufferCount(); j++) {
+		// Only up to 6 tiles are supported
+		const u32 tile_idx = mesh->getTextureSlot(j);
+		TileSpec tile;
+		getNodeTileN(n, pos, MYMIN(tile_idx, 5), m_data, tile);
+
+		scene::IMeshBuffer *buf = mesh->getMeshBuffer(j);
+		video::S3DVertex *vertices = static_cast<video::S3DVertex*>(buf->getVertices());
+		const u32 vertex_count = buf->getVertexCount();
+
+		// Mesh is always private here. So the lighting is applied to each
+		// vertex right here.
+		const bool is_light_source = f->light_source != 0;
+		for (u32 k = 0; k < vertex_count; k++) {
+			video::S3DVertex &vertex = vertices[k];
+			video::SColor color = base_color;
+			if (!is_light_source)
+				applyFacesShading(color, vertex.Normal);
+			vertex.Color = color;
+			vertex.Pos.X += pos.X * BS;
+			vertex.Pos.Y += pos.Y * BS;
+			vertex.Pos.Z += pos.Z * BS;
+		}
+		m_collector->append(tile, vertices, vertex_count,
+			buf->getIndices(), buf->getIndexCount());
+	}
+	std::ignore = mesh->drop();
 }
 
 void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
@@ -154,82 +234,11 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 	}
 }
 
-LightPair LodMeshGenerator::computeMaxFaceLight(const MapNode n, const v3s16 p, const v3s16 dir) const
+void LodMeshGenerator::processNodeGroup(const bitset (&all_set_nodes)[3 * BITSET_MAX * BITSET_MAX],
+		const std::unordered_map<NodeKey, bitset[3 * BITSET_MAX * BITSET_MAX]> &subset_nodes,
+		std::map<content_t, MapNode> &node_types, const v3s16 seg_start, const u8 width)
 {
-	const u16 lp1 = getFaceLight(n, m_data->m_vmanip.getNodeNoExNoEmerge(p + dir), m_nodedef);
-	const u16 lp2 = getFaceLight(n, m_data->m_vmanip.getNodeNoExNoEmerge(p - dir), m_nodedef);
-	return static_cast<LightPair>(std::max(lp1, lp2));
-}
-
-void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> types, const v3s16 seg_start,
-		const v3s16 seg_size, const u8 width)
-{
-	// all nodes in this volume, , for finding node faces
-	bitset all_set_nodes[3 * BITSET_MAX * BITSET_MAX] = {0};
-	std::map<content_t, MapNode> node_types;
-	// all nodes in this volume, on each of the 3 axes, grouped by type and brightness, for use in actual mesh generation
-	std::unordered_map<NodeKey, bitset[3 * BITSET_MAX * BITSET_MAX]> set_nodes;
-
-	const v3s16 to = seg_start + seg_size;
-	const s16 max_light_step = std::min<s16>(MAP_BLOCKSIZE, width);
-
-	v3s16 p;
-	for (p.Z = seg_start.Z - 1; p.Z < to.Z + width; p.Z += width)
-	for (p.Y = seg_start.Y - 1; p.Y < to.Y + width; p.Y += width)
-	for (p.X = seg_start.X - 1; p.X < to.X + width; p.X += width) {
-		MapNode n = m_data->m_vmanip.getNodeNoExNoEmerge(p);
-		if (n.getContent() == CONTENT_IGNORE) {
-			continue;
-		}
-		// when our sample is air, take more samples in a straight line down, to make sure we always hit the surface
-		// otherwise, snowy mountains or grassy hills would display lumps of dirt and stone
-		const ContentFeatures* f = &m_nodedef->get(n);
-		for (u8 subtr = 1; subtr < width && f->drawtype == NDT_AIRLIKE; subtr++) {
-			n = m_data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(0, subtr, 0));
-			f = &m_nodedef->get(n);
-		}
-		if (!types.test(f->drawtype)) {
-			continue;
-		}
-
-		const content_t node_type = n.getContent();
-		const v3s16 p_scaled = (p - seg_start + 1) / width;
-		node_types.try_emplace(node_type, n);
-
-		if (f->drawtype == NDT_NORMAL) {
-			// take a light sample for each side of a node, on each axis and take the maximum.
-			// it would be more accurate to take a sample for each of the 6 directions intead of each axis,
-			// but that would take twice the ram
-			LightPair lp = computeMaxFaceLight(n, p, v3s16(max_light_step, 0, 0));
-			NodeKey key = NodeKey{node_type, lp};
-			set_nodes[key][BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
-
-			lp = computeMaxFaceLight(n, p, v3s16(0, max_light_step, 0));
-			key = NodeKey{node_type, lp};
-			set_nodes[key][BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
-
-			lp = computeMaxFaceLight(n, p, v3s16(0, 0, max_light_step));
-			key = NodeKey{node_type, lp};
-			set_nodes[key][2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
-		}
-		else {
-			const LightPair lp = static_cast<LightPair>(getInteriorLight(n, 0, m_nodedef));
-
-			NodeKey key{node_type, lp};
-			auto &nodes = set_nodes[key];
-			nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
-			nodes[BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
-			nodes[2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
-		}
-
-		all_set_nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
-		all_set_nodes[BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
-		all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
-	}
-
-	static constexpr bitset U62_MAX = U64_MAX >> 2;
-
-	for (const auto& [node_key, nodes] : set_nodes) {
+	for (const auto& [node_key, nodes] : subset_nodes) {
 		for (u8 u = 1; u <= BITSET_MAX_NOPAD; u++)
 		for (u8 v = 1; v <= BITSET_MAX_NOPAD; v++) {
 			// Shifting the bitset of set nodes in a column to the right, inverting it, then &-ing it with another bitset
@@ -296,7 +305,99 @@ void LodMeshGenerator::generateGreedyLod(const std::bitset<NodeDrawType_END> typ
 	}
 }
 
-void LodMeshGenerator::generateLodChunks(const std::bitset<NodeDrawType_END> types, const u8 width)
+LightPair LodMeshGenerator::computeMaxFaceLight(const MapNode n, const v3s16 p, const v3s16 dir) const
+{
+	const u16 lp1 = getFaceLight(n, m_data->m_vmanip.getNodeNoExNoEmerge(p + dir), m_nodedef);
+	const u16 lp2 = getFaceLight(n, m_data->m_vmanip.getNodeNoExNoEmerge(p - dir), m_nodedef);
+	return static_cast<LightPair>(std::max(lp1, lp2));
+}
+
+void LodMeshGenerator::generateGreedyLod(const v3s16 seg_start, const v3s16 seg_size, const u8 width)
+{
+	// all nodes in this volume, for finding node faces
+	bitset all_set_solid_nodes[3 * BITSET_MAX * BITSET_MAX] = {0};
+	bitset all_set_transparent_nodes[3 * BITSET_MAX * BITSET_MAX] = {0};
+	std::map<content_t, MapNode> node_types;
+	// all nodes in this volume, on each of the 3 axes, grouped by type and brightness, for use in actual mesh generation
+	std::unordered_map<NodeKey, bitset[3 * BITSET_MAX * BITSET_MAX]> set_solid_nodes;
+	std::unordered_map<NodeKey, bitset[3 * BITSET_MAX * BITSET_MAX]> set_transparent_nodes;
+
+	const v3s16 to = seg_start + seg_size;
+	const s16 max_light_step = std::min<s16>(MAP_BLOCKSIZE, width);
+
+	v3s16 p;
+	for (p.Z = seg_start.Z - 1; p.Z < to.Z + width; p.Z += width)
+	for (p.Y = seg_start.Y - 1; p.Y < to.Y + width; p.Y += width)
+	for (p.X = seg_start.X - 1; p.X < to.X + width; p.X += width) {
+		MapNode n = m_data->m_vmanip.getNodeNoExNoEmerge(p);
+		if (n.getContent() == CONTENT_IGNORE) {
+			continue;
+		}
+		// when our sample is air, take more samples in a straight line down, to make sure we always hit the surface
+		// otherwise, snowy mountains or grassy hills would display lumps of dirt and stone
+		const ContentFeatures* f = &m_nodedef->get(n);
+		for (u8 subtr = 1; subtr < width && f->drawtype == NDT_AIRLIKE; subtr++) {
+			n = m_data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(0, subtr, 0));
+			f = &m_nodedef->get(n);
+		}
+
+		if (!m_is_textureless && f->drawtype == NDT_MESH) {
+			drawMeshNode(p - m_blockpos_nodes, n, f);
+			continue;
+		}
+
+		const bool is_solid = m_solid_set.test(f->drawtype);
+		const bool is_transparent = m_transparent_set.test(f->drawtype);
+		if (!is_solid && !is_transparent) {
+			continue;
+		}
+
+		const content_t node_type = n.getContent();
+		const v3s16 p_scaled = (p - seg_start + 1) / width;
+		node_types.try_emplace(node_type, n);
+
+		if (f->drawtype == NDT_NORMAL) {
+			// take a light sample for each side of a node, on each axis and take the maximum.
+			// it would be more accurate to take a sample for each of the 6 directions intead of each axis,
+			// but that would take twice the ram
+			LightPair lp = computeMaxFaceLight(n, p, v3s16(max_light_step, 0, 0));
+			NodeKey key = NodeKey{node_type, lp};
+			set_solid_nodes[key][BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
+
+			lp = computeMaxFaceLight(n, p, v3s16(0, max_light_step, 0));
+			key = NodeKey{node_type, lp};
+			set_solid_nodes[key][BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
+
+			lp = computeMaxFaceLight(n, p, v3s16(0, 0, max_light_step));
+			key = NodeKey{node_type, lp};
+			set_solid_nodes[key][2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+		}
+		else {
+			const LightPair lp = static_cast<LightPair>(getInteriorLight(n, 0, m_nodedef));
+
+			NodeKey key{node_type, lp};
+			auto &nodes = is_solid ? set_solid_nodes[key] : set_transparent_nodes[key];
+			nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
+			nodes[BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
+			nodes[2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+		}
+
+		if (is_solid) {
+			all_set_solid_nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
+			all_set_solid_nodes[BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
+			all_set_solid_nodes[2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+		} else { // if transparent
+			all_set_transparent_nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
+			all_set_transparent_nodes[BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
+			all_set_transparent_nodes[2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+		}
+	}
+
+	processNodeGroup(all_set_solid_nodes, set_solid_nodes, node_types, seg_start, width);
+	processNodeGroup(all_set_transparent_nodes, set_transparent_nodes, node_types, seg_start, width);
+}
+
+void LodMeshGenerator::generateLodChunks(const u8 width)
 {
 	ScopeProfiler sp(g_profiler, "Client: Mesh Making LOD Greedy", SPT_AVG);
 
@@ -315,7 +416,7 @@ void LodMeshGenerator::generateLodChunks(const std::bitset<NodeDrawType_END> typ
 			std::min(m_data->m_side_length - x - 1, attempted_seg_size),
 			std::min(m_data->m_side_length - y - 1, attempted_seg_size),
 			std::min(m_data->m_side_length - z - 1, attempted_seg_size));
-		generateGreedyLod(types, seg_start, seg_size, width);
+		generateGreedyLod(seg_start, seg_size, width);
 	}
 }
 
@@ -330,18 +431,5 @@ void LodMeshGenerator::generate(const u8 lod)
 	if (width > m_data->m_side_length)
 		width = m_data->m_side_length;
 
-	// transparents are always rendered separately
-	std::bitset<NodeDrawType_END> transparent_set;
-	transparent_set.set(NDT_LIQUID);
-	transparent_set.set(NDT_GLASSLIKE);
-
-	generateLodChunks(transparent_set, width);
-
-	std::bitset<NodeDrawType_END> solid_set;
-	solid_set.set(NDT_NORMAL);
-	solid_set.set(NDT_NODEBOX);
-	solid_set.set(NDT_ALLFACES);
-	solid_set.set(NDT_MESH);
-
-	generateLodChunks(solid_set, width);
+	generateLodChunks(width);
 }
