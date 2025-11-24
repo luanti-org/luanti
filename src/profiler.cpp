@@ -3,6 +3,9 @@
 // Copyright (C) 2015 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "profiler.h"
+
+#include <cstring>
+#include "util/numeric.h"
 #include "porting.h"
 
 static Profiler main_profiler;

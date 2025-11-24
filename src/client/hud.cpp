@@ -14,7 +14,6 @@
 #include "client.h"
 #include "inventory.h"
 #include "shader.h"
-#include "client/tile.h"
 #include "localplayer.h"
 #include "camera.h"
 #include "fontengine.h"
@@ -28,6 +27,7 @@
 #include "irrlicht_changes/CGUITTFont.h"
 #include "gui/drawItemStack.h"
 #include <ICameraSceneNode.h>
+#include <IMesh.h>
 
 #define OBJECT_CROSSHAIR_LINE_SIZE 8
 #define CROSSHAIR_LINE_SIZE 10

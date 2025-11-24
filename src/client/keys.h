@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <list>
-
 class KeyType
 {
 public:

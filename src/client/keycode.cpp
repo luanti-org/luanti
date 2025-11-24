@@ -5,11 +5,8 @@
 #include "keycode.h"
 #include "settings.h"
 #include "log.h"
-#include "debug.h"
 #include "renderingengine.h"
-#include "util/hex.h"
 #include "util/string.h"
-#include "util/basic_macros.h"
 #include <unordered_map>
 #include <vector>
 

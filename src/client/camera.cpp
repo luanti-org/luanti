@@ -3,10 +3,7 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "camera.h"
-#include "debug.h"
 #include "client.h"
-#include "config.h"
-#include "map.h"
 #include "clientmap.h"     // MapDrawControl
 #include "localplayer.h"
 #include "player.h"

@@ -7,23 +7,16 @@
 #pragma once
 
 #include "IGUIStaticText.h"
-#include "irrArray.h"
-
-#include "log.h"
 
 #include <vector>
 
 #include "util/enriched_string.h"
-#include "config.h"
 #include <IGUIEnvironment.h>
 
 
 namespace gui
 {
-
-	const EGUI_ELEMENT_TYPE EGUIET_ENRICHED_STATIC_TEXT = (EGUI_ELEMENT_TYPE)(0x1000);
-
-	class StaticText : public IGUIStaticText
+	class StaticText final : public IGUIStaticText
 	{
 	public:
 
@@ -156,10 +149,6 @@ namespace gui
 		virtual bool isRightToLeft() const;
 
 		virtual bool hasType(EGUI_ELEMENT_TYPE t) const {
-			return (t == EGUIET_ENRICHED_STATIC_TEXT) || (t == EGUIET_STATIC_TEXT);
-		};
-
-		virtual bool hasType(EGUI_ELEMENT_TYPE t) {
 			return (t == EGUIET_ENRICHED_STATIC_TEXT) || (t == EGUIET_STATIC_TEXT);
 		};
 

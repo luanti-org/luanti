@@ -3,7 +3,6 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "l_camera.h"
-#include <cmath>
 #include "script/common/c_converter.h"
 #include "l_internal.h"
 #include "client/content_cao.h"

@@ -4,11 +4,12 @@
 
 #include "item_visuals_manager.h"
 
-#include "mesh.h"
+#include "wieldmesh.h"
 #include "client.h"
 #include "texturesource.h"
 #include "itemdef.h"
 #include "inventory.h"
+#include <IMesh.h>
 
 struct ItemVisualsManager::ItemVisuals
 {

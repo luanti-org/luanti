@@ -599,14 +599,14 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		m_material_type = shader_source->getShaderInfo(shader_id).material;
 	} else {
 		// Not used, so make sure it's not valid
-		m_material_type = EMT_INVALID;
+		m_material_type = video::EMT_INVALID;
 	}
 
 	m_matrixnode = m_smgr->addDummyTransformationSceneNode();
 	m_matrixnode->grab();
 
 	auto setMaterial = [this] (video::SMaterial &mat) {
-		if (m_material_type != EMT_INVALID)
+		if (m_material_type != video::EMT_INVALID)
 			mat.MaterialType = m_material_type;
 		mat.FogEnable = true;
 		mat.forEachTexture([] (auto &tex) {

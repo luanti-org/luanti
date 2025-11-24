@@ -6,12 +6,14 @@ on:
     paths:
       - 'builtin/**.lua'
       - 'games/devtest/**.lua'
-      - '.github/workflows/**.yml'
+      - 'util/ci/**'
+      - '.github/workflows/lua.yml'
   pull_request:
     paths:
       - 'builtin/**.lua'
       - 'games/devtest/**.lua'
-      - '.github/workflows/**.yml'
+      - 'util/ci/**'
+      - '.github/workflows/lua.yml'
 
 jobs:
   # Note that the integration tests are also run in build.yml, but only when C++ code is changed.
@@ -37,9 +39,9 @@ jobs:
       run: |
         serverconf="profiler.load=true" ./util/test_multiplayer.sh
 
-    - name: Singleplayer test (GL3)
+    - name: Singleplayer test (legacy GL)
       run: |
-        clientconf="video_driver=opengl3" xvfb-run ./util/test_singleplayer.sh
+        clientconf="video_driver=opengl" xvfb-run ./util/test_singleplayer.sh
 
   luacheck:
     name: "Builtin Luacheck and Unit Tests"

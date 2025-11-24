@@ -94,77 +94,26 @@ pkgmgr = {}
 -- @param path         Absolute directory path to scan recursively
 -- @param virtual_path Prettified unique path (e.g. "mods", "mods/mt_modpack")
 -- @param listing      Input. Flat array to insert located mods and modpacks
--- @param modpack      Currently processing modpack or nil/"" if none (recursion)
-function pkgmgr.get_mods(path, virtual_path, listing, modpack)
-	local mods = core.get_dir_list(path, true)
-	local added = {}
-	for _, name in ipairs(mods) do
-		if name:sub(1, 1) ~= "." then
-			local mod_path = path .. DIR_DELIM .. name
-			local mod_virtual_path = virtual_path .. "/" .. name
-			local toadd = {
-				dir_name = name,
-				parent_dir = path,
-			}
-			listing[#listing + 1] = toadd
-			added[#added + 1] = toadd
+function pkgmgr.get_mods(path, virtual_path, listing)
+	local mods = core.get_mod_list(path, virtual_path)
+	local parent = {}
+	for i, toadd in ipairs(mods) do
+		listing[#listing + 1] = toadd
 
-			-- Get config file
-			local mod_conf
-			local modpack_conf = io.open(mod_path .. DIR_DELIM .. "modpack.conf")
-			if modpack_conf then
-				toadd.is_modpack = true
-				modpack_conf:close()
-
-				mod_conf = Settings(mod_path .. DIR_DELIM .. "modpack.conf"):to_table()
-				if mod_conf.name then
-					name = mod_conf.name
-					toadd.is_name_explicit = true
-				end
-			else
-				mod_conf = Settings(mod_path .. DIR_DELIM .. "mod.conf"):to_table()
-				if mod_conf.name then
-					name = mod_conf.name
-					toadd.is_name_explicit = true
-				end
-			end
-
-			-- Read from config
-			toadd.name = name
-			toadd.title = mod_conf.title
-			toadd.author = mod_conf.author
-			toadd.release = tonumber(mod_conf.release) or 0
-			toadd.path = mod_path
-			toadd.virtual_path = mod_virtual_path
-			toadd.type = "mod"
-
-			-- Check modpack.txt
-			-- Note: modpack.conf is already checked above
-			local modpackfile = io.open(mod_path .. DIR_DELIM .. "modpack.txt")
-			if modpackfile then
-				modpackfile:close()
-				toadd.is_modpack = true
-			end
-
-			-- Deal with modpack contents
-			if modpack and modpack ~= "" then
-				toadd.modpack = modpack
-			elseif toadd.is_modpack then
-				toadd.type = "modpack"
-				toadd.is_modpack = true
-				pkgmgr.get_mods(mod_path, mod_virtual_path, listing, name)
-			end
+		if toadd.is_modpack then
+			parent[toadd.modpack_depth + 1] = toadd
 		end
+		if parent[toadd.modpack_depth] then
+			toadd.modpack = parent[toadd.modpack_depth].name
+		end
+
+		local parent_dir, dir_name = toadd.path:match("^(.+)[/\\]([^/\\]+)$")
+		toadd.dir_name = dir_name
+		toadd.parent_dir = parent_dir
+		toadd.type = toadd.is_modpack and "modpack" or "mod"
 	end
 
-	pkgmgr.update_translations(added)
-
-	if not modpack then
-		-- Sort all when the recursion is done
-		table.sort(listing, function(a, b)
-			return a.virtual_path:lower() < b.virtual_path:lower()
-		end)
-	end
+	pkgmgr.update_translations(mods)
 end
 
 --------------------------------------------------------------------------------
@@ -272,6 +221,29 @@ function pkgmgr.is_valid_modname(modpath)
 	return modpath:match("[^a-z0-9_]") == nil
 end
 
+
+-- expensive: recursively check all contained mods and return whether at least
+-- one of the contained mods is enabled resp. disabled
+local function check_modpack_status(rawlist, modpack)
+	local enabled_found, disabled_found
+	for j = 1, #rawlist do
+		if rawlist[j].modpack == modpack.name and rawlist[j].parent_dir == modpack.path then
+			if rawlist[j].is_modpack then
+				enabled_found, disabled_found = check_modpack_status(rawlist, rawlist[j])
+			elseif rawlist[j].enabled then
+				enabled_found = true
+			else
+				disabled_found = true
+			end
+
+			if enabled_found and disabled_found then
+				return true, true
+			end
+		end
+	end
+	return enabled_found, disabled_found
+end
+
 --------------------------------------------------------------------------------
 --- @param render_list filterlist
 --- @param use_technical_names boolean to show technical names instead of human-readable titles
@@ -301,12 +273,20 @@ function pkgmgr.render_packagelist(render_list, use_technical_names, with_icon)
 			color = mt_color_dark_green
 
 			for j = 1, #rawlist do
-				if rawlist[j].modpack == list[i].name then
+				if rawlist[j].modpack == list[i].name and rawlist[j].parent_dir == list[i].path then
 					if with_icon then
 						update_icon_info(with_icon[rawlist[j].virtual_path or rawlist[j].path])
 					end
 
-					if rawlist[j].enabled then
+					if rawlist[j].is_modpack then
+						local enabled_found, disabled_found = check_modpack_status(rawlist, rawlist[j])
+						if enabled_found then
+							icon = 1
+						end
+						if disabled_found or not enabled_found then
+							color = mt_color_grey
+						end
+					elseif rawlist[j].enabled then
 						icon = 1
 					else
 						-- Modpack not entirely enabled so showing as grey
@@ -346,11 +326,8 @@ function pkgmgr.render_packagelist(render_list, use_technical_names, with_icon)
 		end
 
 		retval[#retval + 1] = color
-		if v.modpack ~= nil or v.loc == "game" then
-			retval[#retval + 1] = "1"
-		else
-			retval[#retval + 1] = "0"
-		end
+		-- `v.modpack_depth` is `nil` for the selected game (treated as level 0)
+		retval[#retval + 1] = (v.modpack_depth or 0) + (v.loc == "game" and 1 or 0)
 
 		if with_icon then
 			retval[#retval + 1] = icon
@@ -377,19 +354,14 @@ function pkgmgr.get_dependencies(path)
 end
 
 ----------- tests whether all of the mods in the modpack are enabled -----------
-function pkgmgr.is_modpack_entirely_enabled(data, name)
-	local rawlist = data.list:get_raw_list()
-	for j = 1, #rawlist do
-		if rawlist[j].modpack == name and not rawlist[j].enabled then
-			return false
-		end
-	end
-	return true
+function pkgmgr.is_modpack_entirely_enabled(rawlist, modpack)
+	local _, disabled_found = check_modpack_status(rawlist, modpack)
+	return not disabled_found
 end
 
 local function disable_all_by_name(list, name, except)
 	for i=1, #list do
-		if list[i].name == name and list[i] ~= except then
+		if not list[i].is_modpack and list[i].name == name and list[i] ~= except then
 			list[i].enabled = false
 		end
 	end
@@ -417,7 +389,7 @@ local function toggle_mod_or_modpack(list, toggled_mods, enabled_mods, toset, mo
 		-- Toggle or en/disable every mod in the modpack,
 		-- interleaved unsupported
 		for i = 1, #list do
-			if list[i].modpack == mod.name then
+			if list[i].modpack == mod.name and list[i].parent_dir == mod.path then
 				toggle_mod_or_modpack(list, toggled_mods, enabled_mods, toset, list[i])
 			end
 		end

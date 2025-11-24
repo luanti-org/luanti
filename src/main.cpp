@@ -3,12 +3,7 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include <map>
-#include <algorithm>
-
 #include "irrlichttypes_bloated.h"
-#include "irrlicht.h" // createDevice
-#include "irrlicht_changes/printing.h"
-#include "benchmark/benchmark.h"
 #include "chat_interface.h"
 #include "debug.h"
 #include "unittest/test.h"
@@ -32,15 +27,16 @@
 #include "servermap.h"
 #include "settings.h"
 #include "network/socket.h"
+#include "network/networkexceptions.h"
 #include "mapblock.h"
 #if USE_CURSES
 	#include "terminal_chat_console.h"
 #endif
 #if CHECK_CLIENT_BUILD()
-#include "gui/guiMainMenu.h"
 #include "client/clientlauncher.h"
-#include "gui/guiEngine.h"
-#include "gui/mainmenumanager.h"
+#endif
+#if BUILD_BENCHMARKS
+#include "benchmark/benchmark.h"
 #endif
 
 // for version information only

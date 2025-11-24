@@ -312,7 +312,7 @@ void set_default_settings()
 
 	// Effects
 	settings->setDefault("enable_post_processing", "true");
-	settings->setDefault("post_processing_texture_bits", "16");
+	settings->setDefault("post_processing_texture_bits", "10");
 	settings->setDefault("directional_colored_fog", "true");
 	settings->setDefault("inventory_items_animations", "false");
 	settings->setDefault("mip_map", "false");
@@ -340,15 +340,24 @@ void set_default_settings()
 	// Effects Shadows
 	settings->setDefault("enable_dynamic_shadows", "false");
 	settings->setDefault("shadow_strength_gamma", "1.0");
-	settings->setDefault("shadow_map_max_distance", "140.0");
-	settings->setDefault("shadow_map_texture_size", "2048");
-	settings->setDefault("shadow_map_texture_32bit", "true");
-	settings->setDefault("shadow_map_color", "false");
-	settings->setDefault("shadow_filters", "1");
 	settings->setDefault("shadow_poisson_filter", "true");
 	settings->setDefault("shadow_update_frames", "16");
 	settings->setDefault("shadow_soft_radius", "5.0");
 	settings->setDefault("shadow_sky_body_orbit_tilt", "0.0");
+#ifndef __ANDROID__
+	// equivalent to "Medium" preset
+	// see "shadows_component.lua"
+	settings->setDefault("shadow_map_max_distance", "140.0");
+	settings->setDefault("shadow_map_texture_size", "2048");
+	settings->setDefault("shadow_filters", "1");
+#else
+	// equivalent to "Low" preset
+	settings->setDefault("shadow_map_max_distance", "93.0");
+	settings->setDefault("shadow_map_texture_size", "1024");
+	settings->setDefault("shadow_filters", "0");
+#endif
+	settings->setDefault("shadow_map_texture_32bit", "true");
+	settings->setDefault("shadow_map_color", "false");
 
 	// Input
 	settings->setDefault("invert_mouse", "false");
@@ -365,6 +374,7 @@ void set_default_settings()
 	settings->setDefault("toggle_sneak_key", "false");
 	settings->setDefault("toggle_aux1_key", "false");
 	settings->setDefault("autojump", bool_to_cstr(has_touch));
+	settings->setDefault("enable_esc_dialog", "true");
 	settings->setDefault("continuous_forward", "false");
 	settings->setDefault("enable_joysticks", "false");
 	settings->setDefault("joystick_id", "0");
@@ -494,7 +504,7 @@ void set_default_settings()
 	settings->setDefault("emergequeue_limit_total", "1024");
 	settings->setDefault("emergequeue_limit_diskonly", "128");
 	settings->setDefault("emergequeue_limit_generate", "128");
-	settings->setDefault("num_emerge_threads", "1");
+	settings->setDefault("num_emerge_threads", "0");
 	settings->setDefault("secure.enable_security", "true");
 	settings->setDefault("secure.trusted_mods", "");
 	settings->setDefault("secure.http_mods", "");

@@ -8,8 +8,6 @@
 #include "irrlichttypes.h"
 #include "threading/thread.h"
 #include "threading/mutex_auto_lock.h"
-#include "porting.h"
-#include "log.h"
 #include "container.h"
 
 template<typename T>
@@ -83,7 +81,7 @@ public:
 	}
 
 	Key key;
-	std::list<caller_info_type> callers;
+	std::vector<caller_info_type> callers;
 };
 
 /**

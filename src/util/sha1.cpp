@@ -24,9 +24,7 @@ SOFTWARE.
 
 */
 
-#include <cstdio>
 #include <cstring>
-#include <cstdlib>
 #include <cassert>
 
 #define IN_SHA1_CPP

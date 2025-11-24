@@ -1176,6 +1176,8 @@ void COpenGL3DriverBase::setRenderStates3DMode()
 		if (static_cast<u32>(Material.MaterialType) < MaterialRenderers.size())
 			MaterialRenderers[Material.MaterialType].Renderer->OnSetMaterial(
 					Material, LastMaterial, ResetRenderStates, this);
+		else
+			os::Printer::log("Attempt to render with invalid material", ELL_WARNING);
 
 		LastMaterial = Material;
 		CacheHandler->correctCacheMaterial(LastMaterial);

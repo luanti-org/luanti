@@ -242,7 +242,7 @@ namespace gui
 	};
 
 	//! Class representing a TrueType font.
-	class CGUITTFont : public IGUIFont
+	class CGUITTFont final : public IGUIFont
 	{
 		public:
 			//! Creates a new TrueType font and returns a pointer to it.  The pointer must be drop()'ed when finished.

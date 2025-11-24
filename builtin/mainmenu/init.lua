@@ -28,6 +28,7 @@ dofile(menupath .. DIR_DELIM .. "content" .. DIR_DELIM .. "init.lua")
 
 dofile(menupath .. DIR_DELIM .. "dlg_config_world.lua")
 dofile(basepath .. "common" .. DIR_DELIM .. "settings" .. DIR_DELIM .. "init.lua")
+dofile(menupath .. DIR_DELIM .. "dlg_confirm_exit.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_create_world.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_delete_content.lua")
 dofile(menupath .. DIR_DELIM .. "dlg_delete_world.lua")
@@ -49,7 +50,16 @@ local tabs = {
 --------------------------------------------------------------------------------
 local function main_event_handler(tabview, event)
 	if event == "MenuQuit" then
-		core.close()
+		local show_dialog = core.settings:get_bool("enable_esc_dialog")
+		if not ui.childlist["mainmenu_quit_confirm"] and show_dialog then
+			tabview:hide()
+			local dlg = create_exit_dialog()
+			dlg:set_parent(tabview)
+			dlg:show()
+		else
+			core.close()
+		end
+		return true
 	end
 	return true
 end

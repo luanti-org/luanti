@@ -38,16 +38,6 @@ IImageWriter *createImageWriterJPG();
 //! creates a writer which is able to save png images
 IImageWriter *createImageWriterPNG();
 
-namespace
-{
-//! no-op material renderer
-class CDummyMaterialRenderer : public IMaterialRenderer
-{
-public:
-	CDummyMaterialRenderer() {}
-};
-}
-
 //! constructor
 CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &screenSize) :
 		SharedRenderTarget(0), CurrentRenderTarget(0), CurrentRenderTargetSize(0, 0), FileSystem(io), MeshManipulator(0),
@@ -1505,7 +1495,7 @@ void CNullDriver::deleteShaderMaterial(s32 material)
 	auto &ref = MaterialRenderers[idx];
 	if (ref.Renderer)
 		ref.Renderer->drop();
-	ref.Renderer = new CDummyMaterialRenderer();
+	ref.Renderer = new IMaterialRenderer();
 	ref.Name.clear();
 }
 

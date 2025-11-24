@@ -10,11 +10,6 @@
 
 class EventManager : public MtEventManager
 {
-	static void receiverReceive(MtEvent *e, void *data)
-	{
-		MtEventReceiver *r = (MtEventReceiver *)data;
-		r->onEvent(e);
-	}
 	struct FuncSpec
 	{
 		event_receive_func f;

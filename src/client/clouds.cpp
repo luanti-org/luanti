@@ -6,7 +6,7 @@
 #include "client/shader.h"
 #include "clouds.h"
 #include "constants.h"
-#include "debug.h"
+#include "util/numeric.h"
 #include "irrlicht_changes/printing.h"
 #include "noise.h"
 #include "profiler.h"

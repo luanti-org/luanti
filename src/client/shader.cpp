@@ -3,8 +3,6 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 // Copyright (C) 2013 Kahrl <kahrl@gmx.net>
 
-#include <fstream>
-#include <iterator>
 #include "shader.h"
 #include "irr_ptr.h"
 #include "debug.h"
@@ -20,9 +18,7 @@
 #include "client/renderingengine.h"
 #include "gettext.h"
 #include "log.h"
-#include "gamedef.h"
 #include "client/tile.h"
-#include "config.h"
 
 #include <mt_opengl.h>
 
@@ -640,7 +636,7 @@ void ShaderSource::rebuildShaders()
 	for (ShaderInfo &i : m_shaderinfo_cache) {
 		if (!i.name.empty()) {
 			gpu->deleteShaderMaterial(i.material);
-			i.material = video::EMT_SOLID; // invalidate
+			i.material = video::EMT_INVALID;
 		}
 	}
 
@@ -696,6 +692,16 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 				shaders_header << "#version 100\n"
 					<< "#define CENTROID_\n";
 			}
+			// Precision is only meaningful on GLES
+			shaders_header << R"(
+				#ifdef GL_FRAGMENT_PRECISION_HIGH
+				precision highp float;
+				precision highp sampler2D;
+				#else
+				precision mediump float;
+				precision mediump sampler2D;
+				#endif
+			)";
 		} else {
 			assert(false);
 		}
@@ -708,8 +714,6 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 		// cf. EVertexAttributes.h for the predefined ones
 		vertex_header = R"(
-			precision mediump float;
-
 			uniform highp mat4 mWorldView;
 			uniform highp mat4 mWorldViewProj;
 			uniform mediump mat4 mTexture;
@@ -732,9 +736,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 		// normally expects, so we need to take that into account.
 		vertex_header += "#define inVertexColor (inVertexColor.bgra)\n";
 
-		fragment_header = R"(
-			precision mediump float;
-		)";
+		fragment_header = "";
 		if (use_glsl3) {
 			fragment_header += "#define VARYING_ in\n"
 				"#define gl_FragColor outFragColor\n"

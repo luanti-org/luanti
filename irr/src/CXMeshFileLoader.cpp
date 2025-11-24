@@ -4,7 +4,6 @@
 
 #include "CXMeshFileLoader.h"
 #include "SkinnedMesh.h"
-#include "Transform.h"
 #include "os.h"
 
 #include "fast_atof.h"
@@ -16,7 +15,6 @@
 #ifdef _DEBUG
 #define _XREADER_DEBUG
 #endif
-// #define BETTER_MESHBUFFER_SPLITTING_FOR_X
 
 #define SET_ERR_AND_RETURN() \
 	do {                     \
@@ -29,8 +27,17 @@ namespace scene
 
 //! Constructor
 CXMeshFileLoader::CXMeshFileLoader(scene::ISceneManager *smgr) :
-		AnimatedMesh(0), Buffer(0), P(0), End(0), BinaryNumCount(0), Line(0), ErrorState(false),
-		CurFrame(0), MajorVersion(0), MinorVersion(0), BinaryFormat(false), FloatSize(0)
+		Buffer(nullptr),
+		P(nullptr),
+		End(nullptr),
+		BinaryNumCount(0),
+		Line(0),
+		ErrorState(false),
+		CurFrame(nullptr),
+		MajorVersion(0),
+		MinorVersion(0),
+		BinaryFormat(false),
+		FloatSize(0)
 {}
 
 //! returns true if the file maybe is able to be loaded by this class
@@ -47,20 +54,17 @@ bool CXMeshFileLoader::isALoadableFileExtension(const io::path &filename) const
 IAnimatedMesh *CXMeshFileLoader::createMesh(io::IReadFile *file)
 {
 	if (!file)
-		return 0;
+		return nullptr;
 
 #ifdef _XREADER_DEBUG
 	u32 time = os::Timer::getRealTime();
 #endif
 
-	AnimatedMesh = new SkinnedMeshBuilder(SkinnedMesh::SourceFormat::X);
+	AnimatedMesh = SkinnedMeshBuilder(SkinnedMesh::SourceFormat::X);
 
 	SkinnedMesh *res = nullptr;
 	if (load(file)) {
-		res = AnimatedMesh->finalize();
-	} else {
-		AnimatedMesh->drop();
-		AnimatedMesh = 0;
+		res = std::move(AnimatedMesh).finalize();
 	}
 #ifdef _XREADER_DEBUG
 	time = os::Timer::getRealTime() - time;
@@ -71,7 +75,7 @@ IAnimatedMesh *CXMeshFileLoader::createMesh(io::IReadFile *file)
 	tmpString += "ms";
 	os::Printer::log(tmpString.c_str());
 #endif
-	// Clear up
+	// Clean up
 
 	MajorVersion = 0;
 	MinorVersion = 0;
@@ -111,17 +115,15 @@ bool CXMeshFileLoader::load(io::IReadFile *file)
 		u32 i;
 
 		mesh->Buffers.reallocate(mesh->Materials.size());
-#ifndef BETTER_MESHBUFFER_SPLITTING_FOR_X
-		const u32 bufferOffset = AnimatedMesh->getMeshBufferCount();
-#endif
+		const u32 bufferOffset = AnimatedMesh.getMeshBufferCount();
 		for (i = 0; i < mesh->Materials.size(); ++i) {
-			mesh->Buffers.push_back(AnimatedMesh->addMeshBuffer());
+			mesh->Buffers.push_back(AnimatedMesh.addMeshBuffer());
 			mesh->Buffers.getLast()->Material = mesh->Materials[i];
 
 			if (!mesh->HasSkinning) {
 				// Set up rigid animation
 				if (mesh->AttachedJointID != -1) {
-					AnimatedMesh->getAllJoints()[mesh->AttachedJointID]->AttachedMeshes.push_back(AnimatedMesh->getMeshBufferCount() - 1);
+					AnimatedMesh.getJoints()[mesh->AttachedJointID]->AttachedMeshes.push_back(AnimatedMesh.getMeshBufferCount() - 1);
 				}
 			}
 		}
@@ -140,192 +142,103 @@ bool CXMeshFileLoader::load(io::IReadFile *file)
 			}
 		}
 
-#ifdef BETTER_MESHBUFFER_SPLITTING_FOR_X
-		{
-			// the same vertex can be used in many different meshbuffers, but it's slow to work out
+		core::array<u32> verticesLinkIndex;
+		core::array<s16> verticesLinkBuffer;
+		verticesLinkBuffer.set_used(mesh->Vertices.size());
 
-			core::array<core::array<u32>> verticesLinkIndex;
-			verticesLinkIndex.reallocate(mesh->Vertices.size());
-			core::array<core::array<u16>> verticesLinkBuffer;
-			verticesLinkBuffer.reallocate(mesh->Vertices.size());
+		// init with 0
+		for (i = 0; i < mesh->Vertices.size(); ++i) {
+			// watch out for vertices which are not part of the mesh
+			// they will keep the -1 and can lead to out-of-bounds access
+			verticesLinkBuffer[i] = -1;
+		}
 
-			for (i = 0; i < mesh->Vertices.size(); ++i) {
-				verticesLinkIndex.push_back(core::array<u32>());
-				verticesLinkBuffer.push_back(core::array<u16>());
-			}
-
-			for (i = 0; i < mesh->FaceMaterialIndices.size(); ++i) {
-				for (u32 id = i * 3 + 0; id <= i * 3 + 2; ++id) {
-					core::array<u16> &Array = verticesLinkBuffer[mesh->Indices[id]];
-					bool found = false;
-
-					for (u32 j = 0; j < Array.size(); ++j) {
-						if (Array[j] == mesh->FaceMaterialIndices[i]) {
-							found = true;
-							break;
-						}
+		bool warned = false;
+		// store meshbuffer number per vertex
+		for (i = 0; i < mesh->FaceMaterialIndices.size(); ++i) {
+			for (u32 id = i * 3 + 0; id <= i * 3 + 2; ++id) {
+				if ((verticesLinkBuffer[mesh->Indices[id]] != -1) && (verticesLinkBuffer[mesh->Indices[id]] != (s16)mesh->FaceMaterialIndices[i])) {
+					if (!warned) {
+						os::Printer::log("X loader", "Duplicated vertex, animation might be corrupted.", ELL_WARNING);
+						warned = true;
 					}
-
-					if (!found)
-						Array.push_back(mesh->FaceMaterialIndices[i]);
+					const u32 tmp = mesh->Vertices.size();
+					mesh->Vertices.push_back(mesh->Vertices[mesh->Indices[id]]);
+					mesh->Indices[id] = tmp;
+					verticesLinkBuffer.set_used(mesh->Vertices.size());
 				}
+				verticesLinkBuffer[mesh->Indices[id]] = mesh->FaceMaterialIndices[i];
 			}
+		}
 
-			for (i = 0; i < verticesLinkBuffer.size(); ++i) {
-				if (!verticesLinkBuffer[i].size())
-					verticesLinkBuffer[i].push_back(0);
-			}
-
+		if (mesh->FaceMaterialIndices.size() != 0) {
+			// store vertices in buffers and remember relation in verticesLinkIndex
+			u32 *vCountArray = new u32[mesh->Buffers.size()];
+			memset(vCountArray, 0, mesh->Buffers.size() * sizeof(u32));
+			// count vertices in each buffer and reallocate
 			for (i = 0; i < mesh->Vertices.size(); ++i) {
-				core::array<u16> &Array = verticesLinkBuffer[i];
-				verticesLinkIndex[i].reallocate(Array.size());
-				for (u32 j = 0; j < Array.size(); ++j) {
-					scene::SSkinMeshBuffer *buffer = mesh->Buffers[Array[j]];
-					verticesLinkIndex[i].push_back(buffer->Vertices_Standard.size());
-					buffer->Vertices_Standard.push_back(mesh->Vertices[i]);
+				if (verticesLinkBuffer[i] != -1)
+					++vCountArray[verticesLinkBuffer[i]];
+			}
+			if (mesh->TCoords2.size()) {
+				for (i = 0; i != mesh->Buffers.size(); ++i) {
+					mesh->Buffers[i]->Vertices_2TCoords->Data.reserve(vCountArray[i]);
+					mesh->Buffers[i]->VertexType = video::EVT_2TCOORDS;
+				}
+			} else {
+				for (i = 0; i != mesh->Buffers.size(); ++i)
+					mesh->Buffers[i]->Vertices_Standard->Data.reserve(vCountArray[i]);
+			}
+
+			verticesLinkIndex.set_used(mesh->Vertices.size());
+			// actually store vertices
+			for (i = 0; i < mesh->Vertices.size(); ++i) {
+				// if a vertex is missing for some reason, just skip it
+				if (verticesLinkBuffer[i] == -1)
+					continue;
+				scene::SSkinMeshBuffer *buffer = mesh->Buffers[verticesLinkBuffer[i]];
+
+				if (mesh->TCoords2.size()) {
+					verticesLinkIndex[i] = buffer->Vertices_2TCoords->getCount();
+					buffer->Vertices_2TCoords->Data.emplace_back(mesh->Vertices[i]);
+					// We have a problem with correct tcoord2 handling here
+					// crash fixed for now by checking the values
+					buffer->Vertices_2TCoords->Data.back().TCoords2 = (i < mesh->TCoords2.size()) ? mesh->TCoords2[i] : mesh->Vertices[i].TCoords;
+				} else {
+					verticesLinkIndex[i] = buffer->Vertices_Standard->getCount();
+					buffer->Vertices_Standard->Data.push_back(mesh->Vertices[i]);
 				}
 			}
 
+			// count indices per buffer and reallocate
+			memset(vCountArray, 0, mesh->Buffers.size() * sizeof(u32));
+			for (i = 0; i < mesh->FaceMaterialIndices.size(); ++i)
+				++vCountArray[mesh->FaceMaterialIndices[i]];
+			for (i = 0; i != mesh->Buffers.size(); ++i)
+				mesh->Buffers[i]->Indices->Data.reserve(vCountArray[i]);
+			delete[] vCountArray;
+			// create indices per buffer
 			for (i = 0; i < mesh->FaceMaterialIndices.size(); ++i) {
 				scene::SSkinMeshBuffer *buffer = mesh->Buffers[mesh->FaceMaterialIndices[i]];
-
-				for (u32 id = i * 3 + 0; id <= i * 3 + 2; ++id) {
-					core::array<u16> &Array = verticesLinkBuffer[mesh->Indices[id]];
-
-					for (u32 j = 0; j < Array.size(); ++j) {
-						if (Array[j] == mesh->FaceMaterialIndices[i])
-							buffer->Indices.push_back(verticesLinkIndex[mesh->Indices[id]][j]);
-					}
-				}
-			}
-
-			for (u32 j = 0; j < mesh->WeightJoint.size(); ++j) {
-				SkinnedMesh::SJoint *joint = AnimatedMesh->getAllJoints()[mesh->WeightJoint[j]];
-				SkinnedMesh::SWeight &weight = joint->Weights[mesh->WeightNum[j]];
-
-				u32 id = weight.vertex_id;
-
-				if (id >= verticesLinkIndex.size()) {
-					os::Printer::log("X loader: Weight id out of range", ELL_WARNING);
-					id = 0;
-					weight.strength = 0.f;
-				}
-
-				if (verticesLinkBuffer[id].size() == 1) {
-					weight.vertex_id = verticesLinkIndex[id][0];
-					weight.buffer_id = verticesLinkBuffer[id][0];
-				} else if (verticesLinkBuffer[id].size() != 0) {
-					for (u32 k = 1; k < verticesLinkBuffer[id].size(); ++k) {
-						SkinnedMesh::SWeight *WeightClone = AnimatedMesh->addWeight(joint);
-						WeightClone->strength = weight.strength;
-						WeightClone->vertex_id = verticesLinkIndex[id][k];
-						WeightClone->buffer_id = verticesLinkBuffer[id][k];
-					}
+				for (u32 id = i * 3 + 0; id != i * 3 + 3; ++id) {
+					buffer->Indices->Data.push_back(verticesLinkIndex[mesh->Indices[id]]);
 				}
 			}
 		}
-#else
-		{
-			core::array<u32> verticesLinkIndex;
-			core::array<s16> verticesLinkBuffer;
-			verticesLinkBuffer.set_used(mesh->Vertices.size());
 
-			// init with 0
-			for (i = 0; i < mesh->Vertices.size(); ++i) {
-				// watch out for vertices which are not part of the mesh
-				// they will keep the -1 and can lead to out-of-bounds access
-				verticesLinkBuffer[i] = -1;
+		for (const auto &weight : mesh->Weights) {
+			u32 id = weight.global_vertex_id;
+
+			if (id >= verticesLinkIndex.size()) {
+				os::Printer::log("X loader: Weight id out of range", ELL_WARNING);
+				continue;
 			}
 
-			bool warned = false;
-			// store meshbuffer number per vertex
-			for (i = 0; i < mesh->FaceMaterialIndices.size(); ++i) {
-				for (u32 id = i * 3 + 0; id <= i * 3 + 2; ++id) {
-					if ((verticesLinkBuffer[mesh->Indices[id]] != -1) && (verticesLinkBuffer[mesh->Indices[id]] != (s16)mesh->FaceMaterialIndices[i])) {
-						if (!warned) {
-							os::Printer::log("X loader", "Duplicated vertex, animation might be corrupted.", ELL_WARNING);
-							warned = true;
-						}
-						const u32 tmp = mesh->Vertices.size();
-						mesh->Vertices.push_back(mesh->Vertices[mesh->Indices[id]]);
-						mesh->Indices[id] = tmp;
-						verticesLinkBuffer.set_used(mesh->Vertices.size());
-					}
-					verticesLinkBuffer[mesh->Indices[id]] = mesh->FaceMaterialIndices[i];
-				}
-			}
-
-			if (mesh->FaceMaterialIndices.size() != 0) {
-				// store vertices in buffers and remember relation in verticesLinkIndex
-				u32 *vCountArray = new u32[mesh->Buffers.size()];
-				memset(vCountArray, 0, mesh->Buffers.size() * sizeof(u32));
-				// count vertices in each buffer and reallocate
-				for (i = 0; i < mesh->Vertices.size(); ++i) {
-					if (verticesLinkBuffer[i] != -1)
-						++vCountArray[verticesLinkBuffer[i]];
-				}
-				if (mesh->TCoords2.size()) {
-					for (i = 0; i != mesh->Buffers.size(); ++i) {
-						mesh->Buffers[i]->Vertices_2TCoords->Data.reserve(vCountArray[i]);
-						mesh->Buffers[i]->VertexType = video::EVT_2TCOORDS;
-					}
-				} else {
-					for (i = 0; i != mesh->Buffers.size(); ++i)
-						mesh->Buffers[i]->Vertices_Standard->Data.reserve(vCountArray[i]);
-				}
-
-				verticesLinkIndex.set_used(mesh->Vertices.size());
-				// actually store vertices
-				for (i = 0; i < mesh->Vertices.size(); ++i) {
-					// if a vertex is missing for some reason, just skip it
-					if (verticesLinkBuffer[i] == -1)
-						continue;
-					scene::SSkinMeshBuffer *buffer = mesh->Buffers[verticesLinkBuffer[i]];
-
-					if (mesh->TCoords2.size()) {
-						verticesLinkIndex[i] = buffer->Vertices_2TCoords->getCount();
-						buffer->Vertices_2TCoords->Data.emplace_back(mesh->Vertices[i]);
-						// We have a problem with correct tcoord2 handling here
-						// crash fixed for now by checking the values
-						buffer->Vertices_2TCoords->Data.back().TCoords2 = (i < mesh->TCoords2.size()) ? mesh->TCoords2[i] : mesh->Vertices[i].TCoords;
-					} else {
-						verticesLinkIndex[i] = buffer->Vertices_Standard->getCount();
-						buffer->Vertices_Standard->Data.push_back(mesh->Vertices[i]);
-					}
-				}
-
-				// count indices per buffer and reallocate
-				memset(vCountArray, 0, mesh->Buffers.size() * sizeof(u32));
-				for (i = 0; i < mesh->FaceMaterialIndices.size(); ++i)
-					++vCountArray[mesh->FaceMaterialIndices[i]];
-				for (i = 0; i != mesh->Buffers.size(); ++i)
-					mesh->Buffers[i]->Indices->Data.reserve(vCountArray[i]);
-				delete[] vCountArray;
-				// create indices per buffer
-				for (i = 0; i < mesh->FaceMaterialIndices.size(); ++i) {
-					scene::SSkinMeshBuffer *buffer = mesh->Buffers[mesh->FaceMaterialIndices[i]];
-					for (u32 id = i * 3 + 0; id != i * 3 + 3; ++id) {
-						buffer->Indices->Data.push_back(verticesLinkIndex[mesh->Indices[id]]);
-					}
-				}
-			}
-
-			for (u32 j = 0; j < mesh->WeightJoint.size(); ++j) {
-				SkinnedMesh::SWeight &weight = (AnimatedMesh->getAllJoints()[mesh->WeightJoint[j]]->Weights[mesh->WeightNum[j]]);
-
-				u32 id = weight.vertex_id;
-
-				if (id >= verticesLinkIndex.size()) {
-					os::Printer::log("X loader: Weight id out of range", ELL_WARNING);
-					id = 0;
-					weight.strength = 0.f;
-				}
-
-				weight.vertex_id = verticesLinkIndex[id];
-				weight.buffer_id = verticesLinkBuffer[id] + bufferOffset;
-			}
+			u16 buf_id = verticesLinkBuffer[id] + bufferOffset;
+			u32 vert_id = verticesLinkIndex[id];
+			auto *joint = AnimatedMesh.getJoints()[weight.joint_id];
+			AnimatedMesh.addWeight(joint, buf_id, vert_id, weight.strength);
 		}
-#endif
 	}
 
 	return true;
@@ -508,10 +421,10 @@ bool CXMeshFileLoader::parseDataObjectFrame(SkinnedMesh::SJoint *Parent)
 	SkinnedMesh::SJoint *joint = 0;
 
 	if (name.size()) {
-		auto n = AnimatedMesh->getJointNumber(name.c_str());
+		auto n = AnimatedMesh.getJointNumber(name.c_str());
 		if (n.has_value()) {
 			JointID = *n;
-			joint = AnimatedMesh->getAllJoints()[JointID];
+			joint = AnimatedMesh.getJoints()[JointID];
 			joint->setParent(Parent);
 		}
 	}
@@ -520,9 +433,9 @@ bool CXMeshFileLoader::parseDataObjectFrame(SkinnedMesh::SJoint *Parent)
 #ifdef _XREADER_DEBUG
 		os::Printer::log("creating joint ", name.c_str(), ELL_DEBUG);
 #endif
-		joint = AnimatedMesh->addJoint(Parent);
+		joint = AnimatedMesh.addJoint(Parent);
 		joint->Name = name.c_str();
-		JointID = AnimatedMesh->getAllJoints().size() - 1;
+		JointID = AnimatedMesh.getJoints().size() - 1;
 	} else {
 #ifdef _XREADER_DEBUG
 		os::Printer::log("using joint ", name.c_str(), ELL_DEBUG);
@@ -940,45 +853,33 @@ bool CXMeshFileLoader::parseDataObjectSkinWeights(SXMesh &mesh)
 
 	mesh.HasSkinning = true;
 
-	auto n = AnimatedMesh->getJointNumber(TransformNodeName.c_str());
-	SkinnedMesh::SJoint *joint = n.has_value() ? AnimatedMesh->getAllJoints()[*n] : nullptr;
+	auto joint_id = AnimatedMesh.getJointNumber(TransformNodeName.c_str());
+	SkinnedMesh::SJoint *joint = joint_id.has_value() ? AnimatedMesh.getJoints()[*joint_id] : nullptr;
 
 	if (!joint) {
 #ifdef _XREADER_DEBUG
 		os::Printer::log("creating joint for skinning ", TransformNodeName.c_str(), ELL_DEBUG);
 #endif
-		n = AnimatedMesh->getAllJoints().size();
-		joint = AnimatedMesh->addJoint(0);
+		joint = AnimatedMesh.addJoint(nullptr);
 		joint->Name = TransformNodeName.c_str();
+		joint_id = joint->JointID;
 	}
 
-	// read vertex weights
+
 	const u32 nWeights = readInt();
 
-	// read vertex indices
-	u32 i;
+	mesh.Weights.reserve(mesh.Weights.size() + nWeights);
 
-	const u32 jointStart = joint->Weights.size();
-	joint->Weights.reserve(jointStart + nWeights);
+	std::vector<u32> vertex_ids;
+	vertex_ids.reserve(nWeights);
+	for (u32 i = 0; i < nWeights; ++i)
+		vertex_ids.push_back(readInt());
 
-	mesh.WeightJoint.reallocate(mesh.WeightJoint.size() + nWeights);
-	mesh.WeightNum.reallocate(mesh.WeightNum.size() + nWeights);
-
-	for (i = 0; i < nWeights; ++i) {
-		mesh.WeightJoint.push_back(*n);
-		mesh.WeightNum.push_back(joint->Weights.size()); // id of weight
-
-		// Note: This adds a weight to joint->Weights
-		SkinnedMesh::SWeight *weight = AnimatedMesh->addWeight(joint);
-
-		weight->buffer_id = 0;
-		weight->vertex_id = readInt();
+	for (u32 i = 0; i < nWeights; ++i) {
+		f32 strength = readFloat();
+		mesh.Weights.emplace_back(SXMesh::Weight{
+				(u16) *joint_id, vertex_ids[i], strength});
 	}
-
-	// read vertex weights
-
-	for (i = jointStart; i < jointStart + nWeights; ++i)
-		joint->Weights[i].strength = readFloat();
 
 	// read matrix offset
 
@@ -1320,7 +1221,7 @@ bool CXMeshFileLoader::parseDataObjectAnimationTicksPerSecond()
 		SET_ERR_AND_RETURN();
 	}
 
-	const u32 ticks = readInt();
+	static_cast<void>(readInt());
 
 	if (!checkForOneFollowingSemicolons()) {
 		os::Printer::log("No closing semicolon in AnimationTicksPerSecond in x file", ELL_WARNING);
@@ -1333,8 +1234,6 @@ bool CXMeshFileLoader::parseDataObjectAnimationTicksPerSecond()
 		os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 		SET_ERR_AND_RETURN();
 	}
-
-	AnimatedMesh->setAnimationSpeed(static_cast<f32>(ticks));
 
 	return true;
 }
@@ -1393,16 +1292,16 @@ bool CXMeshFileLoader::parseDataObjectAnimation()
 #ifdef _XREADER_DEBUG
 		os::Printer::log("frame name", FrameName.c_str(), ELL_DEBUG);
 #endif
-		auto n = AnimatedMesh->getJointNumber(FrameName.c_str());
+		auto joint_id = AnimatedMesh.getJointNumber(FrameName.c_str());
 
 		SkinnedMesh::SJoint *joint;
-		if (n.has_value()) {
-			joint = AnimatedMesh->getAllJoints()[*n];
+		if (joint_id.has_value()) {
+			joint = AnimatedMesh.getJoints()[*joint_id];
 		} else {
 #ifdef _XREADER_DEBUG
 			os::Printer::log("creating joint for animation ", FrameName.c_str(), ELL_DEBUG);
 #endif
-			joint = AnimatedMesh->addJoint(0);
+			joint = AnimatedMesh.addJoint();
 			joint->Name = FrameName.c_str();
 		}
 
@@ -1472,7 +1371,7 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
 
 			core::quaternion rotation(X, Y, Z, W);
 			rotation.normalize();
-			AnimatedMesh->addRotationKey(joint, time, rotation);
+			AnimatedMesh.addRotationKey(joint, time, rotation);
 		} break;
 		case 1: // scale
 		case 2: // position
@@ -1495,9 +1394,9 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
 			}
 
 			if (keyType == 2) {
-				AnimatedMesh->addPositionKey(joint, time, vector);
+				AnimatedMesh.addPositionKey(joint, time, vector);
 			} else {
-				AnimatedMesh->addScaleKey(joint, time, vector);
+				AnimatedMesh.addScaleKey(joint, time, vector);
 			}
 		} break;
 		case 3:
@@ -1522,8 +1421,8 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
 				os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 			}
 
-			AnimatedMesh->addRotationKey(joint, time, core::quaternion(mat.getTransposed()));
-			AnimatedMesh->addPositionKey(joint, time, mat.getTranslation());
+			AnimatedMesh.addRotationKey(joint, time, core::quaternion(mat.getTransposed()));
+			AnimatedMesh.addPositionKey(joint, time, mat.getTranslation());
 
 			/*
 							core::vector3df scale=mat.getScale();

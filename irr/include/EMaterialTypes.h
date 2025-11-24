@@ -10,7 +10,7 @@ namespace video
 {
 
 //! Abstracted and easy to use fixed function/programmable pipeline material modes.
-enum E_MATERIAL_TYPE
+enum E_MATERIAL_TYPE : u32
 {
 	//! Standard solid material.
 	/** Only first texture is used, which is supposed to be the
@@ -51,15 +51,15 @@ enum E_MATERIAL_TYPE
 	pack_textureBlendFunc (for 2D) or pack_textureBlendFuncSeparate (for 3D). */
 	EMT_ONETEXTURE_BLEND,
 
-	//! This value is not used. It only forces this enumeration to compile to 32 bit.
-	EMT_FORCE_32BIT = 0x7fffffff
+	//! Invalid value
+	EMT_INVALID = 0xffffffff,
 };
 
 //! Array holding the built in material type names
 const char *const sBuiltInMaterialTypeNames[] = {
 		"solid",
-		"trans_alphach",
-		"trans_alphach_ref",
+		"trans_alpha",
+		"trans_alpha_ref",
 		"trans_vertex_alpha",
 		"onetexture_blend",
 		0,

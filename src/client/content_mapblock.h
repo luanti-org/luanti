@@ -5,7 +5,7 @@
 #pragma once
 
 #include "nodedef.h"
-#include <bitset>
+#include "tile.h"
 
 struct MeshMakeData;
 struct MeshCollector;

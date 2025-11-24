@@ -17,7 +17,6 @@
 
 #include "debug.h"
 #include "exceptions.h"
-#include "settings.h"
 #include "remoteplayer.h"
 #include "server/player_sao.h"
 #include <cstdlib>

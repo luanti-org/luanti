@@ -70,8 +70,8 @@ struct DungeonParams {
 class DungeonGen {
 public:
 	MMVManip *vm = nullptr;
-	const NodeDefManager *ndef;
-	GenerateNotifier *gennotify;
+	const NodeDefManager *ndef = nullptr;
+	GenerateNotifier *gennotify = nullptr;
 
 	u32 blockseed;
 	PseudoRandom random;

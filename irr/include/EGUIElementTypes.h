@@ -55,6 +55,9 @@ enum EGUI_ELEMENT_TYPE
 	//! A tool bar (IGUIToolBar)
 	EGUIET_TOOL_BAR,
 
+	// (static_text.cpp in Luanti source)
+	EGUIET_ENRICHED_STATIC_TEXT,
+
 	//! Unknown type.
 	EGUIET_ELEMENT,
 

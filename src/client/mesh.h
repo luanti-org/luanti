@@ -4,14 +4,18 @@
 
 #pragma once
 
-#include "SColor.h"
-#include "SMaterialLayer.h"
-#include "nodedef.h"
+#include "irrlichttypes_bloated.h"
 
 namespace scene {
 	class IAnimatedMesh;
 	class IMesh;
 	class IMeshBuffer;
+	struct SMesh;
+}
+
+namespace video {
+	class SMaterialLayer;
+	class SColor;
 }
 
 

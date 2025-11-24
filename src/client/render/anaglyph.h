@@ -4,7 +4,6 @@
 // Copyright (C) 2017 numzero, Lobachevskiy Vitaliy <numzer0@yandex.ru>
 
 #pragma once
-#include "stereo.h"
 #include "pipeline.h"
 
 /**

@@ -5,16 +5,13 @@
 #include "lua_api/l_mainmenu.h"
 #include "lua_api/l_internal.h"
 #include "common/c_content.h"
-#include "cpp_api/s_async.h"
 #include "scripting_mainmenu.h"
 #include "gui/guiEngine.h"
 #include "gui/guiMainMenu.h"
 #include "gui/guiPathSelectMenu.h"
 #include "gui/touchscreeneditor.h"
-#include "version.h"
 #include "porting.h"
 #include "filesys.h"
-#include "convert_json.h"
 #include "content/content.h"
 #include "content/subgames.h"
 #include "mapgen/mapgen.h"
@@ -25,7 +22,6 @@
 #include "client/texturepaths.h"
 #include "network/networkprotocol.h"
 #include "content/mod_configuration.h"
-#include "threading/mutex_auto_lock.h"
 #include "common/c_converter.h"
 #include "gui/guiOpenURL.h"
 #include "gettext.h"
@@ -422,6 +418,34 @@ int ModApiMainMenu::l_get_content_info(lua_State *L)
 		lua_setfield(L, -2, "optional_depends");
 	}
 
+	return 1;
+}
+
+/******************************************************************************/
+int ModApiMainMenu::l_get_mod_list(lua_State *L)
+{
+	std::string path = luaL_checkstring(L, 1);
+	std::string virtual_path = luaL_checkstring(L, 2);
+
+	CHECK_SECURE_PATH(L, path.c_str(), false)
+
+	std::vector<ModSpec> mods_flat = flattenMods(getModsInPath(path, virtual_path), false);
+	int i = 0;
+	lua_createtable(L, mods_flat.size(), 0);
+	for (const ModSpec &spec : mods_flat) {
+		push_mod_spec(L, spec, false);
+
+		lua_pushboolean(L, spec.is_name_explicit);
+		lua_setfield(L, -2, "is_name_explicit");
+
+		lua_pushboolean(L, spec.is_modpack);
+		lua_setfield(L, -2, "is_modpack");
+
+		lua_pushinteger(L, spec.modpack_depth);
+		lua_setfield(L, -2, "modpack_depth");
+
+		lua_rawseti(L, -2, ++i); // assign to return table
+	}
 	return 1;
 }
 
@@ -1049,6 +1073,7 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(get_worlds);
 	API_FCT(get_games);
 	API_FCT(get_content_info);
+	API_FCT(get_mod_list);
 	API_FCT(check_mod_configuration);
 	API_FCT(get_content_translation);
 	API_FCT(start);

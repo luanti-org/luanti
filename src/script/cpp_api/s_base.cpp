@@ -10,9 +10,7 @@
 #include "common/c_converter.h"
 #include "server/player_sao.h"
 #include "filesys.h"
-#include "content/mods.h"
 #include "porting.h"
-#include "util/string.h"
 #include "server.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
@@ -31,8 +29,6 @@ extern "C" {
 #endif
 }
 
-#include <cstdio>
-#include <cstdarg>
 #include "script/common/c_content.h"
 #include <sstream>
 

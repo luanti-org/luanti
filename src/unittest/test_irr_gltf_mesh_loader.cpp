@@ -1,4 +1,4 @@
-// Minetest
+// Luanti
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #include "content/subgames.h"
@@ -13,6 +13,7 @@
 #include "IReadFile.h"
 #include "ISceneManager.h"
 #include "SkinnedMesh.h"
+#include "SSkinMeshBuffer.h"
 #include "irrlicht.h"
 
 #include "catch.h"
@@ -394,7 +395,7 @@ SECTION("simple skin")
 	const auto joints = csm->getAllJoints();
 	REQUIRE(joints.size() == 3);
 
-	const auto findJoint = [&](const std::function<bool(const SkinnedMesh::SJoint*)> &predicate) {
+	const auto find_joint = [&](const std::function<bool(const SkinnedMesh::SJoint*)> &predicate) {
 		for (const auto *joint : joints) {
 			if (predicate(joint)) {
 				return joint;
@@ -404,7 +405,7 @@ SECTION("simple skin")
 	};
 
 	// Check the node hierarchy
-	const auto child = findJoint([&](auto *joint) {
+	const auto child = find_joint([&](auto *joint) {
 		return !!joint->ParentJointID;
 	});
 	const auto *parent = joints.at(*child->ParentJointID);
@@ -430,46 +431,51 @@ SECTION("simple skin")
 		}
 	}
 
+	const auto weights = [&](const SkinnedMesh::SJoint *joint) {
+		// Find the mesh buffer and search the weights
+		const auto *buf = dynamic_cast<scene::SSkinMeshBuffer *>(mesh->getMeshBuffer(0));
+		REQUIRE(buf);
+		REQUIRE(buf->Weights.has_value());
+		std::vector<f32> weights(buf->getVertexCount(), 0.0f);
+		for (size_t i = 0; i < buf->getVertexCount(); ++i) {
+			const auto &joint_ids = buf->Weights->getJointIds(i);
+			const auto it = std::find(joint_ids.begin(), joint_ids.end(), joint->JointID);
+			if (it == joint_ids.end())
+				continue;
+			weights[i] = buf->Weights->getWeights(i)[std::distance(joint_ids.begin(), it)];
+		}
+		return weights;
+	};
+
 	SECTION("weights are correct")
 	{
-		const auto weights = [&](const SkinnedMesh::SJoint *joint) {
-			std::unordered_map<u32, f32> weights;
-			for (std::size_t i = 0; i < joint->Weights.size(); ++i) {
-				const auto weight = joint->Weights[i];
-				REQUIRE(weight.buffer_id == 0);
-				weights[weight.vertex_id] = weight.strength;
-			}
-			return weights;
-		};
-		const auto parentWeights = weights(parent);
-		const auto childWeights = weights(child);
+		const auto parent_weights = weights(parent);
+		const auto child_weights = weights(child);
 
-		const auto checkWeights = [&](u32 index, f32 parentWeight, f32 childWeight) {
-			const auto getWeight = [](auto weights, auto index) {
-				const auto it = weights.find(index);
-				return it == weights.end() ? 0.0f : it->second;
-			};
-			CHECK(getWeight(parentWeights, index) == parentWeight);
-			CHECK(getWeight(childWeights, index) == childWeight);
+		const auto check_weights = [&](u32 vert_idx, f32 parent_weight, f32 child_weight) {
+			CHECK(parent_weights[vert_idx] == parent_weight);
+			CHECK(child_weights[vert_idx] == child_weight);
 		};
-		checkWeights(0, 1.00, 0.00);
-		checkWeights(1, 1.00, 0.00);
-		checkWeights(2, 0.75, 0.25);
-		checkWeights(3, 0.75, 0.25);
-		checkWeights(4, 0.50, 0.50);
-		checkWeights(5, 0.50, 0.50);
-		checkWeights(6, 0.25, 0.75);
-		checkWeights(7, 0.25, 0.75);
-		checkWeights(8, 0.00, 1.00);
-		checkWeights(9, 0.00, 1.00);
+		check_weights(0, 1.00, 0.00);
+		check_weights(1, 1.00, 0.00);
+		check_weights(2, 0.75, 0.25);
+		check_weights(3, 0.75, 0.25);
+		check_weights(4, 0.50, 0.50);
+		check_weights(5, 0.50, 0.50);
+		check_weights(6, 0.25, 0.75);
+		check_weights(7, 0.25, 0.75);
+		check_weights(8, 0.00, 1.00);
+		check_weights(9, 0.00, 1.00);
 	}
 
 	SECTION("there should be a third node not involved in skinning")
 	{
-		const auto other = findJoint([&](auto joint) {
+		const auto other = find_joint([&](auto joint) {
 			return joint != child && joint != parent;
 		});
-		CHECK(other->Weights.empty());
+		const auto other_weights = weights(other);
+		CHECK(std::all_of(other_weights.begin(), other_weights.end(),
+				[](f32 weight) { return weight == 0.0f; }));
 	}
 }
 

@@ -78,18 +78,18 @@ public:
 	v3s16 full_node_max;
 	v3s16 central_area_size;
 
-	Noise *noise_terrain_base;
-	Noise *noise_terrain_higher;
-	Noise *noise_steepness;
-	Noise *noise_height_select;
-	Noise *noise_mud;
-	Noise *noise_beach;
-	Noise *noise_biome;
-	Noise *noise_humidity;
-	NoiseParams *np_cave;
-	NoiseParams *np_humidity;
-	NoiseParams *np_trees;
-	NoiseParams *np_apple_trees;
+	Noise *noise_terrain_base = nullptr;
+	Noise *noise_terrain_higher = nullptr;
+	Noise *noise_steepness = nullptr;
+	Noise *noise_height_select = nullptr;
+	Noise *noise_mud = nullptr;
+	Noise *noise_beach = nullptr;
+	Noise *noise_biome = nullptr;
+	Noise *noise_humidity = nullptr;
+	NoiseParams *np_cave = nullptr;
+	NoiseParams *np_humidity = nullptr;
+	NoiseParams *np_trees = nullptr;
+	NoiseParams *np_apple_trees = nullptr;
 
 	NoiseParams np_dungeons;
 

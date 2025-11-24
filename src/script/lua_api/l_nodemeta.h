@@ -4,10 +4,7 @@
 
 #pragma once
 
-#include "lua_api/l_base.h"
 #include "lua_api/l_metadata.h"
-#include "irrlichttypes_bloated.h"
-#include "nodemetadata.h"
 
 class ServerEnvironment;
 class NodeMetadata;

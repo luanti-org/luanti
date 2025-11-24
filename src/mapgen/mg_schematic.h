@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <map>
 #include "mg_decoration.h"
 #include "util/string.h"
 

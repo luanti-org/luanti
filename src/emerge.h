@@ -165,7 +165,6 @@ public:
 
 	void startThreads();
 	void stopThreads();
-	bool isRunning();
 
 	bool enqueueBlockEmerge(
 		session_t peer_id,
@@ -193,10 +192,14 @@ public:
 	static v3s16 getContainingChunk(v3s16 blockpos, v3s16 chunksize);
 
 private:
+	void initThreads(bool should_multithread);
+
 	std::vector<Mapgen *> m_mapgens;
 	std::vector<EmergeThread *> m_threads;
 	bool m_threads_active = false;
 
+	// Server reference
+	Server *m_server = nullptr;
 	// The map database
 	MapDatabaseAccessor *m_db = nullptr;
 

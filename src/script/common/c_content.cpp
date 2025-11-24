@@ -17,12 +17,17 @@
 #include "log.h"
 #include "tool.h"
 #include "noise.h"
+#include "porting.h" // strlcpy
 #include "server/player_sao.h"
 #include "util/pointedthing.h"
 #include "debug.h" // For FATAL_ERROR
 #include <SColor.h>
 #include <json/json.h>
 #include "mapgen/treegen.h"
+
+#if CHECK_CLIENT_BUILD()
+#include "client/node_visuals.h"
+#endif
 
 struct EnumString es_TileAnimationType[] =
 {
@@ -1079,8 +1084,10 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 		lua_setfield(L, -2, "mesh");
 	}
 #if CHECK_CLIENT_BUILD()
-	push_ARGB8(L, c.minimap_color);       // I know this is not set-able w/ register_node,
-	lua_setfield(L, -2, "minimap_color"); // but the people need to know!
+	if (c.visuals) {
+		push_ARGB8(L, c.visuals->minimap_color); // I know this is not set-able w/ register_node,
+		lua_setfield(L, -2, "minimap_color");    // but the people need to know!
+	}
 #endif
 	lua_pushnumber(L, c.visual_scale);
 	lua_setfield(L, -2, "visual_scale");
@@ -1093,8 +1100,12 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 		lua_pushstring(L, c.palette_name.c_str());
 		lua_setfield(L, -2, "palette_name");
 
-		push_palette(L, c.palette);
-		lua_setfield(L, -2, "palette");
+#if CHECK_CLIENT_BUILD()
+		if (c.visuals) {
+			push_palette(L, c.visuals->palette);
+			lua_setfield(L, -2, "palette");
+		}
+#endif
 	}
 	lua_pushnumber(L, c.waving);
 	lua_setfield(L, -2, "waving");
@@ -2643,11 +2654,13 @@ void push_mod_spec(lua_State *L, const ModSpec &spec, bool include_unsatisfied)
 	lua_pushstring(L, spec.virtual_path.c_str());
 	lua_setfield(L, -2, "virtual_path");
 
-	lua_newtable(L);
-	int i = 1;
-	for (const auto &dep : spec.unsatisfied_depends) {
-		lua_pushstring(L, dep.c_str());
-		lua_rawseti(L, -2, i++);
+	if (include_unsatisfied) {
+		lua_newtable(L);
+		int i = 1;
+		for (const auto &dep : spec.unsatisfied_depends) {
+			lua_pushstring(L, dep.c_str());
+			lua_rawseti(L, -2, i++);
+		}
+		lua_setfield(L, -2, "unsatisfied_depends");
 	}
-	lua_setfield(L, -2, "unsatisfied_depends");
 }

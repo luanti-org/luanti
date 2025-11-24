@@ -5,9 +5,7 @@
 #pragma once
 
 #include "irr_v3d.h"
-#include "noise.h" // for PcgRandom
 #include <map>
-#include <list>
 #include <vector>
 #include <istream>
 #include "util/container.h"
@@ -17,7 +15,6 @@
 #endif
 #if USE_SPATIAL
 	#include <spatialindex/SpatialIndex.h>
-	#include "util/serialize.h"
 #endif
 
 

@@ -167,9 +167,9 @@ protected:
 	//! KEY_LEFT / KEY_RIGHT inputs
 	void processKeyLR(const SEvent::SKeyInput &input, s32 &new_mark_begin,
 			s32 &new_mark_end);
-
-	bool onKeyUp(const SEvent &event, s32 &mark_begin, s32 &mark_end);
-	bool onKeyDown(const SEvent &event, s32 &mark_begin, s32 &mark_end);
+	//! Up, Down, Page Up, Page Down
+	bool onKeyUpDown(const SEvent::SKeyInput &input, s32 &mark_begin,
+			s32 &mark_end, u32 lines_max);
 	void onKeyControlC(const SEvent &event);
 	bool onKeyControlX(const SEvent &event, s32 &mark_begin, s32 &mark_end);
 	bool onKeyControlV(const SEvent &event, s32 &mark_begin, s32 &mark_end);

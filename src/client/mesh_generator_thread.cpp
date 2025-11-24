@@ -8,6 +8,7 @@
 #include "client.h"
 #include "camera.h"
 #include "mapblock.h"
+#include "mapblock_mesh.h"
 #include "map.h"
 #include "nodedef.h"
 #include "util/directiontables.h"

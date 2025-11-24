@@ -6,7 +6,6 @@
 #include "log.h"
 #include "util/hex.h"
 #include "util/string.h"
-#include "gettext.h"
 #include <unordered_map>
 
 

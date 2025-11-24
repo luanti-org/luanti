@@ -6,7 +6,6 @@
 
 #include <vector>
 #include "util/string.h"
-#include "config.h"
 
 // These can be used in place of "caller" in to specify special handling.
 // Discard result (used as default value of "caller").

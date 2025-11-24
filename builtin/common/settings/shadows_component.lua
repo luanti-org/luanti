@@ -34,9 +34,9 @@ local function detect_mapping_idx()
 
 	local shadow_map_max_distance = tonumber(core.settings:get("shadow_map_max_distance"))
 	local shadow_map_texture_size = tonumber(core.settings:get("shadow_map_texture_size"))
-	local shadow_map_texture_32bit = core.settings:get_bool("shadow_map_texture_32bit", false)
+	local shadow_map_texture_32bit = core.settings:get_bool("shadow_map_texture_32bit")
 	local shadow_filters = tonumber(core.settings:get("shadow_filters"))
-	local shadow_map_color = core.settings:get_bool("shadow_map_color", false)
+	local shadow_map_color = core.settings:get_bool("shadow_map_color")
 
 	for i = 2, 6 do
 		local preset = shadow_presets[i]
@@ -69,7 +69,7 @@ end
 return {
 	query_text = "Shadows",
 	requires = {
-		opengl = true,
+		shadows_support = true,
 	},
 	context = "client",
 	get_formspec = function(self, avail_w)
@@ -81,8 +81,14 @@ return {
 			table.remove(labels, PRESET_CUSTOM)
 		end
 
+		-- Don't show anything if shadows are disabled
+		-- Reason: there's a separate checkbox and users can't see the suggested default in the dropdown
+		if idx == PRESET_DISABLED then
+			return "", 0
+		end
+
 		local fs =
-			"label[0,0.2;" .. fgettext("Dynamic shadows") .. "]" ..
+			"label[0,0.2;" .. fgettext("Quality preset") .. "]" ..
 			"dropdown[0,0.4;3,0.8;dd_shadows;" .. table.concat(labels, ",") .. ";" .. idx .. ";true]" ..
 			"label[0,1.5;" .. core.colorize("#bbb", fgettext("(The game will need to enable shadows as well)")) .. "]"
 		return fs, 1.8

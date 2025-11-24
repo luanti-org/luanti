@@ -5,11 +5,7 @@
 
 #include "lua_api/l_metadata.h"
 #include "lua_api/l_internal.h"
-#include "common/c_content.h"
-#include "serverenvironment.h"
-#include "map.h"
-#include "server.h"
-#include "util/basic_macros.h"
+#include "metadata.h"
 #include "util/string.h"
 
 MetaDataRef *MetaDataRef::checkAnyMetadata(lua_State *L, int narg)

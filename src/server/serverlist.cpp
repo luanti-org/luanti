@@ -6,9 +6,7 @@
 #include "version.h"
 #include "settings.h"
 #include "serverlist.h"
-#include "filesys.h"
 #include "log.h"
-#include "network/networkprotocol.h"
 #include <json/json.h>
 #include "convert_json.h"
 #include "httpfetch.h"

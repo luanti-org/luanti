@@ -4,11 +4,9 @@
 
 #pragma once
 
-#include <ostream>
-#include <cstring>
-#include "address.h"
 #include "irrlichttypes.h"
-#include "networkexceptions.h"
+
+class Address;
 
 void sockets_init();
 void sockets_cleanup();

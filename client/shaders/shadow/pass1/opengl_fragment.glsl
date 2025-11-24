@@ -1,18 +1,22 @@
-// FIXME missing array texture handling
-uniform sampler2D ColorMapSampler;
-varying vec4 tPos;
-
-#ifdef GL_ES
-varying mediump vec2 varTexCoord;
+#ifdef USE_ARRAY_TEXTURE
+	uniform mediump sampler2DArray baseTexture;
 #else
-centroid varying vec2 varTexCoord;
+	uniform sampler2D baseTexture;
 #endif
+VARYING_ vec4 tPos;
+
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
+CENTROID_ VARYING_ float varTexLayer; // actually int
 
 void main()
 {
-	vec4 col = texture2D(ColorMapSampler, varTexCoord);
-	// FIXME: magic number???
-	if (col.a < 0.70)
+#ifdef USE_ARRAY_TEXTURE
+	vec4 base = texture(baseTexture, vec3(varTexCoord, varTexLayer)).rgba;
+#else
+	vec4 base = texture2D(baseTexture, varTexCoord).rgba;
+#endif
+	// (this totally ignores the node's alpha mode)
+	if (base.a < 0.70)
 		discard;
 
 	float depth = 0.5 + tPos.z * 0.5;
