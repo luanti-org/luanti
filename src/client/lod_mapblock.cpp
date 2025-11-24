@@ -372,8 +372,7 @@ void LodMeshGenerator::generateGreedyLod(const v3s16 seg_start, const v3s16 seg_
 			lp = computeMaxFaceLight(n, p, v3s16(0, 0, max_light_step));
 			key = NodeKey{node_type, lp};
 			set_solid_nodes[key][2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
-		}
-		else {
+		} else {
 			const LightPair lp = static_cast<LightPair>(getInteriorLight(n, 0, m_nodedef));
 
 			NodeKey key{node_type, lp};
