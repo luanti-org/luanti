@@ -996,7 +996,7 @@ u8 ctzll(const u64 in)
 		return 64;
 #if defined(__GNUC__)
 	return __builtin_ctzll(in);
-#elif
+#else
 	for (u8 out = 0; out < 64; out++) {
 		if ((in & (1ULL << out)) != 0)
 			return out;
