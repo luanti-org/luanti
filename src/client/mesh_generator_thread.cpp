@@ -248,7 +248,7 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	MeshUpdateWorkerThread
 */
 
-MeshUpdateWorkerThread::MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager, video::SMaterial mono_material) :
+MeshUpdateWorkerThread::MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager, const video::SMaterial mono_material) :
 		UpdateThread("Mesh"), m_client(client), m_queue_in(queue_in), m_manager(manager), m_mono_material(mono_material)
 {
 	m_generation_interval = g_settings->getU16("mesh_generation_interval");

@@ -16,6 +16,7 @@
 #include "client.h"
 #include "porting.h"
 #include "mesh.h"
+#include "node_visuals.h"
 
 #include "profiler.h"
 #include "SMesh.h"
@@ -63,9 +64,9 @@ void LodMeshGenerator::drawMeshNode(const v3s16 pos, const MapNode n, const Cont
 		degrotate = n.getDegRotate(m_nodedef);
 	}
 
-	if (f->mesh_ptr) {
+	if (f->visuals->mesh_ptr) {
 		// clone and rotate mesh
-		mesh = cloneStaticMesh(f->mesh_ptr);
+		mesh = cloneStaticMesh(f->visuals->mesh_ptr);
 		bool modified = true;
 		if (facedir)
 			rotateMeshBy6dFacedir(mesh, facedir);
@@ -124,7 +125,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 		getNodeTileN(n, m_blockpos_nodes, direction, m_data, tile);
 		if (m_is_textureless) {
 			// When generating a mesh with no texture, we have to color the vertices instead of relying on the texture.
-			video::SColor c2 = m_nodedef->get(n).average_colors[direction];
+			video::SColor c2 = m_nodedef->get(n).visuals->average_colors[direction];
 			video::SColor c3 = tile.layers[0].color;
 			color = video::SColor(
 				color_in.getAlpha(),

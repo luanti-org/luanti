@@ -6,6 +6,10 @@
 
 #include "nodedef.h"
 #include <bitset>
+#include <map>
+#include <unordered_map>
+
+#include "tile.h"
 
 struct MeshMakeData;
 struct MeshCollector;

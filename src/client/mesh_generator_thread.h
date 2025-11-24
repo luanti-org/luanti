@@ -13,6 +13,8 @@
 #include <vector>
 #include <memory>
 
+#include "SMaterial.h"
+
 class Map;
 class MapBlock;
 class MapBlockMesh;
