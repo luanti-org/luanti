@@ -865,7 +865,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 */
 
 u32 IShaderSource::getShader(const std::string &name,
-	MaterialType material_type, NodeDrawType drawtype, bool is_textureless, bool array_texture)
+	MaterialType material_type, NodeDrawType drawtype, bool array_texture, bool is_textureless)
 {
 	ShaderConstants input_const;
 	input_const["MATERIAL_TYPE"] = (int)material_type;
