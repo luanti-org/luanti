@@ -27,7 +27,7 @@ if core.is_singleplayer() then
 			myname = name,
 			me = me,
 			here = here,
-			branded = testtools.get_branded_object,
+			branded = testtools and testtools.get_branded_object,
 			print = function(...)
 				local t = {}
 				for i = 1, select("#", ...) do
