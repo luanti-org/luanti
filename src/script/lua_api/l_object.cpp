@@ -2673,48 +2673,62 @@ int ObjectRef::l_set_lighting(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	Lighting lighting;
+	if (lua_isnoneornil(L, 2))
+		return 0;
+	luaL_checktype(L, 2, LUA_TTABLE);
 
-	if (!lua_isnoneornil(L, 2)) {
-		luaL_checktype(L, 2, LUA_TTABLE);
-		lighting = player->getLighting();
-		lua_getfield(L, 2, "shadows");
-		if (lua_istable(L, -1)) {
-			getfloatfield(L, -1, "intensity", lighting.shadow_intensity);
-			lua_getfield(L, -1, "tint");
-			read_color(L, -1, &lighting.shadow_tint);
-			lua_pop(L, 1); // tint
+	Lighting lighting = player->getLighting();
+		
+	lua_getfield(L, 2, "shadows");
+	if (lua_istable(L, -1)) {
+		getfloatfield(L, -1, "intensity", lighting.shadow_intensity);
+		lua_getfield(L, -1, "tint");
+		read_color(L, -1, &lighting.shadow_tint);
+		lua_pop(L, 1); // tint
+	}
+	lua_pop(L, 1); // shadows
+
+	getfloatfield(L, -1, "saturation", lighting.saturation);
+
+	lua_getfield(L, 2, "exposure");
+	if (lua_istable(L, -1)) {
+		lighting.exposure.luminance_min       = getfloatfield_default(L, -1, "luminance_min",       lighting.exposure.luminance_min);
+		lighting.exposure.luminance_max       = getfloatfield_default(L, -1, "luminance_max",       lighting.exposure.luminance_max);
+		lighting.exposure.exposure_correction = getfloatfield_default(L, -1, "exposure_correction",      lighting.exposure.exposure_correction);
+		lighting.exposure.speed_dark_bright   = getfloatfield_default(L, -1, "speed_dark_bright",   lighting.exposure.speed_dark_bright);
+		lighting.exposure.speed_bright_dark   = getfloatfield_default(L, -1, "speed_bright_dark",   lighting.exposure.speed_bright_dark);
+		lighting.exposure.center_weight_power = getfloatfield_default(L, -1, "center_weight_power", lighting.exposure.center_weight_power);
+	}
+	lua_pop(L, 1); // exposure
+
+	lua_getfield(L, 2, "volumetric_light");
+	if (lua_istable(L, -1)) {
+		getfloatfield(L, -1, "strength", lighting.volumetric_light_strength);
+		lighting.volumetric_light_strength = rangelim(lighting.volumetric_light_strength, 0.0f, 1.0f);
+	}
+	lua_pop(L, 1); // volumetric_light
+
+	lua_getfield(L, 2, "bloom");
+	if (lua_istable(L, -1)) {
+		lighting.bloom_intensity       = getfloatfield_default(L, -1, "intensity",       lighting.bloom_intensity);
+		lighting.bloom_strength_factor = getfloatfield_default(L, -1, "strength_factor", lighting.bloom_strength_factor);
+		lighting.bloom_radius          = getfloatfield_default(L, -1, "radius",          lighting.bloom_radius);
+	}
+	lua_pop(L, 1); // bloom
+
+	lua_getfield(L, 2, "static");
+	if (lua_istable(L, -1)) {
+		lua_getfield(L, -1, "light_curve");
+		if (lua_toboolean(L, -1)) { // TODO
+			lighting.static_.light_curve_set = true;
+			const static u8 test[] = {8,11,14,18,22,29,37,47,60,76,97,123,157,200,255};
+			memcpy(lighting.static_.light_curve, test, 15);
+		} else {
+			lighting.static_.light_curve_set = false;
 		}
-		lua_pop(L, 1); // shadows
-
-		getfloatfield(L, -1, "saturation", lighting.saturation);
-
-		lua_getfield(L, 2, "exposure");
-		if (lua_istable(L, -1)) {
-			lighting.exposure.luminance_min       = getfloatfield_default(L, -1, "luminance_min",       lighting.exposure.luminance_min);
-			lighting.exposure.luminance_max       = getfloatfield_default(L, -1, "luminance_max",       lighting.exposure.luminance_max);
-			lighting.exposure.exposure_correction = getfloatfield_default(L, -1, "exposure_correction",      lighting.exposure.exposure_correction);
-			lighting.exposure.speed_dark_bright   = getfloatfield_default(L, -1, "speed_dark_bright",   lighting.exposure.speed_dark_bright);
-			lighting.exposure.speed_bright_dark   = getfloatfield_default(L, -1, "speed_bright_dark",   lighting.exposure.speed_bright_dark);
-			lighting.exposure.center_weight_power = getfloatfield_default(L, -1, "center_weight_power", lighting.exposure.center_weight_power);
-		}
-		lua_pop(L, 1); // exposure
-
-		lua_getfield(L, 2, "volumetric_light");
-		if (lua_istable(L, -1)) {
-			getfloatfield(L, -1, "strength", lighting.volumetric_light_strength);
-			lighting.volumetric_light_strength = rangelim(lighting.volumetric_light_strength, 0.0f, 1.0f);
-		}
-		lua_pop(L, 1); // volumetric_light
-
-		lua_getfield(L, 2, "bloom");
-		if (lua_istable(L, -1)) {
-			lighting.bloom_intensity       = getfloatfield_default(L, -1, "intensity",       lighting.bloom_intensity);
-			lighting.bloom_strength_factor = getfloatfield_default(L, -1, "strength_factor", lighting.bloom_strength_factor);
-			lighting.bloom_radius          = getfloatfield_default(L, -1, "radius",          lighting.bloom_radius);
-		}
-		lua_pop(L, 1); // bloom
-}
+		lua_pop(L, 1); // light_curve
+	}
+	lua_pop(L, 1); // static
 
 	getServer(L)->setLighting(player, lighting);
 	return 0;
@@ -2740,6 +2754,7 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	lua_setfield(L, -2, "shadows");
 	lua_pushnumber(L, lighting.saturation);
 	lua_setfield(L, -2, "saturation");
+
 	lua_newtable(L); // "exposure"
 	lua_pushnumber(L, lighting.exposure.luminance_min);
 	lua_setfield(L, -2, "luminance_min");
@@ -2754,10 +2769,12 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	lua_pushnumber(L, lighting.exposure.center_weight_power);
 	lua_setfield(L, -2, "center_weight_power");
 	lua_setfield(L, -2, "exposure");
+
 	lua_newtable(L); // "volumetric_light"
 	lua_pushnumber(L, lighting.volumetric_light_strength);
 	lua_setfield(L, -2, "strength");
 	lua_setfield(L, -2, "volumetric_light");
+
 	lua_newtable(L); // "bloom"
 	lua_pushnumber(L, lighting.bloom_intensity);
 	lua_setfield(L, -2, "intensity");
@@ -2766,6 +2783,20 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	lua_pushnumber(L, lighting.bloom_radius);
 	lua_setfield(L, -2, "radius");
 	lua_setfield(L, -2, "bloom");
+
+	const auto &s = lighting.static_;
+	lua_newtable(L); // "static"
+	if (s.light_curve_set) {
+		lua_newtable(L);
+		u32 i = 0;
+		for (u8 n : s.light_curve) {
+			lua_pushinteger(L, n);
+			lua_rawseti(L, -2, ++i);
+		}
+		lua_setfield(L, -2, "light_curve");
+	}
+	lua_setfield(L, -2, "static");
+
 	return 1;
 }
 

@@ -795,7 +795,7 @@ bool Client::updateStaticLighting(const StaticLighting &future)
 	if (current == future)
 		return false;
 	current = future;
-	TimeTaker tt("Client::updateStaticLighting", nullptr, PRECISION_MICRO);
+	infostream << "Static lighting params changed" << std::endl;
 
 	float gamma = g_settings->getFloat("display_gamma");
 	if (current.light_curve_set) {

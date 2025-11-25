@@ -810,7 +810,7 @@ void ClientMap::getBlocksWithMeshes(std::map<u32, std::vector<v3s16>> &out)
 
 			if (block->mesh) {
 				float d_float = cam_pos_nodes.getDistanceFromSQ(block->getPosRelative());
-				u32 d = std::min(d_float, static_cast<float>(U32_MAX));
+				u32 d = d_float;
 				out[d].push_back(block->getPos());
 			}
 		}
