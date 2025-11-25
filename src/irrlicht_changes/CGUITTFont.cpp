@@ -33,7 +33,6 @@
 
 #include "CGUITTFont.h"
 
-#include "irr_ptr.h"
 #include "log.h"
 #include "debug.h"
 #include "IGUIEnvironment.h"
@@ -445,6 +444,12 @@ CGUITTGlyphPage* CGUITTFont::createGlyphPage(const u8 pixel_mode)
 	return page;
 }
 
+void CGUITTFont::setFallback(gui::IGUIFont *font)
+{
+	sanity_check(font != this);
+	fallback.grab(font);
+}
+
 void CGUITTFont::setMonochrome(const bool flag)
 {
 	use_monochrome = flag;
@@ -703,7 +708,7 @@ inline u32 CGUITTFont::getWidthFromCharacter(char32_t c) const
 		int w = Glyphs[n-1].advance.X / 64;
 		return w;
 	}
-	if (fallback != 0)
+	if (fallback)
 	{
 		wchar_t s[] = { (wchar_t) c, 0 };
 		return fallback->getDimension(s).Width;
@@ -723,7 +728,7 @@ inline u32 CGUITTFont::getHeightFromCharacter(char32_t c) const
 		s32 height = (font_metrics.ascender / 64) - Glyphs[n-1].offset.Y + Glyphs[n-1].source_rect.getHeight();
 		return height;
 	}
-	if (fallback != 0)
+	if (fallback)
 	{
 		wchar_t s[] = { (wchar_t) c, 0 };
 		return fallback->getDimension(s).Height;

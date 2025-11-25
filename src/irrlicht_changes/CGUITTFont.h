@@ -36,6 +36,7 @@
 #include <ft2build.h>
 #include <freetype/freetype.h>
 
+#include "irr_ptr.h"
 #include "IGUIEnvironment.h"
 #include "IGUIFont.h"
 #include "IVideoDriver.h"
@@ -266,7 +267,7 @@ namespace gui
 			u32 getLastGlyphPageIndex() const { return Glyph_Pages.size() - 1; }
 
 			//! Set font that should be used for glyphs not present in ours
-			void setFallback(gui::IGUIFont* font) { fallback = font; }
+			void setFallback(gui::IGUIFont *font);
 
 			inline s32 getAscender() const { return font_metrics.ascender; }
 
@@ -329,7 +330,7 @@ namespace gui
 			u32 shadow_offset = 0;
 			u32 shadow_alpha = 0;
 
-			gui::IGUIFont *fallback = nullptr;
+			irr_ptr<gui::IGUIFont> fallback;
 	};
 
 } // end namespace gui
