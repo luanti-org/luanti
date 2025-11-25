@@ -1810,11 +1810,15 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 {
 	Lighting& lighting = m_env.getLocalPlayer()->getLighting();
 
-	if (pkt->getRemainingBytes() >= 4)
-		*pkt >> lighting.shadow_intensity;
-	if (pkt->getRemainingBytes() >= 4)
-		*pkt >> lighting.saturation;
-	if (pkt->getRemainingBytes() >= 24) {
+	// Note: make sure to follow this pattern here to avoid
+	// inconsistencies and surprises in packet format.
+#define IF_DONE_RETURN if (pkt->getRemainingBytes() == 0) return
+
+	*pkt >> lighting.shadow_intensity;
+	IF_DONE_RETURN;
+	*pkt >> lighting.saturation;
+	IF_DONE_RETURN;
+	{
 		*pkt >> lighting.exposure.luminance_min
 				>> lighting.exposure.luminance_max
 				>> lighting.exposure.exposure_correction
@@ -1822,13 +1826,21 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 				>> lighting.exposure.speed_bright_dark
 				>> lighting.exposure.center_weight_power;
 	}
-	if (pkt->getRemainingBytes() >= 4)
-		*pkt >> lighting.volumetric_light_strength;
-	if (pkt->getRemainingBytes() >= 4)
-		*pkt >> lighting.shadow_tint;
-	if (pkt->getRemainingBytes() >= 12) {
+	IF_DONE_RETURN;
+	*pkt >> lighting.volumetric_light_strength;
+	IF_DONE_RETURN;
+	*pkt >> lighting.shadow_tint;
+	IF_DONE_RETURN;
+	{
 		*pkt >> lighting.bloom_intensity
 				>> lighting.bloom_strength_factor
 				>> lighting.bloom_radius;
 	}
+	IF_DONE_RETURN;
+	auto &s = lighting.static_;
+	*pkt >> s.light_curve_set;
+	if (s.light_curve_set)
+		pkt->readRawString(reinterpret_cast<char*>(s.light_curve), sizeof(s.light_curve));
+
+#undef IF_DONE_RETURN
 }

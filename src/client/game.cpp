@@ -611,8 +611,6 @@ void Game::run()
 
 	draw_times.reset();
 
-	set_light_curve(g_settings->getFloat("display_gamma"));
-
 	m_touch_simulate_aux1 = g_settings->getBool("fast_move")
 			&& client->checkPrivilege("fast");
 
