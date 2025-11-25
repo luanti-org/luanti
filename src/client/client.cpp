@@ -347,14 +347,7 @@ Client::~Client()
 
 	m_mesh_update_manager->stop();
 	m_mesh_update_manager->wait();
-
-	MeshUpdateResult r;
-	while (m_mesh_update_manager->getNextResult(r)) {
-		for (auto block : r.map_blocks)
-			if (block)
-				block->refDrop();
-		delete r.mesh;
-	}
+	m_mesh_update_manager->clearAllQueues(true);
 
 	// Delete detached inventories
 	for (auto &m_detached_inventorie : m_detached_inventories) {

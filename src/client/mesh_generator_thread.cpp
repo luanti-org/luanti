@@ -95,12 +95,7 @@ MeshUpdateQueue::MeshUpdateQueue(Client *client):
 
 MeshUpdateQueue::~MeshUpdateQueue()
 {
-	MutexAutoLock lock(m_mutex);
-
-	for (QueuedMeshUpdate *q : m_queue) {
-		q->dropBlocks();
-		delete q;
-	}
+	clear(true);
 }
 
 bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
@@ -174,7 +169,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 // Returns NULL if queue is empty
 QueuedMeshUpdate *MeshUpdateQueue::pop()
 {
-	QueuedMeshUpdate *result = NULL;
+	QueuedMeshUpdate *result = nullptr;
 	{
 		MutexAutoLock lock(m_mutex);
 
@@ -206,6 +201,24 @@ void MeshUpdateQueue::done(v3s16 pos)
 	m_inflight_blocks.erase(pos);
 }
 
+void MeshUpdateQueue::clear(bool finish)
+{
+	MutexAutoLock lock(m_mutex);
+	decltype(m_queue) new_queue;
+	for (auto *q : m_queue) {
+		// If we're in an active game session clearing updates that the
+		// server expects us to ack will cause problems.
+		if (q->ack_list.empty() || finish) {
+			m_urgents.erase(q->p);
+			m_inflight_blocks.erase(q->p);
+			q->dropBlocks();
+			delete q;
+		} else {
+			new_queue.push_back(q);
+		}
+	}
+	m_queue = std::move(new_queue);
+}
 
 void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 {
@@ -216,6 +229,7 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 
 	data->fillBlockDataBegin(q->p);
 
+	// NOTE: the "data race" mentioned by MapBlock::tryShrinkNodes() is right here
 	for (auto *block : q->map_blocks) {
 		if (block)
 			block->copyTo(data->m_vmanip);
@@ -334,6 +348,33 @@ bool MeshUpdateManager::getNextResult(MeshUpdateResult &r)
 	}
 
 	return false;
+}
+
+void MeshUpdateManager::clearAllQueues(bool finish)
+{
+	m_queue_in.clear(finish);
+
+	const auto &drop_result = [] (MeshUpdateResult &r) {
+		for (auto *block : r.map_blocks)
+			if (block)
+				block->refDrop();
+		delete r.mesh;
+	};
+	// Same problem as in MeshUpdateQueue::clear() here: we can't just blindly
+	// throw away results that the server expects to receive an ack for.
+	const auto &do_it = [&] (ResultQueue &queue) {
+		auto helper = m_queue_out_urgent.iterLocked();
+		for (auto it = helper.begin(); it != helper.end(); ) {
+			if (it->ack_list.empty() || finish) {
+				drop_result(*it);
+				it = helper.erase(it);
+			} else {
+				++it;
+			}
+		}
+	};
+	do_it(m_queue_out_urgent);
+	do_it(m_queue_out);
 }
 
 void MeshUpdateManager::deferUpdate()
