@@ -236,7 +236,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 }
 
 void LodMeshGenerator::processNodeGroup(const bitset (&all_set_nodes)[3 * BITSET_MAX * BITSET_MAX],
-		const std::unordered_map<NodeKey, bitset[3 * BITSET_MAX * BITSET_MAX]> &subset_nodes,
+		std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX * BITSET_MAX>> &subset_nodes,
 		std::map<content_t, MapNode> &node_types, const v3s16 seg_start, const u8 width)
 {
 	for (const auto& [node_key, nodes] : subset_nodes) {
@@ -320,8 +320,8 @@ void LodMeshGenerator::generateGreedyLod(const v3s16 seg_start, const v3s16 seg_
 	bitset all_set_transparent_nodes[3 * BITSET_MAX * BITSET_MAX] = {0};
 	std::map<content_t, MapNode> node_types;
 	// all nodes in this volume, on each of the 3 axes, grouped by type and brightness, for use in actual mesh generation
-	std::unordered_map<NodeKey, bitset[3 * BITSET_MAX * BITSET_MAX]> set_solid_nodes;
-	std::unordered_map<NodeKey, bitset[3 * BITSET_MAX * BITSET_MAX]> set_transparent_nodes;
+	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX * BITSET_MAX>> set_solid_nodes;
+	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX * BITSET_MAX>> set_transparent_nodes;
 
 	const v3s16 to = seg_start + seg_size;
 	const s16 max_light_step = std::min<s16>(MAP_BLOCKSIZE, width);

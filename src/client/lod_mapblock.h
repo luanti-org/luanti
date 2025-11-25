@@ -78,7 +78,7 @@ private:
 	void generateGreedyLod(v3s16 seg_start, v3s16 seg_size, u8 width);
 	void generateBitsetMesh(MapNode n, u8 width, v3s16 seg_start, video::SColor color_in);
 	void processNodeGroup(const bitset (&all_set_nodes)[3 * BITSET_MAX * BITSET_MAX],
-		const std::unordered_map<NodeKey, bitset[3 * BITSET_MAX * BITSET_MAX]> &subset_nodes,
+		std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX * BITSET_MAX>> &subset_nodes,
 		std::map<content_t, MapNode> &node_types, v3s16 seg_start,u8 width);
 	LightPair computeMaxFaceLight(MapNode n, v3s16 p, v3s16 dir) const;
 	void generateLodChunks(u8 width);
