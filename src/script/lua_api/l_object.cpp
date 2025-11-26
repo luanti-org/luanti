@@ -2673,12 +2673,15 @@ int ObjectRef::l_set_lighting(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	if (lua_isnoneornil(L, 2))
+	if (lua_isnoneornil(L, 2)) {
+		// reset to default
+		getServer(L)->setLighting(player, {});
 		return 0;
+	}
 	luaL_checktype(L, 2, LUA_TTABLE);
 
 	Lighting lighting = player->getLighting();
-		
+
 	lua_getfield(L, 2, "shadows");
 	if (lua_istable(L, -1)) {
 		getfloatfield(L, -1, "intensity", lighting.shadow_intensity);
@@ -2718,13 +2721,18 @@ int ObjectRef::l_set_lighting(lua_State *L)
 
 	lua_getfield(L, 2, "static");
 	if (lua_istable(L, -1)) {
+		auto &s = lighting.static_;
 		lua_getfield(L, -1, "light_curve");
-		if (lua_toboolean(L, -1)) { // TODO
-			lighting.static_.light_curve_set = true;
-			const static u8 test[] = {8,11,14,18,22,29,37,47,60,76,97,123,157,200,255};
-			memcpy(lighting.static_.light_curve, test, 15);
-		} else {
-			lighting.static_.light_curve_set = false;
+		if (lua_istable(L, -1)) {
+			bool any = false;
+			for (int i = 0; i < StaticLighting::LIGHT_CURVE_SIZE; i++) {
+				lua_rawgeti(L, -1, i + 1);
+				any |= !lua_isnoneornil(L, -1);
+				s.light_curve[i] = lua_tointeger(L, -1);
+				lua_pop(L, 1);
+			}
+			// empty table <=> unset
+			s.light_curve_set = any;
 		}
 		lua_pop(L, 1); // light_curve
 	}
@@ -2786,15 +2794,15 @@ int ObjectRef::l_get_lighting(lua_State *L)
 
 	const auto &s = lighting.static_;
 	lua_newtable(L); // "static"
+	lua_newtable(L);
 	if (s.light_curve_set) {
-		lua_newtable(L);
-		u32 i = 0;
+		int i = 0;
 		for (u8 n : s.light_curve) {
 			lua_pushinteger(L, n);
 			lua_rawseti(L, -2, ++i);
 		}
-		lua_setfield(L, -2, "light_curve");
 	}
+	lua_setfield(L, -2, "light_curve");
 	lua_setfield(L, -2, "static");
 
 	return 1;
