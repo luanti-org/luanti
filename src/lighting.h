@@ -48,7 +48,7 @@ struct AutoExposure
  */
 struct StaticLighting
 {
-	static constexpr int LIGHT_CURVE_SIZE = 15;
+	static constexpr int LIGHT_CURVE_SIZE = 16;
 
 	bool light_curve_set = false;
 	u8 light_curve[LIGHT_CURVE_SIZE];

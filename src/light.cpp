@@ -79,9 +79,9 @@ void set_light_table(u8 *data, float gamma)
 	gamma = rangelim(gamma, 0.33f, 3.0f);
 
 	// No restrictons on values here, API users were warned to set sane values
-	for (size_t i = 0; i < LIGHT_SUN; i++) {
+	for (size_t i = 0; i <= LIGHT_SUN; i++) {
 		float brightness = (float)data[i] / 255.0f;
-		brightness = powf(brightness, 1.0f / gamma);
+		brightness = std::pow(brightness, 1.0f / gamma);
 		light_LUT[i] = std::clamp<s32>(255.0f * brightness, 0, 255);
 	}
 }

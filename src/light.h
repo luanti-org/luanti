@@ -54,7 +54,7 @@ float decode_light_f(float light_f);
 void set_light_curve(float gamma);
 
 // Update light value table with a custom LUT
-void set_light_table(u8 data[LIGHT_SUN], float gamma);
+void set_light_table(u8 data[LIGHT_SUN+1], float gamma);
 
 #endif
 
