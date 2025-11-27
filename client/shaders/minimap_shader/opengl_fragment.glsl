@@ -1,4 +1,5 @@
 uniform sampler2D baseTexture;
+#define normalTexture texture1
 uniform sampler2D normalTexture;
 uniform vec3 yawVec;
 
