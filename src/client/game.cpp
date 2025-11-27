@@ -396,7 +396,6 @@ Game::Game() :
 Game::~Game()
 {
 	delete client;
-	soundmaker.reset();
 	sound_manager.reset();
 
 	delete server;
