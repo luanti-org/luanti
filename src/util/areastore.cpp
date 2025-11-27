@@ -178,8 +178,7 @@ bool VectorAreaStore::insertArea(Area *a)
 {
 	if (a->id == U32_MAX)
 		a->id = getNextId();
-	std::pair<AreaMap::iterator, bool> res =
-			areas_map.emplace(a->id, *a);
+	auto res = areas_map.emplace(a->id, *a);
 	if (!res.second)
 		// ID is not unique
 		return false;
