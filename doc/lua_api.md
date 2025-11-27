@@ -6044,7 +6044,8 @@ Logging
 -------
 
 * `core.debug(...)`
-    * Equivalent to `core.log(table.concat({...}, "\t"))`
+    * Calls `core.log` with all arguments converted to string and separated by tabs
+      (similar to `print`).
 * `core.log([level,] text)`
     * `level` is one of `"none"`, `"error"`, `"warning"`, `"action"`,
       `"info"`, or `"verbose"`.  Default is `"none"`.

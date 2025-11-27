@@ -110,7 +110,7 @@ void CMeshManipulator::recalculateNormals(scene::IMesh *mesh, bool smooth, bool 
 
 	if (mesh->getMeshType() == EAMT_SKINNED) {
 		auto *smesh = (SkinnedMesh *)mesh;
-		smesh->refreshJointCache();
+		smesh->updateStaticPose();
 	}
 }
 

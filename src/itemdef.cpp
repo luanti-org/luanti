@@ -466,22 +466,22 @@ public:
 		hand_def->name.clear();
 		hand_def->wield_image = "wieldhand.png";
 		hand_def->tool_capabilities = new ToolCapabilities;
-		m_item_definitions.insert(std::make_pair("", hand_def));
+		m_item_definitions.emplace("", hand_def);
 
 		ItemDefinition* unknown_def = new ItemDefinition;
 		unknown_def->type = ITEM_NODE;
 		unknown_def->name = "unknown";
-		m_item_definitions.insert(std::make_pair("unknown", unknown_def));
+		m_item_definitions.emplace("unknown", unknown_def);
 
 		ItemDefinition* air_def = new ItemDefinition;
 		air_def->type = ITEM_NODE;
 		air_def->name = "air";
-		m_item_definitions.insert(std::make_pair("air", air_def));
+		m_item_definitions.emplace("air", air_def);
 
 		ItemDefinition* ignore_def = new ItemDefinition;
 		ignore_def->type = ITEM_NODE;
 		ignore_def->name = "ignore";
-		m_item_definitions.insert(std::make_pair("ignore", ignore_def));
+		m_item_definitions.emplace("ignore", ignore_def);
 	}
 
 	virtual void registerItem(const ItemDefinition &def)
