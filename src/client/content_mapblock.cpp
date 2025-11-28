@@ -20,6 +20,8 @@
 #include <SMesh.h>
 #include <IMeshBuffer.h>
 
+#include "profiler.h"
+
 // Distance of light extrapolation (for oversized nodes)
 // After this distance, it gives up and considers light level constant
 #define SMOOTH_LIGHTING_OVERSIZE 1.0
@@ -1811,6 +1813,7 @@ void MapblockMeshGenerator::drawNode()
 void MapblockMeshGenerator::generate()
 {
 	ZoneScoped;
+	ScopeProfiler sp(g_profiler, "Client: Mesh Making Regular", SPT_AVG);
 
 	for (cur_node.p.Z = 0; cur_node.p.Z < data->m_side_length; cur_node.p.Z++)
 	for (cur_node.p.Y = 0; cur_node.p.Y < data->m_side_length; cur_node.p.Y++)

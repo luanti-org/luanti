@@ -31,6 +31,7 @@ struct NodeVisuals
 	bool backface_culling = true;
 	scene::SMesh *mesh_ptr = nullptr; // mesh in case of mesh node
 	video::SColor minimap_color;
+	video::SColor average_colors[Direction_END];
 	std::vector<video::SColor> *palette = nullptr;
 
 	// alpha stays in ContentFeatures due to compatibility code that is necessary,

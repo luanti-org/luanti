@@ -5,23 +5,31 @@ pkgs.mkShell {
   env.LANG = "C.UTF-8";
   env.LC_ALL = "C.UTF-8";
 
-  packages = [
-    pkgs.gcc
-    pkgs.cmake
-    pkgs.zlib
-    pkgs.zstd
-    pkgs.libjpeg
-    pkgs.libpng
-    pkgs.libGL
-    pkgs.luajit
-    pkgs.SDL2
-    pkgs.openal
-    pkgs.curl
-    pkgs.libvorbis
-    pkgs.libogg
-    pkgs.gettext
-    pkgs.gmp
-    pkgs.freetype
-    pkgs.sqlite
+  packages = with pkgs; [
+    gcc
+    cmake
+    zlib
+    zstd
+    libjpeg
+    libpng
+    libGL
+    luajit
+    SDL2
+    openal
+    curl
+    libvorbis
+    libogg
+    gettext
+    gmp
+    freetype
+    sqlite
+
+    mangohud
+    python313
+    python313Packages.fire
+    python313Packages.matplotlib
+    python313Packages.numpy
+    python313Packages.pandas
+    python313Packages.scipy
   ];
 }
