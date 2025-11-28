@@ -48,6 +48,8 @@ public:
 	SoundMaker(ISoundManager *sound, const NodeDefManager *ndef) :
 		m_sound(sound), m_ndef(ndef) {}
 
+	// NOTE if the SoundMaker got registered as a receiver,
+	// it must not be destructed before the event manager.
 	void registerReceiver(MtEventManager *mgr);
 
 	void update(f32 dtime, bool makes_footstep_sound, const SoundSpec &sound_footstep);
