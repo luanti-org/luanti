@@ -363,3 +363,10 @@ local function test_sandbox()
 	assert(debug.getinfo(function() end, "f").func ~= nil)
 end
 unittests.register("test_sandbox", test_sandbox)
+
+local function test_str_pack_unpack()
+	local fmt = "d"
+	assert(fmt:packsize() == 8)
+	assert(fmt:unpack(fmt:pack(42.3)) == 42.3)
+end
+unittests.register("test_str_pack_unpack", test_str_pack_unpack)

@@ -4228,6 +4228,11 @@ Helper functions
     * e.g. `"a,b":split","` returns `{"a","b"}`
 * `string:trim()`: returns the string without whitespace pre- and suffixes
     * e.g. `"\n \t\tfoo bar\t ":trim()` returns `"foo bar"`
+* Utilities for working with binary data:
+    * `string.pack(fmt, ...)`
+    * `string.unpack(fmt, s, [pos])`
+    * `string.packsize(fmt)`
+    * Backported from Lua 5.4, see https://www.lua.org/manual/5.4/manual.html#6.4.2
 * `core.wrap_text(str, limit, as_table)`: returns a string or table
     * Adds newlines to the string to keep it within the specified character
       limit
