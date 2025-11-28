@@ -40,7 +40,7 @@ jobs:
       matrix:
         bits: [32, 64]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install compiler
         run: |
           sudo dpkg --add-architecture i386
@@ -92,7 +92,7 @@ jobs:
 # Enable it, when working on the installer.
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Restore from cache and run vcpkg
         uses: lukka/run-vcpkg@v11
