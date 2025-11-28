@@ -8,11 +8,14 @@ set(util_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/colorize.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/directiontables.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/enriched_string.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/enum_string.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/guid.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/hashing.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/hotbar_source.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ieee_float.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/metricsbackend.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/numeric.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/png.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/pointedthing.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/pointabilities.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/quicktune.cpp
@@ -21,6 +24,4 @@ set(util_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/string.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/srp.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/timetaker.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/png.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/enum_string.cpp
 	PARENT_SCOPE)

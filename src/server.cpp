@@ -34,6 +34,7 @@
 #include "translation.h"
 #include "util/base64.h"
 #include "util/hashing.h"
+#include "util/hotbar_source.h"
 #include "util/hex.h"
 #include "util/serialize.h"
 #include "util/string.h"
@@ -3526,21 +3527,44 @@ bool Server::hudSetFlags(RemotePlayer *player, u32 flags, u32 mask)
 	return true;
 }
 
-bool Server::hudSetHotbarItemcount(RemotePlayer *player, s32 hotbar_itemcount)
+bool Server::hudSetHotbarItemcountLegacy(RemotePlayer *player, s32 hotbar_itemcount)
 {
 	if (!player)
 		return false;
 
-	if (hotbar_itemcount <= 0 || hotbar_itemcount > HUD_HOTBAR_ITEMCOUNT_MAX)
+	if (hotbar_itemcount <= 0 || hotbar_itemcount > HOTBAR_ITEMCOUNT_MAX)
 		return false;
 
-	if (player->getHotbarItemcount() == hotbar_itemcount)
-		return true;
+	InventoryList *mainlist = player->inventory.getList("main");
+	hotbar_itemcount = mainlist ? std::min<u32>(mainlist->getSize(), hotbar_itemcount) : 0;
 
-	player->setHotbarItemcount(hotbar_itemcount);
+	player->hotbar_source.setHotbarItemcountLegacy(hotbar_itemcount);
+
+	if (player->protocol_version < 48) {
+		std::ostringstream os(std::ios::binary);
+		writeS32(os, hotbar_itemcount);
+		SendHUDSetParam(player->getPeerId(), HUD_PARAM_HOTBAR_ITEMCOUNT, os.str());
+	} else {
+		std::ostringstream os(std::ios::binary);
+		player->hotbar_source.serialize(os);
+		SendHUDSetParam(player->getPeerId(), HUD_PARAM_HOTBAR_SOURCE, os.str());
+	}
+	return true;
+}
+
+bool Server::hudSetHotbarSource(RemotePlayer *player, const HotbarSource &source)
+{
+	if (!player)
+		return false;
+
+	if (source.getMaxLength() > HOTBAR_ITEMCOUNT_MAX)
+		return false;
+
+	player->setHotbarSource(source);
+
 	std::ostringstream os(std::ios::binary);
-	writeS32(os, hotbar_itemcount);
-	SendHUDSetParam(player->getPeerId(), HUD_PARAM_HOTBAR_ITEMCOUNT, os.str());
+	source.serialize(os);
+	SendHUDSetParam(player->getPeerId(), HUD_PARAM_HOTBAR_SOURCE, os.str());
 	return true;
 }
 

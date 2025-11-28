@@ -710,7 +710,7 @@ void TouchControls::resetHotbarRects()
 
 void TouchControls::registerHotbarRect(u16 index, const recti &rect)
 {
-	m_hotbar_rects[index] = rect;
+	m_hotbar_rects.emplace_back(index, rect);
 }
 
 void TouchControls::setVisible(bool visible)

@@ -7,6 +7,7 @@
 #include "irrlichttypes_bloated.h"
 #include "inventory.h"
 #include "util/basic_macros.h"
+#include "util/hotbar_source.h"
 #include <string>
 #include <string_view>
 
@@ -223,10 +224,7 @@ public:
 	void        clearHud();
 
 	u32 hud_flags;
-	s32 hud_hotbar_itemcount;
-
-	// Get actual usable number of hotbar items (clamped to size of "main" list)
-	u16 getMaxHotbarItemcount();
+	HotbarSource hotbar_source;
 
 protected:
 	std::string m_name;

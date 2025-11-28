@@ -67,7 +67,7 @@ Player::Player(const std::string &name, IItemDefManager *idef):
 		HUD_FLAG_MINIMAP_RADAR_VISIBLE | HUD_FLAG_BASIC_DEBUG   |
 		HUD_FLAG_CHAT_VISIBLE;
 
-	hud_hotbar_itemcount = HUD_HOTBAR_ITEMCOUNT_DEFAULT;
+	hotbar_source.addSource(HOTBAR_INVENTORY_LIST_DEFAULT, HOTBAR_ITEMCOUNT_DEFAULT, 0);
 }
 
 Player::~Player()
@@ -77,25 +77,27 @@ Player::~Player()
 
 void Player::setWieldIndex(u16 index)
 {
-	const InventoryList *mlist = inventory.getList("main");
-	m_wield_index = MYMIN(index, mlist ? mlist->getSize() : 0);
+	m_wield_index = std::min<u16>(index, hotbar_source.getMaxLength() - 1);
 }
 
 u16 Player::getWieldIndex()
 {
-	return std::min(m_wield_index, getMaxHotbarItemcount());
+	return std::min<u16>(m_wield_index, hotbar_source.getMaxLength() - 1);
 }
 
 ItemStack &Player::getWieldedItem(ItemStack *selected, ItemStack *hand) const
 {
 	assert(selected);
 
-	const InventoryList *mlist = inventory.getList("main"); // TODO: Make this generic
+	std::string list;
+	u16 index;
+	if (hotbar_source.getInventoryFromWieldIndex(m_wield_index, list, index)) {
+		const InventoryList *mlist = inventory.getList(list);
+		if (mlist && index < mlist->getSize())
+			*selected = mlist->getItem(index);
+	}
+
 	const InventoryList *hlist = inventory.getList("hand");
-
-	if (mlist && m_wield_index < mlist->getSize())
-		*selected = mlist->getItem(m_wield_index);
-
 	if (hand && hlist)
 		*hand = hlist->getItem(0);
 
@@ -141,12 +143,6 @@ void Player::clearHud()
 		delete hud.back();
 		hud.pop_back();
 	}
-}
-
-u16 Player::getMaxHotbarItemcount()
-{
-	InventoryList *mainlist = inventory.getList("main");
-	return mainlist ? std::min(mainlist->getSize(), (u32) hud_hotbar_itemcount) : 0;
 }
 
 void PlayerControl::setMovementFromKeys()

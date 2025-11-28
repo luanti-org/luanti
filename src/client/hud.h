@@ -62,7 +62,6 @@ public:
 	void disableBlockBounds();
 	void drawBlockBounds();
 
-	void drawHotbar(const v2s32 &pos, const v2f &offset, u16 direction, const v2f &align);
 	void resizeHotbar();
 	void drawCrosshair();
 	void drawSelectionMesh();
@@ -104,11 +103,21 @@ private:
 			const std::string &texture, const std::string& bgtexture,
 			s32 count, s32 maxcount, v2s32 offset, v2s32 size = v2s32());
 
-	void drawItems(v2s32 screen_pos, v2s32 screen_offset, s32 itemcount, v2f alignment,
-			s32 inv_offset, InventoryList *mainlist, u16 selectitem,
-			u16 direction, bool is_hotbar);
-
 	void drawItem(const ItemStack &item, const core::rect<s32> &rect, bool selected);
+	void drawItems(v2s32 pos, s32 inv_size, s32 inv_offset, InventoryList *mainlist,
+			u16 selectitem, u16 direction, bool is_hotbar = false,
+			u16 hotbar_touchcontrol_offset = 0);
+
+	v2s32 getInventoryPosOffset(u16 direction, s32 before, s32 remainder) const;
+	void getInventoryDimensions(v2s32 screen_pos, v2s32 screen_offset, s32 inv_length,
+			v2f alignment, u16 direction, v2s32 &pos, s32 &width, s32 &height) const;
+	void drawInventoryBackground(v2s32 pos, s32 width, s32 height);
+	void drawInventory(v2s32 screen_pos, v2f offset, s32 itemcount,
+			v2f alignment, InventoryList *mainlist, u16 selectitem, u16 direction);
+
+	void drawHotbar(v2s32 pos, v2f offset, u16 direction, const v2f &alignment,
+			s32 max_inv_length = 0, s32 inv_offset = 0);
+	void drawHotbarElement(v2s32 pos, HudElement *e);
 
 	void drawCompassTranslate(HudElement *e, video::ITexture *texture,
 			const core::rect<s32> &rect, int way);
