@@ -20,7 +20,7 @@
 #include "server.h"
 #include "serverenvironment.h"
 #include "settings.h"
-#include "hud.h"
+#include "hud_element.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 #include "server/serverinventorymgr.h"

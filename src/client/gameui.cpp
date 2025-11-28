@@ -14,7 +14,7 @@
 #include "client.h"
 #include "clientmap.h"
 #include "fontengine.h"
-#include "hud.h" // HUD_FLAG_*
+#include "hud_element.h" // HUD_FLAG_*
 #include "nodedef.h"
 #include "localplayer.h"
 #include "profiler.h"

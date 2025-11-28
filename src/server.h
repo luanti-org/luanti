@@ -6,7 +6,7 @@
 
 #include "irr_v3d.h"
 #include "map.h"
-#include "hud.h" // HudElementStat
+#include "hud_element.h" // HudElementStat
 #include "gamedef.h"
 #include "content/subgames.h"
 #include "network/peerhandler.h"

@@ -417,7 +417,7 @@ set(independent_SRCS
 	face_position_cache.cpp
 	gettext_plural_form.cpp
 	httpfetch.cpp
-	hud.cpp
+	hud_element.cpp
 	inventory.cpp
 	itemstackmetadata.cpp
 	log.cpp

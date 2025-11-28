@@ -11,7 +11,7 @@
 #include <CMeshBuffer.h>
 #include "irr_ptr.h"
 #include "irr_aabb3d.h"
-#include "../hud.h"
+#include "hud_element.h"
 
 class Client;
 class ITextureSource;
