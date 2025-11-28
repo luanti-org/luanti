@@ -304,7 +304,7 @@ private:
 	std::unique_ptr<ItemVisualsManager> m_item_visuals_manager;
 
 	std::unique_ptr<ISoundManager> sound_manager;
-	SoundMaker *soundmaker = nullptr;
+	std::unique_ptr<SoundMaker> soundmaker;
 
 	ChatBackend *chat_backend = nullptr;
 	CaptureLogOutput m_chat_log_buf;
