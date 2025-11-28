@@ -10,8 +10,8 @@
 
 void SoundMaker::playPlayerStep()
 {
-	if (m_player_step_timer <= 0 && m_player_step_sound.exists()) {
-		m_player_step_timer = 0.03;
+	if (m_player_step_timer <= 0.0f && m_player_step_sound.exists()) {
+		m_player_step_timer = 0.03f;
 		if (makes_footstep_sound)
 			m_sound->playSound(0, m_player_step_sound);
 	}
@@ -27,52 +27,52 @@ void SoundMaker::playPlayerJump()
 
 void SoundMaker::viewBobbingStep(MtEvent *e, void *data)
 {
-	SoundMaker *sm = (SoundMaker *)data;
+	SoundMaker *sm = static_cast<SoundMaker*>(data);
 	sm->playPlayerStep();
 }
 
 void SoundMaker::playerRegainGround(MtEvent *e, void *data)
 {
-	SoundMaker *sm = (SoundMaker *)data;
+	SoundMaker *sm = static_cast<SoundMaker*>(data);
 	sm->playPlayerStep();
 }
 
 void SoundMaker::playerJump(MtEvent *e, void *data)
 {
-	SoundMaker *sm = (SoundMaker *)data;
+	SoundMaker *sm = static_cast<SoundMaker*>(data);
 	sm->playPlayerJump();
 }
 
 void SoundMaker::cameraPunchLeft(MtEvent *e, void *data)
 {
-	SoundMaker *sm = (SoundMaker *)data;
+	SoundMaker *sm = static_cast<SoundMaker*>(data);
 	sm->m_sound->playSound(0, sm->m_player_leftpunch_sound);
 	sm->m_sound->playSound(0, sm->m_player_leftpunch_sound2);
 }
 
 void SoundMaker::cameraPunchRight(MtEvent *e, void *data)
 {
-	SoundMaker *sm = (SoundMaker *)data;
+	SoundMaker *sm = static_cast<SoundMaker*>(data);
 	sm->m_sound->playSound(0, sm->m_player_rightpunch_sound);
 }
 
 void SoundMaker::nodeDug(MtEvent *e, void *data)
 {
-	SoundMaker *sm = (SoundMaker *)data;
-	NodeDugEvent *nde = (NodeDugEvent *)e;
+	SoundMaker *sm = static_cast<SoundMaker*>(data);
+	NodeDugEvent *nde = static_cast<NodeDugEvent*>(e);
 	sm->m_sound->playSound(0, sm->m_ndef->get(nde->n).sound_dug);
 }
 
 void SoundMaker::playerDamage(MtEvent *e, void *data)
 {
-	SoundMaker *sm = (SoundMaker *)data;
-	sm->m_sound->playSound(0, SoundSpec("player_damage", 0.5));
+	SoundMaker *sm = static_cast<SoundMaker*>(data);
+	sm->m_sound->playSound(0, SoundSpec("player_damage", 0.5f));
 }
 
 void SoundMaker::playerFallingDamage(MtEvent *e, void *data)
 {
-	SoundMaker *sm = (SoundMaker *)data;
-	sm->m_sound->playSound(0, SoundSpec("player_falling_damage", 0.5));
+	SoundMaker *sm = static_cast<SoundMaker*>(data);
+	sm->m_sound->playSound(0, SoundSpec("player_falling_damage", 0.5f));
 }
 
 void SoundMaker::registerReceiver(MtEventManager *mgr)
