@@ -1,6 +1,6 @@
 // Luanti
 // SPDX-License-Identifier: LGPL-2.1-or-later
-// Copyright (C) 2025 cx384
+// Copyright (C) 2025 Luanti developers
 
 #include "../sound.h"
 
