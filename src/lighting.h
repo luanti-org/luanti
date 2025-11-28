@@ -3,6 +3,7 @@
 // Copyright (C) 2021 x2048, Dmitry Kostenko <codeforsmile@gmail.com>
 
 #pragma once
+#include "irrlichttypes.h"
 #include "SColor.h"
 
 
@@ -39,7 +40,27 @@ struct AutoExposure
 	{}
 };
 
-/** Describes ambient light settings for a player
+/*
+ * Describes the "static" lighting parameters for a player.
+ *
+ * The difference is that these are baked into the map block meshes and require
+ * more work to update.
+ */
+struct StaticLighting
+{
+	static constexpr int LIGHT_CURVE_SIZE = 16;
+
+	bool light_curve_set = false;
+	u8 light_curve[LIGHT_CURVE_SIZE];
+
+	bool operator==(const StaticLighting &other) const;
+	bool operator!=(const StaticLighting &other) const {
+		return !(*this == other);
+	}
+};
+
+/*
+ * Describes ambient light settings for a player
  */
 struct Lighting
 {
@@ -51,4 +72,6 @@ struct Lighting
 	float bloom_intensity {0.05f};
 	float bloom_strength_factor {1.0f};
 	float bloom_radius {1.0f};
+
+	StaticLighting static_;
 };

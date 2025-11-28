@@ -1985,11 +1985,9 @@ void Server::SendOverrideDayNightRatio(session_t peer_id, bool do_override,
 
 void Server::SendSetLighting(session_t peer_id, const Lighting &lighting)
 {
-	NetworkPacket pkt(TOCLIENT_SET_LIGHTING,
-			4, peer_id);
+	NetworkPacket pkt(TOCLIENT_SET_LIGHTING, 70, peer_id);
 
-	pkt << lighting.shadow_intensity;
-	pkt << lighting.saturation;
+	pkt << lighting.shadow_intensity << lighting.saturation;
 
 	pkt << lighting.exposure.luminance_min
 			<< lighting.exposure.luminance_max
@@ -2001,6 +1999,11 @@ void Server::SendSetLighting(session_t peer_id, const Lighting &lighting)
 	pkt << lighting.volumetric_light_strength << lighting.shadow_tint;
 	pkt << lighting.bloom_intensity << lighting.bloom_strength_factor <<
 			lighting.bloom_radius;
+
+	const auto &s = lighting.static_;
+	pkt << s.light_curve_set;
+	if (s.light_curve_set)
+		pkt.putRawString(reinterpret_cast<const char*>(s.light_curve), sizeof(s.light_curve));
 
 	Send(&pkt);
 }

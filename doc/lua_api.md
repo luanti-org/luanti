@@ -9096,6 +9096,7 @@ child will follow movement and rotation of that bone.
     * Returns `false` if nothing was sent (note that this can also mean that
       the client already has the block)
     * Resource intensive - use sparsely
+
 * `set_lighting(light_definition)`: sets lighting for the player
     * Passing no arguments resets lighting to its default values.
     * `light_definition` is a table with the following optional fields:
@@ -9117,7 +9118,7 @@ child will follow movement and rotation of that bone.
         * `intensity` sets the intensity of the shadows from 0 (no shadows, default) to 1 (blackness)
         * `tint` tints the shadows with the provided color, with RGB values ranging from 0 to 255.
           (default `{r=0, g=0, b=0}`)
-      * `exposure` is a table that controls automatic exposure.
+      * `exposure` is a table that controls automatic exposure
         The basic exposure factor equation is `e = 2^exposure_correction / clamp(luminance, 2^luminance_min, 2^luminance_max)`
         * This has no effect on clients who have the "Automatic Exposure" effect disabled.
         * `luminance_min` set the lower luminance boundary to use in the calculation (default: `-3.0`)
@@ -9141,13 +9142,20 @@ child will follow movement and rotation of that bone.
           spreads from the bright objects.
           * Recommended range: from 0.1 to 8.0, default: 1.0
         * The behavior of values outside the recommended range is unspecified.
-      * `volumetric_light`: is a table that controls volumetric light (a.k.a. "godrays")
+      * `volumetric_light` is a table that controls volumetric light (a.k.a. "godrays")
         * This has no effect on clients who have the "Volumetric Lighting" or "Bloom" effects disabled.
         * `strength`: sets the strength of the volumetric light effect from 0 (off, default) to 1 (strongest).
             * `0.2` is a reasonable standard value.
             * Currently, bloom `intensity` and `strength_factor` affect volumetric
               lighting `strength` and vice versa. This behavior is to be changed
               in the future, do not rely on it.
+      * `static` is a table that controls static world lighting
+        * (added in 5.15.0, no client setting requirements)
+        * Note that changing these parameters is an expensive operation for the client.
+        * `light_curve`: LUT that converts light values (0-15) to intensity on screen (0-255)
+          * table containing 16 numbers or an empty table to reset to the default
+          * The values should be monotonically increasing and the last value should
+            be 255. Otherwise there might be lighting bugs.
 
 * `get_lighting()`: returns the current state of lighting for the player.
     * Result is a table with the same fields as `light_definition` in `set_lighting`.
