@@ -29,7 +29,6 @@
 #include "gui/profilergraph.h"
 #include "localplayer.h"
 #include "minimap.h"
-#include "sound_maker.h"
 #include "network/networkexceptions.h"
 #include "nodedef.h"         // Needed for determining pointing to nodes
 #include "nodemetadata.h"
@@ -40,6 +39,7 @@
 #include "server.h"
 #include "settings.h"
 #include "shader.h"
+#include "sound_maker.h"
 #include "threading/lambda.h"
 #include "translation.h"
 #include "util/basic_macros.h"
