@@ -6221,7 +6221,7 @@ Call these functions only at load time!
       * Historically, the new HP value was clamped to [0, 65535] before
         calculating the HP change. This clamping has been removed as of
         version 5.10.0
-    * `reason`: a PlayerHPChangeReason table.
+    * `reason`: a `PlayerHPChangeReason` table.
     * `modifier`: when true, the function should return the actual `hp_change`.
        Note: modifiers only get a temporary `hp_change` that can be modified by later modifiers.
        Modifiers can return true as a second argument to stop the execution of further functions.
@@ -6969,7 +6969,7 @@ Formspec functions
         * `"VAL"`: not changed
 * `core.show_death_screen(player, reason)`
     * Called when the death screen should be shown.
-    * `player` is an ObjectRef, `reason` is a PlayerHPChangeReason table or nil.
+    * `player` is an ObjectRef, `reason` is a `PlayerHPChangeReason` table or nil.
     * By default, this shows a simple formspec with the option to respawn.
       Respawning is done via `ObjectRef:respawn`.
     * You can override this to show a custom death screen.
@@ -8478,7 +8478,7 @@ child will follow movement and rotation of that bone.
     * note: this is called `right_click` for historical reasons only
 * `get_hp()`: returns number of health points
 * `set_hp(hp, reason)`: set number of health points
-    * reason: A PlayerHPChangeReason table (optional)
+    * reason: A `PlayerHPChangeReason` table (optional)
     * Is limited to the range of 0 ... 65535 (2^16 - 1)
     * For players: HP are also limited by `hp_max` specified in object properties
 * `get_inventory()`: returns an `InvRef` for players, otherwise returns `nil`
@@ -11297,15 +11297,16 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
 }
 ```
 
-PlayerHPChangeReason table definition
--------------------------------------
+`PlayerHPChangeReason` table definition
+---------------------------------------
 
 The `PlayerHPChangeReason` table specifies a reason for player health changes.
 
-* The `type` field will have one of the following values:
-    * `set_hp`: A mod or the engine called `set_hp`, either without
-       giving a reason, or by setting `set_hp` as damage type
-       explicitly
+* The `type` field is for providing one of the possible damage types
+  supported natively by the engine. It will have one of the following values:
+    * `set_hp`: A mod, builtin or the engine called `set_hp`, either
+       without giving a damage type, or by setting `set_hp`
+       as damage type explicitly
     * `punch`: Was punched. `reason.object` will hold the puncher, or nil if none.
     * `fall`: Fall damage.
     * `node_damage`: `damage_per_second` from a neighboring node.
@@ -11314,9 +11315,12 @@ The `PlayerHPChangeReason` table specifies a reason for player health changes.
     * `drown`: Drowning damage from a node with the `drowning` field set.
                `reason.node` and `reason.node_pos` are same as for `node_damage`
     * `respawn`: HP restored by respawning.
-* The `detail` field may optionally be used to provide a more detailed reason
-    as a string. It's recommended to follow the `modname:detail` naming convention.
-    These detail names exist by default:
+* The `custom_type` field may optionally be used to provide a reason that is not
+    supported by the engine, as a string. It will be ignored by the engine,
+    but it can be used to communicate to other mods about custom damage types.
+    If provided, it must be a string. It's recommended to follow the
+    `modname:reason` naming convention.
+    These custom types exist by default:
     * `__builtin:item_eat`: HP change caused by `core.do_item_eat`
     * `__builtin:kill_command`: `/kill` command
 * The `from` field denotes the origin of the HP change:
