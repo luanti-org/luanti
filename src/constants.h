@@ -105,3 +105,7 @@
 // The intent is to ensure that the rendering doesn't turn terribly blurry
 // when filtering is enabled.
 #define TEXTURE_FILTER_MIN_SIZE 192U
+
+// Resolution of clocks that SSCSM has access to, in us.
+// Used as countermeasure against side-channel attacks.
+#define SSCSM_CLOCK_RESOLUTION_US 20
