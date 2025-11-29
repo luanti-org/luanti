@@ -11302,10 +11302,11 @@ PlayerHPChangeReason table definition
 
 The `PlayerHPChangeReason` table specifies a reason for player health changes.
 
-* The `type` field will have one of the following values:
-    * `set_hp`: A mod or the engine called `set_hp`, either without
-       giving a reason, or by setting `set_hp` as damage type
-       explicitly
+* The `type` field is for providing one of the possible damage types
+  supported natively by the engine. It will have one of the following values:
+    * `set_hp`: A mod, builtin or the engine called `set_hp`, either
+       without giving a damage type, or by setting `set_hp`
+       as damage type explicitly
     * `punch`: Was punched. `reason.object` will hold the puncher, or nil if none.
     * `fall`: Fall damage.
     * `node_damage`: `damage_per_second` from a neighboring node.
@@ -11314,9 +11315,12 @@ The `PlayerHPChangeReason` table specifies a reason for player health changes.
     * `drown`: Drowning damage from a node with the `drowning` field set.
                `reason.node` and `reason.node_pos` are same as for `node_damage`
     * `respawn`: HP restored by respawning.
-* The `detail` field may optionally be used to provide a more detailed reason
-    as a string. It's recommended to follow the `modname:detail` naming convention.
-    These detail names exist by default:
+* The `custom_type` field may optionally be used to provide a reason that is not
+    supported by the engine, as a string. It will be ignored by the engine,
+    but it can be used to communicate to other mods about custom damage types.
+    If provided, it must be a string. It's recommended to follow the
+    `modname:reason` naming convention.
+    These custom types exist by default:
     * `__builtin:item_eat`: HP change caused by `core.do_item_eat`
     * `__builtin:kill_command`: `/kill` command
 * The `from` field denotes the origin of the HP change:
