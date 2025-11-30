@@ -98,8 +98,8 @@ void SkinnedMesh::skinMesh(const std::vector<core::matrix4> &global_matrices)
 	}
 
 	for (auto *buffer : *SkinningBuffers) {
-		if (buffer->Weights)
-			buffer->Weights->skin(buffer->getVertexBuffer(), joint_transforms);
+		if (const auto *weights = buffer->getWeights())
+			weights->skin(buffer->getVertexBuffer(), joint_transforms);
 	}
 }
 
@@ -178,8 +178,8 @@ void SkinnedMesh::setDirty(E_BUFFER_TYPE buffer)
 void SkinnedMesh::updateStaticPose()
 {
 	for (auto *buf : LocalBuffers) {
-		if (buf->Weights)
-			buf->Weights->updateStaticPose(buf->getVertexBuffer());
+		if (auto *weights = buf->getWeights())
+			weights->updateStaticPose(buf->getVertexBuffer());
 	}
 }
 
@@ -187,8 +187,8 @@ void SkinnedMesh::resetAnimation()
 {
 	// copy from the cache to the mesh...
 	for (auto *buf : LocalBuffers) {
-		if (buf->Weights)
-			buf->Weights->resetToStatic(buf->getVertexBuffer());
+		if (auto *weights = buf->getWeights())
+			weights->resetToStatic(buf->getVertexBuffer());
 	}
 }
 
@@ -214,7 +214,7 @@ bool SkinnedMesh::checkForAnimation() const
 
 	// meshes with weights are animatable
 	for (auto *buf : LocalBuffers) {
-		if (buf->Weights) {
+		if (buf->getWeights()) {
 			return true;
 		}
 	}
@@ -248,8 +248,8 @@ void SkinnedMesh::calculateStaticBoundingBox()
 		auto *buf = LocalBuffers[mb];
 		animated.clear();
 		animated.resize(buf->getVertexCount(), false);
-		if (buf->Weights) {
-			for (u32 vert_id : buf->Weights->animated_vertices.value()) {
+		if (const auto *weights = buf->getWeights()) {
+			for (u32 vert_id : weights->animated_vertices.value()) {
 				animated[vert_id] = true;
 			}
 		}
@@ -272,7 +272,7 @@ void SkinnedMesh::calculateJointBoundingBoxes()
 {
 	std::vector<std::optional<core::aabbox3df>> joint_boxes(AllJoints.size());
 	for (auto *buf : LocalBuffers) {
-		const auto &weights = buf->Weights;
+		const auto *weights = buf->getWeights();
 		if (!weights)
 			continue;
 		for (u32 vert_id : weights->animated_vertices.value()) {
@@ -397,14 +397,17 @@ SkinnedMesh *SkinnedMeshBuilder::finalize() &&
 
 	for (const auto &weight : weights) {
 		auto *buf = mesh->LocalBuffers.at(weight.buffer_id);
-		if (!buf->Weights)
-			buf->Weights = WeightBuffer(buf->getVertexCount());
-		buf->Weights->addWeight(weight.vertex_id, weight.joint_id, weight.strength);
+		auto *weights = buf->getWeights();
+		if (!weights) {
+			buf->setWeights(WeightBuffer(buf->getVertexCount()));
+			weights = buf->getWeights();
+		}
+		weights->addWeight(weight.vertex_id, weight.joint_id, weight.strength);
 	}
 
 	for (auto *buffer : mesh->LocalBuffers) {
-		if (buffer->Weights)
-			buffer->Weights->finalize();
+		if (auto *weights = buffer->getWeights())
+			weights->finalize();
 	}
 	mesh->updateStaticPose();
 
