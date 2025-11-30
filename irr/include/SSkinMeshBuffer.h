@@ -220,12 +220,46 @@ public:
 	//! Call this after changing the positions of any vertex.
 	void boundingBoxNeedsRecalculated(void) { BoundingBoxNeedsRecalculated = true; }
 
+	WeightBuffer *getWeights()
+	{
+		switch (VertexType) {
+		case video::EVT_STANDARD:
+			return Vertices_Standard->Weights.get();
+		case video::EVT_2TCOORDS:
+			return Vertices_2TCoords->Weights.get();
+		case video::EVT_TANGENTS:
+			return Vertices_Tangents->Weights.get();
+		default:
+			IRR_CODE_UNREACHABLE();
+		}
+	}
+
+	void setWeights(WeightBuffer &&weights)
+	{
+		switch (VertexType) {
+		case video::EVT_STANDARD:
+			Vertices_Standard->Weights = std::make_unique<WeightBuffer>(std::move(weights));
+			break;
+		case video::EVT_2TCOORDS:
+			Vertices_2TCoords->Weights = std::make_unique<WeightBuffer>(std::move(weights));
+			break;
+		case video::EVT_TANGENTS:
+			Vertices_Tangents->Weights = std::make_unique<WeightBuffer>(std::move(weights));
+			break;
+		default:
+			IRR_CODE_UNREACHABLE();
+		}
+	}
+
+	const WeightBuffer *getWeights() const
+	{
+		return const_cast<SSkinMeshBuffer*>(this)->getWeights();
+	}
+
 	SVertexBufferTangents *Vertices_Tangents;
 	SVertexBufferLightMap *Vertices_2TCoords;
 	SVertexBuffer *Vertices_Standard;
 	SIndexBuffer *Indices;
-
-	std::optional<WeightBuffer> Weights;
 
 	core::matrix4 Transformation;
 

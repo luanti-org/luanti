@@ -4,8 +4,10 @@
 
 #pragma once
 
+#include <memory>
 #include <vector>
 #include "IVertexBuffer.h"
+#include "WeightBuffer.h"
 
 // Define to receive warnings when violating the hw mapping hints
 //#define VERTEXBUFFER_HINT_DEBUG
@@ -16,11 +18,11 @@
 
 namespace scene
 {
+
 //! Template implementation of the IVertexBuffer interface
 template <class T>
-class CVertexBuffer final : public IVertexBuffer
+struct CVertexBuffer final : public IVertexBuffer
 {
-public:
 	//! Default constructor for empty buffer
 	CVertexBuffer() {}
 
@@ -116,6 +118,9 @@ public:
 
 	//! Vertices of this buffer
 	std::vector<T> Data;
+
+	//! Optional weights for skinning
+	std::unique_ptr<WeightBuffer> Weights;
 };
 
 //! Standard buffer
