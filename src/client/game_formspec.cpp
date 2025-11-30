@@ -36,6 +36,11 @@ struct TextDestNodeMetadata : public TextDest
 	{
 		m_client->sendNodemetaFields(m_p, "", fields);
 	}
+	std::string getIdentifiableName()
+	{
+		MapNode n = m_client->getEnv().getClientMap().getNode(m_p);
+		return m_client->getNodeDefManager()->get(n).name + " (node)";
+	}
 
 	v3s16 m_p;
 	Client *m_client;
@@ -57,6 +62,13 @@ struct TextDestPlayerInventory : public TextDest
 	{
 		m_client->sendInventoryFields(m_formname, fields);
 	}
+	std::string getIdentifiableName()
+	{
+		if (m_formname.empty())
+			return "player inventory";
+		else
+			return m_formname + " (server)";
+	}
 
 	Client *m_client;
 };
@@ -72,6 +84,11 @@ struct LocalScriptingFormspecHandler : public TextDest
 	void gotText(const StringMap &fields)
 	{
 		m_script->on_formspec_input(m_formname, fields);
+	}
+
+	std::string getIdentifiableName()
+	{
+		return m_formname + " (local)";
 	}
 
 	ScriptApiClientCommon *m_script = nullptr;
@@ -114,6 +131,11 @@ struct HardcodedPauseFormspecHandler : public TextDest
 			return;
 		}
 	}
+
+	std::string getIdentifiableName()
+	{
+		return m_formname;
+	}
 };
 
 struct LegacyDeathFormspecHandler : public TextDest
@@ -128,6 +150,11 @@ struct LegacyDeathFormspecHandler : public TextDest
 	{
 		if (fields.find("quit") != fields.end())
 			m_client->sendRespawnLegacy();
+	}
+
+	std::string getIdentifiableName()
+	{
+		return m_formname;
 	}
 
 	Client *m_client = nullptr;

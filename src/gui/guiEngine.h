@@ -62,6 +62,11 @@ public:
 	 */
 	void gotText(const StringMap &fields);
 
+	std::string getIdentifiableName()
+	{
+		return "main menu";
+	}
+
 	/**
 	 * Request a screenshot from the main menu
 	 */

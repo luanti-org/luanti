@@ -28,6 +28,7 @@
 #include "gettext.h"
 #include "mainmenumanager.h"
 #include "porting.h"
+#include "script/common/c_deprecated.h"
 #include "settings.h"
 #include "client/client.h"
 #include "client/fontengine.h"
@@ -3328,6 +3329,8 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		// Only set previous form name if we purposefully showed a new formspec
 		m_last_formname = m_text_dst->m_formname;
 		m_is_form_regenerated = true;
+
+		logVersionDeprecation();
 	}
 }
 
@@ -3366,6 +3369,39 @@ void GUIFormSpecMenu::legacySortElements(std::list<IGUIElement *>::iterator from
 
 	// 3: Re-assign the pointers
 	reorderChildren(from, to, elements);
+}
+
+void GUIFormSpecMenu::logVersionDeprecation()
+{
+	if (m_formspec_version > 1)
+		return;
+
+	DeprecatedHandlingMode mode = get_deprecated_handling_mode();
+	LogStream *stream = nullptr;
+	switch (mode) {
+		case DeprecatedHandlingMode::Ignore:
+			break;
+		case DeprecatedHandlingMode::Error:
+			stream = &errorstream;
+			break;
+		case DeprecatedHandlingMode::Log:
+			stream = &warningstream;
+			break;
+	}
+	if (!stream)
+		return;
+
+	std::string name = m_text_dst->getIdentifiableName();
+	if (m_client) {
+		auto &known = m_client->warned_legacy_formspecs;
+		if (known.find(name) != known.end())
+			return; // already logged
+
+		known.insert(name);
+	} // else: main menu
+
+	*stream << fmtgettext("The formspec '%s' uses version %d, which is deprecated.",
+			name.c_str(), m_formspec_version) << std::endl;
 }
 
 #ifdef __ANDROID__
