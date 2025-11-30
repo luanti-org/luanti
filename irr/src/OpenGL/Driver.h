@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "IHWBuffer.h"
 #include "SIrrCreationParameters.h"
 #include "Common.h"
 #include "VBO.h"
@@ -44,23 +45,17 @@ public:
 
 	struct SHWBufferLink_opengl : public SHWBufferLink
 	{
-		SHWBufferLink_opengl(const scene::IVertexBuffer *vb) : SHWBufferLink(vb) {}
-		SHWBufferLink_opengl(const scene::IIndexBuffer *ib) : SHWBufferLink(ib) {}
+		SHWBufferLink_opengl(const scene::IHWBuffer *buf) : SHWBufferLink(buf) {}
 
 		OpenGLVBO Vbo;
 	};
 
-	bool updateVertexHardwareBuffer(SHWBufferLink_opengl *HWBuffer);
-	bool updateIndexHardwareBuffer(SHWBufferLink_opengl *HWBuffer);
+	bool _updateHardwareBuffer(SHWBufferLink_opengl *HWBuffer);
 
 	//! updates hardware buffer if needed
 	bool updateHardwareBuffer(SHWBufferLink *HWBuffer) override;
 
-	//! Create hardware buffer from vertex buffer
-	SHWBufferLink *createHardwareBuffer(const scene::IVertexBuffer *vb) override;
-
-	//! Create hardware buffer from index buffer
-	SHWBufferLink *createHardwareBuffer(const scene::IIndexBuffer *ib) override;
+	SHWBufferLink *createHardwareBuffer(const scene::IHWBuffer *buf) override;
 
 	//! Delete hardware buffer (only some drivers can)
 	void deleteHardwareBuffer(SHWBufferLink *HWBuffer) override;

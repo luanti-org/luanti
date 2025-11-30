@@ -9,13 +9,6 @@
 #include "IVertexBuffer.h"
 #include "WeightBuffer.h"
 
-// Define to receive warnings when violating the hw mapping hints
-//#define VERTEXBUFFER_HINT_DEBUG
-
-#ifdef VERTEXBUFFER_HINT_DEBUG
-#include "../src/os.h"
-#endif
-
 namespace scene
 {
 
@@ -44,6 +37,11 @@ struct CVertexBuffer final : public IVertexBuffer
 	video::E_VERTEX_TYPE getType() const override
 	{
 		return T::getType();
+	}
+
+	size_t getElementSize() const override
+	{
+		return sizeof(T);
 	}
 
 	const core::vector3df &getPosition(u32 i) const override
@@ -75,46 +73,6 @@ struct CVertexBuffer final : public IVertexBuffer
 	{
 		return Data[i].TCoords;
 	}
-
-	E_HARDWARE_MAPPING getHardwareMappingHint() const override
-	{
-		return MappingHint;
-	}
-
-	void setHardwareMappingHint(E_HARDWARE_MAPPING NewMappingHint) override
-	{
-		MappingHint = NewMappingHint;
-	}
-
-	void setDirty() override
-	{
-		++ChangedID;
-#ifdef VERTEXBUFFER_HINT_DEBUG
-		if (MappingHint == EHM_STATIC && HWBuffer) {
-			char buf[100];
-			snprintf_irr(buf, sizeof(buf), "CVertexBuffer @ %p modified, but it has a static hint", this);
-			os::Printer::log(buf, ELL_WARNING);
-		}
-#endif
-	}
-
-	u32 getChangedID() const override { return ChangedID; }
-
-	void setHWBuffer(void *ptr) const override
-	{
-		HWBuffer = ptr;
-	}
-
-	void *getHWBuffer() const override
-	{
-		return HWBuffer;
-	}
-
-	u32 ChangedID = 1;
-
-	//! hardware mapping hint
-	E_HARDWARE_MAPPING MappingHint = EHM_NEVER;
-	mutable void *HWBuffer = nullptr;
 
 	//! Vertices of this buffer
 	std::vector<T> Data;
