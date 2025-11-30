@@ -16,6 +16,7 @@
 #include "profiler.h"
 #include "gamedef.h"
 #include "util/directiontables.h"
+#include "util/serialize.h"
 #include "rollback_interface.h"
 #include "reflowscan.h"
 #include "emerge.h"

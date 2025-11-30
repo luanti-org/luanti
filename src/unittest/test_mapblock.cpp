@@ -10,6 +10,7 @@
 #include "serialization.h"
 #include "noise.h"
 #include "inventory.h"
+#include "util/serialize.h"
 #include "voxel.h"
 
 class TestMapBlock : public TestBase

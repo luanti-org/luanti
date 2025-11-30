@@ -12,6 +12,7 @@
 #include "scripting_server.h"
 #include "server.h"
 #include "serverenvironment.h"
+#include "util/serialize.h"
 
 LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &data)
 	: UnitSAO(env, pos)
