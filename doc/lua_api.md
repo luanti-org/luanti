@@ -11310,8 +11310,8 @@ The `PlayerHPChangeReason` table specifies a reason for player health changes.
     * `punch`: Was punched. `reason.object` will hold the puncher, or nil if none.
     * `fall`: Fall damage.
     * `node_damage`: `damage_per_second` from a neighboring node.
-		     `reason.node` will hold the node name or nil.
-		     `reason.node_pos` will hold the position of the node
+                     `reason.node` will hold the node name or nil.
+                     `reason.node_pos` will hold the position of the node
     * `drown`: Drowning damage from a node with the `drowning` field set.
                `reason.node` and `reason.node_pos` are same as for `node_damage`
     * `respawn`: HP restored by respawning.
