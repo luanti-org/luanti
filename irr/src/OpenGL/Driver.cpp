@@ -13,6 +13,10 @@
 #include "COpenGLCoreRenderTarget.h"
 #include "COpenGLCoreCacheHandler.h"
 
+#include "HWBuffer.h"
+#include "OpenGL/Common.h"
+#include "SDL_opengl.h"
+#include "WeightBuffer.h"
 #include "MaterialRenderer.h"
 #include "FixedPipelineRenderer.h"
 #include "Renderer2D.h"
@@ -493,47 +497,18 @@ bool COpenGL3DriverBase::uploadHardwareBuffer(OpenGLVBO &vbo,
 	return (!TEST_GL_ERROR(this));
 }
 
-bool COpenGL3DriverBase::updateVertexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
+bool COpenGL3DriverBase::_updateHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
 {
 	if (!HWBuffer)
 		return false;
 
-	assert(HWBuffer->IsVertex);
-	const auto *vb = HWBuffer->VertexBuffer;
-	assert(vb);
+	const auto *buf = HWBuffer->Buffer;
 
-	const u32 vertexSize = getVertexPitchFromType(vb->getType());
-	const size_t bufferSize = vertexSize * vb->getCount();
+	const u32 vertexSize = buf->getElementSize();
+	const size_t bufferSize = vertexSize * buf->getCount();
 
-	return uploadHardwareBuffer(HWBuffer->Vbo, vb->getData(),
-		bufferSize, vb->getHardwareMappingHint());
-}
-
-bool COpenGL3DriverBase::updateIndexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
-{
-	if (!HWBuffer)
-		return false;
-
-	assert(!HWBuffer->IsVertex);
-	const auto *ib = HWBuffer->IndexBuffer;
-	assert(ib);
-
-	u32 indexSize;
-	switch (ib->getType()) {
-	case EIT_16BIT:
-		indexSize = sizeof(u16);
-		break;
-	case EIT_32BIT:
-		indexSize = sizeof(u32);
-		break;
-	default:
-		return false;
-	}
-
-	const size_t bufferSize = ib->getCount() * indexSize;
-
-	return uploadHardwareBuffer(HWBuffer->Vbo, ib->getData(),
-		bufferSize, ib->getHardwareMappingHint());
+	return uploadHardwareBuffer(HWBuffer->Vbo, buf->getData(),
+		bufferSize, buf->MappingHint);
 }
 
 bool COpenGL3DriverBase::updateHardwareBuffer(SHWBufferLink *HWBuffer)
@@ -543,54 +518,30 @@ bool COpenGL3DriverBase::updateHardwareBuffer(SHWBufferLink *HWBuffer)
 
 	auto *b = static_cast<SHWBufferLink_opengl *>(HWBuffer);
 
-	if (b->IsVertex) {
-		assert(b->VertexBuffer);
-		if (b->ChangedID != b->VertexBuffer->getChangedID() || !b->Vbo.exists()) {
-			if (!updateVertexHardwareBuffer(b))
-				return false;
-			b->ChangedID = b->VertexBuffer->getChangedID();
-		}
-	} else {
-		assert(b->IndexBuffer);
-		if (b->ChangedID != b->IndexBuffer->getChangedID() || !b->Vbo.exists()) {
-			if (!updateIndexHardwareBuffer(b))
-				return false;
-			b->ChangedID = b->IndexBuffer->getChangedID();
-		}
+	assert(b->Buffer);
+	if (b->ChangedID != b->Buffer->getChangedID() || !b->Vbo.exists()) {
+		if (!_updateHardwareBuffer(b))
+			return false;
+		b->ChangedID = b->Buffer->getChangedID();
 	}
+
 	return true;
 }
 
-COpenGL3DriverBase::SHWBufferLink *COpenGL3DriverBase::createHardwareBuffer(const scene::IVertexBuffer *vb)
+COpenGL3DriverBase::SHWBufferLink *COpenGL3DriverBase::createHardwareBuffer(const scene::HWBuffer *buf)
 {
-	if (!vb || vb->getHardwareMappingHint() == scene::EHM_NEVER)
+	if (!buf || buf->MappingHint == scene::EHM_NEVER)
 		return 0;
 
-	auto *HWBuffer = new SHWBufferLink_opengl(vb);
-	registerHardwareBuffer(HWBuffer);
+	auto *link = new SHWBufferLink_opengl(buf);
+	registerHardwareBuffer(link);
 
-	if (!updateVertexHardwareBuffer(HWBuffer)) {
-		deleteHardwareBuffer(HWBuffer);
-		return 0;
+	if (!updateHardwareBuffer(link)) {
+		deleteHardwareBuffer(link);
+		return nullptr;
 	}
 
-	return HWBuffer;
-}
-
-COpenGL3DriverBase::SHWBufferLink *COpenGL3DriverBase::createHardwareBuffer(const scene::IIndexBuffer *ib)
-{
-	if (!ib || ib->getHardwareMappingHint() == scene::EHM_NEVER)
-		return 0;
-
-	auto *HWBuffer = new SHWBufferLink_opengl(ib);
-	registerHardwareBuffer(HWBuffer);
-
-	if (!updateIndexHardwareBuffer(HWBuffer)) {
-		deleteHardwareBuffer(HWBuffer);
-		return 0;
-	}
-
-	return HWBuffer;
+	return link;
 }
 
 void COpenGL3DriverBase::deleteHardwareBuffer(SHWBufferLink *HWBuffer)
@@ -618,7 +569,6 @@ void COpenGL3DriverBase::drawBuffers(const scene::IVertexBuffer *vb,
 
 	const void *vertices = vb->getData();
 	if (hwvert) {
-		assert(hwvert->IsVertex);
 		assert(hwvert->Vbo.exists());
 		GL.BindBuffer(GL_ARRAY_BUFFER, hwvert->Vbo.getName());
 		vertices = nullptr;
@@ -626,7 +576,6 @@ void COpenGL3DriverBase::drawBuffers(const scene::IVertexBuffer *vb,
 
 	const void *indexList = ib->getData();
 	if (hwidx) {
-		assert(!hwidx->IsVertex);
 		assert(hwidx->Vbo.exists());
 		GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, hwidx->Vbo.getName());
 		indexList = nullptr;

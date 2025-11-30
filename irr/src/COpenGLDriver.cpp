@@ -5,7 +5,12 @@
 #include "COpenGLDriver.h"
 #include <cassert>
 #include "CNullDriver.h"
+#include "EHardwareBufferFlags.h"
+#include "HWBuffer.h"
 #include "IContextManager.h"
+#include "IIndexBuffer.h"
+#include "IVertexBuffer.h"
+#include "irrTypes.h"
 
 #ifdef _IRR_COMPILE_WITH_OPENGL_
 
@@ -221,6 +226,21 @@ void COpenGLDriver::setTransform(E_TRANSFORMATION_STATE state, const core::matri
 	}
 }
 
+static GLint convertEHM(scene::E_HARDWARE_MAPPING hint)
+{
+	switch (hint) {
+	case scene::EHM_STATIC:
+		return GL_STATIC_DRAW;
+	case scene::EHM_DYNAMIC:
+		return GL_DYNAMIC_DRAW;
+	case scene::EHM_STREAM:
+		return GL_STREAM_DRAW;
+	case scene::EHM_NEVER:
+	default:
+		IRR_CODE_UNREACHABLE();
+	}
+}
+
 bool COpenGLDriver::updateVertexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
 {
 	if (!HWBuffer)
@@ -229,11 +249,11 @@ bool COpenGLDriver::updateVertexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
 	if (!FeatureAvailable[IRR_ARB_vertex_buffer_object])
 		return false;
 
-	const auto *vb = HWBuffer->VertexBuffer;
+	const auto *vb = IRR_DOWN_CAST<const scene::IVertexBuffer *>(HWBuffer->Buffer);
 	const void *vertices = vb->getData();
 	const u32 vertexCount = vb->getCount();
 	const E_VERTEX_TYPE vType = vb->getType();
-	const u32 vertexSize = getVertexPitchFromType(vType);
+	const u32 vertexSize = vb->getElementSize();
 
 	accountHWBufferUpload(vertexSize * vertexCount);
 
@@ -293,12 +313,7 @@ bool COpenGLDriver::updateVertexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
 	else {
 		HWBuffer->vbo_Size = vertexCount * vertexSize;
 
-		if (vb->getHardwareMappingHint() == scene::EHM_STATIC)
-			extGlBufferData(GL_ARRAY_BUFFER, vertexCount * vertexSize, vbuf, GL_STATIC_DRAW);
-		else if (vb->getHardwareMappingHint() == scene::EHM_DYNAMIC)
-			extGlBufferData(GL_ARRAY_BUFFER, vertexCount * vertexSize, vbuf, GL_DYNAMIC_DRAW);
-		else // scene::EHM_STREAM
-			extGlBufferData(GL_ARRAY_BUFFER, vertexCount * vertexSize, vbuf, GL_STREAM_DRAW);
+		extGlBufferData(GL_ARRAY_BUFFER, vertexCount * vertexSize, vbuf, convertEHM(HWBuffer->Buffer->MappingHint));
 	}
 
 	extGlBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -306,61 +321,44 @@ bool COpenGLDriver::updateVertexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
 	return (!testGLError(__LINE__));
 }
 
-bool COpenGLDriver::updateIndexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
+bool COpenGLDriver::updateIndexHardwareBuffer(SHWBufferLink_opengl *link)
 {
-	if (!HWBuffer)
+	if (!link)
 		return false;
 
 	if (!FeatureAvailable[IRR_ARB_vertex_buffer_object])
 		return false;
 
-	const auto *ib = HWBuffer->IndexBuffer;
+
+	const auto *ib = IRR_DOWN_CAST<const scene::IIndexBuffer *>(link->Buffer);
 
 	const void *indices = ib->getData();
 	u32 indexCount = ib->getCount();
 
-	GLenum indexSize;
-	switch (ib->getType()) {
-	case EIT_16BIT: {
-		indexSize = sizeof(u16);
-		break;
-	}
-	case EIT_32BIT: {
-		indexSize = sizeof(u32);
-		break;
-	}
-	default: {
-		return false;
-	}
-	}
+	GLenum indexSize = ib->getElementSize();
 
 	accountHWBufferUpload(indexCount * indexSize);
 
 	// get or create buffer
 	bool newBuffer = false;
-	if (!HWBuffer->vbo_ID) {
-		extGlGenBuffers(1, &HWBuffer->vbo_ID);
-		if (!HWBuffer->vbo_ID)
+	if (!link->vbo_ID) {
+		extGlGenBuffers(1, &link->vbo_ID);
+		if (!link->vbo_ID)
 			return false;
 		newBuffer = true;
-	} else if (HWBuffer->vbo_Size < indexCount * indexSize) {
+	} else if (link->vbo_Size < indexCount * indexSize) {
 		newBuffer = true;
 	}
 
-	extGlBindBuffer(GL_ELEMENT_ARRAY_BUFFER, HWBuffer->vbo_ID);
+	extGlBindBuffer(GL_ELEMENT_ARRAY_BUFFER, link->vbo_ID);
 
 	// copy data to graphics card
 	if (!newBuffer)
 		extGlBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indexCount * indexSize, indices);
 	else {
-		HWBuffer->vbo_Size = indexCount * indexSize;
+		link->vbo_Size = indexCount * indexSize;
 
-		if (ib->getHardwareMappingHint() == scene::EHM_STATIC)
-			extGlBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * indexSize, indices, GL_STATIC_DRAW);
-		else if (ib->getHardwareMappingHint() == scene::EHM_DYNAMIC)
-			extGlBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * indexSize, indices, GL_DYNAMIC_DRAW);
-		else // scene::EHM_STREAM
-			extGlBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * indexSize, indices, GL_STREAM_DRAW);
+		extGlBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * indexSize, indices, convertEHM(ib->MappingHint));
 	}
 
 	extGlBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -369,77 +367,65 @@ bool COpenGLDriver::updateIndexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
 }
 
 //! updates hardware buffer if needed
-bool COpenGLDriver::updateHardwareBuffer(SHWBufferLink *HWBuffer)
+bool COpenGLDriver::updateHardwareBuffer(SHWBufferLink *_link)
 {
-	if (!HWBuffer)
+	if (!_link)
 		return false;
 
-	auto *b = static_cast<SHWBufferLink_opengl *>(HWBuffer);
+	auto *link = IRR_DOWN_CAST<SHWBufferLink_opengl *>(_link);
+	auto *buf = link->Buffer;
+	if (link->vbo_ID && link->ChangedID == buf->getChangedID())
+		return true;
 
-	if (b->IsVertex) {
-		assert(b->VertexBuffer);
-		if (b->ChangedID != b->VertexBuffer->getChangedID() || !b->vbo_ID) {
-			if (!updateVertexHardwareBuffer(b))
-				return false;
-			b->ChangedID = b->VertexBuffer->getChangedID();
-		}
-	} else {
-		assert(b->IndexBuffer);
-		if (b->ChangedID != b->IndexBuffer->getChangedID() || !b->vbo_ID) {
-			if (!updateIndexHardwareBuffer(b))
-				return false;
-			b->ChangedID = b->IndexBuffer->getChangedID();
-		}
+	bool success = false;
+	switch (buf->getBufferType()) {
+	case scene::HWBuffer::Type::VERTEX:
+		success = updateVertexHardwareBuffer(link);
+		break;
+	case scene::HWBuffer::Type::INDEX:
+		success = updateIndexHardwareBuffer(link);
+		break;
+	case scene::HWBuffer::Type::WEIGHT:
+	default:
+		IRR_CODE_UNREACHABLE();
 	}
+
+	if (!success)
+		return false;
+
+	link->ChangedID = buf->getChangedID();
 	return true;
 }
 
 //! Create hardware buffer from meshbuffer
-COpenGLDriver::SHWBufferLink *COpenGLDriver::createHardwareBuffer(const scene::IVertexBuffer *vb)
+COpenGLDriver::SHWBufferLink *COpenGLDriver::createHardwareBuffer(const scene::HWBuffer *buf)
 {
-	if (!vb || vb->getHardwareMappingHint() == scene::EHM_NEVER)
-		return 0;
+	if (!buf || buf->MappingHint == scene::EHM_NEVER)
+		return nullptr;
 
-	SHWBufferLink_opengl *HWBuffer = new SHWBufferLink_opengl(vb);
-	registerHardwareBuffer(HWBuffer);
+	SHWBufferLink_opengl *link = new SHWBufferLink_opengl(buf);
+	registerHardwareBuffer(link);
 
-	if (!updateVertexHardwareBuffer(HWBuffer)) {
-		deleteHardwareBuffer(HWBuffer);
-		return 0;
+	if (!updateHardwareBuffer(link)) {
+		deleteHardwareBuffer(link);
+		return nullptr;
 	}
 
-	return HWBuffer;
+	return link;
 }
 
-//! Create hardware buffer from meshbuffer
-COpenGLDriver::SHWBufferLink *COpenGLDriver::createHardwareBuffer(const scene::IIndexBuffer *ib)
+void COpenGLDriver::deleteHardwareBuffer(SHWBufferLink *_link)
 {
-	if (!ib || ib->getHardwareMappingHint() == scene::EHM_NEVER)
-		return 0;
-
-	SHWBufferLink_opengl *HWBuffer = new SHWBufferLink_opengl(ib);
-	registerHardwareBuffer(HWBuffer);
-
-	if (!updateIndexHardwareBuffer(HWBuffer)) {
-		deleteHardwareBuffer(HWBuffer);
-		return 0;
-	}
-
-	return HWBuffer;
-}
-
-void COpenGLDriver::deleteHardwareBuffer(SHWBufferLink *_HWBuffer)
-{
-	if (!_HWBuffer)
+	if (!_link)
 		return;
 
-	auto *HWBuffer = (SHWBufferLink_opengl *)_HWBuffer;
-	if (HWBuffer->vbo_ID) {
-		extGlDeleteBuffers(1, &HWBuffer->vbo_ID);
-		HWBuffer->vbo_ID = 0;
+	auto *link = IRR_DOWN_CAST<SHWBufferLink_opengl *>(_link);
+	if (link->vbo_ID) {
+		extGlDeleteBuffers(1, &link->vbo_ID);
+		link->vbo_ID = 0;
 	}
 
-	CNullDriver::deleteHardwareBuffer(_HWBuffer);
+	CNullDriver::deleteHardwareBuffer(_link);
 }
 
 void COpenGLDriver::drawBuffers(const scene::IVertexBuffer *vb,
@@ -449,19 +435,19 @@ void COpenGLDriver::drawBuffers(const scene::IVertexBuffer *vb,
 	if (!vb || !ib)
 		return;
 
-	auto *hwvert = (SHWBufferLink_opengl *) getBufferLink(vb);
-	auto *hwidx = (SHWBufferLink_opengl *) getBufferLink(ib);
-	updateHardwareBuffer(hwvert);
-	updateHardwareBuffer(hwidx);
+	auto *hwvert = IRR_DOWN_CAST<SHWBufferLink_opengl *>(getBufferLink(vb));
+	auto *hwidx = IRR_DOWN_CAST<SHWBufferLink_opengl *>(getBufferLink(ib));
 
 	const void *vertices = vb->getData();
 	if (hwvert) {
+		updateHardwareBuffer(hwvert);
 		extGlBindBuffer(GL_ARRAY_BUFFER, hwvert->vbo_ID);
 		vertices = 0;
 	}
 
 	const void *indexList = ib->getData();
 	if (hwidx) {
+		updateHardwareBuffer(hwidx);
 		extGlBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hwidx->vbo_ID);
 		indexList = 0;
 	}

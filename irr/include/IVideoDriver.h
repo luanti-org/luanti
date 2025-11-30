@@ -20,6 +20,7 @@
 #include "SOverrideMaterial.h"
 #include "S3DVertex.h" // E_VERTEX_TYPE
 #include "SVertexIndex.h" // E_INDEX_TYPE
+#include "HWBuffer.h"
 
 namespace io
 {
@@ -313,20 +314,11 @@ public:
 	//! Eagerly upload buffer to hardware
 	/** This can be a good idea if you have a newly created or modified buffer,
 	which you know you will draw in the near future (e.g. end of same frame,
-	or next frame), because it gives the GPU driver to copy the contents. */
-	virtual void updateHardwareBuffer(const scene::IVertexBuffer *vb) = 0;
-
-	//! Eagerly upload buffer to hardware
-	/** This can be a good idea if you have a newly created or modified buffer,
-	which you know you will draw in the near future (e.g. end of same frame,
-	or next frame), because it gives the GPU driver to copy the contents. */
-	virtual void updateHardwareBuffer(const scene::IIndexBuffer *ib) = 0;
+	or next frame), because it gives the GPU driver time to copy the contents. */
+	virtual void updateHardwareBuffer(const scene::HWBuffer *buf) = 0;
 
 	//! Remove hardware buffer
-	virtual void removeHardwareBuffer(const scene::IVertexBuffer *vb) = 0;
-
-	//! Remove hardware buffer
-	virtual void removeHardwareBuffer(const scene::IIndexBuffer *ib) = 0;
+	virtual void removeHardwareBuffer(const scene::HWBuffer *buf) = 0;
 
 	//! Remove all hardware buffers
 	virtual void removeAllHardwareBuffers() = 0;

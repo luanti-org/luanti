@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "EHardwareBufferFlags.h"
+#include "HWBuffer.h"
 #include "vector3d.h"
 #include "matrix4.h"
 #include "IVertexBuffer.h"
@@ -15,7 +17,7 @@
 namespace scene
 {
 
-struct WeightBuffer
+struct WeightBuffer final : public HWBuffer
 {
 	constexpr static u16 MAX_WEIGHTS_PER_VERTEX = 4;
 	// ID-weight pairs for a joint
@@ -44,8 +46,17 @@ struct WeightBuffer
 	const std::array<f32, MAX_WEIGHTS_PER_VERTEX> &getWeights(u32 vertex_id) const
 	{ return weights[vertex_id].weights; }
 
-	size_t size() const
+	HWBuffer::Type getBufferType() const override
+	{ return HWBuffer::Type::WEIGHT; }
+
+	u32 getCount() const override
 	{ return weights.size(); }
+
+	u32 getElementSize() const override
+	{ return sizeof(VertexWeights); }
+
+	const void *getData() const override
+	{ return weights.data(); }
 
 	void addWeight(u32 vertex_id, u16 joint_id, f32 weight);
 
