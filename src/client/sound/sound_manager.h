@@ -12,7 +12,7 @@
 #include "al_extensions.h"
 #include "sound_constants.h"
 #include "sound_manager_messages.h"
-#include "../sound.h"
+#include "sound_spec.h"
 #include "threading/thread.h"
 #include "util/container.h" // MutexedQueue
 

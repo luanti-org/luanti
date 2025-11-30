@@ -10,7 +10,7 @@
 #include "common/c_converter.h"
 #include "client/client.h"
 #include "client/sound.h"
-#include "sound.h"
+#include "sound_spec.h"
 
 /* ModApiClientSound */
 

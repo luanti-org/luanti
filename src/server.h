@@ -16,7 +16,7 @@
 #include "server/clientiface.h"
 #include "threading/ordered_mutex.h"
 #include "translation.h"
-#include "sound.h"
+#include "sound_spec.h"
 #include <atomic>
 #include <csignal>
 #include <string>

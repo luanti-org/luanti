@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../sound.h"
+#include "sound_spec.h"
 
 class ISoundManager;
 class NodeDefManager;
