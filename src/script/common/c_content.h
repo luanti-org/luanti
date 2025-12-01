@@ -23,8 +23,8 @@ extern "C" {
 #include "itemgroup.h"
 #include "util/pointabilities.h"
 // We do an explicit path include because by default c_content.h include src/client/hud.h
-// prior to the src/hud.h, which is not good on server only build
-#include "../../hud.h"
+// prior to the src/hud_element.h, which is not good on server only build
+#include "hud_element.h"
 
 class IGameDef;
 class IItemDefManager;

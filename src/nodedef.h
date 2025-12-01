@@ -11,7 +11,7 @@
 #include "mapnode.h"
 #include "nameidmapping.h"
 #include "itemgroup.h"
-#include "sound.h" // SoundSpec
+#include "sound_spec.h"
 #include "texture_override.h" // TextureOverride
 #include "tileanimation.h"
 #include "util/pointabilities.h"

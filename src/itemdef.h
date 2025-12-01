@@ -11,7 +11,7 @@
 #include <optional>
 #include <set>
 #include "itemgroup.h"
-#include "sound.h"
+#include "sound_spec.h"
 #include "texture_override.h" // TextureOverride
 #include "tool.h"
 #include "util/pointabilities.h"

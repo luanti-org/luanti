@@ -185,7 +185,8 @@ void FontEngine::updateCache()
 	getFont(FONT_SIZE_UNSPECIFIED, FM_Unspecified);
 }
 
-void FontEngine::refresh() {
+void FontEngine::refresh()
+{
 	clearCache();
 	updateCache();
 	updateSkin();
@@ -193,7 +194,7 @@ void FontEngine::refresh() {
 
 void FontEngine::setMediaFont(const std::string &name, const std::string &data)
 {
-	static std::unordered_set<std::string> valid_names {
+	const static std::unordered_set<std::string> valid_names{
 		"regular", "bold", "italic", "bold_italic",
 		"mono", "mono_bold", "mono_italic", "mono_bold_italic",
 	};
@@ -220,6 +221,20 @@ void FontEngine::clearMediaFonts()
 	RecursiveMutexAutoLock l(m_font_mutex);
 	m_media_faces.clear();
 	refresh();
+}
+
+gui::SGUITTFace *FontEngine::getOrLoadFace(const std::string &filename)
+{
+	auto it = m_local_faces.find(filename);
+	if (it != m_local_faces.end())
+		return it->second.get();
+
+	irr_ptr<gui::SGUITTFace> face(gui::SGUITTFace::loadFace(filename));
+	if (!face)
+		return nullptr;
+	auto *ret = face.get();
+	m_local_faces.emplace(filename, std::move(face));
+	return ret;
 }
 
 gui::IGUIFont *FontEngine::initFont(FontSpec spec)
@@ -261,7 +276,7 @@ gui::IGUIFont *FontEngine::initFont(FontSpec spec)
 
 	auto createFont = [&](gui::SGUITTFace *face) -> gui::CGUITTFont* {
 		auto *font = gui::CGUITTFont::createTTFont(m_env,
-				face, size, true, true, font_shadow,
+				face, size, true, spec.mode != _FM_Fallback, font_shadow,
 				font_shadow_alpha);
 
 		if (!font)
@@ -309,11 +324,8 @@ gui::IGUIFont *FontEngine::initFont(FontSpec spec)
 		infostream << "Creating new font: " << font_path.c_str()
 				<< " " << size << "pt" << std::endl;
 
-		// Grab the face.
-		if (auto *face = gui::SGUITTFace::loadFace(font_path)) {
-			auto *font = createFont(face);
-			face->drop();
-			return font;
+		if (auto *face = getOrLoadFace(font_path)) {
+			return createFont(face);
 		}
 
 		errorstream << "FontEngine: Cannot load '" << font_path <<

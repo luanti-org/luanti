@@ -14,6 +14,7 @@ on:
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
       - 'po/**.po'
+      - 'util/ci/**'
       - '.github/workflows/macos.yml'
   pull_request:
     paths:
@@ -27,87 +28,93 @@ on:
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
       - 'po/**.po'
+      - 'util/ci/**'
       - '.github/workflows/macos.yml'
 
 jobs:
-  build-intel-macos:
-    # use lowest possible macOS running on x86_64 supported by brew to support more users
-    runs-on: macos-13
+  build-older-macos:
+    strategy:
+      matrix:
+        osver: [11.3]
+        xcodever: [16.2]
+        arch: ["x86_64"]
+        build_type: ["Debug"]
+        xcode: ["no"]
+        include:
+          - osver: 11.3
+            xcodever: 16.2
+            arch: "x86_64"
+            build_type: "Debug"
+            xcode: "no"
+          - osver: 11.3
+            xcodever: 16.2
+            arch: "arm64"
+            build_type: "Release"
+            xcode: "yes"
+    runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+
+      - name: Prepare environment
+        run: |
+          echo "REPDIR=$(pwd)" >> $GITHUB_ENV
+          echo "osver=${{matrix.osver}}" >> $GITHUB_ENV
+          echo "xcodever=${{matrix.xcodever}}" >> $GITHUB_ENV
+          echo "arch=${{matrix.arch}}" >> $GITHUB_ENV
+          echo "build_type=${{matrix.build_type}}" >> $GITHUB_ENV
+
       - name: Install deps
         run: |
+          mkdir downloads
           source ./util/ci/common.sh
-          install_macos_deps
+          source ./util/ci/macos_sdk.sh
+          install_macos_precompiled_deps $osver $arch
+          install_macos_sdk $osver "$xcodever" downloads
 
-      - name: Build
+      - name: Build with GNU Make
         run: |
           mkdir build
           cd build
-          cmake .. \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=13 \
-            -DCMAKE_FIND_FRAMEWORK=LAST \
-            -DCMAKE_INSTALL_PREFIX=../build/macos/ \
-            -DRUN_IN_PLACE=FALSE -DENABLE_GETTEXT=TRUE \
-            -DINSTALL_DEVTEST=TRUE
-          cmake --build . -j$(sysctl -n hw.logicalcpu)
-          make install
+          export DEPS_DIR=/Users/Shared/macos${osver}_${arch}_deps
+          export USE_XCODE=no
+          ../util/ci/build_macos.sh
 
-      - name: Test
+      - name: Build and Archive with Xcode
+        if: ${{matrix.xcode == 'yes'}}
         run: |
+          mkdir build_xcode
+          cd build_xcode
+          export DEPS_DIR=/Users/Shared/macos${osver}_${arch}_deps
+          export USE_XCODE=yes
+          ../util/ci/build_macos.sh
+
+      - name: Test GNU Make build
+        run: |
+          mkdir -p "${HOME}/Library/Application Support/minetest/games/"
+          ln -s "${PWD}/games/devtest" "${HOME}/Library/Application Support/minetest/games/"
           ./build/macos/luanti.app/Contents/MacOS/luanti --run-unittests
 
+      - name: Test XCode build
+        if: ${{matrix.xcode == 'yes'}}
+        run: |
+          ./build_xcode/build/${build_type}/luanti.app/Contents/MacOS/luanti --run-unittests
+          ./build_xcode/luanti.xcarchive/Products/Applications/luanti.app/Contents/MacOS/luanti --run-unittests
+
+      - name: Diff Resources
+        if: ${{matrix.xcode == 'yes'}}
+        run: |
+          diff -rd ./build/macos/luanti.app/Contents/Resources ./build_xcode/build/${build_type}/luanti.app/Contents/Resources || exit 1
+          diff -rd ./build/macos/luanti.app/Contents/Resources ./build_xcode/luanti.xcarchive/Products/Applications/luanti.app/Contents/Resources || exit 1
       # Zipping the built .app preserves permissions on the contained files,
       #   which the GitHub artifact pipeline would otherwise strip away.
       - name: CPack
         run: |
           cd build
           rm -rf macos
-          cmake .. -DINSTALL_DEVTEST=FALSE
           cpack -G ZIP -B macos
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload
+        uses: actions/upload-artifact@v5
         with:
-          name: luanti-macos
+          name: luanti-macos${{matrix.osver}}_${{matrix.arch}}
           path: ./build/macos/*.zip
-  build-arm-macos-xcode:
-    runs-on: macos-14
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install deps
-        run: |
-          source ./util/ci/common.sh
-          install_macos_deps
-          # brew jsoncpp do not include libjsoncpp.a, and if installed header conflict caused build failure
-          brew uninstall jsoncpp
-
-      - name: Build with Cmake
-        run: |
-          mkdir build
-          cd build
-          cmake .. \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=14 \
-            -DCMAKE_FIND_FRAMEWORK=LAST \
-            -DCMAKE_INSTALL_PREFIX=../build/macos/ \
-            -DRUN_IN_PLACE=FALSE -DENABLE_GETTEXT=TRUE \
-            -DENABLE_SYSTEM_JSONCPP=OFF
-          cmake --build . -j$(sysctl -n hw.logicalcpu)
-          make install
-
-      - name: Build and Archive with Xcode
-        run: |
-          mkdir build_xcode
-          cd build_xcode
-          ../util/ci/build_xcode.sh
-
-      - name: Tests
-        run: |
-          mkdir -p "${HOME}/Library/Application Support/minetest/games/"
-          ln -s "${PWD}/games/devtest" "${HOME}/Library/Application Support/minetest/games/"
-          ./build/macos/luanti.app/Contents/MacOS/luanti --run-unittests
-          ./build_xcode/luanti.xcarchive/Products/Applications/luanti.app/Contents/MacOS/luanti --run-unittests
-
-      - name: Diff Resources
-        run: |
-          diff -rd ./build/macos/luanti.app/Contents/Resources ./build_xcode/build/Release/luanti.app/Contents/Resources || exit 1
-          diff -rd ./build/macos/luanti.app/Contents/Resources ./build_xcode/luanti.xcarchive/Products/Applications/luanti.app/Contents/Resources || exit 1

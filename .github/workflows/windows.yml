@@ -40,7 +40,7 @@ jobs:
       matrix:
         bits: [32, 64]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install compiler
         run: |
           sudo dpkg --add-architecture i386
@@ -61,7 +61,7 @@ jobs:
           cd "$dest"/luanti-*-win*
           wine bin/luanti.exe --version
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: "mingw${{ matrix.bits }}"
           path: B/build/*.zip
@@ -92,7 +92,7 @@ jobs:
 # Enable it, when working on the installer.
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Restore from cache and run vcpkg
         uses: lukka/run-vcpkg@v11
@@ -135,7 +135,7 @@ jobs:
         env:
           TYPE: ${{matrix.type}}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: msvc-${{ matrix.config.arch }}-${{ matrix.type }}
           path: .\Package\

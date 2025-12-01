@@ -10,6 +10,7 @@
 #include <cassert>
 #include <memory>
 #include <optional>
+#include <vector>
 
 namespace scene
 {

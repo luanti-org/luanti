@@ -5,6 +5,7 @@
 #include "test.h"
 
 #include <sstream>
+#include <algorithm>
 
 #include "log.h"
 #include "serialization.h"
@@ -29,6 +30,7 @@ public:
 	void testCopyFileContents();
 	void testNonExist();
 	void testRecursiveDelete();
+	void testGetRecursiveSubPaths();
 };
 
 static TestFileSys g_test_instance;
@@ -45,9 +47,16 @@ void TestFileSys::runTests(IGameDef *gamedef)
 	TEST(testCopyFileContents);
 	TEST(testNonExist);
 	TEST(testRecursiveDelete);
+	TEST(testGetRecursiveSubPaths);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+#if defined(_WIN32)
+static constexpr bool win32 = true;
+#else
+static constexpr bool win32 = false;
+#endif
 
 // adjusts a POSIX path to system-specific conventions
 // -> changes '/' to DIR_DELIM
@@ -61,10 +70,10 @@ static std::string p(std::string path)
 		}
 	}
 
-	#ifdef _WIN32
+#ifdef _WIN32
 	if (path[0] == '\\')
-		path = "C:" + path;
-	#endif
+		path.insert(0, "C:");
+#endif
 
 	return path;
 }
@@ -75,11 +84,7 @@ void TestFileSys::testIsDirDelimiter()
 	UASSERT(fs::IsDirDelimiter('/') == true);
 	UASSERT(fs::IsDirDelimiter('A') == false);
 	UASSERT(fs::IsDirDelimiter(0) == false);
-#ifdef _WIN32
-	UASSERT(fs::IsDirDelimiter('\\') == true);
-#else
-	UASSERT(fs::IsDirDelimiter('\\') == false);
-#endif
+	UASSERT(fs::IsDirDelimiter('\\') == win32);
 }
 
 
@@ -127,33 +132,17 @@ void TestFileSys::testPathStartsWith()
 
 	for (int i = 0; i < numpaths; i++)
 	for (int j = 0; j < numpaths; j++){
-		/*verbosestream<<"testing fs::PathStartsWith(\""
-			<<paths[i]<<"\", \""
-			<<paths[j]<<"\")"<<std::endl;*/
 		bool starts = fs::PathStartsWith(paths[i], paths[j]);
 		int expected = expected_results[i][j];
 		if(expected == 0){
 			UASSERT(starts == false);
-		}
-		else if(expected == 1){
+		} else if(expected == 1) {
 			UASSERT(starts == true);
-		}
-		#ifdef _WIN32
-		else if(expected == 2){
-			UASSERT(starts == false);
-		}
-		else if(expected == 3){
-			UASSERT(starts == true);
-		}
-		#else
-		else if(expected == 2){
-			UASSERT(starts == true);
-		}
-		else if(expected == 3){
-			UASSERT(starts == false);
-		}
-		#endif
-		else if(expected == 4){
+		} else if(expected == 2) {
+			UASSERT(starts == !win32);
+		} else if(expected == 3) {
+			UASSERT(starts == win32);
+		} else if(expected == 4) {
 			UASSERT(starts == (bool)FILESYS_CASE_INSENSITIVE);
 		}
 	}
@@ -165,6 +154,7 @@ void TestFileSys::testRemoveLastPathComponent()
 	std::string path, result, removed;
 
 	UASSERT(fs::RemoveLastPathComponent("") == "");
+
 	path = p("/home/user/minetest/bin/..//worlds/world1");
 	result = fs::RemoveLastPathComponent(path, &removed, 0);
 	UASSERT(result == path);
@@ -188,12 +178,30 @@ void TestFileSys::testRemoveLastPathComponent()
 	UASSERT(result == p("/home"));
 	UASSERT(removed == p("user/minetest/bin/../worlds/world1"));
 	result = fs::RemoveLastPathComponent(path, &removed, 7);
-#ifdef _WIN32
-	UASSERT(result == "C:");
-#else
-	UASSERT(result == "");
-#endif
+	UASSERTEQ(auto, result, win32 ? "C:" : "/");
 	UASSERT(removed == p("home/user/minetest/bin/../worlds/world1"));
+
+	path = p("./README.txt");
+	result = fs::RemoveLastPathComponent(path, &removed);
+	UASSERT(result == ".");
+	UASSERT(removed == "README.txt");
+
+#ifdef __unix__
+	path = "/README.txt";
+	result = fs::RemoveLastPathComponent(path, &removed);
+	UASSERT(result == "/");
+	UASSERT(removed == "README.txt");
+
+	path = "README.txt";
+	result = fs::RemoveLastPathComponent(path, &removed);
+	UASSERT(result == ""); // working directory
+	UASSERT(removed == "README.txt");
+
+	path = "///";
+	result = fs::RemoveLastPathComponent(path, &removed);
+	UASSERT(result == "/");
+	UASSERT(removed == "");
+#endif
 }
 
 
@@ -224,11 +232,7 @@ void TestFileSys::testRemoveLastPathComponentWithTrailingDelimiter()
 	UASSERT(result == p("/home"));
 	UASSERT(removed == p("user/minetest/bin/../worlds/world1"));
 	result = fs::RemoveLastPathComponent(path, &removed, 7);
-#ifdef _WIN32
-	UASSERT(result == "C:");
-#else
-	UASSERT(result == "");
-#endif
+	UASSERTEQ(auto, result, win32 ? "C:" : "/");
 	UASSERT(removed == p("home/user/minetest/bin/../worlds/world1"));
 }
 
@@ -303,13 +307,29 @@ void TestFileSys::testAbsolutePath()
 
 void TestFileSys::testSafeWriteToFile()
 {
-	const std::string dest_path = getTestTempFile();
-	const std::string test_data("hello\0world", 11);
-	fs::safeWriteToFile(dest_path, test_data);
-	UASSERT(fs::PathExists(dest_path));
-	std::string contents_actual;
-	UASSERT(fs::ReadFile(dest_path, contents_actual));
-	UASSERTEQ(auto, contents_actual, test_data);
+	{
+		const std::string test_data("hello\0world", 11);
+		const std::string dest_path = getTestTempFile();
+		fs::safeWriteToFile(dest_path, test_data);
+		UASSERT(fs::PathExists(dest_path));
+		std::string contents_actual;
+		UASSERT(fs::ReadFile(dest_path, contents_actual));
+		UASSERTEQ(auto, contents_actual, test_data);
+	}
+
+	// Writing directly to /tmp could trigger an edge case
+	// also try with a bigger amount of data
+	{
+		std::string test_data;
+		test_data.append(499 * 1024, '\v');
+		const std::string filename = itos(rand()) + itos(rand());
+		const std::string dest_path = fs::TempPath() + DIR_DELIM + filename;
+
+		bool ok = fs::safeWriteToFile(dest_path, test_data);
+		ok &= fs::IsFile(dest_path);
+		fs::DeleteSingleFileOrEmptyDirectory(dest_path);
+		UASSERT(ok);
+	}
 }
 
 void TestFileSys::testCopyFileContents()
@@ -395,4 +415,51 @@ void TestFileSys::testRecursiveDelete()
 		UASSERT(!fs::IsDir(it));
 	for (auto &it : files)
 		UASSERT(!fs::IsFile(it));
+}
+
+void TestFileSys::testGetRecursiveSubPaths()
+{
+	const auto dir_path = getTestTempDirectory() + DIR_DELIM "recursivetest";
+	UASSERT(fs::CreateAllDirs(dir_path));
+
+	std::string dirs[] = {
+		dir_path + DIR_DELIM "d1",
+		dir_path + DIR_DELIM "d1" DIR_DELIM "d2",
+		dir_path + DIR_DELIM "_d3"
+	};
+	std::string files[] = {
+		dirs[0] + DIR_DELIM "f1",
+		dirs[1] + DIR_DELIM "f2",
+		dirs[0] + DIR_DELIM ".f3",
+	};
+
+	for (auto &it : dirs)
+		fs::CreateDir(it);
+	for (auto &it : files)
+		open_ofstream(it.c_str(), false).close();
+
+	std::vector<std::string> dst;
+	fs::GetRecursiveSubPaths(dir_path, dst, false);
+	UASSERT(CONTAINS(dst, dirs[0]));
+	UASSERT(CONTAINS(dst, dirs[1]));
+	UASSERT(CONTAINS(dst, dirs[2]));
+	UASSERTEQ(size_t, dst.size(), 3);
+
+	dst.clear();
+	fs::GetRecursiveSubPaths(dir_path, dst, true);
+	UASSERT(CONTAINS(dst, dirs[0]));
+	UASSERT(CONTAINS(dst, dirs[1]));
+	UASSERT(CONTAINS(dst, dirs[2]));
+	UASSERT(CONTAINS(dst, files[0]));
+	UASSERT(CONTAINS(dst, files[1]));
+	UASSERT(CONTAINS(dst, files[2]));
+	UASSERTEQ(size_t, dst.size(), 3+3);
+
+	dst.clear();
+	fs::GetRecursiveSubPaths(dir_path, dst, true, "_zzzabczzzz.");
+	UASSERT(CONTAINS(dst, dirs[0]));
+	UASSERT(CONTAINS(dst, dirs[1]));
+	UASSERT(CONTAINS(dst, files[0]));
+	UASSERT(CONTAINS(dst, files[1]));
+	UASSERTEQ(size_t, dst.size(), 2+2);
 }

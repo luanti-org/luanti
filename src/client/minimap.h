@@ -10,7 +10,7 @@
 #include "CMeshBuffer.h"
 
 #include "constants.h"
-#include "../hud.h"
+#include "hud_element.h"
 #include "mapnode.h"
 #include "util/thread.h"
 #include <map>

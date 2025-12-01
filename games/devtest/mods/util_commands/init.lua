@@ -1,3 +1,63 @@
+if core.is_singleplayer() then
+	local function format_result(success, ...)
+		if success then
+			local res = {}
+			for i = 1, select("#", ...) do
+				local v = select(i, ...)
+				table.insert(res, dump(v))
+			end
+			if #res == 0 then
+				return true, "No return values."
+			end
+			return true, "Return values: " .. table.concat(res, ",\n")
+		end
+		return false, "Error: " .. tostring((...))
+	end
+
+	local function make_env(name)
+		local me = core.get_player_by_name(name)
+		local here = me:get_pos()
+		local testtools = rawget(_G, "testtools")
+		return setmetatable({
+			-- WorldEdit //lua compatibility
+			name = name,
+			player = me,
+			pos = here:round(),
+			-- luacmd compatibility
+			myname = name,
+			me = me,
+			here = here,
+			branded = testtools and testtools.get_branded_object,
+			print = function(...)
+				local t = {}
+				for i = 1, select("#", ...) do
+					local v = select(i, ...)
+					t[i] = dump(v)
+				end
+				core.chat_send_player(name, "/lua: " .. table.concat(t, "\t"))
+			end,
+		}, {__index = _G})
+	end
+
+	core.register_chatcommand("lua", {
+		params = "<code>",
+		description = "Execute Lua code (singleplayer-only)",
+		func = function(name, param)
+			local func = loadstring("return " .. param)
+			if not func then
+				local err
+				func, err = loadstring(param)
+				if not func then
+					return false, "Syntax error: " .. err
+				end
+			end
+			setfenv(func, make_env(name))
+			core.chat_send_player(name, "Executing /lua " .. param)
+			return format_result(pcall(func))
+		end,
+	})
+end
+
 core.register_chatcommand("hotbar", {
 	params = "<size>",
 	description = "Set hotbar size",

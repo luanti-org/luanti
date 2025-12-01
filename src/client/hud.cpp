@@ -4,7 +4,7 @@
 // Copyright (C) 2010-2013 blue42u, Jonathon Anderson <anderjon@umail.iu.edu>
 // Copyright (C) 2010-2013 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
 
-#include "client/hud.h"
+#include "hud.h"
 #include <string>
 #include <iostream>
 #include <cmath>

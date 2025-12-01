@@ -6,7 +6,7 @@
 
 #include "irr_v3d.h"
 #include "map.h"
-#include "hud.h" // HudElementStat
+#include "hud_element.h" // HudElementStat
 #include "gamedef.h"
 #include "content/subgames.h"
 #include "network/peerhandler.h"
@@ -16,7 +16,7 @@
 #include "server/clientiface.h"
 #include "threading/ordered_mutex.h"
 #include "translation.h"
-#include "sound.h"
+#include "sound_spec.h"
 #include <atomic>
 #include <csignal>
 #include <string>

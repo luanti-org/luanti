@@ -178,8 +178,7 @@ bool VectorAreaStore::insertArea(Area *a)
 {
 	if (a->id == U32_MAX)
 		a->id = getNextId();
-	std::pair<AreaMap::iterator, bool> res =
-			areas_map.insert(std::make_pair(a->id, *a));
+	auto res = areas_map.emplace(a->id, *a);
 	if (!res.second)
 		// ID is not unique
 		return false;
@@ -249,7 +248,7 @@ bool SpatialAreaStore::insertArea(Area *a)
 {
 	if (a->id == U32_MAX)
 		a->id = getNextId();
-	if (!areas_map.insert(std::make_pair(a->id, *a)).second)
+	if (!areas_map.emplace(a->id, *a).second)
 		// ID is not unique
 		return false;
 	m_tree->insertData(0, nullptr, get_spatial_region(a->minedge, a->maxedge), a->id);

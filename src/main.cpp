@@ -15,6 +15,7 @@
 #include "gettext.h"
 #include "log.h"
 #include "log_internal.h"
+#include "util/serialize.h"
 #include "util/quicktune.h"
 #include "httpfetch.h"
 #include "gameparams.h"

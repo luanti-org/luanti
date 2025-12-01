@@ -196,7 +196,7 @@ bool PlayerDatabaseFiles::removePlayer(const std::string &name)
 		is.close();
 
 		if (temp_player.getName() == name) {
-			fs::DeleteSingleFileOrEmptyDirectory(path);
+			fs::DeleteSingleFileOrEmptyDirectory(path, true);
 			return true;
 		}
 

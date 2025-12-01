@@ -5,7 +5,6 @@
 #pragma once
 
 #include <string>
-#include "util/serialize.h"
 #include "irrlichttypes_bloated.h"
 
 /**
@@ -27,27 +26,9 @@ struct SoundSpec
 
 	bool exists() const { return !name.empty(); }
 
-	/**
-	 * Serialize a `SimpleSoundSpec`.
-	 */
-	void serializeSimple(std::ostream &os, u16 protocol_version) const
-	{
-		os << serializeString16(name);
-		writeF32(os, gain);
-		writeF32(os, pitch);
-		writeF32(os, fade);
-	}
-
-	/**
-	 * Deserialize a `SimpleSoundSpec`.
-	 */
-	void deSerializeSimple(std::istream &is, u16 protocol_version)
-	{
-		name = deSerializeString16(is);
-		gain = readF32(is);
-		pitch = readF32(is);
-		fade = readF32(is);
-	}
+	// Serialize/Deserialize a `SimpleSoundSpec`.
+	void serializeSimple(std::ostream &os, u16 protocol_version) const;
+	void deSerializeSimple(std::istream &is, u16 protocol_version);
 
 	// Name of the sound-group
 	std::string name;

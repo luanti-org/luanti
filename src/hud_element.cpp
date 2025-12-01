@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2010-2018 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include "hud.h"
+#include "hud_element.h"
 
 const struct EnumString es_HudElementType[] =
 {

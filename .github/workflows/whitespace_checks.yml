@@ -31,7 +31,7 @@ jobs:
   trailing_whitespaces:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       # Line endings are already ensured by .gitattributes
       - name: Check trailing whitespaces
         run: |
@@ -48,7 +48,7 @@ jobs:
   indent_spaces:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       # Line endings are already ensured by .gitattributes
       # Warning: Multiple multline comments in one line
       # is not supported by this check and may misbehave.
@@ -83,7 +83,7 @@ jobs:
   tabs_lua_api_files:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       # Some files should not contain tabs
       - name: Check tabs in Lua API files
         run: |

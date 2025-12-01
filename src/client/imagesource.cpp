@@ -4,6 +4,7 @@
 
 #include "imagesource.h"
 
+#include "exceptions.h"
 #include <IFileSystem.h>
 #include "imagefilters.h"
 #include "renderingengine.h"
