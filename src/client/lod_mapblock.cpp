@@ -117,6 +117,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 	const core::vector3df seg_offset(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
 	const f32 scaled_BS = BS * width;
 
+	core::vector2d<f32> uvs[4];
 	core::vector3df vertices[4];
 	video::S3DVertex irr_vertices[4];
 	for (u8 direction = 0; direction < Direction_END; direction++) {
@@ -159,12 +160,22 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 						u1++;
 					}
 
-					const core::vector2d<f32> uvs[4] = {
-						core::vector2d<f32>{0, static_cast<f32>(v1*width)},
-						core::vector2d<f32>{0, 0},
-						core::vector2d<f32>{static_cast<f32>(u1*width), 0},
-						core::vector2d<f32>{static_cast<f32>(u1*width), static_cast<f32>(v1*width)}
-					};
+					switch (direction) {
+					case LEFT:
+					case RIGHT:
+					case DOWN:
+					case BACK:
+						uvs[0] = core::vector2d<f32>{0, static_cast<f32>(u1*width)};
+						uvs[1] = core::vector2d<f32>{0, 0};
+						uvs[2] = core::vector2d<f32>{static_cast<f32>(v1*width), 0};
+						uvs[3] = core::vector2d<f32>{static_cast<f32>(v1*width), static_cast<f32>(u1*width)};
+						break;
+					default:
+						uvs[0] = core::vector2d<f32>{0, static_cast<f32>(v1*width)};
+						uvs[1] = core::vector2d<f32>{0, 0};
+						uvs[2] = core::vector2d<f32>{static_cast<f32>(u1*width), 0};
+						uvs[3] = core::vector2d<f32>{static_cast<f32>(u1*width), static_cast<f32>(v1*width)};
+					}
 
 					// calculate low (0) and high (1) coordinates for u and v axis
 					u1 = (u + u1) * scaled_BS - BS / 2;
@@ -177,26 +188,26 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 						- BS / 2;
 
 					switch (direction) {
-					case 0:
-					case 1:
+					case UP:
+					case DOWN:
 						vertices[0] = core::vector3df(u0, w, v0);
 						vertices[1] = core::vector3df(u1, w, v0);
 						vertices[2] = core::vector3df(u1, w, v1);
 						vertices[3] = core::vector3df(u0, w, v1);
 						break;
-					case 2:
+					case LEFT:
 						vertices[0] = core::vector3df(w, u0, v0);
 						vertices[1] = core::vector3df(w, u0, v1);
 						vertices[2] = core::vector3df(w, u1, v1);
 						vertices[3] = core::vector3df(w, u1, v0);
 						break;
-					case 3:
+					case RIGHT:
 						vertices[0] = core::vector3df(w, u0, v1);
 						vertices[1] = core::vector3df(w, u1, v1);
 						vertices[2] = core::vector3df(w, u1, v0);
 						vertices[3] = core::vector3df(w, u0, v0);
 						break;
-					case 4:
+					case BACK:
 						vertices[0] = core::vector3df(u1, v0, w);
 						vertices[1] = core::vector3df(u0, v0, w);
 						vertices[2] = core::vector3df(u0, v1, w);
