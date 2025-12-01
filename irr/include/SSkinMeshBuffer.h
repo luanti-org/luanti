@@ -234,17 +234,17 @@ public:
 		}
 	}
 
-	void setWeights(WeightBuffer &&weights)
+	void addWeightBuffer()
 	{
 		switch (VertexType) {
 		case video::EVT_STANDARD:
-			Vertices_Standard->Weights = std::make_unique<WeightBuffer>(std::move(weights));
+			Vertices_Standard->Weights.reset(new WeightBuffer(getVertexCount()));
 			break;
 		case video::EVT_2TCOORDS:
-			Vertices_2TCoords->Weights = std::make_unique<WeightBuffer>(std::move(weights));
+			Vertices_2TCoords->Weights.reset(new WeightBuffer(getVertexCount()));
 			break;
 		case video::EVT_TANGENTS:
-			Vertices_Tangents->Weights = std::make_unique<WeightBuffer>(std::move(weights));
+			Vertices_Tangents->Weights.reset(new WeightBuffer(getVertexCount()));
 			break;
 		default:
 			IRR_CODE_UNREACHABLE();

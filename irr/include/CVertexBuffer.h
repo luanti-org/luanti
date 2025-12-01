@@ -8,6 +8,7 @@
 #include <vector>
 #include "IVertexBuffer.h"
 #include "WeightBuffer.h"
+#include "irr_ptr.h"
 
 namespace scene
 {
@@ -74,11 +75,16 @@ struct CVertexBuffer final : public IVertexBuffer
 		return Data[i].TCoords;
 	}
 
+	const WeightBuffer *getWeightBuffer() const override
+	{
+		return Weights.get();
+	}
+
 	//! Vertices of this buffer
 	std::vector<T> Data;
 
 	//! Optional weights for skinning
-	std::unique_ptr<WeightBuffer> Weights;
+	irr_ptr<WeightBuffer> Weights;
 };
 
 //! Standard buffer

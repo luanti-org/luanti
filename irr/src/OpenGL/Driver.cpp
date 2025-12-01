@@ -14,12 +14,16 @@
 #include "COpenGLCoreCacheHandler.h"
 
 #include "IHWBuffer.h"
+#include "OpenGL/Common.h"
+#include "SDL_opengl.h"
+#include "WeightBuffer.h"
 #include "MaterialRenderer.h"
 #include "FixedPipelineRenderer.h"
 #include "Renderer2D.h"
 
 #include "EVertexAttributes.h"
 #include "CImage.h"
+#include "matrix4.h"
 #include "os.h"
 
 #include "mt_opengl.h"
@@ -171,6 +175,7 @@ COpenGL3DriverBase::COpenGL3DriverBase(const SIrrlichtCreationParameters &params
 COpenGL3DriverBase::~COpenGL3DriverBase()
 {
 	QuadIndexVBO.destroy();
+	JointTransformsUBO.destroy();
 
 	deleteMaterialRenders();
 
@@ -472,6 +477,13 @@ void COpenGL3DriverBase::setTransform(E_TRANSFORMATION_STATE state, const core::
 	Transformation3DChanged = true;
 }
 
+void COpenGL3DriverBase::setJointTransforms(const std::vector<core::matrix4> &jointMatrices)
+{
+	// TODO check whether too many joints, and fall back to software skinning if so
+	JointTransformsUBO.upload(jointMatrices.data(), jointMatrices.size() * sizeof(core::matrix4), 0, GL_DYNAMIC_DRAW);
+	TEST_GL_ERROR(this);
+}
+
 bool COpenGL3DriverBase::uploadHardwareBuffer(OpenGLVBO &vbo,
 	const void *buffer, size_t bufferSize, scene::E_HARDWARE_MAPPING hint)
 {
@@ -553,10 +565,31 @@ void COpenGL3DriverBase::drawBuffers(const scene::IVertexBuffer *vb,
 	if (!vb || !ib)
 		return;
 
+	const auto *wb = vb->getWeightBuffer();
+	SHWBufferLink_opengl *hw_weights = nullptr;
+	if (wb) {
+		hw_weights = static_cast<SHWBufferLink_opengl *>(getBufferLink(wb));
+		updateHardwareBuffer(hw_weights);
+		assert(hw_weights->Vbo.exists());
+	}
+
 	auto *hwvert = static_cast<SHWBufferLink_opengl *>(getBufferLink(vb));
 	auto *hwidx = static_cast<SHWBufferLink_opengl *>(getBufferLink(ib));
 	updateHardwareBuffer(hwvert);
 	updateHardwareBuffer(hwidx);
+
+	if (hw_weights) {
+		// Bind the fucker
+		GL.BindBuffer(GL_ARRAY_BUFFER, hw_weights->Vbo.getName());
+		const GLsizei stride = sizeof(scene::WeightBuffer::VertexWeights);
+		GL.VertexAttribPointer(EVA_WEIGHTS, 4, GL_FLOAT, GL_FALSE, stride,
+				reinterpret_cast<void *>(offsetof(scene::WeightBuffer::VertexWeights, weights)));
+		GL.EnableVertexAttribArray(EVA_WEIGHTS);
+		GL.VertexAttribIPointer(EVA_JOINT_IDS, 4,  GL_UNSIGNED_SHORT, stride,
+				reinterpret_cast<void *>(offsetof(scene::WeightBuffer::VertexWeights, joint_ids)));
+		GL.EnableVertexAttribArray(EVA_JOINT_IDS);
+		GL.BindBuffer(GL_ARRAY_BUFFER, 0);
+	}
 
 	const void *vertices = vb->getData();
 	if (hwvert) {
@@ -575,6 +608,11 @@ void COpenGL3DriverBase::drawBuffers(const scene::IVertexBuffer *vb,
 	drawVertexPrimitiveList(vertices, vb->getCount(), indexList,
 		PrimitiveCount, vb->getType(), PrimitiveType, ib->getType());
 
+	if (hw_weights) {
+		GL.DisableVertexAttribArray(EVA_WEIGHTS);
+		GL.VertexAttrib4f(EVA_WEIGHTS, 0.0f, 0.0f, 0.0f, 0.0f);
+		GL.DisableVertexAttribArray(EVA_JOINT_IDS);
+	}
 	if (hwvert)
 		GL.BindBuffer(GL_ARRAY_BUFFER, 0);
 	if (hwidx)

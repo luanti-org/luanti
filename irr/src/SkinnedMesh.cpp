@@ -74,12 +74,22 @@ core::aabbox3df SkinnedMesh::calculateBoundingBox(
 
 // Software Skinning
 
-void SkinnedMesh::skinMesh(const std::vector<core::matrix4> &global_matrices)
+std::vector<core::matrix4> SkinnedMesh::calculateSkinMatrices(const std::vector<core::matrix4> &global_matrices) const
 {
-	if (!HasAnimation)
-		return;
+	assert(global_matrices.size() == AllJoints.size());
+	std::vector<core::matrix4> skin_matrices;
+	skin_matrices.reserve(AllJoints.size());
+	for (u16 i = 0; i < AllJoints.size(); ++i) {
+		auto skin_mat = global_matrices[i];
+		if (AllJoints[i]->GlobalInversedMatrix)
+			skin_mat = skin_mat * (*AllJoints[i]->GlobalInversedMatrix);
+		skin_matrices.push_back(skin_mat);
+	}
+	return skin_matrices;
+}
 
-	// rigid animation
+void SkinnedMesh::rigidAnimation(const std::vector<core::matrix4> &global_matrices)
+{
 	for (size_t i = 0; i < AllJoints.size(); ++i) {
 		auto *joint = AllJoints[i];
 		for (u32 attachedMeshIdx : joint->AttachedMeshes) {
@@ -87,6 +97,12 @@ void SkinnedMesh::skinMesh(const std::vector<core::matrix4> &global_matrices)
 			Buffer->Transformation = global_matrices[i];
 		}
 	}
+}
+
+void SkinnedMesh::skinMesh(const std::vector<core::matrix4> &global_matrices)
+{
+	if (!HasAnimation)
+		return;
 
 	// Premultiply with global inversed matrices, if present
 	// (which they should be for joints with weights)
@@ -399,7 +415,7 @@ SkinnedMesh *SkinnedMeshBuilder::finalize() &&
 		auto *buf = mesh->LocalBuffers.at(weight.buffer_id);
 		auto *weights = buf->getWeights();
 		if (!weights) {
-			buf->setWeights(WeightBuffer(buf->getVertexCount()));
+			buf->addWeightBuffer();
 			weights = buf->getWeights();
 		}
 		weights->addWeight(weight.vertex_id, weight.joint_id, weight.strength);

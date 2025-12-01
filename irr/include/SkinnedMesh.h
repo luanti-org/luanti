@@ -63,6 +63,10 @@ public:
 	//! by multiplying with respective parent matrices.
 	void calculateGlobalMatrices(std::vector<core::matrix4> &matrices) const;
 
+	std::vector<core::matrix4> calculateSkinMatrices(const std::vector<core::matrix4> &global_matrices) const;
+
+	void rigidAnimation(const std::vector<core::matrix4> &global_matrices);
+
 	//! Performs a software skin on this mesh based on the given joint matrices
 	void skinMesh(const std::vector<core::matrix4> &animated_transforms);
 

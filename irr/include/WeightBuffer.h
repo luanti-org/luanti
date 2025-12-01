@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "EHardwareBufferFlags.h"
+#include "IHWBuffer.h"
 #include "vector3d.h"
 #include "matrix4.h"
 #include "IVertexBuffer.h"
@@ -15,7 +17,7 @@
 namespace scene
 {
 
-struct WeightBuffer
+struct WeightBuffer final : public IHWBuffer
 {
 	constexpr static u16 MAX_WEIGHTS_PER_VERTEX = 4;
 	// ID-weight pairs for a joint
@@ -36,7 +38,8 @@ struct WeightBuffer
 	std::unique_ptr<core::vector3df[]> static_positions;
 	std::unique_ptr<core::vector3df[]> static_normals;
 
-	WeightBuffer(size_t n_verts) : weights(n_verts) {}
+	WeightBuffer(size_t n_verts) : weights(n_verts)
+	{ MappingHint = scene::EHM_STATIC; }
 
 	const std::array<u16, MAX_WEIGHTS_PER_VERTEX> &getJointIds(u32 vertex_id) const
 	{ return weights[vertex_id].joint_ids; }
@@ -44,8 +47,14 @@ struct WeightBuffer
 	const std::array<f32, MAX_WEIGHTS_PER_VERTEX> &getWeights(u32 vertex_id) const
 	{ return weights[vertex_id].weights; }
 
-	size_t size() const
+	u32 getCount() const override
 	{ return weights.size(); }
+
+	size_t getElementSize() const override
+	{ return sizeof(VertexWeights); }
+
+	const void *getData() const override
+	{ return weights.data(); }
 
 	void addWeight(u32 vertex_id, u16 joint_id, f32 weight);
 
