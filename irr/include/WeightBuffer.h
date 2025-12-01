@@ -33,12 +33,16 @@ struct WeightBuffer final : public HWBuffer
 
 	std::optional<std::vector<u32>> animated_vertices;
 
-	// A bit of a hack for now: Store static positions here so we can use them for skinning.
+	// A bit of a hack for now: Back up static pose here so we can use it for software skinning.
 	// Ideally we might want a design where we do not mutate the original vertex buffer at all.
-	std::unique_ptr<core::vector3df[]> static_positions;
-	std::unique_ptr<core::vector3df[]> static_normals;
+	struct VertexGeometry {
+		core::vector3df pos;
+		core::vector3df normal;
+	};
+	std::unique_ptr<VertexGeometry[]> static_pose;
 
-	WeightBuffer(size_t n_verts) : weights(n_verts) {}
+	WeightBuffer(size_t n_verts) : weights(n_verts)
+	{ MappingHint = scene::EHM_STATIC; }
 
 	const std::array<u16, MAX_WEIGHTS_PER_VERTEX> &getJointIds(u32 vertex_id) const
 	{ return weights[vertex_id].joint_ids; }
@@ -66,14 +70,14 @@ struct WeightBuffer final : public HWBuffer
 
 	/// @note src and dst can be the same buffer
 	void skin(IVertexBuffer *dst,
-			const std::vector<core::matrix4> &joint_transforms) const;
+			const std::vector<core::matrix4> &joint_transforms);
 
 	/// Prepares this buffer for use in skinning.
 	void finalize();
 
 	void updateStaticPose(const IVertexBuffer *vbuf);
 
-	void resetToStatic(IVertexBuffer *vbuf) const;
+	void resetToStaticPose(IVertexBuffer *vbuf) const;
 };
 
 } // end namespace scene

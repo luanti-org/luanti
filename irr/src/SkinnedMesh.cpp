@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "SkinnedMesh.h"
+#include "EHardwareBufferFlags.h"
 #include "SSkinMeshBuffer.h"
 #include "Transform.h"
 #include "aabbox3d.h"
@@ -34,6 +35,36 @@ SkinnedMesh::~SkinnedMesh()
 f32 SkinnedMesh::getMaxFrameNumber() const
 {
 	return EndFrame;
+}
+
+void SkinnedMesh::prepareForAnimation(u16 max_hw_joints)
+{
+	if (getJointCount() <= max_hw_joints)
+		return;
+
+	for (auto *buf : LocalBuffers)
+		buf->getVertexBuffer()->useSwSkinning();
+	UseSwSkinning = true;
+}
+
+void SkinnedMesh::updateStaticPose()
+{
+	if (!UseSwSkinning)
+		return;
+	for (auto *buf : LocalBuffers) {
+		if (auto *weights = buf->getWeights())
+			weights->updateStaticPose(buf->getVertexBuffer());
+	}
+}
+
+void SkinnedMesh::resetAnimation()
+{
+	if (!UseSwSkinning)
+		return;
+	for (auto *buf : LocalBuffers) {
+		if (auto *weights = buf->getWeights())
+			weights->resetToStaticPose(buf->getVertexBuffer());
+	}
 }
 
 // Keyframe Animation
@@ -74,12 +105,22 @@ core::aabbox3df SkinnedMesh::calculateBoundingBox(
 
 // Software Skinning
 
-void SkinnedMesh::skinMesh(const std::vector<core::matrix4> &global_matrices)
+std::vector<core::matrix4> SkinnedMesh::calculateSkinMatrices(const std::vector<core::matrix4> &global_matrices) const
 {
-	if (!HasAnimation)
-		return;
+	assert(global_matrices.size() == AllJoints.size());
+	std::vector<core::matrix4> skin_matrices;
+	skin_matrices.reserve(AllJoints.size());
+	for (u16 i = 0; i < AllJoints.size(); ++i) {
+		auto skin_mat = global_matrices[i];
+		if (AllJoints[i]->GlobalInversedMatrix)
+			skin_mat = skin_mat * (*AllJoints[i]->GlobalInversedMatrix);
+		skin_matrices.push_back(skin_mat);
+	}
+	return skin_matrices;
+}
 
-	// rigid animation
+void SkinnedMesh::rigidAnimation(const std::vector<core::matrix4> &global_matrices)
+{
 	for (size_t i = 0; i < AllJoints.size(); ++i) {
 		auto *joint = AllJoints[i];
 		for (u32 attachedMeshIdx : joint->AttachedMeshes) {
@@ -87,6 +128,12 @@ void SkinnedMesh::skinMesh(const std::vector<core::matrix4> &global_matrices)
 			Buffer->Transformation = global_matrices[i];
 		}
 	}
+}
+
+void SkinnedMesh::skinMesh(const std::vector<core::matrix4> &global_matrices)
+{
+	if (!HasAnimation)
+		return;
 
 	// Premultiply with global inversed matrices, if present
 	// (which they should be for joints with weights)
@@ -98,7 +145,7 @@ void SkinnedMesh::skinMesh(const std::vector<core::matrix4> &global_matrices)
 	}
 
 	for (auto *buffer : *SkinningBuffers) {
-		if (const auto *weights = buffer->getWeights())
+		if (auto *weights = buffer->getWeights())
 			weights->skin(buffer->getVertexBuffer(), joint_transforms);
 	}
 }
@@ -175,23 +222,6 @@ void SkinnedMesh::setDirty(E_BUFFER_TYPE buffer)
 		LocalBuffers[i]->setDirty(buffer);
 }
 
-void SkinnedMesh::updateStaticPose()
-{
-	for (auto *buf : LocalBuffers) {
-		if (auto *weights = buf->getWeights())
-			weights->updateStaticPose(buf->getVertexBuffer());
-	}
-}
-
-void SkinnedMesh::resetAnimation()
-{
-	// copy from the cache to the mesh...
-	for (auto *buf : LocalBuffers) {
-		if (auto *weights = buf->getWeights())
-			weights->resetToStatic(buf->getVertexBuffer());
-	}
-}
-
 //! Turns the given array of local matrices into an array of global matrices
 //! by multiplying with respective parent matrices.
 void SkinnedMesh::calculateGlobalMatrices(std::vector<core::matrix4> &matrices) const
@@ -204,27 +234,23 @@ void SkinnedMesh::calculateGlobalMatrices(std::vector<core::matrix4> &matrices) 
 	}
 }
 
-bool SkinnedMesh::checkForAnimation() const
+bool SkinnedMesh::checkForWeights() const
 {
-	for (auto *joint : AllJoints) {
-		if (!joint->keys.empty()) {
-			return true;
-		}
-	}
+	return std::any_of(LocalBuffers.begin(), LocalBuffers.end(),
+			[](const auto *buf) { return buf->getWeights() != nullptr; });
+}
 
-	// meshes with weights are animatable
-	for (auto *buf : LocalBuffers) {
-		if (buf->getWeights()) {
-			return true;
-		}
-	}
-
-	return false;
+bool SkinnedMesh::checkForKeys() const
+{
+	return std::any_of(AllJoints.begin(), AllJoints.end(),
+			[](const auto *joint) { return !joint->keys.empty(); });
 }
 
 void SkinnedMesh::prepareForSkinning()
 {
-	HasAnimation = checkForAnimation();
+	HasWeights = checkForWeights();
+	// Meshes with weights are animatable (e.g. with bone overrides)
+	HasAnimation = HasWeights || checkForKeys();
 	if (!HasAnimation || PreparedForSkinning)
 		return;
 
@@ -370,6 +396,17 @@ SkinnedMesh *SkinnedMeshBuilder::finalize() &&
 	// (see e.g. SkinnedMesh::calculateGlobalMatrices)
 	topoSortJoints();
 
+	// Add all weights such that checkForWeights() works as expected
+	for (const auto &weight : weights) {
+		auto *buf = mesh->LocalBuffers.at(weight.buffer_id);
+		auto *weights = buf->getWeights();
+		if (!weights) {
+			buf->addWeightBuffer();
+			weights = buf->getWeights();
+		}
+		weights->addWeight(weight.vertex_id, weight.joint_id, weight.strength);
+	}
+
 	mesh->prepareForSkinning();
 
 	std::vector<core::matrix4> matrices;
@@ -395,21 +432,14 @@ SkinnedMesh *SkinnedMeshBuilder::finalize() &&
 		}
 	}
 
-	for (const auto &weight : weights) {
-		auto *buf = mesh->LocalBuffers.at(weight.buffer_id);
-		auto *weights = buf->getWeights();
-		if (!weights) {
-			buf->setWeights(WeightBuffer(buf->getVertexCount()));
-			weights = buf->getWeights();
-		}
-		weights->addWeight(weight.vertex_id, weight.joint_id, weight.strength);
-	}
-
 	for (auto *buffer : mesh->LocalBuffers) {
+		// With HW skinning, the VBOs should be static by default.
+		// This hint is changed overwritten by calling useSwSkinning()
+		// on the vertex buffer should it become necessary.
+		buffer->setHardwareMappingHint(EHM_STATIC);
 		if (auto *weights = buffer->getWeights())
 			weights->finalize();
 	}
-	mesh->updateStaticPose();
 
 	mesh->recalculateBaseBoundingBoxes();
 	mesh->StaticPoseBox = mesh->calculateBoundingBox(matrices);

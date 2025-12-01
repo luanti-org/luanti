@@ -969,8 +969,8 @@ CNullDriver::SHWBufferLink *CNullDriver::getBufferLink(const scene::HWBuffer *bu
 		return nullptr;
 
 	// search for hardware links
-	if (auto *HWBuffer = reinterpret_cast<SHWBufferLink *>(buf->Link))
-		return HWBuffer;
+	if (auto *link = reinterpret_cast<SHWBufferLink *>(buf->Link))
+		return link;
 
 	return createHardwareBuffer(buf);
 }
@@ -1039,14 +1039,14 @@ void CNullDriver::removeAllHardwareBuffers()
 
 bool CNullDriver::isHardwareBufferRecommend(const scene::HWBuffer *buf)
 {
-	if (!buf || buf->MappingHint == scene::EHM_NEVER)
+	if (buf->MappingHint == scene::EHM_NEVER)
 		return false;
 
 	if (dynamic_cast<const scene::IVertexBuffer *>(buf)) {
-		return buf->getCount() < MinVertexCountForVBO;
+		return buf->getCount() >= MinVertexCountForVBO;
 	} else if (dynamic_cast<const scene::IIndexBuffer *>(buf)) {
 		// This is a bit stupid
-		return buf->getCount() < 3 * MinVertexCountForVBO;
+		return buf->getCount() >= 3 * MinVertexCountForVBO;
 	} else {
 		return true;
 	}

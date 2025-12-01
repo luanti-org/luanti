@@ -52,6 +52,18 @@ public:
 	//! sets transformation
 	void setTransform(E_TRANSFORMATION_STATE state, const core::matrix4 &mat) override;
 
+	//! Returns the maximum number of joint transformation matrices the hardware and driver support.
+	virtual u16 getMaxJointTransforms() const override
+	{
+		return 0;
+	}
+
+	//! Sets joint transformation matrices for skinned meshes.
+	virtual void setJointTransforms(const std::vector<core::matrix4> &jointMatrices) override
+	{
+		assert(jointMatrices.size() <= getMaxJointTransforms());
+	};
+
 	//! Retrieve the number of image loaders
 	u32 getImageLoaderCount() const override;
 

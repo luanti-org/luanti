@@ -6,6 +6,12 @@ uniform float xyPerspectiveBias0;
 uniform float xyPerspectiveBias1;
 uniform float zPerspectiveBias;
 
+#ifdef USE_SKINNING
+layout (std140) uniform JointMatrices {
+	mat4 joints[MAX_JOINTS];
+};
+#endif
+
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
 CENTROID_ VARYING_ float varTexLayer; // actually int
 
@@ -37,7 +43,24 @@ vec4 applyPerspectiveDistortion(in vec4 position)
 
 void main()
 {
-	vec4 pos = LightMVP * inVertexPosition;
+#ifdef USE_SKINNING
+	uvec4 jids = inVertexJointIDs;
+	vec4 skinPos = inVertexPosition;
+	// Alternatively: Introduce neutral bone at index 0 with identity matrix?
+	if (inVertexWeights != vec4(0.0)) {
+		// Note that this deals correctly with a disabled vertex attribute.
+		mat4 mSkin =
+				inVertexWeights.x * joints[jids.x] +
+				inVertexWeights.y * joints[jids.y] +
+				inVertexWeights.z * joints[jids.z] +
+				inVertexWeights.w * joints[jids.w];
+		skinPos = vec4((mSkin * vec4(inVertexPosition.xyz, 1.0)).xyz, 1.0);
+	}
+#else
+	vec4 skinPos = inVertexPosition;
+#endif
+
+	vec4 pos = LightMVP * skinPos;
 
 	tPos = applyPerspectiveDistortion(pos);
 

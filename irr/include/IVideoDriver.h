@@ -142,6 +142,12 @@ public:
 	\param mat Matrix describing the transformation. */
 	virtual void setTransform(E_TRANSFORMATION_STATE state, const core::matrix4 &mat) = 0;
 
+	//! Returns the maximum number of joint transformation matrices the hardware and driver support.
+	virtual u16 getMaxJointTransforms() const = 0;
+
+	//! Sets joint transformation matrices for skinned meshes.
+	virtual void setJointTransforms(const std::vector<core::matrix4> &jointMatrices) = 0;
+
 	//! Returns the transformation set by setTransform
 	/** \param state Transformation type to query
 	\return Matrix describing the transformation. */

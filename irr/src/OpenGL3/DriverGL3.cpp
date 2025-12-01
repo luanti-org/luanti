@@ -78,6 +78,9 @@ void COpenGL3Driver::initFeatures()
 	Feature.ColorAttachment = GetInteger(GL_MAX_COLOR_ATTACHMENTS);
 	Feature.MaxTextureUnits = MATERIAL_MAX_TEXTURES;
 	Feature.MultipleRenderTarget = GetInteger(GL_MAX_DRAW_BUFFERS);
+	GLint ubo_max_size;
+	GL.GetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &ubo_max_size);
+	Feature.MaxUBOSize = static_cast<size_t>(ubo_max_size);
 
 	// COGLESCoreExtensionHandler
 	if (AnisotropicFilterSupported)

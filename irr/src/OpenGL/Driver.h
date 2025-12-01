@@ -289,6 +289,12 @@ protected:
 	//! Same as `CacheHandler->setViewport`, but also sets `ViewPort`
 	virtual void setViewPortRaw(u32 width, u32 height);
 
+	virtual u16 getMaxJointTransforms() const override
+	{
+		return MaxJointTransforms;
+	}
+	virtual void setJointTransforms(const std::vector<core::matrix4> &jointMatrices) override;
+
 	void drawQuad(const VertexType &vertexType, const S3DVertex (&vertices)[4]);
 	void drawArrays(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount);
 	void drawElements(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount, const u16 *indices, int indexCount);
