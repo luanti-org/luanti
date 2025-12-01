@@ -159,7 +159,7 @@ IMesh *AnimatedMeshSceneNode::getMeshForCurrentFrame()
 	auto *skinnedMesh = static_cast<SkinnedMesh *>(Mesh);
 
 	// Matrices have already been calculated in OnAnimate
-	skinnedMesh->skinMesh(PerJoint.GlobalMatrices);
+	// TODO skinnedMesh->skinMesh(PerJoint.GlobalMatrices);
 
 	return skinnedMesh;
 }
@@ -216,6 +216,11 @@ void AnimatedMeshSceneNode::render()
 	scene::IMesh *m = getMeshForCurrentFrame();
 	assert(m);
 
+	if (auto *sm = dynamic_cast<SkinnedMesh *>(Mesh)) {
+		// TODO check whether there are any weights to make use of these joint transforms
+		driver->setJointTransforms(sm->calculateSkinMatrices(PerJoint.GlobalMatrices));
+		sm->rigidAnimation(PerJoint.GlobalMatrices);
+	}
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 
 	for (u32 i = 0; i < m->getMeshBufferCount(); ++i) {

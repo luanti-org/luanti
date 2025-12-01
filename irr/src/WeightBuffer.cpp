@@ -80,7 +80,7 @@ void WeightBuffer::finalize()
 	// stores which vertices are animated.
 	assert(!animated_vertices.has_value());
 	animated_vertices.emplace();
-	for (u32 i = 0; i < size(); ++i) {
+	for (u32 i = 0; i < getCount(); ++i) {
 		auto &weights_i = weights[i].weights;
 		f32 total_weight = std::accumulate(weights_i.begin(), weights_i.end(), 0.0f);
 		if (core::equals(total_weight, 0.0f)) {

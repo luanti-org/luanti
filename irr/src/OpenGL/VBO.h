@@ -5,16 +5,23 @@
 #pragma once
 
 #include "Common.h"
+#include "SDL_opengl.h"
 #include <cstddef>
 
 namespace video
 {
 
+// TODO rename to OpenGLBO or something as we use it for UBOs as well
 class OpenGLVBO
 {
 public:
+	enum Target : GLenum {
+		TARGET_VBO = GL_ARRAY_BUFFER,
+		TARGET_UBO = GL_UNIFORM_BUFFER,
+	};
+
 	/// @note does not create on GL side
-	OpenGLVBO() = default;
+	OpenGLVBO(Target target) : m_target(target) {}
 	/// @note does not free on GL side
 	~OpenGLVBO() = default;
 
@@ -46,9 +53,10 @@ public:
 	 */
 	void destroy();
 
-private:
+public: // HACK
 	GLuint m_name = 0;
 	size_t m_size = 0;
+	Target m_target;
 };
 
 }
