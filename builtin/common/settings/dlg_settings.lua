@@ -130,6 +130,11 @@ local function load()
 			{ heading = fgettext_ne("Movement") },
 			"arm_inertia",
 			"view_bobbing_amount",
+			{ heading = fgettext_ne("Damage") },
+			"damage_flash_enable",
+			"damage_tilt_enable",
+			"damage_tilt_strength",
+			"damage_tilt_duration",
 		},
 	})
 
