@@ -24,17 +24,21 @@ void OpenGLVBO::upload(const void *data, size_t size, size_t offset,
 		newBuffer = size != m_size;
 	}
 
-	GL.BindBuffer(GL_ARRAY_BUFFER, m_name);
+	GL.BindBuffer(m_target, m_name);
 
 	if (newBuffer) {
 		assert(offset == 0);
-		GL.BufferData(GL_ARRAY_BUFFER, size, data, usage);
+		GL.BufferData(m_target, size, data, usage);
 		m_size = size;
 	} else {
-		GL.BufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+		GL.BufferSubData(m_target, offset, size, data);
 	}
 
-	GL.BindBuffer(GL_ARRAY_BUFFER, 0);
+	// TODO binding should maybe be separate?
+	if (m_target == TARGET_UBO)
+		GL.BindBufferBase(GL_UNIFORM_BUFFER, 0, m_name);
+	else
+		GL.BindBuffer(m_target, 0);
 }
 
 void OpenGLVBO::destroy()

@@ -243,6 +243,12 @@ bool COpenGL3MaterialRenderer::linkProgram()
 			return false;
 		}
 
+		GLuint blockIndex = GL.GetUniformBlockIndex(Program, "JointMatrices");
+		if (GL_INVALID_INDEX != blockIndex) {
+			GL.UniformBlockBinding(Program, blockIndex, 0);
+			Skinning = true;
+		}
+
 		GLint num = 0;
 
 		GL.GetProgramiv(Program, GL_ACTIVE_UNIFORMS, &num);

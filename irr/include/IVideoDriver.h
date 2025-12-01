@@ -142,6 +142,10 @@ public:
 	\param mat Matrix describing the transformation. */
 	virtual void setTransform(E_TRANSFORMATION_STATE state, const core::matrix4 &mat) = 0;
 
+	//! Sets joint transformation matrices for skinned meshes.
+	// FIXME only implemented for OGL 3
+	virtual void setJointTransforms(const std::vector<core::matrix4> &jointMatrices) { assert(false); };
+
 	//! Returns the transformation set by setTransform
 	/** \param state Transformation type to query
 	\return Matrix describing the transformation. */

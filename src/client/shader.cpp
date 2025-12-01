@@ -727,6 +727,8 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			ATTRIBUTE_(5) mediump vec2 inTexCoord1;
 			ATTRIBUTE_(6) mediump vec4 inVertexTangent;
 			ATTRIBUTE_(7) mediump vec4 inVertexBinormal;
+			ATTRIBUTE_(8) mediump vec4 inVertexWeights;
+			ATTRIBUTE_(9) mediump uvec4 inVertexJointIDs;
 		)";
 		if (use_glsl3) {
 			vertex_header += "#define VARYING_ out\n";
@@ -859,13 +861,16 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 */
 
 u32 IShaderSource::getShader(const std::string &name,
-	MaterialType material_type, NodeDrawType drawtype, bool array_texture)
+	MaterialType material_type, NodeDrawType drawtype,
+	bool array_texture, bool skinning)
 {
 	ShaderConstants input_const;
 	input_const["MATERIAL_TYPE"] = (int)material_type;
 	(void) drawtype; // unused
 	if (array_texture)
 		input_const["USE_ARRAY_TEXTURE"] = 1;
+	if (skinning)
+		input_const["USE_SKINNING"] = 1;
 
 	video::E_MATERIAL_TYPE base_mat = video::EMT_SOLID;
 	switch (material_type) {

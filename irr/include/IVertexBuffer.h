@@ -11,7 +11,7 @@
 namespace scene
 {
 
-struct WeightBuffer;
+class WeightBuffer;
 
 class IVertexBuffer : public virtual IReferenceCounted, public IHWBuffer
 {
@@ -49,6 +49,9 @@ public:
 
 	//! returns texture coord of vertex i
 	virtual core::vector2df &getTCoords(u32 i) = 0;
+
+	//! Get weight buffer associated with this vertex buffer, if any
+	virtual const WeightBuffer *getWeightBuffer() const = 0;
 };
 
 } // end namespace scene
