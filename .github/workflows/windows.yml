@@ -68,7 +68,7 @@ jobs:
           if-no-files-found: error
 
   msvc:
-    name: VS 2022 ${{ matrix.config.arch }}-${{ matrix.type }}
+    name: VS 2022 ${{ matrix.config.arch }}
     runs-on: windows-2025
     env:
       VCPKG_DEFAULT_TRIPLET: ${{matrix.config.vcpkg_triplet}}
@@ -86,10 +86,6 @@ jobs:
               generator: "-G'Visual Studio 17 2022' -A x64",
               vcpkg_triplet: x64-windows
             }
-        type: [portable]
-#        type: [portable, installer]
-# The installer type is working, but disabled, to save runner jobs.
-# Enable it, when working on the installer.
 
     steps:
       - uses: actions/checkout@v6
@@ -109,7 +105,7 @@ jobs:
           -DENABLE_POSTGRESQL=OFF  `
           -DENABLE_LUAJIT=TRUE  `
           -DREQUIRE_LUAJIT=TRUE  `
-          -DRUN_IN_PLACE=${{ contains(matrix.type, 'portable') }} .
+          -DRUN_IN_PLACE=1 .
 
       - name: Build
         run: cmake --build . --config Release
@@ -123,20 +119,11 @@ jobs:
 
       - name: CPack
         run: |
-          If ($env:TYPE -eq "installer")
-          {
-            cpack -G WIX -B "$env:GITHUB_WORKSPACE\Package"
-          }
-          ElseIf($env:TYPE -eq "portable")
-          {
-            cpack -G ZIP -B "$env:GITHUB_WORKSPACE\Package"
-          }
+          cpack -G ZIP -B "$env:GITHUB_WORKSPACE\Package"
           rm -r $env:GITHUB_WORKSPACE\Package\_CPack_Packages
-        env:
-          TYPE: ${{matrix.type}}
 
       - uses: actions/upload-artifact@v5
         with:
-          name: msvc-${{ matrix.config.arch }}-${{ matrix.type }}
+          name: msvc-${{ matrix.config.arch }}
           path: .\Package\
           if-no-files-found: error
