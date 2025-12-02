@@ -300,7 +300,7 @@ add_subdirectory(lib/tiniergltf)
 # Be sure to add all relevant definitions above this
 add_subdirectory(src)
 
-# CPack
+# Package generation
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A free open-source voxel game engine with easy modding and game creation.")
 set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
@@ -326,6 +326,21 @@ if(WIN32)
 		set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${VERSION_STRING}-win32")
 	endif()
 
+	if(NOT RUN_IN_PLACE)
+		set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${VERSION_STRING}-nsis")
+		install(FILES "misc/luanti-icon.ico" DESTINATION ".")
+		install(FILES "misc/sfx-launcher.nsi" DESTINATION ".")
+		# normalize to 0/1
+		set(DEVELOPMENT_BUILD01 0)
+		if(DEVELOPMENT_BUILD)
+			set(DEVELOPMENT_BUILD01 1)
+		endif()
+		configure_file("${CMAKE_CURRENT_SOURCE_DIR}/misc/meta.nsh.in"
+			"${CMAKE_CURRENT_BINARY_DIR}/misc/meta.nsh" @ONLY ESCAPE_QUOTES)
+		install(FILES "${CMAKE_CURRENT_BINARY_DIR}/misc/meta.nsh" DESTINATION ".")
+	endif()
+
+	# we just generate a ZIP file and someone has to run makensis manually
 	set(CPACK_GENERATOR ZIP)
 elseif(APPLE)
 	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)

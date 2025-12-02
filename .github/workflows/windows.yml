@@ -33,39 +33,63 @@ on:
 
 jobs:
   mingw:
-    name: "MinGW cross-compiler (${{ matrix.bits }}-bit)"
-    runs-on: ubuntu-22.04
+    name: "MinGW cross-compiler (${{ matrix.config.bits }}-bit)"
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        bits: [32, 64]
+        config:
+          - { bits: 32, nsis: false }
+          - { bits: 64, nsis: true }
     steps:
       - uses: actions/checkout@v6
       - name: Install compiler
         run: |
-          sudo dpkg --add-architecture i386
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends gettext wine wine${{ matrix.bits }}
+          source ./util/ci/common.sh
+          install_mingw_deps '${{matrix.config.bits}}' '${{matrix.config.nsis}}'
+          if '${{matrix.config.nsis}}'; then
+            echo 'CMAKE_CXX_COMPILER_LAUNCHER=ccache' >>$GITHUB_ENV
+          fi
           sudo ./util/buildbot/download_toolchain.sh /usr
 
       - name: Build
         run: |
            EXISTING_MINETEST_DIR=$PWD \
-           ./util/buildbot/buildwin${{ matrix.bits }}.sh B
+           ./util/buildbot/buildwin${{ matrix.config.bits }}.sh B
+           mkdir -p artifact
+           cp -v B/build/*.zip artifact/
 
       # Check that the resulting binary can run (DLLs etc.)
       - name: Runtime test
         run: |
           dest=$(mktemp -d)
-          unzip -q -d "$dest" B/build/*.zip
+          unzip -q -d "$dest" artifact/*.zip
           cd "$dest"/luanti-*-win*
           wine bin/luanti.exe --version
 
+      - name: Build for NSIS
+        run: |
+           EXISTING_MINETEST_DIR=$PWD \
+           ./util/buildbot/buildwin${{ matrix.config.bits }}.sh B -DRUN_IN_PLACE=0
+           dest=$(mktemp -d)
+           unzip -q -d "$dest" B/build/*.zip
+           cd "$dest"/luanti-*-nsis
+           makensis -WX -V3 sfx-launcher.nsi
+           cp -v "$dest"/*.exe $GITHUB_WORKSPACE/artifact/
+        if: ${{ matrix.config.nsis }}
+
       - uses: actions/upload-artifact@v5
         with:
-          name: "mingw${{ matrix.bits }}"
-          path: B/build/*.zip
+          name: "mingw${{ matrix.config.bits }}"
+          path: artifact/*.zip
           if-no-files-found: error
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: "mingw${{ matrix.config.bits }}-nsis"
+          path: artifact/*.exe
+          if-no-files-found: error
+        if: ${{ matrix.config.nsis }}
 
   msvc:
     name: VS 2022 ${{ matrix.config.arch }}
