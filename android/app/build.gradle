@@ -82,6 +82,9 @@ task prepareAssets() {
 			from "${projRoot}/irr/media/Shaders" into "${assetsFolder}/client/shaders/Irrlicht"
 		}
 		copy {
+			from "${projRoot}/client/cacert.pem" into "${assetsFolder}/client"
+		}
+		copy {
 			from "${projRoot}/fonts" include "*.ttf" into "${assetsFolder}/fonts"
 		}
 		copy {
