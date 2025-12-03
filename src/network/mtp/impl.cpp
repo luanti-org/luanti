@@ -897,7 +897,7 @@ void Peer::RTTStatistics(float rtt, const std::string &profiler_id,
 			m_rtt.max_rtt = rtt;
 
 		/* do average calculation */
-		if (m_rtt.avg_rtt < 0.0)
+		if (m_rtt.avg_rtt < 0)
 			m_rtt.avg_rtt  = rtt;
 		else
 			m_rtt.avg_rtt  = m_rtt.avg_rtt * (num_samples/(num_samples-1)) +
@@ -919,7 +919,7 @@ void Peer::RTTStatistics(float rtt, const std::string &profiler_id,
 		if (jitter >= m_rtt.jitter_max)
 			m_rtt.jitter_max = jitter;
 
-		if (m_rtt.jitter_avg < 0.0)
+		if (m_rtt.jitter_avg < 0)
 			m_rtt.jitter_avg  = jitter;
 		else
 			m_rtt.jitter_avg  = m_rtt.jitter_avg * (num_samples/(num_samples-1)) +
@@ -1002,7 +1002,7 @@ void UDPPeer::reportRTT(float rtt)
 {
 	if (rtt < 0)
 		return;
-	RTTStatistics(rtt,"rudp",MAX_RELIABLE_WINDOW_SIZE*10);
+	RTTStatistics(rtt, "network", MAX_RELIABLE_WINDOW_SIZE*10);
 
 	// use this value to decide the resend timeout
 	const float rtt_stat = getStat(AVG_RTT);

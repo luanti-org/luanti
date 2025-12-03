@@ -11,6 +11,42 @@
 static Profiler main_profiler;
 Profiler *g_profiler = &main_profiler;
 
+/*
+	Splits a list into "pages". For example, the list [1,2,3,4,5] split
+	into two pages would be [1,2,3],[4,5]. This function computes the
+	minimum and maximum indices of a single page.
+
+	length: Length of the list that should be split
+	page: Page number, 1 <= page <= pagecount
+	pagecount: The number of pages, >= 1
+	minindex: Receives the minimum index (inclusive).
+	maxindex: Receives the maximum index (exclusive).
+
+	Ensures 0 <= minindex <= maxindex <= length.
+*/
+static void paging(u32 length, u32 page, u32 pagecount, u32 &minindex, u32 &maxindex)
+{
+	if (length < 1 || pagecount < 1 || page < 1 || page > pagecount) {
+		// Special cases or invalid parameters
+		minindex = maxindex = 0;
+	} else if(pagecount <= length) {
+		// Less pages than entries in the list:
+		// Each page contains at least one entry
+		minindex = (length * (page-1) + (pagecount-1)) / pagecount;
+		maxindex = (length * page + (pagecount-1)) / pagecount;
+	} else {
+		// More pages than entries in the list:
+		// Make sure the empty pages are at the end
+		if (page < length) {
+			minindex = page-1;
+			maxindex = page;
+		} else {
+			minindex = 0;
+			maxindex = 0;
+		}
+	}
+}
+
 ScopeProfiler::ScopeProfiler(Profiler *profiler, const std::string &name,
 		ScopeProfilerType type, TimePrecision prec) :
 	m_profiler(profiler),
@@ -137,14 +173,15 @@ int Profiler::print(std::ostream &o, u32 page, u32 pagecount)
 
 		{
 			// Padding
-			s32 space = std::max(0, 46 - (s32)i.first.size());
+			s32 space = std::max(0, 48 - (s32)i.first.size());
 			memset(buffer, '_', space);
 			buffer[space] = '\0';
 			o << buffer;
 		}
 
-		porting::mt_snprintf(buffer, sizeof(buffer), "% 5ix % 7g",
-				getAvgCount(i.first), floor(i.second * 1000.0) / 1000.0);
+		float rounded = floorf(i.second * 1000.0f) / 1000.0f;
+		porting::mt_snprintf(buffer, sizeof(buffer), "% 5ix % 8g",
+				getAvgCount(i.first), rounded);
 		o << buffer << std::endl;
 	}
 	return values.size();

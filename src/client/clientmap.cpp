@@ -717,7 +717,6 @@ void ClientMap::updateDrawList()
 		g_profiler->avg("MapBlock sides skipped [#]", sides_skipped);
 		g_profiler->avg("MapBlocks examined [#]", blocks_visited);
 	}
-	g_profiler->avg("MapBlocks shortlist [#]", shortlist.size());
 
 	// must populate either only to avoid duplicates
 	assert(m_drawlist.empty() || shortlist.empty());
