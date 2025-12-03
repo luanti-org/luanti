@@ -17,8 +17,8 @@ Please refer to `lua_api.md` for server-side modding.
 
 ### Paths
 
-SSCSM uses a virtual file system (just a dictionary of virtual paths (strings))
-to file contents (strings).
+SSCSM uses a virtual file system (just a dictionary of virtual paths (strings)
+to file contents (strings)).
 
 Each mod's files have paths of the form `modname:foo/bla.lua`.
 Please don't rely on this, use `core.get_modpath()` instead.
@@ -43,6 +43,8 @@ in C++ which is loaded when you set `enable_sscsm` to `singleplayer`.
 ## API
 
 Unless noted otherwise, these work the same as in the server modding API.
+
+Functions that take or return paths always use virtual paths.
 
 ### Global callbacks
 
@@ -167,13 +169,13 @@ Unless noted otherwise, these work the same as in the server modding API.
 * `_VERSION`
 * `xpcall`
 * `dofile`
-  * Overwritten.
+  * Overwritten: Loading bytecode is prohibited (like in SSM).
 * `load`
-  * Overwritten.
+  * As above.
 * `loadfile`
-  * Overwritten.
+  * As above.
 * `loadstring`
-  * Overwritten.
+  * As above.
 * `coroutine.*`
 * `table.*`
 * `math.*`
