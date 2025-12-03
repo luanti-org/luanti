@@ -8,7 +8,7 @@
 #include "l_internal.h"
 #include "common/c_content.h"
 #include "gui/guiEngine.h"
-#include "sound.h"
+#include "sound_spec.h"
 
 /* ModApiMainMenuSound */
 

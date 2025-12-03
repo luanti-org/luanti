@@ -5,7 +5,6 @@
 #pragma once
 
 #include "config.h"
-#include <set>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -60,7 +59,7 @@ bool CreateDir(const std::string &path);
 // Only pass full paths to this one. returns true on success.
 bool RecursiveDelete(const std::string &path);
 
-bool DeleteSingleFileOrEmptyDirectory(const std::string &path);
+bool DeleteSingleFileOrEmptyDirectory(const std::string &path, bool log_error = false);
 
 /// Returns path to temp directory.
 /// You probably don't want to use this directly, see `CreateTempFile` or `CreateTempDir`.
@@ -79,23 +78,19 @@ bool DeleteSingleFileOrEmptyDirectory(const std::string &path);
        hidden directories (whose names start with . or _)
 */
 void GetRecursiveDirs(std::vector<std::string> &dirs, const std::string &dir);
+
 [[nodiscard]]
 std::vector<std::string> GetRecursiveDirs(const std::string &dir);
-
-/* Multiplatform */
 
 /* The path itself not included, returns a list of all subpaths.
    dst - vector that contains all the subpaths.
    list files - include files in the list of subpaths.
-   ignore - paths that start with these charcters will not be listed.
+   ignore - paths that start with one of these charcters will not be listed.
 */
 void GetRecursiveSubPaths(const std::string &path,
-		  std::vector<std::string> &dst,
-		  bool list_files,
-		  const std::set<char> &ignore = {});
-
-// Only pass full paths to this one. True on success.
-bool RecursiveDeleteContent(const std::string &path);
+		std::vector<std::string> &dst,
+		bool list_files,
+		std::string_view ignore = {});
 
 // Create all directories on the given path that don't already exist.
 bool CreateAllDirs(const std::string &path);
@@ -116,12 +111,13 @@ bool MoveDir(const std::string &source, const std::string &target);
 // Ignores case differences and '/' vs. '\\' on Windows
 bool PathStartsWith(const std::string &path, const std::string &prefix);
 
-// Remove last path component and the dir delimiter before and/or after it,
-// returns "" if there is only one path component.
-// removed: If non-NULL, receives the removed component(s).
+// Remove last path component and the dir delimiter before and/or after it.
+// If there's only one path component it will refuse to remove it (if absolute)
+// or return "" (if relative).
+// removed: If non-NULL, receives the removed components
 // count: Number of components to remove
 std::string RemoveLastPathComponent(const std::string &path,
-		std::string *removed = NULL, int count = 1);
+		std::string *removed = nullptr, int count = 1);
 
 // Remove "." and ".." path components and for every ".." removed, remove
 // the last normal path component before it. Unlike AbsolutePath,

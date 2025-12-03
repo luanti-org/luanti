@@ -5,7 +5,7 @@
 #include "player.h"
 
 #include <cmath>
-#include "hud.h"
+#include "hud_element.h"
 #include "constants.h"
 #include "gamedef.h"
 #include <tuple>

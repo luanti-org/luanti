@@ -21,14 +21,6 @@
 #include <IFileSystem.h>
 #endif
 
-#ifdef __linux__
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#ifndef FICLONE
-#define FICLONE _IOW(0x94, 9, int)
-#endif
-#endif
-
 #ifdef _WIN32
 #include <windows.h>
 #include <shlwapi.h>
@@ -40,6 +32,14 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <fcntl.h>
+#endif
+
+#ifdef __linux__
+#include <sys/ioctl.h>
+#ifndef FICLONE
+#define FICLONE _IOW(0x94, 9, int)
+#endif
 #endif
 
 // Error from last OS call as string
@@ -62,46 +62,39 @@ std::vector<DirListNode> GetDirListing(const std::string &pathstring)
 {
 	std::vector<DirListNode> listing;
 
-	WIN32_FIND_DATA FindFileData;
-	HANDLE hFind = INVALID_HANDLE_VALUE;
+	WIN32_FIND_DATA FindFileData{};
 	DWORD dwError;
 
 	std::string dirSpec = pathstring + "\\*";
 
 	// Find the first file in the directory.
-	hFind = FindFirstFile(dirSpec.c_str(), &FindFileData);
+	HANDLE hFind = FindFirstFile(dirSpec.c_str(), &FindFileData);
 
 	if (hFind == INVALID_HANDLE_VALUE) {
 		dwError = GetLastError();
 		if (dwError != ERROR_FILE_NOT_FOUND && dwError != ERROR_PATH_NOT_FOUND) {
-			errorstream << "GetDirListing: FindFirstFile error."
-					<< " Error is " << dwError << std::endl;
+			errorstream << "GetDirListing: FindFirstFile error code "
+					<< dwError << std::endl;
 		}
 	} else {
 		// NOTE:
 		// Be very sure to not include '..' in the results, it will
 		// result in an epic failure when deleting stuff.
 
-		DirListNode node;
-		node.name = FindFileData.cFileName;
-		node.dir = FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY;
-		if (node.name != "." && node.name != "..")
-			listing.push_back(node);
-
-		// List all the other files in the directory.
-		while (FindNextFile(hFind, &FindFileData) != 0) {
+		// do-while because the first file is already in the struct
+		do {
 			DirListNode node;
 			node.name = FindFileData.cFileName;
 			node.dir = FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY;
 			if(node.name != "." && node.name != "..")
-				listing.push_back(node);
-		}
+				listing.push_back(std::move(node));
+		} while (FindNextFile(hFind, &FindFileData) != 0);
 
 		dwError = GetLastError();
 		FindClose(hFind);
 		if (dwError != ERROR_NO_MORE_FILES) {
-			errorstream << "GetDirListing: FindNextFile error."
-					<< " Error is " << dwError << std::endl;
+			errorstream << "GetDirListing: FindNextFile error code "
+					<< dwError << std::endl;
 			listing.clear();
 			return listing;
 		}
@@ -111,10 +104,8 @@ std::vector<DirListNode> GetDirListing(const std::string &pathstring)
 
 bool CreateDir(const std::string &path)
 {
-	bool r = CreateDirectory(path.c_str(), NULL);
-	if(r == true)
-		return true;
-	if(GetLastError() == ERROR_ALREADY_EXISTS)
+	bool r = CreateDirectory(path.c_str(), nullptr);
+	if (r || GetLastError() == ERROR_ALREADY_EXISTS)
 		return true;
 	return false;
 }
@@ -182,25 +173,31 @@ bool RecursiveDelete(const std::string &path)
 	return true;
 }
 
-bool DeleteSingleFileOrEmptyDirectory(const std::string &path)
+bool DeleteSingleFileOrEmptyDirectory(const std::string &path, bool log_error)
 {
-	if (!IsDir(path))
-		return DeleteFile(path.c_str());
-	return RemoveDirectory(path.c_str());
+	if (!IsDir(path)) {
+		bool ok = DeleteFile(path.c_str()) != 0;
+		if (!ok && log_error)
+			errorstream << "DeleteFile failed: " << LAST_OS_ERROR() << std::endl;
+	}
+	bool ok = RemoveDirectory(path.c_str()) != 0;
+	if (!ok && log_error)
+		errorstream << "RemoveDirectory failed: " << LAST_OS_ERROR() << std::endl;
+	return ok;
 }
 
 std::string TempPath()
 {
-	DWORD bufsize = GetTempPath(0, NULL);
-	if(bufsize == 0){
-		errorstream<<"GetTempPath failed, error = "<<GetLastError()<<std::endl;
+	DWORD bufsize = GetTempPath(0, nullptr);
+	if (bufsize == 0) {
+		errorstream << "GetTempPath failed: " << LAST_OS_ERROR() << std::endl;
 		return "";
 	}
 	std::string buf;
 	buf.resize(bufsize);
 	DWORD len = GetTempPath(bufsize, &buf[0]);
-	if(len == 0 || len > bufsize){
-		errorstream<<"GetTempPath failed, error = "<<GetLastError()<<std::endl;
+	if (len == 0 || len > bufsize) {
+		errorstream << "GetTempPath failed: " << LAST_OS_ERROR() << std::endl;
 		return "";
 	}
 	buf.resize(len);
@@ -235,7 +232,7 @@ bool CopyFileContents(const std::string &source, const std::string &target)
 		nullptr, COPY_FILE_ALLOW_DECRYPTED_DESTINATION);
 	if (!ok) {
 		errorstream << "copying " << source << " to " << target
-			<< " failed: " << GetLastError() << std::endl;
+			<< " failed: " << LAST_OS_ERROR() << std::endl;
 		return false;
 	}
 
@@ -265,13 +262,12 @@ std::vector<DirListNode> GetDirListing(const std::string &pathstring)
 	std::vector<DirListNode> listing;
 
 	DIR *dp;
-	struct dirent *dirp;
-	if((dp = opendir(pathstring.c_str())) == NULL) {
-		//infostream<<"Error("<<errno<<") opening "<<pathstring<<std::endl;
+	if((dp = opendir(pathstring.c_str())) == nullptr) {
 		return listing;
 	}
 
-	while ((dirp = readdir(dp)) != NULL) {
+	struct dirent *dirp;
+	while ((dirp = readdir(dp)) != nullptr) {
 		// NOTE:
 		// Be very sure to not include '..' in the results, it will
 		// result in an epic failure when deleting stuff.
@@ -301,12 +297,13 @@ std::vector<DirListNode> GetDirListing(const std::string &pathstring)
 		*/
 		if(isdir == -1) {
 			struct stat statbuf{};
-			if (stat((pathstring + "/" + node.name).c_str(), &statbuf))
+			if (stat((pathstring + DIR_DELIM + node.name).c_str(), &statbuf))
 				continue;
 			isdir = ((statbuf.st_mode & S_IFDIR) == S_IFDIR);
 		}
 		node.dir = isdir;
-		listing.push_back(node);
+
+		listing.push_back(std::move(node));
 	}
 	closedir(dp);
 
@@ -315,7 +312,7 @@ std::vector<DirListNode> GetDirListing(const std::string &pathstring)
 
 bool CreateDir(const std::string &path)
 {
-	int r = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	int r = mkdir(path.c_str(), 0775);
 	if (r == 0) {
 		return true;
 	}
@@ -407,39 +404,34 @@ bool RecursiveDelete(const std::string &path)
 	}
 }
 
-bool DeleteSingleFileOrEmptyDirectory(const std::string &path)
+bool DeleteSingleFileOrEmptyDirectory(const std::string &path, bool log_error)
 {
 	if (IsDir(path)) {
-		bool did = (rmdir(path.c_str()) == 0);
-		if (!did)
-			errorstream << "rmdir errno: " << errno << ": " << strerror(errno)
-					<< std::endl;
+		bool did = rmdir(path.c_str()) == 0;
+		if (!did && log_error)
+			errorstream << "rmdir error: " << LAST_OS_ERROR() << std::endl;
 		return did;
 	}
 
-	bool did = (unlink(path.c_str()) == 0);
-	if (!did)
-		errorstream << "unlink errno: " << errno << ": " << strerror(errno)
-				<< std::endl;
+	bool did = unlink(path.c_str()) == 0;
+	if (!did && log_error)
+		errorstream << "unlink error: " << LAST_OS_ERROR() << std::endl;
 	return did;
 }
 
 std::string TempPath()
 {
-	/*
-		Should the environment variables TMPDIR, TMP and TEMP
-		and the macro P_tmpdir (if defined by stdio.h) be checked
-		before falling back on /tmp?
-
-		Probably not, because this function is intended to be
-		compatible with lua's os.tmpname which under the default
-		configuration hardcodes mkstemp("/tmp/lua_XXXXXX").
-	*/
-
 #ifdef __ANDROID__
 	return porting::path_cache;
 #else
+	const char *env_tmpdir = getenv("TMPDIR");
+	if (env_tmpdir && env_tmpdir[0] == DIR_DELIM_CHAR)
+		return env_tmpdir;
+#ifdef P_tmpdir
+	return P_tmpdir;
+#else
 	return DIR_DELIM "tmp";
+#endif
 #endif
 }
 
@@ -487,7 +479,7 @@ bool CopyFileContents(const std::string &source, const std::string &target)
 			<< strerror(errno) << std::endl;
 		return false;
 	}
-	tgtfd = open(target.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	tgtfd = open(target.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0664);
 	if (tgtfd == -1) {
 		errorstream << target << ": can't open for writing: "
 			<< strerror(errno) << std::endl;
@@ -560,7 +552,7 @@ bool CopyFileContents(const std::string &source, const std::string &target)
 
 void GetRecursiveDirs(std::vector<std::string> &dirs, const std::string &dir)
 {
-	static const std::set<char> chars_to_ignore = { '_', '.' };
+	constexpr std::string_view chars_to_ignore = "_.";
 	if (dir.empty() || !IsDir(dir))
 		return;
 	dirs.push_back(dir);
@@ -575,53 +567,35 @@ std::vector<std::string> GetRecursiveDirs(const std::string &dir)
 }
 
 void GetRecursiveSubPaths(const std::string &path,
-		  std::vector<std::string> &dst,
-		  bool list_files,
-		  const std::set<char> &ignore)
+		std::vector<std::string> &dst,
+		bool list_files,
+		std::string_view ignore)
 {
 	std::vector<DirListNode> content = GetDirListing(path);
 	for (const auto &n : content) {
 		std::string fullpath = path + DIR_DELIM + n.name;
-		if (ignore.count(n.name[0]))
+		if (ignore.find(n.name[0]) != std::string_view::npos)
 			continue;
 		if (list_files || n.dir)
 			dst.push_back(fullpath);
+		// Note: this is probably vulnerable to a symlink infinite loop trap
 		if (n.dir)
 			GetRecursiveSubPaths(fullpath, dst, list_files, ignore);
 	}
 }
 
-bool RecursiveDeleteContent(const std::string &path)
-{
-	infostream<<"Removing content of \""<<path<<"\""<<std::endl;
-	std::vector<DirListNode> list = GetDirListing(path);
-	for (const DirListNode &dln : list) {
-		if(trim(dln.name) == "." || trim(dln.name) == "..")
-			continue;
-		std::string childpath = path + DIR_DELIM + dln.name;
-		bool r = RecursiveDelete(childpath);
-		if(!r) {
-			errorstream << "Removing \"" << childpath << "\" failed" << std::endl;
-			return false;
-		}
-	}
-	return true;
-}
-
 bool CreateAllDirs(const std::string &path)
 {
-
 	std::vector<std::string> tocreate;
-	std::string basepath = path;
-	while(!PathExists(basepath))
-	{
+	std::string basepath = path, removed;
+	while (!PathExists(basepath)) {
 		tocreate.push_back(basepath);
-		basepath = RemoveLastPathComponent(basepath);
-		if(basepath.empty())
+		basepath = RemoveLastPathComponent(basepath, &removed);
+		if (removed.empty())
 			break;
 	}
-	for(int i=tocreate.size()-1;i>=0;i--)
-		if(!CreateDir(tocreate[i]))
+	for (auto it = tocreate.rbegin(); it != tocreate.rend(); ++it)
+		if(!CreateDir(*it))
 			return false;
 	return true;
 }
@@ -748,25 +722,31 @@ std::string RemoveLastPathComponent(const std::string &path,
 
 	size_t remaining = path.size();
 
-	for(int i = 0; i < count; ++i){
-		// strip a dir delimiter
-		while(remaining != 0 && IsDirDelimiter(path[remaining-1]))
+	for (int i = 0; i < count; ++i) {
+		// strip a dir delimiter, unless the path is empty
+		// because "" and "/" are not the same
+		// FIXME: same problem probably exists on win32 with "C:"
+		while (remaining > 1 && IsDirDelimiter(path[remaining-1]))
 			remaining--;
 		// strip a path component
 		size_t component_end = remaining;
-		while(remaining != 0 && !IsDirDelimiter(path[remaining-1]))
+		while (remaining != 0 && !IsDirDelimiter(path[remaining-1]))
 			remaining--;
 		size_t component_start = remaining;
-		// strip a dir delimiter
-		while(remaining != 0 && IsDirDelimiter(path[remaining-1]))
+		// strip another delimiter
+		while (remaining > 1 && IsDirDelimiter(path[remaining-1]))
 			remaining--;
-		if(removed){
+		if (component_start == component_end)
+			break; // could not remove anything
+		if (removed) {
 			std::string component = path.substr(component_start,
 					component_end - component_start);
-			if(i)
-				*removed = component + DIR_DELIM + *removed;
-			else
-				*removed = component;
+			if (i) {
+				removed->insert(0, DIR_DELIM);
+				removed->insert(0, component);
+			} else {
+				*removed = std::move(component);
+			}
 		}
 	}
 	return path.substr(0, remaining);
@@ -804,7 +784,7 @@ std::string RemoveRelativePathComponents(std::string path)
 			while (pos != 0 && IsDirDelimiter(path[pos-1]))
 				pos--;
 			if (component_start == 0) {
-				// We need to remove the delemiter too
+				// We need to remove the delimiter too
 				path = path.substr(component_with_delim_end, std::string::npos);
 			} else {
 				path = path.substr(0, pos) + DIR_DELIM +
@@ -885,23 +865,38 @@ const char *GetFilenameFromPath(const char *path)
 	return filename ? filename + 1 : path;
 }
 
-// Note: this is not safe if two MT processes try this at the same time (FIXME?)
+/// @return short identifier unique across all current processes *and* threads
+static std::string get_unique()
+{
+	static std::atomic<u16> g_counter;
+	int pid;
+#ifdef _WIN32
+	pid = GetCurrentProcessId();
+#else
+	pid = getpid();
+#endif
+	return itos(pid) + "-" + itos(g_counter.fetch_add(1));
+}
+
 bool safeWriteToFile(const std::string &path, std::string_view content)
 {
-	// Prevent two threads from writing to the same temporary file
-	static std::atomic<u16> g_file_counter;
-	const std::string tmp_file = path + ".~mt" + itos(g_file_counter.fetch_add(1));
+	// Create it in the same directory
+	std::string tmp_file;
+	if (auto dir = RemoveLastPathComponent(path); !dir.empty()) {
+		tmp_file = dir + DIR_DELIM;
+	}
+	tmp_file += ".~mt" + get_unique();
 
 	// Write data to a temporary file
 	std::string write_error;
 
+	// We've observed behavior suggesting that std::ofstream::flush does not actually
+	// flush to disk, so we use the native APIs here for explicit control.
 #ifdef _WIN32
-	// We've observed behavior suggesting that the MSVC implementation of std::ofstream::flush doesn't
-	// actually flush, so we use win32 APIs.
 	HANDLE handle = CreateFile(tmp_file.c_str(), GENERIC_WRITE, 0, nullptr,
 		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (handle == INVALID_HANDLE_VALUE) {
-		errorstream << "Failed to open file: " << LAST_OS_ERROR() << std::endl;
+		errorstream << "Failed to open \"" << tmp_file << "\": " << LAST_OS_ERROR() << std::endl;
 		return false;
 	}
 	DWORD bytes_written;
@@ -909,15 +904,33 @@ bool safeWriteToFile(const std::string &path, std::string_view content)
 		write_error = LAST_OS_ERROR();
 	else if (!FlushFileBuffers(handle))
 		write_error = LAST_OS_ERROR();
+	else
+		assert(bytes_written == content.size());
 	CloseHandle(handle);
 #else
-	auto os = open_ofstream(tmp_file.c_str(), true);
-	if (!os.good())
+	int fd = open(tmp_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_NOFOLLOW, 0664);
+	if (fd == -1) {
+		errorstream << "Failed to open \"" << tmp_file << "\": " << LAST_OS_ERROR() << std::endl;
 		return false;
-	os << content << std::flush;
-	os.close();
-	if (os.fail())
-		write_error = "iostream fail";
+	}
+	size_t written = 0;
+	while (written < content.size()) {
+		ssize_t r = write(fd, &content[written], content.size() - written);
+		if (r <= 0) {
+			write_error = LAST_OS_ERROR();
+			break;
+		}
+		written += r;
+	}
+	// Flushes file data and inode to disk. fdatasync should be faster if available.
+#if defined(_POSIX_SYNCHRONIZED_IO) && _POSIX_SYNCHRONIZED_IO > 0
+	if (fdatasync(fd) != 0)
+		write_error = LAST_OS_ERROR();
+#else
+	if (fsync(fd) != 0)
+		write_error = LAST_OS_ERROR();
+#endif
+	close(fd);
 #endif
 
 	if (!write_error.empty()) {

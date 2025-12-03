@@ -41,7 +41,7 @@ jobs:
   gcc_9:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install deps
         run: |
           source ./util/ci/common.sh
@@ -68,7 +68,7 @@ jobs:
   gcc_14:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install deps
         run: |
           source ./util/ci/common.sh
@@ -94,7 +94,7 @@ jobs:
   clang_11:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install deps
         run: |
           source ./util/ci/common.sh
@@ -121,7 +121,7 @@ jobs:
   clang_18:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install deps
         run: |
           source ./util/ci/common.sh
@@ -151,7 +151,7 @@ jobs:
     name: "clang (with Prometheus, ARM64)"
     runs-on: ubuntu-24.04-arm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install deps
         run: |
           source ./util/ci/common.sh

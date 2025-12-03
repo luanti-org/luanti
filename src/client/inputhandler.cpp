@@ -8,7 +8,7 @@
 #include "inputhandler.h"
 #include "gui/mainmenumanager.h"
 #include "gui/touchcontrols.h"
-#include "hud.h"
+#include "hud_element.h"
 #include "log_internal.h"
 #include "client/renderingengine.h"
 

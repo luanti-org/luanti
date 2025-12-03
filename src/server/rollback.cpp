@@ -3,6 +3,7 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "rollback.h"
+#include "exceptions.h"
 #include <list>
 #include "log.h"
 #include "gamedef.h"
