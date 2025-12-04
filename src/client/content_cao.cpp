@@ -787,10 +787,11 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		if (m_animated_meshnode) {
 			auto *mesh = m_animated_meshnode->getMesh();
 			// skinning happens on the CPU
-			if (m_animated_meshnode->getJointCount() > 0)
+			// TODO decide something proper
+			/* if (m_animated_meshnode->getJointCount() > 0)
 				mesh->setHardwareMappingHint(scene::EHM_STREAM, scene::EBT_VERTEX);
 			else
-				mesh->setHardwareMappingHint(scene::EHM_STATIC, scene::EBT_VERTEX);
+				mesh->setHardwareMappingHint(scene::EHM_STATIC, scene::EBT_VERTEX); */
 			mesh->setHardwareMappingHint(scene::EHM_STATIC, scene::EBT_INDEX);
 		}
 	}
