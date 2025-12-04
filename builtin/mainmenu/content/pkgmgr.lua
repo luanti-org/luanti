@@ -124,7 +124,7 @@ function pkgmgr.get_mods(path, virtual_path, listing, modpack)
 			else
 				mod_conf = Settings(mod_path .. DIR_DELIM .. "mod.conf"):to_table()
 				if mod_conf.name then
-					name = mod_conf.name
+					name = mod_conf.name:gsub("[^a-z0-9_]", "_")
 					toadd.is_name_explicit = true
 				end
 			end
