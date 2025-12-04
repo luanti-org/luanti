@@ -77,9 +77,28 @@ bool parseModContents(ModSpec &spec)
 
 	Settings info;
 	info.readConfigFile((spec.path + DIR_DELIM + "mod.conf").c_str());
+	if (info.exists("name")) {
+		std::string raw_name = info.get("name");
 
-	if (info.exists("name"))
-		spec.name = info.get("name");
+		std::string sanitized_name = raw_name;
+		bool was_changed = false;
+
+		std::string allowed = MODNAME_ALLOWED_CHARS;
+
+		for (char &c : sanitized_name) {
+			if (allowed.find(c) == std::string::npos) {
+                c = '_';
+                was_changed = true;
+            }
+        }
+
+        spec.name = sanitized_name;
+
+        if (was_changed) {
+            warningstream << "Invalid mod name \"" << raw_name
+                          << "\" cleaned to \"" << sanitized_name << "\"." << std::endl;
+        }
+    }
 	else
 		spec.deprecation_msgs.push_back("Mods not having a mod.conf file with the name is deprecated.");
 
