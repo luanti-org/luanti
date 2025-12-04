@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "SkinnedMesh.h"
+#include "EHardwareBufferFlags.h"
 #include "SSkinMeshBuffer.h"
 #include "Transform.h"
 #include "aabbox3d.h"
@@ -422,6 +423,9 @@ SkinnedMesh *SkinnedMeshBuilder::finalize() &&
 	}
 
 	for (auto *buffer : mesh->LocalBuffers) {
+		// With GPU skinning, the VBOs should be static
+		// TODO fallback to software skinning
+		buffer->setHardwareMappingHint(EHM_STATIC);
 		if (auto *weights = buffer->getWeights())
 			weights->finalize();
 	}
