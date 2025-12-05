@@ -2593,9 +2593,7 @@ Damage calculation:
 
 Client predicts damage based on damage groups. Because of this, it is able to
 give an immediate response when an entity is damaged or dies; the response is
-pre-defined somehow (e.g. by defining a sprite animation) (not implemented;
-TODO).
-Currently a smoke puff will appear when an entity dies.
+pre-defined and a smoke puff will appear when an entity dies.
 
 The group `immortal` completely disables normal damage.
 
@@ -2610,18 +2608,10 @@ entity:on_punch(puncher, time_from_last_punch, tool_capabilities, direction,
                 damage)
 ```
 
-This should never be called directly, because damage is usually not handled by
-the entity itself.
+This should **never** be called directly, because damage is usually not handled
+by the entity itself.
 
-* `puncher` is the object performing the punch. Can be `nil`. Should never be
-  accessed unless absolutely required, to encourage interoperability.
-* `time_from_last_punch` is time from last punch (by `puncher`) or `nil`.
-* `tool_capabilities` can be `nil`.
-* `direction` is a unit vector, pointing from the source of the punch to
-   the punched object.
-* `damage` damage that will be done to entity
-Return value of this function will determine if damage is done by this function
-(retval true) or shall be done by engine (retval false)
+(see "Registered entities" section for detailed description)
 
 To punch an entity/object in Lua, call:
 
@@ -2629,12 +2619,7 @@ To punch an entity/object in Lua, call:
 object:punch(puncher, time_from_last_punch, tool_capabilities, direction)
 ```
 
-* Return value is tool wear.
-* Parameters are equal to the above callback.
-* If `direction` equals `nil` and `puncher` does not equal `nil`, `direction`
-  will be automatically filled in based on the location of `puncher`.
-
-
+(see "`ObjectRef`" section for detailed description)
 
 
 Metadata
@@ -4307,13 +4292,13 @@ Helper functions
 * `core.pointed_thing_to_face_pos(placer, pointed_thing)`: returns a
   position.
     * returns the exact position on the surface of a pointed node
-* `core.get_tool_wear_after_use(uses [, initial_wear])`
+* `core.get_tool_wear_after_use(uses, initial_wear)`
     * Simulates a tool being used once and returns the added wear,
       such that, if only this function is used to calculate wear,
       the tool will break exactly after `uses` times of uses
     * `uses`: Number of times the tool can be used
     * `initial_wear`: The initial wear the tool starts with (default: 0)
-* `core.get_dig_params(groups, tool_capabilities [, wear])`:
+* `core.get_dig_params(groups, tool_capabilities, wear)`:
     Simulates an item that digs a node.
     Returns a table with the following fields:
     * `diggable`: `true` if node can be dug, `false` otherwise.
@@ -4324,7 +4309,7 @@ Helper functions
     * `groups`: Table of the node groups of the node that would be dug
     * `tool_capabilities`: Tool capabilities table of the item
     * `wear`: Amount of wear the tool starts with (default: 0)
-* `core.get_hit_params(groups, tool_capabilities [, time_from_last_punch [, wear]])`:
+* `core.get_hit_params(groups, tool_capabilities, time_from_last_punch, wear)`:
     Simulates an item that punches an object.
     Returns a table with the following fields:
     * `hp`: How much damage the punch would cause (between -65535 and 65535).
@@ -4332,10 +4317,8 @@ Helper functions
     Parameters:
     * `groups`: Damage groups of the object
     * `tool_capabilities`: Tool capabilities table of the item
-    * `time_from_last_punch`: time in seconds since last punch action
+    * `time_from_last_punch`: time in seconds since last punch action (can be `nil`)
     * `wear`: Amount of wear the item starts with (default: 0)
-
-
 
 
 Translations
@@ -5480,7 +5463,7 @@ Callbacks:
     * `puncher`: an `ObjectRef` (can be `nil`)
     * `time_from_last_punch`: Meant for disallowing spamming of clicks
       (can be `nil`).
-    * `tool_capabilities`: capability table of used item (can be `nil`)
+    * `tool_capabilities`: capability table of used item
     * `dir`: unit vector of direction of punch. Always defined. Points from the
       puncher to the punched.
     * `damage`: damage that will be done to entity.
@@ -8478,11 +8461,11 @@ child will follow movement and rotation of that bone.
     * no-op if object is attached
 * `punch(puncher, time_from_last_punch, tool_capabilities, dir)`
     * punches the object, triggering all consequences a normal punch would have
-    * `puncher`: another `ObjectRef` which punched the object or `nil`
-    * `dir`: direction vector of punch
-    * Other arguments: See `on_punch` for entities
-    * Arguments `time_from_last_punch`, `tool_capabilities`, and `dir`
-      will be replaced with a default value when the caller sets them to `nil`.
+    * `puncher`: another `ObjectRef` which punched the object (can be `nil`)
+    * `time_from_last_punch`: Meant for disallowing spamming of clicks
+      (can be `nil`)
+    * `tool_capabilities`: capability table of used item
+    * `dir`: direction vector. Points from the puncher to the punched (can be `nil`)
 * `right_click(clicker)`:
     * simulates using the 'place/use' key on the object
     * triggers all consequences as if a real player had done this
