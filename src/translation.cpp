@@ -3,6 +3,7 @@
 // Copyright (C) 2017 Nore, Nathanaëlle Courant <nore@mesecons.net>
 
 #include "translation.h"
+#include "gettext.h"
 #include "log.h"
 #include "util/hex.h"
 #include "util/string.h"
