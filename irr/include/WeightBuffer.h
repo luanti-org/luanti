@@ -4,7 +4,7 @@
 #pragma once
 
 #include "EHardwareBufferFlags.h"
-#include "IHWBuffer.h"
+#include "HWBuffer.h"
 #include "vector3d.h"
 #include "matrix4.h"
 #include "IVertexBuffer.h"
@@ -17,7 +17,7 @@
 namespace scene
 {
 
-struct WeightBuffer final : public IHWBuffer
+struct WeightBuffer final : public HWBuffer
 {
 	constexpr static u16 MAX_WEIGHTS_PER_VERTEX = 4;
 	// ID-weight pairs for a joint

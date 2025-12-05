@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "IHWBuffer.h"
+#include "HWBuffer.h"
 #include "IIndexBuffer.h"
 #include "IVertexBuffer.h"
 #include "IVideoDriver.h"
@@ -286,7 +286,7 @@ protected:
 	/// Links a hardware buffer to its software counterpart
 	struct SHWBufferLink
 	{
-		SHWBufferLink(const scene::IHWBuffer *buf) : Buffer(buf)
+		SHWBufferLink(const scene::HWBuffer *buf) : Buffer(buf)
 		{
 			if (!buf)
 				return;
@@ -302,13 +302,13 @@ protected:
 			Buffer->drop();
 		}
 
-		const scene::IHWBuffer *Buffer;
+		const scene::HWBuffer *Buffer;
 		size_t ListPosition = static_cast<size_t>(-1);
 		u32 ChangedID = 0;
 	};
 
 	//! Gets hardware buffer link from a buffer (may create or update buffer)
-	virtual SHWBufferLink *getBufferLink(const scene::IHWBuffer *buf);
+	virtual SHWBufferLink *getBufferLink(const scene::HWBuffer *buf);
 
 	//! updates hardware buffer if needed  (only some drivers can)
 	virtual bool updateHardwareBuffer(SHWBufferLink *HWBuffer) { return false; }
@@ -316,13 +316,13 @@ protected:
 	//! Delete hardware buffer
 	virtual void deleteHardwareBuffer(SHWBufferLink *HWBuffer);
 
-	virtual SHWBufferLink *createHardwareBuffer(const scene::IHWBuffer *buf) { return nullptr; }
+	virtual SHWBufferLink *createHardwareBuffer(const scene::HWBuffer *buf) { return nullptr; }
 
 public:
-	virtual void updateHardwareBuffer(const scene::IHWBuffer *buf) override;
+	virtual void updateHardwareBuffer(const scene::HWBuffer *buf) override;
 
 	//! Remove hardware buffer
-	void removeHardwareBuffer(const scene::IHWBuffer *buf) override;
+	void removeHardwareBuffer(const scene::HWBuffer *buf) override;
 
 	//! Remove all hardware buffers
 	void removeAllHardwareBuffers() override;
@@ -331,7 +331,7 @@ public:
 	void expireHardwareBuffers();
 
 	//! Is VBO recommended?
-	virtual bool isHardwareBufferRecommend(const scene::IHWBuffer *buf);
+	virtual bool isHardwareBufferRecommend(const scene::HWBuffer *buf);
 
 	//! Create occlusion query.
 	/** Use node for identification and mesh for occlusion test. */

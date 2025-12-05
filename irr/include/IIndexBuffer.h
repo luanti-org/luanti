@@ -7,12 +7,12 @@
 #include "IReferenceCounted.h"
 #include "EPrimitiveTypes.h"
 #include "SVertexIndex.h"
-#include "IHWBuffer.h"
+#include "HWBuffer.h"
 
 namespace scene
 {
 
-class IIndexBuffer : public virtual IReferenceCounted, public IHWBuffer
+class IIndexBuffer : public virtual IReferenceCounted, public HWBuffer
 {
 public:
 	//! Get type of index data which is stored in this meshbuffer.

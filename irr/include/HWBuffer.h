@@ -3,12 +3,14 @@
 #include "IReferenceCounted.h"
 #include "irrTypes.h"
 #include "EHardwareBufferFlags.h"
+
 #include <cstddef>
+#include <cstdio>
 
 namespace scene
 {
 
-struct IHWBuffer : public virtual IReferenceCounted {
+struct HWBuffer : public virtual IReferenceCounted {
 	/// Size of one element in bytes
 	virtual size_t getElementSize() const = 0;
 	/// Number of elements in the buffer
@@ -20,18 +22,7 @@ struct IHWBuffer : public virtual IReferenceCounted {
 	u32 getChangedID() const { return ChangedID; }
 
 	/// Marks the buffer as changed, so that hardware buffers are reloaded
-	void setDirty()
-	{
-		++ChangedID;
-		// TODO
-		/* if constexpr (DEBUG) {
-			if (MappingHint == EHM_STATIC && HWBuffer) {
-				char buf[100];
-				snprintf_irr(buf, sizeof(buf), "HWBuffer @ %p modified, but it has a static hint", this);
-				os::Printer::log(buf, ELL_WARNING);
-			}
-		} */
-	}
+	void setDirty();
 
 	//! hardware mapping hint
 	E_HARDWARE_MAPPING MappingHint = EHM_NEVER;
