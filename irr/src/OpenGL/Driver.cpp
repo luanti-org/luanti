@@ -481,7 +481,15 @@ void COpenGL3DriverBase::setTransform(E_TRANSFORMATION_STATE state, const core::
 	Transformation3DChanged = true;
 }
 
-bool COpenGL3DriverBase::uploadHardwareBuffer(OpenGLVBO &vbo,
+void COpenGL3DriverBase::setJointTransforms(const std::vector<core::matrix4> &jointMatrices)
+{
+	assert(jointMatrices.size() <= getMaxJointTransforms());
+	JointTransformsUBO.upload(jointMatrices.data(), jointMatrices.size() * sizeof(core::matrix4), 0, GL_DYNAMIC_DRAW);
+	GL.BindBufferBase(GL_UNIFORM_BUFFER, 0, JointTransformsUBO.getName());
+	TEST_GL_ERROR(this);
+}
+
+bool COpenGL3DriverBase::uploadHardwareBuffer(OGLBufferObject &vbo,
 	const void *buffer, size_t bufferSize, scene::E_HARDWARE_MAPPING hint)
 {
 	accountHWBufferUpload(bufferSize);

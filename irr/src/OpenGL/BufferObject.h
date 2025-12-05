@@ -10,13 +10,13 @@
 namespace video
 {
 
-class OpenGLVBO
+class OGLBufferObject
 {
 public:
 	/// @note does not create on GL side
-	OpenGLVBO() = default;
+	OGLBufferObject(Target target) : m_target(target) {}
 	/// @note does not free on GL side
-	~OpenGLVBO() = default;
+	~OGLBufferObject() = default;
 
 	/// @return "name" (ID) of this buffer in GL
 	GLuint getName() const { return m_name; }
@@ -47,6 +47,7 @@ public:
 	void destroy();
 
 private:
+
 	GLuint m_name = 0;
 	size_t m_size = 0;
 };

@@ -2,7 +2,7 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#include "VBO.h"
+#include "BufferObject.h"
 
 #include <cassert>
 #include <mt_opengl.h>
@@ -10,7 +10,7 @@
 namespace video
 {
 
-void OpenGLVBO::upload(const void *data, size_t size, size_t offset,
+void OGLBufferObject::upload(const void *data, size_t size, size_t offset,
 		GLenum usage, bool mustShrink)
 {
 	bool newBuffer = false;
@@ -37,7 +37,7 @@ void OpenGLVBO::upload(const void *data, size_t size, size_t offset,
 	GL.BindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void OpenGLVBO::destroy()
+void OGLBufferObject::destroy()
 {
 	if (m_name)
 		GL.DeleteBuffers(1, &m_name);
