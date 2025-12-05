@@ -18,7 +18,20 @@ namespace scene
 /** Used with SkinnedMesh and AnimatedMeshSceneNode. */
 class BoneSceneNode : public ISceneNode
 {
+private:
+
+	//! For performance reasons, we prefer to store the rotation as quaternion
+	//! to avoid expensive conversions back and forth between Euler angles and quaternions.
+	core::quaternion Rotation;
+
+	const u32 BoneIndex;
+
 public:
+
+	//! Some file formats alternatively let bones specify a transformation matrix.
+	//! If this is set, it overrides the TRS properties.
+	std::optional<core::matrix4> Matrix;
+
 	BoneSceneNode(ISceneNode *parent,
 			ISceneManager *mgr,
 			s32 id = -1,
@@ -27,8 +40,8 @@ public:
 			const core::Transform &transform = {},
 			const std::optional<core::matrix4> &matrix = std::nullopt) :
 		ISceneNode(parent, mgr, id),
-		Matrix(matrix),
-		BoneIndex(boneIndex)
+		BoneIndex(boneIndex),
+		Matrix(matrix)
 	{
 		setName(boneName);
 		setTransform(transform);
@@ -52,17 +65,24 @@ public:
 	/** Does nothing as bones are not visible. */
 	void render() override {}
 
+	void setRotation(const core::vector3df &rotation) override
+	{
+		Rotation = core::quaternion(rotation * core::DEGTORAD).makeInverse();
+	}
+
+	core::vector3df getRotation() const override
+	{
+		auto rot = Rotation;
+		rot.makeInverse();
+		core::vector3df euler;
+		rot.toEuler(euler);
+		return euler * core::RADTODEG;
+	}
+
 	void setTransform(const core::Transform &transform)
 	{
 		setPosition(transform.translation);
-		{
-			core::vector3df euler;
-			auto rot = transform.rotation;
-			// Invert to be consistent with setRotationDegrees
-			rot.makeInverse();
-			rot.toEuler(euler);
-			setRotation(euler * core::RADTODEG);
-		}
+		Rotation = transform.rotation;
 		setScale(transform.scale);
 	}
 
@@ -70,7 +90,7 @@ public:
 	{
 		return {
 			getPosition(),
-			core::quaternion(getRotation() * core::DEGTORAD).makeInverse(),
+			Rotation,
 			getScale()
 		};
 	}
@@ -79,16 +99,8 @@ public:
 	{
 		if (Matrix)
 			return *Matrix;
-		return ISceneNode::getRelativeTransformation();
+		return getTransform().buildMatrix();
 	}
-
-	//! Some file formats alternatively let bones specify a transformation matrix.
-	//! If this is set, it overrides the TRS properties.
-	std::optional<core::matrix4> Matrix;
-
-private:
-
-	const u32 BoneIndex;
 };
 
 } // end namespace scene
