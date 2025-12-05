@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "CBoneSceneNode.h"
+#include "BoneSceneNode.h"
 #include "ISceneNode.h"
 #include "IAnimatedMesh.h"
 
@@ -110,10 +110,10 @@ public:
 	//! which has the same transformation as
 	//! the corresponding joint, if the mesh in this scene node is a skinned mesh.
 	//! This can be used to attach children.
-	IBoneSceneNode *getJointNode(const c8 *jointName);
+	BoneSceneNode *getJointNode(const c8 *jointName);
 
 	//! same as getJointNode(const c8* jointName), but based on id
-	IBoneSceneNode *getJointNode(u32 jointID);
+	BoneSceneNode *getJointNode(u32 jointID);
 
 	//! Gets joint count.
 	u32 getJointCount() const;
@@ -189,7 +189,7 @@ private:
 	std::function<void(f32)> OnAnimateCallback;
 
 	struct PerJointData {
-		std::vector<irr_ptr<CBoneSceneNode>> SceneNodes;
+		std::vector<irr_ptr<BoneSceneNode>> SceneNodes;
 		std::vector<core::matrix4> GlobalMatrices;
 		std::vector<std::optional<core::Transform>> PreTransSaves;
 		void setN(u16 n) {

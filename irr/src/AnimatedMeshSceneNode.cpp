@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "AnimatedMeshSceneNode.h"
-#include "CBoneSceneNode.h"
+#include "BoneSceneNode.h"
 #include "ISceneNode.h"
 #include "IVideoDriver.h"
 #include "ISceneManager.h"
@@ -14,7 +14,7 @@
 #include "os.h"
 #include "SkinnedMesh.h"
 #include "IDummyTransformationSceneNode.h"
-#include "IBoneSceneNode.h"
+#include "BoneSceneNode.h"
 #include "IMaterialRenderer.h"
 #include "IMesh.h"
 #include "IMeshCache.h"
@@ -378,7 +378,7 @@ u32 AnimatedMeshSceneNode::getMaterialCount() const
 
 //! Returns a pointer to a child node, which has the same transformation as
 //! the corresponding joint, if the mesh in this scene node is a skinned mesh.
-IBoneSceneNode *AnimatedMeshSceneNode::getJointNode(const c8 *jointName)
+BoneSceneNode *AnimatedMeshSceneNode::getJointNode(const c8 *jointName)
 {
 	if (!Mesh || Mesh->getMeshType() != EAMT_SKINNED) {
 		os::Printer::log("No mesh, or mesh not of skinned mesh type", ELL_WARNING);
@@ -406,7 +406,7 @@ IBoneSceneNode *AnimatedMeshSceneNode::getJointNode(const c8 *jointName)
 
 //! Returns a pointer to a child node, which has the same transformation as
 //! the corresponding joint, if the mesh in this scene node is a skinned mesh.
-IBoneSceneNode *AnimatedMeshSceneNode::getJointNode(u32 jointID)
+BoneSceneNode *AnimatedMeshSceneNode::getJointNode(u32 jointID)
 {
 	if (!Mesh || Mesh->getMeshType() != EAMT_SKINNED) {
 		os::Printer::log("No mesh, or mesh not of skinned mesh type", ELL_WARNING);
@@ -551,7 +551,7 @@ void AnimatedMeshSceneNode::addJoints()
 			parent = PerJoint.SceneNodes.at(*joint->ParentJointID).get(); // exists because of topo. order
 		assert(parent);
 		const auto *matrix = std::get_if<core::matrix4>(&joint->transform);
-		PerJoint.SceneNodes.push_back(irr_ptr<CBoneSceneNode>(new CBoneSceneNode(
+		PerJoint.SceneNodes.push_back(irr_ptr<BoneSceneNode>(new BoneSceneNode(
 				parent, SceneManager, 0, i, joint->Name,
 				matrix ? core::Transform{} : std::get<core::Transform>(joint->transform),
 				matrix ? *matrix : std::optional<core::matrix4>{})));
@@ -563,7 +563,7 @@ void AnimatedMeshSceneNode::updateJointSceneNodes(
 {
 	for (size_t i = 0; i < transforms.size(); ++i) {
 		const auto &transform = transforms[i];
-		auto *node = static_cast<CBoneSceneNode*>(PerJoint.SceneNodes[i]);
+		auto *node = static_cast<BoneSceneNode*>(PerJoint.SceneNodes[i]);
 		if (const auto *trs = std::get_if<core::Transform>(&transform)) {
 			node->setTransform(*trs);
 			// .x lets animations override matrix transforms entirely.
