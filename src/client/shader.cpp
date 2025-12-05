@@ -869,8 +869,13 @@ u32 IShaderSource::getShader(const std::string &name,
 	(void) drawtype; // unused
 	if (array_texture)
 		input_const["USE_ARRAY_TEXTURE"] = 1;
-	if (skinning)
-		input_const["USE_SKINNING"] = 1;
+	if (skinning) {
+		const auto max_joints = RenderingEngine::get_video_driver()->getMaxJointTransforms();
+		if (max_joints > 0) {
+			input_const["USE_SKINNING"] = 1;
+			input_const["MAX_JOINTS"] = max_joints;
+		}
+	}
 
 	video::E_MATERIAL_TYPE base_mat = video::EMT_SOLID;
 	switch (material_type) {

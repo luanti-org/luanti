@@ -220,6 +220,17 @@ void COpenGL3DriverBase::initQuadsIndices(u32 max_vertex_count)
 	assert(QuadIndexVBO.exists());
 }
 
+void COpenGL3DriverBase::initMaxJointTransforms()
+{
+	GLint ubo_max_size;
+	GL.GetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &ubo_max_size);
+	ubo_max_size /= sizeof(core::matrix4); // tightly packed
+	if (ubo_max_size > 1024)
+		ubo_max_size = 1024; // limit to something reasonable
+	MaxJointTransforms = static_cast<u16>(ubo_max_size);
+	assert(ubo_max_size > 0);
+}
+
 void COpenGL3DriverBase::initVersion()
 {
 	Name = GL.GetString(GL_VERSION);
@@ -260,6 +271,7 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 	}
 
 	initQuadsIndices();
+	initMaxJointTransforms();
 
 	// reset cache handler
 	delete CacheHandler;
@@ -479,7 +491,7 @@ void COpenGL3DriverBase::setTransform(E_TRANSFORMATION_STATE state, const core::
 
 void COpenGL3DriverBase::setJointTransforms(const std::vector<core::matrix4> &jointMatrices)
 {
-	// TODO check whether too many joints, and fall back to software skinning if so
+	assert(jointMatrices.size() <= getMaxJointTransforms());
 	JointTransformsUBO.upload(jointMatrices.data(), jointMatrices.size() * sizeof(core::matrix4), 0, GL_DYNAMIC_DRAW);
 	TEST_GL_ERROR(this);
 }
