@@ -9,7 +9,7 @@
 #include "IHWBuffer.h"
 #include "SIrrCreationParameters.h"
 #include "Common.h"
-#include "VBO.h"
+#include "BufferObject.h"
 #include "CNullDriver.h"
 #include "IMaterialRendererServices.h"
 #include "EDriverFeatures.h"
@@ -44,9 +44,9 @@ public:
 
 	struct SHWBufferLink_opengl : public SHWBufferLink
 	{
-		SHWBufferLink_opengl(const scene::IHWBuffer *buf) : SHWBufferLink(buf), Vbo(OpenGLVBO::TARGET_VBO) {}
+		SHWBufferLink_opengl(const scene::IHWBuffer *buf) : SHWBufferLink(buf), Vbo(OGLBufferObject::TARGET_VBO) {}
 
-		OpenGLVBO Vbo;
+		OGLBufferObject Vbo;
 	};
 
 	bool _updateHardwareBuffer(SHWBufferLink_opengl *HWBuffer);
@@ -278,7 +278,7 @@ protected:
 		LockRenderStateMode = false;
 	}
 
-	bool uploadHardwareBuffer(OpenGLVBO &vbo, const void *buffer, size_t bufferSize, scene::E_HARDWARE_MAPPING hint);
+	bool uploadHardwareBuffer(OGLBufferObject &vbo, const void *buffer, size_t bufferSize, scene::E_HARDWARE_MAPPING hint);
 
 	void createMaterialRenderers();
 
@@ -354,12 +354,12 @@ private:
 
 	bool EnableErrorTest;
 
-	OpenGLVBO QuadIndexVBO = OpenGLVBO(OpenGLVBO::TARGET_VBO);
+	OGLBufferObject QuadIndexVBO = OGLBufferObject(OGLBufferObject::TARGET_VBO);
 	void initQuadsIndices(u32 max_vertex_count = 65536);
 
 	u16 MaxJointTransforms = 0;
 	void initMaxJointTransforms();
-	OpenGLVBO JointTransformsUBO = OpenGLVBO(OpenGLVBO::TARGET_UBO);
+	OGLBufferObject JointTransformsUBO = OGLBufferObject(OGLBufferObject::TARGET_UBO);
 
 	void debugCb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message);
 	static void APIENTRY debugCb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);
