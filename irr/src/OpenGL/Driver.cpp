@@ -13,7 +13,7 @@
 #include "COpenGLCoreRenderTarget.h"
 #include "COpenGLCoreCacheHandler.h"
 
-#include "IHWBuffer.h"
+#include "HWBuffer.h"
 #include "OpenGL/Common.h"
 #include "SDL_opengl.h"
 #include "WeightBuffer.h"
@@ -543,7 +543,7 @@ bool COpenGL3DriverBase::updateHardwareBuffer(SHWBufferLink *HWBuffer)
 	return true;
 }
 
-COpenGL3DriverBase::SHWBufferLink *COpenGL3DriverBase::createHardwareBuffer(const scene::IHWBuffer *buf)
+COpenGL3DriverBase::SHWBufferLink *COpenGL3DriverBase::createHardwareBuffer(const scene::HWBuffer *buf)
 {
 	if (!buf || buf->MappingHint == scene::EHM_NEVER)
 		return 0;

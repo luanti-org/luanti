@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "IHWBuffer.h"
+#include "HWBuffer.h"
 #include "SIrrCreationParameters.h"
 #include "Common.h"
 #include "BufferObject.h"
@@ -44,7 +44,7 @@ public:
 
 	struct SHWBufferLink_opengl : public SHWBufferLink
 	{
-		SHWBufferLink_opengl(const scene::IHWBuffer *buf) : SHWBufferLink(buf), Vbo(OGLBufferObject::TARGET_VBO) {}
+		SHWBufferLink_opengl(const scene::HWBuffer *buf) : SHWBufferLink(buf), Vbo(OGLBufferObject::TARGET_VBO) {}
 
 		OGLBufferObject Vbo;
 	};
@@ -54,7 +54,7 @@ public:
 	//! updates hardware buffer if needed
 	bool updateHardwareBuffer(SHWBufferLink *HWBuffer) override;
 
-	SHWBufferLink *createHardwareBuffer(const scene::IHWBuffer *buf) override;
+	SHWBufferLink *createHardwareBuffer(const scene::HWBuffer *buf) override;
 
 	//! Delete hardware buffer (only some drivers can)
 	void deleteHardwareBuffer(SHWBufferLink *HWBuffer) override;

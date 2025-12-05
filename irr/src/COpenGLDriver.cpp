@@ -232,9 +232,9 @@ static GLint convertEHM(scene::E_HARDWARE_MAPPING hint)
 		return GL_STATIC_DRAW;
 	case scene::EHM_DYNAMIC:
 		return GL_DYNAMIC_DRAW;
-	case scene::EHM_NEVER: // HACK this shouldn't happen
 	case scene::EHM_STREAM:
 		return GL_STREAM_DRAW;
+	case scene::EHM_NEVER:
 	default:
 		IRR_CODE_UNREACHABLE();
 	}
@@ -389,7 +389,7 @@ bool COpenGLDriver::updateHardwareBuffer(SHWBufferLink *HWBuffer)
 }
 
 //! Create hardware buffer from meshbuffer
-COpenGLDriver::SHWBufferLink *COpenGLDriver::createHardwareBuffer(const scene::IHWBuffer *buf)
+COpenGLDriver::SHWBufferLink *COpenGLDriver::createHardwareBuffer(const scene::HWBuffer *buf)
 {
 	if (!buf || buf->MappingHint == scene::EHM_NEVER)
 		return nullptr;
