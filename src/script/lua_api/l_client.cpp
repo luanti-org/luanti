@@ -177,10 +177,7 @@ int ModApiClient::l_get_language(lua_State *L)
 #else
 	char *locale = setlocale(LC_MESSAGES, NULL);
 #endif
-	std::string lang = gettext("LANG_CODE");
-	if (lang == "LANG_CODE")
-		lang.clear();
-
+	std::string lang = get_client_language_code();
 	lua_pushstring(L, locale);
 	lua_pushstring(L, lang.c_str());
 	return 2;
