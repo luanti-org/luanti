@@ -33,9 +33,8 @@ const vec3 artificialLight = vec3(1.04, 1.04, 1.04);
 VARYING_ float vIDiff;
 
 #ifdef USE_SKINNING
-// TODO compute reasonable value in C++
 layout (std140) uniform JointMatrices {
-	mat4 joints[128];
+	mat4 joints[MAX_JOINTS];
 };
 #endif
 
