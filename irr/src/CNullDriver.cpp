@@ -963,7 +963,7 @@ void CNullDriver::drawMeshBufferNormals(const scene::IMeshBuffer *mb, f32 length
 	}
 }
 
-CNullDriver::SHWBufferLink *CNullDriver::getBufferLink(const scene::IHWBuffer *buf)
+CNullDriver::SHWBufferLink *CNullDriver::getBufferLink(const scene::HWBuffer *buf)
 {
 	if (!buf || !isHardwareBufferRecommend(buf))
 		return nullptr;
@@ -1014,7 +1014,7 @@ void CNullDriver::deleteHardwareBuffer(SHWBufferLink *HWBuffer)
 	delete HWBuffer;
 }
 
-void CNullDriver::updateHardwareBuffer(const scene::IHWBuffer *buf)
+void CNullDriver::updateHardwareBuffer(const scene::HWBuffer *buf)
 {
 	if (!buf)
 		return;
@@ -1022,7 +1022,7 @@ void CNullDriver::updateHardwareBuffer(const scene::IHWBuffer *buf)
 		updateHardwareBuffer(link);
 }
 
-void CNullDriver::removeHardwareBuffer(const scene::IHWBuffer *buf)
+void CNullDriver::removeHardwareBuffer(const scene::HWBuffer *buf)
 {
 	if (!buf)
 		return;
@@ -1037,7 +1037,7 @@ void CNullDriver::removeAllHardwareBuffers()
 		deleteHardwareBuffer(HWBufferList.front());
 }
 
-bool CNullDriver::isHardwareBufferRecommend(const scene::IHWBuffer *buf)
+bool CNullDriver::isHardwareBufferRecommend(const scene::HWBuffer *buf)
 {
 	if (buf->MappingHint == scene::EHM_NEVER)
 		return false;

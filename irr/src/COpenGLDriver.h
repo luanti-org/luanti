@@ -49,7 +49,7 @@ public:
 
 	struct SHWBufferLink_opengl : public SHWBufferLink
 	{
-		SHWBufferLink_opengl(const scene::IHWBuffer *buf) : SHWBufferLink(buf) {}
+		SHWBufferLink_opengl(const scene::HWBuffer *buf) : SHWBufferLink(buf) {}
 
 		GLuint vbo_ID = 0;
 		u32 vbo_Size = 0;
@@ -58,7 +58,7 @@ public:
 	//! updates hardware buffer if needed
 	bool updateHardwareBuffer(SHWBufferLink *HWBuffer) override;
 
-	SHWBufferLink *createHardwareBuffer(const scene::IHWBuffer *buf) override;
+	SHWBufferLink *createHardwareBuffer(const scene::HWBuffer *buf) override;
 
 	//! Delete hardware buffer (only some drivers can)
 	void deleteHardwareBuffer(SHWBufferLink *HWBuffer) override;

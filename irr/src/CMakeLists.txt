@@ -292,6 +292,7 @@ set(IRRDRVROBJ
 	CEGLManager.cpp
 	CSDLManager.cpp
 	mt_opengl_loader.cpp
+	HWBuffer.cpp
 )
 
 # the legacy driver

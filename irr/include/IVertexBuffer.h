@@ -6,14 +6,14 @@
 
 #include "IReferenceCounted.h"
 #include "S3DVertex.h"
-#include "IHWBuffer.h"
+#include "HWBuffer.h"
 
 namespace scene
 {
 
 class WeightBuffer;
 
-class IVertexBuffer : public virtual IReferenceCounted, public IHWBuffer
+class IVertexBuffer : public virtual IReferenceCounted, public HWBuffer
 {
 public:
 	//! Get type of vertex data which is stored in this meshbuffer.
