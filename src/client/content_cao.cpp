@@ -597,7 +597,7 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 
 		u32 shader_id = shader_source->getShader("object_shader", material_type, NDT_NORMAL,
 			false, true);
-		// FIXME ^ proper condition for whether we'll need skinning
+		// TODO proper condition for whether we'll need skinning
 		m_material_type = shader_source->getShaderInfo(shader_id).material;
 	} else {
 		// Not used, so make sure it's not valid

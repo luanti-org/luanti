@@ -496,7 +496,7 @@ void COpenGL3DriverBase::setJointTransforms(const std::vector<core::matrix4> &jo
 	TEST_GL_ERROR(this);
 }
 
-bool COpenGL3DriverBase::uploadHardwareBuffer(OpenGLVBO &vbo,
+bool COpenGL3DriverBase::uploadHardwareBuffer(OGLBufferObject &vbo,
 	const void *buffer, size_t bufferSize, scene::E_HARDWARE_MAPPING hint)
 {
 	accountHWBufferUpload(bufferSize);
