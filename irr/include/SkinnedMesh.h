@@ -26,7 +26,7 @@ namespace scene
 {
 
 class AnimatedMeshSceneNode;
-class IBoneSceneNode;
+class BoneSceneNode;
 class ISceneManager;
 
 class SkinnedMesh : public IAnimatedMesh
@@ -135,7 +135,7 @@ public:
 	void resetAnimation();
 
 	//! Creates an array of joints from this mesh as children of node
-	std::vector<IBoneSceneNode *> addJoints(
+	std::vector<BoneSceneNode *> addJoints(
 			AnimatedMeshSceneNode *node, ISceneManager *smgr);
 
 	template <class T>
