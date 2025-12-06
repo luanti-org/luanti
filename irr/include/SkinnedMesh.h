@@ -60,6 +60,8 @@ public:
 
 	void prepareForAnimation(u16 max_hw_joints) override;
 
+	bool needsHwSkinning() const override { return !UseSwSkinning && HasWeights; }
+
 	bool useSoftwareSkinning() const { return UseSwSkinning; }
 
 	//! Turns the given array of local matrices into an array of global matrices
