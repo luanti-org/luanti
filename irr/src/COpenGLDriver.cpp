@@ -388,7 +388,7 @@ bool COpenGLDriver::updateHardwareBuffer(SHWBufferLink *HWBuffer)
 				return false;
 			b->ChangedID = vb->getChangedID();
 		}
-	} else if (auto *ib = dynamic_cast<const scene::IVertexBuffer *>(b->Buffer)) {
+	} else if (auto *ib = dynamic_cast<const scene::IIndexBuffer *>(b->Buffer)) {
 		if (b->ChangedID != ib->getChangedID() || !b->vbo_ID) {
 			if (!updateIndexHardwareBuffer(b))
 				return false;
@@ -445,17 +445,17 @@ void COpenGLDriver::drawBuffers(const scene::IVertexBuffer *vb,
 #if defined(GL_ARB_vertex_buffer_object)
 	auto *hwvert = static_cast<SHWBufferLink_opengl *>(getBufferLink(vb));
 	auto *hwidx = static_cast<SHWBufferLink_opengl *>(getBufferLink(ib));
-	updateHardwareBuffer(hwvert);
-	updateHardwareBuffer(hwidx);
 
 	const void *vertices = vb->getData();
 	if (hwvert) {
+		updateHardwareBuffer(hwvert);
 		extGlBindBuffer(GL_ARRAY_BUFFER, hwvert->vbo_ID);
 		vertices = 0;
 	}
 
 	const void *indexList = ib->getData();
 	if (hwidx) {
+		updateHardwareBuffer(hwidx);
 		extGlBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hwidx->vbo_ID);
 		indexList = 0;
 	}
