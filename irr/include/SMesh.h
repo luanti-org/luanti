@@ -139,6 +139,7 @@ struct SMesh final : public IAnimatedMesh
 
 	f32 getMaxFrameNumber() const override { return 0.0f; }
 	void prepareForAnimation(u16 max_hw_joints) override {}
+	bool needsHwSkinning() const override { return false; }
 	E_ANIMATED_MESH_TYPE getMeshType() const override { return EAMT_STATIC; }
 };
 
