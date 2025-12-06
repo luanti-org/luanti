@@ -21,6 +21,9 @@ public:
 
 	virtual void prepareForAnimation(u16 max_hw_joints) = 0;
 
+	//! Whether the mesh needs shader-based hardware skinning
+	virtual bool needsHwSkinning() const = 0;
+
 	//! Returns the type of the animated mesh. Useful for safe downcasts.
 	E_ANIMATED_MESH_TYPE getMeshType() const = 0;
 };
