@@ -234,27 +234,23 @@ void SkinnedMesh::calculateGlobalMatrices(std::vector<core::matrix4> &matrices) 
 	}
 }
 
-bool SkinnedMesh::checkForAnimation() const
+bool SkinnedMesh::checkForWeights() const
 {
-	for (auto *joint : AllJoints) {
-		if (!joint->keys.empty()) {
-			return true;
-		}
-	}
+	return std::any_of(LocalBuffers.begin(), LocalBuffers.end(),
+			[](const auto *buf) { return buf->getWeights() != nullptr; });
+}
 
-	// meshes with weights are animatable
-	for (auto *buf : LocalBuffers) {
-		if (buf->getWeights()) {
-			return true;
-		}
-	}
-
-	return false;
+bool SkinnedMesh::checkForKeys() const
+{
+	return std::any_of(AllJoints.begin(), AllJoints.end(),
+			[](const auto *joint) { return !joint->keys.empty(); });
 }
 
 void SkinnedMesh::prepareForSkinning()
 {
-	HasAnimation = checkForAnimation();
+	HasWeights = checkForWeights();
+	// Meshes with weights are animatable (e.g. with bone overrides)
+	HasAnimation = HasWeights || checkForKeys();
 	if (!HasAnimation || PreparedForSkinning)
 		return;
 
@@ -400,6 +396,17 @@ SkinnedMesh *SkinnedMeshBuilder::finalize() &&
 	// (see e.g. SkinnedMesh::calculateGlobalMatrices)
 	topoSortJoints();
 
+	// Add all weights such that checkForWeights() works as expected
+	for (const auto &weight : weights) {
+		auto *buf = mesh->LocalBuffers.at(weight.buffer_id);
+		auto *weights = buf->getWeights();
+		if (!weights) {
+			buf->addWeightBuffer();
+			weights = buf->getWeights();
+		}
+		weights->addWeight(weight.vertex_id, weight.joint_id, weight.strength);
+	}
+
 	mesh->prepareForSkinning();
 
 	std::vector<core::matrix4> matrices;
@@ -423,16 +430,6 @@ SkinnedMesh *SkinnedMeshBuilder::finalize() &&
 			SSkinMeshBuffer *Buffer = (*mesh->SkinningBuffers)[attachedMeshIdx];
 			Buffer->Transformation = matrices[i];
 		}
-	}
-
-	for (const auto &weight : weights) {
-		auto *buf = mesh->LocalBuffers.at(weight.buffer_id);
-		auto *weights = buf->getWeights();
-		if (!weights) {
-			buf->addWeightBuffer();
-			weights = buf->getWeights();
-		}
-		weights->addWeight(weight.vertex_id, weight.joint_id, weight.strength);
 	}
 
 	for (auto *buffer : mesh->LocalBuffers) {
