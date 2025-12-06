@@ -198,11 +198,10 @@ void AnimatedMeshSceneNode::render()
 
 	if (auto *sm = dynamic_cast<SkinnedMesh *>(Mesh)) {
 		sm->rigidAnimation(PerJoint.GlobalMatrices);
-		// TODO check whether there are any weights to make use of these joint transforms
 		if (sm->useSoftwareSkinning()) {
 			// Perform software skinning; matrices have already been calculated in OnAnimate
 			sm->skinMesh(PerJoint.GlobalMatrices);
-		} else {
+		} else if (sm->hasWeights()) {
 			driver->setJointTransforms(sm->calculateSkinMatrices(PerJoint.GlobalMatrices));
 		}
 	}
