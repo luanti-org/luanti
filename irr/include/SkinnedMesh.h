@@ -43,7 +43,6 @@ public:
 	//! constructor
 	SkinnedMesh(SourceFormat src_format) :
 		EndFrame(0.f), FramesPerSecond(25.f),
-		HasAnimation(false), PreparedForSkinning(false),
 		SrcFormat(src_format)
 	{
 		SkinningBuffers = &LocalBuffers;
@@ -128,9 +127,9 @@ public:
 	void convertMeshToTangents();
 
 	//! Does the mesh have no animation
-	bool isStatic() const {
-		return !HasAnimation;
-	}
+	bool isStatic() const { return !HasAnimation; }
+	//! Does the mesh have skinning weights?
+	bool hasWeights() const { return HasWeights; }
 
 	//! Back up static pose after local buffers have been modified directly
 	void updateStaticPose();
@@ -334,7 +333,8 @@ public:
 	}
 
 protected:
-	bool checkForAnimation() const;
+	bool checkForWeights() const;
+	bool checkForKeys() const;
 
 	void prepareForSkinning();
 
@@ -368,8 +368,9 @@ protected:
 	f32 EndFrame;
 	f32 FramesPerSecond;
 
-	bool HasAnimation;
-	bool PreparedForSkinning;
+	bool HasAnimation = false;
+	bool HasWeights = false;
+	bool PreparedForSkinning = false;
 	bool UseSwSkinning = false;
 
 	SourceFormat SrcFormat;
