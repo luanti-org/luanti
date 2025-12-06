@@ -50,8 +50,10 @@ public:
 	//! returns texture coord of vertex i
 	virtual core::vector2df &getTCoords(u32 i) = 0;
 
-	//! Get weight buffer associated with this vertex buffer, if any
+	//! Get weight buffer for upload to the GPU, if any
 	virtual const WeightBuffer *getWeightBuffer() const = 0;
+	//! Enable software skinning
+	virtual void useSwSkinning() = 0;
 };
 
 } // end namespace scene

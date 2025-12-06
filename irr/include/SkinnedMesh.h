@@ -59,6 +59,10 @@ public:
 	//! If the duration is 0, it is a static (=non animated) mesh.
 	f32 getMaxFrameNumber() const override;
 
+	void prepareForAnimation(u16 max_hw_joints) override;
+
+	bool useSoftwareSkinning() const { return UseSwSkinning; }
+
 	//! Turns the given array of local matrices into an array of global matrices
 	//! by multiplying with respective parent matrices.
 	void calculateGlobalMatrices(std::vector<core::matrix4> &matrices) const;
@@ -366,6 +370,7 @@ protected:
 
 	bool HasAnimation;
 	bool PreparedForSkinning;
+	bool UseSwSkinning = false;
 
 	SourceFormat SrcFormat;
 };

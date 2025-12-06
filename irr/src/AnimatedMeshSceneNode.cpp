@@ -147,23 +147,6 @@ void AnimatedMeshSceneNode::OnRegisterSceneNode()
 	}
 }
 
-IMesh *AnimatedMeshSceneNode::getMeshForCurrentFrame()
-{
-	if (Mesh->getMeshType() != EAMT_SKINNED) {
-		return Mesh;
-	}
-
-	// As multiple scene nodes may be sharing the same skinned mesh, we have to
-	// re-animate it every frame to ensure that this node gets the mesh that it needs.
-
-	auto *skinnedMesh = static_cast<SkinnedMesh *>(Mesh);
-
-	// Matrices have already been calculated in OnAnimate
-	// TODO skinnedMesh->skinMesh(PerJoint.GlobalMatrices);
-
-	return skinnedMesh;
-}
-
 //! OnAnimate() is called just before rendering the whole scene.
 void AnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 {
@@ -213,23 +196,25 @@ void AnimatedMeshSceneNode::render()
 
 	++PassCount;
 
-	scene::IMesh *m = getMeshForCurrentFrame();
-	assert(m);
-
 	if (auto *sm = dynamic_cast<SkinnedMesh *>(Mesh)) {
-		// TODO check whether there are any weights to make use of these joint transforms
-		driver->setJointTransforms(sm->calculateSkinMatrices(PerJoint.GlobalMatrices));
 		sm->rigidAnimation(PerJoint.GlobalMatrices);
+		// TODO check whether there are any weights to make use of these joint transforms
+		if (sm->useSoftwareSkinning()) {
+			// Perform software skinning; matrices have already been calculated in OnAnimate
+			sm->skinMesh(PerJoint.GlobalMatrices);
+		} else {
+			driver->setJointTransforms(sm->calculateSkinMatrices(PerJoint.GlobalMatrices));
+		}
 	}
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 
-	for (u32 i = 0; i < m->getMeshBufferCount(); ++i) {
+	for (u32 i = 0; i < Mesh->getMeshBufferCount(); ++i) {
 		const bool transparent = driver->needsTransparentRenderPass(Materials[i]);
 
 		// only render transparent buffer if this is the transparent render pass
 		// and solid only in solid pass
 		if (transparent == isTransparentPass) {
-			scene::IMeshBuffer *mb = m->getMeshBuffer(i);
+			scene::IMeshBuffer *mb = Mesh->getMeshBuffer(i);
 			const video::SMaterial &material = ReadOnlyMaterials ? mb->getMaterial() : Materials[i];
 			if (RenderFromIdentity)
 				driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
@@ -252,11 +237,11 @@ void AnimatedMeshSceneNode::render()
 		if (DebugDataVisible & scene::EDS_NORMALS) {
 			const f32 debugNormalLength = 1.f;
 			const video::SColor debugNormalColor = video::SColor(255, 34, 221, 221);
-			const u32 count = m->getMeshBufferCount();
+			const u32 count = Mesh->getMeshBufferCount();
 
 			// draw normals
 			for (u32 g = 0; g < count; ++g) {
-				scene::IMeshBuffer *mb = m->getMeshBuffer(g);
+				scene::IMeshBuffer *mb = Mesh->getMeshBuffer(g);
 				if (RenderFromIdentity)
 					driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
 				else if (Mesh->getMeshType() == EAMT_SKINNED)
@@ -271,8 +256,8 @@ void AnimatedMeshSceneNode::render()
 
 		// show bounding box
 		if (DebugDataVisible & scene::EDS_BBOX_BUFFERS) {
-			for (u32 g = 0; g < m->getMeshBufferCount(); ++g) {
-				const IMeshBuffer *mb = m->getMeshBuffer(g);
+			for (u32 g = 0; g < Mesh->getMeshBufferCount(); ++g) {
+				const IMeshBuffer *mb = Mesh->getMeshBuffer(g);
 
 				if (Mesh->getMeshType() == EAMT_SKINNED)
 					driver->setTransform(video::ETS_WORLD, AbsoluteTransformation * ((SSkinMeshBuffer *)mb)->Transformation);
@@ -305,8 +290,8 @@ void AnimatedMeshSceneNode::render()
 			debug_mat.ZBuffer = video::ECFN_DISABLED;
 			driver->setMaterial(debug_mat);
 
-			for (u32 g = 0; g < m->getMeshBufferCount(); ++g) {
-				const IMeshBuffer *mb = m->getMeshBuffer(g);
+			for (u32 g = 0; g < Mesh->getMeshBufferCount(); ++g) {
+				const IMeshBuffer *mb = Mesh->getMeshBuffer(g);
 				if (RenderFromIdentity)
 					driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
 				else if (Mesh->getMeshType() == EAMT_SKINNED)
