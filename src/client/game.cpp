@@ -1754,13 +1754,11 @@ void Game::toggleMinimap(bool shift_pressed)
 	// -->
 	u32 hud_flags = client->getEnv().getLocalPlayer()->hud_flags;
 
-	if (hud_flags & HUD_FLAG_MINIMAP_VISIBLE) {
 	// If radar is disabled, try to find a non radar mode or fall back to 0
-		if (!(hud_flags & HUD_FLAG_MINIMAP_RADAR_VISIBLE))
-			while (mapper->getModeIndex() &&
-					mapper->getModeDef().type == MINIMAP_TYPE_RADAR)
-				mapper->nextMode();
-	}
+	if (!(hud_flags & HUD_FLAG_MINIMAP_RADAR_VISIBLE))
+		while (mapper->getModeIndex() &&
+				mapper->getModeDef().type == MINIMAP_TYPE_RADAR)
+			mapper->nextMode();
 	// <--
 	// End of 'not so satifying code'
 	if (hud && hud->hasElementOfType(HUD_ELEM_MINIMAP))
