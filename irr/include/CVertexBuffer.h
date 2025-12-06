@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <vector>
+#include "EHardwareBufferFlags.h"
 #include "IVertexBuffer.h"
 #include "WeightBuffer.h"
 #include "irr_ptr.h"
@@ -77,7 +78,16 @@ struct CVertexBuffer final : public IVertexBuffer
 
 	const WeightBuffer *getWeightBuffer() const override
 	{
-		return Weights.get();
+		return UseSwSkinning ? nullptr : Weights.get();
+	}
+
+	void useSwSkinning() override
+	{
+		if (!Weights || UseSwSkinning)
+			return;
+		UseSwSkinning = true;
+		MappingHint = EHM_STREAM;
+		Weights->updateStaticPose(this);
 	}
 
 	//! Vertices of this buffer
@@ -85,6 +95,7 @@ struct CVertexBuffer final : public IVertexBuffer
 
 	//! Optional weights for skinning
 	irr_ptr<WeightBuffer> Weights;
+	bool UseSwSkinning = false;
 };
 
 //! Standard buffer

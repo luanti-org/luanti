@@ -777,25 +777,6 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		break;
 	}
 
-	/* Set VBO hint */
-	// wieldmesh sets its own hint, no need to handle it
-	if (m_meshnode || m_animated_meshnode) {
-		// sprite uses vertex animation
-		if (m_meshnode && m_prop.visual != OBJECTVISUAL_UPRIGHT_SPRITE)
-			m_meshnode->getMesh()->setHardwareMappingHint(scene::EHM_STATIC);
-
-		if (m_animated_meshnode) {
-			auto *mesh = m_animated_meshnode->getMesh();
-			// skinning happens on the CPU
-			// TODO decide something proper
-			/* if (m_animated_meshnode->getJointCount() > 0)
-				mesh->setHardwareMappingHint(scene::EHM_STREAM, scene::EBT_VERTEX);
-			else
-				mesh->setHardwareMappingHint(scene::EHM_STATIC, scene::EBT_VERTEX); */
-			mesh->setHardwareMappingHint(scene::EHM_STATIC, scene::EBT_INDEX);
-		}
-	}
-
 	/* don't update while punch texture modifier is active */
 	if (m_reset_textures_timer < 0)
 		updateTextures(m_current_texture_modifier);
