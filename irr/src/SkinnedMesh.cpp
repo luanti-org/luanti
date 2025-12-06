@@ -37,6 +37,36 @@ f32 SkinnedMesh::getMaxFrameNumber() const
 	return EndFrame;
 }
 
+void SkinnedMesh::prepareForAnimation(u16 max_hw_joints)
+{
+	if (getJointCount() <= max_hw_joints)
+		return;
+
+	for (auto *buf : LocalBuffers)
+		buf->getVertexBuffer()->useSwSkinning();
+	UseSwSkinning = true;
+}
+
+void SkinnedMesh::updateStaticPose()
+{
+	if (!UseSwSkinning)
+		return;
+	for (auto *buf : LocalBuffers) {
+		if (auto *weights = buf->getWeights())
+			weights->updateStaticPose(buf->getVertexBuffer());
+	}
+}
+
+void SkinnedMesh::resetAnimation()
+{
+	if (!UseSwSkinning)
+		return;
+	for (auto *buf : LocalBuffers) {
+		if (auto *weights = buf->getWeights())
+			weights->resetToStaticPose(buf->getVertexBuffer());
+	}
+}
+
 // Keyframe Animation
 
 
@@ -115,7 +145,7 @@ void SkinnedMesh::skinMesh(const std::vector<core::matrix4> &global_matrices)
 	}
 
 	for (auto *buffer : *SkinningBuffers) {
-		if (const auto *weights = buffer->getWeights())
+		if (auto *weights = buffer->getWeights())
 			weights->skin(buffer->getVertexBuffer(), joint_transforms);
 	}
 }
@@ -190,23 +220,6 @@ void SkinnedMesh::setDirty(E_BUFFER_TYPE buffer)
 {
 	for (u32 i = 0; i < LocalBuffers.size(); ++i)
 		LocalBuffers[i]->setDirty(buffer);
-}
-
-void SkinnedMesh::updateStaticPose()
-{
-	for (auto *buf : LocalBuffers) {
-		if (auto *weights = buf->getWeights())
-			weights->updateStaticPose(buf->getVertexBuffer());
-	}
-}
-
-void SkinnedMesh::resetAnimation()
-{
-	// copy from the cache to the mesh...
-	for (auto *buf : LocalBuffers) {
-		if (auto *weights = buf->getWeights())
-			weights->resetToStatic(buf->getVertexBuffer());
-	}
 }
 
 //! Turns the given array of local matrices into an array of global matrices
@@ -423,13 +436,11 @@ SkinnedMesh *SkinnedMeshBuilder::finalize() &&
 	}
 
 	for (auto *buffer : mesh->LocalBuffers) {
-		// With GPU skinning, the VBOs should be static
-		// TODO fallback to software skinning
+		// With HW skinning, the VBOs should be static by default
 		buffer->setHardwareMappingHint(EHM_STATIC);
 		if (auto *weights = buffer->getWeights())
 			weights->finalize();
 	}
-	mesh->updateStaticPose();
 
 	mesh->recalculateBaseBoundingBoxes();
 	mesh->StaticPoseBox = mesh->calculateBoundingBox(matrices);
