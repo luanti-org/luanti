@@ -11844,9 +11844,10 @@ Types used are defined in the previous section.
       surface `origin` designates a point in world coordinate space. use this
       for e.g. particles entering or emerging from a portal.
 
-  * float range `strength`: the speed with which particles will move towards
-    the attractor shape. If negative, the particles will instead move away from that
-    point.
+  * float range `strength`: a factor that determines the speed with which particles
+    will move towards the attractor shape. If negative, the particles will instead
+    move away from that point. The actual speed is the product of this parameter and
+    the particle's initial distance from the attractor's origin.
 
   * vec3 `origin`: the origin point of the attractor shape towards which particles will
     initially be oriented. functions as an offset if `origin_attached` is also
