@@ -394,9 +394,20 @@ void Hud::drawLuaElements(const v3s16 &camera_offset)
 				if (textfont->getType() == gui::EGFT_CUSTOM)
 					ttfont = static_cast<gui::CGUITTFont *>(textfont);
 
-				video::SColor color(255, (e->number >> 16) & 0xFF,
-										 (e->number >> 8)  & 0xFF,
-										 (e->number >> 0)  & 0xFF);
+				u32 num = e->number;
+				video::SColor color;
+				if (num > 0xFFFFFF) {
+					color = video::SColor((num >> 0) & 0xFF,
+							(num >> 24) & 0xFF,
+							(num >> 16)  & 0xFF,
+							(num >> 8)  & 0xFF);
+				} else {
+					color = video::SColor(255,
+							(num >> 16) & 0xFF,
+							(num >> 8)  & 0xFF,
+							(num >> 0)  & 0xFF);
+				}
+
 				EnrichedString text(unescape_string(utf8_to_wide(e->text)), color);
 				core::dimension2d<u32> textsize = textfont->getDimension(text.c_str());
 
