@@ -8956,17 +8956,17 @@ child will follow movement and rotation of that bone.
                 `"default"` uses the classic Luanti sun and moon tinting.
                 Will use tonemaps, if set to `"default"`. (default: `"default"`)
         * `fog`: A table with following optional fields:
-            * `fog_distance`: integer, set an upper bound for the client's viewing_range.
+            * `distance`: integer, set an upper bound for the client's viewing_range.
                Any value >= 0 sets the desired upper bound for viewing_range,
                disables range_all and prevents disabling fog (F3 key by default).
                Any value < 0 resets the behavior to being client-controlled.
                (default: -1)
-            * `fog_start`: float, override the client's fog_start.
+            * `start`: float, override the client's fog_start.
                Fraction of the visible distance at which fog starts to be rendered.
                Any value between [0.0, 0.99] set the fog_start as a fraction of the viewing_range.
                Any value < 0, resets the behavior to being client-controlled.
                (default: -1)
-            * `fog_color`: ColorSpec, override the color of the fog.
+            * `color`: ColorSpec, override the color of the fog.
                Unlike `base_color` above this will apply regardless of the skybox type.
                (default: `"#00000000"`, which means no override)
 * `set_sky(base_color, type, {texture names}, clouds)`
@@ -8987,6 +8987,24 @@ child will follow movement and rotation of that bone.
 * `get_sky_color()`:
     * Deprecated: Use `get_sky(as_table)` instead.
     * returns a table with the `sky_color` parameters as in `set_sky`.
+* `set_fog(fog_parameters)`:
+    * Passing no arguments resets fog to its default values.
+    * `fog` is a table with the following optional fields:
+        * `distance`: integer, set an upper bound for the client's viewing_range.
+           Any value >= 0 sets the desired upper bound for viewing_range,
+           disables range_all and prevents disabling fog (F3 key by default).
+           Any value < 0 resets the behavior to being client-controlled.
+           (default: -1)
+        * `start`: float, override the client's fog_start.
+           Fraction of the visible distance at which fog starts to be rendered.
+           Any value between [0.0, 0.99] set the fog_start as a fraction of the viewing_range.
+           Any value < 0, resets the behavior to being client-controlled.
+           (default: -1)
+        * `color`: ColorSpec, override the color of the fog.
+           Unlike `base_color` in `set_sky`, this will apply regardless of the skybox type.
+           (default: `"#00000000"`, which means no override)
+* `get_fog()`: returns a table with the current fog parameters as in
+    `set_fog`.
 * `set_sun(sun_parameters)`:
     * Passing no arguments resets the sun to its default values.
     * `sun_parameters` is a table with the following optional fields:

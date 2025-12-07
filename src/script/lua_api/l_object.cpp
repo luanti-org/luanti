@@ -2149,14 +2149,38 @@ int ObjectRef::l_set_sky(lua_State *L)
 
 		lua_getfield(L, 2, "fog");
 		if (lua_istable(L, -1)) {
-			sky_params.fog_distance = getintfield_default(L, -1,
-				"fog_distance", sky_params.fog_distance);
-			sky_params.fog_start = getfloatfield_default(L, -1,
-				"fog_start", sky_params.fog_start);
+			log_deprecated(L, "Deprecated call to `set_sky({fog = ..})`. Use `set_fog()` instead.");
 
-			lua_getfield(L, -1, "fog_color");
-			read_color(L, -1, &sky_params.fog_color);
-			lua_pop(L, 1);
+			// convert old parameters name
+			lua_newtable(L);
+			lua_getfield(L, -2, "fog_distance");
+			if (!lua_isnil(L, -1))
+				lua_setfield(L, -2, "distance");
+			else
+				lua_pop(L, 1);
+
+			lua_getfield(L, -2, "fog_start");
+			if (!lua_isnil(L, -1))
+				lua_setfield(L, -2, "start");
+			else
+				lua_pop(L, 1);
+
+			lua_getfield(L, -2, "fog_color");
+			if (!lua_isnil(L, -1))
+				lua_setfield(L, -2, "color");
+			else
+				lua_pop(L, 1);
+
+			// only leave the new table, so as to make it compatible with nil check
+			// in set_fog()
+			lua_remove(L, -2);
+
+			// if there aren't any parameters, get rid of the new table as well
+			lua_pushnil(L);
+			lua_next(L, -2);
+			lua_pop(L, 2);
+
+			l_set_fog(L);
 		}
 		lua_pop(L, 1);
 	} else {
@@ -2292,10 +2316,13 @@ int ObjectRef::l_get_sky(lua_State *L)
 	push_sky_color(L, skybox_params);
 	lua_setfield(L, -2, "sky_color");
 
+	// deprecated, now returned by get_fog(). Kept for backwards compatibility
+	const FogParams &fog_params = player->getFogParams();
+
 	lua_newtable(L); // fog
-	lua_pushinteger(L, skybox_params.fog_distance >= 0 ? skybox_params.fog_distance : -1);
+	lua_pushinteger(L, fog_params.distance >= 0 ? fog_params.distance : -1);
 	lua_setfield(L, -2, "fog_distance");
-	lua_pushnumber(L, skybox_params.fog_start >= 0 ? skybox_params.fog_start : -1.0f);
+	lua_pushnumber(L, fog_params.start >= 0 ? fog_params.start : -1.0f);
 	lua_setfield(L, -2, "fog_start");
 	lua_setfield(L, -2, "fog");
 
@@ -2317,6 +2344,58 @@ int ObjectRef::l_get_sky_color(lua_State *L)
 
 	const SkyboxParams &skybox_params = player->getSkyParams();
 	push_sky_color(L, skybox_params);
+	return 1;
+}
+
+// set_fog(self, fog_parameters)
+int ObjectRef::l_set_fog(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	RemotePlayer *player = getplayer(ref);
+	if (player == nullptr)
+		return 0;
+
+	FogParams fog_params = player->getFogParams();
+
+	//reset if empty
+	if (lua_isnoneornil(L, 2)) {
+		fog_params = SkyboxDefaults::getFogDefaults();
+	} else {
+		luaL_checktype(L, -1, LUA_TTABLE);
+		fog_params.distance  = getintfield_default(L, -1,
+				"distance", fog_params.distance);
+		fog_params.start = getfloatfield_default(L, -1,
+				"start", fog_params.start);
+
+		lua_getfield(L, -1, "color");
+		read_color(L, -1, &fog_params.color);
+		lua_pop(L, 1);
+	}
+
+	getServer(L)->setFog(player, fog_params);
+	return 0;
+}
+
+// get_fog(self, fog_parameters)
+int ObjectRef::l_get_fog(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	RemotePlayer *player = getplayer(ref);
+	if (player == nullptr)
+		return 0;
+
+	const FogParams &fog_params = player->getFogParams();
+
+	lua_newtable(L);
+	lua_pushinteger(L, fog_params.distance >= 0 ? fog_params.distance : -1);
+	lua_setfield(L, -2, "distance");
+	lua_pushnumber(L, fog_params.start >= 0 ? fog_params.start : -1.0f);
+	lua_setfield(L, -2, "start");
+	push_ARGB8(L, fog_params.color);
+	lua_setfield(L, -2, "color");
+
 	return 1;
 }
 
@@ -2953,6 +3032,8 @@ luaL_Reg ObjectRef::methods[] = {
 	luamethod(ObjectRef, set_sky),
 	luamethod(ObjectRef, get_sky),
 	luamethod(ObjectRef, get_sky_color),
+	luamethod(ObjectRef, set_fog),
+	luamethod(ObjectRef, get_fog),
 	luamethod(ObjectRef, set_sun),
 	luamethod(ObjectRef, get_sun),
 	luamethod(ObjectRef, set_moon),

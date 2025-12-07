@@ -1397,17 +1397,21 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 		*pkt >> skybox.body_orbit_tilt;
 	}
 
-	if (pkt->getRemainingBytes() >= 6) {
-		*pkt >> skybox.fog_distance >> skybox.fog_start;
-	}
-
-	if (pkt->getRemainingBytes() >= 4) {
-		*pkt >> skybox.fog_color;
-	}
-
 	ClientEvent *event = new ClientEvent();
 	event->type = CE_SET_SKY;
 	event->set_sky = new SkyboxParams(skybox);
+	m_client_event_queue.push(event);
+}
+
+void Client::handleCommand_HudSetFog(NetworkPacket *pkt)
+{
+	FogParams fog;
+
+	*pkt >> fog.distance >> fog.start >> fog.color;
+
+	ClientEvent *event = new ClientEvent();
+	event->type        = CE_SET_FOG;
+	event->fog_params  = new FogParams(fog);
 	m_client_event_queue.push(event);
 }
 

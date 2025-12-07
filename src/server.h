@@ -66,6 +66,7 @@ struct SkyboxParams;
 struct SoundSpec;
 struct StarParams;
 struct SunParams;
+struct FogParams;
 
 namespace con {
 	class IConnection;
@@ -386,6 +387,7 @@ public:
 	void setPlayerEyeOffset(RemotePlayer *player, v3f first, v3f third, v3f third_front);
 
 	void setSky(RemotePlayer *player, const SkyboxParams &params);
+	void setFog(RemotePlayer *player, const FogParams &params);
 	void setSun(RemotePlayer *player, const SunParams &params);
 	void setMoon(RemotePlayer *player, const MoonParams &params);
 	void setStars(RemotePlayer *player, const StarParams &params);
@@ -555,6 +557,7 @@ private:
 	void SendHUDSetFlags(session_t peer_id, u32 flags, u32 mask);
 	void SendHUDSetParam(session_t peer_id, u16 param, std::string_view value);
 	void SendSetSky(session_t peer_id, const SkyboxParams &params);
+	void SendSetFog(session_t peer_id, const FogParams &params);
 	void SendSetSun(session_t peer_id, const SunParams &params);
 	void SendSetMoon(session_t peer_id, const MoonParams &params);
 	void SendSetStars(session_t peer_id, const StarParams &params);

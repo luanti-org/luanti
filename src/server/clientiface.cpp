@@ -177,7 +177,7 @@ void RemoteClient::GetNextBlocks (
 	s32 new_nearest_unsent_d = -1;
 
 	// Get view range and camera fov (radians) from the client
-	s16 fog_distance = sao->getPlayer()->getSkyParams().fog_distance;
+	s16 fog_distance = sao->getPlayer()->getFogParams().distance;
 	s16 wanted_range = sao->getWantedRange() + 1;
 	if (fog_distance >= 0) {
 		// enforce if limited by mod

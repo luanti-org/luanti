@@ -343,6 +343,12 @@ private:
 	// get_sky_color(self)
 	static int l_get_sky_color(lua_State* L);
 
+	// set_fog(self, fog_parameters)
+	static int l_set_fog(lua_State *L);
+
+	// get_fog(self)
+	static int l_get_fog(lua_State *L);
+
 	// set_sun(self, sun_parameters)
 	static int l_set_sun(lua_State *L);
 

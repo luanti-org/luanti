@@ -11,6 +11,7 @@
 struct ParticleParameters;
 struct ParticleSpawnerParameters;
 struct SkyboxParams;
+struct FogParams;
 struct SunParams;
 struct MoonParams;
 struct StarParams;
@@ -31,6 +32,7 @@ enum ClientEventType : u8
 	CE_HUDRM,
 	CE_HUDCHANGE,
 	CE_SET_SKY,
+	CE_SET_FOG,
 	CE_SET_SUN,
 	CE_SET_MOON,
 	CE_SET_STARS,
@@ -124,6 +126,7 @@ struct ClientEvent
 			f32 speed_x;
 			f32 speed_y;
 		} cloud_params;
+		FogParams *fog_params;
 		SunParams *sun_params;
 		MoonParams *moon_params;
 		StarParams *star_params;

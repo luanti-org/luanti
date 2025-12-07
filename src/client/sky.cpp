@@ -54,6 +54,7 @@ Sky::Sky(s32 id, RenderingEngine *rendering_engine, ITextureSource *tsrc, IShade
 	setAutomaticCulling(scene::EAC_OFF);
 
 	m_sky_params = SkyboxDefaults::getSkyDefaults();
+	m_fog_params = SkyboxDefaults::getFogDefaults();
 	m_sun_params = SkyboxDefaults::getSunDefaults();
 	m_moon_params = SkyboxDefaults::getMoonDefaults();
 	m_star_params = SkyboxDefaults::getStarDefaults();
@@ -82,7 +83,7 @@ Sky::Sky(s32 id, RenderingEngine *rendering_engine, ITextureSource *tsrc, IShade
 
 	m_directional_colored_fog = g_settings->getBool("directional_colored_fog");
 	m_sky_params.body_orbit_tilt = g_settings->getFloat("shadow_sky_body_orbit_tilt", -60., 60.);
-	m_sky_params.fog_start = rangelim(g_settings->getFloat("fog_start"), 0.0f, 0.99f);
+	m_fog_params.start = rangelim(g_settings->getFloat("fog_start"), 0.0f, 0.99f);
 
 	setStarCount(1000);
 }

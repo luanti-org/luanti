@@ -109,16 +109,16 @@ public:
 		ITextureSource *tsrc);
 
 	// Note: the Sky class doesn't use these values. It just stores them.
-	void setFogDistance(s16 fog_distance) { m_sky_params.fog_distance = fog_distance; }
-	s16 getFogDistance() const { return m_sky_params.fog_distance; }
+	void setFogDistance(s16 fog_distance) { m_fog_params.distance = fog_distance; }
+	s16 getFogDistance() const { return m_fog_params.distance; }
 
-	void setFogStart(float fog_start) { m_sky_params.fog_start = fog_start; }
-	float getFogStart() const { return m_sky_params.fog_start; }
+	void setFogStart(float fog_start) { m_fog_params.start = fog_start; }
+	float getFogStart() const { return m_fog_params.start; }
 
-	void setFogColor(video::SColor v) { m_sky_params.fog_color = v; }
+	void setFogColor(video::SColor v) { m_fog_params.color = v; }
 	video::SColor getFogColor() const {
-		if (m_sky_params.fog_color.getAlpha() > 0)
-			return m_sky_params.fog_color;
+		if (m_fog_params.color.getAlpha() > 0)
+			return m_fog_params.color;
 		return getBgColor();
 	}
 
@@ -193,6 +193,7 @@ private:
 	);
 
 	SkyboxParams m_sky_params;
+	FogParams m_fog_params;
 	SunParams m_sun_params;
 	MoonParams m_moon_params;
 	StarParams m_star_params;

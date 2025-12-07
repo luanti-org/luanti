@@ -46,6 +46,7 @@ RemotePlayer::RemotePlayer(const std::string &name, IItemDefManager *idef):
 	// Skybox defaults:
 	m_cloud_params  = SkyboxDefaults::getCloudDefaults();
 	m_skybox_params = SkyboxDefaults::getSkyDefaults();
+	m_fog_params	= SkyboxDefaults::getFogDefaults();
 	m_sun_params    = SkyboxDefaults::getSunDefaults();
 	m_moon_params   = SkyboxDefaults::getMoonDefaults();
 	m_star_params   = SkyboxDefaults::getStarDefaults();

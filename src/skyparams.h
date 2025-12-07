@@ -34,9 +34,14 @@ struct SkyboxParams
 	video::SColor fog_moon_tint;
 	std::string fog_tint_type;
 	float body_orbit_tilt { INVALID_SKYBOX_TILT };
-	s16 fog_distance { -1 };
-	float fog_start { -1.0f };
-	video::SColor fog_color { 0 }; // override, only used if alpha > 0
+};
+
+struct FogParams
+{
+	// TODO: visible?
+	s16 distance { -1 };
+	float start { -1.0f };
+	video::SColor color { 0 }; // override, only used if alpha > 0
 };
 
 struct SunParams
@@ -94,7 +99,6 @@ public:
 		sky.fog_sun_tint = video::SColor(255, 244, 125, 29);
 		sky.fog_moon_tint = video::SColorf(0.5, 0.6, 0.8, 1).toSColor();
 		sky.fog_tint_type = "default";
-		sky.fog_color = video::SColor(0);
 		return sky;
 	}
 
@@ -111,6 +115,15 @@ public:
 		sky.dawn_sky = video::SColor(255, 180, 186, 250);
 		sky.night_sky = video::SColor(255, 0, 107, 255);
 		return sky;
+	}
+
+	static const FogParams getFogDefaults()
+	{
+		FogParams fog;
+		fog.distance = -1;
+		fog.start = -1;
+		fog.color = video::SColor(0);
+		return fog;
 	}
 
 	static const SunParams getSunDefaults()

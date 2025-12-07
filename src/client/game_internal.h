@@ -270,6 +270,7 @@ private:
 	void handleClientEvent_HudRemove(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_HudChange(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam);
+	void handleClientEvent_SetFog(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_SetSun(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_SetMoon(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_SetStars(ClientEvent *event, CameraOrientation *cam);

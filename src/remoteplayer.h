@@ -76,6 +76,10 @@ public:
 
 	const SkyboxParams &getSkyParams() const { return m_skybox_params; }
 
+	void setFog(const FogParams &fog_params) { m_fog_params = fog_params; }
+
+	const FogParams &getFogParams() const { return m_fog_params; }
+
 	void setSun(const SunParams &sun_params) { m_sun_params = sun_params; }
 
 	const SunParams &getSunParams() const { return m_sun_params; }
@@ -152,6 +156,7 @@ private:
 	CloudParams m_cloud_params;
 
 	SkyboxParams m_skybox_params;
+	FogParams m_fog_params;
 	SunParams m_sun_params;
 	MoonParams m_moon_params;
 	StarParams m_star_params;

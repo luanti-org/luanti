@@ -2149,6 +2149,7 @@ const ClientEventHandler Game::clientEventHandler[CLIENTEVENT_MAX] = {
 	{&Game::handleClientEvent_HudRemove},
 	{&Game::handleClientEvent_HudChange},
 	{&Game::handleClientEvent_SetSky},
+	{&Game::handleClientEvent_SetFog},
 	{&Game::handleClientEvent_SetSun},
 	{&Game::handleClientEvent_SetMoon},
 	{&Game::handleClientEvent_SetStars},
@@ -2396,23 +2397,24 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 
 	// Orbit Tilt:
 	sky->setBodyOrbitTilt(event->set_sky->body_orbit_tilt);
+	delete event->set_sky;
+}
 
-	// fog
-	// do not override a potentially smaller client setting.
-	sky->setFogDistance(event->set_sky->fog_distance);
+void Game::handleClientEvent_SetFog(ClientEvent *event, CameraOrientation *cam)
+{
+	sky->setFogDistance(event->fog_params->distance);
 
 	// if the fog distance is reset, switch back to the client's viewing_range
-	if (event->set_sky->fog_distance < 0)
+	if (event->fog_params->distance < 0)
 		draw_control->wanted_range = g_settings->getS16("viewing_range");
 
-	if (event->set_sky->fog_start >= 0)
-		sky->setFogStart(rangelim(event->set_sky->fog_start, 0.0f, 0.99f));
+	if (event->fog_params->start >= 0)
+		sky->setFogStart(rangelim(event->fog_params->start, 0.0f, 0.99f));
 	else
 		sky->setFogStart(rangelim(g_settings->getFloat("fog_start"), 0.0f, 0.99f));
 
-	sky->setFogColor(event->set_sky->fog_color);
-
-	delete event->set_sky;
+	sky->setFogColor(event->fog_params->color);
+	delete event->fog_params;
 }
 
 void Game::handleClientEvent_SetSun(ClientEvent *event, CameraOrientation *cam)

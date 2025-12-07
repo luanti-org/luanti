@@ -1928,13 +1928,19 @@ void Server::SendSetSky(session_t peer_id, const SkyboxParams &params)
 				<< c.night_sky << c.night_horizon << c.indoors;
 		}
 
-		pkt << params.body_orbit_tilt << params.fog_distance << params.fog_start
-			<< params.fog_color;
+		pkt << params.body_orbit_tilt;
 	}
 
 	Send(&pkt);
 }
 
+void Server::SendSetFog(session_t peer_id, const FogParams &params)
+{
+	NetworkPacket pkt(TOCLIENT_SET_FOG, 0, peer_id);
+	pkt << params.distance << params.start << params.color;
+
+	Send(&pkt);
+}
 void Server::SendSetSun(session_t peer_id, const SunParams &params)
 {
 	NetworkPacket pkt(TOCLIENT_SET_SUN, 0, peer_id);
@@ -3599,6 +3605,13 @@ void Server::setSky(RemotePlayer *player, const SkyboxParams &params)
 	sanity_check(player);
 	player->setSky(params);
 	SendSetSky(player->getPeerId(), params);
+}
+
+void Server::setFog(RemotePlayer *player, const FogParams &params)
+{
+	sanity_check(player);
+	player->setFog(params);
+	SendSetFog(player->getPeerId(), params);
 }
 
 void Server::setSun(RemotePlayer *player, const SunParams &params)
