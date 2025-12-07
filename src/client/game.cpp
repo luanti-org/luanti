@@ -351,8 +351,7 @@ public:
 		video::SColorf artificial_light = lighting.artificial_light_color;
 		m_artificial_light.set(artificial_light, services);
 
-		float gamma = m_gamma;
-		m_gamma_pixel.set(&gamma, services);
+		m_gamma_pixel.set(&m_gamma, services);
 
 		const Vignette &vignette_params = lighting.vignette;
 		m_vignette_dark_pixel.set(&vignette_params.dark, services);
