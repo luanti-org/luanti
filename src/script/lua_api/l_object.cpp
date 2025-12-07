@@ -11,6 +11,7 @@
 #include "lua_api/l_playermeta.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
+#include "cpp_api/s_base.h"
 #include "log.h"
 #include "player.h"
 #include "server/serveractiveobject.h"
@@ -19,13 +20,10 @@
 #include "server.h"
 #include "serverenvironment.h"
 #include "settings.h"
-#include "hud.h"
-#include "scripting_server.h"
+#include "hud_element.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 #include "server/serverinventorymgr.h"
-#include "server/unit_sao.h"
-#include "util/string.h"
 
 using object_t = ServerActiveObject::object_t;
 
@@ -2454,6 +2452,7 @@ int ObjectRef::l_set_stars(lua_State *L)
 			"scale", star_params.scale);
 		star_params.day_opacity = getfloatfield_default(L, 2,
 			"day_opacity", star_params.day_opacity);
+		star_params.star_seed = getintfield_default(L, 2, "star_seed", star_params.star_seed);
 	}
 
 	getServer(L)->setStars(player, star_params);
@@ -2482,6 +2481,8 @@ int ObjectRef::l_get_stars(lua_State *L)
 	lua_setfield(L, -2, "scale");
 	lua_pushnumber(L, star_params.day_opacity);
 	lua_setfield(L, -2, "day_opacity");
+	lua_pushnumber(L, star_params.star_seed);
+	lua_setfield(L, -2, "star_seed");
 	return 1;
 }
 

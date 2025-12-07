@@ -14,13 +14,15 @@ rm -rf "$worldpath"
 mkdir -p "$worldpath/worldmods"
 
 # enable a lot of visual effects so we can catch shader errors and other obvious bugs
-printf '%s\n' >"$conf_client" \
-	screen_w=384 screen_h=256 fps_max=5 \
-	active_block_range=1 viewing_range=40 helper_mode=devtest \
-	opengl_debug=true mip_map=true enable_waving_{leaves,plants,water}=true \
-	enable_{auto_exposure,bloom,dynamic_shadows,translucent_foliage,volumetric_lighting}=true \
-	shadow_map_color=true antialiasing=ssaa \
-	"${clientconf:-}"
+opts=(
+	screen_w=384 screen_h=256 fps_max=5
+	active_block_range=1 viewing_range=40 helper_mode=devtest
+	opengl_debug=true mip_map=true enable_waving_{leaves,plants,water}=true
+	antialiasing=ssaa node_highlighting=halo
+	enable_{auto_exposure,bloom,dynamic_shadows,translucent_foliage,volumetric_lighting,water_reflections}=true
+	shadow_map_color=true
+)
+printf '%s\n' "${opts[@]}" "${clientconf:-}" >"$conf_client"
 
 ln -s "$dir/helper_mod" "$worldpath/worldmods/"
 

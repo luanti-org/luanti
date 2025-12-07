@@ -51,6 +51,7 @@
 // Network
 #include "network/clientopcodes.h"
 #include "network/connection.h"
+#include "network/networkexceptions.h"
 #include "network/networkpacket.h"
 #include "serialization.h"
 

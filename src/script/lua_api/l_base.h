@@ -5,10 +5,9 @@
 #pragma once
 
 #include "common/c_types.h"
-#include "common/c_internal.h"
 #include "common/helper.h"
+#include "config.h"
 #include "gamedef.h"
-#include <unordered_map>
 
 extern "C" {
 #include <lua.h>

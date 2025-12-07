@@ -7,7 +7,7 @@
 #include "lua_api/l_item.h"
 #include "script/common/c_converter.h"
 #include "client/localplayer.h"
-#include "hud.h"
+#include "hud_element.h"
 #include "common/c_content.h"
 #include "client/content_cao.h"
 

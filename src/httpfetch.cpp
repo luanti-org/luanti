@@ -6,7 +6,6 @@
 #include "porting.h" // for sleep_ms(), get_sysinfo(), secure_rand_fill_buf()
 #include <list>
 #include <unordered_map>
-#include <cerrno>
 #include <mutex>
 #include "threading/event.h"
 #include "config.h"

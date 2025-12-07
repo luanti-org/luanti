@@ -8,7 +8,6 @@
 #include <string>
 #include <thread>
 #include <mutex>
-#include <unordered_map>
 #include "common/helper.h"
 #include "util/basic_macros.h"
 

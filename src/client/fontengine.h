@@ -162,6 +162,8 @@ private:
 	/** refresh after fonts have been changed */
 	void refresh();
 
+	gui::SGUITTFace *getOrLoadFace(const std::string &filename);
+
 	/** callback to be used on change of font size setting */
 	static void fontSettingChanged(const std::string &name, void *userdata);
 
@@ -173,6 +175,9 @@ private:
 
 	/** internal storage for caching fonts of different size */
 	std::map<unsigned int, gui::IGUIFont*> m_font_cache[FontSpec::MAX_VARIANTS];
+
+	/** local faces, indexed by file path */
+	std::unordered_map<std::string, irr_ptr<gui::SGUITTFace>> m_local_faces;
 
 	/** media-provided faces, indexed by filename (without extension) */
 	std::unordered_map<std::string, irr_ptr<gui::SGUITTFace>> m_media_faces;

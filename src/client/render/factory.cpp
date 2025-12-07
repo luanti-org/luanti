@@ -9,7 +9,6 @@
 #include "plain.h"
 #include "anaglyph.h"
 #include "sidebyside.h"
-#include "secondstage.h"
 #include "client/shadows/dynamicshadowsrender.h"
 
 #include <memory>

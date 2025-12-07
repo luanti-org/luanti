@@ -7,7 +7,6 @@
 #include "lua_api/l_settings.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
-#include "cpp_api/s_async.h"
 #include "network/networkprotocol.h"
 #include "serialization.h"
 #include <json/json.h>
@@ -15,7 +14,6 @@
 #include "cpp_api/s_security.h"
 #include "porting.h"
 #include "convert_json.h"
-#include "debug.h"
 #include "log.h"
 #include "log_internal.h"
 #include "tool.h"
@@ -260,6 +258,21 @@ int ModApiUtil::l_is_yes(lua_State *L)
 
 	bool yes = is_yes(str);
 	lua_pushboolean(L, yes);
+	return 1;
+}
+
+// path_exists(path)
+int ModApiUtil::l_path_exists(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	std::string path = luaL_checkstring(L, 1); //path
+
+	CHECK_SECURE_PATH(L, path.c_str(), false);
+
+	bool exists = fs::PathExists(path);
+	lua_pushboolean(L, exists);
+
 	return 1;
 }
 
@@ -724,6 +737,8 @@ void ModApiUtil::Initialize(lua_State *L, int top)
 
 	API_FCT(is_yes);
 
+	API_FCT(path_exists);
+
 	API_FCT(get_builtin_path);
 	API_FCT(get_user_path);
 
@@ -808,6 +823,8 @@ void ModApiUtil::InitializeAsync(lua_State *L, int top)
 	API_FCT(write_json);
 
 	API_FCT(is_yes);
+
+	API_FCT(path_exists);
 
 	API_FCT(get_builtin_path);
 	API_FCT(get_user_path);

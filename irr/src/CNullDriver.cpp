@@ -270,6 +270,8 @@ u32 CNullDriver::getTextureCount() const
 ITexture *CNullDriver::addTexture(const core::dimension2d<u32> &size, const io::path &name, ECOLOR_FORMAT format)
 {
 	IImage *image = new CImage(format, size);
+	// the image data will be uploaded, so zero it
+	memset(image->getData(), 0, image->getImageDataSizeInBytes());
 	ITexture *t = addTexture(name, image);
 	image->drop();
 	return t;

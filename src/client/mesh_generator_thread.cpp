@@ -7,6 +7,7 @@
 #include "profiler.h"
 #include "client.h"
 #include "mapblock.h"
+#include "mapblock_mesh.h"
 #include "map.h"
 #include "util/directiontables.h"
 #include "porting.h"

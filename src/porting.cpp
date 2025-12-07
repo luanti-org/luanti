@@ -40,6 +40,8 @@
 #if defined(__APPLE__)
 	#include <mach-o/dyld.h>
 	#include <CoreFoundation/CoreFoundation.h>
+	#include <sys/types.h>
+	#include <sys/sysctl.h>
 	// For _NSGetEnviron()
 	// Related: https://gitlab.haskell.org/ghc/ghc/issues/2458
 	#include <crt_externs.h>
@@ -67,7 +69,7 @@
 #include <atomic>
 
 #if CHECK_CLIENT_BUILD() && defined(_WIN32)
-// On Windows export some driver-specific variables to encourage Minetest to be
+// On Windows export some driver-specific variables to encourage Luanti to be
 // executed on the discrete GPU in case of systems with two. Portability is fun.
 extern "C" {
 	__declspec(dllexport) DWORD NvOptimusEnablement = 1;
@@ -267,6 +269,26 @@ const std::string &get_sysinfo()
 	return ret;
 }
 
+u32 getMemorySizeMB()
+{
+#ifdef _WIN32
+	MEMORYSTATUSEX status;
+	status.dwLength = sizeof(status);
+	if (GlobalMemoryStatusEx(&status))
+		return status.ullTotalPhys >> 20;
+#elif defined(__unix__) && defined(_SC_PHYS_PAGES) && defined(_SC_PAGE_SIZE)
+	long pages = sysconf(_SC_PHYS_PAGES);
+	long page_size = sysconf(_SC_PAGE_SIZE);
+	if (pages != -1 && page_size != -1)
+		return (pages * page_size) >> 20;
+#elif defined(__APPLE__)
+	int64_t memsize;
+	size_t len = sizeof(memsize);
+	if (sysctlbyname("hw.memsize", &memsize, &len, nullptr, 0) == 0)
+		return memsize >> 20;
+#endif
+	return 0;
+}
 
 [[maybe_unused]] static bool getCurrentWorkingDir(char *buf, size_t len)
 {

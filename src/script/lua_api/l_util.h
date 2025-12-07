@@ -52,6 +52,9 @@ private:
 	// is_yes(arg)
 	static int l_is_yes(lua_State *L);
 
+	// path_exists(path)
+	static int l_path_exists(lua_State *L);
+
 	// get_builtin_path()
 	static int l_get_builtin_path(lua_State *L);
 

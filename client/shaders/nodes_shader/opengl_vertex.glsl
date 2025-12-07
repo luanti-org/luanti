@@ -7,7 +7,6 @@ uniform highp vec3 cameraOffset;
 uniform float animationTimer;
 
 VARYING_ vec3 vNormal;
-VARYING_ vec3 vPosition;
 // World position in the visible world (i.e. relative to the cameraOffset.)
 // This can be used for many shader effects without loss of precision.
 // If the absolute position is required it can be calculated with
@@ -48,15 +47,15 @@ VARYING_ float nightFactor;
 uniform vec3 artificialLight;
 const float e = 2.718281828459;
 const float BS = 10.0;
-uniform float xyPerspectiveBias0;
-uniform float xyPerspectiveBias1;
-uniform float zPerspectiveBias;
 
 #ifdef ENABLE_TINTED_SUNLIGHT
 	uniform vec3 scattering_coefficients;
 #endif
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
+uniform float xyPerspectiveBias0;
+uniform float xyPerspectiveBias1;
+uniform float zPerspectiveBias;
 
 vec4 getRelativePosition(in vec4 position)
 {
@@ -84,13 +83,15 @@ vec4 applyPerspectiveDistortion(in vec4 position)
 	return position;
 }
 
-// custom smoothstep implementation because it's not defined in glsl1.2
-// https://docs.gl/sl4/smoothstep
+#if __VERSION__ >= 130
+#define mtsmoothstep smoothstep
+#else
 float mtsmoothstep(in float edge0, in float edge1, in float x)
 {
 	float t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 	return t * t * (3.0 - 2.0 * t);
 }
+#endif
 #endif
 
 
@@ -205,7 +206,6 @@ void main(void)
 	worldPosition = (mWorld * pos).xyz;
 	gl_Position = mWorldViewProj * pos;
 
-	vPosition = gl_Position.xyz;
 	eyeVec = -(mWorldView * pos).xyz;
 #ifdef SECONDSTAGE
 	normalPass = normalize((inVertexNormal+1)/2);

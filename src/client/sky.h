@@ -77,6 +77,7 @@ public:
 	void setStarColor(video::SColor star_color) { m_star_params.starcolor = star_color; }
 	void setStarScale(f32 star_scale) { m_star_params.scale = star_scale; updateStars(); }
 	void setStarDayOpacity(f32 day_opacity) { m_star_params.day_opacity = day_opacity; }
+	void setStarSeed(u64 star_seed);
 
 	bool getCloudsVisible() const { return m_clouds_visible && m_clouds_enabled; }
 	const video::SColorf &getCloudColor() const { return m_cloudcolor_f; }

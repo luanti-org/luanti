@@ -13,6 +13,7 @@ on:
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
       - 'po/**.po'
+      - 'client/shaders/**'
       - 'util/ci/**'
       - 'util/helper_mod/**'
       - '.github/workflows/linux.yml'
@@ -27,6 +28,7 @@ on:
       - '**/CMakeLists.txt'
       - 'cmake/Modules/**'
       - 'po/**.po'
+      - 'client/shaders/**'
       - 'util/ci/**'
       - 'util/helper_mod/**'
       - '.github/workflows/linux.yml'
@@ -39,7 +41,7 @@ jobs:
   gcc_9:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install deps
         run: |
           source ./util/ci/common.sh
@@ -66,7 +68,7 @@ jobs:
   gcc_14:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install deps
         run: |
           source ./util/ci/common.sh
@@ -92,11 +94,11 @@ jobs:
   clang_11:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install deps
         run: |
           source ./util/ci/common.sh
-          install_linux_deps clang-11
+          install_linux_deps clang-11 xvfb
 
       - name: Build
         run: |
@@ -104,18 +106,22 @@ jobs:
         env:
           CC: clang-11
           CXX: clang++-11
-          # Test fallback SHA implementations
-          CMAKE_FLAGS: '-DENABLE_OPENSSL=0'
+          # Test fallback SHA implementations, add GLES for the test
+          CMAKE_FLAGS: '-DENABLE_OPENSSL=0 -DENABLE_GLES2=ON'
 
       - name: Test
         run: |
           ./bin/luanti --run-unittests
 
+      - name: Singleplayer test (GLES)
+        run: |
+          clientconf="video_driver=ogles2" xvfb-run ./util/test_singleplayer.sh
+
   # Current clang version
   clang_18:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install deps
         run: |
           source ./util/ci/common.sh
@@ -136,16 +142,16 @@ jobs:
         run: |
           ./util/test_multiplayer.sh
 
-      - name: Singleplayer test
+      - name: Singleplayer test (GL3)
         run: |
-          xvfb-run ./util/test_singleplayer.sh
+          clientconf="video_driver=opengl3" xvfb-run ./util/test_singleplayer.sh
 
   # Build with prometheus-cpp (server-only), also runs on ARM64
   clang_prometheus_arm:
     name: "clang (with Prometheus, ARM64)"
     runs-on: ubuntu-24.04-arm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install deps
         run: |
           source ./util/ci/common.sh

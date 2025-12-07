@@ -6,10 +6,11 @@
 
 #include "irrlichttypes.h"
 #include "inventory.h" // ItemStack
+#include "util/basic_macros.h"
 #include "util/numeric.h"
 #include <plane3d.h>
 #include <array>
-#include <list>
+#include <vector>
 #include <optional>
 
 class LocalPlayer;
@@ -254,7 +255,7 @@ private:
 	f32 m_cache_view_bobbing_amount;
 	bool m_arm_inertia;
 
-	std::list<Nametag *> m_nametags;
+	std::vector<Nametag*> m_nametags;
 	bool m_show_nametag_backgrounds;
 
 	// Last known light color of the player

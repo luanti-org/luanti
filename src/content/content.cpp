@@ -2,10 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2018 rubenwardy <rw@rubenwardy.com>
 
-#include <fstream>
 #include "content/content.h"
-#include "content/subgames.h"
-#include "content/mods.h"
 #include "filesys.h"
 #include "settings.h"
 

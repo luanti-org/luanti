@@ -11,7 +11,6 @@
 #include "lua_api/l_pause_menu.h"
 #include "lua_api/l_settings.h"
 #include "lua_api/l_util.h"
-#include "porting.h"
 
 PauseMenuScripting::PauseMenuScripting(Client *client):
 		ScriptApiBase(ScriptingType::PauseMenu)

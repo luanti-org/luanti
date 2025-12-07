@@ -5,13 +5,11 @@
 #include "tool.h"
 #include "itemdef.h"
 #include "itemgroup.h"
-#include "log.h"
 #include "inventory.h"
 #include "exceptions.h"
 #include "convert_json.h"
 #include "util/serialize.h"
 #include "util/numeric.h"
-#include "util/hex.h"
 #include <json/json.h>
 
 

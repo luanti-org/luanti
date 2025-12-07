@@ -273,7 +273,7 @@ private:
 	void handleClientEvent_SetSun(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_SetMoon(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_SetStars(ClientEvent *event, CameraOrientation *cam);
-	void handleClientEvent_OverrideDayNigthRatio(ClientEvent *event,
+	void handleClientEvent_OverrideDayNightRatio(ClientEvent *event,
 		CameraOrientation *cam);
 	void handleClientEvent_CloudParams(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_UpdateCamera(ClientEvent *event, CameraOrientation *cam);
@@ -304,7 +304,7 @@ private:
 	std::unique_ptr<ItemVisualsManager> m_item_visuals_manager;
 
 	std::unique_ptr<ISoundManager> sound_manager;
-	SoundMaker *soundmaker = nullptr;
+	std::unique_ptr<SoundMaker> soundmaker;
 
 	ChatBackend *chat_backend = nullptr;
 	CaptureLogOutput m_chat_log_buf;

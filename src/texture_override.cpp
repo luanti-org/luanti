@@ -7,8 +7,6 @@
 #include "log.h"
 #include "filesys.h"
 #include "util/string.h"
-#include <algorithm>
-#include <fstream>
 #include <map>
 
 #define override_cast static_cast<override_t>

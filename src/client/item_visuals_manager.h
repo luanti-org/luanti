@@ -5,16 +5,16 @@
 #pragma once
 
 #include <string>
-#include <map>
 #include <thread>
 #include <unordered_map>
-#include "wieldmesh.h" // ItemMesh
-#include "util/basic_macros.h"
+#include <vector>
 
+struct AnimationInfo;
 class Client;
 struct ItemStack;
+struct ItemMesh;
+namespace video { class ITexture; class SColor; }
 typedef std::vector<video::SColor> Palette; // copied from src/client/texturesource.h
-namespace video { class ITexture; }
 
 // Caches data needed to draw an itemstack
 

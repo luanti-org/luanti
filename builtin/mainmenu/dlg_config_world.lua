@@ -203,7 +203,7 @@ local function get_formspec(data)
 
 	if mod.name ~= "" and not mod.is_game_content then
 		if mod.is_modpack then
-			if pkgmgr.is_modpack_entirely_enabled(data, mod.name) then
+			if pkgmgr.is_modpack_entirely_enabled(data.list:get_raw_list(), mod) then
 				retval = retval ..
 					"button[5.5,0.125;3,0.5;btn_mp_disable;" ..
 					fgettext("Disable modpack") .. "]"

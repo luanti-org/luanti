@@ -137,6 +137,7 @@ local function load()
 
 	-- insert after "touch_controls"
 	table.insert(page_by_id.controls_touchscreen.content, 2, touchscreen_layout)
+
 	do
 		local content = page_by_id.graphics_and_audio_effects.content
 		local idx = table.indexof(content, "enable_dynamic_shadows")
@@ -354,10 +355,10 @@ local function check_requirements(name, requires, context)
 		return true
 	end
 
-	local video_driver = core.get_active_driver()
 	local touch_support = core.irrlicht_device_supports_touch()
 	local touch_controls = core.settings:get("touch_controls")
 	local touch_interaction_style = core.settings:get("touch_interaction_style")
+	local shadows_support = core.driver_supports_shadows()
 	local special = {
 		android = PLATFORM == "Android",
 		desktop = PLATFORM ~= "Android",
@@ -366,9 +367,8 @@ local function check_requirements(name, requires, context)
 		-- be used, so we show settings for both.
 		touchscreen = touch_support and (touch_controls == "auto" or core.is_yes(touch_controls)),
 		keyboard_mouse = not touch_support or (touch_controls == "auto" or not core.is_yes(touch_controls)),
-		opengl = (video_driver == "opengl" or video_driver == "opengl3"),
-		gles = video_driver:sub(1, 5) == "ogles",
 		touch_interaction_style_tap = touch_interaction_style ~= "buttons_crosshair",
+		shadows_support = shadows_support,
 	}
 
 	for req_key, req_value in pairs(requires) do
@@ -407,18 +407,8 @@ function page_has_contents(page, actual_content)
 	for _, item in ipairs(actual_content) do
 		if item == false or item.heading then --luacheck: ignore
 			-- skip
-		elseif type(item) == "string" then
-			local setting = get_setting_info(item)
-			assert(setting, "Unknown setting: " .. item)
-			if check_requirements(setting.name, setting.requires, setting.context) then
-				return true
-			end
-		elseif item.get_formspec then
-			if check_requirements(item.id, item.requires, item.context) then
-				return true
-			end
 		else
-			error("Unknown content in page: " .. dump(item))
+			return true
 		end
 	end
 
@@ -429,6 +419,7 @@ end
 local function build_page_components(page)
 	-- Filter settings based on requirements
 	local content = {}
+	local settings_off = {}
 	local last_heading
 	for _, item in ipairs(page.content) do
 		if item == false then --luacheck: ignore
@@ -437,8 +428,9 @@ local function build_page_components(page)
 			last_heading = item
 		else
 			local name, requires, context
+			local setting
 			if type(item) == "string" then
-				local setting = get_setting_info(item)
+				setting = get_setting_info(item)
 				assert(setting, "Unknown setting: " .. item)
 				name = setting.name
 				requires = setting.requires
@@ -457,6 +449,8 @@ local function build_page_components(page)
 					last_heading = nil
 				end
 				content[#content + 1] = item
+			elseif setting then
+				settings_off[#settings_off + 1] = setting
 			end
 		end
 	end
@@ -474,6 +468,14 @@ local function build_page_components(page)
 		elseif item.heading then
 			retval[i] = component_funcs.heading(item.heading)
 		end
+	end
+
+	if #settings_off > 0 then
+		retval[#retval + 1] = component_funcs.heading(fgettext_ne("Unavailable"),
+			-- luacheck: ignore
+			fgettext_ne("These settings are unavailable due to your platform, hardware or in combination with the current settings.")
+		)
+		retval[#retval + 1] = component_funcs.unavail_list(settings_off)
 	end
 	return retval
 end

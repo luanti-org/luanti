@@ -19,6 +19,7 @@
 #include "version.h"
 #include "renderingengine.h"
 #include "settings.h"
+#include "util/numeric.h"
 #include "util/tracy_wrapper.h"
 #include <IGUISpriteBank.h>
 #include <ICameraSceneNode.h>

@@ -6,7 +6,7 @@
 
 #include <string>
 #include "irrlichttypes.h"
-#include "client/hud.h" // HudElementStat
+#include "hud_element.h" // HudElementStat
 
 struct ParticleParameters;
 struct ParticleSpawnerParameters;

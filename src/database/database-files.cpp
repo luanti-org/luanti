@@ -6,7 +6,8 @@
 #include "convert_json.h"
 #include "remoteplayer.h"
 #include "settings.h"
-#include "porting.h"
+#include "exceptions.h"
+#include "debug.h"
 #include "filesys.h"
 #include "server/player_sao.h"
 #include "util/string.h"
@@ -195,7 +196,7 @@ bool PlayerDatabaseFiles::removePlayer(const std::string &name)
 		is.close();
 
 		if (temp_player.getName() == name) {
-			fs::DeleteSingleFileOrEmptyDirectory(path);
+			fs::DeleteSingleFileOrEmptyDirectory(path, true);
 			return true;
 		}
 

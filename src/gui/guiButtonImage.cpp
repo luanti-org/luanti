@@ -5,7 +5,6 @@
 #include "guiButtonImage.h"
 
 #include "client/guiscalingfilter.h"
-#include "debug.h"
 #include "IGUIEnvironment.h"
 #include "IGUIImage.h"
 #include "IVideoDriver.h"

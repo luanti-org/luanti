@@ -9,6 +9,7 @@
 #include "guiscalingfilter.h"
 #include "imagefilters.h"
 #include "imagesource.h"
+#include "porting.h"
 #include "renderingengine.h"
 #include "settings.h"
 #include "texturepaths.h"

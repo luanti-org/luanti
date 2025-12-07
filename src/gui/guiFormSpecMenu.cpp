@@ -4,19 +4,15 @@
 
 
 #include <cstdlib>
-#include <cmath>
 #include <algorithm>
 #include <iterator>
 #include <limits>
-#include <sstream>
 #include "guiFormSpecMenu.h"
 #include "EGUIElementTypes.h"
-#include "constants.h"
 #include "itemdef.h"
 #include "gamedef.h"
 #include "client/keycode.h"
 #include "gui/guiTable.h"
-#include "util/strfnd.h"
 #include <IGUIButton.h>
 #include <IGUICheckBox.h>
 #include <IGUIComboBox.h>
@@ -29,17 +25,13 @@
 #include "client/joystick_controller.h"
 #include "log.h"
 #include "drawItemStack.h"
-#include "filesys.h"
-#include "gettime.h"
 #include "gettext.h"
-#include "scripting_server.h"
 #include "mainmenumanager.h"
 #include "porting.h"
 #include "settings.h"
 #include "client/client.h"
 #include "client/fontengine.h"
 #include "client/sound.h"
-#include "util/hex.h"
 #include "util/numeric.h"
 #include "util/string.h" // for parseColorString()
 #include "irrlicht_changes/static_text.h"

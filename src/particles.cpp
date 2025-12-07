@@ -3,7 +3,9 @@
 // Copyright (C) 2020 sfan5 <sfan5@live.de>
 
 #include "particles.h"
-#include <type_traits>
+
+#include "util/numeric.h"
+#include "util/serialize.h"
 
 using namespace ParticleParamTypes;
 

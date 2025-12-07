@@ -5,7 +5,6 @@
 #pragma once
 
 #include "lua_api/l_base.h"
-#include "config.h"
 
 class ModChannel;
 

@@ -6,7 +6,6 @@
 
 #include "irr_v3d.h"
 
-#include <map>
 #include <vector>
 #include <unordered_map>
 #include <mutex>

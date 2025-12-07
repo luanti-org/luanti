@@ -4,16 +4,14 @@
 
 #include <atomic>
 #include <map>
-#include <queue>
+#include <vector>
 #include <string_view>
 #include <fstream>
 #include <thread>
 #include <mutex>
 #include "threading/mutex_auto_lock.h"
 #include "util/basic_macros.h"
-#include "util/stream.h"
 #include "irrlichttypes.h"
-#include "log.h"
 
 class ILogOutput;
 

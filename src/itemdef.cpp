@@ -5,13 +5,11 @@
 
 #include "itemdef.h"
 
-#include "nodedef.h"
+#include "debug.h"
 #include "tool.h"
 #include "log.h"
 #include "settings.h"
 #include "util/serialize.h"
-#include "util/container.h"
-#include "util/thread.h"
 #include "util/pointedthing.h"
 #include <map>
 #include <set>
@@ -180,7 +178,7 @@ void ItemDefinition::reset()
 	wield_overlay.reset();
 	palette_image.clear();
 	color = video::SColor(0xFFFFFFFF);
-	wield_scale = v3f(1.0, 1.0, 1.0);
+	wield_scale = v3f(1.0f);
 	stack_max = 99;
 	usable = false;
 	liquids_pointable = false;
@@ -371,7 +369,7 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 
 // SUGG: Support chains of aliases?
 
-class CItemDefManager: public IWritableItemDefManager
+class CItemDefManager final : public IWritableItemDefManager
 {
 
 public:
@@ -387,10 +385,10 @@ public:
 		}
 		m_item_definitions.clear();
 	}
-	virtual const ItemDefinition& get(const std::string &name_) const
+
+	virtual const ItemDefinition &get(const std::string &name_) const
 	{
-		// Convert name according to possible alias
-		std::string name = getAlias(name_);
+		const std::string &name = getAlias(name_);
 		// Get the definition
 		auto i = m_item_definitions.find(name);
 		if (i == m_item_definitions.cend())
@@ -398,6 +396,7 @@ public:
 		assert(i != m_item_definitions.cend());
 		return *(i->second);
 	}
+
 	virtual const std::string &getAlias(const std::string &name) const
 	{
 		auto it = m_aliases.find(name);
@@ -405,6 +404,7 @@ public:
 			return it->second;
 		return name;
 	}
+
 	virtual void getAll(std::set<std::string> &result) const
 	{
 		result.clear();
@@ -416,16 +416,18 @@ public:
 			result.insert(alias.first);
 		}
 	}
+
 	virtual bool isKnown(const std::string &name_) const
 	{
-		// Convert name according to possible alias
-		std::string name = getAlias(name_);
-		// Get the definition
+		const std::string &name = getAlias(name_);
 		return m_item_definitions.find(name) != m_item_definitions.cend();
 	}
 
 	void applyTextureOverrides(const std::vector<TextureOverride> &overrides)
 	{
+		if (overrides.empty())
+			return;
+
 		infostream << "ItemDefManager::applyTextureOverrides(): Applying "
 			"overrides to textures" << std::endl;
 
@@ -443,6 +445,7 @@ public:
 				itemdef->wield_image = texture_override.texture;
 		}
 	}
+
 	void clear()
 	{
 		for (auto &i : m_item_definitions)
@@ -463,23 +466,24 @@ public:
 		hand_def->name.clear();
 		hand_def->wield_image = "wieldhand.png";
 		hand_def->tool_capabilities = new ToolCapabilities;
-		m_item_definitions.insert(std::make_pair("", hand_def));
+		m_item_definitions.emplace("", hand_def);
 
 		ItemDefinition* unknown_def = new ItemDefinition;
 		unknown_def->type = ITEM_NODE;
 		unknown_def->name = "unknown";
-		m_item_definitions.insert(std::make_pair("unknown", unknown_def));
+		m_item_definitions.emplace("unknown", unknown_def);
 
 		ItemDefinition* air_def = new ItemDefinition;
 		air_def->type = ITEM_NODE;
 		air_def->name = "air";
-		m_item_definitions.insert(std::make_pair("air", air_def));
+		m_item_definitions.emplace("air", air_def);
 
 		ItemDefinition* ignore_def = new ItemDefinition;
 		ignore_def->type = ITEM_NODE;
 		ignore_def->name = "ignore";
-		m_item_definitions.insert(std::make_pair("ignore", ignore_def));
+		m_item_definitions.emplace("ignore", ignore_def);
 	}
+
 	virtual void registerItem(const ItemDefinition &def)
 	{
 		TRACESTREAM(<< "ItemDefManager: registering " << def.name << std::endl);
@@ -498,6 +502,7 @@ public:
 			infostream<<"ItemDefManager: erased alias "<<def.name
 					<<" because item was defined"<<std::endl;
 	}
+
 	virtual void unregisterItem(const std::string &name)
 	{
 		verbosestream<<"ItemDefManager: unregistering \""<<name<<"\""<<std::endl;
@@ -505,6 +510,7 @@ public:
 		delete m_item_definitions[name];
 		m_item_definitions.erase(name);
 	}
+
 	virtual void registerAlias(const std::string &name,
 			const std::string &convert_to)
 	{
@@ -514,6 +520,7 @@ public:
 			m_aliases[name] = convert_to;
 		}
 	}
+
 	void serialize(std::ostream &os, u16 protocol_version)
 	{
 		writeU8(os, 0); // version
@@ -535,6 +542,7 @@ public:
 			os << serializeString16(it.second);
 		}
 	}
+
 	void deSerialize(std::istream &is, u16 protocol_version)
 	{
 		// Clear everything

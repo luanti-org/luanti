@@ -4,7 +4,7 @@
 
 #include "item_visuals_manager.h"
 
-#include "mesh.h"
+#include "wieldmesh.h"
 #include "client.h"
 #include "texturesource.h"
 #include "itemdef.h"

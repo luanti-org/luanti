@@ -9,7 +9,6 @@
 #include "playing_sound.h"
 
 #include "al_extensions.h"
-#include "debug.h"
 #include "sound_constants.h"
 #include <cassert>
 #include <cmath>

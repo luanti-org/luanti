@@ -70,5 +70,5 @@ private:
 	float hill_threshold;
 	float hill_steepness;
 
-	Noise *noise_terrain;
+	Noise *noise_terrain = nullptr;
 };

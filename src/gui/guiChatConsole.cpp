@@ -5,8 +5,6 @@
 #include "guiChatConsole.h"
 #include "chat.h"
 #include "client/client.h"
-#include "debug.h"
-#include "gettime.h"
 #include "client/keycode.h"
 #include "settings.h"
 #include "porting.h"
@@ -17,6 +15,7 @@
 #include "irrlicht_changes/CGUITTFont.h"
 #include "util/string.h"
 #include "guiScrollBar.h"
+#include <IOSOperator.h>
 #include <string>
 
 inline u32 clamp_u8(s32 value)

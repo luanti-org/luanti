@@ -5962,7 +5962,8 @@ Utilities
       touch_controls = false,
   }
   ```
-
+* `core.path_exists(path)`: returns true if the given path exists else false
+    * `path` is the path that will be tested can be either a directory or a file
 * `core.mkdir(path)`: returns success.
     * Creates a directory specified by `path`, creating parent directories
       if they don't exist.
@@ -6043,7 +6044,8 @@ Logging
 -------
 
 * `core.debug(...)`
-    * Equivalent to `core.log(table.concat({...}, "\t"))`
+    * Calls `core.log` with all arguments converted to string and separated by tabs
+      (similar to `print`).
 * `core.log([level,] text)`
     * `level` is one of `"none"`, `"error"`, `"warning"`, `"action"`,
       `"info"`, or `"verbose"`.  Default is `"none"`.
@@ -9038,6 +9040,7 @@ child will follow movement and rotation of that bone.
             alpha channel is used to set overall star brightness.
             (default: `#ebebff69`)
         * `scale`: Float controlling the overall size of the stars (default: `1`)
+        * `star_seed`: Integer number which decides how to generate the sky stars. If set to zero, client picks a random number. (default: `0`)
 * `get_stars()`: returns a table with the current stars parameters as in
     `set_stars`.
 * `set_clouds(cloud_parameters)`: set cloud parameters

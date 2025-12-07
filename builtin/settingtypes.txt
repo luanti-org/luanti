@@ -91,8 +91,9 @@
 # * The value of a boolean setting, such as enable_dynamic_shadows
 # * An engine-defined value:
 #     * desktop / android
+#     * touch_support
 #     * touchscreen / keyboard_mouse
-#     * opengl / gles
+#     * shadows_support
 # * You can negate any requirement by prepending with !
 # * The "keyboard_mouse" requirement is automatically added to settings with the
 #   "key" type.
@@ -160,6 +161,9 @@ autojump (Automatic jumping) bool false
 #    Enable this when you dig or place too often by accident.
 #    On touchscreens, this only affects digging.
 safe_dig_and_place (Safe digging and placing) bool false
+
+#	 Enable a confirmation dialog before closing.
+enable_esc_dialog (Confirmation dialog before closing) bool true
 
 [*Keyboard and Mouse]
 
@@ -455,7 +459,9 @@ pause_on_lost_focus (Pause on lost window focus) bool false
 #    to not waste CPU power for no benefit.
 fps_max (Maximum FPS) int 60 1 4294967295
 
-#    Vertical screen synchronization. Your system may still force VSync on even if this is disabled.
+#    Vertical screen synchronization.
+#    Note: A restart is required after changing this!
+#    Your system may still force VSync and ignore this setting.
 vsync (VSync) bool false
 
 #    Maximum FPS when the window is not focused.
@@ -699,60 +705,60 @@ water_wave_speed (Waving liquids wave speed) float 5.0
 
 #    Set to true to enable Shadow Mapping.
 #
-#    Requires: opengl
-enable_dynamic_shadows (Dynamic shadows) bool false
+#    Requires: shadows_support
+enable_dynamic_shadows (Enable dynamic shadows) bool false
 
 #    Set the shadow strength gamma.
 #    Adjusts the intensity of in-game dynamic shadows.
 #    Lower value means lighter shadows, higher value means darker shadows.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_strength_gamma (Shadow strength gamma) float 1.0 0.1 10.0
 
 #    Maximum distance to render shadows.
 #
-#    Requires: enable_dynamic_shadows, opengl
-shadow_map_max_distance (Shadow map max distance in nodes to render shadows) float 140.0 10.0 1000.0
+#    Requires: enable_dynamic_shadows, shadows_support
+shadow_map_max_distance (Shadow map render distance) float 140.0 10.0 1000.0
 
 #    Texture size to render the shadow map on.
 #    This must be a power of two.
 #    Bigger numbers create better shadows but it is also more expensive.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_map_texture_size (Shadow map texture size) int 2048 128 8192
 
 #    Sets shadow texture quality to 32 bits.
 #    On false, 16 bits texture will be used.
 #    This can cause much more artifacts in the shadow.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_map_texture_32bit (Shadow map texture in 32 bits) bool true
 
 #    Define shadow filtering quality.
 #    This simulates the soft shadows effect by applying a PCF or Poisson disk
 #    but also uses more resources.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_filters (Shadow filter quality) enum 1 0,1,2
 
 #    Enable colored shadows for transculent nodes.
 #    This is expensive.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_map_color (Colored shadows) bool false
 
 #    Set the soft shadow radius size.
 #    Lower values mean sharper shadows, bigger values mean softer shadows.
 #    Minimum value: 1.0; maximum value: 15.0
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_soft_radius (Soft shadow radius) float 5.0 1.0 15.0
 
 #    Set the default tilt of Sun/Moon orbit in degrees.
 #    Games may change orbit tilt via API.
 #    Value of 0 means no tilt / vertical orbit.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_sky_body_orbit_tilt (Sky Body Orbit Tilt) float 0.0 -60.0 60.0
 
 #    Tint sunlight during sunrise/sunset.
@@ -2023,7 +2029,7 @@ shader_path (Shader path) path
 
 #    The rendering back-end.
 #    Note: A restart is required after changing this!
-#    OpenGL is the default for desktop, and OGLES2 for Android.
+#    By default OpenGL3 is preferred on desktop, or OGLES2 on Android.
 video_driver (Video driver) enum  ,opengl,opengl3,ogles2
 
 #    Distance in nodes at which transparency depth sorting is enabled.
@@ -2103,14 +2109,14 @@ post_processing_texture_bits (Color depth for post-processing texture) enum 16 8
 #    Enable Poisson disk filtering.
 #    On true uses Poisson disk to make "soft shadows". Otherwise uses PCF filtering.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_poisson_filter (Poisson filtering) bool true
 
 #    Spread a complete update of the shadow map over a given number of frames.
 #    Higher values might make shadows laggy, lower values
 #    will consume more resources.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows, shadows_support
 shadow_update_frames (Map shadows update frames) int 16 1 32
 
 #    Set to true to render debugging breakdown of the bloom effect.
@@ -2387,17 +2393,12 @@ emergequeue_limit_diskonly (Per-player limit of queued blocks load from disk) in
 #    This limit is enforced per player.
 emergequeue_limit_generate (Per-player limit of queued blocks to generate) int 128 1 1000000
 
-#    Number of emerge threads to use.
-#    Value 0:
-#    -    Automatic selection. The number of emerge threads will be
-#    -    'number of processors - 2', with a lower limit of 1.
-#    Any other value:
-#    -    Specifies the number of emerge threads, with a lower limit of 1.
-#    WARNING: Increasing the number of emerge threads increases engine mapgen
-#    speed, but this may harm game performance by interfering with other
-#    processes, especially in singleplayer and/or when running Lua code in
-#    'on_generated'. For many users the optimum setting may be '1'.
-num_emerge_threads (Number of emerge threads) int 1 0 32767
+#    Number of emerge threads (responsible for map generation and loading) to use.
+#    If 0 then the engine will automatically choose a suitable value depending
+#    on the hardware and type of map generator.
+#    WARNING: There are known bugs in the default map generators (v6, v7, ...)
+#    when using more than 1 thread. The automatic choice will avoid this.
+num_emerge_threads (Number of emerge threads) int 0 0 32767
 
 [**cURL] [common]
 

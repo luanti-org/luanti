@@ -6,16 +6,18 @@
 
 #include <ctime>
 #include <mutex>
-#include <unordered_map>
 #include <unordered_set>
-#include "mapblock_mesh.h"
+#include "irrlichttypes_bloated.h"
 #include "threading/mutex_auto_lock.h"
 #include "util/thread.h"
 #include <vector>
 #include <memory>
-#include <unordered_map>
 
+class Map;
 class MapBlock;
+class MapBlockMesh;
+struct MeshMakeData;
+class Client;
 
 struct QueuedMeshUpdate
 {

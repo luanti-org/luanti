@@ -44,7 +44,6 @@ uniform float crackTextureScale;
 #endif
 
 VARYING_ vec3 vNormal;
-VARYING_ vec3 vPosition;
 // World position in the visible world (i.e. relative to the cameraOffset.)
 // This can be used for many shader effects without loss of precision.
 // If the absolute position is required it can be calculated with
@@ -68,7 +67,8 @@ vec4 perm(vec4 x)
 }
 
 // Corresponding gradient of snoise
-vec3 gnoise(vec3 p){
+vec3 gnoise(vec3 p)
+{
     vec3 a = floor(p);
     vec3 d = p - a;
     vec3 dd = 6.0 * d * (1.0 - d);
@@ -101,7 +101,10 @@ vec3 gnoise(vec3 p){
 }
 
 vec2 wave_noise(vec3 p, float off) {
-	return (gnoise(p + vec3(0.0, 0.0, off)) * 0.4 + gnoise(2.0 * p + vec3(0.0, off, off)) * 0.2 + gnoise(3.0 * p + vec3(0.0, off, off)) * 0.225 + gnoise(4.0 * p + vec3(-off, off, 0.0)) * 0.2).xz;
+	return (gnoise(p + vec3(0.0, 0.0, off)) * 0.4 +
+		gnoise(2.0 * p + vec3(0.0, off, off)) * 0.2 +
+		gnoise(3.0 * p + vec3(0.0, off, off)) * 0.225 +
+		gnoise(4.0 * p + vec3(-off, off, 0.0)) * 0.2).xz;
 }
 #endif
 
@@ -115,13 +118,16 @@ vec3 getLightSpacePosition()
 {
 	return shadow_position * 0.5 + 0.5;
 }
-// custom smoothstep implementation because it's not defined in glsl1.2
-// https://docs.gl/sl4/smoothstep
+
+#if __VERSION__ >= 130
+#define mtsmoothstep smoothstep
+#else
 float mtsmoothstep(in float edge0, in float edge1, in float x)
 {
 	float t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 	return t * t * (3.0 - 2.0 * t);
 }
+#endif
 
 float shadowCutoff(float x) {
 	#if defined(ENABLE_TRANSLUCENT_FOLIAGE) && MATERIAL_TYPE == TILE_MATERIAL_WAVING_LEAVES
@@ -316,7 +322,7 @@ vec4 getShadowColor(sampler2D shadowsampler, vec2 smTexCoord, float realDistance
 
 	int samples = (1 + 1 * int(SOFTSHADOWRADIUS > 1.0)) * PCFSAMPLES; // scale max samples for the soft shadows
 	samples = int(clamp(pow(4.0 * radius + 1.0, 2.0), 1.0, float(samples)));
-	int init_offset = int(floor(mod(((smTexCoord.x * 34.0) + 1.0) * smTexCoord.y, 64.0-samples)));
+	int init_offset = int(floor(mod(((smTexCoord.x * 34.0) + 1.0) * smTexCoord.y, 64.0-float(samples))));
 	int end_offset = int(samples) + init_offset;
 
 	for (int x = init_offset; x < end_offset; x++) {
@@ -324,7 +330,7 @@ vec4 getShadowColor(sampler2D shadowsampler, vec2 smTexCoord, float realDistance
 		visibility += getHardShadowColor(shadowsampler, clampedpos.xy, realDistance);
 	}
 
-	return visibility / samples;
+	return visibility / float(samples);
 }
 
 #else
@@ -343,7 +349,7 @@ float getShadow(sampler2D shadowsampler, vec2 smTexCoord, float realDistance)
 
 	int samples = (1 + 1 * int(SOFTSHADOWRADIUS > 1.0)) * PCFSAMPLES; // scale max samples for the soft shadows
 	samples = int(clamp(pow(4.0 * radius + 1.0, 2.0), 1.0, float(samples)));
-	int init_offset = int(floor(mod(((smTexCoord.x * 34.0) + 1.0) * smTexCoord.y, 64.0-samples)));
+	int init_offset = int(floor(mod(((smTexCoord.x * 34.0) + 1.0) * smTexCoord.y, 64.0-float(samples))));
 	int end_offset = int(samples) + init_offset;
 
 	for (int x = init_offset; x < end_offset; x++) {
@@ -351,7 +357,7 @@ float getShadow(sampler2D shadowsampler, vec2 smTexCoord, float realDistance)
 		visibility += getHardShadow(shadowsampler, clampedpos.xy, realDistance);
 	}
 
-	return visibility / samples;
+	return visibility / float(samples);
 }
 
 #endif
@@ -512,9 +518,8 @@ void main(void)
 		// Apply self-shadowing when light falls at a narrow angle to the surface
 		// Cosine of the cut-off angle.
 		const float self_shadow_cutoff_cosine = 0.035;
-
-		if (f_normal_length != 0 && cosLight < self_shadow_cutoff_cosine) {
-			shadow_int = max(shadow_int, 1 - clamp(cosLight, 0.0, self_shadow_cutoff_cosine)/self_shadow_cutoff_cosine);
+		if (f_normal_length != 0.0 && cosLight < self_shadow_cutoff_cosine) {
+			shadow_int = max(shadow_int, 1.0 - clamp(cosLight, 0.0, self_shadow_cutoff_cosine)/self_shadow_cutoff_cosine);
 			shadow_color = mix(vec3(0.0), shadow_color, min(cosLight, self_shadow_cutoff_cosine)/self_shadow_cutoff_cosine);
 
 #if (MATERIAL_TYPE == TILE_MATERIAL_WAVING_LEAVES || MATERIAL_TYPE == TILE_MATERIAL_WAVING_PLANTS)

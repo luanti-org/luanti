@@ -7,7 +7,6 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <list>
 #include <optional>
 
 #include "irrlichttypes.h"

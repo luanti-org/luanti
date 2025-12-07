@@ -9,11 +9,7 @@
 #include "cpp_api/s_security.h"
 #include "util/enum_string.h"
 #include "httpfetch.h"
-#include "settings.h"
-#include "debug.h"
 #include "log.h"
-
-#include <iomanip>
 
 #define HTTP_API(name) \
 	lua_pushstring(L, #name); \

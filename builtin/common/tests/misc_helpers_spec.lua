@@ -57,7 +57,9 @@ describe("privs", function()
 		assert.equal("one", core.privs_to_string({ one=true }))
 
 		local ret = core.privs_to_string({ a=true, b=true })
-		assert(ret == "a,b" or ret == "b,a")
+		assert(ret == "a,b")
+		ret = core.privs_to_string({ e=true, c=true, d=true, a=true, b=true })
+		assert(ret == "a,b,c,d,e")
 	end)
 end)
 

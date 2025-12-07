@@ -56,15 +56,17 @@ void COpenGL3MaterialBaseCB::OnSetConstants(IMaterialRendererServices *services,
 	services->setPixelShaderConstant(WVPMatrixID, Matrix.pointer(), 16);
 
 	s32 TempEnable = FogEnable ? 1 : 0;
-	services->setPixelShaderConstant(FogEnableID, &TempEnable, 1);
-
 	if (FogEnable) {
-		SColor TempColor(0);
+		SColor TempColor;
 		E_FOG_TYPE TempType = EFT_FOG_LINEAR;
 		f32 FogStart, FogEnd, FogDensity;
-		bool unused = false;
+		bool unused;
 
 		driver->getFog(TempColor, TempType, FogStart, FogEnd, FogDensity, unused, unused);
+
+		// if outside a reasonable range (for mediump float), disable directly
+		if (FogStart > 16384.f || FogEnd > 16384.f)
+			TempEnable = 0;
 
 		s32 FogType = (s32)TempType;
 		SColorf FogColor(TempColor);
@@ -75,6 +77,7 @@ void COpenGL3MaterialBaseCB::OnSetConstants(IMaterialRendererServices *services,
 		services->setPixelShaderConstant(FogEndID, &FogEnd, 1);
 		services->setPixelShaderConstant(FogDensityID, &FogDensity, 1);
 	}
+	services->setPixelShaderConstant(FogEnableID, &TempEnable, 1);
 
 	services->setPixelShaderConstant(ThicknessID, &Thickness, 1);
 }

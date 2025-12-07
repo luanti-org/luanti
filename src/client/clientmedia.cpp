@@ -99,7 +99,7 @@ void ClientMediaDownloader::addFile(const std::string &name, const std::string &
 	filestatus->received = false;
 	filestatus->sha1 = sha1;
 	filestatus->current_remote = -1;
-	m_files.insert(std::make_pair(name, filestatus));
+	m_files.emplace(name, filestatus);
 }
 
 void ClientMediaDownloader::addRemoteServer(const std::string &baseurl)
@@ -427,9 +427,9 @@ void ClientMediaDownloader::startRemoteMediaTransfers()
 					(long)g_settings->getS32("curl_file_download_timeout"));
 				httpfetch_async(fetch_request);
 
-				m_remote_file_transfers.insert(std::make_pair(
+				m_remote_file_transfers.emplace(
 							m_httpfetch_next_id,
-							name));
+							name);
 
 				filestatus->current_remote = remote_id;
 				remote->active_count++;

@@ -15,7 +15,6 @@ Licensing changed by permission of Gael de Sailly.
 #include "mapgen.h"
 #include "voxel.h"
 #include "noise.h"
-#include "mapblock.h"
 #include "mapnode.h"
 #include "map.h"
 #include "nodedef.h"

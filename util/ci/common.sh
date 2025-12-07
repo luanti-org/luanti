@@ -33,10 +33,9 @@ install_linux_deps() {
 }
 
 # macOS build only
-install_macos_deps() {
+install_macos_brew_deps() {
 	# Uninstall the bundled cmake, it is outdated, and brew does not want to install the newest version with this one present since they are from different taps.
 	brew uninstall cmake || :
-
 	local pkgs=(
 		cmake gettext freetype gmp jpeg-turbo jsoncpp leveldb
 		libogg libpng libvorbis luajit zstd sdl2
@@ -48,4 +47,25 @@ install_macos_deps() {
 	brew install --display-times "${pkgs[@]}"
 	brew unlink $(brew ls --formula)
 	brew link "${pkgs[@]}"
+}
+
+install_macos_precompiled_deps() {
+	osver=$1
+	arch=$2
+
+	local pkgs=(
+		cmake wget
+	)
+	export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+	export HOMEBREW_NO_INSTALL_CLEANUP=1
+	# contrary to how it may look --auto-update makes brew do *less*
+	brew update --auto-update
+	brew install --display-times "${pkgs[@]}"
+	brew unlink $(brew ls --formula)
+	brew link "${pkgs[@]}"
+
+	cd /Users/Shared
+	wget -O macos${osver}_${arch}_deps.tar.gz https://github.com/luanti-org/luanti_macos_deps/releases/download/latest/macos${osver}_${arch}_deps.tar.gz
+	tar -xf macos${osver}_${arch}_deps.tar.gz
+	cd ~
 }

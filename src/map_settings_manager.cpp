@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2010-2013 kwolekr, Ryan Kwolek <kwolekr@minetest.net>
 
-#include "debug.h"
 #include "filesys.h"
 #include "log.h"
 #include "mapgen/mapgen.h"

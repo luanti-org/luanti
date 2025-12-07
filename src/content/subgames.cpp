@@ -4,12 +4,12 @@
 
 #include <common/c_internal.h>
 #include "content/subgames.h"
+#include "constants.h"
 #include "porting.h"
 #include "filesys.h"
 #include "settings.h"
 #include "log.h"
 #include "util/strfnd.h"
-#include "defaultsettings.h" // for set_default_settings
 #include "map_settings_manager.h"
 #include "util/string.h"
 #include "exceptions.h"
