@@ -41,7 +41,7 @@ struct CVertexBuffer final : public IVertexBuffer
 		return T::getType();
 	}
 
-	size_t getElementSize() const override
+	u32 getElementSize() const override
 	{
 		return sizeof(T);
 	}

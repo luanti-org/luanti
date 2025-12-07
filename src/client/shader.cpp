@@ -727,9 +727,11 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			ATTRIBUTE_(5) mediump vec2 inTexCoord1;
 			ATTRIBUTE_(6) mediump vec4 inVertexTangent;
 			ATTRIBUTE_(7) mediump vec4 inVertexBinormal;
-			ATTRIBUTE_(8) mediump vec4 inVertexWeights;
-			ATTRIBUTE_(9) mediump uvec4 inVertexJointIDs;
 		)";
+		if (shaderinfo.input_constants.count("USE_SKINNING") > 0) {
+			vertex_header += "ATTRIBUTE_(8) mediump vec4 inVertexWeights;\n";
+			vertex_header += "ATTRIBUTE_(9) mediump uvec4 inVertexJointIDs;\n";
+		}
 		if (use_glsl3) {
 			vertex_header += "#define VARYING_ out\n";
 		} else {

@@ -4,15 +4,12 @@
 #include "irrTypes.h"
 #include "EHardwareBufferFlags.h"
 
-#include <cstddef>
-#include <cstdio>
-
 namespace scene
 {
 
 struct HWBuffer : public virtual IReferenceCounted {
 	/// Size of one element in bytes
-	virtual size_t getElementSize() const = 0;
+	virtual u32 getElementSize() const = 0;
 	/// Number of elements in the buffer
 	virtual u32 getCount() const = 0;
 	/// Pointer to the buffer data
@@ -33,7 +30,6 @@ private:
 
 	u32 ChangedID = 1;
 	static constexpr bool DEBUG = false;
-	static constexpr u32 MinVertexCountForVBO = 50;
 };
 
 } // end namespace scene
