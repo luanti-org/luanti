@@ -865,13 +865,15 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 */
 
 u32 IShaderSource::getShader(const std::string &name,
-	MaterialType material_type, NodeDrawType drawtype, bool array_texture)
+	MaterialType material_type, NodeDrawType drawtype, bool array_texture, bool is_textureless)
 {
 	ShaderConstants input_const;
 	input_const["MATERIAL_TYPE"] = (int)material_type;
 	(void) drawtype; // unused
 	if (array_texture)
 		input_const["USE_ARRAY_TEXTURE"] = 1;
+	if (is_textureless)
+		input_const["TEXTURELESS"] = 1;
 
 	video::E_MATERIAL_TYPE base_mat = video::EMT_SOLID;
 	switch (material_type) {

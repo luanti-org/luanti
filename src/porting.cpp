@@ -990,4 +990,19 @@ void TriggerMemoryTrim()
 
 #endif
 
+u8 ctzll(const u64 in)
+{
+	if (in == 0)
+		return 64;
+#if defined(__GNUC__)
+	return __builtin_ctzll(in);
+#else
+	for (u8 out = 0; out < 64; out++) {
+		if ((in & (1ULL << out)) != 0)
+			return out;
+	}
+	return -1; // cant happen, this is just here to get rid of the compiler warning
+#endif
+}
+
 } //namespace porting

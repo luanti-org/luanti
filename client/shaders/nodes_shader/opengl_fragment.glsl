@@ -436,7 +436,9 @@ void main(void)
 {
 	vec2 uv = varTexCoord.st;
 
-#ifdef USE_ARRAY_TEXTURE
+#ifdef TEXTURELESS
+    vec4 base = vec4(1); // white, so color is fully controlled by vertex color
+#elif USE_ARRAY_TEXTURE
 	vec4 base = texture(baseTexture, vec3(uv, varTexLayer)).rgba;
 #else
 	vec4 base = texture2D(baseTexture, uv).rgba;
