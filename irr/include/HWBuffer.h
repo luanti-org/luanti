@@ -8,6 +8,15 @@ namespace scene
 {
 
 struct HWBuffer : public virtual IReferenceCounted {
+	enum class Type
+	{
+		VERTEX,
+		INDEX,
+		WEIGHT,
+	};
+	/// Type of the buffer for faster type checks than dynamic_cast
+	virtual Type getBufferType() const = 0;
+
 	/// Size of one element in bytes
 	virtual u32 getElementSize() const = 0;
 	/// Number of elements in the buffer

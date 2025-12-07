@@ -6,6 +6,7 @@
 #include <cassert>
 #include "CNullDriver.h"
 #include "EHardwareBufferFlags.h"
+#include "HWBuffer.h"
 #include "IContextManager.h"
 #include "IIndexBuffer.h"
 #include "IVertexBuffer.h"
@@ -251,7 +252,7 @@ bool COpenGLDriver::updateVertexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
 		return false;
 
 #if defined(GL_ARB_vertex_buffer_object)
-	const auto *vb = dynamic_cast<const scene::IVertexBuffer *>(HWBuffer->Buffer);
+	const auto *vb = IRR_DOWN_CAST<const scene::IVertexBuffer *>(HWBuffer->Buffer);
 	const void *vertices = vb->getData();
 	const u32 vertexCount = vb->getCount();
 	const E_VERTEX_TYPE vType = vb->getType();
@@ -335,7 +336,7 @@ bool COpenGLDriver::updateIndexHardwareBuffer(SHWBufferLink_opengl *link)
 		return false;
 
 #if defined(GL_ARB_vertex_buffer_object)
-	const auto *ib = dynamic_cast<const scene::IIndexBuffer *>(link->Buffer);
+	const auto *ib = IRR_DOWN_CAST<const scene::IIndexBuffer *>(link->Buffer);
 
 	const void *indices = ib->getData();
 	u32 indexCount = ib->getCount();
@@ -375,26 +376,33 @@ bool COpenGLDriver::updateIndexHardwareBuffer(SHWBufferLink_opengl *link)
 }
 
 //! updates hardware buffer if needed
-bool COpenGLDriver::updateHardwareBuffer(SHWBufferLink *HWBuffer)
+bool COpenGLDriver::updateHardwareBuffer(SHWBufferLink *_link)
 {
-	if (!HWBuffer)
+	if (!_link)
 		return false;
 
-	auto *b = static_cast<SHWBufferLink_opengl *>(HWBuffer);
+	auto *link = IRR_DOWN_CAST<SHWBufferLink_opengl *>(_link);
+	auto *buf = link->Buffer;
+	if (link->vbo_ID && link->ChangedID == buf->getChangedID())
+		return true;
 
-	if (auto *vb = dynamic_cast<const scene::IVertexBuffer *>(b->Buffer)) {
-		if (b->ChangedID != vb->getChangedID() || !b->vbo_ID) {
-			if (!updateVertexHardwareBuffer(b))
-				return false;
-			b->ChangedID = vb->getChangedID();
-		}
-	} else if (auto *ib = dynamic_cast<const scene::IIndexBuffer *>(b->Buffer)) {
-		if (b->ChangedID != ib->getChangedID() || !b->vbo_ID) {
-			if (!updateIndexHardwareBuffer(b))
-				return false;
-			b->ChangedID = ib->getChangedID();
-		}
+	bool success = false;
+	switch (buf->getBufferType()) {
+	case scene::HWBuffer::Type::VERTEX:
+		success = updateVertexHardwareBuffer(link);
+		break;
+	case scene::HWBuffer::Type::INDEX:
+		success = updateIndexHardwareBuffer(link);
+		break;
+	case scene::HWBuffer::Type::WEIGHT:
+	default:
+		IRR_CODE_UNREACHABLE();
 	}
+
+	if (!success)
+		return false;
+
+	link->ChangedID = buf->getChangedID();
 	return true;
 }
 
@@ -425,7 +433,7 @@ void COpenGLDriver::deleteHardwareBuffer(SHWBufferLink *_link)
 		return;
 
 #if defined(GL_ARB_vertex_buffer_object)
-	auto *link = static_cast<SHWBufferLink_opengl *>(_link);
+	auto *link = IRR_DOWN_CAST<SHWBufferLink_opengl *>(_link);
 	if (link->vbo_ID) {
 		extGlDeleteBuffers(1, &link->vbo_ID);
 		link->vbo_ID = 0;
@@ -443,8 +451,8 @@ void COpenGLDriver::drawBuffers(const scene::IVertexBuffer *vb,
 		return;
 
 #if defined(GL_ARB_vertex_buffer_object)
-	auto *hwvert = static_cast<SHWBufferLink_opengl *>(getBufferLink(vb));
-	auto *hwidx = static_cast<SHWBufferLink_opengl *>(getBufferLink(ib));
+	auto *hwvert = IRR_DOWN_CAST<SHWBufferLink_opengl *>(getBufferLink(vb));
+	auto *hwidx = IRR_DOWN_CAST<SHWBufferLink_opengl *>(getBufferLink(ib));
 
 	const void *vertices = vb->getData();
 	if (hwvert) {

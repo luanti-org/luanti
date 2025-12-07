@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 #include "EHardwareBufferFlags.h"
+#include "HWBuffer.h"
 #include "IVertexBuffer.h"
 #include "WeightBuffer.h"
 #include "irr_ptr.h"
@@ -20,6 +21,11 @@ struct CVertexBuffer final : public IVertexBuffer
 {
 	//! Default constructor for empty buffer
 	CVertexBuffer() {}
+
+	HWBuffer::Type getBufferType() const override
+	{
+		return HWBuffer::Type::VERTEX;
+	}
 
 	const void *getData() const override
 	{
