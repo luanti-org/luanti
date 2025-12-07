@@ -53,7 +53,7 @@ struct WeightBuffer final : public HWBuffer
 	u32 getCount() const override
 	{ return weights.size(); }
 
-	size_t getElementSize() const override
+	u32 getElementSize() const override
 	{ return sizeof(VertexWeights); }
 
 	const void *getData() const override

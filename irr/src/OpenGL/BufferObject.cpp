@@ -34,11 +34,7 @@ void OGLBufferObject::upload(const void *data, size_t size, size_t offset,
 		GL.BufferSubData(m_target, offset, size, data);
 	}
 
-	// In the future, binding should perhaps be a separate step from the upload?
-	if (m_target == TARGET_UBO)
-		GL.BindBufferBase(GL_UNIFORM_BUFFER, 0, m_name);
-	else
-		GL.BindBuffer(m_target, 0);
+	GL.BindBuffer(m_target, 0);
 }
 
 void OGLBufferObject::destroy()
