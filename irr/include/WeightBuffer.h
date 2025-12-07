@@ -50,6 +50,9 @@ struct WeightBuffer final : public HWBuffer
 	const std::array<f32, MAX_WEIGHTS_PER_VERTEX> &getWeights(u32 vertex_id) const
 	{ return weights[vertex_id].weights; }
 
+	HWBuffer::Type getBufferType() const override
+	{ return HWBuffer::Type::WEIGHT; }
+
 	u32 getCount() const override
 	{ return weights.size(); }
 

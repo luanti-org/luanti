@@ -17,6 +17,11 @@ public:
 	//! Default constructor for empty buffer
 	CIndexBuffer() {}
 
+	HWBuffer::Type getBufferType() const override
+	{
+		return HWBuffer::Type::INDEX;
+	}
+
 	video::E_INDEX_TYPE getType() const override
 	{
 		static_assert(sizeof(T) == 2 || sizeof(T) == 4, "invalid index type");
