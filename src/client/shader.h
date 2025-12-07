@@ -65,7 +65,7 @@ public:
 	{ }
 };
 
-class IShaderUniformSetterRC : public IShaderUniformSetter, public IReferenceCounted
+class IShaderUniformSetterRC : public IReferenceCounted, public IShaderUniformSetter
 {
 	// Reference counted variant for special use-cases
 };
