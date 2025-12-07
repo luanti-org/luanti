@@ -2718,7 +2718,7 @@ int ObjectRef::l_set_lighting(lua_State *L)
 
 			lua_getfield(L, -1, "scattering_coefficients");
 			if (!lua_isnil(L, -1)) {
-				lighting.scattering_coefficients = read_v3f(L, -1);
+				lighting.scattering_coefficients = check_v3f(L, -1);
 			}
 			lua_pop(L, 1); // scattering_coefficients
 		}
@@ -2744,15 +2744,15 @@ int ObjectRef::l_set_lighting(lua_State *L)
 		if (lua_istable(L, -1)) {
 			lua_getfield(L, -1, "slope");
 			if (!lua_isnil(L, -1))
-				lighting.cdl.slope = read_v3f(L, -1);
+				lighting.cdl.slope = check_v3f(L, -1);
 			lua_pop(L, 1); // slope
 			lua_getfield(L, -1, "offset");
 			if (!lua_isnil(L, -1))
-				lighting.cdl.offset = read_v3f(L, -1);
+				lighting.cdl.offset = check_v3f(L, -1);
 			lua_pop(L, 1); // offset
 			lua_getfield(L, -1, "power");
 			if (!lua_isnil(L, -1))
-				lighting.cdl.power = read_v3f(L, -1);
+				lighting.cdl.power = check_v3f(L, -1);
 			lua_pop(L, 1); // power
 		}
 		lua_pop(L, 1); // cdl

@@ -80,7 +80,7 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float> m_crack_texture_scale{"crackTextureScale"};
 	CachedPixelShaderSetting<float, 3> m_day_light{"dayLight"};
 	CachedPixelShaderSetting<float, 3> m_minimap_yaw{"yawVec"};
-	CachedPixelShaderSetting<float> m_minimap_size{"mapSize"};
+	CachedPixelShaderSetting<float> m_minimap_size{"minimapResolution"};
 	CachedVertexShaderSetting<float, 3> m_camera_offset_vertex{"cameraOffset"};
 	CachedPixelShaderSetting<float, 3> m_camera_offset_pixel{ "cameraOffset" };
 	CachedVertexShaderSetting<float, 3> m_camera_position_vertex{"cameraPosition"};
@@ -234,8 +234,7 @@ public:
 		video::SColorf artificial_light = lighting.artificial_light_color;
 		m_artificial_light.set(artificial_light, services);
 
-		float gamma = m_gamma;
-		m_gamma_pixel.set(&gamma, services);
+		m_gamma_pixel.set(&m_gamma, services);
 
 		const Vignette &vignette_params = lighting.vignette;
 		m_vignette_dark_pixel.set(&vignette_params.dark, services);

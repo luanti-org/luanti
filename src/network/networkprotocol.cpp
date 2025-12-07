@@ -63,8 +63,7 @@
 		Add particle blend mode "clip"
 		[scheduled bump for 5.11.0]
 	PROTOCOL VERSION 48
-		Add compression to some existing packets, artificial light color, scattering_coefficients,
-		vignette, specular intensity, foliage translucency and cdl parameters to Lighting packets
+		Add compression to some existing packets
 		[scheduled bump for 5.12.0]
 	PROTOCOL VERSION 49
 		Support of showing a player inventory using 'core.show_formspec'
@@ -73,7 +72,9 @@
 		Support for TOCLIENT_SPAWN_PARTICLE_BATCH
 		[scheduled bump for 5.14.0]
 	PROTOCOL VERSION 51
-		Only send first frame of animated item/wield images to older client
+		Only send first frame of animated item/wield images to older client,
+		Add artificial light color, scattering_coefficients,
+		vignette, specular intensity, foliage translucency and cdl parameters to Lighting packets
 		[scheduled bump for 5.15.0]
 */
 

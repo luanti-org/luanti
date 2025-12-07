@@ -148,8 +148,8 @@ void main(void)
 #endif
 	{
 
-	// Apply vignette. sqrt(2) is necessary so the darkest value is at the corner of the screen.
-	color.rgb *= (vignette_bright - vignette_dark) * (1.0 - pow(length(uv - vec2(0.5)) * SQRT_2, vignette_power)) + vignette_dark;
+		// Apply vignette. sqrt(2) is necessary so the darkest value is at the corner of the screen.
+		color.rgb *= (vignette_bright - vignette_dark) * (1.0 - pow(length(uv - vec2(0.5)) * SQRT_2, vignette_power)) + vignette_dark;
 
 #if ENABLE_TONE_MAPPING
 		color = applyToneMapping(color);

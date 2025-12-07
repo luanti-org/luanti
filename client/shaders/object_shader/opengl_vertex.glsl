@@ -92,15 +92,15 @@ float directional_ambient(vec3 normal)
 }
 
 #ifdef ENABLE_TINTED_SUNLIGHT
-	vec3 getDirectLightScatteringAtGround(vec3 v_LightDirection)
-	{
-		// Based on talk at 2002 Game Developers Conference by Naty Hoffman and Arcot J. Preetham
-		const float unit_conversion = 1e-5; // Rayleigh scattering beta
+vec3 getDirectLightScatteringAtGround(vec3 v_LightDirection)
+{
+	// Based on talk at 2002 Game Developers Conference by Naty Hoffman and Arcot J. Preetham
+	const float unit_conversion = 1e-5; // Rayleigh scattering beta
 
-		const float atmosphere_height = 15000.; // height of the atmosphere in meters
-		// sun/moon light at the ground level, after going through the atmosphere
-		return exp(-scattering_coefficients * unit_conversion * atmosphere_height / (1e-5 - dot(v_LightDirection, vec3(0., 1., 0.))));
-	}
+	const float atmosphere_height = 15000.; // height of the atmosphere in meters
+	// sun/moon light at the ground level, after going through the atmosphere
+	return exp(-scattering_coefficients * unit_conversion * atmosphere_height / (1e-5 - dot(v_LightDirection, vec3(0., 1., 0.))));
+}
 #endif
 
 void main(void)

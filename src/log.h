@@ -62,7 +62,7 @@ private:
 		// These calls explicitly use the templated version of operator<<,
 		// so that they won't use the overloads created by ADD_NULL_CHECK.
 		if (arg == nullptr)
-			return this->operator<< ((const char*) ("(null)"));
+			return this->operator<< <const char*> ("(null)");
 		else
 			return this->operator<< <T>(std::forward<T>(arg));
 	}

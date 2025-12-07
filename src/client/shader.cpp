@@ -262,6 +262,9 @@ public:
 
 		if (g_settings->getBool("enable_volumetric_lighting"))
 			constants["VOLUMETRIC_LIGHT"] = 1;
+
+		if (g_settings->getBool("enable_volumetric_depth_attenuation"))
+			constants["VOLUMETRIC_DEPTH_ATTENUATION"] = 1;
 	}
 };
 
@@ -818,10 +821,6 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 		shaders_header << "#define " << it.first << ' ';
 		putConstant(shaders_header, it.second);
 		shaders_header << '\n';
-	}
-
-	if (g_settings->getBool("enable_volumetric_depth_attenuation")) {
-		shaders_header << "#define VOLUMETRIC_DEPTH_ATTENUATION 1\n";
 	}
 
 	std::string common_header = shaders_header.str();
