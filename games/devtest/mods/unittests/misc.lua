@@ -365,8 +365,9 @@ end
 unittests.register("test_sandbox", test_sandbox)
 
 local function test_str_pack_unpack()
-	local fmt = "d"
-	assert(fmt:packsize() == 8)
-	assert(fmt:unpack(fmt:pack(42.3)) == 42.3)
+	local fmt = "> d!2 xh"
+	assert(fmt:packsize() == 12) -- 8 double, 1 padding, 1 implicit align, 2 short
+	local a, b = fmt:unpack(fmt:pack(42.3, -384))
+	assert(a == 42.3 and b == -384)
 end
 unittests.register("test_str_pack_unpack", test_str_pack_unpack)
