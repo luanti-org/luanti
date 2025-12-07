@@ -44,15 +44,14 @@ void GameUI::init()
 {
 	// First line of debug text
 	m_guitext = gui::StaticText::add(guienv, utf8_to_wide(PROJECT_NAME_C).c_str(),
-		core::rect<s32>(0, 0, 0, 0), false, true, guiroot);
+		core::recti(), false, true, guiroot);
 
 	// Second line of debug text
-	m_guitext2 = gui::StaticText::add(guienv, L"", core::rect<s32>(0, 0, 0, 0), false,
+	m_guitext2 = gui::StaticText::add(guienv, L"", core::recti(), false,
 		true, guiroot);
 
 	// Chat text
-	m_guitext_chat = gui::StaticText::add(guienv, L"", core::rect<s32>(0, 0, 0, 0),
-		//false, false); // Disable word wrap as of now
+	m_guitext_chat = gui::StaticText::add(guienv, L"", core::recti(),
 		false, true, guiroot);
 	u16 chat_font_size = g_settings->getU16("chat_font_size");
 	if (chat_font_size != 0) {
@@ -74,12 +73,12 @@ void GameUI::init()
 
 	// Status text (displays info when showing and hiding GUI stuff, etc.)
 	m_guitext_status = gui::StaticText::add(guienv, L"<Status>",
-		core::rect<s32>(0, 0, 0, 0), false, false, guiroot);
+		core::recti(), false, false, guiroot);
 	m_guitext_status->setVisible(false);
 
 	// Profiler text (size is updated when text is updated)
 	m_guitext_profiler = gui::StaticText::add(guienv, L"<Profiler>",
-		core::rect<s32>(0, 0, 0, 0), false, false, guiroot);
+		core::recti(), false, false, guiroot);
 	m_guitext_profiler->setOverrideFont(g_fontengine->getFont(
 		g_fontengine->getDefaultFontSize() * 0.9f, FM_Mono));
 	m_guitext_profiler->setVisible(false);
@@ -97,7 +96,7 @@ void GameUI::update(const RunStats &stats, Client *client, MapDrawControl *draw_
 
 	// Minimal debug text must only contain info that can't give a gameplay advantage
 	if (m_flags.show_minimal_debug) {
-		const u16 fps = 1.0 / stats.dtime_jitter.avg;
+		const u16 fps = 1.0f / stats.dtime_jitter.avg;
 		m_drawtime_avg *= 0.95f;
 		m_drawtime_avg += 0.05f * (stats.drawtime / 1000);
 
@@ -105,7 +104,7 @@ void GameUI::update(const RunStats &stats, Client *client, MapDrawControl *draw_
 		os << std::fixed
 			<< PROJECT_NAME_C " " << g_version_hash
 			<< " | FPS: " << fps
-			<< std::setprecision(fps >= 100 ? 1 : 0)
+			<< std::setprecision(m_drawtime_avg < 10 ? 1 : 0)
 			<< " | drawtime: " << m_drawtime_avg << "ms"
 			<< std::setprecision(1)
 			<< " | dtime jitter: "
@@ -118,7 +117,7 @@ void GameUI::update(const RunStats &stats, Client *client, MapDrawControl *draw_
 
 		m_guitext->setRelativePosition(core::rect<s32>(5, 5, screensize.X, screensize.Y));
 
-		setStaticText(m_guitext, utf8_to_wide(os.str()).c_str());
+		setStaticText(m_guitext, utf8_to_wide(os.str()));
 
 		minimal_debug_height = m_guitext->getTextHeight();
 	}
@@ -240,7 +239,7 @@ void GameUI::updateChatSize()
 	if (m_flags.show_basic_debug)
 		chat_y += m_guitext2->getTextHeight();
 
-	const v2u32 &window_size = RenderingEngine::getWindowSize();
+	const v2u32 window_size = RenderingEngine::getWindowSize();
 
 	core::rect<s32> chat_size(10, chat_y, window_size.X - 20, 0);
 	chat_size.LowerRightCorner.Y = std::min((s32)window_size.Y,
@@ -255,28 +254,41 @@ void GameUI::updateChatSize()
 
 void GameUI::updateProfiler()
 {
-	if (m_profiler_current_page != 0) {
-		std::ostringstream os(std::ios_base::binary);
-		os << "   Profiler page " << (int)m_profiler_current_page <<
-				", elapsed: " << g_profiler->getElapsedMs() << " ms)" << std::endl;
-
-		g_profiler->print(os, m_profiler_current_page, m_profiler_max_page);
-
-		EnrichedString str(utf8_to_wide(os.str()));
-		str.setBackground(video::SColor(120, 0, 0, 0));
-		setStaticText(m_guitext_profiler, str);
-
-		core::dimension2d<u32> size = m_guitext_profiler->getOverrideFont()->
-				getDimension(str.c_str());
-		core::position2di upper_left(6, m_guitext->getTextHeight() * 2.5f);
-		core::position2di lower_right = upper_left;
-		lower_right.X += size.Width + 10;
-		lower_right.Y += size.Height;
-
-		m_guitext_profiler->setRelativePosition(core::rect<s32>(upper_left, lower_right));
-	}
-
 	m_guitext_profiler->setVisible(m_profiler_current_page != 0);
+	if (m_profiler_current_page == 0)
+		return;
+
+	std::ostringstream oss(std::ios_base::binary);
+	oss << "Profiler page " << (int)m_profiler_current_page
+		<< "/" << (int)m_profiler_max_page
+		<< ", elapsed: " << g_profiler->getElapsedMs() << " ms" << std::endl;
+	g_profiler->print(oss, m_profiler_current_page, m_profiler_max_page);
+
+	EnrichedString str(utf8_to_wide(oss.str()));
+	str.setBackground(video::SColor(120, 0, 0, 0));
+	setStaticText(m_guitext_profiler, str);
+
+	v2s32 upper_left(5, 10);
+	if (m_flags.show_minimal_debug)
+		upper_left.Y += m_guitext->getTextHeight();
+	if (m_flags.show_basic_debug)
+		upper_left.Y += m_guitext2->getTextHeight();
+
+	v2s32 lower_right = upper_left;
+	lower_right.X += m_guitext_profiler->getTextWidth() + 5;
+	lower_right.Y += m_guitext_profiler->getTextHeight();
+
+	m_guitext_profiler->setRelativePosition(core::recti(upper_left, lower_right));
+
+	// Really dumb heuristic (we have a fixed number of pages, not a fixed page size)
+	const v2u32 window_size = RenderingEngine::getWindowSize();
+	if (upper_left.Y + m_guitext_profiler->getTextHeight()
+		> window_size.Y * 0.7f) {
+		if (m_profiler_max_page < 5) {
+			m_profiler_max_page++;
+			updateProfiler(); // do it again
+		}
+	}
 }
 
 void GameUI::toggleChat(Client *client)

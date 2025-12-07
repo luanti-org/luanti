@@ -2118,10 +2118,10 @@ font_bold (Font bold by default) bool false
 
 font_italic (Font italic by default) bool false
 
-#    Shadow offset (in pixels) of the default font. If 0, then shadow will not be drawn.
-font_shadow (Font shadow) int 1 0 65535
+#    Shadow offset (in pixels) for all fonts. If 0, then no shadow will be drawn.
+font_shadow (Font shadow) int 1 0 255
 
-#    Opaqueness (alpha) of the shadow behind the default font, between 0 and 255.
+#    Opaqueness (alpha) of the shadow behind the font.
 font_shadow_alpha (Font shadow alpha) int 127 0 255
 
 #    Font size of the default font where 1 unit = 1 pixel at 96 DPI

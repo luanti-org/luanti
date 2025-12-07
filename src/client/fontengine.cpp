@@ -270,9 +270,8 @@ gui::IGUIFont *FontEngine::initFont(FontSpec spec)
 
 	u16 font_shadow       = 0;
 	u16 font_shadow_alpha = 0;
-	g_settings->getU16NoEx(setting_prefix + "font_shadow", font_shadow);
-	g_settings->getU16NoEx(setting_prefix + "font_shadow_alpha",
-			font_shadow_alpha);
+	g_settings->getU16NoEx("font_shadow", font_shadow);
+	g_settings->getU16NoEx("font_shadow_alpha", font_shadow_alpha);
 
 	auto createFont = [&](gui::SGUITTFace *face) -> gui::CGUITTFont* {
 		auto *font = gui::CGUITTFont::createTTFont(m_env,

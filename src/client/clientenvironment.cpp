@@ -263,7 +263,6 @@ void ClientEnvironment::step(float dtime)
 	/*
 		Step and handle simple objects
 	*/
-	g_profiler->avg("ClientEnv: CSO count [#]", m_simple_objects.size());
 	for (auto i = m_simple_objects.begin(); i != m_simple_objects.end();) {
 		ClientSimpleObject *simple = *i;
 

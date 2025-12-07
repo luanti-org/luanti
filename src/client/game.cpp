@@ -1257,16 +1257,6 @@ void Game::updateProfilers(const RunStats &stats, const FpsControl &draw_times,
 		profiler_print_interval = 3;
 	}
 
-	if (profiler_interval.step(dtime, profiler_print_interval)) {
-		if (print_to_log) {
-			infostream << "Profiler:" << std::endl;
-			g_profiler->print(infostream);
-		}
-
-		m_game_ui->updateProfiler();
-		g_profiler->clear();
-	}
-
 	// Update graphs
 	g_profiler->graphAdd("Time non-rendering [us]",
 		draw_times.busy_time - stats.drawtime);
@@ -1281,6 +1271,16 @@ void Game::updateProfilers(const RunStats &stats, const FpsControl &draw_times,
 			stats2.PrimitivesDrawn / float(stats2.Drawcalls));
 	g_profiler->avg("Irr: HW buffers uploaded", stats2.HWBuffersUploaded);
 	g_profiler->avg("Irr: HW buffers active", stats2.HWBuffersActive);
+
+	if (profiler_interval.step(dtime, profiler_print_interval)) {
+		if (print_to_log) {
+			infostream << "Profiler:" << std::endl;
+			g_profiler->print(infostream);
+		}
+
+		m_game_ui->updateProfiler();
+		g_profiler->clear();
+	}
 }
 
 void Game::updateStats(RunStats *stats, const FpsControl &draw_times,
@@ -3644,8 +3644,11 @@ void Game::drawScene(ProfilerGraph *graph, RunStats *stats)
 	*/
 	v2u32 screensize = this->driver->getScreenSize();
 
-	if (this->m_game_ui->m_flags.show_profiler_graph)
-		graph->draw(10, screensize.Y - 10, driver, g_fontengine->getFont());
+	if (this->m_game_ui->m_flags.show_profiler_graph) {
+		auto font = g_fontengine->getFont(
+			g_fontengine->getDefaultFontSize() * 0.9f, FM_Mono);
+		graph->draw(10, screensize.Y - 10, driver, font);
+	}
 
 	/*
 		Damage flash

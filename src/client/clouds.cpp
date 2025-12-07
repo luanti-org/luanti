@@ -108,7 +108,6 @@ void Clouds::updateMesh()
 		return;
 	}
 
-	ScopeProfiler sp(g_profiler, "Clouds::updateMesh()", SPT_AVG);
 	m_mesh_origin = m_origin;
 	m_last_noise_center = center_of_drawing_in_noise_i;
 	m_mesh_valid = true;
@@ -374,7 +373,7 @@ void Clouds::render()
 		return;
 
 #if 0
-	{
+	{ // proof that m_box is correct
 		video::SMaterial tmp;
 		tmp.Thickness = 1.f;
 		driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
