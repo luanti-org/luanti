@@ -9152,7 +9152,7 @@ child will follow movement and rotation of that bone.
               lighting `strength` and vice versa. This behavior is to be changed
               in the future, do not rely on it.
         * `scattering_coefficients`: the scattering coefficients that control the tint of sunlight during sunrise and sunset.
-            * Defaults to { x = 3.3362176e-01, y = 8.75378289198826e-01, z = 1.95342379700656} which is physically accurate.
+            * Defaults to `{ x = 3.3362176e-01, y = 8.75378289198826e-01, z = 1.95342379700656 }` which is physically accurate.
             * This may be used to create effects like differently colored sunsets on alien planets.
             * Setting all components to zero effectively disables tinted sunlight.
       * `vignette`: is a table that controls the vignette post-processing effect.
