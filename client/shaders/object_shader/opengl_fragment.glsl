@@ -4,7 +4,7 @@
 	uniform sampler2D baseTexture;
 #endif
 
-varying vec3 sunTint;
+VARYING_ vec3 sunTint;
 uniform vec3 dayLight;
 uniform lowp vec4 fogColor;
 uniform float fogDistance;
