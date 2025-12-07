@@ -567,7 +567,7 @@ void Game::run()
 			cam_view.camera_yaw = cam_view_target.camera_yaw;
 			cam_view.camera_pitch = cam_view_target.camera_pitch;
 		} else {
-			f32 cam_damp_lambda = 1.0f /  m_cache_cam_smoothing * dtime;
+			f32 cam_damp_lambda = 10.0f / m_cache_cam_smoothing * dtime;
 			cam_view.camera_yaw = damp(
 					cam_view.camera_yaw,
 					cam_view_target.camera_yaw,
