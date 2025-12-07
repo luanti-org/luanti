@@ -15,8 +15,8 @@ local LIST_FORMSPEC_DESCRIPTION = [[
 		label[0,-0.1;%s]
 		tablecolumns[color;tree;text;text]
 		table[0,0.5;12.8,4.8;list;%s;%i]
-		box[0,5.5;12.8,1.5;#000]
-		textarea[0.3,5.5;13.05,1.9;;;%s]
+		box[0,5.5;12.8,1.5;]
+		textarea[0.35,5.55;12.9,1.7;;;%s]
 		button_exit[5,7;3,1;quit;%s]
 	]]
 
