@@ -33,7 +33,7 @@ public:
 		return Data.data();
 	}
 
-	size_t getElementSize() const override
+	u32 getElementSize() const override
 	{
 		return sizeof(T);
 	}

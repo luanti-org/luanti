@@ -493,6 +493,7 @@ void COpenGL3DriverBase::setJointTransforms(const std::vector<core::matrix4> &jo
 {
 	assert(jointMatrices.size() <= getMaxJointTransforms());
 	JointTransformsUBO.upload(jointMatrices.data(), jointMatrices.size() * sizeof(core::matrix4), 0, GL_DYNAMIC_DRAW);
+	GL.BindBufferBase(GL_UNIFORM_BUFFER, 0, JointTransformsUBO.getName());
 	TEST_GL_ERROR(this);
 }
 
