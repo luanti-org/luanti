@@ -415,6 +415,9 @@ void TestFileSys::testRecursiveDelete()
 		UASSERT(!fs::IsDir(it));
 	for (auto &it : files)
 		UASSERT(!fs::IsFile(it));
+
+	// Deleting something that doesn't exist is *not* an error
+	UASSERT(fs::RecursiveDelete(dirs[0]));
 }
 
 void TestFileSys::testGetRecursiveSubPaths()

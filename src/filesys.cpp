@@ -142,32 +142,33 @@ bool IsExecutable(const std::string &path)
 
 bool RecursiveDelete(const std::string &path)
 {
-	infostream << "Recursively deleting \"" << path << "\"" << std::endl;
 	assert(IsPathAbsolute(path));
-	if (!IsDir(path)) {
-		infostream << "RecursiveDelete: Deleting file  " << path << std::endl;
+	if (!PathExists(path))
+		return true;
+
+	bool is_file = !IsDir(path);
+	infostream << "Recursively deleting " << (is_file ? "file" : "directory")
+		<< " \"" << path << "\"" << std::endl;
+	if (is_file) {
 		if (!DeleteFile(path.c_str())) {
-			errorstream << "RecursiveDelete: Failed to delete file "
-					<< path << std::endl;
+			errorstream << "RecursiveDelete: Failed to delete file \""
+					<< path << "\": " << LAST_OS_ERROR() << std::endl;
 			return false;
 		}
 		return true;
 	}
-	infostream << "RecursiveDelete: Deleting content of directory "
-			<< path << std::endl;
 	std::vector<DirListNode> content = GetDirListing(path);
-	for (const DirListNode &n: content) {
+	for (const auto &n : content) {
 		std::string fullpath = path + DIR_DELIM + n.name;
 		if (!RecursiveDelete(fullpath)) {
-			errorstream << "RecursiveDelete: Failed to recurse to "
-					<< fullpath << std::endl;
+			errorstream << "RecursiveDelete: Failed to recurse to \""
+					<< fullpath << "\"" << std::endl;
 			return false;
 		}
 	}
-	infostream << "RecursiveDelete: Deleting directory " << path << std::endl;
 	if (!RemoveDirectory(path.c_str())) {
-		errorstream << "Failed to recursively delete directory "
-				<< path << std::endl;
+		errorstream << "RecursiveDelete: Failed to delete directory \""
+					<< path << "\": " << LAST_OS_ERROR() << std::endl;
 		return false;
 	}
 	return true;
