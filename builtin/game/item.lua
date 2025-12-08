@@ -435,7 +435,7 @@ function core.do_item_eat(hp_change, replace_with_item, itemstack, user, pointed
 		core.add_item(pos, replace_with_item)
 	end
 
-	user:set_hp(user:get_hp() + hp_change)
+	user:set_hp(user:get_hp() + hp_change, {type="set_hp", custom_type="__builtin:item_eat"})
 
 	return nil -- don't overwrite wield item a second time
 end

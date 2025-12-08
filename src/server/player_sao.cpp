@@ -159,7 +159,8 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 
 			// No more breath, damage player
 			if (m_breath == 0) {
-				PlayerHPChangeReason reason(PlayerHPChangeReason::DROWNING);
+				std::string nodename = c.name;
+				PlayerHPChangeReason reason(PlayerHPChangeReason::DROWNING, nodename, p);
 				setHP(m_hp - c.drowning, reason);
 			}
 		}
