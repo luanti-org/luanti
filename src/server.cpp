@@ -1846,7 +1846,7 @@ void Server::SendHUDAdd(session_t peer_id, u32 id, HudElement *form)
 	if (m_clients.getProtocolVersion(peer_id) >= 51)
 		pkt << form->size;
 	else
-		pkt << v2s32(static_cast<short>(form->size[0]), static_cast<short>(form->size[1]));
+		pkt << v2s32(static_cast<s32>(form->size[0]), static_cast<s32>(form->size[1]));
 
 	pkt << form->z_index << form->text2 << form->style;
 
