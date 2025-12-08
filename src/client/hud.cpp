@@ -354,12 +354,12 @@ void Hud::drawLuaElements(const v3s16 &camera_offset)
 	HudElement hotbar;
 	if (client->getProtoVersion() < 44 && (player->hud_flags & HUD_FLAG_MINIMAP_VISIBLE)) {
 		minimap = {HUD_ELEM_MINIMAP, v2f(1, 0), "", v2f(), "", 0 , 0, 0, v2f(-1, 1),
-				v2f(-10, 10), v3f(), v2s32(256, 256), 0, "", 0};
+				v2f(-10, 10), v3f(), v2f(256.0f, 256.0f), 0, "", 0};
 		elems.push_back(&minimap);
 	}
 	if (client->getProtoVersion() < 46 && player->hud_flags & HUD_FLAG_HOTBAR_VISIBLE) {
 		hotbar = {HUD_ELEM_HOTBAR, v2f(0.5, 1), "", v2f(), "", 0 , 0, 0, v2f(0, -1),
-				v2f(0, -4), v3f(), v2s32(), 0, "", 0};
+				v2f(0, -4), v3f(), v2f(), 0, "", 0};
 		elems.push_back(&hotbar);
 	}
 
@@ -643,7 +643,7 @@ void Hud::drawCompassRotate(HudElement *e, video::ITexture *texture,
 
 void Hud::drawStatbar(v2s32 pos, u16 corner, u16 drawdir,
 		const std::string &texture, const std::string &bgtexture,
-		s32 count, s32 maxcount, v2s32 offset, v2s32 size)
+		s32 count, s32 maxcount, v2s32 offset, v2f size)
 {
 	const video::SColor color(255, 255, 255, 255);
 	const video::SColor colors[] = {color, color, color, color};
@@ -659,7 +659,7 @@ void Hud::drawStatbar(v2s32 pos, u16 corner, u16 drawdir,
 
 	core::dimension2di srcd(stat_texture->getOriginalSize());
 	core::dimension2di dstd;
-	if (size == v2s32()) {
+	if (size == v2f()) {
 		dstd = srcd;
 		dstd.Height *= m_scale_factor;
 		dstd.Width  *= m_scale_factor;

@@ -75,6 +75,7 @@
 #include <sstream>
 #include <csignal>
 
+
 class ClientNotFoundException : public BaseException
 {
 public:
@@ -1840,8 +1841,14 @@ void Server::SendHUDAdd(session_t peer_id, u32 id, HudElement *form)
 
 	pkt << id << (u8) form->type << form->pos << form->name << form->scale
 			<< form->text << form->number << form->item << form->dir
-			<< form->align << form->offset << form->world_pos << form->size
-			<< form->z_index << form->text2 << form->style;
+			<< form->align << form->offset << form->world_pos;
+
+	if (m_clients.getProtocolVersion(peer_id) >= 51)
+		pkt << form->size;
+	else
+		pkt << v2s32(static_cast<short>(form->size[0]), static_cast<short>(form->size[1]));
+
+	pkt << form->z_index << form->text2 << form->style;
 
 	Send(&pkt);
 }
@@ -1874,7 +1881,13 @@ void Server::SendHUDChange(session_t peer_id, u32 id, HudElementStat stat, void 
 			pkt << *(v3f *) value;
 			break;
 		case HUD_STAT_SIZE:
-			pkt << *(v2s32 *) value;
+			if (m_clients.getProtocolVersion(peer_id) < 51) {
+				v2f *v = (v2f *) value;
+				v2s32 tmp((s32)v->X, (s32)v->Y);
+				pkt << tmp;
+			} else {
+				pkt << *(v2f *) value;
+			}
 			break;
 		default: // all other types
 			pkt << *(u32 *) value;
