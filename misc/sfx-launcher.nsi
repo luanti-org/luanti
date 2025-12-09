@@ -1,7 +1,7 @@
 !include "meta.nsh"
 # useful docs: <https://nsis.sourceforge.io/Docs/Chapter4.html>
 
-OutFile "..\${PROJECT_NAME_C}-${VERSION_STRING}.exe"
+OutFile "..\${PROJECT_NAME}-${VERSION_STRING}.exe"
 Name "${PROJECT_NAME_C}"
 Icon "${ICONPATH}"
 SetCompressor /SOLID lzma

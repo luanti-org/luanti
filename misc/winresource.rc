@@ -9,12 +9,6 @@
 #include "config.h"
 #undef USE_CMAKE_CONFIG_H
 
-#if RUN_IN_PLACE
-	#define BUILDMODE "RUN_IN_PLACE=1"
-#else
-	#define BUILDMODE "RUN_IN_PLACE=0"
-#endif
-
 #ifdef __MINGW32__
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "luanti.exe.manifest"
 #endif
@@ -44,17 +38,14 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
     BEGIN
-        VALUE "Comments", ""
         VALUE "CompanyName", PROJECT_NAME_C " community"
         VALUE "FileDescription", PROJECT_NAME_C " engine"
         VALUE "FileVersion", VERSION_STRING
         VALUE "InternalName", PROJECT_NAME
-        VALUE "LegalCopyright", "(c) 2010-2024 Perttu Ahola (celeron55) and contributors"
         VALUE "OriginalFilename", PROJECT_NAME ".exe"
-        VALUE "PrivateBuild", VERSION_EXTRA
+        VALUE "LegalCopyright", "(c) 2010-2025 Perttu Ahola (celeron55) and contributors"
         VALUE "ProductName", PROJECT_NAME_C
         VALUE "ProductVersion", PRODUCT_VERSION_STRING
-        VALUE "SpecialBuild", BUILDMODE
     END
 END
 BLOCK "VarFileInfo"
