@@ -7,6 +7,8 @@ This list is largely advisory and items may be reevaluated once the time comes.
 * remove space multiplier for models (*10)
 * remove player gravity multiplier (*2)
 * `get_sky()` returns a table (without arg)
+* remove fog from `get/set_sky()` and introduce `get/set_fog()`
+  * https://github.com/luanti-org/luanti/pull/16725#issuecomment-3622450532
 * `game.conf` name/id mess
 * remove `depends.txt` / `description.txt` (would simplify ContentDB and Luanti code a little)
 * rotate moon texture by 180°, making it coherent with the sun
