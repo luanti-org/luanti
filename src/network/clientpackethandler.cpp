@@ -1246,6 +1246,9 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 		case HUD_STAT_SIZE:
 			*pkt >> v2s32data;
 			break;
+		case HUD_STAT_NUMBER:
+			*pkt >> intdata;
+			break;
 		default:
 			*pkt >> intdata;
 			break;

@@ -1853,6 +1853,9 @@ Displays text on the HUD.
   and `core.colorize` (since protocol version 44)
 * `number`: An integer containing the RGBA value of the color used to draw the
   text. Specify `0xFFFFFF` for white text, `0xFF000080` for semi-transparent red, and so on.
+    * Alpha only works on Luanti 5.15+.
+    * To completely hide a text, set `text` to `""`. Setting the alpha value to `00`
+      will not work.
 * `alignment`: The alignment of the text.
 * `offset`: offset in pixels from position.
 * `size`: size of the text.
