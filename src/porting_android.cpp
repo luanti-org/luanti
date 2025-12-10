@@ -40,6 +40,7 @@ namespace porting {
 	void cleanupAndroid();
 	std::string getLanguageAndroid();
 	bool setSystemPaths(); // used in porting.cpp
+	void migrateLegacyDirs(); // used in porting.cpp
 }
 
 extern "C" int SDL_Main(int _argc, char *_argv[])
@@ -97,6 +98,11 @@ static std::string readJavaString(jstring j_str)
 	// And free the C string
 	jnienv->ReleaseStringUTFChars(j_str, c_str);
 	return str;
+}
+
+void migrateLegacyDirs() {
+	// TODO: Migrate legacy Minetest dir to Luanti
+	// Real migration in android/
 }
 
 bool setSystemPaths()

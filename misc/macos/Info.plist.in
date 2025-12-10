@@ -21,6 +21,8 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.games</string>
 	<key>NSHighResolutionCapable</key>
-	<true/>
+	<false/>
+	<key>com.apple.security.app-sandbox</key>
+	<false/>
 </dict>
 </plist>
