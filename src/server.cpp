@@ -1838,14 +1838,8 @@ void Server::SendHUDAdd(session_t peer_id, u32 id, HudElement *form)
 {
 	NetworkPacket pkt(TOCLIENT_HUDADD, 0 , peer_id);
 
-	u32 number = form->number;
-
-	// strip alpha from old clients
-	if (m_clients.getProtocolVersion(peer_id) < 51 && (number & 0x000000FF) != 0x00)
-		number = number >> 8;
-
 	pkt << id << (u8) form->type << form->pos << form->name << form->scale
-			<< form->text << number << form->item << form->dir
+			<< form->text << form->number << form->item << form->dir
 			<< form->align << form->offset << form->world_pos << form->size
 			<< form->z_index << form->text2 << form->style;
 
@@ -1881,17 +1875,6 @@ void Server::SendHUDChange(session_t peer_id, u32 id, HudElementStat stat, void 
 			break;
 		case HUD_STAT_SIZE:
 			pkt << *(v2s32 *) value;
-			break;
-		case HUD_STAT_NUMBER:
-			// strip alpha from old clients
-			if (m_clients.getProtocolVersion(peer_id) < 51) {
-				u32 val = *(u32 *)value;
-				if ((val & 0x000000FF) != 0x00)
-					val >>= 8;
-				pkt << val;
-			} else {
-				pkt << *(u32 *) value;
-			}
 			break;
 		default: // all other types
 			pkt << *(u32 *) value;
