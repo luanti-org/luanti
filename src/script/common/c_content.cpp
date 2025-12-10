@@ -2367,7 +2367,7 @@ void read_hud_element(lua_State *L, HudElement *elem)
 	lua_pop(L, 1);
 
 	lua_getfield(L, 2, "size");
-	elem->size = lua_istable(L, -1) ? read_v2s32(L, -1) : v2s32();
+	elem->size = lua_istable(L, -1) ? read_v2f(L, -1) : v2f();
 	lua_pop(L, 1);
 
 	elem->name    = getstringfield_default(L, 2, "name", "");
@@ -2410,7 +2410,7 @@ void read_hud_element(lua_State *L, HudElement *elem)
 	elem->style = getintfield_default(L, 2, "style", 0);
 
 	/* check for known deprecated element usage */
-	if ((elem->type  == HUD_ELEM_STATBAR) && (elem->size == v2s32()))
+	if ((elem->type  == HUD_ELEM_STATBAR) && (elem->size == v2f()))
 		log_deprecated(L,"Deprecated usage of statbar without size!");
 }
 
@@ -2456,7 +2456,7 @@ void push_hud_element(lua_State *L, HudElement *elem)
 	push_v2f(L, elem->align);
 	lua_setfield(L, -2, "alignment");
 
-	push_v2s32(L, elem->size);
+	push_v2f(L, elem->size);
 	lua_setfield(L, -2, "size");
 
 	// Deprecated, only for compatibility's sake
@@ -2528,7 +2528,7 @@ bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void 
 			*value = &elem->world_pos;
 			break;
 		case HUD_STAT_SIZE:
-			elem->size = read_v2s32(L, 4);
+			elem->size = read_v2f(L, 4);
 			*value = &elem->size;
 			break;
 		case HUD_STAT_Z_INDEX:

@@ -50,7 +50,7 @@ struct ClientEventHudAdd
 	u32 number, item, dir, style;
 	v2f align, offset;
 	v3f world_pos;
-	v2s32 size;
+	v2f size;
 	s16 z_index;
 };
 
