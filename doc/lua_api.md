@@ -1851,8 +1851,11 @@ Displays text on the HUD.
 * `text`: The text to be displayed in the HUD element.
   Supports `core.translate` (always)
   and `core.colorize` (since protocol version 44)
-* `number`: An integer containing the RGB value of the color used to draw the
-  text. Specify `0xFFFFFF` for white text, `0xFF0000` for red, and so on.
+* `number`: An integer containing the (A)RGB value of the color used to draw the
+  text. Specify `0xFFFFFF` for white text, `0x80FF0000` for semi-transparent red, and so on.
+    * Alpha only works on Luanti 5.15+ clients. Older clients will see the text as opaque.
+    * To completely hide a text, set `text` to `""`. Setting the alpha value to `00`
+      will not work due to compatibility reasons (it'll be treated as `FF`).
 * `alignment`: The alignment of the text.
 * `offset`: offset in pixels from position.
 * `size`: size of the text.
