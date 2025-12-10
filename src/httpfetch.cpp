@@ -18,6 +18,7 @@
 #include "util/numeric.h"
 #include "version.h"
 #include "settings.h"
+#include "filesys.h"
 
 static std::mutex g_httpfetch_mutex;
 static std::unordered_map<u64, std::queue<HTTPFetchResult>>
@@ -338,9 +339,17 @@ HTTPFetchOngoing::HTTPFetchOngoing(const HTTPFetchRequest &request_,
 	}
 	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, http_header);
 
-	if (!g_settings->getBool("curl_verify_cert")) {
-		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
+#if defined(__ANDROID__)
+	// Set certificate info
+	std::string cainfo_path = porting::getDataPath("client" DIR_DELIM "cacert.pem");
+	CURLcode error = curl_easy_setopt(curl, CURLOPT_CAINFO, cainfo_path.c_str());
+	if (error != CURLE_OK) {
+		errorstream << "Cannot set CAINFO: " << curl_easy_strerror(error) << std::endl;
 	}
+#endif
+
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
 }
 
 CURLcode HTTPFetchOngoing::start(CURLM *multi_)
