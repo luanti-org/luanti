@@ -222,13 +222,10 @@ void COpenGL3DriverBase::initQuadsIndices(u32 max_vertex_count)
 
 void COpenGL3DriverBase::initMaxJointTransforms()
 {
-	GLint ubo_max_size;
-	GL.GetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &ubo_max_size);
-	ubo_max_size /= sizeof(core::matrix4); // tightly packed
-	if (ubo_max_size > 1024)
-		ubo_max_size = 1024; // limit to something reasonable
-	MaxJointTransforms = static_cast<u16>(ubo_max_size);
-	assert(ubo_max_size > 0);
+	size_t max_mats = Feature.MaxUBOSize / sizeof(core::matrix4); // tightly packed
+	if (max_mats > 1024)
+		max_mats = 1024; // limit to something reasonable
+	MaxJointTransforms = static_cast<u16>(max_mats);
 }
 
 void COpenGL3DriverBase::initVersion()
