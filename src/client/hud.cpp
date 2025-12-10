@@ -395,7 +395,10 @@ void Hud::drawLuaElements(const v3s16 &camera_offset)
 					ttfont = static_cast<gui::CGUITTFont *>(textfont);
 
 				u32 num = e->number;
-				u8 alpha = (num >> 24) & 0xFF ? (num >> 24) & 0xFF : 255;
+				u8 alpha = (num >> 24) & 0xFF;
+				if (alpha == 0)
+					alpha = 0xFF; // Backwards compatibility
+
 				video::SColor color = video::SColor(alpha,
 						(num >> 16) & 0xFF,
 						(num >> 8)  & 0xFF,
