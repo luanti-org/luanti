@@ -27,6 +27,7 @@ Player::Player(const std::string &name, IItemDefManager *idef):
 	inventory(idef)
 {
 	m_name = name;
+	m_wield_list_name = "main";
 
 	inventory.clear();
 	inventory.addList("main", PLAYER_INVENTORY_SIZE);
@@ -77,7 +78,7 @@ Player::~Player()
 
 void Player::setWieldIndex(u16 index)
 {
-	const InventoryList *mlist = inventory.getList("main");
+	const InventoryList *mlist = inventory.getList(m_wield_list_name);
 	m_wield_index = MYMIN(index, mlist ? mlist->getSize() : 0);
 }
 
@@ -90,7 +91,7 @@ ItemStack &Player::getWieldedItem(ItemStack *selected, ItemStack *hand) const
 {
 	assert(selected);
 
-	const InventoryList *mlist = inventory.getList("main"); // TODO: Make this generic
+	const InventoryList *mlist = inventory.getList(m_wield_list_name);
 	const InventoryList *hlist = inventory.getList("hand");
 
 	if (mlist && m_wield_index < mlist->getSize())
@@ -145,7 +146,7 @@ void Player::clearHud()
 
 u16 Player::getMaxHotbarItemcount()
 {
-	InventoryList *mainlist = inventory.getList("main");
+	InventoryList *mainlist = inventory.getList(m_wield_list_name);
 	return mainlist ? std::min(mainlist->getSize(), (u32) hud_hotbar_itemcount) : 0;
 }
 
