@@ -11,6 +11,7 @@
 #include <IGUIElement.h>
 #include <IGUIEnvironment.h>
 #include "irr_v3d.h"
+#include "StyleSpec.h"
 
 class ISimpleTextureSource;
 class Client;
