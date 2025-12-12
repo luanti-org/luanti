@@ -474,7 +474,7 @@ public:
 		EnvAutoLock(Server *server): m_lock(server->m_env_mutex) {}
 
 	private:
-		std::lock_guard<ordered_mutex> m_lock;
+		std::lock_guard<std::mutex> m_lock;
 	};
 
 protected:
@@ -662,7 +662,7 @@ private:
 	*/
 
 	// Environment mutex (envlock)
-	ordered_mutex m_env_mutex;
+	std::mutex m_env_mutex;
 
 	// World directory
 	std::string m_path_world;
