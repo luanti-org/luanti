@@ -8350,9 +8350,9 @@ of the `${k}` syntax in formspecs is not deprecated.
 * `set_int(key, value)`
     * Set a signed integer number `value` to `key`
     * Range: [-2147483648, 2147483647]
-    * Internally, the range is system-dependent and equivalent to the
-      `int` data type in C++; stick to the above range for
-      reasonable portability of your code.
+    * Some systems internally have a larger value range but
+      but you should not rely on this behavior to ensure
+      portability of your code
     * The value will be converted into a string when stored.
 * `get_int(key)`:
     * Returns the value stored at `key` as an integer
