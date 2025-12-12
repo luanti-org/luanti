@@ -514,12 +514,6 @@ fov (Field of view) int 72 45 160
 #    light, it has very little effect on natural night light.
 display_gamma (Light curve gamma) float 1.0 0.33 3.0
 
-#    The strength (darkness) of node ambient-occlusion shading.
-#    Lower is darker, Higher is lighter. The valid range of values for this
-#    setting is 0.25 to 4.0 inclusive. If the value is out of range it will be
-#    set to the nearest valid value.
-ambient_occlusion_gamma (Ambient occlusion gamma) float 1.8 0.25 4.0
-
 [**Screenshots]
 
 #    Path to save screenshots at. Can be an absolute or relative path.

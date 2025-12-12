@@ -144,6 +144,8 @@ static u16 getSmoothLightCombined(const v3s16 &p,
 {
 	const NodeDefManager *ndef = data->m_nodedef;
 
+	assert(data->m_smooth_lighting);
+
 	u16 ambient_occlusion = 0;
 	u16 light_count = 0;
 	u8 light_source_max = 0;
@@ -160,12 +162,12 @@ static u16 getSmoothLightCombined(const v3s16 &p,
 		if (n.getContent() == CONTENT_IGNORE)
 			return true;
 		const ContentFeatures &f = ndef->get(n);
-		if (f.light_source > light_source_max)
-			light_source_max = f.light_source;
+		light_source_max = std::max(light_source_max, f.light_source);
 		// Check f.solidness because fast-style leaves look better this way
 		if (f.param_type == CPT_LIGHT && f.visuals->solidness != 2) {
-			u8 light_level_day = n.getLight(LIGHTBANK_DAY, f.getLightingFlags());
-			u8 light_level_night = n.getLight(LIGHTBANK_NIGHT, f.getLightingFlags());
+			const auto lf = f.getLightingFlags();
+			u8 light_level_day = n.getLight(LIGHTBANK_DAY, lf);
+			u8 light_level_night = n.getLight(LIGHTBANK_NIGHT, lf);
 			if (light_level_day == LIGHT_SUN)
 				direct_sunlight = true;
 			light_day += decode_light(light_level_day);
@@ -219,25 +221,20 @@ static u16 getSmoothLightCombined(const v3s16 &p,
 	}
 
 	if (ambient_occlusion > 4) {
-		static thread_local const float ao_gamma = rangelim(
-			g_settings->getFloat("ambient_occlusion_gamma"), 0.25, 4.0);
-
-		// Table of gamma space multiply factors.
-		static thread_local const float light_amount[3] = {
-			powf(0.75, 1.0 / ao_gamma),
-			powf(0.5,  1.0 / ao_gamma),
-			powf(0.25, 1.0 / ao_gamma)
-		};
-
-		//calculate table index for gamma space multiplier
-		ambient_occlusion -= 5;
+		float light_amount; // gamma space multiplier
+		if (ambient_occlusion == 5)
+			light_amount = std::pow(0.75f, data->m_ao_gamma_inv);
+		else if (ambient_occlusion == 6)
+			light_amount = std::pow(0.5f, data->m_ao_gamma_inv);
+		else // >= 7
+			light_amount = std::pow(0.25f, data->m_ao_gamma_inv);
 
 		if (!skip_ambient_occlusion_day)
 			light_day = rangelim(core::round32(
-					light_day * light_amount[ambient_occlusion]), 0, 255);
+					light_day * light_amount), 0, 255);
 		if (!skip_ambient_occlusion_night)
 			light_night = rangelim(core::round32(
-					light_night * light_amount[ambient_occlusion]), 0, 255);
+					light_night * light_amount), 0, 255);
 	}
 
 	return light_day | (light_night << 8);

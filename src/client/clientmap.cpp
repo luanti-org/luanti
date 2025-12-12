@@ -438,8 +438,6 @@ void ClientMap::updateDrawList()
 		u32 blocks_in_range = 0;
 		assert(m_keeplist.empty());
 
-		MapBlockVect sectorblocks;
-
 		for (auto &sector_it : m_sectors) {
 			const MapSector *sector = sector_it.second;
 			v2s16 sp = sector->getPos();
@@ -800,6 +798,35 @@ void ClientMap::touchMapBlocks()
 
 	g_profiler->avg("MapBlocks in range [#]", blocks_in_range);
 	g_profiler->avg("MapBlocks loaded [#]", blocks_loaded);
+}
+
+void ClientMap::getBlocksWithMeshes(std::vector<v3s16> &out)
+{
+	v3s16 cam_pos_nodes = floatToInt(m_camera_position, BS);
+
+	using MyPair = std::pair<v3s16, u32>;
+	std::vector<MyPair> tmp;
+
+	for (const auto &sector_it : m_sectors) {
+		const MapSector *sector = sector_it.second;
+
+		for (const auto &entry : sector->getBlocks()) {
+			MapBlock *block = entry.second.get();
+
+			if (block->mesh) {
+				u32 d = cam_pos_nodes.getDistanceFromSQ(block->getPosRelative());
+				tmp.emplace_back(block->getPos(), d);
+			}
+		}
+	}
+
+	std::sort(tmp.begin(), tmp.end(), [] (const MyPair &l, const MyPair &r) {
+		return l.second < r.second;
+	});
+
+	out.resize(tmp.size());
+	for (size_t i = 0; i < tmp.size(); i++)
+		out[i] = tmp[i].first;
 }
 
 void MeshBufListMaps::addFromBlock(v3s16 block_pos, MapBlockMesh *block_mesh,
