@@ -6886,8 +6886,11 @@ Environment access
       In detail: Path must be completely inside a cuboid. The minimum
       `searchdistance` of 1 will confine search between `pos1` and `pos2`.
       Larger values will increase the size of this cuboid in all directions
+      (integer in range [0, 65535])
     * `max_jump`: maximum height difference to consider walkable
+      (integer in range [0, 65535])
     * `max_drop`: maximum height difference to consider droppable
+      (integer in range [0, 65535])
     * `algorithm`: One of `"A*_noprefetch"` (default), `"A*"`, `"Dijkstra"`.
       Difference between `"A*"` and `"A*_noprefetch"` is that
       `"A*"` will pre-calculate the cost-data, the other will calculate it
