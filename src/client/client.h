@@ -456,7 +456,7 @@ private:
 
 	void initLocalMapSaving(const Address &address, const std::string &hostname);
 
-	void ReceiveAll();
+	void ReceiveAll(float dtime);
 
 	void sendPlayerPos();
 

@@ -414,7 +414,7 @@ void Client::step(float dtime)
 
 	m_animation_time = fmodf(m_animation_time + dtime, 60.0f);
 
-	ReceiveAll();
+	ReceiveAll(dtime);
 
 	/*
 		Packet counter
@@ -957,22 +957,15 @@ void Client::initLocalMapSaving(const Address &address, const std::string &hostn
 	actionstream << "Local map saving started, map will be saved at '" << world_path << "'" << std::endl;
 }
 
-void Client::ReceiveAll()
+void Client::ReceiveAll(float dtime)
 {
 	NetworkPacket pkt;
 	u64 start_ms = porting::getTimeMs();
-	const u64 budget = 10;
+	// 20% dtime (in ms)
+	const u64 budget = dtime * 200;
 
 	FATAL_ERROR_IF(!m_con, "Networking not initialized");
-	for(;;) {
-		// Limit time even if there would be huge amounts of data to
-		// process
-		if (porting::getTimeMs() > start_ms + budget) {
-			infostream << "Client::ReceiveAll(): "
-					"Packet processing budget exceeded." << std::endl;
-			break;
-		}
-
+	while(porting::getTimeMs() <= start_ms + budget) {
 		pkt.clear();
 		try {
 			if (!m_con->TryReceive(&pkt))
