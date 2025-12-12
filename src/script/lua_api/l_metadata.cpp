@@ -138,7 +138,7 @@ int MetaDataRef::l_set_int(lua_State *L)
 
 	MetaDataRef *ref = checkAnyMetadata(L, 1);
 	std::string name = luaL_checkstring(L, 2);
-	int a = luaL_checkint(L, 3);
+	long a = luaL_checklong(L, 3);
 	std::string str = itos(a);
 
 	IMetadata *meta = ref->getmeta(true);

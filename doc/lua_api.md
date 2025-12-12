@@ -8282,8 +8282,10 @@ of the `${k}` syntax in formspecs is not deprecated.
 * `set_string(key, value)`: Value of `""` will delete the key.
 * `get_string(key)`: Returns `""` if key not present.
 * `set_int(key, value)`
-    * The range for the value is system-dependent (usually 32 bits).
-      The value will be converted into a string when stored.
+    * The range for the value is [`-2147483648`...`2147483647`]
+    * Some systems may support larger ranges, but this
+      isn't portable and you shouldn't rely on it
+    * The value will be converted into a string when stored.
 * `get_int(key)`: Returns `0` if key not present.
 * `set_float(key, value)`
     * Store a number (a 64-bit float) exactly.

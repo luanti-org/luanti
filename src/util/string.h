@@ -398,7 +398,7 @@ inline bool is_yes(std::string_view str)
  * Converts the string \p str to a signed 32-bit integer. The converted value
  * is constrained so that min <= value <= max.
  *
- * @see atoi(3) for limitations
+ * @see atol(3) for limitations
  *
  * @param str
  * @param min Range minimum
@@ -408,7 +408,7 @@ inline bool is_yes(std::string_view str)
  */
 inline s32 mystoi(const std::string &str, s32 min, s32 max)
 {
-	s32 i = atoi(str.c_str());
+	s32 i = atol(str.c_str());
 
 	if (i < min)
 		i = min;
@@ -420,11 +420,11 @@ inline s32 mystoi(const std::string &str, s32 min, s32 max)
 
 /**
  * Returns a 32-bit value reprensented by the string \p str (decimal).
- * @see atoi(3) for further limitations
+ * @see atol(3) for further limitations
  */
 inline s32 mystoi(const std::string &str)
 {
-	return atoi(str.c_str());
+	return atol(str.c_str());
 }
 
 /**
