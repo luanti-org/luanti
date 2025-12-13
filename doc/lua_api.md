@@ -189,10 +189,12 @@ Menu music
 Games can provide custom main menu music. They are put inside a `menu`
 directory inside the game directory.
 
-The music files are named `theme.ogg`.
-If you want to specify multiple music files for one game, add additional
-images named like `theme.$n.ogg`, with an ascending integer $n starting
-with 1 (max. 9), and a random music file will be chosen from the provided ones.
+The music file is named `theme.ogg`.
+
+You may add additional alternative music files using the name `theme.1.ogg`,
+`theme.2.ogg`, etc. The game will then pick one file at random.
+
+See the [Sound group](#sound-group) section for details.
 
 Mods
 ====
