@@ -17,6 +17,8 @@ After you successfully built vcpkg you can easily install the required libraries
 vcpkg install zlib zstd curl[ssl] openal-soft libvorbis libogg libjpeg-turbo sqlite3 freetype luajit gmp jsoncpp gettext[tools] sdl2 --triplet x64-windows
 ```
 
+⚠️ **IMPORTANT**: Add your vcpkg root directory to your antivirus exclusion list **before** running the install command. Otherwise, temporary files may be falsely detected as threats and deleted, causing silent installation failures.
+
 - `curl` is optional, but required to read the serverlist, `curl[ssl]` is required to use the content store.
 - `openal-soft`, `libvorbis` and `libogg` are optional, but required to use sound.
 - `luajit` is optional, it replaces the integrated Lua interpreter with a faster just-in-time interpreter.
