@@ -959,13 +959,14 @@ void Client::initLocalMapSaving(const Address &address, const std::string &hostn
 
 void Client::ReceiveAll(float dtime)
 {
+	static u64 budget = 10000;
 	NetworkPacket pkt;
-	u64 start_ms = porting::getTimeMs();
-	// 20% dtime (in ms)
-	const u64 budget = dtime * 200;
+	u64 start_us = porting::getTimeUs();
+	// moving average 20% dtime (in us)
+	budget = budget * 0.99f + dtime * 2000.0f;
 
 	FATAL_ERROR_IF(!m_con, "Networking not initialized");
-	while(porting::getTimeMs() <= start_ms + budget) {
+	while(porting::getTimeUs() <= start_us + budget) {
 		pkt.clear();
 		try {
 			if (!m_con->TryReceive(&pkt))
