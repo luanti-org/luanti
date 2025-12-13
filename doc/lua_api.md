@@ -810,8 +810,8 @@ Example:
 
 #### `[verticalframe:<t>:<n>`
 
-* `<t>`: animation frame count
-* `<n>`: current animation frame (integer, starts counting at 1)
+* `<t>`: animation frame count, integer in range [1, 2^32-1]
+* `<n>`: current animation frame (integer [uint32], starts counting at 0)
 
 Crops the texture to a frame of a vertical animation.
 
