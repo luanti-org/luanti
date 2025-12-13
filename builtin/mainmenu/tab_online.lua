@@ -141,6 +141,9 @@ local function get_formspec(tabview, name, tabdata)
 	end
 
 	local selected_server = find_selected_server()
+	if selected_server and selected_server.description then
+		gamedata.serverdescription = selected_server.description
+	end
 
 	if selected_server then
 		if gamedata.serverdescription then
