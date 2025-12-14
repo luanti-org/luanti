@@ -8,6 +8,7 @@
 #include <iterator>
 #include <limits>
 #include "guiFormSpecMenu.h"
+#include "guiEngine.h"
 #include "EGUIElementTypes.h"
 #include "itemdef.h"
 #include "gamedef.h"
@@ -33,6 +34,7 @@
 #include "client/fontengine.h"
 #include "client/sound.h"
 #include "util/numeric.h"
+#include "util/screenshot.h"
 #include "util/string.h" // for parseColorString()
 #include "irrlicht_changes/static_text.h"
 #include "client/guiscalingfilter.h"
@@ -4082,9 +4084,19 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 			return true;
 		}
 
-		if (m_client != NULL && event.KeyInput.PressedDown &&
+		if (event.KeyInput.PressedDown &&
 				(kp == getKeySetting("keymap_screenshot"))) {
-			m_client->makeScreenshot();
+			if (m_client != NULL) {
+				m_client->makeScreenshot();
+			} else {
+				// In main menu - no client available, request screenshot from engine
+				if (m_text_dst) {
+					TextDestGuiEngine *gui_dest = dynamic_cast<TextDestGuiEngine *>(m_text_dst);
+					if (gui_dest) {
+						gui_dest->requestScreenshot();
+					}
+				}
+			}
 		}
 
 		if (event.KeyInput.PressedDown && kp == getKeySetting("keymap_toggle_debug")) {
