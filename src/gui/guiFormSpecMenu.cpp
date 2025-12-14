@@ -3814,21 +3814,8 @@ void GUIFormSpecMenu::drawMenu()
 	skin->setFont(old_font);
 }
 
-
-void GUIFormSpecMenu::showTooltip(const std::wstring &text,
-	const video::SColor &color, const video::SColor &bgcolor)
+void GUIFormSpecMenu::positionTooltip(s32 tooltip_width, s32 tooltip_height, s32 &tooltip_x, s32 &tooltip_y)
 {
-	EnrichedString ntext(text);
-	ntext.setDefaultColor(color);
-	if (!ntext.hasBackground())
-		ntext.setBackground(bgcolor);
-
-	setStaticText(m_tooltip_element, ntext);
-
-	// Tooltip size and offset
-	s32 tooltip_width = m_tooltip_element->getTextWidth() + m_btn_height;
-	s32 tooltip_height = m_tooltip_element->getTextHeight() + 5;
-
 	v2u32 screenSize = Environment->getVideoDriver()->getScreenSize();
 	int tooltip_offset_x = m_btn_height;
 	int tooltip_offset_y = m_btn_height;
@@ -3841,8 +3828,30 @@ void GUIFormSpecMenu::showTooltip(const std::wstring &text,
 	}
 
 	// Calculate and set the tooltip position
-	s32 tooltip_x = m_pointer.X + tooltip_offset_x;
-	s32 tooltip_y = m_pointer.Y + tooltip_offset_y;
+	tooltip_x = m_pointer.X + tooltip_offset_x;
+	tooltip_y = m_pointer.Y + tooltip_offset_y;
+}
+
+void GUIFormSpecMenu::showTooltip(const std::wstring &text,
+	const video::SColor &color, const video::SColor &bgcolor)
+{
+	EnrichedString ntext(text);
+	ntext.setDefaultColor(color);
+	if (!ntext.hasBackground())
+		ntext.setBackground(bgcolor);
+
+	setStaticText(m_tooltip_element, ntext);
+
+	// Tooltip size
+	s32 tooltip_width = m_tooltip_element->getTextWidth() + m_btn_height;
+	s32 tooltip_height = m_tooltip_element->getTextHeight() + 5;
+
+	v2u32 screenSize = Environment->getVideoDriver()->getScreenSize();
+
+	// Tooltip offset
+	s32 tooltip_x, tooltip_y;
+	positionTooltip(tooltip_width, tooltip_height, tooltip_x, tooltip_y);
+
 	// Bottom/Left limited positions (if the tooltip is too far out)
 	s32 tooltip_x_alt = (s32)screenSize.X - tooltip_width  - m_btn_height;
 	s32 tooltip_y_alt = (s32)screenSize.Y - tooltip_height - m_btn_height;
@@ -3971,18 +3980,12 @@ void GUIFormSpecMenu::showHyperTip(GUIHyperText *e, const HyperTipSpec &spec)
 	// Calculate and set the tooltip position
 	if (spec.floating) {
 		/* Dynamic tooltip position, relative to cursor */
-		int tooltip_offset_x = m_btn_height;
-		int tooltip_offset_y = m_btn_height;
-
-		if (RenderingEngine::getLastPointerType() == PointerType::Touch) {
-			tooltip_offset_x *= 3;
-			tooltip_offset_y  = 0;
-			if (m_pointer.X > (s32)screenSize.X / 2)
-				tooltip_offset_x = -(tooltip_offset_x + tooltip_width);
-		}
+		positionTooltip(tooltip_width, tooltip_height, tooltip_x, tooltip_y);
 
 		v2s32 basePos = getBasePos();
 
+		int tooltip_offset_x = m_btn_height;
+		int tooltip_offset_y = m_btn_height;
 		tooltip_x = (m_pointer.X - basePos.X) + tooltip_offset_x*2;
 		tooltip_y = (m_pointer.Y - basePos.Y) + tooltip_offset_y*2;
 	} else {

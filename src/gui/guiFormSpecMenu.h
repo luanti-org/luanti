@@ -530,6 +530,8 @@ private:
 	void tryClose();
 	void trySubmitClose();
 
+	void positionTooltip(s32 tooltip_width, s32 tooltip_height, s32 &tooltip_x, s32 &tooltip_y);
+
 	void showTooltip(const std::wstring &text, const video::SColor &color,
 		const video::SColor &bgcolor);
 	void showHyperTip(GUIHyperText *e, const HyperTipSpec &spec);
