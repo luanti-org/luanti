@@ -77,6 +77,10 @@ extern "C" {
 }
 #endif
 
+#if !defined(PATH_MAX) && defined(_WIN32)
+#define PATH_MAX MAX_PATH
+#endif
+
 namespace porting
 {
 
@@ -92,7 +96,6 @@ volatile std::sig_atomic_t *signal_handler_killstatus()
 }
 
 #if !defined(_WIN32) // POSIX
-#define STDERR_FILENO 2
 
 static void signal_handler(int sig)
 {
@@ -179,7 +182,7 @@ std::string getDataPath(const char *subpath)
 	path[i] = 0;
 }
 
-bool detectMSVCBuildDir(const std::string &path)
+[[maybe_unused]] static bool detectMSVCBuildDir(const std::string &path)
 {
 	const char *ends[] = {
 		"bin\\Release",
@@ -199,11 +202,11 @@ static std::string detectSystemInfo()
 {
 #ifdef _WIN32
 	std::ostringstream oss;
-	LPSTR filePath = new char[MAX_PATH];
+	char filePath[PATH_MAX];
 	UINT blockSize;
 	VS_FIXEDFILEINFO *fixedFileInfo;
 
-	GetSystemDirectoryA(filePath, MAX_PATH);
+	GetSystemDirectoryA(filePath, sizeof(filePath));
 	PathAppendA(filePath, "kernel32.dll");
 
 	DWORD dwVersionSize = GetFileVersionInfoSizeA(filePath, NULL);
@@ -238,7 +241,6 @@ static std::string detectSystemInfo()
 	}
 
 	delete[] lpVersionInfo;
-	delete[] filePath;
 
 	return oss.str();
 #elif defined(__ANDROID__)
@@ -301,7 +303,7 @@ u32 getMemorySizeMB()
 }
 
 
-static bool getExecPathFromProcfs(char *buf, size_t buflen)
+[[maybe_unused]] static bool getExecPathFromProcfs(char *buf, size_t buflen)
 {
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 	buflen--;
@@ -445,7 +447,7 @@ bool getCurrentExecPath(char *buf, size_t len)
 
 bool setSystemPaths()
 {
-	char buf[BUFSIZ];
+	char buf[PATH_MAX];
 
 	// Find path of executable and set path_share relative to it
 	FATAL_ERROR_IF(!getCurrentExecPath(buf, sizeof(buf)),
@@ -470,7 +472,7 @@ bool setSystemPaths()
 		len = GetEnvironmentVariable("APPDATA", buf, sizeof(buf));
 		FATAL_ERROR_IF(len == 0 || len > sizeof(buf), "Failed to get APPDATA");
 		// TODO: Luanti with migration
-		path_user = std::string(buf) + DIR_DELIM + "Minetest";
+		path_user = std::string(buf) + DIR_DELIM "Minetest";
 	} else {
 		path_user = std::string(buf);
 	}
@@ -491,10 +493,10 @@ extern bool setSystemPaths(); // defined in porting_android.cpp
 
 bool setSystemPaths()
 {
-	char buf[BUFSIZ];
+	char buf[PATH_MAX];
 
 	if (!getCurrentExecPath(buf, sizeof(buf))) {
-		FATAL_ERROR("Unable to read bindir");
+		FATAL_ERROR("Failed to get current executable path");
 		return false;
 	}
 
@@ -514,8 +516,7 @@ bool setSystemPaths()
 
 	for (auto i = trylist.begin(); i != trylist.end(); ++i) {
 		const std::string &trypath = *i;
-		if (!fs::PathExists(trypath) ||
-			!fs::PathExists(trypath + DIR_DELIM + "builtin")) {
+		if (!fs::IsDir(trypath + DIR_DELIM "builtin")) {
 			warningstream << "system-wide share not found at \""
 					<< trypath << "\""<< std::endl;
 			continue;
@@ -531,13 +532,12 @@ bool setSystemPaths()
 		break;
 	}
 
-	const char *const minetest_user_path = getenv("MINETEST_USER_PATH");
-	if (minetest_user_path && minetest_user_path[0] != '\0') {
-		path_user = std::string(minetest_user_path);
+	const char *const env_user_path = getenv("MINETEST_USER_PATH");
+	if (env_user_path && env_user_path[0] != '\0') {
+		path_user = std::string(env_user_path);
 	} else {
 		// TODO: luanti with migration
-		path_user = std::string(getHomeOrFail()) + DIR_DELIM "."
-			+ "minetest";
+		path_user = std::string(getHomeOrFail()) + DIR_DELIM "." "minetest";
 	}
 
 	return true;
@@ -560,14 +560,13 @@ bool setSystemPaths()
 	}
 	CFRelease(resources_url);
 
-	const char *const minetest_user_path = getenv("MINETEST_USER_PATH");
-	if (minetest_user_path && minetest_user_path[0] != '\0') {
-		path_user = std::string(minetest_user_path);
+	const char *const env_user_path = getenv("MINETEST_USER_PATH");
+	if (env_user_path && env_user_path[0] != '\0') {
+		path_user = std::string(env_user_path);
 	} else {
 		// TODO: luanti with migration
 		path_user = std::string(getHomeOrFail())
-			+ "/Library/Application Support/"
-			+ "minetest";
+			+ "/Library/Application Support/" "minetest";
 	}
 	return true;
 }
@@ -578,13 +577,12 @@ bool setSystemPaths()
 bool setSystemPaths()
 {
 	path_share = STATIC_SHAREDIR;
-	const char *const minetest_user_path = getenv("MINETEST_USER_PATH");
-	if (minetest_user_path && minetest_user_path[0] != '\0') {
-		path_user = std::string(minetest_user_path);
+	const char *const env_user_path = getenv("MINETEST_USER_PATH");
+	if (env_user_path && env_user_path[0] != '\0') {
+		path_user = std::string(env_user_path);
 	} else {
 		// TODO: luanti with migration
-		path_user  = std::string(getHomeOrFail()) + DIR_DELIM "."
-			+ "minetest";
+		path_user  = std::string(getHomeOrFail()) + DIR_DELIM "." "minetest";
 	}
 	return true;
 }
@@ -595,12 +593,11 @@ bool setSystemPaths()
 // Move cache folder from path_user to system cache location if possible.
 [[maybe_unused]] static void migrateCachePath()
 {
-	const std::string local_cache_path = path_user + DIR_DELIM + "cache";
+	const std::string local_cache_path = path_user + DIR_DELIM "cache";
 
 	// Delete tmp folder if it exists (it only ever contained
 	// a temporary ogg file, which is no longer used).
-	if (fs::PathExists(local_cache_path + DIR_DELIM + "tmp"))
-		fs::RecursiveDelete(local_cache_path + DIR_DELIM + "tmp");
+	fs::RecursiveDelete(local_cache_path + DIR_DELIM "tmp");
 
 	// Bail if migration impossible
 	if (path_cache == local_cache_path || !fs::PathExists(local_cache_path)
@@ -616,7 +613,7 @@ bool setSystemPaths()
 // Create tag in cache folder according to <https://bford.info/cachedir/> spec
 static void createCacheDirTag()
 {
-	const auto path = path_cache + DIR_DELIM + "CACHEDIR.TAG";
+	const auto path = path_cache + DIR_DELIM "CACHEDIR.TAG";
 
 	if (fs::PathExists(path))
 		return;
@@ -636,7 +633,7 @@ void initializePaths()
 #if RUN_IN_PLACE
 	infostream << "Using relative paths (RUN_IN_PLACE)" << std::endl;
 
-	char buf[BUFSIZ];
+	char buf[PATH_MAX];
 	bool success =
 		getCurrentExecPath(buf, sizeof(buf)) ||
 		getExecPathFromProcfs(buf, sizeof(buf));
@@ -648,10 +645,12 @@ void initializePaths()
 		path_share = execpath + DIR_DELIM "..";
 		path_user  = execpath + DIR_DELIM "..";
 
+#ifdef _WIN32
 		if (detectMSVCBuildDir(execpath)) {
 			path_share += DIR_DELIM "..";
 			path_user  += DIR_DELIM "..";
 		}
+#endif
 	} else {
 		errorstream << "Failed to get paths by executable location, "
 			"trying cwd" << std::endl;
@@ -673,7 +672,7 @@ void initializePaths()
 		path_share = execpath;
 		path_user  = execpath;
 	}
-	path_cache = path_user + DIR_DELIM + "cache";
+	path_cache = path_user + DIR_DELIM "cache";
 
 #else
 	infostream << "Using system-wide paths (NOT RUN_IN_PLACE)" << std::endl;
@@ -684,22 +683,22 @@ void initializePaths()
 #  ifdef __ANDROID__
 	sanity_check(!path_cache.empty());
 #  elif defined(_WIN32)
-	path_cache = path_user + DIR_DELIM + "cache";
+	path_cache = path_user + DIR_DELIM "cache";
 #  else
 	// First try $XDG_CACHE_HOME/PROJECT_NAME
 	const char *cache_dir = getenv("XDG_CACHE_HOME");
 	const char *home_dir = getenv("HOME");
 	if (cache_dir && cache_dir[0] != '\0') {
 		// TODO: luanti with migration
-		path_cache = std::string(cache_dir) + DIR_DELIM + "minetest";
+		path_cache = std::string(cache_dir) + DIR_DELIM "minetest";
 	} else if (home_dir) {
 		// Then try $HOME/.cache/PROJECT_NAME
 		// TODO: luanti with migration
-		path_cache = std::string(home_dir) + DIR_DELIM + ".cache"
-			+ DIR_DELIM + "minetest";
+		path_cache = std::string(home_dir) + DIR_DELIM ".cache"
+			DIR_DELIM "minetest";
 	} else {
 		// If neither works, use $PATH_USER/cache
-		path_cache = path_user + DIR_DELIM + "cache";
+		path_cache = path_user + DIR_DELIM "cache";
 	}
 #  endif // _WIN32
 
@@ -720,26 +719,19 @@ void initializePaths()
 
 #if USE_GETTEXT
 	bool found_localedir = false;
-#  ifdef STATIC_LOCALEDIR
 	/* STATIC_LOCALEDIR may be a generalized path such as /usr/share/locale that
 	 * doesn't necessarily contain our locale files, so check data path first. */
 	path_locale = getDataPath("locale");
 	if (fs::PathExists(path_locale)) {
 		found_localedir = true;
-		infostream << "Using in-place locale directory " << path_locale
-			<< " even though a static one was provided." << std::endl;
+		infostream << "Using in-place locale directory: " << path_locale
+			<< std::endl;
 	} else if (STATIC_LOCALEDIR[0] && fs::PathExists(STATIC_LOCALEDIR)) {
 		found_localedir = true;
 		path_locale = STATIC_LOCALEDIR;
-		infostream << "Using static locale directory " << STATIC_LOCALEDIR
+		infostream << "Using static locale directory: " << path_locale
 			<< std::endl;
 	}
-#  else
-	path_locale = getDataPath("locale");
-	if (fs::PathExists(path_locale)) {
-		found_localedir = true;
-	}
-#  endif
 	if (!found_localedir) {
 		warningstream << "Couldn't find a locale directory!" << std::endl;
 	}
@@ -759,9 +751,9 @@ bool secure_rand_fill_buf(void *buf, size_t len)
 	if (!CryptAcquireContext(&wctx, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
 		return false;
 
-	CryptGenRandom(wctx, len, (BYTE *)buf);
+	bool success = CryptGenRandom(wctx, len, (BYTE *)buf);
 	CryptReleaseContext(wctx, 0);
-	return true;
+	return success;
 }
 
 #else
@@ -934,7 +926,7 @@ bool open_directory(const std::string &path)
 // Load performance counter frequency only once at startup
 #ifdef _WIN32
 
-inline double get_perf_freq()
+static inline double get_perf_freq()
 {
 	// Also use this opportunity to enable high-res timers
 	timeBeginPeriod(1);

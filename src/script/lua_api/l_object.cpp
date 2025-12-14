@@ -2297,6 +2297,8 @@ int ObjectRef::l_get_sky(lua_State *L)
 	lua_setfield(L, -2, "fog_distance");
 	lua_pushnumber(L, skybox_params.fog_start >= 0 ? skybox_params.fog_start : -1.0f);
 	lua_setfield(L, -2, "fog_start");
+	push_ARGB8(L, skybox_params.fog_color);
+	lua_setfield(L, -2, "fog_color");
 	lua_setfield(L, -2, "fog");
 
 	return 1;
