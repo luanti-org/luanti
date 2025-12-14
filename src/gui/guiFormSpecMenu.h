@@ -14,10 +14,10 @@
 #include "inventory.h"
 #include "inventorymanager.h"
 #include "modalMenu.h"
+#include "guiHyperText.h"
 #include "guiInventoryList.h"
 #include "guiScrollBar.h"
 #include "guiTable.h"
-#include "guiHyperText.h"
 #include "util/string.h"
 #include "StyleSpec.h"
 #include <ICursorControl.h> // gui::ECURSOR_ICON
@@ -26,6 +26,7 @@
 class InventoryManager;
 class ISimpleTextureSource;
 class Client;
+class GUIHyperText;
 class GUIScrollContainer;
 class ISoundManager;
 class JoystickController;
@@ -174,10 +175,10 @@ class GUIFormSpecMenu : public GUIModalMenu
 		std::string parent_name;
 		std::string text;
 		core::rect<s32> hover_rect;
-		v2s32 stpos;
-		s32 width;
-		bool floating;
-		bool bound = false;
+		v2s32 stpos; //< static tooltip position
+		s32 width; //< in pixels
+		bool floating; //< whether the position is NON-static (i.e. ignore stpos)
+		bool bound = false; //< whether it's cached
 	};
 
 public:
