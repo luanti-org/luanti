@@ -8,6 +8,7 @@
 #include "drawItemStack.h"
 #include "IVideoDriver.h"
 #include "client/client.h"
+#include "client/guiscalingfilter.h"
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
 #include "inventory.h"
@@ -15,7 +16,6 @@
 #include "irrlicht_changes/CGUITTFont.h"
 #include "mainmenumanager.h"
 #include "porting.h"
-#include "client/guiscalingfilter.h"
 
 using namespace gui;
 
@@ -1035,7 +1035,7 @@ void TextDrawer::draw(const core::rect<s32> &clip_rect,
 	}
 }
 
-void TextDrawer::modifyText(const StyleSpec &style)
+void TextDrawer::applyStyleSpecToText(const StyleSpec &style)
 {
 	m_text.background_middle = style.getRect(StyleSpec::BGIMG_MIDDLE, core::rect<s32>());
 	m_text.border = style.getBool(StyleSpec::BORDER, true);
@@ -1119,7 +1119,7 @@ void GUIHyperText::setStyles(const std::array<StyleSpec, StyleSpec::NUM_STATES> 
 	StyleSpec style = StyleSpec::getStyleFromStatePropagation(styles, state);
 
 	setNotClipped(style.getBool(StyleSpec::NOCLIP, true));
-	m_drawer.modifyText(style);
+	m_drawer.applyStyleSpecToText(style);
 }
 
 bool GUIHyperText::OnEvent(const SEvent &event)
