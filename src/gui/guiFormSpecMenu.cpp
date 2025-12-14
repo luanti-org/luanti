@@ -31,12 +31,12 @@
 #include "settings.h"
 #include "client/client.h"
 #include "client/fontengine.h"
+#include "client/guiscalingfilter.h"
 #include "client/sound.h"
 #include "util/numeric.h"
 #include "util/screenshot.h"
 #include "util/string.h" // for parseColorString()
 #include "irrlicht_changes/static_text.h"
-#include "client/guiscalingfilter.h"
 #include "guiAnimatedImage.h"
 #include "guiBackgroundImage.h"
 #include "guiBox.h"
