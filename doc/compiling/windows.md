@@ -25,7 +25,7 @@ Go to the desktop folder
 cd /c/Users/$USER/Desktop
 ```
 
-Clone Luanti
+Clone the Luanti repository
 ```bash
 git clone --depth 1 https://github.com/luanti-org/luanti.git
 cd luanti
