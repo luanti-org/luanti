@@ -23,6 +23,7 @@
 #include <IGUIStaticText.h>
 #include "client/imagefilters.h"
 #include "util/screenshot.h"
+#include "debug.h"
 #include "util/tracy_wrapper.h"
 #include "script/common/c_types.h" // LuaError
 
@@ -375,14 +376,12 @@ void GUIEngine::run()
 			// the menu.
 			drawHeader(driver);
 
-			// Take screenshot if requested (before endScene to capture current frame)
+			// Take screenshot if requested
+			// Must be before endScene() to capture the rendered frame
 			if (m_take_screenshot) {
 				m_take_screenshot = false;
-				video::IVideoDriver *vdriver = driver;
-				if (vdriver) {
-					std::string filename;
-					takeScreenshot(vdriver, filename);
-				}
+				std::string filename;
+				takeScreenshot(driver, filename);
 			}
 
 			driver->endScene();

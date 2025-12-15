@@ -11,18 +11,15 @@
 #include "util/numeric.h"
 #include "gettext.h"
 #include "log.h"
+#include "debug.h"
 #include <IVideoDriver.h>
 #include <ctime>
-#include <cstdio>
 
 #define SCREENSHOT_MAX_SERIAL_TRIES 1000
 
 bool takeScreenshot(video::IVideoDriver *driver, std::string &filename_out)
 {
-	if (!driver) {
-		errorstream << "Video driver is nullptr" << std::endl;
-		return false;
-	}
+	sanity_check(driver);
 
 	video::IImage* const raw_image = driver->createScreenShot();
 
@@ -96,3 +93,4 @@ bool takeScreenshot(video::IVideoDriver *driver, std::string &filename_out)
 	raw_image->drop();
 	return success;
 }
+

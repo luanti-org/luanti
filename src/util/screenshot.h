@@ -12,8 +12,9 @@ namespace video {
 
 /**
  * Take a screenshot and save it to disk
- * @param rendering_engine Video driver to use for the screenshot
+ * @param driver Video driver to use for the screenshot
  * @param filename_out Output parameter that receives the path to the saved screenshot
  * @return true if the screenshot was saved successfully, false otherwise
  */
 bool takeScreenshot(video::IVideoDriver *driver, std::string &filename_out);
+

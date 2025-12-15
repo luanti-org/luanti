@@ -1918,10 +1918,9 @@ void Client::makeScreenshot()
 	video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
 	std::string filename;
 	if (takeScreenshot(driver, filename)) {
-		// The screenshot was successfully saved
-		// Full path logged to console by takeScreenshot()
+		std::string msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
 		pushToChatQueue(new ChatMessage(CHATMESSAGE_TYPE_SYSTEM,
-				utf8_to_wide(fmtgettext("Screenshot saved"))));
+				utf8_to_wide(msg)));
 	}
 }
 
