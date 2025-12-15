@@ -502,6 +502,11 @@ arm_inertia (Arm inertia) bool true
 #    For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.
 view_bobbing_amount (View bobbing factor) float 1.0 0.0 7.9
 
+[**Damage]
+
+#    Flashing of the screen when taking damage.
+hurt_flash_enabled (Damage flash) bool true
+
 [**Camera]
 
 #    Field of view in degrees.
