@@ -59,24 +59,24 @@ Numbers and integers
 
 Lua 5.1 does not distinguish between floating-point numbers and integer numbers,
 but for some functions and data structures, Luanti will only work correctly
-with integer values (mathematically: whole numbers).
+with integer values (whole numbers).
 
-If not mentioned otherwise, number values mentioned in this documentation are
+Unless mentioned otherwise, number-type variables mentioned in this documentation are
 allowed to take any numeric value that Lua supports, both integer and
-floating-point numbers, positive and negative. If the word "number" is used,
-you can normally assume this to be the case.
+floating-point numbers, positive and negative. If the word "number" is
+used, you can normally assume this to be the case.
 
-Sometimes, the documentation will use the word "integer" (sometimes
-shortened "int"). In this case, only integer values are allowed,
+Sometimes, the documentation will use the word "integer"
+(or "int" in short). In this case, only integer values are allowed,
 fractional values must not be used here. Integers can be positive or
 negative.
 
-All integer values have a range with a minimum and maximum allowed value.
+All integer values have a range with a defined minimum and maximum.
 Integer ranges are written as [min, max] and are inclusive. E.g. the
 integer range [0, 255] contains all integers from 0 to 255,
 *including* 0 and 255.
 When the documentation does not specify a range or other restrictions,
-assume a range of no larger than [-2^37, 2^37].
+assume a range of [-2^37, 2^37].
 
 Some ranges in this documentation like [-2^15, 2^15-1] occur frequently,
 and may be abbreviated like so:
@@ -87,21 +87,23 @@ and may be abbreviated like so:
     [uint32] = [0,     2^32-1] = [0, 4294967295]
     [uint64] = [0,     2^64-1] = [0, 18446744073709551615]
 
+(uint = "unsigned integer", a term borrowed from C++ for integer types
+that cannot store negative integers)
+
 The words "amount", "count", "index" and "bitfield" imply the use of
 an integer (e.g. an amount of items is an integer).
 
-**IMPORTANT**: You must make sure your code passes only integers to any
-function or data structure that expect integers. You must respect all
+**IMPORTANT**: You must make sure your code only passes integers to any
+function or data structure that expects them. You must respect all
 integer ranges. Failing to do so may lead to undefined behavior and
-potential bugs. Luanti does **NOT** guarantee that integer data types
-and ranges are enforced.
+potential bugs.
 
 ### Implementation details
 
-In Luanti, Lua numbers are equivalent to the data type `double`
-in the C programming language (which is the default Lua behavior).
+In the Luanti Lua API, numbers are internally represented
+by the `double` data type of the C programming language.
 Luanti guarantees that all integers in the range [-2^37, 2^37] can be
-stored losslessly as Lua numbers.
+stored as Lua numbers exactly without losing precision.
 Attempting to use integers beyond that range may or may not work,
 depending on the system implementation of the `double` data type.
 For systems that implement IEEE-754 floating-point numbers, this range
