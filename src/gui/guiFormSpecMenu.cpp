@@ -8,7 +8,6 @@
 #include <iterator>
 #include <limits>
 #include "guiFormSpecMenu.h"
-#include "guiEngine.h"
 #include "EGUIElementTypes.h"
 #include "itemdef.h"
 #include "gamedef.h"
@@ -4091,10 +4090,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 			} else {
 				// In main menu - no client available, request screenshot from engine
 				if (m_text_dst) {
-					TextDestGuiEngine *gui_dest = dynamic_cast<TextDestGuiEngine *>(m_text_dst);
-					if (gui_dest) {
-						gui_dest->requestScreenshot();
-					}
+					m_text_dst->requestScreenshot();
 				}
 			}
 		}
