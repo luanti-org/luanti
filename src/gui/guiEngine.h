@@ -62,6 +62,11 @@ public:
 	 */
 	void gotText(const StringMap &fields);
 
+	std::string getIdentifiableName()
+	{
+		return "main menu";
+	}
+
 private:
 	/** target to transmit data to */
 	GUIEngine *m_engine = nullptr;
