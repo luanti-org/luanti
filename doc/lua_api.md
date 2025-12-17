@@ -88,6 +88,7 @@ and may be abbreviated like so:
     [u32]  = [0,     2^32-1] = [0, 4294967295]
     [u64]  = [0,     2^64-1] = [0, 18446744073709551615]
     [ulua] = [0,     2^37]   = [0, 137438953472]
+    [imagesize]              = [1, 23000]
 
 (s = "signed", ranges that include negative integers;
  u = "unsigned", ranges that don't include negative integers;
@@ -98,6 +99,9 @@ integers that are guaranteed to be representable as Lua numbers
 without loss of precision. If you use an integer in Lua beyond that
 range, you might lose precision. [ulua] is the same except
 it starts at 0.
+
+The [imagesize] range represents the minimum and maximum
+width and height for texture modifiers.
 
 The words "amount", "count", "index" and "bitfield" imply the use of
 an integer (e.g. an amount of items is an integer).
@@ -672,9 +676,9 @@ on top of `cobble.png`.
 
 Parameters (all integers):
 
-* `<t>`: tile count (in each direction)
-* `<n>`: animation frame count
-* `<p>`: current animation frame (counting starts at 0)
+* `<t>`: tile count (in each direction) (integer [imagesize])
+* `<n>`: animation frame count (integer [imagesize])
+* `<p>`: current animation frame (integer [0, 2^31-1], counting starts at 0)
 
 Draw a step of the crack animation on the texture.
 `crack` draws it normally, while `cracko` lays it over, keeping transparent
@@ -686,14 +690,14 @@ Example:
 
 #### `[combine:<w>x<h>:<x1>,<y1>=<file1>:<x2>,<y2>=<file2>:...`
 
-* `<w>`: width (integer)
-* `<h>`: height (integer)
-* `<x>`: x integer position, negative integers allowed
-* `<y>`: y integer position, negative integers allowed
+* `<w>`: width (integer [imagesize])
+* `<h>`: height (integer [imagesize])
+* `<x>`: x position (integer [s32])
+* `<y>`: y position (integer [s32])
 * `<file>`: texture to combine
 
 Creates a texture of size `<w>` times `<h>` and blits the listed files to their
-specified coordinates.
+specified `<x>,<y>` coordinates (which may be negative).
 
 Example:
 
@@ -701,7 +705,10 @@ Example:
 
 #### `[resize:<w>x<h>`
 
-Resizes the texture to the given integer dimensions.
+* `<w>`: width (integer [imagesize])
+* `<h>`: height (integer [imagesize])
+
+Resizes the texture to the given dimensions.
 
 Example:
 
@@ -711,7 +718,7 @@ Example:
 
 Makes the base image transparent according to the given ratio.
 
-`r` is an integer between 0 (transparent) and 255 (opaque).
+`r` is an integer in range [0, 255]. 0 = transparent, 255 = opaque.
 
 Example:
 
@@ -761,7 +768,7 @@ Example:
 
 Rotates and/or flips the image.
 
-`<t>` can be an integer (between 0 and 7) or a transform name.
+`<t>` can be an integer (in range [0, 7]) or a transform name.
 Rotations are counter-clockwise.
 
     0  I      identity
@@ -793,14 +800,14 @@ Creates an inventorycube with `grass.png`, `dirt.png^grass_side.png` and
 
 #### `[fill:<w>x<h>:<x>,<y>:<color>`
 
-* `<w>`: width
-* `<h>`: height
-* `<x>`: x position
-* `<y>`: y position
+* `<w>`: width (integer [imagesize])
+* `<h>`: height (integer [imagesize])
+* `<x>`: x position (integer [u32])
+* `<y>`: y position (integer [u32])
 * `<color>`: a `ColorString`.
 
-Creates a texture of the given integer size and color, optionally with
-an `<x>,<y>` integer position. An alpha value may be specified in the
+Creates a texture of the given size and color, optionally with
+an `<x>,<y>` position. An alpha value may be specified in the
 `ColorString`.
 
 The optional `<x>,<y>` position is only used if the `[fill` is being overlaid
@@ -845,16 +852,20 @@ The mask is applied using binary AND.
 
 #### `[sheet:<w>x<h>:<x>,<y>`
 
-Retrieves a tile at position x, y (integer, in tiles, 0-indexed)
-from the base image, which it assumes to be a tilesheet
-with dimensions w, h (integer, in tiles).
+* `<w>`: sheet width in tiles (integer [imagesize])
+* `<h>`: sheet height in tiles (integer [imagesize])
+* `<x>`: x position in tiles (integer [u32], 0-indexed)
+* `<y>`: y position in tiles (integer [u32], 0-indexed)
+
+Retrieves a tile at tile position `<x>,<y>` from the base image,
+which is assumed to be a tile sheet with tile dimensions `<w>,<h>`.
 
 #### `[colorize:<color>:<ratio>`
 
 Colorize the textures with the given color.
 `<color>` is specified as a `ColorString`.
-`<ratio>` is an int ranging from 0 to 255 or the word "`alpha`". If
-it is an int, then it specifies how far to interpolate between the
+`<ratio>` is an integer in range [0, 255] or the string `"alpha"`. If
+it is an integer, then it specifies how far to interpolate between the
 colors where 0 is only the texture color and 255 is only `<color>`. If
 omitted, the alpha of `<color>` will be used as the ratio.  If it is
 the word "`alpha`", then each texture pixel will contain the RGB of
@@ -869,15 +880,15 @@ Saturation and lightness can optionally be adjusted.
 
 All arguments are integers.
 
-`<hue>` should be from -180 to +180. The hue at 0° on an HSL color wheel is
+`<hue>` should be in range [-180, 180]. The hue at 0° on an HSL color wheel is
 red, 60° is yellow, 120° is green, and 180° is cyan, while -60° is magenta
 and -120° is blue.
 
 `<saturation>` and `<lightness>` are optional adjustments.
 
-`<lightness>` is from -100 to +100, with a default of 0
+`<lightness>` is in range [-100, 100], with a default of 0
 
-`<saturation>` is from 0 to 100, with a default of 50
+`<saturation>` is in range [0, 100], with a default of 50
 
 #### `[multiply:<color>`
 
@@ -911,14 +922,15 @@ Adjust the hue, saturation, and lightness of the texture. Like
 
 All 3 arguments are integers.
 
-`<hue>` should be from -180 to +180
+`<hue>` should be in range [-180, 180]
 
 `<saturation>` and `<lightness>` are optional, and both percentages.
 
-`<lightness>` is from -100 to +100.
+`<lightness>` is in range [-100, 100].
 
-`<saturation>` goes down to -100 (fully desaturated) but may go above 100,
-allowing for even muted colors to become highly saturated.
+`<saturation>` is in range [-100, 1000]. -100 is fully desaturated,
+0 is no change and positive values increase saturation. Values
+above 100 allow for even muted colors to become highly saturated.
 
 #### `[contrast:<contrast>:<brightness>`
 
@@ -926,9 +938,9 @@ Adjust the brightness and contrast of the texture. Conceptually like
 GIMP's "Brightness-Contrast" feature but allows brightness to be wound
 all the way up to white or down to black.
 
-`<contrast>` is an integer from -127 to +127.
+`<contrast>` is an integer in range [-127, 127].
 
-`<brightness>` is an optional integer, from -127 to +127.
+`<brightness>` is an optional integer in range [-127, 127].
 
 If only a boost in contrast is required, an alternative technique is to
 hardlight blend the texture with itself, this increases contrast in the same
