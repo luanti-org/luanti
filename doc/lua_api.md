@@ -83,11 +83,11 @@ and may be abbreviated like so:
 
     [s16]  = [-2^15, 2^15-1] = [-32768, 32767]
     [s32]  = [-2^31, 2^31-1] = [-2147483648, 2147483647]
-    [slua] = [-2^37, 2^37]   = [-137438953472, 137438953472]
+    [slua] = [-2^53, 2^53]   = [-9007199254740992, 9007199254740992]
     [u16]  = [0,     2^16-1] = [0, 65535]
     [u32]  = [0,     2^32-1] = [0, 4294967295]
     [u64]  = [0,     2^64-1] = [0, 18446744073709551615]
-    [ulua] = [0,     2^37]   = [0, 137438953472]
+    [ulua] = [0,     2^53]   = [0, 9007199254740992]
     [imagesize]              = [1, 23000]
 
 (s = "signed", ranges that include negative integers;
@@ -116,17 +116,13 @@ potential bugs.
 
 ### Implementation details
 
-In the Luanti Lua API, numbers are internally represented
-by the `double` data type of the C programming language.
-This affects the size of the safe integer range ([slua]).
-The smallest safe integer range that Luanti can guarantee
-is [-2^37, 2^37].
-
-However, the actual safe integer range is likely larger on most systems.
-In systems that implement IEEE-754 floating-point numbers, the
-safe integer range is actually [-2^53, 2^53], but to ensure
-maximum portability of your code, rely on the smaller [slua]
-range to be safe.
+In the Luanti Lua API, numbers are internally represented by the `double`
+data type of the C programming language.
+The range of [-2^53, 2^53] is derived from IEEE-754 double-precision
+floating-point numbers.
+You can generally assume that on all systems that Luanti officially
+supports, the Lua number type implements IEEE-754 double-precision
+floating-point numbers.
 
 
 Games
