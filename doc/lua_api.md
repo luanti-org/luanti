@@ -9164,7 +9164,7 @@ child will follow movement and rotation of that bone.
             (default: 0.0; maximum: 1.0; minimum: 0.0)
         * `count`: Amount of stars in the skybox. Only applies
             to `"skybox"` and `"regular"` sky types.
-            (range: [u16]) (default: `1000`)
+            (range: [0, 16384]) (default: `1000`)
         * `star_color`: ColorSpec, sets the colors of the stars,
             alpha channel is used to set overall star brightness.
             (default: `#ebebff69`)
