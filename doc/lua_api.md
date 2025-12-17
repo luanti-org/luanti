@@ -63,8 +63,10 @@ with integer values (whole numbers).
 
 Unless mentioned otherwise, number-type variables mentioned in this documentation are
 allowed to take any numeric value that Lua supports, both integer and
-floating-point numbers, positive and negative. If the word "number" is
-used, you can normally assume this to be the case.
+floating-point numbers, positive and negative.
+If the word "number" is used, you can normally assume this to be the case.
+Exceptions: NaN, positive infinity and negative infinity should not be
+assumed to be supported unless mentioned explicitly.
 
 Sometimes, the documentation will use the word "integer"
 (or "int" in short). In this case, only integer values are allowed,
@@ -75,23 +77,32 @@ All integer values have a range with a defined minimum and maximum.
 Integer ranges are written as [min, max] and are inclusive. E.g. the
 integer range [0, 255] contains all integers from 0 to 255,
 *including* 0 and 255.
-When the documentation does not specify a range or other restrictions,
-assume a range of [-2^37, 2^37].
 
 Some ranges in this documentation like [-2^15, 2^15-1] occur frequently,
 and may be abbreviated like so:
 
-    [int16]  = [-2^15, 2^15-1] = [-32768, 32767]
-    [int32]  = [-2^31, 2^31-1] = [-2147483648, 2147483647]
-    [uint16] = [0,     2^16-1] = [0, 65535]
-    [uint32] = [0,     2^32-1] = [0, 4294967295]
-    [uint64] = [0,     2^64-1] = [0, 18446744073709551615]
+    [int16]   = [-2^15, 2^15-1] = [-32768, 32767]
+    [int32]   = [-2^31, 2^31-1] = [-2147483648, 2147483647]
+    [intlua]  = [-2^37, 2^37]   = [-137438953472, 137438953472]
+    [uint16]  = [0,     2^16-1] = [0, 65535]
+    [uint32]  = [0,     2^32-1] = [0, 4294967295]
+    [uint64]  = [0,     2^64-1] = [0, 18446744073709551615]
+    [uintlua] = [0,     2^37]   = [0, 137438953472]
 
 (uint = "unsigned integer", a term borrowed from C++ for integer types
 that cannot store negative integers)
 
+The [intlua] range is the *safe integer range*. This contains all
+integers that are guaranteed to be representable as Lua numbers
+without loss of precision. If you use an integer in Lua beyond that
+range, you might lose precision. [uintlua] is the same except
+it starts at 0.
+
 The words "amount", "count", "index" and "bitfield" imply the use of
 an integer (e.g. an amount of items is an integer).
+
+When the documentation expects an integer somewhere without specifying
+a range, assume the safe integer range ([intlua]).
 
 **IMPORTANT**: You must make sure your code only passes integers to any
 function or data structure that expects them. You must respect all
@@ -102,13 +113,15 @@ potential bugs.
 
 In the Luanti Lua API, numbers are internally represented
 by the `double` data type of the C programming language.
-Luanti guarantees that all integers in the range [-2^37, 2^37] can be
-stored as Lua numbers exactly without losing precision.
-Attempting to use integers beyond that range may or may not work,
-depending on the system implementation of the `double` data type.
-For systems that implement IEEE-754 floating-point numbers, this range
-extends to [-2^53, 2^53].
-It is currently not possible to query the actual integer range directly.
+This affects the size of the safe integer range ([intlua]).
+The smallest safe integer range that Luanti can guarantee
+is [-2^37, 2^37].
+
+However, the actual safe integer range is likely larger on most systems.
+In systems that implement IEEE-754 floating-point numbers, the
+safe integer range is actually [-2^53, 2^53], but to ensure
+maximum portability of your code, rely on the smaller [intlua]
+range to be safe.
 
 
 Games
@@ -1827,8 +1840,8 @@ Almost all positions used in the API use node coordinates.
 ### Mapblock coordinates
 
 Occasionally the API uses 'blockpos' which refers to mapblock coordinates that
-specify a particular mapblock.
-For example blockpos (0,0,0) specifies the mapblock that extends from
+specify a particular mapblock. Blockpos coordinates are integers.
+For example, blockpos (0,0,0) specifies the mapblock that extends from
 node position (0,0,0) to node position (15,15,15).
 
 #### Converting node position to the containing blockpos
@@ -6761,27 +6774,28 @@ Environment access
 * `core.get_mapgen_params()`
     * Deprecated: use `core.get_mapgen_setting(name)` instead.
     * Returns a table containing:
-        * `mgname`
-        * `seed`
-        * `chunksize`
-        * `water_level`
-        * `flags`
+        * `mgname` (string, this is `mg_name` in `core.get_mapgen_settings`)
+        * `seed` (integer [uintlua])
+        * `chunksize` (integer [1, 32767])
+        * `water_level` (integer [int16])
+        * `flags` (string, this is `mg_flags` in `core.get_mapgen_settings`)
+    * **WARNING**: `seed` is broken. Mapgen seeds are actually [uint64] in
+        Luanti but seeds outside the [intlua] range that are returned by
+        this function may contain the wrong value
 * `core.set_mapgen_params(MapgenParams)`
     * Deprecated: use `core.set_mapgen_setting(name, value, override)`
       instead.
     * Set map generation parameters.
     * Function cannot be called after the registration period.
-    * Takes a table as an argument with the fields:
-        * `mgname`
-        * `seed`
-        * `chunksize`
-        * `water_level`
-        * `flags`
+    * Takes a table with the same fields as returned by `core.get_mapgen_params`
     * Leave field unset to leave that parameter unchanged.
     * `flags` contains a comma-delimited string of flags to set, or if the
       prefix `"no"` is attached, clears instead.
     * `flags` is in the same format and has the same options as `mg_flags` in
       `minetest.conf`.
+    * You may only provide `seed` values in the [uintlua] range,
+      which is only a part of the full [uint64] range that Luanti internally
+      uses for seeds
 * `core.get_mapgen_edges([mapgen_limit[, chunksize]])`
     * Returns the minimum and maximum possible generated node positions
       in that order.
@@ -6800,6 +6814,7 @@ Environment access
         2) Settings set by mods without a metafile override
         3) Settings explicitly set in the user config file, minetest.conf
         4) Settings set as the user config default
+    * Note: to get the seed, use `"seed"` (as a string), not `"fixed_map_seed"`.
 * `core.get_mapgen_setting_noiseparams(name)`
     * Same as above, but returns the value as a NoiseParams table if the
       setting `name` exists and is a valid NoiseParams.
@@ -6809,7 +6824,7 @@ Environment access
     * `override_meta` is an optional boolean (default: `false`). If this is set
       to true, the setting will become the active setting regardless of the map
       metafile contents.
-    * Note: to set the seed, use `"seed"`, not `"fixed_map_seed"`.
+    * Note: to set the seed, use `"seed"` (as a string), not `"fixed_map_seed"`.
 * `core.set_mapgen_setting_noiseparams(name, value, [override_meta])`
     * Same as above, except value is a NoiseParams table.
 * `core.set_noiseparams(name, noiseparams, set_default)`
@@ -7388,7 +7403,9 @@ does not have a global step or timer.
       than the emerged area of the VoxelManip.
       Note: calling `read_from_map()` or `write_to_map()` on the VoxelManipulator object
       is not necessary and is disallowed.
-    * `blockseed`: integer seed used for this chunk with range [uint32]
+    * `blockseed`: integer seed used for this chunk with range [uint32];
+      derived from the block position (using integer coordinates in the
+      range [-2048, 2047]) and the world seed ([uint64]) in a mapgen-specific way
 * `core.save_gen_notify(id, data)`
     * Saves data for retrieval using the gennotify mechanism (see [Mapgen objects](#mapgen-objects)).
     * Data is bound to the chunk that is currently being processed, so this function
@@ -9268,6 +9285,7 @@ offering very strong randomness.
 * constructor `PcgRandom(seed, [seq])`
   * `seed`: integer seed in the [uint64] range
   * `seq`: optional integer sequence, each integer with [uint64] range
+  * WARNING: The safe integer range still applies
 
 ### Methods
 
