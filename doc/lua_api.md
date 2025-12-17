@@ -6788,9 +6788,10 @@ Environment access
         * `chunksize` (integer [1, 32767])
         * `water_level` (integer [s16])
         * `flags` (string, this is `mg_flags` in `core.get_mapgen_settings`)
-    * **WARNING**: `seed` is broken. Mapgen seeds are actually [u64] in
-        Luanti but seeds outside the [slua] range that are returned by
-        this function may contain the wrong value
+    * **WARNING**: `seed` is broken and should not be used. Internally, mapgen
+        seeds are actually in the [u64] in Luanti. So if the actual mapgen
+        seed is outside the [slua] range, the seed returned by this function may
+        be wrong
 * `core.set_mapgen_params(MapgenParams)`
     * Deprecated: use `core.set_mapgen_setting(name, value, override)`
       instead.
@@ -6823,7 +6824,11 @@ Environment access
         2) Settings set by mods without a metafile override
         3) Settings explicitly set in the user config file, minetest.conf
         4) Settings set as the user config default
-    * Note: to get the seed, use `"seed"` (as a string), not `"fixed_map_seed"`.
+    * Note: to get the seed, use `"seed"`, not `"fixed_map_seed"`.
+    * Note: The seed is returned as a string, converted from the [u64] integer
+      that Luanti internally uses. Do *not* convert this string to a
+      number, you'd risk losing precision because [u64] reaches beyond the
+      safe integer range
 * `core.get_mapgen_setting_noiseparams(name)`
     * Same as above, but returns the value as a NoiseParams table if the
       setting `name` exists and is a valid NoiseParams.
@@ -6833,7 +6838,9 @@ Environment access
     * `override_meta` is an optional boolean (default: `false`). If this is set
       to true, the setting will become the active setting regardless of the map
       metafile contents.
-    * Note: to set the seed, use `"seed"` (as a string), not `"fixed_map_seed"`.
+    * Note: to set the seed, use `"seed"`, not `"fixed_map_seed"`;
+      the seed value *must* be provided as a string that *represents*
+      an integer in the [u64] range
 * `core.set_mapgen_setting_noiseparams(name, value, [override_meta])`
     * Same as above, except value is a NoiseParams table.
 * `core.set_noiseparams(name, noiseparams, set_default)`
