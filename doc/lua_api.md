@@ -9296,9 +9296,8 @@ Uses PCG32, an algorithm of the permuted congruential generator family,
 offering very strong randomness.
 
 * constructor `PcgRandom(seed, [seq])`
-  * `seed`: integer seed in the [u64] range
-  * `seq`: optional integer sequence, each integer with [u64] range
-  * WARNING: The safe integer range still applies
+  * `seed`: integer seed in the [ulua] range
+  * `seq`: optional integer sequence, each integer in the [ulua] range
 
 ### Methods
 
