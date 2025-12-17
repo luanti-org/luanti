@@ -2553,14 +2553,14 @@ Tool capabilities definition
 
 Tool capabilities define:
 
-* Full punch interval (in seconds)
-* Maximum drop level (integer)
+* Full punch interval (number, in seconds)
+* Maximum drop level (integer [slua])
 * For an arbitrary list of node groups:
-    * Uses (until the tool breaks, integer)
-    * Maximum level (integer, usually `0`, `1`, `2` or `3`)
-    * Digging times (numbers)
+    * Uses (until the tool breaks, integer [u16])
+    * Maximum level (integer [slua], usually `0`, `1`, `2` or `3`)
+    * Digging times (list of numbers)
 * Damage groups
-* Punch attack uses (until the tool breaks, integer)
+* Punch attack uses (until the tool breaks, integer [u16])
 
 ### Full punch interval `full_punch_interval`
 
@@ -3130,9 +3130,9 @@ Elements
   animation (See [Tile animation definition](#tile-animation-definition)), but uses a frame count/duration for simplicity
 * `name`: Element name to send when an event occurs. The event value is the index of the current frame.
 * `texture name`: The image to use.
-* `frame count`: The amount of frames animating the image.
-* `frame duration`: Milliseconds between each frame. `0` means the frames don't advance.
-* `frame start` (optional): The index of the frame to start on. Default `1`.
+* `frame count`: The amount of frames animating the image. Range [1, 2^31-1]
+* `frame duration`: Milliseconds between each frame. Integer with range [0, 2^31-1]. `0` means the frames don't advance.
+* `frame start` (optional): The index of the frame to start on. Range [0, 2^31-1]. Default `1`.
 * `middle` (optional): Makes the image render in 9-sliced mode and defines the middle rect.
     * Requires formspec version >= 6.
     * See `background9[]` documentation for more information.
@@ -3145,13 +3145,13 @@ Elements
 * `textures`: The mesh textures to use according to the mesh materials.
    Texture names must be separated by commas.
 * `rotation` (Optional): Initial rotation of the camera, format `x,y`.
-  The axes are Euler angles in degrees.
+  The axes are Euler angles in degrees, given as numbers.
 * `continuous` (Optional): Whether the rotation is continuous. Default `false`.
 * `mouse control` (Optional): Whether the model can be controlled with the mouse. Default `true`.
 * `frame loop range` (Optional): Range of the animation frames.
     * Defaults to the full range of all available frames.
-    * Syntax: `<begin>,<end>`
-* `animation speed` (Optional): Sets the animation speed. Default 0 FPS.
+    * Syntax: `<begin>,<end>` (two numbers separated by a comma)
+* `animation speed` (Optional): Sets the animation speed in FPS, as a number. Default: 0.0
 
 ### `item_image[<X>,<Y>;<W>,<H>;<item name>]`
 
@@ -4105,7 +4105,8 @@ stated otherwise. Mods should adapt this for convenience reasons.
 Special properties of the class
 -------------------------------
 
-Vectors can be indexed with integers and allow method and operator syntax.
+Vectors can be indexed with integers in range [1, 3] and allow method and
+operator syntax.
 
 All these forms of addressing a vector `v` are valid:
 `v[1]`, `v[3]`, `v.x`, `v[1] = 42`, `v.y = 13`
@@ -4302,7 +4303,7 @@ Helper functions
     * tolerance: number, default: `0.0`
     * If the absolute value of `x` is within the `tolerance` or `x` is NaN,
       `0` is returned.
-* `math.factorial(x)`: returns the factorial of integer `x`
+* `math.factorial(x)`: returns the factorial of integer `x` (range: [ulua])
 * `math.round(x)`: Returns `x` rounded to the nearest integer.
     * At a multiple of 0.5, rounds away from zero.
 * `math.isfinite(x)`: Returns `true` if `x` is neither an infinity nor a NaN,
@@ -5404,7 +5405,7 @@ It can be created via `VoxelArea(pmin, pmax)` or
 `VoxelArea:new({MinEdge = pmin, MaxEdge = pmax})`,
 where `pmin` and `pmax` are vectors for the minimum
 and maximum coordinates of the bounding box (inclusive).
-Only integer coordinates may be used here.
+Only integer coordinates (range: [s16]) may be used here.
 
 ### Methods
 
@@ -6131,8 +6132,8 @@ Utilities
   the given "time of day" value (as returned by `core.get_timeofday`).
 * `core.encode_png(width, height, data, [compression])`: Encode a PNG
   image and return it in string form.
-    * `width`: Width of the image (integer, range [0, 4294967295])
-    * `height`: Height of the image (integer, range [0, 4294967295])
+    * `width`: Width of the image (integer in range [u32])
+    * `height`: Height of the image (integer in range [u32])
     * `data`: Image data, one of:
         * array table of ColorSpec, length must be `width*height`
         * string with raw RGBA pixels, length must be `width*height*4`
@@ -6705,12 +6706,13 @@ Environment access
 * `core.objects_in_area(min_pos, max_pos)`
     * returns an iterator of valid objects
 * `core.set_timeofday(val)`: set time of day
-    * `val` is between `0` and `1`; `0` for midnight, `0.5` for midday
+    * `val` is a number between `0` and `1`; `0` for midnight, `0.5` for midday
 * `core.get_timeofday()`: get time of day
 * `core.get_gametime()`: returns the time, in seconds, since the world was
-  created. The time is not available (`nil`) before the first server step.
+  created. An integer in range [u32]. The time is not available (`nil`)
+  before the first server step.
 * `core.get_day_count()`: returns the amount of days elapsed since
-  the world was created.
+  the world was created. [u32]
     * Time changes are accounted for.
 * `core.find_node_near(pos, radius, nodenames, [search_center])`: returns
   pos or `nil`.
@@ -6809,8 +6811,8 @@ Environment access
 * `core.get_mapgen_edges([mapgen_limit[, chunksize]])`
     * Returns the minimum and maximum possible generated node positions
       in that order.
-    * `mapgen_limit` is an optional integer. If it is absent, its value is that
-      of the *active* mapgen setting `"mapgen_limit"`.
+    * `mapgen_limit` is an optional integer [s16]. If it is absent, its value is
+      that of the *active* mapgen setting `"mapgen_limit"`.
     * `chunksize` is an optional integer or vector. If it is absent, its value is that
       of the *active* mapgen setting `"chunksize"`.
 * `core.get_mapgen_chunksize()`
@@ -7858,7 +7860,7 @@ Misc.
         * Zstandard: `"zstd"`
     * `...` indicates method-specific arguments. Currently defined arguments
       are:
-        * Deflate: `level` - Compression level, integer `0`-`9` or `nil`.
+        * Deflate: `level` - Compression level, integer in range [0, 9] or `nil`.
         * Zstandard: `level` - Compression level. Integer or `nil`. Default `3`.
         Note any supported Zstandard compression level could be used here,
         but these are subject to change between Zstandard versions.
@@ -8617,7 +8619,7 @@ child will follow movement and rotation of that bone.
     * triggers all consequences as if a real player had done this
     * `clicker` is another `ObjectRef` which has clicked
     * note: this is called `right_click` for historical reasons only
-* `get_hp()`: returns amount of health points
+* `get_hp()`: returns amount of health points (range: [u16])
 * `set_hp(hp, reason)`: set amount of health points
     * reason: A `PlayerHPChangeReason` table (optional)
     * Range: [u16]
@@ -8804,9 +8806,10 @@ child will follow movement and rotation of that bone.
     * Only used by `sprite` and `upright_sprite` visuals
     * Animations iterate along the frame `y` position.
     * `start_frame`: {x=column, y=row}, the integer coordinate
-      of the first frame, default: `{x=0, y=0}`
-    * `num_frames`: Total count of frames in the texture, default: `1`
-    * `framelength`: Time per animated frame in seconds, default: `0.2`
+      of the first frame, coordinate range: [0, 32767], default: `{x=0, y=0}`
+    * `num_frames`: Total count of frames in the texture;
+      integer in range: [1, 2^31-1], default: `1`
+    * `framelength`: Time per animated frame in seconds, number, default: `0.2`
     * `select_x_by_camera`: Only for visual = `sprite`. Changes the frame `x`
       position according to the view direction. default: `false`.
         * First column:  subject facing the camera
@@ -8849,13 +8852,12 @@ child will follow movement and rotation of that bone.
   `set_look_vertical`.
 * `set_look_yaw(radians)`: sets look yaw - Deprecated. Use
   `set_look_horizontal`.
-* `get_breath()`: returns player's breath (integer)
-* `set_breath(value)`: sets player's breath (integer)
+* `get_breath()`: returns player's breath (integer [u16])
+* `set_breath(value)`: sets player's breath (integer [u16])
     * values:
         * `0`: player is drowning
         * max: bubbles bar is not shown
         * See [Object properties](#object-properties) for more information
-    * Range: [u16]
 * `set_fov(fov, is_multiplier, transition_time)`: Sets player's FOV
     * `fov`: Numeric field of View (FOV) value.
     * `is_multiplier`: Set to `true` if the FOV value is a multiplier.
@@ -11103,7 +11105,7 @@ See [Ores] section above for essential information.
     -- Ore has a 1 out of clust_scarcity chance of spawning in a node.
     -- If the desired average distance between ores is 'd', set this to
     -- d * d * d.
-    -- Integer in range [0, 4294967295]
+    -- Integer in range [u32]
 
     clust_num_ores = 8,
     -- Amount of ores in a cluster.
@@ -11654,9 +11656,9 @@ Used by `ObjectRef:hud_add`. Returned by `ObjectRef:hud_get`.
 
     text2 = "<text>", -- string
 
-    number = 0, -- integer with range [0, 4294967295]
+    number = 0, -- integer with range [u32]
 
-    item = 0, -- integer with range [0, 4294967295]
+    item = 0, -- integer with range [u32]
 
     direction = 0, -- integer
     -- Direction: 0: left-right, 1: right-left, 2: top-bottom, 3: bottom-top
