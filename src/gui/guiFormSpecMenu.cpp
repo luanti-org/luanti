@@ -4085,13 +4085,10 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 
 		if (event.KeyInput.PressedDown &&
 				(kp == getKeySetting("keymap_screenshot"))) {
-			if (m_client != NULL) {
+			if (m_client) {
 				m_client->makeScreenshot();
-			} else {
-				// In main menu - no client available, request screenshot from engine
-				if (m_text_dst) {
-					m_text_dst->requestScreenshot();
-				}
+			} else if (m_text_dst) { // in main menu
+				m_text_dst->requestScreenshot();
 			}
 		}
 
