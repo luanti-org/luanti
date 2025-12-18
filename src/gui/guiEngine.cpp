@@ -226,42 +226,46 @@ std::string findLocaleFileInMods(const std::string &path, const std::string &fil
 
 /******************************************************************************/
 Translations *GUIEngine::getContentTranslations(const std::string &path,
-		const std::string &domain, const std::string &lang_code)
+		const std::string &domain, const std::vector<std::wstring> &lang)
 {
-	if (domain.empty() || lang_code.empty())
+	if (domain.empty() || lang.empty())
 		return nullptr;
 
-	std::string filename_no_ext = domain + "." + lang_code;
-	std::string key = path + DIR_DELIM "locale" DIR_DELIM + filename_no_ext;
+	std::string key = path + DIR_DELIM "locale" DIR_DELIM + domain;
 
 	if (key == m_last_translations_key)
 		return &m_last_translations;
 
-	std::string trans_path = key;
-
-	switch (getContentType(path)) {
-	case ContentType::GAME:
-		trans_path = findLocaleFileInMods(path + DIR_DELIM "mods" DIR_DELIM,
-				filename_no_ext);
-		break;
-	case ContentType::MODPACK:
-		trans_path = findLocaleFileInMods(path, filename_no_ext);
-		break;
-	default:
-		trans_path = findLocaleFileWithExtension(trans_path);
-		break;
+	Translations translations;
+	for (const auto &lang_code: lang) {
+		auto utf8_lang_code = wide_to_utf8(lang_code);
+		std::string filename_no_ext = domain + "." + utf8_lang_code;
+		auto trans_path = key + "." + utf8_lang_code;
+		switch (getContentType(path)) {
+		case ContentType::GAME:
+			trans_path = findLocaleFileInMods(path + DIR_DELIM "mods" DIR_DELIM,
+					filename_no_ext);
+			break;
+		case ContentType::MODPACK:
+			trans_path = findLocaleFileInMods(path, filename_no_ext);
+			break;
+		default:
+			trans_path = findLocaleFileWithExtension(trans_path);
+			break;
+		}
+		if (trans_path.empty())
+			continue;
+		std::string data;
+		if (fs::ReadFile(trans_path, data)) {
+			translations.loadTranslation(fs::GetFilenameFromPath(trans_path.c_str()), data);
+		}
 	}
 
-	if (trans_path.empty())
+	if (translations.empty())
 		return nullptr;
 
 	m_last_translations_key = key;
-	m_last_translations = {};
-
-	std::string data;
-	if (fs::ReadFile(trans_path, data)) {
-		m_last_translations.loadTranslation(fs::GetFilenameFromPath(trans_path.c_str()), data);
-	}
+	m_last_translations = std::move(translations);
 
 	return &m_last_translations;
 }
