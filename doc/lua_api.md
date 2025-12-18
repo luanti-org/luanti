@@ -359,6 +359,10 @@ In the future, having multiple custom fonts and the ability to switch between th
 but for now this feature is limited to the ability to override Luanti's default fonts via mods.
 It is recommended that this only be used by game mods to set a look and feel.
 
+Warning: Currently the Luanti client does not support reading kerning information
+from the OpenType `GPOS` table, but only the older `kern` table. This can cause
+modern fonts not to render correctly in Luanti.
+
 The stems (file names without extension) are self-explanatory:
 
 * Regular variants:
