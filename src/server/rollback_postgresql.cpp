@@ -169,33 +169,24 @@ void RollbackManagerPostgreSQL::createDatabase()
 		"CREATE INDEX IF NOT EXISTS action_actor_ts "
 		"ON action(actor, timestamp DESC, id DESC);"
 
-		// BRIN is available in PostgreSQL 9.5+; harmless to try if your server supports it.
-		// If you need strict compatibility with older versions, gate this behind getPGVersion().
 		"CREATE INDEX IF NOT EXISTS action_ts_brin "
 		"ON action USING brin(timestamp);");
 }
 
 void RollbackManagerPostgreSQL::initStatements()
 {
-	prepareStatement("actor_select", "SELECT id FROM actor WHERE name = $1");
-	prepareStatement("node_select", "SELECT id FROM node WHERE name = $1");
 	prepareStatement("actor_list", "SELECT id, name FROM actor");
 	prepareStatement("node_list", "SELECT id, name FROM node");
 
-	if (getPGVersion() >= 90500) {
-		// Use a single statement for "get or create". This avoids select+insert races.
-		prepareStatement("actor_upsert",
-			"INSERT INTO actor(name) VALUES($1) "
-			"ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name "
-			"RETURNING id");
-		prepareStatement("node_upsert",
-			"INSERT INTO node(name) VALUES($1) "
-			"ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name "
-			"RETURNING id");
-	} else {
-		prepareStatement("actor_insert", "INSERT INTO actor(name) VALUES($1) RETURNING id");
-		prepareStatement("node_insert", "INSERT INTO node(name) VALUES($1) RETURNING id");
-	}
+	// Use a single statement for "get or create". This avoids select+insert races.
+	prepareStatement("actor_upsert",
+		"INSERT INTO actor(name) VALUES($1) "
+		"ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name "
+		"RETURNING id");
+	prepareStatement("node_upsert",
+		"INSERT INTO node(name) VALUES($1) "
+		"ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name "
+		"RETURNING id");
 
 	prepareStatement("action_insert",
 		"INSERT INTO action ("
@@ -265,40 +256,13 @@ int RollbackManagerPostgreSQL::getActorId(const std::string &name)
 	verifyDatabase();
 	const char *values[] = { name.c_str() };
 
-	// If server supports UPSERT, prefer it (handles races cleanly).
-	if (getPGVersion() >= 90500) {
-		PGresult *r = execPrepared("actor_upsert", 1, values, false, false);
-		if (PQntuples(r) == 0) {
-			PQclear(r);
-			throw DatabaseException("PostgreSQL rollback: failed to upsert actor id");
-		}
-		const int id = pg_to_int(r, 0, 0);
+	PGresult *r = execPrepared("actor_upsert", 1, values, false, false);
+	if (PQntuples(r) == 0) {
 		PQclear(r);
-		cache.actor_name_to_id.emplace(name, id);
-		cache.actor_id_to_name.emplace(id, name);
-		return id;
+		throw DatabaseException("PostgreSQL rollback: failed to upsert actor id");
 	}
-
-	// Older PG: select-then-insert (race possible but acceptable for legacy).
-	{
-		PGresult *res = execPrepared("actor_select", 1, values, false, false);
-		if (PQntuples(res) > 0) {
-			const int id = pg_to_int(res, 0, 0);
-			PQclear(res);
-			cache.actor_name_to_id.emplace(name, id);
-			cache.actor_id_to_name.emplace(id, name);
-			return id;
-		}
-		PQclear(res);
-	}
-
-	PGresult *r2 = execPrepared("actor_insert", 1, values, false, false);
-	if (PQntuples(r2) == 0) {
-		PQclear(r2);
-		throw DatabaseException("PostgreSQL rollback: failed to insert actor id");
-	}
-	const int id = pg_to_int(r2, 0, 0);
-	PQclear(r2);
+	const int id = pg_to_int(r, 0, 0);
+	PQclear(r);
 	cache.actor_name_to_id.emplace(name, id);
 	cache.actor_id_to_name.emplace(id, name);
 	return id;
@@ -313,38 +277,13 @@ int RollbackManagerPostgreSQL::getNodeId(const std::string &name)
 	verifyDatabase();
 	const char *values[] = { name.c_str() };
 
-	if (getPGVersion() >= 90500) {
-		PGresult *r = execPrepared("node_upsert", 1, values, false, false);
-		if (PQntuples(r) == 0) {
-			PQclear(r);
-			throw DatabaseException("PostgreSQL rollback: failed to upsert node id");
-		}
-		const int id = pg_to_int(r, 0, 0);
+	PGresult *r = execPrepared("node_upsert", 1, values, false, false);
+	if (PQntuples(r) == 0) {
 		PQclear(r);
-		cache.node_name_to_id.emplace(name, id);
-		cache.node_id_to_name.emplace(id, name);
-		return id;
+		throw DatabaseException("PostgreSQL rollback: failed to upsert node id");
 	}
-
-	{
-		PGresult *res = execPrepared("node_select", 1, values, false, false);
-		if (PQntuples(res) > 0) {
-			const int id = pg_to_int(res, 0, 0);
-			PQclear(res);
-			cache.node_name_to_id.emplace(name, id);
-			cache.node_id_to_name.emplace(id, name);
-			return id;
-		}
-		PQclear(res);
-	}
-
-	PGresult *r2 = execPrepared("node_insert", 1, values, false, false);
-	if (PQntuples(r2) == 0) {
-		PQclear(r2);
-		throw DatabaseException("PostgreSQL rollback: failed to insert node id");
-	}
-	const int id = pg_to_int(r2, 0, 0);
-	PQclear(r2);
+	const int id = pg_to_int(r, 0, 0);
+	PQclear(r);
 	cache.node_name_to_id.emplace(name, id);
 	cache.node_id_to_name.emplace(id, name);
 	return id;
@@ -394,9 +333,9 @@ bool RollbackManagerPostgreSQL::registerRow(const ActionRow &row)
 
 	std::string guessed_s = itos(row.guessed);
 
-	const void *args[21] = {};
-	int argLen[21] = {};
-	int argFmt[21] = {};
+	const void *args[21] = {nullptr};
+	int argLen[21] = {0};
+	int argFmt[21] = {0};
 
 	auto set_text = [&](int idx, const std::string &s) {
 		args[idx] = s.c_str();
