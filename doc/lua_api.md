@@ -89,16 +89,17 @@ and may be abbreviated like so:
     [u64]  = [0,     2^64-1] = [0, 18446744073709551615]
     [ulua] = [0,     2^53]   = [0, 9007199254740992]
     [imagesize]              = [1, 23000]
+    [imageframe]             = [0, 22999]
 
 (s = "signed", ranges that include negative integers;
  u = "unsigned", ranges that don't include negative integers;
  these terms are borrowed from the C language)
 
-The [slua] range is the *safe integer range* in Lua. This contains all
-integers that are guaranteed to be representable as Lua numbers
-without loss of precision. If you use an integer in Lua beyond that
-range, you might lose precision. [ulua] is the same except
-it starts at 0.
+The [slua] range is the *safe integer range* in Lua. This is the
+largest range of consecutive integers that are guaranteed to be
+representable as Lua numbers without loss of precision. If you
+use an integer in Lua beyond that range, you might lose precision.
+[ulua] is the same except it starts at 0.
 
 The [imagesize] range represents the minimum and maximum
 width and height for texture modifiers.
@@ -674,7 +675,7 @@ Parameters (all integers):
 
 * `<t>`: tile count (in each direction) (integer [imagesize])
 * `<n>`: animation frame count (integer [imagesize])
-* `<p>`: current animation frame (integer [0, 2^31-1], counting starts at 0)
+* `<p>`: current animation frame (integer [imageframe], counting starts at 0)
 
 Draw a step of the crack animation on the texture.
 `crack` draws it normally, while `cracko` lays it over, keeping transparent
@@ -829,8 +830,8 @@ Example:
 
 #### `[verticalframe:<t>:<n>`
 
-* `<t>`: animation frame count, integer in range [1, 2^32-1]
-* `<n>`: current animation frame (integer [u32], starts counting at 0)
+* `<t>`: animation frame count, integer in range [imagesize]
+* `<n>`: current animation frame (integer [imageframe], starts counting at 0)
 
 Crops the texture to a frame of a vertical animation.
 
@@ -850,8 +851,8 @@ The mask is applied using binary AND.
 
 * `<w>`: sheet width in tiles (integer [imagesize])
 * `<h>`: sheet height in tiles (integer [imagesize])
-* `<x>`: x position in tiles (integer [u32], 0-indexed)
-* `<y>`: y position in tiles (integer [u32], 0-indexed)
+* `<x>`: x position in tiles (integer [imageframe], 0-indexed)
+* `<y>`: y position in tiles (integer [imageframe], 0-indexed)
 
 Retrieves a tile at tile position `<x>,<y>` from the base image,
 which is assumed to be a tile sheet with tile dimensions `<w>,<h>`.
@@ -3130,9 +3131,9 @@ Elements
   animation (See [Tile animation definition](#tile-animation-definition)), but uses a frame count/duration for simplicity
 * `name`: Element name to send when an event occurs. The event value is the index of the current frame.
 * `texture name`: The image to use.
-* `frame count`: The amount of frames animating the image. Range [1, 2^31-1]
+* `frame count`: The amount of frames animating the image. Range [imagesize]
 * `frame duration`: Milliseconds between each frame. Integer with range [0, 2^31-1]. `0` means the frames don't advance.
-* `frame start` (optional): The index of the frame to start on. Range [0, 2^31-1]. Default `1`.
+* `frame start` (optional): The index of the frame to start on, counting starts at 1. Range [imagesize]. Default `1`.
 * `middle` (optional): Makes the image render in 9-sliced mode and defines the middle rect.
     * Requires formspec version >= 6.
     * See `background9[]` documentation for more information.
@@ -6791,7 +6792,7 @@ Environment access
         * `water_level` (integer [s16])
         * `flags` (string, this is `mg_flags` in `core.get_mapgen_settings`)
     * **WARNING**: `seed` is broken and should not be used. Internally, mapgen
-        seeds are actually in the [u64] in Luanti. So if the actual mapgen
+        seeds are actually in the [u64] range in Luanti. So if the actual mapgen
         seed is outside the [slua] range, the seed returned by this function may
         be wrong
 * `core.set_mapgen_params(MapgenParams)`
