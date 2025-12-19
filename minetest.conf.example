@@ -1225,9 +1225,6 @@
 
 #    If enabled, actions are recorded for rollback.
 #    This option is only read when server starts.
-#    Storage backend is configured per-world in world.mt:
-#      - rollback_backend (defaults to world.mt:backend; falls back to sqlite3 if unsupported)
-#      - for PostgreSQL, pgsql_rollback_connection falls back to pgsql_connection
 #    type: bool
 # enable_rollback_recording = false
 
