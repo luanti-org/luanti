@@ -9,38 +9,37 @@
 
 #include <string>
 #include <list>
+#include <unordered_map>
 
 #include "irr_v3d.h"
-#include "rollback_interface.h"
+#include "server/rollback.h"
 #include "database/database-postgresql.h"
 
 class IGameDef;
 
 struct ActionRow;
 
-class RollbackManagerPostgreSQL : private Database_PostgreSQL, public IRollbackManager
+class RollbackManagerPostgreSQL : public RollbackManager, private Database_PostgreSQL
 {
 public:
 	RollbackManagerPostgreSQL(const std::string &connect_string, IGameDef *gamedef);
 	~RollbackManagerPostgreSQL() override;
 
-	void reportAction(const RollbackAction &action_) override;
-	std::string getActor() override;
-	bool isActorGuess() override;
-	void setActor(const std::string &actor, bool is_guess) override;
-	std::string getSuspect(v3s16 p, float nearness_shortcut,
-			float min_nearness) override;
-	void flush() override;
-
-	std::list<RollbackAction> getNodeActors(v3s16 pos, int range,
-			time_t seconds, int limit) override;
-	std::list<RollbackAction> getRevertActions(
-			const std::string &actor_filter, time_t seconds) override;
-
 private:
-	void addAction(const RollbackAction &action);
-	static float getSuspectNearness(bool is_guess, v3s16 suspect_p,
-			time_t suspect_t, v3s16 action_p, time_t action_t);
+	struct IdNameCaches {
+		std::unordered_map<std::string, int> actor_name_to_id;
+		std::unordered_map<int, std::string> actor_id_to_name;
+		std::unordered_map<std::string, int> node_name_to_id;
+		std::unordered_map<int, std::string> node_id_to_name;
+	};
+
+	// RollbackManager hooks
+	void beginSaveActions() override;
+	void endSaveActions() override;
+	void rollbackSaveActions() override;
+	void persistAction(const RollbackAction &a) override;
+	std::list<RollbackAction> getActionsSince(time_t firstTime, const std::string &actor_filter) override;
+	std::list<RollbackAction> getActionsSince_range(time_t firstTime, v3s16 p, int range, int limit) override;
 
 	// Database_PostgreSQL hooks
 	void createDatabase() override;
@@ -62,13 +61,7 @@ private:
 	std::list<ActionRow> getRowsSince_range(time_t firstTime, v3s16 p, int range, int limit);
 
 private:
-	IGameDef *gamedef = nullptr;
-
-	std::string current_actor;
-	bool current_actor_is_guess = false;
-
-	std::list<RollbackAction> action_todisk_buffer;
-	std::list<RollbackAction> action_latest_buffer;
+	IdNameCaches m_cache;
 };
 
 #endif // USE_POSTGRESQL
