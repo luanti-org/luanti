@@ -18,8 +18,6 @@
 #include "util/numeric.h"
 #include "util/string.h"
 
-#define POINTS_PER_NODE (16.0)
-
 /*
  * Postgres-focused improvements vs the straight SQLite port:
  * - O(1) actor/node lookups via unordered_map caches (avoid O(n) vector scans).
@@ -76,25 +74,10 @@ static std::string pg_unescape_bytea_to_string(const char *val)
 	return ret;
 }
 
-/*
- * These caches are implemented here as translation-unit statics keyed by `this`,
- * so we can dramatically speed up lookups without requiring immediate header changes.
- *
- * If you prefer, move these maps into RollbackManagerPostgreSQL class members later.
- */
-struct IdNameCaches {
-	std::unordered_map<std::string, int> actor_name_to_id;
-	std::unordered_map<int, std::string> actor_id_to_name;
-	std::unordered_map<std::string, int> node_name_to_id;
-	std::unordered_map<int, std::string> node_id_to_name;
-};
-
-static std::unordered_map<const RollbackManagerPostgreSQL *, IdNameCaches> g_caches;
-
 RollbackManagerPostgreSQL::RollbackManagerPostgreSQL(
 		const std::string &connect_string, IGameDef *gamedef_) :
-	Database_PostgreSQL(connect_string, "_rollback"),
-	gamedef(gamedef_)
+	RollbackManager(gamedef_),
+	Database_PostgreSQL(connect_string, "_rollback")
 {
 	connectToDatabase();
 
@@ -102,28 +85,26 @@ RollbackManagerPostgreSQL::RollbackManagerPostgreSQL(
 	{
 		PGresult *res = execPrepared("actor_list", 0, nullptr, false, false);
 		const int numrows = PQntuples(res);
-		auto &cache = g_caches[this];
-		cache.actor_name_to_id.reserve((size_t)numrows);
-		cache.actor_id_to_name.reserve((size_t)numrows);
+		m_cache.actor_name_to_id.reserve((size_t)numrows);
+		m_cache.actor_id_to_name.reserve((size_t)numrows);
 		for (int row = 0; row < numrows; ++row) {
 			const int id = pg_to_int(res, row, 0);
 			std::string name = pg_to_string(res, row, 1);
-			cache.actor_name_to_id.emplace(name, id);
-			cache.actor_id_to_name.emplace(id, std::move(name));
+			m_cache.actor_name_to_id.emplace(name, id);
+			m_cache.actor_id_to_name.emplace(id, std::move(name));
 		}
 		PQclear(res);
 	}
 	{
 		PGresult *res = execPrepared("node_list", 0, nullptr, false, false);
 		const int numrows = PQntuples(res);
-		auto &cache = g_caches[this];
-		cache.node_name_to_id.reserve((size_t)numrows);
-		cache.node_id_to_name.reserve((size_t)numrows);
+		m_cache.node_name_to_id.reserve((size_t)numrows);
+		m_cache.node_id_to_name.reserve((size_t)numrows);
 		for (int row = 0; row < numrows; ++row) {
 			const int id = pg_to_int(res, row, 0);
 			std::string name = pg_to_string(res, row, 1);
-			cache.node_name_to_id.emplace(name, id);
-			cache.node_id_to_name.emplace(id, std::move(name));
+			m_cache.node_name_to_id.emplace(name, id);
+			m_cache.node_id_to_name.emplace(id, std::move(name));
 		}
 		PQclear(res);
 	}
@@ -132,7 +113,6 @@ RollbackManagerPostgreSQL::RollbackManagerPostgreSQL(
 RollbackManagerPostgreSQL::~RollbackManagerPostgreSQL()
 {
 	flush();
-	g_caches.erase(this);
 }
 
 void RollbackManagerPostgreSQL::createDatabase()
@@ -278,7 +258,7 @@ void RollbackManagerPostgreSQL::initStatements()
 
 int RollbackManagerPostgreSQL::getActorId(const std::string &name)
 {
-	auto &cache = g_caches[this];
+	auto &cache = m_cache;
 	if (auto it = cache.actor_name_to_id.find(name); it != cache.actor_name_to_id.end())
 		return it->second;
 
@@ -326,7 +306,7 @@ int RollbackManagerPostgreSQL::getActorId(const std::string &name)
 
 int RollbackManagerPostgreSQL::getNodeId(const std::string &name)
 {
-	auto &cache = g_caches[this];
+	auto &cache = m_cache;
 	if (auto it = cache.node_name_to_id.find(name); it != cache.node_name_to_id.end())
 		return it->second;
 
@@ -372,7 +352,7 @@ int RollbackManagerPostgreSQL::getNodeId(const std::string &name)
 
 const char *RollbackManagerPostgreSQL::getActorName(int id)
 {
-	auto &cache = g_caches[this];
+	auto &cache = m_cache;
 	if (auto it = cache.actor_id_to_name.find(id); it != cache.actor_id_to_name.end())
 		return it->second.c_str();
 	return "";
@@ -380,7 +360,7 @@ const char *RollbackManagerPostgreSQL::getActorName(int id)
 
 const char *RollbackManagerPostgreSQL::getNodeName(int id)
 {
-	auto &cache = g_caches[this];
+	auto &cache = m_cache;
 	if (auto it = cache.node_id_to_name.find(id); it != cache.node_id_to_name.end())
 		return it->second.c_str();
 	return "";
@@ -699,149 +679,36 @@ std::list<ActionRow> RollbackManagerPostgreSQL::getRowsSince_range(
 	return actionRowsFromSelect(execPrepared("action_select_range", 8, values, false, false));
 }
 
-float RollbackManagerPostgreSQL::getSuspectNearness(bool is_guess, v3s16 suspect_p,
-		time_t suspect_t, v3s16 action_p, time_t action_t)
+void RollbackManagerPostgreSQL::beginSaveActions()
 {
-	if (action_t < suspect_t)
-		return 0;
-
-	int f = 100;
-	f -= POINTS_PER_NODE * intToFloat(suspect_p, 1).getDistanceFrom(intToFloat(action_p, 1));
-	f -= 1 * (action_t - suspect_t);
-
-	if (is_guess)
-		f *= 0.5;
-
-	if (f < 0)
-		f = 0;
-
-	return f;
-}
-
-void RollbackManagerPostgreSQL::reportAction(const RollbackAction &action_)
-{
-	if (!action_.isImportant(gamedef))
-		return;
-
-	RollbackAction action = action_;
-	action.unix_time = time(0);
-
-	action.actor = current_actor;
-	action.actor_is_guess = current_actor_is_guess;
-
-	if (action.actor.empty()) {
-		v3s16 p;
-		if (!action.getPosition(&p))
-			return;
-
-		action.actor = getSuspect(p, 83, 1);
-		if (action.actor.empty())
-			return;
-
-		action.actor_is_guess = true;
-	}
-
-	addAction(action);
-}
-
-std::string RollbackManagerPostgreSQL::getActor()
-{
-	return current_actor;
-}
-
-bool RollbackManagerPostgreSQL::isActorGuess()
-{
-	return current_actor_is_guess;
-}
-
-void RollbackManagerPostgreSQL::setActor(const std::string &actor, bool is_guess)
-{
-	current_actor = actor;
-	current_actor_is_guess = is_guess;
-}
-
-std::string RollbackManagerPostgreSQL::getSuspect(v3s16 p, float nearness_shortcut,
-		float min_nearness)
-{
-	if (!current_actor.empty())
-		return current_actor;
-
-	int cur_time = time(0);
-	time_t first_time = cur_time - (100 - min_nearness);
-	RollbackAction likely_suspect;
-	float likely_suspect_nearness = 0;
-
-	for (auto i = action_latest_buffer.rbegin(); i != action_latest_buffer.rend(); ++i) {
-		if (i->unix_time < first_time)
-			break;
-		if (i->actor.empty())
-			continue;
-
-		v3s16 suspect_p;
-		if (!i->getPosition(&suspect_p))
-			continue;
-
-		float f = getSuspectNearness(i->actor_is_guess, suspect_p, i->unix_time, p, cur_time);
-		if (f >= min_nearness && f > likely_suspect_nearness) {
-			likely_suspect_nearness = f;
-			likely_suspect = *i;
-			if (likely_suspect_nearness >= nearness_shortcut)
-				break;
-		}
-	}
-
-	if (likely_suspect_nearness == 0)
-		return "";
-
-	return likely_suspect.actor;
-}
-
-void RollbackManagerPostgreSQL::flush()
-{
-	if (action_todisk_buffer.empty())
-		return;
-
 	beginSave();
-	try {
-		for (auto &a : action_todisk_buffer) {
-			if (a.actor.empty())
-				continue;
-			registerRow(actionRowFromRollbackAction(a));
-		}
-		endSave();
-		action_todisk_buffer.clear();
-	} catch (...) {
-		rollback();
-		throw;
-	}
 }
 
-void RollbackManagerPostgreSQL::addAction(const RollbackAction &action)
+void RollbackManagerPostgreSQL::endSaveActions()
 {
-	action_todisk_buffer.push_back(action);
-	action_latest_buffer.push_back(action);
-
-	// 500 is fine; if you later add COPY-based flushing, you can increase this dramatically.
-	if (action_todisk_buffer.size() >= 500)
-		flush();
+	endSave();
 }
 
-std::list<RollbackAction> RollbackManagerPostgreSQL::getNodeActors(
-		v3s16 pos, int range, time_t seconds, int limit)
+void RollbackManagerPostgreSQL::rollbackSaveActions()
 {
-	flush();
-	time_t cur_time = time(0);
-	time_t first_time = cur_time - seconds;
-	return rollbackActionsFromActionRows(getRowsSince_range(first_time, pos, range, limit));
+	rollback();
 }
 
-std::list<RollbackAction> RollbackManagerPostgreSQL::getRevertActions(
-		const std::string &actor_filter, time_t seconds)
+void RollbackManagerPostgreSQL::persistAction(const RollbackAction &a)
 {
-	time_t cur_time = time(0);
-	time_t first_time = cur_time - seconds;
-	flush();
-	return rollbackActionsFromActionRows(getRowsSince(first_time, actor_filter));
+	registerRow(actionRowFromRollbackAction(a));
+}
+
+std::list<RollbackAction> RollbackManagerPostgreSQL::getActionsSince(
+		time_t firstTime, const std::string &actor_filter)
+{
+	return rollbackActionsFromActionRows(getRowsSince(firstTime, actor_filter));
+}
+
+std::list<RollbackAction> RollbackManagerPostgreSQL::getActionsSince_range(
+		time_t firstTime, v3s16 p, int range, int limit)
+{
+	return rollbackActionsFromActionRows(getRowsSince_range(firstTime, p, range, limit));
 }
 
 #endif // USE_POSTGRESQL

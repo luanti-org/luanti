@@ -30,18 +30,6 @@
       }
     },
     {
-      "name": "Server-PostgreSQL",
-      "displayName": "Server (PostgreSQL)",
-      "description": "Server build with PostgreSQL backend enabled (also enables pgsql rollback backend support)",
-      "binaryDir": "${sourceDir}/build-pg",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "BUILD_SERVER": "ON",
-        "BUILD_CLIENT": "OFF",
-        "USE_POSTGRESQL": "ON"
-      }
-    },
-    {
       "name": "MinSizeRel",
       "displayName": "MinSizeRel",
       "description": "Release with minimal code size",
