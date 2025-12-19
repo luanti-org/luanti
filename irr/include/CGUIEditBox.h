@@ -138,6 +138,8 @@ public:
 	//! Returns whether the element takes input from the IME
 	bool acceptsIME() override { return isEnabled() && IsWritable; };
 
+	u32 getTextInputCursorPosition() override { return CursorVisualX - HScrollPos; };
+
 	//! set true if this EditBox is writable
 	void setWritable(bool writable) { IsWritable = writable; }
 
@@ -199,6 +201,7 @@ protected:
 	core::stringw CursorChar; // IGUIFont::draw needs stringw instead of wchar_t
 	//! Text insertion position. Is `Text.size()` when appending (rightmost position).
 	s32 CursorPos;
+	s32 CursorVisualX; // X offset of the cursor from the left edge of the box.
 	s32 HScrollPos, VScrollPos; // scroll position in characters
 	u32 Max;
 	u32 VScrollBarWidth = 0;
