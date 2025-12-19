@@ -167,6 +167,23 @@ struct TileLayer
 	bool has_color = false;
 };
 
+template<>
+struct std::hash<TileLayer>
+{
+	// All layers equal according to TileLayer::operator== will have the same
+	// hash value according to this function.
+	std::size_t operator()(const TileLayer &l) const noexcept
+	{
+		std::size_t ret = 0;
+		for (auto h : { l.texture_id, l.shader_id, (u32)l.material_flags }) {
+			ret += h;
+			ret ^= (ret << 6) + (ret >> 2); // distribute bits
+		}
+		return ret;
+	}
+};
+
+
 // Stores information for drawing an animated tile
 struct AnimationInfo {
 
