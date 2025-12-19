@@ -2267,8 +2267,7 @@ ask_reconnect_on_crash (Ask to reconnect after crash) bool false
 #    This option is only read on server start. Note that the engine will not
 #    automatically clean old entries from the rollback database.
 #    Rollback storage backend is configured per-world in world.mt:
-#      - rollback_backend (defaults to backend; falls back to sqlite3 if unsupported)
-#      - for PostgreSQL, pgsql_rollback_connection falls back to pgsql_connection
+#      - rollback_backend (defaults to sqlite3)
 enable_rollback_recording (Rollback recording) bool false
 
 [**Server/Env Performance] [server]

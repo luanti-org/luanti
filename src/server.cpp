@@ -26,7 +26,7 @@
 #include "serverenvironment.h"
 #include "servermap.h"
 #include "server/player_sao.h"
-#include "server/rollback.h"
+#include "server/rollback_sqlite3.h"
 #if USE_POSTGRESQL
 #include "server/rollback_postgresql.h"
 #endif
@@ -459,6 +459,52 @@ Server::~Server()
 	}
 }
 
+IRollbackManager *Server::createRollbackManager()
+{
+	Settings world_mt;
+	const std::string world_mt_path = m_path_world + DIR_DELIM + "world.mt";
+	// If the world config can't be read for some reason, fall back to defaults below.
+	world_mt.readConfigFile(world_mt_path.c_str());
+
+	std::string backend;
+	std::string backend_source;
+	if (world_mt.exists("rollback_backend")) {
+		backend = world_mt.get("rollback_backend");
+		backend_source = "rollback_backend";
+	} else {
+		backend = "sqlite3";
+		backend_source = "default";
+	}
+
+	if (backend == "sqlite3") {
+		verbosestream << "Rollback: using backend \"sqlite3\""
+			<< " (source: " << backend_source << ")"
+			<< std::endl;
+		return new RollbackManagerSQLite3(m_path_world, this);
+	}
+
+	if (backend == "postgresql") {
+#if USE_POSTGRESQL
+		std::string connect_string;
+		world_mt.getNoEx("pgsql_rollback_connection", connect_string);
+		if (connect_string.empty())
+			throw ServerError("Rollback backend \"postgresql\" requires pgsql_rollback_connection in world.mt.");
+
+		// Do not log rollback connection details.
+		verbosestream << "Rollback: using backend \"postgresql\""
+			<< " (source: " << backend_source << ")"
+			<< std::endl;
+
+		return new RollbackManagerPostgreSQL(connect_string, this);
+#else
+		throw ServerError("Rollback backend \"postgresql\" requested but this build has USE_POSTGRESQL=OFF.");
+#endif
+	}
+
+	throw ServerError("Rollback backend \"" + backend +
+		"\" is not supported; supported backends are sqlite3 and postgresql.");
+}
+
 void Server::init()
 {
 	infostream << "Server created for gameid \"" << m_gamespec.id << "\"";
@@ -570,80 +616,8 @@ void Server::init()
 	m_emerge->initMapgens(servermap.getMapgenParams());
 
 	if (g_settings->getBool("enable_rollback_recording")) {
-		// Create rollback manager (default sqlite3, world-configurable like map/player).
-		Settings world_mt;
-		std::string world_mt_path = m_path_world + DIR_DELIM + "world.mt";
-		if (!world_mt.readConfigFile(world_mt_path.c_str())) {
-			// Keep legacy behavior if the world config can't be read for some reason.
-			m_rollback = new RollbackManager(m_path_world, this);
-		} else {
-			// Default to the world's map backend for simplicity, unless explicitly overridden.
-			std::string backend;
-			std::string backend_source;
-			if (world_mt.exists("rollback_backend")) {
-				backend = world_mt.get("rollback_backend");
-				backend_source = "rollback_backend";
-			} else if (world_mt.exists("backend")) {
-				backend = world_mt.get("backend");
-				backend_source = "backend";
-			} else {
-				backend = "sqlite3";
-				backend_source = "default";
-			}
-
-			if (backend == "sqlite3") {
-				infostream << "Rollback: using backend \"sqlite3\""
-					<< " (source: " << backend_source << ")"
-					<< " file=\"" << (m_path_world + DIR_DELIM "rollback.sqlite") << "\""
-					<< std::endl;
-				m_rollback = new RollbackManager(m_path_world, this);
-			} else if (backend == "postgresql") {
-#if USE_POSTGRESQL
-				auto redact_pg_connect_string = [](std::string s) {
-					// Redact password=... in libpq connection strings
-					for (size_t pos = 0; (pos = s.find("password=", pos)) != std::string::npos; ) {
-						size_t start = pos + sizeof("password=") - 1;
-						size_t end = s.find(' ', start);
-						if (end == std::string::npos)
-							end = s.size();
-						s.replace(start, end - start, "*****");
-						pos = end;
-					}
-					return s;
-				};
-
-				std::string connect_string;
-				std::string connect_source = "pgsql_rollback_connection";
-				world_mt.getNoEx("pgsql_rollback_connection", connect_string);
-				if (connect_string.empty()) {
-					world_mt.getNoEx("pgsql_connection", connect_string);
-					connect_source = "pgsql_connection";
-				}
-				if (connect_string.empty())
-					throw ServerError("Rollback backend \"postgresql\" requires pgsql_connection or pgsql_rollback_connection in world.mt.");
-
-				infostream << "Rollback: using backend \"postgresql\""
-					<< " (source: " << backend_source << ")"
-					<< " connect_source=" << connect_source
-					<< " connect=\"" << redact_pg_connect_string(connect_string) << "\""
-					<< std::endl;
-
-				m_rollback = new RollbackManagerPostgreSQL(connect_string, this);
-#else
-				throw ServerError("Rollback backend \"postgresql\" requested but this build has USE_POSTGRESQL=OFF.");
-#endif
-			} else {
-				// Rollback only supports sqlite3 and postgresql currently. Fall back to sqlite3
-				// if the map backend is something else (leveldb/redis/dummy/...).
-				warningstream << "Rollback backend \"" << backend
-					<< "\" is not supported; falling back to sqlite3." << std::endl;
-				infostream << "Rollback: using backend \"sqlite3\""
-					<< " (source: fallback)"
-					<< " file=\"" << (m_path_world + DIR_DELIM "rollback.sqlite") << "\""
-					<< std::endl;
-				m_rollback = new RollbackManager(m_path_world, this);
-			}
-		}
+		// Create rollback manager (default sqlite3, world-configurable in world.mt).
+		m_rollback = createRollbackManager();
 	}
 
 	// Give environment reference to scripting api
