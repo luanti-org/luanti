@@ -55,7 +55,7 @@ bool takeScreenshot(video::IVideoDriver *driver, std::string &filename_out)
 	unsigned serial = 0;
 
 	while (serial < SCREENSHOT_MAX_SERIAL_TRIES) {
-		filename = filename_base + (serial > 0 ? ("_" + itos(serial)) : "") + filename_ext;
+		filename = filename_base + (serial > 0 ? ("_" + itos(serial)) : "").append(filename_ext);
 		if (!fs::PathExists(filename))
 			break;	// File did not apparently exist, we'll go with it
 		serial++;
