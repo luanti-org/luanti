@@ -2498,7 +2498,7 @@ void Game::updateChat(f32 dtime)
 	for (const auto& entry : entries) {
 		std::string line;
 		std::string prefix = color_for(entry.level);
-		
+
 		// Split multi‑line log messages so each line keeps its color
 		std::stringstream ss(entry.combined);
 		std::string part;
