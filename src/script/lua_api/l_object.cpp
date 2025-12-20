@@ -314,6 +314,22 @@ int ObjectRef::l_get_wield_list(lua_State *L)
 	return 1;
 }
 
+// set_wield_index(self, index)
+int ObjectRef::l_set_wield_index(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	ServerActiveObject *sao = getobject(ref);
+	if (sao == nullptr)
+		return 0;
+	int wield_index = readParam<int>(L, 2);
+	RemotePlayer *player = getplayer(ref);
+	if (getServer(L)->hudSetWieldIndex(player, wield_index)) {
+		sao->setWieldIndex(wield_index);
+	}
+	return 0;
+}
+
 // get_wield_index(self)
 int ObjectRef::l_get_wield_index(lua_State *L)
 {
@@ -2870,6 +2886,7 @@ luaL_Reg ObjectRef::methods[] = {
 	luamethod(ObjectRef, get_inventory),
 	luamethod(ObjectRef, get_wield_list),
 	luamethod(ObjectRef, get_wield_index),
+	luamethod(ObjectRef, set_wield_index),
 	luamethod(ObjectRef, get_wielded_item),
 	luamethod(ObjectRef, set_wielded_item),
 	luamethod(ObjectRef, set_armor_groups),

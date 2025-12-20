@@ -2142,6 +2142,15 @@ void Server::SendPlayerFormspecPrepend(session_t peer_id)
 	Send(&pkt);
 }
 
+void Server::SendPlayerItem(session_t peer_id, u16 playerItem)
+{
+	NetworkPacket pkt(TOCLIENT_PLAYERITEM, 4, peer_id);
+
+	pkt << playerItem;
+
+	Send(&pkt);
+}
+
 void Server::SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersao)
 {
 	// Radius inside which objects are active
@@ -3522,6 +3531,22 @@ bool Server::hudSetFlags(RemotePlayer *player, u32 flags, u32 mask)
 		return false;
 
 	m_script->player_event(playersao, "hud_changed");
+	return true;
+}
+
+bool Server::hudSetWieldIndex(RemotePlayer *player, u16 wield_index)
+{
+	if (!player)
+		return false;
+
+	if (wield_index == 0 || wield_index > HUD_HOTBAR_ITEMCOUNT_MAX)
+		return false;
+
+	if (player->getWieldIndex() == wield_index)
+		return true;
+
+	player->setWieldIndex(wield_index);
+	SendPlayerItem(player->getPeerId(), wield_index);
 	return true;
 }
 

@@ -221,6 +221,7 @@ public:
 	void handleCommand_MinimapModes(NetworkPacket *pkt);
 	void handleCommand_SetLighting(NetworkPacket *pkt);
 	void handleCommand_Camera(NetworkPacket* pkt);
+	void handleCommand_PlayerItem(NetworkPacket *pkt);
 
 	void ProcessData(NetworkPacket *pkt);
 

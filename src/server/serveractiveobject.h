@@ -177,6 +177,8 @@ public:
 	{}
 	virtual std::string getWieldList() const
 	{ return ""; }
+	virtual void setWieldIndex(u16 index)
+	{}
 	virtual u16 getWieldIndex() const
 	{ return 0; }
 	virtual ItemStack getWieldedItem(ItemStack *selected,

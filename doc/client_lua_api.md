@@ -683,6 +683,8 @@ Methods:
     * returns player HP
 * `get_name()`
     * returns player name
+* `set_wield_index(index)`
+    * sets the index of the wielded item
 * `get_wield_index()`
     * returns the index of the wielded item
 * `get_wielded_item()`

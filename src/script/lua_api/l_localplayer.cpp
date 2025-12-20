@@ -61,6 +61,15 @@ int LuaLocalPlayer::l_get_name(lua_State *L)
 	return 1;
 }
 
+// set_wield_index(self, index)
+int LuaLocalPlayer::l_set_wield_index(lua_State *L)
+{
+	LocalPlayer *player = getobject(L, 1);
+	int index = readParam<int>(L, 2);
+	player->setWieldIndex(index);
+	return 0;
+}
+
 // get_wield_index(self)
 int LuaLocalPlayer::l_get_wield_index(lua_State *L)
 {
