@@ -136,6 +136,7 @@ void *ServerThread::run()
 
 	while (!stopRequested()) {
 		framemarker.start();
+		ScopeProfiler spm(g_profiler, "Server::RunStep() (max)", SPT_MAX);
 
 		u64 t0 = porting::getTimeUs();
 
