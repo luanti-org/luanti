@@ -2497,8 +2497,15 @@ void Game::updateChat(f32 dtime)
 	std::vector<LogEntry> entries = m_chat_log_buf.take();
 	for (const auto& entry : entries) {
 		std::string line;
-		line.append(color_for(entry.level)).append(entry.combined);
-		chat_backend->addMessage(L"", utf8_to_wide(line));
+		std::string prefix = color_for(entry.level);
+		
+		// Split multi‑line log messages so each line keeps its color
+		std::stringstream ss(entry.combined);
+		std::string part;
+		while (std::getline(ss, part)) {
+			std::string colored = prefix + part;
+			chat_backend->addMessage(L"", utf8_to_wide(colored));
+		}
 	}
 
 	// Get new messages from client
