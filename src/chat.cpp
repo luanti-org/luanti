@@ -775,10 +775,24 @@ void ChatBackend::addMessage(const std::wstring &name, std::wstring text)
 {
 	// Note: A message may consist of multiple lines, for example the MOTD.
 	text = translate_string(text);
+
+	// Detect a color prefix at the start of the message
+	std::wstring color_prefix;
+	if (text.rfind(L"\x1b(c@", 0) == 0) {
+		size_t end = text.find(L")");
+		if (end != std::wstring::npos)
+			color_prefix = text.substr(0, end + 1);
+	}
+
 	WStrfnd fnd(text);
 	while (!fnd.at_end())
 	{
 		std::wstring line = fnd.next(L"\n");
+
+		// Reapply color prefix to each line
+		if (!color_prefix.empty())
+			line = color_prefix + line;
+
 		m_console_buffer.addLine(name, line);
 		m_recent_buffer.addLine(name, line);
 	}
