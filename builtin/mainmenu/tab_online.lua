@@ -55,7 +55,15 @@ local function is_selected_fav(server)
 end
 
 -- Persists the selected server in the "address" and "remote_port" settings
+local function get_default_playername()
+	return core.settings:get("name")
+end
+local function get_default_password()
+	return ""
+end
 
+local input_playername = get_default_playername()
+local input_password = get_default_password()
 local function set_selected_server(server)
 	if server == nil then -- reset selection
 		core.settings:remove("address")
@@ -69,6 +77,18 @@ local function set_selected_server(server)
 	if address and port then
 		core.settings:set("address", address)
 		core.settings:set("remote_port", port)
+
+		-- Pull info from last login (if exists)
+		-- This will always fail if remember_login is false
+		-- because nothing has been stored, nor will it ever be
+		local login = keyringmgr.get_last_login(address, port)
+		if login then
+			input_playername = login.playername
+			input_password = login.password
+		else
+			input_playername = get_default_playername()
+			input_password = get_default_password()
+		end
 	end
 end
 
@@ -129,8 +149,8 @@ local function get_formspec(tabview, name, tabdata)
 		"container[0,4.8]" ..
 		"label[0.25,0;" .. fgettext("Name") .. "]" ..
 		"label[2.875,0;" .. fgettext("Password") .. "]" ..
-		"field[0.25,0.2;2.625,0.75;te_name;;" .. core.formspec_escape(core.settings:get("name")) .. "]" ..
-		"pwdfield[2.875,0.2;2.625,0.75;te_pwd;]" ..
+		"field[0.25,0.2;2.625,0.75;te_name;;" .. core.formspec_escape(input_playername) .. "]" ..
+		"pwdfield[2.875,0.2;2.625,0.75;te_pwd;;" .. core.formspec_escape(input_password) .. "]" ..
 		"container_end[]" ..
 
 		-- Connect
@@ -441,7 +461,6 @@ end
 local function main_button_handler(tabview, fields, name, tabdata)
 	if fields.te_name then
 		gamedata.playername = fields.te_name
-		core.settings:set("name", fields.te_name)
 	end
 
 	if fields.servers then
@@ -556,6 +575,7 @@ local function main_button_handler(tabview, fields, name, tabdata)
 		if server and server.address == gamedata.address and
 				server.port == gamedata.port then
 
+			keyringmgr.set_login(server.address, server.port, gamedata.playername, gamedata.password)
 			serverlistmgr.add_favorite(server)
 
 			gamedata.servername        = server.name
