@@ -545,36 +545,60 @@ bool EmergeThread::popBlockEmerge(v3s16 *pos, BlockEmergeData *bedata)
 EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
 	 const std::string *from_db, MapBlock **block, BlockMakeData *bmdata)
 {
-	//TimeTaker tt("", nullptr, PRECISION_MICRO);
-	Server::EnvAutoLock envlock(m_server);
-	//g_profiler->avg("EmergeThread: lock wait time [us]", tt.stop());
-
 	auto block_ok = [] (MapBlock *b) {
 		return b && b->isGenerated();
 	};
 
-	// 1). Attempt to fetch block from memory
-	*block = m_map->getBlockNoCreateNoEx(pos);
-	if (*block) {
-		if (block_ok(*block)) {
-			// if we just read it from the db but the block exists that means
-			// someone else was faster. don't touch it to prevent data loss.
-			if (from_db)
-				verbosestream << "getBlockOrStartGen: block loading raced" << std::endl;
-			return EMERGE_FROM_MEMORY;
+	std::unique_ptr<MapBlock> new_block;
+	{
+		Server::EnvAutoLock envlock(m_server);
+
+		// 1). Attempt to fetch block from memory
+		*block = m_map->getBlockNoCreateNoEx(pos);
+		if (*block) {
+			if (block_ok(*block)) {
+				// if we just read it from the db but the block exists that means
+				// someone else was faster. don't touch it to prevent data loss.
+				if (from_db)
+					verbosestream << "getBlockOrStartGen: block loading raced" << std::endl;
+				return EMERGE_FROM_MEMORY;
+			}
+		} else {
+			if (!from_db) {
+				// 2). We should attempt loading it
+				return EMERGE_FROM_DISK;
+			}
+			// 2). Second invocation, we have the data
+			if (!from_db->empty()) {
+				new_block = m_map->createBlankBlockNoInsert(pos);
+			}
 		}
-	} else {
-		if (!from_db) {
-			// 2). We should attempt loading it
-			return EMERGE_FROM_DISK;
+	}
+	if (new_block) {
+		{
+			// de-serialize the block without the env-lock
+			std::istringstream iss(*from_db, std::ios_base::binary);
+			m_map->deSerializeBlock(new_block.get(), iss);
 		}
-		// 2). Second invocation, we have the data
-		if (!from_db->empty()) {
-			*block = m_map->loadBlock(*from_db, pos);
+
+		{
+			Server::EnvAutoLock envlock(m_server);
+			// recheck map
+			*block = m_map->getBlockNoCreateNoEx(pos);
+			if (*block)
+				// another thread beat us, let new_block expire
+				return EMERGE_FROM_MEMORY;
+
+			*block = new_block.get();
+			// this reads from the map and needs the env-lock
+			m_map->finishNewBlock(*block);
+			m_map->insertBlock(std::move(new_block));
 			if (block_ok(*block))
 				return EMERGE_FROM_DISK;
 		}
 	}
+
+	Server::EnvAutoLock envlock(m_server);
 
 	// 3). Attempt to start generation
 	if (allow_gen && m_map->initBlockMake(pos, bmdata))
