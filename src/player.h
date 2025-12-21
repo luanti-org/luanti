@@ -234,7 +234,7 @@ protected:
 	std::string m_name;
 	v3f m_speed; // velocity; in BS-space
 	u16 m_wield_index = 0;
-	u16 m_wield_server_index = 0;
+	u16 m_wield_server_index = U16_MAX;
 	PlayerFovSpec m_fov_override_spec = { 0.0f, false, 0.0f };
 
 private:

@@ -324,6 +324,7 @@ int ObjectRef::l_set_wield_index(lua_State *L)
 		return 0;
 	int wield_index = readParam<int>(L, 2);
 	RemotePlayer *player = getplayer(ref);
+	wield_index = wield_index - 1;
 	if (getServer(L)->hudSetWieldIndex(player, wield_index)) {
 		sao->setWieldIndex(wield_index);
 	}

@@ -3539,7 +3539,7 @@ bool Server::hudSetWieldIndex(RemotePlayer *player, u16 wield_index)
 	if (!player)
 		return false;
 
-	if (wield_index == 0 || wield_index > HUD_HOTBAR_ITEMCOUNT_MAX)
+	if (wield_index > HUD_HOTBAR_ITEMCOUNT_MAX)
 		return false;
 
 	if (player->getWieldIndex() == wield_index)
