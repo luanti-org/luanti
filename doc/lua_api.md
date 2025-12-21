@@ -78,6 +78,15 @@ integer range [0, 255] contains all integers from 0 to 255,
 When the documentation does not specify a range or other restrictions,
 assume a range of no larger than [-2^37, 2^37].
 
+Some ranges in this documentation like [-2^15, 2^15-1] occur frequently,
+and may be abbreviated like so:
+
+    [int16]  = [-2^15, 2^15-1] = [-32768, 32767]
+    [int32]  = [-2^31, 2^31-1] = [-2147483648, 2147483647]
+    [uint16] = [0,     2^16-1] = [0, 65535]
+    [uint32] = [0,     2^32-1] = [0, 4294967295]
+    [uint64] = [0,     2^64-1] = [0, 18446744073709551615]
+
 The words "amount", "count", "index" and "bitfield" imply the use of
 an integer (e.g. an amount of items is an integer).
 
@@ -97,7 +106,7 @@ Attempting to use integers beyond that range may or may not work,
 depending on the system implementation of the `double` data type.
 For systems that implement IEEE-754 floating-point numbers, this range
 extends to [-2^53, 2^53].
-It it currently not possible to query the actual integer range directly.
+It is currently not possible to query the actual integer range directly.
 
 
 Games
@@ -183,7 +192,7 @@ directory inside the game directory.
 The music files are named `theme.ogg`.
 If you want to specify multiple music files for one game, add additional
 images named like `theme.$n.ogg`, with an ascending integer $n starting
-with 1 (max 10), and a random music file will be chosen from the provided ones.
+with 1 (max. 9), and a random music file will be chosen from the provided ones.
 
 Mods
 ====
@@ -643,7 +652,7 @@ on top of `cobble.png`.
 * `[crack:<t>:<n>:<p>`
 * `[cracko:<t>:<n>:<p>`
 
-Parameters:
+Parameters (all integers):
 
 * `<t>`: tile count (in each direction)
 * `<n>`: animation frame count
@@ -774,7 +783,7 @@ Creates an inventorycube with `grass.png`, `dirt.png^grass_side.png` and
 
 Creates a texture of the given integer size and color, optionally with
 an `<x>,<y>` integer position. An alpha value may be specified in the
-`Colorstring`.
+`ColorString`.
 
 The optional `<x>,<y>` position is only used if the `[fill` is being overlaid
 onto another texture with '^'.
@@ -1867,11 +1876,10 @@ This allows for some precisely positioned items in the HUD.
 **Note**: `offset` _will_ adapt to screen DPI as well as user defined scaling
 factor!
 
-The `z_index` field is an integer with range [-32768, 32767] that specifies the order
+The `z_index` field is an integer [int16] that specifies the order
 of HUD elements from back to front. Lower z-index elements are displayed behind
 higher z-index elements. Elements with same z-index are displayed in an arbitrary order.
-Default 0. Supports negative values. By convention, the following values are
-recommended:
+Default 0. By convention, the following values are recommended:
 
 *  -400: Graphical effects, such as vignette
 *  -300: Name tags, waypoints
@@ -2049,8 +2057,8 @@ Exact pointing location (currently only `Raycast` supports these fields):
 * `pointed_thing.intersection_point`: The absolute world coordinates of the
   point on the selection box which is pointed at. May be in the selection box
   if the pointer is in the box too.
-* `pointed_thing.box_id`: The integer ID of the pointed selection box
-  (counting starts from 1).
+* `pointed_thing.box_id`: index of the pointed selection box (counting
+  starts from 1).
 * `pointed_thing.intersection_normal`: Unit vector, points outwards of the
   selected selection box. This specifies which face is pointed at.
   Is a null vector `vector.zero()` when the pointer is inside the selection box.
@@ -2519,7 +2527,7 @@ Tool capabilities definition
 
 Tool capabilities define:
 
-* Full punch interval (number)
+* Full punch interval (in seconds)
 * Maximum drop level (integer)
 * For an arbitrary list of node groups:
     * Uses (until the tool breaks, integer)
@@ -2544,10 +2552,10 @@ code to implement this.
 
 ### Uses `uses` (tools only)
 
-An integer that determines how many uses the tool has when it is used
-for digging a node, of this group, of the maximum level. The maximum
-supported number of uses is 65535. The special number 0 is used for
-infinite uses. For lower leveled nodes, the use count is multiplied
+An integer [uint16] that determines how many uses the tool has when it
+is used for digging a node, of this group, of the maximum level. The
+maximum supported number of uses is 65535. The special number 0 is used
+for infinite uses. For lower leveled nodes, the use count is multiplied
 by `3^leveldiff`. `leveldiff` is the difference of the tool's `maxlevel`
 `groupcaps` and the node's `level` group. The node cannot be dug if
 `leveldiff` is less than zero.
@@ -3434,7 +3442,7 @@ Elements
 
 ### `scrollbaroptions[opt1;opt2;...]`
 * Sets options for all following `scrollbar[]` elements
-* All numbers below are integers with range [-2147483648, 2147483647]
+* All numbers below are integers [int32]
 * `min=<int>`
     * Sets scrollbar minimum value, defaults to `0`.
 * `max=<int>`
@@ -3936,13 +3944,13 @@ Colors
 `ColorString`
 -------------
 
-`"#RGB"` defines a color in hexadecimal format.
+`"#RGB"` defines a color in hexadecimal format, fully opaque.
 
-`"#RGBA"` defines a color in hexadecimal format and alpha channel.
+`"#RGBA"` defines a color in hexadecimal format, with an alpha channel.
 
-`"#RRGGBB"` defines a color in hexadecimal format.
+`"#RRGGBB"` defines a color in hexadecimal format, fully opaque.
 
-`"#RRGGBBAA"` defines a color in hexadecimal format and alpha channel.
+`"#RRGGBBAA"` defines a color in hexadecimal format, with an alpha channel.
 
 Named colors are also supported and are equivalent to
 [CSS Color Module Level 4](https://www.w3.org/TR/css-color-4/#named-color).
@@ -4376,7 +4384,7 @@ Helper functions
 * `core.get_hit_params(groups, tool_capabilities, time_from_last_punch, wear)`:
     Simulates an item that punches an object.
     Returns a table with the following fields:
-    * `hp`: How much damage the punch would cause (between -65535 and 65535).
+    * `hp`: How much damage the punch would cause; integer in range [-65535, 65535].
     * `wear`: How much wear would be added to the tool (ignored for non-tools).
     Parameters:
     * `groups`: Damage groups of the object
@@ -4724,10 +4732,9 @@ variation. Altering it enables different noise patterns to be created.
 With other parameters equal, different seeds produce different noise patterns
 and identical seeds produce identical noise patterns.
 
-For this parameter you can randomly choose any integer within the
-range [-2147483648, 2147483647]. Usually it is preferable for this to be
-different from other seeds, but sometimes it is useful to be able to create
-identical noise patterns.
+For this parameter you can randomly choose any integer in the [int32] range.
+Usually it is preferable for this to be different from other seeds, but sometimes
+it is useful to be able to create identical noise patterns.
 
 In some noise APIs the world seed is added to the seed specified in noise
 parameters. This is done to make the resulting noise pattern vary in different
@@ -4736,8 +4743,8 @@ worlds, and be 'world-specific'.
 ### `octaves`
 
 The amount of simple noise generators that are combined.
-Between 1 and 65535 (but the practically useful upper limit is likely much
-lower). Each additional octave adds finer detail to the noise but also
+An integer in range [1, 65535]. (The practically useful upper limit is likely
+much lower.) Each additional octave adds finer detail to the noise but also
 increases the noise calculation load.
 3 is a typical minimum for a high quality, complex and natural-looking noise
 variation. 1 octave has a slight 'gridlike' appearance.
@@ -5031,9 +5038,9 @@ in the form of a table.  This table specifies the following fields:
   Each MapNode table contains:
     * `name`: the name of the map node to place (required)
     * `prob` (alias `param1`): the probability of this node being placed
-      (integer in range [0, 255]) (default: 255)
+      (integer in range [0, 255], default: 255)
     * `param2`: the raw param2 value of the node being placed onto the map
-      (integer in range [0, 255]) (default: 0)
+      (integer in range [0, 255], default: 0)
     * `force_place`: boolean representing if the node should forcibly overwrite
       any previous contents (default: false)
 
@@ -5368,10 +5375,14 @@ Methods
 
 A helper class for voxel areas.
 It can be created via `VoxelArea(pmin, pmax)` or
-`VoxelArea:new({MinEdge = pmin, MaxEdge = pmax})`.
-The coordinates are *inclusive*, like most other things in Luanti.
+`VoxelArea:new({MinEdge = pmin, MaxEdge = pmax})`,
+where `pmin` and `pmax` are vectors for the minimum
+and maximum coordinates of the bounding box (inclusive).
+Only integer coordinates may be used here.
 
 ### Methods
+
+All numbers used in these methods must be integers.
 
 * `getExtent()`: returns a 3D vector containing the size of the area formed by
   `MinEdge` and `MaxEdge`.
@@ -5379,7 +5390,6 @@ The coordinates are *inclusive*, like most other things in Luanti.
   `MaxEdge`.
 * `index(x, y, z)`: returns the index of an absolute position in a flat array
   starting at `1`.
-    * `x`, `y` and `z` must be integers to avoid an incorrect index result.
     * The position (x, y, z) is not checked for being inside the area volume,
       being outside can cause an incorrect index result.
     * Useful for things like `VoxelManip`, raw Schematic specifiers,
@@ -5603,9 +5613,9 @@ treedef={
     leaves,        --string  leaves node name
     leaves2,       --string  secondary leaves node name
     leaves2_chance,--int     chance [0, 100] to replace leaves with leaves2
-    angle,         --int     angle in degrees [-359, 359]
+    angle,         --int     angle in degrees [int16]
     iterations,    --int     max. amount of iterations [2, 32767], but usually [2, 5]
-    random_level,  --int     subtracts a random integer between [0, random_level] from
+    random_level,  --int     subtracts a random integer in range [0, random_level] from
                    --        iterations, but iterations will never go below 2.
                    --        random_level range: [0, 32767], but usually [0, 3]
     trunk_type,    --string  single/double/crossed) type of trunk: 1 node,
@@ -5613,7 +5623,7 @@ treedef={
     thin_branches, --boolean true -> use thin (1 node) branches
     fruit,         --string  fruit node name
     fruit_chance,  --int     chance [0, 100] to replace leaves with fruit node
-    seed,          --int     random seed [-2147483648, 2147483647], if no seed is provided,
+    seed,          --int     random seed [int32]; if no seed is provided,
                    --        the engine will create one.
 }
 ```
@@ -6601,7 +6611,7 @@ Environment access
       to get the light value of a neighbor.
     * `pos`: The position where to measure the light.
     * `timeofday`: `nil` for current time, `0` for night, `0.5` for day
-    * Returns an integer between `0` and `15` or `nil`
+    * Returns an integer in range [0, 15] or `nil`
     * `nil` is returned e.g. when the map isn't loaded at `pos`
 * `core.get_natural_light(pos[, timeofday])`
     * Figures out the sunlight (or moonlight) value at pos at the given time of
@@ -6886,11 +6896,11 @@ Environment access
       In detail: Path must be completely inside a cuboid. The minimum
       `searchdistance` of 1 will confine search between `pos1` and `pos2`.
       Larger values will increase the size of this cuboid in all directions
-      (integer in range [0, 65535])
+      (integer [uint16])
     * `max_jump`: maximum height difference to consider walkable
-      (integer in range [0, 65535])
+      (integer [uint16])
     * `max_drop`: maximum height difference to consider droppable
-      (integer in range [0, 65535])
+      (integer [uint16])
     * `algorithm`: One of `"A*_noprefetch"` (default), `"A*"`, `"Dijkstra"`.
       Difference between `"A*"` and `"A*_noprefetch"` is that
       `"A*"` will pre-calculate the cost-data, the other will calculate it
@@ -7374,7 +7384,7 @@ does not have a global step or timer.
       than the emerged area of the VoxelManip.
       Note: calling `read_from_map()` or `write_to_map()` on the VoxelManipulator object
       is not necessary and is disallowed.
-    * `blockseed`: integer seed used for this chunk with range [0, 4294967295]
+    * `blockseed`: integer seed used for this chunk with range [uint32]
 * `core.save_gen_notify(id, data)`
     * Saves data for retrieval using the gennotify mechanism (see [Mapgen objects](#mapgen-objects)).
     * Data is bound to the chunk that is currently being processed, so this function
@@ -8111,7 +8121,7 @@ use the provided load and write functions for this.
     * The (inclusive) positions `corner1` and `corner2` describe the area.
     * `data` is a string stored with the area.
     * `id` (optional): will be used as the internal area ID if it is a unique
-      integer between 0 and 2^32-2.
+      integer in the range [0, 2^32-2].
 * `reserve(count)`
     * Requires SpatialIndex, no-op function otherwise.
     * Reserves resources for `count` many contained areas to improve
@@ -8160,8 +8170,8 @@ An `InvRef` is a reference to an inventory.
 
 * `is_empty(listname)`: return `true` if list is empty
 * `get_size(listname)`: get amount of item slots of a list
-* `set_size(listname, size)`: set amount if item slots in a list
-    * Range: 0..32767
+* `set_size(listname, size)`: set amount of item slots in a list
+    * Range: [0, 32767]
     * If `listname` is not known, a new list will be created
     * Setting `size` to 0 deletes a list
     * returns `false` on error (e.g. invalid `listname` or `size`)
@@ -8237,11 +8247,11 @@ an itemstring, a table or `nil`.
 * `get_count()`: Returns amount of items on the stack.
 * `set_count(count)`: Sets amount of items in the stack.
     * returns a boolean indicating whether the item was cleared
-    * `count`: integer in range [0, 65535]
+    * `count`: integer [uint16]
 * `get_wear()`: returns tool wear (integer in range [0, 65535]), `0` for non-tools.
 * `set_wear(wear)`: set tool wear
     * returns boolean indicating whether item was cleared
-    * `wear`: integer in range [0, 65535]
+    * `wear`: integer [uint16]
 * `get_meta()`: returns ItemStackMetaRef. See section for more details
 * `get_metadata()`: **Deprecated.** Returns metadata (a string attached to an item stack).
     * If you need to access this to maintain backwards compatibility,
@@ -8276,11 +8286,11 @@ an itemstring, a table or `nil`.
   or those of the hand if none are defined for this item type
 * `add_wear(amount)`
     * Increases wear by `amount` if the item is a tool, otherwise does nothing
-    * `amount` is an integer in range [0, 65536]
+    * `amount` is an integer [uint16]
 * `add_wear_by_uses(max_uses)`
     * Increases wear in such a way that, if only this function is called,
       the item breaks after `max_uses` times
-    * `max_uses` an integer in range [0, 65536]
+    * `max_uses` is an integer [uint16]
     * Does nothing if item is not a tool or if `max_uses` is 0
 * `get_wear_bar_params()`: returns the wear bar parameters of the item,
   or nil if none are defined for this item type or in the stack's meta
@@ -8290,10 +8300,10 @@ an itemstring, a table or `nil`.
   this one.
 * `take_item(n)`: returns taken `ItemStack`
     * Take (and remove) up to `n` items from this stack
-    * `n`: integer in range [0, 65535], default: `1`
+    * `n`: integer [uint16], default: `1`
 * `peek_item(n)`: returns taken `ItemStack`
     * Copy (don't remove) up to `n` items from this stack
-    * `n`: integer in range [0, 65535], default: `1`
+    * `n`: integer [uint16], default: `1`
 * `equals(other)`:
     * returns `true` if this stack is identical to `other`.
     * Note: `stack1:to_string() == stack2:to_string()` is not reliable,
@@ -8345,14 +8355,14 @@ of the `${k}` syntax in formspecs is not deprecated.
 
 * `contains(key)`: Returns `true` if `key` present, otherwise `false`.
     * Returns `nil` when the MetaData is inexistent.
-* `get(key)`: Returns the value stored at `key` as a string if present,
+* `get(key)`: Returns the value stored at `key` as a string if present.
     * Returns `nil` otherwise.
 * `set_string(key, value)`: Set the string `value` at `key`.
     * Value of `""` will delete the key.
 * `get_string(key)`: Returns a string value at `key` or `""` if not present
 * `set_int(key, value)`
-    * Set a signed integer number `value` to `key`
-    * Range: [-2147483648, 2147483647]
+    * Set an integer number `value` to `key`
+    * Range: [int32]
     * Some systems internally have a larger value range but
       but you should not rely on this behavior to ensure
       portability of your code
@@ -8573,7 +8583,7 @@ child will follow movement and rotation of that bone.
 * `get_hp()`: returns amount of health points
 * `set_hp(hp, reason)`: set amount of health points
     * reason: A `PlayerHPChangeReason` table (optional)
-    * Range: [0, 65535]
+    * Range: [uint16]
     * For players: HP are also limited by `hp_max` specified in object properties
 * `get_inventory()`: returns an `InvRef` for players, otherwise returns `nil`
 * `get_wield_list()`: returns the name of the inventory list the wielded item
@@ -8808,7 +8818,7 @@ child will follow movement and rotation of that bone.
         * `0`: player is drowning
         * max: bubbles bar is not shown
         * See [Object properties](#object-properties) for more information
-    * Range: [0, 65535]
+    * Range: [uint16]
 * `set_fov(fov, is_multiplier, transition_time)`: Sets player's FOV
     * `fov`: Numeric field of View (FOV) value.
     * `is_multiplier`: Set to `true` if the FOV value is a multiplier.
@@ -9117,7 +9127,7 @@ child will follow movement and rotation of that bone.
             (default: 0.0; maximum: 1.0; minimum: 0.0)
         * `count`: Amount of stars in the skybox. Only applies
             to `"skybox"` and `"regular"` sky types.
-            (range: [0, 65535]) (default: `1000`)
+            (range: [uint16]) (default: `1000`)
         * `star_color`: ColorSpec, sets the colors of the stars,
             alpha channel is used to set overall star brightness.
             (default: `#ebebff69`)
@@ -9252,12 +9262,12 @@ Uses PCG32, an algorithm of the permuted congruential generator family,
 offering very strong randomness.
 
 * constructor `PcgRandom(seed, [seq])`
-  * `seed`: 64-bit unsigned integer seed
-  * `seq`: 64-bit unsigned integer sequence, optional
+  * `seed`: integer seed in the [uint64] range
+  * `seq`: optional integer sequence, each integer with [uint64] range
 
 ### Methods
 
-* `next()`: return next random integer number [-2147483648, 2147483647]
+* `next()`: return next random integer number [int32]
 * `next(min, max)`: return next random integer number [`min`, `max`]
 * `rand_normal_dist(min, max, num_trials=6)`: return normally distributed
   random number [`min`...`max`].
@@ -9292,7 +9302,7 @@ Use `PseudoRandom` only if you need output to match the well-known LCG algorithm
 Otherwise, use `PcgRandom`.
 
 * constructor `PseudoRandom(seed)`
-  * `seed`: integer in range [-2147483648, 2147483647]
+  * `seed`: integer [int32]
 
 ### Methods
 
@@ -9545,12 +9555,12 @@ Player properties need to be saved manually.
     -- For Lua entities, the maximum is not enforced.
     -- For players, this defaults to `core.PLAYER_MAX_HP_DEFAULT` (20).
     -- For Lua entities, the default is 10.
-    -- Integer in range [0, 65535].
+    -- Integer [uint16].
 
     breath_max = 0,
     -- For players only. Defines the maximum amount of "breath" for the player.
     -- Defaults to `core.PLAYER_MAX_BREATH_DEFAULT` (10).
-    -- Integer in range [0, 65535].
+    -- Integer [uint16].
 
     zoom_fov = 0.0,
     -- For players only. Zoom FOV in degrees.
@@ -9812,7 +9822,7 @@ in active mapblocks.
     min_y = -32768,
     max_y = 32767,
     -- min and max height levels where ABM will be processed (inclusive)
-    -- integer in range [-32768, 32767]
+    -- integer [int16]
     -- can be used to reduce CPU usage
 
     catch_up = true,
@@ -9929,11 +9939,11 @@ Tile animation definition
 
     aspect_w = 16,
     -- Width of a frame in pixels
-    -- Integer in range: [1, 65535]
+    -- Integer in range [1, 65535]
 
     aspect_h = 16,
     -- Height of a frame in pixels
-    -- Integer in range: [1, 65535]
+    -- Integer in range [1, 65535]
 
     length = 3.0,
     -- Full loop length
@@ -10065,7 +10075,7 @@ Used by `core.register_node`, `core.register_craftitem`, and
             choppy = {times = {2.50, 1.40, 1.00}, uses = 20, maxlevel = 2},
         },
         damage_groups = {groupname = damage},
-        -- Damage values are integers in range [-32768, 32767]
+        -- Damage values are integers [int16]
 
         punch_attack_uses = nil,
         -- Amount of uses this tool has for attacking players and entities
@@ -11070,7 +11080,7 @@ See [Ores] section above for essential information.
     y_min = -31000,
     y_max = 31000,
     -- Lower and upper limits for ore (inclusive).
-    -- Integer in range: [-32768, 32767]
+    -- Integer [int16]
 
     flags = "",
     -- Attributes for the ore generation, see 'Ore attributes' section above
@@ -11139,7 +11149,7 @@ See [Ores] section above for essential information.
     },
     stratum_thickness = 8,
     -- only used if no noise defined
-    -- integer in range [0, 65535]
+    -- integer [uint16]
 }
 ```
 
@@ -11217,7 +11227,7 @@ performance and computing power the practical limit is much lower.
     y_min = 1,
     -- Upper and lower limits for biome.
     -- Alternatively you can use xyz limits as shown below.
-    -- Integer in range: [-32768, 32767]
+    -- Integer [int16]
 
     max_pos = {x = 31000, y = 128, z = 31000},
     min_pos = {x = -31000, y = 9, z = -31000},
@@ -11230,7 +11240,7 @@ performance and computing power the practical limit is much lower.
     -- Vertical distance in nodes above 'y_max' over which the biome will
     -- blend with the biome above.
     -- Set to 0 for no vertical blend. Defaults to 0.
-    -- Integer in range: [-32768, 32767]
+    -- Integer [int16]
 
     heat_point = 0.0,
     humidity_point = 50.0,
@@ -11300,7 +11310,7 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
     y_max = 31000,
     -- Lower and upper limits for decoration (inclusive).
     -- These parameters refer to the Y coordinate of the 'place_on' node.
-    -- Integer in range: [-32768, 32767]
+    -- Integer [int16]
 
     spawn_by = "default:water",
     -- Node (or list of nodes) that the decoration only spawns next to.
@@ -11368,7 +11378,7 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
     -- Effect is inverted for "all_ceilings" decorations.
     -- Ignored by 'y_min', 'y_max' and 'spawn_by' checks, which always refer
     -- to the 'place_on' node.
-    -- Integer in range: [-32768, 32767]
+    -- Integer [int16]
 
     ----- Schematic-type parameters
 
@@ -11621,10 +11631,10 @@ Used by `ObjectRef:hud_add`. Returned by `ObjectRef:hud_get`.
 
     size = {x=0, y=0}, -- two numbers
 
-    z_index = 0, -- integer in range [-32768, 32767]
+    z_index = 0, -- integer [int16]
     -- Z index: lower z-index HUDs are displayed behind higher z-index HUDs
 
-    style = 0, -- integer with range [0, 4294967295]
+    style = 0, -- integer [uint32]
 }
 ```
 
@@ -11735,7 +11745,7 @@ will be ignored.
 
     amount = 1,
     -- Amount of particles spawned over the time period `time`.
-    -- Range: [0, 65535]
+    -- Range: [uint16]
 
     time = 1,
     -- Lifespan of spawner in seconds.
