@@ -616,6 +616,9 @@ MapBlock *EmergeThread::finishGen(v3s16 pos, BlockMakeData *bmdata,
 		&m_server->m_ignore_map_edit_events_area,
 		VoxelArea(minp, maxp));
 
+	// force the (shorter) liquid queue now (ignore updates for blocks in process)
+	m_server->m_env->getServerMap().transformLiquids(*modified_blocks, m_server->m_env);
+
 	/*
 		Run Lua on_generated callbacks in the server environment
 	*/
