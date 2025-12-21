@@ -81,28 +81,29 @@ integer range [0, 255] contains all integers from 0 to 255,
 Some ranges in this documentation like [-2^15, 2^15-1] occur frequently,
 and may be abbreviated like so:
 
-    [int16]   = [-2^15, 2^15-1] = [-32768, 32767]
-    [int32]   = [-2^31, 2^31-1] = [-2147483648, 2147483647]
-    [intlua]  = [-2^37, 2^37]   = [-137438953472, 137438953472]
-    [uint16]  = [0,     2^16-1] = [0, 65535]
-    [uint32]  = [0,     2^32-1] = [0, 4294967295]
-    [uint64]  = [0,     2^64-1] = [0, 18446744073709551615]
-    [uintlua] = [0,     2^37]   = [0, 137438953472]
+    [s16]  = [-2^15, 2^15-1] = [-32768, 32767]
+    [s32]  = [-2^31, 2^31-1] = [-2147483648, 2147483647]
+    [slua] = [-2^37, 2^37]   = [-137438953472, 137438953472]
+    [u16]  = [0,     2^16-1] = [0, 65535]
+    [u32]  = [0,     2^32-1] = [0, 4294967295]
+    [u64]  = [0,     2^64-1] = [0, 18446744073709551615]
+    [ulua] = [0,     2^37]   = [0, 137438953472]
 
-(uint = "unsigned integer", a term borrowed from C++ for integer types
-that cannot store negative integers)
+(s = "signed", ranges that include negative integers;
+ u = "unsigned", ranges that don't include negative integers;
+ these terms are borrowed from the C language)
 
-The [intlua] range is the *safe integer range*. This contains all
+The [slua] range is the *safe integer range* in Lua. This contains all
 integers that are guaranteed to be representable as Lua numbers
 without loss of precision. If you use an integer in Lua beyond that
-range, you might lose precision. [uintlua] is the same except
+range, you might lose precision. [ulua] is the same except
 it starts at 0.
 
 The words "amount", "count", "index" and "bitfield" imply the use of
 an integer (e.g. an amount of items is an integer).
 
 When the documentation expects an integer somewhere without specifying
-a range, assume the safe integer range ([intlua]).
+a range, assume the safe integer range ([slua]).
 
 **IMPORTANT**: You must make sure your code only passes integers to any
 function or data structure that expects them. You must respect all
@@ -113,14 +114,14 @@ potential bugs.
 
 In the Luanti Lua API, numbers are internally represented
 by the `double` data type of the C programming language.
-This affects the size of the safe integer range ([intlua]).
+This affects the size of the safe integer range ([slua]).
 The smallest safe integer range that Luanti can guarantee
 is [-2^37, 2^37].
 
 However, the actual safe integer range is likely larger on most systems.
 In systems that implement IEEE-754 floating-point numbers, the
 safe integer range is actually [-2^53, 2^53], but to ensure
-maximum portability of your code, rely on the smaller [intlua]
+maximum portability of your code, rely on the smaller [slua]
 range to be safe.
 
 
@@ -853,7 +854,7 @@ Example:
 #### `[verticalframe:<t>:<n>`
 
 * `<t>`: animation frame count, integer in range [1, 2^32-1]
-* `<n>`: current animation frame (integer [uint32], starts counting at 0)
+* `<n>`: current animation frame (integer [u32], starts counting at 0)
 
 Crops the texture to a frame of a vertical animation.
 
@@ -1920,7 +1921,7 @@ This allows for some precisely positioned items in the HUD.
 **Note**: `offset` _will_ adapt to screen DPI as well as user defined scaling
 factor!
 
-The `z_index` field is an integer [int16] that specifies the order
+The `z_index` field is an integer [s16] that specifies the order
 of HUD elements from back to front. Lower z-index elements are displayed behind
 higher z-index elements. Elements with same z-index are displayed in an arbitrary order.
 Default 0. By convention, the following values are recommended:
@@ -2596,7 +2597,7 @@ code to implement this.
 
 ### Uses `uses` (tools only)
 
-An integer [uint16] that determines how many uses the tool has when it
+An integer [u16] that determines how many uses the tool has when it
 is used for digging a node, of this group, of the maximum level. The
 maximum supported number of uses is 65535. The special number 0 is used
 for infinite uses. For lower leveled nodes, the use count is multiplied
@@ -3486,7 +3487,7 @@ Elements
 
 ### `scrollbaroptions[opt1;opt2;...]`
 * Sets options for all following `scrollbar[]` elements
-* All numbers below are integers [int32]
+* All numbers below are integers [s32]
 * `min=<int>`
     * Sets scrollbar minimum value, defaults to `0`.
 * `max=<int>`
@@ -4776,7 +4777,7 @@ variation. Altering it enables different noise patterns to be created.
 With other parameters equal, different seeds produce different noise patterns
 and identical seeds produce identical noise patterns.
 
-For this parameter you can randomly choose any integer in the [int32] range.
+For this parameter you can randomly choose any integer in the [s32] range.
 Usually it is preferable for this to be different from other seeds, but sometimes
 it is useful to be able to create identical noise patterns.
 
@@ -5657,7 +5658,7 @@ treedef={
     leaves,        --string  leaves node name
     leaves2,       --string  secondary leaves node name
     leaves2_chance,--int     chance [0, 100] to replace leaves with leaves2
-    angle,         --int     angle in degrees [int16]
+    angle,         --int     angle in degrees [s16]
     iterations,    --int     max. amount of iterations [2, 32767], but usually [2, 5]
     random_level,  --int     subtracts a random integer in range [0, random_level] from
                    --        iterations, but iterations will never go below 2.
@@ -5667,7 +5668,7 @@ treedef={
     thin_branches, --boolean true -> use thin (1 node) branches
     fruit,         --string  fruit node name
     fruit_chance,  --int     chance [0, 100] to replace leaves with fruit node
-    seed,          --int     random seed [int32]; if no seed is provided,
+    seed,          --int     random seed [s32]; if no seed is provided,
                    --        the engine will create one.
 }
 ```
@@ -6803,12 +6804,12 @@ Environment access
     * Deprecated: use `core.get_mapgen_setting(name)` instead.
     * Returns a table containing:
         * `mgname` (string, this is `mg_name` in `core.get_mapgen_settings`)
-        * `seed` (integer [uintlua])
+        * `seed` (integer [ulua])
         * `chunksize` (integer [1, 32767])
-        * `water_level` (integer [int16])
+        * `water_level` (integer [s16])
         * `flags` (string, this is `mg_flags` in `core.get_mapgen_settings`)
-    * **WARNING**: `seed` is broken. Mapgen seeds are actually [uint64] in
-        Luanti but seeds outside the [intlua] range that are returned by
+    * **WARNING**: `seed` is broken. Mapgen seeds are actually [u64] in
+        Luanti but seeds outside the [slua] range that are returned by
         this function may contain the wrong value
 * `core.set_mapgen_params(MapgenParams)`
     * Deprecated: use `core.set_mapgen_setting(name, value, override)`
@@ -6821,8 +6822,8 @@ Environment access
       prefix `"no"` is attached, clears instead.
     * `flags` is in the same format and has the same options as `mg_flags` in
       `minetest.conf`.
-    * You may only provide `seed` values in the [uintlua] range,
-      which is only a part of the full [uint64] range that Luanti internally
+    * You may only provide `seed` values in the [ulua] range,
+      which is only a part of the full [u64] range that Luanti internally
       uses for seeds
 * `core.get_mapgen_edges([mapgen_limit[, chunksize]])`
     * Returns the minimum and maximum possible generated node positions
@@ -6943,11 +6944,11 @@ Environment access
       In detail: Path must be completely inside a cuboid. The minimum
       `searchdistance` of 1 will confine search between `pos1` and `pos2`.
       Larger values will increase the size of this cuboid in all directions
-      (integer [uint16])
+      (integer [u16])
     * `max_jump`: maximum height difference to consider walkable
-      (integer [uint16])
+      (integer [u16])
     * `max_drop`: maximum height difference to consider droppable
-      (integer [uint16])
+      (integer [u16])
     * `algorithm`: One of `"A*_noprefetch"` (default), `"A*"`, `"Dijkstra"`.
       Difference between `"A*"` and `"A*_noprefetch"` is that
       `"A*"` will pre-calculate the cost-data, the other will calculate it
@@ -7431,9 +7432,9 @@ does not have a global step or timer.
       than the emerged area of the VoxelManip.
       Note: calling `read_from_map()` or `write_to_map()` on the VoxelManipulator object
       is not necessary and is disallowed.
-    * `blockseed`: integer seed used for this chunk with range [uint32];
+    * `blockseed`: integer seed used for this chunk with range [u32];
       derived from the block position (using integer coordinates in the
-      range [-2048, 2047]) and the world seed ([uint64]) in a mapgen-specific way
+      range [-2048, 2047]) and the world seed ([u64]) in a mapgen-specific way
 * `core.save_gen_notify(id, data)`
     * Saves data for retrieval using the gennotify mechanism (see [Mapgen objects](#mapgen-objects)).
     * Data is bound to the chunk that is currently being processed, so this function
@@ -8296,11 +8297,11 @@ an itemstring, a table or `nil`.
 * `get_count()`: Returns amount of items on the stack.
 * `set_count(count)`: Sets amount of items in the stack.
     * returns a boolean indicating whether the item was cleared
-    * `count`: integer [uint16]
+    * `count`: integer [u16]
 * `get_wear()`: returns tool wear (integer in range [0, 65535]), `0` for non-tools.
 * `set_wear(wear)`: set tool wear
     * returns boolean indicating whether item was cleared
-    * `wear`: integer [uint16]
+    * `wear`: integer [u16]
 * `get_meta()`: returns ItemStackMetaRef. See section for more details
 * `get_metadata()`: **Deprecated.** Returns metadata (a string attached to an item stack).
     * If you need to access this to maintain backwards compatibility,
@@ -8335,11 +8336,11 @@ an itemstring, a table or `nil`.
   or those of the hand if none are defined for this item type
 * `add_wear(amount)`
     * Increases wear by `amount` if the item is a tool, otherwise does nothing
-    * `amount` is an integer [uint16]
+    * `amount` is an integer [u16]
 * `add_wear_by_uses(max_uses)`
     * Increases wear in such a way that, if only this function is called,
       the item breaks after `max_uses` times
-    * `max_uses` is an integer [uint16]
+    * `max_uses` is an integer [u16]
     * Does nothing if item is not a tool or if `max_uses` is 0
 * `get_wear_bar_params()`: returns the wear bar parameters of the item,
   or nil if none are defined for this item type or in the stack's meta
@@ -8349,10 +8350,10 @@ an itemstring, a table or `nil`.
   this one.
 * `take_item(n)`: returns taken `ItemStack`
     * Take (and remove) up to `n` items from this stack
-    * `n`: integer [uint16], default: `1`
+    * `n`: integer [u16], default: `1`
 * `peek_item(n)`: returns taken `ItemStack`
     * Copy (don't remove) up to `n` items from this stack
-    * `n`: integer [uint16], default: `1`
+    * `n`: integer [u16], default: `1`
 * `equals(other)`:
     * returns `true` if this stack is identical to `other`.
     * Note: `stack1:to_string() == stack2:to_string()` is not reliable,
@@ -8411,7 +8412,7 @@ of the `${k}` syntax in formspecs is not deprecated.
 * `get_string(key)`: Returns a string value at `key` or `""` if not present
 * `set_int(key, value)`
     * Set an integer number `value` to `key`
-    * Range: [int32]
+    * Range: [s32]
     * Some systems internally have a larger value range but
       but you should not rely on this behavior to ensure
       portability of your code
@@ -8632,7 +8633,7 @@ child will follow movement and rotation of that bone.
 * `get_hp()`: returns amount of health points
 * `set_hp(hp, reason)`: set amount of health points
     * reason: A `PlayerHPChangeReason` table (optional)
-    * Range: [uint16]
+    * Range: [u16]
     * For players: HP are also limited by `hp_max` specified in object properties
 * `get_inventory()`: returns an `InvRef` for players, otherwise returns `nil`
 * `get_wield_list()`: returns the name of the inventory list the wielded item
@@ -8867,7 +8868,7 @@ child will follow movement and rotation of that bone.
         * `0`: player is drowning
         * max: bubbles bar is not shown
         * See [Object properties](#object-properties) for more information
-    * Range: [uint16]
+    * Range: [u16]
 * `set_fov(fov, is_multiplier, transition_time)`: Sets player's FOV
     * `fov`: Numeric field of View (FOV) value.
     * `is_multiplier`: Set to `true` if the FOV value is a multiplier.
@@ -9181,7 +9182,7 @@ child will follow movement and rotation of that bone.
             (default: 0.0; maximum: 1.0; minimum: 0.0)
         * `count`: Amount of stars in the skybox. Only applies
             to `"skybox"` and `"regular"` sky types.
-            (range: [uint16]) (default: `1000`)
+            (range: [u16]) (default: `1000`)
         * `star_color`: ColorSpec, sets the colors of the stars,
             alpha channel is used to set overall star brightness.
             (default: `#ebebff69`)
@@ -9316,13 +9317,13 @@ Uses PCG32, an algorithm of the permuted congruential generator family,
 offering very strong randomness.
 
 * constructor `PcgRandom(seed, [seq])`
-  * `seed`: integer seed in the [uint64] range
-  * `seq`: optional integer sequence, each integer with [uint64] range
+  * `seed`: integer seed in the [u64] range
+  * `seq`: optional integer sequence, each integer with [u64] range
   * WARNING: The safe integer range still applies
 
 ### Methods
 
-* `next()`: return next random integer number [int32]
+* `next()`: return next random integer number [s32]
 * `next(min, max)`: return next random integer number [`min`, `max`]
 * `rand_normal_dist(min, max, num_trials=6)`: return normally distributed
   random number [`min`...`max`].
@@ -9357,7 +9358,7 @@ Use `PseudoRandom` only if you need output to match the well-known LCG algorithm
 Otherwise, use `PcgRandom`.
 
 * constructor `PseudoRandom(seed)`
-  * `seed`: integer [int32]
+  * `seed`: integer [s32]
 
 ### Methods
 
@@ -9610,12 +9611,12 @@ Player properties need to be saved manually.
     -- For Lua entities, the maximum is not enforced.
     -- For players, this defaults to `core.PLAYER_MAX_HP_DEFAULT` (20).
     -- For Lua entities, the default is 10.
-    -- Integer [uint16].
+    -- Integer [u16].
 
     breath_max = 0,
     -- For players only. Defines the maximum amount of "breath" for the player.
     -- Defaults to `core.PLAYER_MAX_BREATH_DEFAULT` (10).
-    -- Integer [uint16].
+    -- Integer [u16].
 
     zoom_fov = 0.0,
     -- For players only. Zoom FOV in degrees.
@@ -9877,7 +9878,7 @@ in active mapblocks.
     min_y = -32768,
     max_y = 32767,
     -- min and max height levels where ABM will be processed (inclusive)
-    -- integer [int16]
+    -- integer [s16]
     -- can be used to reduce CPU usage
 
     catch_up = true,
@@ -10130,7 +10131,7 @@ Used by `core.register_node`, `core.register_craftitem`, and
             choppy = {times = {2.50, 1.40, 1.00}, uses = 20, maxlevel = 2},
         },
         damage_groups = {groupname = damage},
-        -- Damage values are integers [int16]
+        -- Damage values are integers [s16]
 
         punch_attack_uses = nil,
         -- Amount of uses this tool has for attacking players and entities
@@ -11135,7 +11136,7 @@ See [Ores] section above for essential information.
     y_min = -31000,
     y_max = 31000,
     -- Lower and upper limits for ore (inclusive).
-    -- Integer [int16]
+    -- Integer [s16]
 
     flags = "",
     -- Attributes for the ore generation, see 'Ore attributes' section above
@@ -11204,7 +11205,7 @@ See [Ores] section above for essential information.
     },
     stratum_thickness = 8,
     -- only used if no noise defined
-    -- integer [uint16]
+    -- integer [u16]
 }
 ```
 
@@ -11282,7 +11283,7 @@ performance and computing power the practical limit is much lower.
     y_min = 1,
     -- Upper and lower limits for biome.
     -- Alternatively you can use xyz limits as shown below.
-    -- Integer [int16]
+    -- Integer [s16]
 
     max_pos = {x = 31000, y = 128, z = 31000},
     min_pos = {x = -31000, y = 9, z = -31000},
@@ -11295,7 +11296,7 @@ performance and computing power the practical limit is much lower.
     -- Vertical distance in nodes above 'y_max' over which the biome will
     -- blend with the biome above.
     -- Set to 0 for no vertical blend. Defaults to 0.
-    -- Integer [int16]
+    -- Integer [s16]
 
     heat_point = 0.0,
     humidity_point = 50.0,
@@ -11365,7 +11366,7 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
     y_max = 31000,
     -- Lower and upper limits for decoration (inclusive).
     -- These parameters refer to the Y coordinate of the 'place_on' node.
-    -- Integer [int16]
+    -- Integer [s16]
 
     spawn_by = "default:water",
     -- Node (or list of nodes) that the decoration only spawns next to.
@@ -11433,7 +11434,7 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
     -- Effect is inverted for "all_ceilings" decorations.
     -- Ignored by 'y_min', 'y_max' and 'spawn_by' checks, which always refer
     -- to the 'place_on' node.
-    -- Integer [int16]
+    -- Integer [s16]
 
     ----- Schematic-type parameters
 
@@ -11686,10 +11687,10 @@ Used by `ObjectRef:hud_add`. Returned by `ObjectRef:hud_get`.
 
     size = {x=0, y=0}, -- two numbers
 
-    z_index = 0, -- integer [int16]
+    z_index = 0, -- integer [s16]
     -- Z index: lower z-index HUDs are displayed behind higher z-index HUDs
 
-    style = 0, -- integer [uint32]
+    style = 0, -- integer [u32]
 }
 ```
 
@@ -11800,7 +11801,7 @@ will be ignored.
 
     amount = 1,
     -- Amount of particles spawned over the time period `time`.
-    -- Range: [uint16]
+    -- Range: [u16]
 
     time = 1,
     -- Lifespan of spawner in seconds.
