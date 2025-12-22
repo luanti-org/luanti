@@ -617,7 +617,8 @@ MapBlock *EmergeThread::finishGen(v3s16 pos, BlockMakeData *bmdata,
 		VoxelArea(minp, maxp));
 
 	// force the (shorter) liquid queue now (ignore updates for blocks in process)
-	m_server->m_env->getServerMap().transformLiquids(*modified_blocks, m_server->m_env);
+	// the limit of 1000 is arbitrary
+	m_server->m_env->getServerMap().transformLiquidsLocal(*modified_blocks, bmdata->transforming_liquid, m_server->m_env, 1000);
 
 	/*
 		Run Lua on_generated callbacks in the server environment

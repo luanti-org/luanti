@@ -158,7 +158,8 @@ public:
 
 	void transformLiquids(std::map<v3s16, MapBlock*> & modified_blocks,
 			ServerEnvironment *env);
-
+	void transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_blocks, UniqueQueue<v3s16> &liquid_queue,
+			ServerEnvironment *env, u32 liquid_loop_max);
 	void transforming_liquid_add(v3s16 p);
 
 	MapSettingsManager settings_mgr;
