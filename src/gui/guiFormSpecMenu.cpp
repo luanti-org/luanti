@@ -3986,23 +3986,22 @@ void GUIFormSpecMenu::showHyperTip(GUIHyperText *e, const HyperTipSpec &spec)
 	if (spec.floating) {
 		/* Dynamic tooltip position, relative to cursor */
 		positionTooltip(tooltip_width, tooltip_height, tooltip_x, tooltip_y);
-
-		v2s32 basePos = getBasePos();
-
-		int tooltip_offset_x = m_btn_height;
-		int tooltip_offset_y = m_btn_height;
-		tooltip_x = (m_pointer.X - basePos.X) + tooltip_offset_x*2;
-		tooltip_y = (m_pointer.Y - basePos.Y) + tooltip_offset_y*2;
 	} else {
 		/* Static tooltip position, using formspec coordinates */
 		tooltip_x = spec.stpos[0];
 		tooltip_y = spec.stpos[1];
 	}
 
-	if (tooltip_x + tooltip_width > (s32)screenSize.X)
-		tooltip_x = (s32)screenSize.X - tooltip_width  - m_btn_height;
+	if (tooltip_x + tooltip_width  > (s32)screenSize.X)
+		tooltip_x = (s32)screenSize.X - tooltip_width;
 	if (tooltip_y + tooltip_height > (s32)screenSize.Y)
-		tooltip_y = (s32)screenSize.Y - tooltip_height - m_btn_height;
+		tooltip_y = (s32)screenSize.Y - tooltip_height;
+
+	if (spec.floating) {
+		v2s32 base_pos = e->getParent()->getAbsolutePosition().UpperLeftCorner;
+		tooltip_x -= base_pos.X;
+		tooltip_y -= base_pos.Y;
+	}
 
 	e->setRelativePosition(
 		core::rect<s32>(
