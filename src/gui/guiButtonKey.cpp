@@ -25,7 +25,7 @@ void GUIButtonKey::setKey(KeyPress kp)
 {
 	key_value = kp;
 	keysym = utf8_to_wide(kp.sym());
-	super::setText(wstrgettext(kp.name()).c_str());
+	super::setText(utf8_to_wide(kp.name()).c_str());
 }
 
 void GUIButtonKey::sendKey()
