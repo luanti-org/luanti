@@ -66,7 +66,7 @@ public:
 	/// @brief write data back to map after mapgen
 	/// @param now current game time
 	void finishBlockMake(BlockMakeData *data,
-		std::map<v3s16, MapBlock*> *changed_blocks, u32 now);
+		std::map<v3s16, MapBlock*> *changed_blocks, ServerEnvironment *env);
 	void cancelBlockMake(BlockMakeData *data);
 
 	/*

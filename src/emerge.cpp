@@ -596,8 +596,7 @@ MapBlock *EmergeThread::finishGen(v3s16 pos, BlockMakeData *bmdata,
 		Perform post-processing on blocks (invalidate lighting, queue liquid
 		transforms, etc.) to finish block make
 	*/
-	m_map->finishBlockMake(bmdata, modified_blocks,
-		m_server->m_env->getGameTime());
+	m_map->finishBlockMake(bmdata, modified_blocks, m_server->m_env);
 
 	MapBlock *block = m_map->getBlockNoCreateNoEx(pos);
 	if (!block) {
@@ -615,10 +614,6 @@ MapBlock *EmergeThread::finishGen(v3s16 pos, BlockMakeData *bmdata,
 	MapEditEventAreaIgnorer ign(
 		&m_server->m_ignore_map_edit_events_area,
 		VoxelArea(minp, maxp));
-
-	// force the (shorter) liquid queue now (ignore updates for blocks in process)
-	// the limit of 1000 is arbitrary
-	m_server->m_env->getServerMap().transformLiquidsLocal(*modified_blocks, bmdata->transforming_liquid, m_server->m_env, 1000);
 
 	/*
 		Run Lua on_generated callbacks in the server environment

@@ -279,10 +279,11 @@ void ServerMap::cancelBlockMake(BlockMakeData *data)
 }
 
 void ServerMap::finishBlockMake(BlockMakeData *data,
-	std::map<v3s16, MapBlock*> *changed_blocks, u32 now)
+	std::map<v3s16, MapBlock*> *changed_blocks, ServerEnvironment *env)
 {
 	assert(data);
 	assert(changed_blocks);
+	u32 now = env->getGameTime();
 	const v3s16 bpmin = data->blockpos_min;
 	const v3s16 bpmax = data->blockpos_max;
 
@@ -297,6 +298,10 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 
 	EMERGE_DBG_OUT("finishBlockMake: changed_blocks.size()="
 		<< changed_blocks->size());
+
+	// force-update the (local) liquid queue now
+	// the limit of 1000 is arbitrary
+	transformLiquidsLocal(*changed_blocks, data->transforming_liquid, env, 1000);
 
 	for (auto &changed_block : *changed_blocks) {
 		MapBlock *block = changed_block.second;
