@@ -22,6 +22,7 @@
 #include <ICameraSceneNode.h>
 #include <IGUIStaticText.h>
 #include "client/imagefilters.h"
+#include "util/screenshot.h"
 #include "util/tracy_wrapper.h"
 #include "script/common/c_types.h" // LuaError
 
@@ -37,6 +38,13 @@
 void TextDestGuiEngine::gotText(const StringMap &fields)
 {
 	m_engine->getScriptIface()->handleMainMenuButtons(fields);
+}
+
+void TextDestGuiEngine::requestScreenshot()
+{
+	if (m_engine) {
+		m_engine->requestScreenshot();
+	}
 }
 
 /******************************************************************************/
@@ -366,6 +374,14 @@ void GUIEngine::run()
 			// The header *can* be drawn after the menu because it never intersects
 			// the menu.
 			drawHeader(driver);
+
+			// Take screenshot if requested
+			// Must be before endScene() to capture the rendered frame
+			if (m_take_screenshot) {
+				m_take_screenshot = false;
+				std::string filename;
+				takeScreenshot(driver, filename);
+			}
 
 			driver->endScene();
 		}

@@ -33,6 +33,7 @@
 #include "client/fontengine.h"
 #include "client/sound.h"
 #include "util/numeric.h"
+#include "util/screenshot.h"
 #include "util/string.h" // for parseColorString()
 #include "irrlicht_changes/static_text.h"
 #include "client/guiscalingfilter.h"
@@ -4082,9 +4083,13 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 			return true;
 		}
 
-		if (m_client != NULL && event.KeyInput.PressedDown &&
+		if (event.KeyInput.PressedDown &&
 				(kp == getKeySetting("keymap_screenshot"))) {
-			m_client->makeScreenshot();
+			if (m_client) {
+				m_client->makeScreenshot();
+			} else if (m_text_dst) { // in main menu
+				m_text_dst->requestScreenshot();
+			}
 		}
 
 		if (event.KeyInput.PressedDown && kp == getKeySetting("keymap_toggle_debug")) {

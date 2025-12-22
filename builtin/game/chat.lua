@@ -1348,7 +1348,7 @@ local function handle_kill_command(killer, victim)
 		core.log("action", string.format("%s killed %s", killer, victim))
 	end
 	-- Kill victim
-	victimref:set_hp(0)
+	victimref:set_hp(0, {type="set_hp", custom_type="__builtin:kill_command"})
 	return true, S("@1 has been killed.", victim)
 end
 

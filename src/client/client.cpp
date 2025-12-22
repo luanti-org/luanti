@@ -36,6 +36,7 @@
 #include "translation.h"
 #include "util/auth.h"
 #include "util/pointedthing.h"
+#include "util/screenshot.h"
 #include "util/serialize.h"
 #include "util/srp.h"
 #include "util/string.h"
@@ -1915,69 +1916,12 @@ float Client::getCurRate()
 void Client::makeScreenshot()
 {
 	video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
-	video::IImage* const raw_image = driver->createScreenShot();
-
-	if (!raw_image) {
-		errorstream << "Could not take screenshot" << std::endl;
-		return;
-	}
-
-	const struct tm tm = mt_localtime();
-
-	char timestamp_c[64];
-	strftime(timestamp_c, sizeof(timestamp_c), "%Y%m%d_%H%M%S", &tm);
-
-	std::string screenshot_dir = g_settings->get("screenshot_path");
-	if (!fs::IsPathAbsolute(screenshot_dir))
-		screenshot_dir = porting::path_user + DIR_DELIM + screenshot_dir;
-
-	std::string filename_base = screenshot_dir
-			+ DIR_DELIM
-			+ std::string("screenshot_")
-			+ timestamp_c;
-	std::string filename_ext = "." + g_settings->get("screenshot_format");
-
-	// Create the directory if it doesn't already exist.
-	// Otherwise, saving the screenshot would fail.
-	fs::CreateAllDirs(screenshot_dir);
-
-	u32 quality = (u32)g_settings->getS32("screenshot_quality");
-	quality = rangelim(quality, 0, 100) / 100.0f * 255;
-
-	// Try to find a unique filename
 	std::string filename;
-	unsigned serial = 0;
-
-	while (serial < SCREENSHOT_MAX_SERIAL_TRIES) {
-		filename = filename_base + (serial > 0 ? ("_" + itos(serial)) : "") + filename_ext;
-		if (!fs::PathExists(filename))
-			break;	// File did not apparently exist, we'll go with it
-		serial++;
+	if (takeScreenshot(driver, filename)) {
+		std::string msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
+		pushToChatQueue(new ChatMessage(CHATMESSAGE_TYPE_SYSTEM,
+				utf8_to_wide(msg)));
 	}
-
-	if (serial == SCREENSHOT_MAX_SERIAL_TRIES) {
-		errorstream << "Could not find suitable filename for screenshot" << std::endl;
-	} else {
-		video::IImage* const image =
-				driver->createImage(video::ECF_R8G8B8, raw_image->getDimension());
-
-		if (image) {
-			raw_image->copyTo(image);
-
-			std::string msg;
-			if (driver->writeImageToFile(image, filename.c_str(), quality)) {
-				msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
-			} else {
-				msg = fmtgettext("Failed to save screenshot to \"%s\"", filename.c_str());
-			}
-			pushToChatQueue(new ChatMessage(CHATMESSAGE_TYPE_SYSTEM,
-					utf8_to_wide(msg)));
-			infostream << msg << std::endl;
-			image->drop();
-		}
-	}
-
-	raw_image->drop();
 }
 
 void Client::pushToEventQueue(ClientEvent *event)
