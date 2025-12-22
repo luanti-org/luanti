@@ -122,7 +122,7 @@ public:
 	MapBlock *loadBlock(v3s16 p);
 	/// Load a block that was already read from disk. Used by EmergeManager.
 	/// @return non-null block (but can be blank)
-	MapBlock *loadBlock(const std::string &blob, v3s16 p, bool save_after_load=false);
+	MapBlock *loadBlock(const std::string &blob, v3s16 p, bool save_after_load=false, ServerEnvironment *env = nullptr);
 
 	// Helper for deserializing blocks from disk
 	// @throws SerializationError

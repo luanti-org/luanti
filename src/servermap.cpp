@@ -713,7 +713,7 @@ void ServerMap::deSerializeBlock(MapBlock *block, std::istream &is)
 	block->deSerialize(is, version, true);
 }
 
-MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_after_load)
+MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_after_load, ServerEnvironment *env)
 {
 	ScopeProfiler sp(g_profiler, "ServerMap: load block", SPT_AVG, PRECISION_MICRO);
 	MapBlock *block = nullptr;
@@ -759,10 +759,18 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 	assert(block);
 
 	if (created_new) {
-		ReflowScan scanner(this, m_emerge->ndef);
-		scanner.scan(block, &m_transforming_liquid);
-
 		std::map<v3s16, MapBlock*> modified_blocks;
+
+		ReflowScan scanner(this, m_emerge->ndef);
+		if (env) {
+			UniqueQueue<v3s16> liquid_queue;
+			scanner.scan(block, &liquid_queue);
+			// force-update the (local) liquid queue now
+			// the limit of 1000 is arbitrary
+			transformLiquidsLocal(modified_blocks, liquid_queue, env, 1000);
+		} else
+			scanner.scan(block, &m_transforming_liquid);
+
 		// Fix lighting if necessary
 		voxalgo::update_block_border_lighting(this, block, modified_blocks);
 		if (!modified_blocks.empty()) {
