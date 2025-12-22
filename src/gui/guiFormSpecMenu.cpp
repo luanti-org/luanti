@@ -1769,24 +1769,29 @@ void GUIFormSpecMenu::parseHyperTip(parserData *data, const std::string &element
 	if (!precheckElement("hypertip", element, 5, 6, parts))
 		return;
 
-	// Get mode and check size
-	bool rect_mode = parts[0].find(',') != std::string::npos;
-	size_t base_size = rect_mode ? 6 : 5;
-	if (parts.size() != base_size && parts.size() != base_size + 2) {
+	// rect_mode is true if the formspec element uses coordinates and
+	// size as the first 2 arguments, false otherwise
+	const bool rect_mode = parts[0].find(',') != std::string::npos;
+	// Number of expected hypertip arguments
+	const size_t base_size = rect_mode ? 6 : 5;
+	if (parts.size() < base_size) {
 		errorstream << "Invalid hypertip element(" << parts.size() << "): '"
 				<< element << "'"  << std::endl;
 		return;
 	}
 
-	std::vector<std::string> v_stpos;
+	// If true, hypertip follows the cursor,
+	// otherwise it will be rendered at a static formspec position
 	bool floating = true;
-	size_t i = rect_mode ? 2 : 1;
 
-	if (parts[i] != "") {
-		v_stpos = split(parts[i], ',');
-		if (v_stpos.size() != i) {
+	// get staticPos argument
+	std::vector<std::string> v_stpos;
+	size_t staticPosIndex = rect_mode ? 2 : 1;
+	if (parts[staticPosIndex] != "") {
+		v_stpos = split(parts[staticPosIndex], ',');
+		if (v_stpos.size() != 2) {
 			errorstream << "Invalid staticPos in hypertip element(" << parts.size() <<
-				"): \"" << parts[2] << "\"" << std::endl;
+				"): \"" << parts[staticPosIndex] << "\"" << std::endl;
 			return;
 		}
 		floating = false;
