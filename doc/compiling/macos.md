@@ -8,7 +8,7 @@
 Install dependencies with homebrew:
 
 ```
-brew install cmake freetype gettext gmp hiredis jpeg-turbo jsoncpp leveldb libogg libpng libvorbis luajit zstd gettext
+brew install cmake freetype gettext gmp hiredis jpeg-turbo jsoncpp leveldb libogg libpng libvorbis luajit zstd gettext sdl2 openal-soft
 ```
 
 ## Download
@@ -66,6 +66,8 @@ cmake .. \
     -DOGG_LIBRARY=/path/to/lib/dir/libogg.a \
     -DVORBIS_LIBRARY=/path/to/lib/dir/libvorbis.a \
     -DVORBISFILE_LIBRARY=/path/to/lib/dir/libvorbisfile.a \
+    -DOPENAL_LIBRARY=/path/to/lib/dir/libopenal.a \
+    -DOPENAL_INCLUDE_DIR=/path/to/include/dir/AL \
     -DZSTD_LIBRARY=/path/to/lib/dir/libzstd.a \
     -DGMP_LIBRARY=/path/to/lib/dir/libgmp.a \
     -DJSON_LIBRARY=/path/to/lib/dir/libjsoncpp.a \

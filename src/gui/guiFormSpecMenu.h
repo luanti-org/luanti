@@ -68,6 +68,7 @@ struct TextDest
 	virtual ~TextDest() = default;
 
 	virtual void gotText(const StringMap &fields) = 0;
+	virtual void requestScreenshot() {}
 
 	std::string m_formname;
 };

@@ -17,6 +17,7 @@ set(util_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/pointabilities.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/quicktune.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/serialize.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/screenshot.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sha1.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/string.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/srp.cpp

@@ -359,6 +359,10 @@ In the future, having multiple custom fonts and the ability to switch between th
 but for now this feature is limited to the ability to override Luanti's default fonts via mods.
 It is recommended that this only be used by game mods to set a look and feel.
 
+Warning: Currently the Luanti client does not support reading kerning information
+from the OpenType `GPOS` table, but only the older `kern` table. This can cause
+modern fonts not to render correctly in Luanti.
+
 The stems (file names without extension) are self-explanatory:
 
 * Regular variants:
@@ -1851,8 +1855,11 @@ Displays text on the HUD.
 * `text`: The text to be displayed in the HUD element.
   Supports `core.translate` (always)
   and `core.colorize` (since protocol version 44)
-* `number`: An integer containing the RGB value of the color used to draw the
-  text. Specify `0xFFFFFF` for white text, `0xFF0000` for red, and so on.
+* `number`: An integer containing the (A)RGB value of the color used to draw the
+  text. Specify `0xFFFFFF` for white text, `0x80FF0000` for semi-transparent red, and so on.
+    * Alpha only works on Luanti 5.15+ clients. Older clients will see the text as opaque.
+    * To completely hide a text, set `text` to `""`. Setting the alpha value to `00`
+      will not work due to compatibility reasons (it'll be treated as `FF`).
 * `alignment`: The alignment of the text.
 * `offset`: offset in pixels from position.
 * `size`: size of the text.
@@ -6226,26 +6233,14 @@ Call these functions only at load time!
       * Historically, the new HP value was clamped to [0, 65535] before
         calculating the HP change. This clamping has been removed as of
         version 5.10.0
-    * `reason`: a PlayerHPChangeReason table.
-        * The `type` field will have one of the following values:
-            * `set_hp`: A mod or the engine called `set_hp` without
-                        giving a type - use this for custom damage types.
-            * `punch`: Was punched. `reason.object` will hold the puncher, or nil if none.
-            * `fall`
-            * `node_damage`: `damage_per_second` from a neighboring node.
-                             `reason.node` will hold the node name or nil.
-                             `reason.node_pos` will hold the position of the node
-            * `drown`
-            * `respawn`
-        * Any of the above types may have additional fields from mods.
-        * `reason.from` will be `mod` or `engine`.
+    * `reason`: a `PlayerHPChangeReason` table.
     * `modifier`: when true, the function should return the actual `hp_change`.
        Note: modifiers only get a temporary `hp_change` that can be modified by later modifiers.
        Modifiers can return true as a second argument to stop the execution of further functions.
        Non-modifiers receive the final HP change calculated by the modifiers.
 * `core.register_on_dieplayer(function(ObjectRef, reason))`
     * Called when a player dies
-    * `reason`: a PlayerHPChangeReason table, see register_on_player_hpchange
+    * `reason`: a `PlayerHPChangeReason` table
     * For customizing the death screen, see `core.show_death_screen`.
 * `core.register_on_respawnplayer(function(ObjectRef))`
     * Called when player is to be respawned
@@ -6986,7 +6981,7 @@ Formspec functions
         * `"VAL"`: not changed
 * `core.show_death_screen(player, reason)`
     * Called when the death screen should be shown.
-    * `player` is an ObjectRef, `reason` is a PlayerHPChangeReason table or nil.
+    * `player` is an ObjectRef, `reason` is a `PlayerHPChangeReason` table or nil.
     * By default, this shows a simple formspec with the option to respawn.
       Respawning is done via `ObjectRef:respawn`.
     * You can override this to show a custom death screen.
@@ -8495,7 +8490,7 @@ child will follow movement and rotation of that bone.
     * note: this is called `right_click` for historical reasons only
 * `get_hp()`: returns number of health points
 * `set_hp(hp, reason)`: set number of health points
-    * See reason in register_on_player_hpchange
+    * reason: A `PlayerHPChangeReason` table (optional)
     * Is limited to the range of 0 ... 65535 (2^16 - 1)
     * For players: HP are also limited by `hp_max` specified in object properties
 * `get_inventory()`: returns an `InvRef` for players, otherwise returns `nil`
@@ -11313,6 +11308,40 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
     -- See section [L-system trees] for more details.
 }
 ```
+
+`PlayerHPChangeReason` table definition
+---------------------------------------
+
+The `PlayerHPChangeReason` table specifies a reason for player health changes.
+
+* The `type` field is for providing one of the possible damage types
+  supported natively by the engine. It will have one of the following values:
+    * `set_hp`: A mod, builtin or the engine called `set_hp`, either
+       without giving a damage type, or by setting `set_hp`
+       as damage type explicitly
+    * `punch`: Was punched. `reason.object` will hold the puncher, or nil if none.
+    * `fall`: Fall damage.
+    * `node_damage`: `damage_per_second` from a neighboring node.
+                     `reason.node` will hold the node name or nil.
+                     `reason.node_pos` will hold the position of the node
+    * `drown`: Drowning damage from a node with the `drowning` field set.
+               `reason.node` and `reason.node_pos` are same as for `node_damage`
+    * `respawn`: HP restored by respawning.
+* The `custom_type` field may optionally be used to provide a reason that is not
+    supported by the engine, as a string. It will be ignored by the engine,
+    but it can be used to communicate to other mods about custom damage types.
+    If provided, it must be a string. It's recommended to follow the
+    `modname:reason` naming convention.
+    These custom types exist by default:
+    * `__builtin:item_eat`: HP change caused by `core.do_item_eat`
+    * `__builtin:kill_command`: `/kill` command
+* The `from` field denotes the origin of the HP change:
+    * `engine`: Engine
+    * `mod`: Mod or builtin
+* Mods may add additional fields
+
+Note: The `from` is ignored by `ObjectRef:set_hp`, the engine will always
+set it to `mod`.
 
 Chat command definition
 -----------------------
