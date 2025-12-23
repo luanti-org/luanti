@@ -299,9 +299,19 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 	EMERGE_DBG_OUT("finishBlockMake: changed_blocks.size()="
 		<< changed_blocks->size());
 
-	// force-update the (local) liquid queue now
-	// the limit of 1000 is arbitrary
+	/*
+		Process the chunks liquid now.
+		This avoids sending many duplicate block updates.
+	 */
 	transformLiquidsLocal(*changed_blocks, data->transforming_liquid, env, g_settings->getS32("liquid_loop_max"));
+
+	/*
+		Copy remaining (if any) transforming liquid information
+	*/
+	while (!data->transforming_liquid.empty()) {
+		m_transforming_liquid.push_back(data->transforming_liquid.front());
+		data->transforming_liquid.pop_front();
+	}
 
 	for (auto &changed_block : *changed_blocks) {
 		MapBlock *block = changed_block.second;
