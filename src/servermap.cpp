@@ -300,7 +300,7 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 		<< changed_blocks->size());
 
 	/*
-		Process the chunks liquid now.
+		Process the chunk's liquid queue now.
 		This avoids sending many duplicate block updates.
 	 */
 	transformLiquidsLocal(*changed_blocks, data->transforming_liquid, env, g_settings->getS32("liquid_loop_max"));
@@ -941,7 +941,7 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 
 	std::vector<v3s16> check_for_falling;
 
-	while (liquid_queue.size() != 0)
+	while (!liquid_queue.empty())
 	{
 		// This should be done here so that it is done when continue is used
 		if (loopcount >= liquid_loop_max)
@@ -1254,7 +1254,8 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 void ServerMap::transformLiquids(std::map<v3s16, MapBlock*> &modified_blocks,
 		ServerEnvironment *env)
 {
-	u32 liquid_loop_max = std::min((s32)m_transforming_liquid.size(), g_settings->getS32("liquid_loop_max"));
+	// process the whole queue at most once, to rate-limit
+	u32 liquid_loop_max = std::min<u32>(m_transforming_liquid.size(), g_settings->getS32("liquid_loop_max"));
 
 	ServerMap::transformLiquidsLocal(modified_blocks, m_transforming_liquid, env, liquid_loop_max);
 
