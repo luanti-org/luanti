@@ -1786,12 +1786,12 @@ void GUIFormSpecMenu::parseHyperTip(parserData *data, const std::string &element
 
 	// get staticPos argument
 	std::vector<std::string> v_stpos;
-	size_t staticPosIndex = rect_mode ? 2 : 1;
-	if (parts[staticPosIndex] != "") {
-		v_stpos = split(parts[staticPosIndex], ',');
+	size_t static_pos_index = rect_mode ? 2 : 1;
+	if (parts[static_pos_index] != "") {
+		v_stpos = split(parts[static_pos_index], ',');
 		if (v_stpos.size() != 2) {
 			errorstream << "Invalid staticPos in hypertip element(" << parts.size() <<
-				"): \"" << parts[staticPosIndex] << "\"" << std::endl;
+				"): \"" << parts[static_pos_index] << "\"" << std::endl;
 			return;
 		}
 		floating = false;
