@@ -1257,7 +1257,7 @@ void ServerMap::transformLiquids(std::map<v3s16, MapBlock*> &modified_blocks,
 	// process the whole queue at most once, to rate-limit
 	u32 liquid_loop_max = std::min<u32>(m_transforming_liquid.size(), g_settings->getS32("liquid_loop_max"));
 
-	ServerMap::transformLiquidsLocal(modified_blocks, m_transforming_liquid, env, liquid_loop_max);
+	transformLiquidsLocal(modified_blocks, m_transforming_liquid, env, liquid_loop_max);
 
 	/* ----------------------------------------------------------------------
 	 * Manage the queue so that it does not grow indefinitely
