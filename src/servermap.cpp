@@ -301,7 +301,7 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 
 	// force-update the (local) liquid queue now
 	// the limit of 1000 is arbitrary
-	transformLiquidsLocal(*changed_blocks, data->transforming_liquid, env, 1000);
+	transformLiquidsLocal(*changed_blocks, data->transforming_liquid, env, g_settings->getS32("liquid_loop_max"));
 
 	for (auto &changed_block : *changed_blocks) {
 		MapBlock *block = changed_block.second;
@@ -920,7 +920,6 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 		ServerEnvironment *env, u32 liquid_loop_max)
 {
 	u32 loopcount = 0;
-	u32 initial_size = liquid_queue.size();
 
 	/*if(initial_size != 0)
 		infostream<<"transformLiquids(): initial_size="<<initial_size<<std::endl;*/
@@ -935,7 +934,7 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 	while (liquid_queue.size() != 0)
 	{
 		// This should be done here so that it is done when continue is used
-		if (loopcount >= initial_size || loopcount >= liquid_loop_max)
+		if (loopcount >= liquid_loop_max)
 			break;
 		loopcount++;
 
@@ -1245,7 +1244,7 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 void ServerMap::transformLiquids(std::map<v3s16, MapBlock*> &modified_blocks,
 		ServerEnvironment *env)
 {
-	u32 liquid_loop_max = g_settings->getS32("liquid_loop_max");
+	u32 liquid_loop_max = std::min((s32)m_transforming_liquid.size(), g_settings->getS32("liquid_loop_max"));
 
 	ServerMap::transformLiquidsLocal(modified_blocks, m_transforming_liquid, env, liquid_loop_max);
 
