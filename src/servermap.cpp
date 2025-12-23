@@ -302,7 +302,7 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 	// force-update the (local) liquid queue now, so that
 	// schedule liquid updates do not interfere with map loading later
 	// the limit of 1000 is arbitrary
-	transformLiquidsLocal(*changed_blocks, data->transforming_liquid, env, 10000);
+	transformLiquidsLocal(*changed_blocks, data->transforming_liquid, env, 1000);
 
 	for (auto &changed_block : *changed_blocks) {
 		MapBlock *block = changed_block.second;
