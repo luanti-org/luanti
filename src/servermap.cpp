@@ -299,8 +299,7 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 	EMERGE_DBG_OUT("finishBlockMake: changed_blocks.size()="
 		<< changed_blocks->size());
 
-	// force-update the (local) liquid queue now, so that
-	// schedule liquid updates do not interfere with map loading later
+	// force-update the (local) liquid queue now
 	// the limit of 1000 is arbitrary
 	transformLiquidsLocal(*changed_blocks, data->transforming_liquid, env, 1000);
 
@@ -766,8 +765,7 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 		if (env) {
 			UniqueQueue<v3s16> liquid_queue;
 			scanner.scan(block, &liquid_queue);
-			// force-update the (local) liquid queue now, so that
-			// schedule liquid updates do not interfere with map loading later
+			// force-update the (local) liquid queue now
 			// the limit of 1000 is arbitrary
 			transformLiquidsLocal(modified_blocks, liquid_queue, env, 1000);
 		} else
