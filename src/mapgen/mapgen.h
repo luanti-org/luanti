@@ -12,6 +12,7 @@
 #include "util/string.h"
 #include "util/container.h"
 #include <utility>
+#include <set>
 
 #define MAPGEN_DEFAULT MAPGEN_V7
 #define MAPGEN_DEFAULT_NAME "v7"
