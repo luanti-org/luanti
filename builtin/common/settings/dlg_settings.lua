@@ -616,7 +616,7 @@ local function get_formspec(dialogdata)
 
 		if show_reset then
 			local default = comp.setting.type == "key"
-				and core.scancode_to_key_name(comp.setting.default)
+				and core.scancode_to_keyname(comp.setting.default)
 				or comp.setting.default
 
 			local reset_tooltip = default and
