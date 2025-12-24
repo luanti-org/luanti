@@ -54,11 +54,11 @@ int ModApiMenuCommon::l_normalize_keycode(lua_State *L)
 
 int ModApiMenuCommon::l_scancode_to_keyname(lua_State *L)
 {
-    const char *keystr = luaL_checkstring(L, 1);
-    KeyPress kp(keystr);
-    std::string name = kp.name();
-    lua_pushstring(L, name.c_str());
-    return 1;
+	const char *keystr = luaL_checkstring(L, 1);
+	KeyPress kp(keystr);
+	std::string name = kp.name();
+	lua_pushstring(L, name.c_str());
+	return 1;
 }
 
 
@@ -69,6 +69,7 @@ void ModApiMenuCommon::Initialize(lua_State *L, int top)
 	API_FCT(driver_supports_shadows);
 	API_FCT(irrlicht_device_supports_touch);
 	API_FCT(normalize_keycode);
+	API_FCT(scancode_to_keyname);
 }
 
 
