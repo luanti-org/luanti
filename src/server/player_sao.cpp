@@ -575,6 +575,11 @@ InventoryLocation PlayerSAO::getInventoryLocation() const
 	return loc;
 }
 
+void PlayerSAO::setWieldIndex(u16 index)
+{
+	return m_player->setWieldIndex(index);
+}
+
 u16 PlayerSAO::getWieldIndex() const
 {
 	return m_player->getWieldIndex();
