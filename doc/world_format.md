@@ -152,6 +152,8 @@ World metadata.
     mod_storage_backend = sqlite3 - which DB backend to use for mod storage
     server_announce = false       - whether the server is publicly announced or not
     load_mod_<mod> = false        - whether <mod> is to be loaded in this world
+    world_name = Sol III          - name of the world (if not set, the world folder name will be used)
+                                    shown in the main menu and used as a technical identifier
 
 For `load_mod_<mod>`, the possible values are:
 
