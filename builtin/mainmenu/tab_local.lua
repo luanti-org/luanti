@@ -430,10 +430,10 @@ local function main_button_handler(this, fields, name, tabdata)
 
 	if fields["world_rename"] ~= nil then
 		local selected = core.get_textlist_index("sp_worlds")
-		if selected ~= nil and 
+		if selected ~= nil and
 			selected <= menudata.worldlist:size() then
 			local world = menudata.worldlist:get_list()[selected]
-			if world ~= nil and 
+			if world ~= nil and
 				world.name ~= nil then
 				local index = menudata.worldlist:get_raw_index(selected)
 				local rename_world_dlg = create_rename_world_dlg(world.name, index)
