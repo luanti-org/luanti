@@ -223,9 +223,6 @@ static std::vector<table_key> table = {
 
 static const table_key invalid_key = {"", KEY_UNKNOWN, L'\0', ""};
 
-#undef N_
-
-
 static const table_key &lookup_keychar(wchar_t Char)
 {
 	if (Char == L'\0')
