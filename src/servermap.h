@@ -66,7 +66,7 @@ public:
 	/// @brief write data back to map after mapgen
 	/// @param now current game time
 	void finishBlockMake(BlockMakeData *data,
-		std::map<v3s16, MapBlock*> *changed_blocks, u32 now);
+		std::map<v3s16, MapBlock*> *changed_blocks, ServerEnvironment *env);
 	void cancelBlockMake(BlockMakeData *data);
 
 	/*
@@ -158,7 +158,8 @@ public:
 
 	void transformLiquids(std::map<v3s16, MapBlock*> & modified_blocks,
 			ServerEnvironment *env);
-
+	void transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_blocks, UniqueQueue<v3s16> &liquid_queue,
+			ServerEnvironment *env, u32 liquid_loop_max);
 	void transforming_liquid_add(v3s16 p);
 
 	MapSettingsManager settings_mgr;

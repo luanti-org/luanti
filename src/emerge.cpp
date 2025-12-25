@@ -596,8 +596,7 @@ MapBlock *EmergeThread::finishGen(v3s16 pos, BlockMakeData *bmdata,
 		Perform post-processing on blocks (invalidate lighting, queue liquid
 		transforms, etc.) to finish block make
 	*/
-	m_map->finishBlockMake(bmdata, modified_blocks,
-		m_server->m_env->getGameTime());
+	m_map->finishBlockMake(bmdata, modified_blocks, m_server->m_env);
 
 	MapBlock *block = m_map->getBlockNoCreateNoEx(pos);
 	if (!block) {

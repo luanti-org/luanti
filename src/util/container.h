@@ -12,7 +12,7 @@
 #include <list>
 #include <vector>
 #include <map>
-#include <set>
+#include <unordered_set>
 #include <queue>
 #include <cassert>
 #include <limits>
@@ -32,7 +32,7 @@ public:
 	true: value added
 	false: value already exists
 	*/
-	bool push_back(const Value& value)
+	bool push_back(const Value &value)
 	{
 		if (m_set.insert(value).second)
 		{
@@ -48,7 +48,7 @@ public:
 		m_queue.pop();
 	}
 
-	const Value& front() const
+	const Value &front() const
 	{
 		return m_queue.front();
 	}
@@ -64,7 +64,7 @@ public:
 	}
 
 private:
-	std::set<Value> m_set;
+	std::unordered_set<Value> m_set;
 	std::queue<Value> m_queue;
 };
 

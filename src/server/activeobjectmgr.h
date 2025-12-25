@@ -6,6 +6,7 @@
 
 #include <functional>
 #include <vector>
+#include <set>
 #include "../activeobjectmgr.h"
 #include "serveractiveobject.h"
 #include "util/k_d_tree.h"
