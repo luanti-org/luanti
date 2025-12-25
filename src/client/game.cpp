@@ -2016,7 +2016,7 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 	// In free move (fly), the "toggle_sneak_key" setting would prevent precise
 	// up/down movements. Hence, enable the feature only during 'normal' movement.
 	const bool allow_sneak_toggle = m_cache_toggle_sneak_key &&
-		!player->getPlayerSettings().free_move;
+		!(player->getPlayerSettings().free_move && client->checkPrivilege("fly"));
 
 	//TimeTaker tt("update player control", NULL, PRECISION_NANO);
 
