@@ -207,11 +207,12 @@ local function get_formspec(tabview, name, tabdata)
 
 	retval = retval ..
 			"container[5.25,4.875]" ..
-			"button[6.65,0;3.225,0.8;world_create;".. fgettext("New") .. "]"
+			"button[7.48125,0;2.39375,0.8;world_create;".. fgettext("New") .. "]"
 	if world then
 		retval = retval ..
-				"button[0,0;3.225,0.8;world_delete;".. fgettext("Delete") .. "]" ..
-				"button[3.325,0;3.225,0.8;world_configure;".. fgettext("Select Mods") .. "]"
+				"button[0,0;2.39375,0.8;world_rename;".. fgettext("Rename") .. "]" ..
+				"button[2.49375,0;2.39375,0.8;world_delete;".. fgettext("Delete") .. "]" ..
+				"button[4.9875,0;2.39375,0.8;world_configure;".. fgettext("Select Mods") .. "]"
 	end
 	retval = retval ..
 			"container_end[]" ..
@@ -421,6 +422,24 @@ local function main_button_handler(this, fields, name, tabdata)
 				delete_world_dlg:set_parent(this)
 				this:hide()
 				delete_world_dlg:show()
+			end
+		end
+
+		return true
+	end
+
+	if fields["world_rename"] ~= nil then
+		local selected = core.get_textlist_index("sp_worlds")
+		if selected ~= nil and 
+			selected <= menudata.worldlist:size() then
+			local world = menudata.worldlist:get_list()[selected]
+			if world ~= nil and 
+				world.name ~= nil then
+				local index = menudata.worldlist:get_raw_index(selected)
+				local rename_world_dlg = create_rename_world_dlg(world.name, index)
+				rename_world_dlg:set_parent(this)
+				this:hide()
+				rename_world_dlg:show()
 			end
 		end
 
