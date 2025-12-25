@@ -31,6 +31,11 @@ local function rename_world_buttonhandler(this, fields)
 	-- press confirm button or Enter
 	if fields["dlg_rename_world_confirm"]
 		or fields.key_enter then
+
+		if fields.key_enter and this.parent then
+			this.parent.dlg_create_world_closed_at = core.get_us_time()
+		end
+
 		local new_name = fields["te_world_name"]
 
 		if not new_name
@@ -79,16 +84,18 @@ local function rename_world_buttonhandler(this, fields)
 end
 
 --------------------------------------------------------------------------------
-function create_rename_world_dlg(old_name, world_index)
+function create_rename_world_dlg(old_name, world_index, parent)
 
 	local retval = dialog_create("dlg_rename_world",
 					rename_world_formspec,
 					rename_world_buttonhandler,
 					nil)
+
 	retval.data = {
 		old_name = old_name,
 		current_name = old_name,
 		world_index = world_index
 	}
+	retval.parent = parent
 	return retval
 end
