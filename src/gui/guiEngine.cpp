@@ -13,6 +13,7 @@
 #include "content/mods.h"
 #include "filesys.h"
 #include "guiMainMenu.h"
+// #include "guiStatusMessage.h"
 #include "httpfetch.h"
 #include "irrlicht_changes/static_text.h"
 #include "log.h"
@@ -175,6 +176,20 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 
 	m_menu->defaultAllowClose(false);
 	m_menu->lockSize(true,v2u32(800,600));
+
+	// Create status message element for menu notifications
+	m_status_message = std::make_unique<GUIStatusMessage>(
+		rendering_engine->get_gui_env(), m_parent);
+	
+	// Configure appearance for main menu
+	m_status_message->setDisplayDuration(3.0f); // 3 seconds in main menu
+	m_status_message->setBackgroundColor(video::SColor(220, 0, 0, 0)); // Dark semi-transparent background
+	m_status_message->setBackgroundEnabled(true);
+	m_status_message->setTextColor(video::SColor(255, 255, 255, 255)); // White text
+	// Position at bottom center of screen as a full-width bar
+	m_status_message->setPosition(0, 0, true); // Will be positioned at bottom in updatePosition
+	m_status_message->setBarHeight(40); // 40 pixel tall bar at bottom
+	m_status_message->setTextAlignment(gui::EGUIA_CENTER); // Center text horizontally
 
 	// Initialize scripting
 
@@ -380,7 +395,15 @@ void GUIEngine::run()
 			if (m_take_screenshot) {
 				m_take_screenshot = false;
 				std::string filename;
-				takeScreenshot(driver, filename);
+				if (takeScreenshot(driver, filename)) {
+					std::string full_path = "\"" + filename + "\"";
+					m_status_message->showStatusText(utf8_to_wide("Saved screenshot to " + full_path));
+				}
+			}
+
+			// Update status message
+			if (m_status_message) {
+				m_status_message->update(dtime);
 			}
 
 			driver->endScene();
