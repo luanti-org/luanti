@@ -18,7 +18,7 @@ local function rename_world_formspec(dialogdata)
 		fgettext("Rename World:") .. ";" .. core.formspec_escape(dialogdata.current_name) .. "]"
 
 	if dialogdata.error_msg then
-		retval = retval .. "label[2.5,3.8;" .. core.formspec_escape(dialogdata.error_msg) .. "]"
+		retval = retval .. "label[2.5,3.8;" .. dialogdata.error_msg .. "]"
 	end
 
 	return retval
@@ -52,7 +52,7 @@ local function rename_world_buttonhandler(this, fields)
 		end
 
 		if menudata.worldlist:uid_exists_raw(new_name) then
-			this.data.error_msg = fgettext_ne("A world named \"$1\" already exists", new_name)
+			this.data.error_msg = fgettext("A world named \"$1\" already exists", new_name)
 			this.data.current_name = new_name
 			core.update_formspec(this:get_formspec())
 			return true
@@ -62,7 +62,7 @@ local function rename_world_buttonhandler(this, fields)
 		local world = menudata.worldlist:get_raw_element(this.data.world_index)
 		local err = core.rename_world(world.path, new_name)
 		if err then
-			this.data.error_msg = fgettext_ne(err)
+			this.data.error_msg = core.formspec_escape(err)
 			this.data.current_name = new_name
 			core.update_formspec(this:get_formspec())
 		else
