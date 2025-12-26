@@ -671,7 +671,7 @@ int ModApiMainMenu::l_rename_world(lua_State *L)
 
 	try {
 		if (!fs::PathExists(old_path))
-			throw BaseException("Source world path does not exist");
+			throw BaseException(gettext("Source world path does not exist"));
 
 		std::string base_path = fs::RemoveLastPathComponent(old_path);
 		std::string sanitized_name = sanitizeDirName(new_name, "world_");
@@ -693,12 +693,12 @@ int ModApiMainMenu::l_rename_world(lua_State *L)
 		}
 
 		if (fs::PathExists(new_path)) {
-			throw BaseException("Too many similar folder names exist");
+			throw BaseException(gettext("Too many similar folder names exist"));
 		}
 
 		// Failed to move directory (it might be in use)
 		if (!fs::MoveDir(old_path, new_path)) {
-			throw BaseException("Failed to rename world folder");
+			throw BaseException(gettext("Failed to rename world folder"));
 		}
 
 		// Update world.mt file
