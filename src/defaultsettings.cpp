@@ -118,7 +118,6 @@ void set_default_settings()
 	settings->setDefault("curl_timeout", "20000");
 	settings->setDefault("curl_parallel_limit", "8");
 	settings->setDefault("curl_file_download_timeout", "300000");
-	settings->setDefault("curl_verify_cert", "true");
 	settings->setDefault("enable_remote_media_server", "true");
 	settings->setDefault("enable_client_modding", "false");
 	settings->setDefault("max_out_chat_queue_size", "20");
@@ -577,8 +576,6 @@ void set_default_settings()
 	// still set these two settings in case someone wants to enable it
 	settings->setDefault("debanding", "false");
 	settings->setDefault("post_processing_texture_bits", "8");
-	// We don't have working certificate verification...
-	settings->setDefault("curl_verify_cert", "false");
 
 	// Apply settings according to screen size
 	float x_inches = (float) porting::getDisplaySize().X /
