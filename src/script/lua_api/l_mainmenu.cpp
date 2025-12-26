@@ -719,7 +719,7 @@ int ModApiMainMenu::l_rename_world(lua_State *L)
 
 		// Failed to move directory (it might be in use)
 		if (!fs::MoveDir(old_path, new_path)) {
-			throw BaseException(gettext("Folder moved, but failed to rename world folder"));
+			throw BaseException(gettext("Failed to rename world folder"));
 		}
 
 		// Update world.mt file
@@ -730,7 +730,7 @@ int ModApiMainMenu::l_rename_world(lua_State *L)
 		if (world_conf.readConfigFile(worldmt_path.c_str())) {
 			world_conf.set("world_name", new_name);
 			if (!world_conf.updateConfigFile(worldmt_path.c_str()))
-				throw BaseException("Failed to update world.mt");
+				throw BaseException("Folder moved, but failed to update world.mt");
 		}
 		else {
 			throw BaseException("Could not find or read world.mt in the new path");
