@@ -77,6 +77,7 @@ protected:
 
 	bool Alpha;
 	bool Blending;
+	bool Skinning = false;
 
 	struct SUniformInfo
 	{
