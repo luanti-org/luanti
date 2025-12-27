@@ -70,14 +70,15 @@ struct Entity {
 RollbackManagerSQLite3::RollbackManagerSQLite3(const std::string &world_path, IGameDef *gamedef_) :
 	RollbackManager(gamedef_)
 {
-	verbosestream << "RollbackManager::RollbackManager(" << world_path << ")" << std::endl;
 	database_path = world_path + DIR_DELIM "rollback.sqlite";
 	initDatabase();
 }
 
 RollbackManagerSQLite3::~RollbackManagerSQLite3()
 {
-	flush();
+	if (db != nullptr) {
+		flush();
+	}
 
 	FINALIZE_STATEMENT(stmt_insert);
 	FINALIZE_STATEMENT(stmt_replace);
@@ -204,8 +205,6 @@ bool RollbackManagerSQLite3::createTables()
 
 bool RollbackManagerSQLite3::initDatabase()
 {
-	verbosestream << "RollbackManager: Database connection setup" << std::endl;
-
 	SQLOK(sqlite3_open_v2(database_path.c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL));
 	createTables();
 
@@ -340,17 +339,17 @@ bool RollbackManagerSQLite3::registerRow(const ActionRow &row)
 		SQLOK(sqlite3_bind_int(stmt_do, 9, (int)nodeMeta));
 
 		if (nodeMeta) {
-			std::string::size_type p1, p2;
-			p1 = loc.find(':') + 1;
-			p2 = loc.find(',');
-			std::string x = loc.substr(p1, p2 - p1);
-			p1 = p2 + 1;
-			p2 = loc.find(',', p1);
-			std::string y = loc.substr(p1, p2 - p1);
-			std::string z = loc.substr(p2 + 1);
-			SQLOK(sqlite3_bind_int(stmt_do, 10, atoi(x.c_str())));
-			SQLOK(sqlite3_bind_int(stmt_do, 11, atoi(y.c_str())));
-			SQLOK(sqlite3_bind_int(stmt_do, 12, atoi(z.c_str())));
+			int x, y, z;
+			if (parseNodemetaLocation(loc, x, y, z)) {
+				SQLOK(sqlite3_bind_int(stmt_do, 10, x));
+				SQLOK(sqlite3_bind_int(stmt_do, 11, y));
+				SQLOK(sqlite3_bind_int(stmt_do, 12, z));
+			} else {
+				// Invalid format - bind 0,0,0 as fallback
+				SQLOK(sqlite3_bind_int(stmt_do, 10, 0));
+				SQLOK(sqlite3_bind_int(stmt_do, 11, 0));
+				SQLOK(sqlite3_bind_int(stmt_do, 12, 0));
+			}
 		}
 	} else {
 		SQLOK(sqlite3_bind_null(stmt_do, 4));
@@ -400,7 +399,7 @@ bool RollbackManagerSQLite3::registerRow(const ActionRow &row)
 	return written == SQLITE_DONE;
 }
 
-const std::list<ActionRow> RollbackManagerSQLite3::actionRowsFromSelect(sqlite3_stmt *stmt)
+std::list<ActionRow> RollbackManagerSQLite3::actionRowsFromSelect(sqlite3_stmt *stmt)
 {
 	std::list<ActionRow> rows;
 	const unsigned char *text;
@@ -497,7 +496,7 @@ ActionRow RollbackManagerSQLite3::actionRowFromRollbackAction(const RollbackActi
 	return row;
 }
 
-const std::list<RollbackAction> RollbackManagerSQLite3::rollbackActionsFromActionRows(const std::list<ActionRow> &rows)
+std::list<RollbackAction> RollbackManagerSQLite3::rollbackActionsFromActionRows(const std::list<ActionRow> &rows)
 {
 	std::list<RollbackAction> actions;
 
@@ -541,7 +540,7 @@ const std::list<RollbackAction> RollbackManagerSQLite3::rollbackActionsFromActio
 	return actions;
 }
 
-const std::list<ActionRow> RollbackManagerSQLite3::getRowsSince(time_t firstTime, const std::string &actor)
+std::list<ActionRow> RollbackManagerSQLite3::getRowsSince(time_t firstTime, const std::string &actor)
 {
 	sqlite3_stmt *stmt_stmt = actor.empty() ? stmt_select : stmt_select_withActor;
 	sqlite3_bind_int64(stmt_stmt, 1, firstTime);
@@ -554,7 +553,7 @@ const std::list<ActionRow> RollbackManagerSQLite3::getRowsSince(time_t firstTime
 	return rows;
 }
 
-const std::list<ActionRow> RollbackManagerSQLite3::getRowsSince_range(time_t start_time, v3s16 p, int range, int limit)
+std::list<ActionRow> RollbackManagerSQLite3::getRowsSince_range(time_t start_time, v3s16 p, int range, int limit)
 {
 	sqlite3_bind_int64(stmt_select_range, 1, start_time);
 	sqlite3_bind_int(stmt_select_range, 2, static_cast<int>(p.X - range));
@@ -593,6 +592,21 @@ void RollbackManagerSQLite3::endSaveActions()
 void RollbackManagerSQLite3::rollbackSaveActions()
 {
 	sqlite3_exec(db, "ROLLBACK", NULL, NULL, NULL);
+}
+
+void RollbackManagerSQLite3::flush()
+{
+	if (action_todisk_buffer.empty())
+		return;
+
+	beginSaveActions();
+	try {
+		flushBufferContents();
+		endSaveActions();
+	} catch (...) {
+		rollbackSaveActions();
+		throw;
+	}
 }
 
 void RollbackManagerSQLite3::persistAction(const RollbackAction &a)
