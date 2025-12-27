@@ -44,6 +44,8 @@ private:
 
 	static int l_create_world(lua_State *L);
 
+	static int l_rename_world(lua_State *L);
+
 	static int l_delete_world(lua_State *L);
 
 	static int l_get_worlds(lua_State *L);
