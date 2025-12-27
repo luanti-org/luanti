@@ -487,7 +487,9 @@ function make.key(setting)
 		spacing = 0.1,
 
 		get_formspec = function(self, avail_w)
-			self.resettable = core.settings:has(setting.name)
+			local current_value = core.settings:get(setting.name) or ""
+			local default_value = setting.default or ""
+			self.resettable = core.settings:has(setting.name) and (current_value ~= default_value)
 			local btn_bind_width = math.max(2.5, avail_w / 2)
 			local value = core.settings:get(setting.name)
 			local fs = {
