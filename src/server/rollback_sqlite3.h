@@ -25,6 +25,7 @@ public:
 
 private:
 	// RollbackManager hooks
+	void flush() override;
 	void beginSaveActions() override;
 	void endSaveActions() override;
 	void rollbackSaveActions() override;
@@ -41,11 +42,11 @@ private:
 	bool createTables();
 	bool initDatabase();
 	bool registerRow(const ActionRow &row);
-	const std::list<ActionRow> actionRowsFromSelect(sqlite3_stmt *stmt);
+	std::list<ActionRow> actionRowsFromSelect(sqlite3_stmt *stmt);
 	ActionRow actionRowFromRollbackAction(const RollbackAction &action);
-	const std::list<RollbackAction> rollbackActionsFromActionRows(const std::list<ActionRow> &rows);
-	const std::list<ActionRow> getRowsSince(time_t firstTime, const std::string &actor);
-	const std::list<ActionRow> getRowsSince_range(time_t firstTime, v3s16 p, int range, int limit);
+	std::list<RollbackAction> rollbackActionsFromActionRows(const std::list<ActionRow> &rows);
+	std::list<ActionRow> getRowsSince(time_t firstTime, const std::string &actor);
+	std::list<ActionRow> getRowsSince_range(time_t firstTime, v3s16 p, int range, int limit);
 
 	std::string database_path;
 	sqlite3 *db = nullptr;
