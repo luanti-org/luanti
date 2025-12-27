@@ -1,5 +1,7 @@
 // Luanti
 // SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2025 James Dornan <james@catch22.com>
 
 #pragma once
 
@@ -34,6 +36,7 @@ private:
 	};
 
 	// RollbackManager hooks
+	void flush() override;
 	void beginSaveActions() override;
 	void endSaveActions() override;
 	void rollbackSaveActions() override;
