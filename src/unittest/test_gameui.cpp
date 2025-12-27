@@ -49,10 +49,11 @@ void TestGameUI::testInit()
 void TestGameUI::testStatusText()
 {
 	GameUI gui{};
+	gui.m_status_text = std::make_unique<GUIStatusText>(nullptr);
 	gui.showStatusText(L"test status");
 
-	UASSERT(gui.m_status_message->getDisplayDuration() == 0.0f);
-	UASSERT(gui.m_status_message->getStatusText() == L"test status");
+	UASSERT(gui.m_status_text->getDisplayDuration() == 0.0f);
+	UASSERT(gui.m_status_text->getStatusText() == L"test status");
 }
 
 void TestGameUI::testInfoText()

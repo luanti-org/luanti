@@ -9,7 +9,7 @@
 #include <IGUIEnvironment.h>
 #include <memory>
 #include "game.h"
-#include "gui/guiStatusMessage.h"
+#include "gui/guiStatusText.h"
 
 
 class Client;
@@ -61,11 +61,11 @@ public:
 
 	inline void showStatusText(const std::wstring &str)
 	{
-		if (m_status_message)
-			m_status_message->showStatusText(str);
+		if (m_status_text)
+			m_status_text->showStatusText(str);
 	}
 	void showTranslatedStatusText(const char *str);
-	inline void clearStatusText() { if (m_status_message) m_status_message->clearStatusText(); }
+	inline void clearStatusText() { if (m_status_text) m_status_text->clearStatusText(); }
 
 	bool isChatVisible()
 	{
@@ -93,7 +93,7 @@ private:
 	gui::IGUIStaticText *m_guitext_info = nullptr; // At the middle of the screen
 	std::wstring m_infotext;
 
-	std::unique_ptr<GUIStatusMessage> m_status_message = nullptr;
+	std::unique_ptr<GUIStatusText> m_status_text= nullptr;
 
 	gui::IGUIStaticText *m_guitext_chat = nullptr; // Chat text
 	u32 m_recent_chat_count = 0;

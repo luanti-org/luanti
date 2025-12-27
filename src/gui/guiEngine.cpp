@@ -177,18 +177,18 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 	m_menu->lockSize(true,v2u32(800,600));
 
 	// Create status message element for menu notifications
-	m_status_message = std::make_unique<GUIStatusMessage>(
+	m_status_text = std::make_unique<GUIStatusText>(
 		rendering_engine->get_gui_env(), m_parent);
 
 	// Configure appearance for main menu
-	m_status_message->setDisplayDuration(3.0f); // 3 seconds in main menu
-	m_status_message->setBackgroundColor(video::SColor(220, 0, 0, 0)); // Dark semi-transparent background
-	m_status_message->setBackgroundEnabled(true);
-	m_status_message->setTextColor(video::SColor(255, 255, 255, 255)); // White text
+	m_status_text->setDisplayDuration(3.0f); // 3 seconds in main menu
+	m_status_text->setBackgroundColor(video::SColor(220, 0, 0, 0)); // Dark semi-transparent background
+	m_status_text->setBackgroundEnabled(true);
+	m_status_text->setTextColor(video::SColor(255, 255, 255, 255)); // White text
 	// Position at bottom center of screen as a full-width bar
-	m_status_message->setPosition(0, 0, true); // Will be positioned at bottom in updatePosition
-	m_status_message->setBarHeight(40); // 40 pixel tall bar at bottom
-	m_status_message->setTextAlignment(gui::EGUIA_CENTER); // Center text horizontally
+	m_status_text->setPosition(0, 0, true); // Will be positioned at bottom in updatePosition
+	m_status_text->setBarHeight(40); // 40 pixel tall bar at bottom
+	m_status_text->setTextAlignment(gui::EGUIA_CENTER); // Center text horizontally
 
 	// Initialize scripting
 
@@ -396,13 +396,13 @@ void GUIEngine::run()
 				std::string filename;
 				if (takeScreenshot(driver, filename)) {
 					std::string full_path = "\"" + filename + "\"";
-					m_status_message->showStatusText(utf8_to_wide("Saved screenshot to " + full_path));
+					m_status_text->showStatusText(utf8_to_wide("Saved screenshot to " + full_path));
 				}
 			}
 
 			// Update status message
-			if (m_status_message) {
-				m_status_message->update(dtime);
+			if (m_status_text) {
+				m_status_text->update(dtime);
 			}
 
 			driver->endScene();

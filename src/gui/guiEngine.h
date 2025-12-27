@@ -9,7 +9,7 @@
 /******************************************************************************/
 #include "irrlichttypes.h"
 #include "guiFormSpecMenu.h"
-#include "guiStatusMessage.h"
+#include "guiStatusText.h"
 #include "client/clouds.h"
 #include "client/sound.h"
 #include "util/enriched_string.h"
@@ -276,7 +276,7 @@ private:
 	EnrichedString m_toplefttext;
 
 	/** status message element for menu notifications */
-	std::unique_ptr<GUIStatusMessage> m_status_message;
+	std::unique_ptr<GUIStatusText> m_status_text;
 
 	/** do preprocessing for cloud subsystem */
 	void drawClouds(float dtime);

@@ -11,19 +11,19 @@
 #include "irrlichttypes.h"
 
 /*
- * Reusable GUI element for displaying status messages with automatic fade-out.
+ * Reusable GUI element for displaying status texts with automatic fade-out.
  * Can be used in-game (for fly/fast mode, volume changes, etc.) or in menus
  * (for screenshot notifications, etc.)
  *
- * The message automatically fades out and disappears after a configurable duration.
+ * The text automatically fades out and disappears after a configurable duration.
  */
-class GUIStatusMessage
+class GUIStatusText
 {
 public:
-	GUIStatusMessage(gui::IGUIEnvironment *guienv, gui::IGUIElement *parent = nullptr);
-	~GUIStatusMessage();
+	GUIStatusText(gui::IGUIEnvironment *guienv, gui::IGUIElement *parent = nullptr);
+	~GUIStatusText();
 
-	// Show a status message (will fade out after default duration)
+	// Show a status text (will fade out after default duration)
 	void showStatusText(const std::wstring &str);
 	void showTranslatedStatusText(const char *str);
 
@@ -31,7 +31,7 @@ public:
 	// dtime: time elapsed since last frame
 	void update(float dtime);
 
-	// Set the duration for which the message is shown before fading out
+	// Set the duration for which the text is shown before fading out
 	void setDisplayDuration(float seconds) { m_display_duration = seconds; }
 	float getDisplayDuration() const { return m_display_duration; }
 
@@ -65,14 +65,14 @@ public:
 	gui::IGUIStaticText *getElement() { return m_guitext_status; }
 	const gui::IGUIStaticText *getElement() const { return m_guitext_status; }
 
-	// Clear the current message immediately
+	// Clear the current text immediately
 	void clearStatusText();
 
 	// Manual visibility control (normally managed automatically)
 	void setVisible(bool visible);
 	bool isVisible() const;
 
-	// Get current message text
+	// Get current text
 	const std::wstring &getStatusText() const { return m_statustext; }
 
 	// Get the current fade progress (0.0 = fully visible, 1.0 = fully faded)

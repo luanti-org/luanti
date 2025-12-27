@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include "guiStatusMessage.h"
+#include "guiStatusText.h"
 #include <irrlicht_changes/static_text.h>
 #include <gettext.h>
 #include "client/renderingengine.h"
 
-GUIStatusMessage::GUIStatusMessage(gui::IGUIEnvironment *guienv, gui::IGUIElement *parent)
+GUIStatusText::GUIStatusText(gui::IGUIEnvironment *guienv, gui::IGUIElement *parent)
 {
 	if (!guienv)
 		return;
@@ -26,7 +26,7 @@ GUIStatusMessage::GUIStatusMessage(gui::IGUIEnvironment *guienv, gui::IGUIElemen
 		m_initial_color = video::SColor(255, 0, 0, 0);
 }
 
-GUIStatusMessage::~GUIStatusMessage()
+GUIStatusText::~GUIStatusText()
 {
 	if (m_guitext_status) {
 		m_guitext_status->remove();
@@ -34,19 +34,19 @@ GUIStatusMessage::~GUIStatusMessage()
 	}
 }
 
-void GUIStatusMessage::showStatusText(const std::wstring &str)
+void GUIStatusText::showStatusText(const std::wstring &str)
 {
 	m_statustext = str;
 	m_statustext_time = 0.0f;
 	m_fade_progress = 0.0f;
 }
 
-void GUIStatusMessage::showTranslatedStatusText(const char *str)
+void GUIStatusText::showTranslatedStatusText(const char *str)
 {
 	showStatusText(wstrgettext(str));
 }
 
-void GUIStatusMessage::clearStatusText()
+void GUIStatusText::clearStatusText()
 {
 	m_statustext.clear();
 	m_statustext_time = 0.0f;
@@ -55,20 +55,20 @@ void GUIStatusMessage::clearStatusText()
 		m_guitext_status->setVisible(false);
 }
 
-void GUIStatusMessage::setVisible(bool visible)
+void GUIStatusText::setVisible(bool visible)
 {
 	if (m_guitext_status)
 		m_guitext_status->setVisible(visible);
 }
 
-bool GUIStatusMessage::isVisible() const
+bool GUIStatusText::isVisible() const
 {
 	if (m_guitext_status)
 		return m_guitext_status->isVisible();
 	return false;
 }
 
-void GUIStatusMessage::update(float dtime)
+void GUIStatusText::update(float dtime)
 {
 	if (!m_guitext_status || m_statustext.empty())
 		return;
@@ -112,7 +112,7 @@ void GUIStatusMessage::update(float dtime)
 	m_guitext_status->enableOverrideColor(true);
 }
 
-void GUIStatusMessage::updatePosition()
+void GUIStatusText::updatePosition()
 {
 	if (!m_guitext_status)
 		return;

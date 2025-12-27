@@ -8,7 +8,7 @@
 #include <gettext.h>
 #include "gui/mainmenumanager.h"
 #include "gui/guiChatConsole.h"
-#include "gui/guiStatusMessage.h"
+#include "gui/guiStatusText.h"
 #include "gui/touchcontrols.h"
 #include "util/enriched_string.h"
 #include "util/pointedthing.h"
@@ -68,7 +68,7 @@ void GameUI::init()
 			false, true, guiroot);
 
 	// Status message element (displays info when showing and hiding GUI stuff, etc.)
-	m_status_message = std::make_unique<GUIStatusMessage>(guienv, guiroot);
+	m_status_text = std::make_unique<GUIStatusText>(guienv, guiroot);
 
 	// Profiler text (size is updated when text is updated)
 	m_guitext_profiler = gui::StaticText::add(guienv, L"<Profiler>",
@@ -160,17 +160,17 @@ void GameUI::update(const RunStats &stats, Client *client, MapDrawControl *draw_
 	m_guitext_info->setVisible(m_flags.show_hud && g_menumgr.menuCount() == 0);
 
 	// Update status message element
-	if (m_status_message) {
+	if (m_status_text) {
 		// Handle touch control override if needed
 		bool overriden = g_touchcontrols && g_touchcontrols->isStatusTextOverriden();
 		if (overriden) {
-			m_status_message->setVisible(false);
+			m_status_text->setVisible(false);
 			if (g_touchcontrols)
 				g_touchcontrols->getStatusText()->setVisible(true);
 		} else {
 			if (g_touchcontrols)
 				g_touchcontrols->getStatusText()->setVisible(false);
-			m_status_message->update(dtime);
+			m_status_text->update(dtime);
 		}
 	}
 
@@ -318,7 +318,7 @@ void GameUI::clearText()
 		m_guitext_info = nullptr;
 	}
 
-	m_status_message = nullptr;
+	m_status_text = nullptr;
 
 	if (m_guitext_profiler) {
 		m_guitext_profiler->remove();
