@@ -357,6 +357,13 @@ private:
 	std::unordered_set<v3s16> m_blocks_sent;
 
 	/*
+		Blocks that have been changes since the client
+		has seen them last. These blocks will be sent
+		to the client with priority.
+	 */
+	std::unordered_set<v3s16> m_blocks_modified;
+
+	/*
 		Cache of blocks that have been occlusion culled at the current distance.
 		As GetNextBlocks traverses the same distance multiple times, this saves
 		significant CPU time.
