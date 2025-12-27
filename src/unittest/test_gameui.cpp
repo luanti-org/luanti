@@ -51,8 +51,8 @@ void TestGameUI::testStatusText()
 	GameUI gui{};
 	gui.showStatusText(L"test status");
 
-	UASSERT(gui.m_statustext_time == 0.0f);
-	UASSERT(gui.m_statustext == L"test status");
+	UASSERT(gui.m_status_message->getDisplayDuration() == 0.0f);
+	UASSERT(gui.m_status_message->getStatusText() == L"test status");
 }
 
 void TestGameUI::testInfoText()

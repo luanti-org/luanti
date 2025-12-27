@@ -13,7 +13,6 @@
 #include "content/mods.h"
 #include "filesys.h"
 #include "guiMainMenu.h"
-// #include "guiStatusMessage.h"
 #include "httpfetch.h"
 #include "irrlicht_changes/static_text.h"
 #include "log.h"
@@ -180,7 +179,7 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 	// Create status message element for menu notifications
 	m_status_message = std::make_unique<GUIStatusMessage>(
 		rendering_engine->get_gui_env(), m_parent);
-	
+
 	// Configure appearance for main menu
 	m_status_message->setDisplayDuration(3.0f); // 3 seconds in main menu
 	m_status_message->setBackgroundColor(video::SColor(220, 0, 0, 0)); // Dark semi-transparent background

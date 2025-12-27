@@ -14,7 +14,7 @@
  * Reusable GUI element for displaying status messages with automatic fade-out.
  * Can be used in-game (for fly/fast mode, volume changes, etc.) or in menus
  * (for screenshot notifications, etc.)
- * 
+ *
  * The message automatically fades out and disappears after a configurable duration.
  */
 class GUIStatusMessage
@@ -37,11 +37,11 @@ public:
 
 	// Set background color (enables background if alpha > 0)
 	void setBackgroundColor(const video::SColor &color) { m_background_color = color; }
-	
+
 	// Enable/disable background
 	void setBackgroundEnabled(bool enabled) { m_background_enabled = enabled; }
 	bool isBackgroundEnabled() const { return m_background_enabled; }
-	
+
 	// Set text color
 	void setTextColor(const video::SColor &color) { m_initial_color = color; }
 

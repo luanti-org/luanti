@@ -87,7 +87,7 @@ void GUIStatusMessage::update(float dtime)
 	// Set text content
 	m_guitext_status->setText(m_statustext.c_str());
 	m_guitext_status->setVisible(true);
-	
+
 	// Apply text alignment
 	m_guitext_status->setTextAlignment(m_text_alignment, m_text_alignment);
 
@@ -128,7 +128,7 @@ void GUIStatusMessage::updatePosition()
 			// Full-width bar at the very bottom of the screen
 			s32 bar_height = m_bar_height > 0 ? m_bar_height : (status_height + 12);
 			s32 status_y = screensize.Y; // Position at very bottom
-			
+
 			// Position the element as a full-width bar
 			m_guitext_status->setRelativePosition(core::rect<s32>(
 				0,
@@ -146,7 +146,7 @@ void GUIStatusMessage::updatePosition()
 		// Default position (for in-game style)
 		s32 status_y = screensize.Y - 150;
 		s32 status_x = (screensize.X - status_width) / 2;
-		
+
 		m_guitext_status->setRelativePosition(core::rect<s32>(
 			status_x,
 			status_y - status_height,
