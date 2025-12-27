@@ -1166,6 +1166,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		else
 			client->ResendBlockIfOnWire(blockpos);
 
+		getClient(peer_id)->m_time_from_building = 0;
 		return;
 	} // action == INTERACT_DIGGING_COMPLETED
 

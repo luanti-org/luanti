@@ -246,7 +246,6 @@ void RemoteClient::GetNextBlocks (
 	//bool queue_is_full = false;
 
 	// add modified blocks to the beginning of the queue
-	g_profiler->avg("Server::modified blocks [#]", m_blocks_modified.size());
 	for (v3s16 p : m_blocks_modified) {
 		dest.emplace_back(0.0f, p, peer_id);
 	}
@@ -441,8 +440,24 @@ void RemoteClient::SetBlockNotSent(v3s16 p)
 
 	// remove the block from sending and sent sets,
 	// and reset the scan loop if found
-	if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0)
+	if (m_blocks_sending.erase(p) + m_blocks_sent.erase(p) > 0) {
 		m_blocks_modified.insert(p);
+
+		// if the player just built, also reset the unsent distance
+		if (m_time_from_building < m_min_time_from_building) {
+			// Note that we do NOT use the euclidean distance here.
+			// getNextBlocks builds successive cube-surfaces in the send loop.
+			// This resets the distance to the maximum cube size that
+			// still guarantees that this block will be scanned again right away.
+			//
+			// Using m_last_center is OK, as a change in center
+			// will reset m_nearest_unsent_d to 0 anyway (see getNextBlocks).
+			p -= m_last_center;
+			s16 this_d = std::max({std::abs(p.X), std::abs(p.Y), std::abs(p.Z)});
+			m_nearest_unsent_d = std::min(m_nearest_unsent_d, this_d);
+		}
+
+	}
 }
 
 void RemoteClient::SetBlocksNotSent(const std::vector<v3s16> &blocks)
