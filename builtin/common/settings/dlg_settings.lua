@@ -615,7 +615,10 @@ local function get_formspec(dialogdata)
 		local info_reset_y = used_h / 2 - 0.25
 
 		if show_reset then
-			local default = comp.setting.default
+			local default = comp.setting.type == "key"
+				and core.get_key_description(comp.setting.default)
+				or comp.setting.default
+
 			local reset_tooltip = default and
 					fgettext("Reset setting to default ($1)", tostring(default)) or
 					fgettext("Reset setting to default")
