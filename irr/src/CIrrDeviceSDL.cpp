@@ -361,7 +361,7 @@ void CIrrDeviceSDL::resetReceiveTextInputEvents()
 		// sent as text input events instead of the result) when
 		// SDL_StartTextInput() is called on the same input box.
 		core::rect<s32> pos = elem->getAbsolutePosition();
-		if (!SDL_TextInputActive(Window) || lastElemPos != pos) {
+		if (_IRR_USE_SDL3_ || !SDL_TextInputActive(Window) || lastElemPos != pos) {
 			lastElemPos = pos;
 			SDL_Rect rect;
 			rect.x = pos.UpperLeftCorner.X;
@@ -369,11 +369,15 @@ void CIrrDeviceSDL::resetReceiveTextInputEvents()
 			rect.w = pos.getWidth();
 			rect.h = pos.getHeight();
 #ifdef _IRR_USE_SDL3_
-			SDL_SetTextInputArea(Window, &rect, 10);
+			auto cursor = elem->getTextInputCursorPosition();
+			SDL_SetTextInputArea(Window, &rect, cursor);
 #else
 			SDL_SetTextInputRect(&rect);
 #endif
-			SDL_StartTextInput(Window);
+			// SDL2 requires SDL_SetTextInputArea() to be called before SDL_StartTextInput
+			// SDL3 does not have this requirement
+			if (!_IRR_USE_SDL3_ || !SDL_TextInputActive(Window))
+				SDL_StartTextInput(Window);
 		}
 	} else {
 		SDL_StopTextInput(Window);
