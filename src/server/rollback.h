@@ -15,13 +15,9 @@
 
 class IGameDef;
 
-// Base class providing the common parts of rollback handling (actor tracking,
-// suspect selection, buffering and generic query wrappers). DB backends implement
-// only the persistence and query primitives.
 class RollbackManager : public IRollbackManager
 {
 public:
-	explicit RollbackManager(IGameDef *gamedef_);
 	~RollbackManager() override = default;
 
 	// IRollbackManager
@@ -30,15 +26,23 @@ public:
 	bool isActorGuess() override;
 	void setActor(const std::string &actor, bool is_guess) override;
 	std::string getSuspect(v3s16 p, float nearness_shortcut, float min_nearness) override;
-	void flush() override;
+	virtual void flush() = 0;
 	std::list<RollbackAction> getNodeActors(v3s16 pos, int range, time_t seconds, int limit) override;
 	std::list<RollbackAction> getRevertActions(const std::string &actor_filter, time_t seconds) override;
 
 protected:
+	explicit RollbackManager(IGameDef *gamedef_);
 	static float getSuspectNearness(bool is_guess, v3s16 suspect_p,
 			time_t suspect_t, v3s16 action_p, time_t action_t);
 
 	void addActionInternal(const RollbackAction &action);
+
+	// Helper for derived classes to flush buffer contents
+	// Derived classes handle transactions/persistence as needed
+	void flushBufferContents();
+
+	// Helper to parse nodemeta location format: "nodemeta:x,y,z"
+	static bool parseNodemetaLocation(const std::string &loc, int &x, int &y, int &z);
 
 	// Backend-specific hooks
 	virtual void beginSaveActions() = 0;

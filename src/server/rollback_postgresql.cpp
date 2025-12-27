@@ -1,5 +1,7 @@
 // Luanti
 // SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
+// Copyright (C) 2025 James Dornan <james@catch22.com>
 
 #include "config.h"
 
@@ -17,17 +19,6 @@
 #include "log.h"
 #include "util/numeric.h"
 #include "util/string.h"
-
-/*
- * Postgres-focused improvements vs the straight SQLite port:
- * - O(1) actor/node lookups via unordered_map caches (avoid O(n) vector scans).
- * - More appropriate indexes:
- *     * BRIN on timestamp for fast time-window scans on append-only tables.
- *     * (actor, timestamp DESC, id DESC) for actor-filter queries.
- *   (keeps existing indexes for compatibility; you can later drop redundant ones after profiling)
- * - Bytea handling kept compatible with text-result mode. (If Database_PostgreSQL later adds a
- *   binary-result mode, you can switch to PQgetlength/PQgetvalue without PQunescapeBytea.)
- */
 
 class ItemStackRow : public ItemStack {
 public:
@@ -61,8 +52,7 @@ struct ActionRow {
 
 static std::string pg_unescape_bytea_to_string(const char *val)
 {
-	// Note: PQunescapeBytea expects *text* output format of bytea.
-	// This matches the current use of execPrepared(..., false, false) which returns text results.
+	// PQunescapeBytea expects text output format (matches execPrepared text results)
 	if (!val)
 		return "";
 	size_t out_len = 0;
@@ -81,7 +71,6 @@ RollbackManagerPostgreSQL::RollbackManagerPostgreSQL(
 {
 	connectToDatabase();
 
-	// Preload known actors/nodes into O(1) caches.
 	{
 		PGresult *res = execPrepared("actor_list", 0, nullptr, false, false);
 		const int numrows = PQntuples(res);
@@ -112,7 +101,9 @@ RollbackManagerPostgreSQL::RollbackManagerPostgreSQL(
 
 RollbackManagerPostgreSQL::~RollbackManagerPostgreSQL()
 {
-	flush();
+	if (initialized()) {
+		flush();
+	}
 }
 
 void RollbackManagerPostgreSQL::createDatabase()
@@ -129,11 +120,6 @@ void RollbackManagerPostgreSQL::createDatabase()
 			"name TEXT NOT NULL UNIQUE"
 		");");
 
-	// Also creates indexes in one go (safe to re-run with IF NOT EXISTS).
-	// Notes:
-	// - action_ts_brin: tiny and fast for time-window queries on append-only tables.
-	// - action_actor_ts: optimized for "since time AND actor = ?" with ORDER BY timestamp DESC.
-	// - existing indexes kept for compatibility / conservative rollout.
 	createTableIfNotExists("action",
 		"CREATE TABLE action ("
 			"id BIGSERIAL PRIMARY KEY,"
@@ -178,7 +164,6 @@ void RollbackManagerPostgreSQL::initStatements()
 	prepareStatement("actor_list", "SELECT id, name FROM actor");
 	prepareStatement("node_list", "SELECT id, name FROM node");
 
-	// Use a single statement for "get or create". This avoids select+insert races.
 	prepareStatement("actor_upsert",
 		"INSERT INTO actor(name) VALUES($1) "
 		"ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name "
@@ -342,11 +327,6 @@ bool RollbackManagerPostgreSQL::registerRow(const ActionRow &row)
 		argLen[idx] = -1;
 		argFmt[idx] = 0;
 	};
-	auto set_null = [&](int idx) {
-		args[idx] = nullptr;
-		argLen[idx] = 0;
-		argFmt[idx] = 0;
-	};
 	auto set_bytea = [&](int idx, const std::string &s) {
 		args[idx] = s.data();
 		argLen[idx] = (int)MYMIN(s.size(), (size_t)INT_MAX);
@@ -373,18 +353,7 @@ bool RollbackManagerPostgreSQL::registerRow(const ActionRow &row)
 			set_text(9, x_s);
 			set_text(10, y_s);
 			set_text(11, z_s);
-		} else {
-			set_null(9);
-			set_null(10);
-			set_null(11);
 		}
-	} else {
-		set_null(3);
-		set_null(4);
-		set_null(5);
-		set_null(6);
-		set_null(7);
-		set_null(8);
 	}
 
 	if (row.type == RollbackAction::TYPE_SET_NODE) {
@@ -403,21 +372,6 @@ bool RollbackManagerPostgreSQL::registerRow(const ActionRow &row)
 		set_bytea(19, row.newMeta);
 
 		set_text(20, guessed_s);
-	} else {
-		if (!nodeMeta) {
-			set_null(9);
-			set_null(10);
-			set_null(11);
-		}
-		set_null(12);
-		set_null(13);
-		set_null(14);
-		set_null(15);
-		set_null(16);
-		set_null(17);
-		set_null(18);
-		set_null(19);
-		set_null(20);
 	}
 
 	execPrepared("action_insert", 21, args, argLen, argFmt);
@@ -496,23 +450,15 @@ ActionRow RollbackManagerPostgreSQL::actionRowFromRollbackAction(const RollbackA
 		row.stack = action.inventory_stack;
 		row.stack.id = getNodeId(row.stack.name);
 
-		// Keep parity with SQLite rollback: only NODEMETA inventories are fully represented
 		const std::string &loc = row.location;
 		const bool is_node_meta = (loc.size() >= 9 && loc.compare(0, 9, "nodemeta:") == 0);
 		row.nodeMeta = is_node_meta ? 1 : 0;
 
 		if (is_node_meta) {
-			// loc format: "nodemeta:x,y,z"
-			std::string::size_type p1 = loc.find(':') + 1;
-			std::string::size_type p2 = loc.find(',');
-			std::string x = loc.substr(p1, p2 - p1);
-			p1 = p2 + 1;
-			p2 = loc.find(',', p1);
-			std::string y = loc.substr(p1, p2 - p1);
-			std::string z = loc.substr(p2 + 1);
-			row.x = atoi(x.c_str());
-			row.y = atoi(y.c_str());
-			row.z = atoi(z.c_str());
+			if (!parseNodemetaLocation(loc, row.x, row.y, row.z)) {
+				// Invalid format - set to 0,0,0 as fallback
+				row.x = row.y = row.z = 0;
+			}
 		}
 	} else {
 		row.x = action.p.X;
@@ -631,6 +577,21 @@ void RollbackManagerPostgreSQL::endSaveActions()
 void RollbackManagerPostgreSQL::rollbackSaveActions()
 {
 	rollback();
+}
+
+void RollbackManagerPostgreSQL::flush()
+{
+	if (action_todisk_buffer.empty())
+		return;
+
+	beginSaveActions();
+	try {
+		flushBufferContents();
+		endSaveActions();
+	} catch (...) {
+		rollbackSaveActions();
+		throw;
+	}
 }
 
 void RollbackManagerPostgreSQL::persistAction(const RollbackAction &a)
