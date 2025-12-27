@@ -52,7 +52,7 @@ void TestGameUI::testStatusText()
 	gui.m_status_text = std::make_unique<GUIStatusText>(nullptr);
 	gui.showStatusText(L"test status");
 
-	UASSERT(gui.m_status_text->getDisplayDuration() == 0.0f);
+	UASSERT(gui.m_status_text->getStatusTextTime() == 0.0f);
 	UASSERT(gui.m_status_text->getStatusText() == L"test status");
 }
 

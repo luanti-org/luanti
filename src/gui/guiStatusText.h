@@ -75,6 +75,9 @@ public:
 	// Get current text
 	const std::wstring &getStatusText() const { return m_statustext; }
 
+	// Get current time
+	float getStatusTextTime() const { return m_statustext_time; }
+
 	// Get the current fade progress (0.0 = fully visible, 1.0 = fully faded)
 	float getFadeProgress() const { return m_fade_progress; }
 
