@@ -17,14 +17,14 @@ class IGameDef;
 struct ActionRow;
 struct Entity;
 
-class RollbackManagerSQLite3 final : public RollbackManager
+class RollbackMgrSQLite3 final : public RollbackMgr
 {
 public:
-	RollbackManagerSQLite3(const std::string &world_path, IGameDef *gamedef);
-	~RollbackManagerSQLite3();
+	RollbackMgrSQLite3(const std::string &world_path, IGameDef *gamedef);
+	~RollbackMgrSQLite3();
 
 private:
-	// RollbackManager hooks
+	// RollbackMgr hooks
 	void flush() override;
 	void beginSaveActions() override;
 	void endSaveActions() override;

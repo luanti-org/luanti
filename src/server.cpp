@@ -463,24 +463,15 @@ IRollbackManager *Server::createRollbackManager()
 {
 	Settings world_mt;
 	const std::string world_mt_path = m_path_world + DIR_DELIM + "world.mt";
-	// If the world config can't be read for some reason, fall back to defaults below.
-	world_mt.readConfigFile(world_mt_path.c_str());
+	if (!world_mt.readConfigFile(world_mt_path.c_str()))
+		throw BaseException("Cannot read world.mt!");
 
-	std::string backend;
-	std::string backend_source;
-	if (world_mt.exists("rollback_backend")) {
-		backend = world_mt.get("rollback_backend");
-		backend_source = "rollback_backend";
-	} else {
-		backend = "sqlite3";
-		backend_source = "default";
-	}
+	std::string backend = "sqlite3"; // fallback value
+	world_mt.getNoEx("rollback_backend", backend);
 
 	if (backend == "sqlite3") {
-		verbosestream << "Rollback: using backend \"sqlite3\""
-			<< " (source: " << backend_source << ")"
-			<< std::endl;
-		return new RollbackManagerSQLite3(m_path_world, this);
+		verbosestream << "Rollback: using backend \"sqlite3\"" << std::endl;
+		return new RollbackMgrSQLite3(m_path_world, this);
 	}
 
 	if (backend == "postgresql") {
@@ -491,18 +482,16 @@ IRollbackManager *Server::createRollbackManager()
 			throw ServerError("Rollback backend \"postgresql\" requires pgsql_rollback_connection in world.mt.");
 
 		// Do not log rollback connection details.
-		verbosestream << "Rollback: using backend \"postgresql\""
-			<< " (source: " << backend_source << ")"
-			<< std::endl;
+		verbosestream << "Rollback: using backend \"postgresql\"" << std::endl;
 
-		return new RollbackManagerPostgreSQL(connect_string, this);
-#else
-		throw ServerError("Rollback backend \"postgresql\" requested but this build has USE_POSTGRESQL=OFF.");
+		return new RollbackMgrPostgreSQL(connect_string, this);
 #endif
 	}
 
+	auto supported = getRollbackBackends();
 	throw ServerError("Rollback backend \"" + backend +
-		"\" is not supported; supported backends are sqlite3 and postgresql.");
+		"\" is not supported; supported backends are " +
+		str_join(supported, ", ") + ".");
 }
 
 void Server::init()
@@ -4438,6 +4427,16 @@ std::vector<std::string> Server::getModStorageDatabaseBackends()
 #endif
 	ret.emplace_back("files");
 	ret.emplace_back("dummy");
+	return ret;
+}
+
+std::vector<std::string> Server::getRollbackBackends()
+{
+	std::vector<std::string> ret;
+	ret.emplace_back("sqlite3");
+#if USE_POSTGRESQL
+	ret.emplace_back("postgresql");
+#endif
 	return ret;
 }
 

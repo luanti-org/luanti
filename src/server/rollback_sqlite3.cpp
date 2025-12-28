@@ -17,7 +17,7 @@
 
 #define SQLRES(f, good) \
 	if ((f) != (good)) {\
-		throw FileNotGoodException(std::string("RollbackManager: " \
+		throw FileNotGoodException(std::string("RollbackMgr: " \
 			"SQLite3 error (" __FILE__ ":" TOSTRING(__LINE__) \
 			"): ") + sqlite3_errmsg(db)); \
 	}
@@ -25,7 +25,7 @@
 
 #define SQLOK_ERRSTREAM(s, m)                             \
 	if ((s) != SQLITE_OK) {                               \
-		errorstream << "RollbackManager: " << (m) << ": " \
+		errorstream << "RollbackMgr: " << (m) << ": " \
 			<< sqlite3_errmsg(db) << std::endl;           \
 	}
 
@@ -67,18 +67,16 @@ struct Entity {
 	std::string name;
 };
 
-RollbackManagerSQLite3::RollbackManagerSQLite3(const std::string &world_path, IGameDef *gamedef_) :
-	RollbackManager(gamedef_)
+RollbackMgrSQLite3::RollbackMgrSQLite3(const std::string &world_path, IGameDef *gamedef_) :
+	RollbackMgr(gamedef_)
 {
 	database_path = world_path + DIR_DELIM "rollback.sqlite";
 	initDatabase();
 }
 
-RollbackManagerSQLite3::~RollbackManagerSQLite3()
+RollbackMgrSQLite3::~RollbackMgrSQLite3()
 {
-	if (db != nullptr) {
-		flush();
-	}
+	flush();
 
 	FINALIZE_STATEMENT(stmt_insert);
 	FINALIZE_STATEMENT(stmt_replace);
@@ -93,19 +91,19 @@ RollbackManagerSQLite3::~RollbackManagerSQLite3()
 	SQLOK_ERRSTREAM(sqlite3_close(db), "Could not close db");
 }
 
-void RollbackManagerSQLite3::registerNewActor(int id, const std::string &name)
+void RollbackMgrSQLite3::registerNewActor(int id, const std::string &name)
 {
 	Entity actor = {id, name};
 	knownActors.push_back(actor);
 }
 
-void RollbackManagerSQLite3::registerNewNode(int id, const std::string &name)
+void RollbackMgrSQLite3::registerNewNode(int id, const std::string &name)
 {
 	Entity node = {id, name};
 	knownNodes.push_back(node);
 }
 
-int RollbackManagerSQLite3::getActorId(const std::string &name)
+int RollbackMgrSQLite3::getActorId(const std::string &name)
 {
 	for (auto iter = knownActors.begin(); iter != knownActors.end(); ++iter) {
 		if (iter->name == name)
@@ -122,7 +120,7 @@ int RollbackManagerSQLite3::getActorId(const std::string &name)
 	return id;
 }
 
-int RollbackManagerSQLite3::getNodeId(const std::string &name)
+int RollbackMgrSQLite3::getNodeId(const std::string &name)
 {
 	for (auto iter = knownNodes.begin(); iter != knownNodes.end(); ++iter) {
 		if (iter->name == name)
@@ -139,7 +137,7 @@ int RollbackManagerSQLite3::getNodeId(const std::string &name)
 	return id;
 }
 
-const char *RollbackManagerSQLite3::getActorName(int id)
+const char *RollbackMgrSQLite3::getActorName(int id)
 {
 	for (auto iter = knownActors.begin(); iter != knownActors.end(); ++iter) {
 		if (iter->id == id)
@@ -148,7 +146,7 @@ const char *RollbackManagerSQLite3::getActorName(int id)
 	return "";
 }
 
-const char *RollbackManagerSQLite3::getNodeName(int id)
+const char *RollbackMgrSQLite3::getNodeName(int id)
 {
 	for (auto iter = knownNodes.begin(); iter != knownNodes.end(); ++iter) {
 		if (iter->id == id)
@@ -157,7 +155,7 @@ const char *RollbackManagerSQLite3::getNodeName(int id)
 	return "";
 }
 
-bool RollbackManagerSQLite3::createTables()
+bool RollbackMgrSQLite3::createTables()
 {
 	SQLOK(sqlite3_exec(db,
 		"CREATE TABLE IF NOT EXISTS `actor` (\n"
@@ -203,7 +201,7 @@ bool RollbackManagerSQLite3::createTables()
 	return true;
 }
 
-bool RollbackManagerSQLite3::initDatabase()
+bool RollbackMgrSQLite3::initDatabase()
 {
 	SQLOK(sqlite3_open_v2(database_path.c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL));
 	createTables();
@@ -317,7 +315,7 @@ bool RollbackManagerSQLite3::initDatabase()
 	return true;
 }
 
-bool RollbackManagerSQLite3::registerRow(const ActionRow &row)
+bool RollbackMgrSQLite3::registerRow(const ActionRow &row)
 {
 	sqlite3_stmt *stmt_do = (row.id) ? stmt_replace : stmt_insert;
 
@@ -332,11 +330,11 @@ bool RollbackManagerSQLite3::registerRow(const ActionRow &row)
 		nodeMeta = (loc.substr(0, 9) == "nodemeta:");
 
 		SQLOK(sqlite3_bind_text(stmt_do, 4, row.list.c_str(), row.list.size(), NULL));
-		SQLOK(sqlite3_bind_int(stmt_do, 5, row.index));
-		SQLOK(sqlite3_bind_int(stmt_do, 6, row.add));
-		SQLOK(sqlite3_bind_int(stmt_do, 7, row.stack.id));
-		SQLOK(sqlite3_bind_int(stmt_do, 8, row.stack.count));
-		SQLOK(sqlite3_bind_int(stmt_do, 9, (int)nodeMeta));
+		SQLOK(sqlite3_bind_int (stmt_do, 5, row.index));
+		SQLOK(sqlite3_bind_int (stmt_do, 6, row.add));
+		SQLOK(sqlite3_bind_int (stmt_do, 7, row.stack.id));
+		SQLOK(sqlite3_bind_int (stmt_do, 8, row.stack.count));
+		SQLOK(sqlite3_bind_int (stmt_do, 9, (int)nodeMeta));
 
 		if (nodeMeta) {
 			int x, y, z;
@@ -361,18 +359,18 @@ bool RollbackManagerSQLite3::registerRow(const ActionRow &row)
 	}
 
 	if (row.type == RollbackAction::TYPE_SET_NODE) {
-		SQLOK(sqlite3_bind_int(stmt_do, 10, row.x));
-		SQLOK(sqlite3_bind_int(stmt_do, 11, row.y));
-		SQLOK(sqlite3_bind_int(stmt_do, 12, row.z));
-		SQLOK(sqlite3_bind_int(stmt_do, 13, row.oldNode));
-		SQLOK(sqlite3_bind_int(stmt_do, 14, row.oldParam1));
-		SQLOK(sqlite3_bind_int(stmt_do, 15, row.oldParam2));
+		SQLOK(sqlite3_bind_int (stmt_do, 10, row.x));
+		SQLOK(sqlite3_bind_int (stmt_do, 11, row.y));
+		SQLOK(sqlite3_bind_int (stmt_do, 12, row.z));
+		SQLOK(sqlite3_bind_int (stmt_do, 13, row.oldNode));
+		SQLOK(sqlite3_bind_int (stmt_do, 14, row.oldParam1));
+		SQLOK(sqlite3_bind_int (stmt_do, 15, row.oldParam2));
 		SQLOK(sqlite3_bind_text(stmt_do, 16, row.oldMeta.c_str(), row.oldMeta.size(), NULL));
-		SQLOK(sqlite3_bind_int(stmt_do, 17, row.newNode));
-		SQLOK(sqlite3_bind_int(stmt_do, 18, row.newParam1));
-		SQLOK(sqlite3_bind_int(stmt_do, 19, row.newParam2));
+		SQLOK(sqlite3_bind_int (stmt_do, 17, row.newNode));
+		SQLOK(sqlite3_bind_int (stmt_do, 18, row.newParam1));
+		SQLOK(sqlite3_bind_int (stmt_do, 19, row.newParam2));
 		SQLOK(sqlite3_bind_text(stmt_do, 20, row.newMeta.c_str(), row.newMeta.size(), NULL));
-		SQLOK(sqlite3_bind_int(stmt_do, 21, row.guessed ? 1 : 0));
+		SQLOK(sqlite3_bind_int (stmt_do, 21, row.guessed ? 1 : 0));
 	} else {
 		if (!nodeMeta) {
 			SQLOK(sqlite3_bind_null(stmt_do, 10));
@@ -399,7 +397,7 @@ bool RollbackManagerSQLite3::registerRow(const ActionRow &row)
 	return written == SQLITE_DONE;
 }
 
-std::list<ActionRow> RollbackManagerSQLite3::actionRowsFromSelect(sqlite3_stmt *stmt)
+std::list<ActionRow> RollbackMgrSQLite3::actionRowsFromSelect(sqlite3_stmt *stmt)
 {
 	std::list<ActionRow> rows;
 	const unsigned char *text;
@@ -464,7 +462,7 @@ std::list<ActionRow> RollbackManagerSQLite3::actionRowsFromSelect(sqlite3_stmt *
 	return rows;
 }
 
-ActionRow RollbackManagerSQLite3::actionRowFromRollbackAction(const RollbackAction &action)
+ActionRow RollbackMgrSQLite3::actionRowFromRollbackAction(const RollbackAction &action)
 {
 	ActionRow row;
 	row.actor     = getActorId(action.actor);
@@ -496,7 +494,8 @@ ActionRow RollbackManagerSQLite3::actionRowFromRollbackAction(const RollbackActi
 	return row;
 }
 
-std::list<RollbackAction> RollbackManagerSQLite3::rollbackActionsFromActionRows(const std::list<ActionRow> &rows)
+std::list<RollbackAction>
+RollbackMgrSQLite3::rollbackActionsFromActionRows(const std::list<ActionRow> &rows)
 {
 	std::list<RollbackAction> actions;
 
@@ -540,7 +539,7 @@ std::list<RollbackAction> RollbackManagerSQLite3::rollbackActionsFromActionRows(
 	return actions;
 }
 
-std::list<ActionRow> RollbackManagerSQLite3::getRowsSince(time_t firstTime, const std::string &actor)
+std::list<ActionRow> RollbackMgrSQLite3::getRowsSince(time_t firstTime, const std::string &actor)
 {
 	sqlite3_stmt *stmt_stmt = actor.empty() ? stmt_select : stmt_select_withActor;
 	sqlite3_bind_int64(stmt_stmt, 1, firstTime);
@@ -553,49 +552,52 @@ std::list<ActionRow> RollbackManagerSQLite3::getRowsSince(time_t firstTime, cons
 	return rows;
 }
 
-std::list<ActionRow> RollbackManagerSQLite3::getRowsSince_range(time_t start_time, v3s16 p, int range, int limit)
+std::list<ActionRow> RollbackMgrSQLite3::getRowsSince_range(time_t start_time, v3s16 p, int range, int limit)
 {
 	sqlite3_bind_int64(stmt_select_range, 1, start_time);
-	sqlite3_bind_int(stmt_select_range, 2, static_cast<int>(p.X - range));
-	sqlite3_bind_int(stmt_select_range, 3, static_cast<int>(p.X + range));
-	sqlite3_bind_int(stmt_select_range, 4, static_cast<int>(p.Y - range));
-	sqlite3_bind_int(stmt_select_range, 5, static_cast<int>(p.Y + range));
-	sqlite3_bind_int(stmt_select_range, 6, static_cast<int>(p.Z - range));
-	sqlite3_bind_int(stmt_select_range, 7, static_cast<int>(p.Z + range));
-	sqlite3_bind_int(stmt_select_range, 8, limit);
+	sqlite3_bind_int  (stmt_select_range, 2, static_cast<int>(p.X - range));
+	sqlite3_bind_int  (stmt_select_range, 3, static_cast<int>(p.X + range));
+	sqlite3_bind_int  (stmt_select_range, 4, static_cast<int>(p.Y - range));
+	sqlite3_bind_int  (stmt_select_range, 5, static_cast<int>(p.Y + range));
+	sqlite3_bind_int  (stmt_select_range, 6, static_cast<int>(p.Z - range));
+	sqlite3_bind_int  (stmt_select_range, 7, static_cast<int>(p.Z + range));
+	sqlite3_bind_int  (stmt_select_range, 8, limit);
 
 	const std::list<ActionRow> &rows = actionRowsFromSelect(stmt_select_range);
 	sqlite3_reset(stmt_select_range);
 	return rows;
 }
 
-std::list<RollbackAction> RollbackManagerSQLite3::getActionsSince_range(time_t start_time, v3s16 p, int range, int limit)
+std::list<RollbackAction> RollbackMgrSQLite3::getActionsSince_range(time_t start_time, v3s16 p, int range, int limit)
 {
 	return rollbackActionsFromActionRows(getRowsSince_range(start_time, p, range, limit));
 }
 
-std::list<RollbackAction> RollbackManagerSQLite3::getActionsSince(time_t start_time, const std::string &actor)
+std::list<RollbackAction> RollbackMgrSQLite3::getActionsSince(time_t start_time, const std::string &actor)
 {
 	return rollbackActionsFromActionRows(getRowsSince(start_time, actor));
 }
 
-void RollbackManagerSQLite3::beginSaveActions()
+void RollbackMgrSQLite3::beginSaveActions()
 {
 	sqlite3_exec(db, "BEGIN", NULL, NULL, NULL);
 }
 
-void RollbackManagerSQLite3::endSaveActions()
+void RollbackMgrSQLite3::endSaveActions()
 {
 	sqlite3_exec(db, "COMMIT", NULL, NULL, NULL);
 }
 
-void RollbackManagerSQLite3::rollbackSaveActions()
+void RollbackMgrSQLite3::rollbackSaveActions()
 {
 	sqlite3_exec(db, "ROLLBACK", NULL, NULL, NULL);
 }
 
-void RollbackManagerSQLite3::flush()
+void RollbackMgrSQLite3::flush()
 {
+	if (db == nullptr)
+		return;
+
 	if (action_todisk_buffer.empty())
 		return;
 
@@ -609,7 +611,7 @@ void RollbackManagerSQLite3::flush()
 	}
 }
 
-void RollbackManagerSQLite3::persistAction(const RollbackAction &a)
+void RollbackMgrSQLite3::persistAction(const RollbackAction &a)
 {
 	registerRow(actionRowFromRollbackAction(a));
 }

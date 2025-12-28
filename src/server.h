@@ -447,6 +447,7 @@ public:
 	IRollbackManager *createRollbackManager();
 
 	static std::vector<std::string> getModStorageDatabaseBackends();
+	static std::vector<std::string> getRollbackBackends();
 
 	static ModStorageDatabase *openModStorageDatabase(const std::string &world_path);
 

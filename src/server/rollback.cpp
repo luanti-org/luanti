@@ -9,12 +9,12 @@
 #include "gamedef.h"
 #include "util/numeric.h"
 
-RollbackManager::RollbackManager(IGameDef *gamedef_) :
+RollbackMgr::RollbackMgr(IGameDef *gamedef_) :
 	gamedef(gamedef_)
 {
 }
 
-void RollbackManager::reportAction(const RollbackAction &action_)
+void RollbackMgr::reportAction(const RollbackAction &action_)
 {
 	if (!action_.isImportant(gamedef))
 		return;
@@ -40,23 +40,23 @@ void RollbackManager::reportAction(const RollbackAction &action_)
 	addActionInternal(action);
 }
 
-std::string RollbackManager::getActor()
+std::string RollbackMgr::getActor()
 {
 	return current_actor;
 }
 
-bool RollbackManager::isActorGuess()
+bool RollbackMgr::isActorGuess()
 {
 	return current_actor_is_guess;
 }
 
-void RollbackManager::setActor(const std::string &actor, bool is_guess)
+void RollbackMgr::setActor(const std::string &actor, bool is_guess)
 {
 	current_actor = actor;
 	current_actor_is_guess = is_guess;
 }
 
-std::string RollbackManager::getSuspect(v3s16 p, float nearness_shortcut, float min_nearness)
+std::string RollbackMgr::getSuspect(v3s16 p, float nearness_shortcut, float min_nearness)
 {
 	if (!current_actor.empty())
 		return current_actor;
@@ -91,7 +91,7 @@ std::string RollbackManager::getSuspect(v3s16 p, float nearness_shortcut, float 
 	return likely_suspect.actor;
 }
 
-void RollbackManager::flushBufferContents()
+void RollbackMgr::flushBufferContents()
 {
 	if (action_todisk_buffer.empty())
 		return;
@@ -104,7 +104,7 @@ void RollbackManager::flushBufferContents()
 	action_todisk_buffer.clear();
 }
 
-std::list<RollbackAction> RollbackManager::getNodeActors(
+std::list<RollbackAction> RollbackMgr::getNodeActors(
 		v3s16 pos, int range, time_t seconds, int limit)
 {
 	flush();
@@ -113,7 +113,7 @@ std::list<RollbackAction> RollbackManager::getNodeActors(
 	return getActionsSince_range(first_time, pos, range, limit);
 }
 
-std::list<RollbackAction> RollbackManager::getRevertActions(
+std::list<RollbackAction> RollbackMgr::getRevertActions(
 		const std::string &actor_filter, time_t seconds)
 {
 	time_t cur_time = time(0);
@@ -124,7 +124,7 @@ std::list<RollbackAction> RollbackManager::getRevertActions(
 
 // Get nearness factor for subject's action for this action
 // Return value: 0 = impossible, >0 = factor
-float RollbackManager::getSuspectNearness(bool is_guess, v3s16 suspect_p,
+float RollbackMgr::getSuspectNearness(bool is_guess, v3s16 suspect_p,
 		time_t suspect_t, v3s16 action_p, time_t action_t)
 {
 	if (action_t < suspect_t)
@@ -143,7 +143,7 @@ float RollbackManager::getSuspectNearness(bool is_guess, v3s16 suspect_p,
 	return f;
 }
 
-void RollbackManager::addActionInternal(const RollbackAction &action)
+void RollbackMgr::addActionInternal(const RollbackAction &action)
 {
 	action_todisk_buffer.push_back(action);
 	action_latest_buffer.push_back(action);
@@ -157,7 +157,7 @@ void RollbackManager::addActionInternal(const RollbackAction &action)
 		flush();
 }
 
-bool RollbackManager::parseNodemetaLocation(const std::string &loc, int &x, int &y, int &z)
+bool RollbackMgr::parseNodemetaLocation(const std::string &loc, int &x, int &y, int &z)
 {
 	// Format: "nodemeta:x,y,z"
 	if (loc.size() < 9 || loc.compare(0, 9, "nodemeta:") != 0)
