@@ -26,7 +26,6 @@
 #include "irr_ptr.h"
 
 RenderingEngine *RenderingEngine::s_singleton = nullptr;
-const video::SColor RenderingEngine::MENU_SKY_COLOR = video::SColor(255, 140, 186, 250);
 
 /* Helper classes */
 
@@ -310,8 +309,9 @@ void RenderingEngine::draw_load_screen(const std::wstring &text,
 
 	auto *driver = get_video_driver();
 
-	driver->setFog(RenderingEngine::MENU_SKY_COLOR);
-	driver->beginScene(true, true, RenderingEngine::MENU_SKY_COLOR);
+	driver->setFog(m_menu_sky_color);
+	driver->beginScene(true, true, m_menu_sky_color);
+
 	if (g_settings->getBool("menu_clouds")) {
 		g_menuclouds->step(dtime * 3);
 		g_menucloudsmgr->drawAll();

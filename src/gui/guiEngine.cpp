@@ -306,22 +306,6 @@ void GUIEngine::run()
 
 	unsigned int text_height = g_fontengine->getTextHeight();
 
-	// Reset fog color
-	{
-		video::SColor fog_color;
-		video::E_FOG_TYPE fog_type = video::EFT_FOG_LINEAR;
-		f32 fog_start = 0;
-		f32 fog_end = 0;
-		f32 fog_density = 0;
-		bool fog_pixelfog = false;
-		bool fog_rangefog = false;
-		driver->getFog(fog_color, fog_type, fog_start, fog_end, fog_density,
-				fog_pixelfog, fog_rangefog);
-
-		driver->setFog(RenderingEngine::MENU_SKY_COLOR, fog_type, fog_start,
-				fog_end, fog_density, fog_pixelfog, fog_rangefog);
-	}
-
 	const core::dimension2d<u32> initial_screen_size(
 			g_settings->getU16("screen_w"),
 			g_settings->getU16("screen_h")
@@ -356,7 +340,8 @@ void GUIEngine::run()
 				last_window_info = window_info;
 			}
 
-			driver->beginScene(true, true, RenderingEngine::MENU_SKY_COLOR);
+			driver->setFog(m_rendering_engine->m_menu_sky_color);
+			driver->beginScene(true, true, m_rendering_engine->m_menu_sky_color);
 
 			if (m_clouds_enabled) {
 				drawClouds(dtime);
@@ -419,8 +404,20 @@ GUIEngine::~GUIEngine()
 /******************************************************************************/
 void GUIEngine::drawClouds(float dtime)
 {
+	g_menuclouds->update(v3f(0, 0, 0), m_rendering_engine->m_menu_clouds_color);
 	g_menuclouds->step(dtime * 3);
 	g_menucloudsmgr->drawAll();
+}
+
+/******************************************************************************/
+void GUIEngine::setMenuCloudsColor(video::SColor color)
+{
+	m_rendering_engine->m_menu_clouds_color = color;
+}
+
+void GUIEngine::setMenuSkyColor(video::SColor color)
+{
+	m_rendering_engine->m_menu_sky_color = color;
 }
 
 /******************************************************************************/
@@ -438,14 +435,8 @@ void GUIEngine::drawBackground(video::IVideoDriver *driver)
 	v2u32 screensize = driver->getScreenSize();
 
 	video::ITexture* texture = m_textures[TEX_LAYER_BACKGROUND].texture;
-
-	/* If no texture, draw background of solid color */
-	if(!texture){
-		video::SColor color(255,80,58,37);
-		core::rect<s32> rect(0, 0, screensize.X, screensize.Y);
-		driver->draw2DRectangle(color, rect, NULL);
+	if (!texture)
 		return;
-	}
 
 	v2u32 sourcesize = texture->getOriginalSize();
 

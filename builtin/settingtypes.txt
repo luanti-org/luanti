@@ -885,6 +885,9 @@ tooltip_append_itemname (Append item name) bool false
 #    Use a cloud animation for the main menu background.
 menu_clouds (Clouds in menu) bool true
 
+#    Choose theme colors for the main menu background.
+menu_theme (Menu theme) enum light dark,light
+
 [**HUD]
 
 #    Modifies the size of the HUD elements.
