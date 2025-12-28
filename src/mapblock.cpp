@@ -516,7 +516,7 @@ void MapBlock::serializeNetworkSpecific(std::ostream &os)
 	writeU8(os, 2); // version
 }
 
-void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
+void MapBlock::deSerializeUncompressedI(std::istream &is, u8 version, bool disk, NameIdMapping &nimap)
 {
 	if (!ser_ver_supported_read(version))
 		throw VersionMismatchException("ERROR: MapBlock format not supported");
@@ -526,31 +526,15 @@ void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 	m_is_air_expired = true;
 	expandNodesIfNeeded();
 
-	if(version <= 21)
-	{
-		deSerialize_pre22(in_compressed, version, disk);
-		return;
-	}
-
-	// Decompress the whole block (version >= 29)
-	std::stringstream in_raw(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
-	if (version >= 29)
-		decompress(in_compressed, in_raw, version);
-	std::istream &is = version >= 29 ? in_raw : in_compressed;
-
 	u8 flags = readU8(is);
 	is_underground = (flags & 0x01) != 0;
 	// IMPORTANT: when the version is bumped to 30 we can read m_is_air from here
 	// m_is_air = (flags & 0x02) == 0;
 
-	if (version < 27)
-		m_lighting_complete = 0xFFFF;
-	else
-		m_lighting_complete = readU16(is);
+	m_lighting_complete = readU16(is);
 	m_generated = (flags & 0x08) == 0;
 
-	NameIdMapping nimap;
-	if (disk && version >= 29) {
+	if (disk) {
 		// Timestamp
 		TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
 				<<": Timestamp"<<std::endl);
@@ -575,40 +559,138 @@ void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 	/*
 		Bulk node data
 	*/
-	if (version >= 29) {
 		MapNode::deSerializeBulk(is, version, data, nodecount,
 			content_width, params_width);
-	} else {
-		// use in_raw from above to avoid allocating another stream object
-		decompress(is, in_raw, version);
-		MapNode::deSerializeBulk(in_raw, version, data, nodecount,
-			content_width, params_width);
+}
+
+void MapBlock::deSerializeUncompressedII(std::istream &is, u8 version, bool disk, NameIdMapping &nimap)
+{
+	/*
+		NodeMetadata
+	*/
+	TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
+			<<": Node metadata"<<std::endl);
+		m_node_metadata.deSerialize(is, m_gamedef->idef());
+
+	/*
+		Data that is only on disk
+	*/
+	if (disk) {
+		// Static objects
+		TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
+				<<": Static objects"<<std::endl);
+		m_static_objects.deSerialize(is);
+
+		// Dynamically re-set ids based on node names
+		correctBlockNodeIds(&nimap, data, m_gamedef);
+
+		if(version >= 25){
+			TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
+					<<": Node timers (ver>=25)"<<std::endl);
+			m_node_timers.deSerialize(is, version);
+		}
+
+		if (nimap.size() == 1) {
+			tryShrinkNodes();
+
+			u16 dummy;
+			m_is_air = nimap.getId("air", dummy);
+			m_is_air_expired = false;
+		}
 	}
+
+	TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
+			<<": Done."<<std::endl);
+}
+
+void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
+{
+	if (!ser_ver_supported_read(version))
+		throw VersionMismatchException("ERROR: MapBlock format not supported");
+
+	TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()<<std::endl);
+
+	if(version <= 28)
+	{
+		deSerialize_pre29(in_compressed, version, disk);
+		return;
+	}
+
+	std::stringstream is(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
+	decompress(in_compressed, is, version);
+	NameIdMapping nimap;
+	deSerializeUncompressedI(is, version, disk, nimap);
+	deSerializeUncompressedII(is, version, disk, nimap);
+}
+
+void MapBlock::deSerialize_pre29(std::istream &is, u8 version, bool disk)
+{
+	if (!ser_ver_supported_read(version))
+		throw VersionMismatchException("ERROR: MapBlock format not supported");
+
+	TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()<<std::endl);
+
+	m_is_air_expired = true;
+	expandNodesIfNeeded();
+
+	if(version <= 21)
+	{
+		deSerialize_pre22(is, version, disk);
+		return;
+	}
+
+	// Decompress the whole block (version >= 29)
+	std::stringstream in_raw(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
+
+	u8 flags = readU8(is);
+	is_underground = (flags & 0x01) != 0;
+	// IMPORTANT: when the version is bumped to 30 we can read m_is_air from here
+	// m_is_air = (flags & 0x02) == 0;
+
+	if (version < 27)
+		m_lighting_complete = 0xFFFF;
+	else
+		m_lighting_complete = readU16(is);
+	m_generated = (flags & 0x08) == 0;
+
+	NameIdMapping nimap;
+	TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
+			<<": Bulk node data"<<std::endl);
+	u8 content_width = readU8(is);
+	u8 params_width = readU8(is);
+	if(content_width != 1 && content_width != 2)
+		throw SerializationError("MapBlock::deSerialize(): invalid content_width");
+	if(params_width != 2)
+		throw SerializationError("MapBlock::deSerialize(): invalid params_width");
+
+	/*
+		Bulk node data
+	*/
+	// use in_raw from above to avoid allocating another stream object
+	decompress(is, in_raw, version);
+	MapNode::deSerializeBulk(in_raw, version, data, nodecount,
+		content_width, params_width);
 
 	/*
 		NodeMetadata
 	*/
 	TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
 			<<": Node metadata"<<std::endl);
-	if (version >= 29) {
-		m_node_metadata.deSerialize(is, m_gamedef->idef());
-	} else {
-		try {
-			// reuse in_raw
-			in_raw.str("");
-			in_raw.clear();
-			decompress(is, in_raw, version);
-			if (version >= 23)
-				m_node_metadata.deSerialize(in_raw, m_gamedef->idef());
-			else
-				content_nodemeta_deserialize_legacy(in_raw,
-					&m_node_metadata, &m_node_timers,
-					m_gamedef->idef());
-		} catch(SerializationError &e) {
-			warningstream<<"MapBlock::deSerialize(): Ignoring an error"
-					<<" while deserializing node metadata at ("
-					<<getPos()<<": "<<e.what()<<std::endl;
-		}
+	try {
+		// reuse in_raw
+		in_raw.str("");
+		in_raw.clear();
+		decompress(is, in_raw, version);
+		if (version >= 23)
+			m_node_metadata.deSerialize(in_raw, m_gamedef->idef());
+		else
+			content_nodemeta_deserialize_legacy(in_raw,
+				&m_node_metadata, &m_node_timers,
+				m_gamedef->idef());
+	} catch(SerializationError &e) {
+		warningstream<<"MapBlock::deSerialize(): Ignoring an error"
+				<<" while deserializing node metadata at ("
+				<<getPos()<<": "<<e.what()<<std::endl;
 	}
 
 	/*
@@ -631,18 +713,16 @@ void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 				<<": Static objects"<<std::endl);
 		m_static_objects.deSerialize(is);
 
-		if (version < 29) {
-			// Timestamp
-			TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
-				    <<": Timestamp"<<std::endl);
-			setTimestampNoChangedFlag(readU32(is));
-			m_disk_timestamp = m_timestamp;
+		// Timestamp
+		TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
+				<<": Timestamp"<<std::endl);
+		setTimestampNoChangedFlag(readU32(is));
+		m_disk_timestamp = m_timestamp;
 
-			// Node/id mapping
-			TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
-				    <<": NameIdMapping"<<std::endl);
-			nimap.deSerialize(is);
-		}
+		// Node/id mapping
+		TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()
+				<<": NameIdMapping"<<std::endl);
+		nimap.deSerialize(is);
 
 		// Dynamically re-set ids based on node names
 		correctBlockNodeIds(&nimap, data, m_gamedef);

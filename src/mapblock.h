@@ -411,6 +411,8 @@ public:
 	// If disk == true: In addition to doing other things, will add
 	// unknown blocks from id-name mapping to wndef
 	void deSerialize(std::istream &is, u8 version, bool disk);
+	void deSerializeUncompressedI(std::istream &is, u8 version, bool disk, NameIdMapping &nimap);
+	void deSerializeUncompressedII(std::istream &is, u8 version, bool disk, NameIdMapping &nimap);
 
 	void serializeNetworkSpecific(std::ostream &os);
 	void deSerializeNetworkSpecific(std::istream &is);
@@ -436,6 +438,7 @@ private:
 	*/
 
 	void deSerialize_pre22(std::istream &is, u8 version, bool disk);
+	void deSerialize_pre29(std::istream &is, u8 version, bool disk);
 	// check if all nodes are identical, if so convert to monoblock
 	void tryShrinkNodes();
 	// if a monoblock, expand storage back to the full array

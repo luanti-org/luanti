@@ -25,8 +25,10 @@
 #include "scripting_server.h"
 #include "scripting_emerge.h"
 #include "script/common/c_types.h" // LuaError
+#include "serialization.h"
 #include "server.h"
 #include "settings.h"
+#include "util/serialize.h"
 #include "voxel.h"
 
 EmergeParams::~EmergeParams()
@@ -575,10 +577,17 @@ EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
 		}
 	}
 	if (new_block) {
+		ScopeProfiler sp(g_profiler, "EmergeThread: deSer - async (sum)", SPT_AVG);
+
+		std::stringstream is(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
+		u8 version;
+		NameIdMapping nimap;
 		{
 			// de-serialize the block without the env-lock
-			std::istringstream iss(*from_db, std::ios_base::binary);
-			m_map->deSerializeBlock(new_block.get(), iss);
+			std::istringstream isc(*from_db, std::ios_base::binary);
+			version = readU8(isc);
+			decompress(isc, is, version);
+			new_block.get()->deSerializeUncompressedI(is, version, true, nimap);
 		}
 
 		{
@@ -590,6 +599,7 @@ EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
 				return EMERGE_FROM_MEMORY;
 
 			*block = new_block.get();
+			(*block)->deSerializeUncompressedII(is, version, true, nimap);
 			// this reads from the map and needs the env-lock
 			m_map->finishNewBlock(*block);
 			m_map->insertBlock(std::move(new_block));
