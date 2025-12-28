@@ -15,10 +15,10 @@
 
 class IGameDef;
 
-class RollbackManager : public IRollbackManager
+class RollbackMgr : public IRollbackManager
 {
 public:
-	~RollbackManager() override = default;
+	~RollbackMgr() override = default;
 
 	// IRollbackManager
 	void reportAction(const RollbackAction &action_) override;
@@ -31,7 +31,7 @@ public:
 	std::list<RollbackAction> getRevertActions(const std::string &actor_filter, time_t seconds) override;
 
 protected:
-	explicit RollbackManager(IGameDef *gamedef_);
+	explicit RollbackMgr(IGameDef *gamedef_);
 	static float getSuspectNearness(bool is_guess, v3s16 suspect_p,
 			time_t suspect_t, v3s16 action_p, time_t action_t);
 
