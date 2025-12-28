@@ -7133,7 +7133,7 @@ Rollback
 --------
 
 These functions require rollback recording to be enabled on the server (`enable_rollback_recording = true`).
-See `world.mt` documentation (`doc/world_format.md`) for selecting the rollback storage backend.
+See [`world.mt` documentation](world_format.md) for selecting the rollback storage backend.
 
 * `core.rollback_get_node_actions(pos, range, seconds, limit)`:
   returns `{{actor, pos, time, oldnode, newnode}, ...}`
