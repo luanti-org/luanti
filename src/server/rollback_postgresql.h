@@ -21,11 +21,11 @@ class IGameDef;
 
 struct ActionRow;
 
-class RollbackManagerPostgreSQL : public RollbackManager, private Database_PostgreSQL
+class RollbackMgrPostgreSQL : public RollbackMgr, private Database_PostgreSQL
 {
 public:
-	RollbackManagerPostgreSQL(const std::string &connect_string, IGameDef *gamedef);
-	~RollbackManagerPostgreSQL() override;
+	RollbackMgrPostgreSQL(const std::string &connect_string, IGameDef *gamedef);
+	~RollbackMgrPostgreSQL() override;
 
 private:
 	struct IdNameCaches {
@@ -35,7 +35,7 @@ private:
 		std::unordered_map<int, std::string> node_id_to_name;
 	};
 
-	// RollbackManager hooks
+	// RollbackMgr hooks
 	void flush() override;
 	void beginSaveActions() override;
 	void endSaveActions() override;
@@ -62,6 +62,9 @@ private:
 			const std::list<ActionRow> &rows);
 	std::list<ActionRow> getRowsSince(time_t firstTime, const std::string &actor);
 	std::list<ActionRow> getRowsSince_range(time_t firstTime, v3s16 p, int range, int limit);
+
+	void loadActorCache();
+	void loadNodeCache();
 
 private:
 	IdNameCaches m_cache;
