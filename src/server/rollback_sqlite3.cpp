@@ -338,16 +338,10 @@ bool RollbackMgrSQLite3::registerRow(const ActionRow &row)
 
 		if (nodeMeta) {
 			int x, y, z;
-			if (parseNodemetaLocation(loc, x, y, z)) {
-				SQLOK(sqlite3_bind_int(stmt_do, 10, x));
-				SQLOK(sqlite3_bind_int(stmt_do, 11, y));
-				SQLOK(sqlite3_bind_int(stmt_do, 12, z));
-			} else {
-				// Invalid format - bind 0,0,0 as fallback
-				SQLOK(sqlite3_bind_int(stmt_do, 10, 0));
-				SQLOK(sqlite3_bind_int(stmt_do, 11, 0));
-				SQLOK(sqlite3_bind_int(stmt_do, 12, 0));
-			}
+			parseNodemetaLocation(loc, x, y, z);
+			SQLOK(sqlite3_bind_int  (stmt_do, 10, x));
+			SQLOK(sqlite3_bind_int  (stmt_do, 11, y));
+			SQLOK(sqlite3_bind_int  (stmt_do, 12, z));
 		}
 	} else {
 		SQLOK(sqlite3_bind_null(stmt_do, 4));
@@ -615,5 +609,3 @@ void RollbackMgrSQLite3::persistAction(const RollbackAction &a)
 {
 	registerRow(actionRowFromRollbackAction(a));
 }
-
-

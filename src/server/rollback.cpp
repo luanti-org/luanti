@@ -5,6 +5,7 @@
 #include "server/rollback.h"
 
 #include <ctime>
+#include <stdexcept>
 
 #include "gamedef.h"
 #include "util/numeric.h"
@@ -157,22 +158,22 @@ void RollbackMgr::addActionInternal(const RollbackAction &action)
 		flush();
 }
 
-bool RollbackMgr::parseNodemetaLocation(const std::string &loc, int &x, int &y, int &z)
+void RollbackMgr::parseNodemetaLocation(const std::string &loc, int &x, int &y, int &z)
 {
 	// Format: "nodemeta:x,y,z"
 	if (loc.size() < 9 || loc.compare(0, 9, "nodemeta:") != 0)
-		return false;
+		throw std::invalid_argument("Invalid nodemeta location format");
 
 	std::string::size_type p1 = loc.find(':') + 1;
 	std::string::size_type p2 = loc.find(',');
 	if (p2 == std::string::npos)
-		return false;
+		throw std::invalid_argument("Invalid nodemeta location format");
 
 	std::string x_str = loc.substr(p1, p2 - p1);
 	p1 = p2 + 1;
 	p2 = loc.find(',', p1);
 	if (p2 == std::string::npos)
-		return false;
+		throw std::invalid_argument("Invalid nodemeta location format");
 
 	std::string y_str = loc.substr(p1, p2 - p1);
 	std::string z_str = loc.substr(p2 + 1);
@@ -180,8 +181,6 @@ bool RollbackMgr::parseNodemetaLocation(const std::string &loc, int &x, int &y, 
 	x = atoi(x_str.c_str());
 	y = atoi(y_str.c_str());
 	z = atoi(z_str.c_str());
-
-	return true;
 }
 
 

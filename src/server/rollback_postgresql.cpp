@@ -458,10 +458,7 @@ ActionRow RollbackMgrPostgreSQL::actionRowFromRollbackAction(const RollbackActio
 		row.nodeMeta = is_node_meta ? 1 : 0;
 
 		if (is_node_meta) {
-			if (!parseNodemetaLocation(loc, row.x, row.y, row.z)) {
-				// Invalid format - set to 0,0,0 as fallback
-				row.x = row.y = row.z = 0;
-			}
+			parseNodemetaLocation(loc, row.x, row.y, row.z);
 		}
 	} else {
 		row.x = action.p.X;
