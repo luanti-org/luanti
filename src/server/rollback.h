@@ -42,7 +42,8 @@ protected:
 	void flushBufferContents();
 
 	// Helper to parse nodemeta location format: "nodemeta:x,y,z"
-	static bool parseNodemetaLocation(const std::string &loc, int &x, int &y, int &z);
+	// Throws std::invalid_argument on invalid format
+	static void parseNodemetaLocation(const std::string &loc, int &x, int &y, int &z);
 
 	// Backend-specific hooks
 	virtual void beginSaveActions() = 0;
