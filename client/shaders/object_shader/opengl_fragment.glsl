@@ -3,6 +3,9 @@
 #else
 	uniform sampler2D baseTexture;
 #endif
+#ifdef TEXEL_ANTIALIASING
+	uniform vec2 texelSize0;
+#endif
 
 uniform vec3 dayLight;
 uniform lowp vec4 fogColor;
@@ -362,15 +365,36 @@ float getShadow(sampler2D shadowsampler, vec2 smTexCoord, float realDistance)
 #endif
 #endif
 
+#ifdef TEXEL_ANTIALIASING
+// Copied from the nodes fragment shader
+vec2 uv_texel_antialias()
+{
+	vec2 box_size = clamp(0.7 * fwidth(varTexCoord.st) / texelSize0, 1e-5, 1.0);
+	vec2 tx = varTexCoord.st / texelSize0 - 0.5 * box_size;
+	vec2 tx_off = clamp((fract(tx) - (1.0 - box_size)) / box_size, 0.0, 1.0);
+	return (floor(tx) + 0.5 + tx_off) * texelSize0;
+}
+#endif
+
 
 void main(void)
 {
-	vec2 uv = varTexCoord.st;
+#ifdef TEXEL_ANTIALIASING
+	vec2 uv = uv_texel_antialias();
+#ifdef USE_ARRAY_TEXTURE
+	vec4 base = textureGrad(baseTexture, vec3(uv, varTexLayer),
+		dFdx(varTexCoord.st), dFdy(varTexCoord.st)).rgba;
+#else
+	vec4 base = texture2D(baseTexture, uv).rgba;
+#endif
 
+#else
+	vec2 uv = varTexCoord.st;
 #ifdef USE_ARRAY_TEXTURE
 	vec4 base = texture(baseTexture, vec3(uv, varTexLayer)).rgba;
 #else
 	vec4 base = texture2D(baseTexture, uv).rgba;
+#endif
 #endif
 
 	// Handle transparency by discarding pixel as appropriate.

@@ -367,6 +367,11 @@ public:
 
 		constants["ENABLE_WAVING_LEAVES"] = g_settings->getBool("enable_waving_leaves") ? 1 : 0;
 		constants["ENABLE_WAVING_PLANTS"] = g_settings->getBool("enable_waving_plants") ? 1 : 0;
+
+		if (g_settings->getBool("texel_antialiasing")
+				&& (g_settings->getBool("trilinear_filter")
+				|| g_settings->getBool("bilinear_filter")))
+			constants["TEXEL_ANTIALIASING"] = 1;
 	}
 };
 
