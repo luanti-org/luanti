@@ -620,7 +620,7 @@ local function get_formspec(dialogdata)
 				default = (default ~= "")
 					and core.get_key_description(default)
 
-					-- Indicates that the action does not have a corresponding keybinding.
+					--~ Indicates that the action does not have a corresponding keybinding.
 					or fgettext_ne("Not bound")
 			end
 
