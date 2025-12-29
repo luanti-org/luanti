@@ -383,6 +383,10 @@ void MapBlock::correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 				unallocatable_contents.insert(name);
 				continue;
 			}
+			// TODO: test how world behaves
+			// * well, the local ids are interepreted as global ones
+			// * for some reason I'm still getting this after restart:
+			//   correctBlockNodeIds(): IGNORING ERROR: Could not allocate global id for node name "test_tmp:node_fill_b_14617"
 		}
 		nodes[i].setContent(global_id);
 
@@ -390,6 +394,7 @@ void MapBlock::correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 		mapping_cache.set(local_id, global_id);
 	}
 
+	// TODO: thise should not be ignored, as they lead to information loss. instead reject block
 	for (const content_t c: unnamed_contents) {
 		errorstream << "correctBlockNodeIds(): IGNORING ERROR: "
 				<< "Block contains id " << c

@@ -286,7 +286,7 @@ void LBMContentMapping::addLBM(LoadingBlockModifierDef *lbm_def, IGameDef *gamed
 	for (const auto &node : lbm_def->trigger_contents) {
 		bool found = nodedef->getIds(node, c_ids);
 		if (!found) {
-			content_t c_id = gamedef->allocateUnknownNodeId(node);
+			content_t c_id = gamedef->allocateUnknownNodeId(node); // TODO: what happens if register_node happens afterwards?
 			if (c_id == CONTENT_IGNORE) {
 				// Seems it can't be allocated.
 				warningstream << "Could not internalize node name \"" << node

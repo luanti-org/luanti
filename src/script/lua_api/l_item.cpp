@@ -653,6 +653,8 @@ int ModApiItem::l_unregister_item_raw(lua_State *L)
 
 	idef->unregisterItem(name);
 
+	// TODO: check what happens if you try to use unregistered node's id (i.e. what does mapblock::serialize do?)
+
 	return 0; /* number of results */
 }
 
