@@ -628,6 +628,11 @@ antialiasing (Antialiasing method) enum none none,fsaa,ssaa
 #    Value of 2 means taking 2x2 = 4 samples.
 fsaa (Anti-aliasing scale) enum 2 2,4,8,16
 
+#    Anti-alias texel edges by using bilinear texture sampling together with a
+#    sample coordinate transformation in the shader.
+#    This setting is ONLY applied if bilinear_filter or trilinear_filter is enabled.
+texel_antialiasing (Texel anti-aliasing) bool true
+
 #    Applies a post-processing filter to detect and smoothen high-contrast edges.
 #    Provides balance between speed and image quality.
 #    fxaa can used in combination with the other anti-aliasing methods
@@ -2070,9 +2075,12 @@ array_texture_max (Array texture max layers) int 65535 0 65535
 #    can be blurred, so this option automatically upscales them to preserve
 #    crisp pixels. This defines the minimum texture size for the upscaled textures;
 #    higher values look sharper, but require more memory.
-#    This setting is ONLY applied if any of the mentioned filters are enabled.
+#    This setting is ONLY applied if any of the mentioned filters are enabled and
+#    texel_antialiasing is disabled.
 #    This is also used as the base node texture size for world-aligned
 #    texture autoscaling.
+#
+#    Requires: !texel_antialiasing
 texture_min_size (Base texture size) int 192 192 16384
 
 #    Side length of a cube of map blocks that the client will consider together
