@@ -615,11 +615,13 @@ local function get_formspec(dialogdata)
 		local info_reset_y = used_h / 2 - 0.25
 
 		if show_reset then
-			local default
+			local default = comp.setting.default
 			if comp.setting.type == "key" then
-				default = (comp.setting.default ~= "")
-					and core.get_key_description(comp.setting.default)
-					or "Not bound"
+				default = (default ~= "")
+					and core.get_key_description(default)
+
+					-- Indicates that the action does not have a corresponding keybinding.
+					or fgettext_ne("Not bound")
 			end
 
 			local reset_tooltip = default and
