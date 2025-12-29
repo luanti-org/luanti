@@ -149,6 +149,7 @@ static bool setMaterialTextureAndFilters(video::SMaterial &material,
 {
 	bool use_trilinear_filter = g_settings->getBool("trilinear_filter");
 	bool use_bilinear_filter = g_settings->getBool("bilinear_filter");
+	bool use_texel_antialiasing = g_settings->getBool("texel_antialiasing");
 	bool use_anisotropic_filter = g_settings->getBool("anisotropic_filter");
 
 	video::ITexture *texture = tsrc->getTextureForMesh(texturestring);
@@ -157,10 +158,13 @@ static bool setMaterialTextureAndFilters(video::SMaterial &material,
 
 	material.setTexture(0, texture);
 
-	// don't filter low-res textures, makes them look blurry
-	const core::dimension2d<u32> &size = texture->getOriginalSize();
-	if (std::min(size.Width, size.Height) < TEXTURE_FILTER_MIN_SIZE)
-		use_trilinear_filter = use_bilinear_filter = false;
+	if (!use_texel_antialiasing) {
+		// Don't filter low-res textures without texel anti-aliasing, makes them
+		// look blurry
+		const core::dimension2d<u32> &size = texture->getOriginalSize();
+		if (std::min(size.Width, size.Height) < TEXTURE_FILTER_MIN_SIZE)
+			use_trilinear_filter = use_bilinear_filter = false;
+	}
 
 	material.forEachTexture([=] (auto &tex) {
 		setMaterialFilters(tex, use_bilinear_filter, use_trilinear_filter,
