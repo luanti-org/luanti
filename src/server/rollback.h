@@ -41,9 +41,12 @@ protected:
 	// Derived classes handle transactions/persistence as needed
 	void flushBufferContents();
 
+public:
 	// Helper to parse nodemeta location format: "nodemeta:x,y,z"
 	// Throws std::invalid_argument on invalid format
 	static void parseNodemetaLocation(const std::string &loc, int &x, int &y, int &z);
+
+protected:
 
 	// Backend-specific hooks
 	virtual void beginSaveActions() = 0;
