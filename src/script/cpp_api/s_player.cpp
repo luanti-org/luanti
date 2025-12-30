@@ -42,7 +42,7 @@ void ScriptApiPlayer::on_dieplayer(ServerActiveObject *player, const PlayerHPCha
 bool ScriptApiPlayer::on_punchplayer(ServerActiveObject *player,
 		ServerActiveObject *hitter,
 		float time_from_last_punch,
-		const ToolCapabilities *toolcap,
+		const ToolCapabilities &toolcap,
 		v3f dir,
 		s32 damage)
 {
@@ -57,7 +57,7 @@ bool ScriptApiPlayer::on_punchplayer(ServerActiveObject *player,
 	else
 		lua_pushnil(L);
 	lua_pushnumber(L, time_from_last_punch);
-	push_tool_capabilities(L, *toolcap);
+	push_tool_capabilities(L, toolcap);
 	push_v3f(L, dir);
 	lua_pushnumber(L, damage);
 	runCallbacks(6, RUN_CALLBACKS_MODE_OR);

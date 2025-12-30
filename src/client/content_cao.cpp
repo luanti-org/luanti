@@ -1791,8 +1791,8 @@ bool GenericCAO::directReportPunch(v3f dir, const ItemStack *punchitem,
 	const ItemStack *hand_item, float time_from_last_punch)
 {
 	assert(punchitem);	// pre-condition
-	const ToolCapabilities *toolcap =
-			&punchitem->getToolCapabilities(m_client->idef(), hand_item);
+	const ToolCapabilities &toolcap =
+			punchitem->getToolCapabilities(m_client->idef(), hand_item);
 	PunchDamageResult result = getPunchDamage(
 			m_armor_groups,
 			toolcap,
