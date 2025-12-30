@@ -93,7 +93,7 @@ private:
 	gui::IGUIStaticText *m_guitext_info = nullptr; // At the middle of the screen
 	std::wstring m_infotext;
 
-	std::unique_ptr<GUIStatusText> m_status_text= nullptr;
+	std::unique_ptr<GUIStatusText> m_status_text = nullptr;
 
 	gui::IGUIStaticText *m_guitext_chat = nullptr; // Chat text
 	u32 m_recent_chat_count = 0;
