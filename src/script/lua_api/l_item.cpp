@@ -653,12 +653,6 @@ int ModApiItem::l_unregister_item_raw(lua_State *L)
 
 	idef->unregisterItem(name);
 
-	// TODO: check what happens if you try to use unregistered node's id (i.e. what does mapblock::serialize do?)
-	// => some weird stuff
-	// should probably not remove the name-id mapping, but just set it to unknown node
-
-	// TODO: one can re-register node as tool. maybe there should be a check against this
-
 	return 0; /* number of results */
 }
 
