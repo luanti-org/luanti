@@ -25,7 +25,6 @@ public:
 
 	// Show a status text (will fade out after default duration)
 	void showStatusText(const std::wstring &str);
-	void showTranslatedStatusText(const char *str);
 
 	// Update the element (call once per frame)
 	// dtime: time elapsed since last frame
