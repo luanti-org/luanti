@@ -130,7 +130,7 @@ static video::ITexture *extractTexture(const TileDef &def, const TileLayer &laye
 		assert(ret->getType() == video::ETT_2D);
 		return ret;
 	}
-	return tsrc->getTextureForMesh(def.name.size() ? def.name : "no_texture.png");
+	return tsrc->getTextureForMesh(def.name.empty() ? "no_texture.png" : def.name);
 }
 
 void getAdHocNodeShader(video::SMaterial &mat, IShaderSource *shdsrc,
