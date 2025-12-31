@@ -352,12 +352,6 @@ void MapBlock::correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 		IGameDef *gamedef)
 {
 	const NodeDefManager *nodedef = gamedef->ndef();
-	// This means the block contains incorrect ids, and we contain
-	// the information to convert those to names.
-	// nodedef contains information to convert our names to globally
-	// correct ids.
-	std::unordered_set<content_t> unnamed_contents;
-	std::unordered_set<std::string> unallocatable_contents;
 
 	// Used to cache local to global id lookup.
 	IdIdMapping &mapping_cache = IdIdMapping::giveClearedThreadLocalInstance();
@@ -372,33 +366,22 @@ void MapBlock::correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 
 		std::string name;
 		if (!nimap->getName(local_id, name)) {
-			unnamed_contents.insert(local_id);
-			continue;
+			throw SerializationError("MapBlock::correctBlockNodeIds(): "
+				"Block contains id " + itos(local_id) + " with no name mapping");
 		}
 
 		content_t global_id;
 		if (!nodedef->getId(name, global_id)) {
 			global_id = gamedef->allocateUnknownNodeId(name);
 			if (global_id == CONTENT_IGNORE) {
-				unallocatable_contents.insert(name);
-				continue;
+				throw SerializationError("MapBlock::correctBlockNodeIds(): "
+					"Could not allocate global id for node name \"" + name + "\"");
 			}
 		}
 		nodes[i].setContent(global_id);
 
 		// Save previous node local_id & global_id result
 		mapping_cache.set(local_id, global_id);
-	}
-
-	for (const content_t c: unnamed_contents) {
-		errorstream << "correctBlockNodeIds(): IGNORING ERROR: "
-				<< "Block contains id " << c
-				<< " with no name mapping" << std::endl;
-	}
-	for (const std::string &node_name: unallocatable_contents) {
-		errorstream << "correctBlockNodeIds(): IGNORING ERROR: "
-				<< "Could not allocate global id for node name \""
-				<< node_name << "\"" << std::endl;
 	}
 }
 

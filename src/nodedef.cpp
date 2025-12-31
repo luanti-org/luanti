@@ -794,7 +794,12 @@ content_t NodeDefManager::allocateId()
 		}
 		const ContentFeatures &f = m_content_features[id];
 		if (f.name.empty()) {
-			m_next_id = id + 1;
+			// use saturating add, to avoid overflow of m_next_id, which would
+			// make the loop not terminate (loop cond id >= 0 is always true)
+			if (id < CONTENT_MAX)
+				m_next_id = id + 1;
+			else
+				m_next_id = CONTENT_MAX;
 			return id;
 		}
 	}

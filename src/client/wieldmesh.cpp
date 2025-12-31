@@ -130,9 +130,7 @@ static video::ITexture *extractTexture(const TileDef &def, const TileLayer &laye
 		assert(ret->getType() == video::ETT_2D);
 		return ret;
 	}
-	if (!def.name.empty())
-		return tsrc->getTextureForMesh(def.name);
-	return nullptr;
+	return tsrc->getTextureForMesh(def.name.empty() ? "no_texture.png" : def.name);
 }
 
 void getAdHocNodeShader(video::SMaterial &mat, IShaderSource *shdsrc,
@@ -711,6 +709,7 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 			break;
 		}
 		}
+		FATAL_ERROR_IF(!mesh, ("mesh creation failed for " + def.name).c_str());
 
 		for (u32 i = 0; i < mesh->getMeshBufferCount(); ++i) {
 			scene::IMeshBuffer *buf = mesh->getMeshBuffer(i);
