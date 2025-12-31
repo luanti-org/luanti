@@ -41,11 +41,6 @@ void GUIStatusText::showStatusText(const std::wstring &str)
 	m_fade_progress = 0.0f;
 }
 
-void GUIStatusText::showTranslatedStatusText(const char *str)
-{
-	showStatusText(wstrgettext(str));
-}
-
 void GUIStatusText::clearStatusText()
 {
 	m_statustext.clear();

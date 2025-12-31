@@ -1466,7 +1466,8 @@ void Game::processKeyInput()
 	} else if (wasKeyPressed(KeyType::SCREENSHOT)) {
 		if (client->makeScreenshot()) {
 			std::string filename = fs::GetFilenameFromPath(client->getLastScreenshotPath().c_str());
-			m_game_ui->showStatusText(utf8_to_wide("Screenshot saved: " + filename));
+			std::string msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
+			m_game_ui->showStatusText(utf8_to_wide(msg));
 		}
 	} else if (wasKeyPressed(KeyType::TOGGLE_BLOCK_BOUNDS)) {
 		toggleBlockBounds();

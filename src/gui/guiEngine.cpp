@@ -12,6 +12,7 @@
 #include "content/content.h"
 #include "content/mods.h"
 #include "filesys.h"
+#include "gettext.h"
 #include "guiMainMenu.h"
 #include "httpfetch.h"
 #include "irrlicht_changes/static_text.h"
@@ -395,8 +396,8 @@ void GUIEngine::run()
 				m_take_screenshot = false;
 				std::string filename;
 				if (takeScreenshot(driver, filename)) {
-					std::string full_path = "\"" + filename + "\"";
-					m_status_text->showStatusText(utf8_to_wide("Saved screenshot to " + full_path));
+					std::string msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
+					m_status_text->showStatusText(utf8_to_wide(msg));
 				}
 			}
 
