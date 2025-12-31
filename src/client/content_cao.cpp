@@ -581,31 +581,34 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 	infostream << "GenericCAO::addToScene(): " <<
 		enum_to_string(es_ObjectVisual, m_prop.visual)<< std::endl;
 
-	if (m_prop.visual != OBJECTVISUAL_NODE &&
-			m_prop.visual != OBJECTVISUAL_WIELDITEM &&
-			m_prop.visual != OBJECTVISUAL_ITEM)
-	{
-		IShaderSource *shader_source = m_client->getShaderSource();
-		MaterialType material_type;
+	auto updateMaterialType = [this](bool hw_skin) {
+		if (m_prop.visual != OBJECTVISUAL_NODE &&
+				m_prop.visual != OBJECTVISUAL_WIELDITEM &&
+				m_prop.visual != OBJECTVISUAL_ITEM)
+		{
+			IShaderSource *shader_source = m_client->getShaderSource();
+			MaterialType material_type;
 
-		if (m_prop.shaded && m_prop.glow == 0)
-			material_type = (m_prop.use_texture_alpha) ?
-				TILE_MATERIAL_ALPHA : TILE_MATERIAL_BASIC;
-		else
-			material_type = (m_prop.use_texture_alpha) ?
-				TILE_MATERIAL_PLAIN_ALPHA : TILE_MATERIAL_PLAIN;
+			if (m_prop.shaded && m_prop.glow == 0)
+				material_type = (m_prop.use_texture_alpha) ?
+					TILE_MATERIAL_ALPHA : TILE_MATERIAL_BASIC;
+			else
+				material_type = (m_prop.use_texture_alpha) ?
+					TILE_MATERIAL_PLAIN_ALPHA : TILE_MATERIAL_PLAIN;
 
-		u32 shader_id = shader_source->getShader("object_shader", material_type, NDT_NORMAL);
-		m_material_type = shader_source->getShaderInfo(shader_id).material;
-	} else {
-		// Not used, so make sure it's not valid
-		m_material_type = video::EMT_INVALID;
-	}
+			u32 shader_id = shader_source->getShader("object_shader", material_type, NDT_NORMAL,
+				false, hw_skin);
+			m_material_type = shader_source->getShaderInfo(shader_id).material;
+		} else {
+			// Not used, so make sure it's not valid
+			m_material_type = video::EMT_INVALID;
+		}
+	};
 
 	m_matrixnode = m_smgr->addDummyTransformationSceneNode();
 	m_matrixnode->grab();
 
-	auto setMaterial = [this] (video::SMaterial &mat) {
+	auto setMaterial = [this](video::SMaterial &mat) {
 		if (m_material_type != video::EMT_INVALID)
 			mat.MaterialType = m_material_type;
 		mat.FogEnable = true;
@@ -615,12 +618,15 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		});
 	};
 
-	auto setSceneNodeMaterials = [setMaterial] (scene::ISceneNode *node) {
+	auto setSceneNodeMaterials = [&] (scene::ISceneNode *node, bool hw_skin = false) {
+		updateMaterialType(hw_skin);
 		node->forEachMaterial(setMaterial);
 	};
 
 	switch(m_prop.visual) {
 	case OBJECTVISUAL_UPRIGHT_SPRITE: {
+		updateMaterialType(false);
+
 		auto mesh = make_irr<scene::SMesh>();
 		f32 dx = BS * m_prop.visual_size.X / 2;
 		f32 dy = BS * m_prop.visual_size.Y / 2;
@@ -694,7 +700,7 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 			// set vertex colors to ensure alpha is set
 			setMeshColor(m_animated_meshnode->getMesh(), video::SColor(0xFFFFFFFF));
 
-			setSceneNodeMaterials(m_animated_meshnode);
+			setSceneNodeMaterials(m_animated_meshnode, mesh->needsHwSkinning());
 
 			m_animated_meshnode->forEachMaterial([this] (auto &mat) {
 				mat.BackfaceCulling = m_prop.backface_culling;
@@ -773,24 +779,6 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 				tsrc->getTextureForMesh("unknown_object.png"));
 		}
 		break;
-	}
-
-	/* Set VBO hint */
-	// wieldmesh sets its own hint, no need to handle it
-	if (m_meshnode || m_animated_meshnode) {
-		// sprite uses vertex animation
-		if (m_meshnode && m_prop.visual != OBJECTVISUAL_UPRIGHT_SPRITE)
-			m_meshnode->getMesh()->setHardwareMappingHint(scene::EHM_STATIC);
-
-		if (m_animated_meshnode) {
-			auto *mesh = m_animated_meshnode->getMesh();
-			// skinning happens on the CPU
-			if (m_animated_meshnode->getJointCount() > 0)
-				mesh->setHardwareMappingHint(scene::EHM_STREAM, scene::EBT_VERTEX);
-			else
-				mesh->setHardwareMappingHint(scene::EHM_STATIC, scene::EBT_VERTEX);
-			mesh->setHardwareMappingHint(scene::EHM_STATIC, scene::EBT_INDEX);
-		}
 	}
 
 	/* don't update while punch texture modifier is active */
