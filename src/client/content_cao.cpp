@@ -1597,8 +1597,6 @@ void GenericCAO::processMessage(const std::string &data)
 		phys.sneak_glitch = !readU8(is);
 		phys.new_move     = !readU8(is);
 
-		char dummy[1000];
-		is.read(dummy, sizeof(dummy));
 		// new overrides since 5.8.0
 		if (canRead(is)) {
 			phys.speed_climb            = readF32(is);

@@ -221,14 +221,6 @@ void ObjectProperties::serialize(std::ostream &os) const
 	// Never remove anything, because we don't want new versions of this!
 }
 
-namespace {
-	// Type-safe wrapper for bools as u8
-	inline bool readBool(std::istream &is)
-	{
-		return readU8(is) != 0;
-	}
-}
-
 void ObjectProperties::deSerialize(std::istream &is)
 {
 	int version = readU8(is);
@@ -289,7 +281,7 @@ void ObjectProperties::deSerialize(std::istream &is)
 	// >= 5.3.0-dev
 
 	damage_texture_modifier = deSerializeString16(is);
-	shaded = readBool(is);
+	shaded = readU8(is);
 
 	if (!canRead(is))
 		return;
@@ -306,7 +298,7 @@ void ObjectProperties::deSerialize(std::istream &is)
 		return;
 	// >= 5.7.0-dev
 
-	rotate_selectionbox = readBool(is);
+	rotate_selectionbox = readU8(is);
 
 	if (!canRead(is))
 		return;
