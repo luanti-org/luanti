@@ -756,6 +756,7 @@ void *EmergeThread::run()
 				content_t c_stone = m_mapgen->ndef->getId("mapgen_stone");
 				content_t c_dirt = m_mapgen->ndef->getId("mapgen_dirt");
 				content_t c_grass = m_mapgen->ndef->getId("mapgen_dirt_with_grass");
+				content_t c_torch = m_mapgen->ndef->getId("default:torch");
 
 				// Fallback if node not found
 				if (c_stone == CONTENT_IGNORE)
@@ -764,9 +765,23 @@ void *EmergeThread::run()
 					c_dirt = m_mapgen->ndef->getId("basenodes:dirt");
 				if (c_grass == CONTENT_IGNORE)
 					c_grass = c_dirt;
+				if (c_torch == CONTENT_IGNORE)
+					c_torch = c_air;  // Fall back to air if torch not available
 
 				v3f planet_center = quadsphere::g_planet_config.center;
 				f32 planet_radius = quadsphere::g_planet_config.radius;
+
+				// Calculate spawn room center (same as spawn position in server.cpp)
+				// FRONT face, u=0.5, v=0.5, altitude = 5 nodes above surface
+				v3f spawn_room_center = quadsphere::cubeToWorld(
+					quadsphere::CubeFace::FRONT,
+					0.5f, 0.5f,
+					planet_radius,
+					5.0f * BS  // Room center at 5 nodes above surface
+				) + planet_center;
+
+				// Room dimensions in nodes (5x5x5 hollow room)
+				f32 room_half_size = 2.5f * BS;  // 5 nodes = radius of 2.5
 
 				for (s32 z = nmin.Z; z <= nmax.Z; z++)
 				for (s32 y = nmin.Y; y <= nmax.Y; y++)
@@ -776,9 +791,32 @@ void *EmergeThread::run()
 					f32 dist = from_center.getLength();
 					f32 altitude = dist - planet_radius;
 
-					// Simple terrain: stone below -3 nodes, dirt -3 to -1, grass at surface, air above
+					// Check if this node is within the spawn room
+					v3f room_offset = nodepos - spawn_room_center;
+					f32 room_dist_x = std::abs(room_offset.X);
+					f32 room_dist_y = std::abs(room_offset.Y);
+					f32 room_dist_z = std::abs(room_offset.Z);
+					bool in_room_interior = room_dist_x < room_half_size - 0.5f * BS &&
+					                        room_dist_y < room_half_size - 0.5f * BS &&
+					                        room_dist_z < room_half_size - 0.5f * BS;
+					bool in_room_wall = room_dist_x < room_half_size + 0.5f * BS &&
+					                    room_dist_y < room_half_size + 0.5f * BS &&
+					                    room_dist_z < room_half_size + 0.5f * BS;
+
 					content_t node_content;
-					if (zone == quadsphere::PlanetZone::HOLLOW_CORE ||
+
+					// Spawn room takes priority
+					if (in_room_interior) {
+						// Check if this is the center of the room for torch placement
+						if (room_dist_x < 0.5f * BS && room_dist_y < 0.5f * BS && room_dist_z < 0.5f * BS) {
+							node_content = c_torch;  // Place torch at center
+						} else {
+							node_content = c_air;  // Hollow interior
+						}
+					} else if (in_room_wall) {
+						// Room walls - use stone (glowing if torch not available)
+						node_content = c_stone;
+					} else if (zone == quadsphere::PlanetZone::HOLLOW_CORE ||
 							zone == quadsphere::PlanetZone::OUTER_SPACE) {
 						node_content = c_air;
 					} else if (altitude < -3.0f * BS) {

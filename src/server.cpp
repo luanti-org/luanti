@@ -4045,7 +4045,7 @@ v3f Server::findSpawnPos()
 		// This gives a consistent spawn area
 		f32 u = 0.5f;  // Center of face
 		f32 v = 0.5f;
-		f32 altitude = 10.0f * BS;  // 10 nodes above surface
+		f32 altitude = 5.0f * BS;  // 5 nodes above surface (inside spawn room)
 
 		infostream << "Planet config: radius=" << quadsphere::g_planet_config.radius
 		           << " center=(" << quadsphere::g_planet_config.center.X
