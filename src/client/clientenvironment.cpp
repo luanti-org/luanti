@@ -21,6 +21,8 @@
 #include "content_cao.h"
 #include "porting.h"
 #include "client/renderingengine.h"
+#include "quadsphere/quadsphere.h"
+#include "quadsphere/planet_config.h"
 
 /*
 	ClientEnvironment
@@ -126,6 +128,19 @@ void ClientEnvironment::step(float dtime)
 
 		// Apply physics
 		lplayer->gravity = 0;
+
+		// Set gravity direction based on planet mode
+		if (quadsphere::g_planet_mode_enabled) {
+			// Gravity points toward planet center
+			lplayer->gravity_direction = quadsphere::getGravityDirection(
+				lplayer->getPosition(), quadsphere::g_planet_config.center);
+			lplayer->local_up = -lplayer->gravity_direction;
+		} else {
+			// Default: gravity points downward (-Y)
+			lplayer->gravity_direction = v3f(0, -1, 0);
+			lplayer->local_up = v3f(0, 1, 0);
+		}
+
 		if (!free_move) {
 			// Gravity
 			if (!is_climbing && !lplayer->in_liquid)

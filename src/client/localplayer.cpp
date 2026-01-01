@@ -323,7 +323,8 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 	float player_stepheight = (m_cao == nullptr) ? 0.0f :
 		(touching_ground ? m_cao->getStepHeight() : (0.2f * BS));
 
-	v3f accel_f(0, -gravity, 0);
+	// Apply gravity in the direction toward planet center (or -Y in flat mode)
+	v3f accel_f = gravity_direction * gravity;
 	const v3f initial_position = position;
 	const v3f initial_speed = m_speed;
 
@@ -850,7 +851,8 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 	m_added_velocity = v3f(0.0f);
 
 	// Apply gravity (note: this is broken, but kept since this is *old* move code)
-	m_speed.Y -= gravity * dtime;
+	// Use gravity direction for spherical planet support
+	m_speed += gravity_direction * gravity * dtime;
 
 	/*
 		Collision detection

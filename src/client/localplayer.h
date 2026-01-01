@@ -66,6 +66,8 @@ public:
 	bool swimming_pitch = false;
 
 	f32 gravity = 0; // total downwards acceleration
+	v3f gravity_direction = v3f(0, -1, 0); // direction of gravity (normalized)
+	v3f local_up = v3f(0, 1, 0); // local "up" direction (opposite of gravity)
 
 	void move(f32 dtime, Environment *env);
 	void move(f32 dtime, Environment *env,
