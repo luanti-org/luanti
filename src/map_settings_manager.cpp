@@ -8,6 +8,7 @@
 #include "settings.h"
 
 #include "map_settings_manager.h"
+#include "quadsphere/planet_settings.h"
 
 MapSettingsManager::MapSettingsManager(const std::string &map_meta_path):
 	m_map_meta_path(map_meta_path),
@@ -108,6 +109,13 @@ bool MapSettingsManager::saveMapMeta()
 
 	mapgen_params->MapgenParams::writeParams(m_map_settings.get());
 	mapgen_params->writeParams(m_map_settings.get());
+
+	// Add planet mode settings for new worlds
+	// Use a small planet by default for easier testing
+	if (!m_map_settings->exists(quadsphere::PlanetSettings::ENABLED)) {
+		quadsphere::createDefaultPlanetSettings(m_map_settings.get(), "small");
+		infostream << "saveMapMeta: Added default planet mode settings" << std::endl;
+	}
 
 	if (!m_map_settings->updateConfigFile(m_map_meta_path.c_str())) {
 		errorstream << "saveMapMeta: could not write "
