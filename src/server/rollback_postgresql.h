@@ -49,10 +49,8 @@ private:
 	void initStatements() override;
 
 	// Entity id mapping
-	int getActorId(const std::string &name);
-	int getNodeId(const std::string &name);
-	const char *getActorName(int id);
-	const char *getNodeName(int id);
+	int upsertActorId(const std::string &name);
+	int upsertNodeId(const std::string &name);
 
 	// Action row mapping + queries
 	bool registerRow(const ActionRow &row);

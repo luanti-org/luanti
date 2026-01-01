@@ -235,12 +235,8 @@ void RollbackMgrPostgreSQL::initStatements()
 		"LIMIT $8::int");
 }
 
-int RollbackMgrPostgreSQL::getActorId(const std::string &name)
+int RollbackMgrPostgreSQL::upsertActorId(const std::string &name)
 {
-	auto &cache = m_cache;
-	if (auto it = cache.actor_name_to_id.find(name); it != cache.actor_name_to_id.end())
-		return it->second;
-
 	verifyDatabase();
 	const char *values[] = { name.c_str() };
 
@@ -251,17 +247,13 @@ int RollbackMgrPostgreSQL::getActorId(const std::string &name)
 	}
 	const int id = pg_to_int(r, 0, 0);
 	PQclear(r);
-	cache.actor_name_to_id.emplace(name, id);
-	cache.actor_id_to_name.emplace(id, name);
+	m_cache.actor_name_to_id.emplace(name, id);
+	m_cache.actor_id_to_name.emplace(id, name);
 	return id;
 }
 
-int RollbackMgrPostgreSQL::getNodeId(const std::string &name)
+int RollbackMgrPostgreSQL::upsertNodeId(const std::string &name)
 {
-	auto &cache = m_cache;
-	if (auto it = cache.node_name_to_id.find(name); it != cache.node_name_to_id.end())
-		return it->second;
-
 	verifyDatabase();
 	const char *values[] = { name.c_str() };
 
@@ -272,26 +264,11 @@ int RollbackMgrPostgreSQL::getNodeId(const std::string &name)
 	}
 	const int id = pg_to_int(r, 0, 0);
 	PQclear(r);
-	cache.node_name_to_id.emplace(name, id);
-	cache.node_id_to_name.emplace(id, name);
+	m_cache.node_name_to_id.emplace(name, id);
+	m_cache.node_id_to_name.emplace(id, name);
 	return id;
 }
 
-const char *RollbackMgrPostgreSQL::getActorName(int id)
-{
-	auto &cache = m_cache;
-	if (auto it = cache.actor_id_to_name.find(id); it != cache.actor_id_to_name.end())
-		return it->second.c_str();
-	return "";
-}
-
-const char *RollbackMgrPostgreSQL::getNodeName(int id)
-{
-	auto &cache = m_cache;
-	if (auto it = cache.node_id_to_name.find(id); it != cache.node_id_to_name.end())
-		return it->second.c_str();
-	return "";
-}
 
 bool RollbackMgrPostgreSQL::registerRow(const ActionRow &row)
 {
@@ -303,21 +280,21 @@ bool RollbackMgrPostgreSQL::registerRow(const ActionRow &row)
 
 	std::string index_s = itos(row.index);
 	std::string add_s = itos(row.add);
-	std::string stackNode_s = itos(row.stack.id);
-	std::string stackQty_s = itos(row.stack.count);
-	std::string nodeMeta_s = itos(row.nodeMeta);
+	std::string stack_node_s = itos(row.stack.id);
+	std::string stack_qty_s = itos(row.stack.count);
+	std::string node_meta_s = itos(row.nodeMeta);
 
 	std::string x_s = itos(row.x);
 	std::string y_s = itos(row.y);
 	std::string z_s = itos(row.z);
 
-	std::string oldNode_s = itos(row.oldNode);
-	std::string oldP1_s = itos(row.oldParam1);
-	std::string oldP2_s = itos(row.oldParam2);
+	std::string old_node_s = itos(row.oldNode);
+	std::string old_p1_s = itos(row.oldParam1);
+	std::string old_p2_s = itos(row.oldParam2);
 
-	std::string newNode_s = itos(row.newNode);
-	std::string newP1_s = itos(row.newParam1);
-	std::string newP2_s = itos(row.newParam2);
+	std::string new_node_s = itos(row.newNode);
+	std::string new_p1_s = itos(row.newParam1);
+	std::string new_p2_s = itos(row.newParam2);
 
 	std::string guessed_s = itos(row.guessed);
 
@@ -340,19 +317,19 @@ bool RollbackMgrPostgreSQL::registerRow(const ActionRow &row)
 	set_text(1, ts_s);
 	set_text(2, type_s);
 
-	bool nodeMeta = false;
+	bool is_node_meta = false;
 	if (row.type == RollbackAction::TYPE_MODIFY_INVENTORY_STACK) {
 		const std::string &loc = row.location;
-		nodeMeta = (loc.size() >= 9 && loc.compare(0, 9, "nodemeta:") == 0);
+		is_node_meta = (loc.size() >= 9 && loc.compare(0, 9, "nodemeta:") == 0);
 
 		set_text(3, row.list);
 		set_text(4, index_s);
 		set_text(5, add_s);
-		set_text(6, stackNode_s);
-		set_text(7, stackQty_s);
-		set_text(8, nodeMeta_s);
+		set_text(6, stack_node_s);
+		set_text(7, stack_qty_s);
+		set_text(8, node_meta_s);
 
-		if (nodeMeta) {
+		if (is_node_meta) {
 			set_text(9, x_s);
 			set_text(10, y_s);
 			set_text(11, z_s);
@@ -364,14 +341,14 @@ bool RollbackMgrPostgreSQL::registerRow(const ActionRow &row)
 		set_text(10, y_s);
 		set_text(11, z_s);
 
-		set_text(12, oldNode_s);
-		set_text(13, oldP1_s);
-		set_text(14, oldP2_s);
+		set_text(12, old_node_s);
+		set_text(13, old_p1_s);
+		set_text(14, old_p2_s);
 		set_bytea(15, row.oldMeta);
 
-		set_text(16, newNode_s);
-		set_text(17, newP1_s);
-		set_text(18, newP2_s);
+		set_text(16, new_node_s);
+		set_text(17, new_p1_s);
+		set_text(18, new_p2_s);
 		set_bytea(19, row.newMeta);
 
 		set_text(20, guessed_s);
@@ -428,7 +405,11 @@ std::list<ActionRow> RollbackMgrPostgreSQL::actionRowsFromSelect(PGresult *res)
 			row.location += ',';
 			row.location += itos(row.z);
 		} else {
-			row.location = getActorName(row.actor);
+			if (auto it = m_cache.actor_id_to_name.find(row.actor); it != m_cache.actor_id_to_name.end()) {
+				row.location = it->second;
+			} else {
+				row.location = "";
+			}
 		}
 
 		rows.push_back(std::move(row));
@@ -441,7 +422,11 @@ std::list<ActionRow> RollbackMgrPostgreSQL::actionRowsFromSelect(PGresult *res)
 ActionRow RollbackMgrPostgreSQL::actionRowFromRollbackAction(const RollbackAction &action)
 {
 	ActionRow row;
-	row.actor = getActorId(action.actor);
+	if (auto it = m_cache.actor_name_to_id.find(action.actor); it != m_cache.actor_name_to_id.end()) {
+		row.actor = it->second;
+	} else {
+		row.actor = upsertActorId(action.actor);
+	}
 	row.timestamp = action.unix_time;
 	row.type = action.type;
 
@@ -451,7 +436,11 @@ ActionRow RollbackMgrPostgreSQL::actionRowFromRollbackAction(const RollbackActio
 		row.index = action.inventory_index;
 		row.add = action.inventory_add;
 		row.stack = action.inventory_stack;
-		row.stack.id = getNodeId(row.stack.name);
+		if (auto it = m_cache.node_name_to_id.find(row.stack.name); it != m_cache.node_name_to_id.end()) {
+			row.stack.id = it->second;
+		} else {
+			row.stack.id = upsertNodeId(row.stack.name);
+		}
 
 		const std::string &loc = row.location;
 		const bool is_node_meta = (loc.size() >= 9 && loc.compare(0, 9, "nodemeta:") == 0);
@@ -464,11 +453,19 @@ ActionRow RollbackMgrPostgreSQL::actionRowFromRollbackAction(const RollbackActio
 		row.x = action.p.X;
 		row.y = action.p.Y;
 		row.z = action.p.Z;
-		row.oldNode = getNodeId(action.n_old.name);
+		if (auto it = m_cache.node_name_to_id.find(action.n_old.name); it != m_cache.node_name_to_id.end()) {
+			row.oldNode = it->second;
+		} else {
+			row.oldNode = upsertNodeId(action.n_old.name);
+		}
 		row.oldParam1 = action.n_old.param1;
 		row.oldParam2 = action.n_old.param2;
 		row.oldMeta = action.n_old.meta;
-		row.newNode = getNodeId(action.n_new.name);
+		if (auto it = m_cache.node_name_to_id.find(action.n_new.name); it != m_cache.node_name_to_id.end()) {
+			row.newNode = it->second;
+		} else {
+			row.newNode = upsertNodeId(action.n_new.name);
+		}
 		row.newParam1 = action.n_new.param1;
 		row.newParam2 = action.n_new.param2;
 		row.newMeta = action.n_new.meta;
@@ -485,7 +482,12 @@ std::list<RollbackAction> RollbackMgrPostgreSQL::rollbackActionsFromActionRows(
 
 	for (const ActionRow &row : rows) {
 		RollbackAction action;
-		action.actor = (row.actor) ? getActorName(row.actor) : "";
+		action.actor = "";
+		if (row.actor) {
+			if (auto it = m_cache.actor_id_to_name.find(row.actor); it != m_cache.actor_id_to_name.end()) {
+				action.actor = it->second;
+			}
+		}
 		action.unix_time = row.timestamp;
 		action.type = static_cast<RollbackAction::Type>(row.type);
 
@@ -496,17 +498,28 @@ std::list<RollbackAction> RollbackMgrPostgreSQL::rollbackActionsFromActionRows(
 			action.inventory_index = row.index;
 			action.inventory_add = row.add;
 			action.inventory_stack = row.stack;
-			if (action.inventory_stack.name.empty())
-				action.inventory_stack.name = getNodeName(row.stack.id);
+			if (action.inventory_stack.name.empty()) {
+				if (auto it = m_cache.node_id_to_name.find(row.stack.id); it != m_cache.node_id_to_name.end()) {
+					action.inventory_stack.name = it->second;
+				}
+			}
 			break;
 
 		case RollbackAction::TYPE_SET_NODE:
 			action.p = v3s16(row.x, row.y, row.z);
-			action.n_old.name = getNodeName(row.oldNode);
+			if (auto it = m_cache.node_id_to_name.find(row.oldNode); it != m_cache.node_id_to_name.end()) {
+				action.n_old.name = it->second;
+			} else {
+				action.n_old.name = "";
+			}
 			action.n_old.param1 = row.oldParam1;
 			action.n_old.param2 = row.oldParam2;
 			action.n_old.meta = row.oldMeta;
-			action.n_new.name = getNodeName(row.newNode);
+			if (auto it = m_cache.node_id_to_name.find(row.newNode); it != m_cache.node_id_to_name.end()) {
+				action.n_new.name = it->second;
+			} else {
+				action.n_new.name = "";
+			}
 			action.n_new.param1 = row.newParam1;
 			action.n_new.param2 = row.newParam2;
 			action.n_new.meta = row.newMeta;
@@ -534,7 +547,13 @@ std::list<ActionRow> RollbackMgrPostgreSQL::getRowsSince(time_t firstTime, const
 	}
 
 	std::string ts_s = itos((s64)firstTime);
-	std::string actor_id_s = itos(getActorId(actor));
+	int actor_id;
+	if (auto it = m_cache.actor_name_to_id.find(actor); it != m_cache.actor_name_to_id.end()) {
+		actor_id = it->second;
+	} else {
+		actor_id = upsertActorId(actor);
+	}
+	std::string actor_id_s = itos(actor_id);
 	const char *values[] = { ts_s.c_str(), actor_id_s.c_str() };
 	return actionRowsFromSelect(execPrepared("action_select_with_actor", 2, values, false, false));
 }
