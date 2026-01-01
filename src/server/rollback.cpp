@@ -61,23 +61,26 @@ void RollbackMgr::setActor(const std::string &actor, bool is_guess)
 
 std::string RollbackMgr::getSuspect(v3s16 p, float nearness_shortcut, float min_nearness)
 {
-	if (!current_actor.empty())
+	if (!current_actor.empty()) {
 		return current_actor;
-
+	}
 	time_t cur_time = time(0);
 	time_t first_time = cur_time - (100 - min_nearness);
 	RollbackAction likely_suspect;
 	float likely_suspect_nearness = 0;
 
 	for (auto i = action_latest_buffer.rbegin(); i != action_latest_buffer.rend(); ++i) {
-		if (i->unix_time < first_time)
+		if (i->unix_time < first_time) {
 			break;
-		if (i->actor.empty())
+		}
+		if (i->actor.empty()) {
 			continue;
-        // Find position of suspect or continue
+		}
+		// Find position of suspect or continue
 		v3s16 suspect_p;
-		if (!i->getPosition(&suspect_p))
+		if (!i->getPosition(&suspect_p)) {
 			continue;
+		}
 
 		float f = getSuspectNearness(i->actor_is_guess, suspect_p, i->unix_time, p, cur_time);
 		if (f >= min_nearness && f > likely_suspect_nearness) {
