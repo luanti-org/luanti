@@ -15,6 +15,8 @@
 #include "util/tracy_wrapper.h"
 #include "client/meshgen/collector.h"
 #include "client/renderingengine.h"
+#include "quadsphere/sphere_mesh_transform.h"
+#include "quadsphere/planet_config.h"
 #include <array>
 #include <algorithm>
 #include <cmath>
@@ -670,6 +672,26 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 	{
 		// Generate everything
 		MapblockMeshGenerator(data, &collector).generate();
+	}
+
+	/*
+		Apply sphere transformation if planet mode is enabled
+	*/
+	if (quadsphere::g_planet_mode_enabled) {
+		quadsphere::SphereMeshTransformFactory factory(quadsphere::g_planet_config);
+		quadsphere::SphereMeshTransformer transformer = factory.getTransformer(bp);
+
+		// Transform all vertices in all prebuffers
+		for (int layer = 0; layer < MAX_TILE_LAYERS; layer++) {
+			for (auto &prebuffer : collector.prebuffers[layer]) {
+				if (!prebuffer.vertices.empty()) {
+					transformer.transformVertices(prebuffer.vertices);
+				}
+			}
+		}
+
+		// Update bounding sphere center for sphere positioning
+		m_bounding_sphere_center = transformer.getBlockWorldCenter();
 	}
 
 	/*
