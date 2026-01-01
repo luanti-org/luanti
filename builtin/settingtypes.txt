@@ -885,6 +885,10 @@ tooltip_append_itemname (Append item name) bool false
 #    Use a cloud animation for the main menu background.
 menu_clouds (Clouds in menu) bool true
 
+#    Remember each server's entered login info in the 'Join Game' tab
+#    ***WARNING, THIS IS NOT SECURE WHATSOEVER. DO NOT ENABLE THIS***:
+remember_login (Remember logins) bool false
+
 [**HUD]
 
 #    Modifies the size of the HUD elements.
@@ -2454,6 +2458,9 @@ enable_remote_media_server (Connect to external media server) [client] bool true
 #    File in client/serverlist/ that contains your favorite servers displayed in the
 #    Multiplayer Tab.
 serverlist_file (Serverlist file) [client] string favoriteservers.json
+
+#    File in client/ that contains your saved usernames and passwords for Multiplayer
+keyring_file (Keyring file) [client] string keyring.json
 
 
 [*Gamepads] [client]
