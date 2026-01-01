@@ -67,6 +67,7 @@
 		[scheduled bump for 5.12.0]
 	PROTOCOL VERSION 49
 		Support of showing a player inventory using 'core.show_formspec'
+		Add entity UUID / GUID (LuaEntitySAO version2 = 2)
 		[scheduled bump for 5.13.0]
 	PROTOCOL VERSION 50
 		Support for TOCLIENT_SPAWN_PARTICLE_BATCH

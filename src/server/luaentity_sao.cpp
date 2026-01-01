@@ -25,7 +25,8 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 
 	while (!data.empty()) { // breakable, run for one iteration
 		std::istringstream is(data, std::ios::binary);
-		// 'version' does not allow to incrementally extend the parameter list thus
+		// Servers < 5.0.0-dev (PROTOCOL_VERSION < 37) had improper compatibility code,
+		// only handling exactly 'version=0' and 'version=1'. See commit 67049eba. Thus,
 		// we need another variable to build on top of 'version=1'. Ugly hack but works™
 		u8 version2 = 0;
 		u8 version = readU8(is);
@@ -41,7 +42,7 @@ LuaEntitySAO::LuaEntitySAO(ServerEnvironment *env, v3f pos, const std::string &d
 		// yaw must be yaw to be backwards-compatible
 		rotation.Y = readF1000(is);
 
-		if (is.good()) // EOF for old formats
+		if (canRead(is))
 			version2 = readU8(is);
 
 		if (version2 < 1) // PROTOCOL_VERSION < 37

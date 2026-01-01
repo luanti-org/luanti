@@ -62,20 +62,14 @@ void TouchInteraction::serialize(std::ostream &os) const
 void TouchInteraction::deSerialize(std::istream &is)
 {
 	u8 tmp = readU8(is);
-	if (is.eof())
-		throw SerializationError("");
 	if (tmp < TouchInteractionMode_END)
 		pointed_nothing = (TouchInteractionMode)tmp;
 
 	tmp = readU8(is);
-	if (is.eof())
-		throw SerializationError("");
 	if (tmp < TouchInteractionMode_END)
 		pointed_node = (TouchInteractionMode)tmp;
 
 	tmp = readU8(is);
-	if (is.eof())
-		throw SerializationError("");
 	if (tmp < TouchInteractionMode_END)
 		pointed_object = (TouchInteractionMode)tmp;
 }
@@ -325,9 +319,11 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 	inventory_overlay .deSerialize(is, protocol_version);
 	wield_overlay.deSerialize(is, protocol_version);
 
-	// If you add anything here, insert it inside the try-catch
-	// block to not need to increase the version.
-	try {
+	do {
+		if (!canRead(is))
+			break;
+		// >= 5.4.0-dev
+
 		short_description = deSerializeString16(is);
 
 		if (protocol_version <= 43) {
@@ -340,13 +336,18 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 		sound_use.deSerializeSimple(is, protocol_version);
 		sound_use_air.deSerializeSimple(is, protocol_version);
 
-		if (is.eof())
-			throw SerializationError("");
+		if (!canRead(is))
+			break;
+		// >= 5.8.0-dev
 
-		if (readU8(is)) // protocol_version >= 43
+		if (readU8(is)) // "have param2"
 			place_param2 = readU8(is);
 
-		wallmounted_rotate_vertical = readU8(is); // 0 if missing
+		if (!canRead(is))
+			break;
+		// >= 5.9.0-dev
+
+		wallmounted_rotate_vertical = readU8(is);
 		touch_interaction.deSerialize(is);
 
 		std::string pointabilities_s = deSerializeString16(is);
@@ -356,10 +357,13 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 			pointabilities->deSerialize(tmp_is);
 		}
 
-		if (readU8(is)) {
+		if (readU8(is)) // "have wear bar params"
 			wear_bar_params = WearBarParams::deserialize(is);
-		}
-	} catch(SerializationError &e) {};
+
+		//if (!canRead(is))
+		//	break;
+		// Add new code here
+	} while (0);
 }
 
 

@@ -979,6 +979,20 @@ void Client::ReceiveAll()
 			if (!m_con->TryReceive(&pkt))
 				break;
 			ProcessData(&pkt);
+#ifdef NDEBUG
+		} catch (SerializationError &e) {
+			// Add more information to find the bad packet
+			const u16 cmd = pkt.getCommand();
+			std::ostringstream oss;
+			oss << e.what()
+				<< "\n @ command=" << cmd << " size=" << pkt.getSize();
+
+			if (cmd < TOCLIENT_NUM_MSG_TYPES) {
+				auto def = toClientCommandTable[pkt.getCommand()];
+				oss << " name=" << def.name;
+			}
+			throw SerializationError(oss.str());
+#endif
 		} catch (const con::InvalidIncomingDataException &e) {
 			infostream << "Client::ReceiveAll(): "
 					"InvalidIncomingDataException: what()="
