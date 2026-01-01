@@ -738,6 +738,13 @@ void *EmergeThread::run()
 
 			if (quadsphere::g_planet_mode_enabled) {
 				// Planet mode terrain generation
+				static bool first_gen = true;
+				if (first_gen) {
+					actionstream << "Planet terrain gen active! radius="
+					             << quadsphere::g_planet_config.radius << std::endl;
+					first_gen = false;
+				}
+
 				ScopeProfiler sp(g_profiler,
 					"EmergeThread: Planet terrain gen", SPT_AVG);
 
