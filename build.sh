@@ -24,7 +24,8 @@ cd "$BUILD_DIR"
 # Configure with CMake
 cmake .. \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-    -DENABLE_GETTEXT=ON \
+    -DRUN_IN_PLACE=TRUE \
+    -DENABLE_GETTEXT=OFF \
     -DENABLE_FREETYPE=ON \
     -DENABLE_SOUND=ON
 
