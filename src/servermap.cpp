@@ -723,6 +723,38 @@ void ServerMap::deSerializeBlock(MapBlock *block, std::istream &is)
 	block->deSerialize(is, version, true);
 }
 
+std::unique_ptr<MapBlock> ServerMap::createBlankBlockNoInsert(v3s16 p3d)
+{
+	if (blockpos_over_max_limit(p3d))
+		throw InvalidPositionException("createBlankBlockNoInsert(): pos over max mapgen limit");
+
+	return std::make_unique<MapBlock>(p3d, m_gamedef);
+}
+
+void ServerMap::insertBlock(std::unique_ptr<MapBlock> block)
+{
+	v3s16 p3d = block.get()->getPos();
+	v2s16 p2d(p3d.X, p3d.Z);
+	MapSector *sector = createSector(p2d);
+	sector->insertBlock(std::move(block));
+}
+
+void ServerMap::finishNewBlock(MapBlock *block)
+{
+	ReflowScan scanner(this, m_emerge->ndef);
+	scanner.scan(block, &m_transforming_liquid);
+
+	std::map<v3s16, MapBlock*> modified_blocks;
+	// Fix lighting if necessary
+	voxalgo::update_block_border_lighting(this, block, modified_blocks);
+	if (!modified_blocks.empty()) {
+		MapEditEvent event;
+		event.type = MEET_OTHER;
+		event.setModifiedBlocks(modified_blocks);
+		dispatchEvent(event);
+	}
+}
+
 MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_after_load)
 {
 	ScopeProfiler sp(g_profiler, "ServerMap: load block", SPT_AVG, PRECISION_MICRO);
@@ -769,18 +801,7 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 	assert(block);
 
 	if (created_new) {
-		ReflowScan scanner(this, m_emerge->ndef);
-		scanner.scan(block, &m_transforming_liquid);
-
-		std::map<v3s16, MapBlock*> modified_blocks;
-		// Fix lighting if necessary
-		voxalgo::update_block_border_lighting(this, block, modified_blocks);
-		if (!modified_blocks.empty()) {
-			MapEditEvent event;
-			event.type = MEET_OTHER;
-			event.setModifiedBlocks(modified_blocks);
-			dispatchEvent(event);
-		}
+		finishNewBlock(block);
 	}
 
 	if (save_after_load)
