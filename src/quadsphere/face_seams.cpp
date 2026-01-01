@@ -208,9 +208,6 @@ bool SeamVertexWelder::weldVertex(v3f vertex, const SphereBlockPos &block,
 
 bool SeamVertexWelder::isAtSeam(v3f vertex, const SphereBlockPos &block) const
 {
-	// Get block world bounds
-	v3f blockCenter = block.getWorldCenter(m_config);
-
 	// Get the UV coordinates for this block
 	f32 blockUVSize = m_config.getBlockUVSize();
 	f32 u_min = static_cast<f32>(block.u) * blockUVSize;
