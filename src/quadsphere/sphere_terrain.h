@@ -5,6 +5,7 @@
 #pragma once
 
 #include "irrlichttypes.h"
+#include "irr_v2d.h"
 #include "irr_v3d.h"
 #include "planet_config.h"
 #include "quadsphere.h"

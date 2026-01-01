@@ -15,8 +15,7 @@ bool loadPlanetConfig(const Settings *settings, PlanetConfig &config)
 		return false;
 
 	// Check if planet mode is enabled
-	bool enabled = false;
-	if (!settings->getBoolNoEx(PlanetSettings::ENABLED, enabled) || !enabled)
+	if (!settings->exists(PlanetSettings::ENABLED) || !settings->getBool(PlanetSettings::ENABLED))
 		return false;
 
 	// Load radius (in blocks, convert to world units)
@@ -112,9 +111,9 @@ bool isPlanetModeEnabled(const Settings *settings)
 	if (!settings)
 		return false;
 
-	bool enabled = false;
-	settings->getBoolNoEx(PlanetSettings::ENABLED, enabled);
-	return enabled;
+	if (!settings->exists(PlanetSettings::ENABLED))
+		return false;
+	return settings->getBool(PlanetSettings::ENABLED);
 }
 
 } // namespace quadsphere

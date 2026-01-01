@@ -103,7 +103,6 @@ v3f SphereBlockPos::getWorldCenter(const PlanetConfig &config) const
 v3f SphereBlockPos::getNodeWorldPos(v3s16 nodeOffset, const PlanetConfig &config) const
 {
 	f32 blockSize = config.getBlockUVSize();
-	f32 nodeSize = blockSize / MAP_BLOCKSIZE;
 
 	f32 uv_u = (static_cast<f32>(u) + (nodeOffset.X + 0.5f) / MAP_BLOCKSIZE) * blockSize;
 	f32 uv_v = (static_cast<f32>(v) + (nodeOffset.Z + 0.5f) / MAP_BLOCKSIZE) * blockSize;
