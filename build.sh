@@ -5,7 +5,13 @@ set -e
 
 BUILD_DIR="build"
 BUILD_TYPE="${1:-Release}"
-JOBS="${2:-$(nproc)}"
+# Detect number of CPU cores (works on both macOS and Linux)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    DEFAULT_JOBS=$(sysctl -n hw.ncpu)
+else
+    DEFAULT_JOBS=$(nproc)
+fi
+JOBS="${2:-$DEFAULT_JOBS}"
 
 echo "=== Luanti Planet Build ==="
 echo "Build type: $BUILD_TYPE"
