@@ -46,6 +46,10 @@
 #include "mapgen/mapgen.h"
 #include "mapgen/mg_biome.h"
 
+// Planet mode
+#include "quadsphere/planet_config.h"
+#include "quadsphere/quadsphere.h"
+
 // Modding
 #include "modchannels.h"
 #include "script/common/c_types.h" // LuaError
@@ -4031,6 +4035,27 @@ v3f Server::findSpawnPos()
 	if (g_settings->getV3FNoEx("static_spawnpoint", staticSpawnPoint) && staticSpawnPoint.has_value())
 	{
 		return *staticSpawnPoint * BS;
+	}
+
+	// Planet mode: spawn on the planet surface
+	if (quadsphere::g_planet_mode_enabled) {
+		// Pick a random point on the FRONT face of the cube-sphere
+		// This gives a consistent spawn area
+		f32 u = 0.5f;  // Center of face
+		f32 v = 0.5f;
+		f32 altitude = 10.0f * BS;  // 10 nodes above surface
+
+		v3f spawnPos = quadsphere::cubeToWorld(
+			quadsphere::CubeFace::FRONT,
+			u, v,
+			quadsphere::g_planet_config.radius,
+			altitude
+		);
+		spawnPos += quadsphere::g_planet_config.center;
+
+		infostream << "Planet mode spawn at: " << spawnPos.X << ", "
+		           << spawnPos.Y << ", " << spawnPos.Z << std::endl;
+		return spawnPos;
 	}
 
 	v3f nodeposf;
