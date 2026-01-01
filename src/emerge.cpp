@@ -29,6 +29,7 @@
 #include "settings.h"
 #include "voxel.h"
 #include "quadsphere/sphere_terrain.h"
+#include "quadsphere/planet_config.h"
 
 EmergeParams::~EmergeParams()
 {
@@ -735,23 +736,55 @@ void *EmergeThread::run()
 			quadsphere::PlanetZone zone = quadsphere::getBlockZone(pos);
 			bool skip_normal_gen = false;
 
-			if (zone == quadsphere::PlanetZone::HOLLOW_CORE ||
-					zone == quadsphere::PlanetZone::OUTER_SPACE) {
-				// For hollow core and outer space, generate empty air blocks
-				// This creates the hollow planet interior
+			if (quadsphere::g_planet_mode_enabled) {
+				// Planet mode terrain generation
 				ScopeProfiler sp(g_profiler,
-					"EmergeThread: Planet zone fill", SPT_AVG);
+					"EmergeThread: Planet terrain gen", SPT_AVG);
 
 				MMVManip *vm = bmdata.vmanip;
 				v3s16 nmin = bmdata.blockpos_min * MAP_BLOCKSIZE;
 				v3s16 nmax = (bmdata.blockpos_max + v3s16(1,1,1)) * MAP_BLOCKSIZE - v3s16(1,1,1);
 
-				// Fill with air (empty)
 				content_t c_air = m_mapgen->ndef->getId("air");
+				content_t c_stone = m_mapgen->ndef->getId("mapgen_stone");
+				content_t c_dirt = m_mapgen->ndef->getId("mapgen_dirt");
+				content_t c_grass = m_mapgen->ndef->getId("mapgen_dirt_with_grass");
+
+				// Fallback if node not found
+				if (c_stone == CONTENT_IGNORE)
+					c_stone = m_mapgen->ndef->getId("basenodes:stone");
+				if (c_dirt == CONTENT_IGNORE)
+					c_dirt = m_mapgen->ndef->getId("basenodes:dirt");
+				if (c_grass == CONTENT_IGNORE)
+					c_grass = c_dirt;
+
+				v3f planet_center = quadsphere::g_planet_config.center;
+				f32 planet_radius = quadsphere::g_planet_config.radius;
+
 				for (s32 z = nmin.Z; z <= nmax.Z; z++)
 				for (s32 y = nmin.Y; y <= nmax.Y; y++)
 				for (s32 x = nmin.X; x <= nmax.X; x++) {
-					vm->setNode(v3s16(x, y, z), MapNode(c_air));
+					v3f nodepos((x + 0.5f) * BS, (y + 0.5f) * BS, (z + 0.5f) * BS);
+					v3f from_center = nodepos - planet_center;
+					f32 dist = from_center.getLength();
+					f32 altitude = dist - planet_radius;
+
+					// Simple terrain: stone below -3 nodes, dirt -3 to -1, grass at surface, air above
+					content_t node_content;
+					if (zone == quadsphere::PlanetZone::HOLLOW_CORE ||
+							zone == quadsphere::PlanetZone::OUTER_SPACE) {
+						node_content = c_air;
+					} else if (altitude < -3.0f * BS) {
+						node_content = c_stone;
+					} else if (altitude < -1.0f * BS) {
+						node_content = c_dirt;
+					} else if (altitude < 0.0f) {
+						node_content = c_grass;
+					} else {
+						node_content = c_air;
+					}
+
+					vm->setNode(v3s16(x, y, z), MapNode(node_content));
 				}
 
 				skip_normal_gen = true;
