@@ -461,7 +461,9 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 	// Compute relative camera position and target
 	v3f rel_cam_pos = v3f(0,0,0);
 	v3f rel_cam_target = v3f(0,0,1);
-	v3f rel_cam_up = v3f(0,1,0);
+	// In planet mode, "up" is opposite of gravity direction (surface normal)
+	// In flat mode, up is always +Y
+	v3f rel_cam_up = -player->gravity_direction;
 
 	if (m_cache_view_bobbing_amount != 0.0f && m_view_bobbing_anim != 0.0f &&
 		m_camera_mode < CAMERA_MODE_THIRD) {
