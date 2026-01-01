@@ -28,6 +28,7 @@
 #include "server.h"
 #include "settings.h"
 #include "voxel.h"
+#include "quadsphere/sphere_terrain.h"
 
 EmergeParams::~EmergeParams()
 {

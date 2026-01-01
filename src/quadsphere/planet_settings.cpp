@@ -3,6 +3,7 @@
 // Planet settings management implementation
 
 #include "planet_settings.h"
+#include "sphere_terrain.h"
 #include "settings.h"
 #include "constants.h"
 
@@ -82,11 +83,13 @@ void enablePlanetMode(const PlanetConfig &config)
 {
 	g_planet_config = config;
 	g_planet_mode_enabled = true;
+	initTerrainHelper();
 }
 
 void disablePlanetMode()
 {
 	g_planet_mode_enabled = false;
+	cleanupTerrainHelper();
 }
 
 void createDefaultPlanetSettings(Settings *settings, const std::string &preset)
