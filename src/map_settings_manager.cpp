@@ -9,6 +9,7 @@
 
 #include "map_settings_manager.h"
 #include "quadsphere/planet_settings.h"
+#include "quadsphere/planet_config.h"
 
 MapSettingsManager::MapSettingsManager(const std::string &map_meta_path):
 	m_map_meta_path(map_meta_path),
@@ -115,6 +116,13 @@ bool MapSettingsManager::saveMapMeta()
 	if (!m_map_settings->exists(quadsphere::PlanetSettings::ENABLED)) {
 		quadsphere::createDefaultPlanetSettings(m_map_settings.get(), "small");
 		infostream << "saveMapMeta: Added default planet mode settings" << std::endl;
+	}
+
+	// Initialize planet mode if not already done (for new worlds)
+	if (!quadsphere::g_planet_mode_enabled) {
+		if (quadsphere::initializePlanetMode(m_map_settings.get())) {
+			infostream << "saveMapMeta: Planet mode initialized" << std::endl;
+		}
 	}
 
 	if (!m_map_settings->updateConfigFile(m_map_meta_path.c_str())) {
