@@ -20,6 +20,7 @@
 #include "fontengine.h"
 #include "script/scripting_client.h"
 #include "gettext.h"
+#include "quadsphere/planet_config.h"
 
 #include <ICameraSceneNode.h>
 #include <IGUIFont.h>
@@ -28,6 +29,76 @@
 #include <SViewFrustum.h>
 
 static constexpr f32 CAMERA_OFFSET_STEP = 200;
+
+// Helper function to compute Euler angles that rotate world-up to local_up
+// and then apply yaw around that axis
+static v3f computeSphericalRotation(const v3f &local_up, f32 yaw)
+{
+	// Default world up
+	v3f world_up(0, 1, 0);
+
+	// If local_up is essentially world_up, use standard yaw rotation
+	v3f diff = local_up - world_up;
+	if (diff.getLengthSQ() < 0.0001f) {
+		return v3f(0, -yaw, 0);
+	}
+
+	// If local_up is essentially inverted (upside down on planet)
+	v3f inv_up = local_up + world_up;
+	if (inv_up.getLengthSQ() < 0.0001f) {
+		return v3f(180, -yaw, 0);
+	}
+
+	// General case: compute rotation to align with local_up
+	// We use a quaternion-based approach for robust orientation
+
+	// Cross product gives rotation axis
+	v3f axis = world_up.crossProduct(local_up);
+	f32 axis_len = axis.getLength();
+
+	if (axis_len < 0.0001f) {
+		// Vectors are parallel - already handled above, but be safe
+		return v3f(0, -yaw, 0);
+	}
+
+	axis /= axis_len; // normalize
+
+	// Dot product gives cosine of angle
+	f32 cos_angle = world_up.dotProduct(local_up);
+	cos_angle = core::clamp(cos_angle, -1.0f, 1.0f);
+	f32 angle = std::acos(cos_angle);
+
+	// Create quaternion for base rotation (world_up -> local_up)
+	f32 half_angle = angle * 0.5f;
+	f32 sin_half = std::sin(half_angle);
+	f32 cos_half = std::cos(half_angle);
+
+	core::quaternion q_base(
+		axis.X * sin_half,
+		axis.Y * sin_half,
+		axis.Z * sin_half,
+		cos_half
+	);
+
+	// Create quaternion for yaw rotation around local_up
+	f32 half_yaw = (-yaw * core::DEGTORAD) * 0.5f;
+	core::quaternion q_yaw(
+		local_up.X * std::sin(half_yaw),
+		local_up.Y * std::sin(half_yaw),
+		local_up.Z * std::sin(half_yaw),
+		std::cos(half_yaw)
+	);
+
+	// Combine: first base rotation, then yaw
+	core::quaternion q_final = q_yaw * q_base;
+
+	// Convert to Euler angles
+	v3f euler;
+	q_final.toEuler(euler);
+
+	// Convert from radians to degrees
+	return euler * core::RADTODEG;
+}
 
 #define WIELDMESH_OFFSET_X 55.0f
 #define WIELDMESH_OFFSET_Y -35.0f
@@ -345,7 +416,14 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 
 	// Set player node transformation
 	m_playernode->setPosition(player_position);
-	m_playernode->setRotation(v3f(0, -1 * yaw, 0));
+
+	// In planet mode, orient player to local surface normal
+	if (quadsphere::g_planet_mode_enabled) {
+		v3f player_rotation = computeSphericalRotation(player->local_up, yaw);
+		m_playernode->setRotation(player_rotation);
+	} else {
+		m_playernode->setRotation(v3f(0, -1 * yaw, 0));
+	}
 	m_playernode->updateAbsolutePosition();
 
 	// Get camera tilt timer (hurt animation)

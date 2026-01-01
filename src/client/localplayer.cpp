@@ -12,6 +12,7 @@
 #include "map.h"
 #include "client.h"
 #include "content_cao.h"
+#include "quadsphere/planet_config.h"
 
 /*
 	PlayerSettings
@@ -659,8 +660,18 @@ void LocalPlayer::applyControl(float dtime, Environment *env)
 				at its starting value
 			*/
 			v3f speedJ = getSpeed();
-			if (speedJ.Y >= -0.5f * BS) {
-				speedJ.Y = movement_speed_jump * physics_override.jump;
+			// In planet mode, check velocity along local_up instead of Y
+			f32 vertical_speed = quadsphere::g_planet_mode_enabled ?
+				speedJ.dotProduct(local_up) : speedJ.Y;
+			if (vertical_speed >= -0.5f * BS) {
+				f32 jump_speed = movement_speed_jump * physics_override.jump;
+				if (quadsphere::g_planet_mode_enabled) {
+					// Add jump velocity in local_up direction
+					// First remove current vertical component, then add jump
+					speedJ = speedJ - local_up * vertical_speed + local_up * jump_speed;
+				} else {
+					speedJ.Y = jump_speed;
+				}
 				setSpeed(speedJ);
 				m_client->getEventManager()->put(new SimpleTriggerEvent(MtEvent::PLAYER_JUMP));
 			}
@@ -778,40 +789,126 @@ void LocalPlayer::accelerate(const v3f &target_speed, const f32 max_increase_H,
 {
 	const f32 yaw = getYaw();
 	const f32 pitch = getPitch();
-	v3f flat_speed = m_speed;
-	// Rotate speed vector by -yaw and -pitch to make it relative to the player's yaw and pitch
-	flat_speed.rotateXZBy(-yaw);
-	if (use_pitch)
-		flat_speed.rotateYZBy(-pitch);
 
-	v3f d_wanted = target_speed - flat_speed;
-	v3f d;
+	// In planet mode, we need to transform into local spherical coordinates
+	if (quadsphere::g_planet_mode_enabled) {
+		// Build local coordinate frame from local_up
+		// local_up is already set by clientenvironment based on planet position
+		v3f up = local_up;
 
-	// Then compare the horizontal and vertical components with the wanted speed
-	if (max_increase_H > 0.0f) {
-		v3f d_wanted_H = d_wanted * v3f(1.0f, 0.0f, 1.0f);
-		if (d_wanted_H.getLength() > max_increase_H)
-			d += d_wanted_H.normalize() * max_increase_H;
-		else
-			d += d_wanted_H;
+		// Find a consistent "forward" direction in the local tangent plane
+		// Start with world Z and project it onto the tangent plane
+		v3f world_forward(0, 0, 1);
+		v3f local_forward = world_forward - up * world_forward.dotProduct(up);
+		if (local_forward.getLengthSQ() < 0.0001f) {
+			// If up is parallel to world Z, use world X instead
+			world_forward = v3f(1, 0, 0);
+			local_forward = world_forward - up * world_forward.dotProduct(up);
+		}
+		local_forward.normalize();
+
+		// local_right is perpendicular to both up and forward
+		v3f local_right = up.crossProduct(local_forward);
+		local_right.normalize();
+
+		// Apply yaw rotation in the local tangent plane
+		f32 yaw_rad = yaw * core::DEGTORAD;
+		f32 cos_yaw = std::cos(yaw_rad);
+		f32 sin_yaw = std::sin(yaw_rad);
+
+		// Rotated forward direction based on yaw
+		v3f player_forward = local_forward * cos_yaw + local_right * sin_yaw;
+		v3f player_right = local_right * cos_yaw - local_forward * sin_yaw;
+
+		// Apply pitch if needed (look up/down)
+		v3f look_dir = player_forward;
+		if (use_pitch) {
+			f32 pitch_rad = pitch * core::DEGTORAD;
+			f32 cos_pitch = std::cos(pitch_rad);
+			f32 sin_pitch = std::sin(pitch_rad);
+			look_dir = player_forward * cos_pitch + up * sin_pitch;
+		}
+
+		// Transform current speed into local coordinates
+		f32 speed_forward = m_speed.dotProduct(player_forward);
+		f32 speed_right = m_speed.dotProduct(player_right);
+		f32 speed_up = m_speed.dotProduct(up);
+
+		// Target speed is in local player-relative coordinates (Z forward, X right, Y up)
+		f32 target_forward = target_speed.Z;
+		f32 target_right = target_speed.X;
+		f32 target_up = target_speed.Y;
+
+		// Calculate acceleration deltas
+		v3f d_local(0, 0, 0);
+
+		// Horizontal acceleration (forward/right)
+		if (max_increase_H > 0.0f) {
+			f32 d_forward = target_forward - speed_forward;
+			f32 d_right = target_right - speed_right;
+			f32 d_h_len = std::sqrt(d_forward * d_forward + d_right * d_right);
+			if (d_h_len > max_increase_H) {
+				f32 scale = max_increase_H / d_h_len;
+				d_forward *= scale;
+				d_right *= scale;
+			}
+			d_local.Z = d_forward;
+			d_local.X = d_right;
+		}
+
+		// Vertical acceleration
+		if (max_increase_V > 0.0f) {
+			f32 d_up = target_up - speed_up;
+			if (d_up > max_increase_V)
+				d_up = max_increase_V;
+			else if (d_up < -max_increase_V)
+				d_up = -max_increase_V;
+			d_local.Y = d_up;
+		}
+
+		// Transform acceleration back to world coordinates
+		v3f d_world = player_forward * d_local.Z +
+		              player_right * d_local.X +
+		              up * d_local.Y;
+
+		m_speed += d_world;
+	} else {
+		// Original flat-world acceleration code
+		v3f flat_speed = m_speed;
+		// Rotate speed vector by -yaw and -pitch to make it relative to the player's yaw and pitch
+		flat_speed.rotateXZBy(-yaw);
+		if (use_pitch)
+			flat_speed.rotateYZBy(-pitch);
+
+		v3f d_wanted = target_speed - flat_speed;
+		v3f d;
+
+		// Then compare the horizontal and vertical components with the wanted speed
+		if (max_increase_H > 0.0f) {
+			v3f d_wanted_H = d_wanted * v3f(1.0f, 0.0f, 1.0f);
+			if (d_wanted_H.getLength() > max_increase_H)
+				d += d_wanted_H.normalize() * max_increase_H;
+			else
+				d += d_wanted_H;
+		}
+
+		if (max_increase_V > 0.0f) {
+			f32 d_wanted_V = d_wanted.Y;
+			if (d_wanted_V > max_increase_V)
+				d.Y += max_increase_V;
+			else if (d_wanted_V < -max_increase_V)
+				d.Y -= max_increase_V;
+			else
+				d.Y += d_wanted_V;
+		}
+
+		// Finally rotate it again
+		if (use_pitch)
+			d.rotateYZBy(pitch);
+		d.rotateXZBy(yaw);
+
+		m_speed += d;
 	}
-
-	if (max_increase_V > 0.0f) {
-		f32 d_wanted_V = d_wanted.Y;
-		if (d_wanted_V > max_increase_V)
-			d.Y += max_increase_V;
-		else if (d_wanted_V < -max_increase_V)
-			d.Y -= max_increase_V;
-		else
-			d.Y += d_wanted_V;
-	}
-
-	// Finally rotate it again
-	if (use_pitch)
-		d.rotateYZBy(pitch);
-	d.rotateXZBy(yaw);
-
-	m_speed += d;
 }
 
 // Temporary option for old move code
