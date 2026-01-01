@@ -825,3 +825,52 @@ std::array<core::plane3d<f32>, 4> Camera::getFrustumCullPlanes() const
 		frustum_planes[SViewFrustum::VF_TOP_PLANE],
 	};
 }
+
+auto Camera::getHorizonCuller() const
+{
+	// Capture the values we need for the lambda
+	v3f camera_pos = m_camera_position;
+	bool planet_mode = quadsphere::g_planet_mode_enabled;
+	v3f planet_center = quadsphere::g_planet_config.center;
+	f32 planet_radius = quadsphere::g_planet_config.radius;
+
+	return [camera_pos, planet_mode, planet_center, planet_radius]
+			(v3f position, f32 radius) -> bool {
+		// No horizon culling if planet mode is disabled
+		if (!planet_mode)
+			return false;
+
+		// Calculate camera's altitude above the planet surface
+		v3f cam_from_center = camera_pos - planet_center;
+		f32 cam_distance = cam_from_center.getLength();
+		f32 cam_altitude = cam_distance - planet_radius;
+
+		// If camera is inside planet (shouldn't happen normally), don't cull
+		if (cam_altitude < 0)
+			return false;
+
+		// Calculate horizon distance for the camera
+		// d = sqrt(h * (2*R + h)) where h = altitude, R = radius
+		f32 horizon_distance_sq = cam_altitude * (2.0f * planet_radius + cam_altitude);
+
+		// Calculate block's distance along the sphere surface
+		// For simplicity, we use the straight-line distance to the block
+		// and compare with horizon distance (slightly conservative)
+		v3f block_from_center = position - planet_center;
+		f32 block_distance = block_from_center.getLength();
+
+		// Vector from camera to block
+		v3f cam_to_block = position - camera_pos;
+		f32 direct_distance_sq = cam_to_block.getLengthSQ();
+
+		// Check if block is beyond horizon
+		// We use a conservative test: if the direct distance is much greater
+		// than the horizon distance, the block is likely beyond horizon
+		// The radius adds tolerance for blocks partially visible
+		f32 tolerance = radius * 2.0f;
+		f32 effective_horizon_sq = horizon_distance_sq +
+			tolerance * (std::sqrt(horizon_distance_sq) * 2.0f + tolerance);
+
+		return direct_distance_sq > effective_horizon_sq;
+	};
+}

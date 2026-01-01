@@ -411,6 +411,7 @@ void ClientMap::updateDrawList()
 	m_drawlist = decltype(m_drawlist)(MapBlockComparer(camera_block));
 
 	auto is_frustum_culled = m_client->getCamera()->getFrustumCuller();
+	auto is_horizon_culled = m_client->getCamera()->getHorizonCuller();
 
 	// Uncomment to debug occluded blocks in the wireframe mode
 	// TODO: Include this as a flag for an extended debugging setting
@@ -483,11 +484,13 @@ void ClientMap::updateDrawList()
 				block->resetUsageTimer();
 				blocks_in_range++;
 
-				// Frustum culling
+				// Frustum and horizon culling
 				// Only do coarse culling here, to account for fast camera movement.
 				// This is needed because this function is not called every frame.
 				float frustum_cull_extra_radius = 30.0f * BS;
 				if (is_frustum_culled(mesh_sphere_center,
+						mesh_sphere_radius + frustum_cull_extra_radius) ||
+						is_horizon_culled(mesh_sphere_center,
 						mesh_sphere_radius + frustum_cull_extra_radius)) {
 					blocks_frustum_culled++;
 					continue;
@@ -585,11 +588,13 @@ void ClientMap::updateDrawList()
 					m_control.wanted_range * BS + mesh_sphere_radius)
 				continue; // Out of range, skip.
 
-			// Frustum culling
+			// Frustum and horizon culling
 			// Only do coarse culling here, to account for fast camera movement.
 			// This is needed because this function is not called every frame.
 			float frustum_cull_extra_radius = 30.0f * BS;
 			if (is_frustum_culled(mesh_sphere_center,
+					mesh_sphere_radius + frustum_cull_extra_radius) ||
+					is_horizon_culled(mesh_sphere_center,
 					mesh_sphere_radius + frustum_cull_extra_radius)) {
 				blocks_frustum_culled++;
 				continue;
@@ -1027,6 +1032,7 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 	draw_order.clear();
 
 	auto is_frustum_culled = m_client->getCamera()->getFrustumCuller();
+	auto is_horizon_culled = m_client->getCamera()->getHorizonCuller();
 
 	for (auto &i : m_drawlist) {
 		const v3s16 block_pos = i.first;
@@ -1037,12 +1043,13 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 		if (!block_mesh)
 			continue;
 
-		// Do exact frustum culling
+		// Do exact frustum and horizon culling
 		// (The one in updateDrawList is only coarse.)
 		v3f mesh_sphere_center = intToFloat(block->getPosRelative(), BS)
 				+ block_mesh->getBoundingSphereCenter();
 		f32 mesh_sphere_radius = block_mesh->getBoundingRadius();
-		if (is_frustum_culled(mesh_sphere_center, mesh_sphere_radius))
+		if (is_frustum_culled(mesh_sphere_center, mesh_sphere_radius) ||
+				is_horizon_culled(mesh_sphere_center, mesh_sphere_radius))
 			continue;
 
 		// Mesh animation
