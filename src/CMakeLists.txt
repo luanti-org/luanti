@@ -403,6 +403,7 @@ add_subdirectory(network)
 add_subdirectory(script)
 add_subdirectory(util)
 add_subdirectory(server)
+add_subdirectory(quadsphere)
 
 # Source files that are identical between server & client builds.
 # This means they don't use or include anything that depends on the
@@ -487,6 +488,7 @@ set(common_SRCS
 	${common_server_SRCS}
 	${mapgen_SRCS}
 	${server_network_SRCS}
+	${quadsphere_SRCS}
 )
 
 if(ANDROID)
