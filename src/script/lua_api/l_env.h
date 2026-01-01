@@ -226,6 +226,9 @@ private:
 	// get_translated_string(lang_code, string)
 	static int l_get_translated_string(lua_State * L);
 
+	// override_abm(abm_name, new_data)
+	static int l_override_abm(lua_State * L);
+
 public:
 	static void Initialize(lua_State *L, int top);
 	static void InitializeClient(lua_State *L, int top);
