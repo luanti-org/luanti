@@ -4038,12 +4038,19 @@ v3f Server::findSpawnPos()
 	}
 
 	// Planet mode: spawn on the planet surface
+	infostream << "findSpawnPos: g_planet_mode_enabled = "
+	           << (quadsphere::g_planet_mode_enabled ? "true" : "false") << std::endl;
 	if (quadsphere::g_planet_mode_enabled) {
 		// Pick a random point on the FRONT face of the cube-sphere
 		// This gives a consistent spawn area
 		f32 u = 0.5f;  // Center of face
 		f32 v = 0.5f;
 		f32 altitude = 10.0f * BS;  // 10 nodes above surface
+
+		infostream << "Planet config: radius=" << quadsphere::g_planet_config.radius
+		           << " center=(" << quadsphere::g_planet_config.center.X
+		           << "," << quadsphere::g_planet_config.center.Y
+		           << "," << quadsphere::g_planet_config.center.Z << ")" << std::endl;
 
 		v3f spawnPos = quadsphere::cubeToWorld(
 			quadsphere::CubeFace::FRONT,
