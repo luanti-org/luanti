@@ -375,4 +375,82 @@ const char* faceName(CubeFace face)
 	return "UNKNOWN";
 }
 
+bool wrapPositionOnPlanet(v3f worldPos, v3f center, f32 radius, v3f &wrapped)
+{
+	// Convert to quad-sphere coordinates
+	QuadSpherePos qpos = worldToQuadSphere(worldPos, center, radius);
+
+	// Check if UV coordinates are within bounds
+	if (isValidUV(qpos.u, qpos.v)) {
+		wrapped = worldPos;
+		return false;  // No wrapping needed
+	}
+
+	bool didWrap = false;
+	CubeFace currentFace = qpos.face;
+	f32 u = qpos.u;
+	f32 v = qpos.v;
+
+	// Handle wrapping in each direction
+	// We may need to wrap multiple times if we went off a corner
+	const int MAX_WRAPS = 4;  // Safety limit
+	for (int wrap = 0; wrap < MAX_WRAPS; wrap++) {
+		FaceDirection dir;
+		bool needsWrap = false;
+
+		// Determine which direction we went off the edge
+		if (v > 1.0f) {
+			dir = FaceDirection::UP;
+			v = v - 1.0f;
+			needsWrap = true;
+		} else if (v < 0.0f) {
+			dir = FaceDirection::DOWN;
+			v = v + 1.0f;
+			needsWrap = true;
+		} else if (u > 1.0f) {
+			dir = FaceDirection::RIGHT;
+			u = u - 1.0f;
+			needsWrap = true;
+		} else if (u < 0.0f) {
+			dir = FaceDirection::LEFT;
+			u = u + 1.0f;
+			needsWrap = true;
+		}
+
+		if (!needsWrap) {
+			break;
+		}
+
+		// Get the neighbor face
+		CubeFace neighborFace = getNeighborFace(currentFace, dir);
+
+		// Transform UV coordinates for the new face
+		transformUVAcrossFaces(currentFace, neighborFace, dir, u, v);
+
+		currentFace = neighborFace;
+		didWrap = true;
+	}
+
+	// Clamp UV to valid range (should be close already)
+	u = std::max(0.0f, std::min(1.0f, u));
+	v = std::max(0.0f, std::min(1.0f, v));
+
+	// Convert back to world position
+	wrapped = cubeToWorld(currentFace, u, v, radius, qpos.altitude);
+
+	return didWrap;
+}
+
+bool isWithinPlanetBounds(v3f worldPos, v3f center, f32 radius)
+{
+	// Convert to quad-sphere coordinates and check if valid
+	QuadSpherePos qpos = worldToQuadSphere(worldPos, center, radius);
+
+	// UV coordinates should always be in [0, 1] range if on a valid face
+	// A small epsilon for floating point tolerance
+	const f32 eps = 0.01f;
+	return qpos.u >= -eps && qpos.u <= 1.0f + eps &&
+	       qpos.v >= -eps && qpos.v <= 1.0f + eps;
+}
+
 } // namespace quadsphere

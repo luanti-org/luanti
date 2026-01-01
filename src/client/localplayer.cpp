@@ -13,6 +13,7 @@
 #include "client.h"
 #include "content_cao.h"
 #include "quadsphere/planet_config.h"
+#include "quadsphere/quadsphere.h"
 
 /*
 	PlayerSettings
@@ -242,6 +243,18 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 
 	if (noclip && free_move) {
 		position += m_speed * dtime;
+
+		// Wrap position if in planet mode (enables circumnavigation)
+		if (quadsphere::g_planet_mode_enabled) {
+			v3f wrapped;
+			if (quadsphere::wrapPositionOnPlanet(position,
+					quadsphere::g_planet_config.center,
+					quadsphere::g_planet_config.radius,
+					wrapped)) {
+				position = wrapped;
+			}
+		}
+
 		setPosition(position);
 
 		touching_ground = false;
@@ -444,6 +457,21 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 
 	if (could_sneak)
 		new_sneak_node_exists = updateSneakNode(map, position, sneak_max);
+
+	/*
+		Wrap position if in planet mode (enables circumnavigation)
+	*/
+	if (quadsphere::g_planet_mode_enabled) {
+		v3f wrapped;
+		if (quadsphere::wrapPositionOnPlanet(position,
+				quadsphere::g_planet_config.center,
+				quadsphere::g_planet_config.radius,
+				wrapped)) {
+			position = wrapped;
+			// Also need to update speed direction when crossing face boundaries
+			// to maintain movement relative to the new surface normal
+		}
+	}
 
 	/*
 		Set new position but keep sneak node set
@@ -936,6 +964,18 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 	bool free_move = noclip && fly_allowed && player_settings.free_move;
 	if (free_move) {
 		position += m_speed * dtime;
+
+		// Wrap position if in planet mode
+		if (quadsphere::g_planet_mode_enabled) {
+			v3f wrapped;
+			if (quadsphere::wrapPositionOnPlanet(position,
+					quadsphere::g_planet_config.center,
+					quadsphere::g_planet_config.radius,
+					wrapped)) {
+				position = wrapped;
+			}
+		}
+
 		setPosition(position);
 
 		touching_ground = false;
@@ -1153,6 +1193,19 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 		*/
 		if (sneak_node_found && control.sneak)
 			touching_ground = true;
+	}
+
+	/*
+		Wrap position if in planet mode (enables circumnavigation)
+	*/
+	if (quadsphere::g_planet_mode_enabled) {
+		v3f wrapped;
+		if (quadsphere::wrapPositionOnPlanet(position,
+				quadsphere::g_planet_config.center,
+				quadsphere::g_planet_config.radius,
+				wrapped)) {
+			position = wrapped;
+		}
 	}
 
 	/*

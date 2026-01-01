@@ -166,4 +166,28 @@ void getFaceTangents(CubeFace face, v3f &tangentU, v3f &tangentV);
  */
 const char* faceName(CubeFace face);
 
+/**
+ * Wrap a world position to stay within the planet's quad-sphere surface.
+ * If the position has moved past a face boundary, it is wrapped to the
+ * adjacent face, enabling circumnavigation of the planet.
+ *
+ * @param worldPos Current world position
+ * @param center Planet center
+ * @param radius Planet radius
+ * @param[out] wrapped The wrapped position (may be same as input if no wrap needed)
+ * @return true if position was wrapped to a new face
+ */
+bool wrapPositionOnPlanet(v3f worldPos, v3f center, f32 radius, v3f &wrapped);
+
+/**
+ * Check if a world position is within the planet's quad-sphere bounds.
+ * Returns false if the position has drifted outside the valid coordinate space.
+ *
+ * @param worldPos World position to check
+ * @param center Planet center
+ * @param radius Planet radius
+ * @return true if position is within valid bounds
+ */
+bool isWithinPlanetBounds(v3f worldPos, v3f center, f32 radius);
+
 } // namespace quadsphere

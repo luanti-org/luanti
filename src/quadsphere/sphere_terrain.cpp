@@ -105,6 +105,36 @@ bool SphereTerrainHelper::isBelowSurface(v3f pos, f32 noise_value, f32 variation
 	return altitude < surface_altitude;
 }
 
+PlanetZone getBlockZone(v3s16 blockpos)
+{
+	if (!g_planet_mode_enabled)
+		return PlanetZone::TERRAIN_SHELL;
+
+	// Convert block position to world center
+	v3f block_center(
+		(blockpos.X + 0.5f) * MAP_BLOCKSIZE * BS,
+		(blockpos.Y + 0.5f) * MAP_BLOCKSIZE * BS,
+		(blockpos.Z + 0.5f) * MAP_BLOCKSIZE * BS
+	);
+
+	// Calculate distance from planet center
+	v3f from_center = block_center - g_planet_config.center;
+	f32 distance = from_center.getLength();
+
+	// Convert to altitude in blocks
+	f32 altitude = distance - g_planet_config.radius;
+	f32 altitude_blocks = altitude / (MAP_BLOCKSIZE * BS);
+
+	// Check which zone the block is in
+	if (altitude_blocks < g_planet_config.min_altitude_blocks) {
+		return PlanetZone::HOLLOW_CORE;
+	} else if (altitude_blocks > g_planet_config.max_altitude_blocks) {
+		return PlanetZone::OUTER_SPACE;
+	}
+
+	return PlanetZone::TERRAIN_SHELL;
+}
+
 SphereTerrainHelper *getTerrainHelper()
 {
 	return g_terrain_helper.get();

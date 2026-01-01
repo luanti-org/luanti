@@ -12,6 +12,15 @@
 namespace quadsphere {
 
 /**
+ * Zone types for planet block generation.
+ */
+enum class PlanetZone {
+	TERRAIN_SHELL,  // Normal terrain generation (between min and max altitude)
+	HOLLOW_CORE,    // Below min_altitude - empty void (hollow planet interior)
+	OUTER_SPACE     // Above max_altitude - empty air
+};
+
+/**
  * Utilities for sphere-aware terrain generation.
  * Provides coordinate transformations that allow existing mapgen
  * algorithms to work on a spherical planet.
@@ -89,6 +98,13 @@ private:
 	PlanetConfig m_config;
 	f32 m_surface_radius; // Radius at which terrain surface is centered
 };
+
+/**
+ * Determine which zone a block is in based on its altitude.
+ * @param blockpos Block position in world coordinates
+ * @return The planet zone for this block
+ */
+PlanetZone getBlockZone(v3s16 blockpos);
 
 /**
  * Get the terrain helper if planet mode is enabled.
