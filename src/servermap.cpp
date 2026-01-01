@@ -28,6 +28,7 @@
 #include "database/database-dummy.h"
 #include "database/database-sqlite3.h"
 #include "script/scripting_server.h"
+#include "quadsphere/planet_settings.h"
 #if USE_LEVELDB
 #include "database/database-leveldb.h"
 #endif
@@ -114,6 +115,11 @@ ServerMap::ServerMap(const std::string &savedir, IGameDef *gamedef,
 				if (settings_mgr.loadMapMeta()) {
 					infostream << "ServerMap: Metadata loaded from "
 						<< savedir << std::endl;
+
+					// Initialize planet mode if enabled in map settings
+					if (quadsphere::initializePlanetMode(settings_mgr.getMapSettings())) {
+						infostream << "ServerMap: Planet mode enabled" << std::endl;
+					}
 				} else {
 					infostream << "ServerMap: Metadata could not be loaded "
 						"from " << savedir << ", assuming valid save "

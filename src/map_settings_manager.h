@@ -58,6 +58,12 @@ public:
 	/// @brief Creates a copy of the mapgen params without making the manager immutable
 	MapgenParams *makeMapgenParamsCopy() const;
 
+	/// @brief Get read-only access to map settings
+	const Settings *getMapSettings() const { return m_map_settings.get(); }
+
+	/// @brief Get read-write access to map settings (only before makeMapgenParams)
+	Settings *getMapSettingsRW() { return mapgen_params ? nullptr : m_map_settings.get(); }
+
 private:
 	std::string m_map_meta_path;
 
