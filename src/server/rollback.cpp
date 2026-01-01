@@ -17,12 +17,14 @@ RollbackMgr::RollbackMgr(IGameDef *gamedef_) :
 
 void RollbackMgr::reportAction(const RollbackAction &action_)
 {
+	// Ignore if not important
 	if (!action_.isImportant(gamedef))
 		return;
 
 	RollbackAction action = action_;
 	action.unix_time = time(0);
 
+	// Figure out actor
 	action.actor = current_actor;
 	action.actor_is_guess = current_actor_is_guess;
 
@@ -72,7 +74,7 @@ std::string RollbackMgr::getSuspect(v3s16 p, float nearness_shortcut, float min_
 			break;
 		if (i->actor.empty())
 			continue;
-
+        // Find position of suspect or continue
 		v3s16 suspect_p;
 		if (!i->getPosition(&suspect_p))
 			continue;
@@ -85,10 +87,11 @@ std::string RollbackMgr::getSuspect(v3s16 p, float nearness_shortcut, float min_
 				break;
 		}
 	}
-
-	if (likely_suspect_nearness == 0)
+	// No likely suspect was found
+	if (likely_suspect_nearness == 0) {
 		return "";
-
+	}
+	// Likely suspect was found
 	return likely_suspect.actor;
 }
 
@@ -128,19 +131,24 @@ std::list<RollbackAction> RollbackMgr::getRevertActions(
 float RollbackMgr::getSuspectNearness(bool is_guess, v3s16 suspect_p,
 		time_t suspect_t, v3s16 action_p, time_t action_t)
 {
-	if (action_t < suspect_t)
+	// Suspect cannot cause things in the past
+	if (action_t < suspect_t) {
 		return 0;
-
+	}
+	// Start from 100
 	int f = 100;
+	// Distance (1 node = -x points)
 	f -= POINTS_PER_NODE * intToFloat(suspect_p, 1).getDistanceFrom(intToFloat(action_p, 1));
+	// Time (1 second = -x points)
 	f -= 1 * (action_t - suspect_t);
-
-	if (is_guess)
+	// If is a guess, halve the points
+	if (is_guess) {
 		f /= 2;
-
-	if (f < 0)
+	}
+	// Limit to 0
+	if (f < 0) {
 		f = 0;
-
+	}
 	return f;
 }
 
@@ -182,5 +190,3 @@ void RollbackMgr::parseNodemetaLocation(const std::string &loc, int &x, int &y, 
 	y = atoi(y_str.c_str());
 	z = atoi(z_str.c_str());
 }
-
-
