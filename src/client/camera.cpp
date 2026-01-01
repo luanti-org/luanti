@@ -826,7 +826,7 @@ std::array<core::plane3d<f32>, 4> Camera::getFrustumCullPlanes() const
 	};
 }
 
-auto Camera::getHorizonCuller() const
+std::function<bool(v3f, f32)> Camera::getHorizonCuller() const
 {
 	// Capture the values we need for the lambda
 	v3f camera_pos = m_camera_position;
@@ -852,12 +852,6 @@ auto Camera::getHorizonCuller() const
 		// Calculate horizon distance for the camera
 		// d = sqrt(h * (2*R + h)) where h = altitude, R = radius
 		f32 horizon_distance_sq = cam_altitude * (2.0f * planet_radius + cam_altitude);
-
-		// Calculate block's distance along the sphere surface
-		// For simplicity, we use the straight-line distance to the block
-		// and compare with horizon distance (slightly conservative)
-		v3f block_from_center = position - planet_center;
-		f32 block_distance = block_from_center.getLength();
 
 		// Vector from camera to block
 		v3f cam_to_block = position - camera_pos;

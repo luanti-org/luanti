@@ -10,6 +10,9 @@
 
 namespace quadsphere {
 
+// Forward declaration of CubeFace (defined in quadsphere.h)
+enum class CubeFace : u8;
+
 /**
  * Configuration parameters for a spherical planet.
  * These define the size, structure, and behavior of the planet.

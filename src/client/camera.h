@@ -12,6 +12,7 @@
 #include <array>
 #include <vector>
 #include <optional>
+#include <functional>
 
 class LocalPlayer;
 struct MapDrawControl;
@@ -134,7 +135,7 @@ public:
 	// Returns a lambda for horizon culling on a spherical planet.
 	// Returns true if the object should be culled (beyond horizon).
 	// Only active when planet mode is enabled.
-	auto getHorizonCuller() const;
+	std::function<bool(v3f, f32)> getHorizonCuller() const;
 
 	// Notify about new server-sent FOV and initialize smooth FOV transition
 	void notifyFovChange();
