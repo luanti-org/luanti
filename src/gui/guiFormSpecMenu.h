@@ -386,7 +386,6 @@ private:
 	JoystickController        *m_joystick;
 	bool                       m_show_debug = false;
 	bool                       m_show_focus = false;
-	gui::IGUIElement          *m_last_focused_element = nullptr;
 
 	struct parserData {
 		bool explicit_size;
