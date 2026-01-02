@@ -390,21 +390,21 @@ end
 
 -- Sorts the serverlist depending on the query
 local function sort_servers(servers, query)
-	local type = query.sort == "" and query.sort or query.sort or "relevance"
+	local sort_by = query.sort == "" and query.sort or query.sort or "relevance"
 
 	local reverse = false
-	if string.sub(type, 1, 1) == "-" then
+	if string.sub(sort_by, 1, 1) == "-" then
 		reverse = true
-		type = string.sub(type, 2)
+		sort_by = string.sub(sort_by, 2)
 	end
 
 	local sort_fun
 
-	if type  == "mods" then
+	if sort_by  == "mods" then
 		sort_fun = function(a, b)
 			return a.mods and (not b.mods or #a.mods > #b.mods)
 		end
-	elseif type  == "lag" then
+	elseif sort_by  == "lag" then
 		sort_fun = function(a, b)
 			return a.lag and (not b.lag or a.lag > b.lag)
 		end
@@ -416,20 +416,20 @@ local function sort_servers(servers, query)
 			ping = "ping",
 			relevance = "points",
 		}
-		local index = sort_indices[type] or "points"
+		local index = sort_indices[sort_by] or "points"
 		sort_fun = function(a, b)
 			return a[index] > b[index]
 		end
 	end
 
 	-- For those lower is typically better
-	local asc_types = {
+	local asc = {
 		name = true,
 		ping = true,
 		lag = true,
 	}
 
-	if reverse == (asc_types[type] or false) then
+	if reverse == (asc[sort_by] or false) then
 		table.sort(servers, sort_fun)
 	else
 		table.sort(servers,  function(a, b)
