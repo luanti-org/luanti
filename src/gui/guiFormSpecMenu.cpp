@@ -3613,7 +3613,8 @@ void GUIFormSpecMenu::drawMenu()
 			cursor_control->setActiveIcon(ECI_NORMAL);
 	}
 
-	// Draw white outline around keyboard-focused form elements
+	// Only draw white outline for formspec elements (ID > 0), not for
+	// containers or static elements (which typically have ID <= 0).
 	const gui::IGUIElement *focused = Environment->getFocus();
 	if (focused && m_show_focus && focused->getID() > 0) {
 		core::rect<s32> rect = focused->getAbsoluteClippingRect();
@@ -3969,18 +3970,32 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 	if (GUIModalMenu::preprocessEvent(event))
 		return true;
 
-	// Handle Tab key for focus outline before textlist consumes it
-	if (event.EventType == EET_KEY_INPUT_EVENT && event.KeyInput.PressedDown &&
-			event.KeyInput.Key == KEY_TAB && !event.KeyInput.Control) {
-		m_show_focus = true;
-	}
-
-	// Disable keyboard focus outline on any mouse click
-	if (event.EventType == EET_MOUSE_INPUT_EVENT && event.MouseInput.Event != EMIE_MOUSE_MOVED) {
-		m_show_focus = false;
-	}
-	if (event.EventType == EET_TOUCH_INPUT_EVENT) {
-		m_show_focus = false;
+	// Handle keyboard and touch input to show/hide focus outline
+	switch (event.EventType) {
+	case EET_KEY_INPUT_EVENT:
+		if (event.KeyInput.PressedDown && event.KeyInput.Key == KEY_TAB &&
+				!event.KeyInput.Control) {
+			m_show_focus = true;
+		}
+		break;
+	case EET_MOUSE_INPUT_EVENT:
+		switch (event.MouseInput.Event) {
+		case EMIE_LMOUSE_PRESSED_DOWN:
+		case EMIE_RMOUSE_PRESSED_DOWN:
+		case EMIE_MMOUSE_PRESSED_DOWN:
+			m_show_focus = false;
+			break;
+		default:
+			break;
+		}
+		break;
+	case EET_TOUCH_INPUT_EVENT:
+		if (event.TouchInput.Event == ETIE_PRESSED_DOWN) {
+			m_show_focus = false;
+		}
+		break;
+	default:
+		break;
 	}
 
 	// The IGUITabControl renders visually using the skin's selected
