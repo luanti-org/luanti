@@ -116,7 +116,7 @@ local function get_formspec(data)
 	elseif mod.type == "worldmods" then
 		retval = retval ..
 			"textarea[0.25,0.7;5.75,7.2;;" ..
-			fgettext("Mods located in the world folder.") .. ";]"
+			fgettext("Mods located inside the world folder.") .. ";]"
 	else
 		local hard_deps, soft_deps = pkgmgr.get_dependencies(mod.path)
 
