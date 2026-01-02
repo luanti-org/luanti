@@ -390,7 +390,7 @@ end
 
 -- Sorts the serverlist depending on the query
 local function sort_servers(servers, query)
-	local sort_by = query.sort == "" and query.sort or query.sort or "relevance"
+	local sort_by = query.sort or "relevance"
 
 	local reverse = false
 	if string.sub(sort_by, 1, 1) == "-" then
