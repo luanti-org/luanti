@@ -653,6 +653,31 @@ function core.get_background_escape_sequence(color)
 	return ESCAPE_CHAR .. "(b@" .. color .. ")"
 end
 
+function core.get_font_escape_sequence(font)
+	assert(type(font) == "table")
+	local s = ""
+
+	if font.mono == true then
+		s = s .. ESCAPE_CHAR .. "(f@M)"
+	elseif font.mono == false then
+		s = s .. ESCAPE_CHAR .. "(f@m)"
+	end
+
+	if font.bold == true then
+		s = s .. ESCAPE_CHAR .. "(f@B)"
+	elseif font.bold == false then
+		s = s .. ESCAPE_CHAR .. "(f@b)"
+	end
+
+	if font.italic == true then
+		s = s .. ESCAPE_CHAR .. "(f@I)"
+	elseif font.italic == false then
+		s = s .. ESCAPE_CHAR .. "(f@i)"
+	end
+
+	return s
+end
+
 function core.colorize(color, message)
 	local lines = tostring(message):split("\n", true)
 	local color_code = core.get_color_escape_sequence(color)
@@ -677,6 +702,9 @@ function core.strip_colors(str)
 	return (str:gsub(ESCAPE_CHAR .. "%([bc]@[^)]+%)", ""))
 end
 
+function core.strip_font(str)
+	return (str:gsub(ESCAPE_CHAR .. "%(f@[^)]+%)", ""))
+end
 
 local function translate(textdomain, str, num, ...)
 	local start_seq
