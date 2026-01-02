@@ -3613,10 +3613,11 @@ void GUIFormSpecMenu::drawMenu()
 			cursor_control->setActiveIcon(ECI_NORMAL);
 	}
 
-	// Only draw white outline for formspec elements (ID > 0), not for
-	// containers or static elements (which typically have ID <= 0).
+	// Draw white outline around keyboard-focused form elements.
+	// Only draw for focusable elements (tab stops), as non-focusable elements
+	// (containers, static elements) have setTabStop(false) and won't receive focus.
 	const gui::IGUIElement *focused = Environment->getFocus();
-	if (focused && m_show_focus && focused->getID() > 0) {
+	if (focused && m_show_focus && focused->isTabStop()) {
 		core::rect<s32> rect = focused->getAbsoluteClippingRect();
 		const video::SColor white(255, 255, 255, 255);
 		const s32 border = 2;
