@@ -949,7 +949,7 @@ void GUIFormSpecMenu::parseItemImage(parserData* data, const std::string &elemen
 	}
 
 	if(!data->explicit_size)
-		warningstream<<"invalid use of item_image without a size[] element"<<std::endl;
+		warningstream << "invalid use of item_image without a size[] element" << std::endl;
 
 	FieldSpec spec(
 		"",
@@ -1008,7 +1008,7 @@ void GUIFormSpecMenu::parseButton(parserData* data, const std::string &element)
 	}
 
 	if(!data->explicit_size)
-		warningstream<<"invalid use of button without a size[] element"<<std::endl;
+		warningstream << "invalid use of button without a size[] element" << std::endl;
 
 	std::wstring wlabel = translate_string(utf8_to_wide(unescape_string(label)));
 
@@ -1670,7 +1670,7 @@ void GUIFormSpecMenu::parseTextArea(parserData* data, std::vector<std::string>& 
 	core::rect<s32> rect = core::rect<s32>(pos.X, pos.Y, pos.X+geom.X, pos.Y+geom.Y);
 
 	if(!data->explicit_size)
-		warningstream<<"invalid use of positioned "<<type<<" without a size[] element"<<std::endl;
+		warningstream << "invalid use of positioned " << type << " without a size[] element" << std::endl;
 
 	if(m_form_src)
 		default_val = m_form_src->resolveText(default_val);
@@ -1781,7 +1781,7 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 	}
 
 	if(!data->explicit_size)
-		warningstream<<"invalid use of label without a size[] element"<<std::endl;
+		warningstream << "invalid use of label without a size[] element" << std::endl;
 
 	auto style = getDefaultStyleForElement("label", "");
 	gui::IGUIFont *font = style.getFont();
@@ -1882,11 +1882,12 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 	if (!precheckElement("vertlabel", element, 2, 2, parts))
 		return;
 
-	std::vector<std::string> v_pos = split(parts[0],',');
-	std::wstring text = unescape_translate(
-		unescape_string(utf8_to_wide(parts[1])));
+	std::vector<std::string> v_pos = split(parts[0], ',');
 
-	MY_CHECKPOS("vertlabel",1);
+	// Use EnrichedString so color escapes and formatting are preserved
+	EnrichedString etext(unescape_string(utf8_to_wide(parts[1])));
+
+	MY_CHECKPOS("vertlabel", 1);
 
 	auto style = getDefaultStyleForElement("vertlabel", "", "label");
 	gui::IGUIFont *font = style.getFont();
@@ -1902,12 +1903,12 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 		// Vertlabels are positioned by center, not left.
 		pos.X -= imgsize.X / 2;
 
-		// We use text.length + 1 because without it, the rect
+		// We use the character count + 1 because without it, the rect
 		// isn't quite tall enough and cuts off the text.
 		rect = core::rect<s32>(pos.X, pos.Y,
 			pos.X + imgsize.X,
 			pos.Y + font_line_height(font) *
-			(text.length() + 1));
+			(etext.getString().size() + 1));
 
 	} else {
 		pos = getElementBasePos(&v_pos);
@@ -1919,28 +1920,32 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 			pos.X, pos.Y+((imgsize.Y/2) - m_btn_height),
 			pos.X+15, pos.Y +
 				font_line_height(font) *
-				(text.length() + 1) +
+				(etext.getString().size() + 1) +
 				((imgsize.Y/2) - m_btn_height));
 	}
 
 	if(!data->explicit_size)
-		warningstream<<"invalid use of label without a size[] element"<<std::endl;
+		warningstream << "invalid use of label without a size[] element" << std::endl;
 
-	std::wstring label;
-
-	for (wchar_t i : text) {
-		label += i;
-		label += L"\n";
+	// Build vertical enriched text (one character per line)
+	EnrichedString vlabel;
+	const size_t char_count = etext.getString().size();
+	for (size_t i = 0; i < char_count; i++) {
+		vlabel += etext.substr(i, 1);
+		vlabel.addCharNoColor(L'\n');
 	}
 
 	FieldSpec spec(
 		"",
-		label,
 		L"",
-		258 + m_fields.size()
+		L"",
+		258 + m_fields.size(),
+		4
 	);
-	gui::IGUIStaticText *e = gui::StaticText::add(Environment, spec.flabel.c_str(),
+
+	gui::IGUIStaticText *e = gui::StaticText::add(Environment, vlabel,
 			rect, false, false, data->current_parent, spec.fid);
+
 	e->setTextAlignment(gui::EGUIA_CENTER, gui::EGUIA_CENTER);
 
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
@@ -1997,7 +2002,7 @@ void GUIFormSpecMenu::parseImageButton(parserData* data, const std::string &elem
 		pos.Y+geom.Y);
 
 	if (!data->explicit_size)
-		warningstream<<"invalid use of image_button without a size[] element"<<std::endl;
+		warningstream << "invalid use of image_button without a size[] element" << std::endl;
 
 	image_name = unescape_string(image_name);
 	pressed_image_name = unescape_string(pressed_image_name);
@@ -2194,7 +2199,7 @@ void GUIFormSpecMenu::parseItemImageButton(parserData* data, const std::string &
 	core::rect<s32> rect = core::rect<s32>(pos.X, pos.Y, pos.X+geom.X, pos.Y+geom.Y);
 
 	if(!data->explicit_size)
-		warningstream<<"invalid use of item_image_button without a size[] element"<<std::endl;
+		warningstream << "invalid use of item_image_button without a size[] element" << std::endl;
 
 	IItemDefManager *idef = m_client->idef();
 	ItemStack item;
