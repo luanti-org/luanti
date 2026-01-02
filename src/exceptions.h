@@ -18,6 +18,12 @@ public:
 	{
 		return m_s.c_str();
 	}
+
+	BaseException &append(const std::string &what)
+	{
+		m_s.append(what);
+		return *this;
+	}
 protected:
 	std::string m_s;
 };
