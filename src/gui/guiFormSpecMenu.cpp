@@ -3613,6 +3613,27 @@ void GUIFormSpecMenu::drawMenu()
 			cursor_control->setActiveIcon(ECI_NORMAL);
 	}
 
+	// Draw white outline around keyboard-focused form elements
+	gui::IGUIElement *focused = Environment->getFocus();
+	if (focused && m_show_focus && focused->getID() > 0) {
+		core::rect<s32> rect = focused->getAbsoluteClippingRect();
+		const video::SColor white(255, 255, 255, 255);
+		const s32 border = 2;
+
+		driver->draw2DRectangle(white,
+			core::rect<s32>(rect.UpperLeftCorner.X, rect.UpperLeftCorner.Y,
+				rect.LowerRightCorner.X, rect.UpperLeftCorner.Y + border), nullptr);
+		driver->draw2DRectangle(white,
+			core::rect<s32>(rect.UpperLeftCorner.X, rect.LowerRightCorner.Y - border,
+				rect.LowerRightCorner.X, rect.LowerRightCorner.Y), nullptr);
+		driver->draw2DRectangle(white,
+			core::rect<s32>(rect.UpperLeftCorner.X, rect.UpperLeftCorner.Y,
+				rect.UpperLeftCorner.X + border, rect.LowerRightCorner.Y), nullptr);
+		driver->draw2DRectangle(white,
+			core::rect<s32>(rect.LowerRightCorner.X - border, rect.UpperLeftCorner.Y,
+				rect.LowerRightCorner.X, rect.LowerRightCorner.Y), nullptr);
+	}
+
 	m_tooltip_element->draw();
 
 	/*
@@ -3947,6 +3968,20 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 	// correctly.
 	if (GUIModalMenu::preprocessEvent(event))
 		return true;
+
+	// Handle Tab key for focus outline before textlist consumes it
+	if (event.EventType == EET_KEY_INPUT_EVENT && event.KeyInput.PressedDown &&
+			event.KeyInput.Key == KEY_TAB && !event.KeyInput.Control) {
+		m_show_focus = true;
+	}
+
+	// Disable keyboard focus outline on any mouse click
+	if (event.EventType == EET_MOUSE_INPUT_EVENT && event.MouseInput.Event != EMIE_MOUSE_MOVED) {
+		m_show_focus = false;
+	}
+	if (event.EventType == EET_TOUCH_INPUT_EVENT) {
+		m_show_focus = false;
+	}
 
 	// The IGUITabControl renders visually using the skin's selected
 	// font, which we override for the duration of form drawing,
