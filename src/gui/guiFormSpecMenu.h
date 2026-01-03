@@ -385,6 +385,7 @@ private:
 	TextDest                  *m_text_dst;
 	std::string                m_last_formname;
 	u16                        m_formspec_version = 1;
+	bool                       m_have_fs_version_element = false;
 	std::optional<std::string> m_focused_element = std::nullopt;
 	JoystickController        *m_joystick;
 	bool                       m_show_debug = false;

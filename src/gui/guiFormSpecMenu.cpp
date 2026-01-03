@@ -2463,6 +2463,7 @@ bool GUIFormSpecMenu::parseVersionDirect(const std::string &data)
 
 	if (is_number(parts[1])) {
 		m_formspec_version = mystoi(parts[1]);
+		m_have_fs_version_element = true;
 		return true;
 	}
 
@@ -3047,6 +3048,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	m_bgfullscreen = false;
 
 	m_formspec_version = 1;
+	m_have_fs_version_element = false;
 	m_bgcolor = video::SColor(140, 0, 0, 0);
 	m_tabheader_upper_edge = 0;
 
@@ -3373,7 +3375,7 @@ void GUIFormSpecMenu::legacySortElements(std::list<IGUIElement *>::iterator from
 
 void GUIFormSpecMenu::logVersionDeprecation()
 {
-	if (m_formspec_version > 1)
+	if (m_have_fs_version_element)
 		return;
 
 	DeprecatedHandlingMode mode = get_deprecated_handling_mode();
@@ -3400,8 +3402,8 @@ void GUIFormSpecMenu::logVersionDeprecation()
 		known.insert(name);
 	} // else: main menu
 
-	*stream << fmtgettext("The formspec '%s' uses version %d, which is deprecated.",
-			name.c_str(), m_formspec_version) << std::endl;
+	*stream << fmtgettext("The formspec '%s' lacks the element 'formspec_version[]'."
+			" This is deprecated.", name.c_str()) << std::endl;
 }
 
 #ifdef __ANDROID__
