@@ -1939,8 +1939,7 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 		"",
 		L"",
 		L"",
-		258 + m_fields.size(),
-		4
+		258 + m_fields.size()
 	);
 
 	gui::IGUIStaticText *e = gui::StaticText::add(Environment, vlabel,
