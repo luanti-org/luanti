@@ -586,11 +586,11 @@ function make.key(setting)
 			end
 			local value = core.settings:get(setting.name):split("|")
 			for i = 1, #value + 1 do
-				if fields[btn_bind .. "_" .. i] then
+				if fields[("%s_%d"):format(btn_bind, i)] then
 					value[i] = fields[btn_bind .."_" .. i]
 					core.settings:set(setting.name, table.concat(value, "|"))
 					return true
-				elseif fields[btn_clear .. "_" .. i] then
+				if fields[("%s_%d"):format(btn_clear, i)] then
 					table.remove(value, i)
 					core.settings:set(setting.name, table.concat(value, "|"))
 					return true
