@@ -433,7 +433,6 @@ vec2 uv_repeat(vec2 v)
 }
 
 #ifdef TEXEL_ANTIALIASING
-
 // Move the uv coordinates within the texel such that when sampling the texture
 // with bilinear filtering, the result looks like nearest neighbour sampling
 // with anti-aliased texels.
@@ -446,29 +445,33 @@ vec2 uv_texel_antialias(vec2 uv, vec2 texture_size)
 	vec2 tx_off = clamp((fract(tx) - (1.0 - box_size)) / box_size, 0.0, 1.0);
 	return (floor(tx) + 0.5 + tx_off) / texture_size;
 }
-
 #endif
+
+vec4 sample_base_texture(vec2 uv)
+{
+#ifdef TEXEL_ANTIALIASING
+	vec2 uv_moved = uv_texel_antialias(uv, textureSize(baseTexture, 0).xy);
+#ifdef USE_ARRAY_TEXTURE
+	return textureGrad(baseTexture, vec3(uv_moved, varTexLayer), dFdx(uv),
+		dFdy(uv)).rgba;
+#else
+	// For the deprecated texture2D there is no texture2DGrad
+	return texture2D(baseTexture, uv_moved).rgba;
+#endif
+#else
+#ifdef USE_ARRAY_TEXTURE
+	return texture(baseTexture, vec3(uv, varTexLayer)).rgba;
+#else
+	return texture2D(baseTexture, uv).rgba;
+#endif
+#endif
+}
+
 
 void main(void)
 {
-#ifdef TEXEL_ANTIALIASING
-	vec2 uv = uv_texel_antialias(varTexCoord.st, textureSize(baseTexture, 0).xy);
-#ifdef USE_ARRAY_TEXTURE
-	vec4 base = textureGrad(baseTexture, vec3(uv, varTexLayer),
-		dFdx(varTexCoord.st), dFdy(varTexCoord.st)).rgba;
-#else
-	// For the deprecated texture2D there is no texture2DGrad
-	vec4 base = texture2D(baseTexture, uv).rgba;
-#endif
-
-#else
 	vec2 uv = varTexCoord.st;
-#ifdef USE_ARRAY_TEXTURE
-	vec4 base = texture(baseTexture, vec3(uv, varTexLayer)).rgba;
-#else
-	vec4 base = texture2D(baseTexture, uv).rgba;
-#endif
-#endif
+	vec4 base = sample_base_texture(uv);
 
 	// Handle transparency by discarding pixel as appropriate.
 #ifdef USE_DISCARD
@@ -488,6 +491,10 @@ void main(void)
 
 		vec2 cuv_offset = vec2(0.0, crack_progress / crackAnimationLength);
 		vec2 cuv_factor = vec2(1.0, 1.0 / crackAnimationLength);
+#ifdef TEXEL_ANTIALIASING
+		orig_uv = uv_texel_antialias(orig_uv,
+			textureSize(crackTexture, 0).xy * cuv_factor);
+#endif
 		vec4 crack = texture2D(crackTexture, cuv_offset + orig_uv * cuv_factor);
 		base = mix(base, crack, crack.a);
 	}
