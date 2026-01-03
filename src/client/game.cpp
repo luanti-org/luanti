@@ -567,7 +567,10 @@ void Game::run()
 			cam_view.camera_yaw = cam_view_target.camera_yaw;
 			cam_view.camera_pitch = cam_view_target.camera_pitch;
 		} else {
-			f32 cam_damp_lambda = 10.0f / m_cache_cam_smoothing * dtime;
+			// increase convergence time by an arbitrary value
+			// because input fields have a step of 0.01, which is not fine grained enough
+			const f32 LAMBDA_MULTIPLIER = 10.0f;
+			f32 cam_damp_lambda = LAMBDA_MULTIPLIER / m_cache_cam_smoothing * dtime;
 			cam_view.camera_yaw = damp(
 					cam_view.camera_yaw,
 					cam_view_target.camera_yaw,
