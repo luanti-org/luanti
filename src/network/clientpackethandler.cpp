@@ -1473,7 +1473,7 @@ void Client::handleCommand_HudSetStars(NetworkPacket *pkt)
 
 		if (!pkt->getRemainingBytes())
 			break;
-		// >= 5.14.0-dev
+		// >= 5.15.0-dev
 		*pkt >> stars.star_seed;
 	} while (0);
 
