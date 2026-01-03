@@ -578,8 +578,7 @@ void Client::step(float dtime)
 		Send player position to server
 	*/
 	{
-		float &counter = m_playerpos_send_timer;
-		counter += dtime;
+		m_playerpos_send_timer += dtime;
 		if (m_state == LC_Ready) {
 			sendPlayerPos();
 		}
@@ -1454,7 +1453,7 @@ void Client::sendPlayerPos()
 		if (m_playerpos_repeat_count >= 5)
 			return;
 	} else {
-		// keys changed, send package directly (even if the recommended send interval is not reached yet)
+		// something changed, send package directly (even if the recommended send interval is not reached yet)
 		m_playerpos_repeat_count = 0;
 	}
 	m_playerpos_send_timer = 0;
