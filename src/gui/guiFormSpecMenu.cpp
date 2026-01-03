@@ -3979,7 +3979,7 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 	if (event.EventType == EET_KEY_INPUT_EVENT) {
 			KeyPress kp(event.KeyInput);
 		if (kp == EscapeKey
-				|| kp == getKeySetting("keymap_inventory")
+				|| keySettingHasMatch("keymap_inventory", kp)
 				|| event.KeyInput.Key==KEY_RETURN) {
 			gui::IGUIElement *focused = Environment->getFocus();
 			if (focused && isMyChild(focused) &&
@@ -4078,13 +4078,13 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 		}
 		if (event.KeyInput.PressedDown && (
 				(kp == EscapeKey) ||
-				((m_client != NULL) && (kp == getKeySetting("keymap_inventory"))))) {
+				((m_client != NULL) && (keySettingHasMatch("keymap_inventory", kp))))) {
 			tryClose();
 			return true;
 		}
 
 		if (event.KeyInput.PressedDown &&
-				(kp == getKeySetting("keymap_screenshot"))) {
+				(keySettingHasMatch("keymap_screenshot", kp))) {
 			if (m_client) {
 				m_client->makeScreenshot();
 			} else if (m_text_dst) { // in main menu
@@ -4092,7 +4092,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 			}
 		}
 
-		if (event.KeyInput.PressedDown && kp == getKeySetting("keymap_toggle_debug")) {
+		if (event.KeyInput.PressedDown && keySettingHasMatch("keymap_toggle_debug", kp)) {
 			if (!m_client || m_client->checkPrivilege("debug"))
 				m_show_debug = !m_show_debug;
 		}
