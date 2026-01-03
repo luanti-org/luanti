@@ -2691,22 +2691,18 @@ void Server::fillMediaCache()
 	infostream << "Server: " << m_media.size() << " media files collected" << std::endl;
 }
 
-void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_code)
+void Server::sendMediaAnnouncement(session_t peer_id, const std::string &langstring)
 {
-	std::string translation_formats[3] = { ".tr", ".po", ".mo" };
-	std::string lang_suffixes[3];
-	for (size_t i = 0; i < 3; i++) {
-		lang_suffixes[i].append(".").append(lang_code).append(translation_formats[i]);
-	}
+	std::unordered_set<std::string> langs;
+	for (const auto &lang_code: str_split(langstring, ':'))
+		langs.insert(lang_code);
 
 	auto include = [&] (const std::string &name, const MediaInfo &info) -> bool {
 		if (info.no_announce)
 			return false;
-		for (size_t j = 0; j < 3; j++) {
-			if (str_ends_with(name, translation_formats[j]) && !str_ends_with(name, lang_suffixes[j])) {
-				return false;
-			}
-		}
+		if (auto filelang = Translations::getFileLanguage(name);
+				!filelang.empty() && langs.find(std::string(filelang)) == langs.end())
+			return false;
 		return true;
 	};
 
@@ -4304,28 +4300,33 @@ void Server::broadcastModChannelMessage(const std::string &channel,
 	}
 }
 
-Translations *Server::getTranslationLanguage(const std::string &lang_code)
+Translations *Server::getTranslationLanguage(const std::string &lang)
 {
-	if (lang_code.empty())
+	if (lang.empty())
 		return nullptr;
 
-	auto it = server_translations.find(lang_code);
-	if (it != server_translations.end())
-		return &it->second; // Already loaded
+	std::unordered_set<std::string> load_langs;
 
-	// [] will create an entry
-	auto *translations = &server_translations[lang_code];
+	for (const auto &lang_code: str_split(lang, ':')) {
+		if (loaded_translations.find(lang_code) == loaded_translations.end()) {
+			load_langs.insert(lang_code);
+			loaded_translations.insert(lang_code);
+		}
+	}
+
+	if (load_langs.empty())
+		return &server_translations;
 
 	for (const auto &i : m_media) {
-		if (Translations::getFileLanguage(i.first) == lang_code) {
+		if (load_langs.find(std::string(Translations::getFileLanguage(i.first))) != load_langs.end()) {
 			std::string data;
 			if (fs::ReadFile(i.second.path, data, true)) {
-				translations->loadTranslation(i.first, data);
+				server_translations.loadTranslation(i.first, data);
 			}
 		}
 	}
 
-	return translations;
+	return &server_translations;
 }
 
 std::unordered_map<std::string, std::string> Server::getMediaList()
