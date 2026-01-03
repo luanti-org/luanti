@@ -4,6 +4,11 @@
 
 mm_game_theme = {}
 
+local COLORS = {
+	dark = { clouds = "#1c2a47", sky = "#090b1a" },
+	light = { clouds = "#f0f0ff", sky = "#8cbafa" },
+}
+
 --------------------------------------------------------------------------------
 function mm_game_theme.init()
 	mm_game_theme.texturepack = core.settings:get("texture_path")
@@ -36,12 +41,12 @@ function mm_game_theme.set_engine(hide_decorations)
 		mm_game_theme.set_engine_single("footer")
 	end
 
+	local c = COLORS[core.settings:get_bool("menu_dark_theme") and "dark" or "light"]
+	core.set_clouds_color(c.clouds)
+	core.set_sky_color(c.sky)
+
 	if not have_bg then
-		if core.settings:get_bool("menu_clouds") then
-			core.set_clouds(true)
-		else
-			mm_game_theme.set_dirt_bg()
-		end
+		core.set_clouds(core.settings:get_bool("menu_clouds"))
 	end
 end
 
@@ -71,12 +76,12 @@ function mm_game_theme.set_game(gamedetails)
 	mm_game_theme.set_game_single("header", gamedetails)
 	mm_game_theme.set_game_single("footer", gamedetails)
 
+	local c = COLORS[core.settings:get_bool("menu_dark_theme") and "dark" or "light"]
+	core.set_clouds_color(c.clouds)
+	core.set_sky_color(c.sky)
+
 	if not have_bg then
-		if core.settings:get_bool("menu_clouds") then
-			core.set_clouds(true)
-		else
-			mm_game_theme.set_dirt_bg()
-		end
+		core.set_clouds(core.settings:get_bool("menu_clouds"))
 	end
 end
 
@@ -92,7 +97,6 @@ local valid_image_extensions = {
 	".jpeg",
 }
 
---------------------------------------------------------------------------------
 function mm_game_theme.set_engine_single(identifier)
 	--try texture pack first
 	if mm_game_theme.texturepack ~= nil then
@@ -113,8 +117,6 @@ function mm_game_theme.set_engine_single(identifier)
 end
 
 --------------------------------------------------------------------------------
-
-
 function mm_game_theme.set_game_single(identifier, gamedetails)
 	local extensions_randomised = table.copy(valid_image_extensions)
 	table.shuffle(extensions_randomised)
@@ -154,20 +156,6 @@ function mm_game_theme.set_game_single(identifier, gamedetails)
 
 	end
 	return false
-end
-
---------------------------------------------------------------------------------
-function mm_game_theme.set_dirt_bg()
-	if mm_game_theme.texturepack ~= nil then
-		local path = mm_game_theme.texturepack .. DIR_DELIM .. "default_dirt.png"
-		if core.set_background("background", path, true, 128) then
-			return true
-		end
-	end
-
-	-- Use universal fallback texture in textures/base/pack
-	local minimalpath = defaulttexturedir .. "menu_bg.png"
-	core.set_background("background", minimalpath, true, 128)
 end
 
 --------------------------------------------------------------------------------
