@@ -182,7 +182,7 @@ protected:
 	Client *m_client; ///< null in the mainmenu
 	ISimpleTextureSource *m_tsrc;
 	gui::IGUIEnvironment *m_guienv;
-	s32 m_height;
+	s32 m_height = 0;
 	s32 m_voffset;
 	std::vector<RectWithMargin> m_floating;
 };
@@ -223,5 +223,7 @@ protected:
 	ParsedText::Element *getElementAt(s32 X, s32 Y);
 	void checkHover(s32 X, s32 Y);
 
-	bool m_drawer_ready = false;
+	// Counter variable to be increased every iteration of draw(),
+	// if it reached a certain number, drawing is allowed.
+	int m_draw_state = 0;
 };
