@@ -256,8 +256,6 @@ function pkgmgr.render_packagelist(render_list, use_technical_names, with_icon)
 		render_list = pkgmgr.global_mods
 	end
 
-	-- TODO stop this quadratic nonsense and also support nested modpacks
-
 	local list = render_list:get_list()
 	local retval = {}
 	for i, v in ipairs(list) do
