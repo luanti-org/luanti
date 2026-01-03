@@ -6,6 +6,7 @@ set(BUILTIN_MAINMENU_SRCS
 	mainmenu/credits.json
 	mainmenu/dlg_clients_list.lua
 	mainmenu/dlg_config_world.lua
+	mainmenu/dlg_confirm_exit.lua
 	mainmenu/dlg_create_world.lua
 	mainmenu/dlg_delete_content.lua
 	mainmenu/dlg_delete_world.lua
