@@ -385,6 +385,7 @@ private:
 	std::optional<std::string> m_focused_element = std::nullopt;
 	JoystickController        *m_joystick;
 	bool                       m_show_debug = false;
+	bool                       m_show_focus = false;
 
 	struct parserData {
 		bool explicit_size;

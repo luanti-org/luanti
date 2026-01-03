@@ -828,8 +828,8 @@ bool GUITable::OnEvent(const SEvent &event)
 		}
 		else if (event.KeyInput.Key == KEY_ESCAPE ||
 				event.KeyInput.Key == KEY_SPACE ||
-				(event.KeyInput.Key == KEY_TAB && event.KeyInput.Control)) {
-			// pass to parent
+				event.KeyInput.Key == KEY_TAB) {
+			// pass to parent for focus cycling (both plain Tab and Ctrl+Tab)
 			return IGUIElement::OnEvent(event);
 		}
 		else if (event.KeyInput.PressedDown && event.KeyInput.Char) {
