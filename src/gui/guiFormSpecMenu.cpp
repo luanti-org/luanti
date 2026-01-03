@@ -1887,6 +1887,19 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 	// Use EnrichedString so color escapes and formatting are preserved
 	EnrichedString etext(unescape_string(utf8_to_wide(parts[1])));
 
+	// Build vertical enriched text (one character per line)
+	EnrichedString vlabel;
+	const size_t char_count = etext.getString().size();
+	const size_t line_count = char_count + 1;  // account for dummy line
+
+	// Dummy first line to avoid clipping
+	vlabel.addCharNoColor(L'\n');
+
+	for (size_t i = 0; i < char_count; i++) {
+		vlabel += etext.substr(i, 1);
+		vlabel.addCharNoColor(L'\n');
+	}
+
 	MY_CHECKPOS("vertlabel", 1);
 
 	auto style = getDefaultStyleForElement("vertlabel", "", "label");
@@ -1919,21 +1932,12 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 		rect = core::rect<s32>(
 			pos.X, pos.Y+((imgsize.Y/2) - m_btn_height),
 			pos.X+15, pos.Y +
-				font_line_height(font) *
-				(etext.getString().size() + 1) +
+				font_line_height(font) * (line_count + 1) +
 				((imgsize.Y/2) - m_btn_height));
 	}
 
 	if(!data->explicit_size)
 		warningstream << "invalid use of label without a size[] element" << std::endl;
-
-	// Build vertical enriched text (one character per line)
-	EnrichedString vlabel;
-	const size_t char_count = etext.getString().size();
-	for (size_t i = 0; i < char_count; i++) {
-		vlabel += etext.substr(i, 1);
-		vlabel.addCharNoColor(L'\n');
-	}
 
 	FieldSpec spec(
 		"",
