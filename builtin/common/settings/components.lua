@@ -520,14 +520,11 @@ function make.key(setting)
 			local function add_keybinding_row(idx)
 				local show_add_button = #value == 1 and not add_empty
 				local btn_bind_width = value_width
-				local y = 0
+				local y = (idx - 1) * 0.8
 				if show_add_button then
 					btn_bind_width = btn_bind_width - 1.6
 				elseif value[idx] then
 					btn_bind_width = btn_bind_width - 0.8
-				end
-				if idx > 1 then
-					y = idx * 0.8
 				end
 				table.insert(fs, ("button_key[%f,%f;%f,0.8;%s_%d;%s]"):format(
 						value_width, y, btn_bind_width,
@@ -552,10 +549,6 @@ function make.key(setting)
 			add_keybinding_row(1)
 
 			if #value > 1 or add_empty then
-				table.insert(fs, ("button[%f,0.8;%f,0.8;%s;%s]"):format(
-						value_width, value_width, btn_collapse,
-						key_setting_expanded[setting.name] and
-								fgettext("Show less") or fgettext("Show more")))
 				if key_setting_expanded[setting.name] then
 					height = (#value + 2) * 0.8
 
@@ -566,12 +559,16 @@ function make.key(setting)
 						add_keybinding_row(#value+1)
 					else
 						table.insert(fs, ("button[%f,%f;%f,0.8;%s;%s]"):format(
-								value_width, height-0.8, value_width, btn_add,
+								value_width, height-1.6, value_width, btn_add,
 								fgettext("Add keybinding")))
 					end
 				else
 					height = 1.6
 				end
+				table.insert(fs, ("button[%f,%f;%f,0.8;%s;%s]"):format(
+						value_width, height-0.8, value_width, btn_collapse,
+						key_setting_expanded[setting.name] and
+								fgettext("Show less") or fgettext("Show more")))
 			end
 
 			height = add_conflict_warnings(fs, height)
