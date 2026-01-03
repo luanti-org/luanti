@@ -576,21 +576,13 @@ int ModApiItem::l_register_item_raw(lua_State *L)
 	int table = 1;
 
 	// Get the writable item and node definition managers from the server
-	IWritableItemDefManager *idef =
-			getServer(L)->getWritableItemDefManager();
-	NodeDefManager *ndef =
-			getServer(L)->getWritableNodeDefManager();
+	auto *idef = getServer(L)->getWritableItemDefManager();
+	auto *ndef = getServer(L)->getWritableNodeDefManager();
 
 	// Check if name is defined
 	std::string name;
 	lua_getfield(L, table, "name");
-	if(lua_isstring(L, -1)){
-		name = readParam<std::string>(L, -1);
-	} else {
-		throw LuaError("register_item_raw: name is not defined or not a string");
-	}
-
-	// Check if on_use is defined
+	name = luaL_checkstring(L, -1);
 
 	ItemDefinition def;
 	// Set a distinctive default value to check if this is set
@@ -601,7 +593,7 @@ int ModApiItem::l_register_item_raw(lua_State *L)
 
 	// Default to having client-side placement prediction for nodes
 	// ("" in item definition sets it off)
-	if(def.node_placement_prediction == "__default"){
+	if (def.node_placement_prediction == "__default") {
 		if(def.type == ITEM_NODE)
 			def.node_placement_prediction = name;
 		else
@@ -613,26 +605,27 @@ int ModApiItem::l_register_item_raw(lua_State *L)
 
 	// Read the node definition (content features) and register it
 	if (def.type == ITEM_NODE) {
+		// when a mod re-registers ignore, only the itemdef should change.
+		if (name == "ignore")
+			return 0;
+
 		ContentFeatures f;
 		read_content_features(L, f, table);
-		// when a mod reregisters ignore, only texture changes and such should
-		// be done
-		if (f.name == "ignore")
-			return 0;
 		// This would break everything
 		if (f.name.empty())
 			throw LuaError("Cannot register node with empty name");
 
 		content_t id = ndef->set(f.name, f);
 
-		if (id > MAX_REGISTERED_CONTENT) {
-			throw LuaError("Number of registerable nodes ("
-					+ itos(MAX_REGISTERED_CONTENT+1)
-					+ ") exceeded (" + name + ")");
+		// CONTENT_IGNORE is returned if we're somehow already at the hard limit
+		if (id == CONTENT_IGNORE || id >= MAX_REGISTERED_CONTENT) {
+			throw LuaError("Number of registerable nodes (about "
+					+ itos(MAX_REGISTERED_CONTENT)
+					+ ") exceeded: " + f.name);
 		}
 	}
 
-	return 0; /* number of results */
+	return 0;
 }
 
 // unregister_item(name)
