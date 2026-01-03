@@ -86,6 +86,16 @@ u16 Player::getWieldIndex()
 	return std::min(m_wield_index, getMaxHotbarItemcount());
 }
 
+void Player::setServerWieldIndex(u16 index)
+{
+	m_wield_server_index = index;
+}
+
+u16 Player::getServerWieldIndex() const
+{
+	return m_wield_server_index;
+}
+
 ItemStack &Player::getWieldedItem(ItemStack *selected, ItemStack *hand) const
 {
 	assert(selected);
