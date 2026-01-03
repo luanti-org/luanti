@@ -1225,11 +1225,14 @@ void GUIHyperText::draw()
 		m_vscrollbar->setPos(0);
 		m_vscrollbar->setVisible(false);
 	}
-	if (m_drawer_ready) {
+	// We needs 2 iterations for the element positions and total height
+	// to be pre-calculated correctly, so we need to delay the actual drawing
+	// by this many iterations
+	if (m_draw_state >= 2) {
 		m_drawer.draw(AbsoluteClippingRect,
 				m_display_text_rect.UpperLeftCorner + m_text_scrollpos);
 	} else
-		m_drawer_ready = true;
+		m_draw_state++;
 
 	// draw children
 	IGUIElement::draw();
