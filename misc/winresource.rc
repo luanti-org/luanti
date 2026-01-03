@@ -43,7 +43,7 @@ BEGIN
         VALUE "FileVersion", VERSION_STRING
         VALUE "InternalName", PROJECT_NAME
         VALUE "OriginalFilename", PROJECT_NAME ".exe"
-        VALUE "LegalCopyright", "(c) 2010-2025 Perttu Ahola (celeron55) and contributors"
+        VALUE "LegalCopyright", "(c) 2010-2026 Perttu Ahola (celeron55) and contributors"
         VALUE "ProductName", PROJECT_NAME_C
         VALUE "ProductVersion", PRODUCT_VERSION_STRING
     END

@@ -1586,60 +1586,37 @@ void GenericCAO::processMessage(const std::string &data)
 
 		updateTextureAnim();
 	} else if (cmd == AO_CMD_SET_PHYSICS_OVERRIDE) {
-		float override_speed = readF32(is);
-		float override_jump = readF32(is);
-		float override_gravity = readF32(is);
+		PlayerPhysicsOverride phys; // defaults defined by ctor
+
+		phys.speed   = readF32(is);
+		phys.jump    = readF32(is);
+		phys.gravity = readF32(is);
+
 		// MT 0.4.10 legacy: send inverted for detault `true` if the server sends nothing
-		bool sneak = !readU8(is);
-		bool sneak_glitch = !readU8(is);
-		bool new_move = !readU8(is);
+		phys.sneak        = !readU8(is);
+		phys.sneak_glitch = !readU8(is);
+		phys.new_move     = !readU8(is);
 
 		// new overrides since 5.8.0
-		float override_speed_climb = readF32(is);
-		float override_speed_crouch = readF32(is);
-		float override_liquid_fluidity = readF32(is);
-		float override_liquid_fluidity_smooth = readF32(is);
-		float override_liquid_sink = readF32(is);
-		float override_acceleration_default = readF32(is);
-		float override_acceleration_air = readF32(is);
-		if (is.eof()) {
-			override_speed_climb = 1.0f;
-			override_speed_crouch = 1.0f;
-			override_liquid_fluidity = 1.0f;
-			override_liquid_fluidity_smooth = 1.0f;
-			override_liquid_sink = 1.0f;
-			override_acceleration_default = 1.0f;
-			override_acceleration_air = 1.0f;
+		if (canRead(is)) {
+			phys.speed_climb            = readF32(is);
+			phys.speed_crouch           = readF32(is);
+			phys.liquid_fluidity        = readF32(is);
+			phys.liquid_fluidity_smooth = readF32(is);
+			phys.liquid_sink            = readF32(is);
+			phys.acceleration_default   = readF32(is);
+			phys.acceleration_air       = readF32(is);
 		}
 
 		// new overrides since 5.9.0
-		float override_speed_fast = readF32(is);
-		float override_acceleration_fast = readF32(is);
-		float override_speed_walk = readF32(is);
-		if (is.eof()) {
-			override_speed_fast = 1.0f;
-			override_acceleration_fast = 1.0f;
-			override_speed_walk = 1.0f;
+		if (canRead(is)) {
+			phys.speed_fast        = readF32(is);
+			phys.acceleration_fast = readF32(is);
+			phys.speed_walk        = readF32(is);
 		}
 
 		if (m_is_local_player) {
-			auto &phys = m_env->getLocalPlayer()->physics_override;
-			phys.speed = override_speed;
-			phys.jump = override_jump;
-			phys.gravity = override_gravity;
-			phys.sneak = sneak;
-			phys.sneak_glitch = sneak_glitch;
-			phys.new_move = new_move;
-			phys.speed_climb = override_speed_climb;
-			phys.speed_crouch = override_speed_crouch;
-			phys.liquid_fluidity = override_liquid_fluidity;
-			phys.liquid_fluidity_smooth = override_liquid_fluidity_smooth;
-			phys.liquid_sink = override_liquid_sink;
-			phys.acceleration_default = override_acceleration_default;
-			phys.acceleration_air = override_acceleration_air;
-			phys.speed_fast = override_speed_fast;
-			phys.acceleration_fast = override_acceleration_fast;
-			phys.speed_walk = override_speed_walk;
+			m_env->getLocalPlayer()->physics_override = phys;
 		}
 	} else if (cmd == AO_CMD_SET_ANIMATION) {
 		v2f range = readV2F32(is);
@@ -1699,13 +1676,15 @@ void GenericCAO::processMessage(const std::string &data)
 		// Read new values
 		props.position.vector = readV3F32(is);
 		props.rotation.next = core::quaternion(readV3F32(is) * core::DEGTORAD);
-		props.scale.vector = readV3F32(is); // reads past end of string on older cmds
-		if (is.eof()) {
-			// Backwards compatibility
-			props.scale.vector = v3f(1, 1, 1); // restore the scale which was not sent
+
+		if (!canRead(is)) {
+			// For PROTOCOL_VERSION < 44
+			// scale.vector : default
 			props.position.absolute = true;
 			props.rotation.absolute = true;
 		} else {
+			// For PROTOCOL_VERSION >= 44
+			props.scale.vector = readV3F32(is);
 			props.position.interp_duration = readF32(is);
 			props.rotation.interp_duration = readF32(is);
 			props.scale.interp_duration = readF32(is);
@@ -1720,7 +1699,11 @@ void GenericCAO::processMessage(const std::string &data)
 		std::string bone = deSerializeString16(is);
 		v3f position = readV3F32(is);
 		v3f rotation = readV3F32(is);
-		bool force_visible = readU8(is); // Returns false for EOF
+		bool force_visible = false;
+		if (canRead(is)) {
+			// >= 5.4.0-dev
+			force_visible = readU8(is);
+		}
 
 		setAttachment(parent_id, bone, position, rotation, force_visible);
 	} else if (cmd == AO_CMD_PUNCHED) {

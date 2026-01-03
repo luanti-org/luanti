@@ -563,10 +563,12 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 	palette_name = deSerializeString16(is);
 	waving = readU8(is);
 	connect_sides = readU8(is);
-	u16 connects_to_size = readU16(is);
-	connects_to_ids.clear();
-	for (u16 i = 0; i < connects_to_size; i++)
-		connects_to_ids.push_back(readU16(is));
+	{
+		connects_to_ids.clear();
+		u16 connects_to_size = readU16(is);
+		for (u16 i = 0; i < connects_to_size; i++)
+			connects_to_ids.push_back(readU16(is));
+	}
 	post_effect_color = readARGB8(is);
 	leveled = readU8(is);
 
@@ -616,36 +618,40 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 	legacy_facedir_simple = readU8(is);
 	legacy_wallmounted = readU8(is);
 
-	try {
+	do {
 		node_dig_prediction = deSerializeString16(is);
 
-		u8 tmp = readU8(is);
-		if (is.eof()) /* readU8 doesn't throw exceptions so we have to do this */
-			throw SerializationError("");
-		leveled_max = tmp;
+		if (!canRead(is))
+			break;
+		// >= 5.3.0-dev
 
-		tmp = readU8(is);
-		if (is.eof())
-			throw SerializationError("");
-		alpha = static_cast<enum AlphaMode>(tmp);
+		leveled_max = readU8(is);
+
+		if (!canRead(is))
+			break;
+		// >= 5.4.0-dev
+
+		alpha = static_cast<enum AlphaMode>(readU8(is));
 		if (alpha >= AlphaMode_END || alpha == ALPHAMODE_LEGACY_COMPAT)
 			alpha = ALPHAMODE_OPAQUE;
 
-		tmp = readU8(is);
-		if (is.eof())
-			throw SerializationError("");
-		move_resistance = tmp;
+		if (!canRead(is))
+			break;
+		// >= 5.5.0-dev
 
-		tmp = readU8(is);
-		if (is.eof())
-			throw SerializationError("");
-		liquid_move_physics = tmp;
+		move_resistance = readU8(is);
+		liquid_move_physics = readU8(is);
 
-		tmp = readU8(is);
-		if (is.eof())
-			throw SerializationError("");
-		post_effect_color_shaded = tmp;
-	} catch (SerializationError &e) {};
+		if (!canRead(is))
+			break;
+		// >= 5.8.0-dev
+
+		post_effect_color_shaded = readU8(is);
+
+		//if (!canRead(is))
+		//	break;
+		// Add new code here
+	} while (0);
 }
 
 /*

@@ -13,7 +13,7 @@ VIAddVersionKey "FileDescription" "${PROJECT_NAME_C} self-extracting launcher"
 VIAddVersionKey "FileVersion" "${VERSION_STRING}"
 VIAddVersionKey "ProductName" "${PROJECT_NAME_C}"
 VIAddVersionKey "InternalName" "${PROJECT_NAME}"
-VIAddVersionKey "LegalCopyright" "(c) 2010-2025 Perttu Ahola (celeron55) and contributors"
+VIAddVersionKey "LegalCopyright" "(c) 2010-2026 Perttu Ahola (celeron55) and contributors"
 # these are required, but don't take arbitrary strings
 VIProductVersion "0.0.0.0"
 VIFileVersion "0.0.0.0"

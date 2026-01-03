@@ -651,16 +651,11 @@ void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 
 void MapBlock::deSerializeNetworkSpecific(std::istream &is)
 {
-	try {
-		readU8(is);
-		//const u8 version = readU8(is);
-		//if (version != 1)
-			//throw SerializationError("unsupported MapBlock version");
+	(void)readU8(is); // version
 
-	} catch(SerializationError &e) {
-		warningstream<<"MapBlock::deSerializeNetworkSpecific(): Ignoring an error"
-				<<": "<<e.what()<<std::endl;
-	}
+	//if (version < 3)
+	//	return;
+	// Add new code here
 }
 
 bool MapBlock::storeActiveObject(u16 id)

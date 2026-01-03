@@ -294,15 +294,16 @@ function pkgmgr.render_packagelist(render_list, use_technical_names, with_icon)
 					end
 				end
 			end
-		elseif v.is_game_content or v.type == "game" then
+		elseif v.always_on then
 			icon = 1
 			color = mt_color_blue
 
-			local rawlist = render_list:get_raw_list()
-			if v.type == "game" and with_icon then
-				for j = 1, #rawlist do
-					if rawlist[j].is_game_content then
-						update_icon_info(with_icon[rawlist[j].virtual_path or rawlist[j].path])
+			-- Parent icon depends on contained mods
+			if v.type == "game" or v.type == "worldmods" then
+				local rawlist = render_list:get_raw_list()
+				for _, mod in ipairs(rawlist) do
+					if v.type == mod.loc then
+						update_icon_info(with_icon[mod.virtual_path or mod.path])
 					end
 				end
 			end
@@ -327,7 +328,8 @@ function pkgmgr.render_packagelist(render_list, use_technical_names, with_icon)
 
 		retval[#retval + 1] = color
 		-- `v.modpack_depth` is `nil` for the selected game (treated as level 0)
-		retval[#retval + 1] = (v.modpack_depth or 0) + (v.loc == "game" and 1 or 0)
+		retval[#retval + 1] = (v.modpack_depth or 0) +
+				((v.loc == "game" or v.loc == "worldmods") and 1 or 0)
 
 		if with_icon then
 			retval[#retval + 1] = icon
@@ -400,8 +402,7 @@ function pkgmgr.enable_mod(this, toset)
 	local list = this.data.list:get_list()
 	local mod = list[this.data.selected_mod]
 
-	-- Game mods can't be enabled or disabled
-	if mod.is_game_content then
+	if mod.always_on then
 		return
 	end
 
@@ -457,7 +458,7 @@ function pkgmgr.enable_mod(this, toset)
 			if not mod_to_enable then
 				core.log("warning", "Mod dependency \"" .. name ..
 					"\" not found!")
-			elseif not mod_to_enable.is_game_content then
+			elseif not mod_to_enable.always_on then
 				if not mod_to_enable.enabled then
 					mod_to_enable.enabled = true
 					toggled_mods[#toggled_mods+1] = mod_to_enable.name
@@ -586,23 +587,22 @@ end
 function pkgmgr.preparemodlist(data)
 	local retval = {}
 
+	-- read global mods
 	local global_mods = {}
-	local game_mods = {}
-
-	--read global mods
 	local modpaths = core.get_modpaths()
 	for key, modpath in pairs(modpaths) do
 		pkgmgr.get_mods(modpath, key, global_mods)
 	end
 
-	for i=1,#global_mods,1 do
-		global_mods[i].type = "mod"
-		global_mods[i].loc = "global"
-		global_mods[i].enabled = false
-		retval[#retval + 1] = global_mods[i]
+	for _, mod in ipairs(global_mods) do
+		mod.type = "mod"
+		mod.loc = "global"
+		mod.enabled = false
+		retval[#retval + 1] = mod
 	end
 
-	--read game mods
+	-- read game mods
+	local game_mods = {}
 	local gamespec = pkgmgr.find_by_gameid(data.gameid)
 	pkgmgr.get_game_mods(gamespec, game_mods)
 
@@ -610,24 +610,46 @@ function pkgmgr.preparemodlist(data)
 		-- Add title
 		retval[#retval + 1] = {
 			type = "game",
-			is_game_content = true,
+			always_on = true,
 			name = fgettext("$1 mods", gamespec.title),
 			path = gamespec.path
 		}
-	end
 
-	for i=1,#game_mods,1 do
-		game_mods[i].type = "mod"
-		game_mods[i].loc = "game"
-		game_mods[i].is_game_content = true
-		retval[#retval + 1] = game_mods[i]
+		for _, mod in ipairs(game_mods) do
+			mod.type = "mod"
+			mod.loc = "game"
+			mod.always_on = true
+			retval[#retval + 1] = mod
+		end
 	end
 
 	if data.worldpath == nil then
 		return retval
 	end
 
-	--read world mod configuration
+	-- read world mods
+	local world_mods = {}
+	local world_mods_path = data.worldpath .. DIR_DELIM .. "worldmods"
+	pkgmgr.get_mods(world_mods_path, "worldmods", world_mods)
+
+	if #world_mods > 0 then
+		-- Add title
+		retval[#retval + 1] = {
+			type = "worldmods",
+			always_on = true,
+			name = fgettext("World mods"),
+			path = world_mods_path
+		}
+
+		for _, mod in ipairs(world_mods) do
+			mod.type = "mod"
+			mod.loc = "worldmods"
+			mod.always_on = true
+			retval[#retval + 1] = mod
+		end
+	end
+
+	-- read world mod configuration
 	local filename = data.worldpath ..
 				DIR_DELIM .. "world.mt"
 

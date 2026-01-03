@@ -465,20 +465,12 @@ void Client::handleCommand_ActiveObjectMessages(NetworkPacket* pkt)
 	std::string datastring(pkt->getString(0), pkt->getSize());
 	std::istringstream is(datastring, std::ios_base::binary);
 
-	try {
-		while (is.good()) {
-			u16 id = readU16(is);
-			if (!is.good())
-				break;
+	while (canRead(is)) {
+		u16 id = readU16(is);
+		std::string message = deSerializeString16(is);
 
-			std::string message = deSerializeString16(is);
-
-			// Pass on to the environment
-			m_env.processActiveObjectMessage(id, message);
-		}
-	} catch (SerializationError &e) {
-		errorstream << "Client::handleCommand_ActiveObjectMessages: "
-			<< "caught SerializationError: " << e.what() << std::endl;
+		// Pass on to the environment
+		m_env.processActiveObjectMessage(id, message);
 	}
 }
 
@@ -989,7 +981,7 @@ void Client::handleCommand_SpawnParticleBatch(NetworkPacket *pkt)
 		decompressZstd(compressed, particle_batch_data);
 	}
 
-	while (particle_batch_data.peek() != EOF) {
+	while (canRead(particle_batch_data)) {
 		auto p = std::make_unique<ParticleParameters>();
 		{
 			std::istringstream particle_data(deSerializeString32(particle_batch_data), std::ios::binary);
@@ -1049,25 +1041,24 @@ void Client::handleCommand_AddParticleSpawner(NetworkPacket* pkt)
 	p.glow = readU8(is);
 	p.object_collision = readU8(is);
 
-	// This is kinda awful
 	do {
-		u16 tmp_param0 = readU16(is);
-		if (is.eof())
+		if (!canRead(is))
 			break;
-		p.node.param0 = tmp_param0;
+		// >= 5.3.0-dev
+
+		p.node.param0 = readU16(is);;
 		p.node.param2 = readU8(is);
 		p.node_tile   = readU8(is);
 
 		if (m_proto_ver < 42) {
 			// v >= 5.6.0
-			f32 tmp_sbias = readF32(is);
-			if (is.eof())
+			if (!canRead(is))
 				break;
 
 			// initial bias must be stored separately in the stream to preserve
 			// backwards compatibility with older clients, which do not support
 			// a bias field in their range "format"
-			p.pos.start.bias = tmp_sbias;
+			p.pos.start.bias = readF32(is);
 			p.vel.start.bias = readF32(is);
 			p.acc.start.bias = readF32(is);
 			p.exptime.start.bias = readF32(is);
@@ -1112,6 +1103,10 @@ void Client::handleCommand_AddParticleSpawner(NetworkPacket* pkt)
 			newtex.deSerialize(is, m_proto_ver);
 			p.texpool.push_back(newtex);
 		}
+
+		//if (!canRead(is))
+		//	break;
+		// Add new code here
 	} while(0);
 
 	if (missing_end_values) {

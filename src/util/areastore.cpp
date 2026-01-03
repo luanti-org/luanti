@@ -92,7 +92,7 @@ void AreaStore::deserialize(std::istream &is)
 		areas.emplace_back(std::move(a));
 	}
 
-	bool read_ids = is.good(); // EOF for old formats
+	const bool read_ids = canRead(is); // since 5.1.0-dev
 
 	for (auto &area : areas) {
 		if (read_ids)
