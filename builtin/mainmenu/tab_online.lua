@@ -99,8 +99,13 @@ local function get_formspec(tabview, name, tabdata)
 	local retval =
 		-- Search
 		"field[0.25,0.25;7,0.75;te_search;;" .. core.formspec_escape(tabdata.search_for) .. "]" ..
-		"tooltip[te_search;" .. fgettext("Possible filters") ..
-			"\ngame:<name>\nmod:<name>\nplayer:<name>\nsort:{-}name|relevance|players|mods|uptime|ping|lag]" ..
+		"tooltip[te_search;" .. table.concat({
+				fgettext("Possible filters"),
+				"game:<name>",
+				"mod:<name>",
+				"player:<name>",
+				"sort:{-}name|relevance|players|mods|uptime|ping|lag",
+		}, "\n") .. "]" ..
 		"field_enter_after_edit[te_search;true]" ..
 		"container[7.25,0.25]" ..
 		"image_button[0,0;0.75,0.75;" .. core.formspec_escape(defaulttexturedir .. "search.png") .. ";btn_mp_search;]" ..
@@ -398,15 +403,14 @@ local function sort_servers(servers, query)
 		sort_by = string.sub(sort_by, 2)
 	end
 
-	local sort_fun
-
-	if sort_by  == "mods" then
-		sort_fun = function(a, b)
-			return a.mods and (not b.mods or #a.mods > #b.mods)
+	local get_compare_val
+	if sort_by == "mods" then
+		get_compare_val = function(v)
+			return v.mods and #v.mods or 0
 		end
-	elseif sort_by  == "lag" then
-		sort_fun = function(a, b)
-			return a.lag and (not b.lag or a.lag > b.lag)
+	elseif sort_by == "lag" then
+		get_compare_val = function(v)
+			return v.lag or math.huge
 		end
 	else
 		local sort_indices = {
@@ -416,9 +420,8 @@ local function sort_servers(servers, query)
 			ping = "ping",
 			relevance = "points",
 		}
-		local index = sort_indices[sort_by] or "points"
-		sort_fun = function(a, b)
-			return a[index] > b[index]
+		get_compare_val = function(v)
+			return v[sort_indices[sort_by] or "points"]
 		end
 	end
 
@@ -429,13 +432,13 @@ local function sort_servers(servers, query)
 		lag = true,
 	}
 
-	if reverse == (asc[sort_by] or false) then
-		table.sort(servers, sort_fun)
-	else
-		table.sort(servers,  function(a, b)
-			return sort_fun(b, a)
-		end)
-	end
+	table.sort(servers, function(a, b)
+		if reverse == (asc[sort_by] or false) then
+			return get_compare_val(a) > get_compare_val(b)
+		else
+			return get_compare_val(a) < get_compare_val(b)
+		end
+	end)
 end
 
 local function search_server_list(input, tabdata)
