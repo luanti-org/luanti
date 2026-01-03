@@ -115,12 +115,12 @@
 [*General]
 
 #    Smooths rotation of camera, also called look or mouse smoothing. 0 to disable.
-camera_smoothing (Camera smoothing) float 0.0 0.0 0.99
+camera_smoothing (Camera smoothing) float 0.0 0.0 100.0
 
 #    Smooths rotation of camera when in cinematic mode, 0 to disable. Enter cinematic mode by using the key set in Controls.
 #
 #    Requires: keyboard_mouse
-cinematic_camera_smoothing (Camera smoothing in cinematic mode) float 0.7 0.0 0.99
+cinematic_camera_smoothing (Camera smoothing in cinematic mode) float 0.05 0.0 100.0
 
 #    If enabled, you can place nodes at the position (feet + eye level) where you stand.
 #    This is helpful when working with nodeboxes in small areas.

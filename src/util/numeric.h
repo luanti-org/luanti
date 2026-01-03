@@ -406,6 +406,11 @@ private:
 	float m_accumulator = 0.0f;
 };
 
+// For details about how framerate independent lerping works, see:
+// https://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
+inline f32 damp(f32 a, f32 b, f32 lambda) {
+	return core::lerp(a, b, 1.0f - std::exp(-lambda));
+}
 
 constexpr inline bool is_power_of_two(u32 n)
 {
