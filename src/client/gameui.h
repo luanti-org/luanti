@@ -7,7 +7,9 @@
 
 #include "irrlichttypes.h"
 #include <IGUIEnvironment.h>
+#include <memory>
 #include "game.h"
+#include "gui/guiStatusText.h"
 
 
 class Client;
@@ -59,11 +61,11 @@ public:
 
 	inline void showStatusText(const std::wstring &str)
 	{
-		m_statustext = str;
-		m_statustext_time = 0.0f;
+		if (m_status_text)
+			m_status_text->showStatusText(str);
 	}
 	void showTranslatedStatusText(const char *str);
-	inline void clearStatusText() { m_statustext.clear(); }
+	inline void clearStatusText() { if (m_status_text) m_status_text->clearStatusText(); }
 
 	bool isChatVisible()
 	{
@@ -91,10 +93,7 @@ private:
 	gui::IGUIStaticText *m_guitext_info = nullptr; // At the middle of the screen
 	std::wstring m_infotext;
 
-	gui::IGUIStaticText *m_guitext_status = nullptr;
-	std::wstring m_statustext;
-	float m_statustext_time = 0.0f;
-	video::SColor m_statustext_initial_color;
+	std::unique_ptr<GUIStatusText> m_status_text = nullptr;
 
 	gui::IGUIStaticText *m_guitext_chat = nullptr; // Chat text
 	u32 m_recent_chat_count = 0;
