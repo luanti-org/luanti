@@ -642,8 +642,11 @@ Examples:
 * `<w>`: width of the resulting texture
 * `<h>`: height of the resulting texture
 * `<textures>: Colon (`:`)-separated list of locations `x`, `y` (both positive
-  integers) and escaped texture modifiers texture to blit in the form
-  `<x>,<y>=<texture>`. Can be empty.
+  integers) and textures texture to blit in the form
+  `<x>,<y>=<texture>` for each texture. Can be empty.
+
+A `<texture>` (in `<textures>`) can contain texture modifiers, but these must
+be escaped according to the rules in the Escaping section above.
 
 Creates a texture of size `<w>` times `<h>` and blits the listed files to their
 specified coordinates. The background is black and transparent (`#00000000`).
@@ -724,7 +727,7 @@ Example:
 
 Rotates and/or flips the image.
 
-`<t>` is the concatenation of either numbers or names identifying
+`<t>` is the concatenation of either integers or names identifying
 transformations from the following table:
 
     0  I      identity (no transformation)
