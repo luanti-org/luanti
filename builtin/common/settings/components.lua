@@ -458,16 +458,16 @@ local function has_keybinding_conflict(t1, t2)
 	return false
 end
 
+local function get_key_setting(name)
+	return core.settings:get(name):split("|")
+end
+
 -- Setting components are regenerated if the page is refreshed so
 -- we use upvalues here to preserve certain values
 -- Setting names where all binding options shall be shown.
 local key_setting_expanded = {}
 -- Setting names where an empty field shall be shown to assign new keybindings.
 local key_add_empty = {}
-
-local function get_key_setting(name)
-	return core.settings:get(name):split("|")
-end
 
 function make.key(setting)
 	local btn_bind = "bind_" .. setting.name
