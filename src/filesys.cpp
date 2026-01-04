@@ -363,16 +363,15 @@ bool IsExecutable(const std::string &path)
 
 bool RecursiveDelete(const std::string &path)
 {
-	/*
-		Execute the 'rm' command directly, by fork() and execve()
-	*/
+	assert(IsPathAbsolute(path));
+	if (!PathExists(path))
+		return true;
+
+	// Execute the 'rm' command directly, by fork() and execve()
 
 	infostream << "Removing \"" << path << "\"" << std::endl;
 
-	assert(IsPathAbsolute(path));
-
 	const pid_t child_pid = fork();
-
 	if (child_pid == -1) {
 		errorstream << "fork errno: " << errno << ": " << strerror(errno)
 			<< std::endl;
