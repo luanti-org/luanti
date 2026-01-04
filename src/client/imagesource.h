@@ -63,6 +63,7 @@ private:
 	bool m_setting_trilinear_filter;
 	bool m_setting_bilinear_filter;
 	bool m_setting_anisotropic_filter;
+	bool m_setting_texel_antialiasing;
 
 	// Cache of source images
 	SourceImageCache m_sourcecache;
