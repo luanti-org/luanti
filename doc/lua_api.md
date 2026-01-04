@@ -588,26 +588,35 @@ on top of `cobble.png`.
 
 #### Crack
 
-* `[crack:<tilecount>:<frame>`
-* `[cracko:<tilecount>:<frame>`
-* `[crack:<framecount>:<tilecount>:<frame>`
-* `[cracko:<framecount>:<tilecount>:<frame>`
+* `[crack:<vertical_frames>:<crackframe>`
+* `[cracko:<vertical_frames>:<crackframe>`
+* `[crack:<grid>:<vertical_frames>:<crack_frame>`
+* `[cracko:<grid>:<vertical_frames>:<crack_frame>`
 
 Overlay a scaled frame of the crack texture, `crack_anylength.png`,
-over a texture, with options for alpha and blitting on all frames.
+over a texture, with options for alpha and blitting multiple times
+for tile sheets / animated textures.
 
 With `crack`, the crack will be overlaid over the whole base
 texture, while with `cracko`, the crack will only be overlaid
 over fully opaque base texture regions.
 
-* `framecount`: Optional. Vertical animation frame count of the crack texture;
-  usually omitted.
-* `tilecount`: Vertical and horizontal tile count of the base texture. The crack
- will be blit on each tile of the base texture. Usually `1`.
-* `frame`: Current animation frame ("crack progression").
+Parameters if `grid` is omitted:
 
-Note: This always scales the crack to the size of the base texture (or the tiles
-of the base texture, if tilesize is provided).
+* `vertical_frames`: Number of times the crack will be blit on the
+  base texture, stacked vertically
+* `crack_frame`: Crack animation frame (0-indexed)
+
+Parameters if `grid` is present:
+
+* `grid`: Creates a square grid of multiple cracks, with
+  side length `grid`, e.g. the number 3 creates a 3x3 grid of cracks
+* `vertical_frames`: Number of times the grid created by `tile_count`
+  will be repeated vertically
+* `crack_frame`: (see above)
+
+Note: The resulting crack (or cracks) texture will always be scaled
+to the size of the base texture.
 
 Examples:
 
@@ -615,13 +624,18 @@ Examples:
 
 * Cracked stone
 * Use the third crack progression (`2` because of 0-indexing) ...
-* ... and draw it on a stone texture consisting of `1` tile
+* ... and draw it once on a stone texture
 
-    default_lava_source_animated.png^[crack:1:8:2
+    default_lava_source_animated.png^[crack:8:2
 
 * Cracked lava
-* The base texture has 8 animated vertical frames ...
-* ... and exactly `1` "tile" horizontally (frames are not tiles)
+* Use the 3rd crack progression ...
+* ... and draw it 8 times on top of the base texture
+* The base texture should have 8 vertical frames as well
+
+    example.png^[crack:3:1:0
+
+* Blits a 3x3 grid of crack texures, each at frame 0, on `example.png`
 
 #### `[combine:<w>x<h>:<textures>
 
