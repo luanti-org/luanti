@@ -3482,6 +3482,67 @@ void GUIFormSpecMenu::drawMenu()
 
 	updateSelectedItem();
 
+	// Auto-scroll to center focused element when Tab enables focus tracking
+	gui::IGUIElement *focus = Environment->getFocus();
+	if (m_show_focus && focus && (focus != m_last_focused || m_focus_just_enabled)) {
+		bool first_focus = m_focus_just_enabled;
+		m_last_focused = focus;
+		m_focus_just_enabled = false;
+
+		for (const auto &cont : m_scroll_containers) {
+			if (!cont.second->isMyChild(focus))
+				continue;
+
+			GUIScrollBar *scrollbar = nullptr;
+			for (const auto &sb : m_scrollbars) {
+				if (sb.first.fname == cont.first) {
+					scrollbar = sb.second;
+					break;
+				}
+			}
+			if (!scrollbar)
+				break;
+
+			gui::IGUIElement *clipper = cont.second->getParent();
+			if (!clipper)
+				break;
+
+			core::rect<s32> clip = clipper->getAbsoluteClippingRect();
+			core::rect<s32> elem = focus->getAbsolutePosition();
+
+			// Skip if already visible (unless on first focus)
+			if (!first_focus && elem.UpperLeftCorner.Y >= clip.UpperLeftCorner.Y &&
+					elem.LowerRightCorner.Y <= clip.LowerRightCorner.Y)
+				break;
+
+			// Center element in viewport
+			s32 target_y = elem.UpperLeftCorner.Y;
+			if (elem.getHeight() < clip.getHeight()) {
+				target_y = clip.UpperLeftCorner.Y + (clip.getHeight() - elem.getHeight()) / 2;
+			}
+
+			s32 pixels_needed = target_y - elem.UpperLeftCorner.Y;
+			s32 curr_pos = scrollbar->getPos();
+			s32 new_pos = curr_pos;
+
+			if (scrollbar->getMax() > 0) {
+				s32 mover_y = cont.second->getRelativePosition().UpperLeftCorner.Y;
+				f32 factor = (curr_pos > 0 && mover_y != 0) ?
+					(f32)mover_y / curr_pos : (f32)(-clip.getHeight()) / scrollbar->getMax();
+
+				if (factor != 0) {
+					new_pos = curr_pos + (s32)std::round(pixels_needed / factor);
+					new_pos = rangelim(new_pos, scrollbar->getMin(), scrollbar->getMax());
+					if (new_pos != curr_pos) {
+						scrollbar->setPos(new_pos);
+						cont.second->updateScrolling();
+					}
+				}
+			}
+			break;
+		}
+	}
+
 	video::IVideoDriver* driver = Environment->getVideoDriver();
 
 	/*
@@ -3975,6 +4036,7 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 		if (event.KeyInput.PressedDown && event.KeyInput.Key == KEY_TAB &&
 				!event.KeyInput.Control) {
 			m_show_focus = true;
+			m_focus_just_enabled = true;
 		}
 		break;
 	case EET_MOUSE_INPUT_EVENT:
@@ -3983,6 +4045,8 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 		case EMIE_RMOUSE_PRESSED_DOWN:
 		case EMIE_MMOUSE_PRESSED_DOWN:
 			m_show_focus = false;
+			m_focus_just_enabled = false;
+			m_last_focused = nullptr;
 			break;
 		default:
 			break;
@@ -3991,6 +4055,7 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 	case EET_TOUCH_INPUT_EVENT:
 		if (event.TouchInput.Event == ETIE_PRESSED_DOWN) {
 			m_show_focus = false;
+			m_last_focused = nullptr;
 		}
 		break;
 	default:
