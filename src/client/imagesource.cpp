@@ -1492,6 +1492,9 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			 * low-res textures BECOME high-res ones. This is helpful for worlds that
 			 * mix high- and low-res textures, or for mods with least-common-denominator
 			 * textures that don't have the resources to offer high-res alternatives.
+			 * With texel_antialiasing, the shader moves the UV coordinates such that the
+			 * output looks like nearest neighbour sampling with anti-aliased texel edges;
+			 * in this case the upscaling is redundant and therefore disabled.
 			 *
 			 * Q: why not just enable/disable filtering depending on texture size?
 			 * A: large texture resolutions apparently allow getting rid of the Moire

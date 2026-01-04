@@ -458,6 +458,8 @@ vec4 sample_base_texture(vec2 uv)
 #ifdef USE_ARRAY_TEXTURE
 	return textureGrad(baseTexture, vec3(uv_moved, varTexLayer), dFdx(uv),
 		dFdy(uv)).rgba;
+#elif (!defined GL_ES && __VERSION__ >= 130) || (defined GL_ES && __VERSION__ >= 300)
+	return textureGrad(baseTexture, uv_moved, dFdx(uv), dFdy(uv)).rgba;
 #else
 	// For the deprecated texture2D there is no texture2DGrad
 	return texture2D(baseTexture, uv_moved).rgba;
