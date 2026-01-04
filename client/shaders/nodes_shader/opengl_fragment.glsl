@@ -3,6 +3,10 @@
 #else
 	uniform sampler2D baseTexture;
 #endif
+#ifdef TEXEL_ANTIALIASING
+	uniform vec2 texelSize0;
+	// TODO crack texel size
+#endif
 #define crackTexture texture1
 uniform sampler2D crackTexture;
 
@@ -437,20 +441,20 @@ vec2 uv_repeat(vec2 v)
 // with bilinear filtering, the result looks like nearest neighbour sampling
 // with anti-aliased texels.
 // Based on t3ssel8r's code from https://www.patreon.com/posts/83276362.
-vec2 uv_texel_antialias(vec2 uv, vec2 texture_size)
+vec2 uv_texel_antialias(vec2 uv, vec2 texel_size)
 {
 	float filter_scale = 0.7;
-	vec2 box_size = clamp(filter_scale * fwidth(uv) * texture_size, 1e-5, 1.0);
-	vec2 tx = uv * texture_size - 0.5 * box_size;
+	vec2 box_size = clamp(filter_scale * fwidth(uv) / texel_size, 1e-5, 1.0);
+	vec2 tx = uv / texel_size - 0.5 * box_size;
 	vec2 tx_off = clamp((fract(tx) - (1.0 - box_size)) / box_size, 0.0, 1.0);
-	return (floor(tx) + 0.5 + tx_off) / texture_size;
+	return (floor(tx) + 0.5 + tx_off) * texel_size;
 }
 #endif
 
 vec4 sample_base_texture(vec2 uv)
 {
 #ifdef TEXEL_ANTIALIASING
-	vec2 uv_moved = uv_texel_antialias(uv, textureSize(baseTexture, 0).xy);
+	vec2 uv_moved = uv_texel_antialias(uv, texelSize0);
 #ifdef USE_ARRAY_TEXTURE
 	return textureGrad(baseTexture, vec3(uv_moved, varTexLayer), dFdx(uv),
 		dFdy(uv)).rgba;
@@ -492,8 +496,11 @@ void main(void)
 		vec2 cuv_offset = vec2(0.0, crack_progress / crackAnimationLength);
 		vec2 cuv_factor = vec2(1.0, 1.0 / crackAnimationLength);
 #ifdef TEXEL_ANTIALIASING
+		// TODO: textureSize() doesn't work with GLSL 1.2
+		vec2 crack_texel_size = 1.0 / textureSize(crackTexture, 0).xy;
+		//~ vec2 crack_texel_size = texelSize1;
 		orig_uv = uv_texel_antialias(orig_uv,
-			textureSize(crackTexture, 0).xy * cuv_factor);
+			crack_texel_size / cuv_factor);
 #endif
 		vec4 crack = texture2D(crackTexture, cuv_offset + orig_uv * cuv_factor);
 		base = mix(base, crack, crack.a);

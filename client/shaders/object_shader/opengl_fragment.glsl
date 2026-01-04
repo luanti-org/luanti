@@ -3,6 +3,9 @@
 #else
 	uniform sampler2D baseTexture;
 #endif
+#ifdef TEXEL_ANTIALIASING
+	uniform vec2 texelSize0;
+#endif
 
 uniform vec3 dayLight;
 uniform lowp vec4 fogColor;
@@ -364,20 +367,20 @@ float getShadow(sampler2D shadowsampler, vec2 smTexCoord, float realDistance)
 
 #ifdef TEXEL_ANTIALIASING
 // Copied from the nodes fragment shader
-vec2 uv_texel_antialias(vec2 uv, vec2 texture_size)
+vec2 uv_texel_antialias(vec2 uv, vec2 texel_size)
 {
 	float filter_scale = 0.7;
-	vec2 box_size = clamp(filter_scale * fwidth(uv) * texture_size, 1e-5, 1.0);
-	vec2 tx = uv * texture_size - 0.5 * box_size;
+	vec2 box_size = clamp(filter_scale * fwidth(uv) / texel_size, 1e-5, 1.0);
+	vec2 tx = uv / texel_size - 0.5 * box_size;
 	vec2 tx_off = clamp((fract(tx) - (1.0 - box_size)) / box_size, 0.0, 1.0);
-	return (floor(tx) + 0.5 + tx_off) / texture_size;
+	return (floor(tx) + 0.5 + tx_off) * texel_size;
 }
 #endif
 
 vec4 sample_base_texture(vec2 uv)
 {
 #ifdef TEXEL_ANTIALIASING
-	vec2 uv_moved = uv_texel_antialias(uv, textureSize(baseTexture, 0).xy);
+	vec2 uv_moved = uv_texel_antialias(uv, texelSize0);
 #ifdef USE_ARRAY_TEXTURE
 	return textureGrad(baseTexture, vec3(uv_moved, varTexLayer), dFdx(uv),
 		dFdy(uv)).rgba;
