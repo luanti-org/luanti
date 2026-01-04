@@ -43,8 +43,8 @@ cd ..
 
 Bundle the required DLLs
 ```bash
-curl https://raw.githubusercontent.com/rollerozxa/msys2-bundledlls/master/bundledlls > bundledlls.sh
-./bundledlls.sh bin/luanti.exe bin/
+curl -LO https://raw.githubusercontent.com/rollerozxa/msys2-bundledlls/master/bundledlls
+./bundledlls bin/luanti.exe bin/
 ```
 
 Run Luanti
