@@ -631,7 +631,7 @@ fsaa (Anti-aliasing scale) enum 2 2,4,8,16
 #    Anti-alias texel edges by using bilinear texture sampling together with a
 #    sample coordinate transformation in the shader.
 #    This setting is ONLY applied if bilinear_filter or trilinear_filter is enabled.
-texel_antialiasing (Texel anti-aliasing) bool true
+texel_antialiasing (Texel anti-aliasing) bool false
 
 #    Applies a post-processing filter to detect and smoothen high-contrast edges.
 #    Provides balance between speed and image quality.
@@ -2071,8 +2071,9 @@ autoscale_mode (Autoscaling mode) enum disable disable,enable,force
 #    This is only useful for debugging.
 array_texture_max (Array texture max layers) int 65535 0 65535
 
-#    When using bilinear/trilinear filtering, low-resolution textures
-#    can be blurred, so this option automatically upscales them to preserve
+#    When using bilinear/trilinear filtering and no UV coordinate transformation
+#    (no texel_antialiasing), low-resolution textures can be blurred,
+#    so this option automatically upscales them to preserve
 #    crisp pixels. This defines the minimum texture size for the upscaled textures;
 #    higher values look sharper, but require more memory.
 #    This setting is ONLY applied if any of the mentioned filters are enabled and
