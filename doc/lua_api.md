@@ -588,8 +588,8 @@ on top of `cobble.png`.
 
 #### Crack
 
-* `[crack:<vertical_frames>:<crackframe>`
-* `[cracko:<vertical_frames>:<crackframe>`
+* `[crack:<vertical_frames>:<crack_frame>`
+* `[cracko:<vertical_frames>:<crack_frame>`
 * `[crack:<grid>:<vertical_frames>:<crack_frame>`
 * `[cracko:<grid>:<vertical_frames>:<crack_frame>`
 
