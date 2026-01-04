@@ -7,6 +7,7 @@
 #include "settings.h"
 #include "log.h"
 #include "renderingengine.h"
+#include "util/basic_macros.h"
 #include "util/string.h"
 #include <unordered_map>
 #include <vector>
@@ -388,7 +389,7 @@ const std::vector<KeyPress> &getKeySetting(const std::string &settingname)
 bool keySettingHasMatch(const std::string &settingname, KeyPress kp)
 {
 	const auto &keylist = getKeySetting(settingname);
-	return std::find(keylist.begin(), keylist.end(), kp) != keylist.end();
+	return CONTAINS(keylist, kp);
 }
 
 void clearKeyCache()
