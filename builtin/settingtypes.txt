@@ -2465,7 +2465,7 @@ enable_joysticks (Enable joysticks) bool false
 joystick_id (Joystick ID) int 0 0 255
 
 #    The type of joystick
-joystick_type (Joystick type) enum auto auto,generic,xbox,dragonrise_gamecube
+joystick_type (Joystick type) enum auto auto,generic,xbox,ps5,dragonrise_gamecube
 
 #    The time in seconds it takes between repeated events
 #    when holding down a joystick button combination.
