@@ -465,13 +465,17 @@ local key_setting_expanded = {}
 -- Setting names where an empty field shall be shown to assign new keybindings.
 local key_add_empty = {}
 
+local function get_key_setting(name)
+	return core.settings:get(name):split("|")
+end
+
 function make.key(setting)
 	local btn_bind = "bind_" .. setting.name
 	local btn_collapse = "collapse_" .. setting.name
 	local btn_clear = "unbind_" .. setting.name
 	local btn_add = "add_" .. setting.name
 	local function add_conflict_warnings(fs, height)
-		local value = core.settings:get(setting.name):split("|")
+		local value = get_key_setting(setting.name)
 		if value == "" then
 			return height
 		end
@@ -484,7 +488,7 @@ function make.key(setting)
 
 		for _, o in ipairs(core.full_settingtypes) do
 			if o.type == "key" and o.name ~= setting.name and
-					has_keybinding_conflict(core.settings:get(o.name):split("|"), value) then
+					has_keybinding_conflict(get_key_setting(o.name), value) then
 
 				local is_current_close_world = setting.name == "keymap_close_world"
 				local is_other_close_world = o.name == "keymap_close_world"
@@ -515,7 +519,7 @@ function make.key(setting)
 			local default_value = setting.default or ""
 			self.resettable = core.settings:has(setting.name) and (value_string ~= default_value)
 			local value_width = math.max(2.5, avail_w / 2)
-			local value = core.settings:get(setting.name):split("|")
+			local value = get_key_setting(setting.name)
 			local fs = {
 				("label[0,0.4;%s]"):format(get_label(setting)),
 			}
@@ -587,7 +591,7 @@ function make.key(setting)
 				key_setting_expanded[setting.name] = true
 				return true
 			end
-			local value = core.settings:get(setting.name):split("|")
+			local value = get_key_setting(setting.name)
 			for i = 1, #value + 1 do
 				if fields[("%s_%d"):format(btn_bind, i)] then
 					value[i] = fields[("%s_%d"):format(btn_bind, i)]
