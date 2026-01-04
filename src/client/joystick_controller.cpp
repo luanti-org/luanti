@@ -266,6 +266,8 @@ bool JoystickController::handleEvent(const SEvent::SJoystickEvent &ev)
 
 		if (keys_pressed[i] && !(m_keys_down[i]))
 			m_keys_pressed[i] = true;
+		else
+			m_keys_pressed[i] = false;
 
 		m_keys_down[i] = keys_pressed[i];
 	}
