@@ -9,6 +9,7 @@
 #include <IEventReceiver.h>
 #include <string>
 #include <variant>
+#include <vector>
 
 /* A key press, consisting of a scancode or a keycode.
  * This fits into 64 bits, so prefer passing this by value.
@@ -92,7 +93,13 @@ struct std::hash<KeyPress>
 #define RMBKey KeyPress::getSpecialKey("KEY_RBUTTON")
 
 // Key configuration getter
-KeyPress getKeySetting(const std::string &settingname);
+// Note that the reference may be invalidated by a next call to getKeySetting
+// or a related function, so the value should either be used immediately or
+// copied elsewhere before calling this again.
+const std::vector<KeyPress> &getKeySetting(const std::string &settingname);
+
+// Check whether the key setting includes a key.
+bool keySettingHasMatch(const std::string &settingname, KeyPress kp);
 
 // Clear fast lookup cache
 void clearKeyCache();
