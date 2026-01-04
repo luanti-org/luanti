@@ -96,7 +96,7 @@ private:
 
 	bool setKeyDown(KeyPress keyCode, bool is_down);
 	void setKeyDown(GameKeyType action, bool is_down);
-	bool checkKeyDown(GameKeyType action);
+	bool checkKeyDown(GameKeyType action) const;
 
 	/* This is faster than using getKeySetting with the tradeoff that functions
 	 * using it must make sure that it's initialised before using it and there is
