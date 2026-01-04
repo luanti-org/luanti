@@ -111,7 +111,7 @@ void MyEventReceiver::setKeyDown(GameKeyType action, bool is_down)
 
 bool MyEventReceiver::checkKeyDown(GameKeyType action)
 {
-	for (auto key: keybindings[action]) {
+	for (const auto &key : keybindings[action]) {
 		if (physicalKeyDown.find(key) != physicalKeyDown.end())
 			return true;
 	}
