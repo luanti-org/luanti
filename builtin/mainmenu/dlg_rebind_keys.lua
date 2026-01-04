@@ -75,7 +75,7 @@ local function create_rebind_keys_dlg()
 end
 
 local function normalize_key_setting(str)
-	if str == "|" then
+	if str == "|" then -- normalize legacy keybinding for the "|" keycode
 		return core.normalize_keycode(str)
 	end
 	local t = string.split(str, "|")
