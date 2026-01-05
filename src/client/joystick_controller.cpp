@@ -138,7 +138,8 @@ JoystickLayout create_xbox_layout()
 	return jlo;
 }
 
-JoystickLayout create_ps5_layout() {
+JoystickLayout create_ps5_layout()
+{
 	JoystickLayout jlo;
 	jlo.axes_deadzone = 7000;
 
