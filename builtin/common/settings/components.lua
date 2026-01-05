@@ -462,16 +462,11 @@ local function get_key_setting(name)
 	return core.settings:get(name):split("|")
 end
 
--- Setting components are regenerated if the page is refreshed so
--- we use upvalues here to preserve certain values
--- Setting names where all binding options shall be shown.
-local key_setting_expanded = {}
 -- Setting names where an empty field shall be shown to assign new keybindings.
 local key_add_empty = {}
 
 function make.key(setting)
 	local btn_bind = "bind_" .. setting.name
-	local btn_collapse = "collapse_" .. setting.name
 	local btn_clear = "unbind_" .. setting.name
 	local btn_add = "add_" .. setting.name
 	local function add_conflict_warnings(fs, height)
@@ -525,57 +520,37 @@ function make.key(setting)
 			}
 
 			local function add_keybinding_row(idx)
-				local show_add_button = #value == 1 and not add_empty
-				local btn_bind_width = value_width
+				local btn_bind_width = value_width - 1.6
+				local has_value = value[idx]
 				local y = (idx - 1) * 0.8
-				if show_add_button then
-					btn_bind_width = btn_bind_width - 1.6
-				elseif value[idx] then
-					btn_bind_width = btn_bind_width - 0.8
+				if not has_value then
+					btn_bind_width = idx == 1 and value_width or (value_width - 0.8)
 				end
 				table.insert(fs, ("button_key[%f,%f;%f,0.8;%s_%d;%s]"):format(
 						value_width, y, btn_bind_width,
 						btn_bind, idx, core.formspec_escape(value[idx] or "")))
-				if value[idx] then
+				if has_value then
 					table.insert(fs, ("image_button[%f,%f;0.8,0.8;%s;%s_%d;]"):format(
-							avail_w - 0.8, y,
+							avail_w - 1.6, y,
 							core.formspec_escape(defaulttexturedir .. "clear.png"),
 							btn_clear, idx))
 					table.insert(fs, ("tooltip[%s_%d;%s]"):format(btn_clear, idx,
 							fgettext("Remove keybinding")))
 				end
-				if show_add_button then
-					table.insert(fs, ("image_button[%f,%f;0.8,0.8;%s;%s;]"):format(
-							avail_w - 1.6, y,
-							core.formspec_escape(defaulttexturedir .. "plus.png"), btn_add))
-					table.insert(fs, ("tooltip[%s;%s]"):format(btn_add, fgettext("Add keybinding")))
-				end
 			end
 
-			local height = 0.8
-			add_keybinding_row(1)
-
-			if #value > 1 or add_empty then
-				if key_setting_expanded[setting.name] then
-					height = (#value + 2) * 0.8
-
-					for i = 2, #value do
-						add_keybinding_row(i)
-					end
-					if add_empty then
-						add_keybinding_row(#value+1)
-					else
-						table.insert(fs, ("button[%f,%f;%f,0.8;%s;%s]"):format(
-								value_width, height-1.6, value_width, btn_add,
-								fgettext("Add keybinding")))
-					end
-				else
-					height = 1.6
-				end
-				table.insert(fs, ("button[%f,%f;%f,0.8;%s;%s]"):format(
-						value_width, height-0.8, value_width, btn_collapse,
-						key_setting_expanded[setting.name] and
-								fgettext("Show less") or fgettext("Show more")))
+			local height = #value * 0.8
+			for i = 1, #value do
+				add_keybinding_row(i)
+			end
+			if add_empty or #value == 0 then
+				add_keybinding_row(#value+1)
+				height = height + 0.8
+			else
+				table.insert(fs, ("image_button[%f,%f;0.8,0.8;%s;%s;]"):format(
+						avail_w - 0.8, height - 0.8,
+						core.formspec_escape(defaulttexturedir .. "plus.png"), btn_add))
+				table.insert(fs, ("tooltip[%s;%s]"):format(btn_add, fgettext("Add keybinding")))
 			end
 
 			height = add_conflict_warnings(fs, height)
@@ -583,12 +558,8 @@ function make.key(setting)
 		end,
 
 		on_submit = function(self, fields)
-			if fields[btn_collapse] then
-				key_setting_expanded[setting.name] = not key_setting_expanded[setting.name]
-				return true
-			elseif fields[btn_add] then
+			if fields[btn_add] then
 				key_add_empty[setting.name] = true
-				key_setting_expanded[setting.name] = true
 				return true
 			end
 			local value = get_key_setting(setting.name)
