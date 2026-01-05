@@ -226,7 +226,9 @@ void RemoteClient::GetNextBlocks (
 	s16 d_max = full_d_max;
 
 	// Don't loop very much at a time
-	const s16 max_d_increment_at_time = 2;
+	// At large distances there are (many) more blocks per loop,
+	// so limit loops even more.
+	const s16 max_d_increment_at_time = d_start < d_cull_opt * 2 ? 2 : 0;
 	if (d_max > d_start + max_d_increment_at_time)
 		d_max = d_start + max_d_increment_at_time;
 
