@@ -3483,65 +3483,7 @@ void GUIFormSpecMenu::drawMenu()
 	updateSelectedItem();
 
 	// Auto-scroll to center focused element when Tab enables focus tracking
-	gui::IGUIElement *focus = Environment->getFocus();
-	if (m_show_focus && focus && (focus != m_last_focused || m_focus_just_enabled)) {
-		bool first_focus = m_focus_just_enabled;
-		m_last_focused = focus;
-		m_focus_just_enabled = false;
-
-		for (const auto &cont : m_scroll_containers) {
-			if (!cont.second->isMyChild(focus))
-				continue;
-
-			GUIScrollBar *scrollbar = nullptr;
-			for (const auto &sb : m_scrollbars) {
-				if (sb.first.fname == cont.first) {
-					scrollbar = sb.second;
-					break;
-				}
-			}
-			if (!scrollbar)
-				break;
-
-			gui::IGUIElement *clipper = cont.second->getParent();
-			if (!clipper)
-				break;
-
-			core::rect<s32> clip = clipper->getAbsoluteClippingRect();
-			core::rect<s32> elem = focus->getAbsolutePosition();
-
-			// Skip if already visible (unless on first focus)
-			if (!first_focus && elem.UpperLeftCorner.Y >= clip.UpperLeftCorner.Y &&
-					elem.LowerRightCorner.Y <= clip.LowerRightCorner.Y)
-				break;
-
-			// Center element in viewport
-			s32 target_y = elem.UpperLeftCorner.Y;
-			if (elem.getHeight() < clip.getHeight()) {
-				target_y = clip.UpperLeftCorner.Y + (clip.getHeight() - elem.getHeight()) / 2;
-			}
-
-			s32 pixels_needed = target_y - elem.UpperLeftCorner.Y;
-			s32 curr_pos = scrollbar->getPos();
-			s32 new_pos = curr_pos;
-
-			if (scrollbar->getMax() > 0) {
-				s32 mover_y = cont.second->getRelativePosition().UpperLeftCorner.Y;
-				f32 factor = (curr_pos > 0 && mover_y != 0) ?
-					(f32)mover_y / curr_pos : (f32)(-clip.getHeight()) / scrollbar->getMax();
-
-				if (factor != 0) {
-					new_pos = curr_pos + (s32)std::round(pixels_needed / factor);
-					new_pos = rangelim(new_pos, scrollbar->getMin(), scrollbar->getMax());
-					if (new_pos != curr_pos) {
-						scrollbar->setPos(new_pos);
-						cont.second->updateScrolling();
-					}
-				}
-			}
-			break;
-		}
-	}
+	autoScroll();
 
 	video::IVideoDriver* driver = Environment->getVideoDriver();
 
@@ -3764,6 +3706,89 @@ void GUIFormSpecMenu::showTooltip(const std::wstring &text,
 	// Display the tooltip
 	m_tooltip_element->setVisible(true);
 	bringToFront(m_tooltip_element);
+}
+
+void GUIFormSpecMenu::autoScroll()
+{
+	gui::IGUIElement *focus = Environment->getFocus();
+	if (!m_show_focus || !focus)
+		return;
+
+	// Only process if focus changed or this is the first focus
+	if (focus == m_last_focused && m_last_focused != nullptr)
+		return;
+
+	bool first_focus = (m_last_focused == nullptr);
+	m_last_focused = focus;
+
+	// Find the scroll container that contains the focused element
+	for (const auto &cont : m_scroll_containers) {
+		if (!cont.second->isMyChild(focus))
+			continue;
+
+		gui::IGUIElement *clipper = cont.second->getParent();
+		if (!clipper)
+			break;
+
+		// Find scrollbars for this container
+		GUIScrollBar *scrollbar_v = nullptr;
+		GUIScrollBar *scrollbar_h = nullptr;
+		for (const auto &sb : m_scrollbars) {
+			if (sb.first.fname == cont.first) {
+				if (sb.second->isHorizontal())
+					scrollbar_h = sb.second;
+				else
+					scrollbar_v = sb.second;
+			}
+		}
+
+		core::rect<s32> clip = clipper->getAbsoluteClippingRect();
+		core::rect<s32> elem = focus->getAbsolutePosition();
+		f32 scrollfactor = cont.second->getScrollFactor();
+
+		if (scrollfactor == 0)
+			break;
+
+		// Handle vertical scrolling
+		if (scrollbar_v) {
+			bool visible = elem.UpperLeftCorner.Y >= clip.UpperLeftCorner.Y &&
+						   elem.LowerRightCorner.Y <= clip.LowerRightCorner.Y;
+			if (first_focus || !visible) {
+				s32 target_y = elem.UpperLeftCorner.Y;
+				if (elem.getHeight() < clip.getHeight())
+					target_y = clip.UpperLeftCorner.Y + (clip.getHeight() - elem.getHeight()) / 2;
+
+				s32 new_pos = scrollbar_v->getPos() + (s32)std::round((target_y - elem.UpperLeftCorner.Y) / scrollfactor);
+				new_pos = rangelim(new_pos, scrollbar_v->getMin(), scrollbar_v->getMax());
+
+				if (new_pos != scrollbar_v->getPos()) {
+					scrollbar_v->setPos(new_pos);
+					cont.second->updateScrolling();
+				}
+			}
+		}
+
+		// Handle horizontal scrolling
+		if (scrollbar_h) {
+			bool visible = elem.UpperLeftCorner.X >= clip.UpperLeftCorner.X &&
+						   elem.LowerRightCorner.X <= clip.LowerRightCorner.X;
+			if (first_focus || !visible) {
+				s32 target_x = elem.UpperLeftCorner.X;
+				if (elem.getWidth() < clip.getWidth())
+					target_x = clip.UpperLeftCorner.X + (clip.getWidth() - elem.getWidth()) / 2;
+
+				s32 new_pos = scrollbar_h->getPos() + (s32)std::round((target_x - elem.UpperLeftCorner.X) / scrollfactor);
+				new_pos = rangelim(new_pos, scrollbar_h->getMin(), scrollbar_h->getMax());
+
+				if (new_pos != scrollbar_h->getPos()) {
+					scrollbar_h->setPos(new_pos);
+					cont.second->updateScrolling();
+				}
+			}
+		}
+
+		break;
+	}
 }
 
 void GUIFormSpecMenu::updateSelectedItem()
@@ -4036,7 +4061,7 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 		if (event.KeyInput.PressedDown && event.KeyInput.Key == KEY_TAB &&
 				!event.KeyInput.Control) {
 			m_show_focus = true;
-			m_focus_just_enabled = true;
+			m_last_focused = nullptr;
 		}
 		break;
 	case EET_MOUSE_INPUT_EVENT:
@@ -4045,7 +4070,6 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 		case EMIE_RMOUSE_PRESSED_DOWN:
 		case EMIE_MMOUSE_PRESSED_DOWN:
 			m_show_focus = false;
-			m_focus_just_enabled = false;
 			m_last_focused = nullptr;
 			break;
 		default:

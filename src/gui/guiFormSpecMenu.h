@@ -386,7 +386,6 @@ private:
 	JoystickController        *m_joystick;
 	bool                       m_show_debug = false;
 	bool                       m_show_focus = false;
-	bool                       m_focus_just_enabled = false;
 	gui::IGUIElement          *m_last_focused = nullptr;
 
 	struct parserData {
@@ -498,6 +497,12 @@ private:
 
 	void showTooltip(const std::wstring &text, const video::SColor &color,
 		const video::SColor &bgcolor);
+
+	/**
+	 * Auto-scrolls a scroll container to center the focused element.
+	 * Handles both vertical and horizontal scrolling.
+	 */
+	void autoScroll();
 
 	/**
 	 * In formspec version < 2 the elements were not ordered properly. Some element
