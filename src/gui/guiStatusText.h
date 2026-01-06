@@ -58,3 +58,4 @@ private:
 	// Internal helper to update position based on screen size and style
 	void updatePosition();
 };
+

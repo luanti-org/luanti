@@ -147,3 +147,4 @@ void GUIStatusText::updatePosition()
 			status_y));
 	}
 }
+
