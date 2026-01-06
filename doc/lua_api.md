@@ -4210,6 +4210,8 @@ Helper functions
 * `math.factorial(x)`: returns the factorial of `x`
 * `math.round(x)`: Returns `x` rounded to the nearest integer.
     * At a multiple of 0.5, rounds away from zero.
+* `math.isfinite(x)`: Returns `true` if `x` is neither an infinity nor a NaN,
+  and `false` otherwise.
 * `string.split(str, separator, include_empty, max_splits, sep_is_pattern)`
     * `separator`: string, cannot be empty, default: `","`
     * `include_empty`: boolean, default: `false`
