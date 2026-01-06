@@ -11,12 +11,20 @@
 #include <variant>
 #include <vector>
 
+// Auxiliary struct used for keycode lookups
+struct table_key;
+
 /* A key press, consisting of a scancode or a keycode.
  * This fits into 64 bits, so prefer passing this by value.
 */
 class KeyPress
 {
 public:
+	enum class InputType {
+		KEYBOARD, // Keyboard input (scancodes)
+		LEGACY_KEYCODE, // (Deprecated) keyboard and mouse input based on EKEY_CODE
+	};
+
 	KeyPress() = default;
 
 	KeyPress(const std::string &name);
@@ -38,13 +46,13 @@ public:
 	// Get the scancode or 0 is one is not available
 	u32 getScancode() const
 	{
-		if (auto pv = std::get_if<u32>(&scancode))
+		if (auto pv = getIf<InputType::KEYBOARD>())
 			return *pv;
 		return 0;
 	}
 
 	bool operator==(KeyPress o) const {
-		return scancode == o.scancode;
+		return value == o.value;
 	}
 	bool operator!=(KeyPress o) const {
 		return !(*this == o);
@@ -52,26 +60,44 @@ public:
 
 	// Used for e.g. std::set
 	bool operator<(KeyPress o) const {
-		return scancode < o.scancode;
+		return value < o.value;
+	}
+
+	// Get the type of input
+	InputType getType() const {
+		return static_cast<InputType>(value.index());
 	}
 
 	// Check whether the keypress is valid
-	operator bool() const
-	{
-		return std::holds_alternative<EKEY_CODE>(scancode) ?
-			Keycode::isValid(std::get<EKEY_CODE>(scancode)) :
-			std::get<u32>(scancode) != 0;
-	}
+	operator bool() const;
 
 	static KeyPress getSpecialKey(const std::string &name);
 
 private:
 	using value_type = std::variant<u32, EKEY_CODE>;
+	template<InputType I>
+	using value_alternative_t = std::variant_alternative_t<static_cast<size_t>(I), value_type>;
+
 	bool loadFromScancode(const std::string &name);
 	void loadFromKey(EKEY_CODE keycode, wchar_t keychar);
-	std::string formatScancode() const;
+	const table_key &lookupScancode() const;
 
-	value_type scancode = KEY_UNKNOWN;
+	value_type value = KEY_UNKNOWN;
+
+	template<InputType I>
+	value_alternative_t<I> get() const {
+		return std::get<static_cast<size_t>(I)>(value);
+	}
+
+	template<InputType I>
+	std::add_pointer_t<const value_alternative_t<I>> getIf() const {
+		return std::get_if<static_cast<size_t>(I)>(&value);
+	}
+
+	template<InputType I>
+	void emplace(value_alternative_t<I> newValue) {
+		value.emplace<static_cast<size_t>(I)>(newValue);
+	}
 
 	friend std::hash<KeyPress>;
 };
@@ -80,7 +106,7 @@ template <>
 struct std::hash<KeyPress>
 {
 	size_t operator()(KeyPress kp) const noexcept {
-		return std::hash<KeyPress::value_type>{}(kp.scancode);
+		return std::hash<KeyPress::value_type>{}(kp.value);
 	}
 };
 
