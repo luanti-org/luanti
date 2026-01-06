@@ -342,16 +342,6 @@ std::string KeyPress::name() const
 	}
 }
 
-EKEY_CODE KeyPress::getKeycode() const
-{
-	return lookupScancode().Key;
-}
-
-wchar_t KeyPress::getKeychar() const
-{
-	return lookupScancode().Char;
-}
-
 bool KeyPress::loadFromScancode(const std::string &name)
 {
 	if (!str_starts_with(name, "SYSTEM_SCANCODE_"))
@@ -371,6 +361,8 @@ KeyPress::operator bool() const
 		return std::get<SCANCODE_INPUT>(value) != 0;
 	case LEGACY_KEYCODE_INPUT:
 		return Keycode::isValid(std::get<LEGACY_KEYCODE_INPUT>(value));
+	case GAME_ACTION_INPUT:
+		return std::get<GAME_ACTION_INPUT>(value) < KeyType::INTERNAL_ENUM_COUNT;
 	default:
 		return false;
 	}

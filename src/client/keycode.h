@@ -5,6 +5,7 @@
 #pragma once
 
 #include "irrlichttypes.h"
+#include "keys.h"
 #include <Keycodes.h>
 #include <IEventReceiver.h>
 #include <string>
@@ -23,6 +24,7 @@ public:
 	enum InputType {
 		SCANCODE_INPUT, // Keyboard input (scancodes)
 		LEGACY_KEYCODE_INPUT, // (Deprecated) keyboard and mouse input based on EKEY_CODE
+		GAME_ACTION_INPUT, // GameKeyType input passed by touchscreen buttons
 	};
 
 	KeyPress() = default;
@@ -31,17 +33,13 @@ public:
 
 	KeyPress(const SEvent::SKeyInput &in);
 
+	KeyPress(GameKeyType key) : value(key) {}
+
 	// Get a string representation that is suitable for use in minetest.conf
 	std::string sym() const;
 
 	// Get a human-readable string representation
 	std::string name() const;
-
-	// Get the corresponding keycode or KEY_UNKNOWN if one is not available
-	EKEY_CODE getKeycode() const;
-
-	// Get the corresponding keychar or '\0' if one is not available
-	wchar_t getKeychar() const;
 
 	// Get the scancode or 0 is one is not available
 	u32 getScancode() const
@@ -74,7 +72,7 @@ public:
 	static KeyPress getSpecialKey(const std::string &name);
 
 private:
-	using value_type = std::variant<u32, EKEY_CODE>;
+	using value_type = std::variant<u32, EKEY_CODE, GameKeyType>;
 	bool loadFromScancode(const std::string &name);
 	void loadFromKey(EKEY_CODE keycode, wchar_t keychar);
 	const table_key &lookupScancode() const;
