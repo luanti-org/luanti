@@ -53,7 +53,7 @@ struct button_info
 {
 	touch_gui_button_id id;
 	float repeat_counter;
-	KeyPress keypress;
+	GameKeyType game_key;
 	std::vector<size_t> pointer_ids;
 	std::shared_ptr<IGUIImage> gui_button = nullptr;
 
@@ -198,7 +198,7 @@ private:
 	// for its buttons. We only want static image display, not interactivity,
 	// from Irrlicht.
 
-	void emitKeyboardEvent(KeyPress keycode, bool pressed);
+	void emitGameKeyEvent(GameKeyType key, bool pressed);
 
 	void loadButtonTexture(IGUIImage *gui_button, const std::string &path);
 	void buttonEmitAction(button_info &btn, bool action);
