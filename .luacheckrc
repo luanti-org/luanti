@@ -24,7 +24,7 @@ read_globals = {
 
 	string = {fields = {"split", "trim"}},
 	table  = {fields = {"copy", "copy_with_metatables", "getn", "indexof", "keyof", "insert_all", "shuffle"}},
-	math   = {fields = {"hypot", "round"}},
+	math   = {fields = {"hypot", "round", "isfinite"}},
 }
 
 globals = {
