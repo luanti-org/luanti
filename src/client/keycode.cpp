@@ -279,16 +279,25 @@ static const table_key &lookup_scancode(const u32 scancode)
 		lookup_keychar(std::get<wchar_t>(key));
 }
 
-static const table_key &lookup_scancode(const std::variant<u32, EKEY_CODE> &scancode)
+const table_key &KeyPress::lookupScancode() const
 {
-	return std::holds_alternative<EKEY_CODE>(scancode) ?
-		lookup_keykey(std::get<EKEY_CODE>(scancode)) :
-		lookup_scancode(std::get<u32>(scancode));
+	switch (getType()) {
+	case InputType::KEYBOARD:
+		return lookup_scancode(get<InputType::KEYBOARD>());
+	case InputType::LEGACY_KEYCODE:
+		return lookup_keykey(get<InputType::LEGACY_KEYCODE>());
+	default:
+		return invalid_key;
+	}
 }
 
 void KeyPress::loadFromKey(EKEY_CODE keycode, wchar_t keychar)
 {
-	scancode = RenderingEngine::get_raw_device()->getScancodeFromKey(Keycode(keycode, keychar));
+	auto irr_scancode = RenderingEngine::get_raw_device()->getScancodeFromKey(Keycode(keycode, keychar));
+	if (auto scancode = std::get_if<u32>(&irr_scancode))
+		emplace<InputType::KEYBOARD>(*scancode);
+	else
+		emplace<InputType::LEGACY_KEYCODE>(std::get<EKEY_CODE>(irr_scancode));
 }
 
 KeyPress::KeyPress(const std::string &name)
@@ -302,44 +311,48 @@ KeyPress::KeyPress(const std::string &name)
 KeyPress::KeyPress(const SEvent::SKeyInput &in)
 {
 	if (in.SystemKeyCode)
-		scancode.emplace<u32>(in.SystemKeyCode);
+		emplace<InputType::KEYBOARD>(in.SystemKeyCode);
 	else
-		scancode.emplace<EKEY_CODE>(in.Key);
-}
-
-std::string KeyPress::formatScancode() const
-{
-	if (auto pv = std::get_if<u32>(&scancode))
-		return *pv == 0 ? "" : "SYSTEM_SCANCODE_" + std::to_string(*pv);
-	return "";
+		emplace<InputType::LEGACY_KEYCODE>(in.Key);
 }
 
 std::string KeyPress::sym() const
 {
-	std::string name = lookup_scancode(scancode).Name;
-	if (auto newname = formatScancode(); !newname.empty())
-		return newname;
-	return name;
+	switch (getType()) {
+	case InputType::KEYBOARD:
+		return "SYSTEM_SCANCODE_" + std::to_string(get<InputType::KEYBOARD>());
+	case InputType::LEGACY_KEYCODE:
+		return lookupScancode().Name;
+	default:
+		return "";
+	}
 }
 
 std::string KeyPress::name() const
 {
-	const auto &name = lookup_scancode(scancode).LangName;
-	if (!name.empty())
-		return strgettext(name);
-	if (auto scancode = getScancode())
-		return fmtgettext("Scancode: %d", scancode);
-	return "";
+	switch (getType()) {
+	case InputType::KEYBOARD:
+	case InputType::LEGACY_KEYCODE: {
+		const auto &name = lookupScancode().LangName;
+		if (!name.empty())
+			return strgettext(name);
+		if (auto scancode = getScancode())
+			return fmtgettext("Scancode: %d", scancode);
+		return "";
+	}
+	default:
+		return "";
+	}
 }
 
 EKEY_CODE KeyPress::getKeycode() const
 {
-	return lookup_scancode(scancode).Key;
+	return lookupScancode().Key;
 }
 
 wchar_t KeyPress::getKeychar() const
 {
-	return lookup_scancode(scancode).Char;
+	return lookupScancode().Char;
 }
 
 bool KeyPress::loadFromScancode(const std::string &name)
@@ -350,8 +363,20 @@ bool KeyPress::loadFromScancode(const std::string &name)
 	const auto code = strtoul(name.c_str()+16, &p, 10);
 	if (p != name.c_str() + name.size())
 		return false;
-	scancode.emplace<u32>(code);
+	emplace<InputType::KEYBOARD>(code);
 	return true;
+}
+
+KeyPress::operator bool() const
+{
+	switch (getType()) {
+	case InputType::KEYBOARD:
+		return get<InputType::KEYBOARD>() != 0;
+	case InputType::LEGACY_KEYCODE:
+		return Keycode::isValid(get<InputType::LEGACY_KEYCODE>());
+	default:
+		return false;
+	}
 }
 
 std::unordered_map<std::string, KeyPress> specialKeyCache;
