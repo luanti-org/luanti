@@ -215,7 +215,7 @@ static KeyPress id_to_keypress(touch_gui_button_id id)
 				<< setting_name << ", hiding button." << std::endl;
 		return KeyPress();
 	}
-	return keylist[0];
+	return *(keylist.begin());
 }
 
 

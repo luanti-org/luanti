@@ -7,7 +7,6 @@
 #include "settings.h"
 #include "log.h"
 #include "renderingengine.h"
-#include "util/basic_macros.h"
 #include "util/string.h"
 #include <unordered_map>
 #include <vector>
@@ -366,9 +365,9 @@ KeyPress KeyPress::getSpecialKey(const std::string &name)
 */
 
 // A simple cache for quicker lookup
-static std::unordered_map<std::string, std::vector<KeyPress>> g_key_setting_cache;
+static std::unordered_map<std::string, std::unordered_set<KeyPress>> g_key_setting_cache;
 
-const std::vector<KeyPress> &getKeySetting(const std::string &settingname)
+const std::unordered_set<KeyPress> &getKeySetting(const std::string &settingname)
 {
 	auto n = g_key_setting_cache.find(settingname);
 	if (n != g_key_setting_cache.end())
@@ -378,7 +377,7 @@ const std::vector<KeyPress> &getKeySetting(const std::string &settingname)
 	auto &ref = g_key_setting_cache[settingname];
 	for (const auto &keysym: str_split(setting_value, '|')) {
 		if (KeyPress kp = keysym) {
-			ref.push_back(kp);
+			ref.emplace(kp);
 		} else {
 			warningstream << "Invalid key '" << keysym << "' for '" << settingname << "'." << std::endl;
 		}
@@ -389,7 +388,7 @@ const std::vector<KeyPress> &getKeySetting(const std::string &settingname)
 bool keySettingHasMatch(const std::string &settingname, KeyPress kp)
 {
 	const auto &keylist = getKeySetting(settingname);
-	return CONTAINS(keylist, kp);
+	return keylist.find(kp) != keylist.end();
 }
 
 void clearKeyCache()
