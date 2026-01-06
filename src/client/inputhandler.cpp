@@ -26,7 +26,7 @@ void MyEventReceiver::reloadKeybindings()
 	keybindings[KeyType::DIG] = getKeySetting("keymap_dig");
 	keybindings[KeyType::PLACE] = getKeySetting("keymap_place");
 
-	keybindings[KeyType::ESC] = std::vector<KeyPress>{EscapeKey};
+	keybindings[KeyType::ESC] = std::unordered_set<KeyPress>{EscapeKey};
 
 	keybindings[KeyType::AUTOFORWARD] = getKeySetting("keymap_autoforward");
 
