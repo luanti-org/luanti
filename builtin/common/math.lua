@@ -44,6 +44,6 @@ function math.round(x)
 end
 
 -- return `true` if `n` is neither an infinity nor a NaN and `false` otherwise
-function math.isfinite(n)
-	return (n < POS_INF) and (n > NEG_INF) and (n == n)
+function math.isfinite(x)
+	return (x < POS_INF) and (x > NEG_INF) -- will both be false if NaN
 end
