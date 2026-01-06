@@ -39,6 +39,10 @@ public:
 	void setVisible(bool visible);
 	bool isVisible() const;
 
+	// Getters for testing
+	const std::wstring &getStatusText() const { return m_statustext; }
+	float getStatusTextTime() const { return m_statustext_time; }
+
 private:
 	gui::IGUIStaticText *m_guitext_status = nullptr;
 	std::wstring m_statustext;
