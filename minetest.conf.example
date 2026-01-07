@@ -1233,6 +1233,7 @@
 #    Increase the value if players experience stuttery movement.
 #    type: float min: 1
 # anticheat_movement_tolerance = 1.0
+
 ### Client-side Modding
 
 #    Restricts the access of certain client-side functions on servers.
@@ -3405,12 +3406,10 @@
 #    type: bool
 # ask_reconnect_on_crash = false
 
-#    If enabled, actions are recorded for rollback.
-#    This option is only read when server starts. Note that the engine will not
+#    If enabled, node and inventory actions are recorded for rollback.
+#    This option is only read on server start. Note that the engine will not
 #    automatically clean old entries from the rollback database.
-#    Storage backend is configured per-world in world.mt:
-#      - rollback_backend (defaults to to sqlite3)
-#      - for PostgreSQL, pgsql_rollback_connection is required
+#    type: bool
 # enable_rollback_recording = false
 
 ### Server/Env Performance
