@@ -324,9 +324,9 @@ local scroll_fs =
 --label[0.75,2;Reset]
 
 local autoscroll_fs =
-	"label[0,0;Auto-Scroll Test - Use Tab to navigate]" ..
-	"label[0,0.5;Vertical scroll container:]" ..
-	"scroll_container[0,1;5.5,5;autoscroll_v;vertical]" ..
+	"label[0.5,0.5;Auto-Scroll Test - Tab through buttons to test auto-scroll centering]" ..
+	"label[0.5,1;Vertical scroll container:]" ..
+	"scroll_container[0.5,1.5;5.5,5;autoscroll_v;vertical]" ..
 		"button[0,0;5,1;asv_btn1;Button 1]" ..
 		"button[0,1;5,1;asv_btn2;Button 2]" ..
 		"button[0,2;5,1;asv_btn3;Button 3]" ..
@@ -338,17 +338,18 @@ local autoscroll_fs =
 		"button[0,8;5,1;asv_btn9;Button 9]" ..
 		"button[0,9;5,1;asv_btn10;Button 10]" ..
 	"scroll_container_end[]" ..
-	"scrollbar[5.8,1;0.3,5;vertical;autoscroll_v;0]" ..
-	"label[7,0.5;Horizontal scroll container:]" ..
-	"scroll_container[7,1;4.5,2;autoscroll_h;horizontal]" ..
+	"scrollbaroptions[max=50]" ..
+	"scrollbar[5.8,1.5;0.3,5;vertical;autoscroll_v;0]" ..
+	"label[7,1;Horizontal scroll container:]" ..
+	"scroll_container[7,1.5;4.5,2;autoscroll_h;horizontal]" ..
 		"button[0,0;3,1;ash_btn1;Btn1]" ..
 		"button[3,0;3,1;ash_btn2;Btn2]" ..
 		"button[6,0;3,1;ash_btn3;Btn3]" ..
 		"button[9,0;3,1;ash_btn4;Btn4]" ..
 		"button[12,0;3,1;ash_btn5;Btn5]" ..
 	"scroll_container_end[]" ..
-	"scrollbar[7,3.2;4.5,0.3;horizontal;autoscroll_h;0]" ..
-	"label[0,6.5;Tab through buttons above to test auto-scroll centering]"
+	"scrollbaroptions[max=105]" ..
+	"scrollbar[7,2.7;4.5,0.3;horizontal;autoscroll_h;0]"
 
 local window = {
 	sizex = 12,
