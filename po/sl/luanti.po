@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Slovenian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-06 23:13+0100\n"
-"PO-Revision-Date: 2026-01-04 22:43+0000\n"
+"PO-Revision-Date: 2026-01-13 03:01+0000\n"
 "Last-Translator: Vesel Sem <veselsem@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Slovenian <https://hosted.weblate.org/projects/minetest/"
 "minetest/sl/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3;\n"
-"X-Generator: Weblate 5.15.1\n"
+"X-Generator: Weblate 5.15.2-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -79,9 +79,8 @@ msgid "[all | <cmd>] [-t]"
 msgstr "[all | <ukaz>] [-t]"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Add keybinding"
-msgstr "Kombinacije tipk"
+msgstr "Dodaj kombinacijo tipk"
 
 #: builtin/common/settings/components.lua
 msgid "Browse"
@@ -112,9 +111,8 @@ msgid "Set"
 msgstr "Nastavi"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
 msgid "$1 spread"
-msgstr "X širjenje"
+msgstr "Razpon $1"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
@@ -129,11 +127,13 @@ msgid ""
 "2D noise: flag on.\n"
 "3D noise: flag off."
 msgstr ""
+"2D šum: zastavica vklopljena.\n"
+"3D šum: zastavica izklopljena."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Amplifies every octave by (amplitude of the previous octave * Persistence)."
-msgstr ""
+msgstr "Vsako oktavo ojačaj za (amplituda prejšnje oktave * vztrajnost)."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/content/dlg_install.lua
@@ -149,23 +149,25 @@ msgstr "Prekliči"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Controls how many octaves (layers) the noise will have."
-msgstr ""
+msgstr "Določa, koliko oktav (plasti) bo imel šum."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Each octave is a simple noise generator. Each one also adds more detail to "
 "the noise."
 msgstr ""
+"Vsaka oktava je preprost generator šuma. Vsaka od njih doda tudi več "
+"podrobnosti šumu."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Finally, all of the octaves will be combined to generate the noise."
-msgstr ""
+msgstr "Končno se bodo vse oktave združile, da se ustvari šum."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Having lots of octaves is not recommended because it increases terrain "
 "generation time."
-msgstr ""
+msgstr "Veliko oktav ni priporočljivo, ker podaljša čas generiranja terena."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Lacunarity"
@@ -175,31 +177,37 @@ msgstr "Neenakomernost"
 msgid ""
 "Lower values make the terrain simple and higher values make the terrain "
 "rough."
-msgstr ""
+msgstr "Nižje vrednosti naredijo teren preprost, višje vrednosti pa neravnega."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Lower values make the terrain smooth and higher values make the terrain have "
 "fine detail."
 msgstr ""
+"Nižje vrednosti naredijo teren gladek, višje vrednosti pa dajejo terenu "
+"natančnejše podrobnosti."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Lower values will result in smoother noise and higher values will result in "
 "rougher noise."
 msgstr ""
+"Nižje vrednosti bodo povzročile bolj gladek šum, višje vrednosti pa grobejši "
+"šum."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Making 3D noise eased is not recommended because it significantly increases "
 "the load."
-msgstr ""
+msgstr "Zmanjševanje 3D-šuma ni priporočljivo, ker znatno poveča obremenitev."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Maps noise gradient values onto a quintic S-curve before performing "
 "interpolation."
 msgstr ""
+"Pred izvedbo interpolacije preslika vrednosti gradienta šuma na kvintično S-"
+"krivuljo."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Octaves"
@@ -212,11 +220,11 @@ msgstr "Odmik"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Offsets the final noise by this value."
-msgstr ""
+msgstr "Ta vrednost izravna končni šum."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Overrides the 'eased' flag based on the noise type."
-msgstr ""
+msgstr "Preglasi zastavico »eased« glede na vrsto šuma."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Persistence"
@@ -234,11 +242,11 @@ msgstr "Skala"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Scales every octave by (scale of the previous octave / Lacunarity)."
-msgstr ""
+msgstr "Vsako oktavo skalira za (lestvico prejšnje oktave / lakunarnost)."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Scales the noise in the $1 axis by this value."
-msgstr ""
+msgstr "Prilagodi šum na osi $1 za to vrednost."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
@@ -247,38 +255,37 @@ msgstr "Seme"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Takes the absolute value of each octave while adding them together."
-msgstr ""
+msgstr "Pri seštevanju vzame absolutno vrednost vsake oktave."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "The first octave is amplified by 1."
-msgstr ""
+msgstr "Prva oktava je ojačana za 1."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
 msgid "The first octave is scaled by 1."
-msgstr "Ta ukaz je onemogočil strežnik."
+msgstr "Prva oktava je povišana za 1."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "The multiplier for the noise before the offset is added."
-msgstr ""
+msgstr "Množitelj za šum pred dodanim odmikom."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "The random seed for the noise. The same seed results in the same noise."
-msgstr ""
+msgstr "Naključno seme za šum. Isto seme povzroči enak šum."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "This is also the scale of the largest structures in the $1 direction of the "
 "noise."
-msgstr ""
+msgstr "To je tudi merilo največjih struktur v smeri šuma $1."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "This results in smooth noise instead of gridlike noise."
-msgstr ""
+msgstr "To povzroči gladek šum namesto mrežastega šuma."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "This results in spiky noise."
-msgstr ""
+msgstr "To povzroči koničast hrup."
 
 #. ~ "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
@@ -378,9 +385,8 @@ msgstr "Ni razultata"
 
 #. ~ Indicates that the action does not have a corresponding keybinding.
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Not bound"
-msgstr "Ni najdeno"
+msgstr "Ni povezano s tipkovnico"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Reset setting to default"
@@ -419,15 +425,16 @@ msgid ""
 "These settings are unavailable due to your platform, hardware or in "
 "combination with the current settings."
 msgstr ""
+"Te nastavitve niso na voljo zaradi vaše platforme, strojne opreme ali v "
+"kombinaciji s trenutnimi nastavitvami."
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Touchscreen layout"
 msgstr "Postavitev zaslona na dotik"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Unavailable"
-msgstr "<ni na voljo>"
+msgstr "Ni na voljo"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
@@ -463,7 +470,7 @@ msgstr "Srednje"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Quality preset"
-msgstr ""
+msgstr "Prednastavitev kakovosti"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Very High"
@@ -578,11 +585,11 @@ msgstr "Igre"
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/serverlistmgr.lua
 #: src/client/game.cpp
 msgid "Loading..."
-msgstr "Poteka nalaganje ..."
+msgstr "Nalaganje …"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Mods"
-msgstr "Modi (prilagoditve)"
+msgstr "Modi"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No packages could be retrieved"
@@ -724,7 +731,7 @@ msgstr "Prevod"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
 msgid "Uninstall"
-msgstr "Odstrani"
+msgstr "Odmesti"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
 msgid "Update"
@@ -771,9 +778,8 @@ msgid "Unable to install a $1 as a texture pack"
 msgstr "Ni mogoče namestiti $1 kot paket tekstur"
 
 #: builtin/mainmenu/content/pkgmgr.lua
-#, fuzzy
 msgid "World mods"
-msgstr "Ime sveta"
+msgstr "Svetovni modi"
 
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
@@ -825,7 +831,7 @@ msgstr "Prilagoditev:"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Mods located inside the world folder."
-msgstr ""
+msgstr "Modi, ki se nahajajo v mapi world."
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
@@ -861,16 +867,15 @@ msgstr "omogočeno"
 
 #: builtin/mainmenu/dlg_confirm_exit.lua
 msgid "Always show this dialog."
-msgstr ""
+msgstr "Vedno prikaži to pogovorno okno."
 
 #: builtin/mainmenu/dlg_confirm_exit.lua
-#, fuzzy
 msgid "Are you sure you want to quit?"
-msgstr "Ali res želiš zbrisati »$1«?"
+msgstr "Ste prepričani, da želite odditi?"
 
 #: builtin/mainmenu/dlg_confirm_exit.lua
 msgid "Quit"
-msgstr ""
+msgstr "Izhod"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "A world named \"$1\" already exists"
@@ -1230,7 +1235,7 @@ msgstr "Obišči spletno stran"
 
 #: builtin/mainmenu/init.lua
 msgid "Debug build, expect worse performance"
-msgstr ""
+msgstr "Odpravljanje napak pri gradnji, pričakujte slabšo zmogljivost"
 
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
@@ -1555,7 +1560,7 @@ msgstr "Ni bilo mogoče odpreti datoteke z geslom: "
 
 #: src/client/clientlauncher.cpp
 msgid "World does not exist and no game selected to create one."
-msgstr ""
+msgstr "Svet ne obstaja in nobena igra ni bila izbrana za njegovo ustvarjanje."
 
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
@@ -2193,7 +2198,7 @@ msgstr "Desna tipka Win"
 #: src/client/keycode.cpp
 #, c-format
 msgid "Scancode: %d"
-msgstr ""
+msgstr "Koda skeniranja: %d"
 
 #: src/client/keycode.cpp
 msgid "Scroll Lock"
@@ -2240,7 +2245,7 @@ msgstr "Zemljevid (minimap) je v načinu prikazovanja teksture"
 #: src/client/render/pipeline.cpp
 #, c-format
 msgid "Failed to create the texture \"%s\" for the rendering pipeline."
-msgstr ""
+msgstr "Ustvarjanje teksture »%s« za cevovod upodabljanja ni uspelo."
 
 #: src/client/shader.cpp
 #, c-format
@@ -2248,9 +2253,9 @@ msgid "Failed to compile the \"%s\" shader."
 msgstr "Napaka pri prevajanju senčilnika \"%s\"."
 
 #: src/client/shader.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to find \"%s\" shader files."
-msgstr "Napaka pri prevajanju senčilnika \"%s\"."
+msgstr "Datotek senčilnika »%s« ni bilo mogoče najti."
 
 #: src/client/shader.cpp
 msgid "GLSL is not supported by the driver"
@@ -2853,6 +2858,10 @@ msgid ""
 "Provides balance between speed and image quality.\n"
 "fxaa can used in combination with the other anti-aliasing methods"
 msgstr ""
+"Uporabi filter za naknadno obdelavo za zaznavanje in glajenje robov z "
+"visokim kontrastom.\n"
+"Zagotavlja ravnovesje med hitrostjo in kakovostjo slike.\n"
+"fxaa se lahko uporablja v kombinaciji z drugimi metodami glajenja robov"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2886,7 +2895,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Array texture max layers"
-msgstr ""
+msgstr "Največje število slojev teksture matrike"
 
 #: src/settings_translation_file.cpp
 msgid "Ask to reconnect after crash"
@@ -3053,6 +3062,9 @@ msgid ""
 "Caps the maximum number of layers used with array textures (if supported).\n"
 "This is only useful for debugging."
 msgstr ""
+"Omejuje največje število slojev, uporabljenih s teksturami polja (če je "
+"podprto).\n"
+"To je uporabno le za odpravljanje napak."
 
 #: src/settings_translation_file.cpp
 msgid "Capture Tracy zones"
@@ -3157,9 +3169,8 @@ msgid "Chat weblinks"
 msgstr "Spletne povezave klepeta"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Choose theme colors for the main menu background."
-msgstr "Za ozadje glavnega menija uporabi animacijo oblakov."
+msgstr "Izberite barve teme za ozadje glavnega menija."
 
 #: src/settings_translation_file.cpp
 msgid "Chunk size"
@@ -3308,7 +3319,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Confirmation dialog before closing"
-msgstr ""
+msgstr "Pogovorno okno za potrditev pred zaprtjem"
 
 #: src/settings_translation_file.cpp
 msgid "Connect glass"
@@ -3763,9 +3774,8 @@ msgid "Enable Raytraced Culling"
 msgstr "Omogoči izločanje s sledenjem žarkov"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable a confirmation dialog before closing."
-msgstr "Omogoči animacije za predmete inventorija."
+msgstr "Omogoči potrditveno pogovorno okno pred zaprtjem."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3792,9 +3802,8 @@ msgid "Enable console window"
 msgstr "Omogoči okno konzole"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable dynamic shadows"
-msgstr "Dinamične sence"
+msgstr "Omogoči dinamične sence"
 
 #: src/settings_translation_file.cpp
 msgid "Enable joysticks"
@@ -3976,9 +3985,8 @@ msgid "Fallback font path"
 msgstr "Pot nadomestne pisave"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Fast approximate antialiasing"
-msgstr "Glajenje"
+msgstr "Hitro približno glajenje robov"
 
 #: src/settings_translation_file.cpp
 msgid "Fast mode acceleration"
@@ -4652,15 +4660,16 @@ msgstr ""
 "To omogočite le, če veste, kaj počnete."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "If enabled, node and inventory actions are recorded for rollback.\n"
 "This option is only read on server start. Note that the engine will not\n"
 "automatically clean old entries from the rollback database."
 msgstr ""
-"Če je to omogočeno, se dejanja zabeležijo za povrnitev prejšnjega stanja "
-"(rollback).\n"
-"Ta možnost se prebere samo ob zagonu strežnika."
+"Če je omogočeno, se dejanja vozlišč in inventarja zabeležijo za "
+"razveljavitev (rollback).\n"
+"Ta možnost se prebere samo ob zagonu strežnika. Upoštevajte, da mehanizem "
+"ne\n"
+"bo samodejno očistil starih vnosov iz baze podatkov za razveljavitev."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5634,9 +5643,8 @@ msgid "Measure time samples"
 msgstr "Merjenje časovnih vzorcev"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Menu theme"
-msgstr "Tipka za meni (super key)"
+msgstr "Tema menija"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -5849,6 +5857,14 @@ msgid ""
 "WARNING: There are known bugs in the default map generators (v6, v7, ...)\n"
 "when using more than 1 thread. The automatic choice will avoid this."
 msgstr ""
+"Število uporabljenih niti (odgovornih za generiranje in nalaganje "
+"zemljevidov).\n"
+"Če je 0, bo mehanizem samodejno izbral ustrezno vrednost, odvisno od strojne "
+"opreme in vrste generatorja zemljevidov.\n"
+"OPOZORILO: V privzetih generatorjih\n"
+"zemljevidov (v6, v7, ...)\n"
+"so znane napake pri uporabi več kot ene niti. Samodejna izbira bo to "
+"preprečila."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5883,9 +5899,8 @@ msgid "Occlusion Culling"
 msgstr "Izločanje okluzije"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Opaqueness (alpha) of the shadow behind the font."
-msgstr "Neprozornost (alfa) sence za privzeto pisavo, med 0 in 255."
+msgstr "Neprozornost (alfa) sence za pisavo."
 
 #: src/settings_translation_file.cpp
 msgid "Open chat"
@@ -6232,18 +6247,16 @@ msgid "Save the map received by the client on disk."
 msgstr "Shranite svet, ki ga je prejel odjemalec, na disk."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Save window size automatically when modified.\n"
 "If true, screen size is saved in screen_w and screen_h, and whether the "
 "window\n"
 "is maximized is stored in window_maximized."
 msgstr ""
-"Samodejno shranjevanje velikosti okna ob spremembi.\n"
-"Če je nastavljeno na „true“, se velikost zaslona shrani v screen_w in "
-"screen_h, ali\n"
-"je okno maksimizirano, pa se shrani v window_maximized.\n"
-"(Samodejno shranjevanje window_maximized deluje le, če je prevedeno z SDL.)"
+"Samodejno shrani velikost okna ob spremembi.\n"
+"Če je nastavljeno na »true«, se velikost zaslona shrani v screen_w in "
+"screen_h, ali je okno maksimizirano, pa se shrani v\n"
+"window_maximized."
 
 #: src/settings_translation_file.cpp
 msgid "Saving map received from server"
@@ -6325,7 +6338,6 @@ msgid "See https://www.sqlite.org/pragma.html#pragma_synchronous"
 msgstr "Glejte https://www.sqlite.org/pragma.html#pragma_synchronous"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Select the antialiasing method to apply.\n"
 "\n"
@@ -6343,29 +6355,24 @@ msgid ""
 "Renders higher-resolution image of the scene, then scales down to reduce\n"
 "the aliasing effects. This is the slowest and the most accurate method."
 msgstr ""
-"Izberite metodo glajenja robov, ki jo želite uporabiti.\n"
+"Izberite metodo glajenja slikovnih elementov, ki jo želite uporabiti.\n"
 "\n"
-"* Brez – Brez glajenja robov (privzeto)\n"
+"* Brez – Brez glajenja slikovnih elementov (privzeto)\n"
 "\n"
-"* FSAA – Strojno zagotovljeno glajenje robov za celoten zaslon\n"
-"T. i. večvzorčno glajenje robov (MSAA)\n"
+"* FSAA – Strojno zagotovljeno glajenje slikovnih elementov za celoten "
+"zaslon\n"
+"T. i. večvzorčno glajenje slikovnih elementov (MSAA)\n"
 "Zgladi robove blokov, vendar ne vpliva na notranjost tekstur.\n"
 "\n"
 "Če je naknadna obdelava onemogočena, je za spremembo FSAA potreben ponovni "
 "zagon.\n"
-"Če je naknadna obdelava onemogočena,\n"
-"FSAA ne bo deloval skupaj s podvzorčenjem ali nastavitvijo „3d_mode“, ki ni "
-"privzeta.\n"
+"Če je naknadna obdelava onemogočena, FSAA ne bo deloval skupaj s "
+"podvzorčenjem ali nastavitvijo »3d_mode«, ki ni privzeta.\n"
 "\n"
-"* FXAA – Hitro približno glajenje robov\n"
-"Uporabi filter za naknadno obdelavo za zaznavanje in glajenje robov z "
-"visokim\n"
-"kontrastom.\n"
-"Zagotavlja ravnovesje med hitrostjo in kakovostjo slike.\n"
-"\n"
-"* SSAA – Supervzorčno glajenje robov\n"
-"Upodobi sliko prizora z višjo ločljivostjo, nato pa jo pomanjša, da zmanjša "
-"učinke glajenja. To je najpočasnejša in najbolj natančna metoda."
+"* SSAA – Supervzorčno glajenje slikovnih elementov\n"
+"Upodobi sliko prizora z višjo ločljivostjo, nato pa se pomanjša, da zmanjša "
+"učinke glajenja slikovnih elementov. To je najpočasnejša in najbolj natančna "
+"metoda."
 
 #: src/settings_translation_file.cpp
 msgid "Selection box border color (R,G,B)."
@@ -6617,9 +6624,8 @@ msgid "Shadow filter quality"
 msgstr "Kakovost senčnega filtra"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Shadow map render distance"
-msgstr "Velikost teksture senčnega zemljevida"
+msgstr "Razdalja upodabljanja zemljevida senc"
 
 #: src/settings_translation_file.cpp
 msgid "Shadow map texture in 32 bits"
@@ -6630,12 +6636,10 @@ msgid "Shadow map texture size"
 msgstr "Velikost teksture senčnega zemljevida"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Shadow offset (in pixels) for all fonts. If 0, then no shadow will be drawn."
 msgstr ""
-"Odmik sence (v slikovnih pikah) privzete pisave. Če je 0, senca ne bo "
-"narisana."
+"Odmik sence (v slikovnih pikah) za vse pisave. Če je 0, senca ne bo narisana."
 
 #: src/settings_translation_file.cpp
 msgid "Shadow strength gamma"
@@ -7113,7 +7117,6 @@ msgstr ""
 "active_object_send_range_blocks."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The rendering back-end.\n"
 "Note: A restart is required after changing this!\n"
@@ -7121,7 +7124,8 @@ msgid ""
 msgstr ""
 "Ozadje za upodabljanje.\n"
 "Opomba: Po spremembi tega je potreben ponovni zagon!\n"
-"OpenGL je privzeta nastavitev za namizne računalnike, OGLES2 pa za Android."
+"Privzeto je na namiznih računalnikih prednostna nastavitev OpenGL3, na "
+"Androidu pa OGLES2."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7229,15 +7233,14 @@ msgstr ""
 "neuporabljene podatke zemljevida iz pomnilnika."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "To save bandwidth, block transfers are slowed down when a player is building "
 "something.\n"
 "This determines how long the throttling lasts after placing a node."
 msgstr ""
-"Za zmanjšanje zakasnitve se prenosi blokov upočasnijo, ko igralec nekaj "
-"gradi.\n"
-"To določa, kako dolgo se upočasnijo po postavitvi ali odstranitvi vozlišča."
+"Zaradi varčevanja s pasovno širino se prenosi blokov upočasnijo, ko igralec "
+"nekaj gradi.\n"
+"To določa, kako dolgo traja dušenje po postavitvi vozlišča."
 
 #: src/settings_translation_file.cpp
 msgid "Toggle Aux1 key"
@@ -7574,14 +7577,15 @@ msgid "Vertical climbing speed, in nodes per second."
 msgstr "Navpična hitrost plezanja, v vozliščih na sekundo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Vertical screen synchronization.\n"
 "Note: A restart is required after changing this!\n"
 "Your system may still force VSync and ignore this setting."
 msgstr ""
-"Navpična sinhronizacija zaslona. Vaš sistem lahko vsili VSync, tudi če je ta "
-"onemogočen."
+"Navpična sinhronizacija zaslona.\n"
+"Opomba: Po spremembi te nastavitve je potreben ponovni zagon!\n"
+"Vaš sistem lahko še vedno vsili vertikalno sinhronizacijo in prezre to "
+"nastavitev."
 
 #: src/settings_translation_file.cpp
 msgid "Video driver"
