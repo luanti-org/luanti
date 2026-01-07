@@ -309,7 +309,7 @@ private:
 	// Return the Char that should be sent to Irrlicht for the given key (either the one passed in or 0).
 	static wchar_t findCharToPassToIrrlicht(uint32_t sdlKey, EKEY_CODE irrlichtKey, u16 keymod);
 
-	std::variant<u32, EKEY_CODE> getScancodeFromKey(const Keycode &key) const override;
+	u32 getScancodeFromKey(const Keycode &key) const override;
 	Keycode getKeyFromScancode(const u32 scancode) const override;
 
 	// Check if a text box is in focus. Enable or disable SDL_TEXTINPUT events only if in focus.
