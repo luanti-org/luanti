@@ -97,6 +97,7 @@ protected:
 	bool Alpha;
 	bool Blending;
 	bool AlphaTest;
+	bool Skinning = false;
 
 	struct SUniformInfo
 	{

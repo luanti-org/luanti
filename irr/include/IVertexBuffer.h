@@ -5,13 +5,15 @@
 #pragma once
 
 #include "IReferenceCounted.h"
-#include "EHardwareBufferFlags.h"
 #include "S3DVertex.h"
+#include "HWBuffer.h"
 
 namespace scene
 {
 
-class IVertexBuffer : public virtual IReferenceCounted
+class WeightBuffer;
+
+class IVertexBuffer : public virtual IReferenceCounted, public HWBuffer
 {
 public:
 	//! Get type of vertex data which is stored in this meshbuffer.
@@ -28,8 +30,6 @@ public:
 	\return Pointer to array of vertices. */
 	virtual void *getData() = 0;
 
-	//! Get amount of vertices in meshbuffer.
-	/** \return Number of vertices in this buffer. */
 	virtual u32 getCount() const = 0;
 
 	//! returns position of vertex i
@@ -50,22 +50,10 @@ public:
 	//! returns texture coord of vertex i
 	virtual core::vector2df &getTCoords(u32 i) = 0;
 
-	//! get the current hardware mapping hint
-	virtual E_HARDWARE_MAPPING getHardwareMappingHint() const = 0;
-
-	//! set the hardware mapping hint, for driver
-	virtual void setHardwareMappingHint(E_HARDWARE_MAPPING newMappingHint) = 0;
-
-	//! flags the meshbuffer as changed, reloads hardware buffers
-	virtual void setDirty() = 0;
-
-	//! Get the currently used ID for identification of changes.
-	/** This shouldn't be used for anything outside the VideoDriver. */
-	virtual u32 getChangedID() const = 0;
-
-	//! Used by the VideoDriver to remember the buffer link.
-	virtual void setHWBuffer(void *ptr) const = 0;
-	virtual void *getHWBuffer() const = 0;
+	//! Get weight buffer for upload to the GPU, if any
+	virtual const WeightBuffer *getWeightBuffer() const = 0;
+	//! Enable software skinning
+	virtual void useSwSkinning() = 0;
 };
 
 } // end namespace scene
