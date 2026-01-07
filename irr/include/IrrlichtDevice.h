@@ -16,7 +16,6 @@
 #include "position2d.h"
 #include "SColor.h" // video::ECOLOR_FORMAT
 #include <string>
-#include <variant>
 
 class ILogger;
 class IEventReceiver;
@@ -346,13 +345,16 @@ public:
 	//! Get the corresponding scancode for the keycode.
 	/**
 	\param key The keycode to convert.
-	\return The implementation-dependent scancode for the key (represented by the u32 component) or, if a scancode is not
-	available, the corresponding Irrlicht keycode (represented by the EKEY_CODE component).
+	\return The implementation-dependent scancode for the key (represented by the u32 component) or 0 if a scancode is
+	not available.
 	*/
-	virtual std::variant<u32, EKEY_CODE> getScancodeFromKey(const Keycode &key) const {
+	virtual u32 getScancodeFromKey(const Keycode &key) const {
 		if (auto pv = std::get_if<EKEY_CODE>(&key))
 			return *pv;
-		return (u32)std::get<wchar_t>(key);
+		if (auto scancode = std::get_if<wchar_t>(&key))
+			return KEY_KEY_CODES_COUNT + *scancode;
+		else
+			return 0;
 	}
 
 	//! Get the corresponding keycode for the scancode.
