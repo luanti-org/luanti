@@ -1887,13 +1887,9 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 	// Use EnrichedString so color escapes and formatting are preserved
 	EnrichedString etext(unescape_string(utf8_to_wide(parts[1])));
 
-	// Build vertical enriched text (one character per line)
+	// Build vertical text (one character per line)
 	EnrichedString vlabel;
 	const size_t char_count = etext.getString().size();
-	const size_t line_count = char_count + 1;  // account for dummy line
-
-	// Dummy first line to avoid clipping
-	vlabel.addCharNoColor(L'\n');
 
 	for (size_t i = 0; i < char_count; i++) {
 		vlabel += etext.substr(i, 1);
@@ -1916,24 +1912,20 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 		// Vertlabels are positioned by center, not left.
 		pos.X -= imgsize.X / 2;
 
-		// We use the character count + 1 because without it, the rect
-		// isn't quite tall enough and cuts off the text.
 		rect = core::rect<s32>(pos.X, pos.Y,
 			pos.X + imgsize.X,
-			pos.Y + font_line_height(font) *
-			(etext.getString().size() + 1));
+			pos.Y + font_line_height(font) * char_count);
 
 	} else {
 		pos = getElementBasePos(&v_pos);
 
-		// As above, the length must be one longer. The width of
-		// the rect (15 pixels) seems rather arbitrary, but
-		// changing it might break something.
+		// The width of the rect (15 pixels) seems rather
+		// arbitrary, but changing it might break something.
 		rect = core::rect<s32>(
-			pos.X, pos.Y+((imgsize.Y/2) - m_btn_height),
-			pos.X+15, pos.Y +
-				font_line_height(font) * (line_count + 1) +
-				((imgsize.Y/2) - m_btn_height));
+			pos.X, pos.Y + ((imgsize.Y / 2) - m_btn_height),
+			pos.X + 15, pos.Y +
+				font_line_height(font) * (char_count + 1) +
+				((imgsize.Y / 2) - m_btn_height));
 	}
 
 	if(!data->explicit_size)
