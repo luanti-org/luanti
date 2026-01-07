@@ -75,15 +75,8 @@ static std::vector<table_key> table = {
 
 	// Keys without a Char
 	// Note: we add "Key" to the description if the string could be confused for something else
-	DEFINEKEY1(KEY_LBUTTON, N_("Left Click"))
-	DEFINEKEY1(KEY_RBUTTON, N_("Right Click"))
 	// TRANSLATORS: Usually paired with the Pause key
 	DEFINEKEY1(KEY_CANCEL, N_("Break Key"))
-	DEFINEKEY1(KEY_MBUTTON, N_("Middle Click"))
-	// TRANSLATORS: Mouse button
-	DEFINEKEY1(KEY_XBUTTON1, N_("Mouse X1"))
-	// TRANSLATORS: Mouse button
-	DEFINEKEY1(KEY_XBUTTON2, N_("Mouse X2"))
 	DEFINEKEY1(KEY_BACK, N_("Backspace"))
 	DEFINEKEY1(KEY_TAB, N_("Tab Key"))
 	DEFINEKEY1(KEY_CLEAR, N_("Clear Key"))
@@ -273,36 +266,25 @@ static const table_key &lookup_keyname(std::string_view name)
 
 static const table_key &lookup_scancode(const u32 scancode)
 {
+	if (!scancode)
+		return invalid_key;
 	auto key = RenderingEngine::get_raw_device()->getKeyFromScancode(scancode);
 	return std::holds_alternative<EKEY_CODE>(key) ?
 		lookup_keykey(std::get<EKEY_CODE>(key)) :
 		lookup_keychar(std::get<wchar_t>(key));
 }
 
-const table_key &KeyPress::lookupScancode() const
-{
-	switch (getType()) {
-	case InputType::KEYBOARD:
-		return lookup_scancode(get<InputType::KEYBOARD>());
-	case InputType::LEGACY_KEYCODE:
-		return lookup_keykey(get<InputType::LEGACY_KEYCODE>());
-	default:
-		return invalid_key;
-	}
-}
-
 void KeyPress::loadFromKey(EKEY_CODE keycode, wchar_t keychar)
 {
-	auto irr_scancode = RenderingEngine::get_raw_device()->getScancodeFromKey(Keycode(keycode, keychar));
-	if (auto scancode = std::get_if<u32>(&irr_scancode))
-		emplace<InputType::KEYBOARD>(*scancode);
-	else
-		emplace<InputType::LEGACY_KEYCODE>(std::get<EKEY_CODE>(irr_scancode));
+	auto scancode = RenderingEngine::get_raw_device()->getScancodeFromKey(Keycode(keycode, keychar));
+	emplace<InputType::KEYBOARD>(scancode);
 }
 
 KeyPress::KeyPress(const std::string &name)
 {
-	if (loadFromScancode(name))
+	if (loadUnsignedFromPrefix<InputType::KEYBOARD>(name, "SYSTEM_SCANCODE_"))
+		return;
+	if (loadUnsignedFromPrefix<InputType::MOUSE_BUTTON>(name, "MOUSE_BUTTON_"))
 		return;
 	const auto &key = lookup_keyname(name);
 	loadFromKey(key.Key, key.Char);
@@ -313,7 +295,25 @@ KeyPress::KeyPress(const SEvent::SKeyInput &in)
 	if (in.SystemKeyCode)
 		emplace<InputType::KEYBOARD>(in.SystemKeyCode);
 	else
-		emplace<InputType::LEGACY_KEYCODE>(in.Key);
+		loadFromKey(in.Key, in.Char);
+}
+
+KeyPress::KeyPress(const SEvent::SMouseInput &in)
+{
+	switch (in.Event) {
+	case EMIE_LMOUSE_PRESSED_DOWN:
+	case EMIE_MMOUSE_PRESSED_DOWN:
+	case EMIE_RMOUSE_PRESSED_DOWN:
+	case EMIE_OMOUSE_PRESSED_DOWN:
+	case EMIE_LMOUSE_LEFT_UP:
+	case EMIE_MMOUSE_LEFT_UP:
+	case EMIE_RMOUSE_LEFT_UP:
+	case EMIE_OMOUSE_LEFT_UP:
+		emplace<InputType::MOUSE_BUTTON>(in.Button);
+		break;
+	default:
+		emplace<InputType::MOUSE_BUTTON>(0);
+	}
 }
 
 std::string KeyPress::sym() const
@@ -321,8 +321,8 @@ std::string KeyPress::sym() const
 	switch (getType()) {
 	case InputType::KEYBOARD:
 		return "SYSTEM_SCANCODE_" + std::to_string(get<InputType::KEYBOARD>());
-	case InputType::LEGACY_KEYCODE:
-		return lookupScancode().Name;
+	case InputType::MOUSE_BUTTON:
+		return "MOUSE_BUTTON_" + std::to_string(get<InputType::MOUSE_BUTTON>());
 	default:
 		return "";
 	}
@@ -331,29 +331,47 @@ std::string KeyPress::sym() const
 std::string KeyPress::name() const
 {
 	switch (getType()) {
-	case InputType::KEYBOARD:
-	case InputType::LEGACY_KEYCODE: {
-		const auto &name = lookupScancode().LangName;
+	case InputType::KEYBOARD: {
+		auto scancode = getScancode();
+		const auto &name = lookup_scancode(scancode).LangName;
 		if (!name.empty())
 			return strgettext(name);
-		if (auto scancode = getScancode())
+		if (scancode)
 			return fmtgettext("Scancode: %d", scancode);
 		return "";
+	}
+	case InputType::MOUSE_BUTTON: {
+		auto button = get<InputType::MOUSE_BUTTON>();
+		switch (button) {
+		case SDL_BUTTON_LEFT:
+			return strgettext("Left Click");
+		case SDL_BUTTON_MIDDLE:
+			return strgettext("Middle Click");
+		case SDL_BUTTON_RIGHT:
+			return strgettext("Right Click");
+		case SDL_BUTTON_X1:
+			return strgettext("Mouse X1");
+		case SDL_BUTTON_X2:
+			return strgettext("Mouse X2");
+		default:
+			return fmtgettext("Mouse Button %d", button);
+		}
 	}
 	default:
 		return "";
 	}
 }
 
-bool KeyPress::loadFromScancode(const std::string &name)
+template<KeyPress::InputType I>
+bool KeyPress::loadUnsignedFromPrefix(const std::string &name, const std::string &prefix)
 {
-	if (!str_starts_with(name, "SYSTEM_SCANCODE_"))
+	if (!str_starts_with(name, prefix))
 		return false;
 	char *p;
-	const auto code = strtoul(name.c_str()+16, &p, 10);
+	const auto code = strtoul(name.c_str()+prefix.size(), &p, 10);
 	if (p != name.c_str() + name.size())
 		return false;
-	emplace<InputType::KEYBOARD>(code);
+	emplace<I>(code);
 	return true;
 }
 
@@ -362,8 +380,8 @@ KeyPress::operator bool() const
 	switch (getType()) {
 	case InputType::KEYBOARD:
 		return get<InputType::KEYBOARD>() != 0;
-	case InputType::LEGACY_KEYCODE:
-		return Keycode::isValid(get<InputType::LEGACY_KEYCODE>());
+	case InputType::MOUSE_BUTTON:
+		return get<InputType::MOUSE_BUTTON>() != 0;
 	case InputType::GAME_ACTION:
 		return get<InputType::GAME_ACTION>() < KeyType::INTERNAL_ENUM_COUNT;
 	default:

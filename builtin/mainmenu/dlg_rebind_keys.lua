@@ -74,15 +74,32 @@ local function create_rebind_keys_dlg()
 	return dlg
 end
 
+local compatible_keycodes = {
+	-- Keycodes that can be substituted without requiring potential manual reconfiguration
+	KEY_LBUTTON = "MOUSE_BUTTON_1",
+	KEY_MBUTTON = "MOUSE_BUTTON_2",
+	KEY_RBUTTON = "MOUSE_BUTTON_3",
+	KEY_XBUTTON1 = "MOUSE_BUTTON_4",
+	KEY_XBUTTON2 = "MOUSE_BUTTON_5",
+}
+
 local function normalize_key_setting(str)
 	if str == "|" then -- normalize keybinding with the "|" keychar (<5.12)
-		return core.normalize_keycode(str)
+		return core.normalize_keycode(str), true
 	end
+	local needs_manual
 	local t = string.split(str, "|")
 	for k, v in pairs(t) do
-		t[k] = core.normalize_keycode(v)
+		if compatible_keycodes[v] then
+			t[k] = compatible_keycodes[v]
+		else
+			t[k] = core.normalize_keycode(v)
+			if t[k] ~= v then
+				needs_manual = true
+			end
+		end
 	end
-	return table.concat(t, "|")
+	return table.concat(t, "|"), needs_manual
 end
 
 function migrate_keybindings(parent)
@@ -97,9 +114,9 @@ function migrate_keybindings(parent)
 	local settings = core.settings:to_table()
 	for name, value in pairs(settings) do
 		if name:match("^keymap_") then
-			local normalized = normalize_key_setting(value)
+			local normalized, needs_manual = normalize_key_setting(value)
 			if value ~= normalized then
-				has_migration = true
+				has_migration = has_migration or needs_manual
 				core.settings:set(name, normalized)
 			end
 		end

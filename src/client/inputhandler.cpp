@@ -203,22 +203,16 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		// Handle mouse events
 		switch (event.MouseInput.Event) {
 		case EMIE_LMOUSE_PRESSED_DOWN:
-			setKeyDown(LMBKey, true);
-			break;
 		case EMIE_MMOUSE_PRESSED_DOWN:
-			setKeyDown(MMBKey, true);
-			break;
 		case EMIE_RMOUSE_PRESSED_DOWN:
-			setKeyDown(RMBKey, true);
+		case EMIE_OMOUSE_PRESSED_DOWN:
+			setKeyDown(KeyPress(event.MouseInput), true);
 			break;
 		case EMIE_LMOUSE_LEFT_UP:
-			setKeyDown(LMBKey, false);
-			break;
 		case EMIE_MMOUSE_LEFT_UP:
-			setKeyDown(MMBKey, false);
-			break;
 		case EMIE_RMOUSE_LEFT_UP:
-			setKeyDown(RMBKey, false);
+		case EMIE_OMOUSE_LEFT_UP:
+			setKeyDown(KeyPress(event.MouseInput), false);
 			break;
 		case EMIE_MOUSE_WHEEL:
 			mouse_wheel += event.MouseInput.Wheel;

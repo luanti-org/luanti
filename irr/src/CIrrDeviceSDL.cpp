@@ -102,21 +102,6 @@
 	#define SDL_FINGER_ID(ev) ((ev).tfinger.fingerId)
 #endif
 
-// Since SDL doesn't have mouse keys as keycodes we need to fall back to EKEY_CODE in some cases.
-static inline bool is_fake_key(EKEY_CODE key) {
-	switch (key) {
-	case KEY_LBUTTON:
-	case KEY_MBUTTON:
-	case KEY_RBUTTON:
-	case KEY_XBUTTON1:
-	case KEY_XBUTTON2:
-		return true;
-
-	default:
-		return false;
-	}
-}
-
 static int SDLDeviceInstances = 0;
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
@@ -308,13 +293,10 @@ wchar_t CIrrDeviceSDL::findCharToPassToIrrlicht(uint32_t sdlKey, EKEY_CODE irrli
 	}
 }
 
-std::variant<u32, EKEY_CODE> CIrrDeviceSDL::getScancodeFromKey(const Keycode &key) const
+u32 CIrrDeviceSDL::getScancodeFromKey(const Keycode &key) const
 {
 	u32 keynum = 0;
 	if (const auto *keycode = std::get_if<EKEY_CODE>(&key)) {
-		// Fake keys (e.g. mouse buttons): use EKEY_CODE since there is no corresponding scancode.
-		if (is_fake_key(*keycode))
-			return *keycode;
 		// Try to convert the EKEY_CODE to a SDL scancode.
 		for (const auto &entry: KeyMap) {
 			if (entry.second == *keycode) {
@@ -328,14 +310,14 @@ std::variant<u32, EKEY_CODE> CIrrDeviceSDL::getScancodeFromKey(const Keycode &ke
 
 	// SDL3 returns a valid scancode for keycode 0. This is undesired.
 	if (keynum == 0)
-		return (u32) 0;
+		return 0;
 
 #ifdef _IRR_USE_SDL3_
 	SDL_Keymod kmod = SDL_KMOD_NONE; // TODO: respect modifiers
-	return (u32)SDL_GetScancodeFromKey(keynum, &kmod);
+	return SDL_GetScancodeFromKey(keynum, &kmod);
 #else
 	// Modifiers not supported
-	return (u32)SDL_GetScancodeFromKey(keynum);
+	return SDL_GetScancodeFromKey(keynum);
 #endif
 }
 
@@ -942,54 +924,35 @@ bool CIrrDeviceSDL::run()
 			if (button == SDL_BUTTON_X2)
 				button = SDL_BUTTON_RIGHT;
 #endif
+			irrevent.MouseInput.Button = button;
+			auto is_down = SDL_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN;
+
+			if (is_down)
+				MouseButtonStates |= SDL_BUTTON_MASK(button);
+			else
+				MouseButtonStates &= ~SDL_BUTTON_MASK(button);
+
 			switch (button) {
 			case SDL_BUTTON_LEFT:
-				if (SDL_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-					irrevent.MouseInput.Event = EMIE_LMOUSE_PRESSED_DOWN;
-					MouseButtonStates |= EMBSM_LEFT;
-				} else {
-					irrevent.MouseInput.Event = EMIE_LMOUSE_LEFT_UP;
-					MouseButtonStates &= ~EMBSM_LEFT;
-				}
+				irrevent.MouseInput.Event = is_down ? EMIE_LMOUSE_PRESSED_DOWN : EMIE_LMOUSE_LEFT_UP;
 				break;
 
 			case SDL_BUTTON_RIGHT:
-				if (SDL_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-					irrevent.MouseInput.Event = EMIE_RMOUSE_PRESSED_DOWN;
-					MouseButtonStates |= EMBSM_RIGHT;
-				} else {
-					irrevent.MouseInput.Event = EMIE_RMOUSE_LEFT_UP;
-					MouseButtonStates &= ~EMBSM_RIGHT;
-				}
+				irrevent.MouseInput.Event = is_down ? EMIE_RMOUSE_PRESSED_DOWN : EMIE_RMOUSE_LEFT_UP;
 				break;
 
 			case SDL_BUTTON_MIDDLE:
-				if (SDL_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-					irrevent.MouseInput.Event = EMIE_MMOUSE_PRESSED_DOWN;
-					MouseButtonStates |= EMBSM_MIDDLE;
-				} else {
-					irrevent.MouseInput.Event = EMIE_MMOUSE_LEFT_UP;
-					MouseButtonStates &= ~EMBSM_MIDDLE;
-				}
+				irrevent.MouseInput.Event = is_down ? EMIE_MMOUSE_PRESSED_DOWN : EMIE_MMOUSE_LEFT_UP;
 				break;
 
-			// Since Irrlicht does not have event types for X1/X2 buttons, we simply pass
-			// those as keycodes instead. This is relatively hacky but avoids the effort of
-			// adding more mouse events that will be discarded anyway once we switch to SDL
-			case SDL_BUTTON_X1:
-				irrevent.EventType = EET_KEY_INPUT_EVENT;
-				irrevent.KeyInput.Key = KEY_XBUTTON1;
-				break;
-
-			case SDL_BUTTON_X2:
-				irrevent.EventType = EET_KEY_INPUT_EVENT;
-				irrevent.KeyInput.Key = KEY_XBUTTON2;
+			default: // Other mouse buttons do not have dedicated events:
+				irrevent.MouseInput.Event = is_down ? EMIE_OMOUSE_PRESSED_DOWN : EMIE_OMOUSE_LEFT_UP;
 				break;
 			}
 
 			bool shift = (keymod & SDL_KMOD_SHIFT) != 0;
 			bool control = (keymod & SDL_KMOD_CTRL) != 0;
-			if (irrevent.EventType == EET_MOUSE_INPUT_EVENT && irrevent.MouseInput.Event != EMIE_MOUSE_MOVED) {
+			if (irrevent.MouseInput.Event != EMIE_MOUSE_MOVED) {
 				irrevent.MouseInput.ButtonStates = MouseButtonStates;
 				irrevent.MouseInput.X = static_cast<s32>(SDL_event.button.x * ScaleX);
 				irrevent.MouseInput.Y = static_cast<s32>(SDL_event.button.y * ScaleY);
@@ -1007,12 +970,6 @@ bool CIrrDeviceSDL::run()
 						postEventFromUser(irrevent);
 					}
 				}
-			} else if (irrevent.EventType == EET_KEY_INPUT_EVENT) {
-				irrevent.KeyInput.Char = 0;
-				irrevent.KeyInput.PressedDown = SDL_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN;
-				irrevent.KeyInput.Shift = shift;
-				irrevent.KeyInput.Control = control;
-				postEventFromUser(irrevent);
 			}
 			break;
 		}

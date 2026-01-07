@@ -170,11 +170,11 @@ bool GUIModalMenu::simulateMouseEvent(ETOUCH_INPUT_EVENT touch_event, bool secon
 	switch (touch_event) {
 	case ETIE_PRESSED_DOWN:
 		mouse_event.MouseInput.Event = EMIE_LMOUSE_PRESSED_DOWN;
-		mouse_event.MouseInput.ButtonStates = EMBSM_LEFT;
+		mouse_event.MouseInput.ButtonStates = SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
 		break;
 	case ETIE_MOVED:
 		mouse_event.MouseInput.Event = EMIE_MOUSE_MOVED;
-		mouse_event.MouseInput.ButtonStates = EMBSM_LEFT;
+		mouse_event.MouseInput.ButtonStates = SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
 		break;
 	case ETIE_LEFT_UP:
 		mouse_event.MouseInput.Event = EMIE_LMOUSE_LEFT_UP;
@@ -183,7 +183,7 @@ bool GUIModalMenu::simulateMouseEvent(ETOUCH_INPUT_EVENT touch_event, bool secon
 	case ETIE_COUNT:
 		// ETIE_COUNT is used for double-tap events.
 		mouse_event.MouseInput.Event = EMIE_LMOUSE_DOUBLE_CLICK;
-		mouse_event.MouseInput.ButtonStates = EMBSM_LEFT;
+		mouse_event.MouseInput.ButtonStates = SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
 		break;
 	default:
 		return false;
