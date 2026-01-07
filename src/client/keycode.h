@@ -12,9 +12,6 @@
 #include <unordered_set>
 #include <variant>
 
-// Auxiliary struct used for keycode lookups
-struct table_key;
-
 /* A key press, consisting of a scancode or a keycode.
  * This fits into 64 bits, so prefer passing this by value.
 */
@@ -23,7 +20,7 @@ class KeyPress
 public:
 	enum InputType {
 		SCANCODE_INPUT, // Keyboard input (scancodes)
-		LEGACY_KEYCODE_INPUT, // (Deprecated) keyboard and mouse input based on EKEY_CODE
+		MOUSE_BUTTON_INPUT, // Mouse button input
 		GAME_ACTION_INPUT, // GameKeyType input passed by touchscreen buttons
 	};
 
@@ -32,6 +29,8 @@ public:
 	KeyPress(const std::string &name);
 
 	KeyPress(const SEvent::SKeyInput &in);
+
+	KeyPress(const SEvent::SMouseInput &in);
 
 	KeyPress(GameKeyType key) : value(key) {}
 
@@ -72,12 +71,12 @@ public:
 	static KeyPress getSpecialKey(const std::string &name);
 
 private:
-	using value_type = std::variant<u32, EKEY_CODE, GameKeyType>;
-	bool loadFromScancode(const std::string &name);
+	using value_type = std::variant<u32, u32, GameKeyType>;
+	template<std::size_t I>
+	bool loadUnsignedFromPrefix(const std::string &name, const std::string &prefix);
 	void loadFromKey(EKEY_CODE keycode, wchar_t keychar);
-	const table_key &lookupScancode() const;
 
-	value_type value = KEY_UNKNOWN;
+	value_type value;
 
 	friend std::hash<KeyPress>;
 };
@@ -94,9 +93,6 @@ struct std::hash<KeyPress>
 // This implementation defers creation of the objects to make sure that the
 // IrrlichtDevice is initialized.
 #define EscapeKey KeyPress::getSpecialKey("KEY_ESCAPE")
-#define LMBKey KeyPress::getSpecialKey("KEY_LBUTTON")
-#define MMBKey KeyPress::getSpecialKey("KEY_MBUTTON") // Middle Mouse Button
-#define RMBKey KeyPress::getSpecialKey("KEY_RBUTTON")
 
 // Key configuration getter
 // Note that the reference may be invalidated by a next call to getKeySetting
