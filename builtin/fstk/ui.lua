@@ -86,7 +86,7 @@ function ui.update()
 		if string.find(gamedata.errormessage, "ModError") then
 			error_title = fgettext("An error occurred in a Lua script:")
 		else
-			error_title = fgettext("An error occurred:")
+			error_title = fgettext("The server has denied access:")
 		end
 		formspec = {ui.get_message_formspec(error_title, error_message, "btn_error_confirm")}
 		ui.overridden = true
