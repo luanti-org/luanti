@@ -69,7 +69,7 @@ local function get_formspec(dialogdata)
 			fgettext("This is also the scale of the largest structures in the $1 direction of the noise.", "X")})
 	if dimension == 3 then
 		add_field(3.6, "te_spready", fgettext("$1 spread", "Y"), t[4], {
-			fgettext("Scales the noise in the $1 axis by this value."),
+			fgettext("Scales the noise in the $1 axis by this value.", "Y"),
 			fgettext("This is also the scale of the largest structures in the $1 direction of the noise.", "Y")})
 	else
 		fields[#fields + 1] = "label[4," .. height - 0.2 .. ";" ..
