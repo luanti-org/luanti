@@ -65,6 +65,7 @@
 #include <csignal>
 #include <cstdarg>
 #include <cstdio>
+#include <optional>
 #include <signal.h>
 #include <atomic>
 
@@ -153,6 +154,24 @@ void signal_handler_init(void)
 
 #endif
 
+/*
+       Environment variables
+*/
+
+std::optional<std::string> getUserPathEnvVar()
+{
+	if (const char* user_path = getenv("LUANTI_USER_PATH");
+	    user_path && *user_path) {
+		return user_path;
+	}
+	if (const char* user_path = getenv("MINETEST_USER_PATH");
+	    user_path && *user_path) {
+		warningstream << "MINETEST_USER_PATH is deprecated, "
+			      << "use LUANTI_USER_PATH instead." << std::endl;
+		return user_path;
+	}
+	return std::nullopt;
+}
 
 /*
 	Path mangler
@@ -464,9 +483,17 @@ bool setSystemPaths()
 		path_share += DIR_DELIM "..";
 	}
 
-	// Use %MINETEST_USER_PATH%
-	DWORD len = GetEnvironmentVariable("MINETEST_USER_PATH", buf, sizeof(buf));
-	FATAL_ERROR_IF(len > sizeof(buf), "Failed to get MINETEST_USER_PATH (too large for buffer)");
+	// Use %LUANTI_USER_PATH%
+	DWORD len = GetEnvironmentVariable("LUANTI_USER_PATH", buf, sizeof(buf));
+	if (!len) {
+		len = GetEnvironmentVariable("MINETEST_USER_PATH", buf, sizeof(buf));
+		if (len) {
+			warningstream << "MINETEST_USER_PATH is deprecated, "
+				      << "use LUANTI_USER_PATH instead." << std::endl;
+		}
+	}
+
+	FATAL_ERROR_IF(len >= sizeof(buf), "Failed to get LUANTI_USER_PATH (too large for buffer)");
 	if (len == 0) {
 		// Use "C:\Users\<user>\AppData\Roaming\<PROJECT_NAME_C>"
 		len = GetEnvironmentVariable("APPDATA", buf, sizeof(buf));
@@ -532,9 +559,9 @@ bool setSystemPaths()
 		break;
 	}
 
-	const char *const env_user_path = getenv("MINETEST_USER_PATH");
-	if (env_user_path && env_user_path[0] != '\0') {
-		path_user = std::string(env_user_path);
+	auto user_path_env = getUserPathEnvVar();
+	if (user_path_env) {
+		path_user = std::move(user_path_env.value());
 	} else {
 		// TODO: luanti with migration
 		path_user = std::string(getHomeOrFail()) + DIR_DELIM "." "minetest";
@@ -552,6 +579,7 @@ bool setSystemPaths()
 	CFBundleRef main_bundle = CFBundleGetMainBundle();
 	CFURLRef resources_url = CFBundleCopyResourcesDirectoryURL(main_bundle);
 	char path[PATH_MAX];
+
 	if (CFURLGetFileSystemRepresentation(resources_url,
 			TRUE, (UInt8 *)path, PATH_MAX)) {
 		path_share = std::string(path);
@@ -560,9 +588,9 @@ bool setSystemPaths()
 	}
 	CFRelease(resources_url);
 
-	const char *const env_user_path = getenv("MINETEST_USER_PATH");
-	if (env_user_path && env_user_path[0] != '\0') {
-		path_user = std::string(env_user_path);
+	auto user_path_env = getUserPathEnvVar();
+	if (user_path_env) {
+		path_user = std::move(user_path_env.value());
 	} else {
 		// TODO: luanti with migration
 		path_user = std::string(getHomeOrFail())
@@ -577,9 +605,10 @@ bool setSystemPaths()
 bool setSystemPaths()
 {
 	path_share = STATIC_SHAREDIR;
-	const char *const env_user_path = getenv("MINETEST_USER_PATH");
-	if (env_user_path && env_user_path[0] != '\0') {
-		path_user = std::string(env_user_path);
+
+	auto user_path_env = getUserPathEnvVar();
+	if (user_path_env) {
+		path_user = std::move(user_path_env.value());
 	} else {
 		// TODO: luanti with migration
 		path_user  = std::string(getHomeOrFail()) + DIR_DELIM "." "minetest";
