@@ -8,10 +8,11 @@
 	All kinds of stuff that needs to be exposed from main.cpp
 */
 #include "modalMenu.h"
+#include "touchcontrols.h" // g_touchcontrols
 #include <cassert>
 #include <list>
 
-#include "IGUIEnvironment.h"
+#include <IGUIEnvironment.h>
 
 namespace gui {
 	class IGUIStaticText;
@@ -51,17 +52,29 @@ public:
 		guienv->setFocus(m_stack.back());
 	}
 
+	/// This function may delete the provided element. Do hold a reference
+	/// (`::grab()`) manually if an instantaneous deletion is undesired.
+	/// Note that it may be called multiple times on GUIModalMenu (or GUIFormSpecMenu):
+	///   1x Explicit close request
+	///   1x Destructor
 	virtual void deletingMenu(gui::IGUIElement *menu)
 	{
 		// Remove all entries if there are duplicates
 		m_stack.remove(menu);
 
-		if(!m_stack.empty()) {
+		// Reference count reduction (-1) due to focus loss
+		if (!m_stack.empty()) {
 			m_stack.back()->setVisible(true);
 			guienv->setFocus(m_stack.back());
 		} else {
 			guienv->removeFocus(menu);
+			if (g_touchcontrols)
+				g_touchcontrols->show();
 		}
+
+		// Reference count reduction (-1) by removing from the root node
+		// This is likely to call the destructor (if we're not already inside).
+		menu->remove();
 	}
 
 	// Returns true to prevent further processing
@@ -87,6 +100,7 @@ public:
 
 	void deleteFront()
 	{
+		assert(!m_stack.empty());
 		m_stack.front()->setVisible(false);
 		deletingMenu(m_stack.front());
 	}
