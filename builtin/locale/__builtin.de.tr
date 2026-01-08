@@ -224,7 +224,7 @@ Can do server maintenance stuff=Kann Serverwartungsdinge machen
 Can bypass node protection in the world=Kann den Schutz auf Blöcken in der Welt umgehen
 Can ban and unban players=Kann Spieler verbannen und entbannen
 Can kick players=Kann Spieler hinauswerfen
-Can use /give and /giveme=Kann /give und /giveme benutzen
+Can use /give, /giveme, /pulverize and /clearinv=
 Can use /setpassword and /clearpassword=Kann /setpassword und /clearpassword benutzen
 Can use fly mode=Kann den Flugmodus benutzen
 Can use fast mode=Kann den Schnellmodus benutzen
@@ -244,3 +244,8 @@ A total of @1 sample(s) were taken.=Es wurden insgesamt @1 Datenpunkt(e) aufgeze
 The output is limited to '@1'.=Die Ausgabe ist beschränkt auf „@1“.
 Saving of profile failed: @1=Speichern des Profils fehlgeschlagen: @1
 Profile saved to @1=Profil abgespeichert nach @1
+
+
+##### not used anymore #####
+
+Can use /give and /giveme=Kann /give und /giveme benutzen

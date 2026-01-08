@@ -224,7 +224,7 @@ Can do server maintenance stuff=Peut effectuer des tâches de maintenance du ser
 Can bypass node protection in the world=Peut outrepasser la protection des nœuds dans le monde.
 Can ban and unban players=Peut bannir et rétablir des joueurs.
 Can kick players=Peut expulser des joueurs.
-Can use /give and /giveme=Peut utiliser /give et /giveme
+Can use /give, /giveme, /pulverize and /clearinv=
 Can use /setpassword and /clearpassword=Peut utiliser /setpassword et /clearpassword
 Can use fly mode=Peut utiliser le mode vol
 Can use fast mode=Peut utiliser le mode rapide
@@ -244,3 +244,8 @@ A total of @1 sample(s) were taken.=@1 échantillons ont été collectés.
 The output is limited to '@1'.=La sortie est limitée à '@1'.
 Saving of profile failed: @1=La sauvegarde du profil a échoué : @1
 Profile saved to @1=Le profil a été sauvegardé dans @1
+
+
+##### not used anymore #####
+
+Can use /give and /giveme=Peut utiliser /give et /giveme
