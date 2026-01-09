@@ -3229,7 +3229,7 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 	ClientMap &map = client->getEnv().getClientMap();
 	MapNode n = map.getNode(nodepos);
 	const auto &features = nodedef_manager->get(n);
-	const ItemStack &tool_item = selected_item.name.empty() ? hand_item : selected_item;
+	const ItemStack &tool_item = selected_item.empty() ? hand_item : selected_item;
 
 	// NOTE: Similar piece of code exists on the server side for
 	// cheat detection.

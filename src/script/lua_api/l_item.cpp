@@ -59,6 +59,7 @@ int LuaItemStack::l_set_name(lua_State *L)
 
 	bool status = true;
 	item.name = luaL_checkstring(L, 2);
+	// This also clears the hand item ""
 	if (item.name.empty() || item.empty()) {
 		item.clear();
 		status = false;

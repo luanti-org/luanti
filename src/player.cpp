@@ -100,7 +100,7 @@ ItemStack &Player::getWieldedItem(ItemStack *selected, ItemStack *hand) const
 		*hand = hlist->getItem(0);
 
 	// Return effective tool item
-	return (hand && selected->name.empty()) ? *hand : *selected;
+	return (hand && selected->empty()) ? *hand : *selected;
 }
 
 u32 Player::addHud(HudElement *toadd)
