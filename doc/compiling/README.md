@@ -14,7 +14,7 @@ General options and their default values:
     BUILD_UNITTESTS=TRUE       - Build unittest sources
     BUILD_BENCHMARKS=FALSE     - Build benchmark sources
     BUILD_DOCUMENTATION=TRUE   - Build doxygen documentation
-    CMAKE_BUILD_TYPE=Release   - Type of build (Release vs. Debug)
+    CMAKE_BUILD_TYPE=Release   - Type of build (optimizaton level, debug information)
         Release                - Release build
         Debug                  - Debug build
         SemiDebug              - Partially optimized debug build
@@ -25,7 +25,7 @@ General options and their default values:
     USE_SDL2_STATIC=TRUE       - Links with SDL2::SDL2-static instead of SDL2::SDL2
     USE_SDL3=FALSE             - Build with SDL3; Enables IrrlichtMt device SDL3 (experimental)
     USE_SDL3_STATIC=TRUE       - Links with SDL3::SDL3-static instead of SDL3::SDL3-shared
-    ENABLE_CURL=ON             - Build with cURL; Enables use of online mod repo, public serverlist and remote media fetching via http
+    ENABLE_CURL=ON             - Build with cURL; Enables use of server list, content browser and more
     ENABLE_CURSES=ON           - Build with (n)curses; Enables a server side terminal (command line option: --terminal)
     ENABLE_GETTEXT=ON          - Build with Gettext; Allows using translations
     ENABLE_LEVELDB=ON          - Build with LevelDB; Enables use of LevelDB map backend

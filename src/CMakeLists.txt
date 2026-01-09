@@ -67,7 +67,7 @@ if(PRECOMPILE_HEADERS)
 endif()
 
 
-option(ENABLE_CURL "Enable cURL support for fetching media" TRUE)
+option(ENABLE_CURL "Enable cURL support" TRUE)
 set(USE_CURL FALSE)
 
 if(ENABLE_CURL)
@@ -82,10 +82,10 @@ endif()
 
 if(NOT USE_CURL)
 	if(BUILD_CLIENT)
-		message(WARNING "cURL is required to load the server list")
+		message(WARNING "cURL is required to use the server list, content browser or update checker")
 	endif()
 	if(BUILD_SERVER)
-		message(WARNING "cURL is required to announce to the server list")
+		message(WARNING "cURL is required to announce to the server list or use the HTTP API")
 	endif()
 endif()
 
