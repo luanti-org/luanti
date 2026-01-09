@@ -121,7 +121,7 @@ static scene::IMesh *createExtrusionMesh(int resolution_x, int resolution_y)
 }
 
 static video::ITexture *extractTexture(const TileDef &def, const TileLayer &layer,
-		ITextureSource *tsrc, bool overlay = false)
+		ITextureSource *tsrc, bool fallback = false)
 {
 	// If animated take first frame from tile layer (so we don't have to handle
 	// that manually), otherwise look up by name.
@@ -133,7 +133,7 @@ static video::ITexture *extractTexture(const TileDef &def, const TileLayer &laye
 	if (!def.name.empty())
 		return tsrc->getTextureForMesh(def.name);
 
-	if (overlay)
+	if (fallback)
 		return nullptr;
 	return tsrc->getTextureForMesh("no_texture.png");
 }
