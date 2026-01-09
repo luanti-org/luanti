@@ -4,7 +4,7 @@
 
 attribute vec3 inVertexPosition;
 attribute vec3 inVertexNormal;
-attribute vec4 inVertexColor;
+attribute vec4 inVertexColor_raw;
 attribute vec2 inTexCoord0;
 
 /* Uniforms */
@@ -29,7 +29,7 @@ void main()
 	vec4 TextureCoord0 = vec4(inTexCoord0.x, inTexCoord0.y, 1.0, 1.0);
 	vTextureCoord0 = vec4(uTMatrix0 * TextureCoord0).xy;
 
-	vVertexColor = inVertexColor.bgra;
+	vVertexColor = inVertexColor_raw.bgra;
 
 	vec3 Position = (uWVMatrix * vec4(inVertexPosition, 1.0)).xyz;
 

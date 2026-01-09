@@ -720,7 +720,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 			ATTRIBUTE_(0) highp vec4 inVertexPosition;
 			ATTRIBUTE_(1) mediump vec3 inVertexNormal;
-			ATTRIBUTE_(2) lowp vec4 inVertexColor;
+			ATTRIBUTE_(2) lowp vec4 inVertexColor_raw;
 			ATTRIBUTE_(3) mediump float inVertexAux;
 			ATTRIBUTE_(4) mediump vec2 inTexCoord0;
 			ATTRIBUTE_(5) mediump vec2 inTexCoord1;
@@ -734,7 +734,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 		}
 		// Our vertex color has components reversed compared to what OpenGL
 		// normally expects, so we need to take that into account.
-		vertex_header += "#define inVertexColor (inVertexColor.bgra)\n";
+		vertex_header += "#define inVertexColor (inVertexColor_raw.bgra)\n";
 
 		fragment_header = "";
 		if (use_glsl3) {
