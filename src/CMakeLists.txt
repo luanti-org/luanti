@@ -137,7 +137,7 @@ if(BUILD_CLIENT)
 	find_package(Freetype REQUIRED)
 endif()
 
-option(ENABLE_CURSES "Enable ncurses console" TRUE)
+option(ENABLE_CURSES "Enable ncurses console" ${BUILD_SERVER})
 set(USE_CURSES FALSE)
 
 if(ENABLE_CURSES)
