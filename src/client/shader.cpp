@@ -790,14 +790,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 	ShaderConstants constants = input_const;
 
-	bool use_discard = m_fully_programmable;
-	if (!use_discard) {
-		// workaround for a certain OpenGL implementation lacking GL_ALPHA_TEST
-		const char *renderer = reinterpret_cast<const char*>(GL.GetString(GL.RENDERER));
-		if (strstr(renderer, "GC7000"))
-			use_discard = true;
-	}
-	if (use_discard) {
+	{
 		if (shaderinfo.base_material == video::EMT_TRANSPARENT_ALPHA_CHANNEL)
 			constants["USE_DISCARD"] = 1;
 		else if (shaderinfo.base_material == video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF)
