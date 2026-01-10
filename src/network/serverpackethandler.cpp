@@ -462,12 +462,12 @@ void Server::process_PlayerPos(RemotePlayer *player, PlayerSAO *playersao,
 
 	bool have_movement_data = false;
 	do {
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.8.0-dev
 		*pkt >> bits;
 
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.10.0-dev
 		f32 movement_speed;
@@ -1825,7 +1825,7 @@ void Server::handleCommand_UpdateClientInfo(NetworkPacket *pkt)
 	*pkt >> info.max_fs_size.Y;
 	info.touch_controls = false;
 
-	if (pkt->getRemainingBytes()) {
+	if (pkt->hasRemainingBytes()) {
 		// >= 5.9.0-dev
 		*pkt >> info.touch_controls;
 	}
