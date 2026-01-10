@@ -85,7 +85,9 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedVertexShaderSetting<float, 3> m_camera_position_vertex{"cameraPosition"};
 	CachedVertexShaderSetting<float, 2> m_texel_size0_vertex{"texelSize0"};
 	CachedPixelShaderSetting<float, 2> m_texel_size0_pixel{"texelSize0"};
+	CachedPixelShaderSetting<float, 2> m_texel_size_crack_pixel{"texelSizeCrack"};
 	v2f m_texel_size0;
+	v2f m_texel_size_crack;
 
 	CachedStructPixelShaderSetting<float, 7> m_exposure_params_pixel{
 		"exposureParams",
@@ -177,6 +179,7 @@ public:
 
 		m_texel_size0_vertex.set(m_texel_size0, services);
 		m_texel_size0_pixel.set(m_texel_size0, services);
+		m_texel_size_crack_pixel.set(m_texel_size_crack, services);
 
 		{
 			float tmp = m_crack_animation_length_i;
@@ -271,6 +274,13 @@ public:
 			m_texel_size0 = v2f(1.f / size.Width, 1.f / size.Height);
 		} else {
 			m_texel_size0 = v2f();
+		}
+		video::ITexture *texture_crack = material.getTexture(1);
+		if (texture_crack) {
+			core::dimension2du size = texture_crack->getSize();
+			m_texel_size_crack = v2f(1.f / size.Width, 1.f / size.Height);
+		} else {
+			m_texel_size_crack = v2f();
 		}
 	}
 };
