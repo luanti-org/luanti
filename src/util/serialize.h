@@ -59,7 +59,8 @@ static constexpr float F1000_MAX = (s32)((float)(S32_MAX) / FIXEDPOINT_FACTOR);
 
 extern FloatType g_serialize_f32_type;
 
-#if HAVE_ENDIAN_H
+// on iOS, we have endian.h, but not be16toh and other functions
+#if HAVE_ENDIAN_H && not defined(__APPLE__)
 // use machine native byte swapping routines
 // Note: memcpy below is optimized out by modern compilers
 

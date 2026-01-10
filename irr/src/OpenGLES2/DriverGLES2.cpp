@@ -8,6 +8,8 @@
 #include "mt_opengl.h"
 #include "CColorConverter.h"
 
+#include <iostream>
+
 namespace video
 {
 

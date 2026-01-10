@@ -43,8 +43,14 @@ cmake_args=(
 	-DENABLE_LEVELDB=OFF
 	-DENABLE_POSTGRESQL=OFF
 	-DENABLE_REDIS=OFF
-	-DCMAKE_EXE_LINKER_FLAGS=-lbz2
 )
+if [ "$angle" == "yes" ]; then
+	cmake_args+=(-DOPENGLES2_LIBRARY=${DEPS_DIR}/lib/libGLESv2_static.a)
+	cmake_args+=(-DOPENGLES2_INCLUDE_DIR=${DEPS_DIR}/include/ANGLE)
+	cmake_args+=(-DCMAKE_EXE_LINKER_FLAGS="-lbz2 ${DEPS_DIR}/lib/libANGLE_static.a ${DEPS_DIR}/lib/libEGL_static.a")
+else
+	cmake_args+=(-DCMAKE_EXE_LINKER_FLAGS=-lbz2)
+fi
 if [ "$USE_XCODE" == "yes" ]; then
 	cmake_args+=(-GXcode)
 fi

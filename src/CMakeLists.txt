@@ -493,6 +493,10 @@ if(ANDROID)
 	list(APPEND common_SRCS porting_android.cpp)
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+	list(APPEND common_SRCS porting_ios.mm)
+endif()
+
 if(BUILD_UNITTESTS)
 	add_subdirectory(unittest)
 	list(APPEND common_SRCS ${UNITTEST_SRCS})
@@ -627,10 +631,17 @@ endif()
 
 if(APPLE)
 	# Configure the Info.plist file
-	configure_file(
-		"${CMAKE_SOURCE_DIR}/misc/macos/Info.plist.in"
-		"${CMAKE_BINARY_DIR}/Info.plist"
-	)
+	if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+		configure_file(
+			"${CMAKE_SOURCE_DIR}/misc/macos/Info.plist.in"
+			"${CMAKE_BINARY_DIR}/Info.plist"
+		)
+	else()
+		configure_file(
+			"${CMAKE_SOURCE_DIR}/misc/ios/Info.plist.in"
+			"${CMAKE_BINARY_DIR}/Info.plist"
+		)
+	endif()
 endif()
 
 if(BUILD_CLIENT)
@@ -706,6 +717,9 @@ if(BUILD_CLIENT)
 		# on Android, Luanti depends on SDL2 directly
 		# on other platforms, only IrrlichtMt depends on SDL2
 		"$<$<PLATFORM_ID:Android>:${SDL2_LIBRARIES}>"
+		#"$<$<PLATFORM_ID:iOS>:-framework UIKit -framework Foundation -framework CoreGraphics -framework QuartzCore -framework AudioToolbox -framework AVFoundation -framework CoreAudio -framework CoreMotion -framework Security>"
+		"$<$<PLATFORM_ID:iOS>:-framework Security -framework CoreHaptics -framework CoreBluetooth -framework GameController -framework Metal -framework Foundation>"
+		"$<$<PLATFORM_ID:iOS>:${OPENGLES2_LIBRARY}>"
 	)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE "MT_BUILDTARGET=1")
 	if(NOT USE_LUAJIT)

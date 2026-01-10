@@ -38,17 +38,26 @@ jobs:
         osver: [11.3]
         xcodever: [16.2]
         arch: ["x86_64"]
+        angle: ["no"]
         build_type: ["Debug"]
         xcode: ["no"]
         include:
           - osver: 11.3
             xcodever: 16.2
             arch: "x86_64"
+            angle: "no"
             build_type: "Debug"
             xcode: "no"
           - osver: 11.3
             xcodever: 16.2
             arch: "arm64"
+            angle: "no"
+            build_type: "Release"
+            xcode: "yes"
+          - osver: 12.3
+            xcodever: 16.2
+            arch: "arm64"
+            angle: "yes"
             build_type: "Release"
             xcode: "yes"
     runs-on: macos-15
@@ -61,21 +70,28 @@ jobs:
           echo "osver=${{matrix.osver}}" >> $GITHUB_ENV
           echo "xcodever=${{matrix.xcodever}}" >> $GITHUB_ENV
           echo "arch=${{matrix.arch}}" >> $GITHUB_ENV
+          echo "angle=${{matrix.angle}}" >> $GITHUB_ENV
           echo "build_type=${{matrix.build_type}}" >> $GITHUB_ENV
+          
+          if [[ "$angle" == "yes" ]]; then
+            echo "angle_suffix=_angle" >> $GITHUB_ENV
+          else
+            echo "angle_suffix=" >> $GITHUB_ENV
+          fi
 
       - name: Install deps
         run: |
           mkdir downloads
           source ./util/ci/common.sh
           source ./util/ci/macos_sdk.sh
-          install_macos_precompiled_deps $osver $arch
+          install_macos_precompiled_deps $osver $arch $angle
           install_macos_sdk $osver "$xcodever" downloads
 
       - name: Build with GNU Make
         run: |
           mkdir build
           cd build
-          export DEPS_DIR=/Users/Shared/macos${osver}_${arch}_deps
+          export DEPS_DIR=/Users/Shared/macos${osver}_${arch}${angle_suffix}_deps
           export USE_XCODE=no
           ../util/ci/build_macos.sh
 
@@ -84,7 +100,7 @@ jobs:
         run: |
           mkdir build_xcode
           cd build_xcode
-          export DEPS_DIR=/Users/Shared/macos${osver}_${arch}_deps
+          export DEPS_DIR=/Users/Shared/macos${osver}_${arch}${angle_suffix}_deps
           export USE_XCODE=yes
           ../util/ci/build_macos.sh
 

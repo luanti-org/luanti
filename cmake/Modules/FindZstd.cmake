@@ -1,5 +1,8 @@
 mark_as_advanced(ZSTD_LIBRARY ZSTD_INCLUDE_DIR)
 
+message(STATUS "ZSTD_LIBRARY: ${ZSTD_LIBRARY}")
+message(STATUS "ZSTD_INCLUDE_DIR: ${ZSTD_INCLUDE_DIR}")
+
 find_path(ZSTD_INCLUDE_DIR NAMES zstd.h)
 
 find_library(ZSTD_LIBRARY NAMES zstd)

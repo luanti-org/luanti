@@ -25,6 +25,7 @@ General options and their default values:
     USE_SDL2_STATIC=TRUE       - Links with SDL2::SDL2-static instead of SDL2::SDL2
     USE_SDL3=FALSE             - Build with SDL3; Enables IrrlichtMt device SDL3 (experimental)
     USE_SDL3_STATIC=TRUE       - Links with SDL3::SDL3-static instead of SDL3::SDL3-shared
+    USE_ANGLE=TRUE             - Build with Google ANGLE; IrrlichMt device SDL2 on iOS
     ENABLE_CURL=ON             - Build with cURL; Enables use of online mod repo, public serverlist and remote media fetching via http
     ENABLE_CURSES=ON           - Build with (n)curses; Enables a server side terminal (command line option: --terminal)
     ENABLE_GETTEXT=ON          - Build with Gettext; Allows using translations

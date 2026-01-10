@@ -165,6 +165,12 @@ public:
 
 	inline void irrGlObjectLabel(GLenum identifier, GLuint name, const char *label)
 	{
+		/*
+		 * KHR_debug implements ObjectLabelKHR in OpenGL ES.
+		 * It is not respected by Luanti Irrlicht OpenGL functions loader as it should be.
+		 * See #15830 for more info.
+		 */
+#ifndef _IRR_COMPILE_WITH_OGLES2_
 		if (KHRDebugSupported) {
 			u32 len = static_cast<u32>(strlen(label));
 			// Since our texture strings can get quite long we also truncate
@@ -172,6 +178,7 @@ public:
 			len = std::min(len, std::min(MaxLabelLength, 82U));
 			GL.ObjectLabel(identifier, name, len, label);
 		}
+#endif
 	}
 
 	bool LODBiasSupported = false;
