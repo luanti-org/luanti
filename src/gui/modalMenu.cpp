@@ -90,6 +90,7 @@ void GUIModalMenu::quitMenu()
 {
 	allowFocusRemoval(true);
 	m_menumgr->deletingMenu(this);
+	this->remove();
 }
 
 static bool isChild(gui::IGUIElement *tocheck, gui::IGUIElement *parent)

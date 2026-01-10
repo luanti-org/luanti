@@ -52,8 +52,6 @@ public:
 		guienv->setFocus(m_stack.back());
 	}
 
-	/// This function may delete the provided element. Do hold a reference
-	/// (`::grab()`) manually if an instantaneous deletion is undesired.
 	/// Note that it may be called multiple times on GUIModalMenu (or GUIFormSpecMenu):
 	///   1x Explicit close request
 	///   1x Destructor
@@ -71,10 +69,6 @@ public:
 			if (g_touchcontrols)
 				g_touchcontrols->show();
 		}
-
-		// Reference count reduction (-1) by removing from the root node
-		// This is likely to call the destructor (if we're not already inside).
-		menu->remove();
 	}
 
 	// Returns true to prevent further processing
@@ -101,8 +95,10 @@ public:
 	void deleteFront()
 	{
 		assert(!m_stack.empty());
-		m_stack.front()->setVisible(false);
-		deletingMenu(m_stack.front());
+		gui::IGUIElement *e = m_stack.front();
+		e->setVisible(false);
+		deletingMenu(e);
+		e->remove();
 	}
 
 	bool pausesGame()

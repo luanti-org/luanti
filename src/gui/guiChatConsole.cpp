@@ -122,7 +122,6 @@ bool GUIChatConsole::isOpenInhibited() const
 void GUIChatConsole::closeConsole()
 {
 	m_open = false;
-	Environment->removeFocus(this);
 	m_menumgr->deletingMenu(this);
 	m_scrollbar->setVisible(false);
 }
