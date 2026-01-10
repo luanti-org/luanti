@@ -65,6 +65,7 @@ install_macos_brew_deps() {
 install_macos_precompiled_deps() {
 	local osver=$1
 	local arch=$2
+	local angle=$3
 
 	local pkgs=(
 		cmake wget
@@ -77,9 +78,15 @@ install_macos_precompiled_deps() {
 	brew unlink $(brew ls --formula)
 	brew link "${pkgs[@]}"
 
+	if [[ "$angle" == "yes" ]]; then
+		angle="_angle"
+	else
+		angle=""
+	fi
+
 	cd /Users/Shared
-	wget -O macos${osver}_${arch}_deps.tar.gz https://github.com/luanti-org/luanti_macos_deps/releases/download/latest/macos${osver}_${arch}_deps.tar.gz
-	tar -xf macos${osver}_${arch}_deps.tar.gz
+	wget -O macos${osver}_${arch}${angle}_deps.tar.gz https://github.com/luanti-org/luanti_macos_deps/releases/download/latest/macos${osver}_${arch}${angle}_deps.tar.gz
+	tar -xf macos${osver}_${arch}${angle}_deps.tar.gz
 	cd ~
 }
 
