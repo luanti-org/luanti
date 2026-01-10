@@ -38,6 +38,8 @@ public:
 	u16 getCommand() const { return m_command; }
 	u32 getRemainingBytes() const { return m_datasize - m_read_offset; }
 
+	inline bool hasRemainingBytes() const { return getRemainingBytes() != 0; }
+
 	// Returns a pointer to buffer data.
 	// A better name for this would be getRawString()
 	const char *getString(u32 from_offset) const;

@@ -215,12 +215,12 @@ void Client::handleCommand_AccessDenied(NetworkPacket* pkt)
 	*pkt >> denyCode;
 
 	do {
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// Reliably available since 5.10.0-dev
 		*pkt >> m_access_denied_reason;
 
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// Reliably available since 5.10.0-dev
 		*pkt >> reconnect;
@@ -512,7 +512,7 @@ void Client::handleCommand_Fov(NetworkPacket *pkt)
 
 	*pkt >> fov >> is_multiplier;
 
-	if (pkt->getRemainingBytes()) {
+	if (pkt->hasRemainingBytes()) {
 		// >= 5.3.0-dev
 		*pkt >> transition_time;
 	}
@@ -533,7 +533,7 @@ void Client::handleCommand_HP(NetworkPacket *pkt)
 	u16 hp;
 	*pkt >> hp;
 	bool damage_effect = true;
-	if (pkt->getRemainingBytes()) {
+	if (pkt->hasRemainingBytes()) {
 		// >= 5.6.0-dev
 		*pkt >> damage_effect;
 	}
@@ -809,12 +809,12 @@ void Client::handleCommand_PlaySound(NetworkPacket* pkt)
 	pos *= 1.0f/BS;
 
 	do {
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.2.0-dev
 		*pkt >> ephemeral;
 
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.8.0-dev
 		*pkt >> spec.start_time;
@@ -1177,17 +1177,17 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 		>> dir >> align >> offset;
 	*pkt >> world_pos >> size;
 	do {
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.2.0-dev
 		*pkt >> z_index;
 
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.3.0-dev
 		*pkt >> text2;
 
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.5.0-dev
 		*pkt >> style;
@@ -1411,17 +1411,17 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 	}
 
 	do {
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.7.0-dev
 		*pkt >> skybox.body_orbit_tilt;
 
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.8.0-dev
 		*pkt >> skybox.fog_distance >> skybox.fog_start;
 
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.9.0-dev
 		*pkt >> skybox.fog_color;
@@ -1466,12 +1466,12 @@ void Client::handleCommand_HudSetStars(NetworkPacket *pkt)
 	*pkt >> stars.visible >> stars.count
 		>> stars.starcolor >> stars.scale;
 	do {
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.6.0-dev
 		*pkt >> stars.day_opacity;
 
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.15.0-dev
 		*pkt >> stars.star_seed;
@@ -1497,7 +1497,7 @@ void Client::handleCommand_CloudParams(NetworkPacket* pkt)
 	*pkt >> density >> color_bright >> color_ambient
 			>> height >> thickness >> speed;
 
-	if (pkt->getRemainingBytes()) {
+	if (pkt->hasRemainingBytes()) {
 		// >= 5.10.0-dev
 		*pkt >> color_shadow;
 	}
@@ -1565,7 +1565,7 @@ void Client::handleCommand_EyeOffset(NetworkPacket* pkt)
 	// Fallback for older servers
 	player->eye_offset_third_front = player->eye_offset_third;
 
-	if (pkt->getRemainingBytes()) {
+	if (pkt->hasRemainingBytes()) {
 		// >= 5.8.0-dev
 		*pkt >> player->eye_offset_third_front;
 	}
@@ -1845,7 +1845,7 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 
 	*pkt >> lighting.shadow_intensity;
 	do {
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.7.0-dev
 		*pkt >> lighting.saturation;
@@ -1857,12 +1857,12 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 				>> lighting.exposure.speed_bright_dark
 				>> lighting.exposure.center_weight_power;
 
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.9.0-dev
 		*pkt >> lighting.volumetric_light_strength;
 
-		if (!pkt->getRemainingBytes())
+		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.10.0-dev
 		*pkt >> lighting.shadow_tint;
