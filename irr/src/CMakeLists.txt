@@ -553,8 +553,6 @@ if(APPLE_IOS)
 		"-framework AVFoundation"
 		"-framework CoreAudio"
 		"-framework CoreMotion"
-		"${EGL_LIBRARY}"
-		"${OPENGLES2_LIBRARY}"
 		${SDL2_LIBRARIES}
 	)
 else()
@@ -567,7 +565,8 @@ endif()
 if(APPLE AND USE_ANGLE)
 	target_link_libraries(IrrlichtMt PRIVATE
 		"-framework IOSurface"
-		${OPENGLES2_LIBRARY}
+		"${EGL_LIBRARY}"
+		"${OPENGLES2_LIBRARY}"
 	)
 endif()
 

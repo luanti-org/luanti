@@ -725,6 +725,15 @@ if(BUILD_CLIENT)
 				INSTALL_RPATH "@executable_path/Frameworks"
 				BUILD_WITH_INSTALL_RPATH ON
 			)
+			if (APPLE_MACOS)
+				set_target_properties(${PROJECT_NAME} PROPERTIES
+					INSTALL_RPATH "@executable_path/../Frameworks"
+				)
+			else()
+				set_target_properties(${PROJECT_NAME} PROPERTIES
+					INSTALL_RPATH "@executable_path/Frameworks"
+				)
+			endif()
 		endif()
 
 		# Prinv env variables to file, for debugging purposes
