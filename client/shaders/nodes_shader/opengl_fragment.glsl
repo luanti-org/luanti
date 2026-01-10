@@ -5,7 +5,7 @@
 #endif
 #ifdef TEXEL_ANTIALIASING
 	uniform vec2 texelSize0;
-	// TODO crack texel size
+	uniform vec2 texelSizeCrack;
 #endif
 #define crackTexture texture1
 uniform sampler2D crackTexture;
@@ -498,13 +498,17 @@ void main(void)
 		vec2 cuv_offset = vec2(0.0, crack_progress / crackAnimationLength);
 		vec2 cuv_factor = vec2(1.0, 1.0 / crackAnimationLength);
 #ifdef TEXEL_ANTIALIASING
-		// TODO: textureSize() doesn't work with GLSL 1.2
-		vec2 crack_texel_size = 1.0 / textureSize(crackTexture, 0).xy;
-		//~ vec2 crack_texel_size = texelSize1;
-		orig_uv = uv_texel_antialias(orig_uv,
-			crack_texel_size / cuv_factor);
+		vec2 orig_uv_unmoved = orig_uv;
+		orig_uv = uv_texel_antialias(orig_uv, texelSizeCrack / cuv_factor);
 #endif
-		vec4 crack = texture2D(crackTexture, cuv_offset + orig_uv * cuv_factor);
+		vec2 sample_pos = cuv_offset + orig_uv * cuv_factor;
+#if defined TEXEL_ANTIALIASING && ((!defined GL_ES && __VERSION__ >= 130) || (defined GL_ES && __VERSION__ >= 300))
+		vec4 crack = textureGrad(crackTexture, sample_pos,
+			dFdx(orig_uv_unmoved) * cuv_factor,
+			dFdy(orig_uv_unmoved) * cuv_factor);
+#else
+		vec4 crack = texture2D(crackTexture, sample_pos);
+#endif
 		base = mix(base, crack, crack.a);
 	}
 
