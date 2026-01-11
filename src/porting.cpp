@@ -890,7 +890,7 @@ static bool open_uri(const std::string &uri)
 	verbosestream << "Opening URI: " << uri << std::endl;
 
 #if defined(_WIN32)
-	return (intptr_t)ShellExecuteA(NULL, "open", uri.c_str(), NULL, NULL, SW_SHOWNORMAL) > 32;
+	return (intptr_t)ShellExecuteA(NULL, NULL, uri.c_str(), NULL, NULL, SW_SHOWNORMAL) > 32;
 #elif defined(__ANDROID__)
 	openURIAndroid(uri.c_str());
 	return true;
