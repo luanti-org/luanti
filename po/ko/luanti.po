@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Korean (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-06 23:13+0100\n"
-"PO-Revision-Date: 2025-12-06 04:02+0000\n"
+"PO-Revision-Date: 2026-01-11 19:38+0000\n"
 "Last-Translator: \"김현수 (khstony)\" <a34253492@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/minetest/minetest/"
 "ko/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.15-dev\n"
+"X-Generator: Weblate 5.15.1\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -186,13 +186,13 @@ msgstr ""
 msgid ""
 "Lower values will result in smoother noise and higher values will result in "
 "rougher noise."
-msgstr ""
+msgstr "값이 낮을수록 노이즈가 부드러워지고, 값이 높을수록 노이즈가 거칠어집니다."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Making 3D noise eased is not recommended because it significantly increases "
 "the load."
-msgstr ""
+msgstr "3D 노이즈 완화는 부하를 크게 증가시키므로 권장하지 않습니다."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
@@ -253,9 +253,8 @@ msgid "The first octave is amplified by 1."
 msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
 msgid "The first octave is scaled by 1."
-msgstr "서버에서 사용 할 수 없는 명령어입니다."
+msgstr "첫 옥타브는 1 스케일됩니다."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "The multiplier for the noise before the offset is added."
@@ -1893,8 +1892,8 @@ msgstr ""
 " -->닫기\n"
 "- 스택 터치 후 빈 슬롯 터치: \n"
 " --> 스택을 해당 슬롯으로 이동 \n"
-"- 아이템 스택 드래그 중인 채로 \n"
-"  다른 손가락으로 빈 슬롯 탭\n"
+"- 아이템 스택을 드래그 중인 채로 \n"
+"  다른 손가락으로 화면 탭\n"
 " --> 해당 슬롯에 아이템 한 개 배치\n"
 
 #: src/client/game_formspec.cpp
