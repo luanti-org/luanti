@@ -921,16 +921,11 @@ bool open_directory(const std::string &path)
 		return false;
 	}
 
-	std::string uri = path;
-
-	// This is a workaround for Windows (10, ... ?). The relative part of paths such as
-	// in "bin\.." are discarded by 'ShellExecuteA'. Hence, resolve it manually.
+	// 'fs::AbsolutePath' is a workaround for Windows (10, ... ?) where the relative part of the path
+	// such as in "bin\.." is discarded by 'ShellExecuteA'. Hence, resolve it manually.
 	// This is done on all platforms because why not.
-	if (fs::IsDir(uri)) {
-		uri = fs::AbsolutePath(uri);
-	}
 
-	return open_uri(uri);
+	return open_uri(fs::AbsolutePath(path));
 }
 
 // Load performance counter frequency only once at startup
