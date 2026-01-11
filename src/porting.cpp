@@ -881,15 +881,29 @@ int mt_snprintf(char *buf, const size_t buf_size, const char *fmt, ...)
 extern void openURIAndroid(const char *url);
 #endif
 
-static bool open_uri(const std::string &uri)
+static bool open_uri(std::string uri)
 {
 	if (uri.find_first_of("\r\n") != std::string::npos) {
 		errorstream << "Unable to open URI as it is invalid, contains new line: " << uri << std::endl;
 		return false;
 	}
+	verbosestream << "Opening URI: " << uri << std::endl;
 
 #if defined(_WIN32)
-	return (intptr_t)ShellExecuteA(NULL, NULL, uri.c_str(), NULL, NULL, SW_SHOWNORMAL) > 32;
+	if (1)
+#else
+	if (0)
+#endif
+	{
+		// Windows does not resolve relative paths such as "bin\..".
+		// The relative part is discarded. Hence, resolve it manually.
+		if (fs::IsDir(uri)) {
+			uri = fs::AbsolutePath(uri);
+		}
+	}
+
+#if defined(_WIN32)
+	return (intptr_t)ShellExecuteA(NULL, "open", uri.c_str(), NULL, NULL, SW_SHOWNORMAL) > 32;
 #elif defined(__ANDROID__)
 	openURIAndroid(uri.c_str());
 	return true;
