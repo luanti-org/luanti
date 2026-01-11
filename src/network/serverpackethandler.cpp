@@ -830,7 +830,9 @@ void Server::handleCommand_PlayerItem(NetworkPacket* pkt)
 
 	*pkt >> item;
 
-	if (item >= player->getMaxHotbarItemcount()) {
+	if (player->getMaxHotbarItemcount() == 0) {
+		return; // ignore silently
+	} else if (item >= player->getMaxHotbarItemcount()) {
 		actionstream << "Player " << player->getName()
 			<< " tried to access item=" << item
 			<< " out of hotbar_itemcount="
@@ -926,8 +928,9 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 	v3f player_pos = playersao->getLastGoodPosition();
 
 	// Update wielded item
-
-	if (item_i >= player->getMaxHotbarItemcount()) {
+	if (player->getMaxHotbarItemcount() == 0) {
+		return; // ignore silently
+	} else if (item_i >= player->getMaxHotbarItemcount()) {
 		actionstream << "Player " << player->getName()
 			<< " tried to access item=" << item_i
 			<< " out of hotbar_itemcount="
