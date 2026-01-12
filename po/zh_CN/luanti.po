@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Chinese (Simplified) (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-06 23:13+0100\n"
-"PO-Revision-Date: 2026-01-08 03:01+0000\n"
-"Last-Translator: y5nw <y5nw@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2026-01-13 03:01+0000\n"
+"Last-Translator: maxchen32 <maxchen32@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/minetest/minetest/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.15.1\n"
+"X-Generator: Weblate 5.15.2-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -3004,9 +3004,9 @@ msgid ""
 "You need to build with Tracy to use this, see doc/developing/profiling.md\n"
 "for details."
 msgstr ""
-"使用分析器的仪器化功能捕获Tracy区域。\n"
-"您需要使用Tracy进行构建才能使用此功能，详细信息请参阅 doc/developing/"
-"profiling.md。"
+"使用分析器的插桩功能捕获Tracy区域。\n"
+"您需要启用Tracy构建才能使用此功能，\n"
+"详细信息请参阅 doc/developing/profiling.md。"
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -4537,14 +4537,14 @@ msgstr ""
 "只有在你知道自己在做什么的情况下才能启用它。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "If enabled, node and inventory actions are recorded for rollback.\n"
 "This option is only read on server start. Note that the engine will not\n"
 "automatically clean old entries from the rollback database."
 msgstr ""
-"如果启用，则会记录操作以进行回滚。\n"
-"仅在服务器启动时读取此选项。"
+"如果启用，则会记录方块和物品栏操作以进行回滚。\n"
+"仅在服务器启动时读取此选项。\n"
+"请注意，引擎不会自动清理回滚数据库中的旧条目。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6059,17 +6059,15 @@ msgid "Save the map received by the client on disk."
 msgstr "将客户端接收到的地图保存在磁盘上。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Save window size automatically when modified.\n"
 "If true, screen size is saved in screen_w and screen_h, and whether the "
 "window\n"
 "is maximized is stored in window_maximized."
 msgstr ""
-"修改时自动保存窗口大小.\n"
+"窗口尺寸变化后自动保存。\n"
 "如果为 \"true\"，屏幕尺寸会保存在 screen_w 和 screen_h 中，窗口是否最大化会\n"
-"保存在 window_maximized 中.\n"
-"(自动保存 window_maximized 仅在与 SDL 一起编译时有效.）"
+"保存在 window_maximized 中。"
 
 #: src/settings_translation_file.cpp
 msgid "Saving map received from server"
@@ -6148,7 +6146,6 @@ msgid "See https://www.sqlite.org/pragma.html#pragma_synchronous"
 msgstr "见 https://www.sqlite.org/pragma.html#pragma_synchronous"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Select the antialiasing method to apply.\n"
 "\n"
@@ -6177,10 +6174,6 @@ msgstr ""
 "如果关闭后期处理，则更改FSAA需要重启。\n"
 "另外，如果关闭后期处理，则FSAA将无法与\n"
 "下采样或非默认“3D模式”设置一起使用。\n"
-"\n"
-"* FXAA - 快速近似抗锯齿\n"
-"应用后处理滤镜来检测和平滑高对比度边缘。\n"
-"在速度和图像质量之间取得平衡。\n"
 "\n"
 "* SSAA - 超采样抗锯齿\n"
 "渲染更高分辨率的场景图像，然后缩放以减少锯齿效果。\n"
@@ -6275,7 +6268,9 @@ msgid ""
 "Server anticheat configuration.\n"
 "Flags are positive. Uncheck the flag to disable corresponding anticheat "
 "module."
-msgstr "服务器反作弊配置。标志是正数。取消选中标志以禁用相应的反作弊模块。"
+msgstr ""
+"服务器反作弊配置。\n"
+"标志是正向逻辑，取消选中标志以禁用相应的反作弊模块。"
 
 #: src/settings_translation_file.cpp
 msgid "Server description"
@@ -7338,12 +7333,14 @@ msgid "Vertical climbing speed, in nodes per second."
 msgstr "垂直爬升速度（方块/秒）."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Vertical screen synchronization.\n"
 "Note: A restart is required after changing this!\n"
 "Your system may still force VSync and ignore this setting."
-msgstr "垂直屏幕同步。即使禁用了此功能，系统仍可能强制开启 VSync。"
+msgstr ""
+"垂直同步。\n"
+"注意：改变后需要重启程序。\n"
+"即使禁用了此功能，系统仍可能强制开启 VSync。"
 
 #: src/settings_translation_file.cpp
 msgid "Video driver"
