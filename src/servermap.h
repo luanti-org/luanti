@@ -123,6 +123,9 @@ public:
 	/// Load a block that was already read from disk. Used by EmergeManager.
 	/// @return non-null block (but can be blank)
 	MapBlock *loadBlock(const std::string &blob, v3s16 p, bool save_after_load=false);
+	std::unique_ptr<MapBlock> createBlankBlockNoInsert(v3s16 p3d);
+	void insertBlock(std::unique_ptr<MapBlock> block);
+	void finishNewBlock(MapBlock *block);
 
 	// Helper for deserializing blocks from disk
 	// @throws SerializationError
