@@ -1,7 +1,8 @@
 # Server-sent client-side modding (SSCSM) API reference
 
 **Warning:** SSCSM is very experimental. The API will break. Always start your
-mod with a version check (using `core.get_version()`).
+mod with a version check (i.e. at least check if `core.get_version().proto_max`
+is (less or) equal to (any of) the tested version(s)).
 
 In SSCSM, the server sends scripts to the client, which it executes
 client-side (in a sandbox, see also `sscsm_security.md`).
