@@ -960,6 +960,23 @@ void Client::initLocalMapSaving(const Address &address, const std::string &hostn
 
 void Client::ReceiveAll()
 {
+	auto get_packet_dbg_info = [](NetworkPacket &pkt, bool include_pos) -> std::string {
+		const u16 cmd = pkt.getCommand();
+		std::ostringstream oss;
+		if (cmd < TOCLIENT_NUM_MSG_TYPES)
+			oss << " name=" << toClientCommandTable[cmd].name;
+
+		if (include_pos) {
+			// (not necessary for PacketError: already in e.what())
+
+			oss << " command=" << cmd;
+			oss << " size=" << pkt.getSize();
+			// Often relevant for compatibility code (optional data bytes)
+			oss << " bytes_remaining=" << pkt.getRemainingBytes();
+		}
+		return oss.str();
+	};
+
 	NetworkPacket pkt;
 	u64 start_ms = porting::getTimeMs();
 	const u64 budget = 10;
@@ -979,24 +996,18 @@ void Client::ReceiveAll()
 			if (!m_con->TryReceive(&pkt))
 				break;
 			ProcessData(&pkt);
-#ifdef NDEBUG
-		} catch (SerializationError &e) {
-			// Add more information to find the bad packet
-			const u16 cmd = pkt.getCommand();
-			std::ostringstream oss;
-			oss << e.what()
-				<< "\n @ command=" << cmd << " size=" << pkt.getSize();
-
-			if (cmd < TOCLIENT_NUM_MSG_TYPES) {
-				auto def = toClientCommandTable[pkt.getCommand()];
-				oss << " name=" << def.name;
-			}
-			throw SerializationError(oss.str());
-#endif
 		} catch (const con::InvalidIncomingDataException &e) {
 			infostream << "Client::ReceiveAll(): "
 					"InvalidIncomingDataException: what()="
 					 << e.what() << std::endl;
+#ifdef NDEBUG
+		} catch (SerializationError &e) {
+			e.append(" @").append(get_packet_dbg_info(pkt, true));
+			throw;
+		} catch (PacketError &e) {
+			e.append(" @").append(get_packet_dbg_info(pkt, false));
+			throw;
+#endif
 		}
 	}
 }
