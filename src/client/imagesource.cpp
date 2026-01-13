@@ -1492,6 +1492,9 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			 * low-res textures BECOME high-res ones. This is helpful for worlds that
 			 * mix high- and low-res textures, or for mods with least-common-denominator
 			 * textures that don't have the resources to offer high-res alternatives.
+			 * With texel_antialiasing, the shader moves the UV coordinates such that the
+			 * output looks like nearest neighbour sampling with anti-aliased texel edges;
+			 * in this case the upscaling is redundant and therefore disabled.
 			 *
 			 * Q: why not just enable/disable filtering depending on texture size?
 			 * A: large texture resolutions apparently allow getting rid of the Moire
@@ -1499,8 +1502,8 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			 *    see <https://github.com/luanti-org/luanti/issues/15604> and related
 			 *    linked discussions.
 			 */
-			const bool filter = m_setting_trilinear_filter || m_setting_bilinear_filter;
-			if (filter) {
+			if (!m_setting_texel_antialiasing &&
+					(m_setting_trilinear_filter || m_setting_bilinear_filter)) {
 				const f32 scaleto = rangelim(g_settings->getU16("texture_min_size"),
 					TEXTURE_FILTER_MIN_SIZE, 16384);
 
@@ -1802,7 +1805,8 @@ ImageSource::ImageSource() :
 		m_setting_mipmap{g_settings->getBool("mip_map")},
 		m_setting_trilinear_filter{g_settings->getBool("trilinear_filter")},
 		m_setting_bilinear_filter{g_settings->getBool("bilinear_filter")},
-		m_setting_anisotropic_filter{g_settings->getBool("anisotropic_filter")}
+		m_setting_anisotropic_filter{g_settings->getBool("anisotropic_filter")},
+		m_setting_texel_antialiasing{g_settings->getBool("texel_antialiasing")}
 {}
 
 video::IImage* ImageSource::generateImage(std::string_view name,
