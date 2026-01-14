@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Esperanto (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-06 23:13+0100\n"
-"PO-Revision-Date: 2026-01-06 21:42+0000\n"
+"PO-Revision-Date: 2026-01-17 19:01+0000\n"
 "Last-Translator: Tirifto <tirifto@posteo.cz>\n"
 "Language-Team: Esperanto <https://hosted.weblate.org/projects/minetest/"
 "minetest/eo/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.15.1\n"
+"X-Generator: Weblate 5.15.2\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -78,9 +78,8 @@ msgid "[all | <cmd>] [-t]"
 msgstr "[all | <komando>] [-t]"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Add keybinding"
-msgstr "Klavagordoj"
+msgstr "Aldoni klavagordon"
 
 #: builtin/common/settings/components.lua
 msgid "Browse"
@@ -111,9 +110,8 @@ msgid "Set"
 msgstr "Agordi"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
 msgid "$1 spread"
-msgstr "X-disiĝo"
+msgstr "Disiĝo $1"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
@@ -128,6 +126,8 @@ msgid ""
 "2D noise: flag on.\n"
 "3D noise: flag off."
 msgstr ""
+"2D-bruo: elekto ŝaltita. \n"
+"3D-bruo: elekto malŝaltita."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
@@ -1229,7 +1229,7 @@ msgstr "Vizitu retejon"
 
 #: builtin/mainmenu/init.lua
 msgid "Debug build, expect worse performance"
-msgstr ""
+msgstr "Erarserĉa versio; atendu malplian efikecon"
 
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
@@ -1552,7 +1552,7 @@ msgstr "Malsukcesis malfermi donitan pasvortan dosieron: "
 
 #: src/client/clientlauncher.cpp
 msgid "World does not exist and no game selected to create one."
-msgstr ""
+msgstr "Mondo ne ekzistas kaj neniu ludo estas elektita por krei ĝin."
 
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
@@ -2183,7 +2183,7 @@ msgstr "Dekstra Vindozo"
 #: src/client/keycode.cpp
 #, c-format
 msgid "Scancode: %d"
-msgstr ""
+msgstr "Skankodo: %d"
 
 #: src/client/keycode.cpp
 msgid "Scroll Lock"
@@ -2230,7 +2230,7 @@ msgstr "Mapeto en tekstura reĝimo"
 #: src/client/render/pipeline.cpp
 #, c-format
 msgid "Failed to create the texture \"%s\" for the rendering pipeline."
-msgstr ""
+msgstr "Malsukcesis krei la teksturon «%s» por la bildiga ĉenstablo."
 
 #: src/client/shader.cpp
 #, c-format
@@ -2238,9 +2238,9 @@ msgid "Failed to compile the \"%s\" shader."
 msgstr "Malsukcesis kodotraduki ombrigilon «%s»."
 
 #: src/client/shader.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to find \"%s\" shader files."
-msgstr "Malsukcesis kodotraduki ombrigilon «%s»."
+msgstr "Malsukcesis trovi dosierojn de ombrigilo «%s»."
 
 #: src/client/shader.cpp
 msgid "GLSL is not supported by the driver"
@@ -2745,6 +2745,8 @@ msgid ""
 "All mesh buffers with less than this number of vertices will be merged\n"
 "during map rendering. This improves rendering performance."
 msgstr ""
+"Ĉiuj maŝaraj bufroj kun malpli ol ĉi tiom da pintoj unuiĝos dum \n"
+"bildigo de mapo. Tio plibonigas efikecon de la bildigo."
 
 #: src/settings_translation_file.cpp
 msgid "Allow clouds to look 3D instead of flat."
@@ -2834,6 +2836,9 @@ msgid ""
 "Provides balance between speed and image quality.\n"
 "fxaa can used in combination with the other anti-aliasing methods"
 msgstr ""
+"Aplikas posttraktan filtrilon por trovi kaj glatigi kontrastajn randojn. \n"
+"Egalpezigas rapidecon kaj bildokvaliton. \n"
+"fxaa povas uziĝi kune kun la aliaj glatigaj metodoj."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2961,7 +2966,7 @@ msgstr "Sojlo de borda bruo"
 
 #: src/settings_translation_file.cpp
 msgid "Bilinear filtering"
-msgstr "Dulineara filtrado"
+msgstr "Duoble linia filtrado"
 
 #: src/settings_translation_file.cpp
 msgid "Bind address"
@@ -2980,9 +2985,8 @@ msgid "Block bounds HUD radius"
 msgstr "Distanco de limoj de mondopecoj en la travida fasado"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Block cull optimize distance"
-msgstr "Optimuma distanco de monder-sendado"
+msgstr "Distanco por optimumigo de elfiltrado de mondopecoj"
 
 #: src/settings_translation_file.cpp
 msgid "Block send optimize distance"
@@ -3711,20 +3715,20 @@ msgid ""
 "On true uses Poisson disk to make \"soft shadows\". Otherwise uses PCF "
 "filtering."
 msgstr ""
+"Ŝalti filtradon per disko de Poisson. \n"
+"Uzas la diskon de Poisson por fari «molajn ombrojn». Alie uzas PCF-filtradon."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable Post Processing"
-msgstr "Ŝalti stirstangojn"
+msgstr "Ŝalti posttraktadon"
 
 #: src/settings_translation_file.cpp
 msgid "Enable Raytraced Culling"
-msgstr ""
+msgstr "Ŝalti radipaŭsan elfiltradon"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable a confirmation dialog before closing."
-msgstr "Ŝaltas movbildojn en portaĵujo."
+msgstr "Ŝalti konfirman demandon antaŭ fermo."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3739,13 +3743,11 @@ msgstr ""
 "konduton de la homa okulo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Enable colored shadows for transculent nodes.\n"
 "This is expensive."
 msgstr ""
-"Ŝaltas kolorajn ombrojn.\n"
-"Pro ĉi tio, tralumeblaj monderoj metas kolorajn ombrojn.\n"
+"Ŝaltas kolorajn ombrojn por tralumeblaj monderoj. \n"
 "Ĉi tio estas kompute peza."
 
 #: src/settings_translation_file.cpp
@@ -3753,9 +3755,8 @@ msgid "Enable console window"
 msgstr "Ŝalti konzolan fenestron"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable dynamic shadows"
-msgstr "Dinamikaj ombroj"
+msgstr "Ŝalti dinamikajn ombrojn"
 
 #: src/settings_translation_file.cpp
 msgid "Enable joysticks"
@@ -3808,7 +3809,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Enable updates available indicator on content tab"
-msgstr ""
+msgstr "Ŝalti indikilon de havebla ĝisdatigo sur datena langeto"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3855,7 +3856,7 @@ msgstr "Ŝaltas glatan rulumadon."
 
 #: src/settings_translation_file.cpp
 msgid "Enables the post processing pipeline."
-msgstr ""
+msgstr "Ŝaltas la posttraktan ĉenstablon."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3877,7 +3878,6 @@ msgstr ""
 "je kosto de etaj bildigaj misoj, kiuj tamen ne ĝenas ludeblecon."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Engine Profiler"
 msgstr "Profililo de motoro"
 
@@ -3915,9 +3915,8 @@ msgid "FPS"
 msgstr "Filmeroj sekunde"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "FPS when unfocused"
-msgstr "Maksimuma nombro de kadroj en sekundo dum paŭzo aŭ sen fokuso"
+msgstr "Nombro de filmeroj sekunde dum fenestro sen fokuso"
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
@@ -3928,9 +3927,8 @@ msgid "Fallback font path"
 msgstr "Dosierindiko al reenpaŝa tiparo"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Fast approximate antialiasing"
-msgstr "Filtrado kaj glatigo"
+msgstr "Rapida proksimuma glatigo"
 
 #: src/settings_translation_file.cpp
 msgid "Fast mode acceleration"
@@ -4598,14 +4596,14 @@ msgstr ""
 "Ŝaltu nur se vi bone scias, kion vi faras."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "If enabled, node and inventory actions are recorded for rollback.\n"
 "This option is only read on server start. Note that the engine will not\n"
 "automatically clean old entries from the rollback database."
 msgstr ""
-"Registras agojn por eblaj malfaroj.\n"
-"Ĉi tiu agordo nur legatas je la komenco de la servilo."
+"Se ŝaltita, agoj pri monderoj kaj portujoj estos registritaj por malfaro. \n"
+"Ĉi tiu elekto estas legata nur dum starto de servilo. Sciu, ke la motoro \n"
+"ne forigos memage malnovajn datenojn de la malfara datenbazo."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4637,17 +4635,17 @@ msgstr ""
 "Malatentiĝos dum flugado."
 
 #: src/settings_translation_file.cpp
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "If enabled, the server will perform map block occlusion culling based on\n"
 "on the eye position of the player. This can reduce the number of blocks\n"
 "sent to the client by 50-80%. Clients will no longer receive most\n"
 "invisible blocks, so that the utility of noclip mode is reduced."
 msgstr ""
-"Je ŝalto, servilo elektos postkaŝitajn mondopecojn laŭ loko de okuloj\n"
-"de la ludanto. Tio povas malpliigi la nombron de mondopecoj sendotaj\n"
-"al la kliento je 50–80%. La kliento ne plu ricevos nevideblajn, tiel ke la\n"
-"utileco de trapasa reĝimo malpliiĝos."
+"Je ŝalto, servilo elfiltros postkaŝitajn mondopecojn laŭ loko de okuloj \n"
+"de la ludanto. Tio povas malpliigi la nombron de mondopecoj sendotaj \n"
+"al la kliento je 50–80%. La kliento ne plu ricevos multajn nevideblajn, \n"
+"tiel ke la utileco de trapasa reĝimo malpliiĝos."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4737,13 +4735,12 @@ msgid "Instrument chat commands on registration."
 msgstr "Ekzameni babilajn komandojn je registriĝo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Instrument global callback functions on registration.\n"
 "(anything you pass to a core.register_*() function)"
 msgstr ""
-"Ekzameni mallokajn revokajn funkciojn je registriĝo.\n"
-"(ĉio, kion vi donas al la funkcio minetest.register_*())"
+"Ekzameni mallokajn revokajn funkciojn je registriĝo. \n"
+"(ĉio, kion vi donas al funkcio «core.register_*()»)"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5292,9 +5289,8 @@ msgid "Map save interval"
 msgstr "Intervaloj inter konservoj de mondo"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Map shadows update frames"
-msgstr "Longeco de fluaĵa agociklo"
+msgstr "Filmeroj por ĝisdatigo de ombroj en mondo"
 
 #: src/settings_translation_file.cpp
 msgid "Mapblock limit"
@@ -5305,9 +5301,8 @@ msgid "Mapblock mesh generation delay"
 msgstr "Prokrasto de estigo de maŝoj de mondopecoj"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Mapblock mesh generation threads"
-msgstr "Prokrasto de estigo de maŝoj de mondopecoj"
+msgstr "Fadenoj por estigo de mondopecaj maŝaroj"
 
 #: src/settings_translation_file.cpp
 msgid "Mapblock unload timeout"
@@ -5529,32 +5524,31 @@ msgid "Maximum simultaneous block sends per client"
 msgstr "Maksimumaj samtempaj sendoj de mondopecoj po kliento"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Maximum size of the client's outgoing chat queue"
-msgstr "Maksimumo da atendantaj elaj mesaĝoj"
+msgstr "Maksimumo da atendantaj elaj mesaĝoj en kliento"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
-"Maksimuma grando de la elira babila atendovico.\n"
+"Maksimuma grando de la elira babila atendovico en kliento. \n"
 "0 malŝaltas envicigon, kaj -1 senlimigas ĝin."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Maximum time a file download (e.g. a mod download) may take, stated in "
 "milliseconds."
 msgstr ""
-"Maksimuma tempo (en milisekundoj) por elŝuto de dosiero (ekz. modifaĵo)."
+"Maksimuma tempo (en milonsekundoj) por elŝuto de dosiero (ekz. modifaĵo)."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum time an interactive request (e.g. server list fetch) may take, "
 "stated in milliseconds."
 msgstr ""
+"Maksimuma tempo (en milonsekundoj) por interaga peto (ekz. listo de serviloj)"
+"."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
@@ -5565,9 +5559,8 @@ msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Menu theme"
-msgstr "Menuo"
+msgstr "Haŭto de menuo"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -5603,7 +5596,7 @@ msgstr "Minimuma limo de hazarda nombro de malgrandaj kavernoj unu mondoparto."
 
 #: src/settings_translation_file.cpp
 msgid "Minimum vertex count for mesh buffers"
-msgstr ""
+msgstr "Minimuma kvanto de pintoj por maŝaraj bufroj"
 
 #: src/settings_translation_file.cpp
 msgid "Mipmapping"
@@ -5778,6 +5771,11 @@ msgid ""
 "WARNING: There are known bugs in the default map generators (v6, v7, ...)\n"
 "when using more than 1 thread. The automatic choice will avoid this."
 msgstr ""
+"Nombro de uzotaj kreaj fadenoj (kiuj estigas kaj enlegas mondon). \n"
+"Se 0, la motoro memage elektos valoron, depende de la aparato \n"
+"kaj la speco de mondestigilo. \n"
+"AVERTO: La implicitaj mondestigiloj (v6, v7, …) enhavas konatajn \n"
+"erarojn kiam uziĝas pli ol 1 fadeno. La memaga elekto evitos ilin."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5811,10 +5809,8 @@ msgid "Occlusion Culling"
 msgstr "Servilflanka elfiltrado de postkaŝitoj"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Opaqueness (alpha) of the shadow behind the font."
-msgstr ""
-"Netravidebleco (alfa) de la ombro post la implicita tiparo, inter 0 kaj 255."
+msgstr "Netravidebleco (alfa) de la ombro post la tiparo."
 
 #: src/settings_translation_file.cpp
 msgid "Open chat"
@@ -5844,24 +5840,20 @@ msgstr "Optimumigi fasadon por tuŝekranoj"
 
 #: src/settings_translation_file.cpp
 msgid "Optional override for chat weblink color."
-msgstr ""
+msgstr "Elektebla superagordo de la babileja retligila koloro."
 
 #: src/settings_translation_file.cpp
 msgid "Other Effects"
 msgstr "Aliaj efektoj"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Path of the fallback font. Must be a TrueType font.\n"
 "This font will be used for certain languages or if the default font is "
 "unavailable."
 msgstr ""
-"Dosierindiko de la reenpaŝa tiparo.\n"
-"Se la agordo «freetype» estas ŝaltita: devas esti tiparspeco «TrueType».\n"
-"Se la agordo «freetype» estas malŝaltita: devas esti bitbilda aŭ XML-vektora "
-"tiparo.\n"
-"Ĉi tiu tiparo uziĝos por kelkaj lingvoj, aŭ se la norma tiparo ne "
+"Dosierindiko de la reenpaŝa tiparo. Devas esti tiparspeco «TrueType».\n"
+"Ĉi tiu tiparo uziĝos por kelkaj lingvoj, aŭ se la implicita tiparo ne "
 "disponeblas."
 
 #: src/settings_translation_file.cpp
@@ -5881,27 +5873,19 @@ msgstr ""
 "uzata."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Path to the default font. Must be a TrueType font.\n"
 "The fallback font will be used if the font cannot be loaded."
 msgstr ""
-"Dosierindiko al la implicita tiparo.\n"
-"Se la agordo «freetype» estas ŝaltita: devas esti tiparspeco «TrueType».\n"
-"Se la agordo «freetype» estas malŝaltita: devas esti bitbilda aŭ XML-vektora "
-"tiparo.\n"
-"La reenpaŝa tiparo uziĝos se la tiparo ne povas enlegiĝi."
+"Dosierindiko al la implicita tiparo. Devas esti tiparspeco «TrueType».\n"
+"La reenpaŝa tiparo uziĝos se la tiparo ne povos enlegiĝi."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Path to the monospace font. Must be a TrueType font.\n"
 "This font is used for e.g. the console and profiler screen."
 msgstr ""
-"Dosierindiko al la egallarĝa tiparo.\n"
-"Se la agordo «freetype» estas ŝaltita: devas esti tiparspeco «TrueType».\n"
-"Se la agordo «freetype» estas malŝaltita: devas esti bitbilda aŭ XML-vektora "
-"tiparo.\n"
+"Dosierindiko al la egallarĝa tiparo. Devas esti tiparspeco «TrueType». \n"
 "Ĉi tiu tiparo estas uzata por ekz. la ekranoj de konzolo kaj profililo."
 
 #: src/settings_translation_file.cpp
@@ -5937,15 +5921,15 @@ msgid "Post Processing"
 msgstr "Posttraktado"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Prevent digging and placing from repeating when holding the respective "
 "buttons.\n"
 "Enable this when you dig or place too often by accident.\n"
 "On touchscreens, this only affects digging."
 msgstr ""
-"Malhelpu ripetadon de fosado kaj metado dum premo de la musklavoj.\n"
-"Ŝaltu ĉi tion, se vi tro ofte nevole fosas aŭ metas monderojn."
+"Malhelpu ripetadon de fosado kaj metado dum premo de la musklavoj. \n"
+"Ŝaltu ĉi tion, se vi tro ofte nevole fosas aŭ metas monderojn. \n"
+"Tuŝekrane, ĉi tio influas nur fosadon."
 
 #: src/settings_translation_file.cpp
 msgid "Prevent mods from doing insecure things like running shell commands."
@@ -5974,7 +5958,6 @@ msgid "Prometheus listener address"
 msgstr "Aŭskulta adreso de Prometheus"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Prometheus listener address.\n"
 "If Luanti is compiled with Prometheus support, this setting\n"
@@ -5982,10 +5965,11 @@ msgid ""
 "By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
 "An empty value disables the metrics listener."
 msgstr ""
-"Aŭskulta adreso de Prometheus.\n"
-"Se Minetest estas tradukita kun la elekteblo ENABLE_PROMETHEUS ŝaltita,\n"
-"ŝaltiĝos aŭskultado de mezuriloj por Prometheus ĉe tiu adreso.\n"
-"Mezuriloj disponeblos ĉe http://127.0.0.1:30000/metrics"
+"Aŭskulta adreso de Prometheus. \n"
+"Se Luanti estas kodotradukita kun subteno de Prometheus, \n"
+"ŝaltiĝos aŭskultado de mezuriloj por Prometheus ĉe tiu adreso. \n"
+"Implicite, mezuriloj disponeblos ĉe http://127.0.0.1:30000/metrics. \n"
+"Malplena valoro malŝaltas la aŭskultadon de mezuriloj."
 
 #: src/settings_translation_file.cpp
 msgid "Proportion of large caves that contain liquid."
@@ -6525,7 +6509,7 @@ msgstr "Minimuma grandeco de teksturoj"
 
 #: src/settings_translation_file.cpp
 msgid "Shadow map texture in 32 bits"
-msgstr ""
+msgstr "Ombromapa teksturo en 32 bitoj"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -6540,9 +6524,8 @@ msgstr ""
 "Deŝovo de ombro de la norma tiparo. Se ĝi estas 0, la ombro ne desegniĝos."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Shadow strength gamma"
-msgstr "Forto de ombro"
+msgstr "Gamao de forteco de ombroj"
 
 #: src/settings_translation_file.cpp
 msgid "Show debug info"
@@ -6632,23 +6615,22 @@ msgid "Smooth lighting"
 msgstr "Glata lumado"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Smooth scrolling"
-msgstr "Glata lumado"
+msgstr "Glata rulumado"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Smooths rotation of camera when in cinematic mode, 0 to disable. Enter "
 "cinematic mode by using the key set in Controls."
-msgstr "Glatigas la turnadon de vidpunkto en glita reĝimo. 0 por malŝalti."
+msgstr ""
+"Glatigas la turnadon de vidpunkto en reĝimo de glita vidpunkto. 0 por "
+"malŝalti. Eniru la reĝimon per klavo elektita en Agordoj."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Smooths rotation of camera, also called look or mouse smoothing. 0 to "
 "disable."
-msgstr "Glatigas la turnadon de vidpunkto en glita reĝimo. 0 por malŝalti."
+msgstr "Glatigas la turnadon de vidpunkto. 0 por malŝalti."
 
 #: src/settings_translation_file.cpp
 msgid "Sneaking speed"
@@ -6703,6 +6685,10 @@ msgid ""
 "Higher values might make shadows laggy, lower values\n"
 "will consume more resources."
 msgstr ""
+"Efektivigas plenan ĝisdatigon de la ombra mapo dum la donita nombro de "
+"filmeroj. \n"
+"Pli altaj valoroj povas malrapidigi ombrojn, malpli altaj konsumos pli da "
+"rimedoj."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6753,7 +6739,6 @@ msgid "Strip color codes"
 msgstr "Forpreni kolorkodojn"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Surface level of optional water placed on a solid floatland layer.\n"
 "Water is disabled by default and will only be placed if this value is set\n"
@@ -6766,17 +6751,16 @@ msgid ""
 "server-intensive extreme water flow and to avoid vast flooding of the\n"
 "world surface below."
 msgstr ""
-"Surfaca nivelo de ebla akvo sur solida fluginsula tavolo.\n"
-"Tia akvo estas malŝaltita implicite kaj ĉeestos nur se ĉi tiu valoro estas\n"
-"pli granda ol 'mgv7_floatland_ymax' - 'mgv7_floatland_taper' (la komenco de "
-"la\n"
-"supra maldikiĝo).\n"
-"***AVERTO, EBLA DANĜERO AL MONDOJ KAJ SERVILA RENDIMENTO***:\n"
+"Surfaca nivelo de ebla akvo sur solida fluginsula tavolo. \n"
+"Tia akvo estas malŝaltita implicite kaj ĉeestos nur se ĉi tiu valoro estas \n"
+"pli granda ol «mgv7_floatland_ymax» - «mgv7_floatland_taper» (la komenco \n"
+"de la supra maldikiĝo). \n"
+"***AVERTO, EBLA DANĜERO AL MONDOJ KAJ SERVILA RENDIMENTO***: \n"
 "Se vi ebligas akvon sur fluginsuloj, la fluginsuloj devas esti solidaj "
-"tavoloj.\n"
-"Por tio, la agordo 'mgv7_floatland_density' devas esti '2.0' (aŭ alia\n"
-"postulata valoro depende de 'mgv7_np_floatland'). Tio evitos\n"
-"servil-intensan ekstreman akvofluon kaj vastan inundadon de la\n"
+"tavoloj. \n"
+"Por tio, la agordo «mgv7_floatland_density» devas esti 2.0 (aŭ alia \n"
+"postulata valoro depende de «mgv7_np_floatland»). Tio evitos \n"
+"servil-intensan ekstreman akvofluon kaj vastan superakvon sur la \n"
 "suba mondsurfaco."
 
 #: src/settings_translation_file.cpp
@@ -6837,6 +6821,9 @@ msgid ""
 "This must be a power of two.\n"
 "Bigger numbers create better shadows but it is also more expensive."
 msgstr ""
+"Grandeco de teksturo por bildigo de la ombra mapo. \n"
+"Devas esti potenco de du. \n"
+"Pli grandaj nombroj donas pli bonajn ombrojn, sed estas pli kostaj."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6859,9 +6846,8 @@ msgid "The URL for the content repository"
 msgstr "URL al la deponejo de enhavo"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "The dead zone of the joystick"
-msgstr "La nerespondema zono de la stirstango"
+msgstr "Nerespondema zono de la stirstango"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6876,6 +6862,8 @@ msgid ""
 "The delay in milliseconds after which a touch interaction is considered a "
 "long tap."
 msgstr ""
+"Prokrasto (en milonsekundoj) post kiu tuŝa interago ne plu estas rigardata "
+"kiel tuŝeto."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -6896,6 +6884,15 @@ msgid ""
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
+"Gesto por frapi ludantojn/estojn. \n"
+"Ludoj kaj modifaĵoj povas superagordi ĉi tion. \n"
+" \n"
+"* Mallonga tuŝeto \n"
+"Facile uzebla kaj bone konata de aliaj ludoj nemenciotaj. \n"
+" \n"
+"* Longa tuŝeto \n"
+"Konata de la klasikaj telefonaj regiloj de Luanti. \n"
+"Batalado estas pli-malpli neebla."
 
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
@@ -6917,6 +6914,19 @@ msgid ""
 "Use dedicated dig/place buttons to interact.\n"
 "Interaction happens at crosshair position."
 msgstr ""
+"Speco de uzotaj regiloj por fosado/metado. \n"
+" \n"
+"* Tuŝeto \n"
+"(Mal)longa tuŝeto kie ajn sur la ekrano por interagi. \n"
+"Interago efektiviĝas sub la fingro. \n"
+" \n"
+"* Tuŝeto kun celilo \n"
+"(Mal)longa tuŝeto kie ajn sur ekrano por interagi. \n"
+"Interago efektiviĝas sub la celilo. \n"
+" \n"
+"* Butonoj kun celilo\n"
+"Uzas dediĉitajn butonojn por fosado/metado por interagi. \n"
+"Interago efektiviĝas sub la celilo."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6925,18 +6935,16 @@ msgstr ""
 "Longeco (en bilderoj) post kiu tuŝa interago estos komprenata kiel moviĝo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The maximum height of the surface of waving liquids.\n"
 "4.0 = Wave height is two nodes.\n"
 "0.0 = Wave doesn't move at all.\n"
 "Default is 1.0 (1/2 node)."
 msgstr ""
-"Maksimuma alteco de la nivelo de ondantaj fluaĵoj.\n"
-"4.0 = Alteco de ondo estas du monderoj.\n"
-"0.0 = Ondo tute ne moviĝas.\n"
-"La antaŭagordo estas 1.0 (duono de mondero).\n"
-"Bezonas ŝaltitajn ondantajn fluaĵojn."
+"Maksimuma alteco de la nivelo de ondantaj fluaĵoj. \n"
+"4.0 = Alteco de ondo estas du monderoj. \n"
+"0.0 = Ondo tute ne moviĝas. \n"
+"La antaŭagordo estas 1.0 (duono de mondero)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6979,28 +6987,22 @@ msgstr ""
 "Ĉi tio devas esti agordita kune kun active_object_send_range_blocks."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The rendering back-end.\n"
 "Note: A restart is required after changing this!\n"
 "By default OpenGL3 is preferred on desktop, or OGLES2 on Android."
 msgstr ""
-"La bildiga internaĵo.\n"
-"Relanĉo necesas post ĉi tiu ŝanĝo.\n"
-"Rimarko: Sur Androido, restu ĉe OGLES1, se vi ne certas! Aplikaĵo alie "
-"povus\n"
-"malsukcesi ruliĝon. Sur aliaj sistemoj, OpenGL estas rekomendata.\n"
-"Ombrigiloj estas subtenataj de OpenGL (nur sur tablaj komputiloj) kaj OGLES2 "
-"(eksperimente)"
+"La bildiga internaĵo. \n"
+"Relanĉo necesas post ĉi tiu ŝanĝo! \n"
+"Implicite, OpenGL3 estas preferata surtable, kaj OGLES2 Androide."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The sensitivity of the joystick axes for moving the\n"
 "in-game view frustum around."
 msgstr ""
-"Sentemo de la stirstangaj aksoj por movadi la\n"
-"enludan vidamplekson."
+"Sentemo de la stirstangaj aksoj por movadi \n"
+"la enludan vidamplekson."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7053,14 +7055,13 @@ msgid "The type of joystick"
 msgstr "La speco de stirstango"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The vertical distance over which heat drops by 20 if 'altitude_chill' is\n"
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
 "'altitude_dry' is enabled."
 msgstr ""
-"Vertikala distanco post kiu varmeco malpliiĝas je 20, se «altitude_chill»\n"
-"estas ŝaltita. Ankaŭ la vertikala distanco post kiu malsekeco malpliiĝas\n"
+"Vertikala distanco post kiu varmeco malpliiĝas je 20, se «altitude_chill» \n"
+"estas ŝaltita. Ankaŭ la vertikala distanco post kiu malsekeco malpliiĝas \n"
 "je 10 se «altitude_dry» estas ŝaltita."
 
 #: src/settings_translation_file.cpp
@@ -7069,7 +7070,7 @@ msgstr "Tria el la 4 3d-aj bruoj, kiuj kune difinas altecon de mont(et)aroj."
 
 #: src/settings_translation_file.cpp
 msgid "Threshold for long taps"
-msgstr ""
+msgstr "Sojlo por longaj tuŝetoj"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7088,9 +7089,10 @@ msgid "Time speed"
 msgstr "Rapido de tempo"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Timeout for client to remove unused map data from memory, in seconds."
-msgstr "Tempolimo por forigi neuzatajn mapajn datenojn de klienta memoro."
+msgstr ""
+"Tempolimo por forigi neuzatajn mapajn datenojn de klienta memoro, en "
+"sekundoj."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -7114,67 +7116,56 @@ msgid "Toggle HUD"
 msgstr "Baskuligi travidan fasadon"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle Sneak key"
-msgstr "Baskula klavo de vidpunkta reĝimo"
+msgstr "Ŝalti kaŝiran klavon"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle automatic forward"
-msgstr "Memage antaŭen"
+msgstr "Ŝalti memagan iradon"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle block bounds"
-msgstr "Monderlimoj"
+msgstr "Ŝalti limojn de mondopecoj"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle camera mode"
-msgstr "Baskula klavo de vidpunkta reĝimo"
+msgstr "Ŝanĝi vidpunktan reĝimon"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle camera update"
-msgstr "Baskula klavo de vidpunkta reĝimo"
+msgstr "Ŝalti ĝisdatigon de vidpunkto"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle cinematic mode"
-msgstr "Baskuligi glitan vidpunkton"
+msgstr "Ŝalti glitan vidpunkton"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle debug info"
-msgstr "Baskuligi nebulon"
+msgstr "Ŝalti erarserĉajn informojn"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle fog"
 msgstr "Baskuligi nebulon"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle fullscreen"
-msgstr "Baskuligi flugan reĝimon"
+msgstr "Ŝalti tutekranan reĝimon"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle large chat console"
-msgstr "Klavo de granda konzolo"
+msgstr "Ŝalti grandan babilan konzolon"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
 msgstr "Baskuligi celilsekvadon"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle profiler"
-msgstr "Baskuligi flugan reĝimon"
+msgstr "Ŝalti profililon"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle unlimited view range"
-msgstr "Malŝaltis senliman vidodistancon"
+msgstr "Ŝalti senliman vidodistancon"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7187,38 +7178,32 @@ msgid "Tooltip delay"
 msgstr "Prokrasto de ŝpruchelpilo"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Touchscreen"
-msgstr "Sojlo de tuŝekrano"
+msgstr "Tuŝekrano"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Touchscreen controls"
-msgstr "Sojlo de tuŝekrano"
+msgstr "Regiloj de tuŝekrano"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Touchscreen sensitivity"
-msgstr "Respondemo de muso"
+msgstr "Sentemo de tuŝekrano"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Touchscreen sensitivity multiplier."
-msgstr "Obligilo por respondeco de muso."
+msgstr "Obligilo por sentemo de tuŝekrano."
 
 #: src/settings_translation_file.cpp
 msgid "Tradeoffs for performance"
-msgstr ""
+msgstr "Kompromisoj por efikeco"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Translucent foliage"
-msgstr "Netralumeblaj fluidoj"
+msgstr "Tralumeblaj folioj"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Translucent liquids"
-msgstr "Netralumeblaj fluidoj"
+msgstr "Tralumeblaj fluaĵoj"
 
 #: src/settings_translation_file.cpp
 msgid "Transparency Sorting Distance"
@@ -7234,7 +7219,7 @@ msgstr "Bruo de arboj"
 
 #: src/settings_translation_file.cpp
 msgid "Trilinear filtering"
-msgstr "Triineara filtrado"
+msgstr "Trioble linia filtrado"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7259,6 +7244,14 @@ msgid ""
 "\n"
 "This setting should only be changed if you have performance problems."
 msgstr ""
+"Speco de «occlusion_culler» \n"
+" \n"
+"«loops» estas la malnova algoritmo kun plurtavolaj cikloj kaj masimpleco O(n"
+"³) \n"
+"«bfs» estas la nova algoritmo bazita sur laŭlarĝa serĉado kaj flanka "
+"elfiltrado \n"
+" \n"
+"Ĉi tiu agordo ŝanĝiĝu nur se vi havas problemojn pri efikeco."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7266,6 +7259,9 @@ msgid ""
 "release.\n"
 "If this is empty the engine will never check for updates."
 msgstr ""
+"URL al JSON-dosiero, kiu donas informojn pri la plej nova eldono de Luanti. "
+"\n"
+"Se malplena, la kliento neniam kontrolos ĝisdatigojn."
 
 #: src/settings_translation_file.cpp
 msgid "URL to the server list displayed in the Multiplayer Tab."
@@ -7276,7 +7272,6 @@ msgid "Undersampling"
 msgstr "Subspecimenado"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Undersampling is similar to using a lower screen resolution, but it applies\n"
 "to the game world only, keeping the GUI intact.\n"
@@ -7287,9 +7282,12 @@ msgid ""
 "set\n"
 "to a non-default value."
 msgstr ""
-"Subspecimenado similas uzon de malgranda ekrana distingumo, sed ĝi nur\n"
-"efektivas en la ludo, lasante la fasadon senŝanĝa.\n"
-"Ĝi grave helpu la efikecon kontraŭ malpli detala filmo."
+"Subspecimenado similas uzon de malgranda ekrana distingumo, sed ĝi nur \n"
+"efektivas en la ludo, lasante la fasadon senŝanĝa. \n"
+"Ĝi grave helpu la efikecon, je kosto de malpli detala filmo. \n"
+"Pli altaj valoroj donas malpli detalan bildon. \n"
+"Noto: Subspecimenado nuntempe ne estas subtenata se la agordo «3d_mode» \n"
+"havas ne-implicitan valoron."
 
 #: src/settings_translation_file.cpp
 msgid "Unlimited player transfer distance"
@@ -7301,7 +7299,7 @@ msgstr "Mallegi neuzatajn servilajn datenojn"
 
 #: src/settings_translation_file.cpp
 msgid "Update information URL"
-msgstr ""
+msgstr "URL por informoj pri ĝisdatigo"
 
 #: src/settings_translation_file.cpp
 msgid "Upper Y limit of dungeons."
@@ -7316,26 +7314,25 @@ msgid "Use a cloud animation for the main menu background."
 msgstr "Uzi moviĝantajn nubojn por la fono de la ĉefmenuo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Use anisotropic filtering when looking at textures from an angle.\n"
 "This provides a significant improvement when used together with mipmapping."
-msgstr "Uzi neizotropan filtradon vidante teksturojn deflanke."
+msgstr ""
+"Uzi neizotropan filtradon vidante teksturojn de iuj anguloj. \n"
+"Donas grandan plibonigon, se uzata kune kun etmapigo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Use bilinear filtering when scaling textures."
-msgstr "Uzi trilinearan filtradon skalante teksturojn."
+msgstr "Uzi duoble linian filtradon skalante teksturojn."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Use mipmaps when scaling textures. May slightly increase performance,\n"
 "especially when using a high-resolution texture pack.\n"
 "Gamma-correct downscaling is not supported."
 msgstr ""
-"Uzi etmapigon por skali teksturojn. Povas iomete plibonigi efikecon,\n"
-"precipe dum uzo de teksturaro je alta distingumo.\n"
+"Uzi etmapigon por skali teksturojn. Povas iomete plibonigi efikecon, \n"
+"precipe dum uzo de teksturaro je alta distingumo. \n"
 "Gamae ĝusta malgrandigado ne estas subtenata."
 
 #: src/settings_translation_file.cpp
@@ -7344,10 +7341,13 @@ msgid ""
 "This flag enables use of raytraced occlusion culling test for\n"
 "client mesh sizes smaller than 4x4x4 map blocks."
 msgstr ""
+"Uzi radipaŭsan elfiltradon de postkaŝitoj en la nova elfiltrilo. \n"
+"Ĉi tio ŝaltas uzon de la radipaŭsa elfiltrado por grandeco de \n"
+"klientaj maŝaroj malpliaj ol 4×4×4 monopecoj."
 
 #: src/settings_translation_file.cpp
 msgid "Use smooth cloud shading."
-msgstr ""
+msgstr "Uzi glatan ombrigon de nuboj."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7355,6 +7355,9 @@ msgid ""
 "If both bilinear and trilinear filtering are enabled, trilinear filtering\n"
 "is applied."
 msgstr ""
+"Uzi trioble linian filtradon skalante teksturojn. \n"
+"Se kaj duoble kaj trioble liniaj filtradoj estas ŝàltitaj, trioble linia \n"
+"filtrado uziĝas."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -7369,7 +7372,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "User Interfaces"
-msgstr ""
+msgstr "Fasadoj"
 
 #: src/settings_translation_file.cpp
 msgid "VSync"
@@ -7474,7 +7477,7 @@ msgstr "Laŭteco"
 
 #: src/settings_translation_file.cpp
 msgid "Volume multiplier when the window is unfocused."
-msgstr ""
+msgstr "Obliganto de laŭteco dum la fenestro ne havas fokuson."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7485,14 +7488,12 @@ msgstr ""
 "Bezonas ŝaltitan sonsistemon."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Volume when unfocused"
-msgstr "Maksimuma nombro de kadroj en sekundo dum paŭzo aŭ sen fokuso"
+msgstr "Laŭteco sen fokuso sur fenestro"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Volumetric lighting"
-msgstr "Glata lumado"
+msgstr "Lumradioj"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7558,9 +7559,8 @@ msgid "Waving plants"
 msgstr "Ondantaj plantoj"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Weblink color"
-msgstr "Koloro de elektujo"
+msgstr "Koloro de reta ligilo"
 
 #: src/settings_translation_file.cpp
 msgid "When enabled, liquid reflections are simulated."
@@ -7571,6 +7571,8 @@ msgid ""
 "When enabled, the GUI is optimized to be more usable on touchscreens.\n"
 "Whether this is enabled by default depends on your hardware form-factor."
 msgstr ""
+"Je ŝalto, la fasado optimumiĝas por tuŝekranoj. \n"
+"Ĉu ĉi tio estas implicite ŝaltita, tio dependas de la formo de via aparato."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7583,7 +7585,6 @@ msgstr ""
 "programaro (ekz. «render-to-texture» por monderoj en portaĵujo)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "When using bilinear/trilinear filtering, low-resolution textures\n"
 "can be blurred, so this option automatically upscales them to preserve\n"
@@ -7594,23 +7595,23 @@ msgid ""
 "This is also used as the base node texture size for world-aligned\n"
 "texture autoscaling."
 msgstr ""
-"Dum uzo de duliniaj/triliniaj/neizotropaj filtriloj, teksturoj je malaltaj\n"
-"distingumoj povas malklariĝi; tial memage grandigu ĝin per interpolado\n"
-"laŭ plej proksimaj bilderoj por teni klarajn bilderojn. Ĉi tio agordas la\n"
-"malplejaltan grandecon de teksturo por la grandigitaj teksturoj; pli altaj\n"
-"valoroj aspektas pli klare, sed bezonas pli da memoro. Potencoj de duo\n"
-"estas rekomendataj. Valoroj pli grandaj ol 1 eble ne estos videblaj, se ne\n"
-"estas ŝaltita dulinia, trilinia, aŭ neizotropa filtrado.\n"
-"Ĉi tio ankaŭ uziĝas kiel la baza grando de monderaj teksturoj por memaga\n"
-"grandigado de monde laŭigitaj teksturoj."
+"Dum uzo de duoble/trioble liniaj filtriloj, teksturoj je malaltaj "
+"distingumoj \n"
+"povas malklariĝi; tial ĉi tiu elekto memage grandigos ilin por teni klarajn "
+"\n"
+"bilderojn. Ĉi tio agordas la malplejaltan grandecon de teksturo por la \n"
+"grandigitaj teksturoj; pli altaj valoroj aspektas pli klare, sed bezonas \n"
+"pli da memoro. Ĉi tiu agordo uziĝas SOLE se iu el la menciitaj filtriloj \n"
+"estas ŝaltita. Ĉi tio ankaŭ uziĝas kiel la baza grando de monderaj teksturoj "
+"\n"
+"por memaga grandigado de monde laŭigitaj teksturoj."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Whether name tag backgrounds should be shown by default.\n"
 "Mods may still set a background."
 msgstr ""
-"Ĉu implicite montri fonojn de nometikedoj.\n"
+"Ĉu implicite montri fonojn de nometikedoj. \n"
 "Modifaĵoj malgraŭ tio povas agordi fonojn."
 
 #: src/settings_translation_file.cpp
@@ -7623,7 +7624,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Whether the window is maximized."
-msgstr ""
+msgstr "Ĉu la fenestro estas plejgrandigita."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7638,15 +7639,13 @@ msgid "Whether to fog out the end of the visible area."
 msgstr "Ĉu nebuli finon de la videbla areo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Whether to mute sounds. You can unmute sounds at any time.\n"
 "In-game, you can toggle the mute state with the mute key or by using the\n"
 "pause menu."
 msgstr ""
-"Ĉu silentigi sonojn. Vi povas malsilentigi ilin kiam ajn, malse\n"
-"la sonsistemo estas malŝaltita (enable_sound=false).\n"
-"Enlude, vi povas ŝalti la staton de silentigo per la silentiga klavo,\n"
+"Ĉu silentigi sonojn. Vi povas malsilentigi ilin kiam ajn. \n"
+"Enlude, vi povas ŝalti la staton de silentigo per la silentiga klavo, \n"
 "aŭ per la paŭza menuo."
 
 #: src/settings_translation_file.cpp
@@ -7656,37 +7655,29 @@ msgstr ""
 "Ĉu montri erarserĉajn informojn de la kliento (efikas samkiel premo de F5)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Width component of the initial window size."
-msgstr ""
-"Larĝo de la fenestro je ĝia komenca grando. Ignorata en plenekrana reĝimo."
+msgstr "Larĝo de la fenestro je ĝia komenca grando."
 
 #: src/settings_translation_file.cpp
 msgid "Width of the selection box lines around nodes."
 msgstr "Larĝo de linioj de la elektujo ĉirkaŭ monderoj."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Will also disable autoforward, when active."
-msgstr ""
-"Klavo por movi la ludanton reen.\n"
-"Aktivigo ankaŭ malŝaltos memiradon.\n"
-"Vidu http://irrlicht.sourceforge.net/docu/"
-"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+msgstr "Aktivigo ankaŭ malŝaltos memiradon."
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
-msgstr ""
+msgstr "Fenestro plejgrandigita"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Windows systems only: Start Luanti with the command line window in the "
 "background.\n"
 "Contains the same information as the file debug.txt (default name)."
 msgstr ""
-"Nur por Vindozo: Rulu Mineteston fone per la komanduja fenestro.\n"
-"Ĝi enhavos la samajn informojn kiel la dosiero (norme nomita) debug.txt."
+"Nur por Vindozo: Rulu Luanti-on fone per la komanduja fenestro.\n"
+"Ĝi enhavos la samajn informojn kiel la dosiero (implicite nomita) debug.txt."
 
 #: src/settings_translation_file.cpp
 msgid ""
