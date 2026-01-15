@@ -629,12 +629,23 @@ local function get_formspec(dialogdata)
 
 		if show_reset then
 			local default = comp.setting.default
-			if comp.setting.type == "key" then
+			if comp.setting.type == "bool" then
+				if default == "true" then
+					default = fgettext_ne("Enabled")
+				elseif default == "false" then
+					default = fgettext_ne("Disabled")
+				end
+			elseif comp.setting.type == "key" then
 				default = (default ~= "")
 					and core.get_key_description(default)
 
 					-- TRANSLATORS: Indicates that the action does not have a corresponding keybinding.
 					or fgettext_ne("Not bound")
+			else
+				local sinfo = get_setting_info(comp.setting.name)
+				if sinfo and sinfo.option_labels and sinfo.option_labels[default] then
+					default = sinfo.option_labels[default]
+				end
 			end
 
 			local reset_tooltip = default and
