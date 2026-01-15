@@ -99,6 +99,9 @@ local function get_formspec(tabview, name, tabdata)
 	local retval =
 		-- Search
 		"field[0.25,0.25;7,0.75;te_search;;" .. core.formspec_escape(tabdata.search_for) .. "]" ..
+		--[[~ Syntax info for server list search.
+		The texts "game:", "mod:" and "player:" MUST NOT be translated.
+		Everything else is translatable. ]]
 		"tooltip[te_search;" .. fgettext("Possible filters\ngame:<name>\nmod:<name>\nplayer:<name>") .. "]" ..
 		"field_enter_after_edit[te_search;true]" ..
 		"container[7.25,0.25]" ..
@@ -107,14 +110,16 @@ local function get_formspec(tabview, name, tabdata)
 		"image_button[1.5,0;0.75,0.75;" .. core.formspec_escape(defaulttexturedir .. "refresh.png") .. ";btn_mp_refresh;]" ..
 		"tooltip[btn_mp_clear;" .. fgettext("Clear") .. "]" ..
 		"tooltip[btn_mp_search;" .. fgettext("Search") .. "]" ..
+		--~ As in 'reload'/'check again'
 		"tooltip[btn_mp_refresh;" .. fgettext("Refresh") .. "]" ..
 		"container_end[]" ..
 
 		"container[9.75,0]" ..
 		"box[0,0;5.75,7.1;#666666]" ..
 
-		-- Address / Port
+		--~ Network address
 		"label[0.25,0.35;" .. fgettext("Address") .. "]" ..
+		--~ Network port
 		"label[4.25,0.35;" .. fgettext("Port") .. "]" ..
 		"field[0.25,0.5;4,0.75;te_address;;" ..
 			core.formspec_escape(core.settings:get("address")) .. "]" ..
@@ -134,9 +139,11 @@ local function get_formspec(tabview, name, tabdata)
 		"container_end[]" ..
 
 		-- Connect
+		--~ Login to server
 		"button[3,6;2.5,0.75;btn_mp_login;" .. fgettext("Login") .. "]"
 
 	if core.settings:get_bool("enable_split_login_register") then
+		--~ Register an account on a server
 		retval = retval .. "button[0.25,6;2.5,0.75;btn_mp_register;" .. fgettext("Register") .. "]"
 	end
 
@@ -178,6 +185,7 @@ local function get_formspec(tabview, name, tabdata)
 			local max_clients = 5
 			if #clients_list > max_clients then
 				retval = retval .. "tooltip[btn_view_clients;" ..
+						--~ $1 is a list of players
 						fgettext("Players:\n$1", table.concat(clients_list, "\n", 1, max_clients)) .. "\n..." .. "]"
 			else
 				retval = retval .. "tooltip[btn_view_clients;" ..
@@ -220,6 +228,7 @@ local function get_formspec(tabview, name, tabdata)
 
 	-- Table
 	retval = retval .. "tablecolumns[" ..
+		--~ Also known as "latency"
 		"image,tooltip=" .. fgettext("Ping") .. "," ..
 		"0=" .. core.formspec_escape(defaulttexturedir .. "blank.png") .. "," ..
 		"1=" .. core.formspec_escape(defaulttexturedir .. "server_ping_4.png") .. "," ..
