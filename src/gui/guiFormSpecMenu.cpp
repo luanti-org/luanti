@@ -3430,16 +3430,16 @@ GUIInventoryList::ItemSpec GUIFormSpecMenu::getItemAtPos(v2s32 p) const
 		Inventory *inv = m_invmgr->getInventory(e->getInventoryloc());
 		InventoryList *ilist = nullptr;
 		s32 item_index = -1;
-		
+
 		if (inv)
 			ilist = inv->getList(e->getListname());
-			
+
 		if (ilist) {
 			s32 i = e->getItemIndexAtPos(p);
 			if (i < (s32)ilist->getSize())
 				item_index = i;
 		}
-		
+
 		if (item_index != -1)
 			return GUIInventoryList::ItemSpec(e->getInventoryloc(), e->getListname(),
 					item_index, e->getSlotSize());
