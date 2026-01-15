@@ -1469,9 +1469,26 @@ void CGUIEditBox::calculateScrollPos()
 		u32 cursorWidth = font->getDimension(CursorChar.c_str()).Width;
 		core::stringw *txtLine = hasBrokenText ? &BrokenText[cursLine] : &Text;
 		s32 cPos = hasBrokenText ? CursorPos - BrokenTextPositions[cursLine] : CursorPos; // column
-		s32 cStart = font->getDimension(txtLine->subString(0, cPos).c_str()).Width;       // pixels from text-start
+
+		// Build the visible line used for width calculations
+		core::stringw visibleLine;
+		if (PasswordBox) {
+
+    			// In password mode, width must be based on whatever PasswordChar is,
+    			// rather than the actual characters input by the user.
+    			visibleLine = core::stringw();
+    			visibleLine.reserve(txtLine->size());
+			for (u32 i = 0; i < txtLine->size(); ++i) {
+        			visibleLine += PasswordChar;
+    			}
+		} else {
+    			visibleLine = *txtLine;
+		}
+
+		// Now use visibleLine for width calculations
+		s32 cStart = font->getDimension(visibleLine.subString(0, cPos).c_str()).Width;       // pixels from text-start
 		s32 cEnd = cStart + cursorWidth;
-		s32 txtWidth = font->getDimension(txtLine->c_str()).Width;
+		s32 txtWidth = font->getDimension(visibleLine.c_str()).Width;
 
 		if (txtWidth < FrameRect.getWidth()) {
 			// TODO: Needs a clean left and right gap removal depending on HAlign, similar to vertical scrolling tests for top/bottom.
