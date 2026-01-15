@@ -765,8 +765,6 @@ void CGUIEditBox::draw()
 		}
 
 		// calculate cursor pos
-
-		core::stringw *txtLine = &Text;
 		s32 startPos = 0;
 
 		core::stringw s, s2;
@@ -778,6 +776,8 @@ void CGUIEditBox::draw()
 		const s32 hlineStart = ml ? getLineFromPos(realmbgn) : 0;
 		const s32 hlineCount = ml ? getLineFromPos(realmend) - hlineStart + 1 : 1;
 		const s32 lineCount = ml ? BrokenText.size() : 1;
+
+		core::stringw *txtLine = (PasswordBox || WordWrap || MultiLine) ? &BrokenText[0] : &Text;
 
 		// Save the override color information.
 		// Then, alter it if the edit box is disabled.
@@ -798,25 +798,6 @@ void CGUIEditBox::draw()
 				c.clipAgainst(CurrentTextRect);
 				if (!c.isValid())
 					continue;
-
-				// get current line
-				if (PasswordBox) {
-					if (BrokenText.size() != 1) {
-						BrokenText.clear();
-						BrokenText.push_back(core::stringw());
-					}
-					if (BrokenText[0].size() != Text.size()) {
-						BrokenText[0] = Text;
-						for (u32 q = 0; q < Text.size(); ++q) {
-							BrokenText[0][q] = PasswordChar;
-						}
-					}
-					txtLine = &BrokenText[0];
-					startPos = 0;
-				} else {
-					txtLine = ml ? &BrokenText[i] : &Text;
-					startPos = ml ? BrokenTextPositions[i] : 0;
-				}
 
 				// draw normal text
 				font->draw(txtLine->c_str(), CurrentTextRect,
@@ -1190,6 +1171,20 @@ s32 CGUIEditBox::getCursorPos(s32 x, s32 y)
 //! Breaks the single text line.
 void CGUIEditBox::breakText()
 {
+	if (PasswordBox) {
+		BrokenText.clear();
+		BrokenTextPositions.set_used(0);
+
+		core::stringw masked;
+		masked.reserve(Text.size());
+		for (u32 i = 0; i < Text.size(); ++i)
+			masked += PasswordChar;
+
+		BrokenText.push_back(masked);
+		BrokenTextPositions.push_back(0);
+		return;
+	}
+
 	if ((!WordWrap && !MultiLine))
 		return;
 
@@ -1461,34 +1456,21 @@ void CGUIEditBox::calculateScrollPos()
 	setTextRect(cursLine);
 	const bool hasBrokenText = MultiLine || WordWrap;
 
+	if (PasswordBox && BrokenText.empty()) {
+		breakText();
+	}
+
 	// Check horizonal scrolling
 	// NOTE: Calculations different to vertical scrolling because setTextRect interprets VAlign relative to line but HAlign not relative to row
 	{
 		// get cursor position
 		// get cursor area
 		u32 cursorWidth = font->getDimension(CursorChar.c_str()).Width;
-		core::stringw *txtLine = hasBrokenText ? &BrokenText[cursLine] : &Text;
+		core::stringw *txtLine = (hasBrokenText || PasswordBox) ? &BrokenText[cursLine] : &Text;
 		s32 cPos = hasBrokenText ? CursorPos - BrokenTextPositions[cursLine] : CursorPos; // column
-
-		// Build the visible line used for width calculations
-		core::stringw visibleLine;
-		if (PasswordBox) {
-
-    			// In password mode, width must be based on whatever PasswordChar is,
-    			// rather than the actual characters input by the user.
-    			visibleLine = core::stringw();
-    			visibleLine.reserve(txtLine->size());
-			for (u32 i = 0; i < txtLine->size(); ++i) {
-        			visibleLine += PasswordChar;
-    			}
-		} else {
-    			visibleLine = *txtLine;
-		}
-
-		// Now use visibleLine for width calculations
-		s32 cStart = font->getDimension(visibleLine.subString(0, cPos).c_str()).Width;       // pixels from text-start
+		s32 cStart = font->getDimension(txtLine->subString(0, cPos).c_str()).Width;       // pixels from text-start
 		s32 cEnd = cStart + cursorWidth;
-		s32 txtWidth = font->getDimension(visibleLine.c_str()).Width;
+		s32 txtWidth = font->getDimension(txtLine->c_str()).Width;
 
 		if (txtWidth < FrameRect.getWidth()) {
 			// TODO: Needs a clean left and right gap removal depending on HAlign, similar to vertical scrolling tests for top/bottom.
