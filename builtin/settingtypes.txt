@@ -1893,6 +1893,10 @@ mgvalleys_np_dungeons (Dungeon noise) noise_params_3d 0.9, 0.5, (500, 500, 500),
 #    This support is experimental and API can change.
 enable_client_modding (Client modding) [client] bool false
 
+#    Where to enable server-sent client-side modding (SSCSM).
+#    Warning: Experimental.
+enable_sscsm (Enable SSCSM) [client] enum nowhere nowhere,singleplayer,localhost,lan,everywhere
+
 #    Replaces the default main menu with a custom one.
 main_menu_script (Main menu script) [client] string
 
