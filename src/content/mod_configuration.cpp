@@ -20,7 +20,7 @@ std::string ModConfiguration::getUnsatisfiedModsError() const
 	error << gettext("Some mods have unsatisfied dependencies:") << std::endl;
 
 	for (const ModSpec &mod : m_unsatisfied_mods) {
-		//~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
+		//~~~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
 		error << " - " << fmtgettext("%s is missing:", mod.name.c_str());
 		for (const std::string &unsatisfied_depend : mod.unsatisfied_depends)
 			error << " " << unsatisfied_depend;

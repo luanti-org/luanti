@@ -433,7 +433,7 @@ void GameFormSpec::showPauseMenu()
 		if (!simple_singleplayer_mode) {
 			if (damage) {
 				const std::string &pvp = g_settings->getBool("enable_pvp") ? on : off;
-				//~ PvP = Player versus Player
+				//~~~ PvP = Player versus Player
 				os << strgettext("- PvP: ") << pvp << "\n";
 			}
 			os << strgettext("- Public: ") << announced << "\n";
