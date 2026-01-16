@@ -10555,9 +10555,27 @@ Used by `core.register_node`.
     -- No return value.
 
     on_blast = function(pos, intensity),
-    -- intensity: 1.0 = mid range of regular TNT.
-    -- If defined, called when an explosion touches the node, instead of
-    -- removing the node.
+    -- If defined, mods may call this function when an explosion has touched
+    -- the node instead of removing the node.
+    -- This function is not used by the engine; it is documented here
+    -- to provide a simple standard way to communicate explosions between mods.
+    -- If you need more complex explosion handling, you may want to define your
+    -- own functions.
+    --
+    -- pos: Position of node that "felt" the explosion
+    -- intensity: This is the strength of the "destructive force" that hits the
+    -- node at pos. A positive number. It is up for the calling mod to handle the
+    -- calculations, before calling on_blast, and it has much leeway when picking
+    -- algorithms. Intensity must follow 3 rules:
+    -- 1) It must be a positive number
+    -- 2) The number 1.0 stands for the intensity right in the center of
+    --    an exploding TNT of medium strength. It must be used as a reference
+    --    for all explosions.
+    -- 3) Higher values stand for higher destructive force, and they must
+    --    scale linearly. I.e. intensity 1.5 is 50% more destructive as
+    --    intensity 1.0.
+    --
+    -- No return value.
 
     mod_origin = "modname",
     -- stores which mod actually registered a node
