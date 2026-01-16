@@ -2188,8 +2188,10 @@ void Game::handleClientEvent_PlayerDamage(ClientEvent *event, CameraOrientation 
 			player->getCAO()->getProperties().hp_max : PLAYER_MAX_HP_DEFAULT;
 		f32 damage_ratio = event->player_damage.amount / hp_max;
 
-		runData.damage_flash += 95.0f + 64.f * damage_ratio;
-		runData.damage_flash = MYMIN(runData.damage_flash, 127.0f);
+		if (g_settings->getBool("hurt_flash_enabled")) {
+			runData.damage_flash += 95.0f + 64.f * damage_ratio;
+			runData.damage_flash = MYMIN(runData.damage_flash, 127.0f);
+		}
 
 		player->hurt_tilt_timer = 1.5f;
 		player->hurt_tilt_strength =
