@@ -493,8 +493,6 @@ void Game::run()
 
 	draw_times.reset();
 
-	set_light_table(g_settings->getFloat("display_gamma"));
-
 	m_touch_simulate_aux1 = g_settings->getBool("fast_move")
 			&& client->checkPrivilege("fast");
 
@@ -3393,7 +3391,7 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 		Calculate general brightness
 	*/
 	u32 daynight_ratio = client->getEnv().getDayNightRatio();
-	float time_brightness = decode_light_f((float)daynight_ratio / 1000.0);
+	float time_brightness = decode_light_f((float)daynight_ratio / 1000.0f);
 	float direct_brightness;
 	bool sunlight_seen;
 
