@@ -15,6 +15,9 @@ core.unregister_item_raw = nil
 local register_alias_raw = core.register_alias_raw
 core.register_alias_raw = nil
 
+local override_abm_raw = core.override_abm
+core.register_abm_raw = nil
+
 --
 -- Item / entity / ABM / LBM registration functions
 --
@@ -99,6 +102,19 @@ function core.register_abm(spec)
 
 	core.registered_abms[#core.registered_abms + 1] = spec
 	spec.mod_origin = core.get_current_modname() or "??"
+end
+
+function core.override_abm(name, redef)
+	for id, abm in pairs(core.registered_abms) do
+		if abm.name == name then
+			for key, value in pairs(redef) do
+				abm[key] = redef[key]
+			end
+			override_abm_raw(id, abm)
+			return
+		end
+	end
+	core.log("error", "ABM '"..name.."' not found.")
 end
 
 function core.register_lbm(spec)
