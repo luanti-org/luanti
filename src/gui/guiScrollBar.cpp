@@ -220,6 +220,43 @@ void GUIScrollBar::OnPostRender(u32 time_ms)
 	last_delta_ms = porting::getDeltaMs(last_time_ms, time_ms);
 	last_time_ms = time_ms;
 	interpolatePos();
+
+	bool up_pressed = up_button && up_button->isEnabled() &&
+		up_button->isVisible() && up_button->isPressed();
+	bool down_pressed = down_button && down_button->isEnabled() &&
+		down_button->isVisible() && down_button->isPressed();
+
+	// If neither is pressed, stop repeating
+	if (!up_pressed && !down_pressed) {
+		m_arrow_held = false;
+		return;
+	}
+
+	// If just started holding
+	if (!m_arrow_held) {
+		m_arrow_held = true;
+		m_arrow_up = up_pressed; // if both somehow pressed, up wins
+		m_arrow_last_time = time_ms;
+		return;
+	}
+
+	// Already held: handle repeat
+	const u32 now = time_ms;
+	const u32 initial_delay = 200; // ms before repeating starts
+	const u32 repeat_rate = 20;    // ms between repeats
+
+	u32 elapsed = now - m_arrow_last_time;
+
+	// First wait for initial delay, then repeat at fixed rate
+	if (elapsed > initial_delay) {
+		if (elapsed > repeat_rate) {
+			if (m_arrow_up)
+				setPosInterpolated(getTargetPos() - (small_step * 2));
+			else
+				setPosInterpolated(getTargetPos() + (small_step * 2));
+				m_arrow_last_time = now;
+		}
+	}
 }
 
 void GUIScrollBar::updateAbsolutePosition()
