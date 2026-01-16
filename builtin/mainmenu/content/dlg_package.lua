@@ -39,9 +39,9 @@ local function get_description_hypertext(package, info, loading_error)
 
 		add_link_button(hgettext("Donate"), "donate_url")
 		add_link_button(hgettext("Website"), "website")
-		--~ Link to source code repository
+		--~~~ Link to source code repository
 		add_link_button(hgettext("Source"), "repo")
-		--~ Also known as 'bug tracker'
+		--~~~ Also known as 'bug tracker'
 		add_link_button(hgettext("Issue Tracker"), "issue_tracker")
 		add_link_button(hgettext("Translate"), "translation_url")
 		add_link_button(hgettext("Forum Topic"), "forum_url")
@@ -99,7 +99,7 @@ local function get_formspec(data)
 
 	local info_line
 	if info then
-		--[[~ Info line for a ContentDB package:
+		--[[~~~ Info line for a ContentDB package:
 		$1 = author,
 		$2 = number of downloads,
 		$3, $4, $5 = number of positive/neutral/negative reviews ]]
@@ -145,7 +145,7 @@ local function get_formspec(data)
 		formspec[#formspec + 1] = "image_button[5,0;1,1;" .. core.formspec_escape(defaulttexturedir)
 		formspec[#formspec + 1] = "cdb_queued.png;queued;]"
 	elseif not package.path then
-		--~ $1 = download size
+		--~~~ $1 = download size
 		local label = info and fgettext("Install [$1]", info.download_size) or
 			fgettext("Install")
 		formspec[#formspec + 1] = "style[install;bgcolor=green]"

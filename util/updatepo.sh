@@ -51,6 +51,7 @@ potfile=po/luanti.pot
 echo "updating pot"
 xgettext --package-name=luanti \
 	--add-comments='~' \
+	--add-comments='~~~' \
 	--sort-by-file \
 	--add-location=file \
 	--keyword=N_ \
@@ -71,7 +72,8 @@ xgettext --package-name=luanti \
 
 # Gettext collects a huge amount of bogus comments for the string
 # "Available commands: ", and this not once but twice!
-# I couldn't figure out how to avoid that so get rid of them afterwards:
+# This appears to be a gettext bug: https://savannah.gnu.org/bugs/?67913
+# FIXME: Remove this hack once it is no longer needed
 for i in 1 2; do
 	sed '/^#\. ~= 0\.3$/,/^#: /{ /^#: /!d; }' -i $potfile
 done
