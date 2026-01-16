@@ -218,6 +218,9 @@ GUI
   * `minsize`: minimum tile size, images are scaled to at least this size prior
    doing tiling (background only)
 * `core.set_clouds(<true/false>)`
+* `core.set_clouds_color(colorString)`
+* `core.set_sky_color(colorString)`
+  * `colorString`: `"#RRGGBB"` format
 * `core.set_topleft_text(text)`
 * `core.show_touchscreen_layout()`
 * `core.show_path_select_dialog(formname, caption, is_file_select)`
