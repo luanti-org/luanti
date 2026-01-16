@@ -2388,6 +2388,10 @@ num_emerge_threads (Number of emerge threads) int 0 0 32767
 #    Maximum time an interactive request (e.g. server list fetch) may take, stated in milliseconds.
 curl_timeout (cURL interactive timeout) int 20000 1000 2147483647
 
+#    Set proxy to use by cURL. This is an URI just like the *_proxy environment variables.
+#    Note that this will not apply to Luanti's in-game protocol.
+secure.curl_proxy (cURL proxy address) string
+
 #    Limits number of parallel HTTP requests. Affects:
 #    -    Media fetch if server uses remote_media setting.
 #    -    Serverlist download and server announcement.
