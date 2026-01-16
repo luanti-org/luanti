@@ -3927,6 +3927,13 @@ The following functions provide escape sequences:
     * Removes background colors added by `get_background_escape_sequence`.
 * `core.strip_colors(str)`
     * Removes all color escape sequences.
+* `core.get_font_escape_sequence({mono = true, bold = true, italic = true})`
+    * Can currently only be used for nametags.
+    * Takes a table with keys "mono", "bold" and "italic", each can be
+    * `true`, `false` or `nil`, to enable, disable or use the previous configuration.
+    * The escape sequence modifies the font of the subsequent string.
+* `core.strip_font(str)`
+    * Removes all font escape sequences.
 * `core.strip_escapes(str)`
     * Removes all escape sequences, including client-side translations and
       any unknown or future escape sequences that Luanti might define.
@@ -5852,6 +5859,8 @@ Utilities
       -- Item definition fields `inventory_image`, `inventory_overlay`, `wield_image`
       -- and `wield_overlay` accept a table containing animation definitions. (5.15.0)
       item_image_animation = true,
+      -- Nametags support color escaped sequences and new font escape sequences. (5.15.0)
+      nametag_font_escape_sequences = true,
   }
   ```
 
@@ -9595,6 +9604,8 @@ Player properties need to be saved manually.
 
     nametag_color = <ColorSpec>,
     -- Sets text color of nametag
+    -- If the text contains color escape sequences, only the part before the first
+    -- color escape sequences will have the `nametag_color`.
 
     nametag_bgcolor = <ColorSpec>,
     -- Sets background color of nametag
