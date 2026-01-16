@@ -3660,6 +3660,10 @@
 #    type: string
 # serverlist_file = favoriteservers.json
 
+#    File in client/ that contains your saved usernames and passwords for Multiplayer
+#    type: string
+# keyring_file = keyring.json
+
 ## Gamepads
 
 #    Enable joysticks. Requires a restart to take effect

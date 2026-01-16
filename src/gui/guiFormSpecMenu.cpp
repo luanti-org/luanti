@@ -1434,13 +1434,16 @@ void GUIFormSpecMenu::parseFieldCloseOnEnter(parserData *data, const std::string
 void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element)
 {
 	std::vector<std::string> parts;
-	if (!precheckElement("pwdfield", element, 4, 4, parts))
+	if (!precheckElement("pwdfield", element, 4, 5, parts))
 		return;
 
 	std::vector<std::string> v_pos = split(parts[0],',');
 	std::vector<std::string> v_geom = split(parts[1],',');
 	std::string name = parts[2];
 	std::string label = parts[3];
+	std::string default_val = "";
+	if(parts.size() == 5) // If the field has a default value (for backwards compatibility)
+		default_val = parts[4];
 
 	MY_CHECKPOS("pwdfield",0);
 	MY_CHECKGEOM("pwdfield",1);
@@ -1462,6 +1465,9 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 		geom.Y = m_btn_height*2;
 	}
 
+	if(m_form_src)
+		default_val = m_form_src->resolveText(default_val);
+
 	core::rect<s32> rect = core::rect<s32>(pos.X, pos.Y, pos.X+geom.X, pos.Y+geom.Y);
 
 	std::wstring wlabel = translate_string(utf8_to_wide(unescape_string(label)));
@@ -1476,7 +1482,7 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 		);
 
 	spec.send = true;
-	gui::IGUIEditBox *e = Environment->addEditBox(0, rect, true,
+	gui::IGUIEditBox *e = Environment->addEditBox(utf8_to_wide(unescape_string(default_val)).c_str(), rect, true,
 			data->current_parent, spec.fid);
 
 	if (spec.fname == m_focused_element) {

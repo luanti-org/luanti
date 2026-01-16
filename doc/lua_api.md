@@ -3103,7 +3103,7 @@ Elements
   (`x` and `y` are used as offset values, `w` and `h` are ignored)
 * Available since formspec version 2
 
-### `pwdfield[<X>,<Y>;<W>,<H>;<name>;<label>]`
+### `pwdfield[<X>,<Y>;<W>,<H>;<name>;<label>;<default>]`
 
 * Textual password style field; will be sent to server when a button is clicked
 * When enter is pressed in field, `fields.key_enter_field` will be sent with the
@@ -3113,6 +3113,10 @@ Elements
 * `name` is the name of the field as returned in fields to `on_receive_fields`
 * `label`, if not blank, will be text printed on the top left above the field
 * See `field_close_on_enter` to stop enter closing the formspec
+* `default` (optional) is the default value of the password
+    * `default` may contain variable references such as `${text}` which
+      will fill the value from the metadata value `text`
+    * **Note**: no extra text or more than a single variable is supported ATM.
 
 ### `field[<X>,<Y>;<W>,<H>;<name>;<label>;<default>]`
 

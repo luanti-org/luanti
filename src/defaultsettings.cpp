@@ -382,6 +382,7 @@ void set_default_settings()
 	// Main menu
 	settings->setDefault("main_menu_path", "");
 	settings->setDefault("serverlist_file", "favoriteservers.json");
+	settings->setDefault("keyring_file", "keyring.json");
 
 	// General font settings
 	settings->setDefault("font_path", porting::getDataPath("fonts" DIR_DELIM "Arimo-Regular.ttf"));
