@@ -7,7 +7,6 @@
 #include "settings.h"
 #include "log.h"
 #include "renderingengine.h"
-#include "util/basic_macros.h"
 #include "util/string.h"
 #include <unordered_map>
 #include <vector>
@@ -75,13 +74,8 @@ static std::vector<table_key> table = {
 
 	// Keys without a Char
 	// Note: we add "Key" to the description if the string could be confused for something else
-	DEFINEKEY1(KEY_LBUTTON, N_("Left Click"))
-	DEFINEKEY1(KEY_RBUTTON, N_("Right Click"))
 	//~ Usually paired with the Pause key
 	DEFINEKEY1(KEY_CANCEL, N_("Break Key"))
-	DEFINEKEY1(KEY_MBUTTON, N_("Middle Click"))
-	DEFINEKEY1(KEY_XBUTTON1, N_("Mouse X1"))
-	DEFINEKEY1(KEY_XBUTTON2, N_("Mouse X2"))
 	DEFINEKEY1(KEY_BACK, N_("Backspace"))
 	DEFINEKEY1(KEY_TAB, N_("Tab Key"))
 	DEFINEKEY1(KEY_CLEAR, N_("Clear Key"))
@@ -271,27 +265,25 @@ static const table_key &lookup_keyname(std::string_view name)
 
 static const table_key &lookup_scancode(const u32 scancode)
 {
+	if (!scancode)
+		return invalid_key;
 	auto key = RenderingEngine::get_raw_device()->getKeyFromScancode(scancode);
 	return std::holds_alternative<EKEY_CODE>(key) ?
 		lookup_keykey(std::get<EKEY_CODE>(key)) :
 		lookup_keychar(std::get<wchar_t>(key));
 }
 
-static const table_key &lookup_scancode(const std::variant<u32, EKEY_CODE> &scancode)
-{
-	return std::holds_alternative<EKEY_CODE>(scancode) ?
-		lookup_keykey(std::get<EKEY_CODE>(scancode)) :
-		lookup_scancode(std::get<u32>(scancode));
-}
-
 void KeyPress::loadFromKey(EKEY_CODE keycode, wchar_t keychar)
 {
-	scancode = RenderingEngine::get_raw_device()->getScancodeFromKey(Keycode(keycode, keychar));
+	auto scancode = RenderingEngine::get_raw_device()->getScancodeFromKey(Keycode(keycode, keychar));
+	value.emplace<SCANCODE_INPUT>(scancode);
 }
 
 KeyPress::KeyPress(const std::string &name)
 {
-	if (loadFromScancode(name))
+	if (loadUnsignedFromPrefix<SCANCODE_INPUT>(name, "SYSTEM_SCANCODE_"))
+		return;
+	if (loadUnsignedFromPrefix<MOUSE_BUTTON_INPUT>(name, "MOUSE_BUTTON_"))
 		return;
 	const auto &key = lookup_keyname(name);
 	loadFromKey(key.Key, key.Char);
@@ -300,56 +292,100 @@ KeyPress::KeyPress(const std::string &name)
 KeyPress::KeyPress(const SEvent::SKeyInput &in)
 {
 	if (in.SystemKeyCode)
-		scancode.emplace<u32>(in.SystemKeyCode);
+		value.emplace<SCANCODE_INPUT>(in.SystemKeyCode);
 	else
-		scancode.emplace<EKEY_CODE>(in.Key);
+		loadFromKey(in.Key, in.Char);
 }
 
-std::string KeyPress::formatScancode() const
+KeyPress::KeyPress(const SEvent::SMouseInput &in)
 {
-	if (auto pv = std::get_if<u32>(&scancode))
-		return *pv == 0 ? "" : "SYSTEM_SCANCODE_" + std::to_string(*pv);
-	return "";
+	switch (in.Event) {
+	case EMIE_LMOUSE_PRESSED_DOWN:
+	case EMIE_MMOUSE_PRESSED_DOWN:
+	case EMIE_RMOUSE_PRESSED_DOWN:
+	case EMIE_OMOUSE_PRESSED_DOWN:
+	case EMIE_LMOUSE_LEFT_UP:
+	case EMIE_MMOUSE_LEFT_UP:
+	case EMIE_RMOUSE_LEFT_UP:
+	case EMIE_OMOUSE_LEFT_UP:
+		value.emplace<MOUSE_BUTTON_INPUT>(in.Button);
+		break;
+	default:
+		value.emplace<MOUSE_BUTTON_INPUT>(0);
+	}
 }
 
 std::string KeyPress::sym() const
 {
-	std::string name = lookup_scancode(scancode).Name;
-	if (auto newname = formatScancode(); !newname.empty())
-		return newname;
-	return name;
+	switch (getType()) {
+	case SCANCODE_INPUT:
+		return "SYSTEM_SCANCODE_" + std::to_string(std::get<SCANCODE_INPUT>(value));
+	case MOUSE_BUTTON_INPUT:
+		return "MOUSE_BUTTON_" + std::to_string(std::get<MOUSE_BUTTON_INPUT>(value));
+	default:
+		return "";
+	}
 }
 
 std::string KeyPress::name() const
 {
-	const auto &name = lookup_scancode(scancode).LangName;
-	if (!name.empty())
-		return strgettext(name);
-	if (auto scancode = getScancode())
-		return fmtgettext("Scancode: %d", scancode);
-	return "";
+	switch (getType()) {
+	case SCANCODE_INPUT: {
+		auto scancode = getScancode();
+		const auto &name = lookup_scancode(scancode).LangName;
+		if (!name.empty())
+			return strgettext(name);
+		if (scancode)
+			return fmtgettext("Scancode: %d", scancode);
+		return "";
+	}
+	case MOUSE_BUTTON_INPUT: {
+		auto button = std::get<MOUSE_BUTTON_INPUT>(value);
+		switch (button) {
+		case SDL_BUTTON_LEFT:
+			return strgettext("Left Click");
+		case SDL_BUTTON_MIDDLE:
+			return strgettext("Middle Click");
+		case SDL_BUTTON_RIGHT:
+			return strgettext("Right Click");
+		case SDL_BUTTON_X1:
+			return strgettext("Mouse X1");
+		case SDL_BUTTON_X2:
+			return strgettext("Mouse X2");
+		default:
+			return fmtgettext("Mouse Button %d", button);
+		}
+	}
+	default:
+		return "";
+	}
 }
 
-EKEY_CODE KeyPress::getKeycode() const
+template<std::size_t I>
+bool KeyPress::loadUnsignedFromPrefix(const std::string &name, const std::string &prefix)
 {
-	return lookup_scancode(scancode).Key;
-}
-
-wchar_t KeyPress::getKeychar() const
-{
-	return lookup_scancode(scancode).Char;
-}
-
-bool KeyPress::loadFromScancode(const std::string &name)
-{
-	if (!str_starts_with(name, "SYSTEM_SCANCODE_"))
+	if (!str_starts_with(name, prefix))
 		return false;
 	char *p;
-	const auto code = strtoul(name.c_str()+16, &p, 10);
+	const auto code = strtoul(name.c_str()+prefix.size(), &p, 10);
 	if (p != name.c_str() + name.size())
 		return false;
-	scancode.emplace<u32>(code);
+	value.emplace<I>(code);
 	return true;
+}
+
+KeyPress::operator bool() const
+{
+	switch (getType()) {
+	case SCANCODE_INPUT:
+		return std::get<SCANCODE_INPUT>(value) != 0;
+	case MOUSE_BUTTON_INPUT:
+		return std::get<MOUSE_BUTTON_INPUT>(value) != 0;
+	case GAME_ACTION_INPUT:
+		return std::get<GAME_ACTION_INPUT>(value) < KeyType::INTERNAL_ENUM_COUNT;
+	default:
+		return false;
+	}
 }
 
 std::unordered_map<std::string, KeyPress> specialKeyCache;
@@ -366,9 +402,9 @@ KeyPress KeyPress::getSpecialKey(const std::string &name)
 */
 
 // A simple cache for quicker lookup
-static std::unordered_map<std::string, std::vector<KeyPress>> g_key_setting_cache;
+static std::unordered_map<std::string, std::unordered_set<KeyPress>> g_key_setting_cache;
 
-const std::vector<KeyPress> &getKeySetting(const std::string &settingname)
+const std::unordered_set<KeyPress> &getKeySetting(const std::string &settingname)
 {
 	auto n = g_key_setting_cache.find(settingname);
 	if (n != g_key_setting_cache.end())
@@ -378,7 +414,7 @@ const std::vector<KeyPress> &getKeySetting(const std::string &settingname)
 	auto &ref = g_key_setting_cache[settingname];
 	for (const auto &keysym: str_split(setting_value, '|')) {
 		if (KeyPress kp = keysym) {
-			ref.push_back(kp);
+			ref.emplace(kp);
 		} else {
 			warningstream << "Invalid key '" << keysym << "' for '" << settingname << "'." << std::endl;
 		}
@@ -389,7 +425,7 @@ const std::vector<KeyPress> &getKeySetting(const std::string &settingname)
 bool keySettingHasMatch(const std::string &settingname, KeyPress kp)
 {
 	const auto &keylist = getKeySetting(settingname);
-	return CONTAINS(keylist, kp);
+	return keylist.find(kp) != keylist.end();
 }
 
 void clearKeyCache()
