@@ -80,7 +80,9 @@ static std::vector<table_key> table = {
 	//~~~ Usually paired with the Pause key
 	DEFINEKEY1(KEY_CANCEL, N_("Break Key"))
 	DEFINEKEY1(KEY_MBUTTON, N_("Middle Click"))
+	//~~~ Mouse button
 	DEFINEKEY1(KEY_XBUTTON1, N_("Mouse X1"))
+	//~~~ Mouse button
 	DEFINEKEY1(KEY_XBUTTON2, N_("Mouse X2"))
 	DEFINEKEY1(KEY_BACK, N_("Backspace"))
 	DEFINEKEY1(KEY_TAB, N_("Tab Key"))
