@@ -40,6 +40,7 @@ set(client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/activeobjectmgr.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/camera.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/client.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/clientauth.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/clientenvironment.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/clientlauncher.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/clientmap.cpp
