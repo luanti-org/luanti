@@ -99,7 +99,13 @@ local function get_formspec(tabview, name, tabdata)
 	local retval =
 		-- Search
 		"field[0.25,0.25;7,0.75;te_search;;" .. core.formspec_escape(tabdata.search_for) .. "]" ..
-		"tooltip[te_search;" .. fgettext("Possible filters\ngame:<name>\nmod:<name>\nplayer:<name>") .. "]" ..
+		"tooltip[te_search;" .. table.concat({
+				fgettext("Possible filters"),
+				"game:<name>",
+				"mod:<name>",
+				"player:<name>",
+				"sort:{-}name|relevance|players|mods|uptime|ping|lag",
+		}, "\n") .. "]" ..
 		"field_enter_after_edit[te_search;true]" ..
 		"container[7.25,0.25]" ..
 		"image_button[0,0;0.75,0.75;" .. core.formspec_escape(defaulttexturedir .. "search.png") .. ";btn_mp_search;]" ..
@@ -316,7 +322,9 @@ local function parse_search_input(input)
 		table.insert(query.players, player)
 		local game = word:match("^game:(.*)")
 		query.game = query.game or game
-		if not (mod or player or game) then
+		local sort = word:match("^sort:(.*)")
+		query.sort = query.sort or sort
+		if not (mod or player or game or sort) then
 			table.insert(query.keywords, word)
 		end
 	end
@@ -379,6 +387,54 @@ local function matches_query(server, query)
 	return name_matches and 50 or description_matches and 0
 end
 
+-- Sorts the serverlist depending on the query
+local function sort_servers(servers, query)
+	local sort_by = query.sort or "relevance"
+
+	local reverse = false
+	if string.sub(sort_by, 1, 1) == "-" then
+		reverse = true
+		sort_by = string.sub(sort_by, 2)
+	end
+
+	local get_compare_val
+	if sort_by == "mods" then
+		get_compare_val = function(v)
+			return v.mods and #v.mods or 0
+		end
+	elseif sort_by == "lag" then
+		get_compare_val = function(v)
+			return v.lag or math.huge
+		end
+	else
+		local sort_indices = {
+			players = "clients",
+			uptime = "uptime",
+			name = "name",
+			ping = "ping",
+			relevance = "points",
+		}
+		get_compare_val = function(v)
+			return v[sort_indices[sort_by] or "points"]
+		end
+	end
+
+	-- For those lower is typically better
+	local asc = {
+		name = true,
+		ping = true,
+		lag = true,
+	}
+
+	table.sort(servers, function(a, b)
+		if reverse == (asc[sort_by] or false) then
+			return get_compare_val(a) > get_compare_val(b)
+		else
+			return get_compare_val(a) < get_compare_val(b)
+		end
+	end)
+end
+
 local function search_server_list(input, tabdata)
 	menudata.search_result = nil
 	if #serverlistmgr.servers < 2 then
@@ -412,9 +468,7 @@ local function search_server_list(input, tabdata)
 
 	local current_server = find_selected_server()
 
-	table.sort(search_result, function(a, b)
-		return a.points > b.points
-	end)
+	sort_servers(search_result, query)
 	menudata.search_result = search_result
 
 	-- Keep current selection if it's in search results
