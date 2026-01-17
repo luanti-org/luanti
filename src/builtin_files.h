@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <string>
+#include <string_view>
 #include <unordered_map>
 
-extern const std::unordered_map<std::string, std::string> g_builtin_file_sha256_map;
+extern const std::unordered_map<std::string_view, std::string_view> g_builtin_file_sha256_map;
