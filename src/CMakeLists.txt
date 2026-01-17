@@ -403,11 +403,11 @@ add_custom_command(
 	-D "PROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
 	-D "BUILTIN_BASE_PATH=${BUILTIN_BASE_PATH}"
 	-D "BUILTIN_SRCS=\"${BUILTIN_SRCS}\"" # (relative paths, so improper escaping should work)
-	-P "${CMAKE_SOURCE_DIR}/cmake/Modules/GenerateBuiltinFilesList.cmake"
+	-P "${CMAKE_SOURCE_DIR}/cmake/Modules/HashBuiltinFiles.cmake"
 	DEPENDS
 		${BUILTIN_SRCS_ABS}
 		"${PROJECT_SOURCE_DIR}/builtin_files.cpp.in"
-		"${CMAKE_SOURCE_DIR}/cmake/Modules/GenerateBuiltinFilesList.cmake"
+		"${CMAKE_SOURCE_DIR}/cmake/Modules/HashBuiltinFiles.cmake"
 	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Target to generate just builtin_files.cpp (used by util/ci/clang-tidy.sh)
