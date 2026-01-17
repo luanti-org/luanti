@@ -6,6 +6,8 @@
 
 #include "builtin_files.h"
 
-extern const std::unordered_map<std::string, std::string> g_builtin_file_sha256_map = {
+using namespace std::literals::string_view_literals;
+
+extern const std::unordered_map<std::string_view, std::string_view> g_builtin_file_sha256_map = {
 @BUILTIN_SHA256S_INITIALIZER_LIST@
 };

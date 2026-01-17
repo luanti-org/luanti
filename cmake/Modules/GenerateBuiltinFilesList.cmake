@@ -6,7 +6,7 @@ foreach(P_REL ${BUILTIN_SRCS})
 
 	file(SHA256 ${P_ABS} H)
 
-	list(APPEND BUILTIN_SHA256S "{\"${P_REL}\", \"${H}\"}")
+	list(APPEND BUILTIN_SHA256S "{\"${P_REL}\"sv, \"${H}\"sv}")
 endforeach()
 
 list(JOIN BUILTIN_SHA256S ",\n" BUILTIN_SHA256S_INITIALIZER_LIST)
