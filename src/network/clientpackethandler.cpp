@@ -143,13 +143,7 @@ void Client::handleCommand_AuthAccept(NetworkPacket* pkt)
 					<< m_recommended_send_interval<<std::endl;
 
 	// Reply to server
-	/*~ DO NOT TRANSLATE THIS LITERALLY!
-	This is a special string which needs to contain the translation's
-	language code (e.g. "de" for German). */
-	std::string lang = gettext("LANG_CODE");
-	if (lang == "LANG_CODE")
-		lang.clear();
-
+	std::string lang = get_client_language_code();
 	NetworkPacket resp_pkt(TOSERVER_INIT2, sizeof(u16) + lang.size());
 	resp_pkt << lang;
 	Send(&resp_pkt);
