@@ -501,7 +501,7 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 		if (path_abs.empty() || builtin_path_abs.empty())
 			break;
 
-		if (std::string_view(path_abs).substr(0, builtin_path_abs.size()) != builtin_path_abs)
+		if (!fs::PathStartsWith(path_abs, builtin_path_abs))
 			break; // not in builtin
 
 		auto path_local = std::string_view(path_abs).substr(builtin_path_abs.size());
