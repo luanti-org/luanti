@@ -56,7 +56,7 @@ void TestServerModManager::runTests(IGameDef *gamedef)
 		ofs2 << "-- intentionally empty\n";
 	}
 
-	setenv("MINETEST_MOD_PATH", test_mods.c_str(), 1);
+	setenv("LUANTI_MOD_PATH", test_mods.c_str(), 1);
 
 	m_worlddir = getTestTempDirectory().append(DIR_DELIM "world");
 	fs::CreateDir(m_worlddir);
@@ -71,9 +71,9 @@ void TestServerModManager::runTests(IGameDef *gamedef)
 	TEST(testGetModNames);
 	TEST(testGetModMediaPathsWrongDir);
 	TEST(testGetModMediaPaths);
-	// TODO: test MINETEST_GAME_PATH
+	// TODO: test LUANTI_GAME_PATH
 
-	unsetenv("MINETEST_MOD_PATH");
+	unsetenv("LUANTI_MOD_PATH");
 }
 
 void TestServerModManager::testCreation()
