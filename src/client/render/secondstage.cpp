@@ -101,14 +101,20 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	static const u8 TEXTURE_BLOOM = 2;
 	static const u8 TEXTURE_EXPOSURE_1 = 3;
 	static const u8 TEXTURE_EXPOSURE_2 = 4;
-	static const u8 TEXTURE_FXAA = 5;
+	static const u8 TEXTURE_AA_OUTPUT = 5;
 	static const u8 TEXTURE_VOLUME = 6;
 
 	static const u8 TEXTURE_MSAA_COLOR = 7;
 	static const u8 TEXTURE_MSAA_DEPTH = 8;
 
-	static const u8 TEXTURE_SCALE_DOWN = 10;
-	static const u8 TEXTURE_SCALE_UP = 20;
+	static const u8 TEXTURE_SSAA_SSIM_L = 9;
+	static const u8 TEXTURE_SSAA_SSIM_L2 = 10;
+	static const u8 TEXTURE_SSAA_SSIM_M = 11;
+	static const u8 TEXTURE_SSAA_SSIM_R = 12;
+
+
+	static const u8 TEXTURE_SCALE_DOWN = 20;
+	static const u8 TEXTURE_SCALE_UP = 30;
 
 	// because bloom_format is floating point
 	const bool bloom_available = driver->queryFeature(video::EVDF_RENDER_TO_FLOAT_TEXTURE);
@@ -145,18 +151,30 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 			"combination with post-processing by the current video driver." << std::endl;
 	}
 
-	const bool enable_ssaa = antialiasing == "ssaa";
+	const bool enable_ssaa_smooth = antialiasing == "ssaa";
+	bool enable_ssaa_ssim_based = false;
+	if (antialiasing == "ssaa_ssim_based") {
+		if (color_format != video::ECF_A16B16G16R16F)
+			warningstream << "Cannot enable sharp SSAA since the "
+				"post_processing_texture_bits setting is not 16." << std::endl;
+		else if (!driver->queryTextureFormat(video::ECF_R32F))
+			warningstream << "Cannot enable sharp SSAA since the "
+				"driver does not support single-channel 32-bit floating point "
+				"textures." << std::endl;
+		else
+			enable_ssaa_ssim_based = true;
+	}
 	const bool enable_fxaa = g_settings->getBool("fxaa");
 
 	verbosestream << "addPostProcessing(): AA = "
-		<< (enable_msaa ? "msaa" : enable_ssaa ? "ssaa" : "none")
+		<< (enable_msaa ? "msaa" : enable_ssaa_smooth ? "ssaa" :
+			enable_ssaa_ssim_based ? "ssaa_ssim_based" : "none")
 		<< " " << antialiasing_scale << "x" << (enable_fxaa ? " + fxaa" : "") << std::endl;
 
 	// Super-sampling is simply rendering into a larger texture.
 	// Downscaling is done by the final step when rendering to the screen.
-	if (enable_ssaa) {
+	if (enable_ssaa_smooth || enable_ssaa_ssim_based)
 		scale *= antialiasing_scale;
-	}
 
 	if (enable_msaa) {
 		buffer->setTexture(TEXTURE_MSAA_COLOR, scale, "3d_render_msaa", color_format, false, antialiasing_scale);
@@ -262,23 +280,57 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	// FXAA
 	u8 final_stage_source = TEXTURE_COLOR;
 
-	if (enable_fxaa) {
-		final_stage_source = TEXTURE_FXAA;
+	//~ if (enable_fxaa) {
+	if (enable_fxaa && !enable_ssaa_ssim_based) {
+		final_stage_source = TEXTURE_AA_OUTPUT;
 
-		buffer->setTexture(TEXTURE_FXAA, scale, "fxaa", color_format);
+		buffer->setTexture(TEXTURE_AA_OUTPUT, scale, "fxaa", color_format);
 		shader_id = client->getShaderSource()->getShaderRaw("fxaa");
 		PostProcessingStep *effect = pipeline->createOwned<PostProcessingStep>(shader_id, std::vector<u8> { TEXTURE_COLOR });
 		pipeline->addStep(effect);
 		effect->setBilinearFilter(0, true);
 		effect->setRenderSource(buffer);
-		effect->setRenderTarget(pipeline->createOwned<TextureBufferOutput>(buffer, TEXTURE_FXAA));
+		effect->setRenderTarget(pipeline->createOwned<TextureBufferOutput>(buffer, TEXTURE_AA_OUTPUT));
+	}
+	if (enable_ssaa_ssim_based) {
+		final_stage_source = TEXTURE_AA_OUTPUT;
+
+		// SSAA with SSIM-based downscaling is based on
+		// "Perceptually Based Downscaling of Images"
+		// by A. Cengiz Öztireli and Markus Gross.
+
+		buffer->setTexture(TEXTURE_SSAA_SSIM_L, v2f{1.0f, 1.0f}, "l", color_format);
+		buffer->setTexture(TEXTURE_SSAA_SSIM_L2, v2f{1.0f, 1.0f}, "l2", video::ECF_R32F);
+		shader_id = client->getShaderSource()->getShaderRaw("ssaa_ssim_based_1");
+		// TODO: this does not work together with FXAA
+		//~ PostProcessingStep *effect = pipeline->createOwned<PostProcessingStep>(shader_id, std::vector<u8>{enable_fxaa ? TEXTURE_AA_OUTPUT : TEXTURE_COLOR});
+		PostProcessingStep *effect = pipeline->createOwned<PostProcessingStep>(shader_id, std::vector<u8>{TEXTURE_COLOR});
+		pipeline->addStep(effect);
+		effect->setRenderSource(buffer);
+		effect->setRenderTarget(pipeline->createOwned<TextureBufferOutput>(buffer, std::vector<u8>{TEXTURE_SSAA_SSIM_L, TEXTURE_SSAA_SSIM_L2}));
+
+		buffer->setTexture(TEXTURE_SSAA_SSIM_M, v2f{1.0f, 1.0f}, "m", video::ECF_R32F);
+		buffer->setTexture(TEXTURE_SSAA_SSIM_R, v2f{1.0f, 1.0f}, "r", video::ECF_R32F);
+		shader_id = client->getShaderSource()->getShaderRaw("ssaa_ssim_based_2");
+		effect = pipeline->createOwned<PostProcessingStep>(shader_id, std::vector<u8>{TEXTURE_SSAA_SSIM_L, TEXTURE_SSAA_SSIM_L2});
+		pipeline->addStep(effect);
+		effect->setBilinearFilter(1, true);
+		effect->setRenderSource(buffer);
+		effect->setRenderTarget(pipeline->createOwned<TextureBufferOutput>(buffer, std::vector<u8>{TEXTURE_SSAA_SSIM_M, TEXTURE_SSAA_SSIM_R}));
+
+		buffer->setTexture(TEXTURE_AA_OUTPUT, v2f{1.0f, 1.0f}, "ssaa_ssim_based", color_format);
+		shader_id = client->getShaderSource()->getShaderRaw("ssaa_ssim_based_3");
+		effect = pipeline->createOwned<PostProcessingStep>(shader_id, std::vector<u8>{TEXTURE_SSAA_SSIM_L, TEXTURE_SSAA_SSIM_M, TEXTURE_SSAA_SSIM_R});
+		pipeline->addStep(effect);
+		effect->setRenderSource(buffer);
+		effect->setRenderTarget(pipeline->createOwned<TextureBufferOutput>(buffer, TEXTURE_AA_OUTPUT));
 	}
 
 	// final merge
 	shader_id = client->getShaderSource()->getShaderRaw("second_stage");
 	PostProcessingStep *effect = pipeline->createOwned<PostProcessingStep>(shader_id, std::vector<u8> { final_stage_source, TEXTURE_SCALE_UP, TEXTURE_EXPOSURE_2 });
 	pipeline->addStep(effect);
-	if (enable_ssaa)
+	if (enable_ssaa_smooth)
 		effect->setBilinearFilter(0, true);
 	effect->setBilinearFilter(1, true);
 	effect->setRenderSource(buffer);
