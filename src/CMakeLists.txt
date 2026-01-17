@@ -402,7 +402,7 @@ add_custom_command(
 	-D "PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}"
 	-D "PROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
 	-D "BUILTIN_BASE_PATH=${BUILTIN_BASE_PATH}"
-	-D "BUILTIN_SRCS=\"${BUILTIN_SRCS}\"" # (relative paths, so improper escaping should work)
+	-D "BUILTIN_SRCS=\"${BUILTIN_SRCS}\"" # (relative paths, so should work without escaping)
 	-P "${CMAKE_SOURCE_DIR}/cmake/Modules/HashBuiltinFiles.cmake"
 	DEPENDS
 		${BUILTIN_SRCS_ABS}
