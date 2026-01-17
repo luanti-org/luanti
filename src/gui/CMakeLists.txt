@@ -10,6 +10,7 @@ set(gui_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/guiButtonItemImage.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/guiButtonKey.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/guiChatConsole.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/guiStatusText.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/guiEditBoxWithScrollbar.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/guiEngine.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/guiFormSpecMenu.cpp
