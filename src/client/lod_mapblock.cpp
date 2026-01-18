@@ -260,31 +260,38 @@ void LodMeshGenerator::processNodeGroup(const bitset (&all_set_nodes)[3 * BITSET
 			// nodes per volume.
 			// These operations are considerably faster on a regular u64 (here aliased as bitset) instead of an
 			// std::bitset, so we *cant* flatten these bitsets into one large std::bitset.
+
+			// Y-Up
 			m_nodes_faces[BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[BITSET_MAX2 + BITSET_MAX * u + v] &
 				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * u + v] >> 1))
 				>> 1 & U62_MAX;
 
+			// Y-Down
 			m_nodes_faces[BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[BITSET_MAX2 + BITSET_MAX * u + v] &
 				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * u + v] << 1))
 				>> 1 & U62_MAX;
 
+			// X-Up
 			m_nodes_faces[2 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[BITSET_MAX * u + v] &
 				~(all_set_nodes[BITSET_MAX * u + v] >> 1))
 				>> 1 & U62_MAX;
 
+			// X-Down
 			m_nodes_faces[3 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[BITSET_MAX * u + v] &
 				~(all_set_nodes[BITSET_MAX * u + v] << 1))
 				>> 1 & U62_MAX;
 
+			// Z-Up
 			m_nodes_faces[4 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] &
 				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] >> 1))
 				>> 1 & U62_MAX;
 
+			// Z-Down
 			m_nodes_faces[5 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] &
 				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] << 1))
