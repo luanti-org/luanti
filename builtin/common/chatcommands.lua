@@ -26,7 +26,6 @@ local function getopts(command, param)
 		if match:byte(1) == 45 then -- 45 = '-'
 			local second = match:byte(2)
 			if second == 45 then
-				-- TRANSLATORS: '/help' is a chat command
 				return false, S("Invalid parameters (see /help @1).", command)
 			elseif second and (second < 48 or second > 57) then -- 48 = '0', 57 = '9'
 				opts = opts .. match:sub(2)
@@ -86,7 +85,6 @@ local function do_help_cmd(name, param)
 		return false, args
 	end
 	if #args > 1 then
-		-- TRANSLATORS: Message when '/help' command was used wrongly
 		return false, S("Too many arguments, try using just /help <command>")
 	end
 	local use_gui = INIT == "client" or core.get_player_by_name(name)
@@ -104,7 +102,6 @@ local function do_help_cmd(name, param)
 		if INIT == "game" then
 			msg = S("Available commands: @1",
 				table.concat(cmds, " ")) .. "\n"
-				-- TRANSLATORS: 'help' and 'all' mustn't be translated. cmd = command
 				.. S("Use '/help <cmd>' to get more "
 				.. "information, or '/help all' to list "
 				.. "everything.")
@@ -174,7 +171,6 @@ if INIT == "client" then
 	})
 else
 	core.register_chatcommand("help", {
-		-- TRANSLATORS: Syntax of 'help' command. Don't translate anything except 'cmd' (=command)
 		params = S("[all | privs | <cmd>] [-t]"),
 		description = S("Get help for commands or list privileges (-t: output in chat)"),
 		func = do_help_cmd,
