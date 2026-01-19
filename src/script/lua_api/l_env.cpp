@@ -1377,9 +1377,10 @@ int ModApiEnv::l_get_translated_string(lua_State * L)
 
 	std::string lang_code = luaL_checkstring(L, 1);
 	std::string string = luaL_checkstring(L, 2);
+	auto lang = str_split(utf8_to_wide(lang_code), L':');
 
 	auto *translations = getServer(L)->getTranslationLanguage(lang_code);
-	string = wide_to_utf8(translate_string(utf8_to_wide(string), translations));
+	string = wide_to_utf8(translate_string(utf8_to_wide(string), lang, translations));
 	lua_pushstring(L, string.c_str());
 	return 1;
 }

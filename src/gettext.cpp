@@ -6,6 +6,7 @@
 #include <cstring>
 #include <iostream>
 #include "gettext.h"
+#include "util/langcode.h"
 #include "util/string.h"
 #include "porting.h"
 #include "log.h"
@@ -146,6 +147,10 @@ static void MSVC_LocaleWorkaround(int argc, char* argv[])
 
 #endif
 
+static std::string configured_locale;
+static std::vector<std::wstring> effective_locale;
+static std::string effective_locale_string;
+
 /******************************************************************************/
 void init_gettext(const char *path, const std::string &configured_language,
 	int argc, char *argv[])
@@ -223,10 +228,31 @@ void init_gettext(const char *path, const std::string &configured_language,
 	setlocale(LC_ALL, "");
 #endif // if USE_GETTEXT
 
+	// Set up locale for in-game translations
+	configured_locale = configured_language;
+	if (configured_locale.empty()) {
+		if (auto lang = getenv("LANGUAGE"); lang && *lang)
+			configured_locale = lang;
+		else
+			configured_locale = getenv("LANG");
+	}
+	effective_locale = parse_language_list(utf8_to_wide(configured_locale));
+	effective_locale_string = wide_to_utf8(str_join(effective_locale, L":"));
+
 	/* no matter what locale is used we need number format to be "C" */
 	/* to ensure formspec parameters are evaluated correctly!        */
 
 	setlocale(LC_NUMERIC, "C");
 	infostream << "Message locale is now set to: "
 			<< setlocale(LC_ALL, 0) << std::endl;
+}
+
+const std::vector<std::wstring> &get_effective_locale()
+{
+	return effective_locale;
+}
+
+const std::string &get_client_language_code()
+{
+	return effective_locale_string;
 }
