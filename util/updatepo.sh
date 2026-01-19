@@ -50,7 +50,7 @@ cd ..
 potfile=po/luanti.pot
 echo "updating pot"
 xgettext --package-name=luanti \
-	--add-comments='~~~' \
+	--add-comments='TRANSLATORS:'\
 	--sort-by-file \
 	--add-location=file \
 	--keyword=N_ \
