@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Chinese (Simplified) (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-06 23:13+0100\n"
-"PO-Revision-Date: 2026-01-19 08:01+0000\n"
-"Last-Translator: maxchen32 <maxchen32@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2026-01-20 16:27+0000\n"
+"Last-Translator: 玄枵 <ipmlosion@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/minetest/minetest/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -109,9 +109,8 @@ msgid "Set"
 msgstr "设置"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
 msgid "$1 spread"
-msgstr "x 点差"
+msgstr "$1 轴展宽"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
