@@ -40,8 +40,10 @@ VIFileVersion "0.0.0.0"
 # these are LCIDs (Language Code Identifiers)
 LangString BannerText 1033 "Extracting, please wait..."
 LangString BannerText 1031 "Extrahiere, bitte warten..."
+LangString BannerText 1040 "Estrazione in corso, attendere..."
 LangString ErrorText 1033 "An error occurred!"
 LangString ErrorText 1031 "Ein Fehler ist aufgetreten!"
+LangString ErrorText 1040 "Si è verificato un errore!"
 
 Var needExtract
 
