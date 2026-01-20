@@ -17,7 +17,7 @@ Please note the following:
 -->
 
 
-##### Luanti version
+### Luanti version
 <!--
 Paste the Luanti version below.
 Refer to the "About" tab of the menu or run `luanti --version` on the command line.
@@ -26,7 +26,7 @@ Refer to the "About" tab of the menu or run `luanti --version` on the command li
 
 ```
 
-##### OS, Hardware & Co.
+### OS, Hardware & Co.
 <!-- Please fill these out: -->
 
 * Operating system and version:
@@ -41,7 +41,7 @@ Refer to the "About" tab of the menu or run `luanti --version` on the command li
   Example: ES 3.2 / ogles2 / X11
 
 
-##### Summary
+### Summary
 <!--
 Describe your problem here.
 
@@ -49,7 +49,7 @@ Make sure to include the all error messages you see and/or screenshots in case o
 Attaching a copy of your `debug.txt` and `minetest.conf` can be helpful as well.
 -->
 
-##### Steps to reproduce
+### Steps to reproduce
 <!--
 Explain how the problem has happened.
 
