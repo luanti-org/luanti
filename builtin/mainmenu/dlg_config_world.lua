@@ -125,8 +125,10 @@ local function get_formspec(data)
 			for i, dep_name in ipairs(hard_deps) do
 				local dep = enabled_mods_by_name[dep_name]
 				if not dep then
+					-- TRANSLATORS: Displayed when a mod dependency is unsatisfied
 					hard_deps[i] = mt_color_red .. dep_name .. " " .. fgettext("(Unsatisfied)")
 				elseif with_error[dep.virtual_path] then
+					-- TRANSLATORS: Message in the mod list when a mod is enabled with error
 					hard_deps[i] = mt_color_orange .. dep_name .. " " .. fgettext("(Enabled, has error)")
 				else
 					hard_deps[i] = mt_color_green .. dep_name
@@ -153,11 +155,14 @@ local function get_formspec(data)
 			if soft_deps_str == "" then
 				retval = retval ..
 					"label[0,1.25;" ..
+					-- TRANSLATORS: About mod dependencies
 					fgettext("No (optional) dependencies") .. "]"
 			else
 				retval = retval ..
+					-- TRANSLATORS: About mod dependencies
 					"label[0,1.25;" .. fgettext("No hard dependencies") ..
 					"]" ..
+					-- TRANSLATORS: About mod dependencies
 					"label[0,1.75;" .. fgettext("Optional dependencies:") ..
 					"]" ..
 					"textlist[0,2.25;5,4;world_config_optdepends;" ..
@@ -166,15 +171,19 @@ local function get_formspec(data)
 		else
 			if soft_deps_str == "" then
 				retval = retval ..
+					-- TRANSLATORS: About mod dependencies
 					"label[0,1.25;" .. fgettext("Dependencies:") .. "]" ..
 					"textlist[0,1.75;5,4;world_config_depends;" ..
 					hard_deps_str .. ";0]" ..
+					-- TRANSLATORS: About mod dependencies
 					"label[0,6;" .. fgettext("No optional dependencies") .. "]"
 			else
 				retval = retval ..
+					-- TRANSLATORS: About mod dependencies
 					"label[0,1.25;" .. fgettext("Dependencies:") .. "]" ..
 					"textlist[0,1.75;5,2.125;world_config_depends;" ..
 					hard_deps_str .. ";0]" ..
+					-- TRANSLATORS: About mod dependencies
 					"label[0,3.9;" .. fgettext("Optional dependencies:") ..
 					"]" ..
 					"textlist[0,4.375;5,1.8;world_config_optdepends;" ..

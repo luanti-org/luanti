@@ -61,6 +61,7 @@ local function get_formspec(tabview, name, tabdata)
 	if update_count == 0 then
 		contentdb_label = fgettext("Browse online content")
 	else
+		-- TRANSLATORS: $1 = number of available updates
 		contentdb_label = fgettext("Browse online content [$1]", update_count)
 	end
 
@@ -271,6 +272,7 @@ return {
 		if update_count == 0 then
 			return fgettext("Content")
 		else
+			-- TRANSLATORS: $1 = number of available updates
 			return fgettext("Content [$1]", update_count)
 		end
 	end,
