@@ -8,6 +8,7 @@
 #include "quaternion.h"
 
 #include "lua_api/l_base.h"
+#include <lua.h>
 
 class LuaRotation : public ModApiBase
 {
@@ -28,17 +29,19 @@ private:
 	// self = x(angle); self = y(angle); self = z(angle)
 	template<float v3f::* C>
 	static int l_fixed_axis_angle(lua_State *L);
-	// self = euler_angles(pitch, yaw, roll)
+	// self = euler_xyz(pitch, yaw, roll)
 	static int l_euler_xyz(lua_State *L);
-	// self = euler_angles(pitch, yaw, roll)
-	static int l_euler_zxy_rh(lua_State *L);
+	// self = euler_zxy(pitch, yaw, roll)
+	static int l_euler_zxy(lua_State *L);
 
 	// x, y, z, w = to_quaternion(self)
 	static int l_to_quaternion(lua_State *L);
 	// axis, angle = to_axis_angle(self)
 	static int l_to_axis_angle(lua_State *L);
-	// pitch, yaw, roll = to_euler_angles(self)
+	// pitch, yaw, roll = to_euler_xyz(self)
 	static int l_to_euler_xyz(lua_State *L);
+	// pitch, yaw, roll = to_euler_zxy(self)
+	static int l_to_euler_zxy(lua_State *L);
 
 	// rotated_vector = apply(self, vector)
 	static int l_apply(lua_State *L);
