@@ -30,6 +30,8 @@ private:
 	static int l_fixed_axis_angle(lua_State *L);
 	// self = euler_angles(pitch, yaw, roll)
 	static int l_euler_xyz(lua_State *L);
+	// self = euler_angles(pitch, yaw, roll)
+	static int l_euler_zxy_rh(lua_State *L);
 
 	// x, y, z, w = to_quaternion(self)
 	static int l_to_quaternion(lua_State *L);

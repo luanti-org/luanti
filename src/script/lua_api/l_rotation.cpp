@@ -79,6 +79,19 @@ int LuaRotation::l_euler_xyz(lua_State *L)
 	return 1;
 }
 
+int LuaRotation::l_euler_zxy_rh(lua_State *L)
+{
+	f32 pitch = readFiniteParam<f32>(L, 1);
+	f32 yaw = readFiniteParam<f32>(L, 2);
+	f32 roll = readFiniteParam<f32>(L, 3);
+
+	core::quaternion z, xy;
+	z.set(0, 0, -roll);
+	xy.set(-pitch, -yaw, 0);
+	create(L, xy * z);
+	return 1;
+}
+
 int LuaRotation::l_to_quaternion(lua_State *L)
 {
 	const auto &q = check(L, 1);
@@ -206,6 +219,7 @@ void LuaRotation::Register(lua_State *L)
 	CONSTRUCTOR(quaternion)
 	CONSTRUCTOR(axis_angle)
 	CONSTRUCTOR(euler_xyz)
+	CONSTRUCTOR(euler_zxy_rh)
 	CONSTRUCTOR(compose)
 
 #undef CONSTRUCTOR
