@@ -37,11 +37,9 @@ read_globals = {
 	math   = {fields = {"hypot", "round"}},
 
 	-- Busted-style unit testing
-	read_globals = {
-		"describe",
-		"it",
-		assert = {fields = {"same", "equals"}},
-	},
+	"describe",
+	"it",
+	assert = {fields = {"same", "equals"}},
 }
 
 globals = {
