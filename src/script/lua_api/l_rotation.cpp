@@ -9,6 +9,7 @@
 #include "common/c_converter.h"
 #include "irr_v3d.h"
 #include "quaternion.h"
+#include "util/numeric.h"
 
 #include <lauxlib.h>
 #include <lua.h>
@@ -79,15 +80,16 @@ int LuaRotation::l_euler_xyz(lua_State *L)
 	return 1;
 }
 
-int LuaRotation::l_euler_zxy_rh(lua_State *L)
+int LuaRotation::l_euler_zxy(lua_State *L)
 {
 	f32 pitch = readFiniteParam<f32>(L, 1);
 	f32 yaw = readFiniteParam<f32>(L, 2);
 	f32 roll = readFiniteParam<f32>(L, 3);
 
 	core::quaternion z, xy;
-	z.set(0, 0, -roll);
-	xy.set(-pitch, -yaw, 0);
+	z.set(0, 0, roll);
+	xy.set(pitch, yaw, 0);
+
 	create(L, z * xy);
 	return 1;
 }
@@ -118,6 +120,16 @@ int LuaRotation::l_to_euler_xyz(lua_State *L)
 	const auto &q = check(L, 1);
 	core::vector3df euler;
 	q.toEuler(euler);
+	lua_pushnumber(L, euler.X);
+	lua_pushnumber(L, euler.Y);
+	lua_pushnumber(L, euler.Z);
+	return 3;
+}
+
+int LuaRotation::l_to_euler_zxy(lua_State *L)
+{
+	const auto &q = check(L, 1);
+	const v3f euler = getPitchYawRollRad(q.getMatrix());
 	lua_pushnumber(L, euler.X);
 	lua_pushnumber(L, euler.Y);
 	lua_pushnumber(L, euler.Z);
@@ -219,7 +231,7 @@ void LuaRotation::Register(lua_State *L)
 	CONSTRUCTOR(quaternion)
 	CONSTRUCTOR(axis_angle)
 	CONSTRUCTOR(euler_xyz)
-	CONSTRUCTOR(euler_zxy_rh)
+	CONSTRUCTOR(euler_zxy)
 	CONSTRUCTOR(compose)
 
 #undef CONSTRUCTOR
@@ -242,6 +254,7 @@ const luaL_Reg LuaRotation::methods[] = {
 	METHOD(to_quaternion),
 	METHOD(to_axis_angle),
 	METHOD(to_euler_xyz),
+	METHOD(to_euler_zxy),
 	METHOD(apply),
 	METHOD(compose),
 	METHOD(invert),

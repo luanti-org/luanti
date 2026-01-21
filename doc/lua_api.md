@@ -4215,11 +4215,11 @@ Constructors
   * Uses X-Y-Z rotation order, equivalent to
     `Rotation.compose(Rotation.z(roll), Rotation.y(yaw), Rotation.x(pitch))`.
   * Consistent with the euler angles that can be used for bones or attachments.
-* `Rotation.euler_zxy_rh(pitch, yaw, roll)`
-  * Same as `euler_xyz`, but uses Z-X-Y rotation order, and is right-handed.
+* `Rotation.euler_zxy(pitch, yaw, roll)`
+  * Same as `euler_xyz`, but uses Z-X-Y rotation order.
   * This is consistent with the euler angles that can be used for entities.
-    You can do `Rotation.euler_zxy_rh(rotation:unpack())`
-    to convert an entity rotation vector.
+    You can do `Rotation.euler_zxy((-rotation):unpack())`
+    to convert an entity rotation vector (note the handedness conversion).
 * `Rotation.compose(...)`: See methods below.
 
 Conversions
@@ -4229,15 +4229,19 @@ Corresponding to the constructors, rotations can be converted
 to different representations; note that you need not get the same values out -
 you merely get values that produce a (roughly) equivalent rotation when passed to the corresponding constructor:
 
-* `x, y, z, w = Rotation:to_quaternion()`
+* `x, y, z, w = rot:to_quaternion()`
   * Returns the normalized quaternion representation.
-* `axis, angle = Rotation:to_axis_angle()`
+* `axis, angle = rot:to_axis_angle()`
   * `axis` is a normalized vector.
   * `angle` is in radians.
-* `pitch, yaw, roll = Rotation:to_euler_xyz()`
+* `pitch, yaw, roll = rot:to_euler_xyz()`
   * Angles are all in radians.
   * `pitch`, `yaw`, `roll`: Rotation around the X-, Y-, and Z-axis respectively.
   * Inverse of `Rotation.euler_xyz`.
+* `pitch, yaw, roll = rot:to_euler_zxy()`
+  * Same as `to_euler_xyz`, except uses Z-X-Y rotation order.
+  * To obtain a rotation for an entity, you can do
+    `-vector.new(rot:to_euler_xyz())`.
 
 Rotations can also be converted to matrices using `Matrix4.rotation(rot)`.
 
