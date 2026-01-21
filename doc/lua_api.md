@@ -1902,8 +1902,9 @@ where `x` and `y` are numbers in range [-1.0, 1.0], with `0` being central.
 `-1` is moved to the left/up, and `1` is to the right/down. Fractional values
 can be used.
 
-The `offset` field specifies a pixel offset from the position, specified
-as integers. Contrary to position, the offset is not scaled to screen size.
+The `offset` field specifies a pixel offset from the position, with syntax
+`{ x = <number>, y = <number> }`. Fractional values can be used.
+Contrary to position, the offset is not scaled to screen size.
 This allows for some precisely positioned items in the HUD.
 
 **Note**: `offset` _will_ adapt to screen DPI as well as user defined scaling
