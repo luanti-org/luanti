@@ -205,12 +205,23 @@ describe("affine transform constructors", function()
 		), Matrix4.scale(vector.new(-1, 2, 3)))
 	end)
 	it("rotation", function()
+		-- Note: Left-handed rotation around the Z-axis by 90° maps X to Y, Y to -X.
 		assert_close(Matrix4.new(
 			0, -1, 0, 0,
 			1, 0, 0, 0,
 			0, 0, 1, 0,
 			0, 0, 0, 1
 		), Matrix4.rotation(Rotation.z(math.pi / 2)))
+	end)
+	it("TRS", function()
+		local t = vector.new(1, 2, 3)
+		local r = Rotation.z(math.pi / 2)
+		local s = vector.new(4, 5, 6)
+		assert_close(Matrix4.trs(t, r, s), Matrix4.compose(
+			Matrix4.translation(t),
+			Matrix4.rotation(r),
+			Matrix4.scale(s)
+		))
 	end)
 	it("reflection", function()
 		assert_close(Matrix4.identity() - 2/(1^2 + 2^2 + 3^2) * Matrix4.new(
