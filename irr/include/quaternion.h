@@ -294,7 +294,8 @@ inline quaternion &quaternion::operator=(const matrix4 &m)
 }
 #endif
 
-// multiplication operator
+//! Multiplication operator. this is applied first, other second.
+// FIXME swap this for consistency with matrix multiplications and the rest of mathematics
 inline quaternion quaternion::operator*(const quaternion &other) const
 {
 	quaternion tmp;
