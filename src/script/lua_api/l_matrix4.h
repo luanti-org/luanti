@@ -23,16 +23,18 @@ private:
 	static int l_identity(lua_State *L);
 	// full(number)
 	static int l_full(lua_State *L);
+	// new(a11, a12, ..., a44)
+	static int l_new(lua_State *L);
 	// translation(vec)
 	static int l_translation(lua_State *L);
 	// rotation(rot)
 	static int l_rotation(lua_State *L);
-	// reflection(normal)
-	static int l_reflection(lua_State *L);
 	// scale(vec)
 	static int l_scale(lua_State *L);
-	// new(a11, a12, ..., a44)
-	static int l_new(lua_State *L);
+	// trs(t, r, s)
+	static int l_trs(lua_State *L);
+	// reflection(normal)
+	static int l_reflection(lua_State *L);
 
 	// Misc. container utils
 

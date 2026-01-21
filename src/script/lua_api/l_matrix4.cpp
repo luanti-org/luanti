@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2025 Lars Müller
 
+#include "Transform.h"
 #include "irrTypes.h"
 #include "irr_v3d.h"
 #include "matrix4.h"
@@ -86,10 +87,28 @@ int LuaMatrix4::l_rotation(lua_State *L)
 
 int LuaMatrix4::l_scale(lua_State *L)
 {
-	v3f scale = readParam<v3f>(L, 1);
+	v3f scale = lua_isnumber(L, 1)
+			? v3f(readParam<f32>(L, 1))
+			: readParam<v3f>(L, 1);
 	core::matrix4 &matrix = create(L);
 	matrix = core::matrix4();
 	matrix.setScale(scale);
+	return 1;
+}
+
+int LuaMatrix4::l_trs(lua_State *L)
+{
+	v3f translation = lua_isnoneornil(L, 1) ? v3f() : readParam<v3f>(L, 1);
+	core::quaternion rotation = lua_isnoneornil(L, 2)
+			? core::quaternion()
+			: LuaRotation::check(L, 2);
+	v3f scale = lua_isnoneornil(L, 3)
+			? v3f(1)
+			: lua_isnumber(L, 3) ? v3f(readParam<f32>(L, 3)) : readParam<v3f>(L, 3);
+	// FIXME core::Transform should use left-handed conventions
+	core::Transform trs{translation, rotation.makeInverse(), scale};
+	core::matrix4 &matrix = create(L);
+	matrix = trs.buildMatrix();
 	return 1;
 }
 
@@ -412,6 +431,7 @@ void LuaMatrix4::Register(lua_State *L)
 	CONSTRUCTOR(translation)
 	CONSTRUCTOR(rotation)
 	CONSTRUCTOR(scale)
+	CONSTRUCTOR(trs)
 	CONSTRUCTOR(reflection)
 	CONSTRUCTOR(compose)
 #undef CONSTRUCTOR
