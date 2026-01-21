@@ -47,6 +47,13 @@ describe("vector", function()
 		assert.is_true(vector.check(vector.copy(v)))
 	end)
 
+	it("unpack()", function()
+		local x, y, z = vector.new(1, 2, 3):unpack()
+		assert.equal(1, x)
+		assert.equal(2, y)
+		assert.equal(3, z)
+	end)
+
 	it("indexes", function()
 		local some_vector = vector.new(24, 42, 13)
 		assert.equal(24, some_vector[1])
