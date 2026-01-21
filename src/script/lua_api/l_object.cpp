@@ -2454,7 +2454,11 @@ int ObjectRef::l_set_stars(lua_State *L)
 			"scale", star_params.scale);
 		star_params.day_opacity = getfloatfield_default(L, 2,
 			"day_opacity", star_params.day_opacity);
-		star_params.star_seed = getintfield_default(L, 2, "star_seed", star_params.star_seed);
+
+		lua_getfield(L, 2, "star_seed");
+		if (!lua_isnil(L, -1))
+			star_params.star_seed = lua_tointeger(L, -1);
+		lua_pop(L, 1);
 	}
 
 	getServer(L)->setStars(player, star_params);
