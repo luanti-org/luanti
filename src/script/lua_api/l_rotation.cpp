@@ -88,7 +88,7 @@ int LuaRotation::l_euler_zxy_rh(lua_State *L)
 	core::quaternion z, xy;
 	z.set(0, 0, -roll);
 	xy.set(-pitch, -yaw, 0);
-	create(L, xy * z);
+	create(L, z * xy);
 	return 1;
 }
 

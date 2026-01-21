@@ -41,8 +41,9 @@ describe("constructors", function()
 	end)
 	it("euler angles", function()
 		local pitch, yaw, roll = 1, 2, 3
-		assert_close(Rotation.compose(Rotation.z(roll), Rotation.y(yaw), Rotation.x(pitch)),
-				Rotation.euler_xyz(pitch, yaw, roll))
+		local rx, ry, rz = Rotation.x(pitch), Rotation.y(yaw), Rotation.z(roll)
+		assert_close(Rotation.compose(rz, ry, rx), Rotation.euler_xyz(pitch, yaw, roll))
+		assert_close(Rotation.compose(ry, rx, rz), Rotation.euler_zxy_rh(-pitch, -yaw, -roll))
 	end)
 end)
 
