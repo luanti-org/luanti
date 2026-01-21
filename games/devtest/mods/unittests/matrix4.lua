@@ -43,10 +43,10 @@ describe("getters & setters", function()
 	end)
 	it("get_column & set_column", function()
 		local mat = mat1:copy()
-		assert.same({3, 7, 11, 15}, {mat:get_column(3)})
-		mat:set_column(3, 1, 2, 3, 4)
-		assert.same({1, 2, 3, 4}, {mat:get_column(3)})
-		assert.same({3, 7, 11, 15}, {mat1:get_column(3)})
+		assert.same({3, 7, 11, 15}, {mat:get_col(3)})
+		mat:set_col(3, 1, 2, 3, 4)
+		assert.same({1, 2, 3, 4}, {mat:get_col(3)})
+		assert.same({3, 7, 11, 15}, {mat1:get_col(3)})
 	end)
 end)
 
@@ -83,14 +83,14 @@ describe("transform", function()
 			dot({1, 2, 3}, v),
 			dot({5, 6, 7}, v),
 			dot({9, 10, 11}, v)
-		):offset(4, 8, 12), mat1:transform_position(vector.new(unpack(v))))
+		):offset(4, 8, 12), mat1:transform_pos(vector.new(unpack(v))))
 	end)
 	it("direction", function()
 		assert.equals(vector.new(
 			dot({1, 2, 3}, v),
 			dot({5, 6, 7}, v),
 			dot({9, 10, 11}, v)
-		), mat1:transform_direction(vector.new(unpack(v))))
+		), mat1:transform_dir(vector.new(unpack(v))))
 	end)
 end)
 
@@ -112,7 +112,7 @@ describe("composition", function()
 	it("matrix multiplication for two arguments", function()
 		local composition = mat1:compose(mat2)
 		local function rc_dot(m1_row, m2_col)
-			return dot({mat1:get_row(m1_row)}, {mat2:get_column(m2_col)})
+			return dot({mat1:get_row(m1_row)}, {mat2:get_col(m2_col)})
 		end
 		assert.equals(Matrix4.new(
 			rc_dot(1, 1), rc_dot(1, 2), rc_dot(1, 3), rc_dot(1, 4),

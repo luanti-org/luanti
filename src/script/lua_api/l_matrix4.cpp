@@ -166,7 +166,7 @@ int LuaMatrix4::l_set_row(lua_State *L)
 	return 0;
 }
 
-int LuaMatrix4::l_get_column(lua_State *L)
+int LuaMatrix4::l_get_col(lua_State *L)
 {
 	const auto &matrix = check(L, 1);
 	int col = readIndex(L, 2);
@@ -175,7 +175,7 @@ int LuaMatrix4::l_get_column(lua_State *L)
 	return 4;
 }
 
-int LuaMatrix4::l_set_column(lua_State *L)
+int LuaMatrix4::l_set_col(lua_State *L)
 {
 	auto &matrix = check(L, 1);
 	int col = readIndex(L, 2);
@@ -222,7 +222,7 @@ int LuaMatrix4::l_transform_4d(lua_State *L)
 	return 4;
 }
 
-int LuaMatrix4::l_transform_position(lua_State *L)
+int LuaMatrix4::l_transform_pos(lua_State *L)
 {
 	const auto &matrix = check(L, 1);
 	v3f vec = readParam<v3f>(L, 2);
@@ -231,7 +231,7 @@ int LuaMatrix4::l_transform_position(lua_State *L)
 	return 1;
 }
 
-int LuaMatrix4::l_transform_direction(lua_State *L)
+int LuaMatrix4::l_transform_dir(lua_State *L)
 {
 	const auto &matrix = check(L, 1);
 	v3f vec = readParam<v3f>(L, 2);

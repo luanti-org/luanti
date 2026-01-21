@@ -46,10 +46,10 @@ private:
 	static int l_get_row(lua_State *L);
 	// set_row(self, row, x, y, z, w)
 	static int l_set_row(lua_State *L);
-	// x, y, z, w = get_column(self, column)
-	static int l_get_column(lua_State *L);
-	// set_column(self, column, x, y, z, w)
-	static int l_set_column(lua_State *L);
+	// x, y, z, w = get_col(self, column)
+	static int l_get_col(lua_State *L);
+	// set_col(self, column, x, y, z, w)
+	static int l_set_col(lua_State *L);
 	// copy(self)
 	static int l_copy(lua_State *L);
 	// unpack(self)
@@ -57,10 +57,10 @@ private:
 
 	// x, y, z, w = transform_4d(self, x, y, z, w)
 	static int l_transform_4d(lua_State *L);
-	// transform_position(self, vector)
-	static int l_transform_position(lua_State *L);
-	// transform_direction(self, vector)
-	static int l_transform_direction(lua_State *L);
+	// transform_pos(self, vector)
+	static int l_transform_pos(lua_State *L);
+	// transform_dir(self, vector)
+	static int l_transform_dir(lua_State *L);
 	// compose(self, other)
 	static int l_compose(lua_State *L);
 	// determinant(self)
