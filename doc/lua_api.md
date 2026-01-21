@@ -6803,14 +6803,13 @@ Environment access
     * Deprecated: use `core.get_mapgen_setting(name)` instead.
     * Returns a table containing:
         * `mgname` (string, this is `mg_name` in `core.get_mapgen_settings`)
-        * `seed` (integer [ulua])
+        * `seed` (integer [-2^64, 2^64])
         * `chunksize` (integer [1, 32767])
         * `water_level` (integer [s16])
         * `flags` (string, this is `mg_flags` in `core.get_mapgen_settings`)
-    * **WARNING**: `seed` is broken and should not be used. Internally, mapgen
-        seeds are actually in the [u64] range in Luanti. So if the actual mapgen
-        seed is outside the [slua] range, the seed returned by this function may
-        be wrong
+    * **WARNING**: `seed` is broken. If the returned `seed` is outside the
+        range of `[0, 2^53-1]`, it is probably incorrect. The actual seed
+        internally stored by Luanti is in the [u64] range.
 * `core.set_mapgen_params(MapgenParams)`
     * Deprecated: use `core.set_mapgen_setting(name, value, override)`
       instead.
