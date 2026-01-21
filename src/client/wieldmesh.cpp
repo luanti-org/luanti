@@ -234,6 +234,7 @@ WieldMeshSceneNode::WieldMeshSceneNode(scene::ISceneManager *mgr, s32 id):
 	m_anisotropic_filter = g_settings->getBool("anisotropic_filter");
 	m_bilinear_filter = g_settings->getBool("bilinear_filter");
 	m_trilinear_filter = g_settings->getBool("trilinear_filter");
+	m_texel_antialiasing = g_settings->getBool("texel_antialiasing");
 
 	// If this is the first wield mesh scene node, create a cache
 	// for extrusion meshes (and a cube mesh), otherwise reuse it
@@ -321,13 +322,15 @@ void WieldMeshSceneNode::setExtruded(video::ITexture *texture,
 		material.MaterialType = m_material_type;
 		material.MaterialTypeParam = 0.5f;
 		material.BackfaceCulling = true;
-		// don't filter low-res textures, makes them look blurry
+		// Don't filter low-res textures without texel anti-aliasing,
+		// makes them look blurry
 		material.forEachTexture([=] (auto &tex) {
 			video::ITexture *t = tex.Texture;
 			if (!t)
 				return;
 			core::dimension2d<u32> d = t->getSize();
-			bool f_ok = std::min(d.Width, d.Height) >= TEXTURE_FILTER_MIN_SIZE;
+			bool f_ok = m_texel_antialiasing ||
+				std::min(d.Width, d.Height) >= TEXTURE_FILTER_MIN_SIZE;
 			setMaterialFilters(tex, m_bilinear_filter && f_ok,
 				m_trilinear_filter && f_ok, m_anisotropic_filter);
 		});
