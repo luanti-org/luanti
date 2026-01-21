@@ -4311,8 +4311,8 @@ Container utils:
 * `mat:set(row, col, number)`
 * `x, y, z, w = mat:get_row(row)`
 * `mat:set_row(row, x, y, z, w)`
-* `x, y, z, w = mat:get_column(col)`
-* `mat:set_column(col, x, y, z, w)`
+* `x, y, z, w = mat:get_col(col)`
+* `mat:set_col(col, x, y, z, w)`
 * `mat:copy()`
 * `r1c1, r1c2, ..., r4c4 = mat:unpack()`:
   Get the 16 numbers in the matrix in row-major order
@@ -4322,10 +4322,10 @@ Linear algebra:
 
 * Vector transformations:
   * `x, y, z, w = mat:transform_4d(x, y, z, w)`: Apply the matrix to a 4d vector.
-  * `mat:transform_position(pos)`:
+  * `mat:transform_pos(pos)`:
     * Apply the matrix to a vector representing a position.
     * Applies the transformation as if w = 1 and discards the resulting w component.
-  * `mat:transform_direction(dir)`:
+  * `mat:transform_dir(dir)`:
     * Apply the matrix to a vector representing a direction.
     * Ignores the fourth row and column; does not apply the translation (w = 0).
 * `Matrix4.compose(...)`: Returns the composition of the given matrices.
