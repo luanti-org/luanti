@@ -4036,8 +4036,8 @@ For the following functions (and subchapters),
 `s` is a scalar (a number),
 vectors are written like this: `(x, y, z)`:
 
-* `vector.new([a[, b, c]])`:
-    * Returns a new vector `(a, b, c)`.
+* `vector.new(x, y, z)`:
+    * Returns a new vector `(x, y, z)`.
     * Deprecated: `vector.new()` does the same as `vector.zero()` and
       `vector.new(v)` does the same as `vector.copy(v)`
 * `vector.zero()`:
@@ -4046,6 +4046,7 @@ vectors are written like this: `(x, y, z)`:
     * Returns a new vector of length 1, pointing into a direction chosen uniformly at random.
 * `vector.copy(v)`:
     * Returns a copy of the vector `v`.
+* `x, y, z = vector.unpack(v)`
 * `vector.from_string(s[, init])`:
     * Returns `v, np`, where `v` is a vector read from the given string `s` and
       `np` is the next position in the string after the vector.
@@ -4214,6 +4215,11 @@ Constructors
   * Uses X-Y-Z rotation order, equivalent to
     `Rotation.compose(Rotation.z(roll), Rotation.y(yaw), Rotation.x(pitch))`.
   * Consistent with the euler angles that can be used for bones or attachments.
+* `Rotation.euler_zxy_rh(pitch, yaw, roll)`
+  * Same as `euler_xyz`, but uses Z-X-Y rotation order, and is right-handed.
+  * This is consistent with the euler angles that can be used for entities.
+    You can do `Rotation.euler_zxy_rh(rotation:unpack())`
+    to convert an entity rotation vector.
 * `Rotation.compose(...)`: See methods below.
 
 Conversions
@@ -4231,7 +4237,7 @@ you merely get values that produce a (roughly) equivalent rotation when passed t
 * `pitch, yaw, roll = Rotation:to_euler_xyz()`
   * Angles are all in radians.
   * `pitch`, `yaw`, `roll`: Rotation around the X-, Y-, and Z-axis respectively.
-  * Inverse of `Rotation.euler_xyz`
+  * Inverse of `Rotation.euler_xyz`.
 
 Rotations can also be converted to matrices using `Matrix4.rotation(rot)`.
 
