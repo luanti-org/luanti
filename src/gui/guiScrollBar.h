@@ -80,8 +80,7 @@ private:
 	bool tray_clicked;
 
 	// Auto‑repeat for arrow buttons
-	bool m_arrow_held = false;
-	bool m_arrow_up = false;
+	bool m_arrow_down = false;
 	u32 m_arrow_last_time = 0;
 
 	s32 scroll_pos;

@@ -2,7 +2,7 @@ set(DEFAULT_SDL3 OFF)
 
 option(USE_SDL2_STATIC "Link with SDL2 static libraries" FALSE)
 
-option(USE_SDL3 "Use the SDL3 backend instead of SDL3" ${DEFAULT_SDL3})
+option(USE_SDL3 "Use the SDL3 backend instead of SDL2" ${DEFAULT_SDL3})
 option(USE_SDL3_STATIC "Link with SDL3 static libraries" FALSE)
 
 
