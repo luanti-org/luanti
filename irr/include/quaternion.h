@@ -199,7 +199,8 @@ public:
 	//! Fills an angle (radians) around an axis (unit vector)
 	void toAngleAxis(f32 &angle, core::vector3df &axis) const;
 
-	//! Output this quaternion to an Euler angle (radians)
+	//! Output this quaternion to an Euler angle.
+	//! X-Y-Z rotation order, left-handed, radians.
 	void toEuler(vector3df &euler) const;
 
 	//! Set quaternion to identity
