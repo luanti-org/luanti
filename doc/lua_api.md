@@ -4256,22 +4256,29 @@ not serialization, and may thus change.
 Matrices
 ========
 
-Luanti uses 4x4 matrices to represent transformations of 3d vectors (embedded into 4d space).
-The matrices use row-major conventions:
-The first row is the image of the vector (1, 0, 0, 0),
-the second row is the image of (0, 1, 0, 0), and so on.
-Thus the translation is in the last row.
+Luanti uses 4x4 matrices to represent linear transformations of 3d vectors.
+For this, 3d vectors are embedded into 4d space.
 
-You must account for reasonable imprecisions in matrix calculations,
-as they currently use 32-bit floats; they may use 64-bit floats in the future.
-You must not rely on the internal representation or type of matrices;
-e.g. they may be implemented in pure Lua as a table in the future.
+The matrices use column-major conventions.
+Vectors are treated as column vectors.
+This means the first column is the image of the vector (1, 0, 0, 0),
+the second column is the image of (0, 1, 0, 0), and so on.
+Thus the translation is in the last column.
+Row and column indices range from `1` to `4`.
+
+You must account for loss of precision in matrix calculations.
+Matrices currently use 32-bit floats.
+However, your code should not expect imprecisions either.
+Matrices may carry out computations more precisely in the future.
+
+You should not rely on the internal representation or type of matrices.
+You should only interact with matrices through the interface documented below.
+This allows us to replace the implementation in the future.
 
 Matrices are very suitable for constructing, composing and applying
-linear transformations; they are not so useful for exact storage of transformations,
-decomposition into rotation and scale will not be exact.
-
-Row and column indices range from `1` to `4`.
+linear transformations; they are not so useful for exact storage of
+TRS transformations if the properties need to be handled separately:
+Decomposition into rotation and scale will be expensive and inexact.
 
 Constructors
 ------------
@@ -4279,7 +4286,7 @@ Constructors
 * `Matrix4.new(r1c1, r1c2, ..., r4c4)`:
   Constructs a matrix from the given 16 numbers in row-major order.
 * `Matrix4.identity()`: Constructs an identity matrix.
-* `Matrix4.all(number)`: Constructs a matrix where all entries are the given number.
+* `Matrix4.full(number)`: Constructs a matrix where all entries are the given number.
 * `Matrix4.translation(vec)`: Constructs a matrix that translates vectors by the given `vector`.
 * `Matrix4.rotation(rot)`: Constructs a matrix that applies the given `Rotation` to vectors.
 * `Matrix4.scale(vec)`: Constructs a matrix that applies the given
@@ -4291,16 +4298,17 @@ Constructors
 Methods
 -------
 
-Storage:
+Container utils:
 
 * `mat:get(row, col)`
 * `mat:set(row, col, number)`
 * `x, y, z, w = mat:get_row(row)`
 * `mat:set_row(row, x, y, z, w)`
-* `x, y, z, w = Matrix4:get_column(col)`
+* `x, y, z, w = mat:get_column(col)`
 * `mat:set_column(col, x, y, z, w)`
 * `mat:copy()`
-* `... = mat:unpack()`: Get the 16 numbers in the matrix in row-major order
+* `r1c1, r1c2, ..., r4c4 = mat:unpack()`:
+  Get the 16 numbers in the matrix in row-major order
   (inverse of `Matrix4.new`).
 
 Linear algebra:

@@ -21,8 +21,8 @@ private:
 
 	// identity()
 	static int l_identity(lua_State *L);
-	// all(number)
-	static int l_all(lua_State *L);
+	// full(number)
+	static int l_full(lua_State *L);
 	// translation(vec)
 	static int l_translation(lua_State *L);
 	// rotation(rot)
