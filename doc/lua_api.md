@@ -4157,12 +4157,14 @@ vector (`{x = <pitch>, y = <yaw>, z = <roll>}`) where pitch, yaw and roll are
 angles in radians.
 
 * `vector.rotate(v, r)`:
+    * Use of this is **discouraged**. Prefer using `Rotation` objects instead.
     * Applies the rotation `r` to `v` and returns the result.
     * Uses (extrinsic) Z-X-Y rotation order and is right-handed, consistent with `ObjectRef:set_rotation`.
     * `vector.rotate(vector.new(0, 0, 1), r)` and
       `vector.rotate(vector.new(0, 1, 0), r)` return vectors pointing
       forward and up relative to an entity's rotation `r`.
 * `vector.rotate_around_axis(v1, v2, a)`:
+    * Use of this is **discouraged**. Prefer using `Rotation` objects instead.
     * Returns `v1` rotated around axis `v2` by `a` radians according to
       the right hand rule.
 * `vector.dir_to_rotation(direction[, up])`:
