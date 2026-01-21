@@ -629,6 +629,7 @@ local function get_formspec(dialogdata)
 
 		if show_reset then
 			local default = comp.setting.default
+
 			if comp.setting.type == "bool" then
 				if default == "true" then
 					default = fgettext_ne("Enabled")
@@ -645,12 +646,15 @@ local function get_formspec(dialogdata)
 				local sinfo = get_setting_info(comp.setting.name)
 				if sinfo and sinfo.option_labels and sinfo.option_labels[default] then
 					default = sinfo.option_labels[default]
+				elseif default == "" then
+					-- TRANSLATORS: Shown when a default setting is the empty string
+					default = fgettext_ne("<empty>")
 				end
 			end
 
 			local reset_tooltip = default and
 					-- TRANSLATORS: $1 will be replaced with a default setting value
-					fgettext("Reset setting to default ($1)", tostring(default)) or
+					fgettext("Reset setting to default: $1", tostring(default)) or
 					fgettext("Reset setting to default")
 			fs[#fs + 1] = ("image_button[%f,%f;0.5,0.5;%s;%s;]"):format(
 					right_pane_width - 1.4, info_reset_y, reset_icon_path, "reset_" .. i)
