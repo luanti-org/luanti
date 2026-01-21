@@ -94,20 +94,6 @@ SECTION("matrix-quaternion roundtrip") {
 	});
 }
 
-SECTION("matrix-quaternion roundtrip") {
-	test_euler_angles_rad([](v3f rad) {
-		quaternion q(rad);
-		matrix4 mat;
-		q.getMatrix(mat);
-		quaternion q2(mat);
-		matrix4 mat2;
-		q2.getMatrix(mat2);
-		CHECK(matrix_equals(mat, mat2));
-		// FIXME why does this fail?
-		// CHECK(q.angleTo(q2) < 1e-2);
-	});
-}
-
 SECTION("matrix-euler roundtrip") {
 	test_euler_angles_rad([](v3f rad) {
 		matrix4 mat, mat2;
