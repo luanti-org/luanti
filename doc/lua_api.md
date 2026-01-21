@@ -4276,9 +4276,10 @@ You should only interact with matrices through the interface documented below.
 This allows us to replace the implementation in the future.
 
 Matrices are very suitable for constructing, composing and applying
-linear transformations; they are not so useful for exact storage of
+linear transformations; they are not useful for exact storage of
 TRS transformations if the properties need to be handled separately:
 Decomposition into rotation and scale will be expensive and inexact.
+You should instead store the translation, rotation and scale.
 
 Constructors
 ------------
@@ -4287,10 +4288,14 @@ Constructors
   Constructs a matrix from the given 16 numbers in row-major order.
 * `Matrix4.identity()`: Constructs an identity matrix.
 * `Matrix4.full(number)`: Constructs a matrix where all entries are the given number.
-* `Matrix4.translation(vec)`: Constructs a matrix that translates vectors by the given `vector`.
+* `Matrix4.translation(vec)`: Constructs a matrix that translates vectors by the given vector.
 * `Matrix4.rotation(rot)`: Constructs a matrix that applies the given `Rotation` to vectors.
-* `Matrix4.scale(vec)`: Constructs a matrix that applies the given
+* `Matrix4.scale(s)`: Constructs a matrix that applies the given
   component-wise scaling factors to vectors.
+  `s` can be a vector or a number.
+* `Matrix4.trs([t], [r], [s])`: Shorthand for
+  `Matrix4.compose(Matrix4.translation(t), Matrix4.rotation(r), Matrix4.scale(s))`.
+  All parameters are optional and default to identity transforms.
 * `Matrix4.reflection(normal)`: Constructs a matrix that reflects vectors
   at the plane with the given plane normal vector (which need not be normalized).
 * `Matrix4.compose(...)`: See methods below.
