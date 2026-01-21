@@ -18,6 +18,7 @@
 #include <lua.h>
 #include <sstream>
 
+/// Read an index from 1 to MAX, convert to 0-based
 template<int MAX>
 int LuaMatrix4::readIndex(lua_State *L, int index)
 {
@@ -48,7 +49,7 @@ int LuaMatrix4::l_identity(lua_State *L)
 	return 1;
 }
 
-int LuaMatrix4::l_all(lua_State *L)
+int LuaMatrix4::l_full(lua_State *L)
 {
 	f32	v = readParam<f32>(L, 1);
 	create(L) = v;
@@ -62,6 +63,7 @@ int LuaMatrix4::l_new(lua_State *L)
 	core::matrix4 &matrix = create(L);
 	for (int i = 0; i < 16; ++i)
 		matrix[i] = readParam<f32>(L, 1 + i);
+	matrix = matrix.getTransposed();
 	return 1;
 }
 
@@ -96,29 +98,19 @@ int LuaMatrix4::l_reflection(lua_State *L)
 	v3f normal = readParam<v3f>(L, 1);
 	normal.normalize();
 	core::matrix4 &matrix = create(L);
-	matrix = core::matrix4();
-	// TODO move to CMatrix4
-	f32 factor = 2.0f / normal.getLengthSQ();
-	auto subtract_scaled_row = [&](int i, f32 scalar) {
-		v3f scaled = (factor * scalar) * normal;
-		matrix(i, 0) -= scaled.X;
-		matrix(i, 1) -= scaled.Y;
-		matrix(i, 2) -= scaled.Z;
-	};
-	subtract_scaled_row(0, normal.X);
-	subtract_scaled_row(1, normal.Y);
-	subtract_scaled_row(2, normal.Z);
+	matrix = core::matrix4::reflection(normal);
 	return 1;
 }
 
 // Container utils
+// Because we transpose in Matrix4.new, the notions of row and column are swapped.
 
 int LuaMatrix4::l_get(lua_State *L)
 {
 	const auto &matrix = check(L, 1);
 	int row = readIndex(L, 2);
 	int col = readIndex(L, 3);
-	lua_pushnumber(L, matrix(row, col));
+	lua_pushnumber(L, matrix(col, row));
 	return 1;
 }
 
@@ -127,8 +119,7 @@ int LuaMatrix4::l_set(lua_State *L)
 	auto &matrix = check(L, 1);
 	int row = readIndex(L, 2);
 	int col = readIndex(L, 3);
-	f64 value = readParam<f64>(L, 4);
-	matrix(row, col) = value;
+	matrix(col, row) = readParam<f32>(L, 4);
 	return 0;
 }
 
@@ -137,7 +128,7 @@ int LuaMatrix4::l_get_row(lua_State *L)
 	const auto &matrix = check(L, 1);
 	int row = readIndex(L, 2);
 	for (int col = 0; col < 4; ++col)
-		lua_pushnumber(L, matrix(row, col));
+		lua_pushnumber(L, matrix(col, row));
 	return 4;
 }
 
@@ -149,10 +140,10 @@ int LuaMatrix4::l_set_row(lua_State *L)
 	f32 y = readParam<f32>(L, 4);
 	f32 z = readParam<f32>(L, 5);
 	f32 w = readParam<f32>(L, 6);
-	matrix(row, 0) = x;
-	matrix(row, 1) = y;
-	matrix(row, 2) = z;
-	matrix(row, 3) = w;
+	matrix(0, row) = x;
+	matrix(1, row) = y;
+	matrix(2, row) = z;
+	matrix(3, row) = w;
 	return 0;
 }
 
@@ -161,7 +152,7 @@ int LuaMatrix4::l_get_column(lua_State *L)
 	const auto &matrix = check(L, 1);
 	int col = readIndex(L, 2);
 	for (int row = 0; row < 4; ++row)
-		lua_pushnumber(L, matrix(row, col));
+		lua_pushnumber(L, matrix(col, row));
 	return 4;
 }
 
@@ -173,11 +164,21 @@ int LuaMatrix4::l_set_column(lua_State *L)
 	f32 y = readParam<f32>(L, 4);
 	f32 z = readParam<f32>(L, 5);
 	f32 w = readParam<f32>(L, 6);
-	matrix(0, col) = x;
-	matrix(1, col) = y;
-	matrix(2, col) = z;
-	matrix(3, col) = w;
+	matrix(col, 0) = x;
+	matrix(col, 1) = y;
+	matrix(col, 2) = z;
+	matrix(col, 3) = w;
 	return 0;
+}
+
+int LuaMatrix4::l_unpack(lua_State *L)
+{
+	auto matrix = check(L, 1);
+	matrix = matrix.getTransposed();
+	lua_createtable(L, 16, 0);
+	for (int i = 0; i < 16; ++i)
+		lua_pushnumber(L, matrix[i]);
+	return 16;
 }
 
 int LuaMatrix4::l_copy(lua_State *L)
@@ -185,15 +186,6 @@ int LuaMatrix4::l_copy(lua_State *L)
 	const auto &matrix = check(L, 1);
 	create(L) = matrix;
 	return 1;
-}
-
-int LuaMatrix4::l_unpack(lua_State *L)
-{
-	const auto &matrix = check(L, 1);
-	lua_createtable(L, 16, 0);
-	for (int i = 0; i < 16; ++i)
-		lua_pushnumber(L, matrix[i]);
-	return 16;
 }
 
 // Linear algebra
@@ -290,7 +282,7 @@ int LuaMatrix4::l_is_affine_transform(lua_State *L)
 
 int LuaMatrix4::l_get_translation(lua_State *L)
 {
-	auto matrix = check(L, 1);
+	const auto &matrix = check(L, 1);
 	push_v3f(L, matrix.getTranslation());
 	return 1;
 }
@@ -415,7 +407,7 @@ void LuaMatrix4::Register(lua_State *L)
 
 	CONSTRUCTOR(new)
 	CONSTRUCTOR(identity)
-	CONSTRUCTOR(all)
+	CONSTRUCTOR(full)
 
 	CONSTRUCTOR(translation)
 	CONSTRUCTOR(rotation)

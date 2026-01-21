@@ -72,6 +72,10 @@ public:
 	\param constructor Choose the initialization style */
 	CMatrix4(const CMatrix4<T> &other, eConstructor constructor = EM4CONST_COPY);
 
+	//! Constructs a matrix that reflects vectors
+    //! at the plane with the given plane normal vector (which need not be normalized).
+	[[nodiscard]] static CMatrix4<T> reflection(const vector3d<T> &normal);
+
 	//! Simple operator for directly accessing every element of the matrix.
 	T &operator()(const s32 row, const s32 col)
 	{
@@ -493,6 +497,23 @@ inline CMatrix4<T>::CMatrix4(const CMatrix4<T> &other, eConstructor constructor)
 			*this = getTransposed();
 		break;
 	}
+}
+
+template <class T>
+CMatrix4<T> CMatrix4<T>::reflection(const vector3d<T> &normal)
+{
+	CMatrix4<T> refl;
+	const f32 factor = 2.0f / normal.getLengthSQ();
+	auto subtract_scaled_row = [&](int i, f32 scalar) {
+		const auto scaled = (factor * scalar) * normal;
+		refl(i, 0) -= scaled.X;
+		refl(i, 1) -= scaled.Y;
+		refl(i, 2) -= scaled.Z;
+	};
+	subtract_scaled_row(0, normal.X);
+	subtract_scaled_row(1, normal.Y);
+	subtract_scaled_row(2, normal.Z);
+	return refl;
 }
 
 //! Add another matrix.
