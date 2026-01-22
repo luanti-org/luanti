@@ -81,24 +81,26 @@ integer range [0, 255] contains all integers from 0 to 255,
 Some ranges in this documentation like [-2^15, 2^15-1] occur frequently,
 and may be abbreviated like so:
 
-    [s16]  = [-2^15, 2^15-1] = [-32768, 32767]
-    [s32]  = [-2^31, 2^31-1] = [-2147483648, 2147483647]
-    [slua] = [-2^53, 2^53]   = [-9007199254740992, 9007199254740992]
-    [u16]  = [0,     2^16-1] = [0, 65535]
-    [u32]  = [0,     2^32-1] = [0, 4294967295]
-    [u64]  = [0,     2^64-1] = [0, 18446744073709551615]
-    [ulua] = [0,     2^53]   = [0, 9007199254740992]
-    [imagesize]              = [1, 23000]
-    [imageframe]             = [0, 22999]
+    [s16]  = [-2^15    , 2^15-1] = [-32768, 32767]
+    [s32]  = [-2^31,   , 2^31-1] = [-2147483648, 2147483647]
+    [slua] = [-(2^53-1), 2^53-1] = [-9007199254740991, 9007199254740991]
+    [u16]  = [0,         2^16-1] = [0, 65535]
+    [u32]  = [0,         2^32-1] = [0, 4294967295]
+    [u64]  = [0,         2^64-1] = [0, 18446744073709551615]
+    [ulua] = [0,         2^53-1] = [0, 9007199254740991]
+    [imagesize]                  = [1, 23000]
+    [imageframe]                 = [0, 22999]
 
 (s = "signed", ranges that include negative integers;
  u = "unsigned", ranges that don't include negative integers;
  these terms are borrowed from the C language)
 
 The [slua] range is the *safe integer range* in Lua. This is the
-largest range of consecutive integers that are guaranteed to be
-representable as Lua numbers without loss of precision. If you
-use an integer in Lua beyond that range, you might lose precision.
+largest range of consecutive safe integers. An integer is 'safe'
+if it can be represented exactly as Lua number without loss
+of precision and it can be compared correctly. If you use an
+integer in Lua beyond that range, you might lose precision and
+numeric comparisons might return incorrect results.
 [ulua] is the same except it starts at 0.
 
 The [imagesize] range represents the minimum and maximum
@@ -119,7 +121,7 @@ potential bugs.
 
 In the Lua runtime used by Luanti, numbers are internally represented
 by the `double` data type of the C programming language.
-The range of [-2^53, 2^53] is derived from IEEE-754 double-precision
+The range of [-(2^53-1), 2^53-1] is derived from IEEE-754 double-precision
 floating-point numbers.
 You can generally assume that on all systems that Luanti officially
 supports, the Lua number type implements IEEE-754 double-precision
