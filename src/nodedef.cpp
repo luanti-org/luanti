@@ -388,6 +388,7 @@ void ContentFeatures::reset()
 	move_resistance = 0;
 	liquid_move_physics = false;
 	post_effect_color_shaded = false;
+	post_effect_color_use_node_color = false;
 }
 
 void ContentFeatures::setAlphaFromLegacy(u8 legacy_alpha)
@@ -515,6 +516,7 @@ void ContentFeatures::serialize(std::ostream &os, u16 protocol_version) const
 	writeU8(os, move_resistance);
 	writeU8(os, liquid_move_physics);
 	writeU8(os, post_effect_color_shaded);
+	writeU8(os, post_effect_color_use_node_color);
 }
 
 void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
@@ -648,9 +650,13 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 
 		post_effect_color_shaded = readU8(is);
 
-		//if (!canRead(is))
-		//	break;
-		// Add new code here
+		if (!canRead(is))
+			break;
+		
+		post_effect_color_use_node_color = readU8(is);
+
+		// if (!canRead(is))
+		// 	break;
 	} while (0);
 }
 
