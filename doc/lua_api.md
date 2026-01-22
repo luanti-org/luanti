@@ -58,8 +58,8 @@ Numbers and integers
 --------------------
 
 Lua 5.1 does not distinguish between floating-point numbers and integer numbers,
-but for some functions and data structures, Luanti will only work correctly
-with integer values (whole numbers).
+but for some functions and data structures, Luanti will only accept integers (whole
+numbers).
 
 Unless mentioned otherwise, number-type variables mentioned in this documentation are
 allowed to take any numeric value that Lua supports, both integer and
@@ -70,7 +70,7 @@ assumed to be supported unless mentioned explicitly.
 
 Sometimes, the documentation will use the word "integer"
 (or "int" in short). In this case, only integer values are allowed,
-fractional values must not be used here. Integers can be positive or
+and fractional values must not be used. Integers can be positive or
 negative.
 
 All integer values have a range with a defined minimum and maximum.
@@ -117,8 +117,8 @@ potential bugs.
 
 ### Implementation details
 
-In the Luanti Lua API, numbers are internally represented by the `double`
-data type of the C programming language.
+In the Lua runtime used by Luanti, numbers are internally represented
+by the `double` data type of the C programming language.
 The range of [-2^53, 2^53] is derived from IEEE-754 double-precision
 floating-point numbers.
 You can generally assume that on all systems that Luanti officially
@@ -693,7 +693,7 @@ Example:
 * `<y>`: y position (integer [s32])
 * `<file>`: texture to combine
 
-Creates a texture of size `<w>` times `<h>` and blits the listed source files
+Creates a texture of size `<w>` times `<h>` and blits the listed source images
 to their specified `<x>,<y>` coordinates of the target texture. Pixels
 that would end up outside the target texture (e.g. if the source texture is
 larger than the target texture), they are discarded.
