@@ -15,6 +15,7 @@ describe("math", function()
 	end)
 	it("isfinite()", function()
 		assert.equal(true, math.isfinite(0.0))
+		assert.equal(true, math.isfinite(2^1023)) -- assuming numbers are 64-bit floats
 		assert.equal(false, math.isfinite(0/0))
 		assert.equal(false, math.isfinite(math.huge))
 		assert.equal(false, math.isfinite(-math.huge))
