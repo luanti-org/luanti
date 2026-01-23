@@ -498,14 +498,18 @@ int MapgenV7::generateTerrain()
 		// Calculate noise for floatland generation
 		noise_floatland->noiseMap3D(node_min.X, node_min.Y - 1, node_min.Z);
 
+		// Cache inverse of floatland taper distance
+		// This will ease calculation in y-loop
+		float floatland_taper_inv = 1.0f / (float)floatland_taper;
+
 		// Cache floatland noise offset values, for floatland tapering
 		for (s16 y = node_min.Y - 1; y <= node_max.Y + 1; y++, cache_index++) {
 			float float_offset = 0.0f;
 			if (y > float_taper_ymax) {
-				float_offset = std::pow((y - float_taper_ymax) / (float)floatland_taper,
+				float_offset = std::pow((y - float_taper_ymax) * floatland_taper_inv,
 					float_taper_exp) * 4.0f;
 			} else if (y < float_taper_ymin) {
-				float_offset = std::pow((float_taper_ymin - y) / (float)floatland_taper,
+				float_offset = std::pow((float_taper_ymin - y) * floatland_taper_inv,
 					float_taper_exp) * 4.0f;
 			}
 			float_offset_cache[cache_index] = float_offset;

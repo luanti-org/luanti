@@ -85,14 +85,20 @@ void DungeonGen::generate(MMVManip *vm, u32 bseed, v3s16 nmin, v3s16 nmax)
 		// Like randomwalk caves, preserve nodes that have 'is_ground_content = false',
 		// to avoid dungeons that generate out beyond the edge of a mapchunk destroying
 		// nodes added by mods in 'register_on_generated()'.
+		content_t prev_c = CONTENT_IGNORE;
+		ContentFeatures &f = ndef->get(prev_c);
 		for (s16 z = nmin.Z; z <= nmax.Z; z++) {
 			for (s16 y = nmin.Y; y <= nmax.Y; y++) {
 				u32 i = vm->m_area.index(nmin.X, y, z);
 				for (s16 x = nmin.X; x <= nmax.X; x++) {
 					content_t c = vm->m_data[i].getContent();
-					NodeDrawType dtype = ndef->get(c).drawtype;
+					if (c != prev_c) {
+						prev_c = c;
+						f = ndef->get(c);
+					}
+					NodeDrawType dtype = f.drawtype;
 					if (dtype == NDT_AIRLIKE || dtype == NDT_LIQUID ||
-							c == CONTENT_IGNORE || !ndef->get(c).is_ground_content)
+							c == CONTENT_IGNORE || !f.is_ground_content)
 						vm->m_flags[i] |= VMANIP_FLAG_DUNGEON_PRESERVE;
 					i++;
 				}
@@ -260,8 +266,8 @@ void DungeonGen::makeDungeon(v3s16 start_padding)
 
 void DungeonGen::makeRoom(v3s16 roomsize, v3s16 roomplace)
 {
-	MapNode n_wall(dp.c_wall);
-	MapNode n_air(CONTENT_AIR);
+	const MapNode n_wall(dp.c_wall);
+	const MapNode n_air(CONTENT_AIR);
 
 	// Make +-X walls
 	for (s16 z = 0; z < roomsize.Z; z++)
@@ -322,7 +328,7 @@ void DungeonGen::makeRoom(v3s16 roomsize, v3s16 roomplace)
 			vm->m_data[vi] = n_wall;
 		}
 		{
-			v3s16 p = roomplace + v3s16(x,roomsize. Y - 1, z);
+			v3s16 p = roomplace + v3s16(x, roomsize.Y - 1, z);
 			if (!vm->m_area.contains(p))
 				continue;
 			u32 vi = vm->m_area.index(p);
@@ -495,8 +501,10 @@ bool DungeonGen::findPlaceForDoor(v3s16 &result_place, v3s16 &result_dir)
 			randomizeDir();
 			continue;
 		}
-		if (vm->getNodeNoExNoEmerge(p).getContent() == dp.c_wall &&
-				vm->getNodeNoExNoEmerge(p1).getContent() == dp.c_wall) {
+		// Cache node content to avoid repeated getNodeNoExNoEmerge calls
+		content_t content_p = vm->getNodeNoExNoEmerge(p).getContent();
+		content_t content_p1 = vm->getNodeNoExNoEmerge(p1).getContent();
+		if (content_p == dp.c_wall && content_p1 == dp.c_wall) {
 			// Found wall, this is a good place!
 			result_place = p;
 			result_dir = m_dir;
@@ -508,22 +516,20 @@ bool DungeonGen::findPlaceForDoor(v3s16 &result_place, v3s16 &result_dir)
 			Determine where to move next
 		*/
 		// Jump one up if the actual space is there
-		if (vm->getNodeNoExNoEmerge(p +
-				v3s16(0, 0, 0)).getContent() == dp.c_wall &&
-				vm->getNodeNoExNoEmerge(p +
-				v3s16(0, 1, 0)).getContent() == CONTENT_AIR &&
-				vm->getNodeNoExNoEmerge(p +
-				v3s16(0, 2, 0)).getContent() == CONTENT_AIR)
+		content_t content_p_up1 = vm->getNodeNoExNoEmerge(p + v3s16(0, 1, 0)).getContent();
+		content_t content_p_up2 = vm->getNodeNoExNoEmerge(p + v3s16(0, 2, 0)).getContent();
+		if (content_p == dp.c_wall &&
+				content_p_up1 == CONTENT_AIR &&
+				content_p_up2 == CONTENT_AIR)
 			p += v3s16(0,1,0);
 		// Jump one down if the actual space is there
-		if (vm->getNodeNoExNoEmerge(p +
-				v3s16(0, 1, 0)).getContent() == dp.c_wall &&
-				vm->getNodeNoExNoEmerge(p +
-				v3s16(0, 0, 0)).getContent() == CONTENT_AIR &&
-				vm->getNodeNoExNoEmerge(p +
-				v3s16(0, -1, 0)).getContent() == CONTENT_AIR)
+		content_t content_p_down1 = vm->getNodeNoExNoEmerge(p + v3s16(0, -1, 0)).getContent();
+		if (content_p_up1 == dp.c_wall &&
+				content_p == CONTENT_AIR &&
+				content_p_down1 == CONTENT_AIR)
 			p += v3s16(0, -1, 0);
 		// Check if walking is now possible
+		// Re-fetch as p may have changed
 		if (vm->getNodeNoExNoEmerge(p).getContent() != CONTENT_AIR ||
 				vm->getNodeNoExNoEmerge(p +
 				v3s16(0, 1, 0)).getContent() != CONTENT_AIR) {
