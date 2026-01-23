@@ -225,9 +225,9 @@ int UDPSocket::Receive(Address &sender, void *data, int size)
 			return -1;
 
 		u16 address_port = ntohs(address.sin6_port);
-		const auto *bytes = reinterpret_cast<IPv6AddressBytes*>
-			(address.sin6_addr.s6_addr);
-		sender = Address(bytes, address_port);
+		IPv6AddressBytes bytes;
+		memcpy(bytes.bytes, address.sin6_addr.s6_addr, 16);
+		sender = Address(&bytes, address_port);
 	} else {
 		struct sockaddr_in address;
 		memset(&address, 0, sizeof(address));
