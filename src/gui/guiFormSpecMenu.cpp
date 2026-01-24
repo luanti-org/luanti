@@ -3618,7 +3618,7 @@ void GUIFormSpecMenu::drawMenu()
 
 	// Draw white outline around keyboard-focused form elements.
 	const gui::IGUIElement *focused = Environment->getFocus();
-	if (focused && m_show_focus) {
+	if (focused && m_show_focus && focused->isTabStop() ) {
 		core::rect<s32> rect = focused->getAbsoluteClippingRect();
 		const video::SColor white(255, 255, 255, 255);
 		const s32 border = 2;
