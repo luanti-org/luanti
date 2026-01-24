@@ -117,6 +117,13 @@ function or data structure that expects them. You must respect all
 integer ranges. Failing to do so may lead to undefined behavior and
 potential bugs.
 
+Please note we don't have the resources to test every single edge
+case; we don't guarantee every number *in range* will work.
+Always use your own good judgement as well.
+Using extreme or unrealistic values *within* range is not forbidden,
+but if something breaks, please don't file a bug report if you don't
+have any real-world use case.
+
 ### Implementation details
 
 In the Lua runtime used by Luanti, numbers are internally represented
