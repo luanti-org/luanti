@@ -5699,10 +5699,11 @@ Utilities
     * Works regardless of whether the mod has been loaded yet.
     * Useful for loading additional `.lua` modules or static data from a mod,
   or checking if a mod is enabled.
-* `core.get_modnames([technical_sorting])`:
+* `core.get_modnames([load_order])`:
     * Returns a list of the mods' names that are loaded or are yet to be loaded
       during startup.
-    * `technical_sorting` defines the order of the names (optional, default `false`)
+    * `load_order` defines the order of the names (optional, default `false`)
+        * Available since 5.16.0
         * `true`: Sorted according to the load order.
         * `false`: Sorted alphabetically.
 * `core.get_game_info()`: returns a table containing information about the

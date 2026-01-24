@@ -24,9 +24,9 @@ do
 
 	-- Technical sorting (load order)
 	-- Cannot use the 'unittests' mod because its dependencies are in alphabetical order.
-	local names = table.key_value_swap(core.get_modnames(true))
-	assert(names["give_initial_stuff"])
-	assert(names["give_initial_stuff"] > names["bucket"])
-	assert(names["give_initial_stuff"] > names["testnodes"])
+	local list = core.get_modnames(true)
+	names = table.key_value_swap(list)
+	assert(names["first_mod"] == 1)
+	assert(names["last_mod"] == #list)
 	assert(names["testnodes"] > names["stairs"])
 end
