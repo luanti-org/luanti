@@ -5699,8 +5699,12 @@ Utilities
     * Works regardless of whether the mod has been loaded yet.
     * Useful for loading additional `.lua` modules or static data from a mod,
   or checking if a mod is enabled.
-* `core.get_modnames()`: returns a list of enabled mods, sorted alphabetically.
-    * Does not include disabled mods, even if they are installed.
+* `core.get_modnames([technical_sorting])`:
+    * Returns a list of the mods' names that are loaded or are yet to be loaded
+      during startup.
+    * `technical_sorting` defines the order of the names (optional, default `false`)
+        * `true`: Sorted according to the load order.
+        * `false`: Sorted alphabetically.
 * `core.get_game_info()`: returns a table containing information about the
   current game. Note that other meta information (e.g. version/release number)
   can be manually read from `game.conf` in the game's root directory.
