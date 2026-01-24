@@ -5857,6 +5857,8 @@ Utilities
       -- Item definition fields `inventory_image`, `inventory_overlay`, `wield_image`
       -- and `wield_overlay` accept a table containing animation definitions. (5.15.0)
       item_image_animation = true,
+      -- `core.get_modnames`' parameter `load_order` (5.16.0)
+      get_modnames_load_order = true,
   }
   ```
 
