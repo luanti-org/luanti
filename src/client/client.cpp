@@ -95,6 +95,24 @@ void PacketCounter::print(std::ostream &o) const
 	}
 }
 
+static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool include_pos)
+{
+	const u16 cmd = pkt.getCommand();
+	std::ostringstream oss;
+	if (cmd < TOCLIENT_NUM_MSG_TYPES)
+		oss << " name=" << toClientCommandTable[cmd].name;
+
+	if (include_pos) {
+		// (not necessary for PacketError: already in e.what())
+
+		oss << " cmd=" << cmd
+			<< " offset=" << pkt.getOffset()
+			<< " size=" << pkt.getSize();
+	}
+
+	e.append(" @").append(oss.str());
+}
+
 /*
 	Client
 */
@@ -960,23 +978,6 @@ void Client::initLocalMapSaving(const Address &address, const std::string &hostn
 
 void Client::ReceiveAll()
 {
-	auto get_packet_dbg_info = [](NetworkPacket &pkt, bool include_pos) -> std::string {
-		const u16 cmd = pkt.getCommand();
-		std::ostringstream oss;
-		if (cmd < TOCLIENT_NUM_MSG_TYPES)
-			oss << " name=" << toClientCommandTable[cmd].name;
-
-		if (include_pos) {
-			// (not necessary for PacketError: already in e.what())
-
-			oss << " command=" << cmd;
-			oss << " size=" << pkt.getSize();
-			// Often relevant for compatibility code (optional data bytes)
-			oss << " bytes_remaining=" << pkt.getRemainingBytes();
-		}
-		return oss.str();
-	};
-
 	NetworkPacket pkt;
 	u64 start_ms = porting::getTimeMs();
 	const u64 budget = 10;
@@ -1002,10 +1003,10 @@ void Client::ReceiveAll()
 					 << e.what() << std::endl;
 #ifdef NDEBUG
 		} catch (SerializationError &e) {
-			e.append(" @").append(get_packet_dbg_info(pkt, true));
+			enrich_exception(e, pkt, true);
 			throw;
 		} catch (PacketError &e) {
-			e.append(" @").append(get_packet_dbg_info(pkt, false));
+			enrich_exception(e, pkt, false);
 			throw;
 #endif
 		}

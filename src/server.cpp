@@ -258,6 +258,24 @@ std::wstring Server::ShutdownState::getShutdownTimerMessage() const
 	return ws.str();
 }
 
+static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool include_pos)
+{
+	const u16 cmd = pkt.getCommand();
+	std::ostringstream oss;
+	if (cmd < TOSERVER_NUM_MSG_TYPES)
+		oss << " name=" << toServerCommandTable[cmd].name;
+
+	if (include_pos) {
+		// (not necessary for PacketError: already in e.what())
+
+		oss << " cmd=" << cmd
+			<< " offset=" << pkt.getOffset()
+			<< " size=" << pkt.getSize();
+	}
+
+	e.append(" @").append(oss.str());
+}
+
 /*
 	Server
 */
@@ -1112,23 +1130,6 @@ void Server::Receive(float min_time)
 		return std::max(0.0f, min_time_us - (porting::getTimeUs() - t0));
 	};
 
-	auto get_packet_dbg_info = [](NetworkPacket &pkt, bool include_pos) -> std::string {
-		const u16 cmd = pkt.getCommand();
-		std::ostringstream oss;
-		if (cmd < TOSERVER_NUM_MSG_TYPES)
-			oss << " name=" << toServerCommandTable[cmd].name;
-
-		if (include_pos) {
-			// (not necessary for PacketError: already in e.what())
-
-			oss << " command=" << cmd;
-			oss << " size=" << pkt.getSize();
-			// Often relevant for compatibility code (optional data bytes)
-			oss << " bytes_remaining=" << pkt.getRemainingBytes();
-		}
-		return oss.str();
-	};
-
 	NetworkPacket pkt;
 	session_t peer_id;
 	for (;;) {
@@ -1156,11 +1157,11 @@ void Server::Receive(float min_time)
 			infostream << "Server::Receive(): InvalidIncomingDataException: what()="
 					<< e.what() << std::endl;
 		} catch (SerializationError &e) {
-			e.append(" @").append(get_packet_dbg_info(pkt, true));
+			enrich_exception(e, pkt, true);
 			infostream << "Server::Receive(): SerializationError: what()="
 					<< e.what() << std::endl;
 		} catch (PacketError &e) {
-			e.append(" @").append(get_packet_dbg_info(pkt, false));
+			enrich_exception(e, pkt, false);
 			actionstream << "Server::Receive(): PacketError: what()="
 					<< e.what() << std::endl;
 		} catch (const ClientStateError &e) {
