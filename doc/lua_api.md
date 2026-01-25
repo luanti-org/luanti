@@ -6269,17 +6269,18 @@ Call these functions only at load time!
       handlers will be prevented.
 * `core.register_on_player_receive_fields(function(player, formname, fields))`
     * Called when the server received input from `player`.
-      Specifically, this is called on any of the
-      following events:
-          * a button was pressed,
-          * Enter was pressed while the focus was on a text field
-          * a checkbox was toggled,
-          * something was selected in a dropdown list,
-          * a different tab was selected,
-          * selection was changed in a textlist or table,
-          * an entry was double-clicked in a textlist or table,
-          * a scrollbar was moved, or
-          * the form was actively closed by the player.
+      Specifically, this is called on any of the following events:
+        * a button was pressed,
+        * Enter was pressed while the focus was on a text field
+        * a checkbox was toggled,
+        * something was selected in a dropdown list,
+        * a different tab was selected,
+        * selection was changed in a textlist or table,
+        * an entry was double-clicked in a textlist or table,
+        * a scrollbar was moved, or
+        * the form was actively closed by the player.
+    * This is not called for node formspecs. They only rely on the internal
+      callback `on_receive_fields`.
     * `formname` is the name passed to `core.show_formspec`.
       Special case: The empty string refers to the player inventory
       (the formspec set by the `set_inventory_formspec` player method).
@@ -10530,7 +10531,8 @@ Used by `core.register_node`.
     -- fields = {name1 = value1, name2 = value2, ...}
     -- formname should be the empty string; you **must not** use formname.
     -- Called when an UI form (e.g. sign text input) returns data.
-    -- See core.register_on_player_receive_fields for more info.
+    -- See core.register_on_player_receive_fields for more info regarding
+    -- `formname` and `fields`.
     -- default: nil
 
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player),
