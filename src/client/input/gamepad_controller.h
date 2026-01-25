@@ -12,7 +12,7 @@
 #include <vector>
 #include <memory>
 
-#include <SDL2/SDL_gamecontroller.h>
+#include <SDL_gamecontroller.h>
 
 
 enum GamepadAxis

@@ -135,6 +135,14 @@ endif()
 
 if(BUILD_CLIENT)
 	find_package(Freetype REQUIRED)
+
+	if(NOT ANDROID)
+		find_package(SDL2 REQUIRED)
+	else()
+		# provided by AndroidLibs.cmake
+	endif()
+
+	include_directories(${SDL2_INCLUDE_DIR})
 endif()
 
 option(ENABLE_CURSES "Enable ncurses console" ${BUILD_SERVER})
