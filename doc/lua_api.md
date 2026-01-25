@@ -6279,7 +6279,7 @@ Call these functions only at load time!
         * an entry was double-clicked in a textlist or table,
         * a scrollbar was moved, or
         * the form was actively closed by the player.
-    * This is not called for node formspecs. They only rely on the internal
+    * This is not called for node formspecs. These ones rely on the internal
       callback `on_receive_fields`.
     * `formname` is the name passed to `core.show_formspec`.
       Special case: The empty string refers to the player inventory
