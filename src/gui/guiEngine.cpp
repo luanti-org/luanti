@@ -16,6 +16,7 @@
 #include "httpfetch.h"
 #include "irrlicht_changes/static_text.h"
 #include "log.h"
+#include "gettext.h"
 #include "porting.h"
 #include "scripting_mainmenu.h"
 #include "settings.h"
@@ -106,6 +107,7 @@ void MenuMusicFetcher::addThePaths(const std::string &name,
 /******************************************************************************/
 /** GUIEngine                                                                 */
 /******************************************************************************/
+
 GUIEngine::GUIEngine(JoystickController *joystick,
 		gui::IGUIElement *parent,
 		RenderingEngine *rendering_engine,
@@ -176,31 +178,42 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 	m_menu->defaultAllowClose(false);
 	m_menu->lockSize(true,v2u32(800,600));
 
-	// Initialize scripting
-
-	infostream << "GUIEngine: Initializing Lua" << std::endl;
-
-	m_script = std::make_unique<MainMenuScripting>(this);
-
 	g_settings->registerChangedCallback("fullscreen", fullscreenChangedCallback, this);
+
+	const auto &report_fatal_error = [&] () {
+		// Throwing an exception from here would make cleanup messy since
+		// ~GUIEngine() won't be called, so we do the error reporting like this:
+		auto err = strgettext("Failed to load main menu script!");
+		RenderingEngine::showErrorMessageBox(err);
+		m_kill = 1; // break game-menu loop
+		m_data->script_data.errormessage = err;
+	};
+
+
+	// Initialize scripting
+	infostream << "GUIEngine: Initializing Lua" << std::endl;
+	try {
+		m_script = std::make_unique<MainMenuScripting>(this);
+	} catch (ModError &e) {
+		errorstream << e.what() << std::endl;
+		report_fatal_error();
+		return;
+	}
 
 	try {
 		m_script->setMainMenuData(&m_data->script_data);
 		m_data->script_data.errormessage.clear();
 
 		if (!loadMainMenuScript()) {
-			errorstream << "No future without main menu!" << std::endl;
-			abort();
+			report_fatal_error();
+			return;
 		}
 
 		run();
-	} catch (LuaError &e) {
+	} catch (ModError &e) {
 		errorstream << "Main menu error: " << e.what() << std::endl;
 		m_data->script_data.errormessage = e.what();
 	}
-
-	m_menu->quitMenu();
-	m_menu.reset();
 }
 
 
@@ -395,6 +408,11 @@ GUIEngine::~GUIEngine()
 	// deinitialize script first. gc destructors might depend on other stuff
 	infostream << "GUIEngine: Deinitializing scripting" << std::endl;
 	m_script.reset();
+
+	if (m_menu) {
+		m_menu->quitMenu();
+		m_menu.reset();
+	}
 
 	m_sound_manager.reset();
 

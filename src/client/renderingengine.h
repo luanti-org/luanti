@@ -73,6 +73,11 @@ public:
 	static const VideoDriverInfo &getVideoDriverInfo(video::E_DRIVER_TYPE type);
 	static float getDisplayDensity();
 
+	// Show error message box to user. Intended for situations where graphics
+	// output might not even be working.
+	// Will block.
+	static void showErrorMessageBox(const std::string &message);
+
 	bool setupTopLevelWindow();
 	bool setWindowIcon();
 	void cleanupMeshCache();

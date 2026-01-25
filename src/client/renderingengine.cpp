@@ -12,6 +12,7 @@
 #include "util/numeric.h"
 #include "guiscalingfilter.h"
 #include "localplayer.h"
+#include "gettext.h"
 #include "client/hud.h"
 #include "client/texturesource.h"
 #include "camera.h"
@@ -151,7 +152,7 @@ static IrrlichtDevice *createDevice(SIrrlichtCreationParameters params, std::opt
 			return device;
 	}
 
-	throw std::runtime_error("Could not initialize the device with any supported video driver");
+	throw BaseException(gettext("Could not initialize any supported video driver!"));
 }
 
 /* RenderingEngine class */
@@ -417,6 +418,12 @@ const VideoDriverInfo &RenderingEngine::getVideoDriverInfo(video::E_DRIVER_TYPE 
 		{(int)video::EDT_OGLES2,  {"ogles2",  "OpenGL ES 2"}},
 	};
 	return driver_info_map.at((int)type);
+}
+
+void RenderingEngine::showErrorMessageBox(const std::string &message)
+{
+	auto *device = s_singleton ? s_singleton->m_device : nullptr;
+	::showErrorMessageBox(device, PROJECT_NAME_C, message.c_str());
 }
 
 float RenderingEngine::getDisplayDensity()
