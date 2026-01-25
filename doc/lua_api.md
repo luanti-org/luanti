@@ -10530,7 +10530,7 @@ Used by `core.register_node`.
     on_receive_fields = function(pos, formname, fields, sender),
     -- fields = {name1 = value1, name2 = value2, ...}
     -- formname should be the empty string; you **must not** use formname.
-    -- Called when node metadata formspec is present and data is returned.
+    -- Called when node metadata formspecs are present and data is returned.
     -- See core.register_on_player_receive_fields for more info regarding
     -- `formname` and `fields`.
     -- default: nil
