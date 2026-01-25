@@ -6279,8 +6279,8 @@ Call these functions only at load time!
         * an entry was double-clicked in a textlist or table,
         * a scrollbar was moved, or
         * the form was actively closed by the player.
-    * This is not called for node formspecs. These ones rely on the internal
-      callback `on_receive_fields`.
+    * This is not called for node metadata formspecs. These use the callback
+      `on_receive_fields` specified in the node definition.
     * `formname` is the name passed to `core.show_formspec`.
       Special case: The empty string refers to the player inventory
       (the formspec set by the `set_inventory_formspec` player method).
@@ -10530,7 +10530,7 @@ Used by `core.register_node`.
     on_receive_fields = function(pos, formname, fields, sender),
     -- fields = {name1 = value1, name2 = value2, ...}
     -- formname should be the empty string; you **must not** use formname.
-    -- Called when an UI form (e.g. sign text input) returns data.
+    -- Called when node metadata formspec is present and data is returned.
     -- See core.register_on_player_receive_fields for more info regarding
     -- `formname` and `fields`.
     -- default: nil
