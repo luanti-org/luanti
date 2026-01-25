@@ -12,28 +12,9 @@ static const char *const copyright = "Irrlicht Engine (c) 2002-2017 Nikolaus Geb
 #include "CIrrDeviceSDL.h"
 #endif
 
-//! stub for calling createDeviceEx
-IrrlichtDevice *createDevice(video::E_DRIVER_TYPE driverType,
-		const core::dimension2d<u32> &windowSize,
-		u32 bits, bool fullscreen,
-		bool stencilbuffer, bool vsync, IEventReceiver *res)
-{
-	(void)copyright; // prevent unused variable warning
-
-	SIrrlichtCreationParameters p;
-	p.DriverType = driverType;
-	p.WindowSize = windowSize;
-	p.Bits = (u8)bits;
-	p.Fullscreen = fullscreen;
-	p.Stencilbuffer = stencilbuffer;
-	p.Vsync = vsync;
-	p.EventReceiver = res;
-
-	return createDeviceEx(p);
-}
-
 extern "C" IrrlichtDevice *createDeviceEx(const SIrrlichtCreationParameters &params)
 {
+	(void)copyright; // prevent unused variable warning
 
 	IrrlichtDevice *dev = 0;
 

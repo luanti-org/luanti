@@ -36,6 +36,7 @@ elseif(MSVC)
 	add_compile_definitions(
 		# Suppress some useless warnings
 		_CRT_SECURE_NO_DEPRECATE
+		_CRT_SECURE_NO_WARNINGS
 		# Get M_PI to work
 		_USE_MATH_DEFINES
 		# Don't define min/max macros in minwindef.h
@@ -50,9 +51,6 @@ elseif(MSVC)
 		add_compile_options(/arch:SSE)
 	endif()
 endif()
-
-# Platform-independent configuration (hard-coded currently)
-add_compile_definitions(IRR_ENABLE_BUILTIN_FONT)
 
 # Platform-specific configuration
 
@@ -70,20 +68,10 @@ elseif(ANDROID)
 	add_compile_definitions(_IRR_ANDROID_PLATFORM_)
 elseif(EMSCRIPTEN)
 	add_compile_definitions(_IRR_EMSCRIPTEN_PLATFORM_ _IRR_COMPILE_WITH_EGL_MANAGER_)
-	set(LINUX_PLATFORM TRUE)
 elseif(SOLARIS)
 	add_compile_definitions(_IRR_SOLARIS_PLATFORM_ _IRR_POSIX_API_)
 else()
 	add_compile_definitions(_IRR_POSIX_API_)
-	set(LINUX_PLATFORM TRUE)
-endif()
-
-if(LINUX_PLATFORM)
-	add_compile_definitions(_IRR_LINUX_PLATFORM_)
-endif()
-
-if(MSVC)
-	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
 add_compile_definitions("_IRR_COMPILE_WITH_SDL_DEVICE_")
@@ -527,7 +515,4 @@ if(WIN32)
 endif()
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	target_compile_definitions(IrrlichtMt INTERFACE _DEBUG)
-endif()
-if(APPLE OR ANDROID OR EMSCRIPTEN)
-	target_compile_definitions(IrrlichtMt PUBLIC IRR_MOBILE_PATHS)
 endif()

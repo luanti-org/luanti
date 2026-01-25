@@ -35,34 +35,6 @@
 #include "irrTypes.h"
 #include "SIrrCreationParameters.h"
 
-//! Everything in the Irrlicht Engine can be found in this namespace.
-//! Creates an Irrlicht device. The Irrlicht device is the root object for using the engine.
-/** If you need more parameters to be passed to the creation of the Irrlicht Engine device,
-use the createDeviceEx() function.
-\param driverType: Type of the video driver to use.
-\param windowSize: Size of the window or the video mode in fullscreen mode.
-\param bits: Bits per pixel in fullscreen mode. Ignored if windowed mode.
-\param fullscreen: Should be set to true if the device should run in fullscreen. Otherwise
-	the device runs in windowed mode.
-\param stencilbuffer: Specifies if the stencil buffer should be enabled. Set this to true,
-if you want the engine be able to draw stencil buffer shadows. Note that not all
-devices are able to use the stencil buffer. If they don't no shadows will be drawn.
-\param vsync: Specifies vertical synchronization: If set to true, the driver will wait
-for the vertical retrace period, otherwise not.
-\param receiver: A user created event receiver.
-\return Returns pointer to the created IrrlichtDevice or null if the
-device could not be created.
-*/
-extern "C" IrrlichtDevice *createDevice(
-		video::E_DRIVER_TYPE driverType = video::EDT_OPENGL,
-		// parentheses are necessary for some compilers
-		const core::dimension2d<u32> &windowSize = (core::dimension2d<u32>(640, 480)),
-		u32 bits = 32,
-		bool fullscreen = false,
-		bool stencilbuffer = true,
-		bool vsync = false,
-		IEventReceiver *receiver = 0);
-
 //! Creates an Irrlicht device with the option to specify advanced parameters.
 /** Usually you should used createDevice() for creating an Irrlicht Engine device.
 Use this function only if you wish to specify advanced parameters like a window
