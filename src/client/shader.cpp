@@ -477,6 +477,7 @@ ShaderSource::ShaderSource()
 	if (driver_type != video::EDT_NULL) {
 		auto *gpu = driver->getGPUProgrammingServices();
 		if (!driver->queryFeature(video::EVDF_ARB_GLSL) || !gpu)
+			// TRANSLATORS: GLSL = OpenGL Shading Language
 			throw ShaderException(gettext("GLSL is not supported by the driver"));
 
 		v2s32 glver = driver->getLimits().GLVersion;

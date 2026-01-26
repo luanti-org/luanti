@@ -112,7 +112,7 @@ local function get_formspec(dialogdata)
 
 	local formspec = table.concat(fields)
 			.. "checkbox[0.5," .. height - 0.6 .. ";cb_defaults;"
-			--[[~ "defaults" is a noise parameter flag.
+			--[[ TRANSLATORS: "defaults" is a noise parameter flag.
 			It describes the default processing options
 			for noise settings in the settings menu. ]]
 			.. fgettext("defaults") .. ";" -- defaults
@@ -120,7 +120,7 @@ local function get_formspec(dialogdata)
 			.. "tooltip[cb_defaults;" .. fgettext("Overrides the 'eased' flag based on the noise type.")
 			.. "\n" .. fgettext("2D noise: flag on.\n3D noise: flag off.") .. "]"
 			.. "checkbox[5," .. height - 0.6 .. ";cb_eased;"
-			--[[~ "eased" is a noise parameter flag.
+			--[[ TRANSLATORS: "eased" is a noise parameter flag.
 			It is used to make the map smoother and
 			can be enabled in noise settings in
 			the settings menu. ]]
@@ -131,7 +131,7 @@ local function get_formspec(dialogdata)
 			.. "\n" .. fgettext("This results in smooth noise instead of gridlike noise.") .. "\n"
 			.. fgettext("Making 3D noise eased is not recommended because it significantly increases the load.") .. "]"
 			.. "checkbox[5," .. height - 0.15 .. ";cb_absvalue;"
-			--[[~ "absvalue" is a noise parameter flag.
+			--[[ TRANSLATORS: "absvalue" is a noise parameter flag.
 			It is short for "absolute value".
 			It can be enabled in noise settings in
 			the settings menu. ]]

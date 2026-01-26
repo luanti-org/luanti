@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Italian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-06 23:13+0100\n"
-"PO-Revision-Date: 2025-12-16 13:00+0000\n"
-"Last-Translator: Saul Puggioni <saul.pugg@gmail.com>\n"
+"PO-Revision-Date: 2026-01-08 03:01+0000\n"
+"Last-Translator: Zughy <zhu.gamedev@tutanota.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/minetest/"
 "minetest/it/>\n"
 "Language: it\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.15.1-dev\n"
+"X-Generator: Weblate 5.15.1\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -78,9 +78,8 @@ msgid "[all | <cmd>] [-t]"
 msgstr "[tutti]"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Add keybinding"
-msgstr "Mappatura dei tasti"
+msgstr "Aggiungi tasto"
 
 #: builtin/common/settings/components.lua
 msgid "Browse"
@@ -111,7 +110,6 @@ msgid "Set"
 msgstr "Seleziona"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
 msgid "$1 spread"
 msgstr "Propagazione X"
 
@@ -128,11 +126,14 @@ msgid ""
 "2D noise: flag on.\n"
 "3D noise: flag off."
 msgstr ""
+"Rumore 2D: abilita.\n"
+"Rumore 3D: disabilita."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Amplifies every octave by (amplitude of the previous octave * Persistence)."
 msgstr ""
+"Amplifica ogni ottava di (ampiezza dell'ottava precedente * persistenza)."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/content/dlg_install.lua
@@ -148,23 +149,27 @@ msgstr "Annulla"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Controls how many octaves (layers) the noise will have."
-msgstr ""
+msgstr "Controlla quante ottave (livelli) avrà il rumore."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Each octave is a simple noise generator. Each one also adds more detail to "
 "the noise."
 msgstr ""
+"Ogni ottava è un semplice generatore di rumore. Aumentandole, aumenta il "
+"dettaglio del rumore."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Finally, all of the octaves will be combined to generate the noise."
-msgstr ""
+msgstr "Infine, tutte le ottave vengono combinate per generare il rumore."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Having lots of octaves is not recommended because it increases terrain "
 "generation time."
 msgstr ""
+"Avere molte ottave non è consigliato, in quanto aumenta il tempo di "
+"generazione del terreno."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Lacunarity"
@@ -175,24 +180,32 @@ msgid ""
 "Lower values make the terrain simple and higher values make the terrain "
 "rough."
 msgstr ""
+"Valori più bassi rendono il terreno pulito, valori più alti lo rendono "
+"ruvido."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Lower values make the terrain smooth and higher values make the terrain have "
 "fine detail."
 msgstr ""
+"Valori più bassi rendono il terreno liscio, valori più alti lo rendono ricco "
+"di dettagli."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Lower values will result in smoother noise and higher values will result in "
 "rougher noise."
 msgstr ""
+"Valori più bassi rendono il rumore più omogeneo, valori più alti lo rendono "
+"più grezzo."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Making 3D noise eased is not recommended because it significantly increases "
 "the load."
 msgstr ""
+"Non è consigliato armonizzare il rumore 3D, in quanto aumenta drasticamente "
+"il carico sul processore."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
@@ -211,11 +224,11 @@ msgstr "Scarto"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Offsets the final noise by this value."
-msgstr ""
+msgstr "Scala il valore finale del numero qui specificato."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Overrides the 'eased' flag based on the noise type."
-msgstr ""
+msgstr "Sovrascrive l'opzione 'armonizzato' a seconda del tipo di rumore."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Persistence"
@@ -233,11 +246,11 @@ msgstr "Ridimensiona"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Scales every octave by (scale of the previous octave / Lacunarity)."
-msgstr ""
+msgstr "Scala ogni ottava di (scala dell'ottava precedente / lacunarità)."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Scales the noise in the $1 axis by this value."
-msgstr ""
+msgstr "Scala il rumore sull'asse $1 di questo valore."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
@@ -246,38 +259,39 @@ msgstr "Seme"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Takes the absolute value of each octave while adding them together."
-msgstr ""
+msgstr "Prende il valore assoluto di ogni ottava man mano che le somma."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "The first octave is amplified by 1."
-msgstr ""
+msgstr "La prima ottava è amplificata di 1."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
 msgid "The first octave is scaled by 1."
-msgstr "Questo comando è stato disabilitato dal server."
+msgstr "La prima ottava è scalata di 1."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "The multiplier for the noise before the offset is added."
-msgstr ""
+msgstr "Il moltiplicatore di rumore prima di aggiungere la compensazione."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "The random seed for the noise. The same seed results in the same noise."
-msgstr ""
+msgstr "Il seme casuale del rumore. Stessi semi ritornano gli stessi rumori."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "This is also the scale of the largest structures in the $1 direction of the "
 "noise."
 msgstr ""
+"Ciò è anche la scala delle strutture più grandi nella direzione $1 del "
+"rumore."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "This results in smooth noise instead of gridlike noise."
-msgstr ""
+msgstr "Il risultato è un rumore più liscio al posto di uno più a griglia."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "This results in spiky noise."
-msgstr ""
+msgstr "Il risultato è un rumore pungente."
 
 #. ~ "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
@@ -300,12 +314,11 @@ msgstr "\"defaults\""
 #. the settings menu.
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "eased"
-msgstr "\"eased\""
+msgstr "armonizzato"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "(The game will need to enable automatic exposure as well)"
-msgstr "(Anche il gioco dovrà abilitare le ombre)"
+msgstr "(Anche il gioco dovrà abilitare l'esposizione automatica)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable bloom as well)"
@@ -378,9 +391,8 @@ msgstr "Nessun risultato"
 
 #. ~ Indicates that the action does not have a corresponding keybinding.
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Not bound"
-msgstr "Non trovato"
+msgstr "Non assegnato"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Reset setting to default"
@@ -419,15 +431,16 @@ msgid ""
 "These settings are unavailable due to your platform, hardware or in "
 "combination with the current settings."
 msgstr ""
+"Queste impostazioni non sono disponibili a causa del tuo sistema operativo, "
+"componentistica o per via delle impostazioni attuali."
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Touchscreen layout"
 msgstr "Layout del touch screen"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Unavailable"
-msgstr "<nessuno disponibile>"
+msgstr "Non disponibile"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
@@ -463,7 +476,7 @@ msgstr "Medio"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Quality preset"
-msgstr ""
+msgstr "Qualità"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Very High"
@@ -597,7 +610,6 @@ msgid "Queued"
 msgstr "In coda"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#, fuzzy
 msgid "Texture Packs"
 msgstr "Pacchetti texture"
 
@@ -736,9 +748,8 @@ msgid "Website"
 msgstr "Sito Web"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "by $1"
-msgstr "$1 con $2"
+msgstr "di $1"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -775,9 +786,8 @@ msgid "Unable to install a $1 as a texture pack"
 msgstr "Impossibile installare un $1 come un pacchetto texture"
 
 #: builtin/mainmenu/content/pkgmgr.lua
-#, fuzzy
 msgid "World mods"
-msgstr "Nome del mondo"
+msgstr "Moduli del mondo"
 
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
@@ -829,7 +839,7 @@ msgstr "Mod:"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Mods located inside the world folder."
-msgstr ""
+msgstr "Moduli situati nella cartella del mondo."
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
@@ -865,16 +875,15 @@ msgstr "abilitato"
 
 #: builtin/mainmenu/dlg_confirm_exit.lua
 msgid "Always show this dialog."
-msgstr ""
+msgstr "Mostra sempre questo avviso."
 
 #: builtin/mainmenu/dlg_confirm_exit.lua
-#, fuzzy
 msgid "Are you sure you want to quit?"
-msgstr "Vuoi veramente cancellare \"$1\"?"
+msgstr "Vuoi veramente uscire?"
 
 #: builtin/mainmenu/dlg_confirm_exit.lua
 msgid "Quit"
-msgstr ""
+msgstr "Esci"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "A world named \"$1\" already exists"
@@ -978,15 +987,15 @@ msgstr "Bassa umidità e calore elevato rendono i fiumi bassi o secchi"
 
 #: builtin/mainmenu/dlg_create_world.lua src/settings_translation_file.cpp
 msgid "Mapgen"
-msgstr "generatore della mappatura del terreno"
+msgstr "Gene mappa"
 
 #: builtin/mainmenu/dlg_create_world.lua src/settings_translation_file.cpp
 msgid "Mapgen flags"
-msgstr "Valori del generatore della mappatura del terreno"
+msgstr "Valori del gene mappa"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Mapgen-specific flags"
-msgstr "Valori specifici del generatore della mappatura del terreno"
+msgstr "Valori specifici del gene mappa"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Mountains"
@@ -1237,7 +1246,7 @@ msgstr "Visita il sito Web"
 
 #: builtin/mainmenu/init.lua
 msgid "Debug build, expect worse performance"
-msgstr ""
+msgstr "Versione di debug, le prestazioni saranno probabilmente peggiori"
 
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
@@ -1561,7 +1570,7 @@ msgstr "Impossibile aprire il file di password fornito: "
 
 #: src/client/clientlauncher.cpp
 msgid "World does not exist and no game selected to create one."
-msgstr ""
+msgstr "Il mondo non esiste e non c'è nessun gioco selezionato per crearne uno."
 
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
@@ -1800,12 +1809,10 @@ msgid "Unable to listen on %s because IPv6 is disabled"
 msgstr "Impossibile ascoltare su %s perché IPv6 è disabilitato"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Unlimited viewing range disabled"
 msgstr "Raggio visivo illimitato disabilitato"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Unlimited viewing range enabled"
 msgstr "Raggio visivo illimitato abilitato"
 
@@ -1815,7 +1822,7 @@ msgstr ""
 "Raggio visivo illimitato abilitato, ma è bloccato dal gioco o da un modulo"
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Viewing changed to %d (the minimum)"
 msgstr "Il raggio visivo è al minimo: %d"
 
@@ -1892,7 +1899,6 @@ msgid "Continue"
 msgstr "Continua"
 
 #: src/client/game_formspec.cpp
-#, fuzzy
 msgid ""
 "Controls:\n"
 "No menu open:\n"
@@ -1907,14 +1913,14 @@ msgid ""
 "- touch&drag, tap 2nd finger\n"
 " --> place single item to slot\n"
 msgstr ""
-"Controlli Predefiniti:\n"
-"Nessun menu visibile:\n"
-"- tocco singolo: attiva pulsante\n"
-"- tocco doppio; piazza/utilizza\n"
-"- trascina il dito: guarda attorno\n"
-"Menu/Inventario visibile:\n"
+"Controlli:\n"
+"Nessun menù aperto:\n"
+"- dito trascinato: guarda attorno\n"
+"- tocco: piazza/colpisci/usa (predefinito)\n"
+"- doppio tocco; scava/utilizza (predefinito)\n"
+"Menù/Inventario aperto:\n"
 "- doppio tocco (esterno):\n"
-" -->chiudi\n"
+" --> chiudi\n"
 "- tocco pila, tocco casella:\n"
 " --> sposta pila\n"
 "- tocca e trascina, tocco 2° dito\n"
@@ -1999,37 +2005,32 @@ msgstr "Tasto di ritorno"
 
 #. ~ Usually paired with the Pause key
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Break Key"
-msgstr "Tasto furtivo"
+msgstr "Tasto Pausa/Interr"
 
 #: src/client/keycode.cpp
 msgid "Caps Lock"
 msgstr "Blocco Maiusc."
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Clear Key"
-msgstr "Canc"
+msgstr "Tasto Clear"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Control Key"
-msgstr "Control"
+msgstr "Ctrl"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Delete Key"
-msgstr "Rimuovi"
+msgstr "Canc"
 
 #: src/client/keycode.cpp
 msgid "Down Arrow"
 msgstr "Freccia Giù"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "End Key"
-msgstr "Menu"
+msgstr "Fine"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2038,16 +2039,15 @@ msgstr "Aiuto"
 
 #: src/client/keycode.cpp
 msgid "Home Key"
-msgstr "Chiave di casa"
+msgstr "Tasto Inizio"
 
 #: src/client/keycode.cpp
 msgid "Insert"
 msgstr "Inserisci"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Arrow"
-msgstr "Control Sinistro"
+msgstr "Ctrl sinistro"
 
 #: src/client/keycode.cpp
 msgid "Left Click"
@@ -2151,18 +2151,15 @@ msgid "Numpad 9"
 msgstr "Tastierino 9"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Page Down"
-msgstr "Pag. giù"
+msgstr "Pag. Giù"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Page Up"
-msgstr "Pag. su"
+msgstr "Pag. Su"
 
 #. ~ Usually paired with the Break key
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Pause Key"
 msgstr "Pausa"
 
@@ -2177,10 +2174,9 @@ msgstr "Stampa"
 
 #: src/client/keycode.cpp
 msgid "Return Key"
-msgstr "Indietro"
+msgstr "Invio"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Arrow"
 msgstr "Ctrl destro"
 
@@ -2206,9 +2202,9 @@ msgid "Right Windows"
 msgstr "Windows destro"
 
 #: src/client/keycode.cpp
-#, c-format
+#, c-format, fuzzy
 msgid "Scancode: %d"
-msgstr ""
+msgstr "Scancode: %d"
 
 #: src/client/keycode.cpp
 msgid "Scroll Lock"
@@ -2220,7 +2216,6 @@ msgid "Select Key"
 msgstr "Seleziona Tasto"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Shift Key"
 msgstr "Maiusc"
 

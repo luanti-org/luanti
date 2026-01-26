@@ -108,6 +108,7 @@ local function do_help_cmd(name, param)
 		else
 			msg = core.gettext("Available commands: ")
 				.. table.concat(cmds, " ") .. "\n"
+				-- TRANSLATORS: 'help' and 'all' mustn't be translated. cmd = command
 				.. core.gettext("Use '.help <cmd>' to get more "
 				.. "information, or '.help all' to list "
 				.. "everything.")
@@ -161,6 +162,7 @@ end
 
 if INIT == "client" then
 	core.register_chatcommand("help", {
+		-- TRANSLATORS: Syntax of 'help' command. Don't translate anything except 'cmd' (=command)
 		params = core.gettext("[all | <cmd>] [-t]"),
 		description = core.gettext("Get help for commands (-t: output in chat)"),
 		func = function(param)

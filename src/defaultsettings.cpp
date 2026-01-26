@@ -116,6 +116,7 @@ void set_default_settings()
 	settings->setDefault("client_mapblock_limit", "7500"); // about 120 MB
 	settings->setDefault("enable_build_where_you_stand", "false");
 	settings->setDefault("curl_timeout", "20000");
+	settings->setDefault("secure.curl_proxy", "");
 	settings->setDefault("curl_parallel_limit", "8");
 	settings->setDefault("curl_file_download_timeout", "300000");
 	settings->setDefault("curl_verify_cert", "true");
@@ -276,6 +277,7 @@ void set_default_settings()
 	settings->setDefault("soft_clouds", "false");
 	settings->setDefault("cloud_radius", "12");
 	settings->setDefault("menu_clouds", "true");
+	settings->setDefault("menu_theme", "light");
 	settings->setDefault("translucent_liquids", "true");
 	settings->setDefault("console_height", "0.6");
 	settings->setDefault("console_color", "(0,0,0)");

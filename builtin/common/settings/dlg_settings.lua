@@ -49,6 +49,7 @@ local function load_settingtypes()
 		if not page then
 			page = add_page({
 				id = (section or "general"):lower():gsub(" ", "_"),
+				-- TRANSLATORS: Category for general settings
 				title = section or fgettext_ne("General"),
 				section = section,
 				content = {},
@@ -145,6 +146,8 @@ local function load()
 
 		idx = table.indexof(content, "enable_auto_exposure") + 1
 		local setting_info = get_setting_info("enable_auto_exposure")
+		--[[ TRANSLATORS: "automatic exposure" refers to light. This note
+		will be displayed for the graphics setting 'enable_auto_exposure' ]]
 		local note = component_funcs.note(fgettext_ne("(The game will need to enable automatic exposure as well)"))
 		note.requires = setting_info.requires
 		note.context = setting_info.context
@@ -232,19 +235,25 @@ local function load()
 	}
 
 	get_setting_info("touch_controls").option_labels = {
+		-- TRANSLATORS: Automatic
 		["auto"] = fgettext_ne("Auto"),
 		["true"] = fgettext_ne("Enabled"),
 		["false"] = fgettext_ne("Disabled"),
 	}
 
 	get_setting_info("touch_interaction_style").option_labels = {
+		-- TRANSLATORS: Touchscreen interaction style
 		["tap"] = fgettext_ne("Tap"),
+		-- TRANSLATORS: Touchscreen interaction style
 		["tap_crosshair"] = fgettext_ne("Tap with crosshair"),
+		-- TRANSLATORS: Touchscreen interaction style
 		["buttons_crosshair"] = fgettext("Buttons with crosshair"),
 	}
 
 	get_setting_info("touch_punch_gesture").option_labels = {
+		-- TRANSLATORS: Touchscreen gesture
 		["short_tap"] = fgettext_ne("Short tap"),
+		-- TRANSLATORS: Touchscreen gesture
 		["long_tap"] = fgettext_ne("Long tap"),
 	}
 end
@@ -520,12 +529,14 @@ local function get_formspec(dialogdata)
 
 		("button[0,%f;%f,0.8;back;%s]"):format(
 				tabsize.height + 0.2, back_w,
+				-- TRANSLATORS: Button text to go back
 				fgettext("Back")),
 
 		("box[%f,%f;%f,0.8;#0000008C]"):format(
 			back_w + 0.2, tabsize.height + 0.2, checkbox_w),
 		("checkbox[%f,%f;show_technical_names;%s;%s]"):format(
 			back_w + 2*0.2, tabsize.height + 0.6,
+			-- TRANSLATORS: Checkbox that toggles displaying the technical setting names
 			fgettext("Show technical names"), tostring(show_technical_names)),
 
 		("box[%f,%f;%f,0.8;#0000008C]"):format(
@@ -542,6 +553,7 @@ local function get_formspec(dialogdata)
 			"image_button[0,0;0.75,0.75;", core.formspec_escape(defaulttexturedir .. "search.png"), ";search;]",
 			"image_button[0.75,0;0.75,0.75;", core.formspec_escape(defaulttexturedir .. "clear.png"), ";search_clear;]",
 			"tooltip[search;", fgettext("Search"), "]",
+			-- TRANSLATORS: Tooltip of a button that clears input
 			"tooltip[search_clear;", fgettext("Clear"), "]",
 		"container_end[]",
 		("scroll_container[0.25,1.25;%f,%f;leftscroll;vertical;0.1;0]"):format(
@@ -568,6 +580,7 @@ local function get_formspec(dialogdata)
 
 	if #filtered_pages == 0 then
 		fs[#fs + 1] = "label[0.1,0.41;"
+		-- TRANSLATORS: No search results
 		fs[#fs + 1] = fgettext("No results")
 		fs[#fs + 1] = "]"
 	end
@@ -620,11 +633,12 @@ local function get_formspec(dialogdata)
 				default = (default ~= "")
 					and core.get_key_description(default)
 
-					--~ Indicates that the action does not have a corresponding keybinding.
+					-- TRANSLATORS: Indicates that the action does not have a corresponding keybinding.
 					or fgettext_ne("Not bound")
 			end
 
 			local reset_tooltip = default and
+					-- TRANSLATORS: $1 will be replaced with a default setting value
 					fgettext("Reset setting to default ($1)", tostring(default)) or
 					fgettext("Reset setting to default")
 			fs[#fs + 1] = ("image_button[%f,%f;0.5,0.5;%s;%s;]"):format(

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: German (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-06 23:13+0100\n"
-"PO-Revision-Date: 2025-11-06 02:56+0000\n"
+"PO-Revision-Date: 2026-01-16 15:02+0000\n"
 "Last-Translator: Wuzzy <Wuzzy@disroot.org>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/minetest/minetest/"
 "de/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.15-dev\n"
+"X-Generator: Weblate 5.15.2\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -78,9 +78,8 @@ msgid "[all | <cmd>] [-t]"
 msgstr "[all | <Befehl>] [-t]"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Add keybinding"
-msgstr "Tastenbelegung"
+msgstr "Tastenbelegung hinzufügen"
 
 #: builtin/common/settings/components.lua
 msgid "Browse"
@@ -111,9 +110,8 @@ msgid "Set"
 msgstr "Setzen"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
 msgid "$1 spread"
-msgstr "X-Ausbreitung"
+msgstr "$1-Ausbreitung"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
@@ -128,11 +126,14 @@ msgid ""
 "2D noise: flag on.\n"
 "3D noise: flag off."
 msgstr ""
+"2-D-Rauschen: Flag ein.\n"
+"3-D-Rauschen: Flag aus."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Amplifies every octave by (amplitude of the previous octave * Persistence)."
 msgstr ""
+"Verstärkt jede Oktave um (Amplitude der vorherigen Oktave * Persistenz)."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/content/dlg_install.lua
@@ -148,23 +149,27 @@ msgstr "Abbrechen"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Controls how many octaves (layers) the noise will have."
-msgstr ""
+msgstr "Regelt, wie viele Oktaven (Ebenen) das Rauschen haben wird."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Each octave is a simple noise generator. Each one also adds more detail to "
 "the noise."
 msgstr ""
+"Jede Oktave ist ein einfacher Rauschgenerator. Jede Oktave fügt außerdem dem "
+"Rauschen mehr Details hinzu."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Finally, all of the octaves will be combined to generate the noise."
-msgstr ""
+msgstr "Am Schluss werden alle Oktaven kombiniert, um das Rauschen zu erzeugen."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Having lots of octaves is not recommended because it increases terrain "
 "generation time."
 msgstr ""
+"Es wird nicht empfohlen, viele Oktaven zu haben, weil dies die "
+"Geländeerzeugungsdauer erhöht."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Lacunarity"
@@ -175,30 +180,40 @@ msgid ""
 "Lower values make the terrain simple and higher values make the terrain "
 "rough."
 msgstr ""
+"Niedrigere Werte machen das Gelände simpel und höhere Werte machen das "
+"Gelände zerklüftet."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Lower values make the terrain smooth and higher values make the terrain have "
 "fine detail."
 msgstr ""
+"Niedrigere Werte machen das Gelände glatt und höhere Werte geben dem Gelände "
+"mehr kleine Details."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Lower values will result in smoother noise and higher values will result in "
 "rougher noise."
 msgstr ""
+"Niedrigere Werte sorgen für ein glatteres Rauschen und höhere Werte sorgen "
+"für ein groberes Rauschen."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Making 3D noise eased is not recommended because it significantly increases "
 "the load."
 msgstr ""
+"Es wird nicht empfohlen, 3-D-Rauschen „weich (eased)“ zu machen, weil dies "
+"die Rechendauer signifikant erhöht."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Maps noise gradient values onto a quintic S-curve before performing "
 "interpolation."
 msgstr ""
+"Dies bildet Rauschgradientenwerte auf eine quintische S-Kurve ab, bevor die "
+"Interpolation vorgenommen wird."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Octaves"
@@ -211,11 +226,11 @@ msgstr "Versatz"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Offsets the final noise by this value."
-msgstr ""
+msgstr "Das endgültige Rauschen wird um diesen Wert versetzt."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Overrides the 'eased' flag based on the noise type."
-msgstr ""
+msgstr "Überschreibt das „weich (eased)“-Flag basierend auf dem Rauschtyp."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Persistence"
@@ -234,10 +249,12 @@ msgstr "Skalierung"
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Scales every octave by (scale of the previous octave / Lacunarity)."
 msgstr ""
+"Skaliert jede Oktave um (Skala der vorherigen Oktave geteilt durch "
+"Lückenhaftigkeit)."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Scales the noise in the $1 axis by this value."
-msgstr ""
+msgstr "Skaliert das Rauschen in der $1-Achse um diesen Wert."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
@@ -246,38 +263,42 @@ msgstr "Startwert (Seed)"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Takes the absolute value of each octave while adding them together."
-msgstr ""
+msgstr "Nimmt den Absolutwert jeder Oktave, wenn diese addiert werden."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "The first octave is amplified by 1."
-msgstr ""
+msgstr "Die erste Oktave wird um 1 verstärkt."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
 msgid "The first octave is scaled by 1."
-msgstr "Dieser Befehl wurde vom Server deaktiviert."
+msgstr "Die erste Oktave wird um 1 skaliert."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "The multiplier for the noise before the offset is added."
-msgstr ""
+msgstr "Der Faktor für das Rauschen, bevor der Versatz addiert wird."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "The random seed for the noise. The same seed results in the same noise."
 msgstr ""
+"Der Zufallsstartwert (Seed) für das Rauschen. Der selbe Wert führt zum "
+"selben Rauschen."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "This is also the scale of the largest structures in the $1 direction of the "
 "noise."
 msgstr ""
+"Dies ist außerdem die Skalierung für die größten Strukturen in der $1-"
+"Richtung des Rauschens."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "This results in smooth noise instead of gridlike noise."
 msgstr ""
+"Dies resultiert in ein weiches Rauschen statt ein rasterartiges Rauschen."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "This results in spiky noise."
-msgstr ""
+msgstr "Das wird das Rauschen stachelig machen."
 
 #. ~ "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
@@ -377,9 +398,8 @@ msgstr "Keine Ergebnisse"
 
 #. ~ Indicates that the action does not have a corresponding keybinding.
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Not bound"
-msgstr "Nicht gefunden"
+msgstr "Nicht zugewiesen"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Reset setting to default"
@@ -418,15 +438,17 @@ msgid ""
 "These settings are unavailable due to your platform, hardware or in "
 "combination with the current settings."
 msgstr ""
+"Diese Einstellungen sind nicht verfügbar aufgrund Ihrer Plattform oder "
+"Hardware;\n"
+"oder sie sind nicht verfügbar in Kombination mit den aktuellen Einstellungen."
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Touchscreen layout"
 msgstr "Touchscreen-Layout"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Unavailable"
-msgstr "<keine verfügbar>"
+msgstr "Nicht verfügbar"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
@@ -462,7 +484,7 @@ msgstr "Mittel"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Quality preset"
-msgstr ""
+msgstr "Qualitätsvoreinstellung"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Very High"
@@ -772,9 +794,8 @@ msgid "Unable to install a $1 as a texture pack"
 msgstr "Fehler bei der Texturenpaket-Installation von $1"
 
 #: builtin/mainmenu/content/pkgmgr.lua
-#, fuzzy
 msgid "World mods"
-msgstr "Weltname"
+msgstr "Weltmods"
 
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
@@ -826,7 +847,7 @@ msgstr "Mod:"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Mods located inside the world folder."
-msgstr ""
+msgstr "Mods im Weltverzeichnis."
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
@@ -862,16 +883,15 @@ msgstr "Aktiviert"
 
 #: builtin/mainmenu/dlg_confirm_exit.lua
 msgid "Always show this dialog."
-msgstr ""
+msgstr "Immer diesen Dialog anzeigen."
 
 #: builtin/mainmenu/dlg_confirm_exit.lua
-#, fuzzy
 msgid "Are you sure you want to quit?"
-msgstr "Sind Sie sicher, dass „$1“ gelöscht werden soll?"
+msgstr "Möchten Sie wirklich verlassen?"
 
 #: builtin/mainmenu/dlg_confirm_exit.lua
 msgid "Quit"
-msgstr ""
+msgstr "Verlassen"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "A world named \"$1\" already exists"
@@ -1234,7 +1254,7 @@ msgstr "Webseite besuchen"
 
 #: builtin/mainmenu/init.lua
 msgid "Debug build, expect worse performance"
-msgstr ""
+msgstr "Debug-Build, rechnen sie mit einer schlechteren Performanz"
 
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
@@ -1560,6 +1580,8 @@ msgstr "Fehler beim Öffnen der angegebenen Passwortdatei: "
 #: src/client/clientlauncher.cpp
 msgid "World does not exist and no game selected to create one."
 msgstr ""
+"Die Welt existiert nicht und es wurde kein Spiel ausgewählt, um eine zu "
+"erstellen."
 
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
@@ -2192,7 +2214,7 @@ msgstr "Windows rechts"
 #: src/client/keycode.cpp
 #, c-format
 msgid "Scancode: %d"
-msgstr ""
+msgstr "Scancode: %d"
 
 #: src/client/keycode.cpp
 msgid "Scroll Lock"
@@ -2240,6 +2262,7 @@ msgstr "Übersichtskarte im Texturmodus"
 #, c-format
 msgid "Failed to create the texture \"%s\" for the rendering pipeline."
 msgstr ""
+"Die Textur „%s“ konnte für die Rendering-Pipeline nicht erstellt werden."
 
 #: src/client/shader.cpp
 #, c-format
@@ -2247,9 +2270,9 @@ msgid "Failed to compile the \"%s\" shader."
 msgstr "Fehler beim Kompilieren des „%s“-Shaders."
 
 #: src/client/shader.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Failed to find \"%s\" shader files."
-msgstr "Fehler beim Kompilieren des „%s“-Shaders."
+msgstr "Die „%s“-Shader-Dateien konnten nicht gefunden werden."
 
 #: src/client/shader.cpp
 msgid "GLSL is not supported by the driver"
@@ -2871,6 +2894,11 @@ msgid ""
 "Provides balance between speed and image quality.\n"
 "fxaa can used in combination with the other anti-aliasing methods"
 msgstr ""
+"Wendet einen Nachbearbeitungsfilter an, um Hochkontrastkanten zu erkennen "
+"und weichzuzeichnen.\n"
+"Bietet eine Balance zwischen Geschwindigkeit und Bildqualität.\n"
+"fxaa kann in Kombination mit den anderen Kantenglättungsmethoden verwendet "
+"werden"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2905,7 +2933,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Array texture max layers"
-msgstr ""
+msgstr "Max. Ebenen für Array-Textur"
 
 #: src/settings_translation_file.cpp
 msgid "Ask to reconnect after crash"
@@ -3071,6 +3099,9 @@ msgid ""
 "Caps the maximum number of layers used with array textures (if supported).\n"
 "This is only useful for debugging."
 msgstr ""
+"Begrenzt die maximale Anzahl an Ebenen, die mit Array-Texturen benutzt "
+"werden (falls unterstützt).\n"
+"Dies ist nur nützlich für das Debugging."
 
 #: src/settings_translation_file.cpp
 msgid "Capture Tracy zones"
@@ -3175,9 +3206,8 @@ msgid "Chat weblinks"
 msgstr "Chatweblinks"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Choose theme colors for the main menu background."
-msgstr "Eine Wolkenanimation für den Hintergrund im Hauptmenü benutzen."
+msgstr "Wählen Sie die Themenfarben für den Hauptmenühintergrund aus."
 
 #: src/settings_translation_file.cpp
 msgid "Chunk size"
@@ -3330,7 +3360,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Confirmation dialog before closing"
-msgstr ""
+msgstr "Bestätigungsdialog vor dem Schließen"
 
 #: src/settings_translation_file.cpp
 msgid "Connect glass"
@@ -3797,9 +3827,8 @@ msgid "Enable Raytraced Culling"
 msgstr "Raytraced Culling aktivieren"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable a confirmation dialog before closing."
-msgstr "Aktiviert die Animation von Inventargegenständen."
+msgstr "Aktiviert einen Bestätigungsdialog vor dem Schließen."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3826,9 +3855,8 @@ msgid "Enable console window"
 msgstr "Konsolenfenster aktivieren"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable dynamic shadows"
-msgstr "Dynamische Schatten"
+msgstr "Dynamische Schatten aktivieren"
 
 #: src/settings_translation_file.cpp
 msgid "Enable joysticks"
@@ -4010,9 +4038,9 @@ msgid "Fallback font path"
 msgstr "Ersatzschriftpfad"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Fast approximate antialiasing"
-msgstr "Filter und Antialiasing"
+msgstr ""
+"Fast approximate antialiasing („schnelle näherungsweise Kantenglättung“)"
 
 #: src/settings_translation_file.cpp
 msgid "Fast mode acceleration"
@@ -4053,7 +4081,7 @@ msgstr "Filmische Dynamikkompression"
 
 #: src/settings_translation_file.cpp
 msgid "Filtering and Antialiasing"
-msgstr "Filter und Antialiasing"
+msgstr "Filter und Kantenglättung"
 
 #: src/settings_translation_file.cpp
 msgid "First of 4 2D noises that together define hill/mountain range height."
@@ -4699,14 +4727,16 @@ msgstr ""
 "Aktivieren Sie dies nur, wenn Sie wissen, was sie tun."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "If enabled, node and inventory actions are recorded for rollback.\n"
 "This option is only read on server start. Note that the engine will not\n"
 "automatically clean old entries from the rollback database."
 msgstr ""
-"Falls aktiviert, werden Aktionen für die Rollback-Funktion aufgezeichnet.\n"
-"Diese Einstellung wird nur beim Starten des Servers gelesen."
+"Falls aktiviert, werden Node- und Inventar-Aktionen für die\n"
+"Rollback-Funktion aufgezeichnet. Diese Einstellung wird nur beim\n"
+"Starten des Servers gelesen. Beachten Sie, dass die Engine nicht\n"
+"automatisch alte Einträge aus der Rollback-Datenbank aufräumen\n"
+"wird."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5698,9 +5728,8 @@ msgid "Measure time samples"
 msgstr "Zeitstempel messen"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Menu theme"
-msgstr "Menü-Taste"
+msgstr "Menü-Thema"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -5916,6 +5945,13 @@ msgid ""
 "WARNING: There are known bugs in the default map generators (v6, v7, ...)\n"
 "when using more than 1 thread. The automatic choice will avoid this."
 msgstr ""
+"Anzahl der zu verwendenden Emerge-Threads (verantwortlich für die\n"
+"Kartenerzeugung und das Laden). Falls 0, wird die Engine automatisch einen\n"
+"geeigneten Wert auswählen, abhängig von der Hardware und dem Typ des\n"
+"Kartenerzeugers.\n"
+"ACHTUNG: Es gibt bekannte Bugs in den Standardkartenerzeugern (v6, v7, …),\n"
+"falls mehr als 1 Thread benutzt wird. Die automatische Option wird dies\n"
+"vermeiden."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5952,11 +5988,8 @@ msgid "Occlusion Culling"
 msgstr "Occlusion Culling"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Opaqueness (alpha) of the shadow behind the font."
-msgstr ""
-"Undurchsichtigkeit (Alpha) des Schattens hinter der Standardschrift, "
-"zwischen 0 und 255."
+msgstr "Undurchsichtigkeit (Alpha) des Schattens hinter der Standardschrift."
 
 #: src/settings_translation_file.cpp
 msgid "Open chat"
@@ -6304,7 +6337,6 @@ msgid "Save the map received by the client on disk."
 msgstr "Speichert die vom Client empfangene Karte auf dem Datenträger."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Save window size automatically when modified.\n"
 "If true, screen size is saved in screen_w and screen_h, and whether the "
@@ -6313,10 +6345,8 @@ msgid ""
 msgstr ""
 "Speichert die Fenstergröße automatisch, wenn sie modifiziert wird.\n"
 "Falls wahr, wird die Bildschirmgröße in screen_w und screen_h gespeichert.\n"
-"Der Zustand, der besagt, ob das Fenster maximiert ist,\n"
-"wird in window_maximized gespeichert.\n"
-"(Automatisches Speichern von window_maximized funktioniert nur, falls mit\n"
-"SDL kompiliert wurde.)"
+"Der Zustand, der besagt, ob das Fenster maximiert ist, wird in\n"
+"window_maximized gespeichert."
 
 #: src/settings_translation_file.cpp
 msgid "Saving map received from server"
@@ -6331,7 +6361,7 @@ msgid ""
 "edge pixels when images are scaled by non-integer sizes."
 msgstr ""
 "GUI mit einem benutzerdefinierten Wert skalieren.\n"
-"Benutzt einen Pixelwiederholungs-Anti-Aliasing-Filter, um\n"
+"Benutzt einen Pixelwiederholungs-Kantenglättungsfilter, um\n"
 "die GUI zu skalieren. Dies wird einige der harten Kanten\n"
 "abglätten und Pixel beim Verkleinern mischen, wobei einige\n"
 "Kantenpixel verschwommen werden, wenn sie mit nicht-\n"
@@ -6398,7 +6428,6 @@ msgid "See https://www.sqlite.org/pragma.html#pragma_synchronous"
 msgstr "Siehe https://www.sqlite.org/pragma.html#pragma_synchronous"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Select the antialiasing method to apply.\n"
 "\n"
@@ -6420,20 +6449,14 @@ msgstr ""
 "\n"
 "* None – Keine Kantenglättung (Standard)\n"
 "\n"
-"* FSAA – Von der Hardware bereitgestellte Vollbildkantenglättung\n"
-"Auch bekannt als „Multi-Sample Antialiasing“ (MSAA)\n"
+"* FSAA – Von der Hardware bereitgestellte Vollbildkantenglättung,\n"
+"auch bekannt als „Multi-Sample Antialiasing“ (MSAA)\n"
 "Glättet Blockkanten, aber hat keine Auswirkung auf das Innere von Texturen.\n"
 "\n"
-"Wenn die Nachbearbeitung deaktiviert ist, benötigt das Ändern von FSAA\n"
-"einen Neustart. Außerdem wird, wenn die Nachbearbeitung deaktiviert ist,\n"
+"Falls die Nachbearbeitung deaktiviert ist, benötigt das Ändern von FSAA\n"
+"einen Neustart. Außerdem wird, falls die Nachbearbeitung deaktiviert ist,\n"
 "FSAA nicht zusammen mit einer Unterabtastung oder einer\n"
 "Nicht-Standard-„3d_mode“-Einstellung funktionieren.\n"
-"\n"
-"* FXAA – Schnelle annähende Kantenglättung\n"
-"Wendet einen Nachbearbeitungsfilter an, um kontrastreiche Kanten zu "
-"erkennen\n"
-"und zu glätten. Bietet eine Balance zwischen Geschwindigkeit und "
-"Bildqualität.\n"
 "\n"
 "* SSAA – Super-Sampling-Kantenglättung\n"
 "Rendert ein hochauflösendes Bild der Szene, dann skaliert es herunter, um\n"
@@ -6687,9 +6710,8 @@ msgid "Shadow filter quality"
 msgstr "Schattenfilterqualität"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Shadow map render distance"
-msgstr "Schattenkartentexturengröße"
+msgstr "Schattenkartenrenderdistanz"
 
 #: src/settings_translation_file.cpp
 msgid "Shadow map texture in 32 bits"
@@ -6700,12 +6722,11 @@ msgid "Shadow map texture size"
 msgstr "Schattenkartentexturengröße"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Shadow offset (in pixels) for all fonts. If 0, then no shadow will be drawn."
 msgstr ""
-"Versatz des Schattens hinter der Standardschrift (in Pixeln). Falls 0, wird "
-"der Schatten nicht gezeichnet."
+"Versatz des Schattens hinter allen Schriften (in Pixeln). Falls 0, wird der "
+"Schatten nicht gezeichnet."
 
 #: src/settings_translation_file.cpp
 msgid "Shadow strength gamma"
@@ -7188,7 +7209,6 @@ msgstr ""
 "konfiguriert werden."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The rendering back-end.\n"
 "Note: A restart is required after changing this!\n"
@@ -7196,8 +7216,8 @@ msgid ""
 msgstr ""
 "Das Renderer-Backend.\n"
 "Anmerkung: Ein Neustart ist nach einer Änderung notwendig!\n"
-"Auf Desktopsystemen ist OpenGL die Standardeinstellung. Bei Android ist "
-"OGLES2 die Standardeinstellung."
+"Auf Desktopsystemen ist OpenGL3 die bevorzugte Standardeinstellung.\n"
+"Bei Android ist OGLES2 die bevorzugte Standardeinstellung."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7307,7 +7327,6 @@ msgstr ""
 "in Sekunden."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "To save bandwidth, block transfers are slowed down when a player is building "
 "something.\n"
@@ -7316,7 +7335,7 @@ msgstr ""
 "Um Verzögerungen zu reduzieren, werden Kartenblockübertragungen "
 "verlangsamt,\n"
 "wenn ein Spieler etwas baut. Diese Einstellung bestimmt, wie lange sie\n"
-"verlangsamt werden, nachdem ein Block platziert oder entfernt wurde."
+"verlangsamt werden, nachdem ein Block platziert wurde."
 
 #: src/settings_translation_file.cpp
 msgid "Toggle Aux1 key"
@@ -7659,14 +7678,15 @@ msgid "Vertical climbing speed, in nodes per second."
 msgstr "Vertikale Klettergeschwindigkeit, in Blöcken pro Sekunde."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Vertical screen synchronization.\n"
 "Note: A restart is required after changing this!\n"
 "Your system may still force VSync and ignore this setting."
 msgstr ""
-"Vertikale Bildschirmsynchronisation. Ihr System könnte jedoch immer noch die "
-"Aktivierung von VSync erzwingen, wenn dies deaktiviert ist."
+"Vertikale Bildschirmsynchronisation.\n"
+"Anmerkung: Ein Neustart ist nötig nach dem Ändern dieser Einstellung.\n"
+"Ihr System könnte immer noch die Aktivierung von VSync erzwingen\n"
+"und diese Einstellung ignorieren."
 
 #: src/settings_translation_file.cpp
 msgid "Video driver"
