@@ -173,7 +173,8 @@ COpenGL3DriverBase::~COpenGL3DriverBase()
 
 	deleteMaterialRenders();
 
-	CacheHandler->getTextureCache().clear();
+	if (CacheHandler)
+		CacheHandler->getTextureCache().clear();
 
 	removeAllRenderTargets();
 	deleteAllTextures();
@@ -237,8 +238,13 @@ bool COpenGL3DriverBase::isVersionAtLeast(int major, int minor) const noexcept
 
 bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenSize, bool stencilBuffer)
 {
-	initVersion();
-	initFeatures();
+	try {
+		initVersion();
+		initFeatures();
+	} catch (std::runtime_error &e) {
+		os::Printer::log(e.what(), ELL_ERROR);
+		return false;
+	}
 	printTextureFormats();
 
 	if (EnableErrorTest) {
@@ -1076,6 +1082,9 @@ void COpenGL3DriverBase::setMaterial(const SMaterial &material)
 {
 	Material = material;
 	OverrideMaterial.apply(Material);
+
+	if (!CacheHandler) // can be null during early cleanup
+		return;
 
 	for (u32 i = 0; i < Feature.MaxTextureUnits; ++i) {
 		auto *texture = material.getTexture(i);
