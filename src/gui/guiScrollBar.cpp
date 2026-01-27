@@ -222,8 +222,7 @@ void GUIScrollBar::OnPostRender(u32 time_ms)
 	interpolatePos();
 
 	const bool up_pressed = up_button && up_button->isPressed();
-	bool down_pressed = down_button && down_button->isEnabled() &&
-		down_button->isVisible() && down_button->isPressed();
+	const bool down_pressed = down_button && down_button->isPressed();
 
 	// If neither is pressed, stop repeating
 	if (!up_pressed && !down_pressed) {
@@ -242,18 +241,21 @@ void GUIScrollBar::OnPostRender(u32 time_ms)
 	// Already held: handle repeat
 	const u32 now = time_ms;
 	const u32 initial_delay = 200; // ms before repeating starts
-	const u32 repeat_delay = 20;    // ms between repeats
+	const u32 repeat_delay = 20;   // ms between repeats
 
 	u32 elapsed = now - m_arrow_last_time;
 
 	// First wait for initial delay, then repeat at fixed rate
 	if (elapsed > initial_delay) {
-		if (elapsed > repeat_rate) {
-			if (m_arrow_up)
-				setPosInterpolated(getTargetPos() - (small_step * 2));
-			else
-				setPosInterpolated(getTargetPos() + (small_step * 2));
+		if (elapsed > repeat_delay) {
+			const s32 autoscroll_stepsize = small_step * 2;
+			if (m_arrow_up) {
+				setPosInterpolated(getTargetPos() - autoscroll_stepsize);
 				m_arrow_last_time = now;
+			} else {
+				setPosInterpolated(getTargetPos() + autoscroll_stepsize);
+				m_arrow_last_time = now;
+			}
 		}
 	}
 }
