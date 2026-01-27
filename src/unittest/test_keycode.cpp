@@ -6,7 +6,7 @@
 
 #include <string>
 #include "exceptions.h"
-#include "client/keycode.h"
+#include "client/input/keycode.h"
 
 class TestKeycode : public TestBase {
 public:

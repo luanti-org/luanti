@@ -4,7 +4,7 @@
 #pragma once
 
 #include "guiButton.h"
-#include "client/keycode.h"
+#include "client/input/keycode.h"
 #include "util/string.h"
 #include "gettext.h"
 

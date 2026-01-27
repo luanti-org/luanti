@@ -11,7 +11,7 @@
 #include "EGUIElementTypes.h"
 #include "itemdef.h"
 #include "gamedef.h"
-#include "client/keycode.h"
+#include "client/input/keycode.h"
 #include "gui/guiTable.h"
 #include <IGUIButton.h>
 #include <IGUICheckBox.h>
@@ -22,7 +22,7 @@
 #include <IGUIImage.h>
 #include <AnimatedMeshSceneNode.h>
 #include "client/renderingengine.h"
-#include "client/joystick_controller.h"
+#include "client/input/gamepad_controller.h"
 #include "log.h"
 #include "drawItemStack.h"
 #include "gettext.h"
@@ -87,7 +87,7 @@ inline u32 clamp_u8(s32 value)
 	return (u32) MYMIN(MYMAX(value, 0), 255);
 }
 
-GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
+GUIFormSpecMenu::GUIFormSpecMenu(GamepadController *joystick,
 		gui::IGUIElement *parent, s32 id, IMenuManager *menumgr,
 		Client *client, gui::IGUIEnvironment *guienv, ISimpleTextureSource *tsrc,
 		ISoundManager *sound_manager, IFormSource *fsrc, TextDest *tdst,
@@ -119,7 +119,7 @@ GUIFormSpecMenu::~GUIFormSpecMenu()
 }
 
 void GUIFormSpecMenu::create(GUIFormSpecMenu *&cur_formspec, Client *client,
-	gui::IGUIEnvironment *guienv, JoystickController *joystick, IFormSource *fs_src,
+	gui::IGUIEnvironment *guienv, GamepadController *joystick, IFormSource *fs_src,
 	TextDest *txt_dest, const std::string &formspecPrepend, ISoundManager *sound_manager)
 {
 	if (cur_formspec && cur_formspec->getReferenceCount() == 1) {
