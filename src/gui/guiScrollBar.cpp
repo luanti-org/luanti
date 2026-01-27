@@ -221,8 +221,7 @@ void GUIScrollBar::OnPostRender(u32 time_ms)
 	last_time_ms = time_ms;
 	interpolatePos();
 
-	bool up_pressed = up_button && up_button->isEnabled() &&
-		up_button->isVisible() && up_button->isPressed();
+	const bool up_pressed = up_button && up_button->isPressed();
 	bool down_pressed = down_button && down_button->isEnabled() &&
 		down_button->isVisible() && down_button->isPressed();
 
