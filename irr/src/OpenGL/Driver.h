@@ -12,7 +12,6 @@
 #include "CNullDriver.h"
 #include "IMaterialRendererServices.h"
 #include "EDriverFeatures.h"
-#include "fast_atof.h"
 #include "ExtensionHandler.h"
 #include "IContextManager.h"
 

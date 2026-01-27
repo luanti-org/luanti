@@ -23,9 +23,7 @@
 #include "CGUIComboBox.h"
 
 #include "IWriteFile.h"
-#ifdef IRR_ENABLE_BUILTIN_FONT
 #include "BuiltInFont.h"
-#endif
 #include "os.h"
 
 namespace gui
@@ -126,7 +124,6 @@ CGUIEnvironment::~CGUIEnvironment()
 
 void CGUIEnvironment::loadBuiltInFont()
 {
-#ifdef IRR_ENABLE_BUILTIN_FONT
 	io::IReadFile *file = FileSystem->createMemoryReadFile(BuiltInFontData,
 			BuiltInFontDataSize, DefaultFontName, false);
 
@@ -144,7 +141,6 @@ void CGUIEnvironment::loadBuiltInFont()
 	Fonts.push_back(f);
 
 	file->drop();
-#endif
 }
 
 //! draws all gui elements
