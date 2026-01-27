@@ -8,7 +8,6 @@
 
 #include "irrString.h"
 #include "SMaterial.h"
-#include "fast_atof.h"
 #include "IContextManager.h"
 
 namespace video
@@ -112,7 +111,7 @@ void COpenGLExtensionHandler::dump(ELOG_LEVEL logLevel) const
 
 void COpenGLExtensionHandler::initExtensions(video::IContextManager *cmgr, bool stencilBuffer)
 {
-	const f32 ogl_ver = core::fast_atof(reinterpret_cast<const c8 *>(glGetString(GL_VERSION)));
+	const f32 ogl_ver = atof(reinterpret_cast<const c8 *>(glGetString(GL_VERSION)));
 	Version = static_cast<u16>(core::floor32(ogl_ver) * 100 + core::round32(core::fract(ogl_ver) * 10.0f));
 	if (Version >= 200)
 		os::Printer::log("OpenGL driver version is 2.0 or newer.", ELL_INFORMATION);
@@ -400,7 +399,7 @@ void COpenGLExtensionHandler::initExtensions(video::IContextManager *cmgr, bool 
 		if (glGetError() == GL_INVALID_ENUM)
 			ShaderLanguageVersion = 100;
 		else {
-			const f32 sl_ver = core::fast_atof(reinterpret_cast<const c8 *>(shaderVersion));
+			const f32 sl_ver = atof(reinterpret_cast<const c8 *>(shaderVersion));
 			ShaderLanguageVersion = static_cast<u16>(core::floor32(sl_ver) * 100 + core::round32(core::fract(sl_ver) * 10.0f));
 		}
 	}
