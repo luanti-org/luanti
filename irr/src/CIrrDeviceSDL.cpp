@@ -20,8 +20,10 @@
 
 #ifdef _IRR_USE_SDL3_
 #include <SDL3/SDL_version.h>
+#include <SDL3/SDL_messagebox.h>
 #else
 #include <SDL_video.h>
+#include <SDL_messagebox.h>
 #endif
 
 #include <cstdio>
@@ -1560,6 +1562,17 @@ bool CIrrDeviceSDL::isWindowMinimized() const
 	return Window && (SDL_GetWindowFlags(Window) & SDL_WINDOW_MINIMIZED) != 0;
 }
 
+void CIrrDeviceSDL::showErrorMessageBox(SDL_Window *window, const char *title, const char *message)
+{
+	auto ret = SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, message, window);
+#ifdef _IRR_USE_SDL3_
+	if (!ret)
+		os::Printer::log(title, message, ELL_ERROR);
+#else
+	if (ret < 0)
+		os::Printer::log(title, message, ELL_ERROR);
+#endif
+}
 
 void CIrrDeviceSDL::createKeyMap()
 {

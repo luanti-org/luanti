@@ -34,14 +34,10 @@ OpenGLVersion COpenGL3Driver::getVersionFromOpenGL() const
 void COpenGL3Driver::initFeatures()
 {
 	if (Version.Spec != OpenGLSpec::Compat) {
-		auto msg = "OpenGL 3 driver requires Compatibility context";
-		os::Printer::log(msg, ELL_ERROR);
-		throw std::runtime_error(msg);
+		throw std::runtime_error("OpenGL 3 driver requires Compatibility context");
 	}
 	if (!isVersionAtLeast(3, 2)) {
-		auto msg = "OpenGL 3 driver requires OpenGL >= 3.2";
-		os::Printer::log(msg, ELL_ERROR);
-		throw std::runtime_error(msg);
+		throw std::runtime_error("OpenGL 3 driver requires OpenGL >= 3.2");
 	}
 	initExtensions();
 
@@ -100,7 +96,11 @@ IVideoDriver *createOpenGL3Driver(const SIrrlichtCreationParameters &params, io:
 {
 	os::Printer::log("Using COpenGL3Driver", ELL_INFORMATION);
 	COpenGL3Driver *driver = new COpenGL3Driver(params, io, contextManager);
-	driver->genericDriverInit(params.WindowSize, params.Stencilbuffer); // don't call in constructor, it uses virtual function calls of driver
+	// don't call in constructor, it uses virtual function calls of driver
+	if (!driver->genericDriverInit(params.WindowSize, params.Stencilbuffer)) {
+		delete driver;
+		driver = nullptr;
+	}
 	return driver;
 }
 

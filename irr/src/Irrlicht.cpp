@@ -52,6 +52,19 @@ extern "C" IrrlichtDevice *createDeviceEx(const SIrrlichtCreationParameters &par
 	return dev;
 }
 
+extern "C" void showErrorMessageBox(IrrlichtDevice *dev,
+	const char *title, const char *message)
+{
+	title = title ? title : "Irrlicht";
+#ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
+	if (dev && dev->getType() == EIDT_SDL) {
+		static_cast<CIrrDeviceSDL*>(dev)->showErrorMessageBox(title, message);
+	} else {
+		CIrrDeviceSDL::showErrorMessageBox(NULL, title, message);
+	}
+#endif
+}
+
 namespace core
 {
 const matrix4 IdentityMatrix(matrix4::EM4CONST_IDENTITY);

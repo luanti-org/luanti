@@ -112,6 +112,13 @@ public:
 
 	void SwapWindow();
 
+	static void showErrorMessageBox(SDL_Window *window, const char *title, const char *message);
+
+	inline void showErrorMessageBox(const char *title, const char *message)
+	{
+		showErrorMessageBox(Window, title, message);
+	}
+
 	//! Implementation of the linux cursor control
 	class CCursorControl : public gui::ICursorControl
 	{
