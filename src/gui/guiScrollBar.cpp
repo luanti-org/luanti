@@ -242,7 +242,7 @@ void GUIScrollBar::OnPostRender(u32 time_ms)
 	// Already held: handle repeat
 	const u32 now = time_ms;
 	const u32 initial_delay = 200; // ms before repeating starts
-	const u32 repeat_rate = 20;    // ms between repeats
+	const u32 repeat_delay = 20;    // ms between repeats
 
 	u32 elapsed = now - m_arrow_last_time;
 
