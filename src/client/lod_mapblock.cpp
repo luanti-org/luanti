@@ -272,7 +272,10 @@ void LodMeshGenerator::processNodeGroup(const bitset (&all_set_nodes)[3 * BITSET
 				(nodes[BITSET_MAX2 + BITSET_MAX * u + v] &
 				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * u + v] << 1))
 				>> 1 & U62_MAX;
+		}
 
+		for (u8 u = 1; u <= BITSET_MAX_NOPAD; u++)
+		for (u8 v = 1; v <= BITSET_MAX_NOPAD; v++) {
 			// X-Up
 			m_nodes_faces[2 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[BITSET_MAX * u + v] &
@@ -284,7 +287,10 @@ void LodMeshGenerator::processNodeGroup(const bitset (&all_set_nodes)[3 * BITSET
 				(nodes[BITSET_MAX * u + v] &
 				~(all_set_nodes[BITSET_MAX * u + v] << 1))
 				>> 1 & U62_MAX;
+		}
 
+		for (u8 u = 1; u <= BITSET_MAX_NOPAD; u++)
+		for (u8 v = 1; v <= BITSET_MAX_NOPAD; v++) {
 			// Z-Up
 			m_nodes_faces[4 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] &
