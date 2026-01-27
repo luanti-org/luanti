@@ -9,6 +9,8 @@
 #include "matrix4.h"
 #include "vector3d.h"
 
+#include <ostream>
+
 // NOTE: You *only* need this when updating an application from Irrlicht before 1.8 to Irrlicht 1.8 or later.
 // Between Irrlicht 1.7 and Irrlicht 1.8 the quaternion-matrix conversions changed.
 // Before the fix they had mixed left- and right-handed rotations.
@@ -88,6 +90,12 @@ public:
 
 	//! Calculates the dot product
 	inline f32 dotProduct(const quaternion &other) const;
+
+	//! Calculates the (unsigned) angle between two quaternions
+	inline f32 angleTo(const quaternion &other) const
+	{
+		return acosf(std::abs(dotProduct(other)));
+	}
 
 	//! Sets new quaternion
 	inline quaternion &set(f32 x, f32 y, f32 z, f32 w);
@@ -191,7 +199,8 @@ public:
 	//! Fills an angle (radians) around an axis (unit vector)
 	void toAngleAxis(f32 &angle, core::vector3df &axis) const;
 
-	//! Output this quaternion to an Euler angle (radians)
+	//! Output this quaternion to an Euler angle.
+	//! X-Y-Z rotation order, left-handed, radians.
 	void toEuler(vector3df &euler) const;
 
 	//! Set quaternion to identity
@@ -206,6 +215,12 @@ public:
 	f32 Z;
 	f32 W; // real part
 };
+
+inline std::ostream& operator<<(std::ostream& os, const quaternion& q)
+{
+	os << "(" << q.X << "\t" << q.Y << "\t" << q.Z << "\t" << q.W << ")";
+	return os;
+}
 
 // Constructor which converts Euler angles to a quaternion
 inline quaternion::quaternion(f32 x, f32 y, f32 z)
@@ -280,7 +295,8 @@ inline quaternion &quaternion::operator=(const matrix4 &m)
 }
 #endif
 
-// multiplication operator
+//! Multiplication operator. this is applied first, other second.
+// FIXME swap this for consistency with matrix multiplications and the rest of mathematics
 inline quaternion quaternion::operator*(const quaternion &other) const
 {
 	quaternion tmp;
