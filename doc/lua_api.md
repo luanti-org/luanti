@@ -6772,14 +6772,18 @@ Environment access
       emerged.
     * The function signature of callback is:
       `function EmergeAreaCallback(blockpos, action, calls_remaining, param)`
-        * `blockpos` is the *block* coordinates of the block that had been
-          emerged.
-        * `action` could be one of the following constant values:
-            * `core.EMERGE_CANCELLED`
-            * `core.EMERGE_ERRORED`
-            * `core.EMERGE_FROM_MEMORY`
-            * `core.EMERGE_FROM_DISK`
-            * `core.EMERGE_GENERATED`
+        * `blockpos` are the *block* coordinates of the block in question.
+        * `action` can be one of the following constant values:
+            * `core.EMERGE_GENERATED`: The block has been freshly generated.
+            * `core.EMERGE_FROM_MEMORY`: The block did not need to be loaded
+              because it was already in memory.
+            * `core.EMERGE_FROM_DISK`: The block was generated before and has been
+              loaded from the map database.
+            * `core.EMERGE_CANCELLED`: The block was not loaded for some reason.
+              Possible reasons include: Server shutdown, it was already being
+              emerged, outside of mapgen limits.
+              This event is not an error, but does *not* mean that the block is now present.
+            * `core.EMERGE_ERRORED`: Emerging the block has failed due to an error.
         * `calls_remaining` is the number of callbacks to be expected after
           this one.
         * `param` is the user-defined parameter passed to emerge_area (or
