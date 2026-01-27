@@ -90,6 +90,8 @@ COpenGLExtensionHandler::COpenGLExtensionHandler() :
 		pGlTextureStorage2DEXT(0), pGlTexStorage2D(0), pGlTextureStorage3DEXT(0), pGlTexStorage3D(0), pGlTextureSubImage2DEXT(0), pGlGetTextureImageEXT(0),
 		pGlNamedFramebufferTextureEXT(0), pGlFramebufferTexture(0), pGlGenerateTextureMipmapEXT(0)
 {
+	static_assert(IRR_OpenGL_Feature_Count == sizeof(OpenGLFeatureStrings) / sizeof(*OpenGLFeatureStrings), "");
+
 	for (u32 i = 0; i < IRR_OpenGL_Feature_Count; ++i)
 		FeatureAvailable[i] = false;
 	DimAliasedLine[0] = 1.f;
@@ -346,99 +348,55 @@ void COpenGLExtensionHandler::initExtensions(video::IContextManager *cmgr, bool 
 
 	GLint num = 0;
 	// set some properties
-#if defined(GL_ARB_multitexture) || defined(GL_VERSION_1_3)
 	if (Version > 102 || FeatureAvailable[IRR_ARB_multitexture]) {
-#if defined(GL_MAX_TEXTURE_UNITS)
 		glGetIntegerv(GL_MAX_TEXTURE_UNITS, &num);
-#elif defined(GL_MAX_TEXTURE_UNITS_ARB)
-		glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &num);
-#endif
 		Feature.MaxTextureUnits = static_cast<u8>(num); // MULTITEXTURING (fixed function pipeline texture units)
 	}
-#endif
-#if defined(GL_ARB_vertex_shader) || defined(GL_VERSION_2_0)
 	if (Version >= 200 || FeatureAvailable[IRR_ARB_vertex_shader]) {
 		num = 0;
-#if defined(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS)
 		glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &num);
-#elif defined(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB)
-		glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS_ARB, &num);
-#endif
 		Feature.MaxTextureUnits = core::max_(Feature.MaxTextureUnits, static_cast<u8>(num));
 	}
-#endif
-#ifdef GL_EXT_texture_filter_anisotropic
 	if (FeatureAvailable[IRR_EXT_texture_filter_anisotropic]) {
 		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &num);
 		MaxAnisotropy = static_cast<u8>(num);
 	}
-#endif
-#ifdef GL_VERSION_1_2
 	if (Version > 101) {
 		glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &num);
 		MaxIndices = num;
 	}
-#endif
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &num);
 	MaxTextureSize = static_cast<u32>(num);
 	if (queryFeature(EVDF_GEOMETRY_SHADER)) {
-#if defined(GL_ARB_geometry_shader4) || defined(GL_EXT_geometry_shader4) || defined(GL_NV_geometry_shader4)
 		glGetIntegerv(GL_MAX_GEOMETRY_OUTPUT_VERTICES_EXT, &num);
 		MaxGeometryVerticesOut = static_cast<u32>(num);
-#elif defined(GL_NV_geometry_program4)
-		extGlGetProgramiv(GEOMETRY_PROGRAM_NV, GL_MAX_PROGRAM_OUTPUT_VERTICES_NV, &num);
-		MaxGeometryVerticesOut = static_cast<u32>(num);
-#endif
 	}
-#ifdef GL_EXT_texture_lod_bias
 	if (FeatureAvailable[IRR_EXT_texture_lod_bias])
 		glGetFloatv(GL_MAX_TEXTURE_LOD_BIAS_EXT, &MaxTextureLODBias);
-#endif
 	glGetIntegerv(GL_AUX_BUFFERS, &num);
 	MaxAuxBuffers = static_cast<u8>(num);
-#ifdef GL_ARB_draw_buffers
 	if (FeatureAvailable[IRR_ARB_draw_buffers]) {
 		glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &num);
 		Feature.MultipleRenderTarget = static_cast<u8>(num);
-	}
-#endif
-#if defined(GL_ATI_draw_buffers)
-#ifdef GL_ARB_draw_buffers
-	else
-#endif
-			if (FeatureAvailable[IRR_ATI_draw_buffers]) {
+	} else if (FeatureAvailable[IRR_ATI_draw_buffers]) {
 		glGetIntegerv(GL_MAX_DRAW_BUFFERS_ATI, &num);
 		Feature.MultipleRenderTarget = static_cast<u8>(num);
 	}
-#endif
-#ifdef GL_ARB_framebuffer_object
 	if (FeatureAvailable[IRR_ARB_framebuffer_object]) {
 		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &num);
 		Feature.ColorAttachment = static_cast<u8>(num);
-	}
-#endif
-#if defined(GL_EXT_framebuffer_object)
-#ifdef GL_ARB_framebuffer_object
-	else
-#endif
-			if (FeatureAvailable[IRR_EXT_framebuffer_object]) {
+	} else if (FeatureAvailable[IRR_EXT_framebuffer_object]) {
 		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &num);
 		Feature.ColorAttachment = static_cast<u8>(num);
 	}
-#endif
 
 	glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, DimAliasedLine);
 	glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, DimAliasedPoint);
 	glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, DimSmoothedLine);
 	glGetFloatv(GL_SMOOTH_POINT_SIZE_RANGE, DimSmoothedPoint);
-#if defined(GL_ARB_shading_language_100) || defined(GL_VERSION_2_0)
-	if (FeatureAvailable[IRR_ARB_shading_language_100] || Version >= 200) {
+	if (Version >= 200) {
 		glGetError(); // clean error buffer
-#ifdef GL_SHADING_LANGUAGE_VERSION
 		const GLubyte *shaderVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
-#else
-		const GLubyte *shaderVersion = glGetString(GL_SHADING_LANGUAGE_VERSION_ARB);
-#endif
 		if (glGetError() == GL_INVALID_ENUM)
 			ShaderLanguageVersion = 100;
 		else {
@@ -446,7 +404,6 @@ void COpenGLExtensionHandler::initExtensions(video::IContextManager *cmgr, bool 
 			ShaderLanguageVersion = static_cast<u16>(core::floor32(sl_ver) * 100 + core::round32(core::fract(sl_ver) * 10.0f));
 		}
 	}
-#endif
 
 	if (!pGlActiveTextureARB || !pGlClientActiveTextureARB) {
 		Feature.MaxTextureUnits = 1;
@@ -454,19 +411,14 @@ void COpenGLExtensionHandler::initExtensions(video::IContextManager *cmgr, bool 
 	} else
 		Feature.MaxTextureUnits = core::min_(Feature.MaxTextureUnits, static_cast<u8>(MATERIAL_MAX_TEXTURES));
 
-#ifdef GL_ARB_occlusion_query
 	if (FeatureAvailable[IRR_ARB_occlusion_query]) {
 		extGlGetQueryiv(GL_SAMPLES_PASSED_ARB, GL_QUERY_COUNTER_BITS_ARB,
 				&num);
 		OcclusionQuerySupport = (num > 0);
-	} else
-#endif
-#ifdef GL_NV_occlusion_query
-			if (FeatureAvailable[IRR_NV_occlusion_query]) {
+	} else if (FeatureAvailable[IRR_NV_occlusion_query]) {
 		glGetIntegerv(GL_PIXEL_COUNTER_BITS_NV, &num);
 		OcclusionQuerySupport = (num > 0);
 	} else
-#endif
 		OcclusionQuerySupport = false;
 
 	Feature.BlendOperation = (Version >= 104) ||
@@ -474,33 +426,6 @@ void COpenGLExtensionHandler::initExtensions(video::IContextManager *cmgr, bool 
 							 FeatureAvailable[IRR_EXT_blend_subtract] ||
 							 FeatureAvailable[IRR_EXT_blend_logic_op];
 
-#ifdef _DEBUG
-	if (FeatureAvailable[IRR_NVX_gpu_memory_info]) {
-		// undocumented flags, so use the RAW values
-		GLint val;
-		glGetIntegerv(0x9047, &val);
-		os::Printer::log("Dedicated video memory (kB)", core::stringc(val));
-		glGetIntegerv(0x9048, &val);
-		os::Printer::log("Total video memory (kB)", core::stringc(val));
-		glGetIntegerv(0x9049, &val);
-		os::Printer::log("Available video memory (kB)", core::stringc(val));
-	}
-#ifdef GL_ATI_meminfo
-	if (FeatureAvailable[IRR_ATI_meminfo]) {
-		GLint val[4];
-		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, val);
-		os::Printer::log("Free texture memory (kB)", core::stringc(val[0]));
-		glGetIntegerv(GL_VBO_FREE_MEMORY_ATI, val);
-		os::Printer::log("Free VBO memory (kB)", core::stringc(val[0]));
-		glGetIntegerv(GL_RENDERBUFFER_FREE_MEMORY_ATI, val);
-		os::Printer::log("Free render buffer memory (kB)", core::stringc(val[0]));
-	}
-#endif
-
-	if (queryFeature(EVDF_TEXTURE_CUBEMAP_SEAMLESS))
-		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-
-#endif
 }
 
 const COpenGLCoreFeature &COpenGLExtensionHandler::getFeature() const
@@ -535,7 +460,7 @@ bool COpenGLExtensionHandler::queryFeature(E_VIDEO_DRIVER_FEATURE feature) const
 	case EVDF_PIXEL_SHADER_2_0:
 	case EVDF_VERTEX_SHADER_2_0:
 	case EVDF_ARB_GLSL:
-		return (FeatureAvailable[IRR_ARB_shading_language_100] || Version >= 200);
+		return Version >= 200;
 	case EVDF_TEXTURE_NSQUARE:
 		return true; // non-square is always supported
 	case EVDF_TEXTURE_NPOT:
