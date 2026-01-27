@@ -823,6 +823,8 @@ void Sky::updateStars()
 	// rendering is slow due to lack of hardware support. So as indices are
 	// 16-bit and there are 4 vertices per star... the limit is 2^16/4 = 0x4000.
 	// That should be well enough actually.
+	// NOTE: If you change this number, change the documentation of
+	// set_stars in doc/lua_api.md as well!
 	if (m_star_params.count > 0x4000) {
 		warningstream << "Requested " << m_star_params.count << " stars but " << 0x4000 << " is the max\n";
 		m_star_params.count = 0x4000;
