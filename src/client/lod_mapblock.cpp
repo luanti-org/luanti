@@ -354,15 +354,15 @@ void LodMeshGenerator::generateGreedyLod(const v3s16 seg_start, const v3s16 seg_
 	for (p.Z = seg_start.Z - 1; p.Z < to.Z + width; p.Z += width)
 	for (p.Y = seg_start.Y - 1; p.Y < to.Y + width; p.Y += width)
 	for (p.X = seg_start.X - 1; p.X < to.X + width; p.X += width) {
-		MapNode n = m_data->m_vmanip.getNodeNoExNoEmerge(p);
-		if (n.getContent() == CONTENT_IGNORE) {
+		if (!m_data->m_vmanip.m_area.contains(p))
 			continue;
-		}
+		MapNode n = m_data->m_vmanip.getNodeRefUnsafeCheckFlags(p);
 		// when our sample is air, take more samples in a straight line down, to make sure we always hit the surface
 		// otherwise, snowy mountains or grassy hills would display lumps of dirt and stone
 		const ContentFeatures* f = &m_nodedef->get(n);
 		for (u8 subtr = 1; subtr < width && f->drawtype == NDT_AIRLIKE; subtr++) {
-			n = m_data->m_vmanip.getNodeNoExNoEmerge(p - v3s16(0, subtr, 0));
+			// this assumes that we always have entire blocks emerged for meshgen
+			n = m_data->m_vmanip.getNodeRefUnsafeCheckFlags(p - v3s16(0, subtr, 0));
 			f = &m_nodedef->get(n);
 		}
 
