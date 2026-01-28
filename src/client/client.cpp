@@ -100,6 +100,24 @@ void PacketCounter::print(std::ostream &o) const
 	}
 }
 
+static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool include_pos)
+{
+	const u16 cmd = pkt.getCommand();
+	std::ostringstream oss;
+	if (cmd < TOCLIENT_NUM_MSG_TYPES)
+		oss << " name=" << toClientCommandTable[cmd].name;
+
+	if (include_pos) {
+		// (not necessary for PacketError: already in e.what())
+
+		oss << " cmd=" << cmd
+			<< " offset=" << pkt.getOffset()
+			<< " size=" << pkt.getSize();
+	}
+
+	e.append(" @").append(oss.str());
+}
+
 /*
 	Client
 */
@@ -1019,24 +1037,18 @@ void Client::ReceiveAll()
 			if (!m_con->TryReceive(&pkt))
 				break;
 			ProcessData(&pkt);
-#ifdef NDEBUG
-		} catch (SerializationError &e) {
-			// Add more information to find the bad packet
-			const u16 cmd = pkt.getCommand();
-			std::ostringstream oss;
-			oss << e.what()
-				<< "\n @ command=" << cmd << " size=" << pkt.getSize();
-
-			if (cmd < TOCLIENT_NUM_MSG_TYPES) {
-				auto def = toClientCommandTable[pkt.getCommand()];
-				oss << " name=" << def.name;
-			}
-			throw SerializationError(oss.str());
-#endif
 		} catch (const con::InvalidIncomingDataException &e) {
 			infostream << "Client::ReceiveAll(): "
 					"InvalidIncomingDataException: what()="
 					 << e.what() << std::endl;
+#ifdef NDEBUG
+		} catch (SerializationError &e) {
+			enrich_exception(e, pkt, true);
+			throw;
+		} catch (PacketError &e) {
+			enrich_exception(e, pkt, false);
+			throw;
+#endif
 		}
 	}
 }
