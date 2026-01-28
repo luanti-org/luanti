@@ -1089,21 +1089,78 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 		{
 			Strfnd sf(part_of_name);
 			sf.next(":");
+			// grid size
 			u32 w0 = stoi(sf.next("x"));
 			u32 h0 = stoi(sf.next(":"));
+
+			struct ImagePart {
+				v2s32 offset;
+				std::string filename;
+				video::IImage *img = nullptr;
+				int expected_width = 0;
+
+				~ImagePart()
+				{
+					if (img)
+						img->drop();
+				}
+			};
+			std::list<ImagePart> image_parts;
+
+			// fixed point precision to allow textures smaller than the grid size
+			constexpr int FX_FACTOR = 1024;
+			// By how much to scale (w0, h0) for the resulting image
+			u32 scale = 0; // includes FX_FACTOR
+
+			while (!sf.at_end()) {
+				// X,Y(,W)=image_esc(:X,Y...)
+
+				auto &it = image_parts.emplace_back();
+
+				auto parts = str_split(sf.next("="), ',');
+				if (parts.size() >= 1)
+					it.offset.X = stoi(parts[0]);
+				if (parts.size() >= 2)
+					it.offset.Y = stoi(parts[1]);
+				if (parts.size() >= 3)
+					it.expected_width = stoi(parts[2]);
+
+				it.filename = unescape_string(sf.next_esc(":", escape), escape);
+				it.img = generateImage(it.filename, source_image_names);
+				if (!it.img) {
+					errorstream << "generateImagePart(): Failed to load image \""
+						<< it.filename << "\" for [combine" << std::endl;
+					image_parts.pop_back();
+					continue;
+				}
+
+				const auto dim = it.img->getDimension();
+				if (it.expected_width <= 0) {
+					// Parameter not specified -> do not scale
+					it.expected_width = dim.Width;
+				}
+
+				scale = std::max<u32>(scale, FX_FACTOR * dim.Width / it.expected_width);
+			}
+
 			if (!baseimg) {
+				if (scale > 0) {
+					w0 = w0 * scale / FX_FACTOR;
+					h0 = h0 * scale / FX_FACTOR;
+				}
 				CHECK_DIM(w0, h0);
+
+				// create desired
 				baseimg = driver->createImage(video::ECF_A8R8G8B8, {w0, h0});
 				baseimg->fill(video::SColor(0,0,0,0));
 			}
 
-			while (!sf.at_end()) {
-				v2s32 pos_base;
-				pos_base.X = stoi(sf.next(","));
-				pos_base.Y = stoi(sf.next("="));
-				std::string filename = unescape_string(sf.next_esc(":", escape), escape);
+			const auto basedim = baseimg->getDimension();
+			for (ImagePart &it : image_parts) {
+				// Shift insertion offset by the same factor as we scaled `baseimg`
+				const v2s32 pos_base = it.offset * scale / FX_FACTOR;
+				const std::string &filename = it.filename;
 
-				auto basedim = baseimg->getDimension();
 				if (pos_base.X > (s32)basedim.Width || pos_base.Y > (s32)basedim.Height) {
 					warningstream << "generateImagePart(): Skipping \""
 						<< filename << "\" as it's out-of-bounds " << pos_base
@@ -1113,23 +1170,28 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 				tracestream << "Adding \"" << filename << "\" to combined "
 					<< pos_base << std::endl;
 
-				video::IImage *img = generateImage(filename, source_image_names);
-				if (!img) {
-					errorstream << "generateImagePart(): Failed to load image \""
-						<< filename << "\" for [combine" << std::endl;
-					continue;
+				auto dim = it.img->getDimension();
+				u32 wanted_width = it.expected_width * scale / FX_FACTOR;
+				if (dim.Width != wanted_width) {
+					// needs resize
+					video::IImage *newimg = driver->createImage(
+						baseimg->getColorFormat(),
+						{ wanted_width, (dim.Height * wanted_width) / dim.Width }
+					);
+					it.img->copyToScaling(newimg);
+					it.img->drop();
+					it.img = newimg;
+					dim = it.img->getDimension();
 				}
-				const auto dim = img->getDimension();
+
 				if (pos_base.X + dim.Width <= 0 || pos_base.Y + dim.Height <= 0) {
 					warningstream << "generateImagePart(): Skipping \""
 						<< filename << "\" as it's out-of-bounds " << pos_base
 						<< " for [combine" << std::endl;
-					img->drop();
 					continue;
 				}
 
-				blit_with_alpha(img, baseimg, pos_base, dim);
-				img->drop();
+				blit_with_alpha(it.img, baseimg, pos_base, dim);
 			}
 		}
 		/*
