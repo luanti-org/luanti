@@ -81,5 +81,6 @@ private:
 		std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX * BITSET_MAX>> &subset_nodes,
 		std::map<content_t, MapNode> &node_types, v3s16 seg_start,u8 width);
 	LightPair computeMaxFaceLight(MapNode n, v3s16 p, v3s16 dir) const;
+	static void setBitIndex(std::array<bitset, 3 * BITSET_MAX * BITSET_MAX> &vol, u8 x, u8 y, u8 z);
 	void generateLodChunks(u8 width);
 };
