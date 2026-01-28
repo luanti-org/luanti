@@ -226,14 +226,13 @@ void GUIScrollBar::OnPostRender(u32 time_ms)
 
 	// If neither is pressed, stop repeating
 	if (!up_pressed && !down_pressed) {
-		m_arrow_held = false;
+		m_arrow_down = false;
 		return;
 	}
 
 	// If just started holding
-	if (!m_arrow_held) {
-		m_arrow_held = true;
-		m_arrow_up = up_pressed; // if both somehow pressed, up wins
+	if (!m_arrow_down) {
+		m_arrow_down = true;
 		m_arrow_last_time = time_ms;
 		return;
 	}
@@ -249,13 +248,12 @@ void GUIScrollBar::OnPostRender(u32 time_ms)
 	if (elapsed > initial_delay) {
 		if (elapsed > repeat_delay) {
 			const s32 autoscroll_stepsize = small_step * 2;
-			if (m_arrow_up) {
+			if (up_pressed) {
 				setPosInterpolated(getTargetPos() - autoscroll_stepsize);
-				m_arrow_last_time = now;
 			} else {
 				setPosInterpolated(getTargetPos() + autoscroll_stepsize);
-				m_arrow_last_time = now;
 			}
+			m_arrow_last_time = now;
 		}
 	}
 }
