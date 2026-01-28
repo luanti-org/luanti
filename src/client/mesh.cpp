@@ -102,7 +102,7 @@ template<typename F>
 inline static void transformMeshBuffer(scene::IMeshBuffer *buf,
 		const F &transform_vertex)
 {
-	const u32 stride = getVertexPitchFromType(buf->getVertexType());
+	const u32 stride = buf->getVertexBuffer()->getElementSize();
 	u32 vertex_count = buf->getVertexCount();
 	u8 *vertices = (u8 *)buf->getVertices();
 	for (u32 i = 0; i < vertex_count; i++) {
@@ -161,7 +161,7 @@ void translateMesh(scene::IMesh *mesh, v3f vec)
 
 void setMeshBufferColor(scene::IMeshBuffer *buf, const video::SColor color)
 {
-	const u32 stride = getVertexPitchFromType(buf->getVertexType());
+	const u32 stride = buf->getVertexBuffer()->getElementSize();
 	u32 vertex_count = buf->getVertexCount();
 	u8 *vertices = (u8 *) buf->getVertices();
 	for (u32 i = 0; i < vertex_count; i++)
@@ -185,7 +185,7 @@ static void applyToMesh(scene::IMesh *mesh, const F &fn)
 	u16 mc = mesh->getMeshBufferCount();
 	for (u16 j = 0; j < mc; j++) {
 		scene::IMeshBuffer *buf = mesh->getMeshBuffer(j);
-		const u32 stride = getVertexPitchFromType(buf->getVertexType());
+		const u32 stride = buf->getVertexBuffer()->getElementSize();
 		u32 vertex_count = buf->getVertexCount();
 		char *vertices = reinterpret_cast<char *>(buf->getVertices());
 		for (u32 i = 0; i < vertex_count; i++)
@@ -196,7 +196,7 @@ static void applyToMesh(scene::IMesh *mesh, const F &fn)
 
 void colorizeMeshBuffer(scene::IMeshBuffer *buf, const video::SColor *buffercolor)
 {
-	const u32 stride = getVertexPitchFromType(buf->getVertexType());
+	const u32 stride = buf->getVertexBuffer()->getElementSize();
 	u32 vertex_count = buf->getVertexCount();
 	u8 *vertices = (u8 *) buf->getVertices();
 	for (u32 i = 0; i < vertex_count; i++) {

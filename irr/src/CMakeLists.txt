@@ -292,6 +292,7 @@ set(IRRDRVROBJ
 	CEGLManager.cpp
 	CSDLManager.cpp
 	mt_opengl_loader.cpp
+	HWBuffer.cpp
 )
 
 # the legacy driver
@@ -324,7 +325,7 @@ if(ENABLE_OPENGL3 OR ENABLE_GLES2)
 		OpenGL/FixedPipelineRenderer.cpp
 		OpenGL/MaterialRenderer.cpp
 		OpenGL/Renderer2D.cpp
-		OpenGL/VBO.cpp
+		OpenGL/BufferObject.cpp
 	)
 endif()
 
