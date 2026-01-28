@@ -382,14 +382,7 @@ Client::~Client()
 
 	m_mesh_update_manager->stop();
 	m_mesh_update_manager->wait();
-
-	MeshUpdateResult r;
-	while (m_mesh_update_manager->getNextResult(r)) {
-		for (auto block : r.map_blocks)
-			if (block)
-				block->refDrop();
-		delete r.mesh;
-	}
+	m_mesh_update_manager->clearAllQueues(true);
 
 	// Delete detached inventories
 	for (auto &m_detached_inventorie : m_detached_inventories) {
@@ -719,6 +712,9 @@ void Client::step(float dtime)
 		};
 	}
 
+	// Intentionally do this *after* processing mesh updates
+	updateStaticLighting(player->getLighting().static_);
+
 	/*
 		Load fetched media
 	*/
@@ -831,6 +827,38 @@ void Client::step(float dtime)
 		m_localdb->endSave();
 		m_localdb->beginSave();
 	}
+}
+
+bool Client::updateStaticLighting(const StaticLighting &future)
+{
+	auto &current = m_committed_static_light;
+
+	if (current == future)
+		return false;
+	current = future;
+	infostream << "Static lighting params changed" << std::endl;
+
+	float gamma = g_settings->getFloat("display_gamma");
+	if (current.light_curve_set) {
+		set_light_table(current.light_curve, gamma);
+	} else {
+		set_light_curve(gamma);
+	}
+
+	// First get rid of all meshes that we have generated or are about to generate
+	m_mesh_update_manager->clearAllQueues();
+
+	// Then re-generate every block mesh
+	// (yes, this isn't a smooth operation at all. the static lighting should
+	// change very rarely at all.)
+	ClientMap &map = m_env.getClientMap();
+	std::vector<v3s16> to_update;
+	map.getBlocksWithMeshes(to_update);
+	for (v3s16 p : to_update) {
+		m_mesh_update_manager->updateBlock(&map, p, false, false, false);
+	}
+
+	return true;
 }
 
 bool Client::loadMedia(const std::string &data, const std::string &filename,
@@ -1908,19 +1936,16 @@ void Client::afterContentReceived()
 	// content from previous sessions.
 	guiScalingCacheClear();
 
-	// Rebuild inherited images and recreate textures
 	infostream<<"- Rebuilding images and textures"<<std::endl;
 	m_rendering_engine->draw_load_screen(wstrgettext("Loading textures..."),
 			guienv, m_tsrc, 0, 66);
 	m_tsrc->rebuildImagesAndTextures();
 
-	// Rebuild shaders
 	infostream<<"- Rebuilding shaders"<<std::endl;
 	m_rendering_engine->draw_load_screen(wstrgettext("Rebuilding shaders..."),
 			guienv, m_tsrc, 0, 68);
 	m_shsrc->rebuildShaders();
 
-	// Update node aliases
 	infostream<<"- Updating node aliases"<<std::endl;
 	m_rendering_engine->draw_load_screen(wstrgettext("Initializing nodes..."),
 			guienv, m_tsrc, 0, 70);
@@ -1933,14 +1958,15 @@ void Client::afterContentReceived()
 	m_nodedef->setNodeRegistrationStatus(true);
 	m_nodedef->runNodeResolveCallbacks();
 
-	// Update node textures and assign shaders to each tile
-	infostream<<"- Updating node textures"<<std::endl;
+	infostream<<"- Updating node visuals"<<std::endl;
 	TextureUpdateArgs tu_args;
 	tu_args.last_time_ms = porting::getTimeMs();
 	tu_args.text_base = wstrgettext("Initializing nodes");
 	NodeVisuals::fillNodeVisuals(m_nodedef, this, &tu_args);
 
-	// Start mesh update thread after setting up content definitions
+	// cf. updateStaticLighting()
+	set_light_curve(g_settings->getFloat("display_gamma"));
+
 	infostream<<"- Starting mesh update thread"<<std::endl;
 	m_mesh_update_manager->start();
 
