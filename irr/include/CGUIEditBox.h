@@ -148,10 +148,14 @@ protected:
 	void setTextRect(s32 line);
 	//! returns the line number that the cursor is on
 	s32 getLineFromPos(s32 pos);
+	//! inserts a string to the edit box; used by inputString and composeString
+	bool insertString(const core::stringw &str);
 	//! adds a letter to the edit box
 	void inputChar(wchar_t c);
 	//! adds a string to the edit box
 	void inputString(const core::stringw &str);
+	//! compose a string before it is added
+	void composeString(const core::stringw &str);
 	//! calculates the current scroll position
 	void calculateScrollPos();
 	//! calculated the FrameRect

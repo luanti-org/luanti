@@ -35,6 +35,13 @@ enum EEVENT_TYPE
 	/** This event is created when multiple characters are sent at a time (e.g. using an IME). */
 	EET_STRING_INPUT_EVENT,
 
+	//! A string composition event.
+	/** This event is created when the user "composes" characters (e.g. using an IME) before entering
+	the complete text.
+	See https://wiki.libsdl.org/SDL2/SDL_TextEditingExtEvent
+	*/
+	EET_STRING_COMPOSITION_EVENT,
+
 	//! A touch input event.
 	EET_TOUCH_INPUT_EVENT,
 
@@ -380,6 +387,19 @@ struct SEvent
 		core::stringw *Str;
 	};
 
+	//! String composition event.
+	struct SStringComposition
+	{
+		//! The string that is composed.
+		core::stringw *Str;
+
+		//! The position within the composition where further text would be inserted.
+		s32 Start;
+
+		//! The number of characters that would be replaced by further typing.
+		s32 Length;
+	};
+
 	//! Any kind of touch event.
 	struct STouchInput
 	{
@@ -530,6 +550,7 @@ struct SEvent
 		struct SMouseInput MouseInput;
 		struct SKeyInput KeyInput;
 		struct SStringInput StringInput;
+		struct SStringComposition StringComposition;
 		struct STouchInput TouchInput;
 		struct SAccelerometerEvent AccelerometerEvent;
 		struct SGyroscopeEvent GyroscopeEvent;
