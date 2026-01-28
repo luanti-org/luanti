@@ -7,7 +7,13 @@ VARYING_ vec3 vNormal;
 VARYING_ vec3 worldPosition;
 VARYING_ lowp vec4 varColor;
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
-CENTROID_ VARYING_ float varTexLayer; // actually int
+#ifdef USE_ARRAY_TEXTURE
+#ifdef GL_ES
+flat VARYING_ int varTexLayer;
+#else
+CENTROID_ VARYING_ float varTexLayer;
+#endif
+#endif
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// shadow uniforms
@@ -116,7 +122,7 @@ void main(void)
 #endif
 
 #ifdef USE_ARRAY_TEXTURE
-	varTexLayer = inVertexAux;
+	varTexLayer = int(inVertexAux);
 #endif
 	varTexCoord = (mTexture * vec4(inTexCoord0.xy, 1.0, 1.0)).st;
 

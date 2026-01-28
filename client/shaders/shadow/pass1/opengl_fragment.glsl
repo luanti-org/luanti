@@ -6,12 +6,18 @@
 VARYING_ vec4 tPos;
 
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
-CENTROID_ VARYING_ float varTexLayer; // actually int
+#ifdef USE_ARRAY_TEXTURE
+#ifdef GL_ES
+flat VARYING_ int varTexLayer;
+#else
+CENTROID_ VARYING_ float varTexLayer;
+#endif
+#endif
 
 void main()
 {
 #ifdef USE_ARRAY_TEXTURE
-	vec4 base = texture(baseTexture, vec3(varTexCoord, varTexLayer)).rgba;
+	vec4 base = texture(baseTexture, vec3(varTexCoord, float(varTexLayer))).rgba;
 #else
 	vec4 base = texture2D(baseTexture, varTexCoord).rgba;
 #endif
