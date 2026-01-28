@@ -359,6 +359,10 @@ In the future, having multiple custom fonts and the ability to switch between th
 but for now this feature is limited to the ability to override Luanti's default fonts via mods.
 It is recommended that this only be used by game mods to set a look and feel.
 
+Warning: Currently the Luanti client does not support reading kerning information
+from the OpenType `GPOS` table, but only the older `kern` table. This can cause
+modern fonts not to render correctly in Luanti.
+
 The stems (file names without extension) are self-explanatory:
 
 * Regular variants:
@@ -1851,8 +1855,11 @@ Displays text on the HUD.
 * `text`: The text to be displayed in the HUD element.
   Supports `core.translate` (always)
   and `core.colorize` (since protocol version 44)
-* `number`: An integer containing the RGB value of the color used to draw the
-  text. Specify `0xFFFFFF` for white text, `0xFF0000` for red, and so on.
+* `number`: An integer containing the (A)RGB value of the color used to draw the
+  text. Specify `0xFFFFFF` for white text, `0x80FF0000` for semi-transparent red, and so on.
+    * Alpha only works on Luanti 5.15+ clients. Older clients will see the text as opaque.
+    * To completely hide a text, set `text` to `""`. Setting the alpha value to `00`
+      will not work due to compatibility reasons (it'll be treated as `FF`).
 * `alignment`: The alignment of the text.
 * `offset`: offset in pixels from position.
 * `size`: size of the text.
@@ -2586,9 +2593,7 @@ Damage calculation:
 
 Client predicts damage based on damage groups. Because of this, it is able to
 give an immediate response when an entity is damaged or dies; the response is
-pre-defined somehow (e.g. by defining a sprite animation) (not implemented;
-TODO).
-Currently a smoke puff will appear when an entity dies.
+pre-defined and a smoke puff will appear when an entity dies.
 
 The group `immortal` completely disables normal damage.
 
@@ -2603,18 +2608,10 @@ entity:on_punch(puncher, time_from_last_punch, tool_capabilities, direction,
                 damage)
 ```
 
-This should never be called directly, because damage is usually not handled by
-the entity itself.
+This should **never** be called directly, because damage is usually not handled
+by the entity itself.
 
-* `puncher` is the object performing the punch. Can be `nil`. Should never be
-  accessed unless absolutely required, to encourage interoperability.
-* `time_from_last_punch` is time from last punch (by `puncher`) or `nil`.
-* `tool_capabilities` can be `nil`.
-* `direction` is a unit vector, pointing from the source of the punch to
-   the punched object.
-* `damage` damage that will be done to entity
-Return value of this function will determine if damage is done by this function
-(retval true) or shall be done by engine (retval false)
+(see "Registered entities" section for detailed description)
 
 To punch an entity/object in Lua, call:
 
@@ -2622,12 +2619,7 @@ To punch an entity/object in Lua, call:
 object:punch(puncher, time_from_last_punch, tool_capabilities, direction)
 ```
 
-* Return value is tool wear.
-* Parameters are equal to the above callback.
-* If `direction` equals `nil` and `puncher` does not equal `nil`, `direction`
-  will be automatically filled in based on the location of `puncher`.
-
-
+(see "`ObjectRef`" section for detailed description)
 
 
 Metadata
@@ -4228,6 +4220,11 @@ Helper functions
     * e.g. `"a,b":split","` returns `{"a","b"}`
 * `string:trim()`: returns the string without whitespace pre- and suffixes
     * e.g. `"\n \t\tfoo bar\t ":trim()` returns `"foo bar"`
+* Utilities for working with binary data:
+    * `string.pack(fmt, ...)`
+    * `string.unpack(fmt, s, [pos])`
+    * `string.packsize(fmt)`
+    * Backported from Lua 5.4, see https://www.lua.org/manual/5.4/manual.html#6.4.2
 * `core.wrap_text(str, limit, as_table)`: returns a string or table
     * Adds newlines to the string to keep it within the specified character
       limit
@@ -4295,13 +4292,13 @@ Helper functions
 * `core.pointed_thing_to_face_pos(placer, pointed_thing)`: returns a
   position.
     * returns the exact position on the surface of a pointed node
-* `core.get_tool_wear_after_use(uses [, initial_wear])`
+* `core.get_tool_wear_after_use(uses, initial_wear)`
     * Simulates a tool being used once and returns the added wear,
       such that, if only this function is used to calculate wear,
       the tool will break exactly after `uses` times of uses
     * `uses`: Number of times the tool can be used
     * `initial_wear`: The initial wear the tool starts with (default: 0)
-* `core.get_dig_params(groups, tool_capabilities [, wear])`:
+* `core.get_dig_params(groups, tool_capabilities, wear)`:
     Simulates an item that digs a node.
     Returns a table with the following fields:
     * `diggable`: `true` if node can be dug, `false` otherwise.
@@ -4312,7 +4309,7 @@ Helper functions
     * `groups`: Table of the node groups of the node that would be dug
     * `tool_capabilities`: Tool capabilities table of the item
     * `wear`: Amount of wear the tool starts with (default: 0)
-* `core.get_hit_params(groups, tool_capabilities [, time_from_last_punch [, wear]])`:
+* `core.get_hit_params(groups, tool_capabilities, time_from_last_punch, wear)`:
     Simulates an item that punches an object.
     Returns a table with the following fields:
     * `hp`: How much damage the punch would cause (between -65535 and 65535).
@@ -4320,10 +4317,8 @@ Helper functions
     Parameters:
     * `groups`: Damage groups of the object
     * `tool_capabilities`: Tool capabilities table of the item
-    * `time_from_last_punch`: time in seconds since last punch action
+    * `time_from_last_punch`: time in seconds since last punch action (can be `nil`)
     * `wear`: Amount of wear the item starts with (default: 0)
-
-
 
 
 Translations
@@ -5468,7 +5463,7 @@ Callbacks:
     * `puncher`: an `ObjectRef` (can be `nil`)
     * `time_from_last_punch`: Meant for disallowing spamming of clicks
       (can be `nil`).
-    * `tool_capabilities`: capability table of used item (can be `nil`)
+    * `tool_capabilities`: capability table of used item
     * `dir`: unit vector of direction of punch. Always defined. Points from the
       puncher to the punched.
     * `damage`: damage that will be done to entity.
@@ -6221,26 +6216,14 @@ Call these functions only at load time!
       * Historically, the new HP value was clamped to [0, 65535] before
         calculating the HP change. This clamping has been removed as of
         version 5.10.0
-    * `reason`: a PlayerHPChangeReason table.
-        * The `type` field will have one of the following values:
-            * `set_hp`: A mod or the engine called `set_hp` without
-                        giving a type - use this for custom damage types.
-            * `punch`: Was punched. `reason.object` will hold the puncher, or nil if none.
-            * `fall`
-            * `node_damage`: `damage_per_second` from a neighboring node.
-                             `reason.node` will hold the node name or nil.
-                             `reason.node_pos` will hold the position of the node
-            * `drown`
-            * `respawn`
-        * Any of the above types may have additional fields from mods.
-        * `reason.from` will be `mod` or `engine`.
+    * `reason`: a `PlayerHPChangeReason` table.
     * `modifier`: when true, the function should return the actual `hp_change`.
        Note: modifiers only get a temporary `hp_change` that can be modified by later modifiers.
        Modifiers can return true as a second argument to stop the execution of further functions.
        Non-modifiers receive the final HP change calculated by the modifiers.
 * `core.register_on_dieplayer(function(ObjectRef, reason))`
     * Called when a player dies
-    * `reason`: a PlayerHPChangeReason table, see register_on_player_hpchange
+    * `reason`: a `PlayerHPChangeReason` table
     * For customizing the death screen, see `core.show_death_screen`.
 * `core.register_on_respawnplayer(function(ObjectRef))`
     * Called when player is to be respawned
@@ -6981,7 +6964,7 @@ Formspec functions
         * `"VAL"`: not changed
 * `core.show_death_screen(player, reason)`
     * Called when the death screen should be shown.
-    * `player` is an ObjectRef, `reason` is a PlayerHPChangeReason table or nil.
+    * `player` is an ObjectRef, `reason` is a `PlayerHPChangeReason` table or nil.
     * By default, this shows a simple formspec with the option to respawn.
       Respawning is done via `ObjectRef:respawn`.
     * You can override this to show a custom death screen.
@@ -8478,11 +8461,11 @@ child will follow movement and rotation of that bone.
     * no-op if object is attached
 * `punch(puncher, time_from_last_punch, tool_capabilities, dir)`
     * punches the object, triggering all consequences a normal punch would have
-    * `puncher`: another `ObjectRef` which punched the object or `nil`
-    * `dir`: direction vector of punch
-    * Other arguments: See `on_punch` for entities
-    * Arguments `time_from_last_punch`, `tool_capabilities`, and `dir`
-      will be replaced with a default value when the caller sets them to `nil`.
+    * `puncher`: another `ObjectRef` which punched the object (can be `nil`)
+    * `time_from_last_punch`: Meant for disallowing spamming of clicks
+      (can be `nil`)
+    * `tool_capabilities`: capability table of used item
+    * `dir`: direction vector. Points from the puncher to the punched (can be `nil`)
 * `right_click(clicker)`:
     * simulates using the 'place/use' key on the object
     * triggers all consequences as if a real player had done this
@@ -8490,7 +8473,7 @@ child will follow movement and rotation of that bone.
     * note: this is called `right_click` for historical reasons only
 * `get_hp()`: returns number of health points
 * `set_hp(hp, reason)`: set number of health points
-    * See reason in register_on_player_hpchange
+    * reason: A `PlayerHPChangeReason` table (optional)
     * Is limited to the range of 0 ... 65535 (2^16 - 1)
     * For players: HP are also limited by `hp_max` specified in object properties
 * `get_inventory()`: returns an `InvRef` for players, otherwise returns `nil`
@@ -11309,6 +11292,40 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
 }
 ```
 
+`PlayerHPChangeReason` table definition
+---------------------------------------
+
+The `PlayerHPChangeReason` table specifies a reason for player health changes.
+
+* The `type` field is for providing one of the possible damage types
+  supported natively by the engine. It will have one of the following values:
+    * `set_hp`: A mod, builtin or the engine called `set_hp`, either
+       without giving a damage type, or by setting `set_hp`
+       as damage type explicitly
+    * `punch`: Was punched. `reason.object` will hold the puncher, or nil if none.
+    * `fall`: Fall damage.
+    * `node_damage`: `damage_per_second` from a neighboring node.
+                     `reason.node` will hold the node name or nil.
+                     `reason.node_pos` will hold the position of the node
+    * `drown`: Drowning damage from a node with the `drowning` field set.
+               `reason.node` and `reason.node_pos` are same as for `node_damage`
+    * `respawn`: HP restored by respawning.
+* The `custom_type` field may optionally be used to provide a reason that is not
+    supported by the engine, as a string. It will be ignored by the engine,
+    but it can be used to communicate to other mods about custom damage types.
+    If provided, it must be a string. It's recommended to follow the
+    `modname:reason` naming convention.
+    These custom types exist by default:
+    * `__builtin:item_eat`: HP change caused by `core.do_item_eat`
+    * `__builtin:kill_command`: `/kill` command
+* The `from` field denotes the origin of the HP change:
+    * `engine`: Engine
+    * `mod`: Mod or builtin
+* Mods may add additional fields
+
+Note: The `from` is ignored by `ObjectRef:set_hp`, the engine will always
+set it to `mod`.
+
 Chat command definition
 -----------------------
 
@@ -11844,9 +11861,10 @@ Types used are defined in the previous section.
       surface `origin` designates a point in world coordinate space. use this
       for e.g. particles entering or emerging from a portal.
 
-  * float range `strength`: the speed with which particles will move towards
-    the attractor shape. If negative, the particles will instead move away from that
-    point.
+  * float range `strength`: a factor that determines the speed with which particles
+    will move towards the attractor shape. If negative, the particles will instead
+    move away from that point. The actual speed is the product of this parameter and
+    the particle's initial distance from the attractor's origin.
 
   * vec3 `origin`: the origin point of the attractor shape towards which particles will
     initially be oriented. functions as an offset if `origin_attached` is also

@@ -40,7 +40,7 @@ COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(video::COpenGLDriver *drive
 		E_MATERIAL_TYPE baseMaterial,
 		s32 userData) :
 		Driver(driver),
-		CallBack(callback), Alpha(false), Blending(false), AlphaTest(false), Program(0), Program2(0), UserData(userData)
+		CallBack(callback), Alpha(false), Blending(false), Program(0), Program2(0), UserData(userData)
 {
 	switch (baseMaterial) {
 	case EMT_TRANSPARENT_VERTEX_ALPHA:
@@ -49,9 +49,6 @@ COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(video::COpenGLDriver *drive
 		break;
 	case EMT_ONETEXTURE_BLEND:
 		Blending = true;
-		break;
-	case EMT_TRANSPARENT_ALPHA_CHANNEL_REF:
-		AlphaTest = true;
 		break;
 	default:
 		break;
@@ -72,7 +69,7 @@ COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(COpenGLDriver *driver,
 		IShaderConstantSetCallBack *callback,
 		E_MATERIAL_TYPE baseMaterial, s32 userData) :
 		Driver(driver),
-		CallBack(callback), Alpha(false), Blending(false), AlphaTest(false), Program(0), Program2(0), UserData(userData)
+		CallBack(callback), Alpha(false), Blending(false), Program(0), Program2(0), UserData(userData)
 {
 	switch (baseMaterial) {
 	case EMT_TRANSPARENT_VERTEX_ALPHA:
@@ -81,9 +78,6 @@ COpenGLSLMaterialRenderer::COpenGLSLMaterialRenderer(COpenGLDriver *driver,
 		break;
 	case EMT_ONETEXTURE_BLEND:
 		Blending = true;
-		break;
-	case EMT_TRANSPARENT_ALPHA_CHANNEL_REF:
-		AlphaTest = true;
 		break;
 	default:
 		break;
@@ -210,11 +204,11 @@ void COpenGLSLMaterialRenderer::OnSetMaterial(const video::SMaterial &material,
 
 	Driver->setBasicRenderStates(material, lastMaterial, resetAllRenderstates);
 
+	cacheHandler->setAlphaTest(false);
+
 	if (Alpha) {
 		cacheHandler->setBlend(true);
 		cacheHandler->setBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		cacheHandler->setAlphaTest(true);
-		cacheHandler->setAlphaFunc(GL_GREATER, 0.f);
 	} else if (Blending) {
 		E_BLEND_FACTOR srcRGBFact, dstRGBFact, srcAlphaFact, dstAlphaFact;
 		E_MODULATE_FUNC modulate;
@@ -229,9 +223,6 @@ void COpenGLSLMaterialRenderer::OnSetMaterial(const video::SMaterial &material,
 		}
 
 		cacheHandler->setBlend(true);
-	} else if (AlphaTest) {
-		cacheHandler->setAlphaTest(true);
-		cacheHandler->setAlphaFunc(GL_GREATER, 0.5f);
 	}
 
 	if (CallBack)
@@ -248,9 +239,6 @@ void COpenGLSLMaterialRenderer::OnUnsetMaterial()
 	COpenGLCacheHandler *cacheHandler = Driver->getCacheHandler();
 	if (Alpha || Blending) {
 		cacheHandler->setBlend(false);
-	}
-	if (Alpha || AlphaTest) {
-		cacheHandler->setAlphaTest(false);
 	}
 }
 

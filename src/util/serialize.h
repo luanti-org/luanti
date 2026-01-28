@@ -377,11 +377,25 @@ inline void writeV3F32(u8 *data, v3f p)
 //// Iostream wrapper for data read/write
 ////
 
+inline bool canRead(std::istream &is)
+{
+	return is.peek() != EOF;
+}
+
+// Assuming -O3 on GCC 14.2.0, this function results in 55% less machine code
+// generated for the `is.eof()` branch in `MAKE_STREAM_READ_FXN`.
+static void serialize_throw_eof()
+{
+	throw SerializationError("EOF");
+}
+
 #define MAKE_STREAM_READ_FXN(T, N, S)    \
 	inline T read ## N(std::istream &is) \
 	{                                    \
 		char buf[S] = {0};               \
 		is.read(buf, sizeof(buf));       \
+		if (is.eof())                    \
+			serialize_throw_eof();       \
 		return read ## N((u8 *)buf);     \
 	}
 

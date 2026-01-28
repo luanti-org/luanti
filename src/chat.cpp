@@ -31,7 +31,7 @@ ChatBuffer::ChatBuffer(u32 scrollback):
 	}
 }
 
-void ChatBuffer::addLine(const std::wstring &name, const std::wstring &text)
+void ChatBuffer::addLine(const EnrichedString &name, const EnrichedString &text)
 {
 	m_lines_modified = true;
 
@@ -774,13 +774,15 @@ ChatBackend::ChatBackend():
 void ChatBackend::addMessage(const std::wstring &name, std::wstring text)
 {
 	// Note: A message may consist of multiple lines, for example the MOTD.
-	text = translate_string(text);
-	WStrfnd fnd(text);
-	while (!fnd.at_end())
-	{
-		std::wstring line = fnd.next(L"\n");
-		m_console_buffer.addLine(name, line);
-		m_recent_buffer.addLine(name, line);
+	EnrichedString ename(name);
+	EnrichedString etext(text);
+
+	size_t str_pos = 0;
+	while (str_pos < etext.size()) {
+		EnrichedString line = etext.getNextLine(&str_pos);
+
+		m_console_buffer.addLine(ename, line);
+		m_recent_buffer.addLine(ename, line);
 	}
 }
 

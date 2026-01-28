@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label">Luanti</string>
+    <string name="notification_channel_name">Glavne věsti</string>
+    <string name="notification_channel_description">Věsti od Luanti</string>
+    <string name="unzip_notification_description">Menje než 1 minuta…</string>
+    <string name="game_notification_title">Luanti je puščano</string>
+    <string name="ime_dialog_done">Gotovo</string>
+    <string name="loading">Dodanje…</string>
+    <string name="unzip_notification_title">Dodanje Luanti</string>
+    <string name="no_web_browser">Ne je byl najden veb-brauzer</string>
+</resources>

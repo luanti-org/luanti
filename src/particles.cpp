@@ -212,10 +212,6 @@ void ServerParticleTexture::deSerialize(std::istream &is, u16 protocol_ver,
 {
 	FlagT flags = 0;
 	deSerializeParameterValue(is, flags);
-	// new texture properties were missing in ParticleParameters::serialize
-	// before Minetest 5.9.0
-	if (is.eof())
-		return;
 
 	animated = !!(flags & FlagT(ParticleTextureFlags::animated));
 	blendmode = BlendMode((flags & FlagT(ParticleTextureFlags::blend)) >> 1);
@@ -254,17 +250,6 @@ void ParticleParameters::serialize(std::ostream &os, u16 protocol_ver) const
 	texture.serialize(os, protocol_ver, true, true);
 }
 
-template <typename T, T (reader)(std::istream& is)>
-inline bool streamEndsBeforeParam(T& val, std::istream& is)
-{
-	// This is kinda awful
-	T tmp = reader(is);
-	if (is.eof())
-		return true;
-	val = tmp;
-	return false;
-}
-
 void ParticleParameters::deSerialize(std::istream &is, u16 protocol_ver)
 {
 	pos                = readV3F32(is);
@@ -280,14 +265,25 @@ void ParticleParameters::deSerialize(std::istream &is, u16 protocol_ver)
 	glow               = readU8(is);
 	object_collision   = readU8(is);
 
-	if (streamEndsBeforeParam<u16, readU16>(node.param0, is))
+	if (!canRead(is))
 		return;
+	// >= 5.3.0-dev
+
+	node.param0 = readU16(is);
 	node.param2 = readU8(is);
 	node_tile   = readU8(is);
 
-	if (streamEndsBeforeParam<v3f, readV3F32>(drag, is))
+	if (!canRead(is))
 		return;
+	// >= 5.6.0-dev
+
+	drag = readV3F32(is);
 	jitter.deSerialize(is);
 	bounce.deSerialize(is);
+
+	if (!canRead(is))
+		return;
+	// >= 5.9.0-dev
+
 	texture.deSerialize(is, protocol_ver, true, true);
 }

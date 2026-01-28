@@ -830,7 +830,9 @@ void Server::handleCommand_PlayerItem(NetworkPacket* pkt)
 
 	*pkt >> item;
 
-	if (item >= player->getMaxHotbarItemcount()) {
+	if (player->getMaxHotbarItemcount() == 0) {
+		return; // ignore silently
+	} else if (item >= player->getMaxHotbarItemcount()) {
 		actionstream << "Player " << player->getName()
 			<< " tried to access item=" << item
 			<< " out of hotbar_itemcount="
@@ -926,8 +928,9 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 	v3f player_pos = playersao->getLastGoodPosition();
 
 	// Update wielded item
-
-	if (item_i >= player->getMaxHotbarItemcount()) {
+	if (player->getMaxHotbarItemcount() == 0) {
+		return; // ignore silently
+	} else if (item_i >= player->getMaxHotbarItemcount()) {
 		actionstream << "Player " << player->getName()
 			<< " tried to access item=" << item_i
 			<< " out of hotbar_itemcount="
@@ -1046,7 +1049,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 
 		ItemStack selected_item, hand_item;
 		ItemStack tool_item = playersao->getWieldedItem(&selected_item, &hand_item);
-		ToolCapabilities toolcap =
+		const ToolCapabilities &toolcap =
 				tool_item.getToolCapabilities(m_itemdef, &hand_item);
 		v3f dir = (pointed_object->getBasePosition() -
 				(playersao->getBasePosition() + playersao->getEyeOffset())
@@ -1054,7 +1057,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		float time_from_last_punch =
 			playersao->resetTimeFromLastPunch();
 
-		u32 wear = pointed_object->punch(dir, &toolcap, playersao,
+		u32 wear = pointed_object->punch(dir, toolcap, playersao,
 				time_from_last_punch, tool_item.wear);
 
 		// Callback may have changed item, so get it again
@@ -1660,7 +1663,9 @@ void Server::handleCommand_SrpBytesM(NetworkPacket* pkt)
 	srp_verifier_verify_session((SRPVerifier *) client->auth_data,
 		(unsigned char *)bytes_M.c_str(), &bytes_HAMK);
 
-	if (!bytes_HAMK) {
+	// skip authentication check for singleplayer world.
+	const bool is_true_singleplayer = isSingleplayer() && (strcasecmp(playername.c_str(), "singleplayer") == 0);
+	if (!bytes_HAMK && !is_true_singleplayer) {
 		if (wantSudo) {
 			actionstream << "Server: User " << playername << " at " << addr_s
 				<< " tried to change their password, but supplied wrong"

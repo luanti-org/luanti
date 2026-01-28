@@ -63,8 +63,6 @@ public:
 class RenderingEngine
 {
 public:
-	static const video::SColor MENU_SKY_COLOR;
-
 	RenderingEngine(MyEventReceiver *eventReceiver);
 	~RenderingEngine();
 
@@ -155,6 +153,9 @@ public:
 		sanity_check(s_singleton && s_singleton->m_receiver);
 		return s_singleton->m_receiver->getLastPointerType();
 	}
+
+	video::SColor m_menu_sky_color = video::SColor(255, 140, 186, 250);
+	video::SColor m_menu_clouds_color = video::SColor(255, 240, 240, 255);
 
 private:
 	static void settingChangedCallback(const std::string &name, void *data);

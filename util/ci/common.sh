@@ -32,6 +32,19 @@ install_linux_deps() {
 	fi
 }
 
+# Linux -> win32 cross-compiling only
+install_mingw_deps() {
+	local bits=$1
+	local nsis=$2
+
+	local pkgs=(gettext wine wine$bits)
+	[[ "$nsis" == "true" ]] && pkgs+=(nsis ccache)
+
+	sudo dpkg --add-architecture i386
+	sudo apt-get update
+	sudo apt-get install -y --no-install-recommends "${pkgs[@]}"
+}
+
 # macOS build only
 install_macos_brew_deps() {
 	# Uninstall the bundled cmake, it is outdated, and brew does not want to install the newest version with this one present since they are from different taps.
@@ -50,8 +63,8 @@ install_macos_brew_deps() {
 }
 
 install_macos_precompiled_deps() {
-	osver=$1
-	arch=$2
+	local osver=$1
+	local arch=$2
 
 	local pkgs=(
 		cmake wget

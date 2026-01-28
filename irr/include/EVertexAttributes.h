@@ -21,7 +21,7 @@ enum E_VERTEX_ATTRIBUTES
 const char *const sBuiltInVertexAttributeNames[] = {
 		"inVertexPosition",
 		"inVertexNormal",
-		"inVertexColor",
+		"inVertexColor_raw", // (BGRA <-> RGBA swapped)
 		"inVertexAux",
 		"inTexCoord0",
 		"inTexCoord1",

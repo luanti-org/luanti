@@ -449,6 +449,8 @@ void LodMeshGenerator::generate(const u8 lod)
 {
 	ZoneScoped;
 
+	// static u32 calls = 0;
+
 	// cap LODs to 8, since there is no use for larger than 256 node LODs
 	u8 width = 1 << MYMIN(lod - 1, 7);
 
@@ -457,4 +459,6 @@ void LodMeshGenerator::generate(const u8 lod)
 		width = m_data->m_side_length;
 
 	generateLodChunks(width);
+
+	// warningstream << "calls " << (++calls) << std::endl;
 }

@@ -27,6 +27,7 @@ extern "C" {
 #else
 	#include "bit.h"
 #endif
+#include "lstrpack.h"
 }
 
 #include "script/common/c_content.h"
@@ -79,6 +80,9 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 	lua_pushcfunction(m_luastack, luaopen_bit);
 	lua_pushstring(m_luastack, LUA_BITLIBNAME);
 	lua_call(m_luastack, 1, 0);
+
+	// Load string.{pack,unpack,packsize}
+	setup_lstrpack(m_luastack);
 
 #if BUILD_WITH_TRACY
 	// Load tracy lua bindings

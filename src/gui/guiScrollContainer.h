@@ -31,6 +31,11 @@ public:
 	void setScrollBar(GUIScrollBar *scrollbar);
 	void updateScrolling();
 
+	inline f32 getScrollFactor() const
+	{
+		return m_scrollfactor;
+	}
+
 private:
 	enum OrientationEnum
 	{

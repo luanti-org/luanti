@@ -119,6 +119,16 @@ TEST_CASE("benchmark_lod_mesh_gen")
 		build_map(d.m_vmanip, MapPattern::All_AIR, content_air, content_water, content_stone);
 	}
 
+	for (MapPattern pattern : {MapPattern::All_AIR, MapPattern::All_STONE, MapPattern::HALF, MapPattern::STRIPED, MapPattern::RANDOM}) {
+		BENCHMARK_ADVANCED("benchmark_mesh_gen:pattern_" + enum_names[pattern])
+		(Catch::Benchmark::Chronometer meter) {
+			MeshCollector collector(v3f(0), v3f(0));
+			meter.measure([&] {
+				MapblockMeshGenerator(&data.at(pattern), &collector).generate();
+			});
+		};
+	}
+
 	for (auto [lod, pattern] : cases) {
 		BENCHMARK_ADVANCED("benchmark_lod_mesh_gen:lod_" + std::to_string(lod)
 			+ ",pattern_" + enum_names[pattern])

@@ -19,6 +19,7 @@
 #include "version.h"
 #include "renderingengine.h"
 #include "settings.h"
+#include "gettime.h"
 #include "util/numeric.h"
 #include "util/tracy_wrapper.h"
 #include <IGUISpriteBank.h>
@@ -125,9 +126,13 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 	std::unique_ptr<IWritableShaderSource> ssrc(createShaderSource());
 	ssrc->addShaderUniformSetterFactory(std::make_unique<FogShaderUniformSetterFactory>());
 	g_menucloudsmgr = m_rendering_engine->get_scene_manager()->createNewSceneManager();
-	g_menuclouds = new Clouds(g_menucloudsmgr, ssrc.get(), -1, rand());
+	{
+		struct tm tm = mt_localtime();
+		u32 seed = (tm.tm_year << 16) | tm.tm_yday; // unique clouds every day
+		g_menuclouds = new Clouds(g_menucloudsmgr, ssrc.get(), -1, seed);
+	}
 	g_menuclouds->setHeight(100.0f);
-	g_menuclouds->update(v3f(0, 0, 0), video::SColor(255, 240, 240, 255));
+	g_menuclouds->update(v3f(0, 0, 0), m_rendering_engine->m_menu_clouds_color);
 	scene::ICameraSceneNode* camera;
 	camera = g_menucloudsmgr->addCameraSceneNode(NULL, v3f(0, 0, 0), v3f(0, 60, 100));
 	camera->setFarValue(10000);

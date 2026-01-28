@@ -3,9 +3,11 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "keycode.h"
+#include "gettext.h"
 #include "settings.h"
 #include "log.h"
 #include "renderingengine.h"
+#include "util/basic_macros.h"
 #include "util/string.h"
 #include <unordered_map>
 #include <vector>
@@ -27,8 +29,6 @@ struct table_key {
 	{ "KEY_F" TOSTRING(ch), KEY_F ## ch, L'\0', "F" TOSTRING(ch) },
 #define DEFINEKEY5(ch) /* key without Irrlicht keycode */ \
 	{ ch, KEY_KEY_CODES_COUNT, static_cast<wchar_t>(*ch), ch },
-
-#define N_(text) text
 
 static std::vector<table_key> table = {
 	// Keys that can be reliably mapped between Char and Key
@@ -224,9 +224,6 @@ static std::vector<table_key> table = {
 
 static const table_key invalid_key = {"", KEY_UNKNOWN, L'\0', ""};
 
-#undef N_
-
-
 static const table_key &lookup_keychar(wchar_t Char)
 {
 	if (Char == L'\0')
@@ -327,8 +324,10 @@ std::string KeyPress::name() const
 {
 	const auto &name = lookup_scancode(scancode).LangName;
 	if (!name.empty())
-		return name;
-	return formatScancode();
+		return strgettext(name);
+	if (auto scancode = getScancode())
+		return fmtgettext("Scancode: %d", scancode);
+	return "";
 }
 
 EKEY_CODE KeyPress::getKeycode() const
@@ -367,21 +366,30 @@ KeyPress KeyPress::getSpecialKey(const std::string &name)
 */
 
 // A simple cache for quicker lookup
-static std::unordered_map<std::string, KeyPress> g_key_setting_cache;
+static std::unordered_map<std::string, std::vector<KeyPress>> g_key_setting_cache;
 
-KeyPress getKeySetting(const std::string &settingname)
+const std::vector<KeyPress> &getKeySetting(const std::string &settingname)
 {
 	auto n = g_key_setting_cache.find(settingname);
 	if (n != g_key_setting_cache.end())
 		return n->second;
 
-	auto keysym = g_settings->get(settingname);
+	auto setting_value = g_settings->get(settingname);
 	auto &ref = g_key_setting_cache[settingname];
-	ref = KeyPress(keysym);
-	if (!keysym.empty() && !ref) {
-		warningstream << "Invalid key '" << keysym << "' for '" << settingname << "'." << std::endl;
+	for (const auto &keysym: str_split(setting_value, '|')) {
+		if (KeyPress kp = keysym) {
+			ref.push_back(kp);
+		} else {
+			warningstream << "Invalid key '" << keysym << "' for '" << settingname << "'." << std::endl;
+		}
 	}
 	return ref;
+}
+
+bool keySettingHasMatch(const std::string &settingname, KeyPress kp)
+{
+	const auto &keylist = getKeySetting(settingname);
+	return CONTAINS(keylist, kp);
 }
 
 void clearKeyCache()

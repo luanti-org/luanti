@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-23 19:19+0200\n"
-"PO-Revision-Date: 2024-01-22 21:01+0000\n"
-"Last-Translator: Uko Koknevics <TheZeus121@gmail.com>\n"
+"POT-Creation-Date: 2026-01-06 23:13+0100\n"
+"PO-Revision-Date: 2026-01-08 03:01+0000\n"
+"Last-Translator: Edgars Andersons <Edgars+Weblate@gaitenis.id.lv>\n"
 "Language-Team: Latvian <https://hosted.weblate.org/projects/minetest/"
 "minetest/lv/>\n"
 "Language: lv\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n % 10 == 0 || n % 100 >= 11 && n % 100 <= "
 "19) ? 0 : ((n % 10 == 1 && n % 100 != 11) ? 1 : 2);\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.15.1\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -21,31 +21,27 @@ msgstr ""
 
 #: builtin/client/chatcommands.lua
 msgid "Empty command."
-msgstr ""
+msgstr "Tukša komanda."
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "Exit to main menu"
-msgstr "Iziet uz izvēlni"
+msgstr "Iziet uz galveno izvēlni"
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "Invalid command: "
-msgstr "Lokālā komanda"
+msgstr "Nederīga komanda: "
 
 #: builtin/client/chatcommands.lua
 msgid "Issued command: "
-msgstr ""
+msgstr "Izsauktā komanda: "
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "List online players"
-msgstr "Viena spēlētāja režīms"
+msgstr "Uzskaitīt tiešsaistes spēlētājus"
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "Online players: "
-msgstr "Viena spēlētāja režīms"
+msgstr "Tiešsaistes spēlētāji: "
 
 #: builtin/client/chatcommands.lua
 msgid "The out chat queue is now empty."
@@ -53,25 +49,23 @@ msgstr ""
 
 #: builtin/client/chatcommands.lua
 msgid "This command is disabled by server."
-msgstr ""
+msgstr "Šī komanda serverī ir atspējota."
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "Available commands:"
-msgstr "Lokālā komanda"
+msgstr "Pieejamās komandas:"
 
 #: builtin/common/chatcommands.lua
-#, fuzzy
 msgid "Available commands: "
-msgstr "Lokālā komanda"
+msgstr "Pieejamās komandas: "
 
 #: builtin/common/chatcommands.lua
 msgid "Command not available: "
-msgstr ""
+msgstr "Komanda nav pieejama: "
 
 #: builtin/common/chatcommands.lua
 msgid "Get help for commands (-t: output in chat)"
-msgstr ""
+msgstr "Iegūt palīdzību par komandām (-t: izvadīt tērzēšanā)"
 
 #: builtin/common/chatcommands.lua
 msgid ""
@@ -83,12 +77,16 @@ msgid "[all | <cmd>] [-t]"
 msgstr ""
 
 #: builtin/common/settings/components.lua
+msgid "Add keybinding"
+msgstr ""
+
+#: builtin/common/settings/components.lua
 msgid "Browse"
 msgstr "Pārlūkot"
 
 #: builtin/common/settings/components.lua
 msgid "Conflicts with \"$1\""
-msgstr ""
+msgstr "Ir pretrunā'ar “$1”"
 
 #: builtin/common/settings/components.lua
 msgid "Edit"
@@ -100,16 +98,19 @@ msgstr ""
 
 #: builtin/common/settings/components.lua
 msgid "Select directory"
-msgstr "Izvēlēties mapi"
+msgstr "Atlasīt mapi"
 
 #: builtin/common/settings/components.lua
 msgid "Select file"
-msgstr "Izvēlēties failu"
+msgstr "Atlasīt datni"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Set"
-msgstr "Select"
+msgstr "Iestatīt"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "$1 spread"
+msgstr "$1 izkaisījums"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
@@ -120,9 +121,21 @@ msgid "2D Noise"
 msgstr "2D Troksnis"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"2D noise: flag on.\n"
+"3D noise: flag off."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Amplifies every octave by (amplitude of the previous octave * Persistence)."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/content/dlg_overwrite.lua
-#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
+#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_confirm_exit.lua
+#: builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
 #: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
@@ -131,7 +144,57 @@ msgid "Cancel"
 msgstr "Atcelt"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Controls how many octaves (layers) the noise will have."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Each octave is a simple noise generator. Each one also adds more detail to "
+"the noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Finally, all of the octaves will be combined to generate the noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Having lots of octaves is not recommended because it increases terrain "
+"generation time."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Lacunarity"
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values make the terrain simple and higher values make the terrain "
+"rough."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values make the terrain smooth and higher values make the terrain have "
+"fine detail."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values will result in smoother noise and higher values will result in "
+"rougher noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Making 3D noise eased is not recommended because it significantly increases "
+"the load."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Maps noise gradient values onto a quintic S-curve before performing "
+"interpolation."
 msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
@@ -144,9 +207,16 @@ msgid "Offset"
 msgstr "Nobīde"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
+msgid "Offsets the final noise by this value."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Overrides the 'eased' flag based on the noise type."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Persistence"
-msgstr "Noturība"
+msgstr "Pastāvīgums"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_config_world.lua
@@ -159,21 +229,52 @@ msgid "Scale"
 msgstr "Mērogs"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Scales every octave by (scale of the previous octave / Lacunarity)."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Scales the noise in the $1 axis by this value."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Seed"
 msgstr "Sēkla"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "X spread"
-msgstr "Izkaisījums pa X asi"
+msgid "Takes the absolute value of each octave while adding them together."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "Y spread"
-msgstr "Izkaisījums pa Y asi"
+msgid "The first octave is amplified by 1."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "Z spread"
-msgstr "Izkaisījums pa Z asi"
+#, fuzzy
+msgid "The first octave is scaled by 1."
+msgstr "Šī komanda serverī ir atspējota."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "The multiplier for the noise before the offset is added."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "The random seed for the noise. The same seed results in the same noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"This is also the scale of the largest structures in the $1 direction of the "
+"noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "This results in smooth noise instead of gridlike noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "This results in spiky noise."
+msgstr ""
 
 #. ~ "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
@@ -212,11 +313,11 @@ msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(Use system language)"
-msgstr ""
+msgstr "(Izmantot sistēmas valodu)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Accessibility"
-msgstr ""
+msgstr "Piekļūstamība"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Auto"
@@ -235,7 +336,7 @@ msgstr ""
 #: builtin/common/settings/dlg_settings.lua src/gui/touchscreenlayout.cpp
 #: src/settings_translation_file.cpp
 msgid "Chat"
-msgstr "Čats"
+msgstr "Tērzēšana"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Clear"
@@ -256,30 +357,33 @@ msgstr "Iespējots"
 
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "General"
-msgstr ""
+msgstr "Vispārīgi"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
-msgstr ""
+msgstr "Ilgs piesitiens"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Movement"
-msgstr "Ātrā pārvietošanās"
+msgstr "Pārvietošanās"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No results"
 msgstr "Nav rezultātu"
 
+#. ~ Indicates that the action does not have a corresponding keybinding.
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
+msgid "Not bound"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Reset setting to default"
-msgstr "Atiestatīt uz noklusējumu"
+msgstr "Atiestatīt iestatījumu uz noklusējumu"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Reset setting to default ($1)"
-msgstr ""
+msgstr "Atiestatīt iestatījumu uz noklusējumu ($1)"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
@@ -287,43 +391,50 @@ msgstr "Meklēšana"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Short tap"
-msgstr ""
+msgstr "Īss piesitiens"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show advanced settings"
-msgstr ""
+msgstr "Rādīt lietpratēju iestatījumus"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show technical names"
 msgstr "Rādīt tehniskos nosaukumus"
 
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Tap"
-msgstr "Tab"
+msgstr "Piesist"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
 msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
-msgid "Touchscreen layout"
+msgid ""
+"These settings are unavailable due to your platform, hardware or in "
+"combination with the current settings."
 msgstr ""
 
-#: builtin/common/settings/settingtypes.lua
+#: builtin/common/settings/dlg_settings.lua
+msgid "Touchscreen layout"
+msgstr "Skārienekrāna izkārtojums"
+
+#: builtin/common/settings/dlg_settings.lua
 #, fuzzy
+msgid "Unavailable"
+msgstr "<nekas nav pieejams>"
+
+#: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
-msgstr "Izvēlieties pasauli:"
+msgstr "Klienta pielāgojumi"
 
 #: builtin/common/settings/settingtypes.lua
-#, fuzzy
 msgid "Content: Games"
-msgstr "Saturs"
+msgstr "Saturs: spēles"
 
 #: builtin/common/settings/settingtypes.lua
-#, fuzzy
 msgid "Content: Mods"
-msgstr "Saturs"
+msgstr "Saturs: pielāgojumi"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "(The game will need to enable shadows as well)"
@@ -331,12 +442,7 @@ msgstr ""
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Custom"
-msgstr ""
-
-#: builtin/common/settings/shadows_component.lua
-#: src/settings_translation_file.cpp
-msgid "Dynamic shadows"
-msgstr ""
+msgstr "Pielāgots"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "High"
@@ -351,6 +457,10 @@ msgid "Medium"
 msgstr ""
 
 #: builtin/common/settings/shadows_component.lua
+msgid "Quality preset"
+msgstr ""
+
+#: builtin/common/settings/shadows_component.lua
 msgid "Very High"
 msgstr ""
 
@@ -360,7 +470,7 @@ msgstr ""
 
 #: builtin/fstk/ui.lua
 msgid "<none available>"
-msgstr ""
+msgstr "<nekas nav pieejams>"
 
 #: builtin/fstk/ui.lua
 msgid "An error occurred in a Lua script:"
@@ -408,34 +518,35 @@ msgstr "Mēs atbalstam protokola versijas starp $1 un $2."
 
 #: builtin/mainmenu/content/contentdb.lua
 msgid "Error installing \"$1\": $2"
-msgstr ""
+msgstr "Kļūda “$1” uzstādīšanā: $2"
 
 #: builtin/mainmenu/content/contentdb.lua
-#, fuzzy
 msgid "Failed to download \"$1\""
-msgstr "Neizdevās lejuplādēt $1"
+msgstr "Neizdevās lejuplādēt “$1”"
 
 #: builtin/mainmenu/content/contentdb.lua
 msgid "Failed to download $1"
 msgstr "Neizdevās lejuplādēt $1"
 
 #: builtin/mainmenu/content/contentdb.lua
-#, fuzzy
 msgid ""
 "Failed to extract \"$1\" (insufficient disk space, unsupported file type or "
 "broken archive)"
-msgstr "Instalācija: Neatbalstīts faila tips “$1” vai arī sabojāts arhīvs"
+msgstr ""
+"Neizdevāš izvērst “$1” (nepietiekama vieta diskā, neatbalstīts datnes veids "
+"vai bojāts arhīvs)"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid ""
 "$1 downloading,\n"
 "$2 queued"
 msgstr ""
+"Lejupielādē $1,\n"
+"$2 ierindots"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#, fuzzy
 msgid "$1 downloading..."
-msgstr "Ielāde..."
+msgstr "Lejupielādē $1…"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "All"
@@ -446,9 +557,8 @@ msgid "ContentDB is not available when Luanti was compiled without cURL"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#, fuzzy
 msgid "Downloading..."
-msgstr "Ielāde..."
+msgstr "Lejupielādē…"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
@@ -467,29 +577,27 @@ msgstr "Ielāde..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Mods"
-msgstr "Modi"
+msgstr "Pielāgojumi"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No packages could be retrieved"
 msgstr "Nevarēja iegūt papildinājumus"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#, fuzzy
 msgid "No updates"
-msgstr "Atjaunot"
+msgstr "Nav atjauninājumu"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Queued"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
-#, fuzzy
 msgid "Texture Packs"
-msgstr "Tekstūru komplekti"
+msgstr "Tekstūru pakas"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "The package $1 was not found."
-msgstr ""
+msgstr "Pakotne $1 netika atrasta."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Update All [$1]"
@@ -497,7 +605,7 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 and $2 dependencies will be installed."
-msgstr ""
+msgstr "Tiks uzstādītas $1 un $2 atkarības."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 by $2"
@@ -505,21 +613,19 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 required dependencies could not be found."
-msgstr ""
+msgstr "Nevarēja atrast $1 nepieciešamās atkarības."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 will be installed, and $2 dependencies will be skipped."
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_install.lua
-#, fuzzy
 msgid "Already installed"
-msgstr "Šis taustiņš jau tiek izmantots"
+msgstr "Jau uzstādīts"
 
 #: builtin/mainmenu/content/dlg_install.lua
-#, fuzzy
 msgid "Base Game:"
-msgstr "Spēlēt (kā serveris)"
+msgstr "Pamata spēle:"
 
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
@@ -528,22 +634,20 @@ msgstr "Atkarības:"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Error getting dependencies for package $1"
-msgstr ""
+msgstr "Kļūda pakotnes $1 atkarību iegūšanā"
 
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Install"
-msgstr "Instalēt"
+msgstr "Uzstādīt"
 
 #: builtin/mainmenu/content/dlg_install.lua
-#, fuzzy
 msgid "Install $1"
-msgstr "Instalēt"
+msgstr "Uzstādīt $1"
 
 #: builtin/mainmenu/content/dlg_install.lua
-#, fuzzy
 msgid "Install missing dependencies"
-msgstr "Neobligātās atkarības:"
+msgstr "Jāuzstāda trūkstošās atkarības"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Not found"
@@ -555,52 +659,47 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "You need to install a game before you can install a mod"
-msgstr ""
+msgstr "Vispirms ir jāuzstāda spēle, pirms var uzstādīt pielāgojumu"
 
 #: builtin/mainmenu/content/dlg_overwrite.lua
 msgid "\"$1\" already exists. Would you like to overwrite it?"
-msgstr ""
+msgstr "“$1” jau pastāv. Vai pārrakstīt to?"
 
 #: builtin/mainmenu/content/dlg_overwrite.lua
 msgid "Overwrite"
-msgstr ""
+msgstr "Pārrakstīt"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "ContentDB page"
-msgstr "Saturs"
+msgstr "ContentDB lapa"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Description"
-msgstr "Servera ports"
+msgstr "Apraksts"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Donate"
-msgstr ""
+msgstr "Ziedot"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Error loading package information"
-msgstr ""
+msgstr "Kļūda pakotnes informācijas ielādēšanā"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Error loading reviews"
-msgstr "Izveido klientu..."
+msgstr "Kļūda pārskatu ielādēšanā"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Forum Topic"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Information"
-msgstr "Informācija:"
+msgstr "Informācija"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Install [$1]"
-msgstr "Instalēt"
+msgstr "Uzstādīt [$1]"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
@@ -608,28 +707,27 @@ msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Reviews"
-msgstr ""
+msgstr "Atsauksmes"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
-msgstr ""
+msgstr "Avots"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Translate"
-msgstr ""
+msgstr "Tulkot"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
 msgid "Uninstall"
-msgstr "Atinstalēt"
+msgstr "Noņemt"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
-#, fuzzy
 msgid "Update"
 msgstr "Atjaunināt"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Website"
-msgstr ""
+msgstr "Tīmekļvietne"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1"
@@ -645,38 +743,40 @@ msgstr "$1 (Iespējots)"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "$1 mods"
-msgstr "$1 modi"
+msgstr "$1 pielāgojumi"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "Failed to install $1 to $2"
-msgstr "Neizdevās instalēt $1 uz $2"
+msgstr "Neizdevās uzstādīt $1 $2"
 
 #: builtin/mainmenu/content/pkgmgr.lua
-#, fuzzy
 msgid "Install: Unable to find suitable folder name for $1"
-msgstr ""
-"Moda instalācija: Neizdevās atrast derīgu mapes nosaukumu priekš modu "
-"komplekta “$1”"
+msgstr "Uzstādīšana: nevarēja atrast derīgu mapes nosaukumu “$1”"
 
 #: builtin/mainmenu/content/pkgmgr.lua
-#, fuzzy
 msgid "Unable to find a valid mod, modpack, or game"
-msgstr "Neizdevās atrast derīgu modu vai modu komplektu"
+msgstr "Nevarēja atrast derīgu pielāgojumu, pielāgojumu paku vai spēli"
 
 #: builtin/mainmenu/content/pkgmgr.lua
-#, fuzzy
 msgid "Unable to install a $1 as a $2"
-msgstr "Neizdevās instalēt modu kā $1"
+msgstr "Nevarēja uzstādīt $1 kā $2"
 
 #: builtin/mainmenu/content/pkgmgr.lua
 msgid "Unable to install a $1 as a texture pack"
-msgstr "Neizdevās ieinstalēt $1 kā tekstūru paku"
+msgstr "Neizdevās uzstādīt $1 kā tekstūru paku"
+
+#: builtin/mainmenu/content/pkgmgr.lua
+#, fuzzy
+msgid "World mods"
+msgstr "Pasaules nosaukums"
 
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
 "Players connected to\n"
 "$1"
 msgstr ""
+"Spēlētāji, kas savienojušies ar\n"
+"$1"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
@@ -692,7 +792,7 @@ msgstr "Atspējot visus"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Disable modpack"
-msgstr "Atspējot modu komplektu"
+msgstr "Atspējot pielāgojumu paku"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Enable all"
@@ -700,15 +800,15 @@ msgstr "Iespējot visus"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Enable modpack"
-msgstr "Iespējot modu komplektu"
+msgstr "Iespējot pielāgojumu paku"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid ""
 "Failed to enable mod \"$1\" as it contains disallowed characters. Only "
 "characters [a-z0-9_] are allowed."
 msgstr ""
-"Neizdevās iespējot modu \"$1\", jo tas satur neatļautus simbolus. Tikai "
-"sekojošie simboli ir atļauti: [a-z0-9_]."
+"Neizdevās iespējot pielāgojumu \"$1\", jo tas satur neatļautus rakstzīmes. "
+"Ir atļautas tikai rakstzīmes [a-z0-9_]."
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Find More Mods"
@@ -716,7 +816,11 @@ msgstr ""
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "Mod:"
-msgstr "Mods:"
+msgstr "Pielāgojums:"
+
+#: builtin/mainmenu/dlg_config_world.lua
+msgid "Mods located inside the world folder."
+msgstr ""
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
@@ -732,7 +836,7 @@ msgstr "Nav obligāto atkarību"
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No modpack description provided."
-msgstr "Nav atrasts modu komplekta apraksts."
+msgstr "Nav sniegts pielāgojumu pakas apraksts."
 
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No optional dependencies"
@@ -749,6 +853,19 @@ msgstr "Pasaule:"
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "enabled"
 msgstr "iespējots"
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+msgid "Always show this dialog."
+msgstr ""
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+#, fuzzy
+msgid "Are you sure you want to quit?"
+msgstr "Vai tiešām izdzēst “$1”?"
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+msgid "Quit"
+msgstr ""
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "A world named \"$1\" already exists"
@@ -779,9 +896,8 @@ msgid "Caverns"
 msgstr ""
 
 #: builtin/mainmenu/dlg_create_world.lua
-#, fuzzy
 msgid "Caves"
-msgstr "Oktāvas"
+msgstr "Alas"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Create"
@@ -796,10 +912,8 @@ msgid "Desert temples"
 msgstr ""
 
 #: builtin/mainmenu/dlg_create_world.lua
-#, fuzzy
 msgid "Development Test is meant for developers."
-msgstr ""
-"Uzmanību: “Minimal development test” ir domāts priekš spēles izstrādātājiem."
+msgstr "Izstrādes pārbaude ir paredzēta izstrādātājiem."
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid ""
@@ -943,7 +1057,7 @@ msgstr "Pasaules nosaukums"
 
 #: builtin/mainmenu/dlg_delete_content.lua
 msgid "Are you sure you want to delete \"$1\"?"
-msgstr "Vai Jūs esat pārliecināts, ka vēlaties izdzēst “$1”?"
+msgstr "Vai tiešām izdzēst “$1”?"
 
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/tab_local.lua
@@ -979,9 +1093,8 @@ msgid "Keybindings changed"
 msgstr ""
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
-#, fuzzy
 msgid "Open settings"
-msgstr "Uzstādījumi"
+msgstr "Atvērt iestatījumus"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "The input handling system was reworked in Luanti 5.12.0."
@@ -1010,14 +1123,12 @@ msgid "Password"
 msgstr "Parole"
 
 #: builtin/mainmenu/dlg_register.lua
-#, fuzzy
 msgid "Passwords do not match"
-msgstr "Paroles nesakrīt!"
+msgstr "Paroles nesakrīt"
 
 #: builtin/mainmenu/dlg_register.lua builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Register"
-msgstr "Reģistrēties un pievienoties"
+msgstr "Reģistrēties"
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid "Dismiss"
@@ -1049,20 +1160,19 @@ msgstr "Piekrist"
 
 #: builtin/mainmenu/dlg_rename_modpack.lua
 msgid "Rename Modpack:"
-msgstr "Pārsaukt modu komplektu:"
+msgstr "Pārdēvēt pielāgojumu paku:"
 
 #: builtin/mainmenu/dlg_rename_modpack.lua
 msgid ""
 "This modpack has an explicit name given in its modpack.conf which will "
 "override any renaming here."
 msgstr ""
-"Šim modu komplektam ir noteikts nosaukums, kas uzdots failā modpack.conf, un "
-"tas anulēs jebkādu pārsaukšanu šeit."
+"Šai pielāgojumu pakai ir noteikts nosaukums, kas norādīts modpack.conf, un "
+"tas pārrakstīs jebkādu pārdēvēšanu šeit."
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
-#, fuzzy
 msgid "Expand all"
-msgstr "Iespējot visus"
+msgstr "Izvērst visu"
 
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Group by prefix"
@@ -1100,20 +1210,23 @@ msgstr ""
 msgid "Visit website"
 msgstr ""
 
+#: builtin/mainmenu/init.lua
+msgid "Debug build, expect worse performance"
+msgstr ""
+
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "Uzstādījumi"
 
 #: builtin/mainmenu/serverlistmgr.lua
-#, fuzzy
 msgid "Public server list is disabled"
-msgstr "Klienta puses skriptēšana ir atspējota"
+msgstr "Publisko serveru saraksts ir atspējots"
 
 #: builtin/mainmenu/serverlistmgr.lua
 msgid "Try reenabling public serverlist and check your internet connection."
 msgstr ""
-"Pamēģiniet atkārtoti ieslēgt publisko serveru sarakstu un pārbaudiet "
-"interneta savienojumu."
+"Jāmēģina atkārtoti iespējot publisko serveru saraksts un jāpārbauda "
+"interneta savienojums."
 
 #: builtin/mainmenu/tab_about.lua
 msgid "About"
@@ -1136,9 +1249,8 @@ msgid "Core Team"
 msgstr ""
 
 #: builtin/mainmenu/tab_about.lua
-#, fuzzy
 msgid "Open User Data Directory"
-msgstr "Izvēlēties mapi"
+msgstr "Atvērt lietotāja datu mapi"
 
 #: builtin/mainmenu/tab_about.lua
 msgid ""
@@ -1163,18 +1275,16 @@ msgid "Browse online content"
 msgstr "Pārlūkot tiešsaistes saturu"
 
 #: builtin/mainmenu/tab_content.lua
-#, fuzzy
 msgid "Browse online content [$1]"
-msgstr "Pārlūkot tiešsaistes saturu"
+msgstr "Pārlūkot tiešsaistes saturu [$1]"
 
 #: builtin/mainmenu/tab_content.lua
 msgid "Content"
 msgstr "Saturs"
 
 #: builtin/mainmenu/tab_content.lua
-#, fuzzy
 msgid "Content [$1]"
-msgstr "Saturs"
+msgstr "Saturs [$1]"
 
 #: builtin/mainmenu/tab_content.lua
 msgid "Disable Texture Pack"
@@ -1182,7 +1292,7 @@ msgstr "Atspējot tekstūru komplektu"
 
 #: builtin/mainmenu/tab_content.lua
 msgid "Installed Packages:"
-msgstr "Instalētie papildinājumi:"
+msgstr "Uzstādītās pakotnes:"
 
 #: builtin/mainmenu/tab_content.lua
 msgid "No dependencies."
@@ -1197,9 +1307,8 @@ msgid "Rename"
 msgstr "Pārsaukt"
 
 #: builtin/mainmenu/tab_content.lua
-#, fuzzy
 msgid "Update available?"
-msgstr "Šeideri (nepieejami)"
+msgstr "Pieejams atjauninājums?"
 
 #: builtin/mainmenu/tab_content.lua
 msgid "Use Texture Pack"
@@ -1230,9 +1339,8 @@ msgid "Host Server"
 msgstr "Palaist serveri"
 
 #: builtin/mainmenu/tab_local.lua
-#, fuzzy
 msgid "Install a game"
-msgstr "Instalēt"
+msgstr "Uzstādīt spēli"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Install games from ContentDB"
@@ -1254,20 +1362,19 @@ msgstr "Jauns"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
-msgstr "Spēlēt"
+msgstr "Spēlēt spēli"
 
 #: builtin/mainmenu/tab_local.lua builtin/mainmenu/tab_online.lua
 msgid "Port"
 msgstr "Ports"
 
 #: builtin/mainmenu/tab_local.lua
-#, fuzzy
 msgid "Select Mods"
-msgstr "Izvēlieties pasauli:"
+msgstr "Atlasīt pielāgojumus"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Select World:"
-msgstr "Izvēlieties pasauli:"
+msgstr "Atlasīt pasauli:"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Server Port"
@@ -1282,14 +1389,12 @@ msgid "You need to install a game before you can create a world."
 msgstr ""
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Add favorite"
-msgstr "Izdzēst no izlases"
+msgstr "Pievienot izlasē"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Address"
-msgstr "- Adrese: "
+msgstr "Adrese"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Creative mode"
@@ -1297,19 +1402,16 @@ msgstr "Radošais režīms"
 
 #. ~ PvP = Player versus Player
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Damage / PvP"
-msgstr "- Bojājumi: "
+msgstr "Bojājumi / SpS"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Favorites"
-msgstr "Pievienot izlasei"
+msgstr "Izlase"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Game: $1"
-msgstr "Spēle"
+msgstr "Spēle: $1"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Incompatible Servers"
@@ -1336,11 +1438,12 @@ msgid "Ping"
 msgstr "Pings"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid ""
 "Players:\n"
 "$1"
-msgstr "Izvēlieties pasauli:"
+msgstr ""
+"Spēlētāji:\n"
+"$1"
 
 #: builtin/mainmenu/tab_online.lua
 msgid ""
@@ -1351,28 +1454,24 @@ msgid ""
 msgstr ""
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Public Servers"
-msgstr "Paziņot par serveri"
+msgstr "Publiskie serveri"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Refresh"
 msgstr ""
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Remove favorite"
-msgstr "Izdzēst no izlases"
+msgstr "Noņemt no izlases"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Server Description"
-msgstr "Servera ports"
+msgstr "Servera apraksts"
 
 #: src/client/client.cpp
-#, fuzzy
 msgid "Connection aborted (protocol error?)."
-msgstr "Savienojuma kļūme (noildze?)"
+msgstr "Pārtraukts savienojums (protokola kļūda?)."
 
 #: src/client/client.cpp src/client/game.cpp
 msgid "Connection timed out."
@@ -1381,11 +1480,6 @@ msgstr "Savienojuma noildze."
 #: src/client/client.cpp
 msgid "Done!"
 msgstr "Gatavs!"
-
-#: src/client/client.cpp
-#, c-format
-msgid "Failed to save screenshot to \"%s\""
-msgstr ""
 
 #: src/client/client.cpp
 msgid "Initializing nodes"
@@ -1403,15 +1497,14 @@ msgstr "Ielādē tekstūras..."
 msgid "Rebuilding shaders..."
 msgstr "Pārbūvē šeiderus..."
 
-#: src/client/client.cpp
-#, fuzzy, c-format
+#: src/client/client.cpp src/util/screenshot.cpp
+#, c-format
 msgid "Saved screenshot to \"%s\""
-msgstr "Ekrānšāviņš"
+msgstr "Ekrānuzņēmums saglabāts “%s”"
 
 #: src/client/clientlauncher.cpp
-#, fuzzy
 msgid "Could not find or load game: "
-msgstr "Nevarēja atrast vai ielādēt spēli \""
+msgstr "Nevarēja atrast vai ielādēt spēli: "
 
 #: src/client/clientlauncher.cpp
 msgid "Main Menu"
@@ -1427,32 +1520,32 @@ msgstr "Spēlētāja vārds ir pārāk garš."
 
 #: src/client/clientlauncher.cpp
 msgid "Please choose a name!"
-msgstr "Lūdzu, izvēlieties vārdu!"
+msgstr "Lūgums izvēlēties vārdu."
 
 #: src/client/clientlauncher.cpp
 msgid "Provided password file failed to open: "
-msgstr "Neizdevās atvērt iestatīto paroļu failu: "
+msgstr "Neizdevās atvērt norādīto paroļu datni: "
 
 #: src/client/clientlauncher.cpp
-msgid "Provided world path doesn't exist: "
-msgstr "Sniegtā pasaules atrašanās vieta neeksistē: "
+msgid "World does not exist and no game selected to create one."
+msgstr ""
 
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
 msgstr "Mēdiji..."
 
-#: src/client/game.cpp src/client/shader.cpp src/server.cpp
+#: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
+#: src/server.cpp
 msgid ""
 "\n"
 "Check debug.txt for details."
 msgstr ""
 "\n"
-"Vairāk informācijas failā debug.txt."
+"Jāpārbauda debug.txt, lai uzzinātu vairāk."
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "A serialization error occurred:"
-msgstr "Radās kļūme:"
+msgstr "Atgadījās serializēšanas kļūda:"
 
 #: src/client/game.cpp
 #, c-format
@@ -1460,9 +1553,8 @@ msgid "Access denied. Reason: %s"
 msgstr ""
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "All debug info hidden"
-msgstr "Atkļūdošanas informācija parādīta"
+msgstr "Visa atkļūdošanas informācija ir paslēpta"
 
 #: src/client/game.cpp
 msgid "Automatic forward disabled"
@@ -1497,9 +1589,8 @@ msgid "Camera update enabled"
 msgstr "Kameras atjaunošana iespējota"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Can't show block bounds (disabled by game or mod)"
-msgstr "Tuvināšana šobrīd atspējota vai nu spēlei, vai modam"
+msgstr "Nevar attēlot bloku robežas (atspējots spēlē vai pielāgojumā)"
 
 #: src/client/game.cpp
 msgid "Cinematic mode disabled"
@@ -1547,9 +1638,9 @@ msgid "Debug info shown"
 msgstr "Atkļūdošanas informācija parādīta"
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Error creating client: %s"
-msgstr "Izveido klientu..."
+msgstr "Kļūda klienta izveidošanā: %s"
 
 #: src/client/game.cpp
 msgid "Fast mode disabled"
@@ -1584,9 +1675,8 @@ msgid "Fog enabled"
 msgstr "Migla iespējota"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Fog enabled by game or mod"
-msgstr "Tuvināšana šobrīd atspējota vai nu spēlei, vai modam"
+msgstr "Migla iespējota spēlē vai pielāgojumā"
 
 #: src/client/game.cpp
 msgid "Item definitions..."
@@ -1602,12 +1692,11 @@ msgstr "MiB/s"
 
 #: src/client/game.cpp
 msgid "Minimap currently disabled by game or mod"
-msgstr "Minikarte šobrīd atspējota vai nu spēlei, vai modam"
+msgstr "Sīkkarte šobrīd ir atspējota spēlē vai pielāgojumā"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Multiplayer"
-msgstr "Viena spēlētāja režīms"
+msgstr "Daudzspēlētāju"
 
 #: src/client/game.cpp
 msgid "Noclip mode disabled"
@@ -1677,23 +1766,21 @@ msgid "Unable to listen on %s because IPv6 is disabled"
 msgstr ""
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Unlimited viewing range disabled"
-msgstr "Iespējots neierobežots redzamības diapazons"
+msgstr "Neierobežots redzamības apgabals ir atspējots"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "Unlimited viewing range enabled"
-msgstr "Iespējots neierobežots redzamības diapazons"
+msgstr "Neierobežots redzamības apgabals ir iespējots"
 
 #: src/client/game.cpp
 msgid "Unlimited viewing range enabled, but forbidden by game or mod"
 msgstr ""
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Viewing changed to %d (the minimum)"
-msgstr "Redzamības diapazons ir minimāls: %d"
+msgstr "Redzamība nomainīta uz %d (mazākā iespējamā vērtība)"
 
 #: src/client/game.cpp
 #, c-format
@@ -1703,12 +1790,12 @@ msgstr ""
 #: src/client/game.cpp
 #, c-format
 msgid "Viewing range changed to %d"
-msgstr "Redzamības diapazons nomainīts uz %d"
+msgstr "Redzamības apgabals nomainīts uz %d"
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Viewing range changed to %d (the maximum)"
-msgstr "Redzamības diapazons nomainīts uz %d"
+msgstr "Redzamības apgabals nomainīts uz %d (lielākā iespējamā vērtība)"
 
 #: src/client/game.cpp
 #, c-format
@@ -1717,9 +1804,11 @@ msgid ""
 msgstr ""
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Viewing range changed to %d, but limited to %d by game or mod"
-msgstr "Redzamības diapazons nomainīts uz %d"
+msgstr ""
+"Redzamības apgabals mainīts uz %d, bet spēle vai pielāgojums ierobežo to "
+"līdz %d"
 
 #: src/client/game.cpp
 #, c-format
@@ -1732,11 +1821,11 @@ msgstr ""
 
 #: src/client/game.cpp
 msgid "Wireframe shown"
-msgstr "Karkasattēlojums iespējots"
+msgstr "Apveidu rāmis tiek rādīts"
 
 #: src/client/game.cpp
 msgid "Zoom currently disabled by game or mod"
-msgstr "Tuvināšana šobrīd atspējota vai nu spēlei, vai modam"
+msgstr "Tālummaiņa šobrīd atspējota spēlē vai pielāgojumā"
 
 #: src/client/game_formspec.cpp
 msgid "- Mode: "
@@ -1749,7 +1838,7 @@ msgstr "- Publisks: "
 #. ~ PvP = Player versus Player
 #: src/client/game_formspec.cpp
 msgid "- PvP: "
-msgstr "- PvP: "
+msgstr "- SpS: "
 
 #: src/client/game_formspec.cpp
 msgid "- Server Name: "
@@ -1764,7 +1853,6 @@ msgid "Continue"
 msgstr "Turpināt"
 
 #: src/client/game_formspec.cpp
-#, fuzzy
 msgid ""
 "Controls:\n"
 "No menu open:\n"
@@ -1779,18 +1867,18 @@ msgid ""
 "- touch&drag, tap 2nd finger\n"
 " --> place single item to slot\n"
 msgstr ""
-"Noklusējuma kontroles:\n"
-"Ne izvēlnē:\n"
-"- pieskāriens: aktivizē pogu\n"
-"- dubultpieskāriens: nolikt/izmantot\n"
-"- vilkt ar pirksto: skatīties apkārt\n"
-"Izvēlnē/inventārā:\n"
-"- dubultpieskāriens (ārpus izvēlnes)\n"
-" --> aizvērt izvēlni\n"
-"- pieskāriens priekšmetiem, pieskāriens kastītei:\n"
+"Vadība:\n"
+"Izvēlne nav atvērta:\n"
+"- pirksta pavilkšana: skatīties apkārt\n"
+"- piesitiens: novietot/sist/izmantot (noklusējums)\n"
+"- ilgs piesitiens: rakt/izmantot (noklusējums)\n"
+"Izvēlne / lietu saraksts ir atvērts:\n"
+"- divkāršs piesitiens (ārpus)\n"
+" --> aizvērt\n"
+"- piesitiens priekšmetiem, piesitiens lietu vietai:\n"
 " --> pārvietot priekšmetus\n"
-"- pieskāriens&vilkšana, ar otru pirkstu pieskāriens:\n"
-" --> novietot vienu priekšmetu kastītē\n"
+"- piesišana un vilkšana, piesitiens ar vēl vienu pirkstu:\n"
+" --> novietot vienu vienumu lietu vietā\n"
 
 #: src/client/game_formspec.cpp
 msgid "Exit to Menu"
@@ -1806,7 +1894,7 @@ msgstr "Spēles informācija:"
 
 #: src/client/game_formspec.cpp
 msgid "Game paused"
-msgstr "Spēle nopauzēta"
+msgstr "Spēle apturēta"
 
 #: src/client/game_formspec.cpp
 msgid "Hosting server"
@@ -1834,20 +1922,19 @@ msgstr "Skaņas skaļums"
 
 #: src/client/game_formspec.cpp
 msgid "You died"
-msgstr "Jūs nomirāt"
+msgstr "Tu nomiri"
 
 #: src/client/gameui.cpp
-#, fuzzy
 msgid "Chat currently disabled by game or mod"
-msgstr "Tuvināšana šobrīd atspējota vai nu spēlei, vai modam"
+msgstr "Tērzēšana šobrīd atspējota spēlē vai pielāgojumā"
 
 #: src/client/gameui.cpp
 msgid "Chat hidden"
-msgstr "Čats paslēpts"
+msgstr "Tērzēšana paslēpta"
 
 #: src/client/gameui.cpp
 msgid "Chat shown"
-msgstr "Čats parādīts"
+msgstr "Tērzēšana parādīta"
 
 #: src/client/gameui.cpp
 msgid "HUD hidden"
@@ -1880,52 +1967,44 @@ msgid "Caps Lock"
 msgstr "Caps Lock"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Clear Key"
-msgstr "Notīrīt"
+msgstr "Notīrīt taustiņu"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Control Key"
-msgstr "Ctrl"
+msgstr "Ctrl taustiņš"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Delete Key"
-msgstr "Izdzēst"
+msgstr "Delete taustiņš"
 
 #: src/client/keycode.cpp
 msgid "Down Arrow"
 msgstr ""
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "End Key"
-msgstr "Alt"
+msgstr "End taustiņš"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Help Key"
-msgstr "Izdzēst"
+msgstr "Palīdzības taustiņš"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Home Key"
-msgstr "Zoom"
+msgstr "Home taustiņš"
 
 #: src/client/keycode.cpp
 msgid "Insert"
 msgstr "Insert"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Arrow"
-msgstr "Kreisais Ctrl"
+msgstr "Bulta pa kreisi"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Click"
-msgstr "Kreisais Ctrl"
+msgstr "Kreisais klikšķis"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1945,9 +2024,8 @@ msgid "Left Windows"
 msgstr "Kreisā Windows poga"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Menu Key"
-msgstr "Alt"
+msgstr "Izvēlnes taustiņš"
 
 #: src/client/keycode.cpp
 msgid "Middle Click"
@@ -2026,24 +2104,21 @@ msgid "Numpad 9"
 msgstr "Ciparbloka 9"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Page Down"
-msgstr "Page down"
+msgstr "Page Down"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Page Up"
-msgstr "Page up"
+msgstr "Page Up"
 
 #. ~ Usually paired with the Break key
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Pause Key"
-msgstr "Pause"
+msgstr "Pause taustiņš"
 
 #: src/client/keycode.cpp
 msgid "Play"
-msgstr "Play"
+msgstr "Spēlēt"
 
 #. ~ "Print screen" key
 #: src/client/keycode.cpp
@@ -2051,19 +2126,16 @@ msgid "Print"
 msgstr "Print Screen"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Return Key"
-msgstr "Return"
+msgstr "Return taustiņš"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Arrow"
-msgstr "Labais Ctrl"
+msgstr "Bulta pa labi"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Click"
-msgstr "Labais Ctrl"
+msgstr "Labais klikšķis"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2083,27 +2155,29 @@ msgid "Right Windows"
 msgstr "Labā Windows poga"
 
 #: src/client/keycode.cpp
+#, c-format
+msgid "Scancode: %d"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Select Key"
-msgstr "Izdzēst"
+msgstr "Atlasīt taustiņu"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Shift Key"
-msgstr "Shift"
+msgstr "Shift taustiņš"
 
 #: src/client/keycode.cpp
 msgid "Space"
 msgstr "Atstarpe"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Tab Key"
-msgstr "Notīrīt"
+msgstr "Tab taustiņš"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
@@ -2111,27 +2185,36 @@ msgstr ""
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
-msgstr "Minikarte paslēpta"
+msgstr "Sīkkarte paslēpta"
 
 #: src/client/minimap.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Minimap in radar mode, Zoom x%d"
-msgstr "Minikarte radara režīmā, palielinājums x1"
+msgstr "Sīkkarte radara režīmā, tālummaiņa x%d"
 
 #: src/client/minimap.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Minimap in surface mode, Zoom x%d"
-msgstr "Minikarte virsmas režīmā, palielinājums x1"
+msgstr "Sīkkarte virsmas režīmā, tālummaiņa x%d"
 
 #: src/client/minimap.cpp
-#, fuzzy
 msgid "Minimap in texture mode"
-msgstr "Minikarte virsmas režīmā, palielinājums x1"
+msgstr "Sīkkarte struktūras režīmā"
+
+#: src/client/render/pipeline.cpp
+#, c-format
+msgid "Failed to create the texture \"%s\" for the rendering pipeline."
+msgstr ""
+
+#: src/client/shader.cpp
+#, c-format
+msgid "Failed to compile the \"%s\" shader."
+msgstr "Neizdevās kompilēt ēnotāju “%s”."
 
 #: src/client/shader.cpp
 #, fuzzy, c-format
-msgid "Failed to compile the \"%s\" shader."
-msgstr "Neizdevās lejuplādēt $1"
+msgid "Failed to find \"%s\" shader files."
+msgstr "Neizdevās kompilēt ēnotāju “%s”."
 
 #: src/client/shader.cpp
 msgid "GLSL is not supported by the driver"
@@ -2155,19 +2238,16 @@ msgid ""
 msgstr ""
 
 #: src/content/mod_configuration.cpp
-#, fuzzy
 msgid "Some mods have unsatisfied dependencies:"
-msgstr "Nav obligāto atkarību"
+msgstr "Dažiem papildinājumiem ir trūkstošas atkarības:"
 
 #: src/gui/guiButtonKey.h
-#, fuzzy
 msgid "Press Button"
-msgstr "Kreisā poga"
+msgstr "Nospiest pogu"
 
 #: src/gui/guiChatConsole.cpp
-#, fuzzy
 msgid "Failed to open webpage"
-msgstr "Neizdevās lejuplādēt $1"
+msgstr "Neizdevās atvērt tīmekļvietni"
 
 #: src/gui/guiChatConsole.cpp
 msgid "Opening webpage"
@@ -2186,9 +2266,8 @@ msgid "Open URL?"
 msgstr ""
 
 #: src/gui/guiOpenURL.cpp
-#, fuzzy
 msgid "Unable to open URL"
-msgstr "Neizdevās lejuplādēt $1"
+msgstr "Nevarēja atvērt URL"
 
 #: src/gui/guiPasswordChange.cpp
 msgid "Change"
@@ -2211,24 +2290,21 @@ msgid "Muted"
 msgstr "Apklusināts"
 
 #: src/gui/guiVolumeChange.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Sound Volume: %d%%"
-msgstr "Skaņas skaļums: "
+msgstr "Skaņas skaļums: %d%%"
 
 #: src/gui/touchscreeneditor.cpp
-#, fuzzy
 msgid "Add button"
-msgstr "Vidējā poga"
+msgstr "Pievienot pogu"
 
 #: src/gui/touchscreeneditor.cpp
-#, fuzzy
 msgid "Done"
-msgstr "Gatavs!"
+msgstr "Darīts"
 
 #: src/gui/touchscreeneditor.cpp
-#, fuzzy
 msgid "Remove"
-msgstr "Attālināts serveris"
+msgstr "Noņemt"
 
 #: src/gui/touchscreeneditor.cpp
 msgid "Reset"
@@ -2288,7 +2364,7 @@ msgstr ""
 
 #: src/gui/touchscreenlayout.cpp
 msgid "Range select"
-msgstr "Redzamības diapazons"
+msgstr "Apgabala atlasīšana"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Sneak"
@@ -2296,12 +2372,11 @@ msgstr "Lavīties"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Toggle chat log"
-msgstr "Čata logs"
+msgstr "Pārslēgt tērzēšanas žurnālu"
 
 #: src/gui/touchscreenlayout.cpp
-#, fuzzy
 msgid "Toggle debug"
-msgstr "Migla"
+msgstr "Pārslēgt atkļūdošanu"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Toggle fast"
@@ -2313,7 +2388,7 @@ msgstr "Lidot"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Toggle minimap"
-msgstr "Minikarte"
+msgstr "Pārslēgt sīkkarti"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Toggle noclip"
@@ -2338,9 +2413,8 @@ msgid "Internal server error"
 msgstr ""
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Invalid password"
-msgstr "Vecā parole"
+msgstr "Nederīga parole"
 
 #. ~ DO NOT TRANSLATE THIS LITERALLY!
 #. This is a special string which needs to contain the translation's
@@ -2356,23 +2430,20 @@ msgid ""
 msgstr ""
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Name is taken. Please choose another name"
-msgstr "Lūdzu, izvēlieties vārdu!"
+msgstr "Vārds ir aizņemts. Lūgums izvēlēties citu vārdu"
 
 #: src/network/clientpackethandler.cpp
 msgid "Player name contains disallowed characters"
 msgstr ""
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Player name not allowed"
-msgstr "Spēlētāja vārds ir pārāk garš."
+msgstr "Spēlētāja vārds nav atļauts"
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Server shutting down"
-msgstr "Beidz darbu..."
+msgstr "Serveris izslēdzas"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2404,9 +2475,9 @@ msgid ""
 msgstr ""
 
 #: src/server.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "%s while shutting down: "
-msgstr "Beidz darbu..."
+msgstr "%s izslēgšanas laikā: "
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2585,9 +2656,8 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Admin name"
-msgstr "Pasaules nosaukums"
+msgstr "Pārvaldītāja vārds"
 
 #: src/settings_translation_file.cpp
 msgid "Advanced"
@@ -2647,14 +2717,12 @@ msgid "Announce to this serverlist."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Anti-aliasing scale"
-msgstr "Gludināšana:"
+msgstr "Nogludināšanas mērogs"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Antialiasing method"
-msgstr "Gludināšana:"
+msgstr "Nogludināšanas veids"
 
 #: src/settings_translation_file.cpp
 msgid "Anticheat flags"
@@ -2678,6 +2746,14 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Applies a post-processing filter to detect and smoothen high-contrast "
+"edges.\n"
+"Provides balance between speed and image quality.\n"
+"fxaa can used in combination with the other anti-aliasing methods"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Apply dithering to reduce color banding artifacts.\n"
 "Dithering significantly increases the size of losslessly-compressed\n"
 "screenshots and it works incorrectly if the display or operating system\n"
@@ -2695,6 +2771,10 @@ msgstr ""
 msgid ""
 "Arm inertia, gives a more realistic movement of\n"
 "the arm when the camera moves."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Array texture max layers"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2758,9 +2838,8 @@ msgid "Base terrain height."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Base texture size"
-msgstr "Iespējot tekstūru komplektu"
+msgstr "Tekstūras pamata izmērs"
 
 #: src/settings_translation_file.cpp
 msgid "Basic privileges"
@@ -2831,9 +2910,8 @@ msgid "Builtin"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Camera"
-msgstr "Mainīt kameru"
+msgstr "Kamera"
 
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing"
@@ -2841,6 +2919,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Camera smoothing in cinematic mode"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Caps the maximum number of layers used with array textures (if supported).\n"
+"This is only useful for debugging."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2909,9 +2993,8 @@ msgid "Chat command time message threshold"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Chat commands"
-msgstr "Komanda"
+msgstr "Tērzēšanas komandas"
 
 #: src/settings_translation_file.cpp
 msgid "Chat font size"
@@ -2938,9 +3021,12 @@ msgid "Chat message max length"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Chat weblinks"
-msgstr "Čats parādīts"
+msgstr "Tērzēšanas tīmekļsaites"
+
+#: src/settings_translation_file.cpp
+msgid "Choose theme colors for the main menu background."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Chunk size"
@@ -3062,6 +3148,10 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Confirmation dialog before closing"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Connect glass"
 msgstr ""
 
@@ -3174,14 +3264,12 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Decrease view range"
-msgstr "Sam. diapazonu"
+msgstr "Samazināt skata apgabalu"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Decrease volume"
-msgstr "Sam. skaļumu"
+msgstr "Samazināt skaļumu"
 
 #: src/settings_translation_file.cpp
 msgid "Dedicated server step"
@@ -3335,9 +3423,8 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Developer Options"
-msgstr "Dekorācijas"
+msgstr "Izstrādātāju iespējas"
 
 #: src/settings_translation_file.cpp
 msgid "Disable if you only want to instrument with Tracy."
@@ -3379,9 +3466,8 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Drop item"
-msgstr "Iepr. priekšmets"
+msgstr "Nomest vienumu"
 
 #: src/settings_translation_file.cpp
 msgid "Dump the mapgen debug information."
@@ -3400,6 +3486,10 @@ msgid "Dungeon noise"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Dynamic shadows"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Effects"
 msgstr ""
 
@@ -3408,18 +3498,16 @@ msgid "Enable Automatic Exposure"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable Bloom"
-msgstr "Iespējot visus"
+msgstr "Iespējot ziedēšanu"
 
 #: src/settings_translation_file.cpp
 msgid "Enable Bloom Debug"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable Debanding"
-msgstr "Iespējot bojājumus"
+msgstr "Iespējot atbrīvošanu"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3456,6 +3544,10 @@ msgid "Enable Raytraced Culling"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Enable a confirmation dialog before closing."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Enable automatic exposure correction\n"
 "When enabled, the post-processing engine will\n"
@@ -3471,6 +3563,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Enable console window"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Enable dynamic shadows"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3617,6 +3713,11 @@ msgid "Fallback font path"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Fast approximate antialiasing"
+msgstr "Filtrēšana un nogludināšana"
+
+#: src/settings_translation_file.cpp
 msgid "Fast mode acceleration"
 msgstr ""
 
@@ -3652,9 +3753,8 @@ msgid "Filmic tone mapping"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Filtering and Antialiasing"
-msgstr "Gludināšana:"
+msgstr "Filtrēšana un nogludināšana"
 
 #: src/settings_translation_file.cpp
 msgid "First of 4 2D noises that together define hill/mountain range height."
@@ -3847,9 +3947,8 @@ msgid "GUI scaling filter"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Gamepads"
-msgstr "Spēles"
+msgstr "Spēļu pultis"
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -3903,9 +4002,8 @@ msgid "HUD"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "HUD scaling"
-msgstr "Spēles saskarne parādīta"
+msgstr "Pārskata paneļa mērogošana"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4209,14 +4307,15 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"If enabled, actions are recorded for rollback.\n"
-"This option is only read when server starts."
+"If enabled, invalid world data won't cause the server to shut down.\n"
+"Only enable this if you know what you are doing."
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"If enabled, invalid world data won't cause the server to shut down.\n"
-"Only enable this if you know what you are doing."
+"If enabled, node and inventory actions are recorded for rollback.\n"
+"This option is only read on server start. Note that the engine will not\n"
+"automatically clean old entries from the rollback database."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4252,14 +4351,13 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "If enabled, you can place nodes at the position (feet + eye level) where you "
 "stand.\n"
 "This is helpful when working with nodeboxes in small areas."
 msgstr ""
-"Ja iespējots, varat novietot blokus, kur Jūs stāvat.\n"
-"Šis ir noderīgi, kad jābūvē šaurās vietās."
+"Ja iespējots, vari novietot mezglus vietā (pēdu + acu līmenis), kurā stāvi.\n"
+"Šis ir noderīgi, kad darbojas ar mezglu kastēm šaurās vietās."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4304,14 +4402,12 @@ msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Increase view range"
-msgstr "Pal. diapazonu"
+msgstr "Palielināt skata apgabalu"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Increase volume"
-msgstr "Pal. skaļumu"
+msgstr "Palielināt skaļumu"
 
 #: src/settings_translation_file.cpp
 msgid "Initial vertical speed when jumping, in nodes per second."
@@ -4639,9 +4735,8 @@ msgid "Light curve low gradient"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Lighting"
-msgstr "Gluds apgaismojums"
+msgstr "Apgaismojums"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5037,6 +5132,11 @@ msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Menu theme"
+msgstr "Izvēlnes taustiņš"
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr ""
 
@@ -5054,7 +5154,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Minimap scan height"
-msgstr ""
+msgstr "Sīkkartes nolasīšanas augstums"
 
 #: src/settings_translation_file.cpp
 msgid "Minimum dig repetition interval"
@@ -5139,28 +5239,24 @@ msgid "Mouse sensitivity multiplier."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move backward"
-msgstr "Atmuguriski"
+msgstr "Pārvietoties atmuguriski"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move forward"
-msgstr "Auto-iešana"
+msgstr "Pārvietoties uz priekšu"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move left"
-msgstr "Ātrā pārvietošanās"
+msgstr "Pārvietoties pa kreisi"
 
 #: src/settings_translation_file.cpp
 msgid "Move right"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Movement threshold"
-msgstr "Pieskārienslieksnis: (px)"
+msgstr "Pārvietošanās slieksnis"
 
 #: src/settings_translation_file.cpp
 msgid "Mud noise"
@@ -5168,7 +5264,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Mute"
-msgstr "Skaņa"
+msgstr "Apklusināt"
 
 #: src/settings_translation_file.cpp
 msgid "Mute sound"
@@ -5209,9 +5305,8 @@ msgid "New users need to input this password."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Node and Entity Highlighting"
-msgstr "Bloku izcelšana"
+msgstr "Mezglu un vienumu izcelšana"
 
 #: src/settings_translation_file.cpp
 msgid "Node highlighting"
@@ -5231,16 +5326,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Number of emerge threads to use.\n"
-"Value 0:\n"
-"-    Automatic selection. The number of emerge threads will be\n"
-"-    'number of processors - 2', with a lower limit of 1.\n"
-"Any other value:\n"
-"-    Specifies the number of emerge threads, with a lower limit of 1.\n"
-"WARNING: Increasing the number of emerge threads increases engine mapgen\n"
-"speed, but this may harm game performance by interfering with other\n"
-"processes, especially in singleplayer and/or when running Lua code in\n"
-"'on_generated'. For many users the optimum setting may be '1'."
+"Number of emerge threads (responsible for map generation and loading) to "
+"use.\n"
+"If 0 then the engine will automatically choose a suitable value depending\n"
+"on the hardware and type of map generator.\n"
+"WARNING: There are known bugs in the default map generators (v6, v7, ...)\n"
+"when using more than 1 thread. The automatic choice will avoid this."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5270,8 +5361,7 @@ msgid "Occlusion Culling"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
+msgid "Opaqueness (alpha) of the shadow behind the font."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5279,9 +5369,8 @@ msgid "Open chat"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Open inventory"
-msgstr "Inventārs"
+msgstr "Atvērt inventāru"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5413,9 +5502,8 @@ msgid "Proportion of large caves that contain liquid."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Protocol version minimum"
-msgstr "Protokola versiju neatbilstība. "
+msgstr "Zemākā nepieciešamā protokola versija"
 
 #: src/settings_translation_file.cpp
 msgid "Punch gesture"
@@ -5505,9 +5593,8 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Return to Main Menu"
-msgstr "Iziet uz izvēlni"
+msgstr "Atgriezties galvenajā izvēlnē"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -5578,8 +5665,7 @@ msgid ""
 "Save window size automatically when modified.\n"
 "If true, screen size is saved in screen_w and screen_h, and whether the "
 "window\n"
-"is maximized is stored in window_maximized.\n"
-"(Autosaving window_maximized only works if compiled with SDL.)"
+"is maximized is stored in window_maximized."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5596,9 +5682,8 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Screen"
-msgstr "Ekrāns:"
+msgstr "Ekrāns"
 
 #: src/settings_translation_file.cpp
 msgid "Screen height"
@@ -5632,9 +5717,8 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Screenshots"
-msgstr "Ekrānšāviņš"
+msgstr "Ekrānuzņēmumi"
 
 #: src/settings_translation_file.cpp
 msgid "Seabed noise"
@@ -5666,11 +5750,6 @@ msgid ""
 "Also, if Post Processing is disabled, FSAA will not work together with\n"
 "undersampling or a non-default \"3d_mode\" setting.\n"
 "\n"
-"* FXAA - Fast approximate antialiasing\n"
-"Applies a post-processing filter to detect and smoothen high-contrast "
-"edges.\n"
-"Provides balance between speed and image quality.\n"
-"\n"
 "* SSAA - Super-sampling antialiasing\n"
 "Renders higher-resolution image of the scene, then scales down to reduce\n"
 "the aliasing effects. This is the slowest and the most accurate method."
@@ -5686,7 +5765,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Selection box width"
-msgstr ""
+msgstr "Atlasīšanas kastes platums"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5722,19 +5801,16 @@ msgid "Send player names to the server list"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Server"
-msgstr "Palaist serveri"
+msgstr "Serveris"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Server Gameplay"
-msgstr "- Severa nosaukums: "
+msgstr "Spēlēšana serverī"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Server Security"
-msgstr "Servera ports"
+msgstr "Servera drošība"
 
 #: src/settings_translation_file.cpp
 msgid "Server URL"
@@ -5768,9 +5844,8 @@ msgid "Server-side occlusion culling"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Server/Env Performance"
-msgstr "Servera ports"
+msgstr "Servera/vides veiktspēja"
 
 #: src/settings_translation_file.cpp
 msgid "Serverlist URL"
@@ -5873,7 +5948,7 @@ msgid "Shadow filter quality"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Shadow map max distance in nodes to render shadows"
+msgid "Shadow map render distance"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5886,8 +5961,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Shadow offset (in pixels) of the default font. If 0, then shadow will not be "
-"drawn."
+"Shadow offset (in pixels) for all fonts. If 0, then no shadow will be drawn."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5972,9 +6046,8 @@ msgid "Smooth lighting"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Smooth scrolling"
-msgstr "Gluds apgaismojums"
+msgstr "Plūdena ritināšana"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5997,18 +6070,16 @@ msgid "Sneaking speed, in nodes per second."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Soft clouds"
-msgstr "3D mākoņi"
+msgstr "Izplūduši mākoņi"
 
 #: src/settings_translation_file.cpp
 msgid "Soft shadow radius"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Sound"
-msgstr "Skaņa izslēgta"
+msgstr "Skaņa"
 
 #: src/settings_translation_file.cpp
 msgid "Sound Extensions Blacklist"
@@ -6258,7 +6329,7 @@ msgstr ""
 msgid ""
 "The rendering back-end.\n"
 "Note: A restart is required after changing this!\n"
-"OpenGL is the default for desktop, and OGLES2 for Android."
+"By default OpenGL3 is preferred on desktop, or OGLES2 on Android."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6339,81 +6410,70 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"To reduce lag, block transfers are slowed down when a player is building "
+"To save bandwidth, block transfers are slowed down when a player is building "
 "something.\n"
-"This determines how long they are slowed down after placing or removing a "
-"node."
+"This determines how long the throttling lasts after placing a node."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle Aux1 key"
-msgstr "Lidot"
+msgstr "Pārslēgt Aux1 taustiņu"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle HUD"
 msgstr "Spēles saskarne"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle Sneak key"
-msgstr "Lidot"
+msgstr "Pārslēgt lavīšanās taustiņu"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle automatic forward"
-msgstr "Automātiskā pārvietošanās ieslēgta"
+msgstr "Pārslēgt automātisko pārvietošanos uz priekšu"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle block bounds"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle camera mode"
-msgstr "Čata logs"
+msgstr "Pārslēgt kameras režīmu"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle camera update"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle cinematic mode"
-msgstr "Pārvietoties pēc skatīšanās leņķa"
+msgstr "Pārslēgt kinematogrāfisko režīmu"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle debug info"
-msgstr "Migla"
+msgstr "Pārslēgt atkļūdošanas informāciju"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle fog"
 msgstr "Migla"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle fullscreen"
-msgstr "Lidot"
+msgstr "Pārslēgt pilnekrānu"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle large chat console"
-msgstr "Čata logs"
+msgstr "Pārslēgt lielo tērzēšanas konsoli"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
-msgstr "Pārvietoties pēc skatīšanās leņķa"
+msgstr "Pārslēgt slīpuma pārvietošanos"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle profiler"
-msgstr "Lidot"
+msgstr "Pārslēgt profilētāju"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle unlimited view range"
-msgstr "Atspējots neierobežots redzamības diapazons"
+msgstr "Pārslēgt neierobežotu skata apgabalu"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6431,15 +6491,15 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Touchscreen controls"
-msgstr ""
+msgstr "Skārienekrāna vadīklas"
 
 #: src/settings_translation_file.cpp
 msgid "Touchscreen sensitivity"
-msgstr ""
+msgstr "Skārienekrāna jutīgums"
 
 #: src/settings_translation_file.cpp
 msgid "Touchscreen sensitivity multiplier."
-msgstr ""
+msgstr "Skārienekrāna jutīguma reizinātājs."
 
 #: src/settings_translation_file.cpp
 msgid "Tradeoffs for performance"
@@ -6475,6 +6535,9 @@ msgid ""
 "False = 128\n"
 "Usable to make minimap smoother on slower machines."
 msgstr ""
+"True = 256\n"
+"False = 128\n"
+"Izmantojams, lai padarītu sīkkarti plūdenāku mazāk jaudīgās ierīcēs."
 
 #: src/settings_translation_file.cpp
 msgid "Trusted mods"
@@ -6585,7 +6648,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "User Interfaces"
-msgstr ""
+msgstr "Lietotāja saskarnes"
 
 #: src/settings_translation_file.cpp
 msgid "VSync"
@@ -6645,8 +6708,9 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Vertical screen synchronization. Your system may still force VSync on even "
-"if this is disabled."
+"Vertical screen synchronization.\n"
+"Note: A restart is required after changing this!\n"
+"Your system may still force VSync and ignore this setting."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6688,9 +6752,8 @@ msgid "Volume when unfocused"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Volumetric lighting"
-msgstr "Bloku izcelšana"
+msgstr "Apjoma apgaismojums"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6707,19 +6770,19 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Walking speed"
-msgstr ""
+msgstr "Iešanas ātrums"
 
 #: src/settings_translation_file.cpp
 msgid "Walking, flying and climbing speed in fast mode, in nodes per second."
-msgstr ""
+msgstr "Iešanas, lidošanas un kāpšanas ātrums ātrajā režīmā, mezgli sekundē."
 
 #: src/settings_translation_file.cpp
 msgid "Water level"
-msgstr ""
+msgstr "Ūdens līmenis"
 
 #: src/settings_translation_file.cpp
 msgid "Water surface level of the world."
-msgstr ""
+msgstr "Pasaules ūdens virsmas līmenis."
 
 #: src/settings_translation_file.cpp
 msgid "Waving Nodes"
@@ -6929,68 +6992,16 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
-#~ msgid "Apps"
-#~ msgstr "Menu"
+#: src/util/screenshot.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr ""
 
-#~ msgid "End"
-#~ msgstr "End"
+#~ msgid "Provided world path doesn't exist: "
+#~ msgstr "Sniegtā pasaules atrašanās vieta neeksistē: "
 
-#~ msgid "Erase EOF"
-#~ msgstr "Erase EOF"
+#~ msgid "Y spread"
+#~ msgstr "Izkaisījums pa Y asi"
 
-#~ msgid "Execute"
-#~ msgstr "Execute"
-
-#~ msgid "Help"
-#~ msgstr "Palīdzība"
-
-#~ msgid "Home"
-#~ msgstr "Home"
-
-#~ msgid "IME Accept"
-#~ msgstr "IME Accept"
-
-#~ msgid "IME Convert"
-#~ msgstr "IME Convert"
-
-#~ msgid "IME Escape"
-#~ msgstr "IME Escape"
-
-#~ msgid "IME Mode Change"
-#~ msgstr "IME Mode Change"
-
-#~ msgid "IME Nonconvert"
-#~ msgstr "IME Nonconvert"
-
-#~ msgid "Left Button"
-#~ msgstr "Kreisā poga"
-
-#~ msgid "Middle Button"
-#~ msgstr "Vidējā poga"
-
-#~ msgid "No world created or selected!"
-#~ msgstr "Pasaule nav ne izveidota, ne izvēlēta!"
-
-#~ msgid "OEM Clear"
-#~ msgstr "OEM Clear"
-
-#~ msgid "Right Button"
-#~ msgstr "Labā poga"
-
-#~ msgid "Select"
-#~ msgstr "Select"
-
-#~ msgid "Sleep"
-#~ msgstr "Sleep"
-
-#~ msgid "Snapshot"
-#~ msgstr "Snapshot"
-
-#~ msgid "Tab"
-#~ msgstr "Tab"
-
-#~ msgid "X Button 1"
-#~ msgstr "X Poga 1"
-
-#~ msgid "X Button 2"
-#~ msgstr "X Poga 2"
+#~ msgid "Z spread"
+#~ msgstr "Izkaisījums pa Z asi"

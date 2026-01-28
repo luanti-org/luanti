@@ -195,12 +195,12 @@ int ModApiUtil::l_get_dig_params(lua_State *L)
 int ModApiUtil::l_get_hit_params(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::unordered_map<std::string, int> groups;
+	ItemGroupList groups;
 	read_groups(L, 1, groups);
 	ToolCapabilities tp = read_tool_capabilities(L, 2);
 	float time_from_last_punch = readParam<float>(L, 3, 1000000);
 	int wear = readParam<int>(L, 4, 0);
-	push_hit_params(L, getHitParams(groups, &tp,
+	push_hit_params(L, getHitParams(groups, tp,
 		time_from_last_punch, wear));
 	return 1;
 }

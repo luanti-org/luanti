@@ -323,6 +323,34 @@ local scroll_fs =
 --style_type[label;border=;bgcolor=]
 --label[0.75,2;Reset]
 
+local autoscroll_fs =
+	"label[0.5,0.5;Auto-Scroll Test - Tab through buttons to test auto-scroll centering]" ..
+	"label[0.5,1;Vertical scroll container:]" ..
+	"scroll_container[0.5,1.5;5.5,5;autoscroll_v;vertical]" ..
+		"button[0,0;5,1;asv_btn1;Button 1]" ..
+		"button[0,1;5,1;asv_btn2;Button 2]" ..
+		"button[0,2;5,1;asv_btn3;Button 3]" ..
+		"button[0,3;5,1;asv_btn4;Button 4]" ..
+		"button[0,4;5,1;asv_btn5;Button 5]" ..
+		"button[0,5;5,1;asv_btn6;Button 6]" ..
+		"button[0,6;5,1;asv_btn7;Button 7]" ..
+		"button[0,7;5,1;asv_btn8;Button 8]" ..
+		"button[0,8;5,1;asv_btn9;Button 9]" ..
+		"button[0,9;5,1;asv_btn10;Button 10]" ..
+	"scroll_container_end[]" ..
+	"scrollbaroptions[max=50]" ..
+	"scrollbar[5.8,1.5;0.3,5;vertical;autoscroll_v;0]" ..
+	"label[7,1;Horizontal scroll container:]" ..
+	"scroll_container[7,1.5;4.5,2;autoscroll_h;horizontal]" ..
+		"button[0,0;3,1;ash_btn1;Btn1]" ..
+		"button[3,0;3,1;ash_btn2;Btn2]" ..
+		"button[6,0;3,1;ash_btn3;Btn3]" ..
+		"button[9,0;3,1;ash_btn4;Btn4]" ..
+		"button[12,0;3,1;ash_btn5;Btn5]" ..
+	"scroll_container_end[]" ..
+	"scrollbaroptions[max=105]" ..
+	"scrollbar[7,2.7;4.5,0.3;horizontal;autoscroll_h;0]"
+
 local window = {
 	sizex = 12,
 	sizey = 13,
@@ -477,6 +505,10 @@ mouse control = true]
 		"formspec_version[7]size[12,13]" ..
 		scroll_fs,
 
+	-- Autoscroll
+		"formspec_version[7]size[12,13]" ..
+		autoscroll_fs,
+
 	-- Sound
 		[[
 			formspec_version[3]
@@ -528,7 +560,7 @@ local function show_test_formspec(pname)
 		page = page()
 	end
 
-	local fs = page .. "tabheader[0,0;11,0.65;maintabs;Real Coord,Styles,Noclip,Table,Hypertext,Tabs,Invs,Window,Anim,Model,ScrollC,Sound,Background,Unsized;" .. page_id .. ";false;false]"
+	local fs = page .. "tabheader[0,0;11,0.65;maintabs;Real Coord,Styles,Noclip,Table,Hypertext,Tabs,Invs,Window,Anim,Model,ScrollC,Autoscroll,Sound,Background,Unsized;" .. page_id .. ";false;false]"
 
 	core.show_formspec(pname, "testformspec:formspec", fs)
 end

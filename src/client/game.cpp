@@ -563,10 +563,22 @@ void Game::run()
 		processUserInput(dtime);
 		// Update camera before player movement to avoid camera lag of one frame
 		updateCameraDirection(&cam_view_target, dtime);
-		cam_view.camera_yaw += (cam_view_target.camera_yaw -
-				cam_view.camera_yaw) * m_cache_cam_smoothing;
-		cam_view.camera_pitch += (cam_view_target.camera_pitch -
-				cam_view.camera_pitch) * m_cache_cam_smoothing;
+		if (m_cache_cam_smoothing <= 0.0f) {
+			cam_view.camera_yaw = cam_view_target.camera_yaw;
+			cam_view.camera_pitch = cam_view_target.camera_pitch;
+		} else {
+			f32 cam_damp_lambda = 1.0f / m_cache_cam_smoothing * dtime;
+			cam_view.camera_yaw = damp(
+					cam_view.camera_yaw,
+					cam_view_target.camera_yaw,
+					cam_damp_lambda
+			);
+			cam_view.camera_pitch = damp(
+					cam_view.camera_pitch,
+					cam_view_target.camera_pitch,
+					cam_damp_lambda
+			);
+		}
 		updatePlayerControl(cam_view);
 
 		updatePauseState();
@@ -1257,16 +1269,6 @@ void Game::updateProfilers(const RunStats &stats, const FpsControl &draw_times,
 		profiler_print_interval = 3;
 	}
 
-	if (profiler_interval.step(dtime, profiler_print_interval)) {
-		if (print_to_log) {
-			infostream << "Profiler:" << std::endl;
-			g_profiler->print(infostream);
-		}
-
-		m_game_ui->updateProfiler();
-		g_profiler->clear();
-	}
-
 	// Update graphs
 	g_profiler->graphAdd("Time non-rendering [us]",
 		draw_times.busy_time - stats.drawtime);
@@ -1281,6 +1283,16 @@ void Game::updateProfilers(const RunStats &stats, const FpsControl &draw_times,
 			stats2.PrimitivesDrawn / float(stats2.Drawcalls));
 	g_profiler->avg("Irr: HW buffers uploaded", stats2.HWBuffersUploaded);
 	g_profiler->avg("Irr: HW buffers active", stats2.HWBuffersActive);
+
+	if (profiler_interval.step(dtime, profiler_print_interval)) {
+		if (print_to_log) {
+			infostream << "Profiler:" << std::endl;
+			g_profiler->print(infostream);
+		}
+
+		m_game_ui->updateProfiler();
+		g_profiler->clear();
+	}
 }
 
 void Game::updateStats(RunStats *stats, const FpsControl &draw_times,
@@ -1754,13 +1766,11 @@ void Game::toggleMinimap(bool shift_pressed)
 	// -->
 	u32 hud_flags = client->getEnv().getLocalPlayer()->hud_flags;
 
-	if (hud_flags & HUD_FLAG_MINIMAP_VISIBLE) {
 	// If radar is disabled, try to find a non radar mode or fall back to 0
-		if (!(hud_flags & HUD_FLAG_MINIMAP_RADAR_VISIBLE))
-			while (mapper->getModeIndex() &&
-					mapper->getModeDef().type == MINIMAP_TYPE_RADAR)
-				mapper->nextMode();
-	}
+	if (!(hud_flags & HUD_FLAG_MINIMAP_RADAR_VISIBLE))
+		while (mapper->getModeIndex() &&
+				mapper->getModeDef().type == MINIMAP_TYPE_RADAR)
+			mapper->nextMode();
 	// <--
 	// End of 'not so satifying code'
 	if (hud && hud->hasElementOfType(HUD_ELEM_MINIMAP))
@@ -2018,7 +2028,7 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 	// In free move (fly), the "toggle_sneak_key" setting would prevent precise
 	// up/down movements. Hence, enable the feature only during 'normal' movement.
 	const bool allow_sneak_toggle = m_cache_toggle_sneak_key &&
-		!player->getPlayerSettings().free_move;
+		!(player->getPlayerSettings().free_move && client->checkPrivilege("fly"));
 
 	//TimeTaker tt("update player control", NULL, PRECISION_NANO);
 
@@ -3646,8 +3656,11 @@ void Game::drawScene(ProfilerGraph *graph, RunStats *stats)
 	*/
 	v2u32 screensize = this->driver->getScreenSize();
 
-	if (this->m_game_ui->m_flags.show_profiler_graph)
-		graph->draw(10, screensize.Y - 10, driver, g_fontengine->getFont());
+	if (this->m_game_ui->m_flags.show_profiler_graph) {
+		auto font = g_fontengine->getFont(
+			g_fontengine->getDefaultFontSize() * 0.9f, FM_Mono);
+		graph->draw(10, screensize.Y - 10, driver, font);
+	}
 
 	/*
 		Damage flash
@@ -3705,11 +3718,11 @@ void Game::readSettings()
 
 	m_cache_cam_smoothing = 0;
 	if (g_settings->getBool("cinematic"))
-		m_cache_cam_smoothing = 1 - g_settings->getFloat("cinematic_camera_smoothing");
+		m_cache_cam_smoothing = g_settings->getFloat("cinematic_camera_smoothing");
 	else
-		m_cache_cam_smoothing = 1 - g_settings->getFloat("camera_smoothing");
+		m_cache_cam_smoothing = g_settings->getFloat("camera_smoothing");
 
-	m_cache_cam_smoothing = rangelim(m_cache_cam_smoothing, 0.01f, 1.0f);
+	m_cache_cam_smoothing = std::max(0.0f, m_cache_cam_smoothing);
 	m_cache_mouse_sensitivity = rangelim(m_cache_mouse_sensitivity, 0.001, 100.0);
 
 	m_invert_mouse = g_settings->getBool("invert_mouse");

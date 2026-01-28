@@ -720,7 +720,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 			ATTRIBUTE_(0) highp vec4 inVertexPosition;
 			ATTRIBUTE_(1) mediump vec3 inVertexNormal;
-			ATTRIBUTE_(2) lowp vec4 inVertexColor;
+			ATTRIBUTE_(2) lowp vec4 inVertexColor_raw;
 			ATTRIBUTE_(3) mediump float inVertexAux;
 			ATTRIBUTE_(4) mediump vec2 inTexCoord0;
 			ATTRIBUTE_(5) mediump vec2 inTexCoord1;
@@ -734,7 +734,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 		}
 		// Our vertex color has components reversed compared to what OpenGL
 		// normally expects, so we need to take that into account.
-		vertex_header += "#define inVertexColor (inVertexColor.bgra)\n";
+		vertex_header += "#define inVertexColor (inVertexColor_raw.bgra)\n";
 
 		fragment_header = "";
 		if (use_glsl3) {
@@ -790,14 +790,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 	ShaderConstants constants = input_const;
 
-	bool use_discard = m_fully_programmable;
-	if (!use_discard) {
-		// workaround for a certain OpenGL implementation lacking GL_ALPHA_TEST
-		const char *renderer = reinterpret_cast<const char*>(GL.GetString(GL.RENDERER));
-		if (strstr(renderer, "GC7000"))
-			use_discard = true;
-	}
-	if (use_discard) {
+	{
 		if (shaderinfo.base_material == video::EMT_TRANSPARENT_ALPHA_CHANNEL)
 			constants["USE_DISCARD"] = 1;
 		else if (shaderinfo.base_material == video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF)

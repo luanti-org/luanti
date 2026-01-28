@@ -143,6 +143,7 @@ local function get_formspec(tabview, name, tabdata)
 	local selected_server = find_selected_server()
 
 	if selected_server then
+		gamedata.serverdescription = selected_server.description
 		if gamedata.serverdescription then
 			retval = retval .. "textarea[0.25,1.85;5.25,2.7;;;" ..
 				core.formspec_escape(gamedata.serverdescription) .. "]"
