@@ -18,14 +18,9 @@ VARYING_ vec3 worldPosition;
 // This fixes the stripes problem with nearest-neighbor textures and MSAA.
 CENTROID_ VARYING_ lowp vec4 varColor;
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
-// Conditional because 'flat' has version requirements
+// Conditional because 'flat' is not available on old GLSL
 #ifdef USE_ARRAY_TEXTURE
-// TODO: we're still at glsl 1.x, so can only use int on GLES
-#ifdef GL_ES
 flat VARYING_ int varTexLayer;
-#else
-CENTROID_ VARYING_ float varTexLayer;
-#endif
 #endif
 CENTROID_ VARYING_ float nightRatio;
 

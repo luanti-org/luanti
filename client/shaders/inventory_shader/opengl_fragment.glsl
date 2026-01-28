@@ -7,11 +7,7 @@
 CENTROID_ VARYING_ lowp vec4 varColor;
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
 #ifdef USE_ARRAY_TEXTURE
-#ifdef GL_ES
 flat VARYING_ int varTexLayer;
-#else
-CENTROID_ VARYING_ float varTexLayer;
-#endif
 #endif
 
 
