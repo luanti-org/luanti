@@ -248,8 +248,16 @@ public:
 		if (g_settings->getBool("enable_auto_exposure"))
 			constants["ENABLE_AUTO_EXPOSURE"] = 1;
 
-		if (g_settings->get("antialiasing") == "ssaa") {
-			constants["ENABLE_SSAA"] = 1;
+		const std::string antialiasing = g_settings->get("antialiasing");
+		if (antialiasing == "ssaa") {
+			constants["ENABLE_SSAA_SMOOTH"] = 1;
+			u16 ssaa_scale = std::max<u16>(2, g_settings->getU16("fsaa"));
+			constants["SSAA_SCALE"] = ssaa_scale;
+		} else if (antialiasing == "ssaa_ssim_based"
+				&& g_settings->getU32("post_processing_texture_bits") == 16) {
+			// We assume that driver->queryTextureFormat(video::ECF_R32F) is
+			// true or the user heeds the warning from addPostProcessing()
+			constants["ENABLE_SSAA_SSIM_BASED"] = 1;
 			u16 ssaa_scale = std::max<u16>(2, g_settings->getU16("fsaa"));
 			constants["SSAA_SCALE"] = (float)ssaa_scale;
 		}
