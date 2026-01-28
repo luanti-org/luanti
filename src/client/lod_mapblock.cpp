@@ -246,7 +246,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 	}
 }
 
-void LodMeshGenerator::processNodeGroup(const bitset (&all_set_nodes)[3 * BITSET_MAX * BITSET_MAX],
+void LodMeshGenerator::processNodeGroup(const std::array<bitset, 3 * BITSET_MAX * BITSET_MAX> &all_set_nodes,
 		std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX * BITSET_MAX>> &subset_nodes,
 		std::map<content_t, MapNode> &node_types, const v3s16 seg_start, const u8 width)
 {
@@ -337,15 +337,22 @@ LightPair LodMeshGenerator::computeMaxFaceLight(const MapNode n, const v3s16 p, 
 	return static_cast<LightPair>(std::max(lp1, lp2));
 }
 
+void LodMeshGenerator::setBitIndex(std::array<bitset, 3 * BITSET_MAX * BITSET_MAX> &vol, u8 x, u8 y, u8 z)
+{
+	vol[BITSET_MAX * y + z] |= 1ULL << x; // x axis
+	vol[BITSET_MAX2 + BITSET_MAX * x + z] |= 1ULL << y; // y axis
+	vol[2 * BITSET_MAX2 + BITSET_MAX * x + y] |= 1ULL << z; // z axis
+}
+
 void LodMeshGenerator::generateGreedyLod(const v3s16 seg_start, const v3s16 seg_size, const u8 width)
 {
 	// all nodes in this volume, for finding node faces
-	bitset all_set_solid_nodes[3 * BITSET_MAX * BITSET_MAX] = {0};
-	bitset all_set_transparent_nodes[3 * BITSET_MAX * BITSET_MAX] = {0};
+	std::array<bitset, 3 * BITSET_MAX2> all_set_solid_nodes{};
+	std::array<bitset, 3 * BITSET_MAX2> all_set_transparent_nodes{};
 	std::map<content_t, MapNode> node_types;
 	// all nodes in this volume, on each of the 3 axes, grouped by type and brightness, for use in actual mesh generation
-	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX * BITSET_MAX>> set_solid_nodes;
-	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX * BITSET_MAX>> set_transparent_nodes;
+	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> set_solid_nodes;
+	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> set_transparent_nodes;
 
 	const v3s16 to = seg_start + seg_size;
 	const s16 max_light_step = std::min<s16>(MAP_BLOCKSIZE, width);
@@ -401,19 +408,13 @@ void LodMeshGenerator::generateGreedyLod(const v3s16 seg_start, const v3s16 seg_
 
 			NodeKey key{node_type, lp};
 			auto &nodes = is_solid ? set_solid_nodes[key] : set_transparent_nodes[key];
-			nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
-			nodes[BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
-			nodes[2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+			setBitIndex(nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
 		}
 
 		if (is_solid) {
-			all_set_solid_nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
-			all_set_solid_nodes[BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
-			all_set_solid_nodes[2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+			setBitIndex(all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
 		} else { // if transparent
-			all_set_transparent_nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
-			all_set_transparent_nodes[BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
-			all_set_transparent_nodes[2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
+			setBitIndex(all_set_transparent_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
 		}
 	}
 
