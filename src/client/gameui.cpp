@@ -96,7 +96,7 @@ void GameUI::update(const RunStats &stats, Client *client, MapDrawControl *draw_
 
 	// Minimal debug text must only contain info that can't give a gameplay advantage
 	if (m_flags.show_minimal_debug) {
-		const u16 fps = 1.0f / stats.dtime_jitter.avg;
+		const u16 fps = 1.0f / stats.dtime_jitter.dtime_avg;
 		m_drawtime_avg *= 0.95f;
 		m_drawtime_avg += 0.05f * (stats.drawtime / 1000);
 

@@ -1297,15 +1297,21 @@ void Game::updateProfilers(const RunStats &stats, const FpsControl &draw_times,
 
 void Game::updateStats(RunStats *stats, f32 dtime)
 {
-	const f32 weight = dtime; // high FPS = low weight
-
 	/* Time average and jitter calculation
 	 */
 	Jitter *jp = &stats->dtime_jitter;
-	const f32 diff = dtime - jp->avg;
-	jp->avg += diff * weight;
+
+	// Average dtime over a certain time interval
+	jp->dtime_samples++;
+	jp->dtime_sum += dtime;
+	if (jp->dtime_sum >= 0.1f)  {
+		jp->dtime_avg = jp->dtime_sum / jp->dtime_samples;
+		jp->dtime_sum = 0.0f;
+		jp->dtime_samples = 0;
+	}
 
 	// Maximum jitter
+	const f32 diff = dtime - jp->dtime_avg;
 	if (diff > jp->max)
 		jp->max = diff;
 
@@ -1314,7 +1320,7 @@ void Game::updateStats(RunStats *stats, f32 dtime)
 		// Fixed interval for jitter updates (more pleasant to display)
 		jp->counter -= 3.0f;
 
-		jp->max_fraction = jp->max / (jp->avg + 0.001f);
+		jp->max_fraction = jp->max / (jp->dtime_avg + 0.001f);
 		jp->max = 0.0f;
 	}
 }
