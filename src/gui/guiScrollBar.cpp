@@ -224,38 +224,26 @@ void GUIScrollBar::OnPostRender(u32 time_ms)
 	const bool up_pressed = up_button && up_button->isPressed();
 	const bool down_pressed = down_button && down_button->isPressed();
 
-	// If neither is pressed, stop repeating
-	if (!up_pressed && !down_pressed) {
-		m_arrow_down = false;
+	// if neither is pressed, reset counter
+    if (!up_pressed && !down_pressed) {
+		m_arrow_counter = 0; // reset counter when no arrow is held
 		return;
-	}
+    }
 
-	// If just started holding
-	if (!m_arrow_down) {
-		m_arrow_down = true;
-		m_arrow_last_time = time_ms;
+    const u32 initial_delay = 200; // ms before repeating starts
+    const u32 repeat_delay  = 150; // ms between repeats
+
+    // counter is 0, so start counting
+    m_arrow_counter += last_delta_ms;
+
+    // wait for initial delay
+    if (m_arrow_counter < initial_delay)
 		return;
-	}
 
-	// Already held: handle repeat
-	const u32 now = time_ms;
-	const u32 initial_delay = 200; // ms before repeating starts
-	const u32 repeat_delay = 20;   // ms between repeats
-
-	u32 elapsed = now - m_arrow_last_time;
-
-	// First wait for initial delay, then repeat at fixed rate
-	if (elapsed > initial_delay) {
-		if (elapsed > repeat_delay) {
-			const s32 autoscroll_stepsize = small_step * 2;
-			if (up_pressed) {
-				setPosInterpolated(getTargetPos() - autoscroll_stepsize);
-			} else {
-				setPosInterpolated(getTargetPos() + autoscroll_stepsize);
-			}
-			m_arrow_last_time = now;
-		}
-	}
+    // after initial delay, repeat every repeat_delay
+    const s32 autoscroll_stepsize = small_step * (up_pressed ? -1 : 1);
+    setPosInterpolated(getTargetPos() + autoscroll_stepsize);
+    m_arrow_counter -= repeat_delay;
 }
 
 void GUIScrollBar::updateAbsolutePosition()
