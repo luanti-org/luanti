@@ -48,7 +48,6 @@
 #include "guiInventoryList.h"
 #include "guiItemImage.h"
 #include "guiScrollContainer.h"
-#include "guiHyperText.h"
 #include "guiScene.h"
 
 #define MY_CHECKPOS(a,b)													\
@@ -1763,6 +1762,77 @@ void GUIFormSpecMenu::parseHyperText(parserData *data, const std::string &elemen
 	m_fields.push_back(spec);
 }
 
+void GUIFormSpecMenu::parseSuperTip(parserData *data, const std::string &element)
+{
+	constexpr char max_parts = 6;
+	std::vector<std::string> parts;
+
+	if (!precheckElement("supertip", element, 5, max_parts, parts))
+		return;
+
+	std::vector<std::string> v_stpos;
+	std::vector<std::string> v_pos = split(parts[0], ',');
+	std::vector<std::string> v_geom = split(parts[1], ',');
+	bool floating = parts.size() == max_parts - 1;
+
+	if (!floating)
+		v_stpos = split(parts[2], ',');
+
+	const char i = max_parts - parts.size();
+	s32 width = stof(parts[3-i]) * spacing.Y;
+	std::string name = parts[4-i];
+	std::string text = parts[5-i];
+
+	MY_CHECKPOS("supertip", 0);
+	MY_CHECKGEOM("supertip", 1);
+	MY_CHECKPOS("supertip", 2);
+
+	v2s32 pos;
+	v2s32 geom;
+	v2s32 stpos;
+
+	if (data->real_coordinates) {
+		pos = getRealCoordinateBasePos(v_pos);
+		geom = getRealCoordinateGeometry(v_geom);
+
+		if (!floating)
+			stpos = getRealCoordinateBasePos(v_stpos);
+	} else {
+		pos = getElementBasePos(&v_pos);
+		geom.X = stof(v_geom[0]) * spacing.X;
+		geom.Y = stof(v_geom[1]) * spacing.Y;
+
+		if (!floating)
+			stpos = getElementBasePos(&v_stpos);
+	}
+
+	core::rect<s32> rect(pos, pos + geom);
+
+	if (m_form_src)
+		text = m_form_src->resolveText(text);
+
+	FieldSpec spec(
+		name,
+		translate_string(utf8_to_wide(unescape_string(text))),
+		L"",
+		258 + m_fields.size()
+	);
+
+	GUIHyperText *e = new GUIHyperText(spec.flabel.c_str(), Environment,
+			data->current_parent, spec.fid, rect, m_client, m_tsrc);
+
+	auto style = getStyleForElement("supertip", spec.fname);
+	e->setStyles(style);
+
+	SuperTipSpec geospec(e->getAbsoluteClippingRect(), stpos, width, floating);
+
+	m_fields.push_back(spec);
+	m_supertips.emplace_back(e, geospec);
+
+	e->setVisible(false);
+	e->drop();
+}
+
 void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 {
 	std::vector<std::string> parts;
@@ -2929,6 +2999,7 @@ const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFo
 		{"bgcolor",                &GUIFormSpecMenu::parseBackgroundColor},
 		{"listcolors",             &GUIFormSpecMenu::parseListColors},
 		{"tooltip",                &GUIFormSpecMenu::parseTooltip},
+		{"supertip",               &GUIFormSpecMenu::parseSuperTip},
 		{"scrollbar",              &GUIFormSpecMenu::parseScrollBar},
 		{"real_coordinates",       &GUIFormSpecMenu::parseRealCoordinates},
 		{"style",                  &GUIFormSpecMenu::parseStyle},
@@ -2966,7 +3037,6 @@ void GUIFormSpecMenu::parseElement(parserData* data, const std::string &element)
 		it->second(this, data, description);
 		return;
 	}
-
 
 	// Ignore others
 	infostream << "Unknown DrawSpec: type=" << type << ", data=\"" << description << "\""
@@ -3030,6 +3100,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	m_scrollbars.clear();
 	m_fields.clear();
 	m_tooltips.clear();
+	m_supertips.clear();
 	m_tooltip_rects.clear();
 	m_inventory_rings.clear();
 	m_dropdowns.clear();
@@ -3514,6 +3585,17 @@ void GUIFormSpecMenu::drawMenu()
 		}
 	}
 
+	/*
+		Draw supertip
+	*/
+	for (const auto &pair : m_supertips) {
+		const auto &hover_rect = pair.second.hover_rect;
+		if (hover_rect.getArea() > 0 && hover_rect.isPointInside(m_pointer))
+			showSuperTip(pair.first, pair.second);
+		else
+			pair.first->setVisible(false);
+	}
+
 	// Some elements are only visible while being drawn
 	for (gui::IGUIElement *e : m_clickthrough_elements)
 		e->setVisible(true);
@@ -3790,6 +3872,39 @@ void GUIFormSpecMenu::autoScroll()
 		break;
 	}
 }
+
+void GUIFormSpecMenu::showSuperTip(GUIHyperText *e, const SuperTipSpec &spec)
+{
+	// Supertip size and offset
+	s32 W = spec.width;
+	s32 H = e->getTextHeight();
+	s32 X,Y;
+
+	if (spec.floating) {
+		/* Issue with floating tooltips' positioning here.
+		   Set hardcoded values that only works on 16:10/4K displays. */
+		X = m_pointer.X - 1120;
+		Y = m_pointer.Y - 400;
+	} else {
+		/* Static tooltips */
+		X = spec.stpos[0];
+		Y = spec.stpos[1];
+	}
+
+	v2u32 screenSize = Environment->getVideoDriver()->getScreenSize();
+
+	if (X + W > (s32)screenSize.X)
+		X = (s32)screenSize.X - W - m_btn_height;
+	if (Y + H > (s32)screenSize.Y)
+		Y = (s32)screenSize.Y - H - m_btn_height;
+
+	e->setRelativePosition(core::rect<s32>(core::position2d(X,Y), core::dimension2d(W,H)));
+
+	// Display the supertip
+	e->setVisible(true);
+	bringToFront(e);
+}
+
 
 void GUIFormSpecMenu::updateSelectedItem()
 {
