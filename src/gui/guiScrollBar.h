@@ -79,7 +79,7 @@ private:
 	bool dragged_by_slider;
 	bool tray_clicked;
 
-	u32 m_arrow_last_time = 0; // reset counter when no arrow is held
+	u32 m_arrow_counter = 0; // reset counter when no arrow is held
 
 	s32 scroll_pos;
 	s32 draw_center;
