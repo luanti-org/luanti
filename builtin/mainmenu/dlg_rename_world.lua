@@ -29,8 +29,7 @@ end
 local function rename_world_buttonhandler(this, fields)
 
 	-- press confirm button or Enter
-	if fields["dlg_rename_world_confirm"]
-		or fields.key_enter then
+	if fields["dlg_rename_world_confirm"] or fields.key_enter then
 
 		if fields.key_enter and this.parent then
 			this.parent.dlg_create_world_closed_at = core.get_us_time()
@@ -38,8 +37,7 @@ local function rename_world_buttonhandler(this, fields)
 
 		local new_name = fields["te_world_name"]
 
-		if not new_name
-		or new_name == "" then
+		if not new_name or new_name == "" then
 			this.data.error_msg = fgettext("World name can not be empty!")
 			this.data.current_name = new_name
 			core.update_formspec(this:get_formspec())
@@ -74,8 +72,7 @@ local function rename_world_buttonhandler(this, fields)
 	end
 
 	-- press cancel button or Esc
-	if fields["dlg_rename_world_cancel"]
-		or fields.key_escape then
+	if fields["dlg_rename_world_cancel"] or fields.key_escape then
 		this:delete()
 		return true
 	end
