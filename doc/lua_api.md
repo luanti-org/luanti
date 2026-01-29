@@ -3024,11 +3024,11 @@ Elements
 * `bgcolor` tooltip background color as `ColorString` (optional)
 * `fontcolor` tooltip font color as `ColorString` (optional)
 
-### `supertip[<gui_element_name>;<staticPos>;<width>;<name>;<text>]`
+### `hypertip[<gui_element_name>;<staticPos>;<width>;<name>;<text>]`
 
-* Adds an advanced tooltip for an element. Displays a formatted text using
-  `Markup Language` in a tooltip.
-* This supertip has to be declared *after* the element that is bound to.
+* Adds a hypertext tooltip for an element. Displays a formatted text
+  using `Markup Language` in a tooltip.
+* This tooltip has to be declared *after* the element that is bound to.
 * `staticPos` is an optional position of the form `posX,posY` in formspec coordinates.
   If specified, the tooltip will always appear at these given formspec coordinates.
   If this field is empty, the tooltip will follow the cursor.
@@ -3036,10 +3036,10 @@ Elements
 * `name` is the name of the field.
 * `text` is the formatted text using `Markup Language` described below.
 
-### `supertip[<X>,<Y>;<W>,<H>;<staticPos>;<width>;<name>;<text>]`
+### `hypertip[<X>,<Y>;<W>,<H>;<staticPos>;<width>;<name>;<text>]`
 
-* Adds an advanced tooltip for an area. Displays a formatted text using
-  `Markup Language` in a tooltip.
+* Adds a hypertext tooltip for an area. Displays a formatted text
+  using `Markup Language` in a tooltip.
 * `X`, `Y`, `W` and `H` set the cursor hover area that allows the tooltip to pop-up.
 * `staticPos`, `width`, `name`, `text`: See above.
 
@@ -3615,7 +3615,7 @@ Some types may inherit styles from parent types.
 * model
 * pwdfield, inherits from field
 * scrollbar
-* supertip
+* hypertip
 * tabheader
 * table
 * textarea
@@ -3718,7 +3718,7 @@ Some types may inherit styles from parent types.
     * sound - a sound to be played when triggered.
 * scrollbar
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
-* supertip
+* hypertip
     * bgcolor - color, sets background color.
     * border - boolean, draw border. Set to false to hide the bevelled tooltip pane. Default true.
     * bgimg - standard background image. Defaults to none.

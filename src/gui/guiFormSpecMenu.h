@@ -150,10 +150,10 @@ class GUIFormSpecMenu : public GUIModalMenu
 		video::SColor color;
 	};
 
-	struct SuperTipSpec
+	struct HyperTipSpec
 	{
-		SuperTipSpec() = default;
-		SuperTipSpec(const std::string &a_name,
+		HyperTipSpec() = default;
+		HyperTipSpec(const std::string &a_name,
 				const std::string &a_parent_name,
 				const std::string &a_text,
 				const core::rect<s32> &a_rect,
@@ -371,8 +371,8 @@ protected:
 	std::vector<std::pair<FieldSpec, GUITable *>> m_tables;
 	std::vector<std::pair<FieldSpec, gui::IGUICheckBox *>> m_checkboxes;
 	std::map<std::string, TooltipSpec> m_tooltips;
-	std::vector<std::pair<GUIHyperText *, SuperTipSpec>> m_supertips;
-	std::map<std::string, SuperTipSpec> m_supertip_map;
+	std::vector<std::pair<GUIHyperText *, HyperTipSpec>> m_hypertips;
+	std::map<std::string, HyperTipSpec> m_hypertip_map;
 	std::vector<std::pair<gui::IGUIElement *, TooltipSpec>> m_tooltip_rects;
 	std::vector<std::pair<FieldSpec, GUIScrollBar *>> m_scrollbars;
 	std::vector<std::pair<FieldSpec, std::vector<std::string>>> m_dropdowns;
@@ -498,7 +498,7 @@ private:
 	void parseTextArea(parserData* data,std::vector<std::string>& parts,
 			const std::string &type);
 	void parseHyperText(parserData *data, const std::string &element);
-	void parseSuperTip(parserData *data, const std::string &element);
+	void parseHyperTip(parserData *data, const std::string &element);
 	void parseLabel(parserData* data, const std::string &element);
 	void parseVertLabel(parserData* data, const std::string &element);
 	void parseImageButton(parserData* data, const std::string &element);
@@ -531,7 +531,7 @@ private:
 
 	void showTooltip(const std::wstring &text, const video::SColor &color,
 		const video::SColor &bgcolor);
-	void showSuperTip(GUIHyperText *e, const SuperTipSpec &spec);
+	void showHyperTip(GUIHyperText *e, const HyperTipSpec &spec);
 
 	/**
 	 * Auto-scrolls a scroll container to center the focused element.

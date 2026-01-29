@@ -1762,18 +1762,18 @@ void GUIFormSpecMenu::parseHyperText(parserData *data, const std::string &elemen
 	m_fields.push_back(spec);
 }
 
-void GUIFormSpecMenu::parseSuperTip(parserData *data, const std::string &element)
+void GUIFormSpecMenu::parseHyperTip(parserData *data, const std::string &element)
 {
 	std::vector<std::string> parts;
 
-	if (!precheckElement("supertip", element, 5, 6, parts))
+	if (!precheckElement("hypertip", element, 5, 6, parts))
 		return;
 
 	// Get mode and check size
 	bool rect_mode = parts[0].find(',') != std::string::npos;
 	size_t base_size = rect_mode ? 6 : 5;
 	if (parts.size() != base_size && parts.size() != base_size + 2) {
-		errorstream << "Invalid supertip element(" << parts.size() << "): '"
+		errorstream << "Invalid hypertip element(" << parts.size() << "): '"
 				<< element << "'"  << std::endl;
 		return;
 	}
@@ -1785,7 +1785,7 @@ void GUIFormSpecMenu::parseSuperTip(parserData *data, const std::string &element
 	if (parts[i] != "") {
 		v_stpos = split(parts[i], ',');
 		if (v_stpos.size() != i) {
-			errorstream << "Invalid staticPos in supertip element(" << parts.size() <<
+			errorstream << "Invalid staticPos in hypertip element(" << parts.size() <<
 				"): \"" << parts[2] << "\"" << std::endl;
 			return;
 		}
@@ -1811,8 +1811,8 @@ void GUIFormSpecMenu::parseSuperTip(parserData *data, const std::string &element
 		std::vector<std::string> v_pos = split(parts[0], ',');
 		std::vector<std::string> v_geom = split(parts[1], ',');
 
-		MY_CHECKPOS("supertip", 0);
-		MY_CHECKGEOM("supertip", 1);
+		MY_CHECKPOS("hypertip", 0);
+		MY_CHECKGEOM("hypertip", 1);
 
 		// Tooltip width is defined in em units of the default font
 		s32 em = g_fontengine->getFontSize(FM_Standard);
@@ -1842,12 +1842,12 @@ void GUIFormSpecMenu::parseSuperTip(parserData *data, const std::string &element
 		GUIHyperText *e = new GUIHyperText(spec.flabel.c_str(), Environment,
 				data->current_parent, spec.fid, rect, m_client, m_tsrc);
 
-		auto style = getStyleForElement("supertip", spec.fname);
+		auto style = getStyleForElement("hypertip", spec.fname);
 		e->setStyles(style);
 
-		SuperTipSpec geospec(name, "", text, e->getAbsoluteClippingRect(), stpos, width, floating);
+		HyperTipSpec geospec(name, "", text, e->getAbsoluteClippingRect(), stpos, width, floating);
 
-		m_supertips.emplace_back(e, geospec);
+		m_hypertips.emplace_back(e, geospec);
 
 		e->setVisible(false);
 		e->drop();
@@ -1878,7 +1878,7 @@ void GUIFormSpecMenu::parseSuperTip(parserData *data, const std::string &element
 			stpos = getElementBasePos(&v_stpos);
 	}
 
-	m_supertip_map[fieldname] = SuperTipSpec(name, fieldname, text, rect, stpos, width, floating);
+	m_hypertip_map[fieldname] = HyperTipSpec(name, fieldname, text, rect, stpos, width, floating);
 }
 
 void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
@@ -3047,7 +3047,7 @@ const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFo
 		{"bgcolor",                &GUIFormSpecMenu::parseBackgroundColor},
 		{"listcolors",             &GUIFormSpecMenu::parseListColors},
 		{"tooltip",                &GUIFormSpecMenu::parseTooltip},
-		{"supertip",               &GUIFormSpecMenu::parseSuperTip},
+		{"hypertip",               &GUIFormSpecMenu::parseHyperTip},
 		{"scrollbar",              &GUIFormSpecMenu::parseScrollBar},
 		{"real_coordinates",       &GUIFormSpecMenu::parseRealCoordinates},
 		{"style",                  &GUIFormSpecMenu::parseStyle},
@@ -3148,8 +3148,8 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	m_scrollbars.clear();
 	m_fields.clear();
 	m_tooltips.clear();
-	m_supertips.clear();
-	m_supertip_map.clear();
+	m_hypertips.clear();
+	m_hypertip_map.clear();
 	m_tooltip_rects.clear();
 	m_inventory_rings.clear();
 	m_dropdowns.clear();
@@ -3635,13 +3635,13 @@ void GUIFormSpecMenu::drawMenu()
 	}
 
 	/*
-		Draw rect_mode supertip
+		Draw rect_mode hypertip
 	*/
-	for (const auto &pair : m_supertips) {
-		if (m_supertip_map.count(pair.second.parent_name) == 0) {
+	for (const auto &pair : m_hypertips) {
+		if (m_hypertip_map.count(pair.second.parent_name) == 0) {
 			const auto &hover_rect = pair.second.hover_rect;
 			if (hover_rect.getArea() > 0 && hover_rect.isPointInside(m_pointer)) {
-				showSuperTip(pair.first, pair.second);
+				showHyperTip(pair.first, pair.second);
 				break;
 			}
 		}
@@ -3676,7 +3676,7 @@ void GUIFormSpecMenu::drawMenu()
 			NULL, m_client, IT_ROT_HOVERED);
 	}
 
-	for (const auto &pair : m_supertips)
+	for (const auto &pair : m_hypertips)
 		if (pair.first->isVisible())
 			pair.first->setVisible(false);
 
@@ -3731,11 +3731,11 @@ void GUIFormSpecMenu::drawMenu()
 				if (delta >= m_tooltip_show_delay) {
 					const std::wstring &text = m_tooltips[field.fname].tooltip;
 					if (!text.empty()) {
-						/* Tooltips get the priority over supertips */
+						/* Tooltips get the priority over hypertips */
 						showTooltip(text, m_tooltips[field.fname].color,
 							m_tooltips[field.fname].bgcolor);
-					} else if (m_supertip_map.count(field.fname) != 0) {
-						auto &spec = m_supertip_map[field.fname];
+					} else if (m_hypertip_map.count(field.fname) != 0) {
+						auto &spec = m_hypertip_map[field.fname];
 
 						if (!spec.bound) {
 							spec.bound = true;
@@ -3747,17 +3747,17 @@ void GUIFormSpecMenu::drawMenu()
 									parent_element->getParent(), field.fid,
 									spec.hover_rect, m_client, m_tsrc);
 
-							auto style = getStyleForElement("supertip", spec.name);
+							auto style = getStyleForElement("hypertip", spec.name);
 							e->setStyles(style);
 
-							m_supertips.emplace_back(e, spec);
+							m_hypertips.emplace_back(e, spec);
 
 							e->setVisible(false);
 							e->drop();
 						} else {
-							for (const auto &pair : m_supertips) {
+							for (const auto &pair : m_hypertips) {
 								if (field.fname == pair.second.parent_name) {
-									showSuperTip(pair.first, pair.second);
+									showHyperTip(pair.first, pair.second);
 									break;
 								}
 							}
@@ -3958,9 +3958,10 @@ void GUIFormSpecMenu::autoScroll()
 	}
 }
 
-void GUIFormSpecMenu::showSuperTip(GUIHyperText *e, const SuperTipSpec &spec)
+
+void GUIFormSpecMenu::showHyperTip(GUIHyperText *e, const HyperTipSpec &spec)
 {
-	// Supertip size and offset
+	// Hypertip size and offset
 	s32 tooltip_width = spec.width;
 	s32 tooltip_height = e->getTextHeight() + 5;
 	s32 tooltip_x, tooltip_y;
@@ -4002,7 +4003,7 @@ void GUIFormSpecMenu::showSuperTip(GUIHyperText *e, const SuperTipSpec &spec)
 		)
 	);
 
-	// Display the supertip
+	// Display the hypertip
 	e->setVisible(true);
 	bringToFront(e);
 }
