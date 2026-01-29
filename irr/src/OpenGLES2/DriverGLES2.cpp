@@ -30,14 +30,10 @@ OpenGLVersion COpenGLES2Driver::getVersionFromOpenGL() const
 void COpenGLES2Driver::initFeatures()
 {
 	if (Version.Spec != OpenGLSpec::ES) {
-		auto msg = "Context isn't OpenGL ES";
-		os::Printer::log(msg, ELL_ERROR);
-		throw std::runtime_error(msg);
+		throw std::runtime_error("Context isn't OpenGL ES");
 	}
 	if (!isVersionAtLeast(2, 0)) {
-		auto msg = "Open GL ES 2.0 is required";
-		os::Printer::log(msg, ELL_ERROR);
-		throw std::runtime_error(msg);
+		throw std::runtime_error("Open GL ES 2.0 is required");
 	}
 	initExtensions();
 
@@ -158,7 +154,11 @@ IVideoDriver *createOGLES2Driver(const SIrrlichtCreationParameters &params, io::
 {
 	os::Printer::log("Using COpenGLES2Driver", ELL_INFORMATION);
 	COpenGLES2Driver *driver = new COpenGLES2Driver(params, io, contextManager);
-	driver->genericDriverInit(params.WindowSize, params.Stencilbuffer); // don't call in constructor, it uses virtual function calls of driver
+	// don't call in constructor, it uses virtual function calls of driver
+	if (!driver->genericDriverInit(params.WindowSize, params.Stencilbuffer)) {
+		delete driver;
+		driver = nullptr;
+	}
 	return driver;
 }
 

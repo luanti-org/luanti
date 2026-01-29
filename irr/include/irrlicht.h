@@ -44,7 +44,16 @@ See SIrrlichtCreationParameters for details.
 \return Returns pointer to the created IrrlichtDevice or null if the
 device could not be created. */
 extern "C" IrrlichtDevice *createDeviceEx(
-		const SIrrlichtCreationParameters &parameters);
+	const SIrrlichtCreationParameters &parameters);
+
+/**
+ * Shows an error message box to the user
+ * @param device device pointer, if you have it
+ * @param title title text (optional)
+ * @param message content text
+ */
+extern "C" void showErrorMessageBox(IrrlichtDevice *device,
+	const char *title, const char *message);
 
 // THE FOLLOWING IS AN EMPTY LIST OF ALL SUB NAMESPACES
 // EXISTING ONLY FOR THE DOCUMENTATION SOFTWARE DOXYGEN.
