@@ -151,17 +151,6 @@ void TestFileSys::testPathStartsWith()
 }
 
 
-namespace {
-	std::ostream &operator<< (std::ostream &os, std::optional<std::string> opt)
-	{
-		if (opt.has_value()) {
-			return os << "{\"" << *opt << "\"}";
-		} else {
-			return os << "nullopt";
-		}
-	}
-}
-
 void TestFileSys::testMakePathRelativeTo()
 {
 	const auto dir_path = getTestTempDirectory() + DIR_DELIM "testMakePathRelativeToTestDir";
@@ -192,30 +181,26 @@ void TestFileSys::testMakePathRelativeTo()
 			);
 	};
 
-#define UASSERTE(a, b) UASSERTEQ(std::optional<std::string>, a, b)
+	UASSERT(rel("", "") == p(""));
+	UASSERT(rel("d1", "") == p("d1"));
+	UASSERT(rel("d1/", "") == p("d1"));
+	UASSERT(rel("d1/d2", "") == p("d1/d2"));
+	UASSERT(rel("d1///d2/", "") == p("d1/d2"));
+	UASSERT(rel("_d3", "") == p("_d3"));
+	UASSERT(rel("d12", "") == p("d12"));
+	UASSERT(rel("d22", "") == p("d22"));
+	UASSERT(rel("non_existent", "") == p("non_existent"));
+	UASSERT(rel("d22/non_existent", "") == p("d22/non_existent"));
+	UASSERT(rel("non_existent/non_existent", "") == p("non_existent/non_existent"));
+	UASSERT(rel("d1/f1", "") == p("d1/f1"));
 
-	UASSERTE(rel("", ""), p(""));
-	UASSERTE(rel("d1", ""), p("d1"));
-	UASSERTE(rel("d1/", ""), p("d1"));
-	UASSERTE(rel("d1/d2", ""), p("d1/d2"));
-	UASSERTE(rel("d1///d2/", ""), p("d1/d2"));
-	UASSERTE(rel("_d3", ""), p("_d3"));
-	UASSERTE(rel("d12", ""), p("d12"));
-	UASSERTE(rel("d22", ""), p("d22"));
-	UASSERTE(rel("non_existent", ""), p("non_existent"));
-	UASSERTE(rel("d22/non_existent", ""), p("d22/non_existent"));
-	UASSERTE(rel("non_existent/non_existent", ""), p("non_existent/non_existent"));
-	UASSERTE(rel("d1/f1", ""), p("d1/f1"));
-
-	UASSERTE(rel("d1", "d1"), p(""));
-	UASSERTE(rel("d1/", "d1"), p(""));
-	UASSERTE(rel("d1", "d1/."), p(""));
-	UASSERTE(rel("d1/./d2", "d1/."), p("d2"));
-	UASSERTE(rel("d1/..", "d1"), std::nullopt);
-	UASSERTE(rel("d1/../d12", "d1"), std::nullopt);
-	UASSERTE(rel("d1/../d1/d2/", "d1"), p("d2"));
-
-	#undef UASSERTE
+	UASSERT(rel("d1", "d1") == p(""));
+	UASSERT(rel("d1/", "d1") == p(""));
+	UASSERT(rel("d1", "d1/.") == p(""));
+	UASSERT(rel("d1/./d2", "d1/.") == p("d2"));
+	UASSERT(rel("d1/..", "d1") == std::nullopt);
+	UASSERT(rel("d1/../d12", "d1") == std::nullopt);
+	UASSERT(rel("d1/../d1/d2/", "d1") == p("d2"));
 }
 
 
