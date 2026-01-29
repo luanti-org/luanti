@@ -727,7 +727,7 @@ int ModApiMainMenu::l_rename_world(lua_State *L)
 		world_conf.set("world_name", new_name);
 		if (!world_conf.updateConfigFile(new_worldmt_path.c_str()))
 			throw BaseException("Failed to update world.mt");
-		
+
 		lua_pushnil(L);
 
 	} catch (const BaseException &e) {
