@@ -117,19 +117,6 @@ void script_error(lua_State *L, int pcall_result, const char *mod, const char *f
 bool script_log_unique(lua_State *L, std::string_view message, std::ostream &log_to,
 	int stack_depth = 1);
 
-enum DeprecatedHandlingMode {
-	Ignore,
-	Log,
-	Error
-};
-
-/**
- * Reads `deprecated_lua_api_handling` in settings, returns cached value.
- *
- * @return DeprecatedHandlingMode
- */
-DeprecatedHandlingMode get_deprecated_handling_mode();
-
 /**
  * Handles a deprecation warning based on user settings
  *

@@ -10,6 +10,7 @@
 #include "porting.h"
 #include "settings.h"
 #include <algorithm> // std::find
+#include "common/c_deprecated.h"
 #include "common/c_types.h" // LuaError
 
 std::string script_get_backtrace(lua_State *L)
@@ -145,25 +146,6 @@ bool script_log_unique(lua_State *L, std::string_view message_in, std::ostream &
 		return true;
 	}
 	return false;
-}
-
-DeprecatedHandlingMode get_deprecated_handling_mode()
-{
-	static thread_local bool configured = false;
-	static thread_local DeprecatedHandlingMode ret = DeprecatedHandlingMode::Ignore;
-
-	// Only read settings on first call
-	if (!configured) {
-		std::string value = g_settings->get("deprecated_lua_api_handling");
-		if (value == "log") {
-			ret = DeprecatedHandlingMode::Log;
-		} else if (value == "error") {
-			ret = DeprecatedHandlingMode::Error;
-		}
-		configured = true;
-	}
-
-	return ret;
 }
 
 void log_deprecated(lua_State *L, std::string_view message, int stack_depth, bool once)
