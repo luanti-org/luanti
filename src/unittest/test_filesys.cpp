@@ -151,17 +151,16 @@ void TestFileSys::testPathStartsWith()
 }
 
 
-// namespace {
-// 	template <class T>
-// 	std::ostream &operator<< (std::ostream &os, std::optional<T> opt)
-// 	{
-// 		if (opt.has_value()) {
-// 			return os << "nullopt";
-// 		} else {
-// 			return os << "{" << *opt << "}";
-// 		}
-// 	}
-// }
+namespace {
+	std::ostream &operator<< (std::ostream &os, std::optional<std::string> opt)
+	{
+		if (opt.has_value()) {
+			return os << "nullopt";
+		} else {
+			return os << "{\"" << *opt << "\"}";
+		}
+	}
+}
 
 void TestFileSys::testMakePathRelativeTo()
 {
@@ -193,38 +192,42 @@ void TestFileSys::testMakePathRelativeTo()
 			);
 	};
 
+#define UASSERTE(a, b) UASSERTEQ(std::optional<std::string>, a, b)
+
 	// UASSERTEQ(auto, rel("", ""), p(""));
-	UASSERT(rel("", "") == p(""));
-	UASSERT(rel("d1", "") == p("d1"));
-	UASSERT(rel("d1/", "") == p("d1"));
-	UASSERT(rel("d1/d2", "") == p("d1/d2"));
-	UASSERT(rel("d1///d2/", "") == p("d1/d2"));
-	UASSERT(rel("_d3", "") == p("_d3"));
-	UASSERT(rel("d12", "") == p("d12"));
-	UASSERT(rel("d22", "") == p("d22"));
-	UASSERT(rel("d2", "") == std::nullopt);
-	UASSERT(rel("d1/f1", "") == p("d1/f1"));
+	UASSERTE(rel("", ""), p(""));
+	UASSERTE(rel("d1", ""), p("d1"));
+	UASSERTE(rel("d1/", ""), p("d1"));
+	UASSERTE(rel("d1/d2", ""), p("d1/d2"));
+	UASSERTE(rel("d1///d2/", ""), p("d1/d2"));
+	UASSERTE(rel("_d3", ""), p("_d3"));
+	UASSERTE(rel("d12", ""), p("d12"));
+	UASSERTE(rel("d22", ""), p("d22"));
+	UASSERTE(rel("non_existent", ""), p("non_existent"));
+	UASSERTE(rel("d1/f1", ""), p("d1/f1"));
 
-	UASSERT(rel("d1", "d1") == p(""));
-	UASSERT(rel("d1/", "d1") == p(""));
-	UASSERT(rel("d1", "d1/.") == p(""));
-	UASSERT(rel("d1/./d2", "d1/.") == p("d2"));
-	UASSERT(rel("d1/..", "d1") == std::nullopt);
-	UASSERT(rel("d1/../d12", "d1") == std::nullopt);
-	UASSERT(rel("d1/../d1/d2/", "d1") == p("d2"));
+	UASSERTE(rel("d1", "d1"), p(""));
+	UASSERTE(rel("d1/", "d1"), p(""));
+	UASSERTE(rel("d1", "d1/."), p(""));
+	UASSERTE(rel("d1/./d2", "d1/."), p("d2"));
+	UASSERTE(rel("d1/..", "d1"), std::nullopt);
+	UASSERTE(rel("d1/../d12", "d1"), std::nullopt);
+	UASSERTE(rel("d1/../d1/d2/", "d1"), p("d2"));
 
-	UASSERT(fs::MakePathRelativeTo(dir_path, dir_path) == p(""));
-	UASSERT(fs::MakePathRelativeTo(dirs[0], dir_path) == p("d1"));
-	UASSERT(fs::MakePathRelativeTo(dirs[1], dir_path) == p("d1/d2"));
-	UASSERT(fs::MakePathRelativeTo(dirs[2], dir_path) == p("_d3"));
-	UASSERT(fs::MakePathRelativeTo(dirs[3], dir_path) == p("d12"));
-	UASSERT(fs::MakePathRelativeTo(dirs[4], dir_path) == p("d22"));
-	UASSERT(fs::MakePathRelativeTo(dir_path + DIR_DELIM "d2", dir_path) == std::nullopt);
+	UASSERTE(fs::MakePathRelativeTo(dir_path, dir_path), p(""));
+	UASSERTE(fs::MakePathRelativeTo(dirs[0], dir_path), p("d1"));
+	UASSERTE(fs::MakePathRelativeTo(dirs[1], dir_path), p("d1/d2"));
+	UASSERTE(fs::MakePathRelativeTo(dirs[2], dir_path), p("_d3"));
+	UASSERTE(fs::MakePathRelativeTo(dirs[3], dir_path), p("d12"));
+	UASSERTE(fs::MakePathRelativeTo(dirs[4], dir_path), p("d22"));
+	UASSERTE(fs::MakePathRelativeTo(dir_path + DIR_DELIM "d2", dir_path), std::nullopt);
 
-	UASSERT(fs::MakePathRelativeTo(files[0], dir_path) == p("d1/f1"));
-	UASSERT(fs::MakePathRelativeTo(files[0], dir_path) == p("d1/f1"));
+	UASSERTE(fs::MakePathRelativeTo(files[0], dir_path), p("d1/f1"));
+	UASSERTE(fs::MakePathRelativeTo(files[0], dir_path), p("d1/f1"));
 
-	UASSERT(fs::MakePathRelativeTo(dirs[1], dirs[0]) == p("d2"));
+	UASSERTE(fs::MakePathRelativeTo(dirs[1], dirs[0]), p("d2"));
+
+	#undef UASSERTE
 }
 
 
