@@ -652,7 +652,7 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 
 		if (!canRead(is))
 			break;
-		
+
 		post_effect_color_use_node_color = readU8(is);
 
 		// if (!canRead(is))
