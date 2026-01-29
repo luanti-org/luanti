@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
+#undef NDEBUG
+
 #include "filesys.h"
 #include "util/string.h"
 #include <iostream>
@@ -716,12 +718,17 @@ bool PathStartsWith(const std::string &path, const std::string &prefix)
 
 std::optional<std::string> MakePathRelativeTo(const std::string &child, const std::string &parent)
 {
+	errorstream << "=================\n";
+	errorstream << "child: " << child << "\n";
+	errorstream << "parent: " << parent << "\n";
 	std::string child_abs = fs::AbsolutePathPartial(child);
+	errorstream << "child_abs: " << child_abs << "\n";
 	std::string parent_abs = fs::AbsolutePathPartial(parent);
+	errorstream << "parent_abs: " << parent_abs << "\n";
 	if (child.empty() || parent.empty())
 		return std::nullopt; // error
 
-	if (!fs::PathStartsWith(child, parent))
+	if (!fs::PathStartsWith(child_abs, parent_abs))
 		return std::nullopt; // not child
 
 	if (child_abs.size() == parent_abs.size()) {
