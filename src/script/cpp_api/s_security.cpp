@@ -495,17 +495,11 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 	// Check sha256 if it's a builtin file
 	do {
 		assert(path != nullptr);
-		std::string path_abs = fs::AbsolutePathPartial(path);
-		std::string builtin_path_abs =
-				fs::AbsolutePathPartial(Server::getBuiltinLuaPath()) + DIR_DELIM;
-		if (path_abs.empty() || builtin_path_abs.empty())
-			break;
-
-		if (!fs::PathStartsWith(path_abs, builtin_path_abs))
+		auto path_local = fs::MakePathRelativeTo(path, Server::getBuiltinLuaPath());
+		if (!path_local.has_value())
 			break; // not in builtin
 
-		auto path_local = std::string_view(path_abs).substr(builtin_path_abs.size());
-		auto it = g_builtin_file_sha256_map.find(path_local);
+		auto it = g_builtin_file_sha256_map.find(*path_local);
 		if (it == g_builtin_file_sha256_map.end()) {
 			warningstream << "No SHA256 known for builtin file \"" << path << "\""
 					<< std::endl;
