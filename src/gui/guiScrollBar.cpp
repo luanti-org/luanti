@@ -225,25 +225,25 @@ void GUIScrollBar::OnPostRender(u32 time_ms)
 	const bool down_pressed = down_button && down_button->isPressed();
 
 	// if neither is pressed, reset counter
-    if (!up_pressed && !down_pressed) {
+	if (!up_pressed && !down_pressed) {
 		m_arrow_counter = 0; // reset counter when no arrow is held
 		return;
-    }
+	}
 
-    const u32 initial_delay = 200; // ms before repeating starts
-    const u32 repeat_delay  = 150; // ms between repeats
+	const u32 initial_delay = 200; // ms before repeating starts
+	const u32 repeat_delay  = 150; // ms between repeats
 
-    // counter is 0, so start counting
-    m_arrow_counter += last_delta_ms;
+	// counter is 0, so start counting
+	m_arrow_counter += last_delta_ms;
 
-    // wait for initial delay
-    if (m_arrow_counter < initial_delay)
+	// wait for initial delay
+	if (m_arrow_counter < initial_delay)
 		return;
 
-    // after initial delay, repeat every repeat_delay
-    const s32 autoscroll_stepsize = small_step * (up_pressed ? -1 : 1);
-    setPosInterpolated(getTargetPos() + autoscroll_stepsize);
-    m_arrow_counter -= repeat_delay;
+	// after initial delay, repeat every repeat_delay
+	const s32 autoscroll_stepsize = small_step * (up_pressed ? -1 : 1);
+	setPosInterpolated(getTargetPos() + autoscroll_stepsize);
+	m_arrow_counter -= repeat_delay;
 }
 
 void GUIScrollBar::updateAbsolutePosition()
