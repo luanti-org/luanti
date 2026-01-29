@@ -22,6 +22,7 @@ public:
 
 	void testIsDirDelimiter();
 	void testPathStartsWith();
+	void testMakePathRelativeTo();
 	void testRemoveLastPathComponent();
 	void testRemoveLastPathComponentWithTrailingDelimiter();
 	void testRemoveRelativePathComponent();
@@ -39,6 +40,7 @@ void TestFileSys::runTests(IGameDef *gamedef)
 {
 	TEST(testIsDirDelimiter);
 	TEST(testPathStartsWith);
+	TEST(testMakePathRelativeTo);
 	TEST(testRemoveLastPathComponent);
 	TEST(testRemoveLastPathComponentWithTrailingDelimiter);
 	TEST(testRemoveRelativePathComponent);
@@ -146,6 +148,83 @@ void TestFileSys::testPathStartsWith()
 			UASSERT(starts == (bool)FILESYS_CASE_INSENSITIVE);
 		}
 	}
+}
+
+
+// namespace {
+// 	template <class T>
+// 	std::ostream &operator<< (std::ostream &os, std::optional<T> opt)
+// 	{
+// 		if (opt.has_value()) {
+// 			return os << "nullopt";
+// 		} else {
+// 			return os << "{" << *opt << "}";
+// 		}
+// 	}
+// }
+
+void TestFileSys::testMakePathRelativeTo()
+{
+	const auto dir_path = getTestTempDirectory() + DIR_DELIM "testMakePathRelativeToTestDir";
+	UASSERT(fs::CreateAllDirs(dir_path));
+
+	std::string dirs[] = {
+		dir_path + DIR_DELIM "d1",
+		dir_path + DIR_DELIM "d1" DIR_DELIM "d2",
+		dir_path + DIR_DELIM "_d3",
+		dir_path + DIR_DELIM "d12",
+		dir_path + DIR_DELIM "d22",
+	};
+	std::string files[] = {
+		dirs[0] + DIR_DELIM "f1",
+		dirs[1] + DIR_DELIM "f2",
+		dirs[0] + DIR_DELIM ".f3",
+	};
+
+	for (auto &it : dirs)
+		fs::CreateDir(it);
+	for (auto &it : files)
+		open_ofstream(it.c_str(), false).close();
+
+	auto rel = [&](auto &&child, auto &&parent) {
+		return fs::MakePathRelativeTo(
+				dir_path + DIR_DELIM + p(child),
+				dir_path + DIR_DELIM + p(parent)
+			);
+	};
+
+	// UASSERTEQ(auto, rel("", ""), p(""));
+	UASSERT(rel("", "") == p(""));
+	UASSERT(rel("d1", "") == p("d1"));
+	UASSERT(rel("d1/", "") == p("d1"));
+	UASSERT(rel("d1/d2", "") == p("d1/d2"));
+	UASSERT(rel("d1///d2/", "") == p("d1/d2"));
+	UASSERT(rel("_d3", "") == p("_d3"));
+	UASSERT(rel("d12", "") == p("d12"));
+	UASSERT(rel("d22", "") == p("d22"));
+	UASSERT(rel("d2", "") == std::nullopt);
+	UASSERT(rel("d1/f1", "") == p("d1/f1"));
+
+	UASSERT(rel("d1", "d1") == p(""));
+	UASSERT(rel("d1/", "d1") == p(""));
+	UASSERT(rel("d1", "d1/.") == p(""));
+	UASSERT(rel("d1/./d2", "d1/.") == p("d2"));
+	UASSERT(rel("d1/..", "d1") == std::nullopt);
+	UASSERT(rel("d1/../d12", "d1") == std::nullopt);
+	UASSERT(rel("d1/../d1/d2/", "d1") == p("d2"));
+
+	UASSERT(fs::MakePathRelativeTo(dir_path, dir_path) == p(""));
+	UASSERT(fs::MakePathRelativeTo(dirs[0], dir_path) == p("d1"));
+	UASSERT(fs::MakePathRelativeTo(dirs[1], dir_path) == p("d1/d2"));
+	UASSERT(fs::MakePathRelativeTo(dirs[2], dir_path) == p("_d3"));
+	UASSERT(fs::MakePathRelativeTo(dirs[3], dir_path) == p("d12"));
+	UASSERT(fs::MakePathRelativeTo(dirs[4], dir_path) == p("d22"));
+	UASSERT(fs::MakePathRelativeTo(dir_path + DIR_DELIM "d2", dir_path) == std::nullopt);
+
+	UASSERT(fs::MakePathRelativeTo(files[0], dir_path) == p("d1/f1"));
+	UASSERT(fs::MakePathRelativeTo(files[0], dir_path) == p("d1/f1"));
+
+	UASSERT(fs::MakePathRelativeTo(dirs[1], dirs[0]) == p("d2"));
 }
 
 
