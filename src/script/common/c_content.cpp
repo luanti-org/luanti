@@ -2247,7 +2247,7 @@ void read_json_value(lua_State *L, Json::Value &root, int index, u16 max_depth)
 		root = (bool) lua_toboolean(L, index);
 	} else if (type == LUA_TNUMBER) {
 		lua_Number doubleVal = lua_tonumber(L, index);
-		s64 intVal = (s64) doubleVal;
+		s32 intVal = (s32) doubleVal;
 		if (doubleVal == (lua_Number)intVal)
 			root = intVal;
 		else
