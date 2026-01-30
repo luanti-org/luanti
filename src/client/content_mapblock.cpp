@@ -20,6 +20,8 @@
 #include <SMesh.h>
 #include <IMeshBuffer.h>
 
+using LiquidData = MapblockMeshGenerator::LiquidData;
+
 // Distance of light extrapolation (for oversized nodes)
 // After this distance, it gives up and considers light level constant
 #define SMOOTH_LIGHTING_OVERSIZE 1.0
@@ -58,6 +60,20 @@ static const u8 light_indices[6][4] = {
 static constexpr u16 quad_indices_02[] = {0, 1, 2, 2, 3, 0};
 static constexpr u16 quad_indices_13[] = {0, 1, 3, 3, 1, 2};
 static const auto &quad_indices = quad_indices_02;
+
+int LightPair::lightDiff(LightPair a, LightPair b)
+{
+	return std::abs(a.lightDay - b.lightDay) + std::abs(a.lightNight - b.lightNight);
+}
+
+QuadDiagonal LightPair::quadDiagonalForFace(LightPair final_lights[4])
+{
+	if (lightDiff(final_lights[1], final_lights[3])
+			< lightDiff(final_lights[0], final_lights[2]))
+		return QuadDiagonal::Diag13;
+	else
+		return QuadDiagonal::Diag02;
+}
 
 const std::string MapblockMeshGenerator::raillike_groupname = "connect_to_raillike";
 
@@ -242,11 +258,6 @@ static std::array<video::S3DVertex, 24> setupCuboidVertices(const aabb3f &box,
 	return vertices;
 }
 
-enum class QuadDiagonal {
-	Diag02,
-	Diag13,
-};
-
 // Create a cuboid with custom lighting.
 //  tiles     - the tiles (materials) to use (for all 6 faces)
 //  tilecount - number of entries in tiles, 1<=tilecount<=6
@@ -363,11 +374,6 @@ void MapblockMeshGenerator::generateCuboidTextureCoords(const aabb3f &box, f32 *
 		coords[i] = txc[i];
 }
 
-static inline int lightDiff(LightPair a, LightPair b)
-{
-	return abs(a.lightDay - b.lightDay) + abs(a.lightNight - b.lightNight);
-}
-
 void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box, const TileSpec &tile,
 		const f32 *txc, u8 mask)
 {
@@ -409,9 +415,7 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box,
 				if (!cur_node.f->light_source)
 					applyFacesShading(vertex.Color, vertex.Normal);
 			}
-			if (lightDiff(final_lights[1], final_lights[3]) < lightDiff(final_lights[0], final_lights[2]))
-				return QuadDiagonal::Diag13;
-			return QuadDiagonal::Diag02;
+			return LightPair::quadDiagonalForFace(final_lights);
 		});
 	} else {
 		drawCuboid(box, tiles, tile_count, txc, mask, [&] (int face, video::S3DVertex vertices[4]) {
@@ -425,6 +429,30 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box,
 			return QuadDiagonal::Diag02;
 		});
 	}
+}
+
+bool MapblockMeshGenerator::isSolidFaceDrawn(content_t n1, const ContentFeatures &f1,
+		content_t n2, const NodeDefManager *nodedef, bool *backface_culling_out)
+{
+	bool backface_culling = f1.drawtype == NDT_NORMAL;
+	if (n2 == n1)
+		return false;
+	if (n2 == CONTENT_IGNORE)
+		return false;
+	if (n2 != CONTENT_AIR) {
+		const ContentFeatures &f2 = nodedef->get(n2);
+		if (f2.visuals->solidness == 2)
+			return false;
+		if (f1.drawtype == NDT_LIQUID) {
+			if (f1.sameLiquidRender(f2))
+				return false;
+			backface_culling = f2.visuals->solidness || f2.visuals->visual_solidness;
+		}
+	}
+
+	if (backface_culling_out)
+		*backface_culling_out = backface_culling;
+	return true;
 }
 
 void MapblockMeshGenerator::drawSolidNode()
@@ -445,21 +473,9 @@ void MapblockMeshGenerator::drawSolidNode()
 		v3s16 p2 = blockpos_nodes + cur_node.p + tile_dirs[face];
 		MapNode neighbor = data->m_vmanip.getNodeNoEx(p2);
 		content_t n2 = neighbor.getContent();
-		bool backface_culling = cur_node.f->drawtype == NDT_NORMAL;
-		if (n2 == n1)
+		bool backface_culling;
+		if (!isSolidFaceDrawn(n1, *cur_node.f, n2, nodedef, &backface_culling))
 			continue;
-		if (n2 == CONTENT_IGNORE)
-			continue;
-		if (n2 != CONTENT_AIR) {
-			const ContentFeatures &f2 = nodedef->get(n2);
-			if (f2.visuals->solidness == 2)
-				continue;
-			if (cur_node.f->drawtype == NDT_LIQUID) {
-				if (cur_node.f->sameLiquidRender(f2))
-					continue;
-				backface_culling = f2.visuals->solidness || f2.visuals->visual_solidness;
-			}
-		}
 		faces |= 1 << face;
 		getTile(tile_dirs[face], &tiles[face]);
 		for (auto &layer : tiles[face].layers) {
@@ -496,9 +512,7 @@ void MapblockMeshGenerator::drawSolidNode()
 				if (!cur_node.f->light_source)
 					applyFacesShading(vertex.Color, vertex.Normal);
 			}
-			if (lightDiff(final_lights[1], final_lights[3]) < lightDiff(final_lights[0], final_lights[2]))
-				return QuadDiagonal::Diag13;
-			return QuadDiagonal::Diag02;
+			return LightPair::quadDiagonalForFace(final_lights);
 		});
 	} else {
 		drawCuboid(box, tiles, 6, nullptr, mask, [&] (int face, video::S3DVertex vertices[4]) {
@@ -589,15 +603,19 @@ void MapblockMeshGenerator::prepareLiquidNodeDrawing()
 	cur_node.lcolor = encode_light(light, cur_node.f->light_source);
 }
 
-void MapblockMeshGenerator::getLiquidNeighborhood()
+template <typename F>
+std::array<std::array<LiquidData::NeighborData, 3>, 3>
+MapblockMeshGenerator::getLiquidNeighborsDataRaw(
+		content_t c_source, content_t c_flowing, u8 liquid_range, F &&get_node_rel)
 {
-	u8 range = rangelim(nodedef->get(cur_liquid.c_flowing).liquid_range, 1, 8);
+	std::array<std::array<LiquidData::NeighborData, 3>, 3> ret;
+
+	u8 range = rangelim(liquid_range, 1, 8);
 
 	for (int w = -1; w <= 1; w++)
 	for (int u = -1; u <= 1; u++) {
-		LiquidData::NeighborData &neighbor = cur_liquid.neighbors[w + 1][u + 1];
-		v3s16 p2 = cur_node.p + v3s16(u, 0, w);
-		MapNode n2 = data->m_vmanip.getNodeNoEx(blockpos_nodes + p2);
+		LiquidData::NeighborData &neighbor = ret[w + 1][u + 1];
+		const MapNode n2 = get_node_rel(v3s16(u, 0, w));
 		neighbor.content = n2.getContent();
 		neighbor.level = -0.5f;
 		neighbor.is_same_liquid = false;
@@ -606,10 +624,10 @@ void MapblockMeshGenerator::getLiquidNeighborhood()
 		if (neighbor.content == CONTENT_IGNORE)
 			continue;
 
-		if (neighbor.content == cur_liquid.c_source) {
+		if (neighbor.content == c_source) {
 			neighbor.is_same_liquid = true;
 			neighbor.level = 0.5f;
-		} else if (neighbor.content == cur_liquid.c_flowing) {
+		} else if (neighbor.content == c_flowing) {
 			neighbor.is_same_liquid = true;
 			u8 liquid_level = (n2.param2 & LIQUID_LEVEL_MASK);
 			if (liquid_level <= LIQUID_LEVEL_MAX + 1 - range)
@@ -622,28 +640,41 @@ void MapblockMeshGenerator::getLiquidNeighborhood()
 		// Check node above neighbor.
 		// NOTE: This doesn't get executed if neighbor
 		//       doesn't exist
-		p2.Y++;
-		n2 = data->m_vmanip.getNodeNoEx(blockpos_nodes + p2);
-		if (n2.getContent() == cur_liquid.c_source || n2.getContent() == cur_liquid.c_flowing)
+		const MapNode n3 = get_node_rel(v3s16(u, 1, w));
+		if (n3.getContent() == c_source || n3.getContent() == c_flowing)
 			neighbor.top_is_same_liquid = true;
 	}
+
+	return ret;
 }
 
-void MapblockMeshGenerator::calculateCornerLevels()
+std::array<std::array<LiquidData::NeighborData, 3>, 3>
+MapblockMeshGenerator::getLiquidNeighborsData(
+		content_t c_source, content_t c_flowing, u8 liquid_range,
+		const std::function<MapNode(v3s16)> &get_node_rel)
 {
-	for (int k = 0; k < 2; k++)
-	for (int i = 0; i < 2; i++)
-		cur_liquid.corner_levels[k][i] = getCornerLevel(i, k);
+	return getLiquidNeighborsDataRaw(c_source, c_flowing, liquid_range, get_node_rel);
 }
 
-f32 MapblockMeshGenerator::getCornerLevel(int i, int k) const
+void MapblockMeshGenerator::getLiquidNeighborhood()
+{
+	u8 liquid_range = nodedef->get(cur_liquid.c_flowing).liquid_range;
+	auto get_node_rel = [&](v3s16 relpos) {
+		return data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + relpos);
+	};
+
+	cur_liquid.neighbors = getLiquidNeighborsDataRaw(cur_liquid.c_source,
+			cur_liquid.c_flowing, liquid_range, get_node_rel);
+}
+
+f32 MapblockMeshGenerator::calculateLiquidCornerLevel(
+		content_t c_source, content_t c_flowing,
+		const std::array<std::reference_wrapper<const LiquidData::NeighborData>, 4> &neighbors)
 {
 	float sum = 0;
 	int count = 0;
 	int air_count = 0;
-	for (int dk = 0; dk < 2; dk++)
-	for (int di = 0; di < 2; di++) {
-		const LiquidData::NeighborData &neighbor_data = cur_liquid.neighbors[k + dk][i + di];
+	for (const LiquidData::NeighborData &neighbor_data : neighbors) {
 		content_t content = neighbor_data.content;
 
 		// If top is liquid, draw starting from top of node
@@ -651,11 +682,11 @@ f32 MapblockMeshGenerator::getCornerLevel(int i, int k) const
 			return 0.5f;
 
 		// Source always has the full height
-		if (content == cur_liquid.c_source)
+		if (content == c_source)
 			return 0.5f;
 
 		// Flowing liquid has level information
-		if (content == cur_liquid.c_flowing) {
+		if (content == c_flowing) {
 			sum += neighbor_data.level;
 			count++;
 		} else if (content == CONTENT_AIR) {
@@ -667,6 +698,30 @@ f32 MapblockMeshGenerator::getCornerLevel(int i, int k) const
 	if (count > 0)
 		return sum / count;
 	return 0;
+}
+
+std::array<std::array<f32, 2>, 2>
+MapblockMeshGenerator::calculateLiquidCornerLevels(
+		content_t c_source, content_t c_flowing,
+		const std::array<std::array<LiquidData::NeighborData, 3>, 3> &neighbors)
+{
+	std::array<std::array<f32, 2>, 2> corners;
+
+	for (int k = 0; k < 2; k++) {
+	for (int i = 0; i < 2; i++) {
+		corners[k][i] = calculateLiquidCornerLevel(c_source, c_flowing, {
+				std::cref(neighbors[k][i]),   std::cref(neighbors[k][i+1]),
+				std::cref(neighbors[k+1][i]), std::cref(neighbors[k+1][i+1]),
+			});
+	}}
+
+	return corners;
+}
+
+void MapblockMeshGenerator::calculateCornerLevels()
+{
+	cur_liquid.corner_levels = calculateLiquidCornerLevels(cur_liquid.c_source,
+			cur_liquid.c_flowing, cur_liquid.neighbors);
 }
 
 namespace {
