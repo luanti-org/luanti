@@ -4036,8 +4036,8 @@ For the following functions (and subchapters),
 `s` is a scalar (a number),
 vectors are written like this: `(x, y, z)`:
 
-* `vector.new([a[, b, c]])`:
-    * Returns a new vector `(a, b, c)`.
+* `vector.new(x, y, z)`:
+    * Returns a new vector `(x, y, z)`.
     * Deprecated: `vector.new()` does the same as `vector.zero()` and
       `vector.new(v)` does the same as `vector.copy(v)`
 * `vector.zero()`:
@@ -4046,6 +4046,7 @@ vectors are written like this: `(x, y, z)`:
     * Returns a new vector of length 1, pointing into a direction chosen uniformly at random.
 * `vector.copy(v)`:
     * Returns a copy of the vector `v`.
+* `x, y, z = vector.unpack(v)`
 * `vector.from_string(s[, init])`:
     * Returns `v, np`, where `v` is a vector read from the given string `s` and
       `np` is the next position in the string after the vector.
@@ -4157,12 +4158,14 @@ vector (`{x = <pitch>, y = <yaw>, z = <roll>}`) where pitch, yaw and roll are
 angles in radians.
 
 * `vector.rotate(v, r)`:
+    * Use of this is **discouraged**. Prefer using `Rotation` objects instead.
     * Applies the rotation `r` to `v` and returns the result.
     * Uses (extrinsic) Z-X-Y rotation order and is right-handed, consistent with `ObjectRef:set_rotation`.
     * `vector.rotate(vector.new(0, 0, 1), r)` and
       `vector.rotate(vector.new(0, 1, 0), r)` return vectors pointing
       forward and up relative to an entity's rotation `r`.
 * `vector.rotate_around_axis(v1, v2, a)`:
+    * Use of this is **discouraged**. Prefer using `Rotation` objects instead.
     * Returns `v1` rotated around axis `v2` by `a` radians according to
       the right hand rule.
 * `vector.dir_to_rotation(direction[, up])`:
@@ -4183,7 +4186,202 @@ For example:
 * `core.hash_node_position` (Only works on node positions.)
 * `core.dir_to_wallmounted` (Involves wallmounted param2 values.)
 
+Rotations
+=========
 
+Luanti provides a proper helper class for working with 3d rotations.
+Using vectors of euler angles instead is discouraged as it is error-prone.
+
+The precision of the implementation may change (improve) in the future.
+
+Rotations use **left-handed** conventions.
+
+Constructors
+------------
+
+* `Rotation.identity()`: Constructs a no-op rotation.
+* `Rotation.quaternion(x, y, z, w)`:
+  Constructs a rotation from a quaternion (which need not be normalized).
+* `Rotation.axis_angle(axis, angle)`:
+  Constructs a rotation around the given axis by the given angle.
+  * `axis` is a vector, which need not be normalized
+  * `angle` is in radians
+  * Shorthands for rotations around the respective axes:
+    * `Rotation.x(pitch)`
+    * `Rotation.y(yaw)`
+    * `Rotation.z(roll)`
+* `Rotation.euler_xyz(pitch, yaw, roll)`
+  * All angles in radians.
+  * Uses X-Y-Z rotation order, equivalent to
+    `Rotation.compose(Rotation.z(roll), Rotation.y(yaw), Rotation.x(pitch))`.
+  * Consistent with the euler angles that can be used for bones or attachments.
+* `Rotation.euler_zxy(pitch, yaw, roll)`
+  * Same as `euler_xyz`, but uses Z-X-Y rotation order.
+  * This is consistent with the euler angles that can be used for entities.
+    You can do `Rotation.euler_zxy((-rotation):unpack())`
+    to convert an entity rotation vector (note the handedness conversion).
+* `Rotation.compose(...)`: See methods below.
+
+Conversions
+-----------
+
+Corresponding to the constructors, rotations can be converted
+to different representations; note that you need not get the same values out -
+you merely get values that produce a (roughly) equivalent rotation when passed to the corresponding constructor:
+
+* `x, y, z, w = rot:to_quaternion()`
+  * Returns the normalized quaternion representation.
+* `axis, angle = rot:to_axis_angle()`
+  * `axis` is a normalized vector.
+  * `angle` is in radians.
+* `pitch, yaw, roll = rot:to_euler_xyz()`
+  * Angles are all in radians.
+  * `pitch`, `yaw`, `roll`: Rotation around the X-, Y-, and Z-axis respectively.
+  * Inverse of `Rotation.euler_xyz`.
+* `pitch, yaw, roll = rot:to_euler_zxy()`
+  * Same as `to_euler_xyz`, except uses Z-X-Y rotation order.
+  * To obtain a rotation for an entity, you can do
+    `-vector.new(rot:to_euler_xyz())`.
+
+Rotations can also be converted to matrices using `Matrix4.rotation(rot)`.
+
+Methods
+-------
+
+* `rot:apply(vec)`: Returns the result of applying the rotation to the given vector.
+* `Rotation.compose(...)`: Returns the composition of the given rotations.
+  * `Rotation.compose()` is an alias for `Rotation.identity()`.
+  * `Rotation.compose(rot)` copies the rotation.
+  * `rot:compose(...)` is shorthand for `Rotation.compose(rot, ...)`.
+  * Right-to-left order: `second:compose(first):apply(v)`
+    is equivalent to `second:apply(first:apply(v))`.
+* `rot:invert()`: Returns the inverse rotation.
+* `from:slerp(to, time)`: Interpolate from one rotation to another.
+  * `time = 0` is all `from`, `time = 1` is all `to`.
+* `rot:angle_to(other)`: Returns the absolute angle between two quaternions.
+  * Useful to measure similarity.
+
+Rotations implement `__tostring`. The format is only intended for human-readability,
+not serialization, and may thus change.
+
+
+Matrices
+========
+
+Luanti uses 4x4 matrices to represent linear transformations of 3d vectors.
+For this, 3d vectors are embedded into 4d space.
+
+The matrices use column-major conventions.
+Vectors are treated as column vectors.
+This means the first column is the image of the vector (1, 0, 0, 0),
+the second column is the image of (0, 1, 0, 0), and so on.
+Thus the translation is in the last column.
+Row and column indices range from `1` to `4`.
+
+You must account for loss of precision in matrix calculations.
+Matrices currently use 32-bit floats.
+However, your code should not expect imprecisions either.
+Matrices may carry out computations more precisely in the future.
+
+You should not rely on the internal representation or type of matrices.
+You should only interact with matrices through the interface documented below.
+This allows us to replace the implementation in the future.
+
+Matrices are very suitable for constructing, composing and applying
+linear transformations; they are not useful for exact storage of
+TRS transformations if the properties need to be handled separately:
+Decomposition into rotation and scale will be expensive and inexact.
+You should instead store the translation, rotation and scale.
+
+Constructors
+------------
+
+* `Matrix4.new(r1c1, r1c2, ..., r4c4)`:
+  Constructs a matrix from the given 16 numbers in row-major order.
+* `Matrix4.identity()`: Constructs an identity matrix.
+* `Matrix4.full(number)`: Constructs a matrix where all entries are the given number.
+* `Matrix4.translation(vec)`: Constructs a matrix that translates vectors by the given vector.
+* `Matrix4.rotation(rot)`: Constructs a matrix that applies the given `Rotation` to vectors.
+* `Matrix4.scale(s)`: Constructs a matrix that applies the given
+  component-wise scaling factors to vectors.
+  `s` can be a vector or a number.
+* `Matrix4.trs([t], [r], [s])`: Shorthand for
+  `Matrix4.compose(Matrix4.translation(t), Matrix4.rotation(r), Matrix4.scale(s))`.
+  All parameters are optional and default to identity transforms.
+* `Matrix4.reflection(normal)`: Constructs a matrix that reflects vectors
+  at the plane with the given plane normal vector (which need not be normalized).
+* `Matrix4.compose(...)`: See methods below.
+
+Methods
+-------
+
+Container utils:
+
+* `mat:get(row, col)`
+* `mat:set(row, col, number)`
+* `x, y, z, w = mat:get_row(row)`
+* `mat:set_row(row, x, y, z, w)`
+* `x, y, z, w = mat:get_col(col)`
+* `mat:set_col(col, x, y, z, w)`
+* `mat:copy()`
+* `r1c1, r1c2, ..., r4c4 = mat:unpack()`:
+  Get the 16 numbers in the matrix in row-major order
+  (inverse of `Matrix4.new`).
+
+Linear algebra:
+
+* Vector transformations:
+  * `x, y, z, w = mat:transform_4d(x, y, z, w)`: Apply the matrix to a 4d vector.
+  * `mat:transform_pos(pos)`:
+    * Apply the matrix to a vector representing a position.
+    * Applies the transformation as if w = 1 and discards the resulting w component.
+  * `mat:transform_dir(dir)`:
+    * Apply the matrix to a vector representing a direction.
+    * Ignores the fourth row and column; does not apply the translation (w = 0).
+* `Matrix4.compose(...)`: Returns the composition of the given matrices.
+  * `Matrix4.compose()` is equivalent to `Matrix4.identity()`.
+  * `Matrix4.compose(mat)` is equivalent to `mat:copy()`.
+  * `mat:compose(...)` is shorthand for `Matrix4.compose(mat, ...)`.
+  * Right-to-left order: `second:compose(first):apply(v)`
+    is equivalent to `second:apply(first:apply(v))`.
+* `mat:determinant()`: Returns the determinant.
+* `mat:invert()`: Returns a newly created inverse, or `nil` if the matrix is (close to being) singular.
+* `mat:transpose()`: Returns a transposed copy of the matrix.
+* `mat:equals(other, [tolerance = 0])`:
+  Returns whether all components differ in absolute value at most by the given tolerance.
+  * `m1 == m2`: Returns whether `m1` and `m2` are identical (`tolerance = 0`).
+* `mat:is_affine_transform([tolerance = 0])`:
+  Whether the matrix is an affine transformation in 3d space,
+  meaning it is a 3d linear transformation plus a translation.
+  (This is the case if the last column is approximately 0, 0, 0, 1.)
+
+For working with affine transforms, the following methods are available:
+
+* `mat:get_translation()`: Returns the translation as a vector.
+* `mat:set_translation(vec)`: Sets (overwrites) the translation in the last row.
+
+For TRS transforms specifically,
+let `self = Matrix4.compose(Matrix4.translation(t), Matrix4.rotation(r), Matrix4.scale(s))`.
+Then we can decompose `self` further. Note that `self` must not shear or reflect.
+
+* `rotation, scale = mat:get_rs()`:
+  Extracts a `Rotation` equivalent to `r`,
+  along with the corresponding component-wise scaling factors as a vector.
+
+Operators
+---------
+
+Similar to vectors, matrices define some element-wise arithmetic operators:
+
+* `m1 + m2`: Returns the sum of both matrices.
+* `m1 - m2`: Shorthand for `m1 + (-m2)`.
+* `-m`: Returns the additive inverse.
+* `m * s` or `s * m`: Returns the matrix `m` scaled by the scalar `s`.
+  * Note: *All* entries are scaled, including the last column:
+    The matrix may not be an affine transform afterwards.
+
+Matrices also define a `__tostring` metamethod.
+This is only intended for human readability and not for serialization.
 
 
 Helper functions
