@@ -714,19 +714,19 @@ bool PathStartsWith(const std::string &path, const std::string &prefix)
 	}
 }
 
-std::optional<std::string> MakePathRelativeTo(const std::string &child, const std::string &parent)
+std::string MakePathRelativeTo(const std::string &child, const std::string &parent)
 {
 	std::string child_abs = fs::AbsolutePathPartial(child);
 	std::string parent_abs = fs::AbsolutePathPartial(parent);
 	if (child.empty() || parent.empty())
-		return std::nullopt; // error
+		return ""; // error
 
 	if (!fs::PathStartsWith(child_abs, parent_abs))
-		return std::nullopt; // not child
+		return ""; // not child
 
 	if (child_abs.size() == parent_abs.size()) {
 		assert(child_abs == parent_abs);
-		return "";
+		return ".";
 	} else {
 		assert(child_abs.size() >= parent_abs.size() + 1);
 		assert(child_abs[parent_abs.size()] == DIR_DELIM_CHAR);

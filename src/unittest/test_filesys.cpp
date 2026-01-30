@@ -181,7 +181,10 @@ void TestFileSys::testMakePathRelativeTo()
 			);
 	};
 
-	UASSERT(rel("", "") == p(""));
+	// TODO: EQ
+	UASSERT(rel("", "") == p("."));
+	UASSERT(rel(".", "") == p("."));
+	UASSERT(rel("./.", "") == p("."));
 	UASSERT(rel("d1", "") == p("d1"));
 	UASSERT(rel("d1/", "") == p("d1"));
 	UASSERT(rel("d1/d2", "") == p("d1/d2"));
@@ -194,12 +197,16 @@ void TestFileSys::testMakePathRelativeTo()
 	UASSERT(rel("non_existent/non_existent", "") == p("non_existent/non_existent"));
 	UASSERT(rel("d1/f1", "") == p("d1/f1"));
 
-	UASSERT(rel("d1", "d1") == p(""));
-	UASSERT(rel("d1/", "d1") == p(""));
-	UASSERT(rel("d1", "d1/.") == p(""));
+	UASSERT(rel("", ".") == p("."));
+	UASSERT(rel(".", "") == p("."));
+	UASSERT(rel(".", ".") == p("."));
+	UASSERT(rel("d1", ".") == p("d1"));
+	UASSERT(rel("d1", "d1") == p("."));
+	UASSERT(rel("d1/", "d1") == p("."));
+	UASSERT(rel("d1", "d1/.") == p("."));
 	UASSERT(rel("d1/./d2", "d1/.") == p("d2"));
-	UASSERT(rel("d1/..", "d1") == std::nullopt);
-	UASSERT(rel("d1/../d12", "d1") == std::nullopt);
+	UASSERT(rel("d1/..", "d1") == "");
+	UASSERT(rel("d1/../d12", "d1") == "");
 	UASSERT(rel("d1/../d1/d2/", "d1") == p("d2"));
 }
 
