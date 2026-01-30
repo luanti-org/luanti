@@ -181,33 +181,32 @@ void TestFileSys::testMakePathRelativeTo()
 			);
 	};
 
-	// TODO: EQ
-	UASSERT(rel("", "") == p("."));
-	UASSERT(rel(".", "") == p("."));
-	UASSERT(rel("./.", "") == p("."));
-	UASSERT(rel("d1", "") == p("d1"));
-	UASSERT(rel("d1/", "") == p("d1"));
-	UASSERT(rel("d1/d2", "") == p("d1/d2"));
-	UASSERT(rel("d1///d2/", "") == p("d1/d2"));
-	UASSERT(rel("_d3", "") == p("_d3"));
-	UASSERT(rel("d12", "") == p("d12"));
-	UASSERT(rel("d22", "") == p("d22"));
-	UASSERT(rel("non_existent", "") == p("non_existent"));
-	UASSERT(rel("d22/non_existent", "") == p("d22/non_existent"));
-	UASSERT(rel("non_existent/non_existent", "") == p("non_existent/non_existent"));
-	UASSERT(rel("d1/f1", "") == p("d1/f1"));
+	UASSERTEQ(auto, rel("", ""), p("."));
+	UASSERTEQ(auto, rel(".", ""), p("."));
+	UASSERTEQ(auto, rel("./.", ""), p("."));
+	UASSERTEQ(auto, rel("d1", ""), p("d1"));
+	UASSERTEQ(auto, rel("d1/", ""), p("d1"));
+	UASSERTEQ(auto, rel("d1/d2", ""), p("d1/d2"));
+	UASSERTEQ(auto, rel("d1///d2/", ""), p("d1/d2"));
+	UASSERTEQ(auto, rel("_d3", ""), p("_d3"));
+	UASSERTEQ(auto, rel("d12", ""), p("d12"));
+	UASSERTEQ(auto, rel("d22", ""), p("d22"));
+	UASSERTEQ(auto, rel("non_existent", ""), p("non_existent"));
+	UASSERTEQ(auto, rel("d22/non_existent", ""), p("d22/non_existent"));
+	UASSERTEQ(auto, rel("non_existent/non_existent", ""), p("non_existent/non_existent"));
+	UASSERTEQ(auto, rel("d1/f1", ""), p("d1/f1"));
 
-	UASSERT(rel("", ".") == p("."));
-	UASSERT(rel(".", "") == p("."));
-	UASSERT(rel(".", ".") == p("."));
-	UASSERT(rel("d1", ".") == p("d1"));
-	UASSERT(rel("d1", "d1") == p("."));
-	UASSERT(rel("d1/", "d1") == p("."));
-	UASSERT(rel("d1", "d1/.") == p("."));
-	UASSERT(rel("d1/./d2", "d1/.") == p("d2"));
-	UASSERT(rel("d1/..", "d1") == "");
-	UASSERT(rel("d1/../d12", "d1") == "");
-	UASSERT(rel("d1/../d1/d2/", "d1") == p("d2"));
+	UASSERTEQ(auto, rel("", "."), p("."));
+	UASSERTEQ(auto, rel(".", ""), p("."));
+	UASSERTEQ(auto, rel(".", "."), p("."));
+	UASSERTEQ(auto, rel("d1", "."), p("d1"));
+	UASSERTEQ(auto, rel("d1", "d1"), p("."));
+	UASSERTEQ(auto, rel("d1/", "d1"), p("."));
+	UASSERTEQ(auto, rel("d1", "d1/."), p("."));
+	UASSERTEQ(auto, rel("d1/./d2", "d1/."), p("d2"));
+	UASSERTEQ(auto, rel("d1/..", "d1"), "");
+	UASSERTEQ(auto, rel("d1/../d12", "d1"), "");
+	UASSERTEQ(auto, rel("d1/../d1/d2/", "d1"), p("d2"));
 }
 
 
