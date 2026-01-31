@@ -408,6 +408,10 @@ Worlds
     }
     ```
 * `core.create_world(worldname, gameid, init_settings)`
+* `core.rename_world(old_path, new_name)`
+  * `old_path` old world folder path
+  * `new_name` new name you input
+  * returns nil or error_message(string).
 * `core.delete_world(index)`
 
 
