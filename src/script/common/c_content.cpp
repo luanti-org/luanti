@@ -2246,7 +2246,12 @@ void read_json_value(lua_State *L, Json::Value &root, int index, u16 max_depth)
 	if (type == LUA_TBOOLEAN) {
 		root = (bool) lua_toboolean(L, index);
 	} else if (type == LUA_TNUMBER) {
-		root = lua_tonumber(L, index);
+		lua_Number doubleVal = lua_tonumber(L, index);
+		s32 intVal = (s32) doubleVal;
+		if (doubleVal == (lua_Number)intVal)
+			root = intVal;
+		else
+			root = doubleVal;
 	} else if (type == LUA_TSTRING) {
 		size_t len;
 		const char *str = lua_tolstring(L, index, &len);
