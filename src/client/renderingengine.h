@@ -8,7 +8,7 @@
 #include <vector>
 #include <memory>
 #include <string>
-#include "client/inputhandler.h"
+#include "client/input/inputhandler.h"
 #include "debug.h"
 #include "config.h"
 #include "client/shader.h"
