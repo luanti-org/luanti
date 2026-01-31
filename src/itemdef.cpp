@@ -125,6 +125,8 @@ ItemDefinition& ItemDefinition::operator=(const ItemDefinition &def)
 	wield_image = def.wield_image;
 	wield_overlay = def.wield_overlay;
 	wield_scale = def.wield_scale;
+	skip_wield_anim_on_stack = def.skip_wield_anim_on_stack;
+	skip_wield_anim_on_meta = def.skip_wield_anim_on_meta;
 	stack_max = def.stack_max;
 	usable = def.usable;
 	liquids_pointable = def.liquids_pointable;
@@ -173,6 +175,8 @@ void ItemDefinition::reset()
 	palette_image.clear();
 	color = video::SColor(0xFFFFFFFF);
 	wield_scale = v3f(1.0f);
+	skip_wield_anim_on_stack = false;
+	skip_wield_anim_on_meta = false;
 	stack_max = 99;
 	usable = false;
 	liquids_pointable = false;
@@ -203,6 +207,8 @@ void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 	inventory_image.serialize(os, protocol_version);
 	wield_image.serialize(os, protocol_version);
 	writeV3F32(os, wield_scale);
+	writeU8(os, skip_wield_anim_on_stack);
+	writeU8(os, skip_wield_anim_on_meta);
 	writeS16(os, stack_max);
 	writeU8(os, usable);
 	writeU8(os, liquids_pointable);
@@ -289,6 +295,8 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 	inventory_image.deSerialize(is, protocol_version);
 	wield_image.deSerialize(is, protocol_version);
 	wield_scale = readV3F32(is);
+	skip_wield_anim_on_stack = readU8(is);
+	skip_wield_anim_on_meta = readU8(is);
 	stack_max = readS16(is);
 	usable = readU8(is);
 	liquids_pointable = readU8(is);

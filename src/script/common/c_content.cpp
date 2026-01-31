@@ -100,6 +100,11 @@ void read_item_definition(lua_State* L, int index,
 	}
 	lua_pop(L, 1);
 
+	def.skip_wield_anim_on_stack = 
+	        getboolfield_default(L, index, "skip_wield_anim_on_stack", false);
+	def.skip_wield_anim_on_meta = 
+	        getboolfield_default(L, index, "skip_wield_anim_on_meta", false);
+
 	int stack_max = getintfield_default(L, index, "stack_max", def.stack_max);
 	def.stack_max = rangelim(stack_max, 1, U16_MAX);
 
