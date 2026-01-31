@@ -681,7 +681,8 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 	std::string vertex_header, fragment_header, geometry_header;
 	if (m_fully_programmable) {
 		const bool use_glsl3 = m_have_glsl3;
-		if (driver->getDriverType() == video::EDT_OPENGL3) {
+		const bool use_glsl15 = driver->getDriverType() == video::EDT_OPENGL3;
+		if (use_glsl15) {
 			assert(!use_glsl3);
 			shaders_header << "#version 150\n"
 				<< "#define CENTROID_ centroid\n";
@@ -728,7 +729,9 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			ATTRIBUTE_(6) mediump vec4 inVertexTangent;
 			ATTRIBUTE_(7) mediump vec4 inVertexBinormal;
 		)";
-		if (use_glsl3) {
+		// GLSL 1.5 is a weird version that doesn't have `layout(location=...)`
+		// but `varying` is already deprecated and replaced by `in`/`out`.
+		if (use_glsl3 || use_glsl15) {
 			vertex_header += "#define VARYING_ out\n";
 		} else {
 			vertex_header += "#define VARYING_ varying\n";
@@ -742,6 +745,8 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			fragment_header += "#define VARYING_ in\n"
 				"#define gl_FragColor outFragColor\n"
 				"layout(location = 0) out vec4 outFragColor;\n";
+		} else if (use_glsl15) {
+			fragment_header += "#define VARYING_ in\n";
 		} else {
 			fragment_header += "#define VARYING_ varying\n";
 		}

@@ -10,7 +10,9 @@ uniform float xyPerspectiveBias1;
 uniform float zPerspectiveBias;
 
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
-CENTROID_ VARYING_ float varTexLayer; // actually int
+#ifdef USE_ARRAY_TEXTURE
+flat VARYING_ int varTexLayer;
+#endif
 
 vec4 getRelativePosition(in vec4 position)
 {
@@ -48,7 +50,7 @@ void main()
 
 	varTexCoord = (mTexture * vec4(inTexCoord0.xy, 1.0, 1.0)).st;
 #ifdef USE_ARRAY_TEXTURE
-	varTexLayer = inVertexAux;
+	varTexLayer = int(inVertexAux);
 #endif
 
 #ifdef COLORED_SHADOWS
