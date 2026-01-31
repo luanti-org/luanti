@@ -14,6 +14,7 @@
 #include "wieldmesh.h"
 #include "noise.h"         // easeCurve
 #include "mtevent.h"
+#include "itemdef.h"
 #include "nodedef.h"
 #include "util/numeric.h"
 #include "constants.h"
@@ -509,7 +510,9 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 	// Position the wielded item
 	v3f wield_position = v3f(m_wieldmesh_offset.X, m_wieldmesh_offset.Y, 65);
 	v3f wield_rotation = v3f(-100, 120, -100);
-	wield_position.Y += std::abs(m_wield_change_timer)*320 - 40;
+    if (not m_prevent_change_wield_anim) {
+        wield_position.Y += std::abs(m_wield_change_timer) * 320 - 40;
+    }
 	if(m_digging_anim < 0.05 || m_digging_anim > 0.5)
 	{
 		f32 frac = 1.0;
@@ -596,13 +599,27 @@ void Camera::setDigging(s32 button)
 
 void Camera::wield(const ItemStack &item)
 {
-	if (item.name != m_wield_item_next.name ||
-			item.metadata != m_wield_item_next.metadata) {
+	bool change_name = (item.name != m_wield_item_next.name);
+	bool change_meta = (item.metadata != m_wield_item_next.metadata);
+
+	if (change_name || change_meta) {
 		m_wield_item_next = item;
 		if (m_wield_change_timer > 0)
 			m_wield_change_timer = -m_wield_change_timer;
 		else if (m_wield_change_timer == 0)
 			m_wield_change_timer = -0.001;
+	}
+
+	m_prevent_change_wield_anim = false;
+
+	const IItemDefManager *itemdef_manager = m_client->getItemDefManager();
+	const ItemDefinition &itemdef = item.getDefinition(itemdef_manager);
+	
+	if (change_name && itemdef.skip_wield_anim_on_stack) {
+		m_prevent_change_wield_anim = true;
+	}
+	if (not change_name && change_meta && itemdef.skip_wield_anim_on_meta) {
+		m_prevent_change_wield_anim = true;
 	}
 }
 

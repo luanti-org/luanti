@@ -250,6 +250,9 @@ private:
 	f32 m_wield_change_timer = 0.125f;
 	ItemStack m_wield_item_next;
 
+	// Prevent the animation of changing the item
+	bool m_prevent_change_wield_anim = false;
+
 	CameraMode m_camera_mode;
 
 	f32 m_cache_view_bobbing_amount;
