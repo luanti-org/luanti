@@ -224,13 +224,12 @@ void GUIScrollBar::OnPostRender(u32 time_ms)
 	const u32 repeat_delay  = 150; // ms between repeats
 	assert(initial_delay > repeat_delay);
 
+	const bool is_initial = (m_arrow_counter == 0);
 	// counter is 0, so start counting
 	m_arrow_counter += last_delta_ms;
 
-	const bool is_initial = (m_arrow_counter == 0);
-
 	// wait for initial delay
-	if (m_arrow_counter < initial_delay)
+	if (m_arrow_counter < initial_delay && !is_initial)
 		return;
 
 	// after initial delay, repeat every repeat_delay
