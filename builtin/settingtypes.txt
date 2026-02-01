@@ -502,6 +502,26 @@ arm_inertia (Arm inertia) bool true
 #    For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.
 view_bobbing_amount (View bobbing factor) float 1.0 0.0 7.9
 
+[**Damage]
+
+#   Damage flash, causes the screen to flash reduce
+#   when the player takes damage.
+damage_flash_enable (Damage flash) bool true
+
+#   Damage tilt, causes the screen to shake
+#   when the player takes damage
+damage_tilt_enable (Damage shake) bool true
+
+#   Damage tilt strength. Controls the force of
+#   camera shakes from taking damage
+damage_tilt_strength (Damage shake strength) float 1.0 0.0 2.0
+
+#   Damage tilt duration modifier. Controls the duration of
+#   camera shakes from taking damage.
+#   0.0 for no time, 1.0 for normal time, 2.0 for twice as long.
+damage_tilt_duration (Damage shake duration) float 1.0 0.0 2.0
+
+
 [**Camera]
 
 #    Field of view in degrees.

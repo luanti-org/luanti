@@ -2188,12 +2188,19 @@ void Game::handleClientEvent_PlayerDamage(ClientEvent *event, CameraOrientation 
 			player->getCAO()->getProperties().hp_max : PLAYER_MAX_HP_DEFAULT;
 		f32 damage_ratio = event->player_damage.amount / hp_max;
 
-		runData.damage_flash += 95.0f + 64.f * damage_ratio;
-		runData.damage_flash = MYMIN(runData.damage_flash, 127.0f);
+		if(g_settings->getBool("damage_flash_enable")) {
+			runData.damage_flash += 95.0f + 64.f * damage_ratio;
+			runData.damage_flash = MYMIN(runData.damage_flash, 127.0f);
+		}
 
-		player->hurt_tilt_timer = 1.5f;
-		player->hurt_tilt_strength =
-			rangelim(damage_ratio * 5.0f, 1.0f, 4.0f);
+		f32 tilt_duration = g_settings->getFloat("damage_tilt_duration");
+		if (tilt_duration > 0.0f && g_settings->getBool("damage_tilt_enable")) {
+			player->hurt_tilt_timer = 1.5f * tilt_duration;
+
+			f32 tilt_strength = g_settings->getFloat("damage_tilt_strength");
+			player->hurt_tilt_strength =
+				rangelim(damage_ratio * 5.0f, 1.0f, 4.0f) * tilt_strength;
+		}
 	}
 
 	// Play damage sound
