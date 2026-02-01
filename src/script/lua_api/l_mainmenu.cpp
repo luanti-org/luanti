@@ -682,7 +682,7 @@ int ModApiMainMenu::l_rename_world(lua_State *L)
 		std::string sanitized_old_name;
 		const std::string old_worldmt_path = old_path + DIR_DELIM + "world.mt";
 		Settings world_conf;
-  
+
 		if (world_conf.readConfigFile(old_worldmt_path.c_str())) {
 			if (world_conf.getNoEx("world_name", old_readable_name)) {
 				sanitized_old_name = sanitizeDirName(old_readable_name, "world_");
