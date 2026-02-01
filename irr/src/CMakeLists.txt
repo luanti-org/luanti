@@ -266,6 +266,7 @@ add_library(IRRMESHOBJ OBJECT
 	SkinnedMesh.cpp
 	CMeshSceneNode.cpp
 	AnimatedMeshSceneNode.cpp
+	AnimSpec.cpp
 
 	${IRRMESHLOADER}
 )
