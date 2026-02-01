@@ -340,6 +340,9 @@ void TestFileSys::testAbsolutePath()
 		fs::CreateDir(dir_path2);
 		UASSERTCMP(auto, !=, fs::AbsolutePath(dir_path2), ""); // now it does
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + DIR_DELIM ".."), fs::AbsolutePath(dir_path));
+		// excess . and / are removed
+		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + p("//..")), fs::AbsolutePath(dir_path));
+		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + p("/./.././//")), fs::AbsolutePath(dir_path));
 	}
 
 	/* AbsolutePathPartial */
