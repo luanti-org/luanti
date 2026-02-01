@@ -667,31 +667,31 @@ int ModApiMainMenu::l_create_world(lua_State *L)
 int ModApiMainMenu::l_rename_world(lua_State *L)
 {
 	const std::string old_path = luaL_checkstring(L, 1);
-	const std::string new_name = luaL_checkstring(L, 2);
+	const std::string old_path_abs = fs::AbsolutePath(old_path);
+	const std::string new_readable_name = luaL_checkstring(L, 2);
 
 	try {
 		if (!fs::PathExists(old_path))
 			throw BaseException("Source world path does not exist");
 
-		std::string base_path = fs::RemoveLastPathComponent(old_path);
-		std::string sanitized_name = sanitizeDirName(new_name, "world_");
+		const std::string base_path = fs::RemoveLastPathComponent(old_path);
+		const std::string sanitized_name = sanitizeDirName(new_readable_name, "world_");
 
 		// Deal with the case that world name does not exist but folder name already exists(like "a_", "a!")
-		std::string final_folder_name = sanitized_name;
-		std::string old_name;
+		std::string old_readable_name;
 		std::string sanitized_old_name;
-		std::string old_worldmt_path = old_path + DIR_DELIM + "world.mt";
+		const std::string old_worldmt_path = old_path + DIR_DELIM + "world.mt";
 		Settings world_conf;
-
+  
 		if (world_conf.readConfigFile(old_worldmt_path.c_str())) {
-			if (world_conf.getNoEx("world_name", old_name)) {
-				sanitized_old_name = sanitizeDirName(old_name, "world_");
+			if (world_conf.getNoEx("world_name", old_readable_name)) {
+				sanitized_old_name = sanitizeDirName(old_readable_name, "world_");
 			}
 		}
 
 		// Deal with the case that world name is different, but the folder name is the same
-		if (final_folder_name == sanitized_old_name && new_name != old_name) {
-			world_conf.set("world_name", new_name);
+		if (sanitized_name == sanitized_old_name && new_readable_name != old_readable_name) {
+			world_conf.set("world_name", new_readable_name);
 			if (!world_conf.updateConfigFile(old_worldmt_path.c_str()))
 				throw BaseException("Failed to update world.mt");
 
@@ -699,18 +699,16 @@ int ModApiMainMenu::l_rename_world(lua_State *L)
 			return 1;
 		}
 
-		std::string new_path = base_path + DIR_DELIM + final_folder_name;
+		std::string new_path = base_path + DIR_DELIM + sanitized_name;
 		int counter = 1;
 
 		// Deal with the case that the folder name already exists(but not the old one)
 		while (fs::PathExists(new_path) && counter < 100) {
-			std::string p1 = fs::AbsolutePath(old_path);
-			std::string p2 = fs::AbsolutePath(new_path);
-			if (!p1.empty() && p1 == p2)
+			const std::string new_path_abs = fs::AbsolutePath(new_path);
+			if (!old_path_abs.empty() && old_path_abs == new_path_abs)
 				break;
 
-			final_folder_name = sanitized_name + "_" + std::to_string(counter++);
-			new_path = base_path + DIR_DELIM + final_folder_name;
+			new_path = base_path + DIR_DELIM + sanitized_name + "_" + std::to_string(counter++);
 		}
 
 		if (fs::PathExists(new_path)) {
@@ -723,8 +721,8 @@ int ModApiMainMenu::l_rename_world(lua_State *L)
 		}
 
 		// Update world.mt file
-		std::string new_worldmt_path = new_path + DIR_DELIM + "world.mt";
-		world_conf.set("world_name", new_name);
+		const std::string new_worldmt_path = new_path + DIR_DELIM + "world.mt";
+		world_conf.set("world_name", new_readable_name);
 		if (!world_conf.updateConfigFile(new_worldmt_path.c_str()))
 			throw BaseException("Failed to update world.mt");
 
