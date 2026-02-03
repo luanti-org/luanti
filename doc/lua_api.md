@@ -1496,8 +1496,8 @@ The function of `param2` is determined by `paramtype2` in node definition.
     * Same as `flowingliquid`, but with colors.
     * The four most significant bits of `param2` tells which color is picked
     from the palette. The palette should have 16 pixels.
-    * The five least significant bits contain the `flowingliquid` value.
-    * Both source and flowing liquids should use this paramtype2 for colored liquids.
+    * The four least significant bits contain the `flowingliquid` value.
+    * Both source and flowing liquids should use this `paramtype2` for colored liquids.
     Do not use `color` for source liquids, as the color information will be reduced.
 * `paramtype2 = "none"`
     * `param2` will not be used by the engine and can be used to store
