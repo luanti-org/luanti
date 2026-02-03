@@ -43,8 +43,6 @@ end
 -- Chat command handler
 --
 
-core.chatcommands = core.registered_chatcommands -- backwards compatibility
-
 local msg_time_threshold =
 	tonumber(core.settings:get("chatcommand_msg_time_threshold")) or 0.1
 core.register_on_chat_message(function(name, message)

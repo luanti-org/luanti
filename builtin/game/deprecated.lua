@@ -68,3 +68,25 @@ core.get_perlin = core.get_value_noise
 core.get_perlin_map = core.get_value_noise_map
 PerlinNoise = ValueNoise
 PerlinNoiseMap = ValueNoiseMap
+
+--
+-- core.chatcommands
+--
+core.chatcommands = {}
+local corechatcommands_deprecation_message_printed = false
+setmetatable(core.chatcommands, {
+	__index = function(table, key)
+		 if not corechatcommands_deprecation_message_printed then
+				core.log("deprecated", "core.chatcommands[...] is deprecated and should be replaced with core.registered_chatcommands[...]")
+				corechatcommands_deprecation_message_printed = true
+		 end
+		 return core.registered_chatcommands[key]
+	end,
+	__newindex = function(table, key, value)
+		 if not corechatcommands_deprecation_message_printed then
+				core.log("deprecated", "core.chatcommands[...] is deprecated and should be replaced with core.registered_chatcommands[...]")
+				corechatcommands_deprecation_message_printed = true
+		 end
+		 core.registered_chatcommands[key] = value
+	end
+})
