@@ -126,6 +126,9 @@ private:
 	// generate_biome_dust(vm, p1, p2)
 	static int l_generate_biome_dust(lua_State *L);
 
+	// generate_caves(vm, p1, p2)
+	static int l_generate_caves(lua_State *L);
+
 	// clear_registered_ores
 	static int l_clear_registered_ores(lua_State *L);
 
