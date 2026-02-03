@@ -152,3 +152,16 @@ void log_deprecated(lua_State *L, std::string_view message,
  *         the Lua stack state is not defined if this happens.
  */
 std::string dump_function_to_string(lua_State *L, int idx);
+
+enum ModErrorHandlingMode {
+  IgnoreModError,
+  LogModError,
+  ThrowModError,
+};
+
+/**
+ * Reads `mod_error_handling` in settings, returns cached value.
+ *
+ * @return ModErrorHandlingMode
+ */
+ModErrorHandlingMode get_mod_error_handling_mode();

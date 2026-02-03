@@ -201,3 +201,22 @@ std::string dump_function_to_string(lua_State *L, int idx)
 	lua_pop(L, 1);
 	return result;
 }
+
+ModErrorHandlingMode get_mod_error_handling_mode()
+{
+	static thread_local bool configured = false;
+	static thread_local ModErrorHandlingMode ret = ModErrorHandlingMode::IgnoreModError;
+
+	// Only read settings on first call
+	if (!configured) {
+		std::string value = g_settings->get("mod_error_handling");
+		if (value == "log") {
+			ret = ModErrorHandlingMode::LogModError;
+		} else if (value == "error") {
+			ret = ModErrorHandlingMode::ThrowModError;
+		}
+		configured = true;
+	}
+
+	return ret;
+}
