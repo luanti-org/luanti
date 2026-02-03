@@ -121,8 +121,8 @@ Please note we don't have the resources to test every single edge
 case; we don't guarantee every number *in range* will work.
 Always use your own good judgement as well.
 Using extreme or unrealistic values *within* range is not forbidden,
-but if something breaks, please don't file a bug report if you don't
-have any real-world use case.
+but please accept it if we are forced to restrict/fix a few of these
+ranges (in the documentation) in future releases.
 
 ### Implementation details
 
