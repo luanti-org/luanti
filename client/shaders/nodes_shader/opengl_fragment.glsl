@@ -52,7 +52,7 @@ CENTROID_ VARYING_ lowp vec4 varColor;
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
 // Conditional because 'flat' is not available on old GLSL
 #ifdef USE_ARRAY_TEXTURE
-flat VARYING_ int varTexLayer;
+flat VARYING_ uint varTexLayer;
 #endif
 CENTROID_ VARYING_ float nightRatio;
 VARYING_ highp vec3 eyeVec;

@@ -298,7 +298,6 @@ protected:
 	void drawQuad(const VertexType &vertexType, const S3DVertex (&vertices)[4]);
 	void drawArrays(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount);
 	void drawElements(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount, const u16 *indices, int indexCount);
-	void drawElements(GLenum primitiveType, const VertexType &vertexType, uintptr_t vertices, uintptr_t indices, int indexCount);
 
 	void drawGeneric(const void *vertices, const void *indexList, u32 primitiveCount,
 		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType);

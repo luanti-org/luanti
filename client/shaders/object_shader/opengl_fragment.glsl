@@ -44,7 +44,7 @@ VARYING_ vec3 worldPosition;
 VARYING_ lowp vec4 varColor;
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
 #ifdef USE_ARRAY_TEXTURE
-flat VARYING_ int varTexLayer;
+flat VARYING_ uint varTexLayer;
 #endif
 VARYING_ highp vec3 eyeVec;
 VARYING_ float nightRatio;

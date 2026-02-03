@@ -716,6 +716,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 		}
 
 		// cf. EVertexAttributes.h for the predefined ones
+		// (note that these need to be in index order starting at 0)
 		vertex_header = R"(
 			uniform highp mat4 mWorldView;
 			uniform highp mat4 mWorldViewProj;
@@ -724,7 +725,10 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			ATTRIBUTE_(0) highp vec4 inVertexPosition;
 			ATTRIBUTE_(1) mediump vec3 inVertexNormal;
 			ATTRIBUTE_(2) lowp vec4 inVertexColor_raw;
-			ATTRIBUTE_(3) mediump float inVertexAux;
+		)";
+		if (use_glsl3 || use_glsl15)
+			vertex_header += "ATTRIBUTE_(3) mediump uint inVertexAux;";
+		vertex_header += R"(
 			ATTRIBUTE_(4) mediump vec2 inTexCoord0;
 			ATTRIBUTE_(5) mediump vec2 inTexCoord1;
 			ATTRIBUTE_(6) mediump vec4 inVertexTangent;

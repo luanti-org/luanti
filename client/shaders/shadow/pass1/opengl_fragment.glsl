@@ -7,7 +7,7 @@ VARYING_ vec4 tPos;
 
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
 #ifdef USE_ARRAY_TEXTURE
-flat VARYING_ int varTexLayer;
+flat VARYING_ uint varTexLayer;
 #endif
 
 void main()
