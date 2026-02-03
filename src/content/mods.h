@@ -13,7 +13,7 @@
 class ModStorageDatabase;
 struct ModSpec;
 
-#define MODNAME_ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyz0123456789_"
+#define MODNAME_ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
 
 struct ModSpecCompare {
 	bool operator()(const ModSpec &a, const ModSpec &b) const;
