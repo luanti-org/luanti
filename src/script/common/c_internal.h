@@ -147,9 +147,9 @@ void log_deprecated(lua_State *L, std::string_view message,
 void call_string_dump(lua_State *L, int idx);
 
 enum ModErrorHandlingMode {
-  IgnoreModError,
-  LogModError,
-  ThrowModError,
+	IgnoreModError,
+	LogModError,
+	ThrowModError,
 };
 
 /**
