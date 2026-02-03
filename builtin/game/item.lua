@@ -675,7 +675,6 @@ core.nodedef_default = {
 	special_tiles = nil,
 	post_effect_color = {a=0, r=0, g=0, b=0},
 	post_effect_color_shaded = false,
-	post_effect_color_use_node_color = false,
 	paramtype = "none",
 	paramtype2 = "none",
 	is_ground_content = true,

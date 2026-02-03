@@ -867,8 +867,6 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 
 	getboolfield(L, index, "post_effect_color_shaded", f.post_effect_color_shaded);
 
-	getboolfield(L, index, "post_effect_color_use_node_color", f.post_effect_color_use_node_color);
-
 	{
 		auto str = getstringfield_default(L, index, "paramtype", "");
 		if (!string_to_enum(ScriptApiNode::es_ContentParamType, f.param_type, str))
@@ -1128,8 +1126,6 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 	lua_setfield(L, -2, "post_effect_color");
 	lua_pushboolean(L, c.post_effect_color_shaded);
 	lua_setfield(L, -2, "post_effect_color_shaded");
-	lua_pushboolean(L, c.post_effect_color_use_node_color);
-	lua_setfield(L, -2, "post_effect_color_use_node_color");
 	lua_pushnumber(L, c.leveled);
 	lua_setfield(L, -2, "leveled");
 	lua_pushnumber(L, c.leveled_max);

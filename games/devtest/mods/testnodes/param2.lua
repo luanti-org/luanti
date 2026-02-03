@@ -338,10 +338,7 @@ core.register_node("testnodes:colorliquid_source", {
 	special_tiles = {
 		{name = "testnodes_node.png", backface_culling = false},
 		{name = "testnodes_node.png", backface_culling = true},
-	},
-	post_effect_color = "#7f7f7f7f",
-	post_effect_color_shaded = true,
-	post_effect_color_use_node_color = true,
+	}
 })
 
 core.register_node("testnodes:colorliquid_flowing", {
@@ -363,8 +360,5 @@ core.register_node("testnodes:colorliquid_flowing", {
 	special_tiles = {
 		{name = "testnodes_node.png", backface_culling = false},
 		{name = "testnodes_node.png", backface_culling = true},
-	},
-	post_effect_color = "#7f7f7f7f",
-	post_effect_color_shaded = true,
-	post_effect_color_use_node_color = true,
+	}
 })
