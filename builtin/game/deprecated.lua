@@ -1,4 +1,18 @@
 --
+-- Helper to print a message a single time
+--
+function deprecated_message_printer(...)
+	local message_printed = false
+	local args = {...}
+	return function()
+		if not message_printed then
+			core.log(table.unpack(args))
+			message_printed = true
+		end
+	end
+end
+
+--
 -- EnvRef
 --
 core.env = {}
@@ -73,30 +87,22 @@ PerlinNoiseMap = ValueNoiseMap
 -- core.chatcommands
 --
 core.chatcommands = {}
--- Local block to make single-use variable/function
-do
-	local deprecation_message_printed = false
-	local deprecation_message =
-		"core.chatcommands is deprecated and should be replaced with core.registered_chatcommands"
-	local function print_deprecation_message()
-		if not deprecation_message_printed then
-			core.log("deprecated", deprecation_message)
-			deprecation_message_printed = true
+
+local envchatcommands_deprecation_printer = deprecated_message_printer(
+	"deprecated", "core.chatcommands is deprecated and should be replaced with core.registered_chatcommands"
+)
+setmetatable(
+	core.chatcommands, {
+		__index = function(table, key)
+			envchatcommands_deprecation_printer()
+			return core.registered_chatcommands[key]
+		end,
+		__newindex = function(table, key, value)
+			envchatcommands_deprecation_printer()
+			core.registered_chatcommands[key] = value
+		end,
+		__pairs = function(table)
+			envchatcommands_deprecation_printer()
+			return pairs(core.registered_chatcommands)
 		end
-	end
-	setmetatable(
-		core.chatcommands, {
-			__index = function(table, key)
-				print_deprecation_message()
-				return core.registered_chatcommands[key]
-			end,
-			__newindex = function(table, key, value)
-				print_deprecation_message()
-				core.registered_chatcommands[key] = value
-			end,
-			__pairs = function(table)
-				print_deprecation_message()
-				return pairs(core.registered_chatcommands)
-			end
-	})
-end
+})
