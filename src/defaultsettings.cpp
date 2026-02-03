@@ -375,12 +375,11 @@ void set_default_settings()
 	settings->setDefault("autojump", bool_to_cstr(has_touch));
 	settings->setDefault("enable_esc_dialog", "true");
 	settings->setDefault("continuous_forward", "false");
-	settings->setDefault("enable_joysticks", "false");
+	settings->setDefault("enable_joysticks", "true");
 	settings->setDefault("joystick_id", "0");
-	settings->setDefault("joystick_type", "auto");
 	settings->setDefault("repeat_joystick_button_time", "0.17");
 	settings->setDefault("joystick_frustum_sensitivity", "170");
-	settings->setDefault("joystick_deadzone", "2048");
+	settings->setDefault("joystick_deadzone", "8000");
 
 	// Main menu
 	settings->setDefault("main_menu_path", "");
