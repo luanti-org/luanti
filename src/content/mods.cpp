@@ -85,7 +85,7 @@ bool parseModContents(ModSpec &spec)
 
 	if (info.exists("name")) {
 		spec.name = info.get("name");
-    spec.is_name_explicit = true;
+		spec.is_name_explicit = true;
 		if (!string_allowed(spec.name, MODNAME_ALLOWED_CHARS)) {
 			warningstream << "Error loading mod \"" + spec.path + "\": Mod does not follow naming conventions: " "Only characters [a-z0-9_] are allowed." << std::endl;
 			return false;
