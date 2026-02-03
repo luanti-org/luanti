@@ -77,19 +77,19 @@ local corechatcommands_deprecation_message_printed = false
 local corechat_deprecation_message =
 	"core.chatcommands[...] is deprecated and should be replaced with core.registered_chatcommands[...]"
 setmetatable(
-	 core.chatcommands, {
-			__index = function(table, key)
-				if not corechatcommands_deprecation_message_printed then
-						core.log("deprecated", corechat_deprecation_message)
-						corechatcommands_deprecation_message_printed = true
-				end
-				return core.registered_chatcommands[key]
-			end,
-			__newindex = function(table, key, value)
-				if not corechatcommands_deprecation_message_printed then
-						core.log("deprecated", corechat_deprecation_message)
-						corechatcommands_deprecation_message_printed = true
-				end
-				core.registered_chatcommands[key] = value
+	core.chatcommands, {
+		__index = function(table, key)
+			if not corechatcommands_deprecation_message_printed then
+				core.log("deprecated", corechat_deprecation_message)
+				corechatcommands_deprecation_message_printed = true
 			end
+			return core.registered_chatcommands[key]
+		end,
+		__newindex = function(table, key, value)
+			if not corechatcommands_deprecation_message_printed then
+				core.log("deprecated", corechat_deprecation_message)
+				corechatcommands_deprecation_message_printed = true
+			end
+			core.registered_chatcommands[key] = value
+		end
 })
