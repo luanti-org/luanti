@@ -73,23 +73,30 @@ PerlinNoiseMap = ValueNoiseMap
 -- core.chatcommands
 --
 core.chatcommands = {}
-local corechatcommands_deprecation_message_printed = false
-local corechat_deprecation_message =
-	"core.chatcommands[...] is deprecated and should be replaced with core.registered_chatcommands[...]"
-setmetatable(
-	core.chatcommands, {
-		__index = function(table, key)
-			if not corechatcommands_deprecation_message_printed then
-				core.log("deprecated", corechat_deprecation_message)
-				corechatcommands_deprecation_message_printed = true
-			end
-			return core.registered_chatcommands[key]
-		end,
-		__newindex = function(table, key, value)
-			if not corechatcommands_deprecation_message_printed then
-				core.log("deprecated", corechat_deprecation_message)
-				corechatcommands_deprecation_message_printed = true
-			end
-			core.registered_chatcommands[key] = value
+-- Local block to make single-use variable/function
+do
+	local deprecation_message_printed = false
+	local deprecation_message =
+		"core.chatcommands is deprecated and should be replaced with core.registered_chatcommands"
+	local function print_deprecation_message()
+		if not deprecation_message_printed then
+			core.log("deprecated", deprecation_message)
+			deprecation_message_printed = true
 		end
-})
+	end
+	setmetatable(
+		core.chatcommands, {
+			__index = function(table, key)
+				print_deprecation_message()
+				return core.registered_chatcommands[key]
+			end,
+			__newindex = function(table, key, value)
+				print_deprecation_message()
+				core.registered_chatcommands[key] = value
+			end,
+			__pairs = function(table)
+				print_deprecation_message()
+				return pairs(core.registered_chatcommands)
+			end
+	})
+end
