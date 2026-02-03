@@ -460,6 +460,7 @@ void set_default_settings()
 	settings->setDefault("anticheat_movement_tolerance", "1.0");
 	settings->setDefault("enable_rollback_recording", "false");
 	settings->setDefault("deprecated_lua_api_handling", "log");
+  settings->setDefault("mod_error_handling", "log");
 
 	settings->setDefault("kick_msg_shutdown", "Server shutting down.");
 	settings->setDefault("kick_msg_crash", "This server has experienced an internal error. You will now be disconnected.");

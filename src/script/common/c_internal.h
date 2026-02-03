@@ -145,3 +145,16 @@ void log_deprecated(lua_State *L, std::string_view message,
 // Safely call string.dump on a function value
 // (does not pop, leaves one value on stack)
 void call_string_dump(lua_State *L, int idx);
+
+enum ModErrorHandlingMode {
+  IgnoreModError,
+  LogModError,
+  ThrowModError,
+};
+
+/**
+ * Reads `mod_error_handling` in settings, returns cached value.
+ *
+ * @return ModErrorHandlingMode
+ */
+ModErrorHandlingMode get_mod_error_handling_mode();

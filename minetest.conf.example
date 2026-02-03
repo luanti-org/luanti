@@ -3012,6 +3012,12 @@
 #    type: enum values: none, log, error
 # deprecated_lua_api_handling = log
 
+#    Handling for errors when loading mods:
+#    -    none: Do not log mod load errors
+#    -    log: log errors (default).
+#    -    error: abort on failed load of mod (suggested for mod developers).
+# mod_error_handling = log
+
 #    Enable random user input (only used for testing).
 #    type: bool
 # random_input = false
