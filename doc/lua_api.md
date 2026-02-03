@@ -9512,7 +9512,8 @@ Player properties need to be saved manually.
     -- "node" looks exactly like a node in-world (supported since 5.12.0)
     --   Note that visual effects like waving or liquid reflections will not work.
 
-    visual_size = {x = 1, y = 1, z = 1},
+    visual_size = {x = number, y = number, z = number},
+    -- Defaults to `{x = 1, y = 1, z = 1}` for entities, but `{x = 1, y = 2, z = 1}` for players!
     -- Multipliers for the visual size. If `z` is not specified, `x` will be used
     -- to scale the entity along both horizontal axes.
 
