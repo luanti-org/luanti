@@ -36,11 +36,6 @@ read_globals = {
 	string = {fields = {"split", "trim"}},
 	table  = {fields = {"copy", "getn", "indexof", "insert_all", "key_value_swap"}},
 	math   = {fields = {"hypot", "round"}},
-
-	-- Busted-style unit testing
-	"describe",
-	"it",
-	assert = {fields = {"same", "equals"}},
 }
 
 globals = {
@@ -49,4 +44,13 @@ globals = {
 	"core",
 	os = { fields = { "tempfolder" } },
 	"_",
+}
+
+-- Busted-style unit testing
+files["mods/unittests/*.lua"] = {
+	read_globals = {
+		"describe",
+		"it",
+		assert = {fields = {"same", "equals"}},
+	},
 }
