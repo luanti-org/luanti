@@ -44,6 +44,9 @@ public:
 		SOUND,
 		SPACING,
 		SIZE,
+		OUTLINE_COLOR,
+		OUTLINE_WIDTH,
+		OUTLINE_OFFSET,
 		NUM_PROPERTIES,
 		NONE
 	};
@@ -55,8 +58,9 @@ public:
 		STATE_FOCUSED = 1 << 0,
 		STATE_HOVERED = 1 << 1,
 		STATE_PRESSED = 1 << 2,
-		NUM_STATES = 1 << 3, // This includes all permutations
-		STATE_INVALID = 1 << 4,
+		STATE_FOCUSED_VISIBLE = 1 << 3, // Keyboard focus only
+		NUM_STATES = 1 << 4, // This includes all permutations
+		STATE_INVALID = 1 << 5,
 	};
 
 private:
@@ -117,6 +121,12 @@ public:
 			return SPACING;
 		} else if (name == "size") {
 			return SIZE;
+		} else if (name == "outline_color") {
+			return OUTLINE_COLOR;
+		} else if (name == "outline_width") {
+			return OUTLINE_WIDTH;
+		} else if (name == "outline_offset") {
+			return OUTLINE_OFFSET;
 		} else {
 			return NONE;
 		}
@@ -141,6 +151,8 @@ public:
 			return STATE_DEFAULT;
 		} else if (name == "focused") {
 			return STATE_FOCUSED;
+		} else if (name == "focus-visible") {
+			return STATE_FOCUSED_VISIBLE;
 		} else if (name == "hovered") {
 			return STATE_HOVERED;
 		} else if (name == "pressed") {
