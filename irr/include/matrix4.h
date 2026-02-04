@@ -437,13 +437,13 @@ public:
 	bool equals(const CMatrix4<T> &other, const T tolerance = (T)ROUNDING_ERROR_f64) const;
 
 	//! Check whether matrix is a 3d affine transform (last column is approximately 0, 0, 0, 1)
-	bool isAffine(const T tolerance = (T)ROUNDING_ERROR_f64) const
+	bool isAffine(const T tolerance) const
 	{
 		const auto &m = *this;
-		return core::equals(m(0, 3), (T) 0) &&
-				core::equals(m(1, 3), (T) 0) &&
-				core::equals(m(2, 3), (T) 0) &&
-				core::equals(m(3, 3), (T) 1);
+		return core::equals(m(0, 3), (T) 0, tolerance) &&
+				core::equals(m(1, 3), (T) 0, tolerance) &&
+				core::equals(m(2, 3), (T) 0, tolerance) &&
+				core::equals(m(3, 3), (T) 1, tolerance);
 	}
 
 private:

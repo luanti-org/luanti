@@ -41,6 +41,10 @@ inline core::matrix4 &LuaMatrix4::create(lua_State *L)
 	auto *mat = static_cast<LuaMatrix4 *>(lua_newuserdata(L, sizeof(LuaMatrix4)));
 	luaL_getmetatable(L, LuaMatrix4::className);
 	lua_setmetatable(L, -2);
+#ifndef NDEBUG
+	for (int i = 0; i < 16; ++i)
+		matrix[i] = 1234567; // make uninitialized entries stand out
+#endif
 	return mat->matrix;
 }
 
@@ -64,6 +68,9 @@ int LuaMatrix4::l_new(lua_State *L)
 	core::matrix4 &matrix = create(L);
 	for (int i = 0; i < 16; ++i)
 		matrix[i] = readParam<f32>(L, 1 + i);
+	// Transpose so that to the user, we appear to be using column-major conventions,
+	// rather than the row-major conventions Irrlicht gives us
+	// (e.g. the user should place translation in the last column, not row).
 	matrix = matrix.getTransposed();
 	return 1;
 }
@@ -105,7 +112,7 @@ int LuaMatrix4::l_trs(lua_State *L)
 	v3f scale = lua_isnoneornil(L, 3)
 			? v3f(1)
 			: lua_isnumber(L, 3) ? v3f(readParam<f32>(L, 3)) : readParam<v3f>(L, 3);
-	// FIXME core::Transform should use left-handed conventions
+	// FIXME core::Transform should use left-handed rotation conventions
 	core::Transform trs{translation, rotation.makeInverse(), scale};
 	core::matrix4 &matrix = create(L);
 	matrix = trs.buildMatrix();

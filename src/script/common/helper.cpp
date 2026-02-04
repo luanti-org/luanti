@@ -38,7 +38,7 @@ int LuaHelper::readParam(lua_State *L, int index)
 template <>
 f32 LuaHelper::readParam(lua_State *L, int index)
 {
-	f64 v = luaL_checknumber(L, index);
+	lua_Number v = luaL_checknumber(L, index);
 	return static_cast<f32>(v);
 }
 
