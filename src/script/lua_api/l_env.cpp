@@ -156,6 +156,19 @@ void LuaEmergeAreaCallback(v3s16 blockpos, EmergeAction action, void *param)
 		delete state;
 }
 
+void LuaBlockCallback(const v3s16 blockpos, void *param)
+{
+	ScriptCallbackState *state = static_cast<ScriptCallbackState *>(param);
+	assert(state != NULL);
+	assert(state->script != NULL);
+
+	// state must be protected by envlock
+	//Server *server = state->script->getServer();
+	//MutexAutoLock envlock(server->m_env_mutex);
+
+	state->script->block_callback(blockpos, state);
+}
+
 /* Exported functions */
 
 // set_node(pos, node)
@@ -1100,6 +1113,56 @@ int ModApiEnv::l_clear_objects(lua_State *L)
 	return 0;
 }
 
+// blocks_callback
+int ModApiEnv::l_blocks_callback(lua_State *L)
+{
+	GET_ENV_PTR;
+
+	ScriptCallbackState *state = NULL;
+
+	BlocksCallbackConfig config;
+	config.mode = CLEAR_OBJECTS_MODE_QUICK;
+	config.callback = nullptr;
+	if (lua_istable(L, 1)) {
+		lua_getfield(L, 1, "mode");
+		config.mode = (ClearObjectsMode)getenumfield(L, 1, "mode",
+			ModApiEnv::es_ClearObjectsMode, config.mode);
+		lua_pop(L, 1);
+
+		lua_getfield(L, 1, "callback");
+		if (lua_isfunction(L, -1)) {
+			config.callback = LuaBlockCallback;
+
+			int callback_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+			lua_getfield(L, 1, "params");
+			int args_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+			state = new ScriptCallbackState;
+			state->script       = getServer(L)->getScriptIface();
+			state->callback_ref = callback_ref;
+			state->args_ref     = args_ref;
+			state->refcount     = 1;
+			state->origin       = getScriptApiBase(L)->getOrigin();
+
+			config.param = static_cast<void *>(state);
+		}
+		else {
+			lua_pop(L, 1);
+		}
+	}
+
+	env->blocksCallback(config);
+
+	if (state) {
+		luaL_unref(L, LUA_REGISTRYINDEX, state->callback_ref);
+		luaL_unref(L, LUA_REGISTRYINDEX, state->args_ref);
+		delete state;
+	}
+
+	return 0;
+}
+
 // line_of_sight(pos1, pos2) -> true/false, pos
 int ModApiEnv::l_line_of_sight(lua_State *L)
 {
@@ -1427,6 +1490,7 @@ void ModApiEnv::Initialize(lua_State *L, int top)
 	API_FCT(get_value_noise_map);
 	API_FCT(get_voxel_manip);
 	API_FCT(clear_objects);
+	API_FCT(blocks_callback);
 	API_FCT(spawn_tree);
 	API_FCT(find_path);
 	API_FCT(line_of_sight);
