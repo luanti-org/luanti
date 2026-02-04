@@ -4227,7 +4227,7 @@ Constructors
 * `Rotation.compose(...)`: Returns the composition of the given rotations.
   * `Rotation.compose()` is an alias for `Rotation.identity()`.
   * `Rotation.compose(rot)` copies the rotation.
-  * `Rotation.compose(...)` for more than two rotations composes the given rotations
+  * `Rotation.compose(...)` for at least two rotations composes the given rotations
     in right-to-left order. This means that `Rotation.compose(second, first):apply(v)`
     is equivalent to `second:apply(first:apply(v))`:
     The composed rotation first applies `first`, then `second` to a vector.
@@ -4319,10 +4319,13 @@ Constructors
   at the plane with the given plane normal vector (which need not be normalized).
 * `Matrix4.compose(...)`: Variadic composition of the given matrices.
   As is common in mathematics, matrices are applied in left-to-right order.
-
-See methods below.
-
--------
+* `Matrix4.compose(...)`: Returns the composition of the given matrices.
+  * `Matrix4.compose()` is an alias for `Matrix4.identity()`.
+  * `Matrix4.compose(mat)` copies the matrix.
+  * `Matrix4.compose(...)` for at least two rotations composes the given matrices
+    in right-to-left order. This means that `Matrix4.compose(second, first):apply(v)`
+    is equivalent to `second:apply(first:apply(v))`:
+    The composed matrix first applies `first`, then `second` to a vector.
 
 Container utilities:
 
@@ -4349,12 +4352,7 @@ Linear algebra:
   * `mat:transform_dir(dir)`:
     * Apply the matrix to a vector representing a direction.
     * Ignores the fourth row and column; does not apply the translation (w = 0).
-* `Matrix4.compose(...)`: Returns the composition of the given matrices.
-  * `Matrix4.compose()` is equivalent to `Matrix4.identity()`.
-  * `Matrix4.compose(mat)` is equivalent to `mat:copy()`.
-  * `mat:compose(...)` is shorthand for `Matrix4.compose(mat, ...)`.
-  * Right-to-left order: `second:compose(first):apply(v)`
-    is equivalent to `second:apply(first:apply(v))`.
+* `mat:compose(...)`: Shorthand for `Matrix4.compose(mat, ...)`.
 * `mat:determinant()`: Returns the determinant.
 * `mat:invert()`: Returns a newly created inverse, or `nil` if the matrix is (close to being) singular.
 * `mat:transpose()`: Returns a transposed copy of the matrix.
