@@ -43,7 +43,7 @@ inline core::matrix4 &LuaMatrix4::create(lua_State *L)
 	lua_setmetatable(L, -2);
 #ifndef NDEBUG
 	for (int i = 0; i < 16; ++i)
-		matrix[i] = 1234567; // make uninitialized entries stand out
+		mat->matrix[i] = 1234567; // make uninitialized entries stand out
 #endif
 	return mat->matrix;
 }
