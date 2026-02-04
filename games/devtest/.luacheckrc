@@ -46,7 +46,8 @@ globals = {
 }
 
 -- Busted-style unit testing
-files["mods/unittests/*.lua"] = {
+-- Note: Assumes that luacheck is invoked from the project root, as is done for CI
+files["games/devtest/mods/unittests/*.lua"] = {
 	read_globals = {
 		"describe",
 		"it",
