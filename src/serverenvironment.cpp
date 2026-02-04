@@ -581,6 +581,9 @@ void ServerEnvironment::activateBlock(MapBlock *block)
 	block->step((float)dtime_s, [&](v3s16 p, MapNode n, NodeTimer t) -> bool {
 		return m_script->node_on_timer(p, n, t.elapsed, t.timeout);
 	});
+
+	// Call Lua on_block_activated callback
+	m_script->on_block_activated(block->getPos());
 }
 
 void ServerEnvironment::addActiveBlockModifier(ActiveBlockModifier *abm)
@@ -929,6 +932,13 @@ void ServerEnvironment::step(float dtime)
 		// Convert active objects that are no more in active blocks to static
 		deactivateFarObjects(false);
 
+		// Call on_block_unloaded callback for blocks that are being removed
+		// Note: This is for blocks becoming inactive, not necessarily fully unloaded from memory
+		if (!blocks_removed.empty()) {
+			std::vector<v3s16> blocks_removed_vec(blocks_removed.begin(), blocks_removed.end());
+			m_script->on_block_unloaded(blocks_removed_vec);
+		}
+
 		for (const v3s16 &p: blocks_removed) {
 			MapBlock *block = m_map->getBlockNoCreateNoEx(p);
 			if (!block)
@@ -951,6 +961,15 @@ void ServerEnvironment::step(float dtime)
 				// and activate them instantly as soon as they're loaded.
 				m_active_blocks.remove(p);
 				continue;
+			}
+
+			// Call on_block_loaded callback for newly loaded or generated blocks
+			// Detection: blocks with BLOCK_TIMESTAMP_UNDEFINED are either freshly
+			// loaded from disk or newly generated
+			u32 stamp = block->getTimestamp();
+			bool is_new_block = (stamp == BLOCK_TIMESTAMP_UNDEFINED);
+			if (is_new_block) {
+				m_script->on_block_loaded(p);
 			}
 
 			activateBlock(block);

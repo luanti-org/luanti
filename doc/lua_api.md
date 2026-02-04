@@ -6400,6 +6400,20 @@ Call these functions only at load time!
       The set is a table where the keys are hashes and the values are `true`.
     * `modified_block_count` is the number of entries in the set.
     * Note: callbacks must be registered at mod load time.
+* `core.register_on_block_loaded(function(blockpos))`
+    * Called immediately after a mapblock is loaded from disk or generated for the first time
+    * `blockpos`: position of the block (table with x, y, z)
+    * Note: callbacks must be registered at mod load time.
+* `core.register_on_block_activated(function(blockpos))`
+    * Called immediately after a mapblock becomes active (within active_block_range of a player)
+    * This is called after `on_block_loaded` if the block was just loaded
+    * `blockpos`: position of the block (table with x, y, z)
+    * Note: callbacks must be registered at mod load time.
+* `core.register_on_block_unloaded(function(blockpos_list))`
+    * Called after mapblocks are deactivated (moved out of active_block_range)
+    * Note: "unloaded" here means deactivated; blocks typically remain in memory
+    * `blockpos_list`: array of block positions (each is a table with x, y, z)
+    * Note: callbacks must be registered at mod load time.
 
 Setting-related
 ---------------
@@ -7924,6 +7938,18 @@ Global tables
     * Map of active object references, indexed by active object id
 * `core.luaentities`
     * Map of Lua entities, indexed by active object id
+* `core.loaded_blocks`
+    * Read-only table tracking currently loaded mapblocks
+    * Keys are block position hashes (from `core.hash_node_position`)
+    * Values are `true` for loaded blocks, `nil` otherwise
+    * Updated automatically by the engine when blocks are loaded or unloaded
+    * Example: `if core.loaded_blocks[core.hash_node_position(blockpos)] then ... end`
+* `core.active_blocks`
+    * Read-only table tracking currently active mapblocks
+    * Active blocks are those within active_block_range of a player
+    * Keys are block position hashes (from `core.hash_node_position`)
+    * Values are `true` for active blocks, `nil` otherwise
+    * Updated automatically by the engine when blocks become active or inactive
 * `core.registered_abms`
     * List of ABM definitions
 * `core.registered_lbms`

@@ -41,6 +41,11 @@ public:
 	// Determines whether there are any on_mapblocks_changed callbacks
 	bool has_on_mapblocks_changed();
 
+	// Block tracking callbacks
+	void on_block_loaded(v3s16 blockpos);
+	void on_block_activated(v3s16 blockpos);
+	void on_block_unloaded(const std::vector<v3s16> &blockpos_list);
+
 	// Initializes environment and loads some definitions from Lua
 	void initializeEnvironment(ServerEnvironment *env);
 

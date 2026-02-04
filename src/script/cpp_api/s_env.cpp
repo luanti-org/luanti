@@ -159,6 +159,17 @@ void ScriptApiEnv::player_event(ServerActiveObject *player, const std::string &t
 	runCallbacks(2, RUN_CALLBACKS_MODE_FIRST);
 }
 
+/*
+ * Helper function for read-only table metatables.
+ * Used as the __newindex metamethod to prevent modifications.
+ * Expects a table name as an upvalue for error messaging.
+ */
+static int block_table_newindex_error(lua_State *L)
+{
+	const char *table_name = lua_tostring(L, lua_upvalueindex(1));
+	return luaL_error(L, "%s is read-only", table_name);
+}
+
 void ScriptApiEnv::initializeEnvironment(ServerEnvironment *env)
 {
 	SCRIPTAPI_PRECHECKHEADER
@@ -166,6 +177,31 @@ void ScriptApiEnv::initializeEnvironment(ServerEnvironment *env)
 	assert(env);
 	verbosestream << "ScriptApiEnv: Environment initialized" << std::endl;
 	setEnv(env);
+
+	// Initialize block tracking tables
+	lua_getglobal(L, "core");
+
+	// Create loaded_blocks table with metatable to make it read-only
+	lua_newtable(L);
+	lua_newtable(L); // metatable
+	lua_pushstring(L, "__newindex");
+	lua_pushstring(L, "core.loaded_blocks");
+	lua_pushcclosure(L, block_table_newindex_error, 1);
+	lua_settable(L, -3);
+	lua_setmetatable(L, -2);
+	lua_setfield(L, -2, "loaded_blocks");
+
+	// Create active_blocks table with metatable to make it read-only
+	lua_newtable(L);
+	lua_newtable(L); // metatable
+	lua_pushstring(L, "__newindex");
+	lua_pushstring(L, "core.active_blocks");
+	lua_pushcclosure(L, block_table_newindex_error, 1);
+	lua_settable(L, -3);
+	lua_setmetatable(L, -2);
+	lua_setfield(L, -2, "active_blocks");
+
+	lua_pop(L, 1); // Pop core
 
 	readABMs();
 	readLBMs();
@@ -417,6 +453,101 @@ bool ScriptApiEnv::has_on_mapblocks_changed()
 	lua_getfield(L, -1, "registered_on_mapblocks_changed");
 	luaL_checktype(L, -1, LUA_TTABLE);
 	return lua_objlen(L, -1) > 0;
+}
+
+void ScriptApiEnv::on_block_loaded(v3s16 blockpos)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	// Get core.registered_on_block_loaded
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "registered_on_block_loaded");
+	luaL_checktype(L, -1, LUA_TTABLE);
+	lua_remove(L, -2); // Remove core
+
+	// Push block position
+	push_v3s16(L, blockpos);
+
+	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
+
+	// Update loaded_blocks table
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "loaded_blocks");
+	if (lua_istable(L, -1)) {
+		lua_pushnumber(L, hash_node_position(blockpos));
+		lua_pushboolean(L, true);
+		lua_rawset(L, -3);
+	}
+	lua_pop(L, 2); // Pop loaded_blocks and core
+}
+
+void ScriptApiEnv::on_block_activated(v3s16 blockpos)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	// Get core.registered_on_block_activated
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "registered_on_block_activated");
+	luaL_checktype(L, -1, LUA_TTABLE);
+	lua_remove(L, -2); // Remove core
+
+	// Push block position
+	push_v3s16(L, blockpos);
+
+	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
+
+	// Update active_blocks table
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "active_blocks");
+	if (lua_istable(L, -1)) {
+		lua_pushnumber(L, hash_node_position(blockpos));
+		lua_pushboolean(L, true);
+		lua_rawset(L, -3);
+	}
+	lua_pop(L, 2); // Pop active_blocks and core
+}
+
+void ScriptApiEnv::on_block_unloaded(const std::vector<v3s16> &blockpos_list)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	// Get core.registered_on_block_unloaded
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "registered_on_block_unloaded");
+	luaL_checktype(L, -1, LUA_TTABLE);
+	lua_remove(L, -2); // Remove core
+
+	// Create array of block positions
+	lua_createtable(L, blockpos_list.size(), 0);
+	int lua_index = 1; // Lua arrays are 1-indexed
+	for (const v3s16 &blockpos : blockpos_list) {
+		push_v3s16(L, blockpos);
+		lua_rawseti(L, -2, lua_index++);
+	}
+
+	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
+
+	// Update loaded_blocks and active_blocks tables
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "loaded_blocks");
+	if (lua_istable(L, -1)) {
+		for (const v3s16 &blockpos : blockpos_list) {
+			lua_pushnumber(L, hash_node_position(blockpos));
+			lua_pushnil(L);
+			lua_rawset(L, -3);
+		}
+	}
+	lua_pop(L, 1); // Pop loaded_blocks
+
+	lua_getfield(L, -1, "active_blocks");
+	if (lua_istable(L, -1)) {
+		for (const v3s16 &blockpos : blockpos_list) {
+			lua_pushnumber(L, hash_node_position(blockpos));
+			lua_pushnil(L);
+			lua_rawset(L, -3);
+		}
+	}
+	lua_pop(L, 2); // Pop active_blocks and core
 }
 
 void ScriptApiEnv::triggerABM(int id, v3s16 p, MapNode n,
