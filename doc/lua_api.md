@@ -4046,7 +4046,8 @@ vectors are written like this: `(x, y, z)`:
     * Returns a new vector of length 1, pointing into a direction chosen uniformly at random.
 * `vector.copy(v)`:
     * Returns a copy of the vector `v`.
-* `x, y, z = vector.unpack(v)`
+* `vector.unpack(v)`:
+    * Returns the `x`, `y` and `z` components of the vector individually
 * `vector.from_string(s[, init])`:
     * Returns `v, np`, where `v` is a vector read from the given string `s` and
       `np` is the next position in the string after the vector.
@@ -4191,6 +4192,7 @@ Rotations
 
 Luanti provides a proper helper class for working with 3d rotations.
 Using vectors of euler angles instead is discouraged as it is error-prone.
+This class was added in Luanti 5.17.0.
 
 The precision of the implementation may change (improve) in the future.
 
@@ -4204,9 +4206,11 @@ Constructors
   Constructs a rotation from a quaternion (which need not be normalized).
 * `Rotation.axis_angle(axis, angle)`:
   Constructs a rotation around the given axis by the given angle.
-  * `axis` is a vector, which need not be normalized
+  * `axis` is a nonzero vector, which need not be normalized
   * `angle` is in radians
-  * Shorthands for rotations around the respective axes:
+  * Example: `Rotation.axis_angle(vector.new(1, 0, 1), math.pi/2)`
+    is a half-turn around the bisector between the X and Z axes.
+  * There are shorthands for rotations around the cardinal axes:
     * `Rotation.x(pitch)`
     * `Rotation.y(yaw)`
     * `Rotation.z(roll)`
@@ -4220,20 +4224,28 @@ Constructors
   * This is consistent with the euler angles that can be used for entities.
     You can do `Rotation.euler_zxy((-rotation):unpack())`
     to convert an entity rotation vector (note the handedness conversion).
-* `Rotation.compose(...)`: See methods below.
+* `Rotation.compose(...)`: Returns the composition of the given rotations.
+  * `Rotation.compose()` is an alias for `Rotation.identity()`.
+  * `Rotation.compose(rot)` copies the rotation.
+  * `Rotation.compose(...)` for more than two rotations composes the given rotations
+    in right-to-left order. This means that `Rotation.compose(second, first):apply(v)`
+    is equivalent to `second:apply(first:apply(v))`:
+    The composed rotation first applies `first`, then `second` to a vector.
 
 Conversions
 -----------
 
 Corresponding to the constructors, rotations can be converted
-to different representations; note that you need not get the same values out -
-you merely get values that produce a (roughly) equivalent rotation when passed to the corresponding constructor:
+to different representations.
+Note that this conversion is not guaranteed to produce the same values you put in.
+It is only guaranteed that the values produce an approximately equivalent rotation
+when passed to the corresponding constructor.
 
 * `x, y, z, w = rot:to_quaternion()`
   * Returns the normalized quaternion representation.
 * `axis, angle = rot:to_axis_angle()`
-  * `axis` is a normalized vector.
-  * `angle` is in radians.
+  * `axis` is a normalized vector that can point in any direction.
+  * `angle` is the rotation about this axis as an angle in radians.
 * `pitch, yaw, roll = rot:to_euler_xyz()`
   * Angles are all in radians.
   * `pitch`, `yaw`, `roll`: Rotation around the X-, Y-, and Z-axis respectively.
@@ -4248,13 +4260,8 @@ Rotations can also be converted to matrices using `Matrix4.rotation(rot)`.
 Methods
 -------
 
+* `rot:compose(...)`: Shorthand for `Rotation.compose(rot, ...)`.
 * `rot:apply(vec)`: Returns the result of applying the rotation to the given vector.
-* `Rotation.compose(...)`: Returns the composition of the given rotations.
-  * `Rotation.compose()` is an alias for `Rotation.identity()`.
-  * `Rotation.compose(rot)` copies the rotation.
-  * `rot:compose(...)` is shorthand for `Rotation.compose(rot, ...)`.
-  * Right-to-left order: `second:compose(first):apply(v)`
-    is equivalent to `second:apply(first:apply(v))`.
 * `rot:invert()`: Returns the inverse rotation.
 * `from:slerp(to, time)`: Interpolate from one rotation to another.
   * `time = 0` is all `from`, `time = 1` is all `to`.
@@ -4262,21 +4269,21 @@ Methods
   * Useful to measure similarity.
 
 Rotations implement `__tostring`. The format is only intended for human-readability,
-not serialization, and may thus change.
+not serialization, and may thus change in the future.
 
 
 Matrices
 ========
 
-Luanti uses 4x4 matrices to represent linear transformations of 3d vectors.
-For this, 3d vectors are embedded into 4d space.
+Luanti uses 4x4 matrices to represent linear transformations of 3D vectors.
+For this, 3D vectors are embedded into 4D space.
+This class was added in Luanti 5.17.0.
 
 The matrices use column-major conventions.
 Vectors are treated as column vectors.
 This means the first column is the image of the vector (1, 0, 0, 0),
 the second column is the image of (0, 1, 0, 0), and so on.
 Thus the translation is in the last column.
-Row and column indices range from `1` to `4`.
 
 You must account for loss of precision in matrix calculations.
 Matrices currently use 32-bit floats.
@@ -4310,23 +4317,27 @@ Constructors
   All parameters are optional and default to identity transforms.
 * `Matrix4.reflection(normal)`: Constructs a matrix that reflects vectors
   at the plane with the given plane normal vector (which need not be normalized).
-* `Matrix4.compose(...)`: See methods below.
+* `Matrix4.compose(...)`: Variadic composition of the given matrices.
+  As is common in mathematics, matrices are applied in left-to-right order.
 
-Methods
+See methods below.
+
 -------
 
-Container utils:
+Container utilities:
 
-* `mat:get(row, col)`
-* `mat:set(row, col, number)`
-* `x, y, z, w = mat:get_row(row)`
-* `mat:set_row(row, x, y, z, w)`
-* `x, y, z, w = mat:get_col(col)`
-* `mat:set_col(col, x, y, z, w)`
-* `mat:copy()`
+For all of the below methods, `row` and `col`umn indices range from `1` to `4`.
+
+* `mat:get(row, col)`: Returns the number in the given row and column.
+* `mat:set(row, col, number)`: Set the entry in the given row and column to the given number.
+* `x, y, z, w = mat:get_row(row)`: Get the 4 numbers in the given row.
+* `mat:set_row(row, x, y, z, w)`: Set the 4 numbers in the given row.
+* `x, y, z, w = mat:get_col(col)`: Get the 4 numbers in the given column.
+* `mat:set_col(col, x, y, z, w)`: Set the 4 numbers in the given column.
+* `mat:copy()`: Returns a new matrix containing the same numbers.
 * `r1c1, r1c2, ..., r4c4 = mat:unpack()`:
-  Get the 16 numbers in the matrix in row-major order
-  (inverse of `Matrix4.new`).
+  Get the 16 numbers in the matrix in row-major order.
+  `Matrix4.new(mat:unpack())` is thus equivalent to `mat:copy()`.
 
 Linear algebra:
 
@@ -4361,8 +4372,8 @@ For working with affine transforms, the following methods are available:
 * `mat:set_translation(vec)`: Sets (overwrites) the translation in the last row.
 
 For TRS transforms specifically,
-let `self = Matrix4.compose(Matrix4.translation(t), Matrix4.rotation(r), Matrix4.scale(s))`.
-Then we can decompose `self` further. Note that `self` must not shear or reflect.
+let `mat = Matrix4.compose(Matrix4.translation(t), Matrix4.rotation(r), Matrix4.scale(s))`.
+Then we can decompose `mat` further. Note that `mat` must not shear or reflect.
 
 * `rotation, scale = mat:get_rs()`:
   Extracts a `Rotation` equivalent to `r`,
