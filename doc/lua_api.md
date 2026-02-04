@@ -3051,7 +3051,7 @@ Elements
 * `textures`: The mesh textures to use according to the mesh materials.
    Texture names must be separated by commas.
 * `rotation` (Optional): Initial rotation of the camera, format `x,y`.
-  The axes are euler angles in degrees.
+  The axes are Euler angles in degrees.
 * `continuous` (Optional): Whether the rotation is continuous. Default `false`.
 * `mouse control` (Optional): Whether the model can be controlled with the mouse. Default `true`.
 * `frame loop range` (Optional): Range of the animation frames.
@@ -3942,7 +3942,7 @@ It means that when you're pointing in +Z direction in-game ("forward"), +X is to
 
 Consistently, rotation is [**left-handed**](https://en.wikipedia.org/w/index.php?title=Right-hand_rule) as well.
 Luanti uses [Tait-Bryan angles](https://en.wikipedia.org/wiki/Euler_angles#Tait%E2%80%93Bryan_angles) for rotations,
-often referred to simply as "euler angles" (even though they are not "proper" euler angles).
+often referred to simply as "Euler angles" (even though they are not "proper" Euler angles).
 The rotation order is extrinsic X-Y-Z:
 First rotation around the (unrotated) X-axis is applied,
 then rotation around the (unrotated) Y-axis follows,
@@ -4191,7 +4191,7 @@ Rotations
 =========
 
 Luanti provides a proper helper class for working with 3d rotations.
-Using vectors of euler angles instead is discouraged as it is error-prone.
+Using vectors of Euler angles instead is discouraged as it is error-prone.
 This class was added in Luanti 5.17.0.
 
 The precision of the implementation may change (improve) in the future.
@@ -4218,10 +4218,10 @@ Constructors
   * All angles in radians.
   * Uses X-Y-Z rotation order, equivalent to
     `Rotation.compose(Rotation.z(roll), Rotation.y(yaw), Rotation.x(pitch))`.
-  * Consistent with the euler angles that can be used for bones or attachments.
+  * Consistent with the Euler angles that can be used for bones or attachments.
 * `Rotation.euler_zxy(pitch, yaw, roll)`
   * Same as `euler_xyz`, but uses Z-X-Y rotation order.
-  * This is consistent with the euler angles that can be used for entities.
+  * This is consistent with the Euler angles that can be used for entities.
     You can do `Rotation.euler_zxy((-rotation):unpack())`
     to convert an entity rotation vector (note the handedness conversion).
 * `Rotation.compose(...)`: Returns the composition of the given rotations.
