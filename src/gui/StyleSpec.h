@@ -151,7 +151,7 @@ public:
 			return STATE_DEFAULT;
 		} else if (name == "focused") {
 			return STATE_FOCUSED;
-		} else if (name == "focus-visible") {
+		} else if (name == "focused_visible") {
 			return STATE_FOCUSED_VISIBLE;
 		} else if (name == "hovered") {
 			return STATE_HOVERED;
