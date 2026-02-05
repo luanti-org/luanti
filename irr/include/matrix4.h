@@ -12,7 +12,6 @@
 #include "aabbox3d.h"
 #include "rect.h"
 #include <cassert>
-#include <ostream>
 
 namespace core
 {
@@ -1680,21 +1679,6 @@ inline void CMatrix4<T>::getTransposed(CMatrix4<T> &o) const
 	o[13] = M[7];
 	o[14] = M[11];
 	o[15] = M[15];
-}
-
-template <class T>
-inline std::ostream& operator<<(std::ostream& os, const CMatrix4<T>& matrix)
-{
-	os << "(\n";
-	for (int row = 0; row < 4; ++row) {
-		for (int col = 0; col < 4; ++col) {
-			os << "\t";
-			os << matrix(row, col);
-		}
-		os << "\n";
-	}
-	os << ")";
-	return os;
 }
 
 // used to scale <-1,-1><1,1> to viewport
