@@ -10,6 +10,7 @@
 #include "irr_v3d.h"
 #include "quaternion.h"
 #include "util/numeric.h"
+#include "irrlicht_changes/printing.h"
 
 #include <lauxlib.h>
 #include <lua.h>
