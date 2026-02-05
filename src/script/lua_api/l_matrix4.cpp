@@ -7,6 +7,7 @@
 #include "irr_v3d.h"
 #include "matrix4.h"
 #include "quaternion.h"
+#include "irrlicht_changes/printing.h"
 
 #include "lua_api/l_matrix4.h"
 #include "lua_api/l_rotation.h"
