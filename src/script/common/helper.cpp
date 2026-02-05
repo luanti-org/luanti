@@ -51,7 +51,7 @@ f64 LuaHelper::readParam(lua_State *L, int index)
 template <>
 f32 LuaHelper::readFiniteParam(lua_State *L, int index)
 {
-	f64 original_value = luaL_checknumber(L, index);
+	lua_Number original_value = luaL_checknumber(L, index);
 	f32 v = static_cast<f32>(original_value);
 	if (std::isfinite(v))
 		return v;
@@ -67,7 +67,7 @@ f32 LuaHelper::readFiniteParam(lua_State *L, int index)
 template <>
 f64 LuaHelper::readFiniteParam(lua_State *L, int index)
 {
-	f64 v = luaL_checknumber(L, index);
+	lua_Number v = luaL_checknumber(L, index);
 	if (std::isfinite(v))
 		return v;
 	if (std::isnan(v))
