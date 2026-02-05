@@ -100,6 +100,10 @@
 	#define SDL_FINGER_ID(ev) ((ev).tfinger.fingerId)
 #endif
 
+// Minimum Window Size, following smallest size for mobile.
+#define SDL_WINDOW_MIN_WIDTH (640)
+#define SDL_WINDOW_MIN_HEIGHT (320)
+
 // Since SDL doesn't have mouse keys as keycodes we need to fall back to EKEY_CODE in some cases.
 static inline bool is_fake_key(EKEY_CODE key) {
 	switch (key) {
@@ -731,6 +735,7 @@ bool CIrrDeviceSDL::createWindowWithContext()
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 	}
 
+
 #ifdef _IRR_USE_SDL3_
 	Window = SDL_CreateWindow("", Width, Height, SDL_Flags);
 #else
@@ -754,6 +759,7 @@ bool CIrrDeviceSDL::createWindowWithContext()
 		SDL_SetWindowFullscreen(Window, true);
 #endif
 
+	SDL_SetWindowMinimumSize(Window, SDL_WINDOW_MIN_WIDTH, SDL_WINDOW_MIN_HEIGHT);
 	updateSizeAndScale();
 	if (ScaleX != 1.0f || ScaleY != 1.0f) {
 		// The given window size is in pixels, not in screen coordinates.
