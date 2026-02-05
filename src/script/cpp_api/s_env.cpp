@@ -496,13 +496,55 @@ void ScriptApiEnv::on_block_activated(v3s16 blockpos)
 
 	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
 
-	// Update active_blocks table
+	// Update loaded_blocks table (activated blocks are by definition loaded)
 	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "loaded_blocks");
+	if (lua_istable(L, -1)) {
+		lua_pushnumber(L, hash_node_position(blockpos));
+		lua_pushboolean(L, true);
+		lua_rawset(L, -3);
+	}
+	lua_pop(L, 1); // Pop loaded_blocks
+
+	// Update active_blocks table
 	lua_getfield(L, -1, "active_blocks");
 	if (lua_istable(L, -1)) {
 		lua_pushnumber(L, hash_node_position(blockpos));
 		lua_pushboolean(L, true);
 		lua_rawset(L, -3);
+	}
+	lua_pop(L, 2); // Pop active_blocks and core
+}
+
+void ScriptApiEnv::on_block_deactivated(const std::vector<v3s16> &blockpos_list)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	// Get core.registered_on_block_deactivated
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "registered_on_block_deactivated");
+	luaL_checktype(L, -1, LUA_TTABLE);
+	lua_remove(L, -2); // Remove core
+
+	// Create array of block positions
+	lua_createtable(L, blockpos_list.size(), 0);
+	int lua_index = 1; // Lua arrays are 1-indexed
+	for (const v3s16 &blockpos : blockpos_list) {
+		push_v3s16(L, blockpos);
+		lua_rawseti(L, -2, lua_index++);
+	}
+
+	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
+
+	// Update active_blocks table only (blocks are still loaded in memory)
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "active_blocks");
+	if (lua_istable(L, -1)) {
+		for (const v3s16 &blockpos : blockpos_list) {
+			lua_pushnumber(L, hash_node_position(blockpos));
+			lua_pushnil(L);
+			lua_rawset(L, -3);
+		}
 	}
 	lua_pop(L, 2); // Pop active_blocks and core
 }

@@ -932,11 +932,11 @@ void ServerEnvironment::step(float dtime)
 		// Convert active objects that are no more in active blocks to static
 		deactivateFarObjects(false);
 
-		// Call on_block_unloaded callback for blocks that are being removed
-		// Note: This is for blocks becoming inactive, not necessarily fully unloaded from memory
+		// Call on_block_deactivated callback for blocks that are being removed from active list
+		// Note: These blocks are becoming inactive but still remain loaded in memory
 		if (!blocks_removed.empty()) {
 			std::vector<v3s16> blocks_removed_vec(blocks_removed.begin(), blocks_removed.end());
-			m_script->on_block_unloaded(blocks_removed_vec);
+			m_script->on_block_deactivated(blocks_removed_vec);
 		}
 
 		for (const v3s16 &p: blocks_removed) {

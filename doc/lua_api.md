@@ -6409,9 +6409,14 @@ Call these functions only at load time!
     * This is called after `on_block_loaded` if the block was just loaded
     * `blockpos`: position of the block (table with x, y, z)
     * Note: callbacks must be registered at mod load time.
-* `core.register_on_block_unloaded(function(blockpos_list))`
+* `core.register_on_block_deactivated(function(blockpos_list))`
     * Called after mapblocks are deactivated (moved out of active_block_range)
-    * Note: "unloaded" here means deactivated; blocks typically remain in memory
+    * Deactivated blocks remain loaded in memory but no longer run game logic
+    * `blockpos_list`: array of block positions (each is a table with x, y, z)
+    * Note: callbacks must be registered at mod load time.
+* `core.register_on_block_unloaded(function(blockpos_list))`
+    * Called after mapblocks are completely unloaded from memory
+    * This happens when the server needs to free memory or on shutdown
     * `blockpos_list`: array of block positions (each is a table with x, y, z)
     * Note: callbacks must be registered at mod load time.
 
@@ -7942,13 +7947,16 @@ Global tables
     * Read-only table tracking currently loaded mapblocks
     * Keys are block position hashes (from `core.hash_node_position`)
     * Values are `true` for loaded blocks, `nil` otherwise
-    * Updated automatically by the engine when blocks are loaded or unloaded
+    * Loaded blocks are in memory and can contain nodes/objects
+    * Updated automatically by the engine when blocks are loaded or unloaded from memory
     * Example: `if core.loaded_blocks[core.hash_node_position(blockpos)] then ... end`
 * `core.active_blocks`
     * Read-only table tracking currently active mapblocks
     * Active blocks are those within active_block_range of a player
     * Keys are block position hashes (from `core.hash_node_position`)
     * Values are `true` for active blocks, `nil` otherwise
+    * Active blocks run game logic (ABMs, node timers, etc.)
+    * All active blocks are also loaded, but not all loaded blocks are active
     * Updated automatically by the engine when blocks become active or inactive
 * `core.registered_abms`
     * List of ABM definitions

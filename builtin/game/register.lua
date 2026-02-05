@@ -622,6 +622,7 @@ core.registered_on_liquid_transformed, core.register_on_liquid_transformed = mak
 core.registered_on_mapblocks_changed, core.register_on_mapblocks_changed = make_registration()
 core.registered_on_block_loaded, core.register_on_block_loaded = make_registration()
 core.registered_on_block_activated, core.register_on_block_activated = make_registration()
+core.registered_on_block_deactivated, core.register_on_block_deactivated = make_registration()
 core.registered_on_block_unloaded, core.register_on_block_unloaded = make_registration()
 
 -- A bunch of registrations are read by the C++ side once on env init, so we cannot

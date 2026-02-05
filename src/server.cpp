@@ -738,9 +738,15 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		EnvAutoLock lock(this);
 		// Run Map's timers and unload unused data
 		ScopeProfiler sp(g_profiler, "Server: map timer and unload");
+		std::vector<v3s16> unloaded_blocks;
 		m_env->getMap().timerUpdate(map_timer_and_unload_dtime,
 			std::max(g_settings->getFloat("server_unload_unused_data_timeout"), 0.0f),
-			-1);
+			-1, &unloaded_blocks);
+
+		// Notify scripts of blocks that were unloaded from memory
+		if (!unloaded_blocks.empty()) {
+			m_env->getScriptIface()->on_block_unloaded(unloaded_blocks);
+		}
 	}
 
 	/*
