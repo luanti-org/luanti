@@ -4195,6 +4195,7 @@ Using vectors of Euler angles instead is discouraged as it is error-prone.
 This class was added in Luanti 5.17.0.
 
 The precision of the implementation may change (improve) in the future.
+Rotations currently use 32-bit floats (*less* precision than the Lua number type).
 
 Rotations use **left-handed** conventions.
 
@@ -4286,7 +4287,7 @@ the second column is the image of (0, 1, 0, 0), and so on.
 Thus the translation is in the last column.
 
 You must account for loss of precision in matrix calculations.
-Matrices currently use 32-bit floats.
+Matrices currently use 32-bit floats (*less* precision than the Lua number type).
 However, your code should not expect imprecisions either.
 Matrices may carry out computations more precisely in the future.
 
