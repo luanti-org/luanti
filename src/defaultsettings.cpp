@@ -387,10 +387,10 @@ void set_default_settings()
 	settings->setDefault("serverlist_file", "favoriteservers.json");
 
 	// General font settings
-	settings->setDefault("font_path", porting::getDataPath("fonts" DIR_DELIM "Arimo-Regular.ttf"));
-	settings->setDefault("font_path_italic", porting::getDataPath("fonts" DIR_DELIM "Arimo-Italic.ttf"));
-	settings->setDefault("font_path_bold", porting::getDataPath("fonts" DIR_DELIM "Arimo-Bold.ttf"));
-	settings->setDefault("font_path_bold_italic", porting::getDataPath("fonts" DIR_DELIM "Arimo-BoldItalic.ttf"));
+	settings->setDefault("font_path", porting::getDataPath("fonts" DIR_DELIM "PixelifySans-Regular.ttf"));
+	settings->setDefault("font_path_italic", porting::getDataPath("fonts" DIR_DELIM "PixelifySans-Italic.ttf"));
+	settings->setDefault("font_path_bold", porting::getDataPath("fonts" DIR_DELIM "PixelifySans-Bold.ttf"));
+	settings->setDefault("font_path_bold_italic", porting::getDataPath("fonts" DIR_DELIM "PixelifySans-BoldItalic.ttf"));
 	settings->setDefault("font_bold", "false");
 	settings->setDefault("font_italic", "false");
 	settings->setDefault("font_shadow", "1");
