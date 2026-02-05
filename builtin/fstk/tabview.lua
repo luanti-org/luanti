@@ -52,8 +52,6 @@ local function get_formspec(self)
 	local tab = self.tablist[self.last_tab_index]
 
 	local content, prepend = tab.get_formspec(self, tab.name, tab.tabdata, tab.tabsize)
-	local window = core.get_window_info()
-	local window_size = { x = window.max_formspec_size.x, y = window.max_formspec_size.y }
 
 	local TOUCH_GUI = core.settings:get_bool("touch_gui")
 
@@ -65,7 +63,7 @@ local function get_formspec(self)
 		+ GAMEBAR_H -- gamebar included in formspec size
 
 	if self.parent == nil and not prepend then
-		prepend = string.format("size[%f,%f,%s]", window_size.x, window_size.y,
+		prepend = string.format("size[%f,%f,%s]", tsize.width, tsize.height,
 				dump(self.fixed_size))
 
 		local anchor_pos = TABHEADER_H + orig_tsize.height / 2
@@ -149,11 +147,6 @@ local function handle_events(self,event)
 	local tab = self.tablist[self.last_tab_index]
 	if tab.evt_handler ~= nil then
 		return tab.evt_handler(self, event, tab.name, tab.tabdata)
-	end
-
-	if event == "WindowInfoChange" then
-		ui.update()
-		return true
 	end
 
 	return false
