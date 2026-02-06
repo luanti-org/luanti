@@ -353,12 +353,8 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 			// Timestamp will be set later in activateBlock() to allow
 			// on_block_loaded callbacks to run for newly generated blocks
 
-			// Call on_block_loaded callback for newly generated blocks
-			if (env) {
-				ServerScripting *script = env->getScriptIface();
-				if (script)
-					script->on_block_loaded(bp);
-			}
+			// Note: on_block_loaded is now called in emerge.cpp after finishGen()
+			// to ensure all liquid transforms and lighting are complete
 		}
 	}
 

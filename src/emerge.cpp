@@ -756,6 +756,25 @@ void *EmergeThread::run()
 			if (!block || error)
 				action = EMERGE_ERRORED;
 
+			// Call on_block_loaded callback after chunk emerges but before activation
+			// This allows voxel manipulator to run after all mapgen liquid transforms
+			// and lighting calculations are complete
+			if (block && !error) {
+				Server::EnvAutoLock envlock(m_server);
+				ServerScripting *script = m_server->m_env->getScriptIface();
+				if (script) {
+					// Call for all blocks in the generated chunk
+					const v3s16 &bpmin = bmdata.blockpos_min;
+					const v3s16 &bpmax = bmdata.blockpos_max;
+					for (s16 x = bpmin.X; x <= bpmax.X; x++)
+					for (s16 z = bpmin.Z; z <= bpmax.Z; z++)
+					for (s16 y = bpmin.Y; y <= bpmax.Y; y++) {
+						v3s16 bp(x, y, z);
+						script->on_block_loaded(bp);
+					}
+				}
+			}
+
 			m_trans_liquid = nullptr;
 		}
 
