@@ -11,6 +11,7 @@
 #include "util/container.h" // UniqueQueue
 #include "util/metricsbackend.h" // ptr typedefs
 #include "map_settings_manager.h"
+#include "log.h"
 
 class Settings;
 class MapDatabase;
@@ -49,7 +50,14 @@ public:
 	~ServerMap();
 
 	// Set the server environment (called after map construction)
-	void setServerEnvironment(ServerEnvironment *env) { m_env = env; }
+	void setServerEnvironment(ServerEnvironment *env) {
+		if (!env) {
+			errorstream << "ServerMap::setServerEnvironment: "
+				<< "Attempted to set null ServerEnvironment pointer!" << std::endl;
+			return;
+		}
+		m_env = env;
+	}
 
 	/*
 		Get a sector from somewhere.
