@@ -137,8 +137,13 @@ void Address::Resolve(const char *name, Address *fallback)
 // IP address -> textual representation
 std::string Address::serializeString() const
 {
+	if (m_addr_family != AF_INET && m_addr_family != AF_INET6)
+		return "<unhandled-addr-family>";
+
 	char str[INET6_ADDRSTRLEN];
-	if (inet_ntop(m_addr_family, (void*) &m_address, str, sizeof(str)) == nullptr)
+	const void *addr_ptr = (m_addr_family == AF_INET6) ? 
+		(const void*)&m_address.ipv6 : (const void*)&m_address.ipv4;
+	if (inet_ntop(m_addr_family, addr_ptr, str, sizeof(str)) == nullptr)
 		return "";
 	return str;
 }
