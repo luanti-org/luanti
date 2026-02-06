@@ -136,16 +136,16 @@ local function get_formspec(tabview, name, tabdata)
 		"label[2.875,0;" .. fgettext("Password") .. "]" ..
 		"field[0.25,0.2;2.625,0.75;te_name;;" .. core.formspec_escape(core.settings:get("name")) .. "]" ..
 		"pwdfield[2.875,0.2;2.625,0.75;te_pwd;]" ..
-		"container_end[]" ..
+		"container_end[]"
 
 		-- Connect
-		-- TRANSLATORS: Login to server
-		"button[3,6;2.5,0.75;btn_mp_login;" .. fgettext("Login") .. "]"
-
 	if core.settings:get_bool("enable_split_login_register") then
 		-- TRANSLATORS: Register an account on a server
 		retval = retval .. "button[0.25,6;2.5,0.75;btn_mp_register;" .. fgettext("Register") .. "]"
 	end
+		-- TRANSLATORS: Login to server
+	retval = retval .. "button[3,6;2.5,0.75;btn_mp_login;" .. fgettext("Login") .. "]"
+
 
 	local selected_server = find_selected_server()
 
