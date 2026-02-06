@@ -235,6 +235,7 @@ void set_default_settings()
 	settings->setDefault("opengl_debug", "true");
 #endif
 	settings->setDefault("fsaa", "2");
+	settings->setDefault("texel_antialiasing", "false");
 	settings->setDefault("undersampling", "1");
 	settings->setDefault("world_aligned_mode", "enable");
 	settings->setDefault("autoscale_mode", "disable");
