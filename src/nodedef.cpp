@@ -988,6 +988,14 @@ content_t NodeDefManager::set(const std::string &name, const ContentFeatures &de
 	eraseIdFromGroups(id);
 
 	m_content_features[id] = def;
+
+#if CHECK_CLIENT_BUILD()
+	// Fix copy
+	// Needed, because we have no ContentFeatures copy constructor
+	if (m_content_features[id].visuals)
+		m_content_features[id].visuals->f = &m_content_features[id];
+#endif
+
 	m_content_features[id].floats = itemgroup_get(def.groups, "float") != 0;
 	m_content_lighting_flag_cache[id] = def.getLightingFlags();
 	verbosestream << "NodeDefManager: registering content id " << id
