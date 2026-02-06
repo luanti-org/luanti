@@ -354,7 +354,6 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 			// on_block_loaded callbacks to run for newly generated blocks
 
 			// Call on_block_loaded callback for newly generated blocks
-			// Note: env is a function parameter, used above at line 286
 			if (env) {
 				ServerScripting *script = env->getScriptIface();
 				if (script)
@@ -789,7 +788,7 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 		}
 
 		std::map<v3s16, MapBlock*> modified_blocks;
-		// Fix lighting if necessary (after callback, to handle any voxel manipulator changes)
+		// Fix lighting after callback to handle any voxel manipulator changes
 		voxalgo::update_block_border_lighting(this, block, modified_blocks);
 		if (!modified_blocks.empty()) {
 			MapEditEvent event;
