@@ -156,6 +156,17 @@ local function get_formspec(tabview, name, tabdata)
 				core.formspec_escape(gamedata.serverdescription) .. "]"
 		end
 
+		-- URL button
+		if selected_server.url then
+			retval = retval .. "tooltip[btn_server_url;" .. fgettext("Open server website") .. "]"
+			retval = retval .. "style[btn_server_url;padding=6]"
+			retval = retval .. "image_button[3.5,1.3;0.5,0.5;" ..
+				core.formspec_escape(defaulttexturedir .. "server_url.png") .. ";btn_server_url;]"
+		else
+			retval = retval .. "image[3.6,1.4;0.3,0.3;" .. core.formspec_escape(defaulttexturedir ..
+				"server_url_unavailable.png") .. "]"
+		end
+
 		-- Mods button
 		local mods = selected_server.mods
 		if mods and #mods > 0 then
@@ -169,6 +180,7 @@ local function get_formspec(tabview, name, tabdata)
 				"tooltip[btn_view_mods;" .. tooltip .. "]" ..
 				"style[btn_view_mods;padding=6]" ..
 				"image_button[4,1.3;0.5,0.5;" .. core.formspec_escape(defaulttexturedir ..
+
 				"server_view_mods.png") .. ";btn_view_mods;]"
 		else
 			retval = retval .. "image[4.1,1.4;0.3,0.3;" .. core.formspec_escape(defaulttexturedir ..
@@ -197,17 +209,6 @@ local function get_formspec(tabview, name, tabdata)
 		else
 			retval = retval .. "image[4.6,1.4;0.3,0.3;" .. core.formspec_escape(defaulttexturedir ..
 				"server_view_clients_unavailable.png") .. "]"
-		end
-
-		-- URL button
-		if selected_server.url then
-			retval = retval .. "tooltip[btn_server_url;" .. fgettext("Open server website") .. "]"
-			retval = retval .. "style[btn_server_url;padding=6]"
-			retval = retval .. "image_button[3.5,1.3;0.5,0.5;" ..
-				core.formspec_escape(defaulttexturedir .. "server_url.png") .. ";btn_server_url;]"
-		else
-			retval = retval .. "image[3.6,1.4;0.3,0.3;" .. core.formspec_escape(defaulttexturedir ..
-				"server_url_unavailable.png") .. "]"
 		end
 
 		-- Favorites toggle button
