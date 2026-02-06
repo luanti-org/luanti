@@ -353,6 +353,16 @@ int ModApiMainMenu::l_get_games(lua_State *L)
 		lua_pushstring(L,  menuicon.c_str());
 		lua_settable(L,    top_lvl2);
 
+		lua_pushstring(L, "aliases");
+		lua_newtable(L);
+		int table_aliases = lua_gettop(L);
+		for (const auto &alias : game.aliases) {
+			lua_pushstring(L, alias.c_str());
+			lua_pushboolean(L, true);
+			lua_settable(L, table_aliases);
+		}
+		lua_settable(L, top_lvl2);
+
 		lua_pushstring(L, "addon_mods_paths");
 		lua_newtable(L);
 		int table2 = lua_gettop(L);
