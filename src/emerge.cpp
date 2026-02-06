@@ -766,11 +766,15 @@ void *EmergeThread::run()
 					// Call for all blocks in the generated chunk
 					const v3s16 &bpmin = bmdata.blockpos_min;
 					const v3s16 &bpmax = bmdata.blockpos_max;
-					for (s16 x = bpmin.X; x <= bpmax.X; x++)
+					// Iterate Y first for better cache locality
+					for (s16 y = bpmin.Y; y <= bpmax.Y; y++)
 					for (s16 z = bpmin.Z; z <= bpmax.Z; z++)
-					for (s16 y = bpmin.Y; y <= bpmax.Y; y++) {
+					for (s16 x = bpmin.X; x <= bpmax.X; x++) {
 						v3s16 bp(x, y, z);
-						script->on_block_loaded(bp);
+						// Only call callback if block actually exists
+						MapBlock *gen_block = m_map->getBlockNoCreateNoEx(bp);
+						if (gen_block)
+							script->on_block_loaded(bp);
 					}
 				}
 			}
