@@ -76,8 +76,10 @@ void MyEventReceiver::reloadKeybindings()
 	// First clear all keys, then re-add the ones we listen for
 	keysListenedFor.clear();
 	for (int i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++) {
+		GameKeyType game_key = static_cast<GameKeyType>(i);
+		keybindings[i].emplace_back(game_key);
 		for (auto key: keybindings[i]) {
-			listenForKey(key, static_cast<GameKeyType>(i));
+			listenForKey(key, game_key);
 		}
 	}
 }
@@ -201,22 +203,16 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		// Handle mouse events
 		switch (event.MouseInput.Event) {
 		case EMIE_LMOUSE_PRESSED_DOWN:
-			setKeyDown(LMBKey, true);
-			break;
 		case EMIE_MMOUSE_PRESSED_DOWN:
-			setKeyDown(MMBKey, true);
-			break;
 		case EMIE_RMOUSE_PRESSED_DOWN:
-			setKeyDown(RMBKey, true);
+		case EMIE_OMOUSE_PRESSED_DOWN:
+			setKeyDown(KeyPress(event.MouseInput), true);
 			break;
 		case EMIE_LMOUSE_LEFT_UP:
-			setKeyDown(LMBKey, false);
-			break;
 		case EMIE_MMOUSE_LEFT_UP:
-			setKeyDown(MMBKey, false);
-			break;
 		case EMIE_RMOUSE_LEFT_UP:
-			setKeyDown(RMBKey, false);
+		case EMIE_OMOUSE_LEFT_UP:
+			setKeyDown(KeyPress(event.MouseInput), false);
 			break;
 		case EMIE_MOUSE_WHEEL:
 			mouse_wheel += event.MouseInput.Wheel;
@@ -224,6 +220,10 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		default:
 			break;
 		}
+	} else if (event.EventType == EET_USER_EVENT && event.UserEvent.type == EUET_GAME_KEY) {
+		KeyPress keyCode(static_cast<GameKeyType>(event.UserEvent.UserData1));
+		setKeyDown(keyCode, event.UserEvent.UserData2 != 0);
+		return true;
 	}
 
 	// tell Irrlicht to continue processing this event
