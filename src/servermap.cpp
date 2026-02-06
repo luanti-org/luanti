@@ -354,9 +354,11 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 			// on_block_loaded callbacks to run for newly generated blocks
 
 			// Call on_block_loaded callback for newly generated blocks
-			ServerScripting *script = env->getScriptIface();
-			if (script)
-				script->on_block_loaded(bp);
+			if (env) {
+				ServerScripting *script = env->getScriptIface();
+				if (script)
+					script->on_block_loaded(bp);
+			}
 		}
 	}
 
