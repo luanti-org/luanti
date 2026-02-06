@@ -184,7 +184,8 @@ ServerEnvironment::ServerEnvironment(std::unique_ptr<ServerMap> map,
 	m_server(server)
 {
 	// Set the environment pointer in the map for callbacks
-	m_map->setServerEnvironment(this);
+	if (m_map)
+		m_map->setServerEnvironment(this);
 
 	m_cache_active_block_mgmt_interval = g_settings->getFloat("active_block_mgmt_interval");
 	m_cache_abm_interval = rangelim(g_settings->getFloat("abm_interval"), 0.1f, 30);
