@@ -6401,10 +6401,9 @@ Call these functions only at load time!
     * `modified_block_count` is the number of entries in the set.
     * Note: callbacks must be registered at mod load time.
 * `core.register_on_block_loaded(function(blockpos))`
-    * Called when a mapblock is loaded from disk or generated for the first time,
-      during block activation (after LBMs and before activation callbacks)
-    * This callback is delayed from the actual load/generation to occur during
-      block activation to prevent lighting issues when using voxel manipulators
+    * Called when a mapblock is loaded from disk or generated for the first time
+    * The callback runs before border lighting is updated, allowing mods to use
+      voxel manipulator to modify the block; lighting will be fixed afterwards
     * `blockpos`: position of the block (table with x, y, z)
     * Note: callbacks must be registered at mod load time.
 * `core.register_on_block_activated(function(blockpos))`

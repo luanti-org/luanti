@@ -353,8 +353,13 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 			// Timestamp will be set later in activateBlock() to allow
 			// on_block_loaded callbacks to run for newly generated blocks
 
-			// Note: on_block_loaded callback is now called later during
-			// block activation to avoid lighting issues with voxel manipulator
+			// Call on_block_loaded callback for newly generated blocks
+			// Note: env is a function parameter, guaranteed non-null (used above)
+			if (env) {
+				ServerScripting *script = env->getScriptIface();
+				if (script)
+					script->on_block_loaded(bp);
+			}
 		}
 	}
 
@@ -774,8 +779,17 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 		ReflowScan scanner(this, m_emerge->ndef);
 		scanner.scan(block, &m_transforming_liquid);
 
+		// Call on_block_loaded callback before fixing lighting
+		// This allows voxel manipulator to modify the block, and lighting
+		// will be fixed afterwards
+		if (m_env) {
+			ServerScripting *script = m_env->getScriptIface();
+			if (script)
+				script->on_block_loaded(p3d);
+		}
+
 		std::map<v3s16, MapBlock*> modified_blocks;
-		// Fix lighting if necessary
+		// Fix lighting if necessary (after callback, to handle any voxel manipulator changes)
 		voxalgo::update_block_border_lighting(this, block, modified_blocks);
 		if (!modified_blocks.empty()) {
 			MapEditEvent event;
@@ -783,9 +797,6 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 			event.setModifiedBlocks(modified_blocks);
 			dispatchEvent(event);
 		}
-
-		// Note: on_block_loaded callback is now called later during
-		// block activation to avoid lighting issues with voxel manipulator
 	}
 
 	if (save_after_load)

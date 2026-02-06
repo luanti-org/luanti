@@ -585,12 +585,8 @@ void ServerEnvironment::activateBlock(MapBlock *block)
 		return m_script->node_on_timer(p, n, t.elapsed, t.timeout);
 	});
 
-	// Call Lua on_block_loaded callback
-	// This is called here (after LBMs and before activation) to avoid lighting
-	// issues when voxel manipulator runs in the callback
-	m_script->on_block_loaded(block->getPos());
-
 	// Call Lua on_block_activated callback
+	// Note: on_block_loaded is called earlier during block load, not here
 	m_script->on_block_activated(block->getPos());
 }
 
