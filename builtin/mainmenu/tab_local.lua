@@ -215,9 +215,7 @@ local function get_formspec(tabview, name, tabdata)
 	end
 
 	retval = retval ..
-			"button[6.65,0;3.225,0.8;world_create;".. fgettext("New") .. "]"
-
-	retval = retval ..
+			"button[6.65,0;3.225,0.8;world_create;".. fgettext("New") .. "]" ..
 			"container_end[]" ..
 			"container[0.375,0.375]" ..
 			creative ..
