@@ -6402,6 +6402,7 @@ Call these functions only at load time!
     * Note: callbacks must be registered at mod load time.
 * `core.register_on_block_loaded(function(blockpos))`
     * Called when a mapblock is loaded from disk or generated for the first time
+    * This callback fires for ALL loaded blocks (including those far from players)
     * The callback runs before border lighting is updated, allowing mods to use
       voxel manipulator to modify the block; lighting will be fixed afterwards
     * `blockpos`: position of the block (table with x, y, z)
