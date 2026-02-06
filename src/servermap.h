@@ -48,6 +48,9 @@ public:
 	ServerMap(const std::string &savedir, IGameDef *gamedef, EmergeManager *emerge, MetricsBackend *mb);
 	~ServerMap();
 
+	// Set the server environment (called after map construction)
+	void setServerEnvironment(ServerEnvironment *env) { m_env = env; }
+
 	/*
 		Get a sector from somewhere.
 		- Check memory
@@ -176,6 +179,9 @@ private:
 
 	// Emerge manager
 	EmergeManager *m_emerge;
+
+	// Server environment (for callbacks)
+	ServerEnvironment *m_env = nullptr;
 
 	std::string m_savedir;
 	bool m_map_saving_enabled;

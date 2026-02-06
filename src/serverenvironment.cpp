@@ -183,6 +183,9 @@ ServerEnvironment::ServerEnvironment(std::unique_ptr<ServerMap> map,
 	m_script(server->getScriptIface()),
 	m_server(server)
 {
+	// Set the environment pointer in the map for callbacks
+	m_map->setServerEnvironment(this);
+
 	m_cache_active_block_mgmt_interval = g_settings->getFloat("active_block_mgmt_interval");
 	m_cache_abm_interval = rangelim(g_settings->getFloat("abm_interval"), 0.1f, 30);
 	m_cache_nodetimer_interval = rangelim(g_settings->getFloat("nodetimer_interval"), 0.1f, 1);
@@ -961,15 +964,6 @@ void ServerEnvironment::step(float dtime)
 				// and activate them instantly as soon as they're loaded.
 				m_active_blocks.remove(p);
 				continue;
-			}
-
-			// Call on_block_loaded callback for newly loaded or generated blocks
-			// Detection: blocks with BLOCK_TIMESTAMP_UNDEFINED are either freshly
-			// loaded from disk or newly generated
-			u32 stamp = block->getTimestamp();
-			bool is_new_block = (stamp == BLOCK_TIMESTAMP_UNDEFINED);
-			if (is_new_block) {
-				m_script->on_block_loaded(p);
 			}
 
 			activateBlock(block);
