@@ -184,12 +184,6 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 		rendering_engine->get_gui_env(), m_parent);
 	m_status_text->setMainMenuStyle();
 
-	// Initialize scripting
-
-	infostream << "GUIEngine: Initializing Lua" << std::endl;
-
-	m_script = std::make_unique<MainMenuScripting>(this);
-
 	g_settings->registerChangedCallback("fullscreen", fullscreenChangedCallback, this);
 
 	const auto &report_fatal_error = [&] () {
