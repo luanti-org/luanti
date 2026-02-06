@@ -353,13 +353,8 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 			// Timestamp will be set later in activateBlock() to allow
 			// on_block_loaded callbacks to run for newly generated blocks
 
-			// Call on_block_loaded callback for newly generated blocks
-			// Note: env is a function parameter, guaranteed non-null (used above)
-			if (env) {
-				ServerScripting *script = env->getScriptIface();
-				if (script)
-					script->on_block_loaded(bp);
-			}
+			// Note: on_block_loaded callback is now called later during
+			// block activation to avoid lighting issues with voxel manipulator
 		}
 	}
 
@@ -789,12 +784,8 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 			dispatchEvent(event);
 		}
 
-		// Call on_block_loaded callback for blocks loaded from disk
-		if (m_env) {
-			ServerScripting *script = m_env->getScriptIface();
-			if (script)
-				script->on_block_loaded(p3d);
-		}
+		// Note: on_block_loaded callback is now called later during
+		// block activation to avoid lighting issues with voxel manipulator
 	}
 
 	if (save_after_load)
