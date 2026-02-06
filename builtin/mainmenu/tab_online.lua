@@ -180,7 +180,6 @@ local function get_formspec(tabview, name, tabdata)
 				"tooltip[btn_view_mods;" .. tooltip .. "]" ..
 				"style[btn_view_mods;padding=6]" ..
 				"image_button[4,1.3;0.5,0.5;" .. core.formspec_escape(defaulttexturedir ..
-
 				"server_view_mods.png") .. ";btn_view_mods;]"
 		else
 			retval = retval .. "image[4.1,1.4;0.3,0.3;" .. core.formspec_escape(defaulttexturedir ..
