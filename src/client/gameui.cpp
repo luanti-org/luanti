@@ -8,6 +8,7 @@
 #include <gettext.h>
 #include "gui/mainmenumanager.h"
 #include "gui/guiChatConsole.h"
+#include "gui/guiStatusText.h"
 #include "gui/touchcontrols.h"
 #include "util/enriched_string.h"
 #include "util/pointedthing.h"
@@ -34,11 +35,6 @@ inline static const char *yawToDirectionString(int yaw)
 
 GameUI::GameUI()
 {
-	if (guienv && guienv->getSkin())
-		m_statustext_initial_color = guienv->getSkin()->getColor(gui::EGDC_BUTTON_TEXT);
-	else
-		m_statustext_initial_color = video::SColor(255, 0, 0, 0);
-
 }
 void GameUI::init()
 {
@@ -71,10 +67,9 @@ void GameUI::init()
 			(g_settings->getU16("recent_chat_messages") + 3)),
 			false, true, guiroot);
 
-	// Status text (displays info when showing and hiding GUI stuff, etc.)
-	m_guitext_status = gui::StaticText::add(guienv, L"<Status>",
-		core::recti(), false, false, guiroot);
-	m_guitext_status->setVisible(false);
+	// Status message for in-game notifications (fly/fast mode, volume changes, etc.)
+	m_status_text = std::make_unique<GUIStatusText>(guienv, guiroot);
+	m_status_text->setGameStyle();
 
 	// Profiler text (size is updated when text is updated)
 	m_guitext_profiler = gui::StaticText::add(guienv, L"<Profiler>",
@@ -165,47 +160,19 @@ void GameUI::update(const RunStats &stats, Client *client, MapDrawControl *draw_
 	setStaticText(m_guitext_info, m_infotext.c_str());
 	m_guitext_info->setVisible(m_flags.show_hud && g_menumgr.menuCount() == 0);
 
-	static const float statustext_time_max = 1.5f;
-
-	if (!m_statustext.empty()) {
-		m_statustext_time += dtime;
-
-		if (m_statustext_time >= statustext_time_max) {
-			clearStatusText();
-			m_statustext_time = 0.0f;
+	// Update status message element
+	if (m_status_text) {
+		// Handle touch control override if needed
+		bool overriden = g_touchcontrols && g_touchcontrols->isStatusTextOverriden();
+		if (overriden) {
+			m_status_text->setVisible(false);
+			if (g_touchcontrols)
+				g_touchcontrols->getStatusText()->setVisible(true);
+		} else {
+			if (g_touchcontrols)
+				g_touchcontrols->getStatusText()->setVisible(false);
+			m_status_text->update(dtime);
 		}
-	}
-
-	IGUIStaticText *guitext_status;
-	bool overriden = g_touchcontrols && g_touchcontrols->isStatusTextOverriden();
-	if (overriden) {
-		guitext_status = g_touchcontrols->getStatusText();
-		m_guitext_status->setVisible(false);
-	} else {
-		guitext_status = m_guitext_status;
-		if (g_touchcontrols)
-			g_touchcontrols->getStatusText()->setVisible(false);
-	}
-
-	setStaticText(guitext_status, m_statustext.c_str());
-	guitext_status->setVisible(!m_statustext.empty());
-
-	if (!m_statustext.empty()) {
-		s32 status_width  = guitext_status->getTextWidth();
-		s32 status_height = guitext_status->getTextHeight();
-		s32 status_y = screensize.Y  - (overriden ? 15 : 150);
-		s32 status_x = (screensize.X - status_width) / 2;
-
-		guitext_status->setRelativePosition(core::rect<s32>(status_x ,
-			status_y - status_height, status_x + status_width, status_y));
-
-		// Fade out
-		video::SColor fade_color = m_statustext_initial_color;
-		f32 d = m_statustext_time / statustext_time_max;
-		fade_color.setAlpha(static_cast<u32>(
-			fade_color.getAlpha() * (1.0f - d * d)));
-		guitext_status->setOverrideColor(fade_color);
-		guitext_status->enableOverrideColor(true);
 	}
 
 	// Hide chat when disabled by server or when console is visible
@@ -352,10 +319,7 @@ void GameUI::clearText()
 		m_guitext_info = nullptr;
 	}
 
-	if (m_guitext_status) {
-		m_guitext_status->remove();
-		m_guitext_status = nullptr;
-	}
+	m_status_text = nullptr;
 
 	if (m_guitext_profiler) {
 		m_guitext_profiler->remove();
