@@ -4345,7 +4345,9 @@ vectors are written like this: `(x, y, z)`:
 * `vector.angle(v1, v2)`:
     * Returns the angle between `v1` and `v2` in radians.
 * `vector.cross(v1, v2)`:
-    * Returns the cross product of `v1` and `v2`.
+    * Returns the *right-handed* cross product of `v1` and `v2`.
+    * To get the left-handed cross product
+      (e.g. for use with rotations), swap `v1` and `v2`.
 * `vector.offset(v, x, y, z)`:
     * Returns the sum of the vectors `v` and `(x, y, z)`.
 * `vector.random_in_area(min, max)`:
@@ -4365,15 +4367,17 @@ For the following functions `a` is an angle in radians and `r` is a rotation
 vector (`{x = <pitch>, y = <yaw>, z = <roll>}`) where pitch, yaw and roll are
 angles in radians.
 
+Use of these functions is **discouraged** because they use
+deprecated rotation conventions.
+Prefer to use `Rotation` objects when possible.
+
 * `vector.rotate(v, r)`:
-    * Use of this is **discouraged**. Prefer using `Rotation` objects instead.
     * Applies the rotation `r` to `v` and returns the result.
     * Uses (extrinsic) Z-X-Y rotation order and is right-handed, consistent with `ObjectRef:set_rotation`.
     * `vector.rotate(vector.new(0, 0, 1), r)` and
       `vector.rotate(vector.new(0, 1, 0), r)` return vectors pointing
       forward and up relative to an entity's rotation `r`.
 * `vector.rotate_around_axis(v1, v2, a)`:
-    * Use of this is **discouraged**. Prefer using `Rotation` objects instead.
     * Returns `v1` rotated around axis `v2` by `a` radians according to
       the right hand rule.
 * `vector.dir_to_rotation(direction[, up])`:
@@ -4432,6 +4436,10 @@ Constructors
   * This is consistent with the Euler angles that can be used for entities.
     You can do `Rotation.euler_zxy((-rotation):unpack())`
     to convert an entity rotation vector (note the handedness conversion).
+* `Rotation.mapsto(dir_from, dir_to)`:
+  Construct a rotation that maps `dir_from` to `dir_to`.
+  * `dir_from` and `dir_to` are nonzero direction vectors.
+  * The given rotation only rotates in the plane spanned by the two vectors. It is thus uniquely defined.
 * `Rotation.compose(...)`: Returns the composition of the given rotations.
   * `Rotation.compose()` is an alias for `Rotation.identity()`.
   * `Rotation.compose(rot)` copies the rotation.

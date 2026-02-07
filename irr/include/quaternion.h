@@ -47,6 +47,11 @@ public:
 	quaternion(const matrix4 &mat);
 #endif
 
+	//! Constructor which maps dir_from to dir_to by rotating
+	//! in the plane spanned by the two vectors.
+	static quaternion mapsto(
+		const vector3df &dir_from, const vector3df &dir_to);
+
 	//! Equality operator
 	constexpr bool operator==(const quaternion &other) const
 	{
@@ -286,6 +291,19 @@ inline quaternion &quaternion::operator=(const matrix4 &m)
 	return *this;
 }
 #endif
+
+inline quaternion quaternion::mapsto(
+		const vector3df &dir_from, const vector3df &dir_to)
+{
+	vector3df axis = dir_from.crossProduct(dir_to);
+	// Don't just do an acos of the dot product for numerical stability.
+	// See https://www.jwwalker.com/pages/angle-between-vectors.html
+	f32 angle = atan2(axis.getLength(), dir_from.dotProduct(dir_to));
+	quaternion q;
+	axis.normalize();
+	q.fromAngleAxis(angle, axis);
+	return q;
+}
 
 //! Multiplication operator. this is applied first, other second.
 // FIXME swap this for consistency with matrix multiplications and the rest of mathematics
