@@ -1176,3 +1176,19 @@ void GUIHyperText::draw()
 	// draw children
 	IGUIElement::draw();
 }
+
+void GUIHyperText::setScrollbarStyle(
+		const std::array<StyleSpec, StyleSpec::NUM_STATES>& styles,
+		const std::array<StyleSpec, StyleSpec::NUM_STATES>& up_arrow_styles,
+		const std::array<StyleSpec, StyleSpec::NUM_STATES>& down_arrow_styles)
+{
+	if (styles[StyleSpec::STATE_DEFAULT].isNotDefault(StyleSpec::SIZE)) {
+		m_scrollbar_width = styles[StyleSpec::STATE_DEFAULT].getIntArray(StyleSpec::SIZE, {0, 0, 0, 0})[0];
+
+		core::rect<s32> rect = core::rect<s32>(
+				RelativeRect.getWidth() - m_scrollbar_width, 0,
+				RelativeRect.getWidth(), RelativeRect.getHeight());
+		m_vscrollbar->setRelativePosition(rect);
+	}
+	m_vscrollbar->setStyles(styles, up_arrow_styles, down_arrow_styles);
+}

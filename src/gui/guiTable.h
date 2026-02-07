@@ -127,6 +127,10 @@ public:
 	/* Irrlicht event handler */
 	virtual bool OnEvent(const SEvent &event);
 
+	void setScrollbarStyle(const std::array<StyleSpec, StyleSpec::NUM_STATES>& styles,
+			const std::array<StyleSpec, StyleSpec::NUM_STATES>& up_arrow_styles,
+			const std::array<StyleSpec, StyleSpec::NUM_STATES>& down_arrow_styles);
+
 protected:
 	enum ColumnType {
 		COLUMN_TYPE_TEXT,
@@ -187,6 +191,7 @@ protected:
 	s32 m_rowheight = 1;
 	gui::IGUIFont *m_font = nullptr;
 	GUIScrollBar *m_scrollbar = nullptr;
+	u32 m_scrollbar_width = 0;
 
 	// Allocated strings and images
 	std::vector<core::stringw> m_strings;

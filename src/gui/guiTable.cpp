@@ -42,9 +42,9 @@ GUITable::GUITable(gui::IGUIEnvironment *env,
 		m_rowheight = MYMAX(m_rowheight, 1);
 	}
 
-	const s32 s = skin->getSize(gui::EGDS_SCROLLBAR_SIZE);
+	m_scrollbar_width = skin->getSize(gui::EGDS_SCROLLBAR_SIZE);
 	core::rect<s32> scrollbarrect = RelativeRect;
-	scrollbarrect.UpperLeftCorner.X += RelativeRect.getWidth() - s;
+	scrollbarrect.UpperLeftCorner.X += RelativeRect.getWidth() - m_scrollbar_width;
 
 	m_scrollbar = new GUIScrollBar(Environment, getParent(), -1,
 			scrollbarrect, false, true, tsrc);
@@ -677,8 +677,7 @@ void GUITable::draw()
 
 	core::rect<s32> row_rect(AbsoluteRect);
 	if (m_scrollbar->isVisible())
-		row_rect.LowerRightCorner.X -=
-			skin->getSize(gui::EGDS_SCROLLBAR_SIZE);
+		row_rect.LowerRightCorner.X -= m_scrollbar_width;
 	row_rect.UpperLeftCorner.Y += row_min * m_rowheight - scrollpos;
 	row_rect.LowerRightCorner.Y = row_rect.UpperLeftCorner.Y + m_rowheight;
 
@@ -1265,4 +1264,19 @@ void GUITable::alignContent(Cell *cell, s32 xmax, s32 content_width, s32 align)
 		cell->xpos = cell->xmin;
 		cell->xmax = cell->xmin + content_width;
 	}
+}
+
+void GUITable::setScrollbarStyle(
+		const std::array<StyleSpec, StyleSpec::NUM_STATES>& styles,
+		const std::array<StyleSpec, StyleSpec::NUM_STATES>& up_arrow_styles,
+		const std::array<StyleSpec, StyleSpec::NUM_STATES>& down_arrow_styles)
+{
+	if (styles[StyleSpec::STATE_DEFAULT].isNotDefault(StyleSpec::SIZE)) {
+		m_scrollbar_width = styles[StyleSpec::STATE_DEFAULT].getIntArray(StyleSpec::SIZE, {0, 0, 0, 0})[0];
+
+		core::rect<s32> rect = RelativeRect;
+		rect.UpperLeftCorner.X += RelativeRect.getWidth() - m_scrollbar_width;
+		m_scrollbar->setRelativePosition(rect);
+	}
+	m_scrollbar->setStyles(styles, up_arrow_styles, down_arrow_styles);
 }
