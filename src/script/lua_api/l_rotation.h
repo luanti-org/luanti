@@ -33,6 +33,8 @@ private:
 	static int l_euler_xyz(lua_State *L);
 	// self = euler_zxy(pitch, yaw, roll)
 	static int l_euler_zxy(lua_State *L);
+	// self = mapsto(dir_from, dir_to)
+	static int l_mapsto(lua_State *L);
 
 	// x, y, z, w = to_quaternion(self)
 	static int l_to_quaternion(lua_State *L);
