@@ -71,6 +71,10 @@ public:
 	\param constructor Choose the initialization style */
 	CMatrix4(const CMatrix4<T> &other, eConstructor constructor = EM4CONST_COPY);
 
+	//! Constructs a matrix that reflects vectors
+    //! at the plane with the given plane normal vector (which need not be normalized).
+	[[nodiscard]] static CMatrix4<T> reflection(const vector3d<T> &normal);
+
 	//! Simple operator for directly accessing every element of the matrix.
 	T &operator()(const s32 row, const s32 col)
 	{
@@ -212,6 +216,9 @@ public:
 	//! Get Scale
 	vector3d<T> getScale() const;
 
+	//! Scale the matrix rows ("axes") by the components of a vector
+	void scaleAxes(const vector3d<T> &v);
+
 	//! Translate a vector by the inverse of the translation part of this matrix.
 	void inverseTranslateVect(vector3df &vect) const;
 
@@ -219,6 +226,7 @@ public:
 	[[nodiscard]] vector3d<T> scaleThenInvRotVect(const vector3d<T> &vect) const;
 
 	//! Rotate and scale a vector. Applies both rotation & scale part of the matrix.
+	// TODO rename to transformDirection
 	[[nodiscard]] vector3d<T> rotateAndScaleVect(const vector3d<T> &vect) const;
 
 	//! Transforms the vector by this matrix
@@ -274,6 +282,8 @@ public:
 	//! Inverts a primitive matrix which only contains a translation and a rotation
 	/** \param out: where result matrix is written to. */
 	bool getInversePrimitive(CMatrix4<T> &out) const;
+
+	T determinant() const;
 
 	//! Gets the inverse matrix of this one
 	/** \param out: where result matrix is written to.
@@ -425,6 +435,16 @@ public:
 	//! Compare two matrices using the equal method
 	bool equals(const CMatrix4<T> &other, const T tolerance = (T)ROUNDING_ERROR_f64) const;
 
+	//! Check whether matrix is a 3d affine transform (last column is approximately 0, 0, 0, 1)
+	bool isAffine(const T tolerance) const
+	{
+		const auto &m = *this;
+		return core::equals(m(0, 3), (T) 0, tolerance) &&
+				core::equals(m(1, 3), (T) 0, tolerance) &&
+				core::equals(m(2, 3), (T) 0, tolerance) &&
+				core::equals(m(3, 3), (T) 1, tolerance);
+	}
+
 private:
 	template <bool degrees>
 	vector3d<T> getRotation(const vector3d<T> &scale) const;
@@ -476,6 +496,23 @@ inline CMatrix4<T>::CMatrix4(const CMatrix4<T> &other, eConstructor constructor)
 			*this = getTransposed();
 		break;
 	}
+}
+
+template <class T>
+CMatrix4<T> CMatrix4<T>::reflection(const vector3d<T> &normal)
+{
+	CMatrix4<T> refl;
+	const f32 factor = 2.0f / normal.getLengthSQ();
+	auto subtract_scaled_row = [&](int i, f32 scalar) {
+		const auto scaled = (factor * scalar) * normal;
+		refl(i, 0) -= scaled.X;
+		refl(i, 1) -= scaled.Y;
+		refl(i, 2) -= scaled.Z;
+	};
+	subtract_scaled_row(0, normal.X);
+	subtract_scaled_row(1, normal.Y);
+	subtract_scaled_row(2, normal.Z);
+	return refl;
 }
 
 //! Add another matrix.
@@ -748,6 +785,20 @@ inline vector3d<T> CMatrix4<T>::getScale() const
 		row_vector_length(1),
 		row_vector_length(2),
 	};
+}
+
+template <class T>
+void CMatrix4<T>::scaleAxes(const vector3d<T> &v)
+{
+	auto scale_row = [this](int row, T scale) {
+		auto &m = *this;
+		m(row, 0) *= scale;
+		m(row, 1) *= scale;
+		m(row, 2) *= scale;
+	};
+	scale_row(0, v.X);
+	scale_row(1, v.Y);
+	scale_row(2, v.Z);
 }
 
 template <class T>
@@ -1069,6 +1120,19 @@ inline void CMatrix4<T>::translateVect(vector3df &vect) const
 }
 
 template <class T>
+inline T CMatrix4<T>::determinant() const
+{
+	// Calculates the determinant using the rule of Sarrus.
+	const CMatrix4<T> &m = *this;
+	return (m[0] * m[5] - m[1] * m[4]) * (m[10] * m[15] - m[11] * m[14]) -
+			(m[0] * m[6] - m[2] * m[4]) * (m[9] * m[15] - m[11] * m[13]) +
+			(m[0] * m[7] - m[3] * m[4]) * (m[9] * m[14] - m[10] * m[13]) +
+			(m[1] * m[6] - m[2] * m[5]) * (m[8] * m[15] - m[11] * m[12]) -
+			(m[1] * m[7] - m[3] * m[5]) * (m[8] * m[14] - m[10] * m[12]) +
+			(m[2] * m[7] - m[3] * m[6]) * (m[8] * m[13] - m[9] * m[12]);
+}
+
+template <class T>
 inline bool CMatrix4<T>::getInverse(CMatrix4<T> &out) const
 {
 	/// Calculates the inverse of this Matrix
@@ -1077,12 +1141,7 @@ inline bool CMatrix4<T>::getInverse(CMatrix4<T> &out) const
 
 	const CMatrix4<T> &m = *this;
 
-	f32 d = (m[0] * m[5] - m[1] * m[4]) * (m[10] * m[15] - m[11] * m[14]) -
-			(m[0] * m[6] - m[2] * m[4]) * (m[9] * m[15] - m[11] * m[13]) +
-			(m[0] * m[7] - m[3] * m[4]) * (m[9] * m[14] - m[10] * m[13]) +
-			(m[1] * m[6] - m[2] * m[5]) * (m[8] * m[15] - m[11] * m[12]) -
-			(m[1] * m[7] - m[3] * m[5]) * (m[8] * m[14] - m[10] * m[12]) +
-			(m[2] * m[7] - m[3] * m[6]) * (m[8] * m[13] - m[9] * m[12]);
+	f32 d = determinant();
 
 	if (iszero(d, FLT_MIN))
 		return false;
