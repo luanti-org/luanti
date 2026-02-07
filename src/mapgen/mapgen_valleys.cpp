@@ -431,12 +431,13 @@ int MapgenValleys::generateTerrain()
 			index_3d += ystride;
 		}
 
+		// Ground height ignoring riverbeds (computed once for all uses below)
+		float t_alt = std::fmax(base, (float)column_max_y);
+
 		// Optionally increase humidity around rivers
 		if (spflags & MGVALLEYS_HUMID_RIVERS) {
 			// Compensate to avoid increasing average humidity
 			m_bgen->humidmap[index_2d] *= 0.8f;
-			// Ground height ignoring riverbeds
-			float t_alt = std::fmax(base, (float)column_max_y);
 			float water_depth = (t_alt - base) / 4.0f;
 			m_bgen->humidmap[index_2d] *=
 				1.0f + std::pow(0.5f, std::fmax(water_depth, 1.0f));
@@ -444,8 +445,6 @@ int MapgenValleys::generateTerrain()
 
 		// Optionally decrease humidity with altitude
 		if (spflags & MGVALLEYS_ALT_DRY) {
-			// Ground height ignoring riverbeds
-			float t_alt = std::fmax(base, (float)column_max_y);
 			// Only decrease above water_level
 			if (t_alt > water_level)
 				m_bgen->humidmap[index_2d] -=
@@ -456,8 +455,6 @@ int MapgenValleys::generateTerrain()
 		if (spflags & MGVALLEYS_ALT_CHILL) {
 			// Compensate to avoid reducing the average heat
 			m_bgen->heatmap[index_2d] += 5.0f;
-			// Ground height ignoring riverbeds
-			float t_alt = std::fmax(base, (float)column_max_y);
 			// Only decrease above water_level
 			if (t_alt > water_level)
 				m_bgen->heatmap[index_2d] -=
