@@ -79,6 +79,41 @@ local function format_help_line(cmd, def)
 	return msg
 end
 
+core.register_chatcommand("clearitems", {
+	params = "[<radius>]",
+	description = S("Clear dropped items within the specified radius (default: infinite)"),
+	privs = {server=true},
+	func = function(name, param)
+		local player = core.get_player_by_name(name)
+		if not player then
+			return false, S("You need to be logged in to use this command.")
+		end
+
+		local radius = tonumber(param)
+		local pos = player:get_pos()
+		local count = 0
+		local objects = {}
+
+		if radius then
+			objects = core.get_objects_inside_radius(pos, radius)
+		else
+			return false, S("For scurity reasons, you must specify a radius.")
+		end
+
+		for _, obj in ipairs(objects) do
+			if not obj:is_player() then
+				local lua_entity = obj:get_luaentity()
+				if lua_entity and lua_entity.name == "__builtin:item" then
+					obj:remove()
+					count = count + 1
+				end
+			end
+		end
+
+		return true, S("Cleared @1 dropped item(s).", count)
+	end,
+})
+
 local function do_help_cmd(name, param)
 	local opts, args = getopts("help", param)
 	if not opts then
