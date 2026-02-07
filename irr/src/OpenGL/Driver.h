@@ -6,9 +6,10 @@
 
 #pragma once
 
+#include "HWBuffer.h"
 #include "SIrrCreationParameters.h"
 #include "Common.h"
-#include "VBO.h"
+#include "BufferObject.h"
 #include "CNullDriver.h"
 #include "IMaterialRendererServices.h"
 #include "EDriverFeatures.h"
@@ -43,23 +44,17 @@ public:
 
 	struct SHWBufferLink_opengl : public SHWBufferLink
 	{
-		SHWBufferLink_opengl(const scene::IVertexBuffer *vb) : SHWBufferLink(vb) {}
-		SHWBufferLink_opengl(const scene::IIndexBuffer *ib) : SHWBufferLink(ib) {}
+		SHWBufferLink_opengl(const scene::HWBuffer *buf) : SHWBufferLink(buf), Vbo(OGLBufferObject::TARGET_VBO) {}
 
-		OpenGLVBO Vbo;
+		OGLBufferObject Vbo;
 	};
 
-	bool updateVertexHardwareBuffer(SHWBufferLink_opengl *HWBuffer);
-	bool updateIndexHardwareBuffer(SHWBufferLink_opengl *HWBuffer);
+	bool _updateHardwareBuffer(SHWBufferLink_opengl *HWBuffer);
 
 	//! updates hardware buffer if needed
 	bool updateHardwareBuffer(SHWBufferLink *HWBuffer) override;
 
-	//! Create hardware buffer from vertex buffer
-	SHWBufferLink *createHardwareBuffer(const scene::IVertexBuffer *vb) override;
-
-	//! Create hardware buffer from index buffer
-	SHWBufferLink *createHardwareBuffer(const scene::IIndexBuffer *ib) override;
+	SHWBufferLink *createHardwareBuffer(const scene::HWBuffer *buf) override;
 
 	//! Delete hardware buffer (only some drivers can)
 	void deleteHardwareBuffer(SHWBufferLink *HWBuffer) override;
@@ -283,7 +278,7 @@ protected:
 		LockRenderStateMode = false;
 	}
 
-	bool uploadHardwareBuffer(OpenGLVBO &vbo, const void *buffer, size_t bufferSize, scene::E_HARDWARE_MAPPING hint);
+	bool uploadHardwareBuffer(OGLBufferObject &vbo, const void *buffer, size_t bufferSize, scene::E_HARDWARE_MAPPING hint);
 
 	void createMaterialRenderers();
 
@@ -293,6 +288,12 @@ protected:
 
 	//! Same as `CacheHandler->setViewport`, but also sets `ViewPort`
 	virtual void setViewPortRaw(u32 width, u32 height);
+
+	virtual u16 getMaxJointTransforms() const override
+	{
+		return MaxJointTransforms;
+	}
+	virtual void setJointTransforms(const std::vector<core::matrix4> &jointMatrices) override;
 
 	void drawQuad(const VertexType &vertexType, const S3DVertex (&vertices)[4]);
 	void drawArrays(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount);
@@ -353,8 +354,12 @@ private:
 
 	bool EnableErrorTest;
 
-	OpenGLVBO QuadIndexVBO;
+	OGLBufferObject QuadIndexVBO = OGLBufferObject(OGLBufferObject::TARGET_VBO);
 	void initQuadsIndices(u32 max_vertex_count = 65536);
+
+	u16 MaxJointTransforms = 0;
+	void initMaxJointTransforms();
+	OGLBufferObject JointTransformsUBO = OGLBufferObject(OGLBufferObject::TARGET_UBO);
 
 	void debugCb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message);
 	static void APIENTRY debugCb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);

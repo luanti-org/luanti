@@ -20,6 +20,7 @@
 #include "SOverrideMaterial.h"
 #include "S3DVertex.h" // E_VERTEX_TYPE
 #include "SVertexIndex.h" // E_INDEX_TYPE
+#include "HWBuffer.h"
 
 namespace io
 {
@@ -140,6 +141,12 @@ public:
 	world, or projection.
 	\param mat Matrix describing the transformation. */
 	virtual void setTransform(E_TRANSFORMATION_STATE state, const core::matrix4 &mat) = 0;
+
+	//! Returns the maximum number of joint transformation matrices the hardware and driver support.
+	virtual u16 getMaxJointTransforms() const = 0;
+
+	//! Sets joint transformation matrices for skinned meshes.
+	virtual void setJointTransforms(const std::vector<core::matrix4> &jointMatrices) = 0;
 
 	//! Returns the transformation set by setTransform
 	/** \param state Transformation type to query
@@ -313,20 +320,11 @@ public:
 	//! Eagerly upload buffer to hardware
 	/** This can be a good idea if you have a newly created or modified buffer,
 	which you know you will draw in the near future (e.g. end of same frame,
-	or next frame), because it gives the GPU driver to copy the contents. */
-	virtual void updateHardwareBuffer(const scene::IVertexBuffer *vb) = 0;
-
-	//! Eagerly upload buffer to hardware
-	/** This can be a good idea if you have a newly created or modified buffer,
-	which you know you will draw in the near future (e.g. end of same frame,
-	or next frame), because it gives the GPU driver to copy the contents. */
-	virtual void updateHardwareBuffer(const scene::IIndexBuffer *ib) = 0;
+	or next frame), because it gives the GPU driver time to copy the contents. */
+	virtual void updateHardwareBuffer(const scene::HWBuffer *buf) = 0;
 
 	//! Remove hardware buffer
-	virtual void removeHardwareBuffer(const scene::IVertexBuffer *vb) = 0;
-
-	//! Remove hardware buffer
-	virtual void removeHardwareBuffer(const scene::IIndexBuffer *ib) = 0;
+	virtual void removeHardwareBuffer(const scene::HWBuffer *buf) = 0;
 
 	//! Remove all hardware buffers
 	virtual void removeAllHardwareBuffers() = 0;
