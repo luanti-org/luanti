@@ -146,7 +146,6 @@ local function get_formspec(tabview, name, tabdata)
 		-- TRANSLATORS: Login to server
 	retval = retval .. "button[3,6;2.5,0.75;btn_mp_login;" .. fgettext("Login") .. "]"
 
-
 	local selected_server = find_selected_server()
 
 	if selected_server then
