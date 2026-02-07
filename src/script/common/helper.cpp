@@ -39,7 +39,7 @@ template <>
 float LuaHelper::readParam(lua_State *L, int index)
 {
 	lua_Number v = luaL_checknumber(L, index);
-	if (std::isnan(v) && std::isinf(v))
+	if (std::isnan(v) || std::isinf(v))
 		throw LuaError("Invalid float value (NaN or infinity)");
 
 	return static_cast<float>(v);
