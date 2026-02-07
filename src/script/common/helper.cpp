@@ -13,6 +13,7 @@ extern "C" {
 #include <irr_v3d.h>
 #include <string_view>
 #include "c_converter.h"
+#include "c_types.h"
 
 /*
  * Read template functions
@@ -39,41 +40,22 @@ template <>
 f32 LuaHelper::readParam(lua_State *L, int index)
 {
 	lua_Number v = luaL_checknumber(L, index);
+	if (std::isnan(v) && std::isinf(v))
+		throw LuaError("Invalid float value (NaN or infinity)");
+
 	return static_cast<f32>(v);
 }
 
 template <>
-f64 LuaHelper::readParam(lua_State *L, int index)
+f32 LuaHelper::readParamRaw(lua_State *L, int index)
+{
+	return static_cast<f32>(luaL_checknumber(L, index));
+}
+
+template <>
+f64 LuaHelper::readParamRaw(lua_State *L, int index)
 {
 	return luaL_checknumber(L, index);
-}
-
-template <>
-f32 LuaHelper::readFiniteParam(lua_State *L, int index)
-{
-	lua_Number original_value = luaL_checknumber(L, index);
-	f32 v = static_cast<f32>(original_value);
-	if (std::isfinite(v))
-		return v;
-	if (std::isnan(original_value))
-		luaL_argerror(L, index, "number is NaN");
-	if (!std::isfinite(original_value))
-		luaL_argerror(L, index, "number is not finite");
-	assert(!std::isfinite(v));
-	luaL_argerror(L, index, "number is out-of-bounds for a 32-bit float");
-	IRR_CODE_UNREACHABLE();
-}
-
-template <>
-f64 LuaHelper::readFiniteParam(lua_State *L, int index)
-{
-	lua_Number v = luaL_checknumber(L, index);
-	if (std::isfinite(v))
-		return v;
-	if (std::isnan(v))
-		luaL_argerror(L, index, "number is NaN");
-	luaL_argerror(L, index, "number is not finite");
-	IRR_CODE_UNREACHABLE();
 }
 
 template <>
@@ -86,6 +68,12 @@ template <>
 v2f LuaHelper::readParam(lua_State *L, int index)
 {
 	return check_v2f(L, index);
+}
+
+template <>
+v3f LuaHelper::readParamRaw(lua_State *L, int index)
+{
+	return read_v3f(L, index);
 }
 
 template <>

@@ -39,10 +39,10 @@ int LuaRotation::l_identity(lua_State *L)
 
 int LuaRotation::l_quaternion(lua_State *L)
 {
-	f32 x = readFiniteParam<f32>(L, 1);
-	f32 y = readFiniteParam<f32>(L, 2);
-	f32 z = readFiniteParam<f32>(L, 3);
-	f32 w = readFiniteParam<f32>(L, 4);
+	f32 x = readParam<f32>(L, 1);
+	f32 y = readParam<f32>(L, 2);
+	f32 z = readParam<f32>(L, 3);
+	f32 w = readParam<f32>(L, 4);
 	core::quaternion q(x, y, z, w);
 	q.normalize();
 	create(L, q);
@@ -52,7 +52,7 @@ int LuaRotation::l_quaternion(lua_State *L)
 int LuaRotation::l_axis_angle(lua_State *L)
 {
 	v3f axis = readParam<v3f>(L, 1);
-	f32 angle = readFiniteParam<f32>(L, 2);
+	f32 angle = readParam<f32>(L, 2);
 	core::quaternion quaternion;
 	axis.normalize();
 	quaternion.fromAngleAxis(angle, axis);
@@ -63,7 +63,7 @@ int LuaRotation::l_axis_angle(lua_State *L)
 template<float v3f::* C>
 int LuaRotation::l_fixed_axis_angle(lua_State *L)
 {
-	f32 angle = readFiniteParam<f32>(L, 1);
+	f32 angle = readParam<f32>(L, 1);
 	v3f euler_angles;
 	euler_angles.*C = angle;
 	create(L, core::quaternion(euler_angles));
@@ -72,9 +72,9 @@ int LuaRotation::l_fixed_axis_angle(lua_State *L)
 
 int LuaRotation::l_euler_xyz(lua_State *L)
 {
-	f32 pitch = readFiniteParam<f32>(L, 1);
-	f32 yaw = readFiniteParam<f32>(L, 2);
-	f32 roll = readFiniteParam<f32>(L, 3);
+	f32 pitch = readParam<f32>(L, 1);
+	f32 yaw = readParam<f32>(L, 2);
+	f32 roll = readParam<f32>(L, 3);
 	core::quaternion quaternion;
 	quaternion.set(pitch, yaw, roll);
 	create(L, quaternion);
@@ -83,9 +83,9 @@ int LuaRotation::l_euler_xyz(lua_State *L)
 
 int LuaRotation::l_euler_zxy(lua_State *L)
 {
-	f32 pitch = readFiniteParam<f32>(L, 1);
-	f32 yaw = readFiniteParam<f32>(L, 2);
-	f32 roll = readFiniteParam<f32>(L, 3);
+	f32 pitch = readParam<f32>(L, 1);
+	f32 yaw = readParam<f32>(L, 2);
+	f32 roll = readParam<f32>(L, 3);
 
 	core::quaternion z, xy;
 	z.set(0, 0, roll);
@@ -170,7 +170,7 @@ int LuaRotation::l_slerp(lua_State *L)
 {
 	const auto &from = check(L, 1);
 	const auto &to = check(L, 2);
-	f32 time = readFiniteParam<f32>(L, 3);
+	f32 time = readParam<f32>(L, 3);
 	core::quaternion result;
 	result.slerp(from, to, time);
 	create(L, result);
