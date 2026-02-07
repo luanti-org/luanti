@@ -34,7 +34,7 @@ void DrawWield::run(PipelineContext &context)
 		m_target->activate(context);
 
 	if (context.draw_wield_tool)
-		context.client->getCamera()->drawWieldedTool();
+		context.client->getCamera()->drawWieldedTool(nullptr, context.wield_post_color);
 }
 
 void DrawHUD::run(PipelineContext &context)
@@ -65,7 +65,8 @@ void MapPostFxStep::run(PipelineContext &context)
 	if (target)
 		target->activate(context);
 
-	context.client->getEnv().getClientMap().renderPostFx(context.client->getCamera()->getCameraMode());
+	context.wield_post_color = context.client->getEnv().getClientMap()
+			.renderPostFx();
 }
 
 void RenderShadowMapStep::run(PipelineContext &context)
@@ -145,8 +146,8 @@ void populatePlainPipeline(RenderPipeline *pipeline, Client *client)
 	auto downscale_factor = getDownscaleFactor();
 	auto step3D = pipeline->own(create3DStage(client, downscale_factor));
 	pipeline->addStep(step3D);
-	pipeline->addStep<DrawWield>();
 	pipeline->addStep<MapPostFxStep>();
+	pipeline->addStep<DrawWield>();
 
 	step3D = addUpscaling(pipeline, step3D, downscale_factor, client);
 

@@ -36,6 +36,7 @@ struct PipelineContext
 	ShadowRenderer *shadow_renderer;
 	video::SColor clear_color;
 	v2u32 target_size;
+	video::SColorf wield_post_color{0.0f, 0.0f, 0.0f, 0.0f};
 
 	bool show_hud {true};
 	bool draw_wield_tool {true};

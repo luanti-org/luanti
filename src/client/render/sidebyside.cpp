@@ -68,8 +68,8 @@ void populateSideBySidePipeline(RenderPipeline *pipeline, Client *client, bool h
 				buffer, std::vector<u8> {right ? TEXTURE_RIGHT : TEXTURE_LEFT}, TEXTURE_DEPTH);
 		pipeline->addStep<SetRenderTargetStep>(step3D, output);
 		pipeline->addStep(step3D);
-		pipeline->addStep<DrawWield>();
 		pipeline->addStep<MapPostFxStep>();
+		pipeline->addStep<DrawWield>();
 		pipeline->addStep<DrawHUD>();
 	}
 
