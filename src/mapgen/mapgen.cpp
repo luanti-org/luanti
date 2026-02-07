@@ -114,6 +114,12 @@ Mapgen::Mapgen(int mapgenid, MapgenParams *params, EmergeParams *emerge) :
 
 	m_emerge  = emerge;
 	ndef      = emerge->ndef;
+
+	//// Initialize biome generator
+	// Unused by non-MapgenBasic mapgens, but may be used from Lua
+	biomegen = emerge->biomegen;
+	biomegen->assertChunkSize(csize);
+	biomemap = biomegen->biomemap;
 }
 
 Mapgen::~Mapgen()
@@ -588,11 +594,6 @@ MapgenBasic::MapgenBasic(int mapgenid, MapgenParams *params, EmergeParams *emerg
 	//// Allocate heightmap
 	this->heightmap = new s16[csize.X * csize.Z];
 
-	//// Initialize biome generator
-	biomegen = emerge->biomegen;
-	biomegen->assertChunkSize(csize);
-	biomemap = biomegen->biomemap;
-
 	//// Look up some commonly used content
 	c_stone              = ndef->getId("mapgen_stone");
 	c_water_source       = ndef->getId("mapgen_water_source");
@@ -616,7 +617,8 @@ MapgenBasic::MapgenBasic(int mapgenid, MapgenParams *params, EmergeParams *emerg
 
 MapgenBasic::~MapgenBasic()
 {
-	delete []heightmap;
+	if (heightmap)
+		delete []heightmap;
 }
 
 
@@ -629,7 +631,8 @@ void MapgenBasic::generateBiomes()
 	const v3s32 &em = vm->m_area.getExtent();
 	u32 index = 0;
 
-	noise_filler_depth->noiseMap2D(node_min.X, node_min.Z);
+	if (noise_filler_depth)
+	    noise_filler_depth->noiseMap2D(node_min.X, node_min.Z);
 
 	for (s16 z = node_min.Z; z <= node_max.Z; z++)
 	for (s16 x = node_min.X; x <= node_max.X; x++, index++) {
@@ -655,6 +658,8 @@ void MapgenBasic::generateBiomes()
 		// If there is air or water above enable top/filler placement, otherwise force
 		// nplaced to stone level by setting a number exceeding any possible filler depth.
 		u16 nplaced = (air_above || water_above) ? 0 : U16_MAX;
+
+		float result = noise_filler_depth ? noise_filler_depth->result[index] : 0.0f;
 
 		for (s16 y = node_max.Y; y >= node_min.Y; y--) {
 			content_t c = vm->m_data[vi].getContent();
@@ -694,8 +699,7 @@ void MapgenBasic::generateBiomes()
 
 				depth_top = biome->depth_top;
 				base_filler = MYMAX(depth_top +
-					biome->depth_filler +
-					noise_filler_depth->result[index], 0.0f);
+					biome->depth_filler + result, 0.0f);
 				depth_water_top = biome->depth_water_top;
 				depth_riverbed = biome->depth_riverbed;
 			}
