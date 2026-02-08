@@ -290,7 +290,7 @@ void ScriptApiBase::loadModFromMemory(const std::string &mod_name, std::string i
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
-	bool ok = ScriptApiSecurity::safeLoadString(L, *contents, chunk_name.c_str());
+	bool ok = ScriptApiSecurity::safeLoadFileContent(L, *contents, chunk_name.c_str());
 	if (ok)
 		ok = !lua_pcall(L, 0, 0, error_handler);
 	if (!ok) {

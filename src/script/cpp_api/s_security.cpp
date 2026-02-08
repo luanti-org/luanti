@@ -5,6 +5,9 @@
 #include "cpp_api/s_security.h"
 #include "lua_api/l_base.h"
 #include "filesys.h"
+#include "util/hashing.h"
+#include "util/hex.h"
+#include "builtin_files.h"
 #include "server.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
@@ -592,72 +595,60 @@ bool ScriptApiSecurity::safeLoadString(lua_State *L, std::string_view code, cons
 	return true;
 }
 
+bool ScriptApiSecurity::safeLoadFileContent(lua_State *L, std::string_view code, const char *chunk_name)
+{
+	// Skip the shebang line (but keep line-ending)
+	if (!code.empty() && code[0] == '#') {
+		size_t nl = code.find('\n', 1);
+		if (nl == code.npos)
+			nl = code.size();
+		code = code.substr(nl);
+	}
+
+	return safeLoadString(L, code, chunk_name);
+}
+
 bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char *display_name)
 {
-	FILE *fp;
-	char *chunk_name;
+	if (!path) {
+		lua_pushstring(L, "Loading code from stdin is not supported.");
+		return false;
+	}
+
 	if (!display_name)
 		display_name = path;
-	if (!path) {
-		fp = stdin;
-		chunk_name = const_cast<char *>("=stdin");
-	} else {
-		fp = std::fopen(path, "rb");
-		if (!fp) {
-			lua_pushfstring(L, "%s: %s", path, strerror(errno));
-			return false;
-		}
-		size_t len = strlen(display_name) + 2;
-		chunk_name = new char[len];
-		snprintf(chunk_name, len, "@%s", display_name);
-	}
 
-	size_t start = 0;
-	int c = std::getc(fp);
-	if (c == '#') {
-		// Skip the shebang line (but keep line-ending)
-		while (c != EOF && c != '\n')
-			c = std::getc(fp);
-		start = std::ftell(fp) - 1;
-	}
+	std::string chunk_name = std::string("@") + display_name;
 
 	// Read the file
-	int ret = std::fseek(fp, 0, SEEK_END);
-	if (ret) {
-		lua_pushfstring(L, "%s: %s", path, strerror(errno));
-		if (path) {
-			std::fclose(fp);
-			delete [] chunk_name;
+	std::string code;
+	if (!fs::ReadFile(path, code)) {
+		lua_pushfstring(L, "%s: %s", path, "Failed reading file.");
+		return false;
+	}
+
+	// Check sha256 if it's a builtin file
+	do {
+		assert(path != nullptr);
+		auto path_local = fs::MakePathRelativeTo(path, Server::getBuiltinLuaPath());
+		if (path_local.empty())
+			break; // not in builtin
+
+		auto it = g_builtin_file_sha256_map.find(path_local);
+		if (it == g_builtin_file_sha256_map.end()) {
+			warningstream << "No SHA256 known for builtin file \"" << path << "\""
+					<< std::endl;
+			break;
 		}
-		return false;
-	}
-
-	size_t size = std::ftell(fp) - start;
-	std::string code(size, '\0');
-	ret = std::fseek(fp, start, SEEK_SET);
-	if (ret) {
-		lua_pushfstring(L, "%s: %s", path, strerror(errno));
-		if (path) {
-			std::fclose(fp);
-			delete [] chunk_name;
+		auto digest = hex_encode(hashing::sha256(code));
+		if (it->second != digest) {
+			warningstream << "SHA256 of builtin file \"" << path
+					<< "\" does not match. Expected: " << it->second
+					<< " Found: " << digest.c_str() << std::endl;;
 		}
-		return false;
-	}
+	} while (false);
 
-	size_t num_read = std::fread(&code[0], 1, size, fp);
-	if (path)
-		std::fclose(fp);
-	if (num_read != size) {
-		lua_pushliteral(L, "Error reading file to load.");
-		if (path)
-			delete [] chunk_name;
-		return false;
-	}
-
-	bool result = safeLoadString(L, code, chunk_name);
-	if (path)
-		delete [] chunk_name;
-	return result;
+	return safeLoadFileContent(L, code, chunk_name.c_str());
 }
 
 
@@ -939,7 +930,7 @@ int ScriptApiSecurity::sl_g_loadfile(lua_State *L)
 		}
 
 		std::string chunk_name = "@" + path;
-		if (!safeLoadString(L, *contents, chunk_name.c_str())) {
+		if (!safeLoadFileContent(L, *contents, chunk_name.c_str())) {
 			lua_pushnil(L);
 			lua_insert(L, -2);
 			return 2;
