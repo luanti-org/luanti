@@ -1283,6 +1283,11 @@ void Game::updateProfilers(const RunStats &stats, const FpsControl &draw_times,
 			stats2.PrimitivesDrawn / float(stats2.Drawcalls));
 	g_profiler->avg("Irr: HW buffers uploaded", stats2.HWBuffersUploaded);
 	g_profiler->avg("Irr: HW buffers active", stats2.HWBuffersActive);
+	u32 skinned_meshes = stats2.SWSkinnedMeshes + stats2.HWSkinnedMeshes;
+	if (skinned_meshes > 0) {
+		f32 use_pct = std::floor(100.0f * stats2.HWSkinnedMeshes / skinned_meshes);
+		g_profiler->avg("Irr: HW skinning use [%]", use_pct);
+	}
 
 	if (profiler_interval.step(dtime, profiler_print_interval)) {
 		if (print_to_log) {

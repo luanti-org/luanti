@@ -201,8 +201,10 @@ void AnimatedMeshSceneNode::render()
 		if (sm->useSoftwareSkinning()) {
 			// Perform software skinning; matrices have already been calculated in OnAnimate
 			sm->skinMesh(PerJoint.GlobalMatrices);
+			++driver->getFrameStats().SWSkinnedMeshes;
 		} else if (sm->hasWeights()) {
 			driver->setJointTransforms(sm->calculateSkinMatrices(PerJoint.GlobalMatrices));
+			++driver->getFrameStats().HWSkinnedMeshes;
 		}
 	}
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);

@@ -198,7 +198,7 @@ public:
 	//! get render target size
 	const core::dimension2d<u32> &getCurrentRenderTargetSize() const override;
 
-	SFrameStats getFrameStats() const override;
+	SFrameStats &getFrameStats() override;
 
 	//! \return Returns the name of the video driver. Example: In case of the DIRECT3D8
 	//! driver, it would return "Direct3D8.1".

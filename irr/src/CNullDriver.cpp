@@ -693,7 +693,7 @@ const core::dimension2d<u32> &CNullDriver::getCurrentRenderTargetSize() const
 		return CurrentRenderTargetSize;
 }
 
-SFrameStats CNullDriver::getFrameStats() const
+SFrameStats &CNullDriver::getFrameStats()
 {
 	return FrameStats;
 }

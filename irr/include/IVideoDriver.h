@@ -55,12 +55,16 @@ const c8 *const FogTypeNames[] = {
 struct SFrameStats {
 	//! Number of draw calls
 	u32 Drawcalls = 0;
-	//! Count of primitives drawn
+	//! Number of primitives drawn
 	u32 PrimitivesDrawn = 0;
 	//! Number of hardware buffers uploaded (new or updated)
 	u32 HWBuffersUploaded = 0;
 	//! Number of active hardware buffers
 	u32 HWBuffersActive = 0;
+	//! Number of software skinned mesh scene nodes
+	u32 SWSkinnedMeshes = 0;
+	//! Number of hardware skinned mesh scene nodes
+	u32 HWSkinnedMeshes = 0;
 };
 
 struct SDriverLimits {
@@ -797,8 +801,10 @@ public:
 	\return Size of render target or screen/window */
 	virtual const core::dimension2d<u32> &getCurrentRenderTargetSize() const = 0;
 
-	//! Return some statistics about the last frame
-	virtual SFrameStats getFrameStats() const = 0;
+	//! Get statistics as a mutable reference so they
+	//! can be updated from outside during rendering.
+	//! \return Statistics about the last (current) frame.
+	virtual SFrameStats &getFrameStats() = 0;
 
 	//! Gets name of this video driver.
 	/** \return Returns the name of the video driver, e.g. in case
