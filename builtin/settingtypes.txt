@@ -1941,6 +1941,12 @@ chat_log_level (Chat log level) [client] enum error ,none,error,warning,action,i
 #    -    error: abort on usage of deprecated call (suggested for mod developers).
 deprecated_lua_api_handling (Deprecated Lua API handling) [common] enum log none,log,error
 
+#    Handling for errors when loading mods:
+#    -    none: Do not log mod load errors
+#    -    log: log errors (default).
+#    -    error: abort on failed load of mod (suggested for mod developers).
+mod_error_handling (Mod load error handling) [common] enum log none,log,error
+
 #    Enable random user input (only used for testing).
 random_input (Random input) [client] bool false
 
