@@ -2,7 +2,7 @@
 
 project.ext.set("versionMajor", 5)      // Version Major
 project.ext.set("versionMinor", 15)     // Version Minor
-project.ext.set("versionPatch", 0)      // Version Patch
+project.ext.set("versionPatch", 1)      // Version Patch
 // ^ keep in sync with cmake
 
 project.ext.set("versionBuild", 0)      // Version Build
