@@ -114,13 +114,17 @@ Display an interactive terminal over ncurses during execution.
 
 .SH ENVIRONMENT VARIABLES
 .TP
-.B MINETEST_GAME_PATH
-Colon delimited list of directories to search for games
+.B LUANTI_GAME_PATH
+Colon delimited list of directories to search for games. This should
+be used instead of \fBMINETEST_GAME_PATH\fP, which is deprecated.
+
 .TP
-.B MINETEST_MOD_PATH
-Colon delimited list of directories to search for mods
+.B LUANTI_MOD_PATH
+Colon delimited list of directories to search for mods. This should be
+used instead of \fBMINETEST_MOD_PATH\fP, which is deprecated.
+
 .TP
-.B MINETEST_USER_PATH
+.B LUANTI_USER_PATH
 Path to Luanti user data directory (only on RUN_IN_PLACE=0 build)
 .TP
 .B LOG_TIMESTAMP
