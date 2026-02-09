@@ -143,7 +143,7 @@ local function get_formspec(tabview, name, tabdata)
 		-- TRANSLATORS: Register an account on a server
 		retval = retval .. "button[0.25,6;2.5,0.75;btn_mp_register;" .. fgettext("Register") .. "]"
 	end
-		-- TRANSLATORS: Login to server
+	-- TRANSLATORS: Login to server
 	retval = retval .. "button[3,6;2.5,0.75;btn_mp_login;" .. fgettext("Login") .. "]"
 
 	local selected_server = find_selected_server()
