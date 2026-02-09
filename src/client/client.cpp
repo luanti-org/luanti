@@ -100,6 +100,7 @@ void PacketCounter::print(std::ostream &o) const
 	}
 }
 
+#ifdef NDEBUG
 static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool include_pos)
 {
 	const u16 cmd = pkt.getCommand();
@@ -117,6 +118,7 @@ static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool in
 
 	e.append(" @").append(oss.str());
 }
+#endif
 
 /*
 	Client
