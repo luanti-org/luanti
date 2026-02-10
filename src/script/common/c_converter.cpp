@@ -96,11 +96,10 @@ void push_v3f(lua_State *L, v3f p)
 
 void push_v2f(lua_State *L, v2f p)
 {
-	lua_createtable(L, 0, 2);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_PUSH_VECTOR2);
 	lua_pushnumber(L, p.X);
-	lua_setfield(L, -2, "x");
 	lua_pushnumber(L, p.Y);
-	lua_setfield(L, -2, "y");
+	lua_call(L, 2, 1);
 }
 
 v2s16 read_v2s16(lua_State *L, int index)
@@ -115,20 +114,18 @@ void push_v2s16(lua_State *L, v2s16 p)
 
 void push_v2s32(lua_State *L, v2s32 p)
 {
-	lua_createtable(L, 0, 2);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_PUSH_VECTOR2);
 	lua_pushinteger(L, p.X);
-	lua_setfield(L, -2, "x");
 	lua_pushinteger(L, p.Y);
-	lua_setfield(L, -2, "y");
+	lua_call(L, 2, 1);
 }
 
 void push_v2u32(lua_State *L, v2u32 p)
 {
-	lua_createtable(L, 0, 2);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_PUSH_VECTOR2);
 	lua_pushinteger(L, p.X);
-	lua_setfield(L, -2, "x");
 	lua_pushinteger(L, p.Y);
-	lua_setfield(L, -2, "y");
+	lua_call(L, 2, 1);
 }
 
 v2s32 read_v2s32(lua_State *L, int index)

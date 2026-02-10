@@ -4242,8 +4242,8 @@ For the following functions,
 `s` is a scalar (a number),
 vectors are written like this: `(x, y)`:
 
-* `vector2.new(a, b)`:
-    * Returns a new vector `(a, b)`.
+* `vector2.new(x, y)`:
+    * Returns a new vector `(x, y)`.
 * `vector2.zero()`:
     * Returns a new vector `(0, 0)`.
 * `vector2.random_direction()`:

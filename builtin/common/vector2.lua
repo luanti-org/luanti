@@ -30,9 +30,9 @@ local function fast_new(x, y)
 	return setmetatable({x = x, y = y}, metatable)
 end
 
-function vector2.new(a, b)
-	assert(a and b, "Invalid arguments for vector2.new()")
-	return fast_new(a, b)
+function vector2.new(x, y)
+	assert(x and y, "Invalid arguments for vector2.new()")
+	return fast_new(x, y)
 end
 
 function vector2.zero()
@@ -256,4 +256,23 @@ function vector2.random_in_area(min, max)
 		math.random(min.x, max.x),
 		math.random(min.y, max.y)
 	)
+end
+
+if rawget(_G, "core") and core.set_read_vector2 and core.set_push_vector2 then
+	local function read_vector2(v)
+		return v.x, v.y
+	end
+	core.set_read_vector2(read_vector2)
+	core.set_read_vector2 = nil
+
+	if rawget(_G, "jit") then
+		-- This is necessary to prevent trace aborts.
+		local function push_vector2(x, y)
+			return (fast_new(x, y))
+		end
+		core.set_push_vector2(push_vector2)
+	else
+		core.set_push_vector2(fast_new)
+	end
+	core.set_push_vector2 = nil
 end
