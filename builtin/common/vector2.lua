@@ -54,7 +54,7 @@ function vector2.from_string(s, init)
 	x = tonumber(x)
 	y = tonumber(y)
 	if not (x and y) then
-		return nil
+		return
 	end
 	return fast_new(x, y), np
 end
