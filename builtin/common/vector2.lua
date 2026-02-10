@@ -31,17 +31,8 @@ local function fast_new(x, y)
 end
 
 function vector2.new(a, b)
-	if a and b then
-		return fast_new(a, b)
-	end
-
-	-- deprecated, use vector2.copy and vector2.zero directly
-	if type(a) == "table" then
-		return vector2.copy(a)
-	else
-		assert(not a, "Invalid arguments for vector2.new()")
-		return vector2.zero()
-	end
+	assert(a and b, "Invalid arguments for vector2.new()")
+	return fast_new(a, b)
 end
 
 function vector2.zero()
@@ -189,17 +180,10 @@ function metatable.__sub(a, b)
 end
 
 function vector2.multiply(a, b)
-	if type(b) == "table" then
-		return fast_new(
-			a.x * b.x,
-			a.y * b.y
-		)
-	else
-		return fast_new(
-			a.x * b,
-			a.y * b
-		)
-	end
+	return fast_new(
+		a.x * b,
+		a.y * b
+	)
 end
 function metatable.__mul(a, b)
 	if type(a) == "table" then
@@ -216,17 +200,10 @@ function metatable.__mul(a, b)
 end
 
 function vector2.divide(a, b)
-	if type(b) == "table" then
-		return fast_new(
-			a.x / b.x,
-			a.y / b.y
-		)
-	else
-		return fast_new(
-			a.x / b,
-			a.y / b
-		)
-	end
+	return fast_new(
+		a.x / b,
+		a.y / b
+	)
 end
 function metatable.__div(a, b)
 	-- scalar/vector makes no sense

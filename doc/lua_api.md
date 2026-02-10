@@ -4242,10 +4242,8 @@ For the following functions,
 `s` is a scalar (a number),
 vectors are written like this: `(x, y)`:
 
-* `vector2.new([a[, b]])`:
+* `vector2.new(a, b)`:
     * Returns a new vector `(a, b)`.
-    * Deprecated: `vector2.new()` does the same as `vector2.zero()` and
-      `vector2.new(v)` does the same as `vector2.copy(v)`
 * `vector2.zero()`:
     * Returns a new vector `(0, 0)`.
 * `vector2.random_direction()`:
@@ -4327,10 +4325,8 @@ For the following functions `x` can be either a vector or a number:
     * If `x` is a number: Subtracts `x` from each component of `v`.
 * `vector2.multiply(v, s)`:
     * Returns a scaled vector.
-    * Deprecated: If `s` is a vector: Returns the Schur product.
 * `vector2.divide(v, s)`:
     * Returns a scaled vector.
-    * Deprecated: If `s` is a vector: Returns the Schur quotient.
 
 Operators
 ---------
