@@ -53,18 +53,6 @@ function vector.copy(v)
 	return fast_new(v.x, v.y, v.z)
 end
 
-function vector.from_2d(v, z)
-	return fast_new(v.x, v.y, z or 0)
-end
-
-function vector.to_2d(v)
-	-- Ensure vector2 is available
-	if not vector2 then
-		error("vector2 module not loaded")
-	end
-	return vector2.new(v.x, v.y)
-end
-
 function vector.from_string(s, init)
 	local x, y, z, np = string.match(s, "^%s*%(%s*([^%s,]+)%s*[,%s]%s*([^%s,]+)%s*[,%s]" ..
 			"%s*([^%s,]+)%s*[,%s]?%s*%)()", init)

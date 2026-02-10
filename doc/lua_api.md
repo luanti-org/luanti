@@ -4046,14 +4046,6 @@ vectors are written like this: `(x, y, z)`:
     * Returns a new vector of length 1, pointing into a direction chosen uniformly at random.
 * `vector.copy(v)`:
     * Returns a copy of the vector `v`.
-* `vector.from_2d(v, z)`:
-    * Creates a 3D vector from a 2D vector.
-    * Takes the x and y components from `v` and uses `z` as the z component (defaults to 0 if not provided).
-    * Returns a new 3D vector.
-* `vector.to_2d(v)`:
-    * Converts a 3D vector to a 2D vector.
-    * Returns a new 2D vector with the x and y components of `v` (z component is dropped).
-    * Requires the `vector2` module to be loaded.
 * `vector.from_string(s[, init])`:
     * Returns `v, np`, where `v` is a vector read from the given string `s` and
       `np` is the next position in the string after the vector.
@@ -4260,15 +4252,6 @@ vectors are written like this: `(x, y)`:
     * Returns a new vector of length 1, pointing in a direction chosen uniformly at random.
 * `vector2.copy(v)`:
     * Returns a copy of the vector `v`.
-* `vector2.from_3d(v)`:
-    * Creates a 2D vector from a 3D vector.
-    * Takes the x and y components from `v` (z component is dropped).
-    * Returns a new 2D vector.
-* `vector2.to_3d(v, z)`:
-    * Converts a 2D vector to a 3D vector.
-    * Uses `z` as the z component (defaults to 0 if not provided).
-    * Returns a new 3D vector with the x and y components from `v`.
-    * Requires the `vector` module to be loaded.
 * `vector2.from_string(s[, init])`:
     * Returns `v, np`, where `v` is a vector read from the given string `s` and
       `np` is the next position in the string after the vector.

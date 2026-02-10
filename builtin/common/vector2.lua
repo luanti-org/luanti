@@ -53,18 +53,6 @@ function vector2.copy(v)
 	return fast_new(v.x, v.y)
 end
 
-function vector2.from_3d(v)
-	return fast_new(v.x, v.y)
-end
-
-function vector2.to_3d(v, z)
-	-- Ensure vector is available
-	if not vector then
-		error("vector module not loaded")
-	end
-	return vector.new(v.x, v.y, z or 0)
-end
-
 function vector2.from_string(s, init)
 	local x, y, np = string.match(s, "^%s*%(%s*([^%s,]+)%s*[,%s]%s*([^%s,]+)%s*[,%s]?%s*%)()", init)
 	x = tonumber(x)
