@@ -44,6 +44,11 @@ function vector2.copy(v)
 	return fast_new(v.x, v.y)
 end
 
+function vector2.from_polar(r, theta)
+	assert(r and theta, "Invalid arguments for vector2.from_polar()")
+	return fast_new(r * math.cos(theta), r * math.sin(theta))
+end
+
 function vector2.from_string(s, init)
 	local x, y, np = string.match(s, "^%s*%(%s*([^%s,]+)%s*[,%s]%s*([^%s,]+)%s*[,%s]?%s*%)()", init)
 	x = tonumber(x)
@@ -68,6 +73,10 @@ metatable.__eq = vector2.equals
 
 function vector2.length(v)
 	return math.sqrt(v.x * v.x + v.y * v.y)
+end
+
+function vector2.to_polar(v)
+	return vector2.length(v), math.atan2(v.y, v.x)
 end
 
 function vector2.normalize(v)
@@ -127,6 +136,17 @@ function vector2.angle(a, b)
 	local dotp = vector2.dot(a, b)
 	local crossplen = math.abs(a.x * b.y - a.y * b.x)
 	return math.atan2(crossplen, dotp)
+end
+
+function vector2.signed_angle(a, b)
+	local angle = math.atan2(b.y, b.x) - math.atan2(a.y, a.x)
+	-- Normalize to (-pi, pi]
+	if angle > math.pi then
+		angle = angle - 2 * math.pi
+	elseif angle <= -math.pi then
+		angle = angle + 2 * math.pi
+	end
+	return angle
 end
 
 function vector2.dot(a, b)

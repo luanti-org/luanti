@@ -4250,6 +4250,11 @@ vectors are written like this: `(x, y)`:
     * Returns a new vector of length 1, pointing in a direction chosen uniformly at random.
 * `vector2.copy(v)`:
     * Returns a copy of the vector `v`.
+* `vector2.from_polar(r, theta)`:
+    * Returns a new vector from polar coordinates `(r, theta)`.
+    * `r` is the radius (length) of the vector.
+    * `theta` is the angle in radians from the positive x-axis (counterclockwise).
+    * Example: `vector2.from_polar(1, math.pi / 2)` returns a vector pointing up `(0, 1)`.
 * `vector2.from_string(s[, init])`:
     * Returns `v, np`, where `v` is a vector read from the given string `s` and
       `np` is the next position in the string after the vector.
@@ -4261,6 +4266,11 @@ vectors are written like this: `(x, y)`:
 * `vector2.to_string(v)`:
     * Returns a string of the form `"(x, y)"`.
     * `tostring(v)` does the same.
+* `vector2.to_polar(v)`:
+    * Returns `r, theta` where `r` is the radius (length) and `theta` is the angle in radians.
+    * `theta` is the angle from the positive x-axis (counterclockwise), in the range `(-pi, pi]`.
+    * For a zero vector, returns `0, 0`.
+    * Example: `vector2.to_polar(vector2.new(0, 1))` returns `1, math.pi / 2`.
 * `vector2.direction(p1, p2)`:
     * Returns a vector of length 1 with direction `p1` to `p2`.
     * If `p1` and `p2` are identical, returns `(0, 0)`.
@@ -4295,6 +4305,11 @@ vectors are written like this: `(x, y)`:
     * Returns in order minp, maxp vectors of the rectangle defined by `v1`, `v2`.
 * `vector2.angle(v1, v2)`:
     * Returns the angle between `v1` and `v2` in radians.
+    * This is always a positive value (unsigned angle).
+* `vector2.signed_angle(v1, v2)`:
+    * Returns the signed angle from `v1` to `v2` in radians, in the range `(-pi, pi]`.
+    * Positive values indicate counterclockwise rotation, negative values indicate clockwise rotation.
+    * Example: `vector2.signed_angle(vector2.new(1, 0), vector2.new(0, 1))` returns `math.pi / 2`.
 * `vector2.dot(v1, v2)`:
     * Returns the dot product of `v1` and `v2`.
 * `vector2.offset(v, x, y)`:
