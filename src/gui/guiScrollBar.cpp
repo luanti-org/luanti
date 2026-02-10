@@ -70,7 +70,6 @@ bool GUIScrollBar::OnEvent(const SEvent &event)
 					return true;
 			}
 			break;
-		case EET_GUI_EVENT:
 		case EET_MOUSE_INPUT_EVENT: {
 			const core::position2di p(event.MouseInput.X, event.MouseInput.Y);
 			bool is_inside = isPointInside(p);
