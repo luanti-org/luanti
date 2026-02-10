@@ -104,7 +104,7 @@ local function get_formspec(tabview, name, tabdata)
 				"game:<name>",
 				"mod:<name>",
 				"player:<name>",
-				"sort:{-}name|relevance|players|mods|uptime|ping|lag",
+				"sort:[-](name|relevance|players|mods|uptime|ping|lag)",
 		}, "\n") .. "]" ..
 		"field_enter_after_edit[te_search;true]" ..
 		"container[7.25,0.25]" ..
