@@ -750,7 +750,7 @@ function pkgmgr.find_by_gameid(gameid)
 	for i, game in ipairs(pkgmgr.games) do
 		if game.aliases[gameid] then
 			if ret then
-				minetest.log("warning",
+				core.log("warning",
 					"Found two games using alias " .. gameid .. ": " ..
 					game.id .. " and " .. ret.id
 				)
