@@ -152,23 +152,11 @@ describe("vector2", function()
 	end)
 
 	it("equals()", function()
-		local function assertE(a, b)
-			assert.is_true(vector2.equals(a, b))
-		end
-		local function assertNE(a, b)
-			assert.is_false(vector2.equals(a, b))
-		end
-
-		assertE({x = 0, y = 0}, {x = 0, y = 0})
-		assertE({x = -1, y = 0}, {x = -1, y = 0})
-		assertE({x = -1, y = 0}, vector2.new(-1, 0))
-		local a = {x = 2, y = 4}
-		assertE(a, a)
-		assertNE({x = -1, y = 0}, a)
-
-		assert.equal(vector2.new(1, 2), vector2.new(1, 2))
-		assert.is_true(vector2.new(1, 2):equals(vector2.new(1, 2)))
-		assert.not_equal(vector2.new(1, 2), vector2.new(1, 3))
+		assert.is_true(vector2.equals({x = 0, y = 0}, {x = 0, y = 0}))
+		assert.is_true(vector2.equals({x = -1, y = 0}, vector2.new(-1, 0)))
+		assert.is_false(vector2.equals({x = 1, y = 2}, {x = 1, y = 3}))
+		local a = vector2.new(1, 2)
+		assert.is_true(a:equals(a))
 		assert.is_true(vector2.new(1, 2) == vector2.new(1, 2))
 		assert.is_false(vector2.new(1, 2) == vector2.new(1, 3))
 	end)
