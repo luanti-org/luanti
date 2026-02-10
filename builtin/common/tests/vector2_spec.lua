@@ -209,7 +209,7 @@ describe("vector2", function()
 		assert.equal(vector2.new(41, 52), vector2.new(1, 2):offset(40, 50))
 	end)
 
-	it("is()", function()
+	it("check()", function()
 		local some_table1 = {foo = 13, [42] = 1, "bar", 2}
 		local some_table2 = {1, 2}
 		local some_table3 = {x = 1, 2}
