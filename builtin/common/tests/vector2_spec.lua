@@ -350,19 +350,19 @@ describe("vector2", function()
 			-- East (positive x-axis): angle = 0
 			local v1 = vector2.from_polar(1, 0)
 			assert.is_true(almost_equal(vector2.new(1, 0), v1))
-			
+
 			-- North (positive y-axis): angle = pi/2
 			local v2 = vector2.from_polar(1, math.pi / 2)
 			assert.is_true(almost_equal(vector2.new(0, 1), v2))
-			
+
 			-- West (negative x-axis): angle = pi
 			local v3 = vector2.from_polar(1, math.pi)
 			assert.is_true(almost_equal(vector2.new(-1, 0), v3))
-			
+
 			-- South (negative y-axis): angle = -pi/2
 			local v4 = vector2.from_polar(1, -math.pi / 2)
 			assert.is_true(almost_equal(vector2.new(0, -1), v4))
-			
+
 			-- Test with different radius
 			local v5 = vector2.from_polar(5, math.pi / 4)
 			assert.is_true(almost_equal(vector2.new(5 * math.cos(math.pi / 4), 5 * math.sin(math.pi / 4)), v5))
@@ -391,17 +391,17 @@ describe("vector2", function()
 			local r1, theta1 = vector2.to_polar(vector2.new(5, 0))
 			assert.equal(5, r1)
 			assert.is_true(almost_equal(0, theta1))
-			
+
 			-- North (positive y-axis): angle = pi/2
 			local r2, theta2 = vector2.to_polar(vector2.new(0, 3))
 			assert.equal(3, r2)
 			assert.is_true(almost_equal(math.pi / 2, theta2))
-			
+
 			-- West (negative x-axis): angle = pi or -pi
 			local r3, theta3 = vector2.to_polar(vector2.new(-2, 0))
 			assert.equal(2, r3)
 			assert.is_true(almost_equal(math.pi, math.abs(theta3)))
-			
+
 			-- Test with diagonal vector (3, 4, 5 triangle)
 			local r4, theta4 = vector2.to_polar(vector2.new(3, 4))
 			assert.equal(5, r4)
@@ -428,15 +428,15 @@ describe("vector2", function()
 			-- From east to north: positive pi/2 (counterclockwise)
 			local a1 = vector2.signed_angle(vector2.new(1, 0), vector2.new(0, 1))
 			assert.is_true(almost_equal(math.pi / 2, a1))
-			
+
 			-- From north to east: negative pi/2 (clockwise)
 			local a2 = vector2.signed_angle(vector2.new(0, 1), vector2.new(1, 0))
 			assert.is_true(almost_equal(-math.pi / 2, a2))
-			
+
 			-- From east to west: pi
 			local a3 = vector2.signed_angle(vector2.new(1, 0), vector2.new(-1, 0))
 			assert.is_true(almost_equal(math.pi, math.abs(a3)))
-			
+
 			-- Same direction: 0
 			local a4 = vector2.signed_angle(vector2.new(1, 1), vector2.new(2, 2))
 			assert.is_true(almost_equal(0, a4))
