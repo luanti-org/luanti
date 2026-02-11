@@ -3,6 +3,10 @@
 #else
 	uniform sampler2D baseTexture;
 #endif
+#ifdef TEXEL_ANTIALIASING
+	uniform vec2 texelSize0;
+	uniform vec2 texelSizeCrack;
+#endif
 #define crackTexture texture1
 uniform sampler2D crackTexture;
 
@@ -432,15 +436,48 @@ vec2 uv_repeat(vec2 v)
 	return v;
 }
 
+#ifdef TEXEL_ANTIALIASING
+// Move the uv coordinates within the texel such that when sampling the texture
+// with bilinear filtering, the result looks like nearest neighbour sampling
+// with anti-aliased texels.
+// Based on t3ssel8r's code from https://www.patreon.com/posts/83276362.
+vec2 uv_texel_antialias(vec2 uv, vec2 texel_size)
+{
+	float filter_scale = 0.7;
+	vec2 box_size = clamp(filter_scale * fwidth(uv) / texel_size, 1e-5, 1.0);
+	vec2 tx = uv / texel_size - 0.5 * box_size;
+	vec2 tx_off = clamp((fract(tx) - (1.0 - box_size)) / box_size, 0.0, 1.0);
+	return (floor(tx) + 0.5 + tx_off) * texel_size;
+}
+#endif
+
+vec4 sample_base_texture(vec2 uv)
+{
+#ifdef TEXEL_ANTIALIASING
+	vec2 uv_moved = uv_texel_antialias(uv, texelSize0);
+#ifdef USE_ARRAY_TEXTURE
+	return textureGrad(baseTexture, vec3(uv_moved, varTexLayer), dFdx(uv),
+		dFdy(uv)).rgba;
+#elif (!defined GL_ES && __VERSION__ >= 130) || (defined GL_ES && __VERSION__ >= 300)
+	return textureGrad(baseTexture, uv_moved, dFdx(uv), dFdy(uv)).rgba;
+#else
+	// For the deprecated texture2D there is no texture2DGrad
+	return texture2D(baseTexture, uv_moved).rgba;
+#endif
+#else
+#ifdef USE_ARRAY_TEXTURE
+	return texture(baseTexture, vec3(uv, varTexLayer)).rgba;
+#else
+	return texture2D(baseTexture, uv).rgba;
+#endif
+#endif
+}
+
+
 void main(void)
 {
 	vec2 uv = varTexCoord.st;
-
-#ifdef USE_ARRAY_TEXTURE
-	vec4 base = texture(baseTexture, vec3(uv, varTexLayer)).rgba;
-#else
-	vec4 base = texture2D(baseTexture, uv).rgba;
-#endif
+	vec4 base = sample_base_texture(uv);
 
 	// Handle transparency by discarding pixel as appropriate.
 #ifdef USE_DISCARD
@@ -460,7 +497,18 @@ void main(void)
 
 		vec2 cuv_offset = vec2(0.0, crack_progress / crackAnimationLength);
 		vec2 cuv_factor = vec2(1.0, 1.0 / crackAnimationLength);
-		vec4 crack = texture2D(crackTexture, cuv_offset + orig_uv * cuv_factor);
+#ifdef TEXEL_ANTIALIASING
+		vec2 orig_uv_unmoved = orig_uv;
+		orig_uv = uv_texel_antialias(orig_uv, texelSizeCrack / cuv_factor);
+#endif
+		vec2 sample_pos = cuv_offset + orig_uv * cuv_factor;
+#if defined TEXEL_ANTIALIASING && ((!defined GL_ES && __VERSION__ >= 130) || (defined GL_ES && __VERSION__ >= 300))
+		vec4 crack = textureGrad(crackTexture, sample_pos,
+			dFdx(orig_uv_unmoved) * cuv_factor,
+			dFdy(orig_uv_unmoved) * cuv_factor);
+#else
+		vec4 crack = texture2D(crackTexture, sample_pos);
+#endif
 		base = mix(base, crack, crack.a);
 	}
 
