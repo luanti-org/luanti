@@ -599,7 +599,7 @@ bool CraftDefinitionShapeless::check(const CraftInput &input, IGameDef *gamedef)
 	// Filter empty items out of input
 	std::vector<std::string> input_filtered;
 	for (const auto &item : input.items) {
-		if (!item.name.empty())
+		if (!item.empty())
 			input_filtered.push_back(item.name);
 	}
 
