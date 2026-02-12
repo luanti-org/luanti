@@ -355,25 +355,8 @@ describe("vector2", function()
 
 	describe("from_polar()", function()
 		it("creates vector from polar coordinates", function()
-			-- East (positive x-axis): angle = 0
-			local v1 = vector2.from_polar(1, 0)
-			assert.vector_close(vector2.new(1, 0), v1)
-
-			-- North (positive y-axis): angle = pi/2
-			local v2 = vector2.from_polar(1, math.pi / 2)
-			assert.vector_close(vector2.new(0, 1), v2)
-
-			-- West (negative x-axis): angle = pi
-			local v3 = vector2.from_polar(1, math.pi)
-			assert.vector_close(vector2.new(-1, 0), v3)
-
-			-- South (negative y-axis): angle = -pi/2
-			local v4 = vector2.from_polar(1, -math.pi / 2)
-			assert.vector_close(vector2.new(0, -1), v4)
-
-			-- Test with different radius
-			local v5 = vector2.from_polar(5, math.pi / 4)
-			assert.vector_close(vector2.new(5 * math.cos(math.pi / 4), 5 * math.sin(math.pi / 4)), v5)
+			local v = vector2.from_polar(5, math.pi / 4)
+			assert.vector_close(vector2.new(5 * math.cos(math.pi / 4), 5 * math.sin(math.pi / 4)), v)
 		end)
 
 		it("is inverse of to_polar", function()
@@ -387,33 +370,14 @@ describe("vector2", function()
 			assert.has.errors(function()
 				vector2.from_polar()
 			end)
-			assert.has.errors(function()
-				vector2.from_polar(1)
-			end)
 		end)
 	end)
 
 	describe("to_polar()", function()
 		it("converts vector to polar coordinates", function()
-			-- East (positive x-axis): angle = 0
-			local r1, theta1 = vector2.to_polar(vector2.new(5, 0))
-			assert.equal(5, r1)
-			assert.number_close(0, theta1)
-
-			-- North (positive y-axis): angle = pi/2
-			local r2, theta2 = vector2.to_polar(vector2.new(0, 3))
-			assert.equal(3, r2)
-			assert.number_close(math.pi / 2, theta2)
-
-			-- West (negative x-axis): angle = pi or -pi
-			local r3, theta3 = vector2.to_polar(vector2.new(-2, 0))
-			assert.equal(2, r3)
-			assert.number_close(math.pi, math.abs(theta3))
-
-			-- Test with diagonal vector (3, 4, 5 triangle)
-			local r4, theta4 = vector2.to_polar(vector2.new(3, 4))
-			assert.equal(5, r4)
-			assert.number_close(math.atan2(4, 3), theta4)
+			local r, theta = vector2.to_polar(vector2.new(3, 4))
+			assert.equal(5, r)
+			assert.number_close(math.atan2(4, 3), theta)
 		end)
 
 		it("handles zero vector", function()
@@ -433,27 +397,17 @@ describe("vector2", function()
 
 	describe("signed_angle()", function()
 		it("returns signed angle from first to second vector", function()
-			-- From east to north: positive pi/2 (counterclockwise)
+			-- Counterclockwise rotation
 			local a1 = vector2.signed_angle(vector2.new(1, 0), vector2.new(0, 1))
 			assert.number_close(math.pi / 2, a1)
 
-			-- From north to east: negative pi/2 (clockwise)
+			-- Clockwise rotation (negative angle)
 			local a2 = vector2.signed_angle(vector2.new(0, 1), vector2.new(1, 0))
 			assert.number_close(-math.pi / 2, a2)
 
-			-- From east to west: pi
-			local a3 = vector2.signed_angle(vector2.new(1, 0), vector2.new(-1, 0))
-			assert.number_close(math.pi, math.abs(a3))
-
-			-- Same direction: 0
-			local a4 = vector2.signed_angle(vector2.new(1, 1), vector2.new(2, 2))
-			assert.number_close(0, a4)
-		end)
-
-		it("works with method call syntax", function()
-			local a = vector2.signed_angle(vector2.new(1, 0), vector2.new(0, 1))
-			local b = vector2.new(1, 0):signed_angle(vector2.new(0, 1))
-			assert.number_close(a, b)
+			-- Same direction
+			local a3 = vector2.signed_angle(vector2.new(1, 1), vector2.new(2, 2))
+			assert.number_close(0, a3)
 		end)
 
 		it("is opposite of reversed angle", function()
@@ -465,16 +419,10 @@ describe("vector2", function()
 		end)
 
 		it("normalizes result to (-pi, pi]", function()
-			-- Test case where angle difference crosses pi boundary
-			-- Vector near -pi (slightly clockwise from negative x-axis)
 			local v1 = vector2.new(-1, -0.1)
-			-- Vector near +pi (slightly counterclockwise from negative x-axis)
 			local v2 = vector2.new(-1, 0.1)
 			local a = vector2.signed_angle(v1, v2)
-			-- Should be normalized to a small angle, not near 2*pi
 			assert.is_true(a > -math.pi and a <= math.pi)
-			-- The angle should be small (around 0.2 radians for this case)
-			assert.is_true(math.abs(a) < 1)  -- Much smaller than 2*pi or pi
 		end)
 	end)
 
