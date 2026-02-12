@@ -4250,10 +4250,10 @@ vectors are written like this: `(x, y)`:
     * Returns a new vector of length 1, pointing in a direction chosen uniformly at random.
 * `vector2.copy(v)`:
     * Returns a copy of the vector `v`.
-* `vector2.from_polar(r, theta)`:
-    * Returns a new vector from polar coordinates `(r, theta)`.
-    * `r` is the radius (length) of the vector.
-    * `theta` is the angle in radians from the positive x-axis (counterclockwise).
+* `vector2.from_polar(radius, angle)`:
+    * Returns a new vector from polar coordinates `(radius, angle)`.
+    * `radius` is the radius (length) of the vector.
+    * `angle` is the angle in radians from the positive x-axis (counterclockwise).
     * Example: `vector2.from_polar(1, math.pi / 2)` returns a vector pointing up `(0, 1)`.
 * `vector2.from_string(s[, init])`:
     * Returns `v, np`, where `v` is a vector read from the given string `s` and

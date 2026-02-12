@@ -44,9 +44,9 @@ function vector2.copy(v)
 	return fast_new(v.x, v.y)
 end
 
-function vector2.from_polar(r, theta)
-	assert(r and theta, "Invalid arguments for vector2.from_polar()")
-	return fast_new(r * math.cos(theta), r * math.sin(theta))
+function vector2.from_polar(radius, angle)
+	assert(radius and angle, "Invalid arguments for vector2.from_polar()")
+	return fast_new(radius * math.cos(angle), radius * math.sin(angle))
 end
 
 function vector2.from_string(s, init)
