@@ -50,7 +50,7 @@ function vector2.from_polar(r, theta)
 end
 
 function vector2.from_string(s, init)
-	local x, y, np = string.match(s, "^%s*%(%s*([^%s,]+)%s*[,%s]%s*([^%s,]+)%s*[,%s]?%s*%)()", init)
+	local x, y, np = string.match(s, "^%s*%(%s*([^%s,]+)%s*[,%s]%s*([^%s,]+)%s*,?%s*%)()", init)
 	x = tonumber(x)
 	y = tonumber(y)
 	if not (x and y) then
