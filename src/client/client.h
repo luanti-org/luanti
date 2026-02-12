@@ -394,7 +394,8 @@ public:
 
 	LocalClientState getState() { return m_state; }
 
-	void makeScreenshot();
+	bool makeScreenshot();
+	const std::string &getLastScreenshotPath() const { return m_last_screenshot_path; }
 
 	inline void pushToChatQueue(ChatMessage *cec)
 	{
@@ -490,6 +491,7 @@ private:
 	ELoginRegister m_allow_login_or_register = ELoginRegister::Any;
 	Camera *m_camera = nullptr;
 	std::unique_ptr<Minimap> m_minimap;
+	std::string m_last_screenshot_path;
 
 	// Server serialization version
 	u8 m_server_ser_ver;
