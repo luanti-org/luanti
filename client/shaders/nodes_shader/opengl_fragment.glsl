@@ -50,7 +50,10 @@ VARYING_ vec3 vNormal;
 VARYING_ vec3 worldPosition;
 CENTROID_ VARYING_ lowp vec4 varColor;
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
-CENTROID_ VARYING_ float varTexLayer; // actually int
+// Conditional because 'flat' is not available on old GLSL
+#ifdef USE_ARRAY_TEXTURE
+flat VARYING_ uint varTexLayer;
+#endif
 CENTROID_ VARYING_ float nightRatio;
 VARYING_ highp vec3 eyeVec;
 
@@ -437,7 +440,7 @@ void main(void)
 	vec2 uv = varTexCoord.st;
 
 #ifdef USE_ARRAY_TEXTURE
-	vec4 base = texture(baseTexture, vec3(uv, varTexLayer)).rgba;
+	vec4 base = texture(baseTexture, vec3(uv, float(varTexLayer))).rgba;
 #else
 	vec4 base = texture2D(baseTexture, uv).rgba;
 #endif

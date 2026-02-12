@@ -7,7 +7,9 @@ VARYING_ vec3 vNormal;
 VARYING_ vec3 worldPosition;
 VARYING_ lowp vec4 varColor;
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
-CENTROID_ VARYING_ float varTexLayer; // actually int
+#ifdef USE_ARRAY_TEXTURE
+flat VARYING_ uint varTexLayer;
+#endif
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// shadow uniforms
