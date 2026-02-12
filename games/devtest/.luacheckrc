@@ -29,6 +29,8 @@ read_globals = {
 	"check",
 	"PseudoRandom",
 	"PcgRandom",
+	"Matrix4",
+	"Rotation",
 
 	string = {fields = {"split", "trim"}},
 	table  = {fields = {"copy", "getn", "indexof", "insert_all", "key_value_swap"}},
@@ -43,3 +45,12 @@ globals = {
 	"_",
 }
 
+-- Busted-style unit testing
+-- Note: Assumes that luacheck is invoked from the project root, as is done for CI
+files["games/devtest/mods/unittests/*.lua"] = {
+	read_globals = {
+		"describe",
+		"it",
+		assert = {fields = {"same", "equals"}},
+	},
+}

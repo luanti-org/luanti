@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2018 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
 
+#include "irrTypes.h"
 extern "C" {
 #include <lauxlib.h>
 }
@@ -36,13 +37,25 @@ int LuaHelper::readParam(lua_State *L, int index)
 }
 
 template <>
-float LuaHelper::readParam(lua_State *L, int index)
+f32 LuaHelper::readParam(lua_State *L, int index)
 {
 	lua_Number v = luaL_checknumber(L, index);
 	if (std::isnan(v) || std::isinf(v))
 		throw LuaError("Invalid float value (NaN or infinity)");
 
-	return static_cast<float>(v);
+	return static_cast<f32>(v);
+}
+
+template <>
+f32 LuaHelper::readParamRaw(lua_State *L, int index)
+{
+	return static_cast<f32>(luaL_checknumber(L, index));
+}
+
+template <>
+f64 LuaHelper::readParamRaw(lua_State *L, int index)
+{
+	return luaL_checknumber(L, index);
 }
 
 template <>
@@ -55,6 +68,12 @@ template <>
 v2f LuaHelper::readParam(lua_State *L, int index)
 {
 	return check_v2f(L, index);
+}
+
+template <>
+v3f LuaHelper::readParamRaw(lua_State *L, int index)
+{
+	return read_v3f(L, index);
 }
 
 template <>
