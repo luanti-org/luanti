@@ -14,8 +14,7 @@
 #include "COpenGLCoreCacheHandler.h"
 
 #include "HWBuffer.h"
-#include "OpenGL/Common.h"
-#include "SDL_opengl.h"
+#include "Common.h"
 #include "WeightBuffer.h"
 #include "MaterialRenderer.h"
 #include "FixedPipelineRenderer.h"

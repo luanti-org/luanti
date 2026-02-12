@@ -5,7 +5,6 @@
 #pragma once
 
 #include "Common.h"
-#include "SDL_opengl.h"
 #include <cstddef>
 
 namespace video
