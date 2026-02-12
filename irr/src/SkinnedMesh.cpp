@@ -294,6 +294,7 @@ bool SkinnedMesh::checkForKeys() const
 			}
 		}
 	}
+	return false;
 }
 
 void SkinnedMesh::prepareForSkinning()
