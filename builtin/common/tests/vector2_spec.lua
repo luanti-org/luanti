@@ -9,15 +9,16 @@ local function number_close(state, arguments)
 	if #arguments < 2 then
 		return false
 	end
-	
+
 	local expected = arguments[1]
 	local actual = arguments[2]
 	local tolerance = arguments[3] or 0.000001
-	
+
 	if type(expected) == "number" and type(actual) == "number" then
 		return math.abs(expected - actual) < tolerance
 	end
-	
+
+
 	return false
 end
 
@@ -27,16 +28,17 @@ local function vector_close(state, arguments)
 	if #arguments < 2 then
 		return false
 	end
-	
+
 	local expected = arguments[1]
 	local actual = arguments[2]
 	local tolerance = arguments[3] or 0.000001
-	
+
 	if type(expected) == "table" and type(actual) == "table" then
 		return math.abs(expected.x - actual.x) < tolerance and
 		       math.abs(expected.y - actual.y) < tolerance
 	end
-	
+
+
 	return false
 end
 
@@ -319,15 +321,18 @@ describe("vector2", function()
 		local str1 = vector2.to_string(v)
 		local str2 = v:to_string()
 		local str3 = tostring(v)
-		
+
+
 		-- All should produce the same string
 		assert.same(str1, str2)
 		assert.same(str1, str3)
-		
+
+
 		-- Verify roundtrip: parse the string and compare
 		local parsed = vector2.from_string(str1)
 		assert.same(v, parsed)
-		
+
+
 		-- Test with more complex numbers to ensure precision
 		local v2 = vector2.new(math.pi, math.sqrt(2))
 		local str_v2 = vector2.to_string(v2)
