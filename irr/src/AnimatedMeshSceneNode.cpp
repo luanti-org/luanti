@@ -134,7 +134,7 @@ void AnimatedMeshSceneNode::render()
 
 	++PassCount;
 
-	if (auto *sm = dynamic_cast<SkinnedMesh *>(Mesh)) {
+	if (auto *sm = dynamic_cast<SkinnedMesh *>(Mesh.get())) {
 		sm->rigidAnimation(PerJoint.GlobalMatrices);
 		if (sm->useSoftwareSkinning()) {
 			// Perform software skinning; matrices have already been calculated in OnAnimate
