@@ -172,10 +172,8 @@ describe("vector2", function()
 	end)
 
 	it("apply()", function()
-		local i = 0
 		local f = function(x)
-			i = i + 1
-			return x + i
+			return x * 2
 		end
 		local f2 = function(x, opt1, opt2)
 			return x + opt1 + opt2
@@ -185,8 +183,8 @@ describe("vector2", function()
 		assert.same(vector2.new(1, 1), a:apply(math.ceil))
 		assert.same(vector2.new(0.1, 0.9), vector2.apply(a, math.abs))
 		assert.same(vector2.new(0.1, 0.9), a:apply(math.abs))
-		assert.same(vector2.new(1.1, 2.9), vector2.apply(a, f))
-		assert.same(vector2.new(3.1, 4.9), a:apply(f))
+		assert.same(vector2.new(0.2, 1.8), vector2.apply(a, f))
+		assert.same(vector2.new(0.2, 1.8), a:apply(f))
 		local b = vector2.new(1, 2)
 		assert.same(vector2.new(3, 4), vector2.apply(b, f2, 1, 1))
 		assert.same(vector2.new(3, 4), b:apply(f2, 1, 1))

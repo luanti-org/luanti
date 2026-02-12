@@ -137,10 +137,8 @@ describe("vector", function()
 	end)
 
 	it("apply()", function()
-		local i = 0
 		local f = function(x)
-			i = i + 1
-			return x + i
+			return x * 2
 		end
 		local f2 = function(x, opt1, opt2, opt3)
 			return x + opt1 + opt2 + opt3
@@ -150,8 +148,8 @@ describe("vector", function()
 		assert.equal(vector.new(1, 1, 0), a:apply(math.ceil))
 		assert.equal(vector.new(0.1, 0.9, 0.5), vector.apply(a, math.abs))
 		assert.equal(vector.new(0.1, 0.9, 0.5), a:apply(math.abs))
-		assert.equal(vector.new(1.1, 2.9, 2.5), vector.apply(a, f))
-		assert.equal(vector.new(4.1, 5.9, 5.5), a:apply(f))
+		assert.equal(vector.new(0.2, 1.8, -1.0), vector.apply(a, f))
+		assert.equal(vector.new(0.2, 1.8, -1.0), a:apply(f))
 		local b = vector.new(1, 2, 3)
 		assert.equal(vector.new(4, 5, 6), vector.apply(b, f2, 1, 1, 1))
 		assert.equal(vector.new(4, 5, 6), b:apply(f2, 1, 1, 1))
