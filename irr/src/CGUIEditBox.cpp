@@ -757,7 +757,6 @@ void CGUIEditBox::draw()
 	IGUIFont *font = getActiveFont();
 
 	s32 cursorLine = 0;
-	s32 charcursorpos = 0;
 
 	if (font) {
 		if (LastBreakFont != font) {
@@ -878,13 +877,13 @@ void CGUIEditBox::draw()
 				startPos = BrokenTextPositions[cursorLine];
 			}
 			s = txtLine->subString(0, CursorPos - startPos);
-			charcursorpos = font->getDimension(s.c_str()).Width +
+			CursorVisualX = font->getDimension(s.c_str()).Width +
 							font->getKerning(CursorChar[0],
 							CursorPos - startPos > 0 ? (*txtLine)[CursorPos - startPos - 1] : 0).X;
 
 			if (focus && (CursorBlinkTime == 0 || (os::Timer::getTime() - BlinkStartTime) % (2 * CursorBlinkTime) < CursorBlinkTime)) {
 				setTextRect(cursorLine);
-				CurrentTextRect.UpperLeftCorner.X += charcursorpos;
+				CurrentTextRect.UpperLeftCorner.X += CursorVisualX;
 
 				if (OverwriteMode) {
 					core::stringw character = Text.subString(CursorPos, 1);
