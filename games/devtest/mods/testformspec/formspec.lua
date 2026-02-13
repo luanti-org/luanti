@@ -578,17 +578,17 @@ This should appear at the cursor.]
 This should appear at the cursor when hovering the button.]
 
 			box[1,7;1,1;#ff000080]
-			hypertip[1,7;1,1;;18;hypertip_dynamic_complex;]]..minetest.formspec_escape([[<big>Complex hypertip (<i>dynamic</i>)</big>
+			hypertip[1,7;1,1;;18;hypertip_dynamic_complex;]]..core.formspec_escape([[<big>Complex hypertip (<i>dynamic</i>)</big>
 <img name=testformspec_node.png float=right width=64 height=64>
 <left>Left align</left>
-<center>Right align</center>
+<center>Center align</center>
 <right>Right align</right>
 <b>Bold</b> <i>Italic</i> <u>Underline</u> <mono>Mono</mono>
 Item:
 <item name=testformspec:node>]]).."]"..
 [[
 			box[1,9;1,1;#ff000080]
-			hypertip[1,9;1,1;;18;hypertip_stone;]]..minetest.formspec_escape([[<global color=#333 background=#aaa margin=20>
+			hypertip[1,9;1,1;;18;hypertip_stone;]]..core.formspec_escape([[<global color=#333 background=#aaa margin=20>
 <item name=testformspec:node float=left width=64 height=64>
 <big><b><center>Formspec Test Node</center></b></big>
 The <b>Formspec Test Node</b> is a dummy node to display an item in the <mono>testformspec</mono> mod.
