@@ -1655,6 +1655,10 @@ void MapblockMeshGenerator::drawNodeboxNode()
 		assert(sections.size() == 8);
 
 		for (int axis = 0; axis < 3; axis++) {
+			int mask_axis = std::array<int, 3>{1, 0, 2}[axis];
+			u8 mask_neg = 1 << (mask_axis * 2);
+			u8 mask_pos = 1 << (mask_axis * 2 + 1);
+
 			// identify sections
 
 			// Start with the 8 default splits
@@ -1680,7 +1684,8 @@ void MapblockMeshGenerator::drawNodeboxNode()
 						copy.MinEdge[axis] = section;
 						box->MaxEdge[axis] = section;
 						boxes.push_back(copy);
-						masks.push_back(masks[i]);
+						masks.push_back(masks[i] | mask_pos);
+						masks[i] |= mask_neg;
 						box = &boxes[i]; // find new address of the box in case of reallocation
 					}
 				}
