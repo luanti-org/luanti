@@ -1660,20 +1660,22 @@ void MapblockMeshGenerator::drawNodeboxNode()
 			// Start with the 8 default splits
 			sections.resize(8);
 
-			// Add edges of existing node boxes, rounded to 1e-3
+			// Add edges of existing node boxes
 			for (size_t i = 0; i < boxes.size(); i++) {
-				sections.push_back(std::floor(boxes[i].MinEdge[axis] * 1.0e3f) * 1.0e-3f);
-				sections.push_back(std::floor(boxes[i].MaxEdge[axis] * 1.0e3f) * 1.0e-3f);
+				sections.push_back(boxes[i].MinEdge[axis]);
+				sections.push_back(boxes[i].MaxEdge[axis]);
 			}
 
 			// split the boxes at recorded sections
+
 			// limit splits to avoid runaway crash if inner loop adds infinite splits
 			// due to e.g. precision problems.
 			// 100 is just an arbitrary, reasonably high number.
 			for (size_t i = 0; i < boxes.size() && i < 100; i++) {
 				aabb3f *box = &boxes[i];
 				for (float section : sections) {
-					if (box->MinEdge[axis] < section && box->MaxEdge[axis] > section) {
+					if (box->MinEdge[axis] < section - 1.0e-3f
+							&& box->MaxEdge[axis] > section + 1.0e-3f) {
 						aabb3f copy(*box);
 						copy.MinEdge[axis] = section;
 						box->MaxEdge[axis] = section;
