@@ -1,3 +1,7 @@
+
+include(CheckCXXSourceCompiles)
+include(CheckCXXCompilerFlag)
+
 set(DEFAULT_SDL3 OFF)
 
 option(USE_SDL2_STATIC "Link with SDL2 static libraries" FALSE)
@@ -19,10 +23,15 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
 
 	add_compile_options(-Wall -pipe)
 
+	# if possible, error on struct/class keyword missmatch
+	check_cxx_compiler_flag("-Werror=mismatched-tags" SUPPORTS_W_MISMATCHED_TAGS)
+	if(SUPPORTS_W_MISMATCHED_TAGS)
+		add_compile_options("-Werror=mismatched-tags")
+	endif()
+
 	# Enable SSE for floating point math on 32-bit x86 by default
 	# reasoning see minetest issue #11810 and https://gcc.gnu.org/wiki/FloatingPointMath
 	if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-		include(CheckCXXSourceCompiles)
 		check_cxx_source_compiles("#ifndef __i686__\n#error\n#endif\nint main(){}" IS_I686)
 		if(IS_I686)
 			message(STATUS "Detected Intel x86: using SSE instead of x87 FPU")
@@ -142,8 +151,6 @@ message(STATUS "OpenGL ES 2: ${ENABLE_GLES2}")
 #message(STATUS "WebGL: ${ENABLE_WEBGL1}")
 
 # Required libs
-
-include(CheckCXXSourceCompiles)
 
 find_package(ZLIB REQUIRED)
 find_package(JPEG REQUIRED)
