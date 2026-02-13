@@ -1773,7 +1773,14 @@ void GUIFormSpecMenu::parseHyperTip(parserData *data, const std::string &element
 	// size as the first 2 arguments, false otherwise
 	const bool rect_mode = parts[0].find(',') != std::string::npos;
 	// Number of expected hypertip arguments
-	const size_t base_size = rect_mode ? 6 : 5;
+	size_t base_size = 5;
+	// arg_cursor counts the next argument position and must be incremented
+	// each time an argument is consumed
+	size_t arg_cursor = 1;
+	if (rect_mode) {
+		base_size++;
+		arg_cursor++;
+	}
 	if (parts.size() < base_size) {
 		errorstream << "Invalid hypertip element(" << parts.size() << "): '"
 				<< element << "'"  << std::endl;
@@ -1786,7 +1793,9 @@ void GUIFormSpecMenu::parseHyperTip(parserData *data, const std::string &element
 
 	// get staticPos argument
 	std::vector<std::string> v_stpos;
-	size_t static_pos_index = rect_mode ? 2 : 1;
+	size_t static_pos_index = arg_cursor;
+	arg_cursor += 2;
+
 	if (parts[static_pos_index] != "") {
 		v_stpos = split(parts[static_pos_index], ',');
 		if (v_stpos.size() != 2) {
@@ -1797,8 +1806,8 @@ void GUIFormSpecMenu::parseHyperTip(parserData *data, const std::string &element
 		floating = false;
 	}
 
-	std::string name = parts[rect_mode ? 4 : 3];
-	std::string text = parts[rect_mode ? 5 : 4];
+	std::string name = parts[arg_cursor++];
+	std::string text = parts[arg_cursor++];
 
 	if (m_form_src)
 		text = m_form_src->resolveText(text);
@@ -2502,7 +2511,13 @@ void GUIFormSpecMenu::parseTooltip(parserData* data, const std::string &element)
 
 	// Get mode and check size
 	bool rect_mode = parts[0].find(',') != std::string::npos;
-	size_t base_size = rect_mode ? 3 : 2;
+	size_t base_size = 2;
+	// See parseHyperTip
+	size_t arg_cursor = 1;
+	if (rect_mode) {
+		base_size++;
+		arg_cursor++;
+	}
 	if (parts.size() != base_size && parts.size() != base_size + 2) {
 		errorstream << "Invalid tooltip element(" << parts.size() << "): '"
 				<< element << "'"  << std::endl;
@@ -2521,7 +2536,8 @@ void GUIFormSpecMenu::parseTooltip(parserData* data, const std::string &element)
 	}
 
 	// Make tooltip spec
-	std::string text = unescape_string(parts[rect_mode ? 2 : 1]);
+	std::string text = unescape_string(parts[arg_cursor++]);
+
 	TooltipSpec spec(utf8_to_wide(text), bgcolor, color);
 
 	// Add tooltip
