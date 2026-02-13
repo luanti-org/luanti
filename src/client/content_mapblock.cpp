@@ -1632,7 +1632,6 @@ void MapblockMeshGenerator::drawNodeboxNode()
 	masks.reserve(boxes.size());
 	for (const auto &box : boxes)
 		masks.push_back(getNodeBoxMask(box, solid_neighbors, sametype_neighbors));
-	assert(masks.size() == boxes.size());
 
 	bool is_transparent = false;
 	for (const TileSpec &tile : tiles) {
