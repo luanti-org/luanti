@@ -80,6 +80,7 @@ private:
 		TileLayer layer;
 		layer.shader_id = -1;
 		tile.layers[0] = layer;
+		tile.layers[0].color = {255, 255, 255, 255};
 		return tile;
 	}();
 

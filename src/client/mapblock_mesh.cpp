@@ -683,11 +683,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, const u8 lod, con
 		Convert MeshCollector to SMesh
 	*/
 	m_bounding_radius = std::sqrt(collector.m_bounding_radius_sq);
-
-	if (is_textureless)
-		generateMonoMesh(collector);
-	else
-		generateMesh(collector);
+	generateMesh(collector);
 
 	m_bsp_tree.buildTree(&m_transparent_triangles, data->m_side_length);
 
@@ -695,30 +691,6 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, const u8 lod, con
 	m_has_animation =
 		!m_crack_materials.empty() ||
 		!m_animation_info.empty();
-}
-
-void MapBlockMesh::generateMonoMesh(MeshCollector &collector) const {
-	scene::SMesh *mesh = static_cast<scene::SMesh *>(m_mesh[0].get());
-
-	for(u32 i = 0; i < collector.prebuffers[0].size(); i++) {
-		scene::SMeshBuffer *buf = new scene::SMeshBuffer();
-		PreMeshBuffer &p = collector.prebuffers[0][i];
-
-		{
-			buf->Material.MaterialType = m_shdrsrc->getShaderInfo(
-					p.layer.shader_id).material;
-			p.layer.applyMaterialOptions(buf->Material, 0);
-		}
-
-		buf->append(&p.vertices[0], p.vertices.size(), &p.indices[0], p.indices.size());
-
-		mesh->addMeshBuffer(buf);
-		std::ignore = buf->drop();
-	}
-	if (mesh) {
-		// Use VBO for mesh (this just would set this for every buffer)
-		mesh->setHardwareMappingHint(scene::EHM_STATIC);
-	}
 }
 
 void MapBlockMesh::generateMesh(MeshCollector &collector) {

@@ -124,6 +124,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const v3s16 seg_start
 	const core::vector3df seg_offset(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
 	const f32 scaled_BS = BS * m_node_width;
 	const bool is_liquid = m_nodedef->get(n).drawtype == NDT_LIQUID || m_nodedef->get(n).drawtype == NDT_FLOWINGLIQUID;
+	const bool uses_textureless_tile = m_is_textureless & (!is_liquid || !g_settings->getBool("enable_waving_water"));
 
 	core::vector2d<f32> uvs[4];
 	core::vector3df vertices[4];
@@ -132,7 +133,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const v3s16 seg_start
 		TileSpec tile;
 		video::SColor color;
 		getNodeTileN(n, m_blockpos_nodes, direction, m_data, tile);
-		if (m_is_textureless) {
+		if (uses_textureless_tile) {
 			// When generating a mesh with no texture, we have to color the vertices instead of relying on the texture.
 			video::SColor c2 = m_nodedef->get(n).visuals->average_colors[direction];
 			video::SColor c3 = tile.layers[0].color;
@@ -247,7 +248,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const v3s16 seg_start
 						irr_vertices[2] = video::S3DVertex(vertices[2], s_normals[direction], color, uvs[2]);
 						irr_vertices[3] = video::S3DVertex(vertices[1], s_normals[direction], color, uvs[3]);
 					}
-					m_collector->append(m_is_textureless && !is_liquid ? m_solid_tile : tile, irr_vertices, 4, quad_indices, 6);
+					m_collector->append(uses_textureless_tile ? m_solid_tile : tile, irr_vertices, 4, quad_indices, 6);
 				}
 			}
 		}
