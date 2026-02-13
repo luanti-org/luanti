@@ -280,7 +280,7 @@ core.register_node("testnodes:alpha_nodebox_2", {
 })
 
 core.register_node("testnodes:alpha_nodebox_3", {
-	description = S("Nodebox Alpha Blend Test Node 3 (Floathing Thing)"),
+	description = S("Nodebox Alpha Blend Test Node 3 (Floating Thing)"),
 	drawtype = "nodebox",
 	paramtype = "light",
 	tiles = {
