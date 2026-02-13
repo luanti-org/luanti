@@ -44,7 +44,7 @@ float LuaHelper::readParam(lua_State *L, int index)
 	// cast could turn it into Inf
 	float ret = static_cast<float>(v);
 	if (std::isinf(ret))
-		throw LuaError("Number values is out-of-range for float");
+		throw LuaError("Number value is out-of-range for float");
 
 	return ret;
 }

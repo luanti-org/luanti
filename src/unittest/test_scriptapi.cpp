@@ -209,7 +209,7 @@ void TestScriptApi::testVectorReadFloat(MyScriptApi *script)
 		"return {x=math.huge, y=0, z=0}", // inf
 		"return {x=-math.huge, y=0, z=0}", // -inf
 		"return {x=0/0, y=0, z=0}", // nan
-		"return {x=3e41, y=0, z=0}", // becomes nan after float-cast
+		"return {x=3e41, y=0, z=0}", // becomes inf after float-cast
 	};
 	for (auto &it : errs3) {
 		infostream << it << std::endl;
@@ -243,7 +243,7 @@ void TestScriptApi::testReadParamFloat(MyScriptApi *script)
 	const char *cases_err[] = {
 		"return math.huge", // inf
 		"return 0/0", // nan
-		"return 3e41", // becomes nan after float-cast
+		"return 3e41", // becomes inf after float-cast
 	};
 	for (auto &it : cases_err) {
 		infostream << it << std::endl;
