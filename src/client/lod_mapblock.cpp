@@ -119,11 +119,10 @@ void LodMeshGenerator::drawMeshNode(const v3s16 pos, const MapNode n, const Cont
 	std::ignore = mesh->drop();
 }
 
-void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
-		const v3s16 seg_start, const video::SColor color_in)
+void LodMeshGenerator::generateBitsetMesh(const MapNode n, const v3s16 seg_start, const video::SColor color_in)
 {
 	const core::vector3df seg_offset(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
-	const f32 scaled_BS = BS * width;
+	const f32 scaled_BS = BS * m_node_width;
 	const bool is_liquid = m_nodedef->get(n).drawtype == NDT_LIQUID || m_nodedef->get(n).drawtype == NDT_FLOWINGLIQUID;
 
 	core::vector2d<f32> uvs[4];
@@ -174,16 +173,16 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 					case RIGHT:
 					case DOWN:
 					case BACK:
-						uvs[0] = core::vector2d<f32>{0, static_cast<f32>(u1*width)};
+						uvs[0] = core::vector2d<f32>{0, static_cast<f32>(u1*m_node_width)};
 						uvs[1] = core::vector2d<f32>{0, 0};
-						uvs[2] = core::vector2d<f32>{static_cast<f32>(v1*width), 0};
-						uvs[3] = core::vector2d<f32>{static_cast<f32>(v1*width), static_cast<f32>(u1*width)};
+						uvs[2] = core::vector2d<f32>{static_cast<f32>(v1*m_node_width), 0};
+						uvs[3] = core::vector2d<f32>{static_cast<f32>(v1*m_node_width), static_cast<f32>(u1*m_node_width)};
 						break;
 					default:
-						uvs[0] = core::vector2d<f32>{0, static_cast<f32>(v1*width)};
+						uvs[0] = core::vector2d<f32>{0, static_cast<f32>(v1*m_node_width)};
 						uvs[1] = core::vector2d<f32>{0, 0};
-						uvs[2] = core::vector2d<f32>{static_cast<f32>(u1*width), 0};
-						uvs[3] = core::vector2d<f32>{static_cast<f32>(u1*width), static_cast<f32>(v1*width)};
+						uvs[2] = core::vector2d<f32>{static_cast<f32>(u1*m_node_width), 0};
+						uvs[3] = core::vector2d<f32>{static_cast<f32>(u1*m_node_width), static_cast<f32>(v1*m_node_width)};
 					}
 
 					// calculate low (0) and high (1) coordinates for u and v axis
@@ -192,8 +191,8 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 					v1 = (v0 + v1) * scaled_BS - BS / 2;
 					v0 = v0 * scaled_BS - BS / 2;
 					// calculate depth at which to place the quad
-					const s32 w = ((slice_i + 1) * width - 1
-						+ (direction % 2 == 1 ? -width + 1 : 1)) * BS
+					const s32 w = ((slice_i + 1) * m_node_width - 1
+						+ (direction % 2 == 1 ? -m_node_width + 1 : 1)) * BS
 						- BS / 2;
 
 					switch (direction) {
@@ -257,7 +256,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 
 void LodMeshGenerator::processNodeGroup(const std::array<bitset, 3 * BITSET_MAX2> &all_set_nodes,
 		std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> &subset_nodes,
-		std::map<content_t, MapNode> &node_types, const v3s16 seg_start, const u8 width)
+		std::map<content_t, MapNode> &node_types)
 {
 	for (const auto& [node_key, nodes] : subset_nodes) {
 		for (u8 u = 1; u <= BITSET_MAX_NOPAD; u++)
@@ -335,48 +334,58 @@ void LodMeshGenerator::processNodeGroup(const std::array<bitset, 3 * BITSET_MAX2
 		MapNode n = node_types[node_key.content];
 		const video::SColor color = encode_light(node_key.light, m_nodedef->getLightingFlags(n).light_source);
 
-		generateBitsetMesh(n, width, seg_start - m_blockpos_nodes, color);
+		generateBitsetMesh(n, m_seg_start - m_blockpos_nodes, color);
 	}
 }
 
-LightPair LodMeshGenerator::computeMaxFaceLight(const MapNode n, const v3s16 p, const v3s16 dir) const
+LightPair LodMeshGenerator::computeMaxFaceLight(const MapNode n, const v3s16 p, const v3s16 dir)
 {
-	const u16 lp1 = getFaceLight(n, m_data->m_vmanip.getNodeNoExNoEmerge(p + dir), m_nodedef);
-	const u16 lp2 = getFaceLight(n, m_data->m_vmanip.getNodeNoExNoEmerge(p - dir), m_nodedef);
+	MapNode n1 = m_data->m_vmanip.getNodeNoExNoEmerge(p + dir);
+	if (n1.getContent() == CONTENT_IGNORE) {
+		const v3s16 p_scaled = (p + dir - m_seg_start + 1) / m_node_width;
+		setBitIndex(m_all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
+	}
+	MapNode n2 = m_data->m_vmanip.getNodeNoExNoEmerge(p - dir);
+	if (n1.getContent() == CONTENT_IGNORE) {
+		const v3s16 p_scaled = (p + dir - m_seg_start + 1) / m_node_width;
+		setBitIndex(m_all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
+	}
+	const u16 lp1 = getFaceLight(n, n1, m_nodedef);
+	const u16 lp2 = getFaceLight(n, n2, m_nodedef);
 	return static_cast<LightPair>(std::max(lp1, lp2));
 }
 
-void LodMeshGenerator::setBitIndex(std::array<bitset, 3 * BITSET_MAX * BITSET_MAX> &vol, u8 x, u8 y, u8 z)
+void LodMeshGenerator::setBitIndex(std::array<bitset, 3 * BITSET_MAX2> &vol, u8 x, u8 y, u8 z)
 {
 	vol[BITSET_MAX * y + z] |= 1ULL << x; // x axis
 	vol[BITSET_MAX2 + BITSET_MAX * x + z] |= 1ULL << y; // y axis
 	vol[2 * BITSET_MAX2 + BITSET_MAX * x + y] |= 1ULL << z; // z axis
 }
 
-void LodMeshGenerator::generateGreedyLod(const v3s16 seg_start, const v3s16 seg_size, const u8 width)
+void LodMeshGenerator::generateGreedyLod()
 {
-	// all nodes in this volume, for finding node faces
-	std::array<bitset, 3 * BITSET_MAX2> all_set_solid_nodes{};
-	std::array<bitset, 3 * BITSET_MAX2> all_set_transparent_nodes{};
 	std::map<content_t, MapNode> node_types;
 	// all nodes in this volume, on each of the 3 axes, grouped by type and brightness, for use in actual mesh generation
 	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> set_solid_nodes;
 	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> set_transparent_nodes;
 
-	const v3s16 to = seg_start + seg_size;
-	const s16 max_light_step = std::min<s16>(MAP_BLOCKSIZE, width);
+	memset(&m_all_set_solid_nodes, 0, sizeof(m_all_set_solid_nodes));
+	memset(&m_all_set_transparent_nodes, 0, sizeof(m_all_set_transparent_nodes));
+
+	const v3s16 to = m_seg_start + m_seg_size;
+	const s16 max_light_step = std::min<s16>(MAP_BLOCKSIZE, m_node_width);
 
 	v3s16 p;
-	for (p.Z = seg_start.Z - 1; p.Z < to.Z + width; p.Z += width)
-	for (p.Y = seg_start.Y - 1; p.Y < to.Y + width; p.Y += width)
-	for (p.X = seg_start.X - 1; p.X < to.X + width; p.X += width) {
+	for (p.Z = m_seg_start.Z - 1; p.Z < to.Z + m_node_width; p.Z += m_node_width)
+	for (p.Y = m_seg_start.Y - 1; p.Y < to.Y + m_node_width; p.Y += m_node_width)
+	for (p.X = m_seg_start.X - 1; p.X < to.X + m_node_width; p.X += m_node_width) {
 		if (!m_data->m_vmanip.m_area.contains(p))
 			continue;
 		MapNode n = m_data->m_vmanip.getNodeRefUnsafeCheckFlags(p);
 		// when our sample is air, take more samples in a straight line down, to make sure we always hit the surface
 		// otherwise, snowy mountains or grassy hills would display lumps of dirt and stone
 		const ContentFeatures* f = &m_nodedef->get(n);
-		for (u8 subtr = 1; subtr < width && f->drawtype == NDT_AIRLIKE; subtr++) {
+		for (u8 subtr = 1; subtr < m_node_width && f->drawtype == NDT_AIRLIKE; subtr++) {
 			// this assumes that we always have entire blocks emerged for meshgen
 			n = m_data->m_vmanip.getNodeRefUnsafeCheckFlags(p - v3s16(0, subtr, 0));
 			f = &m_nodedef->get(n);
@@ -394,7 +403,7 @@ void LodMeshGenerator::generateGreedyLod(const v3s16 seg_start, const v3s16 seg_
 		}
 
 		const content_t node_type = n.getContent();
-		const v3s16 p_scaled = (p - seg_start + 1) / width;
+		const v3s16 p_scaled = (p - m_seg_start + 1) / m_node_width;
 		node_types.try_emplace(node_type, n);
 
 		if (f->drawtype == NDT_NORMAL) {
@@ -421,36 +430,37 @@ void LodMeshGenerator::generateGreedyLod(const v3s16 seg_start, const v3s16 seg_
 		}
 
 		if (is_solid) {
-			setBitIndex(all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
+			setBitIndex(m_all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
 		} else { // if transparent
-			setBitIndex(all_set_transparent_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
+			setBitIndex(m_all_set_transparent_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
 		}
 	}
 
-	processNodeGroup(all_set_solid_nodes, set_solid_nodes, node_types, seg_start, width);
-	processNodeGroup(all_set_transparent_nodes, set_transparent_nodes, node_types, seg_start, width);
+	processNodeGroup(m_all_set_solid_nodes, set_solid_nodes, node_types);
+	if (!m_is_textureless) // textureless has no transparency
+		processNodeGroup(m_all_set_transparent_nodes, set_transparent_nodes, node_types);
 }
 
-void LodMeshGenerator::generateLodChunks(const u8 width)
+void LodMeshGenerator::generateLodChunks()
 {
 	ScopeProfiler sp(g_profiler, "Client: Mesh Making LOD Greedy", SPT_AVG);
 
 	// split chunk into 62^3 segments to be able to use 64 bit ints as bitsets
 	// the other two bits are used as padding to find node faces
-	const int attempted_seg_size = BITSET_MAX_NOPAD * width;
+	const int attempted_seg_size = BITSET_MAX_NOPAD * m_node_width;
 
 	for (u16 x = 0; x < m_data->m_side_length; x += attempted_seg_size)
 	for (u16 y = 0; y < m_data->m_side_length; y += attempted_seg_size)
 	for (u16 z = 0; z < m_data->m_side_length; z += attempted_seg_size) {
-		const v3s16 seg_start(
+		m_seg_start = v3s16(
 			x + m_blockpos_nodes.X,
 			y + m_blockpos_nodes.Y,
 			z + m_blockpos_nodes.Z);
-		const v3s16 seg_size(
+		m_seg_size = v3s16(
 			std::min(m_data->m_side_length - x - 1, attempted_seg_size),
 			std::min(m_data->m_side_length - y - 1, attempted_seg_size),
 			std::min(m_data->m_side_length - z - 1, attempted_seg_size));
-		generateGreedyLod(seg_start, seg_size, width);
+		generateGreedyLod();
 	}
 }
 
@@ -461,13 +471,13 @@ void LodMeshGenerator::generate(const u8 lod)
 	// static u32 calls = 0;
 
 	// cap LODs to 8, since there is no use for larger than 256 node LODs
-	u8 width = 1 << MYMIN(lod - 1, 7);
+	m_node_width = 1 << MYMIN(lod - 1, 7);
 
 	// cap LODs width to chunk size to account for different mesh chunk settings
-	if (width > m_data->m_side_length)
-		width = m_data->m_side_length;
+	if (m_node_width > m_data->m_side_length)
+		m_node_width = m_data->m_side_length;
 
-	generateLodChunks(width);
+	generateLodChunks();
 
 	// warningstream << "calls " << (++calls) << std::endl;
 }

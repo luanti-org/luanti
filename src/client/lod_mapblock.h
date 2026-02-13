@@ -55,6 +55,15 @@ private:
 	// max bits the fit in a bitset without padding nodes squared
 	static constexpr s16 BITSET_MAX_NOPAD2 = BITSET_MAX_NOPAD * BITSET_MAX_NOPAD;
 
+	u8 m_node_width;
+
+	// LOD mesh gen uses bit shifts for gredy meshing, so we have to split the volume into segments that fit in a u64
+	v3s16 m_seg_start;
+	v3s16 m_seg_size;
+
+	std::array<bitset, 3 * BITSET_MAX2> m_all_set_solid_nodes;
+	std::array<bitset, 3 * BITSET_MAX2> m_all_set_transparent_nodes;
+
 	std::bitset<NodeDrawType_END> m_solid_set;
 	std::bitset<NodeDrawType_END> m_transparent_set;
 
@@ -75,12 +84,12 @@ private:
 	}();
 
 	void drawMeshNode(v3s16 pos, MapNode n, const ContentFeatures *f) const;
-	void generateGreedyLod(v3s16 seg_start, v3s16 seg_size, u8 width);
-	void generateBitsetMesh(MapNode n, u8 width, v3s16 seg_start, video::SColor color_in);
-	void processNodeGroup(const std::array<bitset, 3 * BITSET_MAX * BITSET_MAX> &all_set_nodes,
-		std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX * BITSET_MAX>> &subset_nodes,
-		std::map<content_t, MapNode> &node_types, v3s16 seg_start,u8 width);
-	LightPair computeMaxFaceLight(MapNode n, v3s16 p, v3s16 dir) const;
-	static void setBitIndex(std::array<bitset, 3 * BITSET_MAX * BITSET_MAX> &vol, u8 x, u8 y, u8 z);
-	void generateLodChunks(u8 width);
+	void generateGreedyLod();
+	void generateBitsetMesh(MapNode n, v3s16 seg_start, video::SColor color_in);
+	void processNodeGroup(const std::array<bitset, 3 * BITSET_MAX2> &all_set_nodes,
+		std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> &subset_nodes,
+		std::map<content_t, MapNode> &node_types);
+	LightPair computeMaxFaceLight(MapNode n, v3s16 p, v3s16 dir);
+	static void setBitIndex(std::array<bitset, 3 * BITSET_MAX2> &vol, u8 x, u8 y, u8 z);
+	void generateLodChunks();
 };
