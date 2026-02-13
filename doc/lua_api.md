@@ -3961,6 +3961,61 @@ or [Wikipedia](https://en.wikipedia.org/wiki/Cartesian_coordinate_system#Orienta
 for a more detailed and pictorial explanation of these terms.
 
 
+Vectors
+=======
+
+Luanti provides two vector classes for working with coordinates and mathematical operations:
+
+* **Spatial Vectors** (`vector.*`) - 3-dimensional vectors for 3D positions, directions, and spatial operations
+* **2D Vectors** (`vector2.*`) - 2-dimensional vectors for 2D positions, texture coordinates, and 2D operations
+
+Both vector types share many common properties and operations, which are described in the following sections.
+
+Common to all vector types
+---------------------------
+
+### Special properties
+
+Vectors can be indexed with numbers and allow method and operator syntax.
+
+All these forms of addressing a vector `v` are valid:
+
+* For 3D vectors: `v[1]`, `v[3]`, `v.x`, `v[1] = 42`, `v.y = 13`
+* For 2D vectors: `v[1]`, `v[2]`, `v.x`, `v[1] = 42`, `v.y = 13`
+
+Note: Prefer letter over number indexing for performance and compatibility reasons.
+
+Where `v` is a vector and `foo` stands for any function name, `v:foo(...)` does
+the same as `vector.foo(v, ...)` (or `vector2.foo(v, ...)` for 2D vectors).
+
+`tostring` is defined for vectors, see `vector.to_string` and `vector2.to_string`.
+
+The metatable that is used for vectors can be accessed via `vector.metatable` or `vector2.metatable`.
+Do not modify it!
+
+All `vector.*` and `vector2.*` functions allow vectors (e.g., `{x = X, y = Y, z = Z}`) without metatables.
+Returned vectors always have a metatable set.
+
+### Operators
+
+Operators can be used if all of the involved vectors have metatables:
+
+* `v1 == v2`:
+    * Returns whether `v1` and `v2` are identical.
+* `-v`:
+    * Returns the additive inverse of v.
+* `v1 + v2`:
+    * Returns the sum of both vectors.
+    * Note: `+` cannot be used together with scalars.
+* `v1 - v2`:
+    * Returns the difference of `v1` subtracted by `v2`.
+    * Note: `-` cannot be used together with scalars.
+* `v * s` or `s * v`:
+    * Returns `v` scaled by `s`.
+* `v / s`:
+    * Returns `v` scaled by `1 / s`.
+
+
 Spatial Vectors
 ===============
 
@@ -4010,22 +4065,8 @@ stated otherwise. Mods should adapt this for convenience reasons.
 Special properties of the class
 -------------------------------
 
-Vectors can be indexed with numbers and allow method and operator syntax.
-
-All these forms of addressing a vector `v` are valid:
-`v[1]`, `v[3]`, `v.x`, `v[1] = 42`, `v.y = 13`
-Note: Prefer letter over number indexing for performance and compatibility reasons.
-
-Where `v` is a vector and `foo` stands for any function name, `v:foo(...)` does
-the same as `vector.foo(v, ...)`, apart from deprecated functionality.
-
-`tostring` is defined for vectors, see `vector.to_string`.
-
-The metatable that is used for vectors can be accessed via `vector.metatable`.
-Do not modify it!
-
-All `vector.*` functions allow vectors `{x = X, y = Y, z = Z}` without metatables.
-Returned vectors always have a metatable set.
+For special properties common to all vector types (indexing, method syntax, operators, etc.),
+see [Common to all vector types](#common-to-all-vector-types).
 
 Common functions and methods
 ----------------------------
@@ -4132,22 +4173,7 @@ For the following functions `x` can be either a vector or a number:
 Operators
 ---------
 
-Operators can be used if all of the involved vectors have metatables:
-
-* `v1 == v2`:
-    * Returns whether `v1` and `v2` are identical.
-* `-v`:
-    * Returns the additive inverse of v.
-* `v1 + v2`:
-    * Returns the sum of both vectors.
-    * Note: `+` cannot be used together with scalars.
-* `v1 - v2`:
-    * Returns the difference of `v1` subtracted by `v2`.
-    * Note: `-` cannot be used together with scalars.
-* `v * s` or `s * v`:
-    * Returns `v` scaled by `s`.
-* `v / s`:
-    * Returns `v` scaled by `1 / s`.
+For vector operators (`+`, `-`, `*`, `/`, `==`, unary `-`), see [Common to all vector types](#common-to-all-vector-types).
 
 Rotation-related functions
 --------------------------
@@ -4217,21 +4243,8 @@ proper metatable. This enables:
 Special properties of the class
 -------------------------------
 
-Vectors can be indexed with numbers and allow method and operator syntax.
-
-All these forms of addressing a vector `v` are valid:
-`v[1]`, `v[2]`, `v.x`, `v[1] = 42`, `v.y = 13`
-
-Where `v` is a vector and `foo` stands for any function name, `v:foo(...)` does
-the same as `vector2.foo(v, ...)`.
-
-`tostring` is defined for vectors, see `vector2.to_string`.
-
-The metatable that is used for vectors can be accessed via `vector2.metatable`.
-Do not modify it!
-
-All `vector2.*` functions allow vectors `{x = X, y = Y}` without metatables.
-Returned vectors always have a metatable set.
+For special properties common to all vector types (indexing, method syntax, operators, etc.),
+see [Common to all vector types](#common-to-all-vector-types).
 
 Common functions and methods
 ----------------------------
@@ -4346,22 +4359,7 @@ For the following functions `x` can be either a vector or a number:
 Operators
 ---------
 
-Operators can be used if all of the involved vectors have metatables:
-
-* `v1 == v2`:
-    * Returns whether `v1` and `v2` are identical.
-* `-v`:
-    * Returns the additive inverse of v.
-* `v1 + v2`:
-    * Returns the sum of both vectors.
-    * Note: `+` cannot be used together with scalars.
-* `v1 - v2`:
-    * Returns the difference of `v1` subtracted by `v2`.
-    * Note: `-` cannot be used together with scalars.
-* `v * s` or `s * v`:
-    * Returns `v` scaled by `s`.
-* `v / s`:
-    * Returns `v` scaled by `1 / s`.
+For vector operators (`+`, `-`, `*`, `/`, `==`, unary `-`), see [Common to all vector types](#common-to-all-vector-types).
 
 Rotation
 --------
