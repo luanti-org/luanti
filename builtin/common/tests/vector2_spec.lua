@@ -355,22 +355,6 @@ describe("vector2", function()
 		assert.is_nil(vector2.from_string("nothing"))
 	end)
 
-	describe("rotate()", function()
-		it("rotates", function()
-			assert.vector_close({x = -1, y = 0},
-				vector2.rotate({x = 1, y = 0}, math.pi))
-			assert.vector_close({x = 0, y = 1},
-				vector2.rotate({x = 1, y = 0}, math.pi / 2))
-		end)
-		it("rotates back", function()
-			local v = {x = 1, y = 3}
-			local angle = math.pi / 13
-			local rotated = vector2.rotate(v, angle)
-			rotated = vector2.rotate(rotated, -angle)
-			assert.vector_close(v, rotated)
-		end)
-	end)
-
 	describe("from_polar()", function()
 		it("creates vector from polar coordinates", function()
 			local v = vector2.from_polar(5, math.pi / 4)
@@ -449,14 +433,5 @@ describe("vector2", function()
 		assert.is_true(vector2.in_area(vector2.new(-2, 5), vector2.new(-10, -10), vector2.new(10, 10)))
 		assert.is_true(vector2.in_area(vector2.new(-10, -10), vector2.new(-10, -10), vector2.new(10, 10)))
 		assert.is_false(vector2.in_area(vector2.new(-11, -10), vector2.new(-10, -10), vector2.new(10, 10)))
-	end)
-
-	it("random_in_area()", function()
-		local min = vector2.new(-100, -100)
-		local max = vector2.new(100, 100)
-		for i = 1, 1000 do
-			local random = vector2.random_in_area(min, max)
-			assert.is_true(vector2.in_area(random, min, max))
-		end
 	end)
 end)

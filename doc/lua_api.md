@@ -4336,10 +4336,6 @@ vectors are written like this: `(x, y)`:
     * `min` and `max` are inclusive.
     * If `min` is bigger than `max` on some axis, function always returns false.
     * You can use `vector2.sort` if you have two vectors and don't know which are the minimum and the maximum.
-* `vector2.random_in_area(min, max)`:
-    * Returns a random integer position in area formed by `min` and `max`
-    * `min` and `max` are inclusive.
-    * You can use `vector2.sort` if you have two vectors and don't know which are the minimum and the maximum.
 
 For the following functions `x` can be either a vector or a number:
 
@@ -4360,16 +4356,6 @@ Operators
 ---------
 
 For vector operators (`+`, `-`, `*`, `/`, `==`, unary `-`), see [Common to all vector types](#common-to-all-vector-types).
-
-Rotation
---------
-
-For the following function `a` is an angle in radians:
-
-* `vector2.rotate(v, a)`:
-    * Rotates `v` by angle `a` (in radians, counterclockwise) and returns the result.
-    * `vector2.rotate(vector2.new(1, 0), math.pi / 2)` returns a vector pointing up.
-
 
 
 

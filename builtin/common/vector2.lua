@@ -254,15 +254,6 @@ function vector2.check(v)
 	return getmetatable(v) == metatable
 end
 
-function vector2.rotate(v, angle)
-	local cosangle = math.cos(angle)
-	local sinangle = math.sin(angle)
-	return fast_new(
-		v.x * cosangle - v.y * sinangle,
-		v.x * sinangle + v.y * cosangle
-	)
-end
-
 function vector2.in_area(pos, min, max)
 	return (pos.x >= min.x) and (pos.x <= max.x) and
 		(pos.y >= min.y) and (pos.y <= max.y)
@@ -272,13 +263,6 @@ function vector2.random_direction()
 	-- Generate a random direction of unit length
 	local angle = math.random() * 2 * math.pi
 	return fast_new(math.cos(angle), math.sin(angle))
-end
-
-function vector2.random_in_area(min, max)
-	return fast_new(
-		math.random(min.x, max.x),
-		math.random(min.y, max.y)
-	)
 end
 
 if rawget(_G, "core") and core.set_read_vector2 and core.set_push_vector2 then
