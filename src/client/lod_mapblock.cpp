@@ -25,17 +25,25 @@
 static constexpr u16 quad_indices_02[] = {0, 1, 2, 2, 3, 0};
 static const auto &quad_indices = quad_indices_02;
 
-LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output, const bool is_textureless):
+LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output, const bool is_textureless, const u32 solid_shader_id):
 	m_data(input),
 	m_collector(output),
 	m_nodedef(m_data->m_nodedef),
 	m_blockpos_nodes(m_data->m_blockpos * MAP_BLOCKSIZE),
 	m_is_textureless(is_textureless)
 {
-	// transparents are always rendered separately
-	m_transparent_set.set(NDT_LIQUID);
-	m_transparent_set.set(NDT_GLASSLIKE);
-	m_transparent_set.set(NDT_MESH);
+	m_solid_tile.layers[0].shader_id = solid_shader_id;
+
+	// transparents are rendered separately if not textureless
+	if (is_textureless) {
+		m_solid_set.set(NDT_LIQUID);
+		m_solid_set.set(NDT_GLASSLIKE);
+		m_solid_set.set(NDT_MESH);
+	}else {
+		m_transparent_set.set(NDT_LIQUID);
+		m_transparent_set.set(NDT_GLASSLIKE);
+		m_transparent_set.set(NDT_MESH);
+	}
 
 	m_solid_set.set(NDT_NORMAL);
 	m_solid_set.set(NDT_NODEBOX);
@@ -116,6 +124,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 {
 	const core::vector3df seg_offset(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
 	const f32 scaled_BS = BS * width;
+	const bool is_liquid = m_nodedef->get(n).drawtype == NDT_LIQUID || m_nodedef->get(n).drawtype == NDT_FLOWINGLIQUID;
 
 	core::vector2d<f32> uvs[4];
 	core::vector3df vertices[4];
@@ -239,15 +248,15 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const u8 width,
 						irr_vertices[2] = video::S3DVertex(vertices[2], s_normals[direction], color, uvs[2]);
 						irr_vertices[3] = video::S3DVertex(vertices[1], s_normals[direction], color, uvs[3]);
 					}
-					m_collector->append(m_is_textureless ? s_static_tile : tile, irr_vertices, 4, quad_indices, 6);
+					m_collector->append(m_is_textureless && !is_liquid ? m_solid_tile : tile, irr_vertices, 4, quad_indices, 6);
 				}
 			}
 		}
 	}
 }
 
-void LodMeshGenerator::processNodeGroup(const std::array<bitset, 3 * BITSET_MAX * BITSET_MAX> &all_set_nodes,
-		std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX * BITSET_MAX>> &subset_nodes,
+void LodMeshGenerator::processNodeGroup(const std::array<bitset, 3 * BITSET_MAX2> &all_set_nodes,
+		std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> &subset_nodes,
 		std::map<content_t, MapNode> &node_types, const v3s16 seg_start, const u8 width)
 {
 	for (const auto& [node_key, nodes] : subset_nodes) {

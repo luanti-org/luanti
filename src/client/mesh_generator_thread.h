@@ -127,7 +127,7 @@ class MeshUpdateManager;
 class MeshUpdateWorkerThread : public UpdateThread
 {
 public:
-	MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager, video::SMaterial mono_material);
+	MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager, u32 solid_shader_id);
 
 protected:
 	virtual void doUpdate();
@@ -136,7 +136,7 @@ private:
 	Client *m_client;
 	MeshUpdateQueue *m_queue_in;
 	MeshUpdateManager *m_manager;
-	video::SMaterial m_mono_material;
+	u32 m_solid_shader_id;
 
 	// TODO: Add callback to update these when g_settings changes
 	int m_generation_interval;

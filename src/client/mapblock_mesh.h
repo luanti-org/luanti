@@ -178,7 +178,7 @@ class MapBlockMesh
 {
 public:
 	// Builds the mesh given
-	MapBlockMesh(Client *client, MeshMakeData *data, u8 lod, video::SMaterial mono_material);
+	MapBlockMesh(Client *client, MeshMakeData *data, u8 lod, u32 solid_shader_id);
 	~MapBlockMesh();
 
 	// Main animation function, parameters:
@@ -278,7 +278,7 @@ public:
 	const u8 m_lod;
 
 private:
-	video::SMaterial m_mono_material;
+	u32 m_solid_shader_id;
 
 	typedef std::pair<u8 /* layer index */, u32 /* buffer index */> MeshIndex;
 

@@ -33,7 +33,7 @@ struct std::hash<NodeKey> {
 class LodMeshGenerator
 {
 public:
-	LodMeshGenerator(MeshMakeData *input, MeshCollector *output, bool is_textureless);
+	LodMeshGenerator(MeshMakeData *input, MeshCollector *output, bool is_textureless, u32 solid_shader_id);
 	void generate(u8 lod);
 
 private:
@@ -66,7 +66,7 @@ private:
 		core::vector3df(1, 0, 0), core::vector3df(-1, 0, 0),
 		core::vector3df(0, 0, 1), core::vector3df(0, 0, -1)
 	};
-	static constexpr TileSpec s_static_tile = [] {
+	TileSpec m_solid_tile = [] {
 		TileSpec tile;
 		TileLayer layer;
 		layer.shader_id = -1;

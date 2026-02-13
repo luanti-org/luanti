@@ -628,9 +628,9 @@ static void applyColorAndMerge(std::vector<PreMeshBuffer> &prebuffers)
 	}), prebuffers.end());
 }
 
-MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, const u8 lod, const video::SMaterial mono_material):
+MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, const u8 lod, const u32 solid_shader_id):
 	m_lod(lod),
-	m_mono_material(mono_material),
+	m_solid_shader_id(solid_shader_id),
 	m_tsrc(client->getTextureSource()),
 	m_shdrsrc(client->getShaderSource()),
 	m_bounding_sphere_center((data->m_side_length * 0.5f - 0.5f) * BS),
@@ -676,7 +676,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, const u8 lod, con
 		if (lod == 0 || !is_lod_enabled)
 			MapblockMeshGenerator(data, &collector).generate();
 		else
-			LodMeshGenerator(data, &collector, is_textureless).generate(lod);
+			LodMeshGenerator(data, &collector, is_textureless, solid_shader_id).generate(lod);
 	}
 
 	/*
@@ -702,8 +702,14 @@ void MapBlockMesh::generateMonoMesh(MeshCollector &collector) const {
 
 	for(u32 i = 0; i < collector.prebuffers[0].size(); i++) {
 		scene::SMeshBuffer *buf = new scene::SMeshBuffer();
-		buf->Material = m_mono_material;
 		PreMeshBuffer &p = collector.prebuffers[0][i];
+
+		{
+			buf->Material.MaterialType = m_shdrsrc->getShaderInfo(
+					p.layer.shader_id).material;
+			p.layer.applyMaterialOptions(buf->Material, 0);
+		}
+
 		buf->append(&p.vertices[0], p.vertices.size(), &p.indices[0], p.indices.size());
 
 		mesh->addMeshBuffer(buf);

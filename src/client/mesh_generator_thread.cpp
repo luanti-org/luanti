@@ -248,8 +248,8 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	MeshUpdateWorkerThread
 */
 
-MeshUpdateWorkerThread::MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager, const video::SMaterial mono_material) :
-		UpdateThread("Mesh"), m_client(client), m_queue_in(queue_in), m_manager(manager), m_mono_material(mono_material)
+MeshUpdateWorkerThread::MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager, const u32 solid_shader_id) :
+		UpdateThread("Mesh"), m_client(client), m_queue_in(queue_in), m_manager(manager), m_solid_shader_id(solid_shader_id)
 {
 	m_generation_interval = g_settings->getU16("mesh_generation_interval");
 	m_generation_interval = rangelim(m_generation_interval, 0, 25);
@@ -262,7 +262,7 @@ void MeshUpdateWorkerThread::doUpdate()
 		ScopeProfiler sp(g_profiler, "Client: Mesh making (sum)");
 
 		// This generates the mesh:
-		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data, q->lod, m_mono_material);
+		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data, q->lod, m_solid_shader_id);
 
 		MeshUpdateResult r;
 		r.p = q->p;
@@ -303,14 +303,12 @@ MeshUpdateManager::MeshUpdateManager(Client *client):
 	number_of_threads = std::max(1, number_of_threads);
 	infostream << "MeshUpdateManager: using " << number_of_threads << " threads" << std::endl;
 
-	// getSHader only works in this thread, so the material has to be passed along from here
-	const u32 shader_id = client->getShaderSource()->getShader(
+	// getShader only works in this thread, so it has to be passed along from here
+	const u32 solid_shader_id = client->getShaderSource()->getShader(
 		"nodes_shader", TILE_MATERIAL_BASIC, NDT_NORMAL, false, true);
-	video::SMaterial mono_material;
-	mono_material.MaterialType = client->getShaderSource()->getShaderInfo(shader_id).material;
 
 	for (int i = 0; i < number_of_threads; i++)
-		m_workers.push_back(std::make_unique<MeshUpdateWorkerThread>(client, &m_queue_in, this, mono_material));
+		m_workers.push_back(std::make_unique<MeshUpdateWorkerThread>(client, &m_queue_in, this, solid_shader_id));
 }
 
 void MeshUpdateManager::updateBlock(Map *map, v3s16 p, bool ack_block_to_server,
