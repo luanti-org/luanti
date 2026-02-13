@@ -3,7 +3,7 @@
 /* Attributes */
 
 attribute vec4 inVertexPosition;
-attribute vec4 inVertexColor;
+attribute vec4 inVertexColor_raw;
 attribute vec2 inTexCoord0;
 
 /* Uniforms */
@@ -24,5 +24,5 @@ void main()
 	gl_Position = uProjection * (inVertexPosition + vec4(0.375, 0.375, 0.0, 0.0));
 	gl_PointSize = uThickness;
 	vTextureCoord = inTexCoord0;
-	vVertexColor = inVertexColor.bgra;
+	vVertexColor = inVertexColor_raw.bgra;
 }

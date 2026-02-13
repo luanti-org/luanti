@@ -61,7 +61,7 @@ private:
 	{
 		capturing = false;
 		nostart |= inhibit_restart;
-		super::setText(wstrgettext(key_value.name()).c_str());
+		super::setText(utf8_to_wide(key_value.name()).c_str());
 	}
 
 	//! Sets the captured key and stop capturing

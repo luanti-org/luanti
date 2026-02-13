@@ -170,6 +170,8 @@ private:
 	bool m_needs_update_transparent_meshes = true;
 
 	std::map<v3s16, MapBlock*, MapBlockComparer> m_drawlist;
+	// List of additional blocks to keep (relevant with mesh_chunk > 1, since
+	// not all blocks contain a mesh)
 	std::vector<MapBlock*> m_keeplist;
 	std::map<v3s16, MapBlock*> m_drawlist_shadow;
 	bool m_needs_update_drawlist;

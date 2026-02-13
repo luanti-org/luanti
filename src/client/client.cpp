@@ -36,17 +36,23 @@
 #include "translation.h"
 #include "util/auth.h"
 #include "util/pointedthing.h"
+#include "util/screenshot.h"
 #include "util/serialize.h"
 #include "util/srp.h"
 #include "util/string.h"
 #include "version.h"
 
-// Modding
+// CPCSM
 #include "content/mod_configuration.h"
 #include "content/mods.h"
 #include "modchannels.h"
 #include "script/common/c_types.h" // LuaError
 #include "script/scripting_client.h"
+
+// SSCSM
+#include "client/mod_vfs.h"
+#include "script/sscsm/sscsm_controller.h"
+#include "script/sscsm/sscsm_events.h"
 
 // Network
 #include "network/clientopcodes.h"
@@ -92,6 +98,24 @@ void PacketCounter::print(std::ostream &o) const
 		o << "cmd " << it.first << " (" << name << ") count "
 			<< it.second << std::endl;
 	}
+}
+
+static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool include_pos)
+{
+	const u16 cmd = pkt.getCommand();
+	std::ostringstream oss;
+	if (cmd < TOCLIENT_NUM_MSG_TYPES)
+		oss << " name=" << toClientCommandTable[cmd].name;
+
+	if (include_pos) {
+		// (not necessary for PacketError: already in e.what())
+
+		oss << " cmd=" << cmd
+			<< " offset=" << pkt.getOffset()
+			<< " size=" << pkt.getSize();
+	}
+
+	e.append(" @").append(oss.str());
 }
 
 /*
@@ -149,6 +173,62 @@ Client::Client(
 
 	m_cache_save_interval = g_settings->getU16("server_map_save_interval");
 	m_mesh_grid = { g_settings->getU16("client_mesh_chunk") };
+
+	m_sscsm_controller = SSCSMController::create();
+
+	{
+		auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
+
+		ModVFS tmp_mod_vfs;
+		// FIXME: only read files that are relevant to sscsm, and compute sha2 digests
+		tmp_mod_vfs.scanModIntoMemory("*client_builtin*", getBuiltinLuaPath());
+
+		for (auto &p : tmp_mod_vfs.m_vfs) {
+			event1->files.emplace_back(p.first, std::move(p.second));
+		}
+
+		m_sscsm_controller->runEvent(this, std::move(event1));
+
+		// load client builtin immediately
+		auto event2 = std::make_unique<SSCSMEventLoadMods>();
+		event2->mods.emplace_back("*client_builtin*", "*client_builtin*:init.lua");
+		m_sscsm_controller->runEvent(this, std::move(event2));
+	}
+
+	{
+		//FIXME: network packets
+		//FIXME: check that *client_builtin* is not overridden
+
+		std::string enable_sscsm = g_settings->get("enable_sscsm");
+		if (enable_sscsm == "singleplayer") { //FIXME: enum
+			auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
+
+			// some simple test code
+			event1->files.emplace_back("sscsm_test0:init.lua",
+					R"=+=(
+print("sscsm_test0: loading")
+
+--print(dump(_G))
+--print(debug.traceback())
+
+do
+	local pos = vector.zero()
+	local function print_nodes()
+		print(string.format("node at %s: %s", pos, dump(core.get_node_or_nil(pos))))
+		pos = pos:offset(1, 0, 0)
+		core.after(1, print_nodes)
+	end
+	core.after(0, print_nodes)
+end
+					)=+=");
+
+			m_sscsm_controller->runEvent(this, std::move(event1));
+
+			auto event2 = std::make_unique<SSCSMEventLoadMods>();
+			event2->mods.emplace_back("sscsm_test0", "sscsm_test0:init.lua");
+			m_sscsm_controller->runEvent(this, std::move(event2));
+		}
+	}
 }
 
 void Client::migrateModStorage()
@@ -196,12 +276,14 @@ void Client::loadMods()
 		return;
 	}
 
+	m_mod_vfs = std::make_unique<ModVFS>();
+
 	m_script = new ClientScripting(this);
 	m_env.setScript(m_script);
 	m_script->setEnv(&m_env);
 
 	// Load builtin
-	scanModIntoMemory(BUILTIN_MOD_NAME, getBuiltinLuaPath());
+	m_mod_vfs->scanModIntoMemory(BUILTIN_MOD_NAME, getBuiltinLuaPath());
 	m_script->loadModFromMemory(BUILTIN_MOD_NAME);
 	m_script->checkSetByBuiltin();
 
@@ -240,7 +322,7 @@ void Client::loadMods()
 	// Load "mod" scripts
 	for (const ModSpec &mod : m_mods) {
 		mod.checkAndLog();
-		scanModIntoMemory(mod.name, mod.path);
+		m_mod_vfs->scanModIntoMemory(mod.name, mod.path);
 	}
 
 	// Run them
@@ -260,35 +342,6 @@ void Client::loadMods()
 		m_script->on_camera_ready(m_camera);
 	if (m_minimap)
 		m_script->on_minimap_ready(m_minimap.get());
-}
-
-void Client::scanModSubfolder(const std::string &mod_name, const std::string &mod_path,
-			std::string mod_subpath)
-{
-	std::string full_path = mod_path + DIR_DELIM + mod_subpath;
-	std::vector<fs::DirListNode> mod = fs::GetDirListing(full_path);
-	for (const fs::DirListNode &j : mod) {
-		if (j.name[0] == '.')
-			continue;
-
-		if (j.dir) {
-			scanModSubfolder(mod_name, mod_path, mod_subpath + j.name + DIR_DELIM);
-			continue;
-		}
-		std::replace(mod_subpath.begin(), mod_subpath.end(), DIR_DELIM_CHAR, '/');
-
-		std::string real_path = full_path + j.name;
-		std::string vfs_path = mod_name + ":" + mod_subpath + j.name;
-		infostream << "Client::scanModSubfolder(): Loading \"" << real_path
-				<< "\" as \"" << vfs_path << "\"." << std::endl;
-
-		std::string contents;
-		if (!fs::ReadFile(real_path, contents, true)) {
-			continue;
-		}
-
-		m_mod_vfs.emplace(vfs_path, contents);
-	}
 }
 
 const std::string &Client::getBuiltinLuaPath()
@@ -535,6 +588,12 @@ void Client::step(float dtime)
 		Handle environment
 	*/
 	LocalPlayer *player = m_env.getLocalPlayer();
+
+	{
+		auto event = std::make_unique<SSCSMEventOnStep>();
+		event->dtime = dtime;
+		m_sscsm_controller->runEvent(this, std::move(event));
+	}
 
 	// Step environment (also handles player controls)
 	m_env.step(dtime);
@@ -982,6 +1041,14 @@ void Client::ReceiveAll()
 			infostream << "Client::ReceiveAll(): "
 					"InvalidIncomingDataException: what()="
 					 << e.what() << std::endl;
+#ifdef NDEBUG
+		} catch (SerializationError &e) {
+			enrich_exception(e, pkt, true);
+			throw;
+		} catch (PacketError &e) {
+			enrich_exception(e, pkt, false);
+			throw;
+#endif
 		}
 	}
 }
@@ -1915,69 +1982,12 @@ float Client::getCurRate()
 void Client::makeScreenshot()
 {
 	video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
-	video::IImage* const raw_image = driver->createScreenShot();
-
-	if (!raw_image) {
-		errorstream << "Could not take screenshot" << std::endl;
-		return;
-	}
-
-	const struct tm tm = mt_localtime();
-
-	char timestamp_c[64];
-	strftime(timestamp_c, sizeof(timestamp_c), "%Y%m%d_%H%M%S", &tm);
-
-	std::string screenshot_dir = g_settings->get("screenshot_path");
-	if (!fs::IsPathAbsolute(screenshot_dir))
-		screenshot_dir = porting::path_user + DIR_DELIM + screenshot_dir;
-
-	std::string filename_base = screenshot_dir
-			+ DIR_DELIM
-			+ std::string("screenshot_")
-			+ timestamp_c;
-	std::string filename_ext = "." + g_settings->get("screenshot_format");
-
-	// Create the directory if it doesn't already exist.
-	// Otherwise, saving the screenshot would fail.
-	fs::CreateAllDirs(screenshot_dir);
-
-	u32 quality = (u32)g_settings->getS32("screenshot_quality");
-	quality = rangelim(quality, 0, 100) / 100.0f * 255;
-
-	// Try to find a unique filename
 	std::string filename;
-	unsigned serial = 0;
-
-	while (serial < SCREENSHOT_MAX_SERIAL_TRIES) {
-		filename = filename_base + (serial > 0 ? ("_" + itos(serial)) : "") + filename_ext;
-		if (!fs::PathExists(filename))
-			break;	// File did not apparently exist, we'll go with it
-		serial++;
+	if (takeScreenshot(driver, filename)) {
+		std::string msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
+		pushToChatQueue(new ChatMessage(CHATMESSAGE_TYPE_SYSTEM,
+				utf8_to_wide(msg)));
 	}
-
-	if (serial == SCREENSHOT_MAX_SERIAL_TRIES) {
-		errorstream << "Could not find suitable filename for screenshot" << std::endl;
-	} else {
-		video::IImage* const image =
-				driver->createImage(video::ECF_R8G8B8, raw_image->getDimension());
-
-		if (image) {
-			raw_image->copyTo(image);
-
-			std::string msg;
-			if (driver->writeImageToFile(image, filename.c_str(), quality)) {
-				msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
-			} else {
-				msg = fmtgettext("Failed to save screenshot to \"%s\"", filename.c_str());
-			}
-			pushToChatQueue(new ChatMessage(CHATMESSAGE_TYPE_SYSTEM,
-					utf8_to_wide(msg)));
-			infostream << msg << std::endl;
-			image->drop();
-		}
-	}
-
-	raw_image->drop();
 }
 
 void Client::pushToEventQueue(ClientEvent *event)
@@ -2055,23 +2065,6 @@ scene::IAnimatedMesh* Client::getMesh(const std::string &filename, bool cache)
 	if (!cache)
 		m_rendering_engine->removeMesh(mesh);
 	return mesh;
-}
-
-const std::string* Client::getModFile(std::string filename)
-{
-	// strip dir delimiter from beginning of path
-	auto pos = filename.find_first_of(':');
-	if (pos == std::string::npos)
-		return nullptr;
-	pos++;
-	auto pos2 = filename.find_first_not_of('/', pos);
-	if (pos2 > pos)
-		filename.erase(pos, pos2 - pos);
-
-	StringMap::const_iterator it = m_mod_vfs.find(filename);
-	if (it == m_mod_vfs.end())
-		return nullptr;
-	return &it->second;
 }
 
 /*

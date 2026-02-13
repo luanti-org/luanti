@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label">Luanti</string>
+    <string name="loading">Charjas…</string>
+    <string name="ime_dialog_done">Finita</string>
+</resources>

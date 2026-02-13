@@ -122,7 +122,6 @@ bool GUIChatConsole::isOpenInhibited() const
 void GUIChatConsole::closeConsole()
 {
 	m_open = false;
-	Environment->removeFocus(this);
 	m_menumgr->deletingMenu(this);
 	m_scrollbar->setVisible(false);
 }
@@ -435,7 +434,7 @@ bool GUIChatConsole::OnEvent(const SEvent& event)
 		}
 
 		// Key input
-		if (KeyPress(event.KeyInput) == getKeySetting("keymap_console")) {
+		if (keySettingHasMatch("keymap_console", event.KeyInput)) {
 			closeConsole();
 
 			// inhibit open so the_game doesn't reopen immediately

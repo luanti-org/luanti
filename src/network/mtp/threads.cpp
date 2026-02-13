@@ -220,7 +220,8 @@ void ConnectionSendThread::runTimeouts(float dtime, u32 peer_packet_quota)
 				resend_timeout, peer_packet_quota);
 
 			channel.UpdatePacketLossCounter(timed_outs.size());
-			g_profiler->graphAdd("packets_lost", timed_outs.size());
+			if (timed_outs.size() > 0)
+				g_profiler->graphAdd("packets_lost", timed_outs.size());
 
 			// Note that this only happens during connection setup, it would
 			// break badly otherwise.

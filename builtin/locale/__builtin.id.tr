@@ -224,7 +224,7 @@ Can do server maintenance stuff=Dapat melakukan tindakan perawatan server
 Can bypass node protection in the world=Dapat menembus pengamanan nodus dalam dunia
 Can ban and unban players=Dapat memblokir atau menghapus blokir pemain
 Can kick players=Dapat menendang keluar pemain
-Can use /give and /giveme=Dapat menggunakan /give dan /giveme
+Can use /give, /giveme, /pulverize and /clearinv=
 Can use /setpassword and /clearpassword=Dapat menggunakan /setpassword dan /clearpassword
 Can use fly mode=Dapat menggunakan mode terbang
 Can use fast mode=Dapat menggunakan mode cepat
@@ -244,3 +244,8 @@ A total of @1 sample(s) were taken.=Total @1 sampel yang diambil.
 The output is limited to '@1'.=Keluaran dibatasi ke '@1'.
 Saving of profile failed: @1=Penyimpanan profil gagal: @1
 Profile saved to @1=Profil disimpan ke @1
+
+
+##### not used anymore #####
+
+Can use /give and /giveme=Dapat menggunakan /give dan /giveme

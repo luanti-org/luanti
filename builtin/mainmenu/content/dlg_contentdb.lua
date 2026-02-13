@@ -283,6 +283,7 @@ local function get_formspec(dlgdata)
 			formspec[#formspec + 1] = "]"
 		else
 			formspec[#formspec + 1] = "button[0,0;3,0.8;update_all;"
+			-- TRANSLATORS: $1 = number of available updates
 			formspec[#formspec + 1] = fgettext("Update All [$1]", num_avail_updates)
 			formspec[#formspec + 1] = "]"
 		end
@@ -300,6 +301,7 @@ local function get_formspec(dlgdata)
 	-- download/queued tooltips always have the same message
 	local tooltip_colors = ";#dff6f5;#302c2e]"
 	formspec[#formspec + 1] = "tooltip[downloading;" .. fgettext("Downloading...") .. tooltip_colors
+	-- TRANSLATORS: A download is queued
 	formspec[#formspec + 1] = "tooltip[queued;" .. fgettext("Queued") .. tooltip_colors
 
 	formspec[#formspec + 1] = "container[0,1.425]"
@@ -352,6 +354,8 @@ local function get_formspec(dlgdata)
 
 		if package.featured then
 			table.insert_all(formspec, {
+				--[[ TRANSLATORS: A 'featured' package in ContentDB is a package that is
+				more prominently displayed than other packages ]]
 				"tooltip[0,0;0.8,0.8;", fgettext("Featured"), "]",
 				"image[0.2,0.2;0.4,0.4;", core.formspec_escape(defaulttexturedir .. "server_favorite.png"), "]",
 			})

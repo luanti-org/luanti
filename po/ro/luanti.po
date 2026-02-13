@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Romanian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-23 19:19+0200\n"
+"POT-Creation-Date: 2026-01-06 23:13+0100\n"
 "PO-Revision-Date: 2025-01-27 15:28+0000\n"
 "Last-Translator: Negoitescu <negoitescumario@gmail.com>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/minetest/"
@@ -79,6 +79,11 @@ msgid "[all | <cmd>] [-t]"
 msgstr "[all | <cmd>] [-t]"
 
 #: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Add keybinding"
+msgstr "Legături tastatură."
+
+#: builtin/common/settings/components.lua
 msgid "Browse"
 msgstr "Navighează"
 
@@ -108,6 +113,11 @@ msgid "Set"
 msgstr "Selectați"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+#, fuzzy
+msgid "$1 spread"
+msgstr "expansiunea X"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
 msgstr "(Nicio descriere a setării date)"
 
@@ -116,9 +126,21 @@ msgid "2D Noise"
 msgstr "2D Zgomot"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"2D noise: flag on.\n"
+"3D noise: flag off."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Amplifies every octave by (amplitude of the previous octave * Persistence)."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/content/dlg_overwrite.lua
-#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
+#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_confirm_exit.lua
+#: builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
 #: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
@@ -127,8 +149,58 @@ msgid "Cancel"
 msgstr "Anulare"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Controls how many octaves (layers) the noise will have."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Each octave is a simple noise generator. Each one also adds more detail to "
+"the noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Finally, all of the octaves will be combined to generate the noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Having lots of octaves is not recommended because it increases terrain "
+"generation time."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Lacunarity"
 msgstr "Lacunaritate"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values make the terrain simple and higher values make the terrain "
+"rough."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values make the terrain smooth and higher values make the terrain have "
+"fine detail."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values will result in smoother noise and higher values will result in "
+"rougher noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Making 3D noise eased is not recommended because it significantly increases "
+"the load."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Maps noise gradient values onto a quintic S-curve before performing "
+"interpolation."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Octaves"
@@ -138,6 +210,14 @@ msgstr "Octava"
 #: src/settings_translation_file.cpp
 msgid "Offset"
 msgstr "Decalaj"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Offsets the final noise by this value."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Overrides the 'eased' flag based on the noise type."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Persistence"
@@ -154,21 +234,52 @@ msgid "Scale"
 msgstr "Scală"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Scales every octave by (scale of the previous octave / Lacunarity)."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Scales the noise in the $1 axis by this value."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Seed"
 msgstr "Seminţe"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "X spread"
-msgstr "expansiunea X"
+msgid "Takes the absolute value of each octave while adding them together."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "Y spread"
-msgstr "Y răspândit"
+msgid "The first octave is amplified by 1."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "Z spread"
-msgstr "Z răspândit"
+#, fuzzy
+msgid "The first octave is scaled by 1."
+msgstr "Această comandă este dezactivată de server."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "The multiplier for the noise before the offset is added."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "The random seed for the noise. The same seed results in the same noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"This is also the scale of the largest structures in the $1 direction of the "
+"noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "This results in smooth noise instead of gridlike noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "This results in spiky noise."
+msgstr ""
 
 #. ~ "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
@@ -266,6 +377,12 @@ msgstr "Mișscare"
 msgid "No results"
 msgstr "Fără rezultate"
 
+#. ~ Indicates that the action does not have a corresponding keybinding.
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Not bound"
+msgstr "Indisponibile"
+
 #: builtin/common/settings/dlg_settings.lua
 msgid "Reset setting to default"
 msgstr "Restabiliți la valorile implicite"
@@ -300,9 +417,20 @@ msgid "Tap with crosshair"
 msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
+msgid ""
+"These settings are unavailable due to your platform, hardware or in "
+"combination with the current settings."
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Touchscreen layout"
 msgstr "Ecran tactil"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Unavailable"
+msgstr "<indisponibilă>"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
@@ -325,11 +453,6 @@ msgid "Custom"
 msgstr "Personalizat"
 
 #: builtin/common/settings/shadows_component.lua
-#: src/settings_translation_file.cpp
-msgid "Dynamic shadows"
-msgstr "Umbre dinamice"
-
-#: builtin/common/settings/shadows_component.lua
 msgid "High"
 msgstr "Înalt"
 
@@ -340,6 +463,10 @@ msgstr "Redus"
 #: builtin/common/settings/shadows_component.lua
 msgid "Medium"
 msgstr "Mediu"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Quality preset"
+msgstr ""
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Very High"
@@ -651,6 +778,11 @@ msgstr "$1 nu se poate instala ca $2"
 msgid "Unable to install a $1 as a texture pack"
 msgstr "Imposibil de instalat un $1 ca pachet de textură"
 
+#: builtin/mainmenu/content/pkgmgr.lua
+#, fuzzy
+msgid "World mods"
+msgstr "Numele lumii"
+
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
 "Players connected to\n"
@@ -698,6 +830,10 @@ msgid "Mod:"
 msgstr "Mod:"
 
 #: builtin/mainmenu/dlg_config_world.lua
+msgid "Mods located inside the world folder."
+msgstr ""
+
+#: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
 msgstr "Nu există dependențe (opționale)"
 
@@ -728,6 +864,19 @@ msgstr "Lume:"
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "enabled"
 msgstr "activat"
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+msgid "Always show this dialog."
+msgstr ""
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+#, fuzzy
+msgid "Are you sure you want to quit?"
+msgstr "Ești sigur că vrei să ștergi \"$1\"?"
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+msgid "Quit"
+msgstr ""
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "A world named \"$1\" already exists"
@@ -1086,6 +1235,10 @@ msgstr "Niciodată"
 msgid "Visit website"
 msgstr "Vizitează saitul"
 
+#: builtin/mainmenu/init.lua
+msgid "Debug build, expect worse performance"
+msgstr ""
+
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "Setări"
@@ -1360,11 +1513,6 @@ msgid "Done!"
 msgstr "Terminat!"
 
 #: src/client/client.cpp
-#, c-format
-msgid "Failed to save screenshot to \"%s\""
-msgstr ""
-
-#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "Inițializarea nodurilor"
 
@@ -1380,7 +1528,7 @@ msgstr "Se încarcă texturi ..."
 msgid "Rebuilding shaders..."
 msgstr "Reconstruirea shaderelor..."
 
-#: src/client/client.cpp
+#: src/client/client.cpp src/util/screenshot.cpp
 #, fuzzy, c-format
 msgid "Saved screenshot to \"%s\""
 msgstr "Capturi de ecran"
@@ -1410,14 +1558,15 @@ msgid "Provided password file failed to open: "
 msgstr "Fișierul cu parolă nu a putut fi deschis: "
 
 #: src/client/clientlauncher.cpp
-msgid "Provided world path doesn't exist: "
-msgstr "Calea aprovizionată a lumii nu există: "
+msgid "World does not exist and no game selected to create one."
+msgstr ""
 
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
 msgstr "Media..."
 
-#: src/client/game.cpp src/client/shader.cpp src/server.cpp
+#: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
+#: src/server.cpp
 msgid ""
 "\n"
 "Check debug.txt for details."
@@ -2045,6 +2194,11 @@ msgid "Right Windows"
 msgstr "Windows Dreapta"
 
 #: src/client/keycode.cpp
+#, c-format
+msgid "Scancode: %d"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
@@ -2088,9 +2242,19 @@ msgstr "Mini hartă în modul de suprafață, Zoom %dx"
 msgid "Minimap in texture mode"
 msgstr "Mini hartă în modul de textură"
 
+#: src/client/render/pipeline.cpp
+#, c-format
+msgid "Failed to create the texture \"%s\" for the rendering pipeline."
+msgstr ""
+
 #: src/client/shader.cpp
 #, c-format
 msgid "Failed to compile the \"%s\" shader."
+msgstr "Eroare la compilarea shaderului \"%s\"."
+
+#: src/client/shader.cpp
+#, fuzzy, c-format
+msgid "Failed to find \"%s\" shader files."
 msgstr "Eroare la compilarea shaderului \"%s\"."
 
 #: src/client/shader.cpp
@@ -2700,6 +2864,14 @@ msgstr "Zgomotul merilor"
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Applies a post-processing filter to detect and smoothen high-contrast "
+"edges.\n"
+"Provides balance between speed and image quality.\n"
+"fxaa can used in combination with the other anti-aliasing methods"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Apply dithering to reduce color banding artifacts.\n"
 "Dithering significantly increases the size of losslessly-compressed\n"
 "screenshots and it works incorrectly if the display or operating system\n"
@@ -2720,6 +2892,10 @@ msgid ""
 msgstr ""
 "Inerția brațului, oferă o mișcare mai realistă a\n"
 "brațul când camera se mișcă."
+
+#: src/settings_translation_file.cpp
+msgid "Array texture max layers"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Ask to reconnect after crash"
@@ -2894,6 +3070,12 @@ msgid "Camera smoothing in cinematic mode"
 msgstr "Cameră fluidă în modul cinematic"
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Caps the maximum number of layers used with array textures (if supported).\n"
+"This is only useful for debugging."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Capture Tracy zones"
 msgstr ""
 
@@ -2991,6 +3173,10 @@ msgstr "Lungimea maximă a unui mesaj din chat"
 #: src/settings_translation_file.cpp
 msgid "Chat weblinks"
 msgstr "Legături pentru chat"
+
+#: src/settings_translation_file.cpp
+msgid "Choose theme colors for the main menu background."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Chunk size"
@@ -3137,6 +3323,10 @@ msgstr ""
 "-1 - utilizare nivel implicit de compresie\n"
 "0 - compresie minimă, cea mai rapidă\n"
 "9 - compresie maximă, cea mai lentă"
+
+#: src/settings_translation_file.cpp
+msgid "Confirmation dialog before closing"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Connect glass"
@@ -3497,6 +3687,10 @@ msgid "Dungeon noise"
 msgstr "Zgomotul temnițelor"
 
 #: src/settings_translation_file.cpp
+msgid "Dynamic shadows"
+msgstr "Umbre dinamice"
+
+#: src/settings_translation_file.cpp
 msgid "Effects"
 msgstr ""
 
@@ -3552,6 +3746,10 @@ msgid "Enable Raytraced Culling"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Enable a confirmation dialog before closing."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Enable automatic exposure correction\n"
 "When enabled, the post-processing engine will\n"
@@ -3568,6 +3766,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Enable console window"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Enable dynamic shadows"
+msgstr "Umbre dinamice"
 
 #: src/settings_translation_file.cpp
 msgid "Enable joysticks"
@@ -3712,6 +3915,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Fallback font path"
 msgstr "Cale font de rezervă"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Fast approximate antialiasing"
+msgstr "Filtrare și antialias"
 
 #: src/settings_translation_file.cpp
 msgid "Fast mode acceleration"
@@ -4308,14 +4516,15 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"If enabled, actions are recorded for rollback.\n"
-"This option is only read when server starts."
+"If enabled, invalid world data won't cause the server to shut down.\n"
+"Only enable this if you know what you are doing."
 msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"If enabled, invalid world data won't cause the server to shut down.\n"
-"Only enable this if you know what you are doing."
+"If enabled, node and inventory actions are recorded for rollback.\n"
+"This option is only read on server start. Note that the engine will not\n"
+"automatically clean old entries from the rollback database."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5136,6 +5345,11 @@ msgid "Measure time samples"
 msgstr "Temple în deșert"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Menu theme"
+msgstr "Tastă Meniu"
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr ""
 
@@ -5329,16 +5543,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Number of emerge threads to use.\n"
-"Value 0:\n"
-"-    Automatic selection. The number of emerge threads will be\n"
-"-    'number of processors - 2', with a lower limit of 1.\n"
-"Any other value:\n"
-"-    Specifies the number of emerge threads, with a lower limit of 1.\n"
-"WARNING: Increasing the number of emerge threads increases engine mapgen\n"
-"speed, but this may harm game performance by interfering with other\n"
-"processes, especially in singleplayer and/or when running Lua code in\n"
-"'on_generated'. For many users the optimum setting may be '1'."
+"Number of emerge threads (responsible for map generation and loading) to "
+"use.\n"
+"If 0 then the engine will automatically choose a suitable value depending\n"
+"on the hardware and type of map generator.\n"
+"WARNING: There are known bugs in the default map generators (v6, v7, ...)\n"
+"when using more than 1 thread. The automatic choice will avoid this."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5369,8 +5579,7 @@ msgid "Occlusion Culling"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
+msgid "Opaqueness (alpha) of the shadow behind the font."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5680,8 +5889,7 @@ msgid ""
 "Save window size automatically when modified.\n"
 "If true, screen size is saved in screen_w and screen_h, and whether the "
 "window\n"
-"is maximized is stored in window_maximized.\n"
-"(Autosaving window_maximized only works if compiled with SDL.)"
+"is maximized is stored in window_maximized."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5765,11 +5973,6 @@ msgid ""
 "If Post Processing is disabled, changing FSAA requires a restart.\n"
 "Also, if Post Processing is disabled, FSAA will not work together with\n"
 "undersampling or a non-default \"3d_mode\" setting.\n"
-"\n"
-"* FXAA - Fast approximate antialiasing\n"
-"Applies a post-processing filter to detect and smoothen high-contrast "
-"edges.\n"
-"Provides balance between speed and image quality.\n"
 "\n"
 "* SSAA - Super-sampling antialiasing\n"
 "Renders higher-resolution image of the scene, then scales down to reduce\n"
@@ -5970,7 +6173,7 @@ msgid "Shadow filter quality"
 msgstr "Calitatea filtrului de umbre"
 
 #: src/settings_translation_file.cpp
-msgid "Shadow map max distance in nodes to render shadows"
+msgid "Shadow map render distance"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5983,8 +6186,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Shadow offset (in pixels) of the default font. If 0, then shadow will not be "
-"drawn."
+"Shadow offset (in pixels) for all fonts. If 0, then no shadow will be drawn."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6356,7 +6558,7 @@ msgstr ""
 msgid ""
 "The rendering back-end.\n"
 "Note: A restart is required after changing this!\n"
-"OpenGL is the default for desktop, and OGLES2 for Android."
+"By default OpenGL3 is preferred on desktop, or OGLES2 on Android."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6437,10 +6639,9 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"To reduce lag, block transfers are slowed down when a player is building "
+"To save bandwidth, block transfers are slowed down when a player is building "
 "something.\n"
-"This determines how long they are slowed down after placing or removing a "
-"node."
+"This determines how long the throttling lasts after placing a node."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6752,8 +6953,9 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Vertical screen synchronization. Your system may still force VSync on even "
-"if this is disabled."
+"Vertical screen synchronization.\n"
+"Note: A restart is required after changing this!\n"
+"Your system may still force VSync and ignore this setting."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -7036,68 +7238,16 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
-#~ msgid "Apps"
-#~ msgstr "Aplicații"
+#: src/util/screenshot.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr ""
 
-#~ msgid "End"
-#~ msgstr "Sfârșit"
+#~ msgid "Provided world path doesn't exist: "
+#~ msgstr "Calea aprovizionată a lumii nu există: "
 
-#~ msgid "Erase EOF"
-#~ msgstr "Ștergere EOF"
+#~ msgid "Y spread"
+#~ msgstr "Y răspândit"
 
-#~ msgid "Execute"
-#~ msgstr "Execută"
-
-#~ msgid "Help"
-#~ msgstr "Ajutor"
-
-#~ msgid "Home"
-#~ msgstr "Home"
-
-#~ msgid "IME Accept"
-#~ msgstr "Acceptare IME"
-
-#~ msgid "IME Convert"
-#~ msgstr "Conversie IME"
-
-#~ msgid "IME Escape"
-#~ msgstr "IME de Evacuare"
-
-#~ msgid "IME Mode Change"
-#~ msgstr "Schimbare mod IME"
-
-#~ msgid "IME Nonconvert"
-#~ msgstr "IME Nonconvertit"
-
-#~ msgid "Left Button"
-#~ msgstr "Stânga"
-
-#~ msgid "Middle Button"
-#~ msgstr "Rotiță"
-
-#~ msgid "No world created or selected!"
-#~ msgstr "Nicio lume creată sau selectată!"
-
-#~ msgid "OEM Clear"
-#~ msgstr "Curățare OEM"
-
-#~ msgid "Right Button"
-#~ msgstr "Drepata"
-
-#~ msgid "Select"
-#~ msgstr "Selectează"
-
-#~ msgid "Sleep"
-#~ msgstr "Somn"
-
-#~ msgid "Snapshot"
-#~ msgstr "PrintScreen"
-
-#~ msgid "Tab"
-#~ msgstr "Tab"
-
-#~ msgid "X Button 1"
-#~ msgstr "X Butonul 1"
-
-#~ msgid "X Button 2"
-#~ msgstr "X Butonul 2"
+#~ msgid "Z spread"
+#~ msgstr "Z răspândit"

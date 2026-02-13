@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Slovenian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-23 19:19+0200\n"
-"PO-Revision-Date: 2025-05-30 05:02+0000\n"
-"Last-Translator: Vesel Sem <veselsem@users.noreply.hosted.weblate.org>\n"
+"POT-Creation-Date: 2026-01-06 23:13+0100\n"
+"PO-Revision-Date: 2026-01-16 15:01+0000\n"
+"Last-Translator: Wuzzy <Wuzzy@disroot.org>\n"
 "Language-Team: Slovenian <https://hosted.weblate.org/projects/minetest/"
 "minetest/sl/>\n"
 "Language: sl\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3;\n"
-"X-Generator: Weblate 5.12-dev\n"
+"X-Generator: Weblate 5.15.2\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -79,12 +79,16 @@ msgid "[all | <cmd>] [-t]"
 msgstr "[all | <ukaz>] [-t]"
 
 #: builtin/common/settings/components.lua
+msgid "Add keybinding"
+msgstr "Dodaj kombinacijo tipk"
+
+#: builtin/common/settings/components.lua
 msgid "Browse"
 msgstr "Prebrskaj"
 
 #: builtin/common/settings/components.lua
 msgid "Conflicts with \"$1\""
-msgstr "Spor s \"$1\""
+msgstr "Spor s „$1\""
 
 #: builtin/common/settings/components.lua
 msgid "Edit"
@@ -107,6 +111,10 @@ msgid "Set"
 msgstr "Nastavi"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "$1 spread"
+msgstr "Razpon $1"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
 msgstr "(ni podanega opisa nastavitve)"
 
@@ -115,9 +123,23 @@ msgid "2D Noise"
 msgstr "2D šum"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"2D noise: flag on.\n"
+"3D noise: flag off."
+msgstr ""
+"2D šum: zastavica vklopljena.\n"
+"3D šum: zastavica izklopljena."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Amplifies every octave by (amplitude of the previous octave * Persistence)."
+msgstr "Vsako oktavo ojačaj za (amplituda prejšnje oktave * vztrajnost)."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/content/dlg_overwrite.lua
-#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
+#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_confirm_exit.lua
+#: builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
 #: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
@@ -126,8 +148,66 @@ msgid "Cancel"
 msgstr "Prekliči"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Controls how many octaves (layers) the noise will have."
+msgstr "Določa, koliko oktav (plasti) bo imel šum."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Each octave is a simple noise generator. Each one also adds more detail to "
+"the noise."
+msgstr ""
+"Vsaka oktava je preprost generator šuma. Vsaka od njih doda tudi več "
+"podrobnosti šumu."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Finally, all of the octaves will be combined to generate the noise."
+msgstr "Končno se bodo vse oktave združile, da se ustvari šum."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Having lots of octaves is not recommended because it increases terrain "
+"generation time."
+msgstr "Veliko oktav ni priporočljivo, ker podaljša čas generiranja terena."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Lacunarity"
 msgstr "Neenakomernost"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values make the terrain simple and higher values make the terrain "
+"rough."
+msgstr "Nižje vrednosti naredijo teren preprost, višje vrednosti pa neravnega."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values make the terrain smooth and higher values make the terrain have "
+"fine detail."
+msgstr ""
+"Nižje vrednosti naredijo teren gladek, višje vrednosti pa dajejo terenu "
+"natančnejše podrobnosti."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values will result in smoother noise and higher values will result in "
+"rougher noise."
+msgstr ""
+"Nižje vrednosti bodo povzročile bolj gladek šum, višje vrednosti pa grobejši "
+"šum."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Making 3D noise eased is not recommended because it significantly increases "
+"the load."
+msgstr "Zmanjševanje 3D-šuma ni priporočljivo, ker znatno poveča obremenitev."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Maps noise gradient values onto a quintic S-curve before performing "
+"interpolation."
+msgstr ""
+"Pred izvedbo interpolacije preslika vrednosti gradienta šuma na kvintično S-"
+"krivuljo."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Octaves"
@@ -137,6 +217,14 @@ msgstr "Oktave"
 #: src/settings_translation_file.cpp
 msgid "Offset"
 msgstr "Odmik"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Offsets the final noise by this value."
+msgstr "Ta vrednost izravna končni šum."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Overrides the 'eased' flag based on the noise type."
+msgstr "Preglasi zastavico »eased« glede na vrsto šuma."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Persistence"
@@ -153,21 +241,51 @@ msgid "Scale"
 msgstr "Skala"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Scales every octave by (scale of the previous octave / Lacunarity)."
+msgstr "Vsako oktavo skalira za (lestvico prejšnje oktave / lakunarnost)."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Scales the noise in the $1 axis by this value."
+msgstr "Prilagodi šum na osi $1 za to vrednost."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Seed"
 msgstr "Seme"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "X spread"
-msgstr "X širjenje"
+msgid "Takes the absolute value of each octave while adding them together."
+msgstr "Pri seštevanju vzame absolutno vrednost vsake oktave."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "Y spread"
-msgstr "Y širjenje"
+msgid "The first octave is amplified by 1."
+msgstr "Prva oktava je ojačana za 1."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "Z spread"
-msgstr "Z širjenje"
+msgid "The first octave is scaled by 1."
+msgstr "Prva oktava je povišana za 1."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "The multiplier for the noise before the offset is added."
+msgstr "Množitelj za šum pred dodanim odmikom."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "The random seed for the noise. The same seed results in the same noise."
+msgstr "Naključno seme za šum. Isto seme povzroči enak šum."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"This is also the scale of the largest structures in the $1 direction of the "
+"noise."
+msgstr "To je tudi merilo največjih struktur v smeri šuma $1."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "This results in smooth noise instead of gridlike noise."
+msgstr "To povzroči gladek šum namesto mrežastega šuma."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "This results in spiky noise."
+msgstr "To povzroči koničast hrup."
 
 #. ~ "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
@@ -263,7 +381,12 @@ msgstr "Hitro gibanje"
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No results"
-msgstr "Ni rezultatov"
+msgstr "Ni razultata"
+
+#. ~ Indicates that the action does not have a corresponding keybinding.
+#: builtin/common/settings/dlg_settings.lua
+msgid "Not bound"
+msgstr "Ni povezano s tipkovnico"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Reset setting to default"
@@ -275,7 +398,7 @@ msgstr "Ponastavi na privzete nastavitve ($1)"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
-msgstr "Poišči"
+msgstr "Iskanje"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Short tap"
@@ -298,8 +421,20 @@ msgid "Tap with crosshair"
 msgstr "Pritisk s križcem"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid ""
+"These settings are unavailable due to your platform, hardware or in "
+"combination with the current settings."
+msgstr ""
+"Te nastavitve niso na voljo zaradi vaše platforme, strojne opreme ali v "
+"kombinaciji s trenutnimi nastavitvami."
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Touchscreen layout"
 msgstr "Postavitev zaslona na dotik"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Unavailable"
+msgstr "Ni na voljo"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
@@ -322,11 +457,6 @@ msgid "Custom"
 msgstr "Prilagojen"
 
 #: builtin/common/settings/shadows_component.lua
-#: src/settings_translation_file.cpp
-msgid "Dynamic shadows"
-msgstr "Dinamične sence"
-
-#: builtin/common/settings/shadows_component.lua
 msgid "High"
 msgstr "Visok"
 
@@ -337,6 +467,10 @@ msgstr "Nizek"
 #: builtin/common/settings/shadows_component.lua
 msgid "Medium"
 msgstr "Srednje"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Quality preset"
+msgstr "Prednastavitev kakovosti"
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Very High"
@@ -440,7 +574,7 @@ msgstr "Poteka prenos ..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
-msgstr "Priporočeni"
+msgstr "Izpostavljeno"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Games"
@@ -451,11 +585,11 @@ msgstr "Igre"
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/serverlistmgr.lua
 #: src/client/game.cpp
 msgid "Loading..."
-msgstr "Poteka nalaganje ..."
+msgstr "Nalaganje …"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Mods"
-msgstr "Prilagoditve (mods)"
+msgstr "Modi"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No packages could be retrieved"
@@ -495,7 +629,7 @@ msgstr "Odvisnost $1 ni bila najdena."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 will be installed, and $2 dependencies will be skipped."
-msgstr "Nameščen bo 1 $, odvisnost 2 $ pa bo preskočena."
+msgstr "Nameščen bo 1$, odvisnost 2$ pa bo preskočena."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "Already installed"
@@ -557,7 +691,7 @@ msgstr "Opis"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Donate"
-msgstr "Doniraj"
+msgstr "Donirajte"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Error loading package information"
@@ -585,7 +719,7 @@ msgstr "Sledilnik težav"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Reviews"
-msgstr "Mnenje"
+msgstr "Ocene"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
@@ -597,20 +731,19 @@ msgstr "Prevod"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
 msgid "Uninstall"
-msgstr "Odstrani"
+msgstr "Odmesti"
 
 #: builtin/mainmenu/content/dlg_package.lua builtin/mainmenu/tab_content.lua
 msgid "Update"
-msgstr "Posodobi"
+msgstr "Posodobitev"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Website"
 msgstr "Spletna stran"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "by $1"
-msgstr "$1 od $2"
+msgstr "od $1"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
@@ -644,12 +777,16 @@ msgstr "Ni mogoče namestiti $1 kot $2"
 msgid "Unable to install a $1 as a texture pack"
 msgstr "Ni mogoče namestiti $1 kot paket tekstur"
 
+#: builtin/mainmenu/content/pkgmgr.lua
+msgid "World mods"
+msgstr "Svetovni modi"
+
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
 "Players connected to\n"
 "$1"
 msgstr ""
-"Igralec povezan na\n"
+"Igraleci povezani na\n"
 "$1"
 
 #: builtin/mainmenu/dlg_config_world.lua
@@ -693,6 +830,10 @@ msgid "Mod:"
 msgstr "Prilagoditev:"
 
 #: builtin/mainmenu/dlg_config_world.lua
+msgid "Mods located inside the world folder."
+msgstr "Modi, ki se nahajajo v mapi world."
+
+#: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
 msgstr "Ni (izbirnih) odvisnosti"
 
@@ -723,6 +864,18 @@ msgstr "Svet:"
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "enabled"
 msgstr "omogočeno"
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+msgid "Always show this dialog."
+msgstr "Vedno prikaži to pogovorno okno."
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+msgid "Are you sure you want to quit?"
+msgstr "Ste prepričani, da želite odditi?"
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+msgid "Quit"
+msgstr "Izhod"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "A world named \"$1\" already exists"
@@ -770,9 +923,7 @@ msgstr "Puščavski templji"
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Development Test is meant for developers."
-msgstr ""
-"Opozorilo: to je razvojna različica namenjena razvijalcem. Lahko vsebuje "
-"napake."
+msgstr "Opozorilo: Development Test je namenjen razvijalcem."
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid ""
@@ -988,11 +1139,11 @@ msgstr "Geslo"
 
 #: builtin/mainmenu/dlg_register.lua
 msgid "Passwords do not match"
-msgstr "Gesli se ne ujemata!"
+msgstr "Gesli se ne ujemata"
 
 #: builtin/mainmenu/dlg_register.lua builtin/mainmenu/tab_online.lua
 msgid "Register"
-msgstr "Registriraj se"
+msgstr "Registracija"
 
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid "Dismiss"
@@ -1082,6 +1233,10 @@ msgstr "Nikoli"
 msgid "Visit website"
 msgstr "Obišči spletno stran"
 
+#: builtin/mainmenu/init.lua
+msgid "Debug build, expect worse performance"
+msgstr "Odpravljanje napak pri gradnji, pričakujte slabšo zmogljivost"
+
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "Nastavitve"
@@ -1098,7 +1253,7 @@ msgstr ""
 
 #: builtin/mainmenu/tab_about.lua
 msgid "About"
-msgstr "O Luantiju"
+msgstr "O"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Active Contributors"
@@ -1110,7 +1265,7 @@ msgstr "Aktivni upodabljalnik:"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Developers"
-msgstr "Glavni razvijalci"
+msgstr "Osrednji razvijalci"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Team"
@@ -1130,11 +1285,11 @@ msgstr ""
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Previous Contributors"
-msgstr "Predhodni sodelavci"
+msgstr "Nekdanji dejavni sodelavci"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Previous Core Developers"
-msgstr "Predhodni razvajalci"
+msgstr "Nekdanji osrednji razvijalci"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Share debug log"
@@ -1218,7 +1373,7 @@ msgstr "Namesti igre iz ContentDB"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Luanti doesn't come with a game by default."
-msgstr "Luanti privzeto ne prehaja z igro."
+msgstr "Luanti privzeto ne prihaja z igro."
 
 #: builtin/mainmenu/tab_local.lua
 msgid ""
@@ -1324,9 +1479,9 @@ msgid ""
 "player:<name>"
 msgstr ""
 "Filtri\n"
-"Igra:<ime>\n"
-"Prilagoditev:<ime>\n"
-"Igralec:<ime>"
+"game:<ime>\n"
+"mod:<ime>\n"
+"player:<ime>"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
@@ -1357,11 +1512,6 @@ msgid "Done!"
 msgstr "Končano!"
 
 #: src/client/client.cpp
-#, c-format
-msgid "Failed to save screenshot to \"%s\""
-msgstr ""
-
-#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "Zaganjanje vozlišč"
 
@@ -1377,10 +1527,10 @@ msgstr "Poteka nalaganje tekstur ..."
 msgid "Rebuilding shaders..."
 msgstr "Preračunavanje senčenja ..."
 
-#: src/client/client.cpp
-#, fuzzy, c-format
+#: src/client/client.cpp src/util/screenshot.cpp
+#, c-format
 msgid "Saved screenshot to \"%s\""
-msgstr "Posnetek zaslona"
+msgstr "Posnetek zaslona shranjen v \"%s\""
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -1409,14 +1559,15 @@ msgid "Provided password file failed to open: "
 msgstr "Ni bilo mogoče odpreti datoteke z geslom: "
 
 #: src/client/clientlauncher.cpp
-msgid "Provided world path doesn't exist: "
-msgstr "Podana pot do sveta ne obstaja: "
+msgid "World does not exist and no game selected to create one."
+msgstr "Svet ne obstaja in nobena igra ni bila izbrana za njegovo ustvarjanje."
 
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
-msgstr "Medij..."
+msgstr "Grafika …"
 
-#: src/client/game.cpp src/client/shader.cpp src/server.cpp
+#: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
+#: src/server.cpp
 msgid ""
 "\n"
 "Check debug.txt for details."
@@ -1545,7 +1696,7 @@ msgstr "Način letenja je omogočen"
 
 #: src/client/game.cpp
 msgid "Fly mode enabled (note: no 'fly' privilege)"
-msgstr "Način letenja je omogočen (opozorilo: nimate 'fly' privilegija)"
+msgstr "Način letenja je omogočen (opozorilo: nimate „fly“ privilegija)"
 
 #: src/client/game.cpp
 msgid "Fog disabled"
@@ -1561,7 +1712,7 @@ msgstr "Megla je omogočena od igre ali prilagoditve"
 
 #: src/client/game.cpp
 msgid "Item definitions..."
-msgstr "Določila predmetov ..."
+msgstr "Določanje predmetov ..."
 
 #: src/client/game.cpp
 msgid "KiB/s"
@@ -1596,7 +1747,7 @@ msgstr ""
 
 #: src/client/game.cpp
 msgid "Node definitions..."
-msgstr "Določila vozlišč ..."
+msgstr "Določanje vozlišč ..."
 
 #: src/client/game.cpp
 msgid "Pitch move mode disabled"
@@ -1776,7 +1927,7 @@ msgstr "Izhod na meni"
 
 #: src/client/game_formspec.cpp
 msgid "Exit to OS"
-msgstr "Zapri minetest"
+msgstr "Zapri Luanti"
 
 #: src/client/game_formspec.cpp
 msgid "Game info:"
@@ -1858,7 +2009,7 @@ msgstr "Velike črke"
 
 #: src/client/keycode.cpp
 msgid "Clear Key"
-msgstr "Izbriši"
+msgstr "Izbriši ključ"
 
 #: src/client/keycode.cpp
 msgid "Control Key"
@@ -1873,19 +2024,16 @@ msgid "Down Arrow"
 msgstr "Puščica dol"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "End Key"
-msgstr "Tipka za meni (super key)"
+msgstr "Končna tipka"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Help Key"
-msgstr "Tipka izbriši"
+msgstr "Tipka za pomoč"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Home Key"
-msgstr "Tipka za približanje"
+msgstr "Tipka dom"
 
 #: src/client/keycode.cpp
 msgid "Insert"
@@ -1896,9 +2044,8 @@ msgid "Left Arrow"
 msgstr "Puščica levo"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Click"
-msgstr "Leva tipka Ctrl"
+msgstr "Levi klik"
 
 #: src/client/keycode.cpp
 msgid "Left Control"
@@ -1923,15 +2070,15 @@ msgstr "Tipka za meni (super key)"
 
 #: src/client/keycode.cpp
 msgid "Middle Click"
-msgstr ""
+msgstr "Srednji klik"
 
 #: src/client/keycode.cpp
 msgid "Mouse X1"
-msgstr ""
+msgstr "Miška X1"
 
 #: src/client/keycode.cpp
 msgid "Mouse X2"
-msgstr ""
+msgstr "Miška X2"
 
 #: src/client/keycode.cpp
 msgid "Num Lock"
@@ -2028,9 +2175,8 @@ msgid "Right Arrow"
 msgstr "Desna puščica"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Click"
-msgstr "Desna tipka Ctrl"
+msgstr "Desni klik"
 
 #: src/client/keycode.cpp
 msgid "Right Control"
@@ -2050,13 +2196,17 @@ msgid "Right Windows"
 msgstr "Desna tipka Win"
 
 #: src/client/keycode.cpp
+#, c-format
+msgid "Scancode: %d"
+msgstr "Koda skeniranja: %d"
+
+#: src/client/keycode.cpp
 msgid "Scroll Lock"
 msgstr "Tipka zaklepa drsnika"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Select Key"
-msgstr "Tipka izbriši"
+msgstr "Izberi tipko"
 
 #: src/client/keycode.cpp
 msgid "Shift Key"
@@ -2067,9 +2217,8 @@ msgid "Space"
 msgstr "Preslednica"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Tab Key"
-msgstr "Tipka za odmor"
+msgstr "Tabulatorska tipka"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
@@ -2093,10 +2242,20 @@ msgstr "Zemljevid (minimap) je v načinu prikazovanja površja, Zoom x%d"
 msgid "Minimap in texture mode"
 msgstr "Zemljevid (minimap) je v načinu prikazovanja teksture"
 
+#: src/client/render/pipeline.cpp
+#, c-format
+msgid "Failed to create the texture \"%s\" for the rendering pipeline."
+msgstr "Ustvarjanje teksture »%s« za cevovod upodabljanja ni uspelo."
+
 #: src/client/shader.cpp
 #, c-format
 msgid "Failed to compile the \"%s\" shader."
 msgstr "Napaka pri prevajanju senčilnika \"%s\"."
+
+#: src/client/shader.cpp
+#, c-format
+msgid "Failed to find \"%s\" shader files."
+msgstr "Datotek senčilnika »%s« ni bilo mogoče najti."
 
 #: src/client/shader.cpp
 msgid "GLSL is not supported by the driver"
@@ -2498,7 +2657,6 @@ msgid "3D noise that determines number of dungeons per mapchunk."
 msgstr "3D šum, ki določa število ječ na posamezen kos zemljevida."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
@@ -2624,6 +2782,8 @@ msgid ""
 "Also used for climbing down and descending in water if aux1_descends is "
 "disabled."
 msgstr ""
+"Uporablja se tudi za plezanje in spuščanje po vodi, če je aux1_descends "
+"onemogočen."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2693,6 +2853,18 @@ msgstr "Šum jablan"
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Applies a post-processing filter to detect and smoothen high-contrast "
+"edges.\n"
+"Provides balance between speed and image quality.\n"
+"fxaa can used in combination with the other anti-aliasing methods"
+msgstr ""
+"Uporabi filter za naknadno obdelavo za zaznavanje in glajenje robov z "
+"visokim kontrastom.\n"
+"Zagotavlja ravnovesje med hitrostjo in kakovostjo slike.\n"
+"fxaa se lahko uporablja v kombinaciji z drugimi metodami glajenja robov"
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Apply dithering to reduce color banding artifacts.\n"
 "Dithering significantly increases the size of losslessly-compressed\n"
 "screenshots and it works incorrectly if the display or operating system\n"
@@ -2720,6 +2892,10 @@ msgid ""
 msgstr ""
 "Vztrajnost roke; daje bolj realistično gibanje\n"
 "roke, ko se kamera premika."
+
+#: src/settings_translation_file.cpp
+msgid "Array texture max layers"
+msgstr "Največje število slojev teksture matrike"
 
 #: src/settings_translation_file.cpp
 msgid "Ask to reconnect after crash"
@@ -2882,8 +3058,17 @@ msgid "Camera smoothing in cinematic mode"
 msgstr "Glajenje premikanja kamere v filmskem načinu"
 
 #: src/settings_translation_file.cpp
-msgid "Capture Tracy zones"
+msgid ""
+"Caps the maximum number of layers used with array textures (if supported).\n"
+"This is only useful for debugging."
 msgstr ""
+"Omejuje največje število slojev, uporabljenih s teksturami polja (če je "
+"podprto).\n"
+"To je uporabno le za odpravljanje napak."
+
+#: src/settings_translation_file.cpp
+msgid "Capture Tracy zones"
+msgstr "Zajem Tracyjevih območij"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2891,6 +3076,9 @@ msgid ""
 "You need to build with Tracy to use this, see doc/developing/profiling.md\n"
 "for details."
 msgstr ""
+"Zajemite Tracyjeva območja z instrumentacijo profilerja.\n"
+"Za uporabo tega morate graditi s Tracyjem, za podrobnosti\n"
+"glejte doc/developing/profiling.md."
 
 #: src/settings_translation_file.cpp
 msgid "Cave noise"
@@ -2979,6 +3167,10 @@ msgstr "Maksimalna dolžina pogovornega sporočila"
 #: src/settings_translation_file.cpp
 msgid "Chat weblinks"
 msgstr "Spletne povezave klepeta"
+
+#: src/settings_translation_file.cpp
+msgid "Choose theme colors for the main menu background."
+msgstr "Izberite barve teme za ozadje glavnega menija."
 
 #: src/settings_translation_file.cpp
 msgid "Chunk size"
@@ -3124,6 +3316,10 @@ msgstr ""
 "-1 - uporabi privzeto stopnjo stiskanja\n"
 "0 - najmanjše stiskanje, najhitreje\n"
 "9 - največje stiskanje, najpočasneje"
+
+#: src/settings_translation_file.cpp
+msgid "Confirmation dialog before closing"
+msgstr "Pogovorno okno za potrditev pred zaprtjem"
 
 #: src/settings_translation_file.cpp
 msgid "Connect glass"
@@ -3388,7 +3584,6 @@ msgid "Defines tree areas and tree density."
 msgstr "Določa področja dreves in gostoto dreves."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Delay between mesh updates on the client in ms. Increasing this will slow\n"
 "down the rate of mesh updates, which can help reduce jitter."
@@ -3443,7 +3638,7 @@ msgstr "Možnosti za razvijalce"
 
 #: src/settings_translation_file.cpp
 msgid "Disable if you only want to instrument with Tracy."
-msgstr ""
+msgstr "Onemogočite, ko želite instrumentirati z Tracyem."
 
 #: src/settings_translation_file.cpp
 msgid "Disallow empty passwords"
@@ -3511,6 +3706,10 @@ msgid "Dungeon noise"
 msgstr "Šum ječe"
 
 #: src/settings_translation_file.cpp
+msgid "Dynamic shadows"
+msgstr "Dinamične sence"
+
+#: src/settings_translation_file.cpp
 msgid "Effects"
 msgstr "Učinki"
 
@@ -3575,6 +3774,10 @@ msgid "Enable Raytraced Culling"
 msgstr "Omogoči izločanje s sledenjem žarkov"
 
 #: src/settings_translation_file.cpp
+msgid "Enable a confirmation dialog before closing."
+msgstr "Omogoči potrditveno pogovorno okno pred zaprtjem."
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Enable automatic exposure correction\n"
 "When enabled, the post-processing engine will\n"
@@ -3597,6 +3800,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Enable console window"
 msgstr "Omogoči okno konzole"
+
+#: src/settings_translation_file.cpp
+msgid "Enable dynamic shadows"
+msgstr "Omogoči dinamične sence"
 
 #: src/settings_translation_file.cpp
 msgid "Enable joysticks"
@@ -3776,6 +3983,10 @@ msgstr "Dejavnik (faktor) šuma"
 #: src/settings_translation_file.cpp
 msgid "Fallback font path"
 msgstr "Pot nadomestne pisave"
+
+#: src/settings_translation_file.cpp
+msgid "Fast approximate antialiasing"
+msgstr "Hitro približno glajenje robov"
 
 #: src/settings_translation_file.cpp
 msgid "Fast mode acceleration"
@@ -4045,7 +4256,7 @@ msgstr "Igralni ploščki"
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
-msgstr ""
+msgstr "Globalni povratni klici"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4053,27 +4264,34 @@ msgid ""
 "In Mapgen v6 the 'decorations' flag controls all decorations except trees\n"
 "and jungle grass, in all other mapgens this flag controls all decorations."
 msgstr ""
+"Atributi za generiranje globalnih zemljevidov.\n"
+"V Mapgenu v6 zastavica »okrasitve« nadzoruje vse okraske razen dreves\n"
+"in trave v džungli, v vseh drugih Mapgenih pa ta zastavica nadzoruje vse "
+"okraske."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Gradient of light curve at maximum light level.\n"
 "Controls the contrast of the highest light levels."
 msgstr ""
+"Gradient svetlobne krivulje pri najvišji ravni svetlobe.\n"
+"Nadzoruje kontrast najvišjih ravni svetlobe."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Gradient of light curve at minimum light level.\n"
 "Controls the contrast of the lowest light levels."
 msgstr ""
+"Gradient svetlobne krivulje pri najnižji ravni svetlobe.\n"
+"Nadzoruje kontrast najnižjih ravni svetlobe."
 
 #: src/settings_translation_file.cpp
 msgid "Graphics"
 msgstr "Grafika"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Graphics and Audio"
-msgstr "Grafika"
+msgstr "Grafika in zvok"
 
 #: src/settings_translation_file.cpp
 msgid "Gravity"
@@ -4081,24 +4299,23 @@ msgstr "Gravitacija"
 
 #: src/settings_translation_file.cpp
 msgid "Ground level"
-msgstr ""
+msgstr "Nivo tal"
 
 #: src/settings_translation_file.cpp
 msgid "Ground noise"
-msgstr ""
+msgstr "Šum terena"
 
 #: src/settings_translation_file.cpp
 msgid "HTTP mods"
-msgstr ""
+msgstr "prilagoditve HTTP"
 
 #: src/settings_translation_file.cpp
 msgid "HUD"
-msgstr ""
+msgstr "Igralni vmesnik"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "HUD scaling"
-msgstr "HUD je prikazan"
+msgstr "Velikost igralnega vmesnika"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4107,6 +4324,11 @@ msgid ""
 "-    log: mimic and log backtrace of deprecated call (default).\n"
 "-    error: abort on usage of deprecated call (suggested for mod developers)."
 msgstr ""
+"Obravnavanje zastarelih klicev Lua API:\n"
+"- brez: Ne beleži zastarelih klicev\n"
+"- dnevnik: posnemi in beleži povratno sled zastarelega klica (privzeto).\n"
+"- napaka: prekini ob uporabi zastarelega klica (priporočeno za razvijalce "
+"modov)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4116,26 +4338,30 @@ msgid ""
 "call).\n"
 "* Instrument the sampler being used to update the statistics."
 msgstr ""
+"Naj profiler sam instrumentira:\n"
+"* Instrumentira prazno funkcijo.\n"
+"To oceni stroške, ki jih instrumentacija dodaja (+1 klic funkcije).\n"
+"* Instrumentira vzorčevalnik, ki se uporablja za posodabljanje statistike."
 
 #: src/settings_translation_file.cpp
 msgid "Heat blend noise"
-msgstr ""
+msgstr "Šum toplotnega mešanja"
 
 #: src/settings_translation_file.cpp
 msgid "Heat noise"
-msgstr ""
+msgstr "Toplotni šum"
 
 #: src/settings_translation_file.cpp
 msgid "Height component of the initial window size."
-msgstr ""
+msgstr "Višinska komponenta začetne velikosti okna."
 
 #: src/settings_translation_file.cpp
 msgid "Height noise"
-msgstr ""
+msgstr "Šum višine"
 
 #: src/settings_translation_file.cpp
 msgid "Height select noise"
-msgstr ""
+msgstr "Izberi višinski hrup"
 
 #: src/settings_translation_file.cpp
 msgid "Hill steepness"
@@ -4143,223 +4369,195 @@ msgstr "Strmina hriba"
 
 #: src/settings_translation_file.cpp
 msgid "Hill threshold"
-msgstr ""
+msgstr "Prav hriba"
 
 #: src/settings_translation_file.cpp
 msgid "Hilliness1 noise"
-msgstr ""
+msgstr "Šum Hilliness1"
 
 #: src/settings_translation_file.cpp
 msgid "Hilliness2 noise"
-msgstr ""
+msgstr "Šum Hilliness2"
 
 #: src/settings_translation_file.cpp
 msgid "Hilliness3 noise"
-msgstr ""
+msgstr "Šum Hilliness3"
 
 #: src/settings_translation_file.cpp
 msgid "Hilliness4 noise"
-msgstr ""
+msgstr "Šum Hilliness4"
 
 #: src/settings_translation_file.cpp
 msgid "Homepage of server, to be displayed in the serverlist."
-msgstr ""
+msgstr "Spletna stran strežnik, ki bo prikazana na seznamu strežnikov."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Horizontal acceleration in air when jumping or falling,\n"
 "in nodes per second per second."
 msgstr ""
+"Vodoravni pospešek v zraku pri skoku ali padu,\n"
+"v vozliščih na sekundo."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Horizontal and vertical acceleration in fast mode,\n"
 "in nodes per second per second."
 msgstr ""
+"Vodoravni in navpični pospešek v hitrem načinu,\n"
+"v vozliščih na sekundo."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Horizontal and vertical acceleration on ground or when climbing,\n"
 "in nodes per second per second."
 msgstr ""
+"Vodoravni in navpični pospešek na tleh ali pri vzpenjanju,\n"
+"v vozliščih na sekundo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 1"
-msgstr "Tipka za prostor 1 v hotbar-u"
+msgstr "Mesto 1 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 10"
-msgstr "Tipka za prostor 10 v hotbar-u"
+msgstr "Mesto 10 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 11"
-msgstr "Tipka za prostor 11 v hotbar-u"
+msgstr "Mesto 11 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 12"
-msgstr "Tipka za prostor 12 v hotbar-u"
+msgstr "Mesto 12 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 13"
-msgstr "Tipka za prostor 13 v hotbar-u"
+msgstr "Mesto 13 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 14"
-msgstr "Tipka za prostor 14 v hotbar-u"
+msgstr "Mesto 14 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 15"
-msgstr "Tipka za prostor 15 v hotbar-u"
+msgstr "Mesto 15 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 16"
-msgstr "Tipka za prostor 17 v hotbar-u"
+msgstr "Mesto 16 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 17"
-msgstr "Tipka za prostor 17 v hotbar-u"
+msgstr "Mesto 17 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 18"
-msgstr "Tipka za prostor 18 v hotbar-u"
+msgstr "Mesto 18 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 19"
-msgstr "Tipka za prostor 19 v hotbar-u"
+msgstr "Mesto 19 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 2"
-msgstr "Tipka za prostor 2 v hotbar-u"
+msgstr "Mesto 2 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 20"
-msgstr "Tipka za prostor 20 v hotbar-u"
+msgstr "Mesto 20 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 21"
-msgstr "Tipka za prostor 21 v hotbar-u"
+msgstr "Mesto 21 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 22"
-msgstr "Tipka za prostor 22 v hotbar-u"
+msgstr "Mesto 22 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 23"
-msgstr "Tipka za prostor 23 v hotbar-u"
+msgstr "Mesto 23 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 24"
-msgstr "Tipka za prostor 24 v hotbar-u"
+msgstr "Mesto 24 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 25"
-msgstr "Tipka za prostor 25 v hotbar-u"
+msgstr "Mesto 25 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 26"
-msgstr "Tipka za prostor 26 v hotbar-u"
+msgstr "Mesto 26 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 27"
-msgstr "Tipka za prostor 27 v hotbar-u"
+msgstr "Mesto 27 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 28"
-msgstr "Tipka za prostor 28 v hotbar-u"
+msgstr "Mesto 28 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 29"
-msgstr "Tipka za prostor 29 v hotbar-u"
+msgstr "Mesto 29 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 3"
-msgstr "Tipka za prostor 3 v hotbar-u"
+msgstr "Mesto 3 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 30"
-msgstr "Tipka za prostor 30 v hotbar-u"
+msgstr "Mesto 30 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 31"
-msgstr "Tipka za prostor 31 v hotbar-u"
+msgstr "Mesto 31 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 32"
-msgstr "Tipka za prostor 32 v hotbar-u"
+msgstr "Mesto 32 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 4"
-msgstr "Tipka za prostor 4 v hotbar-u"
+msgstr "Mesto 4 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 5"
-msgstr "Tipka za prostor 5 v hotbar-u"
+msgstr "Mesto 5 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 6"
-msgstr "Tipka za prostor 6 v hotbar-u"
+msgstr "Mesto 6 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 7"
-msgstr "Tipka za prostor 7 v hotbar-u"
+msgstr "Mesto 7 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 8"
-msgstr "Tipka za prostor 8 v hotbar-u"
+msgstr "Mesto 8 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar slot 9"
-msgstr "Tipka za prostor 9 v hotbar-u"
+msgstr "Mesto 9 v orodni vrstici"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Enable mouse wheel for selection"
-msgstr ""
+msgstr "Vroča vrstica: Omogoči izbiro s kolescem miške"
 
 #: src/settings_translation_file.cpp
 msgid "Hotbar: Invert mouse wheel direction"
-msgstr ""
+msgstr "Vroča vrstica: Obrni smer kolesca miške"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar: select next item"
-msgstr "Tipka za naslednji prostor v hotbar-u"
+msgstr "Tipka za naslednji preemet v vroči vrstici (hotbar-u)"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Hotbar: select previous item"
-msgstr "Tipka za prejšnji prostor v hotbar-u"
+msgstr "Tipka za prejšnji predmet v vroči vrstici (hotbar-u)"
 
 #: src/settings_translation_file.cpp
 msgid "How deep to make rivers."
@@ -4370,6 +4568,8 @@ msgid ""
 "How fast liquid waves will move. Higher = faster.\n"
 "If negative, liquid waves will move backwards."
 msgstr ""
+"Kako hitro se bodo premikali valovi tekočin . Višje = hitreje.\n"
+"Če je negativno, se bodo valovi premikali nazaj."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4377,12 +4577,17 @@ msgid ""
 "seconds.\n"
 "Higher value is smoother, but will use more RAM."
 msgstr ""
+"Kako dolgo bo strežnik čakal, preden bo razkladal neuporabljene mapbloke, "
+"navedeno v sekundah.\n"
+"Višja vrednost je bolj gladka, vendar bo porabila več RAM-a."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "How much you are slowed down when moving inside a liquid.\n"
 "Decrease this to increase liquid resistance to movement."
 msgstr ""
+"Koliko ste upočasnjeni pri gibanju v tekočini.\n"
+"Zmanjšajte to vrednost, da povečate upor tekočine proti gibanju."
 
 #: src/settings_translation_file.cpp
 msgid "How wide to make rivers."
@@ -4390,15 +4595,15 @@ msgstr "Kako široke naredi reke."
 
 #: src/settings_translation_file.cpp
 msgid "Humidity blend noise"
-msgstr ""
+msgstr "Šum mešanice vlažnosti (humidity blend)"
 
 #: src/settings_translation_file.cpp
 msgid "Humidity noise"
-msgstr ""
+msgstr "Šum vlažnosti"
 
 #: src/settings_translation_file.cpp
 msgid "Humidity variation for biomes."
-msgstr ""
+msgstr "Šum vlažnosti za biome."
 
 #: src/settings_translation_file.cpp
 msgid "IPv6"
@@ -4421,6 +4626,9 @@ msgid ""
 "If disabled, \"Aux1\" key is used to fly fast if both fly and fast mode are\n"
 "enabled."
 msgstr ""
+"Če je onemogočena, se tipka \"Aux1\" uporablja za hitro letenje, če sta "
+"omogočena tako način letenja kot hitri\n"
+"način."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4428,6 +4636,9 @@ msgid ""
 "ContentDB to\n"
 "check for package updates when opening the mainmenu."
 msgstr ""
+"Če je to omogočeno in imate nameščene pakete s ContentDB-ja,\n"
+"se lahko Luanti ob odpiranju glavnega menija obrne na ContentDB, da preveri "
+"za posodobitve paketov."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4441,12 +4652,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"If enabled, actions are recorded for rollback.\n"
-"This option is only read when server starts."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
 "If enabled, invalid world data won't cause the server to shut down.\n"
 "Only enable this if you know what you are doing."
 msgstr ""
@@ -4455,11 +4660,24 @@ msgstr ""
 "To omogočite le, če veste, kaj počnete."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
+msgid ""
+"If enabled, node and inventory actions are recorded for rollback.\n"
+"This option is only read on server start. Note that the engine will not\n"
+"automatically clean old entries from the rollback database."
+msgstr ""
+"Če je omogočeno, se dejanja vozlišč in inventarja zabeležijo za "
+"razveljavitev (rollback).\n"
+"Ta možnost se prebere samo ob zagonu strežnika. Upoštevajte, da mehanizem "
+"ne\n"
+"bo samodejno očistil starih vnosov iz baze podatkov za razveljavitev."
+
+#: src/settings_translation_file.cpp
 msgid ""
 "If enabled, players cannot join without a password or change theirs to an "
 "empty password."
-msgstr "Če je omogočeno, se novi igralci ne morejo prijaviti s praznim geslom."
+msgstr ""
+"Če je omogočeno, se igralci ne morejo pridružiti brez gesla ali pa svojega "
+"gesla spremeniti v prazno geslo."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4467,16 +4685,22 @@ msgid ""
 "If disabled, connecting to a server will automatically register a new "
 "account."
 msgstr ""
+"Če je to omogočeno, je registracija strežniškega računa ločena od prijave v "
+"uporabniškem vmesniku.\n"
+"Če je to onemogočeno, se bo pri povezovanju s strežnikom samodejno "
+"registriral nov račun."
 
 #: src/settings_translation_file.cpp
 msgid "If enabled, the \"Aux1\" key will toggle when pressed."
-msgstr ""
+msgstr "Če je omogočena, se bo tipka „Aux1\" ob pritisku preklopila."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If enabled, the \"Sneak\" key will toggle when pressed.\n"
 "This functionality is ignored when fly is enabled."
 msgstr ""
+"Če je to omogočena, se bo tipka „Prikradenje“ ob pritisku preklopila.\n"
+"Ta funkcionalnost se prezre, ko je omogočeno letenje."
 
 #: src/settings_translation_file.cpp
 #, no-c-format
@@ -4486,17 +4710,22 @@ msgid ""
 "sent to the client by 50-80%. Clients will no longer receive most\n"
 "invisible blocks, so that the utility of noclip mode is reduced."
 msgstr ""
+"Če je to omogočeno, bo strežnik izvajal izločanje blokov na zemljevidu glede "
+"na položaj oči igralca.\n"
+"To lahko zmanjša število blokov,\n"
+"poslanih odjemalcu, za 50–80 %. Odjemalci ne bodo več prejemali večine "
+"nevidnih blokov,\n"
+"zato se uporabnost načina duha (noclip) zmanjša."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "If enabled, you can place nodes at the position (feet + eye level) where you "
 "stand.\n"
 "This is helpful when working with nodeboxes in small areas."
 msgstr ""
-"Če je omogočeno, lahko postavite bloke na položaj (stopala + višina oči), "
-"kjer stojiš.\n"
-"To je koristno pri delu z vozlišči v majhnih območjih."
+"Če je omogočeno, lahko vozlišča postavite na položaj (stopala + višina oči), "
+"kjer stojite.\n"
+"To je koristno pri delu z vozlišči na majhnih območjih."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4504,12 +4733,16 @@ msgid ""
 "limited\n"
 "to this distance from the player to the node."
 msgstr ""
+"Če je omogočena omejitev CSM za obseg vozlišč, so klici get_node omejeni\n"
+"na to razdaljo od igralca do vozlišča."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "If the execution of a chat command takes longer than this specified time in\n"
 "seconds, add the time information to the chat command message"
 msgstr ""
+"Če izvedba ukaza za klepet traja dlje kot ta določeni čas v\n"
+"sekundah, dodajte časovne podatke v sporočilo ukaza za klepet"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4518,6 +4751,11 @@ msgid ""
 "deleting an older debug.txt.1 if it exists.\n"
 "debug.txt is only moved if this setting is positive."
 msgstr ""
+"Če velikost datoteke debug.txt ob odprtju preseže število megabajtov, "
+"določeno\n"
+"v tej nastavitvi, se datoteka premakne v debug.txt.1,\n"
+"starejša datoteka debug.txt.1 pa se izbriše, če obstaja.\n"
+"Datoteka debug.txt se premakne le, če je ta nastavitev pozitivna."
 
 #: src/settings_translation_file.cpp
 msgid "If this is set, players will always (re)spawn at the given position."
@@ -4531,7 +4769,7 @@ msgstr "Prezri napake svetov"
 
 #: src/settings_translation_file.cpp
 msgid "In-game chat console background alpha (opaqueness, between 0 and 255)."
-msgstr ""
+msgstr "Alfa ozadja konzole za klepet v igri (neprozornost med 0 in 255)."
 
 #: src/settings_translation_file.cpp
 msgid "In-game chat console background color (R,G,B)."
@@ -4543,60 +4781,66 @@ msgid "In-game chat console height, between 0.1 (10%) and 1.0 (100%)."
 msgstr "Višina konzole za klepet med igro, med 0,1 (10%) in 1,0 (100%)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Increase view range"
 msgstr "Povečaj doseg pogleda"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Increase volume"
-msgstr "Povečaj glasnonst"
+msgstr "Povečaj glasnost"
 
 #: src/settings_translation_file.cpp
 msgid "Initial vertical speed when jumping, in nodes per second."
-msgstr ""
+msgstr "Začetna navpična hitrost pri skoku, v vozliščih na sekundo."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Instrument builtin.\n"
 "This is usually only needed by core/builtin contributors"
 msgstr ""
+"Vgrajeno orodje (instrument builtin).\n"
+"To običajno potrebujejo le sodelavci jedra/vgrajenega orodja"
 
 #: src/settings_translation_file.cpp
 msgid "Instrument chat commands on registration."
-msgstr ""
+msgstr "Ukazi za klepet z instrumentom ob registraciji."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Instrument global callback functions on registration.\n"
 "(anything you pass to a core.register_*() function)"
 msgstr ""
+"Globalne povratne funkcije instrumenta ob registraciji.\n"
+"(vse, kar posredujete funkciji core.register_*())"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Instrument the action function of Active Block Modifiers on registration."
 msgstr ""
+"Instrumentirajte akcijsko funkcijo aktivnih modifikatorjev blokov ob "
+"registraciji."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Instrument the action function of Loading Block Modifiers on registration."
 msgstr ""
+"Instrumentirajte akcijsko funkcijo nalaganja modifikatorjev blokov ob "
+"registraciji."
 
 #: src/settings_translation_file.cpp
 msgid "Instrument the methods of entities on registration."
-msgstr ""
+msgstr "Instrumentirajte metode registracije subjektov."
 
 #: src/settings_translation_file.cpp
 msgid "Interaction style"
-msgstr ""
+msgstr "Stil interakcije"
 
 #: src/settings_translation_file.cpp
 msgid "Interval of saving important changes in the world, stated in seconds."
-msgstr ""
+msgstr "Interval shranjevanja pomembnih sprememb v svetu, naveden v sekundah."
 
 #: src/settings_translation_file.cpp
 msgid "Inventory items animations"
-msgstr ""
+msgstr "Animacije predmetov v inventarju"
 
 #: src/settings_translation_file.cpp
 msgid "Invert mouse"
@@ -4605,27 +4849,28 @@ msgstr "Obrni delovanje miške"
 #: src/settings_translation_file.cpp
 msgid "Invert mouse wheel (scroll) direction for item selection in hotbar."
 msgstr ""
+"Obrni smer vrtenja kolesca miške (pomikanja) za izbiro elementov v vroči "
+"vrstici."
 
 #: src/settings_translation_file.cpp
 msgid "Invert vertical mouse movement."
 msgstr "Obrne navpično gibanje med premikanjem miške."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Italic font path"
-msgstr "Pot pisave"
+msgstr "Pot poševne (italic) pisave"
 
 #: src/settings_translation_file.cpp
 msgid "Italic monospace font path"
-msgstr ""
+msgstr "Pot poševne (italic) enopresledne (monospace) pisave"
 
 #: src/settings_translation_file.cpp
 msgid "Item entity TTL"
-msgstr ""
+msgstr "TTL entitete elementa"
 
 #: src/settings_translation_file.cpp
 msgid "Iterations"
-msgstr ""
+msgstr "Iteracije"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4634,26 +4879,30 @@ msgid ""
 "increases processing load.\n"
 "At iterations = 20 this mapgen has a similar load to mapgen V7."
 msgstr ""
+"Iteracije rekurzivne funkcije.\n"
+"Povečanje tega poveča količino finih podrobnosti,\n"
+"hkrati pa poveča tudi obremenitev obdelave.\n"
+"Pri iteracijah = 20 ima ta mapgen podobno obremenitev kot mapgen V7."
 
 #: src/settings_translation_file.cpp
 msgid "Joystick ID"
-msgstr ""
+msgstr "ID igralne palice (joystick)"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick button repetition interval"
-msgstr ""
+msgstr "Interval ponavljanja gumbov na igralni palici"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick dead zone"
-msgstr ""
+msgstr "Mrtvo območje igralne palice"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick frustum sensitivity"
-msgstr ""
+msgstr "Občutljivost igralne palice"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick type"
-msgstr ""
+msgstr "Vrsta igralne palice"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4663,6 +4912,11 @@ msgid ""
 "Has no effect on 3D fractals.\n"
 "Range roughly -2 to 2."
 msgstr ""
+"Samo Julijina množica.\n"
+"W-komponenta hiperkompleksne konstante.\n"
+"Spremeni obliko fraktala.\n"
+"Nima vpliva na 3D-fraktale.\n"
+"Območje približno od -2 do 2."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4671,6 +4925,10 @@ msgid ""
 "Alters the shape of the fractal.\n"
 "Range roughly -2 to 2."
 msgstr ""
+"Samo Julijina množica.\n"
+"X komponenta hiperkompleksne konstante.\n"
+"Spremeni obliko fraktala.\n"
+"Območje približno od -2 do 2."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4679,6 +4937,10 @@ msgid ""
 "Alters the shape of the fractal.\n"
 "Range roughly -2 to 2."
 msgstr ""
+"Samo Julijina množica.\n"
+"Y komponenta hiperkompleksne konstante.\n"
+"Spremeni obliko fraktala.\n"
+"Območje približno od -2 do 2."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4687,10 +4949,14 @@ msgid ""
 "Alters the shape of the fractal.\n"
 "Range roughly -2 to 2."
 msgstr ""
+"Samo Julijina množica.\n"
+"Z komponenta hiperkompleksne konstante.\n"
+"Spremeni obliko fraktala.\n"
+"Območje približno od -2 do 2."
 
 #: src/settings_translation_file.cpp
 msgid "Julia w"
-msgstr "Julia W"
+msgstr "Julija W"
 
 #: src/settings_translation_file.cpp
 msgid "Julia x"
@@ -4706,104 +4972,110 @@ msgstr "Julia Z"
 
 #: src/settings_translation_file.cpp
 msgid "Jumping speed"
-msgstr ""
+msgstr "Hitrost skakanja"
 
 #: src/settings_translation_file.cpp
 msgid "Key for decrementing the selected value in Quicktune."
-msgstr ""
+msgstr "Tipka za zmanjšanje izbrane vrednosti v Quicktune."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Key for digging, punching or using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
+"Tipka za kopanje, udarjanje ali uporabo nečesa.\n"
+"(Opomba: Dejanski pomen se lahko razlikuje glede na igro.)"
 
 #: src/settings_translation_file.cpp
 msgid "Key for incrementing the selected value in Quicktune."
-msgstr ""
+msgstr "Tipka za povečanje izbrane vrednosti v Quicktune."
 
 #: src/settings_translation_file.cpp
 msgid "Key for moving fast in fast mode."
-msgstr ""
+msgstr "Tipka za hitro premikanje v hitrem načinu."
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the chat window to type commands."
-msgstr ""
+msgstr "Tipka za odpiranje okna za klepet za vnašanje ukazov."
 
 #: src/settings_translation_file.cpp
 msgid "Key for opening the chat window to type local commands."
-msgstr ""
+msgstr "Tipka za odpiranje okna za klepet za vnašanje lokalnih ukazov."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
+"Tipka za postavitev predmeta/bloka ali za uporabo nečesa.\n"
+"(Opomba: Dejanski pomen se lahko razlikuje glede na igro.)"
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching to the next entry in Quicktune."
-msgstr ""
+msgstr "Tipka za preklop na naslednji vnos v Quicktune."
 
 #: src/settings_translation_file.cpp
 msgid "Key for switching to the previous entry in Quicktune."
-msgstr ""
+msgstr "Tipka za preklop na prejšnji vnos v Quicktune."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the camera update. Only usable with 'debug' privilege."
 msgstr ""
+"Tipka za vklop/izklop posodobitve kamere. Uporabno samo s privilegijem "
+"„debug“."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of mapblock boundaries."
-msgstr ""
+msgstr "Tipka za preklop prikaza meja blokov zemljevida."
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
-msgstr ""
+msgstr "Tipka za preklop prikaza profilerja. Uporablja se za razvoj."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keybindings"
-msgstr "Bližnjice na tipkovnici."
+msgstr "Kombinacije tipk"
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
-msgstr ""
+msgstr "Tipkovnica in miška"
 
 #: src/settings_translation_file.cpp
 msgid "Kick players who sent more than X messages per 10 seconds."
 msgstr ""
+"Izključi igralce (kick), ki so poslali več kot X sporočil na 10 sekund."
 
 #: src/settings_translation_file.cpp
 msgid "Lake steepness"
-msgstr ""
+msgstr "Strmina jezera"
 
 #: src/settings_translation_file.cpp
 msgid "Lake threshold"
-msgstr ""
+msgstr "Prag jezera"
 
 #: src/settings_translation_file.cpp
 msgid "Language"
-msgstr ""
+msgstr "Jezik"
 
 #: src/settings_translation_file.cpp
 msgid "Large cave depth"
-msgstr ""
+msgstr "Velika globina jame"
 
 #: src/settings_translation_file.cpp
 msgid "Large cave maximum number"
-msgstr ""
+msgstr "Največje število velikih jam"
 
 #: src/settings_translation_file.cpp
 msgid "Large cave minimum number"
-msgstr ""
+msgstr "Najmanjše število velikih jam"
 
 #: src/settings_translation_file.cpp
 msgid "Large cave proportion flooded"
-msgstr ""
+msgstr "Velik del jame je poplavljen"
 
 #: src/settings_translation_file.cpp
 msgid "Leaves style"
-msgstr ""
+msgstr "Slog listov"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4812,6 +5084,10 @@ msgid ""
 "-   Simple: only outer faces\n"
 "-   Opaque: disable transparency"
 msgstr ""
+"Slog listov:\n"
+"- Fancy: vidne so vse ploskve\n"
+"- Enostavno: vidne so samo zunanje ploskve\n"
+"- Opačno: onemogoči prosojnost"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4822,6 +5098,12 @@ msgid ""
 "This is a lower bound, i.e. server steps may not be shorter than this, but\n"
 "they are often longer."
 msgstr ""
+"Dolžina strežniškega koraka (interval, v katerem se vse običajno "
+"posodablja),\n"
+"navedena v sekundah.\n"
+"Ne velja za seje, ki se gostijo iz menija odjemalca.\n"
+"To je spodnja meja, tj. koraki strežnika ne smejo biti krajši od tega,\n"
+"vendar so pogosto daljši."
 
 #: src/settings_translation_file.cpp
 msgid "Length of liquid waves."
@@ -4832,15 +5114,17 @@ msgid ""
 "Length of time between Active Block Modifier (ABM) execution cycles, stated "
 "in seconds."
 msgstr ""
+"Čas med cikli izvajanja modifikatorja aktivnih blokov (ABM), naveden v "
+"sekundah."
 
 #: src/settings_translation_file.cpp
 msgid "Length of time between NodeTimer execution cycles, stated in seconds."
-msgstr ""
+msgstr "Čas med cikli izvajanja NodeTimerja, naveden v sekundah."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Length of time between active block management cycles, stated in seconds."
-msgstr ""
+msgstr "Čas med cikli aktivnega upravljanja blokov, naveden v sekundah."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4854,35 +5138,43 @@ msgid ""
 "-    verbose\n"
 "-    trace"
 msgstr ""
+"Raven beleženja, ki se bo zapisala v datoteko debug.txt:\n"
+"- <nič> (brez beleženja)\n"
+"- nič (sporočila brez ravni)\n"
+"- napaka\n"
+"- opozorilo\n"
+"- dejanje\n"
+"- informacije\n"
+"- podrobno\n"
+"- sled"
 
 #: src/settings_translation_file.cpp
 msgid "Light curve boost"
-msgstr ""
+msgstr "Ojačanje krivulje svetlobe"
 
 #: src/settings_translation_file.cpp
 msgid "Light curve boost center"
-msgstr ""
+msgstr "Središče za ojačitev svetlobne krivulje"
 
 #: src/settings_translation_file.cpp
 msgid "Light curve boost spread"
-msgstr ""
+msgstr "Ojačitev razpršenosti svetlobne krivulje"
 
 #: src/settings_translation_file.cpp
 msgid "Light curve gamma"
-msgstr ""
+msgstr "Gama krivulje svetlobe"
 
 #: src/settings_translation_file.cpp
 msgid "Light curve high gradient"
-msgstr ""
+msgstr "Visok gradient svetlobne krivulje"
 
 #: src/settings_translation_file.cpp
 msgid "Light curve low gradient"
-msgstr ""
+msgstr "Nizek gradient svetlobne krivulje"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Lighting"
-msgstr "Gladko osvetljevanje"
+msgstr "Razsvetljava"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4890,6 +5182,11 @@ msgid ""
 "Only mapchunks completely within the mapgen limit are generated.\n"
 "Value is stored per-world."
 msgstr ""
+"Omejitev generiranja zemljevidov, v vozliščih, v vseh 6 smereh od (0, 0, "
+"0).\n"
+"Generirajo se samo koščki zemljevidov, ki so v celoti znotraj omejitve "
+"generatorja zemljevidov.\n"
+"Vrednost se shrani za vsak svet posebej."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4899,42 +5196,47 @@ msgid ""
 "-    Downloads performed by main menu (e.g. mod manager).\n"
 "Only has an effect if compiled with cURL."
 msgstr ""
+"Omejuje število vzporednih zahtev HTTP. Vpliva na:\n"
+"- Pridobivanje medijev, če strežnik uporablja nastavitev remote_media.\n"
+"- Prenos seznama strežnikov in obvestilo strežnika.\n"
+"- Prenose, ki jih izvaja glavni meni (npr. upravitelj modov).\n"
+"Učinkuje le, če je prevedeno s cURL."
 
 #: src/settings_translation_file.cpp
 msgid "Liquid fluidity"
-msgstr ""
+msgstr "Gostota tekočin"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid fluidity smoothing"
-msgstr ""
+msgstr "Glajenje gostote tekočin"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid loop max"
-msgstr ""
+msgstr "Največja zanka tekočin"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid queue purge time"
-msgstr ""
+msgstr "Čas čiščenja čakalne vrste za tekočine"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid reflections"
-msgstr ""
+msgstr "Odbojnost tekočin"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid sinking"
-msgstr ""
+msgstr "Potapljanje v tekočino"
 
 #: src/settings_translation_file.cpp
 msgid "Liquid update interval in seconds."
-msgstr ""
+msgstr "Interval posodabljanja tekočine v sekundah."
 
 #: src/settings_translation_file.cpp
 msgid "Liquid update tick"
-msgstr ""
+msgstr "Korak (tick) posodobitve tekočin"
 
 #: src/settings_translation_file.cpp
 msgid "Load the game profiler"
-msgstr ""
+msgstr "Naloži profiliranje igre"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4942,10 +5244,13 @@ msgid ""
 "Provides a /profiler command to access the compiled profile.\n"
 "Useful for mod developers and server operators."
 msgstr ""
+"Naloži profiler iger za zbiranje podatkov o profiliranju iger.\n"
+"Zagotavlja ukaz /profiler za dostop do prevedenega profila.\n"
+"Uporabno za razvijalce modov in upravljavce strežnikov."
 
 #: src/settings_translation_file.cpp
 msgid "Loading Block Modifiers"
-msgstr ""
+msgstr "Nalaganje modifikatorjev blokov"
 
 #: src/settings_translation_file.cpp
 msgid "Local command"
@@ -4953,42 +5258,46 @@ msgstr "Krajevni ukaz"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
-msgstr ""
+msgstr "Spodnja Y meja ječ."
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of floatlands."
-msgstr ""
+msgstr "Spodnja meja Y plavajočih območij."
 
 #: src/settings_translation_file.cpp
 msgid "Main menu script"
-msgstr ""
+msgstr "Skripta glavnega menija"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Make fog and sky colors depend on daytime (dawn/sunset) and view direction."
 msgstr ""
+"Barve megle in neba naj bodo odvisne od časa v dnevu (zora/sončni zahod) in "
+"smeri pogleda."
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
-msgstr ""
+msgstr "Stopnja stiskanja zemljevida za shranjevanje na disku"
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Network Transfer"
-msgstr ""
+msgstr "Raven stiskanja zemljevida za omrežni prenos"
 
 #: src/settings_translation_file.cpp
 msgid "Map directory"
-msgstr ""
+msgstr "Mapa zemljevidov"
 
 #: src/settings_translation_file.cpp
 msgid "Map generation attributes specific to Mapgen Carpathian."
-msgstr ""
+msgstr "Atributi generiranja zemljevidov, specifični za Mapgen Carpathian."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Map generation attributes specific to Mapgen Flat.\n"
 "Occasional lakes and hills can be added to the flat world."
 msgstr ""
+"Atributi za ustvarjanje zemljevidov, specifični za Mapgen Flat.\n"
+"Občasna jezera in hribe je mogoče dodati v ravninski svet."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4996,6 +5305,9 @@ msgid ""
 "'terrain' enables the generation of non-fractal terrain:\n"
 "ocean, islands and underground."
 msgstr ""
+"Atributi za generiranje zemljevidov, specifični za Mapgen Fractal.\n"
+"„Terrain“ omogoča generiranje nefraktalnega terena:\n"
+"oceana, otokov in podzemlja."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5006,10 +5318,17 @@ msgid ""
 "to become shallower and occasionally dry.\n"
 "'altitude_dry': Reduces humidity with altitude."
 msgstr ""
+"Atributi za ustvarjanje zemljevidov, specifični za Valleys Mapgen.\n"
+"„altitude_chill“: Zmanjšuje vročino z nadmorsko višino.\n"
+"„humid_rivers“: Poveča vlažnost okoli rek.\n"
+"„vary_river_depth“: Če je omogočeno, nizka vlažnost in visoka vročina "
+"povzročita, da reke\n"
+"postanejo plitvejše in občasno suhe.\n"
+"„altitude_dry“: Zmanjšuje vlažnost z nadmorsko višino."
 
 #: src/settings_translation_file.cpp
 msgid "Map generation attributes specific to Mapgen v5."
-msgstr ""
+msgstr "Atributi generiranja zemljevidov, specifični za Mapgen v5."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5020,6 +5339,13 @@ msgid ""
 "The 'temples' flag disables generation of desert temples. Normal dungeons "
 "will appear instead."
 msgstr ""
+"Atributi generiranja zemljevidov, specifični za Mapgen v6.\n"
+"Zastavica „snowbiomes“ omogoči nov sistem 5 biomov.\n"
+"Ko je zastavica „snowbiomes“ omogočena, so džungle samodejno omogočene, "
+"zastavica „jungles“ pa se prezre.\n"
+"Zastavica „temples“ onemogoči\n"
+"generiranje puščavskih templjev. Namesto njih se bodo prikazale običajne "
+"ječe."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5028,42 +5354,46 @@ msgid ""
 "'floatlands': Floating land masses in the atmosphere.\n"
 "'caverns': Giant caves deep underground."
 msgstr ""
+"Atributi za ustvarjanje zemljevidov, specifični za Mapgen v7.\n"
+"„ridges“: Reke.\n"
+"„floatlands“: Plavajoče kopenske mase v ozračju.\n"
+"„caverns“: Orjaške jame globoko pod zemljo."
 
 #: src/settings_translation_file.cpp
 msgid "Map generation limit"
-msgstr ""
+msgstr "Omejitev ustvarjanja zemljevidov"
 
 #: src/settings_translation_file.cpp
 msgid "Map save interval"
-msgstr ""
+msgstr "Interval shranjevanja zemljevida"
 
 #: src/settings_translation_file.cpp
 msgid "Map shadows update frames"
-msgstr ""
+msgstr "Okvirji za posodobitev senc zemljevidov"
 
 #: src/settings_translation_file.cpp
 msgid "Mapblock limit"
-msgstr ""
+msgstr "Omejitev blokov (mapblock) zemljevida"
 
 #: src/settings_translation_file.cpp
 msgid "Mapblock mesh generation delay"
-msgstr ""
+msgstr "Zakasnitev generiranja mreže mapblock"
 
 #: src/settings_translation_file.cpp
 msgid "Mapblock mesh generation threads"
-msgstr ""
+msgstr "Niti generiranja mreže mapblock"
 
 #: src/settings_translation_file.cpp
 msgid "Mapblock unload timeout"
-msgstr ""
+msgstr "Časovna omejitev razkladanja mapblocka"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Carpathian"
-msgstr ""
+msgstr "Generator zemljevidov Carpathian"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Carpathian specific flags"
-msgstr ""
+msgstr "Zastavice, specifične za generator terena Carpathian"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Flat"
@@ -5071,16 +5401,15 @@ msgstr "Oblika sveta (mapgen) Ravnina"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Flat specific flags"
-msgstr ""
+msgstr "Zastavice, specifične za generator terena Flat"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Fractal"
 msgstr "Oblika sveta (mapgen) Fractal"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Mapgen Fractal specific flags"
-msgstr "Oblika sveta (mapgen) Fractal"
+msgstr "Zastavice, specifične za generator terena Fractal"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen V5"
@@ -5088,7 +5417,7 @@ msgstr "Oblika sveta (mapgen) V5"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen V5 specific flags"
-msgstr ""
+msgstr "Zastavice, specifične za generator terena V5"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen V6"
@@ -5096,7 +5425,7 @@ msgstr "Oblika sveta (mapgen) V6"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen V6 specific flags"
-msgstr ""
+msgstr "Zastavice, specifične za generator terena V6"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen V7"
@@ -5104,77 +5433,83 @@ msgstr "Oblika sveta (mapgen) V7"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen V7 specific flags"
-msgstr ""
+msgstr "Zastavice, specifične za generator terena V7"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Valleys"
-msgstr ""
+msgstr "Generator terena Valleys"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen Valleys specific flags"
-msgstr ""
+msgstr "Zastavice, specifične za generator terena Valleys"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen debug"
-msgstr ""
+msgstr "Razhroščevanje generatorja zemljevida"
 
 #: src/settings_translation_file.cpp
 msgid "Mapgen name"
-msgstr ""
+msgstr "Ime generatorja zemljevida"
 
 #: src/settings_translation_file.cpp
 msgid "Max block generate distance"
-msgstr ""
+msgstr "Največja razdalja za ustvarjanje blokov"
 
 #: src/settings_translation_file.cpp
 msgid "Max block send distance"
-msgstr ""
+msgstr "Največja razdalja za pošiljanje blokov"
 
 #: src/settings_translation_file.cpp
 msgid "Max liquids processed per step."
-msgstr ""
+msgstr "Največje število obdelanih tekočin na korak."
 
 #: src/settings_translation_file.cpp
 msgid "Max. clearobjects extra blocks"
-msgstr ""
+msgstr "Največje število dodatnih blokov za čiščenje objektov"
 
 #: src/settings_translation_file.cpp
 msgid "Max. packets per iteration"
-msgstr ""
+msgstr "Največje število paketov na ponovitev"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum FPS"
-msgstr ""
+msgstr "Največji FPS"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum FPS when the window is not focused."
-msgstr ""
+msgstr "Največji FPS, ko okno ni v ospredju."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum distance to render shadows."
-msgstr ""
+msgstr "Največja razdalja za upodabljanje senc."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum forceloaded blocks"
-msgstr ""
+msgstr "Največje število prisilno naloženih blokov"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum hotbar width"
-msgstr ""
+msgstr "Največja širina vroče vrstice (hotbara)"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum limit of random number of large caves per mapchunk."
 msgstr ""
+"Največja omejitev naključnega števila velikih jam na del zemljevida "
+"(mapchunk)."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum limit of random number of small caves per mapchunk."
 msgstr ""
+"Najmanjša omejitev naključnega števila velikih jam na del zemljevida "
+"(mapchunk)."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum liquid resistance. Controls deceleration when entering liquid at\n"
 "high speed."
 msgstr ""
+"Največja odpornost proti tekočinam. Nadzoruje pojemanje hitrosti pri vstopu\n"
+"v tekočino."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5182,22 +5517,33 @@ msgid ""
 "The maximum total count is calculated dynamically:\n"
 "max_total = ceil((#clients + max_users) * per_client / 4)"
 msgstr ""
+"Največje število blokov, ki se hkrati pošljejo na odjemalca.\n"
+"Največje skupno število se izračuna dinamično:\n"
+"max_total = ceil((#clients + max_users) * per_client / 4)"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum number of blocks that can be queued for loading."
 msgstr ""
+"Največje število blokov, ki jih je mogoče uvrstiti v čakalno vrsto za "
+"nalaganje."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum number of blocks to be queued that are to be generated.\n"
 "This limit is enforced per player."
 msgstr ""
+"Največje število blokov, ki jih je treba uvrstiti v čakalno vrsto in jih je "
+"treba ustvariti.\n"
+"Ta omejitev velja za vsakega igralca posebej."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum number of blocks to be queued that are to be loaded from file.\n"
 "This limit is enforced per player."
 msgstr ""
+"Največje število blokov, ki jih je treba postaviti v čakalno vrsto in "
+"naložiti iz datoteke.\n"
+"Ta omejitev velja za vsakega igralca posebej."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5205,6 +5551,9 @@ msgid ""
 "be queued.\n"
 "This should be lower than curl_parallel_limit."
 msgstr ""
+"Največje število sočasnih prenosov. Prenosi, ki presegajo to omejitev, bodo "
+"uvrščeni v čakalno vrsto.\n"
+"To mora biti manjše od curl_parallel_limit."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5213,6 +5562,11 @@ msgid ""
 "won't be deleted, depending on the current view range.\n"
 "Set to -1 for no limit."
 msgstr ""
+"Največje število blokov (mapblock), ki jih lahko odjemalec hrani v "
+"pomnilniku.\n"
+"Upoštevajte, da obstaja notranje dinamično minimalno število blokov, ki\n"
+"ne bodo izbrisani, odvisno od trenutnega obsega pogleda.\n"
+"Nastavite na -1 za brez omejitve."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5221,157 +5575,172 @@ msgid ""
 "You generally don't need to change this, however busy servers may benefit "
 "from a higher number."
 msgstr ""
+"Največje število poslanih paketov na korak pošiljanja v nizkonivojski "
+"omrežni kodi.\n"
+"Tega običajno ni treba spreminjati, vendar pa lahko za obremenjene strežnike "
+"večje število koristi."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum number of players that can be connected simultaneously."
-msgstr ""
+msgstr "Največje število igralcev, ki so lahko hkrati povezani."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum number of recent chat messages to show"
-msgstr ""
+msgstr "Največje število nedavnih sporočil v klepetu za prikaz"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum number of statically stored objects in a block."
-msgstr ""
+msgstr "Največje število statično shranjenih objektov v bloku."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum objects per block"
-msgstr ""
+msgstr "Največje število objektov na blok"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum proportion of current window to be used for hotbar.\n"
 "Useful if there's something to be displayed right or left of hotbar."
 msgstr ""
+"Največji delež trenutnega okna, ki bo uporabljen za vročo vrstico.\n"
+"Uporabno, če je nekaj, kar bo prikazano desno ali levo od vroče vrstice."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum simultaneous block sends per client"
-msgstr ""
+msgstr "Največje število hkratnih pošiljanj blokov na odjemalca"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum size of the client's outgoing chat queue"
-msgstr ""
+msgstr "Največja velikost čakalne vrste odhodnega klepeta odjemalca"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum size of the client's outgoing chat queue.\n"
 "0 to disable queueing and -1 to make the queue size unlimited."
 msgstr ""
+"Največja velikost čakalne vrste odhodnega klepeta odjemalca.\n"
+"0 za onemogočanje čakalne vrste in -1 za neomejeno velikost čakalne vrste."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum time a file download (e.g. a mod download) may take, stated in "
 "milliseconds."
-msgstr ""
+msgstr "Najdaljši čas prenosa datoteke (npr. prenosa moda) v milisekundah."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Maximum time an interactive request (e.g. server list fetch) may take, "
 "stated in milliseconds."
 msgstr ""
+"Najdaljši čas, ki ga lahko traja interaktivna zahteva (npr. pridobivanje "
+"seznama strežnikov), naveden v milisekundah."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum users"
 msgstr "Največ uporabnikov"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Measure time samples"
-msgstr "Puščavski templji"
+msgstr "Merjenje časovnih vzorcev"
+
+#: src/settings_translation_file.cpp
+msgid "Menu theme"
+msgstr "Tema menija"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
-msgstr ""
+msgstr "Sporočilo dneva"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day displayed to players connecting."
-msgstr ""
+msgstr "Sporočilo, ki je prikazano po povezavi na strežnik."
 
 #: src/settings_translation_file.cpp
 msgid "Method used to highlight selected object."
-msgstr ""
+msgstr "Metoda, ki se uporablja za označevanje izbranega predmeta."
 
 #: src/settings_translation_file.cpp
 msgid "Minimal level of logging to be written to chat."
-msgstr ""
+msgstr "Minimalna raven beleženja, ki jo je treba zapisati v klepet."
 
 #: src/settings_translation_file.cpp
 msgid "Minimap scan height"
-msgstr ""
+msgstr "Višina skeniranja minizemljevida (minimap)"
 
 #: src/settings_translation_file.cpp
 msgid "Minimum dig repetition interval"
-msgstr ""
+msgstr "Najmanjši interval ponovitve kopanja"
 
 #: src/settings_translation_file.cpp
 msgid "Minimum limit of random number of large caves per mapchunk."
-msgstr ""
+msgstr "Najmanjša omejitev naključnega števila velikih jam na del zemljevida."
 
 #: src/settings_translation_file.cpp
 msgid "Minimum limit of random number of small caves per mapchunk."
-msgstr ""
+msgstr "Najmanjša omejitev naključnega števila majhnih jam na del zemljevida."
 
 #: src/settings_translation_file.cpp
 msgid "Minimum vertex count for mesh buffers"
-msgstr ""
+msgstr "Najmanjše število vozlišč za mrežne medpomnilnike"
 
 #: src/settings_translation_file.cpp
 msgid "Mipmapping"
-msgstr ""
+msgstr "MIP-mapiranje"
 
 #: src/settings_translation_file.cpp
 msgid "Miscellaneous"
-msgstr ""
+msgstr "Razno"
 
 #: src/settings_translation_file.cpp
 msgid "Mod Profiler"
-msgstr ""
+msgstr "Profiler modov"
 
 #: src/settings_translation_file.cpp
 msgid "Mod Security"
-msgstr ""
+msgstr "Varnost prilagoditev (modov)"
 
 #: src/settings_translation_file.cpp
 msgid "Mod channels"
-msgstr ""
+msgstr "Kanali za mode"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Modifier key bind for closing your world.\n"
 "Requires ESC + the selected key to work."
 msgstr ""
+"Modifikatorska vezava tipke za zapiranje vašega sveta.\n"
+"Za delovanje je potreben ESC + izbrana tipka."
 
 #: src/settings_translation_file.cpp
 msgid "Modifies the size of the HUD elements."
-msgstr ""
+msgstr "Spremeni velikost elementov HUD."
 
 #: src/settings_translation_file.cpp
 msgid "Monospace font path"
-msgstr ""
+msgstr "Pot pisave z enorazmernim prostorom"
 
 #: src/settings_translation_file.cpp
 msgid "Monospace font size"
-msgstr ""
+msgstr "Velikost pisave z enorazmernim prostorom"
 
 #: src/settings_translation_file.cpp
 msgid "Monospace font size divisible by"
-msgstr ""
+msgstr "Velikost pisave z enorazmernim prostorom, deljiva z"
 
 #: src/settings_translation_file.cpp
 msgid "Mountain height noise"
-msgstr ""
+msgstr "Šum višine gora"
 
 #: src/settings_translation_file.cpp
 msgid "Mountain noise"
-msgstr ""
+msgstr "Šum gora"
 
 #: src/settings_translation_file.cpp
 msgid "Mountain variation noise"
-msgstr ""
+msgstr "Šum gorskih sprememb"
 
 #: src/settings_translation_file.cpp
 msgid "Mountain zero level"
-msgstr ""
+msgstr "Gorska ničelna raven"
 
 #: src/settings_translation_file.cpp
 msgid "Mouse sensitivity"
@@ -5382,32 +5751,28 @@ msgid "Mouse sensitivity multiplier."
 msgstr "Števnik občutljivosti premikanja miške."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move backward"
-msgstr "Nazaj"
+msgstr "Premakni se nazaj"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move forward"
-msgstr "Samodejno premikanje naprej"
+msgstr "Premakni se naprej"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Move left"
-msgstr "Hitro gibanje"
+msgstr "Premakni se levo"
 
 #: src/settings_translation_file.cpp
 msgid "Move right"
-msgstr ""
+msgstr "Premakni se desno"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Movement threshold"
-msgstr "Vhod v jamo"
+msgstr "Prag gibanja"
 
 #: src/settings_translation_file.cpp
 msgid "Mud noise"
-msgstr ""
+msgstr "Šum blata"
 
 #: src/settings_translation_file.cpp
 msgid "Mute"
@@ -5415,7 +5780,7 @@ msgstr "Utišaj"
 
 #: src/settings_translation_file.cpp
 msgid "Mute sound"
-msgstr ""
+msgstr "Utišaj zvok"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5424,6 +5789,11 @@ msgid ""
 "Current mapgens in a highly unstable state:\n"
 "-    The optional floatlands of v7 (disabled by default)."
 msgstr ""
+"Ime generatorja zemljevidov, ki se bo uporabil pri ustvarjanju novega "
+"sveta.\n"
+"Ustvarjanje sveta v glavnem meniju bo to preglasilo.\n"
+"Trenutni generatorji zemljevidov so v zelo nestabilnem stanju:\n"
+"- Izbirna lebdeča območja različice 7 (privzeto onemogočena)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5431,60 +5801,70 @@ msgid ""
 "When running a server, a client connecting with this name is admin.\n"
 "When starting from the main menu, this is overridden."
 msgstr ""
+"Ime igralca.\n"
+"Ko strežnik deluje, se odjemalec s tem imenom poveže z skrbnikom. Pri\n"
+"zagonu iz glavnega menija se to preglasi."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Name of the server, to be displayed when players join and in the serverlist."
 msgstr ""
+"Ime strežnika, ki se prikaže, ko se igralci pridružijo, in na seznamu "
+"strežnikov."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Network port to listen (UDP).\n"
 "This value will be overridden when starting from the main menu."
 msgstr ""
+"Omrežna vrata za poslušanje (UDP).\n"
+"Ta vrednost bo prepisana pri zagonu iz glavnega menija."
 
 #: src/settings_translation_file.cpp
 msgid "Networking"
-msgstr ""
+msgstr "Omrežje"
 
 #: src/settings_translation_file.cpp
 msgid "New users need to input this password."
 msgstr "Novi uporabniki morajo vnesti geslo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Node and Entity Highlighting"
-msgstr "Poudarjanje vozlišč"
+msgstr "Označevanje vozlišč in entitet"
 
 #: src/settings_translation_file.cpp
 msgid "Node highlighting"
-msgstr ""
+msgstr "Označevanje vozlišč"
 
 #: src/settings_translation_file.cpp
 msgid "NodeTimer interval"
-msgstr ""
+msgstr "Interval NodeTimer"
 
 #: src/settings_translation_file.cpp
 msgid "Noises"
-msgstr ""
+msgstr "Šum"
 
 #: src/settings_translation_file.cpp
 msgid "Number of emerge threads"
-msgstr ""
+msgstr "Število niti"
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Number of emerge threads to use.\n"
-"Value 0:\n"
-"-    Automatic selection. The number of emerge threads will be\n"
-"-    'number of processors - 2', with a lower limit of 1.\n"
-"Any other value:\n"
-"-    Specifies the number of emerge threads, with a lower limit of 1.\n"
-"WARNING: Increasing the number of emerge threads increases engine mapgen\n"
-"speed, but this may harm game performance by interfering with other\n"
-"processes, especially in singleplayer and/or when running Lua code in\n"
-"'on_generated'. For many users the optimum setting may be '1'."
+"Number of emerge threads (responsible for map generation and loading) to "
+"use.\n"
+"If 0 then the engine will automatically choose a suitable value depending\n"
+"on the hardware and type of map generator.\n"
+"WARNING: There are known bugs in the default map generators (v6, v7, ...)\n"
+"when using more than 1 thread. The automatic choice will avoid this."
 msgstr ""
+"Število uporabljenih niti (odgovornih za generiranje in nalaganje "
+"zemljevidov).\n"
+"Če je 0, bo mehanizem samodejno izbral ustrezno vrednost, odvisno od strojne "
+"opreme in vrste generatorja zemljevidov.\n"
+"OPOZORILO: V privzetih generatorjih\n"
+"zemljevidov (v6, v7, ...)\n"
+"so znane napake pri uporabi več kot ene niti. Samodejna izbira bo to "
+"preprečila."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5492,9 +5872,11 @@ msgid ""
 "This is a trade-off between SQLite transaction overhead and\n"
 "memory consumption (4096=100MB, as a rule of thumb)."
 msgstr ""
+"Število dodatnih blokov, ki jih lahko /clearobjects naenkrat naloži.\n"
+"To je kompromis med stroški transakcij SQLite in\n"
+"porabo pomnilnika (praviloma 4096 = 100 MB)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Number of messages a player may send per 10 seconds."
 msgstr "Največja količina sporočil, ki jih igralec sme poslati v 10 sekundah."
 
@@ -5504,29 +5886,29 @@ msgid ""
 "Value of 0 (default) will let Luanti automatically choose the number of "
 "threads."
 msgstr ""
+"Število niti, ki se uporabijo za generiranje mreže.\n"
+"Vrednost 0 (privzeto) bo Luantiju omogočila, da samodejno izbere število "
+"niti."
 
 #: src/settings_translation_file.cpp
 msgid "Occlusion Culler"
-msgstr ""
+msgstr "Okluzijski odbijalec"
 
 #: src/settings_translation_file.cpp
 msgid "Occlusion Culling"
-msgstr ""
+msgstr "Izločanje okluzije"
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
-msgstr ""
+msgid "Opaqueness (alpha) of the shadow behind the font."
+msgstr "Neprozornost (alfa) sence za pisavo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Open chat"
-msgstr "Odpri"
+msgstr "Odpri klepet"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Open inventory"
-msgstr "Inventar"
+msgstr "Odpri inventar"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5534,23 +5916,24 @@ msgid ""
 "formspec is\n"
 "open."
 msgstr ""
+"Odpre meni za premor, ko okno izgubi fokus. Ne da premora, če je odprta\n"
+"specifikacija obrazca."
 
 #: src/settings_translation_file.cpp
 msgid "OpenGL debug"
-msgstr ""
+msgstr "Razhroščevanje OpenGL"
 
 #: src/settings_translation_file.cpp
 msgid "Optimize GUI for touchscreens"
-msgstr ""
+msgstr "Optimiziraj grafični vmesnik (GUI) za zaslone na dotik"
 
 #: src/settings_translation_file.cpp
 msgid "Optional override for chat weblink color."
-msgstr ""
+msgstr "Izbirna preglasitev barve spletne povezave v klepetu."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Other Effects"
-msgstr "Grafika"
+msgstr "Drugi učinki"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5558,63 +5941,75 @@ msgid ""
 "This font will be used for certain languages or if the default font is "
 "unavailable."
 msgstr ""
+"Pot do rezervne pisave. Mora biti pisava TrueType.\n"
+"Ta pisava bo uporabljena za določene jezike ali če privzeta pisava ni na "
+"voljo."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Path to save screenshots at. Can be an absolute or relative path.\n"
 "The folder will be created if it doesn't already exist."
 msgstr ""
+"Pot za shranjevanje posnetkov zaslona. Pot je lahko absolutna ali "
+"relativna.\n"
+"Mapa bo ustvarjena, če še ne obstaja."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Path to shader directory. If no path is defined, default location will be "
 "used."
 msgstr ""
+"Pot do imenika senčilnika. Če pot ni določena, bo uporabljena privzeta "
+"lokacija."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Path to the default font. Must be a TrueType font.\n"
 "The fallback font will be used if the font cannot be loaded."
 msgstr ""
+"Pot do privzete pisave. Mora biti pisava TrueType.\n"
+"Če pisave ni mogoče naložiti, bo uporabljena rezervna pisava."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Path to the monospace font. Must be a TrueType font.\n"
 "This font is used for e.g. the console and profiler screen."
 msgstr ""
+"Pot do pisave z enorazmernim prostorom. Mora biti pisava TrueType.\n"
+"Ta pisava se uporablja npr. za konzolo in zaslon profilerja."
 
 #: src/settings_translation_file.cpp
 msgid "Pause on lost window focus"
-msgstr ""
+msgstr "Začasno ustavi ob izgubljenem fokusu okna"
 
 #: src/settings_translation_file.cpp
 msgid "Per-player limit of queued blocks load from disk"
 msgstr ""
+"Omejitev števila blokov v čakalni vrsti, ki se naložijo z diska, na igralca"
 
 #: src/settings_translation_file.cpp
 msgid "Per-player limit of queued blocks to generate"
-msgstr ""
+msgstr "Omejitev števila blokov v čakalni vrsti za ustvarjanje na igralca"
 
 #: src/settings_translation_file.cpp
 msgid "Physics"
-msgstr ""
+msgstr "Fizika"
 
 #: src/settings_translation_file.cpp
 msgid "Place repetition interval"
-msgstr ""
+msgstr "Interval ponavljanja mest"
 
 #: src/settings_translation_file.cpp
 msgid "Player transfer distance"
-msgstr ""
+msgstr "Razdalja prenosa igralca"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Poisson filtering"
-msgstr "Bilinearno filtriranje"
+msgstr "Poissonovo filtriranje"
 
 #: src/settings_translation_file.cpp
 msgid "Post Processing"
-msgstr ""
+msgstr "Naknadna obdelava"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5623,28 +6018,37 @@ msgid ""
 "Enable this when you dig or place too often by accident.\n"
 "On touchscreens, this only affects digging."
 msgstr ""
+"Preprečite ponavljanje kopanja in postavljanja, ko držite ustrezne gumbe. \n"
+"Omogočite to možnost, če po nesreči prepogosto kopljete ali postavljate.\n"
+"Na zaslonih na dotik to vpliva samo na kopanje."
 
 #: src/settings_translation_file.cpp
 msgid "Prevent mods from doing insecure things like running shell commands."
 msgstr ""
+"Preprečite modom, da bi izvajali nevarne stvari, kot je izvajanje ukazov "
+"lupine."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Print the engine's profiling data in regular intervals (in seconds).\n"
 "0 = disable. Useful for developers."
 msgstr ""
+"Izpiši podatke profiliranja pogona v rednih intervalih (v sekundah).\n"
+"0 = onemogočeno. Uporabno za razvijalce."
 
 #: src/settings_translation_file.cpp
 msgid "Privileges that players with basic_privs can grant"
 msgstr ""
+"Privilegiji, ki jih lahko podelijo igralci z osnovnimi privilegiji "
+"(basic_privs)"
 
 #: src/settings_translation_file.cpp
 msgid "Profiler"
-msgstr ""
+msgstr "Profiler"
 
 #: src/settings_translation_file.cpp
 msgid "Prometheus listener address"
-msgstr ""
+msgstr "Prometheus naslov za poslušanje"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5654,10 +6058,15 @@ msgid ""
 "By default you can fetch metrics from http://127.0.0.1:30000/metrics.\n"
 "An empty value disables the metrics listener."
 msgstr ""
+"Naslov za poslušanje Prometheusa.\n"
+"Če je Luanti preveden s podporo za Prometheus, ta nastavitev\n"
+"omogoči poslušalca statistike za Prometheus na tem naslovu.\n"
+"Privzeto lahko pridobite statistiko s http://127.0.0.1:30000/metrics.\n"
+"Prazna vrednost onemogoči poslušalca statistike."
 
 #: src/settings_translation_file.cpp
 msgid "Proportion of large caves that contain liquid."
-msgstr ""
+msgstr "Delež velikih jam, ki vsebujejo tekočino."
 
 #: src/settings_translation_file.cpp
 msgid "Protocol version minimum"
@@ -5665,23 +6074,23 @@ msgstr "Različice protokola niso skladne"
 
 #: src/settings_translation_file.cpp
 msgid "Punch gesture"
-msgstr ""
+msgstr "Gesta udarca"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: decrement value"
-msgstr ""
+msgstr "Quicktune: zmanjšanje vrednosti"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: increment value"
-msgstr ""
+msgstr "Quicktune: povečanje vrednosti"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: select next entry"
-msgstr ""
+msgstr "Quicktune: izbira naslednjega vnosa"
 
 #: src/settings_translation_file.cpp
 msgid "Quicktune: select previous entry"
-msgstr ""
+msgstr "Quicktune: izbira prejšnjega vnosa"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5689,54 +6098,59 @@ msgid ""
 "Values larger than 26 will start to produce sharp cutoffs at cloud area "
 "corners."
 msgstr ""
+"Polmer območja oblaka, naveden v številu 64 vozlišč oblačnih kvadratov.\n"
+"Vrednosti, večje od 26, bodo začele ustvarjati ostre meje na vogalih območja "
+"oblaka."
 
 #: src/settings_translation_file.cpp
 msgid "Radius to use when the block bounds HUD feature is set to near blocks."
 msgstr ""
+"Polmer, ki se uporabi, ko je funkcija HUD za meje blokov nastavljena na "
+"bližnje bloke."
 
 #: src/settings_translation_file.cpp
 msgid "Raises terrain to make valleys around the rivers."
-msgstr ""
+msgstr "Dvigne teren, da ustvari doline okoli rek."
 
 #: src/settings_translation_file.cpp
 msgid "Random input"
-msgstr ""
+msgstr "Naključni vnos"
 
 #: src/settings_translation_file.cpp
 msgid "Random mod load order"
-msgstr ""
+msgstr "Naključni vrstni red nalaganja modov"
 
 #: src/settings_translation_file.cpp
 msgid "Recent Chat Messages"
-msgstr ""
+msgstr "Nedavna sporočila v klepetu"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Regular font path"
-msgstr "Pot pisave"
+msgstr "Pot običajne pisave"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Remember screen size"
-msgstr "Samodejno shrani velikost zaslona"
+msgstr "Samodejno shrani si velikost zaslona"
 
 #: src/settings_translation_file.cpp
 msgid "Remote media"
-msgstr ""
+msgstr "Oddaljene medijske datoteke"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Remove color codes from incoming chat messages\n"
 "Use this to stop players from being able to use color in their messages"
 msgstr ""
+"Odstrani barvne kode iz dohodnih sporočil v klepetu\n"
+"To uporabite, da igralcem preprečite uporabo barv v svojih sporočilih"
 
 #: src/settings_translation_file.cpp
 msgid "Replaces the default main menu with a custom one."
-msgstr ""
+msgstr "Zamenja privzeti glavni meni s prilagojenim."
 
 #: src/settings_translation_file.cpp
 msgid "Report path"
-msgstr ""
+msgstr "Pot za poročila"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5751,88 +6165,102 @@ msgid ""
 "csm_restriction_noderange)\n"
 "READ_PLAYERINFO: 32 (disable get_player_names call client-side)"
 msgstr ""
+"Omejuje dostop do določenih funkcij modov na strani odjemalca na strežniku.\n"
+"Združite spodnje bajtne zastavice, da omejite funkcije na strani odjemalca, "
+"ali nastavite na 0 za brez omejitev:\n"
+"LOAD_CLIENT_MODS: 1 (onemogočite nalaganje modov, ki jih zagotovi "
+"odjemalec)\n"
+"CHAT_MESSAGES: 2 (onemogočite klic send_chat_message na strani odjemalca)\n"
+"READ_ITEMDEFS: 4 (onemogočite klic get_item_def na strani odjemalca)\n"
+"READ_NODEDEFS: 8 (onemogočite klic get_node_def na strani odjemalca)\n"
+"LOOKUP_NODES_LIMIT: 16 (omejuje klic get_node na strani odjemalca na\n"
+"csm_restriction_noderange)\n"
+"READ_PLAYERINFO: 32 (onemogočite klic\n"
+"get_player_names na strani odjemalca)"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Return to Main Menu"
 msgstr "Izhod na glavni meni"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
-msgstr ""
+msgstr "Šum širjenja gorskega grebena"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge noise"
-msgstr ""
+msgstr "Šum grebena"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge underwater noise"
-msgstr ""
+msgstr "Šum podvodnega grebena"
 
 #: src/settings_translation_file.cpp
 msgid "Ridged mountain size noise"
-msgstr ""
+msgstr "Šum velikosti grebenaste gore"
 
 #: src/settings_translation_file.cpp
 msgid "River channel depth"
-msgstr ""
+msgstr "Globina rečne struge"
 
 #: src/settings_translation_file.cpp
 msgid "River channel width"
-msgstr ""
+msgstr "Širina rečne struge"
 
 #: src/settings_translation_file.cpp
 msgid "River depth"
-msgstr ""
+msgstr "Globina reke"
 
 #: src/settings_translation_file.cpp
 msgid "River noise"
-msgstr ""
+msgstr "Šum rek"
 
 #: src/settings_translation_file.cpp
 msgid "River size"
-msgstr ""
+msgstr "Velikost reke"
 
 #: src/settings_translation_file.cpp
 msgid "River valley width"
-msgstr ""
+msgstr "Širina rečne doline"
 
 #: src/settings_translation_file.cpp
 msgid "Rollback recording"
-msgstr ""
+msgstr "Beleženje za povrnitev (rollback)"
 
 #: src/settings_translation_file.cpp
 msgid "Rolling hill size noise"
-msgstr ""
+msgstr "Šum velikosti valovitega hriba"
 
 #: src/settings_translation_file.cpp
 msgid "Rolling hills spread noise"
-msgstr ""
+msgstr "Šum širjenja valovitih hribov"
 
 #: src/settings_translation_file.cpp
 msgid "Safe digging and placing"
-msgstr ""
+msgstr "Varno kopanje in polaganje"
 
 #: src/settings_translation_file.cpp
 msgid "Sandy beaches occur when np_beach exceeds this value."
-msgstr ""
+msgstr "Peščene plaže se pojavijo, ko np_beach preseže to vrednost."
 
 #: src/settings_translation_file.cpp
 msgid "Save the map received by the client on disk."
-msgstr ""
+msgstr "Shranite svet, ki ga je prejel odjemalec, na disk."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Save window size automatically when modified.\n"
 "If true, screen size is saved in screen_w and screen_h, and whether the "
 "window\n"
-"is maximized is stored in window_maximized.\n"
-"(Autosaving window_maximized only works if compiled with SDL.)"
+"is maximized is stored in window_maximized."
 msgstr ""
+"Samodejno shrani velikost okna ob spremembi.\n"
+"Če je nastavljeno na »true«, se velikost zaslona shrani v screen_w in "
+"screen_h, ali je okno maksimizirano, pa se shrani v\n"
+"window_maximized."
 
 #: src/settings_translation_file.cpp
 msgid "Saving map received from server"
-msgstr ""
+msgstr "Shranjevanje sveta, prejetega s strežnika"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5842,6 +6270,13 @@ msgid ""
 "pixels when scaling down, at the cost of blurring some\n"
 "edge pixels when images are scaled by non-integer sizes."
 msgstr ""
+"Prilagodi grafični uporabniški vmesnik za uporabniško\n"
+"določeno vrednost.\n"
+"Za skaliranje grafičnega uporabniškega vmesnika uporabite filter za glajenje "
+"najbližjega soseda. To bo zgladilo nekatere grobe robove in zlilo\n"
+"slikovne pike pri pomanjševanju, vendar bo pri tem zameglilo\n"
+"nekatere slikovne pike robov, ko se slike skalirajo za neceloštevilske "
+"velikosti."
 
 #: src/settings_translation_file.cpp
 msgid "Screen"
@@ -5849,11 +6284,11 @@ msgstr "Zaslon"
 
 #: src/settings_translation_file.cpp
 msgid "Screen height"
-msgstr ""
+msgstr "Višina zaslona"
 
 #: src/settings_translation_file.cpp
 msgid "Screen width"
-msgstr ""
+msgstr "Širina zaslona"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot"
@@ -5861,15 +6296,15 @@ msgstr "Posnetek zaslona"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot folder"
-msgstr ""
+msgstr "Mapa za posnetke zaslona"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot format"
-msgstr ""
+msgstr "Format posnetkov zaslona"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot quality"
-msgstr ""
+msgstr "Kakovost posnetkov zaslona"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5877,27 +6312,30 @@ msgid ""
 "1 means worst quality; 100 means best quality.\n"
 "Use 0 for default quality."
 msgstr ""
+"Kakovost posnetkov zaslona. Uporablja se samo za format JPEG.\n"
+"1 pomeni najslabšo kakovost; 100 pomeni najboljšo kakovost.\n"
+"Za privzeto kakovost uporabite 0."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Screenshots"
-msgstr "Posnetek zaslona"
+msgstr "Posnetki zaslona"
 
 #: src/settings_translation_file.cpp
 msgid "Seabed noise"
-msgstr ""
+msgstr "Šum morskega dna"
 
 #: src/settings_translation_file.cpp
 msgid "Second of 4 2D noises that together define hill/mountain range height."
 msgstr ""
+"Drugi od štirih 2D šumov, ki skupaj določajo višino hriba/gorskega območja."
 
 #: src/settings_translation_file.cpp
 msgid "Second of two 3D noises that together define tunnels."
-msgstr ""
+msgstr "Drugi od dveh 3D šumov, ki skupaj definirata predore."
 
 #: src/settings_translation_file.cpp
 msgid "See https://www.sqlite.org/pragma.html#pragma_synchronous"
-msgstr ""
+msgstr "Glejte https://www.sqlite.org/pragma.html#pragma_synchronous"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5913,27 +6351,40 @@ msgid ""
 "Also, if Post Processing is disabled, FSAA will not work together with\n"
 "undersampling or a non-default \"3d_mode\" setting.\n"
 "\n"
-"* FXAA - Fast approximate antialiasing\n"
-"Applies a post-processing filter to detect and smoothen high-contrast "
-"edges.\n"
-"Provides balance between speed and image quality.\n"
-"\n"
 "* SSAA - Super-sampling antialiasing\n"
 "Renders higher-resolution image of the scene, then scales down to reduce\n"
 "the aliasing effects. This is the slowest and the most accurate method."
 msgstr ""
+"Izberite metodo glajenja slikovnih elementov, ki jo želite uporabiti.\n"
+"\n"
+"* Brez – Brez glajenja slikovnih elementov (privzeto)\n"
+"\n"
+"* FSAA – Strojno zagotovljeno glajenje slikovnih elementov za celoten "
+"zaslon\n"
+"T. i. večvzorčno glajenje slikovnih elementov (MSAA)\n"
+"Zgladi robove blokov, vendar ne vpliva na notranjost tekstur.\n"
+"\n"
+"Če je naknadna obdelava onemogočena, je za spremembo FSAA potreben ponovni "
+"zagon.\n"
+"Če je naknadna obdelava onemogočena, FSAA ne bo deloval skupaj s "
+"podvzorčenjem ali nastavitvijo »3d_mode«, ki ni privzeta.\n"
+"\n"
+"* SSAA – Supervzorčno glajenje slikovnih elementov\n"
+"Upodobi sliko prizora z višjo ločljivostjo, nato pa se pomanjša, da zmanjša "
+"učinke glajenja slikovnih elementov. To je najpočasnejša in najbolj natančna "
+"metoda."
 
 #: src/settings_translation_file.cpp
 msgid "Selection box border color (R,G,B)."
-msgstr ""
+msgstr "Barva obrobe polja za izbiranje (R, G, B)."
 
 #: src/settings_translation_file.cpp
 msgid "Selection box color"
-msgstr ""
+msgstr "Barva polja za izbiranje"
 
 #: src/settings_translation_file.cpp
 msgid "Selection box width"
-msgstr ""
+msgstr "Širina polja za izbiranje"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5957,38 +6408,57 @@ msgid ""
 "17 = 4D \"Mandelbulb\" Mandelbrot set.\n"
 "18 = 4D \"Mandelbulb\" Julia set."
 msgstr ""
+"Izbere enega od 18 tipov fraktalov.\n"
+"1 = 4D „Okrogel\" Mandelbrotov niz.\n"
+"2 = 4D „Okrogel\" Juliov niz.\n"
+"3 = 4D „Kvadratni\" Mandelbrotov niz.\n"
+"4 = 4D „Kvadratni\" Juliov niz.\n"
+"5 = 4D „Mandy Cousin\" Mandelbrotov niz.\n"
+"6 = 4D „Mandy Cousin\" Juliov niz.\n"
+"7 = 4D „Variacija\" Mandelbrotov niz.\n"
+"8 = 4D „Variacija\" Juliov niz.\n"
+"9 = 3D „Mandelbrot/Mandelbar\" Mandelbrotov niz.\n"
+"10 = 3D „Mandelbrot/Mandelbar\" Juliov niz.\n"
+"11 = 3D „Božično drevo\" Mandelbrotov niz.\n"
+"12 = 3D „Božično drevo\" Juliov niz.\n"
+"13 = 3D Mandelbrotova množica „Mandelbulb\".\n"
+"14 = 3D Julijeva množica „Mandelbulb\".\n"
+"15 = 3D Mandelbrotova množica „Kosinusna Mandelbulb\".\n"
+"16 = 3D Julijeva množica „Kosinusna Mandelbulb\".\n"
+"17 = 4D Mandelbrotova množica „Mandelbulb\".\n"
+"18 = 4D Julijeva množica „Mandelbulb\"."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Send names of online players to the serverlist. If disabled only the player "
 "count is revealed."
 msgstr ""
+"Pošlje imena igralcev na spletu na seznam strežnikov. Če je to onemogočeno, "
+"se prikaže samo število igralcev."
 
 #: src/settings_translation_file.cpp
 msgid "Send player names to the server list"
 msgstr "Pošlji imena igralcev na seznam strežnikov"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Server"
-msgstr "Gostiteljski strežnik"
+msgstr "Strežnik"
 
 #: src/settings_translation_file.cpp
 msgid "Server Gameplay"
 msgstr "Nastavitve igranja na strežniku"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Server Security"
-msgstr "Vrata strežnika"
+msgstr "Varnost strežnika"
 
 #: src/settings_translation_file.cpp
 msgid "Server URL"
-msgstr ""
+msgstr "URL strežnika"
 
 #: src/settings_translation_file.cpp
 msgid "Server address"
-msgstr ""
+msgstr "Naslov strežnika"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5996,39 +6466,41 @@ msgid ""
 "Flags are positive. Uncheck the flag to disable corresponding anticheat "
 "module."
 msgstr ""
+"Konfiguracija strežnika proti goljufanju.\n"
+"Zastavice so pozitivne. Odznačite zastavico, da onemogočite ustrezni modul "
+"proti goljufanju."
 
 #: src/settings_translation_file.cpp
 msgid "Server description"
-msgstr ""
+msgstr "Opis strežnika"
 
 #: src/settings_translation_file.cpp
 msgid "Server name"
-msgstr ""
+msgstr "Ime strežnika"
 
 #: src/settings_translation_file.cpp
 msgid "Server port"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Server-side occlusion culling"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Server/Env Performance"
 msgstr "Vrata strežnika"
 
 #: src/settings_translation_file.cpp
+msgid "Server-side occlusion culling"
+msgstr "Skrivanje nevidnih blokov na strani strežnika"
+
+#: src/settings_translation_file.cpp
+msgid "Server/Env Performance"
+msgstr "Zmogljivost strežnika/okolja"
+
+#: src/settings_translation_file.cpp
 msgid "Serverlist URL"
-msgstr ""
+msgstr "URL seznama strežnikov"
 
 #: src/settings_translation_file.cpp
 msgid "Serverlist and MOTD"
-msgstr ""
+msgstr "Seznam strežnikov in sporočilo dneva"
 
 #: src/settings_translation_file.cpp
 msgid "Serverlist file"
-msgstr ""
+msgstr "Datoteka seznama strežnikov"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6036,6 +6508,9 @@ msgid ""
 "Games may change orbit tilt via API.\n"
 "Value of 0 means no tilt / vertical orbit."
 msgstr ""
+"Nastavite privzeti nagib orbite Sonca/Lune v stopinjah.\n"
+"Igre lahko spremenijo nagib orbite prek API-ja.\n"
+"Vrednost 0 pomeni brez nagiba/navpično orbito."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6043,17 +6518,24 @@ msgid ""
 "Value of 0.0 (default) means no exposure compensation.\n"
 "Range: from -1 to 1.0"
 msgstr ""
+"Kompenzacijo osvetlitve nastavite v enotah EV.\n"
+"Vrednost 0,0 (privzeto) pomeni, da ni kompenzacije osvetlitve.\n"
+"Območje: od -1 do 1,0"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Set the language. By default, the system language is used.\n"
 "A restart is required after changing this."
 msgstr ""
+"Nastavite jezik. Privzeto se uporablja sistemski jezik.\n"
+"Po spremembi je potreben ponovni zagon."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Set the maximum length of a chat message (in characters) sent by clients."
 msgstr ""
+"Nastavite največjo dolžino sporočila v klepetu (v znakih), ki ga lahko "
+"pošljejo odjemalci."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6061,6 +6543,9 @@ msgid ""
 "Adjusts the intensity of in-game dynamic shadows.\n"
 "Lower value means lighter shadows, higher value means darker shadows."
 msgstr ""
+"Nastavi gamo jakosti senc.\n"
+"Prilagodi intenzivnost dinamičnih senc v igri.\n"
+"Nižja vrednost pomeni svetlejše sence, višja vrednost pa temnejše sence."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6068,32 +6553,44 @@ msgid ""
 "Lower values mean sharper shadows, bigger values mean softer shadows.\n"
 "Minimum value: 1.0; maximum value: 15.0"
 msgstr ""
+"Nastavite velikost polmera mehke sence.\n"
+"Nižje vrednosti pomenijo ostrejše sence, večje vrednosti pa mehkejše sence.\n"
+"Najmanjša vrednost: 1,0; največja vrednost: 15,0"
 
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable Shadow Mapping."
 msgstr ""
+"Nastavite na „true“ (omogočeno), da omogočite preslikavo senc (shadow "
+"mapping)."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Set to true to enable bloom effect.\n"
 "Bright colors will bleed over the neighboring objects."
 msgstr ""
+"Nastavite na „true“ (omogočeno), da omogočite učinek mehkega sijaja "
+"(bloom).\n"
+"Svetle barve se bodo prelile čez sosednje predmete."
 
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable volumetric lighting effect (a.k.a. \"Godrays\")."
 msgstr ""
+"Nastavite na „true“ (omogočeno), da omogočite volumetrični svetlobni učinek "
+"(tj. „Božji žarki“)."
 
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable waving leaves."
-msgstr ""
+msgstr "Nastavite na „true“ (omogočeno), da omogočite šelestenje listov."
 
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable waving liquids (like water)."
 msgstr ""
+"Nastavite na „true“ (omogočeno), da omogočite valovanje tekočin (kot je "
+"voda)."
 
 #: src/settings_translation_file.cpp
 msgid "Set to true to enable waving plants."
-msgstr ""
+msgstr "Nastavite na „true“ (omogočeno), da omogočite pozibavanjem rastlin."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6102,6 +6599,11 @@ msgid ""
 "top-left - processed base image, top-right - final image\n"
 "bottom-left - raw base image, bottom-right - bloom texture."
 msgstr ""
+"Nastavite na „true“ (omogočeno), da se prikaže razčlenitev učinka mehkega "
+"sijaja (bloom) pri odpravljanju napak.\n"
+"V načinu odpravljanja napak je zaslon razdeljen na 4 kvadrante:\n"
+"zgoraj levo - obdelana osnovna slika, zgoraj desno - končna slika\n"
+"spodaj levo - surova osnovna slika, spodaj desno - tekstura mehkega sijaja."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6109,58 +6611,63 @@ msgid ""
 "On false, 16 bits texture will be used.\n"
 "This can cause much more artifacts in the shadow."
 msgstr ""
+"Nastavi kakovost teksture sence na 32 bitov.\n"
+"Pri nastavitvi „false“ bo uporabljena 16-bitna tekstura.\n"
+"To lahko povzroči veliko več napak v sencah."
 
 #: src/settings_translation_file.cpp
 msgid "Shader path"
-msgstr ""
+msgstr "Pot do senčilnikov (shaders)"
 
 #: src/settings_translation_file.cpp
 msgid "Shadow filter quality"
-msgstr ""
+msgstr "Kakovost senčnega filtra"
 
 #: src/settings_translation_file.cpp
-msgid "Shadow map max distance in nodes to render shadows"
-msgstr ""
+msgid "Shadow map render distance"
+msgstr "Razdalja upodabljanja zemljevida senc"
 
 #: src/settings_translation_file.cpp
 msgid "Shadow map texture in 32 bits"
-msgstr ""
+msgstr "Tekstura senčnega zemljevida v 32 bitih"
 
 #: src/settings_translation_file.cpp
 msgid "Shadow map texture size"
-msgstr ""
+msgstr "Velikost teksture senčnega zemljevida"
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Shadow offset (in pixels) of the default font. If 0, then shadow will not be "
-"drawn."
+"Shadow offset (in pixels) for all fonts. If 0, then no shadow will be drawn."
 msgstr ""
+"Odmik sence (v slikovnih pikah) za vse pisave. Če je 0, senca ne bo narisana."
 
 #: src/settings_translation_file.cpp
 msgid "Shadow strength gamma"
-msgstr ""
+msgstr "Gama jakosti senc"
 
 #: src/settings_translation_file.cpp
 msgid "Show debug info"
-msgstr ""
+msgstr "Pokaži informacije za razhroščevanje"
 
 #: src/settings_translation_file.cpp
 msgid "Show entity selection boxes"
-msgstr ""
+msgstr "Prikaži polja za izbiro entitet"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Show entity selection boxes\n"
 "A restart is required after changing this."
 msgstr ""
+"Prikaži polja za izbiro entitet\n"
+"Za uveljavitev spremembe je potreben ponovni zagon."
 
 #: src/settings_translation_file.cpp
 msgid "Show name tag backgrounds by default"
-msgstr ""
+msgstr "Privzeto prikaži ozadje oznak za imena"
 
 #: src/settings_translation_file.cpp
 msgid "Shutdown message"
-msgstr ""
+msgstr "Sporočilo o zaustavitvi"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6170,10 +6677,18 @@ msgid ""
 "draw calls, benefiting especially high-end GPUs.\n"
 "Systems with a low-end GPU (or no GPU) would benefit from smaller values."
 msgstr ""
+"Dolžina stranice kocke blokov zemljevida, ki jih bo odjemalec upošteval "
+"skupaj\n"
+"pri ustvarjanju mrež.\n"
+"Večje vrednosti povečajo izkoriščenost grafičnega procesorja z zmanjšanjem "
+"števila\n"
+"klicev risanja, kar koristi zlasti vrhunskim grafičnim procesorjem.\n"
+"Sistemi z nizkozmogljivim grafičnim procesorjem (ali brez grafičnega "
+"procesorja) bi imeli koristi od manjših vrednosti."
 
 #: src/settings_translation_file.cpp
 msgid "Simulate translucency when looking at foliage in the sunlight."
-msgstr ""
+msgstr "Simulirajte prosojnost pri opazovanju listja na sončni svetlobi."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6184,88 +6699,91 @@ msgid ""
 "Altering this value is for special usage, leaving it unchanged is\n"
 "recommended."
 msgstr ""
+"Velikost koščkov map, ki jih generira mapgen, navedena v mapblocks (16 "
+"vozlišč).\n"
+"OPOZORILO: Povečanje te vrednosti nad 5 ne prinaša nobene koristi, obstaja "
+"pa več\n"
+"nevarnosti.\n"
+"Zmanjšanje te vrednosti poveča gostoto jam in ječ.\n"
+"Spreminjanje te vrednosti je namenjeno\n"
+"posebni uporabi, zato je priporočljivo, da jo pustite nespremenjeno."
 
 #: src/settings_translation_file.cpp
 msgid "Sky Body Orbit Tilt"
-msgstr ""
+msgstr "Nagib orbite nebesnega telesa"
 
 #: src/settings_translation_file.cpp
 msgid "Slice w"
-msgstr ""
+msgstr "Rezina w"
 
 #: src/settings_translation_file.cpp
 msgid "Slope and fill work together to modify the heights."
-msgstr ""
+msgstr "Naklon in nasip skupaj spreminjata višine."
 
 #: src/settings_translation_file.cpp
 msgid "Small cave maximum number"
-msgstr ""
+msgstr "Največje število majhnih jam"
 
 #: src/settings_translation_file.cpp
 msgid "Small cave minimum number"
-msgstr ""
+msgstr "Najmanjše število majhnih jam"
 
 #: src/settings_translation_file.cpp
 msgid "Small-scale humidity variation for blending biomes on borders."
-msgstr ""
+msgstr "Majhne spremembe vlažnosti za mešanje biomov na mejah."
 
 #: src/settings_translation_file.cpp
 msgid "Small-scale temperature variation for blending biomes on borders."
-msgstr ""
+msgstr "Majhne temperaturne spremembe za mešanje biomov na mejah."
 
 #: src/settings_translation_file.cpp
 msgid "Smooth lighting"
-msgstr ""
+msgstr "Gladka osvetlitev"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Smooth scrolling"
-msgstr "Gladko osvetljevanje"
+msgstr "Gladko drsenje"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Smooths rotation of camera when in cinematic mode, 0 to disable. Enter "
 "cinematic mode by using the key set in Controls."
 msgstr ""
 "Možnost omogoča glajenje pogleda kamere med obračanjem v filmskem načinu. "
-"Vrednost 0 možnost onemogoči."
+"Vrednost 0 možnost onemogoči. V kinematografski način vstopite s tipko, "
+"nastavljeno v nastavitvah."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Smooths rotation of camera, also called look or mouse smoothing. 0 to "
 "disable."
 msgstr ""
-"Možnost omogoča glajenje pogleda kamere med obračanjem v filmskem načinu. "
-"Vrednost 0 možnost onemogoči."
+"Gladi vrtenje kamere, imenovano tudi glajenje pogleda ali miške. Vrednost 0 "
+"onemogoči glajenje."
 
 #: src/settings_translation_file.cpp
 msgid "Sneaking speed"
-msgstr ""
+msgstr "Hitrost v prikradenju"
 
 #: src/settings_translation_file.cpp
 msgid "Sneaking speed, in nodes per second."
-msgstr ""
+msgstr "Hitrost v prikradenju v vozliščih na sekundo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Soft clouds"
-msgstr "3D oblaki"
+msgstr "Gladki oblaki"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Soft shadow radius"
-msgstr "Senca pisave"
+msgstr "Polmer mehke sence"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Sound"
-msgstr "Zvok je utišan"
+msgstr "Zvok"
 
 #: src/settings_translation_file.cpp
 msgid "Sound Extensions Blacklist"
-msgstr ""
+msgstr "Črni seznam razširitev za zvok"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6274,6 +6792,11 @@ msgid ""
 "(obviously, remote_media should end with a slash).\n"
 "Files that are not present will be fetched the usual way."
 msgstr ""
+"Določa URL (HTTP strežnik), s katerega odjemalec pridobiva medijske datoteke "
+"namesto uporabe protokola UDP.\n"
+"$filename bi moral biti dostopen iz $remote_media$filename prek cURL-ja\n"
+"(remote_media se mora končati s poševnico).\n"
+"Datoteke, ki niso prisotne, bodo pridobljene preko protokola UDP."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6281,6 +6804,9 @@ msgid ""
 "Note that mods or games may explicitly set a stack for certain (or all) "
 "items."
 msgstr ""
+"Določa privzeto velikost kupa (stack) vozlišč, predmetov in orodij.\n"
+"Upoštevajte, da lahko modi ali igre izrecno nastavijo sklad za določene (ali "
+"vse) predmete."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6288,6 +6814,9 @@ msgid ""
 "Higher values might make shadows laggy, lower values\n"
 "will consume more resources."
 msgstr ""
+"Razporedi celotno posodobitev zemljevida senc na določeno število sličic.\n"
+"Višje vrednosti lahko povzročijo počasnejše prikazovanje senc, nižje\n"
+"vrednosti pa bodo porabile več virov."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6295,26 +6824,29 @@ msgid ""
 "Controls the width of the range to be boosted.\n"
 "Standard deviation of the light curve boost Gaussian."
 msgstr ""
+"Razpon obsega ojačanja svetlobne krivulje.\n"
+"Nadzira širino obsega, ki ga je treba ojačati.\n"
+"Standardni odklon Gaussove krivulje ojačanja svetlobne krivulje."
 
 #: src/settings_translation_file.cpp
 msgid "Static spawn point"
-msgstr ""
+msgstr "Statična točka pojavljanja (spawn)"
 
 #: src/settings_translation_file.cpp
 msgid "Steepness noise"
-msgstr ""
+msgstr "Šum strmin"
 
 #: src/settings_translation_file.cpp
 msgid "Step mountain size noise"
-msgstr ""
+msgstr "Šum velikosti stopničastih gor"
 
 #: src/settings_translation_file.cpp
 msgid "Step mountain spread noise"
-msgstr ""
+msgstr "Šum širjenja stopničastih gor"
 
 #: src/settings_translation_file.cpp
 msgid "Strength of 3D mode parallax."
-msgstr ""
+msgstr "Moč paralakse v 3D načinu."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6322,14 +6854,17 @@ msgid ""
 "The 3 'boost' parameters define a range of the light\n"
 "curve that is boosted in brightness."
 msgstr ""
+"Moč povečanja svetlobne krivulje.\n"
+"3 parametri „ojačanja“ določajo obseg\n"
+"svetlobne krivulje, ki se poveča glede na svetlost."
 
 #: src/settings_translation_file.cpp
 msgid "Strict protocol checking"
-msgstr ""
+msgstr "Strogo preverjanje protokola"
 
 #: src/settings_translation_file.cpp
 msgid "Strip color codes"
-msgstr ""
+msgstr "Odstrani barvne kode"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6344,34 +6879,47 @@ msgid ""
 "server-intensive extreme water flow and to avoid vast flooding of the\n"
 "world surface below."
 msgstr ""
+"Gladina izbirne vode, postavljene na trdno plast plavajočega območja.\n"
+"Voda je privzeto onemogočena in bo postavljena le, če je ta vrednost "
+"nastavljena\n"
+"nad 'mgv7_floatland_ymax' - 'mgv7_floatland_taper' (začetek\n"
+"zgornjega zoženja).\n"
+"***OPOZORILO, POTENCIALNA NEVARNOST ZA SVETOVE IN ZMOGLJIVOST "
+"STREŽNIKOV***:\n"
+"Pri omogočanju postavitve vode morajo biti plavajoča območja konfigurirana "
+"in preizkušena\n"
+"kot trdna plast z nastavitvijo 'mgv7_floatland_density' na 2,0 (ali drugo\n"
+"zahtevano vrednost, odvisno od 'mgv7_np_floatland'), da se prepreči\n"
+"ekstremni pretok vode in obsežno poplavljanje\n"
+"površine sveta spodaj."
 
 #: src/settings_translation_file.cpp
 msgid "Synchronous SQLite"
-msgstr ""
+msgstr "Sinhronizacija SQLite"
 
 #: src/settings_translation_file.cpp
 msgid "Temperature variation for biomes."
-msgstr ""
+msgstr "Temperaturne spremembe za biome."
 
 #: src/settings_translation_file.cpp
 msgid "Terrain alternative noise"
-msgstr ""
+msgstr "Alternativni šum terena"
 
 #: src/settings_translation_file.cpp
 msgid "Terrain base noise"
-msgstr ""
+msgstr "Osnovni šum terena"
 
 #: src/settings_translation_file.cpp
 msgid "Terrain height"
-msgstr ""
+msgstr "Višina terena"
 
 #: src/settings_translation_file.cpp
 msgid "Terrain higher noise"
-msgstr ""
+msgstr "Šum višine terena"
 
 #: src/settings_translation_file.cpp
 msgid "Terrain noise"
-msgstr ""
+msgstr "Šum terena"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6379,6 +6927,9 @@ msgid ""
 "Controls proportion of world area covered by hills.\n"
 "Adjust towards 0.0 for a larger proportion."
 msgstr ""
+"Prag šuma terena za hribe. Nadzira delež\n"
+"svetovne površine, ki ga pokrivajo hribi.\n"
+"Za večji delež prilagodite proti 0,0."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6386,10 +6937,13 @@ msgid ""
 "Controls proportion of world area covered by lakes.\n"
 "Adjust towards 0.0 for a larger proportion."
 msgstr ""
+"Prag šuma terena za jezera. Nadzira delež\n"
+"svetovne površine, ki jo pokrivajo jezera.\n"
+"Za večji delež prilagodite proti 0,0."
 
 #: src/settings_translation_file.cpp
 msgid "Terrain persistence noise"
-msgstr ""
+msgstr "Šum obstojnosti terena"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6397,6 +6951,9 @@ msgid ""
 "This must be a power of two.\n"
 "Bigger numbers create better shadows but it is also more expensive."
 msgstr ""
+"Velikost teksture za upodabljanje zemljevida senc.\n"
+"To mora biti potenca števila dve. Večja\n"
+"števila ustvarijo boljše sence, vendar so tudi bolj potratna."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6407,31 +6964,44 @@ msgid ""
 "this option allows enforcing it for certain node types. Note though that\n"
 "that is considered EXPERIMENTAL and may not work properly."
 msgstr ""
+"Teksture na vozlišču so lahko poravnane bodisi z vozliščem bodisi s svetom.\n"
+"Prvi način je bolj primeren za stvari, kot so stroji, pohištvo itd., medtem "
+"ko\n"
+"drugi način omogoča, da se stopnice in mikrobloki bolje prilegajo okolici.\n"
+"Ker pa je ta možnost nova in je starejši strežniki morda ne bodo "
+"uporabljali,\n"
+"ta možnost omogoča njeno uveljavitev za določene vrste vozlišč. Vendar "
+"upoštevajte, da\n"
+"to velja za POSKUSNO in morda ne bo delovalo pravilno."
 
 #: src/settings_translation_file.cpp
 msgid "The URL for the content repository"
-msgstr ""
+msgstr "URL za repozitorij vsebin"
 
 #: src/settings_translation_file.cpp
 msgid "The dead zone of the joystick"
-msgstr ""
+msgstr "Mrtva cona igralne palice"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The default format in which profiles are being saved,\n"
 "when calling `/profiler save [format]` without format."
 msgstr ""
+"Privzeta oblika zapisa, v kateri se shranjujejo profili,\n"
+"pri klicu „/profiler save [format]“ brez oblike zapisa."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The delay in milliseconds after which a touch interaction is considered a "
 "long tap."
 msgstr ""
+"Zakasnitev v milisekundah, po kateri se interakcija z dotikom šteje za dolg "
+"dotik."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The file path relative to your world path in which profiles will be saved to."
-msgstr ""
+msgstr "Pot datoteke glede na vašo svetovno pot, kamor bodo shranjeni profili."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6445,10 +7015,19 @@ msgid ""
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
+"Gesta za udarjanje igralcev/entitet.\n"
+"To lahko preglasijo igre in modi.\n"
+"\n"
+"* Kratek dotik\n"
+"Enostavna uporaba in dobro znana iz drugih iger, ki jih ne bomo imenovali.\n"
+"\n"
+"* Dolg dotik\n"
+"Poznana iz klasičnih mobilnih kontrol Luanti.\n"
+"Boj je bolj ali manj nemogoč."
 
 #: src/settings_translation_file.cpp
 msgid "The identifier of the joystick to use"
-msgstr ""
+msgstr "Identifikator igralne palice, ki jo želite uporabiti"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6466,11 +7045,26 @@ msgid ""
 "Use dedicated dig/place buttons to interact.\n"
 "Interaction happens at crosshair position."
 msgstr ""
+"Vrsta uporabljenih kontrol za kopanje/postavljanje.\n"
+"\n"
+"* Dotik\n"
+"Za interakcijo se dotaknite kjer koli na zaslonu z dolgim/kratkim dotikom.\n"
+"Interakcija se zgodi na položaju prsta.\n"
+"\n"
+"* Dotik s križcem\n"
+"Za interakcijo se dotaknite kjer koli na zaslonu z dolgim/kratkim dotikom.\n"
+"Interakcija se zgodi na položaju križca.\n"
+"\n"
+"* Gumbi s križcem\n"
+"Za interakcijo uporabite namenske gumbe za kopanje/postavljanje.\n"
+"Interakcija se zgodi na položaju križca."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The length in pixels after which a touch interaction is considered movement."
 msgstr ""
+"Dolžina v slikovnih pikah, po kateri se interakcija z dotikom šteje za "
+"gibanje."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6479,16 +7073,22 @@ msgid ""
 "0.0 = Wave doesn't move at all.\n"
 "Default is 1.0 (1/2 node)."
 msgstr ""
+"Največja višina površine valovajočih tekočin.\n"
+"4,0 = Višina vala je dva vozlišča.\n"
+"0,0 = Val se sploh ne premika.\n"
+"Privzeta vrednost je 1,0 (1/2 vozlišča)."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The minimum time in seconds it takes between digging nodes when holding\n"
 "the dig button."
 msgstr ""
+"Najkrajši čas v sekundah, ki traja med kopanjem vozlišč, ko držite gumb za\n"
+"kopanje."
 
 #: src/settings_translation_file.cpp
 msgid "The network interface that the server listens on."
-msgstr ""
+msgstr "Omrežni vmesniki, na katerih strežnik posluša."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6508,19 +7108,32 @@ msgid ""
 "maintained.\n"
 "This should be configured together with active_object_send_range_blocks."
 msgstr ""
+"Polmer obsega blokov okoli vsakega igralca, ki je podvržen aktivnim blokom, "
+"navedenim v mapblocks (16 vozlišč).\n"
+"V aktivnih blokih se nalagajo objekti in izvajajo ABM-i.\n"
+"To je tudi najmanjši obseg, v katerem se vzdržujejo aktivni objekti "
+"(pritajeni predmeti).\n"
+"To je treba konfigurirati skupaj z\n"
+"active_object_send_range_blocks."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The rendering back-end.\n"
 "Note: A restart is required after changing this!\n"
-"OpenGL is the default for desktop, and OGLES2 for Android."
+"By default OpenGL3 is preferred on desktop, or OGLES2 on Android."
 msgstr ""
+"Ozadje za upodabljanje.\n"
+"Opomba: Po spremembi tega je potreben ponovni zagon!\n"
+"Privzeto je na namiznih računalnikih prednostna nastavitev OpenGL3, na "
+"Androidu pa OGLES2."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The sensitivity of the joystick axes for moving the\n"
 "in-game view frustum around."
 msgstr ""
+"Občutljivost osi igralne palice za\n"
+"premikanje pogleda v igri."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6529,6 +7142,11 @@ msgid ""
 "setting is 0.25 to 4.0 inclusive. If the value is out of range it will be\n"
 "set to the nearest valid value."
 msgstr ""
+"Moč (temnost) senčenja okolice vozlišča.\n"
+"Nižja vrednost je temnejša, višja svetlejša. Veljaven razpon vrednosti za to "
+"nastavitev\n"
+"je od 0,25 do vključno 4,0. Če je vrednost\n"
+"zunaj razpona, bo nastavljena na najbližjo veljavno vrednost."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6536,28 +7154,40 @@ msgid ""
 "capacity until an attempt is made to decrease its size by dumping old queue\n"
 "items.  A value of 0 disables the functionality."
 msgstr ""
+"Čas (v sekundah), ki ga lahko čakalna vrsta za tekočine preseže zmogljivost "
+"obdelave, dokler se ne poskusi zmanjšati\n"
+"njene velikosti z odlaganjem starih elementov čakalne vrste. Vrednost 0\n"
+"onemogoči funkcionalnost."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The time budget allowed for ABMs to execute on each step\n"
 "(as a fraction of the ABM Interval)"
 msgstr ""
+"Časovni proračun, ki je bil dovoljen za izvedbo ABM-ov na vsakem koraku "
+"(kot\n"
+"del intervala ABM)"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The time in seconds it takes between repeated events\n"
 "when holding down a joystick button combination."
 msgstr ""
+"Čas v sekundah, ki preteče med ponovljenimi dogodki, ko držite pritisnjeno "
+"kombinacijo tipk igralne\n"
+"palice."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "The time in seconds it takes between repeated node placements when holding\n"
 "the place button."
 msgstr ""
+"Čas v sekundah, ki traja med ponovljenimi postavitvami vozlišč, ko držite\n"
+"gumb za postavitev."
 
 #: src/settings_translation_file.cpp
 msgid "The type of joystick"
-msgstr ""
+msgstr "Vrsta igralne palice"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6565,170 +7195,168 @@ msgid ""
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
 "'altitude_dry' is enabled."
 msgstr ""
+"Navpična razdalja, pri kateri se toplota zniža za 20,\n"
+"če je omogočena možnost »altitude_chill«. Prav tako navpična razdalja, pri "
+"kateri se vlažnost zniža za 10,\n"
+"če je omogočena možnost »altitude_dry«."
 
 #: src/settings_translation_file.cpp
 msgid "Third of 4 2D noises that together define hill/mountain range height."
 msgstr ""
+"Tretji od štirih 2D šumov, ki skupaj določajo višino hriba/gorskega območja."
 
 #: src/settings_translation_file.cpp
 msgid "Threshold for long taps"
-msgstr ""
+msgstr "Prag za dolge dotike"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Time in seconds for item entity (dropped items) to live.\n"
 "Setting it to -1 disables the feature."
 msgstr ""
+"Čas v sekundah, ki ga potrebuje entiteta elementa (odpuščeni elementi), da "
+"ostane aktivna.\n"
+"Če nastavite na -1, funkcija postane onemogočena."
 
 #: src/settings_translation_file.cpp
 msgid "Time of day when a new world is started, in millihours (0-23999)."
-msgstr ""
+msgstr "Čas dneva, ko se začne nov svet, v miliurah (0–23999)."
 
 #: src/settings_translation_file.cpp
 msgid "Time speed"
-msgstr ""
+msgstr "Hitrost časa"
 
 #: src/settings_translation_file.cpp
 msgid "Timeout for client to remove unused map data from memory, in seconds."
 msgstr ""
+"Časovna omejitev v sekundah, v kateri mora odjemalec odstraniti "
+"neuporabljene podatke zemljevida iz pomnilnika."
 
 #: src/settings_translation_file.cpp
 msgid ""
-"To reduce lag, block transfers are slowed down when a player is building "
+"To save bandwidth, block transfers are slowed down when a player is building "
 "something.\n"
-"This determines how long they are slowed down after placing or removing a "
-"node."
+"This determines how long the throttling lasts after placing a node."
 msgstr ""
+"Zaradi varčevanja s pasovno širino se prenosi blokov upočasnijo, ko igralec "
+"nekaj gradi.\n"
+"To določa, kako dolgo traja dušenje po postavitvi vozlišča."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle Aux1 key"
-msgstr "Preklopi letenje"
+msgstr "Preklop tipko Aux1"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle HUD"
 msgstr "Preklopi HUD"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle Sneak key"
-msgstr "Preklopi gladek pogled"
+msgstr "Preklopi tipko za prikradenje"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle automatic forward"
-msgstr "Tipka za avtomatsko premikanje naprej"
+msgstr "Preklopi avtomatsko premikanje naprej"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle block bounds"
-msgstr "Robovi blokov"
+msgstr "Preklopi meje bloka"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle camera mode"
-msgstr "Preklopi beleženje pogovora"
+msgstr "Preklopi način kamere"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle camera update"
-msgstr ""
+msgstr "Preklopi posodobitev kamere"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle cinematic mode"
-msgstr "Preklopi gladek pogled"
+msgstr "Preklopi kinematografski način"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle debug info"
-msgstr "Preklopi na način za odpravljanje napak"
+msgstr "Preklopi na informacije za razhroščevanje"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle fog"
 msgstr "Preklopi meglo"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle fullscreen"
-msgstr "Preklopi letenje"
+msgstr "Preklopi na celozaslonski način"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle large chat console"
-msgstr "Preklopi beleženje pogovora"
+msgstr "Preklopi veliko konzolo za klepet"
 
 #: src/settings_translation_file.cpp
 msgid "Toggle pitchmove"
 msgstr "Preklopi nagibanje"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle profiler"
-msgstr "Preklopi letenje"
+msgstr "Preklopi profiler"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Toggle unlimited view range"
-msgstr "Onemogočen neomejen doseg pogleda"
+msgstr "Preklopi neomejen doseg pogleda"
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Tolerance of movement cheat detector.\n"
 "Increase the value if players experience stuttery movement."
 msgstr ""
+"Toleranca detektorja goljufij pri gibanju.\n"
+"Povečajte vrednost, če igralci opazijo zatikanje pri gibanju."
 
 #: src/settings_translation_file.cpp
 msgid "Tooltip delay"
-msgstr ""
+msgstr "Zakasnitev opisa orodja"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Touchscreen"
-msgstr "Celozaslonski način"
+msgstr "Zaslon na dotik"
 
 #: src/settings_translation_file.cpp
 msgid "Touchscreen controls"
 msgstr "Občutljivost dotika (v pikslih)"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Touchscreen sensitivity"
-msgstr "Občutljivost miške"
+msgstr "Občutljivost zaslona na dotik"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Touchscreen sensitivity multiplier."
-msgstr "Števnik občutljivosti premikanja miške."
+msgstr "Števnik občutljivosti zaslona na dotik."
 
 #: src/settings_translation_file.cpp
 msgid "Tradeoffs for performance"
-msgstr ""
+msgstr "Kompromisi za zmogljivost"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Translucent foliage"
-msgstr "Valovanje tekočin"
+msgstr "Prosojno listje"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Translucent liquids"
-msgstr "Valovanje tekočin"
+msgstr "Prosojne tekočine"
 
 #: src/settings_translation_file.cpp
 msgid "Transparency Sorting Distance"
-msgstr ""
+msgstr "Razdalja sortiranja prosojnosti"
 
 #: src/settings_translation_file.cpp
 msgid "Transparency Sorting Group by Buffers"
-msgstr ""
+msgstr "Skupina za razvrščanje prosojnosti po medpomnilnikih"
 
 #: src/settings_translation_file.cpp
 msgid "Trees noise"
-msgstr ""
+msgstr "Šum dreves"
 
 #: src/settings_translation_file.cpp
 msgid "Trilinear filtering"
-msgstr ""
+msgstr "Trilinearno filtriranje"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6736,10 +7364,14 @@ msgid ""
 "False = 128\n"
 "Usable to make minimap smoother on slower machines."
 msgstr ""
+"Vklopljeno = 256\n"
+"Izklopljeno = 128\n"
+"Uporabno za bolj gladko prikazovanje mini zemljevida na počasnejših "
+"računalnikih."
 
 #: src/settings_translation_file.cpp
 msgid "Trusted mods"
-msgstr ""
+msgstr "Zaupanja vredni modi"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6750,6 +7382,14 @@ msgid ""
 "\n"
 "This setting should only be changed if you have performance problems."
 msgstr ""
+"Vrsta occlusion_culler\n"
+"„loops\" je starejši algoritem z ugnezdenimi zankami in kompleksnostjo "
+"O(n³)\n"
+"\n"
+"„bfs\" je novi algoritem, ki temelji na iskanju v širino in stranskem "
+"izločanju\n"
+"\n"
+"To nastavitev je treba spremeniti le, če imate težave z zmogljivostjo."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6757,14 +7397,17 @@ msgid ""
 "release.\n"
 "If this is empty the engine will never check for updates."
 msgstr ""
+"URL do datoteke JSON, ki vsebuje informacije o najnovejši izdaji Luantija.\n"
+"Če je to polje prazno, iskalnik ne bo nikoli preverjal za posodobitve."
 
 #: src/settings_translation_file.cpp
 msgid "URL to the server list displayed in the Multiplayer Tab."
 msgstr ""
+"URL ki vodi do seznama strežnikov, prikazanega na zavihku za več igralcev."
 
 #: src/settings_translation_file.cpp
 msgid "Undersampling"
-msgstr ""
+msgstr "Premajhno vzorčenje"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6777,40 +7420,52 @@ msgid ""
 "set\n"
 "to a non-default value."
 msgstr ""
+"Premajhno vzorčenje je podobno uporabi nižje ločljivosti zaslona, vendar "
+"velja\n"
+"samo za igralni svet, pri čemer grafični uporabniški vmesnik ostane "
+"nedotaknjen.\n"
+"To bi moralo znatno izboljšati zmogljivost, vendar za ceno manj podrobne "
+"slike.\n"
+"Višje vrednosti povzročijo manj podrobno sliko.\n"
+"Opomba: Premajhno vzorčenje trenutno ni podprto, če je nastavitev „3d_mode“ "
+"nastavljena na vrednost,\n"
+"ki ni privzeta."
 
 #: src/settings_translation_file.cpp
 msgid "Unlimited player transfer distance"
-msgstr ""
+msgstr "Neomejena razdalja prenosa igralca"
 
 #: src/settings_translation_file.cpp
 msgid "Unload unused server data"
-msgstr ""
+msgstr "Izpraznite neuporabljene podatke strežnika"
 
 #: src/settings_translation_file.cpp
 msgid "Update information URL"
-msgstr ""
+msgstr "URL za informacije o posodobitvah"
 
 #: src/settings_translation_file.cpp
 msgid "Upper Y limit of dungeons."
-msgstr ""
+msgstr "Zgornja Y-meja ječ."
 
 #: src/settings_translation_file.cpp
 msgid "Upper Y limit of floatlands."
-msgstr ""
+msgstr "Zgornja Y-meja plavajočih otokov."
 
 #: src/settings_translation_file.cpp
 msgid "Use a cloud animation for the main menu background."
-msgstr ""
+msgstr "Za ozadje glavnega menija uporabi animacijo oblakov."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Use anisotropic filtering when looking at textures from an angle.\n"
 "This provides a significant improvement when used together with mipmapping."
 msgstr ""
+"Pri gledanju tekstur iz kota uporabite anizotropno filtriranje.\n"
+"To zagotavlja znatno izboljšanje, če ga uporabljate skupaj z mipmappingom."
 
 #: src/settings_translation_file.cpp
 msgid "Use bilinear filtering when scaling textures."
-msgstr ""
+msgstr "Pri skaliranju tekstur uporabite bilinearno filtriranje."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6818,6 +7473,10 @@ msgid ""
 "especially when using a high-resolution texture pack.\n"
 "Gamma-correct downscaling is not supported."
 msgstr ""
+"Pri skaliranju tekstur uporabite mipmape. Lahko nekoliko poveča zmogljivost, "
+"še posebej pri uporabi paketa tekstur\n"
+"visoke ločljivosti.\n"
+"Zmanjšanje skaliranja z gama korektnostjo ni podprto."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6825,10 +7484,13 @@ msgid ""
 "This flag enables use of raytraced occlusion culling test for\n"
 "client mesh sizes smaller than 4x4x4 map blocks."
 msgstr ""
+"Uporabi izločanje okluzije s sledenjem žarkov v novem izločevalniku.\n"
+"Ta zastavica omogoča uporabo testa izločanja okluzije s sledenjem žarkov\n"
+"za velikosti mrež odjemalcev, manjše od blokov zemljevida 4x4x4."
 
 #: src/settings_translation_file.cpp
 msgid "Use smooth cloud shading."
-msgstr ""
+msgstr "Uporabite gladko senčenje oblakov."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6836,16 +7498,18 @@ msgid ""
 "If both bilinear and trilinear filtering are enabled, trilinear filtering\n"
 "is applied."
 msgstr ""
+"Pri skaliranju tekstur uporabite trilinearno filtriranje.\n"
+"Če sta omogočena tako bilinearno kot trilinearno filtriranje, se uporabi\n"
+"trilinearno filtriranje."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Use virtual joystick to trigger \"Aux1\" button.\n"
 "If enabled, virtual joystick will also tap \"Aux1\" button when out of main "
 "circle."
 msgstr ""
-"(Android) Uporabi virtualno igralno palico za pritisk gumba \"aux\".\n"
-"Če je omogočeno, bo igralna palica sprožila gumb \"aux\", ko bo zunaj "
+") Uporabi virtualno igralno palico za pritisk gumba „aux1\".\n"
+"Če je omogočeno, bo igralna palica sprožila gumb „aux1\", tudi ko bo zunaj "
 "glavnega kroga."
 
 #: src/settings_translation_file.cpp
@@ -6854,108 +7518,118 @@ msgstr "Uporabniški vmesniki"
 
 #: src/settings_translation_file.cpp
 msgid "VSync"
-msgstr ""
+msgstr "VSync"
 
 #: src/settings_translation_file.cpp
 msgid "Valley depth"
-msgstr ""
+msgstr "Globina dolin"
 
 #: src/settings_translation_file.cpp
 msgid "Valley fill"
-msgstr ""
+msgstr "Polnilo doline"
 
 #: src/settings_translation_file.cpp
 msgid "Valley profile"
-msgstr ""
+msgstr "Profil doline"
 
 #: src/settings_translation_file.cpp
 msgid "Valley slope"
-msgstr ""
+msgstr "Pobočje doline"
 
 #: src/settings_translation_file.cpp
 msgid "Variation of biome filler depth."
-msgstr ""
+msgstr "Sprememba globine polnila glede na biome."
 
 #: src/settings_translation_file.cpp
 msgid "Variation of maximum mountain height (in nodes)."
-msgstr ""
+msgstr "Sprememba največje višine gore (v vozliščih)."
 
 #: src/settings_translation_file.cpp
 msgid "Variation of number of caves."
-msgstr ""
+msgstr "Sprememba števila jam."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Variation of terrain vertical scale.\n"
 "When noise is < -0.55 terrain is near-flat."
 msgstr ""
+"Sprememba navpične lestvice terena.\n"
+"Ko je šum < -0,55, je teren skoraj raven."
 
 #: src/settings_translation_file.cpp
 msgid "Varies depth of biome surface nodes."
-msgstr ""
+msgstr "Spreminja globino površinskih vozlišč biomov."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Varies roughness of terrain.\n"
 "Defines the 'persistence' value for terrain_base and terrain_alt noises."
 msgstr ""
+"Spreminja hrapavost terena.\n"
+"Določa vrednost „persistence“ za šume terrain_base in terrain_alt."
 
 #: src/settings_translation_file.cpp
 msgid "Varies steepness of cliffs."
-msgstr ""
+msgstr "Spreminjanje strmine pečin."
 
 #: src/settings_translation_file.cpp
 msgid "Vertical climbing speed, in nodes per second."
-msgstr ""
+msgstr "Navpična hitrost plezanja, v vozliščih na sekundo."
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Vertical screen synchronization. Your system may still force VSync on even "
-"if this is disabled."
+"Vertical screen synchronization.\n"
+"Note: A restart is required after changing this!\n"
+"Your system may still force VSync and ignore this setting."
 msgstr ""
+"Navpična sinhronizacija zaslona.\n"
+"Opomba: Po spremembi te nastavitve je potreben ponovni zagon!\n"
+"Vaš sistem lahko še vedno vsili vertikalno sinhronizacijo in prezre to "
+"nastavitev."
 
 #: src/settings_translation_file.cpp
 msgid "Video driver"
-msgstr ""
+msgstr "Gonilnik za video"
 
 #: src/settings_translation_file.cpp
 msgid "View bobbing factor"
-msgstr ""
+msgstr "Faktor nihanja pogleda"
 
 #: src/settings_translation_file.cpp
 msgid "View distance in nodes."
-msgstr ""
+msgstr "Ogled razdalje v vozliščih."
 
 #: src/settings_translation_file.cpp
 msgid "Viewing range"
-msgstr ""
+msgstr "Doseg pogleda"
 
 #: src/settings_translation_file.cpp
 msgid "Virtual joystick triggers Aux1 button"
-msgstr ""
+msgstr "Navidezna igralna palica sproži gumb Aux1"
 
 #: src/settings_translation_file.cpp
 msgid "Volume"
-msgstr ""
+msgstr "Glasnost"
 
 #: src/settings_translation_file.cpp
 msgid "Volume multiplier when the window is unfocused."
-msgstr ""
+msgstr "Množitelj glasnosti, ko okno ni v fokusu."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Volume of all sounds.\n"
 "Requires the sound system to be enabled."
 msgstr ""
+"Glasnost vseh zvokov.\n"
+"Zahteva, da je omogočen zvočni sistem."
 
 #: src/settings_translation_file.cpp
 msgid "Volume when unfocused"
-msgstr ""
+msgstr "Glasnost, ko okno ni fokusirano"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Volumetric lighting"
-msgstr "Poudarjanje vozlišč"
+msgstr "Volumetrična osvetlitev"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6965,72 +7639,77 @@ msgid ""
 "Has no effect on 3D fractals.\n"
 "Range roughly -2 to 2."
 msgstr ""
+"Koordinata W ustvarjenega 3D-reza 4D-fraktala.\n"
+"Določa, kateri 3D-rez 4D-oblike se ustvari.\n"
+"Spremeni obliko fraktala.\n"
+"Nima vpliva na 3D-fraktale.\n"
+"Območje je približno od -2 do 2."
 
 #: src/settings_translation_file.cpp
 msgid "Walking and flying speed, in nodes per second."
-msgstr ""
+msgstr "Hitrost hoje in letenja v vozliščih na sekundo."
 
 #: src/settings_translation_file.cpp
 msgid "Walking speed"
-msgstr ""
+msgstr "Hitrost hoje"
 
 #: src/settings_translation_file.cpp
 msgid "Walking, flying and climbing speed in fast mode, in nodes per second."
 msgstr ""
+"Hitrost hoje, letenja in plezanja v hitrem načinu, v vozliščih na sekundo."
 
 #: src/settings_translation_file.cpp
 msgid "Water level"
-msgstr ""
+msgstr "Nivo vode"
 
 #: src/settings_translation_file.cpp
 msgid "Water surface level of the world."
-msgstr ""
+msgstr "Nivo vodne gladine sveta."
 
 #: src/settings_translation_file.cpp
 msgid "Waving Nodes"
-msgstr ""
+msgstr "Valovanje vozlišč"
 
 #: src/settings_translation_file.cpp
 msgid "Waving leaves"
-msgstr ""
+msgstr "Valovanje listov"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Waving liquids"
 msgstr "Valovanje tekočin"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Waving liquids wave height"
-msgstr "Pokaži valovanje vode"
+msgstr "Višina valovanja tekočin"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Waving liquids wave speed"
-msgstr "Pokaži premikanje listov"
+msgstr "Hitrost valovanja tekočin"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Waving liquids wavelength"
-msgstr "Pokaži valovanje vode"
+msgstr "Valovna dolžina tekočin"
 
 #: src/settings_translation_file.cpp
 msgid "Waving plants"
-msgstr ""
+msgstr "Valovanje rastlin"
 
 #: src/settings_translation_file.cpp
 msgid "Weblink color"
-msgstr ""
+msgstr "Barva spletne povezave"
 
 #: src/settings_translation_file.cpp
 msgid "When enabled, liquid reflections are simulated."
-msgstr ""
+msgstr "Ko je omogočeno, se simulirajo odboji tekočin."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "When enabled, the GUI is optimized to be more usable on touchscreens.\n"
 "Whether this is enabled by default depends on your hardware form-factor."
 msgstr ""
+"Ko je omogočeno, je grafični uporabniški vmesnik optimiziran za lažjo "
+"uporabo na zaslonih na dotik.\n"
+"Ali je to privzeto omogočeno, je odvisno od vaše strojne opreme."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7038,6 +7717,10 @@ msgid ""
 "filtered in software, but some images are generated directly\n"
 "to hardware (e.g. render-to-texture for nodes in inventory)."
 msgstr ""
+"Ko je gui_scaling_filter nastavljen na „true“ (omogočeno), je treba\n"
+"vse slike grafičnega uporabniškega vmesnika filtrirati programsko, nekatere "
+"slike pa se generirajo neposredno\n"
+"v strojni opremi (npr. upodabljanje teksture za vozlišča v inventarju)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7050,32 +7733,49 @@ msgid ""
 "This is also used as the base node texture size for world-aligned\n"
 "texture autoscaling."
 msgstr ""
+"Pri uporabi bilinearnega/trilinearnega filtriranja so lahko teksture z nizko "
+"ločljivostjo zamegljene, zato jih ta možnost samodejno poveča, da ohrani\n"
+"ostre slikovne pike. To določa najmanjšo velikost teksture za povečane "
+"teksture;\n"
+"višje vrednosti so videti ostrejše, vendar zahtevajo več pomnilnika.\n"
+"Ta nastavitev se uporabi SAMO, če je omogočen kateri koli od omenjenih "
+"filtrov.\n"
+"Uporablja se tudi kot osnovna velikost\n"
+"teksture vozlišča za samodejno skaliranje\n"
+"tekstur, poravnanih s svetom."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Whether name tag backgrounds should be shown by default.\n"
 "Mods may still set a background."
 msgstr ""
+"Ali naj bodo ozadja imenskih oznak privzeto prikazana.\n"
+"Modi lahko še vedno nastavijo ozadja."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Whether players are shown to clients without any range limit.\n"
 "Deprecated, use the setting player_transfer_distance instead."
 msgstr ""
+"Ali so igralci prikazani odjemalcem brez omejitve razdalje.\n"
+"Zastarelo, namesto tega uporabite nastavitev player_transfer_distance."
 
 #: src/settings_translation_file.cpp
 msgid "Whether the window is maximized."
-msgstr ""
+msgstr "Ali je okno maksimizirano."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Whether to ask clients to reconnect after a (Lua) crash.\n"
 "Set this to true if your server is set up to restart automatically."
 msgstr ""
+"Ali naj se odjemalci po sesutju (Lua) pozovejo k ponovni povezavi.\n"
+"Nastavite to na „true“ (omogočeno), če je vaš strežnik nastavljen na "
+"samodejni ponovni zagon."
 
 #: src/settings_translation_file.cpp
 msgid "Whether to fog out the end of the visible area."
-msgstr ""
+msgstr "Ali naj se konec vidnega območja zamegli."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7083,27 +7783,32 @@ msgid ""
 "In-game, you can toggle the mute state with the mute key or by using the\n"
 "pause menu."
 msgstr ""
+"Ali naj se zvoki utišajo. Zvok lahko kadar koli vklopite.\n"
+"V igri lahko stanje utišanja preklopite s tipko za utišanje ali z uporabo\n"
+"menija za premor."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Whether to show the client debug info (has the same effect as hitting F5)."
 msgstr ""
+"Ali naj se na odjemalcu prikažejo informacije za razhroščevanje (ima enak "
+"učinek kot pritisk tipke F5)."
 
 #: src/settings_translation_file.cpp
 msgid "Width component of the initial window size."
-msgstr ""
+msgstr "Širina, ki je del začetne velikosti okna."
 
 #: src/settings_translation_file.cpp
 msgid "Width of the selection box lines around nodes."
-msgstr ""
+msgstr "Širina črt izbirnega polja okoli vozlišč."
 
 #: src/settings_translation_file.cpp
 msgid "Will also disable autoforward, when active."
-msgstr ""
+msgstr "Prav tako bo onemogočilo samodejno premikanje naprej, ko bo aktivno."
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
-msgstr ""
+msgstr "Okno je maksimizirano"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7111,12 +7816,16 @@ msgid ""
 "background.\n"
 "Contains the same information as the file debug.txt (default name)."
 msgstr ""
+"Samo za sisteme Windows: Zaženite Luanti z oknom ukazne vrstice v ozadju.\n"
+"Vsebuje enake informacije kot datoteka debug.txt (privzeto ime)."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "World directory (everything in the world is stored here).\n"
 "Not needed if starting from the main menu."
 msgstr ""
+"Svetovni imenik (tukaj je shranjeno vse na svetu).\n"
+"Ni potrebno, če zaženete iz glavnega menija."
 
 #: src/settings_translation_file.cpp
 msgid "World start time"
@@ -7131,28 +7840,38 @@ msgid ""
 "See also texture_min_size.\n"
 "Warning: This option is EXPERIMENTAL!"
 msgstr ""
+"Teksture, poravnane s svetom, je mogoče prilagoditi velikosti več vozlišč. "
+"Vendar pa\n"
+"strežnik morda ne bo poslal želene velikosti, še posebej, če uporabljate "
+"posebej zasnovan paket tekstur; s to\n"
+"možnostjo odjemalec poskuša\n"
+"samodejno določiti velikost na podlagi velikosti teksture.\n"
+"Glejte tudi texture_min_size.\n"
+"Opozorilo: Ta možnost je EKSPERIMENTALNA!"
 
 #: src/settings_translation_file.cpp
 msgid "World-aligned textures mode"
-msgstr ""
+msgstr "Način tekstur, poravnanih s svetom"
 
 #: src/settings_translation_file.cpp
 msgid "Y of flat ground."
-msgstr ""
+msgstr "Y ravnega terena."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Y of mountain density gradient zero level. Used to shift mountains "
 "vertically."
 msgstr ""
+"Y gorskega gradienta gostote na ničelni ravni. Uporablja se za navpični "
+"premik gora."
 
 #: src/settings_translation_file.cpp
 msgid "Y of upper limit of large caves."
-msgstr ""
+msgstr "Y zgornje meje velikih jam."
 
 #: src/settings_translation_file.cpp
 msgid "Y-distance over which caverns expand to full size."
-msgstr ""
+msgstr "Y-razdalja, na kateri se jame razširijo do polne velikosti."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7161,105 +7880,83 @@ msgid ""
 "For a solid floatland layer, this controls the height of hills/mountains.\n"
 "Must be less than or equal to half the distance between the Y limits."
 msgstr ""
+"Y-razdalja, na kateri se lebdeče površine zožijo od polne gostote do nič.\n"
+"Zoženje se začne na tej razdalji od meje Y.\n"
+"Za trdno plast lebdeče površine to nadzoruje višino hribov/gor. Mora biti\n"
+"manjša ali enaka polovici razdalje med mejami Y."
 
 #: src/settings_translation_file.cpp
 msgid "Y-level of average terrain surface."
-msgstr ""
+msgstr "Y-raven povprečne višine terena."
 
 #: src/settings_translation_file.cpp
 msgid "Y-level of cavern upper limit."
-msgstr ""
+msgstr "Y-raven zgornje meje jame."
 
 #: src/settings_translation_file.cpp
 msgid "Y-level of higher terrain that creates cliffs."
-msgstr ""
+msgstr "Y-raven višjega terena, ki ustvarja klife."
 
 #: src/settings_translation_file.cpp
 msgid "Y-level of lower terrain and seabed."
-msgstr ""
+msgstr "Y-raven nižjega terena in morskega dna."
 
 #: src/settings_translation_file.cpp
 msgid "Y-level of seabed."
-msgstr ""
+msgstr "Y-nivo morskega dna."
 
 #: src/settings_translation_file.cpp
 msgid "cURL"
-msgstr ""
+msgstr "cURL"
 
 #: src/settings_translation_file.cpp
 msgid "cURL file download timeout"
-msgstr ""
+msgstr "Časovna omejitev za prenos datotek preko cURL-ja"
 
 #: src/settings_translation_file.cpp
 msgid "cURL interactive timeout"
-msgstr ""
+msgstr "Interaktivna časovna omejitev za cURL"
 
 #: src/settings_translation_file.cpp
 msgid "cURL parallel limit"
-msgstr ""
+msgstr "Omejitev vzporednih cURL prenosov"
 
-#~ msgid "Apps"
-#~ msgstr "Aplikacije"
+#: src/util/screenshot.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr "Shranjevanje posnetka zaslona v \"%s\" je spodletelo"
 
-#~ msgid "End"
-#~ msgstr "Konec"
+#~ msgid ""
+#~ "Number of emerge threads to use.\n"
+#~ "Value 0:\n"
+#~ "-    Automatic selection. The number of emerge threads will be\n"
+#~ "-    'number of processors - 2', with a lower limit of 1.\n"
+#~ "Any other value:\n"
+#~ "-    Specifies the number of emerge threads, with a lower limit of 1.\n"
+#~ "WARNING: Increasing the number of emerge threads increases engine mapgen\n"
+#~ "speed, but this may harm game performance by interfering with other\n"
+#~ "processes, especially in singleplayer and/or when running Lua code in\n"
+#~ "'on_generated'. For many users the optimum setting may be '1'."
+#~ msgstr ""
+#~ "Število niti emerge za uporabo.\n"
+#~ "Vrednost 0:\n"
+#~ "- Samodejna izbira. Število niti emerge bo\n"
+#~ "- 'število procesorjev - 2', s spodnjo omejitvijo 1.\n"
+#~ "Druga vrednost:\n"
+#~ "- Določa število niti emerge, s spodnjo omejitvijo 1.\n"
+#~ "OPOZORILO: Povečanje števila niti emerge poveča hitrost motorja mapgen,\n"
+#~ "vendar lahko to škoduje delovanju igre, saj moti druge\n"
+#~ "procese, zlasti v enoigralnem načinu in/ali pri izvajanju kode Lua v\n"
+#~ "'on_generated'. Za mnoge uporabnike je optimalna nastavitev lahko '1'."
 
-#~ msgid "Erase EOF"
-#~ msgstr "Izbriši EOF"
+#~ msgid "Provided world path doesn't exist: "
+#~ msgstr "Podana pot do sveta ne obstaja: "
 
-#~ msgid "Execute"
-#~ msgstr "Izvedi"
+#~ msgid "Shadow map max distance in nodes to render shadows"
+#~ msgstr "Največja razdalja senč v mapi v vozliščih za upodabljanje senc"
 
-#~ msgid "Help"
-#~ msgstr "Pomoč"
+#~ msgid "Y spread"
+#~ msgstr "Y širjenje"
 
-#~ msgid "Home"
-#~ msgstr "Začetno mesto"
-
-#~ msgid "IME Accept"
-#~ msgstr "IME Sprejem"
-
-#~ msgid "IME Convert"
-#~ msgstr "IME Pretvorba"
-
-#~ msgid "IME Escape"
-#~ msgstr "IME Izhod"
-
-#~ msgid "IME Mode Change"
-#~ msgstr "IME sprememba načina"
-
-#~ msgid "IME Nonconvert"
-#~ msgstr "IME Nepretvorba"
-
-#~ msgid "Left Button"
-#~ msgstr "Leva tipka"
-
-#~ msgid "Middle Button"
-#~ msgstr "Srednji gumb"
-
-#~ msgid "No world created or selected!"
-#~ msgstr "Ni ustvarjenega oziroma izbranega sveta!"
-
-#~ msgid "OEM Clear"
-#~ msgstr "OEM počisti"
-
-#~ msgid "Right Button"
-#~ msgstr "Desna tipka"
-
-#~ msgid "Select"
-#~ msgstr "Izberi"
-
-#~ msgid "Sleep"
-#~ msgstr "Spanje"
-
-#~ msgid "Snapshot"
-#~ msgstr "Posnetek"
-
-#~ msgid "Tab"
-#~ msgstr "Tabulator"
-
-#~ msgid "X Button 1"
-#~ msgstr "X Gumb 1"
-
-#~ msgid "X Button 2"
-#~ msgstr "X Gumb 2"
+#~ msgid "Z spread"
+#~ msgstr "Z širjenje"

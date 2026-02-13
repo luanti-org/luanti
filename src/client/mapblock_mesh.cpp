@@ -16,7 +16,9 @@
 #include "client/meshgen/collector.h"
 #include "client/renderingengine.h"
 #include <array>
+#include <algorithm>
 #include <cmath>
+#include <cassert>
 #include "client/texturesource.h"
 #include <SMesh.h>
 #include <IMeshBuffer.h>
@@ -585,6 +587,47 @@ void PartialMeshBuffer::draw(video::IVideoDriver *driver) const
 	MapBlockMesh
 */
 
+static void applyColorAndMerge(std::vector<PreMeshBuffer> &prebuffers)
+{
+	// TODO: we should change the meshgen so it already applies the tile color
+	// so that we don't need to this extra step.
+	// However currently the CAO code relies on the ability to erase the vertex
+	// colors (light data) before applying the tile colors.
+
+	for (auto &p : prebuffers) {
+		// bake color into vertices
+		p.applyTileColor();
+		// erase color information for later comparisons
+		p.layer.has_color = false;
+		p.layer.color = 0;
+	}
+
+	std::unordered_map<TileLayer, size_t> seen;
+	for (size_t i = 0; i < prebuffers.size(); i++) {
+		PreMeshBuffer &p = prebuffers[i];
+		auto it = seen.find(p.layer);
+		if (it == seen.end()) { // first time
+			seen[p.layer] = i;
+			continue;
+		}
+		// merge
+		auto &dst = prebuffers[it->second];
+		assert(p.layer == dst.layer);
+		if (dst.append(p)) {
+			p = PreMeshBuffer();
+		} else {
+			// other buffer full, this one becomes the new target
+			it->second = i;
+		}
+	}
+
+	// remove all empty buffers
+	prebuffers.erase(std::remove_if(prebuffers.begin(), prebuffers.end(),
+		[] (const PreMeshBuffer &p) {
+		return p.empty();
+	}), prebuffers.end());
+}
+
 MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 	m_tsrc(client->getTextureSource()),
 	m_shdrsrc(client->getShaderSource()),
@@ -638,11 +681,12 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 	for (int layer = 0; layer < MAX_TILE_LAYERS; layer++) {
 		scene::SMesh *mesh = static_cast<scene::SMesh *>(m_mesh[layer].get());
 
-		for(u32 i = 0; i < collector.prebuffers[layer].size(); i++)
-		{
-			PreMeshBuffer &p = collector.prebuffers[layer][i];
+		applyColorAndMerge(collector.prebuffers[layer]);
 
-			p.applyTileColor();
+		for (size_t i = 0; i < collector.prebuffers[layer].size(); i++) {
+			PreMeshBuffer &p = collector.prebuffers[layer][i];
+			// Note that the buffer index matters, so 'continue' is forbidden here.
+			assert(!p.empty());
 
 			// Generate animation data
 			if (p.layer.material_flags & MATERIAL_FLAG_ANIMATION) {

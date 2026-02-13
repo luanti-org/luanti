@@ -406,41 +406,10 @@ private:
 	float m_accumulator = 0.0f;
 };
 
-
-/*
-	Splits a list into "pages". For example, the list [1,2,3,4,5] split
-	into two pages would be [1,2,3],[4,5]. This function computes the
-	minimum and maximum indices of a single page.
-
-	length: Length of the list that should be split
-	page: Page number, 1 <= page <= pagecount
-	pagecount: The number of pages, >= 1
-	minindex: Receives the minimum index (inclusive).
-	maxindex: Receives the maximum index (exclusive).
-
-	Ensures 0 <= minindex <= maxindex <= length.
-*/
-inline void paging(u32 length, u32 page, u32 pagecount, u32 &minindex, u32 &maxindex)
-{
-	if (length < 1 || pagecount < 1 || page < 1 || page > pagecount) {
-		// Special cases or invalid parameters
-		minindex = maxindex = 0;
-	} else if(pagecount <= length) {
-		// Less pages than entries in the list:
-		// Each page contains at least one entry
-		minindex = (length * (page-1) + (pagecount-1)) / pagecount;
-		maxindex = (length * page + (pagecount-1)) / pagecount;
-	} else {
-		// More pages than entries in the list:
-		// Make sure the empty pages are at the end
-		if (page < length) {
-			minindex = page-1;
-			maxindex = page;
-		} else {
-			minindex = 0;
-			maxindex = 0;
-		}
-	}
+// For details about how framerate independent lerping works, see:
+// https://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
+inline f32 damp(f32 a, f32 b, f32 lambda) {
+	return core::lerp(a, b, 1.0f - std::exp(-lambda));
 }
 
 constexpr inline bool is_power_of_two(u32 n)

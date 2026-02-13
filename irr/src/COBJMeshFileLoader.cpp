@@ -8,9 +8,14 @@
 #include "SMesh.h"
 #include "CMeshBuffer.h"
 #include "IReadFile.h"
-#include "fast_atof.h"
 #include "coreutil.h"
 #include "os.h"
+
+static inline f32 my_atof(const char *p)
+{
+	// FIXME: should we check the endptr??
+	return (f32)strtod(p, nullptr);
+}
 
 namespace scene
 {
@@ -127,7 +132,7 @@ IAnimatedMesh *COBJMeshFileLoader::createMesh(io::IReadFile *file)
 			if (TAG_OFF == smooth)
 				smoothingGroup = 0;
 			else
-				smoothingGroup = core::strtoul10(smooth);
+				smoothingGroup = strtoul(smooth, nullptr, 10);
 
 			(void)smoothingGroup; // disable unused variable warnings
 		} break;
@@ -291,11 +296,11 @@ const c8 *COBJMeshFileLoader::readColor(const c8 *bufPtr, video::SColor &color, 
 	c8 colStr[COLOR_BUFFER_LENGTH];
 
 	bufPtr = goAndCopyNextWord(colStr, bufPtr, COLOR_BUFFER_LENGTH, bufEnd);
-	color.setRed((u32)core::round32(core::fast_atof(colStr) * 255.f));
+	color.setRed((u32)core::round32(my_atof(colStr) * 255.f));
 	bufPtr = goAndCopyNextWord(colStr, bufPtr, COLOR_BUFFER_LENGTH, bufEnd);
-	color.setGreen((u32)core::round32(core::fast_atof(colStr) * 255.f));
+	color.setGreen((u32)core::round32(my_atof(colStr) * 255.f));
 	bufPtr = goAndCopyNextWord(colStr, bufPtr, COLOR_BUFFER_LENGTH, bufEnd);
-	color.setBlue((u32)core::round32(core::fast_atof(colStr) * 255.f));
+	color.setBlue((u32)core::round32(my_atof(colStr) * 255.f));
 	return bufPtr;
 }
 
@@ -306,11 +311,11 @@ const c8 *COBJMeshFileLoader::readVec3(const c8 *bufPtr, core::vector3df &vec, c
 	c8 wordBuffer[WORD_BUFFER_LENGTH];
 
 	bufPtr = goAndCopyNextWord(wordBuffer, bufPtr, WORD_BUFFER_LENGTH, bufEnd);
-	vec.X = -core::fast_atof(wordBuffer); // change handedness
+	vec.X = -my_atof(wordBuffer); // change handedness
 	bufPtr = goAndCopyNextWord(wordBuffer, bufPtr, WORD_BUFFER_LENGTH, bufEnd);
-	vec.Y = core::fast_atof(wordBuffer);
+	vec.Y = my_atof(wordBuffer);
 	bufPtr = goAndCopyNextWord(wordBuffer, bufPtr, WORD_BUFFER_LENGTH, bufEnd);
-	vec.Z = core::fast_atof(wordBuffer);
+	vec.Z = my_atof(wordBuffer);
 	return bufPtr;
 }
 
@@ -321,9 +326,9 @@ const c8 *COBJMeshFileLoader::readUV(const c8 *bufPtr, core::vector2df &vec, con
 	c8 wordBuffer[WORD_BUFFER_LENGTH];
 
 	bufPtr = goAndCopyNextWord(wordBuffer, bufPtr, WORD_BUFFER_LENGTH, bufEnd);
-	vec.X = core::fast_atof(wordBuffer);
+	vec.X = my_atof(wordBuffer);
 	bufPtr = goAndCopyNextWord(wordBuffer, bufPtr, WORD_BUFFER_LENGTH, bufEnd);
-	vec.Y = 1 - core::fast_atof(wordBuffer); // change handedness
+	vec.Y = 1 - my_atof(wordBuffer); // change handedness
 	return bufPtr;
 }
 
@@ -468,7 +473,7 @@ bool COBJMeshFileLoader::retrieveVertexIndices(c8 *vertexData, s32 *idx, const c
 			// number is completed. Convert and store it
 			word[i] = '\0';
 			// if no number was found index will become 0 and later on -1 by decrement
-			idx[idxType] = core::strtol10(word);
+			idx[idxType] = strtoul(word, nullptr, 10);
 			if (idx[idxType] < 0) {
 				switch (idxType) {
 				case 0:

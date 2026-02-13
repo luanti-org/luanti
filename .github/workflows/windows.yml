@@ -14,7 +14,7 @@ on:
       - 'cmake/Modules/**'
       - 'po/**.po'
       - 'util/buildbot/**'
-      - 'misc/*.manifest'
+      - 'misc/*'
       - '.github/workflows/windows.yml'
   pull_request:
     paths:
@@ -28,47 +28,71 @@ on:
       - 'cmake/Modules/**'
       - 'po/**.po'
       - 'util/buildbot/**'
-      - 'misc/*.manifest'
+      - 'misc/*'
       - '.github/workflows/windows.yml'
 
 jobs:
   mingw:
-    name: "MinGW cross-compiler (${{ matrix.bits }}-bit)"
-    runs-on: ubuntu-22.04
+    name: "MinGW cross-compiler (${{ matrix.config.bits }}-bit)"
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        bits: [32, 64]
+        config:
+          - { bits: 32, nsis: false }
+          - { bits: 64, nsis: true }
     steps:
       - uses: actions/checkout@v6
       - name: Install compiler
         run: |
-          sudo dpkg --add-architecture i386
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends gettext wine wine${{ matrix.bits }}
+          source ./util/ci/common.sh
+          install_mingw_deps '${{matrix.config.bits}}' '${{matrix.config.nsis}}'
+          if '${{matrix.config.nsis}}'; then
+            echo 'CMAKE_CXX_COMPILER_LAUNCHER=ccache' >>$GITHUB_ENV
+          fi
           sudo ./util/buildbot/download_toolchain.sh /usr
 
       - name: Build
         run: |
            EXISTING_MINETEST_DIR=$PWD \
-           ./util/buildbot/buildwin${{ matrix.bits }}.sh B
+           ./util/buildbot/buildwin${{ matrix.config.bits }}.sh B
+           mkdir -p artifact
+           cp -v B/build/*.zip artifact/
 
       # Check that the resulting binary can run (DLLs etc.)
       - name: Runtime test
         run: |
           dest=$(mktemp -d)
-          unzip -q -d "$dest" B/build/*.zip
+          unzip -q -d "$dest" artifact/*.zip
           cd "$dest"/luanti-*-win*
           wine bin/luanti.exe --version
 
+      - name: Build for NSIS
+        run: |
+           EXISTING_MINETEST_DIR=$PWD \
+           ./util/buildbot/buildwin${{ matrix.config.bits }}.sh B -DRUN_IN_PLACE=0
+           dest=$(mktemp -d)
+           unzip -q -d "$dest" B/build/*.zip
+           cd "$dest"/luanti-*-nsis
+           makensis -WX -V3 sfx-launcher.nsi
+           cp -v "$dest"/*.exe $GITHUB_WORKSPACE/artifact/
+        if: ${{ matrix.config.nsis }}
+
       - uses: actions/upload-artifact@v5
         with:
-          name: "mingw${{ matrix.bits }}"
-          path: B/build/*.zip
+          name: "mingw${{ matrix.config.bits }}"
+          path: artifact/*.zip
           if-no-files-found: error
 
+      - uses: actions/upload-artifact@v5
+        with:
+          name: "mingw${{ matrix.config.bits }}-nsis"
+          path: artifact/*.exe
+          if-no-files-found: error
+        if: ${{ matrix.config.nsis }}
+
   msvc:
-    name: VS 2022 ${{ matrix.config.arch }}-${{ matrix.type }}
+    name: VS 2022 ${{ matrix.config.arch }}
     runs-on: windows-2025
     env:
       VCPKG_DEFAULT_TRIPLET: ${{matrix.config.vcpkg_triplet}}
@@ -86,10 +110,6 @@ jobs:
               generator: "-G'Visual Studio 17 2022' -A x64",
               vcpkg_triplet: x64-windows
             }
-        type: [portable]
-#        type: [portable, installer]
-# The installer type is working, but disabled, to save runner jobs.
-# Enable it, when working on the installer.
 
     steps:
       - uses: actions/checkout@v6
@@ -109,7 +129,7 @@ jobs:
           -DENABLE_POSTGRESQL=OFF  `
           -DENABLE_LUAJIT=TRUE  `
           -DREQUIRE_LUAJIT=TRUE  `
-          -DRUN_IN_PLACE=${{ contains(matrix.type, 'portable') }} .
+          -DRUN_IN_PLACE=1 .
 
       - name: Build
         run: cmake --build . --config Release
@@ -123,20 +143,11 @@ jobs:
 
       - name: CPack
         run: |
-          If ($env:TYPE -eq "installer")
-          {
-            cpack -G WIX -B "$env:GITHUB_WORKSPACE\Package"
-          }
-          ElseIf($env:TYPE -eq "portable")
-          {
-            cpack -G ZIP -B "$env:GITHUB_WORKSPACE\Package"
-          }
+          cpack -G ZIP -B "$env:GITHUB_WORKSPACE\Package"
           rm -r $env:GITHUB_WORKSPACE\Package\_CPack_Packages
-        env:
-          TYPE: ${{matrix.type}}
 
       - uses: actions/upload-artifact@v5
         with:
-          name: msvc-${{ matrix.config.arch }}-${{ matrix.type }}
+          name: msvc-${{ matrix.config.arch }}
           path: .\Package\
           if-no-files-found: error

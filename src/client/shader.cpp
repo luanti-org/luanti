@@ -482,8 +482,10 @@ ShaderSource::ShaderSource()
 	const auto driver_type = driver->getDriverType();
 	if (driver_type != video::EDT_NULL) {
 		auto *gpu = driver->getGPUProgrammingServices();
-		if (!driver->queryFeature(video::EVDF_ARB_GLSL) || !gpu)
+		if (!driver->queryFeature(video::EVDF_ARB_GLSL) || !gpu) {
+			// TRANSLATORS: GLSL = OpenGL Shading Language
 			throw ShaderException(gettext("GLSL is not supported by the driver"));
+		}
 
 		v2s32 glver = driver->getLimits().GLVersion;
 		infostream << "ShaderSource: driver reports GL version " << glver.X << "."
@@ -726,13 +728,17 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 			ATTRIBUTE_(0) highp vec4 inVertexPosition;
 			ATTRIBUTE_(1) mediump vec3 inVertexNormal;
-			ATTRIBUTE_(2) lowp vec4 inVertexColor;
+			ATTRIBUTE_(2) lowp vec4 inVertexColor_raw;
 			ATTRIBUTE_(3) mediump float inVertexAux;
 			ATTRIBUTE_(4) mediump vec2 inTexCoord0;
 			ATTRIBUTE_(5) mediump vec2 inTexCoord1;
 			ATTRIBUTE_(6) mediump vec4 inVertexTangent;
 			ATTRIBUTE_(7) mediump vec4 inVertexBinormal;
 		)";
+		if (shaderinfo.input_constants.count("USE_SKINNING") > 0) {
+			vertex_header += "ATTRIBUTE_(8) mediump vec4 inVertexWeights;\n";
+			vertex_header += "ATTRIBUTE_(9) mediump uvec4 inVertexJointIDs;\n";
+		}
 		if (use_glsl3) {
 			vertex_header += "#define VARYING_ out\n";
 		} else {
@@ -740,7 +746,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 		}
 		// Our vertex color has components reversed compared to what OpenGL
 		// normally expects, so we need to take that into account.
-		vertex_header += "#define inVertexColor (inVertexColor.bgra)\n";
+		vertex_header += "#define inVertexColor (inVertexColor_raw.bgra)\n";
 
 		fragment_header = "";
 		if (use_glsl3) {
@@ -796,14 +802,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 	ShaderConstants constants = input_const;
 
-	bool use_discard = m_fully_programmable;
-	if (!use_discard) {
-		// workaround for a certain OpenGL implementation lacking GL_ALPHA_TEST
-		const char *renderer = reinterpret_cast<const char*>(GL.GetString(GL.RENDERER));
-		if (strstr(renderer, "GC7000"))
-			use_discard = true;
-	}
-	if (use_discard) {
+	{
 		if (shaderinfo.base_material == video::EMT_TRANSPARENT_ALPHA_CHANNEL)
 			constants["USE_DISCARD"] = 1;
 		else if (shaderinfo.base_material == video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF)
@@ -871,13 +870,21 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 */
 
 u32 IShaderSource::getShader(const std::string &name,
-	MaterialType material_type, NodeDrawType drawtype, bool array_texture)
+	MaterialType material_type, NodeDrawType drawtype,
+	bool array_texture, bool skinning)
 {
 	ShaderConstants input_const;
 	input_const["MATERIAL_TYPE"] = (int)material_type;
 	(void) drawtype; // unused
 	if (array_texture)
 		input_const["USE_ARRAY_TEXTURE"] = 1;
+	if (skinning) {
+		const auto max_joints = RenderingEngine::get_video_driver()->getMaxJointTransforms();
+		if (max_joints > 0) {
+			input_const["USE_SKINNING"] = 1;
+			input_const["MAX_JOINTS"] = max_joints;
+		}
+	}
 
 	video::E_MATERIAL_TYPE base_mat = video::EMT_SOLID;
 	switch (material_type) {

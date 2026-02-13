@@ -8,6 +8,8 @@
 #include "settings.h"
 #include "irrlicht_changes/CGUITTFont.h"
 #include "util/numeric.h" // rangelim
+#include "exceptions.h"
+#include "gettext.h"
 #include <IGUIEnvironment.h>
 #include <IGUIFont.h>
 
@@ -102,10 +104,8 @@ gui::IGUIFont *FontEngine::getFont(FontSpec spec, bool may_fail)
 	gui::IGUIFont *font = initFont(spec);
 
 	if (!font && !may_fail) {
-		errorstream << "Minetest cannot continue without a valid font. "
-			"Please correct the 'font_path' setting or install the font "
-			"file in the proper location." << std::endl;
-		abort();
+		auto err = gettext("Failed to find a valid font");
+		throw BaseException(err);
 	}
 
 	m_font_cache[spec.getHash()][spec.size] = font;
@@ -270,9 +270,8 @@ gui::IGUIFont *FontEngine::initFont(FontSpec spec)
 
 	u16 font_shadow       = 0;
 	u16 font_shadow_alpha = 0;
-	g_settings->getU16NoEx(setting_prefix + "font_shadow", font_shadow);
-	g_settings->getU16NoEx(setting_prefix + "font_shadow_alpha",
-			font_shadow_alpha);
+	g_settings->getU16NoEx("font_shadow", font_shadow);
+	g_settings->getU16NoEx("font_shadow_alpha", font_shadow_alpha);
 
 	auto createFont = [&](gui::SGUITTFace *face) -> gui::CGUITTFont* {
 		auto *font = gui::CGUITTFont::createTTFont(m_env,

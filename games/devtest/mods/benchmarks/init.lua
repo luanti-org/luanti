@@ -2,6 +2,59 @@
 -- away, but they can be garbage collected (due to __mode = "k").
 _G._bench_content_ids_data = setmetatable({}, {__mode = "k"})
 
+-- funcs is a table [name] = func of functions under test.
+-- benchmark is a function that takes a function under test and runs the benchmark on it.
+local function register_benchmark(name, benchmark, funcs)
+	core.register_chatcommand("bench_" .. name, {
+		description = "Benchmark: " .. name,
+		func = function(pname, param)
+			core.chat_send_player(pname, "Running benchmark: " .. name .. ", warming up...")
+			for _, func in pairs(funcs) do
+				benchmark(func)
+			end
+			core.chat_send_player(pname, "Warming up finished, now benchmarking...")
+			for fname, func in pairs(funcs) do
+				local t = core.get_us_time()
+				benchmark(func)
+				local dt_us = core.get_us_time() - t
+				core.chat_send_player(pname, ("%s took %.2f ms"):format(fname, dt_us / 1e3))
+			end
+			return true
+		end,
+	})
+end
+
+local function benchmark_table_copy(copy)
+	local v = {x = 1, y = 2, z = 3}
+	for _ = 1, 1e6 do
+		local w = copy(v)
+		assert(w.y == 2)
+	end
+end
+
+register_benchmark("table_copy_vecs", benchmark_table_copy, {
+	["no closures (builtin)"] = table.copy,
+	["with closures"] = function(value)
+		local seen = {}
+		local function copy(val)
+			if type(val) ~= "table" then
+				return val
+			end
+			local t = val
+			if seen[t] then
+				return seen[t]
+			end
+			local res = {}
+			seen[t] = res
+			for k, v in pairs(t) do
+				res[copy(k)] = copy(v)
+			end
+			return res
+		end
+		return copy(value)
+	end,
+})
+
 local function bench_name2content()
 	local t = {}
 	_G._bench_content_ids_data[t] = true

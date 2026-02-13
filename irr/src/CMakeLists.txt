@@ -2,7 +2,7 @@ set(DEFAULT_SDL3 OFF)
 
 option(USE_SDL2_STATIC "Link with SDL2 static libraries" FALSE)
 
-option(USE_SDL3 "Use the SDL3 backend instead of SDL3" ${DEFAULT_SDL3})
+option(USE_SDL3 "Use the SDL3 backend instead of SDL2" ${DEFAULT_SDL3})
 option(USE_SDL3_STATIC "Link with SDL3 static libraries" FALSE)
 
 
@@ -36,6 +36,7 @@ elseif(MSVC)
 	add_compile_definitions(
 		# Suppress some useless warnings
 		_CRT_SECURE_NO_DEPRECATE
+		_CRT_SECURE_NO_WARNINGS
 		# Get M_PI to work
 		_USE_MATH_DEFINES
 		# Don't define min/max macros in minwindef.h
@@ -50,9 +51,6 @@ elseif(MSVC)
 		add_compile_options(/arch:SSE)
 	endif()
 endif()
-
-# Platform-independent configuration (hard-coded currently)
-add_compile_definitions(IRR_ENABLE_BUILTIN_FONT)
 
 # Platform-specific configuration
 
@@ -70,20 +68,10 @@ elseif(ANDROID)
 	add_compile_definitions(_IRR_ANDROID_PLATFORM_)
 elseif(EMSCRIPTEN)
 	add_compile_definitions(_IRR_EMSCRIPTEN_PLATFORM_ _IRR_COMPILE_WITH_EGL_MANAGER_)
-	set(LINUX_PLATFORM TRUE)
 elseif(SOLARIS)
 	add_compile_definitions(_IRR_SOLARIS_PLATFORM_ _IRR_POSIX_API_)
 else()
 	add_compile_definitions(_IRR_POSIX_API_)
-	set(LINUX_PLATFORM TRUE)
-endif()
-
-if(LINUX_PLATFORM)
-	add_compile_definitions(_IRR_LINUX_PLATFORM_)
-endif()
-
-if(MSVC)
-	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
 
 add_compile_definitions("_IRR_COMPILE_WITH_SDL_DEVICE_")
@@ -161,11 +149,13 @@ find_package(ZLIB REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(PNG REQUIRED)
 
-if(ENABLE_GLES2)
-	find_package(OpenGLES2 REQUIRED)
-endif()
-if(ENABLE_OPENGL)
+if(OPENGL_DIRECT_LINK)
 	find_package(OpenGL REQUIRED)
+endif()
+
+if(EMSCRIPTEN)
+	find_path(EGL_INCLUDE_DIR EGL/egl.h)
+	find_library(EGL_LIBRARY NAMES EGL)
 endif()
 
 set(USE_SDL2_SHARED FALSE)
@@ -252,7 +242,6 @@ set(link_includes
 	"$<$<NOT:$<BOOL:${USE_SDL3}>>:${SDL2_INCLUDE_DIRS}>"
 
 	${OPENGL_INCLUDE_DIR}
-	${OPENGLES2_INCLUDE_DIR}
 	${EGL_INCLUDE_DIR}
 )
 
@@ -292,6 +281,7 @@ set(IRRDRVROBJ
 	CEGLManager.cpp
 	CSDLManager.cpp
 	mt_opengl_loader.cpp
+	HWBuffer.cpp
 )
 
 # the legacy driver
@@ -324,7 +314,7 @@ if(ENABLE_OPENGL3 OR ENABLE_GLES2)
 		OpenGL/FixedPipelineRenderer.cpp
 		OpenGL/MaterialRenderer.cpp
 		OpenGL/Renderer2D.cpp
-		OpenGL/VBO.cpp
+		OpenGL/BufferObject.cpp
 	)
 endif()
 
@@ -527,7 +517,4 @@ if(WIN32)
 endif()
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	target_compile_definitions(IrrlichtMt INTERFACE _DEBUG)
-endif()
-if(APPLE OR ANDROID OR EMSCRIPTEN)
-	target_compile_definitions(IrrlichtMt PUBLIC IRR_MOBILE_PATHS)
 endif()

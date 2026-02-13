@@ -261,8 +261,8 @@ void AsyncEngine::stepStuckWarning()
 /******************************************************************************/
 bool AsyncEngine::prepareEnvironment(lua_State* L, int top)
 {
-	for (StateInitializer &stateInitializer : stateInitializers) {
-		stateInitializer(L, top);
+	for (const auto &init : stateInitializers) {
+		init(L, top);
 	}
 
 	auto *script = ModApiBase::getScriptApiBase(L);
@@ -273,7 +273,11 @@ bool AsyncEngine::prepareEnvironment(lua_State* L, int top)
 	} catch (const ModError &e) {
 		errorstream << "Execution of async base environment failed: "
 			<< e.what() << std::endl;
-		FATAL_ERROR("Execution of async base environment failed");
+		if (server)
+			server->setAsyncFatalError(e.what());
+		// FIXME: there's no general way to report such fatal errors to our "owner"
+		// (e.g. GUIEngine)
+		return false;
 	}
 
 	// Load per mod stuff

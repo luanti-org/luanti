@@ -439,13 +439,17 @@ int ModApiServer::l_get_modpath(lua_State *L)
 int ModApiServer::l_get_modnames(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
+	const bool use_load_order = readParam<bool>(L, 1, false);
 
 	// Get a list of mods
 	std::vector<std::string> modlist;
 	for (auto &it : getGameDef(L)->getMods())
 		modlist.emplace_back(it.name);
 
-	std::sort(modlist.begin(), modlist.end());
+	if (!use_load_order) {
+		// Alphabetical order
+		std::sort(modlist.begin(), modlist.end());
+	}
 
 	// Package them up for Lua
 	lua_createtable(L, modlist.size(), 0);

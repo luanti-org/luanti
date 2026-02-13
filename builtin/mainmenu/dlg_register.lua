@@ -5,6 +5,7 @@
 --------------------------------------------------------------------------------
 
 local function register_formspec(dialogdata)
+	-- TRANSLATORS: Message when joining a server
 	local title = fgettext("Joining $1", dialogdata.server and dialogdata.server.name or dialogdata.address)
 	local buttons_y = 4 + 1.3
 	if dialogdata.error then

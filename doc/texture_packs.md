@@ -131,7 +131,6 @@ are placeholders intended to be overwritten by the game.
 
 ### Mainmenu textures
 
-* `menu_bg.png`: used as mainmenu background when the clouds are disabled
 * `menu_header.png`: header texture when no texture pack is selected
 
 * `no_screenshot.png`

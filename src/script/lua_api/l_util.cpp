@@ -28,6 +28,7 @@
 #include "util/png.h"
 #include "player.h"
 #include "daynightratio.h"
+#include "constants.h"
 #include <cstdio>
 
 // only available in zstd 1.3.5+
@@ -77,6 +78,16 @@ int ModApiUtil::l_get_us_time(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 	lua_pushnumber(L, porting::getTimeUs());
+	return 1;
+}
+
+// get_us_time() for SSCSM
+int ModApiUtil::l_get_us_time_sscsm(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	auto t = porting::getTimeUs();
+	t = t - t % SSCSM_CLOCK_RESOLUTION_US;
+	lua_pushnumber(L, t);
 	return 1;
 }
 
@@ -195,12 +206,12 @@ int ModApiUtil::l_get_dig_params(lua_State *L)
 int ModApiUtil::l_get_hit_params(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::unordered_map<std::string, int> groups;
+	ItemGroupList groups;
 	read_groups(L, 1, groups);
 	ToolCapabilities tp = read_tool_capabilities(L, 2);
 	float time_from_last_punch = readParam<float>(L, 3, 1000000);
 	int wear = readParam<int>(L, 4, 0);
-	push_hit_params(L, getHitParams(groups, &tp,
+	push_hit_params(L, getHitParams(groups, tp,
 		time_from_last_punch, wear));
 	return 1;
 }
@@ -811,6 +822,37 @@ void ModApiUtil::InitializeClient(lua_State *L, int top)
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
+}
+
+void ModApiUtil::InitializeSSCSM(lua_State *L, int top)
+{
+	API_FCT(log);
+
+	registerFunction(L, "get_us_time", l_get_us_time_sscsm, top);
+
+	API_FCT(parse_json);
+	API_FCT(write_json);
+
+	API_FCT(is_yes);
+
+	API_FCT(compress);
+	API_FCT(decompress);
+
+	API_FCT(encode_base64);
+	API_FCT(decode_base64);
+
+	API_FCT(get_version);
+	API_FCT(sha1);
+	API_FCT(sha256);
+	API_FCT(colorspec_to_colorstring);
+	API_FCT(colorspec_to_bytes);
+	API_FCT(colorspec_to_table);
+	API_FCT(time_to_day_night_ratio);
+
+	API_FCT(get_last_run_mod);
+	API_FCT(set_last_run_mod);
+
+	API_FCT(urlencode);
 }
 
 void ModApiUtil::InitializeAsync(lua_State *L, int top)

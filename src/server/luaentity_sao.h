@@ -29,7 +29,7 @@ public:
 	bool shouldUnload() const { return true; }
 	void getStaticData(std::string *result) const;
 
-	u32 punch(v3f dir, const ToolCapabilities *toolcap = nullptr,
+	u32 punch(v3f dir, const ToolCapabilities &toolcap,
 			ServerActiveObject *puncher = nullptr,
 			float time_from_last_punch = 1000000.0f,
 			u16 initial_wear = 0);

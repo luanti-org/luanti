@@ -209,11 +209,13 @@ static KeyPress id_to_keypress(touch_gui_button_id id)
 	auto setting_name = id_to_setting(id);
 
 	assert(!setting_name.empty());
-	auto kp = getKeySetting(setting_name);
-	if (!kp)
+	const auto &keylist = getKeySetting(setting_name);
+	if (keylist.empty()) {
 		warningstream << "TouchControls: Unbound or invalid key for "
 				<< setting_name << ", hiding button." << std::endl;
-	return kp;
+		return KeyPress();
+	}
+	return keylist[0];
 }
 
 

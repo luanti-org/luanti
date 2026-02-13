@@ -1665,9 +1665,11 @@ ToolCapabilities read_tool_capabilities(
 		lua_State *L, int table)
 {
 	ToolCapabilities toolcap;
+	luaL_checktype(L, table, LUA_TTABLE);
 	getfloatfield(L, table, "full_punch_interval", toolcap.full_punch_interval);
 	getintfield(L, table, "max_drop_level", toolcap.max_drop_level);
 	getintfield(L, table, "punch_attack_uses", toolcap.punch_attack_uses);
+
 	lua_getfield(L, table, "groupcaps");
 	if(lua_istable(L, -1)){
 		int table_groupcaps = lua_gettop(L);
@@ -1686,7 +1688,7 @@ ToolCapabilities read_tool_capabilities(
 				float maxwear = 0;
 				if (getfloatfield(L, table_groupcap, "maxwear", maxwear)){
 					if (maxwear != 0)
-						groupcap.uses = 1.0/maxwear;
+						groupcap.uses = 1.0f/maxwear;
 					else
 						groupcap.uses = 0;
 					warningstream << "Field \"maxwear\" is deprecated; "
@@ -1748,7 +1750,7 @@ PointabilityType read_pointability_type(lua_State *L, int index)
 			return PointabilityType::POINTABLE_BLOCKING;
 		}
 	}
-	throw LuaError("Invalid pointable type.");
+	throw LuaError("Invalid pointable type");
 }
 
 /******************************************************************************/
@@ -1756,6 +1758,7 @@ Pointabilities read_pointabilities(lua_State *L, int index)
 {
 	Pointabilities pointabilities;
 
+	luaL_checktype(L, index, LUA_TTABLE);
 	lua_getfield(L, index, "nodes");
 	if(lua_istable(L, -1)){
 		int ti = lua_gettop(L);
@@ -1814,6 +1817,9 @@ void push_pointability_type(lua_State *L, PointabilityType pointable)
 		break;
 	case PointabilityType::POINTABLE_BLOCKING:
 		lua_pushliteral(L, "blocking");
+		break;
+	default:
+		assert(false);
 		break;
 	}
 }
