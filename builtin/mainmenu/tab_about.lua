@@ -83,16 +83,13 @@ return {
 		hypertext = table.concat(hypertext):sub(1, -2)
 
 		local fs = "image[1.5,0.6;2.5,2.5;" .. core.formspec_escape(logofile) .. "]" ..
-			"style[label_button;border=false]" ..
-			"button[0.1,3.4;5.3,0.5;label_button;" ..
+			"hypertext[0.1,3.4;5.3,0.5;version;<global valign=middle halign=center>" ..
 			core.formspec_escape(version.project .. " " .. version.string) .. "]" ..
-			"button_url[1.5,4.1;2.5,0.8;homepage;luanti.org;https://www.luanti.org/]" ..
-			"hypertext[5.5,0.25;9.75,6.6;credits;" .. core.formspec_escape(hypertext) .. "]"
+			"button_url[1.5,4.1;2.5,0.8;homepage;luanti.org;https://www.luanti.org/]"
 
 		local active_renderer_info = fgettext("Active renderer:") .. "\n" ..
 			core.formspec_escape(get_renderer_info())
-		fs = fs .. "style[label_button2;border=false]" ..
-			"button[0.1,6;5.3,1;label_button2;" .. active_renderer_info .. "]"..
+		fs = fs .. "hypertext[0.1,6;5.3,1;label_button2;<global valign=middle halign=center>" .. active_renderer_info .. "]"..
 			"tooltip[label_button2;" .. active_renderer_info .. "]"
 
 		if PLATFORM == "Android" then
@@ -104,6 +101,7 @@ return {
 			fs = fs .. "button[0.5,5.1;4.5,0.8;userdata;" .. fgettext("Open User Data Directory") .. "]"
 		end
 
+		fs = fs .. "hypertext[5.5,0.25;9.75,6.6;credits;" .. core.formspec_escape(hypertext) .. "]"
 		return fs
 	end,
 
