@@ -2247,11 +2247,23 @@ void read_json_value(lua_State *L, Json::Value &root, int index, u16 max_depth)
 		root = (bool) lua_toboolean(L, index);
 	} else if (type == LUA_TNUMBER) {
 		lua_Number doubleVal = lua_tonumber(L, index);
-		s32 intVal = (s32) doubleVal;
-		if (doubleVal == (lua_Number)intVal)
-			root = intVal;
-		else
+		if (!std::isfinite(doubleVal)) {
 			root = doubleVal;
+		} else {
+			#ifdef JSON_HAS_INT64
+				using IntType = s64;
+				constexpr IntType min_val = std::numeric_limits<IntType>::min();
+				constexpr IntType max_val = std::numeric_limits<IntType>::max();
+			#else
+				using IntType = s32;
+				constexpr IntType min_val = std::numeric_limits<IntType>::min();
+				constexpr IntType max_val = std::numeric_limits<IntType>::max();
+			#endif
+			if (doubleVal >= min_val && doubleVal <= max_val && std::floor(doubleVal) == doubleVal)
+				root = static_cast<IntType>(doubleVal);
+			else
+				root = doubleVal;
+		}
 	} else if (type == LUA_TSTRING) {
 		size_t len;
 		const char *str = lua_tolstring(L, index, &len);
