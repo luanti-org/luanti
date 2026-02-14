@@ -320,8 +320,16 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 
 	// Player object property step height is multiplied by BS in
 	// /src/script/common/c_content.cpp and /src/content_sao.cpp
-	float player_stepheight = (m_cao == nullptr) ? 0.0f :
-		(touching_ground ? m_cao->getStepHeight() : (0.2f * BS));
+	float player_stepheight = 0.0f;
+	if (m_cao) {
+		if (m_speed.Y > 0.01f * BS) {
+			// Disable stepheight while moving upward to prevent snapping to block tops
+			player_stepheight = 0.0f;
+		} else {
+			// Use standard stepheights while on ground OR while falling/crossing gaps
+			player_stepheight = touching_ground ? m_cao->getStepHeight() : (0.2f * BS);
+		}
+	}
 
 	v3f accel_f(0, -gravity, 0);
 	const v3f initial_position = position;
@@ -658,7 +666,7 @@ void LocalPlayer::applyControl(float dtime, Environment *env)
 				at its starting value
 			*/
 			v3f speedJ = getSpeed();
-			if (speedJ.Y >= -0.5f * BS) {
+			if (speedJ.Y >= -0.5f * BS && speedJ.Y <= 0.1f * BS) {
 				speedJ.Y = movement_speed_jump * physics_override.jump;
 				setSpeed(speedJ);
 				m_client->getEventManager()->put(new SimpleTriggerEvent(MtEvent::PLAYER_JUMP));
