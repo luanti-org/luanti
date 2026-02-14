@@ -320,8 +320,16 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 
 	// Player object property step height is multiplied by BS in
 	// /src/script/common/c_content.cpp and /src/content_sao.cpp
-	float player_stepheight = (m_cao == nullptr) ? 0.0f :
-		(touching_ground ? m_cao->getStepHeight() : (0.2f * BS));
+	float player_stepheight = 0.0f;
+	if (m_cao) {
+		// Only allow stepping if we are on the ground and NOT moving upward (jumping)
+		if (touching_ground && m_speed.Y <= 0.01f * BS) {
+			player_stepheight = m_cao->getStepHeight();
+		} else {
+			// Disable stepping in mid-air or while ascending to prevent the "snap" to block tops
+			player_stepheight = 0.0f;
+		}
+	}
 
 	v3f accel_f(0, -gravity, 0);
 	const v3f initial_position = position;
