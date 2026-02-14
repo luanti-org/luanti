@@ -7,6 +7,8 @@
 #include <iostream>
 #include "irrlichttypes_bloated.h"
 
+namespace Json { class Value; }
+
 enum TileAnimationType : u8
 {
 	TAT_NONE = 0,
@@ -37,6 +39,9 @@ struct TileAnimationParams
 
 	void serialize(std::ostream &os, u16 protocol_ver) const;
 	void deSerialize(std::istream &is, u16 protocol_ver);
+
+	Json::Value serializeJson() const;
+	void deserializeJson(const Json::Value root);
 
 	void determineParams(v2u32 texture_size, int *frame_count, int *frame_length_ms,
 			v2u32 *frame_size) const;
