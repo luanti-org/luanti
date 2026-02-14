@@ -9,10 +9,26 @@
 #include "serveractiveobject.h"
 #include <quaternion.h>
 #include "util/numeric.h"
+#include "AnimSpec.h"
 
 class UnitSAO : public ServerActiveObject
 {
 public:
+
+	struct TrackAnimation {
+		scene::TrackAnimSpec spec;
+		enum class State : u8 {
+			SENT,
+			NEEDS_RESEND,
+			NEEDS_SPEED_RESEND,
+			STOPPED,
+		};
+		State state = State::NEEDS_RESEND;
+	};
+	struct Animation {
+		std::unordered_map<scene::TrackId, TrackAnimation> tracks;
+	};
+
 	UnitSAO(ServerEnvironment *env, v3f pos);
 	virtual ~UnitSAO() = default;
 
@@ -48,11 +64,13 @@ public:
 	const ItemGroupList &getArmorGroups() const override;
 
 	// Animation
-	void setAnimation(v2f frame_range, float frame_speed, float frame_blend,
-			bool frame_loop) override;
-	void getAnimation(v2f *frame_range, float *frame_speed, float *frame_blend,
-			bool *frame_loop) override;
-	void setAnimationSpeed(float frame_speed) override;
+	void setAnimation(const scene::TrackId &track, scene::TrackAnimSpec anim_spec) override;
+	void stopAnimation(const scene::TrackId &track) override;
+	std::optional<scene::TrackAnimSpec> getAnimation(const scene::TrackId &track) const override;
+	std::vector<std::pair<scene::TrackId, scene::TrackAnimSpec>>
+	getAllAnimations() const override;
+	void setAnimationSpeed(const scene::TrackId &track, f32 fps) override;
+	const Animation &getAnimation() const { return m_animation; }
 
 	// Bone position
 	void setBoneOverride(const std::string &bone, const BoneOverride &props) override;
@@ -81,8 +99,9 @@ public:
 
 	// Update packets
 	std::string generateUpdateAttachmentCommand() const;
-	std::string generateUpdateAnimationSpeedCommand() const;
-	std::string generateUpdateAnimationCommand() const;
+	std::string generateUpdateAnimationSpeedCommand(const scene::TrackId &track) const;
+	std::string generateUpdateAnimationCommand(const scene::TrackId &track) const;
+	std::string generateStopAnimationCommand(const scene::TrackId &track) const;
 	std::string generateUpdateArmorGroupsCommand() const;
 	static std::string generateUpdatePositionCommand(const v3f &position,
 			const v3f &velocity, const v3f &acceleration, const v3f &rotation,
@@ -133,12 +152,7 @@ private:
 	bool m_armor_groups_sent = false;
 
 	// Animation
-	v2f m_animation_range;
-	float m_animation_speed = 0.0f;
-	float m_animation_blend = 0.0f;
-	bool m_animation_loop = true;
-	bool m_animation_sent = false;
-	bool m_animation_speed_sent = false;
+	Animation m_animation;
 
 	// Bone positions
 	bool m_bone_override_sent = false;

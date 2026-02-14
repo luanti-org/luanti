@@ -6,8 +6,8 @@
 #include <IBillboardSceneNode.h>
 #include <ICameraSceneNode.h>
 #include <IMeshManipulator.h>
-#include <AnimatedMeshSceneNode.h>
 #include <ISceneNode.h>
+#include "AnimatedMeshSceneNode.h"
 #include "client/client.h"
 #include "client/renderingengine.h"
 #include "client/sound.h"
@@ -15,6 +15,7 @@
 #include "client/mapblock_mesh.h"
 #include "client/content_mapblock.h"
 #include "client/meshgen/collector.h"
+#include "log.h"
 #include "util/basic_macros.h"
 #include "util/numeric.h"
 #include "util/serialize.h"
@@ -35,6 +36,7 @@
 #include <cmath>
 #include "client/shader.h"
 #include "client/minimap.h"
+#include <optional>
 #include <quaternion.h>
 #include <SMesh.h>
 #include <IMeshBuffer.h>
@@ -795,7 +797,6 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 	updateNametag();
 	updateMarker();
 	updateNodePos();
-	updateAnimation();
 	updateAttachments();
 	setNodeLight(m_last_light);
 	updateMeshCulling();
@@ -981,8 +982,6 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 		rot_translator.val_current = m_rotation;
 
 		if (m_is_visible) {
-			LocalPlayerAnimation old_anim = player->last_animation;
-			float old_anim_speed = player->last_animation_speed;
 			m_velocity = v3f(0,0,0);
 			m_acceleration = v3f(0,0,0);
 			const PlayerControl &controls = player->getPlayerControl();
@@ -994,8 +993,7 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 				walking = true;
 			}
 
-			v2f new_anim(0,0);
-			bool allow_update = false;
+			LocalPlayerAnimation new_anim = LocalPlayerAnimation::NO_ANIM;
 
 			// increase speed if using fast or flying fast
 			if((g_settings->getBool("fast_move") &&
@@ -1004,45 +1002,31 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 					(!player->touching_ground &&
 					g_settings->getBool("free_move") &&
 					m_client->checkLocalPrivilege("fly"))))
-					new_speed *= 1.5;
+			{
+				new_speed *= 1.5;
+			}
 			// slowdown speed if sneaking
 			if (controls.sneak && walking)
 				new_speed /= 2;
 
 			if (walking && (controls.dig || controls.place)) {
-				new_anim = player->local_animations[3];
-				player->last_animation = LocalPlayerAnimation::WD_ANIM;
+				new_anim = LocalPlayerAnimation::WD_ANIM;
 			} else if (walking) {
-				new_anim = player->local_animations[1];
-				player->last_animation = LocalPlayerAnimation::WALK_ANIM;
+				new_anim = LocalPlayerAnimation::WALK_ANIM;
 			} else if (controls.dig || controls.place) {
-				new_anim = player->local_animations[2];
-				player->last_animation = LocalPlayerAnimation::DIG_ANIM;
+				new_anim = LocalPlayerAnimation::DIG_ANIM;
 			}
 
-			// Apply animations if input detected and not attached
-			// or set idle animation
-			if ((new_anim.X + new_anim.Y) > 0 && !getParent()) {
-				allow_update = true;
-				m_animation_range = new_anim;
-				m_animation_speed = new_speed;
-				player->last_animation_speed = m_animation_speed;
-			} else {
-				player->last_animation = LocalPlayerAnimation::NO_ANIM;
-
-				if (old_anim != LocalPlayerAnimation::NO_ANIM) {
-					m_animation_range = player->local_animations[0];
-					updateAnimation();
-				}
+			if (getParent()) {
+				// If attached: Idle animation only
+				new_anim = LocalPlayerAnimation::NO_ANIM;
 			}
 
-			// Update local player animations
-			if ((player->last_animation != old_anim ||
-					m_animation_speed != old_anim_speed) &&
-					player->last_animation != LocalPlayerAnimation::NO_ANIM &&
-					allow_update)
-				updateAnimation();
+			if (new_anim == LocalPlayerAnimation::NO_ANIM) {
+				new_speed = player->local_animation_speed;
+			}
 
+			setLocalPlayerAnimation(new_anim, new_speed);
 		}
 	}
 
@@ -1370,26 +1354,47 @@ void GenericCAO::updateTextures(std::string mod)
 		updateMeshCulling();
 }
 
-void GenericCAO::updateAnimation()
+void GenericCAO::updateAnimation(u16 track)
 {
 	if (!m_animated_meshnode)
 		return;
 
-	// Note: This sets the current frame as well, (re)starting the animation.
-	m_animated_meshnode->setFrameLoop(m_animation_range.X, m_animation_range.Y);
-	if (m_animated_meshnode->getAnimationSpeed() != m_animation_speed)
-		m_animated_meshnode->setAnimationSpeed(m_animation_speed);
-	m_animated_meshnode->setTransitionTime(m_animation_blend);
-	if (m_animated_meshnode->getLoopMode() != m_animation_loop)
-		m_animated_meshnode->setLoopMode(m_animation_loop);
+	if (m_local_player_animation) {
+		// Reset local player animation override
+		m_local_player_animation = false;
+		m_animated_meshnode->getAnimation().tracks = m_animation.tracks;
+		return;
+	}
+
+	m_animated_meshnode->getAnimation().tracks[track] = m_animation.tracks[track];
 }
 
-void GenericCAO::updateAnimationSpeed()
+void GenericCAO::setLocalPlayerAnimation(LocalPlayerAnimation local_anim, float speed)
 {
 	if (!m_animated_meshnode)
 		return;
 
-	m_animated_meshnode->setAnimationSpeed(m_animation_speed);
+	assert(m_is_local_player);
+	LocalPlayer *player = m_env->getLocalPlayer();
+
+	if (local_anim == player->last_animation &&
+			speed == player->last_animation_speed)
+		return; // no change
+
+	v2f range = player->local_animations[static_cast<u8>(local_anim)];
+	if (range == v2f())
+		return; // animation not defined, stick to current animation
+
+	scene::TrackAnimSpec track_anim;
+	track_anim.min_frame = track_anim.cur_frame = range.X;
+	track_anim.max_frame = range.Y;
+	track_anim.fps = speed;
+
+	m_local_player_animation = true;
+	m_animated_meshnode->getAnimation() = scene::AnimSpec{{{0, track_anim}}};
+
+	player->last_animation = local_anim;
+	player->last_animation_speed = speed;
 }
 
 void GenericCAO::updateAttachments()
@@ -1467,6 +1472,27 @@ bool GenericCAO::visualExpiryRequired(const ObjectProperties &new_) const
 		old.wield_item != new_.wield_item ||
 		old.colors != new_.colors ||
 		(uses_legacy_texture && old.textures != new_.textures);
+}
+
+u16 GenericCAO::readTrackNumber(std::istringstream &is) {
+	// Possible formats:
+	// - No track number (older server)
+	// - Track number > 0, no track name
+	// - Track number = 0, track name follows
+	u16 track_number = readU16(is);
+	if (is.eof())
+		return 0;
+	if (track_number > 0)
+		return track_number - 1;
+	std::string track_name = deSerializeString16(is);
+
+	if (!m_animated_meshnode)
+		return 0;
+	if (const auto opt = m_animated_meshnode->getMesh()->getTrackNumber(track_name)) {
+		return *opt;
+	}
+	warningstream << "Track name " << track_name << " not found in mesh " << m_prop.mesh << std::endl;
+	return 0;
 }
 
 void GenericCAO::processMessage(const std::string &data)
@@ -1607,42 +1633,63 @@ void GenericCAO::processMessage(const std::string &data)
 			m_env->getLocalPlayer()->physics_override = phys;
 		}
 	} else if (cmd == AO_CMD_SET_ANIMATION) {
+		// Read animation
+		scene::TrackAnimSpec anim;
 		v2f range = readV2F32(is);
+		anim.min_frame = std::min(range.X, range.Y);
+		anim.max_frame = std::max(range.X, range.Y);
+		anim.fps = readF32(is);
+		anim.cur_frame = anim.fps >= 0 ? anim.min_frame : anim.max_frame;
+		anim.blend = readF32(is);
+
+		// these are sent inverted so we get true when the server sends nothing
+		anim.loop = !readU8(is);
+
+		u16 track = readTrackNumber(is);
+		if (m_animated_meshnode) {
+			anim.max_frame = std::min(anim.max_frame,
+					m_animated_meshnode->getMesh()->getMaxFrameNumber(track));
+		}
+		if (!is.eof()) {
+			anim.priority = readS32(is);
+			anim.cur_frame = readF32(is);
+		}
+
+		// Apply animation
 		if (!m_is_local_player) {
-			m_animation_range = range;
-			m_animation_speed = readF32(is);
-			m_animation_blend = readF32(is);
-			// these are sent inverted so we get true when the server sends nothing
-			m_animation_loop = !readU8(is);
-			updateAnimation();
+			m_animation.tracks[track] = anim;
+			updateAnimation(track);
 		} else {
 			LocalPlayer *player = m_env->getLocalPlayer();
-			if(player->last_animation == LocalPlayerAnimation::NO_ANIM)
-			{
-				m_animation_range = range;
-				m_animation_speed = readF32(is);
-				m_animation_blend = readF32(is);
-				// these are sent inverted so we get true when the server sends nothing
-				m_animation_loop = !readU8(is);
-			}
 			// update animation only if local animations present
 			// and received animation is unknown (except idle animation)
 			bool is_known = false;
-			for (int i = 1;i<4;i++)
-			{
-				if(m_animation_range.Y == player->local_animations[i].Y)
+			for (const auto &local_anim : player->local_animations) {
+				if (track == 0 && anim.max_frame == local_anim.Y)
 					is_known = true;
 			}
-			if(!is_known ||
+			if (!is_known ||
 					(player->local_animations[1].Y + player->local_animations[2].Y < 1))
 			{
-					updateAnimation();
+				updateAnimation(track);
 			}
 			// FIXME: ^ This code is trash. It's also broken.
 		}
 	} else if (cmd == AO_CMD_SET_ANIMATION_SPEED) {
-		m_animation_speed = readF32(is);
-		updateAnimationSpeed();
+		f32 new_fps = readF32(is);
+		u16 track = readTrackNumber(is);
+		auto it = m_animation.tracks.find(track);
+		if (it != m_animation.tracks.end()) {
+			it->second.fps = new_fps;
+			m_animated_meshnode->getAnimation().tracks[track].fps = new_fps;
+		}
+	} else if (cmd == AO_CMD_STOP_ANIMATION) {
+		u16 track = readTrackNumber(is);
+		auto it = m_animation.tracks.find(track);
+		if (it != m_animation.tracks.end()) {
+			m_animation.tracks.erase(it);
+			m_animated_meshnode->getAnimation().tracks.erase(track);
+		}
 	} else if (cmd == AO_CMD_SET_BONE_POSITION) {
 		std::string bone = deSerializeString16(is);
 		auto it = m_bone_override.find(bone);
