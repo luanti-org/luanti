@@ -322,12 +322,12 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 	// /src/script/common/c_content.cpp and /src/content_sao.cpp
 	float player_stepheight = 0.0f;
 	if (m_cao) {
-		// Only allow stepping if we are on the ground and NOT moving upward (jumping)
-		if (touching_ground && m_speed.Y <= 0.01f * BS) {
-			player_stepheight = m_cao->getStepHeight();
-		} else {
-			// Disable stepping in mid-air or while ascending to prevent the "snap" to block tops
+		if (m_speed.Y > 0.01f * BS) {
+			// Disable stepheight while moving upward to prevent snapping to block tops
 			player_stepheight = 0.0f;
+		} else {
+			// Use standard stepheights while on ground OR while falling/crossing gaps
+			player_stepheight = touching_ground ? m_cao->getStepHeight() : (0.2f * BS);
 		}
 	}
 
