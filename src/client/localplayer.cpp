@@ -658,7 +658,7 @@ void LocalPlayer::applyControl(float dtime, Environment *env)
 				at its starting value
 			*/
 			v3f speedJ = getSpeed();
-			if (speedJ.Y >= -0.5f * BS) {
+			if (speedJ.Y >= -0.5f * BS && speedJ.Y <= 0.1f * BS) {
 				speedJ.Y = movement_speed_jump * physics_override.jump;
 				setSpeed(speedJ);
 				m_client->getEventManager()->put(new SimpleTriggerEvent(MtEvent::PLAYER_JUMP));
