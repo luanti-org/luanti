@@ -156,6 +156,15 @@ function vector2.dot(a, b)
 	return a.x * b.x + a.y * b.y
 end
 
+function vector2.rotate(v, angle)
+	local cosangle = math.cos(angle)
+	local sinangle = math.sin(angle)
+	return fast_new(
+		v.x * cosangle - v.y * sinangle,
+		v.x * sinangle + v.y * cosangle
+	)
+end
+
 function metatable.__unm(v)
 	return fast_new(-v.x, -v.y)
 end
