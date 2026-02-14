@@ -24,7 +24,7 @@ end
 
 -- Custom assertion for comparing vectors with tolerance
 -- Uses component-wise comparison to be self-contained
-local function vector_close(state, arguments)
+local function vector2_close(state, arguments)
 	if #arguments < 2 then
 		return false
 	end
@@ -43,7 +43,7 @@ local function vector_close(state, arguments)
 end
 
 assert:register("assertion", "number_close", number_close)
-assert:register("assertion", "vector_close", vector_close)
+assert:register("assertion", "vector2_close", vector2_close)
 
 describe("vector2", function()
 	describe("new()", function()
@@ -358,14 +358,14 @@ describe("vector2", function()
 	describe("from_polar()", function()
 		it("creates vector from polar coordinates", function()
 			local v = vector2.from_polar(5, math.pi / 4)
-			assert.vector_close(vector2.new(5 * math.cos(math.pi / 4), 5 * math.sin(math.pi / 4)), v)
+			assert.vector2_close(vector2.new(5 * math.cos(math.pi / 4), 5 * math.sin(math.pi / 4)), v)
 		end)
 
 		it("is inverse of to_polar", function()
 			local v = vector2.new(3, 4)
 			local radius, angle = vector2.to_polar(v)
 			local v2 = vector2.from_polar(radius, angle)
-			assert.vector_close(v, v2)
+			assert.vector2_close(v, v2)
 		end)
 
 		it("throws on invalid input", function()
@@ -430,9 +430,9 @@ describe("vector2", function()
 
 	describe("rotate()", function()
 		it("rotates vector by angle in radians", function()
-			assert.vector_close(vector2.new(0, 1), vector2.rotate(vector2.new(1, 0), math.pi / 2))
-			assert.vector_close(vector2.new(-1, 0), vector2.rotate(vector2.new(1, 0), math.pi))
-			assert.vector_close(vector2.new(0, 1), vector2.new(1, 0):rotate(math.pi / 2))
+			assert.vector2_close(vector2.new(0, 1), vector2.rotate(vector2.new(1, 0), math.pi / 2))
+			assert.vector2_close(vector2.new(-1, 0), vector2.rotate(vector2.new(1, 0), math.pi))
+			assert.vector2_close(vector2.new(0, 1), vector2.new(1, 0):rotate(math.pi / 2))
 		end)
 
 		it("preserves length", function()
