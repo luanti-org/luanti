@@ -93,8 +93,8 @@ local function init_globals()
 			end
 			local game = pkgmgr.find_by_gameid(el_gameid)
 			if (not game or game.id ~= el_gameid)
-				and pkgmgr.find_by_gameid(gameid).aliases[el_gameid] then
-					return true
+					and pkgmgr.find_by_gameid(gameid).aliases[el_gameid] then
+				return true
 			end
 			return false
 		end

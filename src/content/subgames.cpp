@@ -29,6 +29,7 @@ bool getGameConfig(const std::string &game_path, Settings &conf)
 	return conf.readConfigFile(conf_path.c_str());
 }
 
+// Keep in sync with pkgmgr.lua, `pkgmgr.normalize_game_id()`.
 std::string normalizeGameId(const std::string_view id)
 {
 	static const char *ends[] = {"_game", NULL};
@@ -72,7 +73,7 @@ void SubgameSpec::checkAndLog() const
 struct GameFindPath
 {
 	std::string path;
-	bool user_specific;
+	bool user_specific; // Game is in user's directory
 	GameFindPath(const std::string &path, bool user_specific) :
 			path(path), user_specific(user_specific)
 	{
@@ -168,14 +169,12 @@ GamePathMap getAvailableGamePaths()
 
 			// If configuration file is not found or broken, ignore game
 			Settings conf;
-			std::string conf_path = search_path.path + DIR_DELIM + dln.name +
-						DIR_DELIM + "game.conf";
-			if (!conf.readConfigFile(conf_path.c_str()))
+			const std::string game_path = search_path.path + DIR_DELIM + dln.name;
+			if (!conf.readConfigFile((game_path + DIR_DELIM + "game.conf").c_str()))
 				continue;
 
 			// Add it to result
-			gamepaths[normalizeGameId(dln.name)]
-				= {search_path.path + DIR_DELIM + dln.name, search_path.user_specific};
+			gamepaths[normalizeGameId(dln.name)] = {game_path, search_path.user_specific};
 		}
 	}
 	return gamepaths;
@@ -197,6 +196,7 @@ std::vector<SubgameSpec> getAvailableGames()
 	specs.reserve(gameids.size());
 	for (const auto &gameid : gameids)
 		specs.push_back(findSubgame(gameid));
+	// TODO: Optimize such that `getAvailableGamePaths()` is not run N times.
 	return specs;
 }
 
