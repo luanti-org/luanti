@@ -520,6 +520,15 @@ function pkgmgr.install_dir(expected_type, path, basename, targetpath)
 	assert(basename == nil or type(basename) == "string")
 	assert(targetpath == nil or type(targetpath) == "string")
 
+	local delete_old_dir
+	if targetpath then
+		local name = pkgmgr.normalize_game_id(targetpath:match("[^/\\]+[/\\]?$"))
+		-- Relevant when updating: prepare to remove the old directory if the names differ
+		if name ~= pkgmgr.normalize_game_id(basename) then
+			delete_old_dir = targetpath
+			targetpath = core.get_gamepath() .. DIR_DELIM .. basename
+		end
+	end
 	local basefolder = pkgmgr.get_base_folder(path)
 
 	if expected_type == "txp" then
@@ -571,6 +580,9 @@ function pkgmgr.install_dir(expected_type, path, basename, targetpath)
 			return nil,
 				fgettext_ne("Install: Unable to find suitable folder name for $1", path)
 		end
+	elseif delete_old_dir then
+		-- Name has changed, delete old directory
+		core.delete_dir(delete_old_dir)
 	end
 
 	-- Copy it
@@ -579,6 +591,8 @@ function pkgmgr.install_dir(expected_type, path, basename, targetpath)
 		return nil,
 			fgettext_ne("Failed to install $1 to $2", basename, targetpath)
 	end
+
+	core.delete_dir(result.path)
 
 	return targetpath, nil
 end
@@ -852,7 +866,7 @@ function pkgmgr.get_contentdb_id(content)
 end
 
 --------------------------------------------------------------------------------
--- Normalizes ID of a game
+-- Normalizes ID of a game. Keep in sync with subgames.cpp, `normalizeGameId`.
 function pkgmgr.normalize_game_id(name)
 	return name:match("(.*)_game$") or name
 end

@@ -83,22 +83,10 @@ local function start_install(package, reason)
 		if result.msg then
 			gamedata.errormessage = result.msg
 		else
-			local delete_old_dir
-			if package.path then
-				local name = pkgmgr.normalize_game_id(package.path:match("[^/\\]+[/\\]?$"))
-				if name ~= pkgmgr.normalize_game_id(package.name) then
-					delete_old_dir = package.path
-					package.path = core.get_gamepath() .. DIR_DELIM .. package.name
-				end
-			end
 			local path, msg = pkgmgr.install_dir(package.type, result.path, package.name, package.path)
-			core.delete_dir(result.path)
 			if not path then
 				gamedata.errormessage = fgettext_ne("Error installing \"$1\": $2", package.title, msg)
 			else
-				if delete_old_dir then
-					core.delete_dir(delete_old_dir)
-				end
 				core.log("action", "Installed package to " .. path)
 
 				local conf_path
@@ -193,7 +181,7 @@ end
 
 local function strip_game_suffix(type, name)
 	if type == nil or type == "game" then
-		return name:match("(.*)_game$") or name
+		return pkgmgr.normalize_game_id(name)
 	else
 		return name
 	end

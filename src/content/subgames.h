@@ -27,6 +27,12 @@ struct SubgameSpec
 	 */
 	std::unordered_map<std::string, std::string> addon_mods_paths;
 
+	/**
+	 * All worlds are marked with a specific gameid. To allow inheriting worlds
+	 * by a game with different gameid after deprecation or renaming, this set
+	 * contains the gameid values that used to refer to the game and may be used
+	 * to automatically find the best matching gameid.
+	 */
 	std::unordered_set<std::string> aliases;
 
 	// For logging purposes
