@@ -124,6 +124,19 @@ void ObjDefManager::clear()
 }
 
 
+void ObjDefManager::clearByName(const std::string &name)
+{
+	for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
+		auto obj = *it;
+		if (obj && !strcasecmp(name.c_str(), obj->name.c_str())) {
+			delete obj;
+			m_objects.erase(it);
+			break;
+		}
+	}
+}
+
+
 u32 ObjDefManager::validateHandle(ObjDefHandle handle) const
 {
 	ObjDefType type;
