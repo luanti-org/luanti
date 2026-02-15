@@ -3135,12 +3135,14 @@ bool Game::nodePlacement(const ItemDefinition &selected_def,
 	if (!place_param2 && (predicted_f.param_type_2 == CPT2_COLOR
 			|| predicted_f.param_type_2 == CPT2_COLORED_FACEDIR
 			|| predicted_f.param_type_2 == CPT2_COLORED_4DIR
-			|| predicted_f.param_type_2 == CPT2_COLORED_WALLMOUNTED)) {
+			|| predicted_f.param_type_2 == CPT2_COLORED_WALLMOUNTED
+			|| predicted_f.param_type_2 == CPT2_COLORED_LIQUID)) {
 		const auto &indexstr = selected_item.metadata.
 			getString("palette_index", 0);
 		if (!indexstr.empty()) {
 			s32 index = mystoi(indexstr);
 			if (predicted_f.param_type_2 == CPT2_COLOR) {
+				// param2 = pure palette index
 				predicted_node.setParam2(index);
 			} else if (predicted_f.param_type_2 == CPT2_COLORED_WALLMOUNTED) {
 				// param2 = pure palette index + other
@@ -3151,6 +3153,9 @@ bool Game::nodePlacement(const ItemDefinition &selected_def,
 			} else if (predicted_f.param_type_2 == CPT2_COLORED_4DIR) {
 				// param2 = pure palette index + other
 				predicted_node.setParam2((index & 0xfc) | (predicted_node.getParam2() & 0x03));
+			} else if (predicted_f.param_type_2 == CPT2_COLORED_LIQUID) {
+				// param2 = pure palette index + other
+				predicted_node.setParam2((index & 0xf0) | (predicted_node.getParam2() & 0x0f));
 			}
 		}
 	}
