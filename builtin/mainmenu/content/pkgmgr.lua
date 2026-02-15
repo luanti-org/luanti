@@ -592,7 +592,7 @@ function pkgmgr.install_dir(expected_type, path, basename, targetpath)
 			fgettext_ne("Failed to install $1 to $2", basename, targetpath)
 	end
 
-	core.delete_dir(result.path)
+	core.delete_dir(path)
 
 	return targetpath, nil
 end
