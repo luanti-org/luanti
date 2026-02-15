@@ -6,6 +6,7 @@
 #include <fstream>
 #include <json/json.h>
 #include <algorithm>
+#include "content/mod_errors.h"
 #include "content/mods.h"
 #include "database/database.h"
 #include "filesys.h"
@@ -14,35 +15,9 @@
 #include "script/common/c_internal.h"
 #include "exceptions.h"
 
-bool ModSpec::mod_load_errors_logged = false;
-std::map<std::string, std::set<std::string>> ModSpec::mod_load_error_msgs;
-
-void ModSpec::logModLoadErrors() {
-	if (!ModSpec::mod_load_errors_logged) {
-		// Log error messages
-		auto error_handling_mode = get_mod_error_handling_mode();
-		if(!ModSpec::mod_load_error_msgs.empty() && error_handling_mode != ModErrorHandlingMode::IgnoreModError) {
-			std::ostringstream os;
-			for(const auto& pair: ModSpec::mod_load_error_msgs) {
-				const auto& path = pair.first;
-				for (const auto& msg : pair.second) {
-					os << "Mod at " << path << ":" << std::endl;
-					os << "\t" << msg << std::endl;
-				}
-			}
-			if (error_handling_mode == ModErrorHandlingMode::ThrowModError)
-				throw ModError(os.str());
-			else
-				warningstream << os.str();
-		}
-	}
-
-	ModSpec::mod_load_errors_logged = true;
-}
-
 void ModSpec::checkAndLog() const
 {
-	ModSpec::logModLoadErrors();
+	ModErrors::logErrors();
 
 	// Log deprecation messages
 	auto deprecation_handling_mode = get_deprecated_handling_mode();
@@ -92,7 +67,7 @@ bool parseModContents(ModSpec &spec)
 	} else if (fs::IsFile(spec.path + DIR_DELIM + "modpack.txt")) {
 		spec.is_modpack = true;
 	} else if (!fs::IsFile(spec.path + DIR_DELIM + "init.lua")) {
-		ModSpec::mod_load_error_msgs[spec.path].insert("Mod does not contain 'init.lua");
+		ModErrors::setModError(spec.path, "Mod does not contain 'init.lua");
 		return false;
 	} else {
 		// Is a mod
@@ -110,7 +85,7 @@ bool parseModContents(ModSpec &spec)
 		spec.name = info.get("name");
 		spec.is_name_explicit = true;
 		if (!string_allowed(spec.name, MODNAME_ALLOWED_CHARS)) {
-			ModSpec::mod_load_error_msgs[spec.path].insert("Mod does not follow naming conventions" "Only characters [a-zA-Z0-9_] are allowed.");
+			ModErrors::setModError(spec.path, "Mod does not follow naming conventions" "Only characters [a-zA-Z0-9_] are allowed.");
 			return false;
 		}
 	} else if (!spec.is_modpack) {
@@ -219,6 +194,8 @@ std::map<std::string, ModSpec> getModsInPath(
 			result[modname] = std::move(spec);
 		}
 	}
+	// Log mod errors after we finish loading them all
+	ModErrors::logErrors();
 	return result;
 }
 
