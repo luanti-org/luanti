@@ -58,9 +58,6 @@ struct ModSpec
 
 	// For logging purposes
 	std::vector<const char *> deprecation_msgs;
-	// Set of log messages for mods, keyed by path
-	static std::map<std::string, std::set<std::string>> mod_load_error_msgs;
-	static bool mod_load_errors_logged;
 
 	// if modpack:
 	ModSpecList modpack_content;

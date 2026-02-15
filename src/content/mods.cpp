@@ -5,6 +5,7 @@
 #include <cctype>
 #include <fstream>
 #include <algorithm>
+#include "content/mod_errors.h"
 #include "content/mods.h"
 #include "database/database.h"
 #include "filesys.h"
@@ -51,7 +52,7 @@ bool ModSpecCompare::operator()(const ModSpec &a, const ModSpec &b) const
 
 void ModSpec::checkAndLog() const
 {
-	ModSpec::logModLoadErrors();
+	ModErrors::logErrors();
 
 	// Log deprecation messages
 	auto deprecation_handling_mode = get_deprecated_handling_mode();
@@ -101,7 +102,7 @@ bool parseModContents(ModSpec &spec)
 	} else if (fs::IsFile(spec.path + DIR_DELIM + "modpack.txt")) {
 		spec.is_modpack = true;
 	} else if (!fs::IsFile(spec.path + DIR_DELIM + "init.lua")) {
-		ModSpec::mod_load_error_msgs[spec.path].insert("Mod does not contain 'init.lua");
+		ModErrors::setModError(spec.path, "Mod does not contain 'init.lua");
 		return false;
 	} else {
 		// Is a mod
@@ -119,7 +120,7 @@ bool parseModContents(ModSpec &spec)
 		spec.name = info.get("name");
 		spec.is_name_explicit = true;
 		if (!string_allowed(spec.name, MODNAME_ALLOWED_CHARS)) {
-			ModSpec::mod_load_error_msgs[spec.path].insert("Mod does not follow naming conventions" "Only characters [a-zA-Z0-9_] are allowed.");
+			ModErrors::setModError(spec.path, "Mod does not follow naming conventions" "Only characters [a-zA-Z0-9_] are allowed.");
 			return false;
 		}
 	} else if (!spec.is_modpack) {
@@ -227,6 +228,8 @@ ModSpecList getModsInPath(
 			result.emplace(std::move(spec));
 		}
 	}
+	// Log mod errors after we finish loading them all
+	ModErrors::logErrors();
 	return result;
 }
 
