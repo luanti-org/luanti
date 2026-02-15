@@ -323,8 +323,8 @@ local scroll_fs =
 --style_type[label;border=;bgcolor=]
 --label[0.75,2;Reset]
 
-local autoscroll_fs =
-	"label[0.5,0.5;Auto-Scroll Test - Tab through buttons to test auto-scroll centering]" ..
+local focus_fs =
+	"label[0.5,0.5;Test auto-scroll centering and focus outline styling]" ..
 	"label[0.5,1;Vertical scroll container:]" ..
 	"scroll_container[0.5,1.5;5.5,5;autoscroll_v;vertical]" ..
 		"button[0,0;5,1;asv_btn1;Button 1]" ..
@@ -349,7 +349,26 @@ local autoscroll_fs =
 		"button[12,0;3,1;ash_btn5;Btn5]" ..
 	"scroll_container_end[]" ..
 	"scrollbaroptions[max=105]" ..
-	"scrollbar[7,2.7;4.5,0.3;horizontal;autoscroll_h;0]"
+	"scrollbar[7,2.7;4.5,0.3;horizontal;autoscroll_h;0]" ..
+	"label[0.5,7;Focus outline styling:]" ..
+	"button[0.5,7.5;3,1;outline_btn_cr;Red outline]" ..
+	"button[4.5,7.5;3,1;outline_btn_cg;Green outline]" ..
+	"button[8.5,7.5;3,1;outline_btn_cg;Blue outline]" ..
+	"style[outline_btn_cr:focus-visible; outline_color=Red]" ..
+	"style[outline_btn_cg:focus-visible; outline_color=Green]" ..
+	"style[outline_btn_cb:focus-visible; outline_color=Blue]" ..
+	"button[0.5,9;3,1;outline_btn_w4;4px outline]" ..
+	"button[4.5,9;3,1;outline_btn_w1;1px outline]" ..
+	"button[8.5,9;3,1;outline_btn_w6;18px outline]" ..
+	"style[outline_btn_w4:focus-visible; outline_width=4]" ..
+	"style[outline_btn_w1:focus-visible; outline_width=1]" ..
+	"style[outline_btn_w6:focus-visible; outline_width=18]" ..
+	"button[0.5,10.5;3,1;outline_btn_o-2;-2px offset]" ..
+	"button[4.5,10.5;3,1;outline_btn_o1;1px offset]" ..
+	"button[8.5,10.5;3,1;outline_btn_o4;4px offset]" ..
+	"style[outline_btn_o-2:focus-visible; outline_offset=-2]" ..
+	"style[outline_btn_o1:focus-visible; outline_offset=1]" ..
+	"style[outline_btn_o4:focus-visible; outline_offset=4]"
 
 local window = {
 	sizex = 12,
@@ -505,9 +524,9 @@ mouse control = true]
 		"formspec_version[7]size[12,13]" ..
 		scroll_fs,
 
-	-- Autoscroll
+	-- Focus
 		"formspec_version[7]size[12,13]" ..
-		autoscroll_fs,
+		focus_fs,
 
 	-- Sound
 		[[
@@ -560,7 +579,7 @@ local function show_test_formspec(pname)
 		page = page()
 	end
 
-	local fs = page .. "tabheader[0,0;11,0.65;maintabs;Real Coord,Styles,Noclip,Table,Hypertext,Tabs,Invs,Window,Anim,Model,ScrollC,Autoscroll,Sound,Background,Unsized;" .. page_id .. ";false;false]"
+	local fs = page .. "tabheader[0,0;11,0.65;maintabs;Real Coord,Styles,Noclip,Table,Hypertext,Tabs,Invs,Window,Anim,Model,ScrollC,Focus,Sound,Background,Unsized;" .. page_id .. ";false;false]"
 
 	core.show_formspec(pname, "testformspec:formspec", fs)
 end
