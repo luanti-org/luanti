@@ -226,6 +226,8 @@ private:
 	// get_translated_string(lang_code, string)
 	static int l_get_translated_string(lua_State * L);
 
+	static int l_get_node_content_counts(lua_State *L);
+
 public:
 	static void Initialize(lua_State *L, int top);
 	static void InitializeClient(lua_State *L, int top);

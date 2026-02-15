@@ -1384,6 +1384,33 @@ int ModApiEnv::l_get_translated_string(lua_State * L)
 	return 1;
 }
 
+int ModApiEnv::l_get_node_content_counts(lua_State *L)
+{
+	GET_ENV_PTR;
+
+	v3s16 blockpos = read_v3s16(L, 1);
+
+	Map &map = env->getMap();
+	MapBlock *block = map.getBlockNoCreateNoEx(blockpos);
+
+	if (!block) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	lua_newtable(L);
+
+	std::unordered_map<content_t, u32> counts = block->getContentCounts();
+
+	for (const auto &pair : counts) {
+		lua_pushinteger(L, pair.first);
+		lua_pushinteger(L, pair.second);
+		lua_settable(L, -3);
+	}
+
+	return 1;
+}
+
 void ModApiEnv::Initialize(lua_State *L, int top)
 {
 	API_FCT(set_node);
@@ -1436,6 +1463,7 @@ void ModApiEnv::Initialize(lua_State *L, int top)
 	API_FCT(forceload_free_block);
 	API_FCT(compare_block_status);
 	API_FCT(get_translated_string);
+	API_FCT(get_node_content_counts);
 }
 
 void ModApiEnv::InitializeClient(lua_State *L, int top)

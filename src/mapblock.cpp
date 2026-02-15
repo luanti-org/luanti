@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <sstream>
+#include <unordered_set>
 #include "map.h"
 #include "nodedef.h"
 #include "nodemetadata.h"
@@ -383,6 +384,28 @@ void MapBlock::correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 		// Save previous node local_id & global_id result
 		mapping_cache.set(local_id, global_id);
 	}
+}
+
+// Count the number of nodes with each content type in this block
+std::unordered_map<content_t, u32> MapBlock::getContentCounts() const
+{
+	std::unordered_map<content_t, u32> counts;
+
+	if (!data)
+		return counts;  // Return empty map if data is not allocated
+
+	if (m_is_mono_block) {
+		// For monoblocks, all nodecount nodes have the same content
+		counts[data[0].getContent()] = nodecount;
+	} else {
+		// Iterate through all nodes in the block
+		for (u32 i = 0; i < nodecount; i++) {
+			content_t content = data[i].getContent();
+			counts[content]++;
+		}
+	}
+
+	return counts;
 }
 
 void MapBlock::serialize(std::ostream &os_compressed, u8 version, bool disk, int compression_level)

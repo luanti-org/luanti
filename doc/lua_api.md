@@ -7864,6 +7864,14 @@ Misc.
         * `true`: Mapblock meets the requirement
         * `nil`: Unsupported `condition` value
 
+* `core.get_node_content_counts(blockpos)`
+    * Returns node content counts for the specified mapblock.
+    * The mapblock must be loaded in memory. If it is not loaded, returns `nil`.
+      Use `core.load_area()` or `core.emerge_area()` to load blocks before calling this function.
+    * Returns a table mapping node content IDs to counts (how many times each node type
+      appears in the mapblock), or `nil` if the block is not loaded. Only includes content
+      IDs that are actually present in the mapblock.
+
 * `core.request_insecure_environment()`: returns an environment containing
   insecure functions if the calling mod has been listed as trusted in the
   `secure.trusted_mods` setting or security is disabled, otherwise returns
