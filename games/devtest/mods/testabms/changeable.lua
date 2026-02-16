@@ -31,7 +31,7 @@ core.register_chatcommand("changeableABM", {
 				})
 			return true, "ABM has been disabled."
 		else
-			return false, "Check /help changeableABB for allowed parameters."
+			return false, "Check /help changeableABM for allowed parameters."
 		end
 	end,
 })

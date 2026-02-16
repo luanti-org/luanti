@@ -15,8 +15,8 @@ core.unregister_item_raw = nil
 local register_alias_raw = core.register_alias_raw
 core.register_alias_raw = nil
 
-local override_abm_raw = core.override_abm
-core.register_abm_raw = nil
+local override_abm_raw = core.override_abm_raw
+core.override_abm_raw = nil
 
 --
 -- Item / entity / ABM / LBM registration functions

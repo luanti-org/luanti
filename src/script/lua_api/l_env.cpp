@@ -1385,7 +1385,7 @@ int ModApiEnv::l_get_translated_string(lua_State * L)
 }
 
 // override_abm(abm_name, parameters)
-int ModApiEnv::l_override_abm(lua_State *L)
+int ModApiEnv::l_override_abm_raw(lua_State *L)
 {
 	GET_ENV_PTR;
 
@@ -1445,7 +1445,7 @@ void ModApiEnv::Initialize(lua_State *L, int top)
 	API_FCT(forceload_free_block);
 	API_FCT(compare_block_status);
 	API_FCT(get_translated_string);
-	API_FCT(override_abm);
+	API_FCT(override_abm_raw);
 }
 
 void ModApiEnv::InitializeClient(lua_State *L, int top)
