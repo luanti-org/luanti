@@ -1762,7 +1762,9 @@ void GUIFormSpecMenu::parseHyperText(parserData *data, const std::string &elemen
 	spec.sound = style.get(StyleSpec::Property::SOUND, "");
 
 	GUIHyperText *e = new GUIHyperText(spec.flabel.c_str(), Environment,
-			data->current_parent, spec.fid, rect, m_client, m_tsrc);
+			data->current_parent, spec.fid, rect, m_client, m_tsrc,
+			video::SColor(0,0,0,0),
+			video::SColor(255,255,255,255));
 	e->drop();
 
 	m_fields.push_back(spec);
@@ -1860,7 +1862,9 @@ void GUIFormSpecMenu::parseHyperTip(parserData *data, const std::string &element
 		core::rect<s32> rect(pos, pos + geom);
 
 		GUIHyperText *e = new GUIHyperText(spec.flabel.c_str(), Environment,
-				data->current_parent, spec.fid, rect, m_client, m_tsrc);
+				data->current_parent, spec.fid, rect, m_client, m_tsrc,
+				m_default_tooltip_bgcolor,
+				m_default_tooltip_color);
 
 		auto style = getStyleForElement("hypertip", spec.fname);
 		e->setStyles(style);
@@ -3787,7 +3791,9 @@ void GUIFormSpecMenu::drawMenu()
 							GUIHyperText *e = new GUIHyperText(
 									txt.c_str(), Environment,
 									parent_element->getParent(), field.fid,
-									spec.hover_rect, m_client, m_tsrc);
+									spec.hover_rect, m_client, m_tsrc,
+									m_default_tooltip_bgcolor,
+									m_default_tooltip_color);
 
 							auto style = getStyleForElement("hypertip", spec.name);
 							e->setStyles(style);

@@ -86,7 +86,7 @@ void ParsedText::Paragraph::setStyle(StyleList &style)
 		this->halign = HALIGN_LEFT;
 }
 
-ParsedText::ParsedText(const wchar_t *text)
+ParsedText::ParsedText(const wchar_t *text, video::SColor default_color = video::SColor(255,255,255,255))
 {
 	// Default style
 	m_root_tag.name = "root";
@@ -96,7 +96,7 @@ ParsedText::ParsedText(const wchar_t *text)
 	m_root_tag.style["italic"] = "false";
 	m_root_tag.style["underline"] = "false";
 	m_root_tag.style["halign"] = "left";
-	m_root_tag.style["color"] = "#EEEEEE";
+	m_root_tag.style["color"] = encodeHexColorString(default_color);
 	m_root_tag.style["hovercolor"] = "#FF0000";
 
 	m_active_tags.push_front(&m_root_tag);
@@ -619,8 +619,11 @@ u32 ParsedText::parseTag(const wchar_t *text, u32 cursor)
 // Text Drawer
 
 TextDrawer::TextDrawer(const wchar_t *text, Client *client,
-		gui::IGUIEnvironment *environment, ISimpleTextureSource *tsrc) :
-		m_text(text), m_client(client), m_tsrc(tsrc), m_guienv(environment)
+		gui::IGUIEnvironment *environment, ISimpleTextureSource *tsrc,
+		video::SColor default_background_color,
+		video::SColor default_color) :
+		m_text(text, default_color), m_client(client), m_tsrc(tsrc), m_guienv(environment),
+		m_default_background_color(default_background_color)
 {
 	// Size all elements
 	for (auto &p : m_text.m_paragraphs) {
@@ -1042,7 +1045,7 @@ void TextDrawer::applyStyleSpecToText(const StyleSpec &style)
 
 	if (m_text.background_type != m_text.BackgroundType::BACKGROUND_COLOR) {
 		m_text.background_type = m_text.BackgroundType::BACKGROUND_COLOR;
-		m_text.background_color = style.getColor(StyleSpec::BGCOLOR, video::SColor(255,110,130,60));
+		m_text.background_color = style.getColor(StyleSpec::BGCOLOR, m_default_background_color);
 	}
 
 	if (style.isNotDefault(StyleSpec::BGIMG))
@@ -1055,10 +1058,15 @@ void TextDrawer::applyStyleSpecToText(const StyleSpec &style)
 //! constructor
 GUIHyperText::GUIHyperText(const wchar_t *text, IGUIEnvironment *environment,
 		IGUIElement *parent, s32 id, const core::rect<s32> &rectangle,
-		Client *client, ISimpleTextureSource *tsrc) :
+		Client *client, ISimpleTextureSource *tsrc,
+		video::SColor default_background_color,
+		video::SColor default_color) :
 		IGUIElement(EGUIET_ELEMENT, environment, parent, id, rectangle),
 		m_tsrc(tsrc), m_vscrollbar(nullptr),
-		m_drawer(text, client, environment, tsrc), m_text_scrollpos(0, 0)
+		m_drawer(text, client, environment, tsrc, default_background_color, default_color),
+		m_text_scrollpos(0, 0),
+		m_default_background_color(default_background_color),
+		m_default_color(default_color)
 {
 
 	IGUISkin *skin = nullptr;
