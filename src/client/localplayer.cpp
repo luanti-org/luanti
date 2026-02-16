@@ -320,11 +320,6 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 
 	// Player object property step height is multiplied by BS in
 	// /src/script/common/c_content.cpp and /src/content_sao.cpp
-
-	/* Previously:
-	float player_stepheight = (m_cao == nullptr) ? 0.0f : 
-			(touching_ground ? m_cao->getStepHeight() : (0.2f * BS));
-	*/
 	float player_stepheight = 0.0f;
 	if (m_cao != nullptr) {
 		if (touching_ground &&
