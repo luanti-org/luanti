@@ -336,8 +336,8 @@ core.register_chatcommand("test_get_node_counts", {
 		local nodenames
 		if param and param ~= "" then
 			nodenames = {}
-			for name in param:gmatch("[^,]+") do
-				table.insert(nodenames, name:match("^%s*(.-)%s*$"))  -- trim whitespace
+			for nodename in param:gmatch("[^,]+") do
+				table.insert(nodenames, nodename:match("^%s*(.-)%s*$"))  -- trim whitespace
 			end
 		else
 			-- Default to common node types
