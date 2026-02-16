@@ -654,7 +654,7 @@ mouse control = true]
 
 	-- Tooltip
 		[[
-			formspec_version[7]
+			formspec_version[9]
 			size[12,13]
 			label[1,0.5;10,1;Tooltip test without listcolors element. Hover a square or button for a tooltip.]
 		]]..
@@ -662,7 +662,7 @@ mouse control = true]
 
 	-- Tooltip + listcolors
 		[[
-			formspec_version[7]
+			formspec_version[9]
 			size[12,13]
 			listcolors[#808080;#a0a0a0;#000000;#b8191e;#17ff0f]
 			label[1,0.5;10,1;Tooltip test with listcolors element specifying default tooltip colors. Hover a square or button for a tooltip.]
