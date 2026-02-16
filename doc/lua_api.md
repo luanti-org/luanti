@@ -4119,7 +4119,6 @@ Spatial vectors are used for various things, including, but not limited to:
 
 Note that they are *not* used for:
 
-* 2-dimensional vectors (use `vector2.*` instead)
 * arrays of the form `{num, num, num}`
 
 The API documentation may refer to spatial vectors, as produced by `vector.new`,
@@ -4233,13 +4232,6 @@ For example:
 
 Luanti stores 2-dimensional vectors in Lua as tables of 2 coordinates,
 and has a class to represent them (`vector2.*`).
-
-2D vectors are used for various things, including:
-
-* 2D positions and offsets (x/y-directions)
-* texture coordinates
-* screen coordinates
-* 2D mathematical operations
 
 The API provides `vector2.new` to create vectors:
 
