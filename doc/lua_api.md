@@ -3967,7 +3967,7 @@ Vectors
 Luanti provides two vector classes for working with coordinates and mathematical operations:
 
 * **Spatial Vectors** (`vector.*`) - 3-dimensional vectors for 3D positions, directions, and spatial operations
-* **2D Vectors** (`vector2.*`) - 2-dimensional vectors for 2D positions, texture coordinates, and 2D operations
+* **2D Vectors** (`vector2.*`) - 2-dimensional vectors for 2D positions, screen coordinates, and 2D operations
 
 Both vector types share many common properties and operations, which are described in the following sections.
 
