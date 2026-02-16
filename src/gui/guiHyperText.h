@@ -20,7 +20,7 @@ class GUIScrollBar;
 class ParsedText
 {
 public:
-	ParsedText(const wchar_t *text);
+	ParsedText(const wchar_t *text, video::SColor default_color);
 	~ParsedText();
 
 	enum ElementType
@@ -160,7 +160,9 @@ class TextDrawer
 {
 public:
 	TextDrawer(const wchar_t *text, Client *client, gui::IGUIEnvironment *environment,
-			ISimpleTextureSource *tsrc);
+			ISimpleTextureSource *tsrc,
+			video::SColor default_background_color,
+			video::SColor default_color);
 
 	void place(const core::rect<s32> &dest_rect);
 	inline s32 getHeight() { return m_height; };
@@ -185,6 +187,7 @@ protected:
 	s32 m_height = 0;
 	s32 m_voffset;
 	std::vector<RectWithMargin> m_floating;
+	video::SColor m_default_background_color;
 };
 
 class GUIHyperText : public gui::IGUIElement
@@ -194,7 +197,9 @@ public:
 	GUIHyperText(const wchar_t *text, gui::IGUIEnvironment *environment,
 			gui::IGUIElement *parent, s32 id,
 			const core::rect<s32> &rectangle, Client *client,
-			ISimpleTextureSource *tsrc);
+			ISimpleTextureSource *tsrc,
+			video::SColor default_background_color,
+			video::SColor default_color);
 
 	//! destructor
 	virtual ~GUIHyperText();
@@ -226,4 +231,7 @@ protected:
 	// Counter variable to be increased every iteration of draw(),
 	// if it reached a certain number, drawing is allowed.
 	int m_draw_state = 0;
+
+	video::SColor m_default_background_color;
+	video::SColor m_default_color;
 };
