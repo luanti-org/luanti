@@ -135,14 +135,10 @@ function vector2.direction(pos1, pos2)
 	return vector2.subtract(pos2, pos1):normalize()
 end
 
-function vector2.angle_to(a, b)
+function vector2.angle(a, b)
 	local dotp = vector2.dot(a, b)
 	local crossplen = math.abs(a.x * b.y - a.y * b.x)
 	return math.atan2(crossplen, dotp)
-end
-
-function vector2.angle(v)
-	return math.atan2(v.y, v.x)
 end
 
 function vector2.signed_angle(a, b)
