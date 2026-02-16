@@ -159,6 +159,12 @@ int LuaLocalPlayer::l_get_physics_override(lua_State *L)
 	lua_pushboolean(L, phys.sneak_glitch);
 	lua_setfield(L, -2, "sneak_glitch");
 
+	lua_pushboolean(L, phys.upward_rejump);
+	lua_setfield(L, -2, "upward_rejump");
+
+	lua_pushboolean(L, phys.loose_lips);
+	lua_setfield(L, -2, "loose_lips");
+
 	lua_pushboolean(L, phys.new_move);
 	lua_setfield(L, -2, "new_move");
 

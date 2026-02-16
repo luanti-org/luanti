@@ -1744,6 +1744,8 @@ int ObjectRef::l_set_physics_override(lua_State *L)
 	getfloatfield(L, 2, "gravity", phys.gravity);
 	getboolfield(L, 2, "sneak", phys.sneak);
 	getboolfield(L, 2, "sneak_glitch", phys.sneak_glitch);
+	getboolfield(L, 2, "upward_rejump", phys.upward_rejump);
+	getboolfield(L, 2, "loose_lips", phys.loose_lips);
 	getboolfield(L, 2, "new_move", phys.new_move);
 	getfloatfield(L, 2, "speed_climb", phys.speed_climb);
 	getfloatfield(L, 2, "speed_crouch", phys.speed_crouch);

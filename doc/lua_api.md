@@ -8825,6 +8825,9 @@ child will follow movement and rotation of that bone.
         * `sneak_glitch`: whether player can use the new move code replications
           of the old sneak side-effects: sneak ladders and 2 node sneak jump
           (default: `false`)
+        * `upward_rejump`: legacy ability to jump again while contacting a jumpable surface mid-jump
+          (default: `false`)
+        * `loose_lips`: legacy step-up while jumping into the corner of a node (default: `false`)
         * `new_move`: use new move/sneak code. When `false` the exact old code
           is used for the specific old sneak behavior (default: `true`)
     * Note: All numeric fields above modify a corresponding `movement_*` setting.

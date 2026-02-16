@@ -320,6 +320,8 @@ std::string PlayerSAO::generateUpdatePhysicsOverrideCommand() const
 	// MT 0.4.10 legacy: send inverted for detault `true` if the server sends nothing
 	writeU8(os, !phys.sneak);
 	writeU8(os, !phys.sneak_glitch);
+	writeU8(os, !phys.upward_rejump);
+	writeU8(os, !phys.loose_lips);
 	writeU8(os, !phys.new_move);
 	// new physics overrides since 5.8.0
 	writeF32(os, phys.speed_climb);

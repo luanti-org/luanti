@@ -320,14 +320,19 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 
 	// Player object property step height is multiplied by BS in
 	// /src/script/common/c_content.cpp and /src/content_sao.cpp
+
+	/* Previously:
+	float player_stepheight = (m_cao == nullptr) ? 0.0f : 
+			(touching_ground ? m_cao->getStepHeight() : (0.2f * BS));
+	*/
 	float player_stepheight = 0.0f;
-	if (m_cao) {
-		if (m_speed.Y > 0.01f * BS) {
-			// Disable stepheight while moving upward to prevent snapping to block tops
-			player_stepheight = 0.0f;
+	if (m_cao != nullptr) {
+		if (touching_ground &&
+			(physics_override.loose_lips || m_speed.Y <= 0.01f * BS)) {
+			player_stepheight = m_cao->getStepHeight();
 		} else {
-			// Use standard stepheights while on ground OR while falling/crossing gaps
-			player_stepheight = touching_ground ? m_cao->getStepHeight() : (0.2f * BS);
+			// Still allow slight snap-up when clearing a lip mid-jump
+			player_stepheight = physics_override.loose_lips ? 0.2f * BS : 0.05f * BS;
 		}
 	}
 
@@ -666,7 +671,7 @@ void LocalPlayer::applyControl(float dtime, Environment *env)
 				at its starting value
 			*/
 			v3f speedJ = getSpeed();
-			if (speedJ.Y >= -0.5f * BS && speedJ.Y <= 0.1f * BS) {
+			if (speedJ.Y >= -0.5f * BS && (physics_override.upward_rejump || speedJ.Y <= 0.0f * BS)) {
 				speedJ.Y = movement_speed_jump * physics_override.jump;
 				setSpeed(speedJ);
 				m_client->getEventManager()->put(new SimpleTriggerEvent(MtEvent::PLAYER_JUMP));
