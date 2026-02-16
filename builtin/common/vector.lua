@@ -140,12 +140,15 @@ function vector.direction(pos1, pos2)
 	return vector.subtract(pos2, pos1):normalize()
 end
 
-function vector.angle(a, b)
+function vector.angle_to(a, b)
 	local dotp = vector.dot(a, b)
 	local cp = vector.cross(a, b)
 	local crossplen = vector.length(cp)
 	return math.atan2(crossplen, dotp)
 end
+
+-- Deprecated alias for angle_to
+vector.angle = vector.angle_to
 
 function vector.dot(a, b)
 	return a.x * b.x + a.y * b.y + a.z * b.z

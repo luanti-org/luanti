@@ -210,6 +210,11 @@ describe("vector", function()
 		assert.equal(math.pi/2, vector.new(0, 1, 0):angle(vector.new(1, 0, 0)))
 	end)
 
+	it("angle_to()", function()
+		assert.equal(math.pi, vector.angle_to(vector.new(-1, -2, -3), vector.new(1, 2, 3)))
+		assert.equal(math.pi/2, vector.new(0, 1, 0):angle_to(vector.new(1, 0, 0)))
+	end)
+
 	it("dot()", function()
 		assert.equal(-14, vector.dot(vector.new(-1, -2, -3), vector.new(1, 2, 3)))
 		assert.equal(0, vector.new():dot(vector.new(1, 2, 3)))

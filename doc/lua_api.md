@@ -4173,7 +4173,10 @@ vectors are written like this: `(x, y, z)`:
       `vector.new(v)` does the same as `vector.copy(v)`
 * `vector.sort(v1, v2)`:
     * Returns in order minp, maxp vectors of the cuboid defined by `v1`, `v2`.
+* `vector.angle_to(v1, v2)`:
+    * Returns the angle between `v1` and `v2` in radians.
 * `vector.angle(v1, v2)`:
+    * **Deprecated**: Use `vector.angle_to(v1, v2)` instead.
     * Returns the angle between `v1` and `v2` in radians.
 * `vector.cross(v1, v2)`:
     * Returns the cross product of `v1` and `v2`.
@@ -4281,7 +4284,13 @@ vectors are written like this: `(x, y)`:
     * Example: `vector2.to_polar(vector2.new(0, 1))` returns `1, math.pi / 2`.
 * `vector2.sort(v1, v2)`:
     * Returns in order minp, maxp vectors of the rectangle defined by `v1`, `v2`.
-* `vector2.angle(v1, v2)`:
+* `vector2.angle(v)`:
+    * Returns the angle of vector `v` in radians from the positive x-axis (counterclockwise).
+    * This is equivalent to `math.atan2(v.y, v.x)`.
+    * The range is `(-pi, pi]`.
+    * Example: `vector2.angle(vector2.new(0, 1))` returns `math.pi / 2`.
+    * Example: `vector2.angle(vector2.new(1, 0))` returns `0`.
+* `vector2.angle_to(v1, v2)`:
     * Returns the angle between `v1` and `v2` in radians.
     * This is always a positive value (unsigned angle).
 * `vector2.signed_angle(v1, v2)`:
