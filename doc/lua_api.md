@@ -4275,8 +4275,8 @@ vectors are written like this: `(x, y)`:
     * `angle` is the angle in radians from the positive x-axis (counterclockwise).
     * Example: `vector2.from_polar(1, math.pi / 2)` returns a vector pointing up `(0, 1)`.
 * `vector2.to_polar(v)`:
-    * Returns `r, theta` where `r` is the radius (length) and `theta` is the angle in radians.
-    * `theta` is the angle from the positive x-axis (counterclockwise), in the range `(-pi, pi]`.
+    * Returns `radius, angle` where `radius` is the radius (length) and `angle` is the angle in radians.
+    * `angle` is the angle from the positive x-axis (counterclockwise), in the range `(-pi, pi]`.
     * For a zero vector, returns `0, 0`.
     * Example: `vector2.to_polar(vector2.new(0, 1))` returns `1, math.pi / 2`.
 * `vector2.sort(v1, v2)`:
