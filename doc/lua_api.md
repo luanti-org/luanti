@@ -4269,16 +4269,14 @@ vectors are written like this: `(x, y)`:
 
 * `vector2.new(x, y)`:
     * Returns a new vector `(x, y)`.
-* `vector2.from_polar(radius, angle)`:
-    * Returns a new vector from polar coordinates `(radius, angle)`.
-    * `radius` is the radius (length) of the vector.
+* `vector2.from_angle(angle)`:
+    * Returns a new unit vector from an angle.
     * `angle` is the angle in radians from the positive x-axis (counterclockwise).
-    * Example: `vector2.from_polar(1, math.pi / 2)` returns a vector pointing up `(0, 1)`.
-* `vector2.to_polar(v)`:
-    * Returns `radius, angle` where `radius` is the radius (length) and `angle` is the angle in radians.
+    * Example: `vector2.from_angle(math.pi / 2)` returns a vector pointing up `(0, 1)`.
+* `vector2.to_angle(v)`:
+    * Returns the angle of the vector in radians.
     * `angle` is the angle from the positive x-axis (counterclockwise), in the range `(-pi, pi]`.
-    * For a zero vector, returns `0, 0`.
-    * Example: `vector2.to_polar(vector2.new(0, 1))` returns `1, math.pi / 2`.
+    * Example: `vector2.to_angle(vector2.new(0, 1))` returns `math.pi / 2`.
 * `vector2.sort(v1, v2)`:
     * Returns in order minp, maxp vectors of the rectangle defined by `v1`, `v2`.
 * `vector2.angle(v1, v2)`:
