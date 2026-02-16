@@ -3996,6 +3996,9 @@ Do not modify it!
 All `vector.*` and `vector2.*` functions allow vectors (e.g., `{x = X, y = Y, z = Z}`) without metatables.
 Returned vectors always have a metatable set.
 
+Note: Vectors are *not* used for simple numeric arrays of the form `{num, num, num}` or `{num, num}`.
+Use proper vector tables with named fields (`x`, `y`, `z`) instead.
+
 ### Operators
 
 Operators can be used if all of the involved vectors have metatables:
@@ -4116,10 +4119,6 @@ Spatial vectors are used for various things, including, but not limited to:
 * any 3D spatial vector (x/y/z-directions)
 * Euler angles (pitch/yaw/roll in radians) (Spatial vectors have no real semantic
   meaning here. Therefore, most vector operations make no sense in this use case.)
-
-Note that they are *not* used for:
-
-* arrays of the form `{num, num, num}`
 
 The API documentation may refer to spatial vectors, as produced by `vector.new`,
 by any of the following notations:
