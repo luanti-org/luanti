@@ -44,9 +44,9 @@ function vector2.copy(v)
 	return fast_new(v.x, v.y)
 end
 
-function vector2.from_polar(radius, angle)
-	assert(radius and angle, "Invalid arguments for vector2.from_polar()")
-	return fast_new(radius * math.cos(angle), radius * math.sin(angle))
+function vector2.from_angle(angle)
+	assert(angle, "Invalid argument for vector2.from_angle()")
+	return fast_new(math.cos(angle), math.sin(angle))
 end
 
 function vector2.from_string(s, init)
@@ -78,8 +78,8 @@ function vector2.length(v)
 	return math.sqrt(v.x * v.x + v.y * v.y)
 end
 
-function vector2.to_polar(v)
-	return vector2.length(v), math.atan2(v.y, v.x)
+function vector2.to_angle(v)
+	return math.atan2(v.y, v.x)
 end
 
 function vector2.normalize(v)
