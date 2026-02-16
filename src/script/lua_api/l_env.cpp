@@ -1384,30 +1384,53 @@ int ModApiEnv::l_get_translated_string(lua_State * L)
 	return 1;
 }
 
-int ModApiEnv::l_get_node_content_counts(lua_State *L)
+int ModApiEnv::l_get_node_counts_in_area(lua_State *L)
 {
-	GET_ENV_PTR;
+	GET_PLAIN_ENV_PTR;
 
-	v3s16 blockpos = read_v3s16(L, 1);
+	v3s16 minp = read_v3s16(L, 1);
+	v3s16 maxp = read_v3s16(L, 2);
+	sortBoxVerticies(minp, maxp);
 
+	const NodeDefManager *ndef = env->getGameDef()->ndef();
 	Map &map = env->getMap();
-	MapBlock *block = map.getBlockNoCreateNoEx(blockpos);
 
-	if (!block) {
-		lua_pushnil(L);
-		return 1;
+#if CHECK_CLIENT_BUILD()
+	if (Client *client = getClient(L)) {
+		minp = client->CSMClampPos(minp);
+		maxp = client->CSMClampPos(maxp);
 	}
+#endif
 
-	lua_newtable(L);
+	checkArea(minp, maxp);
 
-	std::unordered_map<content_t, u32> counts = block->getContentCounts();
+	std::vector<content_t> filter;
+	collectNodeIds(L, 3, ndef, filter);
 
-	for (const auto &pair : counts) {
-		lua_pushinteger(L, pair.first);
-		lua_pushinteger(L, pair.second);
-		lua_settable(L, -3);
+	std::vector<u32> individual_count;
+	individual_count.resize(filter.size());
+
+	auto iterate = [&] (auto &&callback) {
+		map.forEachNodeInArea(minp, maxp, callback);
+	};
+
+	iterate([&](v3s16 p, MapNode n) -> bool {
+		content_t c = n.getContent();
+
+		auto it = std::find(filter.begin(), filter.end(), c);
+		if (it != filter.end()) {
+			u32 filt_index = it - filter.begin();
+			individual_count[filt_index]++;
+		}
+
+		return true;
+	});
+
+	lua_createtable(L, 0, filter.size());
+	for (u32 i = 0; i < filter.size(); i++) {
+		lua_pushinteger(L, individual_count[i]);
+		lua_setfield(L, -2, ndef->get(filter[i]).name.c_str());
 	}
-
 	return 1;
 }
 
@@ -1463,7 +1486,7 @@ void ModApiEnv::Initialize(lua_State *L, int top)
 	API_FCT(forceload_free_block);
 	API_FCT(compare_block_status);
 	API_FCT(get_translated_string);
-	API_FCT(get_node_content_counts);
+	API_FCT(get_node_counts_in_area);
 }
 
 void ModApiEnv::InitializeClient(lua_State *L, int top)

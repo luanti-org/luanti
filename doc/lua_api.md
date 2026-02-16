@@ -7864,13 +7864,12 @@ Misc.
         * `true`: Mapblock meets the requirement
         * `nil`: Unsupported `condition` value
 
-* `core.get_node_content_counts(blockpos)`
-    * Returns node content counts for the specified mapblock.
-    * The mapblock must be loaded in memory. If it is not loaded, returns `nil`.
-      Use `core.load_area()` or `core.emerge_area()` to load blocks before calling this function.
-    * Returns a table mapping node content IDs to counts (how many times each node type
-      appears in the mapblock), or `nil` if the block is not loaded. Only includes content
-      IDs that are actually present in the mapblock.
+* `core.get_node_counts_in_area(pos1, pos2, nodenames)`
+    * `pos1` and `pos2` are the min and max positions of the area to search.
+    * `nodenames`: e.g. `{"ignore", "group:tree"}` or `"default:dirt"`
+    * Returns a table with node names as keys and counts as values
+    * Counts how many times each specified node type appears in the area
+    * Area volume is limited to 150,000,000 nodes
 
 * `core.request_insecure_environment()`: returns an environment containing
   insecure functions if the calling mod has been listed as trusted in the
