@@ -556,29 +556,34 @@ mouse control = true]
 		[[
 			formspec_version[7]
 			size[12,13]
-			label[1,0.5;Hover a red box or a button for a tooltip.]
+			label[1,0.5;Hover a square or button for a tooltip.]
 
 			box[1,1;1,1;#ff000080]
 			tooltip[1,1;1,1;Normal tooltip in an area]
 
-			button[2.5,1;3,1;tt_btn;HOVERME]
+			box[2.5,1;1,1;#ff000080]
+			tooltip[2.5,1;1,1;Normal tooltip in an area with custom bgcolor and fontcolor;#ffff00;#00ffff]
+
+			style[tt_btn;bgcolor=#ff0000]
+			button[4,1;1,1;tt_btn;Button]
 			tooltip[tt_btn;Normal tooltip on a button]
 
-			box[1,3;1,1;#ff000080]
-			box[2.4,3.4;0.2,0.2;#ffffff80]
-			hypertip[1,3;1,1;2.5,3.5;18;hypertip_static;<big>Simple hypertip (<i>static</i>)</big>
-This one should always appear at the tiny white square.]
+			box[1,3;1,1;#ffff0080]
+			box[2.8,3.4;0.4,0.2;#ffffff80]
+			hypertip[1,3;1,1;3,3.5;20;hypertip_static;<big>Simple hypertip (<i>static</i>)</big>
+The top left corner of this hypertip should always appear at the center of the tiny white rectangle.]
 
-			box[1,5;1,1;#ff000080]
-			hypertip[1,5;1,1;;18;hypertip_dynamic;<big>Simple hypertip (<i>dynamic</i>)</big>
-This should appear at the cursor.]
+			box[1,5;1,1;#ffff0080]
+			hypertip[1,5;1,1;;20;hypertip_dynamic;<big>Simple hypertip (<i>dynamic</i>)</big>
+This hypertip should appear at the cursor.]
 
-			button[2.5,5;3,1;st_btn;HOVERME]
-			hypertip[st_btn;;18;hypertip_dynamic_btn;<big>Simple hypertip (<i>dynamic</i>)</big>
-This should appear at the cursor when hovering the button.]
+			style[st_btn;bgcolor=#ffff00]
+			button[2.5,5;1,1;st_btn;Button]
+			hypertip[st_btn;;20;hypertip_dynamic_btn;<big>Simple hypertip (<i>dynamic</i>)</big>
+This hypertip should appear at the cursor when hovering the button.]
 
-			box[1,7;1,1;#ff000080]
-			hypertip[1,7;1,1;;18;hypertip_dynamic_complex;]]..core.formspec_escape([[<big>Complex hypertip (<i>dynamic</i>)</big>
+			box[1,7;1,1;#ffff0080]
+			hypertip[1,7;1,1;;20;hypertip_dynamic_complex;]]..core.formspec_escape([[<big>Complex hypertip (<i>dynamic</i>)</big>
 <img name=testformspec_node.png float=right width=64 height=64>
 <left>Left align</left>
 <center>Center align</center>
@@ -587,8 +592,8 @@ This should appear at the cursor when hovering the button.]
 Item:
 <item name=testformspec:node>]]).."]"..
 [[
-			box[1,9;1,1;#ff000080]
-			hypertip[1,9;1,1;;18;hypertip_stone;]]..core.formspec_escape([[<global color=#333 background=#aaa margin=20>
+			box[2.5,7;1,1;#ffff0080]
+			hypertip[2.5,7;1,1;;20;hypertip_stone;]]..core.formspec_escape([[<global color=#333 background=#aaa margin=20>
 <item name=testformspec:node float=left width=64 height=64>
 <big><b><center>Formspec Test Node</center></b></big>
 The <b>Formspec Test Node</b> is a dummy node to display an item in the <mono>testformspec</mono> mod.
@@ -597,36 +602,36 @@ The <b>Formspec Test Node</b> is a dummy node to display an item in the <mono>te
 • <b>Drops:</b> <i>itself</i> <item name=testformspec:node width=32 height=32>]]).."]"..
 [[
 
-			box[3,9;1,1;#ff000080]
-			hypertip[3,9;1,1;;5;hypertip_bgimg;This hypertip has a width of 5em!]
+			box[1,9;1,1;#ffff0080]
+			hypertip[1,9;1,1;;5;hypertip_bgimg;This hypertip has a width of 5em!]
 
-			box[4.5,9;1,1;#ff000080]
-			hypertip[4.5,9;1,1;;10;hypertip_bgimg;This hypertip has a width of 10em!]
+			box[2.5,9;1,1;#ffff0080]
+			hypertip[2.5,9;1,1;;10;hypertip_bgimg;This hypertip has a width of 10em!]
 
-			box[6,9;1,1;#ff000080]
-			hypertip[6,9;1,1;;20;hypertip_bgimg;This hypertip has a width of 20em!]
+			box[4,9;1,1;#ffff0080]
+			hypertip[4,9;1,1;;20;hypertip_bgimg;This hypertip has a width of 20em!]
 
-			box[7.5,9;1,1;#ff000080]
-			hypertip[7.5,9;1,1;;50;hypertip_bgimg;This hypertip has a width of 50em!]
+			box[5.5,9;1,1;#ffff0080]
+			hypertip[5.5,9;1,1;;50;hypertip_bgimg;This hypertip has a width of 50em!]
 
 
-			box[1,11;1,1;#ff000080]
+			box[1,11;1,1;#ffff0080]
 			style[hypertip_bgimg;bgimg=testformspec_tooltip_style_bg.png;bgimg_middle=8]
 			hypertip[1,11;1,1;;8;hypertip_bgimg;This hypertip is styled (bgimg)!]
 
-			box[2.5,11;1,1;#ff000080]
+			box[2.5,11;1,1;#ffff0080]
 			style[hypertip_bgcolor;bgcolor=#444488]
 			hypertip[2.5,11;1,1;;8;hypertip_bgcolor;This hypertip is styled (bgcolor)!]
 
-			box[4,11;1,1;#ff000080]
+			box[4,11;1,1;#ffff0080]
 			style[hypertip_bgimgcolor;bgimg=testformspec_tooltip_style_bg.png;bgimg_middle=8;bgcolor=#444488]
 			hypertip[4,11;1,1;;8;hypertip_bgimgcolor;This hypertip is styled (bgimg + bgcolor)!]
 
-			box[5.5,11;1,1;#ff000080]
+			box[5.5,11;1,1;#ffff0080]
 			style[hypertip_noborder;border=false]
 			hypertip[5.5,11;1,1;;8;hypertip_noborder;This hypertip is styled (no border)!]
 
-			box[7,11;1,1;#ff000080]
+			box[7,11;1,1;#ffff0080]
 			style[hypertip_combined;bgimg=testformspec_tooltip_style_bg.png;bgimg_middle=8;bgcolor=#00000000;border=false]
 			hypertip[7,11;1,1;;8;hypertip_combined;This hypertip is styled (bgimage, transparent bgcolor, no border)!]
 ]]
