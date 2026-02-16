@@ -3828,7 +3828,7 @@ Make that text a clickable text triggering an action.
 
 When clicked, the formspec is send to the server. The value of the text field
 sent to `on_player_receive_fields` will be "action:" concatenated to the action
-name.
+name. Note: This element is not clickable in hypertip elements.
 
 `<img name=... float=... width=... height=...>`
 
