@@ -322,13 +322,16 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 	// /src/script/common/c_content.cpp and /src/content_sao.cpp
 	float player_stepheight = 0.0f;
 	if (m_cao != nullptr) {
-		if (touching_ground &&
-			(physics_override.loose_lips || m_speed.Y <= 0.01f * BS)) {
-			player_stepheight = m_cao->getStepHeight();
-		} else {
-			// Still allow slight snap-up when clearing a lip mid-jump
-			player_stepheight = physics_override.loose_lips ? 0.2f * BS : 0.05f * BS;
-		}
+
+		const bool rising = m_speed.Y > 0.01f * BS;
+		const bool loose = physics_override.loose_lips;
+
+		const float snap_height =
+			(rising && !loose ? 0.05f : 0.2f) * BS;
+
+		player_stepheight = touching_ground
+			? m_cao->getStepHeight()
+			: snap_height;
 	}
 
 	v3f accel_f(0, -gravity, 0);
