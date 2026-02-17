@@ -4278,6 +4278,7 @@ vectors are written like this: `(x, y)`:
 * `vector2.to_angle(v)`:
     * Returns the angle of the vector in radians.
     * `angle` is the angle from the positive x-axis (counterclockwise), in the range `(-pi, pi]`.
+    * The edge case of `(0, 0)` returns `0`.
     * Example: `vector2.to_angle(vector2.new(0, 1))` returns `math.pi / 2`.
 * `vector2.sort(v1, v2)`:
     * Returns in order minp, maxp vectors of the rectangle defined by `v1`, `v2`.
