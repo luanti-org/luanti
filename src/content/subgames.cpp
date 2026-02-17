@@ -74,6 +74,7 @@ struct GameFindPath
 {
 	std::string path;
 	bool user_specific; // Game is in user's directory
+	std::unordered_set<std::string> aliases;
 	GameFindPath(const std::string &path, bool user_specific) :
 			path(path), user_specific(user_specific)
 	{
@@ -174,7 +175,8 @@ GamePathMap getAvailableGamePaths()
 				continue;
 
 			// Add it to result
-			gamepaths[normalizeGameId(dln.name)] = {game_path, search_path.user_specific};
+			(gamepaths[normalizeGameId(dln.name)] = {game_path, search_path.user_specific}).aliases
+				= getAliasesFromSettings(conf);
 		}
 	}
 	return gamepaths;
@@ -211,11 +213,7 @@ SubgameSpec findSubgame(const std::string &id)
 	auto found = gamepaths.find(idv);
 	if (found == gamepaths.end()) { // Failed to find the game, try to find aliased game
 		for (auto it = gamepaths.begin(); it != gamepaths.end(); ++it) {
-			const std::string conf_path = it->second.path + DIR_DELIM + "game.conf";
-			Settings conf;
-			conf.readConfigFile(conf_path.c_str());
-			std::unordered_set<std::string> aliases = getAliasesFromSettings(conf);
-			if (aliases.find(idv) != aliases.end()) {
+			if (it->second.aliases.find(idv) != it->second.aliases.end()) {
 				found = it;
 				break;
 			}
