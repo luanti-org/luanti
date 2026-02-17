@@ -317,27 +317,22 @@ describe("vector2", function()
 
 	it("to_string()", function()
 		local v = vector2.new(1, 2)
-		-- Verify roundtrip instead of exact string format
 		local str1 = vector2.to_string(v)
 		local str2 = v:to_string()
 		local str3 = tostring(v)
-
 
 		-- All should produce the same string
 		assert.same(str1, str2)
 		assert.same(str1, str3)
 
+		-- Verify the string format
+		assert.same("(1, 2)", str1)
 
-		-- Verify roundtrip: parse the string and compare
-		local parsed = vector2.from_string(str1)
-		assert.same(v, parsed)
-
-
-		-- Test with more complex numbers to ensure precision
-		local v2 = vector2.new(math.pi, math.sqrt(2))
-		local str_v2 = vector2.to_string(v2)
-		local parsed_v2 = vector2.from_string(str_v2)
-		assert.same(v2, parsed_v2)
+		-- Test edge cases for %g format
+		assert.same("(0, 0)", vector2.to_string(vector2.new(0, 0)))
+		assert.same("(-1, -2)", vector2.to_string(vector2.new(-1, -2)))
+		assert.same("(0.0001, 1e+10)", vector2.to_string(vector2.new(0.0001, 1e10)))
+		assert.same("(3.14159, 1.41421)", vector2.to_string(vector2.new(math.pi, math.sqrt(2))))
 	end)
 
 	it("from_string()", function()

@@ -4044,8 +4044,10 @@ For the following functions,
       Additional spaces, omitting commas and adding an additional comma to the end is allowed.
     * `init`: If given starts looking for the vector at this string index.
 * `vector.to_string(v)` / `vector2.to_string(v)`:
-    * Returns a string of the form `"(x, y, z)"` (for 3D) or `"(x, y)"` (for 2D).
+    * Returns a human-readable string of the form `"(x, y, z)"` (for 3D) or `"(x, y)"` (for 2D).
     * `tostring(v)` does the same.
+    * Note: This function loses precision. For exact precision, use `core.serialize()` instead.
+    * Note: Precision may increase in future versions.
 * `vector.direction(p1, p2)` / `vector2.direction(p1, p2)`:
     * Returns a vector of length 1 with direction `p1` to `p2`.
     * If `p1` and `p2` are identical, returns a zero vector.
