@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2026 Luanti developers
 
-#include <set>
-#include <map>
+#include <unordered_map>
+#include <unordered_set>
 #include <sstream>
 #include "mod_errors.h"
 #include "common/c_internal.h"
@@ -11,11 +11,11 @@
 #include "exceptions.h"
 
 struct SingleModErrors {
-	std::set<std::string> messages;
+	std::unordered_set<std::string> messages;
 	bool was_handled;
 };
 
-static std::map<std::string, SingleModErrors> mod_errors;
+static std::unordered_map<std::string, SingleModErrors> mod_errors;
 
 void ModErrors::logErrors() {
 	auto error_handling_mode = get_mod_error_handling_mode();
