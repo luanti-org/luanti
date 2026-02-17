@@ -521,7 +521,8 @@ function pkgmgr.install_dir(expected_type, path, basename, targetpath)
 	assert(targetpath == nil or type(targetpath) == "string")
 
 	local delete_old_dir
-	if targetpath then
+	if expected_type == "game" and targetpath then
+		-- Extract top folder name from path
 		local name = pkgmgr.normalize_game_id(targetpath:match("[^/\\]+[/\\]?$"))
 		-- Relevant when updating: prepare to remove the old directory if the names differ
 		if name ~= pkgmgr.normalize_game_id(basename) then
