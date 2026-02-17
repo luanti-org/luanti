@@ -436,7 +436,7 @@ function contentdb.set_packages_from_api(packages)
 		if package.aliases then
 			local suffix = "/" .. package.name
 			for _, alias in ipairs(package.aliases) do
-				-- We currently only support game name changing
+				-- We currently only support gameid and author changing
 				if package.type == "game" or alias:sub(-#suffix) == suffix then
 					contentdb.aliases[strip_game_suffix(packages.type, alias:lower())] = package.id
 				end
