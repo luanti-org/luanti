@@ -85,7 +85,7 @@ bool parseModContents(ModSpec &spec)
 		spec.name = info.get("name");
 		spec.is_name_explicit = true;
 		if (!string_allowed(spec.name, MODNAME_ALLOWED_CHARS)) {
-			ModErrors::setModError(spec.path, "Mod does not follow naming conventions" "Only characters [a-zA-Z0-9_] are allowed.");
+			ModErrors::setModError(spec.path, "Mod does not follow naming conventions" "Only characters [a-z0-9_] are allowed.");
 			return false;
 		}
 	} else if (!spec.is_modpack) {
