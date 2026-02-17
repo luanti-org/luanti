@@ -4371,7 +4371,7 @@ Linear algebra:
 * `mat:is_affine_transform([tolerance = 0])`:
   Whether the matrix is an affine transformation in 3d space,
   meaning it is a 3d linear transformation plus a translation.
-  (This is the case if the last column is approximately 0, 0, 0, 1.)
+  (This is the case if the last row is approximately 0, 0, 0, 1.)
 
 For working with affine transforms, the following methods are available:
 
