@@ -3604,6 +3604,10 @@ Some types may inherit styles from parent types.
 
 ### Valid Properties
 
+* all focusable elements
+    * outline_color - color of the focus outline. Default `white`.
+    * outline_width - thickness of the focus outline in pixels. Default 2.
+    * outline_offset - offset of the focus outline in pixels. Default 0.
 * animated_image
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
 * box
@@ -3713,6 +3717,7 @@ Some types may inherit styles from parent types.
 * button, button_exit, image_button, item_image_button
     * focused - Active when button has focus
     * hovered - Active when the mouse is hovering over the element
+    * hovered_visible - Active when tab was pressed
     * pressed - Active when the button is pressed
 
 Markup Language
