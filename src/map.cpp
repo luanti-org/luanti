@@ -760,6 +760,13 @@ MMVManip::MMVManip(Map *map):
 	assert(map);
 }
 
+MMVManip::~MMVManip()
+{
+	for (auto **ref_ref : m_refs_to_clear) {
+		*ref_ref = nullptr;
+	}
+}
+
 void MMVManip::initialEmerge(v3s16 p_min, v3s16 p_max, bool load_if_inexistent)
 {
 	TimeTaker timer1("initialEmerge", &emerge_time);
@@ -915,6 +922,16 @@ void MMVManip::reparent(Map *map)
 {
 	assert(map && !m_map);
 	m_map = map;
+}
+
+std::list<MMVManip **>::iterator MMVManip::addRefToClear(MMVManip **ref_ref)
+{
+	return m_refs_to_clear.insert(m_refs_to_clear.end(), ref_ref);
+}
+
+void MMVManip::removeRefToClear(std::list<MMVManip **>::iterator it)
+{
+	m_refs_to_clear.erase(it);
 }
 
 //END

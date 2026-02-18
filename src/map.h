@@ -8,6 +8,7 @@
 #include <ostream>
 #include <set>
 #include <unordered_map>
+#include <list>
 
 #include "irrlichttypes_bloated.h"
 #include "mapblock.h" // for forEachNodeInArea
@@ -304,7 +305,8 @@ class MMVManip : public VoxelManipulator
 {
 public:
 	MMVManip(Map *map);
-	virtual ~MMVManip() = default;
+	~MMVManip() override;
+	DISABLE_CLASS_COPY(MMVManip)
 
 	/*
 		Loads specified area from map and *adds* it to the area already
@@ -344,6 +346,10 @@ public:
 	// Is it impossible to call initialEmerge / blitBackAll?
 	inline bool isOrphan() const { return !m_map; }
 
+	std::list<MMVManip **>::iterator addRefToClear(MMVManip **ref_ref);
+
+	void removeRefToClear(std::list<MMVManip **>::iterator it);
+
 	bool m_is_dirty = false;
 
 protected:
@@ -351,4 +357,8 @@ protected:
 
 	// may be null
 	Map *m_map = nullptr;
+
+private:
+	// references to this that need to be cleared on destruction
+	std::list<MMVManip **> m_refs_to_clear;
 };
