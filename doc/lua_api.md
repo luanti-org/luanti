@@ -3714,10 +3714,11 @@ Some types may inherit styles from parent types.
 
 * *all elements*
     * default - Equivalent to providing no states
+* all focuasble elements
+    * focused_visible - Active when tab was pressed
 * button, button_exit, image_button, item_image_button
     * focused - Active when button has focus
     * hovered - Active when the mouse is hovering over the element
-    * hovered_visible - Active when tab was pressed
     * pressed - Active when the button is pressed
 
 Markup Language
