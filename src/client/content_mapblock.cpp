@@ -1654,6 +1654,8 @@ void MapblockMeshGenerator::drawNodeboxNode()
 		assert(sections.size() == 8);
 
 		for (int axis = 0; axis < 3; axis++) {
+			// Faces that would appear between split boxes will be masked away
+			// using these masks, they hate this simple trick
 			int mask_axis = std::array<int, 3>{1, 0, 2}[axis];
 			u8 mask_neg = 1 << (mask_axis * 2);
 			u8 mask_pos = 1 << (mask_axis * 2 + 1);
