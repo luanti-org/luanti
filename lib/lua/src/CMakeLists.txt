@@ -2,7 +2,6 @@
 file(GLOB LUA_CORE_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
 set(LUA_CORE_SRC
-	${LUA_CORE_HDRS}
 	lapi.c
 	lauxlib.c
 	lbaselib.c
@@ -36,11 +35,17 @@ set(LUA_CORE_SRC
 
 # Lua library
 add_library(lua STATIC ${LUA_CORE_SRC})
+target_sources(lua PRIVATE ${LUA_CORE_HDRS})
+set_source_files_properties(
+    ${LUA_CORE_HDRS}
+    PROPERTIES HEADER_FILE_ONLY TRUE
+)
 target_link_libraries(lua ${LIBS})
 set_target_properties(lua PROPERTIES
 	VERSION ${LUA_VERSION}
 	CLEAN_DIRECT_OUTPUT 1
 )
 
-# Compile code as C++
-set_source_files_properties(${LUA_CORE_SRC} PROPERTIES LANGUAGE CXX)
+# Compile code as C
+set_source_files_properties(${LUA_CORE_SRC} PROPERTIES LANGUAGE C)
+set_target_properties(lua PROPERTIES LINKER_LANGUAGE C)
