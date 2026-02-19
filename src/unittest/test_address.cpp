@@ -22,6 +22,7 @@ public:
 	void testBasic();
 	void testIsLocalhost();
 	void testResolve();
+	void testSerializeString();
 };
 
 static TestAddress g_test_instance;
@@ -31,6 +32,7 @@ void TestAddress::runTests(IGameDef *gamedef)
 	TEST(testBasic);
 	TEST(testIsLocalhost);
 	TEST(testResolve);
+	TEST(testSerializeString);
 }
 
 void TestAddress::testBasic()
@@ -103,4 +105,31 @@ void TestAddress::testResolve()
 		warningstream << "Couldn't verify Address::Resolve fallback (no IPv6?)"
 			<< std::endl;
 	}
+}
+
+void TestAddress::testSerializeString()
+{
+	// IPv4 tests
+	UASSERTEQ(auto, Address(127, 0, 0, 1, 0).serializeString(), "127.0.0.1");
+	UASSERTEQ(auto, Address(192, 168, 1, 1, 0).serializeString(), "192.168.1.1");
+	UASSERTEQ(auto, Address(0, 0, 0, 0, 0).serializeString(), "0.0.0.0");
+	UASSERTEQ(auto, Address(255, 255, 255, 255, 0).serializeString(), "255.255.255.255");
+
+	// IPv6 tests
+	auto ipv6Bytes = std::make_unique<IPv6AddressBytes>();
+	
+	// ::1 (localhost)
+	std::vector<u8> ipv6RawAddr = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+	memcpy(ipv6Bytes->bytes, &ipv6RawAddr[0], 16);
+	UASSERTEQ(auto, Address(ipv6Bytes.get(), 0).serializeString(), "::1");
+
+	// :: (any)
+	ipv6RawAddr = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	memcpy(ipv6Bytes->bytes, &ipv6RawAddr[0], 16);
+	UASSERTEQ(auto, Address(ipv6Bytes.get(), 0).serializeString(), "::");
+
+	// fe80::1 (link-local)
+	ipv6RawAddr = {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+	memcpy(ipv6Bytes->bytes, &ipv6RawAddr[0], 16);
+	UASSERTEQ(auto, Address(ipv6Bytes.get(), 0).serializeString(), "fe80::1");
 }
