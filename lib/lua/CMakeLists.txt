@@ -53,11 +53,12 @@ if(LUA_ANSI)
 endif(LUA_ANSI)
 
 # Standard flags to use
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|(Apple)?Clang")
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|(Apple)?Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU|(Apple)?Clang")
 	set(COMMON_CFLAGS "${COMMON_CFLAGS} -pipe -Wall -Wextra -Wshadow -W -pedantic")
 endif()
 
-# COMMON_CFLAGS has no effect without this line
+# COMMON_CFLAGS has no effect without these lines
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_CFLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_CFLAGS}")
 
 add_subdirectory(src)
