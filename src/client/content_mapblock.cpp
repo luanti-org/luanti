@@ -1659,8 +1659,8 @@ void MapblockMeshGenerator::drawNodeboxNode()
 			// mask_neg / _pos for the box side that goes in negative / positive
 			// `axis` direction respectively.
 			int mask_axis = std::array<int, 3>{1, 0, 2}[axis];
-			u8 mask_neg = 1 << (mask_axis * 2);
-			u8 mask_pos = 1 << (mask_axis * 2 + 1);
+			u8 mask_pos = 1 << (mask_axis * 2);
+			u8 mask_neg = 1 << (mask_axis * 2 + 1);
 
 			// identify sections
 
@@ -1687,8 +1687,8 @@ void MapblockMeshGenerator::drawNodeboxNode()
 						copy.MinEdge[axis] = section;
 						box->MaxEdge[axis] = section;
 						boxes.push_back(copy);
-						masks.push_back(masks[i] | mask_pos);
-						masks[i] |= mask_neg;
+						masks.push_back(masks[i] | mask_neg);
+						masks[i] |= mask_pos;
 						box = &boxes[i]; // find new address of the box in case of reallocation
 					}
 				}
