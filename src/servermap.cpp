@@ -5,6 +5,7 @@
 #include "servermap.h"
 
 #include "map.h"
+#include "mapnode.h"
 #include "mapsector.h"
 #include "filesys.h"
 #include "voxel.h"
@@ -959,6 +960,7 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 		/*
 			Collect information about current node
 		 */
+		u8 liquid_color = 0;
 		s8 liquid_level = -1;
 		// The liquid node which will be placed there if
 		// the liquid flows into this node.
@@ -970,11 +972,13 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 		LiquidType liquid_type = cf.liquid_type;
 		switch (liquid_type) {
 			case LIQUID_SOURCE:
+				liquid_color = n0.param2 & LIQUID_COLOR_MASK;
 				liquid_level = LIQUID_LEVEL_SOURCE;
 				liquid_kind = cf.liquid_alternative_flowing_id;
 				break;
 			case LIQUID_FLOWING:
-				liquid_level = (n0.param2 & LIQUID_LEVEL_MASK);
+				liquid_color = n0.param2 & LIQUID_COLOR_MASK;
+				liquid_level = n0.param2 & LIQUID_LEVEL_MASK;
 				liquid_kind = n0.getContent();
 				break;
 			case LIQUID_NONE:
@@ -1047,8 +1051,10 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 					break;
 				case LIQUID_SOURCE:
 					// if this node is not (yet) of a liquid type, choose the first liquid type we encounter
-					if (liquid_kind == CONTENT_AIR)
+					if (liquid_kind == CONTENT_AIR) {
 						liquid_kind = cfnb.liquid_alternative_flowing_id;
+						liquid_color = nb.n.param2 & LIQUID_COLOR_MASK;
+					}
 					if (cfnb.liquid_alternative_flowing_id != liquid_kind) {
 						neutrals[num_neutrals++] = nb;
 					} else {
@@ -1068,8 +1074,10 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 						u8 range = m_nodedef->get(cfnb.liquid_alternative_flowing_id).liquid_range;
 
 						if (liquid_kind == CONTENT_AIR &&
-								max_level_from_neighbor >= (LIQUID_LEVEL_MAX + 1 - range))
+								max_level_from_neighbor >= (LIQUID_LEVEL_MAX + 1 - range)) {
 							liquid_kind = cfnb.liquid_alternative_flowing_id;
+							liquid_color = nb.n.param2 & LIQUID_COLOR_MASK;
+						}
 					}
 					if (cfnb.liquid_alternative_flowing_id != liquid_kind) {
 						neutrals[num_neutrals++] = nb;
@@ -1165,10 +1173,10 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 		//bool flow_down_enabled = (flowing_down && ((n0.param2 & LIQUID_FLOW_DOWN_MASK) != LIQUID_FLOW_DOWN_MASK));
 		if (m_nodedef->get(new_node_content).liquid_type == LIQUID_FLOWING) {
 			// set level to last 3 bits, flowing down bit to 4th bit
-			n0.param2 = (flowing_down ? LIQUID_FLOW_DOWN_MASK : 0x00) | (new_node_level & LIQUID_LEVEL_MASK);
+			n0.param2 = liquid_color | (flowing_down ? LIQUID_FLOW_DOWN_MASK : 0x00) | (new_node_level & LIQUID_LEVEL_MASK);
 		} else {
 			// set the liquid level and flow bits to 0
-			n0.param2 &= ~(LIQUID_LEVEL_MASK | LIQUID_FLOW_DOWN_MASK);
+			n0.param2 = liquid_color;
 		}
 
 		// change the node.
