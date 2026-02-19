@@ -12,8 +12,8 @@ RUN apk add --no-cache git build-base cmake curl-dev zlib-dev zstd-dev \
 
 WORKDIR /usr/src/
 
-ADD --keep-git-dir https://github.com/jupp0r/prometheus-cpp.git?branch=master /usr/src/prometheus-cpp
-ADD --keep-git-dir https://github.com/libspatialindex/libspatialindex.git?branch=main /usr/src/libspatialindex
+ADD https://github.com/jupp0r/prometheus-cpp.git?branch=master /usr/src/prometheus-cpp
+ADD https://github.com/libspatialindex/libspatialindex.git?branch=main /usr/src/libspatialindex
 ADD --keep-git-dir https://luajit.org/git/luajit.git?branch=${LUAJIT_VERSION} /usr/src/luajit
 
 RUN cd prometheus-cpp && \
