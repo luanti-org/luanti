@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <iostream>
+#include "threading/ipc_channel.h"
 #include "threading/semaphore.h"
 #include "threading/thread.h"
 
@@ -19,6 +20,7 @@ public:
 	void testStartStopWait();
 	void testAtomicSemaphoreThread();
 	void testTLS();
+	void testIPCChannel();
 };
 
 static TestThreading g_test_instance;
@@ -28,6 +30,7 @@ void TestThreading::runTests(IGameDef *gamedef)
 	TEST(testStartStopWait);
 	TEST(testAtomicSemaphoreThread);
 	TEST(testTLS);
+	TEST(testIPCChannel);
 }
 
 class SimpleTestThread : public Thread {
@@ -226,4 +229,43 @@ void TestThreading::testTLS()
 			UASSERT(!g_tls_broken);
 		}
 	}
+}
+
+void TestThreading::testIPCChannel()
+{
+	auto [end_a, thread_b] = make_test_ipc_channel([](IPCChannelEnd end_b) {
+		// echos back messages. stops if "" is sent
+		while (true) {
+			UASSERT(end_b.recvWithTimeout(-1));
+			UASSERT(end_b.sendWithTimeout(end_b.getRecvData(), end_b.getRecvSize(), -1));
+			if (end_b.getRecvSize() == 0)
+				break;
+		}
+	});
+
+	u8 buf1[20000] = {};
+	for (int i = sizeof(buf1); i > 0; i -= 100) {
+		buf1[i - 1] = 123;
+		UASSERT(end_a.exchangeWithTimeout(buf1, i, -1));
+		UASSERTEQ(int, end_a.getRecvSize(), i);
+		UASSERTEQ(int, reinterpret_cast<const u8 *>(end_a.getRecvData())[i - 1], 123);
+	}
+
+	u8 buf2[IPC_CHANNEL_MSG_SIZE * 3 + 10];
+	end_a.exchange(buf2, IPC_CHANNEL_MSG_SIZE * 3 + 10);
+	end_a.exchange(buf2, IPC_CHANNEL_MSG_SIZE * 3);
+	end_a.exchange(buf2, IPC_CHANNEL_MSG_SIZE);
+	end_a.exchange(buf2, IPC_CHANNEL_MSG_SIZE * 2);
+	end_a.exchange(buf2, IPC_CHANNEL_MSG_SIZE - 1);
+	end_a.exchange(buf2, IPC_CHANNEL_MSG_SIZE + 1);
+	end_a.exchange(buf2, 1);
+
+	// stop thread_b
+	UASSERT(end_a.exchangeWithTimeout(nullptr, 0, -1));
+	UASSERTEQ(int, end_a.getRecvSize(), 0);
+
+	thread_b.join();
+
+	// other side dead ==> should time out
+	UASSERT(!end_a.exchangeWithTimeout(nullptr, 0, 200));
 }
