@@ -139,16 +139,15 @@ local function get_formspec(tabview, name, tabdata)
 		"label[2.875,0;" .. fgettext("Password") .. "]" ..
 		"field[0.25,0.2;2.625,0.75;te_name;;" .. core.formspec_escape(core.settings:get("name")) .. "]" ..
 		"pwdfield[2.875,0.2;2.625,0.75;te_pwd;]" ..
-		"container_end[]" ..
+		"container_end[]"
 
 		-- Connect
-		-- TRANSLATORS: Login to server
-		"button[3,6;2.5,0.75;btn_mp_login;" .. fgettext("Login") .. "]"
-
 	if core.settings:get_bool("enable_split_login_register") then
 		-- TRANSLATORS: Register an account on a server
 		retval = retval .. "button[0.25,6;2.5,0.75;btn_mp_register;" .. fgettext("Register") .. "]"
 	end
+	-- TRANSLATORS: Login to server
+	retval = retval .. "button[3,6;2.5,0.75;btn_mp_login;" .. fgettext("Login") .. "]"
 
 	local selected_server = find_selected_server()
 
@@ -157,6 +156,17 @@ local function get_formspec(tabview, name, tabdata)
 		if gamedata.serverdescription then
 			retval = retval .. "textarea[0.25,1.85;5.25,2.7;;;" ..
 				core.formspec_escape(gamedata.serverdescription) .. "]"
+		end
+
+		-- URL button
+		if selected_server.url then
+			retval = retval .. "tooltip[btn_server_url;" .. fgettext("Open server website") .. "]"
+			retval = retval .. "style[btn_server_url;padding=6]"
+			retval = retval .. "image_button[3.5,1.3;0.5,0.5;" ..
+				core.formspec_escape(defaulttexturedir .. "server_url.png") .. ";btn_server_url;]"
+		else
+			retval = retval .. "image[3.6,1.4;0.3,0.3;" .. core.formspec_escape(defaulttexturedir ..
+				"server_url_unavailable.png") .. "]"
 		end
 
 		-- Mods button
@@ -200,17 +210,6 @@ local function get_formspec(tabview, name, tabdata)
 		else
 			retval = retval .. "image[4.6,1.4;0.3,0.3;" .. core.formspec_escape(defaulttexturedir ..
 				"server_view_clients_unavailable.png") .. "]"
-		end
-
-		-- URL button
-		if selected_server.url then
-			retval = retval .. "tooltip[btn_server_url;" .. fgettext("Open server website") .. "]"
-			retval = retval .. "style[btn_server_url;padding=6]"
-			retval = retval .. "image_button[3.5,1.3;0.5,0.5;" ..
-				core.formspec_escape(defaulttexturedir .. "server_url.png") .. ";btn_server_url;]"
-		else
-			retval = retval .. "image[3.6,1.4;0.3,0.3;" .. core.formspec_escape(defaulttexturedir ..
-				"server_url_unavailable.png") .. "]"
 		end
 
 		-- Favorites toggle button
