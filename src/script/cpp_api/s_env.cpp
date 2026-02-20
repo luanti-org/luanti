@@ -419,6 +419,40 @@ bool ScriptApiEnv::has_on_mapblocks_changed()
 	return lua_objlen(L, -1) > 0;
 }
 
+void ScriptApiEnv::block_callback(const v3s16 blockpos, ScriptCallbackState *state)
+{
+	Server *server = getServer();
+
+	// This function should be executed with envlock held.
+	// The caller (LuaClearObjectback in src/script/lua_api/l_env.cpp)
+	// should have obtained the lock.
+	// Note that the order of these locks is important!  Envlock must *ALWAYS*
+	// be acquired before attempting to acquire scriptlock, or else ServerThread
+	// will try to acquire scriptlock after it already owns envlock, thus
+	// deadlocking EmergeThread and ServerThread
+
+	SCRIPTAPI_PRECHECKHEADER
+
+	int error_handler = PUSH_ERROR_HANDLER(L);
+
+	lua_rawgeti(L, LUA_REGISTRYINDEX, state->callback_ref);
+
+	lua_pushnumber(L, hash_node_position(blockpos));
+	lua_rawgeti(L, LUA_REGISTRYINDEX, state->args_ref);
+
+	setOriginDirect(state->origin.c_str());
+
+	try {
+		PCALL_RES(lua_pcall(L, 2, 1, error_handler));
+
+		lua_pop(L, 2); // Pop callback result and error handler
+
+	} catch (LuaError &e) {
+		// Note: don't throw here, we still need to run the cleanup code below
+		server->setAsyncFatalError(e);
+	}
+}
+
 void ScriptApiEnv::triggerABM(int id, v3s16 p, MapNode n,
 		u32 active_object_count, u32 active_object_count_wider)
 {

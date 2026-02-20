@@ -41,6 +41,9 @@ public:
 	// Determines whether there are any on_mapblocks_changed callbacks
 	bool has_on_mapblocks_changed();
 
+	// Calll Lua callback for block
+	void block_callback(const v3s16 blockpos, ScriptCallbackState *state);
+
 	// Initializes environment and loads some definitions from Lua
 	void initializeEnvironment(ServerEnvironment *env);
 

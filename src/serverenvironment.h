@@ -109,6 +109,16 @@ enum ClearObjectsMode {
 		CLEAR_OBJECTS_MODE_QUICK,
 };
 
+// blocksCallback
+typedef void (*BlocksCallback)(const v3s16 blockpos, void *param);
+
+struct BlocksCallbackConfig {
+	ClearObjectsMode mode;
+
+	BlocksCallback callback;
+	void *param;
+};
+
 class ServerEnvironment final : public Environment
 {
 public:
@@ -252,6 +262,9 @@ public:
 
 	// Clear objects, loading and going through every MapBlock
 	void clearObjects(ClearObjectsMode mode);
+
+	// Call Lua functon for akk loaded or loadable MapBlock
+	void blocksCallback(BlocksCallbackConfig &config);
 
 	// to be called before destructor
 	void deactivateBlocksAndObjects();
