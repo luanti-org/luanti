@@ -324,7 +324,7 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 	if (m_cao != nullptr) {
 
 		const bool rising = m_speed.Y > 0.01f * BS;
-		const bool loose = physics_override.loose_lips;
+		const bool loose = physics_override.upward_step;
 
 		const float snap_height =
 			(rising && !loose ? 0.05f : 0.2f) * BS;

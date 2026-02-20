@@ -722,7 +722,7 @@ Methods:
             sneak = boolean,
             sneak_glitch = boolean,
             upward_rejump = boolean,
-            loose_lips = boolean,
+            upward_step = boolean,
             new_move = boolean,
         }
         ```

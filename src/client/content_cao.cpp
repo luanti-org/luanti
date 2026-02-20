@@ -1584,7 +1584,7 @@ void GenericCAO::processMessage(const std::string &data)
 		phys.sneak         = !readU8(is);
 		phys.sneak_glitch  = !readU8(is);
 		phys.upward_rejump = !readU8(is);
-		phys.loose_lips    = !readU8(is);
+		phys.upward_step    = !readU8(is);
 		phys.new_move      = !readU8(is);
 
 		// new overrides since 5.8.0

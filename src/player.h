@@ -104,7 +104,7 @@ struct PlayerPhysicsOverride
 	bool sneak = true;
 	bool sneak_glitch = false;
 	bool upward_rejump = false;
-	bool loose_lips = false;
+	bool upward_step = false;
 	// "Temporary" option for old move code
 	bool new_move = true;
 

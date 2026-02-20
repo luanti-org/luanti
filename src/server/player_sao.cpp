@@ -321,7 +321,7 @@ std::string PlayerSAO::generateUpdatePhysicsOverrideCommand() const
 	writeU8(os, !phys.sneak);
 	writeU8(os, !phys.sneak_glitch);
 	writeU8(os, !phys.upward_rejump);
-	writeU8(os, !phys.loose_lips);
+	writeU8(os, !phys.upward_step);
 	writeU8(os, !phys.new_move);
 	// new physics overrides since 5.8.0
 	writeF32(os, phys.speed_climb);
