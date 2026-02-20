@@ -1417,7 +1417,9 @@ void Game::processUserInput(f32 dtime)
 
 void Game::processKeyInput()
 {
-	if (wasKeyDown(KeyType::DROP)) {
+	const auto *player = client->getEnv().getLocalPlayer();
+	const bool dead = player->getCAO() && player->isDead();
+	if (wasKeyDown(KeyType::DROP) && !dead) {
 		dropSelectedItem(isKeyDown(KeyType::SNEAK));
 	} else if (wasKeyDown(KeyType::AUTOFORWARD)) {
 		toggleAutoforward();
