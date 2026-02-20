@@ -129,6 +129,27 @@ Compiling
 Docker
 ------
 
+Quick Start:
+```bash
+# One-command server setup with VoxeLibre game
+mkdir -p ~/luanti/{data,conf,games} && \
+wget https://raw.githubusercontent.com/luanti-org/luanti/master/minetest.conf.example -O ~/luanti/conf/minetest.conf && \
+wget https://content.luanti.org/packages/Wuzzy/mineclone2/releases/30536/download/ -O ~/luanti/mineclone2.zip && \
+unzip ~/luanti/mineclone2.zip -d ~/luanti/games/ && \
+echo "name = AdminUser" >> ~/luanti/conf/minetest.conf && \
+sudo chown -R 30000:30000 ~/luanti/{data,conf,games} && \
+docker run -d \
+  -v ~/luanti/data:/var/lib/minetest \
+  -v ~/luanti/conf:/etc/minetest \
+  -v ~/luanti/games/mineclone2:/usr/local/share/luanti/games/mineclone2 \
+  -p 30000:30000/udp \
+  --restart always \
+  --name luanti_server \
+  ghcr.io/luanti-org/luanti:master \
+  --gameid mineclone2 --port 30000
+```
+
+For more details:
 - [Developing minetestserver with Docker](doc/developing/docker.md)
 - [Running a server with Docker](doc/docker_server.md)
 
