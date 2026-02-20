@@ -687,6 +687,13 @@ public:
 		return false;
 	}
 
+	//! Returns the X coordinate of the relative cursor position for text input.
+	//! This is only relevant if acceptsIME() returns true.
+	virtual u32 getTextInputCursorPosition()
+	{
+		return 0;
+	}
+
 protected:
 	// not virtual because needed in constructor
 	void addChildToEnd(IGUIElement *child)
