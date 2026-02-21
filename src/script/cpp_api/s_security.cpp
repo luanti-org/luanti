@@ -722,6 +722,10 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 	// since that wouldn't normalize subpaths that *do* exist.
 	// This is required so that comparisons with other normalized paths work correctly.
 	std::string abs_path = fs::AbsolutePathPartial(path);
+	// Make sure the delimiters are consistent, too
+	if (DIR_DELIM_CHAR != '/')
+		std::replace(abs_path.begin(), abs_path.end(), '/', DIR_DELIM_CHAR);
+
 	tracestream << "ScriptApiSecurity: path \"" << path << "\" resolved to \""
 		<< abs_path << "\"" << std::endl;
 
@@ -762,6 +766,13 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 			return false;
 	}
 
+	// Git repository folders can contain hook scripts and other configuraton
+	// that can easily lead to arbitrary code execution.
+	// This isn't technically Luanti's fault, but Git is very common so we block
+	// write access for safety.
+	bool is_git_path = abs_path.find(DIR_DELIM ".git" DIR_DELIM) != std::string::npos ||
+		str_ends_with(abs_path, DIR_DELIM ".git");
+
 	// Get mod name
 	std::string mod_name = ScriptApiBase::getCurrentModNameInsecure(L);
 	if (!mod_name.empty()) {
@@ -792,7 +803,7 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 					if (is_trusted) {
 						throw LuaError(
 								"Unable to write to a trusted or http mod's directory. "
-								"For data storage consider minetest.get_mod_data_path() or minetest.get_worldpath() instead.");
+								"For data storage consider core.get_mod_data_path() or core.get_worldpath() instead.");
 					} else if (is_dangerous_file) {
 						throw LuaError(
 								"Unable to write to special file for security reasons");
@@ -800,11 +811,11 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 						const char *message =
 								"Writing to mod directories is deprecated, as any changes "
 								"will be overwritten when updating content. "
-								"For data storage consider minetest.get_mod_data_path() or minetest.get_worldpath() instead.";
+								"For data storage consider core.get_mod_data_path() or core.get_worldpath() instead.";
 						log_deprecated(L, message, 1);
 					}
 				}
-				set_write_allowed(!is_trusted && !is_dangerous_file);
+				set_write_allowed(!is_trusted && !is_dangerous_file && !is_git_path);
 				return true;
 			}
 		}
@@ -837,10 +848,10 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 		}
 	}
 
-	// Allow read/write access to all mod common dirs
+	// Allow read/write access to global mod data path
 	str = fs::AbsolutePath(gamedef->getModDataPath());
 	if (!str.empty() && fs::PathStartsWith(abs_path, str)) {
-		set_write_allowed(true);
+		set_write_allowed(!is_git_path);
 		return true;
 	}
 
@@ -856,7 +867,7 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 			fs::PathStartsWith(abs_path, str + DIR_DELIM + "game");
 		// Allow all other paths in world path
 		if (fs::PathStartsWith(abs_path, str)) {
-			set_write_allowed(!is_dangerous_path);
+			set_write_allowed(!is_dangerous_path && !is_git_path);
 			return true;
 		}
 	}
