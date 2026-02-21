@@ -282,7 +282,7 @@ void push_item_definition_full(lua_State *L, const ItemDefinition &i)
 }
 
 /******************************************************************************/
-const std::array<const char *, 35> object_property_keys = {
+const std::array<const char *, 36> object_property_keys = {
 	"hp_max",
 	"breath_max",
 	"physical",
@@ -319,6 +319,7 @@ const std::array<const char *, 35> object_property_keys = {
 	// "node" is intentionally not here as it's gated behind `fallback` below!
 	"nametag_fontsize",
 	"nametag_scale_z",
+	"new_stair"
 };
 
 /******************************************************************************/
@@ -516,6 +517,7 @@ void read_object_properties(lua_State *L, int index,
 	getboolfield(L, -1, "use_texture_alpha", prop->use_texture_alpha);
 	getboolfield(L, -1, "shaded", prop->shaded);
 	getboolfield(L, -1, "show_on_minimap", prop->show_on_minimap);
+	getboolfield(L, -1, "new_stair", prop->new_stair);
 
 	getstringfield(L, -1, "damage_texture_modifier", prop->damage_texture_modifier);
 
@@ -625,6 +627,8 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 	lua_setfield(L, -2, "damage_texture_modifier");
 	lua_pushboolean(L, prop->show_on_minimap);
 	lua_setfield(L, -2, "show_on_minimap");
+	lua_pushboolean(L, prop->new_stair);
+	lua_setfield(L, -2, "new_stair");
 
 	// Remember to update object_property_keys above
 	// when adding a new property
