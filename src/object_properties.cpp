@@ -107,7 +107,7 @@ static inline auto tie(const ObjectProperties &o)
 	o.node, o.hp_max, o.breath_max, o.glow, o.pointable, o.physical,
 	o.collideWithObjects, o.rotate_selectionbox, o.is_visible, o.makes_footstep_sound,
 	o.automatic_face_movement_dir, o.backface_culling, o.static_save, o.use_texture_alpha,
-	o.shaded, o.show_on_minimap, o.nametag_scale_z
+	o.shaded, o.show_on_minimap, o.nametag_scale_z, o.new_stair
 	);
 }
 
