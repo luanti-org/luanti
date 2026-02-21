@@ -11,7 +11,7 @@
 #include <IGUIElement.h>
 #include <IGUIEnvironment.h>
 #include "irr_v3d.h"
-
+#include "StyleSpec.h"
 
 class ISimpleTextureSource;
 class Client;
@@ -20,7 +20,7 @@ class GUIScrollBar;
 class ParsedText
 {
 public:
-	ParsedText(const wchar_t *text);
+	ParsedText(const wchar_t *text, video::SColor default_color);
 	~ParsedText();
 
 	enum ElementType
@@ -117,6 +117,9 @@ public:
 	ValignType valign = VALIGN_TOP;
 	BackgroundType background_type = BACKGROUND_NONE;
 	video::SColor background_color;
+	video::ITexture *background_image = nullptr;
+	core::rect<s32> background_middle;
+	bool border = false;
 
 	Tag m_root_tag;
 
@@ -157,12 +160,16 @@ class TextDrawer
 {
 public:
 	TextDrawer(const wchar_t *text, Client *client, gui::IGUIEnvironment *environment,
-			ISimpleTextureSource *tsrc);
+			ISimpleTextureSource *tsrc,
+			video::SColor default_background_color,
+			video::SColor default_color);
 
 	void place(const core::rect<s32> &dest_rect);
 	inline s32 getHeight() { return m_height; };
 	void draw(const core::rect<s32> &clip_rect,
 			const core::position2d<s32> &dest_offset);
+	void drawBackgroundImage(video::IVideoDriver *driver, const core::rect<s32> &clip_rect);
+	void applyStyleSpecToText(const StyleSpec &style);
 	ParsedText::Element *getElementAt(core::position2d<s32> pos);
 	ParsedText::Tag *m_hovertag;
 
@@ -177,9 +184,10 @@ protected:
 	Client *m_client; ///< null in the mainmenu
 	ISimpleTextureSource *m_tsrc;
 	gui::IGUIEnvironment *m_guienv;
-	s32 m_height;
+	s32 m_height = 0;
 	s32 m_voffset;
 	std::vector<RectWithMargin> m_floating;
+	video::SColor m_default_background_color;
 };
 
 class GUIHyperText : public gui::IGUIElement
@@ -189,7 +197,9 @@ public:
 	GUIHyperText(const wchar_t *text, gui::IGUIEnvironment *environment,
 			gui::IGUIElement *parent, s32 id,
 			const core::rect<s32> &rectangle, Client *client,
-			ISimpleTextureSource *tsrc);
+			ISimpleTextureSource *tsrc,
+			video::SColor default_background_color,
+			video::SColor default_color);
 
 	//! destructor
 	virtual ~GUIHyperText();
@@ -197,9 +207,12 @@ public:
 	//! draws the element and its children
 	virtual void draw();
 
-	core::dimension2du getTextDimension();
+	//! Returns the height of the text in pixels when it is drawn.
+	s32 getTextHeight() { return m_drawer.getHeight(); }
 
 	bool OnEvent(const SEvent &event);
+
+	void setStyles(const std::array<StyleSpec, StyleSpec::NUM_STATES> &styles);
 
 protected:
 	// GUI members
@@ -214,4 +227,11 @@ protected:
 
 	ParsedText::Element *getElementAt(s32 X, s32 Y);
 	void checkHover(s32 X, s32 Y);
+
+	// Counter variable to be increased every iteration of draw(),
+	// if it reached a certain number, drawing is allowed.
+	int m_draw_state = 0;
+
+	video::SColor m_default_background_color;
+	video::SColor m_default_color;
 };

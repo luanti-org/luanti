@@ -14,6 +14,7 @@
 #include "inventory.h"
 #include "inventorymanager.h"
 #include "modalMenu.h"
+#include "guiHyperText.h"
 #include "guiInventoryList.h"
 #include "guiScrollBar.h"
 #include "guiTable.h"
@@ -25,6 +26,7 @@
 class InventoryManager;
 class ISimpleTextureSource;
 class Client;
+class GUIHyperText;
 class GUIScrollContainer;
 class ISoundManager;
 class JoystickController;
@@ -147,6 +149,36 @@ class GUIFormSpecMenu : public GUIModalMenu
 		std::wstring tooltip;
 		video::SColor bgcolor;
 		video::SColor color;
+	};
+
+	struct HyperTipSpec
+	{
+		HyperTipSpec() = default;
+		HyperTipSpec(const std::string &a_name,
+				const std::string &a_parent_name,
+				const std::string &a_text,
+				const core::rect<s32> &a_rect,
+				v2s32 a_stpos,
+				s32 a_width,
+				bool a_floating) :
+			name(a_name),
+			parent_name(a_parent_name),
+			text(a_text),
+			hover_rect(a_rect),
+			stpos(a_stpos),
+			width(a_width),
+			floating(a_floating)
+		{
+		}
+
+		std::string name;
+		std::string parent_name;
+		std::string text;
+		core::rect<s32> hover_rect;
+		v2s32 stpos; //< static tooltip position
+		s32 width; //< in pixels
+		bool floating; //< whether the position is NON-static (i.e. ignore stpos)
+		bool bound = false; //< whether it's cached
 	};
 
 public:
@@ -340,6 +372,8 @@ protected:
 	std::vector<std::pair<FieldSpec, GUITable *>> m_tables;
 	std::vector<std::pair<FieldSpec, gui::IGUICheckBox *>> m_checkboxes;
 	std::map<std::string, TooltipSpec> m_tooltips;
+	std::vector<std::pair<GUIHyperText *, HyperTipSpec>> m_hypertips;
+	std::map<std::string, HyperTipSpec> m_hypertip_map;
 	std::vector<std::pair<gui::IGUIElement *, TooltipSpec>> m_tooltip_rects;
 	std::vector<std::pair<FieldSpec, GUIScrollBar *>> m_scrollbars;
 	std::vector<std::pair<FieldSpec, std::vector<std::string>>> m_dropdowns;
@@ -465,6 +499,7 @@ private:
 	void parseTextArea(parserData* data,std::vector<std::string>& parts,
 			const std::string &type);
 	void parseHyperText(parserData *data, const std::string &element);
+	void parseHyperTip(parserData *data, const std::string &element);
 	void parseLabel(parserData* data, const std::string &element);
 	void parseVertLabel(parserData* data, const std::string &element);
 	void parseImageButton(parserData* data, const std::string &element);
@@ -495,8 +530,11 @@ private:
 	void tryClose();
 	void trySubmitClose();
 
+	void positionTooltip(s32 tooltip_width, s32 tooltip_height, s32 &tooltip_x, s32 &tooltip_y);
+
 	void showTooltip(const std::wstring &text, const video::SColor &color,
 		const video::SColor &bgcolor);
+	void showHyperTip(GUIHyperText *e, const HyperTipSpec &spec);
 
 	/**
 	 * Auto-scrolls a scroll container to center the focused element.
