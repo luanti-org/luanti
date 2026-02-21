@@ -672,9 +672,15 @@ std::string ScriptApiSecurity::getCurrentModName(lua_State *L)
 	// We have to make sure that this function is being called directly by
 	// a mod, otherwise a malicious mod could override a function and
 	// steal its return value. (e.g. request_insecure_environment)
-	lua_Debug info;
+
+	// Coroutines start with an empty stack too, so we can't allow those.
+	bool coro = lua_pushthread(L) != 1;
+	lua_pop(L, 1);
+	if (coro)
+		return "";
 
 	// Make sure there's only one item below this function on the stack...
+	lua_Debug info;
 	if (lua_getstack(L, 2, &info))
 		return "";
 	FATAL_ERROR_IF(!lua_getstack(L, 1, &info), "lua_getstack() failed");
