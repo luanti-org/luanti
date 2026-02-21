@@ -71,6 +71,18 @@ static void read_v3_aux(lua_State *L, int index)
 	lua_call(L, 1, 3);
 }
 
+/**
+ * A helper which calls CUSTOM_RIDX_READ_VECTOR2 with the argument at the given index
+ */
+static void read_v2_aux(lua_State *L, int index)
+{
+	CHECK_POS_TAB(index);
+	lua_pushvalue(L, index);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_READ_VECTOR2);
+	lua_insert(L, -2);
+	lua_call(L, 1, 2);
+}
+
 // Retrieve an integer vector where all components are optional
 template<class T>
 static bool getv3intfield(lua_State *L, int index,
@@ -98,11 +110,10 @@ void push_v3f(lua_State *L, v3f p)
 
 void push_v2f(lua_State *L, v2f p)
 {
-	lua_createtable(L, 0, 2);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_PUSH_VECTOR2);
 	lua_pushnumber(L, p.X);
-	lua_setfield(L, -2, "x");
 	lua_pushnumber(L, p.Y);
-	lua_setfield(L, -2, "y");
+	lua_call(L, 2, 1);
 }
 
 v2s16 read_v2s16(lua_State *L, int index)
@@ -117,20 +128,18 @@ void push_v2s16(lua_State *L, v2s16 p)
 
 void push_v2s32(lua_State *L, v2s32 p)
 {
-	lua_createtable(L, 0, 2);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_PUSH_VECTOR2);
 	lua_pushinteger(L, p.X);
-	lua_setfield(L, -2, "x");
 	lua_pushinteger(L, p.Y);
-	lua_setfield(L, -2, "y");
+	lua_call(L, 2, 1);
 }
 
 void push_v2u32(lua_State *L, v2u32 p)
 {
-	lua_createtable(L, 0, 2);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_PUSH_VECTOR2);
 	lua_pushinteger(L, p.X);
-	lua_setfield(L, -2, "x");
 	lua_pushinteger(L, p.Y);
-	lua_setfield(L, -2, "y");
+	lua_call(L, 2, 1);
 }
 
 v2s32 read_v2s32(lua_State *L, int index)
@@ -140,17 +149,13 @@ v2s32 read_v2s32(lua_State *L, int index)
 
 v2f read_v2f(lua_State *L, int index)
 {
-	v2f p;
-	CHECK_POS_TAB(index);
-	lua_getfield(L, index, "x");
-	CHECK_POS_COORD2(-1, "x");
-	p.X = lua_tonumber(L, -1);
-	lua_pop(L, 1);
-	lua_getfield(L, index, "y");
+	read_v2_aux(L, index);
+	CHECK_POS_COORD2(-2, "x");
 	CHECK_POS_COORD2(-1, "y");
-	p.Y = lua_tonumber(L, -1);
-	lua_pop(L, 1);
-	return p;
+	float x = lua_tonumber(L, -2);
+	float y = lua_tonumber(L, -1);
+	lua_pop(L, 2);
+	return v2f(x, y);
 }
 
 v2f check_v2f(lua_State *L, int index)
