@@ -784,6 +784,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		if (!modified_blocks.empty()) {
 			MapEditEvent event;
 			event.type = MEET_OTHER;
+			event.low_priority = true;
 			event.setModifiedBlocks(modified_blocks);
 			m_env->getMap().dispatchEvent(event);
 		}
@@ -1041,7 +1042,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 			}
 			case MEET_OTHER:
 				prof.add("MEET_OTHER", 1);
-				m_clients.markBlocksNotSent(event->modified_blocks);
+				m_clients.markBlocksNotSent(event->modified_blocks, event->low_priority);
 				break;
 			default:
 				prof.add("unknown", 1);
@@ -1057,7 +1058,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 			*/
 			for (const u16 far_player : far_players) {
 				if (RemoteClient *client = getClient(far_player))
-					client->SetBlocksNotSent(event->modified_blocks);
+					client->SetBlocksNotSent(event->modified_blocks, event->low_priority);
 			}
 
 			delete event;
