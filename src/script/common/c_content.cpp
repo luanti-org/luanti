@@ -2246,23 +2246,23 @@ void read_json_value(lua_State *L, Json::Value &root, int index, u16 max_depth)
 	if (type == LUA_TBOOLEAN) {
 		root = (bool) lua_toboolean(L, index);
 	} else if (type == LUA_TNUMBER) {
-		lua_Number doubleVal = lua_tonumber(L, index);
-		if (!std::isfinite(doubleVal)) {
-			root = doubleVal;
+		lua_Number dbl_val = lua_tonumber(L, index);
+		if (!std::isfinite(dbl_val)) {
+			root = dbl_val;
 		} else {
-			#ifdef JSON_HAS_INT64
-				using IntType = s64;
-				constexpr IntType min_val = std::numeric_limits<IntType>::min();
-				constexpr IntType max_val = std::numeric_limits<IntType>::max();
-			#else
-				using IntType = s32;
-				constexpr IntType min_val = std::numeric_limits<IntType>::min();
-				constexpr IntType max_val = std::numeric_limits<IntType>::max();
-			#endif
-			if (doubleVal >= min_val && doubleVal <= max_val && std::floor(doubleVal) == doubleVal)
-				root = static_cast<IntType>(doubleVal);
+#ifdef JSON_HAS_INT64
+			using IntType = s64;
+			constexpr lua_Number min_val = (lua_Number)std::numeric_limits<IntType>::min();
+			constexpr lua_Number max_val = (lua_Number)std::numeric_limits<IntType>::max() + 1.0;
+#else
+			using IntType = s32;
+			constexpr lua_Number min_val = (lua_Number)std::numeric_limits<IntType>::min();
+			constexpr lua_Number max_val = (lua_Number)std::numeric_limits<IntType>::max() + 1.0;
+#endif
+			if (dbl_val >= min_val && dbl_val < max_val && std::floor(dbl_val) == dbl_val)
+				root = (IntType)dbl_val;
 			else
-				root = doubleVal;
+				root = dbl_val;
 		}
 	} else if (type == LUA_TSTRING) {
 		size_t len;
