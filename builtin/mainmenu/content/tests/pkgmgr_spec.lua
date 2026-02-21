@@ -96,6 +96,7 @@ describe("install_dir", function()
 		env.assert_calls({
 			{ "delete_dir", mods_dir .. "/mymod" },
 			{ "copy_dir", "/tmp/123", mods_dir .. "/mymod", false },
+			{ "delete_dir", "/tmp/123" },
 		})
 	end)
 
@@ -111,6 +112,7 @@ describe("install_dir", function()
 		env.assert_calls({
 			{ "delete_dir", mods_dir .. "/mymod" },
 			{ "copy_dir", "/tmp/123", mods_dir .. "/mymod", false },
+			{ "delete_dir", "/tmp/123" },
 		})
 	end)
 
@@ -126,6 +128,27 @@ describe("install_dir", function()
 		env.assert_calls({
 			{ "delete_dir", games_dir .. "/mygame" },
 			{ "copy_dir", "/tmp/123", games_dir .. "/mygame", false },
+			{ "delete_dir", "/tmp/123" },
+		})
+	end)
+
+	it("updates game (alias)", function()
+		local old_game_path = games_dir .. "/mygame"
+		local env = reset()
+		-- Temporary download directory of the content
+		local DL_DIR = "/tmp/123"
+		env.pkgmgr.get_base_folder = function()
+			return { type = "game", path = DL_DIR }
+		end
+
+		local path, message = env.pkgmgr.install_dir("game", DL_DIR, "mynewgame", old_game_path)
+		assert.is.equal(games_dir .. "/mynewgame", path)
+		assert.is._nil(message)
+		env.assert_calls({
+			{ "delete_dir", games_dir .. "/mygame" },
+			{ "delete_dir", games_dir .. "/mynewgame" },
+			{ "copy_dir", DL_DIR, games_dir .. "/mynewgame", false },
+			{ "delete_dir", DL_DIR },
 		})
 	end)
 
@@ -141,6 +164,7 @@ describe("install_dir", function()
 		env.assert_calls({
 			{ "delete_dir", mods_dir .. "/123" },
 			{ "copy_dir", "/tmp/123", mods_dir .. "/123", false },
+			{ "delete_dir", "/tmp/123" },
 		})
 	end)
 
@@ -167,6 +191,7 @@ describe("install_dir", function()
 		env.assert_calls({
 			{ "delete_dir", "/tmp/alt-target" },
 			{ "copy_dir", "/tmp/123", "/tmp/alt-target", false },
+			{ "delete_dir", "/tmp/123" },
 		})
 	end)
 
