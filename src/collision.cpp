@@ -378,7 +378,8 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		f32 stepheight, f32 dtime,
 		v3f *pos_f, v3f *speed_f,
 		v3f accel_f, ActiveObject *self,
-		bool collide_with_objects)
+		bool collide_with_objects,
+		bool new_stair)
 {
 	static bool time_notification_done = false;
 
