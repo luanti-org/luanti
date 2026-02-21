@@ -9648,6 +9648,11 @@ Player properties need to be saved manually.
     show_on_minimap = false,
     -- Defaults to true for players, false for other entities.
     -- If set to true the entity will show as a marker on the minimap.
+
+    new_stair = false,
+    -- Setting this to true makes the entity use the new stair code.
+    -- They will no longer clip the corner of a node and jolt up.
+    -- Defaults to false for players and entities.
 }
 ```
 
