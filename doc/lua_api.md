@@ -8828,6 +8828,8 @@ child will follow movement and rotation of that bone.
           (default: `false`)
         * `new_move`: use new move/sneak code. When `false` the exact old code
           is used for the specific old sneak behavior (default: `true`)
+        * `new_stair`: use new stair code. When `false` players can use full nodes
+          as stairs (default: `false`)
     * Note: All numeric fields above modify a corresponding `movement_*` setting.
     * For games, we recommend for simpler code to first modify the `movement_*`
       settings (e.g. via the game's `minetest.conf`) to set a global base value
