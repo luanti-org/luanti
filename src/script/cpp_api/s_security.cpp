@@ -743,14 +743,19 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 	return sec->checkPathInternal(abs_path, write_required, write_allowed);
 }
 
+// Path can be read, but may or may not be written to.
+// Sets write_allowed and returns accordingly.
+#define RETURN_WRITE_ALLOWED(v) \
+	do { \
+		bool real_write_allowed = (v); \
+		if (write_allowed) \
+			*write_allowed = real_write_allowed; \
+		return !write_required || real_write_allowed; \
+	} while (0)
 
 bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 	const std::string &abs_path, bool write_required, bool *write_allowed)
 {
-	const auto &set_write_allowed = [&] (bool v) {
-		if (write_allowed)
-			*write_allowed = v;
-	};
 	std::string str;  // Transient
 
 	auto *gamedef = ModApiBase::getGameDef(L);
@@ -773,51 +778,15 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 	bool is_git_path = abs_path.find(DIR_DELIM ".git" DIR_DELIM) != std::string::npos ||
 		str_ends_with(abs_path, DIR_DELIM ".git");
 
-	// Get mod name
+	// Find out which mod is currently running (during startup only)
+	// This can be wrong if one mod calls into another, hence the "insecure".
 	std::string mod_name = ScriptApiBase::getCurrentModNameInsecure(L);
 	if (!mod_name.empty()) {
 		// Builtin can access anything
+		// Note: checking against BUILTIN_MOD_NAME here is safe, because it runs
+		// once before anything else.
 		if (mod_name == BUILTIN_MOD_NAME) {
-			set_write_allowed(true);
-			return true;
-		}
-	}
-
-	// Allow paths in mod path
-	// Don't bother if write access isn't important, since it will be handled later
-	if (write_required || write_allowed) {
-		const ModSpec *mod = gamedef->getModSpec(mod_name);
-		if (mod) {
-			str = fs::AbsolutePath(mod->path);
-			if (!str.empty() && fs::PathStartsWith(abs_path, str)) {
-				// `mod_name` cannot be trusted here, so we catch the scenarios where this becomes a problem:
-				bool is_trusted = checkModNameWhitelisted(mod_name, "secure.trusted_mods") ||
-						checkModNameWhitelisted(mod_name, "secure.http_mods");
-				std::string filename = lowercase(fs::GetFilenameFromPath(abs_path.c_str()));
-				// By writing to any of these a malicious mod could turn itself into
-				// an existing trusted mod by renaming or becoming a modpack.
-				bool is_dangerous_file = filename == "mod.conf" ||
-						filename == "modpack.conf" ||
-						filename == "modpack.txt";
-				if (write_required) {
-					if (is_trusted) {
-						throw LuaError(
-								"Unable to write to a trusted or http mod's directory. "
-								"For data storage consider core.get_mod_data_path() or core.get_worldpath() instead.");
-					} else if (is_dangerous_file) {
-						throw LuaError(
-								"Unable to write to special file for security reasons");
-					} else {
-						const char *message =
-								"Writing to mod directories is deprecated, as any changes "
-								"will be overwritten when updating content. "
-								"For data storage consider core.get_mod_data_path() or core.get_worldpath() instead.";
-						log_deprecated(L, message, 1);
-					}
-				}
-				set_write_allowed(!is_trusted && !is_dangerous_file && !is_git_path);
-				return true;
-			}
+			RETURN_WRITE_ALLOWED(true);
 		}
 	}
 
@@ -851,8 +820,7 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 	// Allow read/write access to global mod data path
 	str = fs::AbsolutePath(gamedef->getModDataPath());
 	if (!str.empty() && fs::PathStartsWith(abs_path, str)) {
-		set_write_allowed(!is_git_path);
-		return true;
+		RETURN_WRITE_ALLOWED(!is_git_path);
 	}
 
 	str = fs::AbsolutePath(gamedef->getWorldPath());
@@ -867,14 +835,14 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 			fs::PathStartsWith(abs_path, str + DIR_DELIM + "game");
 		// Allow all other paths in world path
 		if (fs::PathStartsWith(abs_path, str)) {
-			set_write_allowed(!is_dangerous_path && !is_git_path);
-			return true;
+			RETURN_WRITE_ALLOWED(!is_dangerous_path && !is_git_path);
 		}
 	}
 
 	return false;
 }
 
+#undef RETURN_WRITE_ALLOWED
 
 int ScriptApiSecurity::sl_g_dofile(lua_State *L)
 {
