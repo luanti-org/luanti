@@ -252,7 +252,7 @@ static auto tie(const PlayerPhysicsOverride &o)
 	o.speed, o.jump, o.gravity, o.sneak, o.sneak_glitch, o.new_move, o.speed_climb,
 	o.speed_crouch, o.liquid_fluidity, o.liquid_fluidity_smooth, o.liquid_sink,
 	o.acceleration_default, o.acceleration_air, o.speed_fast, o.acceleration_fast,
-	o.speed_walk
+	o.speed_walk, o.new_stair
 	);
 }
 
