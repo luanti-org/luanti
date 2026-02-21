@@ -48,13 +48,16 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	ItemImageDef inventory_image = item.getInventoryImage(idef);
 	ItemImageDef inventory_overlay = item.getInventoryOverlay(idef);
 
-	// Key only consists of item name + image name,
-	// because animation currently cannot be overridden by meta
 	std::ostringstream os(def.name);
-	if (!inventory_image.name.empty())
-		os << "/" << inventory_image.name;
-	if (!inventory_overlay.name.empty())
-		os << ":" << inventory_overlay.name;
+	if (!inventory_image.empty()) {
+		os << "/";
+		inventory_image.serialize(os, LATEST_PROTOCOL_VERSION);
+	}
+	if (!inventory_overlay.empty()) {
+		os << ":";
+		inventory_overlay.serialize(os, LATEST_PROTOCOL_VERSION);
+	}
+
 	std::string cache_key = os.str();
 
 
