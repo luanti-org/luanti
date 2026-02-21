@@ -760,7 +760,7 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 	} while (0)
 
 bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
-	const std::string &abs_path, bool write_required, bool *write_allowed)
+	const std::string &abs_path, const bool write_required, bool *write_allowed)
 {
 	std::string str;  // Transient
 
@@ -775,25 +775,6 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 		str = fs::AbsolutePathPartial(g_settings_path);
 		if (str == abs_path)
 			return false;
-	}
-
-	// Git repository folders can contain hook scripts and other configuraton
-	// that can easily lead to arbitrary code execution.
-	// This isn't technically Luanti's fault, but Git is very common so we block
-	// write access for safety.
-	bool is_git_path = abs_path.find(DIR_DELIM ".git" DIR_DELIM) != std::string::npos ||
-		str_ends_with(abs_path, DIR_DELIM ".git");
-
-	// Find out which mod is currently running (during startup only)
-	// This can be wrong if one mod calls into another, hence the "insecure".
-	std::string mod_name = ScriptApiBase::getCurrentModNameInsecure(L);
-	if (!mod_name.empty()) {
-		// Builtin can access anything
-		// Note: checking against BUILTIN_MOD_NAME here is safe, because it runs
-		// once before anything else.
-		if (mod_name == BUILTIN_MOD_NAME) {
-			RETURN_WRITE_ALLOWED(true);
-		}
 	}
 
 	// Allow read-only access to builtin
@@ -822,6 +803,13 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 				return true;
 		}
 	}
+
+	// Git repository folders can contain hook scripts and other configuraton
+	// that can easily lead to arbitrary code execution.
+	// This isn't technically Luanti's fault, but Git is very common so we block
+	// write access for safety.
+	bool is_git_path = abs_path.find(DIR_DELIM ".git" DIR_DELIM) != std::string::npos ||
+		str_ends_with(abs_path, DIR_DELIM ".git");
 
 	// Allow read/write access to global mod data path
 	str = fs::AbsolutePath(gamedef->getModDataPath());
