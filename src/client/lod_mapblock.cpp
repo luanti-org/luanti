@@ -449,8 +449,7 @@ void LodMeshGenerator::generateGreedyLod()
 	}
 
 	processNodeGroup(m_cur_seg.m_all_set_solid_nodes, set_solid_nodes, node_types);
-	if (!m_is_textureless) // textureless has no transparency
-		processNodeGroup(m_cur_seg.m_all_set_transparent_nodes, set_transparent_nodes, node_types);
+	processNodeGroup(m_cur_seg.m_all_set_transparent_nodes, set_transparent_nodes, node_types);
 }
 
 void LodMeshGenerator::generateLodChunks()
