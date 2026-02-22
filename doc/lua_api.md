@@ -5967,6 +5967,7 @@ Utilities
       touch_controls = false,
   }
   ```
+  
 * `core.path_exists(path)`: returns true if the given path exists else false
     * `path` is the path that will be tested can be either a directory or a file
 * `core.mkdir(path)`: returns success.
