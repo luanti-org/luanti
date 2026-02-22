@@ -332,8 +332,6 @@ std::string PlayerSAO::generateUpdatePhysicsOverrideCommand() const
 	writeF32(os, phys.speed_fast);
 	writeF32(os, phys.acceleration_fast);
 	writeF32(os, phys.speed_walk);
-	// new physics overrides since 5.15.0
-	writeU8(os, !phys.new_stair);
 	return os.str();
 }
 
