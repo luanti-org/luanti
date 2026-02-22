@@ -339,10 +339,14 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 
 		if (!canRead(is))
 			break;
-		// >= 5.8.0-dev
+		// >= 5.7.0-dev
 
 		sound_use.deSerializeSimple(is, protocol_version);
 		sound_use_air.deSerializeSimple(is, protocol_version);
+
+		if (!canRead(is))
+			break;
+		// >= 5.8.0-dev
 
 		if (readU8(is)) // "have param2"
 			place_param2 = readU8(is);

@@ -282,7 +282,7 @@ u32 getMemorySizeMB()
 	long pages = sysconf(_SC_PHYS_PAGES);
 	long page_size = sysconf(_SC_PAGE_SIZE);
 	if (pages != -1 && page_size != -1)
-		return (pages * page_size) >> 20;
+		return ((u64)pages * (u64)page_size) >> 20;
 #elif defined(__APPLE__)
 	int64_t memsize;
 	size_t len = sizeof(memsize);
@@ -887,6 +887,7 @@ static bool open_uri(const std::string &uri)
 		errorstream << "Unable to open URI as it is invalid, contains new line: " << uri << std::endl;
 		return false;
 	}
+	verbosestream << "Opening URI: " << uri << std::endl;
 
 #if defined(_WIN32)
 	return (intptr_t)ShellExecuteA(NULL, NULL, uri.c_str(), NULL, NULL, SW_SHOWNORMAL) > 32;
@@ -920,7 +921,11 @@ bool open_directory(const std::string &path)
 		return false;
 	}
 
-	return open_uri(path);
+	// 'fs::AbsolutePath' is a workaround for Windows (10, ... ?) where the relative part of the path
+	// such as in "bin\.." is discarded by 'ShellExecuteA'. Hence, resolve it manually.
+	// This is done on all platforms because why not.
+
+	return open_uri(fs::AbsolutePath(path));
 }
 
 // Load performance counter frequency only once at startup

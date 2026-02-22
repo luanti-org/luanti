@@ -14,6 +14,8 @@ enum E_VERTEX_ATTRIBUTES
 	EVA_TCOORD1,
 	EVA_TANGENT,
 	EVA_BINORMAL,
+	EVA_WEIGHTS,
+	EVA_JOINT_IDS,
 	EVA_COUNT
 };
 
@@ -21,12 +23,14 @@ enum E_VERTEX_ATTRIBUTES
 const char *const sBuiltInVertexAttributeNames[] = {
 		"inVertexPosition",
 		"inVertexNormal",
-		"inVertexColor",
+		"inVertexColor_raw", // (BGRA <-> RGBA swapped)
 		"inVertexAux",
 		"inTexCoord0",
 		"inTexCoord1",
 		"inVertexTangent",
 		"inVertexBinormal",
+		"inVertexWeights",
+		"inVertexJointIDs",
 		0,
 	};
 

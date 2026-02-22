@@ -5,7 +5,12 @@
 #include "COpenGLDriver.h"
 #include <cassert>
 #include "CNullDriver.h"
+#include "EHardwareBufferFlags.h"
+#include "HWBuffer.h"
 #include "IContextManager.h"
+#include "IIndexBuffer.h"
+#include "IVertexBuffer.h"
+#include "irrTypes.h"
 
 #ifdef _IRR_COMPILE_WITH_OPENGL_
 
@@ -124,9 +129,7 @@ bool COpenGLDriver::genericDriverInit()
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	glFrontFace(GL_CW);
 	// adjust flat coloring scheme to DirectX version
-#if defined(GL_ARB_provoking_vertex) || defined(GL_EXT_provoking_vertex)
 	extGlProvokingVertex(GL_FIRST_VERTEX_CONVENTION_EXT);
-#endif
 
 	// Create built-in 2D quad for 2D rendering (both quads and lines).
 	Quad2DVertices[0] = S3DVertex(core::vector3df(-1.0f, 1.0f, 0.0f), core::vector3df(0.0f, 0.0f, 0.0f), SColor(255, 255, 255, 255), core::vector2df(0.0f, 1.0f));
@@ -223,6 +226,21 @@ void COpenGLDriver::setTransform(E_TRANSFORMATION_STATE state, const core::matri
 	}
 }
 
+static GLint convertEHM(scene::E_HARDWARE_MAPPING hint)
+{
+	switch (hint) {
+	case scene::EHM_STATIC:
+		return GL_STATIC_DRAW;
+	case scene::EHM_DYNAMIC:
+		return GL_DYNAMIC_DRAW;
+	case scene::EHM_STREAM:
+		return GL_STREAM_DRAW;
+	case scene::EHM_NEVER:
+	default:
+		IRR_CODE_UNREACHABLE();
+	}
+}
+
 bool COpenGLDriver::updateVertexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
 {
 	if (!HWBuffer)
@@ -231,12 +249,11 @@ bool COpenGLDriver::updateVertexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
 	if (!FeatureAvailable[IRR_ARB_vertex_buffer_object])
 		return false;
 
-#if defined(GL_ARB_vertex_buffer_object)
-	const auto *vb = HWBuffer->VertexBuffer;
+	const auto *vb = IRR_DOWN_CAST<const scene::IVertexBuffer *>(HWBuffer->Buffer);
 	const void *vertices = vb->getData();
 	const u32 vertexCount = vb->getCount();
 	const E_VERTEX_TYPE vType = vb->getType();
-	const u32 vertexSize = getVertexPitchFromType(vType);
+	const u32 vertexSize = vb->getElementSize();
 
 	accountHWBufferUpload(vertexSize * vertexCount);
 
@@ -296,170 +313,119 @@ bool COpenGLDriver::updateVertexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
 	else {
 		HWBuffer->vbo_Size = vertexCount * vertexSize;
 
-		if (vb->getHardwareMappingHint() == scene::EHM_STATIC)
-			extGlBufferData(GL_ARRAY_BUFFER, vertexCount * vertexSize, vbuf, GL_STATIC_DRAW);
-		else if (vb->getHardwareMappingHint() == scene::EHM_DYNAMIC)
-			extGlBufferData(GL_ARRAY_BUFFER, vertexCount * vertexSize, vbuf, GL_DYNAMIC_DRAW);
-		else // scene::EHM_STREAM
-			extGlBufferData(GL_ARRAY_BUFFER, vertexCount * vertexSize, vbuf, GL_STREAM_DRAW);
+		extGlBufferData(GL_ARRAY_BUFFER, vertexCount * vertexSize, vbuf, convertEHM(HWBuffer->Buffer->MappingHint));
 	}
 
 	extGlBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	return (!testGLError(__LINE__));
-#else
-	return false;
-#endif
 }
 
-bool COpenGLDriver::updateIndexHardwareBuffer(SHWBufferLink_opengl *HWBuffer)
+bool COpenGLDriver::updateIndexHardwareBuffer(SHWBufferLink_opengl *link)
 {
-	if (!HWBuffer)
+	if (!link)
 		return false;
 
 	if (!FeatureAvailable[IRR_ARB_vertex_buffer_object])
 		return false;
 
-#if defined(GL_ARB_vertex_buffer_object)
-	const auto *ib = HWBuffer->IndexBuffer;
+
+	const auto *ib = IRR_DOWN_CAST<const scene::IIndexBuffer *>(link->Buffer);
 
 	const void *indices = ib->getData();
 	u32 indexCount = ib->getCount();
 
-	GLenum indexSize;
-	switch (ib->getType()) {
-	case EIT_16BIT: {
-		indexSize = sizeof(u16);
-		break;
-	}
-	case EIT_32BIT: {
-		indexSize = sizeof(u32);
-		break;
-	}
-	default: {
-		return false;
-	}
-	}
+	GLenum indexSize = ib->getElementSize();
 
 	accountHWBufferUpload(indexCount * indexSize);
 
 	// get or create buffer
 	bool newBuffer = false;
-	if (!HWBuffer->vbo_ID) {
-		extGlGenBuffers(1, &HWBuffer->vbo_ID);
-		if (!HWBuffer->vbo_ID)
+	if (!link->vbo_ID) {
+		extGlGenBuffers(1, &link->vbo_ID);
+		if (!link->vbo_ID)
 			return false;
 		newBuffer = true;
-	} else if (HWBuffer->vbo_Size < indexCount * indexSize) {
+	} else if (link->vbo_Size < indexCount * indexSize) {
 		newBuffer = true;
 	}
 
-	extGlBindBuffer(GL_ELEMENT_ARRAY_BUFFER, HWBuffer->vbo_ID);
+	extGlBindBuffer(GL_ELEMENT_ARRAY_BUFFER, link->vbo_ID);
 
 	// copy data to graphics card
 	if (!newBuffer)
 		extGlBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indexCount * indexSize, indices);
 	else {
-		HWBuffer->vbo_Size = indexCount * indexSize;
+		link->vbo_Size = indexCount * indexSize;
 
-		if (ib->getHardwareMappingHint() == scene::EHM_STATIC)
-			extGlBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * indexSize, indices, GL_STATIC_DRAW);
-		else if (ib->getHardwareMappingHint() == scene::EHM_DYNAMIC)
-			extGlBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * indexSize, indices, GL_DYNAMIC_DRAW);
-		else // scene::EHM_STREAM
-			extGlBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * indexSize, indices, GL_STREAM_DRAW);
+		extGlBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * indexSize, indices, convertEHM(ib->MappingHint));
 	}
 
 	extGlBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	return (!testGLError(__LINE__));
-#else
-	return false;
-#endif
 }
 
 //! updates hardware buffer if needed
-bool COpenGLDriver::updateHardwareBuffer(SHWBufferLink *HWBuffer)
+bool COpenGLDriver::updateHardwareBuffer(SHWBufferLink *_link)
 {
-	if (!HWBuffer)
+	if (!_link)
 		return false;
 
-	auto *b = static_cast<SHWBufferLink_opengl *>(HWBuffer);
+	auto *link = IRR_DOWN_CAST<SHWBufferLink_opengl *>(_link);
+	auto *buf = link->Buffer;
+	if (link->vbo_ID && link->ChangedID == buf->getChangedID())
+		return true;
 
-	if (b->IsVertex) {
-		assert(b->VertexBuffer);
-		if (b->ChangedID != b->VertexBuffer->getChangedID() || !b->vbo_ID) {
-			if (!updateVertexHardwareBuffer(b))
-				return false;
-			b->ChangedID = b->VertexBuffer->getChangedID();
-		}
-	} else {
-		assert(b->IndexBuffer);
-		if (b->ChangedID != b->IndexBuffer->getChangedID() || !b->vbo_ID) {
-			if (!updateIndexHardwareBuffer(b))
-				return false;
-			b->ChangedID = b->IndexBuffer->getChangedID();
-		}
+	bool success = false;
+	switch (buf->getBufferType()) {
+	case scene::HWBuffer::Type::VERTEX:
+		success = updateVertexHardwareBuffer(link);
+		break;
+	case scene::HWBuffer::Type::INDEX:
+		success = updateIndexHardwareBuffer(link);
+		break;
+	case scene::HWBuffer::Type::WEIGHT:
+	default:
+		IRR_CODE_UNREACHABLE();
 	}
+
+	if (!success)
+		return false;
+
+	link->ChangedID = buf->getChangedID();
 	return true;
 }
 
 //! Create hardware buffer from meshbuffer
-COpenGLDriver::SHWBufferLink *COpenGLDriver::createHardwareBuffer(const scene::IVertexBuffer *vb)
+COpenGLDriver::SHWBufferLink *COpenGLDriver::createHardwareBuffer(const scene::HWBuffer *buf)
 {
-#if defined(GL_ARB_vertex_buffer_object)
-	if (!vb || vb->getHardwareMappingHint() == scene::EHM_NEVER)
-		return 0;
+	if (!buf || buf->MappingHint == scene::EHM_NEVER)
+		return nullptr;
 
-	SHWBufferLink_opengl *HWBuffer = new SHWBufferLink_opengl(vb);
-	registerHardwareBuffer(HWBuffer);
+	SHWBufferLink_opengl *link = new SHWBufferLink_opengl(buf);
+	registerHardwareBuffer(link);
 
-	if (!updateVertexHardwareBuffer(HWBuffer)) {
-		deleteHardwareBuffer(HWBuffer);
-		return 0;
+	if (!updateHardwareBuffer(link)) {
+		deleteHardwareBuffer(link);
+		return nullptr;
 	}
 
-	return HWBuffer;
-#else
-	return 0;
-#endif
+	return link;
 }
 
-//! Create hardware buffer from meshbuffer
-COpenGLDriver::SHWBufferLink *COpenGLDriver::createHardwareBuffer(const scene::IIndexBuffer *ib)
+void COpenGLDriver::deleteHardwareBuffer(SHWBufferLink *_link)
 {
-#if defined(GL_ARB_vertex_buffer_object)
-	if (!ib || ib->getHardwareMappingHint() == scene::EHM_NEVER)
-		return 0;
-
-	SHWBufferLink_opengl *HWBuffer = new SHWBufferLink_opengl(ib);
-	registerHardwareBuffer(HWBuffer);
-
-	if (!updateIndexHardwareBuffer(HWBuffer)) {
-		deleteHardwareBuffer(HWBuffer);
-		return 0;
-	}
-
-	return HWBuffer;
-#else
-	return 0;
-#endif
-}
-
-void COpenGLDriver::deleteHardwareBuffer(SHWBufferLink *_HWBuffer)
-{
-	if (!_HWBuffer)
+	if (!_link)
 		return;
 
-#if defined(GL_ARB_vertex_buffer_object)
-	auto *HWBuffer = (SHWBufferLink_opengl *)_HWBuffer;
-	if (HWBuffer->vbo_ID) {
-		extGlDeleteBuffers(1, &HWBuffer->vbo_ID);
-		HWBuffer->vbo_ID = 0;
+	auto *link = IRR_DOWN_CAST<SHWBufferLink_opengl *>(_link);
+	if (link->vbo_ID) {
+		extGlDeleteBuffers(1, &link->vbo_ID);
+		link->vbo_ID = 0;
 	}
-#endif
 
-	CNullDriver::deleteHardwareBuffer(_HWBuffer);
+	CNullDriver::deleteHardwareBuffer(_link);
 }
 
 void COpenGLDriver::drawBuffers(const scene::IVertexBuffer *vb,
@@ -469,20 +435,19 @@ void COpenGLDriver::drawBuffers(const scene::IVertexBuffer *vb,
 	if (!vb || !ib)
 		return;
 
-#if defined(GL_ARB_vertex_buffer_object)
-	auto *hwvert = (SHWBufferLink_opengl *) getBufferLink(vb);
-	auto *hwidx = (SHWBufferLink_opengl *) getBufferLink(ib);
-	updateHardwareBuffer(hwvert);
-	updateHardwareBuffer(hwidx);
+	auto *hwvert = IRR_DOWN_CAST<SHWBufferLink_opengl *>(getBufferLink(vb));
+	auto *hwidx = IRR_DOWN_CAST<SHWBufferLink_opengl *>(getBufferLink(ib));
 
 	const void *vertices = vb->getData();
 	if (hwvert) {
+		updateHardwareBuffer(hwvert);
 		extGlBindBuffer(GL_ARRAY_BUFFER, hwvert->vbo_ID);
 		vertices = 0;
 	}
 
 	const void *indexList = ib->getData();
 	if (hwidx) {
+		updateHardwareBuffer(hwidx);
 		extGlBindBuffer(GL_ELEMENT_ARRAY_BUFFER, hwidx->vbo_ID);
 		indexList = 0;
 	}
@@ -494,10 +459,6 @@ void COpenGLDriver::drawBuffers(const scene::IVertexBuffer *vb,
 		extGlBindBuffer(GL_ARRAY_BUFFER, 0);
 	if (hwidx)
 		extGlBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#else
-	drawVertexPrimitiveList(vb->getData(), vb->getCount(), ib->getData(),
-		PrimitiveCount, vb->getType(), PrimitiveType, ib->getType());
-#endif
 }
 
 //! Create occlusion query.
@@ -537,20 +498,12 @@ void COpenGLDriver::runOcclusionQuery(scene::ISceneNode *node, bool visible)
 	if (index != -1) {
 		if (OcclusionQueries[index].UID)
 			extGlBeginQuery(
-#ifdef GL_ARB_occlusion_query
 					GL_SAMPLES_PASSED_ARB,
-#else
-					0,
-#endif
 					OcclusionQueries[index].UID);
 		CNullDriver::runOcclusionQuery(node, visible);
 		if (OcclusionQueries[index].UID)
 			extGlEndQuery(
-#ifdef GL_ARB_occlusion_query
 					GL_SAMPLES_PASSED_ARB);
-#else
-					0);
-#endif
 		testGLError(__LINE__);
 	}
 }
@@ -568,25 +521,13 @@ void COpenGLDriver::updateOcclusionQuery(scene::ISceneNode *node, bool block)
 		GLint available = block ? GL_TRUE : GL_FALSE;
 		if (!block) {
 			extGlGetQueryObjectiv(OcclusionQueries[index].UID,
-#ifdef GL_ARB_occlusion_query
 					GL_QUERY_RESULT_AVAILABLE_ARB,
-#elif defined(GL_NV_occlusion_query)
-					GL_PIXEL_COUNT_AVAILABLE_NV,
-#else
-					0,
-#endif
 					&available);
 			testGLError(__LINE__);
 		}
 		if (available == GL_TRUE) {
 			extGlGetQueryObjectiv(OcclusionQueries[index].UID,
-#ifdef GL_ARB_occlusion_query
 					GL_QUERY_RESULT_ARB,
-#elif defined(GL_NV_occlusion_query)
-					GL_PIXEL_COUNT_NV,
-#else
-					0,
-#endif
 					&available);
 			if (queryFeature(EVDF_OCCLUSION_QUERY))
 				OcclusionQueries[index].Result = available;
@@ -670,13 +611,7 @@ void COpenGLDriver::drawVertexPrimitiveList(const void *vertices, u32 vertexCoun
 	else
 		CacheHandler->setClientState(true, false, true, false);
 
-// due to missing defines in OSX headers, we have to be more specific with this check
-// #if defined(GL_ARB_vertex_array_bgra) || defined(GL_EXT_vertex_array_bgra)
-#ifdef GL_BGRA
 	const GLint colorSize = (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra]) ? GL_BGRA : 4;
-#else
-	const GLint colorSize = 4;
-#endif
 	if (vertices) {
 		if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra]) {
 			switch (vType) {
@@ -836,10 +771,8 @@ void COpenGLDriver::renderArray(const void *indexList, u32 primitiveCount,
 	switch (pType) {
 	case scene::EPT_POINTS:
 	case scene::EPT_POINT_SPRITES: {
-#ifdef GL_ARB_point_sprite
 		if (pType == scene::EPT_POINT_SPRITES && FeatureAvailable[IRR_ARB_point_sprite])
 			glEnable(GL_POINT_SPRITE_ARB);
-#endif
 
 		// prepare size and attenuation (where supported)
 		GLfloat particleSize = Material.Thickness;
@@ -847,47 +780,24 @@ void COpenGLDriver::renderArray(const void *indexList, u32 primitiveCount,
 		//				particleSize=core::clamp(particleSize, DimSmoothedPoint[0], DimSmoothedPoint[1]);
 		//			else
 		particleSize = core::clamp(particleSize, DimAliasedPoint[0], DimAliasedPoint[1]);
-#if defined(GL_VERSION_1_4) || defined(GL_ARB_point_parameters) || defined(GL_EXT_point_parameters) || defined(GL_SGIS_point_parameters)
 		const float att[] = {1.0f, 1.0f, 0.0f};
-#if defined(GL_VERSION_1_4)
 		extGlPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, att);
 		//			extGlPointParameterf(GL_POINT_SIZE_MIN,1.f);
 		extGlPointParameterf(GL_POINT_SIZE_MAX, particleSize);
 		extGlPointParameterf(GL_POINT_FADE_THRESHOLD_SIZE, 1.0f);
-#elif defined(GL_ARB_point_parameters)
-		extGlPointParameterfv(GL_POINT_DISTANCE_ATTENUATION_ARB, att);
-		//			extGlPointParameterf(GL_POINT_SIZE_MIN_ARB,1.f);
-		extGlPointParameterf(GL_POINT_SIZE_MAX_ARB, particleSize);
-		extGlPointParameterf(GL_POINT_FADE_THRESHOLD_SIZE_ARB, 1.0f);
-#elif defined(GL_EXT_point_parameters)
-		extGlPointParameterfv(GL_DISTANCE_ATTENUATION_EXT, att);
-		//			extGlPointParameterf(GL_POINT_SIZE_MIN_EXT,1.f);
-		extGlPointParameterf(GL_POINT_SIZE_MAX_EXT, particleSize);
-		extGlPointParameterf(GL_POINT_FADE_THRESHOLD_SIZE_EXT, 1.0f);
-#elif defined(GL_SGIS_point_parameters)
-		extGlPointParameterfv(GL_DISTANCE_ATTENUATION_SGIS, att);
-		//			extGlPointParameterf(GL_POINT_SIZE_MIN_SGIS,1.f);
-		extGlPointParameterf(GL_POINT_SIZE_MAX_SGIS, particleSize);
-		extGlPointParameterf(GL_POINT_FADE_THRESHOLD_SIZE_SGIS, 1.0f);
-#endif
-#endif
 		glPointSize(particleSize);
 
-#ifdef GL_ARB_point_sprite
 		if (pType == scene::EPT_POINT_SPRITES && FeatureAvailable[IRR_ARB_point_sprite]) {
 			CacheHandler->setActiveTexture(GL_TEXTURE0_ARB);
 			glTexEnvf(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE, GL_TRUE);
 		}
-#endif
 		glDrawArrays(GL_POINTS, 0, primitiveCount);
-#ifdef GL_ARB_point_sprite
 		if (pType == scene::EPT_POINT_SPRITES && FeatureAvailable[IRR_ARB_point_sprite]) {
 			glDisable(GL_POINT_SPRITE_ARB);
 
 			CacheHandler->setActiveTexture(GL_TEXTURE0_ARB);
 			glTexEnvf(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE, GL_FALSE);
 		}
-#endif
 	} break;
 	case scene::EPT_LINE_STRIP:
 		glDrawElements(GL_LINE_STRIP, primitiveCount + 1, indexSize, indexList);
@@ -943,13 +853,7 @@ void COpenGLDriver::draw2DVertexPrimitiveList(const void *vertices, u32 vertexCo
 	else
 		CacheHandler->setClientState(true, false, true, false);
 
-// due to missing defines in OSX headers, we have to be more specific with this check
-// #if defined(GL_ARB_vertex_array_bgra) || defined(GL_EXT_vertex_array_bgra)
-#ifdef GL_BGRA
 	const GLint colorSize = (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra]) ? GL_BGRA : 4;
-#else
-	const GLint colorSize = 4;
-#endif
 	if (vertices) {
 		if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra]) {
 			switch (vType) {
@@ -1098,11 +1002,7 @@ void COpenGLDriver::draw2DImage(const video::ITexture *texture, const core::posi
 	glTexCoordPointer(2, GL_FLOAT, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].TCoords);
 	glVertexPointer(2, GL_FLOAT, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Pos);
 
-#ifdef GL_BGRA
 	const GLint colorSize = (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra]) ? GL_BGRA : 4;
-#else
-	const GLint colorSize = 4;
-#endif
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
@@ -1178,11 +1078,7 @@ void COpenGLDriver::draw2DImage(const video::ITexture *texture, const core::rect
 	glTexCoordPointer(2, GL_FLOAT, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].TCoords);
 	glVertexPointer(2, GL_FLOAT, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Pos);
 
-#ifdef GL_BGRA
 	const GLint colorSize = (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra]) ? GL_BGRA : 4;
-#else
-	const GLint colorSize = 4;
-#endif
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
@@ -1326,11 +1222,7 @@ void COpenGLDriver::draw2DImageBatch(const video::ITexture *texture,
 	glTexCoordPointer(2, GL_FLOAT, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].TCoords);
 	glVertexPointer(2, GL_FLOAT, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Pos);
 
-#ifdef GL_BGRA
 	const GLint colorSize = (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra]) ? GL_BGRA : 4;
-#else
-	const GLint colorSize = 4;
-#endif
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
@@ -1493,11 +1385,7 @@ void COpenGLDriver::draw2DRectangle(const core::rect<s32> &position,
 
 	glVertexPointer(2, GL_FLOAT, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Pos);
 
-#ifdef GL_BGRA
 	const GLint colorSize = (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra]) ? GL_BGRA : 4;
-#else
-	const GLint colorSize = 4;
-#endif
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
@@ -1529,11 +1417,7 @@ void COpenGLDriver::draw2DLine(const core::position2d<s32> &start,
 
 		glVertexPointer(2, GL_FLOAT, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Pos);
 
-#ifdef GL_BGRA
 		const GLint colorSize = (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra]) ? GL_BGRA : 4;
-#else
-		const GLint colorSize = 4;
-#endif
 		if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 			glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 		else {
@@ -1655,11 +1539,9 @@ bool COpenGLDriver::testGLError(int code)
 	case GL_TABLE_TOO_LARGE:
 		os::Printer::log("GL_TABLE_TOO_LARGE", core::stringc(code).c_str(), ELL_ERROR);
 		break;
-#if defined(GL_EXT_framebuffer_object)
 	case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
 		os::Printer::log("GL_INVALID_FRAMEBUFFER_OPERATION", core::stringc(code).c_str(), ELL_ERROR);
 		break;
-#endif
 	};
 	return true;
 }
@@ -1683,10 +1565,8 @@ void COpenGLDriver::setRenderStates3DMode()
 		glLoadMatrixf(Matrices[ETS_PROJECTION].pointer());
 
 		ResetRenderStates = true;
-#ifdef GL_EXT_clip_volume_hint
 		if (FeatureAvailable[IRR_EXT_clip_volume_hint])
 			glHint(GL_CLIP_VOLUME_CLIPPING_HINT_EXT, GL_NICEST);
-#endif
 	}
 
 	if (ResetRenderStates || LastMaterial != Material) {
@@ -1726,88 +1606,55 @@ GLint COpenGLDriver::getTextureWrapMode(const u8 clamp)
 		mode = GL_CLAMP;
 		break;
 	case ETC_CLAMP_TO_EDGE:
-#ifdef GL_VERSION_1_2
 		if (Version > 101)
 			mode = GL_CLAMP_TO_EDGE;
-		else
-#endif
-#ifdef GL_SGIS_texture_edge_clamp
-				if (FeatureAvailable[IRR_SGIS_texture_edge_clamp])
+		else if (FeatureAvailable[IRR_SGIS_texture_edge_clamp])
 			mode = GL_CLAMP_TO_EDGE_SGIS;
 		else
-#endif
 			// fallback
 			mode = GL_CLAMP;
 		break;
 	case ETC_CLAMP_TO_BORDER:
-#ifdef GL_VERSION_1_3
 		if (Version > 102)
 			mode = GL_CLAMP_TO_BORDER;
-		else
-#endif
-#ifdef GL_ARB_texture_border_clamp
-				if (FeatureAvailable[IRR_ARB_texture_border_clamp])
+		else if (FeatureAvailable[IRR_ARB_texture_border_clamp])
 			mode = GL_CLAMP_TO_BORDER_ARB;
-		else
-#endif
-#ifdef GL_SGIS_texture_border_clamp
-				if (FeatureAvailable[IRR_SGIS_texture_border_clamp])
+		else if (FeatureAvailable[IRR_SGIS_texture_border_clamp])
 			mode = GL_CLAMP_TO_BORDER_SGIS;
 		else
-#endif
 			// fallback
 			mode = GL_CLAMP;
 		break;
 	case ETC_MIRROR:
-#ifdef GL_VERSION_1_4
 		if (Version > 103)
 			mode = GL_MIRRORED_REPEAT;
-		else
-#endif
-#ifdef GL_ARB_texture_border_clamp
-				if (FeatureAvailable[IRR_ARB_texture_mirrored_repeat])
+		else if (FeatureAvailable[IRR_ARB_texture_mirrored_repeat])
 			mode = GL_MIRRORED_REPEAT_ARB;
-		else
-#endif
-#ifdef GL_IBM_texture_mirrored_repeat
-				if (FeatureAvailable[IRR_IBM_texture_mirrored_repeat])
+		else if (FeatureAvailable[IRR_IBM_texture_mirrored_repeat])
 			mode = GL_MIRRORED_REPEAT_IBM;
 		else
-#endif
 			mode = GL_REPEAT;
 		break;
 	case ETC_MIRROR_CLAMP:
-#ifdef GL_EXT_texture_mirror_clamp
 		if (FeatureAvailable[IRR_EXT_texture_mirror_clamp])
 			mode = GL_MIRROR_CLAMP_EXT;
-		else
-#endif
-#if defined(GL_ATI_texture_mirror_once)
-				if (FeatureAvailable[IRR_ATI_texture_mirror_once])
+		else if (FeatureAvailable[IRR_ATI_texture_mirror_once])
 			mode = GL_MIRROR_CLAMP_ATI;
 		else
-#endif
 			mode = GL_CLAMP;
 		break;
 	case ETC_MIRROR_CLAMP_TO_EDGE:
-#ifdef GL_EXT_texture_mirror_clamp
 		if (FeatureAvailable[IRR_EXT_texture_mirror_clamp])
 			mode = GL_MIRROR_CLAMP_TO_EDGE_EXT;
-		else
-#endif
-#if defined(GL_ATI_texture_mirror_once)
-				if (FeatureAvailable[IRR_ATI_texture_mirror_once])
+		else if (FeatureAvailable[IRR_ATI_texture_mirror_once])
 			mode = GL_MIRROR_CLAMP_TO_EDGE_ATI;
 		else
-#endif
 			mode = GL_CLAMP;
 		break;
 	case ETC_MIRROR_CLAMP_TO_BORDER:
-#ifdef GL_EXT_texture_mirror_clamp
 		if (FeatureAvailable[IRR_EXT_texture_mirror_clamp])
 			mode = GL_MIRROR_CLAMP_TO_BORDER_EXT;
 		else
-#endif
 			mode = GL_CLAMP;
 		break;
 	}
@@ -1929,91 +1776,53 @@ void COpenGLDriver::setBasicRenderStates(const SMaterial &material, const SMater
 	else {
 		CacheHandler->setBlend(true);
 
-#if defined(GL_EXT_blend_subtract) || defined(GL_EXT_blend_minmax) || defined(GL_EXT_blend_logic_op) || defined(GL_VERSION_1_4)
 		if (queryFeature(EVDF_BLEND_OPERATIONS)) {
 			switch (material.BlendOperation) {
 			case EBO_SUBTRACT:
-#if defined(GL_VERSION_1_4)
 				CacheHandler->setBlendEquation(GL_FUNC_SUBTRACT);
-#elif defined(GL_EXT_blend_subtract)
-				CacheHandler->setBlendEquation(GL_FUNC_SUBTRACT_EXT);
-#endif
 				break;
 			case EBO_REVSUBTRACT:
-#if defined(GL_VERSION_1_4)
 				CacheHandler->setBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
-#elif defined(GL_EXT_blend_subtract)
-				CacheHandler->setBlendEquation(GL_FUNC_REVERSE_SUBTRACT_EXT);
-#endif
 				break;
 			case EBO_MIN:
-#if defined(GL_VERSION_1_4)
 				CacheHandler->setBlendEquation(GL_MIN);
-#elif defined(GL_EXT_blend_minmax)
-				CacheHandler->setBlendEquation(GL_MIN_EXT);
-#endif
 				break;
 			case EBO_MAX:
-#if defined(GL_VERSION_1_4)
 				CacheHandler->setBlendEquation(GL_MAX);
-#elif defined(GL_EXT_blend_minmax)
-				CacheHandler->setBlendEquation(GL_MAX_EXT);
-#endif
 				break;
 			case EBO_MIN_FACTOR:
-#if defined(GL_AMD_blend_minmax_factor)
 				if (FeatureAvailable[IRR_AMD_blend_minmax_factor])
 					CacheHandler->setBlendEquation(GL_FACTOR_MIN_AMD);
-#endif
 					// fallback in case of missing extension
-#if defined(GL_VERSION_1_4)
-#if defined(GL_AMD_blend_minmax_factor)
 				else
-#endif
 					CacheHandler->setBlendEquation(GL_MIN);
-#endif
 				break;
 			case EBO_MAX_FACTOR:
-#if defined(GL_AMD_blend_minmax_factor)
 				if (FeatureAvailable[IRR_AMD_blend_minmax_factor])
 					CacheHandler->setBlendEquation(GL_FACTOR_MAX_AMD);
-#endif
 					// fallback in case of missing extension
-#if defined(GL_VERSION_1_4)
-#if defined(GL_AMD_blend_minmax_factor)
 				else
-#endif
 					CacheHandler->setBlendEquation(GL_MAX);
-#endif
 				break;
 			case EBO_MIN_ALPHA:
-#if defined(GL_SGIX_blend_alpha_minmax)
 				if (FeatureAvailable[IRR_SGIX_blend_alpha_minmax])
 					CacheHandler->setBlendEquation(GL_ALPHA_MIN_SGIX);
 				// fallback in case of missing extension
 				else if (FeatureAvailable[IRR_EXT_blend_minmax])
 					CacheHandler->setBlendEquation(GL_MIN_EXT);
-#endif
 				break;
 			case EBO_MAX_ALPHA:
-#if defined(GL_SGIX_blend_alpha_minmax)
 				if (FeatureAvailable[IRR_SGIX_blend_alpha_minmax])
 					CacheHandler->setBlendEquation(GL_ALPHA_MAX_SGIX);
 				// fallback in case of missing extension
 				else if (FeatureAvailable[IRR_EXT_blend_minmax])
 					CacheHandler->setBlendEquation(GL_MAX_EXT);
-#endif
 				break;
 			default:
-#if defined(GL_VERSION_1_4)
 				CacheHandler->setBlendEquation(GL_FUNC_ADD);
-#elif defined(GL_EXT_blend_subtract) || defined(GL_EXT_blend_minmax) || defined(GL_EXT_blend_logic_op)
-				CacheHandler->setBlendEquation(GL_FUNC_ADD_EXT);
-#endif
 				break;
 			}
 		}
-#endif
 	}
 
 	// Blend Factor
@@ -2076,14 +1885,12 @@ void COpenGLDriver::setBasicRenderStates(const SMaterial &material, const SMater
 		// be rendering to an FBO with multisampling.
 		if (material.AntiAliasing & (EAAM_SIMPLE | EAAM_QUALITY)) {
 			glEnable(GL_MULTISAMPLE_ARB);
-#ifdef GL_NV_multisample_filter_hint
 			if (FeatureAvailable[IRR_NV_multisample_filter_hint]) {
 				if ((material.AntiAliasing & EAAM_QUALITY) == EAAM_QUALITY)
 					glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
 				else
 					glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_FASTEST);
 			}
-#endif
 		} else
 			glDisable(GL_MULTISAMPLE_ARB);
 	}
@@ -2136,7 +1943,6 @@ void COpenGLDriver::setTextureRenderStates(const SMaterial &material, bool reset
 			if (resetAllRenderstates)
 				statesCache.IsCached = false;
 
-#ifdef GL_VERSION_2_1
 			if (Version >= 201) {
 				if (!statesCache.IsCached || material.TextureLayers[i].LODBias != statesCache.LODBias) {
 					if (material.TextureLayers[i].LODBias) {
@@ -2154,15 +1960,6 @@ void COpenGLDriver::setTextureRenderStates(const SMaterial &material, bool reset
 				} else
 					glTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, 0.f);
 			}
-#elif defined(GL_EXT_texture_lod_bias)
-			if (FeatureAvailable[IRR_EXT_texture_lod_bias]) {
-				if (material.TextureLayers[i].LODBias) {
-					const float tmp = core::clamp(material.TextureLayers[i].LODBias * 0.125f, -MaxTextureLODBias, MaxTextureLODBias);
-					glTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, tmp);
-				} else
-					glTexEnvf(GL_TEXTURE_FILTER_CONTROL_EXT, GL_TEXTURE_LOD_BIAS_EXT, 0.f);
-			}
-#endif
 
 			if (!statesCache.IsCached || material.TextureLayers[i].MagFilter != statesCache.MagFilter) {
 				E_TEXTURE_MAG_FILTER magFilter = material.TextureLayers[i].MagFilter;
@@ -2196,7 +1993,6 @@ void COpenGLDriver::setTextureRenderStates(const SMaterial &material, bool reset
 				}
 			}
 
-#ifdef GL_EXT_texture_filter_anisotropic
 			if (FeatureAvailable[IRR_EXT_texture_filter_anisotropic] &&
 					(!statesCache.IsCached || material.TextureLayers[i].AnisotropicFilter != statesCache.AnisotropicFilter)) {
 				glTexParameteri(tmpType, GL_TEXTURE_MAX_ANISOTROPY_EXT,
@@ -2204,7 +2000,6 @@ void COpenGLDriver::setTextureRenderStates(const SMaterial &material, bool reset
 
 				statesCache.AnisotropicFilter = material.TextureLayers[i].AnisotropicFilter;
 			}
-#endif
 
 			if (!statesCache.IsCached || material.TextureLayers[i].TextureWrapU != statesCache.WrapU) {
 				glTexParameteri(tmpType, GL_TEXTURE_WRAP_S, getTextureWrapMode(material.TextureLayers[i].TextureWrapU));
@@ -2271,10 +2066,8 @@ void COpenGLDriver::setRenderStates2DMode(bool alpha, bool texture, bool alphaCh
 		CacheHandler->setBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		CacheHandler->setBlendEquation(GL_FUNC_ADD);
 
-#ifdef GL_EXT_clip_volume_hint
 		if (FeatureAvailable[IRR_EXT_clip_volume_hint])
 			glHint(GL_CLIP_VOLUME_CLIPPING_HINT_EXT, GL_FASTEST);
-#endif
 
 		resetAllRenderStates = true;
 	}
@@ -2316,9 +2109,7 @@ void COpenGLDriver::setRenderStates2DMode(bool alpha, bool texture, bool alphaCh
 			if (alpha) {
 				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			} else {
-#if defined(GL_ARB_texture_env_combine) || defined(GL_EXT_texture_env_combine)
 				if (FeatureAvailable[IRR_ARB_texture_env_combine] || FeatureAvailable[IRR_EXT_texture_env_combine]) {
-#ifdef GL_ARB_texture_env_combine
 					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
 					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
@@ -2326,24 +2117,12 @@ void COpenGLDriver::setRenderStates2DMode(bool alpha, bool texture, bool alphaCh
 					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
 					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
 					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_PRIMARY_COLOR_ARB);
-#else
-					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_REPLACE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
-					// rgb always modulates
-					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_EXT, GL_PRIMARY_COLOR_EXT);
-#endif
 				} else
-#endif
 					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			}
 		} else {
 			if (alpha) {
-#if defined(GL_ARB_texture_env_combine) || defined(GL_EXT_texture_env_combine)
 				if (FeatureAvailable[IRR_ARB_texture_env_combine] || FeatureAvailable[IRR_EXT_texture_env_combine]) {
-#ifdef GL_ARB_texture_env_combine
 					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
 					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
 					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_PRIMARY_COLOR_ARB);
@@ -2351,17 +2130,7 @@ void COpenGLDriver::setRenderStates2DMode(bool alpha, bool texture, bool alphaCh
 					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
 					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
 					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_PRIMARY_COLOR_ARB);
-#else
-					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_REPLACE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_PRIMARY_COLOR_EXT);
-					// rgb always modulates
-					glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
-					glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_EXT, GL_PRIMARY_COLOR_EXT);
-#endif
 				} else
-#endif
 					glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			} else {
 				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -2406,19 +2175,14 @@ void COpenGLDriver::setFog(SColor c, E_FOG_TYPE fogType, f32 start,
 
 	glFogf(GL_FOG_MODE, GLfloat((fogType == EFT_FOG_LINEAR) ? GL_LINEAR : (fogType == EFT_FOG_EXP) ? GL_EXP
 																								   : GL_EXP2));
-
-#ifdef GL_EXT_fog_coord
 	if (FeatureAvailable[IRR_EXT_fog_coord])
 		glFogi(GL_FOG_COORDINATE_SOURCE, GL_FRAGMENT_DEPTH);
-#endif
-#ifdef GL_NV_fog_distance
 	if (FeatureAvailable[IRR_NV_fog_distance]) {
 		if (rangeFog)
 			glFogi(GL_FOG_DISTANCE_MODE_NV, GL_EYE_RADIAL_NV);
 		else
 			glFogi(GL_FOG_DISTANCE_MODE_NV, GL_EYE_PLANE_ABSOLUTE_NV);
 	}
-#endif
 
 	if (fogType == EFT_FOG_LINEAR) {
 		glFogf(GL_FOG_START, start);
@@ -2455,11 +2219,7 @@ void COpenGLDriver::draw3DLine(const core::vector3df &start,
 
 	glVertexPointer(3, GL_FLOAT, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Pos);
 
-#ifdef GL_BGRA
 	const GLint colorSize = (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra]) ? GL_BGRA : 4;
-#else
-	const GLint colorSize = 4;
-#endif
 	if (FeatureAvailable[IRR_ARB_vertex_array_bgra] || FeatureAvailable[IRR_EXT_vertex_array_bgra])
 		glColorPointer(colorSize, GL_UNSIGNED_BYTE, sizeof(S3DVertex), &(static_cast<const S3DVertex *>(Quad2DVertices))[0].Color);
 	else {
@@ -2780,10 +2540,8 @@ IImage *COpenGLDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RE
 		return 0;
 
 		// allows to read pixels in top-to-bottom order
-#ifdef GL_MESA_pack_invert
 	if (FeatureAvailable[IRR_MESA_pack_invert])
 		glPixelStorei(GL_PACK_INVERT_MESA, GL_TRUE);
-#endif
 
 	GLenum fmt;
 	GLenum type;
@@ -2825,27 +2583,16 @@ IImage *COpenGLDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RE
 		glReadBuffer(GL_BACK);
 	}
 
-#ifdef GL_MESA_pack_invert
 	if (FeatureAvailable[IRR_MESA_pack_invert])
 		glPixelStorei(GL_PACK_INVERT_MESA, GL_FALSE);
-	else
-#endif
-			if (pixels && newImage) {
+	else if (pixels && newImage) {
 		// opengl images are horizontally flipped, so we have to fix that here.
 		const s32 pitch = newImage->getPitch();
 		u8 *p2 = pixels + (ScreenSize.Height - 1) * pitch;
 		u8 *tmpBuffer = new u8[pitch];
 		for (u32 i = 0; i < ScreenSize.Height; i += 2) {
 			memcpy(tmpBuffer, pixels, pitch);
-			//			for (u32 j=0; j<pitch; ++j)
-			//			{
-			//				pixels[j]=(u8)(p2[j]*255.f);
-			//			}
 			memcpy(pixels, p2, pitch);
-			//			for (u32 j=0; j<pitch; ++j)
-			//			{
-			//				p2[j]=(u8)(tmpBuffer[j]*255.f);
-			//			}
 			memcpy(p2, tmpBuffer, pitch);
 			pixels += pitch;
 			p2 -= pitch;
@@ -2882,11 +2629,7 @@ GLenum COpenGLDriver::primitiveTypeToGL(scene::E_PRIMITIVE_TYPE type) const
 	case scene::EPT_TRIANGLES:
 		return GL_TRIANGLES;
 	case scene::EPT_POINT_SPRITES:
-#ifdef GL_ARB_point_sprite
 		return GL_POINT_SPRITE_ARB;
-#else
-		return GL_POINTS;
-#endif
 	}
 	return GL_TRIANGLES;
 }
@@ -3001,22 +2744,17 @@ bool COpenGLDriver::getColorFormatParameters(ECOLOR_FORMAT format, GLint &intern
 		pixelType = GL_UNSIGNED_INT;
 		break;
 	case ECF_D24S8:
-#ifdef GL_VERSION_3_0
 		if (Version >= 300) {
 			supported = true;
 			internalFormat = GL_DEPTH_STENCIL;
 			pixelFormat = GL_DEPTH_STENCIL;
 			pixelType = GL_UNSIGNED_INT_24_8;
-		} else
-#endif
-#ifdef GL_EXT_packed_depth_stencil
-				if (queryOpenGLFeature(COpenGLExtensionHandler::IRR_EXT_packed_depth_stencil)) {
+		} else if (queryOpenGLFeature(COpenGLExtensionHandler::IRR_EXT_packed_depth_stencil)) {
 			supported = true;
 			internalFormat = GL_DEPTH_STENCIL_EXT;
 			pixelFormat = GL_DEPTH_STENCIL_EXT;
 			pixelType = GL_UNSIGNED_INT_24_8_EXT;
 		}
-#endif
 		break;
 	case ECF_R8:
 		if (queryOpenGLFeature(COpenGLExtensionHandler::IRR_ARB_texture_rg)) {
@@ -3055,11 +2793,9 @@ bool COpenGLDriver::getColorFormatParameters(ECOLOR_FORMAT format, GLint &intern
 			supported = true;
 			internalFormat = GL_R16F;
 			pixelFormat = GL_RED;
-#ifdef GL_ARB_half_float_pixel
 			if (queryOpenGLFeature(COpenGLExtensionHandler::IRR_ARB_half_float_pixel))
 				pixelType = GL_HALF_FLOAT_ARB;
 			else
-#endif
 				pixelType = GL_FLOAT;
 		}
 		break;
@@ -3068,11 +2804,9 @@ bool COpenGLDriver::getColorFormatParameters(ECOLOR_FORMAT format, GLint &intern
 			supported = true;
 			internalFormat = GL_RG16F;
 			pixelFormat = GL_RG;
-#ifdef GL_ARB_half_float_pixel
 			if (queryOpenGLFeature(COpenGLExtensionHandler::IRR_ARB_half_float_pixel))
 				pixelType = GL_HALF_FLOAT_ARB;
 			else
-#endif
 				pixelType = GL_FLOAT;
 		}
 		break;
@@ -3081,11 +2815,9 @@ bool COpenGLDriver::getColorFormatParameters(ECOLOR_FORMAT format, GLint &intern
 			supported = true;
 			internalFormat = GL_RGBA16F_ARB;
 			pixelFormat = GL_RGBA;
-#ifdef GL_ARB_half_float_pixel
 			if (queryOpenGLFeature(COpenGLExtensionHandler::IRR_ARB_half_float_pixel))
 				pixelType = GL_HALF_FLOAT_ARB;
 			else
-#endif
 				pixelType = GL_FLOAT;
 		}
 		break;

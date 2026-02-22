@@ -14,6 +14,8 @@
 #include "server.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
+#include "client/mod_vfs.h"
+#include "sscsm/sscsm_environment.h"
 #endif
 
 #if BUILD_WITH_TRACY
@@ -71,7 +73,7 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 
 	lua_atpanic(m_luastack, &luaPanic);
 
-	if (m_type == ScriptingType::Client)
+	if (m_type == ScriptingType::Client || m_type == ScriptingType::SSCSM)
 		clientOpenLibs(m_luastack);
 	else
 		luaL_openlibs(m_luastack);
@@ -143,7 +145,8 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 	// Finally, put the table into the global environment:
 	lua_setglobal(m_luastack, "core");
 
-	if (m_type == ScriptingType::Client)
+	if (m_type == ScriptingType::Client
+			|| m_type == ScriptingType::SSCSM)
 		lua_pushstring(m_luastack, "/");
 	else
 		lua_pushstring(m_luastack, DIR_DELIM);
@@ -210,7 +213,8 @@ void ScriptApiBase::checkSetByBuiltin()
 	if (getType() == ScriptingType::Server ||
 			(getType() == ScriptingType::Async && m_gamedef) ||
 			getType() == ScriptingType::Emerge ||
-			getType() == ScriptingType::Client) {
+			getType() == ScriptingType::Client ||
+			getType() == ScriptingType::SSCSM) {
 		CHECK(CUSTOM_RIDX_READ_NODE, "read_node");
 		CHECK(CUSTOM_RIDX_PUSH_NODE, "push_node");
 	}
@@ -265,16 +269,18 @@ void ScriptApiBase::loadScript(const std::string &script_path)
 }
 
 #if CHECK_CLIENT_BUILD()
-void ScriptApiBase::loadModFromMemory(const std::string &mod_name)
+void ScriptApiBase::loadModFromMemory(const std::string &mod_name, std::string init_path)
 {
 	ModNameStorer mod_name_storer(getStack(), mod_name);
 
-	sanity_check(m_type == ScriptingType::Client);
+	sanity_check(m_type == ScriptingType::Client
+			|| m_type == ScriptingType::SSCSM);
 
-	const std::string init_filename = mod_name + ":init.lua";
-	const std::string chunk_name = "@" + init_filename;
+	if (init_path.empty())
+		init_path = mod_name + ":init.lua";
+	const std::string chunk_name = "@" + init_path;
 
-	const std::string *contents = getClient()->getModFile(init_filename);
+	const std::string *contents = getModVFS()->getModFile(init_path);
 	if (!contents)
 		throw ModError("Mod \"" + mod_name + "\" lacks init.lua");
 
@@ -540,8 +546,18 @@ Server* ScriptApiBase::getServer()
 }
 
 #if CHECK_CLIENT_BUILD()
-Client* ScriptApiBase::getClient()
+Client *ScriptApiBase::getClient()
 {
 	return dynamic_cast<Client *>(m_gamedef);
+}
+
+ModVFS *ScriptApiBase::getModVFS()
+{
+	if (m_type == ScriptingType::Client)
+		return getClient()->getModVFS();
+	else if (m_type == ScriptingType::SSCSM)
+		return getSSCSMEnv()->getModVFS();
+	else
+		return nullptr;
 }
 #endif

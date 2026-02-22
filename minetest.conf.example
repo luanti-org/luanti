@@ -74,6 +74,10 @@
 #    type: bool
 # safe_dig_and_place = false
 
+#    Enable a confirmation dialog before closing.
+#    type: bool
+# enable_esc_dialog = true
+
 ## Keyboard and Mouse
 
 #    Invert vertical mouse movement.
@@ -543,7 +547,6 @@
 #    Save window size automatically when modified.
 #    If true, screen size is saved in screen_w and screen_h, and whether the window
 #    is maximized is stored in window_maximized.
-#    (Autosaving window_maximized only works if compiled with SDL.)
 #    type: bool
 # autosave_screensize = true
 
@@ -563,7 +566,9 @@
 #    type: int min: 1 max: 4294967295
 # fps_max = 60
 
-#    Vertical screen synchronization. Your system may still force VSync on even if this is disabled.
+#    Vertical screen synchronization.
+#    Note: A restart is required after changing this!
+#    Your system may still force VSync and ignore this setting.
 #    type: bool
 # vsync = false
 
@@ -738,20 +743,22 @@
 #    Also, if Post Processing is disabled, FSAA will not work together with
 #    undersampling or a non-default "3d_mode" setting.
 #
-#    * FXAA - Fast approximate antialiasing
-#    Applies a post-processing filter to detect and smoothen high-contrast edges.
-#    Provides balance between speed and image quality.
-#
 #    * SSAA - Super-sampling antialiasing
 #    Renders higher-resolution image of the scene, then scales down to reduce
 #    the aliasing effects. This is the slowest and the most accurate method.
-#    type: enum values: none, fsaa, fxaa, ssaa
+#    type: enum values: none, fsaa, ssaa
 # antialiasing = none
 
 #    Defines the size of the sampling grid for FSAA and SSAA antialiasing methods.
 #    Value of 2 means taking 2x2 = 4 samples.
 #    type: enum values: 2, 4, 8, 16
 # fsaa = 2
+
+#    Applies a post-processing filter to detect and smoothen high-contrast edges.
+#    Provides balance between speed and image quality.
+#    fxaa can used in combination with the other anti-aliasing methods
+#    type: bool
+# fxaa = false
 
 ### Occlusion Culling
 
@@ -994,7 +1001,7 @@
 # gui_scaling_filter = false
 
 #    Delay showing tooltips, stated in milliseconds.
-#    type: int min: 0 max: 1.844674407371e+19
+#    type: int min: 0
 # tooltip_show_delay = 400
 
 #    Append item name to tooltip.
@@ -1004,6 +1011,10 @@
 #    Use a cloud animation for the main menu background.
 #    type: bool
 # menu_clouds = true
+
+#    Choose theme colors for the main menu background.
+#    type: enum values: dark, light
+# menu_theme = light
 
 ### HUD
 
@@ -1223,11 +1234,6 @@
 #    type: float min: 1
 # anticheat_movement_tolerance = 1.0
 
-#    If enabled, actions are recorded for rollback.
-#    This option is only read when server starts.
-#    type: bool
-# enable_rollback_recording = false
-
 ### Client-side Modding
 
 #    Restricts the access of certain client-side functions on servers.
@@ -1253,7 +1259,7 @@
 #    Remove color codes from incoming chat messages
 #    Use this to stop players from being able to use color in their messages
 #    type: bool
-# strip_color_codes = false
+# strip_color_codes = true
 
 #    Set the maximum length of a chat message (in characters) sent by clients.
 #    type: int min: 10 max: 65535
@@ -3099,7 +3105,7 @@
 
 #    The rendering back-end.
 #    Note: A restart is required after changing this!
-#    OpenGL is the default for desktop, and OGLES2 for Android.
+#    By default OpenGL3 is preferred on desktop, or OGLES2 on Android.
 #    type: enum values: , opengl, opengl3, ogles2
 # video_driver =
 
@@ -3158,6 +3164,11 @@
 #    Warning: This option is EXPERIMENTAL!
 #    type: enum values: disable, enable, force
 # autoscale_mode = disable
+
+#    Caps the maximum number of layers used with array textures (if supported).
+#    This is only useful for debugging.
+#    type: int min: 0 max: 65535
+# array_texture_max = 65535
 
 #    When using bilinear/trilinear filtering, low-resolution textures
 #    can be blurred, so this option automatically upscales them to preserve
@@ -3218,11 +3229,11 @@
 #    type: bool
 # font_italic = false
 
-#    Shadow offset (in pixels) of the default font. If 0, then shadow will not be drawn.
-#    type: int min: 0 max: 65535
+#    Shadow offset (in pixels) for all fonts. If 0, then no shadow will be drawn.
+#    type: int min: 0 max: 255
 # font_shadow = 1
 
-#    Opaqueness (alpha) of the shadow behind the default font, between 0 and 255.
+#    Opaqueness (alpha) of the shadow behind the font.
 #    type: int min: 0 max: 255
 # font_shadow_alpha = 127
 
@@ -3350,11 +3361,11 @@
 #    Maximum number of blocks that are simultaneously sent per client.
 #    The maximum total count is calculated dynamically:
 #    max_total = ceil((#clients + max_users) * per_client / 4)
-#    type: int min: 1 max: 4294967295
+#    type: int min: 1
 # max_simultaneous_block_sends_per_client = 40
 
-#    To reduce lag, block transfers are slowed down when a player is building something.
-#    This determines how long they are slowed down after placing or removing a node.
+#    To save bandwidth, block transfers are slowed down when a player is building something.
+#    This determines how long the throttling lasts after placing a node.
 #    type: float min: 0
 # full_block_send_enable_min_time_from_building = 2.0
 
@@ -3394,6 +3405,12 @@
 #    Set this to true if your server is set up to restart automatically.
 #    type: bool
 # ask_reconnect_on_crash = false
+
+#    If enabled, node and inventory actions are recorded for rollback.
+#    This option is only read on server start. Note that the engine will not
+#    automatically clean old entries from the rollback database.
+#    type: bool
+# enable_rollback_recording = false
 
 ### Server/Env Performance
 
@@ -3537,18 +3554,13 @@
 #    type: int min: 1 max: 1000000
 # emergequeue_limit_generate = 128
 
-#    Number of emerge threads to use.
-#    Value 0:
-#    -    Automatic selection. The number of emerge threads will be
-#    -    'number of processors - 2', with a lower limit of 1.
-#    Any other value:
-#    -    Specifies the number of emerge threads, with a lower limit of 1.
-#    WARNING: Increasing the number of emerge threads increases engine mapgen
-#    speed, but this may harm game performance by interfering with other
-#    processes, especially in singleplayer and/or when running Lua code in
-#    'on_generated'. For many users the optimum setting may be '1'.
+#    Number of emerge threads (responsible for map generation and loading) to use.
+#    If 0 then the engine will automatically choose a suitable value depending
+#    on the hardware and type of map generator.
+#    WARNING: There are known bugs in the default map generators (v6, v7, ...)
+#    when using more than 1 thread. The automatic choice will avoid this.
 #    type: int min: 0 max: 32767
-# num_emerge_threads = 1
+# num_emerge_threads = 0
 
 ### cURL
 
@@ -3659,7 +3671,7 @@
 # joystick_id = 0
 
 #    The type of joystick
-#    type: enum values: auto, generic, xbox, dragonrise_gamecube
+#    type: enum values: auto, generic, xbox, ps5, dragonrise_gamecube
 # joystick_type = auto
 
 #    The time in seconds it takes between repeated events

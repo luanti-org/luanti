@@ -563,10 +563,22 @@ void Game::run()
 		processUserInput(dtime);
 		// Update camera before player movement to avoid camera lag of one frame
 		updateCameraDirection(&cam_view_target, dtime);
-		cam_view.camera_yaw += (cam_view_target.camera_yaw -
-				cam_view.camera_yaw) * m_cache_cam_smoothing;
-		cam_view.camera_pitch += (cam_view_target.camera_pitch -
-				cam_view.camera_pitch) * m_cache_cam_smoothing;
+		if (m_cache_cam_smoothing <= 0.0f) {
+			cam_view.camera_yaw = cam_view_target.camera_yaw;
+			cam_view.camera_pitch = cam_view_target.camera_pitch;
+		} else {
+			f32 cam_damp_lambda = 1.0f / m_cache_cam_smoothing * dtime;
+			cam_view.camera_yaw = damp(
+					cam_view.camera_yaw,
+					cam_view_target.camera_yaw,
+					cam_damp_lambda
+			);
+			cam_view.camera_pitch = damp(
+					cam_view.camera_pitch,
+					cam_view_target.camera_pitch,
+					cam_damp_lambda
+			);
+		}
 		updatePlayerControl(cam_view);
 
 		updatePauseState();
@@ -1271,6 +1283,11 @@ void Game::updateProfilers(const RunStats &stats, const FpsControl &draw_times,
 			stats2.PrimitivesDrawn / float(stats2.Drawcalls));
 	g_profiler->avg("Irr: HW buffers uploaded", stats2.HWBuffersUploaded);
 	g_profiler->avg("Irr: HW buffers active", stats2.HWBuffersActive);
+	u32 skinned_meshes = stats2.SWSkinnedMeshes + stats2.HWSkinnedMeshes;
+	if (skinned_meshes > 0) {
+		f32 use_pct = std::floor(100.0f * stats2.HWSkinnedMeshes / skinned_meshes);
+		g_profiler->avg("Irr: HW skinning use [%]", use_pct);
+	}
 
 	if (profiler_interval.step(dtime, profiler_print_interval)) {
 		if (print_to_log) {
@@ -2016,7 +2033,7 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 	// In free move (fly), the "toggle_sneak_key" setting would prevent precise
 	// up/down movements. Hence, enable the feature only during 'normal' movement.
 	const bool allow_sneak_toggle = m_cache_toggle_sneak_key &&
-		!player->getPlayerSettings().free_move;
+		!(player->getPlayerSettings().free_move && client->checkPrivilege("fly"));
 
 	//TimeTaker tt("update player control", NULL, PRECISION_NANO);
 
@@ -2176,8 +2193,10 @@ void Game::handleClientEvent_PlayerDamage(ClientEvent *event, CameraOrientation 
 			player->getCAO()->getProperties().hp_max : PLAYER_MAX_HP_DEFAULT;
 		f32 damage_ratio = event->player_damage.amount / hp_max;
 
-		runData.damage_flash += 95.0f + 64.f * damage_ratio;
-		runData.damage_flash = MYMIN(runData.damage_flash, 127.0f);
+		if (g_settings->getBool("hurt_flash_enabled")) {
+			runData.damage_flash += 95.0f + 64.f * damage_ratio;
+			runData.damage_flash = MYMIN(runData.damage_flash, 127.0f);
+		}
 
 		player->hurt_tilt_timer = 1.5f;
 		player->hurt_tilt_strength =
@@ -3706,11 +3725,11 @@ void Game::readSettings()
 
 	m_cache_cam_smoothing = 0;
 	if (g_settings->getBool("cinematic"))
-		m_cache_cam_smoothing = 1 - g_settings->getFloat("cinematic_camera_smoothing");
+		m_cache_cam_smoothing = g_settings->getFloat("cinematic_camera_smoothing");
 	else
-		m_cache_cam_smoothing = 1 - g_settings->getFloat("camera_smoothing");
+		m_cache_cam_smoothing = g_settings->getFloat("camera_smoothing");
 
-	m_cache_cam_smoothing = rangelim(m_cache_cam_smoothing, 0.01f, 1.0f);
+	m_cache_cam_smoothing = std::max(0.0f, m_cache_cam_smoothing);
 	m_cache_mouse_sensitivity = rangelim(m_cache_mouse_sensitivity, 0.001, 100.0);
 
 	m_invert_mouse = g_settings->getBool("invert_mouse");

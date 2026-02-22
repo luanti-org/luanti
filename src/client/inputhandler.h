@@ -96,13 +96,14 @@ private:
 
 	bool setKeyDown(KeyPress keyCode, bool is_down);
 	void setKeyDown(GameKeyType action, bool is_down);
+	bool checkKeyDown(GameKeyType action) const;
 
 	/* This is faster than using getKeySetting with the tradeoff that functions
 	 * using it must make sure that it's initialised before using it and there is
 	 * no error handling (for example bounds checking). This is useful here as the
 	 * faster (up to 10x faster) key lookup is an asset.
 	 */
-	std::array<KeyPress, KeyType::INTERNAL_ENUM_COUNT> keybindings;
+	std::array<std::vector<KeyPress>, KeyType::INTERNAL_ENUM_COUNT> keybindings;
 
 	s32 mouse_wheel = 0;
 

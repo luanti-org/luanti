@@ -6,7 +6,6 @@
 #include "SkinnedMesh.h"
 #include "os.h"
 
-#include "fast_atof.h"
 #include "coreutil.h"
 #include "ISceneManager.h"
 #include "IVideoDriver.h"
@@ -276,11 +275,11 @@ bool CXMeshFileLoader::readFileIntoMemory(io::IReadFile *file)
 	tmp[0] = Buffer[4];
 	tmp[1] = Buffer[5];
 	tmp[2] = 0x0;
-	MajorVersion = core::strtoul10(tmp);
+	MajorVersion = strtoul(tmp, nullptr, 10);
 
 	tmp[0] = Buffer[6];
 	tmp[1] = Buffer[7];
-	MinorVersion = core::strtoul10(tmp);
+	MinorVersion = strtoul(tmp, nullptr, 10);
 
 	//! read format
 	if (strncmp(&Buffer[8], "txt ", 4) == 0)
@@ -1809,7 +1808,10 @@ u32 CXMeshFileLoader::readInt()
 		return readBinDWord();
 	} else {
 		findNextNoneWhiteSpaceNumber();
-		return core::strtoul10(P, &P);
+		char *end = nullptr;
+		u32 itmp = strtoul(P, &end, 10);
+		P = end;
+		return itmp;
 	}
 }
 
@@ -1847,8 +1849,9 @@ f32 CXMeshFileLoader::readFloat()
 		}
 	}
 	findNextNoneWhiteSpaceNumber();
-	f32 ftmp;
-	P = core::fast_atof_move(P, ftmp);
+	char *end = nullptr;
+	f32 ftmp = (f32)strtod(P, &end);
+	P = end;
 	return ftmp;
 }
 

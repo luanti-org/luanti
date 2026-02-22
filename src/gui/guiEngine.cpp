@@ -16,6 +16,7 @@
 #include "httpfetch.h"
 #include "irrlicht_changes/static_text.h"
 #include "log.h"
+#include "gettext.h"
 #include "porting.h"
 #include "scripting_mainmenu.h"
 #include "settings.h"
@@ -106,6 +107,7 @@ void MenuMusicFetcher::addThePaths(const std::string &name,
 /******************************************************************************/
 /** GUIEngine                                                                 */
 /******************************************************************************/
+
 GUIEngine::GUIEngine(JoystickController *joystick,
 		gui::IGUIElement *parent,
 		RenderingEngine *rendering_engine,
@@ -176,31 +178,42 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 	m_menu->defaultAllowClose(false);
 	m_menu->lockSize(true,v2u32(800,600));
 
-	// Initialize scripting
-
-	infostream << "GUIEngine: Initializing Lua" << std::endl;
-
-	m_script = std::make_unique<MainMenuScripting>(this);
-
 	g_settings->registerChangedCallback("fullscreen", fullscreenChangedCallback, this);
+
+	const auto &report_fatal_error = [&] () {
+		// Throwing an exception from here would make cleanup messy since
+		// ~GUIEngine() won't be called, so we do the error reporting like this:
+		auto err = strgettext("Failed to load main menu script!");
+		RenderingEngine::showErrorMessageBox(err);
+		m_kill = 1; // break game-menu loop
+		m_data->script_data.errormessage = err;
+	};
+
+
+	// Initialize scripting
+	infostream << "GUIEngine: Initializing Lua" << std::endl;
+	try {
+		m_script = std::make_unique<MainMenuScripting>(this);
+	} catch (ModError &e) {
+		errorstream << e.what() << std::endl;
+		report_fatal_error();
+		return;
+	}
 
 	try {
 		m_script->setMainMenuData(&m_data->script_data);
 		m_data->script_data.errormessage.clear();
 
 		if (!loadMainMenuScript()) {
-			errorstream << "No future without main menu!" << std::endl;
-			abort();
+			report_fatal_error();
+			return;
 		}
 
 		run();
-	} catch (LuaError &e) {
+	} catch (ModError &e) {
 		errorstream << "Main menu error: " << e.what() << std::endl;
 		m_data->script_data.errormessage = e.what();
 	}
-
-	m_menu->quitMenu();
-	m_menu.reset();
 }
 
 
@@ -306,22 +319,6 @@ void GUIEngine::run()
 
 	unsigned int text_height = g_fontengine->getTextHeight();
 
-	// Reset fog color
-	{
-		video::SColor fog_color;
-		video::E_FOG_TYPE fog_type = video::EFT_FOG_LINEAR;
-		f32 fog_start = 0;
-		f32 fog_end = 0;
-		f32 fog_density = 0;
-		bool fog_pixelfog = false;
-		bool fog_rangefog = false;
-		driver->getFog(fog_color, fog_type, fog_start, fog_end, fog_density,
-				fog_pixelfog, fog_rangefog);
-
-		driver->setFog(RenderingEngine::MENU_SKY_COLOR, fog_type, fog_start,
-				fog_end, fog_density, fog_pixelfog, fog_rangefog);
-	}
-
 	const core::dimension2d<u32> initial_screen_size(
 			g_settings->getU16("screen_w"),
 			g_settings->getU16("screen_h")
@@ -356,7 +353,8 @@ void GUIEngine::run()
 				last_window_info = window_info;
 			}
 
-			driver->beginScene(true, true, RenderingEngine::MENU_SKY_COLOR);
+			driver->setFog(m_rendering_engine->m_menu_sky_color);
+			driver->beginScene(true, true, m_rendering_engine->m_menu_sky_color);
 
 			if (m_clouds_enabled) {
 				drawClouds(dtime);
@@ -411,6 +409,11 @@ GUIEngine::~GUIEngine()
 	infostream << "GUIEngine: Deinitializing scripting" << std::endl;
 	m_script.reset();
 
+	if (m_menu) {
+		m_menu->quitMenu();
+		m_menu.reset();
+	}
+
 	m_sound_manager.reset();
 
 	m_irr_toplefttext->remove();
@@ -419,8 +422,20 @@ GUIEngine::~GUIEngine()
 /******************************************************************************/
 void GUIEngine::drawClouds(float dtime)
 {
+	g_menuclouds->update(v3f(0, 0, 0), m_rendering_engine->m_menu_clouds_color);
 	g_menuclouds->step(dtime * 3);
 	g_menucloudsmgr->drawAll();
+}
+
+/******************************************************************************/
+void GUIEngine::setMenuCloudsColor(video::SColor color)
+{
+	m_rendering_engine->m_menu_clouds_color = color;
+}
+
+void GUIEngine::setMenuSkyColor(video::SColor color)
+{
+	m_rendering_engine->m_menu_sky_color = color;
 }
 
 /******************************************************************************/
@@ -438,14 +453,8 @@ void GUIEngine::drawBackground(video::IVideoDriver *driver)
 	v2u32 screensize = driver->getScreenSize();
 
 	video::ITexture* texture = m_textures[TEX_LAYER_BACKGROUND].texture;
-
-	/* If no texture, draw background of solid color */
-	if(!texture){
-		video::SColor color(255,80,58,37);
-		core::rect<s32> rect(0, 0, screensize.X, screensize.Y);
-		driver->draw2DRectangle(color, rect, NULL);
+	if (!texture)
 		return;
-	}
 
 	v2u32 sourcesize = texture->getOriginalSize();
 

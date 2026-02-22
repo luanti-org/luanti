@@ -70,17 +70,6 @@ bool GUIScrollBar::OnEvent(const SEvent &event)
 					return true;
 			}
 			break;
-		case EET_GUI_EVENT:
-			if (event.GUIEvent.EventType == EGET_BUTTON_CLICKED) {
-				if (event.GUIEvent.Caller == up_button)
-					setPosInterpolated(getTargetPos() - small_step);
-				else if (event.GUIEvent.Caller == down_button)
-					setPosInterpolated(getTargetPos() + small_step);
-				return true;
-			} else if (event.GUIEvent.EventType == EGET_ELEMENT_FOCUS_LOST)
-				if (event.GUIEvent.Caller == this)
-					is_dragging = false;
-			break;
 		case EET_MOUSE_INPUT_EVENT: {
 			const core::position2di p(event.MouseInput.X, event.MouseInput.Y);
 			bool is_inside = isPointInside(p);
@@ -220,6 +209,33 @@ void GUIScrollBar::OnPostRender(u32 time_ms)
 	last_delta_ms = porting::getDeltaMs(last_time_ms, time_ms);
 	last_time_ms = time_ms;
 	interpolatePos();
+
+	const bool up_pressed = up_button && up_button->isPressed();
+	const bool down_pressed = down_button && down_button->isPressed();
+
+	// if neither is pressed, reset counter
+	if (!up_pressed && !down_pressed) {
+		m_arrow_counter = 0; // reset counter when no arrow is held
+		return;
+	}
+
+	const u32 initial_delay = 300; // ms before repeating starts
+	const u32 repeat_delay  = 150; // ms between repeats
+	assert(initial_delay > repeat_delay);
+
+	const bool is_initial = (m_arrow_counter == 0);
+	// counter is 0, so start counting
+	m_arrow_counter += last_delta_ms;
+
+	// wait for initial delay
+	if (m_arrow_counter < initial_delay && !is_initial)
+		return;
+
+	// after initial delay, repeat every repeat_delay
+	const s32 autoscroll_stepsize = small_step * (up_pressed ? -1 : 1);
+	setPosInterpolated(getTargetPos() + autoscroll_stepsize);
+	if (!is_initial)
+		m_arrow_counter -= repeat_delay;
 }
 
 void GUIScrollBar::updateAbsolutePosition()

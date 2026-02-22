@@ -3908,7 +3908,8 @@ Escape sequences
 ================
 
 Most text can contain escape sequences, that can for example color the text.
-There are a few exceptions: tab headers, dropdowns and vertical labels can't.
+There are a few exceptions: tab headers and dropdowns can't be colorized
+(but they *can* be translated).
 The following functions provide escape sequences:
 
 * `core.get_color_escape_sequence(color)`:
@@ -4210,6 +4211,8 @@ Helper functions
 * `math.factorial(x)`: returns the factorial of `x`
 * `math.round(x)`: Returns `x` rounded to the nearest integer.
     * At a multiple of 0.5, rounds away from zero.
+* `math.isfinite(x)`: Returns `true` if `x` is neither an infinity nor a NaN,
+  and `false` otherwise.
 * `string.split(str, separator, include_empty, max_splits, sep_is_pattern)`
     * `separator`: string, cannot be empty, default: `","`
     * `include_empty`: boolean, default: `false`
@@ -5699,8 +5702,13 @@ Utilities
     * Works regardless of whether the mod has been loaded yet.
     * Useful for loading additional `.lua` modules or static data from a mod,
   or checking if a mod is enabled.
-* `core.get_modnames()`: returns a list of enabled mods, sorted alphabetically.
-    * Does not include disabled mods, even if they are installed.
+* `core.get_modnames([load_order])`:
+    * Returns a list of the mods' names that are loaded or are yet to be loaded
+      during startup.
+    * `load_order` defines the order of the names (optional, default `false`)
+        * Available since 5.16.0
+        * `true`: Sorted according to the load order.
+        * `false`: Sorted alphabetically.
 * `core.get_game_info()`: returns a table containing information about the
   current game. Note that other meta information (e.g. version/release number)
   can be manually read from `game.conf` in the game's root directory.
@@ -5852,6 +5860,8 @@ Utilities
       -- Item definition fields `inventory_image`, `inventory_overlay`, `wield_image`
       -- and `wield_overlay` accept a table containing animation definitions. (5.15.0)
       item_image_animation = true,
+      -- `core.get_modnames`' parameter `load_order` (5.16.0)
+      get_modnames_load_order = true,
   }
   ```
 
@@ -6269,17 +6279,18 @@ Call these functions only at load time!
       handlers will be prevented.
 * `core.register_on_player_receive_fields(function(player, formname, fields))`
     * Called when the server received input from `player`.
-      Specifically, this is called on any of the
-      following events:
-          * a button was pressed,
-          * Enter was pressed while the focus was on a text field
-          * a checkbox was toggled,
-          * something was selected in a dropdown list,
-          * a different tab was selected,
-          * selection was changed in a textlist or table,
-          * an entry was double-clicked in a textlist or table,
-          * a scrollbar was moved, or
-          * the form was actively closed by the player.
+      Specifically, this is called on any of the following events:
+        * a button was pressed,
+        * Enter was pressed while the focus was on a text field
+        * a checkbox was toggled,
+        * something was selected in a dropdown list,
+        * a different tab was selected,
+        * selection was changed in a textlist or table,
+        * an entry was double-clicked in a textlist or table,
+        * a scrollbar was moved, or
+        * the form was actively closed by the player.
+    * This is not called for node metadata formspecs. These use the callback
+      `on_receive_fields` specified in the node definition.
     * `formname` is the name passed to `core.show_formspec`.
       Special case: The empty string refers to the player inventory
       (the formspec set by the `set_inventory_formspec` player method).
@@ -6762,14 +6773,18 @@ Environment access
       emerged.
     * The function signature of callback is:
       `function EmergeAreaCallback(blockpos, action, calls_remaining, param)`
-        * `blockpos` is the *block* coordinates of the block that had been
-          emerged.
-        * `action` could be one of the following constant values:
-            * `core.EMERGE_CANCELLED`
-            * `core.EMERGE_ERRORED`
-            * `core.EMERGE_FROM_MEMORY`
-            * `core.EMERGE_FROM_DISK`
-            * `core.EMERGE_GENERATED`
+        * `blockpos` are the *block* coordinates of the block in question.
+        * `action` can be one of the following constant values:
+            * `core.EMERGE_GENERATED`: The block has been freshly generated.
+            * `core.EMERGE_FROM_MEMORY`: The block did not need to be loaded
+              because it was already in memory.
+            * `core.EMERGE_FROM_DISK`: The block was generated before and has been
+              loaded from the map database.
+            * `core.EMERGE_CANCELLED`: The block was not loaded for some reason.
+              Possible reasons include: Server shutdown, it was already being
+              emerged, outside of mapgen limits.
+              This event is not an error, but does *not* mean that the block is now present.
+            * `core.EMERGE_ERRORED`: Emerging the block has failed due to an error.
         * `calls_remaining` is the number of callbacks to be expected after
           this one.
         * `param` is the user-defined parameter passed to emerge_area (or
@@ -9512,7 +9527,8 @@ Player properties need to be saved manually.
     -- "node" looks exactly like a node in-world (supported since 5.12.0)
     --   Note that visual effects like waving or liquid reflections will not work.
 
-    visual_size = {x = 1, y = 1, z = 1},
+    visual_size = {x = number, y = number, z = number},
+    -- Defaults to `{x = 1, y = 1, z = 1}` for entities, but `{x = 1, y = 2, z = 1}` for players!
     -- Multipliers for the visual size. If `z` is not specified, `x` will be used
     -- to scale the entity along both horizontal axes.
 
@@ -10529,8 +10545,9 @@ Used by `core.register_node`.
     on_receive_fields = function(pos, formname, fields, sender),
     -- fields = {name1 = value1, name2 = value2, ...}
     -- formname should be the empty string; you **must not** use formname.
-    -- Called when an UI form (e.g. sign text input) returns data.
-    -- See core.register_on_player_receive_fields for more info.
+    -- Called when a node metadata formspec is present and data is returned.
+    -- See core.register_on_player_receive_fields for more info regarding
+    -- `formname` and `fields`.
     -- default: nil
 
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player),

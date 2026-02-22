@@ -121,7 +121,7 @@ static scene::IMesh *createExtrusionMesh(int resolution_x, int resolution_y)
 }
 
 static video::ITexture *extractTexture(const TileDef &def, const TileLayer &layer,
-	ITextureSource *tsrc)
+		ITextureSource *tsrc, bool fallback = true)
 {
 	// If animated take first frame from tile layer (so we don't have to handle
 	// that manually), otherwise look up by name.
@@ -130,7 +130,10 @@ static video::ITexture *extractTexture(const TileDef &def, const TileLayer &laye
 		assert(ret->getType() == video::ETT_2D);
 		return ret;
 	}
-	return tsrc->getTextureForMesh(def.name.empty() ? "no_texture.png" : def.name);
+	if (!def.name.empty())
+		return tsrc->getTextureForMesh(def.name);
+
+	return fallback ? tsrc->getTextureForMesh("no_texture.png") : nullptr;
 }
 
 void getAdHocNodeShader(video::SMaterial &mat, IShaderSource *shdsrc,
@@ -273,7 +276,7 @@ void WieldMeshSceneNode::setExtruded(const TileDef &d0, const TileLayer &l0,
 		v3f wield_scale, ITextureSource *tsrc)
 {
 	setExtruded(extractTexture(d0, l0, tsrc),
-		extractTexture(d1, l1, tsrc), wield_scale);
+			extractTexture(d1, l1, tsrc, false), wield_scale);
 	// Add color
 	m_buffer_info.clear();
 	m_buffer_info.emplace_back(0, l0);
@@ -682,7 +685,7 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 			const TileLayer &l1 = v.tiles[0].layers[1];
 			mesh = getExtrudedMesh(
 				extractTexture(f.tiledef[0], l0, tsrc),
-				extractTexture(f.tiledef[1], l1, tsrc));
+				extractTexture(f.tiledef[1], l1, tsrc, false));
 			// Add color
 			result->buffer_info.emplace_back(0, l0);
 			result->buffer_info.emplace_back(1, l1);

@@ -7,6 +7,7 @@
 #include "settings.h"
 #include "log.h"
 #include "renderingengine.h"
+#include "util/basic_macros.h"
 #include "util/string.h"
 #include <unordered_map>
 #include <vector>
@@ -76,10 +77,12 @@ static std::vector<table_key> table = {
 	// Note: we add "Key" to the description if the string could be confused for something else
 	DEFINEKEY1(KEY_LBUTTON, N_("Left Click"))
 	DEFINEKEY1(KEY_RBUTTON, N_("Right Click"))
-	//~ Usually paired with the Pause key
+	// TRANSLATORS: Usually paired with the Pause key
 	DEFINEKEY1(KEY_CANCEL, N_("Break Key"))
 	DEFINEKEY1(KEY_MBUTTON, N_("Middle Click"))
+	// TRANSLATORS: Mouse button
 	DEFINEKEY1(KEY_XBUTTON1, N_("Mouse X1"))
+	// TRANSLATORS: Mouse button
 	DEFINEKEY1(KEY_XBUTTON2, N_("Mouse X2"))
 	DEFINEKEY1(KEY_BACK, N_("Backspace"))
 	DEFINEKEY1(KEY_TAB, N_("Tab Key"))
@@ -88,7 +91,7 @@ static std::vector<table_key> table = {
 	DEFINEKEY1(KEY_SHIFT, N_("Shift Key"))
 	DEFINEKEY1(KEY_CONTROL, N_("Control Key"))
 	DEFINEKEY1(KEY_MENU, N_("Menu Key"))
-	//~ Usually paired with the Break key
+	// TRANSLATORS: Usually paired with the Break key
 	DEFINEKEY1(KEY_PAUSE, N_("Pause Key"))
 	DEFINEKEY1(KEY_CAPITAL, N_("Caps Lock"))
 	DEFINEKEY1(KEY_SPACE, N_("Space"))
@@ -101,14 +104,14 @@ static std::vector<table_key> table = {
 	DEFINEKEY1(KEY_RIGHT, N_("Right Arrow"))
 	DEFINEKEY1(KEY_DOWN, N_("Down Arrow"))
 	DEFINEKEY1(KEY_SELECT, N_("Select Key"))
-	//~ "Print screen" key
+	// TRANSLATORS: "Print screen" key
 	DEFINEKEY1(KEY_PRINT, N_("Print"))
 	DEFINEKEY1(KEY_INSERT, N_("Insert"))
 	DEFINEKEY1(KEY_DELETE, N_("Delete Key"))
 	DEFINEKEY1(KEY_HELP, N_("Help Key"))
-	//~ Name of key
+	// TRANSLATORS: Name of key
 	DEFINEKEY1(KEY_LWIN, N_("Left Windows"))
-	//~ Name of key
+	// TRANSLATORS: Name of key
 	DEFINEKEY1(KEY_RWIN, N_("Right Windows"))
 	DEFINEKEY1(KEY_NUMPAD0, N_("Numpad 0")) // These are not assigned to a char
 	DEFINEKEY1(KEY_NUMPAD1, N_("Numpad 1")) // to prevent interference with KEY_KEY_[0-9].
@@ -365,21 +368,30 @@ KeyPress KeyPress::getSpecialKey(const std::string &name)
 */
 
 // A simple cache for quicker lookup
-static std::unordered_map<std::string, KeyPress> g_key_setting_cache;
+static std::unordered_map<std::string, std::vector<KeyPress>> g_key_setting_cache;
 
-KeyPress getKeySetting(const std::string &settingname)
+const std::vector<KeyPress> &getKeySetting(const std::string &settingname)
 {
 	auto n = g_key_setting_cache.find(settingname);
 	if (n != g_key_setting_cache.end())
 		return n->second;
 
-	auto keysym = g_settings->get(settingname);
+	auto setting_value = g_settings->get(settingname);
 	auto &ref = g_key_setting_cache[settingname];
-	ref = KeyPress(keysym);
-	if (!keysym.empty() && !ref) {
-		warningstream << "Invalid key '" << keysym << "' for '" << settingname << "'." << std::endl;
+	for (const auto &keysym: str_split(setting_value, '|')) {
+		if (KeyPress kp = keysym) {
+			ref.push_back(kp);
+		} else {
+			warningstream << "Invalid key '" << keysym << "' for '" << settingname << "'." << std::endl;
+		}
 	}
 	return ref;
+}
+
+bool keySettingHasMatch(const std::string &settingname, KeyPress kp)
+{
+	const auto &keylist = getKeySetting(settingname);
+	return CONTAINS(keylist, kp);
 }
 
 void clearKeyCache()

@@ -219,6 +219,32 @@ int ModApiMainMenu::l_set_clouds(lua_State *L)
 	return 0;
 }
 
+
+/******************************************************************************/
+int ModApiMainMenu::l_set_clouds_color(lua_State* L)
+{
+	GUIEngine* engine = getGuiEngine(L);
+	sanity_check(engine != NULL);
+
+	video::SColor color;
+	parseColorString(readParam<std::string>(L, 1), color, false);
+
+	engine->setMenuCloudsColor(color);
+	return 0;
+}
+
+int ModApiMainMenu::l_set_sky_color(lua_State* L)
+{
+	GUIEngine* engine = getGuiEngine(L);
+	sanity_check(engine != NULL);
+
+	video::SColor color;
+	parseColorString(readParam<std::string>(L, 1), color, false);
+
+	engine->setMenuSkyColor(color);
+	return 0;
+}
+
 /******************************************************************************/
 int ModApiMainMenu::l_get_textlist_index(lua_State *L)
 {
@@ -1078,6 +1104,8 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(update_formspec);
 	API_FCT(set_formspec_prepend);
 	API_FCT(set_clouds);
+	API_FCT(set_sky_color);
+	API_FCT(set_clouds_color);
 	API_FCT(get_textlist_index);
 	API_FCT(get_table_index);
 	API_FCT(get_worlds);

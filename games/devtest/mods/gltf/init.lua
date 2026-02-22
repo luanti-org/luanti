@@ -107,3 +107,18 @@ core.register_chatcommand("show_model", {
 		})
 	end,
 })
+
+-- Stress test for skeletal animation
+core.register_chatcommand("spider_army", {
+	func = function(name)
+		local pos = core.get_player_by_name(name):get_pos()
+		local n = 10
+		for x = 1, n do
+			for y = 1, n do
+				for z = 1, n do
+					core.add_entity(pos + 3 * vector.new(x, y, z), "gltf:spider_animated")
+				end
+			end
+		end
+	end,
+})

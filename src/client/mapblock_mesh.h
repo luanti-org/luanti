@@ -151,7 +151,7 @@ public:
 			m_buffer(buffer), m_indices(make_irr<scene::SIndexBuffer>())
 	{
 		m_indices->Data = std::move(vertex_indices);
-		m_indices->setHardwareMappingHint(scene::EHM_STATIC);
+		m_indices->MappingHint = scene::EHM_STATIC;
 	}
 
 	auto *getBuffer() const { return m_buffer; }

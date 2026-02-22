@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dutch (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-23 19:19+0200\n"
-"PO-Revision-Date: 2023-10-22 17:18+0000\n"
-"Last-Translator: Bas Huis <bassimhuis@gmail.com>\n"
+"POT-Creation-Date: 2026-01-06 23:13+0100\n"
+"PO-Revision-Date: 2025-11-16 11:51+0000\n"
+"Last-Translator: Miniontoby <tobias.gaarenstroom@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/minetest/minetest/"
 "nl/>\n"
 "Language: nl\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.1\n"
+"X-Generator: Weblate 5.15-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -80,6 +80,11 @@ msgid "[all | <cmd>] [-t]"
 msgstr "[all | <commando>]"
 
 #: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Add keybinding"
+msgstr "Externe media"
+
+#: builtin/common/settings/components.lua
 msgid "Browse"
 msgstr "Bladeren"
 
@@ -110,6 +115,11 @@ msgid "Set"
 msgstr "Selecteren"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+#, fuzzy
+msgid "$1 spread"
+msgstr "X spreiding"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
 msgstr "(Er is geen beschrijving van deze instelling beschikbaar)"
 
@@ -118,9 +128,21 @@ msgid "2D Noise"
 msgstr "2D Ruis"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"2D noise: flag on.\n"
+"3D noise: flag off."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Amplifies every octave by (amplitude of the previous octave * Persistence)."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/content/dlg_overwrite.lua
-#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
+#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_confirm_exit.lua
+#: builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
 #: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
@@ -129,8 +151,58 @@ msgid "Cancel"
 msgstr "Annuleren"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Controls how many octaves (layers) the noise will have."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Each octave is a simple noise generator. Each one also adds more detail to "
+"the noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Finally, all of the octaves will be combined to generate the noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Having lots of octaves is not recommended because it increases terrain "
+"generation time."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Lacunarity"
 msgstr "Lacunaritie"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values make the terrain simple and higher values make the terrain "
+"rough."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values make the terrain smooth and higher values make the terrain have "
+"fine detail."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values will result in smoother noise and higher values will result in "
+"rougher noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Making 3D noise eased is not recommended because it significantly increases "
+"the load."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Maps noise gradient values onto a quintic S-curve before performing "
+"interpolation."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Octaves"
@@ -140,6 +212,14 @@ msgstr "Octaven"
 #: src/settings_translation_file.cpp
 msgid "Offset"
 msgstr "afstand"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Offsets the final noise by this value."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Overrides the 'eased' flag based on the noise type."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Persistence"
@@ -156,21 +236,52 @@ msgid "Scale"
 msgstr "Schaal"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Scales every octave by (scale of the previous octave / Lacunarity)."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Scales the noise in the $1 axis by this value."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Seed"
 msgstr "Kiemgetal"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "X spread"
-msgstr "X spreiding"
+msgid "Takes the absolute value of each octave while adding them together."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "Y spread"
-msgstr "Y spreiding"
+msgid "The first octave is amplified by 1."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "Z spread"
-msgstr "Z spreiding"
+#, fuzzy
+msgid "The first octave is scaled by 1."
+msgstr "Deze instructie is uitgeschakeld door de server."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "The multiplier for the noise before the offset is added."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "The random seed for the noise. The same seed results in the same noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"This is also the scale of the largest structures in the $1 direction of the "
+"noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "This results in smooth noise instead of gridlike noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "This results in spiky noise."
+msgstr ""
 
 #. ~ "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
@@ -269,6 +380,12 @@ msgstr "Snelle modus"
 msgid "No results"
 msgstr "Geen resultaten"
 
+#. ~ Indicates that the action does not have a corresponding keybinding.
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Not bound"
+msgstr "Niet gevonden"
+
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Reset setting to default"
@@ -304,9 +421,20 @@ msgid "Tap with crosshair"
 msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
+msgid ""
+"These settings are unavailable due to your platform, hardware or in "
+"combination with the current settings."
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Touchscreen layout"
 msgstr "Gevoeligheid van het aanraakscherm"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Unavailable"
+msgstr "<geen beschikbaar>"
 
 #: builtin/common/settings/settingtypes.lua
 #, fuzzy
@@ -332,11 +460,6 @@ msgid "Custom"
 msgstr ""
 
 #: builtin/common/settings/shadows_component.lua
-#: src/settings_translation_file.cpp
-msgid "Dynamic shadows"
-msgstr "Dynamische schaduwen"
-
-#: builtin/common/settings/shadows_component.lua
 msgid "High"
 msgstr "Hoog"
 
@@ -347,6 +470,10 @@ msgstr "Laag"
 #: builtin/common/settings/shadows_component.lua
 msgid "Medium"
 msgstr "Gemiddeld"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Quality preset"
+msgstr ""
 
 #: builtin/common/settings/shadows_component.lua
 #, fuzzy
@@ -590,9 +717,8 @@ msgid "Forum Topic"
 msgstr ""
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Information"
-msgstr "Informatie:"
+msgstr "Informatie"
 
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
@@ -668,6 +794,11 @@ msgstr "Installeren van mod $1 in $2 is mislukt"
 msgid "Unable to install a $1 as a texture pack"
 msgstr "Kan $1 niet als textuurpakket installeren"
 
+#: builtin/mainmenu/content/pkgmgr.lua
+#, fuzzy
+msgid "World mods"
+msgstr "Wereld naam"
+
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
 "Players connected to\n"
@@ -715,6 +846,10 @@ msgid "Mod:"
 msgstr "Mod:"
 
 #: builtin/mainmenu/dlg_config_world.lua
+msgid "Mods located inside the world folder."
+msgstr ""
+
+#: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
 msgstr "Geen (optionele) afhankelijkheden"
 
@@ -745,6 +880,19 @@ msgstr "Wereld:"
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "enabled"
 msgstr "aangeschakeld"
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+msgid "Always show this dialog."
+msgstr ""
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+#, fuzzy
+msgid "Are you sure you want to quit?"
+msgstr "Weet je zeker dat je \"$1\" wilt verwijderen?"
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+msgid "Quit"
+msgstr ""
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "A world named \"$1\" already exists"
@@ -1099,6 +1247,10 @@ msgstr ""
 msgid "Visit website"
 msgstr ""
 
+#: builtin/mainmenu/init.lua
+msgid "Debug build, expect worse performance"
+msgstr ""
+
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "Instellingen"
@@ -1197,9 +1349,8 @@ msgid "Rename"
 msgstr "Hernoemen"
 
 #: builtin/mainmenu/tab_content.lua
-#, fuzzy
 msgid "Update available?"
-msgstr "<geen beschikbaar>"
+msgstr "Update beschikbaar?"
 
 #: builtin/mainmenu/tab_content.lua
 msgid "Use Texture Pack"
@@ -1379,11 +1530,6 @@ msgid "Done!"
 msgstr "Klaar!"
 
 #: src/client/client.cpp
-#, c-format
-msgid "Failed to save screenshot to \"%s\""
-msgstr ""
-
-#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "Nodes initialiseren"
 
@@ -1399,10 +1545,10 @@ msgstr "Texturen laden..."
 msgid "Rebuilding shaders..."
 msgstr "Shaders herbouwen..."
 
-#: src/client/client.cpp
-#, fuzzy, c-format
+#: src/client/client.cpp src/util/screenshot.cpp
+#, c-format
 msgid "Saved screenshot to \"%s\""
-msgstr "Screenshot"
+msgstr "Screenshot opgeslagen naar \"%s\""
 
 #: src/client/clientlauncher.cpp
 msgid "Could not find or load game: "
@@ -1429,14 +1575,15 @@ msgid "Provided password file failed to open: "
 msgstr "Opgegeven wachtwoordbestand kan niet worden geopend: "
 
 #: src/client/clientlauncher.cpp
-msgid "Provided world path doesn't exist: "
-msgstr "Het gespecificeerde wereld-pad bestaat niet: "
+msgid "World does not exist and no game selected to create one."
+msgstr ""
 
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
 msgstr "Media..."
 
-#: src/client/game.cpp src/client/shader.cpp src/server.cpp
+#: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
+#: src/server.cpp
 msgid ""
 "\n"
 "Check debug.txt for details."
@@ -1710,9 +1857,9 @@ msgid ""
 msgstr ""
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Viewing range changed to %d, but limited to %d by game or mod"
-msgstr "Kijkbereik gewijzigd naar %d"
+msgstr "Kijkbereik gewijzigd naar %d, maar gelimiteerd tot %d door spel of mod"
 
 #: src/client/game.cpp
 #, c-format
@@ -2077,6 +2224,11 @@ msgid "Right Windows"
 msgstr "Rechter Windowstoets"
 
 #: src/client/keycode.cpp
+#, c-format
+msgid "Scancode: %d"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
@@ -2121,10 +2273,20 @@ msgstr "Minimap in oppervlaktemodus, Zoom x%d"
 msgid "Minimap in texture mode"
 msgstr "Minimap textuur modus"
 
+#: src/client/render/pipeline.cpp
+#, c-format
+msgid "Failed to create the texture \"%s\" for the rendering pipeline."
+msgstr ""
+
+#: src/client/shader.cpp
+#, c-format
+msgid "Failed to compile the \"%s\" shader."
+msgstr "Compileren van de \"%s\" shader mislukt."
+
 #: src/client/shader.cpp
 #, fuzzy, c-format
-msgid "Failed to compile the \"%s\" shader."
-msgstr "Openen van webpagina mislukt"
+msgid "Failed to find \"%s\" shader files."
+msgstr "Compileren van de \"%s\" shader mislukt."
 
 #: src/client/shader.cpp
 #, fuzzy
@@ -2214,9 +2376,8 @@ msgid "Add button"
 msgstr "Muiswielknop"
 
 #: src/gui/touchscreeneditor.cpp
-#, fuzzy
 msgid "Done"
-msgstr "Klaar!"
+msgstr "Klaar"
 
 #: src/gui/touchscreeneditor.cpp
 #, fuzzy
@@ -2359,14 +2520,12 @@ msgid "Player name contains disallowed characters"
 msgstr ""
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Player name not allowed"
-msgstr "Speler-naam is te lang."
+msgstr "Speler-naam is niet toegestaan"
 
 #: src/network/clientpackethandler.cpp
-#, fuzzy
 msgid "Server shutting down"
-msgstr "Uitschakelen..."
+msgstr "Server wordt afgesloten"
 
 #: src/network/clientpackethandler.cpp
 msgid ""
@@ -2398,9 +2557,9 @@ msgid ""
 msgstr ""
 
 #: src/server.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "%s while shutting down: "
-msgstr "Uitschakelen..."
+msgstr "%s tijdens het afsluiten: "
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2531,7 +2690,6 @@ msgid "3D noise that determines number of dungeons per mapchunk."
 msgstr "3D-ruis die het aantal kerkers per mapchunk bepaalt."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "3D support.\n"
 "Currently supported:\n"
@@ -2543,14 +2701,11 @@ msgid ""
 msgstr ""
 "3D ondersteuning.\n"
 "Op dit moment ondersteund:\n"
-"-    none: geen 3D.\n"
+"-    none: geen 3D uitvoer\n"
 "-    anaglyph: 3D met de kleuren cyaan en magenta.\n"
-"-    interlaced: 3D voor polariserend scherm (even/oneven beeldlijnen).\n"
 "-    topbottom: 3D met horizontaal gedeeld scherm (boven/onder).\n"
 "-    sidebyside: 3D met verticaal gedeeld scherm (links/rechts).\n"
-"-    crossview: Schele 3d\n"
-"-    pageflip: 3D met vier buffers ('quad buffer').\n"
-"Merk op dat de geïnterlinieerde modus vereist dat shaders zijn ingeschakeld."
+"-    crossview: Schele 3d"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2656,16 +2811,12 @@ msgid "Allows liquids to be translucent."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Also used for climbing down and descending in water if aux1_descends is "
 "disabled."
 msgstr ""
-"Toets om te sluipen.\n"
-"Wordt ook gebruikt om naar beneden te klimmen en te dalen indien "
-"aux1_descends uitstaat.\n"
-"Zie http://irrlicht.sourceforge.net/docu/"
-"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+"Wordt ook gebruikt voor naar beneden klimmen en het dalen in water als "
+"aux1_descends is uitgeschakeld."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2707,14 +2858,12 @@ msgid "Announce to this serverlist."
 msgstr "Kondig aan op deze serverlijst."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Anti-aliasing scale"
-msgstr "Antialiasing:"
+msgstr "Anti-aliasing-schaal"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Antialiasing method"
-msgstr "Antialiasing:"
+msgstr "Anti-aliasingmethode"
 
 #: src/settings_translation_file.cpp
 msgid "Anticheat flags"
@@ -2738,6 +2887,14 @@ msgstr "Appel boom geluid"
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Applies a post-processing filter to detect and smoothen high-contrast "
+"edges.\n"
+"Provides balance between speed and image quality.\n"
+"fxaa can used in combination with the other anti-aliasing methods"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Apply dithering to reduce color banding artifacts.\n"
 "Dithering significantly increases the size of losslessly-compressed\n"
 "screenshots and it works incorrectly if the display or operating system\n"
@@ -2758,6 +2915,10 @@ msgid ""
 msgstr ""
 "Arm traagheid, geeft een meer realistische beweging van \n"
 "de arm wanneer de camera beweegt."
+
+#: src/settings_translation_file.cpp
+msgid "Array texture max layers"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Ask to reconnect after crash"
@@ -2935,6 +3096,12 @@ msgid "Camera smoothing in cinematic mode"
 msgstr "Vloeiendere camerabeweging (in cinematic modus)"
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Caps the maximum number of layers used with array textures (if supported).\n"
+"This is only useful for debugging."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Capture Tracy zones"
 msgstr ""
 
@@ -3032,6 +3199,11 @@ msgstr "Maximale lengte chatbericht"
 #: src/settings_translation_file.cpp
 msgid "Chat weblinks"
 msgstr "Weblinks chat"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Choose theme colors for the main menu background."
+msgstr "Toon wolken in de achtergrond van het hoofdmenu."
 
 #: src/settings_translation_file.cpp
 msgid "Chunk size"
@@ -3180,6 +3352,10 @@ msgstr ""
 "-1 - standaardcompressieniveau\n"
 "0 - minste compressie, snelst\n"
 "9 - meeste compressie, traagst"
+
+#: src/settings_translation_file.cpp
+msgid "Confirmation dialog before closing"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Connect glass"
@@ -3556,6 +3732,10 @@ msgid "Dungeon noise"
 msgstr "Lawaai in kerkers"
 
 #: src/settings_translation_file.cpp
+msgid "Dynamic shadows"
+msgstr "Dynamische schaduwen"
+
+#: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Effects"
 msgstr "Grafisch"
@@ -3621,6 +3801,11 @@ msgid "Enable Raytraced Culling"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Enable a confirmation dialog before closing."
+msgstr "Schakelt animatie van inventaris items aan."
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Enable automatic exposure correction\n"
 "When enabled, the post-processing engine will\n"
@@ -3641,6 +3826,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Enable console window"
 msgstr "Schakel het console venster in"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Enable dynamic shadows"
+msgstr "Dynamische schaduwen"
 
 #: src/settings_translation_file.cpp
 msgid "Enable joysticks"
@@ -3745,9 +3935,8 @@ msgid "Enables debug and error-checking in the OpenGL driver."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enables smooth scrolling."
-msgstr "Schakel joysticks in"
+msgstr "Zet vloeiend scrollen aan."
 
 #: src/settings_translation_file.cpp
 msgid "Enables the post processing pipeline."
@@ -3820,6 +4009,11 @@ msgid "Fallback font path"
 msgstr "Terugvallettertype"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Fast approximate antialiasing"
+msgstr "Filteren en anti-aliasing"
+
+#: src/settings_translation_file.cpp
 msgid "Fast mode acceleration"
 msgstr "Versnelling in snelle modus"
 
@@ -3860,7 +4054,7 @@ msgstr "Filmisch tone-mapping"
 #: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Filtering and Antialiasing"
-msgstr "Antialiasing:"
+msgstr "Filteren en anti-aliasing"
 
 #: src/settings_translation_file.cpp
 msgid "First of 4 2D noises that together define hill/mountain range height."
@@ -3956,14 +4150,16 @@ msgid "Font size divisible by"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Font size of the default font where 1 unit = 1 pixel at 96 DPI"
-msgstr "Lettergrootte van het standaardlettertype in punt (pt)."
+msgstr ""
+"Lettergrootte van het standaardlettertype waarbij 1 eenheid = 1 pixel bij 96 "
+"DPI"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Font size of the monospace font where 1 unit = 1 pixel at 96 DPI"
-msgstr "Lettergrootte van het monospace-lettertype in punt (pt)."
+msgstr ""
+"Lettergrootte van het monospace-lettertype waarbij 1 eenheid = 1 pixel bij "
+"96 DPI"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4522,21 +4718,23 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"If enabled, actions are recorded for rollback.\n"
-"This option is only read when server starts."
-msgstr ""
-"Indien aangeschakeld worden speleracties opgeslagen zodat ze teruggerold "
-"kunnen worden.\n"
-"Deze instelling wordt alleen bij het starten van de server gelezen."
-
-#: src/settings_translation_file.cpp
-msgid ""
 "If enabled, invalid world data won't cause the server to shut down.\n"
 "Only enable this if you know what you are doing."
 msgstr ""
 "Zorg dat de server niet stopt in geval van ongeldige wereld-data.\n"
 "Alleen aan te schakelen door spelers / server-beheerders die weten wat de "
 "consequenties zijn."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"If enabled, node and inventory actions are recorded for rollback.\n"
+"This option is only read on server start. Note that the engine will not\n"
+"automatically clean old entries from the rollback database."
+msgstr ""
+"Indien aangeschakeld worden speleracties opgeslagen zodat ze teruggerold "
+"kunnen worden.\n"
+"Deze instelling wordt alleen bij het starten van de server gelezen."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -4975,23 +5173,21 @@ msgid "Length of liquid waves."
 msgstr "Golfsnelheid van water/vloeistoffen"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Length of time between Active Block Modifier (ABM) execution cycles, stated "
 "in seconds."
 msgstr ""
-"Tijdsinterval waarmee actieve blokken wijzigers (ABMs) geactiveerd worden"
+"Tijdsduur tussen de uitvoeringscycli van Active Block Modifier (ABM), "
+"uitgedrukt in seconden."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Length of time between NodeTimer execution cycles, stated in seconds."
-msgstr "Tijdsinterval waarmee node timerd geactiveerd worden"
+msgstr "Tijdsduur tussen NodeTimer-uitvoeringscycli, weergegeven in seconden."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Length of time between active block management cycles, stated in seconds."
-msgstr "Tijd tussen actieve blok beheer(ABM) cycli"
+msgstr "Tijdsduur tussen actieve blokbeheercycli, weergegeven in seconden."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -5506,6 +5702,11 @@ msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Menu theme"
+msgstr "Menu"
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr "Bericht van de dag"
 
@@ -5722,34 +5923,13 @@ msgstr "Aantal 'emerge' threads"
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Number of emerge threads to use.\n"
-"Value 0:\n"
-"-    Automatic selection. The number of emerge threads will be\n"
-"-    'number of processors - 2', with a lower limit of 1.\n"
-"Any other value:\n"
-"-    Specifies the number of emerge threads, with a lower limit of 1.\n"
-"WARNING: Increasing the number of emerge threads increases engine mapgen\n"
-"speed, but this may harm game performance by interfering with other\n"
-"processes, especially in singleplayer and/or when running Lua code in\n"
-"'on_generated'. For many users the optimum setting may be '1'."
+"Number of emerge threads (responsible for map generation and loading) to "
+"use.\n"
+"If 0 then the engine will automatically choose a suitable value depending\n"
+"on the hardware and type of map generator.\n"
+"WARNING: There are known bugs in the default map generators (v6, v7, ...)\n"
+"when using more than 1 thread. The automatic choice will avoid this."
 msgstr ""
-"Aantal te gebruiken emerge-threads. \n"
-"WAARSCHUWING: Momenteel zijn er meerdere bugs die crashes kunnen veroorzaken "
-"wanneer \n"
-"'num_emerge_threads' is groter dan 1. Totdat deze waarschuwing is "
-"verwijderd, is dat \n"
-"zo sterk aanbevolen deze waarde is ingesteld op de standaard '1'. \n"
-"Waarde 0: \n"
-"- Automatische selectie. Het aantal emerge threads zal zijn \n"
-"- 'aantal processors - 2', met een ondergrens van 1. \n"
-"Elke andere waarde: \n"
-"- Specificeert het aantal emerge threads, met een ondergrens van 1. \n"
-"WAARSCHUWING: Door het aantal emerge threads te vergroten, worden de motor "
-"mapgen \n"
-"vergroot snelheid, maar dit kan de spelprestaties schaden door interfereren "
-"met andere \n"
-"processen, vooral in singleplayer en/of bij het uitvoeren van Lua-code in \n"
-"'on_generated'. Voor veel gebruikers kan de optimale instelling '1' zijn."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5783,8 +5963,8 @@ msgid "Occlusion Culling"
 msgstr "Door server worden onzichtbare nodes niet doorgegeven"
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
+#, fuzzy
+msgid "Opaqueness (alpha) of the shadow behind the font."
 msgstr ""
 "Ondoorzichtigheid (alpha) van de schaduw achter het standaardlettertype, "
 "tussen 0 en 255."
@@ -5973,9 +6153,8 @@ msgid "Proportion of large caves that contain liquid."
 msgstr "Aandeel grote grotten die vloeistof bevatten."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Protocol version minimum"
-msgstr "Protocol versie stemt niet overeen. "
+msgstr "Protocol versie minimum"
 
 #: src/settings_translation_file.cpp
 msgid "Punch gesture"
@@ -6156,8 +6335,7 @@ msgid ""
 "Save window size automatically when modified.\n"
 "If true, screen size is saved in screen_w and screen_h, and whether the "
 "window\n"
-"is maximized is stored in window_maximized.\n"
-"(Autosaving window_maximized only works if compiled with SDL.)"
+"is maximized is stored in window_maximized."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6179,9 +6357,8 @@ msgstr ""
 "een niet-gehele schaalfactor gebruikt wordt."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Screen"
-msgstr "Scherm:"
+msgstr "Scherm"
 
 #: src/settings_translation_file.cpp
 msgid "Screen height"
@@ -6253,11 +6430,6 @@ msgid ""
 "Also, if Post Processing is disabled, FSAA will not work together with\n"
 "undersampling or a non-default \"3d_mode\" setting.\n"
 "\n"
-"* FXAA - Fast approximate antialiasing\n"
-"Applies a post-processing filter to detect and smoothen high-contrast "
-"edges.\n"
-"Provides balance between speed and image quality.\n"
-"\n"
 "* SSAA - Super-sampling antialiasing\n"
 "Renders higher-resolution image of the scene, then scales down to reduce\n"
 "the aliasing effects. This is the slowest and the most accurate method."
@@ -6324,9 +6496,8 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Send player names to the server list"
-msgstr "Kondig aan op deze serverlijst."
+msgstr "Speler namen naar de serverlijst sturen"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -6513,8 +6684,9 @@ msgid "Shadow filter quality"
 msgstr "Kwaliteit schaduwfilter"
 
 #: src/settings_translation_file.cpp
-msgid "Shadow map max distance in nodes to render shadows"
-msgstr "Maximumafstand in nodes om schaduwen schaduwmap op te renderen"
+#, fuzzy
+msgid "Shadow map render distance"
+msgstr "Textuurgrootte schaduwmap"
 
 #: src/settings_translation_file.cpp
 msgid "Shadow map texture in 32 bits"
@@ -6525,9 +6697,9 @@ msgid "Shadow map texture size"
 msgstr "Textuurgrootte schaduwmap"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"Shadow offset (in pixels) of the default font. If 0, then shadow will not be "
-"drawn."
+"Shadow offset (in pixels) for all fonts. If 0, then no shadow will be drawn."
 msgstr ""
 "Fontschaduw afstand (in beeldpunten). Indien 0, dan wordt geen schaduw "
 "getekend."
@@ -7001,7 +7173,7 @@ msgstr ""
 msgid ""
 "The rendering back-end.\n"
 "Note: A restart is required after changing this!\n"
-"OpenGL is the default for desktop, and OGLES2 for Android."
+"By default OpenGL3 is preferred on desktop, or OGLES2 on Android."
 msgstr ""
 "Back-end om mee te renderen.\n"
 "Een herstart is vereist om dit definitief te wijzigen.\n"
@@ -7119,11 +7291,11 @@ msgstr ""
 "verwijdert."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"To reduce lag, block transfers are slowed down when a player is building "
+"To save bandwidth, block transfers are slowed down when a player is building "
 "something.\n"
-"This determines how long they are slowed down after placing or removing a "
-"node."
+"This determines how long the throttling lasts after placing a node."
 msgstr ""
 "Om vertraging te verminderen worden blokken minder snel verstuurd als een\n"
 "speler aan het bouwen is.\n"
@@ -7461,10 +7633,19 @@ msgid "Vertical climbing speed, in nodes per second."
 msgstr "Verticale klimsnelheid, in blokken per seconde."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"Vertical screen synchronization. Your system may still force VSync on even "
-"if this is disabled."
+"Vertical screen synchronization.\n"
+"Note: A restart is required after changing this!\n"
+"Your system may still force VSync and ignore this setting."
 msgstr ""
+"Back-end om mee te renderen.\n"
+"Een herstart is vereist om dit definitief te wijzigen.\n"
+"Opmerking: Op Android, blijf bij OGLES1 als je het niet zeker weet! Anders "
+"start de app mogelijk niet.\n"
+"Op andere platformen wordt OpenGL aanbevolen.\n"
+"Zowel OpenGL (alleen op desktop) als OGLES2 (experimenteel) ondersteunen "
+"shaders"
 
 #: src/settings_translation_file.cpp
 msgid "Video driver"
@@ -7689,13 +7870,8 @@ msgstr ""
 "node."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Will also disable autoforward, when active."
-msgstr ""
-"Toets om de speler achteruit te bewegen.\n"
-"Zal ook het automatisch voortbewegen deactiveren, indien actief.\n"
-"Zie http://irrlicht.sourceforge.net/docu/"
-"namespaceirr.html#a54da2a0e231901735e3da1b0edf72eb3"
+msgstr "Schakelt ook automatisch voortbewegen uit, indien actief."
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
@@ -7819,68 +7995,50 @@ msgstr "cURL interactieve time-out"
 msgid "cURL parallel limit"
 msgstr "Maximaal parallellisme in cURL"
 
-#~ msgid "Apps"
-#~ msgstr "Menu"
+#: src/util/screenshot.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr ""
 
-#~ msgid "End"
-#~ msgstr "Einde"
+#~ msgid ""
+#~ "Number of emerge threads to use.\n"
+#~ "Value 0:\n"
+#~ "-    Automatic selection. The number of emerge threads will be\n"
+#~ "-    'number of processors - 2', with a lower limit of 1.\n"
+#~ "Any other value:\n"
+#~ "-    Specifies the number of emerge threads, with a lower limit of 1.\n"
+#~ "WARNING: Increasing the number of emerge threads increases engine mapgen\n"
+#~ "speed, but this may harm game performance by interfering with other\n"
+#~ "processes, especially in singleplayer and/or when running Lua code in\n"
+#~ "'on_generated'. For many users the optimum setting may be '1'."
+#~ msgstr ""
+#~ "Aantal te gebruiken emerge-threads. \n"
+#~ "WAARSCHUWING: Momenteel zijn er meerdere bugs die crashes kunnen "
+#~ "veroorzaken wanneer \n"
+#~ "'num_emerge_threads' is groter dan 1. Totdat deze waarschuwing is "
+#~ "verwijderd, is dat \n"
+#~ "zo sterk aanbevolen deze waarde is ingesteld op de standaard '1'. \n"
+#~ "Waarde 0: \n"
+#~ "- Automatische selectie. Het aantal emerge threads zal zijn \n"
+#~ "- 'aantal processors - 2', met een ondergrens van 1. \n"
+#~ "Elke andere waarde: \n"
+#~ "- Specificeert het aantal emerge threads, met een ondergrens van 1. \n"
+#~ "WAARSCHUWING: Door het aantal emerge threads te vergroten, worden de "
+#~ "motor mapgen \n"
+#~ "vergroot snelheid, maar dit kan de spelprestaties schaden door "
+#~ "interfereren met andere \n"
+#~ "processen, vooral in singleplayer en/of bij het uitvoeren van Lua-code "
+#~ "in \n"
+#~ "'on_generated'. Voor veel gebruikers kan de optimale instelling '1' zijn."
 
-#~ msgid "Erase EOF"
-#~ msgstr "Verwijder EOF"
+#~ msgid "Provided world path doesn't exist: "
+#~ msgstr "Het gespecificeerde wereld-pad bestaat niet: "
 
-#~ msgid "Execute"
-#~ msgstr "Uitvoeren"
+#~ msgid "Shadow map max distance in nodes to render shadows"
+#~ msgstr "Maximumafstand in nodes om schaduwen schaduwmap op te renderen"
 
-#~ msgid "Help"
-#~ msgstr "Help"
+#~ msgid "Y spread"
+#~ msgstr "Y spreiding"
 
-#~ msgid "Home"
-#~ msgstr "Home"
-
-#~ msgid "IME Accept"
-#~ msgstr "IME Accepteren"
-
-#~ msgid "IME Convert"
-#~ msgstr "IME Converteren"
-
-#~ msgid "IME Escape"
-#~ msgstr "IME Ontsnappen"
-
-#~ msgid "IME Mode Change"
-#~ msgstr "Modus veranderen"
-
-#~ msgid "IME Nonconvert"
-#~ msgstr "IME Niet-converteren"
-
-#~ msgid "Left Button"
-#~ msgstr "Linkermuisknop"
-
-#~ msgid "Middle Button"
-#~ msgstr "Muiswielknop"
-
-#~ msgid "No world created or selected!"
-#~ msgstr "Geen wereldnaam opgegeven of geen wereld aangemaakt!"
-
-#~ msgid "OEM Clear"
-#~ msgstr "OEM duidelijk"
-
-#~ msgid "Right Button"
-#~ msgstr "Rechtmuisknop"
-
-#~ msgid "Select"
-#~ msgstr "Selecteren"
-
-#~ msgid "Sleep"
-#~ msgstr "Slaapknop"
-
-#~ msgid "Snapshot"
-#~ msgstr "Screenshot"
-
-#~ msgid "Tab"
-#~ msgstr "Tab"
-
-#~ msgid "X Button 1"
-#~ msgstr "X knop 1"
-
-#~ msgid "X Button 2"
-#~ msgstr "X knop 2"
+#~ msgid "Z spread"
+#~ msgstr "Z spreiding"

@@ -1,6 +1,7 @@
 add_subdirectory(common)
 add_subdirectory(cpp_api)
 add_subdirectory(lua_api)
+add_subdirectory(sscsm)
 
 # Used by server and client
 file(GLOB common_SCRIPT_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
@@ -20,9 +21,11 @@ set(client_SCRIPT_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/scripting_mainmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/scripting_client.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/scripting_pause_menu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/scripting_sscsm.cpp
 
 	${client_SCRIPT_COMMON_SRCS}
 	${client_SCRIPT_CPP_API_SRCS}
 	${client_SCRIPT_LUA_API_SRCS}
+	${client_SCRIPT_SSCSM_SRCS}
 	PARENT_SCOPE)
 
