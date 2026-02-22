@@ -116,7 +116,7 @@ void Particle::step(float dtime, ClientEnvironment *env)
 			This was temporarily not added due to the extent of the new_stair addition.*/
 		collisionMoveResult r = collisionMoveSimple(env, env->getGameDef(),
 			box, 0.0f, dtime, &p_pos, &p_velocity, m_acceleration * BS, nullptr,
-			m_p.object_collision);
+			m_p.object_collision, false);
 
 		f32 bounciness = m_p.bounce.pickWithin();
 		if (r.collides && (m_p.collision_removal || bounciness > 0)) {
