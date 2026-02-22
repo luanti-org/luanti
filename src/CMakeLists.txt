@@ -396,6 +396,26 @@ add_custom_target(GenerateVersion
 	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 
+# Command for builtin_files.cpp
+add_custom_command(
+	OUTPUT "${PROJECT_BINARY_DIR}/builtin_files.cpp"
+	COMMAND ${CMAKE_COMMAND}
+	-D "PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}"
+	-D "PROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+	-D "BUILTIN_BASE_PATH=${BUILTIN_BASE_PATH}"
+	-D "BUILTIN_SRCS=\"${BUILTIN_SRCS}\"" # (relative paths, so should work without escaping)
+	-P "${CMAKE_SOURCE_DIR}/cmake/Modules/HashBuiltinFiles.cmake"
+	DEPENDS
+		${BUILTIN_SRCS_ABS}
+		"${PROJECT_SOURCE_DIR}/builtin_files.cpp.in"
+		"${CMAKE_SOURCE_DIR}/cmake/Modules/HashBuiltinFiles.cmake"
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+# Target to generate just builtin_files.cpp (used by util/ci/clang-tidy.sh)
+add_custom_target(GenerateBuiltinFilesCpp
+	DEPENDS "${PROJECT_BINARY_DIR}/builtin_files.cpp")
+
+
 add_subdirectory(threading)
 add_subdirectory(content)
 add_subdirectory(database)
@@ -440,6 +460,7 @@ set(independent_SRCS
 	texture_override.cpp
 	tileanimation.cpp
 	tool.cpp
+	${PROJECT_BINARY_DIR}/builtin_files.cpp
 	${common_network_SRCS}
 	${content_SRCS}
 	${database_SRCS}
@@ -612,7 +633,7 @@ endif()
 add_library(EngineCommon OBJECT
 	${independent_SRCS}
 )
-add_dependencies(EngineCommon GenerateVersion)
+add_dependencies(EngineCommon GenerateVersion GenerateBuiltinFilesCpp)
 target_link_libraries(EngineCommon
 	sha256
 )

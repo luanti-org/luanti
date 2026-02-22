@@ -1,0 +1,19 @@
+add_subdirectory(settings)
+
+set(BUILTIN_COMMON_SRCS
+	common/after.lua
+	common/chatcommands.lua
+	common/filterlist.lua
+	common/information_formspecs.lua
+	common/item_s.lua
+	common/math.lua
+	common/menu.lua
+	common/metatable.lua
+	common/misc_helpers.lua
+	common/mod_storage.lua
+	common/register.lua
+	common/serialize.lua
+	common/strict.lua
+	common/vector.lua
+	${BUILTIN_COMMON_SETTINGS_SRCS}
+	PARENT_SCOPE)

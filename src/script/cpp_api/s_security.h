@@ -44,8 +44,11 @@ public:
 
 	/// Loads a string as Lua code safely (doesn't allow bytecode).
 	static bool safeLoadString(lua_State *L, std::string_view code, const char *chunk_name);
+	/// Same as above, but removes shebangs.
+	static bool safeLoadFileContent(lua_State *L, std::string_view code, const char *chunk_name);
 	/// Loads a file as Lua code safely (doesn't allow bytecode).
 	/// @warning path is not validated in any way
+	/// Prints warnings for modified builtin files.
 	static bool safeLoadFile(lua_State *L, const char *path, const char *display_name = nullptr);
 
 	/**

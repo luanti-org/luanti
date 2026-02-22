@@ -111,6 +111,14 @@ bool MoveDir(const std::string &source, const std::string &target);
 // Ignores case differences and '/' vs. '\\' on Windows
 bool PathStartsWith(const std::string &path, const std::string &prefix);
 
+// If child is (as absolute path) inside parent (also as absolute path), returns
+// the part of child that is relative to parent (without leading /).
+// Symlinks and "." and ".." components are removed.
+// If child and parent are (absolute) the same, the result is ".". (Otherwise it
+// never starts with '.'.)
+// Returns "" if child is not in parent, also returns "" on failure.
+std::string MakePathRelativeTo(const std::string &child, const std::string &parent);
+
 // Remove last path component and the dir delimiter before and/or after it.
 // If there's only one path component it will refuse to remove it (if absolute)
 // or return "" (if relative).

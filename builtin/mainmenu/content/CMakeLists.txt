@@ -1,0 +1,11 @@
+set(BUILTIN_MAINMENU_CONTENT_SRCS
+	mainmenu/content/contentdb.lua
+	mainmenu/content/dlg_contentdb.lua
+	mainmenu/content/dlg_install.lua
+	mainmenu/content/dlg_overwrite.lua
+	mainmenu/content/dlg_package.lua
+	mainmenu/content/init.lua
+	mainmenu/content/pkgmgr.lua
+	mainmenu/content/screenshots.lua
+	mainmenu/content/update_detector.lua
+	PARENT_SCOPE)

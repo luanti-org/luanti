@@ -1,0 +1,27 @@
+add_subdirectory(content)
+
+set(BUILTIN_MAINMENU_SRCS
+	mainmenu/async_event.lua
+	mainmenu/common.lua
+	mainmenu/credits.json
+	mainmenu/dlg_clients_list.lua
+	mainmenu/dlg_config_world.lua
+	mainmenu/dlg_confirm_exit.lua
+	mainmenu/dlg_create_world.lua
+	mainmenu/dlg_delete_content.lua
+	mainmenu/dlg_delete_world.lua
+	mainmenu/dlg_rebind_keys.lua
+	mainmenu/dlg_register.lua
+	mainmenu/dlg_reinstall_mtg.lua
+	mainmenu/dlg_rename_modpack.lua
+	mainmenu/dlg_server_list_mods.lua
+	mainmenu/dlg_version_info.lua
+	mainmenu/game_theme.lua
+	mainmenu/init.lua
+	mainmenu/serverlistmgr.lua
+	mainmenu/tab_about.lua
+	mainmenu/tab_content.lua
+	mainmenu/tab_local.lua
+	mainmenu/tab_online.lua
+	${BUILTIN_MAINMENU_CONTENT_SRCS}
+	PARENT_SCOPE)

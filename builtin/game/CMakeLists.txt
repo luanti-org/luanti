@@ -1,0 +1,23 @@
+set(BUILTIN_GAME_SRCS
+	game/async.lua
+	game/auth.lua
+	game/chat.lua
+	game/constants.lua
+	game/death_screen.lua
+	game/deprecated.lua
+	game/detached_inventory.lua
+	game/falling.lua
+	game/features.lua
+	game/forceloading.lua
+	game/hud.lua
+	game/init.lua
+	game/item_entity.lua
+	game/item.lua
+	game/knockback.lua
+	game/misc.lua
+	game/misc_s.lua
+	game/privileges.lua
+	game/register.lua
+	game/static_spawn.lua
+	game/voxelarea.lua
+	PARENT_SCOPE)
