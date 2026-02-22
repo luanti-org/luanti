@@ -950,7 +950,7 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 
 	collisionMoveResult result = collisionMoveSimple(env, m_client,
 		m_collisionbox, player_stepheight, dtime,
-		&position, &m_speed, accel_f, m_cao);
+		&position, &m_speed, accel_f, m_cao, true, physics_override.new_stair);
 
 	// Position was slightly changed; update standing node pos
 	if (touching_ground)
