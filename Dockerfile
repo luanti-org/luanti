@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # check=error=true
 
-ARG DOCKER_IMAGE=alpine:3.19
+ARG DOCKER_IMAGE=alpine:3.23
 FROM $DOCKER_IMAGE AS dev
 
 ENV LUAJIT_VERSION=v2.1
