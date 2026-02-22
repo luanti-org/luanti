@@ -38,6 +38,14 @@ public:
 	void on_playerReceiveFields(ServerActiveObject *player,
 			const std::string &formname, const StringMap &fields);
 	void on_authplayer(const std::string &name, const std::string &ip, bool is_success);
+	void on_hotbar_slot_selected(
+		ServerActiveObject* player,
+		InventoryLocation& loc,
+		const std::string& list,
+		int hotbar_slot,
+		int prev_hotbar_slot,
+		bool is_from_scroll
+	);
 
 	// Player inventory callbacks
 	// Return number of accepted items to be moved
