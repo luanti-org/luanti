@@ -722,7 +722,6 @@ Methods:
             sneak = boolean,
             sneak_glitch = boolean,
             new_move = boolean,
-            new_stair = boolean,
         }
         ```
 
