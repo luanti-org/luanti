@@ -1213,7 +1213,8 @@ void LocalPlayer::handleAutojump(f32 dtime, Environment *env,
 
 	// try at peak of jump, zero step height
 	collisionMoveResult jump_result = collisionMoveSimple(env, m_client,
-		m_collisionbox, 0.0f, dtime, &jump_pos, &jump_speed, v3f(0.0f), m_cao);
+		m_collisionbox, 0.0f, dtime, &jump_pos, &jump_speed, v3f(0.0f), m_cao, true, 
+		physics_override.new_stair);
 
 	// see if we can get a little bit farther horizontally if we had
 	// jumped
