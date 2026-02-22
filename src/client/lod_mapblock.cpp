@@ -151,7 +151,7 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const v3s16 seg_start
 			const u64 slice_offset = direction_offset + BITSET_MAX_NOPAD * slice_i;
 			for (u8 u = 0; u < BITSET_MAX_NOPAD; u++) {
 
-				bitset column = m_slices[slice_offset + u];
+				bitset column = m_cur_seg.m_slices[slice_offset + u];
 				while (column) {
 					s32 v0 = porting::ctzll(column);
 					// Shift the bitset down, so it has no low 0s anymore,
@@ -162,10 +162,10 @@ void LodMeshGenerator::generateBitsetMesh(const MapNode n, const v3s16 seg_start
 					// Determine the width of the greedy quad
 					s32 u1 = 1;
 					while (u + u1 < BITSET_MAX_NOPAD && // while still in current chunk
-						(m_slices[slice_offset + u + u1] & mask) == mask // and next column shares faces
+						(m_cur_seg.m_slices[slice_offset + u + u1] & mask) == mask // and next column shares faces
 						) {
 						// then increase width and unset the bits
-						m_slices[slice_offset + u + u1] ^= mask;
+						m_cur_seg.m_slices[slice_offset + u + u1] ^= mask;
 						u1++;
 					}
 
@@ -271,13 +271,13 @@ void LodMeshGenerator::processNodeGroup(const std::array<bitset, 3 * BITSET_MAX2
 			// std::bitset, so we *cant* flatten these bitsets into one large std::bitset.
 
 			// Y-Up
-			m_nodes_faces[BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+			m_cur_seg.m_nodes_faces[BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[BITSET_MAX2 + BITSET_MAX * u + v] &
 				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * u + v] >> 1))
 				>> 1 & U62_MAX;
 
 			// Y-Down
-			m_nodes_faces[BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+			m_cur_seg.m_nodes_faces[BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[BITSET_MAX2 + BITSET_MAX * u + v] &
 				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * u + v] << 1))
 				>> 1 & U62_MAX;
@@ -286,13 +286,13 @@ void LodMeshGenerator::processNodeGroup(const std::array<bitset, 3 * BITSET_MAX2
 		for (u8 u = 1; u <= BITSET_MAX_NOPAD; u++)
 		for (u8 v = 1; v <= BITSET_MAX_NOPAD; v++) {
 			// X-Up
-			m_nodes_faces[2 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+			m_cur_seg.m_nodes_faces[2 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[BITSET_MAX * u + v] &
 				~(all_set_nodes[BITSET_MAX * u + v] >> 1))
 				>> 1 & U62_MAX;
 
 			// X-Down
-			m_nodes_faces[3 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+			m_cur_seg.m_nodes_faces[3 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[BITSET_MAX * u + v] &
 				~(all_set_nodes[BITSET_MAX * u + v] << 1))
 				>> 1 & U62_MAX;
@@ -301,13 +301,13 @@ void LodMeshGenerator::processNodeGroup(const std::array<bitset, 3 * BITSET_MAX2
 		for (u8 u = 1; u <= BITSET_MAX_NOPAD; u++)
 		for (u8 v = 1; v <= BITSET_MAX_NOPAD; v++) {
 			// Z-Up
-			m_nodes_faces[4 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+			m_cur_seg.m_nodes_faces[4 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] &
 				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] >> 1))
 				>> 1 & U62_MAX;
 
 			// Z-Down
-			m_nodes_faces[5 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
+			m_cur_seg.m_nodes_faces[5 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
 				(nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] &
 				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] << 1))
 				>> 1 & U62_MAX;
@@ -316,16 +316,16 @@ void LodMeshGenerator::processNodeGroup(const std::array<bitset, 3 * BITSET_MAX2
 		// We only calculated the visible node faces per column, so far.
 		// But to use greedy meshing, we need the faces *next* to each other, not behind each other.
 		// Each node face is mapped to their corresponding slice/plane
-		memset(m_slices, 0, sizeof(m_slices));
+		memset(m_cur_seg.m_slices, 0, sizeof(m_cur_seg.m_slices));
 		for (u8 direction = 0; direction < Direction_END; direction++) {
 			const u64 direction_offset = BITSET_MAX_NOPAD2 * direction;
 			for (u8 u = 0; u < BITSET_MAX_NOPAD; u++) {
 				const u64 u_offset = direction_offset + BITSET_MAX_NOPAD * u;
 				for (u8 v = 0; v < BITSET_MAX_NOPAD; v++) {
-					bitset column = m_nodes_faces[u_offset + v];
+					bitset column = m_cur_seg.m_nodes_faces[u_offset + v];
 					while (column) {
 						const u8 first_filled = porting::ctzll(column);
-						m_slices[direction_offset + BITSET_MAX_NOPAD * first_filled + u] |= 1ULL << v;
+						m_cur_seg.m_slices[direction_offset + BITSET_MAX_NOPAD * first_filled + u] |= 1ULL << v;
 						column &= column - 1;
 					}
 				}
@@ -335,24 +335,24 @@ void LodMeshGenerator::processNodeGroup(const std::array<bitset, 3 * BITSET_MAX2
 		MapNode n = node_types[node_key.content];
 		const video::SColor color = encode_light(node_key.light, m_nodedef->getLightingFlags(n).light_source);
 
-		generateBitsetMesh(n, m_seg_start - m_blockpos_nodes, color);
+		generateBitsetMesh(n, m_cur_seg.start - m_blockpos_nodes, color);
 	}
 }
 
-LightPair LodMeshGenerator::computeMaxFaceLight(const MapNode n, const v3s16 p, const v3s16 dir)
+LightPair LodMeshGenerator::computeMaxFaceLight(const v3s16 p, const v3s16 dir)
 {
 	MapNode n1 = m_data->m_vmanip.getNodeNoExNoEmerge(p + dir);
 	if (n1.getContent() == CONTENT_IGNORE) {
-		const v3s16 p_scaled = (p + dir - m_seg_start + 1) / m_node_width;
-		setBitIndex(m_all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
+		const v3s16 p_scaled = (p + dir - m_cur_seg.start + 1) / m_node_width;
+		setBitIndex(m_cur_seg.m_all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
 	}
 	MapNode n2 = m_data->m_vmanip.getNodeNoExNoEmerge(p - dir);
 	if (n1.getContent() == CONTENT_IGNORE) {
-		const v3s16 p_scaled = (p + dir - m_seg_start + 1) / m_node_width;
-		setBitIndex(m_all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
+		const v3s16 p_scaled = (p - dir - m_cur_seg.start + 1) / m_node_width;
+		setBitIndex(m_cur_seg.m_all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
 	}
-	const u16 lp1 = getFaceLight(n, n1, m_nodedef);
-	const u16 lp2 = getFaceLight(n, n2, m_nodedef);
+	const u16 lp1 = getFaceLight(m_cur_node.n, n1, m_nodedef);
+	const u16 lp2 = getFaceLight(m_cur_node.n, n2, m_nodedef);
 	return static_cast<LightPair>(std::max(lp1, lp2));
 }
 
@@ -370,60 +370,59 @@ void LodMeshGenerator::generateGreedyLod()
 	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> set_solid_nodes;
 	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> set_transparent_nodes;
 
-	memset(&m_all_set_solid_nodes, 0, sizeof(m_all_set_solid_nodes));
-	memset(&m_all_set_transparent_nodes, 0, sizeof(m_all_set_transparent_nodes));
+	memset(&m_cur_seg.m_all_set_solid_nodes, 0, sizeof(m_cur_seg.m_all_set_solid_nodes));
+	memset(&m_cur_seg.m_all_set_transparent_nodes, 0, sizeof(m_cur_seg.m_all_set_transparent_nodes));
 
-	const v3s16 to = m_seg_start + m_seg_size;
-	const s16 max_light_step = std::min<s16>(MAP_BLOCKSIZE, m_node_width);
+	const v3s16 to = m_cur_seg.start + m_cur_seg.m_seg_size + m_node_width;
 
 	v3s16 p;
-	for (p.Z = m_seg_start.Z - 1; p.Z < to.Z + m_node_width; p.Z += m_node_width)
-	for (p.Y = m_seg_start.Y - 1; p.Y < to.Y + m_node_width; p.Y += m_node_width)
-	for (p.X = m_seg_start.X - 1; p.X < to.X + m_node_width; p.X += m_node_width) {
+	for (p.Z = m_cur_seg.start.Z - 1; p.Z < to.Z; p.Z += m_node_width)
+	for (p.Y = m_cur_seg.start.Y - 1; p.Y < to.Y; p.Y += m_node_width)
+	for (p.X = m_cur_seg.start.X - 1; p.X < to.X; p.X += m_node_width) {
 		if (!m_data->m_vmanip.m_area.contains(p))
 			continue;
-		MapNode n = m_data->m_vmanip.getNodeRefUnsafeCheckFlags(p);
+		m_cur_node.n = m_data->m_vmanip.getNodeRefUnsafeCheckFlags(p);
 		// when our sample is air, take more samples in a straight line down, to make sure we always hit the surface
 		// otherwise, snowy mountains or grassy hills would display lumps of dirt and stone
-		const ContentFeatures* f = &m_nodedef->get(n);
-		for (u8 subtr = 1; subtr < m_node_width && f->drawtype == NDT_AIRLIKE; subtr++) {
+		m_cur_node.f = &m_nodedef->get(m_cur_node.n);
+		for (u8 subtr = 1; subtr < m_node_width && m_cur_node.f->drawtype == NDT_AIRLIKE; subtr++) {
 			// this assumes that we always have entire blocks emerged for meshgen
-			n = m_data->m_vmanip.getNodeRefUnsafeCheckFlags(p - v3s16(0, subtr, 0));
-			f = &m_nodedef->get(n);
+			m_cur_node.n = m_data->m_vmanip.getNodeRefUnsafeCheckFlags(p - v3s16(0, subtr, 0));
+			m_cur_node.f = &m_nodedef->get(m_cur_node.n);
 		}
 
-		if (!m_is_textureless && f->drawtype == NDT_MESH) {
-			drawMeshNode(p - m_blockpos_nodes, n, f);
+		if (!m_is_textureless && m_cur_node.f->drawtype == NDT_MESH) {
+			drawMeshNode(p - m_blockpos_nodes, m_cur_node.n, m_cur_node.f);
 			continue;
 		}
 
-		const bool is_solid = m_solid_set.test(f->drawtype);
-		const bool is_transparent = m_transparent_set.test(f->drawtype);
+		const bool is_solid = m_solid_set.test(m_cur_node.f->drawtype);
+		const bool is_transparent = m_transparent_set.test(m_cur_node.f->drawtype);
 		if (!is_solid && !is_transparent) {
 			continue;
 		}
 
-		const content_t node_type = n.getContent();
-		const v3s16 p_scaled = (p - m_seg_start + 1) / m_node_width;
-		node_types.try_emplace(node_type, n);
+		const content_t node_type = m_cur_node.n.getContent();
+		const v3s16 p_scaled = (p - m_cur_seg.start + 1) / m_node_width;
+		node_types.try_emplace(node_type, m_cur_node.n);
 
-		if (f->drawtype == NDT_NORMAL) {
+		if (m_cur_node.f->drawtype == NDT_NORMAL) {
 			// take a light sample for each side of a node, on each axis and take the maximum.
 			// it would be more accurate to take a sample for each of the 6 directions intead of each axis,
 			// but that would take twice the ram
-			LightPair lp = computeMaxFaceLight(n, p, v3s16(max_light_step, 0, 0));
+			LightPair lp = computeMaxFaceLight(p, v3s16(m_node_width, 0, 0));
 			NodeKey key = NodeKey{node_type, lp};
 			set_solid_nodes[key][BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
 
-			lp = computeMaxFaceLight(n, p, v3s16(0, max_light_step, 0));
+			lp = computeMaxFaceLight(p, v3s16(0, m_node_width, 0));
 			key = NodeKey{node_type, lp};
 			set_solid_nodes[key][BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
 
-			lp = computeMaxFaceLight(n, p, v3s16(0, 0, max_light_step));
+			lp = computeMaxFaceLight(p, v3s16(0, 0, m_node_width));
 			key = NodeKey{node_type, lp};
 			set_solid_nodes[key][2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
 		} else {
-			const LightPair lp = static_cast<LightPair>(getInteriorLight(n, 0, m_nodedef));
+			const LightPair lp = static_cast<LightPair>(getInteriorLight(m_cur_node.n, 0, m_nodedef));
 
 			NodeKey key{node_type, lp};
 			auto &nodes = is_solid ? set_solid_nodes[key] : set_transparent_nodes[key];
@@ -431,15 +430,15 @@ void LodMeshGenerator::generateGreedyLod()
 		}
 
 		if (is_solid) {
-			setBitIndex(m_all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
+			setBitIndex(m_cur_seg.m_all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
 		} else { // if transparent
-			setBitIndex(m_all_set_transparent_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
+			setBitIndex(m_cur_seg.m_all_set_transparent_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
 		}
 	}
 
-	processNodeGroup(m_all_set_solid_nodes, set_solid_nodes, node_types);
+	processNodeGroup(m_cur_seg.m_all_set_solid_nodes, set_solid_nodes, node_types);
 	if (!m_is_textureless) // textureless has no transparency
-		processNodeGroup(m_all_set_transparent_nodes, set_transparent_nodes, node_types);
+		processNodeGroup(m_cur_seg.m_all_set_transparent_nodes, set_transparent_nodes, node_types);
 }
 
 void LodMeshGenerator::generateLodChunks()
@@ -453,11 +452,11 @@ void LodMeshGenerator::generateLodChunks()
 	for (u16 x = 0; x < m_data->m_side_length; x += attempted_seg_size)
 	for (u16 y = 0; y < m_data->m_side_length; y += attempted_seg_size)
 	for (u16 z = 0; z < m_data->m_side_length; z += attempted_seg_size) {
-		m_seg_start = v3s16(
+		m_cur_seg.start = v3s16(
 			x + m_blockpos_nodes.X,
 			y + m_blockpos_nodes.Y,
 			z + m_blockpos_nodes.Z);
-		m_seg_size = v3s16(
+		m_cur_seg.m_seg_size = v3s16(
 			std::min(m_data->m_side_length - x - 1, attempted_seg_size),
 			std::min(m_data->m_side_length - y - 1, attempted_seg_size),
 			std::min(m_data->m_side_length - z - 1, attempted_seg_size));
@@ -469,8 +468,6 @@ void LodMeshGenerator::generate(const u8 lod)
 {
 	ZoneScoped;
 
-	// static u32 calls = 0;
-
 	// cap LODs to 8, since there is no use for larger than 256 node LODs
 	m_node_width = 1 << MYMIN(lod - 1, 7);
 
@@ -479,6 +476,4 @@ void LodMeshGenerator::generate(const u8 lod)
 		m_node_width = m_data->m_side_length;
 
 	generateLodChunks();
-
-	// warningstream << "calls " << (++calls) << std::endl;
 }

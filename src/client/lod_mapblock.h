@@ -37,11 +37,11 @@ public:
 	void generate(u8 lod);
 
 private:
-	MeshMakeData *const m_data;
-	MeshCollector *const m_collector;
-	const NodeDefManager *const m_nodedef;
-	const v3s16 m_blockpos_nodes;
-	const bool m_is_textureless;
+	static constexpr core::vector3df s_normals[6] = {
+		core::vector3df(0, 1, 0), core::vector3df(0, -1, 0),
+		core::vector3df(1, 0, 0), core::vector3df(-1, 0, 0),
+		core::vector3df(0, 0, 1), core::vector3df(0, 0, -1)
+	};
 
 	using bitset = u64;
 	static constexpr bitset U62_MAX = U64_MAX >> 2;
@@ -55,26 +55,16 @@ private:
 	// max bits the fit in a bitset without padding nodes squared
 	static constexpr s16 BITSET_MAX_NOPAD2 = BITSET_MAX_NOPAD * BITSET_MAX_NOPAD;
 
-	u8 m_node_width;
-
-	// LOD mesh gen uses bit shifts for gredy meshing, so we have to split the volume into segments that fit in a u64
-	v3s16 m_seg_start;
-	v3s16 m_seg_size;
-
-	std::array<bitset, 3 * BITSET_MAX2> m_all_set_solid_nodes;
-	std::array<bitset, 3 * BITSET_MAX2> m_all_set_transparent_nodes;
-
+	MeshMakeData *const m_data;
+	MeshCollector *const m_collector;
+	const NodeDefManager *const m_nodedef;
+	const v3s16 m_blockpos_nodes;
+	const bool m_is_textureless;
 	std::bitset<NodeDrawType_END> m_solid_set;
 	std::bitset<NodeDrawType_END> m_transparent_set;
 
-	bitset m_nodes_faces[6 * BITSET_MAX_NOPAD2];
-	bitset m_slices[6 * BITSET_MAX_NOPAD2];
+	u8 m_node_width;
 
-	static constexpr core::vector3df s_normals[6] = {
-		core::vector3df(0, 1, 0), core::vector3df(0, -1, 0),
-		core::vector3df(1, 0, 0), core::vector3df(-1, 0, 0),
-		core::vector3df(0, 0, 1), core::vector3df(0, 0, -1)
-	};
 	TileSpec m_solid_tile = [] {
 		TileSpec tile;
 		TileLayer layer;
@@ -84,13 +74,31 @@ private:
 		return tile;
 	}();
 
+	struct {
+		v3s16 p; // relative to blockpos_nodes
+		MapNode n;
+		const ContentFeatures *f;
+	} m_cur_node;
+
+	// LOD mesh gen uses bit shifts for gredy meshing, so we have to split the volume into segments that fit in a u64
+	struct {
+		v3s16 start;
+		v3s16 m_seg_size;
+
+		bitset m_nodes_faces[6 * BITSET_MAX_NOPAD2];
+		bitset m_slices[6 * BITSET_MAX_NOPAD2];
+
+		std::array<bitset, 3 * BITSET_MAX2> m_all_set_solid_nodes{};
+		std::array<bitset, 3 * BITSET_MAX2> m_all_set_transparent_nodes{};
+	} m_cur_seg;
+
 	void drawMeshNode(v3s16 pos, MapNode n, const ContentFeatures *f) const;
 	void generateGreedyLod();
 	void generateBitsetMesh(MapNode n, v3s16 seg_start, video::SColor color_in);
 	void processNodeGroup(const std::array<bitset, 3 * BITSET_MAX2> &all_set_nodes,
 		std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> &subset_nodes,
 		std::map<content_t, MapNode> &node_types);
-	LightPair computeMaxFaceLight(MapNode n, v3s16 p, v3s16 dir);
+	LightPair computeMaxFaceLight(v3s16 p, v3s16 dir);
 	static void setBitIndex(std::array<bitset, 3 * BITSET_MAX2> &vol, u8 x, u8 y, u8 z);
 	void generateLodChunks();
 };
