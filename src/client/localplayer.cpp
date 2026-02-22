@@ -331,12 +331,6 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 	const bool use_new_stair = m_cao != NULL && 
 		m_cao->getProperties().new_stair;
 
-	if (m_cao != NULL) {
-		std::cout << "------" << std::endl;
-		std::cout << m_cao->getProperties().stepheight << std::endl;
-		std::cout << m_cao->getProperties().new_stair << std::endl;
-	}
-
 	collisionMoveResult result = collisionMoveSimple(env, m_client,
 		m_collisionbox, player_stepheight, dtime,
 		&position, &m_speed, accel_f, m_cao, true, use_new_stair);
