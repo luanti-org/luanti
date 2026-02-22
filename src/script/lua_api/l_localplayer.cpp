@@ -162,9 +162,6 @@ int LuaLocalPlayer::l_get_physics_override(lua_State *L)
 	lua_pushboolean(L, phys.new_move);
 	lua_setfield(L, -2, "new_move");
 
-	lua_pushboolean(L, phys.new_stair);
-	lua_setfield(L, -2, "new_stair");
-
 	lua_pushnumber(L, phys.speed_climb);
 	lua_setfield(L, -2, "speed_climb");
 

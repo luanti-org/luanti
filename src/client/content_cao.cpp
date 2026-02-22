@@ -1603,11 +1603,6 @@ void GenericCAO::processMessage(const std::string &data)
 			phys.speed_walk        = readF32(is);
 		}
 
-		// new overrides since 5.15.0
-		if (canRead(is)) {
-			phys.new_stair = !readU8(is);
-		}
-
 		if (m_is_local_player) {
 			m_env->getLocalPlayer()->physics_override = phys;
 		}
