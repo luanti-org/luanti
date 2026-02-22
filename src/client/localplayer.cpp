@@ -329,7 +329,7 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 
 	collisionMoveResult result = collisionMoveSimple(env, m_client,
 		m_collisionbox, player_stepheight, dtime,
-		&position, &m_speed, accel_f, m_cao);
+		&position, &m_speed, accel_f, m_cao, true, physics_override.new_stair);
 
 	bool could_sneak = control.sneak && !free_move && !in_liquid &&
 		!is_climbing && physics_override.sneak;
