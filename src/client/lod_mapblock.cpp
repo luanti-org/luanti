@@ -344,20 +344,36 @@ LightPair LodMeshGenerator::computeMaxFaceLight(const v3s16 p, const v3s16 dir)
 	MapNode n1 = m_data->m_vmanip.getNodeNoExNoEmerge(p + dir);
 	if (n1.getContent() == CONTENT_IGNORE) {
 		const v3s16 p_scaled = (p + dir - m_cur_seg.start + 1) / m_node_width;
-		setBitIndex(m_cur_seg.m_all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
+		setBitIndex(p_scaled.X, p_scaled.Y, p_scaled.Z);
 	}
 	MapNode n2 = m_data->m_vmanip.getNodeNoExNoEmerge(p - dir);
 	if (n1.getContent() == CONTENT_IGNORE) {
 		const v3s16 p_scaled = (p - dir - m_cur_seg.start + 1) / m_node_width;
-		setBitIndex(m_cur_seg.m_all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
+		setBitIndex(p_scaled.X, p_scaled.Y, p_scaled.Z);
 	}
 	const u16 lp1 = getFaceLight(m_cur_node.n, n1, m_nodedef);
 	const u16 lp2 = getFaceLight(m_cur_node.n, n2, m_nodedef);
 	return static_cast<LightPair>(std::max(lp1, lp2));
 }
 
-void LodMeshGenerator::setBitIndex(std::array<bitset, 3 * BITSET_MAX2> &vol, u8 x, u8 y, u8 z)
+void LodMeshGenerator::setBitIndex(u8 x, u8 y, u8 z)
 {
+	auto &vol = m_cur_node.is_solid ? m_cur_seg.m_all_set_solid_nodes : m_cur_seg.m_all_set_transparent_nodes;
+	auto &iters = m_cur_node.is_solid ? m_cur_seg.last_solid_iter : m_cur_seg.last_transparent_iter;
+
+	if (iters[BITSET_MAX * y + z] != m_cur_seg.iter) {
+		iters[BITSET_MAX * y + z] = m_cur_seg.iter;
+		vol[BITSET_MAX * y + z] = 0;
+	}
+	if (iters[BITSET_MAX2 + BITSET_MAX * x + z] != m_cur_seg.iter) {
+		iters[BITSET_MAX2 + BITSET_MAX * x + z] = m_cur_seg.iter;
+		vol[BITSET_MAX2 + BITSET_MAX * x + z] = 0;
+	}
+	if (iters[2 * BITSET_MAX2 + BITSET_MAX * x + y] != m_cur_seg.iter) {
+		iters[2 * BITSET_MAX2 + BITSET_MAX * x + y] = m_cur_seg.iter;
+		vol[2 * BITSET_MAX2 + BITSET_MAX * x + y] = 0;
+	}
+
 	vol[BITSET_MAX * y + z] |= 1ULL << x; // x axis
 	vol[BITSET_MAX2 + BITSET_MAX * x + z] |= 1ULL << y; // y axis
 	vol[2 * BITSET_MAX2 + BITSET_MAX * x + y] |= 1ULL << z; // z axis
@@ -365,13 +381,11 @@ void LodMeshGenerator::setBitIndex(std::array<bitset, 3 * BITSET_MAX2> &vol, u8 
 
 void LodMeshGenerator::generateGreedyLod()
 {
+	m_cur_seg.iter++;
 	std::map<content_t, MapNode> node_types;
 	// all nodes in this volume, on each of the 3 axes, grouped by type and brightness, for use in actual mesh generation
 	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> set_solid_nodes;
 	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> set_transparent_nodes;
-
-	memset(&m_cur_seg.m_all_set_solid_nodes, 0, sizeof(m_cur_seg.m_all_set_solid_nodes));
-	memset(&m_cur_seg.m_all_set_transparent_nodes, 0, sizeof(m_cur_seg.m_all_set_transparent_nodes));
 
 	const v3s16 to = m_cur_seg.start + m_cur_seg.m_seg_size + m_node_width;
 
@@ -396,9 +410,9 @@ void LodMeshGenerator::generateGreedyLod()
 			continue;
 		}
 
-		const bool is_solid = m_solid_set.test(m_cur_node.f->drawtype);
+		m_cur_node.is_solid = m_solid_set.test(m_cur_node.f->drawtype);
 		const bool is_transparent = m_transparent_set.test(m_cur_node.f->drawtype);
-		if (!is_solid && !is_transparent) {
+		if (!m_cur_node.is_solid && !is_transparent) {
 			continue;
 		}
 
@@ -425,15 +439,13 @@ void LodMeshGenerator::generateGreedyLod()
 			const LightPair lp = static_cast<LightPair>(getInteriorLight(m_cur_node.n, 0, m_nodedef));
 
 			NodeKey key{node_type, lp};
-			auto &nodes = is_solid ? set_solid_nodes[key] : set_transparent_nodes[key];
-			setBitIndex(nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
+			auto &nodes = m_cur_node.is_solid ? set_solid_nodes[key] : set_transparent_nodes[key];
+			nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
+			nodes[BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
+			nodes[2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
 		}
 
-		if (is_solid) {
-			setBitIndex(m_cur_seg.m_all_set_solid_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
-		} else { // if transparent
-			setBitIndex(m_cur_seg.m_all_set_transparent_nodes, p_scaled.X, p_scaled.Y, p_scaled.Z);
-		}
+		setBitIndex(p_scaled.X, p_scaled.Y, p_scaled.Z);
 	}
 
 	processNodeGroup(m_cur_seg.m_all_set_solid_nodes, set_solid_nodes, node_types);

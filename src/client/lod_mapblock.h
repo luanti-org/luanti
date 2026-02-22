@@ -78,10 +78,13 @@ private:
 		v3s16 p; // relative to blockpos_nodes
 		MapNode n;
 		const ContentFeatures *f;
+		bool is_solid;
 	} m_cur_node;
 
 	// LOD mesh gen uses bit shifts for gredy meshing, so we have to split the volume into segments that fit in a u64
 	struct {
+		u8 iter = 0;
+
 		v3s16 start;
 		v3s16 m_seg_size;
 
@@ -89,7 +92,10 @@ private:
 		bitset m_slices[6 * BITSET_MAX_NOPAD2];
 
 		std::array<bitset, 3 * BITSET_MAX2> m_all_set_solid_nodes{};
+		u8 last_solid_iter[3 * BITSET_MAX2] = {};
+
 		std::array<bitset, 3 * BITSET_MAX2> m_all_set_transparent_nodes{};
+		u8 last_transparent_iter[3 * BITSET_MAX2] = {};
 	} m_cur_seg;
 
 	void drawMeshNode(v3s16 pos, MapNode n, const ContentFeatures *f) const;
@@ -99,6 +105,6 @@ private:
 		std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> &subset_nodes,
 		std::map<content_t, MapNode> &node_types);
 	LightPair computeMaxFaceLight(v3s16 p, v3s16 dir);
-	static void setBitIndex(std::array<bitset, 3 * BITSET_MAX2> &vol, u8 x, u8 y, u8 z);
+	void setBitIndex(u8 x, u8 y, u8 z);
 	void generateLodChunks();
 };
