@@ -1508,6 +1508,7 @@ void GenericCAO::processMessage(const std::string &data)
 			player->setCollisionbox(collision_box);
 			player->setEyeHeight(m_prop.eye_height);
 			player->setZoomFOV(m_prop.zoom_fov);
+			player->getCAO()->m_prop.new_stair = newprops.new_stair;
 		}
 
 		if ((m_is_player && !m_is_local_player) && m_prop.nametag.empty())
