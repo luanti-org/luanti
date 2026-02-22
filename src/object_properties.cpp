@@ -197,6 +197,7 @@ void ObjectProperties::serialize(std::ostream &os) const
 	os << serializeString16(damage_texture_modifier);
 	writeU8(os, shaded);
 	writeU8(os, show_on_minimap);
+	writeU8(os, new_stair);
 
 	// use special value to tell apart nil, fully transparent and other colors
 	if (!nametag_bgcolor)
@@ -289,6 +290,7 @@ void ObjectProperties::deSerialize(std::istream &is)
 	// >= 5.4.0-dev
 
 	show_on_minimap = readU8(is);
+	new_stair = readU8(is);
 	auto bgcolor = readARGB8(is);
 	if (bgcolor != NULL_BGCOLOR)
 		nametag_bgcolor = bgcolor;
