@@ -112,6 +112,8 @@ void Particle::step(float dtime, ClientEnvironment *env)
 		aabb3f box(v3f(-m_p.size / 2.0f), v3f(m_p.size / 2.0f));
 		v3f p_pos = m_pos * BS;
 		v3f p_velocity = m_velocity * BS;
+		/* //todo: new_stair can be added on to particles. This note was written on 2/21/2026.
+			This was temporarily not added due to the extent of the new_stair addition.*/
 		collisionMoveResult r = collisionMoveSimple(env, env->getGameDef(),
 			box, 0.0f, dtime, &p_pos, &p_velocity, m_acceleration * BS, nullptr,
 			m_p.object_collision);
