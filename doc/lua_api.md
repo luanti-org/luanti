@@ -9651,7 +9651,7 @@ Player properties need to be saved manually.
 
     new_stair = false,
     -- Setting this to true makes the entity use the new stair code.
-    -- They will no longer clip the corner of a node and jolt up.
+    -- They will no longer clip the edge of a node and jolt up.
     -- Defaults to false for players and entities.
 }
 ```
