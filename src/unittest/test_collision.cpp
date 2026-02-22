@@ -222,7 +222,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 	speed = fpos(0, 0, 0);
 	accel = fpos(0, 1, 0);
 	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 1.0f,
-		&pos, &speed, accel);
+		&pos, &speed, accel, NULL, true, false);
 
 	UASSERT(!res.touching_ground && !res.collides && !res.standing_on_object);
 	UASSERT(res.collisions.empty());
@@ -234,7 +234,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 	speed = fpos(0, 0, 0);
 	accel = fpos(0, -9.81f, 0);
 	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 0.05f,
-		&pos, &speed, accel);
+		&pos, &speed, accel, NULL, true, false);
 
 	UASSERT(res.collides);
 	UASSERT(res.touching_ground);
@@ -254,7 +254,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 	speed = fpos(0, 0, 0);
 	accel = fpos(0, -9.81f, 0);
 	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 0.05f,
-		&pos, &speed, accel);
+		&pos, &speed, accel, NULL, true, false);
 
 	UASSERTEQ_V3F(pos, fpos(0, 0.5f, 0)); // moved back out
 	UASSERTEQ_V3F(speed, fpos(0, 0, 0));
@@ -274,7 +274,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 	speed = fpos(0, -3.f, 0);
 	accel = fpos(0, -9.81f, 0);
 	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 0.5f,
-		&pos, &speed, accel);
+		&pos, &speed, accel, NULL, true, false);
 
 	UASSERT(res.collides);
 	UASSERT(res.touching_ground);
@@ -297,11 +297,11 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 	speed = fpos(0, 2.0f, 0);
 	accel = fpos(0, -9.81f, 0);
 	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 0.2f,
-		&pos, &speed, accel);
+		&pos, &speed, accel, NULL, true, false);
 	UASSERT(!res.collides && !res.touching_ground && !res.standing_on_object);
 
 	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 0.5f,
-		&pos, &speed, accel);
+		&pos, &speed, accel, NULL, true, false);
 
 	UASSERT(res.collides);
 	UASSERT(res.touching_ground);
@@ -324,7 +324,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 	speed = fpos(-1.6f, 0, -1.7f);
 	accel = fpos(0, 0.0f, 0);
 	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 1.0f,
-		&pos, &speed, accel);
+		&pos, &speed, accel, NULL, true, false);
 
 	UASSERT(!res.collides);
 	// UASSERT(res.touching_ground); // no gravity, so not guaranteed
@@ -338,7 +338,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 	speed = fpos(-1.0f, 0.0f, -0.1f);
 	accel = fpos(0, -9.81f, 0);
 	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 1.0f,
-		&pos, &speed, accel);
+		&pos, &speed, accel, NULL, true, false);
 
 	UASSERT(res.collides);
 	UASSERT(res.touching_ground);
@@ -358,7 +358,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 	speed = fpos(0, 0, 0);
 	accel = fpos(0, 0, 0);
 	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 1/60.0f,
-		&pos, &speed, accel);
+		&pos, &speed, accel, NULL, true, false);
 	UASSERT(!res.collides);
 
 	/* collision in ignore */
@@ -366,7 +366,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 	speed = fpos(5, 0, 0);
 	accel = fpos(0, 0, 0);
 	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 1/60.0f,
-		&pos, &speed, accel);
+		&pos, &speed, accel, NULL, true, false);
 	UASSERTEQ_V3F(speed, fpos(0, 0, 0));
 	UASSERT(!res.collides); // FIXME this is actually inconsistent
 	UASSERT(res.collisions.empty());
