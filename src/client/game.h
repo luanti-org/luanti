@@ -19,13 +19,19 @@ class RenderingEngine;
 struct GameStartData;
 
 struct Jitter {
-	f32 max, min, avg, counter, max_sample, min_sample, max_fraction;
+	f32 dtime_avg = 1.0f,   //< FPS = 1 / avg
+		dtime_sum = 0.0f;
+	int dtime_samples = 0;
+	// Jitter indicators
+	f32 max = 0.0f,          //< maximum jitter
+		counter = 0.0f,
+		max_fraction = 0.0f; //< is =(max/avg)
 };
 
 struct RunStats {
 	u64 drawtime; // (us)
 
-	Jitter dtime_jitter, busy_time_jitter;
+	Jitter dtime_jitter;
 };
 
 struct CameraOrientation {
