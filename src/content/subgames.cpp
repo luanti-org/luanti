@@ -163,7 +163,7 @@ GamePathMap getAvailableGamePaths()
 		game_search_paths.emplace_back(search_paths.next(PATH_DELIM), false);
 
 	for (const GameFindPath &search_path : game_search_paths) {
-		std::vector<fs::DirListNode> dirlist = fs::GetDirListing(search_path.path);
+		auto dirlist = fs::GetDirListing(search_path.path);
 		for (const fs::DirListNode &dln : dirlist) {
 			if (!dln.dir)
 				continue;
