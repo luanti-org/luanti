@@ -26,7 +26,7 @@ void MyEventReceiver::reloadKeybindings()
 	keybindings[KeyType::DIG] = getKeySetting("keymap_dig");
 	keybindings[KeyType::PLACE] = getKeySetting("keymap_place");
 
-	keybindings[KeyType::ESC] = EscapeKey;
+	keybindings[KeyType::ESC] = std::vector<KeyPress>{EscapeKey};
 
 	keybindings[KeyType::AUTOFORWARD] = getKeySetting("keymap_autoforward");
 
@@ -76,7 +76,9 @@ void MyEventReceiver::reloadKeybindings()
 	// First clear all keys, then re-add the ones we listen for
 	keysListenedFor.clear();
 	for (int i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++) {
-		listenForKey(keybindings[i], static_cast<GameKeyType>(i));
+		for (auto key: keybindings[i]) {
+			listenForKey(key, static_cast<GameKeyType>(i));
+		}
 	}
 }
 
@@ -85,13 +87,11 @@ bool MyEventReceiver::setKeyDown(KeyPress keyCode, bool is_down)
 	if (keysListenedFor.find(keyCode) == keysListenedFor.end()) // ignore irrelevant key input
 		return false;
 	auto action = keysListenedFor[keyCode];
-	if (is_down) {
+	if (is_down)
 		physicalKeyDown.insert(keyCode);
-		setKeyDown(action, true);
-	} else {
+	else
 		physicalKeyDown.erase(keyCode);
-		setKeyDown(action, false);
-	}
+	setKeyDown(action, checkKeyDown(action));
 	return true;
 }
 
@@ -107,6 +107,15 @@ void MyEventReceiver::setKeyDown(GameKeyType action, bool is_down)
 			keyWasReleased.set(action);
 		keyIsDown.reset(action);
 	}
+}
+
+bool MyEventReceiver::checkKeyDown(GameKeyType action) const
+{
+	for (const auto &key : keybindings[action]) {
+		if (physicalKeyDown.find(key) != physicalKeyDown.end())
+			return true;
+	}
+	return false;
 }
 
 bool MyEventReceiver::OnEvent(const SEvent &event)
@@ -138,7 +147,7 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 	if (event.EventType == EET_KEY_INPUT_EVENT) {
 		KeyPress keyCode(event.KeyInput);
 
-		if (keyCode == getKeySetting("keymap_fullscreen")) {
+		if (keySettingHasMatch("keymap_fullscreen", keyCode)) {
 			if (event.KeyInput.PressedDown && !fullscreen_is_down) {
 				IrrlichtDevice *device = RenderingEngine::get_raw_device();
 
@@ -151,7 +160,7 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 			fullscreen_is_down = event.KeyInput.PressedDown;
 			return true;
 
-		} else if (keyCode == getKeySetting("keymap_close_world")) {
+		} else if (keySettingHasMatch("keymap_close_world", keyCode)) {
 			close_world_down = event.KeyInput.PressedDown;
 
 		} else if (keyCode == EscapeKey) {

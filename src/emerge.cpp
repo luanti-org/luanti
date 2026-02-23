@@ -596,8 +596,7 @@ MapBlock *EmergeThread::finishGen(v3s16 pos, BlockMakeData *bmdata,
 		Perform post-processing on blocks (invalidate lighting, queue liquid
 		transforms, etc.) to finish block make
 	*/
-	m_map->finishBlockMake(bmdata, modified_blocks,
-		m_server->m_env->getGameTime());
+	m_map->finishBlockMake(bmdata, modified_blocks, m_server->m_env);
 
 	MapBlock *block = m_map->getBlockNoCreateNoEx(pos);
 	if (!block) {
@@ -789,7 +788,8 @@ void *EmergeThread::run()
 			<< "----" << std::endl
 			<< "\"" << e.what() << "\"" << std::endl
 			<< "See debug.txt." << std::endl
-			<< "You can ignore this using [ignore_world_load_errors = true]."
+			<< "This can be ignored using the `ignore_world_load_errors` setting. "
+			<< "But it will also destroy stuff in the affected MapBlocks, do not use."
 			<< std::endl;
 		m_server->setAsyncFatalError(err.str());
 	}

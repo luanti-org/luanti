@@ -18,6 +18,12 @@ public:
 	{
 		return m_s.c_str();
 	}
+
+	BaseException &append(const std::string &what)
+	{
+		m_s.append(what);
+		return *this;
+	}
 protected:
 	std::string m_s;
 };
@@ -85,6 +91,11 @@ public:
 class ModError : public BaseException {
 public:
 	ModError(const std::string &s): BaseException(s) {}
+};
+
+class MisbehavedSSCSMException : public BaseException {
+public:
+	MisbehavedSSCSMException(const std::string &s): BaseException(s) {}
 };
 
 

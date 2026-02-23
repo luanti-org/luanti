@@ -2,11 +2,12 @@
 set -e
 
 topdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ $# -ne 1 ]; then
-	echo "Usage: $0 <build directory>"
+if [ $# -lt 1 ]; then
+	echo "Usage: $0 <build directory> [extra cmake args...]"
 	exit 1
 fi
 builddir=$1
+shift
 mkdir -p $builddir
 builddir="$( cd "$builddir" && pwd )"
 libdir=$builddir/libs
@@ -63,6 +64,7 @@ cmake_args=(
 	-DENABLE_LEVELDB=1
 )
 add_cmake_libs
+cmake_args+=("$@")
 cmake -S $sourcedir -B build "${cmake_args[@]}"
 
 cmake --build build -j$(nproc)

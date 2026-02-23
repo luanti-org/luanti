@@ -4,25 +4,28 @@
 
 #pragma once
 
+#include <memory>
 #include <vector>
+#include "EHardwareBufferFlags.h"
+#include "HWBuffer.h"
 #include "IVertexBuffer.h"
-
-// Define to receive warnings when violating the hw mapping hints
-//#define VERTEXBUFFER_HINT_DEBUG
-
-#ifdef VERTEXBUFFER_HINT_DEBUG
-#include "../src/os.h"
-#endif
+#include "WeightBuffer.h"
+#include "irr_ptr.h"
 
 namespace scene
 {
+
 //! Template implementation of the IVertexBuffer interface
 template <class T>
-class CVertexBuffer final : public IVertexBuffer
+struct CVertexBuffer final : public IVertexBuffer
 {
-public:
 	//! Default constructor for empty buffer
 	CVertexBuffer() {}
+
+	HWBuffer::Type getBufferType() const override
+	{
+		return HWBuffer::Type::VERTEX;
+	}
 
 	const void *getData() const override
 	{
@@ -42,6 +45,11 @@ public:
 	video::E_VERTEX_TYPE getType() const override
 	{
 		return T::getType();
+	}
+
+	u32 getElementSize() const override
+	{
+		return sizeof(T);
 	}
 
 	const core::vector3df &getPosition(u32 i) const override
@@ -74,48 +82,26 @@ public:
 		return Data[i].TCoords;
 	}
 
-	E_HARDWARE_MAPPING getHardwareMappingHint() const override
+	const WeightBuffer *getWeightBuffer() const override
 	{
-		return MappingHint;
+		return UseSwSkinning ? nullptr : Weights.get();
 	}
 
-	void setHardwareMappingHint(E_HARDWARE_MAPPING NewMappingHint) override
+	void useSwSkinning() override
 	{
-		MappingHint = NewMappingHint;
+		if (!Weights || UseSwSkinning)
+			return;
+		UseSwSkinning = true;
+		MappingHint = EHM_STREAM;
+		Weights->updateStaticPose(this);
 	}
-
-	void setDirty() override
-	{
-		++ChangedID;
-#ifdef VERTEXBUFFER_HINT_DEBUG
-		if (MappingHint == EHM_STATIC && HWBuffer) {
-			char buf[100];
-			snprintf_irr(buf, sizeof(buf), "CVertexBuffer @ %p modified, but it has a static hint", this);
-			os::Printer::log(buf, ELL_WARNING);
-		}
-#endif
-	}
-
-	u32 getChangedID() const override { return ChangedID; }
-
-	void setHWBuffer(void *ptr) const override
-	{
-		HWBuffer = ptr;
-	}
-
-	void *getHWBuffer() const override
-	{
-		return HWBuffer;
-	}
-
-	u32 ChangedID = 1;
-
-	//! hardware mapping hint
-	E_HARDWARE_MAPPING MappingHint = EHM_NEVER;
-	mutable void *HWBuffer = nullptr;
 
 	//! Vertices of this buffer
 	std::vector<T> Data;
+
+	//! Optional weights for skinning
+	irr_ptr<WeightBuffer> Weights;
+	bool UseSwSkinning = false;
 };
 
 //! Standard buffer

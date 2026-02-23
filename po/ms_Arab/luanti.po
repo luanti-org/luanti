@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-23 19:19+0200\n"
-"PO-Revision-Date: 2024-08-15 19:09+0000\n"
+"POT-Creation-Date: 2026-01-06 23:13+0100\n"
+"PO-Revision-Date: 2025-10-23 18:16+0000\n"
 "Last-Translator: bgo-eiu <huyaqoob+toolforge@gmail.com>\n"
 "Language-Team: Malay (Jawi) <https://hosted.weblate.org/projects/minetest/"
 "minetest/ms_Arab/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.7\n"
+"X-Generator: Weblate 5.14.1-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -80,6 +80,11 @@ msgid "[all | <cmd>] [-t]"
 msgstr "[all | <ڤرينته>]"
 
 #: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Add keybinding"
+msgstr "ميديا جارق جاٴوه"
+
+#: builtin/common/settings/components.lua
 msgid "Browse"
 msgstr "لاير"
 
@@ -110,6 +115,11 @@ msgid "Set"
 msgstr "Select"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+#, fuzzy
+msgid "$1 spread"
+msgstr "سيبرن X"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
 msgstr "(تياد ڤريحل اونتوق تتڤن يڠ دبري)"
 
@@ -118,9 +128,21 @@ msgid "2D Noise"
 msgstr "هيڠر 2D"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"2D noise: flag on.\n"
+"3D noise: flag off."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Amplifies every octave by (amplitude of the previous octave * Persistence)."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/content/dlg_overwrite.lua
-#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
+#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_confirm_exit.lua
+#: builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
 #: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
@@ -129,8 +151,58 @@ msgid "Cancel"
 msgstr "بطل"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Controls how many octaves (layers) the noise will have."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Each octave is a simple noise generator. Each one also adds more detail to "
+"the noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Finally, all of the octaves will be combined to generate the noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Having lots of octaves is not recommended because it increases terrain "
+"generation time."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Lacunarity"
 msgstr "لاکوناريتي"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values make the terrain simple and higher values make the terrain "
+"rough."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values make the terrain smooth and higher values make the terrain have "
+"fine detail."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values will result in smoother noise and higher values will result in "
+"rougher noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Making 3D noise eased is not recommended because it significantly increases "
+"the load."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Maps noise gradient values onto a quintic S-curve before performing "
+"interpolation."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Octaves"
@@ -140,6 +212,14 @@ msgstr "اوکتف"
 #: src/settings_translation_file.cpp
 msgid "Offset"
 msgstr "اوفسيت"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Offsets the final noise by this value."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Overrides the 'eased' flag based on the noise type."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #, fuzzy
@@ -157,21 +237,52 @@ msgid "Scale"
 msgstr "سکالا"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Scales every octave by (scale of the previous octave / Lacunarity)."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Scales the noise in the $1 axis by this value."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Seed"
 msgstr "بنيه"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "X spread"
-msgstr "سيبرن X"
+msgid "Takes the absolute value of each octave while adding them together."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "Y spread"
-msgstr "سيبرن Y"
+msgid "The first octave is amplified by 1."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "Z spread"
-msgstr "سيبرن Z"
+#, fuzzy
+msgid "The first octave is scaled by 1."
+msgstr "ڤرينته اين دلومڤوهکن اوليه ڤلاين."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "The multiplier for the noise before the offset is added."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "The random seed for the noise. The same seed results in the same noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"This is also the scale of the largest structures in the $1 direction of the "
+"noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "This results in smooth noise instead of gridlike noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "This results in spiky noise."
+msgstr ""
 
 #. ~ "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
@@ -223,9 +334,8 @@ msgstr ""
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
-#, fuzzy
 msgid "Back"
-msgstr "کبلاکڠ"
+msgstr "کمبالي"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Buttons with crosshair"
@@ -271,6 +381,12 @@ msgstr "ڤرݢرقن ڤنتس"
 msgid "No results"
 msgstr "تياد حاصيل"
 
+#. ~ Indicates that the action does not have a corresponding keybinding.
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Not bound"
+msgstr "تيدق دجومڤاٴي"
+
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Reset setting to default"
@@ -306,9 +422,20 @@ msgid "Tap with crosshair"
 msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
+msgid ""
+"These settings are unavailable due to your platform, hardware or in "
+"combination with the current settings."
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Touchscreen layout"
 msgstr "نيلاي امبڠ سکرين سنتوه"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Unavailable"
+msgstr "<تياد يڠ ترسديا>"
 
 #: builtin/common/settings/settingtypes.lua
 #, fuzzy
@@ -334,12 +461,6 @@ msgid "Custom"
 msgstr ""
 
 #: builtin/common/settings/shadows_component.lua
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Dynamic shadows"
-msgstr "بايڠ فون"
-
-#: builtin/common/settings/shadows_component.lua
 msgid "High"
 msgstr ""
 
@@ -349,6 +470,10 @@ msgstr ""
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Medium"
+msgstr ""
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Quality preset"
 msgstr ""
 
 #: builtin/common/settings/shadows_component.lua
@@ -440,7 +565,7 @@ msgstr "$1 دموات تورون..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "All"
-msgstr ""
+msgstr "سموا"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #, fuzzy
@@ -453,7 +578,7 @@ msgstr "مموات تورون..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
-msgstr ""
+msgstr "دکتڠهکن"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Games"
@@ -567,13 +692,12 @@ msgid "ContentDB page"
 msgstr "کندوڠن"
 
 #: builtin/mainmenu/content/dlg_package.lua
-#, fuzzy
 msgid "Description"
-msgstr "ڤريهل ڤلاين ڤرماٴينن"
+msgstr "کترڠن"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Donate"
-msgstr ""
+msgstr "درما"
 
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Error loading package information"
@@ -663,6 +787,11 @@ msgstr "تيدق ممڤو مماسڠ $1 سباݢاي $2"
 msgid "Unable to install a $1 as a texture pack"
 msgstr "تيدق ممڤو مماسڠ $1 سباݢاي ڤيک تيکستور"
 
+#: builtin/mainmenu/content/pkgmgr.lua
+#, fuzzy
+msgid "World mods"
+msgstr "نام دنيا"
+
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
 "Players connected to\n"
@@ -710,6 +839,10 @@ msgid "Mod:"
 msgstr "مودس:"
 
 #: builtin/mainmenu/dlg_config_world.lua
+msgid "Mods located inside the world folder."
+msgstr ""
+
+#: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
 msgstr "تياد کبرݢنتوڠن (ڤيليهن)"
 
@@ -740,6 +873,19 @@ msgstr "دنيا:"
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "enabled"
 msgstr "دبوليهکن"
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+msgid "Always show this dialog."
+msgstr ""
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+#, fuzzy
+msgid "Are you sure you want to quit?"
+msgstr "اداکه اندا ڤستي اندا ايڠين ممادم ”$1‟؟"
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+msgid "Quit"
+msgstr ""
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "A world named \"$1\" already exists"
@@ -1091,6 +1237,10 @@ msgstr ""
 msgid "Visit website"
 msgstr ""
 
+#: builtin/mainmenu/init.lua
+msgid "Debug build, expect worse performance"
+msgstr ""
+
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "تتڤن"
@@ -1374,11 +1524,6 @@ msgid "Done!"
 msgstr "سلساي!"
 
 #: src/client/client.cpp
-#, c-format
-msgid "Failed to save screenshot to \"%s\""
-msgstr ""
-
-#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "مڠاولکن نود"
 
@@ -1394,7 +1539,7 @@ msgstr "سدڠ ممواتکن تيکستور..."
 msgid "Rebuilding shaders..."
 msgstr "سدڠ ممبينا سمولا ڤمبايڠ..."
 
-#: src/client/client.cpp
+#: src/client/client.cpp src/util/screenshot.cpp
 #, fuzzy, c-format
 msgid "Saved screenshot to \"%s\""
 msgstr "تڠکڤ لاير"
@@ -1425,14 +1570,15 @@ msgid "Provided password file failed to open: "
 msgstr "فاٴيل کات لالوان يڠ دسدياکن ݢاݢل دبوک: "
 
 #: src/client/clientlauncher.cpp
-msgid "Provided world path doesn't exist: "
-msgstr "لالوان دنيا دبري تيدق وجود: "
+msgid "World does not exist and no game selected to create one."
+msgstr ""
 
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
 msgstr "سدڠ ممواتکن ميديا..."
 
-#: src/client/game.cpp src/client/shader.cpp src/server.cpp
+#: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
+#: src/server.cpp
 msgid ""
 "\n"
 "Check debug.txt for details."
@@ -2076,6 +2222,11 @@ msgid "Right Windows"
 msgstr "Windows کانن"
 
 #: src/client/keycode.cpp
+#, c-format
+msgid "Scancode: %d"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Scroll Lock"
 msgstr "کونچي تاتل"
 
@@ -2120,9 +2271,19 @@ msgstr "ڤتا ميني دالم مود ڤرموکاٴن⹁ زوم 1x"
 msgid "Minimap in texture mode"
 msgstr "ڤتا ميني دالم مود تيکستور"
 
+#: src/client/render/pipeline.cpp
+#, c-format
+msgid "Failed to create the texture \"%s\" for the rendering pipeline."
+msgstr ""
+
 #: src/client/shader.cpp
 #, fuzzy, c-format
 msgid "Failed to compile the \"%s\" shader."
+msgstr "ݢاݢل ممبوک لامن سساوڠ"
+
+#: src/client/shader.cpp
+#, fuzzy, c-format
+msgid "Failed to find \"%s\" shader files."
 msgstr "ݢاݢل ممبوک لامن سساوڠ"
 
 #: src/client/shader.cpp
@@ -2706,6 +2867,14 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Applies a post-processing filter to detect and smoothen high-contrast "
+"edges.\n"
+"Provides balance between speed and image quality.\n"
+"fxaa can used in combination with the other anti-aliasing methods"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Apply dithering to reduce color banding artifacts.\n"
 "Dithering significantly increases the size of losslessly-compressed\n"
 "screenshots and it works incorrectly if the display or operating system\n"
@@ -2726,6 +2895,10 @@ msgid ""
 msgstr ""
 "اينرسيا لڠن⹁ ممبريکن ڤرݢرقن لڠن يڠ\n"
 "لبيه رياليستيک اڤابيلا کاميرا دݢرقکن."
+
+#: src/settings_translation_file.cpp
+msgid "Array texture max layers"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Ask to reconnect after crash"
@@ -2877,6 +3050,12 @@ msgid "Camera smoothing in cinematic mode"
 msgstr "ڤلمبوتن کاميرا دالم مود سينماتيک"
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Caps the maximum number of layers used with array textures (if supported).\n"
+"This is only useful for debugging."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Capture Tracy zones"
 msgstr ""
 
@@ -2977,6 +3156,11 @@ msgstr "ڤنجڠ مکسيموم ميسيج سيمبڠ"
 #, fuzzy
 msgid "Chat weblinks"
 msgstr "سيمبڠ دتونجوقکن"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Choose theme colors for the main menu background."
+msgstr "ݢوناکن انيماسي اون سباݢاي لاتر بلاکڠ مينو اوتام."
 
 #: src/settings_translation_file.cpp
 msgid "Chunk size"
@@ -3098,6 +3282,10 @@ msgid ""
 "-1 - use default compression level\n"
 "0 - least compression, fastest\n"
 "9 - best compression, slowest"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Confirmation dialog before closing"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3459,6 +3647,11 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
+msgid "Dynamic shadows"
+msgstr "بايڠ فون"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Effects"
 msgstr "ݢرافيک"
 
@@ -3518,6 +3711,11 @@ msgid "Enable Raytraced Culling"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Enable a confirmation dialog before closing."
+msgstr "ممبوليهکن انيماسي ايتم دالم اينۏينتوري."
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Enable automatic exposure correction\n"
 "When enabled, the post-processing engine will\n"
@@ -3534,6 +3732,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Enable console window"
 msgstr "ممبوليهکن تتيڠکڤ کونسول"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Enable dynamic shadows"
+msgstr "بايڠ فون"
 
 #: src/settings_translation_file.cpp
 msgid "Enable joysticks"
@@ -3698,6 +3901,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Fallback font path"
 msgstr "لالوان فون برباليق"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Fast approximate antialiasing"
+msgstr "انتيالياس:"
 
 #: src/settings_translation_file.cpp
 msgid "Fast mode acceleration"
@@ -4366,17 +4574,19 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"If enabled, actions are recorded for rollback.\n"
-"This option is only read when server starts."
-msgstr ""
-"جک دبوليهکن⹁ سموا تيندقن اکن دراکم اونتوق ݢولوڠ باليق.\n"
-"ڤيليهن اين هاڽ دباچ کتيک ڤلاين برمولا."
-
-#: src/settings_translation_file.cpp
-msgid ""
 "If enabled, invalid world data won't cause the server to shut down.\n"
 "Only enable this if you know what you are doing."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid ""
+"If enabled, node and inventory actions are recorded for rollback.\n"
+"This option is only read on server start. Note that the engine will not\n"
+"automatically clean old entries from the rollback database."
+msgstr ""
+"جک دبوليهکن⹁ سموا تيندقن اکن دراکم اونتوق ݢولوڠ باليق.\n"
+"ڤيليهن اين هاڽ دباچ کتيک ڤلاين برمولا."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -5225,6 +5435,11 @@ msgid "Measure time samples"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Menu theme"
+msgstr "Menu"
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr "ميسيج هاري اين"
 
@@ -5425,16 +5640,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Number of emerge threads to use.\n"
-"Value 0:\n"
-"-    Automatic selection. The number of emerge threads will be\n"
-"-    'number of processors - 2', with a lower limit of 1.\n"
-"Any other value:\n"
-"-    Specifies the number of emerge threads, with a lower limit of 1.\n"
-"WARNING: Increasing the number of emerge threads increases engine mapgen\n"
-"speed, but this may harm game performance by interfering with other\n"
-"processes, especially in singleplayer and/or when running Lua code in\n"
-"'on_generated'. For many users the optimum setting may be '1'."
+"Number of emerge threads (responsible for map generation and loading) to "
+"use.\n"
+"If 0 then the engine will automatically choose a suitable value depending\n"
+"on the hardware and type of map generator.\n"
+"WARNING: There are known bugs in the default map generators (v6, v7, ...)\n"
+"when using more than 1 thread. The automatic choice will avoid this."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5465,8 +5676,8 @@ msgid "Occlusion Culling"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
+#, fuzzy
+msgid "Opaqueness (alpha) of the shadow behind the font."
 msgstr "کلݢڤن (الفا) بايڠ بلاکڠ فون لالاي⹁ نيلاي انتارا 0 دان 225."
 
 #: src/settings_translation_file.cpp
@@ -5812,8 +6023,7 @@ msgid ""
 "Save window size automatically when modified.\n"
 "If true, screen size is saved in screen_w and screen_h, and whether the "
 "window\n"
-"is maximized is stored in window_maximized.\n"
-"(Autosaving window_maximized only works if compiled with SDL.)"
+"is maximized is stored in window_maximized."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5907,11 +6117,6 @@ msgid ""
 "If Post Processing is disabled, changing FSAA requires a restart.\n"
 "Also, if Post Processing is disabled, FSAA will not work together with\n"
 "undersampling or a non-default \"3d_mode\" setting.\n"
-"\n"
-"* FXAA - Fast approximate antialiasing\n"
-"Applies a post-processing filter to detect and smoothen high-contrast "
-"edges.\n"
-"Provides balance between speed and image quality.\n"
 "\n"
 "* SSAA - Super-sampling antialiasing\n"
 "Renders higher-resolution image of the scene, then scales down to reduce\n"
@@ -6131,8 +6336,9 @@ msgid "Shadow filter quality"
 msgstr "کواليتي تڠکڤ لاير"
 
 #: src/settings_translation_file.cpp
-msgid "Shadow map max distance in nodes to render shadows"
-msgstr ""
+#, fuzzy
+msgid "Shadow map render distance"
+msgstr "ساٴيز تيکستور ڤتا بايڠ"
 
 #: src/settings_translation_file.cpp
 msgid "Shadow map texture in 32 bits"
@@ -6143,9 +6349,9 @@ msgid "Shadow map texture size"
 msgstr "ساٴيز تيکستور ڤتا بايڠ"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"Shadow offset (in pixels) of the default font. If 0, then shadow will not be "
-"drawn."
+"Shadow offset (in pixels) for all fonts. If 0, then no shadow will be drawn."
 msgstr ""
 "اوفسيت بايڠ فون لالاي (دالم اونيت ڤيکسل). جيک 0⹁ ماک بايڠ تيدق اکن دلوکيس."
 
@@ -6562,7 +6768,7 @@ msgstr ""
 msgid ""
 "The rendering back-end.\n"
 "Note: A restart is required after changing this!\n"
-"OpenGL is the default for desktop, and OGLES2 for Android."
+"By default OpenGL3 is preferred on desktop, or OGLES2 on Android."
 msgstr ""
 "بهاݢين بلاکڠ ڤڠمس ݢابوڠ.\n"
 "نوتا: مولا سمولا دڤرلوکن سلڤس مڠوبه تتڤن اين!\n"
@@ -6661,11 +6867,11 @@ msgid "Timeout for client to remove unused map data from memory, in seconds."
 msgstr "حد ماس اونتوق کليئن ممبواڠ ڤتا يڠ تيدق دݢوناکن دري ميموري."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"To reduce lag, block transfers are slowed down when a player is building "
+"To save bandwidth, block transfers are slowed down when a player is building "
 "something.\n"
-"This determines how long they are slowed down after placing or removing a "
-"node."
+"This determines how long the throttling lasts after placing a node."
 msgstr ""
 "اونتوق مڠورڠکن لمبڤڽ تيندق بالس⹁ ڤميندهن بلوک دڤرلاهنکن اڤابيلا ڤماٴين "
 "ممبينا سسوات.\n"
@@ -6996,10 +7202,16 @@ msgid "Vertical climbing speed, in nodes per second."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"Vertical screen synchronization. Your system may still force VSync on even "
-"if this is disabled."
+"Vertical screen synchronization.\n"
+"Note: A restart is required after changing this!\n"
+"Your system may still force VSync and ignore this setting."
 msgstr ""
+"بهاݢين بلاکڠ ڤڠمس ݢابوڠ.\n"
+"نوتا: مولا سمولا دڤرلوکن سلڤس مڠوبه تتڤن اين!\n"
+"OpenGL اياله بهاݢين بلاکڠ لالاي اونتوق کومڤوتر⹁ دان OGLES2 اونتوق Android.\n"
+"ڤمبايڠ دسوکوڠ اوليه OpenGL دان OGLES2 (دالم اوجي کاجي)."
 
 #: src/settings_translation_file.cpp
 msgid "Video driver"
@@ -7326,68 +7538,16 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
-#~ msgid "Apps"
-#~ msgstr "اڤليکاسي"
+#: src/util/screenshot.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr ""
 
-#~ msgid "End"
-#~ msgstr "End"
+#~ msgid "Provided world path doesn't exist: "
+#~ msgstr "لالوان دنيا دبري تيدق وجود: "
 
-#~ msgid "Erase EOF"
-#~ msgstr "ڤادم EOF"
+#~ msgid "Y spread"
+#~ msgstr "سيبرن Y"
 
-#~ msgid "Execute"
-#~ msgstr "لاکوکن"
-
-#~ msgid "Help"
-#~ msgstr "بنتوان"
-
-#~ msgid "Home"
-#~ msgstr "Home"
-
-#~ msgid "IME Accept"
-#~ msgstr "IME - تريما"
-
-#~ msgid "IME Convert"
-#~ msgstr "IME - توکر"
-
-#~ msgid "IME Escape"
-#~ msgstr "IME - کلوار"
-
-#~ msgid "IME Mode Change"
-#~ msgstr "IME - توکر مود"
-
-#~ msgid "IME Nonconvert"
-#~ msgstr "IME - تيدقتوکر"
-
-#~ msgid "Left Button"
-#~ msgstr "بوتڠ کيري"
-
-#~ msgid "Middle Button"
-#~ msgstr "بوتڠ تڠه"
-
-#~ msgid "No world created or selected!"
-#~ msgstr "تياد دنيا دچيڤتا اتاو دڤيليه!"
-
-#~ msgid "OEM Clear"
-#~ msgstr "ڤادم OEM"
-
-#~ msgid "Right Button"
-#~ msgstr "بوتڠ کانن"
-
-#~ msgid "Select"
-#~ msgstr "Select"
-
-#~ msgid "Sleep"
-#~ msgstr "تيدور"
-
-#~ msgid "Snapshot"
-#~ msgstr "تڠکڤ ݢمبر سکرين"
-
-#~ msgid "Tab"
-#~ msgstr "Tab"
-
-#~ msgid "X Button 1"
-#~ msgstr "بوتڠ X نومبور 1"
-
-#~ msgid "X Button 2"
-#~ msgstr "بوتڠ X نومبور 2"
+#~ msgid "Z spread"
+#~ msgstr "سيبرن Z"

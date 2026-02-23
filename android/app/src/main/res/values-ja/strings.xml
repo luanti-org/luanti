@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label">Luanti</string>
+    <string name="loading">読み込み中…</string>
+    <string name="ime_dialog_done">完了</string>
+    <string name="unzip_notification_title">Luantiを読み込んでいます</string>
+    <string name="game_notification_title">Luantiを起動しています</string>
+    <string name="no_web_browser">ウェブブラウザが見つかりません</string>
+    <string name="notification_channel_name">通知全般</string>
+    <string name="notification_channel_description">Luantiからの通知</string>
+    <string name="unzip_notification_description">1分未満…</string>
+</resources>

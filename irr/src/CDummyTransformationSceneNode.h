@@ -40,7 +40,7 @@ private:
 	// fixed bug id 2318691.
 	const core::vector3df &getScale() const override;
 	void setScale(const core::vector3df &scale) override;
-	const core::vector3df &getRotation() const override;
+	core::vector3df getRotation() const override;
 	void setRotation(const core::vector3df &rotation) override;
 	const core::vector3df &getPosition() const override;
 	void setPosition(const core::vector3df &newpos) override;

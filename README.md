@@ -9,7 +9,7 @@
 
 Luanti is a free open-source voxel game engine with easy modding and game creation.
 
-Copyright (C) 2010-2025 Perttu Ahola <celeron55@gmail.com>
+Copyright (C) 2010-2026 Perttu Ahola <celeron55@gmail.com>
 and contributors (see source file comments and the version control log)
 
 Table of Contents
@@ -57,7 +57,6 @@ Some can be changed in the key config dialog in the settings tab.
 | T                             | Chat                                                           |
 | /                             | Command                                                        |
 | Esc                           | Pause menu/abort/exit (pauses only singleplayer game)          |
-| Shift + Esc                   | Exit directly to main menu from anywhere, bypassing pause menu |
 | +                             | Increase view range                                            |
 | -                             | Decrease view range                                            |
 | K                             | Enable/disable fly mode (needs fly privilege)                  |

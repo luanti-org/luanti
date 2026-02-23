@@ -8,9 +8,11 @@
 #include "server.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
+#include "client/mod_vfs.h"
 #endif
 #include "content/mods.h" // ModSpec
 #include "settings.h"
+#include "constants.h"
 
 #include <cerrno>
 #include <string>
@@ -379,6 +381,139 @@ void ScriptApiSecurity::initializeSecurityClient()
 
 	lua_setfield(L, -3, "debug");
 	lua_pop(L, 1);  // Pop old debug
+
+
+#if USE_LUAJIT
+	// Copy safe jit functions, if they exist
+	lua_getglobal(L, "jit");
+	lua_newtable(L);
+	copy_safe(L, jit_whitelist, sizeof(jit_whitelist));
+	lua_setfield(L, -3, "jit");
+	lua_pop(L, 1);  // Pop old jit
+#endif
+
+	// Set the environment to the one we created earlier
+	setLuaEnv(L, thread);
+}
+
+void ScriptApiSecurity::initializeSecuritySSCSM()
+{
+	static const char *whitelist[] = {
+		"assert",
+		"core",
+		"collectgarbage",
+		"DIR_DELIM",
+		"error",
+		"getfenv",
+		"ipairs",
+		"next",
+		"pairs",
+		"pcall",
+		"rawequal",
+		"rawget",
+		"rawset",
+		"select",
+		"setfenv",
+		"getmetatable",
+		"setmetatable",
+		"tonumber",
+		"tostring",
+		"type",
+		"unpack",
+		"_VERSION",
+		"xpcall",
+		// Completely safe libraries
+		"coroutine",
+		"table",
+		"math",
+		"bit",
+	};
+	static const char *os_whitelist[] = {
+		"difftime",
+		"time"
+	};
+	static const char *debug_whitelist[] = {
+		"getinfo", // used by client builtin and unset before mods load
+		"traceback"
+	};
+	static const char *string_whitelist[] = { // all but string.dump
+		"byte",
+		"char",
+		"find",
+		"format",
+		"gmatch",
+		"gsub",
+		"len",
+		"lower",
+		"match",
+		"rep",
+		"reverse",
+		"sub",
+		"upper"
+	};
+#if USE_LUAJIT
+	static const char *jit_whitelist[] = {
+		"arch",
+		"flush",
+		"off",
+		"on",
+		"opt",
+		"os",
+		"status",
+		"version",
+		"version_num",
+	};
+#endif
+
+	m_secure = true;
+
+	lua_State *L = getStack();
+	int thread = getThread(L);
+
+	// create an empty environment
+	createEmptyEnv(L);
+
+	// Copy safe base functions
+	lua_getglobal(L, "_G");
+	lua_getfield(L, -2, "_G");
+	copy_safe(L, whitelist, sizeof(whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(g, dofile);
+	SECURE_API(g, load);
+	SECURE_API(g, loadfile);
+	SECURE_API(g, loadstring);
+	SECURE_API(g, require);
+	lua_pop(L, 2);
+
+
+
+	// Copy safe OS functions
+	lua_getglobal(L, "os");
+	lua_newtable(L);
+	copy_safe(L, os_whitelist, sizeof(os_whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(os, clock);
+
+	lua_setfield(L, -3, "os");
+	lua_pop(L, 1);  // Pop old OS
+
+
+	// Copy safe debug functions
+	lua_getglobal(L, "debug");
+	lua_newtable(L);
+	copy_safe(L, debug_whitelist, sizeof(debug_whitelist));
+	lua_setfield(L, -3, "debug");
+	lua_pop(L, 1);  // Pop old debug
+
+
+	// Copy safe string functions
+	lua_getglobal(L, "string");
+	lua_newtable(L);
+	copy_safe(L, string_whitelist, sizeof(string_whitelist));
+	lua_setfield(L, -3, "string");
+	lua_pop(L, 1);  // Pop old string
 
 
 #if USE_LUAJIT
@@ -791,10 +926,11 @@ int ScriptApiSecurity::sl_g_loadfile(lua_State *L)
 #if CHECK_CLIENT_BUILD()
 	ScriptApiBase *script = ModApiBase::getScriptApiBase(L);
 
-	// Client implementation
-	if (script->getType() == ScriptingType::Client) {
+	// SSCSM & CPCSM implementation
+	if (script->getType() == ScriptingType::Client
+			|| script->getType() == ScriptingType::SSCSM) {
 		std::string path = readParam<std::string>(L, 1);
-		const std::string *contents = script->getClient()->getModFile(path);
+		const std::string *contents = script->getModVFS()->getModFile(path);
 		if (!contents) {
 			std::string error_msg = "Couldn't find script called: " + path;
 			lua_pushnil(L);
@@ -977,6 +1113,15 @@ int ScriptApiSecurity::sl_os_setlocale(lua_State *L)
 	if (cat)
 		lua_pushvalue(L, 2);
 	lua_call(L, cat ? 2 : 1, 1);
+	return 1;
+}
+
+
+int ScriptApiSecurity::sl_os_clock(lua_State *L)
+{
+	auto t = clock();
+	t = t - t % (SSCSM_CLOCK_RESOLUTION_US * CLOCKS_PER_SEC / 1'000'000);
+	lua_pushnumber(L, static_cast<lua_Number>(t) / static_cast<lua_Number>(CLOCKS_PER_SEC));
 	return 1;
 }
 

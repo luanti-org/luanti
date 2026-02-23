@@ -29,6 +29,8 @@ fake_function() {
 	gettext("Automatically jump up single-node obstacles.");
 	gettext("Safe digging and placing");
 	gettext("Prevent digging and placing from repeating when holding the respective buttons.\nEnable this when you dig or place too often by accident.\nOn touchscreens, this only affects digging.");
+	gettext("Confirmation dialog before closing");
+	gettext("Enable a confirmation dialog before closing.");
 	gettext("Keyboard and Mouse");
 	gettext("Invert mouse");
 	gettext("Invert vertical mouse movement.");
@@ -149,7 +151,7 @@ fake_function() {
 	gettext("Window maximized");
 	gettext("Whether the window is maximized.");
 	gettext("Remember screen size");
-	gettext("Save window size automatically when modified.\nIf true, screen size is saved in screen_w and screen_h, and whether the window\nis maximized is stored in window_maximized.\n(Autosaving window_maximized only works if compiled with SDL.)");
+	gettext("Save window size automatically when modified.\nIf true, screen size is saved in screen_w and screen_h, and whether the window\nis maximized is stored in window_maximized.");
 	gettext("Full screen");
 	gettext("Fullscreen mode.");
 	gettext("Pause on lost window focus");
@@ -158,7 +160,7 @@ fake_function() {
 	gettext("Maximum FPS");
 	gettext("If FPS would go higher than this, limit it by sleeping\nto not waste CPU power for no benefit.");
 	gettext("VSync");
-	gettext("Vertical screen synchronization. Your system may still force VSync on even if this is disabled.");
+	gettext("Vertical screen synchronization.\nNote: A restart is required after changing this!\nYour system may still force VSync and ignore this setting.");
 	gettext("FPS when unfocused");
 	gettext("Maximum FPS when the window is not focused.");
 	gettext("Viewing range");
@@ -223,9 +225,11 @@ fake_function() {
 	gettext("Anisotropic filtering");
 	gettext("Use anisotropic filtering when looking at textures from an angle.\nThis provides a significant improvement when used together with mipmapping.");
 	gettext("Antialiasing method");
-	gettext("Select the antialiasing method to apply.\n\n* None - No antialiasing (default)\n\n* FSAA - Hardware-provided full-screen antialiasing\nA.K.A multi-sample antialiasing (MSAA)\nSmoothens out block edges but does not affect the insides of textures.\n\nIf Post Processing is disabled, changing FSAA requires a restart.\nAlso, if Post Processing is disabled, FSAA will not work together with\nundersampling or a non-default \"3d_mode\" setting.\n\n* FXAA - Fast approximate antialiasing\nApplies a post-processing filter to detect and smoothen high-contrast edges.\nProvides balance between speed and image quality.\n\n* SSAA - Super-sampling antialiasing\nRenders higher-resolution image of the scene, then scales down to reduce\nthe aliasing effects. This is the slowest and the most accurate method.");
+	gettext("Select the antialiasing method to apply.\n\n* None - No antialiasing (default)\n\n* FSAA - Hardware-provided full-screen antialiasing\nA.K.A multi-sample antialiasing (MSAA)\nSmoothens out block edges but does not affect the insides of textures.\n\nIf Post Processing is disabled, changing FSAA requires a restart.\nAlso, if Post Processing is disabled, FSAA will not work together with\nundersampling or a non-default \"3d_mode\" setting.\n\n* SSAA - Super-sampling antialiasing\nRenders higher-resolution image of the scene, then scales down to reduce\nthe aliasing effects. This is the slowest and the most accurate method.");
 	gettext("Anti-aliasing scale");
 	gettext("Defines the size of the sampling grid for FSAA and SSAA antialiasing methods.\nValue of 2 means taking 2x2 = 4 samples.");
+	gettext("Fast approximate antialiasing");
+	gettext("Applies a post-processing filter to detect and smoothen high-contrast edges.\nProvides balance between speed and image quality.\nfxaa can used in combination with the other anti-aliasing methods");
 	gettext("Occlusion Culling");
 	gettext("Occlusion Culler");
 	gettext("Type of occlusion_culler\n\n\"loops\" is the legacy algorithm with nested loops and O(n³) complexity\n\"bfs\" is the new algorithm based on breadth-first-search and side culling\n\nThis setting should only be changed if you have performance problems.");
@@ -256,10 +260,11 @@ fake_function() {
 	gettext("Waving liquids wave speed");
 	gettext("How fast liquid waves will move. Higher = faster.\nIf negative, liquid waves will move backwards.");
 	gettext("Dynamic shadows");
+	gettext("Enable dynamic shadows");
 	gettext("Set to true to enable Shadow Mapping.");
 	gettext("Shadow strength gamma");
 	gettext("Set the shadow strength gamma.\nAdjusts the intensity of in-game dynamic shadows.\nLower value means lighter shadows, higher value means darker shadows.");
-	gettext("Shadow map max distance in nodes to render shadows");
+	gettext("Shadow map render distance");
 	gettext("Maximum distance to render shadows.");
 	gettext("Shadow map texture size");
 	gettext("Texture size to render the shadow map on.\nThis must be a power of two.\nBigger numbers create better shadows but it is also more expensive.");
@@ -324,6 +329,8 @@ fake_function() {
 	gettext("Append item name to tooltip.");
 	gettext("Clouds in menu");
 	gettext("Use a cloud animation for the main menu background.");
+	gettext("Menu theme");
+	gettext("Choose theme colors for the main menu background.");
 	gettext("HUD");
 	gettext("HUD scaling");
 	gettext("Modifies the size of the HUD elements.");
@@ -416,8 +423,6 @@ fake_function() {
 	gettext("Server anticheat configuration.\nFlags are positive. Uncheck the flag to disable corresponding anticheat module.");
 	gettext("Anticheat movement tolerance");
 	gettext("Tolerance of movement cheat detector.\nIncrease the value if players experience stuttery movement.");
-	gettext("Rollback recording");
-	gettext("If enabled, actions are recorded for rollback.\nThis option is only read when server starts.");
 	gettext("Client-side Modding");
 	gettext("Client side modding restrictions");
 	gettext("Restricts the access of certain client-side functions on servers.\nCombine the byteflags below to restrict client-side features, or set to 0\nfor no restrictions:\nLOAD_CLIENT_MODS: 1 (disable loading client-provided mods)\nCHAT_MESSAGES: 2 (disable send_chat_message call client-side)\nREAD_ITEMDEFS: 4 (disable get_item_def call client-side)\nREAD_NODEDEFS: 8 (disable get_node_def call client-side)\nLOOKUP_NODES_LIMIT: 16 (limits get_node call client-side to\ncsm_restriction_noderange)\nREAD_PLAYERINFO: 32 (disable get_player_names call client-side)");
@@ -746,7 +751,7 @@ fake_function() {
 	gettext("Shader path");
 	gettext("Path to shader directory. If no path is defined, default location will be used.");
 	gettext("Video driver");
-	gettext("The rendering back-end.\nNote: A restart is required after changing this!\nOpenGL is the default for desktop, and OGLES2 for Android.");
+	gettext("The rendering back-end.\nNote: A restart is required after changing this!\nBy default OpenGL3 is preferred on desktop, or OGLES2 on Android.");
 	gettext("Transparency Sorting Distance");
 	gettext("Distance in nodes at which transparency depth sorting is enabled.\nUse this to limit the performance impact of transparency depth sorting.\nSet to 0 to disable it entirely.");
 	gettext("Transparency Sorting Group by Buffers");
@@ -765,6 +770,8 @@ fake_function() {
 	gettext("Textures on a node may be aligned either to the node or to the world.\nThe former mode suits better things like machines, furniture, etc., while\nthe latter makes stairs and microblocks fit surroundings better.\nHowever, as this possibility is new, thus may not be used by older servers,\nthis option allows enforcing it for certain node types. Note though that\nthat is considered EXPERIMENTAL and may not work properly.");
 	gettext("Autoscaling mode");
 	gettext("World-aligned textures may be scaled to span several nodes. However,\nthe server may not send the scale you want, especially if you use\na specially-designed texture pack; with this option, the client tries\nto determine the scale automatically based on the texture size.\nSee also texture_min_size.\nWarning: This option is EXPERIMENTAL!");
+	gettext("Array texture max layers");
+	gettext("Caps the maximum number of layers used with array textures (if supported).\nThis is only useful for debugging.");
 	gettext("Base texture size");
 	gettext("When using bilinear/trilinear filtering, low-resolution textures\ncan be blurred, so this option automatically upscales them to preserve\ncrisp pixels. This defines the minimum texture size for the upscaled textures;\nhigher values look sharper, but require more memory.\nThis setting is ONLY applied if any of the mentioned filters are enabled.\nThis is also used as the base node texture size for world-aligned\ntexture autoscaling.");
 	gettext("Client Mesh Chunksize");
@@ -784,9 +791,9 @@ fake_function() {
 	gettext("Font bold by default");
 	gettext("Font italic by default");
 	gettext("Font shadow");
-	gettext("Shadow offset (in pixels) of the default font. If 0, then shadow will not be drawn.");
+	gettext("Shadow offset (in pixels) for all fonts. If 0, then no shadow will be drawn.");
 	gettext("Font shadow alpha");
-	gettext("Opaqueness (alpha) of the shadow behind the default font, between 0 and 255.");
+	gettext("Opaqueness (alpha) of the shadow behind the font.");
 	gettext("Font size");
 	gettext("Font size of the default font where 1 unit = 1 pixel at 96 DPI");
 	gettext("Font size divisible by");
@@ -830,7 +837,7 @@ fake_function() {
 	gettext("Maximum simultaneous block sends per client");
 	gettext("Maximum number of blocks that are simultaneously sent per client.\nThe maximum total count is calculated dynamically:\nmax_total = ceil((#clients + max_users) * per_client / 4)");
 	gettext("Delay in sending blocks after building");
-	gettext("To reduce lag, block transfers are slowed down when a player is building something.\nThis determines how long they are slowed down after placing or removing a node.");
+	gettext("To save bandwidth, block transfers are slowed down when a player is building something.\nThis determines how long the throttling lasts after placing a node.");
 	gettext("Max. packets per iteration");
 	gettext("Maximum number of packets sent per send step in the low-level networking code.\nYou generally don't need to change this, however busy servers may benefit from a higher number.");
 	gettext("Map Compression Level for Network Transfer");
@@ -845,6 +852,8 @@ fake_function() {
 	gettext("A message to be displayed to all clients when the server crashes.");
 	gettext("Ask to reconnect after crash");
 	gettext("Whether to ask clients to reconnect after a (Lua) crash.\nSet this to true if your server is set up to restart automatically.");
+	gettext("Rollback recording");
+	gettext("If enabled, node and inventory actions are recorded for rollback.\nThis option is only read on server start. Note that the engine will not\nautomatically clean old entries from the rollback database.");
 	gettext("Server/Env Performance");
 	gettext("Dedicated server step");
 	gettext("Length of a server tick (the interval at which everything is generally updated),\nstated in seconds.\nDoes not apply to sessions hosted from the client menu.\nThis is a lower bound, i.e. server steps may not be shorter than this, but\nthey are often longer.");
@@ -897,7 +906,7 @@ fake_function() {
 	gettext("Per-player limit of queued blocks to generate");
 	gettext("Maximum number of blocks to be queued that are to be generated.\nThis limit is enforced per player.");
 	gettext("Number of emerge threads");
-	gettext("Number of emerge threads to use.\nValue 0:\n-    Automatic selection. The number of emerge threads will be\n-    'number of processors - 2', with a lower limit of 1.\nAny other value:\n-    Specifies the number of emerge threads, with a lower limit of 1.\nWARNING: Increasing the number of emerge threads increases engine mapgen\nspeed, but this may harm game performance by interfering with other\nprocesses, especially in singleplayer and/or when running Lua code in\n'on_generated'. For many users the optimum setting may be '1'.");
+	gettext("Number of emerge threads (responsible for map generation and loading) to use.\nIf 0 then the engine will automatically choose a suitable value depending\non the hardware and type of map generator.\nWARNING: There are known bugs in the default map generators (v6, v7, ...)\nwhen using more than 1 thread. The automatic choice will avoid this.");
 	gettext("cURL");
 	gettext("cURL interactive timeout");
 	gettext("Maximum time an interactive request (e.g. server list fetch) may take, stated in milliseconds.");

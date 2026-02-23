@@ -74,6 +74,7 @@ local function get_formspec(data)
 			formatted_deps[#formatted_deps + 1] = fgettext("Already installed")
 		elseif dep.package then
 			formatted_deps[#formatted_deps + 1] = "#cfc"
+			-- TRANSLATORS: Package (mod, texture pack, etc.) info: $1 = package name, $2 = package author
 			formatted_deps[#formatted_deps + 1] = fgettext("$1 by $2", dep.package.title, dep.package.author)
 			deps_to_install = deps_to_install + 1
 		else
@@ -86,8 +87,10 @@ local function get_formspec(data)
 	local message_bg = "#3333"
 	local message
 	if will_install_deps then
+		-- TRANSLATORS: $1 is the name of a package and $2 is a number of depencencies
 		message = fgettext("$1 and $2 dependencies will be installed.", package.title, deps_to_install)
 	else
+		-- TRANSLATORS: $1 is the name of a package and $2 is a number of depencencies
 		message = fgettext("$1 will be installed, and $2 dependencies will be skipped.", package.title, deps_to_install)
 	end
 	if deps_not_found > 0 then

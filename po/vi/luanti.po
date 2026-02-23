@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Vietnamese (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-23 19:19+0200\n"
-"PO-Revision-Date: 2025-09-24 12:28+0000\n"
-"Last-Translator: dvchd <dvcuong.honda@gmail.com>\n"
+"POT-Creation-Date: 2026-01-06 23:13+0100\n"
+"PO-Revision-Date: 2025-11-21 00:51+0000\n"
+"Last-Translator: Nguyễn Phạm Hải Đăng <abcsgamers@gmail.com>\n"
 "Language-Team: Vietnamese <https://hosted.weblate.org/projects/minetest/"
 "minetest/vi/>\n"
 "Language: vi\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 5.15-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -78,6 +78,11 @@ msgid "[all | <cmd>] [-t]"
 msgstr "[all | <câu lệnh>] [-t]"
 
 #: builtin/common/settings/components.lua
+#, fuzzy
+msgid "Add keybinding"
+msgstr "Liên kết phím."
+
+#: builtin/common/settings/components.lua
 msgid "Browse"
 msgstr "Duyệt"
 
@@ -106,6 +111,11 @@ msgid "Set"
 msgstr "Đặt"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+#, fuzzy
+msgid "$1 spread"
+msgstr "X lan rộng"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
 msgstr "(Không có mô tả về cài đặt có sẵn)"
 
@@ -114,9 +124,21 @@ msgid "2D Noise"
 msgstr "Nhiễu 2D"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"2D noise: flag on.\n"
+"3D noise: flag off."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Amplifies every octave by (amplitude of the previous octave * Persistence)."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/content/dlg_overwrite.lua
-#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_create_world.lua
+#: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/dlg_confirm_exit.lua
+#: builtin/mainmenu/dlg_create_world.lua
 #: builtin/mainmenu/dlg_delete_content.lua
 #: builtin/mainmenu/dlg_delete_world.lua builtin/mainmenu/dlg_register.lua
 #: builtin/mainmenu/dlg_rename_modpack.lua src/gui/guiOpenURL.cpp
@@ -125,8 +147,58 @@ msgid "Cancel"
 msgstr "Hủy"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Controls how many octaves (layers) the noise will have."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Each octave is a simple noise generator. Each one also adds more detail to "
+"the noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Finally, all of the octaves will be combined to generate the noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Having lots of octaves is not recommended because it increases terrain "
+"generation time."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Lacunarity"
 msgstr "Khoảng cách"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values make the terrain simple and higher values make the terrain "
+"rough."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values make the terrain smooth and higher values make the terrain have "
+"fine detail."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Lower values will result in smoother noise and higher values will result in "
+"rougher noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Making 3D noise eased is not recommended because it significantly increases "
+"the load."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"Maps noise gradient values onto a quintic S-curve before performing "
+"interpolation."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Octaves"
@@ -137,6 +209,14 @@ msgstr "Quãng tám"
 #, fuzzy
 msgid "Offset"
 msgstr "Độ bù"
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Offsets the final noise by this value."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Overrides the 'eased' flag based on the noise type."
+msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Persistence"
@@ -153,20 +233,51 @@ msgid "Scale"
 msgstr "Tỉ lệ"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Scales every octave by (scale of the previous octave / Lacunarity)."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "Scales the noise in the $1 axis by this value."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Seed"
 msgstr "Mã khởi tạo"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "X spread"
+msgid "Takes the absolute value of each octave while adding them together."
 msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "Y spread"
+msgid "The first octave is amplified by 1."
 msgstr ""
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-msgid "Z spread"
+#, fuzzy
+msgid "The first octave is scaled by 1."
+msgstr "Lệnh này đã bị cấm bởi máy chủ."
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "The multiplier for the noise before the offset is added."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "The random seed for the noise. The same seed results in the same noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid ""
+"This is also the scale of the largest structures in the $1 direction of the "
+"noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "This results in smooth noise instead of gridlike noise."
+msgstr ""
+
+#: builtin/common/settings/dlg_change_mapgen_flags.lua
+msgid "This results in spiky noise."
 msgstr ""
 
 #. ~ "absvalue" is a noise parameter flag.
@@ -194,11 +305,11 @@ msgstr "Nới lỏng"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable automatic exposure as well)"
-msgstr ""
+msgstr "(Trò chơi cũng sẽ cần bật phơi sáng tự động)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable bloom as well)"
-msgstr ""
+msgstr "(Trò chơi cũng cần phải bật lòe sáng)"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable volumetric lighting as well)"
@@ -265,6 +376,12 @@ msgstr "Chuyển động"
 msgid "No results"
 msgstr "Không có kết quả"
 
+#. ~ Indicates that the action does not have a corresponding keybinding.
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Not bound"
+msgstr "Không tìm thấy"
+
 #: builtin/common/settings/dlg_settings.lua
 msgid "Reset setting to default"
 msgstr "Đặt lại cài đặt vể mặc định"
@@ -298,8 +415,19 @@ msgid "Tap with crosshair"
 msgstr "Chạm với tâm ngắm"
 
 #: builtin/common/settings/dlg_settings.lua
+msgid ""
+"These settings are unavailable due to your platform, hardware or in "
+"combination with the current settings."
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Touchscreen layout"
 msgstr "Bố cục cảm ứng"
+
+#: builtin/common/settings/dlg_settings.lua
+#, fuzzy
+msgid "Unavailable"
+msgstr "<không có sẵn>"
 
 #: builtin/common/settings/settingtypes.lua
 msgid "Client Mods"
@@ -322,11 +450,6 @@ msgid "Custom"
 msgstr "Tùy chỉnh"
 
 #: builtin/common/settings/shadows_component.lua
-#: src/settings_translation_file.cpp
-msgid "Dynamic shadows"
-msgstr "Bóng kiểu động lực học"
-
-#: builtin/common/settings/shadows_component.lua
 msgid "High"
 msgstr "Cao"
 
@@ -337,6 +460,10 @@ msgstr "Thấp"
 #: builtin/common/settings/shadows_component.lua
 msgid "Medium"
 msgstr "Trung bình"
+
+#: builtin/common/settings/shadows_component.lua
+msgid "Quality preset"
+msgstr ""
 
 #: builtin/common/settings/shadows_component.lua
 msgid "Very High"
@@ -488,7 +615,7 @@ msgstr "Phần phụ thuộc $1 và $2 sẽ được cài đặt."
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 by $2"
-msgstr ""
+msgstr "$1 bởi $2"
 
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 required dependencies could not be found."
@@ -647,6 +774,11 @@ msgstr "Không thể cài đặt $1 như một $2"
 msgid "Unable to install a $1 as a texture pack"
 msgstr "Không thể cài đặt $1 dưới dạng gói kết cấu"
 
+#: builtin/mainmenu/content/pkgmgr.lua
+#, fuzzy
+msgid "World mods"
+msgstr "Tên thế giới"
+
 #: builtin/mainmenu/dlg_clients_list.lua
 #, fuzzy
 msgid ""
@@ -697,6 +829,10 @@ msgid "Mod:"
 msgstr "Mod:"
 
 #: builtin/mainmenu/dlg_config_world.lua
+msgid "Mods located inside the world folder."
+msgstr ""
+
+#: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
 msgstr "Không có phần phụ thuộc (tùy chọn) nào"
 
@@ -727,6 +863,19 @@ msgstr "Thế giới:"
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "enabled"
 msgstr "đã kích hoạt"
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+msgid "Always show this dialog."
+msgstr ""
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+#, fuzzy
+msgid "Are you sure you want to quit?"
+msgstr "Bạn có chắc chắn muốn xóa \"$1\" không?"
+
+#: builtin/mainmenu/dlg_confirm_exit.lua
+msgid "Quit"
+msgstr ""
 
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "A world named \"$1\" already exists"
@@ -1082,6 +1231,10 @@ msgstr "Không bao giờ"
 msgid "Visit website"
 msgstr "Truy cập website"
 
+#: builtin/mainmenu/init.lua
+msgid "Debug build, expect worse performance"
+msgstr ""
+
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "Cài đặt"
@@ -1352,11 +1505,6 @@ msgid "Done!"
 msgstr "Đã xong!"
 
 #: src/client/client.cpp
-#, c-format
-msgid "Failed to save screenshot to \"%s\""
-msgstr ""
-
-#: src/client/client.cpp
 msgid "Initializing nodes"
 msgstr "Tạo các khối"
 
@@ -1372,7 +1520,7 @@ msgstr "Đang tải kết cấu..."
 msgid "Rebuilding shaders..."
 msgstr "Đang xây dựng lại trình đổ bóng..."
 
-#: src/client/client.cpp
+#: src/client/client.cpp src/util/screenshot.cpp
 #, fuzzy, c-format
 msgid "Saved screenshot to \"%s\""
 msgstr "Ảnh chụp màn hình"
@@ -1404,14 +1552,15 @@ msgid "Provided password file failed to open: "
 msgstr "Không mở được tệp mật khẩu được cung cấp: "
 
 #: src/client/clientlauncher.cpp
-msgid "Provided world path doesn't exist: "
-msgstr "Đường dẫn thế giới được cung cấp không tồn tại: "
+msgid "World does not exist and no game selected to create one."
+msgstr ""
 
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
 msgstr "Nội dung...."
 
-#: src/client/game.cpp src/client/shader.cpp src/server.cpp
+#: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
+#: src/server.cpp
 msgid ""
 "\n"
 "Check debug.txt for details."
@@ -1641,7 +1790,7 @@ msgstr "Không thể kết nối đến %s vì IPv6 đã bị vô hiệu"
 #: src/client/game.cpp
 #, c-format
 msgid "Unable to listen on %s because IPv6 is disabled"
-msgstr ""
+msgstr "Không thể nghe đến %s vì IPv6 đã bị vô hiệu"
 
 #: src/client/game.cpp
 msgid "Unlimited viewing range disabled"
@@ -1665,6 +1814,8 @@ msgstr "Phạm vi nhìn đang ở mức tối thiểu: %d"
 #, c-format
 msgid "Viewing changed to %d (the minimum), but limited to %d by game or mod"
 msgstr ""
+"Phạm vi nhìn đang ở mức tối thiểu: %d, nhưng bị giới hạn thành %d bởi trò "
+"chơi hoặc mod"
 
 #: src/client/game.cpp
 #, c-format
@@ -1672,20 +1823,24 @@ msgid "Viewing range changed to %d"
 msgstr "Phạm vi nhìn được đặt thành %d"
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Viewing range changed to %d (the maximum)"
-msgstr "Phạm vi nhìn được đặt thành %d"
+msgstr "Phạm vi nhìn được đặt thành %d (mức tối đa)"
 
 #: src/client/game.cpp
 #, c-format
 msgid ""
 "Viewing range changed to %d (the maximum), but limited to %d by game or mod"
 msgstr ""
+"Phạm vi nhìn được đặt thành %d (mức tối đa), nhưng bị giới hạn thành %d bởi "
+"trò chơi hoặc mod"
 
 #: src/client/game.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Viewing range changed to %d, but limited to %d by game or mod"
-msgstr "Phạm vi nhìn được đặt thành %d"
+msgstr ""
+"Phạm vi nhìn được đặt thành %d, nhưng bị giới hạn thành %d bởi trò chơi hoặc "
+"mod"
 
 #: src/client/game.cpp
 #, c-format
@@ -1694,7 +1849,7 @@ msgstr "Âm lượng được đặt thành %d%%"
 
 #: src/client/game.cpp
 msgid "Wireframe not supported by video driver"
-msgstr ""
+msgstr "Khung dây không được hỗ trợ bởi trình điều khiển phương tiện"
 
 #: src/client/game.cpp
 msgid "Wireframe shown"
@@ -2042,6 +2197,11 @@ msgid "Right Windows"
 msgstr "Windows phải"
 
 #: src/client/keycode.cpp
+#, c-format
+msgid "Scancode: %d"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
@@ -2085,9 +2245,19 @@ msgstr "Minimap ở chế độ mặt nền, mức thu phóng %dx"
 msgid "Minimap in texture mode"
 msgstr "Minimap ở chế độ kết cấu"
 
+#: src/client/render/pipeline.cpp
+#, c-format
+msgid "Failed to create the texture \"%s\" for the rendering pipeline."
+msgstr ""
+
 #: src/client/shader.cpp
 #, c-format
 msgid "Failed to compile the \"%s\" shader."
+msgstr "Lỗi khi tạo shader \"%s\""
+
+#: src/client/shader.cpp
+#, fuzzy, c-format
+msgid "Failed to find \"%s\" shader files."
 msgstr "Lỗi khi tạo shader \"%s\""
 
 #: src/client/shader.cpp
@@ -2110,6 +2280,7 @@ msgid ""
 "Note: this may be caused by a dependency cycle, in which case try updating "
 "the mods."
 msgstr ""
+"Ghi chú: đây có thể là vòng lặp phần phụ thuộc, hãy thử cập nhật các mod."
 
 #: src/content/mod_configuration.cpp
 msgid "Some mods have unsatisfied dependencies:"
@@ -2250,9 +2421,8 @@ msgid "Toggle chat log"
 msgstr "Chuyển đổi nhật kí trò chuyện"
 
 #: src/gui/touchscreenlayout.cpp
-#, fuzzy
 msgid "Toggle debug"
-msgstr "Chuyển đổi sương mù"
+msgstr "Bật gỡ lỗi"
 
 #: src/gui/touchscreenlayout.cpp src/settings_translation_file.cpp
 msgid "Toggle fast"
@@ -2279,10 +2449,12 @@ msgid ""
 "Another client is connected with this name.  If your client closed "
 "unexpectedly, try again in a minute."
 msgstr ""
+"Một máy khách khác đang kết nối với tên này. Nếu máy khách của bạn bất ngờ "
+"đóng, hãy thử lại sau một lúc."
 
 #: src/network/clientpackethandler.cpp
 msgid "Empty passwords are disallowed.  Set a password and try again."
-msgstr ""
+msgstr "Không được phép để mật khẩu trống. Đặt một mật khẩu và thử lại."
 
 #: src/network/clientpackethandler.cpp
 msgid "Internal server error"
@@ -2637,6 +2809,14 @@ msgstr "Nhiễu cho các cây táo"
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Applies a post-processing filter to detect and smoothen high-contrast "
+"edges.\n"
+"Provides balance between speed and image quality.\n"
+"fxaa can used in combination with the other anti-aliasing methods"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Apply dithering to reduce color banding artifacts.\n"
 "Dithering significantly increases the size of losslessly-compressed\n"
 "screenshots and it works incorrectly if the display or operating system\n"
@@ -2657,6 +2837,10 @@ msgid ""
 msgstr ""
 "Quán tính của cánh tay, mang lại chuyển động\n"
 "chân thực hơn cho cánh tay khi máy ảnh di chuyển."
+
+#: src/settings_translation_file.cpp
+msgid "Array texture max layers"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Ask to reconnect after crash"
@@ -2806,6 +2990,12 @@ msgid "Camera smoothing in cinematic mode"
 msgstr "Máy ảnh mượt mà trong chế độ điện ảnh"
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Caps the maximum number of layers used with array textures (if supported).\n"
+"This is only useful for debugging."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Capture Tracy zones"
 msgstr ""
 
@@ -2900,6 +3090,10 @@ msgstr "Độ dài tin nhắn trò chuyện tối đa"
 
 #: src/settings_translation_file.cpp
 msgid "Chat weblinks"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Choose theme colors for the main menu background."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3020,6 +3214,10 @@ msgid ""
 "-1 - use default compression level\n"
 "0 - least compression, fastest\n"
 "9 - best compression, slowest"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Confirmation dialog before closing"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3375,6 +3573,10 @@ msgid "Dungeon noise"
 msgstr "Nhiễu ngục tối"
 
 #: src/settings_translation_file.cpp
+msgid "Dynamic shadows"
+msgstr "Bóng kiểu động lực học"
+
+#: src/settings_translation_file.cpp
 msgid "Effects"
 msgstr "Hiệu ứng"
 
@@ -3436,6 +3638,11 @@ msgid "Enable Raytraced Culling"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Enable a confirmation dialog before closing."
+msgstr "Kích hoạt hoạt ảnh của các vật phẩm trong túi đồ."
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Enable automatic exposure correction\n"
 "When enabled, the post-processing engine will\n"
@@ -3452,6 +3659,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Enable console window"
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Enable dynamic shadows"
+msgstr "Bóng kiểu động lực học"
 
 #: src/settings_translation_file.cpp
 msgid "Enable joysticks"
@@ -3602,6 +3814,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Fallback font path"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Fast approximate antialiasing"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3818,11 +4034,11 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Full screen"
-msgstr ""
+msgstr "Toàn màn hình"
 
 #: src/settings_translation_file.cpp
 msgid "Fullscreen mode."
-msgstr ""
+msgstr "Chế độ toàn màn hình."
 
 #: src/settings_translation_file.cpp
 msgid "GUI"
@@ -3870,11 +4086,11 @@ msgstr "Đồ họa"
 
 #: src/settings_translation_file.cpp
 msgid "Graphics and Audio"
-msgstr ""
+msgstr "Đồ họa và Âm thanh"
 
 #: src/settings_translation_file.cpp
 msgid "Gravity"
-msgstr ""
+msgstr "Trọng lực"
 
 #: src/settings_translation_file.cpp
 msgid "Ground level"
@@ -4198,14 +4414,17 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"If enabled, actions are recorded for rollback.\n"
-"This option is only read when server starts."
+"If enabled, invalid world data won't cause the server to shut down.\n"
+"Only enable this if you know what you are doing."
 msgstr ""
+"Nếu bật, dữ liệu thế giới không hợp lệ sẽ không khiến máy chủ tắt nguồn.\n"
+"Chỉ bật nếu bạn biết mình đang làm gì."
 
 #: src/settings_translation_file.cpp
 msgid ""
-"If enabled, invalid world data won't cause the server to shut down.\n"
-"Only enable this if you know what you are doing."
+"If enabled, node and inventory actions are recorded for rollback.\n"
+"This option is only read on server start. Note that the engine will not\n"
+"automatically clean old entries from the rollback database."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4213,6 +4432,8 @@ msgid ""
 "If enabled, players cannot join without a password or change theirs to an "
 "empty password."
 msgstr ""
+"Nếu bật, người chơi không thể tham gia nếu không có mật khẩu hoặc mật khẩu "
+"của họ là mật khẩu trống."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5033,6 +5254,11 @@ msgid "Measure time samples"
 msgstr "Đền sa mạc"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Menu theme"
+msgstr "Menu"
+
+#: src/settings_translation_file.cpp
 msgid "Message of the day"
 msgstr ""
 
@@ -5227,16 +5453,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Number of emerge threads to use.\n"
-"Value 0:\n"
-"-    Automatic selection. The number of emerge threads will be\n"
-"-    'number of processors - 2', with a lower limit of 1.\n"
-"Any other value:\n"
-"-    Specifies the number of emerge threads, with a lower limit of 1.\n"
-"WARNING: Increasing the number of emerge threads increases engine mapgen\n"
-"speed, but this may harm game performance by interfering with other\n"
-"processes, especially in singleplayer and/or when running Lua code in\n"
-"'on_generated'. For many users the optimum setting may be '1'."
+"Number of emerge threads (responsible for map generation and loading) to "
+"use.\n"
+"If 0 then the engine will automatically choose a suitable value depending\n"
+"on the hardware and type of map generator.\n"
+"WARNING: There are known bugs in the default map generators (v6, v7, ...)\n"
+"when using more than 1 thread. The automatic choice will avoid this."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5267,8 +5489,7 @@ msgid "Occlusion Culling"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid ""
-"Opaqueness (alpha) of the shadow behind the default font, between 0 and 255."
+msgid "Opaqueness (alpha) of the shadow behind the font."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5576,8 +5797,7 @@ msgid ""
 "Save window size automatically when modified.\n"
 "If true, screen size is saved in screen_w and screen_h, and whether the "
 "window\n"
-"is maximized is stored in window_maximized.\n"
-"(Autosaving window_maximized only works if compiled with SDL.)"
+"is maximized is stored in window_maximized."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5662,11 +5882,6 @@ msgid ""
 "If Post Processing is disabled, changing FSAA requires a restart.\n"
 "Also, if Post Processing is disabled, FSAA will not work together with\n"
 "undersampling or a non-default \"3d_mode\" setting.\n"
-"\n"
-"* FXAA - Fast approximate antialiasing\n"
-"Applies a post-processing filter to detect and smoothen high-contrast "
-"edges.\n"
-"Provides balance between speed and image quality.\n"
 "\n"
 "* SSAA - Super-sampling antialiasing\n"
 "Renders higher-resolution image of the scene, then scales down to reduce\n"
@@ -5867,7 +6082,7 @@ msgid "Shadow filter quality"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Shadow map max distance in nodes to render shadows"
+msgid "Shadow map render distance"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5880,8 +6095,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Shadow offset (in pixels) of the default font. If 0, then shadow will not be "
-"drawn."
+"Shadow offset (in pixels) for all fonts. If 0, then no shadow will be drawn."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6256,7 +6470,7 @@ msgstr ""
 msgid ""
 "The rendering back-end.\n"
 "Note: A restart is required after changing this!\n"
-"OpenGL is the default for desktop, and OGLES2 for Android."
+"By default OpenGL3 is preferred on desktop, or OGLES2 on Android."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6337,10 +6551,9 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"To reduce lag, block transfers are slowed down when a player is building "
+"To save bandwidth, block transfers are slowed down when a player is building "
 "something.\n"
-"This determines how long they are slowed down after placing or removing a "
-"node."
+"This determines how long the throttling lasts after placing a node."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6651,8 +6864,9 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"Vertical screen synchronization. Your system may still force VSync on even "
-"if this is disabled."
+"Vertical screen synchronization.\n"
+"Note: A restart is required after changing this!\n"
+"Your system may still force VSync and ignore this setting."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6872,28 +7086,37 @@ msgid ""
 "See also texture_min_size.\n"
 "Warning: This option is EXPERIMENTAL!"
 msgstr ""
+"Kết cấu được căn chỉnh theo thế giới có thể được mở rộng để trải rộng trên "
+"nhiều nút. Tuy nhiên,\n"
+"máy chủ có thể không gửi tỷ lệ bạn muốn, đặc biệt nếu bạn sử dụng\n"
+"một gói kết cấu được thiết kế đặc biệt; với tùy chọn này, khách hàng thử\n"
+"để tự động xác định tỷ lệ dựa trên kích thước kết cấu.\n"
+"Xem thêm texture_min_size.\n"
+"Cảnh báo: Tùy chọn này chỉ mang tính THỬ NGHIỆM!"
 
 #: src/settings_translation_file.cpp
 msgid "World-aligned textures mode"
-msgstr ""
+msgstr "Chế độ kết cấu phù hợp với thế giới"
 
 #: src/settings_translation_file.cpp
 msgid "Y of flat ground."
-msgstr ""
+msgstr "Y của mặt đất bằng phẳng."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Y of mountain density gradient zero level. Used to shift mountains "
 "vertically."
 msgstr ""
+"Y của độ dốc mật độ núi bằng không. Được sử dụng để dịch chuyển núi theo "
+"chiều thẳng đứng."
 
 #: src/settings_translation_file.cpp
 msgid "Y of upper limit of large caves."
-msgstr ""
+msgstr "Y của giới hạn trên của các hang động lớn."
 
 #: src/settings_translation_file.cpp
 msgid "Y-distance over which caverns expand to full size."
-msgstr ""
+msgstr "Khoảng cách Y mà các hang động mở rộng đến kích thước đầy đủ."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6902,26 +7125,31 @@ msgid ""
 "For a solid floatland layer, this controls the height of hills/mountains.\n"
 "Must be less than or equal to half the distance between the Y limits."
 msgstr ""
+"Khoảng cách Y mà vùng đất trôi nổi thu hẹp dần từ mật độ đầy đủ đến không có "
+"gì.\n"
+"Quá trình thu hẹp bắt đầu ở khoảng cách này tính từ giới hạn Y.\n"
+"Đối với lớp đất nổi rắn, điều này kiểm soát độ cao của đồi/núi.\n"
+"Phải nhỏ hơn hoặc bằng một nửa khoảng cách giữa các giới hạn Y."
 
 #: src/settings_translation_file.cpp
 msgid "Y-level of average terrain surface."
-msgstr ""
+msgstr "Mức Y của bề mặt địa hình trung bình."
 
 #: src/settings_translation_file.cpp
 msgid "Y-level of cavern upper limit."
-msgstr ""
+msgstr "Mức Y của giới hạn trên của hang động."
 
 #: src/settings_translation_file.cpp
 msgid "Y-level of higher terrain that creates cliffs."
-msgstr ""
+msgstr "Mức Y của địa hình cao hơn tạo thành vách đá."
 
 #: src/settings_translation_file.cpp
 msgid "Y-level of lower terrain and seabed."
-msgstr ""
+msgstr "Mức Y của địa hình thấp hơn và đáy biển."
 
 #: src/settings_translation_file.cpp
 msgid "Y-level of seabed."
-msgstr ""
+msgstr "Mức Y của đáy biển."
 
 #: src/settings_translation_file.cpp
 msgid "cURL"
@@ -6939,62 +7167,16 @@ msgstr "Hết thời gian tương tác với cURL"
 msgid "cURL parallel limit"
 msgstr "Gặp giới hạn số lượng tệp tải xuống trong cURL"
 
-#~ msgid "Apps"
-#~ msgstr "Ứng dụng"
+#: src/util/screenshot.cpp
+#, c-format
+msgid "Failed to save screenshot to \"%s\""
+msgstr "Thất bại khi lưu ảnh chụp màn hình vào \"%s\""
 
-#~ msgid "End"
-#~ msgstr "End"
+#~ msgid "Provided world path doesn't exist: "
+#~ msgstr "Đường dẫn thế giới được cung cấp không tồn tại: "
 
-#~ msgid "Erase EOF"
-#~ msgstr "Xóa bỏ EOF"
+#~ msgid "Y spread"
+#~ msgstr "Y lan rộng"
 
-#~ msgid "Execute"
-#~ msgstr "Thực thi"
-
-#~ msgid "Help"
-#~ msgstr "Trợ giúp"
-
-#~ msgid "Home"
-#~ msgstr "Trang chủ"
-
-#~ msgid "IME Accept"
-#~ msgstr "Chấp nhận IME"
-
-#~ msgid "IME Convert"
-#~ msgstr "Chuyển đổi IME"
-
-#~ msgid "IME Escape"
-#~ msgstr "Thoát IME"
-
-#~ msgid "IME Mode Change"
-#~ msgstr "Thay đổi chế độ IME"
-
-#~ msgid "Left Button"
-#~ msgstr "Nút trái"
-
-#~ msgid "Middle Button"
-#~ msgstr "Nút giữa"
-
-#~ msgid "No world created or selected!"
-#~ msgstr "Chưa tạo hay chọn thế giới!"
-
-#~ msgid "Right Button"
-#~ msgstr "Nút phải"
-
-#~ msgid "Select"
-#~ msgstr "Chọn"
-
-#~ msgid "Sleep"
-#~ msgstr "Ngủ"
-
-#~ msgid "Snapshot"
-#~ msgstr "Ảnh chụp nhanh"
-
-#~ msgid "Tab"
-#~ msgstr "Tab"
-
-#~ msgid "X Button 1"
-#~ msgstr "Nút X 1"
-
-#~ msgid "X Button 2"
-#~ msgstr "Nút X 2"
+#~ msgid "Z spread"
+#~ msgstr "Z lan rộng"

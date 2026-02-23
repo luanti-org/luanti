@@ -112,6 +112,16 @@ public:
 
 	void SwapWindow();
 
+	// We need this twice to handle showing an error *with* or *without*
+	// the SDL device even being initialized.
+
+	static bool showErrorMessageBox(SDL_Window *window, const char *title, const char *message);
+	inline bool showErrorMessageBox(const char *title, const char *message)
+	{
+		// (Window can be null, but that's ok)
+		return showErrorMessageBox(Window, title, message);
+	}
+
 	//! Implementation of the linux cursor control
 	class CCursorControl : public gui::ICursorControl
 	{

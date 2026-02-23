@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "AnimatedMeshSceneNode.h"
-#include "CBoneSceneNode.h"
+#include "BoneSceneNode.h"
 #include "ISceneNode.h"
 #include "IVideoDriver.h"
 #include "ISceneManager.h"
@@ -14,7 +14,7 @@
 #include "os.h"
 #include "SkinnedMesh.h"
 #include "IDummyTransformationSceneNode.h"
-#include "IBoneSceneNode.h"
+#include "BoneSceneNode.h"
 #include "IMaterialRenderer.h"
 #include "IMesh.h"
 #include "IMeshCache.h"
@@ -147,23 +147,6 @@ void AnimatedMeshSceneNode::OnRegisterSceneNode()
 	}
 }
 
-IMesh *AnimatedMeshSceneNode::getMeshForCurrentFrame()
-{
-	if (Mesh->getMeshType() != EAMT_SKINNED) {
-		return Mesh;
-	}
-
-	// As multiple scene nodes may be sharing the same skinned mesh, we have to
-	// re-animate it every frame to ensure that this node gets the mesh that it needs.
-
-	auto *skinnedMesh = static_cast<SkinnedMesh *>(Mesh);
-
-	// Matrices have already been calculated in OnAnimate
-	skinnedMesh->skinMesh(PerJoint.GlobalMatrices);
-
-	return skinnedMesh;
-}
-
 //! OnAnimate() is called just before rendering the whole scene.
 void AnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 {
@@ -213,18 +196,26 @@ void AnimatedMeshSceneNode::render()
 
 	++PassCount;
 
-	scene::IMesh *m = getMeshForCurrentFrame();
-	assert(m);
-
+	if (auto *sm = dynamic_cast<SkinnedMesh *>(Mesh)) {
+		sm->rigidAnimation(PerJoint.GlobalMatrices);
+		if (sm->useSoftwareSkinning()) {
+			// Perform software skinning; matrices have already been calculated in OnAnimate
+			sm->skinMesh(PerJoint.GlobalMatrices);
+			++driver->getFrameStats().SWSkinnedMeshes;
+		} else if (sm->hasWeights()) {
+			driver->setJointTransforms(sm->calculateSkinMatrices(PerJoint.GlobalMatrices));
+			++driver->getFrameStats().HWSkinnedMeshes;
+		}
+	}
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 
-	for (u32 i = 0; i < m->getMeshBufferCount(); ++i) {
+	for (u32 i = 0; i < Mesh->getMeshBufferCount(); ++i) {
 		const bool transparent = driver->needsTransparentRenderPass(Materials[i]);
 
 		// only render transparent buffer if this is the transparent render pass
 		// and solid only in solid pass
 		if (transparent == isTransparentPass) {
-			scene::IMeshBuffer *mb = m->getMeshBuffer(i);
+			scene::IMeshBuffer *mb = Mesh->getMeshBuffer(i);
 			const video::SMaterial &material = ReadOnlyMaterials ? mb->getMaterial() : Materials[i];
 			if (RenderFromIdentity)
 				driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
@@ -247,11 +238,11 @@ void AnimatedMeshSceneNode::render()
 		if (DebugDataVisible & scene::EDS_NORMALS) {
 			const f32 debugNormalLength = 1.f;
 			const video::SColor debugNormalColor = video::SColor(255, 34, 221, 221);
-			const u32 count = m->getMeshBufferCount();
+			const u32 count = Mesh->getMeshBufferCount();
 
 			// draw normals
 			for (u32 g = 0; g < count; ++g) {
-				scene::IMeshBuffer *mb = m->getMeshBuffer(g);
+				scene::IMeshBuffer *mb = Mesh->getMeshBuffer(g);
 				if (RenderFromIdentity)
 					driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
 				else if (Mesh->getMeshType() == EAMT_SKINNED)
@@ -266,8 +257,8 @@ void AnimatedMeshSceneNode::render()
 
 		// show bounding box
 		if (DebugDataVisible & scene::EDS_BBOX_BUFFERS) {
-			for (u32 g = 0; g < m->getMeshBufferCount(); ++g) {
-				const IMeshBuffer *mb = m->getMeshBuffer(g);
+			for (u32 g = 0; g < Mesh->getMeshBufferCount(); ++g) {
+				const IMeshBuffer *mb = Mesh->getMeshBuffer(g);
 
 				if (Mesh->getMeshType() == EAMT_SKINNED)
 					driver->setTransform(video::ETS_WORLD, AbsoluteTransformation * ((SSkinMeshBuffer *)mb)->Transformation);
@@ -300,8 +291,8 @@ void AnimatedMeshSceneNode::render()
 			debug_mat.ZBuffer = video::ECFN_DISABLED;
 			driver->setMaterial(debug_mat);
 
-			for (u32 g = 0; g < m->getMeshBufferCount(); ++g) {
-				const IMeshBuffer *mb = m->getMeshBuffer(g);
+			for (u32 g = 0; g < Mesh->getMeshBufferCount(); ++g) {
+				const IMeshBuffer *mb = Mesh->getMeshBuffer(g);
 				if (RenderFromIdentity)
 					driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
 				else if (Mesh->getMeshType() == EAMT_SKINNED)
@@ -378,7 +369,7 @@ u32 AnimatedMeshSceneNode::getMaterialCount() const
 
 //! Returns a pointer to a child node, which has the same transformation as
 //! the corresponding joint, if the mesh in this scene node is a skinned mesh.
-IBoneSceneNode *AnimatedMeshSceneNode::getJointNode(const c8 *jointName)
+BoneSceneNode *AnimatedMeshSceneNode::getJointNode(const c8 *jointName)
 {
 	if (!Mesh || Mesh->getMeshType() != EAMT_SKINNED) {
 		os::Printer::log("No mesh, or mesh not of skinned mesh type", ELL_WARNING);
@@ -406,7 +397,7 @@ IBoneSceneNode *AnimatedMeshSceneNode::getJointNode(const c8 *jointName)
 
 //! Returns a pointer to a child node, which has the same transformation as
 //! the corresponding joint, if the mesh in this scene node is a skinned mesh.
-IBoneSceneNode *AnimatedMeshSceneNode::getJointNode(u32 jointID)
+BoneSceneNode *AnimatedMeshSceneNode::getJointNode(u32 jointID)
 {
 	if (!Mesh || Mesh->getMeshType() != EAMT_SKINNED) {
 		os::Printer::log("No mesh, or mesh not of skinned mesh type", ELL_WARNING);
@@ -551,7 +542,7 @@ void AnimatedMeshSceneNode::addJoints()
 			parent = PerJoint.SceneNodes.at(*joint->ParentJointID).get(); // exists because of topo. order
 		assert(parent);
 		const auto *matrix = std::get_if<core::matrix4>(&joint->transform);
-		PerJoint.SceneNodes.push_back(irr_ptr<CBoneSceneNode>(new CBoneSceneNode(
+		PerJoint.SceneNodes.push_back(irr_ptr<BoneSceneNode>(new BoneSceneNode(
 				parent, SceneManager, 0, i, joint->Name,
 				matrix ? core::Transform{} : std::get<core::Transform>(joint->transform),
 				matrix ? *matrix : std::optional<core::matrix4>{})));
@@ -563,7 +554,7 @@ void AnimatedMeshSceneNode::updateJointSceneNodes(
 {
 	for (size_t i = 0; i < transforms.size(); ++i) {
 		const auto &transform = transforms[i];
-		auto *node = static_cast<CBoneSceneNode*>(PerJoint.SceneNodes[i]);
+		auto *node = static_cast<BoneSceneNode*>(PerJoint.SceneNodes[i]);
 		if (const auto *trs = std::get_if<core::Transform>(&transform)) {
 			node->setTransform(*trs);
 			// .x lets animations override matrix transforms entirely.

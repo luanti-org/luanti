@@ -5,8 +5,8 @@
     <string name="loading">Nalaganje …</string>
     <string name="unzip_notification_description">Manj kot 1 minuta …</string>
     <string name="label">Luanti</string>
-    <string name="notification_channel_description">Obvestilo od Luantia</string>
-    <string name="ime_dialog_done">Končano!l</string>
-    <string name="unzip_notification_title">Nalaganje Luantia</string>
-    <string name="game_notification_title">Luanti deluje</string>
+    <string name="notification_channel_description">Obvestilo od Luantija</string>
+    <string name="ime_dialog_done">Končano</string>
+    <string name="unzip_notification_title">Nalaganje Luantija</string>
+    <string name="game_notification_title">Luanti teče</string>
 </resources>

@@ -41,7 +41,9 @@ static v3d check_v3d(lua_State *L, int index);
 
 #define CHECK_FLOAT(value, name) do {\
 		if (std::isnan(value) || std::isinf(value)) { \
-			throw LuaError("Invalid float value for '" name \
+			/* "we have templates at home" */ \
+			const char *tname = sizeof(value) == sizeof(double) ? "double" : "float"; \
+			throw LuaError(std::string("Invalid ") + (tname) + " value for '" name \
 				"' (NaN or infinity)"); \
 		} \
 	} while (0)
@@ -175,7 +177,20 @@ v3f read_v3f(lua_State *L, int index)
 
 v3f check_v3f(lua_State *L, int index)
 {
-	return v3f::from(check_v3d(L, index));
+	// This is *not* the same as `v3f::from(check_v3d(...))`, because
+	// then we would be casting after CHECK_FLOAT, which defeats the point.
+	read_v3_aux(L, index);
+	CHECK_POS_COORD(-3, "x");
+	CHECK_POS_COORD(-2, "y");
+	CHECK_POS_COORD(-1, "z");
+	float x = static_cast<float>(lua_tonumber(L, -3)),
+		y = static_cast<float>(lua_tonumber(L, -2)),
+		z = static_cast<float>(lua_tonumber(L, -1));
+	lua_pop(L, 3);
+	CHECK_FLOAT(x, "x");
+	CHECK_FLOAT(y, "y");
+	CHECK_FLOAT(z, "z");
+	return v3f(x, y, z);
 }
 
 v3d read_v3d(lua_State *L, int index)
@@ -184,9 +199,9 @@ v3d read_v3d(lua_State *L, int index)
 	CHECK_POS_COORD2(-3, "x");
 	CHECK_POS_COORD2(-2, "y");
 	CHECK_POS_COORD2(-1, "z");
-	double x = lua_tonumber(L, -3);
-	double y = lua_tonumber(L, -2);
-	double z = lua_tonumber(L, -1);
+	double x = lua_tonumber(L, -3),
+		y = lua_tonumber(L, -2),
+		z = lua_tonumber(L, -1);
 	lua_pop(L, 3);
 	return v3d(x, y, z);
 }
@@ -197,9 +212,9 @@ v3d check_v3d(lua_State *L, int index)
 	CHECK_POS_COORD(-3, "x");
 	CHECK_POS_COORD(-2, "y");
 	CHECK_POS_COORD(-1, "z");
-	double x = lua_tonumber(L, -3);
-	double y = lua_tonumber(L, -2);
-	double z = lua_tonumber(L, -1);
+	double x = lua_tonumber(L, -3),
+		y = lua_tonumber(L, -2),
+		z = lua_tonumber(L, -1);
 	lua_pop(L, 3);
 	CHECK_FLOAT(x, "x");
 	CHECK_FLOAT(y, "y");

@@ -50,7 +50,7 @@ cd ..
 potfile=po/luanti.pot
 echo "updating pot"
 xgettext --package-name=luanti \
-	--add-comments='~' \
+	--add-comments='TRANSLATORS:'\
 	--sort-by-file \
 	--add-location=file \
 	--keyword=N_ \
@@ -68,13 +68,6 @@ xgettext --package-name=luanti \
 	--from-code=utf-8 \
 	`find src/ -name '*.cpp' -o -name '*.h'` \
 	`find builtin/ -name '*.lua'`
-
-# Gettext collects a huge amount of bogus comments for the string
-# "Available commands: ", and this not once but twice!
-# I couldn't figure out how to avoid that so get rid of them afterwards:
-for i in 1 2; do
-	sed '/^#\. ~= 0\.3$/,/^#: /{ /^#: /!d; }' -i $potfile
-done
 
 # Now iterate on all languages and create the po file if missing, or update it
 # if it exists already

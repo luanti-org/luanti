@@ -179,9 +179,9 @@ public:
 	inline void setHardwareMappingHint(E_HARDWARE_MAPPING newMappingHint, E_BUFFER_TYPE buffer = EBT_VERTEX_AND_INDEX)
 	{
 		if (buffer == EBT_VERTEX_AND_INDEX || buffer == EBT_VERTEX)
-			getVertexBuffer()->setHardwareMappingHint(newMappingHint);
+			getVertexBuffer()->MappingHint = newMappingHint;
 		if (buffer == EBT_VERTEX_AND_INDEX || buffer == EBT_INDEX)
-			getIndexBuffer()->setHardwareMappingHint(newMappingHint);
+			getIndexBuffer()->MappingHint = newMappingHint;
 	}
 
 	//! flags the meshbuffer as changed, reloads hardware buffers

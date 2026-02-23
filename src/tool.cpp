@@ -421,21 +421,21 @@ DigParams getDigParams(const ItemGroupList &groups,
 }
 
 HitParams getHitParams(const ItemGroupList &armor_groups,
-		const ToolCapabilities *tp, float time_from_last_punch,
+		const ToolCapabilities &tp, float time_from_last_punch,
 		u16 initial_wear)
 {
 	s32 damage = 0;
 	float result_wear = 0.0f;
 	float punch_interval_multiplier =
-			rangelim(time_from_last_punch / tp->full_punch_interval, 0.0f, 1.0f);
+			rangelim(time_from_last_punch / tp.full_punch_interval, 0.0f, 1.0f);
 
-	for (const auto &damageGroup : tp->damageGroups) {
+	for (const auto &damageGroup : tp.damageGroups) {
 		s16 armor = itemgroup_get(armor_groups, damageGroup.first);
 		damage += damageGroup.second * punch_interval_multiplier * armor / 100.0;
 	}
 
-	if (tp->punch_attack_uses > 0) {
-		result_wear = calculateResultWear(tp->punch_attack_uses, initial_wear);
+	if (tp.punch_attack_uses > 0) {
+		result_wear = calculateResultWear(tp.punch_attack_uses, initial_wear);
 		result_wear *= punch_interval_multiplier;
 	}
 	// Keep damage in sane bounds for simplicity
@@ -445,36 +445,30 @@ HitParams getHitParams(const ItemGroupList &armor_groups,
 	return {damage, wear_i};
 }
 
-HitParams getHitParams(const ItemGroupList &armor_groups,
-		const ToolCapabilities *tp)
-{
-	return getHitParams(armor_groups, tp, 1000000);
-}
-
 PunchDamageResult getPunchDamage(
 		const ItemGroupList &armor_groups,
-		const ToolCapabilities *toolcap,
+		const ToolCapabilities &toolcap,
 		const ItemStack *punchitem,
 		float time_from_last_punch,
 		u16 initial_wear
 ){
 	bool do_hit = true;
-	{
-		if (do_hit && punchitem) {
-			if (itemgroup_get(armor_groups, "punch_operable") &&
-					(toolcap == NULL || punchitem->name.empty()))
-				do_hit = false;
-		}
+	if (do_hit && punchitem) {
+		// FIXME: punch_operable is supposed to apply to "non-tool" items too
+		// 1. We don't have the itemdef available here to check
+		// 2. how is this supposed to interact with overridable toolcaps?
+		if (itemgroup_get(armor_groups, "punch_operable") &&
+				punchitem->name.empty())
+			do_hit = false;
+	}
 
-		if (do_hit) {
-			if(itemgroup_get(armor_groups, "immortal"))
-				do_hit = false;
-		}
+	if (do_hit) {
+		if (itemgroup_get(armor_groups, "immortal"))
+			do_hit = false;
 	}
 
 	PunchDamageResult result;
-	if(do_hit)
-	{
+	if (do_hit) {
 		HitParams hitparams = getHitParams(armor_groups, toolcap,
 				time_from_last_punch,
 				punchitem ? punchitem->wear : 0);

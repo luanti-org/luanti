@@ -159,7 +159,8 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 
 			// No more breath, damage player
 			if (m_breath == 0) {
-				PlayerHPChangeReason reason(PlayerHPChangeReason::DROWNING);
+				std::string nodename = c.name;
+				PlayerHPChangeReason reason(PlayerHPChangeReason::DROWNING, nodename, p);
 				setHP(m_hp - c.drowning, reason);
 			}
 		}
@@ -449,14 +450,11 @@ void PlayerSAO::setLookPitchAndSend(const float pitch)
 }
 
 u32 PlayerSAO::punch(v3f dir,
-	const ToolCapabilities *toolcap,
+	const ToolCapabilities &toolcap,
 	ServerActiveObject *puncher,
 	float time_from_last_punch,
 	u16 initial_wear)
 {
-	if (!toolcap)
-		return 0;
-
 	// No effect if PvP disabled or if immortal
 	if (isImmortal() || !g_settings->getBool("enable_pvp")) {
 		if (puncher && puncher->getType() == ACTIVEOBJECT_TYPE_PLAYER) {

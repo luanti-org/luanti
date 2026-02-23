@@ -96,6 +96,23 @@ void TestSerialization::testDeSerializeString()
 		UASSERT(is.eof());
 	}
 
+	// Exception test of primitive reader functions
+	{
+		std::istringstream is(mkstr("\x00\x01\x02\x03"), std::ios::binary);
+		UASSERT(readU16(is));
+		UASSERT(canRead(is));
+		UASSERT(readU16(is));
+		// Yet no EOF set, thus use `canRead`.
+		UASSERT(is.good());
+		UASSERT(!is.eof());
+		UASSERT(!canRead(is));
+
+		// Out of bounds
+		EXCEPTION_CHECK(SerializationError, readU8(is));
+		UASSERT(is.eof());
+		UASSERT(!canRead(is));
+	}
+
 	// Test deserialize an incomplete length specifier
 	{
 		std::istringstream is(mkstr("\x53"), std::ios::binary);

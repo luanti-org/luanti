@@ -138,6 +138,53 @@ JoystickLayout create_xbox_layout()
 	return jlo;
 }
 
+JoystickLayout create_ps5_layout()
+{
+	JoystickLayout jlo;
+	jlo.axes_deadzone = 7000;
+
+	// Analog sticks
+	const JoystickAxisLayout axes[JA_COUNT] = {
+		{0, 1},  // JA_SIDEWARD_MOVE (left stick X)
+		{1, 1},  // JA_FORWARD_MOVE (left stick Y)
+		{2, 1},  // JA_FRUSTUM_HORIZONTAL (right stick X - look)
+		{3, 1},  // JA_FRUSTUM_VERTICAL (right stick Y - look)
+	};
+	memcpy(jlo.axes, axes, sizeof(jlo.axes));
+
+	// Options button
+	JLO_B_PB(KeyType::ESC,         1 << 6,  1 << 6);  // Options - Pause menu
+
+	// Face buttons
+	JLO_B_PB(KeyType::JUMP,        1 << 0,  1 << 0);  // Cross
+	JLO_B_PB(KeyType::SNEAK,       1 << 1,  1 << 1);  // Circle
+	JLO_B_PB(KeyType::CAMERA_MODE, 1 << 2,  1 << 2);  // Square
+	JLO_B_PB(KeyType::DROP,        1 << 3,  1 << 3);  // Triangle
+
+	// Touchpad
+	JLO_B_PB(KeyType::INVENTORY,   1 << 15, 1 << 15); // Touchpad
+
+	// Stick clicks L3/R3
+	JLO_B_PB(KeyType::AUX1,        1 << 7,  1 << 7);  // L3
+	JLO_B_PB(KeyType::ZOOM,        1 << 8,  1 << 8);  // R3
+
+	// Bumpers L1/R1
+	JLO_B_PB(KeyType::HOTBAR_PREV, 1 << 9,  1 << 9);  // L1
+	JLO_B_PB(KeyType::HOTBAR_NEXT, 1 << 10, 1 << 10); // R1
+
+	// Triggers L2/R2 (analog axes used as buttons)
+	JLO_A_PB(KeyType::DIG,   4, -1, jlo.axes_deadzone); // L2
+	JLO_A_PB(KeyType::PLACE, 5, -1, jlo.axes_deadzone); // R2
+
+	// D-pad
+	JLO_B_PB(KeyType::FREEMOVE,    1 << 11, 1 << 11); // D-pad up
+	JLO_B_PB(KeyType::AUTOFORWARD, 1 << 12, 1 << 12); // D-pad down
+	JLO_B_PB(KeyType::MINIMAP,     1 << 13, 1 << 13); // D-pad left
+	JLO_B_PB(KeyType::FASTMOVE,    1 << 14, 1 << 14); // D-pad right
+
+	return jlo;
+}
+
 JoystickLayout create_dragonrise_gamecube_layout()
 {
 	JoystickLayout jlo;
@@ -221,6 +268,9 @@ void JoystickController::setLayoutFromControllerName(const std::string &name)
 {
 	if (lowercase(name).find("xbox") != std::string::npos) {
 		m_layout = create_xbox_layout();
+	} else if (lowercase(name).find("ps5") != std::string::npos ||
+	           lowercase(name).find("dualsense") != std::string::npos) {
+		m_layout = create_ps5_layout();
 	} else if (lowercase(name).find("dragonrise_gamecube") != std::string::npos) {
 		m_layout = create_dragonrise_gamecube_layout();
 	} else {

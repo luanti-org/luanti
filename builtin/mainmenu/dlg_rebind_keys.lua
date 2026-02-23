@@ -74,6 +74,17 @@ local function create_rebind_keys_dlg()
 	return dlg
 end
 
+local function normalize_key_setting(str)
+	if str == "|" then -- normalize keybinding with the "|" keychar (<5.12)
+		return core.normalize_keycode(str)
+	end
+	local t = string.split(str, "|")
+	for k, v in pairs(t) do
+		t[k] = core.normalize_keycode(v)
+	end
+	return table.concat(t, "|")
+end
+
 function migrate_keybindings(parent)
 	-- Show migration dialog if the user upgraded from an earlier version
 	-- and this has not yet been shown before, *or* if keys settings had to be changed
@@ -86,7 +97,7 @@ function migrate_keybindings(parent)
 	local settings = core.settings:to_table()
 	for name, value in pairs(settings) do
 		if name:match("^keymap_") then
-			local normalized = core.normalize_keycode(value)
+			local normalized = normalize_key_setting(value)
 			if value ~= normalized then
 				has_migration = true
 				core.settings:set(name, normalized)

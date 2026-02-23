@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label">Luanti</string>
+    <string name="loading">로딩 중…</string>
+    <string name="notification_channel_name">일반 통지</string>
+    <string name="notification_channel_description">Luanti에서 알림</string>
+    <string name="unzip_notification_title">Luanti 로딩 중</string>
+    <string name="unzip_notification_description">1분 내 완료됩니다…</string>
+    <string name="game_notification_title">Luanti가 실행중입니다</string>
+    <string name="ime_dialog_done">완료</string>
+    <string name="no_web_browser">웹 브라우저 미발견</string>
+</resources>
