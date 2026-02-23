@@ -1175,7 +1175,7 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 		else {
 			v2s32 old_format;
 			*pkt >> old_format;
-			size = v2f(static_cast<float>(old_format[0]), static_cast<float>(old_format[1]));
+			size = v2f::from(old_format);
 		}
 		*pkt >> z_index;
 		*pkt >> text2;
@@ -1254,7 +1254,7 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 			} else {
 				v2s32 old_format;
 				*pkt >> old_format;
-				v2fdata = v2f(static_cast<float>(old_format[0]), static_cast<float>(old_format[1]));
+				v2fdata = v2f::from(old_format);
 			}
 			break;
 		default:

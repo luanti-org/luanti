@@ -93,7 +93,7 @@ struct HudElement {
 	v2f align;
 	v2f offset;
 	v3f world_pos;
-	v2f size;
+	v2f size; // Either pixel size (int) or fractional scaling of text (float)
 	s16 z_index = 0;
 	std::string text2;
 	u32 style;

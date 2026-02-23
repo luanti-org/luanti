@@ -2262,7 +2262,7 @@ void Game::handleClientEvent_HudAdd(ClientEvent *event, CameraOrientation *cam)
 	e->align  = event->hudadd->align;
 	e->offset = event->hudadd->offset;
 	e->world_pos = event->hudadd->world_pos;
-	e->size      = v2f(static_cast<float>(event->hudadd->size[0]), static_cast<float>(event->hudadd->size[1]));
+	e->size      = v2f::from(event->hudadd->size);
 	e->z_index   = event->hudadd->z_index;
 	e->text2     = event->hudadd->text2;
 	e->style     = event->hudadd->style;
