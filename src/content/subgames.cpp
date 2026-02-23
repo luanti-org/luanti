@@ -63,19 +63,26 @@ struct GameFindPath
 std::string getSubgamePathEnv()
 {
 	static bool has_warned = false;
-	char *subgame_path = getenv("MINETEST_SUBGAME_PATH");
-	if (subgame_path && !has_warned) {
-		warningstream << "MINETEST_SUBGAME_PATH is deprecated, use MINETEST_GAME_PATH instead."
-				<< std::endl;
-		has_warned = true;
+
+	if (const char *path = getenv("LUANTI_GAME_PATH"))
+		return std::string(path);
+
+	if (const char *path = getenv("MINETEST_GAME_PATH")) {
+		if (!has_warned) {
+			warningstream << "MINETEST_GAME_PATH is deprecated, use LUANTI_GAME_PATH instead."
+				      << std::endl;
+			has_warned = true;
+		}
+		return std::string(path);
 	}
-
-	char *game_path = getenv("MINETEST_GAME_PATH");
-
-	if (game_path)
-		return std::string(game_path);
-	else if (subgame_path)
-		return std::string(subgame_path);
+	if (const char *path = getenv("MINETEST_SUBGAME_PATH")) {
+		if (!has_warned) {
+			warningstream << "MINETEST_SUBGAME_PATH is deprecated, use LUANTI_GAME_PATH instead."
+				      << std::endl;
+			has_warned = true;
+		}
+		return std::string(path);
+	}
 	return "";
 }
 
@@ -279,8 +286,20 @@ std::string getWorldGameId(const std::string &world_path, bool can_be_legacy)
 
 std::string getWorldPathEnv()
 {
-	char *world_path = getenv("MINETEST_WORLD_PATH");
-	return world_path ? std::string(world_path) : "";
+	static bool has_warned = false;
+
+	if (const char *path = getenv("LUANTI_WORLD_PATH"))
+		return std::string(path);
+
+	if (const char *path = getenv("MINETEST_WORLD_PATH")) {
+		if (!has_warned) {
+			warningstream << "MINETEST_WORLD_PATH is deprecated, use LUANTI_WORLD_PATH instead."
+				      << std::endl;
+			has_warned = true;
+		}
+		return std::string(path);
+	}
+	return "";
 }
 
 std::vector<WorldSpec> getAvailableWorlds()
@@ -413,10 +432,24 @@ void loadGameConfAndInitWorld(const std::string &path, const std::string &name,
 
 std::vector<std::string> getEnvModPaths()
 {
-	const char *c_mod_path = getenv("MINETEST_MOD_PATH");
+	static bool has_warned = false;
+
 	std::vector<std::string> paths;
-	Strfnd search_paths(c_mod_path ? c_mod_path : "");
-	while (!search_paths.at_end())
-		paths.push_back(search_paths.next(PATH_DELIM));
+	const char *c_mod_path = nullptr;
+	if ((c_mod_path = getenv("LUANTI_MOD_PATH"))) {
+		// no-op
+	} else if ((c_mod_path = getenv("MINETEST_MOD_PATH"))) {
+		if (!has_warned) {
+			warningstream << "MINETEST_MOD_PATH is deprecated, use LUANTI_MOD_PATH instead."
+				      << std::endl;
+			has_warned = true;
+		}
+	}
+
+	if (c_mod_path) {
+		Strfnd search_paths(c_mod_path);
+		while (!search_paths.at_end())
+			paths.push_back(search_paths.next(PATH_DELIM));
+	}
 	return paths;
 }
