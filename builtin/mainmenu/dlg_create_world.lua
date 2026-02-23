@@ -78,6 +78,17 @@ local mgv6_biomes = {
 	},
 }
 
+local mapgens_descriptions = {
+	v7 = fgettext("Complex mountains, plains and ridges"),
+	valleys = fgettext("Valleys with complex terrain and mountain rivers"),
+	carpathian = fgettext("Realistic world with vast plains and mountain ranges"),
+	v5 = fgettext("Jagged, unrealistic landscape with common terrain overhangs"),
+	flat = fgettext("Flat world terrain"),
+	fractal = fgettext("World with a fractal structure"),
+	singlenode = fgettext("Empty world, often overridden by games and mods"),
+	v6 = fgettext("Hills, plains and cliffs"),
+}
+
 local function create_world_formspec(dialogdata)
 
 	local current_mg = dialogdata.mg
@@ -294,10 +305,15 @@ local function create_world_formspec(dialogdata)
 		"label[0,2;" .. fgettext("Mapgen") .. "]"..
 		"dropdown[0,2.5;6.3;dd_mapgen;" .. mglist .. ";" .. selindex .. "]"
 
+	if mapgens_descriptions[current_mg] then
+		retval = retval ..
+			"textarea[0.5,3.2;6,2;;;" .. mapgens_descriptions[current_mg] .. "]"
+	end
+
 	-- Warning when making a devtest world
 	if game.id == "devtest" then
 		retval = retval ..
-			"container[0,3.5]" ..
+			"container[0,4.7]" ..
 			"box[0,0;5.8,1.7;#ff8800]" ..
 			"textarea[0.4,0.1;6,1.8;;;"..
 			fgettext("Development Test is meant for developers.") .. "]" ..
