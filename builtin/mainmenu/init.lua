@@ -68,7 +68,7 @@ local function init_globals()
 	local old_set_topleft = core.set_topleft_text
     
     core.set_topleft_text = function(s)
-        local my_ip = "Non dispo"
+        local my_ip = "Not available"
         if core.get_local_ip then
             my_ip = core.get_local_ip()
         end
