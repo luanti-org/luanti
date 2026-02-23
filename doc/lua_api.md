@@ -5909,19 +5909,19 @@ Utilities
   ```
 
 * `core.protocol_versions`:
-  * Table mapping Luanti versions to corresponding protocol versions for modder convenience.
-  * For example, to check whether a client has at least the feature set
-    of Luanti 5.8.0 or newer, you could do:
-    `core.get_player_information(player_name).protocol_version >= core.protocol_versions["5.8.0"]`
-  * (available since 5.11)
+    * Table mapping Luanti versions to corresponding protocol versions for modder convenience.
+    * For example, to check whether a client has at least the feature set
+      of Luanti 5.8.0 or newer, you could do:
+      `core.get_player_information(player_name).protocol_version >= core.protocol_versions["5.8.0"]`
+    * (available since 5.11)
 
-  ```lua
-  {
-      [version string] = protocol version at time of release
-      -- every major and minor version has an entry
-      -- patch versions only for the first release whose protocol version is not already present in the table
-  }
-  ```
+    ```lua
+    {
+        [version string] = protocol version at time of release
+        -- every major and minor version has an entry
+        -- patch versions only for the first release whose protocol version is not already present in the table
+    }
+    ```
 
 * `core.get_player_window_information(player_name)`:
 
@@ -5967,6 +5967,7 @@ Utilities
       touch_controls = false,
   }
   ```
+
 * `core.path_exists(path)`: returns true if the given path exists else false
     * `path` is the path that will be tested can be either a directory or a file
 * `core.mkdir(path)`: returns success.
