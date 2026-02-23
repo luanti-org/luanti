@@ -138,7 +138,7 @@ static SubgameSpec getSubgameSpec(const std::string &game_id,
 	if (conf.exists("last_mod"))
 		last_mod = conf.get("last_mod");
 
-	std::unordered_set<std::string> aliases = getAliasesFromSettings(conf);
+	auto aliases = getAliasesFromSettings(conf);
 
 	SubgameSpec spec(game_id, game_path, gamemods_path, mods_paths, game_title,
 			game_author, game_release, first_mod, last_mod, aliases);
