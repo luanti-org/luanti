@@ -217,9 +217,9 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 	const aabb3f box(fpos(-0.1f, 0, -0.1f), fpos(0.1f, 1.4f, 0.1f));
 	collisionMoveResult res;
 
-	const auto collide = [gamedef, box](auto extern_env, float minc, float maxc,
+	const auto collide = [gamedef, box](auto extern_env, f32 stepheight, f32 dtime,
 		v3f* pos, v3f* speed, v3f accel) {
-			return collisionMoveSimple(extern_env, gamedef, box, minc, maxc,
+			return collisionMoveSimple(extern_env, gamedef, box, stepheight, dtime,
 				pos, speed, accel, NULL, true, false);
 	};
 
