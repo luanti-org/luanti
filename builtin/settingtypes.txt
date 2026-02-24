@@ -884,8 +884,8 @@ gui_scaling_filter (GUI scaling filter) bool false
 #    Delay showing tooltips, stated in milliseconds.
 tooltip_show_delay (Tooltip delay) int 400 0
 
-#    Append item name to tooltip.
-tooltip_append_itemname (Append item name) bool false
+#    Append the full item name to the tooltip of item stacks.
+tooltip_append_itemname (Append item name to tooltips) bool false
 
 #    Use a cloud animation for the main menu background.
 menu_clouds (Clouds in menu) bool true
