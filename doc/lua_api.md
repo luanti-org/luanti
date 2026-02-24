@@ -108,12 +108,21 @@ The game directory can contain the following files:
       See [Translating content meta](#translating-content-meta).
 * `minetest.conf`:
   Used to set default settings when running this game.
+* `screenshot.{png,jpg,jpeg}`:
+  Preview image, shown in the main menu.
 * `settingtypes.txt`:
   In the same format as the one in builtin.
   This settingtypes.txt will be parsed by the menu and the settings will be
   displayed in the "Games" category in the advanced settings tab.
-* `textures` directory:
-  See chapter [Textures](#loading-order).
+
+And the following directories:
+
+* `menu`:
+  Files related to the main menu, see chapter [Menu images](#menu-images).
+* `mods`:
+  Mods provided by the game.
+* `textures`:
+  See also chapter [Textures](#loading-order).
 
 Menu images
 -----------
@@ -227,7 +236,7 @@ A `Settings` file that provides meta information about the mod.
 * `textdomain`: Textdomain used to translate title and description. Defaults to modname.
   See [Translating content meta](#translating-content-meta).
 
-### `screenshot.png`
+### `screenshot.{png,jpg,jpeg}`
 
 A screenshot shown in the mod manager within the main menu. It should
 have an aspect ratio of 3:2 and a minimum size of 300×200 pixels.
