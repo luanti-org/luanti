@@ -290,7 +290,6 @@ void ObjectProperties::deSerialize(std::istream &is)
 	// >= 5.4.0-dev
 
 	show_on_minimap = readU8(is);
-	new_stair = readU8(is);
 	auto bgcolor = readARGB8(is);
 	if (bgcolor != NULL_BGCOLOR)
 		nametag_bgcolor = bgcolor;
@@ -321,6 +320,12 @@ void ObjectProperties::deSerialize(std::istream &is)
 	else
 		nametag_fontsize = std::nullopt;
 	nametag_scale_z = readU8(is);
+
+	if (!canRead(is))
+		return;
+	// >= 5.16.0-dev
+
+	new_stair = readU8(is);
 
 	//if (!canRead(is))
 	//	return;
