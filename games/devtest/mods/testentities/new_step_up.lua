@@ -1,12 +1,12 @@
 -- This command tests the new_step_up setting.
-local stair_switch = false
+local step_up_switch = false
 core.register_chatcommand("newstepup", {
 	func = function(name)
 		local player = core.get_player_by_name(name)
 		if not player then return end
-		stair_switch = not stair_switch
-		player:set_properties({ new_step_up = stair_switch })
-		core.chat_send_player(name, "new_step_up is now: " .. tostring(stair_switch))
+		step_up_switch = not step_up_switch
+		player:set_properties({ new_step_up = step_up_switch })
+		core.chat_send_player(name, "new_step_up is now: " .. tostring(step_up_switch))
 	end
 })
 
