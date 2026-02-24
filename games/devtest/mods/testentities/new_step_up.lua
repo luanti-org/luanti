@@ -1,4 +1,4 @@
-core.register_entity("testentities:step_up_sniffer", {
+core.register_entity("testentities:step_up_test", {
 	initial_properties = {
 		physical = true,
 		collide_with_objects = false,
