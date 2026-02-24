@@ -10,10 +10,12 @@ core.register_entity("testentities:step_up_sniffer", {
 	},
 	on_activate = function(self, staticdata, dtime_s)
 		self.object:set_acceleration(vector.new(0, -10, 0))
+	end,
+	on_punch = function(self)
+		local new_setting = not self.object:get_properties().new_step_up
 		self.object:set_properties({
-			-- This setting.
-			new_step_up = true,
-			stepheight = 0.5,
+			new_step_up = new_setting,
+			infotext = "Punch me to toggle new_step_up.\nCurrently:" .. tostring(new_setting)
 		})
 	end,
 	on_step = function(self, dtime, moveresult)
