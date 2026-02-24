@@ -123,7 +123,10 @@ struct GameFindPath
 			path(path), user_specific(user_specific)
 	{
 	}
-	GameFindPath() { }
+	GameFindPath(const std::string &path, bool user_specific, std::unordered_set<std::string>&& aliases) :
+			path(path), user_specific(user_specific), aliases(aliases)
+	{
+	}
 };
 
 using GamePathMap = std::unordered_map<std::string, GameFindPath>;
@@ -156,8 +159,9 @@ static GamePathMap getAvailableGamePaths()
 				continue;
 
 			// Add it to result
-			(gamepaths[normalizeGameId(dln.name)] = {game_path, search_path.user_specific}).aliases
-				= getAliasesFromSettings(conf);
+			gamepaths.try_emplace(normalizeGameId(dln.name),
+				game_path, search_path.user_specific, getAliasesFromSettings(conf)
+			);
 		}
 	}
 	return gamepaths;
