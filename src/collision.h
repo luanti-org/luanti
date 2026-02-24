@@ -58,7 +58,7 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		f32 stepheight, f32 dtime,
 		v3f *pos_f, v3f *speed_f,
 		v3f accel_f, ActiveObject *self,
-		bool collide_with_objects, // Was true in 5.15.1
+		bool collide_with_objects,
 		bool new_step_up);
 
 /// @brief A simpler version of "collisionMoveSimple" that only checks whether
