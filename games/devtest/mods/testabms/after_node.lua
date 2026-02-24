@@ -9,4 +9,3 @@ core.register_node("testabms:after_abm", {
 
 	groups = { dig_immediate = 3 },
 })
-
