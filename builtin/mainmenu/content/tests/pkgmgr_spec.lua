@@ -96,7 +96,6 @@ describe("install_dir", function()
 		env.assert_calls({
 			{ "delete_dir", mods_dir .. "/mymod" },
 			{ "copy_dir", "/tmp/123", mods_dir .. "/mymod", false },
-			{ "delete_dir", "/tmp/123" },
 		})
 	end)
 
@@ -112,7 +111,6 @@ describe("install_dir", function()
 		env.assert_calls({
 			{ "delete_dir", mods_dir .. "/mymod" },
 			{ "copy_dir", "/tmp/123", mods_dir .. "/mymod", false },
-			{ "delete_dir", "/tmp/123" },
 		})
 	end)
 
@@ -128,7 +126,6 @@ describe("install_dir", function()
 		env.assert_calls({
 			{ "delete_dir", games_dir .. "/mygame" },
 			{ "copy_dir", "/tmp/123", games_dir .. "/mygame", false },
-			{ "delete_dir", "/tmp/123" },
 		})
 	end)
 
@@ -148,7 +145,6 @@ describe("install_dir", function()
 			{ "delete_dir", games_dir .. "/mygame" },
 			{ "delete_dir", games_dir .. "/mynewgame" },
 			{ "copy_dir", DL_DIR, games_dir .. "/mynewgame", false },
-			{ "delete_dir", DL_DIR },
 		})
 	end)
 
@@ -164,7 +160,6 @@ describe("install_dir", function()
 		env.assert_calls({
 			{ "delete_dir", mods_dir .. "/123" },
 			{ "copy_dir", "/tmp/123", mods_dir .. "/123", false },
-			{ "delete_dir", "/tmp/123" },
 		})
 	end)
 
@@ -191,7 +186,6 @@ describe("install_dir", function()
 		env.assert_calls({
 			{ "delete_dir", "/tmp/alt-target" },
 			{ "copy_dir", "/tmp/123", "/tmp/alt-target", false },
-			{ "delete_dir", "/tmp/123" },
 		})
 	end)
 
