@@ -4,7 +4,7 @@ core.register_entity("testentities:step_up_sniffer", {
 		collide_with_objects = false,
 		visual = "cube",
 		textures = { "testentities_cube1.png", "testentities_cube1.png", "testentities_cube1.png", "testentities_cube1.png", "testentities_cube1.png", "testentities_cube1.png" },
-		infotext = "Punch me to toggle new_step_up.\nCurrently:" .. tostring(false),
+		infotext = "Punch me to toggle new_step_up.\nnew_step_up fixes the jolt when jumping up a node.\nEnabled:" .. tostring(false),
 		new_step_up = false,
 		stepheight = 0.5,
 	},
@@ -15,7 +15,7 @@ core.register_entity("testentities:step_up_sniffer", {
 		local new_setting = not self.object:get_properties().new_step_up
 		self.object:set_properties({
 			new_step_up = new_setting,
-			infotext = "Punch me to toggle new_step_up.\nCurrently:" .. tostring(new_setting)
+			infotext = "Punch me to toggle new_step_up.\nnew_step_up fixes the jolt when jumping up a node.\nEnabled:" .. tostring(new_setting)
 		})
 	end,
 	on_step = function(self, dtime, moveresult)
