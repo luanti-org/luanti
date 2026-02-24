@@ -30,14 +30,14 @@ bool getGameConfig(const std::string &game_path, Settings &conf)
 }
 
 // Keep in sync with pkgmgr.lua, `pkgmgr.normalize_game_id()`.
-std::string normalizeGameId(const std::string_view id)
+std::string normalizeGameId(std::string_view id)
 {
 	static const char *ends[] = {"_game", NULL};
 	auto shorter = removeStringEnd(id, ends);
 	return std::string(shorter.empty() ? id : shorter);
 }
 
-std::unordered_set<std::string> getAliasesFromSettings(Settings &conf)
+std::unordered_set<std::string> getAliasesFromSettings(const Settings &conf)
 {
 	std::unordered_set<std::string> aliases;
 	if (!conf.exists("aliases"))
