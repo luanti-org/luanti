@@ -112,9 +112,8 @@ The game directory can contain the following files:
   In the same format as the one in builtin.
   This settingtypes.txt will be parsed by the menu and the settings will be
   displayed in the "Games" category in the advanced settings tab.
-* If the game contains a folder called `textures` the server will load it as a
-  texturepack, overriding mod textures.
-  Any server texturepack will override mod textures and the game texturepack.
+* `textures` directory:
+  See chapter [Textures](#loading-order).
 
 Menu images
 -----------
@@ -515,6 +514,8 @@ By default the world is filled with air nodes. To set a different node use e.g.:
 Textures
 ========
 
+## Introduction
+
 Mods should generally prefix their textures with `modname_`, e.g. given
 the mod name `foomod`, a texture could be called:
 
@@ -536,6 +537,23 @@ or will be upscaled to that minimum resolution first without filtering.
 
 This is subject to change to move more control to the Lua API, but you can rely on
 low-res textures not suddenly becoming filtered.
+
+
+## Loading order
+
+Texture names are looked up in the following order. Top has the lowest priority.
+
+* Client: `$path_share/textures/base/pack`
+* Server: mod-provided textures, in their `textures` directory
+* Server: game textures, in `<game path>/textures`
+* Server: `$path_share/textures/server`
+* Server: `override.txt` in the path specified by the setting `texture_path`
+* Server: `override.txt` in `<game path>/textures`
+* Client: path specified by the setting `texture_path`
+* Client: `override.txt` in the path specified by the setting `texture_path`
+
+For details on texture packs, see [texture_packs.md](texture_packs.md).
+
 
 Texture modifiers
 -----------------
