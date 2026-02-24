@@ -1,6 +1,6 @@
 -- This command tests the new_step_up setting.
 local stair_switch = false
-core.register_chatcommand("newstair", {
+core.register_chatcommand("newstepup", {
 	func = function(name)
 		local player = core.get_player_by_name(name)
 		if not player then return end
