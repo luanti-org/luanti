@@ -1067,8 +1067,8 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 				/*
 					Load crack image.
 
-					It is an image with a number of cracking stages
-					horizontally tiled.
+					It is an image with a number of cracking stages,
+					from top to bottom. Tile dimensions: img.width * img.width
 				*/
 				video::IImage *img_crack = m_sourcecache.getOrLoad(
 					"crack_anylength.png");
