@@ -4,6 +4,9 @@ core.register_entity("testentities:step_up_sniffer", {
 		collide_with_objects = false,
 		visual = "cube",
 		textures = { "testentities_cube1.png", "testentities_cube1.png", "testentities_cube1.png", "testentities_cube1.png", "testentities_cube1.png", "testentities_cube1.png" },
+		infotext = "Punch me to toggle new_step_up.\nCurrently:" .. tostring(false),
+		new_step_up = false,
+		stepheight = 0.5,
 	},
 	on_activate = function(self, staticdata, dtime_s)
 		self.object:set_acceleration(vector.new(0, -10, 0))
