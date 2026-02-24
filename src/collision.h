@@ -59,7 +59,7 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		v3f *pos_f, v3f *speed_f,
 		v3f accel_f, ActiveObject *self, // Was NULL in 5.15.1
 		bool collide_with_objects, // Was true in 5.15.1
-		bool new_stair);
+		bool new_step_up);
 
 /// @brief A simpler version of "collisionMoveSimple" that only checks whether
 ///        a collision occurs at the given position.

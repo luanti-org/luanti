@@ -379,7 +379,7 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		v3f *pos_f, v3f *speed_f,
 		v3f accel_f, ActiveObject *self,
 		bool collide_with_objects,
-		bool new_stair)
+		bool new_step_up)
 {
 	static bool time_notification_done = false;
 
@@ -548,7 +548,7 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		v3f old_speed_f = *speed_f;
 
 		// Set the speed component that caused the collision to zero
-		if (step_up && (!new_stair || speed_f->Y <= 0.0f)) {
+		if (step_up && (!new_step_up || speed_f->Y <= 0.0f)) {
 			// Special case: Handle stairs
 			nearest_info.is_step_up = true;
 		} else if (nearest_collided == COLLISION_AXIS_X) {

@@ -319,7 +319,7 @@ const std::array<const char *, 36> object_property_keys = {
 	// "node" is intentionally not here as it's gated behind `fallback` below!
 	"nametag_fontsize",
 	"nametag_scale_z",
-	"new_stair"
+	"new_step_up"
 };
 
 /******************************************************************************/
@@ -517,7 +517,7 @@ void read_object_properties(lua_State *L, int index,
 	getboolfield(L, -1, "use_texture_alpha", prop->use_texture_alpha);
 	getboolfield(L, -1, "shaded", prop->shaded);
 	getboolfield(L, -1, "show_on_minimap", prop->show_on_minimap);
-	getboolfield(L, -1, "new_stair", prop->new_stair);
+	getboolfield(L, -1, "new_step_up", prop->new_step_up);
 
 	getstringfield(L, -1, "damage_texture_modifier", prop->damage_texture_modifier);
 
@@ -627,8 +627,8 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 	lua_setfield(L, -2, "damage_texture_modifier");
 	lua_pushboolean(L, prop->show_on_minimap);
 	lua_setfield(L, -2, "show_on_minimap");
-	lua_pushboolean(L, prop->new_stair);
-	lua_setfield(L, -2, "new_stair");
+	lua_pushboolean(L, prop->new_step_up);
+	lua_setfield(L, -2, "new_step_up");
 
 	// Remember to update object_property_keys above
 	// when adding a new property

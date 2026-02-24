@@ -90,7 +90,7 @@ std::string ObjectProperties::dump() const
 	os << ", shaded=" << shaded;
 	os << ", show_on_minimap=" << show_on_minimap;
 	os << ", nametag_scale_z=" << nametag_scale_z;
-	os << ", new_stair=" << new_stair;
+	os << ", new_step_up=" << new_step_up;
 	return os.str();
 }
 
@@ -107,7 +107,7 @@ static inline auto tie(const ObjectProperties &o)
 	o.node, o.hp_max, o.breath_max, o.glow, o.pointable, o.physical,
 	o.collideWithObjects, o.rotate_selectionbox, o.is_visible, o.makes_footstep_sound,
 	o.automatic_face_movement_dir, o.backface_culling, o.static_save, o.use_texture_alpha,
-	o.shaded, o.show_on_minimap, o.nametag_scale_z, o.new_stair
+	o.shaded, o.show_on_minimap, o.nametag_scale_z, o.new_step_up
 	);
 }
 
@@ -217,7 +217,7 @@ void ObjectProperties::serialize(std::ostream &os) const
 		writeU32(os, nametag_fontsize.value());
 
 	writeU8(os, nametag_scale_z);
-	writeU8(os, new_stair);
+	writeU8(os, new_step_up);
 
 	// Add stuff only at the bottom.
 	// Never remove anything, because we don't want new versions of this!
@@ -325,7 +325,7 @@ void ObjectProperties::deSerialize(std::istream &is)
 		return;
 	// >= 5.16.0-dev
 
-	new_stair = readU8(is);
+	new_step_up = readU8(is);
 
 	//if (!canRead(is))
 	//	return;

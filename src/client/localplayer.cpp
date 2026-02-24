@@ -328,12 +328,12 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 	const v3f initial_speed = m_speed;
 
 
-	const bool use_new_stair = m_cao != NULL &&
-		m_cao->getProperties().new_stair;
+	const bool use_new_step_up = m_cao != NULL &&
+		m_cao->getProperties().new_step_up;
 
 	collisionMoveResult result = collisionMoveSimple(env, m_client,
 		m_collisionbox, player_stepheight, dtime,
-		&position, &m_speed, accel_f, m_cao, true, use_new_stair);
+		&position, &m_speed, accel_f, m_cao, true, use_new_step_up);
 
 	bool could_sneak = control.sneak && !free_move && !in_liquid &&
 		!is_climbing && physics_override.sneak;
@@ -952,12 +952,12 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 	const v3f initial_position = position;
 	const v3f initial_speed = m_speed;
 
-	const bool use_new_stair = m_cao != NULL &&
-		m_cao->getProperties().new_stair;
+	const bool use_new_step_up = m_cao != NULL &&
+		m_cao->getProperties().new_step_up;
 
 	collisionMoveResult result = collisionMoveSimple(env, m_client,
 		m_collisionbox, player_stepheight, dtime,
-		&position, &m_speed, accel_f, m_cao, true, use_new_stair);
+		&position, &m_speed, accel_f, m_cao, true, use_new_step_up);
 
 	// Position was slightly changed; update standing node pos
 	if (touching_ground)
@@ -1218,13 +1218,13 @@ void LocalPlayer::handleAutojump(f32 dtime, Environment *env,
 	v3f jump_pos = initial_position + v3f(0.0f, jump_height, 0.0f);
 	v3f jump_speed = initial_speed;
 
-	const bool use_new_stair = m_cao != NULL &&
-		m_cao->getProperties().new_stair;
+	const bool use_new_step_up = m_cao != NULL &&
+		m_cao->getProperties().new_step_up;
 
 	// try at peak of jump, zero step height
 	collisionMoveResult jump_result = collisionMoveSimple(env, m_client,
 		m_collisionbox, 0.0f, dtime, &jump_pos, &jump_speed, v3f(0.0f), m_cao, true,
-		use_new_stair);
+		use_new_step_up);
 
 	// see if we can get a little bit farther horizontally if we had
 	// jumped
