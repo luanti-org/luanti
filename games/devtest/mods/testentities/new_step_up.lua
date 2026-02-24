@@ -1,25 +1,3 @@
--- This command tests the new_step_up setting.
-local step_up_switch = false
-core.register_chatcommand("newstepup", {
-	func = function(name)
-		local player = core.get_player_by_name(name)
-		if not player then return end
-		step_up_switch = not step_up_switch
-		player:set_properties({ new_step_up = step_up_switch })
-		core.chat_send_player(name, "new_step_up is now: " .. tostring(step_up_switch))
-	end
-})
-
-core.register_chatcommand("sniff", {
-	func = function(name)
-		local player = core.get_player_by_name(name)
-		if not player then return end
-		local pos = player:get_pos()
-		pos.y = pos.y + 0.5
-		core.add_entity(pos, "testentities:step_up_sniffer")
-	end
-})
-
 core.register_entity("testentities:step_up_sniffer", {
 	initial_properties = {
 		physical = true,
