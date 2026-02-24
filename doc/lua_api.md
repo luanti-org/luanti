@@ -599,11 +599,11 @@ on top of `cobble.png`.
 
 Parameters:
 
-* `<t>`: tile count (in each direction)
-* `<n>`: animation frame count
-* `<p>`: current animation frame
+* `<t>`: draws a grid of `<t> * <t>` cracks onto each frame (default: `1`)
+* `<n>`: vertical count of frames of the base texture (often `1`)
+* `<p>`: crack animation frame (0-indexed)
 
-Draw a step of the crack animation on the texture.
+Draws a step of the crack animation on the texture.
 `crack` draws it normally, while `cracko` lays it over, keeping transparent
 pixels intact.
 
