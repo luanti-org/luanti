@@ -122,6 +122,15 @@ public:
 		return getBgColor();
 	}
 
+	void setAutoCaveBrightness(bool auto_cave_brightness)
+	{
+		m_sky_params.auto_cave_brightness = auto_cave_brightness;
+	}
+	bool getAutoCaveBrightness() const
+	{
+		return m_sky_params.auto_cave_brightness;
+	}
+
 private:
 	aabb3f m_box{{0.0f, 0.0f, 0.0f}};
 	video::SMaterial m_materials[SKY_MATERIAL_COUNT];

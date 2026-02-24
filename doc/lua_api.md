@@ -8962,6 +8962,8 @@ child will follow movement and rotation of that bone.
             * `fog_color`: ColorSpec, override the color of the fog.
                Unlike `base_color` above this will apply regardless of the skybox type.
                (default: `"#00000000"`, which means no override)
+        * `auto_cave_brightness`: boolean, whether to dim skybox brightness in caves. `true` by default.
+          Requires a Luanti 5.16.0+ client and server.
 * `set_sky(base_color, type, {texture names}, clouds)`
     * Deprecated. Use `set_sky(sky_parameters)`
     * `base_color`: ColorSpec, defaults to white

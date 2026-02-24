@@ -1425,6 +1425,11 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 			break;
 		// >= 5.9.0-dev
 		*pkt >> skybox.fog_color;
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.16.0-dev
+		*pkt >> skybox.auto_cave_brightness;
 	} while (0);
 
 	ClientEvent *event = new ClientEvent();

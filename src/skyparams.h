@@ -37,6 +37,7 @@ struct SkyboxParams
 	s16 fog_distance { -1 };
 	float fog_start { -1.0f };
 	video::SColor fog_color { 0 }; // override, only used if alpha > 0
+	bool auto_cave_brightness { true };
 };
 
 struct SunParams

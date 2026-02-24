@@ -1949,6 +1949,8 @@ void Server::SendSetSky(session_t peer_id, const SkyboxParams &params)
 
 		pkt << params.body_orbit_tilt << params.fog_distance << params.fog_start
 			<< params.fog_color;
+
+		pkt << params.auto_cave_brightness;
 	}
 
 	Send(&pkt);

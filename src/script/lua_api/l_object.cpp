@@ -2159,6 +2159,9 @@ int ObjectRef::l_set_sky(lua_State *L)
 			lua_pop(L, 1);
 		}
 		lua_pop(L, 1);
+
+		sky_params.auto_cave_brightness = getboolfield_default(L, 2,
+				"auto_cave_brightness", sky_params.auto_cave_brightness);
 	} else {
 		// Handle old set_sky calls, and log deprecated:
 		log_deprecated(L, "Deprecated call to set_sky, please check lua_api.md");
@@ -2288,6 +2291,9 @@ int ObjectRef::l_get_sky(lua_State *L)
 	lua_setfield(L, -2, "textures");
 	lua_pushboolean(L, skybox_params.clouds);
 	lua_setfield(L, -2, "clouds");
+
+	lua_pushboolean(L, skybox_params.auto_cave_brightness);
+	lua_setfield(L, -2, "auto_cave_brightness");
 
 	push_sky_color(L, skybox_params);
 	lua_setfield(L, -2, "sky_color");
