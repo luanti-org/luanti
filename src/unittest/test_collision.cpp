@@ -300,8 +300,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 	res = collide(0.2f);
 	UASSERT(!res.collides && !res.touching_ground && !res.standing_on_object);
 
-	res = collisionMoveSimple(env.get(), gamedef, box, 0.0f, 0.5f,
-		&pos, &speed, accel, NULL, true, false);
+	res = collide(0.5f);
 
 	UASSERT(res.collides);
 	UASSERT(res.touching_ground);
