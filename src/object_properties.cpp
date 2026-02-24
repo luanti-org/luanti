@@ -197,7 +197,6 @@ void ObjectProperties::serialize(std::ostream &os) const
 	os << serializeString16(damage_texture_modifier);
 	writeU8(os, shaded);
 	writeU8(os, show_on_minimap);
-	writeU8(os, new_stair);
 
 	// use special value to tell apart nil, fully transparent and other colors
 	if (!nametag_bgcolor)
@@ -218,6 +217,7 @@ void ObjectProperties::serialize(std::ostream &os) const
 		writeU32(os, nametag_fontsize.value());
 
 	writeU8(os, nametag_scale_z);
+	writeU8(os, new_stair);
 
 	// Add stuff only at the bottom.
 	// Never remove anything, because we don't want new versions of this!
