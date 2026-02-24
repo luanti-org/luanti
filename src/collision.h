@@ -57,7 +57,7 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		const aabb3f &box_0,
 		f32 stepheight, f32 dtime,
 		v3f *pos_f, v3f *speed_f,
-		v3f accel_f, ActiveObject *self, // Was NULL in 5.15.1
+		v3f accel_f, ActiveObject *self,
 		bool collide_with_objects, // Was true in 5.15.1
 		bool new_step_up);
 
