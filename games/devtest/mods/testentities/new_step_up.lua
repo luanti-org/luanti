@@ -1,3 +1,4 @@
+-- This entity helps test/showcase new_step_up for lua entities.
 core.register_entity("testentities:step_up_test", {
 	initial_properties = {
 		physical = true,
