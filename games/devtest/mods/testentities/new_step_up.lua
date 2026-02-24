@@ -16,11 +16,11 @@ core.register_chatcommand("sniff", {
 		if not player then return end
 		local pos = player:get_pos()
 		pos.y = pos.y + 0.5
-		core.add_entity(pos, "testentities:stair_sniffer")
+		core.add_entity(pos, "testentities:step_up_sniffer")
 	end
 })
 
-core.register_entity("testentities:stair_sniffer", {
+core.register_entity("testentities:step_up_sniffer", {
 	initial_properties = {
 		physical = true,
 		collide_with_objects = false,
