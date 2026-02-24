@@ -41,7 +41,7 @@ core.register_entity("testentities:stair_sniffer", {
 		if x_vel < 1 then
 			self.object:add_velocity(vector.new(0.05, 0, 0))
 		end
-		if (touching_ground and x_vel == 0) then
+		if touching_ground and x_vel == 0 then
 			self.object:add_velocity(vector.new(0, 5, 0))
 		end
 	end,
