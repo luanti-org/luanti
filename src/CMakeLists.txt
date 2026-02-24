@@ -435,7 +435,6 @@ set(independent_SRCS
 	serialization.cpp
 	settings.cpp
 	sound_spec.cpp
-	staticobject.cpp
 	terminal_chat_console.cpp
 	texture_override.cpp
 	tileanimation.cpp
@@ -480,6 +479,7 @@ set(common_SRCS
 	server.cpp
 	serverenvironment.cpp
 	servermap.cpp
+	staticobject.cpp
 	translation.cpp
 	version.cpp
 	voxel.cpp

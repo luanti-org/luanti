@@ -54,6 +54,7 @@ core.features = {
 	chunksize_vector = true,
 	item_inventory_image_animation = true,
 	get_modnames_load_order = true,
+	clear_objects_with_callback = true,
 }
 
 function core.has_feature(arg)
