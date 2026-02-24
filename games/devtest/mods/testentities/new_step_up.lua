@@ -11,6 +11,7 @@ core.register_entity("testentities:step_up_test", {
 	},
 	on_activate = function(self, staticdata, dtime_s)
 		self.object:set_acceleration(vector.new(0, -10, 0))
+		self.object:set_armor_groups({punch_operable = 1})
 	end,
 	on_punch = function(self)
 		local new_setting = not self.object:get_properties().new_step_up
