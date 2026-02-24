@@ -9648,7 +9648,7 @@ Player properties need to be saved manually.
     -- If set to true the entity will show as a marker on the minimap.
 
     new_stair = false,
-    -- Setting this to true makes the entity or player use the new stair code.
+    -- Setting this to true makes the entity or player use the new step up code.
     -- They will no longer clip the edge of a node and jolt up.
     -- Defaults to false for players and entities.
 }
