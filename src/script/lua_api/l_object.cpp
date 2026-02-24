@@ -2097,7 +2097,7 @@ int ObjectRef::l_set_sky(lua_State *L)
 		if (sky_params.textures.size() != 6 && !sky_params.textures.empty())
 			throw LuaError("Skybox expects 6 textures!");
 
-		sky_params.clouds = getboolfield_default(L, 2, "clouds", sky_params.clouds);
+		getboolfield(L, 2, "clouds", sky_params.clouds);
 
 		lua_getfield(L, 2, "sky_color");
 		if (lua_istable(L, -1)) {
@@ -2160,8 +2160,7 @@ int ObjectRef::l_set_sky(lua_State *L)
 		}
 		lua_pop(L, 1);
 
-		sky_params.auto_cave_brightness = getboolfield_default(L, 2,
-				"auto_cave_brightness", sky_params.auto_cave_brightness);
+		getboolfield(L, 2, "auto_dim_skybox", sky_params.auto_dim_skybox);
 	} else {
 		// Handle old set_sky calls, and log deprecated:
 		log_deprecated(L, "Deprecated call to set_sky, please check lua_api.md");
@@ -2292,8 +2291,8 @@ int ObjectRef::l_get_sky(lua_State *L)
 	lua_pushboolean(L, skybox_params.clouds);
 	lua_setfield(L, -2, "clouds");
 
-	lua_pushboolean(L, skybox_params.auto_cave_brightness);
-	lua_setfield(L, -2, "auto_cave_brightness");
+	lua_pushboolean(L, skybox_params.auto_dim_skybox);
+	lua_setfield(L, -2, "auto_dim_skybox");
 
 	push_sky_color(L, skybox_params);
 	lua_setfield(L, -2, "sky_color");

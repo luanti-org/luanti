@@ -122,13 +122,13 @@ public:
 		return getBgColor();
 	}
 
-	void setAutoCaveBrightness(bool auto_cave_brightness)
+	void setAutoCaveBrightness(bool auto_dim_skybox)
 	{
-		m_sky_params.auto_cave_brightness = auto_cave_brightness;
+		m_sky_params.auto_dim_skybox = auto_dim_skybox;
 	}
 	bool getAutoCaveBrightness() const
 	{
-		return m_sky_params.auto_cave_brightness;
+		return m_sky_params.auto_dim_skybox;
 	}
 
 private:

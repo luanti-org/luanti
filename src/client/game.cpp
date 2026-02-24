@@ -2422,7 +2422,7 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 
 	sky->setFogColor(event->set_sky->fog_color);
 
-	sky->setAutoCaveBrightness(event->set_sky->auto_cave_brightness);
+	sky->setAutoCaveBrightness(event->set_sky->auto_dim_skybox);
 
 	delete event->set_sky;
 }

@@ -1429,7 +1429,7 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.16.0-dev
-		*pkt >> skybox.auto_cave_brightness;
+		*pkt >> skybox.auto_dim_skybox;
 	} while (0);
 
 	ClientEvent *event = new ClientEvent();
