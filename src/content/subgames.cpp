@@ -49,6 +49,50 @@ std::unordered_set<std::string> getAliasesFromSettings(Settings &conf)
 	return aliases;
 }
 
+std::string getSubgamePathEnv()
+{
+	static bool has_warned = false;
+
+	if (const char *path = getenv("LUANTI_GAME_PATH"))
+		return std::string(path);
+
+	if (const char *path = getenv("MINETEST_GAME_PATH")) {
+		if (!has_warned) {
+			warningstream << "MINETEST_GAME_PATH is deprecated, use LUANTI_GAME_PATH instead."
+				      << std::endl;
+			has_warned = true;
+		}
+		return std::string(path);
+	}
+	if (const char *path = getenv("MINETEST_SUBGAME_PATH")) {
+		if (!has_warned) {
+			warningstream << "MINETEST_SUBGAME_PATH is deprecated, use LUANTI_GAME_PATH instead."
+				      << std::endl;
+			has_warned = true;
+		}
+		return std::string(path);
+	}
+	return "";
+}
+
+std::string getWorldPathEnv()
+{
+	static bool has_warned = false;
+
+	if (const char *path = getenv("LUANTI_WORLD_PATH"))
+		return std::string(path);
+
+	if (const char *path = getenv("MINETEST_WORLD_PATH")) {
+		if (!has_warned) {
+			warningstream << "MINETEST_WORLD_PATH is deprecated, use LUANTI_WORLD_PATH instead."
+				      << std::endl;
+			has_warned = true;
+		}
+		return std::string(path);
+	}
+	return "";
+}
+
 }
 
 
@@ -85,30 +129,38 @@ struct GameFindPath
 using GamePathMap = std::unordered_map<std::string, GameFindPath>;
 
 
-std::string getSubgamePathEnv()
+
+static GamePathMap getAvailableGamePaths()
 {
-	static bool has_warned = false;
+	GamePathMap gamepaths;
+	std::vector<GameFindPath> game_search_paths{
+		{porting::path_share + DIR_DELIM + "games", false},
+		{porting::path_user + DIR_DELIM + "games", true}
+	};
 
-	if (const char *path = getenv("LUANTI_GAME_PATH"))
-		return std::string(path);
+	Strfnd search_paths(getSubgamePathEnv());
 
-	if (const char *path = getenv("MINETEST_GAME_PATH")) {
-		if (!has_warned) {
-			warningstream << "MINETEST_GAME_PATH is deprecated, use LUANTI_GAME_PATH instead."
-				      << std::endl;
-			has_warned = true;
+	while (!search_paths.at_end())
+		game_search_paths.emplace_back(search_paths.next(PATH_DELIM), false);
+
+	for (const GameFindPath &search_path : game_search_paths) {
+		auto dirlist = fs::GetDirListing(search_path.path);
+		for (const fs::DirListNode &dln : dirlist) {
+			if (!dln.dir)
+				continue;
+
+			// If configuration file is not found or broken, ignore game
+			Settings conf;
+			const std::string game_path = search_path.path + DIR_DELIM + dln.name;
+			if (!conf.readConfigFile((game_path + DIR_DELIM + "game.conf").c_str()))
+				continue;
+
+			// Add it to result
+			(gamepaths[normalizeGameId(dln.name)] = {game_path, search_path.user_specific}).aliases
+				= getAliasesFromSettings(conf);
 		}
-		return std::string(path);
 	}
-	if (const char *path = getenv("MINETEST_SUBGAME_PATH")) {
-		if (!has_warned) {
-			warningstream << "MINETEST_SUBGAME_PATH is deprecated, use LUANTI_GAME_PATH instead."
-				      << std::endl;
-			has_warned = true;
-		}
-		return std::string(path);
-	}
-	return "";
+	return gamepaths;
 }
 
 static SubgameSpec getSubgameSpec(const std::string &game_id,
@@ -156,38 +208,7 @@ static SubgameSpec getSubgameSpec(const std::string &game_id,
 	return spec;
 }
 
-GamePathMap getAvailableGamePaths()
-{
-	GamePathMap gamepaths;
-	std::vector<GameFindPath> game_search_paths{
-		{porting::path_share + DIR_DELIM + "games", false},
-		{porting::path_user + DIR_DELIM + "games", true}
-	};
 
-	Strfnd search_paths(getSubgamePathEnv());
-
-	while (!search_paths.at_end())
-		game_search_paths.emplace_back(search_paths.next(PATH_DELIM), false);
-
-	for (const GameFindPath &search_path : game_search_paths) {
-		auto dirlist = fs::GetDirListing(search_path.path);
-		for (const fs::DirListNode &dln : dirlist) {
-			if (!dln.dir)
-				continue;
-
-			// If configuration file is not found or broken, ignore game
-			Settings conf;
-			const std::string game_path = search_path.path + DIR_DELIM + dln.name;
-			if (!conf.readConfigFile((game_path + DIR_DELIM + "game.conf").c_str()))
-				continue;
-
-			// Add it to result
-			(gamepaths[normalizeGameId(dln.name)] = {game_path, search_path.user_specific}).aliases
-				= getAliasesFromSettings(conf);
-		}
-	}
-	return gamepaths;
-}
 
 std::set<std::string> getAvailableGameIds()
 {
@@ -301,24 +322,6 @@ std::string getWorldGameId(const std::string &world_path, bool can_be_legacy)
 	if (!conf.exists("gameid"))
 		return "";
 	return conf.get("gameid");
-}
-
-std::string getWorldPathEnv()
-{
-	static bool has_warned = false;
-
-	if (const char *path = getenv("LUANTI_WORLD_PATH"))
-		return std::string(path);
-
-	if (const char *path = getenv("MINETEST_WORLD_PATH")) {
-		if (!has_warned) {
-			warningstream << "MINETEST_WORLD_PATH is deprecated, use LUANTI_WORLD_PATH instead."
-				      << std::endl;
-			has_warned = true;
-		}
-		return std::string(path);
-	}
-	return "";
 }
 
 std::vector<WorldSpec> getAvailableWorlds()
