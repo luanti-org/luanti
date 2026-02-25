@@ -5783,7 +5783,7 @@ Utilities
       dynamic_add_media_table = true,
       -- particlespawners support texpools and animation of properties,
       -- particle textures support smooth fade and scale animations, and
-      -- sprite-sheet particle animations can by synced to the lifetime
+      -- sprite-sheet particle animations can be synced to the lifetime
       -- of individual particles (5.6.0)
       particlespawner_tweenable = true,
       -- allows get_sky to return a table instead of separate values (5.6.0)
@@ -5967,6 +5967,7 @@ Utilities
       touch_controls = false,
   }
   ```
+
 * `core.path_exists(path)`: returns true if the given path exists else false
     * `path` is the path that will be tested can be either a directory or a file
 * `core.mkdir(path)`: returns success.
