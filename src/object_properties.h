@@ -75,7 +75,7 @@ struct ObjectProperties
 	bool shaded = true;
 	bool show_on_minimap = false;
 	bool nametag_scale_z = false;
-	bool new_step_up = false;
+	u8 new_step_up = 0;
 
 	ObjectProperties();
 
