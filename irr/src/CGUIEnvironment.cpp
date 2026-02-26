@@ -546,6 +546,7 @@ bool CGUIEnvironment::postEventFromUser(const SEvent &event)
 			}
 		}
 	} break;
+	case EET_STRING_COMPOSITION_EVENT: [[fallthrough]];
 	case EET_STRING_INPUT_EVENT:
 		if (Focus && Focus->OnEvent(event))
 			return true;
