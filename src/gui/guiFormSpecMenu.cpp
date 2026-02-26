@@ -3616,25 +3616,80 @@ void GUIFormSpecMenu::drawMenu()
 			cursor_control->setActiveIcon(ECI_NORMAL);
 	}
 
-	// Draw white outline around keyboard-focused form elements.
+	// Draw outline around keyboard-focused form elements with styleable color and width.
 	const gui::IGUIElement *focused = Environment->getFocus();
 	if (focused && m_show_focus && focused->isTabStop() ) {
 		core::rect<s32> rect = focused->getAbsoluteClippingRect();
-		const video::SColor white(255, 255, 255, 255);
-		const s32 border = 2;
 
-		driver->draw2DRectangle(white,
-			core::rect<s32>(rect.UpperLeftCorner.X, rect.UpperLeftCorner.Y,
-				rect.LowerRightCorner.X, rect.UpperLeftCorner.Y + border), nullptr);
-		driver->draw2DRectangle(white,
-			core::rect<s32>(rect.UpperLeftCorner.X, rect.LowerRightCorner.Y - border,
-				rect.LowerRightCorner.X, rect.LowerRightCorner.Y), nullptr);
-		driver->draw2DRectangle(white,
-			core::rect<s32>(rect.UpperLeftCorner.X, rect.UpperLeftCorner.Y,
-				rect.UpperLeftCorner.X + border, rect.LowerRightCorner.Y), nullptr);
-		driver->draw2DRectangle(white,
-			core::rect<s32>(rect.LowerRightCorner.X - border, rect.UpperLeftCorner.Y,
-				rect.LowerRightCorner.X, rect.LowerRightCorner.Y), nullptr);
+		video::SColor outline_color(255, 255, 255, 255);
+		s32 outline_width = 2;
+		s32 outline_offset = 0;
+
+		std::string element_name;
+		for (const gui::IGUIElement *el = focused; el != nullptr; el = el->getParent()) {
+			for (const FieldSpec &field : m_fields) {
+				if (field.fid == el->getID()) {
+					element_name = field.fname;
+					break;
+				}
+			}
+			if (!element_name.empty())
+				break;
+		}
+
+		if (!element_name.empty()) {
+			auto styles = getStyleForElement("", element_name);
+			const StyleSpec &focused_visible_style = styles[StyleSpec::STATE_FOCUSED_VISIBLE];
+			const StyleSpec &focused_style = styles[StyleSpec::STATE_FOCUSED];
+
+			auto get_property = [&](StyleSpec::Property prop) -> std::string {
+				if (focused_visible_style.hasProperty(prop))
+					return focused_visible_style.get(prop, "");
+				if (focused_style.hasProperty(prop))
+					return focused_style.get(prop, "");
+				return "";
+			};
+
+			std::string color_str = get_property(StyleSpec::OUTLINE_COLOR);
+			if (!color_str.empty()) {
+				outline_color = focused_visible_style.hasProperty(StyleSpec::OUTLINE_COLOR) ?
+					focused_visible_style.getColor(StyleSpec::OUTLINE_COLOR) :
+					focused_style.getColor(StyleSpec::OUTLINE_COLOR);
+			}
+
+			std::string width_str = get_property(StyleSpec::OUTLINE_WIDTH);
+			if (!width_str.empty()) {
+				try {
+					outline_width = stoi(width_str);
+					outline_width = std::max(1, std::min(outline_width, 20));
+				} catch (...) {
+					outline_width = 2;
+				}
+			}
+
+			std::string offset_str = get_property(StyleSpec::OUTLINE_OFFSET);
+			if (!offset_str.empty()) {
+				try {
+					outline_offset = stoi(offset_str);
+					outline_offset = std::max(-10, std::min(outline_offset, 10));
+				} catch (...) {
+					outline_offset = 0;
+				}
+			}
+		}
+
+		driver->draw2DRectangle(outline_color,
+			core::rect<s32>(rect.UpperLeftCorner.X - outline_offset - outline_width, rect.UpperLeftCorner.Y - outline_offset - outline_width,
+				rect.LowerRightCorner.X + outline_offset + outline_width, rect.UpperLeftCorner.Y - outline_offset), nullptr);
+		driver->draw2DRectangle(outline_color,
+			core::rect<s32>(rect.UpperLeftCorner.X - outline_offset - outline_width, rect.LowerRightCorner.Y + outline_offset,
+				rect.LowerRightCorner.X + outline_offset + outline_width, rect.LowerRightCorner.Y + outline_offset + outline_width), nullptr);
+		driver->draw2DRectangle(outline_color,
+			core::rect<s32>(rect.UpperLeftCorner.X - outline_offset - outline_width, rect.UpperLeftCorner.Y - outline_offset,
+				rect.UpperLeftCorner.X - outline_offset, rect.LowerRightCorner.Y + outline_offset), nullptr);
+		driver->draw2DRectangle(outline_color,
+			core::rect<s32>(rect.LowerRightCorner.X + outline_offset, rect.UpperLeftCorner.Y - outline_offset,
+				rect.LowerRightCorner.X + outline_offset + outline_width, rect.LowerRightCorner.Y + outline_offset), nullptr);
 	}
 
 	m_tooltip_element->draw();
