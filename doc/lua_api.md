@@ -9647,10 +9647,12 @@ Player properties need to be saved manually.
     -- Defaults to true for players, false for other entities.
     -- If set to true the entity will show as a marker on the minimap.
 
-    new_step_up = false,
-    -- Setting this to true makes the entity or player use the new step up code.
-    -- They will no longer clip the edge of a node and jolt up.
-    -- Defaults to false for players and entities.
+    new_step_up = 0,
+    -- Defaults to 0 for players and entities.
+    -- Setting this to 1 or 2 makes the entity or player use the new step up code. This new code removes the glitch that caused entities and players to jolt up on the edge of a node. These make movement through the environment feel higher quality.
+    -- 0 = Old step up code. (Legacy)
+    -- 1 = New step up code. Medium rigidity. This is a balance between legacy and full rigidity. You can only step up when standing on something or falling. This allows you to parkour clutch edges of nodes and walk over 1 node gaps.
+    -- 2 = New step up code. Full rigidity. You can only step up when standing on something. You cannot parkour clutch edges of nodes. You must jump over 1 node gaps.
 }
 ```
 
