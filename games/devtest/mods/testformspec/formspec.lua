@@ -370,7 +370,17 @@ local focus_fs =
 	"style[outline_btn_o-2:focused_visible; outline_offset=-2]" ..
 	"style[outline_btn_o1:focused_visible; outline_offset=1]" ..
 	"style[outline_btn_o4:focused_visible; outline_offset=4]" ..
-	"label[0.5,12;Focus outline colored red with * selector.]"
+	"label[0.5,12;Sub-element focus outline (should be red with * selector):]" ..
+	"hypertext[0.5,12.5;3.5,2.5;outline_ht;" ..
+		"<big><b>Hypertext scrollbar test</b></big>\n" ..
+		"Line 1\nLine 2\nLine 3\nLine 4\nLine 5\n" ..
+		"Line 6\nLine 7\nLine 8\nLine 9\nLine 10\n" ..
+		"Line 11\nLine 12\nLine 13\nLine 14\nLine 15\n" ..
+		"Tab into the scrollbar on the right.]" ..
+	"textarea[4.5,12.5;3,2.5;outline_ta;Textarea;Tab into this textarea area.]" ..
+	"tabheader[8.5,12.5;3,0.65;outline_th;" ..
+		"Alpha,Beta,Gamma,Delta,Epsilon,Zeta,Eta,Theta;1;false;false]" ..
+	"label[8.5,13.2;Tab into the left/right buttons.]"
 
 
 local window = {
@@ -528,7 +538,7 @@ mouse control = true]
 		scroll_fs,
 
 	-- Focus
-		"formspec_version[7]size[12,13]" ..
+		"formspec_version[7]size[12,16]" ..
 		focus_fs,
 
 	-- Sound

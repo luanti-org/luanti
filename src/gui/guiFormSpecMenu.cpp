@@ -3647,11 +3647,15 @@ void GUIFormSpecMenu::drawMenu()
 		s32 outline_offset = 0;
 
 		std::string element_name;
-		for (const FieldSpec &field : m_fields) {
-			if (field.fid == focused->getID()) {
-				element_name = field.fname;
-				break;
+		for (const gui::IGUIElement *el = focused; el != nullptr; el = el->getParent()) {
+			for (const FieldSpec &field : m_fields) {
+				if (field.fid == el->getID()) {
+					element_name = field.fname;
+					break;
+				}
 			}
+			if (!element_name.empty())
+				break;
 		}
 
 		if (!element_name.empty()) {
