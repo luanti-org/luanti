@@ -28,27 +28,10 @@ enum ObjectVisual : u8 {
 extern const EnumString es_ObjectVisual[];
 
 enum class NewStepUpValue : u8 {
-	LEGACY = 0,
-	FLOATY = 1,
-	RIGID = 2,
+	LEGACY,
+	FLOATY,
+	RIGID
 };
-
-std::string newStepUpValueToString(NewStepUpValue input) {
-	switch (input) {
-		case NewStepUpValue::FLOATY: return "floaty";
-		case NewStepUpValue::RIGID:  return "rigid";
-		default:                     return "legacy";
-	}
-}
-
-const NewStepUpValue newStepUpValueFromString(std::string input) {
-	if (input == "floaty") {
-		return NewStepUpValue::FLOATY;
-	} else if (input == "rigid") {
-		return NewStepUpValue::RIGID;
-	}	
-	return NewStepUpValue::LEGACY;
-}
 
 struct ObjectProperties
 {
