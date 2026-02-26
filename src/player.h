@@ -101,10 +101,11 @@ struct PlayerPhysicsOverride
 	float jump = 1.f;
 	float gravity = 1.f;
 
-	bool sneak = true;
-	bool sneak_glitch = false;
 	bool upward_rejump = true;
 	bool upward_step = true;
+	
+	bool sneak = true;
+	bool sneak_glitch = false;
 	// "Temporary" option for old move code
 	bool new_move = true;
 
