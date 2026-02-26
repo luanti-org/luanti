@@ -3633,6 +3633,8 @@ void GUIFormSpecMenu::drawMenu()
 					break;
 				}
 			}
+			if (!element_name.empty())
+				break;
 		}
 
 		if (!element_name.empty()) {
