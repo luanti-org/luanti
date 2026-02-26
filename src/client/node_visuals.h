@@ -59,6 +59,7 @@ private:
 	friend class DummyGameDef; // Unittests need constructor
 
 	ContentFeatures *f = nullptr;
+	friend content_t NodeDefManager::set(const std::string &name, const ContentFeatures &def);
 
 	// Functions needed for initialisation
 	void preUpdateTextures(ITextureSource *tsrc,
