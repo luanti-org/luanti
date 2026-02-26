@@ -8,6 +8,9 @@ core.register_entity("testentities:step_up_test", {
 		infotext = "Punch me to toggle new_step_up.\nnew_step_up fixes the jolt when jumping up a node.\nSetting:" .. tostring(0),
 		new_step_up = 0,
 		stepheight = 0.5,
+		-- This collision box is set like this for testing.
+		visual_size = { x = 0.8, y = 0.8, z = 0.8 },
+		collisionbox = { -0.4, -0.4, -0.4, 0.4, 0.4, 0.4 }
 	},
 	on_activate = function(self, staticdata, dtime_s)
 		self.object:set_acceleration(vector.new(0, -10, 0))
