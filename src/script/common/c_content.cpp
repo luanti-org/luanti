@@ -517,7 +517,7 @@ void read_object_properties(lua_State *L, int index,
 	getboolfield(L, -1, "use_texture_alpha", prop->use_texture_alpha);
 	getboolfield(L, -1, "shaded", prop->shaded);
 	getboolfield(L, -1, "show_on_minimap", prop->show_on_minimap);
-	getboolfield(L, -1, "new_step_up", prop->new_step_up);
+	getintfield(L, -1, "new_step_up", prop->new_step_up);
 
 	getstringfield(L, -1, "damage_texture_modifier", prop->damage_texture_modifier);
 
