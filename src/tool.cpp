@@ -458,7 +458,7 @@ PunchDamageResult getPunchDamage(
 		// 1. We don't have the itemdef available here to check
 		// 2. how is this supposed to interact with overridable toolcaps?
 		if (itemgroup_get(armor_groups, "punch_operable") &&
-				punchitem->name.empty())
+				punchitem->empty())
 			do_hit = false;
 	}
 

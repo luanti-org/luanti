@@ -214,7 +214,7 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 		} while(false);
 	}
 
-	if (name.empty() || count == 0)
+	if (count == 0)
 		clear();
 	else if (itemdef && itemdef->get(name).type == ITEM_TOOL)
 		count = 1;
