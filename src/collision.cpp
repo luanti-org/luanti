@@ -18,6 +18,7 @@
 #include "server/serveractiveobject.h"
 #include "util/timetaker.h"
 #include "profiler.h"
+#include "object_properties.h"
 
 #ifdef __FAST_MATH__
 #warning "-ffast-math is known to cause bugs in collision code, do not use!"
@@ -379,7 +380,7 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		v3f *pos_f, v3f *speed_f,
 		v3f accel_f, ActiveObject *self,
 		bool collide_with_objects,
-		u8 new_step_up)
+		NewStepUpValue new_step_up)
 {
 	static bool time_notification_done = false;
 
