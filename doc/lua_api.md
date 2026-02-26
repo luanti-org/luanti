@@ -54,6 +54,87 @@ the build directory. For system-wide builds on Linux the share path is usually a
 `/usr/share/minetest` while the user path resides in `.minetest` in the home directory.
 Paths on other operating systems will differ.
 
+Numbers and integers
+--------------------
+
+Lua 5.1 does not distinguish between floating-point numbers and integer numbers,
+but for some functions and data structures, Luanti will only accept integers (whole
+numbers).
+
+Unless mentioned otherwise, number-type variables mentioned in this documentation are
+allowed to take any numeric value that Lua supports, both integer and
+floating-point numbers, positive and negative.
+If the word "number" is used, you can normally assume this to be the case.
+Exceptions: NaN, positive infinity and negative infinity should not be
+assumed to be supported unless mentioned explicitly.
+
+Sometimes, the documentation will use the word "integer"
+(or "int" in short). In this case, only integer values are allowed,
+and fractional values must not be used. Integers can be positive or
+negative.
+
+All integer values have a range with a defined minimum and maximum.
+Integer ranges are written as [min, max] and are inclusive. E.g. the
+integer range [0, 255] contains all integers from 0 to 255,
+*including* 0 and 255.
+
+Some ranges in this documentation like [-2^15, 2^15-1] occur frequently,
+and may be abbreviated like so:
+
+    [s16]  = [-2^15    , 2^15-1] = [-32768, 32767]
+    [s32]  = [-2^31,   , 2^31-1] = [-2147483648, 2147483647]
+    [slua] = [-(2^53-1), 2^53-1] = [-9007199254740991, 9007199254740991]
+    [u16]  = [0,         2^16-1] = [0, 65535]
+    [u32]  = [0,         2^32-1] = [0, 4294967295]
+    [u64]  = [0,         2^64-1] = [0, 18446744073709551615]
+    [ulua] = [0,         2^53-1] = [0, 9007199254740991]
+    [imagesize]                  = [1, 23000]
+    [imageframe]                 = [0, 22999]
+
+(s = "signed", ranges that include negative integers;
+ u = "unsigned", ranges that don't include negative integers;
+ these terms are borrowed from the C language)
+
+The [slua] range is the *safe integer range* in Lua. This is the
+largest range of consecutive safe integers. An integer is 'safe'
+if it can be represented exactly as Lua number without loss
+of precision and it can be compared correctly. If you use an
+integer in Lua beyond that range, you might lose precision and
+numeric comparisons might return incorrect results.
+[ulua] is the same except it starts at 0.
+
+The [imagesize] range represents the minimum and maximum
+width and height for texture modifiers.
+
+The words "amount", "count", "index" and "bitfield" imply the use of
+an integer (e.g. an amount of items is an integer).
+
+When the documentation expects an integer somewhere without specifying
+a range, assume the safe integer range ([slua]).
+
+**IMPORTANT**: You must make sure your code only passes integers to any
+function or data structure that expects them. You must respect all
+integer ranges. Failing to do so may lead to undefined behavior and
+potential bugs.
+
+Please note we don't have the resources to test every single edge
+case; we don't guarantee every number *in range* will work.
+Always use your own good judgement as well.
+Using extreme or unrealistic values *within* range is not forbidden,
+but please accept it if we are forced to restrict/fix a few of these
+ranges (in the documentation) in future releases.
+
+### Implementation details
+
+In the Lua runtime used by Luanti, numbers are internally represented
+by the `double` data type of the C programming language.
+The range of [-(2^53-1), 2^53-1] is derived from IEEE-754 double-precision
+floating-point numbers.
+You can generally assume that on all systems that Luanti officially
+supports, the Lua number type implements IEEE-754 double-precision
+floating-point numbers.
+
+
 Games
 =====
 
@@ -125,7 +206,7 @@ directory inside the game directory.
 The images are named `$identifier.png`, where `$identifier` is one of
 `overlay`, `background`, `footer`, `header`.
 If you want to specify multiple images for one identifier, add additional
-images named like `$identifier.$n.png`, with an ascending number $n starting
+images named like `$identifier.$n.png`, with an ascending integer $n starting
 with 1, and a random image will be chosen from the provided ones.
 
 Menu music
@@ -134,10 +215,12 @@ Menu music
 Games can provide custom main menu music. They are put inside a `menu`
 directory inside the game directory.
 
-The music files are named `theme.ogg`.
-If you want to specify multiple music files for one game, add additional
-images named like `theme.$n.ogg`, with an ascending number $n starting
-with 1 (max 10), and a random music file will be chosen from the provided ones.
+The music file is named `theme.ogg`.
+
+You may add additional alternative music files using the name `theme.1.ogg`,
+`theme.2.ogg`, etc. The game will then pick one file at random.
+
+See the [Sound group](#sound-group) section for details.
 
 Mods
 ====
@@ -597,11 +680,11 @@ on top of `cobble.png`.
 * `[crack:<t>:<n>:<p>`
 * `[cracko:<t>:<n>:<p>`
 
-Parameters:
+Parameters (all integers):
 
-* `<t>`: tile count (in each direction)
-* `<n>`: animation frame count
-* `<p>`: current animation frame
+* `<t>`: tile count (in each direction) (integer [imagesize])
+* `<n>`: animation frame count (integer [imagesize])
+* `<p>`: current animation frame (integer [imageframe])
 
 Draw a step of the crack animation on the texture.
 `crack` draws it normally, while `cracko` lays it over, keeping transparent
@@ -613,20 +696,27 @@ Example:
 
 #### `[combine:<w>x<h>:<x1>,<y1>=<file1>:<x2>,<y2>=<file2>:...`
 
-* `<w>`: width
-* `<h>`: height
-* `<x>`: x position, negative numbers allowed
-* `<y>`: y position, negative numbers allowed
+* `<w>`: width (integer [imagesize])
+* `<h>`: height (integer [imagesize])
+* `<x>`: x position (integer [s32])
+* `<y>`: y position (integer [s32])
 * `<file>`: texture to combine
 
-Creates a texture of size `<w>` times `<h>` and blits the listed files to their
-specified coordinates.
+Creates a texture of size `<w>` times `<h>` and blits the listed source images
+to their specified `<x>,<y>` coordinates of the target texture. Pixels
+that would end up outside the target texture (e.g. if the source texture is
+larger than the target texture), they are discarded.
+Negative coordinates are allowed. This just means the origin of the listed file
+is to the left and/or upwards of the origin of the target texture.
 
 Example:
 
     [combine:16x32:0,0=default_cobble.png:0,16=default_wood.png
 
 #### `[resize:<w>x<h>`
+
+* `<w>`: width (integer [imagesize])
+* `<h>`: height (integer [imagesize])
 
 Resizes the texture to the given dimensions.
 
@@ -638,7 +728,7 @@ Example:
 
 Makes the base image transparent according to the given ratio.
 
-`r` must be between 0 (transparent) and 255 (opaque).
+`r` is an integer in range [0, 255]. 0 = transparent, 255 = opaque.
 
 Example:
 
@@ -672,7 +762,11 @@ Example:
 
 #### `[makealpha:<r>,<g>,<b>`
 
-Convert one color to transparency.
+Convert the given color to transparency.
+
+* `r`: red (integer in range [0, 255])
+* `g`: green (integer in range [0, 255])
+* `b`: blue (integer in range [0, 255])
 
 Example:
 
@@ -684,7 +778,7 @@ Example:
 
 Rotates and/or flips the image.
 
-`<t>` can be a number (between 0 and 7) or a transform name.
+`<t>` can be an integer (in range [0, 7]) or a transform name.
 Rotations are counter-clockwise.
 
     0  I      identity
@@ -716,14 +810,15 @@ Creates an inventorycube with `grass.png`, `dirt.png^grass_side.png` and
 
 #### `[fill:<w>x<h>:<x>,<y>:<color>`
 
-* `<w>`: width
-* `<h>`: height
-* `<x>`: x position
-* `<y>`: y position
+* `<w>`: width (integer [imagesize])
+* `<h>`: height (integer [imagesize])
+* `<x>`: x position (integer [u32])
+* `<y>`: y position (integer [u32])
 * `<color>`: a `ColorString`.
 
-Creates a texture of the given size and color, optionally with an `<x>,<y>`
-position. An alpha value may be specified in the `Colorstring`.
+Creates a texture of the given size and color, optionally with
+an `<x>,<y>` position. An alpha value may be specified in the
+`ColorString`.
 
 The optional `<x>,<y>` position is only used if the `[fill` is being overlaid
 onto another texture with '^'.
@@ -740,6 +835,7 @@ Examples:
 #### `[lowpart:<percent>:<file>`
 
 Blit the lower `<percent>`% part of `<file>` on the texture.
+`<percent>` is an integer with range [0, 100].
 
 Example:
 
@@ -747,8 +843,8 @@ Example:
 
 #### `[verticalframe:<t>:<n>`
 
-* `<t>`: animation frame count
-* `<n>`: current animation frame
+* `<t>`: animation frame count, integer in range [imagesize]
+* `<n>`: current animation frame (integer [imageframe])
 
 Crops the texture to a frame of a vertical animation.
 
@@ -766,16 +862,20 @@ The mask is applied using binary AND.
 
 #### `[sheet:<w>x<h>:<x>,<y>`
 
-Retrieves a tile at position x, y (in tiles, 0-indexed)
-from the base image, which it assumes to be a tilesheet
-with dimensions w, h (in tiles).
+* `<w>`: sheet width in tiles (integer [imagesize])
+* `<h>`: sheet height in tiles (integer [imagesize])
+* `<x>`: x position in tiles (integer [imageframe])
+* `<y>`: y position in tiles (integer [imageframe])
+
+Retrieves a tile at tile position `<x>,<y>` from the base image,
+which is assumed to be a tile sheet with tile dimensions `<w>,<h>`.
 
 #### `[colorize:<color>:<ratio>`
 
 Colorize the textures with the given color.
 `<color>` is specified as a `ColorString`.
-`<ratio>` is an int ranging from 0 to 255 or the word "`alpha`". If
-it is an int, then it specifies how far to interpolate between the
+`<ratio>` is an integer in range [0, 255] or the string `"alpha"`. If
+it is an integer, then it specifies how far to interpolate between the
 colors where 0 is only the texture color and 255 is only `<color>`. If
 omitted, the alpha of `<color>` will be used as the ratio.  If it is
 the word "`alpha`", then each texture pixel will contain the RGB of
@@ -788,15 +888,17 @@ Colorize the texture to the given hue. The texture will be converted into a
 greyscale image as seen through a colored glass, like "Colorize" in GIMP.
 Saturation and lightness can optionally be adjusted.
 
-`<hue>` should be from -180 to +180. The hue at 0° on an HSL color wheel is
+All arguments are integers.
+
+`<hue>` should be in range [-180, 180]. The hue at 0° on an HSL color wheel is
 red, 60° is yellow, 120° is green, and 180° is cyan, while -60° is magenta
 and -120° is blue.
 
 `<saturation>` and `<lightness>` are optional adjustments.
 
-`<lightness>` is from -100 to +100, with a default of 0
+`<lightness>` is in range [-100, 100], with a default of 0
 
-`<saturation>` is from 0 to 100, with a default of 50
+`<saturation>` is in range [0, 100], with a default of 50
 
 #### `[multiply:<color>`
 
@@ -828,14 +930,17 @@ modifier with a brightness adjustment:
 Adjust the hue, saturation, and lightness of the texture. Like
 "Hue-Saturation" in GIMP, but with 0 as the mid-point.
 
-`<hue>` should be from -180 to +180
+All 3 arguments are integers.
+
+`<hue>` should be in range [-180, 180]
 
 `<saturation>` and `<lightness>` are optional, and both percentages.
 
-`<lightness>` is from -100 to +100.
+`<lightness>` is in range [-100, 100].
 
-`<saturation>` goes down to -100 (fully desaturated) but may go above 100,
-allowing for even muted colors to become highly saturated.
+`<saturation>` is in range [-100, 1000]. -100 is fully desaturated,
+0 is no change and positive values increase saturation. Values
+above 100 allow for even muted colors to become highly saturated.
 
 #### `[contrast:<contrast>:<brightness>`
 
@@ -843,9 +948,9 @@ Adjust the brightness and contrast of the texture. Conceptually like
 GIMP's "Brightness-Contrast" feature but allows brightness to be wound
 all the way up to white or down to black.
 
-`<contrast>` is a value from -127 to +127.
+`<contrast>` is an integer in range [-127, 127].
 
-`<brightness>` is an optional value, from -127 to +127.
+`<brightness>` is an optional integer in range [-127, 127].
 
 If only a boost in contrast is required, an alternative technique is to
 hardlight blend the texture with itself, this increases contrast in the same
@@ -944,7 +1049,7 @@ When using palettes, you always provide a pixel index for the given
 node or `ItemStack`. The palette is read from left to right and from
 top to bottom. If the palette has less than 256 pixels, then it is
 stretched to contain exactly 256 pixels (after arranging the pixels
-to one line). The indexing starts from 0.
+to one line). Palette colors are indexed in range [0, 255].
 
 Examples:
 
@@ -1388,7 +1493,7 @@ The function of `param2` is determined by `paramtype2` in node definition.
     * The rotation of the node is stored in `param2`
     * Node is 'mounted'/facing towards one of 6 directions
     * You can make this value by using `core.dir_to_wallmounted()`
-    * Values range 0 - 7
+    * Integer in range: [0, 7]
     * The value denotes at which direction the node is "mounted":
       0 = y+,   1 = y-,   2 = x+,   3 = x-,   4 = z+,   5 = z-
       6 = y+, but rotated by  90°
@@ -1403,7 +1508,7 @@ The function of `param2` is determined by `paramtype2` in node definition.
     * Node is rotated around face and axis; 24 rotations in total.
     * Can be made by using `core.dir_to_facedir()`.
     * Chests and furnaces can be rotated that way, and also 'flipped'
-    * Values range 0 - 23
+    * Integer in range: [0, 23]
     * facedir / 4 = axis direction:
       0 = y+,   1 = z+,   2 = z-,   3 = x+,   4 = x-,   5 = y-
     * The node is rotated 90 degrees around the X or Z axis so that its top face
@@ -1420,7 +1525,7 @@ The function of `param2` is determined by `paramtype2` in node definition.
     * Allows node to be rotated horizontally, 4 rotations in total
     * Can be made by using `core.dir_to_fourdir()`.
     * Chests and furnaces can be rotated that way, but not flipped
-    * Values range 0 - 3
+    * Integer in range: [0, 3]
     * 4dir modulo 4 = rotation
     * Otherwise, behavior is identical to facedir
 * `paramtype2 = "leveled"`
@@ -1430,15 +1535,16 @@ The function of `param2` is determined by `paramtype2` in node definition.
             * The other faces are defined by 'fixed = {}' like 'type = "fixed"'
               nodeboxes.
             * The nodebox height is (`param2` / 64) nodes.
-            * The maximum accepted value of `param2` is 127.
+            * Integer in range: [0, 127]
         * Rooted plantlike:
             * The height of the 'plantlike' section is stored in `param2`.
             * The height is (`param2` / 16) nodes.
+            * Can use the full `param2` range
 * `paramtype2 = "degrotate"`
     * Valid for `plantlike` and `mesh` drawtypes. The rotation of the node is
       stored in `param2`.
-    * Values range 0–239. The value stored in `param2` is multiplied by 1.5 to
-      get the actual rotation in degrees of the node.
+    * Integer in range: [0, 239]. The value stored in `param2` is multiplied by 1.5
+      to get the actual rotation in degrees of the node.
 * `paramtype2 = "meshoptions"`
     * Only valid for "plantlike" drawtype. `param2` encodes the shape and
       optional modifiers of the "plant". `param2` is a bitfield.
@@ -1446,11 +1552,11 @@ The function of `param2` is determined by `paramtype2` in node definition.
       Use only one of the values below:
         * 0 = an "x" shaped plant (ordinary plant)
         * 1 = a "+" shaped plant (just rotated 45 degrees)
-        * 2 = a "*" shaped plant with 3 faces instead of 2
+        * 2 = a "\*" shaped plant with 3 faces instead of 2
         * 3 = a "#" shaped plant with 4 faces instead of 2
         * 4 = a "#" shaped plant with 4 faces that lean outwards
         * 5-7 are unused and reserved for future meshes.
-    * Bits 3 to 7 are used to enable any number of optional modifiers.
+    * Bits 3 to 7 are used to enable any amount of optional modifiers.
       Just add the corresponding value(s) below to `param2`:
         * 8  - Makes the plant slightly vary placement horizontally
         * 16 - Makes the plant mesh 1.4x larger
@@ -1491,7 +1597,7 @@ The function of `param2` is determined by `paramtype2` in node definition.
     * Same as `degrotate`, but with colors.
     * The three most significant bits of `param2` tells which color is picked
       from the palette. The palette should have 8 pixels.
-    * The five least significant bits store rotation in range 0–23 (i.e. in 15° steps)
+    * The five least significant bits store rotation in range [0, 23], i.e. in 15° steps
 * `paramtype2 = "none"`
     * `param2` will not be used by the engine and can be used to store
       an arbitrary value
@@ -1587,7 +1693,7 @@ There are a bunch of different looking node types.
     * Becomes a sloping node if placed against stepped nodes.
 * `nodebox`
     * Often used for stairs and slabs.
-    * Allows defining nodes consisting of an arbitrary number of boxes.
+    * Allows defining nodes consisting of an arbitrary amount of boxes.
     * See [Node boxes](#node-boxes) below for more information.
 * `mesh`
     * Uses models for nodes.
@@ -1684,9 +1790,9 @@ A box of a regular node would look like:
 {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},
 ```
 
-To avoid collision issues, keep each value within the range of +/- 1.45.
-This also applies to leveled nodeboxes, where the final height shall not
-exceed this soft limit.
+To avoid collision issues, keep each value within the range of
+[-1.45, 1.45]. This also applies to leveled nodeboxes, where the final height
+shall not exceed this soft limit.
 
 
 
@@ -1758,8 +1864,8 @@ Almost all positions used in the API use node coordinates.
 ### Mapblock coordinates
 
 Occasionally the API uses 'blockpos' which refers to mapblock coordinates that
-specify a particular mapblock.
-For example blockpos (0,0,0) specifies the mapblock that extends from
+specify a particular mapblock. Blockpos coordinates are integers.
+For example, blockpos (0,0,0) specifies the mapblock that extends from
 node position (0,0,0) to node position (15,15,15).
 
 #### Converting node position to the containing blockpos
@@ -1788,33 +1894,35 @@ HUD
 HUD element types
 -----------------
 
-The `position` field is used for all element types.
+The `position` field is used for all element types. Its syntax is
+`{ x = <number>, y = <number> }`.
 To account for differing resolutions, the position coordinates are the
-percentage of the screen, ranging in value from `0` to `1`.
+percentage of the screen, specified in range [0.0, 1.0].
 
 The `name` field is not yet used, but should contain a description of what the
 HUD element represents.
 
-The `direction` field is the direction in which something is drawn.
+The `direction` field is an integer for the direction in which something is drawn.
 `0` draws from left to right, `1` draws from right to left, `2` draws from
 top to bottom, and `3` draws from bottom to top.
 
 The `alignment` field specifies how the item will be aligned. It is a table
-where `x` and `y` range from `-1` to `1`, with `0` being central. `-1` is
-moved to the left/up, and `1` is to the right/down. Fractional values can be
-used.
+where `x` and `y` are numbers in range [-1.0, 1.0], with `0` being central.
+`-1` is moved to the left/up, and `1` is to the right/down. Fractional values
+can be used.
 
-The `offset` field specifies a pixel offset from the position. Contrary to
-position, the offset is not scaled to screen size. This allows for some
-precisely positioned items in the HUD.
+The `offset` field specifies a pixel offset from the position, with syntax
+`{ x = <number>, y = <number> }`. Fractional values can be used.
+Contrary to position, the offset is not scaled to screen size.
+This allows for some precisely positioned items in the HUD.
 
 **Note**: `offset` _will_ adapt to screen DPI as well as user defined scaling
 factor!
 
-The `z_index` field specifies the order of HUD elements from back to front.
-Lower z-index elements are displayed behind higher z-index elements. Elements
-with same z-index are displayed in an arbitrary order. Default 0.
-Supports negative values. By convention, the following values are recommended:
+The `z_index` field is an integer [s16] that specifies the order
+of HUD elements from back to front. Lower z-index elements are displayed behind
+higher z-index elements. Elements with same z-index are displayed in an arbitrary order.
+Default 0. By convention, the following values are recommended:
 
 *  -400: Graphical effects, such as vignette
 *  -300: Name tags, waypoints
@@ -1826,8 +1934,8 @@ Supports negative values. By convention, the following values are recommended:
 *  1000: Full-screen effects such as full-black screen or credits.
          This includes effects that cover the entire screen
 
-If your HUD element doesn't fit into any category, pick a number
-between the suggested values
+If your HUD element doesn't fit into any category, pick an integer
+between the suggested values.
 
 Below are the specific uses for fields in each type; fields not listed for that
 type are ignored.
@@ -1836,9 +1944,9 @@ type are ignored.
 
 Displays an image on the HUD.
 
-* `scale`: The scale of the image, with `{x = 1, y = 1}` being the original texture size.
-  The `x` and `y` fields apply to the respective axes.
-  Positive values scale the source image.
+* `scale`: The scale of the image, with `{x = 1, y = 1}` being the
+  original texture size. The `x` and `y` fields are numbers and apply to the
+  respective axes. Positive values scale the source image.
   Negative values represent percentages relative to screen dimensions.
   Example: `{x = -20, y = 3}` means the image will be drawn 20% of screen width wide,
   and 3 times as high as the source image is.
@@ -1850,8 +1958,9 @@ Displays an image on the HUD.
 
 Displays text on the HUD.
 
-* `scale`: Defines the bounding rectangle of the text.
-  A value such as `{x=100, y=100}` should work.
+* `scale`: Defines the bounding rectangle of the text, syntax is
+  `{ x = <number>, y = <number> }`.
+  A value such as `{ x = 100, y = 100 }` should work.
 * `text`: The text to be displayed in the HUD element.
   Supports `core.translate` (always)
   and `core.colorize` (since protocol version 44)
@@ -1862,8 +1971,10 @@ Displays text on the HUD.
       will not work due to compatibility reasons (it'll be treated as `FF`).
 * `alignment`: The alignment of the text.
 * `offset`: offset in pixels from position.
-* `size`: size of the text.
-  The player-set font size is multiplied by size.x (y value isn't used).
+* `size`: size of the text. Syntax: `{ x = <integer> }`.
+  The player-set font size is multiplied by `size.x`.
+  Only integer sizes in range [1, 2^31-1] are supported
+  (but very large sizes will likely perform poorly).
 * `style`: determines font style
   Bitfield with 1 = bold, 2 = italic, 4 = monospace
 
@@ -1875,19 +1986,22 @@ Displays a horizontal bar made up of half-images with an optional background.
 * `text2`: Optional texture name to enable a background / "off state"
   texture (useful to visualize the maximal value). Both textures
   must have the same size.
-* `number`: The number of half-textures that are displayed.
+* `number`: The amount of half-textures that are displayed.
   If odd, will end with a vertically center-split texture.
+  Integer in range [u32].
 * `item`: Same as `number` but for the "off state" texture
 * `direction`: To which direction the images will extend to
 * `offset`: offset in pixels from position.
 * `size`: If used, will force full-image size to this value (override texture
-  pack image size)
+  pack image size). Syntax: `{x = <integer>, y = <integer>}`, where
+  both integers are in range [1, 2^31-1]
 
 ### `inventory`
 
 * `text`: The name of the inventory list to be displayed.
-* `number`: Number of items in the inventory to be displayed.
-* `item`: Position of item that is selected.
+* `number`: Amount of item slots in the inventory to be displayed.
+  Integer in range [u16].
+* `item`: Position of item that is selected. Integer in range [u16].
 * `direction`: Direction the list will be displayed in
 * `offset`: offset in pixels from position.
 * `alignment`: The alignment of the inventory. Aligned at the top left corner if not specified.
@@ -1904,14 +2018,15 @@ Displays distance to selected world position.
 
 * `name`: The name of the waypoint.
 * `text`: Distance suffix. Can be blank.
-* `precision`: Waypoint precision, integer >= 0. Defaults to 10.
+* `precision`: Waypoint precision, integer in range [u32]. Defaults to 10.
   If set to 0, distance is not shown. Shown value is `floor(distance*precision)/precision`.
   When the precision is an integer multiple of 10, there will be `log_10(precision)` digits after the decimal point.
   `precision = 1000`, for example, will show 3 decimal places (eg: `0.999`).
   `precision = 2` will show multiples of `0.5`; precision = 5 will show multiples of `0.2` and so on:
   `precision = n` will show multiples of `1/n`
-* `number:` An integer containing the RGB value of the color used to draw the
-  text.
+* `number:` An integer that specifies an RGB color in 24 bits,
+  with each color component red, green and blue taking one byte.
+  `0xFF0000` is red, `0x00FF00` is green and `0x0000FF` is blue.
 * `world_pos`: World position of the waypoint.
 * `offset`: offset in pixels from position.
 * `alignment`: The alignment of the waypoint.
@@ -1921,7 +2036,7 @@ Displays distance to selected world position.
 Same as `image`, but does not accept a `position`; the position is instead determined by `world_pos`, the world position of the waypoint.
 
 * `scale`: The scale of the image, with `{x = 1, y = 1}` being the original texture size.
-  The `x` and `y` fields apply to the respective axes.
+  The `x` and `y` fields are numbers and apply to the respective axes.
   Positive values scale the source image.
   Negative values represent percentages relative to screen dimensions.
   Example: `{x = -20, y = 3}` means the image will be drawn 20% of screen width wide,
@@ -1935,9 +2050,12 @@ Same as `image`, but does not accept a `position`; the position is instead deter
 
 Displays an image oriented or translated according to current heading direction.
 
-* `size`: The size of this element. Negative values represent percentage
+* `size`: The size of this element. Syntax: `{ x = <integer>, y = <integer> }`.
+  Positive values represent pixels, negative values represent percentage
   of the screen; e.g. `x=-100` means 100% (width).
-* `scale`: Scale of the translated image (used only for dir = 2 or dir = 3).
+  Uses integers in range [s32].
+* `scale`: Scale of the translated image. Syntax: `{ x = <number>, y = <number> }`.
+  (used only for `direction = 2` or `direction = 3`)
 * `text`: The name of the texture to use.
 * `alignment`: The alignment of the image.
 * `offset`: Offset in pixels from position.
@@ -1955,6 +2073,8 @@ Displays a minimap on the HUD.
 
 * `size`: Size of the minimap to display. Minimap should be a square to avoid
   distortion.
+  * Syntax: `{ x = <integer>, y = <integer> }`.
+  * Uses integers in range [s32].
   * Negative values represent percentages of the screen. If either `x` or `y`
     is specified as a percentage, the resulting pixel size will be used for
     both `x` and `y`. Example: On a 1920x1080 screen, `{x = 0, y = -25}` will
@@ -1990,8 +2110,8 @@ Exact pointing location (currently only `Raycast` supports these fields):
 * `pointed_thing.intersection_point`: The absolute world coordinates of the
   point on the selection box which is pointed at. May be in the selection box
   if the pointer is in the box too.
-* `pointed_thing.box_id`: The ID of the pointed selection box (counting starts
-  from 1).
+* `pointed_thing.box_id`: index of the pointed selection box (counting
+  starts from 1).
 * `pointed_thing.intersection_normal`: Unit vector, points outwards of the
   selected selection box. This specifies which face is pointed at.
   Is a null vector `vector.zero()` when the pointer is inside the selection box.
@@ -2102,8 +2222,8 @@ Amount and wear
 All item stacks have an amount between 0 and 65535. It is 1 by
 default. Tool item stacks cannot have an amount greater than 1.
 
-Tools use a wear (damage) value ranging from 0 to 65535. The
-value 0 is the default and is used for unworn tools. The values
+Tools use a wear (damage) integer value ranging from 0 to 65535.
+The value 0 is the default and is used for unworn tools. The values
 1 to 65535 are used for worn tools, where a higher value stands for
 a higher wear. Non-tools technically also have a wear property,
 but it is always 0. There is also a special 'toolrepair' crafting
@@ -2112,7 +2232,7 @@ recipe that is only available to tools.
 Item formats
 ------------
 
-Items and item stacks can exist in three formats: Serializes, table format
+Items and item stacks can exist in three formats: Serialized, table format
 and `ItemStack`.
 
 When an item must be passed to a function, it can usually be in any of
@@ -2460,14 +2580,14 @@ Tool capabilities definition
 
 Tool capabilities define:
 
-* Full punch interval
-* Maximum drop level
+* Full punch interval (number, in seconds)
+* Maximum drop level (integer [slua])
 * For an arbitrary list of node groups:
-    * Uses (until the tool breaks)
-    * Maximum level (usually `0`, `1`, `2` or `3`)
-    * Digging times
+    * Uses (until the tool breaks, integer [u16])
+    * Maximum level (integer [slua], usually `0`, `1`, `2` or `3`)
+    * Digging times (list of numbers)
 * Damage groups
-* Punch attack uses (until the tool breaks)
+* Punch attack uses (until the tool breaks, integer [u16])
 
 ### Full punch interval `full_punch_interval`
 
@@ -2485,12 +2605,13 @@ code to implement this.
 
 ### Uses `uses` (tools only)
 
-Determines how many uses the tool has when it is used for digging a node,
-of this group, of the maximum level. The maximum supported number of
-uses is 65535. The special number 0 is used for infinite uses.
-For lower leveled nodes, the use count is multiplied by `3^leveldiff`.
-`leveldiff` is the difference of the tool's `maxlevel` `groupcaps` and the
-node's `level` group. The node cannot be dug if `leveldiff` is less than zero.
+An integer [u16] that determines how many uses the tool has when it
+is used for digging a node, of this group, of the maximum level. The
+maximum supported number of uses is 65535. The special number 0 is used
+for infinite uses. For lower leveled nodes, the use count is multiplied
+by `3^leveldiff`. `leveldiff` is the difference of the tool's `maxlevel`
+`groupcaps` and the node's `level` group. The node cannot be dug if
+`leveldiff` is less than zero.
 
 * `uses=10, leveldiff=0`: actual uses: 10
 * `uses=10, leveldiff=1`: actual uses: 30
@@ -2501,7 +2622,7 @@ For non-tools, this has no effect.
 ### Maximum level `maxlevel`
 
 Tells what is the maximum level of a node of this group that the item will
-be able to dig.
+be able to dig. An integer.
 
 ### Digging times `times`
 
@@ -2528,7 +2649,7 @@ List of damage for groups of entities. See [Entity damage mechanism](#entity-dam
 
 Determines how many uses (before breaking) the tool has when dealing damage
 to an object, when the full punch interval (see above) was always
-waited out fully.
+waited out fully. Specified as integer.
 
 Wear received by the tool is proportional to the time spent, scaled by
 the full punch interval.
@@ -2852,7 +2973,7 @@ Elements
 
 ### `formspec_version[<version>]`
 
-* Set the formspec version to a certain number. If not specified,
+* Set the formspec version to a certain integer. If not specified,
   version 1 is assumed.
 * Must be specified before `size` element.
 * Clients older than this version can neither show newer elements nor display
@@ -2970,9 +3091,9 @@ Elements
   to) adapt to the new inventory list.
 * Item slots are drawn in a grid from left to right, then up to down, ordered
   according to the slot index.
-* `W` and `H` are in inventory slots, not in coordinates.
+* `W`/`H` is the number of item slots the inventory list is wide/high (integers)
 * `starting item index` (Optional): The index of the first (upper-left) item to draw.
-  Indices start at `0`. Default is `0`.
+  Indices are integers starting at `0`. Default is `0`.
 * The number of shown slots is the minimum of `W*H` and the inventory list's size minus
   `starting item index`.
 * **Note**: With the new coordinate system, the spacing between inventory
@@ -3036,9 +3157,9 @@ Elements
   animation (See [Tile animation definition](#tile-animation-definition)), but uses a frame count/duration for simplicity
 * `name`: Element name to send when an event occurs. The event value is the index of the current frame.
 * `texture name`: The image to use.
-* `frame count`: The number of frames animating the image.
-* `frame duration`: Milliseconds between each frame. `0` means the frames don't advance.
-* `frame start` (optional): The index of the frame to start on. Default `1`.
+* `frame count`: The amount of frames animating the image. Range [imagesize]
+* `frame duration`: Milliseconds between each frame. Integer with range [0, 2^31-1]. `0` means the frames don't advance.
+* `frame start` (optional): The index of the frame to start on, counting starts at 1. Range [imagesize]. Default `1`.
 * `middle` (optional): Makes the image render in 9-sliced mode and defines the middle rect.
     * Requires formspec version >= 6.
     * See `background9[]` documentation for more information.
@@ -3051,13 +3172,13 @@ Elements
 * `textures`: The mesh textures to use according to the mesh materials.
    Texture names must be separated by commas.
 * `rotation` (Optional): Initial rotation of the camera, format `x,y`.
-  The axes are euler angles in degrees.
+  The axes are Euler angles in degrees, given as numbers.
 * `continuous` (Optional): Whether the rotation is continuous. Default `false`.
 * `mouse control` (Optional): Whether the model can be controlled with the mouse. Default `true`.
 * `frame loop range` (Optional): Range of the animation frames.
     * Defaults to the full range of all available frames.
-    * Syntax: `<begin>,<end>`
-* `animation speed` (Optional): Sets the animation speed. Default 0 FPS.
+    * Syntax: `<begin>,<end>` (two numbers separated by a comma)
+* `animation speed` (Optional): Sets the animation speed in FPS, as a number. Default: 0.0
 
 ### `item_image[<X>,<Y>;<W>,<H>;<item name>]`
 
@@ -3374,21 +3495,22 @@ Elements
 
 ### `scrollbaroptions[opt1;opt2;...]`
 * Sets options for all following `scrollbar[]` elements
+* All numbers below are integers [s32]
 * `min=<int>`
     * Sets scrollbar minimum value, defaults to `0`.
 * `max=<int>`
     * Sets scrollbar maximum value, defaults to `1000`.
-      If the max is equal to the min, the scrollbar will be disabled.
+    * If the max is equal to the min, the scrollbar will be disabled.
 * `smallstep=<int>`
     * Sets scrollbar step value when the arrows are clicked or the mouse wheel is
       scrolled.
-    * If this is set to a negative number, the value will be reset to `10`.
+    * If this is set to a negative integer, the value will be reset to `10`.
 * `largestep=<int>`
     * Sets scrollbar step value used by page up and page down.
-    * If this is set to a negative number, the value will be reset to `100`.
+    * If this is set to a negative integer, the value will be reset to `100`.
 * `thumbsize=<int>`
-    * Sets size of the thumb on the scrollbar. Size is calculated in the number of
-      units the thumb spans out of the range of the scrollbar values.
+    * Sets size of the thumb on the scrollbar. Size is calculated in the integer
+      number of units the thumb spans out of the range of the scrollbar values.
     * Example: If a scrollbar has a `min` of 1 and a `max` of 100, a thumbsize of 10
       would span a tenth of the scrollbar space.
     * If this is set to zero or less, the value will be reset to `1`.
@@ -3875,18 +3997,18 @@ Colors
 `ColorString`
 -------------
 
-`#RGB` defines a color in hexadecimal format.
+`"#RGB"` defines a color in hexadecimal format, fully opaque.
 
-`#RGBA` defines a color in hexadecimal format and alpha channel.
+`"#RGBA"` defines a color in hexadecimal format, with an alpha channel.
 
-`#RRGGBB` defines a color in hexadecimal format.
+`"#RRGGBB"` defines a color in hexadecimal format, fully opaque.
 
-`#RRGGBBAA` defines a color in hexadecimal format and alpha channel.
+`"#RRGGBBAA"` defines a color in hexadecimal format, with an alpha channel.
 
 Named colors are also supported and are equivalent to
 [CSS Color Module Level 4](https://www.w3.org/TR/css-color-4/#named-color).
 To specify the value of the alpha channel, append `#A` or `#AA` to the end of
-the color name (e.g. `colorname#08`).
+the color name (e.g. `"darkgreen#08"`).
 
 `ColorSpec`
 -----------
@@ -3943,7 +4065,7 @@ It means that when you're pointing in +Z direction in-game ("forward"), +X is to
 
 Consistently, rotation is [**left-handed**](https://en.wikipedia.org/w/index.php?title=Right-hand_rule) as well.
 Luanti uses [Tait-Bryan angles](https://en.wikipedia.org/wiki/Euler_angles#Tait%E2%80%93Bryan_angles) for rotations,
-often referred to simply as "euler angles" (even though they are not "proper" euler angles).
+often referred to simply as "Euler angles" (even though they are not "proper" Euler angles).
 The rotation order is extrinsic X-Y-Z:
 First rotation around the (unrotated) X-axis is applied,
 then rotation around the (unrotated) Y-axis follows,
@@ -3968,7 +4090,7 @@ Spatial Vectors
 Luanti stores 3-dimensional spatial vectors in Lua as tables of 3 coordinates,
 and has a class to represent them (`vector.*`), which this chapter is about.
 For details on what a spatial vectors is, please refer to Wikipedia:
-https://en.wikipedia.org/wiki/Euclidean_vector.
+<https://en.wikipedia.org/wiki/Euclidean_vector>.
 
 Spatial vectors are used for various things, including, but not limited to:
 
@@ -4011,11 +4133,12 @@ stated otherwise. Mods should adapt this for convenience reasons.
 Special properties of the class
 -------------------------------
 
-Vectors can be indexed with numbers and allow method and operator syntax.
+Vectors can be indexed with integers in range [1, 3] and allow method and
+operator syntax.
 
 All these forms of addressing a vector `v` are valid:
 `v[1]`, `v[3]`, `v.x`, `v[1] = 42`, `v.y = 13`
-Note: Prefer letter over number indexing for performance and compatibility reasons.
+Note: Prefer letter over integer indexing for performance and compatibility reasons.
 
 Where `v` is a vector and `foo` stands for any function name, `v:foo(...)` does
 the same as `vector.foo(v, ...)`, apart from deprecated functionality.
@@ -4208,7 +4331,7 @@ Helper functions
     * tolerance: number, default: `0.0`
     * If the absolute value of `x` is within the `tolerance` or `x` is NaN,
       `0` is returned.
-* `math.factorial(x)`: returns the factorial of `x`
+* `math.factorial(x)`: returns the factorial of integer `x` (range: [ulua])
 * `math.round(x)`: Returns `x` rounded to the nearest integer.
     * At a multiple of 0.5, rounds away from zero.
 * `math.isfinite(x)`: Returns `true` if `x` is neither an infinity nor a NaN,
@@ -4216,8 +4339,9 @@ Helper functions
 * `string.split(str, separator, include_empty, max_splits, sep_is_pattern)`
     * `separator`: string, cannot be empty, default: `","`
     * `include_empty`: boolean, default: `false`
-    * `max_splits`: number, if it's negative, splits aren't limited,
-      default: `-1`
+    * `max_splits`: maximum amount of times the string is split.
+      If it's negative, splits aren't limited.
+      Default: `-1`
     * `sep_is_pattern`: boolean, it specifies whether separator is a plain
       string or a pattern (regex), default: `false`
     * e.g. `"a,b":split","` returns `{"a","b"}`
@@ -4233,13 +4357,13 @@ Helper functions
       limit
     * Note that the returned lines may be longer than the limit since it only
       splits at word borders.
-    * `limit`: number, maximal amount of characters in one line
+    * `limit`: maximum amount of characters in one line
     * `as_table`: boolean, if set to true, a table of lines instead of a string
       is returned, default: `false`
 * `core.pos_to_string(pos, decimal_places)`: returns string `"(X,Y,Z)"`
     * `pos`: table {x=X, y=Y, z=Z}
     * Converts the position `pos` to a human-readable, printable string
-    * `decimal_places`: number, if specified, the x, y and z values of
+    * `decimal_places`: integer, if specified, the x, y and z values of
       the position are rounded to the given decimal place.
 * `core.string_to_pos(string)`: returns a position or `nil`
     * Same but in reverse.
@@ -4299,7 +4423,7 @@ Helper functions
     * Simulates a tool being used once and returns the added wear,
       such that, if only this function is used to calculate wear,
       the tool will break exactly after `uses` times of uses
-    * `uses`: Number of times the tool can be used
+    * `uses`: Amount of times the tool can be used
     * `initial_wear`: The initial wear the tool starts with (default: 0)
 * `core.get_dig_params(groups, tool_capabilities, wear)`:
     Simulates an item that digs a node.
@@ -4315,7 +4439,7 @@ Helper functions
 * `core.get_hit_params(groups, tool_capabilities, time_from_last_punch, wear)`:
     Simulates an item that punches an object.
     Returns a table with the following fields:
-    * `hp`: How much damage the punch would cause (between -65535 and 65535).
+    * `hp`: How much damage the punch would cause; integer in range [-65535, 65535].
     * `wear`: How much wear would be added to the tool (ignored for non-tools).
     Parameters:
     * `groups`: Damage groups of the object
@@ -4358,8 +4482,8 @@ Two functions are provided to translate strings: `core.translate` and
   different contexts.
   It is advised to use the name of the mod as textdomain whenever possible, to
   avoid clashes with other mods.
-  This function must be given a number of arguments equal to the number of
-  arguments the translated string expects.
+  This function must be given an amount of arguments equal to the amount
+  of arguments the translated string expects.
   Arguments are literal strings -- they will not be translated.
 
 * `core.translate_n(textdomain, str, str_plural, n, ...)` translates the
@@ -4634,13 +4758,13 @@ Noise Parameters are commonly called `NoiseParams`.
 
 ### `offset`
 
-After the multiplication by `scale` this is added to the result and is the final
-step in creating the noise value.
+After the multiplication by `scale` this number is added to the result and is the
+final step in creating the noise value.
 Can be positive or negative.
 
 ### `scale`
 
-Once all octaves have been combined, the result is multiplied by this.
+Once all octaves have been combined, the result is multiplied by this number.
 Can be positive or negative.
 
 ### `spread`
@@ -4658,14 +4782,14 @@ Values are positive numbers.
 
 ### `seed`
 
-This is a whole number that determines the entire pattern of the noise
+This is an integer that determines the entire pattern of the noise
 variation. Altering it enables different noise patterns to be created.
 With other parameters equal, different seeds produce different noise patterns
 and identical seeds produce identical noise patterns.
 
-For this parameter you can randomly choose any whole number. Usually it is
-preferable for this to be different from other seeds, but sometimes it is useful
-to be able to create identical noise patterns.
+For this parameter you can randomly choose any integer in the [s32] range.
+Usually it is preferable for this to be different from other seeds, but sometimes
+it is useful to be able to create identical noise patterns.
 
 In some noise APIs the world seed is added to the seed specified in noise
 parameters. This is done to make the resulting noise pattern vary in different
@@ -4673,25 +4797,25 @@ worlds, and be 'world-specific'.
 
 ### `octaves`
 
-The number of simple noise generators that are combined.
-A whole number, 1 or more.
-Each additional octave adds finer detail to the noise but also increases the
-noise calculation load.
+The amount of simple noise generators that are combined.
+An integer in range [1, 65535]. (The practically useful upper limit is likely
+much lower.) Each additional octave adds finer detail to the noise but also
+increases the noise calculation load.
 3 is a typical minimum for a high quality, complex and natural-looking noise
 variation. 1 octave has a slight 'gridlike' appearance.
 
-Choose the number of octaves according to the `spread` and `lacunarity`, and the
+Choose the amount of octaves according to the `spread` and `lacunarity`, and the
 size of the finest detail you require. For example:
 if `spread` is 512 nodes, `lacunarity` is 2.0 and finest detail required is 16
 nodes, octaves will be 6 because the 'wavelengths' of the octaves will be
 512, 256, 128, 64, 32, 16 nodes.
-Warning: If the 'wavelength' of any octave falls below 1 an error will occur.
+Warning: If the 'wavelength' of any octave falls below 1, an error will occur.
 
 ### `persistence`
 
 Each additional octave has an amplitude that is the amplitude of the previous
-octave multiplied by `persistence`, to reduce the amplitude of finer details,
-as is often helpful and natural to do so.
+octave multiplied by the number `persistence`, to reduce the amplitude of finer
+details, as is often helpful and natural to do so.
 Since this controls the balance of fine detail to large-scale detail
 `persistence` can be thought of as the 'roughness' of the noise.
 
@@ -4969,9 +5093,9 @@ in the form of a table.  This table specifies the following fields:
   Each MapNode table contains:
     * `name`: the name of the map node to place (required)
     * `prob` (alias `param1`): the probability of this node being placed
-      (default: 255)
+      (integer in range [0, 255], default: 255)
     * `param2`: the raw param2 value of the node being placed onto the map
-      (default: 0)
+      (integer in range [0, 255], default: 0)
     * `force_place`: boolean representing if the node should forcibly overwrite
       any previous contents (default: false)
 
@@ -5306,10 +5430,14 @@ Methods
 
 A helper class for voxel areas.
 It can be created via `VoxelArea(pmin, pmax)` or
-`VoxelArea:new({MinEdge = pmin, MaxEdge = pmax})`.
-The coordinates are *inclusive*, like most other things in Luanti.
+`VoxelArea:new({MinEdge = pmin, MaxEdge = pmax})`,
+where `pmin` and `pmax` are vectors for the minimum
+and maximum coordinates of the bounding box (inclusive).
+Only integer coordinates (range: [s16]) may be used here.
 
 ### Methods
+
+All numbers used in these methods must be integers.
 
 * `getExtent()`: returns a 3D vector containing the size of the area formed by
   `MinEdge` and `MaxEdge`.
@@ -5317,7 +5445,6 @@ The coordinates are *inclusive*, like most other things in Luanti.
   `MaxEdge`.
 * `index(x, y, z)`: returns the index of an absolute position in a flat array
   starting at `1`.
-    * `x`, `y` and `z` must be integers to avoid an incorrect index result.
     * The position (x, y, z) is not checked for being inside the area volume,
       being outside can cause an incorrect index result.
     * Useful for things like `VoxelManip`, raw Schematic specifiers,
@@ -5469,7 +5596,7 @@ Callbacks:
     * `tool_capabilities`: capability table of used item
     * `dir`: unit vector of direction of punch. Always defined. Points from the
       puncher to the punched.
-    * `damage`: damage that will be done to entity.
+    * `damage`: damage that will be done to entity (integer).
     * Can return `true` to prevent the default damage mechanism.
 * `on_death(self, killer)`
     * Called when the object dies.
@@ -5540,16 +5667,19 @@ treedef={
     trunk,         --string  trunk node name
     leaves,        --string  leaves node name
     leaves2,       --string  secondary leaves node name
-    leaves2_chance,--num     chance (0-100) to replace leaves with leaves2
-    angle,         --num     angle in deg
-    iterations,    --num     max # of iterations, usually 2 -5
-    random_level,  --num     factor to lower number of iterations, usually 0 - 3
+    leaves2_chance,--int     chance [0, 100] to replace leaves with leaves2
+    angle,         --int     angle in degrees [s16]
+    iterations,    --int     max. amount of iterations [2, 32767], but usually [2, 5]
+    random_level,  --int     subtracts a random integer in range [0, random_level] from
+                   --        iterations, but iterations will never go below 2.
+                   --        random_level range: [0, 32767], but usually [0, 3]
     trunk_type,    --string  single/double/crossed) type of trunk: 1 node,
-                    --        2x2 nodes or 3x3 in cross shape
+                   --        2x2 nodes or 3x3 in cross shape
     thin_branches, --boolean true -> use thin (1 node) branches
     fruit,         --string  fruit node name
-    fruit_chance,  --num     chance (0-100) to replace leaves with fruit node
-    seed,          --num     random seed, if no seed is provided, the engine will create one.
+    fruit_chance,  --int     chance [0, 100] to replace leaves with fruit node
+    seed,          --int     random seed [s32]; if no seed is provided,
+                   --        the engine will create one.
 }
 ```
 
@@ -5775,7 +5905,7 @@ Utilities
       -- nodedef's use_texture_alpha accepts new string modes (5.4.0)
       use_texture_alpha_string_modes = true,
       -- degrotate param2 rotates in units of 1.5° instead of 2°
-      -- thus changing the range of values from 0-179 to 0-240 (5.5.0)
+      -- thus changing the range of values from [0, 179] to [0, 240] (5.5.0)
       degrotate_240_steps = true,
       -- ABM supports min_y and max_y fields in definition (5.5.0)
       abm_min_max_y = true,
@@ -5855,7 +5985,7 @@ Utilities
       particlespawner_exclude_player = true,
       -- core.generate_decorations() supports `use_mapgen_biomes` parameter (5.14.0)
       generate_decorations_biomes = true,
-      -- 'chunksize' mapgen setting can be a vector, instead of a single number (5.15.0)
+      -- 'chunksize' mapgen setting can be a vector, instead of a single integer (5.15.0)
       chunksize_vector = true,
       -- Item definition fields `inventory_image`, `inventory_overlay`, `wield_image`
       -- and `wield_overlay` accept a table containing animation definitions. (5.15.0)
@@ -5940,8 +6070,8 @@ Utilities
       -- This is usually the window size, but may be smaller in certain situations,
       -- such as side-by-side mode.
       size = {
-          x = 1308,
-          y = 577,
+          x = 1308, -- integer
+          y = 577, -- integer
       },
 
       -- Estimated maximum formspec size before Luanti will start shrinking the
@@ -5987,7 +6117,7 @@ Utilities
     * If the `destination` is a non-empty directory, then the move will fail.
     * Returns true on success, false on failure.
 * `core.get_dir_list(path, [is_dir])`: returns list of entry names
-    * is_dir is one of:
+    * `is_dir` is one of:
         * nil: return all entries,
         * true: return only subdirectory names, or
         * false: return only file names.
@@ -5999,8 +6129,8 @@ Utilities
    engine version.  Components:
     * `project`: Name of the project, eg, "Luanti"
     * `string`: Simple version, eg, "1.2.3-dev"
-    * `proto_min`: The minimum supported protocol version
-    * `proto_max`: The maximum supported protocol version
+    * `proto_min`: The minimum supported protocol version (integer)
+    * `proto_max`: The maximum supported protocol version (integer)
     * `hash`: Full git version (only set if available),
       eg, "1.2.3-dev-01234567-dirty".
     * `is_dev`: Boolean value indicating whether it's a development build
@@ -6031,12 +6161,12 @@ Utilities
   the given "time of day" value (as returned by `core.get_timeofday`).
 * `core.encode_png(width, height, data, [compression])`: Encode a PNG
   image and return it in string form.
-    * `width`: Width of the image
-    * `height`: Height of the image
+    * `width`: Width of the image (integer in range [u32])
+    * `height`: Height of the image (integer in range [u32])
     * `data`: Image data, one of:
-        * array table of ColorSpec, length must be width*height
-        * string with raw RGBA pixels, length must be width*height*4
-    * `compression`: Optional zlib compression level, number in range 0 to 9.
+        * array table of ColorSpec, length must be `width*height`
+        * string with raw RGBA pixels, length must be `width*height*4`
+    * `compression`: Optional zlib compression level, integer in range [0, 9].
   The data is one-dimensional, starting in the upper left corner of the image
   and laid out in scanlines going from left to right, then top to bottom.
   You can use `colorspec_to_bytes` to generate raw RGBA values.
@@ -6349,8 +6479,8 @@ Call these functions only at load time!
       `inventory` (type `InvRef`).
     * List of possible `action` (string) values and their
       `inventory_info` (table) contents:
-        * `move`: `{from_list=string, to_list=string, from_index=number, to_index=number, count=number}`
-        * `put`:  `{listname=string, index=number, stack=ItemStack}`
+        * `move`: `{from_list=string, to_list=string, from_index=integer, to_index=integer, count=integer}`
+        * `put`:  `{listname=string, index=integer, stack=ItemStack}`
         * `take`: Same as `put`
     * Does not accept or handle any return value.
 * `core.register_on_protection_violation(function(pos, name))`
@@ -6400,7 +6530,7 @@ Call these functions only at load time!
       are in the same format as those produced by `core.hash_node_position`,
       and can be converted to positions with `core.get_position_from_hash`.
       The set is a table where the keys are hashes and the values are `true`.
-    * `modified_block_count` is the number of entries in the set.
+    * `modified_block_count` is the amount of entries in the set.
     * Note: callbacks must be registered at mod load time.
 
 Setting-related
@@ -6498,7 +6628,7 @@ Environment access
 * `core.set_node(pos, node)`
     * Set node at position `pos`.
     * Any existing metadata is deleted.
-    * `node`: table `{name=string, param1=number, param2=number}`
+    * `node`: table `{name=string, param1=integer, param2=integer}`
       If param1 or param2 is omitted, it's set to `0`.
     * e.g. `core.set_node({x=0, y=10, z=0}, {name="default:wood"})`
 * `core.add_node(pos, node)`: alias to `core.set_node`
@@ -6507,7 +6637,7 @@ Environment access
     * e.g. `core.bulk_set_node({{x=0, y=1, z=1}, {x=1, y=2, z=2}}, {name="default:stone"})`
     * For node specification or position syntax see `core.set_node` call
     * Faster than set_node due to single call, but still considerably slower
-      than Lua Voxel Manipulators (LVM) for large numbers of nodes.
+      than Lua Voxel Manipulators (LVM) for large amounts of nodes.
       Unlike LVMs, this will call node callbacks. It also allows setting nodes
       in spread out positions which would cause LVMs to waste memory.
       For setting a cube, this is 1.3x faster than set_node whereas LVM is 20
@@ -6537,21 +6667,21 @@ Environment access
       to get the light value of a neighbor.
     * `pos`: The position where to measure the light.
     * `timeofday`: `nil` for current time, `0` for night, `0.5` for day
-    * Returns a number between `0` and `15` or `nil`
+    * Returns an integer in range [0, 15] or `nil`
     * `nil` is returned e.g. when the map isn't loaded at `pos`
 * `core.get_natural_light(pos[, timeofday])`
     * Figures out the sunlight (or moonlight) value at pos at the given time of
       day.
     * `pos`: The position of the node
     * `timeofday`: `nil` for current time, `0` for night, `0.5` for day
-    * Returns a number between `0` and `15` or `nil`
+    * Returns an integer between `0` and `15` or `nil`
     * This function tests 203 nodes in the worst case, which happens very
       unlikely
 * `core.get_artificial_light(param1)`
     * Calculates the artificial light (light from e.g. torches) value from the
-      `param1` value.
+      `param1` integer value.
     * `param1`: The param1 value of a `paramtype = "light"` node.
-    * Returns a number between `0` and `15`
+    * Returns an integer between `0` and `15`
     * Currently it's the same as `math.floor(param1 / 16)`, except that it
       ensures compatibility.
 * `core.place_node(pos, node[, placer])`
@@ -6605,12 +6735,13 @@ Environment access
 * `core.objects_in_area(min_pos, max_pos)`
     * returns an iterator of valid objects
 * `core.set_timeofday(val)`: set time of day
-    * `val` is between `0` and `1`; `0` for midnight, `0.5` for midday
+    * `val` is a number between `0` and `1`; `0` for midnight, `0.5` for midday
 * `core.get_timeofday()`: get time of day
 * `core.get_gametime()`: returns the time, in seconds, since the world was
-  created. The time is not available (`nil`) before the first server step.
-* `core.get_day_count()`: returns number days elapsed since world was
-  created.
+  created. An integer in range [u32]. The time is not available (`nil`)
+  before the first server step.
+* `core.get_day_count()`: returns the amount of days elapsed since
+  the world was created. [u32]
     * Time changes are accounted for.
 * `core.find_node_near(pos, radius, nodenames, [search_center])`: returns
   pos or `nil`.
@@ -6659,14 +6790,14 @@ Environment access
     * Returns a flagstring, a table with the `deco_id`s and a table with
       user-defined IDs.
 * `core.get_decoration_id(decoration_name)`
-    * Returns the decoration ID number for the provided decoration name string,
+    * Returns the ID (an integer) for the provided decoration name string,
       or `nil` on failure.
 * `core.get_mapgen_object(objectname)`
     * Return requested mapgen object if available (see [Mapgen objects](#mapgen-objects))
 * `core.get_heat(pos)`
-    * Returns the heat at the position, or `nil` on failure.
+    * Returns the heat (a number) at the position, or `nil` on failure.
 * `core.get_humidity(pos)`
-    * Returns the humidity at the position, or `nil` on failure.
+    * Returns the humidity (a number) at the position, or `nil` on failure.
 * `core.get_biome_data(pos)`
     * Returns a table containing:
         * `biome` the biome id of the biome at that position
@@ -6674,42 +6805,43 @@ Environment access
         * `humidity` the humidity at the position
     * Or returns `nil` on failure.
 * `core.get_biome_id(biome_name)`
-    * Returns the biome id, as used in the biomemap Mapgen object and returned
+    * Returns the biome ID, as used in the biomemap Mapgen object and returned
       by `core.get_biome_data(pos)`, for a given biome_name string.
 * `core.get_biome_name(biome_id)`
-    * Returns the biome name string for the provided biome id, or `nil` on
-      failure.
+    * Returns the biome name string for the provided biome ID (an integer),
+      or `nil` on failure.
     * If no biomes have been registered, such as in mgv6, returns `default`.
 * `core.get_mapgen_params()`
     * Deprecated: use `core.get_mapgen_setting(name)` instead.
     * Returns a table containing:
-        * `mgname`
-        * `seed`
-        * `chunksize`
-        * `water_level`
-        * `flags`
+        * `mgname` (string, this is `mg_name` in `core.get_mapgen_settings`)
+        * `seed` (integer [-2^64, 2^64])
+        * `chunksize` (integer [1, 32767])
+        * `water_level` (integer [s16])
+        * `flags` (string, this is `mg_flags` in `core.get_mapgen_settings`)
+    * **WARNING**: `seed` is broken. If the returned `seed` is outside the
+        range of `[0, 2^53-1]`, it is probably incorrect. The actual seed
+        internally stored by Luanti is in the [u64] range.
 * `core.set_mapgen_params(MapgenParams)`
     * Deprecated: use `core.set_mapgen_setting(name, value, override)`
       instead.
     * Set map generation parameters.
     * Function cannot be called after the registration period.
-    * Takes a table as an argument with the fields:
-        * `mgname`
-        * `seed`
-        * `chunksize`
-        * `water_level`
-        * `flags`
+    * Takes a table with the same fields as returned by `core.get_mapgen_params`
     * Leave field unset to leave that parameter unchanged.
     * `flags` contains a comma-delimited string of flags to set, or if the
       prefix `"no"` is attached, clears instead.
     * `flags` is in the same format and has the same options as `mg_flags` in
       `minetest.conf`.
+    * You may only provide `seed` values in the [ulua] range,
+      which is only a part of the full [u64] range that Luanti internally
+      uses for seeds
 * `core.get_mapgen_edges([mapgen_limit[, chunksize]])`
     * Returns the minimum and maximum possible generated node positions
       in that order.
-    * `mapgen_limit` is an optional number. If it is absent, its value is that
-      of the *active* mapgen setting `"mapgen_limit"`.
-    * `chunksize` is an optional number or vector. If it is absent, its value is that
+    * `mapgen_limit` is an optional integer [s16]. If it is absent, its value is
+      that of the *active* mapgen setting `"mapgen_limit"`.
+    * `chunksize` is an optional integer or vector. If it is absent, its value is that
       of the *active* mapgen setting `"chunksize"`.
 * `core.get_mapgen_chunksize()`
     * Returns the currently active chunksize of the mapgen, as a vector.
@@ -6722,6 +6854,11 @@ Environment access
         2) Settings set by mods without a metafile override
         3) Settings explicitly set in the user config file, minetest.conf
         4) Settings set as the user config default
+    * Note: to get the seed, use `"seed"`, not `"fixed_map_seed"`.
+    * Note: The seed is returned as a string, converted from the [u64] integer
+      that Luanti internally uses. Do *not* convert this string to a
+      number, you'd risk losing precision because [u64] reaches beyond the
+      safe integer range
 * `core.get_mapgen_setting_noiseparams(name)`
     * Same as above, but returns the value as a NoiseParams table if the
       setting `name` exists and is a valid NoiseParams.
@@ -6731,7 +6868,9 @@ Environment access
     * `override_meta` is an optional boolean (default: `false`). If this is set
       to true, the setting will become the active setting regardless of the map
       metafile contents.
-    * Note: to set the seed, use `"seed"`, not `"fixed_map_seed"`.
+    * Note: to set the seed, use `"seed"`, not `"fixed_map_seed"`;
+      the seed value *must* be provided as a string that *represents*
+      an integer in the [u64] range
 * `core.set_mapgen_setting_noiseparams(name, value, [override_meta])`
     * Same as above, except value is a NoiseParams table.
 * `core.set_noiseparams(name, noiseparams, set_default)`
@@ -6786,9 +6925,9 @@ Environment access
               emerged, outside of mapgen limits.
               This event is not an error, but does *not* mean that the block is now present.
             * `core.EMERGE_ERRORED`: Emerging the block has failed due to an error.
-        * `calls_remaining` is the number of callbacks to be expected after
+        * `calls_remaining` is the amount of callbacks to be expected after
           this one.
-        * `param` is the user-defined parameter passed to emerge_area (or
+        * `param` is the user-defined parameter passed to `emerge_area` (or
           nil if the parameter was absent).
 * `core.delete_area(pos1, pos2)`
     * delete all mapblocks in the area from pos1 to pos2, inclusive
@@ -6822,8 +6961,11 @@ Environment access
       In detail: Path must be completely inside a cuboid. The minimum
       `searchdistance` of 1 will confine search between `pos1` and `pos2`.
       Larger values will increase the size of this cuboid in all directions
+      (integer [u16])
     * `max_jump`: maximum height difference to consider walkable
+      (integer [u16])
     * `max_drop`: maximum height difference to consider droppable
+      (integer [u16])
     * `algorithm`: One of `"A*_noprefetch"` (default), `"A*"`, `"Dijkstra"`.
       Difference between `"A*"` and `"A*_noprefetch"` is that
       `"A*"` will pre-calculate the cost-data, the other will calculate it
@@ -6841,15 +6983,16 @@ Environment access
     * get level of leveled node (water, snow)
 * `core.set_node_level(pos, level)`
     * set level of leveled node, default `level` equals `1`
+    * level is an integer in range [0, 63]
     * if `totallevel > maxlevel`, returns rest (`total-max`).
 * `core.add_node_level(pos, level)`
     * increase level of leveled node by level, default `level` equals `1`
     * if `totallevel > maxlevel`, returns rest (`total-max`)
-    * `level` must be between -127 and 127
+    * `level` must be an integer in range [-127, 127]
 * `core.get_node_boxes(box_type, pos, [node])`
     * `box_type` must be `"node_box"`, `"collision_box"` or `"selection_box"`.
     * `pos` must be a node position.
-    * `node` can be a table in the form `{name=string, param1=number, param2=number}`.
+    * `node` can be a table in the form `{name=string, param1=integer, param2=integer}`.
       If `node` is `nil`, the actual node at `pos` is used instead.
     * Resolves any facedir-rotated boxes, connected boxes and the like into
       actual boxes.
@@ -7155,7 +7298,8 @@ Defaults for the `on_place` and `on_drop` item definition functions
 * `core.item_eat(hp_change[, replace_with_item])`
     * Returns `function(itemstack, user, pointed_thing)` as a
       function wrapper for `core.do_item_eat`.
-    * `replace_with_item` is the itemstring which is added to the inventory.
+    * `hp_change`: amount of HP to change for the user (range: [-65535, 65535])
+    * `replace_with_item`: itemstring which is added to the inventory.
       If the player is eating a stack and `replace_with_item` doesn't fit onto
       the eaten stack, then the remainings go to a different spot, or are dropped.
 
@@ -7195,7 +7339,7 @@ Timing
 
 * `core.after(time, func, ...)`: returns job table to use as below.
     * Call the function `func` after `time` seconds, may be fractional
-    * Optional: Variable number of arguments that are passed to `func`
+    * Optional: Variable amount of arguments that are passed to `func`
     * Jobs set for earlier times are executed earlier. If multiple jobs expire
       at exactly the same time, then they are executed in registration order.
     * `time` is a lower bound. The job is executed in the first server-step that
@@ -7230,7 +7374,7 @@ This allows you easy interoperability for delegating work to jobs.
       worker threads automatically.
     * When `func` returns the callback is called (in the normal environment)
       with all of the return values as arguments.
-    * Optional: Variable number of arguments that are passed to `func`
+    * Optional: Variable amount of arguments that are passed to `func`
     * Returns an `AsyncJob` async job.
 * `core.register_async_dofile(path)`:
     * Register a path to a Lua file to be imported when an async environment
@@ -7305,7 +7449,9 @@ does not have a global step or timer.
       than the emerged area of the VoxelManip.
       Note: calling `read_from_map()` or `write_to_map()` on the VoxelManipulator object
       is not necessary and is disallowed.
-    * `blockseed`: 64-bit seed number used for this chunk
+    * `blockseed`: integer seed used for this chunk with range [u32];
+      derived from the block position (using integer coordinates in the
+      range [-2048, 2047]) and the world seed ([u64]) in a mapgen-specific way
 * `core.save_gen_notify(id, data)`
     * Saves data for retrieval using the gennotify mechanism (see [Mapgen objects](#mapgen-objects)).
     * Data is bound to the chunk that is currently being processed, so this function
@@ -7497,7 +7643,7 @@ Particles
 * `core.add_particlespawner(particlespawner definition)`
     * Add a `ParticleSpawner`, an object that spawns an amount of particles
       over `time` seconds.
-    * Returns an `id`, and -1 if adding didn't succeed
+    * Returns an integer `id`, and -1 if adding didn't succeed
     * Deprecated: `core.add_particlespawner(amount, time,
       minpos, maxpos,
       minvel, maxvel,
@@ -7540,6 +7686,7 @@ Schematics
           and `prob`.
             * `ypos` indicates the y position of the slice with a probability
               applied, the lowest slice being `ypos = 0`.
+            * Probability is specified in the same way as in `probability_list`
             * If slice probability list equals `nil`, no slice probabilities
               are applied.
     * Saves schematic in the Luanti Schematic format to filename.
@@ -7590,8 +7737,8 @@ Schematics
         * If `lua_use_comments` is true and `format` is "lua", the Lua code
           generated will have (X, Z) position comments for every X row
           generated in the schematic data for easier reading.
-        * If `lua_num_indent_spaces` is a nonzero number and `format` is "lua",
-          the Lua code generated will use that number of spaces as indentation
+        * If `lua_num_indent_spaces` is a non-zero integer and `format` is "lua",
+          the Lua code generated will use that amount of spaces as indentation
           instead of a tab character.
 
 * `core.read_schematic(schematic, options)`
@@ -7668,8 +7815,8 @@ Misc.
     * This function can be overridden by mods to change the join message.
 * `core.send_leave_message(player_name, timed_out)`
     * This function can be overridden by mods to change the leave message.
-* `core.hash_node_position(pos)`: returns a 48-bit integer
-    * `pos`: table {x=number, y=number, z=number},
+* `core.hash_node_position(pos)`: returns an integer in range [0, 2^48-1]
+    * `pos`: table {x=integer [s16], y=integer [s16], z=integer [s16]},
     * Gives a unique numeric encoding for a node position (16+16+16=48bit)
     * Despite the name, this is not a hash function (so it doesn't mix or produce collisions).
 * `core.get_position_from_hash(hash)`: returns a position
@@ -7679,8 +7826,8 @@ Misc.
 * `core.get_node_group(name, group)`: returns a rating
     * Deprecated: An alias for the former.
 * `core.raillike_group(name)`: returns a rating
-    * Returns rating of the connect_to_raillike group corresponding to name
-    * If name is not yet the name of a connect_to_raillike group, a new group
+    * Returns rating of the `connect_to_raillike` group corresponding to name
+    * If name is not yet the name of a `connect_to_raillike` group, a new group
       id is created, with that name.
 * `core.get_content_id(name)`: returns an integer
     * Gets the internal content ID of `name`
@@ -7741,7 +7888,7 @@ Misc.
         * Zstandard: `"zstd"`
     * `...` indicates method-specific arguments. Currently defined arguments
       are:
-        * Deflate: `level` - Compression level, `0`-`9` or `nil`.
+        * Deflate: `level` - Compression level, integer in range [0, 9] or `nil`.
         * Zstandard: `level` - Compression level. Integer or `nil`. Default `3`.
         Note any supported Zstandard compression level could be used here,
         but these are subject to change between Zstandard versions.
@@ -7751,7 +7898,7 @@ Misc.
       methods.
     * `...` indicates method-specific arguments. Currently, no methods use this
 * `core.rgba(red, green, blue[, alpha])`: returns a string
-    * Each argument is an 8 Bit unsigned integer
+    * Each argument is an integer in range [0, 255]
     * Returns the ColorString from rgb or rgba values
     * Example: `core.rgba(10, 20, 30, 40)`, returns `"#0A141E28"`
 * `core.encode_base64(string)`: returns string encoded in base64
@@ -7843,7 +7990,7 @@ Misc.
     * If `transient` is `false` or absent, the forceload will be persistent
       (saved between server runs). If `true`, the forceload will be transient
       (not saved between server runs).
-    * `limit` is an optional limit on the number of blocks that can be
+    * `limit` is an optional limit on the amount of blocks that can be
       forceloaded at once. If `limit` is negative, there is no limit. If it is
       absent, the limit is the value of the setting `"max_forceloaded_blocks"`.
       If the call would put the number of blocks over the limit, the call fails.
@@ -8041,7 +8188,7 @@ use the provided load and write functions for this.
     * The (inclusive) positions `corner1` and `corner2` describe the area.
     * `data` is a string stored with the area.
     * `id` (optional): will be used as the internal area ID if it is a unique
-      number between 0 and 2^32-2.
+      integer in the range [0, 2^32-2].
 * `reserve(count)`
     * Requires SpatialIndex, no-op function otherwise.
     * Reserves resources for `count` many contained areas to improve
@@ -8089,13 +8236,15 @@ An `InvRef` is a reference to an inventory.
 ### Methods
 
 * `is_empty(listname)`: return `true` if list is empty
-* `get_size(listname)`: get size of a list
-* `set_size(listname, size)`: set size of a list
+* `get_size(listname)`: get amount of item slots of a list
+* `set_size(listname, size)`: set amount of item slots in a list
+    * Range: [0, 32767]
     * If `listname` is not known, a new list will be created
     * Setting `size` to 0 deletes a list
     * returns `false` on error (e.g. invalid `listname` or `size`)
 * `get_width(listname)`: get width of a list
 * `set_width(listname, width)`: set width of list; currently used for crafting
+    * integer in range: [0, 32767]
     * returns `false` on error (e.g. invalid `listname` or `width`)
 * `get_stack(listname, i)`: get a copy of stack index `i` in list
 * `set_stack(listname, i, stack)`: copy `stack` to index `i` in list
@@ -8162,12 +8311,14 @@ an itemstring, a table or `nil`.
 * `get_name()`: returns item name (e.g. `"default:stone"`).
 * `set_name(item_name)`: returns a boolean indicating whether the item was
   cleared.
-* `get_count()`: Returns number of items on the stack.
-* `set_count(count)`: returns a boolean indicating whether the item was cleared
-    * `count`: number, unsigned 16 bit integer
-* `get_wear()`: returns tool wear (`0`-`65535`), `0` for non-tools.
-* `set_wear(wear)`: returns boolean indicating whether item was cleared
-    * `wear`: number, unsigned 16 bit integer
+* `get_count()`: Returns amount of items on the stack.
+* `set_count(count)`: Sets amount of items in the stack.
+    * returns a boolean indicating whether the item was cleared
+    * `count`: integer [u16]
+* `get_wear()`: returns tool wear (integer in range [0, 65535]), `0` for non-tools.
+* `set_wear(wear)`: set tool wear
+    * returns boolean indicating whether item was cleared
+    * `wear`: integer [u16]
 * `get_meta()`: returns ItemStackMetaRef. See section for more details
 * `get_metadata()`: **Deprecated.** Returns metadata (a string attached to an item stack).
     * If you need to access this to maintain backwards compatibility,
@@ -8202,12 +8353,11 @@ an itemstring, a table or `nil`.
   or those of the hand if none are defined for this item type
 * `add_wear(amount)`
     * Increases wear by `amount` if the item is a tool, otherwise does nothing
-    * Valid `amount` range is [0,65536]
-    * `amount`: number, integer
+    * `amount` is an integer [u16]
 * `add_wear_by_uses(max_uses)`
     * Increases wear in such a way that, if only this function is called,
       the item breaks after `max_uses` times
-    * Valid `max_uses` range is [0,65536]
+    * `max_uses` is an integer [u16]
     * Does nothing if item is not a tool or if `max_uses` is 0
 * `get_wear_bar_params()`: returns the wear bar parameters of the item,
   or nil if none are defined for this item type or in the stack's meta
@@ -8217,10 +8367,10 @@ an itemstring, a table or `nil`.
   this one.
 * `take_item(n)`: returns taken `ItemStack`
     * Take (and remove) up to `n` items from this stack
-    * `n`: number, default: `1`
+    * `n`: integer [u16], default: `1`
 * `peek_item(n)`: returns taken `ItemStack`
     * Copy (don't remove) up to `n` items from this stack
-    * `n`: number, default: `1`
+    * `n`: integer [u16], default: `1`
 * `equals(other)`:
     * returns `true` if this stack is identical to `other`.
     * Note: `stack1:to_string() == stack2:to_string()` is not reliable,
@@ -8270,19 +8420,29 @@ of the `${k}` syntax in formspecs is not deprecated.
 
 ### Methods
 
-* `contains(key)`: Returns true if key present, otherwise false.
+* `contains(key)`: Returns `true` if `key` present, otherwise `false`.
     * Returns `nil` when the MetaData is inexistent.
-* `get(key)`: Returns `nil` if key not present, else the stored string.
-* `set_string(key, value)`: Value of `""` will delete the key.
-* `get_string(key)`: Returns `""` if key not present.
+* `get(key)`: Returns the value stored at `key` as a string if present.
+    * Returns `nil` otherwise.
+* `set_string(key, value)`: Set the string `value` at `key`.
+    * Value of `""` will delete the key.
+* `get_string(key)`: Returns a string value at `key` or `""` if not present
 * `set_int(key, value)`
-    * The range for the value is system-dependent (usually 32 bits).
-      The value will be converted into a string when stored.
-* `get_int(key)`: Returns `0` if key not present.
-* `set_float(key, value)`
-    * Store a number (a 64-bit float) exactly.
+    * Set an integer number `value` to `key`
+    * Range: [s32]
+    * Some systems internally have a larger value range but
+      but you should not rely on this behavior to ensure
+      portability of your code
     * The value will be converted into a string when stored.
-* `get_float(key)`: Returns `0` if key not present.
+* `get_int(key)`:
+    * Returns the value stored at `key` as an integer
+    * Returns `0` if key not present.
+* `set_float(key, value)`
+    * Store a number (a 64-bit floating-point number) exactly.
+    * The value will be converted into a string when stored.
+* `get_float(key)`:
+    * Returns a 64-bit floating-point number stored at `key`.
+    * Returns `0` if key not present.
 * `get_keys()`: returns a list of all keys in the metadata.
 * `to_table()`:
     * Returns a metadata table (see below) or `nil` on failure.
@@ -8487,10 +8647,10 @@ child will follow movement and rotation of that bone.
     * triggers all consequences as if a real player had done this
     * `clicker` is another `ObjectRef` which has clicked
     * note: this is called `right_click` for historical reasons only
-* `get_hp()`: returns number of health points
-* `set_hp(hp, reason)`: set number of health points
+* `get_hp()`: returns amount of health points (range: [u16])
+* `set_hp(hp, reason)`: set amount of health points
     * reason: A `PlayerHPChangeReason` table (optional)
-    * Is limited to the range of 0 ... 65535 (2^16 - 1)
+    * Range: [u16]
     * For players: HP are also limited by `hp_max` specified in object properties
 * `get_inventory()`: returns an `InvRef` for players, otherwise returns `nil`
 * `get_wield_list()`: returns the name of the inventory list the wielded item
@@ -8603,8 +8763,8 @@ child will follow movement and rotation of that bone.
 * `get_effective_observers()`:
     * Like `get_observers()`, but returns the "effective" observers, taking into account attachments
     * Time complexity: O(nm)
-        * n: number of observers of the involved entities
-        * m: number of ancestors along the attachment chain
+        * n: amount of observers of the involved entities
+        * m: amount of ancestors along the attachment chain
 * `is_player()`: returns true for players, false otherwise
 * `get_nametag_attributes()`
     * returns a table with the attributes of the nametag of an object
@@ -8673,10 +8833,11 @@ child will follow movement and rotation of that bone.
     * Specifies and starts a sprite animation
     * Only used by `sprite` and `upright_sprite` visuals
     * Animations iterate along the frame `y` position.
-    * `start_frame`: {x=column number, y=row number}, the coordinate of the
-      first frame, default: `{x=0, y=0}`
-    * `num_frames`: Total frames in the texture, default: `1`
-    * `framelength`: Time per animated frame in seconds, default: `0.2`
+    * `start_frame`: {x=column, y=row}, the integer coordinate
+      of the first frame, coordinate range: [0, 32767], default: `{x=0, y=0}`
+    * `num_frames`: Total count of frames in the texture;
+      integer in range: [1, 2^31-1], default: `1`
+    * `framelength`: Time per animated frame in seconds, number, default: `0.2`
     * `select_x_by_camera`: Only for visual = `sprite`. Changes the frame `x`
       position according to the view direction. default: `false`.
         * First column:  subject facing the camera
@@ -8719,15 +8880,14 @@ child will follow movement and rotation of that bone.
   `set_look_vertical`.
 * `set_look_yaw(radians)`: sets look yaw - Deprecated. Use
   `set_look_horizontal`.
-* `get_breath()`: returns player's breath
-* `set_breath(value)`: sets player's breath
+* `get_breath()`: returns player's breath (integer [u16])
+* `set_breath(value)`: sets player's breath (integer [u16])
     * values:
         * `0`: player is drowning
         * max: bubbles bar is not shown
         * See [Object properties](#object-properties) for more information
-    * Is limited to range 0 ... 65535 (2^16 - 1)
 * `set_fov(fov, is_multiplier, transition_time)`: Sets player's FOV
-    * `fov`: Field of View (FOV) value.
+    * `fov`: Numeric field of View (FOV) value.
     * `is_multiplier`: Set to `true` if the FOV value is a multiplier.
       Defaults to `false`.
     * `transition_time`: If defined, enables smooth FOV transition.
@@ -8770,7 +8930,7 @@ child will follow movement and rotation of that bone.
       and exist only to preserve backwards compatibility.
     * The table also contains the fields `movement_x` and `movement_y`.
         * They represent the movement of the player. Values are numbers in the
-          range [-1.0,+1.0].
+          range [-1.0, +1.0].
         * They take both keyboard and joystick input into account.
         * You should prefer them over `up`, `down`, `left` and `right` to
           support different input methods correctly.
@@ -8838,9 +8998,9 @@ child will follow movement and rotation of that bone.
       `physics_overrides_v2`.
 
 * `get_physics_override()`: returns the table given to `set_physics_override`
-* `hud_add(hud definition)`: add a HUD element described by HUD def, returns ID
-   number on success
-* `hud_remove(id)`: remove the HUD element of the specified id
+* `hud_add(hud definition)`: add a HUD element described by HUD def,
+   returns integer ID on success
+* `hud_remove(id)`: remove the HUD element of the specified ID
 * `hud_change(id, stat, value)`: change a value of a previously added HUD
   element.
     * `stat` supports the same keys as in the hud definition table except for
@@ -8868,10 +9028,10 @@ child will follow movement and rotation of that bone.
     * If a flag equals `nil`, the flag is not modified
 * `hud_get_flags()`: returns a table of player HUD flags with boolean values.
     * See `hud_set_flags` for a list of flags that can be toggled.
-* `hud_set_hotbar_itemcount(count)`: sets number of items in builtin hotbar
-    * `count`: number of items, must be between `1` and `32`
+* `hud_set_hotbar_itemcount(count)`: sets amount of items in builtin hotbar
+    * `count`: number of items, must be an integer in range [1, 32]
     * If `count` exceeds the `"main"` list size, the list size will be used instead.
-* `hud_get_hotbar_itemcount()`: returns number of visible items
+* `hud_get_hotbar_itemcount()`: returns amount of visible items
     * This value is also clamped by the `"main"` list size.
 * `hud_set_hotbar_image(texturename)`
     * sets background image for hotbar
@@ -8909,7 +9069,7 @@ child will follow movement and rotation of that bone.
         * `body_orbit_tilt`: Float, rotation angle of sun/moon orbit in degrees.
            By default, orbit is controlled by a client-side setting, and this field is not set.
            After a value is assigned, it can only be changed to another float value.
-           Valid range [-60.0,60.0] (default: not set)
+           Valid range [-60.0, 60.0]; (default: not set)
         * `type`: Available types:
             * `"regular"`: Uses 0 textures, `base_color` ignored
             * `"skybox"`: Uses 6 textures, `base_color` used as fog.
@@ -9032,14 +9192,15 @@ child will follow movement and rotation of that bone.
         * `day_opacity`: Float for maximum opacity of stars at day.
             No effect if `visible` is false.
             (default: 0.0; maximum: 1.0; minimum: 0.0)
-        * `count`: Integer number to set the number of stars in
-            the skybox. Only applies to `"skybox"` and `"regular"` sky types.
-            (default: `1000`)
+        * `count`: Amount of stars in the skybox. Only applies
+            to `"skybox"` and `"regular"` sky types.
+            (range: [0, 16384]) (default: `1000`)
         * `star_color`: ColorSpec, sets the colors of the stars,
             alpha channel is used to set overall star brightness.
             (default: `#ebebff69`)
         * `scale`: Float controlling the overall size of the stars (default: `1`)
-        * `star_seed`: Integer number which decides how to generate the sky stars. If set to zero, client picks a random number. (default: `0`)
+        * `star_seed`: Integer [u32] which decides how to generate the sky stars.
+           If set to zero, the client picks a random integer. (default: `0`)
 * `get_stars()`: returns a table with the current stars parameters as in
     `set_stars`.
 * `set_clouds(cloud_parameters)`: set cloud parameters
@@ -9114,7 +9275,7 @@ child will follow movement and rotation of that bone.
       * `shadows` is a table that controls ambient shadows
         * This has no effect on clients who have the "Dynamic Shadows" effect disabled.
         * `intensity` sets the intensity of the shadows from 0 (no shadows, default) to 1 (blackness)
-        * `tint` tints the shadows with the provided color, with RGB values ranging from 0 to 255.
+        * `tint` tints the shadows with the provided color, with integer color values in range [0, 255].
           (default `{r=0, g=0, b=0}`)
       * `exposure` is a table that controls automatic exposure.
         The basic exposure factor equation is `e = 2^exposure_correction / clamp(luminance, 2^luminance_min, 2^luminance_max)`
@@ -9169,13 +9330,13 @@ Uses PCG32, an algorithm of the permuted congruential generator family,
 offering very strong randomness.
 
 * constructor `PcgRandom(seed, [seq])`
-  * `seed`: 64-bit unsigned seed
-  * `seq`: 64-bit unsigned sequence, optional
+  * `seed`: integer seed in the [ulua] range
+  * `seq`: optional integer sequence, each integer in the [ulua] range
 
 ### Methods
 
-* `next()`: return next integer random number [`-2147483648`...`2147483647`]
-* `next(min, max)`: return next integer random number [`min`...`max`]
+* `next()`: return next random integer number [s32]
+* `next(min, max)`: return next random integer number [`min`, `max`]
 * `rand_normal_dist(min, max, num_trials=6)`: return normally distributed
   random number [`min`...`max`].
     * This is only a rough approximation of a normal distribution with:
@@ -9209,16 +9370,16 @@ Use `PseudoRandom` only if you need output to match the well-known LCG algorithm
 Otherwise, use `PcgRandom`.
 
 * constructor `PseudoRandom(seed)`
-  * `seed`: 32-bit signed number
+  * `seed`: integer [s32]
 
 ### Methods
 
-* `next()`: return next integer random number [`0`...`32767`]
-* `next(min, max)`: return next integer random number [`min`...`max`]
+* `next()`: return next random integer [0, 32767]
+* `next(min, max)`: return next random integer [`min`, `max`]
     * Either `max - min == 32767` or `max - min <= 6553` must be true
       due to the simple implementation making a bad distribution otherwise.
 * `get_state()`: return state of pseudorandom generator as number
-    * use returned number as seed in PseudoRandom constructor to restore
+    * use returned integer as seed in PseudoRandom constructor to restore
 
 `Raycast`
 ---------
@@ -9462,10 +9623,12 @@ Player properties need to be saved manually.
     -- For Lua entities, the maximum is not enforced.
     -- For players, this defaults to `core.PLAYER_MAX_HP_DEFAULT` (20).
     -- For Lua entities, the default is 10.
+    -- Integer [u16].
 
     breath_max = 0,
     -- For players only. Defines the maximum amount of "breath" for the player.
     -- Defaults to `core.PLAYER_MAX_BREATH_DEFAULT` (10).
+    -- Integer [u16].
 
     zoom_fov = 0.0,
     -- For players only. Zoom FOV in degrees.
@@ -9560,7 +9723,7 @@ Player properties need to be saved manually.
     spritediv = {x = 1, y = 1},
     -- Used with spritesheet textures for animation and/or frame selection
     -- according to position relative to player.
-    -- Defines the number of columns and rows in the spritesheet:
+    -- Defines the amount of columns and rows in the spritesheet:
     -- {columns, rows}.
 
     initial_sprite_basepos = {x = 0, y = 0},
@@ -9599,7 +9762,7 @@ Player properties need to be saved manually.
     -- Note: only used by "mesh" and "cube" visual
 
     glow = 0,
-    -- Add this much extra lighting when calculating texture color.
+    -- Integer, add this much extra lighting when calculating texture color.
     -- Value < 0 disables light's effect on texture color.
     -- For faking self-lighting, UI style entities, or programmatic coloring
     -- in mods.
@@ -9619,7 +9782,7 @@ Player properties need to be saved manually.
     -- Default: false
 
     nametag_fontsize = 1,
-    -- Sets the font size of the nametag in pixels.
+    -- Integer; sets the font size of the nametag in pixels.
     -- `false` will cause the size to be set automatically based on user settings.
     -- Default: false
 
@@ -9722,11 +9885,13 @@ in active mapblocks.
     -- Operation interval in seconds
 
     chance = 50,
-    -- Probability of triggering `action` per-node per-interval is 1.0 / chance (integers only)
+    -- Probability of triggering `action` per-node per-interval is 1.0 / chance
+    -- integer [u32] (value 0 is treated as 1)
 
     min_y = -32768,
     max_y = 32767,
     -- min and max height levels where ABM will be processed (inclusive)
+    -- integer [s16]
     -- can be used to reduce CPU usage
 
     catch_up = true,
@@ -9737,9 +9902,9 @@ in active mapblocks.
 
     action = function(pos, node, active_object_count, active_object_count_wider),
     -- Function triggered for each qualifying node.
-    -- `active_object_count` is number of active objects in the node's
+    -- `active_object_count` is amount of active objects in the node's
     -- mapblock.
-    -- `active_object_count_wider` is number of active objects in the node's
+    -- `active_object_count_wider` is amount of active objects in the node's
     -- mapblock plus all 26 neighboring mapblocks. If any neighboring
     -- mapblocks are unloaded an estimate is calculated for them based on
     -- loaded mapblocks.
@@ -9843,9 +10008,11 @@ Tile animation definition
 
     aspect_w = 16,
     -- Width of a frame in pixels
+    -- Integer in range [1, 65535]
 
     aspect_h = 16,
     -- Height of a frame in pixels
+    -- Integer in range [1, 65535]
 
     length = 3.0,
     -- Full loop length
@@ -9855,10 +10022,10 @@ Tile animation definition
     type = "sheet_2d",
 
     frames_w = 5,
-    -- Width in number of frames
+    -- Width in number of frames (integer)
 
     frames_h = 3,
-    -- Height in number of frames
+    -- Height in number of frames (integer)
 
     frame_length = 0.5,
     -- Length of a single frame
@@ -9891,7 +10058,8 @@ Used by `core.register_node`, `core.register_craftitem`, and
     --   ItemStack(itemname):get_short_description()
 
     groups = {},
-    -- key = name, value = rating; rating = <number>.
+    -- See the Groups section.
+    -- key = name, value = rating; rating = <integer>.
     -- If rating not applicable, use 1.
     -- e.g. {wool = 1, fluffy = 3}
     --      {soil = 2, outerspace = 1, crumbly = 1}
@@ -9928,7 +10096,8 @@ Used by `core.register_node`, `core.register_craftitem`, and
 
     stack_max = 99,
     -- Maximum amount of items that can be in a single stack.
-    -- The default can be changed by the setting `default_stack_max`
+    -- The default can be changed by the setting `default_stack_max`.
+    -- Range: [1, 65535]
 
     range = 4.0,
     -- Range of node and object pointing that is possible with this item held
@@ -9975,7 +10144,7 @@ Used by `core.register_node`, `core.register_craftitem`, and
             choppy = {times = {2.50, 1.40, 1.00}, uses = 20, maxlevel = 2},
         },
         damage_groups = {groupname = damage},
-        -- Damage values must be between -32768 and 32767 (2^15)
+        -- Damage values are integers [s16]
 
         punch_attack_uses = nil,
         -- Amount of uses this tool has for attacking players and entities
@@ -10222,7 +10391,8 @@ Used by `core.register_node`.
     climbable = false,  -- If true, can be climbed on like a ladder
 
     move_resistance = 0,
-    -- Slows down movement of players through this node (max. 7).
+    -- Slows down movement of players through this node.
+    -- Integer with range [0, 7].
     -- If this is nil, it will be equal to liquid_viscosity.
     -- Note: If liquid movement physics apply to the node
     -- (see `liquid_move_physics`), the movement speed will also be
@@ -10267,7 +10437,8 @@ Used by `core.register_node`.
     --     liquid_alternative_source = "example:water_source",
 
     liquid_viscosity = 0,
-    -- Controls speed at which the liquid spreads/flows (max. 7).
+    -- Controls speed at which the liquid spreads/flows.
+    -- Integer with range [0, 7].
     -- 0 is fastest, 7 is slowest.
     -- By default, this also slows down movement of players inside the node
     -- (can be overridden using `move_resistance`)
@@ -10292,18 +10463,19 @@ Used by `core.register_node`.
     leveled = 0,
     -- Only valid for "nodebox" drawtype with 'type = "leveled"'.
     -- Allows defining the nodebox height without using param2.
-    -- The nodebox height is 'leveled' / 64 nodes.
-    -- The maximum value of 'leveled' is `leveled_max`.
+    -- The nodebox height is `leveled` / 64 nodes.
+    -- Integer with range [0, `leveled_max`].
 
     leveled_max = 127,
-    -- Maximum value for `leveled` (0-127), enforced in
-    -- `core.set_node_level` and `core.add_node_level`.
+    -- Maximum value for `leveled` (integer in range [0, 127]),
+    -- enforced in `core.set_node_level` and `core.add_node_level`.
     -- Values above 124 might causes collision detection issues.
 
     liquid_range = 8,
-    -- Maximum distance that flowing liquid nodes can spread around
-    -- source on flat land;
-    -- maximum = 8; set to 0 to disable liquid flow
+    -- Maximum distance that flowing liquid nodes can
+    -- spread around source on flat land.
+    -- Integer with range [0, 8].
+    -- Set to 0 to disable liquid flow.
 
     drowning = 0,
     -- Player will take this amount of damage if no bubbles are left
@@ -10404,7 +10576,7 @@ Used by `core.register_node`.
     -- Using a table allows multiple items, drop chances and item filtering:
     drop = {
         max_items = 1,
-        -- Maximum number of item lists to drop.
+        -- Maximum amount of item lists to drop.
         -- The entries in 'items' are processed in order. For each:
         -- Item filtering is applied, chance of drop is applied, if both are
         -- successful the entire item list is dropped.
@@ -10416,6 +10588,7 @@ Used by `core.register_node`.
             {
                 -- 1 in 1000 chance of dropping a diamond.
                 -- Default rarity is '1'.
+                -- rarity is a positive integer.
                 rarity = 1000,
                 items = {"default:diamond"},
             },
@@ -10553,16 +10726,16 @@ Used by `core.register_node`.
 
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player),
     -- Called when a player wants to move items inside the inventory.
-    -- Return value: number of items allowed to move.
+    -- Return value: amount of items allowed to move.
 
     allow_metadata_inventory_put = function(pos, listname, index, stack, player),
     -- Called when a player wants to put something into the inventory.
-    -- Return value: number of items allowed to put.
+    -- Return value: amount of items allowed to put.
     -- Return value -1: Allow and don't modify item count in inventory.
 
     allow_metadata_inventory_take = function(pos, listname, index, stack, player),
     -- Called when a player wants to take something out of the inventory.
-    -- Return value: number of items allowed to take.
+    -- Return value: amount of items allowed to take.
     -- Return value -1: Allow and don't modify item count in inventory.
 
     on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player),
@@ -10961,18 +11134,22 @@ See [Ores] section above for essential information.
     -- Ore has a 1 out of clust_scarcity chance of spawning in a node.
     -- If the desired average distance between ores is 'd', set this to
     -- d * d * d.
+    -- Integer in range [u32]
 
     clust_num_ores = 8,
-    -- Number of ores in a cluster
+    -- Amount of ores in a cluster.
+    -- Integer in range: [0, 32767]
 
     clust_size = 3,
     -- Size of the bounding box of the cluster.
+    -- Integer in range: [0, 32767].
     -- In this example, there is a 3 * 3 * 3 cluster where 8 out of the 27
     -- nodes are coal ore.
 
     y_min = -31000,
     y_max = 31000,
-    -- Lower and upper limits for ore (inclusive)
+    -- Lower and upper limits for ore (inclusive).
+    -- Integer [s16]
 
     flags = "",
     -- Attributes for the ore generation, see 'Ore attributes' section above
@@ -11039,7 +11216,9 @@ See [Ores] section above for essential information.
         octaves = 3,
         persistence = 0.7
     },
-    stratum_thickness = 8, -- only used if no noise defined
+    stratum_thickness = 8,
+    -- only used if no noise defined
+    -- integer [u16]
 }
 ```
 
@@ -11048,8 +11227,8 @@ Biome definition
 
 Used by `core.register_biome`.
 
-The maximum number of biomes that can be used is 65535. However, using an
-excessive number of biomes will slow down map generation. Depending on desired
+The maximum amount of biomes that can be used is 65535. However, using an
+excessive amount of biomes will slow down map generation. Depending on desired
 performance and computing power the practical limit is much lower.
 
 ```lua
@@ -11061,18 +11240,21 @@ performance and computing power the practical limit is much lower.
 
     node_top = "default:dirt_with_snow",
     depth_top = 1,
-    -- Node forming surface layer of biome and thickness of this layer
+    -- Node forming surface layer of biome and thickness of this layer.
+    -- Integer range of depth: [0, 32767]
 
     node_filler = "default:permafrost",
     depth_filler = 3,
-    -- Node forming lower layer of biome and thickness of this layer
+    -- Node forming lower layer of biome and thickness of this layer.
+    -- Integer range of depth: [0, 32767]
 
     node_stone = "default:bluestone",
     -- Node that replaces all stone nodes between roughly y_min and y_max.
 
     node_water_top = "default:ice",
     depth_water_top = 10,
-    -- Node forming a surface layer in seawater with the defined thickness
+    -- Node forming a surface layer in seawater with the defined thickness.
+    -- Integer range of depth: [0, 32767]
 
     node_water = "",
     -- Node that replaces all seawater nodes not in the surface layer
@@ -11083,7 +11265,8 @@ performance and computing power the practical limit is much lower.
 
     node_riverbed = "default:gravel",
     depth_riverbed = 2,
-    -- Node placed under river water and thickness of this layer
+    -- Node placed under river water and thickness of this layer.
+    -- Integer range of depth: [0, 32767]
 
     node_cave_liquid = "default:lava_source",
     node_cave_liquid = {"default:water_source", "default:lava_source"},
@@ -11113,11 +11296,12 @@ performance and computing power the practical limit is much lower.
     y_min = 1,
     -- Upper and lower limits for biome.
     -- Alternatively you can use xyz limits as shown below.
+    -- Integer [s16]
 
     max_pos = {x = 31000, y = 128, z = 31000},
     min_pos = {x = -31000, y = 9, z = -31000},
     -- xyz limits for biome, an alternative to using 'y_min' and 'y_max'.
-    -- Biome is limited to a cuboid defined by these positions.
+    -- Biome is limited to a cuboid defined by these integer positions.
     -- Any x, y or z field left undefined defaults to -31000 in 'min_pos' or
     -- 31000 in 'max_pos'.
 
@@ -11125,15 +11309,16 @@ performance and computing power the practical limit is much lower.
     -- Vertical distance in nodes above 'y_max' over which the biome will
     -- blend with the biome above.
     -- Set to 0 for no vertical blend. Defaults to 0.
+    -- Integer [s16]
 
-    heat_point = 0,
-    humidity_point = 50,
+    heat_point = 0.0,
+    humidity_point = 50.0,
     -- Characteristic temperature and humidity for the biome.
     -- These values create 'biome points' on a voronoi diagram with heat and
     -- humidity as axes. The resulting voronoi cells determine the
     -- distribution of the biomes.
-    -- Heat and humidity have average values of 50, vary mostly between
-    -- 0 and 100 but can exceed these values.
+    -- Heat and humidity have average values of 50.0, vary mostly between
+    -- 0.0 and 100.0 but can exceed these values.
 
     weight = 1.0,
     -- Relative weight of the biome in the Voronoi diagram.
@@ -11159,6 +11344,7 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
     -- Determines the resolution of noise variation if used.
     -- If the chunk size is not evenly divisible by sidelen, sidelen is made
     -- equal to the chunk size.
+    -- Integer in range: [1, 32767]
 
     fill_ratio = 0.02,
     -- The value determines 'decorations per surface node'.
@@ -11193,6 +11379,7 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
     y_max = 31000,
     -- Lower and upper limits for decoration (inclusive).
     -- These parameters refer to the Y coordinate of the 'place_on' node.
+    -- Integer [s16]
 
     spawn_by = "default:water",
     -- Node (or list of nodes) that the decoration only spawns next to.
@@ -11205,7 +11392,7 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
     -- 0 disables additional checks, valid values: {-1, 0, 1}
 
     num_spawn_by = 1,
-    -- Number of spawn_by nodes that must be surrounding the decoration
+    -- Amount of spawn_by nodes that must be surrounding the decoration
     -- position to occur.
     -- If absent or -1, decorations occur next to any nodes.
 
@@ -11237,10 +11424,12 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
     -- Decoration height in nodes.
     -- If height_max is not 0, this is the lower limit of a randomly
     -- selected height.
+    -- Integer in range: [1, 32767]
 
     height_max = 0,
     -- Upper limit of the randomly selected height.
     -- If absent, the parameter 'height' is used as a constant.
+    -- Integer in range: [1, 32767]
 
     param2 = 0,
     -- Param2 value of decoration nodes.
@@ -11258,6 +11447,7 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
     -- Effect is inverted for "all_ceilings" decorations.
     -- Ignored by 'y_min', 'y_max' and 'spawn_by' checks, which always refer
     -- to the 'place_on' node.
+    -- Integer [s16]
 
     ----- Schematic-type parameters
 
@@ -11443,16 +11633,16 @@ Used by `core.create_detached_inventory`.
 {
     allow_move = function(inv, from_list, from_index, to_list, to_index, count, player),
     -- Called when a player wants to move items inside the inventory.
-    -- Return value: number of items allowed to move.
+    -- Return value: amount of items allowed to move.
 
     allow_put = function(inv, listname, index, stack, player),
     -- Called when a player wants to put something into the inventory.
-    -- Return value: number of items allowed to put.
+    -- Return value: amount of items allowed to put.
     -- Return value -1: Allow and don't modify item count in inventory.
 
     allow_take = function(inv, listname, index, stack, player),
     -- Called when a player wants to take something out of the inventory.
-    -- Return value: number of items allowed to take.
+    -- Return value: amount of items allowed to take.
     -- Return value -1: Allow and don't modify item count in inventory.
 
     on_move = function(inv, from_list, from_index, to_list, to_index, count, player),
@@ -11474,46 +11664,46 @@ Used by `ObjectRef:hud_add`. Returned by `ObjectRef:hud_get`.
 
 ```lua
 {
-    type = "image",
+    type = "image", -- string
     -- Type of element, can be "compass", "hotbar" (46 ¹), "image", "image_waypoint",
     -- "inventory", "minimap" (44 ¹), "statbar", "text" or "waypoint"
     -- ¹: minimal protocol version for client-side support
     -- If undefined "text" will be used.
 
-    hud_elem_type = "image",
+    hud_elem_type = "image", -- string
     -- Deprecated, same as `type`.
     -- In case both are specified `type` will be used.
 
-    position = {x=0.5, y=0.5},
+    position = {x=0.5, y=0.5}, -- two numbers
     -- Top left corner position of element
 
-    name = "<name>",
+    name = "<name>", -- string
 
-    scale = {x = 1, y = 1},
+    scale = {x = 1, y = 1}, -- two numbers
 
-    text = "<text>",
+    text = "<text>", -- string
 
-    text2 = "<text>",
+    text2 = "<text>", -- string
 
-    number = 0,
+    number = 0, -- integer with range [u32]
 
-    item = 0,
+    item = 0, -- integer with range [u32]
 
-    direction = 0,
+    direction = 0, -- integer
     -- Direction: 0: left-right, 1: right-left, 2: top-bottom, 3: bottom-top
 
-    alignment = {x=0, y=0},
+    alignment = {x=0, y=0}, -- two numbers
 
-    offset = {x=0, y=0},
+    offset = {x=0, y=0}, -- two numbers
 
-    world_pos = {x=0, y=0, z=0},
+    world_pos = {x=0, y=0, z=0}, -- three numbers
 
-    size = {x=0, y=0},
+    size = {x=0, y=0}, -- two numbers
 
-    z_index = 0,
+    z_index = 0, -- integer [s16]
     -- Z index: lower z-index HUDs are displayed behind higher z-index HUDs
 
-    style = 0,
+    style = 0, -- integer [u32]
 }
 ```
 
@@ -11572,7 +11762,7 @@ Used by `core.add_particle`.
 
     glow = 0
     -- Optional, specify particle self-luminescence in darkness.
-    -- Values 0-14.
+    -- Integer in range [0, 14].
 
     node = {name = "ignore", param2 = 0},
     -- Optional, if specified the particle will have the same appearance as
@@ -11581,8 +11771,8 @@ Used by `core.add_particle`.
 
     node_tile = 0,
     -- Optional, only valid in combination with `node`
-    -- If set to a valid number 1-6, specifies the tile from which the
-    -- particle texture is picked.
+    -- If set to a valid integer in range [1, 6], specifies the tile from
+    -- which the particle texture is picked.
     -- Otherwise, the default behavior is used. (currently: any random tile)
 
     drag = {x=0, y=0, z=0},
@@ -11623,7 +11813,8 @@ will be ignored.
     -- (same name and meaning in both new and legacy syntax)
 
     amount = 1,
-    -- Number of particles spawned over the time period `time`.
+    -- Amount of particles spawned over the time period `time`.
+    -- Range: [u16]
 
     time = 1,
     -- Lifespan of spawner in seconds.
@@ -11674,7 +11865,7 @@ will be ignored.
 
     glow = 0,
     -- Optional, specify particle self-luminescence in darkness.
-    -- Values 0-14.
+    -- Integer in range [0, 14].
 
     node = {name = "ignore", param2 = 0},
     -- Optional, if specified the particles will have the same appearance as
@@ -11683,8 +11874,8 @@ will be ignored.
 
     node_tile = 0,
     -- Optional, only valid in combination with `node`
-    -- If set to a valid number 1-6, specifies the tile from which the
-    -- particle texture is picked.
+    -- If set to a valid integer in range [1, 6], specifies the tile from
+    -- which the particle texture is picked.
     -- Otherwise, the default behavior is used. (currently: any random tile)
 
     -------------------
@@ -11784,7 +11975,8 @@ degradation in older clients).
         -- like "pulse", but slightly randomized to add a bit of stutter
 
         reps = 1,
-        -- number of times the animation is played over the particle's lifespan
+        -- amount of times the animation is played over the particle's lifespan
+        -- range: [1, 65535]
 
         start = 0.0,
         -- point in the spawner's lifespan at which the animation begins. 0 is
@@ -11796,8 +11988,8 @@ degradation in older clients).
 
         -- frames
 
-            -- floats
-            0, 0,
+            -- floating-point numbers
+            0.0, 0.0,
 
             -- vec3s
             vector.new(0,0,0),
