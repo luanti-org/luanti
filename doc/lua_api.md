@@ -9657,7 +9657,9 @@ Player properties need to be saved manually.
     -- 1 = New step up code. Medium rigidity. This is a balance between legacy and
     -- full rigidity. You can only step up when standing on something or falling.
     -- This allows you to parkour clutch edges of nodes and walk over 1 node gaps.
-    -- 2 = New step up code. Full rigidity. You can only step up when standing on something. You cannot parkour clutch edges of nodes. You must jump over 1 node gaps.
+    -- 2 = New step up code. Full rigidity. You can only step up when standing on
+    -- something. You cannot parkour clutch edges of nodes. You must jump over 1
+    -- node gaps.
 }
 ```
 
