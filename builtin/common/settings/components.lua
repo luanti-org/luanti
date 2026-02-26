@@ -34,6 +34,11 @@ local make = {}
 local function get_label(setting)
 	local show_technical_names = core.settings:get_bool("show_technical_names")
 	if not show_technical_names and setting.readable_name then
+		if setting.source then
+			local source = setting.source
+			return core.get_content_translation(source.path, source.textdomain,
+					core.translate(source.textdomain, setting.readable_name))
+		end
 		return fgettext(setting.readable_name)
 	end
 	return setting.name
