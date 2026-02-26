@@ -27,6 +27,11 @@ enum ObjectVisual : u8 {
 
 extern const EnumString es_ObjectVisual[];
 
+enum class NewStepUpValue : u8 {
+	LEGACY,
+	FLOATY,
+	RIGID
+};
 
 struct ObjectProperties
 {
