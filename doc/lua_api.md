@@ -3607,7 +3607,8 @@ Some types may inherit styles from parent types.
 * all focusable elements
     * outline_color - color of the focus outline. Default `white`.
     * outline_width - thickness of the focus outline in pixels. Default 2.
-    * outline_offset - offset of the focus outline in pixels. Default 0.
+    * outline_offset - expands or contracts the focus outline on all four sides
+      in pixels. Default 0.
 * animated_image
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
 * box
