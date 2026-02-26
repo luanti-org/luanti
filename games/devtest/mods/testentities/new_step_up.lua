@@ -14,7 +14,8 @@ core.register_entity("testentities:step_up_test", {
 		self.object:set_armor_groups({punch_operable = 1})
 	end,
 	on_punch = function(self)
-		local new_setting = not self.object:get_properties().new_step_up
+		local new_setting = self.object:get_properties().new_step_up + 1
+		if new_setting > 2 then new_setting = 0 end
 		self.object:set_properties({
 			new_step_up = new_setting,
 			infotext = "Punch me to toggle new_step_up.\nnew_step_up fixes the jolt when jumping up a node.\nSetting:" .. tostring(new_setting)
