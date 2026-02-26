@@ -350,9 +350,11 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 				&& bp.Y >= bpmin.Y && bp.Y <= bpmax.Y
 				&& bp.Z >= bpmin.Z && bp.Z <= bpmax.Z) {
 			block->setGenerated(true);
-			// Set timestamp to ensure correct application
-			// of LBMs and other stuff.
-			block->setTimestampNoChangedFlag(now);
+			// Timestamp will be set later in activateBlock() to allow
+			// on_block_loaded callbacks to run for newly generated blocks
+
+			// Note: on_block_loaded is now called in emerge.cpp after finishGen()
+			// to ensure all liquid transforms and lighting are complete
 		}
 	}
 
@@ -772,8 +774,17 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 		ReflowScan scanner(this, m_emerge->ndef);
 		scanner.scan(block, &m_transforming_liquid);
 
+		// Call on_block_loaded callback before fixing lighting
+		// This allows voxel manipulator to modify the block, and lighting
+		// will be fixed afterwards
+		if (m_env) {
+			ServerScripting *script = m_env->getScriptIface();
+			if (script)
+				script->on_block_loaded(p3d);
+		}
+
 		std::map<v3s16, MapBlock*> modified_blocks;
-		// Fix lighting if necessary
+		// Fix lighting after callback to handle any voxel manipulator changes
 		voxalgo::update_block_border_lighting(this, block, modified_blocks);
 		if (!modified_blocks.empty()) {
 			MapEditEvent event;

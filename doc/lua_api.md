@@ -6402,6 +6402,35 @@ Call these functions only at load time!
       The set is a table where the keys are hashes and the values are `true`.
     * `modified_block_count` is the number of entries in the set.
     * Note: callbacks must be registered at mod load time.
+* `core.register_on_block_loaded(function(blockpos))`
+    * Called when a mapblock is loaded from disk or generated for the first time
+    * This callback fires for ALL loaded blocks (including those far from players)
+    * For newly generated blocks, the callback runs after the chunk emerges
+      (after liquid transforms and lighting) but before block activation
+    * For blocks loaded from disk, it runs before border lighting is updated
+    * `blockpos`: position of the block (table with x, y, z)
+    * Note: callbacks must be registered at mod load time.
+* `core.register_on_block_activated(function(blockpos))`
+    * Called immediately after a mapblock becomes active (within active_block_range of a player)
+    * This is called after `on_block_loaded` if the block was just loaded
+    * `blockpos`: position of the block (table with x, y, z)
+    * Note: callbacks must be registered at mod load time.
+    * **Warning**: As of Luanti 5.15.0, making map modifications using VoxelManip
+      (or similar functions like `core.set_node`) in this callback is unreliable.
+      Changes can be overwritten when neighboring mapchunks generate and extend
+      into already-activated blocks (for example, caves or dungeons crossing
+      mapchunk boundaries). Use `core.register_on_generated` or `core.register_lbm`
+      instead for reliable map modifications.
+* `core.register_on_block_deactivated(function(blockpos_list))`
+    * Called after mapblocks are deactivated (moved out of active_block_range)
+    * Deactivated blocks remain loaded in memory but no longer run game logic
+    * `blockpos_list`: array of block positions (each is a table with x, y, z)
+    * Note: callbacks must be registered at mod load time.
+* `core.register_on_block_unloaded(function(blockpos_list))`
+    * Called after mapblocks are completely unloaded from memory
+    * This happens when the server needs to free memory or on shutdown
+    * `blockpos_list`: array of block positions (each is a table with x, y, z)
+    * Note: callbacks must be registered at mod load time.
 
 Setting-related
 ---------------
@@ -7926,6 +7955,21 @@ Global tables
     * Map of active object references, indexed by active object id
 * `core.luaentities`
     * Map of Lua entities, indexed by active object id
+* `core.loaded_blocks`
+    * Read-only table tracking currently loaded mapblocks
+    * Keys are block position hashes (from `core.hash_node_position`)
+    * Values are `true` for loaded blocks, `nil` otherwise
+    * Loaded blocks are in memory and can contain nodes/objects
+    * Updated automatically by the engine when blocks are loaded or unloaded from memory
+    * Example: `if core.loaded_blocks[core.hash_node_position(blockpos)] then ... end`
+* `core.active_blocks`
+    * Read-only table tracking currently active mapblocks
+    * Active blocks are those within active_block_range of a player
+    * Keys are block position hashes (from `core.hash_node_position`)
+    * Values are `true` for active blocks, `nil` otherwise
+    * Active blocks run game logic (ABMs, node timers, etc.)
+    * All active blocks are also loaded, but not all loaded blocks are active
+    * Updated automatically by the engine when blocks become active or inactive
 * `core.registered_abms`
     * List of ABM definitions
 * `core.registered_lbms`
