@@ -98,7 +98,7 @@ std::string ObjectProperties::dump() const
 	os << ", shaded=" << shaded;
 	os << ", show_on_minimap=" << show_on_minimap;
 	os << ", nametag_scale_z=" << nametag_scale_z;
-	os << ", new_step_up=" << new_step_up;
+	os << ", new_step_up=" << enum_to_string(es_NewStepUp, new_step_up);
 	return os.str();
 }
 
