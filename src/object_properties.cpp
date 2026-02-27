@@ -333,7 +333,12 @@ void ObjectProperties::deSerialize(std::istream &is)
 		return;
 	// >= 5.16.0-dev
 
-	new_step_up = readU8(is);
+	std::string new_step_up_string{deSerializeString16(is)};
+	if (!string_to_enum(es_NewStepUp, new_step_up, new_step_up_string)) {
+		infostream << "ObjectProperties::deSerialize(): new_step_up \"" << new_step_up_string
+				<< "\" not supported" << std::endl;
+		new_step_up = NEWSTEPUP_LEGACY;
+	}
 
 	//if (!canRead(is))
 	//	return;
