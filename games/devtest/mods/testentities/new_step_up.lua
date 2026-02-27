@@ -1,6 +1,6 @@
 -- This entity helps test/showcase new_step_up for lua entities.
-local setting_cycle = {legacy = 1, floaty = 2, rigid = 3}
-local settings = {"legacy", "floaty", "rigid"}
+local setting_cycle = {legacy = 1, floaty = 2, rigid = 3, invalid = 4}
+local settings = {"legacy", "floaty", "rigid", "invalid (legacy fallback)"}
 core.register_entity("testentities:step_up_test", {
 	initial_properties = {
 		physical = true,
