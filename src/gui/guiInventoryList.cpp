@@ -7,6 +7,7 @@
 #include "drawItemStack.h"
 #include "client/client.h"
 #include "client/renderingengine.h"
+#include "ICursorControl.h"
 #include <IVideoDriver.h>
 
 GUIInventoryList::GUIInventoryList(gui::IGUIEnvironment *env,
@@ -34,9 +35,10 @@ GUIInventoryList::GUIInventoryList(gui::IGUIEnvironment *env,
 	m_fs_menu(fs_menu),
 	m_options(options),
 	m_font(font),
-	m_hovered_i(-1),
 	m_already_warned(false)
 {
+	ICursorControl *cursor_control = RenderingEngine::get_raw_device()->getCursorControl();
+	m_hovered_i = getItemIndexAtPos(v2s32(cursor_control->getPosition()));
 }
 
 void GUIInventoryList::draw()
@@ -201,14 +203,6 @@ s32 GUIInventoryList::getItemIndexAtPos(v2s32 p) const
 			!AbsoluteClippingRect.isPointInside(p))
 		return -1;
 
-	// there cannot be an item if the inventory or the inventorylist does not exist
-	Inventory *inv = m_invmgr->getInventory(m_inventoryloc);
-	if (!inv)
-		return -1;
-	InventoryList *ilist = inv->getList(m_listname);
-	if (!ilist)
-		return -1;
-
 	core::rect<s32> imgrect(0, 0, m_slot_size.X, m_slot_size.Y);
 	v2s32 base_pos = AbsoluteRect.UpperLeftCorner;
 
@@ -223,8 +217,7 @@ s32 GUIInventoryList::getItemIndexAtPos(v2s32 p) const
 
 	rect.clipAgainst(AbsoluteClippingRect);
 
-	if (rect.getArea() > 0 && rect.isPointInside(p) &&
-			i + m_start_item_i < (s32)ilist->getSize())
+	if (rect.getArea() > 0 && rect.isPointInside(p))
 		return i + m_start_item_i;
 
 	return -1;
