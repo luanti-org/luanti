@@ -139,7 +139,7 @@ public:
 	bool acceptsIME() override { return isEnabled() && IsWritable; };
 
 	//! set true if this EditBox is writable
-	void setWritable(bool writable) { IsWritable = writable; }
+	void setWritable(bool writable) { IsWritable = writable; setTabStop(writable); }
 
 protected:
 	//! Breaks the single text line.
