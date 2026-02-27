@@ -27,6 +27,14 @@ const struct EnumString es_ObjectVisual[] =
 	{0, nullptr},
 };
 
+const struct EnumString es_NewStepUp[] =
+{
+	{NEWSTEPUP_LEGACY, "legacy"},
+	{NEWSTEPUP_FLOATY, "floaty"},
+	{NEWSTEPUP_RIGID, "rigid"},
+	{0, nullptr},
+};
+
 ObjectProperties::ObjectProperties()
 {
 	textures.emplace_back("no_texture.png");

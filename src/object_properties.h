@@ -33,6 +33,8 @@ enum NewStepUp : u8 {
 	NEWSTEPUP_RIGID
 };
 
+extern const EnumString es_NewStepUp[];
+
 struct ObjectProperties
 {
 	/* member variables ordered roughly by size */
