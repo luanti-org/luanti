@@ -63,6 +63,8 @@ Zughy:
   textures/base/pack/cdb_queued.png
   textures/base/pack/cdb_update.png
   textures/base/pack/cdb_update_cropped.png
+  textures/base/pack/menu_header.png
+	 (Original made by SumianVoice under CC0)
   textures/base/pack/settings_btn.png
   textures/base/pack/settings_info.png
   textures/base/pack/settings_reset.png
