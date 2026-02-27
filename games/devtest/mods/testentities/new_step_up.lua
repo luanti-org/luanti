@@ -8,7 +8,7 @@ core.register_entity("testentities:step_up_test", {
 		visual = "cube",
 		textures = { "testentities_cube1.png", "testentities_cube1.png", "testentities_cube1.png", "testentities_cube1.png", "testentities_cube1.png", "testentities_cube1.png" },
 		infotext = "Punch me to toggle new_step_up.\nnew_step_up fixes the jolt when jumping up a node.\nSetting: legacy",
-		new_step_up = 0,
+		new_step_up = "legacy",
 		stepheight = 0.5,
 		-- This collision box is set like this for testing.
 		visual_size = { x = 0.8, y = 0.8, z = 0.8 },
