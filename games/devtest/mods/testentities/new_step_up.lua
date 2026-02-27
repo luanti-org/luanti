@@ -20,7 +20,7 @@ core.register_entity("testentities:step_up_test", {
 	end,
 	on_punch = function(self)
 		local new_setting_id = setting_cycle[self.object:get_properties().new_step_up] + 1
-		if new_setting_id > 3 then new_setting_id = 1 end
+		if new_setting_id > #settings then new_setting_id = 1 end
 		local new_setting = settings[new_setting_id]
 		self.object:set_properties({
 			new_step_up = new_setting,
