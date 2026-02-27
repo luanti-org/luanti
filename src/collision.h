@@ -6,6 +6,7 @@
 
 #include "irrlichttypes_bloated.h"
 #include <vector>
+#include "object_properties.h"
 
 class IGameDef;
 class Environment;
