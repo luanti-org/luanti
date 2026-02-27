@@ -114,7 +114,7 @@ void Particle::step(float dtime, ClientEnvironment *env)
 		v3f p_velocity = m_velocity * BS;
 		collisionMoveResult r = collisionMoveSimple(env, env->getGameDef(),
 			box, 0.0f, dtime, &p_pos, &p_velocity, m_acceleration * BS, nullptr,
-			m_p.object_collision, false);
+			m_p.object_collision, NEWSTEPUP_LEGACY);
 
 		f32 bounciness = m_p.bounce.pickWithin();
 		if (r.collides && (m_p.collision_removal || bounciness > 0)) {
