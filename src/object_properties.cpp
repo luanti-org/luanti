@@ -225,7 +225,7 @@ void ObjectProperties::serialize(std::ostream &os) const
 		writeU32(os, nametag_fontsize.value());
 
 	writeU8(os, nametag_scale_z);
-	writeU8(os, new_step_up);
+	os << serializeString16(enum_to_string(es_NewStepUp, new_step_up));
 
 	// Add stuff only at the bottom.
 	// Never remove anything, because we don't want new versions of this!
