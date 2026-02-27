@@ -1788,6 +1788,24 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 	if (!font)
 		font = m_font;
 
+	// Parse halign
+	std::string halign_str = style.get(StyleSpec::HALIGN, "left");
+	EGUI_ALIGNMENT halign = gui::EGUIA_UPPERLEFT;
+
+	if (halign_str == "center")
+		halign = gui::EGUIA_CENTER;
+	else if (halign_str == "right")
+		halign = gui::EGUIA_LOWERRIGHT;
+
+	// Parse valign
+	std::string valign_str = style.get(StyleSpec::VALIGN, "top");
+	EGUI_ALIGNMENT valign = gui::EGUIA_UPPERLEFT;
+
+	if (valign_str == "center")
+		valign = gui::EGUIA_CENTER;
+	else if (valign_str == "bottom")
+		valign = gui::EGUIA_LOWERRIGHT;
+
 	auto add_label = [&](core::rect<s32> rect, const EnrichedString &text,
 			EGUI_ALIGNMENT align_h, EGUI_ALIGNMENT align_v, bool word_wrap) {
 		FieldSpec spec(
@@ -1867,12 +1885,24 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 		}
 	} else {
 		v2s32 pos = getRealCoordinateBasePos(v_pos);
-		core::rect<s32> rect(
-				pos.X, pos.Y,
-				pos.X + geom.X,
-				pos.Y + geom.Y);
 
-		add_label(rect, str, gui::EGUIA_UPPERLEFT, gui::EGUIA_UPPERLEFT, true);
+		auto dim = font->getDimension(str.c_str());
+		s32 text_h = dim.Height;
+
+		s32 top = pos.Y;
+
+		if (valign == gui::EGUIA_CENTER) {
+			top = pos.Y + (geom.Y - text_h) / 2;
+		} else if (valign == gui::EGUIA_LOWERRIGHT) {
+			top = pos.Y + (geom.Y - text_h);
+		}
+
+		core::rect<s32> rect(
+				pos.X, top,
+				pos.X + geom.X,
+				top + text_h);
+
+		add_label(rect, str, halign, gui::EGUIA_UPPERLEFT, true);
 	}
 }
 
