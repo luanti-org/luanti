@@ -1939,7 +1939,7 @@ void Game::updateCameraDirection(CameraOrientation *cam, float dtime)
 			&& !isMenuActive()) || input->isRandom()) {
 
 		if (cur_control && !input->isRandom()) {
-			// Mac OSX gets upset if this is set every frame
+			// macOS gets upset if this is set every frame
 			if (cur_control->isVisible())
 				cur_control->setVisible(false);
 		}
@@ -1954,7 +1954,7 @@ void Game::updateCameraDirection(CameraOrientation *cam, float dtime)
 		}
 
 	} else {
-		// Mac OSX gets upset if this is set every frame
+		// macOS gets upset if this is set every frame
 		if (cur_control && !cur_control->isVisible())
 			cur_control->setVisible(true);
 
@@ -1984,6 +1984,8 @@ bool Game::isTouchShootlineUsed() const
 
 void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 {
+	LocalPlayer *player = client->getEnv().getLocalPlayer();
+
 	if (g_touchcontrols) {
 		// User setting is already applied by TouchControls.
 		f32 sens_scale = getSensitivityScaleFactor();
@@ -2011,6 +2013,13 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 		cam->camera_yaw -= input->joystick.getAxisWithoutDead(JA_FRUSTUM_HORIZONTAL) * c;
 		cam->camera_pitch += input->joystick.getAxisWithoutDead(JA_FRUSTUM_VERTICAL) * c;
 	}
+
+	// Apply server restrictions
+	const auto &cam_spec = player->camera;
+	if (cam_spec.yawValid())
+		cam->camera_yaw = rangelim(cam->camera_yaw, cam_spec.min_yaw, cam_spec.max_yaw);
+	if (cam_spec.pitchValid())
+		cam->camera_pitch = rangelim(cam->camera_pitch, cam_spec.min_pitch, cam_spec.max_pitch);
 
 	cam->camera_pitch = rangelim(cam->camera_pitch, -90, 90);
 }
@@ -2574,8 +2583,9 @@ void Game::updateCameraMode()
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
 
 	// Obey server choice
-	if (player->allowed_camera_mode != CAMERA_MODE_ANY)
-		camera->setCameraMode(player->allowed_camera_mode);
+	auto &cam = player->camera;
+	if (cam.allowed_mode != CAMERA_MODE_ANY)
+		camera->setCameraMode(cam.allowed_mode);
 
 	GenericCAO *playercao = player->getCAO();
 	if (playercao) {
