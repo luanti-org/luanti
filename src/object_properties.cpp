@@ -29,9 +29,9 @@ const struct EnumString es_ObjectVisual[] =
 
 const struct EnumString es_NewStepUp[] =
 {
-	{NEWSTEPUP_LEGACY, "legacy"},
-	{NEWSTEPUP_FLOATY, "floaty"},
-	{NEWSTEPUP_RIGID, "rigid"},
+	{NewStepUp::LEGACY, "legacy"},
+	{NewStepUp::FLOATY, "floaty"},
+	{NewStepUp::RIGID, "rigid"},
 	{0, nullptr},
 };
 
