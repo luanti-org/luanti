@@ -9647,9 +9647,9 @@ Player properties need to be saved manually.
     -- Defaults to true for players, false for other entities.
     -- If set to true the entity will show as a marker on the minimap.
 
-    new_step_up = 0,
-    -- Defaults to 0 for players and entities.
-    -- Setting this to 1 or 2 makes the entity or player use the new step up code.
+    new_step_up = "legacy",
+    -- Defaults to 'legacy' for players and entities.
+    -- Setting this to 'floaty' or 'rigid' makes the entity or player use the new step up code.
     -- This new code removes the glitch that caused entities and players to jolt up
     -- on the edge of a node. These make movement through the environment feel
     -- higher quality.
