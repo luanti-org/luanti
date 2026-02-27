@@ -380,7 +380,7 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		v3f *pos_f, v3f *speed_f,
 		v3f accel_f, ActiveObject *self,
 		bool collide_with_objects,
-		NewStepUpValue new_step_up)
+		NewStepUp new_step_up)
 {
 	static bool time_notification_done = false;
 

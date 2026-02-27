@@ -27,7 +27,7 @@ enum ObjectVisual : u8 {
 
 extern const EnumString es_ObjectVisual[];
 
-enum class NewStepUpValue : u8 {
+enum class NewStepUp : u8 {
 	LEGACY,
 	FLOATY,
 	RIGID
@@ -80,7 +80,7 @@ struct ObjectProperties
 	bool shaded = true;
 	bool show_on_minimap = false;
 	bool nametag_scale_z = false;
-	NewStepUpValue new_step_up = NewStepUpValue::LEGACY;
+	NewStepUp new_step_up = NewStepUp::LEGACY;
 
 	ObjectProperties();
 
