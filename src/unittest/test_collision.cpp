@@ -219,7 +219,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 
 	const auto collide = [&](f32 dtime) {
 			return collisionMoveSimple(env.get(), gamedef, box, 0.0f, dtime,
-				&pos, &speed, accel, NULL, true, 0);
+				&pos, &speed, accel, NULL, true, NEWSTEPUP_LEGACY);
 	};
 
 	/* simple movement with accel */
