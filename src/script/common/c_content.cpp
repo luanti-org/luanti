@@ -635,7 +635,7 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 	lua_setfield(L, -2, "damage_texture_modifier");
 	lua_pushboolean(L, prop->show_on_minimap);
 	lua_setfield(L, -2, "show_on_minimap");
-	lua_pushnumber(L, prop->new_step_up);
+	lua_pushstring(L, enum_to_string(es_NewStepUp, prop->new_step_up));
 	lua_setfield(L, -2, "new_step_up");
 
 	// Remember to update object_property_keys above
