@@ -1077,6 +1077,22 @@ minetest_server_commands[0x62] = {"MINIMAP_MODES", 2}
 minetest_server_commands[0x63] = {"SET_LIGHTING", 2}
 
 
+-- TODO: TOCLIENT_SPAWN_PARTICLE_BATCH (0x64)
+
+-- TOCLIENT_PLAYERITEM
+
+do
+	local f_item = ProtoField.uint16("minetest.client.playeritem_item", "Wielded item")
+
+	minetest_server_commands[0x65] = {
+		"PLAYERITEM", 4,
+		{ f_item },
+		function(buffer, pinfo, tree, t)
+			t:add(f_item, buffer(2,2))
+		end
+	}
+end
+
 ------------------------------------
 -- Part 4                         --
 -- Wrapper protocol subdissectors --

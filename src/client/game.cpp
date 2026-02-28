@@ -1533,6 +1533,11 @@ void Game::processItemSelection(u16 *new_playeritem)
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
 
 	*new_playeritem = player->getWieldIndex();
+	u16 server_wield_index = player->getServerWieldIndex();
+	if (server_wield_index != U16_MAX) {
+		player->setServerWieldIndex(U16_MAX);
+		*new_playeritem = server_wield_index;
+	}
 	u16 max_item = player->getMaxHotbarItemcount();
 	if (max_item == 0)
 		return;
