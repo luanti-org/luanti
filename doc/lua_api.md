@@ -7893,6 +7893,13 @@ Misc.
         * `true`: Mapblock meets the requirement
         * `nil`: Unsupported `condition` value
 
+* `core.get_node_counts_in_area(pos1, pos2, nodenames)`
+    * `pos1` and `pos2` are the min and max positions of the area to search.
+    * `nodenames`: e.g. `{"ignore", "group:tree"}` or `"default:dirt"`
+    * Returns a table with node names as keys and counts as values
+    * Counts how many times each specified node type appears in the area
+    * Area volume is limited to 150,000,000 nodes
+
 * `core.request_insecure_environment()`: returns an environment containing
   insecure functions if the calling mod has been listed as trusted in the
   `secure.trusted_mods` setting or security is disabled, otherwise returns
