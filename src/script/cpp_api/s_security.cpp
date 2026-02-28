@@ -35,7 +35,7 @@ static inline void copy_safe(lua_State *L, const char *list[], unsigned len, int
 	}
 }
 
-/// Copies or movies fields from `t_sec` to `t_isec`, depending on whether or not
+/// Copies or moves fields from `t_sec` to `t_isec`, depending on whether or not
 /// the field is declared safe by `whitelist`.
 static void copy_or_move(lua_State *L, int t_sec, int t_isec, const char *whitelist[])
 {
@@ -89,7 +89,7 @@ static void copy_new_table(lua_State *L, const char *globalname,
 		lua_setfield(L, t_isec, globalname); // new table
 	}
 
-	// Return with stack height 1 (t_sec_g)
+	// Return with stack +1 (t_sec_g)
 }
 
 // Pushes the original version of a library function on the stack, from the old version
@@ -289,7 +289,6 @@ void ScriptApiSecurity::initializeSecurity()
 	lua_setfield(L, -2, "__index");
 	lua_setmetatable(L, -2);
 	lua_pop(L, 1); // Pop empty string
-
 
 	FATAL_ERROR_IF(sanity_check_top != lua_gettop(L), "unbalanced stack");
 }
@@ -1013,6 +1012,7 @@ int ScriptApiSecurity::sl_io_open(lua_State *L)
 	if (with_mode) {
 		lua_pushvalue(L, 2);
 	}
+
 	lua_call(L, with_mode ? 2 : 1, 2);
 	return 2;
 }
