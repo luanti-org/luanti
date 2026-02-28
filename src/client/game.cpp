@@ -32,6 +32,7 @@
 #include "network/networkexceptions.h"
 #include "nodedef.h"         // Needed for determining pointing to nodes
 #include "nodemetadata.h"
+#include "filesys.h"
 #include "particles.h"
 #include "porting.h"
 #include "profiler.h"
@@ -1480,7 +1481,11 @@ void Game::processKeyInput()
 	} else if (wasKeyDown(KeyType::CINEMATIC)) {
 		toggleCinematic();
 	} else if (wasKeyPressed(KeyType::SCREENSHOT)) {
-		client->makeScreenshot();
+		if (client->makeScreenshot()) {
+			std::string filename = fs::GetFilenameFromPath(client->getLastScreenshotPath().c_str());
+			std::string msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
+			m_game_ui->showStatusText(utf8_to_wide(msg));
+		}
 	} else if (wasKeyPressed(KeyType::TOGGLE_BLOCK_BOUNDS)) {
 		toggleBlockBounds();
 	} else if (wasKeyPressed(KeyType::TOGGLE_HUD)) {
