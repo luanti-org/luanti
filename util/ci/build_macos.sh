@@ -16,6 +16,7 @@ cmake_args=(
 	-DCMAKE_BUILD_TYPE=${build_type}
 	-DCMAKE_FIND_FRAMEWORK=LAST
 	-DRUN_IN_PLACE=FALSE
+	-DUSE_SDL2_STATIC=TRUE
 	-DENABLE_GETTEXT=TRUE
 	-DJPEG_LIBRARY=${DEPS_DIR}/lib/libjpeg.a
 	-DJPEG_INCLUDE_DIR=${DEPS_DIR}/include
@@ -43,8 +44,18 @@ cmake_args=(
 	-DENABLE_LEVELDB=OFF
 	-DENABLE_POSTGRESQL=OFF
 	-DENABLE_REDIS=OFF
-	-DCMAKE_EXE_LINKER_FLAGS=-lbz2
 )
+if [ "$angle" == "yes" ]; then
+	cmake_args+=(-DENABLE_OPENGL3=OFF)
+	cmake_args+=(-DENABLE_GLES2=ON)
+	cmake_args+=(-DUSE_ANGLE=ON)
+	cmake_args+=(-DENABLE_OPENGL3=OFF)
+	cmake_args+=(-DOPENGLES2_LIBRARY=${DEPS_DIR}/lib/libGLESv2_static.a)
+	cmake_args+=(-DOPENGL_INCLUDE_DIR=${DEPS_DIR}/include/ANGLE)
+	cmake_args+=(-DCMAKE_EXE_LINKER_FLAGS="-lbz2 ${DEPS_DIR}/lib/libANGLE_static.a ${DEPS_DIR}/lib/libEGL_static.a -framework IOSurface")
+else
+	cmake_args+=(-DCMAKE_EXE_LINKER_FLAGS=-lbz2)
+fi
 if [ "$USE_XCODE" == "yes" ]; then
 	cmake_args+=(-GXcode)
 fi

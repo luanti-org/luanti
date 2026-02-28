@@ -49,6 +49,11 @@ extern "C" {
 #endif
 }
 
+// Use SDLmain.a to load, initialize and call SDL_main after on iOS
+#if TARGET_OS_IPHONE
+#include <SDL2/SDL.h>
+#endif
+
 #if !defined(__cpp_rtti) || !defined(__cpp_exceptions)
 #error Luanti cannot be built without exceptions or RTTI
 #endif
