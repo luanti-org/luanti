@@ -721,6 +721,8 @@ Methods:
             liquid_sink = float,
             sneak = boolean,
             sneak_glitch = boolean,
+            upward_rejump = boolean,
+            upward_step = boolean,
             new_move = boolean,
         }
         ```
