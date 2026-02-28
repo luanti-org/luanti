@@ -332,8 +332,8 @@ to check whether a model is a valid glTF file.
 Many glTF features are not supported *yet*, including:
 
 * Animations
-  * Only a single animation is supported, use frame ranges within this animation.
-  * `CUBICSPLINE` interpolation is not supported.
+  * `CUBICSPLINE` interpolation is not supported
+  * Morph animations
 * Cameras
 * Materials
   * Only base color textures are supported
@@ -342,7 +342,12 @@ Many glTF features are not supported *yet*, including:
 * Alternative means of supplying data
   * Embedded images. You can use `gltfutil.py` from the
     [modding tools](https://github.com/luanti-org/modtools) to strip or extract embedded images.
-  * References to files via URIs
+  * References to files via URIs (e.g. `.bin` binary data buffers).
+    Buffers need to be embedded base64-encoded, or you can use `.glb` files.
+
+Note that unlike the `.x` and `.b3d` file formats, per the specification,
+glTF files should use timestamps in seconds as animation frame numbers.
+This means you should normally set an animation frame speed of `1.0` for glTF animations.
 
 Textures are supplied solely via the same means as for the other model file formats:
 The `textures` object property, the `tiles` node definition field and
@@ -8535,26 +8540,6 @@ child will follow movement and rotation of that bone.
     * sets the object's full list of armor groups
     * same table syntax as for `get_armor_groups`
     * note: all armor groups not in the table will be removed
-* `set_animation(frame_range, frame_speed, frame_blend, frame_loop)`
-    * Sets the object animation parameters and (re)starts the animation
-    * Animations only work with a `"mesh"` visual
-    * `frame_range`: Beginning and end frame (as specified in the mesh file).
-       * Syntax: `{x=start_frame, y=end_frame}`
-       * Animation interpolates towards the end frame but stops when it is reached
-       * If looped, there is no interpolation back to the start frame
-       * If looped, the model should look identical at start and end
-       * default: `{x=1.0, y=1.0}`
-    * `frame_speed`: How fast the animation plays, in frames per second (number)
-       * default: `15.0`
-    * `frame_blend`: number, default: `0.0`
-    * `frame_loop`: If `true`, animation will loop. If false, it will play once
-       * default: `true`
-* `get_animation()`: returns current animation parameters set by `set_animation`:
-    * `frame_range`, `frame_speed`, `frame_blend`, `frame_loop`.
-* `set_animation_frame_speed(frame_speed)`
-    * Sets the frame speed of the object's animation
-    * Unlike `set_animation`, this will not restart the animation
-    * `frame_speed`: See `set_animation`
 * `set_attach(parent[, bone, position, rotation, forced_visible])`
     * Attaches object to `parent`
     * See 'Attachments' section for details
@@ -8665,6 +8650,65 @@ child will follow movement and rotation of that bone.
     * GUIDs persist between object reloads, and their format is guaranteed not to change.
       Thus you can use the GUID to identify an object in a particular world online and offline.
 
+##### Animations
+
+The old animation interface consists of `set_animation`, `get_animation`, and `set_animation_frame_speed`.
+
+* `set_animation(frame_range, frame_speed, frame_blend, frame_loop)`
+    * Sets the object animation parameters and (re)starts the animation
+    * Animations only work with a `"mesh"` visual
+    * `frame_range`: Beginning and end frame (as specified in the mesh file).
+       * Syntax: `{x=start_frame, y=end_frame}`
+       * Animation interpolates towards the end frame but stops when it is reached
+       * If looped, there is no interpolation back to the start frame
+       * If looped, the model should look identical at start and end
+       * default: `{x=1.0, y=1.0}`
+    * `frame_speed`: How fast the animation plays, in frames per second (number)
+       * **Important:** You normally need to use `1.0` for glTF models
+       * default: `15.0`
+    * `frame_blend`: How many seconds it takes to transition from
+       the previous animation to the new one, in seconds (number)
+       * default: `0.0`
+    * `frame_loop`: If `true`, animation will loop. If `false`, it will play once
+       * default: `true`
+* `get_animation()`: returns current animation parameters set by `set_animation`:
+    * `frame_range`, `frame_speed`, `frame_blend`, `frame_loop`.
+* `set_animation_frame_speed(new_frame_speed)`
+    * Sets the frame speed of the object's animation
+    * Unlike `set_animation`, this will not restart the animation
+    * `frame_speed`: See `set_animation`
+
+The new animation interface is intended for use with glTF animations
+and allows mixing and matching multiple separate, named animation tracks.
+This API is only supported properly by Luanti 5.15+ clients.
+
+Tracks are identified by their name or track number.
+Track numbers start at 1.
+
+* `play_animation(track, [animation])`
+      `.x` and `.b3d` models only have a single animation track.
+    * `animation` is an optional table with the following optional fields:
+      * `min_frame = 0.0`, `max_frame = math.huge`, animation range in frames (seconds);
+         clamped on the client to first and last frame in the corresponding track.
+      * `frame`, where to start playing the animation, defaults to `min_frame` if `speed >= 0`, `max_frame` otherwise.
+      * `speed = 1.0`, animation speed in frames per second.
+        (Recall that glTF frames are typically just timetamps in seconds.)
+        A negative speed plays the animation backwards.
+        A speed of `0.0` can be used to pause an animation.
+      * `loop = true`, boolean, whether the animation repeats after completion.
+        Defaults to `true`.
+      * `blend = 0.0`, transition time in seconds when changing to the new animation.
+      * `priority = 0.0`, integer.
+        Higher priority animations are applied after lower priority ones,
+        taking precedence if the same bones are being animated.
+    * Example: `obj:play_animation("walk")`.
+* `update_animation(track, update)`
+    * `update` is a table with the following optional fields:
+      * `speed`: New animation speed
+* `stop_animation([track])`: Stop animation on the given track, if playing.
+    * If no track is given, all currently playing animations are stopped.
+* `get_animations()`: Returns a table of currently playing animations
+  `{[track] = animation}`, in the same format as the parameters of `play_animation`.
 
 #### Lua entity only (no-op for other objects)
 

@@ -17,12 +17,12 @@ class Map;
 struct CollisionInfo;
 struct collisionMoveResult;
 
-enum class LocalPlayerAnimation
+enum class LocalPlayerAnimation : u8
 {
-	NO_ANIM,
-	WALK_ANIM,
-	DIG_ANIM,
-	WD_ANIM // walking + digging
+	NO_ANIM = 0,
+	WALK_ANIM = 1,
+	DIG_ANIM = 2,
+	WD_ANIM = 3, // walking + digging
 };
 
 struct PlayerSettings

@@ -10,6 +10,7 @@
 
 #include "SkinnedMesh.h"
 #include "Transform.h"
+#include "AnimSpec.h"
 #include "irr_ptr.h"
 #include "matrix4.h"
 
@@ -24,9 +25,6 @@ public:
 			const core::vector3df &position = core::vector3df(0, 0, 0),
 			const core::vector3df &rotation = core::vector3df(0, 0, 0),
 			const core::vector3df &scale = core::vector3df(1.0f, 1.0f, 1.0f));
-
-	//! destructor
-	virtual ~AnimatedMeshSceneNode();
 
 	//! frame
 	void OnRegisterSceneNode() override;
@@ -64,32 +62,6 @@ public:
 	\return The newly created clone of this node. */
 	ISceneNode *clone(ISceneNode *newParent = 0, ISceneManager *newManager = 0) override;
 
-	//! Sets the current frame number.
-	/** From now on the animation is played from this frame.
-	\param frame: Number of the frame to let the animation be started from.
-	The frame number must be a valid frame number of the IMesh used by this
-	scene node. Set IAnimatedMesh::getMesh() for details. */
-	void setCurrentFrame(f32 frame);
-
-	//! Sets the frame numbers between the animation is looped.
-	/** The default is 0 to getMaxFrameNumber() of the mesh.
-	Number of played frames is end-start.
-	It interpolates toward the last frame but stops when it is reached.
-	It does not interpolate back to start even when looping.
-	Looping animations should ensure last and first frame-key are identical.
-	\param begin: Start frame number of the loop.
-	\param end: End frame number of the loop.
-	\return True if successful, false if not. */
-	//! NOTE: setMesh will also change this value and set it to the full range of animations of the mesh
-	bool setFrameLoop(f32 begin, f32 end);
-
-	//! Sets looping mode which is on by default. If set to false,
-	//! animations will not be looped.
-	void setLoopMode(bool playAnimationLooped);
-
-	//! returns the current loop mode
-	bool getLoopMode() const;
-
 	//! Will be called right after the joints have been animated,
 	//! but before the transforms have been propagated recursively to children.
 	void setOnAnimateCallback(
@@ -97,14 +69,6 @@ public:
 	{
 		OnAnimateCallback = cb;
 	}
-
-	//! Sets the speed with which the animation is played.
-	/** \param framesPerSecond: Frames per second played. */
-	void setAnimationSpeed(f32 framesPerSecond);
-
-	//! Gets the speed with which the animation is played.
-	/** \return Frames per second played. */
-	f32 getAnimationSpeed() const;
 
 	//! Returns a pointer to a child node (nullptr if not found),
 	//! which has the same transformation as
@@ -118,13 +82,6 @@ public:
 	//! Gets joint count.
 	u32 getJointCount() const;
 
-	//! Returns the currently displayed frame number.
-	f32 getFrameNr() const;
-	//! Returns the current start frame number.
-	f32 getStartFrame() const;
-	//! Returns the current end frame number.
-	f32 getEndFrame() const;
-
 	//! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
 	/* In this way it is possible to change the materials a mesh causing all mesh scene nodes
 	referencing this mesh to change too. */
@@ -133,18 +90,15 @@ public:
 	//! Returns if the scene node should not copy the materials of the mesh but use them in a read only style
 	bool isReadOnlyMaterials() const;
 
-	//! Sets a new mesh
+	//! Sets a new mesh. Animations will need to be reset after this call.
 	void setMesh(IAnimatedMesh *mesh);
 
 	//! Returns the current mesh
-	IAnimatedMesh *getMesh(void) { return Mesh; }
+	IAnimatedMesh *getMesh()
+	{ return Mesh.get(); }
 
 	//! updates the absolute position based on the relative and the parents position
 	void updateAbsolutePosition() override;
-
-	//! Sets the transition time in seconds (note: This needs to enable joints)
-	//! you must call animateJoints(), or the mesh will not animate
-	void setTransitionTime(f32 Time);
 
 	void updateJointSceneNodes(const std::vector<SkinnedMesh::SJoint::VariantTransform> &transforms);
 
@@ -156,30 +110,25 @@ public:
 	//! render mesh ignoring its transformation. Used with ragdolls. (culling is unaffected)
 	void setRenderFromIdentity(bool On);
 
+	AnimSpec &getAnimation()
+	{ return anim_spec; }
+
 private:
 
-	void buildFrameNr(u32 timeMs);
+	void advanceAnimations(f32 dtime_s);
 	void checkJoints();
 	void copyOldTransforms();
-	void beginTransition();
 
 	core::array<video::SMaterial> Materials;
 	core::aabbox3d<f32> Box{{0.0f, 0.0f, 0.0f}};
-	IAnimatedMesh *Mesh;
-
-	f32 StartFrame;
-	f32 EndFrame;
-	f32 FramesPerSecond;
-	f32 CurrentFrameNr;
+	irr_ptr<IAnimatedMesh> Mesh;
 
 	u32 LastTimeMs;
-	u32 TransitionTime;  // Transition time in millisecs
-	f32 Transiting;      // is mesh transiting (plus cache of TransitionTime)
-	f32 TransitingBlend; // 0-1, calculated on buildFrameNr
+
+	AnimSpec anim_spec;
 
 	bool JointsUsed;
 
-	bool Looping;
 	bool ReadOnlyMaterials;
 	bool RenderFromIdentity;
 
