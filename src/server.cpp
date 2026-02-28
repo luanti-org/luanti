@@ -2027,9 +2027,12 @@ void Server::SendSetLighting(session_t peer_id, const Lighting &lighting)
 
 void Server::SendCamera(session_t peer_id, Player *player)
 {
-	NetworkPacket pkt(TOCLIENT_CAMERA, 1, peer_id);
+	NetworkPacket pkt(TOCLIENT_CAMERA, 20, peer_id);
 
-	pkt << static_cast<u8>(player->allowed_camera_mode);
+	const auto &cam = player->camera;
+
+	pkt << static_cast<u8>(cam.allowed_mode);
+	pkt << cam.min_yaw << cam.max_yaw << cam.min_pitch << cam.max_pitch;
 
 	Send(&pkt);
 }
@@ -2041,8 +2044,7 @@ void Server::SendTimeOfDay(session_t peer_id, u16 time, f32 time_speed)
 
 	if (peer_id == PEER_ID_INEXISTENT) {
 		m_clients.sendToAll(&pkt);
-	}
-	else {
+	} else {
 		Send(&pkt);
 	}
 }

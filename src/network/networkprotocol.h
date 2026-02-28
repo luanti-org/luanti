@@ -462,6 +462,7 @@ enum ToClientCommand : u16
 	TOCLIENT_CAMERA = 0x48,
 	/*
 		u8 allowed_camera_mode
+		f32 min_yaw, max_yaw, min_pitch, max_pitch
 	*/
 
 	TOCLIENT_HUDADD = 0x49,
