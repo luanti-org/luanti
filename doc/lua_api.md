@@ -5200,9 +5200,16 @@ flowing. It is recommended to call this function only after having written all
 buffered data back to the VoxelManip object, save for special situations where
 the modder desires to only have certain liquid nodes begin flowing.
 
-The functions `core.generate_ores()` and `core.generate_decorations()`
-will generate all registered decorations and ores throughout the full area
-inside of the specified VoxelManip object.
+The functions `core.generate_biomes()`, `core.generate_ores()`,
+`core.generate_decorations()`, `core.generate_biome_dust()`, and
+`core.generate_caves()` fill the entire area of a given VoxelManip with
+biomes, ores, decorations, biome dust, and caves. They must be called
+inside the `on_generated()` callback.
+
+`core.generate_biomes()` must be called first, as it initializes the
+mapgen data (`heatmap`, `humiditymap`, `biomemap`) required by the
+subsequent functions for biome-aware placement of ores, decorations,
+and surface layers (e.g., snow).
 
 `core.place_schematic_on_vmanip()` is otherwise identical to
 `core.place_schematic()`, except instead of placing the specified schematic
@@ -6769,6 +6776,20 @@ Environment access
       active config.
 * `core.get_noiseparams(name)`
     * Returns a table of the noiseparams for name.
+* `core.generate_biomes(vm, pos1, pos2[, noise_filler_depth])`
+    * Generate biome nodes according to the registered biomes and
+      temperature/humidity noises within the VoxelManip `vm` and in the area
+      from `pos1` to `pos2`.
+    * `noise_filler_depth` is an optional `ValueNoiseMap` to add an offset to
+      the `depth_filler` of the biomes (see [Biome definition]).
+    * Must be called during mapgen (`on_generated()` callback)
+    * `pos1` and `pos2` should have the same X and Z size as mapgen chunks.
+    * The initial data in `vm` should only contain air, stone, water and
+      river water nodes (see [Essential aliases]). Other nodes are ignored.
+    * Also populates the mapgen objects `heatmap`, `humiditymap` and `biomemap`
+      (see [Mapgen objects]), so that `core.generate_decorations`,
+      `core.generate_ores` and `core.generate_biome_dust` will take
+      them into account.
 * `core.generate_ores(vm[, pos1, pos2])`
     * Generate all registered ores within the VoxelManip `vm` and in the area
       from `pos1` to `pos2`.
@@ -6781,6 +6802,21 @@ Environment access
        If set to true, decorations are placed in respect to the biome map of the current chunk.
        `pos1` and `pos2` must match the positions of the current chunk, or an error will be raised.
        default: `false`
+* `core.generate_biome_dust(vm, pos1, pos2)`
+    * Generate the `node_dust` of the biome (see [Biome definition]) within the
+      VoxelManip `vm` and in the area from `pos1` to `pos2`.
+    * `pos1` and `pos2` should have the same X and Z size as mapgen chunks.
+    * Reads the mapgen object `biomemap` (see [Mapgen Objects]), that must be
+      already computed (ie. using `core.generate_biomes`).
+* `core.generate_caves(vm[, pos1, pos2])`
+    * Generate caves within the VoxelManip `vm` and in the area from
+      `pos1` to `pos2`.
+    * `pos1` and `pos2` are optional and default to mapchunk minp and maxp.
+    * The X and Z extent must match mapgen chunk size.
+    * Uses the cave generation parameters of the current mapgen (noise-based
+      caves and randomwalk caves).
+    * Reads the mapgen object `biomemap` (see [Mapgen Objects]), that must be
+      already computed (ie. using `core.generate_biomes`).
 * `core.clear_objects([options])`
     * Clear all objects in the environment
     * Takes an optional table as an argument with the field `mode`.
