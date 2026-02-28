@@ -11,7 +11,7 @@
 #include "filesys.h"
 #include "log.h"
 #include "settings.h"
-#include "script/common/c_internal.h"
+#include "script/common/c_deprecated.h"
 #include "exceptions.h"
 
 void ModSpec::checkAndLog() const

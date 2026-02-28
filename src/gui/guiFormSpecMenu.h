@@ -68,6 +68,9 @@ struct TextDest
 	virtual ~TextDest() = default;
 
 	virtual void gotText(const StringMap &fields) = 0;
+	/// Should return a readable formspec name, such as
+	/// "player inventory", "modname:nodename" or "modname:formspecname"
+	virtual std::string getIdentifiableName() = 0;
 	virtual void requestScreenshot() {}
 
 	std::string m_formname;
@@ -382,6 +385,7 @@ private:
 	TextDest                  *m_text_dst;
 	std::string                m_last_formname;
 	u16                        m_formspec_version = 1;
+	bool                       m_have_fs_version_element = false;
 	std::optional<std::string> m_focused_element = std::nullopt;
 	JoystickController        *m_joystick;
 	bool                       m_show_debug = false;
@@ -510,6 +514,7 @@ private:
 	 * This function sorts the elements in the old order for backwards compatibility.
 	 */
 	void legacySortElements(std::list<IGUIElement *>::iterator from);
+	void logVersionDeprecation();
 
 	int m_btn_height;
 	gui::IGUIFont *m_font = nullptr;

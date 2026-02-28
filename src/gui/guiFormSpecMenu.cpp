@@ -28,6 +28,7 @@
 #include "gettext.h"
 #include "mainmenumanager.h"
 #include "porting.h"
+#include "script/common/c_deprecated.h"
 #include "settings.h"
 #include "client/client.h"
 #include "client/fontengine.h"
@@ -2462,6 +2463,7 @@ bool GUIFormSpecMenu::parseVersionDirect(const std::string &data)
 
 	if (is_number(parts[1])) {
 		m_formspec_version = mystoi(parts[1]);
+		m_have_fs_version_element = true;
 		return true;
 	}
 
@@ -3046,6 +3048,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	m_bgfullscreen = false;
 
 	m_formspec_version = 1;
+	m_have_fs_version_element = false;
 	m_bgcolor = video::SColor(140, 0, 0, 0);
 	m_tabheader_upper_edge = 0;
 
@@ -3328,6 +3331,8 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		// Only set previous form name if we purposefully showed a new formspec
 		m_last_formname = m_text_dst->m_formname;
 		m_is_form_regenerated = true;
+
+		logVersionDeprecation();
 	}
 }
 
@@ -3366,6 +3371,39 @@ void GUIFormSpecMenu::legacySortElements(std::list<IGUIElement *>::iterator from
 
 	// 3: Re-assign the pointers
 	reorderChildren(from, to, elements);
+}
+
+void GUIFormSpecMenu::logVersionDeprecation()
+{
+	if (m_have_fs_version_element)
+		return;
+
+	DeprecatedHandlingMode mode = get_deprecated_handling_mode();
+	LogStream *stream = nullptr;
+	switch (mode) {
+		case DeprecatedHandlingMode::Ignore:
+			break;
+		case DeprecatedHandlingMode::Error:
+			stream = &errorstream;
+			break;
+		case DeprecatedHandlingMode::Log:
+			stream = &warningstream;
+			break;
+	}
+	if (!stream)
+		return;
+
+	std::string name = m_text_dst->getIdentifiableName();
+	if (m_client) {
+		auto &known = m_client->warned_legacy_formspecs;
+		if (known.find(name) != known.end())
+			return; // already logged
+
+		known.insert(name);
+	} // else: main menu
+
+	*stream << fmtgettext("The formspec '%s' lacks the element 'formspec_version[]'."
+			" This is deprecated.", name.c_str()) << std::endl;
 }
 
 #ifdef __ANDROID__

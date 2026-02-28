@@ -438,6 +438,7 @@ public:
 		return m_mesh_grid;
 	}
 
+	std::set<std::string> warned_legacy_formspecs;
 	bool inhibit_inventory_revert = false;
 
 private:
