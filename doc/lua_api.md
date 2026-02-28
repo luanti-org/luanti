@@ -3708,6 +3708,10 @@ Some types may inherit styles from parent types.
     * font - Sets font type. See button `font` property for more information.
     * font_size - Sets font size. See button `font_size` property for more information.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+    * halign - Sets horizontal alignment of text. **Note**: Only applies for "area label"
+    syntax (`label[x,y;w,h;text]`). Can either be `left`, `center`, or `right`. Default `left`
+    * valign - Sets vertical alignment of text. **Note**: Only applies for "area label"
+    syntax (`label[x,y;w,h;text]`). Can either be `top`, `center`, or `bottom`. Default `top`
 * list
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * size - 2d vector, sets the size of inventory slots in coordinates.
