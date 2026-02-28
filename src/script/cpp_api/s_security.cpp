@@ -266,6 +266,25 @@ void ScriptApiSecurity::initializeSecurity()
 		SECURE_API(g, require);
 		lua_pop(L, 1);
 
+		{
+			// Set insecure environment for the functions that need it
+			lua_getfield(L, idx_insecure, "package");
+			lua_getfield(L, idx_insecure, "require");
+			lua_pushvalue(L, -2);
+			lua_setfenv(L, -2);
+			lua_pop(L, 1); // require
+
+			lua_getfield(L, -1, "loaders");
+			for (int i = 1; ; ++i) {
+				lua_rawgeti(L, -1, i);
+				lua_pushvalue(L, -3); // package
+				if (!lua_setfenv(L, -2))
+					break; // last index
+				lua_pop(L, 1); // function
+			}
+			lua_pop(L, 3); // nil value + loaders + package
+		}
+
 		// Get rid of 'core' in the old globals, we don't want anyone thinking it's
 		// safe or even usable.
 		lua_pushnil(L);
