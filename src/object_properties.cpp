@@ -27,6 +27,14 @@ const struct EnumString es_ObjectVisual[] =
 	{0, nullptr},
 };
 
+const struct EnumString es_NewStepUp[] =
+{
+	{static_cast<u8>(NewStepUp::LEGACY), "legacy"},
+	{static_cast<u8>(NewStepUp::FLOATY), "floaty"},
+	{static_cast<u8>(NewStepUp::RIGID), "rigid"},
+	{0, nullptr},
+};
+
 ObjectProperties::ObjectProperties()
 {
 	textures.emplace_back("no_texture.png");
@@ -90,6 +98,7 @@ std::string ObjectProperties::dump() const
 	os << ", shaded=" << shaded;
 	os << ", show_on_minimap=" << show_on_minimap;
 	os << ", nametag_scale_z=" << nametag_scale_z;
+	os << ", new_step_up=" << enum_to_string(es_NewStepUp, static_cast<u8>(new_step_up));
 	return os.str();
 }
 
@@ -106,7 +115,7 @@ static inline auto tie(const ObjectProperties &o)
 	o.node, o.hp_max, o.breath_max, o.glow, o.pointable, o.physical,
 	o.collideWithObjects, o.rotate_selectionbox, o.is_visible, o.makes_footstep_sound,
 	o.automatic_face_movement_dir, o.backface_culling, o.static_save, o.use_texture_alpha,
-	o.shaded, o.show_on_minimap, o.nametag_scale_z
+	o.shaded, o.show_on_minimap, o.nametag_scale_z, o.new_step_up
 	);
 }
 
@@ -216,6 +225,7 @@ void ObjectProperties::serialize(std::ostream &os) const
 		writeU32(os, nametag_fontsize.value());
 
 	writeU8(os, nametag_scale_z);
+	os << serializeString16(enum_to_string(es_NewStepUp, static_cast<u8>(new_step_up)));
 
 	// Add stuff only at the bottom.
 	// Never remove anything, because we don't want new versions of this!
@@ -318,6 +328,17 @@ void ObjectProperties::deSerialize(std::istream &is)
 	else
 		nametag_fontsize = std::nullopt;
 	nametag_scale_z = readU8(is);
+
+	if (!canRead(is))
+		return;
+	// >= 5.16.0-dev
+
+	std::string new_step_up_string{deSerializeString16(is)};
+	if (!string_to_enum(es_NewStepUp, new_step_up, new_step_up_string)) {
+		infostream << "ObjectProperties::deSerialize(): new_step_up \"" << new_step_up_string
+				<< "\" not supported" << std::endl;
+		new_step_up = NewStepUp::LEGACY;
+	}
 
 	//if (!canRead(is))
 	//	return;

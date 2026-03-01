@@ -282,7 +282,7 @@ void push_item_definition_full(lua_State *L, const ItemDefinition &i)
 }
 
 /******************************************************************************/
-const std::array<const char *, 35> object_property_keys = {
+const std::array<const char *, 36> object_property_keys = {
 	"hp_max",
 	"breath_max",
 	"physical",
@@ -319,6 +319,7 @@ const std::array<const char *, 35> object_property_keys = {
 	// "node" is intentionally not here as it's gated behind `fallback` below!
 	"nametag_fontsize",
 	"nametag_scale_z",
+	"new_step_up"
 };
 
 /******************************************************************************/
@@ -517,6 +518,15 @@ void read_object_properties(lua_State *L, int index,
 	getboolfield(L, -1, "shaded", prop->shaded);
 	getboolfield(L, -1, "show_on_minimap", prop->show_on_minimap);
 
+	// Don't set if nil
+	std::string new_step_up;
+	if (getstringfield(L, -1, "new_step_up", new_step_up)) {
+		if (!string_to_enum(es_NewStepUp, prop->new_step_up, new_step_up)) {
+			script_log_unique(L, "Unsupported NewStepUp: " + new_step_up, warningstream);
+			prop->new_step_up = NewStepUp::LEGACY;
+		}
+	}
+
 	getstringfield(L, -1, "damage_texture_modifier", prop->damage_texture_modifier);
 
 	// Remember to update object_property_keys above
@@ -625,6 +635,8 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 	lua_setfield(L, -2, "damage_texture_modifier");
 	lua_pushboolean(L, prop->show_on_minimap);
 	lua_setfield(L, -2, "show_on_minimap");
+	lua_pushstring(L, enum_to_string(es_NewStepUp, static_cast<u8>(prop->new_step_up)));
+	lua_setfield(L, -2, "new_step_up");
 
 	// Remember to update object_property_keys above
 	// when adding a new property
