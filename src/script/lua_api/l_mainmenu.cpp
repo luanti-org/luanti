@@ -664,6 +664,78 @@ int ModApiMainMenu::l_create_world(lua_State *L)
 }
 
 /******************************************************************************/
+int ModApiMainMenu::l_rename_world(lua_State *L)
+{
+	const std::string old_path = luaL_checkstring(L, 1);
+	const std::string old_path_abs = fs::AbsolutePath(old_path);
+	const std::string new_readable_name = luaL_checkstring(L, 2);
+
+	try {
+		if (!fs::PathExists(old_path))
+			throw BaseException("Source world path does not exist");
+
+		const std::string base_path = fs::RemoveLastPathComponent(old_path);
+		const std::string sanitized_name = sanitizeDirName(new_readable_name, "world_");
+
+		// Deal with the case that world name does not exist but folder name already exists(like "a_", "a!")
+		std::string old_readable_name;
+		std::string sanitized_old_name;
+		const std::string old_worldmt_path = old_path + DIR_DELIM + "world.mt";
+		Settings world_conf;
+
+		if (world_conf.readConfigFile(old_worldmt_path.c_str())) {
+			if (world_conf.getNoEx("world_name", old_readable_name)) {
+				sanitized_old_name = sanitizeDirName(old_readable_name, "world_");
+			}
+		}
+
+		// Deal with the case that world name is different, but the folder name is the same
+		if (sanitized_name == sanitized_old_name && new_readable_name != old_readable_name) {
+			world_conf.set("world_name", new_readable_name);
+			if (!world_conf.updateConfigFile(old_worldmt_path.c_str()))
+				throw BaseException("Failed to update world.mt");
+
+			lua_pushnil(L);
+			return 1;
+		}
+
+		std::string new_path = base_path + DIR_DELIM + sanitized_name;
+		int counter = 1;
+
+		// Deal with the case that the folder name already exists(but not the old one)
+		while (fs::PathExists(new_path) && counter < 100) {
+			const std::string new_path_abs = fs::AbsolutePath(new_path);
+			if (!old_path_abs.empty() && old_path_abs == new_path_abs)
+				break;
+
+			new_path = base_path + DIR_DELIM + sanitized_name + "_" + std::to_string(counter++);
+		}
+
+		if (fs::PathExists(new_path)) {
+			throw BaseException("Too many similar folder names exist");
+		}
+
+		// Failed to move directory (it might be in use)
+		if (!fs::MoveDir(old_path, new_path)) {
+			throw BaseException("Failed to rename world folder");
+		}
+
+		// Update world.mt file
+		const std::string new_worldmt_path = new_path + DIR_DELIM + "world.mt";
+		world_conf.set("world_name", new_readable_name);
+		if (!world_conf.updateConfigFile(new_worldmt_path.c_str()))
+			throw BaseException("Failed to update world.mt");
+
+		lua_pushnil(L);
+
+	} catch (const BaseException &e) {
+		lua_pushstring(L, e.what());
+	}
+
+	return 1;
+}
+
+/******************************************************************************/
 int ModApiMainMenu::l_delete_world(lua_State *L)
 {
 	int world_id = luaL_checkinteger(L, 1) - 1;
@@ -1118,6 +1190,7 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(close);
 	API_FCT(show_touchscreen_layout);
 	API_FCT(create_world);
+	API_FCT(rename_world);
 	API_FCT(delete_world);
 	API_FCT(set_background);
 	API_FCT(set_topleft_text);
