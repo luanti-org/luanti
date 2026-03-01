@@ -27,7 +27,7 @@ enum ObjectVisual : u8 {
 
 extern const EnumString es_ObjectVisual[];
 
-enum NewStepUp : u8 {
+enum class NewStepUp : int {
 	NEWSTEPUP_LEGACY,
 	NEWSTEPUP_FLOATY,
 	NEWSTEPUP_RIGID
