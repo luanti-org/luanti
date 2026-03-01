@@ -29,9 +29,9 @@ const struct EnumString es_ObjectVisual[] =
 
 const struct EnumString es_NewStepUp[] =
 {
-	{NEWSTEPUP_LEGACY, "legacy"},
-	{NEWSTEPUP_FLOATY, "floaty"},
-	{NEWSTEPUP_RIGID, "rigid"},
+	{NewStepUp::LEGACY, "legacy"},
+	{NewStepUp::FLOATY, "floaty"},
+	{NewStepUp::RIGID, "rigid"},
 	{0, nullptr},
 };
 
@@ -337,7 +337,7 @@ void ObjectProperties::deSerialize(std::istream &is)
 	if (!string_to_enum(es_NewStepUp, new_step_up, new_step_up_string)) {
 		infostream << "ObjectProperties::deSerialize(): new_step_up \"" << new_step_up_string
 				<< "\" not supported" << std::endl;
-		new_step_up = NEWSTEPUP_LEGACY;
+		new_step_up = NewStepUp::LEGACY;
 	}
 
 	//if (!canRead(is))

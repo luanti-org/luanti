@@ -523,7 +523,7 @@ void read_object_properties(lua_State *L, int index,
 	if (getstringfield(L, -1, "new_step_up", new_step_up)) {
 		if (!string_to_enum(es_NewStepUp, prop->new_step_up, new_step_up)) {
 			script_log_unique(L, "Unsupported NewStepUp: " + new_step_up, warningstream);
-			prop->new_step_up = NEWSTEPUP_LEGACY;
+			prop->new_step_up = NewStepUp::LEGACY;
 		}
 	}
 

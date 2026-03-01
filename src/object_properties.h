@@ -82,7 +82,7 @@ struct ObjectProperties
 	bool shaded = true;
 	bool show_on_minimap = false;
 	bool nametag_scale_z = false;
-	NewStepUp new_step_up = NewStepUp::NEWSTEPUP_LEGACY;
+	NewStepUp new_step_up = NewStepUp::LEGACY;
 
 	ObjectProperties();
 

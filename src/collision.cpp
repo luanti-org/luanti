@@ -549,9 +549,9 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		v3f old_speed_f = *speed_f;
 
 		// Set the speed component that caused the collision to zero
-		if (step_up && (new_step_up == NEWSTEPUP_LEGACY ||
-			(new_step_up == NEWSTEPUP_FLOATY && speed_f->Y <= 0.0f) ||
-			(new_step_up == NEWSTEPUP_RIGID && speed_f->Y == 0.0f))) {
+		if (step_up && (new_step_up == NewStepUp::LEGACY ||
+			(new_step_up == NewStepUp::FLOATY && speed_f->Y <= 0.0f) ||
+			(new_step_up == NewStepUp::RIGID && speed_f->Y == 0.0f))) {
 			// Special case: Handle stairs
 			nearest_info.is_step_up = true;
 		} else if (nearest_collided == COLLISION_AXIS_X) {
