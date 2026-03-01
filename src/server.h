@@ -444,7 +444,10 @@ public:
 	// map key = binary sha1, map value = file path
 	std::unordered_map<std::string, std::string> getMediaList();
 
+	IRollbackManager *createRollbackManager();
+
 	static std::vector<std::string> getModStorageDatabaseBackends();
+	static std::vector<std::string> getRollbackBackends();
 
 	static ModStorageDatabase *openModStorageDatabase(const std::string &world_path);
 

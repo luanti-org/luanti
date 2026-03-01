@@ -1,67 +1,64 @@
 // Luanti
 // SPDX-License-Identifier: LGPL-2.1-or-later
-// Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
+//
+// Shared logic for rollback backends (SQLite/PostgreSQL).
+// This exists to avoid copy-pasting the same buffering/suspect logic into each backend.
 
 #pragma once
 
-#include <string>
-#include "irr_v3d.h"
-#include "rollback_interface.h"
-#include <list>
-#include <vector>
 #include <deque>
-#include "sqlite3.h"
+#include <list>
+#include <string>
+#include <vector>
+
+#include "rollback_interface.h"
 
 class IGameDef;
 
-struct ActionRow;
-struct Entity;
-
-class RollbackManager final : public IRollbackManager
+class RollbackMgr : public IRollbackManager
 {
 public:
-	RollbackManager(const std::string & world_path, IGameDef * gamedef);
-	~RollbackManager();
+	~RollbackMgr() override = default;
 
-	void reportAction(const RollbackAction & action_);
-	std::string getActor();
-	bool isActorGuess();
-	void setActor(const std::string & actor, bool is_guess);
-	std::string getSuspect(v3s16 p, float nearness_shortcut,
-			float min_nearness);
-	void flush();
+	// IRollbackManager
+	void reportAction(const RollbackAction &action_) override;
+	std::string getActor() override;
+	bool isActorGuess() override;
+	void setActor(const std::string &actor, bool is_guess) override;
+	std::string getSuspect(v3s16 p, float nearness_shortcut, float min_nearness) override;
+	virtual void flush() = 0;
+	std::list<RollbackAction> getNodeActors(v3s16 pos, int range, time_t seconds, int limit) override;
+	std::list<RollbackAction> getRevertActions(const std::string &actor_filter, time_t seconds) override;
 
-	void addAction(const RollbackAction & action);
-	std::list<RollbackAction> getNodeActors(v3s16 pos, int range,
-			time_t seconds, int limit);
-	std::list<RollbackAction> getRevertActions(
-			const std::string & actor_filter, time_t seconds);
-
-private:
-	void registerNewActor(const int id, const std::string & name);
-	void registerNewNode(const int id, const std::string & name);
-	int getActorId(const std::string & name);
-	int getNodeId(const std::string & name);
-	const char * getActorName(const int id);
-	const char * getNodeName(const int id);
-	bool createTables();
-	bool initDatabase();
-	bool registerRow(const ActionRow & row);
-	const std::list<ActionRow> actionRowsFromSelect(sqlite3_stmt * stmt);
-	ActionRow actionRowFromRollbackAction(const RollbackAction & action);
-	const std::list<RollbackAction> rollbackActionsFromActionRows(
-			const std::list<ActionRow> & rows);
-	const std::list<ActionRow> getRowsSince(time_t firstTime,
-			const std::string & actor);
-	const std::list<ActionRow> getRowsSince_range(time_t firstTime, v3s16 p,
-			int range, int limit);
-	const std::list<RollbackAction> getActionsSince_range(time_t firstTime, v3s16 p,
-			int range, int limit);
-	const std::list<RollbackAction> getActionsSince(time_t firstTime,
-			const std::string & actor = "");
+protected:
+	explicit RollbackMgr(IGameDef *gamedef_);
 	static float getSuspectNearness(bool is_guess, v3s16 suspect_p,
-		time_t suspect_t, v3s16 action_p, time_t action_t);
+			time_t suspect_t, v3s16 action_p, time_t action_t);
 
+	void addActionInternal(const RollbackAction &action);
+
+	// Helper for derived classes to flush buffer contents
+	// Derived classes handle transactions/persistence as needed
+	void flushBufferContents();
+
+public:
+	// Helper to parse nodemeta location format: "nodemeta:x,y,z"
+	// Throws std::invalid_argument on invalid format
+	static void parseNodemetaLocation(const std::string &loc, int &x, int &y, int &z);
+
+protected:
+
+	// Backend-specific hooks
+	virtual void beginSaveActions() = 0;
+	virtual void endSaveActions() = 0;
+	virtual void rollbackSaveActions() = 0;
+	virtual void persistAction(const RollbackAction &a) = 0;
+	virtual std::list<RollbackAction> getActionsSince(time_t firstTime, const std::string &actor_filter) = 0;
+	virtual std::list<RollbackAction> getActionsSince_range(time_t firstTime, v3s16 p, int range, int limit) = 0;
+
+protected:
+	static constexpr float POINTS_PER_NODE = 16.0f;
+	static constexpr size_t BUFFER_LIMIT = 500;
 
 	IGameDef *gamedef = nullptr;
 
@@ -70,19 +67,6 @@ private:
 
 	std::vector<RollbackAction> action_todisk_buffer;
 	std::deque<RollbackAction> action_latest_buffer;
-
-	std::string database_path;
-	sqlite3 *db = nullptr;
-	sqlite3_stmt *stmt_insert = nullptr;
-	sqlite3_stmt *stmt_replace = nullptr;
-	sqlite3_stmt *stmt_select = nullptr;
-	sqlite3_stmt *stmt_select_range = nullptr;
-	sqlite3_stmt *stmt_select_withActor = nullptr;
-	sqlite3_stmt *stmt_knownActor_select = nullptr;
-	sqlite3_stmt *stmt_knownActor_insert = nullptr;
-	sqlite3_stmt *stmt_knownNode_select = nullptr;
-	sqlite3_stmt *stmt_knownNode_insert = nullptr;
-
-	std::vector<Entity> knownActors;
-	std::vector<Entity> knownNodes;
 };
+
+

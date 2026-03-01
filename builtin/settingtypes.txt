@@ -2266,6 +2266,7 @@ ask_reconnect_on_crash (Ask to reconnect after crash) bool false
 #    If enabled, node and inventory actions are recorded for rollback.
 #    This option is only read on server start. Note that the engine will not
 #    automatically clean old entries from the rollback database.
+#    The storage backend is configured per-world in the file "world.mt".
 enable_rollback_recording (Rollback recording) bool false
 
 [**Server/Env Performance] [server]
