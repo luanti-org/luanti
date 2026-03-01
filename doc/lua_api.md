@@ -9138,6 +9138,12 @@ child will follow movement and rotation of that bone.
             but keeping original luma and being symmetrical in terms of saturation
             (eg. -1 and 1 is the same saturation and luma, but different hues)
         * This value has no effect on clients who have shaders or post-processing disabled.
+      * `foliage_translucency` controls the intensity of the foliage translucency effect (default: `1.5`).
+        * Subject to change and can be removed at any time.
+        * This has no effect when dynamic shadows are disabled and on clients who have the "Translucent foliage" effect disabled.
+      * `specular_intensity` controls the intensity of specular highlights on nodes and liquids (default: `0.0`).
+        * Subject to change and can be removed at any time.
+        * This has no effect when dynamic shadows are disabled.
       * `shadows` is a table that controls ambient shadows
         * This has no effect on clients who have the "Dynamic Shadows" effect disabled.
         * `intensity` sets the intensity of the shadows from 0 (no shadows, default) to 1 (blackness)
@@ -9174,6 +9180,24 @@ child will follow movement and rotation of that bone.
             * Currently, bloom `intensity` and `strength_factor` affect volumetric
               lighting `strength` and vice versa. This behavior is to be changed
               in the future, do not rely on it.
+        * `scattering_coefficients`: the scattering coefficients that control the tint of sunlight during sunrise and sunset.
+            * Defaults to `{ x = 3.3362176e-01, y = 8.75378289198826e-01, z = 1.95342379700656 }` which is physically accurate.
+            * This may be used to create effects like differently colored sunsets on alien planets.
+            * Setting all components to zero effectively disables tinted sunlight.
+      * `vignette`: is a table that controls the vignette post-processing effect.
+        * This has no effect on clients who have post processing disabled.
+        * `dark`: brightness of the vignette's darkest part (default: `1.0`)
+        * `bright`: brightness of the vignette's brightest part (default: `1.0`)
+        * `power`: the higher this is set, the more the vignette "retreats" to the edges of the screen (default: `1.0`)
+      * `cdl`: is a table that controls the ASL CDL color grading effect.
+        * This has no effect on clients who have post processing disabled.
+        * The output color follows the equation: `out = pow(in*slope+offset, power)`
+        * `slope`: "Tints" the scene, affects brighter colors more (default: `{x=1.2, y=1.0, z=0.8}`)
+        * `offset`: This can be used to brighten or darken the scene (default: `{x=0.0, y=0.0, z=0.0}`)
+        * `power`: Tints mostly the darker parts of the scene (default: `{x=1.25, y=1.0, z=0.9}`)
+      * `artificial_light`: is a table that controls the color of artificial light (torches etc.).
+        * Values should be positive and vaguely around `1.0`, but can be higher or lower.
+        * Default: `{r=1.04, g=1.04, b=1.04}`
 
 * `get_lighting()`: returns the current state of lighting for the player.
     * Result is a table with the same fields as `light_definition` in `set_lighting`.

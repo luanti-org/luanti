@@ -2021,6 +2021,18 @@ void Server::SendSetLighting(session_t peer_id, const Lighting &lighting)
 	pkt << lighting.volumetric_light_strength << lighting.shadow_tint;
 	pkt << lighting.bloom_intensity << lighting.bloom_strength_factor <<
 			lighting.bloom_radius;
+	pkt << lighting.artificial_light_color.r
+		<< lighting.artificial_light_color.g
+		<< lighting.artificial_light_color.b;
+	pkt << lighting.scattering_coefficients;
+	pkt << lighting.vignette.dark
+		<< lighting.vignette.bright
+		<< lighting.vignette.power;
+	pkt << lighting.cdl.slope;
+	pkt << lighting.cdl.offset;
+	pkt << lighting.cdl.power;
+	pkt << lighting.foliage_translucency;
+	pkt << lighting.specular_intensity;
 
 	Send(&pkt);
 }
