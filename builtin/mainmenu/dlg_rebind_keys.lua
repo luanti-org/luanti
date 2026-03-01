@@ -4,7 +4,6 @@
 -- Note that this is only needed for migrating from <5.11 to 5.12.
 
 local doc_url = "https://docs.luanti.org/for-players/controls/"
-local SETTING_NAME = "no_keycode_migration_warning"
 
 local function get_formspec(dialogdata)
 	local markup = table.concat({
@@ -27,7 +26,6 @@ local function get_formspec(dialogdata)
 end
 
 local function close_dialog(this)
-	cache_settings:set_bool(SETTING_NAME, true)
 	this:delete()
 end
 
@@ -86,12 +84,8 @@ local function normalize_key_setting(str)
 end
 
 function migrate_keybindings(parent)
-	-- Show migration dialog if the user upgraded from an earlier version
-	-- and this has not yet been shown before, *or* if keys settings had to be changed
-	if core.is_first_run then
-		cache_settings:set_bool(SETTING_NAME, true)
-	end
-	local has_migration = not cache_settings:get_bool(SETTING_NAME)
+	-- Show migration dialog if keys settings had to be changed
+	local has_migration = false
 
 	-- normalize all existing key settings, this converts them from KEY_KEY_C to SYSTEM_SCANCODE_6
 	local settings = core.settings:to_table()
