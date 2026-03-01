@@ -29,6 +29,51 @@ bool getGameConfig(const std::string &game_path, Settings &conf)
 	return conf.readConfigFile(conf_path.c_str());
 }
 
+// Keep in sync with pkgmgr.lua, `pkgmgr.normalize_game_id()`.
+std::string normalizeGameId(std::string_view id)
+{
+	static const char *ends[] = {"_game", NULL};
+	auto shorter = removeStringEnd(id, ends);
+	return std::string(shorter.empty() ? id : shorter);
+}
+
+std::unordered_set<std::string> getAliasesFromSettings(const Settings &conf)
+{
+	std::unordered_set<std::string> aliases;
+	if (!conf.exists("aliases"))
+		return aliases;
+
+	std::vector<std::string> aliases_raw = str_split(conf.get("aliases"), ',');
+	for (const std::string &alias : aliases_raw)
+		aliases.insert(normalizeGameId(trim(alias)));
+	return aliases;
+}
+
+std::string getSubgamePathEnv()
+{
+	static bool has_warned = false;
+	char *subgame_path = getenv("MINETEST_SUBGAME_PATH");
+	if (subgame_path && !has_warned) {
+		warningstream << "MINETEST_SUBGAME_PATH is deprecated, use MINETEST_GAME_PATH instead."
+				<< std::endl;
+		has_warned = true;
+	}
+
+	char *game_path = getenv("MINETEST_GAME_PATH");
+
+	if (game_path)
+		return std::string(game_path);
+	else if (subgame_path)
+		return std::string(subgame_path);
+	return "";
+}
+
+std::string getWorldPathEnv()
+{
+	char *world_path = getenv("MINETEST_WORLD_PATH");
+	return world_path ? std::string(world_path) : "";
+}
+
 }
 
 
@@ -53,30 +98,54 @@ void SubgameSpec::checkAndLog() const
 struct GameFindPath
 {
 	std::string path;
-	bool user_specific;
+	bool user_specific; // Game is in user's directory
+	std::unordered_set<std::string> aliases;
 	GameFindPath(const std::string &path, bool user_specific) :
 			path(path), user_specific(user_specific)
 	{
 	}
+	GameFindPath(const std::string &path, bool user_specific, std::unordered_set<std::string>&& aliases) :
+			path(path), user_specific(user_specific), aliases(aliases)
+	{
+	}
 };
 
-std::string getSubgamePathEnv()
+using GamePathMap = std::unordered_map<std::string, GameFindPath>;
+
+
+
+static GamePathMap getAvailableGamePaths()
 {
-	static bool has_warned = false;
-	char *subgame_path = getenv("MINETEST_SUBGAME_PATH");
-	if (subgame_path && !has_warned) {
-		warningstream << "MINETEST_SUBGAME_PATH is deprecated, use MINETEST_GAME_PATH instead."
-				<< std::endl;
-		has_warned = true;
+	GamePathMap gamepaths;
+	std::vector<GameFindPath> game_search_paths{
+		{porting::path_share + DIR_DELIM + "games", false},
+		{porting::path_user + DIR_DELIM + "games", true}
+	};
+
+	Strfnd search_paths(getSubgamePathEnv());
+
+	while (!search_paths.at_end())
+		game_search_paths.emplace_back(search_paths.next(PATH_DELIM), false);
+
+	for (const GameFindPath &search_path : game_search_paths) {
+		auto dirlist = fs::GetDirListing(search_path.path);
+		for (const fs::DirListNode &dln : dirlist) {
+			if (!dln.dir)
+				continue;
+
+			// If configuration file is not found or broken, ignore game
+			Settings conf;
+			const std::string game_path = search_path.path + DIR_DELIM + dln.name;
+			if (!conf.readConfigFile((game_path + DIR_DELIM + "game.conf").c_str()))
+				continue;
+
+			// Add it to result
+			gamepaths.try_emplace(normalizeGameId(dln.name),
+				game_path, search_path.user_specific, getAliasesFromSettings(conf)
+			);
+		}
 	}
-
-	char *game_path = getenv("MINETEST_GAME_PATH");
-
-	if (game_path)
-		return std::string(game_path);
-	else if (subgame_path)
-		return std::string(subgame_path);
-	return "";
+	return gamepaths;
 }
 
 static SubgameSpec getSubgameSpec(const std::string &game_id,
@@ -113,8 +182,10 @@ static SubgameSpec getSubgameSpec(const std::string &game_id,
 	if (conf.exists("last_mod"))
 		last_mod = conf.get("last_mod");
 
+	auto aliases = getAliasesFromSettings(conf);
+
 	SubgameSpec spec(game_id, game_path, gamemods_path, mods_paths, game_title,
-			game_author, game_release, first_mod, last_mod);
+			game_author, game_release, first_mod, last_mod, aliases);
 
 	if (conf.exists("name") && !conf.exists("title"))
 		spec.deprecation_msgs.push_back("\"name\" setting in game.conf is deprecated, please use \"title\" instead");
@@ -122,106 +193,14 @@ static SubgameSpec getSubgameSpec(const std::string &game_id,
 	return spec;
 }
 
-SubgameSpec findSubgame(const std::string &id)
-{
-	if (id.empty())
-		return SubgameSpec();
-	std::string share = porting::path_share;
-	std::string user = porting::path_user;
 
-	// Get games install locations
-	Strfnd search_paths(getSubgamePathEnv());
-
-	// Get all possible paths fo game
-	std::vector<GameFindPath> find_paths;
-	while (!search_paths.at_end()) {
-		std::string path = search_paths.next(PATH_DELIM);
-		path.append(DIR_DELIM).append(id);
-		find_paths.emplace_back(path, false);
-		path.append("_game");
-		find_paths.emplace_back(path, false);
-	}
-
-	std::string game_base = DIR_DELIM;
-	game_base = game_base.append("games").append(DIR_DELIM).append(id);
-	std::string game_suffixed = game_base + "_game";
-	find_paths.emplace_back(user + game_suffixed, true);
-	find_paths.emplace_back(user + game_base, true);
-	find_paths.emplace_back(share + game_suffixed, false);
-	find_paths.emplace_back(share + game_base, false);
-
-	// Find game directory
-	std::string game_path;
-	bool user_game = true; // Game is in user's directory
-	for (const GameFindPath &find_path : find_paths) {
-		const std::string &try_path = find_path.path;
-		if (fs::PathExists(try_path)) {
-			game_path = try_path;
-			user_game = find_path.user_specific;
-			break;
-		}
-	}
-
-	if (game_path.empty())
-		return SubgameSpec();
-
-	// Find mod directories
-	std::unordered_map<std::string, std::string> mods_paths;
-	mods_paths["mods"] = user + DIR_DELIM + "mods";
-	if (!user_game && user != share)
-		mods_paths["share"] = share + DIR_DELIM + "mods";
-
-	for (const std::string &mod_path : getEnvModPaths()) {
-		mods_paths[fs::AbsolutePath(mod_path)] = mod_path;
-	}
-
-	return getSubgameSpec(id, game_path, mods_paths);
-}
-
-SubgameSpec findWorldSubgame(const std::string &world_path)
-{
-	std::string world_gameid = getWorldGameId(world_path, true);
-	// See if world contains an embedded game; if so, use it.
-	std::string world_gamepath = world_path + DIR_DELIM + "game";
-	if (fs::PathExists(world_gamepath))
-		return getSubgameSpec(world_gameid, world_gamepath, {});
-	return findSubgame(world_gameid);
-}
 
 std::set<std::string> getAvailableGameIds()
 {
+	GamePathMap gamepaths = getAvailableGamePaths();
 	std::set<std::string> gameids;
-	std::set<std::string> gamespaths;
-	gamespaths.insert(porting::path_share + DIR_DELIM + "games");
-	gamespaths.insert(porting::path_user + DIR_DELIM + "games");
-
-	Strfnd search_paths(getSubgamePathEnv());
-
-	while (!search_paths.at_end())
-		gamespaths.insert(search_paths.next(PATH_DELIM));
-
-	for (const std::string &gamespath : gamespaths) {
-		std::vector<fs::DirListNode> dirlist = fs::GetDirListing(gamespath);
-		for (const fs::DirListNode &dln : dirlist) {
-			if (!dln.dir)
-				continue;
-
-			// If configuration file is not found or broken, ignore game
-			Settings conf;
-			std::string conf_path = gamespath + DIR_DELIM + dln.name +
-						DIR_DELIM + "game.conf";
-			if (!conf.readConfigFile(conf_path.c_str()))
-				continue;
-
-			// Add it to result
-			const char *ends[] = {"_game", NULL};
-			auto shorter = removeStringEnd(dln.name, ends);
-			if (!shorter.empty())
-				gameids.emplace(shorter);
-			else
-				gameids.insert(dln.name);
-		}
-	}
+	for (auto &&p : gamepaths)
+		gameids.insert(std::move(p.first));
 	return gameids;
 }
 
@@ -232,7 +211,60 @@ std::vector<SubgameSpec> getAvailableGames()
 	specs.reserve(gameids.size());
 	for (const auto &gameid : gameids)
 		specs.push_back(findSubgame(gameid));
+	// TODO: Optimize such that `getAvailableGamePaths()` is not run N times.
 	return specs;
+}
+
+SubgameSpec findSubgame(const std::string &id)
+{
+	if (id.empty())
+		return SubgameSpec();
+
+	std::string idv = normalizeGameId(id);
+
+	GamePathMap gamepaths = getAvailableGamePaths();
+	auto found = gamepaths.find(idv);
+	if (found == gamepaths.end()) { // Failed to find the game, try to find aliased game
+		for (auto it = gamepaths.begin(); it != gamepaths.end(); ++it) {
+			if (it->second.aliases.find(idv) != it->second.aliases.end()) {
+				found = it;
+				break;
+			}
+		}
+	}
+
+	if (found == gamepaths.end()) // Failed to find the game taking aliases into account
+		return SubgameSpec();
+
+	// Found the game, proceed
+	const GameFindPath &data = found->second;
+	const std::string &game_path = data.path;
+	bool user_game = data.user_specific;
+
+
+	// Find mod directories
+	const std::string &share = porting::path_share;
+	const std::string &user = porting::path_user;
+	std::unordered_map<std::string, std::string> mods_paths;
+	mods_paths["mods"] = user + DIR_DELIM + "mods";
+	if (!user_game && user != share)
+		mods_paths["share"] = share + DIR_DELIM + "mods";
+
+	for (const std::string &mod_path : getEnvModPaths()) {
+		mods_paths[fs::AbsolutePath(mod_path)] = mod_path;
+	}
+
+	return getSubgameSpec(found->first, game_path, mods_paths);
+}
+
+SubgameSpec findWorldSubgame(const std::string &world_path)
+{
+	std::string world_gameid = getWorldGameId(world_path, true);
+	// See if world contains an embedded game; if so, use it.
+	std::string world_gamepath = world_path + DIR_DELIM + "game";
+	if (fs::PathExists(world_gamepath))
+		return getSubgameSpec(world_gameid, world_gamepath, {});
+	return findSubgame(world_gameid);
 }
 
 bool getWorldExists(const std::string &world_path)
@@ -275,12 +307,6 @@ std::string getWorldGameId(const std::string &world_path, bool can_be_legacy)
 	if (!conf.exists("gameid"))
 		return "";
 	return conf.get("gameid");
-}
-
-std::string getWorldPathEnv()
-{
-	char *world_path = getenv("MINETEST_WORLD_PATH");
-	return world_path ? std::string(world_path) : "";
 }
 
 std::vector<WorldSpec> getAvailableWorlds()
