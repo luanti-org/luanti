@@ -2429,6 +2429,8 @@ void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
 
 	sky->setFogColor(event->set_sky->fog_color);
 
+	sky->setAutoCaveBrightness(event->set_sky->auto_dim_skybox);
+
 	delete event->set_sky;
 }
 
@@ -3406,8 +3408,10 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 
 	// When in noclip mode force same sky brightness as above ground so you
 	// can see properly
-	if (draw_control->allow_noclip && m_cache_enable_free_move &&
-		client->checkPrivilege("fly")) {
+	bool noclip_fly = draw_control->allow_noclip &&
+			m_cache_enable_free_move &&
+			client->checkPrivilege("fly");
+	if (!sky->getAutoCaveBrightness() || noclip_fly) {
 		direct_brightness = time_brightness;
 		sunlight_seen = true;
 	} else {
