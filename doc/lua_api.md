@@ -222,7 +222,8 @@ The location of this directory can be fetched by using
 A `Settings` file that provides meta information about the mod.
 
 * `name`: The mod name. Allows Luanti to determine the mod name even if the
-          folder is wrongly named.
+          folder is wrongly named. Valid names include only the characters
+          `a-z0-9_`.
 * `title`: A human-readable title to address the mod. See [Translating content meta](#translating-content-meta).
 * `description`: Description of mod to be shown in the Mods tab of the main
                  menu. See [Translating content meta](#translating-content-meta).

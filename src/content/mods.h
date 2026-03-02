@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vector>
+#include <set>
 #include <string>
 #include <map>
 #include <unordered_set>
@@ -65,6 +66,8 @@ struct ModSpec
 	}
 
 	void checkAndLog() const;
+
+	static void logModLoadErrors();
 };
 
 /**
