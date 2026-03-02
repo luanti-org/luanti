@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 #include "irr_v3d.h"
 #include "mapnode.h"
 #include "exceptions.h"
@@ -354,6 +355,14 @@ public:
 	{
 		return m_usage_timer;
 	}
+
+	////
+	//// Node mapping (for API access)
+	////
+
+	// Count the number of nodes with each content type in this block
+	// Returns a map of content_t to count
+	std::unordered_map<content_t, u32> getContentCounts() const;
 
 	////
 	//// Reference counting (different purposes on client vs. server)

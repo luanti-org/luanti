@@ -301,3 +301,81 @@ core.register_chatcommand("set_saturation", {
 		core.get_player_by_name(player_name):set_lighting({saturation = saturation })
 	end
 })
+
+core.register_chatcommand("test_get_node_counts", {
+	params = "[<nodenames>]",
+	description = "Test: Get node counts in the current mapblock. Optional: specify node names to count (comma-separated)",
+	func = function(name, param)
+		local player = core.get_player_by_name(name)
+		if not player then
+			return false, "No player."
+		end
+		local pos = player:get_pos()
+		
+		-- Calculate mapblock position and convert to world coordinates
+		-- A mapblock is 16x16x16 nodes
+		local blockpos = {
+			x = math.floor(pos.x / 16),
+			y = math.floor(pos.y / 16),
+			z = math.floor(pos.z / 16)
+		}
+		
+		-- Define the mapblock area
+		local minp = {
+			x = blockpos.x * 16,
+			y = blockpos.y * 16,
+			z = blockpos.z * 16
+		}
+		local maxp = {
+			x = minp.x + 15,
+			y = minp.y + 15,
+			z = minp.z + 15
+		}
+		
+		-- Parse node names if provided, otherwise use common node types
+		local nodenames
+		if param and param ~= "" then
+			nodenames = {}
+			for nodename in param:gmatch("[^,]+") do
+				table.insert(nodenames, nodename:match("^%s*(.-)%s*$"))  -- trim whitespace
+			end
+		else
+			-- Default to common node types
+			nodenames = {"air", "group:stone", "group:soil", "group:tree"}
+		end
+		
+		-- Get node counts using the new API
+		local counts = core.get_node_counts_in_area(minp, maxp, nodenames)
+		
+		if not counts then
+			return false, string.format("Could not get node counts for mapblock (%d, %d, %d)",
+				blockpos.x, blockpos.y, blockpos.z)
+		end
+		
+		-- Build result string
+		local result = {}
+		local total_nodes = 0
+		
+		table.insert(result, string.format("Node counts for mapblock (%d, %d, %d):",
+			blockpos.x, blockpos.y, blockpos.z))
+		table.insert(result, string.format("World coords: (%d,%d,%d) to (%d,%d,%d)",
+			minp.x, minp.y, minp.z, maxp.x, maxp.y, maxp.z))
+		
+		-- Sort node names for consistent output
+		local sorted_names = {}
+		for node_name, _ in pairs(counts) do
+			table.insert(sorted_names, node_name)
+		end
+		table.sort(sorted_names)
+		
+		for _, node_name in ipairs(sorted_names) do
+			local count = counts[node_name]
+			table.insert(result, string.format("  %s: %d", node_name, count))
+			total_nodes = total_nodes + count
+		end
+		
+		table.insert(result, string.format("Total counted: %d nodes", total_nodes))
+		
+		return true, table.concat(result, "\n")
+	end,
+})
