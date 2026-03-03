@@ -43,6 +43,12 @@ private:
 		core::vector3df(0, 0, 1), core::vector3df(0, 0, -1)
 	};
 
+	static constexpr v3s16 tile_dirs[6] = {
+		{0, 1, 0}, {0, -1, 0},
+		{1, 0, 0}, {-1, 0, 0},
+		{0, 0, 1}, {0, 0, -1}
+	};
+
 	using bitset = u64;
 	static constexpr bitset U62_MAX = U64_MAX >> 2;
 
@@ -98,7 +104,10 @@ private:
 		u8 last_transparent_iter[3 * BITSET_MAX2] = {};
 	} m_cur_seg;
 
-	void drawMeshNode(v3s16 pos, MapNode n, const ContentFeatures *f) const;
+	void drawSolidNode();
+	void drawNode();
+
+	void drawMeshNode();
 	void generateGreedyLod();
 	void generateBitsetMesh(MapNode n, v3s16 seg_start, video::SColor color_in);
 	void processNodeGroup(const std::array<bitset, 3 * BITSET_MAX2> &all_set_nodes,
