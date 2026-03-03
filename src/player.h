@@ -132,6 +132,30 @@ enum CameraMode : int {
 	CAMERA_MODE_THIRD_FRONT
 };
 
+struct PlayerCameraSpec
+{
+	CameraMode allowed_mode = CAMERA_MODE_ANY;
+	v2f yaw_limit = INVALID_LIMIT; // (min, max)
+	v2f pitch_limit = INVALID_LIMIT; // (min, max)
+
+	inline bool yawValid() const {
+		return yaw_limit.X <= yaw_limit.Y;
+	}
+	inline bool pitchValid() const {
+		return pitch_limit.X <= pitch_limit.Y;
+	}
+
+	inline bool operator==(const PlayerCameraSpec &other) const {
+		return allowed_mode == other.allowed_mode && yaw_limit == other.yaw_limit &&
+			pitch_limit == other.pitch_limit;
+	}
+	inline bool operator!=(const PlayerCameraSpec &other) const {
+		return !(*this == other);
+	}
+
+	static constexpr v2f INVALID_LIMIT = v2f(0, -1);
+};
+
 extern const struct EnumString es_CameraMode[];
 
 struct HudElement;
@@ -166,7 +190,7 @@ public:
 		return size;
 	}
 
-	CameraMode allowed_camera_mode = CAMERA_MODE_ANY;
+	PlayerCameraSpec camera;
 
 	v3f eye_offset_first;
 	v3f eye_offset_third;
