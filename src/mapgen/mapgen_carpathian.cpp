@@ -373,6 +373,7 @@ int MapgenCarpathian::getSpawnLevelAtPoint(v2s16 p)
 
 	bool solid_below = false;
 	u8 cons_non_solid = 0; // consecutive non-solid nodes
+	const float neg_valley_river_depth = std::sqrt(-valley) * river_depth;
 
 	for (s16 y = water_level; y <= water_level + 32; y++) {
 		float mnt_var = NoiseFractal3D(&noise_mnt_var->np, p.X, y, p.Y, seed);
@@ -395,7 +396,7 @@ int MapgenCarpathian::getSpawnLevelAtPoint(v2s16 p)
 			if (valley < 0.0f) {
 				// River channel
 				surface_level = std::fmin(surface_level,
-					water_level - std::sqrt(-valley) * river_depth);
+					water_level - neg_valley_river_depth);
 			} else if (surface_level > water_level) {
 				// Valley slopes
 				surface_level = water_level + (surface_level - water_level) * valley;
@@ -496,6 +497,7 @@ int MapgenCarpathian::generateTerrain()
 		// Initialise 3D noise index and voxelmanip index to column base
 		u32 index3d = (z - node_min.Z) * zstride_1u1d + (x - node_min.X);
 		u32 vi = vm->m_area.index(x, node_min.Y - 1, z);
+		const float neg_valley_river_depth = std::sqrt(-valley) * river_depth;
 
 		for (s16 y = node_min.Y - 1; y <= node_max.Y + 1;
 				y++,
@@ -533,7 +535,7 @@ int MapgenCarpathian::generateTerrain()
 				if (valley < 0.0f) {
 					// River channel
 					surface_level = std::fmin(surface_level,
-						water_level - std::sqrt(-valley) * river_depth);
+						water_level - neg_valley_river_depth);
 				} else if (surface_level > water_level) {
 					// Valley slopes
 					surface_level = water_level + (surface_level - water_level) * valley;
