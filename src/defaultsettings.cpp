@@ -138,8 +138,8 @@ void set_default_settings()
 	settings->setDefault("keymap_right", "SYSTEM_SCANCODE_7"); // KEY_KEY_D
 	settings->setDefault("keymap_jump", "SYSTEM_SCANCODE_44"); // KEY_SPACE
 	settings->setDefault("keymap_sneak", "SYSTEM_SCANCODE_225"); // KEY_LSHIFT
-	settings->setDefault("keymap_dig", "KEY_LBUTTON");
-	settings->setDefault("keymap_place", "KEY_RBUTTON");
+	settings->setDefault("keymap_dig", "MOUSE_BUTTON_1");
+	settings->setDefault("keymap_place", "MOUSE_BUTTON_3");
 	settings->setDefault("keymap_drop", "SYSTEM_SCANCODE_20"); // KEY_KEY_Q
 	settings->setDefault("keymap_zoom", "SYSTEM_SCANCODE_29"); // KEY_KEY_Z
 	settings->setDefault("keymap_inventory", "SYSTEM_SCANCODE_12"); // KEY_KEY_I
