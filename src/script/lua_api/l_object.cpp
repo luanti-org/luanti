@@ -541,14 +541,20 @@ int ObjectRef::l_set_camera(lua_State *L)
 	if (lua_isstring(L, -1))
 		string_to_enum(es_CameraMode, cam.allowed_mode, lua_tostring(L, -1));
 	lua_pop(L, 1);
-	getfloatfield(L, -1, "min_yaw", cam.min_yaw);
-	getfloatfield(L, -1, "max_yaw", cam.max_yaw);
-	getfloatfield(L, -1, "min_pitch", cam.min_pitch);
-	getfloatfield(L, -1, "max_pitch", cam.max_pitch);
-	if (!cam.yawValid()) // prevent confusing behavior
-		cam.max_yaw = (cam.min_yaw = 0) - 1;
-	if (!cam.pitchValid())
-		cam.max_pitch = (cam.min_pitch = 0) - 1;
+	lua_getfield(L, -1, "yaw_limit");
+	if (lua_istable(L, -1)) {
+		cam.yaw_limit = PlayerCameraSpec::INVALID_LIMIT;
+		getfloatfield(L, -1, "min", cam.yaw_limit.X);
+		getfloatfield(L, -1, "max", cam.yaw_limit.Y);
+	}
+	lua_pop(L, 1);
+	lua_getfield(L, -1, "pitch_limit");
+	if (lua_istable(L, -1)) {
+		cam.pitch_limit = PlayerCameraSpec::INVALID_LIMIT;
+		getfloatfield(L, -1, "min", cam.pitch_limit.X);
+		getfloatfield(L, -1, "max", cam.pitch_limit.Y);
+	}
+	lua_pop(L, 1);
 
 	if (cam != player->camera) {
 		player->camera = cam;
@@ -570,12 +576,16 @@ int ObjectRef::l_get_camera(lua_State *L)
 	lua_newtable(L);
 	setstringfield(L, -1, "mode", enum_to_string(es_CameraMode, cam.allowed_mode));
 	if (cam.yawValid()) {
-		setfloatfield(L, -1, "min_yaw", cam.min_yaw);
-		setfloatfield(L, -1, "max_yaw", cam.max_yaw);
+		lua_newtable(L);
+		setfloatfield(L, -1, "min", cam.yaw_limit.X);
+		setfloatfield(L, -1, "max", cam.yaw_limit.Y);
+		lua_setfield(L, -2, "yaw_limit");
 	}
 	if (cam.pitchValid()) {
-		setfloatfield(L, -1, "min_pitch", cam.min_pitch);
-		setfloatfield(L, -1, "max_pitch", cam.max_pitch);
+		lua_newtable(L);
+		setfloatfield(L, -1, "min", cam.pitch_limit.X);
+		setfloatfield(L, -1, "max", cam.pitch_limit.Y);
+		lua_setfield(L, -2, "pitch_limit");
 	}
 
 	return 1;

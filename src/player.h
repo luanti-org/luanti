@@ -135,25 +135,25 @@ enum CameraMode : int {
 struct PlayerCameraSpec
 {
 	CameraMode allowed_mode = CAMERA_MODE_ANY;
-	f32 min_yaw = 0, max_yaw = -1;
-	f32 min_pitch = 0, max_pitch = -1;
+	v2f yaw_limit = INVALID_LIMIT; // (min, max)
+	v2f pitch_limit = INVALID_LIMIT; // (min, max)
 
 	inline bool yawValid() const {
-		return min_yaw <= max_yaw;
+		return yaw_limit.X <= yaw_limit.Y;
 	}
 	inline bool pitchValid() const {
-		return min_pitch <= max_pitch;
+		return pitch_limit.X <= pitch_limit.Y;
 	}
 
-#define EQ(prop) (prop == other.prop)
 	inline bool operator==(const PlayerCameraSpec &other) const {
-		return EQ(allowed_mode) && EQ(min_yaw) && EQ(max_yaw) &&
-			EQ(min_pitch) && EQ(max_pitch);
+		return allowed_mode == other.allowed_mode && yaw_limit == other.yaw_limit &&
+			pitch_limit == other.pitch_limit;
 	}
 	inline bool operator!=(const PlayerCameraSpec &other) const {
 		return !(*this == other);
 	}
-#undef EQ
+
+	static constexpr v2f INVALID_LIMIT = v2f(0, -1);
 };
 
 extern const struct EnumString es_CameraMode[];

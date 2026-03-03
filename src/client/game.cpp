@@ -2017,9 +2017,9 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 	// Apply server restrictions
 	const auto &cam_spec = player->camera;
 	if (cam_spec.yawValid())
-		cam->camera_yaw = rangelim(cam->camera_yaw, cam_spec.min_yaw, cam_spec.max_yaw);
+		cam->camera_yaw = rangelim(cam->camera_yaw, cam_spec.yaw_limit.X, cam_spec.yaw_limit.Y);
 	if (cam_spec.pitchValid())
-		cam->camera_pitch = rangelim(cam->camera_pitch, cam_spec.min_pitch, cam_spec.max_pitch);
+		cam->camera_pitch = rangelim(cam->camera_pitch, cam_spec.pitch_limit.X, cam_spec.pitch_limit.Y);
 
 	cam->camera_pitch = rangelim(cam->camera_pitch, -90, 90);
 }
