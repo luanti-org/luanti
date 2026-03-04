@@ -33,24 +33,6 @@ LodMeshGenerator::LodMeshGenerator(MeshMakeData *input, MeshCollector *output, c
 	m_is_textureless(is_textureless)
 {
 	m_solid_tile.layers[0].shader_id = solid_shader_id;
-
-	if (g_settings->getBool("translucent_liquids"))
-		m_transparent_set.set(NDT_LIQUID);
-	else
-		m_solid_set.set(NDT_LIQUID);
-
-	// transparents are rendered separately if not textureless
-	if (is_textureless) {
-		m_solid_set.set(NDT_GLASSLIKE);
-		m_solid_set.set(NDT_MESH);
-	}else {
-		m_transparent_set.set(NDT_GLASSLIKE);
-		m_transparent_set.set(NDT_MESH);
-	}
-
-	m_solid_set.set(NDT_NORMAL);
-	m_solid_set.set(NDT_NODEBOX);
-	m_solid_set.set(NDT_ALLFACES);
 }
 
 void LodMeshGenerator::drawMeshNode()
@@ -122,368 +104,6 @@ void LodMeshGenerator::drawMeshNode()
 	std::ignore = mesh->drop();
 }
 
-void LodMeshGenerator::generateBitsetMesh(const MapNode n, const v3s16 seg_start, const video::SColor color_in)
-{
-	const core::vector3df seg_offset(seg_start.X * BS, seg_start.Y * BS, seg_start.Z * BS);
-	const f32 scaled_BS = BS * m_node_width;
-	const bool is_liquid = m_nodedef->get(n).drawtype == NDT_LIQUID || m_nodedef->get(n).drawtype == NDT_FLOWINGLIQUID;
-	const bool uses_textureless_tile = m_is_textureless & (!is_liquid || !g_settings->getBool("enable_waving_water"));
-
-	core::vector2d<f32> uvs[4];
-	core::vector3df vertices[4];
-	video::S3DVertex irr_vertices[4];
-	for (u8 direction = 0; direction < Direction_END; direction++) {
-		TileSpec tile;
-		video::SColor color;
-		getNodeTileN(n, m_blockpos_nodes, direction, m_data, tile);
-		if (uses_textureless_tile) {
-			// When generating a mesh with no texture, we have to color the vertices instead of relying on the texture.
-			video::SColor c2 = m_nodedef->get(n).visuals->average_colors[direction];
-			video::SColor c3 = tile.layers[0].color;
-			color = video::SColor(
-				color_in.getAlpha(),
-				color_in.getRed() * c2.getRed() * c3.getRed() / 65025U,
-				color_in.getGreen() * c2.getGreen() * c3.getGreen() / 65025U,
-				color_in.getBlue() * c2.getBlue() * c3.getBlue() / 65025U);
-		} else {
-			color = color_in;
-		}
-
-		const u64 direction_offset = BITSET_MAX_NOPAD2 * direction;
-		for (u8 slice_i = 0; slice_i < BITSET_MAX_NOPAD; slice_i++) {
-			const u64 slice_offset = direction_offset + BITSET_MAX_NOPAD * slice_i;
-			for (u8 u = 0; u < BITSET_MAX_NOPAD; u++) {
-
-				bitset column = m_cur_seg.m_slices[slice_offset + u];
-				while (column) {
-					s32 v0 = porting::ctzll(column);
-					// Shift the bitset down, so it has no low 0s anymore,
-					// then count the numer of low 1s to get the length of the greedy quad.
-					s32 v1 = porting::ctzll(~(column >> v0));
-					const bitset mask = ((1ULL << v1) - 1) << v0;
-					column ^= mask;
-					// Determine the width of the greedy quad
-					s32 u1 = 1;
-					while (u + u1 < BITSET_MAX_NOPAD && // while still in current chunk
-						(m_cur_seg.m_slices[slice_offset + u + u1] & mask) == mask // and next column shares faces
-						) {
-						// then increase width and unset the bits
-						m_cur_seg.m_slices[slice_offset + u + u1] ^= mask;
-						u1++;
-					}
-
-					switch (direction) {
-					case LEFT:
-					case RIGHT:
-					case DOWN:
-					case BACK:
-						uvs[0] = core::vector2d<f32>{0, static_cast<f32>(u1*m_node_width)};
-						uvs[1] = core::vector2d<f32>{0, 0};
-						uvs[2] = core::vector2d<f32>{static_cast<f32>(v1*m_node_width), 0};
-						uvs[3] = core::vector2d<f32>{static_cast<f32>(v1*m_node_width), static_cast<f32>(u1*m_node_width)};
-						break;
-					default:
-						uvs[0] = core::vector2d<f32>{0, static_cast<f32>(v1*m_node_width)};
-						uvs[1] = core::vector2d<f32>{0, 0};
-						uvs[2] = core::vector2d<f32>{static_cast<f32>(u1*m_node_width), 0};
-						uvs[3] = core::vector2d<f32>{static_cast<f32>(u1*m_node_width), static_cast<f32>(v1*m_node_width)};
-					}
-
-					// calculate low (0) and high (1) coordinates for u and v axis
-					u1 = (u + u1) * scaled_BS - BS / 2;
-					const s32 u0 = u * scaled_BS - BS / 2;
-					v1 = (v0 + v1) * scaled_BS - BS / 2;
-					v0 = v0 * scaled_BS - BS / 2;
-					// calculate depth at which to place the quad
-					const s32 w = ((slice_i + 1) * m_node_width - 1
-						+ (direction % 2 == 1 ? -m_node_width + 1 : 1)) * BS
-						- BS / 2;
-
-					switch (direction) {
-					case UP:
-					case DOWN:
-						vertices[0] = core::vector3df(u0, w, v0);
-						vertices[1] = core::vector3df(u1, w, v0);
-						vertices[2] = core::vector3df(u1, w, v1);
-						vertices[3] = core::vector3df(u0, w, v1);
-						break;
-					case LEFT:
-						vertices[0] = core::vector3df(w, u0, v0);
-						vertices[1] = core::vector3df(w, u0, v1);
-						vertices[2] = core::vector3df(w, u1, v1);
-						vertices[3] = core::vector3df(w, u1, v0);
-						break;
-					case RIGHT:
-						vertices[0] = core::vector3df(w, u0, v1);
-						vertices[1] = core::vector3df(w, u1, v1);
-						vertices[2] = core::vector3df(w, u1, v0);
-						vertices[3] = core::vector3df(w, u0, v0);
-						break;
-					case BACK:
-						vertices[0] = core::vector3df(u1, v0, w);
-						vertices[1] = core::vector3df(u0, v0, w);
-						vertices[2] = core::vector3df(u0, v1, w);
-						vertices[3] = core::vector3df(u1, v1, w);
-						break;
-					default:
-						vertices[0] = core::vector3df(u0, v0, w);
-						vertices[1] = core::vector3df(u0, v1, w);
-						vertices[2] = core::vector3df(u1, v1, w);
-						vertices[3] = core::vector3df(u1, v0, w);
-						break;
-					}
-					for (core::vector3df& v : vertices)
-						v += seg_offset;
-
-					// set winding order
-					switch (direction) {
-					case 1:
-					case 3:
-					case 5:
-						irr_vertices[0] = video::S3DVertex(vertices[0], s_normals[direction], color, uvs[0]);
-						irr_vertices[1] = video::S3DVertex(vertices[1], s_normals[direction], color, uvs[1]);
-						irr_vertices[2] = video::S3DVertex(vertices[2], s_normals[direction], color, uvs[2]);
-						irr_vertices[3] = video::S3DVertex(vertices[3], s_normals[direction], color, uvs[3]);
-						break;
-					default:
-						irr_vertices[0] = video::S3DVertex(vertices[0], s_normals[direction], color, uvs[0]);
-						irr_vertices[1] = video::S3DVertex(vertices[3], s_normals[direction], color, uvs[1]);
-						irr_vertices[2] = video::S3DVertex(vertices[2], s_normals[direction], color, uvs[2]);
-						irr_vertices[3] = video::S3DVertex(vertices[1], s_normals[direction], color, uvs[3]);
-					}
-					m_collector->append(uses_textureless_tile ? m_solid_tile : tile, irr_vertices, 4, quad_indices, 6);
-				}
-			}
-		}
-	}
-}
-
-void LodMeshGenerator::processNodeGroup(const std::array<bitset, 3 * BITSET_MAX2> &all_set_nodes,
-		std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> &subset_nodes,
-		std::map<content_t, MapNode> &node_types)
-{
-	for (const auto& [node_key, nodes] : subset_nodes) {
-		for (u8 u = 1; u <= BITSET_MAX_NOPAD; u++)
-		for (u8 v = 1; v <= BITSET_MAX_NOPAD; v++) {
-			// Shifting the bitset of set nodes in a column to the right, inverting it, then &-ing it with another bitset
-			// leaves only the bits with no neighbors to their left. So this calculates all left facing node faces
-			// in that column.
-			// To do it like this means we need a bit of padding on each side, which is why we are limited to only 62
-			// nodes per volume.
-			// These operations are considerably faster on a regular u64 (here aliased as bitset) instead of an
-			// std::bitset, so we *cant* flatten these bitsets into one large std::bitset.
-
-			// Y-Up
-			m_cur_seg.m_nodes_faces[BITSET_MAX_NOPAD * (u - 1) + v - 1] =
-				(nodes[BITSET_MAX2 + BITSET_MAX * u + v] &
-				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * u + v] >> 1))
-				>> 1 & U62_MAX;
-
-			// Y-Down
-			m_cur_seg.m_nodes_faces[BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
-				(nodes[BITSET_MAX2 + BITSET_MAX * u + v] &
-				~(all_set_nodes[BITSET_MAX2 + BITSET_MAX * u + v] << 1))
-				>> 1 & U62_MAX;
-		}
-
-		for (u8 u = 1; u <= BITSET_MAX_NOPAD; u++)
-		for (u8 v = 1; v <= BITSET_MAX_NOPAD; v++) {
-			// X-Up
-			m_cur_seg.m_nodes_faces[2 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
-				(nodes[BITSET_MAX * u + v] &
-				~(all_set_nodes[BITSET_MAX * u + v] >> 1))
-				>> 1 & U62_MAX;
-
-			// X-Down
-			m_cur_seg.m_nodes_faces[3 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
-				(nodes[BITSET_MAX * u + v] &
-				~(all_set_nodes[BITSET_MAX * u + v] << 1))
-				>> 1 & U62_MAX;
-		}
-
-		for (u8 u = 1; u <= BITSET_MAX_NOPAD; u++)
-		for (u8 v = 1; v <= BITSET_MAX_NOPAD; v++) {
-			// Z-Up
-			m_cur_seg.m_nodes_faces[4 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
-				(nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] &
-				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] >> 1))
-				>> 1 & U62_MAX;
-
-			// Z-Down
-			m_cur_seg.m_nodes_faces[5 * BITSET_MAX_NOPAD2 + BITSET_MAX_NOPAD * (u - 1) + v - 1] =
-				(nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] &
-				~(all_set_nodes[2 * BITSET_MAX2 + BITSET_MAX * u + v] << 1))
-				>> 1 & U62_MAX;
-		}
-
-		// We only calculated the visible node faces per column, so far.
-		// But to use greedy meshing, we need the faces *next* to each other, not behind each other.
-		// Each node face is mapped to their corresponding slice/plane
-		memset(m_cur_seg.m_slices, 0, sizeof(m_cur_seg.m_slices));
-		for (u8 direction = 0; direction < Direction_END; direction++) {
-			const u64 direction_offset = BITSET_MAX_NOPAD2 * direction;
-			for (u8 u = 0; u < BITSET_MAX_NOPAD; u++) {
-				const u64 u_offset = direction_offset + BITSET_MAX_NOPAD * u;
-				for (u8 v = 0; v < BITSET_MAX_NOPAD; v++) {
-					bitset column = m_cur_seg.m_nodes_faces[u_offset + v];
-					while (column) {
-						const u8 first_filled = porting::ctzll(column);
-						m_cur_seg.m_slices[direction_offset + BITSET_MAX_NOPAD * first_filled + u] |= 1ULL << v;
-						column &= column - 1;
-					}
-				}
-			}
-		}
-
-		MapNode n = node_types[node_key.content];
-		const video::SColor color = encode_light(node_key.light, m_nodedef->getLightingFlags(n).light_source);
-
-		generateBitsetMesh(n, m_cur_seg.start - m_blockpos_nodes, color);
-	}
-}
-
-LightPair LodMeshGenerator::computeMaxFaceLight(const v3s16 p, const v3s16 dir)
-{
-	MapNode n1 = m_data->m_vmanip.getNodeNoExNoEmerge(p + dir);
-	if (n1.getContent() == CONTENT_IGNORE) {
-		const v3s16 p_scaled = (p + dir - m_cur_seg.start + 1) / m_node_width;
-		setBitIndex(p_scaled.X, p_scaled.Y, p_scaled.Z);
-	}
-	MapNode n2 = m_data->m_vmanip.getNodeNoExNoEmerge(p - dir);
-	if (n1.getContent() == CONTENT_IGNORE) {
-		const v3s16 p_scaled = (p - dir - m_cur_seg.start + 1) / m_node_width;
-		setBitIndex(p_scaled.X, p_scaled.Y, p_scaled.Z);
-	}
-	const u16 lp1 = getFaceLight(m_cur_node.n, n1, m_nodedef);
-	const u16 lp2 = getFaceLight(m_cur_node.n, n2, m_nodedef);
-	return static_cast<LightPair>(std::max(lp1, lp2));
-}
-
-void LodMeshGenerator::setBitIndex(u8 x, u8 y, u8 z)
-{
-	auto &vol = m_cur_node.is_solid ? m_cur_seg.m_all_set_solid_nodes : m_cur_seg.m_all_set_transparent_nodes;
-	auto &iters = m_cur_node.is_solid ? m_cur_seg.last_solid_iter : m_cur_seg.last_transparent_iter;
-
-	if (iters[BITSET_MAX * y + z] != m_cur_seg.iter) {
-		iters[BITSET_MAX * y + z] = m_cur_seg.iter;
-		vol[BITSET_MAX * y + z] = 0;
-	}
-	if (iters[BITSET_MAX2 + BITSET_MAX * x + z] != m_cur_seg.iter) {
-		iters[BITSET_MAX2 + BITSET_MAX * x + z] = m_cur_seg.iter;
-		vol[BITSET_MAX2 + BITSET_MAX * x + z] = 0;
-	}
-	if (iters[2 * BITSET_MAX2 + BITSET_MAX * x + y] != m_cur_seg.iter) {
-		iters[2 * BITSET_MAX2 + BITSET_MAX * x + y] = m_cur_seg.iter;
-		vol[2 * BITSET_MAX2 + BITSET_MAX * x + y] = 0;
-	}
-
-	vol[BITSET_MAX * y + z] |= 1ULL << x; // x axis
-	vol[BITSET_MAX2 + BITSET_MAX * x + z] |= 1ULL << y; // y axis
-	vol[2 * BITSET_MAX2 + BITSET_MAX * x + y] |= 1ULL << z; // z axis
-}
-
-void LodMeshGenerator::generateGreedyLod()
-{
-	m_cur_seg.iter++;
-	std::map<content_t, MapNode> node_types;
-	// all nodes in this volume, on each of the 3 axes, grouped by type and brightness, for use in actual mesh generation
-	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> set_solid_nodes;
-	std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> set_transparent_nodes;
-
-	const v3s16 to = m_cur_seg.start + m_cur_seg.m_seg_size + m_node_width;
-
-	bool has_solids = false;
-	bool has_transparents = false;
-	v3s16 p;
-	for (p.Z = m_cur_seg.start.Z - 1; p.Z < to.Z; p.Z += m_node_width)
-	for (p.Y = m_cur_seg.start.Y - 1; p.Y < to.Y; p.Y += m_node_width)
-	for (p.X = m_cur_seg.start.X - 1; p.X < to.X; p.X += m_node_width) {
-		if (!m_data->m_vmanip.m_area.contains(p))
-			continue;
-		m_cur_node.n = m_data->m_vmanip.getNodeRefUnsafeCheckFlags(p);
-		// when our sample is air, take more samples in a straight line down, to make sure we always hit the surface
-		// otherwise, snowy mountains or grassy hills would display lumps of dirt and stone
-		m_cur_node.f = &m_nodedef->get(m_cur_node.n);
-		for (u8 subtr = 1; subtr < m_node_width && m_cur_node.f->drawtype == NDT_AIRLIKE; subtr++) {
-			// this assumes that we always have entire blocks emerged for meshgen
-			m_cur_node.n = m_data->m_vmanip.getNodeRefUnsafeCheckFlags(p - v3s16(0, subtr, 0));
-			m_cur_node.f = &m_nodedef->get(m_cur_node.n);
-		}
-
-		if (!m_is_textureless && m_cur_node.f->drawtype == NDT_MESH) {
-			drawMeshNode();
-			continue;
-		}
-
-		m_cur_node.is_solid = m_solid_set.test(m_cur_node.f->drawtype);
-		const bool is_transparent = m_transparent_set.test(m_cur_node.f->drawtype);
-		if (!m_cur_node.is_solid && !is_transparent) {
-			continue;
-		}
-		has_solids |= m_cur_node.is_solid;
-		has_transparents |= is_transparent;
-
-		const content_t node_type = m_cur_node.n.getContent();
-		const v3s16 p_scaled = (p - m_cur_seg.start + 1) / m_node_width;
-		node_types.try_emplace(node_type, m_cur_node.n);
-
-		if (m_cur_node.f->drawtype == NDT_NORMAL) {
-			// take a light sample for each side of a node, on each axis and take the maximum.
-			// it would be more accurate to take a sample for each of the 6 directions intead of each axis,
-			// but that would take twice the ram
-			LightPair lp = computeMaxFaceLight(p, v3s16(m_node_width, 0, 0));
-			NodeKey key = NodeKey{node_type, lp};
-			set_solid_nodes[key][BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
-
-			lp = computeMaxFaceLight(p, v3s16(0, m_node_width, 0));
-			key = NodeKey{node_type, lp};
-			set_solid_nodes[key][BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
-
-			lp = computeMaxFaceLight(p, v3s16(0, 0, m_node_width));
-			key = NodeKey{node_type, lp};
-			set_solid_nodes[key][2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
-		} else {
-			const LightPair lp = static_cast<LightPair>(getInteriorLight(m_cur_node.n, 0, m_nodedef));
-
-			NodeKey key{node_type, lp};
-			auto &nodes = m_cur_node.is_solid ? set_solid_nodes[key] : set_transparent_nodes[key];
-			nodes[BITSET_MAX * p_scaled.Y + p_scaled.Z] |= 1ULL << p_scaled.X; // x axis
-			nodes[BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Z] |= 1ULL << p_scaled.Y; // y axis
-			nodes[2 * BITSET_MAX2 + BITSET_MAX * p_scaled.X + p_scaled.Y] |= 1ULL << p_scaled.Z; // z axis
-		}
-
-		setBitIndex(p_scaled.X, p_scaled.Y, p_scaled.Z);
-	}
-
-	if (has_solids)
-		processNodeGroup(m_cur_seg.m_all_set_solid_nodes, set_solid_nodes, node_types);
-	if (has_transparents)
-		processNodeGroup(m_cur_seg.m_all_set_transparent_nodes, set_transparent_nodes, node_types);
-}
-
-void LodMeshGenerator::generateLodChunks()
-{
-	ScopeProfiler sp(g_profiler, "Client: Mesh Making LOD Greedy", SPT_AVG);
-
-	// split chunk into 62^3 segments to be able to use 64 bit ints as bitsets
-	// the other two bits are used as padding to find node faces
-	const int attempted_seg_size = BITSET_MAX_NOPAD * m_node_width;
-
-	for (u16 x = 0; x < m_data->m_side_length; x += attempted_seg_size)
-	for (u16 y = 0; y < m_data->m_side_length; y += attempted_seg_size)
-	for (u16 z = 0; z < m_data->m_side_length; z += attempted_seg_size) {
-		m_cur_seg.start = v3s16(
-			x + m_blockpos_nodes.X,
-			y + m_blockpos_nodes.Y,
-			z + m_blockpos_nodes.Z);
-		m_cur_seg.m_seg_size = v3s16(
-			std::min(m_data->m_side_length - x - 1, attempted_seg_size),
-			std::min(m_data->m_side_length - y - 1, attempted_seg_size),
-			std::min(m_data->m_side_length - z - 1, attempted_seg_size));
-		generateGreedyLod();
-	}
-}
-
 void LodMeshGenerator::drawSolidNode()
 {
 	aabb3f box(v3f(-0.5 * BS), v3f(-0.5 * BS));
@@ -491,21 +111,21 @@ void LodMeshGenerator::drawSolidNode()
 	box.MaxEdge += intToFloat(m_cur_node.p + 1, BS);
 
 	const bool is_liquid = m_cur_node.f->drawtype == NDT_LIQUID || m_cur_node.f->drawtype == NDT_FLOWINGLIQUID;
-	const bool uses_textureless_tile = m_is_textureless && (!is_liquid || !g_settings->getBool("enable_waving_water"));
+	const bool uses_textureless_tile = m_is_textureless && !(is_liquid && g_settings->getBool("enable_waving_water"));
 
 	core::vector2d<f32> uvs[4];
 	core::vector3df vertices[4];
 	video::S3DVertex irr_vertices[4];
 
 	for (int face = 0; face < Direction_END; face++) {
-		v3s16 p2 = m_blockpos_nodes + m_cur_node.p + tile_dirs[face] * m_node_width;
-		MapNode neighbor = m_data->m_vmanip.getNodeNoEx(p2);
+		v3s16 p2 = m_cur_node.p + tile_dirs[face] * m_node_width + m_blockpos_nodes;
+		MapNode neighbor = m_data->m_vmanip.getNodeNoExNoEmerge(p2);
 		const content_t n2 = neighbor.getContent();
 		if (n2 == m_cur_node.n.getContent() || n2 == CONTENT_IGNORE)
 			continue;
 		if (n2 != CONTENT_AIR) {
 			const ContentFeatures &f2 = m_nodedef->get(n2);
-			if (f2.visuals->solidness == 2 || (m_cur_node.f->drawtype == NDT_LIQUID && m_cur_node.f->sameLiquidRender(f2)))
+			if (f2.visuals->solidness == 2 || (is_liquid && m_cur_node.f->sameLiquidRender(f2)))
 				continue;
 		}
 
@@ -608,25 +228,21 @@ void LodMeshGenerator::drawNode()
 	}
 }
 
-#include <chrono>
 void LodMeshGenerator::generate(const u8 lod)
 {
 	ZoneScoped;
 	ScopeProfiler sp(g_profiler, "Client: Mesh Making LOD", SPT_AVG);
 
-	using clock = std::chrono::steady_clock;
+	// cap LODs to 7, since there is no use for such large LODs
+	m_node_width = 1 << std::min(lod - 1, 6);
 
-	static u64 call_count[8] = {};
-	static std::chrono::nanoseconds total_time[8] = {};
+	// letting an lod node be larger than this results in too many holes in the mesh due to content_ignore
+	if (m_node_width > 2 * std::log2(m_data->m_side_length))
+		m_node_width = 2 * std::log2(m_data->m_side_length);
 
-	auto start = clock::now();
-
-	// cap LODs to 8, since there is no use for larger than 256 node LODs
-	m_node_width = 1 << MYMIN(lod - 1, 7);
-
-	// cap LODs width to chunk size to account for different mesh chunk settings
-	if (m_node_width > m_data->m_side_length)
-		m_node_width = m_data->m_side_length;
+	// reduce LOD size until it actually divides the mesh width,
+	// in case mesh width is not a power of two or if the LOD size previously got capped
+	while (m_data->m_side_length % m_node_width != 0) m_node_width--;
 
 	v3s16 p;
 	for (p.Z = m_node_width - 1; p.Z < m_data->m_side_length; p.Z += m_node_width)
@@ -646,16 +262,5 @@ void LodMeshGenerator::generate(const u8 lod)
 			m_cur_node.f = &m_nodedef->get(m_cur_node.n);
 		}
 		drawNode();
-	}
-
-	auto end = clock::now();
-
-	total_time[lod] += end - start;
-	call_count[lod]++;
-
-	if (call_count[lod] % (10 * (1 << lod)) == 0) {
-		warningstream << "Average for LOD" << (u32) lod << " : "
-				  << (total_time[lod].count() / call_count[lod])
-				  << " ns\n";
 	}
 }

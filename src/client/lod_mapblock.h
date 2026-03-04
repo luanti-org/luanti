@@ -49,25 +49,11 @@ private:
 		{0, 0, 1}, {0, 0, -1}
 	};
 
-	using bitset = u64;
-	static constexpr bitset U62_MAX = U64_MAX >> 2;
-
-	// max bits the fit in a bitset
-	static constexpr s16 BITSET_MAX = 64;
-	// max bits the fit in a bitset squared
-	static constexpr s16 BITSET_MAX2 = BITSET_MAX * BITSET_MAX;
-	// max bits the fit in a bitset without padding nodes
-	static constexpr s16 BITSET_MAX_NOPAD = 62;
-	// max bits the fit in a bitset without padding nodes squared
-	static constexpr s16 BITSET_MAX_NOPAD2 = BITSET_MAX_NOPAD * BITSET_MAX_NOPAD;
-
 	MeshMakeData *const m_data;
 	MeshCollector *const m_collector;
 	const NodeDefManager *const m_nodedef;
 	const v3s16 m_blockpos_nodes;
 	const bool m_is_textureless;
-	std::bitset<NodeDrawType_END> m_solid_set;
-	std::bitset<NodeDrawType_END> m_transparent_set;
 
 	u8 m_node_width;
 
@@ -84,36 +70,9 @@ private:
 		v3s16 p; // relative to blockpos_nodes
 		MapNode n;
 		const ContentFeatures *f;
-		bool is_solid;
 	} m_cur_node;
 
-	// LOD mesh gen uses bit shifts for gredy meshing, so we have to split the volume into segments that fit in a u64
-	struct {
-		u8 iter = 0;
-
-		v3s16 start;
-		v3s16 m_seg_size;
-
-		bitset m_nodes_faces[6 * BITSET_MAX_NOPAD2];
-		bitset m_slices[6 * BITSET_MAX_NOPAD2];
-
-		std::array<bitset, 3 * BITSET_MAX2> m_all_set_solid_nodes{};
-		u8 last_solid_iter[3 * BITSET_MAX2] = {};
-
-		std::array<bitset, 3 * BITSET_MAX2> m_all_set_transparent_nodes{};
-		u8 last_transparent_iter[3 * BITSET_MAX2] = {};
-	} m_cur_seg;
-
+	void drawMeshNode();
 	void drawSolidNode();
 	void drawNode();
-
-	void drawMeshNode();
-	void generateGreedyLod();
-	void generateBitsetMesh(MapNode n, v3s16 seg_start, video::SColor color_in);
-	void processNodeGroup(const std::array<bitset, 3 * BITSET_MAX2> &all_set_nodes,
-		std::unordered_map<NodeKey, std::array<bitset, 3 * BITSET_MAX2>> &subset_nodes,
-		std::map<content_t, MapNode> &node_types);
-	LightPair computeMaxFaceLight(v3s16 p, v3s16 dir);
-	void setBitIndex(u8 x, u8 y, u8 z);
-	void generateLodChunks();
 };

@@ -128,7 +128,10 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 		// other block positions are on the corner, so offset this position as well for dist calcs
 		- m_client->getMeshGrid().cell_size / 2;
 	const u16 dist2 = cam_pos.getDistanceFromSQ(mesh_grid.getMeshPos(p));
-	u16 lod_threshold = g_settings->getU16("lod_threshold");
+	// Cant go below 1/sqrt(2) of client mesh size or the current chunk might get LOD'd
+	f32 lod_threshold = std::max(
+		g_settings->getFloat("lod_threshold"),
+		g_settings->getFloat("client_mesh_chunk") * 0.7071f);
 	lod_threshold *= lod_threshold;
 	const u8 lod = dist2 < lod_threshold ? 0 :
 		1 + static_cast<u8>(std::log2(dist2 / lod_threshold) / g_settings->getFloat("lod_quality"));
