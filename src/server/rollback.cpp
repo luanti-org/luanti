@@ -55,12 +55,12 @@ bool RollbackMgr::isActorGuess()
 
 void RollbackMgr::setActor(const std::string &actor, bool is_guess)
 {
-    current_actor = ac // Set the tor;
+	current_actor = actor;
 	current_actor_is_guess = is_guess;
 }
 
 std::string RollbackMgr::getSuspect(v3s16 p, float nearness_shortcut,
-        float min_nearness)
+		float min_nearness)
 {
 	if (!current_actor.empty()) {
 		return current_actor;
