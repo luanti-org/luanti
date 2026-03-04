@@ -2130,11 +2130,12 @@ static void pauseNodeAnimation(PausedNodesList &paused, scene::ISceneNode *node)
 	if (node->getType() != scene::ESNT_ANIMATED_MESH)
 		return;
 	auto animated_node = static_cast<scene::AnimatedMeshSceneNode *>(node);
-	float speed = animated_node->getAnimationSpeed();
-	if (!speed)
-		return;
-	paused.emplace_back(grab(animated_node), speed);
-	animated_node->setAnimationSpeed(0.0f);
+	std::vector<PausedNode::Track> tracks;
+	for (auto &[track, spec] : animated_node->getAnimation().tracks) {
+		tracks.emplace_back(PausedNode::Track{track, spec.fps});
+		spec.fps = 0.0f;
+	}
+	paused.emplace_back(PausedNode{grab(animated_node), tracks});
 }
 
 void Game::pauseAnimation()
@@ -2144,8 +2145,12 @@ void Game::pauseAnimation()
 
 void Game::resumeAnimation()
 {
-	for (auto &&pair: paused_animated_nodes)
-		pair.first->setAnimationSpeed(pair.second);
+	for (const auto &paused: paused_animated_nodes) {
+		for (const auto &track: paused.tracks) {
+			auto &spec = paused.node->getAnimation().tracks[track.id];
+			spec.fps = track.fps;
+		}
+	}
 	paused_animated_nodes.clear();
 }
 
