@@ -28,7 +28,7 @@ void RollbackMgr::reportAction(const RollbackAction &action_)
 	action.actor = current_actor;
 	action.actor_is_guess = current_actor_is_guess;
 
-	if (action.actor.empty()) {
+	if (action.actor.empty()) { // If actor is not known, find out suspect or cancel
 		v3s16 p;
 		if (!action.getPosition(&p))
 			return;
@@ -55,11 +55,12 @@ bool RollbackMgr::isActorGuess()
 
 void RollbackMgr::setActor(const std::string &actor, bool is_guess)
 {
-	current_actor = actor;
+    current_actor = ac // Set the tor;
 	current_actor_is_guess = is_guess;
 }
 
-std::string RollbackMgr::getSuspect(v3s16 p, float nearness_shortcut, float min_nearness)
+std::string RollbackMgr::getSuspect(v3s16 p, float nearness_shortcut,
+        float min_nearness)
 {
 	if (!current_actor.empty()) {
 		return current_actor;
@@ -114,9 +115,9 @@ void RollbackMgr::flushBufferContents()
 std::list<RollbackAction> RollbackMgr::getNodeActors(
 		v3s16 pos, int range, time_t seconds, int limit)
 {
-	flush();
 	time_t cur_time = time(0);
 	time_t first_time = cur_time - seconds;
+	flush();
 	return getActionsSince_range(first_time, pos, range, limit);
 }
 
