@@ -133,12 +133,18 @@ bool GUIModalMenu::remapClickOutside(const SEvent &event)
 		return true;
 
 	if (event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN) {
+		if (!g_settings->getBool("formspec_exit_on_click_outside"))
+			return false;
+
 		m_last_click_outside = current;
 		return true;
 	}
 
 	if (event.MouseInput.Event == EMIE_LMOUSE_LEFT_UP &&
 			current.isRelated(last)) {
+		if (!g_settings->getBool("formspec_exit_on_click_outside"))
+			return false;
+
 		SEvent translated{};
 		translated.EventType              = EET_KEY_INPUT_EVENT;
 		translated.KeyInput.Key           = KEY_ESCAPE;
