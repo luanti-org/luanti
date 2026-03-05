@@ -308,7 +308,7 @@ MeshUpdateManager::MeshUpdateManager(Client *client):
 
 	// getShader only works in this thread, so it has to be passed along from here
 	const u32 solid_shader_id = client->getShaderSource()->getShader(
-		"nodes_shader", TILE_MATERIAL_BASIC, NDT_NORMAL, false, true);
+		"nodes_shader", TILE_MATERIAL_BASIC, NDT_NORMAL, false, false, true);
 
 	for (int i = 0; i < number_of_threads; i++)
 		m_workers.push_back(std::make_unique<MeshUpdateWorkerThread>(client, &m_queue_in, this, solid_shader_id));

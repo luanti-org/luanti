@@ -6,29 +6,11 @@
 
 #include "nodedef.h"
 #include <bitset>
-#include <map>
-#include <unordered_map>
 
 #include "tile.h"
 
 struct MeshMakeData;
 struct MeshCollector;
-
-struct NodeKey {
-	content_t content;
-	LightPair light;
-
-	bool operator==(const NodeKey& other) const {
-		return content == other.content && light == other.light;
-	}
-};
-
-template<>
-struct std::hash<NodeKey> {
-	std::size_t operator()(const NodeKey& k) const {
-		return std::hash<content_t>()(k.content) ^ (std::hash<u16>()(k.light) << 1);
-	}
-};
 
 class LodMeshGenerator
 {

@@ -29,7 +29,8 @@
 	MeshMakeData
 */
 
-MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, MeshGrid mesh_grid):
+MeshMakeData::MeshMakeData(const NodeDefManager *ndef,
+		u16 side_length, MeshGrid mesh_grid) :
 	m_side_length(side_length),
 	m_mesh_grid(mesh_grid),
 	m_nodedef(ndef)
@@ -682,18 +683,9 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data, const u8 lod, con
 	/*
 		Convert MeshCollector to SMesh
 	*/
+
 	m_bounding_radius = std::sqrt(collector.m_bounding_radius_sq);
-	generateMesh(collector);
 
-	m_bsp_tree.buildTree(&m_transparent_triangles, data->m_side_length);
-
-	// Check if animation is required for this mesh
-	m_has_animation =
-		!m_crack_materials.empty() ||
-		!m_animation_info.empty();
-}
-
-void MapBlockMesh::generateMesh(MeshCollector &collector) {
 	for (int layer = 0; layer < MAX_TILE_LAYERS; layer++) {
 		scene::SMesh *mesh = static_cast<scene::SMesh *>(m_mesh[layer].get());
 
@@ -763,6 +755,13 @@ void MapBlockMesh::generateMesh(MeshCollector &collector) {
 			mesh->setHardwareMappingHint(scene::EHM_STATIC);
 		}
 	}
+
+	m_bsp_tree.buildTree(&m_transparent_triangles, data->m_side_length);
+
+	// Check if animation is required for this mesh
+	m_has_animation =
+		!m_crack_materials.empty() ||
+		!m_animation_info.empty();
 }
 
 MapBlockMesh::~MapBlockMesh()

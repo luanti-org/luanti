@@ -14,8 +14,6 @@
 #include "voxel.h"
 #include <map>
 
-#include "meshgen/collector.h"
-
 namespace video {
 	class IVideoDriver;
 }
@@ -312,8 +310,6 @@ private:
 	std::vector<PartialMeshBuffer> m_transparent_buffers;
 	// Is m_transparent_buffers currently in consolidated form?
 	bool m_transparent_buffers_consolidated = false;
-
-	void generateMesh(MeshCollector& collector);
 };
 
 /*!
