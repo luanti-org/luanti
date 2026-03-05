@@ -3118,7 +3118,7 @@ Elements
 
 ### `background9[<X>,<Y>;<W>,<H>;<texture name>;<auto_clip>;<middle>]`
 
-* 9-sliced background. See https://en.wikipedia.org/wiki/9-slice_scaling
+* 9-sliced background. See [https://en.wikipedia.org/wiki/9-slice_scaling](https://en.wikipedia.org/wiki/9-slice_scaling)
 * Middle is a rect which defines the middle of the 9-slice.
     * `x` - The middle will be x pixels from all sides.
     * `x,y` - The middle will be x pixels from the horizontal and y from the vertical.
@@ -3995,7 +3995,7 @@ Spatial Vectors
 Luanti stores 3-dimensional spatial vectors in Lua as tables of 3 coordinates,
 and has a class to represent them (`vector.*`), which this chapter is about.
 For details on what a spatial vectors is, please refer to Wikipedia:
-https://en.wikipedia.org/wiki/Euclidean_vector.
+[https://en.wikipedia.org/wiki/Euclidean_vector](https://en.wikipedia.org/wiki/Euclidean_vector).
 
 Spatial vectors are used for various things, including, but not limited to:
 
