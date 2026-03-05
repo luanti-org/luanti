@@ -436,9 +436,6 @@ void Server::handleCommand_GotBlocks(NetworkPacket* pkt)
 void Server::process_PlayerPos(RemotePlayer *player, PlayerSAO *playersao,
 	NetworkPacket *pkt)
 {
-	if (pkt->getRemainingBytes() < 12 + 12 + 4 + 4 + 4 + 1 + 1)
-		return;
-
 	v3s32 ps, ss;
 	s32 f32pitch, f32yaw;
 	u8 f32fov;
@@ -463,17 +460,26 @@ void Server::process_PlayerPos(RemotePlayer *player, PlayerSAO *playersao,
 	fov = (f32)f32fov / 80.0f;
 	*pkt >> wanted_range;
 
-	if (pkt->getRemainingBytes() >= 1)
+	bool have_movement_data = false;
+	do {
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.8.0-dev
 		*pkt >> bits;
 
-	if (pkt->getRemainingBytes() >= 8) {
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.10.0-dev
 		f32 movement_speed;
 		*pkt >> movement_speed;
 		if (movement_speed != movement_speed) // NaN
 			movement_speed = 0.0f;
 		player->control.movement_speed = std::clamp(movement_speed, 0.0f, 1.0f);
 		*pkt >> player->control.movement_direction;
-	} else {
+		have_movement_data = true;
+	} while (0);
+
+	if (!have_movement_data) {
 		player->control.movement_speed = 0.0f;
 		player->control.movement_direction = 0.0f;
 		player->control.setMovementFromKeys();
@@ -1817,11 +1823,11 @@ void Server::handleCommand_UpdateClientInfo(NetworkPacket *pkt)
 	*pkt >> info.real_hud_scaling;
 	*pkt >> info.max_fs_size.X;
 	*pkt >> info.max_fs_size.Y;
-	try {
-		// added in 5.9.0
+	info.touch_controls = false;
+
+	if (pkt->hasRemainingBytes()) {
+		// >= 5.9.0-dev
 		*pkt >> info.touch_controls;
-	} catch (PacketError &e) {
-		info.touch_controls = false;
 	}
 
 	session_t peer_id = pkt->getPeerId();

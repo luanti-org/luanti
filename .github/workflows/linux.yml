@@ -118,21 +118,21 @@ jobs:
           clientconf="video_driver=ogles2" xvfb-run ./util/test_singleplayer.sh
 
   # Current clang version
-  clang_18:
+  clang_20:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
       - name: Install deps
         run: |
           source ./util/ci/common.sh
-          install_linux_deps clang-18 lldb xvfb
+          install_linux_deps clang-20 lldb xvfb
 
       - name: Build
         run: |
           ./util/ci/build.sh
         env:
-          CC: clang-18
-          CXX: clang++-18
+          CC: clang-20
+          CXX: clang++-20
 
       - name: Test
         run: |

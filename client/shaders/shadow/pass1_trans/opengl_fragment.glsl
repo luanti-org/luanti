@@ -6,7 +6,9 @@
 VARYING_ vec4 tPos;
 
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
-CENTROID_ VARYING_ float varTexLayer; // actually int
+#ifdef USE_ARRAY_TEXTURE
+flat VARYING_ uint varTexLayer;
+#endif
 
 #ifdef COLORED_SHADOWS
 VARYING_ vec3 varColor;
@@ -26,7 +28,7 @@ float packColor(vec3 color)
 void main()
 {
 #ifdef USE_ARRAY_TEXTURE
-	vec4 base = texture(baseTexture, vec3(varTexCoord, varTexLayer)).rgba;
+	vec4 base = texture(baseTexture, vec3(varTexCoord, float(varTexLayer))).rgba;
 #else
 	vec4 base = texture2D(baseTexture, varTexCoord).rgba;
 #endif

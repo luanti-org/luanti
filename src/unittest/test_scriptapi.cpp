@@ -9,6 +9,7 @@
 #include "script/lua_api/l_util.h"
 #include "script/lua_api/l_settings.h"
 #include "script/common/c_converter.h"
+#include "script/common/helper.h"
 #include "irrlicht_changes/printing.h"
 #include "server.h"
 
@@ -21,7 +22,7 @@ namespace {
 	};
 }
 
-class TestScriptApi : public TestBase
+class TestScriptApi : public TestBase, LuaHelper
 {
 public:
 	TestScriptApi() { TestManager::registerTestModule(this); }
@@ -33,6 +34,8 @@ public:
 	void testVectorRead(MyScriptApi *script);
 	void testVectorReadErr(MyScriptApi *script);
 	void testVectorReadMix(MyScriptApi *script);
+	void testVectorReadFloat(MyScriptApi *script);
+	void testReadParamFloat(MyScriptApi *script);
 };
 
 static TestScriptApi g_test_instance;
@@ -73,6 +76,8 @@ void TestScriptApi::runTests(IGameDef *gamedef)
 	TEST(testVectorRead, &script);
 	TEST(testVectorReadErr, &script);
 	TEST(testVectorReadMix, &script);
+	TEST(testVectorReadFloat, &script);
+	TEST(testReadParamFloat, &script);
 }
 
 // Runs Lua code and leaves `nresults` return values on the stack
@@ -191,6 +196,59 @@ void TestScriptApi::testVectorReadMix(MyScriptApi *script)
 		run(L, it, 1);
 		(void)read_v3s16(L, -1);
 		EXCEPTION_CHECK(LuaError, check_v3s16(L, -1));
+		lua_pop(L, 1);
+	}
+}
+
+void TestScriptApi::testVectorReadFloat(MyScriptApi *script)
+{
+	lua_State *L = script->getStack();
+	StackUnroller unroller(L);
+
+	const char *errs3[] = {
+		"return {x=math.huge, y=0, z=0}", // inf
+		"return {x=-math.huge, y=0, z=0}", // -inf
+		"return {x=0/0, y=0, z=0}", // nan
+		"return {x=3e41, y=0, z=0}", // becomes inf after float-cast
+	};
+	for (auto &it : errs3) {
+		infostream << it << std::endl;
+		run(L, it, 1);
+		v3f v = read_v3f(L, -1);
+		UASSERT(std::isnan(v.X) || std::isinf(v.X));
+		EXCEPTION_CHECK(LuaError, check_v3f(L, -1));
+		lua_pop(L, 1);
+	}
+}
+
+void TestScriptApi::testReadParamFloat(MyScriptApi *script)
+{
+	lua_State *L = script->getStack();
+	StackUnroller unroller(L);
+
+	const char *cases_ok[] = {
+		"return 1.0000000",
+		"return \"1\"",
+	};
+	const double expected = 1.0;
+	for (auto &it : cases_ok) {
+		infostream << it << std::endl;
+		run(L, it, 1);
+		float v = readParam<float>(L, -1);
+		UASSERT(std::isfinite(v));
+		UASSERTEQ(auto, v, expected);
+		lua_pop(L, 1);
+	}
+
+	const char *cases_err[] = {
+		"return math.huge", // inf
+		"return 0/0", // nan
+		"return 3e41", // becomes inf after float-cast
+	};
+	for (auto &it : cases_err) {
+		infostream << it << std::endl;
+		run(L, it, 1);
+		EXCEPTION_CHECK(LuaError, readParam<float>(L, -1));
 		lua_pop(L, 1);
 	}
 }

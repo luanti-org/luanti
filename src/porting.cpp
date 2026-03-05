@@ -282,7 +282,7 @@ u32 getMemorySizeMB()
 	long pages = sysconf(_SC_PHYS_PAGES);
 	long page_size = sysconf(_SC_PAGE_SIZE);
 	if (pages != -1 && page_size != -1)
-		return (pages * page_size) >> 20;
+		return ((u64)pages * (u64)page_size) >> 20;
 #elif defined(__APPLE__)
 	int64_t memsize;
 	size_t len = sizeof(memsize);

@@ -78,6 +78,9 @@ private:
 	bool is_auto_scaling;
 	bool dragged_by_slider;
 	bool tray_clicked;
+
+	u32 m_arrow_counter = 0; // reset counter when no arrow is held
+
 	s32 scroll_pos;
 	s32 draw_center;
 	s32 thumb_size;

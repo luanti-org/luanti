@@ -7,33 +7,15 @@ static const char *const copyright = "Irrlicht Engine (c) 2002-2017 Nikolaus Geb
 #include "irrlicht.h"
 #include "matrix4.h"
 #include "SMaterial.h"
+#include "os.h"
 
 #ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
 #include "CIrrDeviceSDL.h"
 #endif
 
-//! stub for calling createDeviceEx
-IrrlichtDevice *createDevice(video::E_DRIVER_TYPE driverType,
-		const core::dimension2d<u32> &windowSize,
-		u32 bits, bool fullscreen,
-		bool stencilbuffer, bool vsync, IEventReceiver *res)
-{
-	(void)copyright; // prevent unused variable warning
-
-	SIrrlichtCreationParameters p;
-	p.DriverType = driverType;
-	p.WindowSize = windowSize;
-	p.Bits = (u8)bits;
-	p.Fullscreen = fullscreen;
-	p.Stencilbuffer = stencilbuffer;
-	p.Vsync = vsync;
-	p.EventReceiver = res;
-
-	return createDeviceEx(p);
-}
-
 extern "C" IrrlichtDevice *createDeviceEx(const SIrrlichtCreationParameters &params)
 {
+	(void)copyright; // prevent unused variable warning
 
 	IrrlichtDevice *dev = 0;
 
@@ -50,6 +32,23 @@ extern "C" IrrlichtDevice *createDeviceEx(const SIrrlichtCreationParameters &par
 	}
 
 	return dev;
+}
+
+extern "C" void showErrorMessageBox(IrrlichtDevice *dev,
+	const char *title, const char *message)
+{
+	title = title ? title : "Irrlicht";
+	bool ok = false;
+#ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
+	if (dev && dev->getType() == EIDT_SDL) {
+		ok = static_cast<CIrrDeviceSDL*>(dev)->showErrorMessageBox(title, message);
+	} else {
+		ok = CIrrDeviceSDL::showErrorMessageBox(nullptr, title, message);
+	}
+#endif
+	if (!ok) {
+		os::Printer::log(title, message, ELL_ERROR);
+	}
 }
 
 namespace core

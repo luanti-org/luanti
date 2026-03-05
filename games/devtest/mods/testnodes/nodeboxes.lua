@@ -240,3 +240,59 @@ core.register_node("testnodes:button", {
 	},
 })
 
+-- Nodeboxes with use_texture_alpha = "blend" are split for transparency sorting
+
+core.register_node("testnodes:alpha_nodebox_1", {
+	description = S("Nodebox Alpha Blend Test Node 1 (Stairs)"),
+	drawtype = "nodebox",
+	paramtype = "light",
+	paramtype2 = "facedir",
+	tiles = {
+		"testnodes_alpha64.png",
+	},
+	use_texture_alpha = "blend",
+	groups = { dig_immediate = 3 },
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, -0.5, -0.5, 0.5, 0, 0.5},
+			{-0.5,  0, 0, 0.5, 0.5, 0.5},
+		}
+	},
+})
+
+core.register_node("testnodes:alpha_nodebox_2", {
+	description = S("Nodebox Alpha Blend Test Node 2 (Box in Box)"),
+	drawtype = "nodebox",
+	paramtype = "light",
+	tiles = {
+		"testnodes_alpha64.png",
+	},
+	use_texture_alpha = "blend",
+	groups = { dig_immediate = 3 },
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.25, -0.25, -0.25, 0.25, 0.25, 0.25},
+			{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},
+		}
+	},
+})
+
+core.register_node("testnodes:alpha_nodebox_3", {
+	description = S("Nodebox Alpha Blend Test Node 3 (Floating Thing)"),
+	drawtype = "nodebox",
+	paramtype = "light",
+	tiles = {
+		"testnodes_alpha64.png",
+	},
+	use_texture_alpha = "blend",
+	groups = { dig_immediate = 3 },
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.25, -0.25, -0.25, 0.25, 0.25, 0.4},
+			{-0.5, -0.5, -0.5, 0.5, -0.4, 0.5},
+		}
+	},
+})

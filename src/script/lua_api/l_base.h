@@ -22,6 +22,7 @@ class EmergeThread;
 class ScriptApiBase;
 class Server;
 class Environment;
+class SSCSMEnvironment;
 class ServerInventoryManager;
 
 class ModApiBase : protected LuaHelper {
@@ -32,6 +33,7 @@ public:
 	#if CHECK_CLIENT_BUILD()
 	static Client*          getClient(lua_State *L);
 	static GUIEngine*       getGuiEngine(lua_State *L);
+	static SSCSMEnvironment *getSSCSMEnv(lua_State *L);
 	#endif // !SERVER
 	static EmergeThread*    getEmergeThread(lua_State *L);
 

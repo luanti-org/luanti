@@ -8,9 +8,11 @@
 #include "server.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
+#include "client/mod_vfs.h"
 #endif
 #include "content/mods.h" // ModSpec
 #include "settings.h"
+#include "constants.h"
 
 #include <cerrno>
 #include <string>
@@ -394,6 +396,139 @@ void ScriptApiSecurity::initializeSecurityClient()
 	setLuaEnv(L, thread);
 }
 
+void ScriptApiSecurity::initializeSecuritySSCSM()
+{
+	static const char *whitelist[] = {
+		"assert",
+		"core",
+		"collectgarbage",
+		"DIR_DELIM",
+		"error",
+		"getfenv",
+		"ipairs",
+		"next",
+		"pairs",
+		"pcall",
+		"rawequal",
+		"rawget",
+		"rawset",
+		"select",
+		"setfenv",
+		"getmetatable",
+		"setmetatable",
+		"tonumber",
+		"tostring",
+		"type",
+		"unpack",
+		"_VERSION",
+		"xpcall",
+		// Completely safe libraries
+		"coroutine",
+		"table",
+		"math",
+		"bit",
+	};
+	static const char *os_whitelist[] = {
+		"difftime",
+		"time"
+	};
+	static const char *debug_whitelist[] = {
+		"getinfo", // used by client builtin and unset before mods load
+		"traceback"
+	};
+	static const char *string_whitelist[] = { // all but string.dump
+		"byte",
+		"char",
+		"find",
+		"format",
+		"gmatch",
+		"gsub",
+		"len",
+		"lower",
+		"match",
+		"rep",
+		"reverse",
+		"sub",
+		"upper"
+	};
+#if USE_LUAJIT
+	static const char *jit_whitelist[] = {
+		"arch",
+		"flush",
+		"off",
+		"on",
+		"opt",
+		"os",
+		"status",
+		"version",
+		"version_num",
+	};
+#endif
+
+	m_secure = true;
+
+	lua_State *L = getStack();
+	int thread = getThread(L);
+
+	// create an empty environment
+	createEmptyEnv(L);
+
+	// Copy safe base functions
+	lua_getglobal(L, "_G");
+	lua_getfield(L, -2, "_G");
+	copy_safe(L, whitelist, sizeof(whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(g, dofile);
+	SECURE_API(g, load);
+	SECURE_API(g, loadfile);
+	SECURE_API(g, loadstring);
+	SECURE_API(g, require);
+	lua_pop(L, 2);
+
+
+
+	// Copy safe OS functions
+	lua_getglobal(L, "os");
+	lua_newtable(L);
+	copy_safe(L, os_whitelist, sizeof(os_whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(os, clock);
+
+	lua_setfield(L, -3, "os");
+	lua_pop(L, 1);  // Pop old OS
+
+
+	// Copy safe debug functions
+	lua_getglobal(L, "debug");
+	lua_newtable(L);
+	copy_safe(L, debug_whitelist, sizeof(debug_whitelist));
+	lua_setfield(L, -3, "debug");
+	lua_pop(L, 1);  // Pop old debug
+
+
+	// Copy safe string functions
+	lua_getglobal(L, "string");
+	lua_newtable(L);
+	copy_safe(L, string_whitelist, sizeof(string_whitelist));
+	lua_setfield(L, -3, "string");
+	lua_pop(L, 1);  // Pop old string
+
+
+#if USE_LUAJIT
+	// Copy safe jit functions, if they exist
+	lua_getglobal(L, "jit");
+	lua_newtable(L);
+	copy_safe(L, jit_whitelist, sizeof(jit_whitelist));
+	lua_setfield(L, -3, "jit");
+	lua_pop(L, 1);  // Pop old jit
+#endif
+
+	// Set the environment to the one we created earlier
+	setLuaEnv(L, thread);
+}
+
 #endif
 
 int ScriptApiSecurity::getThread(lua_State *L)
@@ -537,9 +672,15 @@ std::string ScriptApiSecurity::getCurrentModName(lua_State *L)
 	// We have to make sure that this function is being called directly by
 	// a mod, otherwise a malicious mod could override a function and
 	// steal its return value. (e.g. request_insecure_environment)
-	lua_Debug info;
+
+	// Coroutines start with an empty stack too, so we can't allow those.
+	bool coro = lua_pushthread(L) != 1;
+	lua_pop(L, 1);
+	if (coro)
+		return "";
 
 	// Make sure there's only one item below this function on the stack...
+	lua_Debug info;
 	if (lua_getstack(L, 2, &info))
 		return "";
 	FATAL_ERROR_IF(!lua_getstack(L, 1, &info), "lua_getstack() failed");
@@ -587,6 +728,10 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 	// since that wouldn't normalize subpaths that *do* exist.
 	// This is required so that comparisons with other normalized paths work correctly.
 	std::string abs_path = fs::AbsolutePathPartial(path);
+	// Make sure the delimiters are consistent, too
+	if (DIR_DELIM_CHAR != '/')
+		std::replace(abs_path.begin(), abs_path.end(), '/', DIR_DELIM_CHAR);
+
 	tracestream << "ScriptApiSecurity: path \"" << path << "\" resolved to \""
 		<< abs_path << "\"" << std::endl;
 
@@ -604,14 +749,19 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 	return sec->checkPathInternal(abs_path, write_required, write_allowed);
 }
 
+// Path can be read, but may or may not be written to.
+// Sets write_allowed and returns accordingly.
+#define RETURN_WRITE_ALLOWED(v) \
+	do { \
+		bool real_write_allowed = (v); \
+		if (write_allowed) \
+			*write_allowed = real_write_allowed; \
+		return !write_required || real_write_allowed; \
+	} while (0)
 
 bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
-	const std::string &abs_path, bool write_required, bool *write_allowed)
+	const std::string &abs_path, const bool write_required, bool *write_allowed)
 {
-	const auto &set_write_allowed = [&] (bool v) {
-		if (write_allowed)
-			*write_allowed = v;
-	};
 	std::string str;  // Transient
 
 	auto *gamedef = ModApiBase::getGameDef(L);
@@ -625,54 +775,6 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 		str = fs::AbsolutePathPartial(g_settings_path);
 		if (str == abs_path)
 			return false;
-	}
-
-	// Get mod name
-	std::string mod_name = ScriptApiBase::getCurrentModNameInsecure(L);
-	if (!mod_name.empty()) {
-		// Builtin can access anything
-		if (mod_name == BUILTIN_MOD_NAME) {
-			set_write_allowed(true);
-			return true;
-		}
-	}
-
-	// Allow paths in mod path
-	// Don't bother if write access isn't important, since it will be handled later
-	if (write_required || write_allowed) {
-		const ModSpec *mod = gamedef->getModSpec(mod_name);
-		if (mod) {
-			str = fs::AbsolutePath(mod->path);
-			if (!str.empty() && fs::PathStartsWith(abs_path, str)) {
-				// `mod_name` cannot be trusted here, so we catch the scenarios where this becomes a problem:
-				bool is_trusted = checkModNameWhitelisted(mod_name, "secure.trusted_mods") ||
-						checkModNameWhitelisted(mod_name, "secure.http_mods");
-				std::string filename = lowercase(fs::GetFilenameFromPath(abs_path.c_str()));
-				// By writing to any of these a malicious mod could turn itself into
-				// an existing trusted mod by renaming or becoming a modpack.
-				bool is_dangerous_file = filename == "mod.conf" ||
-						filename == "modpack.conf" ||
-						filename == "modpack.txt";
-				if (write_required) {
-					if (is_trusted) {
-						throw LuaError(
-								"Unable to write to a trusted or http mod's directory. "
-								"For data storage consider minetest.get_mod_data_path() or minetest.get_worldpath() instead.");
-					} else if (is_dangerous_file) {
-						throw LuaError(
-								"Unable to write to special file for security reasons");
-					} else {
-						const char *message =
-								"Writing to mod directories is deprecated, as any changes "
-								"will be overwritten when updating content. "
-								"For data storage consider minetest.get_mod_data_path() or minetest.get_worldpath() instead.";
-						log_deprecated(L, message, 1);
-					}
-				}
-				set_write_allowed(!is_trusted && !is_dangerous_file);
-				return true;
-			}
-		}
 	}
 
 	// Allow read-only access to builtin
@@ -702,35 +804,39 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 		}
 	}
 
-	// Allow read/write access to all mod common dirs
+	// Git repository folders can contain hook scripts and other configuraton
+	// that can easily lead to arbitrary code execution.
+	// This isn't technically Luanti's fault, but Git is very common so we block
+	// write access for safety.
+	bool is_git_path = abs_path.find(DIR_DELIM ".git" DIR_DELIM) != std::string::npos ||
+		str_ends_with(abs_path, DIR_DELIM ".git");
+
+	// Allow read/write access to global mod data path
 	str = fs::AbsolutePath(gamedef->getModDataPath());
 	if (!str.empty() && fs::PathStartsWith(abs_path, str)) {
-		set_write_allowed(true);
-		return true;
+		RETURN_WRITE_ALLOWED(!is_git_path);
 	}
 
 	str = fs::AbsolutePath(gamedef->getWorldPath());
 	if (!str.empty()) {
-		// Don't allow access to other paths in the world mod/game path.
+		// Don't allow writing to world mods or the world-specific game.
 		// These have to be blocked so you can't override a trusted mod
 		// by creating a mod with the same name in a world mod directory.
 		// We add to the absolute path of the world instead of getting
 		// the absolute paths directly because that won't work if they
 		// don't exist.
-		if (fs::PathStartsWith(abs_path, str + DIR_DELIM + "worldmods") ||
-				fs::PathStartsWith(abs_path, str + DIR_DELIM + "game")) {
-			return false;
-		}
+		bool is_dangerous_path = fs::PathStartsWith(abs_path, str + DIR_DELIM + "worldmods") ||
+			fs::PathStartsWith(abs_path, str + DIR_DELIM + "game");
 		// Allow all other paths in world path
 		if (fs::PathStartsWith(abs_path, str)) {
-			set_write_allowed(true);
-			return true;
+			RETURN_WRITE_ALLOWED(!is_dangerous_path && !is_git_path);
 		}
 	}
 
 	return false;
 }
 
+#undef RETURN_WRITE_ALLOWED
 
 int ScriptApiSecurity::sl_g_dofile(lua_State *L)
 {
@@ -791,10 +897,11 @@ int ScriptApiSecurity::sl_g_loadfile(lua_State *L)
 #if CHECK_CLIENT_BUILD()
 	ScriptApiBase *script = ModApiBase::getScriptApiBase(L);
 
-	// Client implementation
-	if (script->getType() == ScriptingType::Client) {
+	// SSCSM & CPCSM implementation
+	if (script->getType() == ScriptingType::Client
+			|| script->getType() == ScriptingType::SSCSM) {
 		std::string path = readParam<std::string>(L, 1);
-		const std::string *contents = script->getClient()->getModFile(path);
+		const std::string *contents = script->getModVFS()->getModFile(path);
 		if (!contents) {
 			std::string error_msg = "Couldn't find script called: " + path;
 			lua_pushnil(L);
@@ -977,6 +1084,15 @@ int ScriptApiSecurity::sl_os_setlocale(lua_State *L)
 	if (cat)
 		lua_pushvalue(L, 2);
 	lua_call(L, cat ? 2 : 1, 1);
+	return 1;
+}
+
+
+int ScriptApiSecurity::sl_os_clock(lua_State *L)
+{
+	auto t = clock();
+	t = t - t % (SSCSM_CLOCK_RESOLUTION_US * CLOCKS_PER_SEC / 1'000'000);
+	lua_pushnumber(L, static_cast<lua_Number>(t) / static_cast<lua_Number>(CLOCKS_PER_SEC));
 	return 1;
 }
 

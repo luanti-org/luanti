@@ -19,6 +19,11 @@ public:
 	//! Gets the maximum frame number, 0 if the mesh is static.
 	virtual f32 getMaxFrameNumber() const = 0;
 
+	virtual void prepareForAnimation(u16 max_hw_joints) = 0;
+
+	//! Whether the mesh needs shader-based hardware skinning
+	virtual bool needsHwSkinning() const = 0;
+
 	//! Returns the type of the animated mesh. Useful for safe downcasts.
 	E_ANIMATED_MESH_TYPE getMeshType() const = 0;
 };

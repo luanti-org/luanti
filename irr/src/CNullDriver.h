@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include "HWBuffer.h"
+#include "IIndexBuffer.h"
+#include "IVertexBuffer.h"
 #include "IVideoDriver.h"
 #include "IFileSystem.h"
 #include "IGPUProgrammingServices.h"
@@ -48,6 +51,18 @@ public:
 
 	//! sets transformation
 	void setTransform(E_TRANSFORMATION_STATE state, const core::matrix4 &mat) override;
+
+	//! Returns the maximum number of joint transformation matrices the hardware and driver support.
+	virtual u16 getMaxJointTransforms() const override
+	{
+		return 0;
+	}
+
+	//! Sets joint transformation matrices for skinned meshes.
+	virtual void setJointTransforms(const std::vector<core::matrix4> &jointMatrices) override
+	{
+		assert(jointMatrices.size() <= getMaxJointTransforms());
+	};
 
 	//! Retrieve the number of image loaders
 	u32 getImageLoaderCount() const override;
@@ -183,7 +198,7 @@ public:
 	//! get render target size
 	const core::dimension2d<u32> &getCurrentRenderTargetSize() const override;
 
-	SFrameStats getFrameStats() const override;
+	SFrameStats &getFrameStats() override;
 
 	//! \return Returns the name of the video driver. Example: In case of the DIRECT3D8
 	//! driver, it would return "Direct3D8.1".
@@ -267,51 +282,33 @@ public:
 	}
 
 protected:
-	/// Links a hardware buffer to either a vertex or index buffer
+
+	/// Links a hardware buffer to its software counterpart
 	struct SHWBufferLink
 	{
-		SHWBufferLink(const scene::IVertexBuffer *vb) :
-				VertexBuffer(vb), IsVertex(true)
+		SHWBufferLink(const scene::HWBuffer *buf) : Buffer(buf)
 		{
-			if (VertexBuffer) {
-				VertexBuffer->grab();
-				VertexBuffer->setHWBuffer(this);
-			}
-		}
-		SHWBufferLink(const scene::IIndexBuffer *ib) :
-				IndexBuffer(ib), IsVertex(false)
-		{
-			if (IndexBuffer) {
-				IndexBuffer->grab();
-				IndexBuffer->setHWBuffer(this);
-			}
+			if (!buf)
+				return;
+			buf->grab();
+			buf->Link = this;
 		}
 
 		virtual ~SHWBufferLink()
 		{
-			if (IsVertex && VertexBuffer) {
-				VertexBuffer->setHWBuffer(nullptr);
-				VertexBuffer->drop();
-			} else if (!IsVertex && IndexBuffer) {
-				IndexBuffer->setHWBuffer(nullptr);
-				IndexBuffer->drop();
-			}
+			if (!Buffer)
+				return;
+			Buffer->Link = nullptr;
+			Buffer->drop();
 		}
 
-		union {
-			const scene::IVertexBuffer *VertexBuffer;
-			const scene::IIndexBuffer *IndexBuffer;
-		};
+		const scene::HWBuffer *Buffer;
 		size_t ListPosition = static_cast<size_t>(-1);
 		u32 ChangedID = 0;
-		bool IsVertex;
 	};
 
-	//! Gets hardware buffer link from a vertex buffer (may create or update buffer)
-	virtual SHWBufferLink *getBufferLink(const scene::IVertexBuffer *mb);
-
-	//! Gets hardware buffer link from a index buffer (may create or update buffer)
-	virtual SHWBufferLink *getBufferLink(const scene::IIndexBuffer *mb);
+	//! Gets hardware buffer link from a buffer (may create or update buffer)
+	virtual SHWBufferLink *getBufferLink(const scene::HWBuffer *buf);
 
 	//! updates hardware buffer if needed  (only some drivers can)
 	virtual bool updateHardwareBuffer(SHWBufferLink *HWBuffer) { return false; }
@@ -319,22 +316,13 @@ protected:
 	//! Delete hardware buffer
 	virtual void deleteHardwareBuffer(SHWBufferLink *HWBuffer);
 
-	//! Create hardware buffer from vertex buffer
-	virtual SHWBufferLink *createHardwareBuffer(const scene::IVertexBuffer *vb) { return 0; }
-
-	//! Create hardware buffer from index buffer
-	virtual SHWBufferLink *createHardwareBuffer(const scene::IIndexBuffer *ib) { return 0; }
+	virtual SHWBufferLink *createHardwareBuffer(const scene::HWBuffer *buf) { return nullptr; }
 
 public:
-	virtual void updateHardwareBuffer(const scene::IVertexBuffer *vb) override;
-
-	virtual void updateHardwareBuffer(const scene::IIndexBuffer *ib) override;
+	virtual void updateHardwareBuffer(const scene::HWBuffer *buf) override;
 
 	//! Remove hardware buffer
-	void removeHardwareBuffer(const scene::IVertexBuffer *vb) override;
-
-	//! Remove hardware buffer
-	void removeHardwareBuffer(const scene::IIndexBuffer *ib) override;
+	void removeHardwareBuffer(const scene::HWBuffer *buf) override;
 
 	//! Remove all hardware buffers
 	void removeAllHardwareBuffers() override;
@@ -342,11 +330,8 @@ public:
 	//! Run garbage-collection on all HW buffers
 	void expireHardwareBuffers();
 
-	//! is vbo recommended?
-	virtual bool isHardwareBufferRecommend(const scene::IVertexBuffer *mb);
-
-	//! is vbo recommended?
-	virtual bool isHardwareBufferRecommend(const scene::IIndexBuffer *mb);
+	//! Is VBO recommended?
+	virtual bool isHardwareBufferRecommend(const scene::HWBuffer *buf);
 
 	//! Create occlusion query.
 	/** Use node for identification and mesh for occlusion test. */

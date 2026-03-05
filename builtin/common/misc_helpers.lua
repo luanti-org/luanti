@@ -540,35 +540,33 @@ do
 end
 
 
-local function table_copy(value, preserve_metatables)
-	local seen = {}
-	local function copy(val)
-		if type(val) ~= "table" then
-			return val
-		end
-		local t = val
-		if seen[t] then
-			return seen[t]
-		end
-		local res = {}
-		seen[t] = res
-		for k, v in pairs(t) do
-			res[copy(k)] = copy(v)
-		end
-		if preserve_metatables then
-			setmetatable(res, getmetatable(t))
-		end
-		return res
+local function table_copy(val, preserve_metatables, seen)
+	if type(val) ~= "table" then
+		return val
 	end
-	return copy(value)
+	local t = val
+	if seen[t] then
+		return seen[t]
+	end
+	local res = {}
+	seen[t] = res
+	for k, v in pairs(t) do
+		local k_copy = table_copy(k, preserve_metatables, seen)
+		local v_copy = table_copy(v, preserve_metatables, seen)
+		res[k_copy] = v_copy
+	end
+	if preserve_metatables then
+		setmetatable(res, getmetatable(t))
+	end
+	return res
 end
 
 function table.copy(value)
-	return table_copy(value, false)
+	return table_copy(value, false, {})
 end
 
 function table.copy_with_metatables(value)
-	return table_copy(value, true)
+	return table_copy(value, true, {})
 end
 
 function table.insert_all(t, other)

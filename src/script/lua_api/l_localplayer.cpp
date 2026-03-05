@@ -66,7 +66,7 @@ int LuaLocalPlayer::l_get_wield_index(lua_State *L)
 {
 	LocalPlayer *player = getobject(L, 1);
 
-	lua_pushinteger(L, player->getWieldIndex());
+	lua_pushinteger(L, player->getWieldIndex() + 1);
 	return 1;
 }
 

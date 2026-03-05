@@ -528,6 +528,11 @@ arm_inertia (Arm inertia) bool true
 #    For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.
 view_bobbing_amount (View bobbing factor) float 1.0 0.0 7.9
 
+[**Damage]
+
+#    Flashing of the screen when taking damage.
+hurt_flash_enabled (Damage flash) bool true
+
 [**Camera]
 
 #    Field of view in degrees.
@@ -905,8 +910,8 @@ gui_scaling_filter (GUI scaling filter) bool false
 #    Delay showing tooltips, stated in milliseconds.
 tooltip_show_delay (Tooltip delay) int 400 0
 
-#    Append item name to tooltip.
-tooltip_append_itemname (Append item name) bool false
+#    Append the full item name to the tooltip of item stacks.
+tooltip_append_itemname (Append item name to tooltips) bool false
 
 #    Use a cloud animation for the main menu background.
 menu_clouds (Clouds in menu) bool true
@@ -1919,6 +1924,10 @@ mgvalleys_np_dungeons (Dungeon noise) noise_params_3d 0.9, 0.5, (500, 500, 500),
 #    This support is experimental and API can change.
 enable_client_modding (Client modding) [client] bool false
 
+#    Where to enable server-sent client-side modding (SSCSM).
+#    Warning: Experimental.
+enable_sscsm (Enable SSCSM) [client] enum nowhere nowhere,singleplayer,localhost,lan,everywhere
+
 #    Replaces the default main menu with a custom one.
 main_menu_script (Main menu script) [client] string
 
@@ -2413,6 +2422,10 @@ num_emerge_threads (Number of emerge threads) int 0 0 32767
 
 #    Maximum time an interactive request (e.g. server list fetch) may take, stated in milliseconds.
 curl_timeout (cURL interactive timeout) int 20000 1000 2147483647
+
+#    Set proxy to use by cURL. This is an URI just like the *_proxy environment variables.
+#    Note that this will not apply to Luanti's in-game protocol.
+secure.curl_proxy (cURL proxy address) string
 
 #    Limits number of parallel HTTP requests. Affects:
 #    -    Media fetch if server uses remote_media setting.

@@ -258,6 +258,24 @@ std::wstring Server::ShutdownState::getShutdownTimerMessage() const
 	return ws.str();
 }
 
+static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool include_pos)
+{
+	const u16 cmd = pkt.getCommand();
+	std::ostringstream oss;
+	if (cmd < TOSERVER_NUM_MSG_TYPES)
+		oss << " name=" << toServerCommandTable[cmd].name;
+
+	if (include_pos) {
+		// (not necessary for PacketError: already in e.what())
+
+		oss << " cmd=" << cmd
+			<< " offset=" << pkt.getOffset()
+			<< " size=" << pkt.getSize();
+	}
+
+	e.append(" @").append(oss.str());
+}
+
 /*
 	Server
 */
@@ -766,6 +784,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		if (!modified_blocks.empty()) {
 			MapEditEvent event;
 			event.type = MEET_OTHER;
+			event.low_priority = true;
 			event.setModifiedBlocks(modified_blocks);
 			m_env->getMap().dispatchEvent(event);
 		}
@@ -1023,7 +1042,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 			}
 			case MEET_OTHER:
 				prof.add("MEET_OTHER", 1);
-				m_clients.markBlocksNotSent(event->modified_blocks);
+				m_clients.markBlocksNotSent(event->modified_blocks, event->low_priority);
 				break;
 			default:
 				prof.add("unknown", 1);
@@ -1039,7 +1058,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 			*/
 			for (const u16 far_player : far_players) {
 				if (RemoteClient *client = getClient(far_player))
-					client->SetBlocksNotSent(event->modified_blocks);
+					client->SetBlocksNotSent(event->modified_blocks, event->low_priority);
 			}
 
 			delete event;
@@ -1138,8 +1157,13 @@ void Server::Receive(float min_time)
 		} catch (const con::InvalidIncomingDataException &e) {
 			infostream << "Server::Receive(): InvalidIncomingDataException: what()="
 					<< e.what() << std::endl;
-		} catch (const SerializationError &e) {
+		} catch (SerializationError &e) {
+			enrich_exception(e, pkt, true);
 			infostream << "Server::Receive(): SerializationError: what()="
+					<< e.what() << std::endl;
+		} catch (PacketError &e) {
+			enrich_exception(e, pkt, false);
+			actionstream << "Server::Receive(): PacketError: what()="
 					<< e.what() << std::endl;
 		} catch (const ClientStateError &e) {
 			errorstream << "ClientStateError: peer=" << peer_id << " what()="
@@ -1337,10 +1361,6 @@ void Server::ProcessData(NetworkPacket *pkt)
 		handleCommand(pkt);
 	} catch (SendFailedException &e) {
 		errorstream << "Server::ProcessData(): SendFailedException: "
-				<< "what=" << e.what()
-				<< std::endl;
-	} catch (PacketError &e) {
-		actionstream << "Server::ProcessData(): PacketError: "
 				<< "what=" << e.what()
 				<< std::endl;
 	}

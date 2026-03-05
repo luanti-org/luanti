@@ -21,6 +21,7 @@ local function clients_list_formspec(dialogdata)
 		"size[6,9.5]",
 		TOUCH_GUI and "padding[0.01,0.01]" or "",
 		"hypertext[0,0;6,1.5;;<global margin=5 halign=center valign=middle>",
+			-- TRANSLATORS: $1 = server name
 			fgettext("Players connected to\n$1",
 				"<b>" .. core.hypertext_escape(servername) .. "</b>") .. "]",
 		"textlist[0.5,1.5;5,6.8;;" .. fmt_formspec_list(clients_list) .. "]",

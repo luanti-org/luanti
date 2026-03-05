@@ -116,11 +116,13 @@ void set_default_settings()
 	settings->setDefault("client_mapblock_limit", "7500"); // about 120 MB
 	settings->setDefault("enable_build_where_you_stand", "false");
 	settings->setDefault("curl_timeout", "20000");
+	settings->setDefault("secure.curl_proxy", "");
 	settings->setDefault("curl_parallel_limit", "8");
 	settings->setDefault("curl_file_download_timeout", "300000");
 	settings->setDefault("curl_verify_cert", "true");
 	settings->setDefault("enable_remote_media_server", "true");
 	settings->setDefault("enable_client_modding", "false");
+	settings->setDefault("enable_sscsm", "nowhere");
 	settings->setDefault("max_out_chat_queue_size", "20");
 	settings->setDefault("pause_on_lost_focus", "false");
 	settings->setDefault("enable_split_login_register", "true");
@@ -302,6 +304,7 @@ void set_default_settings()
 	settings->setDefault("show_entity_selectionbox", "false");
 	settings->setDefault("ambient_occlusion_gamma", "1.8");
 	settings->setDefault("arm_inertia", "true");
+	settings->setDefault("hurt_flash_enabled", "true");
 	settings->setDefault("show_nametag_backgrounds", "true");
 	settings->setDefault("show_block_bounds_radius_near", "4");
 	settings->setDefault("transparency_sorting_group_by_buffers", "true");

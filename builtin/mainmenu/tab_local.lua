@@ -252,6 +252,7 @@ local function get_formspec(tabview, name, tabdata)
 			retval = retval ..
 				"field[0," .. y .. ";3,0.75;te_serveraddr;" .. fgettext("Bind Address") .. ";" ..
 				core.formspec_escape(core.settings:get("bind_address")) .. "]" ..
+				-- TRANSLATORS: Network port
 				"field[3.25," .. y .. ";1.25,0.75;te_serverport;" .. fgettext("Port") .. ";" ..
 				core.formspec_escape(current_port) .. "]"
 		else

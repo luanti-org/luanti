@@ -476,8 +476,10 @@ ShaderSource::ShaderSource()
 	const auto driver_type = driver->getDriverType();
 	if (driver_type != video::EDT_NULL) {
 		auto *gpu = driver->getGPUProgrammingServices();
-		if (!driver->queryFeature(video::EVDF_ARB_GLSL) || !gpu)
+		if (!driver->queryFeature(video::EVDF_ARB_GLSL) || !gpu) {
+			// TRANSLATORS: GLSL = OpenGL Shading Language
 			throw ShaderException(gettext("GLSL is not supported by the driver"));
+		}
 
 		v2s32 glver = driver->getLimits().GLVersion;
 		infostream << "ShaderSource: driver reports GL version " << glver.X << "."
@@ -680,7 +682,8 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 	std::string vertex_header, fragment_header, geometry_header;
 	if (m_fully_programmable) {
 		const bool use_glsl3 = m_have_glsl3;
-		if (driver->getDriverType() == video::EDT_OPENGL3) {
+		const bool use_glsl15 = driver->getDriverType() == video::EDT_OPENGL3;
+		if (use_glsl15) {
 			assert(!use_glsl3);
 			shaders_header << "#version 150\n"
 				<< "#define CENTROID_ centroid\n";
@@ -713,6 +716,7 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 		}
 
 		// cf. EVertexAttributes.h for the predefined ones
+		// (note that these need to be in index order starting at 0)
 		vertex_header = R"(
 			uniform highp mat4 mWorldView;
 			uniform highp mat4 mWorldViewProj;
@@ -721,13 +725,22 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			ATTRIBUTE_(0) highp vec4 inVertexPosition;
 			ATTRIBUTE_(1) mediump vec3 inVertexNormal;
 			ATTRIBUTE_(2) lowp vec4 inVertexColor_raw;
-			ATTRIBUTE_(3) mediump float inVertexAux;
+		)";
+		if (use_glsl3 || use_glsl15)
+			vertex_header += "ATTRIBUTE_(3) mediump uint inVertexAux;";
+		vertex_header += R"(
 			ATTRIBUTE_(4) mediump vec2 inTexCoord0;
 			ATTRIBUTE_(5) mediump vec2 inTexCoord1;
 			ATTRIBUTE_(6) mediump vec4 inVertexTangent;
 			ATTRIBUTE_(7) mediump vec4 inVertexBinormal;
 		)";
-		if (use_glsl3) {
+		if (shaderinfo.input_constants.count("USE_SKINNING") > 0) {
+			vertex_header += "ATTRIBUTE_(8) mediump vec4 inVertexWeights;\n";
+			vertex_header += "ATTRIBUTE_(9) mediump uvec4 inVertexJointIDs;\n";
+		}
+		// GLSL 1.5 is a weird version that doesn't have `layout(location=...)`
+		// but `varying` is already deprecated and replaced by `in`/`out`.
+		if (use_glsl3 || use_glsl15) {
 			vertex_header += "#define VARYING_ out\n";
 		} else {
 			vertex_header += "#define VARYING_ varying\n";
@@ -741,6 +754,8 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 			fragment_header += "#define VARYING_ in\n"
 				"#define gl_FragColor outFragColor\n"
 				"layout(location = 0) out vec4 outFragColor;\n";
+		} else if (use_glsl15) {
+			fragment_header += "#define VARYING_ in\n";
 		} else {
 			fragment_header += "#define VARYING_ varying\n";
 		}
@@ -858,7 +873,8 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 */
 
 u32 IShaderSource::getShader(const std::string &name,
-	MaterialType material_type, NodeDrawType drawtype, bool array_texture, bool is_textureless)
+	MaterialType material_type, NodeDrawType drawtype,
+	bool array_texture, bool skinning, bool is_textureless)
 {
 	ShaderConstants input_const;
 	input_const["MATERIAL_TYPE"] = (int)material_type;
@@ -867,6 +883,13 @@ u32 IShaderSource::getShader(const std::string &name,
 		input_const["USE_ARRAY_TEXTURE"] = 1;
 	if (is_textureless)
 		input_const["TEXTURELESS"] = 1;
+	if (skinning) {
+		const auto max_joints = RenderingEngine::get_video_driver()->getMaxJointTransforms();
+		if (max_joints > 0) {
+			input_const["USE_SKINNING"] = 1;
+			input_const["MAX_JOINTS"] = max_joints;
+		}
+	}
 
 	video::E_MATERIAL_TYPE base_mat = video::EMT_SOLID;
 	switch (material_type) {

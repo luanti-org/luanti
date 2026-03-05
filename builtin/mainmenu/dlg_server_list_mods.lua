@@ -65,8 +65,10 @@ local function get_formspec(dialogdata)
 		"tablecolumns[", group_by_prefix and
 			(expand_all and "indent;text" or "tree;text") or "text", "]",
 		"table[0.5,1.5;7,6.8;mods;", cells, "]",
+		-- TRANSLATORS: A checkbox; if enabled, it will group mods by their prefix
 		"checkbox[0.5,8.7;group_by_prefix;", fgettext("Group by prefix"), ";",
 			group_by_prefix and "true" or "false", "]",
+		-- TRANSLATORS: Expand all entries in a tree view
 		group_by_prefix and ("checkbox[0.5,9.15;expand_all;" .. fgettext("Expand all") .. ";" ..
 			(expand_all and "true" or "false") .. "]") or "",
 		"button[5.5,8.5;2,0.8;quit;OK]"

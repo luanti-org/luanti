@@ -108,13 +108,21 @@ The game directory can contain the following files:
       See [Translating content meta](#translating-content-meta).
 * `minetest.conf`:
   Used to set default settings when running this game.
+* `screenshot.{png,jpg,jpeg}`:
+  Preview image, shown in the main menu.
 * `settingtypes.txt`:
   In the same format as the one in builtin.
   This settingtypes.txt will be parsed by the menu and the settings will be
   displayed in the "Games" category in the advanced settings tab.
-* If the game contains a folder called `textures` the server will load it as a
-  texturepack, overriding mod textures.
-  Any server texturepack will override mod textures and the game texturepack.
+
+And the following directories:
+
+* `menu`:
+  Files related to the main menu, see chapter [Menu images](#menu-images).
+* `mods`:
+  Mods provided by the game.
+* `textures`:
+  See also chapter [Textures](#loading-order).
 
 Menu images
 -----------
@@ -228,7 +236,7 @@ A `Settings` file that provides meta information about the mod.
 * `textdomain`: Textdomain used to translate title and description. Defaults to modname.
   See [Translating content meta](#translating-content-meta).
 
-### `screenshot.png`
+### `screenshot.{png,jpg,jpeg}`
 
 A screenshot shown in the mod manager within the main menu. It should
 have an aspect ratio of 3:2 and a minimum size of 300×200 pixels.
@@ -515,6 +523,8 @@ By default the world is filled with air nodes. To set a different node use e.g.:
 Textures
 ========
 
+## Introduction
+
 Mods should generally prefix their textures with `modname_`, e.g. given
 the mod name `foomod`, a texture could be called:
 
@@ -536,6 +546,23 @@ or will be upscaled to that minimum resolution first without filtering.
 
 This is subject to change to move more control to the Lua API, but you can rely on
 low-res textures not suddenly becoming filtered.
+
+
+## Loading order
+
+Texture names are looked up in the following order. Top has the lowest priority.
+
+* Client: `$path_share/textures/base/pack`
+* Server: mod-provided textures, in their `textures` directory
+* Server: game textures, in `<game path>/textures`
+* Server: `$path_share/textures/server`
+* Server: `override.txt` in the path specified by the setting `texture_path`
+* Server: `override.txt` in `<game path>/textures`
+* Client: path specified by the setting `texture_path`
+* Client: `override.txt` in the path specified by the setting `texture_path`
+
+For details on texture packs, see [texture_packs.md](texture_packs.md).
+
 
 Texture modifiers
 -----------------
@@ -599,11 +626,11 @@ on top of `cobble.png`.
 
 Parameters:
 
-* `<t>`: tile count (in each direction)
-* `<n>`: animation frame count
-* `<p>`: current animation frame
+* `<t>`: draws a grid of `<t> * <t>` cracks onto each frame (default: `1`)
+* `<n>`: vertical count of frames of the base texture (often `1`)
+* `<p>`: crack animation frame (0-indexed)
 
-Draw a step of the crack animation on the texture.
+Draws a step of the crack animation on the texture.
 `crack` draws it normally, while `cracko` lays it over, keeping transparent
 pixels intact.
 
@@ -3908,7 +3935,8 @@ Escape sequences
 ================
 
 Most text can contain escape sequences, that can for example color the text.
-There are a few exceptions: tab headers, dropdowns and vertical labels can't.
+There are a few exceptions: tab headers and dropdowns can't be colorized
+(but they *can* be translated).
 The following functions provide escape sequences:
 
 * `core.get_color_escape_sequence(color)`:
@@ -4210,6 +4238,8 @@ Helper functions
 * `math.factorial(x)`: returns the factorial of `x`
 * `math.round(x)`: Returns `x` rounded to the nearest integer.
     * At a multiple of 0.5, rounds away from zero.
+* `math.isfinite(x)`: Returns `true` if `x` is neither an infinity nor a NaN,
+  and `false` otherwise.
 * `string.split(str, separator, include_empty, max_splits, sep_is_pattern)`
     * `separator`: string, cannot be empty, default: `","`
     * `include_empty`: boolean, default: `false`
@@ -5699,8 +5729,13 @@ Utilities
     * Works regardless of whether the mod has been loaded yet.
     * Useful for loading additional `.lua` modules or static data from a mod,
   or checking if a mod is enabled.
-* `core.get_modnames()`: returns a list of enabled mods, sorted alphabetically.
-    * Does not include disabled mods, even if they are installed.
+* `core.get_modnames([load_order])`:
+    * Returns a list of the mods' names that are loaded or are yet to be loaded
+      during startup.
+    * `load_order` defines the order of the names (optional, default `false`)
+        * Available since 5.16.0
+        * `true`: Sorted according to the load order.
+        * `false`: Sorted alphabetically.
 * `core.get_game_info()`: returns a table containing information about the
   current game. Note that other meta information (e.g. version/release number)
   can be manually read from `game.conf` in the game's root directory.
@@ -5775,7 +5810,7 @@ Utilities
       dynamic_add_media_table = true,
       -- particlespawners support texpools and animation of properties,
       -- particle textures support smooth fade and scale animations, and
-      -- sprite-sheet particle animations can by synced to the lifetime
+      -- sprite-sheet particle animations can be synced to the lifetime
       -- of individual particles (5.6.0)
       particlespawner_tweenable = true,
       -- allows get_sky to return a table instead of separate values (5.6.0)
@@ -5852,6 +5887,8 @@ Utilities
       -- Item definition fields `inventory_image`, `inventory_overlay`, `wield_image`
       -- and `wield_overlay` accept a table containing animation definitions. (5.15.0)
       item_image_animation = true,
+      -- `core.get_modnames`' parameter `load_order` (5.16.0)
+      get_modnames_load_order = true,
   }
   ```
 
@@ -5899,19 +5936,19 @@ Utilities
   ```
 
 * `core.protocol_versions`:
-  * Table mapping Luanti versions to corresponding protocol versions for modder convenience.
-  * For example, to check whether a client has at least the feature set
-    of Luanti 5.8.0 or newer, you could do:
-    `core.get_player_information(player_name).protocol_version >= core.protocol_versions["5.8.0"]`
-  * (available since 5.11)
+    * Table mapping Luanti versions to corresponding protocol versions for modder convenience.
+    * For example, to check whether a client has at least the feature set
+      of Luanti 5.8.0 or newer, you could do:
+      `core.get_player_information(player_name).protocol_version >= core.protocol_versions["5.8.0"]`
+    * (available since 5.11)
 
-  ```lua
-  {
-      [version string] = protocol version at time of release
-      -- every major and minor version has an entry
-      -- patch versions only for the first release whose protocol version is not already present in the table
-  }
-  ```
+    ```lua
+    {
+        [version string] = protocol version at time of release
+        -- every major and minor version has an entry
+        -- patch versions only for the first release whose protocol version is not already present in the table
+    }
+    ```
 
 * `core.get_player_window_information(player_name)`:
 
@@ -5957,6 +5994,7 @@ Utilities
       touch_controls = false,
   }
   ```
+
 * `core.path_exists(path)`: returns true if the given path exists else false
     * `path` is the path that will be tested can be either a directory or a file
 * `core.mkdir(path)`: returns success.
@@ -6269,17 +6307,18 @@ Call these functions only at load time!
       handlers will be prevented.
 * `core.register_on_player_receive_fields(function(player, formname, fields))`
     * Called when the server received input from `player`.
-      Specifically, this is called on any of the
-      following events:
-          * a button was pressed,
-          * Enter was pressed while the focus was on a text field
-          * a checkbox was toggled,
-          * something was selected in a dropdown list,
-          * a different tab was selected,
-          * selection was changed in a textlist or table,
-          * an entry was double-clicked in a textlist or table,
-          * a scrollbar was moved, or
-          * the form was actively closed by the player.
+      Specifically, this is called on any of the following events:
+        * a button was pressed,
+        * Enter was pressed while the focus was on a text field
+        * a checkbox was toggled,
+        * something was selected in a dropdown list,
+        * a different tab was selected,
+        * selection was changed in a textlist or table,
+        * an entry was double-clicked in a textlist or table,
+        * a scrollbar was moved, or
+        * the form was actively closed by the player.
+    * This is not called for node metadata formspecs. These use the callback
+      `on_receive_fields` specified in the node definition.
     * `formname` is the name passed to `core.show_formspec`.
       Special case: The empty string refers to the player inventory
       (the formspec set by the `set_inventory_formspec` player method).
@@ -6762,14 +6801,18 @@ Environment access
       emerged.
     * The function signature of callback is:
       `function EmergeAreaCallback(blockpos, action, calls_remaining, param)`
-        * `blockpos` is the *block* coordinates of the block that had been
-          emerged.
-        * `action` could be one of the following constant values:
-            * `core.EMERGE_CANCELLED`
-            * `core.EMERGE_ERRORED`
-            * `core.EMERGE_FROM_MEMORY`
-            * `core.EMERGE_FROM_DISK`
-            * `core.EMERGE_GENERATED`
+        * `blockpos` are the *block* coordinates of the block in question.
+        * `action` can be one of the following constant values:
+            * `core.EMERGE_GENERATED`: The block has been freshly generated.
+            * `core.EMERGE_FROM_MEMORY`: The block did not need to be loaded
+              because it was already in memory.
+            * `core.EMERGE_FROM_DISK`: The block was generated before and has been
+              loaded from the map database.
+            * `core.EMERGE_CANCELLED`: The block was not loaded for some reason.
+              Possible reasons include: Server shutdown, it was already being
+              emerged, outside of mapgen limits.
+              This event is not an error, but does *not* mean that the block is now present.
+            * `core.EMERGE_ERRORED`: Emerging the block has failed due to an error.
         * `calls_remaining` is the number of callbacks to be expected after
           this one.
         * `param` is the user-defined parameter passed to emerge_area (or
@@ -9512,7 +9555,8 @@ Player properties need to be saved manually.
     -- "node" looks exactly like a node in-world (supported since 5.12.0)
     --   Note that visual effects like waving or liquid reflections will not work.
 
-    visual_size = {x = 1, y = 1, z = 1},
+    visual_size = {x = number, y = number, z = number},
+    -- Defaults to `{x = 1, y = 1, z = 1}` for entities, but `{x = 1, y = 2, z = 1}` for players!
     -- Multipliers for the visual size. If `z` is not specified, `x` will be used
     -- to scale the entity along both horizontal axes.
 
@@ -10529,8 +10573,9 @@ Used by `core.register_node`.
     on_receive_fields = function(pos, formname, fields, sender),
     -- fields = {name1 = value1, name2 = value2, ...}
     -- formname should be the empty string; you **must not** use formname.
-    -- Called when an UI form (e.g. sign text input) returns data.
-    -- See core.register_on_player_receive_fields for more info.
+    -- Called when a node metadata formspec is present and data is returned.
+    -- See core.register_on_player_receive_fields for more info regarding
+    -- `formname` and `fields`.
     -- default: nil
 
     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player),
