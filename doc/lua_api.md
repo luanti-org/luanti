@@ -4254,7 +4254,7 @@ Helper functions
     * `string.pack(fmt, ...)`
     * `string.unpack(fmt, s, [pos])`
     * `string.packsize(fmt)`
-    * Backported from Lua 5.4, see https://www.lua.org/manual/5.4/manual.html#6.4.2
+    * Backported from Lua 5.4, see [https://www.lua.org/manual/5.4/manual.html#6.4.2](https://www.lua.org/manual/5.4/manual.html#6.4.2)
 * `core.wrap_text(str, limit, as_table)`: returns a string or table
     * Adds newlines to the string to keep it within the specified character
       limit
@@ -4396,7 +4396,7 @@ Two functions are provided to translate strings: `core.translate` and
   the client, the choice between singular and plural might be more complicated,
   but the choice will be done automatically using the value of `n`.
 
-  You can read https://www.gnu.org/software/gettext/manual/html_node/Plural-forms.html
+  You can read [https://www.gnu.org/software/gettext/manual/html_node/Plural-forms.html](https://www.gnu.org/software/gettext/manual/html_node/Plural-forms.html)
   for more details on the differences of plurals between languages.
 
   Also note that plurals are only handled in .po or .mo files, and not in .tr files.
