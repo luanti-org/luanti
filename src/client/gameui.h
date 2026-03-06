@@ -65,7 +65,11 @@ public:
 			m_status_text->showStatusText(str);
 	}
 	void showTranslatedStatusText(const char *str);
-	inline void clearStatusText() { if (m_status_text) m_status_text->clearStatusText(); }
+	inline void clearStatusText()
+	{
+		if (m_status_text)
+			m_status_text->clearStatusText();
+	}
 
 	bool isChatVisible()
 	{

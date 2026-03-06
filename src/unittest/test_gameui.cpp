@@ -5,6 +5,7 @@
 #include "test.h"
 
 #include "client/gameui.h"
+#include "gui/guiStatusText.h"
 
 class TestGameUI : public TestBase
 {
@@ -48,12 +49,18 @@ void TestGameUI::testInit()
 
 void TestGameUI::testStatusText()
 {
-	GameUI gui{};
-	gui.m_status_text = std::make_unique<GUIStatusText>(nullptr);
-	gui.showStatusText(L"test status");
+	GUIStatusText status_text(nullptr);
 
-	UASSERT(gui.m_status_text->getStatusTextTime() == 0.0f);
-	UASSERT(gui.m_status_text->getStatusText() == L"test status");
+	UASSERT(status_text.getStatusText().empty());
+	UASSERT(status_text.getStatusTextTime() == 0.0f);
+
+	status_text.showStatusText(L"test status");
+	UASSERT(status_text.getStatusText() == L"test status");
+	UASSERT(status_text.getStatusTextTime() == 0.0f);
+
+	status_text.clearStatusText();
+	UASSERT(status_text.getStatusText().empty());
+	UASSERT(status_text.getStatusTextTime() == 0.0f);
 }
 
 void TestGameUI::testInfoText()

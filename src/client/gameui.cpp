@@ -319,7 +319,7 @@ void GameUI::clearText()
 		m_guitext_info = nullptr;
 	}
 
-	m_status_text = nullptr;
+	m_status_text.reset();
 
 	if (m_guitext_profiler) {
 		m_guitext_profiler->remove();
