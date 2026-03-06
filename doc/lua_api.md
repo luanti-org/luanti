@@ -3118,7 +3118,7 @@ Elements
 
 ### `background9[<X>,<Y>;<W>,<H>;<texture name>;<auto_clip>;<middle>]`
 
-* 9-sliced background. See https://en.wikipedia.org/wiki/9-slice_scaling
+* 9-sliced background. See [Wikipedia](https://en.wikipedia.org/wiki/9-slice_scaling)
 * Middle is a rect which defines the middle of the 9-slice.
     * `x` - The middle will be x pixels from all sides.
     * `x,y` - The middle will be x pixels from the horizontal and y from the vertical.
@@ -3994,8 +3994,7 @@ Spatial Vectors
 
 Luanti stores 3-dimensional spatial vectors in Lua as tables of 3 coordinates,
 and has a class to represent them (`vector.*`), which this chapter is about.
-For details on what a spatial vectors is, please refer to Wikipedia:
-https://en.wikipedia.org/wiki/Euclidean_vector.
+For details on what a spatial vector is, please refer to [Wikipedia](https://en.wikipedia.org/wiki/Euclidean_vector).
 
 Spatial vectors are used for various things, including, but not limited to:
 
@@ -4254,7 +4253,7 @@ Helper functions
     * `string.pack(fmt, ...)`
     * `string.unpack(fmt, s, [pos])`
     * `string.packsize(fmt)`
-    * Backported from Lua 5.4, see https://www.lua.org/manual/5.4/manual.html#6.4.2
+    * Backported from Lua 5.4, see [Lua manual section 6.4.2](https://www.lua.org/manual/5.4/manual.html#6.4.2)
 * `core.wrap_text(str, limit, as_table)`: returns a string or table
     * Adds newlines to the string to keep it within the specified character
       limit
@@ -4396,7 +4395,7 @@ Two functions are provided to translate strings: `core.translate` and
   the client, the choice between singular and plural might be more complicated,
   but the choice will be done automatically using the value of `n`.
 
-  You can read https://www.gnu.org/software/gettext/manual/html_node/Plural-forms.html
+  You can read [the Gettext documentation](https://www.gnu.org/software/gettext/manual/html_node/Plural-forms.html)
   for more details on the differences of plurals between languages.
 
   Also note that plurals are only handled in .po or .mo files, and not in .tr files.
