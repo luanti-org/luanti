@@ -25,19 +25,32 @@
 	lua_setfield(L, -2, #name);
 
 
-static void recursive_setfenv(lua_State *L, int idx, int t_global)
+// Do not use directly. This is a helper function for `copy_safe`!
+// Note: Circular references are not handled.
+static void recursive_copy(lua_State *L, int idx, int t_global)
 {
+	if (idx < 0) idx = lua_gettop(L) + idx + 1;
+
 	switch (lua_type(L, idx)) {
-		case LUA_TTABLE:
+	case LUA_TTABLE:
+		{
+			lua_newtable(L);
+			const int to = lua_gettop(L);
 			for (lua_pushnil(L); lua_next(L, idx); lua_pop(L, 1)) {
-				recursive_setfenv(L, lua_gettop(L) - 1, t_global); // key
-				recursive_setfenv(L, lua_gettop(L) - 0, t_global); // value
+				recursive_copy(L, lua_gettop(L) - 1, t_global); // key
+				recursive_copy(L, lua_gettop(L) - 0, t_global); // value
+
+				lua_pushvalue(L, -2);
+				lua_pushvalue(L, -2);
+				lua_rawset(L, to);
 			}
-			break;
-		case LUA_TFUNCTION:
-			lua_pushvalue(L, t_global);
-			lua_setfenv(L, -2);
-			break;
+			lua_remove(L, idx);
+		}
+		break;
+	case LUA_TFUNCTION:
+		lua_pushvalue(L, t_global);
+		lua_setfenv(L, -2);
+		break;
 	}
 }
 
@@ -51,7 +64,7 @@ static inline void copy_safe(lua_State *L, const char *list[], unsigned len, int
 
 	for (unsigned i = 0; i < (len / sizeof(list[0])); i++) {
 		lua_getfield(L, from, list[i]);
-		recursive_setfenv(L, lua_gettop(L), t_sec);
+		recursive_copy(L, lua_gettop(L), t_sec);
 		lua_setfield(L, to, list[i]);
 	}
 
@@ -196,11 +209,11 @@ void ScriptApiSecurity::initializeSecurity()
 		luaL_checktype(L, -1, LUA_TTABLE);
 		lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
 		luaL_checktype(L, -1, LUA_TTABLE);
-		FATAL_ERROR_IF(lua_topointer(L, -1) == lua_topointer(L, -2), "insecure _G");
+		FATAL_ERROR_IF(lua_rawequal(L, -1, -2), "insecure _G");
 
 		lua_pushvalue(L, LUA_ENVIRONINDEX);
 		luaL_checktype(L, -1, LUA_TTABLE);
-		FATAL_ERROR_IF(lua_topointer(L, -1) == lua_topointer(L, -3), "insecure env");
+		FATAL_ERROR_IF(lua_rawequal(L, -1, -3), "insecure env");
 		lua_pop(L, 3);
 	}
 
