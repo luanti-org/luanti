@@ -590,8 +590,14 @@ void Camera::updateViewingRange()
 
 void Camera::setDigging(s32 button)
 {
-	if (m_digging_button == -1)
+	// If placing, do not desynchronize the animation and placement sound.
+	if (button == 1) {
 		m_digging_button = button;
+		m_digging_anim = 0.0f;
+	} else if (m_digging_button == -1) {
+		// Any other action.
+		m_digging_button = button;
+	}
 }
 
 void Camera::wield(const ItemStack &item)
