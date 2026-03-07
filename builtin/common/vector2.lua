@@ -223,13 +223,8 @@ function vector2.divide(a, b)
 		a.y / b
 	)
 end
-function metatable.__div(a, b)
-	-- scalar/vector makes no sense
-	return fast_new(
-		a.x / b,
-		a.y / b
-	)
-end
+-- vector÷vector makes no sense
+metatable.__div = vector2.divide
 
 -- misc stuff
 
