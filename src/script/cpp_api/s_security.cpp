@@ -25,71 +25,37 @@
 	lua_setfield(L, -2, #name);
 
 
+static void recursive_setfenv(lua_State *L, int idx, int t_global)
+{
+	switch (lua_type(L, idx)) {
+		case LUA_TTABLE:
+			for (lua_pushnil(L); lua_next(L, idx); lua_pop(L, 1)) {
+				recursive_setfenv(L, lua_gettop(L) - 1, t_global); // key
+				recursive_setfenv(L, lua_gettop(L) - 0, t_global); // value
+			}
+			break;
+		case LUA_TFUNCTION:
+			lua_pushvalue(L, t_global);
+			lua_setfenv(L, -2);
+			break;
+	}
+}
+
 static inline void copy_safe(lua_State *L, const char *list[], unsigned len, int from=-2, int to=-1)
 {
 	if (from < 0) from = lua_gettop(L) + from + 1;
 	if (to   < 0) to   = lua_gettop(L) + to   + 1;
+
+	lua_pushvalue(L, LUA_GLOBALSINDEX);
+	const int t_sec = lua_gettop(L);
+
 	for (unsigned i = 0; i < (len / sizeof(list[0])); i++) {
 		lua_getfield(L, from, list[i]);
-		lua_setfield(L, to,   list[i]);
-	}
-}
-
-/// Copies or moves fields from `t_sec` to `t_isec`, depending on whether or not
-/// the field is declared safe by `whitelist`.
-static void copy_or_move(lua_State *L, int t_sec, int t_isec, const char *whitelist[])
-{
-	FATAL_ERROR_IF(t_sec < 0 || t_isec < 0, "indices must be absolute");
-
-	for (lua_pushnil(L); lua_next(L, t_sec); lua_pop(L, 1)) {
-		std::string key = luaL_checkstring(L, -2);
-		bool found = false;
-
-		for (auto white = whitelist; *white; ++white) {
-			if (*white == key) {
-				found = true;
-				break;
-			}
-		}
-
-		// shallow copy to the insecure table
-		lua_pushvalue(L, -2);
-		lua_rawget(L, t_isec);
-		if (lua_isnil(L, -1)) {
-			lua_pushvalue(L, -3);
-			lua_pushvalue(L, -3);
-			lua_rawset(L, t_isec);
-		} // else: already handled elsewhere (e.g. 'os', 'debug', ...)
-		lua_pop(L, 1);
-
-		if (!found) {
-			// Is insecure --> remove from the secure table
-			lua_pushvalue(L, -2); // key
-			lua_pushnil(L);
-			lua_rawset(L, t_sec);
-		}
-	}
-}
-
-/// Retrieves the secure table from 't_sec' and moves all insecure functions
-/// to a new table in 't_isec'. [-0, +1, m]
-static void copy_new_table(lua_State *L, const char *globalname,
-	int t_sec, int t_isec, const char *whitelist[])
-{
-	FATAL_ERROR_IF(t_sec < 0 || t_isec < 0, "indices must be absolute");
-
-	lua_getfield(L, t_sec, globalname);
-	luaL_checktype(L, -1, LUA_TTABLE);
-	const int t_sec_g = lua_gettop(L);
-
-	{
-		lua_newtable(L);
-		const int t_isec_g = lua_gettop(L);
-		copy_or_move(L, t_sec_g, t_isec_g, whitelist);
-		lua_setfield(L, t_isec, globalname); // new table
+		recursive_setfenv(L, lua_gettop(L), t_sec);
+		lua_setfield(L, to, list[i]);
 	}
 
-	// Return with stack +1 (t_sec_g)
+	lua_pop(L, 1);
 }
 
 // Pushes the original version of a library function on the stack, from the old version
@@ -135,13 +101,6 @@ void ScriptApiSecurity::initializeSecurity()
 
 		// ******** Tables whitelist ********
 
-		// Tables with specific whitelists
-		"debug",
-		"io",
-		"jit",
-		"package",
-		"os",
-
 		// These libraries are completely safe BUT we need to duplicate their table
 		// to ensure the sandbox can't affect the insecure env
 		"coroutine",
@@ -154,7 +113,6 @@ void ScriptApiSecurity::initializeSecurity()
 #if BUILD_WITH_TRACY
 		"tracy",
 #endif
-		nullptr
 	};
 	static const char *io_whitelist[] = {
 		"close",
@@ -162,7 +120,6 @@ void ScriptApiSecurity::initializeSecurity()
 		"read",
 		"type",
 		"write",
-		nullptr
 	};
 	static const char *os_whitelist[] = {
 		"clock",
@@ -170,7 +127,6 @@ void ScriptApiSecurity::initializeSecurity()
 		"difftime",
 		"getenv",
 		"time",
-		nullptr
 	};
 	static const char *debug_whitelist[] = {
 		"gethook",
@@ -178,14 +134,12 @@ void ScriptApiSecurity::initializeSecurity()
 		"upvalueid",
 		"sethook",
 		"debug",
-		nullptr
 	};
 	static const char *package_whitelist[] = {
 		"config",
 		"cpath",
 		"path",
 		"searchpath",
-		nullptr
 	};
 	static const char *jit_whitelist[] = {
 		"arch",
@@ -197,7 +151,6 @@ void ScriptApiSecurity::initializeSecurity()
 		"status",
 		"version",
 		"version_num",
-		nullptr
 	};
 
 	m_secure = true;
@@ -209,93 +162,128 @@ void ScriptApiSecurity::initializeSecurity()
 		This function creates a secondary table, only accessible through
 		`core.request_insecure_environment` containing all insecure Lua functions.
 
-		1. Create a new table
-		2. Move all insecure API to the new table
-		3. Add secure wrappers to LUA_GLOBALSINDEX (_G)
-		4. Remove any entries from LUA_GLOBALSINDEX that are not whitelisted.
-
-		This process keeps the original environment table.
+		1. Create a new table for the secure env
+		2. Replace LUA_GLOBALSINDEX to use the secure env
+		3. Replace LUA_ENVIRONINDEX of the safe functions.
 	*/
 
-	lua_pushvalue(L, LUA_GLOBALSINDEX); // secure env
-	const int idx_secure = lua_gettop(L);
-
-	lua_newtable(L);
+	// Insecure env (stack + 1)
+	lua_pushvalue(L, LUA_GLOBALSINDEX);
+	const int old_globals = lua_gettop(L);
 	{
-		const int idx_insecure = lua_gettop(L);
-
-		copy_new_table(L, "io", idx_secure, idx_insecure, io_whitelist);
-		// And replace unsafe ones
-		SECURE_API(io, open);
-		SECURE_API(io, input);
-		SECURE_API(io, output);
-		SECURE_API(io, lines);
-		lua_pop(L, 1);
-
-		copy_new_table(L, "os", idx_secure, idx_insecure, os_whitelist);
-		// And replace unsafe ones
-		SECURE_API(os, remove);
-		SECURE_API(os, rename);
-		SECURE_API(os, setlocale);
-		lua_pop(L, 1);
-
-		copy_new_table(L, "debug", idx_secure, idx_insecure, debug_whitelist);
-		// And replace unsafe ones
-		SECURE_API(debug, getinfo);
-		lua_pop(L, 1);
-
-		copy_new_table(L, "package", idx_secure, idx_insecure, package_whitelist);
-		lua_pop(L, 1);
-
-		// Copy safe jit functions, if they exist
-		lua_getfield(L, idx_secure, "jit");
-		if (!lua_isnil(L, -1)) {
-			copy_new_table(L, "jit", idx_secure, idx_insecure, jit_whitelist);
-			lua_pop(L, 1);
-		}
-		lua_pop(L, 1);
-
-		// Last step: process the whitelist on G_
-		copy_or_move(L, idx_secure, idx_insecure, whitelist);
-		// _And replace unsafe ones
-		lua_pushvalue(L, idx_secure);
-		SECURE_API(g, dofile);
-		SECURE_API(g, load);
-		SECURE_API(g, loadfile);
-		SECURE_API(g, loadstring);
-		SECURE_API(g, require);
-		lua_pop(L, 1);
-
-		{
-			// Set insecure environment for the functions that need it
-			lua_getfield(L, idx_insecure, "package");
-			lua_getfield(L, idx_insecure, "require");
-			lua_pushvalue(L, -2);
-			lua_setfenv(L, -2);
-			lua_pop(L, 1); // require
-
-			lua_getfield(L, -1, "loaders");
-			for (int i = 1; ; ++i) {
-				lua_rawgeti(L, -1, i);
-				lua_pushvalue(L, -3); // package
-				if (!lua_setfenv(L, -2))
-					break; // last index
-				lua_pop(L, 1); // function
-			}
-			lua_pop(L, 3); // nil value + loaders + package
-		}
-
-		// Get rid of 'core' in the old globals, we don't want anyone thinking it's
-		// safe or even usable.
-		lua_pushnil(L);
-		lua_setfield(L, idx_insecure, "core");
+		// For later use in secured functions
+		lua_pushvalue(L, old_globals);
+		lua_rawseti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
 	}
-	lua_rawseti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
 
-	lua_pushvalue(L, idx_secure);
-	lua_setfield(L, idx_secure, "_G");
+	// Secure env
+	createEmptyEnv(L);
+	{
+		// Perform a full switch of the Lua state to the secure env
+		const int idx_secure = lua_gettop(L);
+		lua_pushvalue(L, idx_secure);
+		lua_replace(L, LUA_GLOBALSINDEX);
 
-	lua_pop(L, 1); // idx_secure
+		int thread = getThread(L);
+		lua_pushvalue(L, idx_secure);
+		setLuaEnv(L, thread);
+	}
+	lua_pop(L, 1);
+
+	{
+		// Security check
+		lua_getglobal(L, "_G");
+		luaL_checktype(L, -1, LUA_TTABLE);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
+		luaL_checktype(L, -1, LUA_TTABLE);
+		FATAL_ERROR_IF(lua_topointer(L, -1) == lua_topointer(L, -2), "insecure _G");
+
+		lua_pushvalue(L, LUA_ENVIRONINDEX);
+		luaL_checktype(L, -1, LUA_TTABLE);
+		FATAL_ERROR_IF(lua_topointer(L, -1) == lua_topointer(L, -3), "insecure env");
+		lua_pop(L, 3);
+	}
+
+
+	// Copy safe base functions
+	lua_getglobal(L, "_G");
+	copy_safe(L, whitelist, sizeof(whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(g, dofile);
+	SECURE_API(g, load);
+	SECURE_API(g, loadfile);
+	SECURE_API(g, loadstring);
+	SECURE_API(g, require);
+	lua_pop(L, 1);
+
+
+	// Copy safe IO functions
+	lua_getfield(L, old_globals, "io");
+	lua_newtable(L);
+	copy_safe(L, io_whitelist, sizeof(io_whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(io, open);
+	SECURE_API(io, input);
+	SECURE_API(io, output);
+	SECURE_API(io, lines);
+
+	lua_setglobal(L, "io");
+	lua_pop(L, 1);  // Pop old IO
+
+
+	// Copy safe OS functions
+	lua_getfield(L, old_globals, "os");
+	lua_newtable(L);
+	copy_safe(L, os_whitelist, sizeof(os_whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(os, remove);
+	SECURE_API(os, rename);
+	SECURE_API(os, setlocale);
+
+	lua_setglobal(L, "os");
+	lua_pop(L, 1);  // Pop old OS
+
+
+	// Copy safe debug functions
+	lua_getfield(L, old_globals, "debug");
+	lua_newtable(L);
+	copy_safe(L, debug_whitelist, sizeof(debug_whitelist));
+
+	// And replace unsafe ones
+	SECURE_API(debug, getinfo);
+
+	lua_setglobal(L, "debug");
+	lua_pop(L, 1);  // Pop old debug
+
+
+	// Copy safe package fields
+	lua_getfield(L, old_globals, "package");
+	lua_newtable(L);
+	copy_safe(L, package_whitelist, sizeof(package_whitelist));
+	lua_setglobal(L, "package");
+	lua_pop(L, 1);  // Pop old package
+
+
+	// Copy safe jit functions, if they exist
+	lua_getfield(L, -1, "jit");
+	if (!lua_isnil(L, -1)) {
+		lua_newtable(L);
+		copy_safe(L, jit_whitelist, sizeof(jit_whitelist));
+		lua_setglobal(L, "jit");
+	}
+	lua_pop(L, 1);  // Pop old jit
+
+
+	// Get rid of 'core' in the old globals, we don't want anyone thinking it's
+	// safe or even usable.
+	lua_pushnil(L);
+	lua_setfield(L, old_globals, "core");
+
+	lua_pop(L, 1); // Pop globals_backup
+
 
 	/*
 	 * In addition to copying the tables in whitelist_tables, we also need to
