@@ -25,29 +25,50 @@
 	lua_setfield(L, -2, #name);
 
 
+// Do not use directly. This is a helper function for `copy_safe`!
+// Note: Circular references are not handled.
+static void recursive_copy(lua_State *L, int idx, int t_global)
+{
+	if (idx < 0) idx = lua_gettop(L) + idx + 1;
+
+	switch (lua_type(L, idx)) {
+	case LUA_TTABLE:
+		{
+			lua_newtable(L);
+			const int to = lua_gettop(L);
+			for (lua_pushnil(L); lua_next(L, idx); lua_pop(L, 1)) {
+				recursive_copy(L, lua_gettop(L) - 1, t_global); // key
+				recursive_copy(L, lua_gettop(L) - 0, t_global); // value
+
+				lua_pushvalue(L, -2);
+				lua_pushvalue(L, -2);
+				lua_rawset(L, to);
+			}
+			lua_remove(L, idx);
+		}
+		break;
+	case LUA_TFUNCTION:
+		lua_pushvalue(L, t_global);
+		lua_setfenv(L, -2);
+		break;
+	}
+}
+
 static inline void copy_safe(lua_State *L, const char *list[], unsigned len, int from=-2, int to=-1)
 {
 	if (from < 0) from = lua_gettop(L) + from + 1;
 	if (to   < 0) to   = lua_gettop(L) + to   + 1;
+
+	lua_pushvalue(L, LUA_GLOBALSINDEX);
+	const int t_sec = lua_gettop(L);
+
 	for (unsigned i = 0; i < (len / sizeof(list[0])); i++) {
 		lua_getfield(L, from, list[i]);
-		lua_setfield(L, to,   list[i]);
+		recursive_copy(L, lua_gettop(L), t_sec);
+		lua_setfield(L, to, list[i]);
 	}
-}
 
-static void shallow_copy_table(lua_State *L, int from=-2, int to=-1)
-{
-	if (from < 0) from = lua_gettop(L) + from + 1;
-	if (to   < 0) to   = lua_gettop(L) + to   + 1;
-	lua_pushnil(L);
-	while (lua_next(L, from) != 0) {
-		assert(lua_type(L, -1) != LUA_TTABLE);
-		// duplicate key and value for lua_rawset
-		lua_pushvalue(L, -2);
-		lua_pushvalue(L, -2);
-		lua_rawset(L, to);
-		lua_pop(L, 1);
-	}
+	lua_pop(L, 1);
 }
 
 // Pushes the original version of a library function on the stack, from the old version
@@ -90,8 +111,9 @@ void ScriptApiSecurity::initializeSecurity()
 		"unpack",
 		"_VERSION",
 		"xpcall",
-	};
-	static const char *whitelist_tables[] = {
+
+		// ******** Tables whitelist ********
+
 		// These libraries are completely safe BUT we need to duplicate their table
 		// to ensure the sandbox can't affect the insecure env
 		"coroutine",
@@ -132,7 +154,6 @@ void ScriptApiSecurity::initializeSecurity()
 		"path",
 		"searchpath",
 	};
-#if USE_LUAJIT
 	static const char *jit_whitelist[] = {
 		"arch",
 		"flush",
@@ -144,23 +165,57 @@ void ScriptApiSecurity::initializeSecurity()
 		"version",
 		"version_num",
 	};
-#endif
+
 	m_secure = true;
 
 	lua_State *L = getStack();
+	const int sanity_check_top = lua_gettop(L);
 
-	// Backup globals to the registry
-	lua_getglobal(L, "_G");
-	lua_rawseti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
+	/*
+		This function creates a secondary table, only accessible through
+		`core.request_insecure_environment` containing all insecure Lua functions.
 
-	// Replace the global environment with an empty one
-	int thread = getThread(L);
+		1. Create a new table for the secure env
+		2. Replace LUA_GLOBALSINDEX to use the secure env
+		3. Replace LUA_ENVIRONINDEX of the safe functions.
+	*/
+
+	// Insecure env (stack + 1)
+	lua_pushvalue(L, LUA_GLOBALSINDEX);
+	const int old_globals = lua_gettop(L);
+	{
+		// For later use in secured functions
+		lua_pushvalue(L, old_globals);
+		lua_rawseti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
+	}
+
+	// Secure env
 	createEmptyEnv(L);
-	setLuaEnv(L, thread);
+	{
+		// Perform a full switch of the Lua state to the secure env
+		const int idx_secure = lua_gettop(L);
+		lua_pushvalue(L, idx_secure);
+		lua_replace(L, LUA_GLOBALSINDEX);
 
-	// Get old globals
-	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
-	int old_globals = lua_gettop(L);
+		int thread = getThread(L);
+		lua_pushvalue(L, idx_secure);
+		setLuaEnv(L, thread);
+	}
+	lua_pop(L, 1);
+
+	{
+		// Security check
+		lua_getglobal(L, "_G");
+		luaL_checktype(L, -1, LUA_TTABLE);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
+		luaL_checktype(L, -1, LUA_TTABLE);
+		FATAL_ERROR_IF(lua_rawequal(L, -1, -2), "insecure _G");
+
+		lua_pushvalue(L, LUA_ENVIRONINDEX);
+		luaL_checktype(L, -1, LUA_TTABLE);
+		FATAL_ERROR_IF(lua_rawequal(L, -1, -3), "insecure env");
+		lua_pop(L, 3);
+	}
 
 
 	// Copy safe base functions
@@ -174,17 +229,6 @@ void ScriptApiSecurity::initializeSecurity()
 	SECURE_API(g, loadstring);
 	SECURE_API(g, require);
 	lua_pop(L, 1);
-
-
-	// Copy safe libraries
-	for (const char *libname : whitelist_tables) {
-		lua_getfield(L, old_globals, libname);
-		lua_newtable(L);
-		shallow_copy_table(L);
-
-		lua_setglobal(L, libname);
-		lua_pop(L, 1);
-	}
 
 
 	// Copy safe IO functions
@@ -235,7 +279,7 @@ void ScriptApiSecurity::initializeSecurity()
 	lua_setglobal(L, "package");
 	lua_pop(L, 1);  // Pop old package
 
-#if USE_LUAJIT
+
 	// Copy safe jit functions, if they exist
 	lua_getfield(L, -1, "jit");
 	if (!lua_isnil(L, -1)) {
@@ -244,7 +288,7 @@ void ScriptApiSecurity::initializeSecurity()
 		lua_setglobal(L, "jit");
 	}
 	lua_pop(L, 1);  // Pop old jit
-#endif
+
 
 	// Get rid of 'core' in the old globals, we don't want anyone thinking it's
 	// safe or even usable.
@@ -265,6 +309,8 @@ void ScriptApiSecurity::initializeSecurity()
 	lua_setfield(L, -2, "__index");
 	lua_setmetatable(L, -2);
 	lua_pop(L, 1); // Pop empty string
+
+	FATAL_ERROR_IF(sanity_check_top != lua_gettop(L), "unbalanced stack");
 }
 
 #if CHECK_CLIENT_BUILD()
@@ -277,7 +323,6 @@ void ScriptApiSecurity::initializeSecurityClient()
 		"collectgarbage",
 		"DIR_DELIM",
 		"error",
-		"getfenv",
 		"ipairs",
 		"next",
 		"pairs",
@@ -404,7 +449,6 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 		"collectgarbage",
 		"DIR_DELIM",
 		"error",
-		"getfenv",
 		"ipairs",
 		"next",
 		"pairs",
