@@ -55,14 +55,14 @@ local forbidden_item_names = {
 	tool = true,
 }
 
-local function check_modname_prefix(name)
+local function check_modname_prefix(name, modname)
 	if name:sub(1,1) == ":" then
 		-- If the name starts with a colon, we can skip the modname prefix
 		-- mechanism.
 		return name:sub(2)
 	else
 		-- Enforce that the name starts with the correct mod name.
-		local expected_prefix = (core.get_current_modname() or "") .. ":"
+		local expected_prefix = (modname or core.get_current_modname() or "") .. ":"
 		if name:sub(1, #expected_prefix) ~= expected_prefix then
 			error("Name " .. name .. " does not follow naming conventions: " ..
 				"\"" .. expected_prefix .. "\" or \":\" prefix required")
@@ -315,7 +315,11 @@ end
 
 local function make_register_item_wrapper(the_type)
 	return function(name, itemdef)
-		itemdef.type = the_type
+		if type(itemdef) ~= "table" then
+      error("Unable to register "..(the_type == "craft" and "craftitem" or the_type)..
+        ": Definition is non-table, got type '"..type(itemdef).."'")
+    end
+    itemdef.type = the_type
 		return core.register_item(name, itemdef)
 	end
 end
