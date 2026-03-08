@@ -160,12 +160,12 @@ void signal_handler_init(void)
 
 static std::optional<std::string> getUserPathEnvVar()
 {
-	if (const char* user_path = getenv("LUANTI_USER_PATH");
-	    user_path && *user_path) {
+	if (const char *user_path = getenv("LUANTI_USER_PATH");
+	    		user_path && *user_path) {
 		return user_path;
 	}
-	if (const char* user_path = getenv("MINETEST_USER_PATH");
-	    user_path && *user_path) {
+	if (const char *user_path = getenv("MINETEST_USER_PATH");
+	    		user_path && *user_path) {
 		warningstream << "MINETEST_USER_PATH is deprecated, "
 			      << "use LUANTI_USER_PATH instead." << std::endl;
 		return user_path;
