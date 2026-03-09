@@ -158,19 +158,15 @@ v2f read_v2f(lua_State *L, int index)
 
 v2f check_v2f(lua_State *L, int index)
 {
-	v2f p;
-	CHECK_POS_TAB(index);
-	lua_getfield(L, index, "x");
-	CHECK_POS_COORD(-1, "x");
-	p.X = lua_tonumber(L, -1);
-	CHECK_FLOAT(p.X, "x");
-	lua_pop(L, 1);
-	lua_getfield(L, index, "y");
+	read_v2_aux(L, index);
+	CHECK_POS_COORD(-2, "x");
 	CHECK_POS_COORD(-1, "y");
-	p.Y = lua_tonumber(L, -1);
-	CHECK_FLOAT(p.Y, "y");
-	lua_pop(L, 1);
-	return p;
+	float x = lua_tonumber(L, -2);
+	float y = lua_tonumber(L, -1);
+	lua_pop(L, 2);
+	CHECK_FLOAT(x, "x");
+	CHECK_FLOAT(y, "y");
+	return v2f(x, y);
 }
 
 v3f read_v3f(lua_State *L, int index)
