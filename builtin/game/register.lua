@@ -99,6 +99,7 @@ function core.register_abm(spec)
 
 	core.registered_abms[#core.registered_abms + 1] = spec
 	spec.mod_origin = core.get_current_modname() or "??"
+  return spec
 end
 
 function core.register_lbm(spec)
@@ -113,6 +114,7 @@ function core.register_lbm(spec)
 	assert(have ~= have_bulk, "Either 'action' or 'bulk_action' must be present")
 
 	core.registered_lbms[#core.registered_lbms + 1] = spec
+  return spec
 end
 
 function core.register_entity(name, prototype)
@@ -129,6 +131,7 @@ function core.register_entity(name, prototype)
 
 	-- Add to core.registered_entities
 	core.registered_entities[name] = prototype
+  return prototype
 end
 
 local function preprocess_node(nodedef)
@@ -313,6 +316,7 @@ function core.register_item(name, itemdef)
 	core.registered_aliases[itemdef.name] = nil
 
 	register_item_raw(itemdef)
+  return itemdef
 end
 
 local function make_register_item_wrapper(the_type)
