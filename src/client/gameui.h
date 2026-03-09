@@ -35,7 +35,7 @@ class GameUI
 	friend class TestGameUI;
 
 public:
-	GameUI();
+	GameUI() = default;
 	~GameUI() = default;
 
 	// Flags that can, or may, change during main game loop

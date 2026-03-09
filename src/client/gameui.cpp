@@ -33,9 +33,6 @@ inline static const char *yawToDirectionString(int yaw)
 	return direction[yaw];
 }
 
-GameUI::GameUI()
-{
-}
 void GameUI::init()
 {
 	// First line of debug text
