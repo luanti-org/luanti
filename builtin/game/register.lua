@@ -62,7 +62,7 @@ local function check_modname_prefix(name, modname)
 		return name:sub(2)
 	else
 		-- Enforce that the name starts with the correct mod name.
-		local expected_prefix = (modname or core.get_current_modname() or "") .. ":"
+		local expected_prefix = (modname or "") .. ":"
 		if name:sub(1, #expected_prefix) ~= expected_prefix then
 			error("Name " .. name .. " does not follow naming conventions: " ..
 				"\"" .. expected_prefix .. "\" or \":\" prefix required")
@@ -103,7 +103,8 @@ end
 
 function core.register_lbm(spec)
 	-- Add to core.registered_lbms
-	check_modname_prefix(spec.name)
+  spec.mod_origin = core.get_current_modname() or "??"
+	check_modname_prefix(spec.name, spec.mod_origin)
 	check_node_list(spec.nodenames, "nodenames")
 	local have = spec.action ~= nil
 	local have_bulk = spec.bulk_action ~= nil
@@ -112,7 +113,6 @@ function core.register_lbm(spec)
 	assert(have ~= have_bulk, "Either 'action' or 'bulk_action' must be present")
 
 	core.registered_lbms[#core.registered_lbms + 1] = spec
-	spec.mod_origin = core.get_current_modname() or "??"
 end
 
 function core.register_entity(name, prototype)
@@ -120,14 +120,15 @@ function core.register_entity(name, prototype)
 	if name == nil then
 		error("Unable to register entity: Name is nil")
 	end
-	name = check_modname_prefix(tostring(name))
+
+  prototype.mod_origin = core.get_current_modname() or "??"
+  name = check_modname_prefix(tostring(name), prototype.mod_origin)
 
 	prototype.name = name
 	prototype.__index = prototype  -- so that it can be used as a metatable
 
 	-- Add to core.registered_entities
 	core.registered_entities[name] = prototype
-	prototype.mod_origin = core.get_current_modname() or "??"
 end
 
 local function preprocess_node(nodedef)
@@ -237,7 +238,10 @@ function core.register_item(name, itemdef)
 	if name == nil then
 		error("Unable to register item: Name is nil")
 	end
-	name = check_modname_prefix(tostring(name))
+
+	itemdef.mod_origin = core.get_current_modname() or "??"
+  name = check_modname_prefix(tostring(name), itemdef.mod_origin)
+
 	if forbidden_item_names[name] then
 		error("Unable to register item: Name is forbidden: " .. name)
 	end
@@ -293,8 +297,6 @@ function core.register_item(name, itemdef)
 		})
 	end
 	-- END Legacy stuff
-
-	itemdef.mod_origin = core.get_current_modname() or "??"
 
 	-- Ignore new keys as a failsafe to prevent mistakes
 	getmetatable(itemdef).__newindex = function() end
