@@ -55,7 +55,6 @@ private:
 	bool m_use_main_menu_position = false;
 	// Height of the full-width bar at the bottom of the screen (main menu style)
 	static constexpr s32 MAIN_MENU_BAR_HEIGHT = 40;
-	gui::EGUI_ALIGNMENT m_text_alignment = gui::EGUIA_CENTER;
 
 	// Internal helper to update position based on screen size and style
 	void updatePosition();
