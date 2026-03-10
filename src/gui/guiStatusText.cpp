@@ -64,6 +64,8 @@ void GUIStatusText::setGameStyle()
 	m_display_duration = 1.5f;
 	m_background_enabled = false;
 	m_use_main_menu_position = false;
+	// in-game: top-anchored vertically
+	m_text_alignment_v = gui::EGUIA_UPPERLEFT;
 }
 
 void GUIStatusText::setMainMenuStyle()
@@ -72,6 +74,8 @@ void GUIStatusText::setMainMenuStyle()
 	m_background_color = video::SColor(220, 0, 0, 0);
 	m_background_enabled = true;
 	m_use_main_menu_position = true;
+	// main menu: centered vertically
+	m_text_alignment_v = gui::EGUIA_CENTER;
 }
 
 void GUIStatusText::update(float dtime)
@@ -93,7 +97,7 @@ void GUIStatusText::update(float dtime)
 	// position work happens here
 	m_guitext_status->setText(m_statustext.c_str());
 	m_guitext_status->setVisible(true);
-	m_guitext_status->setTextAlignment(gui::EGUIA_CENTER, gui::EGUIA_CENTER);
+	m_guitext_status->setTextAlignment(gui::EGUIA_CENTER, m_text_alignment_v);
 
 	updatePosition();
 

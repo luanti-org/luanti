@@ -56,6 +56,9 @@ private:
 	// Height of the full-width bar at the bottom of the screen (main menu style)
 	static constexpr s32 MAIN_MENU_BAR_HEIGHT = 40;
 
+	// per-style text alignment
+	gui::EGUI_ALIGNMENT m_text_alignment_v = gui::EGUIA_UPPERLEFT;
+
 	// Internal helper to update position based on screen size and style
 	void updatePosition();
 };
