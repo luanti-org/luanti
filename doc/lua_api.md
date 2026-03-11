@@ -6363,8 +6363,8 @@ Call these functions only at load time!
     * Determines how much of a stack may be taken, put or moved to a
       player inventory.
     * Function arguments: see `core.register_on_player_inventory_action`
-    * Return a numeric value to limit the amount of items to be taken, put or
-      moved. A value of `-1` for `take` will make the source stack infinite.
+    * The return value behaves like the respective `allow_metadata_inventory_*`
+      item callback.
 * `core.register_on_player_inventory_action(function(player, action, inventory, inventory_info))`
     * Called after an item take, put or move event from/to/in a player inventory
     * These inventory actions are recognized:
@@ -10100,8 +10100,13 @@ Used by `core.register_node`, `core.register_craftitem`, and
     -- default: core.item_secondary_use
 
     on_drop = function(itemstack, dropper, pos),
-    -- Shall drop item and return the leftover itemstack.
-    -- The dropper may be any ObjectRef or nil.
+    -- Called when the player drops this item from an inventory.
+    -- Must return the left-over itemstack. Returning `nil` is equivalent to
+    -- the original itemstack (= inventory not modified).
+    -- Parameters:
+    -- * `itemstack`: the `ItemStack` to be dropped.
+    -- * `dropped`: any `ObjectRef` or `nil`.
+    -- * `pos`: position to drop the item at.
     -- default: core.item_drop
 
     on_pickup = function(itemstack, picker, pointed_thing, time_from_last_punch, ...),
@@ -10109,11 +10114,11 @@ Used by `core.register_node`, `core.register_craftitem`, and
     -- Shall pick-up the item and return the leftover itemstack or nil to not
     -- modify the dropped item.
     -- Parameters:
-    -- * `itemstack`: The `ItemStack` to be picked up.
-    -- * `picker`: Any `ObjectRef` or `nil`.
-    -- * `pointed_thing` (optional): The dropped item (a `"__builtin:item"`
-    --   luaentity) as `type="object"` `pointed_thing`.
-    -- * `time_from_last_punch, ...` (optional): Other parameters from
+    -- * `itemstack`: the `ItemStack` to be picked up.
+    -- * `picker`: any `ObjectRef` or `nil`.
+    -- * `pointed_thing` (optional): the dropped item (a `"__builtin:item"`
+    --   luaentity) as a `pointed_thing` with `type="object"`.
+    -- * `time_from_last_punch, ...` (optional): other parameters from
     --   `luaentity:on_punch`.
     -- default: core.item_pickup
 
@@ -10589,12 +10594,12 @@ Used by `core.register_node`.
     allow_metadata_inventory_put = function(pos, listname, index, stack, player),
     -- Called when a player wants to put something into the inventory.
     -- Return value: number of items allowed to put.
-    -- Return value -1: Allow and don't modify item count in inventory.
+    -- Return value -1: Allow and don't modify destination item.
 
     allow_metadata_inventory_take = function(pos, listname, index, stack, player),
     -- Called when a player wants to take something out of the inventory.
     -- Return value: number of items allowed to take.
-    -- Return value -1: Allow and don't modify item count in inventory.
+    -- Return value -1: Allow and don't modify source item.
 
     on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player),
     on_metadata_inventory_put = function(pos, listname, index, stack, player),
@@ -11479,12 +11484,12 @@ Used by `core.create_detached_inventory`.
     allow_put = function(inv, listname, index, stack, player),
     -- Called when a player wants to put something into the inventory.
     -- Return value: number of items allowed to put.
-    -- Return value -1: Allow and don't modify item count in inventory.
+    -- Return value -1: Allow and don't modify destination item.
 
     allow_take = function(inv, listname, index, stack, player),
     -- Called when a player wants to take something out of the inventory.
     -- Return value: number of items allowed to take.
-    -- Return value -1: Allow and don't modify item count in inventory.
+    -- Return value -1: Allow and don't modify source item.
 
     on_move = function(inv, from_list, from_index, to_list, to_index, count, player),
     on_put = function(inv, listname, index, stack, player),

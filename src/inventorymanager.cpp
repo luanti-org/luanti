@@ -751,10 +751,8 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 	item1.count = take_count;
 	if(PLAYER_TO_SA(player)->item_OnDrop(item1, player,
 				player->getBasePosition())) {
-		int actually_dropped_count = take_count - item1.count;
-
-		if (actually_dropped_count == 0) {
-			infostream<<"Actually dropped no items"<<std::endl;
+		if (item1 == src_item) {
+			infostream << "Actually dropped no items" << std::endl;
 
 			// Revert client prediction. See 'clientApply'
 			if (from_inv.type == InventoryLocation::PLAYER)
@@ -762,17 +760,20 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 			return;
 		}
 
-		// If source isn't infinite
-		if (src_can_take_count != -1) {
-			// Take item from source list
-			ItemStack item2 = list_from->takeItem(from_i, actually_dropped_count);
+		// We need this number for OnTake reporting, but the problem here is
+		// that OnDrop can return a completely different item stack.
+		// Cut a few corners and report the count difference as far as sensible.
+		// (maybe OnTake should run before OnDrop??)
+		int really_dropped_count = src_item.count;
+		if (item1.count < src_item.count)
+			really_dropped_count = src_item.count - item1.count;
 
-			if (item2.count != actually_dropped_count)
-				errorstream<<"Could not take dropped count of items"<<std::endl;
-		}
-
-		src_item.count = actually_dropped_count;
+		// Modify source
+		if (src_can_take_count != -1)
+			list_from->changeItem(from_i, item1);
 		mgr->setInventoryModified(from_inv);
+
+		src_item.count = really_dropped_count;
 	}
 
 	infostream<<"IDropAction::apply(): dropped "
