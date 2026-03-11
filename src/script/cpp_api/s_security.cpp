@@ -54,7 +54,7 @@ static void recursive_copy(lua_State *L, int idx, int t_global)
 				lua_pushvalue(L, -2);
 				lua_rawset(L, to);
 			}
-			lua_remove(L, idx);
+			lua_replace(L, idx);
 		}
 		break;
 	case LUA_TFUNCTION:
