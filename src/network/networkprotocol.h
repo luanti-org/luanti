@@ -692,6 +692,13 @@ enum ToClientCommand : u16
 			f32 speed_dark_bright
 			f32 speed_bright_dark
 			f32 center_weight_power
+		f32 volumetric_light_strength
+		SColor shadow_tint
+		bloom parameters
+			f32 bloom_intensity
+			f32 bloom_strength_factor
+			f32 bloom_radius
+		v3f shadow_direction ({0,0,0} = unset)
 	*/
 
 	TOCLIENT_SPAWN_PARTICLE_BATCH = 0x64,

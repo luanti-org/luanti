@@ -2691,6 +2691,10 @@ int ObjectRef::l_set_lighting(lua_State *L)
 			lua_getfield(L, -1, "tint");
 			read_color(L, -1, &lighting.shadow_tint);
 			lua_pop(L, 1); // tint
+			lua_getfield(L, -1, "direction");
+			if (!lua_isnil(L, -1))
+				lighting.shadow_direction = check_v3f(L, -1);
+			lua_pop(L, 1); // direction
 		}
 		lua_pop(L, 1); // shadows
 
@@ -2744,6 +2748,8 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	lua_setfield(L, -2, "intensity");
 	push_ARGB8(L, lighting.shadow_tint);
 	lua_setfield(L, -2, "tint");
+	push_v3f(L, lighting.shadow_direction);
+	lua_setfield(L, -2, "direction");
 	lua_setfield(L, -2, "shadows");
 	lua_pushnumber(L, lighting.saturation);
 	lua_setfield(L, -2, "saturation");
