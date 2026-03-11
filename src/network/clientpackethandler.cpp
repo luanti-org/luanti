@@ -1168,14 +1168,23 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 	v2f align;
 	v2f offset;
 	v3f world_pos;
-	v2s32 size;
+	v2f size;
 	s16 z_index = 0;
 	std::string text2;
 	u32 style = 0;
 
 	*pkt >> server_id >> type >> pos >> name >> scale >> text >> number >> item
 		>> dir >> align >> offset;
-	*pkt >> world_pos >> size;
+	*pkt >> world_pos;
+
+	if (m_proto_ver >= 51) {
+		*pkt >> size;
+	} else {
+		v2s32 old_format;
+		*pkt >> old_format;
+		size = v2f::from(old_format);
+	}
+
 	do {
 		if (!pkt->hasRemainingBytes())
 			break;
@@ -1233,7 +1242,6 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 	v2f v2fdata;
 	v3f v3fdata;
 	u32 intdata = 0;
-	v2s32 v2s32data;
 	u32 server_id;
 	u8 stat;
 
@@ -1261,7 +1269,13 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 			*pkt >> v3fdata;
 			break;
 		case HUD_STAT_SIZE:
-			*pkt >> v2s32data;
+			if (m_proto_ver >= 51) {
+				*pkt >> v2fdata;
+			} else {
+				v2s32 old_format;
+				*pkt >> old_format;
+				v2fdata = v2f::from(old_format);
+			}
 			break;
 		default:
 			*pkt >> intdata;
@@ -1277,7 +1291,6 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 	event->hudchange->v3fdata   = v3fdata;
 	event->hudchange->sdata     = sdata;
 	event->hudchange->data      = intdata;
-	event->hudchange->v2s32data = v2s32data;
 	m_client_event_queue.push(event);
 }
 

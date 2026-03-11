@@ -2281,7 +2281,7 @@ void Game::handleClientEvent_HudAdd(ClientEvent *event, CameraOrientation *cam)
 	e->align  = event->hudadd->align;
 	e->offset = event->hudadd->offset;
 	e->world_pos = event->hudadd->world_pos;
-	e->size      = event->hudadd->size;
+	e->size      = v2f::from(event->hudadd->size);
 	e->z_index   = event->hudadd->z_index;
 	e->text2     = event->hudadd->text2;
 	e->style     = event->hudadd->style;
@@ -2345,7 +2345,7 @@ void Game::handleClientEvent_HudChange(ClientEvent *event, CameraOrientation *ca
 
 		CASE_SET(HUD_STAT_WORLD_POS, world_pos, v3fdata);
 
-		CASE_SET(HUD_STAT_SIZE, size, v2s32data);
+		CASE_SET(HUD_STAT_SIZE, size, v2fdata);
 
 		CASE_SET(HUD_STAT_Z_INDEX, z_index, data);
 

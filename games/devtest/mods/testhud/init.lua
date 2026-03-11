@@ -79,6 +79,43 @@ core.register_chatcommand("hudfonts", {
 	end,
 })
 
+do -- HUD font size
+	local function animate(player, hud_id, old_val, decrement)
+		local val = old_val + (decrement and -0.2 or 0.2)
+		player:hud_change(hud_id, "size", {x=val})
+
+		core.after(0.1, function()
+			if not core.get_player_by_name(player:get_player_name()) then
+				return
+			end
+			if val > 5 then
+				decrement = true
+			elseif val < 2 then
+				decrement = false
+			end
+			animate(player, hud_id, val, decrement)
+		end)
+	end
+
+	core.register_chatcommand("hudfontsize", {
+		description = "Show some text on the HUD with animated, floating-point font size",
+		func = function(name, param)
+			local player = core.get_player_by_name(name)
+			local hud_id = player:hud_add({
+				type      = "text",
+				position  = { x = 1, y = 0.5 },
+				offset    = { x = -25 },
+				alignment = { x = -1 },
+				text      = "AAAAA",
+				size      = { x = 1.8 },
+				number    = "0xff0000",
+			})
+
+			animate(player, hud_id, 1.8)
+		end,
+	})
+end
+
 -- Testing waypoint capabilities
 
 local player_waypoints = {}
