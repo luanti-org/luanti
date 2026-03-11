@@ -2675,6 +2675,12 @@ bool Server::addMediaFile(const std::string &filename,
 	verbosestream << "Server: " << sha1_hex << " is " << filename
 			<< " (" << (filedata.size() >> 10) << "KiB)" << std::endl;
 
+	// Invalidate cached translations if we just added a translation file
+	if (Translations::isTranslationFile(filename)) {
+		// (could be optimized to clear only the relevant one, but not critical here)
+		server_translations.clear();
+	}
+
 	if (filedata_to)
 		*filedata_to = std::move(filedata);
 	return true;
