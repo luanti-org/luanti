@@ -117,7 +117,6 @@ void TestAddress::testSerializeString()
 
 	// IPv6 tests
 	auto ipv6Bytes = std::make_unique<IPv6AddressBytes>();
-	
 	// ::1 (localhost)
 	std::vector<u8> ipv6RawAddr = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 	memcpy(ipv6Bytes->bytes, &ipv6RawAddr[0], 16);
