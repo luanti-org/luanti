@@ -686,7 +686,8 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 				<<"from_inv=\""<<from_inv.dump()<<"\""<<std::endl;
 		return;
 	}
-	if (list_from->getItem(from_i).empty()) {
+	ItemStack src_item = list_from->getItem(from_i);
+	if (src_item.empty()) {
 		infostream<<"IDropAction::apply(): FAIL: source item not found: "
 				<<"from_inv=\""<<from_inv.dump()<<"\""
 				<<", from_list=\""<<from_list<<"\""
@@ -705,12 +706,11 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 		Collect information of endpoints
 	*/
 
-	int take_count = list_from->getItem(from_i).count;
+	int take_count = src_item.count;
 	if (count != 0 && count < take_count)
 		take_count = count;
 	int src_can_take_count = take_count;
 
-	ItemStack src_item = list_from->getItem(from_i);
 	src_item.count = take_count;
 
 	// Run callbacks depending on source inventory
@@ -731,14 +731,23 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 		break;
 	}
 
-	if (src_can_take_count != -1 && src_can_take_count < take_count)
-		take_count = src_can_take_count;
-
 	// Update item due executed callbacks
 	src_item = list_from->getItem(from_i);
 
+	if (src_can_take_count != -1 && src_can_take_count < take_count)
+		take_count = src_can_take_count;
+
+	if (take_count == 0) {
+		infostream << "Not allowed to take any items to drop" << std::endl;
+
+		// Revert client prediction. See 'clientApply'
+		if (from_inv.type == InventoryLocation::PLAYER)
+			list_from->setModified();
+		return;
+	}
+
 	// Drop the item
-	ItemStack item1 = list_from->getItem(from_i);
+	ItemStack item1 = src_item;
 	item1.count = take_count;
 	if(PLAYER_TO_SA(player)->item_OnDrop(item1, player,
 				player->getBasePosition())) {
