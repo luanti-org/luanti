@@ -37,7 +37,17 @@ static void recursive_copy(lua_State *L, int idx, int t_global)
 			lua_newtable(L);
 			const int to = lua_gettop(L);
 			for (lua_pushnil(L); lua_next(L, idx); lua_pop(L, 1)) {
-				recursive_copy(L, -2, t_global); // key
+				// Ensure the key can stay unmodified
+				switch (lua_type(L, -2)) {
+				case LUA_TNUMBER:
+				case LUA_TSTRING:
+					// accepted
+					break;
+				default:
+					luaL_error(L, "unhandled type in recursive_copy");
+					break;
+				}
+
 				recursive_copy(L, -1, t_global); // value
 
 				lua_pushvalue(L, -2);
