@@ -9147,6 +9147,11 @@ child will follow movement and rotation of that bone.
         * `intensity` sets the intensity of the shadows from 0 (no shadows, default) to 1 (blackness)
         * `tint` tints the shadows with the provided color, with RGB values ranging from 0 to 255.
           (default `{r=0, g=0, b=0}`)
+        * `direction` is a direction vector that can override the direction of the light,
+          disregarding the sun/moon position. This is useful for custom skyboxes.
+          The default is a zero vector and disables the override.
+          Note: the vector points "outwards" so that `(0, 1, 0)` is equivalent to
+          the sun at midday shining straight down.
       * `exposure` is a table that controls automatic exposure.
         The basic exposure factor equation is `e = 2^exposure_correction / clamp(luminance, 2^luminance_min, 2^luminance_max)`
         * This has no effect on clients who have the "Automatic Exposure" effect disabled.
