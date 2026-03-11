@@ -3364,6 +3364,12 @@ void GUIFormSpecMenu::legacySortElements(std::list<IGUIElement *>::iterator from
 		if (spec_a && spec_b)
 			return spec_a->priority < spec_b->priority;
 
+		if (spec_a && !spec_b)
+			return true;
+
+		if (!spec_a && spec_b)
+			return false;
+
 		return a->getID() < b->getID();
 	});
 
