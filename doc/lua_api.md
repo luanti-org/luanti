@@ -4021,89 +4021,88 @@ Operators can be used if all of the involved vectors have metatables:
 ### Common functions
 
 The following functions are available for both `vector` and `vector2` types with the same signature and behavior.
-For 3D vectors, use `vector.*` (e.g., `vector.add(v, x)`).
-For 2D vectors, use `vector2.*` (e.g., `vector2.add(v, x)`).
+Replace `vector` with `vector2` for 2D vectors (e.g., `vector2.add(v, x)`).
 
 For the following functions,
 `v`, `v1`, `v2` are vectors (either 3D or 2D depending on context),
 `p1`, `p2` are position vectors,
 `s` is a scalar (a number).
 
-* `vector.copy(v)` / `vector2.copy(v)`:
+* `vector.copy(v)`:
     * Returns a copy of the vector `v`.
-* `vector.zero()` / `vector2.zero()`:
+* `vector.zero()`:
     * Returns a new zero vector.
     * For 3D: `(0, 0, 0)`. For 2D: `(0, 0)`.
-* `vector.random_direction()` / `vector2.random_direction()`:
+* `vector.random_direction()`:
     * Returns a new vector of length 1, pointing in a direction chosen uniformly at random.
-* `vector.from_string(s[, init])` / `vector2.from_string(s[, init])`:
+* `vector.from_string(s[, init])`:
     * Returns `v, np`, where `v` is a vector read from the given string `s` and
       `np` is the next position in the string after the vector.
     * Returns `nil` on failure.
     * `s`: Has to begin with a substring of the form `"(x, y, z)"` (for 3D) or `"(x, y)"` (for 2D).
       Additional spaces, omitting commas and adding an additional comma to the end is allowed.
     * `init`: If given starts looking for the vector at this string index.
-* `vector.to_string(v)` / `vector2.to_string(v)`:
+* `vector.to_string(v)`:
     * Returns a human-readable string of the form `"(x, y, z)"` (for 3D) or `"(x, y)"` (for 2D).
     * `tostring(v)` does the same.
     * Note: This function loses precision. For exact precision, use `core.serialize()` instead.
     * Note: Precision may increase in future versions.
-* `vector.direction(p1, p2)` / `vector2.direction(p1, p2)`:
+* `vector.direction(p1, p2)`:
     * Returns a vector of length 1 with direction `p1` to `p2`.
     * If `p1` and `p2` are identical, returns a zero vector.
-* `vector.distance(p1, p2)` / `vector2.distance(p1, p2)`:
+* `vector.distance(p1, p2)`:
     * Returns zero or a positive number, the distance between `p1` and `p2`.
-* `vector.length(v)` / `vector2.length(v)`:
+* `vector.length(v)`:
     * Returns zero or a positive number, the length of vector `v`.
-* `vector.normalize(v)` / `vector2.normalize(v)`:
+* `vector.normalize(v)`:
     * Returns a vector of length 1 with direction of vector `v`.
     * If `v` has zero length, returns a zero vector.
-* `vector.floor(v)` / `vector2.floor(v)`:
+* `vector.floor(v)`:
     * Returns a vector, each dimension rounded down.
-* `vector.ceil(v)` / `vector2.ceil(v)`:
+* `vector.ceil(v)`:
     * Returns a vector, each dimension rounded up.
-* `vector.round(v)` / `vector2.round(v)`:
+* `vector.round(v)`:
     * Returns a vector, each dimension rounded to nearest integer.
     * At a multiple of 0.5, rounds away from zero.
-* `vector.sign(v, tolerance)` / `vector2.sign(v, tolerance)`:
+* `vector.sign(v, tolerance)`:
     * Returns a vector where `math.sign` was called for each component.
     * See [Helper functions](#helper-functions) for details on `math.sign`.
-* `vector.abs(v)` / `vector2.abs(v)`:
+* `vector.abs(v)`:
     * Returns a vector with absolute values for each component.
-* `vector.apply(v, func, ...)` / `vector2.apply(v, func, ...)`:
+* `vector.apply(v, func, ...)`:
     * Returns a vector where the function `func` has been applied to each component.
     * `...` are optional arguments passed to `func`.
-* `vector.combine(v, w, func)` / `vector2.combine(v, w, func)`:
+* `vector.combine(v, w, func)`:
     * Returns a vector where the function `func` has combined both components of `v` and `w`
       for each component.
-* `vector.equals(v1, v2)` / `vector2.equals(v1, v2)`:
+* `vector.equals(v1, v2)`:
     * Returns a boolean, `true` if the vectors are identical.
-* `vector.dot(v1, v2)` / `vector2.dot(v1, v2)`:
+* `vector.dot(v1, v2)`:
     * Returns the dot product of `v1` and `v2`.
-* `vector.check(v)` / `vector2.check(v)`:
+* `vector.check(v)`:
     * Returns a boolean value indicating whether `v` is a real vector, e.g. created
       by a `vector.*` or `vector2.*` function.
     * Returns `false` for anything else, including tables like `{x=3, y=1, z=4}` or `{x=3, y=1}`.
-* `vector.in_area(pos, min, max)` / `vector2.in_area(pos, min, max)`:
+* `vector.in_area(pos, min, max)`:
     * Returns a boolean value indicating if `pos` is inside area formed by `min` and `max`.
     * `min` and `max` are inclusive.
     * If `min` is bigger than `max` on some axis, function always returns false.
-    * You can use `vector.sort` or `vector2.sort` if you have two vectors and don't know which are the minimum and the maximum.
+    * You can use `vector.sort` (or `vector2.sort` for 2D) if you have two vectors and don't know which are the minimum and the maximum.
 
 For the following functions `x` can be either a vector or a number:
 
-* `vector.add(v, x)` / `vector2.add(v, x)`:
+* `vector.add(v, x)`:
     * Returns a vector.
     * If `x` is a vector: Returns the sum of `v` and `x`.
     * If `x` is a number: Adds `x` to each component of `v`.
-* `vector.subtract(v, x)` / `vector2.subtract(v, x)`:
+* `vector.subtract(v, x)`:
     * Returns a vector.
     * If `x` is a vector: Returns the difference of `v` subtracted by `x`.
     * If `x` is a number: Subtracts `x` from each component of `v`.
-* `vector.multiply(v, s)` / `vector2.multiply(v, s)`:
+* `vector.multiply(v, s)`:
     * Returns a scaled vector.
     * Deprecated for `vector` only: If `s` is a vector: Returns the Schur product.
-* `vector.divide(v, s)` / `vector2.divide(v, s)`:
+* `vector.divide(v, s)`:
     * Returns a scaled vector.
     * Deprecated for `vector` only: If `s` is a vector: Returns the Schur quotient.
 
