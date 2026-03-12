@@ -720,7 +720,7 @@ void Client::handleCommand_Media(NetworkPacket* pkt)
 		} else {
 			// Check pending dynamic transfers, one of them must be it
 			for (const auto &it : m_pending_media_downloads) {
-				if (it.second->conventionalTransferDone(name, data, this)) {
+				if (it.d->conventionalTransferDone(name, data, this)) {
 					ok = true;
 					break;
 				}
@@ -1715,9 +1715,20 @@ void Client::handleCommand_MediaPush(NetworkPacket *pkt)
 		return;
 	}
 
-	// create a downloader for this file
+	auto it = std::find_if(m_pending_media_downloads.begin(),
+		m_pending_media_downloads.end(), [&] (const PendingMediaDownload &pend) {
+		return pend.name == filename;
+	});
+	if (it != m_pending_media_downloads.end()) {
+		// The server sent another push for a file we're already downloading.
+		verbosestream << "Merged with ongoing identical request." << std::endl;
+		it->tokens.push_back(token);
+		return;
+	}
+
+	// Create a downloader for this file
 	auto downloader(std::make_shared<SingleMediaDownloader>(cached));
-	m_pending_media_downloads.emplace_back(token, downloader);
+	m_pending_media_downloads.emplace_back(token, filename, downloader);
 	downloader->addFile(filename, raw_hash);
 	for (const auto &baseurl : m_remote_media_servers)
 		downloader->addRemoteServer(baseurl);
