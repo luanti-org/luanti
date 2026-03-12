@@ -164,16 +164,16 @@ void LodMeshGenerator::drawSolidNode()
 
 		switch (face) {
 		case UP:
-			vertices[0] = core::vector3df(box.MaxEdge.X, box.MaxEdge.Y, box.MinEdge.Z);
-			vertices[1] = core::vector3df(box.MinEdge.X, box.MaxEdge.Y, box.MinEdge.Z);
-			vertices[2] = core::vector3df(box.MinEdge.X, box.MaxEdge.Y, box.MaxEdge.Z);
-			vertices[3] = core::vector3df(box.MaxEdge.X, box.MaxEdge.Y, box.MaxEdge.Z);
+			vertices[0] = core::vector3df(box.MinEdge.X, box.MaxEdge.Y, box.MinEdge.Z);
+			vertices[1] = core::vector3df(box.MinEdge.X, box.MaxEdge.Y, box.MaxEdge.Z);
+			vertices[2] = core::vector3df(box.MaxEdge.X, box.MaxEdge.Y, box.MaxEdge.Z);
+			vertices[3] = core::vector3df(box.MaxEdge.X, box.MaxEdge.Y, box.MinEdge.Z);
 			break;
 		case DOWN:
-			vertices[0] = core::vector3df(box.MinEdge.X, box.MinEdge.Y, box.MinEdge.Z);
-			vertices[1] = core::vector3df(box.MaxEdge.X, box.MinEdge.Y, box.MinEdge.Z);
-			vertices[2] = core::vector3df(box.MaxEdge.X, box.MinEdge.Y, box.MaxEdge.Z);
-			vertices[3] = core::vector3df(box.MinEdge.X, box.MinEdge.Y, box.MaxEdge.Z);
+			vertices[0] = core::vector3df(box.MinEdge.X, box.MinEdge.Y, box.MaxEdge.Z);
+			vertices[1] = core::vector3df(box.MinEdge.X, box.MinEdge.Y, box.MinEdge.Z);
+			vertices[2] = core::vector3df(box.MaxEdge.X, box.MinEdge.Y, box.MinEdge.Z);
+			vertices[3] = core::vector3df(box.MaxEdge.X, box.MinEdge.Y, box.MaxEdge.Z);
 			break;
 		case LEFT:
 			vertices[0] = core::vector3df(box.MaxEdge.X, box.MinEdge.Y, box.MinEdge.Z);
