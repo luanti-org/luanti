@@ -37,7 +37,8 @@ elseif mode == "mapgen" then
 	end
 	local trig = {}
 	callback = function(blockpos, action, calls_rem, n)
-		if action == core.EMERGE_CANCELLED or action == core.EMERGE_ERRORED then
+		if action == core.EMERGE_ERRORED then
+			print("emerge errored!")
 			return
 		end
 		if calls_rem <= 20 and not trig[n] then
