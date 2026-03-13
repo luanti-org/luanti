@@ -1877,3 +1877,12 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 				>> lighting.bloom_radius;
 	} while (0);
 }
+
+void Client::handleCommand_PlayerItem(NetworkPacket *pkt)
+{
+	LocalPlayer *player = m_env.getLocalPlayer();
+	assert(player);
+	u16 index;
+	*pkt >> index;
+	player->setServerWieldIndex(index);
+}
