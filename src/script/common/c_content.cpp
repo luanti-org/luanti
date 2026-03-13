@@ -23,6 +23,7 @@
 #include "debug.h" // For FATAL_ERROR
 #include <SColor.h>
 #include <json/json.h>
+#include <lua.h>
 #include "mapgen/treegen.h"
 
 #if CHECK_CLIENT_BUILD()
@@ -884,7 +885,8 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 			f.param_type_2 == CPT2_COLORED_FACEDIR ||
 			f.param_type_2 == CPT2_COLORED_WALLMOUNTED ||
 			f.param_type_2 == CPT2_COLORED_DEGROTATE ||
-			f.param_type_2 == CPT2_COLORED_4DIR))
+			f.param_type_2 == CPT2_COLORED_4DIR ||
+			f.param_type_2 == CPT2_COLORED_LIQUID))
 		warningstream << "Node " << f.name.c_str()
 			<< " has a palette, but not a suitable paramtype2." << std::endl;
 
