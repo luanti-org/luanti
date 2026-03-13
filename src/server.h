@@ -105,8 +105,8 @@ struct MediaInfo
 	// does what it says. used by some cases of dynamic media.
 	bool delete_at_shutdown;
 
-	MediaInfo(std::string_view path_ = "",
-	          std::string_view sha1_digest_ = ""):
+	MediaInfo(std::string_view path_,
+	          std::string_view sha1_digest_):
 		path(path_),
 		sha1_digest(sha1_digest_),
 		no_announce(false),
