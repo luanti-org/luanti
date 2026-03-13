@@ -243,7 +243,7 @@ bool CGUIEditBox::OnEvent(const SEvent &event)
 
 s32 CGUIEditBox::getCtrlKeyWord(s32 startpos, s8 dir)
 {
-	assert(dir != 0);
+	assert(dir == 1 || dir == -1);
 
 	s32 endpos = startpos;
 	wchar_t prev_c = L'\0';
