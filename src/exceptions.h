@@ -98,6 +98,11 @@ public:
 	MisbehavedSSCSMException(const std::string &s): BaseException(s) {}
 };
 
+class AuthError : public BaseException {
+public:
+	AuthError(const std::string &s): BaseException(s) {}
+};
+
 
 /*
 	Some "old-style" interrupts:
