@@ -8,6 +8,7 @@
 #include "drawItemStack.h"
 #include "IVideoDriver.h"
 #include "client/client.h"
+#include "client/guiscalingfilter.h"
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
 #include "inventory.h"
@@ -85,7 +86,7 @@ void ParsedText::Paragraph::setStyle(StyleList &style)
 		this->halign = HALIGN_LEFT;
 }
 
-ParsedText::ParsedText(const wchar_t *text)
+ParsedText::ParsedText(const wchar_t *text, video::SColor default_color = video::SColor(255,255,255,255))
 {
 	// Default style
 	m_root_tag.name = "root";
@@ -95,7 +96,7 @@ ParsedText::ParsedText(const wchar_t *text)
 	m_root_tag.style["italic"] = "false";
 	m_root_tag.style["underline"] = "false";
 	m_root_tag.style["halign"] = "left";
-	m_root_tag.style["color"] = "#EEEEEE";
+	m_root_tag.style["color"] = encodeHexColorString(default_color);
 	m_root_tag.style["hovercolor"] = "#FF0000";
 
 	m_active_tags.push_front(&m_root_tag);
@@ -618,8 +619,11 @@ u32 ParsedText::parseTag(const wchar_t *text, u32 cursor)
 // Text Drawer
 
 TextDrawer::TextDrawer(const wchar_t *text, Client *client,
-		gui::IGUIEnvironment *environment, ISimpleTextureSource *tsrc) :
-		m_text(text), m_client(client), m_tsrc(tsrc), m_guienv(environment)
+		gui::IGUIEnvironment *environment, ISimpleTextureSource *tsrc,
+		video::SColor default_background_color,
+		video::SColor default_color) :
+		m_text(text, default_color), m_client(client), m_tsrc(tsrc), m_guienv(environment),
+		m_default_background_color(default_background_color)
 {
 	// Size all elements
 	for (auto &p : m_text.m_paragraphs) {
@@ -927,6 +931,23 @@ void TextDrawer::place(const core::rect<s32> &dest_rect)
 		m_voffset = 0;
 }
 
+void TextDrawer::drawBackgroundImage(
+		video::IVideoDriver *driver, const core::rect<s32> &clip_rect)
+{
+	auto size = m_text.background_image->getOriginalSize();
+
+	if (m_text.background_middle.getArea() > 0) {
+		draw2DImage9Slice(driver, m_text.background_image, clip_rect,
+				core::rect<s32>(0, 0, size.Width, size.Height), m_text.background_middle);
+	} else {
+		const video::SColor color(255, 255, 255, 255);
+		const video::SColor colors[] = {color, color, color, color};
+
+		draw2DImageFilterScaled(driver, m_text.background_image, clip_rect,
+				core::rect<s32>(0, 0, size.Width, size.Height), nullptr, colors, true);
+	}
+}
+
 // Draw text in a rectangle with a given offset. Items are actually placed in
 // relative (to upper left corner) coordinates.
 void TextDrawer::draw(const core::rect<s32> &clip_rect,
@@ -938,6 +959,20 @@ void TextDrawer::draw(const core::rect<s32> &clip_rect,
 
 	if (m_text.background_type == ParsedText::BACKGROUND_COLOR)
 		driver->draw2DRectangle(m_text.background_color, clip_rect);
+
+	if (m_text.border) {
+		const video::SColor color(255,0,0,0);
+		const auto &UpperLeft = clip_rect.UpperLeftCorner;
+		const auto &LowerRight = clip_rect.LowerRightCorner;
+
+		driver->draw2DLine(UpperLeft, core::position2di(LowerRight.X, UpperLeft.Y), color);
+		driver->draw2DLine(core::position2di(LowerRight.X, UpperLeft.Y), LowerRight, color);
+		driver->draw2DLine(LowerRight, core::position2di(UpperLeft.X, LowerRight.Y), color);
+		driver->draw2DLine(core::position2di(UpperLeft.X, LowerRight.Y), UpperLeft, color);
+	}
+
+	if (m_text.background_image)
+		drawBackgroundImage(driver, clip_rect);
 
 	for (auto &p : m_text.m_paragraphs) {
 		for (auto &el : p.elements) {
@@ -979,7 +1014,7 @@ void TextDrawer::draw(const core::rect<s32> &clip_rect,
 						m_tsrc->getTexture(
 								stringw_to_utf8(el.text));
 				if (texture != 0)
-					m_guienv->getVideoDriver()->draw2DImage(
+					driver->draw2DImage(
 							texture, rect,
 							core::rect<s32>(
 									core::position2d<s32>(0, 0),
@@ -993,7 +1028,7 @@ void TextDrawer::draw(const core::rect<s32> &clip_rect,
 					ItemStack item;
 					item.deSerialize(stringw_to_utf8(el.text), idef);
 
-					drawItemStack(m_guienv->getVideoDriver(),
+					drawItemStack(driver,
 							g_fontengine->getFont(), item, rect, &clip_rect, m_client,
 							IT_ROT_OTHER, el.angle, el.rotation);
 				}
@@ -1003,19 +1038,38 @@ void TextDrawer::draw(const core::rect<s32> &clip_rect,
 	}
 }
 
+void TextDrawer::applyStyleSpecToText(const StyleSpec &style)
+{
+	m_text.background_middle = style.getRect(StyleSpec::BGIMG_MIDDLE, core::rect<s32>());
+	m_text.border = style.getBool(StyleSpec::BORDER, true);
+
+	if (m_text.background_type != m_text.BackgroundType::BACKGROUND_COLOR) {
+		m_text.background_type = m_text.BackgroundType::BACKGROUND_COLOR;
+		m_text.background_color = style.getColor(StyleSpec::BGCOLOR, m_default_background_color);
+	}
+
+	if (style.isNotDefault(StyleSpec::BGIMG))
+		m_text.background_image = style.getTexture(StyleSpec::BGIMG, m_tsrc);
+}
+
 // -----------------------------------------------------------------------------
 // GUIHyperText - The formated text area formspec item
 
 //! constructor
 GUIHyperText::GUIHyperText(const wchar_t *text, IGUIEnvironment *environment,
 		IGUIElement *parent, s32 id, const core::rect<s32> &rectangle,
-		Client *client, ISimpleTextureSource *tsrc) :
+		Client *client, ISimpleTextureSource *tsrc,
+		video::SColor default_background_color,
+		video::SColor default_color) :
 		IGUIElement(EGUIET_ELEMENT, environment, parent, id, rectangle),
 		m_tsrc(tsrc), m_vscrollbar(nullptr),
-		m_drawer(text, client, environment, tsrc), m_text_scrollpos(0, 0)
+		m_drawer(text, client, environment, tsrc, default_background_color, default_color),
+		m_text_scrollpos(0, 0),
+		m_default_background_color(default_background_color),
+		m_default_color(default_color)
 {
 
-	IGUISkin *skin = 0;
+	IGUISkin *skin = nullptr;
 	if (Environment)
 		skin = Environment->getSkin();
 
@@ -1065,6 +1119,15 @@ void GUIHyperText::checkHover(s32 X, s32 Y)
 
 	if (cursor_control)
 		cursor_control->setActiveIcon(m_drawer.m_hovertag ? gui::ECI_HAND : gui::ECI_NORMAL);
+}
+
+void GUIHyperText::setStyles(const std::array<StyleSpec, StyleSpec::NUM_STATES> &styles)
+{
+	StyleSpec::State state = StyleSpec::STATE_DEFAULT;
+	StyleSpec style = StyleSpec::getStyleFromStatePropagation(styles, state);
+
+	setNotClipped(style.getBool(StyleSpec::NOCLIP, true));
+	m_drawer.applyStyleSpecToText(style);
 }
 
 bool GUIHyperText::OnEvent(const SEvent &event)
@@ -1170,8 +1233,14 @@ void GUIHyperText::draw()
 		m_vscrollbar->setPos(0);
 		m_vscrollbar->setVisible(false);
 	}
-	m_drawer.draw(AbsoluteClippingRect,
-			m_display_text_rect.UpperLeftCorner + m_text_scrollpos);
+	// We needs 2 iterations for the element positions and total height
+	// to be pre-calculated correctly, so we need to delay the actual drawing
+	// by this many iterations
+	if (m_draw_state >= 2) {
+		m_drawer.draw(AbsoluteClippingRect,
+				m_display_text_rect.UpperLeftCorner + m_text_scrollpos);
+	} else
+		m_draw_state++;
 
 	// draw children
 	IGUIElement::draw();
