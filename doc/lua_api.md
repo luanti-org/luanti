@@ -4104,7 +4104,7 @@ For the following functions `x` can be either a vector or a number:
     * Deprecated for `vector` only: If `s` is a vector: Returns the Schur product.
 * `vector.divide(v, s)`:
     * Returns a scaled vector.
-    * Deprecated for `vector` only: If `s` is a vector: Returns the Schur quotient.
+    * For `vector` only, deprecated behavior: If `s` is a vector, returns the Schur quotient.
 
 
 Spatial Vectors
