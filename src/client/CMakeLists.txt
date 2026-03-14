@@ -45,6 +45,7 @@ set(client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/clientmap.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/clientmedia.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/clientobject.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/clipboard.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/clouds.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/content_cao.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/content_cso.cpp
