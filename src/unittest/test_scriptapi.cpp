@@ -103,6 +103,12 @@ void TestScriptApi::testVectorMetatable(MyScriptApi *script)
 		return lua_toboolean(L, -1);
 	};
 
+	const auto &call_vector2_check = [&] () -> bool {
+		lua_setglobal(L, "tmp");
+		run(L, "return vector2.check(tmp)", 1);
+		return lua_toboolean(L, -1);
+	};
+
 	push_v3s16(L, {1, 2, 3});
 	UASSERT(call_vector_check());
 
@@ -115,6 +121,13 @@ void TestScriptApi::testVectorMetatable(MyScriptApi *script)
 
 	push_v2f(L, {0, 0});
 	UASSERT(!call_vector_check());
+
+	// but they must have the vector2 metatable
+	push_v2s32(L, {0, 0});
+	UASSERT(call_vector2_check());
+
+	push_v2f(L, {0, 0});
+	UASSERT(call_vector2_check());
 }
 
 void TestScriptApi::testVectorRead(MyScriptApi *script)
