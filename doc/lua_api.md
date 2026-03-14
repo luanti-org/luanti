@@ -4101,7 +4101,7 @@ For the following functions `x` can be either a vector or a number:
     * If `x` is a number: Subtracts `x` from each component of `v`.
 * `vector.multiply(v, s)`:
     * Returns a scaled vector.
-    * Deprecated for `vector` only: If `s` is a vector: Returns the Schur product.
+    * For `vector` only, deprecated behavior: If `s` is a vector, returns the Schur product.
 * `vector.divide(v, s)`:
     * Returns a scaled vector.
     * For `vector` only, deprecated behavior: If `s` is a vector, returns the Schur quotient.
