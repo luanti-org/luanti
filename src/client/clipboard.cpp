@@ -29,14 +29,12 @@ Zacharias Tyllström zacharias.tyllstrom@gmail.com
 #include "renderingengine.h"
 #include <IGUIEnvironment.h>
 
-void copyToClipboard(std::string text)
-{
-    auto *env = RenderingEngine::get_raw_device()->getGUIEnvironment();
-    env->getOSOperator()->copyToClipboard(text.c_str());
+void copyToClipboard(std::string text) {
+  auto *env = RenderingEngine::get_raw_device()->getGUIEnvironment();
+  env->getOSOperator()->copyToClipboard(text.c_str());
 }
 
-std::string getTextFromClipboard()
-{
-    auto *env = RenderingEngine::get_raw_device()->getGUIEnvironment();
-    return env->getOSOperator()->getTextFromClipboard();
+std::string getTextFromClipboard() {
+  auto *env = RenderingEngine::get_raw_device()->getGUIEnvironment();
+  return env->getOSOperator()->getTextFromClipboard();
 }
