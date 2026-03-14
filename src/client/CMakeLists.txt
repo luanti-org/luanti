@@ -45,6 +45,7 @@ set(client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/clientmap.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/clientmedia.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/clientobject.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/clipboard.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/clouds.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/content_cao.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/content_cso.cpp
@@ -75,7 +76,6 @@ set(client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/tile.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/texturepaths.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/texturesource.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/clipboard.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/imagesource.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/wieldmesh.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/mod_vfs.cpp

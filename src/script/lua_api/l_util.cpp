@@ -880,9 +880,6 @@ void ModApiUtil::InitializeSSCSM(lua_State *L, int top)
 	API_FCT(set_last_run_mod);
 
 	API_FCT(urlencode);
-
-	API_FCT(copy_to_clipboard);
-	API_FCT(get_text_from_clipboard);
 }
 
 void ModApiUtil::InitializeAsync(lua_State *L, int top)
@@ -931,9 +928,6 @@ void ModApiUtil::InitializeAsync(lua_State *L, int top)
 
 	API_FCT(urlencode);
 	API_FCT(strip_escapes);
-
-	API_FCT(copy_to_clipboard);
-	API_FCT(get_text_from_clipboard);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
