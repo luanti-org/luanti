@@ -5,6 +5,7 @@
 #include "lua_api/l_util.h"
 #include "lua_api/l_internal.h"
 #include "lua_api/l_settings.h"
+#include "client/clipboard.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
 #include "network/networkprotocol.h"
@@ -730,6 +731,16 @@ int ModApiUtil::l_strip_escapes(lua_State *L)
 	return 1;
 }
 
+// copy_to_clipboard(str)
+int ModApiUtil::l_copy_to_clipboard(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	const char *text = luaL_checkstring(L, 1);
+	copyToClipboard(text);
+    return 0;
+}
+
 void ModApiUtil::Initialize(lua_State *L, int top)
 {
 	API_FCT(log);
@@ -785,6 +796,8 @@ void ModApiUtil::Initialize(lua_State *L, int top)
 	API_FCT(is_valid_player_name);
 	API_FCT(strip_escapes);
 
+	API_FCT(copy_to_clipboard);
+
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
 }
@@ -820,6 +833,8 @@ void ModApiUtil::InitializeClient(lua_State *L, int top)
 	API_FCT(urlencode);
 	API_FCT(strip_escapes);
 
+	API_FCT(copy_to_clipboard);
+
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
 }
@@ -853,6 +868,8 @@ void ModApiUtil::InitializeSSCSM(lua_State *L, int top)
 	API_FCT(set_last_run_mod);
 
 	API_FCT(urlencode);
+
+	API_FCT(copy_to_clipboard);
 }
 
 void ModApiUtil::InitializeAsync(lua_State *L, int top)
@@ -901,6 +918,8 @@ void ModApiUtil::InitializeAsync(lua_State *L, int top)
 
 	API_FCT(urlencode);
 	API_FCT(strip_escapes);
+
+	API_FCT(copy_to_clipboard);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");

@@ -136,6 +136,9 @@ private:
 	// strip_escapes(str)
 	static int l_strip_escapes(lua_State *L);
 
+	// copy_to_clipboard(str)
+	static int l_copy_to_clipboard(lua_State *L);
+
 public:
 	static void Initialize(lua_State *L, int top);
 	static void InitializeAsync(lua_State *L, int top);
