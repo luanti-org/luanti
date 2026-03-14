@@ -48,7 +48,7 @@ function ui.get_message_formspec(title, message, btn_id)
 		"box[0.5,1.2;13,5;#000]",
 		("textarea[0.5,1.2;13,5;;%s;%s]"):format(title, message),
 		"button[2,6.6;4,1;btn_error_confirm;" .. fgettext("OK") .. "]",
-        "button[8,6.6;4,1;btn_error_copy;" .. fgettext("Copy to clipboard") .. "]"
+		"button[8,6.6;4,1;btn_error_copy;" .. fgettext("Copy to clipboard") .. "]"
 	})
 end
 
