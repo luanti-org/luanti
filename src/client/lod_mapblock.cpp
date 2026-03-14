@@ -107,8 +107,12 @@ void LodMeshGenerator::drawMeshNode()
 void LodMeshGenerator::drawSolidNode()
 {
 	aabb3f box(v3f(-0.5 * BS), v3f(-0.5 * BS));
-	box.MinEdge += intToFloat(m_cur_node.p + 1 - m_node_width + v3s16(0, m_node_width - (m_cur_node.p.Y % m_node_width) - 1, 0), BS);
-	box.MaxEdge += intToFloat(m_cur_node.p + 1, BS);
+	box.MinEdge += intToFloat(v3s16(
+		m_cur_node.surface_p.X + 1 - m_node_width,
+		m_cur_node.p.Y + 1 - m_node_width,
+		m_cur_node.surface_p.Z + 1 - m_node_width
+	), BS);
+	box.MaxEdge += intToFloat(m_cur_node.surface_p + 1, BS);
 
 	const bool is_liquid = m_cur_node.f->drawtype == NDT_LIQUID || m_cur_node.f->drawtype == NDT_FLOWINGLIQUID;
 	const bool uses_textureless_tile = m_is_textureless && !(is_liquid && g_settings->getBool("enable_waving_water"));
@@ -118,18 +122,25 @@ void LodMeshGenerator::drawSolidNode()
 	video::S3DVertex irr_vertices[4];
 
 	for (int face = 0; face < Direction_END; face++) {
-		v3s16 p2 = m_cur_node.p + tile_dirs[face] * m_node_width + m_blockpos_nodes;
-		MapNode neighbor = m_data->m_vmanip.getNodeNoExNoEmerge(p2);
-		const content_t n2 = neighbor.getContent();
-		if (n2 == m_cur_node.n.getContent() || n2 == CONTENT_IGNORE)
+		v3s16 p_neigh_p = m_cur_node.p + tile_dirs[face] * m_node_width + m_blockpos_nodes;
+		MapNode p_neigh_n = m_data->m_vmanip.getNodeNoExNoEmerge(p_neigh_p);
+
+		v3s16 surf_neigh_p = seekDownwards(m_cur_node.p + tile_dirs[face] * m_node_width);
+		MapNode surf_neigh_n = m_data->m_vmanip.getNodeNoExNoEmerge(surf_neigh_p + m_blockpos_nodes);
+		const content_t surf_neigh_t = surf_neigh_n.getContent();
+		if (surf_neigh_t == CONTENT_IGNORE)
 			continue;
-		if (n2 != CONTENT_AIR) {
-			const ContentFeatures &f2 = m_nodedef->get(n2);
-			if (f2.visuals->solidness == 2 || (is_liquid && m_cur_node.f->sameLiquidRender(f2)))
+		if (surf_neigh_p.Y == m_cur_node.surface_p.Y) {
+			if (surf_neigh_t == m_cur_node.n.getContent() || surf_neigh_t == CONTENT_IGNORE)
 				continue;
+			if (surf_neigh_t != CONTENT_AIR) {
+				const ContentFeatures &f2 = m_nodedef->get(surf_neigh_t);
+				if (f2.visuals->solidness == 2 || (is_liquid && m_cur_node.f->sameLiquidRender(f2)))
+					continue;
+			}
 		}
 
-		const u16 light = getFaceLight(m_cur_node.n, neighbor, m_nodedef);
+		const u16 light = getFaceLight(m_cur_node.n, p_neigh_n, m_nodedef);
 		video::SColor color = encode_light(light, m_cur_node.f->light_source);
 		TileSpec tile;
 		getNodeTileN(m_cur_node.n, m_blockpos_nodes, face, m_data, tile);
@@ -228,6 +239,19 @@ void LodMeshGenerator::drawNode()
 	}
 }
 
+v3s16 LodMeshGenerator::seekDownwards(v3s16 from)
+{
+	for (u8 subtr = 0; subtr < m_node_width; subtr++) {
+		// this assumes that we always have entire blocks emerged for meshgen
+		v3s16 p = from - v3s16(0, subtr, 0);
+		MapNode n = m_data->m_vmanip.getNodeNoExNoEmerge(p + m_blockpos_nodes);
+		const ContentFeatures *f = &m_nodedef->get(n);
+		if (f->drawtype != NDT_AIRLIKE && f->drawtype != NDT_PLANTLIKE)
+			return p;
+	}
+	return from;
+}
+
 void LodMeshGenerator::generate(const u8 lod)
 {
 	ZoneScoped;
@@ -244,23 +268,14 @@ void LodMeshGenerator::generate(const u8 lod)
 	// in case mesh width is not a power of two or if the LOD size previously got capped
 	while (m_data->m_side_length % m_node_width != 0) m_node_width--;
 
-	v3s16 p;
-	for (p.Z = m_node_width - 1; p.Z < m_data->m_side_length; p.Z += m_node_width)
-	for (p.Y = m_node_width - 1; p.Y < m_data->m_side_length; p.Y += m_node_width)
-	for (p.X = m_node_width - 1; p.X < m_data->m_side_length; p.X += m_node_width) {
-		if (!m_data->m_vmanip.m_area.contains(p + m_blockpos_nodes))
+	for (m_cur_node.p.Z = m_node_width - 1; m_cur_node.p.Z < m_data->m_side_length; m_cur_node.p.Z += m_node_width)
+	for (m_cur_node.p.Y = m_node_width - 1; m_cur_node.p.Y < m_data->m_side_length; m_cur_node.p.Y += m_node_width)
+	for (m_cur_node.p.X = m_node_width - 1; m_cur_node.p.X < m_data->m_side_length; m_cur_node.p.X += m_node_width) {
+		if (!m_data->m_vmanip.m_area.contains(m_cur_node.p + m_blockpos_nodes))
 			continue;
-
-		m_cur_node.p = p;
-		m_cur_node.n = m_data->m_vmanip.getNodeRefUnsafeCheckFlags(m_blockpos_nodes + m_cur_node.p);
+		m_cur_node.surface_p = seekDownwards(m_cur_node.p);
+		m_cur_node.n = m_data->m_vmanip.getNodeRefUnsafeCheckFlags(m_blockpos_nodes + m_cur_node.surface_p);
 		m_cur_node.f = &m_nodedef->get(m_cur_node.n);
-
-		for (u8 subtr = 1; subtr < m_node_width && m_cur_node.f->drawtype == NDT_AIRLIKE; subtr++) {
-			// this assumes that we always have entire blocks emerged for meshgen
-			m_cur_node.p = p - v3s16(0, subtr, 0);
-			m_cur_node.n = m_data->m_vmanip.getNodeNoExNoEmerge(m_cur_node.p + m_blockpos_nodes);
-			m_cur_node.f = &m_nodedef->get(m_cur_node.n);
-		}
 		drawNode();
 	}
 }

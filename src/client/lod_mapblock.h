@@ -50,10 +50,12 @@ private:
 
 	struct {
 		v3s16 p; // relative to blockpos_nodes
+		v3s16 surface_p;
 		MapNode n;
 		const ContentFeatures *f;
 	} m_cur_node;
 
+	v3s16 seekDownwards(v3s16);
 	void drawMeshNode();
 	void drawSolidNode();
 	void drawNode();
