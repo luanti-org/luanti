@@ -3706,6 +3706,13 @@ void GUIFormSpecMenu::showTooltip(const std::wstring &text,
 		)
 	);
 
+	auto style = getDefaultStyleForElement("tooltip", "");
+	gui::IGUIFont *font = style.getFont();
+	if (!font)
+		font = m_font;
+
+	m_tooltip_element->setOverrideFont(font);
+
 	// Display the tooltip
 	m_tooltip_element->setVisible(true);
 	bringToFront(m_tooltip_element);
