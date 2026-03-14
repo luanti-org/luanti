@@ -8527,8 +8527,9 @@ child will follow movement and rotation of that bone.
    is in.
 * `get_wield_index()`: returns the wield list index of the wielded item (starting with 1)
 * `get_wielded_item()`: returns a copy of the wielded item as an `ItemStack`
-* `set_wielded_item(item)`: replaces the wielded item, returns `true` if
+* `set_wielded_item(item, skip_anim)`: replaces the wielded item, returns `true` if
   successful.
+  * if `skip_anim` is `true`, the change animation is skipped. Default is `false`
 * `get_armor_groups()`:
     * returns a table with all of the object's armor group ratings
     * syntax: the table keys are the armor group names,
