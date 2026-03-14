@@ -19,6 +19,7 @@
 #include "settings.h"
 #include "clientdynamicinfo.h"
 #include "client/client.h"
+#include "client/clipboard.h"
 #include "client/renderingengine.h"
 #include "client/texturepaths.h"
 #include "network/networkprotocol.h"
@@ -1099,6 +1100,26 @@ int ModApiMainMenu::l_do_async_callback(lua_State *L)
 }
 
 /******************************************************************************/
+int ModApiMainMenu::l_copy_to_clipboard(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	const char *text = luaL_checkstring(L, 1);
+	copyToClipboard(text);
+	return 0;
+}
+
+/******************************************************************************/
+int ModApiMainMenu::l_get_text_from_clipboard(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	auto text = getTextFromClipboard();
+	lua_pushlstring(L, text.c_str(), text.size());
+	return 1;
+}
+
+/******************************************************************************/
 void ModApiMainMenu::Initialize(lua_State *L, int top)
 {
 	API_FCT(update_formspec);
@@ -1153,6 +1174,9 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(open_dir);
 	API_FCT(share_file);
 	API_FCT(do_async_callback);
+
+	API_FCT(copy_to_clipboard);
+	API_FCT(get_text_from_clipboard);
 
 	lua_pushboolean(L, g_first_run);
 	lua_setfield(L, top, "is_first_run");

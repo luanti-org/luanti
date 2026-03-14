@@ -5,7 +5,6 @@
 #include "lua_api/l_util.h"
 #include "lua_api/l_internal.h"
 #include "lua_api/l_settings.h"
-#include "client/clipboard.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
 #include "network/networkprotocol.h"
@@ -731,26 +730,6 @@ int ModApiUtil::l_strip_escapes(lua_State *L)
 	return 1;
 }
 
-// copy_to_clipboard(str)
-int ModApiUtil::l_copy_to_clipboard(lua_State *L)
-{
-	NO_MAP_LOCK_REQUIRED;
-
-	const char *text = luaL_checkstring(L, 1);
-	copyToClipboard(text);
-	return 0;
-}
-
-// get_text_from_clipboard()
-int ModApiUtil::l_get_text_from_clipboard(lua_State *L)
-{
-	NO_MAP_LOCK_REQUIRED;
-
-	auto text = getTextFromClipboard();
-	lua_pushlstring(L, text.c_str(), text.size());
-	return 1;
-}
-
 void ModApiUtil::Initialize(lua_State *L, int top)
 {
 	API_FCT(log);
@@ -805,9 +784,6 @@ void ModApiUtil::Initialize(lua_State *L, int top)
 	API_FCT(urlencode);
 	API_FCT(is_valid_player_name);
 	API_FCT(strip_escapes);
-
-	API_FCT(copy_to_clipboard);
-	API_FCT(get_text_from_clipboard);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
