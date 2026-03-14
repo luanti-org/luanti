@@ -460,6 +460,8 @@ public:
 
 	// marks the sides which are opaque: 00+Z-Z+Y-Y+X-X
 	u8 solid_sides = 0;
+
+	u8 lod = 255;
 #endif
 
 private:
