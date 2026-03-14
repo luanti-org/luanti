@@ -3591,17 +3591,23 @@ void Game::updateShadows()
 
 	float in_timeofday = std::fmod(runData.time_of_day_smooth, 1.0f);
 
-	float timeoftheday = getWickedTimeOfDay(in_timeofday);
-	bool is_day = timeoftheday > 0.25 && timeoftheday < 0.75;
-	bool is_shadow_visible = is_day ? sky->getSunVisible() : sky->getMoonVisible();
 	const auto &lighting = client->getEnv().getLocalPlayer()->getLighting();
-	shadow->setShadowIntensity(is_shadow_visible ? lighting.shadow_intensity : 0.0f);
 	shadow->setShadowTint(lighting.shadow_tint);
 
-	timeoftheday = std::fmod(timeoftheday + 0.75f, 0.5f) + 0.25f;
 	const float offset_constant = 10000.0f;
 
-	v3f light = is_day ? sky->getSunDirection() : sky->getMoonDirection();
+	v3f light;
+	if (lighting.shadow_direction.getLengthSQ() > 0.0f) {
+		// Custom shadow direction: bypass sun/moon visibility check
+		shadow->setShadowIntensity(lighting.shadow_intensity);
+		light = lighting.shadow_direction;
+	} else {
+		float timeoftheday = getWickedTimeOfDay(in_timeofday);
+		bool is_day = timeoftheday > 0.25f && timeoftheday < 0.75f;
+		bool is_shadow_visible = is_day ? sky->getSunVisible() : sky->getMoonVisible();
+		shadow->setShadowIntensity(is_shadow_visible ? lighting.shadow_intensity : 0.0f);
+		light = is_day ? sky->getSunDirection() : sky->getMoonDirection();
+	}
 
 	v3f sun_pos = light * offset_constant;
 	shadow->getDirectionalLight().setDirection(sun_pos);
