@@ -1665,9 +1665,9 @@ bool Client::updateWieldedItem()
 
 bool Client::consumeSkipNextWieldAnimation()
 {
-    bool v = m_skip_next_wield_animation;
-    m_skip_next_wield_animation = false;
-    return v;
+	bool v = m_skip_next_wield_animation;
+	m_skip_next_wield_animation = false;
+	return v;
 }
 
 scene::ISceneManager* Client::getSceneManager()

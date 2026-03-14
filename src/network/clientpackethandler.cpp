@@ -360,10 +360,10 @@ void Client::handleCommand_Inventory(NetworkPacket* pkt)
 
 void Client::handleCommand_WieldItem(NetworkPacket *pkt)
 {
-    bool skip = false;
-    *pkt >> skip;
-    if (skip)
-        m_skip_next_wield_animation = true;
+	bool skip = false;
+	*pkt >> skip;
+	if (skip)
+		m_skip_next_wield_animation = true;
 }
 
 void Client::handleCommand_TimeOfDay(NetworkPacket* pkt)
