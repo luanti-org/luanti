@@ -32,7 +32,7 @@ bool getGameConfig(const std::string &game_path, Settings &conf)
 // Keep in sync with pkgmgr.lua, `pkgmgr.normalize_game_id()`.
 std::string normalizeGameId(std::string_view id)
 {
-	static const char *ends[] = {"_game", NULL};
+	static const char *ends[] = {"_game", nullptr};
 	auto shorter = removeStringEnd(id, ends);
 	return std::string(shorter.empty() ? id : shorter);
 }
@@ -95,7 +95,6 @@ std::string getWorldPathEnv()
 
 }
 
-
 void SubgameSpec::checkAndLog() const
 {
 	// Log deprecation messages
@@ -113,12 +112,12 @@ void SubgameSpec::checkAndLog() const
 	}
 }
 
-
 struct GameFindPath
 {
 	std::string path;
-	bool user_specific; // Game is in user's directory
+	bool user_specific; // If true, game is in path_user
 	std::unordered_set<std::string> aliases;
+
 	GameFindPath(const std::string &path, bool user_specific) :
 			path(path), user_specific(user_specific)
 	{
@@ -130,8 +129,6 @@ struct GameFindPath
 };
 
 using GamePathMap = std::unordered_map<std::string, GameFindPath>;
-
-
 
 static GamePathMap getAvailableGamePaths()
 {
@@ -155,7 +152,7 @@ static GamePathMap getAvailableGamePaths()
 			// If configuration file is not found or broken, ignore game
 			Settings conf;
 			const std::string game_path = search_path.path + DIR_DELIM + dln.name;
-			if (!conf.readConfigFile((game_path + DIR_DELIM + "game.conf").c_str()))
+			if (!conf.readConfigFile((game_path + DIR_DELIM "game.conf").c_str()))
 				continue;
 
 			// Add it to result
@@ -211,8 +208,6 @@ static SubgameSpec getSubgameSpec(const std::string &game_id,
 
 	return spec;
 }
-
-
 
 std::set<std::string> getAvailableGameIds()
 {
