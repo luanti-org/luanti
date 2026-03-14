@@ -1599,9 +1599,9 @@ void Server::SendInventory(RemotePlayer *player, bool incremental)
 
 void Server::SendWieldItem(session_t peer_id, bool skip_change_anim)
 {
-    NetworkPacket pkt(TOCLIENT_WIELD_ITEM, 0, peer_id);
-    pkt << skip_change_anim;
-    Send(&pkt);
+	NetworkPacket pkt(TOCLIENT_WIELD_ITEM, 0, peer_id);
+	pkt << skip_change_anim;
+	Send(&pkt);
 }
 
 void Server::SendChatMessage(session_t peer_id, const ChatMessage &message)
