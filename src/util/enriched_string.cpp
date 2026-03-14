@@ -34,6 +34,7 @@ EnrichedString::EnrichedString(std::wstring_view string,
 	clear();
 	m_string = string;
 	m_colors = colors;
+	m_bg_colors.resize(m_string.size(), SColor(0, 0, 0, 0));
 }
 
 EnrichedString::EnrichedString(std::wstring_view s, const SColor &color)
@@ -46,6 +47,7 @@ void EnrichedString::clear()
 {
 	m_string.clear();
 	m_colors.clear();
+	m_bg_colors.clear();
 	m_has_background = false;
 	m_default_length = 0;
 	m_default_color = video::SColor(255, 255, 255, 255);
@@ -62,17 +64,20 @@ EnrichedString &EnrichedString::operator=(std::wstring_view str)
 void EnrichedString::addAtEnd(std::wstring_view s, SColor initial_color)
 {
 	SColor color(initial_color);
+	SColor bgcolor(0, 0, 0, 0);
 	bool use_default = (m_default_length == m_string.size() &&
 		color == m_default_color);
 
 	m_string.reserve(m_string.size() + s.size());
 	m_colors.reserve(m_colors.size() + s.size());
+	m_bg_colors.reserve(m_bg_colors.size() + s.size());
 
 	size_t i = 0;
 	while (i < s.length()) {
 		if (s[i] != L'\x1b') {
 			m_string += s[i];
 			m_colors.push_back(color);
+			m_bg_colors.push_back(bgcolor);
 			++i;
 			continue;
 		}
@@ -114,7 +119,8 @@ void EnrichedString::addAtEnd(std::wstring_view s, SColor initial_color)
 			if (parts.size() < 2) {
 				continue;
 			}
-			parseColorString(wide_to_utf8(parts[1]), m_background, true);
+			parseColorString(wide_to_utf8(parts[1]), bgcolor, true);
+			m_background = bgcolor;
 			m_has_background = true;
 		}
 	}
@@ -128,6 +134,7 @@ void EnrichedString::addChar(const EnrichedString &source, size_t i)
 {
 	m_string += source.m_string[i];
 	m_colors.push_back(source.m_colors[i]);
+	m_bg_colors.push_back(source.m_bg_colors[i]);
 }
 
 void EnrichedString::addCharNoColor(wchar_t c)
@@ -137,6 +144,11 @@ void EnrichedString::addCharNoColor(wchar_t c)
 		m_colors.emplace_back(m_default_color);
 	} else {
 		m_colors.push_back(m_colors.back());
+	}
+	if (m_bg_colors.empty()) {
+		m_bg_colors.emplace_back(0, 0, 0, 0);
+	} else {
+		m_bg_colors.push_back(m_bg_colors.back());
 	}
 }
 
@@ -153,6 +165,7 @@ void EnrichedString::operator+=(const EnrichedString &other)
 
 	m_string += other.m_string;
 	m_colors.insert(m_colors.end(), other.m_colors.begin(), other.m_colors.end());
+	m_bg_colors.insert(m_bg_colors.end(), other.m_bg_colors.begin(), other.m_bg_colors.end());
 
 	if (update_default_color) {
 		m_default_length += other.m_default_length;
@@ -188,6 +201,7 @@ EnrichedString EnrichedString::substr(size_t pos, size_t len) const
 		std::vector<SColor>(m_colors.begin() + pos, m_colors.begin() + pos + len)
 	);
 
+	str.m_bg_colors.assign(m_bg_colors.begin() + pos, m_bg_colors.begin() + pos + len);
 	str.m_has_background = m_has_background;
 	str.m_background = m_background;
 
@@ -200,6 +214,11 @@ EnrichedString EnrichedString::substr(size_t pos, size_t len) const
 const std::vector<SColor> &EnrichedString::getColors() const
 {
 	return m_colors;
+}
+
+const std::vector<SColor> &EnrichedString::getBgColors() const
+{
+	return m_bg_colors;
 }
 
 const std::wstring &EnrichedString::getString() const

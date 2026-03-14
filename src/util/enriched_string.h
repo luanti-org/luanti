@@ -62,6 +62,7 @@ public:
 		return getString().c_str();
 	}
 	const std::vector<video::SColor> &getColors() const;
+	const std::vector<video::SColor> &getBgColors() const;
 	const std::wstring &getString() const;
 
 	inline void setDefaultColor(video::SColor color)
@@ -104,11 +105,13 @@ public:
 	{
 		m_background = color;
 		m_has_background = true;
+		std::fill(m_bg_colors.begin(), m_bg_colors.end(), color);
 	}
 
 private:
 	std::wstring m_string;
 	std::vector<video::SColor> m_colors;
+	std::vector<video::SColor> m_bg_colors;
 	bool m_has_background;
 	video::SColor m_default_color;
 	video::SColor m_background;

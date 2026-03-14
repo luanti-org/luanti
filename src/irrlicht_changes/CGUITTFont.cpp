@@ -474,7 +474,9 @@ void CGUITTFont::draw(const core::stringw& text, const core::rect<s32>& position
 void CGUITTFont::draw(const EnrichedString &text, const core::rect<s32>& position, bool hcenter, bool vcenter, const core::rect<s32>* clip)
 {
 	const auto &colors = text.getColors();
+	const auto &bg_colors = text.getBgColors();
 	constexpr video::SColor fallback_color(255, 255, 255, 255); // if colors is too short
+	constexpr video::SColor no_bg_color(0, 0, 0, 0);
 
 	if (!Driver)
 		return;
@@ -506,6 +508,13 @@ void CGUITTFont::draw(const EnrichedString &text, const core::rect<s32>& positio
 	// Convert to a unicode string.
 	const std::u32string utext = convertWCharToU32String(text.c_str());
 	const u32 lineHeight = getLineHeight();
+
+	// Collect background color rectangles to draw before text
+	struct BgRect {
+		core::rect<s32> rect;
+		video::SColor color;
+	};
+	std::vector<BgRect> bg_rects;
 
 	// Start parsing characters.
 	// The same logic is applied to `CGUITTFont::getDimension`
@@ -541,6 +550,23 @@ void CGUITTFont::draw(const EnrichedString &text, const core::rect<s32>& positio
 
 		SGUITTGlyph *glyph = nullptr;
 		const u32 width = getWidthFromCharacter(currentChar);
+
+		// Collect background rectangle for this character
+		{
+			const video::SColor &bgcolor = i < bg_colors.size() ? bg_colors[i] : no_bg_color;
+			if (bgcolor.getAlpha() > 0) {
+				core::rect<s32> bgrect(offset.X, offset.Y,
+					offset.X + width, offset.Y + lineHeight);
+				// Merge with previous rect if same color and adjacent
+				if (!bg_rects.empty() && bg_rects.back().color == bgcolor &&
+						bg_rects.back().rect.LowerRightCorner.X == bgrect.UpperLeftCorner.X &&
+						bg_rects.back().rect.UpperLeftCorner.Y == bgrect.UpperLeftCorner.Y) {
+					bg_rects.back().rect.LowerRightCorner.X = bgrect.LowerRightCorner.X;
+				} else {
+					bg_rects.push_back({bgrect, bgcolor});
+				}
+			}
+		}
 
 		// Skip whitespace characters
 		if (InvisibleChars.find(currentChar) != std::u32string::npos)
@@ -597,7 +623,12 @@ skip_invisible:
 		previousChar = currentChar;
 	}
 
-	// Draw now.
+	// Draw background rectangles first, before text
+	for (const auto &bg : bg_rects) {
+		Driver->draw2DRectangle(bg.color, bg.rect, clip);
+	}
+
+	// Draw text now.
 	update_glyph_pages();
 	core::array<core::vector2di> tmp_positions;
 	core::array<core::recti> tmp_source_rects;
