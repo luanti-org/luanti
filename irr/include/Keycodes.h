@@ -8,12 +8,7 @@
 enum EKEY_CODE
 {
 	KEY_UNKNOWN = 0x0,
-	KEY_LBUTTON = 0x01,           // Left mouse button
-	KEY_RBUTTON = 0x02,           // Right mouse button
 	KEY_CANCEL = 0x03,            // Control-break processing
-	KEY_MBUTTON = 0x04,           // Middle mouse button (three-button mouse)
-	KEY_XBUTTON1 = 0x05,          // Windows 2000/XP: X1 mouse button
-	KEY_XBUTTON2 = 0x06,          // Windows 2000/XP: X2 mouse button
 	KEY_BACK = 0x08,              // BACKSPACE key
 	KEY_TAB = 0x09,               // TAB key
 	KEY_CLEAR = 0x0C,             // CLEAR key
