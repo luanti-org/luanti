@@ -110,7 +110,8 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	bool urgent, bool from_neighbor)
 {
 	// If block that causes update does not exist, skip.
-	if (!map->getBlockNoCreateNoEx(p))
+	MapBlock *block = map->getBlockNoCreateNoEx(p);
+	if (!block)
 		return false;
 
 	const MeshGrid mesh_grid = m_client->getMeshGrid();
@@ -120,21 +121,6 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	const v3s16 mesh_position = mesh_grid.getMeshPos(p);
 
 	MutexAutoLock lock(m_mutex);
-
-	/*
-	 * Calculate LOD
-	 */
-	const v3s16 cam_pos = floatToInt(m_client->getCamera()->getPosition(), BS) / MAP_BLOCKSIZE // current player block
-		// other block positions are on the corner, so offset this position as well for dist calcs
-		- m_client->getMeshGrid().cell_size / 2;
-	const u16 dist2 = cam_pos.getDistanceFromSQ(mesh_grid.getMeshPos(p));
-	// Cant go below 1/sqrt(2) of client mesh size or the current chunk might get LOD'd
-	f32 lod_threshold = std::max(
-		g_settings->getFloat("lod_threshold"),
-		g_settings->getFloat("client_mesh_chunk") * 0.7071f);
-	lod_threshold *= lod_threshold;
-	const u8 lod = dist2 < lod_threshold ? 0 :
-		1 + static_cast<u8>(std::log2(dist2 / lod_threshold) / g_settings->getFloat("lod_quality"));
 
 	/*
 		Mark the block as urgent if requested
@@ -154,7 +140,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 			q->crack_pos = m_client->getCrackPos();
 			q->urgent |= urgent;
 			q->retrieveBlocks(map, mesh_grid.cell_size);
-			q->lod = lod;
+			q->lod = block->lod;
 			return true;
 		}
 	}
@@ -170,7 +156,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	q->crack_pos = m_client->getCrackPos();
 	q->urgent = urgent;
 	q->retrieveBlocks(map, mesh_grid.cell_size);
-	q->lod = lod;
+	q->lod = block->lod;
 
 	/*
 		Air blocks won't suddenly become visible due to a neighbor update, so

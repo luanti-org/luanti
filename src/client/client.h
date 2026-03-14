@@ -440,6 +440,17 @@ public:
 
 	bool inhibit_inventory_revert = false;
 
+	u8 determineLodForBlock(v3s16 player_chunk_pos, v3s16 block_chunk_pos, f32 lod_threshold, f32 lod_quality,
+		f32 client_mesh_chunk) const
+	{
+		if (player_chunk_pos == block_chunk_pos)
+			return 0;
+		const f32 actual_lod_threshold = std::max(lod_threshold, client_mesh_chunk * 1.42f);
+		const u16 dist = player_chunk_pos.getDistanceFrom(block_chunk_pos) * m_mesh_grid.cell_size;
+		return dist < actual_lod_threshold ? 0 :
+			1 + static_cast<u8>(std::log2(dist / lod_threshold) / lod_quality);
+	}
+
 private:
 	void loadMods();
 
