@@ -117,7 +117,7 @@ public:
 	void registerHotbarRect(u16 index, const recti &rect);
 	std::optional<u16> getHotbarSelection();
 
-	bool isStatusTextOverriden() { return m_overflow_open; }
+	bool isStatusTextOverridden() { return m_overflow_open; }
 	IGUIStaticText *getStatusText() { return m_status_text.get(); }
 
 private:
