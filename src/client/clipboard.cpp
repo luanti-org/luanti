@@ -31,12 +31,12 @@ Zacharias Tyllström zacharias.tyllstrom@gmail.com
 
 void copyToClipboard(std::string text)
 {
-    auto *env = RenderingEngine::get_raw_device()->getGUIEnvironment();
-    env->getOSOperator()->copyToClipboard(text.c_str());
+	auto *env = RenderingEngine::get_raw_device()->getGUIEnvironment();
+	env->getOSOperator()->copyToClipboard(text.c_str());
 }
 
 std::string getTextFromClipboard()
 {
-    auto *env = RenderingEngine::get_raw_device()->getGUIEnvironment();
-    return env->getOSOperator()->getTextFromClipboard();
+	auto *env = RenderingEngine::get_raw_device()->getGUIEnvironment();
+	return env->getOSOperator()->getTextFromClipboard();
 }

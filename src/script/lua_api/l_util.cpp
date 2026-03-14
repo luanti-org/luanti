@@ -738,7 +738,7 @@ int ModApiUtil::l_copy_to_clipboard(lua_State *L)
 
 	const char *text = luaL_checkstring(L, 1);
 	copyToClipboard(text);
-    return 0;
+	return 0;
 }
 
 // get_text_from_clipboard()
@@ -748,7 +748,7 @@ int ModApiUtil::l_get_text_from_clipboard(lua_State *L)
 
 	auto text = getTextFromClipboard();
 	lua_pushlstring(L, text.c_str(), text.size());
-    return 1;
+	return 1;
 }
 
 void ModApiUtil::Initialize(lua_State *L, int top)
