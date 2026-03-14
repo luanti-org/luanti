@@ -29,3 +29,4 @@ Zacharias Tyllström zacharias.tyllstrom@gmail.com
 #include <string>
 
 void copyToClipboard(std::string text);
+[[nodiscard]] std::string getTextFromClipboard();

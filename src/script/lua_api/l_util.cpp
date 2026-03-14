@@ -741,6 +741,16 @@ int ModApiUtil::l_copy_to_clipboard(lua_State *L)
     return 0;
 }
 
+// get_text_from_clipboard()
+int ModApiUtil::l_get_text_from_clipboard(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	auto text = getTextFromClipboard();
+	lua_pushlstring(L, text.c_str(), text.size());
+    return 1;
+}
+
 void ModApiUtil::Initialize(lua_State *L, int top)
 {
 	API_FCT(log);
@@ -797,6 +807,7 @@ void ModApiUtil::Initialize(lua_State *L, int top)
 	API_FCT(strip_escapes);
 
 	API_FCT(copy_to_clipboard);
+	API_FCT(get_text_from_clipboard);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
@@ -834,6 +845,7 @@ void ModApiUtil::InitializeClient(lua_State *L, int top)
 	API_FCT(strip_escapes);
 
 	API_FCT(copy_to_clipboard);
+	API_FCT(get_text_from_clipboard);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
@@ -870,6 +882,7 @@ void ModApiUtil::InitializeSSCSM(lua_State *L, int top)
 	API_FCT(urlencode);
 
 	API_FCT(copy_to_clipboard);
+	API_FCT(get_text_from_clipboard);
 }
 
 void ModApiUtil::InitializeAsync(lua_State *L, int top)
@@ -920,6 +933,7 @@ void ModApiUtil::InitializeAsync(lua_State *L, int top)
 	API_FCT(strip_escapes);
 
 	API_FCT(copy_to_clipboard);
+	API_FCT(get_text_from_clipboard);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
