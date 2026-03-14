@@ -1663,6 +1663,13 @@ bool Client::updateWieldedItem()
 	return true;
 }
 
+bool Client::consumeSkipNextWieldAnimation()
+{
+    bool v = m_skip_next_wield_animation;
+    m_skip_next_wield_animation = false;
+    return v;
+}
+
 scene::ISceneManager* Client::getSceneManager()
 {
 	return m_rendering_engine->get_scene_manager();

@@ -358,6 +358,14 @@ void Client::handleCommand_Inventory(NetworkPacket* pkt)
 	m_inventory_from_server_age = 0.0f;
 }
 
+void Client::handleCommand_WieldItem(NetworkPacket *pkt)
+{
+    bool skip = false;
+    *pkt >> skip;
+    if (skip)
+        m_skip_next_wield_animation = true;
+}
+
 void Client::handleCommand_TimeOfDay(NetworkPacket* pkt)
 {
 	if (pkt->getSize() < 2)

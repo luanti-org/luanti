@@ -164,6 +164,7 @@ public:
 	void handleCommand_NodemetaChanged(NetworkPacket *pkt);
 	void handleCommand_BlockData(NetworkPacket* pkt);
 	void handleCommand_Inventory(NetworkPacket* pkt);
+	void handleCommand_WieldItem(NetworkPacket* pkt);
 	void handleCommand_TimeOfDay(NetworkPacket* pkt);
 	void handleCommand_ChatMessage(NetworkPacket *pkt);
 	void handleCommand_ActiveObjectRemoveAdd(NetworkPacket* pkt);
@@ -260,6 +261,8 @@ public:
 	// Returns true if the inventory of the local player has been
 	// updated from the server. If it is true, it is set to false.
 	bool updateWieldedItem();
+
+	bool consumeSkipNextWieldAnimation();
 
 	/* InventoryManager interface */
 	Inventory* getInventory(const InventoryLocation &loc) override;
@@ -499,6 +502,7 @@ private:
 	u16 m_proto_ver = 0;
 
 	bool m_update_wielded_item = false;
+	bool m_skip_next_wield_animation = false;
 	std::unique_ptr<Inventory> m_inventory_from_server;
 	float m_inventory_from_server_age = 0.0f;
 	s32 m_mapblock_limit_logged = 0;

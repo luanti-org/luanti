@@ -345,7 +345,7 @@ int ObjectRef::l_get_wielded_item(lua_State *L)
 	return 1;
 }
 
-// set_wielded_item(self, item)
+// set_wielded_item(self, item, skip_anim)
 int ObjectRef::l_set_wielded_item(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
@@ -355,10 +355,17 @@ int ObjectRef::l_set_wielded_item(lua_State *L)
 		return 0;
 
 	ItemStack item = read_item(L, 2, getServer(L)->idef());
-
 	bool success = sao->setWieldedItem(item);
+
 	if (success && sao->getType() == ACTIVEOBJECT_TYPE_PLAYER) {
-		getServer(L)->SendInventory(((PlayerSAO *)sao)->getPlayer(), true);
+		bool skipAnim = readParam<bool>(L, 3, false);
+		PlayerSAO *playersao = dynamic_cast<PlayerSAO*>(sao);
+		RemotePlayer *player = playersao->getPlayer();
+
+		if (skipAnim && player->protocol_version >= 51)
+			getServer(L)->SendWieldItem(playersao->getPeerID(), true);
+
+		getServer(L)->SendInventory(player, true);
 	}
 	lua_pushboolean(L, success);
 	return 1;
