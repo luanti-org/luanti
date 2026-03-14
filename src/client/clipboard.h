@@ -28,5 +28,5 @@ Zacharias Tyllström zacharias.tyllstrom@gmail.com
 #pragma once
 #include <string>
 
-void copyToClipboard(std::string text);
+void copyToClipboard(const std::string &text);
 [[nodiscard]] std::string getTextFromClipboard();

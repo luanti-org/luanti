@@ -25,11 +25,11 @@ freely, subject to the following restrictions:
 Zacharias Tyllström zacharias.tyllstrom@gmail.com
 */
 
-#include "clipboard.h"
-#include "renderingengine.h"
+#include "client/clipboard.h"
+#include "client/renderingengine.h"
 #include <IGUIEnvironment.h>
 
-void copyToClipboard(std::string text)
+void copyToClipboard(const std::string &text)
 {
 	auto *env = RenderingEngine::get_raw_device()->getGUIEnvironment();
 	env->getOSOperator()->copyToClipboard(text.c_str());
