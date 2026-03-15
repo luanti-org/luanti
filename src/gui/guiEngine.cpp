@@ -3,6 +3,7 @@
 // Copyright (C) 2013 sapier
 
 #include "guiEngine.h"
+#include "statusTextHelper.h"
 
 #include "client/fontengine.h"
 #include "client/guiscalingfilter.h"
@@ -12,6 +13,7 @@
 #include "content/content.h"
 #include "content/mods.h"
 #include "filesys.h"
+#include "gettext.h"
 #include "guiMainMenu.h"
 #include "httpfetch.h"
 #include "irrlicht_changes/static_text.h"
@@ -177,6 +179,11 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 
 	m_menu->defaultAllowClose(false);
 	m_menu->lockSize(true,v2u32(800,600));
+
+	// Status message for main menu notifications
+	m_status_text = std::make_unique<StatusTextHelper>(
+		rendering_engine->get_gui_env(), m_parent);
+	m_status_text->setMainMenuStyle();
 
 	g_settings->registerChangedCallback("fullscreen", fullscreenChangedCallback, this);
 
@@ -378,7 +385,15 @@ void GUIEngine::run()
 			if (m_take_screenshot) {
 				m_take_screenshot = false;
 				std::string filename;
-				takeScreenshot(driver, filename);
+				if (takeScreenshot(driver, filename)) {
+					std::string msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
+					m_status_text->showStatusText(utf8_to_wide(msg));
+				}
+			}
+
+			// Update status message
+			if (m_status_text) {
+				m_status_text->update(dtime);
 			}
 
 			driver->endScene();
