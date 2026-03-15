@@ -358,12 +358,11 @@ int ObjectRef::l_set_wielded_item(lua_State *L)
 	bool success = sao->setWieldedItem(item);
 
 	if (success && sao->getType() == ACTIVEOBJECT_TYPE_PLAYER) {
-		bool skipAnim = readParam<bool>(L, 3, false);
-		PlayerSAO *playersao = dynamic_cast<PlayerSAO*>(sao);
-		RemotePlayer *player = playersao->getPlayer();
+		bool skip_anim = readParam<bool>(L, 3, false);
+		RemotePlayer *player = dynamic_cast<PlayerSAO*>(sao)->getPlayer();
 
-		if (skipAnim && player->protocol_version >= 51)
-			getServer(L)->SendWieldItem(playersao->getPeerID(), true);
+		if (skip_anim)
+			getServer(L)->SendWieldItem(player, true);
 
 		getServer(L)->SendInventory(player, true);
 	}

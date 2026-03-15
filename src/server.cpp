@@ -1597,9 +1597,12 @@ void Server::SendInventory(RemotePlayer *player, bool incremental)
 	Send(&pkt);
 }
 
-void Server::SendWieldItem(session_t peer_id, bool skip_change_anim)
+void Server::SendWieldItem(RemotePlayer *player, bool skip_change_anim)
 {
-	NetworkPacket pkt(TOCLIENT_WIELD_ITEM, 0, peer_id);
+	if (player->protocol_version < 52)
+		return;
+
+	NetworkPacket pkt(TOCLIENT_WIELD_ITEM, 0, player->getPeerId());
 	pkt << skip_change_anim;
 	Send(&pkt);
 }

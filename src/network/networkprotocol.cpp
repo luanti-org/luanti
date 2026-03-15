@@ -74,6 +74,10 @@
 	PROTOCOL VERSION 51
 		Only send first frame of animated item/wield images to older client
 		[scheduled bump for 5.15.0]
+	PROTOCOL VERSION 52
+		Add TOCLIENT_WIELD_ITEM
+		Type of TOCLIENT_HUDADD `size` changed from v2s32 to v2f
+		[scheduled bump for 5.16.0]
 */
 
 // Note: Also update core.protocol_versions in builtin when bumping
