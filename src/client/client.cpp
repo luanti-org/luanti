@@ -67,6 +67,7 @@
 
 #include <IAnimatedMesh.h>
 #include <IFileSystem.h>
+#include <IReadFile.h>
 #include <json/json.h>
 
 #include <iostream>

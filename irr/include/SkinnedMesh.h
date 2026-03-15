@@ -5,9 +5,6 @@
 #pragma once
 
 #include "IAnimatedMesh.h"
-#include "ISceneManager.h"
-#include "CMeshBuffer.h"
-#include "SSkinMeshBuffer.h"
 #include "aabbox3d.h"
 #include "irrMath.h"
 #include "irrTypes.h"
@@ -17,6 +14,7 @@
 #include "vector3d.h"
 #include "Transform.h"
 
+#include <algorithm>
 #include <optional>
 #include <string>
 #include <variant>
@@ -28,6 +26,7 @@ namespace scene
 class AnimatedMeshSceneNode;
 class BoneSceneNode;
 class ISceneManager;
+struct SSkinMeshBuffer;
 
 class SkinnedMesh : public IAnimatedMesh
 {

@@ -21,6 +21,7 @@
 #include "profiler.h"
 #include "renderingengine.h"
 #include "version.h"
+#include <IGUIFont.h>
 
 inline static const char *yawToDirectionString(int yaw)
 {

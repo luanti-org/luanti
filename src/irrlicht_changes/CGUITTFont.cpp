@@ -35,7 +35,11 @@
 
 #include "log.h"
 #include "debug.h"
+#include "util/enriched_string.h"
+
 #include "IGUIEnvironment.h"
+#include "IImage.h"
+#include "IVideoDriver.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -225,6 +229,18 @@ void SGUITTGlyph::unload()
 {
 	// reset isLoaded to false
 	source_rect = core::recti();
+}
+
+SGUITTGlyphPending::~SGUITTGlyphPending()
+{
+	if (surface)
+		surface->drop();
+}
+
+CGUITTGlyphPage::~CGUITTGlyphPage()
+{
+	if (texture)
+		driver->removeTexture(texture);
 }
 
 bool CGUITTGlyphPage::createPageTexture(const u8 pixel_mode,

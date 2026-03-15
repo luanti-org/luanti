@@ -16,6 +16,7 @@
 #include "util/string.h"
 #include "guiScrollBar.h"
 #include <IOSOperator.h>
+#include <IVideoDriver.h>
 #include <string>
 
 inline u32 clamp_u8(s32 value)

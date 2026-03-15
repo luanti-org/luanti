@@ -7,11 +7,13 @@
 #include <IGUIStaticText.h>
 #include "irrlicht_changes/static_text.h"
 #include "IGUIButton.h"
-#include "IGUISpriteBank.h"
 #include "ITexture.h"
 #include "SColor.h"
 #include "StyleSpec.h"
 
+namespace irr::gui {
+	class IGUISpriteBank;
+}
 
 class ISimpleTextureSource;
 

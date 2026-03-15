@@ -22,6 +22,7 @@
 
 #include "EVertexAttributes.h"
 #include "CImage.h"
+#include "IReadFile.h"
 #include "matrix4.h"
 #include "os.h"
 

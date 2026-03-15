@@ -37,13 +37,22 @@
 #include <freetype/freetype.h>
 
 #include "irr_ptr.h"
-#include "IGUIEnvironment.h"
 #include "IGUIFont.h"
-#include "IVideoDriver.h"
-#include "util/enriched_string.h"
+#include "irrArray.h"
+#include "path.h"
 #include "util/basic_macros.h"
 
-#include <map>
+namespace gui {
+	class IGUIEnvironment;
+}
+
+namespace video {
+	class IImage;
+	class ITexture;
+	class IVideoDriver;
+}
+
+class EnrichedString;
 
 namespace gui
 {
@@ -117,10 +126,7 @@ namespace gui
 		SGUITTGlyphPending(const SGUITTGlyph *glyph, video::IImage *surface) noexcept :
 			glyph(glyph), surface(surface)
 		{}
-		~SGUITTGlyphPending() {
-			if (surface)
-				surface->drop();
-		}
+		~SGUITTGlyphPending();
 
 		DISABLE_CLASS_COPY(SGUITTGlyphPending)
 
@@ -142,11 +148,7 @@ namespace gui
 				texture(0), available_slots(0), used_slots(0),
 				driver(Driver), name(texture_name)
 			{}
-			~CGUITTGlyphPage()
-			{
-				if (texture)
-					driver->removeTexture(texture);
-			}
+			~CGUITTGlyphPage();
 
 			//! Create the actual page texture,
 			bool createPageTexture(u8 pixel_mode, core::dimension2du texture_size);
