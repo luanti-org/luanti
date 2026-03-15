@@ -761,11 +761,6 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 			return;
 		}
 
-		// We need this number for OnTake reporting, but the problem here is
-		// that OnDrop can return a completely different item stack.
-		// Cut a few corners and report the count difference as far as sensible.
-		// (maybe OnTake should run before OnDrop??)
-
 		src_item.remove(take_count);
 		ItemStack leftover = src_item.addItem(item1, gamedef->getItemDefManager());
 
@@ -784,12 +779,16 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 			<<" i="<<from_i
 			<<std::endl;
 
+
 	/*
 		Report drop to endpoints
 	*/
 	list_from_lock.reset();
 
-	// How many items to report as taken (for dropping)
+	// We need this calculation for OnTake reporting, but the problem here is
+	// that OnDrop can return a completely different item stack.
+	// Cut a few corners and report the count difference as far as sensible.
+	// (maybe OnTake should run before OnDrop??)
 	if (original_src_item.stacksWith(src_item))
 		src_item.count = original_src_item.count - src_item.count;
 	else
