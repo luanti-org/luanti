@@ -99,12 +99,12 @@ function core.register_abm(spec)
 
 	core.registered_abms[#core.registered_abms + 1] = spec
 	spec.mod_origin = core.get_current_modname() or "??"
-  return spec
+	return spec
 end
 
 function core.register_lbm(spec)
 	-- Add to core.registered_lbms
-  spec.mod_origin = core.get_current_modname() or "??"
+	spec.mod_origin = core.get_current_modname() or "??"
 	check_modname_prefix(spec.name, spec.mod_origin)
 	check_node_list(spec.nodenames, "nodenames")
 	local have = spec.action ~= nil
@@ -114,7 +114,7 @@ function core.register_lbm(spec)
 	assert(have ~= have_bulk, "Either 'action' or 'bulk_action' must be present")
 
 	core.registered_lbms[#core.registered_lbms + 1] = spec
-  return spec
+	return spec
 end
 
 function core.register_entity(name, prototype)
@@ -123,15 +123,15 @@ function core.register_entity(name, prototype)
 		error("Unable to register entity: Name is nil")
 	end
 
-  prototype.mod_origin = core.get_current_modname() or "??"
-  name = check_modname_prefix(tostring(name), prototype.mod_origin)
+	prototype.mod_origin = core.get_current_modname() or "??"
+	name = check_modname_prefix(tostring(name), prototype.mod_origin)
 
 	prototype.name = name
 	prototype.__index = prototype  -- so that it can be used as a metatable
 
 	-- Add to core.registered_entities
 	core.registered_entities[name] = prototype
-  return prototype
+	return name
 end
 
 local function preprocess_node(nodedef)
@@ -243,7 +243,7 @@ function core.register_item(name, itemdef)
 	end
 
 	itemdef.mod_origin = core.get_current_modname() or "??"
-  name = check_modname_prefix(tostring(name), itemdef.mod_origin)
+	name = check_modname_prefix(tostring(name), itemdef.mod_origin)
 
 	if forbidden_item_names[name] then
 		error("Unable to register item: Name is forbidden: " .. name)
@@ -316,16 +316,16 @@ function core.register_item(name, itemdef)
 	core.registered_aliases[itemdef.name] = nil
 
 	register_item_raw(itemdef)
-  return itemdef
+	return itemdef.name
 end
 
 local function make_register_item_wrapper(the_type)
 	return function(name, itemdef)
 		if type(itemdef) ~= "table" then
-      error("Unable to register "..(the_type == "craft" and "craftitem" or the_type)..
-        ": Definition is non-table, got type '"..type(itemdef).."'")
-    end
-    itemdef.type = the_type
+			error("Unable to register "..(the_type == "craft" and "craftitem" or the_type)..
+				": Definition is non-table, got type '"..type(itemdef).."'")
+		end
+		itemdef.type = the_type
 		return core.register_item(name, itemdef)
 	end
 end
