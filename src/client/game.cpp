@@ -71,6 +71,7 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 		m_animation_timer_delta_vertex{"animationTimerDelta"};
 	CachedPixelShaderSetting<float>
 		m_animation_timer_delta_pixel{"animationTimerDelta"};
+	CachedPixelShaderSetting<float, 3> m_artificial_light{ "artificialLight" };
 	int m_crack_animation_length_i;
 	CachedPixelShaderSetting<float> m_crack_animation_length{"crackAnimationLength"};
 	int m_crack_level_i = -1;
@@ -79,10 +80,11 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float> m_crack_texture_scale{"crackTextureScale"};
 	CachedPixelShaderSetting<float, 3> m_day_light{"dayLight"};
 	CachedPixelShaderSetting<float, 3> m_minimap_yaw{"yawVec"};
-	CachedPixelShaderSetting<float, 3> m_camera_offset_pixel{"cameraOffset"};
+	CachedPixelShaderSetting<float> m_minimap_size{"minimapResolution"};
 	CachedVertexShaderSetting<float, 3> m_camera_offset_vertex{"cameraOffset"};
-	CachedPixelShaderSetting<float, 3> m_camera_position_pixel{"cameraPosition"};
+	CachedPixelShaderSetting<float, 3> m_camera_offset_pixel{ "cameraOffset" };
 	CachedVertexShaderSetting<float, 3> m_camera_position_vertex{"cameraPosition"};
+	CachedPixelShaderSetting<float, 3> m_camera_position_pixel{"cameraPosition"};
 	CachedVertexShaderSetting<float, 2> m_texel_size0_vertex{"texelSize0"};
 	CachedPixelShaderSetting<float, 2> m_texel_size0_pixel{"texelSize0"};
 	v2f m_texel_size0;
@@ -100,6 +102,8 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float> m_bloom_strength_pixel{"bloomStrength"};
 	CachedPixelShaderSetting<float> m_bloom_radius_pixel{"bloomRadius"};
 	CachedPixelShaderSetting<float> m_saturation_pixel{"saturation"};
+	float m_gamma;
+	CachedPixelShaderSetting<float> m_gamma_pixel{"gamma"};
 	bool m_volumetric_light_enabled;
 	CachedPixelShaderSetting<float, 3>
 		m_sun_position_pixel{"sunPositionScreen"};
@@ -109,6 +113,18 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float> m_moon_brightness_pixel{"moonBrightness"};
 	CachedPixelShaderSetting<float>
 		m_volumetric_light_strength_pixel{"volumetricLightStrength"};
+	CachedPixelShaderSetting<float, 3>
+		m_atmospheric_scattering_coefficients_pixel{ "scattering_coefficients" };
+	CachedVertexShaderSetting<float, 3>
+		m_atmospheric_scattering_coefficients_vertex{ "scattering_coefficients" };
+	CachedPixelShaderSetting<float, 3> m_cdl_slope_pixel{"cdl_slope"};
+	CachedPixelShaderSetting<float, 3> m_cdl_offset_pixel{"cdl_offset"};
+	CachedPixelShaderSetting<float, 3> m_cdl_power_pixel{"cdl_power"};
+	CachedPixelShaderSetting<float> m_vignette_dark_pixel{"vignette_dark"};
+	CachedPixelShaderSetting<float> m_vignette_bright_pixel{"vignette_bright"};
+	CachedPixelShaderSetting<float> m_vignette_power_pixel{"vignette_power"};
+	CachedPixelShaderSetting<float> m_foliage_translucency_pixel{ "foliage_translucency" };
+	CachedPixelShaderSetting<float> m_specular_intensity_pixel{ "specular_intensity" };
 
 	static constexpr std::array<const char*, 1> SETTING_CALLBACKS = {
 		"exposure_compensation",
@@ -138,6 +154,7 @@ public:
 		m_user_exposure_compensation = g_settings->getFloat("exposure_compensation", -1.0f, 1.0f);
 		m_bloom_enabled = g_settings->getBool("enable_bloom");
 		m_volumetric_light_enabled = g_settings->getBool("enable_volumetric_lighting") && m_bloom_enabled;
+		m_gamma = g_settings->getFloat("secondstage_gamma");
 		m_crack_animation_length_i = game->crack_animation_length;
 	}
 
@@ -165,14 +182,16 @@ public:
 		if (m_client->getMinimap()) {
 			v3f minimap_yaw = m_client->getMinimap()->getYawVec();
 			m_minimap_yaw.set(minimap_yaw, services);
+			float minimap_size = m_client->getMinimap()->getModeDef().map_size;
+			m_minimap_size.set(&minimap_size, services);
 		}
 
 		v3f offset = intToFloat(m_client->getCamera()->getOffset(), BS);
-		m_camera_offset_pixel.set(offset, services);
 		m_camera_offset_vertex.set(offset, services);
+		m_camera_offset_pixel.set(offset, services);
 
 		v3f camera_position = m_client->getCamera()->getPosition();
-		m_camera_position_pixel.set(camera_position, services);
+		m_camera_position_vertex.set(camera_position, services);
 		m_camera_position_pixel.set(camera_position, services);
 
 		m_texel_size0_vertex.set(m_texel_size0, services);
@@ -212,6 +231,23 @@ public:
 
 		float saturation = lighting.saturation;
 		m_saturation_pixel.set(&saturation, services);
+		video::SColorf artificial_light = lighting.artificial_light_color;
+		m_artificial_light.set(artificial_light, services);
+
+		m_gamma_pixel.set(&m_gamma, services);
+
+		const Vignette &vignette_params = lighting.vignette;
+		m_vignette_dark_pixel.set(&vignette_params.dark, services);
+		m_vignette_bright_pixel.set(&vignette_params.bright, services);
+		m_vignette_power_pixel.set(&vignette_params.power, services);
+
+		m_foliage_translucency_pixel.set(&lighting.foliage_translucency, services);
+		m_specular_intensity_pixel.set(&lighting.specular_intensity, services);
+
+		const ColorDecisionList& cdl_params = lighting.cdl;
+		m_cdl_slope_pixel.set(cdl_params.slope, services);
+		m_cdl_offset_pixel.set(cdl_params.offset, services);
+		m_cdl_power_pixel.set(cdl_params.power, services);
 
 		if (m_volumetric_light_enabled) {
 			// Map directional light to screen space
@@ -256,6 +292,10 @@ public:
 			float volumetric_light_strength = lighting.volumetric_light_strength;
 			m_volumetric_light_strength_pixel.set(&volumetric_light_strength, services);
 		}
+
+		v3f scattering_coefficients = lighting.scattering_coefficients;
+		m_atmospheric_scattering_coefficients_vertex.set(scattering_coefficients, services);
+		m_atmospheric_scattering_coefficients_pixel.set(scattering_coefficients, services);
 	}
 
 	void onSetMaterial(const video::SMaterial &material) override
@@ -337,8 +377,9 @@ public:
 #undef PROVIDE
 
 		bool enable_waving_water = g_settings->getBool("enable_waving_water");
+		bool enable_water_reflections = g_settings->getBool("enable_water_reflections");
 		constants["ENABLE_WAVING_WATER"] = enable_waving_water ? 1 : 0;
-		if (enable_waving_water) {
+		if (enable_waving_water || enable_water_reflections) {
 			constants["WATER_WAVE_HEIGHT"] = g_settings->getFloat("water_wave_height");
 			constants["WATER_WAVE_LENGTH"] = g_settings->getFloat("water_wave_length");
 			constants["WATER_WAVE_SPEED"] = g_settings->getFloat("water_wave_speed");
