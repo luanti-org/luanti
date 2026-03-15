@@ -17,31 +17,38 @@
 #define WRAP_LUAERROR(e, detail) \
 	LuaError(std::string(__FUNCTION__) + ": " + (e).what() + ". " detail)
 
-bool ScriptApiItem::item_OnDrop(ItemStack &item,
+u16 ScriptApiItem::item_OnDrop(const ItemStack &item,
 		ServerActiveObject *dropper, v3f pos)
 {
 	SCRIPTAPI_PRECHECKHEADER
+
+	u16 returned_count = item.count;
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
 	// Push callback function on stack
 	if (!getItemCallback(item.name.c_str(), "on_drop"))
-		return false;
+		return returned_count;
 
 	// Call function
 	LuaItemStack::create(L, item);
-	objectrefGetOrCreate(L, dropper);
+	if (!dropper)
+		lua_pushnil(L);
+	else
+		objectrefGetOrCreate(L, dropper);
 	pushFloatPos(L, pos);
 	PCALL_RES(lua_pcall(L, 3, 1, error_handler));
 	if (!lua_isnil(L, -1)) {
 		try {
-			item = read_item(L, -1, getServer()->idef());
+			ItemStack item2 = read_item(L, -1, getServer()->idef());
+			returned_count = item2.count;
 		} catch (LuaError &e) {
 			throw WRAP_LUAERROR(e, "item=" + item.name);
 		}
 	}
 	lua_pop(L, 2);  // Pop item and error handler
-	return true;
+
+	return returned_count;
 }
 
 bool ScriptApiItem::item_OnPlace(std::optional<ItemStack> &ret_item,

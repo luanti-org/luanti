@@ -10107,9 +10107,12 @@ Used by `core.register_node`, `core.register_craftitem`, and
     -- Called when the player drops this item from an inventory.
     -- Must return the left-over itemstack. Returning `nil` is equivalent to
     -- the original itemstack (= inventory not modified).
+    -- WARNING: Only the count of the returned itemstack is significant. It is not
+    -- possible to modify the item, wear or metadata in a drop operation.
+    -- The returned itemstack must not have a higher count than the input stack.
     -- Parameters:
     -- * `itemstack`: the `ItemStack` to be dropped.
-    -- * `dropped`: any `ObjectRef` or `nil`.
+    -- * `dropper`: any `ObjectRef` or `nil`.
     -- * `pos`: position to drop the item at.
     -- default: core.item_drop
 

@@ -749,32 +749,28 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 	// Drop the item
 	ItemStack item1 = src_item;
 	item1.count = take_count;
-	if(PLAYER_TO_SA(player)->item_OnDrop(item1, player,
-				player->getBasePosition())) {
-		if (item1 == src_item) {
-			infostream << "Actually dropped no items" << std::endl;
+	item1.count = PLAYER_TO_SA(player)->item_OnDrop(item1, player,
+			player->getBasePosition());
 
-			// Revert client prediction. See 'clientApply'
-			if (from_inv.type == InventoryLocation::PLAYER)
-				list_from->setModified();
-			return;
-		}
+	int actually_dropped_count = std::max(0, take_count - item1.count);
+	if (actually_dropped_count == 0) {
+		infostream << "Actually dropped no items" << std::endl;
 
-		// We need this number for OnTake reporting, but the problem here is
-		// that OnDrop can return a completely different item stack.
-		// Cut a few corners and report the count difference as far as sensible.
-		// (maybe OnTake should run before OnDrop??)
-		int really_dropped_count = src_item.count;
-		if (item1.count < src_item.count)
-			really_dropped_count = src_item.count - item1.count;
-
-		// Modify source
-		if (src_can_take_count != -1)
-			list_from->changeItem(from_i, item1);
-		mgr->setInventoryModified(from_inv);
-
-		src_item.count = really_dropped_count;
+		// Revert client prediction. See 'clientApply'
+		if (from_inv.type == InventoryLocation::PLAYER)
+			list_from->setModified();
+		return;
 	}
+
+	// Modify source
+	if (src_can_take_count != -1) {
+		// Take item from source list
+		ItemStack item2 = list_from->takeItem(from_i, actually_dropped_count);
+
+		if (item2.count != actually_dropped_count)
+			errorstream << "Could not take dropped count of items" << std::endl;
+	}
+	mgr->setInventoryModified(from_inv);
 
 	infostream<<"IDropAction::apply(): dropped "
 			<<" from inv=\""<<from_inv.dump()<<"\""
@@ -787,6 +783,8 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 		Report drop to endpoints
 	*/
 	list_from_lock.reset();
+
+	src_item.count = actually_dropped_count;
 
 	switch (from_inv.type) {
 	case InventoryLocation::DETACHED:
