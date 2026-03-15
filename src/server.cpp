@@ -1901,10 +1901,10 @@ void Server::SendHUDChange(session_t peer_id, u32 id, HudElementStat stat, void 
 			break;
 		case HUD_STAT_SIZE: {
 			v2f *v = (v2f *) value;
-			if (m_clients.getProtocolVersion(peer_id) < 51)
-				pkt << v2s32::from(*v);
-			else
+			if (m_clients.getProtocolVersion(peer_id) >= 51)
 				pkt << *v;
+			else
+				pkt << v2s32::from(*v);
 			break;
 		}
 		default: // all other types
