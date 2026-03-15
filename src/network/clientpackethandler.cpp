@@ -1269,7 +1269,7 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 			*pkt >> v3fdata;
 			break;
 		case HUD_STAT_SIZE:
-			if (m_proto_ver >= 51) {
+			if (m_proto_ver >= 52) {
 				*pkt >> v2fdata;
 			} else {
 				v2s32 old_format;
