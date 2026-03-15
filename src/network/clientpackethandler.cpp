@@ -1177,7 +1177,7 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 		>> dir >> align >> offset;
 	*pkt >> world_pos;
 
-	if (m_proto_ver >= 51) {
+	if (m_proto_ver >= 52) {
 		*pkt >> size;
 	} else {
 		v2s32 old_format;

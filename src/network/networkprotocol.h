@@ -480,7 +480,7 @@ enum ToClientCommand : u16
 		v2f1000 align
 		v2f1000 offset
 		v3f1000 world_pos
-		v2f size
+		v2f size	// if protocol >= 52. Otherwise, v2s32
 		s16 z_index
 		u16 len3
 		u8[len3] text2
