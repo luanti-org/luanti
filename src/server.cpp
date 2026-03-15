@@ -1862,7 +1862,7 @@ void Server::SendHUDAdd(session_t peer_id, u32 id, HudElement *form)
 			<< form->text << form->number << form->item << form->dir
 			<< form->align << form->offset << form->world_pos;
 
-	if (m_clients.getProtocolVersion(peer_id) >= 51)
+	if (m_clients.getProtocolVersion(peer_id) >= 52)
 		pkt << form->size;
 	else
 		pkt << v2s32::from(form->size);
@@ -1901,7 +1901,7 @@ void Server::SendHUDChange(session_t peer_id, u32 id, HudElementStat stat, void 
 			break;
 		case HUD_STAT_SIZE: {
 			v2f *v = (v2f *) value;
-			if (m_clients.getProtocolVersion(peer_id) >= 51)
+			if (m_clients.getProtocolVersion(peer_id) >= 52)
 				pkt << *v;
 			else
 				pkt << v2s32::from(*v);
