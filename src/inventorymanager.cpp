@@ -747,6 +747,7 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 	}
 
 	// Drop the item
+	const ItemStack original_src_item = src_item;
 	ItemStack item1 = src_item;
 	item1.count = take_count;
 	if(PLAYER_TO_SA(player)->item_OnDrop(item1, player,
@@ -764,16 +765,17 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 		// that OnDrop can return a completely different item stack.
 		// Cut a few corners and report the count difference as far as sensible.
 		// (maybe OnTake should run before OnDrop??)
-		int really_dropped_count = src_item.count;
-		if (item1.count < src_item.count)
-			really_dropped_count = src_item.count - item1.count;
+
+		src_item.remove(take_count);
+		ItemStack leftover = src_item.addItem(item1, gamedef->getItemDefManager());
 
 		// Modify source
-		if (src_can_take_count != -1)
-			list_from->changeItem(from_i, item1);
-		mgr->setInventoryModified(from_inv);
+		if (src_can_take_count != -1) {
+			list_from->changeItem(from_i, src_item);
+			list_from->addItem(leftover); // may cause item loss if full
+		}
 
-		src_item.count = really_dropped_count;
+		mgr->setInventoryModified(from_inv);
 	}
 
 	infostream<<"IDropAction::apply(): dropped "
@@ -782,11 +784,16 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 			<<" i="<<from_i
 			<<std::endl;
 
-
 	/*
 		Report drop to endpoints
 	*/
 	list_from_lock.reset();
+
+	// How many items to report as taken (for dropping)
+	if (original_src_item.stacksWith(src_item))
+		src_item.count = original_src_item.count - src_item.count;
+	else
+		src_item.count = original_src_item.count;
 
 	switch (from_inv.type) {
 	case InventoryLocation::DETACHED:
