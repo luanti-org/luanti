@@ -282,11 +282,14 @@ void GameFormSpec::showPauseMenuFormSpec(const std::string &formspec, const std:
 
 	GUIFormSpecMenu *fs = nullptr;
 	GUIFormSpecMenu::create(fs, m_client, m_rendering_engine->get_gui_env(),
-			// Ignore formspec prepend.
-			&m_input->joystick, fs_src, txt_dst, "",
+			// Ignore formspec prepend. Use _no_server_media to prevent game
+			// fonts from affecting engine UI.
+			&m_input->joystick, fs_src, txt_dst,
+			"style_type[*;font=_no_server_media]",
 			m_client->getSoundManager());
 
 	fs->setName(formname);
+	fs->useEngineFont = true;
 	fs->doPause = true;
 	fs->drop(); // 1 reference held by `g_menumgr`
 }
@@ -381,6 +384,7 @@ void GameFormSpec::showPauseMenu()
 	std::ostringstream os;
 
 	os << "formspec_version[1]" << SIZE_TAG
+		<< "style_type[*;font=_no_server_media]"
 		<< "button_exit[4," << (ypos++) << ";3,0.5;btn_continue;"
 		// TRANSLATORS: Pause menu button, try to keep the translation short
 		<< strgettext("Continue") << "]";
@@ -460,9 +464,10 @@ void GameFormSpec::showPauseMenu()
 	HardcodedPauseFormspecHandler *txt_dst = new HardcodedPauseFormspecHandler();
 
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
-			&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
+			&m_input->joystick, fs_src, txt_dst, "",
 			m_client->getSoundManager());
 	m_formspec->setFocus("btn_continue");
+	m_formspec->useEngineFont = true;
 	// game will be paused in next step, if in singleplayer (see Game::m_is_paused)
 	m_formspec->doPause = true;
 }

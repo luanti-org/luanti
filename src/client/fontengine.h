@@ -4,8 +4,10 @@
 
 #pragma once
 
+#include <functional>
 #include <map>
 #include <unordered_map>
+#include <vector>
 #include "irr_ptr.h"
 #include "irrlicht_changes/CGUITTFont.h"
 #include "util/basic_macros.h"
@@ -83,6 +85,15 @@ public:
 		return getFont(spec);
 	}
 
+	// Returns the default font without server media (engine-only font).
+	gui::IGUIFont *getEngineFont(unsigned int font_size=FONT_SIZE_UNSPECIFIED,
+			FontMode mode=FM_Unspecified)
+	{
+		FontSpec spec(font_size, mode, m_default_bold, m_default_italic);
+		spec.allow_server_media = false;
+		return getFont(spec);
+	}
+
 	/** get text height for a specific font */
 	unsigned int getTextHeight(const FontSpec &spec);
 
@@ -145,6 +156,12 @@ public:
 
 	void clearMediaFonts();
 
+	/** Register a callback to be invoked when fonts are refreshed (e.g.
+	 *  after server media fonts are loaded). The tag is used to identify
+	 *  the callback for later removal. */
+	void addRefreshCallback(void *tag, std::function<void()> cb);
+	void removeRefreshCallbacks(void *tag);
+
 private:
 	gui::IGUIFont *getFont(FontSpec spec, bool may_fail);
 
@@ -193,6 +210,8 @@ private:
 	static const FontMode s_default_font_mode = FM_Standard;
 
 	bool m_needs_reload = false;
+
+	std::vector<std::pair<void *, std::function<void()>>> m_refresh_callbacks;
 
 	DISABLE_CLASS_COPY(FontEngine);
 };

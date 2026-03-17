@@ -86,6 +86,8 @@ public:
 
 	void clearText();
 
+	void updateChatFont();
+
 private:
 	Flags m_flags;
 

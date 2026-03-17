@@ -46,11 +46,8 @@ void GameUI::init()
 	// Chat text
 	m_guitext_chat = gui::StaticText::add(guienv, L"", core::recti(),
 		false, true, guiroot);
-	u16 chat_font_size = g_settings->getU16("chat_font_size");
-	if (chat_font_size != 0) {
-		m_guitext_chat->setOverrideFont(g_fontengine->getFont(
-			rangelim(chat_font_size, 5, 72), FM_Unspecified));
-	}
+	updateChatFont();
+	g_fontengine->addRefreshCallback(this, [this] { updateChatFont(); });
 
 
 	// Infotext of nodes and objects.
@@ -294,8 +291,20 @@ void GameUI::toggleProfiler()
 	}
 }
 
+void GameUI::updateChatFont()
+{
+	if (!m_guitext_chat)
+		return;
+	u16 chat_font_size = g_settings->getU16("chat_font_size");
+	m_guitext_chat->setOverrideFont(g_fontengine->getFont(
+		chat_font_size != 0 ? rangelim(chat_font_size, 5, 72)
+			: FONT_SIZE_UNSPECIFIED, FM_Unspecified));
+}
+
 void GameUI::clearText()
 {
+	g_fontengine->removeRefreshCallbacks(this);
+
 	if (m_guitext_chat) {
 		m_guitext_chat->remove();
 		m_guitext_chat = nullptr;

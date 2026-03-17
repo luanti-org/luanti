@@ -273,6 +273,9 @@ public:
 	bool doPause;
 	bool pausesGame() { return doPause; }
 
+	// When set, this formspec uses engine fonts instead of game-provided fonts.
+	bool useEngineFont = false;
+
 	GUITable* getTable(const std::string &tablename);
 	std::vector<std::string>* getDropDownValues(const std::string &name);
 

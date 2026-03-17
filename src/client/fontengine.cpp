@@ -172,7 +172,10 @@ void FontEngine::handleReload()
 
 void FontEngine::updateSkin()
 {
-	gui::IGUIFont *font = getFont();
+	// The skin font is used as the default by engine UI elements (e.g. volume
+	// control, password dialog). It must not use server media fonts, since
+	// games should not be able to affect engine UI appearance.
+	gui::IGUIFont *font = getEngineFont();
 	assert(font);
 
 	m_env->getSkin()->setFont(font);
@@ -190,6 +193,22 @@ void FontEngine::refresh()
 	clearCache();
 	updateCache();
 	updateSkin();
+
+	for (auto &[tag, cb] : m_refresh_callbacks)
+		cb();
+}
+
+void FontEngine::addRefreshCallback(void *tag, std::function<void()> cb)
+{
+	m_refresh_callbacks.emplace_back(tag, std::move(cb));
+}
+
+void FontEngine::removeRefreshCallbacks(void *tag)
+{
+	m_refresh_callbacks.erase(
+		std::remove_if(m_refresh_callbacks.begin(), m_refresh_callbacks.end(),
+			[tag](const auto &entry) { return entry.first == tag; }),
+		m_refresh_callbacks.end());
 }
 
 void FontEngine::setMediaFont(const std::string &name, const std::string &data)

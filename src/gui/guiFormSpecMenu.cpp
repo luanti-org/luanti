@@ -1520,8 +1520,11 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 	bool is_editable = !spec.fname.empty();
 	if (!is_editable && !is_multiline) {
 		// spec field id to 0, this stops submit searching for a value that isn't there
-		gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
-				data->current_parent, 0);
+		auto *e = gui::StaticText::add(Environment, spec.flabel.c_str(), rect,
+				false, true, data->current_parent, 0);
+		auto style = getDefaultStyleForElement("field", spec.fname);
+		if (auto *font = style.getFont())
+			e->setOverrideFont(font);
 		return;
 	}
 
@@ -3180,7 +3183,9 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		padding = v2s32(use_imgsize*3.0/8, use_imgsize*3.0/8);
 		m_btn_height = use_imgsize*15.0/13 * 0.35;
 
-		m_font = g_fontengine->getFont();
+		m_font = useEngineFont
+				? g_fontengine->getEngineFont()
+				: g_fontengine->getFont();
 
 		if (mydata.real_coordinates) {
 			mydata.size = v2s32(
@@ -3204,7 +3209,9 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		// Non-size[] form must consist only of text fields and
 		// implicit "Proceed" button.  Use default font, and
 		// temporary form size which will be recalculated below.
-		m_font = g_fontengine->getFont();
+		m_font = useEngineFont
+				? g_fontengine->getEngineFont()
+				: g_fontengine->getFont();
 		m_btn_height = font_line_height(m_font) * 0.875;
 		DesiredRect = core::rect<s32>(
 			(s32)((f32)mydata.screensize.X * mydata.offset.X) - (s32)(mydata.anchor.X * 580.0),
