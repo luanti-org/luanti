@@ -293,6 +293,22 @@ core.register_chatcommand("dump_wear_bar", {
 	end,
 })
 
+core.register_chatcommand("test_bgcolor", {
+	params = "",
+	description = "Test chat background colors",
+	func = function(name, param)
+		 local bg = core.get_background_escape_sequence
+		 local fg = core.get_color_escape_sequence
+
+		 core.chat_send_player(name, bg("#FF0000") .. "Red background, white text")
+		 core.chat_send_player(name, bg("#00AA00") .. "Green background, white text")
+		 core.chat_send_player(name, bg("#0000FF") .. fg("#FFFF00") .. "Blue background, yellow text")
+		 core.chat_send_player(name, "Normal text " .. bg("#FF00FF") .. "then magenta bg" .. bg("#000000") .. fg("#00FF00") .. " then black bg green text")
+		 core.chat_send_player(name, bg("#FF880040") .. "Orange background with transparency")
+		 return true
+	end,
+})
+
 core.register_chatcommand("set_saturation", {
 	params = "<saturation>",
 	description = "Set the saturation for current player.",
