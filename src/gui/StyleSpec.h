@@ -46,6 +46,7 @@ public:
 		SIZE,
 		HIGHLIGHT_COLOR,
 		HIGHLIGHT_TEXTCOLOR,
+		BORDERCOLOR,
 		NUM_PROPERTIES,
 		NONE
 	};
@@ -123,6 +124,8 @@ public:
 			return HIGHLIGHT_COLOR;
 		} else if (name == "highlight_textcolor") {
 			return HIGHLIGHT_TEXTCOLOR;
+		} else if (name == "bordercolor") {
+			return BORDERCOLOR;
 		} else {
 			return NONE;
 		}

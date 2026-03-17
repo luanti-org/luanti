@@ -572,6 +572,34 @@ mouse control = true]
 			dropdown[6.5,8.5;5,0.8;hl_dropdown2;Option 1,Option 2,Option 3;1]
 			table[6.5,10;5,2.5;hl_table2;One,Two,Three,Four,Five;1]
 		]],
+
+	-- Tooltip (border)
+		[[
+			formspec_version[3]
+			size[12,13]
+			style_type[tooltip;bgcolor=#000000CC;textcolor=#FFD700;bordercolor=#FFD700;borderwidths=2]
+			label[0.5,0.5;Styled tooltips: black bg, gold text, gold 2px border]
+			button[0.5,1;4,0.8;tt_btn1;Hover for styled tooltip]
+			tooltip[tt_btn1;This tooltip has custom colors]
+			button[0.5,2.5;4,0.8;tt_btn2;Another styled tooltip]
+			tooltip[tt_btn2;Gold text on dark background with a gold border]
+			tooltip[5.5,1;5,1.5;Area tooltip with styling too]
+			label[0.5,5;Per-tooltip color override (cyan on purple)]
+			button[0.5,6;4,0.8;tt_btn3;Hover for per-tooltip colors]
+			tooltip[tt_btn3;Per-tooltip colors override style_type;#800080;#00FFFF]
+		]],
+
+	-- Tooltip (9-slice)
+		[[
+			formspec_version[3]
+			size[12,13]
+			style_type[tooltip;bgimg=testformspec_bg_9slice.png;bgimg_middle=4,6;border=false;textcolor=#FFFFFF;bgcolor=#00000000]
+			label[0.5,0.5;9-slice background tooltip — compare with Styles tab 9-Slice Bg button]
+			button[0.5,1;4,0.8;tt_btn5;Hover for 9-slice tooltip]
+			tooltip[tt_btn5;This tooltip uses a 9-slice background image]
+			button[0.5,2.5;4,0.8;tt_btn6;Another 9-slice tooltip]
+			tooltip[tt_btn6;Same 9-slice texture as the button on the Styles tab;#00000000;#FFD700]
+		]],
 }
 
 local page_id = 2
@@ -581,7 +609,7 @@ local function show_test_formspec(pname)
 		page = page()
 	end
 
-	local fs = page .. "tabheader[0,0;11,0.65;maintabs;Real Coord,Styles,Noclip,Table,Hypertext,Tabs,Invs,Window,Anim,Model,ScrollC,Autoscroll,Sound,Background,Unsized,Highlight;" .. page_id .. ";false;false]"
+	local fs = page .. "tabheader[0,0;11,0.65;maintabs;Real Coord,Styles,Noclip,Table,Hypertext,Tabs,Invs,Window,Anim,Model,ScrollC,Autoscroll,Sound,Background,Unsized,Highlight,TT Border,TT 9slice;" .. page_id .. ";false;false]"
 
 	core.show_formspec(pname, "testformspec:formspec", fs)
 end

@@ -3630,6 +3630,7 @@ Some types may inherit styles from parent types.
 * table
 * textarea
 * textlist
+* tooltip
 * vertlabel, inherits from label
 
 
@@ -3742,6 +3743,17 @@ Some types may inherit styles from parent types.
     * highlight_color - color, sets the selection highlight background color.
     * highlight_textcolor - color, sets the selection highlight text color.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+* tooltip
+    * bgcolor - color, sets tooltip background color. Default `#6E823CFF`.
+    * textcolor - color, sets tooltip text color. Default white.
+    * bgimg - texture, sets a 9-slice background image replacing the solid color fill.
+    * bgimg_middle - rect, defines the middle rect for 9-slice rendering of bgimg.
+                     See background9[] documentation for more details.
+    * border - boolean, show the default 3D sunken border. Default true.
+              Ignored when `bordercolor` is set.
+    * bordercolor - color, draws a flat colored border instead of the 3D sunken border.
+    * borderwidths - rect, sets border thickness per side when using bordercolor.
+                     Accepts 1, 2, or 4 values (like CSS). Default `1`.
 
 ### Valid States
 

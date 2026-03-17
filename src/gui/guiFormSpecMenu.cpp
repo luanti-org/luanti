@@ -2409,7 +2409,8 @@ void GUIFormSpecMenu::parseTooltip(parserData* data, const std::string &element)
 	// Read colors
 	video::SColor bgcolor = m_default_tooltip_bgcolor;
 	video::SColor color   = m_default_tooltip_color;
-	if (parts.size() == base_size + 2 &&
+	bool explicit_colors = (parts.size() == base_size + 2);
+	if (explicit_colors &&
 			(!parseColorString(parts[base_size], bgcolor, false) ||
 				!parseColorString(parts[base_size + 1], color, false))) {
 		errorstream << "Invalid color in tooltip element(" << parts.size()
@@ -2419,7 +2420,7 @@ void GUIFormSpecMenu::parseTooltip(parserData* data, const std::string &element)
 
 	// Make tooltip spec
 	std::string text = unescape_string(parts[rect_mode ? 2 : 1]);
-	TooltipSpec spec(utf8_to_wide(text), bgcolor, color);
+	TooltipSpec spec(utf8_to_wide(text), bgcolor, color, explicit_colors);
 
 	// Add tooltip
 	if (rect_mode) {
@@ -3081,6 +3082,11 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 
 	m_default_tooltip_bgcolor = video::SColor(255,110,130,60);
 	m_default_tooltip_color = video::SColor(255,255,255,255);
+	m_tooltip_bgimg = nullptr;
+	m_tooltip_bgimg_middle = core::rect<s32>();
+	m_tooltip_border = true;
+	m_tooltip_has_bordercolor = false;
+	m_tooltip_borderwidths = core::rect<s32>(1, 1, -1, -1);
 
 	// Add tooltip
 	{
@@ -3288,6 +3294,50 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	} else if (!container_stack.empty()) {
 		errorstream << "Invalid formspec string: container was never closed!"
 			<< std::endl;
+	}
+
+	// Apply tooltip styling from style_type[tooltip;...]
+	{
+		auto tooltip_style = getDefaultStyleForElement("tooltip", "");
+
+		if (tooltip_style.isNotDefault(StyleSpec::BGCOLOR))
+			m_default_tooltip_bgcolor = tooltip_style.getColor(StyleSpec::BGCOLOR);
+		if (tooltip_style.isNotDefault(StyleSpec::TEXTCOLOR))
+			m_default_tooltip_color = tooltip_style.getColor(StyleSpec::TEXTCOLOR);
+
+		m_tooltip_bgimg = tooltip_style.getTexture(StyleSpec::BGIMG, m_tsrc, nullptr);
+		m_tooltip_bgimg_middle = tooltip_style.getRect(StyleSpec::BGIMG_MIDDLE,
+				core::rect<s32>());
+		m_tooltip_border = tooltip_style.getBool(StyleSpec::BORDER, true);
+		m_tooltip_has_bordercolor = tooltip_style.isNotDefault(StyleSpec::BORDERCOLOR);
+		if (m_tooltip_has_bordercolor)
+			m_tooltip_bordercolor = tooltip_style.getColor(StyleSpec::BORDERCOLOR);
+		m_tooltip_borderwidths = tooltip_style.getRect(StyleSpec::BORDERWIDTHS,
+				core::rect<s32>(1, 1, -1, -1));
+
+		// Update tooltips that were created during parsing with old defaults.
+		// Only update tooltips without explicit per-tooltip colors.
+		for (auto &pair : m_tooltips) {
+			if (!pair.second.explicit_colors) {
+				pair.second.bgcolor = m_default_tooltip_bgcolor;
+				pair.second.color = m_default_tooltip_color;
+			}
+		}
+		for (auto &pair : m_tooltip_rects) {
+			if (!pair.second.explicit_colors) {
+				pair.second.bgcolor = m_default_tooltip_bgcolor;
+				pair.second.color = m_default_tooltip_color;
+			}
+		}
+
+		// Update the tooltip element with resolved style.
+		// When we draw custom borders or bgimg, disable the element's own
+		// background so the GUI tree's second draw pass doesn't cover them.
+		bool custom_draw = m_tooltip_has_bordercolor || m_tooltip_bgimg;
+		m_tooltip_element->setBackgroundColor(m_default_tooltip_bgcolor);
+		m_tooltip_element->setOverrideColor(m_default_tooltip_color);
+		m_tooltip_element->setDrawBorder(!m_tooltip_has_bordercolor && m_tooltip_border);
+		m_tooltip_element->setDrawBackground(!custom_draw);
 	}
 
 	// get the scrollbar elements for scroll_containers
@@ -3660,7 +3710,72 @@ void GUIFormSpecMenu::drawMenu()
 				rect.LowerRightCorner.X, rect.LowerRightCorner.Y), nullptr);
 	}
 
+	// Draw custom tooltip background before the text element.
+	// We handle this ourselves when using bordercolor or bgimg so that
+	// the GUI tree's second draw pass (with bg disabled) won't cover our borders.
+	// The element rect is the inner text area; expand to the outer rect for drawing.
+	if (m_tooltip_element->isVisible() && (m_tooltip_has_bordercolor || m_tooltip_bgimg)) {
+		core::rect<s32> inner = m_tooltip_element->getAbsolutePosition();
+		core::rect<s32> tt_rect(
+				inner.UpperLeftCorner - m_tooltip_bgimg_middle.UpperLeftCorner,
+				inner.LowerRightCorner - m_tooltip_bgimg_middle.LowerRightCorner);
+		if (m_tooltip_has_bordercolor && !m_tooltip_bgimg)
+			tt_rect = core::rect<s32>(
+				inner.UpperLeftCorner - m_tooltip_borderwidths.UpperLeftCorner,
+				inner.LowerRightCorner - m_tooltip_borderwidths.LowerRightCorner);
+
+		if (m_tooltip_bgimg) {
+			core::rect<s32> srcrect(core::position2d<s32>(0, 0),
+					m_tooltip_bgimg->getOriginalSize());
+			draw2DImage9Slice(driver, m_tooltip_bgimg, tt_rect, srcrect,
+					m_tooltip_bgimg_middle);
+		} else {
+			driver->draw2DRectangle(m_tooltip_element->getBackgroundColor(),
+					tt_rect);
+		}
+	}
+
 	m_tooltip_element->draw();
+
+	// Draw custom tooltip border on top, then hide the element so the
+	// GUI tree's subsequent draw pass doesn't redraw over our borders.
+	if (m_tooltip_element->isVisible() && m_tooltip_has_bordercolor) {
+		core::rect<s32> inner = m_tooltip_element->getAbsolutePosition();
+		core::rect<s32> tt_rect;
+		if (m_tooltip_bgimg)
+			tt_rect = core::rect<s32>(
+				inner.UpperLeftCorner - m_tooltip_bgimg_middle.UpperLeftCorner,
+				inner.LowerRightCorner - m_tooltip_bgimg_middle.LowerRightCorner);
+		else
+			tt_rect = core::rect<s32>(
+				inner.UpperLeftCorner - m_tooltip_borderwidths.UpperLeftCorner,
+				inner.LowerRightCorner - m_tooltip_borderwidths.LowerRightCorner);
+		// borderwidths: UpperLeft = (left, top), LowerRight = (-right, -bottom)
+		s32 bw_top    = m_tooltip_borderwidths.UpperLeftCorner.Y;
+		s32 bw_right  = -m_tooltip_borderwidths.LowerRightCorner.X;
+		s32 bw_bottom = -m_tooltip_borderwidths.LowerRightCorner.Y;
+		s32 bw_left   = m_tooltip_borderwidths.UpperLeftCorner.X;
+		// top
+		driver->draw2DRectangle(m_tooltip_bordercolor,
+			core::rect<s32>(tt_rect.UpperLeftCorner.X, tt_rect.UpperLeftCorner.Y,
+				tt_rect.LowerRightCorner.X, tt_rect.UpperLeftCorner.Y + bw_top));
+		// bottom
+		driver->draw2DRectangle(m_tooltip_bordercolor,
+			core::rect<s32>(tt_rect.UpperLeftCorner.X, tt_rect.LowerRightCorner.Y - bw_bottom,
+				tt_rect.LowerRightCorner.X, tt_rect.LowerRightCorner.Y));
+		// left
+		driver->draw2DRectangle(m_tooltip_bordercolor,
+			core::rect<s32>(tt_rect.UpperLeftCorner.X, tt_rect.UpperLeftCorner.Y + bw_top,
+				tt_rect.UpperLeftCorner.X + bw_left, tt_rect.LowerRightCorner.Y - bw_bottom));
+		// right
+		driver->draw2DRectangle(m_tooltip_bordercolor,
+			core::rect<s32>(tt_rect.LowerRightCorner.X - bw_right, tt_rect.UpperLeftCorner.Y + bw_top,
+				tt_rect.LowerRightCorner.X, tt_rect.LowerRightCorner.Y - bw_bottom));
+
+		m_tooltip_element->setVisible(false);
+	} else if (m_tooltip_element->isVisible() && m_tooltip_bgimg) {
+		m_tooltip_element->setVisible(false);
+	}
 
 	/*
 		Draw dragged item stack
@@ -3681,9 +3796,36 @@ void GUIFormSpecMenu::showTooltip(const std::wstring &text,
 
 	setStaticText(m_tooltip_element, ntext);
 
+	// Update element background for per-tooltip color overrides.
+	// setStaticText/setBackgroundColor re-enable Background, so we must
+	// re-disable it when drawing background/borders ourselves.
+	if (m_tooltip_has_bordercolor || m_tooltip_bgimg) {
+		m_tooltip_element->setDrawBackground(false);
+	} else {
+		m_tooltip_element->setBackgroundColor(bgcolor);
+	}
+
 	// Tooltip size and offset
 	s32 tooltip_width = m_tooltip_element->getTextWidth() + m_btn_height;
 	s32 tooltip_height = m_tooltip_element->getTextHeight() + 5;
+
+	// Add extra space for 9-slice margins or custom border widths.
+	// The padding offsets the text element within the outer tooltip rect
+	// so text is centered within the inner content area.
+	s32 pad_left = 0, pad_top = 0, pad_right = 0, pad_bottom = 0;
+	if (m_tooltip_bgimg) {
+		pad_left   = m_tooltip_bgimg_middle.UpperLeftCorner.X;
+		pad_top    = m_tooltip_bgimg_middle.UpperLeftCorner.Y;
+		pad_right  = -m_tooltip_bgimg_middle.LowerRightCorner.X;
+		pad_bottom = -m_tooltip_bgimg_middle.LowerRightCorner.Y;
+	} else if (m_tooltip_has_bordercolor) {
+		pad_left   = m_tooltip_borderwidths.UpperLeftCorner.X;
+		pad_top    = m_tooltip_borderwidths.UpperLeftCorner.Y;
+		pad_right  = -m_tooltip_borderwidths.LowerRightCorner.X;
+		pad_bottom = -m_tooltip_borderwidths.LowerRightCorner.Y;
+	}
+	tooltip_width += pad_left + pad_right;
+	tooltip_height += pad_top + pad_bottom;
 
 	v2u32 screenSize = Environment->getVideoDriver()->getScreenSize();
 	int tooltip_offset_x = m_btn_height;
@@ -3719,10 +3861,13 @@ void GUIFormSpecMenu::showTooltip(const std::wstring &text,
 		break;
 	}
 
+	// Position the text element inset by padding so text is centered
+	// within the inner content area (inside 9-slice borders or flat borders).
 	m_tooltip_element->setRelativePosition(
 		core::rect<s32>(
-			core::position2d<s32>(tooltip_x, tooltip_y),
-			core::dimension2d<s32>(tooltip_width, tooltip_height)
+			tooltip_x + pad_left, tooltip_y + pad_top,
+			tooltip_x + tooltip_width - pad_right,
+			tooltip_y + tooltip_height - pad_bottom
 		)
 	);
 

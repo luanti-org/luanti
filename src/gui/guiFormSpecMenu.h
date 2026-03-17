@@ -137,16 +137,18 @@ class GUIFormSpecMenu : public GUIModalMenu
 	{
 		TooltipSpec() = default;
 		TooltipSpec(const std::wstring &a_tooltip, video::SColor a_bgcolor,
-				video::SColor a_color):
+				video::SColor a_color, bool a_explicit_colors = false):
 			tooltip(translate_string(a_tooltip)),
 			bgcolor(a_bgcolor),
-			color(a_color)
+			color(a_color),
+			explicit_colors(a_explicit_colors)
 		{
 		}
 
 		std::wstring tooltip;
 		video::SColor bgcolor;
 		video::SColor color;
+		bool explicit_colors = false;
 	};
 
 public:
@@ -376,6 +378,12 @@ protected:
 	video::SColor m_fullscreen_bgcolor;
 	video::SColor m_default_tooltip_bgcolor;
 	video::SColor m_default_tooltip_color;
+	video::ITexture *m_tooltip_bgimg = nullptr;
+	core::rect<s32> m_tooltip_bgimg_middle;
+	bool m_tooltip_border = true;
+	bool m_tooltip_has_bordercolor = false;
+	video::SColor m_tooltip_bordercolor;
+	core::rect<s32> m_tooltip_borderwidths = core::rect<s32>(1, 1, -1, -1);
 
 private:
 	IFormSource               *m_form_src;
