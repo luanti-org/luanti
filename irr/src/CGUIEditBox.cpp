@@ -853,14 +853,17 @@ void CGUIEditBox::draw()
 					CurrentTextRect.LowerRightCorner.X = CurrentTextRect.UpperLeftCorner.X + mend - mbegin;
 
 					// draw mark
-					skin->draw2DRectangle(this, skin->getColor(EGDC_HIGH_LIGHT), CurrentTextRect, &localClipRect);
+					skin->draw2DRectangle(this,
+							HighlightColorEnabled ? HighlightColor : skin->getColor(EGDC_HIGH_LIGHT),
+							CurrentTextRect, &localClipRect);
 
 					// draw marked text
 					s = txtLine->subString(lineStartPos, lineEndPos - lineStartPos);
 
 					if (s.size())
 						font->draw(s.c_str(), CurrentTextRect,
-								OverrideColorEnabled ? OverrideColor : skin->getColor(EGDC_HIGH_LIGHT_TEXT),
+								HighlightTextColorEnabled ? HighlightTextColor :
+								(OverrideColorEnabled ? OverrideColor : skin->getColor(EGDC_HIGH_LIGHT_TEXT)),
 								false, true, &localClipRect);
 				}
 			}
@@ -893,9 +896,12 @@ void CGUIEditBox::draw()
 					if (mend <= 0)
 						mend = font->getDimension(CursorChar.c_str()).Width;
 					CurrentTextRect.LowerRightCorner.X = CurrentTextRect.UpperLeftCorner.X + mend;
-					skin->draw2DRectangle(this, skin->getColor(EGDC_HIGH_LIGHT), CurrentTextRect, &localClipRect);
+					skin->draw2DRectangle(this,
+							HighlightColorEnabled ? HighlightColor : skin->getColor(EGDC_HIGH_LIGHT),
+							CurrentTextRect, &localClipRect);
 					font->draw(character.c_str(), CurrentTextRect,
-							OverrideColorEnabled ? OverrideColor : skin->getColor(EGDC_HIGH_LIGHT_TEXT),
+							HighlightTextColorEnabled ? HighlightTextColor :
+							(OverrideColorEnabled ? OverrideColor : skin->getColor(EGDC_HIGH_LIGHT_TEXT)),
 							false, true, &localClipRect);
 				} else {
 					font->draw(CursorChar, CurrentTextRect,

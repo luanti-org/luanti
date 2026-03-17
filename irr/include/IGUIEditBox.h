@@ -143,6 +143,12 @@ public:
 
 	//! Get the cursor blinktime
 	virtual u32 getCursorBlinkTime() const = 0;
+
+	//! Sets the color used for the selection highlight background
+	virtual void setHighlightColor(video::SColor color) {}
+
+	//! Sets the color used for text in the selection highlight
+	virtual void setHighlightTextColor(video::SColor color) {}
 };
 
 } // end namespace gui

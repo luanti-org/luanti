@@ -118,6 +118,12 @@ public:
 	/* Set selection, scroll position and opened (sub)trees */
 	void setDynamicData(const DynamicData &dyndata);
 
+	//! Sets the color used for the selection highlight
+	void setHighlightColor(video::SColor color) { m_highlight = color; }
+
+	//! Sets the color used for text in the selection highlight
+	void setHighlightTextColor(video::SColor color) { m_highlight_text = color; }
+
 	/* Must be called when position or size changes */
 	virtual void updateAbsolutePosition();
 

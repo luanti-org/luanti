@@ -122,6 +122,12 @@ public:
 	//! Access the vertical scrollbar
 	IGUIScrollBar *getVerticalScrollBar() const override;
 
+	//! Sets the color used for the selection highlight
+	void setHighlightColor(video::SColor color) override { HighlightColor = color; HighlightColorEnabled = true; }
+
+	//! Sets the color used for text in the selection highlight
+	void setHighlightTextColor(video::SColor color) override { HighlightTextColor = color; HighlightTextColorEnabled = true; }
+
 private:
 	struct ListItem
 	{
@@ -165,6 +171,10 @@ private:
 	bool MoveOverSelect;
 	bool AutoScroll;
 	bool HighlightWhenNotFocused;
+	video::SColor HighlightColor;
+	video::SColor HighlightTextColor;
+	bool HighlightColorEnabled = false;
+	bool HighlightTextColorEnabled = false;
 };
 
 } // end namespace gui

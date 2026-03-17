@@ -71,6 +71,12 @@ public:
 	//! draws the element and its children
 	void draw() override;
 
+	//! Sets the color used for the selection highlight
+	void setHighlightColor(video::SColor color) override { HighlightColor = color; HighlightColorEnabled = true; }
+
+	//! Sets the color used for text in the selection highlight
+	void setHighlightTextColor(video::SColor color) override { HighlightTextColor = color; HighlightTextColorEnabled = true; }
+
 private:
 	void openCloseMenu();
 	void sendSelectionChangedEvent();
@@ -96,6 +102,10 @@ private:
 	u32 MaxSelectionRows;
 	bool HasFocus;
 	IGUIFont *ActiveFont;
+	video::SColor HighlightColor;
+	video::SColor HighlightTextColor;
+	bool HighlightColorEnabled = false;
+	bool HighlightTextColorEnabled = false;
 };
 
 } // end namespace gui

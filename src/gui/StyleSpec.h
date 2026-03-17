@@ -44,6 +44,8 @@ public:
 		SOUND,
 		SPACING,
 		SIZE,
+		HIGHLIGHT_COLOR,
+		HIGHLIGHT_TEXTCOLOR,
 		NUM_PROPERTIES,
 		NONE
 	};
@@ -117,6 +119,10 @@ public:
 			return SPACING;
 		} else if (name == "size") {
 			return SIZE;
+		} else if (name == "highlight_color") {
+			return HIGHLIGHT_COLOR;
+		} else if (name == "highlight_textcolor") {
+			return HIGHLIGHT_TEXTCOLOR;
 		} else {
 			return NONE;
 		}

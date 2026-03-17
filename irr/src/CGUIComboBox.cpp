@@ -374,10 +374,14 @@ void CGUIComboBox::draw()
 	}
 
 	// set colors each time as skin-colors can be changed
-	SelectedText->setBackgroundColor(skin->getColor(EGDC_HIGH_LIGHT));
+	SelectedText->setBackgroundColor(
+			HighlightColorEnabled ? HighlightColor : skin->getColor(EGDC_HIGH_LIGHT));
 	if (isEnabled()) {
 		SelectedText->setDrawBackground(HasFocus);
-		SelectedText->setOverrideColor(skin->getColor(HasFocus ? EGDC_HIGH_LIGHT_TEXT : EGDC_BUTTON_TEXT));
+		video::SColor textColor = HasFocus
+				? (HighlightTextColorEnabled ? HighlightTextColor : skin->getColor(EGDC_HIGH_LIGHT_TEXT))
+				: skin->getColor(EGDC_BUTTON_TEXT);
+		SelectedText->setOverrideColor(textColor);
 	} else {
 		SelectedText->setDrawBackground(false);
 		SelectedText->setOverrideColor(skin->getColor(EGDC_GRAY_TEXT));
@@ -447,6 +451,11 @@ void CGUIComboBox::openCloseMenu()
 			ListBox->addItem(Items[i].Name.c_str());
 
 		ListBox->setSelected(Selected);
+
+		if (HighlightColorEnabled)
+			ListBox->setHighlightColor(HighlightColor);
+		if (HighlightTextColorEnabled)
+			ListBox->setHighlightTextColor(HighlightTextColor);
 
 		// set focus
 		Environment->setFocus(ListBox);

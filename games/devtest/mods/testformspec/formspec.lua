@@ -551,6 +551,27 @@ mouse control = true]
 			background9[0,0;0,0;testformspec_bg_9slice.png;true;4,6]
 			background[1,1;0,0;testformspec_bg.png;true]
 		]],
+
+	-- Highlight
+		[[
+			formspec_version[3]
+			size[12,13]
+			style_type[*;highlight_color=#FF000080;highlight_textcolor=#00FF00]
+			label[0.5,0.5;Highlight colors: red background, green text]
+			field[0.5,1;5,0.8;hl_field;Styled field;select this text]
+			textarea[0.5,2.5;5,2;hl_textarea;Styled textarea;select some of this text to see highlight colors]
+			textlist[0.5,5;5,3;hl_textlist;Item 1,Item 2,Item 3,Item 4,Item 5;1;false]
+			dropdown[0.5,8.5;5,0.8;hl_dropdown;Option 1,Option 2,Option 3;1]
+			tableoptions[background=#00000055;border=false]
+			table[0.5,10;5,2.5;hl_table;One,Two,Three,Four,Five;1]
+			label[6.5,0.5;Default highlight colors (no style)]
+			style_type[*;highlight_color=;highlight_textcolor=]
+			field[6.5,1;5,0.8;hl_field2;Default field;select this text]
+			textarea[6.5,2.5;5,2;hl_textarea2;Default textarea;select some of this text for default highlight]
+			textlist[6.5,5;5,3;hl_textlist2;Item 1,Item 2,Item 3,Item 4,Item 5;1;false]
+			dropdown[6.5,8.5;5,0.8;hl_dropdown2;Option 1,Option 2,Option 3;1]
+			table[6.5,10;5,2.5;hl_table2;One,Two,Three,Four,Five;1]
+		]],
 }
 
 local page_id = 2
@@ -560,7 +581,7 @@ local function show_test_formspec(pname)
 		page = page()
 	end
 
-	local fs = page .. "tabheader[0,0;11,0.65;maintabs;Real Coord,Styles,Noclip,Table,Hypertext,Tabs,Invs,Window,Anim,Model,ScrollC,Autoscroll,Sound,Background,Unsized;" .. page_id .. ";false;false]"
+	local fs = page .. "tabheader[0,0;11,0.65;maintabs;Real Coord,Styles,Noclip,Table,Hypertext,Tabs,Invs,Window,Anim,Model,ScrollC,Autoscroll,Sound,Background,Unsized,Highlight;" .. page_id .. ";false;false]"
 
 	core.show_formspec(pname, "testformspec:formspec", fs)
 end

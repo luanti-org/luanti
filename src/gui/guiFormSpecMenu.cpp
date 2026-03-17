@@ -1245,6 +1245,11 @@ void GUIFormSpecMenu::parseTable(parserData* data, const std::string &element)
 
 	e->setTable(data->table_options, data->table_columns, items);
 
+	if (style.isNotDefault(StyleSpec::HIGHLIGHT_COLOR))
+		e->setHighlightColor(style.getColor(StyleSpec::HIGHLIGHT_COLOR));
+	if (style.isNotDefault(StyleSpec::HIGHLIGHT_TEXTCOLOR))
+		e->setHighlightTextColor(style.getColor(StyleSpec::HIGHLIGHT_TEXTCOLOR));
+
 	if (data->table_dyndata.find(name) != data->table_dyndata.end()) {
 		e->setDynamicData(data->table_dyndata[name]);
 	}
@@ -1328,6 +1333,11 @@ void GUIFormSpecMenu::parseTextList(parserData* data, const std::string &element
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 	e->setOverrideFont(style.getFont());
 
+	if (style.isNotDefault(StyleSpec::HIGHLIGHT_COLOR))
+		e->setHighlightColor(style.getColor(StyleSpec::HIGHLIGHT_COLOR));
+	if (style.isNotDefault(StyleSpec::HIGHLIGHT_TEXTCOLOR))
+		e->setHighlightTextColor(style.getColor(StyleSpec::HIGHLIGHT_TEXTCOLOR));
+
 	m_tables.emplace_back(spec, e);
 	m_fields.push_back(spec);
 }
@@ -1403,6 +1413,11 @@ void GUIFormSpecMenu::parseDropDown(parserData* data, const std::string &element
 	spec.sound = style.get(StyleSpec::Property::SOUND, "");
 
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+
+	if (style.isNotDefault(StyleSpec::HIGHLIGHT_COLOR))
+		e->setHighlightColor(style.getColor(StyleSpec::HIGHLIGHT_COLOR));
+	if (style.isNotDefault(StyleSpec::HIGHLIGHT_TEXTCOLOR))
+		e->setHighlightTextColor(style.getColor(StyleSpec::HIGHLIGHT_TEXTCOLOR));
 
 	m_fields.push_back(spec);
 
@@ -1570,6 +1585,11 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 		e->setDrawBorder(border);
 		e->setDrawBackground(border);
 		e->setOverrideFont(style.getFont());
+
+		if (style.isNotDefault(StyleSpec::HIGHLIGHT_COLOR))
+			e->setHighlightColor(style.getColor(StyleSpec::HIGHLIGHT_COLOR));
+		if (style.isNotDefault(StyleSpec::HIGHLIGHT_TEXTCOLOR))
+			e->setHighlightTextColor(style.getColor(StyleSpec::HIGHLIGHT_TEXTCOLOR));
 
 		e->drop();
 	}

@@ -469,7 +469,9 @@ void CGUIListBox::draw()
 		if (frameRect.LowerRightCorner.Y >= AbsoluteRect.UpperLeftCorner.Y &&
 				frameRect.UpperLeftCorner.Y <= AbsoluteRect.LowerRightCorner.Y) {
 			if (i == Selected && hl)
-				skin->draw2DRectangle(this, skin->getColor(EGDC_HIGH_LIGHT), frameRect, &clientClip);
+				skin->draw2DRectangle(this,
+						HighlightColorEnabled ? HighlightColor : skin->getColor(EGDC_HIGH_LIGHT),
+						frameRect, &clientClip);
 
 			core::rect<s32> textRect = frameRect;
 			textRect.UpperLeftCorner.X += 3;
@@ -706,7 +708,7 @@ video::SColor CGUIListBox::getItemDefaultColor(EGUI_LISTBOX_COLOR colorType) con
 	case EGUI_LBC_TEXT:
 		return skin->getColor(EGDC_BUTTON_TEXT);
 	case EGUI_LBC_TEXT_HIGHLIGHT:
-		return skin->getColor(EGDC_HIGH_LIGHT_TEXT);
+		return HighlightTextColorEnabled ? HighlightTextColor : skin->getColor(EGDC_HIGH_LIGHT_TEXT);
 	case EGUI_LBC_ICON:
 		return skin->getColor(EGDC_ICON);
 	case EGUI_LBC_ICON_HIGHLIGHT:

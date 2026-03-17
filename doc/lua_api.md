@@ -3691,12 +3691,16 @@ Some types may inherit styles from parent types.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * sound - a sound to be played when triggered.
 * dropdown
+    * highlight_color - color, sets the selection highlight background color.
+    * highlight_textcolor - color, sets the selection highlight text color.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * sound - a sound to be played when the entry is changed.
 * field, pwdfield, textarea
     * border - set to false to hide the textbox background and border. Default true.
     * font - Sets font type. See button `font` property for more information.
     * font_size - Sets font size. See button `font_size` property for more information.
+    * highlight_color - color, sets the text selection highlight background color.
+    * highlight_textcolor - color, sets the text selection highlight text color.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * textcolor - color. Default white.
 * model
@@ -3735,6 +3739,8 @@ Some types may inherit styles from parent types.
 * table, textlist
     * font - Sets font type. See button `font` property for more information.
     * font_size - Sets font size. See button `font_size` property for more information.
+    * highlight_color - color, sets the selection highlight background color.
+    * highlight_textcolor - color, sets the selection highlight text color.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
 
 ### Valid States

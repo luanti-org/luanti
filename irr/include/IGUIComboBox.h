@@ -5,6 +5,7 @@
 #pragma once
 
 #include "IGUIElement.h"
+#include "SColor.h"
 
 namespace gui
 {
@@ -64,6 +65,12 @@ public:
 
 	//! Get the maximal number of rows for the selection listbox
 	virtual u32 getMaxSelectionRows() const = 0;
+
+	//! Sets the color used for the selection highlight background
+	virtual void setHighlightColor(video::SColor color) {}
+
+	//! Sets the color used for text in the selection highlight
+	virtual void setHighlightTextColor(video::SColor color) {}
 };
 
 } // end namespace gui

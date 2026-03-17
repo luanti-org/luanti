@@ -141,6 +141,12 @@ public:
 	//! set true if this EditBox is writable
 	void setWritable(bool writable) { IsWritable = writable; setTabStop(writable); }
 
+	//! Sets the color used for the selection highlight
+	void setHighlightColor(video::SColor color) override { HighlightColor = color; HighlightColorEnabled = true; }
+
+	//! Sets the color used for text in the selection highlight
+	void setHighlightTextColor(video::SColor color) override { HighlightTextColor = color; HighlightTextColorEnabled = true; }
+
 protected:
 	//! Breaks the single text line.
 	void breakText();
@@ -191,6 +197,10 @@ protected:
 
 	video::SColor OverrideBgColor = 0;
 	video::SColor OverrideColor;
+	video::SColor HighlightColor;
+	video::SColor HighlightTextColor;
+	bool HighlightColorEnabled = false;
+	bool HighlightTextColorEnabled = false;
 	gui::IGUIFont *OverrideFont, *LastBreakFont;
 	IOSOperator *Operator;
 
