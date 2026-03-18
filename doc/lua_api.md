@@ -2005,7 +2005,7 @@ Displays text on the HUD.
       will not work due to compatibility reasons (it'll be treated as `FF`).
 * `alignment`: The alignment of the text.
 * `offset`: offset in pixels from position.
-* `size`: size of the text. Syntax: `{ x = <integer> }`.
+* `size`: size of the text. Syntax: `{ x = <number> }`.
   The player-set font size is multiplied by `size.x`.
     * Float values are supported by clients >= 5.16.0. Older clients will receive
       a rounded down integer value.
