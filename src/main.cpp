@@ -36,6 +36,9 @@
 #if CHECK_CLIENT_BUILD()
 #include "client/clientlauncher.h"
 #endif
+#if BUILD_UNITTESTS
+#include "test/test.h"
+#endif
 #if BUILD_BENCHMARKS
 #include "benchmark/benchmark.h"
 #endif
@@ -79,6 +82,7 @@ typedef std::map<std::string, ValueSpec> OptionList;
  * Private functions
  **********************************************************************/
 
+static int get_non_test_argc(int argc, char *argv[]);
 static void get_env_opts(Settings &args);
 static bool get_cmdline_opts(int argc, char *argv[], Settings *cmd_args);
 static void set_allowed_options(OptionList *allowed_options);
@@ -135,9 +139,11 @@ int main(int argc, char *argv[])
 
 	porting::osSpecificInit();
 
+	int non_test_argc = get_non_test_argc(argc, argv);
+
 	Settings cmd_args;
 	get_env_opts(cmd_args);
-	bool cmd_args_ok = get_cmdline_opts(argc, argv, &cmd_args);
+	bool cmd_args_ok = get_cmdline_opts(non_test_argc, argv, &cmd_args);
 	if (!cmd_args_ok
 			|| cmd_args.getFlag("help")
 			|| cmd_args.exists("nonopt1")) {
@@ -214,7 +220,7 @@ int main(int argc, char *argv[])
 	if (g_settings->getBool("enable_console"))
 		porting::attachOrCreateConsole();
 
-	// Run unit tests
+	// Run legacy and Catch2 unit tests
 	if (cmd_args.getFlag("run-unittests")) {
 		porting::attachOrCreateConsole();
 #if BUILD_UNITTESTS
@@ -230,14 +236,24 @@ int main(int argc, char *argv[])
 #endif
 	}
 
-	// Run benchmarks
+	// Run Catch2 unit tests
+	if (cmd_args.getFlag("run-tests")) {
+		porting::attachOrCreateConsole();
+#if BUILD_UNITTESTS
+		return run_catch2_tests(argc - non_test_argc + 1, &argv[non_test_argc - 1]);
+#else
+		errorstream << "Unittest support is not enabled in this binary. "
+			<< "If you want to enable it, compile project with BUILD_UNITTESTS=1 flag."
+			<< std::endl;
+		return 1;
+#endif
+	}
+
+	// Run Catch2 benchmarks
 	if (cmd_args.getFlag("run-benchmarks")) {
 		porting::attachOrCreateConsole();
 #if BUILD_BENCHMARKS
-		if (cmd_args.exists("test-module"))
-			return run_benchmarks(cmd_args.get("test-module").c_str()) ? 0 : 1;
-		else
-			return run_benchmarks() ? 0 : 1;
+		return run_catch2_benchmarks(argc - non_test_argc + 1, &argv[non_test_argc - 1]);
 #else
 		errorstream << "Benchmark support is not enabled in this binary. "
 			<< "If you want to enable it, compile project with BUILD_BENCHMARKS=1 flag."
@@ -287,6 +303,18 @@ int main(int argc, char *argv[])
  * Startup / Init
  *****************************************************************************/
 
+
+static int get_non_test_argc(int argc, char *argv[])
+{
+	for (int i = 1; i < argc; i++) {
+		if (!strcmp(argv[i], "--run-tests"))
+			return i + 1;
+		if (!strcmp(argv[i], "--run-benchmarks"))
+			return i + 1;
+	}
+
+	return argc;
+}
 
 static void get_env_opts(Settings &args)
 {
@@ -345,9 +373,11 @@ static void set_allowed_options(OptionList *allowed_options)
 	allowed_options->insert(std::make_pair("port", ValueSpec(VALUETYPE_STRING,
 			_("Set network port (UDP)"))));
 	allowed_options->insert(std::make_pair("run-unittests", ValueSpec(VALUETYPE_FLAG,
-			_("Run unit tests and exit"))));
+			_("Run legacy unit tests and Catch2 tests and exit"))));
+	allowed_options->insert(std::make_pair("run-tests", ValueSpec(VALUETYPE_FLAG,
+			_("Run Catch2 unit tests and exit; all following args are passed to Catch2"))));
 	allowed_options->insert(std::make_pair("run-benchmarks", ValueSpec(VALUETYPE_FLAG,
-			_("Run benchmarks and exit"))));
+			_("Run Catch2 benchmarks and exit; all following args are passed to Catch2"))));
 	allowed_options->insert(std::make_pair("test-module", ValueSpec(VALUETYPE_STRING,
 			_("Only run the specified test module or benchmark"))));
 	allowed_options->insert(std::make_pair("map-dir", ValueSpec(VALUETYPE_STRING,

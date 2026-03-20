@@ -1,6 +1,6 @@
 file(GLOB unittest_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 
-set (UNITTEST_SRCS
+set(unittest_SRCS
 	${unittest_HDRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_address.cpp
@@ -55,7 +55,7 @@ set (UNITTEST_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_gettext.cpp
 	PARENT_SCOPE)
 
-set (UNITTEST_CLIENT_SRCS
+set(unittest_client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/mesh_compare.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_clientactiveobjectmgr.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_content_mapblock.cpp

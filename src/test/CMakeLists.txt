@@ -1,0 +1,4 @@
+set(test_SRCS
+	${CMAKE_CURRENT_SOURCE_DIR}/test.h
+	${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+	PARENT_SCOPE)
