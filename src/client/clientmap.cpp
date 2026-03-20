@@ -752,6 +752,10 @@ void ClientMap::touchMapBlocks()
 	// Number of blocks in rendering range
 	u32 blocks_in_range = 0;
 
+	// see client_mapblock_limit calculation in Client::step
+	constexpr s32 mapblock_limit_enforce_distance = 200;
+	auto is_frustum_culled = m_client->getCamera()->getFrustumCuller();
+
 	for (const auto &sector_it : m_sectors) {
 		const MapSector *sector = sector_it.second;
 		v2s16 sp = sector->getPos();
@@ -787,10 +791,16 @@ void ClientMap::touchMapBlocks()
 				mesh_sphere_radius = 0.0f;
 			}
 
+			const f32 d = mesh_sphere_center.getDistanceFrom(m_camera_position);
+
 			// First, perform a simple distance check.
-			if (mesh_sphere_center.getDistanceFrom(m_camera_position) >
-					m_control.wanted_range * BS + mesh_sphere_radius)
+			if (d > m_control.wanted_range * BS + mesh_sphere_radius)
 				continue; // Out of range, skip.
+
+			// At farther distances also do frustum culling
+			if (d > mapblock_limit_enforce_distance * BS + mesh_sphere_radius &&
+					is_frustum_culled(mesh_sphere_center, mesh_sphere_radius))
+				continue;
 
 			// Keep the block alive as long as it is in range.
 			block->resetUsageTimer();
