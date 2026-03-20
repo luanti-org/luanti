@@ -329,6 +329,8 @@ protected:
 	STextureFormatInfo TextureFormats[ECF_UNKNOWN] = {};
 
 private:
+	u32 MaxPrimitiveCount = 0;
+
 	COpenGL3Renderer2D *MaterialRenderer2DActive;
 	COpenGL3Renderer2D *MaterialRenderer2DTexture;
 	COpenGL3Renderer2D *MaterialRenderer2DNoTexture;

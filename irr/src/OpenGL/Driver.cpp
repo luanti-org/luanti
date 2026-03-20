@@ -259,6 +259,7 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 		os::Printer::log(e.what(), ELL_ERROR);
 		return false;
 	}
+	MaxPrimitiveCount = Version.Spec == OpenGLSpec::ES ? UINT16_MAX : INT32_MAX;
 	printTextureFormats();
 
 	if (EnableErrorTest) {
@@ -986,7 +987,7 @@ void COpenGL3DriverBase::drawSplitPrimitives(const void *vertices,
 		const void *indexList, u32 primitiveCount,
 		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType)
 {
-	const u32 maxPrims = getLimits().MaxPrimitiveCount;
+	const u32 maxPrims = MaxPrimitiveCount;
 	if (primitiveCount <= maxPrims) {
 		drawGeneric(vertices, indexList, primitiveCount, vType, pType, iType);
 		return;
@@ -1730,7 +1731,7 @@ SDriverLimits COpenGL3DriverBase::getLimits() const
 {
 	SDriverLimits ret;
 	ret.GLVersion = core::vector2di(Version.Major, Version.Minor);
-	ret.MaxPrimitiveCount = Version.Spec == OpenGLSpec::ES ? UINT16_MAX : INT32_MAX;
+	ret.MaxPrimitiveCount = MaxPrimitiveCount;
 	ret.MaxTextureSize = MaxTextureSize;
 	ret.MaxArrayTextureImages = MaxArrayTextureLayers;
 	return ret;
