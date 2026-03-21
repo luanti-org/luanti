@@ -686,6 +686,13 @@ void IDropAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGame
 				<<"from_inv=\""<<from_inv.dump()<<"\""<<std::endl;
 		return;
 	}
+	if (from_i < 0 || list_from->getSize() <= (u32) from_i) {
+		warningstream << "IDropAction::apply(): FAIL: index " << from_i
+			<< " out of bounds (list \"" << from_list << "\", size "
+			<< list_from->getSize() << "), player=\""
+			<< player->getDescription() << "\"" << std::endl;
+		return;
+	}
 	ItemStack src_item = list_from->getItem(from_i);
 	if (src_item.empty()) {
 		infostream<<"IDropAction::apply(): FAIL: source item not found: "
