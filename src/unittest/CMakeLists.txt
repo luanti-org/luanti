@@ -13,12 +13,9 @@ set(unittest_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_connection.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_craft.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_datastructures.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_k_d_tree.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_filesys.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_inventory.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_irrptr.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_irr_matrix4.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_irr_rotation.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_logging.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_lbmmanager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_lua.cpp
@@ -31,7 +28,6 @@ set(unittest_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_modchannels.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_modstoragedatabase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_moveaction.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_nodedef.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_noderesolver.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_noise.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_objdef.cpp
@@ -41,13 +37,11 @@ set(unittest_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_schematic.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_scriptapi.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_serialization.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_serveractiveobjectmgr.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_server_shutdown_state.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_socket.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_servermodmanager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_threading.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_translations.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_utilities.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_voxelarea.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_voxelalgorithms.cpp
@@ -61,9 +55,6 @@ set(unittest_client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_content_mapblock.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_eventmanager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_gameui.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_irr_gltf_mesh_loader.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_irr_x_mesh_loader.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_irr_matrix4.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_mesh_compare.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_keycode.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_mesh_compare.cpp
 	PARENT_SCOPE)
