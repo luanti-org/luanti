@@ -651,6 +651,22 @@ function core.get_background_escape_sequence(color)
 	return ESCAPE_CHAR .. "(b@" .. color .. ")"
 end
 
+function core.get_font_size_escape_sequence(size)
+	return ESCAPE_CHAR .. "(s@" .. size .. ")"
+end
+
+function core.get_font_escape_sequence(font)
+	return ESCAPE_CHAR .. "(f@" .. font .. ")"
+end
+
+function core.get_font_weight_escape_sequence(weight)
+	return ESCAPE_CHAR .. "(w@" .. weight .. ")"
+end
+
+function core.get_alignment_escape_sequence(alignment)
+	return ESCAPE_CHAR .. "(a@" .. alignment .. ")"
+end
+
 function core.colorize(color, message)
 	local lines = tostring(message):split("\n", true)
 	local color_code = core.get_color_escape_sequence(color)

@@ -931,6 +931,57 @@ embedding a whole image, this may vary by use case.
 
 *See notes: `TEXMOD_UPSCALE`*
 
+#### `[text:<base64_text>:<rect>:<res_x>,<res_y>`
+
+Renders text using the engine's font system. When used as a modifier
+on a base texture (`base.png^[text:...`), the text is composited onto
+the base. When used standalone (`[text:...`), a transparent texture is
+created. The text content is base64-encoded to avoid conflicts with the
+texture modifier parser. Use `core.encode_base64(text)` to produce the
+encoded string.
+
+Parameters:
+
+* `base64_text`: base64-encoded text content, may contain escape
+  sequences (see below)
+* `rect`: text area in UV coordinates as `x1,y1,x2,y2` (0-1 range)
+* `res_x,res_y`: texture resolution in pixels. Default: `256,256`
+
+The text content supports the following escape sequences (using the
+`\x1b(key@value)` format, where `\x1b` is the ESC character,
+`string.char(0x1b)` in Lua):
+
+| Escape | Description | Example |
+|--------|-------------|---------|
+| `\x1b(c@<color>)` | Text color | `\x1b(c@#ff0000)` |
+| `\x1b(b@<color>)` | Background color (fills text rect) | `\x1b(b@#000000c0)` |
+| `\x1b(s@<size>)` | Font size in pixels | `\x1b(s@24)` |
+| `\x1b(f@<face>)` | Font face: `normal` or `mono` | `\x1b(f@mono)` |
+| `\x1b(w@<weight>)` | Font weight: `normal`, `bold`, `italic`, `bolditalic` | `\x1b(w@bold)` |
+| `\x1b(a@<align>)` | Horizontal alignment: `left`, `center`, `right` | `\x1b(a@center)` |
+
+Font escapes (`s@`, `f@`, `w@`, `a@`, `b@`) are parsed from the
+beginning of the text and apply to the entire text. Color escapes
+(`c@`) work per-character as in chat and HUD text. Newlines (`\n`) are
+supported. Text does not word-wrap automatically; use explicit newlines.
+
+If no font size is specified, a default of 24px (scaled proportionally
+to the texture resolution) is used.
+
+Example:
+
+    local text = core.get_font_size_escape_sequence(32)
+        .. core.get_alignment_escape_sequence("center")
+        .. core.colorize("#ffffff", "Hello World")
+    local tex = "base.png^[text:" .. core.encode_base64(text)
+        .. ":0.05,0.05,0.95,0.95:256,256"
+
+This modifier can be used on any texture — node tiles, entity
+textures, HUD elements, etc.
+
+For node tiles specifically, the `text_face` node definition field
+automates this process. See "Node definition" for details.
+
 Hardware coloring
 -----------------
 
@@ -3955,6 +4006,18 @@ The following functions provide escape sequences:
     * `color` is a ColorString
     * The escape sequence sets the background of the whole text element to
       `color`. Only defined for item descriptions and tooltips.
+* `core.get_font_size_escape_sequence(size)`
+    * `size` is a number (font size in pixels)
+    * The escape sequence sets the font size for subsequent text.
+* `core.get_font_escape_sequence(font)`
+    * `font` is `"normal"` or `"mono"`
+    * The escape sequence sets the font face for subsequent text.
+* `core.get_font_weight_escape_sequence(weight)`
+    * `weight` is `"normal"`, `"bold"`, `"italic"`, or `"bolditalic"`
+    * The escape sequence sets the font weight for subsequent text.
+* `core.get_alignment_escape_sequence(alignment)`
+    * `alignment` is `"left"`, `"center"`, or `"right"`
+    * The escape sequence sets the text alignment.
 * `core.strip_foreground_colors(str)`
     * Removes foreground colors added by `get_color_escape_sequence`.
 * `core.strip_background_colors(str)`
@@ -10558,6 +10621,42 @@ Used by `core.register_node`.
         fall = <SimpleSoundSpec>,
         -- When node starts to fall or is detached
     },
+
+    text_face = {
+        -- Optional. Renders text from node metadata onto a tile face.
+        -- The text is read from the node metadata key "text".
+        -- Supported drawtypes: normal, nodebox, signlike, mesh.
+        -- Not supported: glasslike, glasslike_framed, allfaces.
+
+        tile = 0,
+        -- Which tile index receives the text (0-5).
+        -- For normal/nodebox nodes: 0=top, 1=bottom, 2=right, 3=left,
+        -- 4=front (+Z), 5=back (-Z).
+        -- For mesh nodes: corresponds to the mesh buffer index
+        -- (determined by material groups in the OBJ/mesh file).
+
+        rect = {{x = 0, y = 0}, {x = 1, y = 1}},
+        -- Text area within the tile as two vector2 UV coordinates.
+        -- First is the top-left corner, second is the bottom-right.
+        -- Values range from 0 to 1.
+
+        resolution_x = 256,
+        resolution_y = 256,
+        -- Texture resolution in pixels for the text overlay.
+        -- Both values must be provided.
+        -- Higher values produce sharper text but use more memory.
+        -- Range: 16 to 2048. Default: 256.
+        -- Use different x/y values for non-square faces
+        -- (e.g. resolution_x = 1024, resolution_y = 341 for a
+        -- 3:1 aspect ratio sign).
+    },
+    -- Text content is stored in node metadata under the key "text".
+    -- The text supports escape sequences for styling; see the [text:
+    -- texture modifier documentation for details.
+    --
+    -- Example:
+    --   core.get_meta(pos):set_string("text",
+    --       core.colorize("#ffffff", "Hello World"))
 
     drop = "",
     -- Name of dropped item when dug.
