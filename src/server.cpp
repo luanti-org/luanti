@@ -370,7 +370,7 @@ Server::~Server()
 	// Stop server step from happening
 	if (m_thread) {
 		stop();
-		delete m_thread;
+		// (Do not delete yet. Accessed by setAsyncFatalError().)
 	}
 
 	// Stop all emerge activity and finish off mapgen callbacks. Do this before
@@ -449,6 +449,7 @@ Server::~Server()
 	delete m_itemdef;
 	delete m_nodedef;
 	delete m_craftdef;
+	delete m_thread;
 
 	while (!m_unsent_map_edit_queue.empty()) {
 		delete m_unsent_map_edit_queue.front();
