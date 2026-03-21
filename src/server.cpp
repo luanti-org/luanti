@@ -367,6 +367,8 @@ Server::~Server()
 
 	actionstream << "Server: Shutting down" << std::endl;
 
+	auto old_async_fatal_error = m_async_fatal_error.get();
+
 	// Stop server step from happening
 	if (m_thread) {
 		stop();
@@ -440,6 +442,12 @@ Server::~Server()
 
 	// emerge may depend on definition managers, so destroy first
 	m_emerge.reset();
+
+	// Catch one async error that just happened while this dtor is running
+	auto async_fatal_error = m_async_fatal_error.get();
+	if (old_async_fatal_error != async_fatal_error) {
+		errorstream << "~Server(): new AsyncErr: " << async_fatal_error;
+	}
 
 	// Delete the rest in the reverse order of creation
 	delete m_game_settings;
