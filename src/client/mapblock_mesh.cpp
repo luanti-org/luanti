@@ -15,6 +15,7 @@
 #include "util/tracy_wrapper.h"
 #include "client/meshgen/collector.h"
 #include "client/renderingengine.h"
+#include "util/base64.h"
 #include <array>
 #include <algorithm>
 #include <cmath>
@@ -336,6 +337,23 @@ void getNodeTileN(MapNode mn, const v3s16 &p, u8 tileindex, MeshMakeData *data, 
 	const ContentFeatures &f = ndef->get(mn);
 	tile = f.visuals->tiles[tileindex];
 	bool has_crack = p == data->m_crack_pos_relative;
+
+	if (f.text_face.enabled && f.text_face.tile == tileindex && data->m_tsrc) {
+		auto it = data->m_node_text.find(p);
+		if (it != data->m_node_text.end() && it->second.texture_id != 0) {
+			u32 tex_id = it->second.texture_id;
+			tile.layers[1].texture = data->m_tsrc->getTexture(tex_id);
+			tile.layers[1].texture_id = tex_id;
+			tile.layers[1].texture_layer_idx = 0;
+			tile.layers[1].shader_id = f.visuals->text_face_shader_id;
+			tile.layers[1].material_type = TILE_MATERIAL_ALPHA;
+			tile.layers[1].material_flags = tile.layers[0].material_flags;
+			tile.layers[0].need_polygon_offset = true;
+			data->m_tsrc->grabTexture(tex_id);
+			data->m_grabbed_textures.push_back(tex_id);
+		}
+	}
+
 	for (TileLayer &layer : tile.layers) {
 		if (layer.empty())
 			continue;
@@ -755,7 +773,6 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 		!m_crack_materials.empty() ||
 		!m_animation_info.empty();
 
-	// Take ownership of grabbed texture references
 	m_grabbed_textures = std::move(data->m_grabbed_textures);
 }
 

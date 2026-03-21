@@ -9,7 +9,10 @@
 #include "mapblock.h"
 #include "mapblock_mesh.h"
 #include "map.h"
+#include "util/base64.h"
 #include "util/directiontables.h"
+#include "nodedef.h"
+#include "texturesource.h"
 #include "porting.h"
 
 /*
@@ -136,6 +139,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 			q->crack_pos = m_client->getCrackPos();
 			q->urgent |= urgent;
 			q->retrieveBlocks(map, mesh_grid.cell_size);
+			collectNodeText(q, mesh_grid);
 			return true;
 		}
 	}
@@ -151,6 +155,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	q->crack_pos = m_client->getCrackPos();
 	q->urgent = urgent;
 	q->retrieveBlocks(map, mesh_grid.cell_size);
+	collectNodeText(q.get(), mesh_grid);
 
 	/*
 		Air blocks won't suddenly become visible due to a neighbor update, so
@@ -207,6 +212,41 @@ void MeshUpdateQueue::done(v3s16 pos)
 }
 
 
+void MeshUpdateQueue::collectNodeText(QueuedMeshUpdate *q, const MeshGrid &mesh_grid)
+{
+	q->node_text.clear();
+	const NodeDefManager *ndef = m_client->ndef();
+	ITextureSource *tsrc = m_client->tsrc();
+	v3s16 origin = q->p * MAP_BLOCKSIZE;
+	for (auto *block : q->map_blocks) {
+		if (!block)
+			continue;
+		v3s16 bp_nodes = block->getPos() * MAP_BLOCKSIZE;
+		for (auto it = block->m_node_metadata.begin();
+				it != block->m_node_metadata.end(); ++it) {
+			const std::string &text = it->second->getString("text");
+			if (text.empty())
+				continue;
+			v3s16 abs_pos = bp_nodes + it->first;
+			MapNode node = block->getNodeNoCheck(it->first);
+			const ContentFeatures &f = ndef->get(node);
+			if (!f.text_face.enabled)
+				continue;
+			const auto &tf = f.text_face;
+			std::string tex_name = "[text:" + base64_encode(text)
+				+ ":" + std::to_string(tf.rect[0])
+				+ "," + std::to_string(tf.rect[1])
+				+ "," + std::to_string(tf.rect[2])
+				+ "," + std::to_string(tf.rect[3])
+				+ ":" + std::to_string(tf.resolution_x)
+				+ "," + std::to_string(tf.resolution_y);
+			u32 tex_id = tsrc->getTextureId(tex_name);
+			v3s16 rel = abs_pos - origin;
+			q->node_text[rel] = {text, tex_id};
+		}
+	}
+}
+
 void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 {
 	auto mesh_grid = m_client->getMeshGrid();
@@ -221,6 +261,10 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 			block->copyTo(data->m_vmanip);
 	}
 
+	// Use text data collected on the main thread (avoids data race)
+	data->m_node_text = std::move(q->node_text);
+
+	data->m_tsrc = m_client->tsrc();
 	data->setCrack(q->crack_level, q->crack_pos);
 	data->m_generate_minimap = !!m_client->getMinimap();
 	data->m_smooth_lighting = m_cache_smooth_lighting;

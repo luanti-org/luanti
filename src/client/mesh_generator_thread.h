@@ -6,6 +6,7 @@
 
 #include <ctime>
 #include <mutex>
+#include <unordered_map>
 #include <unordered_set>
 #include "irrlichttypes_bloated.h"
 #include "threading/mutex_auto_lock.h"
@@ -16,8 +17,10 @@
 class Map;
 class MapBlock;
 class MapBlockMesh;
-struct MeshMakeData;
+#include "mapblock_mesh.h"
 class Client;
+
+struct MeshGrid;
 
 struct QueuedMeshUpdate
 {
@@ -28,6 +31,11 @@ struct QueuedMeshUpdate
 	MeshMakeData *data = nullptr; // This is generated in MeshUpdateQueue::pop()
 	std::vector<MapBlock*> map_blocks;
 	bool urgent = false;
+
+	// Node text collected on the main thread to avoid data races
+	// when reading metadata from the meshgen thread. Texture IDs are
+	// pre-generated on the main thread to avoid blocking roundtrips.
+	std::unordered_map<v3s16, NodeTextEntry> node_text;
 
 	QueuedMeshUpdate() = default;
 	~QueuedMeshUpdate();
@@ -105,6 +113,7 @@ private:
 	bool m_cache_enable_water_reflections;
 
 	void fillDataFromMapBlocks(QueuedMeshUpdate *q);
+	void collectNodeText(QueuedMeshUpdate *q, const MeshGrid &mesh_grid);
 };
 
 struct MeshUpdateResult

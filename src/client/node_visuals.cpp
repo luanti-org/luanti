@@ -434,6 +434,14 @@ void NodeVisuals::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc, Cl
 
 	MaterialType overlay_material = material_type_with_alpha(material_type);
 
+	// Pre-compute non-array-texture shader for text_face overlay.
+	// Always use TILE_MATERIAL_ALPHA for smooth alpha blending,
+	// regardless of the base node's material type.
+	if (f->text_face.enabled) {
+		text_face_shader_id = shdsrc->getShader(
+			"nodes_shader", TILE_MATERIAL_ALPHA, drawtype, false);
+	}
+
 	GetShaderCallback overlay_shader = [&] (bool array_texture) {
 		return shdsrc->getShader("nodes_shader", overlay_material, drawtype, array_texture);
 	};
@@ -504,7 +512,6 @@ void NodeVisuals::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc, Cl
 			param_type_2 == CPT2_COLORED_DEGROTATE)
 		palette = tsrc->getPalette(palette_name);
 
-	// Grab texture references for all tiles
 	this->tsrc = tsrc;
 	for (auto &tile : tiles)
 		grabTileTextures(tsrc, tile);

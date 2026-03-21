@@ -284,8 +284,17 @@ void Client::handleCommand_NodemetaChanged(NetworkPacket *pkt)
 		v3s16 pos = i->first;
 
 		if (map.isValidPosition(pos) &&
-				map.setNodeMetadata(pos, i->second))
+				map.setNodeMetadata(pos, i->second)) {
+			// If this node has text_face, trigger a mesh rebuild
+			// so the rendered text updates immediately.
+			MapNode node = map.getNode(pos);
+			const ContentFeatures &f = m_nodedef->get(node);
+			if (f.text_face.enabled) {
+				v3s16 blockpos = getNodeBlockPos(pos);
+				addUpdateMeshTaskWithEdge(blockpos, false, true);
+			}
 			continue; // Prevent from deleting metadata
+		}
 
 		// Meta couldn't be set, unused metadata
 		delete i->second;

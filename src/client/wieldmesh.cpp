@@ -441,7 +441,6 @@ std::vector<FrameSpec> createAnimationFrames(ITextureSource *tsrc,
 
 void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool check_wield_image)
 {
-	// Release old texture references before replacing
 	putFrameTextures();
 	m_wield_image_frames.reset();
 	m_wield_overlay_frames.reset();
@@ -513,7 +512,6 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		// initialize the color
 		setColor(video::SColor(0xFFFFFFFF));
 
-		// Grab texture references for animated frames
 		auto grabFrames = [tsrc](const std::shared_ptr<std::vector<FrameSpec>> &frames) {
 			if (!frames)
 				return;

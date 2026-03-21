@@ -515,6 +515,18 @@ void ContentFeatures::serialize(std::ostream &os, u16 protocol_version) const
 	writeU8(os, move_resistance);
 	writeU8(os, liquid_move_physics);
 	writeU8(os, post_effect_color_shaded);
+
+	// text_face
+	writeU8(os, text_face.enabled);
+	if (text_face.enabled) {
+		writeU8(os, text_face.tile);
+		writeF32(os, text_face.rect[0]);
+		writeF32(os, text_face.rect[1]);
+		writeF32(os, text_face.rect[2]);
+		writeF32(os, text_face.rect[3]);
+		writeU16(os, text_face.resolution_x);
+		writeU16(os, text_face.resolution_y);
+	}
 }
 
 void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
@@ -647,6 +659,20 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 		// >= 5.8.0-dev
 
 		post_effect_color_shaded = readU8(is);
+
+		if (!canRead(is))
+			break;
+
+		text_face.enabled = readU8(is);
+		if (text_face.enabled) {
+			text_face.tile = readU8(is);
+			text_face.rect[0] = readF32(is);
+			text_face.rect[1] = readF32(is);
+			text_face.rect[2] = readF32(is);
+			text_face.rect[3] = readF32(is);
+			text_face.resolution_x = readU16(is);
+			text_face.resolution_y = readU16(is);
+		}
 
 		//if (!canRead(is))
 		//	break;

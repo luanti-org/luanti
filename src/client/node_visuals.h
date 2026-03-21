@@ -32,6 +32,7 @@ struct NodeVisuals
 	bool backface_culling = true;
 	scene::SMesh *mesh_ptr = nullptr; // mesh in case of mesh node
 	video::SColor minimap_color;
+	u32 text_face_shader_id = 0; // non-array-texture shader for text_face tiles
 	std::vector<video::SColor> *palette = nullptr;
 
 	// Texture source for reference counting (grab/put)

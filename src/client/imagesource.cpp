@@ -9,6 +9,9 @@
 #include <IReadFile.h>
 #include "imagefilters.h"
 #include "renderingengine.h"
+#include "fontengine.h"
+#include "irrlicht_changes/CGUITTFont.h"
+#include "util/enriched_string.h"
 #include "settings.h"
 #include "texturepaths.h"
 #include "irrlicht_changes/printing.h"
@@ -979,6 +982,38 @@ static void imageTransform(u32 transform, video::IImage *src, video::IImage *dst
 			COMPLAIN_INVALID("height"); \
 	} while(0)
 
+enum class TextHAlign : u8 { Left, Center, Right };
+
+static void drawText(gui::IGUIFont *font, gui::CGUITTFont *ttfont,
+	const EnrichedString &estr, video::SColor fg, const core::recti &rect,
+	TextHAlign halign = TextHAlign::Left)
+{
+	u32 line_h = font->getDimension(L"A").Height;
+	s32 max_w = rect.getWidth();
+	s32 cy = rect.UpperLeftCorner.Y;
+
+	size_t line_pos = 0;
+	while (line_pos < estr.size() && cy + (s32)line_h <= rect.LowerRightCorner.Y) {
+		EnrichedString line = estr.getNextLine(&line_pos);
+
+		s32 lx = rect.UpperLeftCorner.X;
+		if (halign != TextHAlign::Left) {
+			u32 tw = font->getDimension(line.getString().c_str()).Width;
+			if (halign == TextHAlign::Center)
+				lx += (max_w - (s32)tw) / 2;
+			else // Right
+				lx += max_w - (s32)tw;
+		}
+		core::recti r(lx, cy, rect.LowerRightCorner.X, rect.LowerRightCorner.Y);
+		if (ttfont)
+			ttfont->draw(line, r, false, false);
+		else
+			font->draw(core::stringw(line.getString().c_str()),
+				r, fg, false, false);
+		cy += line_h;
+	}
+}
+
 bool ImageSource::generateImagePart(std::string_view part_of_name,
 		video::IImage *& baseimg, std::set<std::string> &source_image_names)
 {
@@ -1782,6 +1817,167 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 			apply_brightness_contrast(baseimg, v2u32(0, 0),
 				baseimg->getDimension(), brightness, contrast);
+		}
+		/*
+			[text:TEXT:x1,y1,x2,y2:res_x,res_y
+
+			Creates a transparent texture with text rendered in the
+			specified rectangle (in 0-1 UV coordinates). Intended for
+			use as a tile overlay layer.
+
+			TEXT is base64-encoded because the raw text may contain
+			characters that conflict with the texture modifier parser
+			(^, \x1b, etc.). Base64 guarantees only A-Za-z0-9+/=
+			characters, which are safe with the : delimiter.
+		*/
+		else if (str_starts_with(part_of_name, "[text:")) {
+
+			Strfnd sf(part_of_name);
+			sf.next(":"); // skip "[text"
+			std::string text = base64_decode(sf.next(":"));
+			std::string rect_str = sf.next(":");
+			std::string resolution_str = sf.next(":");
+
+			if (text.empty()) {
+				errorstream << "generateImagePart(): [text: empty text" << std::endl;
+				return false;
+			}
+
+			f32 rx1 = 0, ry1 = 0, rx2 = 1, ry2 = 1;
+			if (!rect_str.empty()) {
+				Strfnd rf(rect_str);
+				rx1 = mystof(rf.next(","));
+				ry1 = mystof(rf.next(","));
+				rx2 = mystof(rf.next(","));
+				ry2 = mystof(rf.next(","));
+			}
+
+			u32 res_x = 256, res_y = 256;
+			if (!resolution_str.empty()) {
+				Strfnd rsf(resolution_str);
+				res_x = mystoi(rsf.next(","));
+				res_y = rsf.at_end() ? res_x : mystoi(rsf.next(","));
+			}
+			res_x = rangelim(res_x, 16, 2048);
+			res_y = rangelim(res_y, 16, 2048);
+
+			core::dimension2du dim(res_x, res_y);
+
+			u32 x1 = (u32)(rx1 * dim.Width);
+			u32 y1 = (u32)(ry1 * dim.Height);
+			u32 x2 = (u32)(rx2 * dim.Width);
+			u32 y2 = (u32)(ry2 * dim.Height);
+
+			if (x2 <= x1 || y2 <= y1)
+				return true; // nothing to draw
+
+			auto *device = RenderingEngine::get_raw_device();
+			auto *driver = device->getVideoDriver();
+
+			u32 fsize = std::max(8u, dim.Height * 24 / 256);
+			FontMode fmode = FM_Standard;
+			bool fbold = false, fitalic = false;
+			TextHAlign halign = TextHAlign::Left;
+			{
+				size_t i = 0;
+				while (i < text.size() && text[i] == '\x1b' &&
+						i + 1 < text.size() && text[i + 1] == '(') {
+					size_t end = text.find(')', i + 2);
+					if (end == std::string::npos) break;
+					std::string esc = text.substr(i + 2, end - (i + 2));
+					size_t at = esc.find('@');
+					if (at != std::string::npos) {
+						std::string key = esc.substr(0, at);
+						std::string val = esc.substr(at + 1);
+						if (key == "s" && !val.empty())
+							fsize = atoi(val.c_str());
+						else if (key == "f")
+							fmode = (val == "mono") ? FM_Mono : FM_Standard;
+						else if (key == "w") {
+							fbold = (val == "bold" || val == "bolditalic");
+							fitalic = (val == "italic" || val == "bolditalic");
+						} else if (key == "a") {
+							if (val == "center") halign = TextHAlign::Center;
+							else if (val == "right") halign = TextHAlign::Right;
+							else halign = TextHAlign::Left;
+						}
+					}
+					i = end + 1;
+				}
+			}
+
+			gui::IGUIFont *font = g_fontengine->getFont(
+				FontSpec(fsize, fmode, fbold, fitalic));
+
+			if (font) {
+				video::ITexture *rt = driver->addRenderTargetTexture(
+					dim, "__text_rt");
+				if (!rt) {
+					errorstream << "generateImagePart(): [text: "
+						<< "failed to create render target" << std::endl;
+					return false;
+				}
+				{
+					driver->setRenderTarget(rt, true, true,
+						video::SColor(0, 0, 0, 0));
+
+					// If applied as a modifier on a base image, draw
+					// the base first (entity texture use case).
+					video::ITexture *base_tex = nullptr;
+					if (baseimg) {
+						base_tex = driver->addTexture("__text_base", baseimg);
+						driver->draw2DImage(base_tex,
+							core::recti(0, 0, dim.Width, dim.Height),
+							core::recti(0, 0, baseimg->getDimension().Width,
+								baseimg->getDimension().Height));
+					}
+
+					video::SColor fg(255, 0, 0, 0);
+					EnrichedString estr(utf8_to_wide(text), fg);
+
+					// Don't draw background via GPU (blending mangles
+					// alpha on a transparent render target). We'll fill
+					// it in the CPU image below.
+
+					s32 pad = std::max(2, (s32)dim.Height / 64);
+					auto *ttfont = dynamic_cast<gui::CGUITTFont *>(font);
+					drawText(font, ttfont, estr, fg,
+						core::recti(x1 + pad, y1 + pad, x2 - pad, y2), halign);
+
+					driver->setRenderTarget(nullptr);
+					video::IImage *result = driver->createImage(rt,
+						core::position2di(0, 0), dim);
+					if (result) {
+						// Fill background in CPU image to preserve exact alpha
+						if (estr.hasBackground()) {
+							video::SColor bg = estr.getBackground();
+							for (u32 py = y1; py < y2 && py < dim.Height; py++)
+								for (u32 px = x1; px < x2 && px < dim.Width; px++) {
+									video::SColor existing = result->getPixel(px, py);
+									if (existing.getAlpha() == 0)
+										result->setPixel(px, py, bg);
+									else {
+										// Blend bg behind existing text pixels
+										u32 a = existing.getAlpha();
+										u32 ia = 255 - a;
+										result->setPixel(px, py, video::SColor(
+											std::min(255u, a + bg.getAlpha() * ia / 255),
+											(existing.getRed() * a + bg.getRed() * ia) / 255,
+											(existing.getGreen() * a + bg.getGreen() * ia) / 255,
+											(existing.getBlue() * a + bg.getBlue() * ia) / 255));
+									}
+								}
+						}
+						if (baseimg)
+							baseimg->drop();
+						baseimg = result;
+					}
+
+					if (base_tex)
+						driver->removeTexture(base_tex);
+					driver->removeTexture(rt);
+				}
+			}
 		}
 		else
 		{

@@ -1031,6 +1031,32 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	}
 	lua_pop(L, 1);
 
+	// Text face
+	lua_getfield(L, index, "text_face");
+	if (lua_istable(L, -1)) {
+		f.text_face.enabled = true;
+		f.text_face.tile = getintfield_default(L, -1, "tile", 0);
+		lua_getfield(L, -1, "rect");
+		if (lua_istable(L, -1)) {
+			lua_rawgeti(L, -1, 1); // rect[1] = {x=x1, y=y1}
+			if (lua_istable(L, -1)) {
+				f.text_face.rect[0] = getfloatfield_default(L, -1, "x", 0);
+				f.text_face.rect[1] = getfloatfield_default(L, -1, "y", 0);
+			}
+			lua_pop(L, 1);
+			lua_rawgeti(L, -1, 2); // rect[2] = {x=x2, y=y2}
+			if (lua_istable(L, -1)) {
+				f.text_face.rect[2] = getfloatfield_default(L, -1, "x", 1);
+				f.text_face.rect[3] = getfloatfield_default(L, -1, "y", 1);
+			}
+			lua_pop(L, 1);
+		}
+		lua_pop(L, 1); // rect
+		f.text_face.resolution_x = getintfield_default(L, -1, "resolution_x", 256);
+		f.text_face.resolution_y = getintfield_default(L, -1, "resolution_y", 256);
+	}
+	lua_pop(L, 1); // text_face
+
 	// Node immediately placed by client when node is dug
 	getstringfield(L, index, "node_dig_prediction",
 		f.node_dig_prediction);
@@ -1180,6 +1206,30 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 	push_simplesoundspec(L, c.sound_dug);
 	lua_setfield(L, -2, "sound_dug");
 	lua_setfield(L, -2, "sounds");
+	if (c.text_face.enabled) {
+		lua_newtable(L);
+		lua_pushinteger(L, c.text_face.tile);
+		lua_setfield(L, -2, "tile");
+		lua_newtable(L); // rect
+		lua_newtable(L); // rect[1]
+		lua_pushnumber(L, c.text_face.rect[0]);
+		lua_setfield(L, -2, "x");
+		lua_pushnumber(L, c.text_face.rect[1]);
+		lua_setfield(L, -2, "y");
+		lua_rawseti(L, -2, 1);
+		lua_newtable(L); // rect[2]
+		lua_pushnumber(L, c.text_face.rect[2]);
+		lua_setfield(L, -2, "x");
+		lua_pushnumber(L, c.text_face.rect[3]);
+		lua_setfield(L, -2, "y");
+		lua_rawseti(L, -2, 2);
+		lua_setfield(L, -2, "rect");
+		lua_pushinteger(L, c.text_face.resolution_x);
+		lua_setfield(L, -2, "resolution_x");
+		lua_pushinteger(L, c.text_face.resolution_y);
+		lua_setfield(L, -2, "resolution_y");
+		lua_setfield(L, -2, "text_face");
+	}
 	lua_pushboolean(L, c.legacy_facedir_simple);
 	lua_setfield(L, -2, "legacy_facedir_simple");
 	lua_pushboolean(L, c.legacy_wallmounted);

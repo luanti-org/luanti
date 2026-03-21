@@ -290,6 +290,16 @@ struct TileDef
 //       tiles can be overridden.
 #define CF_SPECIAL_COUNT 6
 
+// Defines how text from node metadata is rendered onto a tile
+struct TextFaceSpec
+{
+	bool enabled = false;
+	u8 tile = 0;              // which tile index gets the text
+	f32 rect[4] = {0, 0, 1, 1}; // text region in tile UV space (x1, y1, x2, y2)
+	u16 resolution_x = 256;   // target texture width for text rendering
+	u16 resolution_y = 256;   // target texture height for text rendering
+};
+
 struct ContentFeatures
 {
 	// PROTOCOL_VERSION >= 37. This is legacy and should not be increased anymore,
@@ -420,6 +430,10 @@ struct ContentFeatures
 	SoundSpec sound_footstep;
 	SoundSpec sound_dig;
 	SoundSpec sound_dug;
+
+	// --- TEXT FACE ---
+
+	TextFaceSpec text_face;
 
 	// --- LEGACY ---
 

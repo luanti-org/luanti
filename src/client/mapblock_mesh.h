@@ -13,6 +13,7 @@
 #include "client/tile.h"
 #include "voxel.h"
 #include <map>
+#include <unordered_map>
 
 namespace video {
 	class IVideoDriver;
@@ -29,6 +30,11 @@ class ITextureSource;
 
 
 struct MinimapMapblock;
+
+struct NodeTextEntry {
+	std::string text;
+	u32 texture_id = 0;
+};
 
 struct MeshMakeData
 {
@@ -50,6 +56,13 @@ struct MeshMakeData
 	bool m_enable_water_reflections = false;
 
 	const NodeDefManager *m_nodedef;
+
+	// Node text data: maps node position (relative to blockpos * MAP_BLOCKSIZE)
+	// to pre-collected text and pre-generated texture ID.
+	std::unordered_map<v3s16, NodeTextEntry> m_node_text;
+
+	// Texture source for dynamic texture generation (e.g. text on nodes)
+	ITextureSource *m_tsrc = nullptr;
 
 	// Texture IDs grabbed during mesh generation (moved to MapBlockMesh)
 	std::vector<u32> m_grabbed_textures;
