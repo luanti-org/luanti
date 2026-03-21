@@ -18,10 +18,12 @@
 @media (prefers-color-scheme: dark) {
   /* Base layout */
   body.wy-body-for-nav,
-  body.wy-body-for-nav .wy-nav-content-wrap,
+  body.wy-body-for-nav .wy-nav-content-wrap {
+    background-color: #252526;
+    color: #d4d4d4;
+  }
   body.wy-body-for-nav .wy-nav-content {
     background-color: #1e1e1e;
-    color: #d4d4d4;
   }
 
   /* Sidebar and navigation */
