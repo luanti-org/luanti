@@ -1,0 +1,35 @@
+# Wide sign: 3 nodes wide, 1 node tall, 0.1 nodes thick
+# Two material groups: display (front) and body (rest)
+
+v -1.5 -0.5 -0.05
+v  1.5 -0.5 -0.05
+v  1.5  0.5 -0.05
+v -1.5  0.5 -0.05
+v -1.5 -0.5  0.05
+v  1.5 -0.5  0.05
+v  1.5  0.5  0.05
+v -1.5  0.5  0.05
+
+vt 0 0
+vt 1 0
+vt 1 1
+vt 0 1
+
+# Display face (front +Z) = tile 0
+g display
+usemtl display
+f 5/1/1 6/2/1 7/3/1 8/4/1
+
+# Body faces = tile 1
+g body
+usemtl body
+# back
+f 2/1/1 1/2/1 4/3/1 3/4/1
+# top
+f 8/1/1 7/2/1 3/3/1 4/4/1
+# bottom
+f 1/1/1 2/2/1 6/3/1 5/4/1
+# right
+f 6/1/1 2/2/1 3/3/1 7/4/1
+# left
+f 1/1/1 5/2/1 8/3/1 4/4/1
