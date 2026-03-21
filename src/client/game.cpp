@@ -3002,6 +3002,8 @@ bool Game::nodePlacement(const ItemDefinition &selected_def,
 			!isKeyDown(KeyType::SNEAK))) {
 		// Report to server
 		client->interact(INTERACT_PLACE, pointed);
+		// Play placement sound even without prediction
+		soundmaker->m_player_rightpunch_sound = selected_def.sound_place;
 		return false;
 	}
 
