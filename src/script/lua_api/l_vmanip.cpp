@@ -403,7 +403,7 @@ LuaVoxelManip::LuaVoxelManip(MMVManip *mmvm, bool is_mg_vm) :
 	is_mapgen_vm(is_mg_vm),
 	vm(mmvm)
 {
-	it_vm_in_clear_list = vm->addRefToClear(&vm);
+	vm_ref_tracker = vm->addTrackedRef(&vm);
 }
 
 LuaVoxelManip::LuaVoxelManip(Map *map) :
@@ -416,7 +416,7 @@ LuaVoxelManip::~LuaVoxelManip()
 	if (!vm)
 		return;
 
-	vm->removeRefToClear(it_vm_in_clear_list);
+	vm->removeTrackedRef(vm_ref_tracker);
 
 	if (!is_mapgen_vm)
 		delete vm;

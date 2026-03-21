@@ -4,11 +4,11 @@
 
 #pragma once
 
+#include <list>
 #include <map>
 #include <ostream>
 #include <set>
 #include <unordered_map>
-#include <list>
 
 #include "irrlichttypes_bloated.h"
 #include "mapblock.h" // for forEachNodeInArea
@@ -346,9 +346,9 @@ public:
 	// Is it impossible to call initialEmerge / blitBackAll?
 	inline bool isOrphan() const { return !m_map; }
 
-	std::list<MMVManip **>::iterator addRefToClear(MMVManip **ref_ref);
+	std::list<MMVManip **>::iterator addTrackedRef(MMVManip **ref_ref);
 
-	void removeRefToClear(std::list<MMVManip **>::iterator it);
+	void removeTrackedRef(std::list<MMVManip **>::iterator it);
 
 	bool m_is_dirty = false;
 
@@ -360,5 +360,5 @@ protected:
 
 private:
 	// references to this that need to be cleared on destruction
-	std::list<MMVManip **> m_refs_to_clear;
+	std::list<MMVManip **> m_tracked_refs;
 };

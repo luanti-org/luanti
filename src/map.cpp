@@ -762,7 +762,7 @@ MMVManip::MMVManip(Map *map):
 
 MMVManip::~MMVManip()
 {
-	for (auto **ref_ref : m_refs_to_clear) {
+	for (auto **ref_ref : m_tracked_refs) {
 		*ref_ref = nullptr;
 	}
 }
@@ -924,14 +924,14 @@ void MMVManip::reparent(Map *map)
 	m_map = map;
 }
 
-std::list<MMVManip **>::iterator MMVManip::addRefToClear(MMVManip **ref_ref)
+std::list<MMVManip **>::iterator MMVManip::addTrackedRef(MMVManip **ref_ref)
 {
-	return m_refs_to_clear.insert(m_refs_to_clear.end(), ref_ref);
+	return m_tracked_refs.insert(m_tracked_refs.end(), ref_ref);
 }
 
-void MMVManip::removeRefToClear(std::list<MMVManip **>::iterator it)
+void MMVManip::removeTrackedRef(std::list<MMVManip **>::iterator it)
 {
-	m_refs_to_clear.erase(it);
+	m_tracked_refs.erase(it);
 }
 
 //END
