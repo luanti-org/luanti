@@ -22,7 +22,7 @@ private:
 
 	static const luaL_Reg methods[];
 
-	static LuaVoxelManip *checkObjectNNull(lua_State *L, int narg);
+	static LuaVoxelManip *checkObjectValid(lua_State *L, int narg);
 
 	static int gc_object(lua_State *L);
 
