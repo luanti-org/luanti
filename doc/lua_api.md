@@ -7153,8 +7153,9 @@ Note: These can be overridden to modify the according defaults.
 
 * `core.item_place_node(itemstack, placer, pointed_thing[, param2, prevent_after_place])`
     * Place item as a node
-    * Replicates effects that the client would usually predict (placement sounds)
-      for all players but `placer`.
+    * If `placer` is not `nil`, nor a (fake) player with name `""`, replicates
+      effects that the client would usually predict (placement sounds) for all
+      players but `placer`.
     * `param2` overrides `facedir` and wallmounted `param2`
     * `prevent_after_place`: if set to `true`, `after_place_node` is not called
       for the newly placed node to prevent a callback and placement loop
@@ -7207,8 +7208,9 @@ Note: These can be overridden to modify the according defaults.
 * `core.node_dig(pos, node, digger)`
     * Checks if node can be dug, puts item into inventory, removes node
     * Calls functions registered by `core.register_on_dignode()`
-    * Replicates effects that the client would usually predict (dug sounds,
-      particles) for all players but `placer`.
+    * If `digger` is not `nil`, nor a (fake) player with name `""`, replicates
+      effects that the client would usually predict (dug sounds, particles) for
+      all players but `digger`.
     * **Note**: This is the default for `on_dig` in node definition.
 
 Sounds
