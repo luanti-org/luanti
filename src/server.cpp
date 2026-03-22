@@ -446,7 +446,7 @@ Server::~Server()
 	// Catch one async error that just happened while this dtor is running
 	auto async_fatal_error = m_async_fatal_error.get();
 	if (old_async_fatal_error != async_fatal_error) {
-		errorstream << "~Server(): new AsyncErr: " << async_fatal_error;
+		errorstream << "Server: new AsyncErr during shutdown: " << async_fatal_error;
 	}
 
 	// Delete the rest in the reverse order of creation
