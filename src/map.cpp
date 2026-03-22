@@ -763,6 +763,7 @@ MMVManip::MMVManip(Map *map):
 MMVManip::~MMVManip()
 {
 	for (auto **ref_ref : m_tracked_refs) {
+		assert(*ref_ref == this);
 		*ref_ref = nullptr;
 	}
 }
