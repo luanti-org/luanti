@@ -1,0 +1,30 @@
+minetest.register_on_generated(function(minp, maxp, blockseed)
+    local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
+    local data = vm:get_data()
+
+    -- Custom terrain logic for V8 map generator goes here
+
+    vm:set_data(data)
+    vm:write_to_map()
+end)# Sets the map generator to V8
+mg_name = v8
+
+# Optional: Parameters to control map generation
+# Mapgen flags control caves, dungeons, etc.
+mg_flags = dungeons, caves, nodemod
+
+# Set the seed for the world (optional)
+fixed_map_seed = 12345
+
+# Biomes control in V8
+seed = 54321minetest.register_biome({
+    name = "my_biome",
+    node_top = "default:dirt_with_grass", -- Surface node
+    depth_top = 1,                        -- Depth of the surface
+    node_filler = "default:dirt",         -- Sub-surface layer
+    depth_filler = 3,
+    y_min = -31000,                       -- Minimum Y coordinate
+    y_max = 64,                           -- Maximum Y coordinate
+    heat_point = 50,                      -- Heat value for the biome
+    humidity_point = 50,                  -- Humidity value for the biome
+})mg_flags = caves, nodungeons, nodemodsrc/mapgen
