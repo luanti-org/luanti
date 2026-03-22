@@ -4,6 +4,9 @@
     <img src="https://github.com/luanti-org/luanti/workflows/build/badge.svg" alt="Build Status">
     <a href="https://hosted.weblate.org/engage/minetest/?utm_source=widget"><img src="https://hosted.weblate.org/widgets/minetest/-/svg-badge.svg" alt="Translation status"></a>
     <a href="https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html"><img src="https://img.shields.io/badge/license-LGPLv2.1%2B-blue.svg" alt="License"></a>
+    <a href="https://gitcgr.com/luanti-org/luanti">
+      <img src="https://gitcgr.com/badge/luanti-org/luanti.svg" alt="gitcgr" />
+    </a>
 </div>
 <br>
 
