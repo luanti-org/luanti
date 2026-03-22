@@ -18,7 +18,7 @@ class LuaVoxelManip : public ModApiBase
 {
 private:
 	bool is_mapgen_vm = false;
-	std::list<MMVManip **>::iterator vm_ref_tracker;
+	std::list<MMVManip **>::iterator vm_ref_tracker{};
 
 	static const luaL_Reg methods[];
 
