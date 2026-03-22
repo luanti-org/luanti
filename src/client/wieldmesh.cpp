@@ -455,32 +455,34 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		video::ITexture *wield_overlay_texture = nullptr;
 
 		int frame_length_ms;
-		m_wield_image_frames = createAnimationFrames(tsrc,
-				wield_image.name, wield_image.animation, frame_length_ms);
+		m_wield_image_frames = std::make_shared<std::vector<FrameSpec>>(
+				createAnimationFrames(tsrc,
+				wield_image.name, wield_image.animation, frame_length_ms));
 
 		auto &l0 = m_buffer_info.emplace_back(0);
-		if (m_wield_image_frames.empty()) {
+		if (m_wield_image_frames->empty()) {
 			wield_texture = tsrc->getTexture(wield_image.name);
 		} else {
-			wield_texture = m_wield_image_frames[0].texture;
+			wield_texture = (*m_wield_image_frames)[0].texture;
 			l0.animation_info = std::make_unique<AnimationInfo>(
-				&m_wield_image_frames, frame_length_ms);
+				m_wield_image_frames, frame_length_ms);
 		}
 
 		// Overlay
 		if (!wield_overlay.name.empty()) {
 			int overlay_frame_length_ms;
-			m_wield_overlay_frames = createAnimationFrames(tsrc,
-					wield_overlay.name, wield_overlay.animation, overlay_frame_length_ms);
+			m_wield_overlay_frames = std::make_shared<std::vector<FrameSpec>>(
+					createAnimationFrames(tsrc,
+					wield_overlay.name, wield_overlay.animation, overlay_frame_length_ms));
 
 			// overlay is white, if present
 			auto &l1 = m_buffer_info.emplace_back(1, true, video::SColor(0xFFFFFFFF));
-			if (m_wield_overlay_frames.empty()) {
+			if (m_wield_overlay_frames->empty()) {
 				wield_overlay_texture = tsrc->getTexture(wield_overlay.name);
 			} else {
-				wield_overlay_texture = m_wield_overlay_frames[0].texture;
+				wield_overlay_texture = (*m_wield_overlay_frames)[0].texture;
 				l1.animation_info = std::make_unique<AnimationInfo>(
-					&m_wield_overlay_frames, overlay_frame_length_ms);
+					m_wield_overlay_frames, overlay_frame_length_ms);
 			}
 		}
 

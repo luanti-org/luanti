@@ -163,9 +163,8 @@ private:
 	video::SColor m_base_color;
 
 	// Empty if wield image is empty or not animated
-	// Owned by this class to get AnimationInfo for the mesh buffer info
-	std::vector<FrameSpec> m_wield_image_frames;
-	std::vector<FrameSpec> m_wield_overlay_frames;
+	std::shared_ptr<std::vector<FrameSpec>> m_wield_image_frames;
+	std::shared_ptr<std::vector<FrameSpec>> m_wield_overlay_frames;
 
 	// Bounding box culling is disabled for this type of scene node,
 	// so this variable is just required so we can implement

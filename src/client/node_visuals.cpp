@@ -136,7 +136,7 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 		std::vector<FrameSpec> frames = createAnimationFrames(
 				tsrc, tiledef.name, tiledef.animation, frame_length_ms);
 		if (frames.size() > 1) {
-			layer->frames = new std::vector<FrameSpec>(frames);
+			layer->frames = std::make_shared<std::vector<FrameSpec>>(frames);
 			layer->animation_frame_count = layer->frames->size();
 			layer->animation_frame_length_ms = frame_length_ms;
 
@@ -205,14 +205,6 @@ static size_t getArrayTextureMax(IShaderSource *shdsrc)
 
 NodeVisuals::~NodeVisuals()
 {
-	for (u16 j = 0; j < 6; j++) {
-		delete tiles[j].layers[0].frames;
-		delete tiles[j].layers[1].frames;
-	}
-	for (u16 j = 0; j < CF_SPECIAL_COUNT; j++) {
-		delete special_tiles[j].layers[0].frames;
-		delete special_tiles[j].layers[1].frames;
-	}
 	if (mesh_ptr)
 		mesh_ptr->drop();
 }

@@ -6,6 +6,7 @@
 
 #include "irrlichttypes.h"
 #include <ITexture.h>
+#include <memory>
 #include <vector>
 #include <SMaterial.h>
 
@@ -154,8 +155,7 @@ struct TileLayer
 	/// @see TileLayer::applyMaterialOptions
 	bool need_polygon_offset = false;
 
-	/// @note not owned by this struct
-	std::vector<FrameSpec> *frames = nullptr;
+	std::shared_ptr<std::vector<FrameSpec>> frames;
 
 	/*!
 	 * The color of the tile, or if the tile does not own
@@ -195,10 +195,10 @@ struct AnimationInfo {
 			m_frames(tile.frames)
 	{}
 
-	AnimationInfo(std::vector<FrameSpec> *frames, u16 frame_length_ms) :
+	AnimationInfo(std::shared_ptr<std::vector<FrameSpec>> frames, u16 frame_length_ms) :
 			m_frame_length_ms(frame_length_ms),
 			m_frame_count(frames->size()),
-			m_frames(frames)
+			m_frames(std::move(frames))
 	{}
 
 	size_t getFrameCount() const
@@ -215,8 +215,7 @@ private:
 	u16 m_frame_length_ms = 0;
 	u16 m_frame_count = 1;
 
-	/// @note by default not owned by this struct
-	std::vector<FrameSpec> *m_frames = nullptr;
+	std::shared_ptr<std::vector<FrameSpec>> m_frames;
 };
 
 enum class TileRotation: u8 {

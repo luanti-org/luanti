@@ -19,9 +19,8 @@ struct ItemVisualsManager::ItemVisuals
 	AnimationInfo inventory_normal;
 	AnimationInfo inventory_overlay;
 
-	// ItemVisuals owns the frames and AnimationInfo points to them
-	std::vector<FrameSpec> frames_normal;
-	std::vector<FrameSpec> frames_overlay;
+	std::shared_ptr<std::vector<FrameSpec>> frames_normal;
+	std::shared_ptr<std::vector<FrameSpec>> frames_overlay;
 
 	ItemVisuals() :
 		palette(nullptr)
@@ -71,14 +70,16 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 
 	// Create inventory image textures
 	int frame_length = 0;
-	iv->frames_normal = createAnimationFrames(tsrc, inventory_image.name,
-			inventory_image.animation, frame_length);
-	iv->inventory_normal = AnimationInfo(&iv->frames_normal, frame_length);
+	iv->frames_normal = std::make_shared<std::vector<FrameSpec>>(
+			createAnimationFrames(tsrc, inventory_image.name,
+			inventory_image.animation, frame_length));
+	iv->inventory_normal = AnimationInfo(iv->frames_normal, frame_length);
 
 	// Create inventory overlay textures
-	iv->frames_overlay = createAnimationFrames(tsrc, inventory_overlay.name,
-			inventory_overlay.animation, frame_length);
-	iv->inventory_overlay = AnimationInfo(&iv->frames_overlay, frame_length);
+	iv->frames_overlay = std::make_shared<std::vector<FrameSpec>>(
+			createAnimationFrames(tsrc, inventory_overlay.name,
+			inventory_overlay.animation, frame_length));
+	iv->inventory_overlay = AnimationInfo(iv->frames_overlay, frame_length);
 
 	createItemMesh(client, def,
 			iv->inventory_normal,
