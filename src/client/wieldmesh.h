@@ -162,9 +162,14 @@ private:
 	 */
 	video::SColor m_base_color;
 
+	// Texture source for reference counting
+	ITextureSource *m_tsrc = nullptr;
+
 	// Empty if wield image is empty or not animated
 	std::shared_ptr<std::vector<FrameSpec>> m_wield_image_frames;
 	std::shared_ptr<std::vector<FrameSpec>> m_wield_overlay_frames;
+
+	void putFrameTextures();
 
 	// Bounding box culling is disabled for this type of scene node,
 	// so this variable is just required so we can implement

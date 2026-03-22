@@ -405,10 +405,10 @@ Game::~Game()
 	delete camera;
 	delete quicktune;
 	delete eventmgr;
-	delete texture_src;
-	delete shader_src;
 	delete nodedef_manager;
 	delete itemdef_manager;
+	delete texture_src;
+	delete shader_src;
 	delete draw_control;
 
 	clearTextureNameCache();

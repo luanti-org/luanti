@@ -259,8 +259,25 @@ WieldMeshSceneNode::WieldMeshSceneNode(scene::ISceneManager *mgr, s32 id):
 	}
 }
 
+void WieldMeshSceneNode::putFrameTextures()
+{
+	if (!m_tsrc)
+		return;
+	auto putFrames = [this](const std::shared_ptr<std::vector<FrameSpec>> &frames) {
+		if (!frames)
+			return;
+		for (const auto &frame : *frames)
+			if (frame.texture_id)
+				m_tsrc->putTexture(frame.texture_id);
+	};
+	putFrames(m_wield_image_frames);
+	putFrames(m_wield_overlay_frames);
+}
+
 WieldMeshSceneNode::~WieldMeshSceneNode()
 {
+	putFrameTextures();
+
 	sanity_check(g_extrusion_mesh_cache);
 
 	// Remove node from shadow casters. m_shadow might be an invalid pointer!
@@ -424,7 +441,13 @@ std::vector<FrameSpec> createAnimationFrames(ITextureSource *tsrc,
 
 void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool check_wield_image)
 {
+	// Release old texture references before replacing
+	putFrameTextures();
+	m_wield_image_frames.reset();
+	m_wield_overlay_frames.reset();
+
 	ITextureSource *tsrc = client->getTextureSource();
+	m_tsrc = tsrc;
 	IItemDefManager *idef = client->getItemDefManager();
 	ItemVisualsManager *item_visuals = client->getItemVisualsManager();
 	IShaderSource *shdsrc = client->getShaderSource();
@@ -489,6 +512,17 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		setExtruded(wield_texture, wield_overlay_texture, wield_scale);
 		// initialize the color
 		setColor(video::SColor(0xFFFFFFFF));
+
+		// Grab texture references for animated frames
+		auto grabFrames = [tsrc](const std::shared_ptr<std::vector<FrameSpec>> &frames) {
+			if (!frames)
+				return;
+			for (const auto &frame : *frames)
+				if (frame.texture_id)
+					tsrc->grabTexture(frame.texture_id);
+		};
+		grabFrames(m_wield_image_frames);
+		grabFrames(m_wield_overlay_frames);
 		return;
 	}
 

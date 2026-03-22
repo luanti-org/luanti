@@ -114,6 +114,15 @@ public:
 	 * @note Disabling caching will flush the cache.
 	 */
 	virtual void setImageCaching(bool enabled) {};
+
+	/// Increment the reference count for a texture.
+	/// Call this when persistently storing a texture_id.
+	virtual void grabTexture(u32 id) = 0;
+
+	/// Decrement the reference count for a texture.
+	/// Call this when releasing a persistently stored texture_id.
+	/// Textures with zero references may be pruned.
+	virtual void putTexture(u32 id) = 0;
 };
 
 class IWritableTextureSource : public ITextureSource

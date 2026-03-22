@@ -203,8 +203,40 @@ static size_t getArrayTextureMax(IShaderSource *shdsrc)
 
 //// NodeVisuals
 
+static void putTileTextures(ITextureSource *tsrc, TileSpec &tile)
+{
+	for (auto &layer : tile.layers) {
+		if (layer.texture_id)
+			tsrc->putTexture(layer.texture_id);
+		if (layer.frames) {
+			for (auto &frame : *layer.frames)
+				if (frame.texture_id)
+					tsrc->putTexture(frame.texture_id);
+		}
+	}
+}
+
+static void grabTileTextures(ITextureSource *tsrc, const TileSpec &tile)
+{
+	for (const auto &layer : tile.layers) {
+		if (layer.texture_id)
+			tsrc->grabTexture(layer.texture_id);
+		if (layer.frames) {
+			for (const auto &frame : *layer.frames)
+				if (frame.texture_id)
+					tsrc->grabTexture(frame.texture_id);
+		}
+	}
+}
+
 NodeVisuals::~NodeVisuals()
 {
+	if (tsrc) {
+		for (auto &tile : tiles)
+			putTileTextures(tsrc, tile);
+		for (auto &tile : special_tiles)
+			putTileTextures(tsrc, tile);
+	}
 	if (mesh_ptr)
 		mesh_ptr->drop();
 }
@@ -471,6 +503,13 @@ void NodeVisuals::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc, Cl
 			param_type_2 == CPT2_COLORED_WALLMOUNTED ||
 			param_type_2 == CPT2_COLORED_DEGROTATE)
 		palette = tsrc->getPalette(palette_name);
+
+	// Grab texture references for all tiles
+	this->tsrc = tsrc;
+	for (auto &tile : tiles)
+		grabTileTextures(tsrc, tile);
+	for (auto &tile : special_tiles)
+		grabTileTextures(tsrc, tile);
 }
 
 void NodeVisuals::updateMesh(Client *client, const TextureSettings &tsettings)

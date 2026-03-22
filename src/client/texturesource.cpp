@@ -11,6 +11,7 @@
 #include "imagesource.h"
 #include "porting.h"
 #include "renderingengine.h"
+#include "profiler.h"
 #include "settings.h"
 #include "texturepaths.h"
 #include "util/thread.h"
@@ -57,6 +58,50 @@ struct TextureInfo
 	video::ITexture *texture = nullptr;
 
 	std::set<std::string> sourceImages{};
+
+	// Reference count for texture garbage collection.
+	// Textures with refcount 0 are candidates for pruning,
+	// but only if they were grabbed at least once (refcounted == true).
+	std::atomic<u32> refcount{0};
+	bool refcounted = false;
+
+	TextureInfo() = default;
+	TextureInfo(video::E_TEXTURE_TYPE type_, std::string name_,
+			std::vector<std::string> images_,
+			video::ITexture *texture_ = nullptr,
+			std::set<std::string> sourceImages_ = {}) :
+		type(type_), name(std::move(name_)),
+		images(std::move(images_)), texture(texture_),
+		sourceImages(std::move(sourceImages_))
+	{}
+	TextureInfo(TextureInfo &&other) noexcept :
+		type(other.type),
+		name(std::move(other.name)),
+		images(std::move(other.images)),
+		texture(other.texture),
+		sourceImages(std::move(other.sourceImages)),
+		refcount(other.refcount.load(std::memory_order_relaxed)),
+		refcounted(other.refcounted)
+	{
+		other.texture = nullptr;
+	}
+	TextureInfo &operator=(TextureInfo &&other) noexcept
+	{
+		if (this != &other) {
+			type = other.type;
+			name = std::move(other.name);
+			images = std::move(other.images);
+			texture = other.texture;
+			other.texture = nullptr;
+			sourceImages = std::move(other.sourceImages);
+			refcount.store(other.refcount.load(std::memory_order_relaxed),
+				std::memory_order_relaxed);
+			refcounted = other.refcounted;
+		}
+		return *this;
+	}
+	TextureInfo(const TextureInfo &) = delete;
+	TextureInfo &operator=(const TextureInfo &) = delete;
 };
 
 // Stores internal information about a texture image.
@@ -120,7 +165,14 @@ public:
 
 	void setImageCaching(bool enabled);
 
+	void grabTexture(u32 id) override;
+	void putTexture(u32 id) override;
+
 private:
+	void pruneUnusedTextures();
+
+	// Pruning is only safe once consumers are calling grabTexture/putTexture.
+	bool m_refcounting_active = false;
 	// Gets or generates an image for a texture string
 	// Caller needs to drop the returned image
 	video::IImage *getOrGenerateImage(const std::string &name,
@@ -525,6 +577,73 @@ void TextureSource::processQueue()
 
 		m_get_texture_queue.pushResult(request, processRequest(request.key));
 	}
+
+	pruneUnusedTextures();
+}
+
+void TextureSource::grabTexture(u32 id)
+{
+	// No lock needed: refcount is atomic, and the vector slot for a
+	// valid id is never moved or deleted while the source exists.
+	if (id == 0)
+		return;
+	MutexAutoLock lock(m_textureinfo_cache_mutex);
+	if (id < m_textureinfo_cache.size()) {
+		auto &ti = m_textureinfo_cache[id];
+		ti.refcount.fetch_add(1, std::memory_order_relaxed);
+		ti.refcounted = true;
+		m_refcounting_active = true;
+	}
+}
+
+void TextureSource::putTexture(u32 id)
+{
+	if (id == 0)
+		return;
+	MutexAutoLock lock(m_textureinfo_cache_mutex);
+	if (id < m_textureinfo_cache.size()) {
+		auto &ti = m_textureinfo_cache[id];
+		u32 prev = ti.refcount.fetch_sub(1, std::memory_order_acq_rel);
+		sanity_check(prev > 0);
+	}
+}
+
+void TextureSource::pruneUnusedTextures()
+{
+	if (!m_refcounting_active)
+		return;
+
+	ScopeProfiler sp(g_profiler, "TextureSource::pruneUnusedTextures()", SPT_AVG);
+
+	sanity_check(std::this_thread::get_id() == m_main_thread);
+
+	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
+	if (!driver)
+		return;
+
+	MutexAutoLock lock(m_textureinfo_cache_mutex);
+
+	u32 total = 0, tracked = 0, pruned = 0;
+	for (u32 id = 1; id < m_textureinfo_cache.size(); id++) {
+		auto &ti = m_textureinfo_cache[id];
+		if (ti.texture)
+			total++;
+		if (ti.refcounted)
+			tracked++;
+		if (ti.texture && ti.refcounted
+				&& ti.refcount.load(std::memory_order_acquire) == 0) {
+			// TODO: enable actual pruning once all texture consumers
+			// are wired up with grab/put. Until then, just count.
+			// driver->removeTexture(ti.texture);
+			// ti.texture = nullptr;
+			// m_name_to_id.erase(ti.name);
+			pruned++;
+		}
+	}
+	if (pruned)
+		infostream << "TextureSource: pruned " << pruned
+			<< " textures (total=" << total
+			<< ", tracked=" << tracked << ")" << std::endl;
 }
 
 void TextureSource::insertSourceImage(const std::string &name, video::IImage *img)
