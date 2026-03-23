@@ -523,6 +523,19 @@ void ScriptApiEnv::on_block_deactivated(const std::vector<v3s16> &blockpos_list)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
+	// Update active_blocks table before running callbacks so mods see the
+	// blocks as inactive when querying inside the callback
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "active_blocks");
+	if (lua_istable(L, -1)) {
+		for (const v3s16 &blockpos : blockpos_list) {
+			lua_pushnumber(L, hash_node_position(blockpos));
+			lua_pushnil(L);
+			lua_rawset(L, -3);
+		}
+	}
+	lua_pop(L, 2); // Pop active_blocks and core
+
 	// Get core.registered_on_block_deactivated
 	lua_getglobal(L, "core");
 	lua_getfield(L, -1, "registered_on_block_deactivated");
@@ -538,18 +551,6 @@ void ScriptApiEnv::on_block_deactivated(const std::vector<v3s16> &blockpos_list)
 	}
 
 	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
-
-	// Update active_blocks table only (blocks are still loaded in memory)
-	lua_getglobal(L, "core");
-	lua_getfield(L, -1, "active_blocks");
-	if (lua_istable(L, -1)) {
-		for (const v3s16 &blockpos : blockpos_list) {
-			lua_pushnumber(L, hash_node_position(blockpos));
-			lua_pushnil(L);
-			lua_rawset(L, -3);
-		}
-	}
-	lua_pop(L, 2); // Pop active_blocks and core
 }
 
 void ScriptApiEnv::on_block_unloaded(const std::vector<v3s16> &blockpos_list)
