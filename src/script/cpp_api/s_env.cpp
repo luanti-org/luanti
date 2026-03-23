@@ -485,20 +485,8 @@ void ScriptApiEnv::on_block_activated(v3s16 blockpos, u32 last_stamp)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
-	// Get core.registered_on_block_activated
-	lua_getglobal(L, "core");
-	lua_getfield(L, -1, "registered_on_block_activated");
-	luaL_checktype(L, -1, LUA_TTABLE);
-	lua_remove(L, -2); // Remove core
-
-	// Push block position
-	push_v3s16(L, blockpos);
-	// Push old timestamp (BLOCK_TIMESTAMP_UNDEFINED if this is a new/never-activated block)
-	lua_pushinteger(L, last_stamp);
-
-	runCallbacks(2, RUN_CALLBACKS_MODE_FIRST);
-
-	// Update loaded_blocks table (activated blocks are by definition loaded)
+	// Update loaded_blocks and active_blocks tables before running callbacks
+	// so mods can query them inside the callback
 	lua_getglobal(L, "core");
 	lua_getfield(L, -1, "loaded_blocks");
 	if (lua_istable(L, -1)) {
@@ -508,7 +496,6 @@ void ScriptApiEnv::on_block_activated(v3s16 blockpos, u32 last_stamp)
 	}
 	lua_pop(L, 1); // Pop loaded_blocks
 
-	// Update active_blocks table
 	lua_getfield(L, -1, "active_blocks");
 	if (lua_istable(L, -1)) {
 		lua_pushnumber(L, hash_node_position(blockpos));
@@ -516,6 +503,20 @@ void ScriptApiEnv::on_block_activated(v3s16 blockpos, u32 last_stamp)
 		lua_rawset(L, -3);
 	}
 	lua_pop(L, 2); // Pop active_blocks and core
+
+	// Get core.registered_on_block_activated
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "registered_on_block_activated");
+	luaL_checktype(L, -1, LUA_TTABLE);
+	lua_remove(L, -2); // Remove core
+
+	// Push block position
+	push_v3s16(L, blockpos);
+	// Push old timestamp as a number to handle BLOCK_TIMESTAMP_UNDEFINED (0xffffffff)
+	// safely on 32-bit builds where lua_pushinteger would produce -1
+	lua_pushnumber(L, (lua_Number)last_stamp);
+
+	runCallbacks(2, RUN_CALLBACKS_MODE_FIRST);
 }
 
 void ScriptApiEnv::on_block_deactivated(const std::vector<v3s16> &blockpos_list)
