@@ -109,6 +109,9 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float> m_moon_brightness_pixel{"moonBrightness"};
 	CachedPixelShaderSetting<float>
 		m_volumetric_light_strength_pixel{"volumetricLightStrength"};
+	CachedPixelShaderSetting<float, 3> m_light_direction_pixel{"sunLightDirection"};
+	CachedPixelShaderSetting<s32> m_sun_texture_pixel{"sunReflectionSampler"};
+	CachedPixelShaderSetting<float> m_sun_texture_scale_pixel{"sunReflectionScale"};
 
 	static constexpr std::array<const char*, 1> SETTING_CALLBACKS = {
 		"exposure_compensation",
@@ -256,6 +259,29 @@ public:
 			float volumetric_light_strength = lighting.volumetric_light_strength;
 			m_volumetric_light_strength_pixel.set(&volumetric_light_strength, services);
 		}
+
+		{
+			float wicked_tod = getWickedTimeOfDay(m_client->getEnv().getTimeOfDay() / 24000.f);
+			bool is_day = wicked_tod > 0.25f && wicked_tod < 0.75f;
+			v3f light_dir = (is_day && m_sky->getSunVisible())
+				? m_sky->getSunDirection()
+				: (m_sky->getMoonVisible() ? m_sky->getMoonDirection() : v3f(0, -1, 0));
+			m_light_direction_pixel.set(light_dir, services);
+		}
+
+		{
+			float wicked_tod = getWickedTimeOfDay(m_client->getEnv().getTimeOfDay() / 24000.f);
+			bool is_day = wicked_tod > 0.25f && wicked_tod < 0.75f;
+			float body_scale = 0.0f;
+			if (is_day && m_sky->getSunVisible() && m_sky->getSunTexture())
+				body_scale = 0.25f;
+			else if (m_sky->getMoonVisible() && m_sky->getMoonTexture())
+				body_scale = 0.63f;
+			m_sun_texture_scale_pixel.set(&body_scale, services);
+
+			s32 layer = 2;
+			m_sun_texture_pixel.set(&layer, services);
+		}
 	}
 
 	void onSetMaterial(const video::SMaterial &material) override
@@ -358,6 +384,7 @@ public:
 			case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
 			case TILE_MATERIAL_WAVING_LIQUID_BASIC:
 			case TILE_MATERIAL_LIQUID_TRANSPARENT:
+			case TILE_MATERIAL_LIQUID_OPAQUE:
 				constants["MATERIAL_WATER_REFLECTIONS"] = 1;
 				break;
 			default:
@@ -3445,6 +3472,18 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 	sky->update(time_of_day_smooth, time_brightness, direct_brightness,
 			sunlight_seen, camera->getCameraMode(), player->getYaw(),
 			player->getPitch());
+
+	// Set sun/moon texture for water surface reflections.
+	{
+		float wicked_tod = getWickedTimeOfDay(time_of_day_smooth);
+		bool is_day = wicked_tod > 0.25f && wicked_tod < 0.75f;
+		video::ITexture *body_tex = nullptr;
+		if (is_day && sky->getSunVisible())
+			body_tex = sky->getSunTexture();
+		else if (sky->getMoonVisible())
+			body_tex = sky->getMoonTexture();
+		client->getEnv().getClientMap().setSunReflectionTexture(body_tex);
+	}
 
 	/*
 		Update clouds
