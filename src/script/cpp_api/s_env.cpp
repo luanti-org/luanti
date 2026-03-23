@@ -459,6 +459,16 @@ void ScriptApiEnv::on_block_loaded(v3s16 blockpos)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
+	// Update loaded_blocks table before running callbacks so mods can query it
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "loaded_blocks");
+	if (lua_istable(L, -1)) {
+		lua_pushnumber(L, hash_node_position(blockpos));
+		lua_pushboolean(L, true);
+		lua_rawset(L, -3);
+	}
+	lua_pop(L, 2); // Pop loaded_blocks and core
+
 	// Get core.registered_on_block_loaded
 	lua_getglobal(L, "core");
 	lua_getfield(L, -1, "registered_on_block_loaded");
@@ -469,16 +479,6 @@ void ScriptApiEnv::on_block_loaded(v3s16 blockpos)
 	push_v3s16(L, blockpos);
 
 	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
-
-	// Update loaded_blocks table
-	lua_getglobal(L, "core");
-	lua_getfield(L, -1, "loaded_blocks");
-	if (lua_istable(L, -1)) {
-		lua_pushnumber(L, hash_node_position(blockpos));
-		lua_pushboolean(L, true);
-		lua_rawset(L, -3);
-	}
-	lua_pop(L, 2); // Pop loaded_blocks and core
 }
 
 void ScriptApiEnv::on_block_activated(v3s16 blockpos, u32 last_stamp)
