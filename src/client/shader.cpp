@@ -212,6 +212,13 @@ public:
 	{
 		constants["ENABLE_TONE_MAPPING"] = g_settings->getBool("tone_mapping") ? 1 : 0;
 
+		// These visual effects can work independently of dynamic shadows
+		if (g_settings->getBool("enable_water_reflections"))
+			constants["ENABLE_WATER_REFLECTIONS"] = 1;
+
+		if (g_settings->getBool("enable_translucent_foliage"))
+			constants["ENABLE_TRANSLUCENT_FOLIAGE"] = 1;
+
 		if (g_settings->getBool("enable_dynamic_shadows")) {
 			constants["ENABLE_DYNAMIC_SHADOWS"] = 1;
 			if (g_settings->getBool("shadow_map_color"))
@@ -219,12 +226,6 @@ public:
 
 			if (g_settings->getBool("shadow_poisson_filter"))
 				constants["POISSON_FILTER"] = 1;
-
-			if (g_settings->getBool("enable_water_reflections"))
-				constants["ENABLE_WATER_REFLECTIONS"] = 1;
-
-			if (g_settings->getBool("enable_translucent_foliage"))
-				constants["ENABLE_TRANSLUCENT_FOLIAGE"] = 1;
 
 			// FIXME: The node specular effect is currently disabled due to mixed in-game
 			// results. This shader should not be applied to all nodes equally. See #15898
