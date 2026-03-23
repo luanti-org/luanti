@@ -155,6 +155,14 @@
     background-color: #2a2a2a;
   }
 
+  /* Table zebra-striping — override theme's light background */
+  body.wy-body-for-nav .rst-content table.docutils:not(.field-list) tr:nth-child(2n-1) td {
+    background-color: #2a2a2a;
+  }
+  body.wy-body-for-nav .rst-content table.docutils:not(.field-list) tr:nth-child(2n) td {
+    background-color: #252526;
+  }
+
   /* Admonitions (Notes, Tips, Warnings, etc.) */
   body.wy-body-for-nav .admonition,
   body.wy-body-for-nav .admonition-title {
