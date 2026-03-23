@@ -107,8 +107,6 @@ float smoothTriangleWave(float x)
 	return smoothCurve(triangleWave(x)) * 2.0 - 1.0;
 }
 
-#if MATERIAL_WAVING_LIQUID && ENABLE_WAVING_WATER
-
 //
 // Simple, fast noise function.
 // See: https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
@@ -140,8 +138,6 @@ float snoise(vec3 p)
 
 	return o4.y * d.y + o4.x * (1.0 - d.y);
 }
-
-#endif
 
 
 

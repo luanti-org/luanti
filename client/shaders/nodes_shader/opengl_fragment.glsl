@@ -57,7 +57,8 @@ flat VARYING_ uint varTexLayer;
 CENTROID_ VARYING_ float nightRatio;
 VARYING_ highp vec3 eyeVec;
 
-#ifdef ENABLE_DYNAMIC_SHADOWS
+// General-purpose noise functions for water reflections and other effects.
+// Kept outside the shadow ifdef so they can be reused without shadow dependency.
 #if (defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS && ENABLE_WAVING_WATER)
 vec4 perm(vec4 x)
 {
@@ -105,6 +106,8 @@ vec2 wave_noise(vec3 p, float off) {
 		gnoise(4.0 * p + vec3(-off, off, 0.0)) * 0.2).xz;
 }
 #endif
+
+#ifdef ENABLE_DYNAMIC_SHADOWS
 
 // assuming near is always 1.0
 float getLinearDepth()
