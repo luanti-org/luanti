@@ -276,7 +276,8 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 
 	// final merge
 	shader_id = client->getShaderSource()->getShaderRaw("second_stage");
-	PostProcessingStep *effect = pipeline->createOwned<PostProcessingStep>(shader_id, std::vector<u8> { final_stage_source, TEXTURE_SCALE_UP, TEXTURE_EXPOSURE_2 });
+	PostProcessingStep *effect = pipeline->createOwned<PostProcessingStep>(shader_id,
+		std::vector<u8> { final_stage_source, TEXTURE_SCALE_UP, TEXTURE_EXPOSURE_2, TEXTURE_DEPTH });
 	pipeline->addStep(effect);
 	if (enable_ssaa)
 		effect->setBilinearFilter(0, true);
