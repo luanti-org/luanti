@@ -849,10 +849,18 @@ void ServerEnvironment::clearObjects(ClearObjectsMode mode)
 				<< percent << "%)" << std::endl;
 		}
 		if (num_blocks_checked % unload_interval == 0) {
-			m_map->unloadUnreferencedBlocks();
+			std::vector<v3s16> interval_unloaded;
+			m_map->unloadUnreferencedBlocks(&interval_unloaded);
+			if (!interval_unloaded.empty())
+				m_script->on_block_unloaded(interval_unloaded);
 		}
 	}
-	m_map->unloadUnreferencedBlocks();
+	{
+		std::vector<v3s16> final_unloaded;
+		m_map->unloadUnreferencedBlocks(&final_unloaded);
+		if (!final_unloaded.empty())
+			m_script->on_block_unloaded(final_unloaded);
+	}
 
 	// Drop references that were added above
 	for (v3s16 p : loaded_blocks) {
