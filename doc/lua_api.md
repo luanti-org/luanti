@@ -6554,10 +6554,16 @@ Call these functions only at load time!
     * For blocks loaded from disk, it runs before border lighting is updated
     * `blockpos`: position of the block (table with x, y, z)
     * Note: callbacks must be registered at mod load time.
-* `core.register_on_block_activated(function(blockpos))`
+* `core.register_on_block_activated(function(blockpos, last_timestamp))`
     * Called immediately after a mapblock becomes active (within active_block_range of a player)
     * This is called after `on_block_loaded` if the block was just loaded
     * `blockpos`: position of the block (table with x, y, z)
+    * `last_timestamp`: the timestamp of the block before it was activated (unsigned
+      integer, same unit as `core.get_gametime()`). This is
+      `core.BLOCK_TIMESTAMP_UNDEFINED` (4294967295) if the
+      block has never been activated before (e.g. newly generated blocks).
+      Comparing `last_timestamp` to `core.get_gametime()` gives the elapsed time
+      since the block was last active.
     * Note: callbacks must be registered at mod load time.
     * **Warning**: As of Luanti 5.15.0, making map modifications using VoxelManip
       (or similar functions like `core.set_node`) in this callback is unreliable.

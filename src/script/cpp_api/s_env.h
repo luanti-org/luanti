@@ -43,7 +43,7 @@ public:
 
 	// Block tracking callbacks
 	void on_block_loaded(v3s16 blockpos);
-	void on_block_activated(v3s16 blockpos);
+	void on_block_activated(v3s16 blockpos, u32 last_stamp);
 	void on_block_deactivated(const std::vector<v3s16> &blockpos_list);
 	void on_block_unloaded(const std::vector<v3s16> &blockpos_list);
 

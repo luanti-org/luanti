@@ -481,7 +481,7 @@ void ScriptApiEnv::on_block_loaded(v3s16 blockpos)
 	lua_pop(L, 2); // Pop loaded_blocks and core
 }
 
-void ScriptApiEnv::on_block_activated(v3s16 blockpos)
+void ScriptApiEnv::on_block_activated(v3s16 blockpos, u32 last_stamp)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
@@ -493,8 +493,10 @@ void ScriptApiEnv::on_block_activated(v3s16 blockpos)
 
 	// Push block position
 	push_v3s16(L, blockpos);
+	// Push old timestamp (BLOCK_TIMESTAMP_UNDEFINED if this is a new/never-activated block)
+	lua_pushinteger(L, last_stamp);
 
-	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
+	runCallbacks(2, RUN_CALLBACKS_MODE_FIRST);
 
 	// Update loaded_blocks table (activated blocks are by definition loaded)
 	lua_getglobal(L, "core");

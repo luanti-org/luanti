@@ -588,7 +588,7 @@ void ServerEnvironment::activateBlock(MapBlock *block)
 
 	// Call Lua on_block_activated callback
 	// Note: on_block_loaded is called earlier during block load, not here
-	m_script->on_block_activated(block->getPos());
+	m_script->on_block_activated(block->getPos(), stamp);
 }
 
 void ServerEnvironment::addActiveBlockModifier(ActiveBlockModifier *abm)
