@@ -1101,34 +1101,7 @@ int ModApiMainMenu::l_do_async_callback(lua_State *L)
 	return 1;
 }
 /******************************************************************************/
-int ModApiMainMenu::l_get_local_ip(lua_State *L)
-{
-    struct ifaddrs *list;
-    std::string final_ip = "IP Not Found";
 
-    if (getifaddrs(&list) == 0) {
-        struct ifaddrs *cur;
-        for (cur = list; cur != NULL; cur = cur->ifa_next) {
-            if (cur->ifa_addr && cur->ifa_addr->sa_family == AF_INET) {
-
-                struct sockaddr_in *sin = (struct sockaddr_in *)cur->ifa_addr;
-
-                if ((ntohl(sin->sin_addr.s_addr) & IN_CLASSA_NET) == (INADDR_LOOPBACK & IN_CLASSA_NET)) {
-                    continue; 
-                }
-
-                char *ip_string = inet_ntoa(sin->sin_addr);
-                final_ip = std::string(ip_string);
-                break; 
-            }
-        }        
-        freeifaddrs(list);
-    }
-
-    lua_pushstring(L, final_ip.c_str());
-    return 1;
-}
-/******************************************************************************/
 void ModApiMainMenu::Initialize(lua_State *L, int top)
 {
 	API_FCT(update_formspec);
@@ -1186,7 +1159,6 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 
 	lua_pushboolean(L, g_first_run);
 	lua_setfield(L, top, "is_first_run");
-	API_FCT(get_local_ip);
 }
 
 /******************************************************************************/
