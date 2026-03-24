@@ -774,17 +774,13 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 		ReflowScan scanner(this, m_emerge->ndef);
 		scanner.scan(block, &m_transforming_liquid);
 
-		// Call on_block_loaded callback before fixing lighting
-		// This allows voxel manipulator to modify the block, and lighting
-		// will be fixed afterwards
-		if (m_env) {
-			ServerScripting *script = m_env->getScriptIface();
-			if (script)
-				script->on_block_loaded(p3d);
-		}
+		// Queue on_block_loaded callback to be fired on the main server
+		// thread in ServerEnvironment::step() so that mods can safely use
+		// all Lua APIs inside the callback.
+		if (m_env)
+			m_env->queueBlockLoaded(p3d);
 
 		std::map<v3s16, MapBlock*> modified_blocks;
-		// Fix lighting after callback to handle any voxel manipulator changes
 		voxalgo::update_block_border_lighting(this, block, modified_blocks);
 		if (!modified_blocks.empty()) {
 			MapEditEvent event;

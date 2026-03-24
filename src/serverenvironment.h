@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory> // std::unique_ptr
+#include <mutex>
 #include <set>
 #include <unordered_map>
 #include <utility> // std::function
@@ -218,6 +219,11 @@ public:
 	void addActiveBlockModifier(ActiveBlockModifier *abm);
 	void addLoadingBlockModifierDef(LoadingBlockModifierDef *lbm);
 
+	// Queue a block position so that on_block_loaded callbacks are fired on
+	// the main server thread during the next step(). Safe to call from any
+	// thread (e.g. emerge/mapgen threads).
+	void queueBlockLoaded(v3s16 pos);
+
 	/*
 		Other stuff
 		-------------------------------------------
@@ -374,6 +380,10 @@ private:
 	GUIDGenerator m_guid_generator;
 	// Outgoing network message buffer for active objects
 	std::queue<ActiveObjectMessage> m_active_object_messages;
+	// Block positions queued for on_block_loaded callbacks (filled by emerge /
+	// load threads, drained on the main thread in step()).
+	std::mutex m_pending_loaded_blocks_mutex;
+	std::vector<v3s16> m_pending_loaded_blocks;
 	// Some timers
 	float m_send_recommended_timer = 0.0f;
 	IntervalLimiter m_object_management_interval;

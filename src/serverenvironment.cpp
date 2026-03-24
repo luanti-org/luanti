@@ -601,6 +601,12 @@ void ServerEnvironment::addLoadingBlockModifierDef(LoadingBlockModifierDef *lbm)
 	m_lbm_mgr.addLBMDef(lbm);
 }
 
+void ServerEnvironment::queueBlockLoaded(v3s16 pos)
+{
+	std::lock_guard<std::mutex> lock(m_pending_loaded_blocks_mutex);
+	m_pending_loaded_blocks.push_back(pos);
+}
+
 bool ServerEnvironment::setNode(v3s16 p, const MapNode &n)
 {
 	const NodeDefManager *ndef = m_server->ndef();
@@ -1087,6 +1093,21 @@ void ServerEnvironment::step(float dtime)
 		g_profiler->avg("ServerEnv: ABMs run", abms_run);
 
 		timer.stop(true);
+	}
+
+	/*
+		Fire on_block_loaded callbacks for blocks that were loaded or generated
+		on emerge/mapgen threads. We drain the queue here on the main server
+		thread so that mods can safely use all Lua APIs inside the callback.
+	*/
+	{
+		std::vector<v3s16> loaded_blocks;
+		{
+			std::lock_guard<std::mutex> lock(m_pending_loaded_blocks_mutex);
+			loaded_blocks = std::move(m_pending_loaded_blocks);
+		}
+		for (const v3s16 &bp : loaded_blocks)
+			m_script->on_block_loaded(bp);
 	}
 
 	/*
