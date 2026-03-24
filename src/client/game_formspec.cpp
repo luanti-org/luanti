@@ -72,7 +72,7 @@ static std::string get_local_ip_for_pause() {
             if (cur->ifa_addr && cur->ifa_addr->sa_family == AF_INET) {
                 struct sockaddr_in *sin = (struct sockaddr_in *)cur->ifa_addr;
                 if ((ntohl(sin->sin_addr.s_addr) & IN_CLASSA_NET) == (INADDR_LOOPBACK & IN_CLASSA_NET)) {
-                    continue; 
+                    continue;
                 }
                 char *ip_string = inet_ntoa(sin->sin_addr);
                 final_ip = std::string(ip_string);
