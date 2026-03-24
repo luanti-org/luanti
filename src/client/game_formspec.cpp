@@ -76,7 +76,7 @@ static std::string get_local_ip_for_pause() {
                 }
                 char *ip_string = inet_ntoa(sin->sin_addr);
                 final_ip = std::string(ip_string);
-                break; 
+                break;
             }
         }        
         freeifaddrs(list);
