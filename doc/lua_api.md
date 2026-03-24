@@ -8106,20 +8106,20 @@ Global tables
 * `core.luaentities`
     * Map of Lua entities, indexed by active object id
 * `core.loaded_blocks`
-    * Read-only table tracking currently loaded mapblocks
+    * Table tracking currently loaded mapblocks; mods must treat this as read-only and must not modify it
     * Keys are block position hashes (from `core.hash_node_position`)
     * Values are `true` for loaded blocks, `nil` otherwise
     * Loaded blocks are in memory and can contain nodes/objects
-    * Updated automatically by the engine when blocks are loaded or unloaded from memory
+    * Updated automatically by the engine when blocks are loaded or unloaded from memory; any changes made by mods are unsupported and may be overwritten
     * Example: `if core.loaded_blocks[core.hash_node_position(blockpos)] then ... end`
 * `core.active_blocks`
-    * Read-only table tracking currently active mapblocks
+    * Table tracking currently active mapblocks; mods must treat this as read-only and must not modify it
     * Active blocks are those within active_block_range of a player
     * Keys are block position hashes (from `core.hash_node_position`)
     * Values are `true` for active blocks, `nil` otherwise
     * Active blocks run game logic (ABMs, node timers, etc.)
     * All active blocks are also loaded, but not all loaded blocks are active
-    * Updated automatically by the engine when blocks become active or inactive
+    * Updated automatically by the engine when blocks become active or inactive; any changes made by mods are unsupported and may be overwritten
 * `core.registered_abms`
     * List of ABM definitions
 * `core.registered_lbms`
