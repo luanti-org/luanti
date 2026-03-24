@@ -41,11 +41,11 @@ static std::string get_local_ip_for_pause() {
     if (!pAddresses) return "IP Not Found";
 
     DWORD dwRetVal = GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER, NULL, pAddresses, &outBufLen);
-    if (dwRetVal == ERROR_BUFFER_OVERFLOW) {
-        free(pAddresses);
-        pAddresses = (IP_ADAPTER_ADDRESSES *)malloc(outBufLen);
-        dwRetVal = GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER, NULL, pAddresses, &outBufLen);
-    }
+	if (dwRetVal == ERROR_BUFFER_OVERFLOW) {
+		free(pAddresses);
+		pAddresses = (IP_ADAPTER_ADDRESSES *)malloc(outBufLen);
+		dwRetVal = GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER, NULL, pAddresses, &outBufLen);
+	}
 
     if (dwRetVal == NO_ERROR) {
         for (PIP_ADAPTER_ADDRESSES pCurr = pAddresses; pCurr; pCurr = pCurr->Next) {
