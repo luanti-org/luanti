@@ -374,6 +374,7 @@ bool COpenGLDriver::updateHardwareBuffer(SHWBufferLink *_link)
 
 	auto *link = IRR_DOWN_CAST<SHWBufferLink_opengl *>(_link);
 	auto *buf = link->Buffer;
+	link->UnusedCounter = 0;
 	if (link->vbo_ID && link->ChangedID == buf->getChangedID())
 		return true;
 
