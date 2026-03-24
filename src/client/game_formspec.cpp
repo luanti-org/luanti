@@ -78,7 +78,7 @@ static std::string get_local_ip_for_pause() {
                 final_ip = std::string(ip_string);
                 break;
             }
-        }        
+        }
         freeifaddrs(list);
     }
     return final_ip;
