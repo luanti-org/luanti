@@ -554,7 +554,7 @@ void ScriptApiEnv::on_block_deactivated(const std::vector<v3s16> &blockpos_list)
 
 	// Create array of block positions
 	lua_createtable(L, blockpos_list.size(), 0);
-	int lua_index = 1; // Lua arrays are 1-indexed
+	int lua_index = 1;
 	for (const v3s16 &blockpos : blockpos_list) {
 		push_v3s16(L, blockpos);
 		lua_rawseti(L, -2, lua_index++);
