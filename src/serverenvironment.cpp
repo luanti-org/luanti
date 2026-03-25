@@ -603,7 +603,7 @@ void ServerEnvironment::addLoadingBlockModifierDef(LoadingBlockModifierDef *lbm)
 
 void ServerEnvironment::queueBlockLoaded(v3s16 pos)
 {
-	std::lock_guard<std::mutex> lock(m_pending_loaded_blocks_mutex);
+	auto lock = std::lock_guard(m_pending_loaded_blocks_mutex);
 	m_pending_loaded_blocks.push_back(pos);
 }
 
