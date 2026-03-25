@@ -860,6 +860,90 @@ void ServerEnvironment::clearObjects(ClearObjectsMode mode)
 		<< " in " << num_blocks_cleared << " blocks" << std::endl;
 }
 
+void ServerEnvironment::blocksCallback(BlocksCallbackConfig &config)
+{
+	infostream << "ServerEnvironment::blocksCallback(): "
+		<< "Call Lua callback over blocks" << std::endl;
+
+	// Get list of loaded blocks
+	std::vector<v3s16> loaded_blocks;
+	infostream << "ServerEnvironment::blocksCallback(): "
+		<< "Listing all loaded blocks" << std::endl;
+	m_map->listAllLoadedBlocks(loaded_blocks);
+	infostream << "ServerEnvironment::blocksCallback(): "
+		<< "Done listing all loaded blocks: "
+		<< loaded_blocks.size()<<std::endl;
+
+	// Get list of loadable blocks
+	std::vector<v3s16> loadable_blocks;
+	if (config.mode == CLEAR_OBJECTS_MODE_FULL) {
+		infostream << "ServerEnvironment::blocksCallback(): "
+			<< "Listing all loadable blocks" << std::endl;
+		m_map->listAllLoadableBlocks(loadable_blocks);
+		infostream << "ServerEnvironment::blocksCallback(): "
+			<< "Done listing all loadable blocks: "
+			<< loadable_blocks.size() << std::endl;
+	} else {
+		loadable_blocks = loaded_blocks;
+	}
+
+	actionstream << "ServerEnvironment::blocksCallback(): "
+		<< "Now processing " << loadable_blocks.size()
+		<< " blocks" << std::endl;
+
+	// Grab a reference on each loaded block to avoid unloading it
+	for (v3s16 p : loaded_blocks) {
+		MapBlock *block = m_map->getBlockNoCreateNoEx(p);
+		assert(block != NULL);
+		block->refGrab();
+	}
+
+	// Remove objects in all loadable blocks
+	u32 unload_interval = U32_MAX;
+	if (config.mode == CLEAR_OBJECTS_MODE_FULL) {
+		unload_interval = g_settings->getS32("max_clearobjects_extra_loaded_blocks");
+		unload_interval = MYMAX(unload_interval, 1);
+	}
+	u32 report_interval = loadable_blocks.size() / 10;
+	u32 num_blocks_processed = 0;
+	for (auto i = loadable_blocks.begin();
+		i != loadable_blocks.end(); ++i) {
+		v3s16 p = *i;
+		MapBlock *block = m_map->emergeBlock(p, false);
+		if (!block) {
+			errorstream << "ServerEnvironment::blocksCallback(): "
+				<< "Failed to emerge block " << p << std::endl;
+			continue;
+		}
+
+		config.callback(p, config.param);
+		num_blocks_processed++;
+
+		if (report_interval != 0 &&
+			num_blocks_processed % report_interval == 0) {
+			float percent = 100.0 * (float)num_blocks_processed /
+				loadable_blocks.size();
+			actionstream << "ServerEnvironment::blocksCallback(): "
+				<< "Processed " << num_blocks_processed << " blocks ("
+				<< percent << "%)" << std::endl;
+		}
+		if (num_blocks_processed % unload_interval == 0) {
+			m_map->unloadUnreferencedBlocks();
+		}
+	}
+	m_map->unloadUnreferencedBlocks();
+
+	// Drop references that were added above
+	for (v3s16 p : loaded_blocks) {
+		MapBlock *block = m_map->getBlockNoCreateNoEx(p);
+		assert(block);
+		block->refDrop();
+	}
+
+	actionstream << "ServerEnvironment::blocksCallback(): "
+		<< "Finished: Processed " << num_blocks_processed << " blocks" << std::endl;
+}
+
 void ServerEnvironment::step(float dtime)
 {
 	ScopeProfiler sp2(g_profiler, "ServerEnv::step()", SPT_AVG);
