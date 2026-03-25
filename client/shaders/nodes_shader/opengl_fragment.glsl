@@ -57,8 +57,8 @@ flat VARYING_ uint varTexLayer;
 CENTROID_ VARYING_ float nightRatio;
 VARYING_ highp vec3 eyeVec;
 
-// General-purpose noise functions for water reflections and other effects.
-// Kept outside the shadow ifdef so they can be reused without shadow dependency.
+// Noise functions for water reflections, kept outside the shadow ifdef
+// so they can be reused without requiring ENABLE_DYNAMIC_SHADOWS.
 #if (defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS && ENABLE_WAVING_WATER)
 vec4 perm(vec4 x)
 {

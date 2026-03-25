@@ -212,7 +212,11 @@ public:
 	{
 		constants["ENABLE_TONE_MAPPING"] = g_settings->getBool("tone_mapping") ? 1 : 0;
 
-		// These visual effects can work independently of dynamic shadows
+		// These visual effects can work independently of dynamic shadows.
+		// The GLSL code paths still require ENABLE_DYNAMIC_SHADOWS for full
+		// implementation (they use shadow-only uniforms like v_LightDirection),
+		// but decoupling the defines here allows incremental shader work to
+		// remove those dependencies.
 		if (g_settings->getBool("enable_water_reflections"))
 			constants["ENABLE_WATER_REFLECTIONS"] = 1;
 

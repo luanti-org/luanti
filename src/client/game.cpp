@@ -260,17 +260,13 @@ public:
 			m_volumetric_light_strength_pixel.set(&volumetric_light_strength, services);
 		}
 
-		// Sky color for water reflections and other effects (always available)
-		{
+		if (m_sky) {
 			video::SColor sky = m_sky->getSkyColor();
 			v3f sky_color(sky.getRed() / 255.0f, sky.getGreen() / 255.0f, sky.getBlue() / 255.0f);
 			m_sky_color_pixel.set(sky_color, services);
-		}
 
-		// Light direction for reflections/specular without shadows.
-		// Uses a separate uniform name (sunLightDirection) to avoid
-		// conflicting with the shadow system's v_LightDirection.
-		{
+			// Uses a separate uniform name (sunLightDirection) to avoid
+			// conflicting with the shadow system's v_LightDirection.
 			v3f light_dir = m_sky->getSunVisible()
 				? m_sky->getSunDirection()
 				: (m_sky->getMoonVisible() ? m_sky->getMoonDirection() : v3f(0, -1, 0));
