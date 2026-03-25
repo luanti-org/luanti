@@ -544,7 +544,7 @@ void ScriptApiEnv::on_block_deactivated(const std::vector<v3s16> &blockpos_list)
 			lua_rawset(L, -3);
 		}
 	}
-	lua_pop(L, 2); // Pop active_blocks and core
+	lua_pop(L, 2); // active_blocks, core
 
 	// Get core.registered_on_block_deactivated
 	lua_getglobal(L, "core");
