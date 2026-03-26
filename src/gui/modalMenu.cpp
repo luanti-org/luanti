@@ -123,15 +123,6 @@ bool GUIModalMenu::remapClickOutside(const SEvent &event)
 	if (isChild(hovered, this))
 		return false;
 
-	// Dropping items is also done by tapping outside the formspec. If an item
-	// is selected, make sure it is dropped without closing the formspec.
-	// We have to explicitly restrict this to GUIInventoryList because other
-	// GUI elements like text fields like to absorb events for no reason.
-	GUIInventoryList *focused = dynamic_cast<GUIInventoryList *>(Environment->getFocus());
-	if (focused && focused->OnEvent(event))
-		// Return true since the event was handled, even if it wasn't handled by us.
-		return true;
-
 	if (event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN) {
 		m_last_click_outside = current;
 		return true;

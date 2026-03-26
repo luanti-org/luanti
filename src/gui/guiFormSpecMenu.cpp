@@ -4054,6 +4054,14 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 	}
 }
 
+bool GUIFormSpecMenu::remapClickOutside(const SEvent &event)
+{
+	// Don't remap a click outside the formspec to ESC when holding an item.
+	if (m_selected_item)
+		return false;
+	return GUIModalMenu::remapClickOutside(event);
+}
+
 bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 {
 	// This must be done first so that GUIModalMenu can set m_pointer_type

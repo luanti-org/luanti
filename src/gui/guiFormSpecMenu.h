@@ -289,6 +289,8 @@ public:
 	static double getImgsize(v2u32 avail_screensize, double screen_dpi, double gui_scaling);
 
 protected:
+	bool remapClickOutside(const SEvent &event) override;
+
 	v2s32 getBasePos() const
 	{
 			return padding + offset + AbsoluteRect.UpperLeftCorner;
