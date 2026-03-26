@@ -8,7 +8,6 @@
 #include "inputhandler.h"
 #include "gui/mainmenumanager.h"
 #include "gui/touchcontrols.h"
-#include "hud_element.h"
 #include "log_internal.h"
 #include "client/renderingengine.h"
 #include "util/hotbar_source.h" // HOTBAR_ITEMCOUNT_MAX

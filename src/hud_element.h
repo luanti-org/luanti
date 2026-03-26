@@ -35,7 +35,7 @@
 #define HUD_FLAG_BASIC_DEBUG           (1 << 7)
 #define HUD_FLAG_CHAT_VISIBLE          (1 << 8)
 
-#define HUD_PARAM_HOTBAR_ITEMCOUNT 1 // Only send by servers with protocol version < 48
+#define HUD_PARAM_HOTBAR_ITEMCOUNT 1 // Only send by servers with protocol version < 52
 #define HUD_PARAM_HOTBAR_IMAGE 2
 #define HUD_PARAM_HOTBAR_SELECTED_IMAGE 3
 #define HUD_PARAM_HOTBAR_SOURCE 4

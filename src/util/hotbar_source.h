@@ -11,6 +11,7 @@
 #include <string>
 #include <string_view>
 #include "irrlichttypes.h"
+#include <utility>
 
 #define HOTBAR_ITEMCOUNT_DEFAULT 8
 #define HOTBAR_INVENTORY_LIST_DEFAULT "main"
@@ -30,7 +31,7 @@ struct HotbarSource {
 	u16 getMaxLength() const { return getLengthBefore(sources.size()); }
 
 	// Returns list and index of the inventory if it exists
-	bool getInventoryFromWieldIndex(u16 wield_index, std::string &list, u16 &index) const;
+	bool getInventoryFromWieldIndex(u16 wield_index, std::pair<std::string, u16> &location) const;
 
 	// Returns number of inventory slots before the source at index
 	u16 getLengthBefore(std::size_t index) const;

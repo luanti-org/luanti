@@ -1587,10 +1587,10 @@ void Game::dropSelectedItem(bool single_item)
 	a->from_inv.setCurrentPlayer();
 
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
-	u16 index;
-	if (player->hotbar_source.getInventoryFromWieldIndex(player->getWieldIndex(),
-			a->from_list, index)) {
-		a->from_i = index;
+	std::pair<std::string, u16> location{};
+	if (player->hotbar_source.getInventoryFromWieldIndex(player->getWieldIndex(), location)) {
+		a->from_list = location.first;
+		a->from_i = location.second;
 		client->inventoryAction(a);
 	}
 }

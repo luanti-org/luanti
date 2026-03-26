@@ -89,12 +89,11 @@ ItemStack &Player::getWieldedItem(ItemStack *selected, ItemStack *hand) const
 {
 	assert(selected);
 
-	std::string list;
-	u16 index;
-	if (hotbar_source.getInventoryFromWieldIndex(m_wield_index, list, index)) {
-		const InventoryList *mlist = inventory.getList(list);
-		if (mlist && index < mlist->getSize())
-			*selected = mlist->getItem(index);
+	std::pair<std::string, u16> location{};
+	if (hotbar_source.getInventoryFromWieldIndex(m_wield_index, location)) {
+		const InventoryList *mlist = inventory.getList(location.first);
+		if (mlist && location.second < mlist->getSize())
+			*selected = mlist->getItem(location.second);
 	}
 
 	const InventoryList *hlist = inventory.getList("hand");

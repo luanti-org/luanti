@@ -3586,7 +3586,7 @@ bool Server::hudSetHotbarItemcountLegacy(RemotePlayer *player, s32 hotbar_itemco
 
 	player->hotbar_source.setHotbarItemcountLegacy(hotbar_itemcount);
 
-	if (player->protocol_version < 48) {
+	if (player->protocol_version < 52) {
 		std::ostringstream os(std::ios::binary);
 		writeS32(os, hotbar_itemcount);
 		SendHUDSetParam(player->getPeerId(), HUD_PARAM_HOTBAR_ITEMCOUNT, os.str());

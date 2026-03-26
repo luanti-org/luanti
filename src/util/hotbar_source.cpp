@@ -17,12 +17,12 @@ void HotbarSource::setHotbarItemcountLegacy(u16 count)
 	});
 }
 
-bool HotbarSource::getInventoryFromWieldIndex(u16 wield_index, std::string &list, u16 &index) const
+bool HotbarSource::getInventoryFromWieldIndex(u16 wield_index, std::pair<std::string, u16> &location) const
 {
 	for (auto &source : sources) {
 		if (wield_index < source.length) {
-			list = source.list;
-			index = wield_index + source.offset;
+			location.first = source.list;
+			location.second = wield_index + source.offset;
 			return true;
 		}
 		wield_index -= source.length;

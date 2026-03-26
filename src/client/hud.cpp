@@ -673,9 +673,9 @@ void Hud::drawLuaElements(const v3s16 &camera_offset)
 				                             e->offset.Y * m_scale_factor);
 				client->getMinimap()->drawMinimap(rect);
 				break; }
-			case HUD_ELEM_HOTBAR:
+			case HUD_ELEM_HOTBAR: {
 				drawHotbarElement(pos, e);
-				break;
+				break; }
 			default:
 				infostream << "Hud::drawLuaElements: ignoring drawform " << e->type
 					<< " due to unrecognized type" << std::endl;
