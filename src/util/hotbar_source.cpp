@@ -17,6 +17,14 @@ void HotbarSource::setHotbarItemcountLegacy(u16 count)
 	});
 }
 
+u16 HotbarSource::getMaxLength() const
+{
+	u16 length = 0;
+	for (const Source &source : sources)
+		length += source.length;
+	return length;
+}
+
 bool HotbarSource::getInventoryFromWieldIndex(u16 wield_index, std::pair<std::string, u16> &location) const
 {
 	for (auto &source : sources) {
@@ -28,15 +36,6 @@ bool HotbarSource::getInventoryFromWieldIndex(u16 wield_index, std::pair<std::st
 		wield_index -= source.length;
 	}
 	return false;
-}
-
-u16 HotbarSource::getLengthBefore(std::size_t index) const
-{
-	index = std::min(index, sources.size());
-	u16 length = 0;
-	while (index-- > 0)
-		length += sources[index].length;
-	return length;
 }
 
 void HotbarSource::serialize(std::ostream &os) const

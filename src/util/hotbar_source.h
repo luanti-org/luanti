@@ -28,13 +28,10 @@ struct HotbarSource {
 	void setHotbarItemcountLegacy(u16 count);
 
 	// Returns the total length of all sources
-	u16 getMaxLength() const { return getLengthBefore(sources.size()); }
+	u16 getMaxLength() const;
 
 	// Returns list and index of the inventory if it exists
 	bool getInventoryFromWieldIndex(u16 wield_index, std::pair<std::string, u16> &location) const;
-
-	// Returns number of inventory slots before the source at index
-	u16 getLengthBefore(std::size_t index) const;
 
 	const std::vector<Source> getSources() const { return sources; };
 
