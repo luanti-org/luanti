@@ -2128,6 +2128,8 @@ The following items are predefined and have special properties.
     * It can be overridden to change those properties:
         * globally using `core.override_item`
         * per-player using the special `"hand"` inventory list
+    * It cannot be used as an ItemStack object, because `""` represents the empty stack.
+      Therefore, it can't be stored in an inventory.
 
 Amount and wear
 ---------------
