@@ -586,11 +586,10 @@ void ClientLauncher::main_menu(MainMenuData *menudata)
 	framemarker.end();
 	infostream << "Waited for other menus" << std::endl;
 
+	// Make sure normal mouse cursor is restored
 	auto *cur_control = device->getCursorControl();
 	if (cur_control) {
-		// Cursor can be non-visible when coming from the game
 		cur_control->setVisible(true);
-		// Set absolute mouse mode
 		cur_control->setRelativeMode(false);
 	}
 

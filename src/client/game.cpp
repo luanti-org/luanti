@@ -624,6 +624,13 @@ void Game::shutdown()
 	if (g_touchcontrols)
 		g_touchcontrols->hide();
 
+	// Restore normal mouse cursor
+	auto *cur_control = device->getCursorControl();
+	if (cur_control) {
+		cur_control->setVisible(true);
+		cur_control->setRelativeMode(false);
+	}
+
 	clouds.reset();
 
 	gui_chat_console.reset();
