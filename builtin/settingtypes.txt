@@ -2475,7 +2475,7 @@ serverlist_file (Serverlist file) [client] string favoriteservers.json
 [*Gamepads] [client]
 
 #    Enable joysticks. Requires a restart to take effect
-enable_joysticks (Enable joysticks) bool false
+enable_joysticks (Enable joysticks/gamepads) bool false
 
 #    The identifier of the joystick to use
 joystick_id (Joystick ID) int 0 0 255
