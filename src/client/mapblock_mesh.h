@@ -51,6 +51,9 @@ struct MeshMakeData
 
 	const NodeDefManager *m_nodedef;
 
+	// Texture IDs grabbed during mesh generation (moved to MapBlockMesh)
+	std::vector<u32> m_grabbed_textures;
+
 	MeshMakeData(const NodeDefManager *ndef, u16 side_lingth, MeshGrid mesh_grid);
 
 	/*
@@ -298,6 +301,9 @@ private:
 	// Animation info: texture animation
 	// Maps mesh and mesh buffer indices to TileSpecs
 	std::map<MeshIndex, AnimationInfo> m_animation_info;
+
+	// Texture IDs grabbed by this mesh (for refcount-based GC)
+	std::vector<u32> m_grabbed_textures;
 
 	// list of all semitransparent triangles in the mapblock
 	std::vector<MeshTriangle> m_transparent_triangles;

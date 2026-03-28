@@ -65,6 +65,9 @@ struct TextureInfo
 	std::atomic<u32> refcount{0};
 	bool refcounted = false;
 
+	// Frame number when refcount last reached 0 (for grace period)
+	u64 zero_frame = 0;
+
 	TextureInfo() = default;
 	TextureInfo(video::E_TEXTURE_TYPE type_, std::string name_,
 			std::vector<std::string> images_,
@@ -81,7 +84,8 @@ struct TextureInfo
 		texture(other.texture),
 		sourceImages(std::move(other.sourceImages)),
 		refcount(other.refcount.load(std::memory_order_relaxed)),
-		refcounted(other.refcounted)
+		refcounted(other.refcounted),
+		zero_frame(other.zero_frame)
 	{
 		other.texture = nullptr;
 	}
@@ -97,6 +101,7 @@ struct TextureInfo
 			refcount.store(other.refcount.load(std::memory_order_relaxed),
 				std::memory_order_relaxed);
 			refcounted = other.refcounted;
+			zero_frame = other.zero_frame;
 		}
 		return *this;
 	}
@@ -173,6 +178,10 @@ private:
 
 	// Pruning is only safe once consumers are calling grabTexture/putTexture.
 	bool m_refcounting_active = false;
+	// Frame counter incremented each processQueue call
+	u64 m_frame_counter = 0;
+	// Number of frames to wait before pruning a zero-refcount texture
+	static constexpr u64 PRUNE_GRACE_FRAMES = 10;
 	// Gets or generates an image for a texture string
 	// Caller needs to drop the returned image
 	video::IImage *getOrGenerateImage(const std::string &name,
@@ -578,6 +587,7 @@ void TextureSource::processQueue()
 		m_get_texture_queue.pushResult(request, processRequest(request.key));
 	}
 
+	m_frame_counter++;
 	pruneUnusedTextures();
 }
 
@@ -605,6 +615,8 @@ void TextureSource::putTexture(u32 id)
 		auto &ti = m_textureinfo_cache[id];
 		u32 prev = ti.refcount.fetch_sub(1, std::memory_order_acq_rel);
 		sanity_check(prev > 0);
+		if (prev == 1)
+			ti.zero_frame = m_frame_counter;
 	}
 }
 
@@ -631,12 +643,11 @@ void TextureSource::pruneUnusedTextures()
 		if (ti.refcounted)
 			tracked++;
 		if (ti.texture && ti.refcounted
-				&& ti.refcount.load(std::memory_order_acquire) == 0) {
-			// TODO: enable actual pruning once all texture consumers
-			// are wired up with grab/put. Until then, just count.
-			// driver->removeTexture(ti.texture);
-			// ti.texture = nullptr;
-			// m_name_to_id.erase(ti.name);
+				&& ti.refcount.load(std::memory_order_acquire) == 0
+				&& m_frame_counter - ti.zero_frame >= PRUNE_GRACE_FRAMES) {
+			driver->removeTexture(ti.texture);
+			ti.texture = nullptr;
+			m_name_to_id.erase(ti.name);
 			pruned++;
 		}
 	}

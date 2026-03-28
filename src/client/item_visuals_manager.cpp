@@ -15,6 +15,7 @@ struct ItemVisualsManager::ItemVisuals
 {
 	ItemMesh item_mesh;
 	Palette *palette;
+	ITextureSource *tsrc = nullptr;
 
 	AnimationInfo inventory_normal;
 	AnimationInfo inventory_overlay;
@@ -28,6 +29,16 @@ struct ItemVisualsManager::ItemVisuals
 
 	~ItemVisuals()
 	{
+		if (tsrc) {
+			auto putFrames = [this](const std::shared_ptr<std::vector<FrameSpec>> &f) {
+				if (!f) return;
+				for (const auto &frame : *f)
+					if (frame.texture_id)
+						tsrc->putTexture(frame.texture_id);
+			};
+			putFrames(frames_normal);
+			putFrames(frames_overlay);
+		}
 		if (item_mesh.mesh)
 			item_mesh.mesh->drop();
 	}
@@ -87,6 +98,17 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 			&(iv->item_mesh));
 
 	iv->palette = tsrc->getPalette(def.palette_image);
+
+	// Grab texture references
+	iv->tsrc = tsrc;
+	auto grabFrames = [tsrc](const std::shared_ptr<std::vector<FrameSpec>> &f) {
+		if (!f) return;
+		for (const auto &frame : *f)
+			if (frame.texture_id)
+				tsrc->grabTexture(frame.texture_id);
+	};
+	grabFrames(iv->frames_normal);
+	grabFrames(iv->frames_overlay);
 
 	// Put in cache
 	ItemVisuals *ptr = iv.get();

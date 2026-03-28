@@ -754,10 +754,16 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 	m_has_animation =
 		!m_crack_materials.empty() ||
 		!m_animation_info.empty();
+
+	// Take ownership of grabbed texture references
+	m_grabbed_textures = std::move(data->m_grabbed_textures);
 }
 
 MapBlockMesh::~MapBlockMesh()
 {
+	for (u32 tex_id : m_grabbed_textures)
+		m_tsrc->putTexture(tex_id);
+
 	size_t sz = 0;
 	for (auto &&m : m_mesh) {
 		for (u32 i = 0; i < m->getMeshBufferCount(); i++)

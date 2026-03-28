@@ -405,8 +405,14 @@ Game::~Game()
 	delete camera;
 	delete quicktune;
 	delete eventmgr;
+	// Remove all scene nodes to ensure map block meshes are destroyed
+	// before the texture source (they call putTexture in destructors).
+	if (smgr)
+		smgr->clear();
+
 	delete nodedef_manager;
 	delete itemdef_manager;
+	m_item_visuals_manager.reset();
 	delete texture_src;
 	delete shader_src;
 	delete draw_control;
