@@ -63,6 +63,11 @@ void MyEventReceiver::reloadKeybindings()
 	keybindings[KeyType::RANGESELECT] = getKeySetting("keymap_rangeselect");
 	keybindings[KeyType::ZOOM] = getKeySetting("keymap_zoom");
 
+	keybindings[KeyType::CAMERA_YAW_LEFT] = getKeySetting("keymap_camera_yaw_left");
+	keybindings[KeyType::CAMERA_YAW_RIGHT] = getKeySetting("keymap_camera_yaw_right");
+	keybindings[KeyType::CAMERA_PITCH_UP] = getKeySetting("keymap_camera_pitch_up");
+	keybindings[KeyType::CAMERA_PITCH_DOWN] = getKeySetting("keymap_camera_pitch_down");
+
 	keybindings[KeyType::QUICKTUNE_NEXT] = getKeySetting("keymap_quicktune_next");
 	keybindings[KeyType::QUICKTUNE_PREV] = getKeySetting("keymap_quicktune_prev");
 	keybindings[KeyType::QUICKTUNE_INC] = getKeySetting("keymap_quicktune_inc");

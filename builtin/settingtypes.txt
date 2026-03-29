@@ -258,6 +258,11 @@ keymap_drop (Drop item) key SYSTEM_SCANCODE_20
 
 keymap_zoom (Zoom) key SYSTEM_SCANCODE_29
 
+keymap_camera_yaw_left (Look left) key
+keymap_camera_yaw_right (Look right) key
+keymap_camera_pitch_up (Look up) key
+keymap_camera_pitch_down (Look down) key
+
 keymap_toggle_hud (Toggle HUD) key SYSTEM_SCANCODE_58
 
 keymap_toggle_chat (Toggle chat log) key SYSTEM_SCANCODE_59

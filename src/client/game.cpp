@@ -1984,9 +1984,10 @@ bool Game::isTouchShootlineUsed() const
 
 void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 {
+	f32 sens_scale = getSensitivityScaleFactor();
+
 	if (g_touchcontrols) {
 		// User setting is already applied by TouchControls.
-		f32 sens_scale = getSensitivityScaleFactor();
 		cam->camera_yaw   += g_touchcontrols->getYawChange()   * sens_scale;
 		cam->camera_pitch += g_touchcontrols->getPitchChange() * sens_scale;
 	} else {
@@ -1997,7 +1998,6 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 			dist.Y = -dist.Y;
 		}
 
-		f32 sens_scale = getSensitivityScaleFactor();
 		cam->camera_yaw   -= dist.X * m_cache_mouse_sensitivity * sens_scale;
 		cam->camera_pitch += dist.Y * m_cache_mouse_sensitivity * sens_scale;
 
@@ -2006,10 +2006,28 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 	}
 
 	if (m_cache_enable_joysticks) {
-		f32 sens_scale = getSensitivityScaleFactor();
 		f32 c = m_cache_joystick_frustum_sensitivity * dtime * sens_scale;
 		cam->camera_yaw -= input->joystick.getAxisWithoutDead(JA_FRUSTUM_HORIZONTAL) * c;
 		cam->camera_pitch += input->joystick.getAxisWithoutDead(JA_FRUSTUM_VERTICAL) * c;
+	}
+
+	// Keyboard look
+	const bool kb_yaw_left  = input->isKeyDown(KeyType::CAMERA_YAW_LEFT);
+	const bool kb_yaw_right = input->isKeyDown(KeyType::CAMERA_YAW_RIGHT);
+	const bool kb_pitch_up  = input->isKeyDown(KeyType::CAMERA_PITCH_UP);
+	const bool kb_pitch_down = input->isKeyDown(KeyType::CAMERA_PITCH_DOWN);
+
+	if (kb_yaw_left || kb_yaw_right || kb_pitch_up || kb_pitch_down) {
+		const f32 rate = 600.0f * dtime * m_cache_mouse_sensitivity * sens_scale;
+
+		if (kb_yaw_left)
+			cam->camera_yaw += rate;
+		if (kb_yaw_right)
+			cam->camera_yaw -= rate;
+		if (kb_pitch_up)
+			cam->camera_pitch -= rate;
+		if (kb_pitch_down)
+			cam->camera_pitch += rate;
 	}
 
 	cam->camera_pitch = rangelim(cam->camera_pitch, -90, 90);

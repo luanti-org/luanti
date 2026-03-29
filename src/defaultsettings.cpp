@@ -175,6 +175,10 @@ void set_default_settings()
 	settings->setDefault("keymap_toggle_debug", "SYSTEM_SCANCODE_62"); // KEY_F5
 	settings->setDefault("keymap_toggle_profiler", "SYSTEM_SCANCODE_63"); // KEY_F6
 	settings->setDefault("keymap_camera_mode", "SYSTEM_SCANCODE_6"); // KEY_KEY_C
+	settings->setDefault("keymap_camera_yaw_left", "");
+	settings->setDefault("keymap_camera_yaw_right", "");
+	settings->setDefault("keymap_camera_pitch_up", "");
+	settings->setDefault("keymap_camera_pitch_down", "");
 	settings->setDefault("keymap_screenshot", "SYSTEM_SCANCODE_69"); // KEY_F12
 	settings->setDefault("keymap_fullscreen", "SYSTEM_SCANCODE_68"); // KEY_F11
 	settings->setDefault("keymap_increase_viewing_range_min", "SYSTEM_SCANCODE_46"); // +
