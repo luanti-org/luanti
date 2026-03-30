@@ -87,7 +87,11 @@ enum ToClientCommand : u16
 
 	TOCLIENT_INVENTORY = 0x27,
 	/*
-		serialized inventory
+		serialized inventory		// protocol < 52
+
+		u32 serialized size		// protocol >= 52
+		std::string serialized inv.
+		bool skip_wield_anim
 	*/
 
 	TOCLIENT_TIME_OF_DAY = 0x29,
@@ -701,12 +705,7 @@ enum ToClientCommand : u16
 			u8[len] serialized ParticleParameters
 	*/
 
-	TOCLIENT_WIELD_ITEM = 0x65,
-	/*
-		bool skip_change_anim
-	*/
-
-	TOCLIENT_NUM_MSG_TYPES = 0x66,
+	TOCLIENT_NUM_MSG_TYPES = 0x65,
 };
 
 enum ToServerCommand : u16

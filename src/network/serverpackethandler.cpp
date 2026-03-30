@@ -1200,7 +1200,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 			// Do stuff
 			if (m_script->item_OnSecondaryUse(selected_item, playersao, pointed)) {
 				if (selected_item.has_value() && playersao->setWieldedItem(*selected_item))
-					SendInventory(player, true);
+					SendInventory(player, true, false);
 			}
 
 			// on_secondary_use might have removed the object
@@ -1213,7 +1213,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 
 			// Apply returned ItemStack
 			if (selected_item.has_value() && playersao->setWieldedItem(*selected_item))
-				SendInventory(player, true);
+				SendInventory(player, true, false);
 		}
 
 		if (pointed.type != POINTEDTHING_NODE)
@@ -1249,7 +1249,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		if (m_script->item_OnUse(selected_item, playersao, pointed)) {
 			// Apply returned ItemStack
 			if (selected_item.has_value() && playersao->setWieldedItem(*selected_item))
-				SendInventory(player, true);
+				SendInventory(player, true, false);
 		}
 
 		return;
@@ -1268,7 +1268,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		if (m_script->item_OnSecondaryUse(selected_item, playersao, pointed)) {
 			// Apply returned ItemStack
 			if (selected_item.has_value() && playersao->setWieldedItem(*selected_item))
-				SendInventory(player, true);
+				SendInventory(player, true, false);
 		}
 
 		return;

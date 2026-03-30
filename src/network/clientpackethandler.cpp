@@ -344,7 +344,21 @@ void Client::handleCommand_Inventory(NetworkPacket* pkt)
 	if (pkt->getSize() < 1)
 		return;
 
-	std::string datastring(pkt->getString(0), pkt->getSize());
+	std::string datastring;
+
+	if (m_proto_ver > 51) {
+		u32 size;
+		*pkt >> size;
+		datastring = pkt->readRawString(size);
+
+		bool skip = false;
+		*pkt >> skip;
+		if (skip)
+			m_skip_next_wield_animation = true;
+	} else {
+		datastring = std::string(pkt->getString(0), pkt->getSize());
+	}
+
 	std::istringstream is(datastring, std::ios_base::binary);
 
 	LocalPlayer *player = m_env.getLocalPlayer();
@@ -356,14 +370,6 @@ void Client::handleCommand_Inventory(NetworkPacket* pkt)
 
 	m_inventory_from_server = std::make_unique<Inventory>(player->inventory);
 	m_inventory_from_server_age = 0.0f;
-}
-
-void Client::handleCommand_WieldItem(NetworkPacket *pkt)
-{
-	bool skip = false;
-	*pkt >> skip;
-	if (skip)
-		m_skip_next_wield_animation = true;
 }
 
 void Client::handleCommand_TimeOfDay(NetworkPacket* pkt)

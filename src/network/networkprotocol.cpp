@@ -75,7 +75,7 @@
 		Only send first frame of animated item/wield images to older client
 		[scheduled bump for 5.15.0]
 	PROTOCOL VERSION 52
-		Add TOCLIENT_WIELD_ITEM
+		Reworked TOCLIENT_INVENTORY structure and added "skip_wield_anim"
 		Type of TOCLIENT_HUDADD `size` changed from v2s32 to v2f
 		[scheduled bump for 5.16.0]
 */

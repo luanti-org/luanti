@@ -1278,7 +1278,7 @@ PlayerSAO *Server::StageTwoClientInit(session_t peer_id)
 	SendPlayerInventoryFormspec(peer_id);
 
 	// Send inventory
-	SendInventory(player, false);
+	SendInventory(player, false, false);
 
 	// Send HP
 	SendPlayerHP(playersao, false);
@@ -1575,7 +1575,7 @@ void Server::SendNodeDef(session_t peer_id,
 	Non-static send methods
 */
 
-void Server::SendInventory(RemotePlayer *player, bool incremental)
+void Server::SendInventory(RemotePlayer *player, bool incremental, bool skip_wield_anim)
 {
 	// Do not send new format to old clients
 	incremental &= player->protocol_version >= 38;
@@ -1592,18 +1592,16 @@ void Server::SendInventory(RemotePlayer *player, bool incremental)
 	player->inventory.serialize(os, incremental);
 	player->inventory.setModified(false);
 	player->setModified(true);
+	std::string content = os.str();
 
-	pkt.putRawString(os.str());
-	Send(&pkt);
-}
+	if (player->protocol_version >= 52) {
+		pkt << (u32)content.size();
+		pkt.putRawString(content);
+		pkt << skip_wield_anim;
+	} else {
+		pkt.putRawString(content);
+	}
 
-void Server::SendWieldItem(RemotePlayer *player, bool skip_change_anim)
-{
-	if (player->protocol_version < 52)
-		return;
-
-	NetworkPacket pkt(TOCLIENT_WIELD_ITEM, 0, player->getPeerId());
-	pkt << skip_change_anim;
 	Send(&pkt);
 }
 

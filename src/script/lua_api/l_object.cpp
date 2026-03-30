@@ -361,10 +361,7 @@ int ObjectRef::l_set_wielded_item(lua_State *L)
 		bool skip_anim = readParam<bool>(L, 3, false);
 		RemotePlayer *player = dynamic_cast<PlayerSAO*>(sao)->getPlayer();
 
-		if (skip_anim)
-			getServer(L)->SendWieldItem(player, true);
-
-		getServer(L)->SendInventory(player, true);
+		getServer(L)->SendInventory(player, true, skip_anim);
 	}
 	lua_pushboolean(L, success);
 	return 1;

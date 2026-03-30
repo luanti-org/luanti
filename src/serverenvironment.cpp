@@ -1136,7 +1136,7 @@ void ServerEnvironment::step(float dtime)
 			continue;
 
 		if (player->inventory.checkModified())
-			m_server->SendInventory(player, true);
+			m_server->SendInventory(player, true, false);
 	}
 
 	// Send outdated detached inventories

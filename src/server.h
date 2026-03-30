@@ -416,8 +416,7 @@ public:
 	void HandlePlayerHPChange(PlayerSAO *sao, const PlayerHPChangeReason &reason);
 	void SendPlayerHP(PlayerSAO *sao, bool effect);
 	void SendPlayerBreath(PlayerSAO *sao);
-	void SendInventory(RemotePlayer *player, bool incremental);
-	void SendWieldItem(RemotePlayer *player, bool skip_change_anim);
+	void SendInventory(RemotePlayer *player, bool incremental, bool skip_wield_anim);
 	void SendMovePlayer(PlayerSAO *sao);
 	void SendMovePlayerRel(session_t peer_id, const v3f &added_pos);
 	void SendPlayerSpeed(session_t peer_id, const v3f &added_vel);
