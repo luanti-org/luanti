@@ -347,9 +347,7 @@ void Client::handleCommand_Inventory(NetworkPacket* pkt)
 	std::string datastring;
 
 	if (m_proto_ver > 51) {
-		u32 size;
-		*pkt >> size;
-		datastring = pkt->readRawString(size);
+		datastring = pkt->readLongString();
 
 		bool skip = false;
 		*pkt >> skip;

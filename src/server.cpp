@@ -1604,8 +1604,7 @@ void Server::SendInventory(RemotePlayer *player, bool incremental, bool skip_wie
 	std::string content = os.str();
 
 	if (player->protocol_version >= 52) {
-		pkt << (u32)content.size();
-		pkt.putRawString(content);
+		pkt.putLongString(content);
 		pkt << skip_wield_anim;
 	} else {
 		pkt.putRawString(content);

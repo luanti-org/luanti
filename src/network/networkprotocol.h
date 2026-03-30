@@ -87,10 +87,7 @@ enum ToClientCommand : u16
 
 	TOCLIENT_INVENTORY = 0x27,
 	/*
-		serialized inventory		// protocol < 52
-
-		u32 serialized size		// protocol >= 52
-		std::string serialized inv.
+		serialized inventory
 		bool skip_wield_anim
 	*/
 
