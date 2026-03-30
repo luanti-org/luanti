@@ -10,6 +10,7 @@
 
 #include "IMeshLoader.h"
 #include "ISceneManager.h"
+#include "S3DVertex.h"
 #include "SkinnedMesh.h"
 #include "SB3DStructs.h"
 #include "IReadFile.h"

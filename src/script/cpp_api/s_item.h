@@ -27,7 +27,8 @@ public:
 	 * inventory without the engine interfering (see issue #6546).
 	 */
 
-	bool item_OnDrop(ItemStack &item,
+	/// @return count of remaining stack
+	u16 item_OnDrop(const ItemStack &item,
 			ServerActiveObject *dropper, v3f pos);
 	bool item_OnPlace(std::optional<ItemStack> &item,
 			ServerActiveObject *placer, const PointedThing &pointed);

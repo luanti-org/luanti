@@ -231,6 +231,9 @@ local function test_mapgen_edges(cb)
 	end
 	local emerges_left = 2
 	local function emerge_block(blockpos, action, blocks_left, finished)
+		-- FIXME: EMERGE_CANCELLED can also mean that the block was already being
+		-- emerged. It's unlikely but this can break the test and we can't
+		-- really tell...
 		if action ~= core.EMERGE_CANCELLED then
 			table.insert(finished, blockpos)
 		end

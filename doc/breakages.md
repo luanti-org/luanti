@@ -28,3 +28,6 @@ This list is largely advisory and items may be reevaluated once the time comes.
 * remove `safe` parameter from `core.serialize`, always enforce `safe = true`.
   possibly error when `loadstring` calls are encountered in `core.deserialize`.
 * introduce strict type checking for all instances of `v3s16` / `v3f` read from Lua
+* rework `on_drop` to give Lua full flexibility
+   * should take `itemstack, dropper, count` and return the new itemstack
+   * https://github.com/luanti-org/luanti/pull/17024 for context

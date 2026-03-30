@@ -6,6 +6,7 @@
 #include "SMaterialLayer.h"
 #include "coreutil.h"
 #include "SkinnedMesh.h"
+#include "SSkinMeshBuffer.h"
 #include "IAnimatedMesh.h"
 #include "IReadFile.h"
 #include "irrTypes.h"

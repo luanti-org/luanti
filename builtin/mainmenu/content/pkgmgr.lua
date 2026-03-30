@@ -520,6 +520,16 @@ function pkgmgr.install_dir(expected_type, path, basename, targetpath)
 	assert(basename == nil or type(basename) == "string")
 	assert(targetpath == nil or type(targetpath) == "string")
 
+	local delete_old_dir
+	if expected_type == "game" and targetpath then
+		-- Extract top folder name from path
+		local name = pkgmgr.normalize_game_id(targetpath:match("[^/\\]+[/\\]?$"))
+		-- Relevant when updating: prepare to remove the old directory if the names differ
+		if name ~= pkgmgr.normalize_game_id(basename) then
+			delete_old_dir = targetpath
+			targetpath = core.get_gamepath() .. DIR_DELIM .. basename
+		end
+	end
 	local basefolder = pkgmgr.get_base_folder(path)
 
 	if expected_type == "txp" then
@@ -571,6 +581,9 @@ function pkgmgr.install_dir(expected_type, path, basename, targetpath)
 			return nil,
 				fgettext_ne("Install: Unable to find suitable folder name for $1", path)
 		end
+	elseif delete_old_dir then
+		-- Name has changed, delete old directory
+		core.delete_dir(delete_old_dir)
 	end
 
 	-- Copy it
@@ -735,13 +748,30 @@ function pkgmgr.reload_global_mods()
 end
 
 --------------------------------------------------------------------------------
+-- Keep in sync with the filter function of menudata.worldlist (in init_globals())
 function pkgmgr.find_by_gameid(gameid)
+	if not gameid then
+		return nil, nil
+	end
+	gameid = pkgmgr.normalize_game_id(gameid)
 	for i, game in ipairs(pkgmgr.games) do
 		if game.id == gameid then
 			return game, i
 		end
 	end
-	return nil, nil
+	local ret, val
+	for i, game in ipairs(pkgmgr.games) do
+		if game.aliases[gameid] then
+			if ret then
+				core.log("warning",
+					"Found two games using alias " .. gameid .. ": " ..
+					game.id .. " and " .. ret.id
+				)
+			end
+			ret, val = game, i
+		end
+	end
+	return ret, val
 end
 
 --------------------------------------------------------------------------------
@@ -833,6 +863,13 @@ function pkgmgr.get_contentdb_id(content)
 
 	return nil
 end
+
+--------------------------------------------------------------------------------
+-- Normalizes ID of a game. Keep in sync with subgames.cpp, `normalizeGameId`.
+function pkgmgr.normalize_game_id(name)
+	return name:match("(.*)_game$") or name
+end
+
 
 --------------------------------------------------------------------------------
 -- read initial data

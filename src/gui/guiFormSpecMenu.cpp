@@ -3360,11 +3360,14 @@ void GUIFormSpecMenu::legacySortElements(std::list<IGUIElement *>::iterator from
 		// TODO: getSpecByID is a linear search. It should made O(1), or cached here.
 		const FieldSpec *spec_a = getSpecByID(a->getID());
 		const FieldSpec *spec_b = getSpecByID(b->getID());
-		// Have to be deterministic also for elements without spec
+		// The comparison has to be compatible with strict weak ordering
 		if (spec_a && spec_b)
 			return spec_a->priority < spec_b->priority;
 
-		return a->getID() < b->getID();
+		if (spec_a && !spec_b)
+			return true;
+
+		return false;
 	});
 
 	// 3: Re-assign the pointers
