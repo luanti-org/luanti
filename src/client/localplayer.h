@@ -17,12 +17,13 @@ class Map;
 struct CollisionInfo;
 struct collisionMoveResult;
 
+// Note: Part of the protocol, do not reorder.
 enum class LocalPlayerAnimation : u8
 {
-	NO_ANIM = 0,
-	WALK_ANIM = 1,
-	DIG_ANIM = 2,
-	WD_ANIM = 3, // walking + digging
+	NO_ANIM,
+	WALK_ANIM,
+	DIG_ANIM,
+	WD_ANIM, // walking + digging
 };
 
 struct PlayerSettings
