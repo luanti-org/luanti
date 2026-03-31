@@ -524,6 +524,7 @@ ISceneNode *AnimatedMeshSceneNode::clone(ISceneNode *newParent, ISceneManager *n
 	newNode->PassCount = PassCount;
 	newNode->PerJoint.SceneNodes = PerJoint.SceneNodes;
 	newNode->PerJoint.PreTransSaves = PerJoint.PreTransSaves;
+	newNode->anim_spec = anim_spec;
 	newNode->RenderFromIdentity = RenderFromIdentity;
 
 	return newNode;

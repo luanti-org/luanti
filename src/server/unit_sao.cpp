@@ -60,7 +60,7 @@ std::optional<scene::TrackAnimSpec> UnitSAO::getAnimation(const scene::TrackId &
 	if (it == m_animation.tracks.end())
 		return std::nullopt;
 
-	if (it->second.state != TrackAnimation::State::STOPPED)
+	if (it->second.state == TrackAnimation::State::STOPPED)
 		return std::nullopt;
 
 	return it->second.spec;

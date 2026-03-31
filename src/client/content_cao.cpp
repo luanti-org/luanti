@@ -1476,21 +1476,17 @@ bool GenericCAO::visualExpiryRequired(const ObjectProperties &new_) const
 
 u16 GenericCAO::readTrackNumber(std::istringstream &is) {
 	// Possible formats:
-	// - No track number (older server)
 	// - Track number > 0, no track name
 	// - Track number = 0, track name follows
 	u16 track_number = readU16(is);
-	if (is.eof())
-		return 0;
 	if (track_number > 0)
 		return track_number - 1;
 	std::string track_name = deSerializeString16(is);
 
 	if (!m_animated_meshnode)
 		return 0;
-	if (const auto opt = m_animated_meshnode->getMesh()->getTrackNumber(track_name)) {
+	if (const auto opt = m_animated_meshnode->getMesh()->getTrackNumber(track_name))
 		return *opt;
-	}
 	warningstream << "Track name " << track_name << " not found in mesh " << m_prop.mesh << std::endl;
 	return 0;
 }
@@ -1645,12 +1641,14 @@ void GenericCAO::processMessage(const std::string &data)
 		// these are sent inverted so we get true when the server sends nothing
 		anim.loop = !readU8(is);
 
-		u16 track = readTrackNumber(is);
-		if (m_animated_meshnode) {
-			anim.max_frame = std::min(anim.max_frame,
-					m_animated_meshnode->getMesh()->getMaxFrameNumber(track));
-		}
-		if (!is.eof()) {
+		u16 track = 0;
+		if (canRead(is)) {
+			// New animation API since 5.16.0
+			track = readTrackNumber(is);
+			if (m_animated_meshnode) {
+				anim.max_frame = std::min(anim.max_frame,
+						m_animated_meshnode->getMesh()->getMaxFrameNumber(track));
+			}
 			anim.priority = readS32(is);
 			anim.cur_frame = readF32(is);
 		}

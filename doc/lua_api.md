@@ -8803,7 +8803,7 @@ Tracks are identified by their name or track number.
 Track numbers start at 1.
 
 * `play_animation(track, [animation])`
-      `.x` and `.b3d` models only have a single animation track.
+    * `.x` and `.b3d` models only have a single animation track.
     * `animation` is an optional table with the following optional fields:
       * `min_frame = 0.0`, `max_frame = math.huge`, animation range in frames (seconds);
          clamped on the client to first and last frame in the corresponding track.
