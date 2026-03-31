@@ -421,7 +421,6 @@ add_library(IRRGUIOBJ OBJECT
 	CGUIFont.h
 	CGUIImage.h
 	CGUIListBox.h
-	CGUIScrollBar.h
 	CGUISkin.h
 	CGUIStaticText.h
 	CGUITabControl.h
