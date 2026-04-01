@@ -7,6 +7,8 @@
 #include <sstream>
 #include <utility>
 #include <cstring>
+#include "guiScrollBar.h"
+#include <IGUIEnvironment.h>
 #include <IGUISkin.h>
 #include <IGUIFont.h>
 #include "client/renderingengine.h"
