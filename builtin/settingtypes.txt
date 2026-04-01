@@ -867,6 +867,10 @@ gui_scaling (GUI scaling) float 1.0 0.5 20
 #    Enables smooth scrolling.
 smooth_scrolling (Smooth scrolling) bool true
 
+#    Enables closing the formspec when the mouse is clicked
+#    outside of the formspec area.
+formspec_exit_on_click_outside (Close formspecs when clicked outside) bool true
+
 #    Enables animation of inventory items.
 inventory_items_animations (Inventory items animations) bool false
 
