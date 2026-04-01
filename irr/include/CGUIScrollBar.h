@@ -99,8 +99,6 @@ protected:
 	bool Dragging; //< mouse down in tray area (anywhere)
 	bool Horizontal;
 	bool DraggedBySlider;
-	bool SmoothScroll = true; // TODO: move to IGUISkin
-	bool JumpToTrayPos = true; // TODO: move to IGUISkin
 	s32 Pos;
 	s32 DrawPos; //< center position of the thumb
 	s32 DrawHeight; //< slider size (V: height, H: width)

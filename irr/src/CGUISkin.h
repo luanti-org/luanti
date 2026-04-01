@@ -48,6 +48,9 @@ namespace gui
 		//! sets a default font
 		virtual void setFont(IGUIFont* font, EGUI_DEFAULT_FONT which=EGDF_DEFAULT);
 
+		virtual s32  getBehavior(EGUI_DEFAULT_BEHAVIOR which) const;
+		virtual void setBehavior(EGUI_DEFAULT_BEHAVIOR which, s32 value);
+
 		//! sets the sprite bank used for drawing icons
 		virtual void setSpriteBank(IGUISpriteBank* bank);
 
@@ -296,6 +299,7 @@ namespace gui
 		s32 Sizes[EGDS_COUNT];
 		u32 Icons[EGDI_COUNT];
 		IGUIFont* Fonts[EGDF_COUNT];
+		s32 Behaviors[EGDB_COUNT];
 		IGUISpriteBank* SpriteBank;
 		core::stringw Texts[EGDT_COUNT];
 		video::IVideoDriver* Driver;

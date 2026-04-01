@@ -24,6 +24,8 @@ CGUIScrollBar::CGUIScrollBar(IGUIEnvironment *environment,
 		DrawHeight(0), Min(0), Max(100), SmallStep(10), LargeStep(50), DesiredPos(0),
 		LastChange(0)
 {
+	assert(Environment->getSkin());
+
 	refreshControls();
 
 	setNotClipped(noclip);
@@ -117,7 +119,7 @@ bool CGUIScrollBar::OnEvent(const SEvent &event)
 					if (DraggedBySlider) {
 						core::vector2di corner = SliderRect.UpperLeftCorner;
 						DragOffset = Horizontal ? p.X - corner.X : p.Y - corner.Y;
-					} else if (JumpToTrayPos) {
+					} else if (Environment->getSkin()->getBehavior(EGDB_SCOLLBAR_JUMP_TO_CLICKED)) {
 						setPosAndSend(newPos);
 						// drag in the middle
 						DragOffset = DrawHeight / 2;
@@ -319,7 +321,7 @@ void CGUIScrollBar::setPosAndSend(const s32 pos)
 
 void CGUIScrollBar::setPosInterpolated(const s32 pos)
 {
-	if (!SmoothScroll) {
+	if (!Environment->getSkin()->getBehavior(EGDB_SMOOTH_SCROLL)) {
 		setPosAndSend(pos);
 		return;
 	}
