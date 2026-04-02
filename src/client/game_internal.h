@@ -83,6 +83,8 @@ struct ClientEventHandler
 	void (Game::*handler)(ClientEvent *, CameraOrientation *);
 };
 
+// Animations are paused by setting their FPS to 0.
+// We need to remember the original FPS for each track to allow resumption.
 struct PausedNode {
 	irr_ptr<scene::AnimatedMeshSceneNode> node;
 	struct Track {
