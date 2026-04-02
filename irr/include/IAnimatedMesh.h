@@ -19,6 +19,9 @@ class IAnimatedMesh : public IMesh
 {
 public:
 
+	//! Get the number of animation tracks, 0 if the mesh is static.
+	virtual u16 getNumTracks() const = 0;
+
 	virtual std::optional<u16> getTrackNumber(const std::string &track_name) const = 0;
 
 	//! Gets the maximum frame number, 0 if the mesh is static.

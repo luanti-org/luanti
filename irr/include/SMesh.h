@@ -135,10 +135,11 @@ struct SMesh final : public IAnimatedMesh
 
 	// Implement animated mesh interface as a static mesh.
 	// Slightly hacky: Eventually should be consolidated with SSkinnedMesh,
-	// with all the animation-related parts behind an optional.
+	// with all the animation-related parts behind an optional or pointer.
 
 	void prepareForAnimation(u16 max_hw_joints) override {}
 	bool needsHwSkinning() const override { return false; }
+	u16 getNumTracks() const override { return 0; }
 	std::optional<u16> getTrackNumber(
 			const std::string &track_name) const override
 	{ return std::nullopt; }

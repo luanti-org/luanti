@@ -1474,21 +1474,40 @@ bool GenericCAO::visualExpiryRequired(const ObjectProperties &new_) const
 		(uses_legacy_texture && old.textures != new_.textures);
 }
 
-u16 GenericCAO::readTrackNumber(std::istringstream &is) {
+static scene::TrackId readTrackIdentifier(std::istringstream &is)
+{
 	// Possible formats:
 	// - Track number > 0, no track name
 	// - Track number = 0, track name follows
 	u16 track_number = readU16(is);
 	if (track_number > 0)
-		return track_number - 1;
-	std::string track_name = deSerializeString16(is);
+		return (u16)(track_number - 1);
+	return deSerializeString16(is);
+}
 
+std::optional<u16> GenericCAO::resolveTrackId(const scene::TrackId &track_id)
+{
 	if (!m_animated_meshnode)
-		return 0;
-	if (const auto opt = m_animated_meshnode->getMesh()->getTrackNumber(track_name))
-		return *opt;
-	warningstream << "Track name " << track_name << " not found in mesh " << m_prop.mesh << std::endl;
-	return 0;
+		return std::nullopt;
+
+	const auto *mesh = m_animated_meshnode->getMesh();
+
+	if (const auto *track_name = std::get_if<std::string>(&track_id)) {
+		if (const std::optional<u16> opt = mesh->getTrackNumber(*track_name))
+			return *opt;
+		warningstream << "Track name " << track_name << " not found in mesh " << m_prop.mesh << std::endl;
+		return std::nullopt;
+	}
+
+	u16 track_nr = std::get<u16>(track_id);
+	u16 max_track_nr = mesh->getNumTracks();
+	if (track_nr >= max_track_nr) {
+		warningstream << "Track number " << track_nr << " out of bounds for mesh " << m_prop.mesh
+			<< " (max: " << max_track_nr << ")" << std::endl;
+		return std::nullopt;
+	}
+
+	return track_nr;
 }
 
 void GenericCAO::processMessage(const std::string &data)
@@ -1632,61 +1651,79 @@ void GenericCAO::processMessage(const std::string &data)
 		// Read animation
 		scene::TrackAnimSpec anim;
 		v2f range = readV2F32(is);
-		anim.min_frame = std::min(range.X, range.Y);
-		anim.max_frame = std::max(range.X, range.Y);
 		anim.fps = readF32(is);
-		anim.cur_frame = anim.fps >= 0 ? anim.min_frame : anim.max_frame;
 		anim.blend = readF32(is);
-
 		// these are sent inverted so we get true when the server sends nothing
 		anim.loop = !readU8(is);
 
-		u16 track = 0;
+		scene::TrackId track_id = (u16) 0;
 		if (canRead(is)) {
 			// New animation API since 5.16.0
-			track = readTrackNumber(is);
-			if (m_animated_meshnode) {
-				anim.max_frame = std::min(anim.max_frame,
-						m_animated_meshnode->getMesh()->getMaxFrameNumber(track));
-			}
+			track_id = readTrackIdentifier(is);
 			anim.priority = readS32(is);
 			anim.cur_frame = readF32(is);
 		}
 
+		auto track_nr_opt = resolveTrackId(track_id);
+		if (!track_nr_opt)
+			return;
+		u16 track_nr = *track_nr_opt;
+
+		anim.min_frame = std::min(range.X, range.Y);
+		anim.max_frame = std::max(range.X, range.Y);
+		if (m_animated_meshnode) {
+			anim.max_frame = std::min(anim.max_frame,
+					m_animated_meshnode->getMesh()->getMaxFrameNumber(track_nr));
+		}
+
+		anim.cur_frame = anim.fps >= 0 ? anim.min_frame : anim.max_frame;
+
 		// Apply animation
 		if (!m_is_local_player) {
-			m_animation.tracks[track] = anim;
-			updateAnimation(track);
+			m_animation.tracks[track_nr] = anim;
+			updateAnimation(track_nr);
 		} else {
 			LocalPlayer *player = m_env->getLocalPlayer();
 			// update animation only if local animations present
 			// and received animation is unknown (except idle animation)
 			bool is_known = false;
 			for (const auto &local_anim : player->local_animations) {
-				if (track == 0 && anim.max_frame == local_anim.Y)
+				if (track_nr == 0 && anim.max_frame == local_anim.Y)
 					is_known = true;
 			}
 			if (!is_known ||
 					(player->local_animations[1].Y + player->local_animations[2].Y < 1))
 			{
-				updateAnimation(track);
+				updateAnimation(track_nr);
 			}
 			// FIXME: ^ This code is trash. It's also broken.
 		}
 	} else if (cmd == AO_CMD_SET_ANIMATION_SPEED) {
 		f32 new_fps = readF32(is);
-		u16 track = readTrackNumber(is);
-		auto it = m_animation.tracks.find(track);
+		const auto track_id = readTrackIdentifier(is);
+
+		auto track_nr_opt = resolveTrackId(track_id);
+		if (!track_nr_opt)
+			return;
+		u16 track_nr = *track_nr_opt;
+
+		auto it = m_animation.tracks.find(track_nr);
 		if (it != m_animation.tracks.end()) {
 			it->second.fps = new_fps;
-			m_animated_meshnode->getAnimation().tracks[track].fps = new_fps;
+			m_animated_meshnode->getAnimation().tracks[track_nr].fps = new_fps;
 		}
 	} else if (cmd == AO_CMD_STOP_ANIMATION) {
-		u16 track = readTrackNumber(is);
-		auto it = m_animation.tracks.find(track);
+		const auto track_id = readTrackIdentifier(is);
+
+		auto track_nr_opt = resolveTrackId(track_id);
+		if (!track_nr_opt)
+			return;
+		u16 track_nr = *track_nr_opt;
+
+		auto it = m_animation.tracks.find(track_nr);
 		if (it != m_animation.tracks.end()) {
 			m_animation.tracks.erase(it);
-			m_animated_meshnode->getAnimation().tracks.erase(track);
+			m_animated_meshnode->getAnimation().tracks.erase(track_nr);
 		}
 	} else if (cmd == AO_CMD_SET_BONE_POSITION) {
 		std::string bone = deSerializeString16(is);

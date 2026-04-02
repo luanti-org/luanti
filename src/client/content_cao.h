@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include "EMaterialTypes.h"
-#include "IDummyTransformationSceneNode.h"
 #include "irrlichttypes.h"
-#include "AnimSpec.h"
+
+#include <EMaterialTypes.h>
+#include <IDummyTransformationSceneNode.h>
+#include <AnimSpec.h>
 
 #include "object_properties.h"
 #include "clientobject.h"
@@ -16,6 +17,7 @@
 #include "client/tile.h"
 #include <cassert>
 #include <memory>
+#include <sstream>
 
 namespace scene {
 	class IMeshSceneNode;
@@ -287,8 +289,8 @@ public:
 	void updateAnimation(u16 track);
 	void setLocalPlayerAnimation(LocalPlayerAnimation local_anim, float speed);
 
-	//! Read a track number, default to 0 if missing or invalid
-	u16 readTrackNumber(std::istringstream &is);
+	/// @note logs a warning for invalid IDs
+	std::optional<u16> resolveTrackId(const scene::TrackId &id);
 
 	void processMessage(const std::string &data) override;
 

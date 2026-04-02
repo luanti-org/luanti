@@ -8,8 +8,8 @@
 #include "object_properties.h"
 #include "serveractiveobject.h"
 #include <quaternion.h>
+#include <AnimSpec.h>
 #include "util/numeric.h"
-#include "AnimSpec.h"
 
 class UnitSAO : public ServerActiveObject
 {
