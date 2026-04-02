@@ -541,7 +541,7 @@ void Game::run()
 
 		// Prepare render data for next iteration
 
-		updateStats(&stats, draw_times, dtime);
+		updateStats(&stats, dtime);
 		updateInteractTimers(dtime);
 
 		if (!checkConnection())
@@ -1300,52 +1300,33 @@ void Game::updateProfilers(const RunStats &stats, const FpsControl &draw_times,
 	}
 }
 
-void Game::updateStats(RunStats *stats, const FpsControl &draw_times,
-		f32 dtime)
+void Game::updateStats(RunStats *stats, f32 dtime)
 {
-
-	f32 jitter;
-	Jitter *jp;
-
 	/* Time average and jitter calculation
 	 */
-	jp = &stats->dtime_jitter;
-	jp->avg = jp->avg * 0.96 + dtime * 0.04;
+	Jitter *jp = &stats->dtime_jitter;
 
-	jitter = dtime - jp->avg;
-
-	if (jitter > jp->max)
-		jp->max = jitter;
-
-	jp->counter += dtime;
-
-	if (jp->counter > 0.0) {
-		jp->counter -= 3.0;
-		jp->max_sample = jp->max;
-		jp->max_fraction = jp->max_sample / (jp->avg + 0.001);
-		jp->max = 0.0;
+	// Average dtime over a certain time interval
+	jp->dtime_samples++;
+	jp->dtime_sum += dtime;
+	if (jp->dtime_sum >= 0.1f)  {
+		jp->dtime_avg = jp->dtime_sum / jp->dtime_samples;
+		jp->dtime_sum = 0.0f;
+		jp->dtime_samples = 0;
 	}
 
-	/* Busytime average and jitter calculation
-	 */
-	jp = &stats->busy_time_jitter;
-	jp->avg = jp->avg + draw_times.getBusyMs() * 0.02;
-
-	jitter = draw_times.getBusyMs() - jp->avg;
-
-	if (jitter > jp->max)
-		jp->max = jitter;
-	if (jitter < jp->min)
-		jp->min = jitter;
+	// Maximum jitter
+	const f32 diff = dtime - jp->dtime_avg;
+	if (diff > jp->max)
+		jp->max = diff;
 
 	jp->counter += dtime;
+	if (jp->counter > 0.0f) {
+		// Fixed interval for jitter updates (more pleasant to display)
+		jp->counter -= 3.0f;
 
-	if (jp->counter > 0.0) {
-		jp->counter -= 3.0;
-		jp->max_sample = jp->max;
-		jp->min_sample = jp->min;
-		jp->max = 0.0;
-		jp->min = 0.0;
+		jp->max_fraction = jp->max / (jp->dtime_avg + 0.001f);
+		jp->max = 0.0f;
 	}
 }
 
