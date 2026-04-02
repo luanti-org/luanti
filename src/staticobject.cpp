@@ -5,6 +5,7 @@
 #include "staticobject.h"
 #include "util/serialize.h"
 #include "server/serveractiveobject.h"
+#include "serverenvironment.h"
 
 StaticObject::StaticObject(const ServerActiveObject *s_obj, const v3f &pos_):
 	type(s_obj->getType()),
@@ -117,4 +118,22 @@ bool StaticObjectList::storeActiveObject(u16 id)
 	m_stored.push_back(i->second);
 	m_active.erase(id);
 	return true;
+}
+
+size_t StaticObjectList::clearInactive(ClearObjectsConfig &config)
+{
+	size_t cleared = 0;
+	for (auto it = m_stored.begin(); it != m_stored.end(); ) {
+		std::istringstream is(it->data, std::ios::binary);
+		readU8(is); // version
+
+		std::string name = deSerializeString16(is);
+		std::string state = deSerializeString32(is);
+
+		if (config.callback(name, state, config.param))
+			it = m_stored.erase(it);
+		else
+			it++;
+	}
+	return cleared;
 }
