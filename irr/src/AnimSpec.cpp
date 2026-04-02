@@ -1,3 +1,7 @@
+// Copyright (C) 2026 Lars Müller
+// This file is part of IrrlichtMt.
+// For conditions of distribution and use, see copyright notice in irrlicht.h
+
 #include "AnimSpec.h"
 #include <cmath>
 
