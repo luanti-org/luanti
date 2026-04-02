@@ -458,8 +458,10 @@ int ObjectRef::l_get_animation(lua_State *L)
 	return 4;
 }
 
-static scene::TrackId readTrackId(lua_State *L, int index)
+static scene::TrackId read_track_id(lua_State *L, int index)
 {
+	// Must not coerce here, strings and numbers must take strictly different paths:
+	// Strings are treated as track *names*, numbers as track *indices*.
 	if (lua_type(L, index) == LUA_TSTRING) {
 		return luaL_checkstring(L, index);
 	}
@@ -472,7 +474,7 @@ static scene::TrackId readTrackId(lua_State *L, int index)
 	return static_cast<u16>(track - 1);
 }
 
-static void pushTrackId(lua_State *L, const scene::TrackId &track)
+static void push_track_id(lua_State *L, const scene::TrackId &track)
 {
 	if (const auto *str = std::get_if<std::string>(&track)) {
 		lua_pushlstring(L, str->c_str(), str->size());
@@ -482,7 +484,7 @@ static void pushTrackId(lua_State *L, const scene::TrackId &track)
 	}
 }
 
-static void readTrackAnimSpec(lua_State *L, int tidx,
+static void read_track_anim_spec(lua_State *L, int tidx,
 		scene::TrackAnimSpec &anim)
 {
 	luaL_checktype(L, tidx, LUA_TTABLE);
@@ -519,11 +521,11 @@ int ObjectRef::l_play_animation(lua_State *L)
 	if (sao == nullptr)
 		throw LuaError("Invalid ObjectRef");
 
-	scene::TrackId track = readTrackId(L, 2);
+	scene::TrackId track = read_track_id(L, 2);
 	scene::TrackAnimSpec anim;
 	anim.max_frame = std::numeric_limits<f32>::infinity();
 	if (!lua_isnoneornil(L, 3)) {
-		readTrackAnimSpec(L, 3, anim);
+		read_track_anim_spec(L, 3, anim);
 	}
 	sao->setAnimation(track, anim);
 	return 0;
@@ -537,7 +539,7 @@ int ObjectRef::l_update_animation(lua_State *L)
 	if (sao == nullptr)
 		throw LuaError("Invalid ObjectRef");
 
-	scene::TrackId track = readTrackId(L, 2);
+	scene::TrackId track = read_track_id(L, 2);
 	if (!lua_isnoneornil(L, 3)) {
 		float speed = 0.0f;
 		if (getfloatfield(L, 3, "speed", speed)) {
@@ -562,7 +564,7 @@ int ObjectRef::l_stop_animation(lua_State *L)
 			sao->stopAnimation(track_id);
 		}
 	} else {
-		scene::TrackId track = readTrackId(L, 2);
+		scene::TrackId track = read_track_id(L, 2);
 		sao->stopAnimation(track);
 	}
 	return 0;
@@ -578,7 +580,7 @@ int ObjectRef::l_get_animations(lua_State *L)
 
 	lua_newtable(L);
 	for (const auto &[track_id, anim] : sao->getAllAnimations()) {
-		pushTrackId(L, track_id);
+		push_track_id(L, track_id);
 		pushTrackAnimSpec(L, anim);
 		lua_rawset(L, -3);
 	}

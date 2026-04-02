@@ -5,7 +5,6 @@
 #pragma once
 
 #include <cassert>
-#include <unordered_map>
 #include <unordered_set>
 #include <optional>
 #include <queue>
