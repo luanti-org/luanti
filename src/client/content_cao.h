@@ -6,7 +6,6 @@
 
 #include "EMaterialTypes.h"
 #include "IDummyTransformationSceneNode.h"
-#include "client/localplayer.h"
 #include "irrlichttypes.h"
 #include "AnimSpec.h"
 
@@ -28,6 +27,8 @@ class Client;
 struct Nametag;
 struct MinimapMarker;
 class WieldMeshSceneNode;
+
+enum class LocalPlayerAnimation : u8;
 
 /*
 	SmoothTranslator and other helpers

@@ -7,7 +7,7 @@
 #include <ICameraSceneNode.h>
 #include <IMeshManipulator.h>
 #include <ISceneNode.h>
-#include "AnimatedMeshSceneNode.h"
+#include <AnimatedMeshSceneNode.h>
 #include "client/client.h"
 #include "client/renderingengine.h"
 #include "client/sound.h"
