@@ -530,8 +530,7 @@ void ServerMap::save(ModifiedState save_level)
 	u32 block_count = 0;
 	u32 block_count_all = 0; // Number of blocks in memory
 
-	// Don't do anything with sqlite unless something is really saved
-	bool save_started = false;
+	std::vector<std::pair<MapBlock *, std::string>> pending_saves;
 
 	for (auto &sector_it : m_sectors) {
 		MapSector *sector = sector_it.second;
@@ -543,22 +542,23 @@ void ServerMap::save(ModifiedState save_level)
 			block_count_all++;
 
 			if(block->getModified() >= (u32)save_level) {
-				// Lazy beginSave()
-				if(!save_started) {
-					beginSave();
-					save_started = true;
-				}
-
 				modprofiler.add(block->getModifiedReasonString(), 1);
 
-				saveBlock(block);
+				pending_saves.emplace_back(
+						block, serializeMapBlock(block, m_map_compression_level));
 				block_count++;
 			}
 		}
 	}
 
-	if(save_started)
-		endSave();
+	if (!pending_saves.empty()) {
+		MutexAutoLock dblock(m_db.mutex);
+		m_db.dbase->beginSave();
+		for (auto &entry : pending_saves) {
+			saveSerializedMapBlock(entry.first, m_db.dbase, entry.second);
+		}
+		m_db.dbase->endSave();
+	}
 
 	/*
 		Only print if something happened or saved whole map
@@ -665,45 +665,57 @@ MapDatabase *ServerMap::createDatabase(
 
 void ServerMap::beginSave()
 {
-	MutexAutoLock dblock(m_db.mutex);
-	m_db.dbase->beginSave();
+	sanity_check(!m_in_map_save_batch);
+	m_in_map_save_batch = true;
 }
 
 void ServerMap::endSave()
 {
 	MutexAutoLock dblock(m_db.mutex);
-	m_db.dbase->endSave();
+	if (m_map_save_transaction_active) {
+		m_db.dbase->endSave();
+		m_map_save_transaction_active = false;
+	}
+	m_in_map_save_batch = false;
 }
 
 bool ServerMap::saveBlock(MapBlock *block)
 {
-	// FIXME: serialization happens under mutex
+	std::string blob = serializeMapBlock(block, m_map_compression_level);
+
 	MutexAutoLock dblock(m_db.mutex);
-	return saveBlock(block, m_db.dbase, m_map_compression_level);
+	if (m_in_map_save_batch) {
+		if (!m_map_save_transaction_active) {
+			m_db.dbase->beginSave();
+			m_map_save_transaction_active = true;
+		}
+		return saveSerializedMapBlock(block, m_db.dbase, blob);
+	}
+	return saveSerializedMapBlock(block, m_db.dbase, blob);
+}
+
+std::string ServerMap::serializeMapBlock(MapBlock *block, int compression_level)
+{
+	u8 version = SER_FMT_VER_HIGHEST_WRITE;
+	std::ostringstream o(std::ios_base::binary);
+	o.write((char *) &version, 1);
+	block->serialize(o, version, true, compression_level);
+	return o.str();
+}
+
+bool ServerMap::saveSerializedMapBlock(
+		MapBlock *block, MapDatabase *db, std::string_view data)
+{
+	bool ret = db->saveBlock(block->getPos(), data);
+	if (ret)
+		block->resetModified();
+	return ret;
 }
 
 bool ServerMap::saveBlock(MapBlock *block, MapDatabase *db, int compression_level)
 {
-	v3s16 p3d = block->getPos();
-
-	// Format used for writing
-	u8 version = SER_FMT_VER_HIGHEST_WRITE;
-
-	/*
-		[0] u8 serialization version
-		[1] data
-	*/
-	std::ostringstream o(std::ios_base::binary);
-	o.write((char*) &version, 1);
-	block->serialize(o, version, true, compression_level);
-
-	// FIXME: zero copy possible in c++20 or with custom rdbuf
-	bool ret = db->saveBlock(p3d, o.str());
-	if (ret) {
-		// We just wrote it to the disk so clear modified flag
-		block->resetModified();
-	}
-	return ret;
+	std::string blob = serializeMapBlock(block, compression_level);
+	return saveSerializedMapBlock(block, db, blob);
 }
 
 void ServerMap::deSerializeBlock(MapBlock *block, std::istream &is)

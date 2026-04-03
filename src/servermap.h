@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <string>
+#include <string_view>
 #include <vector>
 #include <memory>
 
@@ -201,6 +203,14 @@ private:
 	bool m_map_metadata_changed = true;
 
 	MapDatabaseAccessor m_db;
+
+	/// Set between beginSave and endSave (e.g. Map::timerUpdate)
+	bool m_in_map_save_batch = false;
+	bool m_map_save_transaction_active = false;
+
+	static std::string serializeMapBlock(MapBlock *block, int compression_level);
+	static bool saveSerializedMapBlock(
+			MapBlock *block, MapDatabase *db, std::string_view data);
 
 	// Map metrics
 	MetricGaugePtr m_loaded_blocks_gauge;
