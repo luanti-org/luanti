@@ -360,6 +360,7 @@ private:
 	bool m_cache_enable_noclip;
 	bool m_cache_enable_free_move;
 	f32  m_cache_mouse_sensitivity;
+	f32  m_cache_keyboard_look_speed;
 	f32  m_cache_joystick_frustum_sensitivity;
 	f32  m_repeat_place_time;
 	f32  m_repeat_dig_time;
