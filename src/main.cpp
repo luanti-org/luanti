@@ -453,6 +453,7 @@ static void print_help(const OptionList &allowed_options)
 		{"players", ServerEnvironment::getPlayerDatabaseBackends()},
 		{"auth", ServerEnvironment::getAuthDatabaseBackends()},
 		{"mod storage", Server::getModStorageDatabaseBackends()},
+		{"rollback", Server::getRollbackBackends()},
 	};
 
 	std::cout << "Supported database backends:";
