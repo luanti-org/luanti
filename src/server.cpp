@@ -26,7 +26,7 @@
 #include "serverenvironment.h"
 #include "servermap.h"
 #include "server/player_sao.h"
-#include "server/rollback.h"
+#include "server/rollback_sqlite3.h"
 #include "server/serveractiveobject.h"
 #include "server/serverinventorymgr.h"
 #include "server/serverlist.h"
@@ -465,6 +465,27 @@ Server::~Server()
 	}
 }
 
+IRollbackManager *Server::createRollbackManager()
+{
+	Settings world_mt;
+	const std::string world_mt_path = m_path_world + DIR_DELIM + "world.mt";
+	if (!world_mt.readConfigFile(world_mt_path.c_str()))
+		throw BaseException("Cannot read world.mt!");
+
+	std::string backend = "sqlite3"; // fallback value
+	world_mt.getNoEx("rollback_backend", backend);
+
+	if (backend == "sqlite3") {
+		verbosestream << "Rollback: using backend \"sqlite3\"" << std::endl;
+		return new RollbackMgrSQLite3(m_path_world, this);
+	}
+
+	auto supported = getRollbackBackends();
+	throw ServerError("Rollback backend \"" + backend +
+		"\" is not supported; supported backends are " +
+		str_join(supported, ", ") + ".");
+}
+
 void Server::init()
 {
 	infostream << "Server created for gameid \"" << m_gamespec.id << "\"";
@@ -576,8 +597,8 @@ void Server::init()
 	m_emerge->initMapgens(servermap.getMapgenParams());
 
 	if (g_settings->getBool("enable_rollback_recording")) {
-		// Create rollback manager
-		m_rollback = new RollbackManager(m_path_world, this);
+		// Create rollback manager (default sqlite3, world-configurable in world.mt).
+		m_rollback = createRollbackManager();
 	}
 
 	// Give environment reference to scripting api
@@ -4415,6 +4436,13 @@ std::vector<std::string> Server::getModStorageDatabaseBackends()
 #endif
 	ret.emplace_back("files");
 	ret.emplace_back("dummy");
+	return ret;
+}
+
+std::vector<std::string> Server::getRollbackBackends()
+{
+	std::vector<std::string> ret;
+	ret.emplace_back("sqlite3");
 	return ret;
 }
 
