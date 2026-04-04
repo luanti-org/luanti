@@ -138,7 +138,7 @@ local function get_formspec(tabview, name, tabdata)
 		"pwdfield[2.875,0.2;2.625,0.75;te_pwd;]" ..
 		"container_end[]"
 
-		-- Connect
+	-- Connect
 	if core.settings:get_bool("enable_split_login_register") then
 		-- TRANSLATORS: Register an account on a server
 		retval = retval .. "button[0.25,6;2.5,0.75;btn_mp_register;" .. fgettext("Register") .. "]"
