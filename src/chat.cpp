@@ -584,6 +584,7 @@ void ChatPrompt::applyCompletion(const std::vector<std::wstring> &completions,
 		auto word = line.substr(word_start, word_end - word_start);
 
 		// cycle through completions
+		bool found = false;
 		for (u32 i = 0; i < completions.size(); ++i)
 		{
 			if (str_equal(word, completions[i], true))
@@ -593,9 +594,12 @@ void ChatPrompt::applyCompletion(const std::vector<std::wstring> &completions,
 				else
 					replacement_index = i + 1;
 				replacement_index %= completions.size();
+				found = true;
 				break;
 			}
 		}
+		if (!found)
+			return;
 	}
 	const auto &replacement = completions[replacement_index];
 	if (word_end < line.size() && iswspace(line[word_end]))
