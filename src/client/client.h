@@ -295,6 +295,9 @@ public:
 	const std::set<std::string> &getChatCommandNames() const
 	{ return m_chat_command_names; }
 
+	const std::set<std::string> &getItemNamesForCompletion() const
+	{ return m_item_names_cache; }
+
 	bool getChatMessage(std::wstring &message);
 	void typeChatMessage(const std::wstring& message);
 
@@ -578,6 +581,9 @@ private:
 
 	// Available server chat commands
 	std::set<std::string> m_chat_command_names;
+
+	// Cached item names for tab completion (populated on item def receive)
+	std::set<std::string> m_item_names_cache;
 
 	// Detached inventories
 	// key = name

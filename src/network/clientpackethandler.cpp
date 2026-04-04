@@ -777,6 +777,9 @@ void Client::handleCommand_ItemDef(NetworkPacket* pkt)
 	// Deserialize node definitions
 	m_itemdef->deSerialize(tmp_os, m_proto_ver);
 	m_itemdef_received = true;
+
+	// Cache item names for tab completion
+	m_itemdef->getAll(m_item_names_cache);
 }
 
 void Client::handleCommand_PlaySound(NetworkPacket* pkt)

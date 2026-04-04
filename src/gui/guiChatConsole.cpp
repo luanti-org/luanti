@@ -9,7 +9,6 @@
 #include "settings.h"
 #include "porting.h"
 #include "client/texturesource.h"
-#include "itemdef.h"
 #include "client/fontengine.h"
 #include "log.h"
 #include "gettext.h"
@@ -680,9 +679,7 @@ bool GUIChatConsole::OnEvent(const SEvent& event)
 					auto commands = m_client->getChatCommandNames();
 					prompt.commandCompletion(commands, backwards);
 				} else if (has_colon) {
-					std::set<std::string> item_names;
-					m_client->getItemDefManager()->getAll(item_names);
-					prompt.itemCompletion(item_names, backwards);
+					prompt.itemCompletion(m_client->getItemNamesForCompletion(), backwards);
 				} else {
 					// Could be a player name argument
 					auto names = m_client->getConnectedPlayerNames();
