@@ -643,6 +643,36 @@ void ChatPrompt::nickCompletion(const std::set<std::string> &names, bool backwar
 	applyCompletion(completions, prefix_start, prefix_start, prefix_end, backwards);
 }
 
+void ChatPrompt::itemCompletion(const std::set<std::string> &item_names, bool backwards)
+{
+	const std::wstring_view line(getLineRef());
+
+	u32 prefix_start = m_nick_completion_start;
+	u32 prefix_end = m_nick_completion_end;
+	bool initial = (prefix_end == 0);
+	if (initial)
+	{
+		prefix_start = prefix_end = m_cursor;
+		while (prefix_start > 0 && !iswspace(line[prefix_start-1]))
+			--prefix_start;
+		while (prefix_end < line.size() && !iswspace(line[prefix_end]))
+			++prefix_end;
+		if (prefix_start == prefix_end)
+			return;
+	}
+	auto prefix = line.substr(prefix_start, prefix_end - prefix_start);
+
+	// find all item names that start with the prefix
+	std::vector<std::wstring> completions;
+	for (const std::string &name : item_names) {
+		std::wstring wname = utf8_to_wide(name);
+		if (str_starts_with(wname, prefix, true))
+			completions.push_back(wname);
+	}
+
+	applyCompletion(completions, prefix_start, prefix_start, prefix_end, backwards);
+}
+
 void ChatPrompt::commandCompletion(const std::set<std::string> &commands, bool backwards)
 {
 	const std::wstring_view line(getLineRef());

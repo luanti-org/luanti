@@ -180,6 +180,9 @@ public:
 	// Command completion (for /commands)
 	void commandCompletion(const std::set<std::string> &commands, bool backwards);
 
+	// Item name completion (for names containing ':')
+	void itemCompletion(const std::set<std::string> &item_names, bool backwards);
+
 private:
 	// Shared tab-completion logic: cycle through completions and replace
 	// word_start..word_end in the line. prefix_start..prefix_end track the
@@ -195,6 +198,8 @@ public:
 	std::wstring getVisiblePortion() const;
 	// Get cursor position (relative to visible portion). -1 if invalid
 	s32 getVisibleCursorPosition() const;
+	// Get cursor position (index into line)
+	s32 getCursorPos() const { return m_cursor; }
 	// Get length of cursor selection
 	s32 getCursorLength() const { return m_cursor_len; }
 

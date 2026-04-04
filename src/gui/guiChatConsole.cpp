@@ -9,6 +9,7 @@
 #include "settings.h"
 #include "porting.h"
 #include "client/texturesource.h"
+#include "itemdef.h"
 #include "client/fontengine.h"
 #include "log.h"
 #include "gettext.h"
@@ -655,9 +656,38 @@ bool GUIChatConsole::OnEvent(const SEvent& event)
 			bool backwards = event.KeyInput.Shift;
 			std::wstring line = prompt.getLine();
 			if (!line.empty() && line[0] == L'/') {
-				// Command completion
-				auto commands = m_client->getChatCommandNames();
-				prompt.commandCompletion(commands, backwards);
+				// Find the word around the cursor to decide
+				// between command and item completion
+				s32 cursor = prompt.getCursorPos();
+				s32 word_start = cursor;
+				while (word_start > 0 && !iswspace(line[word_start - 1]))
+					--word_start;
+
+				// First word (the command itself) → command completion
+				// Later words containing ':' → item name completion
+				bool is_first_word = (word_start == 0);
+				bool has_colon = false;
+				if (!is_first_word) {
+					for (s32 i = word_start; i < (s32)line.size() && !iswspace(line[i]); ++i) {
+						if (line[i] == L':') {
+							has_colon = true;
+							break;
+						}
+					}
+				}
+
+				if (is_first_word) {
+					auto commands = m_client->getChatCommandNames();
+					prompt.commandCompletion(commands, backwards);
+				} else if (has_colon) {
+					std::set<std::string> item_names;
+					m_client->getItemDefManager()->getAll(item_names);
+					prompt.itemCompletion(item_names, backwards);
+				} else {
+					// Could be a player name argument
+					auto names = m_client->getConnectedPlayerNames();
+					prompt.nickCompletion(names, backwards);
+				}
 			} else {
 				// Nick completion
 				auto names = m_client->getConnectedPlayerNames();
