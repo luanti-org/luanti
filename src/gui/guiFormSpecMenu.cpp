@@ -2993,7 +2993,8 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 
 		// Preserve focus
 		gui::IGUIElement *focused_element = Environment->getFocus();
-		if (focused_element && focused_element->getParent() == this) {
+		// Check recursively to cover elements inside e.g. scroll containers
+		if (focused_element && isMyChild(focused_element)) {
 			s32 focused_id = focused_element->getID();
 			if (focused_id > ID_PROCEED_BTN) {
 				for (const GUIFormSpecMenu::FieldSpec &field : m_fields) {
