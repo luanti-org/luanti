@@ -180,7 +180,7 @@ mouse_sensitivity (Mouse sensitivity) float 0.2 0.001 10.0
 #    Keyboard-controlled camera rotation speed, in degrees per second.
 #
 #    Requires: keyboard_mouse
-keyboard_camera_speed (Keyboard camera speed) float 170.0 0.0 720.0
+keyboard_camera_speed (Keyboard camera speed) float 170.0 0.001 720.0
 
 #    Enable mouse wheel (scroll) for item selection in hotbar.
 #
