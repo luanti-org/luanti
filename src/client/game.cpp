@@ -2013,23 +2013,16 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 	}
 
 	// Keyboard look
-	const bool kb_yaw_left  = input->isKeyDown(KeyType::CAMERA_YAW_LEFT);
-	const bool kb_yaw_right = input->isKeyDown(KeyType::CAMERA_YAW_RIGHT);
-	const bool kb_pitch_up  = input->isKeyDown(KeyType::CAMERA_PITCH_UP);
-	const bool kb_pitch_down = input->isKeyDown(KeyType::CAMERA_PITCH_DOWN);
+	const f32 rate = m_cache_keyboard_look_speed * dtime * sens_scale;
 
-	if (kb_yaw_left || kb_yaw_right || kb_pitch_up || kb_pitch_down) {
-		const f32 rate = 600.0f * dtime * m_cache_keyboard_look_speed * sens_scale;
-
-		if (kb_yaw_left)
-			cam->camera_yaw += rate;
-		if (kb_yaw_right)
-			cam->camera_yaw -= rate;
-		if (kb_pitch_up)
-			cam->camera_pitch -= rate;
-		if (kb_pitch_down)
-			cam->camera_pitch += rate;
-	}
+	if (input->isKeyDown(KeyType::CAMERA_YAW_LEFT))
+		cam->camera_yaw += rate;
+	if (input->isKeyDown(KeyType::CAMERA_YAW_RIGHT))
+		cam->camera_yaw -= rate;
+	if (input->isKeyDown(KeyType::CAMERA_PITCH_UP))
+		cam->camera_pitch -= rate;
+	if (input->isKeyDown(KeyType::CAMERA_PITCH_DOWN))
+		cam->camera_pitch += rate;
 
 	cam->camera_pitch = rangelim(cam->camera_pitch, -90, 90);
 }
@@ -3745,7 +3738,7 @@ void Game::readSettings()
 	m_cache_enable_joysticks             = g_settings->getBool("enable_joysticks");
 	m_cache_enable_fog                   = g_settings->getBool("enable_fog");
 	m_cache_mouse_sensitivity            = g_settings->getFloat("mouse_sensitivity", 0.001f, 10.0f);
-	m_cache_keyboard_look_speed          = g_settings->getFloat("keyboard_look_speed", 0.001f, 10.0f);
+	m_cache_keyboard_look_speed          = g_settings->getFloat("keyboard_look_speed", 0.0f, 10000.0f);
 	m_cache_joystick_frustum_sensitivity = std::max(g_settings->getFloat("joystick_frustum_sensitivity"), 0.001f);
 	m_repeat_place_time                  = g_settings->getFloat("repeat_place_time", 0.16f, 2.0f);
 	m_repeat_dig_time                    = g_settings->getFloat("repeat_dig_time", 0.0f, 2.0f);

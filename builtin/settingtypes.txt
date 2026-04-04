@@ -177,10 +177,10 @@ invert_mouse (Invert mouse) bool false
 #    Requires: keyboard_mouse
 mouse_sensitivity (Mouse sensitivity) float 0.2 0.001 10.0
 
-#    Keyboard look speed multiplier.
+#    Keyboard look speed in degrees per second.
 #
 #    Requires: keyboard_mouse
-keyboard_look_speed (Keyboard look speed) float 0.2 0.001 10.0
+keyboard_look_speed (Keyboard look speed) float 170.0 0.0 10000.0
 
 #    Enable mouse wheel (scroll) for item selection in hotbar.
 #
