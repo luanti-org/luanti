@@ -88,6 +88,31 @@ void ScriptApiServer::readPrivileges(int index, std::set<std::string> &result)
 	}
 }
 
+std::set<std::string> ScriptApiServer::getChatCommandNames()
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	std::set<std::string> result;
+
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "registered_chatcommands");
+	if (!lua_istable(L, -1)) {
+		lua_pop(L, 2);
+		return result;
+	}
+
+	lua_pushnil(L);
+	while (lua_next(L, -2) != 0) {
+		// key at index -2, value at index -1
+		if (lua_isstring(L, -2))
+			result.insert(readParam<std::string>(L, -2));
+		lua_pop(L, 1); // remove value, keep key for next iteration
+	}
+
+	lua_pop(L, 2); // Remove registered_chatcommands and core
+	return result;
+}
+
 void ScriptApiServer::createAuth(const std::string &playername,
 		const std::string &password)
 {

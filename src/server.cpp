@@ -1283,6 +1283,9 @@ PlayerSAO *Server::StageTwoClientInit(session_t peer_id)
 	// Send privileges
 	SendPlayerPrivileges(peer_id);
 
+	// Send available chat commands
+	SendChatCommands(peer_id);
+
 	// Send inventory formspec
 	SendPlayerInventoryFormspec(peer_id);
 
@@ -2159,6 +2162,20 @@ void Server::SendPlayerPrivileges(session_t peer_id)
 
 	for (const std::string &priv : privs) {
 		pkt << priv;
+	}
+
+	Send(&pkt);
+}
+
+void Server::SendChatCommands(session_t peer_id)
+{
+	std::set<std::string> commands = m_script->getChatCommandNames();
+
+	NetworkPacket pkt(TOCLIENT_CHAT_COMMAND_DEFS, 0, peer_id);
+	pkt << (u16) commands.size();
+
+	for (const std::string &cmd : commands) {
+		pkt << cmd;
 	}
 
 	Send(&pkt);

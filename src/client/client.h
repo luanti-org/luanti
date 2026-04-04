@@ -183,6 +183,7 @@ public:
 	void handleCommand_StopSound(NetworkPacket* pkt);
 	void handleCommand_FadeSound(NetworkPacket *pkt);
 	void handleCommand_Privileges(NetworkPacket* pkt);
+	void handleCommand_ChatCommandDefs(NetworkPacket* pkt);
 	void handleCommand_InventoryFormSpec(NetworkPacket* pkt);
 	void handleCommand_DetachedInventory(NetworkPacket* pkt);
 	void handleCommand_ShowFormSpec(NetworkPacket* pkt);
@@ -290,6 +291,9 @@ public:
 
 	const std::unordered_set<std::string> &getPrivilegeList() const
 	{ return m_privileges; }
+
+	const std::set<std::string> &getChatCommandNames() const
+	{ return m_chat_command_names; }
 
 	bool getChatMessage(std::wstring &message);
 	void typeChatMessage(const std::wstring& message);
@@ -571,6 +575,9 @@ private:
 
 	// Privileges
 	std::unordered_set<std::string> m_privileges;
+
+	// Available server chat commands
+	std::set<std::string> m_chat_command_names;
 
 	// Detached inventories
 	// key = name

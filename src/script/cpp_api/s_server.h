@@ -35,6 +35,10 @@ public:
 	bool setPassword(const std::string &playername,
 		const std::string &password);
 
+	/* chat commands */
+	// Returns the names of all registered chat commands
+	std::set<std::string> getChatCommandNames();
+
 	/* dynamic media handling */
 	static u32 allocateDynamicMediaCallback(lua_State *L, int f_idx);
 	void freeDynamicMediaCallback(u32 token);

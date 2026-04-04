@@ -177,6 +177,18 @@ public:
 	// Nick completion
 	void nickCompletion(const std::set<std::string> &names, bool backwards);
 
+	// Command completion (for /commands)
+	void commandCompletion(const std::set<std::string> &commands, bool backwards);
+
+private:
+	// Shared tab-completion logic: cycle through completions and replace
+	// word_start..word_end in the line. prefix_start..prefix_end track the
+	// original typed prefix for cycling.
+	void applyCompletion(const std::vector<std::wstring> &completions,
+		u32 word_start, u32 prefix_start, u32 prefix_end, bool backwards);
+
+public:
+
 	// Update console size and reformat the visible portion of the prompt
 	void reformat(u32 cols);
 	// Get visible portion of the prompt.

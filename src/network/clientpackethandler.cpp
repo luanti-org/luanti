@@ -911,6 +911,20 @@ void Client::handleCommand_Privileges(NetworkPacket* pkt)
 	infostream << std::endl;
 }
 
+void Client::handleCommand_ChatCommandDefs(NetworkPacket* pkt)
+{
+	m_chat_command_names.clear();
+	u16 num_commands;
+
+	*pkt >> num_commands;
+
+	for (u16 i = 0; i < num_commands; i++) {
+		std::string cmd;
+		*pkt >> cmd;
+		m_chat_command_names.insert(cmd);
+	}
+}
+
 void Client::handleCommand_InventoryFormSpec(NetworkPacket* pkt)
 {
 	LocalPlayer *player = m_env.getLocalPlayer();

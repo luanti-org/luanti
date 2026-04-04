@@ -77,6 +77,7 @@
 	PROTOCOL VERSION 52
 		Add TOCLIENT_WIELD_ITEM
 		Type of TOCLIENT_HUDADD `size` changed from v2s32 to v2f
+		Add TOCLIENT_CHAT_COMMAND_DEFS
 		[scheduled bump for 5.16.0]
 */
 

@@ -708,7 +708,15 @@ enum ToClientCommand : u16
 			u8[len] serialized ParticleParameters
 	*/
 
-	TOCLIENT_NUM_MSG_TYPES = 0x65,
+	TOCLIENT_CHAT_COMMAND_DEFS = 0x65,
+	/*
+		u16 number of commands
+		for each command
+			u16 len
+			u8[len] command name (without leading '/')
+	*/
+
+	TOCLIENT_NUM_MSG_TYPES = 0x66,
 };
 
 enum ToServerCommand : u16

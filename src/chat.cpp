@@ -565,47 +565,14 @@ void ChatPrompt::historyNext()
 	}
 }
 
-void ChatPrompt::nickCompletion(const std::set<std::string> &names, bool backwards)
+void ChatPrompt::applyCompletion(const std::vector<std::wstring> &completions,
+	u32 word_start, u32 prefix_start, u32 prefix_end, bool backwards)
 {
-	const std::wstring_view line(getLineRef());
-	// Two cases:
-	// (a) m_nick_completion_start == m_nick_completion_end == 0
-	//     Then no previous nick completion is active.
-	//     Get the word around the cursor and replace with any nick
-	//     that has that word as a prefix.
-	// (b) else, continue a previous nick completion.
-	//     m_nick_completion_start..m_nick_completion_end are the
-	//     interval where the originally used prefix was. Cycle
-	//     through the list of completions of that prefix.
-	u32 prefix_start = m_nick_completion_start;
-	u32 prefix_end = m_nick_completion_end;
-	bool initial = (prefix_end == 0);
-	if (initial)
-	{
-		// no previous nick completion is active
-		prefix_start = prefix_end = m_cursor;
-		while (prefix_start > 0 && !iswspace(line[prefix_start-1]))
-			--prefix_start;
-		while (prefix_end < line.size() && !iswspace(line[prefix_end]))
-			++prefix_end;
-		if (prefix_start == prefix_end)
-			return;
-	}
-	auto prefix = line.substr(prefix_start, prefix_end - prefix_start);
-
-	// find all names that start with the selected prefix
-	std::vector<std::wstring> completions;
-	for (const std::string &name : names) {
-		std::wstring completion = utf8_to_wide(name);
-		if (str_starts_with(completion, prefix, true)) {
-			if (prefix_start == 0)
-				completion += L": ";
-			completions.push_back(completion);
-		}
-	}
-
 	if (completions.empty())
 		return;
+
+	const std::wstring_view line(getLineRef());
+	bool initial = (m_nick_completion_end == 0);
 
 	// find a replacement string and the word that will be replaced
 	u32 word_end = prefix_end;
@@ -614,7 +581,7 @@ void ChatPrompt::nickCompletion(const std::set<std::string> &names, bool backwar
 	{
 		while (word_end < line.size() && !iswspace(line[word_end]))
 			++word_end;
-		auto word = line.substr(prefix_start, word_end - prefix_start);
+		auto word = line.substr(word_start, word_end - word_start);
 
 		// cycle through completions
 		for (u32 i = 0; i < completions.size(); ++i)
@@ -636,11 +603,80 @@ void ChatPrompt::nickCompletion(const std::set<std::string> &names, bool backwar
 
 	// replace existing word with replacement word,
 	// place the cursor at the end and record the completion prefix
-	makeLineRef().replace(prefix_start, word_end - prefix_start, replacement);
-	m_cursor = prefix_start + replacement.size();
+	makeLineRef().replace(word_start, word_end - word_start, replacement);
+	m_cursor = word_start + replacement.size();
 	clampView();
 	m_nick_completion_start = prefix_start;
 	m_nick_completion_end = prefix_end;
+}
+
+void ChatPrompt::nickCompletion(const std::set<std::string> &names, bool backwards)
+{
+	const std::wstring_view line(getLineRef());
+
+	u32 prefix_start = m_nick_completion_start;
+	u32 prefix_end = m_nick_completion_end;
+	bool initial = (prefix_end == 0);
+	if (initial)
+	{
+		prefix_start = prefix_end = m_cursor;
+		while (prefix_start > 0 && !iswspace(line[prefix_start-1]))
+			--prefix_start;
+		while (prefix_end < line.size() && !iswspace(line[prefix_end]))
+			++prefix_end;
+		if (prefix_start == prefix_end)
+			return;
+	}
+	auto prefix = line.substr(prefix_start, prefix_end - prefix_start);
+
+	// find all names that start with the selected prefix
+	std::vector<std::wstring> completions;
+	for (const std::string &name : names) {
+		std::wstring completion = utf8_to_wide(name);
+		if (str_starts_with(completion, prefix, true)) {
+			if (prefix_start == 0)
+				completion += L": ";
+			completions.push_back(completion);
+		}
+	}
+
+	applyCompletion(completions, prefix_start, prefix_start, prefix_end, backwards);
+}
+
+void ChatPrompt::commandCompletion(const std::set<std::string> &commands, bool backwards)
+{
+	const std::wstring_view line(getLineRef());
+
+	// Only complete if line starts with '/'
+	if (line.empty() || line[0] != L'/')
+		return;
+
+	u32 prefix_start = m_nick_completion_start;
+	u32 prefix_end = m_nick_completion_end;
+	bool initial = (prefix_end == 0);
+	if (initial)
+	{
+		// Extract the command word (skip the '/')
+		prefix_start = 1;
+		prefix_end = 1;
+		while (prefix_end < line.size() && !iswspace(line[prefix_end]))
+			++prefix_end;
+		if (prefix_start == prefix_end)
+			return;
+	}
+	auto prefix = line.substr(prefix_start, prefix_end - prefix_start);
+
+	// Find all commands that start with the prefix
+	std::vector<std::wstring> completions;
+	for (const std::string &cmd : commands) {
+		std::wstring wcmd = utf8_to_wide(cmd);
+		if (str_starts_with(wcmd, prefix, true)) {
+			completions.push_back(L"/" + wcmd);
+		}
+	}
+
+	// word_start is 0 to include the '/' in the replacement
+	applyCompletion(completions, 0, prefix_start, prefix_end, backwards);
 }
 
 void ChatPrompt::reformat(u32 cols)

@@ -652,10 +652,17 @@ bool GUIChatConsole::OnEvent(const SEvent& event)
 		else if(event.KeyInput.Key == KEY_TAB)
 		{
 			// Tab or Shift-Tab pressed
-			// Nick completion
-			auto names = m_client->getConnectedPlayerNames();
 			bool backwards = event.KeyInput.Shift;
-			prompt.nickCompletion(names, backwards);
+			std::wstring line = prompt.getLine();
+			if (!line.empty() && line[0] == L'/') {
+				// Command completion
+				auto commands = m_client->getChatCommandNames();
+				prompt.commandCompletion(commands, backwards);
+			} else {
+				// Nick completion
+				auto names = m_client->getConnectedPlayerNames();
+				prompt.nickCompletion(names, backwards);
+			}
 			return true;
 		}
 
