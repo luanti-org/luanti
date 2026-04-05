@@ -193,8 +193,7 @@ void CGUIScrollBar::draw()
 		return;
 
 	IGUISkin *skin = Environment->getSkin();
-	if (!skin)
-		return;
+	assert(skin);
 
 	video::SColor iconColor = skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
 	if (iconColor != CurrentIconColor) {
@@ -423,12 +422,8 @@ void CGUIScrollBar::refreshControls()
 	CurrentIconColor = video::SColor(255, 255, 255, 255);
 
 	IGUISkin *skin = Environment->getSkin();
-	IGUISpriteBank *sprites = 0;
-
-	if (skin) {
-		sprites = skin->getSpriteBank();
-		CurrentIconColor = skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
-	}
+	IGUISpriteBank *sprites = skin->getSpriteBank();
+	CurrentIconColor = skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
 
 	if (Horizontal) {
 		const s32 h = RelativeRect.getHeight();
@@ -487,19 +482,23 @@ void CGUIScrollBar::refreshControls()
 	}
 
 	// Automatically hide Up/Down if the space is constrained too much
-	bool visible;
+	bool visible = false;
 	//BorderSize = 0; // uncomment to test
-	if (UpDownVisible == DEFAULT)
-		visible = (BorderSize != 0);
-	else if (UpDownVisible == HIDE) {
-		visible = false;
-		BorderSize = 0;
-	} else {
-		visible = true;
-		if (Horizontal)
-			BorderSize = RelativeRect.getHeight();
-		else
-			BorderSize = RelativeRect.getWidth();
+	switch (UpDownVisible) {
+		case DEFAULT:
+			visible = (BorderSize != 0);
+			break;
+		case HIDE:
+			visible = false;
+			BorderSize = 0;
+			break;
+		case SHOW:
+			visible = true;
+			if (Horizontal)
+				BorderSize = RelativeRect.getHeight();
+			else
+				BorderSize = RelativeRect.getWidth();
+			break;
 	}
 
 	UpButton->setVisible(visible);
