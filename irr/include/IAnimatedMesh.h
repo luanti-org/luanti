@@ -20,7 +20,7 @@ class IAnimatedMesh : public IMesh
 public:
 
 	//! Get the number of animation tracks, 0 if the mesh is static.
-	virtual u16 getNumTracks() const = 0;
+	virtual u16 getTrackCount() const = 0;
 
 	virtual std::optional<u16> getTrackNumber(const std::string &track_name) const = 0;
 
