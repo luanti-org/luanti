@@ -139,7 +139,7 @@ struct SMesh final : public IAnimatedMesh
 
 	void prepareForAnimation(u16 max_hw_joints) override {}
 	bool needsHwSkinning() const override { return false; }
-	u16 getNumTracks() const override { return 0; }
+	u16 getTrackCount() const override { return 0; }
 	std::optional<u16> getTrackNumber(
 			const std::string &track_name) const override
 	{ return std::nullopt; }

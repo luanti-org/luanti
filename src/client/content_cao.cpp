@@ -1362,7 +1362,7 @@ void GenericCAO::updateAnimation(u16 track)
 	if (m_local_player_animation) {
 		// Reset local player animation override
 		m_local_player_animation = false;
-		m_animated_meshnode->getAnimation().tracks = m_animation.tracks;
+		m_animated_meshnode->getAnimation() = m_animation;
 		return;
 	}
 
@@ -1500,7 +1500,7 @@ std::optional<u16> GenericCAO::resolveTrackId(const scene::TrackId &track_id)
 	}
 
 	u16 track_nr = std::get<u16>(track_id);
-	u16 max_track_nr = mesh->getNumTracks();
+	u16 max_track_nr = mesh->getTrackCount();
 	if (track_nr >= max_track_nr) {
 		warningstream << "Track number " << track_nr << " out of bounds for mesh " << m_prop.mesh
 			<< " (max: " << max_track_nr << ")" << std::endl;

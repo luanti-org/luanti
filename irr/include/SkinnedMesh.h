@@ -52,7 +52,7 @@ public:
 	//! Important for legacy reasons pertaining to different mesh loader behavior.
 	SourceFormat getSourceFormat() const { return SrcFormat; }
 
-	u16 getNumTracks() const override { return animations.size(); }
+	u16 getTrackCount() const override { return animations.size(); }
 
 	std::optional<u16> getTrackNumber(const std::string &track_name) const override;
 
