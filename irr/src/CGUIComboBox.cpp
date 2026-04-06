@@ -235,10 +235,10 @@ bool CGUIComboBox::OnEvent(const SEvent &event)
 			switch (event.GUIEvent.EventType) {
 			case EGET_ELEMENT_FOCUS_LOST:
 				if (ListBox &&
-						(Environment->hasFocus(ListBox) || ListBox->isMyChild(event.GUIEvent.Caller)) &&
+						(Environment->hasFocus(ListBox) || ListBox->isMyDescendant(event.GUIEvent.Caller)) &&
 						event.GUIEvent.Element != this &&
-						!isMyChild(event.GUIEvent.Element) &&
-						!ListBox->isMyChild(event.GUIEvent.Element)) {
+						!isMyDescendant(event.GUIEvent.Element) &&
+						!ListBox->isMyDescendant(event.GUIEvent.Element)) {
 					openCloseMenu();
 				}
 				break;
@@ -369,7 +369,7 @@ void CGUIComboBox::draw()
 
 	IGUIElement *currentFocus = Environment->getFocus();
 	if (currentFocus != LastFocus) {
-		HasFocus = currentFocus == this || isMyChild(currentFocus);
+		HasFocus = currentFocus == this || isMyDescendant(currentFocus);
 		LastFocus = currentFocus;
 	}
 

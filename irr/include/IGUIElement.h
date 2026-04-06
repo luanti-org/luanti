@@ -528,42 +528,39 @@ public:
 
 	//! Finds the first element with the given id.
 	/** \param id: Id to search for.
-	\param searchchildren: Set this to true, if also children of this
+	\param recursive: Set this to true, if also children of this
 	element may contain the element with the searched id and they
 	should be searched too.
 	\return Returns the first element with the given id. If no element
-	with this id was found, 0 is returned. */
-	virtual IGUIElement *getElementFromId(s32 id, bool searchchildren = false) const
+	with this id was found, nullptr is returned. */
+	virtual IGUIElement *getElementFromId(s32 id, bool recursive = false) const
 	{
-		IGUIElement *e = 0;
-
 		for (auto child : Children) {
 			if (child->getID() == id)
 				return child;
 
-			if (searchchildren)
-				e = child->getElementFromId(id, true);
-
-			if (e)
-				return e;
+			if (recursive) {
+				if (auto *e = child->getElementFromId(id, true))
+					return e;
+			}
 		}
 
-		return e;
+		return nullptr;
 	}
 
-	//! returns true if the given element is a child of this one.
-	//! \param child: The child element to check
-	bool isMyChild(IGUIElement *child) const
+	//! returns true if the given element is a descendant of this one.
+	//! @note elements are not descendants of themselves
+	//! \param element: The element to check
+	bool isMyDescendant(const IGUIElement *element) const
 	{
-		if (!child)
+		if (!element)
 			return false;
-		do {
-			if (child->Parent)
-				child = child->Parent;
 
-		} while (child->Parent && child != this);
-
-		return child == this;
+		while ((element = element->Parent)) {
+			if (element == this)
+				return true;
+		}
+		return false;
 	}
 
 	//! searches elements to find the closest next element to tab to
