@@ -1287,7 +1287,7 @@ PlayerSAO *Server::StageTwoClientInit(session_t peer_id)
 	SendPlayerInventoryFormspec(peer_id);
 
 	// Send inventory
-	SendInventory(player, false, false);
+	SendInventory(player, false);
 
 	// Send HP
 	SendPlayerHP(playersao, false);
