@@ -416,7 +416,7 @@ bool CGUITTFont::load(SGUITTFace *face, const u32 size, const bool antialias,
 	update_load_flags();
 
 	// Store our face.
-	face->grab();
+	m_face.grab(face);
 	tt_face = face->face;
 
 	// Store font metrics.
