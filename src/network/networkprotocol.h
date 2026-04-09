@@ -18,6 +18,9 @@ extern const u16 FORMSPEC_API_VERSION;
 
 // (applies to all media files, not just textures)
 #define TEXTURENAME_ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-"
+// SSCSM .lua files use "modname:filename.lua" so colon is also allowed.
+// Asterisks are allowed for builtin pseudo-mods like "*server_builtin*".
+#define TEXTURENAME_ALLOWED_CHARS_LUA TEXTURENAME_ALLOWED_CHARS ":*"
 
 // Due to our network protocol the maximum window size determines the maximum
 // media size we can safely allow. See the comment and check in Connection::Send().

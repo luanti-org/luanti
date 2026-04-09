@@ -2651,8 +2651,11 @@ bool Server::addMediaFile(const std::string &filename,
 	const std::string &filepath, std::string *filedata_to,
 	std::string *digest_to)
 {
+	// SSCSM .lua files use "modname:filename.lua" so colon is allowed
+	const char *allowed_chars = str_ends_with(filename, std::string(".lua"))
+			? TEXTURENAME_ALLOWED_CHARS_LUA : TEXTURENAME_ALLOWED_CHARS;
 	// If name contains illegal characters, ignore the file
-	if (!string_allowed(filename, TEXTURENAME_ALLOWED_CHARS)) {
+	if (!string_allowed(filename, allowed_chars)) {
 		warningstream << "Server: ignoring file as it has disallowed characters: \""
 				<< filename << "\"" << std::endl;
 		return false;
@@ -2667,6 +2670,8 @@ bool Server::addMediaFile(const std::string &filename,
 		".tr", ".po", ".mo",
 		// Fonts
 		".ttf", ".woff",
+		// SSCSM
+		".lua",
 		nullptr
 	};
 	if (removeStringEnd(filename, supported_ext).empty()) {
@@ -2744,6 +2749,26 @@ void Server::fillMediaCache()
 			std::string filepath = mediapath;
 			filepath.append(DIR_DELIM).append(filename);
 			addMediaFile(filename, filepath);
+		}
+	}
+
+	// Add SSCSM clientmods files with "modname:filename" keys
+	for (const ModSpec &mod : m_modmgr->getMods()) {
+		if (!mod.has_sscsm)
+			continue;
+
+		std::string clientmods_dir = mod.path + DIR_DELIM + "clientmods";
+		std::vector<fs::DirListNode> dirlist = fs::GetDirListing(clientmods_dir);
+		for (const auto &dln : dirlist) {
+			if (dln.dir)
+				continue;
+			if (!str_ends_with(dln.name, std::string(".lua")))
+				continue;
+			std::string filepath = clientmods_dir + DIR_DELIM + dln.name;
+			std::string medianame = mod.name + ":" + dln.name;
+			if (m_media.count(medianame) > 0)
+				continue;
+			addMediaFile(medianame, filepath);
 		}
 	}
 
