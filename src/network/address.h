@@ -48,6 +48,8 @@ public:
 	bool isAny() const;
 	// Is this an address referring to the local host?
 	bool isLocalhost() const;
+	// Is this a LAN (private/link-local) address?
+	bool isLan() const;
 
 	// `name`: hostname or numeric IP
 	// `fallback`: fallback IP to try gets written here

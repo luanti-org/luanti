@@ -218,3 +218,50 @@ bool Address::isLocalhost() const
 	}
 	return false;
 }
+
+bool Address::isLan() const
+{
+	if (isLocalhost())
+		return true;
+
+	if (m_addr_family == AF_INET) {
+		auto addr = ntohl(m_address.ipv4.s_addr);
+		// 10.0.0.0/8
+		if ((addr >> 24) == 10)
+			return true;
+		// 172.16.0.0/12
+		if ((addr >> 20) == (172 << 4 | 1))
+			return true;
+		// 192.168.0.0/16
+		if ((addr >> 16) == (192 << 8 | 168))
+			return true;
+		// 169.254.0.0/16 (link-local)
+		if ((addr >> 16) == (169 << 8 | 254))
+			return true;
+	} else if (m_addr_family == AF_INET6) {
+		auto *addr = m_address.ipv6.s6_addr;
+		// fe80::/10 (link-local)
+		if (addr[0] == 0xfe && (addr[1] & 0xc0) == 0x80)
+			return true;
+		// fc00::/7 (unique local)
+		if ((addr[0] & 0xfe) == 0xfc)
+			return true;
+		// ::ffff:0:0/96 (IPv4-mapped) — check the mapped IPv4 address
+		static const u8 mapped_prefix[] = {
+				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff};
+		if (memcmp(addr, mapped_prefix, 12) == 0) {
+			u32 ipv4 = (static_cast<u32>(addr[12]) << 24) |
+					(static_cast<u32>(addr[13]) << 16) |
+					(static_cast<u32>(addr[14]) << 8) | addr[15];
+			if ((ipv4 >> 24) == 10)
+				return true;
+			if ((ipv4 >> 20) == (172 << 4 | 1))
+				return true;
+			if ((ipv4 >> 16) == (192 << 8 | 168))
+				return true;
+			if ((ipv4 >> 16) == (169 << 8 | 254))
+				return true;
+		}
+	}
+	return false;
+}
