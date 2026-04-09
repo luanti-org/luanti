@@ -15,6 +15,7 @@ function core.get_name_from_content_id(id)
 	return tostring(id)
 end
 
+dofile(commonpath .. "vector.lua")
 assert(loadfile(commonpath .. "item_s.lua"))(builtin_shared)
 assert(loadfile(commonpath .. "register.lua"))(builtin_shared)
 assert(loadfile(mypath .. "register.lua"))(builtin_shared)

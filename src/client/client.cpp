@@ -182,8 +182,11 @@ Client::Client(
 		auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
 
 		ModVFS tmp_mod_vfs;
-		// FIXME: only read files that are relevant to sscsm, and compute sha2 digests
-		tmp_mod_vfs.scanModIntoMemory("*client_builtin*", getBuiltinLuaPath());
+		std::string builtinpath = getBuiltinLuaPath();
+		tmp_mod_vfs.scanModSubfolder("*client_builtin*",
+				builtinpath, "sscsm_client" DIR_DELIM);
+		tmp_mod_vfs.scanModSubfolder("*client_builtin*",
+				builtinpath, "common" DIR_DELIM);
 
 		for (auto &p : tmp_mod_vfs.m_vfs) {
 			event1->files.emplace_back(p.first, std::move(p.second));
@@ -193,7 +196,7 @@ Client::Client(
 
 		// load client builtin immediately
 		auto event2 = std::make_unique<SSCSMEventLoadMods>();
-		event2->mods.emplace_back("*client_builtin*", "*client_builtin*:init.lua");
+		event2->mods.emplace_back("*client_builtin*", "*client_builtin*:sscsm_client/init.lua");
 		m_sscsm_controller->runEvent(this, std::move(event2));
 	}
 
