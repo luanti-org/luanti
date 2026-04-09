@@ -8,6 +8,7 @@
 #include "scripting_server.h"
 #include "content/subgames.h"
 #include "porting.h"
+#include "util/string.h"
 
 /**
  * Manage server mods
@@ -85,5 +86,38 @@ void ServerModManager::getModsMediaPaths(std::vector<std::string> &paths) const
 		fs::GetRecursiveDirs(paths, spec.path + DIR_DELIM + "models");
 		fs::GetRecursiveDirs(paths, spec.path + DIR_DELIM + "locale");
 		fs::GetRecursiveDirs(paths, spec.path + DIR_DELIM + "fonts");
+	}
+}
+
+void ServerModManager::getSSCSMFiles(
+		std::vector<std::pair<std::string, std::string>> &files,
+		std::vector<std::pair<std::string, std::string>> &mods_to_load) const
+{
+	for (const ModSpec &spec : configuration.getMods()) {
+		if (!spec.has_sscsm)
+			continue;
+
+		std::string clientmods_dir = spec.path + DIR_DELIM + "clientmods";
+		std::vector<fs::DirListNode> dirlist = fs::GetDirListing(clientmods_dir);
+		for (const auto &dln : dirlist) {
+			if (dln.dir)
+				continue;
+			if (!str_ends_with(dln.name, ".lua"))
+				continue;
+
+			std::string filepath = clientmods_dir + DIR_DELIM + dln.name;
+			std::string content;
+			if (!fs::ReadFile(filepath, content)) {
+				warningstream << "SSCSM: Failed to read clientmod file: "
+						<< filepath << std::endl;
+				continue;
+			}
+
+			std::string vpath = spec.name + ":" + dln.name;
+			files.emplace_back(std::move(vpath), std::move(content));
+		}
+
+		// Only init.lua is the entry point
+		mods_to_load.emplace_back(spec.name, spec.name + ":init.lua");
 	}
 }

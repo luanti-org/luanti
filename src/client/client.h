@@ -386,6 +386,11 @@ public:
 	// Migrates away old files-based mod storage if necessary
 	void migrateModStorage();
 
+	// Loads SSCSM mods from the given file list into the SSCSM environment
+	void loadSSCSMMods(
+			std::vector<std::pair<std::string, std::string>> &&files,
+			std::vector<std::pair<std::string, std::string>> &&mods_to_load);
+
 	// The following set of functions is used by ClientMediaDownloader
 	// Insert a media file appropriately into the appropriate manager
 	bool loadMedia(const std::string &data, const std::string &filename,

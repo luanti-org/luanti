@@ -61,4 +61,19 @@ public:
 	 * @param paths result vector
 	 */
 	void getModsMediaPaths(std::vector<std::string> &paths) const;
+
+	/**
+	 * Collects SSCSM (clientmods) files from all mods that declare them.
+	 *
+	 * Returns a vector of (virtual_path, file_content) pairs, where
+	 * virtual_path is "modname:filename" and file_content is the Lua source.
+	 *
+	 * Also returns a vector of (modname, virtual_path) pairs for loading order.
+	 *
+	 * @param files output: VFS file entries
+	 * @param mods_to_load output: mod load entries (name, entry point path)
+	 */
+	void getSSCSMFiles(
+			std::vector<std::pair<std::string, std::string>> &files,
+			std::vector<std::pair<std::string, std::string>> &mods_to_load) const;
 };

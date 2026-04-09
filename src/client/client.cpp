@@ -197,40 +197,26 @@ Client::Client(
 		m_sscsm_controller->runEvent(this, std::move(event2));
 	}
 
-	{
-		//FIXME: network packets
-		//FIXME: check that *client_builtin* is not overridden
+}
 
-		std::string enable_sscsm = g_settings->get("enable_sscsm");
-		if (enable_sscsm == "singleplayer") { //FIXME: enum
-			auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
+void Client::loadSSCSMMods(
+		std::vector<std::pair<std::string, std::string>> &&files,
+		std::vector<std::pair<std::string, std::string>> &&mods_to_load)
+{
+	if (files.empty())
+		return;
 
-			// some simple test code
-			event1->files.emplace_back("sscsm_test0:init.lua",
-					R"=+=(
-print("sscsm_test0: loading")
-
---print(dump(_G))
---print(debug.traceback())
-
-do
-	local pos = vector.zero()
-	local function print_nodes()
-		print(string.format("node at %s: %s", pos, dump(core.get_node_or_nil(pos))))
-		pos = pos:offset(1, 0, 0)
-		core.after(1, print_nodes)
-	end
-	core.after(0, print_nodes)
-end
-					)=+=");
-
-			m_sscsm_controller->runEvent(this, std::move(event1));
-
-			auto event2 = std::make_unique<SSCSMEventLoadMods>();
-			event2->mods.emplace_back("sscsm_test0", "sscsm_test0:init.lua");
-			m_sscsm_controller->runEvent(this, std::move(event2));
-		}
+	auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
+	for (auto &p : files) {
+		event1->files.emplace_back(std::move(p.first), std::move(p.second));
 	}
+	m_sscsm_controller->runEvent(this, std::move(event1));
+
+	auto event2 = std::make_unique<SSCSMEventLoadMods>();
+	for (auto &m : mods_to_load) {
+		event2->mods.emplace_back(std::move(m.first), std::move(m.second));
+	}
+	m_sscsm_controller->runEvent(this, std::move(event2));
 }
 
 void Client::migrateModStorage()

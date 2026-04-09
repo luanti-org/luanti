@@ -885,6 +885,22 @@ bool Game::createClient(const GameStartData &start_data)
 	// Update cached textures, meshes and materials
 	client->afterContentReceived();
 
+	// Load SSCSM mods from server (singleplayer only for now)
+	if (server) {
+		std::string enable_sscsm = g_settings->get("enable_sscsm");
+		if (enable_sscsm == "singleplayer") {
+			std::vector<std::pair<std::string, std::string>> sscsm_files;
+			std::vector<std::pair<std::string, std::string>> sscsm_mods;
+			server->getSSCSMFiles(sscsm_files, sscsm_mods);
+			if (!sscsm_files.empty()) {
+				infostream << "SSCSM: Loading " << sscsm_mods.size()
+						<< " clientmod(s)" << std::endl;
+				client->loadSSCSMMods(std::move(sscsm_files),
+						std::move(sscsm_mods));
+			}
+		}
+	}
+
 	/* Camera
 	 */
 	camera = new Camera(*draw_control, client, m_rendering_engine);

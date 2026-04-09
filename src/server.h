@@ -445,6 +445,11 @@ public:
 	// map key = binary sha1, map value = file path
 	std::unordered_map<std::string, std::string> getMediaList();
 
+	// Collects SSCSM files from mods that declare clientmods in mod.conf
+	void getSSCSMFiles(
+			std::vector<std::pair<std::string, std::string>> &files,
+			std::vector<std::pair<std::string, std::string>> &mods_to_load);
+
 	static std::vector<std::string> getModStorageDatabaseBackends();
 
 	static ModStorageDatabase *openModStorageDatabase(const std::string &world_path);
