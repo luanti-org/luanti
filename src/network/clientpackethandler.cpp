@@ -1707,9 +1707,11 @@ void Client::handleCommand_MediaPush(NetworkPacket *pkt)
 	else
 		filedata = pkt->readLongString();
 
+	const char *allowed_chars = str_ends_with(filename, std::string(".lua"))
+			? TEXTURENAME_ALLOWED_CHARS_LUA : TEXTURENAME_ALLOWED_CHARS;
 	if (raw_hash.size() != 20 || filename.empty() ||
 			(m_proto_ver < 40 && filedata.empty()) ||
-			!string_allowed(filename, TEXTURENAME_ALLOWED_CHARS)) {
+			!string_allowed(filename, allowed_chars)) {
 		throw PacketError("Illegal filename, data or hash");
 	}
 

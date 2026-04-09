@@ -80,7 +80,9 @@ void ClientMediaDownloader::addFile(const std::string &name, const std::string &
 	}
 
 	// if name is empty or contains illegal characters, ignore the file
-	if (name.empty() || !string_allowed(name, TEXTURENAME_ALLOWED_CHARS)) {
+	const char *allowed_chars = str_ends_with(name, std::string(".lua"))
+			? TEXTURENAME_ALLOWED_CHARS_LUA : TEXTURENAME_ALLOWED_CHARS;
+	if (name.empty() || !string_allowed(name, allowed_chars)) {
 		errorstream << "Client: ignoring illegal file name "
 				<< "sent by server: \"" << name << "\""
 				<< std::endl;

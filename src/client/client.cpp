@@ -916,6 +916,15 @@ bool Client::loadMedia(const std::string &data, const std::string &filename,
 		return true;
 	}
 
+	const char *lua_ext[] = {".lua", NULL};
+	name = removeStringEnd(filename, lua_ext);
+	if (!name.empty()) {
+		verbosestream << "Client: Storing SSCSM file: \""
+				<< filename << "\"" << std::endl;
+		m_sscsm_pending_files.emplace_back(filename, data);
+		return true;
+	}
+
 	errorstream << "Client: Don't know how to load file \""
 		<< filename << "\"" << std::endl;
 	return false;
