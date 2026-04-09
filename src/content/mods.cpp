@@ -129,6 +129,10 @@ bool parseModContents(ModSpec &spec)
 		}
 	}
 
+	// SSCSM: mod has clientmods/init.lua as entry point
+	spec.has_sscsm = fs::IsFile(spec.path + DIR_DELIM + "clientmods"
+			+ DIR_DELIM + "init.lua");
+
 	// Fallback to depends.txt
 	if (!mod_conf_has_depends) {
 		std::vector<std::string> dependencies;

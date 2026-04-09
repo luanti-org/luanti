@@ -28,6 +28,9 @@ struct ModSpec
 	std::unordered_set<std::string> optdepends;
 	std::unordered_set<std::string> unsatisfied_depends;
 
+	// SSCSM: true if the mod has a clientmods/init.lua entry point
+	bool has_sscsm = false;
+
 	int modpack_depth = 0; //< Modpack depth, 0 = no parent modpack
 	bool is_modpack = false;
 
