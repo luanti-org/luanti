@@ -1,0 +1,1 @@
+-- Server-side stub for SSCSM test mod
