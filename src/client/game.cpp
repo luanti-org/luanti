@@ -885,10 +885,30 @@ bool Game::createClient(const GameStartData &start_data)
 	// Update cached textures, meshes and materials
 	client->afterContentReceived();
 
-	// Load SSCSM mods from server (singleplayer only for now)
-	if (server) {
+	// Load SSCSM mods based on enable_sscsm setting
+	{
 		std::string enable_sscsm = g_settings->get("enable_sscsm");
-		if (enable_sscsm == "singleplayer") {
+		bool sscsm_allowed = false;
+
+		if (enable_sscsm == "false" || enable_sscsm == "nowhere") {
+			sscsm_allowed = false;
+		} else if (enable_sscsm == "true" || enable_sscsm == "everywhere") {
+			sscsm_allowed = true;
+		} else if (enable_sscsm == "singleplayer") {
+			sscsm_allowed = server != nullptr;
+		} else if (enable_sscsm == "localhost") {
+			sscsm_allowed = server != nullptr ||
+					client->getServerAddress().isLocalhost();
+		} else if (enable_sscsm == "lan") {
+			sscsm_allowed = server != nullptr ||
+					client->getServerAddress().isLan();
+		} else {
+			warningstream << "Unknown enable_sscsm value: \""
+					<< enable_sscsm << "\", treating as disabled"
+					<< std::endl;
+		}
+
+		if (sscsm_allowed && server) {
 			std::vector<std::pair<std::string, std::string>> sscsm_files;
 			std::vector<std::pair<std::string, std::string>> sscsm_mods;
 			server->getSSCSMFiles(sscsm_files, sscsm_mods);
