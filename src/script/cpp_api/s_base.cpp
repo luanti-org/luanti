@@ -294,7 +294,7 @@ void ScriptApiBase::loadModFromMemory(const std::string &mod_name, std::string i
 
 	const std::string *contents = getModVFS()->getModFile(init_path);
 	if (!contents)
-		throw ModError("Mod \"" + mod_name + "\" lacks init.lua");
+		throw ModError("Mod \"" + mod_name + "\" is missing file: " + init_path);
 
 	verbosestream << "Loading and running script " << chunk_name << std::endl;
 
