@@ -37,6 +37,7 @@
 #include "profiler.h"
 #include "raycast.h"
 #include "server.h"
+#include "util/hashing.h"
 #include "settings.h"
 #include "shader.h"
 #include "sound_maker.h"
@@ -909,27 +910,32 @@ bool Game::createClient(const GameStartData &start_data)
 		}
 
 		if (sscsm_allowed) {
-			std::vector<std::pair<std::string, std::string>> sscsm_files;
+			std::vector<Client::SSCSMFileEntry> sscsm_files;
 			std::vector<std::pair<std::string, std::string>> sscsm_mods;
 
 			if (server) {
 				// Singleplayer: read files directly from server mod paths
-				server->getSSCSMFiles(sscsm_files, sscsm_mods);
+				std::vector<std::pair<std::string, std::string>> raw_files;
+				server->getSSCSMFiles(raw_files, sscsm_mods);
+				for (auto &f : raw_files) {
+					std::string sha1 = hashing::sha1(f.second);
+					sscsm_files.push_back({std::move(f.first),
+							std::move(f.second), std::move(sha1)});
+				}
 			} else {
 				// Multiplayer: files collected during media download
 				// already use VFS-style names "modname:filename.lua".
 				// Only init.lua files become mod entry points.
 				auto pending = client->takeSSCSMPendingFiles();
 				for (auto &f : pending) {
-					auto colon = f.first.find(':');
+					auto colon = f.vpath.find(':');
 					if (colon == std::string::npos)
 						continue;
-					std::string modname = f.first.substr(0, colon);
-					std::string filename = f.first.substr(colon + 1);
+					std::string modname = f.vpath.substr(0, colon);
+					std::string filename = f.vpath.substr(colon + 1);
 					if (filename == "init.lua")
-						sscsm_mods.emplace_back(modname, f.first);
-					sscsm_files.emplace_back(std::move(f.first),
-							std::move(f.second));
+						sscsm_mods.emplace_back(modname, f.vpath);
+					sscsm_files.push_back(std::move(f));
 				}
 			}
 

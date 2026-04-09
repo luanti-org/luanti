@@ -386,13 +386,21 @@ public:
 	// Migrates away old files-based mod storage if necessary
 	void migrateModStorage();
 
-	// Loads SSCSM mods from the given file list into the SSCSM environment
+	// SSCSM file with integrity digest
+	struct SSCSMFileEntry {
+		std::string vpath;   // e.g. "modname:file.lua"
+		std::string content;
+		std::string sha1;    // SHA1 digest computed at collection time
+	};
+
+	// Loads SSCSM mods from the given file list into the SSCSM environment.
+	// Verifies SHA1 integrity of each file before loading.
 	void loadSSCSMMods(
-			std::vector<std::pair<std::string, std::string>> &&files,
+			std::vector<SSCSMFileEntry> &&files,
 			std::vector<std::pair<std::string, std::string>> &&mods_to_load);
 
 	// Returns SSCSM files collected during media download and clears the list
-	std::vector<std::pair<std::string, std::string>> takeSSCSMPendingFiles()
+	std::vector<SSCSMFileEntry> takeSSCSMPendingFiles()
 	{
 		return std::move(m_sscsm_pending_files);
 	}
@@ -610,8 +618,8 @@ private:
 
 	// SSCSM
 	std::unique_ptr<SSCSMController> m_sscsm_controller;
-	// SSCSM files collected during media download (modname:filename -> content)
-	std::vector<std::pair<std::string, std::string>> m_sscsm_pending_files;
+	// SSCSM files collected during media download
+	std::vector<SSCSMFileEntry> m_sscsm_pending_files;
 
 	bool m_shutdown = false;
 

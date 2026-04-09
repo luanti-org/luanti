@@ -53,6 +53,7 @@
 #include "client/mod_vfs.h"
 #include "script/sscsm/sscsm_controller.h"
 #include "script/sscsm/sscsm_events.h"
+#include "util/hashing.h"
 
 // Network
 #include "network/clientopcodes.h"
@@ -203,15 +204,34 @@ Client::Client(
 }
 
 void Client::loadSSCSMMods(
-		std::vector<std::pair<std::string, std::string>> &&files,
+		std::vector<SSCSMFileEntry> &&files,
 		std::vector<std::pair<std::string, std::string>> &&mods_to_load)
 {
 	if (files.empty())
 		return;
 
+	// Verify integrity of all files before inserting any into VFS
+	std::unordered_set<std::string> rejected_files;
+	for (const auto &f : files) {
+		std::string actual_sha1 = hashing::sha1(f.content);
+		if (actual_sha1 != f.sha1) {
+			errorstream << "SSCSM: Integrity check FAILED for "
+					<< f.vpath << " — refusing to load" << std::endl;
+			rejected_files.insert(f.vpath);
+		}
+	}
+
+	if (!rejected_files.empty()) {
+		std::string msg = "SSCSM integrity check failed for:";
+		for (const auto &r : rejected_files)
+			msg += " " + r;
+		setFatalError(msg);
+		return;
+	}
+
 	auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
-	for (auto &p : files) {
-		event1->files.emplace_back(std::move(p.first), std::move(p.second));
+	for (auto &f : files) {
+		event1->files.emplace_back(std::move(f.vpath), std::move(f.content));
 	}
 	m_sscsm_controller->runEvent(this, std::move(event1));
 
@@ -924,7 +944,7 @@ bool Client::loadMedia(const std::string &data, const std::string &filename,
 	if (!name.empty()) {
 		verbosestream << "Client: Storing SSCSM file: \""
 				<< filename << "\"" << std::endl;
-		m_sscsm_pending_files.emplace_back(filename, data);
+		m_sscsm_pending_files.push_back({filename, data, hashing::sha1(data)});
 		return true;
 	}
 
