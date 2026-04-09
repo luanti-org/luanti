@@ -908,10 +908,31 @@ bool Game::createClient(const GameStartData &start_data)
 					<< std::endl;
 		}
 
-		if (sscsm_allowed && server) {
+		if (sscsm_allowed) {
 			std::vector<std::pair<std::string, std::string>> sscsm_files;
 			std::vector<std::pair<std::string, std::string>> sscsm_mods;
-			server->getSSCSMFiles(sscsm_files, sscsm_mods);
+
+			if (server) {
+				// Singleplayer: read files directly from server mod paths
+				server->getSSCSMFiles(sscsm_files, sscsm_mods);
+			} else {
+				// Multiplayer: files collected during media download
+				// already use VFS-style names "modname:filename.lua".
+				// Only init.lua files become mod entry points.
+				auto pending = client->takeSSCSMPendingFiles();
+				for (auto &f : pending) {
+					auto colon = f.first.find(':');
+					if (colon == std::string::npos)
+						continue;
+					std::string modname = f.first.substr(0, colon);
+					std::string filename = f.first.substr(colon + 1);
+					if (filename == "init.lua")
+						sscsm_mods.emplace_back(modname, f.first);
+					sscsm_files.emplace_back(std::move(f.first),
+							std::move(f.second));
+				}
+			}
+
 			if (!sscsm_files.empty()) {
 				infostream << "SSCSM: Loading " << sscsm_mods.size()
 						<< " clientmod(s)" << std::endl;
