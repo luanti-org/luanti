@@ -288,11 +288,17 @@ local function list_has_block(list, blockpos)
 	return false
 end
 
-local function test_get_loaded_and_active_blocks(_, pos)
+local function test_get_loaded_active_and_loadable_blocks(_, pos)
 	local loaded = core.get_loaded_blocks()
 	assert(type(loaded) == "table")
 	if #loaded > 0 then
 		assert(vector.check(loaded[1]))
+	end
+
+	local loadable = core.get_loadable_blocks()
+	assert(type(loadable) == "table")
+	if #loadable > 0 then
+		assert(vector.check(loadable[1]))
 	end
 
 	local active = core.get_active_blocks()
@@ -305,7 +311,8 @@ local function test_get_loaded_and_active_blocks(_, pos)
 	assert(list_has_block(loaded, blockpos), "expected test block in get_loaded_blocks result")
 	assert(list_has_block(active, blockpos), "expected test block in get_active_blocks result")
 end
-unittests.register("test_get_loaded_and_active_blocks", test_get_loaded_and_active_blocks, {map=true})
+unittests.register("test_get_loaded_active_and_loadable_blocks",
+		test_get_loaded_active_and_loadable_blocks, {map=true})
 
 local function test_gennotify_api()
 	local DECO_ID = 123

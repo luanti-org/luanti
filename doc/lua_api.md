@@ -1881,6 +1881,7 @@ Related API functions:
 
 * `core.compare_block_status`
 * `core.get_loaded_blocks`
+* `core.get_loadable_blocks`
 * `core.get_active_blocks`
 * `core.forceload_block`
 * `core.load_area`
@@ -8154,6 +8155,14 @@ Misc.
     * The returned list is a snapshot. Mapblock status may change immediately
       after this call.
     * Returns an empty array when no mapblocks are loaded.
+
+* `core.get_loadable_blocks()`
+    * Returns an array of mapblock positions that currently exist in the map
+      database and can be loaded.
+    * Mapblock positions are in mapblock coordinates.
+    * The returned list is a snapshot. Mapblock status may change immediately
+      after this call.
+    * Returns an empty array when no mapblocks are loadable.
 
 * `core.get_active_blocks()`
     * Returns an array of mapblock positions currently active.

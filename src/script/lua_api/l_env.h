@@ -219,6 +219,9 @@ private:
 	// get_loaded_blocks() -> {blockpos1, blockpos2, ...}
 	static int l_get_loaded_blocks(lua_State *L);
 
+	// get_loadable_blocks() -> {blockpos1, blockpos2, ...}
+	static int l_get_loadable_blocks(lua_State *L);
+
 	// get_active_blocks() -> {blockpos1, blockpos2, ...}
 	static int l_get_active_blocks(lua_State *L);
 
