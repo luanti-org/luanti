@@ -310,7 +310,8 @@ local dirt_with_snow = core.get_content_id("basenodes:dirt_with_snow")
 
 local function swap_grass_and_snow_in_mapblock(blockpos)
 	local minp = blockpos * core.MAP_BLOCKSIZE
-	local maxp = minp + (core.MAP_BLOCKSIZE - 1)
+	local maxp = minp + vector.new(core.MAP_BLOCKSIZE - 1,
+			core.MAP_BLOCKSIZE - 1, core.MAP_BLOCKSIZE - 1)
 	local vm = core.get_voxel_manip(minp, maxp)
 	local data = vm:get_data()
 	local changed_nodes = 0
