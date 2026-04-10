@@ -295,12 +295,13 @@ core.register_chatcommand("dump_wear_bar", {
 
 core.register_chatcommand("mapblock_stats", {
 	params = "",
-	description = "Prints counts of loaded and active mapblocks",
+	description = "Prints counts of loadable, loaded, and active mapblocks",
 	func = function(name, param)
+		local loadable = core.get_loadable_blocks()
 		local loaded = core.get_loaded_blocks()
 		local active = core.get_active_blocks()
-		return true, ("Loaded mapblocks: %d\nActive mapblocks: %d")
-				:format(#loaded, #active)
+		return true, ("Loadable mapblocks: %d\nLoaded mapblocks: %d\nActive mapblocks: %d")
+				:format(#loadable, #loaded, #active)
 	end,
 })
 
