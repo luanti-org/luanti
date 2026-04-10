@@ -320,7 +320,7 @@ local function get_dirt_swap_ids()
 	}
 end
 
-local function swap_grass_and_snow_in_mapblock(blockpos, ids)
+local function swap_nodes_in_mapblock(blockpos, from_id, to_id)
 	local minp = blockpos * core.MAP_BLOCKSIZE
 	local maxp = minp + vector.new(core.MAP_BLOCKSIZE - 1,
 			core.MAP_BLOCKSIZE - 1, core.MAP_BLOCKSIZE - 1)
@@ -328,11 +328,8 @@ local function swap_grass_and_snow_in_mapblock(blockpos, ids)
 	local data = vm:get_data()
 	local changed_nodes = 0
 	for i = 1, #data do
-		if data[i] == ids.grass then
-			data[i] = ids.snow
-			changed_nodes = changed_nodes + 1
-		elseif data[i] == ids.snow then
-			data[i] = ids.grass
+		if data[i] == from_id then
+			data[i] = to_id
 			changed_nodes = changed_nodes + 1
 		end
 	end
@@ -343,50 +340,38 @@ local function swap_grass_and_snow_in_mapblock(blockpos, ids)
 	return changed_nodes
 end
 
-local function swap_grass_and_snow_in_mapblocks(blocks)
+local function mapblocks_transform(name, action, source, blocks)
 	local ids, err = get_dirt_swap_ids()
 	if not ids then
 		return nil, err
 	end
+	local from_id = ids.grass
+	local to_id = ids.snow
+	if action == "spring" then
+		from_id = ids.snow
+		to_id = ids.grass
+	end
 	local changed_blocks = 0
 	local changed_nodes = 0
-	for _, blockpos in ipairs(blocks) do
-		local changed = swap_grass_and_snow_in_mapblock(blockpos, ids)
+	for i, blockpos in ipairs(blocks) do
+		local changed = swap_nodes_in_mapblock(blockpos, from_id, to_id)
 		if changed > 0 then
 			changed_blocks = changed_blocks + 1
 			changed_nodes = changed_nodes + changed
+		end
+		if i % 1000 == 0 then
+			core.chat_send_player(name, ("Processed %d/%d %s mapblocks...")
+					:format(i, #blocks, source))
 		end
 	end
 	return changed_blocks, changed_nodes
 end
 
-local function register_mapblock_swap_command(cmd, source, block_getter, precheck)
-	core.register_chatcommand(cmd, {
-		params = "",
-		description = "Swap basenodes:dirt_with_grass and basenodes:dirt_with_snow in " .. source .. " mapblocks",
-		func = function(name, param)
-			if precheck then
-				local ok, msg = precheck(name)
-				if not ok then
-					return true, msg
-				end
-			end
-			local blocks = block_getter()
-			local changed_blocks, changed_nodes = swap_grass_and_snow_in_mapblocks(blocks)
-			if not changed_blocks then
-				return false, changed_nodes
-			end
-			return true, ("Checked %d %s mapblocks, changed %d mapblock(s), swapped %d node(s)")
-					:format(#blocks, source, changed_blocks, changed_nodes)
-		end,
-	})
-end
-
-register_mapblock_swap_command("mapblock_swap_grass_snow_active", "active", core.get_active_blocks)
-register_mapblock_swap_command("mapblock_swap_grass_snow_loaded", "loaded", core.get_loaded_blocks)
 local loadable_swap_confirm_until = {}
-register_mapblock_swap_command("mapblock_swap_grass_snow_loadable", "loadable",
-		core.get_loadable_blocks, function(name)
+local function precheck_loadable(name, source)
+	if source ~= "loadable" then
+		return true
+	end
 	local now = core.get_us_time()
 	if now > (loadable_swap_confirm_until[name] or 0) then
 		loadable_swap_confirm_until[name] = now + 20 * 1000000
@@ -395,7 +380,44 @@ register_mapblock_swap_command("mapblock_swap_grass_snow_loadable", "loadable",
 	end
 	loadable_swap_confirm_until[name] = nil
 	return true
-end)
+end
+
+local MAPBLOCK_SOURCES = {
+	active = core.get_active_blocks,
+	loaded = core.get_loaded_blocks,
+	loadable = core.get_loadable_blocks,
+}
+
+local function register_mapblocks_season_command(cmd, action)
+	core.register_chatcommand(cmd, {
+		params = "<active|loaded|loadable>",
+		description = action == "spring" and
+				"Turn dirt_with_snow into dirt_with_grass in selected mapblocks" or
+				"Turn dirt_with_grass into dirt_with_snow in selected mapblocks",
+		func = function(name, param)
+			local source = param:match("^%s*(.-)%s*$")
+			local block_getter = MAPBLOCK_SOURCES[source]
+			if not block_getter then
+				return false, "Invalid scope. Use: active, loaded, or loadable."
+			end
+			local ok, msg = precheck_loadable(name, source)
+			if not ok then
+				return true, msg
+			end
+
+			local blocks = block_getter()
+			local changed_blocks, changed_nodes = mapblocks_transform(name, action, source, blocks)
+			if not changed_blocks then
+				return false, changed_nodes
+			end
+			return true, ("Checked %d %s mapblocks, changed %d mapblock(s), changed %d node(s)")
+					:format(#blocks, source, changed_blocks, changed_nodes)
+		end,
+	})
+end
+
+register_mapblocks_season_command("mapblocks_spring", "spring")
+register_mapblocks_season_command("mapblocks_winter", "winter")
 
 core.register_chatcommand("set_saturation", {
 	params = "<saturation>",
