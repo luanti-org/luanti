@@ -293,7 +293,7 @@ core.register_chatcommand("dump_wear_bar", {
 	end,
 })
 
-core.register_chatcommand("dump_mapblocks", {
+core.register_chatcommand("mapblock_stats", {
 	params = "",
 	description = "Prints counts of loaded and active mapblocks",
 	func = function(name, param)
