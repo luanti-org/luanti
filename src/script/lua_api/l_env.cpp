@@ -1310,7 +1310,7 @@ int ModApiEnv::l_get_active_blocks(lua_State *L)
 {
 	GET_ENV_PTR;
 
-	const auto &active_blocks = env->getActiveBlocks();
+	auto active_blocks = env->getActiveBlocks();
 
 	lua_createtable(L, active_blocks.size(), 0);
 	int index = 0;
