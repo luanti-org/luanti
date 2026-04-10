@@ -305,10 +305,22 @@ core.register_chatcommand("mapblock_stats", {
 	end,
 })
 
-local dirt_with_grass = core.get_content_id("basenodes:dirt_with_grass")
-local dirt_with_snow = core.get_content_id("basenodes:dirt_with_snow")
+local function get_dirt_swap_ids()
+	local ok_grass, dirt_with_grass = pcall(core.get_content_id, "basenodes:dirt_with_grass")
+	if not ok_grass then
+		return nil, "basenodes:dirt_with_grass is not available in this game."
+	end
+	local ok_snow, dirt_with_snow = pcall(core.get_content_id, "basenodes:dirt_with_snow")
+	if not ok_snow then
+		return nil, "basenodes:dirt_with_snow is not available in this game."
+	end
+	return {
+		grass = dirt_with_grass,
+		snow = dirt_with_snow,
+	}
+end
 
-local function swap_grass_and_snow_in_mapblock(blockpos)
+local function swap_grass_and_snow_in_mapblock(blockpos, ids)
 	local minp = blockpos * core.MAP_BLOCKSIZE
 	local maxp = minp + vector.new(core.MAP_BLOCKSIZE - 1,
 			core.MAP_BLOCKSIZE - 1, core.MAP_BLOCKSIZE - 1)
@@ -316,11 +328,11 @@ local function swap_grass_and_snow_in_mapblock(blockpos)
 	local data = vm:get_data()
 	local changed_nodes = 0
 	for i = 1, #data do
-		if data[i] == dirt_with_grass then
-			data[i] = dirt_with_snow
+		if data[i] == ids.grass then
+			data[i] = ids.snow
 			changed_nodes = changed_nodes + 1
-		elseif data[i] == dirt_with_snow then
-			data[i] = dirt_with_grass
+		elseif data[i] == ids.snow then
+			data[i] = ids.grass
 			changed_nodes = changed_nodes + 1
 		end
 	end
@@ -332,10 +344,14 @@ local function swap_grass_and_snow_in_mapblock(blockpos)
 end
 
 local function swap_grass_and_snow_in_mapblocks(blocks)
+	local ids, err = get_dirt_swap_ids()
+	if not ids then
+		return nil, err
+	end
 	local changed_blocks = 0
 	local changed_nodes = 0
 	for _, blockpos in ipairs(blocks) do
-		local changed = swap_grass_and_snow_in_mapblock(blockpos)
+		local changed = swap_grass_and_snow_in_mapblock(blockpos, ids)
 		if changed > 0 then
 			changed_blocks = changed_blocks + 1
 			changed_nodes = changed_nodes + changed
@@ -357,6 +373,9 @@ local function register_mapblock_swap_command(cmd, source, block_getter, prechec
 			end
 			local blocks = block_getter()
 			local changed_blocks, changed_nodes = swap_grass_and_snow_in_mapblocks(blocks)
+			if not changed_blocks then
+				return false, changed_nodes
+			end
 			return true, ("Checked %d %s mapblocks, changed %d mapblock(s), swapped %d node(s)")
 					:format(#blocks, source, changed_blocks, changed_nodes)
 		end,
