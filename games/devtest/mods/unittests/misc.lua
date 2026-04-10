@@ -293,18 +293,14 @@ local function test_get_loaded_and_active_blocks(_, pos)
 	assert(type(loaded) == "table")
 	if #loaded > 0 then
 		assert(type(loaded[1]) == "table")
-		assert(type(loaded[1].x) == "number")
-		assert(type(loaded[1].y) == "number")
-		assert(type(loaded[1].z) == "number")
+		assert(vector.check(loaded[1]))
 	end
 
 	local active = core.get_active_blocks()
 	assert(type(active) == "table")
 	if #active > 0 then
 		assert(type(active[1]) == "table")
-		assert(type(active[1].x) == "number")
-		assert(type(active[1].y) == "number")
-		assert(type(active[1].z) == "number")
+		assert(vector.check(active[1]))
 	end
 
 	local blockpos = (pos / core.MAP_BLOCKSIZE):floor()
