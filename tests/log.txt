@@ -1,0 +1,293 @@
+(server) 2026-04-10 16:56:52: WARNING[Main]: Couldn't find a debugger to use. Try installing gdb or lldb.
+(server) 2026-04-10 16:56:52: WARNING[Main]: Continuing without debugger
+(server) 2026-04-10 16:56:52: WARNING[Main]: system-wide share not found at "/usr/local/share/luanti"
+(server) 2026-04-10 16:56:52: WARNING[Main]: system-wide share not found at "/home/runner/work/minetest/minetest/bin/../share/luanti"
+(server) 2026-04-10 16:56:52: WARNING[Main]: system-wide share found at "/home/runner/work/minetest/minetest/bin/.."
+(server) 2026-04-10 16:56:52: WARNING[Main]: Couldn't find a locale directory!
+(server) 2026-04-10 16:56:52: ACTION[Main]: [log] modname="log"
+(server) 2026-04-10 16:56:52: ACTION[Main]: [log] modpath="/home/runner/work/minetest/minetest/games/devtest/mods/log"
+(server) 2026-04-10 16:56:52: ACTION[Main]: [log] worldpath="/home/runner/work/minetest/minetest/util/../tests/world"
+(server) 2026-04-10 16:56:53: ACTION[Main]: [log] Callback: on_mods_loaded()
+(server)  _                   _   _ 
+(server) | |_   _  __ _ _ __ | |_(_)
+(server) | | | | |/ _` | '_ \| __| |
+(server) | | |_| | (_| | | | | |_| |
+(server) |_|\__,_|\__,_|_| |_|\__|_|  ___ 5.16.0-dev-debug-86e17dd
+(server) 2026-04-10 16:56:53: ACTION[Main]: World at [/home/runner/work/minetest/minetest/util/../tests/world]
+(server) 2026-04-10 16:56:53: ACTION[Main]: Server for gameid="devtest" listening on [::]:30000.
+(server) [PASS] test_pseudo_random - 0ms
+(server) [PASS] test_pcg_random - 0ms
+(server) [PASS] test_hashing - 0ms
+(server) [PASS] test_compress - 0ms
+(server) [PASS] test_urlencode - 0ms
+(server) [PASS] test_parse_json - 0ms
+(server) [PASS] test_write_json - 54ms
+(server) /home/runner/work/minetest/minetest/bin/../builtin//mainmenu/credits.json
+(server) [PASS] lint_json_files - 2ms
+(server) [PASS] test_game_info - 0ms
+(server) [PASS] test_gennotify_api - 0ms
+(client) 2026-04-10 16:56:53: WARNING[Main]: Couldn't find a debugger to use. Try installing gdb or lldb.
+(client) 2026-04-10 16:56:53: WARNING[Main]: Continuing without debugger
+(client) 2026-04-10 16:56:53: WARNING[Main]: system-wide share not found at "/usr/local/share/luanti"
+(client) 2026-04-10 16:56:53: WARNING[Main]: system-wide share not found at "/home/runner/work/minetest/minetest/bin/../share/luanti"
+(client) 2026-04-10 16:56:53: WARNING[Main]: system-wide share found at "/home/runner/work/minetest/minetest/bin/.."
+(client) 2026-04-10 16:56:53: WARNING[Main]: Couldn't find a locale directory!
+(client) [ALSOFT] (EE) Could not query RTKit: No such file or directory (2)
+(server) [PASS] test_mapgen_env - 91ms
+(server) [PASS] test_ipc_vector_preserve - 0ms
+(server) delta: 108us
+(server) [PASS] test_ipc_poll - 1ms
+(server) [PASS] test_sandbox - 0ms
+(server) [PASS] test_str_pack_unpack - 0ms
+(server) [PASS] test_clear_craft - 0ms
+(server) [PASS] test_get_craft_result - 1ms
+(server) [PASS] test_short_desc - 0ms
+(server) instruction stream: [
+(server) 	(table(0, 11))
+(server) 	("on_place")
+(server) 	(function(154 bytes))
+(server) 	(SETTABLE(2, 3), into=1, pop)
+(server) 	(false, k="is_ground_content", into=1, pop)
+(server) 	(table(3, 0), k="tiles", into=1)
+(server) 	(1.000000)
+(server) 	(table(0, 2))
+(server) 	("name")
+(server) 	("stairs_glass_split.png")
+(server) 	(SETTABLE(5, 6), into=4, pop)
+(server) 	(true, k="backface_culling", into=4, pop)
+(server) 	(SETTABLE(3, 4), into=2, pop)
+(server) 	(2.000000)
+(server) 	(table(0, 2))
+(server) 	("name")
+(server) 	("default_glass.png")
+(server) 	(SETTABLE(5, 6), into=4, pop)
+(server) 	(true, k="backface_culling", into=4, pop)
+(server) 	(SETTABLE(3, 4), into=2, pop)
+(server) 	(3.000000)
+(server) 	(table(0, 2))
+(server) 	("name")
+(server) 	("stairs_glass_stairside.png^[transformFX")
+(server) 	(SETTABLE(5, 6), into=4, pop)
+(server) 	(true, k="backface_culling", into=4, pop)
+(server) 	(SETTABLE(3, 4), into=2, pop)
+(server) 	(POP(2))
+(server) 	("name")
+(server) 	("stairs:stair_glass")
+(server) 	(SETTABLE(2, 3), into=1, pop)
+(server) 	(table(0, 3), k="sounds", into=1)
+(server) 	(table(0, 2), k="dug", into=2)
+(server) 	("name")
+(server) 	("default_break_glass")
+(server) 	(SETTABLE(4, 5), into=3, pop)
+(server) 	(1.000000, k="gain", into=3, pop)
+(server) 	(POP(3))
+(server) 	(table(0, 2), k="dig", into=2)
+(server) 	("name")
+(server) 	("default_glass_footstep")
+(server) 	(SETTABLE(4, 5), into=3, pop)
+(server) 	(0.500000, k="gain", into=3, pop)
+(server) 	(POP(3))
+(server) 	(table(0, 2), k="footstep", into=2)
+(server) 	("name")
+(server) 	("default_glass_footstep")
+(server) 	(SETTABLE(4, 5), into=3, pop)
+(server) 	(0.300000, k="gain", into=3, pop)
+(server) 	(POP(3))
+(server) 	(POP(2))
+(server) 	("description")
+(server) 	("Glass Stair")
+(server) 	(SETTABLE(2, 3), into=1, pop)
+(server) 	(table(0, 3), k="groups", into=1)
+(server) 	(1.000000, k="stair", into=2, pop)
+(server) 	(3.000000, k="oddly_breakable_by_hand", into=2, pop)
+(server) 	(3.000000, k="cracky", into=2, pop)
+(server) 	(POP(2))
+(server) 	("type")
+(server) 	("node")
+(server) 	(SETTABLE(2, 3), into=1, pop)
+(server) 	(true, k="sunlight_propagates", into=1, pop)
+(server) 	(table(0, 3), k="pos", into=1)
+(server) 	(-1.000000, k="x", into=2, pop)
+(server) 	(-2.000000, k="y", into=2, pop)
+(server) 	(-3.000000, k="z", into=2, pop)
+(server) 	(SETMETATABLE(__builtin:vector), into=2)
+(server) 	(POP(2))
+(server) 	(table(0, 2), k="node_box", into=1)
+(server) 	(table(2, 0), k="fixed", into=2)
+(server) 	(1.000000)
+(server) 	(table(6, 0))
+(server) 	(1.000000)
+(server) 	(-0.500000)
+(server) 	(SETTABLE(6, 7), into=5, pop)
+(server) 	(2.000000)
+(server) 	(-0.500000)
+(server) 	(SETTABLE(6, 7), into=5, pop)
+(server) 	(3.000000)
+(server) 	(-0.500000)
+(server) 	(SETTABLE(6, 7), into=5, pop)
+(server) 	(4.000000)
+(server) 	(0.500000)
+(server) 	(SETTABLE(6, 7), into=5, pop)
+(server) 	(5.000000)
+(server) 	(0.000000)
+(server) 	(SETTABLE(6, 7), into=5, pop)
+(server) 	(6.000000)
+(server) 	(0.500000)
+(server) 	(SETTABLE(6, 7), into=5, pop)
+(server) 	(SETTABLE(4, 5), into=3, pop)
+(server) 	(2.000000)
+(server) 	(table(6, 0))
+(server) 	(1.000000)
+(server) 	(-0.500000)
+(server) 	(SETTABLE(6, 7), into=5, pop)
+(server) 	(2.000000)
+(server) 	(0.000000)
+(server) 	(SETTABLE(6, 7), into=5, pop)
+(server) 	(3.000000)
+(server) 	(0.000000)
+(server) 	(SETTABLE(6, 7), into=5, pop)
+(server) 	(4.000000)
+(server) 	(0.500000)
+(server) 	(SETTABLE(6, 7), into=5, pop)
+(server) 	(5.000000)
+(server) 	(0.500000)
+(server) 	(SETTABLE(6, 7), into=5, pop)
+(server) 	(6.000000)
+(server) 	(0.500000)
+(server) 	(SETTABLE(6, 7), into=5, pop)
+(server) 	(SETTABLE(4, 5), into=3, pop)
+(server) 	(POP(3))
+(server) 	("type")
+(server) 	("fixed")
+(server) 	(SETTABLE(3, 4), into=2, pop)
+(server) 	(POP(2))
+(server) ]
+(server) instruction stream: [
+(server) 	(table(2, 1), keep_ref)
+(server) 	("foo", k=1, into=1, pop)
+(server) 	("bar", k=2, into=1, pop)
+(server) 	(PUSHREF(0))
+(server) 	(true)
+(server) 	(SETTABLE(2, 3), into=1, pop)
+(server) ]
+(server) instruction stream: [
+(server) 	(table(2, 0), keep_ref)
+(server) 	("foo", k=1, into=1, pop)
+(server) 	(2.000000)
+(server) 	(PUSHREF(0))
+(server) 	(SETTABLE(2, 3), into=1, pop)
+(server) ]
+(server) instruction stream: [
+(server) 	(table(1, 0), keep_ref)
+(server) 	(1.000000)
+(server) 	(table(1, 0))
+(server) 	(1.000000)
+(server) 	(PUSHREF(0))
+(server) 	(SETTABLE(4, 5), into=3, pop)
+(server) 	(SETTABLE(2, 3), into=1, pop)
+(server) ]
+(server) instruction stream: [
+(server) 	(table(0, 1))
+(server) 	(userdata ItemStack 0x7fe8f006a190, keep_ref)
+(server) 	(PUSHREF(1))
+(server) 	(SETTABLE(2, 3), into=1, pop)
+(server) ]
+(server) [PASS] test_object_passing - 0ms
+(server) [PASS] test_handle_async - 189ms
+(server) [PASS] test_portable_metatable_override - 0ms
+(server) [PASS] test_portable_metatable_registration - 89ms
+(client) 2026-04-10 16:56:53: ACTION[Main]: Connected to 127.0.0.1 (127.0.0.1:30000)
+(server) [PASS] test_async_vector - 90ms
+(server) [PASS] test_async_job_replacement - 90ms
+(server) [PASS] test_get_version - 0ms
+(server) [PASS] test_itemstack_equals_non_stack - 0ms
+(server) [PASS] test_itemstack_equals_name - 0ms
+(server) [PASS] test_itemstack_equals_count - 0ms
+(server) [PASS] test_itemstack_equals_wear - 0ms
+(server) [PASS] test_itemstack_equals_metadata - 0ms
+(server) [PASS] test_content_ids - 0ms
+(server) [PASS] test_content_ids_async - 90ms
+(server) 2026-04-10 16:56:53: WARNING[Server]: Passing `fields` with number values is deprecated and may result in loss of precision. (at /home/runner/work/minetest/minetest/games/devtest/mods/unittests/metadata.lua:17)
+(server) 2026-04-10 16:56:53: WARNING[Server]: Deprecated use of recursive resolution syntax in metadata: ${g}
+(server) 2026-04-10 16:56:53: WARNING[Server]: Deprecated use of recursive resolution syntax in metadata: ${f}
+(server) 2026-04-10 16:56:53: WARNING[Server]: Deprecated use of recursive resolution syntax in metadata: ${h}
+(server) 2026-04-10 16:56:53: WARNING[Server]: Deprecated use of recursive resolution syntax in metadata: ${g}
+(server) [PASS] test_mod_storage - 0ms
+(server) 2026-04-10 16:56:53: WARNING[Server]: Passing `fields` with number values is deprecated and may result in loss of precision. (at /home/runner/work/minetest/minetest/games/devtest/mods/unittests/metadata.lua:17)
+(server) 2026-04-10 16:56:53: WARNING[Server]: Deprecated use of recursive resolution syntax in metadata: ${g}
+(server) 2026-04-10 16:56:53: WARNING[Server]: Deprecated use of recursive resolution syntax in metadata: ${f}
+(server) 2026-04-10 16:56:53: WARNING[Server]: Deprecated use of recursive resolution syntax in metadata: ${h}
+(server) 2026-04-10 16:56:53: WARNING[Server]: Deprecated use of recursive resolution syntax in metadata: ${g}
+(server) 2026-04-10 16:56:53: WARNING[Server]: Value passed to set_string is nil. This behaviour is undocumented and will result in an error in the future. (at /home/runner/work/minetest/minetest/games/devtest/mods/unittests/metadata.lua:93)
+(server) 2026-04-10 16:56:53: WARNING[Server]: Passing `fields` with number values is deprecated and may result in loss of precision. (at /home/runner/work/minetest/minetest/games/devtest/mods/unittests/metadata.lua:104)
+(server) [PASS] test_item_metadata - 0ms
+(server) [PASS] test_item_metadata_tool_capabilities - 0ms
+(server) [PASS] test_inventory - 0ms
+(server) [PASS] test_color_conversion - 0ms
+(server) 2026-04-10 16:56:54: ACTION[Server]: [give_initial_stuff] Giving initial stuff to client1
+(server) 2026-04-10 16:56:54: ACTION[Server]: client1 [::ffff:127.0.0.1] joins game. List of players: client1
+(client) 2026-04-10 16:56:54: ACTION[Main]: CHAT: # Server: version: 5.16.0-dev-debug | game: Development Test | uptime: 1s | max lag: 0.102s | clients: client1
+(client) 2026-04-10 16:56:54: ACTION[Main]: CHAT: *** client1 joined the game.
+(server) [PASS] test_dynamic_media - 116ms
+(server) [PASS] test_hpchangereason - 0ms
+(server) [PASS] test_hp_difference - 1ms
+(server) [PASS] test_player_meta - 0ms
+(server) [PASS] test_player_add_pos - 0ms
+(server) [PASS] test_player_hotbar_clamp - 0ms
+(server) [PASS] test_player_guid - 0ms
+(server) client proto matched: 5.15.0 sent: 5.16.0-dev-debug-86e17dd
+(server) [PASS] test_protocol_version - 0ms
+(server) [PASS] test_vector2_push_read - 0ms
+(server) [PASS] test_clear_meta - 0ms
+(server) [PASS] test_node_callbacks - 0ms
+(server) [PASS] test_mapgen_edges - 911ms
+(server) [PASS] test_on_mapblocks_changed - 85ms
+(server) [PASS] test_get_loaded_and_active_blocks - 0ms
+(server) instruction stream: [
+(server) 	(table(0, 3))
+(server) 	(true, k="backface_culling", into=1, pop)
+(server) 	("name")
+(server) 	("stairs_glass_split.png")
+(server) 	(SETTABLE(2, 3), into=1, pop)
+(server) 	("test")
+(server) 	(userdata ItemStack 0x7fe8f006a060)
+(server) 	(SETTABLE(2, 3), into=1, pop)
+(server) ]
+(server) instruction stream: [
+(server) 	(userdata VoxelManip 0x7fe904005e80)
+(server) ]
+(server) [PASS] test_userdata_passing - 0ms
+(server) [PASS] test_userdata_passing2 - 179ms
+(server) [PASS] test_entity_lifecycle - 0ms
+(server) 2026-04-10 16:56:56: ACTION[Server]: LuaEntitySAO "unittests:callbacks" at (-79,23,99) (id=3, hp=5) punched LuaEntitySAO "unittests:callbacks" at (-79,23,99) (id=3, hp=5), damage=0
+(server) 2026-04-10 16:56:56: ACTION[Server]: LuaEntitySAO "unittests:callbacks" at (-79,23,99) (id=3, hp=0) punched LuaEntitySAO "unittests:callbacks" at (-79,23,99) (id=3, hp=0), damage=5
+(server) [PASS] test_entity_interact - 0ms
+(server) [PASS] test_entity_attach - 0ms
+(server) [PASS] test_entity_raycast - 0ms
+(server) [PASS] test_objects_inside_radius - 0ms
+(server) [PASS] test_objects_in_area - 0ms
+(server) 2026-04-10 16:56:56: WARNING[Server]: Deprecated call to set_bone_position, use set_bone_override instead (at /home/runner/work/minetest/minetest/games/devtest/mods/unittests/entity.lua:229)
+(server) 2026-04-10 16:56:56: WARNING[Server]: Deprecated call to get_bone_position, use get_bone_override instead (at /home/runner/work/minetest/minetest/games/devtest/mods/unittests/entity.lua:223)
+(server) [PASS] test_get_bone_rot - 2ms
+(server) [PASS] test_item_drop - 0ms
+(server) [PASS] test_entity_guid - 0ms
+(server) 2026-04-10 16:56:56: WARNING[Server]: Passing `fields` with number values is deprecated and may result in loss of precision. (at /home/runner/work/minetest/minetest/games/devtest/mods/unittests/metadata.lua:17)
+(server) 2026-04-10 16:56:56: WARNING[Server]: Deprecated use of recursive resolution syntax in metadata: ${g}
+(server) 2026-04-10 16:56:56: WARNING[Server]: Deprecated use of recursive resolution syntax in metadata: ${f}
+(server) 2026-04-10 16:56:56: WARNING[Server]: Deprecated use of recursive resolution syntax in metadata: ${h}
+(server) 2026-04-10 16:56:56: WARNING[Server]: Deprecated use of recursive resolution syntax in metadata: ${g}
+(server) [PASS] test_node_metadata - 0ms
+(server) [PASS] test_raycast_pointabilities - 0ms
+(server) [PASS] test_raycast_noskip - 48ms
+(server) ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+(server) Devtest Unit Test Results: PASSED
+(server)     0 / 65 failed tests.
+(server)     Testing took 2055ms total.
+(server) ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+(client) 2026-04-10 16:56:56: ACTION[Main]: CHAT: All devtest unit tests passed. Check the console for detailed output.
+(client) 2026-04-10 16:56:56: ACTION[Main]: CHAT: *** Server shutting down in 2s.
+(client) 2026-04-10 16:56:56: ACTION[Main]: CHAT: This is the "Development Test" [devtest], meant only for testing and development.
+(client) 2026-04-10 16:56:57: ACTION[Main]: CHAT: *** Server shutting down in 1s.
+(server) 2026-04-10 16:56:58: ACTION[Main]: Server: Shutting down
+(client) 2026-04-10 16:56:58: ACTION[Main]: CHAT: *** Server shutting down
+(client) 2026-04-10 16:56:58: ERROR[Main]: Access denied. Reason: Server shutting down.
