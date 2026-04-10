@@ -306,14 +306,8 @@ core.register_chatcommand("mapblock_stats", {
 })
 
 local function get_dirt_swap_ids()
-	local ok_grass, dirt_with_grass = pcall(core.get_content_id, "basenodes:dirt_with_grass")
-	if not ok_grass then
-		return nil, "basenodes:dirt_with_grass is not available in this game."
-	end
-	local ok_snow, dirt_with_snow = pcall(core.get_content_id, "basenodes:dirt_with_snow")
-	if not ok_snow then
-		return nil, "basenodes:dirt_with_snow is not available in this game."
-	end
+	local dirt_with_grass = core.get_content_id("basenodes:dirt_with_grass")
+	local dirt_with_snow = core.get_content_id("basenodes:dirt_with_snow")
 	return {
 		grass = dirt_with_grass,
 		snow = dirt_with_snow,
@@ -340,11 +334,8 @@ local function swap_nodes_in_mapblock(blockpos, from_id, to_id)
 	return changed_nodes
 end
 
-local function mapblocks_transform(name, action, source, blocks)
-	local ids, err = get_dirt_swap_ids()
-	if not ids then
-		return nil, err
-	end
+local function mapblocks_change_season(name, action, source, blocks)
+	local ids = get_dirt_swap_ids()
 	local from_id = ids.grass
 	local to_id = ids.snow
 	if action == "spring" then
@@ -406,7 +397,7 @@ local function register_mapblocks_season_command(cmd, action)
 			end
 
 			local blocks = block_getter()
-			local changed_blocks, changed_nodes = mapblocks_transform(name, action, source, blocks)
+			local changed_blocks, changed_nodes = mapblocks_change_season(name, action, source, blocks)
 			if not changed_blocks then
 				return false, changed_nodes
 			end
