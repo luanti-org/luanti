@@ -8151,11 +8151,15 @@ Misc.
 * `core.get_loaded_blocks()`
     * Returns an array of mapblock positions currently loaded in memory.
     * Mapblock positions are in mapblock coordinates.
+    * The returned list is a snapshot. Mapblock status may change immediately
+      after this call.
     * Returns an empty array when no mapblocks are loaded.
 
 * `core.get_active_blocks()`
     * Returns an array of mapblock positions currently active.
     * Mapblock positions are in mapblock coordinates.
+    * The returned list is a snapshot. Mapblock status may change immediately
+      after this call.
     * Returns an empty array when no mapblocks are active.
 
 * `core.compare_block_status(pos, condition)`

@@ -292,14 +292,12 @@ local function test_get_loaded_and_active_blocks(_, pos)
 	local loaded = core.get_loaded_blocks()
 	assert(type(loaded) == "table")
 	if #loaded > 0 then
-		assert(type(loaded[1]) == "table")
 		assert(vector.check(loaded[1]))
 	end
 
 	local active = core.get_active_blocks()
 	assert(type(active) == "table")
 	if #active > 0 then
-		assert(type(active[1]) == "table")
 		assert(vector.check(active[1]))
 	end
 
