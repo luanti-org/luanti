@@ -709,7 +709,7 @@ Parameters (all integers):
 * `<n>`: vertical count of frames of the base texture
   (integer [imagesize], often `1`)
 * `<p>`: crack animation frame
-  (integer [0, 2^31-1], counting starts at 0)
+  (integer [imageframe], counting starts at 0)
 
 Draws a step of the crack animation on the texture.
 `crack` draws it normally, while `cracko` lays it over, keeping transparent
@@ -727,8 +727,12 @@ Example:
 * `<y>`: y position (integer [s32])
 * `<file>`: texture to combine
 
-Creates a texture of size `<w>` times `<h>` and blits the listed files to their
-specified `<x>,<y>` coordinates (which may be negative).
+Creates a texture of size `<w>` times `<h>` and blits the listed source files
+to their specified `<x>,<y>` coordinates of the target texture. Pixels
+that would end up outside the target texture (e.g. if the source texture is
+larger than the target texture), they are discarded.
+Negative coordinates are allowed. This just means the origin of the listed file
+is to the left and/or upwards of the origin of the target texture.
 
 Example:
 
@@ -865,7 +869,7 @@ Example:
 #### `[verticalframe:<t>:<n>`
 
 * `<t>`: animation frame count, integer in range [imagesize]
-* `<n>`: current animation frame (integer [imageframe], starts counting at 0)
+* `<n>`: current animation frame (integer [imageframe])
 
 Crops the texture to a frame of a vertical animation.
 
@@ -885,8 +889,8 @@ The mask is applied using binary AND.
 
 * `<w>`: sheet width in tiles (integer [imagesize])
 * `<h>`: sheet height in tiles (integer [imagesize])
-* `<x>`: x position in tiles (integer [imageframe], 0-indexed)
-* `<y>`: y position in tiles (integer [imageframe], 0-indexed)
+* `<x>`: x position in tiles (integer [imageframe])
+* `<y>`: y position in tiles (integer [imageframe])
 
 Retrieves a tile at tile position `<x>,<y>` from the base image,
 which is assumed to be a tile sheet with tile dimensions `<w>,<h>`.
@@ -1070,7 +1074,7 @@ When using palettes, you always provide a pixel index for the given
 node or `ItemStack`. The palette is read from left to right and from
 top to bottom. If the palette has less than 256 pixels, then it is
 stretched to contain exactly 256 pixels (after arranging the pixels
-to one line). The indexing starts from 0.
+to one line). Palette colors are indexed in range [0, 255].
 
 Examples:
 
@@ -1556,10 +1560,11 @@ The function of `param2` is determined by `paramtype2` in node definition.
             * The other faces are defined by 'fixed = {}' like 'type = "fixed"'
               nodeboxes.
             * The nodebox height is (`param2` / 64) nodes.
-            * The maximum accepted value of `param2` is 127.
+            * Integer in range: [0, 127]
         * Rooted plantlike:
             * The height of the 'plantlike' section is stored in `param2`.
             * The height is (`param2` / 16) nodes.
+            * Can use the full `param2` range
 * `paramtype2 = "degrotate"`
     * Valid for `plantlike` and `mesh` drawtypes. The rotation of the node is
       stored in `param2`.
@@ -1810,9 +1815,9 @@ A box of a regular node would look like:
 {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},
 ```
 
-To avoid collision issues, keep each value within the range of +/- 1.45.
-This also applies to leveled nodeboxes, where the final height shall not
-exceed this soft limit.
+To avoid collision issues, keep each value within the range of
+[-1.45, 1.45]. This also applies to leveled nodeboxes, where the final height
+shall not exceed this soft limit.
 
 
 
@@ -1914,9 +1919,10 @@ HUD
 HUD element types
 -----------------
 
-The `position` field is used for all element types.
+The `position` field is used for all element types. Its syntax is
+`{ x = <number>, y = <number> }`.
 To account for differing resolutions, the position coordinates are the
-percentage of the screen, ranging in value from `0` to `1`.
+percentage of the screen, specified in range [0.0, 1.0].
 
 The `name` field is not yet used, but should contain a description of what the
 HUD element represents.
@@ -1926,9 +1932,9 @@ The `direction` field is an integer for the direction in which something is draw
 top to bottom, and `3` draws from bottom to top.
 
 The `alignment` field specifies how the item will be aligned. It is a table
-where `x` and `y` range from `-1` to `1`, with `0` being central. `-1` is
-moved to the left/up, and `1` is to the right/down. Fractional values can be
-used.
+where `x` and `y` are numbers in range [-1.0, 1.0], with `0` being central.
+`-1` is moved to the left/up, and `1` is to the right/down. Fractional values
+can be used.
 
 The `offset` field specifies a pixel offset from the position, specified
 as integers. Contrary to position, the offset is not scaled to screen size.
@@ -1962,9 +1968,9 @@ type are ignored.
 
 Displays an image on the HUD.
 
-* `scale`: The scale of the image, with `{x = 1, y = 1}` being the original texture size.
-  The `x` and `y` fields apply to the respective axes.
-  Positive values scale the source image.
+* `scale`: The scale of the image, with `{x = 1, y = 1}` being the
+  original texture size. The `x` and `y` fields are numbers and apply to the
+  respective axes. Positive values scale the source image.
   Negative values represent percentages relative to screen dimensions.
   Example: `{x = -20, y = 3}` means the image will be drawn 20% of screen width wide,
   and 3 times as high as the source image is.
@@ -1976,8 +1982,9 @@ Displays an image on the HUD.
 
 Displays text on the HUD.
 
-* `scale`: Defines the bounding rectangle of the text.
-  A value such as `{x=100, y=100}` should work.
+* `scale`: Defines the bounding rectangle of the text, syntax is
+  `{ x = <number>, y = <number> }`.
+  A value such as `{ x = 100, y = 100 }` should work.
 * `text`: The text to be displayed in the HUD element.
   Supports `core.translate` (always)
   and `core.colorize` (since protocol version 44)
@@ -1988,8 +1995,8 @@ Displays text on the HUD.
       will not work due to compatibility reasons (it'll be treated as `FF`).
 * `alignment`: The alignment of the text.
 * `offset`: offset in pixels from position.
-* `size`: size of the text.
-  The player-set font size is multiplied by size.x (y value isn't used).
+* `size`: size of the text. Syntax: `{ x = <integer> }`.
+  The player-set font size is multiplied by `size.x`.
     * Float values are supported by clients >= 5.16.0. Older clients will receive
       a rounded down integer value.
 * `style`: determines font style
@@ -2005,17 +2012,20 @@ Displays a horizontal bar made up of half-images with an optional background.
   must have the same size.
 * `number`: The amount of half-textures that are displayed.
   If odd, will end with a vertically center-split texture.
+  Integer in range [u32].
 * `item`: Same as `number` but for the "off state" texture
 * `direction`: To which direction the images will extend to
 * `offset`: offset in pixels from position.
 * `size`: If used, will force full-image size to this value (override texture
-  pack image size)
+  pack image size). Syntax: `{x = <integer>, y = <integer>}`, where
+  both integers are in range [1, 2^31-1]
 
 ### `inventory`
 
 * `text`: The name of the inventory list to be displayed.
-* `number`: Amount of items in the inventory to be displayed.
-* `item`: Position of item that is selected.
+* `number`: Amount of item slots in the inventory to be displayed.
+  Integer in range [u16].
+* `item`: Position of item that is selected. Integer in range [u16].
 * `direction`: Direction the list will be displayed in
 * `offset`: offset in pixels from position.
 * `alignment`: The alignment of the inventory. Aligned at the top left corner if not specified.
@@ -2032,7 +2042,7 @@ Displays distance to selected world position.
 
 * `name`: The name of the waypoint.
 * `text`: Distance suffix. Can be blank.
-* `precision`: Waypoint precision, integer >= 0. Defaults to 10.
+* `precision`: Waypoint precision, integer in range [u32]. Defaults to 10.
   If set to 0, distance is not shown. Shown value is `floor(distance*precision)/precision`.
   When the precision is an integer multiple of 10, there will be `log_10(precision)` digits after the decimal point.
   `precision = 1000`, for example, will show 3 decimal places (eg: `0.999`).
@@ -2050,7 +2060,7 @@ Displays distance to selected world position.
 Same as `image`, but does not accept a `position`; the position is instead determined by `world_pos`, the world position of the waypoint.
 
 * `scale`: The scale of the image, with `{x = 1, y = 1}` being the original texture size.
-  The `x` and `y` fields apply to the respective axes.
+  The `x` and `y` fields are numbers and apply to the respective axes.
   Positive values scale the source image.
   Negative values represent percentages relative to screen dimensions.
   Example: `{x = -20, y = 3}` means the image will be drawn 20% of screen width wide,
@@ -2064,9 +2074,12 @@ Same as `image`, but does not accept a `position`; the position is instead deter
 
 Displays an image oriented or translated according to current heading direction.
 
-* `size`: The size of this element. Negative values represent percentage
+* `size`: The size of this element. Syntax: `{ x = <integer>, y = <integer> }`.
+  Positive values represent pixels, negative values represent percentage
   of the screen; e.g. `x=-100` means 100% (width).
-* `scale`: Scale of the translated image (used only for dir = 2 or dir = 3).
+  Uses integers in range [s32].
+* `scale`: Scale of the translated image. Syntax: `{ x = <number>, y = <number> }`.
+  (used only for `direction = 2` or `direction = 3`)
 * `text`: The name of the texture to use.
 * `alignment`: The alignment of the image.
 * `offset`: Offset in pixels from position.
@@ -2084,6 +2097,8 @@ Displays a minimap on the HUD.
 
 * `size`: Size of the minimap to display. Minimap should be a square to avoid
   distortion.
+  * Syntax: `{ x = <integer>, y = <integer> }`.
+  * Uses integers in range [s32].
   * Negative values represent percentages of the screen. If either `x` or `y`
     is specified as a percentage, the resulting pixel size will be used for
     both `x` and `y`. Example: On a 1920x1080 screen, `{x = 0, y = -25}` will
@@ -9191,7 +9206,7 @@ child will follow movement and rotation of that bone.
         * `body_orbit_tilt`: Float, rotation angle of sun/moon orbit in degrees.
            By default, orbit is controlled by a client-side setting, and this field is not set.
            After a value is assigned, it can only be changed to another float value.
-           Valid range [-60.0, 60.0] (default: not set)
+           Valid range [-60.0, 60.0]; (default: not set)
         * `type`: Available types:
             * `"regular"`: Uses 0 textures, `base_color` ignored
             * `"skybox"`: Uses 6 textures, `base_color` used as fog.
@@ -10874,7 +10889,7 @@ Used by `core.register_node`.
 
     allow_metadata_inventory_take = function(pos, listname, index, stack, player),
     -- Called when a player wants to take something out of the inventory.
-    -- Return value: amount f items allowed to take.
+    -- Return value: amount of items allowed to take.
     -- Return value -1: Allow and don't modify source item.
 
     on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player),
