@@ -281,7 +281,7 @@ unittests.register("test_on_mapblocks_changed", test_on_mapblocks_changed, {map=
 
 local function list_has_block(list, blockpos)
 	for _, p in ipairs(list) do
-		if p.x == blockpos.x and p.y == blockpos.y and p.z == blockpos.z then
+		if vector.equals(p, blockpos) then
 			return true
 		end
 	end
