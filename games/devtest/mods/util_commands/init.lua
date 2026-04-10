@@ -344,11 +344,17 @@ local function swap_grass_and_snow_in_mapblocks(blocks)
 	return changed_blocks, changed_nodes
 end
 
-local function register_mapblock_swap_command(cmd, source, block_getter)
+local function register_mapblock_swap_command(cmd, source, block_getter, precheck)
 	core.register_chatcommand(cmd, {
 		params = "",
 		description = "Swap basenodes:dirt_with_grass and basenodes:dirt_with_snow in " .. source .. " mapblocks",
 		func = function(name, param)
+			if precheck then
+				local ok, msg = precheck(name)
+				if not ok then
+					return true, msg
+				end
+			end
 			local blocks = block_getter()
 			local changed_blocks, changed_nodes = swap_grass_and_snow_in_mapblocks(blocks)
 			return true, ("Checked %d %s mapblocks, changed %d mapblock(s), swapped %d node(s)")
@@ -359,7 +365,18 @@ end
 
 register_mapblock_swap_command("mapblock_swap_grass_snow_active", "active", core.get_active_blocks)
 register_mapblock_swap_command("mapblock_swap_grass_snow_loaded", "loaded", core.get_loaded_blocks)
-register_mapblock_swap_command("mapblock_swap_grass_snow_loadable", "loadable", core.get_loadable_blocks)
+local loadable_swap_confirm_until = {}
+register_mapblock_swap_command("mapblock_swap_grass_snow_loadable", "loadable",
+		core.get_loadable_blocks, function(name)
+	local now = core.get_us_time()
+	if now > (loadable_swap_confirm_until[name] or 0) then
+		loadable_swap_confirm_until[name] = now + 20 * 1000000
+		return false, "Warning: swapping loadable mapblocks may take a long time. " ..
+				"Run this command again within 20s to proceed."
+	end
+	loadable_swap_confirm_until[name] = nil
+	return true
+end)
 
 core.register_chatcommand("set_saturation", {
 	params = "<saturation>",
