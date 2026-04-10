@@ -8160,6 +8160,8 @@ Misc.
     * Returns an array of mapblock positions that currently exist in the map
       database and can be loaded.
     * Mapblock positions are in mapblock coordinates.
+    * This call may be expensive on large worlds because it can scan the map
+      database and return a very large list. Use it sparingly.
     * The returned list is a snapshot. Mapblock status may change immediately
       after this call.
     * Returns an empty array when no mapblocks are loadable.
