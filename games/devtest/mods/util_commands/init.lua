@@ -398,9 +398,6 @@ local function register_mapblocks_season_command(cmd, action)
 
 			local blocks = block_getter()
 			local changed_blocks, changed_nodes = mapblocks_change_season(name, action, source, blocks)
-			if not changed_blocks then
-				return false, changed_nodes
-			end
 			return true, ("Checked %d %s mapblocks, changed %d mapblock(s), changed %d node(s)")
 					:format(#blocks, source, changed_blocks, changed_nodes)
 		end,
