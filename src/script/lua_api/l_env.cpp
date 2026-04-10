@@ -1278,11 +1278,10 @@ int ModApiEnv::l_get_loaded_blocks(lua_State *L)
 	env->getServerMap().listAllLoadedBlocks(loaded_blocks);
 
 	lua_createtable(L, loaded_blocks.size(), 0);
-	int i = 0;
+	int index = 0;
 	for (const v3s16 &p : loaded_blocks) {
 		push_v3s16(L, p);
-		lua_rawseti(L, -2, i + 1);
-		i++;
+		lua_rawseti(L, -2, ++index);
 	}
 
 	return 1;
@@ -1297,11 +1296,10 @@ int ModApiEnv::l_get_loadable_blocks(lua_State *L)
 	env->getServerMap().listAllLoadableBlocks(loadable_blocks);
 
 	lua_createtable(L, loadable_blocks.size(), 0);
-	int i = 0;
+	int index = 0;
 	for (const v3s16 &p : loadable_blocks) {
 		push_v3s16(L, p);
-		lua_rawseti(L, -2, i + 1);
-		i++;
+		lua_rawseti(L, -2, ++index);
 	}
 
 	return 1;
@@ -1315,11 +1313,10 @@ int ModApiEnv::l_get_active_blocks(lua_State *L)
 	const auto &active_blocks = env->getActiveBlocks();
 
 	lua_createtable(L, active_blocks.size(), 0);
-	int i = 0;
+	int index = 0;
 	for (const v3s16 &p : active_blocks) {
 		push_v3s16(L, p);
-		lua_rawseti(L, -2, i + 1);
-		i++;
+		lua_rawseti(L, -2, ++index);
 	}
 
 	return 1;
