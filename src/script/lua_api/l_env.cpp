@@ -1297,7 +1297,8 @@ int ModApiEnv::l_get_active_blocks(lua_State *L)
 	int i = 0;
 	for (const v3s16 &p : active_blocks) {
 		push_v3s16(L, p);
-		lua_rawseti(L, -2, ++i);
+		lua_rawseti(L, -2, i + 1);
+		i++;
 	}
 
 	return 1;
