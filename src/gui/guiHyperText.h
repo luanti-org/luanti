@@ -11,6 +11,7 @@
 #include <IGUIElement.h>
 #include <IGUIEnvironment.h>
 #include "irr_v3d.h"
+#include "StyleSpec.h"
 
 
 class ISimpleTextureSource;
@@ -201,6 +202,10 @@ public:
 
 	bool OnEvent(const SEvent &event);
 
+	void setScrollbarStyle(const std::array<StyleSpec, StyleSpec::NUM_STATES>& styles,
+			const std::array<StyleSpec, StyleSpec::NUM_STATES>& up_arrow_styles,
+			const std::array<StyleSpec, StyleSpec::NUM_STATES>& down_arrow_styles);
+
 protected:
 	// GUI members
 	ISimpleTextureSource *m_tsrc;
@@ -208,7 +213,7 @@ protected:
 	TextDrawer m_drawer;
 
 	// Positioning
-	u32 m_scrollbar_width;
+	u32 m_scrollbar_width = 0;
 	core::rect<s32> m_display_text_rect;
 	core::position2d<s32> m_text_scrollpos;
 

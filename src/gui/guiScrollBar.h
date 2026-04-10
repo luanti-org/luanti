@@ -15,6 +15,9 @@ the arrow buttons where there is insufficient space.
 #include <optional>
 #include <IGUIEnvironment.h>
 #include <IGUIScrollBar.h>
+#include "StyleSpec.h"
+#include "guiButton.h"
+#include "irr_ptr.h"
 
 class ISimpleTextureSource;
 
@@ -33,6 +36,12 @@ public:
 		HIDE,
 		SHOW,
 		DEFAULT
+	};
+
+	struct ScrollBarImage {
+		irr_ptr<video::ITexture> Texture;
+		core::rect<s32> SourceRect;
+		core::rect<s32> MiddleRect;
 	};
 
 	virtual void draw() override;
@@ -65,13 +74,21 @@ public:
 	void setPageSize(s32 size) override;
 	void setArrowsVisible(ArrowVisibility visible);
 
+	void setColor(video::SColor color);
+	void setTrackImage(video::ITexture* image);
+	void setThumbImage(video::ITexture* image);
+	void setFromStyle(const StyleSpec& style);
+	void setStyles(const std::array<StyleSpec, StyleSpec::NUM_STATES>& styles,
+			const std::array<StyleSpec, StyleSpec::NUM_STATES>& up_arrow_styles,
+			const std::array<StyleSpec, StyleSpec::NUM_STATES>& down_arrow_styles);
+
 private:
 	void refreshControls();
 	s32 getPosFromMousePos(const core::position2di &p) const;
 	f32 range() const { return f32(max_pos - min_pos); }
 
-	IGUIButton *up_button;
-	IGUIButton *down_button;
+	GUIButton *up_button;
+	GUIButton *down_button;
 	ArrowVisibility arrow_visibility = DEFAULT;
 	bool is_dragging;
 	bool is_horizontal;
@@ -92,8 +109,26 @@ private:
 	s32 page_size;
 	s32 border_size;
 
+	std::array<StyleSpec, StyleSpec::NUM_STATES> Styles;
+	std::array<StyleSpec, StyleSpec::NUM_STATES> UpArrowStyles;
+	std::array<StyleSpec, StyleSpec::NUM_STATES> DownArrowStyles;
+
+	core::rect<s32> track_rect;
 	core::rect<s32> slider_rect;
 	video::SColor current_icon_color;
+
+	core::rect<s32> TrackPadding;
+
+	ScrollBarImage TrackTexture;
+	ScrollBarImage ThumbTexture;
+
+	video::SColor BgColor = video::SColor(0xFF,0xFF,0xFF,0xFF);
+
+	video::SColor TrackColor;
+	video::SColor ThumbColors[4];
+
+	bool DrawBorder = true;
+	bool StaticThumb = false;
 
 	ISimpleTextureSource *m_tsrc;
 

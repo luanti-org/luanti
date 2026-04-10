@@ -683,8 +683,14 @@ void GUIFormSpecMenu::parseScrollBar(parserData* data, const std::string &elemen
 	GUIScrollBar *e = new GUIScrollBar(Environment, data->current_parent,
 			spec.fid, rect, is_horizontal, true, m_tsrc);
 
-	auto style = getDefaultStyleForElement("scrollbar", name);
-	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+	auto style = getStyleForElement("scrollbar", name);
+	// FIXME: There's no way to access the GUIFormSpecMenu instance from the element class,
+	// so we are compelled to look up styling information for the arrow buttons here
+	// and pass it down.
+	auto up_arrow_style = getStyleForElement("button", name + ".up");
+	auto down_arrow_style = getStyleForElement("button", name + ".down");
+	e->setNotClipped(style[StyleSpec::STATE_DEFAULT].getBool(StyleSpec::NOCLIP, false));
+	e->setStyles(style, up_arrow_style, down_arrow_style);
 	e->setArrowsVisible(data->scrollbar_options.arrow_visiblity);
 
 	s32 max = data->scrollbar_options.max;
@@ -702,7 +708,10 @@ void GUIFormSpecMenu::parseScrollBar(parserData* data, const std::string &elemen
 
 	s32 scrollbar_size = is_horizontal ? dim.X : dim.Y;
 
-	e->setPageSize(scrollbar_size * (max - min + 1) / data->scrollbar_options.thumb_size);
+	if (data->scrollbar_options.thumb_size == 0)
+		e->setPageSize(S32_MAX);
+	else
+		e->setPageSize(scrollbar_size * (max - min + 1) / data->scrollbar_options.thumb_size);
 
 	if (spec.fname == m_focused_element) {
 		Environment->setFocus(e);
@@ -747,7 +756,7 @@ void GUIFormSpecMenu::parseScrollBarOptions(parserData* data, const std::string 
 			continue;
 		} else if (options[0] == "thumbsize") {
 			int value = stoi(options[1]);
-			data->scrollbar_options.thumb_size = value <= 0 ? 1 : value;
+			data->scrollbar_options.thumb_size = value < 0 ? 1 : value;
 			continue;
 		} else if (options[0] == "arrows") {
 			auto value = trim(options[1]);
@@ -1234,6 +1243,11 @@ void GUIFormSpecMenu::parseTable(parserData* data, const std::string &element)
 	GUITable *e = new GUITable(Environment, data->current_parent, spec.fid,
 			rect, m_tsrc);
 
+	auto scrollbar_style = getStyleForElement("scrollbar", spec.fname + ".scrollbar");
+	auto up_arrow_styles = getStyleForElement("button", spec.fname + ".scrollbar.up");
+	auto down_arrow_styles = getStyleForElement("button", spec.fname + ".scrollbar.down");
+	e->setScrollbarStyle(scrollbar_style, up_arrow_styles, down_arrow_styles);
+
 	// Apply styling before calculating the cell sizes
 	auto style = getDefaultStyleForElement("table", name);
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
@@ -1310,6 +1324,11 @@ void GUIFormSpecMenu::parseTextList(parserData* data, const std::string &element
 	//now really show list
 	GUITable *e = new GUITable(Environment, data->current_parent, spec.fid,
 			rect, m_tsrc);
+
+	auto scrollbar_style = getStyleForElement("scrollbar", spec.fname + ".scrollbar");
+	auto up_arrow_styles = getStyleForElement("button", spec.fname + ".scrollbar.up");
+	auto down_arrow_styles = getStyleForElement("button", spec.fname + ".scrollbar.down");
+	e->setScrollbarStyle(scrollbar_style, up_arrow_styles, down_arrow_styles);
 
 	if (spec.fname == m_focused_element) {
 		Environment->setFocus(e);
@@ -1535,8 +1554,13 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 
 	gui::IGUIEditBox *e = nullptr;
 	if (is_multiline) {
-		e = new GUIEditBoxWithScrollBar(spec.fdefault.c_str(), true, Environment,
+		auto textarea = new GUIEditBoxWithScrollBar(spec.fdefault.c_str(), true, Environment,
 				data->current_parent, spec.fid, rect, m_tsrc, is_editable, true);
+		auto scrollbar_style = getStyleForElement("scrollbar", spec.fname + ".scrollbar");
+		auto up_arrow_styles = getStyleForElement("button", spec.fname + ".scrollbar.up");
+		auto down_arrow_styles = getStyleForElement("button", spec.fname + ".scrollbar.down");
+		textarea->setScrollbarStyle(scrollbar_style, up_arrow_styles, down_arrow_styles);
+		e = textarea;
 	} else if (is_editable) {
 		e = Environment->addEditBox(spec.fdefault.c_str(), rect, true,
 				data->current_parent, spec.fid);
@@ -1759,6 +1783,11 @@ void GUIFormSpecMenu::parseHyperText(parserData *data, const std::string &elemen
 	GUIHyperText *e = new GUIHyperText(spec.flabel.c_str(), Environment,
 			data->current_parent, spec.fid, rect, m_client, m_tsrc);
 	e->drop();
+
+	auto scrollbar_style = getStyleForElement("scrollbar", spec.fname + ".scrollbar");
+	auto up_arrow_styles = getStyleForElement("button", spec.fname + ".scrollbar.up");
+	auto down_arrow_styles = getStyleForElement("button", spec.fname + ".scrollbar.down");
+	e->setScrollbarStyle(scrollbar_style, up_arrow_styles, down_arrow_styles);
 
 	m_fields.push_back(spec);
 }

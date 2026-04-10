@@ -6,6 +6,8 @@
 #define GUIEDITBOXWITHSCROLLBAR_HEADER
 
 #include "CGUIEditBox.h"
+#include "StyleSpec.h"
+#include "guiScrollBar.h"
 
 class ISimpleTextureSource;
 
@@ -27,9 +29,15 @@ public:
 	//! Change the background color
 	void setBackgroundColor(const video::SColor &bg_color);
 
+	void setScrollbarStyle(const std::array<StyleSpec, StyleSpec::NUM_STATES>& styles,
+			const std::array<StyleSpec, StyleSpec::NUM_STATES>& up_arrow_styles,
+			const std::array<StyleSpec, StyleSpec::NUM_STATES>& down_arrow_styles);
+
 protected:
 	//! create a Vertical ScrollBar
 	void createVScrollBar();
+
+	GUIScrollBar* m_vscrollbar;
 
 	bool m_bg_color_used;
 	video::SColor m_bg_color;

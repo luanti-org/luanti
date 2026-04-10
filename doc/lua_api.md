@@ -3426,7 +3426,8 @@ Elements
       units the thumb spans out of the range of the scrollbar values.
     * Example: If a scrollbar has a `min` of 1 and a `max` of 100, a thumbsize of 10
       would span a tenth of the scrollbar space.
-    * If this is set to zero or less, the value will be reset to `1`.
+    * If set to less than zero, the value will be reset to `1`.
+    * If set to zero, the thumb size will be the same as the thickness of the scrollbar (i.e. the thumb will always be a square).
 * `arrows=<show/hide/default>`
     * Whether to show the arrow buttons on the scrollbar. `default` hides the arrows
       when the scrollbar gets too small, but shows them otherwise.
@@ -3636,6 +3637,23 @@ Some types may inherit styles from parent types.
 * textlist
 * vertlabel, inherits from label
 
+### Pseudo-Elements
+
+Certain elements, like scrollbars, can create implicit pseudo-elements of different types.
+These pseudo-elements may be styled either with the appropriate `style_type` rule or with
+an ordinary `style` rule. In the latter case, the pseudo-element's name is its parent's
+name suffixed with `.` and the pseudo-element's identifier (e.g. `myscrollbar.up`). If
+a pseudo-element is of a type that creates its own pseudo-elements, those pseudo-elements
+are named in the same way, e.g. `mytextarea.scrollbar.up`.
+
+Current pseudo-elements (by parent type):
+
+* scrollbar
+    * `.up` (image_button): The up (or right) arrow button of the scrollbar, if arrows are enabled.
+    * `.down` (image_button): The down (or left) arrow button of the scrollbar, if arrows are enabled.
+* textarea, hypertext, textlist, table
+    * `.scrollbar` (scrollbar): The implicit scrollbar created when the contents of the element
+      overflow its bounds.
 
 ### Valid Properties
 
@@ -3732,6 +3750,19 @@ Some types may inherit styles from parent types.
     * sound - a sound to be played when triggered.
 * scrollbar
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+    * border - boolean, set to false to hide the default track and thumb. Defaults to true.
+    * bgcolor - color, sets the scrollbar's tint.
+    * bgimg - The background image of the scrollbar's track.
+    * bgimg_middle - Makes the bgimg render in 9-sliced mode and defines the middle rect.
+    * fgimg - The image of the scrollbar's thumb. Note: If `fgimg_middle` is not specified, this
+      will implicitly behave as if `thumbsize=0` were set.
+    * fgimg_middle - Makes the fgimg render in 9-sliced mode and defines the middle rect.
+        * Note that if this is not specified, the scrollbar thumb will not be stretched
+          to reflect the size of the scrollbar's range, equivalently to the `thumbsize=0`
+          scrollbar option.
+    * padding - rect. The space, in pixels, with which to pad the scrollbar's track background.
+    * size - integer, sets the thickness (in pixels) of implicit scrollbars (those attached to
+      `hypertext[]` or `textarea[]` elements).
 * tabheader
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * sound - a sound to be played when a different tab is selected.

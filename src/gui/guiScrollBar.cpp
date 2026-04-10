@@ -10,11 +10,15 @@ which includes automatic scaling of the thumb slider and hiding of
 the arrow buttons where there is insufficient space.
 */
 
+#include "irrMath.h"
+#include "client/guiscalingfilter.h"
 #include "guiScrollBar.h"
 #include "guiButton.h"
+#include "guiButtonImage.h"
 #include "porting.h"
 #include "settings.h"
 #include <IGUISkin.h>
+#include "IVideoDriver.h"
 
 GUIScrollBar::GUIScrollBar(IGUIEnvironment *environment, IGUIElement *parent, s32 id,
 		core::rect<s32> rectangle, bool horizontal, bool auto_scale,
@@ -32,6 +36,15 @@ GUIScrollBar::GUIScrollBar(IGUIEnvironment *environment, IGUIElement *parent, s3
 	setTabStop(true);
 	setTabOrder(-1);
 	setPos(0);
+
+	auto skin = Environment->getSkin();
+	TrackColor = skin->getColor(EGDC_SCROLLBAR);
+
+	for (size_t i = 0; i < 4; i++) {
+		video::SColor base =
+			skin->getColor((gui::EGUI_DEFAULT_COLOR)i);
+		ThumbColors[i] = base;
+	}
 }
 
 bool GUIScrollBar::OnEvent(const SEvent &event)
@@ -151,15 +164,45 @@ void GUIScrollBar::draw()
 	if (!skin)
 		return;
 
+	video::IVideoDriver* driver = Environment->getVideoDriver();
+
 	video::SColor icon_color = skin->getColor(
 			isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
 	if (icon_color != current_icon_color)
 		refreshControls();
 
-	slider_rect = AbsoluteRect;
-	skin->draw2DRectangle(this, skin->getColor(EGDC_SCROLLBAR), slider_rect,
-			&AbsoluteClippingRect);
+	track_rect = AbsoluteRect;
+	if (is_horizontal) {
+		track_rect.UpperLeftCorner.X  += TrackPadding.UpperLeftCorner.X;
+		track_rect.UpperLeftCorner.Y  += TrackPadding.UpperLeftCorner.Y;
+		track_rect.LowerRightCorner.X += TrackPadding.LowerRightCorner.X;
+		track_rect.LowerRightCorner.Y += TrackPadding.LowerRightCorner.Y;
+	} else {
+		track_rect.UpperLeftCorner.X  += TrackPadding.UpperLeftCorner.Y;
+		track_rect.UpperLeftCorner.Y  += TrackPadding.UpperLeftCorner.X;
+		track_rect.LowerRightCorner.X += TrackPadding.LowerRightCorner.Y;
+		track_rect.LowerRightCorner.Y += TrackPadding.LowerRightCorner.X;
+	}
 
+	if (DrawBorder)
+		skin->draw2DRectangle(this, TrackColor, track_rect,
+				&AbsoluteClippingRect);
+
+	if (TrackTexture.Texture) {
+		core::rect<s32> sourceRect = core::rect<s32>(core::position2di(0,0), TrackTexture.Texture->getOriginalSize());
+		video::SColor image_colors[] = { BgColor, BgColor, BgColor, BgColor };
+		if (TrackTexture.MiddleRect.getArea() == 0) {
+			driver->draw2DImage(TrackTexture.Texture.get(),
+					track_rect, sourceRect,
+					&AbsoluteClippingRect, image_colors, true);
+		} else {
+			draw2DImage9Slice(driver, TrackTexture.Texture.get(),
+					track_rect, sourceRect,
+					TrackTexture.MiddleRect, &AbsoluteClippingRect, image_colors);
+		}
+	}
+
+	slider_rect = AbsoluteRect;
 	if (core::isnotzero(range())) {
 		if (is_horizontal) {
 			slider_rect.UpperLeftCorner.X = AbsoluteRect.UpperLeftCorner.X +
@@ -172,7 +215,23 @@ void GUIScrollBar::draw()
 			slider_rect.LowerRightCorner.Y =
 					slider_rect.UpperLeftCorner.Y + thumb_size;
 		}
-		skin->draw3DButtonPaneStandard(this, slider_rect, &AbsoluteClippingRect);
+		if (DrawBorder)
+			skin->drawColored3DButtonPaneStandard(this, slider_rect, &AbsoluteClippingRect, ThumbColors);
+
+		if (ThumbTexture.Texture) {
+			core::rect<s32> sourceRect = core::rect<s32>(core::position2di(0,0), ThumbTexture.Texture->getOriginalSize());
+			video::SColor image_colors[] = { BgColor, BgColor, BgColor, BgColor };
+			if (ThumbTexture.MiddleRect.getArea() == 0) {
+				driver->draw2DImage(ThumbTexture.Texture.get(),
+						slider_rect,
+						sourceRect, &AbsoluteClippingRect,
+						image_colors, true);
+			} else {
+				draw2DImage9Slice(driver, ThumbTexture.Texture.get(),
+						slider_rect,
+						sourceRect, ThumbTexture.MiddleRect, &AbsoluteClippingRect, image_colors);
+			}
+		}
 	}
 	IGUIElement::draw();
 }
@@ -278,7 +337,9 @@ void GUIScrollBar::setPosRaw(const s32 pos)
 		thumb_area = RelativeRect.getHeight() - border_size * 2;
 	}
 
-	if (is_auto_scaling)
+	if (StaticThumb)
+		thumb_size = 0;
+	else if (is_auto_scaling)
 		thumb_size = (s32)std::fmin(S32_MAX,
 				thumb_area / (f32(page_size) / f32(thumb_area + border_size * 2)));
 
@@ -404,12 +465,15 @@ void GUIScrollBar::refreshControls()
 		border_size = RelativeRect.getWidth() < h * 4 ? 0 : h;
 		if (!up_button) {
 			core::rect<s32> up_button_rect(0, 0, h, h);
-			up_button = GUIButton::addButton(Environment, up_button_rect, m_tsrc,
+			up_button = GUIButtonImage::addButton(Environment, up_button_rect, m_tsrc,
 					this, -1, L"");
 			up_button->setSubElement(true);
 			up_button->setTabStop(false);
 		}
-		if (sprites) {
+		// Logical up corresponds to visual down in horizontal orientation.
+		if (DownArrowStyles[StyleSpec::STATE_DEFAULT].isNotDefault(StyleSpec::FGIMG)) {
+			up_button->setSpriteBank(nullptr);
+		} else if (sprites) {
 			up_button->setSpriteBank(sprites);
 			up_button->setSprite(EGBS_BUTTON_UP,
 					s32(skin->getIcon(EGDI_CURSOR_LEFT)),
@@ -426,12 +490,15 @@ void GUIScrollBar::refreshControls()
 					RelativeRect.getWidth() - h, 0,
 					RelativeRect.getWidth(), h
 				);
-			down_button = GUIButton::addButton(Environment, down_button_rect, m_tsrc,
+			down_button = GUIButtonImage::addButton(Environment, down_button_rect, m_tsrc,
 					this, -1, L"");
 			down_button->setSubElement(true);
 			down_button->setTabStop(false);
 		}
-		if (sprites) {
+		// Logical down corresponds to visual up in horizontal orientation.
+		if (UpArrowStyles[StyleSpec::STATE_DEFAULT].isNotDefault(StyleSpec::FGIMG)) {
+			down_button->setSpriteBank(nullptr);
+		} else if (sprites) {
 			down_button->setSpriteBank(sprites);
 			down_button->setSprite(EGBS_BUTTON_UP,
 					s32(skin->getIcon(EGDI_CURSOR_RIGHT)),
@@ -450,12 +517,14 @@ void GUIScrollBar::refreshControls()
 		border_size = RelativeRect.getHeight() < w * 4 ? 0 : w;
 		if (!up_button) {
 			core::rect<s32> up_button_rect(0, 0, w, w);
-			up_button = GUIButton::addButton(Environment, up_button_rect, m_tsrc,
+			up_button = GUIButtonImage::addButton(Environment, up_button_rect, m_tsrc,
 					this, -1, L"");
 			up_button->setSubElement(true);
 			up_button->setTabStop(false);
 		}
-		if (sprites) {
+		if (UpArrowStyles[StyleSpec::STATE_DEFAULT].isNotDefault(StyleSpec::FGIMG)) {
+			up_button->setSpriteBank(nullptr);
+		} else if (sprites) {
 			up_button->setSpriteBank(sprites);
 			up_button->setSprite(EGBS_BUTTON_UP,
 					s32(skin->getIcon(EGDI_CURSOR_UP)),
@@ -472,12 +541,14 @@ void GUIScrollBar::refreshControls()
 					0, RelativeRect.getHeight() - w,
 					w, RelativeRect.getHeight()
 				);
-			down_button = GUIButton::addButton(Environment, down_button_rect, m_tsrc,
+			down_button = GUIButtonImage::addButton(Environment, down_button_rect, m_tsrc,
 					this, -1, L"");
 			down_button->setSubElement(true);
 			down_button->setTabStop(false);
 		}
-		if (sprites) {
+		if (DownArrowStyles[StyleSpec::STATE_DEFAULT].isNotDefault(StyleSpec::FGIMG)) {
+			down_button->setSpriteBank(nullptr);
+		} else if (sprites) {
 			down_button->setSpriteBank(sprites);
 			down_button->setSprite(EGBS_BUTTON_UP,
 					s32(skin->getIcon(EGDI_CURSOR_DOWN)),
@@ -507,6 +578,112 @@ void GUIScrollBar::refreshControls()
 			border_size = RelativeRect.getWidth();
 	}
 
+	// Note: The styling targets are named in accordance with the buttons' visual layout
+	// ('up' is on the top or the right). However, the variables here are named based
+	// on the buttons' logical function ('up' decrements, 'down' increments).
+	// Since the value of a horizontal scrollbar increases to the right, the 'up'
+	// visual position corresponds to the 'down' logical function, and vice versa.
+	up_button->setStyles(is_horizontal ? DownArrowStyles : UpArrowStyles);
+	down_button->setStyles(is_horizontal ? UpArrowStyles : DownArrowStyles);
+
 	up_button->setVisible(visible);
 	down_button->setVisible(visible);
+}
+
+void GUIScrollBar::setColor(video::SColor color)
+{
+	BgColor = color;
+
+	auto skin = Environment->getSkin();
+	TrackColor = skin->getColor(EGDC_SCROLLBAR).getInterpolated(BgColor, 0.65f);
+
+	float d = 0.65f;
+	for (size_t i = 0; i < 4; i++) {
+		video::SColor base = Environment->getSkin()->getColor((gui::EGUI_DEFAULT_COLOR)i);
+		ThumbColors[i] = base.getInterpolated(color, d);
+	}
+}
+
+void GUIScrollBar::setTrackImage(video::ITexture* image)
+{
+	image->grab();
+
+	if (TrackTexture.Texture)
+		TrackTexture.Texture->drop();
+
+	TrackTexture.Texture.reset(image);
+}
+
+void GUIScrollBar::setThumbImage(video::ITexture* image)
+{
+	image->grab();
+
+	if (ThumbTexture.Texture)
+		ThumbTexture.Texture->drop();
+
+	ThumbTexture.Texture.reset(image);
+}
+
+void GUIScrollBar::setFromStyle(const StyleSpec& style)
+{
+	DrawBorder = style.getBool(StyleSpec::BORDER, true);
+
+	if (style.isNotDefault(StyleSpec::BGCOLOR)) {
+		setColor(style.getColor(StyleSpec::BGCOLOR, video::SColor(255,255,255,255)));
+	}
+
+	TrackTexture.MiddleRect = style.getRect(StyleSpec::BGIMG_MIDDLE, core::rect<s32>());
+
+	if (style.isNotDefault(StyleSpec::BGIMG)) {
+		video::ITexture *texture = style.getTexture(StyleSpec::BGIMG,
+				m_tsrc);
+		if (TrackTexture.MiddleRect.getArea() == 0) {
+			setTrackImage(guiScalingImageButton(
+					Environment->getVideoDriver(), texture,
+							AbsoluteRect.getWidth(), AbsoluteRect.getHeight()));
+		} else {
+			setTrackImage(texture);
+		}
+	}
+
+	if (style.isNotDefault(StyleSpec::PADDING)) {
+		TrackPadding = style.getRect(StyleSpec::PADDING, core::rect<s32>());
+		TrackPadding.UpperLeftCorner.X =
+				core::s32_clamp(TrackPadding.UpperLeftCorner.X, 0, AbsoluteRect.getWidth() / 2);
+		TrackPadding.UpperLeftCorner.Y =
+				core::s32_clamp(TrackPadding.UpperLeftCorner.Y, 0, AbsoluteRect.getHeight() / 2);
+		TrackPadding.LowerRightCorner.X =
+				core::s32_clamp(TrackPadding.LowerRightCorner.X, -AbsoluteRect.getWidth() / 2, 0);
+		TrackPadding.LowerRightCorner.Y =
+				core::s32_clamp(TrackPadding.LowerRightCorner.Y, -AbsoluteRect.getHeight() / 2, 0);
+	}
+
+	ThumbTexture.MiddleRect = style.getRect(StyleSpec::FGIMG_MIDDLE, core::rect<s32>());
+
+	if (style.isNotDefault(StyleSpec::FGIMG)) {
+		video::ITexture *texture = style.getTexture(StyleSpec::FGIMG,
+				m_tsrc);
+		if (ThumbTexture.MiddleRect.getArea() == 0) {
+			setThumbImage(guiScalingImageButton(
+					Environment->getVideoDriver(), texture,
+							AbsoluteRect.getWidth(), AbsoluteRect.getHeight()));
+			// If a thumb image is given and the thumb middle is unspecified, we assume
+			// that the user wishes to disable stretching of the thumb so as not to
+			// break the image.
+			StaticThumb = true;
+		} else {
+			setThumbImage(texture);
+		}
+	}
+}
+
+void GUIScrollBar::setStyles(const std::array<StyleSpec, StyleSpec::NUM_STATES>& styles,
+		const std::array<StyleSpec, StyleSpec::NUM_STATES>& up_arrow_styles,
+		const std::array<StyleSpec, StyleSpec::NUM_STATES>& down_arrow_styles)
+{
+	Styles = styles;
+	UpArrowStyles = up_arrow_styles;
+	DownArrowStyles = down_arrow_styles;
+	setFromStyle(StyleSpec::getStyleFromStatePropagation(Styles, StyleSpec::STATE_DEFAULT));
+	refreshControls();
 }
