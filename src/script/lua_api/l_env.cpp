@@ -1278,9 +1278,11 @@ int ModApiEnv::l_get_loaded_blocks(lua_State *L)
 	env->getServerMap().listAllLoadedBlocks(loaded_blocks);
 
 	lua_createtable(L, loaded_blocks.size(), 0);
-	for (size_t i = 0; i != loaded_blocks.size(); i++) {
-		push_v3s16(L, loaded_blocks[i]);
+	int i = 0;
+	for (const v3s16 &p : loaded_blocks) {
+		push_v3s16(L, p);
 		lua_rawseti(L, -2, i + 1);
+		i++;
 	}
 
 	return 1;
