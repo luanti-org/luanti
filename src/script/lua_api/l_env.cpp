@@ -1269,6 +1269,41 @@ int ModApiEnv::l_forceload_block(lua_State *L)
 	return 0;
 }
 
+// get_loaded_blocks()
+int ModApiEnv::l_get_loaded_blocks(lua_State *L)
+{
+	GET_ENV_PTR;
+
+	std::vector<v3s16> loaded_blocks;
+	env->getServerMap().listAllLoadedBlocks(loaded_blocks);
+
+	lua_createtable(L, loaded_blocks.size(), 0);
+	for (size_t i = 0; i != loaded_blocks.size(); i++) {
+		push_v3s16(L, loaded_blocks[i]);
+		lua_rawseti(L, -2, i + 1);
+	}
+
+	return 1;
+}
+
+// get_active_blocks()
+int ModApiEnv::l_get_active_blocks(lua_State *L)
+{
+	GET_ENV_PTR;
+
+	const auto &active_blocks = env->getActiveBlocks();
+
+	lua_createtable(L, active_blocks.size(), 0);
+	int i = 0;
+	for (const v3s16 &p : active_blocks) {
+		push_v3s16(L, p);
+		lua_rawseti(L, -2, ++i);
+	}
+
+	return 1;
+}
+
+// compare_block_status(nodepos)
 int ModApiEnv::l_compare_block_status(lua_State *L)
 {
 	GET_ENV_PTR;
@@ -1357,6 +1392,8 @@ void ModApiEnv::Initialize(lua_State *L, int top)
 	API_FCT(raycast);
 	API_FCT(transforming_liquid_add);
 	API_FCT(forceload_block);
+	API_FCT(get_loaded_blocks);
+	API_FCT(get_active_blocks);
 	API_FCT(forceload_free_block);
 	API_FCT(compare_block_status);
 	API_FCT(get_translated_string);

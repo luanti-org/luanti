@@ -1880,6 +1880,8 @@ is close enough.
 Related API functions:
 
 * `core.compare_block_status`
+* `core.get_loaded_blocks`
+* `core.get_active_blocks`
 * `core.forceload_block`
 * `core.load_area`
 * `core.emerge_area`
@@ -8145,6 +8147,16 @@ Misc.
     * stops forceloading the position `pos`
     * If `transient` is `false` or absent, frees a persistent forceload.
       If `true`, frees a transient forceload.
+
+* `core.get_loaded_blocks()`
+    * Returns an array of mapblock positions currently loaded in memory.
+    * Mapblock positions are in mapblock coordinates.
+    * Returns an empty array when no mapblocks are loaded.
+
+* `core.get_active_blocks()`
+    * Returns an array of mapblock positions currently active.
+    * Mapblock positions are in mapblock coordinates.
+    * Returns an empty array when no mapblocks are active.
 
 * `core.compare_block_status(pos, condition)`
     * Checks whether the mapblock at position `pos` is in the wanted condition.

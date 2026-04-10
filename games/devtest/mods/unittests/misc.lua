@@ -279,6 +279,40 @@ local function test_on_mapblocks_changed(cb, player, pos)
 end
 unittests.register("test_on_mapblocks_changed", test_on_mapblocks_changed, {map=true, async=true})
 
+local function list_has_block(list, blockpos)
+	for _, p in ipairs(list) do
+		if p.x == blockpos.x and p.y == blockpos.y and p.z == blockpos.z then
+			return true
+		end
+	end
+	return false
+end
+
+local function test_get_loaded_and_active_blocks(_, pos)
+	local loaded = core.get_loaded_blocks()
+	assert(type(loaded) == "table")
+	if #loaded > 0 then
+		assert(type(loaded[1]) == "table")
+		assert(type(loaded[1].x) == "number")
+		assert(type(loaded[1].y) == "number")
+		assert(type(loaded[1].z) == "number")
+	end
+
+	local active = core.get_active_blocks()
+	assert(type(active) == "table")
+	if #active > 0 then
+		assert(type(active[1]) == "table")
+		assert(type(active[1].x) == "number")
+		assert(type(active[1].y) == "number")
+		assert(type(active[1].z) == "number")
+	end
+
+	local blockpos = (pos / core.MAP_BLOCKSIZE):floor()
+	assert(list_has_block(loaded, blockpos), "expected test block in get_loaded_blocks result")
+	assert(list_has_block(active, blockpos), "expected test block in get_active_blocks result")
+end
+unittests.register("test_get_loaded_and_active_blocks", test_get_loaded_and_active_blocks, {map=true})
+
 local function test_gennotify_api()
 	local DECO_ID = 123
 	local UD_ID = "unittests:dummy"
