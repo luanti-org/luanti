@@ -681,7 +681,7 @@ void GUIFormSpecMenu::parseScrollBar(parserData* data, const std::string &elemen
 	spec.ftype = f_ScrollBar;
 	spec.send  = true;
 	GUIScrollBar *e = new GUIScrollBar(Environment, data->current_parent,
-			spec.fid, rect, is_horizontal, true, m_tsrc);
+			spec.fid, rect, is_horizontal, m_tsrc);
 
 	auto style = getDefaultStyleForElement("scrollbar", name);
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
