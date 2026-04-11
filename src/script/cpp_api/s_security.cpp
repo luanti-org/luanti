@@ -971,6 +971,29 @@ int ScriptApiSecurity::sl_g_loadfile(lua_State *L)
 	if (script->getType() == ScriptingType::Client
 			|| script->getType() == ScriptingType::SSCSM) {
 		std::string path = readParam<std::string>(L, 1);
+
+		// In SSCSM, restrict untrusted code to flat filenames in
+		// its own VFS namespace. Only *client_builtin* is trusted
+		// (it lives on the client's disk); *server_builtin* is
+		// server-supplied like any other clientmod.
+		if (script->getType() == ScriptingType::SSCSM) {
+			std::string modname = ScriptApiBase::getCurrentModNameInsecure(L);
+			bool is_trusted = (modname == "*client_builtin*");
+			if (!is_trusted) {
+				// Only accept a flat "filename.lua".
+				if (path.empty() ||
+						path.find('/') != std::string::npos ||
+						path.find('\\') != std::string::npos ||
+						path.find(':') != std::string::npos ||
+						path.find("..") != std::string::npos) {
+					lua_pushnil(L);
+					lua_pushstring(L, "loadfile: invalid filename");
+					return 2;
+				}
+				path = modname + ":" + path;
+			}
+		}
+
 		const std::string *contents = script->getModVFS()->getModFile(path);
 		if (!contents) {
 			std::string error_msg = "Couldn't find script called: " + path;
