@@ -1597,6 +1597,8 @@ void Client::handleCommand_Camera(NetworkPacket* pkt)
 	u8 tmp;
 	*pkt >> tmp;
 	player->allowed_camera_mode = static_cast<CameraMode>(tmp);
+	if (player->allowed_camera_mode >= CameraMode_END)
+		player->allowed_camera_mode = CAMERA_MODE_ANY;
 
 	m_client_event_queue.push(new ClientEvent(CE_UPDATE_CAMERA));
 }

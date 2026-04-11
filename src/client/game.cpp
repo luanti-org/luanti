@@ -2683,6 +2683,7 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 
 	switch (camera->getCameraMode()) {
 	case CAMERA_MODE_ANY:
+	case CameraMode_END:
 		assert(false);
 		break;
 	case CAMERA_MODE_FIRST:
