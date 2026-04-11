@@ -8150,11 +8150,8 @@ Misc.
       If `true`, frees a transient forceload.
 
 * `core.get_loaded_blocks()`
-    * Returns an array of mapblock positions currently loaded in memory.
-    * Mapblock positions are in mapblock coordinates.
-    * The returned list is a snapshot. Mapblock status may change immediately
-      after this call.
-    * Returns an empty array when no mapblocks are loaded.
+    * Returns a list of all mapblock positions currently loaded in memory.
+    * The returned list is a snapshot. Blocks can become (un)loaded at any point.
 
 * `core.get_loadable_blocks()`
     * Returns an array of mapblock positions that currently exist in the map
