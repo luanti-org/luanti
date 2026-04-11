@@ -348,11 +348,7 @@ void Client::handleCommand_Inventory(NetworkPacket* pkt)
 
 	if (m_proto_ver > 51) {
 		datastring = pkt->readLongString();
-
-		bool skip = false;
-		*pkt >> skip;
-		if (skip)
-			m_skip_next_wield_animation = true;
+		*pkt >> m_skip_next_wield_animation;
 	} else {
 		datastring = std::string(pkt->getString(0), pkt->getSize());
 	}
