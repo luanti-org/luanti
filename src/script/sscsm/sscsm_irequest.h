@@ -5,78 +5,67 @@
 #pragma once
 
 #include "exceptions.h"
+#include "sscsm_serialize.h"
+#include <iosfwd>
 #include <memory>
-#include <type_traits>
+#include <sstream>
+#include <string>
 
 class SSCSMController;
 class Client;
 
-// FIXME: remove once we have actual serialization
-// this is just here so we can instead put them into unique_ptr
+// Base for "answer" payloads. Each request type has its own concrete Answer
+// struct that knows how to (de)serialize itself.
 struct ISSCSMAnswer
 {
 	virtual ~ISSCSMAnswer() = default;
 };
 
-// FIXME: actually serialize, and replace this with a std::vector<u8>.
-//        also update function argument declarations, to take
-//        `const SerializedSSCSMAnswer &` or whatever
-// (not polymorphic. the receiving side will know the answer type that is in here)
-using SerializedSSCSMAnswer = std::unique_ptr<ISSCSMAnswer>;
+// Wire format for an answer: just the answer body. The receiving side already
+// knows the expected concrete type from the request it sent.
+using SerializedSSCSMAnswer = std::string;
 
 // Request made by the sscsm env to the main env.
 struct ISSCSMRequest
 {
 	virtual ~ISSCSMRequest() = default;
 
+	virtual SSCSMRequestType getType() const = 0;
+	virtual void serializeBody(std::ostream &os) const = 0;
+
 	virtual SerializedSSCSMAnswer exec(Client *client) = 0;
 };
 
-// FIXME: as above, actually serialize
-// (polymorphic. this can be any ISSCSMRequest. ==> needs type tag)
-using SerializedSSCSMRequest = std::unique_ptr<ISSCSMRequest>;
+// Wire format for a request: [type tag u8][body bytes].
+using SerializedSSCSMRequest = std::string;
 
+// Top-level: serialize a concrete request type.
 template <typename T>
 inline SerializedSSCSMRequest serializeSSCSMRequest(const T &request)
 {
-	static_assert(std::is_base_of_v<ISSCSMRequest, T>);
-
-	// FIXME: this will need to use a type tag for T
-
-	return std::make_unique<T>(request);
+	std::ostringstream os{std::ios::binary};
+	os.put(static_cast<char>(static_cast<u8>(T::TYPE)));
+	request.serializeBody(os);
+	return os.str();
 }
 
-template <typename T>
-inline T deserializeSSCSMAnswer(SerializedSSCSMAnswer answer_serialized)
-{
-	static_assert(std::is_base_of_v<ISSCSMAnswer, T>);
-
-	// FIXME: should look something like this:
-	// return sscsm::Serializer<T>{}.deserialize(answer_serialized);
-	// (note: answer_serialized does not need a type tag)
-
-	// dynamic cast in place of actual deserialization
-	auto ptr = dynamic_cast<T *>(answer_serialized.get());
-	if (!ptr) {
-		throw SerializationError("deserializeSSCSMAnswer failed");
-	}
-	return std::move(*ptr);
-}
-
+// Top-level: serialize a concrete answer type.
 template <typename T>
 inline SerializedSSCSMAnswer serializeSSCSMAnswer(T &&answer)
 {
-	static_assert(std::is_base_of_v<ISSCSMAnswer, T>);
-
-	// FIXME: should look something like this:
-	// return sscsm::Serializer<T>{}.serialize(request);
-
-	return std::make_unique<T>(std::move(answer));
+	std::ostringstream os{std::ios::binary};
+	answer.serializeBody(os);
+	return os.str();
 }
 
-inline std::unique_ptr<ISSCSMRequest> deserializeSSCSMRequest(SerializedSSCSMRequest request_serialized)
+// Top-level: deserialize an answer when the receiver knows the expected type.
+template <typename T>
+inline T deserializeSSCSMAnswer(const SerializedSSCSMAnswer &data)
 {
-	// FIXME: The actual deserialization will have to use a type tag, and then
-	// choose the appropriate deserializer.
-	return request_serialized;
+	std::istringstream is{data, std::ios::binary};
+	return T::deserializeBody(is);
 }
+
+// Top-level: deserialize a polymorphic request by reading its type tag and
+// dispatching to the appropriate concrete deserializer.
+std::unique_ptr<ISSCSMRequest> deserializeSSCSMRequest(const SerializedSSCSMRequest &data);

@@ -4,18 +4,22 @@
 
 #pragma once
 
-#include <memory>
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
+#include <optional>
+#include <string>
+#include <utility>
 #include "sscsm_irequest.h"
 
-// FIXME: replace this with an ipc channel
+// In-process channel between the SSCSMController (main thread) and the
+// SSCSMEnvironment thread. To be replaced by an IPCChannel from
+// src/threading/ipc_channel.h once SSCSM runs in its own process.
 class StupidChannel
 {
 	std::mutex m_mutex;
 	std::condition_variable m_condvar;
-	SerializedSSCSMRequest m_request;
-	SerializedSSCSMAnswer m_answer;
+	std::optional<SerializedSSCSMRequest> m_request;
+	std::optional<SerializedSSCSMAnswer> m_answer;
 
 public:
 	void sendA(SerializedSSCSMRequest request)
@@ -33,12 +37,12 @@ public:
 	{
 		auto lock = std::unique_lock(m_mutex);
 
-		while (!m_answer) {
+		while (!m_answer.has_value()) {
 			m_condvar.wait(lock);
 		}
 
-		auto answer = std::move(m_answer);
-		m_answer = nullptr;
+		auto answer = std::move(*m_answer);
+		m_answer.reset();
 
 		return answer;
 	}
@@ -65,12 +69,12 @@ public:
 	{
 		auto lock = std::unique_lock(m_mutex);
 
-		while (!m_request) {
+		while (!m_request.has_value()) {
 			m_condvar.wait(lock);
 		}
 
-		auto request = std::move(m_request);
-		m_request = nullptr;
+		auto request = std::move(*m_request);
+		m_request.reset();
 
 		return request;
 	}

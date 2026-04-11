@@ -16,7 +16,7 @@ std::unique_ptr<SSCSMController> SSCSMController::create()
 
 	// Wait for thread to finish initializing.
 	auto req0 = deserializeSSCSMRequest(channel->recvB());
-	FATAL_ERROR_IF(!dynamic_cast<SSCSMRequestPollNextEvent *>(req0.get()),
+	FATAL_ERROR_IF(req0->getType() != SSCSMRequestType::PollNextEvent,
 			"First request must be pollEvent.");
 
 	return std::make_unique<SSCSMController>(std::move(thread), channel);
@@ -56,7 +56,7 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 		// SSCSMRequestPollNextEvent means `event` is finished and we need to
 		// answer with the next event (that will be passed in a subsequent runEvent()
 		// call)
-		if (dynamic_cast<SSCSMRequestPollNextEvent *>(request.get()) != nullptr) {
+		if (request->getType() == SSCSMRequestType::PollNextEvent) {
 			break;
 		}
 

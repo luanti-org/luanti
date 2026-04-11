@@ -29,7 +29,7 @@ void *SSCSMEnvironment::run()
 			return std::move(answer.next_event);
 		}();
 
-		if (dynamic_cast<SSCSMEventTearDown *>(next_event.get())) {
+		if (next_event->getType() == SSCSMEventType::TearDown) {
 			break;
 		}
 
