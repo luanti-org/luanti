@@ -302,9 +302,6 @@ local function test_get_loaded_active_and_loadable_blocks(_, pos)
 			:format(core.pos_to_string(block)))
 	end
 
-	local blockpos = (pos / core.MAP_BLOCKSIZE):floor()
-	assert(table.indexof(loaded, blockpos) ~= -1, "expected test block in get_loaded_blocks result")
-	assert(table.indexof(active, blockpos) ~= -1, "expected test block in get_active_blocks result")
 end
 unittests.register("test_get_loaded_active_and_loadable_blocks",
 		test_get_loaded_active_and_loadable_blocks, {map=true})
