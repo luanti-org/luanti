@@ -19,7 +19,9 @@ public:
 
 	~GUIScene();
 
+	/// @param mesh does not get consumed, mesh->drop() must still be called afterward
 	scene::AnimatedMeshSceneNode *setMesh(scene::IAnimatedMesh *mesh = nullptr);
+
 	void setTexture(u32 idx, video::ITexture *texture);
 	void setBackgroundColor(const video::SColor &color) noexcept { m_bgcolor = color; };
 	void setFrameLoop(f32 begin, f32 end);
