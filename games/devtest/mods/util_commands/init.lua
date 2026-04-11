@@ -331,6 +331,7 @@ local function swap_nodes_in_mapblock(blockpos, from_id, to_id)
 		vm:set_data(data)
 		vm:write_to_map()
 	end
+	vm:close()
 	return changed_nodes
 end
 
