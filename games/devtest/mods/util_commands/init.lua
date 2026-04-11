@@ -305,15 +305,6 @@ core.register_chatcommand("mapblock_stats", {
 	end,
 })
 
-local function get_dirt_swap_ids()
-	local dirt_with_grass = core.get_content_id("basenodes:dirt_with_grass")
-	local dirt_with_snow = core.get_content_id("basenodes:dirt_with_snow")
-	return {
-		grass = dirt_with_grass,
-		snow = dirt_with_snow,
-	}
-end
-
 local function swap_nodes_in_mapblock(blockpos, from_id, to_id)
 	local minp = blockpos * core.MAP_BLOCKSIZE
 	local maxp = minp + vector.new(core.MAP_BLOCKSIZE - 1,
@@ -336,12 +327,13 @@ local function swap_nodes_in_mapblock(blockpos, from_id, to_id)
 end
 
 local function mapblocks_change_season(name, action, source, blocks)
-	local ids = get_dirt_swap_ids()
-	local from_id = ids.grass
-	local to_id = ids.snow
+	local grass_id = core.get_content_id("basenodes:dirt_with_grass")
+	local snow_id = core.get_content_id("basenodes:dirt_with_snow")
+	local from_id = grass_id
+	local to_id = snow_id
 	if action == "spring" then
-		from_id = ids.snow
-		to_id = ids.grass
+		from_id = snow_id
+		to_id = grass_id
 	end
 	local changed_blocks = 0
 	local changed_nodes = 0
