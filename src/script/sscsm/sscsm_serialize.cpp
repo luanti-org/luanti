@@ -31,6 +31,9 @@ std::unique_ptr<ISSCSMRequest> deserializeSSCSMRequest(const SerializedSSCSMRequ
 	case SSCSMRequestType::GetNode:
 		return std::make_unique<SSCSMRequestGetNode>(
 				SSCSMRequestGetNode::deserializeBody(is));
+	case SSCSMRequestType::DisplayChatMessage:
+		return std::make_unique<SSCSMRequestDisplayChatMessage>(
+				SSCSMRequestDisplayChatMessage::deserializeBody(is));
 	}
 	throw SerializationError("Unknown SSCSM request type tag");
 }

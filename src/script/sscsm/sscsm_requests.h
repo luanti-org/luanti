@@ -9,9 +9,11 @@
 #include "sscsm_serialize.h"
 #include "mapnode.h"
 #include "map.h"
+#include "chatmessage.h"
 #include "client/client.h"
 #include "log_internal.h"
 #include "util/serialize.h"
+#include "util/string.h"
 
 // Poll the next event (e.g. on_globalstep)
 struct SSCSMRequestPollNextEvent final : public ISSCSMRequest
@@ -143,6 +145,38 @@ struct SSCSMRequestLog final : public ISSCSMRequest
 			g_logger.log(level, text);
 		}
 
+		return serializeSSCSMAnswer(Answer{});
+	}
+};
+
+// core.display_chat_message(text)
+struct SSCSMRequestDisplayChatMessage final : public ISSCSMRequest
+{
+	static constexpr SSCSMRequestType TYPE = SSCSMRequestType::DisplayChatMessage;
+
+	struct Answer final : public ISSCSMAnswer
+	{
+		void serializeBody(std::ostream &os) const {}
+		static Answer deserializeBody(std::istream &is) { return Answer{}; }
+	};
+
+	std::string text;
+
+	SSCSMRequestType getType() const override { return TYPE; }
+	void serializeBody(std::ostream &os) const override
+	{
+		os << serializeString32(text);
+	}
+	static SSCSMRequestDisplayChatMessage deserializeBody(std::istream &is)
+	{
+		SSCSMRequestDisplayChatMessage r;
+		r.text = deSerializeString32(is);
+		return r;
+	}
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		client->pushToChatQueue(new ChatMessage(utf8_to_wide(text)));
 		return serializeSSCSMAnswer(Answer{});
 	}
 };

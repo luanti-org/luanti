@@ -14,6 +14,7 @@ enum class SSCSMRequestType : u8 {
 	Print = 2,
 	Log = 3,
 	GetNode = 4,
+	DisplayChatMessage = 5,
 };
 
 // Type tag for SSCSM events (main -> SSCSM env).

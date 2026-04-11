@@ -12,6 +12,9 @@ private:
 	// get_node_or_nil(pos)
 	static int l_get_node_or_nil(lua_State *L);
 
+	// display_chat_message(text)
+	static int l_display_chat_message(lua_State *L);
+
 public:
 	static void Initialize(lua_State *L, int top);
 };

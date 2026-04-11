@@ -31,7 +31,22 @@ int ModApiSSCSM::l_get_node_or_nil(lua_State *L)
 	return 1;
 }
 
+// display_chat_message(text)
+int ModApiSSCSM::l_display_chat_message(lua_State *L)
+{
+	if (!lua_isstring(L, 1))
+		return 0;
+
+	auto request = SSCSMRequestDisplayChatMessage{};
+	request.text = luaL_checkstring(L, 1);
+	getSSCSMEnv(L)->doRequest(std::move(request));
+
+	lua_pushboolean(L, true);
+	return 1;
+}
+
 void ModApiSSCSM::Initialize(lua_State *L, int top)
 {
 	API_FCT(get_node_or_nil);
+	API_FCT(display_chat_message);
 }

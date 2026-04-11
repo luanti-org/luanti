@@ -57,6 +57,7 @@ Functions that take or return paths always use virtual paths.
 * `core.get_node_or_nil(pos)`
 * `core.get_content_id(name)`
 * `core.get_name_from_content_id(id)`
+* `core.display_chat_message(text)` — show a message in the local chat
 
 
 ### Util API
