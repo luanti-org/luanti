@@ -8161,11 +8161,8 @@ Misc.
       Use sparingly.
 
 * `core.get_active_blocks()`
-    * Returns an array of mapblock positions currently active.
-    * Mapblock positions are in mapblock coordinates.
-    * The returned list is a snapshot. Mapblock status may change immediately
-      after this call.
-    * Returns an empty array when no mapblocks are active.
+    * Returns a list of all mapblock positions currently active.
+    * The returned list is a snapshot. Blocks can become (in)active at any point.
 
 * `core.compare_block_status(pos, condition)`
     * Checks whether the mapblock at position `pos` is in the wanted condition.
