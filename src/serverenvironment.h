@@ -265,7 +265,7 @@ public:
 	float getMaxLagEstimate() const { return m_max_lag_estimate; }
 
 	std::set<v3s16>* getForceloadedBlocks() { return &m_active_blocks.m_forceloaded_list; }
-	std::set<v3s16> getActiveBlocks() const { return m_active_blocks.m_list; }
+	const std::set<v3s16> &getActiveBlocks() const { return m_active_blocks.m_list; }
 
 	// Sorted by how ready a mapblock is
 	enum BlockStatus {
