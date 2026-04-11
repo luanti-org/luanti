@@ -2752,6 +2752,14 @@ void Server::fillMediaCache()
 		}
 	}
 
+	// Add SSCSM server builtin
+	{
+		std::string filepath = getBuiltinLuaPath() + DIR_DELIM +
+				"sscsm_server" + DIR_DELIM + "init.lua";
+		if (fs::IsFile(filepath))
+			addMediaFile("*server_builtin*:init.lua", filepath);
+	}
+
 	// Add SSCSM clientmods files with "modname:filename" keys
 	for (const ModSpec &mod : m_modmgr->getMods()) {
 		if (!mod.has_sscsm)
@@ -4061,6 +4069,15 @@ void Server::getSSCSMFiles(
 		std::vector<std::pair<std::string, std::string>> &files,
 		std::vector<std::pair<std::string, std::string>> &mods_to_load)
 {
+	// Load server builtin first — it runs in the SSCSM sandbox before any mods
+	std::string server_builtin_path = getBuiltinLuaPath() + DIR_DELIM +
+			"sscsm_server" + DIR_DELIM + "init.lua";
+	std::string content;
+	if (fs::ReadFile(server_builtin_path, content) && !content.empty()) {
+		files.emplace_back("*server_builtin*:init.lua", std::move(content));
+		mods_to_load.emplace_back("*server_builtin*", "*server_builtin*:init.lua");
+	}
+
 	m_modmgr->getSSCSMFiles(files, mods_to_load);
 }
 

@@ -924,9 +924,23 @@ bool Game::createClient(const GameStartData &start_data)
 				}
 			} else {
 				// Multiplayer: files collected during media download
-				// already use VFS-style names "modname:filename.lua".
-				// Only init.lua files become mod entry points.
+				// already have VFS-style names: "modname:filename.lua"
+				// or "*server_builtin*:init.lua".
 				auto pending = client->takeSSCSMPendingFiles();
+
+				// Load *server_builtin* first if present
+				for (auto it = pending.begin(); it != pending.end(); ++it) {
+					if (it->vpath == "*server_builtin*:init.lua") {
+						sscsm_mods.emplace_back("*server_builtin*",
+								it->vpath);
+						sscsm_files.push_back(std::move(*it));
+						pending.erase(it);
+						break;
+					}
+				}
+
+				// Then any other clientmods. Only init.lua files
+				// become mod entry points.
 				for (auto &f : pending) {
 					auto colon = f.vpath.find(':');
 					if (colon == std::string::npos)
