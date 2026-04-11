@@ -351,21 +351,6 @@ local function mapblocks_change_season(name, action, source, blocks)
 	return changed_blocks, changed_nodes
 end
 
-local loadable_swap_confirm_until = {}
-local function precheck_loadable(name, source)
-	if source ~= "loadable" then
-		return true
-	end
-	local now = core.get_us_time()
-	if now > (loadable_swap_confirm_until[name] or 0) then
-		loadable_swap_confirm_until[name] = now + 20 * 1000000
-		return false, "Warning: swapping loadable mapblocks may take a long time. " ..
-				"Run this command again within 20s to proceed."
-	end
-	loadable_swap_confirm_until[name] = nil
-	return true
-end
-
 local MAPBLOCK_SOURCES = {
 	active = core.get_active_blocks,
 	loaded = core.get_loaded_blocks,
@@ -384,11 +369,6 @@ local function register_mapblocks_season_command(cmd, action)
 			if not block_getter then
 				return false, "Invalid scope. Use: active, loaded, or loadable."
 			end
-			local ok, msg = precheck_loadable(name, source)
-			if not ok then
-				return true, msg
-			end
-
 			local blocks = block_getter()
 			local changed_blocks, changed_nodes = mapblocks_change_season(name, action, source, blocks)
 			return true, ("Checked %d %s mapblocks, changed %d mapblock(s), changed %d node(s)")
