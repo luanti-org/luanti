@@ -57,4 +57,5 @@ set(unittest_client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_gameui.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_keycode.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_mesh_compare.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_sscsm_serialize.cpp
 	PARENT_SCOPE)
