@@ -24,4 +24,5 @@ enum class SSCSMEventType : u8 {
 	UpdateVFSFiles = 1,
 	LoadMods = 2,
 	OnStep = 3,
+	UpdateContentDefs = 4,
 };

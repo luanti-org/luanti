@@ -54,6 +54,9 @@ std::unique_ptr<ISSCSMEvent> deserializeSSCSMEvent(std::istream &is)
 	case SSCSMEventType::OnStep:
 		return std::make_unique<SSCSMEventOnStep>(
 				SSCSMEventOnStep::deserializeBody(is));
+	case SSCSMEventType::UpdateContentDefs:
+		return std::make_unique<SSCSMEventUpdateContentDefs>(
+				SSCSMEventUpdateContentDefs::deserializeBody(is));
 	}
 	throw SerializationError("Unknown SSCSM event type tag");
 }

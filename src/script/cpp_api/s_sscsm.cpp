@@ -27,3 +27,31 @@ void ScriptApiSSCSM::environment_step(float dtime)
 	lua_pushnumber(L, dtime);
 	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
 }
+
+void ScriptApiSSCSM::set_content_defs(
+		const std::vector<std::pair<u16, std::string>> &defs)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	lua_getglobal(L, "core");
+
+	// core.registered_content_ids = {[name] = id, ...}
+	lua_newtable(L);
+	for (const auto &p : defs) {
+		lua_pushstring(L, p.second.c_str());
+		lua_pushinteger(L, p.first);
+		lua_settable(L, -3);
+	}
+	lua_setfield(L, -2, "registered_content_ids");
+
+	// core.registered_content_names = {[id] = name, ...}
+	lua_newtable(L);
+	for (const auto &p : defs) {
+		lua_pushinteger(L, p.first);
+		lua_pushstring(L, p.second.c_str());
+		lua_settable(L, -3);
+	}
+	lua_setfield(L, -2, "registered_content_names");
+
+	lua_pop(L, 1); // pop core
+}

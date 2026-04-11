@@ -121,3 +121,39 @@ struct SSCSMEventOnStep final : public ISSCSMEvent
 		env->getScript()->environment_step(dtime);
 	}
 };
+
+struct SSCSMEventUpdateContentDefs final : public ISSCSMEvent
+{
+	static constexpr SSCSMEventType TYPE = SSCSMEventType::UpdateContentDefs;
+
+	// pairs of (content_id, name) for all known nodes
+	std::vector<std::pair<u16, std::string>> defs;
+
+	SSCSMEventType getType() const override { return TYPE; }
+	void serializeBody(std::ostream &os) const override
+	{
+		writeU32(os, static_cast<u32>(defs.size()));
+		for (const auto &p : defs) {
+			writeU16(os, p.first);
+			os << serializeString16(p.second);
+		}
+	}
+	static SSCSMEventUpdateContentDefs deserializeBody(std::istream &is)
+	{
+		SSCSMEventUpdateContentDefs e;
+		u32 n = readU32(is);
+		e.defs.reserve(n);
+		for (u32 i = 0; i < n; ++i) {
+			u16 id = readU16(is);
+			std::string name = deSerializeString16(is);
+			e.defs.emplace_back(id, std::move(name));
+		}
+		return e;
+	}
+
+	void exec(SSCSMEnvironment *env) override
+	{
+		env->getScript()->set_content_defs(defs);
+	}
+};
+

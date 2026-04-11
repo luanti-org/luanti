@@ -12,4 +12,6 @@ public:
 	void load_mods(const std::vector<std::pair<std::string, std::string>> &mods);
 
 	void environment_step(float dtime);
+
+	void set_content_defs(const std::vector<std::pair<u16, std::string>> &defs);
 };

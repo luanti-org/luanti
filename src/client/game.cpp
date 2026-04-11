@@ -954,6 +954,10 @@ bool Game::createClient(const GameStartData &start_data)
 			}
 
 			if (!sscsm_files.empty()) {
+				// Push node content defs before loading mods so
+				// core.get_content_id() works from the start
+				client->pushSSCSMContentDefs();
+
 				infostream << "SSCSM: Loading " << sscsm_mods.size()
 						<< " clientmod(s)" << std::endl;
 				client->loadSSCSMMods(std::move(sscsm_files),

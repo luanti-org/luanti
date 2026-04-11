@@ -31,6 +31,7 @@
 #include "mapsector.h"
 #include "minimap.h"
 #include "node_visuals.h"
+#include "nodedef.h"
 #include "profiler.h"
 #include "shader.h"
 #include "translation.h"
@@ -201,6 +202,19 @@ Client::Client(
 		m_sscsm_controller->runEvent(this, std::move(event2));
 	}
 
+}
+
+void Client::pushSSCSMContentDefs()
+{
+	const NodeDefManager *ndef = getNodeDefManager();
+	auto event = std::make_unique<SSCSMEventUpdateContentDefs>();
+	for (u32 i = 0; i < ndef->size(); ++i) {
+		const ContentFeatures &cf = ndef->get(static_cast<content_t>(i));
+		if (cf.name.empty())
+			continue;
+		event->defs.emplace_back(static_cast<u16>(i), cf.name);
+	}
+	m_sscsm_controller->runEvent(this, std::move(event));
 }
 
 void Client::loadSSCSMMods(

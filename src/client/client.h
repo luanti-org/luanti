@@ -405,6 +405,9 @@ public:
 		return std::move(m_sscsm_pending_files);
 	}
 
+	// Push the current node content def mapping (id <-> name) into SSCSM
+	void pushSSCSMContentDefs();
+
 	// The following set of functions is used by ClientMediaDownloader
 	// Insert a media file appropriately into the appropriate manager
 	bool loadMedia(const std::string &data, const std::string &filename,

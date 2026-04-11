@@ -6,13 +6,15 @@ local mypath     = scriptpath .. "sscsm_client".. DIR_DELIM
 -- not exposed to outer context
 local builtin_shared = {}
 
--- placeholders
--- FIXME: send actual content defs to sscsm env
+-- Populated by SSCSMEventUpdateContentDefs before mods load.
+core.registered_content_ids = {}
+core.registered_content_names = {}
+
 function core.get_content_id(name)
-	return tonumber(name)
+	return core.registered_content_ids[name]
 end
 function core.get_name_from_content_id(id)
-	return tostring(id)
+	return core.registered_content_names[id]
 end
 
 dofile(commonpath .. "vector.lua")
