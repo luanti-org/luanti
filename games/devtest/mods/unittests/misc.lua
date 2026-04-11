@@ -279,15 +279,6 @@ local function test_on_mapblocks_changed(cb, player, pos)
 end
 unittests.register("test_on_mapblocks_changed", test_on_mapblocks_changed, {map=true, async=true})
 
-local function list_has_block(list, blockpos)
-	for _, p in ipairs(list) do
-		if vector.equals(p, blockpos) then
-			return true
-		end
-	end
-	return false
-end
-
 local function test_get_loaded_active_and_loadable_blocks(_, pos)
 	local loaded = core.get_loaded_blocks()
 
@@ -312,8 +303,8 @@ local function test_get_loaded_active_and_loadable_blocks(_, pos)
 	end
 
 	local blockpos = (pos / core.MAP_BLOCKSIZE):floor()
-	assert(list_has_block(loaded, blockpos), "expected test block in get_loaded_blocks result")
-	assert(list_has_block(active, blockpos), "expected test block in get_active_blocks result")
+	assert(table.indexof(loaded, blockpos) ~= -1, "expected test block in get_loaded_blocks result")
+	assert(table.indexof(active, blockpos) ~= -1, "expected test block in get_active_blocks result")
 end
 unittests.register("test_get_loaded_active_and_loadable_blocks",
 		test_get_loaded_active_and_loadable_blocks, {map=true})
