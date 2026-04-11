@@ -284,6 +284,7 @@ public:
 	virtual void generateCavesRandomWalk(s16 max_stone_y, s16 large_cave_ymax);
 	virtual bool generateCavernsNoise(s16 max_stone_y);
 	virtual void generateDungeons(s16 max_stone_y);
+	virtual void removeOvergeneratedCStone();
 
 protected:
 	BiomeManager *m_bmgr = nullptr;
