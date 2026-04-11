@@ -77,6 +77,7 @@
 	PROTOCOL VERSION 52
 		Add TOCLIENT_WIELD_ITEM
 		Type of TOCLIENT_HUDADD `size` changed from v2s32 to v2f
+		Send HUD_PARAM_HOTBAR_SOURCE instead of HUD_PARAM_HOTBAR_ITEMCOUNT
 		[scheduled bump for 5.16.0]
 */
 

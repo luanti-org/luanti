@@ -1534,7 +1534,7 @@ void Game::processItemSelection(u16 *new_playeritem)
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
 
 	*new_playeritem = player->getWieldIndex();
-	u16 max_item = player->getMaxHotbarItemcount();
+	u16 max_item = player->hotbar_source.getMaxLength();
 	if (max_item == 0)
 		return;
 	max_item -= 1;
@@ -1586,9 +1586,14 @@ void Game::dropSelectedItem(bool single_item)
 	IDropAction *a = new IDropAction();
 	a->count = single_item ? 1 : 0;
 	a->from_inv.setCurrentPlayer();
-	a->from_list = "main";
-	a->from_i = client->getEnv().getLocalPlayer()->getWieldIndex();
-	client->inventoryAction(a);
+
+	LocalPlayer *player = client->getEnv().getLocalPlayer();
+	std::pair<std::string, u16> location{};
+	if (player->hotbar_source.getInventoryFromWieldIndex(player->getWieldIndex(), location)) {
+		a->from_list = location.first;
+		a->from_i = location.second;
+		client->inventoryAction(a);
+	}
 }
 
 void Game::openConsole(float scale, const wchar_t *line)

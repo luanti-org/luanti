@@ -321,6 +321,12 @@ private:
 	// hud_get_hotbar_itemcount(self)
 	static int l_hud_get_hotbar_itemcount(lua_State *L);
 
+	// get_hotbar_source(self)
+	static int l_get_hotbar_source(lua_State *L);
+
+	// set_hotbar_source(self, sources)
+	static int l_set_hotbar_source(lua_State *L);
+
 	// hud_set_hotbar_image(self, name)
 	static int l_hud_set_hotbar_image(lua_State *L);
 
