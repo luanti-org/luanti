@@ -298,14 +298,14 @@ local function test_get_loaded_active_and_loadable_blocks(_, pos)
 			:format(core.pos_to_string(block)))
 	end
 
-	assert(#active <= #loaded, "expected get_active_blocks result to be a subset of get_loaded_blocks")
+	assert(#active <= #loaded,
+		"there are more active blocks than loaded, expected get_active_blocks result to be a subset of get_loaded_blocks")
 	for _, block in ipairs(active) do
 		assert(core.compare_block_status(block * core.MAP_BLOCKSIZE, "active"),
 			("expected block %s from get_active_blocks to satisfy active status")
 			:format(core.pos_to_string(block)))
 		assert(loaded_set[core.hash_node_position(block)],
-			("expected block %s from get_active_blocks to also be returned by get_loaded_blocks")
-			:format(core.pos_to_string(block)))
+			"expected get_active_blocks result to be a subset of get_loaded_blocks")
 	end
 
 end
