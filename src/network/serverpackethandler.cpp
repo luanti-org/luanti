@@ -501,6 +501,7 @@ void Server::process_PlayerPos(RemotePlayer *player, PlayerSAO *playersao,
 		playersao->setBasePosition(position);
 		player->setSpeed(speed);
 	}
+	// TODO: could clamp pitch and yaw according to `player->camera`
 	playersao->setLookPitch(pitch);
 	playersao->setPlayerYaw(yaw);
 	playersao->setFov(fov);

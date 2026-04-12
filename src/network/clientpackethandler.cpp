@@ -1594,9 +1594,15 @@ void Client::handleCommand_Camera(NetworkPacket* pkt)
 	LocalPlayer *player = m_env.getLocalPlayer();
 	assert(player);
 
+	auto &cam = player->camera;
+
 	u8 tmp;
 	*pkt >> tmp;
-	player->allowed_camera_mode = static_cast<CameraMode>(tmp);
+	cam.allowed_mode = static_cast<CameraMode>(tmp);
+	if (pkt->hasRemainingBytes()) {
+		// >= 5.16.0-dev
+		*pkt >> cam.free_mouse >> cam.yaw_limit >> cam.pitch_limit;
+	}
 
 	m_client_event_queue.push(new ClientEvent(CE_UPDATE_CAMERA));
 }

@@ -50,6 +50,7 @@
 #include "hud.h"
 #include <AnimatedMeshSceneNode.h>
 #include <ICameraSceneNode.h>
+#include <ISceneCollisionManager.h>
 #include "util/tracy_wrapper.h"
 #include "item_visuals_manager.h"
 
@@ -1927,20 +1928,17 @@ void Game::updateCameraDirection(CameraOrientation *cam, float dtime)
 {
 	auto *cur_control = device->getCursorControl();
 
-	/* On Linux and Windows, enabling relative mouse mode somehow results
-	in simulated mouse events being generated from touch events, even though
-	SDL_HINT_MOUSE_TOUCH_EVENTS and SDL_HINT_TOUCH_MOUSE_EVENTS are set to 0.
-	Since we have our own code to synthesize mouse events from touch events,
-	this results in duplicated input. To avoid that, we don't enable relative
-	mouse mode if we're in touchscreen mode. */
-	if (cur_control)
-		cur_control->setRelativeMode(!g_touchcontrols && !isMenuActive());
-
-	if ((device->isWindowActive() && device->isWindowFocused()
-			&& !isMenuActive()) || input->isRandom()) {
-
+	if (isMouseLocked()) {
 		if (cur_control && !input->isRandom()) {
-			// Mac OSX gets upset if this is set every frame
+			/* On Linux and Windows, enabling relative mouse mode somehow results
+			in simulated mouse events being generated from touch events, even though
+			SDL_HINT_MOUSE_TOUCH_EVENTS and SDL_HINT_TOUCH_MOUSE_EVENTS are set to 0.
+			Since we have our own code to synthesize mouse events from touch events,
+			this results in duplicated input. To avoid that, we don't enable relative
+			mouse mode if we're in touchscreen mode. */
+			cur_control->setRelativeMode(!g_touchcontrols);
+
+			// macOS gets upset if this is set every frame
 			if (cur_control->isVisible())
 				cur_control->setVisible(false);
 		}
@@ -1955,7 +1953,9 @@ void Game::updateCameraDirection(CameraOrientation *cam, float dtime)
 		}
 
 	} else {
-		// Mac OSX gets upset if this is set every frame
+		if (cur_control)
+			cur_control->setRelativeMode(false);
+		// macOS gets upset if this is set every frame
 		if (cur_control && !cur_control->isVisible())
 			cur_control->setVisible(true);
 
@@ -1977,6 +1977,26 @@ f32 Game::getSensitivityScaleFactor() const
 	return std::tan(fov_y / 2.0f) * 1.3763819f;
 }
 
+bool Game::isMouseLocked() const
+{
+	if (input->isRandom())
+		return true;
+	if (!device->isWindowActive() || !device->isWindowFocused())
+		return false;
+	LocalPlayer *player = client->getEnv().getLocalPlayer();
+	if (player && player->camera.free_mouse)
+		return false;
+	return !isMenuActive();
+}
+
+bool Game::isMouseShootlineUsed() const
+{
+	// TODO: in this mode we should also allow clicking the hotbar
+	// see TouchControls::registerHotbarRect() etc
+	LocalPlayer *player = client->getEnv().getLocalPlayer();
+	return player && player->camera.free_mouse;
+}
+
 bool Game::isTouchShootlineUsed() const
 {
 	return g_touchcontrols && g_touchcontrols->isShootlineAvailable() &&
@@ -1986,6 +2006,7 @@ bool Game::isTouchShootlineUsed() const
 void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 {
 	f32 sens_scale = getSensitivityScaleFactor();
+	LocalPlayer *player = client->getEnv().getLocalPlayer();
 
 	if (g_touchcontrols) {
 		// User setting is already applied by TouchControls.
@@ -1995,9 +2016,10 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 		v2s32 center(driver->getScreenSize().Width / 2, driver->getScreenSize().Height / 2);
 		v2s32 dist = input->getMousePos() - center;
 
-		if (m_invert_mouse || camera->getCameraMode() == CAMERA_MODE_THIRD_FRONT) {
+		if (m_invert_mouse)
 			dist.Y = -dist.Y;
-		}
+		if (camera->getCameraMode() == CAMERA_MODE_THIRD_FRONT)
+			dist.Y = -dist.Y;
 
 		cam->camera_yaw   -= dist.X * m_cache_mouse_sensitivity * sens_scale;
 		cam->camera_pitch += dist.Y * m_cache_mouse_sensitivity * sens_scale;
@@ -2012,17 +2034,26 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 		cam->camera_pitch += input->joystick.getAxisWithoutDead(JA_FRUSTUM_VERTICAL) * c;
 	}
 
-	// Keyboard look
-	const f32 rate = m_cache_keyboard_camera_speed * dtime * sens_scale;
+	/* Keyboard look */
+	{
+		const f32 rate = m_cache_keyboard_camera_speed * dtime * sens_scale;
 
-	if (input->isKeyDown(KeyType::CAMERA_YAW_LEFT))
-		cam->camera_yaw += rate;
-	if (input->isKeyDown(KeyType::CAMERA_YAW_RIGHT))
-		cam->camera_yaw -= rate;
-	if (input->isKeyDown(KeyType::CAMERA_PITCH_UP))
-		cam->camera_pitch -= rate;
-	if (input->isKeyDown(KeyType::CAMERA_PITCH_DOWN))
-		cam->camera_pitch += rate;
+		if (input->isKeyDown(KeyType::CAMERA_YAW_LEFT))
+			cam->camera_yaw += rate;
+		if (input->isKeyDown(KeyType::CAMERA_YAW_RIGHT))
+			cam->camera_yaw -= rate;
+		if (input->isKeyDown(KeyType::CAMERA_PITCH_UP))
+			cam->camera_pitch -= rate;
+		if (input->isKeyDown(KeyType::CAMERA_PITCH_DOWN))
+			cam->camera_pitch += rate;
+	}
+
+	// Apply server restrictions
+	const auto &cam_spec = player->camera;
+	if (cam_spec.yawValid())
+		cam->camera_yaw = rangelim(cam->camera_yaw, cam_spec.yaw_limit.X, cam_spec.yaw_limit.Y);
+	if (cam_spec.pitchValid())
+		cam->camera_pitch = rangelim(cam->camera_pitch, cam_spec.pitch_limit.X, cam_spec.pitch_limit.Y);
 
 	cam->camera_pitch = rangelim(cam->camera_pitch, -90, 90);
 }
@@ -2588,8 +2619,9 @@ void Game::updateCameraMode()
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
 
 	// Obey server choice
-	if (player->allowed_camera_mode != CAMERA_MODE_ANY)
-		camera->setCameraMode(player->allowed_camera_mode);
+	auto &cam = player->camera;
+	if (cam.allowed_mode != CAMERA_MODE_ANY)
+		camera->setCameraMode(cam.allowed_mode);
 
 	GenericCAO *playercao = player->getCAO();
 	if (playercao) {
@@ -2659,11 +2691,10 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 {
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
 
-	const v3f camera_direction = camera->getDirection();
 	const v3s16 camera_offset  = camera->getOffset();
 
 	/*
-		Calculate what block is the crosshair pointing to
+		Find out what we are pointing at
 	*/
 
 	ItemStack selected_item, hand_item;
@@ -2674,33 +2705,41 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 
 	core::line3d<f32> shootline;
 
-	switch (camera->getCameraMode()) {
-	case CAMERA_MODE_ANY:
-		assert(false);
-		break;
-	case CAMERA_MODE_FIRST:
-		// Shoot from camera position, with bobbing
-		shootline.start = camera->getPosition();
-		break;
-	case CAMERA_MODE_THIRD:
-		// Shoot from player head, no bobbing
-		shootline.start = camera->getHeadPosition();
-		break;
-	case CAMERA_MODE_THIRD_FRONT:
-		shootline.start = camera->getHeadPosition();
-		// prevent player pointing anything in front-view
-		d = 0;
-		break;
-	}
-	shootline.end = shootline.start + camera_direction * BS * d;
-
 	if (isTouchShootlineUsed()) {
 		shootline = g_touchcontrols->getShootline();
-		// Scale shootline to the acual distance the player can reach
+		// Scale shootline to the actual distance the player can reach
 		shootline.end = shootline.start +
 				shootline.getVector().normalize() * BS * d;
-		shootline.start += intToFloat(camera_offset, BS);
-		shootline.end += intToFloat(camera_offset, BS);
+		shootline += intToFloat(camera_offset, BS);
+	} else if (isMouseShootlineUsed()) {
+		shootline = device
+				->getSceneManager()
+				->getSceneCollisionManager()
+				->getRayFromScreenCoordinates(input->getMousePos());
+		// Scale shootline to the actual distance the player can reach
+		shootline.end = shootline.start +
+				shootline.getVector().normalize() * BS * d;
+		shootline += intToFloat(camera_offset, BS);
+	} else {
+		const v3f camera_direction = camera->getDirection();
+		switch (camera->getCameraMode()) {
+		case CAMERA_MODE_ANY:
+			assert(false);
+		case CAMERA_MODE_FIRST:
+			// Shoot from camera position, with bobbing
+			shootline.start = camera->getPosition();
+			break;
+		case CAMERA_MODE_THIRD:
+			// Shoot from player head, no bobbing
+			shootline.start = camera->getHeadPosition();
+			break;
+		case CAMERA_MODE_THIRD_FRONT:
+			shootline.start = camera->getHeadPosition();
+			// prevent player pointing anything in front-view
+			d = 0;
+			break;
+		}
+		shootline.end = shootline.start + camera_direction * BS * d;
 	}
 
 	PointedThing pointed = updatePointedThing(shootline,
@@ -2711,6 +2750,10 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 
 	if (pointed != runData.pointed_old)
 		infostream << "Pointing at " << pointed.dump() << std::endl;
+
+	/*
+		Update everything accordingly
+	*/
 
 	if (g_touchcontrols) {
 		auto mode = selected_def.touch_interaction.getMode(selected_def, pointed.type);
@@ -3674,7 +3717,7 @@ void Game::drawScene(ProfilerGraph *graph, RunStats *stats)
 			(player->hud_flags & HUD_FLAG_CROSSHAIR_VISIBLE) &&
 			(this->camera->getCameraMode() != CAMERA_MODE_THIRD_FRONT));
 
-	if (isTouchShootlineUsed())
+	if (isTouchShootlineUsed() || isMouseShootlineUsed())
 		draw_crosshair = false;
 
 	this->m_rendering_engine->draw_scene(sky_color, this->m_game_ui->m_flags.show_hud,

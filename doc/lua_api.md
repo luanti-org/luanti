@@ -6123,7 +6123,7 @@ Utilities
       remove_item_match_meta = true,
       -- The HTTP API supports the HEAD and PATCH methods (5.12.0)
       httpfetch_additional_methods = true,
-      -- objects have get_guid method (5.13.0)
+      -- `ObjectRef:get_guid()` method exists (5.13.0)
       object_guids = true,
       -- The NodeTimer `on_timer` callback is passed additional `node` and `timeout` args (5.14.0)
       on_timer_four_args = true,
@@ -6136,8 +6136,10 @@ Utilities
       -- Item definition fields `inventory_image`, `inventory_overlay`, `wield_image`
       -- and `wield_overlay` accept a table containing animation definitions. (5.15.0)
       item_image_animation = true,
-      -- `core.get_modnames`' parameter `load_order` (5.16.0)
+      -- `core.get_modnames` has parameter `load_order` (5.16.0)
       get_modnames_load_order = true,
+      -- `ObjectRef:set_camera()` accepts `nil` to indicate reset (5.16.0)
+      set_camera_resettable = true,
   }
   ```
 
@@ -9394,22 +9396,43 @@ child will follow movement and rotation of that bone.
       Same limits as for `thirdperson_back` apply.
       Defaults to `thirdperson_back` if unspecified.
 * `get_eye_offset()`: Returns camera offset vectors as set via `set_eye_offset`.
-* `set_camera(params)`: Sets camera parameters.
+* `set_camera(params)`: Sets camera parameters for the player
+  * `params` must be a table to update the parameters or `nil` to reset all
+    parameters to defaults.
     * `mode`: Defines the camera mode used
       - `any`: free choice between all modes (default)
       - `first`: first-person camera
       - `third`: third-person camera
       - `third_front`: third-person camera, looking opposite of movement direction
-    * Supported by client since 5.12.0.
+      * (supported by clients since 5.12.0)
+    * `free_mouse`: If true, the mouse points freely to anything in view.
+      If false (default), the mouse is locked to the center and controls the
+      camera angle/direction.
+    * `yaw_limit`: Limits the possible camera yaw.
+      Either `{min=<number>, max=<number>}` to limit to a range
+      or `false` to leave the yaw unrestricted (default).
+      Thee usable range is [0, 720]. Usually you will only need [0, 360],
+      but to restrict the yaw to e.g. between -90° and 90° you need to specify
+      `{min=270, max=450}`.
+    * `pitch_limit`: Limits the possible camera pitch.
+      Either `{min=<number>, max=<number>}` to limit to a range
+      or `false` to leave the pitch unrestricted (default).
+      range: [-90, 90]
+    * Note that restricting yaw and pitch to a single value will not automatically
+      "unlock" the mouse cursor, modify `free_mouse` for that.
+      Conversely, unlocking the mouse does not automatically prevent the camera
+      from moving (e.g. due to joystick input).
+    * (`free_mouse`, `yaw_limit` and `pitch_limit` supported by clients since 5.16.0)
 * `get_camera()`: Returns the camera parameters as a table as above.
 * `send_mapblock(blockpos)`:
     * Sends an already loaded mapblock to the player.
     * Returns `false` if nothing was sent (note that this can also mean that
       the client already has the block)
     * Resource intensive - use sparsely
-* `set_lighting(light_definition)`: sets lighting for the player
-    * Passing no arguments resets lighting to its default values.
-    * `light_definition` is a table with the following optional fields:
+* `set_lighting(light_def)`: Sets lighting for the player
+  * `light_def` must be a table to update the parameters or `nil` to reset all
+    light parameters to defaults.
+  * table fields follow:
       * `saturation` sets the saturation (vividness; default: `1.0`).
         * It is applied according to the function `result = b*(1-s) + c*s`, where:
           * `c` is the original color
