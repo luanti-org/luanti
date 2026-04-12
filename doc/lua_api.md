@@ -706,42 +706,72 @@ on top of `cobble.png`.
 
 #### Crack
 
-* `[crack:<n>:<p>`
-* `[cracko:<n>:<p>`
-* `[crack:<t>:<n>:<p>`
-* `[cracko:<t>:<n>:<p>`
+* `[crack:<vertical_frames>:<crack_frame>`
+* `[cracko:<vertical_frames>:<crack_frame>`
+* `[crack:<grid>:<vertical_frames>:<crack_frame>`
+* `[cracko:<grid>:<vertical_frames>:<crack_frame>`
 
-Parameters (all integers):
+This draws a step of the crack animation on the texture.
 
-* `<t>`: draws a grid of `<t> * <t>` cracks onto each frame
-  (integer [imagesize], default: `1`)
-* `<n>`: vertical count of frames of the base texture
-  (integer [imagesize], often `1`)
-* `<p>`: crack animation frame
-  (integer [imageframe], counting starts at 0)
+More precisely, it overlays a scaled frame of the crack texture,
+`crack_anylength.png`, over a texture, with options for alpha and blitting
+multiple times for tile sheets / animated textures.
 
-Draws a step of the crack animation on the texture.
-`crack` draws it normally, while `cracko` lays it over, keeping transparent
-pixels intact.
+With `crack`, the crack will be overlaid over the whole base
+texture, while with `cracko`, the crack will only be overlaid
+over fully opaque base texture regions.
 
-Example:
+Parameters if `grid` is omitted:
 
-    default_cobble.png^[crack:10:1
+* `vertical_frames`: Amount of times the crack will be blit on the
+  base texture, stacked vertically (integer [imagesize])
+* `crack_frame`: Crack animation frame (integer [imageframe], counting
+  starts at 0)
 
-#### `[combine:<w>x<h>:<x1>,<y1>=<file1>:<x2>,<y2>=<file2>:...`
+Parameters if `grid` is present:
 
-* `<w>`: width (integer [imagesize])
-* `<h>`: height (integer [imagesize])
-* `<x>`: x position (integer [s32])
-* `<y>`: y position (integer [s32])
-* `<file>`: texture to combine
+* `grid`: Creates a square grid of multiple cracks, with
+  side length `grid`, e.g. the number 3 creates a 3x3 grid of cracks
+  (integer [imagesize], default 1)
+* `vertical_frames`: Amount of times the grid created by `tile_count`
+  will be repeated vertically (integer [imagesize], often `1`)
+* `crack_frame`: (see above)
 
-Creates a texture of size `<w>` times `<h>` and blits the listed source images
-to their specified `<x>,<y>` coordinates of the target texture. Pixels
-that would end up outside the target texture (e.g. if the source texture is
-larger than the target texture), they are discarded.
-Negative coordinates are allowed. This just means the origin of the listed file
-is to the left and/or upwards of the origin of the target texture.
+Note: The resulting crack (or cracks) texture will always be scaled
+to the size of the base texture.
+
+Examples:
+
+    default_stone.png^[crack:1:2
+
+* Cracked stone
+* Use the third crack progression (`2` because of 0-indexing) ...
+* ... and draw it once on a stone texture
+
+    default_lava_source_animated.png^[crack:8:2
+
+* Cracked lava
+* Use the 3rd crack progression ...
+* ... and draw it 8 times on top of the base texture
+* The base texture should have 8 vertical frames as well
+
+    example.png^[crack:3:1:0
+
+* Blits a 3x3 grid of crack textures, each at frame 0, on `example.png`
+
+#### `[combine:<w>x<h>:<textures>`
+
+* `<w>`: width of resulting texture (integer [imagesize])
+* `<h>`: height of resulting texture (integer [imagesize])
+* `<textures>: Colon-(`:`)-separated list of locations `x`, `y` and textures to
+  blit; written in the form `<x>,<y>=<texture>` for each texture. Can be empty.
+
+`x` and `y` are integers [imageframe].
+A `<texture>` (in `<textures>`) can contain texture modifiers, but these must
+be escaped according to the rules in the Escaping section above.
+
+Creates a texture of size `<w>` times `<h>` and blits the listed files to their
+specified coordinates. The background is black and transparent (`#00000000`).
 
 Example:
 
@@ -758,11 +788,14 @@ Example:
 
     default_sandstone.png^[resize:16x16
 
-#### `[opacity:<r>`
+#### `[opacity:<ratio>`
 
-Makes the base image transparent according to the given ratio.
+Makes the base image transparent according to the given `ratio`.
 
-`r` is an integer in range [0, 255]. 0 = transparent, 255 = opaque.
+This multiplies the alpha value of each pixel of the base texture
+with `ratio/255` and rounds properly afterwards.
+
+`ratio` is an integer in range [0, 255]. 0 = transparent, 255 = opaque.
 
 Example:
 
@@ -770,9 +803,10 @@ Example:
 
 #### `[invert:<mode>`
 
-Inverts the given channels of the base image.
-Mode may contain the characters "r", "g", "b", "a".
-Only the channels that are mentioned in the mode string will be inverted.
+* `mode` is a string which may contain the characters `r`, `g`, `b` and `a`.
+
+The channels corresponding to the occurring characters (red, green, blue
+and alpha) will be inverted (set to `255-value`).
 
 Example:
 
@@ -780,7 +814,8 @@ Example:
 
 #### `[brighten`
 
-Brightens the texture.
+Interpolates 50:50 between the color of each pixel of the base texture and
+white.
 
 Example:
 
@@ -788,7 +823,11 @@ Example:
 
 #### `[noalpha`
 
-Makes the texture completely opaque.
+Makes the texture completely opaque by setting the alpha channel of the base
+texture to the maximum value (255).
+
+As the red, green and blue channels aren't premultiplied with alpha in PNGs,
+this might reveal hidden colors of otherwise transparent portions of an image.
 
 Example:
 
@@ -797,6 +836,13 @@ Example:
 #### `[makealpha:<r>,<g>,<b>`
 
 Convert the given color to transparency.
+
+Pixels of the base texture having the exact same RGB color will have their
+alpha value set to 0.
+
+As the red, green and blue channels are kept, the original color can be
+restored using `[noalpha` (which will however also make originally
+semi-transparent portions of the image opaque).
 
 * `r`: red (integer in range [0, 255])
 * `g`: green (integer in range [0, 255])
@@ -808,21 +854,21 @@ Example:
 
 #### `[transform<t>`
 
-* `<t>`: transformation(s) to apply
-
 Rotates and/or flips the image.
 
-`<t>` can be an integer (in range [0, 7]) or a transform name.
-Rotations are counter-clockwise.
+`<t>` is the concatenation of either integers or names identifying
+transformations from the following table:
 
-    0  I      identity
-    1  R90    rotate by 90 degrees
-    2  R180   rotate by 180 degrees
-    3  R270   rotate by 270 degrees
+    0  I      identity (no transformation)
+    1  R90    rotate by 90° counterclockwise
+    2  R180   rotate by 180° counterclockwise
+    3  R270   rotate by 270° counterclockwise
     4  FX     flip X
-    5  FXR90  flip X then rotate by 90 degrees
+    5  FXR90  flip X then rotate by 90° counterclockwise
     6  FY     flip Y
-    7  FYR90  flip Y then rotate by 90 degrees
+    7  FYR90  flip Y then rotate by 90° counterclockwise
+
+Transformation names are case-insensitive.
 
 Example:
 
@@ -830,16 +876,27 @@ Example:
 
 #### `[inventorycube{<top>{<left>{<right>`
 
+Renders a cube similar to how it would look in the inventory with the three
+given textures using simple software rendering.
+
+The resulting image will be 9 times the nearest power of 2 large, enough to
+contain the dimensions of the largest image, clamped to a range of at least
+4 and at most 64.
+
+As a formula:
+
+    9 * max(4, min(64, 2^ceil(log_2(max(d)))))
+
+where `d` is the set of dimensions (width and height) of all faces.
+
 Escaping does not apply here and `^` is replaced by `&` in texture names
 instead.
-
-Create an inventory cube texture using the side textures.
 
 Example:
 
     [inventorycube{grass.png{dirt.png&grass_side.png{dirt.png&grass_side.png
 
-Creates an inventorycube with `grass.png`, `dirt.png^grass_side.png` and
+Creates a cube with `grass.png`, `dirt.png^grass_side.png` and
 `dirt.png^grass_side.png` textures
 
 #### `[fill:<w>x<h>:<x>,<y>:<color>`
@@ -866,9 +923,9 @@ Examples:
     [fill:16x16:#20F02080
     texture.png^[fill:8x8:4,4:red
 
-#### `[lowpart:<percent>:<file>`
+#### `[lowpart:<percent>:<texture>`
 
-Blit the lower `<percent>`% part of `<file>` on the texture.
+Blit the lower `<percent>`% part of `<texture>` on the base texture.
 `<percent>` is an integer with range [0, 100].
 
 Example:
@@ -886,11 +943,17 @@ Example:
 
     default_torch_animated.png^[verticalframe:16:8
 
-#### `[mask:<file>`
+#### `[mask:<texture>`
 
-Apply a mask to the base image.
+* `texture` is an escaped texture modifier
 
-The mask is applied using binary AND.
+Applies a *bitwise and* (`bit.band`) to all RGBA values of `texture` and
+the base texture.
+
+If a pixel of the base texture is out of bounds on texture, it is preserved.
+
+Masking is associative and commutative if all involved textures have the same
+dimensions.
 
 *See notes: `TEXMOD_UPSCALE`*
 
@@ -898,23 +961,30 @@ The mask is applied using binary AND.
 
 * `<w>`: sheet width in tiles (integer [imagesize])
 * `<h>`: sheet height in tiles (integer [imagesize])
-* `<x>`: x position in tiles (integer [imageframe])
-* `<y>`: y position in tiles (integer [imageframe])
+* `<x>`: x position in tiles (integer [imageframe], starts at 0)
+* `<y>`: y position in tiles (integer [imageframe], starts at 0)
 
-Retrieves a tile at tile position `<x>,<y>` from the base image,
-which is assumed to be a tile sheet with tile dimensions `<w>,<h>`.
+Retrieves the tile of a base image at position `x`, `y`,
+which is assumed to be a tilesheet with dimensions
+`w`, `h` (in tiles).
 
 #### `[colorize:<color>:<ratio>`
 
-Colorize the textures with the given color.
-`<color>` is specified as a `ColorString`.
-`<ratio>` is an integer in range [0, 255] or the string `"alpha"`. If
-it is an integer, then it specifies how far to interpolate between the
-colors where 0 is only the texture color and 255 is only `<color>`. If
-omitted, the alpha of `<color>` will be used as the ratio.  If it is
-the word "`alpha`", then each texture pixel will contain the RGB of
-`<color>` and the alpha of `<color>` multiplied by the alpha of the
-texture pixel.
+
+* `color` is a ColorString
+* `ratio` is an optional integer in range [0, 255] or the string "alpha"
+
+Colorizes the textures with the given color.
+
+Interpolates between color and the pixel colors of the base texture as specified
+by the `ratio`:
+
+* Defaults to the alpha of `color` if omitted;
+* If it's an integer from 0 (only pixel color) to 255 (only color), it is
+  directly used as interpolation ratio: The resulting color of a pixel is
+  ratio times color plus `(255-ratio)` times pixel color;
+* If it's the string "alpha", the texture pixel's alpha value determines the
+  ratio per pixel
 
 #### `[colorizehsl:<hue>:<saturation>:<lightness>`
 
@@ -936,7 +1006,8 @@ and -120° is blue.
 
 #### `[multiply:<color>`
 
-Multiplies texture colors with the given color.
+Multiplies the RGB values of the base texture per pixel with the RGB
+values of color; the `alpha` value of `color` is ignored.
 `<color>` is specified as a `ColorString`.
 Result is more like what you'd expect if you put a color on top of another
 color, meaning white surfaces get a lot of your new color while black parts
@@ -1019,9 +1090,12 @@ swapped, i.e. `A.png^[hardlight:B.png` is the same as `B.png^[overlay:A.png`
 
 *See notes: `TEXMOD_UPSCALE`*
 
-#### `[png:<base64>`
+#### `[png:<data>`
 
-Embed a base64 encoded PNG image in the texture string.
+* `data` is a base64-encoded PNG bytestring
+
+Creates a texture from an embedded base64-encoded PNG image
+in the `data` string.
 You can produce a valid string for this by calling
 `core.encode_base64(core.encode_png(tex))`,
 where `tex` is pixel data. Refer to the documentation of these
