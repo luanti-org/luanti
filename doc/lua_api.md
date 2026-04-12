@@ -7994,16 +7994,18 @@ Misc.
     * Example: `parse_json("[10, {\"a\":false}]")`, returns `{10, {a = false}}`
 * `core.write_json(data[, styled])`: returns a string or `nil` and an error
   message.
-    * Convert a Lua table into a JSON string
-    * styled: Outputs in a human-readable format if this is set, defaults to
-      false.
+    * Convert a value into a JSON string
+    * `styled`: Outputs in a human-readable format if this is true, defaults to
+      `false`.
     * Unserializable things like functions and userdata will cause an error.
-    * **Warning**: JSON is more strict than the Lua table format.
+    * **Warning**: JSON is stricter than Lua tables.
         1. You can only use strings and positive integers of at least one as
            keys.
         2. You cannot mix string and integer keys.
            This is due to the fact that JSON has two distinct array and object
-           values.
+           types.
+        3. Empty tables will be written as `null`, because it's not clear if it
+           should be a JSON array or object.
     * Example: `write_json({10, {a = false}})`,
       returns `'[10, {"a": false}]'`
 * `core.serialize(table)`: returns a string
