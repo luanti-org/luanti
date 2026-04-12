@@ -299,7 +299,7 @@ local function test_get_loaded_active_and_loadable_blocks(_, pos)
 	end
 
 	assert(#active <= #loaded,
-		"there are more active blocks than loaded, expected get_active_blocks result to be a subset of get_loaded_blocks")
+		"get_active_blocks is not expected to return more block positions than get_loaded_blocks")
 	for _, block in ipairs(active) do
 		assert(core.compare_block_status(block * core.MAP_BLOCKSIZE, "active"),
 			("expected block %s from get_active_blocks to satisfy active status")
