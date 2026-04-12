@@ -281,6 +281,7 @@ unittests.register("test_on_mapblocks_changed", test_on_mapblocks_changed, {map=
 
 local function test_get_loaded_active_and_loadable_blocks(_, pos)
 	local loaded = core.get_loaded_blocks()
+	local loaded_set = {}
 
 	local loadable = core.get_loadable_blocks()
 	assert(type(loadable) == "table")
@@ -291,14 +292,19 @@ local function test_get_loaded_active_and_loadable_blocks(_, pos)
 	local active = core.get_active_blocks()
 
 	for _, block in ipairs(loaded) do
+		loaded_set[core.hash_node_position(block)] = true
 		assert(core.compare_block_status(block * core.MAP_BLOCKSIZE, "loaded"),
 			("expected block %s from get_loaded_blocks to satisfy loaded status")
 			:format(core.pos_to_string(block)))
 	end
 
+	assert(#active <= #loaded, "expected get_active_blocks result to be a subset of get_loaded_blocks")
 	for _, block in ipairs(active) do
 		assert(core.compare_block_status(block * core.MAP_BLOCKSIZE, "active"),
 			("expected block %s from get_active_blocks to satisfy active status")
+			:format(core.pos_to_string(block)))
+		assert(loaded_set[core.hash_node_position(block)],
+			("expected block %s from get_active_blocks to also be returned by get_loaded_blocks")
 			:format(core.pos_to_string(block)))
 	end
 
