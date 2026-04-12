@@ -8159,6 +8159,7 @@ Misc.
     * The returned list is a snapshot. Blocks can (dis)appear at any point.
     * This is an expensive operation, since it may have to scan the entire database.
       Use sparingly.
+    * Note that there can be blocks that are loaded, but not loadable (if they weren't saved yet).
 
 * `core.get_active_blocks()`
     * Returns a list of all mapblock positions currently active.
