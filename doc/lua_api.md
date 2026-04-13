@@ -713,9 +713,9 @@ on top of `cobble.png`.
 
 This draws a step of the crack animation on the texture.
 
-More precisely, it overlays a scaled frame of the crack texture,
-`crack_anylength.png`, over a texture, with options for alpha and blitting
-multiple times for tile sheets / animated textures.
+It overlays a scaled frame of the crack texture, `crack_anylength.png`,
+over a texture, with options for alpha and blitting multiple times for
+tile sheets / animated textures.
 
 With `crack`, the crack will be overlaid over the whole base
 texture, while with `cracko`, the crack will only be overlaid
@@ -723,8 +723,8 @@ over fully opaque base texture regions.
 
 Parameters if `grid` is omitted:
 
-* `vertical_frames`: Amount of times the crack will be blit on the
-  base texture, stacked vertically (integer [imagesize])
+* `vertical_frames`: Amount of times the crack will be applied
+  in vertical direction on the base texture (integer [imagesize])
 * `crack_frame`: Crack animation frame (integer [imageframe], counting
   starts at 0)
 
@@ -733,7 +733,7 @@ Parameters if `grid` is present:
 * `grid`: Creates a square grid of multiple cracks, with
   side length `grid`, e.g. the number 3 creates a 3x3 grid of cracks
   (integer [imagesize], default 1)
-* `vertical_frames`: Amount of times the grid created by `tile_count`
+* `vertical_frames`: Amount of times the grid created by `grid`
   will be repeated vertically (integer [imagesize], often `1`)
 * `crack_frame`: (see above)
 
@@ -745,14 +745,13 @@ Examples:
     default_stone.png^[crack:1:2
 
 * Cracked stone
-* Use the third crack progression (`2` because of 0-indexing) ...
-* ... and draw it once on a stone texture
+* Use the third crack progression (`2` because of 0-indexing)
+  and draw it once on a stone texture
 
     default_lava_source_animated.png^[crack:8:2
 
 * Cracked lava
-* Use the 3rd crack progression ...
-* ... and draw it 8 times on top of the base texture
+* Use the 3rd crack progression and draw it 8 times on top of the base texture
 * The base texture should have 8 vertical frames as well
 
     example.png^[crack:3:1:0
@@ -763,12 +762,12 @@ Examples:
 
 * `<w>`: width of resulting texture (integer [imagesize])
 * `<h>`: height of resulting texture (integer [imagesize])
-* `<textures>: Colon-(`:`)-separated list of locations `x`, `y` and textures to
+* `<textures>`: Colon-separated (`:`) list of locations `x`, `y` and textures to
   blit; written in the form `<x>,<y>=<texture>` for each texture. Can be empty.
 
 `x` and `y` are integers [imageframe].
 A `<texture>` (in `<textures>`) can contain texture modifiers, but these must
-be escaped according to the rules in the Escaping section above.
+be escaped according to the rules in [Escaping](#Escaping).
 
 Creates a texture of size `<w>` times `<h>` and blits the listed files to their
 specified coordinates. The background is black and transparent (`#00000000`).
@@ -806,7 +805,7 @@ Example:
 * `mode` is a string which may contain the characters `r`, `g`, `b` and `a`.
 
 The channels corresponding to the occurring characters (red, green, blue
-and alpha) will be inverted (set to `255-value`).
+and alpha) will be inverted (set to `255 - value`).
 
 Example:
 
@@ -824,9 +823,9 @@ Example:
 #### `[noalpha`
 
 Makes the texture completely opaque by setting the alpha channel of the base
-texture to the maximum value (255).
+texture to the maximum value (`255`).
 
-As the red, green and blue channels aren't premultiplied with alpha in PNGs,
+As the red, green and blue channels aren't pre-multiplied with alpha in PNGs,
 this might reveal hidden colors of otherwise transparent portions of an image.
 
 Example:
@@ -838,7 +837,7 @@ Example:
 Convert the given color to transparency.
 
 Pixels of the base texture having the exact same RGB color will have their
-alpha value set to 0.
+alpha value set to `0`.
 
 As the red, green and blue channels are kept, the original color can be
 restored using `[noalpha` (which will however also make originally
@@ -896,7 +895,7 @@ Example:
 
     [inventorycube{grass.png{dirt.png&grass_side.png{dirt.png&grass_side.png
 
-Creates a cube with `grass.png`, `dirt.png^grass_side.png` and
+Renders a cube with `grass.png`, `dirt.png^grass_side.png` and
 `dirt.png^grass_side.png` textures
 
 #### `[fill:<w>x<h>:<x>,<y>:<color>`
@@ -947,8 +946,7 @@ Example:
 
 * `texture` is an escaped texture modifier
 
-Applies a *bitwise and* (`bit.band`) to all RGBA values of `texture` and
-the base texture.
+Applies a *bitwise and* to all RGBA values of `texture` and the base texture.
 
 If a pixel of the base texture is out of bounds on texture, it is preserved.
 
@@ -972,18 +970,18 @@ which is assumed to be a tilesheet with dimensions
 
 
 * `color` is a ColorString
-* `ratio` is an optional integer in range [0, 255] or the string "alpha"
+* `ratio` is an optional integer in range [0, 255] or the string `"alpha"`
 
 Colorizes the textures with the given color.
 
 Interpolates between color and the pixel colors of the base texture as specified
 by the `ratio`:
 
-* Defaults to the alpha of `color` if omitted;
+* Defaults to the alpha of `color` if omitted
 * If it's an integer from 0 (only pixel color) to 255 (only color), it is
   directly used as interpolation ratio: The resulting color of a pixel is
-  ratio times color plus `(255-ratio)` times pixel color;
-* If it's the string "alpha", the texture pixel's alpha value determines the
+  `ratio` times `color` plus `(255 - ratio)` times pixel color;
+* If it's the string `"alpha"`, the texture pixel's alpha value determines the
   ratio per pixel
 
 #### `[colorizehsl:<hue>:<saturation>:<lightness>`
@@ -1007,7 +1005,7 @@ and -120° is blue.
 #### `[multiply:<color>`
 
 Multiplies the RGB values of the base texture per pixel with the RGB
-values of color; the `alpha` value of `color` is ignored.
+values of `color`; the `alpha` value of `color` is ignored.
 `<color>` is specified as a `ColorString`.
 Result is more like what you'd expect if you put a color on top of another
 color, meaning white surfaces get a lot of your new color while black parts
