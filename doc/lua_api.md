@@ -792,7 +792,8 @@ Example:
 Makes the base image transparent according to the given `ratio`.
 
 This multiplies the alpha value of each pixel of the base texture
-with `ratio/255` and rounds properly afterwards.
+with `ratio/255` and rounds the result afterwards (using the
+"round half up" rule).
 
 `ratio` is an integer in range [0, 255]. 0 = transparent, 255 = opaque.
 
