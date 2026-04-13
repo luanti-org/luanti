@@ -220,6 +220,12 @@ Here are targets you can choose from:
 | special4      | The fourth entry in the special_tiles list        |
 | special5      | The fifth entry in the special_tiles list         |
 | special6      | The sixth entry in the special_tiles list         |
+| overlay1      | The first entry in the overlay_tiles list         |
+| overlay2      | The second entry in the overlay_tiles list        |
+| overlay3      | The third entry in the overlay_tiles list         |
+| overlay4      | The fourth entry in the overlay_tiles list        |
+| overlay5      | The fifth entry in the overlay_tiles list         |
+| overlay6      | The sixth entry in the overlay_tiles list         |
 | inventory     | The inventory texture                             |
 | wield         | The texture used when held by the player          |
 | align_world=N | Overrides the "world align" behavior of tiles ¹   |
