@@ -64,7 +64,7 @@ local function main_event_handler(tabview, event)
 end
 
 local function init_globals()
-	-- Permanent warning if on an unoptimized debug build
+	
 	if core.is_debug_build() then
 		local set_topleft_text = core.set_topleft_text
 		core.set_topleft_text = function(s)

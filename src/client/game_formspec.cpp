@@ -20,10 +20,70 @@
 #include "gui/guiOpenURL.h"
 #include "gui/guiVolumeChange.h"
 #include "localplayer.h"
+#ifdef _WIN32
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #include <iphlpapi.h>
+#else
+    #include <ifaddrs.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+#endif
 
 /*
 	Text input system
 */
+
+static std::string get_local_ip_for_pause() {
+#ifdef _WIN32
+    ULONG outBufLen = 15000;
+    PIP_ADAPTER_ADDRESSES pAddresses = (IP_ADAPTER_ADDRESSES *)malloc(outBufLen);
+    if (!pAddresses) return "IP Not Found";
+
+    DWORD dwRetVal = GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER, NULL, pAddresses, &outBufLen);
+	if (dwRetVal == ERROR_BUFFER_OVERFLOW) {
+		free(pAddresses);
+		pAddresses = (IP_ADAPTER_ADDRESSES *)malloc(outBufLen);
+		dwRetVal = GetAdaptersAddresses(AF_INET, GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER, NULL, pAddresses, &outBufLen);
+	}
+
+    if (dwRetVal == NO_ERROR) {
+        for (PIP_ADAPTER_ADDRESSES pCurr = pAddresses; pCurr; pCurr = pCurr->Next) {
+            for (PIP_ADAPTER_UNICAST_ADDRESS pUnicast = pCurr->FirstUnicastAddress; pUnicast; pUnicast = pUnicast->Next) {
+                if (pUnicast->Address.lpSockaddr->sa_family == AF_INET) {
+                    struct sockaddr_in *sin = (struct sockaddr_in *)pUnicast->Address.lpSockaddr;
+                    if ((ntohl(sin->sin_addr.s_addr) & IN_CLASSA_NET) != (INADDR_LOOPBACK & IN_CLASSA_NET)) {
+                        char ip_string[INET_ADDRSTRLEN];
+                        inet_ntop(AF_INET, &(sin->sin_addr), ip_string, INET_ADDRSTRLEN);
+                        free(pAddresses);
+                        return std::string(ip_string);
+                    }
+                }
+            }
+        }
+    }
+    if (pAddresses) free(pAddresses);
+    return "IP Not Found";
+#else
+    struct ifaddrs *list;
+    std::string final_ip = "IP Not Found";
+    if (getifaddrs(&list) == 0) {
+        for (struct ifaddrs *cur = list; cur != nullptr; cur = cur->ifa_next) {
+            if (cur->ifa_addr && cur->ifa_addr->sa_family == AF_INET) {
+                struct sockaddr_in *sin = (struct sockaddr_in *)cur->ifa_addr;
+                if ((ntohl(sin->sin_addr.s_addr) & IN_CLASSA_NET) == (INADDR_LOOPBACK & IN_CLASSA_NET)) {
+                    continue;
+                }
+                char *ip_string = inet_ntoa(sin->sin_addr);
+                final_ip = std::string(ip_string);
+                break;
+            }
+        }
+        freeifaddrs(list);
+    }
+    return final_ip;
+#endif
+}
 
 struct TextDestNodeMetadata : public TextDest
 {
@@ -429,6 +489,8 @@ void GameFormSpec::showPauseMenu()
 		os << strgettext("Singleplayer");
 	}
 	os << "\n";
+	os << "- IP: " << get_local_ip_for_pause() << "\n";
+
 	if (simple_singleplayer_mode || address.empty()) {
 		static const std::string on = strgettext("On");
 		static const std::string off = strgettext("Off");

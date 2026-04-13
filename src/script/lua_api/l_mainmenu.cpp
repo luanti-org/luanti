@@ -28,6 +28,9 @@
 #include "gettext.h"
 #include "log.h"
 #include "util/string.h"
+#include <ifaddrs.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include <cassert>
 #include <iostream>
@@ -1107,8 +1110,8 @@ int ModApiMainMenu::l_do_async_callback(lua_State *L)
 	lua_pushinteger(L, jobId);
 	return 1;
 }
-
 /******************************************************************************/
+
 void ModApiMainMenu::Initialize(lua_State *L, int top)
 {
 	API_FCT(update_formspec);

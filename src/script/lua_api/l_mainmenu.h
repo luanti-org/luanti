@@ -151,6 +151,7 @@ private:
 	// async
 	static int l_do_async_callback(lua_State *L);
 
+	
 public:
 
 	/**
