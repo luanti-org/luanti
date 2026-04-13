@@ -12,20 +12,6 @@
 #include <thread>
 #include <functional>
 
-#if defined(_WIN32)
-#define IPC_CHANNEL_IMPLEMENTATION_WIN32
-#elif defined(__linux__)
-#define IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX
-#else
-#define IPC_CHANNEL_IMPLEMENTATION_POSIX
-#endif
-
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-#include <windows.h>
-#elif defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
-#include <pthread.h>
-#endif
-
 /*
 	An IPC channel is used for synchronous communication between two processes.
 	Sending two messages in succession from one end is not allowed; messages
@@ -34,30 +20,15 @@
 	IPCChannelShared is situated in shared memory and is used by both ends of
 	the channel.
 
-	There are currently 3 implementations for synchronisation:
-	* win32: uses win32 semaphore
-	* linux: uses futex, and does busy waiting if on x86/x86_64
-	* other posix: uses posix mutex and condition variable
+	Synchronisation uses a portable spin-lock on std::atomic<u32>.
 */
 
 constexpr size_t IPC_CHANNEL_MSG_SIZE = 0x2000;
 
 struct IPCChannelBuffer
 {
-#if defined(IPC_CHANNEL_IMPLEMENTATION_LINUX_FUTEX)
-	// possible values:
-	// 0: futex is not posted. reader will check value before blocking => no
-	//    notify needed when posting
-	// 1: futex is posted
-	// 2: futex is not posted. reader is waiting with futex syscall, and needs
-	//    to be notified
-	std::atomic<u32> futex{0};
-
-#elif defined(IPC_CHANNEL_IMPLEMENTATION_POSIX)
-	pthread_cond_t cond;
-	pthread_mutex_t mutex;
-	bool posted = false; // protected by mutex
-#endif
+	// 0 = not posted, 1 = posted.
+	std::atomic<u32> flag{0};
 
 	// Note: If the other side isn't acting cooperatively, they might write to
 	// this at any times. So we must make sure to copy out the data once, and
@@ -65,9 +36,9 @@ struct IPCChannelBuffer
 	size_t size = 0;
 	u8 data[IPC_CHANNEL_MSG_SIZE] = {};
 
-	IPCChannelBuffer();
+	IPCChannelBuffer() = default;
 	DISABLE_CLASS_COPY(IPCChannelBuffer)
-	~IPCChannelBuffer(); // Note: only destruct once, i.e. in one process
+	~IPCChannelBuffer() = default;
 };
 
 // Data in shared memory
@@ -84,15 +55,9 @@ struct IPCChannelShared
 // Implementors decide whether to use malloc or mmap.
 struct IPCChannelResources
 {
-	// new struct, because the win32 #if is annoying
 	struct Data
 	{
 		IPCChannelShared *shared = nullptr;
-
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-		HANDLE sem_a;
-		HANDLE sem_b;
-#endif
 	};
 
 	Data data;
@@ -153,10 +118,6 @@ public:
 	{
 		IPCChannelBuffer *buf_in = nullptr;
 		IPCChannelBuffer *buf_out = nullptr;
-#if defined(IPC_CHANNEL_IMPLEMENTATION_WIN32)
-		HANDLE sem_in;
-		HANDLE sem_out;
-#endif
 	};
 
 	// Unusable empty end
@@ -241,10 +202,6 @@ struct IPCChannelResourcesSingleProcess final : public IPCChannelResources
 	void cleanupLast() noexcept override
 	{
 		delete data.shared;
-#ifdef IPC_CHANNEL_IMPLEMENTATION_WIN32
-		CloseHandle(data.sem_b);
-		CloseHandle(data.sem_a);
-#endif
 	}
 
 	void cleanupNotLast() noexcept override
