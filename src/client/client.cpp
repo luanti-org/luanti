@@ -1442,7 +1442,7 @@ void Client::sendPlayerPos()
 
 	if (identical) {
 		if (m_playerpos_send_timer < m_recommended_send_interval) {
-			// do not send package with identical information yet (recommended send interval not reached yet)
+			// do not send packet with identical information yet (recommended send interval not reached yet)
 			return;
 		}
 		// Since the movement info is sent non-reliable an unfortunate desync might
@@ -1453,7 +1453,7 @@ void Client::sendPlayerPos()
 		if (m_playerpos_repeat_count >= 5)
 			return;
 	} else {
-		// something changed, send package directly (even if the recommended send interval is not reached yet)
+		// something changed, send packet directly (even if the recommended send interval is not reached yet)
 		m_playerpos_repeat_count = 0;
 	}
 	m_playerpos_send_timer = 0;
