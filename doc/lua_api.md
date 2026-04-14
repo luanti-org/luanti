@@ -792,8 +792,7 @@ Example:
 Makes the base image transparent according to the given `ratio`.
 
 This multiplies the alpha value of each pixel of the base texture
-with `ratio/255` and rounds the result afterwards (using the
-"round half up" rule).
+with `ratio/255` and rounds the result to the closest integer afterwards.
 
 `ratio` is an integer in range [0, 255]. 0 = transparent, 255 = opaque.
 
@@ -975,13 +974,13 @@ which is assumed to be a tilesheet with dimensions
 
 Colorizes the textures with the given color.
 
-Interpolates between color and the pixel colors of the base texture as specified
+Interpolates between `color` and the pixel colors of the base texture as specified
 by the `ratio`:
 
 * Defaults to the alpha of `color` if omitted
-* If it's an integer from 0 (only pixel color) to 255 (only color), it is
-  directly used as interpolation ratio: The resulting color of a pixel is
-  `ratio` times `color` plus `(255 - ratio)` times pixel color;
+* If it's an integer from 0 (only base texture color) to 255 (only `color`),
+  it's directly used as interpolation ratio: The resulting color of a pixel is
+  `ratio` times `color` plus `(255 - ratio)` times base texture color;
 * If it's the string `"alpha"`, the texture pixel's alpha value determines the
   ratio per pixel
 
