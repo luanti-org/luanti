@@ -609,13 +609,19 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 }
 
 
+// Path can be read, but may or may not be written to.
+// Sets write_allowed and returns accordingly.
+#define RETURN_WRITE_ALLOWED(v) \
+	do { \
+		bool real_write_allowed = (v); \
+		if (write_allowed) \
+			*write_allowed = real_write_allowed; \
+		return !write_required || real_write_allowed; \
+	} while (0)
+
 bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 	const std::string &abs_path, bool write_required, bool *write_allowed)
 {
-	const auto &set_write_allowed = [&] (bool v) {
-		if (write_allowed)
-			*write_allowed = v;
-	};
 	std::string str;  // Transient
 
 	auto *gamedef = ModApiBase::getGameDef(L);
@@ -643,8 +649,7 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 	if (!mod_name.empty()) {
 		// Builtin can access anything
 		if (mod_name == BUILTIN_MOD_NAME) {
-			set_write_allowed(true);
-			return true;
+			RETURN_WRITE_ALLOWED(true);
 		}
 	}
 
@@ -680,8 +685,7 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 						log_deprecated(L, message, 1);
 					}
 				}
-				set_write_allowed(!is_trusted && !is_dangerous_file && !is_git_path);
-				return true;
+				RETURN_WRITE_ALLOWED(!is_trusted && !is_dangerous_file && !is_git_path);
 			}
 		}
 	}
@@ -716,8 +720,7 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 	// Allow read/write access to global mod data path
 	str = fs::AbsolutePath(gamedef->getModDataPath());
 	if (!str.empty() && fs::PathStartsWith(abs_path, str)) {
-		set_write_allowed(!is_git_path);
-		return true;
+		RETURN_WRITE_ALLOWED(!is_git_path);
 	}
 
 	str = fs::AbsolutePath(gamedef->getWorldPath());
@@ -732,14 +735,14 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 			fs::PathStartsWith(abs_path, str + DIR_DELIM + "game");
 		// Allow all other paths in world path
 		if (fs::PathStartsWith(abs_path, str)) {
-			set_write_allowed(!is_dangerous_path && !is_git_path);
-			return true;
+			RETURN_WRITE_ALLOWED(!is_dangerous_path && !is_git_path);
 		}
 	}
 
 	return false;
 }
 
+#undef RETURN_WRITE_ALLOWED
 
 int ScriptApiSecurity::sl_g_dofile(lua_State *L)
 {
