@@ -13,3 +13,170 @@
 .wy-side-nav-search, .wy-nav-top, .wy-menu-vertical a:active {
   background: hsl(100, 40%, 40%);
 }
+
+/* Auto dark mode */
+@media (prefers-color-scheme: dark) {
+  /* Base layout */
+  body.wy-body-for-nav,
+  body.wy-body-for-nav .wy-nav-content-wrap {
+    background-color: #252526;
+    color: #d4d4d4;
+  }
+  body.wy-body-for-nav .wy-nav-content {
+    background-color: #1e1e1e;
+  }
+
+  /* Sidebar and navigation */
+  body.wy-body-for-nav .wy-nav-side {
+    background-color: #252526;
+  }
+  body.wy-body-for-nav .wy-menu-vertical a {
+    color: #d4d4d4;
+  }
+  body.wy-body-for-nav .wy-menu-vertical a:hover {
+    background-color: #333333;
+    color: #ffffff;
+  }
+
+  /* Active menu item (current) — override theme's light backgrounds */
+  body.wy-body-for-nav .wy-menu-vertical li.current {
+    background-color: #2a2a2a;
+  }
+  body.wy-body-for-nav .wy-menu-vertical li.current > a,
+  body.wy-body-for-nav .wy-menu-vertical li.on > a {
+    background-color: #333333;
+    color: #ffffff;
+    border-color: #444444;
+  }
+  body.wy-body-for-nav .wy-menu-vertical li.current > a:hover,
+  body.wy-body-for-nav .wy-menu-vertical li.on > a:hover {
+    background-color: #3a3a3a;
+  }
+
+  /* Current item links inside active section — override theme's grey text on light bg */
+  body.wy-body-for-nav .wy-menu-vertical li.current a {
+    color: #d4d4d4;
+    border-color: #444444;
+  }
+  body.wy-body-for-nav .wy-menu-vertical li.current a:hover {
+    background-color: #3a3a3a;
+    color: #ffffff;
+  }
+
+  /* Nested toctree levels — override theme's #404040 color and light backgrounds */
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l2 a,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l3 a,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l4 a,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l5 a,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l6 a,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l7 a,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l8 a,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l9 a,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l10 a {
+    color: #d4d4d4;
+    background-color: transparent;
+  }
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l2 a:hover,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l3 a:hover,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l4 a:hover,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l5 a:hover,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l6 a:hover,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l7 a:hover,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l8 a:hover,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l9 a:hover,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l10 a:hover {
+    background-color: #3a3a3a;
+    color: #ffffff;
+  }
+
+  /* Active nested levels — override theme's light grey backgrounds (#c9c9c9, #bdbdbd) */
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l2.current > a,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l2.current li.toctree-l3 > a {
+    background-color: #2e2e2e;
+    color: #d4d4d4;
+  }
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l3.current > a,
+  body.wy-body-for-nav .wy-menu-vertical li.toctree-l3.current li.toctree-l4 > a {
+    background-color: #2a2a2a;
+    color: #d4d4d4;
+  }
+
+  /* Search box and top bar (Luanti dark green) */
+  body.wy-body-for-nav .wy-side-nav-search,
+  body.wy-body-for-nav .wy-nav-top {
+    background-color: #2a3d2a;
+  }
+  body.wy-body-for-nav .wy-side-nav-search input[type="text"] {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    border-color: #444444;
+  }
+
+  /* Headings */
+  body.wy-body-for-nav .wy-nav-content h1,
+  body.wy-body-for-nav .wy-nav-content h2,
+  body.wy-body-for-nav .wy-nav-content h3,
+  body.wy-body-for-nav .wy-nav-content h4,
+  body.wy-body-for-nav .wy-nav-content h5,
+  body.wy-body-for-nav .wy-nav-content h6 {
+    color: #ffffff;
+  }
+
+  /* Links (scoped to content area to avoid overriding sidebar) */
+  body.wy-body-for-nav .wy-nav-content a {
+    color: #4da6ff;
+  }
+  body.wy-body-for-nav .wy-nav-content a:hover {
+    color: #80c1ff;
+  }
+
+  /* Code blocks */
+  body.wy-body-for-nav .wy-nav-content code,
+  body.wy-body-for-nav .wy-nav-content pre {
+    background-color: #2d2d2d;
+    color: #cccccc;
+    border-color: #444444;
+  }
+
+  /* Tables — !important required here to override theme_extra.css */
+  body.wy-body-for-nav .wy-table-responsive table td,
+  body.wy-body-for-nav .wy-table-responsive table th,
+  body.wy-body-for-nav table.docutils td,
+  body.wy-body-for-nav table.docutils th {
+    border-color: #444444 !important;
+  }
+  body.wy-body-for-nav .wy-table-responsive table th,
+  body.wy-body-for-nav table.docutils th {
+    background-color: #252526;
+    color: #ffffff;
+  }
+  body.wy-body-for-nav .wy-table-responsive table tr:nth-child(2n),
+  body.wy-body-for-nav table.docutils tr:nth-child(2n) {
+    background-color: #2a2a2a;
+  }
+
+  /* Table zebra-striping — override theme's light background */
+  body.wy-body-for-nav .rst-content table.docutils:not(.field-list) tr:nth-child(2n-1) td {
+    background-color: #2a2a2a;
+  }
+  body.wy-body-for-nav .rst-content table.docutils:not(.field-list) tr:nth-child(2n) td {
+    background-color: #252526;
+  }
+
+  /* Admonitions (Notes, Tips, Warnings, etc.) */
+  body.wy-body-for-nav .admonition,
+  body.wy-body-for-nav .admonition-title {
+    background-color: #2d2d2d;
+    border-color: #444444;
+  }
+  body.wy-body-for-nav .admonition.note { border-left-color: #4da6ff; }
+  body.wy-body-for-nav .admonition.note .admonition-title { background-color: #1e3a5f; }
+  body.wy-body-for-nav .admonition.tip, body.wy-body-for-nav .admonition.hint { border-left-color: #6dbf6d; }
+  body.wy-body-for-nav .admonition.tip .admonition-title, body.wy-body-for-nav .admonition.hint .admonition-title { background-color: #1e3d1e; }
+  body.wy-body-for-nav .admonition.warning, body.wy-body-for-nav .admonition.attention { border-left-color: #e5a00d; }
+  body.wy-body-for-nav .admonition.warning .admonition-title, body.wy-body-for-nav .admonition.attention .admonition-title { background-color: #3d2e00; }
+  body.wy-body-for-nav .admonition.danger, body.wy-body-for-nav .admonition.error { border-left-color: #cc3333; }
+  body.wy-body-for-nav .admonition.danger .admonition-title, body.wy-body-for-nav .admonition.error .admonition-title { background-color: #3d1a1a; }
+  body.wy-body-for-nav .admonition.important { border-left-color: #c678dd; }
+  body.wy-body-for-nav .admonition.important .admonition-title { background-color: #2e1a3d; }
+}
