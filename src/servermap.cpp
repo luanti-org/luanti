@@ -665,18 +665,14 @@ MapDatabase *ServerMap::createDatabase(
 
 void ServerMap::beginSave()
 {
-	sanity_check(!m_in_map_save_batch);
-	m_in_map_save_batch = true;
+	MutexAutoLock dblock(m_db.mutex);
+	m_db.dbase->beginSave();
 }
 
 void ServerMap::endSave()
 {
 	MutexAutoLock dblock(m_db.mutex);
-	if (m_map_save_transaction_active) {
-		m_db.dbase->endSave();
-		m_map_save_transaction_active = false;
-	}
-	m_in_map_save_batch = false;
+	m_db.dbase->endSave();
 }
 
 bool ServerMap::saveBlock(MapBlock *block)
@@ -684,19 +680,13 @@ bool ServerMap::saveBlock(MapBlock *block)
 	std::string blob = serializeMapBlock(block, m_map_compression_level);
 
 	MutexAutoLock dblock(m_db.mutex);
-	if (m_in_map_save_batch) {
-		if (!m_map_save_transaction_active) {
-			m_db.dbase->beginSave();
-			m_map_save_transaction_active = true;
-		}
-		return saveSerializedMapBlock(block, m_db.dbase, blob);
-	}
 	return saveSerializedMapBlock(block, m_db.dbase, blob);
 }
 
 std::string ServerMap::serializeMapBlock(MapBlock *block, int compression_level)
 {
 	u8 version = SER_FMT_VER_HIGHEST_WRITE;
+	// FIXME: zero copy possible in c++20 or with custom rdbuf
 	std::ostringstream o(std::ios_base::binary);
 	o.write((char *) &version, 1);
 	block->serialize(o, version, true, compression_level);
@@ -715,6 +705,8 @@ bool ServerMap::saveSerializedMapBlock(
 bool ServerMap::saveBlock(MapBlock *block, MapDatabase *db, int compression_level)
 {
 	std::string blob = serializeMapBlock(block, compression_level);
+	// Server-side saves use saveBlock(MapBlock*) so m_db.mutex protects the database.
+	// This overload is for callers that supply their own MapDatabase (e.g. client local map).
 	return saveSerializedMapBlock(block, db, blob);
 }
 
