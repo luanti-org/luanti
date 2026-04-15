@@ -361,8 +361,8 @@ void MeshUpdateManager::clearAllQueues(bool finish)
 	};
 	// Same problem as in MeshUpdateQueue::clear() here: we can't just blindly
 	// throw away results that the server expects to receive an ack for.
-	const auto &do_it = [&] (ResultQueue &queue) {
-		auto helper = m_queue_out_urgent.iterLocked();
+	const auto &do_it = [&finish, &drop_result] (ResultQueue &queue) {
+		auto helper = queue.iterLocked();
 		for (auto it = helper.begin(); it != helper.end(); ) {
 			if (it->ack_list.empty() || finish) {
 				drop_result(*it);
