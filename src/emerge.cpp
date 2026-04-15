@@ -756,6 +756,23 @@ void *EmergeThread::run()
 			if (!block || error)
 				action = EMERGE_ERRORED;
 
+			// Queue on_block_loaded callbacks for all generated blocks.
+			// The callbacks are fired on the main server thread in
+			// ServerEnvironment::step() so that mods can safely use all
+			// Lua APIs (mod storage, etc.) inside the callback.
+			if (block && !error) {
+				const v3s16 &bpmin = bmdata.blockpos_min;
+				const v3s16 &bpmax = bmdata.blockpos_max;
+				for (s16 y = bpmin.Y; y <= bpmax.Y; y++)
+				for (s16 z = bpmin.Z; z <= bpmax.Z; z++)
+				for (s16 x = bpmin.X; x <= bpmax.X; x++) {
+					v3s16 bp(x, y, z);
+					// Only queue if the block actually exists
+					if (m_map->getBlockNoCreateNoEx(bp))
+						m_server->m_env->queueBlockLoaded(bp);
+				}
+			}
+
 			m_trans_liquid = nullptr;
 		}
 

@@ -19,6 +19,8 @@ core.EMERGE_GENERATED   = 4
 -- constants.h
 -- Size of mapblocks in nodes
 core.MAP_BLOCKSIZE = 16
+-- Sentinel value for an undefined mapblock timestamp (block has never been activated)
+core.BLOCK_TIMESTAMP_UNDEFINED = 0xffffffff
 -- Default maximal HP of a player
 core.PLAYER_MAX_HP_DEFAULT = 20
 -- Default maximal breath of a player

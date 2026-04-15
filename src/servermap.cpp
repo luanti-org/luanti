@@ -344,9 +344,11 @@ void ServerMap::finishBlockMake(BlockMakeData *data,
 				&& bp.Y >= bpmin.Y && bp.Y <= bpmax.Y
 				&& bp.Z >= bpmin.Z && bp.Z <= bpmax.Z) {
 			block->setGenerated(true);
-			// Set timestamp to ensure correct application
-			// of LBMs and other stuff.
-			block->setTimestampNoChangedFlag(now);
+			// Timestamp will be set later in activateBlock() to allow
+			// on_block_loaded callbacks to run for newly generated blocks
+
+			// Note: on_block_loaded is now called in emerge.cpp after finishGen()
+			// to ensure all liquid transforms and lighting are complete
 		}
 	}
 
@@ -766,8 +768,13 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 		ReflowScan scanner(this, m_emerge->ndef);
 		scanner.scan(block, &m_transforming_liquid);
 
+		// Queue on_block_loaded callback to be fired on the main server
+		// thread in ServerEnvironment::step() so that mods can safely use
+		// all Lua APIs inside the callback.
+		if (m_env)
+			m_env->queueBlockLoaded(p3d);
+
 		std::map<v3s16, MapBlock*> modified_blocks;
-		// Fix lighting if necessary
 		voxalgo::update_block_border_lighting(this, block, modified_blocks);
 		if (!modified_blocks.empty()) {
 			MapEditEvent event;

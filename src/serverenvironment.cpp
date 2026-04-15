@@ -183,6 +183,10 @@ ServerEnvironment::ServerEnvironment(std::unique_ptr<ServerMap> map,
 	m_script(server->getScriptIface()),
 	m_server(server)
 {
+	// Set the environment pointer in the map for callbacks
+	if (m_map)
+		m_map->setServerEnvironment(this);
+
 	m_cache_active_block_mgmt_interval = g_settings->getFloat("active_block_mgmt_interval");
 	m_cache_abm_interval = rangelim(g_settings->getFloat("abm_interval"), 0.1f, 30);
 	m_cache_nodetimer_interval = rangelim(g_settings->getFloat("nodetimer_interval"), 0.1f, 1);
@@ -581,6 +585,10 @@ void ServerEnvironment::activateBlock(MapBlock *block)
 	block->step((float)dtime_s, [&](v3s16 p, MapNode n, NodeTimer t) -> bool {
 		return m_script->node_on_timer(p, n, t.elapsed, t.timeout);
 	});
+
+	// Call Lua on_block_activated callback
+	// Note: on_block_loaded is called earlier during block load, not here
+	m_script->on_block_activated(block->getPos(), stamp);
 }
 
 void ServerEnvironment::addActiveBlockModifier(ActiveBlockModifier *abm)
@@ -591,6 +599,12 @@ void ServerEnvironment::addActiveBlockModifier(ActiveBlockModifier *abm)
 void ServerEnvironment::addLoadingBlockModifierDef(LoadingBlockModifierDef *lbm)
 {
 	m_lbm_mgr.addLBMDef(lbm);
+}
+
+void ServerEnvironment::queueBlockLoaded(v3s16 pos)
+{
+	auto lock = std::lock_guard(m_pending_loaded_blocks_mutex);
+	m_pending_loaded_blocks.push_back(pos);
 }
 
 bool ServerEnvironment::setNode(v3s16 p, const MapNode &n)
@@ -841,10 +855,18 @@ void ServerEnvironment::clearObjects(ClearObjectsMode mode)
 				<< percent << "%)" << std::endl;
 		}
 		if (num_blocks_checked % unload_interval == 0) {
-			m_map->unloadUnreferencedBlocks();
+			std::vector<v3s16> interval_unloaded;
+			m_map->unloadUnreferencedBlocks(&interval_unloaded);
+			if (!interval_unloaded.empty())
+				m_script->on_block_unloaded(interval_unloaded);
 		}
 	}
-	m_map->unloadUnreferencedBlocks();
+	{
+		std::vector<v3s16> final_unloaded;
+		m_map->unloadUnreferencedBlocks(&final_unloaded);
+		if (!final_unloaded.empty())
+			m_script->on_block_unloaded(final_unloaded);
+	}
 
 	// Drop references that were added above
 	for (v3s16 p : loaded_blocks) {
@@ -928,6 +950,13 @@ void ServerEnvironment::step(float dtime)
 
 		// Convert active objects that are no more in active blocks to static
 		deactivateFarObjects(false);
+
+		// Call on_block_deactivated callback for blocks that are being removed from active list
+		// Note: These blocks are becoming inactive but still remain loaded in memory
+		if (!blocks_removed.empty()) {
+			std::vector<v3s16> blocks_removed_vec(blocks_removed.begin(), blocks_removed.end());
+			m_script->on_block_deactivated(blocks_removed_vec);
+		}
 
 		for (const v3s16 &p: blocks_removed) {
 			MapBlock *block = m_map->getBlockNoCreateNoEx(p);
@@ -1064,6 +1093,21 @@ void ServerEnvironment::step(float dtime)
 		g_profiler->avg("ServerEnv: ABMs run", abms_run);
 
 		timer.stop(true);
+	}
+
+	/*
+		Fire on_block_loaded callbacks for blocks that were loaded or generated
+		on emerge/mapgen threads. We drain the queue here on the main server
+		thread so that mods can safely use all Lua APIs inside the callback.
+	*/
+	{
+		std::vector<v3s16> loaded_blocks;
+		{
+			std::lock_guard<std::mutex> lock(m_pending_loaded_blocks_mutex);
+			loaded_blocks = std::move(m_pending_loaded_blocks);
+		}
+		for (const v3s16 &bp : loaded_blocks)
+			m_script->on_block_loaded(bp);
 	}
 
 	/*

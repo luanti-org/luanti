@@ -11,6 +11,7 @@
 #include "util/container.h" // UniqueQueue
 #include "util/metricsbackend.h" // ptr typedefs
 #include "map_settings_manager.h"
+#include "log.h"
 
 class Settings;
 class MapDatabase;
@@ -47,6 +48,16 @@ public:
 	*/
 	ServerMap(const std::string &savedir, IGameDef *gamedef, EmergeManager *emerge, MetricsBackend *mb);
 	~ServerMap();
+
+	// Set the server environment (called after map construction)
+	void setServerEnvironment(ServerEnvironment *env) {
+		if (!env) {
+			errorstream << "ServerMap::setServerEnvironment: "
+				<< "Attempted to set null ServerEnvironment pointer!" << std::endl;
+			return;
+		}
+		m_env = env;
+	}
 
 	/*
 		Get a sector from somewhere.
@@ -176,6 +187,9 @@ private:
 
 	// Emerge manager
 	EmergeManager *m_emerge;
+
+	// Server environment (for callbacks)
+	ServerEnvironment *m_env = nullptr;
 
 	std::string m_savedir;
 	bool m_map_saving_enabled;
