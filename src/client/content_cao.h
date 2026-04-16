@@ -4,9 +4,11 @@
 
 #pragma once
 
-#include "EMaterialTypes.h"
-#include "IDummyTransformationSceneNode.h"
 #include "irrlichttypes.h"
+
+#include <EMaterialTypes.h>
+#include <IDummyTransformationSceneNode.h>
+#include <AnimSpec.h>
 
 #include "object_properties.h"
 #include "clientobject.h"
@@ -15,6 +17,7 @@
 #include "client/tile.h"
 #include <cassert>
 #include <memory>
+#include <sstream>
 
 namespace scene {
 	class IMeshSceneNode;
@@ -26,6 +29,8 @@ class Client;
 struct Nametag;
 struct MinimapMarker;
 class WieldMeshSceneNode;
+
+enum class LocalPlayerAnimation : u8;
 
 /*
 	SmoothTranslator and other helpers
@@ -116,14 +121,13 @@ private:
 	v2s16 m_tx_basepos;
 	bool m_initial_tx_basepos_set = false;
 	bool m_tx_select_horiz_by_yawpitch = false;
-	bool m_animation_loop = true;
-	v2f m_animation_range;
-	float m_animation_speed = 15.0f;
-	float m_animation_blend = 0.0f;
 	int m_anim_frame = 0;
 	int m_anim_num_frames = 1;
 	float m_anim_framelength = 0.2f;
 	float m_anim_timer = 0.0f;
+
+	scene::AnimSpec m_animation;
+	bool m_local_player_animation = false;
 
 	// stores position and rotation for each bone name
 	BoneOverrideMap m_bone_override;
@@ -282,9 +286,11 @@ public:
 	// Reason: updateTextures(m_previous_texture_modifier);
 	void updateTextures(std::string mod);
 
-	void updateAnimation();
+	void updateAnimation(u16 track);
+	void setLocalPlayerAnimation(LocalPlayerAnimation local_anim, float speed);
 
-	void updateAnimationSpeed();
+	/// @note logs a warning for invalid IDs
+	std::optional<u16> resolveTrackId(const scene::TrackId &id);
 
 	void processMessage(const std::string &data) override;
 
