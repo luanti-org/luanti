@@ -78,24 +78,24 @@ bool ModApiCraft::readCraftRecipeShapeless(lua_State *L, int index,
 bool ModApiCraft::readCraftReplacements(lua_State *L, int index,
 		CraftReplacements &replacements)
 {
-	if(index < 0)
+	if (index < 0)
 		index = lua_gettop(L) + 1 + index;
 
-	if(!lua_istable(L, index))
+	if (!lua_istable(L, index))
 		return false;
 
 	lua_pushnil(L);
-	while(lua_next(L, index) != 0){
+	while (lua_next(L, index) != 0) {
 		// key at index -2 and value at index -1
-		if(!lua_istable(L, -1))
+		if (!lua_istable(L, -1))
 			return false;
 		lua_rawgeti(L, -1, 1);
-		if(!lua_isstring(L, -1))
+		if (!lua_isstring(L, -1))
 			return false;
 		std::string replace_from = readParam<std::string>(L, -1);
 		lua_pop(L, 1);
 		lua_rawgeti(L, -1, 2);
-		if(!lua_isstring(L, -1))
+		if (!lua_isstring(L, -1))
 			return false;
 		std::string replace_to = readParam<std::string>(L, -1);
 		lua_pop(L, 1);

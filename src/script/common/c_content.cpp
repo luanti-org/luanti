@@ -56,7 +56,7 @@ struct EnumString es_TouchInteractionMode[] =
 };
 
 /******************************************************************************/
-void read_item_definition(lua_State* L, int index,
+void read_item_definition(lua_State *L, int index,
 		const ItemDefinition &default_def, ItemDefinition &def)
 {
 	if (index < 0)
@@ -327,7 +327,7 @@ void read_object_properties(lua_State *L, int index,
 		ServerActiveObject *sao, ObjectProperties *prop, IItemDefManager *idef,
 		bool fallback)
 {
-	if(index < 0)
+	if (index < 0)
 		index = lua_gettop(L) + 1 + index;
 	if (lua_isnil(L, index))
 		return;
@@ -373,7 +373,7 @@ void read_object_properties(lua_State *L, int index,
 	lua_pop(L, 1);
 
 	lua_getfield(L, -1, "pointable");
-	if(!lua_isnil(L, -1)){
+	if (!lua_isnil(L, -1)) {
 		prop->pointable = read_pointability_type(L, -1);
 	}
 	lua_pop(L, 1);
@@ -442,12 +442,12 @@ void read_object_properties(lua_State *L, int index,
 	}
 
 	lua_getfield(L, -1, "spritediv");
-	if(lua_istable(L, -1))
+	if (lua_istable(L, -1))
 		prop->spritediv = read_v2s16(L, -1);
 	lua_pop(L, 1);
 
 	lua_getfield(L, -1, "initial_sprite_basepos");
-	if(lua_istable(L, -1))
+	if (lua_istable(L, -1))
 		prop->initial_sprite_basepos = read_v2s16(L, -1);
 	lua_pop(L, 1);
 
@@ -1629,13 +1629,13 @@ ToolCapabilities read_tool_capabilities(
 	getintfield(L, table, "punch_attack_uses", toolcap.punch_attack_uses);
 
 	lua_getfield(L, table, "groupcaps");
-	if(lua_istable(L, -1)){
+	if (lua_istable(L, -1)) {
 		int table_groupcaps = lua_gettop(L);
 		lua_pushnil(L);
-		while(lua_next(L, table_groupcaps) != 0){
+		while (lua_next(L, table_groupcaps) != 0) {
 			// key at index -2 and value at index -1
 			std::string groupname = luaL_checkstring(L, -2);
-			if(lua_istable(L, -1)){
+			if (lua_istable(L, -1)) {
 				int table_groupcap = lua_gettop(L);
 				// This will be created
 				ToolGroupCap groupcap;
@@ -1644,7 +1644,7 @@ ToolCapabilities read_tool_capabilities(
 				getintfield(L, table_groupcap, "uses", groupcap.uses);
 				// DEPRECATED: maxwear
 				float maxwear = 0;
-				if (getfloatfield(L, table_groupcap, "maxwear", maxwear)){
+				if (getfloatfield(L, table_groupcap, "maxwear", maxwear)) {
 					if (maxwear != 0)
 						groupcap.uses = 1.0f/maxwear;
 					else
@@ -1655,10 +1655,10 @@ ToolCapabilities read_tool_capabilities(
 				}
 				// Read "times" table
 				lua_getfield(L, table_groupcap, "times");
-				if(lua_istable(L, -1)){
+				if (lua_istable(L, -1)) {
 					int table_times = lua_gettop(L);
 					lua_pushnil(L);
-					while(lua_next(L, table_times) != 0){
+					while (lua_next(L, table_times) != 0) {
 						// key at index -2 and value at index -1
 						int rating = luaL_checkinteger(L, -2);
 						float time = luaL_checknumber(L, -1);
@@ -1678,10 +1678,10 @@ ToolCapabilities read_tool_capabilities(
 	lua_pop(L, 1);
 
 	lua_getfield(L, table, "damage_groups");
-	if(lua_istable(L, -1)){
+	if (lua_istable(L, -1)) {
 		int table_damage_groups = lua_gettop(L);
 		lua_pushnil(L);
-		while(lua_next(L, table_damage_groups) != 0){
+		while (lua_next(L, table_damage_groups) != 0) {
 			// key at index -2 and value at index -1
 			std::string groupname = luaL_checkstring(L, -2);
 			u16 value = luaL_checkinteger(L, -1);
@@ -1718,10 +1718,10 @@ Pointabilities read_pointabilities(lua_State *L, int index)
 
 	luaL_checktype(L, index, LUA_TTABLE);
 	lua_getfield(L, index, "nodes");
-	if(lua_istable(L, -1)){
+	if (lua_istable(L, -1)) {
 		int ti = lua_gettop(L);
 		lua_pushnil(L);
-		while(lua_next(L, ti) != 0) {
+		while (lua_next(L, ti) != 0) {
 			// key at index -2 and value at index -1
 			std::string name = luaL_checkstring(L, -2);
 
@@ -1739,10 +1739,10 @@ Pointabilities read_pointabilities(lua_State *L, int index)
 	lua_pop(L, 1);
 
 	lua_getfield(L, index, "objects");
-	if(lua_istable(L, -1)){
+	if (lua_istable(L, -1)) {
 		int ti = lua_gettop(L);
 		lua_pushnil(L);
-		while(lua_next(L, ti) != 0) {
+		while (lua_next(L, ti) != 0) {
 			// key at index -2 and value at index -1
 			std::string name = luaL_checkstring(L, -2);
 
@@ -1765,7 +1765,7 @@ Pointabilities read_pointabilities(lua_State *L, int index)
 /******************************************************************************/
 void push_pointability_type(lua_State *L, PointabilityType pointable)
 {
-	switch(pointable)
+	switch (pointable)
 	{
 	case PointabilityType::POINTABLE:
 		lua_pushboolean(L, true);
@@ -1991,7 +1991,7 @@ void push_items(lua_State *L, const std::vector<ItemStack> &items)
 /******************************************************************************/
 std::vector<ItemStack> read_items(lua_State *L, int index, IGameDef *gdef)
 {
-	if(index < 0)
+	if (index < 0)
 		index = lua_gettop(L) + 1 + index;
 
 	std::vector<ItemStack> items;
