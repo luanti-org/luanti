@@ -100,6 +100,21 @@ static int l_nop(lua_State *L)
 	return 0;
 }
 
+/*
+ * In addition to copying the whitelisted tables, we also need to
+ * replace the string metatable. Otherwise old_globals.string would
+ * be accessible via getmetatable("").__index from inside the sandbox.
+ */
+static inline void replace_string_metatable(lua_State *L)
+{
+	lua_pushliteral(L, "");
+	lua_newtable(L);
+	lua_getglobal(L, "string");
+	lua_setfield(L, -2, "__index");
+	lua_setmetatable(L, -2);
+	lua_pop(L, 1); // Pop empty string
+}
+
 
 void ScriptApiSecurity::initializeSecurity()
 {
@@ -315,18 +330,7 @@ void ScriptApiSecurity::initializeSecurity()
 
 	lua_pop(L, 1); // Pop globals_backup
 
-
-	/*
-	 * In addition to copying the tables in whitelist_tables, we also need to
-	 * replace the string metatable. Otherwise old_globals.string would
-	 * be accessible via getmetatable("").__index from inside the sandbox.
-	 */
-	lua_pushliteral(L, "");
-	lua_newtable(L);
-	lua_getglobal(L, "string");
-	lua_setfield(L, -2, "__index");
-	lua_setmetatable(L, -2);
-	lua_pop(L, 1); // Pop empty string
+	replace_string_metatable(L);
 
 	FATAL_ERROR_IF(sanity_check_top != lua_gettop(L), "unbalanced stack");
 }
@@ -457,6 +461,8 @@ void ScriptApiSecurity::initializeSecurityClient()
 
 	// Set the environment to the one we created earlier
 	setLuaEnv(L, thread);
+
+	replace_string_metatable(L);
 }
 
 void ScriptApiSecurity::initializeSecuritySSCSM()
