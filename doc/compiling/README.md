@@ -2,7 +2,7 @@
 
 - [Compiling on GNU/Linux](linux.md)
 - [Compiling on Windows with MSYS2](windows_msys2.md)
-- [Compiling on Windows with MSVC](windows.md)
+- [Compiling on Windows with MSVC](windows_msvc.md)
 - [Compiling on MacOS](macos.md)
 
 
