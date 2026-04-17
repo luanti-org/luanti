@@ -3005,10 +3005,22 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 					}
 				}
 			}
+
+			if (auto *list = dynamic_cast<GUIInventoryList *>(focused_element)) {
+				m_focused_inventory_list = FocusedInventoryList {
+					list->getInventoryloc(),
+					list->getListname(),
+				};
+			} else {
+				m_focused_inventory_list = std::nullopt;
+			}
+		} else {
+			m_focused_inventory_list = std::nullopt;
 		}
 	} else {
 		// Don't keep old focus value
 		m_focused_element = std::nullopt;
+		m_focused_inventory_list = std::nullopt;
 	}
 
 	removeAll();
@@ -3314,6 +3326,16 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 
 	// Set initial focus if parser didn't set it
 	gui::IGUIElement *focused_element = Environment->getFocus();
+	if ((!focused_element || !isMyChild(focused_element)) && m_focused_inventory_list) {
+		for (GUIInventoryList *list : m_inventorylists) {
+			if (list->getInventoryloc() == m_focused_inventory_list->inventoryloc &&
+					list->getListname() == m_focused_inventory_list->listname) {
+				Environment->setFocus(list);
+				focused_element = list;
+				break;
+			}
+		}
+	}
 	if (!focused_element
 			|| !isMyChild(focused_element)
 			|| focused_element->getType() == gui::EGUIET_TAB_CONTROL)

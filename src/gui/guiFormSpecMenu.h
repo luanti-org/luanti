@@ -382,11 +382,17 @@ protected:
 	video::SColor m_default_tooltip_color;
 
 private:
+	struct FocusedInventoryList {
+		InventoryLocation inventoryloc;
+		std::string listname;
+	};
+
 	IFormSource               *m_form_src;
 	TextDest                  *m_text_dst;
 	std::string                m_last_formname;
 	u16                        m_formspec_version = 1;
 	std::optional<std::string> m_focused_element = std::nullopt;
+	std::optional<FocusedInventoryList> m_focused_inventory_list = std::nullopt;
 	JoystickController        *m_joystick;
 	bool                       m_show_debug = false;
 	bool                       m_show_focus = false;
