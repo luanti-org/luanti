@@ -726,8 +726,9 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 			});
 		}
 
-		rotateMeshXZby(mesh, -45);
-		rotateMeshYZby(mesh, -30);
+		// Don't rotate normals - shading expects axis-aligned normals
+		rotateMeshXZby(mesh, -45, false);
+		rotateMeshYZby(mesh, -30, false);
 	}
 
 	// might need to be re-colorized, this is done only when needed

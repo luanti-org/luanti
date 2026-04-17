@@ -244,12 +244,12 @@ void setMeshColorByNormal(scene::IMesh *mesh, const v3f &normal,
 }
 
 template <float v3f::*U, float v3f::*V>
-static void rotateMesh(scene::IMesh *mesh, float degrees)
+static void rotateMesh(scene::IMesh *mesh, float degrees, bool rotate_normals = true)
 {
 	degrees *= M_PI / 180.0f;
 	float c = std::cos(degrees);
 	float s = std::sin(degrees);
-	auto rotator = [c, s] (video::S3DVertex *vertex) {
+	auto rotator = [c, s, rotate_normals] (video::S3DVertex *vertex) {
 		auto rotate_vec = [c, s] (v3f &vec) {
 			float u = vec.*U;
 			float v = vec.*V;
@@ -257,7 +257,8 @@ static void rotateMesh(scene::IMesh *mesh, float degrees)
 			vec.*V = s * u + c * v;
 		};
 		rotate_vec(vertex->Pos);
-		rotate_vec(vertex->Normal);
+		if (rotate_normals)
+			rotate_vec(vertex->Normal);
 	};
 	applyToMesh(mesh, rotator);
 }

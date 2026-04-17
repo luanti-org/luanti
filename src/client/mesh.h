@@ -83,10 +83,13 @@ void rotateMeshBy6dFacedir(scene::IMesh *mesh, u8 facedir);
 
 /*
 	Rotate the mesh around the axis and given angle in degrees.
+	If rotate_normals is true (default), normals are rotated along with positions.
+	Set rotate_normals to false for inventory item rendering where shading
+	expects axis-aligned normals.
 */
-void rotateMeshXYby (scene::IMesh *mesh, f64 degrees);
-void rotateMeshXZby (scene::IMesh *mesh, f64 degrees);
-void rotateMeshYZby (scene::IMesh *mesh, f64 degrees);
+void rotateMeshXYby (scene::IMesh *mesh, f64 degrees, bool rotate_normals = true);
+void rotateMeshXZby (scene::IMesh *mesh, f64 degrees, bool rotate_normals = true);
+void rotateMeshYZby (scene::IMesh *mesh, f64 degrees, bool rotate_normals = true);
 
 /*
  *  Clone the mesh buffer.
