@@ -3,6 +3,7 @@ import static android.provider.DocumentsContract.Root;
 
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsProvider;
 
@@ -10,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import net.minetest.minetest.Utils;
+import net.minetest.minetest.R;
 
 public class LuantiDocumentsProvider extends DocumentsProvider {
   private String externalAppDataDirectory;
