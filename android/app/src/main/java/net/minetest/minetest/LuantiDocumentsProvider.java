@@ -1,16 +1,18 @@
 import static android.provider.DocumentsContract.Document;
 import static android.provider.DocumentsContract.Root;
-import static net.minetest.minetest.R;
 
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsProvider;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import net.minetest.minetest.Utils;
+
 public class LuantiDocumentsProvider extends DocumentsProvider {
-  private static final String EXTERNAL_APP_DATA_DIRECTORY = Utils.getUserDataDirectory(this).getAbsolutePath();
+  private String externalAppDataDirectory;
 
   private static final String[] DEFAULT_ROOT_PROJECTION = new String[] {Root.COLUMN_ROOT_ID, Root.COLUMN_MIME_TYPES, Root.COLUMN_FLAGS, Root.COLUMN_ICON, Root.COLUMN_TITLE, Root.COLUMN_DOCUMENT_ID};
 
@@ -18,6 +20,7 @@ public class LuantiDocumentsProvider extends DocumentsProvider {
 
   @Override
   public boolean onCreate() {
+	externalAppDataDirectory = Utils.getUserDataDirectory(getContext()).getAbsolutePath();
     return true;
   }
 
@@ -26,12 +29,12 @@ public class LuantiDocumentsProvider extends DocumentsProvider {
     final MatrixCursor result = new MatrixCursor(resolveRootProjection(projection));
     final MatrixCursor.RowBuilder appDataRootRow = result.newRow();
 
-    appDataRootRow.add(Root.COLUMN_ROOT_ID, EXTERNAL_APP_DATA_DIRECTORY);
+    appDataRootRow.add(Root.COLUMN_ROOT_ID, externalAppDataDirectory);
     appDataRootRow.add(Root.COLUMN_MIME_TYPES, "*/*");
     appDataRootRow.add(Root.COLUMN_FLAGS, 0);
     appDataRootRow.add(Root.COLUMN_ICON, R.mipmap.ic_launcher);
     appDataRootRow.add(Root.COLUMN_TITLE, getContext().getString(R.string.documents_provider_root_title));
-    appDataRootRow.add(Root.COLUMN_DOCUMENT_ID, EXTERNAL_APP_DATA_DIRECTORY);
+    appDataRootRow.add(Root.COLUMN_DOCUMENT_ID, externalAppDataDirectory);
 
     return result;
   }
