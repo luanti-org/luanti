@@ -11,6 +11,7 @@
 #include "IVideoDriver.h"
 #include "IFileSystem.h"
 #include "SkinnedMesh.h"
+#include "SSkinMeshBuffer.h"
 #include "coreutil.h"
 #include "os.h"
 

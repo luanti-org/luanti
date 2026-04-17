@@ -29,9 +29,8 @@ CGUIListBox::CGUIListBox(IGUIEnvironment *environment, IGUIElement *parent,
 {
 	IGUISkin *skin = Environment->getSkin();
 
-	ScrollBar = new CGUIScrollBar(false, Environment, this, -1,
-			core::recti(0, 0, 1, 1),
-			!clip);
+	ScrollBar = new CGUIScrollBar(Environment, this, -1,
+			core::recti(0, 0, 1, 1), false, !clip);
 	ScrollBar->setSubElement(true);
 	ScrollBar->setTabStop(false);
 	ScrollBar->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);

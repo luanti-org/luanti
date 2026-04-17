@@ -2246,7 +2246,29 @@ void read_json_value(lua_State *L, Json::Value &root, int index, u16 max_depth)
 	if (type == LUA_TBOOLEAN) {
 		root = (bool) lua_toboolean(L, index);
 	} else if (type == LUA_TNUMBER) {
-		root = lua_tonumber(L, index);
+		lua_Number dbl_val = lua_tonumber(L, index);
+		if (!std::isfinite(dbl_val)) {
+			root = dbl_val;
+		} else {
+			/*
+			 * 64bit min value is exactly encodable as double, max value is not.
+			 * Assume 2nd complement (used by virtually every platform and mandated by C++20) and encode
+			   limits as exact double literals.
+			 * Compare against [-2^63, 2^63) interval instead of [-2^63, 2^63 - 1]
+			 */
+#ifdef JSON_HAS_INT64
+			using IntType = s64;
+			constexpr lua_Number min_val = -0x1p63;
+#else
+			using IntType = s32;
+			constexpr lua_Number min_val = -0x1p31;
+#endif
+			// cast integers to an integer type so they show up as "1234" instead of "1234.0"
+			if (dbl_val >= min_val && dbl_val < -min_val && std::floor(dbl_val) == dbl_val)
+				root = static_cast<IntType>(dbl_val);
+			else
+				root = dbl_val;
+		}
 	} else if (type == LUA_TSTRING) {
 		size_t len;
 		const char *str = lua_tolstring(L, index, &len);
@@ -2373,7 +2395,7 @@ void read_hud_element(lua_State *L, HudElement *elem)
 	lua_pop(L, 1);
 
 	lua_getfield(L, 2, "size");
-	elem->size = lua_istable(L, -1) ? read_v2s32(L, -1) : v2s32();
+	elem->size = lua_istable(L, -1) ? read_v2f(L, -1) : v2f();
 	lua_pop(L, 1);
 
 	elem->name    = getstringfield_default(L, 2, "name", "");
@@ -2416,7 +2438,7 @@ void read_hud_element(lua_State *L, HudElement *elem)
 	elem->style = getintfield_default(L, 2, "style", 0);
 
 	/* check for known deprecated element usage */
-	if ((elem->type  == HUD_ELEM_STATBAR) && (elem->size == v2s32()))
+	if ((elem->type  == HUD_ELEM_STATBAR) && (elem->size == v2f()))
 		log_deprecated(L,"Deprecated usage of statbar without size!");
 }
 
@@ -2462,7 +2484,7 @@ void push_hud_element(lua_State *L, HudElement *elem)
 	push_v2f(L, elem->align);
 	lua_setfield(L, -2, "alignment");
 
-	push_v2s32(L, elem->size);
+	push_v2f(L, elem->size);
 	lua_setfield(L, -2, "size");
 
 	// Deprecated, only for compatibility's sake
@@ -2534,7 +2556,7 @@ bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void 
 			*value = &elem->world_pos;
 			break;
 		case HUD_STAT_SIZE:
-			elem->size = read_v2s32(L, 4);
+			elem->size = read_v2f(L, 4);
 			*value = &elem->size;
 			break;
 		case HUD_STAT_Z_INDEX:

@@ -27,5 +27,13 @@ core.register_on_player_receive_fields(function(player, formname, fields)
 		player:respawn()
 		core.log("action", player:get_player_name() .. " respawns at " ..
 				player:get_pos():to_string())
+		return
+	end
+
+	-- If a non-death formspec was closed while the player is dead,
+	-- re-show the death screen to prevent the "zombie state" (see #11523).
+	if formname ~= "__builtin:death" and fields.quit and player:get_hp() == 0 then
+		core.log("info", "Re-showing death screen to " .. player:get_player_name())
+		core.show_death_screen(player, nil)
 	end
 end)

@@ -480,7 +480,7 @@ enum ToClientCommand : u16
 		v2f1000 align
 		v2f1000 offset
 		v3f1000 world_pos
-		v2s32 size
+		v2f size	// if protocol >= 52. Otherwise, v2s32
 		s16 z_index
 		u16 len3
 		u8[len3] text2
@@ -692,6 +692,13 @@ enum ToClientCommand : u16
 			f32 speed_dark_bright
 			f32 speed_bright_dark
 			f32 center_weight_power
+		f32 volumetric_light_strength
+		SColor shadow_tint
+		bloom parameters
+			f32 bloom_intensity
+			f32 bloom_strength_factor
+			f32 bloom_radius
+		v3f shadow_direction ({0,0,0} = unset)
 	*/
 
 	TOCLIENT_SPAWN_PARTICLE_BATCH = 0x64,

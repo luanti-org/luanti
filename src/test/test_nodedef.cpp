@@ -6,7 +6,7 @@
 #include "nodedef.h"
 #include "network/networkprotocol.h"
 
-#include <catch.h>
+#include "catch.h"
 
 #include <ios>
 #include <sstream>

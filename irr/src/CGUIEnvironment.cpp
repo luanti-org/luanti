@@ -619,7 +619,7 @@ IGUIButton *CGUIEnvironment::addButton(const core::rect<s32> &rectangle, IGUIEle
 //! adds a scrollbar. The returned pointer must not be dropped.
 IGUIScrollBar *CGUIEnvironment::addScrollBar(bool horizontal, const core::rect<s32> &rectangle, IGUIElement *parent, s32 id)
 {
-	IGUIScrollBar *bar = new CGUIScrollBar(horizontal, this, parent ? parent : this, id, rectangle);
+	IGUIScrollBar *bar = new CGUIScrollBar(this, parent ? parent : this, id, rectangle, horizontal);
 	bar->drop();
 	return bar;
 }

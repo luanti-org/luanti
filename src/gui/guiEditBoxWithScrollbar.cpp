@@ -80,7 +80,7 @@ void GUIEditBoxWithScrollBar::createVScrollBar()
 	core::rect<s32> scrollbarrect = RelativeRect;
 	scrollbarrect.UpperLeftCorner.X += RelativeRect.getWidth() - VScrollBarWidth;
 	VScrollBar = new GUIScrollBar(Environment, getParent(), -1,
-			scrollbarrect, false, true, m_tsrc);
+			scrollbarrect, false, m_tsrc);
 
 	VScrollBar->setVisible(false);
 	VScrollBar->setSmallStep(3 * fontHeight);

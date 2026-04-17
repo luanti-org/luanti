@@ -9,6 +9,7 @@
 #include "mock_serveractiveobject.h"
 #include "servermap.h"
 
+// this would better be called "TestInventoryAction"
 class TestMoveAction : public TestBase
 {
 public:
@@ -30,6 +31,10 @@ public:
 
 	void testCallbacks(ServerActiveObject *obj, Server *server);
 	void testCallbacksSwap(ServerActiveObject *obj, Server *server);
+
+	void testDrop(ServerActiveObject *obj, Server *server);
+	void testDropOne(ServerActiveObject *obj, Server *server);
+	void testDropUnallowed(ServerActiveObject *obj, Server *server);
 };
 
 static TestMoveAction g_test_instance;
@@ -70,6 +75,10 @@ void TestMoveAction::runTests(IGameDef *gamedef)
 
 	TEST(testCallbacks, &obj, &server);
 	TEST(testCallbacksSwap, &obj, &server);
+
+	TEST(testDrop, &obj, &server);
+	TEST(testDropOne, &obj, &server);
+	TEST(testDropUnallowed, &obj, &server);
 
 	server.getScriptIface()->removeObjectReference(&obj);
 }
@@ -226,14 +235,14 @@ void TestMoveAction::testSwapToUnallowed(ServerActiveObject *obj, IGameDef *game
 	UASSERT(inv.p2.getList("main")->getItem(0).getItemString() == "default:takeput_deny 60");
 }
 
-static bool check_function(lua_State *L, bool expect_swap)
+static bool check_function(lua_State *L, int pattern_idx)
 {
 	bool ok = false;
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
 	lua_getglobal(L, "core");
 	lua_getfield(L, -1, "__helper_check_callbacks");
-	lua_pushboolean(L, expect_swap);
+	lua_pushinteger(L, pattern_idx);
 	int result = lua_pcall(L, 1, 1, error_handler);
 	if (result == 0)
 		ok = lua_toboolean(L, -1);
@@ -255,7 +264,7 @@ void TestMoveAction::testCallbacks(ServerActiveObject *obj, Server *server)
 	apply_action("Move 10 player:p1 main 0 player:p2 main 1", &inv, obj, server);
 
 	// Expecting no swap. 4 callback executions in total. See Lua file for details.
-	UASSERT(check_function(server->getScriptIface()->getStack(), false));
+	UASSERT(check_function(server->getScriptIface()->getStack(), 1));
 
 	server->m_inventory_mgr.reset();
 }
@@ -271,7 +280,61 @@ void TestMoveAction::testCallbacksSwap(ServerActiveObject *obj, Server *server)
 	apply_action("Move 10 player:p1 main 0 player:p2 main 1", &inv, obj, server);
 
 	// Expecting swap. 8 callback executions in total. See Lua file for details.
-	UASSERT(check_function(server->getScriptIface()->getStack(), true));
+	UASSERT(check_function(server->getScriptIface()->getStack(), 2));
+
+	server->m_inventory_mgr.reset();
+}
+
+void TestMoveAction::testDrop(ServerActiveObject *obj, Server *server)
+{
+	server->m_inventory_mgr = std::make_unique<MockInventoryManager>(server);
+	MockInventoryManager &inv = *(MockInventoryManager *)server->getInventoryMgr();
+
+	auto *list = inv.p1.addList("main", 10);
+	list->addItem(0, parse_itemstack("default:takeput_cb_1 10"));
+
+	apply_action("Drop 0 player:p1 main 0", &inv, obj, server);
+
+	// (See Lua file for details).
+	UASSERT(check_function(server->getScriptIface()->getStack(), 3));
+
+	UASSERT(list->getItem(0).empty());
+
+	server->m_inventory_mgr.reset();
+}
+
+void TestMoveAction::testDropOne(ServerActiveObject *obj, Server *server)
+{
+	server->m_inventory_mgr = std::make_unique<MockInventoryManager>(server);
+	MockInventoryManager &inv = *(MockInventoryManager *)server->getInventoryMgr();
+
+	auto *list = inv.p1.addList("main", 10);
+	list->addItem(0, parse_itemstack("default:takeput_cb_1 6 7"));
+
+	apply_action("Drop 1 player:p1 main 0", &inv, obj, server);
+
+	// (See Lua file for details).
+	UASSERT(check_function(server->getScriptIface()->getStack(), 3));
+
+	UASSERTEQ(auto, list->getItem(0).count, 5);
+
+	server->m_inventory_mgr.reset();
+}
+
+void TestMoveAction::testDropUnallowed(ServerActiveObject *obj, Server *server)
+{
+	server->m_inventory_mgr = std::make_unique<MockInventoryManager>(server);
+	MockInventoryManager &inv = *(MockInventoryManager *)server->getInventoryMgr();
+
+	auto *list = inv.p1.addList("main", 10);
+	list->addItem(4, parse_itemstack("default:takeput_deny 1"));
+
+	apply_action("Drop 0 player:p1 main 4", &inv, obj, server);
+
+	// (See Lua file for details).
+	UASSERT(check_function(server->getScriptIface()->getStack(), 4));
+
+	UASSERTEQ(auto, list->getItem(4).count, 1);
 
 	server->m_inventory_mgr.reset();
 }

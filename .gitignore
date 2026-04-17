@@ -93,6 +93,7 @@ doc/doxygen_*
 public/
 doc/mkdocs/docs/*.md
 doc/mkdocs/mkdocs.yml
+doc/mkdocs/venv/
 
 ## Build files
 build/

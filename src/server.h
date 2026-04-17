@@ -105,8 +105,8 @@ struct MediaInfo
 	// does what it says. used by some cases of dynamic media.
 	bool delete_at_shutdown;
 
-	MediaInfo(std::string_view path_ = "",
-	          std::string_view sha1_digest_ = ""):
+	MediaInfo(std::string_view path_,
+	          std::string_view sha1_digest_):
 		path(path_),
 		sha1_digest(sha1_digest_),
 		no_announce(false),
@@ -438,6 +438,7 @@ public:
 	bool SendBlock(session_t peer_id, const v3s16 &blockpos);
 
 	// Get or load translations for a language
+	// Note: don't store returned pointer.
 	Translations *getTranslationLanguage(const std::string &lang_code);
 
 	// Returns all media files the server knows about
@@ -718,6 +719,7 @@ private:
 
 	// NOTE: Cannot use forward declaration of 'Translations'. Whereas most
 	// modern compilers support incomplete types here, it's not in the C++ spec.
+	// key = lang_code
 	std::unordered_map<std::string, Translations> server_translations;
 
 	ModIPCStore m_ipcstore;

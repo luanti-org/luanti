@@ -356,6 +356,7 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 		v3f eye_offset = player->getEyeOffset();
 		switch(m_camera_mode) {
 		case CAMERA_MODE_ANY:
+		case CameraMode_END:
 			assert(false);
 			break;
 		case CAMERA_MODE_FIRST:
@@ -590,8 +591,14 @@ void Camera::updateViewingRange()
 
 void Camera::setDigging(s32 button)
 {
-	if (m_digging_button == -1)
+	// If placing, do not desynchronize the animation and placement sound.
+	if (button == 1) {
 		m_digging_button = button;
+		m_digging_anim = 0.0f;
+	} else if (m_digging_button == -1) {
+		// Any other action.
+		m_digging_button = button;
+	}
 }
 
 void Camera::wield(const ItemStack &item)
@@ -653,8 +660,11 @@ void Camera::drawNametags()
 	const u32 default_font_size = 16;
 	// ...by multiplying this in.
 	const f32 font_size_mult = g_fontengine->getFontSize(FM_Unspecified) / (float)default_font_size;
+
 	// Minimum distance until z-scaled nametags actually become smaller
-	const f32 minimum_d = 1.0f * BS;
+	const f32 minimum_d = 3.0f * BS;
+	// Smoothing constant: larger = slower size falloff with distance
+	const f32 smoothing_k = 4.0f * BS;
 
 	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
 	v2u32 screensize = driver->getScreenSize();
@@ -672,11 +682,12 @@ void Camera::drawNametags()
 		if (nametag->scale_z) {
 			// Higher default since nametag should be reasonably visible
 			// even at distance.
-			u32 base_size = nametag->textsize.value_or(default_font_size * 4);
+			u32 base_size = nametag->textsize.value_or(default_font_size * 3.2f);
 			f32 adjusted_d = std::max(transformed_pos[3] - minimum_d, 0.0f);
-			f32 adjusted_zDiv = adjusted_d == 0.0f ? 1.0f : (1.0f / adjusted_d);
+			// Normalized for base_size * BS
+			f32 scale = (smoothing_k / (adjusted_d + smoothing_k)) / BS;
 			font_size = myround(font_size_mult *
-				rangelim(base_size * BS * adjusted_zDiv, 0, base_size));
+				rangelim(base_size * BS * scale, 0, base_size));
 		} else {
 			font_size = myround(font_size_mult * nametag->textsize.value_or(default_font_size));
 		}

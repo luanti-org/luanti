@@ -37,42 +37,26 @@
 #include <freetype/freetype.h>
 
 #include "irr_ptr.h"
-#include "IGUIEnvironment.h"
 #include "IGUIFont.h"
-#include "IVideoDriver.h"
-#include "util/enriched_string.h"
-#include "util/basic_macros.h"
+#include "irrArray.h"
+#include "path.h"
 
-#include <map>
+namespace gui {
+	class IGUIEnvironment;
+}
+
+namespace video {
+	class IImage;
+	class ITexture;
+	class IVideoDriver;
+}
+
+class EnrichedString;
 
 namespace gui
 {
 	class CGUITTFont;
-
-	// Manages the FT_Face cache.
-	struct SGUITTFace : public IReferenceCounted
-	{
-	private:
-
-		static FT_Library freetype_library;
-		static size_t n_faces;
-
-		static FT_Library getFreeTypeLibrary();
-
-		// This holds the font file data for this face.
-		// Must not be deallocated until we are done with the face!
-		std::string face_buffer;
-
-	public:
-		SGUITTFace(std::string &&buffer);
-		~SGUITTFace();
-
-		FT_Face face;
-
-		static SGUITTFace* createFace(std::string &&buffer);
-
-		static SGUITTFace* loadFace(const io::path &filename);
-	};
+	class CGUITTGlyphPage; // internal
 
 	//! Structure representing a single TrueType glyph.
 	struct SGUITTGlyph
@@ -112,74 +96,29 @@ namespace gui
 		core::vector2di advance;
 	};
 
-	//! Wrapper struct for a preloaded glyph
-	struct SGUITTGlyphPending {
-		SGUITTGlyphPending(const SGUITTGlyph *glyph, video::IImage *surface) noexcept :
-			glyph(glyph), surface(surface)
-		{}
-		~SGUITTGlyphPending() {
-			if (surface)
-				surface->drop();
-		}
-
-		DISABLE_CLASS_COPY(SGUITTGlyphPending)
-
-		SGUITTGlyphPending(SGUITTGlyphPending &&other) noexcept :
-			glyph(other.glyph), surface(other.surface)
-		{
-			other.surface = nullptr;
-		}
-
-		const SGUITTGlyph *glyph;
-		video::IImage *surface;
-	};
-
-	//! Holds a sheet of glyphs.
-	class CGUITTGlyphPage
+	// Manages the FT_Face cache.
+	struct SGUITTFace : public IReferenceCounted
 	{
-		public:
-			CGUITTGlyphPage(video::IVideoDriver *Driver, const io::path &texture_name) :
-				texture(0), available_slots(0), used_slots(0),
-				driver(Driver), name(texture_name)
-			{}
-			~CGUITTGlyphPage()
-			{
-				if (texture)
-					driver->removeTexture(texture);
-			}
+	private:
 
-			//! Create the actual page texture,
-			bool createPageTexture(u8 pixel_mode, core::dimension2du texture_size);
+		static FT_Library freetype_library;
+		static size_t n_faces;
 
-			//! Add the glyph to a list of glyphs to be paged.
-			//! This collection will be cleared after updateTexture is called.
-			void pushGlyphToBePaged(const SGUITTGlyph *glyph, video::IImage *surface)
-			{
-				if (!glyph || !surface)
-					return;
-				glyph_to_be_paged.emplace_back(glyph, surface);
-			}
+		static FT_Library getFreeTypeLibrary();
 
-			inline bool isDirty() const
-			{
-				return !glyph_to_be_paged.empty();
-			}
+		// This holds the font file data for this face.
+		// Must not be deallocated until we are done with the face!
+		std::string face_buffer;
 
-			//! Updates the texture atlas with new glyphs.
-			void updateTexture();
+	public:
+		SGUITTFace(std::string &&buffer);
+		~SGUITTFace();
 
-			video::ITexture* texture;
-			u32 available_slots;
-			u32 used_slots;
+		FT_Face face;
 
-			std::vector<core::vector2di> render_positions;
-			std::vector<core::recti> render_source_rects;
-			std::vector<video::SColor> render_colors;
+		static SGUITTFace* createFace(std::string &&buffer);
 
-		private:
-			std::vector<SGUITTGlyphPending> glyph_to_be_paged;
-			video::IVideoDriver* driver;
-			io::path name;
+		static SGUITTFace* loadFace(const io::path &filename);
 	};
 
 	//! Class representing a TrueType font.
@@ -317,6 +256,7 @@ namespace gui
 			core::vector2di getKerning(const char32_t thisLetter, const char32_t previousLetter) const;
 
 			video::IVideoDriver* Driver = nullptr;
+			irr_ptr<SGUITTFace> m_face;
 			FT_Face tt_face;
 			FT_Size_Metrics font_metrics;
 			FT_Int32 load_flags;
