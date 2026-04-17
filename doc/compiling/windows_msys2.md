@@ -58,7 +58,7 @@ For bundling DLLs, you may want to use [msys2-bundledlls](../../util/bundle_dlls
 Run the following command from the build directory to run the script:
 
 ```bash
-../util/bundledlls ../bin/luanti.exe ../bin/
+../util/bundle_dlls.sh ../bin/luanti.exe ../bin/
 ```
 
 It will print out a list of libraries it has copied to the binary folder once finished. Now it should be possible to run the Luanti executable outside of the MSYS2 environment.
