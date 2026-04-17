@@ -595,6 +595,8 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 
 	// Set the environment to the one we created earlier
 	setLuaEnv(L, thread);
+
+	replace_string_metatable(L);
 }
 
 #endif
