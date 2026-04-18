@@ -34,6 +34,9 @@
 #if USE_LEVELDB
 #include "database/database-leveldb.h"
 #endif
+#if USE_MARIADB
+#include "database/database-mariadb.h"
+#endif
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 
@@ -254,14 +257,14 @@ void ServerEnvironment::init()
 	if (player_backend_name == "files") {
 		warningstream << "/!\\ You are using old player file backend. "
 				<< "This backend is deprecated and will be removed in a future release /!\\"
-				<< std::endl << "Switching to SQLite3 or PostgreSQL is advised, "
+				<< std::endl << "Switching to SQLite3, PostgreSQL, or MariaDB is advised, "
 				<< "please read https://docs.luanti.org/for-server-hosts/database-backends." << std::endl;
 	}
 
 	if (auth_backend_name == "files") {
 		warningstream << "/!\\ You are using old auth file backend. "
 				<< "This backend is deprecated and will be removed in a future release /!\\"
-				<< std::endl << "Switching to SQLite3 is advised, "
+				<< std::endl << "Switching to SQLite3, or Mariadb is advised, "
 				<< "please read https://docs.luanti.org/for-server-hosts/database-backends." << std::endl;
 	}
 
@@ -1847,6 +1850,9 @@ std::vector<std::string> ServerEnvironment::getPlayerDatabaseBackends()
 #if USE_POSTGRESQL
 	ret.emplace_back("postgresql");
 #endif
+#if USE_MARIADB
+	ret.emplace_back("mariadb");
+#endif
 #if USE_LEVELDB
 	ret.emplace_back("leveldb");
 #endif
@@ -1869,6 +1875,14 @@ PlayerDatabase *ServerEnvironment::openPlayerDatabase(const std::string &name,
 		std::string connect_string;
 		conf.getNoEx("pgsql_player_connection", connect_string);
 		return new PlayerDatabasePostgreSQL(connect_string);
+	}
+#endif
+
+#if USE_MARIADB
+	if (name == "mariadb") {
+		std::string connect_string;
+		conf.getNoEx("mariadb_player_connection", connect_string);
+		return new PlayerDatabaseMariaDB(connect_string);
 	}
 #endif
 
@@ -1897,7 +1911,7 @@ bool ServerEnvironment::migratePlayersDatabase(const GameParams &game_params,
 	if (!world_mt.exists("player_backend")) {
 		errorstream << "Please specify your current backend in world.mt:"
 			<< std::endl
-			<< "	player_backend = {files|sqlite3|leveldb|postgresql}"
+			<< "	player_backend = {files|sqlite3|leveldb|postgresql|mariadb}"
 			<< std::endl;
 		return false;
 	}
@@ -1978,6 +1992,9 @@ std::vector<std::string> ServerEnvironment::getAuthDatabaseBackends()
 #if USE_POSTGRESQL
 	ret.emplace_back("postgresql");
 #endif
+#if USE_MARIADB
+	ret.emplace_back("mariadb");
+#endif
 	ret.emplace_back("files");
 #if USE_LEVELDB
 	ret.emplace_back("leveldb");
@@ -1996,6 +2013,14 @@ AuthDatabase *ServerEnvironment::openAuthDatabase(
 		std::string connect_string;
 		conf.getNoEx("pgsql_auth_connection", connect_string);
 		return new AuthDatabasePostgreSQL(connect_string);
+	}
+#endif
+
+#if USE_MARIADB
+	if (name == "mariadb") {
+		std::string connect_string;
+		conf.getNoEx("mariadb_auth_connection", connect_string);
+		return new AuthDatabaseMariaDB(connect_string);
 	}
 #endif
 

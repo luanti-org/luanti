@@ -145,7 +145,7 @@ World metadata.
     gameid = mesetint             - name of the game
     enable_damage = true          - whether damage is enabled or not
     creative_mode = false         - whether creative mode is enabled or not
-    backend = sqlite3             - which DB backend to use for blocks (sqlite3, dummy, leveldb, redis, postgresql)
+    backend = sqlite3             - which DB backend to use for blocks (sqlite3, dummy, leveldb, redis, postgresql, mariadb)
     player_backend = sqlite3      - which DB backend to use for player data
     readonly_backend = sqlite3    - optionally read-only seed DB (DB file _must_ be located in "readonly" subfolder)
     auth_backend = files          - which DB backend to use for authentication data
@@ -181,6 +181,13 @@ For `load_mod_<mod>`, the possible values are:
     redis_hash = foo           - Database hash
     redis_port = 6379          - (optional) Connection port
     redis_password = hunter2   - (optional) Server password
+
+`MariaDB` backend specific settings:
+
+    mariadb_connection = host=127.0.0.1 port=3306 user=luanti_username password=luanti_password dbname=luanti_database
+    mariadb_player_connection = (same parameters as above)
+    mariadb_auth_connection = (same parameters as above)
+    mariadb_mod_storage_connection = (same parameters as above)
 
 # Player File Format
 

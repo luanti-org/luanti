@@ -8,7 +8,7 @@ install_linux_deps() {
 		shift
 	fi
 	local pkgs=(
-		cmake gettext postgresql
+		cmake gettext postgresql mariadb-server libmariadb-dev
 		libsqlite3-dev libhiredis-dev libogg-dev libgmp-dev libpq-dev
 		libleveldb-dev libcurl4-openssl-dev libzstd-dev libssl-dev
 	)
@@ -28,6 +28,16 @@ install_linux_deps() {
 			CREATE DATABASE minetest;
 			\c minetest
 			GRANT ALL ON SCHEMA public TO minetest;
+		"
+	fi
+
+	# set up MariaDB for unit tests
+	if [ -n "$LUANTI_MARIADB_CONNECT_STRING" ]; then
+		sudo systemctl start mariadb.service
+		sudo mysql <<<"
+			CREATE USER 'luanti'@'127.0.0.1' IDENTIFIED BY 'luanti';
+			CREATE DATABASE luanti CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_unicode_ci';
+			GRANT ALL ON luanti.* TO 'luanti'@'127.0.0.1';
 		"
 	fi
 }

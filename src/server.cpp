@@ -66,6 +66,9 @@
 #if USE_POSTGRESQL
 #include "database/database-postgresql.h"
 #endif
+#if USE_MARIADB
+#include "database/database-mariadb.h"
+#endif
 #include "database/database-files.h"
 #include "database/database-dummy.h"
 
@@ -4413,6 +4416,9 @@ std::vector<std::string> Server::getModStorageDatabaseBackends()
 #if USE_POSTGRESQL
 	ret.emplace_back("postgresql");
 #endif
+#if USE_MARIADB
+	ret.emplace_back("mariadb");
+#endif
 	ret.emplace_back("files");
 	ret.emplace_back("dummy");
 	return ret;
@@ -4431,6 +4437,14 @@ ModStorageDatabase *Server::openModStorageDatabase(const std::string &backend,
 		return new ModStorageDatabasePostgreSQL(connect_string);
 	}
 #endif // USE_POSTGRESQL
+
+#if USE_MARIADB
+	if (backend == "mariadb") {
+		std::string connect_string;
+		world_mt.getNoEx("mariadb_mod_storage_connection", connect_string);
+		return new ModStorageDatabaseMariaDB(connect_string);
+	}
+#endif // USE_MARIADB
 
 	if (backend == "files")
 		return new ModStorageDatabaseFiles(world_path);
