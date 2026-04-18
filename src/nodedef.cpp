@@ -1111,6 +1111,28 @@ void NodeDefManager::applyTextureOverrides(const std::vector<TextureOverride> &o
 
 		if (texture_override.hasTarget(OverrideTarget::SPECIAL_6))
 			apply(nodedef.tiledef_special[5]);
+
+
+		// Override override tiles, if applicable
+		if (texture_override.hasTarget(OverrideTarget::OVERLAY_1))
+			apply(nodedef.tiledef_overlay[0]);
+		
+		if (texture_override.hasTarget(OverrideTarget::OVERLAY_2))
+			apply(nodedef.tiledef_overlay[1]);
+
+		if (texture_override.hasTarget(OverrideTarget::OVERLAY_3))
+			apply(nodedef.tiledef_overlay[2]);
+
+		if (texture_override.hasTarget(OverrideTarget::OVERLAY_4))
+			apply(nodedef.tiledef_overlay[3]);
+
+		if (texture_override.hasTarget(OverrideTarget::OVERLAY_5))
+			apply(nodedef.tiledef_overlay[4]);
+
+		if (texture_override.hasTarget(OverrideTarget::OVERLAY_6))
+			apply(nodedef.tiledef_overlay[5]);
+
+			
 	}
 }
 

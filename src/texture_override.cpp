@@ -26,6 +26,12 @@ static const std::map<std::string, OverrideTarget> override_LUT = {
 	{ "special4", OverrideTarget::SPECIAL_4 },
 	{ "special5", OverrideTarget::SPECIAL_5 },
 	{ "special6", OverrideTarget::SPECIAL_6 },
+	{"overlay1", OverrideTarget::OVERLAY_1},
+	{"overlay2", OverrideTarget::OVERLAY_2},
+	{"overlay3", OverrideTarget::OVERLAY_3},
+	{"overlay4", OverrideTarget::OVERLAY_4},
+	{"overlay5", OverrideTarget::OVERLAY_5},
+	{"overlay6", OverrideTarget::OVERLAY_6},
 	{ "sides", OverrideTarget::SIDES },
 	{ "all", OverrideTarget::ALL_FACES },
 	{ "*", OverrideTarget::ALL_FACES }
