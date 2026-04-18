@@ -631,10 +631,8 @@ void Client::step(float dtime)
 		Send player position to server
 	*/
 	{
-		float &counter = m_playerpos_send_timer;
-		counter += dtime;
-		if (m_state == LC_Ready && counter >= m_recommended_send_interval) {
-			counter = 0;
+		m_playerpos_send_timer += dtime;
+		if (m_state == LC_Ready) {
 			sendPlayerPos();
 		}
 	}
@@ -1488,6 +1486,10 @@ void Client::sendPlayerPos()
 			player->last_movement_dir    == movement_dir);
 
 	if (identical) {
+		if (m_playerpos_send_timer < m_recommended_send_interval) {
+			// do not send packet with identical information yet (recommended send interval not reached yet)
+			return;
+		}
 		// Since the movement info is sent non-reliable an unfortunate desync might
 		// occur if we stop sending and the last packet gets lost or re-ordered.
 		// To make this situation less likely we stop sending duplicate packets
@@ -1496,8 +1498,10 @@ void Client::sendPlayerPos()
 		if (m_playerpos_repeat_count >= 5)
 			return;
 	} else {
+		// something changed, send packet directly (even if the recommended send interval is not reached yet)
 		m_playerpos_repeat_count = 0;
 	}
+	m_playerpos_send_timer = 0;
 
 	player->last_position        = player->getPosition();
 	player->last_speed           = player->getSpeed();
