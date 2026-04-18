@@ -30,14 +30,14 @@ bool ModApiCraft::readCraftRecipeShaped(lua_State *L, int index,
 	if (!lua_istable(L, index))
 		return false;
 
-	for (int row = 0; LuaHelper::geti(L, index, row); ++row) {
+	for (int row = 0; LuaHelper::geti(L, index, row); ++row, lua_pop(L, 1)) {
 		if (!lua_istable(L, -1)) {
 			lua_pop(L, 1);
 			return false;
 		}
 		int index2 = lua_gettop(L);
 		int col = 0;
-		for (; LuaHelper::geti(L, index2, col); ++col) {
+		for (; LuaHelper::geti(L, index2, col); ++col, lua_pop(L, 1)) {
 			if (!lua_isstring(L, -1)) {
 				lua_pop(L, 2);
 				return false;
