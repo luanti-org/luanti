@@ -1109,6 +1109,13 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 			});
 			material.Wireframe = m_control.show_wireframe;
 
+			if (m_sun_reflection_texture) {
+				auto &sun_layer = material.TextureLayers[TEXTURE_LAYER_SUN_REFLECTION];
+				sun_layer.Texture = m_sun_reflection_texture;
+				sun_layer.MinFilter = video::ETMINF_LINEAR_MIPMAP_NEAREST;
+				sun_layer.MagFilter = video::ETMAGF_LINEAR;
+			}
+
 			// pass the shadow map texture to the buffer texture
 			ShadowRenderer *shadow = m_rendering_engine->get_shadow_renderer();
 			if (shadow && shadow->is_active()) {
@@ -1130,6 +1137,7 @@ void ClientMap::renderMap(video::IVideoDriver* driver, s32 pass)
 				++array_texture_use;
 
 			material.TextureLayers[ShadowRenderer::TEXTURE_LAYER_SHADOW].Texture = nullptr;
+			material.TextureLayers[TEXTURE_LAYER_SUN_REFLECTION].Texture = nullptr;
 		}
 
 		m.setTranslation(descriptor.m_pos);
