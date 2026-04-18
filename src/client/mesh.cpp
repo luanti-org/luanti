@@ -186,13 +186,17 @@ static void applyToMesh(scene::IMesh *mesh, const F &fn)
 	}
 }
 
-void colorizeMeshBuffer(scene::IMeshBuffer *buf, video::SColor buf_color)
+void colorizeMeshBuffer(scene::IMeshBuffer *buf, video::SColor buf_color,
+		f32 ambient_light, v3f dir_light)
 {
-	applyToMeshBuffer(buf, [buf_color](auto *vertex) {
+	applyToMeshBuffer(buf, [=](auto *vertex) {
 		// Reset color
 		vertex->Color = buf_color;
 		// Apply shading
-		applyFacesShading(vertex->Color, vertex->Normal);
+		if (vertex->Normal == v3f())
+			return; // leave color unchanged ("fully lit")
+		const f32 intensity = std::fabs(vertex->Normal.normalize().dotProduct(-dir_light));
+		applyShadeFactor(vertex->Color, std::min(1.0f, ambient_light + intensity));
 	});
 }
 
