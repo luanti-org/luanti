@@ -134,11 +134,14 @@ void drawItemStack(
 
 			// TODO: could be moved to a shader
 			if (p.needColorize(c)) {
-				buf->setDirty(scene::EBT_VERTEX);
-				if (imesh->needs_shading)
-					colorizeMeshBuffer(buf, &c);
-				else
+				if (imesh->needs_shading) {
+					f32 ambient_light = 0.25f;
+					v3f light_dir(-0.6f, -1.2f, 0.4f);
+					light_dir.normalize();
+					colorizeMeshBuffer(buf, c, ambient_light, light_dir);
+				} else {
 					setMeshBufferColor(buf, c);
+				}
 			}
 
 			video::SMaterial &material = buf->getMaterial();
