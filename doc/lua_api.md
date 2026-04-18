@@ -7411,8 +7411,13 @@ Rollback
 Defaults for the `on_place` and `on_drop` item definition functions
 -------------------------------------------------------------------
 
+Note: These can be overridden to modify the according defaults.
+
 * `core.item_place_node(itemstack, placer, pointed_thing[, param2, prevent_after_place])`
     * Place item as a node
+    * If `placer` is not `nil`, nor a (fake) player with name `""`, replicates
+      effects that the client would usually predict (placement sounds) for all
+      players but `placer`.
     * `param2` overrides `facedir` and wallmounted `param2`
     * `prevent_after_place`: if set to `true`, `after_place_node` is not called
       for the newly placed node to prevent a callback and placement loop
@@ -7421,11 +7426,11 @@ Defaults for the `on_place` and `on_drop` item definition functions
 * `core.item_place_object(itemstack, placer, pointed_thing)`
     * Place item as-is
     * returns the leftover itemstack
-    * **Note**: This function is deprecated and will never be called.
+    * **Note**: This function is deprecated and is not used as a default.
 * `core.item_place(itemstack, placer, pointed_thing[, param2])`
     * Wrapper that calls `core.item_place_node` if appropriate
     * Calls `on_rightclick` of `pointed_thing.under` if defined instead
-    * **Note**: is not called when wielded item overrides `on_place`
+    * **Note**: This is the default for `on_place` in item definition.
     * `param2` overrides facedir and wallmounted `param2`
     * returns `itemstack, position`
       * `position`: the location the node was placed to. `nil` if nothing was placed.
@@ -7433,13 +7438,14 @@ Defaults for the `on_place` and `on_drop` item definition functions
     * Runs callbacks registered by `core.register_on_item_pickup` and adds
       the item to the picker's `"main"` inventory list.
     * Parameters and return value are the same as `on_pickup`.
-    * **Note**: is not called when wielded item overrides `on_pickup`
+    * **Note**: This is the default for `on_pickup` in item definition.
 * `core.item_secondary_use(itemstack, user)`
     * Global secondary use callback. Does nothing.
     * Parameters and return value are the same as `on_secondary_use`.
-    * **Note**: is not called when wielded item overrides `on_secondary_use`
+    * **Note**: This is the default for `on_secondary_use` in item definition.
 * `core.item_drop(itemstack, dropper, pos)`
     * Converts `itemstack` to an in-world Lua entity.
+    * **Note**: This is the default for `on_drop` in item definition.
     * `itemstack` (`ItemStack`) is modified (cleared) on success.
       * In versions < 5.12.0, `itemstack` was cleared in all cases.
     * `dropper` (`ObjectRef`) is optional.
@@ -7457,11 +7463,18 @@ Defaults for the `on_place` and `on_drop` item definition functions
 Defaults for the `on_punch` and `on_dig` node definition callbacks
 ------------------------------------------------------------------
 
+Note: These can be overridden to modify the according defaults.
+
 * `core.node_punch(pos, node, puncher, pointed_thing)`
     * Calls functions registered by `core.register_on_punchnode()`
+    * **Note**: This is the default for `on_punch` in node definition.
 * `core.node_dig(pos, node, digger)`
     * Checks if node can be dug, puts item into inventory, removes node
     * Calls functions registered by `core.register_on_dignode()`
+    * If `digger` is not `nil`, nor a (fake) player with name `""`, replicates
+      effects that the client would usually predict (dug sounds, particles) for
+      all players but `digger`.
+    * **Note**: This is the default for `on_dig` in node definition.
 
 Sounds
 ------
@@ -10347,12 +10360,9 @@ Used by `core.register_node`, `core.register_craftitem`, and
     -- Otherwise should be name of node which the client immediately places
     -- on ground when the player places the item. Server will always update
     -- with actual result shortly.
-
-    node_dig_prediction = "air",
-    -- if "", no prediction is made.
-    -- if "air", node is removed.
-    -- Otherwise should be name of node which the client immediately places
-    -- upon digging. Server will always update with actual result shortly.
+    -- Note: The prediction includes effects made when placing (i.e. sounds). To
+    -- replicate them, modify on_place accordingly.
+    -- (See also node_dig_prediction in node definition.)
 
     touch_interaction = <TouchInteractionMode> OR {
         pointed_nothing = <TouchInteractionMode>,
@@ -10712,6 +10722,15 @@ Used by `core.register_node`.
     -- plantlike drawtype can only wave like plants.
     -- allfaces_optional drawtype can only wave like leaves.
     -- liquid, flowingliquid drawtypes can only wave like liquids.
+
+    node_dig_prediction = "air",
+    -- if "", no prediction is made.
+    -- if "air", node is removed.
+    -- Otherwise should be name of node which the client immediately places
+    -- when the node is dug. Server will always update with actual result shortly.
+    -- Note: The prediction includes effects made when having dug (i.e. sounds,
+    -- particles). To replicate them, modify on_dig accordingly.
+    -- (See also node_placement_prediction in item definition.)
 
     sounds = {
         -- Definition of node sounds to be played at various events.
