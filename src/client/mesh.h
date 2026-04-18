@@ -23,7 +23,7 @@ namespace video {
  * Applies shading to a color based on the surface's
  * normal vector.
  */
-void applyFacesShading(video::SColor &color, const v3f normal);
+void applyFacesShading(video::SColor &color, v3f normal);
 
 /*
 	Create a new cube mesh.
@@ -48,18 +48,18 @@ void translateMesh(scene::IMesh *mesh, v3f vec);
 /*!
  * Sets a constant color for all vertices in the mesh buffer.
  */
-void setMeshBufferColor(scene::IMeshBuffer *buf, const video::SColor color);
+void setMeshBufferColor(scene::IMeshBuffer *buf, video::SColor color);
 
 /*
 	Set a constant color for all vertices in the mesh
 */
-void setMeshColor(scene::IMesh *mesh, const video::SColor color);
+void setMeshColor(scene::IMesh *mesh, video::SColor color);
 
 /*!
  * Overwrites the color of a mesh buffer.
  * The color is darkened based on the normal vector of the vertices.
  */
-void colorizeMeshBuffer(scene::IMeshBuffer *buf, const video::SColor *buffercolor);
+void colorizeMeshBuffer(scene::IMeshBuffer *buf, video::SColor buf_color);
 
 /*
 	Set the color of all vertices in the mesh.
@@ -68,12 +68,9 @@ void colorizeMeshBuffer(scene::IMeshBuffer *buf, const video::SColor *buffercolo
 	colorZ accordingly.
 */
 void setMeshColorByNormalXYZ(scene::IMesh *mesh,
-		const video::SColor &colorX,
-		const video::SColor &colorY,
-		const video::SColor &colorZ);
+		video::SColor colorX, video::SColor colorY, video::SColor colorZ);
 
-void setMeshColorByNormal(scene::IMesh *mesh, const v3f &normal,
-		const video::SColor &color);
+void setMeshColorByNormal(scene::IMesh *mesh, v3f normal, video::SColor color);
 
 /*
 	Rotate the mesh by 6d facedir value.
@@ -104,7 +101,7 @@ scene::SMesh* cloneStaticMesh(scene::IMesh *src_mesh);
 	expand - factor by which cuboids will be resized
 */
 scene::IMesh* convertNodeboxesToMesh(const std::vector<aabb3f> &boxes,
-		const f32 *uv_coords = NULL, float expand = 0);
+		const f32 *uv_coords = NULL, f32 expand = 0);
 
 /*
 	Update bounding box for a mesh.
