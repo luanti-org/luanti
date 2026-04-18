@@ -7,6 +7,7 @@
 #include "lua_api/l_vmanip.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
+#include "common/helper.h"
 #include "cpp_api/s_security.h"
 #include "server.h"
 #include "serverenvironment.h"
@@ -230,9 +231,9 @@ bool read_schematic_def(lua_State *L, int index,
 	std::unordered_map<std::string, content_t> name_id_map;
 
 	u32 i = 0;
-	for (lua_pushnil(L); lua_next(L, -2); i++, lua_pop(L, 1)) {
+	LuaHelper::for_ipairs(L, -1, [&]() {
 		if (i >= numnodes)
-			continue;
+			return;
 
 		//// Read name
 		std::string name;
@@ -266,7 +267,8 @@ bool read_schematic_def(lua_State *L, int index,
 
 		//// Actually set the node in the schematic
 		schem->schemdata[i] = MapNode(name_index, param1, param2);
-	}
+		++i;
+	});
 
 	if (i != numnodes) {
 		errorstream << "read_schematic_def: incorrect number of "
@@ -1689,8 +1691,7 @@ int ModApiMapgen::l_create_schematic(lua_State *L)
 
 	std::vector<std::pair<v3s16, u8> > prob_list;
 	if (lua_istable(L, 3)) {
-		lua_pushnil(L);
-		while (lua_next(L, 3)) {
+		LuaHelper::for_ipairs(L, 3, [&]() {
 			if (lua_istable(L, -1)) {
 				lua_getfield(L, -1, "pos");
 				v3s16 pos = check_v3s16(L, -1);
@@ -1699,23 +1700,18 @@ int ModApiMapgen::l_create_schematic(lua_State *L)
 				u8 prob = getintfield_default(L, -1, "prob", MTSCHEM_PROB_ALWAYS);
 				prob_list.emplace_back(pos, prob);
 			}
-
-			lua_pop(L, 1);
-		}
+		});
 	}
 
 	std::vector<std::pair<s16, u8> > slice_prob_list;
 	if (lua_istable(L, 5)) {
-		lua_pushnil(L);
-		while (lua_next(L, 5)) {
+		LuaHelper::for_ipairs(L, 5, [&]() {
 			if (lua_istable(L, -1)) {
 				s16 ypos = getintfield_default(L, -1, "ypos", 0);
 				u8 prob  = getintfield_default(L, -1, "prob", MTSCHEM_PROB_ALWAYS);
 				slice_prob_list.emplace_back(ypos, prob);
 			}
-
-			lua_pop(L, 1);
-		}
+		});
 	}
 
 	if (!schem.getSchematicFromMap(&env->getMap(), p1, p2)) {

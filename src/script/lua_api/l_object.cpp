@@ -11,6 +11,7 @@
 #include "lua_api/l_playermeta.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
+#include "common/helper.h"
 #include "cpp_api/s_base.h"
 #include "log.h"
 #include "player.h"
@@ -2087,13 +2088,9 @@ int ObjectRef::l_set_sky(lua_State *L)
 		lua_getfield(L, 2, "textures");
 		sky_params.textures.clear();
 		if (lua_istable(L, -1) && sky_params.type == "skybox") {
-			lua_pushnil(L);
-			while (lua_next(L, -2) != 0) {
-				// Key is at index -2 and value at index -1
+			LuaHelper::for_ipairs(L, -1, [&]() {
 				sky_params.textures.emplace_back(readParam<std::string>(L, -1));
-				// Removes the value, but keeps the key for iteration
-				lua_pop(L, 1);
-			}
+			});
 		}
 		lua_pop(L, 1);
 
@@ -2196,13 +2193,9 @@ int ObjectRef::l_set_sky(lua_State *L)
 
 		sky_params.textures.clear();
 		if (lua_istable(L, 4)) {
-			lua_pushnil(L);
-			while (lua_next(L, 4) != 0) {
-				// Key at index -2, and value at index -1
+			LuaHelper::for_ipairs(L, 4, [&]() {
 				sky_params.textures.emplace_back(readParam<std::string>(L, -1));
-				// Remove the value, keep the key for the next iteration
-				lua_pop(L, 1);
-			}
+			});
 		}
 		if (sky_params.type == "skybox" && sky_params.textures.size() != 6)
 			throw LuaError("Skybox expects 6 textures.");
@@ -2622,6 +2615,37 @@ int ObjectRef::l_get_day_night_ratio(lua_State *L)
 	return 1;
 }
 
+static std::optional<MinimapMode> read_minimap_mode(lua_State *L, int index)
+{
+	if (!lua_istable(L, index))
+		return std::nullopt;
+
+	MinimapMode mode;
+
+	std::string type = getstringfield_default(L, index, "type", "");
+	if (type == "off")
+		mode.type = MINIMAP_TYPE_OFF;
+	else if (type == "surface")
+		mode.type = MINIMAP_TYPE_SURFACE;
+	else if (type == "radar")
+		mode.type = MINIMAP_TYPE_RADAR;
+	else if (type == "texture") {
+		mode.type = MINIMAP_TYPE_TEXTURE;
+		mode.texture = getstringfield_default(L, index, "texture", "");
+		mode.scale = getintfield_default(L, index, "scale", 1);
+	} else {
+		warningstream << "Minimap mode of unknown type \"" << type.c_str()
+			<< "\" ignored.\n" << std::endl;
+		return std::nullopt;
+	}
+
+	mode.label = getstringfield_default(L, index, "label", "");
+	// Size is limited to 512. Performance gets poor if size too large, and
+	// segfaults have been experienced.
+	mode.size = rangelim(getintfield_default(L, index, "size", 0), 1, 512);
+	return mode;
+}
+
 // set_minimap_modes(self, modes, selected_mode)
 int ObjectRef::l_set_minimap_modes(lua_State *L)
 {
@@ -2635,41 +2659,10 @@ int ObjectRef::l_set_minimap_modes(lua_State *L)
 	std::vector<MinimapMode> modes;
 	s16 selected_mode = readParam<s16>(L, 3);
 
-	lua_pushnil(L);
-	while (lua_next(L, 2) != 0) {
-		/* key is at index -2, value is at index -1 */
-		if (lua_istable(L, -1)) {
-			bool ok = true;
-			MinimapMode mode;
-			std::string type = getstringfield_default(L, -1, "type", "");
-			if (type == "off")
-				mode.type = MINIMAP_TYPE_OFF;
-			else if (type == "surface")
-				mode.type = MINIMAP_TYPE_SURFACE;
-			else if (type == "radar")
-				mode.type = MINIMAP_TYPE_RADAR;
-			else if (type == "texture") {
-				mode.type = MINIMAP_TYPE_TEXTURE;
-				mode.texture = getstringfield_default(L, -1, "texture", "");
-				mode.scale = getintfield_default(L, -1, "scale", 1);
-			} else {
-				warningstream << "Minimap mode of unknown type \"" << type.c_str()
-					<< "\" ignored.\n" << std::endl;
-				ok = false;
-			}
-
-			if (ok) {
-				mode.label = getstringfield_default(L, -1, "label", "");
-				// Size is limited to 512. Performance gets poor if size too large, and
-				// segfaults have been experienced.
-				mode.size = rangelim(getintfield_default(L, -1, "size", 0), 1, 512);
-				modes.push_back(mode);
-			}
-		}
-		/* removes 'value'; keeps 'key' for next iteration */
-		lua_pop(L, 1);
-	}
-	lua_pop(L, 1); // Remove key
+	LuaHelper::for_ipairs(L, 2, [&]() {
+		if (auto mode = read_minimap_mode(L, -1))
+			modes.push_back(*mode);
+	});
 
 	getServer(L)->SendMinimapModes(player->getPeerId(), modes, selected_mode);
 	return 0;

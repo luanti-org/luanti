@@ -4,6 +4,7 @@
 #include "common/c_content.h"
 #include "common/c_converter.h"
 #include "common/c_types.h"
+#include "common/helper.h"
 #include "nodedef.h"
 #include "object_properties.h"
 #include "collision.h"
@@ -404,31 +405,29 @@ void read_object_properties(lua_State *L, int index,
 	lua_pop(L, 1);
 
 	lua_getfield(L, -1, "textures");
-	if(lua_istable(L, -1)){
+	if (lua_istable(L, -1)) {
 		prop->textures.clear();
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		while(lua_next(L, table) != 0){
-			// key at index -2 and value at index -1
-			if(lua_isstring(L, -1))
+		LuaHelper::for_ipairs(L, -1, [&]() {
+			int tp = lua_type(L, -1);
+			if (tp == LUA_TSTRING) {
 				prop->textures.emplace_back(lua_tostring(L, -1));
-			else
+			} else {
+				script_log_unique(L, std::string("Textures must be strings, got ") +
+						lua_typename(L, tp), warningstream);
 				prop->textures.emplace_back("");
-			// removes value, keeps key for next iteration
-			lua_pop(L, 1);
-		}
+			};
+		});
 	}
 	lua_pop(L, 1);
 
 	lua_getfield(L, -1, "colors");
 	if (lua_istable(L, -1)) {
-		int table = lua_gettop(L);
 		prop->colors.clear();
-		for (lua_pushnil(L); lua_next(L, table); lua_pop(L, 1)) {
+		LuaHelper::for_ipairs(L, -1, [&]() {
 			video::SColor color(255, 255, 255, 255);
 			read_color(L, -1, &color);
 			prop->colors.push_back(color);
-		}
+		});
 	}
 	lua_pop(L, 1);
 
@@ -749,78 +748,44 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	/* Meshnode model filename */
 	getstringfield(L, index, "mesh", f.mesh);
 
-	// tiles = {}
-	lua_getfield(L, index, "tiles");
-	if(lua_istable(L, -1)){
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		int i = 0;
-		while(lua_next(L, table) != 0){
-			// Read tiledef from value
-			f.tiledef[i] = read_tiledef(L, -1, f.drawtype, false);
-			// removes value, keeps key for next iteration
+	const auto read_tiles = [&](const char *name, TileDef *tiledefs) {
+		lua_getfield(L, index, name);
+		if (!lua_istable(L, -1)) {
 			lua_pop(L, 1);
-			i++;
-			if(i==6){
+			return;
+		}
+		int i = 0;
+		for (; LuaHelper::geti(L, -1, i); ++i, lua_pop(L, 1)) {
+			if (i >= 6) {
+				script_log_unique(L, std::string("Ignoring extraneous ") + name, warningstream);
 				lua_pop(L, 1);
 				break;
 			}
+			tiledefs[i] = read_tiledef(L, -1, f.drawtype, false);
 		}
 		// Copy last value to all remaining textures
-		if(i >= 1){
-			TileDef lasttile = f.tiledef[i-1];
-			while(i < 6){
-				f.tiledef[i] = lasttile;
-				i++;
+		if (i > 0 && i < 6) {
+			TileDef lasttile = tiledefs[i - 1];
+			for (int j = i; j < 6; ++j) {
+				tiledefs[j] = lasttile;
 			}
 		}
-	}
-	lua_pop(L, 1);
+		lua_pop(L, 1);
+	};
 
-	// overlay_tiles = {}
-	lua_getfield(L, index, "overlay_tiles");
-	if (lua_istable(L, -1)) {
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		int i = 0;
-		while (lua_next(L, table) != 0) {
-			// Read tiledef from value
-			f.tiledef_overlay[i] = read_tiledef(L, -1, f.drawtype, false);
-			// removes value, keeps key for next iteration
-			lua_pop(L, 1);
-			i++;
-			if (i == 6) {
-				lua_pop(L, 1);
-				break;
-			}
-		}
-		// Copy last value to all remaining textures
-		if (i >= 1) {
-			TileDef lasttile = f.tiledef_overlay[i - 1];
-			while (i < 6) {
-				f.tiledef_overlay[i] = lasttile;
-				i++;
-			}
-		}
-	}
-	lua_pop(L, 1);
+	read_tiles("tiles", f.tiledef);
+	read_tiles("overlay_tiles", f.tiledef_overlay);
 
 	// special_tiles = {}
 	lua_getfield(L, index, "special_tiles");
-	if(lua_istable(L, -1)){
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		int i = 0;
-		while(lua_next(L, table) != 0){
-			// Read tiledef from value
-			f.tiledef_special[i] = read_tiledef(L, -1, f.drawtype, true);
-			// removes value, keeps key for next iteration
-			lua_pop(L, 1);
-			i++;
-			if(i==CF_SPECIAL_COUNT){
+	if (lua_istable(L, -1)) {
+		for (int i = 0; LuaHelper::geti(L, index, i); ++i, lua_pop(L, 1)) {
+			if (i >= CF_SPECIAL_COUNT) {
+				script_log_unique(L, "Ignoring extraneous special_tiles", warningstream);
 				lua_pop(L, 1);
 				break;
 			}
+			f.tiledef_special[i] = read_tiledef(L, -1, f.drawtype, true);
 		}
 	}
 	lua_pop(L, 1);
