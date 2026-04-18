@@ -299,6 +299,8 @@ protected:
 	void drawArrays(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount);
 	void drawElements(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount, const u16 *indices, int indexCount);
 
+	void drawSplitPrimitives(const void *vertices, const void *indexList, u32 primitiveCount,
+		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType);
 	void drawGeneric(const void *vertices, const void *indexList, u32 primitiveCount,
 		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType);
 
@@ -327,6 +329,8 @@ protected:
 	STextureFormatInfo TextureFormats[ECF_UNKNOWN] = {};
 
 private:
+	u32 MaxPrimitiveCount = 0;
+
 	COpenGL3Renderer2D *MaterialRenderer2DActive;
 	COpenGL3Renderer2D *MaterialRenderer2DTexture;
 	COpenGL3Renderer2D *MaterialRenderer2DNoTexture;

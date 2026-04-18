@@ -259,6 +259,7 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 		os::Printer::log(e.what(), ELL_ERROR);
 		return false;
 	}
+	MaxPrimitiveCount = Version.Spec == OpenGLSpec::ES ? UINT16_MAX : INT32_MAX;
 	printTextureFormats();
 
 	if (EnableErrorTest) {
@@ -675,14 +676,11 @@ void COpenGL3DriverBase::drawVertexPrimitiveList(const void *vertices, u32 verte
 	if (!primitiveCount || !vertexCount)
 		return;
 
-	if (!checkPrimitiveCount(primitiveCount))
-		return;
-
 	CNullDriver::drawVertexPrimitiveList(vertices, vertexCount, indexList, primitiveCount, vType, pType, iType);
 
 	setRenderStates3DMode();
 
-	drawGeneric(vertices, indexList, primitiveCount, vType, pType, iType);
+	drawSplitPrimitives(vertices, indexList, primitiveCount, vType, pType, iType);
 }
 
 //! draws a vertex primitive list in 2d
@@ -696,9 +694,6 @@ void COpenGL3DriverBase::draw2DVertexPrimitiveList(const void *vertices, u32 ver
 	if (!vertices)
 		return;
 
-	if (!checkPrimitiveCount(primitiveCount))
-		return;
-
 	CNullDriver::draw2DVertexPrimitiveList(vertices, vertexCount, indexList, primitiveCount, vType, pType, iType);
 
 	setRenderStates2DMode(
@@ -707,7 +702,7 @@ void COpenGL3DriverBase::draw2DVertexPrimitiveList(const void *vertices, u32 ver
 		Material.MaterialType == EMT_TRANSPARENT_ALPHA_CHANNEL
 	);
 
-	drawGeneric(vertices, indexList, primitiveCount, vType, pType, iType);
+	drawSplitPrimitives(vertices, indexList, primitiveCount, vType, pType, iType);
 }
 
 void COpenGL3DriverBase::draw2DImage(const video::ITexture *texture, const core::position2d<s32> &destPos,
@@ -986,6 +981,43 @@ void COpenGL3DriverBase::drawElements(GLenum primitiveType, const VertexType &ve
 	beginDraw(vertexType, reinterpret_cast<uintptr_t>(vertices));
 	GL.DrawRangeElements(primitiveType, 0, vertexCount - 1, indexCount, GL_UNSIGNED_SHORT, indices);
 	endDraw(vertexType);
+}
+
+void COpenGL3DriverBase::drawSplitPrimitives(const void *vertices,
+		const void *indexList, u32 primitiveCount,
+		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType)
+{
+	const u32 maxPrims = MaxPrimitiveCount;
+	if (primitiveCount <= maxPrims) {
+		drawGeneric(vertices, indexList, primitiveCount, vType, pType, iType);
+		return;
+	}
+	if (pType != scene::EPT_TRIANGLES) {
+		if (!checkPrimitiveCount(primitiveCount))
+			return;
+		drawGeneric(vertices, indexList, primitiveCount, vType, pType, iType);
+		return;
+	}
+
+	// Split into multiple draw calls to stay within the primitive limit.
+	//
+	// batchLimit is MaxPrimitiveCount rounded down to a multiple of 3 so
+	// that each batch consumes exactly batchLimit * 3 indices, keeping
+	// batch boundaries aligned to triangle boundaries.
+	//
+	// indexList may be a real pointer or a byte offset into a bound VBO;
+	// either way, byte-offset arithmetic is correct for GL.
+	const u32 batchLimit = maxPrims - (maxPrims % 3);
+	const u32 indexSize = (iType == EIT_32BIT) ? 4 : 2;
+	auto indexOffset = reinterpret_cast<uintptr_t>(indexList);
+	u32 remaining = primitiveCount;
+	while (remaining > 0) {
+		u32 batch = std::min(remaining, batchLimit);
+		drawGeneric(vertices, reinterpret_cast<const void *>(indexOffset),
+				batch, vType, pType, iType);
+		indexOffset += batch * 3 * indexSize;
+		remaining -= batch;
+	}
 }
 
 void COpenGL3DriverBase::drawGeneric(const void *vertices, const void *indexList,
@@ -1699,7 +1731,7 @@ SDriverLimits COpenGL3DriverBase::getLimits() const
 {
 	SDriverLimits ret;
 	ret.GLVersion = core::vector2di(Version.Major, Version.Minor);
-	ret.MaxPrimitiveCount = Version.Spec == OpenGLSpec::ES ? UINT16_MAX : INT32_MAX;
+	ret.MaxPrimitiveCount = MaxPrimitiveCount;
 	ret.MaxTextureSize = MaxTextureSize;
 	ret.MaxArrayTextureImages = MaxArrayTextureLayers;
 	return ret;
