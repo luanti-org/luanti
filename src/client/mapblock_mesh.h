@@ -176,7 +176,7 @@ class MapBlockMesh
 {
 public:
 	// Builds the mesh given
-	MapBlockMesh(Client *client, MeshMakeData *data);
+	MapBlockMesh(Client *client, MeshMakeData *data, u8 lod, u32 solid_shader_id);
 	~MapBlockMesh();
 
 	// Main animation function, parameters:
@@ -273,7 +273,10 @@ public:
 		return std::make_pair<int, u8>((n & 0xffff) - 1, (n >> 16) & 0xff);
 	}
 
+	const u8 m_lod;
+
 private:
+	u32 m_solid_shader_id;
 
 	typedef std::pair<u8 /* layer index */, u32 /* buffer index */> MeshIndex;
 

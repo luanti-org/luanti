@@ -874,13 +874,15 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 u32 IShaderSource::getShader(const std::string &name,
 	MaterialType material_type, NodeDrawType drawtype,
-	bool array_texture, bool skinning)
+	bool array_texture, bool skinning, bool is_textureless)
 {
 	ShaderConstants input_const;
 	input_const["MATERIAL_TYPE"] = (int)material_type;
 	(void) drawtype; // unused
 	if (array_texture)
 		input_const["USE_ARRAY_TEXTURE"] = 1;
+	if (is_textureless)
+		input_const["TEXTURELESS"] = 1;
 	if (skinning) {
 		const auto max_joints = RenderingEngine::get_video_driver()->getMaxJointTransforms();
 		if (max_joints > 0) {
