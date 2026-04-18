@@ -1399,7 +1399,7 @@ void Game::processUserInput(f32 dtime)
 	}
 
 	if (!guienv->hasFocus(gui_chat_console.get()) && gui_chat_console->isOpen()
-		&& !gui_chat_console->isMyChild(guienv->getFocus()))
+		&& !gui_chat_console->isMyDescendant(guienv->getFocus()))
 	{
 		gui_chat_console->closeConsoleAtOnce();
 	}

@@ -60,7 +60,7 @@ void GUIModalMenu::allowFocusRemoval(bool allow)
 
 bool GUIModalMenu::canTakeFocus(gui::IGUIElement *e)
 {
-	return (e && (e == this || isMyChild(e))) || m_allow_focus_removal;
+	return (e && (e == this || isMyDescendant(e))) || m_allow_focus_removal;
 }
 
 void GUIModalMenu::draw()

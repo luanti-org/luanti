@@ -4,6 +4,7 @@
 #include "common/c_content.h"
 #include "common/c_converter.h"
 #include "common/c_types.h"
+#include "common/helper.h"
 #include "nodedef.h"
 #include "object_properties.h"
 #include "collision.h"
@@ -55,7 +56,7 @@ struct EnumString es_TouchInteractionMode[] =
 };
 
 /******************************************************************************/
-void read_item_definition(lua_State* L, int index,
+void read_item_definition(lua_State *L, int index,
 		const ItemDefinition &default_def, ItemDefinition &def)
 {
 	if (index < 0)
@@ -326,7 +327,7 @@ void read_object_properties(lua_State *L, int index,
 		ServerActiveObject *sao, ObjectProperties *prop, IItemDefManager *idef,
 		bool fallback)
 {
-	if(index < 0)
+	if (index < 0)
 		index = lua_gettop(L) + 1 + index;
 	if (lua_isnil(L, index))
 		return;
@@ -372,7 +373,7 @@ void read_object_properties(lua_State *L, int index,
 	lua_pop(L, 1);
 
 	lua_getfield(L, -1, "pointable");
-	if(!lua_isnil(L, -1)){
+	if (!lua_isnil(L, -1)) {
 		prop->pointable = read_pointability_type(L, -1);
 	}
 	lua_pop(L, 1);
@@ -404,31 +405,29 @@ void read_object_properties(lua_State *L, int index,
 	lua_pop(L, 1);
 
 	lua_getfield(L, -1, "textures");
-	if(lua_istable(L, -1)){
+	if (lua_istable(L, -1)) {
 		prop->textures.clear();
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		while(lua_next(L, table) != 0){
-			// key at index -2 and value at index -1
-			if(lua_isstring(L, -1))
+		LuaHelper::for_ipairs(L, -1, [&]() {
+			int tp = lua_type(L, -1);
+			if (tp == LUA_TSTRING) {
 				prop->textures.emplace_back(lua_tostring(L, -1));
-			else
+			} else {
+				script_log_unique(L, std::string("Textures must be strings, got ") +
+						lua_typename(L, tp), warningstream);
 				prop->textures.emplace_back("");
-			// removes value, keeps key for next iteration
-			lua_pop(L, 1);
-		}
+			};
+		});
 	}
 	lua_pop(L, 1);
 
 	lua_getfield(L, -1, "colors");
 	if (lua_istable(L, -1)) {
-		int table = lua_gettop(L);
 		prop->colors.clear();
-		for (lua_pushnil(L); lua_next(L, table); lua_pop(L, 1)) {
+		LuaHelper::for_ipairs(L, -1, [&]() {
 			video::SColor color(255, 255, 255, 255);
 			read_color(L, -1, &color);
 			prop->colors.push_back(color);
-		}
+		});
 	}
 	lua_pop(L, 1);
 
@@ -443,12 +442,12 @@ void read_object_properties(lua_State *L, int index,
 	}
 
 	lua_getfield(L, -1, "spritediv");
-	if(lua_istable(L, -1))
+	if (lua_istable(L, -1))
 		prop->spritediv = read_v2s16(L, -1);
 	lua_pop(L, 1);
 
 	lua_getfield(L, -1, "initial_sprite_basepos");
-	if(lua_istable(L, -1))
+	if (lua_istable(L, -1))
 		prop->initial_sprite_basepos = read_v2s16(L, -1);
 	lua_pop(L, 1);
 
@@ -749,78 +748,44 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	/* Meshnode model filename */
 	getstringfield(L, index, "mesh", f.mesh);
 
-	// tiles = {}
-	lua_getfield(L, index, "tiles");
-	if(lua_istable(L, -1)){
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		int i = 0;
-		while(lua_next(L, table) != 0){
-			// Read tiledef from value
-			f.tiledef[i] = read_tiledef(L, -1, f.drawtype, false);
-			// removes value, keeps key for next iteration
+	const auto read_tiles = [&](const char *name, TileDef *tiledefs) {
+		lua_getfield(L, index, name);
+		if (!lua_istable(L, -1)) {
 			lua_pop(L, 1);
-			i++;
-			if(i==6){
+			return;
+		}
+		int i = 0;
+		for (; LuaHelper::geti(L, -1, i); ++i, lua_pop(L, 1)) {
+			if (i >= 6) {
+				script_log_unique(L, std::string("Ignoring extraneous ") + name, warningstream);
 				lua_pop(L, 1);
 				break;
 			}
+			tiledefs[i] = read_tiledef(L, -1, f.drawtype, false);
 		}
 		// Copy last value to all remaining textures
-		if(i >= 1){
-			TileDef lasttile = f.tiledef[i-1];
-			while(i < 6){
-				f.tiledef[i] = lasttile;
-				i++;
+		if (i > 0 && i < 6) {
+			TileDef lasttile = tiledefs[i - 1];
+			for (int j = i; j < 6; ++j) {
+				tiledefs[j] = lasttile;
 			}
 		}
-	}
-	lua_pop(L, 1);
+		lua_pop(L, 1);
+	};
 
-	// overlay_tiles = {}
-	lua_getfield(L, index, "overlay_tiles");
-	if (lua_istable(L, -1)) {
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		int i = 0;
-		while (lua_next(L, table) != 0) {
-			// Read tiledef from value
-			f.tiledef_overlay[i] = read_tiledef(L, -1, f.drawtype, false);
-			// removes value, keeps key for next iteration
-			lua_pop(L, 1);
-			i++;
-			if (i == 6) {
-				lua_pop(L, 1);
-				break;
-			}
-		}
-		// Copy last value to all remaining textures
-		if (i >= 1) {
-			TileDef lasttile = f.tiledef_overlay[i - 1];
-			while (i < 6) {
-				f.tiledef_overlay[i] = lasttile;
-				i++;
-			}
-		}
-	}
-	lua_pop(L, 1);
+	read_tiles("tiles", f.tiledef);
+	read_tiles("overlay_tiles", f.tiledef_overlay);
 
 	// special_tiles = {}
 	lua_getfield(L, index, "special_tiles");
-	if(lua_istable(L, -1)){
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		int i = 0;
-		while(lua_next(L, table) != 0){
-			// Read tiledef from value
-			f.tiledef_special[i] = read_tiledef(L, -1, f.drawtype, true);
-			// removes value, keeps key for next iteration
-			lua_pop(L, 1);
-			i++;
-			if(i==CF_SPECIAL_COUNT){
+	if (lua_istable(L, -1)) {
+		for (int i = 0; LuaHelper::geti(L, index, i); ++i, lua_pop(L, 1)) {
+			if (i >= CF_SPECIAL_COUNT) {
+				script_log_unique(L, "Ignoring extraneous special_tiles", warningstream);
 				lua_pop(L, 1);
 				break;
 			}
+			f.tiledef_special[i] = read_tiledef(L, -1, f.drawtype, true);
 		}
 	}
 	lua_pop(L, 1);
@@ -960,21 +925,15 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 
 	lua_getfield(L, index, "connects_to");
 	if (lua_istable(L, -1)) {
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		while (lua_next(L, table) != 0) {
-			// Value at -1
+		LuaHelper::for_ipairs(L, -1, [&]() {
 			f.connects_to.emplace_back(lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		});
 	}
 	lua_pop(L, 1);
 
 	lua_getfield(L, index, "connect_sides");
 	if (lua_istable(L, -1)) {
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		while (lua_next(L, table) != 0) {
+		LuaHelper::for_ipairs(L, -1, [&]() {
 			// Value at -1
 			std::string_view side(lua_tostring(L, -1));
 			// Note faces are flipped to make checking easier
@@ -993,8 +952,7 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 			else
 				warningstream << "Unknown value for \"connect_sides\": "
 					<< side << std::endl;
-			lua_pop(L, 1);
-		}
+		});
 	}
 	lua_pop(L, 1);
 
@@ -1671,13 +1629,13 @@ ToolCapabilities read_tool_capabilities(
 	getintfield(L, table, "punch_attack_uses", toolcap.punch_attack_uses);
 
 	lua_getfield(L, table, "groupcaps");
-	if(lua_istable(L, -1)){
+	if (lua_istable(L, -1)) {
 		int table_groupcaps = lua_gettop(L);
 		lua_pushnil(L);
-		while(lua_next(L, table_groupcaps) != 0){
+		while (lua_next(L, table_groupcaps) != 0) {
 			// key at index -2 and value at index -1
 			std::string groupname = luaL_checkstring(L, -2);
-			if(lua_istable(L, -1)){
+			if (lua_istable(L, -1)) {
 				int table_groupcap = lua_gettop(L);
 				// This will be created
 				ToolGroupCap groupcap;
@@ -1686,7 +1644,7 @@ ToolCapabilities read_tool_capabilities(
 				getintfield(L, table_groupcap, "uses", groupcap.uses);
 				// DEPRECATED: maxwear
 				float maxwear = 0;
-				if (getfloatfield(L, table_groupcap, "maxwear", maxwear)){
+				if (getfloatfield(L, table_groupcap, "maxwear", maxwear)) {
 					if (maxwear != 0)
 						groupcap.uses = 1.0f/maxwear;
 					else
@@ -1697,10 +1655,10 @@ ToolCapabilities read_tool_capabilities(
 				}
 				// Read "times" table
 				lua_getfield(L, table_groupcap, "times");
-				if(lua_istable(L, -1)){
+				if (lua_istable(L, -1)) {
 					int table_times = lua_gettop(L);
 					lua_pushnil(L);
-					while(lua_next(L, table_times) != 0){
+					while (lua_next(L, table_times) != 0) {
 						// key at index -2 and value at index -1
 						int rating = luaL_checkinteger(L, -2);
 						float time = luaL_checknumber(L, -1);
@@ -1720,10 +1678,10 @@ ToolCapabilities read_tool_capabilities(
 	lua_pop(L, 1);
 
 	lua_getfield(L, table, "damage_groups");
-	if(lua_istable(L, -1)){
+	if (lua_istable(L, -1)) {
 		int table_damage_groups = lua_gettop(L);
 		lua_pushnil(L);
-		while(lua_next(L, table_damage_groups) != 0){
+		while (lua_next(L, table_damage_groups) != 0) {
 			// key at index -2 and value at index -1
 			std::string groupname = luaL_checkstring(L, -2);
 			u16 value = luaL_checkinteger(L, -1);
@@ -1760,10 +1718,10 @@ Pointabilities read_pointabilities(lua_State *L, int index)
 
 	luaL_checktype(L, index, LUA_TTABLE);
 	lua_getfield(L, index, "nodes");
-	if(lua_istable(L, -1)){
+	if (lua_istable(L, -1)) {
 		int ti = lua_gettop(L);
 		lua_pushnil(L);
-		while(lua_next(L, ti) != 0) {
+		while (lua_next(L, ti) != 0) {
 			// key at index -2 and value at index -1
 			std::string name = luaL_checkstring(L, -2);
 
@@ -1781,10 +1739,10 @@ Pointabilities read_pointabilities(lua_State *L, int index)
 	lua_pop(L, 1);
 
 	lua_getfield(L, index, "objects");
-	if(lua_istable(L, -1)){
+	if (lua_istable(L, -1)) {
 		int ti = lua_gettop(L);
 		lua_pushnil(L);
-		while(lua_next(L, ti) != 0) {
+		while (lua_next(L, ti) != 0) {
 			// key at index -2 and value at index -1
 			std::string name = luaL_checkstring(L, -2);
 
@@ -1807,7 +1765,7 @@ Pointabilities read_pointabilities(lua_State *L, int index)
 /******************************************************************************/
 void push_pointability_type(lua_State *L, PointabilityType pointable)
 {
-	switch(pointable)
+	switch (pointable)
 	{
 	case PointabilityType::POINTABLE:
 		lua_pushboolean(L, true);
@@ -2033,7 +1991,7 @@ void push_items(lua_State *L, const std::vector<ItemStack> &items)
 /******************************************************************************/
 std::vector<ItemStack> read_items(lua_State *L, int index, IGameDef *gdef)
 {
-	if(index < 0)
+	if (index < 0)
 		index = lua_gettop(L) + 1 + index;
 
 	std::vector<ItemStack> items;
