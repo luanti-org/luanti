@@ -279,6 +279,39 @@ local function test_on_mapblocks_changed(cb, player, pos)
 end
 unittests.register("test_on_mapblocks_changed", test_on_mapblocks_changed, {map=true, async=true})
 
+local function test_get_loaded_active_and_loadable_blocks(_, pos)
+	local loaded = core.get_loaded_blocks()
+	local loaded_set = {}
+
+	local loadable = core.get_loadable_blocks()
+	assert(type(loadable) == "table")
+	if #loadable > 0 then
+		assert(vector.check(loadable[1]))
+	end
+
+	local active = core.get_active_blocks()
+
+	for _, block in ipairs(loaded) do
+		loaded_set[core.hash_node_position(block)] = true
+		assert(core.compare_block_status(block * core.MAP_BLOCKSIZE, "loaded"),
+			("expected block %s from get_loaded_blocks to satisfy loaded status")
+			:format(core.pos_to_string(block)))
+	end
+
+	assert(#active <= #loaded,
+		"expected get_active_blocks to return at most as many block positions as get_loaded_blocks")
+	for _, block in ipairs(active) do
+		assert(core.compare_block_status(block * core.MAP_BLOCKSIZE, "active"),
+			("expected block %s from get_active_blocks to satisfy active status")
+			:format(core.pos_to_string(block)))
+		assert(loaded_set[core.hash_node_position(block)],
+			"expected get_active_blocks result to be a subset of get_loaded_blocks")
+	end
+
+end
+unittests.register("test_get_loaded_active_and_loadable_blocks",
+		test_get_loaded_active_and_loadable_blocks, {map=true})
+
 local function test_gennotify_api()
 	local DECO_ID = 123
 	local UD_ID = "unittests:dummy"

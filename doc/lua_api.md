@@ -1883,6 +1883,9 @@ There is **no** guarantee that an active mapblock has already been filled by the
 Related API functions:
 
 * `core.compare_block_status`
+* `core.get_loaded_blocks`
+* `core.get_loadable_blocks`
+* `core.get_active_blocks`
 * `core.forceload_block`
 * `core.load_area`
 * `core.emerge_area`
@@ -8152,6 +8155,22 @@ Misc.
     * stops forceloading the position `pos`
     * If `transient` is `false` or absent, frees a persistent forceload.
       If `true`, frees a transient forceload.
+
+* `core.get_loaded_blocks()`
+    * Returns a list of all mapblock positions currently loaded in memory.
+    * The returned list is a snapshot. Blocks can become (un)loaded at any point.
+
+* `core.get_loadable_blocks()`
+    * Returns a list of all mapblock positions that currently exist in the map
+      database and can be loaded.
+    * The returned list is a snapshot. Blocks can (dis)appear at any point.
+    * This is an expensive operation, since it may have to scan the entire database.
+      Use sparingly.
+    * Note that there can be blocks that are loaded, but not loadable (if they weren't saved yet).
+
+* `core.get_active_blocks()`
+    * Returns a list of all mapblock positions currently active.
+    * The returned list is a snapshot. Blocks can become (in)active at any point.
 
 * `core.compare_block_status(pos, condition)`
     * Checks whether the mapblock at position `pos` is in the wanted condition.
