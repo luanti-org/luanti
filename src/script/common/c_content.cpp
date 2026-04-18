@@ -925,21 +925,15 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 
 	lua_getfield(L, index, "connects_to");
 	if (lua_istable(L, -1)) {
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		while (lua_next(L, table) != 0) {
-			// Value at -1
+		LuaHelper::for_ipairs(L, -1, [&]() {
 			f.connects_to.emplace_back(lua_tostring(L, -1));
-			lua_pop(L, 1);
-		}
+		});
 	}
 	lua_pop(L, 1);
 
 	lua_getfield(L, index, "connect_sides");
 	if (lua_istable(L, -1)) {
-		int table = lua_gettop(L);
-		lua_pushnil(L);
-		while (lua_next(L, table) != 0) {
+		LuaHelper::for_ipairs(L, -1, [&]() {
 			// Value at -1
 			std::string_view side(lua_tostring(L, -1));
 			// Note faces are flipped to make checking easier
@@ -958,8 +952,7 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 			else
 				warningstream << "Unknown value for \"connect_sides\": "
 					<< side << std::endl;
-			lua_pop(L, 1);
-		}
+		});
 	}
 	lua_pop(L, 1);
 

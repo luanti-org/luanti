@@ -284,15 +284,16 @@ bool read_schematic_def(lua_State *L, int index,
 
 	lua_getfield(L, index, "yslice_prob");
 	if (lua_istable(L, -1)) {
-		for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+		LuaHelper::for_ipairs(L, -1, [&]() {
 			u16 ypos;
 			if (!getintfield(L, -1, "ypos", ypos) || (ypos >= size.Y) ||
 				!getintfield(L, -1, "prob", schem->slice_probs[ypos]))
-				continue;
+				return;
 
 			schem->slice_probs[ypos] >>= 1;
-		}
+		});
 	}
+	lua_pop(L, 1);
 
 	return true;
 }
@@ -442,18 +443,18 @@ size_t get_biome_list(lua_State *L, int index,
 	// returns number of failed resolutions
 	size_t fail_count = 0;
 
-	for (lua_pushnil(L); lua_next(L, index); lua_pop(L, 1)) {
+	LuaHelper::for_ipairs(L, index, [&]() {
 		Biome *biome = get_or_load_biome(L, -1, biomemgr);
 		if (!biome) {
 			fail_count++;
 			warningstream << "get_biome_list: failed to get biome '"
 				<< (lua_isstring(L, -1) ? lua_tostring(L, -1) : "")
 				<< "'" << std::endl;
-			continue;
+			return;
 		}
 
 		biome_id_list->insert(biome->index);
-	}
+	});
 
 	return fail_count;
 }
@@ -1028,20 +1029,16 @@ int ModApiMapgen::l_set_gen_notify(lua_State *L)
 	}
 
 	if (lua_istable(L, 2)) {
-		lua_pushnil(L);
-		while (lua_next(L, 2)) {
+		LuaHelper::for_ipairs(L, 2, [&]() {
 			if (lua_isnumber(L, -1))
 				emerge->gen_notify_on_deco_ids.insert((u32)lua_tonumber(L, -1));
-			lua_pop(L, 1);
-		}
+		});
 	}
 
 	if (lua_istable(L, 3)) {
-		lua_pushnil(L);
-		while (lua_next(L, 3)) {
+		LuaHelper::for_ipairs(L, 3, [&]() {
 			emerge->gen_notify_on_custom.insert(readParam<std::string>(L, -1));
-			lua_pop(L, 1);
-		}
+		});
 	}
 
 	// Clear sets if relevant flag disabled

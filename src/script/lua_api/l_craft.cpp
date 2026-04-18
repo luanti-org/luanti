@@ -58,10 +58,10 @@ bool ModApiCraft::readCraftRecipeShaped(lua_State *L, int index,
 bool ModApiCraft::readCraftRecipeShapeless(lua_State *L, int index,
 		std::vector<std::string> &recipe)
 {
-	if(index < 0)
+	if (index < 0)
 		index = lua_gettop(L) + 1 + index;
 
-	if(!lua_istable(L, index))
+	if (!lua_istable(L, index))
 		return false;
 
 	for (int i = 0; LuaHelper::geti(L, index, i); ++i, lua_pop(L, 1)) {
