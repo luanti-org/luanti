@@ -167,6 +167,12 @@ void GUIFormSpecMenu::removeTooltip()
 
 void GUIFormSpecMenu::setInitialFocus()
 {
+	if (m_held_mouse_button != BET_OTHER) {
+		// Ongoing inventory list interaction (they have no `FieldSpec::fname` to focus).
+		Environment->setFocus(this);
+		return;
+	}
+
 	// Set initial focus according to following order of precedence:
 	// 1. first empty editbox
 	// 2. first editbox
@@ -3008,6 +3014,13 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		}
 	} else {
 		// Don't keep old focus value
+		m_focused_element = std::nullopt;
+		// Discard active inventory list interaction
+		m_held_mouse_button = BET_OTHER;
+	}
+
+	if (m_held_mouse_button != BET_OTHER) {
+		// Inventory list interaction -> focus "this". See also: `setInitialFocus`
 		m_focused_element = std::nullopt;
 	}
 
