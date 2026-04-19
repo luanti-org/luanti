@@ -9,5 +9,4 @@
 	<string name="game_notification_title">Luanti is running</string>
 	<string name="ime_dialog_done">Done</string>
 	<string name="no_web_browser">No web browser found</string>
-	<string name="documents_provider_root_title">Game Files</string>
 </resources>
