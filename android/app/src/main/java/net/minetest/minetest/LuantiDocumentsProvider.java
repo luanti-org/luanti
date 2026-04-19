@@ -37,7 +37,7 @@ public class LuantiDocumentsProvider extends DocumentsProvider {
     appDataRootRow.add(Root.COLUMN_MIME_TYPES, "*/*");
     appDataRootRow.add(Root.COLUMN_FLAGS, 0);
     appDataRootRow.add(Root.COLUMN_ICON, R.mipmap.ic_launcher);
-    appDataRootRow.add(Root.COLUMN_TITLE, getContext().getString(R.string.documents_provider_root_title));
+    appDataRootRow.add(Root.COLUMN_TITLE, getContext().getString(R.string.label));
     appDataRootRow.add(Root.COLUMN_DOCUMENT_ID, externalAppDataDirectory);
 
     return result;
