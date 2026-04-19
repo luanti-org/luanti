@@ -140,9 +140,7 @@ void Camera::step(f32 dtime)
 	m_wield_change_timer = MYMIN(m_wield_change_timer + dtime, 0.125);
 
 	if (m_wield_change_timer >= 0 && was_under_zero) {
-		m_wieldnode->setItem(m_wield_item_next, m_client);
-		m_wieldnode->setLightColorAndAnimation(m_player_light_color,
-				m_client->getAnimationTime());
+		updateWieldedTool();
 	}
 
 	if (m_view_bobbing_state != 0)
@@ -599,8 +597,11 @@ void Camera::wield(const ItemStack &item, bool animate)
 	if (item.name != m_wield_item_next.name ||
 			item.metadata != m_wield_item_next.metadata) {
 		m_wield_item_next = item;
-		if (!animate)
+
+		if (!animate) {
+			updateWieldedTool();
 			return;
+		}
 
 		if (m_wield_change_timer > 0)
 			m_wield_change_timer = -m_wield_change_timer;
@@ -753,4 +754,10 @@ std::array<core::plane3d<f32>, 4> Camera::getFrustumCullPlanes() const
 		frustum_planes[SViewFrustum::VF_BOTTOM_PLANE],
 		frustum_planes[SViewFrustum::VF_TOP_PLANE],
 	};
+}
+
+void Camera::updateWieldedTool()
+{
+	m_wieldnode->setItem(m_wield_item_next, m_client);
+	m_wieldnode->setLightColorAndAnimation(m_player_light_color, m_client->getAnimationTime());
 }
