@@ -34,6 +34,7 @@ class ProfilerGraph;
 class EventManager;
 class GUIChatConsole;
 class QuicktuneShortcutter;
+struct GameErrorData;
 
 const static float object_hit_delay = 0.2;
 
@@ -99,8 +100,7 @@ public:
 			InputHandler *input,
 			RenderingEngine *rendering_engine,
 			const GameStartData &game_params,
-			std::string &error_message,
-			bool *reconnect,
+			GameErrorData &errordata,
 			ChatBackend *chat_backend);
 
 	void run();
@@ -337,8 +337,7 @@ private:
 	video::IVideoDriver        *driver;
 	scene::ISceneManager       *smgr;
 	volatile std::sig_atomic_t *kill;
-	std::string                *error_message;
-	bool                       *reconnect_requested;
+	GameErrorData              *errordata;
 	PausedNodesList             paused_animated_nodes;
 
 	bool simple_singleplayer_mode;

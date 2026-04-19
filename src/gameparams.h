@@ -54,3 +54,13 @@ struct GameStartData : GameParams, GameClientData
 	// "world_path" must be kept in sync!
 	WorldSpec world_spec;
 };
+
+/// Data provided to Lua for error reporting by the main menu
+struct GameErrorData
+{
+	GameErrorData() = default;
+
+	// Whether the server has requested a reconnect
+	bool reconnect_requested = false;
+	std::string message;
+};
