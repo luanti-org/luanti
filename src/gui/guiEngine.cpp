@@ -193,7 +193,7 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 		auto err = strgettext("Failed to load main menu script!");
 		RenderingEngine::showErrorMessageBox(err);
 		m_kill = 1; // break game-menu loop
-		m_data->script_data.errormessage = err;
+		m_data->script_data.message = err;
 	};
 
 
@@ -209,7 +209,7 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 
 	try {
 		m_script->setMainMenuData(&m_data->script_data);
-		m_data->script_data.errormessage.clear();
+		m_data->script_data.message.clear();
 
 		if (!loadMainMenuScript()) {
 			report_fatal_error();
@@ -219,7 +219,7 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 		run();
 	} catch (ModError &e) {
 		errorstream << "Main menu error: " << e.what() << std::endl;
-		m_data->script_data.errormessage = e.what();
+		m_data->script_data.message = e.what();
 	}
 }
 

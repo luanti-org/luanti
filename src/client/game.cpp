@@ -424,8 +424,7 @@ bool Game::startup(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
 		const GameStartData &start_data,
-		std::string &error_message,
-		bool *reconnect,
+		GameErrorData &errordata,
 		ChatBackend *chat_backend)
 {
 
@@ -433,8 +432,7 @@ bool Game::startup(volatile std::sig_atomic_t *kill,
 	m_rendering_engine        = rendering_engine;
 	device                    = m_rendering_engine->get_raw_device();
 	this->kill                = kill;
-	this->error_message       = &error_message;
-	reconnect_requested       = reconnect;
+	this->errordata           = &errordata;
 	this->input               = input;
 	this->chat_backend        = chat_backend;
 	simple_singleplayer_mode  = start_data.isSinglePlayer();
@@ -751,6 +749,8 @@ bool Game::initSound()
 bool Game::createServer(const std::string &map_dir,
 		const SubgameSpec &gamespec, u16 port)
 {
+	std::string *error_message = &(errordata->message);
+
 	showOverlayMessage(N_("Creating server..."), 0, 5);
 
 	std::string bind_str;
@@ -781,7 +781,7 @@ bool Game::createServer(const std::string &map_dir,
 	}
 
 	server = new Server(map_dir, gamespec, simple_singleplayer_mode, bind_addr,
-			false, nullptr, error_message);
+			false, nullptr, &(errordata->message));
 
 	auto start_thread = runInThread([=] {
 		server->start();
@@ -833,6 +833,8 @@ void Game::copyServerClientCache()
 
 bool Game::createClient(const GameStartData &start_data)
 {
+	std::string *error_message = &(errordata->message);
+
 	showOverlayMessage(N_("Creating client..."), 0, 10);
 
 	draw_control = new MapDrawControl();
@@ -965,6 +967,8 @@ bool Game::initGui()
 bool Game::connectToServer(const GameStartData &start_data,
 		bool *connect_ok, bool *connection_aborted)
 {
+	std::string *error_message = &(errordata->message);
+
 	*connect_ok = false;	// Let's not be overly optimistic
 	*connection_aborted = false;
 	const auto &address_name = start_data.address;
@@ -1135,8 +1139,8 @@ bool Game::getServerContent(bool *aborted)
 			return false;
 
 		if (client->getState() < LC_Init) {
-			*error_message = gettext("Client disconnected");
-			errorstream << *error_message << std::endl;
+			errordata->message = gettext("Client disconnected");
+			errorstream << errordata->message << std::endl;
 			return false;
 		}
 
@@ -1221,9 +1225,9 @@ bool Game::checkConnection()
 		const std::string reason = wide_to_utf8(
 			unescape_translate(utf8_to_wide(client->accessDeniedReason())));
 
-		*error_message = fmtgettext("Access denied. Reason: %s", reason.c_str());
-		*reconnect_requested = client->reconnectRequested();
-		errorstream << *error_message << std::endl;
+		errordata->message = fmtgettext("Access denied. Reason: %s", reason.c_str());
+		errordata->reconnect_requested = client->reconnectRequested();
+		errorstream << errordata->message << std::endl;
 		return false;
 	}
 
@@ -3780,16 +3784,16 @@ void the_game(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
 		const GameStartData &start_data,
-		std::string &error_message,
-		ChatBackend &chat_backend,
-		bool *reconnect_requested) // Used for local game
+		GameErrorData &errordata,
+		ChatBackend &chat_backend)
 {
 	Game game;
+	std::string &error_message = errordata.message;
 
 	try {
 
 		if (game.startup(kill, input, rendering_engine, start_data,
-				error_message, reconnect_requested, &chat_backend)) {
+				errordata, &chat_backend)) {
 			game.run();
 		}
 

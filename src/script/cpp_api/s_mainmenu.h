@@ -6,7 +6,8 @@
 
 #include "cpp_api/s_base.h"
 #include "util/string.h"
-#include "gui/guiMainMenu.h"
+
+struct GameErrorData;
 
 class ScriptApiMainMenu : virtual public ScriptApiBase {
 public:
@@ -14,7 +15,7 @@ public:
 	 * Hand over MainMenuDataForScript to lua to inform lua of the content
 	 * @param data the data
 	 */
-	void setMainMenuData(const MainMenuDataForScript *data);
+	void setMainMenuData(const GameErrorData *data);
 
 	/**
 	 * process events received from formspec

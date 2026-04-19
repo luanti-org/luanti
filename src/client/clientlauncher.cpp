@@ -170,8 +170,7 @@ bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args
 
 	// If an error occurs, this is set to something by menu().
 	// It is then displayed before the menu shows on the next call to menu()
-	std::string error_message;
-	bool reconnect_requested = false;
+	GameErrorData errordata;
 
 	bool first_loop = true;
 
@@ -206,11 +205,10 @@ bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args
 			guiroot = guienv->addStaticText(L"",
 				core::rect<s32>(0, 0, 10000, 10000));
 
-			bool should_run_game = launch_game(error_message, reconnect_requested,
-				start_data, cmd_args);
+			bool should_run_game = launch_game(errordata, start_data, cmd_args);
 
 			// Reset the reconnect_requested flag
-			reconnect_requested = false;
+			errordata.reconnect_requested = false;
 
 			// If skip_main_menu, we only want to startup once
 			if (skip_main_menu && !first_loop)
@@ -232,15 +230,13 @@ bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args
 				input,
 				m_rendering_engine,
 				start_data,
-				error_message,
-				chat_backend,
-				&reconnect_requested
+				errordata,
+				chat_backend
 			);
 #ifdef NDEBUG
 		} catch (std::exception &e) {
-			error_message = "Some exception: ";
-			error_message.append(debug_describe_exc(e));
-			errorstream << error_message << std::endl;
+			errordata.message = "Some exception: " + debug_describe_exc(e);
+			errorstream << errordata.message << std::endl;
 		}
 #endif
 
@@ -261,7 +257,7 @@ bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args
 
 		// If no main menu, show error and exit
 		if (skip_main_menu) {
-			if (!error_message.empty())
+			if (!errordata.message.empty())
 				retval = false;
 			break;
 		}
@@ -424,14 +420,12 @@ void ClientLauncher::config_guienv()
 	}
 }
 
-bool ClientLauncher::launch_game(std::string &error_message,
-		bool reconnect_requested, GameStartData &start_data,
+bool ClientLauncher::launch_game(GameErrorData &errordata, GameStartData &start_data,
 		const Settings &cmd_args)
 {
-	// Prepare and check the start data to launch a game
-	std::string error_message_lua = error_message;
-	error_message.clear();
+	std::string &error_message = errordata.message;
 
+	// Prepare and check the start data to launch a game
 	if (cmd_args.exists("password"))
 		start_data.password = cmd_args.get("password");
 
@@ -453,11 +447,9 @@ bool ClientLauncher::launch_game(std::string &error_message,
 	 */
 	if (!skip_main_menu) {
 		// Initialize menu data
-		MainMenuData menudata;
+		MainMenuData menudata(errordata);
 		(GameClientData &)menudata = start_data;
 		menudata.port = itos(start_data.socket_port);
-		menudata.script_data.errormessage        = std::move(error_message_lua);
-		menudata.script_data.reconnect_requested = reconnect_requested;
 
 		main_menu(&menudata);
 
@@ -465,11 +457,11 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		if (!m_rendering_engine->run() || *porting::signal_handler_killstatus())
 			return false;
 
-		if (!menudata.script_data.errormessage.empty()) {
+		if (!menudata.script_data.message.empty()) {
 			/* The calling function will pass this back into this function upon the
 			 * next iteration (if any) causing it to be displayed by the GUI
 			 */
-			error_message = menudata.script_data.errormessage;
+			error_message = menudata.script_data.message;
 			return false;
 		}
 
