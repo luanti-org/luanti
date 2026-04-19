@@ -5,16 +5,17 @@
 #include "cpp_api/s_mainmenu.h"
 #include "cpp_api/s_internal.h"
 #include "common/c_converter.h"
+#include "gameparams.h"
 
-void ScriptApiMainMenu::setMainMenuData(const MainMenuDataForScript *data)
+void ScriptApiMainMenu::setMainMenuData(const GameErrorData *data)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
 	lua_getglobal(L, "gamedata");
 	int gamedata_idx = lua_gettop(L);
 	lua_pushstring(L, "errormessage");
-	if (!data->errormessage.empty()) {
-		lua_pushstring(L, data->errormessage.c_str());
+	if (!data->message.empty()) {
+		lua_pushstring(L, data->message.c_str());
 	} else {
 		lua_pushnil(L);
 	}

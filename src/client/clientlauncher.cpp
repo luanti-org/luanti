@@ -93,8 +93,11 @@ ClientLauncher::~ClientLauncher()
 }
 
 
-bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
+bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args)
 {
+	GameStartData start_data;
+	(GameParams &)start_data = game_params;
+
 	init_args(start_data, cmd_args);
 
 	try {
@@ -167,8 +170,7 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 
 	// If an error occurs, this is set to something by menu().
 	// It is then displayed before the menu shows on the next call to menu()
-	std::string error_message;
-	bool reconnect_requested = false;
+	GameErrorData errordata;
 
 	bool first_loop = true;
 
@@ -203,11 +205,10 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 			guiroot = guienv->addStaticText(L"",
 				core::rect<s32>(0, 0, 10000, 10000));
 
-			bool should_run_game = launch_game(error_message, reconnect_requested,
-				start_data, cmd_args);
+			bool should_run_game = launch_game(errordata, start_data, cmd_args);
 
 			// Reset the reconnect_requested flag
-			reconnect_requested = false;
+			errordata.reconnect_requested = false;
 
 			// If skip_main_menu, we only want to startup once
 			if (skip_main_menu && !first_loop)
@@ -229,15 +230,13 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 				input,
 				m_rendering_engine,
 				start_data,
-				error_message,
-				chat_backend,
-				&reconnect_requested
+				errordata,
+				chat_backend
 			);
 #ifdef NDEBUG
 		} catch (std::exception &e) {
-			error_message = "Some exception: ";
-			error_message.append(debug_describe_exc(e));
-			errorstream << error_message << std::endl;
+			errordata.message = "Some exception: " + debug_describe_exc(e);
+			errorstream << errordata.message << std::endl;
 		}
 #endif
 
@@ -258,7 +257,7 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 
 		// If no main menu, show error and exit
 		if (skip_main_menu) {
-			if (!error_message.empty())
+			if (!errordata.message.empty())
 				retval = false;
 			break;
 		}
@@ -281,12 +280,14 @@ void ClientLauncher::init_args(GameStartData &start_data, const Settings &cmd_ar
 	start_data.address = g_settings->get("address");
 	if (cmd_args.exists("address")) {
 		// Join a remote server
+		start_data.mode = GameClientData::GM_JOIN;
 		start_data.address = cmd_args.get("address");
 		start_data.world_path.clear();
 		start_data.name = g_settings->get("name");
 	}
 	if (!start_data.world_path.empty()) {
 		// Start a singleplayer instance
+		start_data.mode = GameClientData::GM_SINGLEPLAYER;
 		start_data.address = "";
 	}
 
@@ -295,6 +296,9 @@ void ClientLauncher::init_args(GameStartData &start_data, const Settings &cmd_ar
 
 	// If a world was commanded, select it
 	if (!start_data.world_path.empty()) {
+		if (!start_data.name.empty())
+			start_data.mode = GameClientData::GM_HOST_AND_JOIN;
+
 		auto &spec = start_data.world_spec;
 
 		spec.path = start_data.world_path;
@@ -416,14 +420,12 @@ void ClientLauncher::config_guienv()
 	}
 }
 
-bool ClientLauncher::launch_game(std::string &error_message,
-		bool reconnect_requested, GameStartData &start_data,
+bool ClientLauncher::launch_game(GameErrorData &errordata, GameStartData &start_data,
 		const Settings &cmd_args)
 {
-	// Prepare and check the start data to launch a game
-	std::string error_message_lua = error_message;
-	error_message.clear();
+	std::string &error_message = errordata.message;
 
+	// Prepare and check the start data to launch a game
 	if (cmd_args.exists("password"))
 		start_data.password = cmd_args.get("password");
 
@@ -443,17 +445,11 @@ bool ClientLauncher::launch_game(std::string &error_message,
 	/*
 	 * Show the GUI menu
 	 */
-	std::string server_name, server_description;
 	if (!skip_main_menu) {
 		// Initialize menu data
-		// TODO: Re-use existing structs (GameStartData)
-		MainMenuData menudata;
-		menudata.address                         = start_data.address;
-		menudata.name                            = start_data.name;
-		menudata.password                        = start_data.password;
-		menudata.port                            = itos(start_data.socket_port);
-		menudata.script_data.errormessage        = std::move(error_message_lua);
-		menudata.script_data.reconnect_requested = reconnect_requested;
+		MainMenuData menudata(errordata);
+		(GameClientData &)menudata = start_data;
+		menudata.port = itos(start_data.socket_port);
 
 		main_menu(&menudata);
 
@@ -461,11 +457,11 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		if (!m_rendering_engine->run() || *porting::signal_handler_killstatus())
 			return false;
 
-		if (!menudata.script_data.errormessage.empty()) {
+		if (!menudata.script_data.message.empty()) {
 			/* The calling function will pass this back into this function upon the
 			 * next iteration (if any) causing it to be displayed by the GUI
 			 */
-			error_message = menudata.script_data.errormessage;
+			error_message = menudata.script_data.message;
 			return false;
 		}
 
@@ -482,18 +478,7 @@ bool ClientLauncher::launch_game(std::string &error_message,
 			start_data.world_path = start_data.world_spec.path;
 		}
 
-		start_data.name = menudata.name;
-		start_data.password = menudata.password;
-		start_data.address = std::move(menudata.address);
-		start_data.allow_login_or_register = menudata.allow_login_or_register;
-		server_name = menudata.servername;
-		server_description = menudata.serverdescription;
-
-		start_data.local_server = !menudata.simple_singleplayer_mode &&
-			start_data.address.empty();
-	} else {
-		start_data.local_server = !start_data.world_path.empty() &&
-			start_data.address.empty() && !start_data.name.empty();
+		(GameClientData &)start_data = menudata;
 	}
 
 	if (!start_data.isSinglePlayer() && start_data.name.empty()) {
@@ -519,12 +504,12 @@ bool ClientLauncher::launch_game(std::string &error_message,
 	}
 
 	// For singleplayer and local server
-	if (start_data.address.empty()) {
+	if (start_data.isAnyServer()) {
 		auto &worldspec = start_data.world_spec;
 		if (worldspec.path.empty()) {
-			error_message = gettext("No world selected and no address "
-					"provided. Nothing to do.");
-			errorstream << error_message << std::endl;
+			errordata.setError(
+				gettext("No world selected and no address provided. Nothing to do.")
+			);
 			return false;
 		}
 
@@ -541,13 +526,13 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		}
 
 		if (!start_data.game_spec.isValid()) {
+			std::string msg;
 			if (world_exists) {
-				error_message = gettext("Could not find or load game: ")
-					+ worldspec.gameid;
+				msg = gettext("Could not find or load game: ") + worldspec.gameid;
 			} else {
-				error_message = gettext("World does not exist and no game selected to create one.");
+				msg = gettext("World does not exist and no game selected to create one.");
 			}
-			errorstream << error_message << std::endl;
+			errordata.setError(msg);
 			return false;
 		}
 	}

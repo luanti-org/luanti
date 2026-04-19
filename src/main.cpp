@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
 #endif
 	}
 
-	GameStartData game_params;
+	GameParams game_params;
 #if !CHECK_CLIENT_BUILD()
 	porting::attachOrCreateConsole();
 	game_params.is_dedicated_server = true;
