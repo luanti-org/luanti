@@ -40,8 +40,10 @@ The "gamedata" table is read when calling `core.start()`. It should contain:
     password       = <password>,
     address        = <IP/address>,
     port           = <port>,
+    do_reconnect   = <bool>,
+    allow_login_or_register = "login"|"register"|"any",
     selected_world = <index>, -- 0 for client mode
-    singleplayer   = <true/false>,
+    mode           = "singleplayer"|"host"|"join",
 }
 ```
 

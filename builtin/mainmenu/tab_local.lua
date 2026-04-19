@@ -381,6 +381,7 @@ local function main_button_handler(this, fields, name, tabdata)
 		end
 
 		if core.settings:get_bool("enable_server") then
+			gamedata.mode       = "host"
 			gamedata.playername = fields["te_playername"]
 			gamedata.password   = fields["te_passwd"]
 			gamedata.port       = fields["te_serverport"]
@@ -391,7 +392,7 @@ local function main_button_handler(this, fields, name, tabdata)
 				core.settings:set("bind_address",fields["te_serveraddr"])
 			end
 		else
-			gamedata.singleplayer = true
+			gamedata.mode = "singleplayer"
 		end
 
 		core.start()
