@@ -507,9 +507,9 @@ bool ClientLauncher::launch_game(GameErrorData &errordata, GameStartData &start_
 	if (start_data.isAnyServer()) {
 		auto &worldspec = start_data.world_spec;
 		if (worldspec.path.empty()) {
-			error_message = gettext("No world selected and no address "
-					"provided. Nothing to do.");
-			errorstream << error_message << std::endl;
+			errordata.setError(
+				gettext("No world selected and no address provided. Nothing to do.")
+			);
 			return false;
 		}
 
@@ -526,13 +526,13 @@ bool ClientLauncher::launch_game(GameErrorData &errordata, GameStartData &start_
 		}
 
 		if (!start_data.game_spec.isValid()) {
+			std::string msg;
 			if (world_exists) {
-				error_message = gettext("Could not find or load game: ")
-					+ worldspec.gameid;
+				msg = gettext("Could not find or load game: ") + worldspec.gameid;
 			} else {
-				error_message = gettext("World does not exist and no game selected to create one.");
+				msg = gettext("World does not exist and no game selected to create one.");
 			}
-			errorstream << error_message << std::endl;
+			errordata.setError(msg);
 			return false;
 		}
 	}
