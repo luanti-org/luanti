@@ -60,6 +60,17 @@
 				android:resource="@xml/filepaths" />
 		</provider>
 
+		<provider
+            android:name="net.minetest.minetest.LuantiDocumentsProvider"
+            android:authorities="net.minetest.minetest.documents"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
+
 </application>
 
 </manifest>
