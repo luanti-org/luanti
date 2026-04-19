@@ -87,7 +87,8 @@ enum ToClientCommand : u16
 
 	TOCLIENT_INVENTORY = 0x27,
 	/*
-		serialized inventory
+		<long string> serialized inventory
+		bool skip_wield_anim
 	*/
 
 	TOCLIENT_TIME_OF_DAY = 0x29,

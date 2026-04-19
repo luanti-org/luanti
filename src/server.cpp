@@ -1584,7 +1584,7 @@ void Server::SendNodeDef(session_t peer_id,
 	Non-static send methods
 */
 
-void Server::SendInventory(RemotePlayer *player, bool incremental)
+void Server::SendInventory(RemotePlayer *player, bool incremental, bool skip_wield_anim)
 {
 	// Do not send new format to old clients
 	incremental &= player->protocol_version >= 38;
@@ -1601,8 +1601,15 @@ void Server::SendInventory(RemotePlayer *player, bool incremental)
 	player->inventory.serialize(os, incremental);
 	player->inventory.setModified(false);
 	player->setModified(true);
+	std::string content = os.str();
 
-	pkt.putRawString(os.str());
+	if (player->protocol_version >= 52) {
+		pkt.putLongString(content);
+		pkt << skip_wield_anim;
+	} else {
+		pkt.putRawString(content);
+	}
+
 	Send(&pkt);
 }
 

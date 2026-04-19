@@ -261,6 +261,8 @@ public:
 	// updated from the server. If it is true, it is set to false.
 	bool updateWieldedItem();
 
+	bool consumeSkipNextWieldAnimation();
+
 	/* InventoryManager interface */
 	Inventory* getInventory(const InventoryLocation &loc) override;
 	void inventoryAction(InventoryAction *a) override;
@@ -513,6 +515,7 @@ private:
 	u16 m_proto_ver = 0;
 
 	bool m_update_wielded_item = false;
+	bool m_skip_next_wield_animation = false;
 	std::unique_ptr<Inventory> m_inventory_from_server;
 	float m_inventory_from_server_age = 0.0f;
 	s32 m_mapblock_limit_logged = 0;

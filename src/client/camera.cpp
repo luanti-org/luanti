@@ -601,11 +601,14 @@ void Camera::setDigging(s32 button)
 	}
 }
 
-void Camera::wield(const ItemStack &item)
+void Camera::wield(const ItemStack &item, bool animate)
 {
 	if (item.name != m_wield_item_next.name ||
 			item.metadata != m_wield_item_next.metadata) {
 		m_wield_item_next = item;
+		if (!animate)
+			return;
+
 		if (m_wield_change_timer > 0)
 			m_wield_change_timer = -m_wield_change_timer;
 		else if (m_wield_change_timer == 0)

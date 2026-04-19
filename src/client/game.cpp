@@ -3511,7 +3511,9 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 		// Update wielded tool
 		ItemStack selected_item, hand_item;
 		ItemStack &tool_item = player->getWieldedItem(&selected_item, &hand_item);
-		camera->wield(tool_item);
+
+		bool skip_anim = client->consumeSkipNextWieldAnimation();
+		camera->wield(tool_item, !skip_anim);
 	}
 
 	/*
