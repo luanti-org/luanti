@@ -44,6 +44,10 @@ jobs:
       output: image
       push: ${{ github.event_name != 'pull_request' }}
       platforms: linux/amd64,linux/arm64
+      # Needed for using .git folder in Dockerfile 
+      # https://docs.docker.com/build/concepts/context/#keep-git-directory
+      build-args: |
+        BUILDKIT_CONTEXT_KEEP_GIT_DIR=1
       # Enable cache by default, except for tag builds and when manually disabled.
       # cache: ${{ !startsWith(github.ref, 'refs/tags/') && (github.event_name != 'workflow_dispatch' || inputs.use_cache) }}
       #
