@@ -186,6 +186,8 @@ private:
 	// This helper just exists to decrease the header's number of includes.
 	std::array<core::plane3d<f32>, 4> getFrustumCullPlanes() const;
 
+	void updateWieldedTool();
+
 	// Nodes
 	scene::ISceneNode *m_playernode = nullptr;
 	scene::ISceneNode *m_headnode = nullptr;
@@ -260,6 +262,4 @@ private:
 
 	// Last known light color of the player
 	video::SColor m_player_light_color;
-
-	void updateWieldedTool();
 };
