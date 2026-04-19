@@ -749,8 +749,6 @@ bool Game::initSound()
 bool Game::createServer(const std::string &map_dir,
 		const SubgameSpec &gamespec, u16 port)
 {
-	std::string *error_message = &(errordata->message);
-
 	showOverlayMessage(N_("Creating server..."), 0, 5);
 
 	std::string bind_str;
@@ -774,9 +772,8 @@ bool Game::createServer(const std::string &map_dir,
 			<< " -- Listening on all addresses." << std::endl;
 	}
 	if (bind_addr.isIPv6() && !g_settings->getBool("enable_ipv6")) {
-		*error_message = fmtgettext("Unable to listen on %s because IPv6 is disabled",
-			bind_addr.serializeString().c_str());
-		errorstream << *error_message << std::endl;
+		errordata->setError(fmtgettext("Unable to listen on %s because IPv6 is disabled",
+			bind_addr.serializeString().c_str()));
 		return false;
 	}
 
@@ -848,8 +845,7 @@ bool Game::createClient(const GameStartData &start_data)
 	if (!could_connect) {
 		if (error_message->empty() && !connect_aborted) {
 			// Should not happen if error messages are set properly
-			*error_message = gettext("Connection failed for unknown reason");
-			errorstream << *error_message << std::endl;
+			errordata->setError(gettext("Connection failed for unknown reason"));
 		}
 		return false;
 	}
@@ -857,8 +853,7 @@ bool Game::createClient(const GameStartData &start_data)
 	if (!getServerContent(&connect_aborted)) {
 		if (error_message->empty() && !connect_aborted) {
 			// Should not happen if error messages are set properly
-			*error_message = gettext("Connection failed for unknown reason");
-			errorstream << *error_message << std::endl;
+			errordata->setError(gettext("Connection failed for unknown reason"));
 		}
 		return false;
 	}
@@ -1225,9 +1220,10 @@ bool Game::checkConnection()
 		const std::string reason = wide_to_utf8(
 			unescape_translate(utf8_to_wide(client->accessDeniedReason())));
 
-		errordata->message = fmtgettext("Access denied. Reason: %s", reason.c_str());
-		errordata->reconnect_requested = client->reconnectRequested();
-		errorstream << errordata->message << std::endl;
+		errordata->setError(
+			fmtgettext("Access denied. Reason: %s", reason.c_str()),
+			client->reconnectRequested()
+		);
 		return false;
 	}
 

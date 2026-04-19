@@ -6,6 +6,7 @@
 
 #include "irrlichttypes.h"
 #include "content/subgames.h"
+#include "log.h" // errorstream
 
 // Information provided from "main"
 // Start information for server or client
@@ -59,6 +60,15 @@ struct GameStartData : GameParams, GameClientData
 struct GameErrorData
 {
 	GameErrorData() = default;
+
+	/// Raise and log an error
+	/// @param msg Empty string means no error
+	void setError(const std::string &msg, bool reconnect = false)
+	{
+		message = msg;
+		reconnect_requested = reconnect;
+		errorstream << msg << std::endl;
+	}
 
 	// Whether the server has requested a reconnect
 	bool reconnect_requested = false;
