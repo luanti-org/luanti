@@ -45,7 +45,11 @@ jobs:
       push: ${{ github.event_name != 'pull_request' }}
       platforms: linux/amd64,linux/arm64
       # Enable cache by default, except for tag builds and when manually disabled.
-      cache: ${{ !startsWith(github.ref, 'refs/tags/') && (github.event_name != 'workflow_dispatch' || inputs.use_cache) }}
+      # cache: ${{ !startsWith(github.ref, 'refs/tags/') && (github.event_name != 'workflow_dispatch' || inputs.use_cache) }}
+      #
+      # For some reason cache doesn't work properly in this specific repository (?)
+      # TODO: figure out why
+      cache: false
       # We don't sign the image because ghcr.io doesn't support OCI Referrers API yet, and the fallback relies on pushing new tags on each build
       # https://github.com/docker/github-builder/issues/109#issuecomment-3885082486
       # https://github.com/opencontainers/distribution-spec/blob/v1.1.0/spec.md#backwards-compatibility
