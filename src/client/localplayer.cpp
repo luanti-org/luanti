@@ -323,6 +323,9 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 	float player_stepheight = (m_cao == nullptr) ? 0.0f :
 		(touching_ground ? m_cao->getStepHeight() : (0.2f * BS));
 
+	// (BS * 0.6f) is the default stepheight while standing on ground
+	const float sneak_stepheight = 0.6f * BS;
+
 	v3f accel_f(0, -gravity, 0);
 	const v3f initial_position = position;
 	const v3f initial_speed = m_speed;
@@ -392,8 +395,7 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 		f32 y_diff = bmax.Y - position.Y;
 		m_standing_node = m_sneak_node;
 
-		// (BS * 0.6f) is the basic stepheight while standing on ground
-		if (y_diff < BS * 0.6f) {
+		if (y_diff < sneak_stepheight) {
 			// Only center player when they're on the node
 			position.X = rangelim(position.X,
 				bmin.X - sneak_max.X, bmax.X + sneak_max.X);
@@ -412,7 +414,7 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 
 			v3f check_pos = position;
 			check_pos.Y += y_diff * dtime * 22.0f + BS * 0.01f;
-			if (y_diff < BS * 0.6f || (physics_override.sneak_glitch
+			if (y_diff < sneak_stepheight || (physics_override.sneak_glitch
 					&& !collision_check_intersection(env, m_client, m_collisionbox, check_pos, m_cao))) {
 				// Smoothen the movement (based on 'position.Y = bmax.Y')
 				position.Y = std::min(check_pos.Y, bmax.Y);
@@ -421,7 +423,7 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 		}
 
 		// Allow jumping on node edges while sneaking
-		if (m_speed.Y == 0.0f || m_sneak_ladder_detected)
+		if ((touching_ground && m_speed.Y == 0.0f) || m_sneak_ladder_detected)
 			sneak_can_jump = true;
 
 		if (collision_info &&
