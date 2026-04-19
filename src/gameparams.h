@@ -8,6 +8,7 @@
 #include "content/subgames.h"
 
 // Information provided from "main"
+// Start information for server or client
 struct GameParams
 {
 	GameParams() = default;
@@ -24,24 +25,31 @@ enum class ELoginRegister {
 	Register
 };
 
-// Information processed by main menu
-// TODO: unify with MainMenuData
-struct GameStartData : GameParams
+struct GameClientData
 {
-	GameStartData() = default;
-
-	bool isSinglePlayer() const { return address.empty() && !local_server; }
+	bool isSinglePlayer() const { return mode == GM_SINGLEPLAYER; }
+	bool isAnyServer() const
+	{ return mode == GM_HOST_AND_JOIN || mode == GM_SINGLEPLAYER; }
 
 	std::string name;
 	std::string password;
-	// If empty, we're hosting a server.
-	// This may or may not be in "simple singleplayer mode".
-	std::string address;
-	// If true, we're hosting a server and are *not* in "simple singleplayer
-	// mode".
-	bool local_server;
+	std::string address; //< non-empty when joining a server
+
+	enum Mode {
+		GM_SINGLEPLAYER,
+		GM_HOST_AND_JOIN,
+		GM_JOIN,
+		GM_Undefined
+	} mode = GM_Undefined;
 
 	ELoginRegister allow_login_or_register = ELoginRegister::Any;
+};
+
+// Information provided by ClientLauncher
+// Client-only data (joining or hosting server)
+struct GameStartData : GameParams, GameClientData
+{
+	GameStartData() = default;
 
 	// "world_path" must be kept in sync!
 	WorldSpec world_spec;

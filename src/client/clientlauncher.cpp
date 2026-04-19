@@ -93,8 +93,11 @@ ClientLauncher::~ClientLauncher()
 }
 
 
-bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
+bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args)
 {
+	GameStartData start_data;
+	(GameParams &)start_data = game_params;
+
 	init_args(start_data, cmd_args);
 
 	try {
@@ -281,12 +284,14 @@ void ClientLauncher::init_args(GameStartData &start_data, const Settings &cmd_ar
 	start_data.address = g_settings->get("address");
 	if (cmd_args.exists("address")) {
 		// Join a remote server
+		start_data.mode = GameClientData::GM_JOIN;
 		start_data.address = cmd_args.get("address");
 		start_data.world_path.clear();
 		start_data.name = g_settings->get("name");
 	}
 	if (!start_data.world_path.empty()) {
 		// Start a singleplayer instance
+		start_data.mode = GameClientData::GM_SINGLEPLAYER;
 		start_data.address = "";
 	}
 
@@ -295,6 +300,9 @@ void ClientLauncher::init_args(GameStartData &start_data, const Settings &cmd_ar
 
 	// If a world was commanded, select it
 	if (!start_data.world_path.empty()) {
+		if (!start_data.name.empty())
+			start_data.mode = GameClientData::GM_HOST_AND_JOIN;
+
 		auto &spec = start_data.world_spec;
 
 		spec.path = start_data.world_path;
@@ -443,15 +451,11 @@ bool ClientLauncher::launch_game(std::string &error_message,
 	/*
 	 * Show the GUI menu
 	 */
-	std::string server_name, server_description;
 	if (!skip_main_menu) {
 		// Initialize menu data
-		// TODO: Re-use existing structs (GameStartData)
 		MainMenuData menudata;
-		menudata.address                         = start_data.address;
-		menudata.name                            = start_data.name;
-		menudata.password                        = start_data.password;
-		menudata.port                            = itos(start_data.socket_port);
+		(GameClientData &)menudata = start_data;
+		menudata.port = itos(start_data.socket_port);
 		menudata.script_data.errormessage        = std::move(error_message_lua);
 		menudata.script_data.reconnect_requested = reconnect_requested;
 
@@ -482,18 +486,7 @@ bool ClientLauncher::launch_game(std::string &error_message,
 			start_data.world_path = start_data.world_spec.path;
 		}
 
-		start_data.name = menudata.name;
-		start_data.password = menudata.password;
-		start_data.address = std::move(menudata.address);
-		start_data.allow_login_or_register = menudata.allow_login_or_register;
-		server_name = menudata.servername;
-		server_description = menudata.serverdescription;
-
-		start_data.local_server = !menudata.simple_singleplayer_mode &&
-			start_data.address.empty();
-	} else {
-		start_data.local_server = !start_data.world_path.empty() &&
-			start_data.address.empty() && !start_data.name.empty();
+		(GameClientData &)start_data = menudata;
 	}
 
 	if (!start_data.isSinglePlayer() && start_data.name.empty()) {
@@ -519,7 +512,7 @@ bool ClientLauncher::launch_game(std::string &error_message,
 	}
 
 	// For singleplayer and local server
-	if (start_data.address.empty()) {
+	if (start_data.isAnyServer()) {
 		auto &worldspec = start_data.world_spec;
 		if (worldspec.path.empty()) {
 			error_message = gettext("No world selected and no address "

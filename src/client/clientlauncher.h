@@ -10,6 +10,7 @@ class RenderingEngine;
 class Settings;
 class MyEventReceiver;
 class InputHandler;
+struct GameParams;
 struct GameStartData;
 struct MainMenuData;
 
@@ -20,7 +21,7 @@ public:
 
 	~ClientLauncher();
 
-	bool run(GameStartData &start_data, const Settings &cmd_args);
+	bool run(const GameParams &game_params, const Settings &cmd_args);
 
 private:
 	void init_args(GameStartData &start_data, const Settings &cmd_args);
