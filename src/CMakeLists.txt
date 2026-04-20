@@ -405,6 +405,14 @@ add_subdirectory(script)
 add_subdirectory(util)
 add_subdirectory(server)
 
+if(BUILD_UNITTESTS)
+	add_subdirectory(test)
+	add_subdirectory(unittest)
+endif()
+if(BUILD_BENCHMARKS)
+	add_subdirectory(benchmark)
+endif()
+
 # Source files that are identical between server & client builds.
 # This means they don't use or include anything that depends on the
 # CHECK_CLIENT_BUILD() macro. If you wrongly add something here there will be
@@ -484,24 +492,17 @@ set(common_SRCS
 	version.cpp
 	voxel.cpp
 	voxelalgorithms.cpp
+	${benchmark_SRCS}
 	${common_SCRIPT_SRCS}
 	${common_server_SRCS}
 	${mapgen_SRCS}
 	${server_network_SRCS}
+	${test_SRCS}
+	${unittest_SRCS}
 )
 
 if(ANDROID)
 	list(APPEND common_SRCS porting_android.cpp)
-endif()
-
-if(BUILD_UNITTESTS)
-	add_subdirectory(unittest)
-	list(APPEND common_SRCS ${UNITTEST_SRCS})
-endif()
-
-if(BUILD_BENCHMARKS)
-	add_subdirectory(benchmark)
-	list(APPEND common_SRCS ${BENCHMARK_SRCS})
 endif()
 
 if(BUILD_UNITTESTS OR BUILD_BENCHMARKS)
@@ -537,20 +538,15 @@ if (BUILD_CLIENT)
 endif(BUILD_CLIENT)
 
 list(APPEND client_SRCS
+	${benchmark_client_SRCS}
 	${common_SRCS}
 	${gui_SRCS}
 	${client_network_SRCS}
 	${client_irrlicht_changes_SRCS}
 	${client_SCRIPT_SRCS}
+	${test_client_SRCS}
+	${unittest_client_SRCS}
 )
-
-if(BUILD_UNITTESTS)
-	list(APPEND client_SRCS ${UNITTEST_CLIENT_SRCS})
-endif()
-
-if(BUILD_BENCHMARKS)
-	list(APPEND client_SRCS ${BENCHMARK_CLIENT_SRCS})
-endif()
 
 # Server sources
 # (nothing here because a client always comes with a server)

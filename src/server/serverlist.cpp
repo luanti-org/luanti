@@ -81,7 +81,7 @@ void sendAnnounce(AnnounceAction action,
 	}
 
 	HTTPFetchRequest fetch_request;
-	fetch_request.caller = HTTPFETCH_PRINT_ERR;
+	fetch_request.caller = HTTPFETCH_PRINT_BODY;
 	fetch_request.url = g_settings->get("serverlist_url") + std::string("/announce");
 	fetch_request.method = HTTP_POST;
 	fetch_request.fields["json"] = fastWriteJson(server);

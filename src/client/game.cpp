@@ -385,6 +385,7 @@ Game::Game() :
 		"repeat_place_time", "repeat_dig_time", "noclip", "free_move", "fog_start",
 		"cinematic", "cinematic_camera_smoothing", "camera_smoothing", "invert_mouse",
 		"enable_hotbar_mouse_wheel", "invert_hotbar_mouse_wheel", "pause_on_lost_focus",
+		"keyboard_camera_speed",
 	};
 	for (auto s : settings)
 		g_settings->registerChangedCallback(s, &settingChangedCallback, this);
@@ -493,7 +494,7 @@ void Game::run()
 
 	draw_times.reset();
 
-	set_light_table(g_settings->getFloat("display_gamma"));
+	set_light_curve(g_settings->getFloat("display_gamma"));
 
 	m_touch_simulate_aux1 = g_settings->getBool("fast_move")
 			&& client->checkPrivilege("fast");
@@ -622,6 +623,13 @@ void Game::shutdown()
 
 	if (g_touchcontrols)
 		g_touchcontrols->hide();
+
+	// Restore normal mouse cursor
+	auto *cur_control = device->getCursorControl();
+	if (cur_control) {
+		cur_control->setVisible(true);
+		cur_control->setRelativeMode(false);
+	}
 
 	clouds.reset();
 
@@ -1984,9 +1992,10 @@ bool Game::isTouchShootlineUsed() const
 
 void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 {
+	f32 sens_scale = getSensitivityScaleFactor();
+
 	if (g_touchcontrols) {
 		// User setting is already applied by TouchControls.
-		f32 sens_scale = getSensitivityScaleFactor();
 		cam->camera_yaw   += g_touchcontrols->getYawChange()   * sens_scale;
 		cam->camera_pitch += g_touchcontrols->getPitchChange() * sens_scale;
 	} else {
@@ -1997,7 +2006,6 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 			dist.Y = -dist.Y;
 		}
 
-		f32 sens_scale = getSensitivityScaleFactor();
 		cam->camera_yaw   -= dist.X * m_cache_mouse_sensitivity * sens_scale;
 		cam->camera_pitch += dist.Y * m_cache_mouse_sensitivity * sens_scale;
 
@@ -2006,11 +2014,22 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 	}
 
 	if (m_cache_enable_joysticks) {
-		f32 sens_scale = getSensitivityScaleFactor();
 		f32 c = m_cache_joystick_frustum_sensitivity * dtime * sens_scale;
 		cam->camera_yaw -= input->joystick.getAxisWithoutDead(JA_FRUSTUM_HORIZONTAL) * c;
 		cam->camera_pitch += input->joystick.getAxisWithoutDead(JA_FRUSTUM_VERTICAL) * c;
 	}
+
+	// Keyboard look
+	const f32 rate = m_cache_keyboard_camera_speed * dtime * sens_scale;
+
+	if (input->isKeyDown(KeyType::CAMERA_YAW_LEFT))
+		cam->camera_yaw += rate;
+	if (input->isKeyDown(KeyType::CAMERA_YAW_RIGHT))
+		cam->camera_yaw -= rate;
+	if (input->isKeyDown(KeyType::CAMERA_PITCH_UP))
+		cam->camera_pitch -= rate;
+	if (input->isKeyDown(KeyType::CAMERA_PITCH_DOWN))
+		cam->camera_pitch += rate;
 
 	cam->camera_pitch = rangelim(cam->camera_pitch, -90, 90);
 }
@@ -2664,6 +2683,7 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 
 	switch (camera->getCameraMode()) {
 	case CAMERA_MODE_ANY:
+	case CameraMode_END:
 		assert(false);
 		break;
 	case CAMERA_MODE_FIRST:
@@ -3402,7 +3422,7 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 		Calculate general brightness
 	*/
 	u32 daynight_ratio = client->getEnv().getDayNightRatio();
-	float time_brightness = decode_light_f((float)daynight_ratio / 1000.0);
+	float time_brightness = decode_light_f((float)daynight_ratio / 1000.0f);
 	float direct_brightness;
 	bool sunlight_seen;
 
@@ -3726,6 +3746,7 @@ void Game::readSettings()
 	m_cache_enable_joysticks             = g_settings->getBool("enable_joysticks");
 	m_cache_enable_fog                   = g_settings->getBool("enable_fog");
 	m_cache_mouse_sensitivity            = g_settings->getFloat("mouse_sensitivity", 0.001f, 10.0f);
+	m_cache_keyboard_camera_speed        = g_settings->getFloat("keyboard_camera_speed", 0.001f, 720.0f);
 	m_cache_joystick_frustum_sensitivity = std::max(g_settings->getFloat("joystick_frustum_sensitivity"), 0.001f);
 	m_repeat_place_time                  = g_settings->getFloat("repeat_place_time", 0.16f, 2.0f);
 	m_repeat_dig_time                    = g_settings->getFloat("repeat_dig_time", 0.0f, 2.0f);

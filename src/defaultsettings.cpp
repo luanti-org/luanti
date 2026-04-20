@@ -138,8 +138,8 @@ void set_default_settings()
 	settings->setDefault("keymap_right", "SYSTEM_SCANCODE_7"); // KEY_KEY_D
 	settings->setDefault("keymap_jump", "SYSTEM_SCANCODE_44"); // KEY_SPACE
 	settings->setDefault("keymap_sneak", "SYSTEM_SCANCODE_225"); // KEY_LSHIFT
-	settings->setDefault("keymap_dig", "KEY_LBUTTON");
-	settings->setDefault("keymap_place", "KEY_RBUTTON");
+	settings->setDefault("keymap_dig", "MOUSE_BUTTON_1");
+	settings->setDefault("keymap_place", "MOUSE_BUTTON_3");
 	settings->setDefault("keymap_drop", "SYSTEM_SCANCODE_20"); // KEY_KEY_Q
 	settings->setDefault("keymap_zoom", "SYSTEM_SCANCODE_29"); // KEY_KEY_Z
 	settings->setDefault("keymap_inventory", "SYSTEM_SCANCODE_12"); // KEY_KEY_I
@@ -175,6 +175,10 @@ void set_default_settings()
 	settings->setDefault("keymap_toggle_debug", "SYSTEM_SCANCODE_62"); // KEY_F5
 	settings->setDefault("keymap_toggle_profiler", "SYSTEM_SCANCODE_63"); // KEY_F6
 	settings->setDefault("keymap_camera_mode", "SYSTEM_SCANCODE_6"); // KEY_KEY_C
+	settings->setDefault("keymap_camera_yaw_left", "");
+	settings->setDefault("keymap_camera_yaw_right", "");
+	settings->setDefault("keymap_camera_pitch_up", "");
+	settings->setDefault("keymap_camera_pitch_down", "");
 	settings->setDefault("keymap_screenshot", "SYSTEM_SCANCODE_69"); // KEY_F12
 	settings->setDefault("keymap_fullscreen", "SYSTEM_SCANCODE_68"); // KEY_F11
 	settings->setDefault("keymap_increase_viewing_range_min", "SYSTEM_SCANCODE_46"); // +
@@ -364,6 +368,7 @@ void set_default_settings()
 	settings->setDefault("enable_hotbar_mouse_wheel", "true");
 	settings->setDefault("invert_hotbar_mouse_wheel", "false");
 	settings->setDefault("mouse_sensitivity", "0.2");
+	settings->setDefault("keyboard_camera_speed", "170.0");
 	settings->setDefault("repeat_place_time", "0.25");
 	settings->setDefault("repeat_dig_time", "0.0");
 	settings->setDefault("safe_dig_and_place", "false");

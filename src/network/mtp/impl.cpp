@@ -31,7 +31,7 @@ namespace con
 // TODO: Clean this up.
 #define LOG(a) a
 
-#define PING_TIMEOUT 5.0f
+#define PING_INTERVAL 5.0f
 
 // exponent base
 #define RESEND_SCALE_BASE 1.5f
@@ -1026,7 +1026,7 @@ void UDPPeer::reportRTT(float rtt)
 bool UDPPeer::Ping(float dtime,SharedBuffer<u8>& data)
 {
 	m_ping_timer += dtime;
-	if (!isHalfOpen() && m_ping_timer >= PING_TIMEOUT)
+	if (!isHalfOpen() && m_ping_timer >= PING_INTERVAL)
 	{
 		// Create and send PING packet
 		writeU8(&data[0], PACKET_TYPE_CONTROL);

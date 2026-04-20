@@ -227,17 +227,12 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 		Create the whole area of this and the neighboring blocks
 	*/
 	for (s16 x = full_bpmin.X; x <= full_bpmax.X; x++)
-	for (s16 z = full_bpmin.Z; z <= full_bpmax.Z; z++) {
-		v2s16 sectorpos(x, z);
-		// Sector metadata is loaded from disk if not already loaded.
-		MapSector *sector = createSector(sectorpos);
-		FATAL_ERROR_IF(sector == NULL, "createSector() failed");
-
-		for (s16 y = full_bpmin.Y; y <= full_bpmax.Y; y++) {
+	for (s16 z = full_bpmin.Z; z <= full_bpmax.Z; z++)
+	for (s16 y = full_bpmin.Y; y <= full_bpmax.Y; y++) {
 			v3s16 p(x, y, z);
 
 			MapBlock *block = emergeBlock(p, false);
-			if (block == NULL) {
+			if (!block) {
 				block = createBlock(p);
 
 				// Block gets sunlight if this is true.
@@ -246,7 +241,6 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 				block->setIsUnderground(ug);
 			}
 			block->refGrab();
-		}
 	}
 
 	/*
@@ -257,7 +251,7 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 	*/
 
 	data->vmanip = new MMVManip(this);
-	data->vmanip->initialEmerge(full_bpmin, full_bpmax);
+	data->vmanip->initialEmerge(full_bpmin, full_bpmax, false);
 
 	// Data is ready now.
 	return true;

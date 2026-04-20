@@ -177,6 +177,11 @@ invert_mouse (Invert mouse) bool false
 #    Requires: keyboard_mouse
 mouse_sensitivity (Mouse sensitivity) float 0.2 0.001 10.0
 
+#    Keyboard-controlled camera rotation speed, in degrees per second.
+#
+#    Requires: keyboard_mouse
+keyboard_camera_speed (Keyboard camera speed) float 170.0 0.001 720.0
+
 #    Enable mouse wheel (scroll) for item selection in hotbar.
 #
 #    Requires: keyboard_mouse
@@ -257,6 +262,11 @@ keymap_fullscreen (Toggle fullscreen) key SYSTEM_SCANCODE_68
 keymap_drop (Drop item) key SYSTEM_SCANCODE_20
 
 keymap_zoom (Zoom) key SYSTEM_SCANCODE_29
+
+keymap_camera_yaw_left (Look left) key
+keymap_camera_yaw_right (Look right) key
+keymap_camera_pitch_up (Look up) key
+keymap_camera_pitch_down (Look down) key
 
 keymap_toggle_hud (Toggle HUD) key SYSTEM_SCANCODE_58
 

@@ -356,6 +356,7 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 		v3f eye_offset = player->getEyeOffset();
 		switch(m_camera_mode) {
 		case CAMERA_MODE_ANY:
+		case CameraMode_END:
 			assert(false);
 			break;
 		case CAMERA_MODE_FIRST:
@@ -590,8 +591,14 @@ void Camera::updateViewingRange()
 
 void Camera::setDigging(s32 button)
 {
-	if (m_digging_button == -1)
+	// If placing, do not desynchronize the animation and placement sound.
+	if (button == 1) {
 		m_digging_button = button;
+		m_digging_anim = 0.0f;
+	} else if (m_digging_button == -1) {
+		// Any other action.
+		m_digging_button = button;
+	}
 }
 
 void Camera::wield(const ItemStack &item)

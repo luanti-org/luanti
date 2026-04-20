@@ -970,6 +970,10 @@ content_t NodeDefManager::set(const std::string &name, const ContentFeatures &de
 	assert(!name.empty());
 	assert(name != "ignore");
 	assert(name == def.name);
+#if CHECK_CLIENT_BUILD()
+	// The ContentFeatures default copy constructor is only valid if visuals is null
+	assert(!def.visuals);
+#endif
 
 	content_t id = CONTENT_IGNORE;
 	if (!m_name_id_mapping.getId(name, id)) { // ignore aliases

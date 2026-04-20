@@ -230,8 +230,37 @@ public:
 		return t;
 	}
 
+	auto iterLocked()
+	{
+		return IterationHelper(this);
+	}
+
 protected:
+	// Helper class that allows direct access to the queue with locking
+	struct IterationHelper {
+		friend class MutexedQueue<T>;
+		~IterationHelper() {
+			q->getMutex().unlock();
+			q->getSignal().post(); // assume modified
+		}
+
+		auto begin() { return q->getQueue().begin(); }
+		auto end() { return q->getQueue().end(); }
+
+		auto erase(typename std::deque<T>::iterator it) {
+			return q->getQueue().erase(it);
+		}
+
+	private:
+		IterationHelper(MutexedQueue<T> *parent) : q(parent) {
+			q->getMutex().lock();
+		}
+
+		MutexedQueue<T> *q;
+	};
+
 	std::mutex &getMutex() { return m_mutex; }
+	Semaphore &getSignal() { return m_signal; }
 
 	std::deque<T> &getQueue() { return m_queue; }
 

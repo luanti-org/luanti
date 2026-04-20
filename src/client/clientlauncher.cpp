@@ -125,6 +125,7 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 	g_settings->registerChangedCallback("dpi_change_notifier", setting_changed_callback, this);
 	g_settings->registerChangedCallback("display_density_factor", setting_changed_callback, this);
 	g_settings->registerChangedCallback("gui_scaling", setting_changed_callback, this);
+	g_settings->registerChangedCallback("smooth_scrolling", setting_changed_callback, this);
 
 	try {
 		g_fontengine = new FontEngine(guienv);
@@ -382,6 +383,9 @@ void ClientLauncher::config_guienv()
 	skin->setSize(gui::EGDS_SCROLLBAR_SIZE, (s32)(21.0f * density));
 	skin->setSize(gui::EGDS_WINDOW_BUTTON_WIDTH, (s32)(15.0f * density));
 
+	skin->setBehavior(gui::EGDB_SMOOTH_SCROLL, g_settings->getBool("smooth_scrolling"));
+	skin->setBehavior(gui::EGDB_SCOLLBAR_JUMP_TO_CLICKED, true);
+
 	static u32 orig_sprite_id = skin->getIcon(gui::EGDI_CHECK_BOX_CHECKED);
 	static std::unordered_map<std::string, u32> sprite_ids;
 
@@ -582,11 +586,10 @@ void ClientLauncher::main_menu(MainMenuData *menudata)
 	framemarker.end();
 	infostream << "Waited for other menus" << std::endl;
 
+	// Make sure normal mouse cursor is restored
 	auto *cur_control = device->getCursorControl();
 	if (cur_control) {
-		// Cursor can be non-visible when coming from the game
 		cur_control->setVisible(true);
-		// Set absolute mouse mode
 		cur_control->setRelativeMode(false);
 	}
 

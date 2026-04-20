@@ -87,7 +87,7 @@ GUIChatConsole::GUIChatConsole(
 	m_is_ctrl_down = false;
 	m_cache_clickable_chat_weblinks = g_settings->getBool("clickable_chat_weblinks");
 
-	m_scrollbar.reset(new GUIScrollBar(env, this, -1, core::rect<s32>(0, 0, 30, m_height), false, true, tsrc));
+	m_scrollbar.reset(new GUIScrollBar(env, this, -1, core::rect<s32>(0, 0, 30, m_height), false, tsrc));
 	m_scrollbar->setSubElement(true);
 	m_scrollbar->setLargeStep(1);
 	m_scrollbar->setSmallStep(1);

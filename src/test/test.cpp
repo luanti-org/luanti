@@ -1,12 +1,12 @@
 // Luanti
 // SPDX-License-Identifier: LGPL-2.1-or-later
-// Copyright (C) 2022 Luanti Authors
+// Copyright (C) 2026 Luanti Authors
 
-#include "benchmark/benchmark.h"
+#include "test/test.h"
 
 #include "catch.h"
 
-int run_catch2_benchmarks(int argc, char *argv[])
+int run_catch2_tests(int argc, char *argv[])
 {
 	Catch::Session session;
 
@@ -15,7 +15,7 @@ int run_catch2_benchmarks(int argc, char *argv[])
 		return status;
 
 	auto config = session.configData();
-	config.skipBenchmarks = false;
+	config.skipBenchmarks = true;
 	session.useConfigData(config);
 
 	return session.run();

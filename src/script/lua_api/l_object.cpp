@@ -533,12 +533,16 @@ int ObjectRef::l_set_camera(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	luaL_checktype(L, 2, LUA_TTABLE);
+	if (lua_isnoneornil(L, 2)) {
+		player->allowed_camera_mode = CAMERA_MODE_ANY;
+	} else {
+		luaL_checktype(L, 2, LUA_TTABLE);
 
-	lua_getfield(L, -1, "mode");
-	if (lua_isstring(L, -1))
-		string_to_enum(es_CameraMode, player->allowed_camera_mode, lua_tostring(L, -1));
-	lua_pop(L, 1);
+		lua_getfield(L, -1, "mode");
+		if (lua_isstring(L, -1))
+			string_to_enum(es_CameraMode, player->allowed_camera_mode, lua_tostring(L, -1));
+		lua_pop(L, 1);
+	}
 
 	getServer(L)->SendCamera(player->getPeerId(), player);
 	return 0;

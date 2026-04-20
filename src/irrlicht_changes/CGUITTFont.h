@@ -256,6 +256,7 @@ namespace gui
 			core::vector2di getKerning(const char32_t thisLetter, const char32_t previousLetter) const;
 
 			video::IVideoDriver* Driver = nullptr;
+			irr_ptr<SGUITTFace> m_face;
 			FT_Face tt_face;
 			FT_Size_Metrics font_metrics;
 			FT_Int32 load_flags;

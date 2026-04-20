@@ -984,11 +984,17 @@ void CNullDriver::registerHardwareBuffer(SHWBufferLink *HWBuffer)
 
 void CNullDriver::expireHardwareBuffers()
 {
+	// 10 - 30s at usual framerates
+	constexpr u16 DELETE_AFTER_UNUSED_FRAMES = 60 * 25;
+
 	for (size_t i = 0; i < HWBufferList.size(); ) {
 		auto *link = HWBufferList[i];
 
+		bool del = link->UnusedCounter++ >= DELETE_AFTER_UNUSED_FRAMES ||
+			!link->Buffer || link->Buffer->getReferenceCount() == 1;
+
 		// deleting can reorder, so don't advance in list
-		if (!link->Buffer || link->Buffer->getReferenceCount() == 1)
+		if (del)
 			deleteHardwareBuffer(link);
 		else
 			i++;
