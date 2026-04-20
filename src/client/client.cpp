@@ -678,17 +678,13 @@ void Client::step(float dtime)
 					if (minimap_mapblocks.empty())
 						do_mapper_update = false;
 
-					if (r.mesh->isEmpty()) {
-						delete r.mesh;
-					} else {
+					if (!r.mesh->isEmpty()) {
 						// Replace with the new mesh
-						block->mesh = r.mesh;
+						block->mesh = r.mesh.release();
 						if (r.urgent)
 							force_update_shadows = true;
 					}
 				}
-			} else {
-				delete r.mesh;
 			}
 
 			if (m_minimap && do_mapper_update) {
