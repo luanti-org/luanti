@@ -7149,7 +7149,8 @@ Rollback
 Default functions for item definition table
 -------------------------------------------
 
-Note: These can be overridden to modify the according defaults.
+Some callbacks in item definition by default delegate to a default function. These
+functions are listed here. They can be overridden to modify the according default.
 
 * `core.item_place_node(itemstack, placer, pointed_thing[, param2, prevent_after_place])`
     * Place item as a node
@@ -7167,7 +7168,7 @@ Note: These can be overridden to modify the according defaults.
 * `core.item_place(itemstack, placer, pointed_thing[, param2])`
     * Wrapper that calls `core.item_place_node` if appropriate
     * Calls `on_rightclick` of `pointed_thing.under` if defined instead
-    * **Note**: This is the default for `on_place` in item definition.
+    * This is the default for `on_place` in item definition.
     * `param2` overrides facedir and wallmounted `param2`
     * returns `itemstack, position`
       * `position`: the location the node was placed to. `nil` if nothing was placed.
@@ -7175,14 +7176,14 @@ Note: These can be overridden to modify the according defaults.
     * Runs callbacks registered by `core.register_on_item_pickup` and adds
       the item to the picker's `"main"` inventory list.
     * Parameters and return value are the same as `on_pickup`.
-    * **Note**: This is the default for `on_pickup` in item definition.
+    * This is the default for `on_pickup` in item definition.
 * `core.item_secondary_use(itemstack, user)`
     * Global secondary use callback. Does nothing.
     * Parameters and return value are the same as `on_secondary_use`.
-    * **Note**: This is the default for `on_secondary_use` in item definition.
+    * This is the default for `on_secondary_use` in item definition.
 * `core.item_drop(itemstack, dropper, pos)`
     * Converts `itemstack` to an in-world Lua entity.
-    * **Note**: This is the default for `on_drop` in item definition.
+    * This is the default for `on_drop` in item definition.
     * `itemstack` (`ItemStack`) is modified (cleared) on success.
       * In versions < 5.12.0, `itemstack` was cleared in all cases.
     * `dropper` (`ObjectRef`) is optional.
@@ -7199,17 +7200,17 @@ Note: These can be overridden to modify the according defaults.
 Default functions for node definition table
 -------------------------------------------
 
-Note: These can be overridden to modify the according defaults.
+Same as above, but for node definition table.
 
 * `core.node_punch(pos, node, puncher, pointed_thing)`
     * Calls functions registered by `core.register_on_punchnode()`
-    * **Note**: This is the default for `on_punch` in node definition.
+    * This is the default for `on_punch` in node definition.
 * `core.node_dig(pos, node, digger)`
     * Checks if node can be dug, puts item into inventory, removes node
     * Calls functions registered by `core.register_on_dignode()`
     * If `digger` is not `nil`, replicates effects that the client would usually
       predict (dug sounds, particles) for all players but `digger`.
-    * **Note**: This is the default for `on_dig` in node definition.
+    * This is the default for `on_dig` in node definition.
 
 Sounds
 ------
