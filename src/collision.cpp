@@ -37,17 +37,14 @@ struct NearbyCollisionInfo {
 		box(box),
 		position(pos),
 		bouncy(bouncy),
-		is_unloaded(is_ul),
-		is_step_up(false)
+		is_unloaded(is_ul)
 	{}
 
 	// object
 	NearbyCollisionInfo(ActiveObject *obj, int bouncy, const aabb3f &box) :
 		obj(obj),
 		box(box),
-		bouncy(bouncy),
-		is_unloaded(false),
-		is_step_up(false)
+		bouncy(bouncy)
 	{}
 
 	inline bool isObject() const { return obj != nullptr; }
@@ -56,8 +53,8 @@ struct NearbyCollisionInfo {
 	aabb3f box;
 	v3s16 position;
 	u8 bouncy;
-	// bitfield to save space
-	bool is_unloaded:1, is_step_up:1;
+	bool is_unloaded = false,
+		is_step_up = false;
 };
 
 // Helper functions:
@@ -476,7 +473,6 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	}
 
 	// Collision detection
-	f32 d = 0.0f;
 	for (int loopcount = 0;; loopcount++) {
 		if (loopcount >= 100) {
 			warningstream << "collisionMoveSimple: Loop count exceeded, aborting to avoid infinite loop" << std::endl;
@@ -541,7 +537,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 				(movingbox.MinEdge.Y + stepheight > cbox.MaxEdge.Y) &&
 				(!wouldCollideWithCeiling(cinfo, stepbox,
 						cbox.MaxEdge.Y - movingbox.MinEdge.Y,
-						d));
+						0));
 		}
 
 		// Get bounce multiplier
@@ -608,32 +604,34 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	}
 
 	/*
-		Final touches: Check if standing on ground, step up stairs.
+		Final touches: Step up stairs and ground detection (compat).
 	*/
-	aabb3f box = box_0;
-	box.MinEdge += *pos_f;
-	box.MaxEdge += *pos_f;
+	aabb3f mbox = box_0;
+	mbox.MinEdge += *pos_f;
+	mbox.MaxEdge += *pos_f;
 	for (const auto &box_info : cinfo) {
-		const aabb3f &cbox = box_info.box;
+		const aabb3f &sbox = box_info.box;
 
 		/*
-			See if the object is touching ground.
+			`step_up == true` requires the object to intersect with the static box.
+			Hence, check whether that is still the case.
 
-			Object touches ground if object's minimum Y is near node's
-			maximum Y and object's X-Z-area overlaps with the node's
-			X-Z-area.
+			For compatibility reasons (ground detection), only X-Z are checked here.
 		*/
 
-		if (cbox.MaxEdge.X - d > box.MinEdge.X && cbox.MinEdge.X + d < box.MaxEdge.X &&
-				cbox.MaxEdge.Z - d > box.MinEdge.Z &&
-				cbox.MinEdge.Z + d < box.MaxEdge.Z) {
-			if (box_info.is_step_up) {
-				pos_f->Y += cbox.MaxEdge.Y - box.MinEdge.Y;
-				box = box_0;
-				box.MinEdge += *pos_f;
-				box.MaxEdge += *pos_f;
+		if (sbox.MaxEdge.X > mbox.MinEdge.X && sbox.MinEdge.X < mbox.MaxEdge.X &&
+				sbox.MaxEdge.Z > mbox.MinEdge.Z &&
+				sbox.MinEdge.Z < mbox.MaxEdge.Z) {
+
+			// Only allow stepping up, not down (if there are multiple collisions).
+			// These conditions are almost identical to `mbox.intersectsWithBox(sbox)`.
+			if (box_info.is_step_up && sbox.MaxEdge.Y > mbox.MinEdge.Y) {
+				pos_f->Y = sbox.MaxEdge.Y - box_0.MinEdge.Y;
+				mbox = box_0;
+				mbox.MinEdge += *pos_f;
+				mbox.MaxEdge += *pos_f;
 			}
-			if (std::fabs(cbox.MaxEdge.Y - box.MinEdge.Y) < 0.05f) {
+			if (std::fabs(sbox.MaxEdge.Y - mbox.MinEdge.Y) < 0.05f) {
 				// This code is technically only required if `box_info.is_step_up == true`.
 				// However, players rely on this check/condition to climb stairs faster. See PR #10587.
 				result.touching_ground = true;
