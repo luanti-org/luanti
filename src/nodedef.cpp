@@ -1061,44 +1061,44 @@ void NodeDefManager::applyTextureOverrides(const std::vector<TextureOverride> &o
 	for (const TextureOverride& texture_override : overrides) {
 		content_t id;
 		if (!getId(texture_override.id, id))
-            continue; // Ignore unknown node
+			continue; // Ignore unknown node
 
-        ContentFeatures &nodedef = m_content_features[id];
+		ContentFeatures &nodedef = m_content_features[id];
 
-        auto apply = [&] (OverrideTarget target, TileDef &tile) {
-            if (!texture_override.hasTarget(target))
-                return;
-            tile.name = texture_override.texture;
-            if (texture_override.world_scale > 0) {
-                tile.align_style = ALIGN_STYLE_WORLD;
-                tile.scale = texture_override.world_scale;
-            }
-        };
+		auto apply = [&] (OverrideTarget target, TileDef &tile) {
+			if (!texture_override.hasTarget(target))
+				return;
+			tile.name = texture_override.texture;
+			if (texture_override.world_scale > 0) {
+				tile.align_style = ALIGN_STYLE_WORLD;
+				tile.scale = texture_override.world_scale;
+			}
+		};
 
-        // Override tiles
-        apply(OverrideTarget::TOP,    nodedef.tiledef[0]);
-        apply(OverrideTarget::BOTTOM, nodedef.tiledef[1]);
-        apply(OverrideTarget::RIGHT,  nodedef.tiledef[2]);
-        apply(OverrideTarget::LEFT,   nodedef.tiledef[3]);
-        apply(OverrideTarget::BACK,   nodedef.tiledef[4]);
-        apply(OverrideTarget::FRONT,  nodedef.tiledef[5]);
+		// Override tiles
+		apply(OverrideTarget::TOP,    nodedef.tiledef[0]);
+		apply(OverrideTarget::BOTTOM, nodedef.tiledef[1]);
+		apply(OverrideTarget::RIGHT,  nodedef.tiledef[2]);
+		apply(OverrideTarget::LEFT,   nodedef.tiledef[3]);
+		apply(OverrideTarget::BACK,   nodedef.tiledef[4]);
+		apply(OverrideTarget::FRONT,  nodedef.tiledef[5]);
 
-        // Override special tiles, if applicable
-        apply(OverrideTarget::SPECIAL_1, nodedef.tiledef_special[0]);
-        apply(OverrideTarget::SPECIAL_2, nodedef.tiledef_special[1]);
-        apply(OverrideTarget::SPECIAL_3, nodedef.tiledef_special[2]);
-        apply(OverrideTarget::SPECIAL_4, nodedef.tiledef_special[3]);
-        apply(OverrideTarget::SPECIAL_5, nodedef.tiledef_special[4]);
-        apply(OverrideTarget::SPECIAL_6, nodedef.tiledef_special[5]);
+		// Override special tiles, if applicable
+		apply(OverrideTarget::SPECIAL_1, nodedef.tiledef_special[0]);
+		apply(OverrideTarget::SPECIAL_2, nodedef.tiledef_special[1]);
+		apply(OverrideTarget::SPECIAL_3, nodedef.tiledef_special[2]);
+		apply(OverrideTarget::SPECIAL_4, nodedef.tiledef_special[3]);
+		apply(OverrideTarget::SPECIAL_5, nodedef.tiledef_special[4]);
+		apply(OverrideTarget::SPECIAL_6, nodedef.tiledef_special[5]);
 
-        // Override overlay tiles, if applicable
-        apply(OverrideTarget::OVERLAY_TOP,    nodedef.tiledef_overlay[0]);
-        apply(OverrideTarget::OVERLAY_BOTTOM, nodedef.tiledef_overlay[1]);
-        apply(OverrideTarget::OVERLAY_RIGHT,  nodedef.tiledef_overlay[2]);
-        apply(OverrideTarget::OVERLAY_LEFT,   nodedef.tiledef_overlay[3]);
-        apply(OverrideTarget::OVERLAY_BACK,   nodedef.tiledef_overlay[4]);
-        apply(OverrideTarget::OVERLAY_FRONT,  nodedef.tiledef_overlay[5]);
-    }
+		// Override overlay tiles, if applicable
+		apply(OverrideTarget::OVERLAY_TOP,    nodedef.tiledef_overlay[0]);
+		apply(OverrideTarget::OVERLAY_BOTTOM, nodedef.tiledef_overlay[1]);
+		apply(OverrideTarget::OVERLAY_RIGHT,  nodedef.tiledef_overlay[2]);
+		apply(OverrideTarget::OVERLAY_LEFT,   nodedef.tiledef_overlay[3]);
+		apply(OverrideTarget::OVERLAY_BACK,   nodedef.tiledef_overlay[4]);
+		apply(OverrideTarget::OVERLAY_FRONT,  nodedef.tiledef_overlay[5]);
+	}
 }
 
 void NodeDefManager::applyFunction(const std::function<void(ContentFeatures&)> &function)
