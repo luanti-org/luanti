@@ -7146,8 +7146,8 @@ Rollback
     * Revert latest actions of someone
     * `actor`: `"player:<name>"`, also `"liquid"`.
 
-Defaults for the `on_place` and `on_drop` item definition functions
--------------------------------------------------------------------
+Default functions for item definition table
+-------------------------------------------
 
 Note: These can be overridden to modify the according defaults.
 
@@ -7196,8 +7196,8 @@ Note: These can be overridden to modify the according defaults.
       If the player is eating a stack and `replace_with_item` doesn't fit onto
       the eaten stack, then the remainings go to a different spot, or are dropped.
 
-Defaults for the `on_punch` and `on_dig` node definition callbacks
-------------------------------------------------------------------
+Default functions for node definition table
+-------------------------------------------
 
 Note: These can be overridden to modify the according defaults.
 
