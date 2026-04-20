@@ -28,6 +28,8 @@ bool g_collision_problems_encountered = false;
 
 namespace {
 
+//! NOTE: This struct is used for collision *candidates*. The effective
+//!       collisions are forwarded to the struct `CollisionInfo`.
 struct NearbyCollisionInfo {
 	// node
 	NearbyCollisionInfo(bool is_ul, int bouncy, v3s16 pos, const aabb3f &box) :
@@ -372,6 +374,29 @@ static void add_object_boxes(Environment *env,
 	}
 }
 
+template <float v3f::*AX>
+inline void collide_with(const aabb3f &box_mov, const aabb3f &box_stat,
+	v3f *pos_f, v3f *speed_f, v3f *accel_f, const v3f &aspeed_f, float bounce)
+{
+	const float speed = aspeed_f.*AX;
+
+	if (speed) {
+		// Set the position along the axis of collision to exactly where the box collided.
+		// This gets rid of nasty floating point errors introduced by calculating
+		// the collision position based on 'nearest_dtime' and average velocity.
+		pos_f->*AX = speed < 0.0f
+			? (box_stat.MaxEdge.*AX - box_mov.MinEdge.*AX)
+			: (box_stat.MinEdge.*AX - box_mov.MaxEdge.*AX);
+	}
+
+	if (bounce < -1e-4f && fabsf(speed) > BS * 3.0f) {
+		speed_f->*AX *= bounce;
+	} else {
+		speed_f->*AX = 0;
+		accel_f->*AX = 0; // avoid colliding in the next iterations
+	}
+}
+
 #define PROFILER_NAME(text) (dynamic_cast<ServerEnvironment*>(env) ? ("Server: " text) : ("Client: " text))
 
 CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
@@ -524,17 +549,9 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 
 		// Move to the point of collision and reduce dtime by nearest_dtime
 		if (nearest_dtime < 0) {
-			// Handle negative nearest_dtime
-			// This largely means an "instant" collision, e.g., with the floor.
-			// We use aspeed and nearest_dtime to be consistent with above and resolve this collision
-			if (!step_up) {
-				if (nearest_collided == COLLISION_AXIS_X)
-					pos_f->X += aspeed_f.X * nearest_dtime;
-				if (nearest_collided == COLLISION_AXIS_Y)
-					pos_f->Y += aspeed_f.Y * nearest_dtime;
-				if (nearest_collided == COLLISION_AXIS_Z)
-					pos_f->Z += aspeed_f.Z * nearest_dtime;
-			}
+			// This largely means an "instant" collision, e.g., intersecting with the floor.
+			//   For `step_up == false`: Position is corrected by `collide_with`
+			//   For `step_up == true`:  Position is set by the step-up handler below.
 		} else if (nearest_dtime > 0) {
 			// updated average speed for the sub-interval up to nearest_dtime
 			aspeed_f = *speed_f + accel_f * 0.5f * nearest_dtime;
@@ -546,7 +563,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 			dtime -= nearest_dtime;
 		}
 
-		v3f old_speed_f = *speed_f;
+		const v3f old_speed_f = *speed_f;
 
 		// Set the speed component that caused the collision to zero
 		if (step_up && (step_up_mode == StepUpMode::LEGACY ||
@@ -555,33 +572,18 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 			// Special case: Handle stairs
 			nearest_info.is_step_up = true;
 		} else if (nearest_collided == COLLISION_AXIS_X) {
-			if (bounce < -1e-4 && fabsf(speed_f->X) > BS * 3) {
-				speed_f->X *= bounce;
-			} else {
-				speed_f->X = 0;
-				accel_f.X = 0; // avoid colliding in the next iterations
-			}
+			collide_with<&v3f::X>(box_0, cbox, pos_f, speed_f, &accel_f, aspeed_f, bounce);
 		} else if (nearest_collided == COLLISION_AXIS_Y) {
-			if (bounce < -1e-4 && fabsf(speed_f->Y) > BS * 3) {
-				speed_f->Y *= bounce;
-			} else {
-				if (speed_f->Y < 0.0f) {
-					// FIXME: This code is necessary until `axisAlignedCollision` takes acceleration
-					// into consideration for the time calculation. Otherwise, the colliding faces
-					// never line up, especially at high step (dtime) intervals.
-					result.touching_ground = true;
-					result.standing_on_object = nearest_info.isObject();
-				}
-				speed_f->Y = 0;
-				accel_f.Y = 0; // avoid colliding in the next iterations
+			collide_with<&v3f::Y>(box_0, cbox, pos_f, speed_f, &accel_f, aspeed_f, bounce);
+
+			if (accel_f.Y == 0 && aspeed_f.Y < 0.0f) {
+				// Collided with ground. Update relevant variables.
+				result.touching_ground = true;
+				result.standing_on_object = nearest_info.isObject();
 			}
-		} else { /* nearest_collided == COLLISION_AXIS_Z */
-			if (bounce < -1e-4 && fabsf(speed_f->Z) > BS * 3) {
-				speed_f->Z *= bounce;
-			} else {
-				speed_f->Z = 0;
-				accel_f.Z = 0; // avoid colliding in the next iterations
-			}
+		} else {
+			assert(nearest_collided == COLLISION_AXIS_Z);
+			collide_with<&v3f::Z>(box_0, cbox, pos_f, speed_f, &accel_f, aspeed_f, bounce);
 		}
 
 		if (!nearest_info.is_unloaded && !step_up) {
