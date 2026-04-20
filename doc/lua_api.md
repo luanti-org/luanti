@@ -7146,11 +7146,12 @@ Rollback
     * Revert latest actions of someone
     * `actor`: `"player:<name>"`, also `"liquid"`.
 
-Default functions for item definition table
--------------------------------------------
+Default functions for item and node definition tables
+-----------------------------------------------------
 
-Some callbacks in item definition by default delegate to a default function. These
-functions are listed here. They can be overridden to modify the according default.
+Some callbacks in item and node definition by default delegate to a default
+function. These functions are listed here. They can be overridden to modify the
+according default.
 
 * `core.item_place_node(itemstack, placer, pointed_thing[, param2, prevent_after_place])`
     * Place item as a node
@@ -7196,12 +7197,6 @@ functions are listed here. They can be overridden to modify the according defaul
     * `replace_with_item` is the itemstring which is added to the inventory.
       If the player is eating a stack and `replace_with_item` doesn't fit onto
       the eaten stack, then the remainings go to a different spot, or are dropped.
-
-Default functions for node definition table
--------------------------------------------
-
-Same as above, but for node definition table.
-
 * `core.node_punch(pos, node, puncher, pointed_thing)`
     * Calls functions registered by `core.register_on_punchnode()`
     * This is the default for `on_punch` in node definition.
