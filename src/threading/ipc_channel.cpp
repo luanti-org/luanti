@@ -5,8 +5,22 @@
 #include "ipc_channel.h"
 #include "debug.h"
 #include "exceptions.h"
+#include "log.h"
 #include "porting.h"
+#include <atomic>
 #include <cstring>
+#include <new>
+#include <string>
+
+#if defined(_WIN32)
+#include <windows.h>
+#else
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+#endif
 
 // Spin-wait until the buffer's flag becomes 1, then reset it.
 // timeout_ms_abs: absolute deadline from porting::getTimeMs(), or 0 for no timeout.
@@ -152,3 +166,204 @@ std::pair<IPCChannelEnd, std::thread> make_test_ipc_channel(
 
 	return {std::move(end_a), std::move(thread_b)};
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// IPCChannelResourcesShm: shared-memory-backed resources for cross-process use
+
+IPCChannelResourcesShm::~IPCChannelResourcesShm()
+{
+	cleanup();
+}
+
+#if defined(_WIN32)
+
+static std::atomic<u32> g_shm_counter{0};
+
+std::unique_ptr<IPCChannelResourcesShm>
+IPCChannelResourcesShm::makeFirst(const std::string &name_prefix)
+{
+	u32 n = g_shm_counter.fetch_add(1);
+	std::string name = name_prefix + "-" +
+			std::to_string(GetCurrentProcessId()) + "-" + std::to_string(n);
+
+	HANDLE h = CreateFileMappingA(
+			INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE,
+			0, sizeof(IPCChannelShared), name.c_str());
+	if (!h || GetLastError() == ERROR_ALREADY_EXISTS) {
+		if (h) CloseHandle(h);
+		errorstream << "IPCChannelResourcesShm: CreateFileMappingA failed for "
+				<< name << std::endl;
+		return nullptr;
+	}
+	void *addr = MapViewOfFile(h, FILE_MAP_ALL_ACCESS, 0, 0,
+			sizeof(IPCChannelShared));
+	if (!addr) {
+		CloseHandle(h);
+		errorstream << "IPCChannelResourcesShm: MapViewOfFile failed" << std::endl;
+		return nullptr;
+	}
+
+	// Initialize the shared struct in place
+	auto *shared = new (addr) IPCChannelShared();
+
+	auto ret = std::make_unique<IPCChannelResourcesShm>();
+	ret->m_name = std::move(name);
+	ret->m_is_creator = true;
+	ret->m_mapping_handle = h;
+	Data d{};
+	d.shared = shared;
+	ret->setFirst(d);
+	return ret;
+}
+
+std::unique_ptr<IPCChannelResourcesShm>
+IPCChannelResourcesShm::makeSecond(const std::string &name)
+{
+	HANDLE h = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, name.c_str());
+	if (!h) {
+		errorstream << "IPCChannelResourcesShm: OpenFileMappingA failed for "
+				<< name << std::endl;
+		return nullptr;
+	}
+	void *addr = MapViewOfFile(h, FILE_MAP_ALL_ACCESS, 0, 0,
+			sizeof(IPCChannelShared));
+	if (!addr) {
+		CloseHandle(h);
+		errorstream << "IPCChannelResourcesShm: MapViewOfFile failed" << std::endl;
+		return nullptr;
+	}
+
+	auto *shared = reinterpret_cast<IPCChannelShared *>(addr);
+
+	auto ret = std::make_unique<IPCChannelResourcesShm>();
+	ret->m_name = name;
+	ret->m_is_creator = false;
+	ret->m_mapping_handle = h;
+	Data d{};
+	d.shared = shared;
+	if (!ret->setSecond(d)) {
+		UnmapViewOfFile(addr);
+		CloseHandle(h);
+		return nullptr;
+	}
+	return ret;
+}
+
+void IPCChannelResourcesShm::cleanupLast() noexcept
+{
+	if (data.shared) {
+		data.shared->~IPCChannelShared();
+		UnmapViewOfFile(data.shared);
+	}
+	if (m_mapping_handle)
+		CloseHandle(m_mapping_handle);
+}
+
+void IPCChannelResourcesShm::cleanupNotLast() noexcept
+{
+	if (data.shared)
+		UnmapViewOfFile(data.shared);
+	if (m_mapping_handle)
+		CloseHandle(m_mapping_handle);
+}
+
+#else // POSIX
+
+static std::atomic<u32> g_shm_counter{0};
+
+std::unique_ptr<IPCChannelResourcesShm>
+IPCChannelResourcesShm::makeFirst(const std::string &name_prefix)
+{
+	u32 n = g_shm_counter.fetch_add(1);
+	// POSIX shm names must start with '/' and have no other '/'.
+	std::string name = "/" + name_prefix + "-" +
+			std::to_string(getpid()) + "-" + std::to_string(n);
+
+	int fd = shm_open(name.c_str(), O_CREAT | O_EXCL | O_RDWR, 0600);
+	if (fd < 0) {
+		errorstream << "IPCChannelResourcesShm: shm_open(create) failed for "
+				<< name << ": " << std::strerror(errno) << std::endl;
+		return nullptr;
+	}
+	if (ftruncate(fd, sizeof(IPCChannelShared)) < 0) {
+		errorstream << "IPCChannelResourcesShm: ftruncate failed: "
+				<< std::strerror(errno) << std::endl;
+		close(fd);
+		shm_unlink(name.c_str());
+		return nullptr;
+	}
+	void *addr = mmap(nullptr, sizeof(IPCChannelShared),
+			PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	close(fd);
+	if (addr == MAP_FAILED) {
+		errorstream << "IPCChannelResourcesShm: mmap failed: "
+				<< std::strerror(errno) << std::endl;
+		shm_unlink(name.c_str());
+		return nullptr;
+	}
+
+	// Initialize the shared struct in place
+	auto *shared = new (addr) IPCChannelShared();
+
+	auto ret = std::make_unique<IPCChannelResourcesShm>();
+	ret->m_name = std::move(name);
+	ret->m_is_creator = true;
+	Data d{};
+	d.shared = shared;
+	ret->setFirst(d);
+	return ret;
+}
+
+std::unique_ptr<IPCChannelResourcesShm>
+IPCChannelResourcesShm::makeSecond(const std::string &name)
+{
+	int fd = shm_open(name.c_str(), O_RDWR, 0);
+	if (fd < 0) {
+		errorstream << "IPCChannelResourcesShm: shm_open(attach) failed for "
+				<< name << ": " << std::strerror(errno) << std::endl;
+		return nullptr;
+	}
+	void *addr = mmap(nullptr, sizeof(IPCChannelShared),
+			PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	close(fd);
+	if (addr == MAP_FAILED) {
+		errorstream << "IPCChannelResourcesShm: mmap(attach) failed: "
+				<< std::strerror(errno) << std::endl;
+		return nullptr;
+	}
+
+	auto *shared = reinterpret_cast<IPCChannelShared *>(addr);
+
+	auto ret = std::make_unique<IPCChannelResourcesShm>();
+	ret->m_name = name;
+	ret->m_is_creator = false;
+	Data d{};
+	d.shared = shared;
+	if (!ret->setSecond(d)) {
+		munmap(addr, sizeof(IPCChannelShared));
+		return nullptr;
+	}
+	return ret;
+}
+
+void IPCChannelResourcesShm::cleanupLast() noexcept
+{
+	if (data.shared) {
+		data.shared->~IPCChannelShared();
+		munmap(data.shared, sizeof(IPCChannelShared));
+	}
+	if (m_is_creator && !m_name.empty())
+		shm_unlink(m_name.c_str());
+}
+
+void IPCChannelResourcesShm::cleanupNotLast() noexcept
+{
+	if (data.shared)
+		munmap(data.shared, sizeof(IPCChannelShared));
+	// If we're the creator but not the last to go, still unlink the name
+	// so new openers can't attach. The inode stays alive for the other end.
+	if (m_is_creator && !m_name.empty())
+		shm_unlink(m_name.c_str());
+}
+
+#endif

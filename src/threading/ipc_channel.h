@@ -7,6 +7,7 @@
 #include "irrlichttypes.h"
 #include "util/basic_macros.h"
 #include <memory>
+#include <string>
 #include <vector>
 #include <atomic>
 #include <thread>
@@ -231,3 +232,44 @@ struct IPCChannelResourcesSingleProcess final : public IPCChannelResources
 // fun, and pass it the other end.
 std::pair<IPCChannelEnd, std::thread> make_test_ipc_channel(
 		const std::function<void(IPCChannelEnd)> &fun);
+
+// Shared-memory-backed resources for use across a process boundary.
+// POSIX: uses shm_open + mmap, with shm_unlink after both ends attach.
+// Win32: uses CreateFileMapping + MapViewOfFile.
+//
+// The parent creates with makeFirst(name_prefix) — this allocates shared
+// memory with a generated unique name and stores the name internally.
+// Callers retrieve the name via getName() and are responsible for passing
+// it to the child process (via env var, fd passing, or other means).
+// The child attaches with makeSecond(name).
+struct IPCChannelResourcesShm final : public IPCChannelResources
+{
+	~IPCChannelResourcesShm() override;
+
+	// Parent side: create a new shm region with a generated name.
+	// name_prefix should be a short string used in the generated name
+	// for debugging (e.g. "luanti-sscsm").
+	static std::unique_ptr<IPCChannelResourcesShm>
+			makeFirst(const std::string &name_prefix);
+
+	// Child side: attach to an existing shm region by name.
+	// Returns nullptr on failure (e.g. name does not exist, other end dead).
+	static std::unique_ptr<IPCChannelResourcesShm>
+			makeSecond(const std::string &name);
+
+	// The shm object name. Only meaningful for the parent after makeFirst.
+	// The child must receive this name through some other channel.
+	const std::string &getName() const noexcept { return m_name; }
+
+	void cleanupLast() noexcept override;
+	void cleanupNotLast() noexcept override;
+
+private:
+	std::string m_name;
+	// POSIX: true if we created the shm (so we should shm_unlink on cleanup).
+	// Win32: true if we created the mapping (for CloseHandle ordering).
+	bool m_is_creator = false;
+#if defined(_WIN32)
+	void *m_mapping_handle = nullptr;
+#endif
+};

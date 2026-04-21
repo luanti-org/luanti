@@ -10,6 +10,12 @@
 #include "threading/semaphore.h"
 #include "threading/thread.h"
 
+#if !defined(_WIN32)
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#endif
+
 
 class TestThreading : public TestBase {
 public:
@@ -21,6 +27,7 @@ public:
 	void testAtomicSemaphoreThread();
 	void testTLS();
 	void testIPCChannel();
+	void testIPCChannelShm();
 };
 
 static TestThreading g_test_instance;
@@ -31,6 +38,7 @@ void TestThreading::runTests(IGameDef *gamedef)
 	TEST(testAtomicSemaphoreThread);
 	TEST(testTLS);
 	TEST(testIPCChannel);
+	TEST(testIPCChannelShm);
 }
 
 class SimpleTestThread : public Thread {
@@ -268,4 +276,90 @@ void TestThreading::testIPCChannel()
 
 	// other side dead ==> should time out
 	UASSERT(!end_a.exchangeWithTimeout(nullptr, 0, 200));
+}
+
+void TestThreading::testIPCChannelShm()
+{
+#if defined(_WIN32)
+	// Single-process round-trip only; we can't easily spawn a child in a
+	// unit test on Windows without a lot of scaffolding.
+	auto parent_res = IPCChannelResourcesShm::makeFirst("luanti-test");
+	UASSERT(parent_res != nullptr);
+	std::string name = parent_res->getName();
+	UASSERT(!name.empty());
+
+	auto child_res = IPCChannelResourcesShm::makeSecond(name);
+	UASSERT(child_res != nullptr);
+
+	auto end_a = IPCChannelEnd::makeA(std::move(parent_res));
+	auto end_b = IPCChannelEnd::makeB(std::move(child_res));
+
+	// Simple round-trip across the same process but through real shm
+	const char *msg = "hello shm";
+	end_a.send(msg, 10);
+	end_b.recv();
+	UASSERTEQ(size_t, end_b.getRecvSize(), 10);
+	UASSERT(memcmp(end_b.getRecvData(), msg, 10) == 0);
+#else
+	// Fork a child that attaches to the shm and echoes back.
+	auto parent_res = IPCChannelResourcesShm::makeFirst("luanti-test");
+	UASSERT(parent_res != nullptr);
+	std::string name = parent_res->getName();
+
+	pid_t pid = fork();
+	UASSERT(pid >= 0);
+	if (pid == 0) {
+		// Child
+		auto child_res = IPCChannelResourcesShm::makeSecond(name);
+		if (!child_res)
+			_exit(1);
+		auto end_b = IPCChannelEnd::makeB(std::move(child_res));
+
+		// Echo loop, stop on empty message
+		while (true) {
+			if (!end_b.recvWithTimeout(5000))
+				_exit(2);
+			if (!end_b.sendWithTimeout(end_b.getRecvData(),
+					end_b.getRecvSize(), 5000))
+				_exit(3);
+			if (end_b.getRecvSize() == 0)
+				break;
+		}
+		_exit(0);
+	}
+
+	// Parent
+	auto end_a = IPCChannelEnd::makeA(std::move(parent_res));
+
+	// Round-trip a few messages of various sizes
+	const char *msgs[] = {
+		"hi",
+		"medium length message for cross-process shm round-trip",
+		"",
+	};
+	// Skip the empty one for now; we use it as the sentinel below
+	for (int i = 0; i < 2; ++i) {
+		size_t len = strlen(msgs[i]);
+		UASSERT(end_a.exchangeWithTimeout(msgs[i], len, 5000));
+		UASSERTEQ(size_t, end_a.getRecvSize(), len);
+		UASSERT(memcmp(end_a.getRecvData(), msgs[i], len) == 0);
+	}
+
+	// Large message spanning multiple chunks
+	std::vector<u8> big(IPC_CHANNEL_MSG_SIZE * 3 + 17);
+	for (size_t i = 0; i < big.size(); ++i)
+		big[i] = static_cast<u8>(i & 0xff);
+	UASSERT(end_a.exchangeWithTimeout(big.data(), big.size(), 10000));
+	UASSERTEQ(size_t, end_a.getRecvSize(), big.size());
+	UASSERT(memcmp(end_a.getRecvData(), big.data(), big.size()) == 0);
+
+	// Empty message to stop the child
+	UASSERT(end_a.exchangeWithTimeout(nullptr, 0, 5000));
+
+	// Wait for child
+	int status = 0;
+	UASSERTEQ(pid_t, waitpid(pid, &status, 0), pid);
+	UASSERT(WIFEXITED(status));
+	UASSERTEQ(int, WEXITSTATUS(status), 0);
+#endif
 }
