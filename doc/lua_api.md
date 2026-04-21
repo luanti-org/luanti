@@ -9980,17 +9980,13 @@ Player properties need to be saved manually.
 
     new_step_up = "legacy",
     -- Defaults to 'legacy' for players and entities.
-    -- Setting this to 'floaty' or 'rigid' makes the entity or player use the new step up code.
-    -- This new code removes the glitch that caused entities and players to jolt up
-    -- on the edge of a node. These make movement through the environment feel
-    -- higher quality.
-    -- 'legacy' = Old step up code.
-    -- 'floaty' = New step up code. Medium rigidity. This is a balance between legacy and
-    -- full rigidity. You can only step up when standing on something or falling.
-    -- This allows you to parkour clutch edges of nodes and walk over 1 node gaps.
-    -- 'rigid' = New step up code. Full rigidity. You can only step up when standing on
-    -- something. You cannot parkour clutch edges of nodes. You must jump over 1
-    -- node gaps.
+    -- This field controls the jump and step-up behavior. Option:
+    -- 'legacy': Objects always jolt up on the edge of a node, which increases climbing speed.
+    -- 'floaty': Balance between 'legacy' and 'rigid'. Step-up is only possible when
+    --   standing on ground or falling. In practice, this allows walking over 1 node gaps.
+    -- 'rigid': Step-up is only possible when standing on ground.
+    --   In practice, you cannot parkour clutch edges of nodes.
+    -- Supported by clients >= 5.16.0.
 }
 ```
 
