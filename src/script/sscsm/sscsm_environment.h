@@ -8,23 +8,25 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include "client/client.h"
-#include "threading/thread.h"
-#include "sscsm_controller.h"
+#include "threading/ipc_channel.h"
 #include "sscsm_irequest.h"
 #include "../scripting_sscsm.h"
 
-/** The thread that runs SSCSM code.
+struct ModVFS;
+
+/** Runs SSCSM code in the worker process.
  *
- * Meant to be replaced by a sandboxed process.
+ * Constructed at the entry point of the worker process. The worker's main
+ * function creates one of these and calls run() which loops forever,
+ * polling the main process for events and dispatching them.
  *
- * RAII-owns and abstracts away resources to communicate to the main process / thread.
+ * Communicates with the main process via an IPC channel over shared memory.
  *
- * See also SSCSMController for other side.
+ * See also SSCSMController for the other side.
  */
-class SSCSMEnvironment : public Thread
+class SSCSMEnvironment
 {
-	std::shared_ptr<StupidChannel> m_channel;
+	IPCChannelEnd m_channel;
 	std::unique_ptr<SSCSMScripting> m_script;
 	// the virtual file system.
 	// paths look like this:
@@ -33,13 +35,15 @@ class SSCSMEnvironment : public Thread
 	// modname:subdir/foo.lua
 	std::unique_ptr<ModVFS> m_vfs;
 
-	void *run() override;
-
 	SerializedSSCSMAnswer exchange(SerializedSSCSMRequest req);
 
 public:
-	SSCSMEnvironment(std::shared_ptr<StupidChannel> channel);
-	~SSCSMEnvironment() override;
+	SSCSMEnvironment(IPCChannelEnd channel);
+	~SSCSMEnvironment();
+
+	// Main loop: polls events from the main process, dispatches, repeats.
+	// Returns when a TearDown event is received or on fatal error.
+	void run();
 
 	SSCSMScripting *getScript() { return m_script.get(); }
 

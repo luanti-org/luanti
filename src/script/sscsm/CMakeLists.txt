@@ -5,4 +5,5 @@ set(client_SCRIPT_SSCSM_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/sscsm_controller.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sscsm_environment.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sscsm_serialize.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sscsm_worker_entry.cpp
 	PARENT_SCOPE)

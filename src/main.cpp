@@ -15,7 +15,9 @@
 #include "gettext.h"
 #include "log.h"
 #include "log_internal.h"
-#include "threading/ipc_worker_stub.h"
+#if CHECK_CLIENT_BUILD()
+#include "script/sscsm/sscsm_worker_entry.h"
+#endif
 #include "util/serialize.h"
 #include "util/quicktune.h"
 #include "httpfetch.h"
@@ -188,10 +190,12 @@ int main(int argc, char *argv[])
 	porting::signal_handler_init();
 	porting::initializePaths();
 
+#if CHECK_CLIENT_BUILD()
 	// SSCSM worker: minimal entry point, no client/server setup needed.
-	// See src/script/sscsm/ for the worker protocol once fully wired up.
+	// See src/script/sscsm/ for the worker implementation.
 	if (cmd_args.exists("sscsm-worker"))
 		return run_sscsm_worker(cmd_args.get("sscsm-worker"));
+#endif
 
 	if (!create_userdata_path()) {
 		errorstream << "Cannot create user data directory" << std::endl;

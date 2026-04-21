@@ -8,31 +8,34 @@
 #include "irrlichttypes.h"
 #include "sscsm_irequest.h"
 #include "sscsm_ievent.h"
+#include "threading/ipc_channel.h"
 #include "util/basic_macros.h"
 
-class SSCSMEnvironment;
-class StupidChannel;
+class Client;
+class IPCChildProcess;
 
 /**
  * The purpose of this class is to:
- * * Be the RAII owner of the SSCSM process.
+ * * Be the RAII owner of the SSCSM worker process.
  * * Send events to SSCSM process, and process requests. (`runEvent`)
  * * Hide details (e.g. that it is a separate process, or that it has to do IPC calls).
  *
- * See also SSCSMEnvironment for other side.
+ * See also SSCSMEnvironment for the other side (runs in the worker process).
  */
 class SSCSMController
 {
-	std::unique_ptr<SSCSMEnvironment> m_thread;
-	std::shared_ptr<StupidChannel> m_channel;
+	IPCChannelEnd m_channel;
+	std::unique_ptr<IPCChildProcess> m_process;
 
 	SerializedSSCSMAnswer handleRequest(Client *client, ISSCSMRequest *req);
 
 public:
+	// Spawns the worker process and waits for its initial PollNextEvent
+	// request. Returns nullptr on failure (e.g. child exited before ready).
 	static std::unique_ptr<SSCSMController> create();
 
-	SSCSMController(std::unique_ptr<SSCSMEnvironment> thread,
-			std::shared_ptr<StupidChannel> channel);
+	SSCSMController(IPCChannelEnd channel,
+			std::unique_ptr<IPCChildProcess> process);
 
 	~SSCSMController();
 

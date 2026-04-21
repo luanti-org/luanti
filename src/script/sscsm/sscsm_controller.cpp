@@ -3,40 +3,65 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #include "sscsm_controller.h"
-#include "sscsm_environment.h"
 #include "sscsm_requests.h"
 #include "sscsm_events.h"
-#include "sscsm_stupid_channel.h"
+#include "log.h"
+#include "threading/ipc_child_process.h"
+
+// Timeout for channel operations on the main-process side. If the worker
+// doesn't respond within this long, we treat the channel as broken.
+static constexpr int SSCSM_CHANNEL_TIMEOUT_MS = 2 * 60 * 1000;
+
+static SerializedSSCSMAnswer receive_one(IPCChannelEnd &ch)
+{
+	return SerializedSSCSMAnswer(
+			static_cast<const char *>(ch.getRecvData()),
+			ch.getRecvSize());
+}
 
 std::unique_ptr<SSCSMController> SSCSMController::create()
 {
-	auto channel = std::make_shared<StupidChannel>();
-	auto thread = std::make_unique<SSCSMEnvironment>(channel);
-	thread->start();
+	auto [end_a, process] = make_child_ipc_channel();
+	if (!process || !process->isValid()) {
+		errorstream << "SSCSM: failed to spawn worker process" << std::endl;
+		return nullptr;
+	}
 
-	// Wait for thread to finish initializing.
-	auto req0 = deserializeSSCSMRequest(channel->recvB());
-	FATAL_ERROR_IF(req0->getType() != SSCSMRequestType::PollNextEvent,
-			"First request must be pollEvent.");
+	// Wait for the worker to send its initial PollNextEvent request.
+	if (!end_a.recvWithTimeout(SSCSM_CHANNEL_TIMEOUT_MS)) {
+		errorstream << "SSCSM: worker did not respond within "
+				<< SSCSM_CHANNEL_TIMEOUT_MS << "ms; giving up" << std::endl;
+		process->terminate();
+		return nullptr;
+	}
+	auto req0 = deserializeSSCSMRequest(receive_one(end_a));
+	if (req0->getType() != SSCSMRequestType::PollNextEvent) {
+		errorstream << "SSCSM: worker first request must be PollNextEvent"
+				<< std::endl;
+		process->terminate();
+		return nullptr;
+	}
 
-	return std::make_unique<SSCSMController>(std::move(thread), channel);
+	return std::make_unique<SSCSMController>(std::move(end_a), std::move(process));
 }
 
-SSCSMController::SSCSMController(std::unique_ptr<SSCSMEnvironment> thread,
-		std::shared_ptr<StupidChannel> channel) :
-	m_thread(std::move(thread)), m_channel(std::move(channel))
+SSCSMController::SSCSMController(IPCChannelEnd channel,
+		std::unique_ptr<IPCChildProcess> process) :
+	m_channel(std::move(channel)), m_process(std::move(process))
 {
 }
 
 SSCSMController::~SSCSMController()
 {
-	// send tear-down
-	auto answer = SSCSMRequestPollNextEvent::Answer{};
-	answer.next_event = std::make_unique<SSCSMEventTearDown>();
-	m_channel->sendB(serializeSSCSMAnswer(std::move(answer)));
-	// wait for death
-	m_thread->stop();
-	m_thread->wait();
+	// Send tear-down event as the answer to the worker's pending PollNextEvent.
+	auto answer0 = SSCSMRequestPollNextEvent::Answer{};
+	answer0.next_event = std::make_unique<SSCSMEventTearDown>();
+	auto answer = serializeSSCSMAnswer(std::move(answer0));
+	(void)m_channel.sendWithTimeout(answer.data(), answer.size(),
+			SSCSM_CHANNEL_TIMEOUT_MS);
+
+	// Wait for the worker to exit cleanly; m_process's destructor
+	// will escalate to termination if it doesn't.
 }
 
 SerializedSSCSMAnswer SSCSMController::handleRequest(Client *client, ISSCSMRequest *req)
@@ -51,11 +76,17 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 	auto answer = serializeSSCSMAnswer(std::move(answer0));
 
 	while (true) {
-		auto request = deserializeSSCSMRequest(m_channel->exchangeB(std::move(answer)));
+		if (!m_channel.exchangeWithTimeout(answer.data(), answer.size(),
+				SSCSM_CHANNEL_TIMEOUT_MS)) {
+			errorstream << "SSCSM: worker channel timed out, assuming dead"
+					<< std::endl;
+			return;
+		}
+		auto request = deserializeSSCSMRequest(receive_one(m_channel));
 
 		// SSCSMRequestPollNextEvent means `event` is finished and we need to
 		// answer with the next event (that will be passed in a subsequent runEvent()
-		// call)
+		// call).
 		if (request->getType() == SSCSMRequestType::PollNextEvent) {
 			break;
 		}
