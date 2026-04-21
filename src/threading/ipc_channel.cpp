@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #include "ipc_channel.h"
+#include "ipc_child_process.h"
 #include "debug.h"
 #include "exceptions.h"
 #include "log.h"
@@ -367,3 +368,29 @@ void IPCChannelResourcesShm::cleanupNotLast() noexcept
 }
 
 #endif
+
+////////////////////////////////////////////////////////////////////////////////
+// make_child_ipc_channel: spawn a worker process and wire it to the channel.
+
+std::pair<IPCChannelEnd, std::unique_ptr<IPCChildProcess>>
+make_child_ipc_channel(const std::string &exec_path)
+{
+	auto parent_res = IPCChannelResourcesShm::makeFirst("luanti-sscsm");
+	if (!parent_res) {
+		return {IPCChannelEnd{}, nullptr};
+	}
+	std::string shm_name = parent_res->getName();
+
+	std::vector<std::string> args = {"--sscsm-worker", shm_name};
+	auto child = exec_path.empty()
+			? std::make_unique<IPCChildProcess>(args)
+			: std::make_unique<IPCChildProcess>(exec_path, args);
+
+	if (!child->isValid()) {
+		// Teardown: parent_res destructor unlinks the shm name.
+		return {IPCChannelEnd{}, nullptr};
+	}
+
+	auto end_a = IPCChannelEnd::makeA(std::move(parent_res));
+	return {std::move(end_a), std::move(child)};
+}

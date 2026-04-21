@@ -15,6 +15,7 @@
 #include "gettext.h"
 #include "log.h"
 #include "log_internal.h"
+#include "threading/ipc_worker_stub.h"
 #include "util/serialize.h"
 #include "util/quicktune.h"
 #include "httpfetch.h"
@@ -186,6 +187,11 @@ int main(int argc, char *argv[])
 
 	porting::signal_handler_init();
 	porting::initializePaths();
+
+	// SSCSM worker: minimal entry point, no client/server setup needed.
+	// See src/script/sscsm/ for the worker protocol once fully wired up.
+	if (cmd_args.exists("sscsm-worker"))
+		return run_sscsm_worker(cmd_args.get("sscsm-worker"));
 
 	if (!create_userdata_path()) {
 		errorstream << "Cannot create user data directory" << std::endl;
@@ -372,6 +378,8 @@ static void set_allowed_options(OptionList *allowed_options)
 			_("Load configuration from specified file"))));
 	allowed_options->insert(std::make_pair("port", ValueSpec(VALUETYPE_STRING,
 			_("Set network port (UDP)"))));
+	allowed_options->insert(std::make_pair("sscsm-worker", ValueSpec(VALUETYPE_STRING,
+			_("Internal: run as an SSCSM worker attached to the given shm name"))));
 	allowed_options->insert(std::make_pair("run-unittests", ValueSpec(VALUETYPE_FLAG,
 			_("Run legacy unit tests and Catch2 tests and exit"))));
 	allowed_options->insert(std::make_pair("run-tests", ValueSpec(VALUETYPE_FLAG,

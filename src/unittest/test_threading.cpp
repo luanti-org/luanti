@@ -7,6 +7,7 @@
 #include <atomic>
 #include <iostream>
 #include "threading/ipc_channel.h"
+#include "threading/ipc_child_process.h"
 #include "threading/semaphore.h"
 #include "threading/thread.h"
 
@@ -28,6 +29,7 @@ public:
 	void testTLS();
 	void testIPCChannel();
 	void testIPCChannelShm();
+	void testIPCChildProcess();
 };
 
 static TestThreading g_test_instance;
@@ -39,6 +41,7 @@ void TestThreading::runTests(IGameDef *gamedef)
 	TEST(testTLS);
 	TEST(testIPCChannel);
 	TEST(testIPCChannelShm);
+	TEST(testIPCChildProcess);
 }
 
 class SimpleTestThread : public Thread {
@@ -362,4 +365,40 @@ void TestThreading::testIPCChannelShm()
 	UASSERT(WIFEXITED(status));
 	UASSERTEQ(int, WEXITSTATUS(status), 0);
 #endif
+}
+
+void TestThreading::testIPCChildProcess()
+{
+	// Spawn the actual luanti binary with --sscsm-worker and round-trip
+	// messages across the process boundary through real shared memory.
+	auto [end_a, child] = make_child_ipc_channel();
+	UASSERT(child != nullptr);
+	UASSERT(child->isValid());
+
+	// Round-trip a few messages
+	const char *msgs[] = {
+		"hi",
+		"medium length message for real child process",
+	};
+	for (const char *m : msgs) {
+		size_t len = strlen(m);
+		UASSERT(end_a.exchangeWithTimeout(m, len, 5000));
+		UASSERTEQ(size_t, end_a.getRecvSize(), len);
+		UASSERT(memcmp(end_a.getRecvData(), m, len) == 0);
+	}
+
+	// Multi-chunk message
+	std::vector<u8> big(IPC_CHANNEL_MSG_SIZE * 2 + 7);
+	for (size_t i = 0; i < big.size(); ++i)
+		big[i] = static_cast<u8>((i * 31) & 0xff);
+	UASSERT(end_a.exchangeWithTimeout(big.data(), big.size(), 10000));
+	UASSERTEQ(size_t, end_a.getRecvSize(), big.size());
+	UASSERT(memcmp(end_a.getRecvData(), big.data(), big.size()) == 0);
+
+	// Tell the worker to exit
+	UASSERT(end_a.exchangeWithTimeout(nullptr, 0, 5000));
+
+	// Wait for clean exit
+	UASSERT(child->waitWithTimeout(5000));
+	UASSERTEQ(int, child->getExitCode(), 0);
 }

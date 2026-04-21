@@ -227,11 +227,25 @@ struct IPCChannelResourcesSingleProcess final : public IPCChannelResources
 	}
 };
 
+class IPCChildProcess;
+
 // For testing
 // Returns one end and a thread holding the other end. The thread will execute
 // fun, and pass it the other end.
 std::pair<IPCChannelEnd, std::thread> make_test_ipc_channel(
 		const std::function<void(IPCChannelEnd)> &fun);
+
+// Create a cross-process IPC channel: allocates shared memory with a
+// generated name and spawns a worker process via IPCChildProcess to act
+// as end B. The current process becomes end A. Returns end A plus the
+// handle to the child process (so the caller can monitor it).
+//
+// The worker is launched via `<exec_path> --sscsm-worker <shmname>`.
+// If exec_path is empty, the current executable is used.
+//
+// Returns { empty_end, invalid_process } on failure.
+std::pair<IPCChannelEnd, std::unique_ptr<IPCChildProcess>>
+make_child_ipc_channel(const std::string &exec_path = {});
 
 // Shared-memory-backed resources for use across a process boundary.
 // POSIX: uses shm_open + mmap, with shm_unlink after both ends attach.
