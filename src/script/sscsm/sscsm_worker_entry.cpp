@@ -5,6 +5,7 @@
 #include "sscsm_worker_entry.h"
 
 #include "log.h"
+#include "log_internal.h"
 #include "sscsm_environment.h"
 #include "threading/ipc_channel.h"
 
@@ -203,6 +204,17 @@ static void install_sandbox() noexcept
 
 int run_sscsm_worker(const std::string &shm_name)
 {
+	// main() registered this thread as "Main" before the worker shortcut;
+	// rename so worker log lines are distinguishable from the parent's.
+	g_logger.registerThread("SSCSMWorker");
+
+	// main() wired stderr at LL_ACTION before forking into the worker.
+	// Bump to LL_INFO + LL_VERBOSE so the worker's load messages, Lua
+	// errors, and sandbox notices are visible on the parent's terminal.
+	// The worker has no debug.txt; stderr is our only channel.
+	g_logger.addOutput(&stderr_output, LL_INFO);
+	g_logger.addOutput(&stderr_output, LL_VERBOSE);
+
 	// Drop any fds the parent passed us — before we do anything else.
 	close_inherited_fds();
 
