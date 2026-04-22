@@ -8,7 +8,9 @@
 #include "client/mod_vfs.h"
 #include "common/c_types.h" // LuaError
 #include "log.h"
+#include "porting.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <string>
 
@@ -34,6 +36,15 @@ void SSCSMEnvironment::run()
 	int event_count = 0;
 	if (const char *s = std::getenv("LUANTI_SSCSM_DIE_ON_EVENT"))
 		die_on_event = std::atoi(s);
+
+	// Fault-injection: LUANTI_SSCSM_FLOOD_REQUESTS=N spams N
+	// DisplayChatMessage requests during the first event's execution.
+	// Tests the parent's throughput and any DoS vulnerability via a
+	// runaway clientmod (e.g. tight core.display_chat_message loop).
+	int flood_n = 0;
+	bool flood_done = false;
+	if (const char *s = std::getenv("LUANTI_SSCSM_FLOOD_REQUESTS"))
+		flood_n = std::atoi(s);
 
 	while (true) {
 		auto next_event = [&]{
@@ -68,6 +79,28 @@ void SSCSMEnvironment::run()
 			setFatalError(std::string("Lua error: ") + e.what());
 		} catch (ModError &e) {
 			setFatalError(std::string("Mod error: ") + e.what());
+		}
+
+		// Flood fires on the first in-game OnStep so we exercise the
+		// per-event budget under realistic frame-loop conditions, not
+		// during loading-screen init where extra latency is masked.
+		if (!flood_done && flood_n > 0 &&
+				next_event->getType() == SSCSMEventType::OnStep) {
+			flood_done = true;
+			warningstream << "sscsm-worker: FLOOD_REQUESTS=" << flood_n
+					<< " — spamming chat messages on first OnStep"
+					<< std::endl;
+			u64 t0 = porting::getTimeMs();
+			for (int i = 0; i < flood_n; ++i) {
+				auto req = SSCSMRequestDisplayChatMessage{};
+				req.text = "flood " + std::to_string(i);
+				doRequest(std::move(req));
+			}
+			u64 t1 = porting::getTimeMs();
+			warningstream << "sscsm-worker: FLOOD_REQUESTS done in "
+					<< (t1 - t0) << " ms ("
+					<< (flood_n * 1000 / std::max<u64>(1, t1 - t0))
+					<< " req/s)" << std::endl;
 		}
 	}
 }
