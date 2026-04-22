@@ -179,6 +179,21 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 			break;
 		}
 
+		// SetFatalError is the worker's "I'm broken, give up on me" signal —
+		// raised on Lua/Mod errors in event execution. Policy is to keep
+		// the player connected (matches the worker-crash recovery path)
+		// and just disable further SSCSM activity. Killing the worker
+		// here also unblocks shutdown since it's wedged waiting for us.
+		if (request->getType() == SSCSMRequestType::SetFatalError) {
+			auto *fe = static_cast<SSCSMRequestSetFatalError *>(request.get());
+			errorstream << "SSCSM: worker reported fatal error: "
+					<< fe->reason << "; disabling SSCSM" << std::endl;
+			m_dead = true;
+			if (m_process && m_process->isValid())
+				m_process->terminate();
+			return;
+		}
+
 		answer = handleRequest(client, request.get());
 	}
 }

@@ -68,8 +68,11 @@ struct SSCSMRequestSetFatalError final : public ISSCSMRequest
 
 	SerializedSSCSMAnswer exec(Client *client) override
 	{
-		client->setFatalError("[SSCSM] " + reason);
-
+		// SetFatalError is intercepted by SSCSMController::runEvent before
+		// reaching here, so it can disable SSCSM without disconnecting the
+		// player. This implementation is a defensive no-op in case the
+		// dispatch path ever changes.
+		(void)client;
 		return serializeSSCSMAnswer(Answer{});
 	}
 };
