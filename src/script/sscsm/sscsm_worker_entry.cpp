@@ -9,7 +9,10 @@
 #include "sscsm_environment.h"
 #include "threading/ipc_channel.h"
 
+#include <chrono>
 #include <csignal>
+#include <stdexcept>
+#include <thread>
 
 #if !defined(_WIN32)
 #include <unistd.h>
@@ -251,11 +254,39 @@ int run_sscsm_worker(const std::string &shm_name)
 	}
 #endif
 
+	// Fault-injection: bail before attaching to shm.
+	if (std::getenv("LUANTI_SSCSM_FAIL_SHM")) {
+		warningstream << "sscsm-worker: FAIL_SHM — exiting before shm attach"
+				<< std::endl;
+		return 10;
+	}
+
 	auto resources = IPCChannelResourcesShm::makeSecond(shm_name);
 	if (!resources) {
 		errorstream << "sscsm-worker: failed to attach to shm '"
 				<< shm_name << "'" << std::endl;
 		return 1;
+	}
+
+	// Fault-injection: attach succeeded but die before sending first hello.
+	if (std::getenv("LUANTI_SSCSM_ABORT_BEFORE_HELLO")) {
+		warningstream << "sscsm-worker: ABORT_BEFORE_HELLO — exiting silently"
+				<< std::endl;
+		std::_Exit(11);
+	}
+
+	// Fault-injection: hang forever after attach. Parent should time out.
+	if (std::getenv("LUANTI_SSCSM_HANG")) {
+		warningstream << "sscsm-worker: HANG — sleeping forever" << std::endl;
+		for (;;)
+			std::this_thread::sleep_for(std::chrono::hours(1));
+	}
+
+	// Fault-injection: throw an unhandled exception. Tests the catch block.
+	if (std::getenv("LUANTI_SSCSM_THROW")) {
+		warningstream << "sscsm-worker: THROW — raising std::runtime_error"
+				<< std::endl;
+		throw std::runtime_error("LUANTI_SSCSM_THROW injected failure");
 	}
 
 	auto end_b = IPCChannelEnd::makeB(std::move(resources));

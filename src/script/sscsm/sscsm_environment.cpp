@@ -7,6 +7,10 @@
 #include "sscsm_events.h"
 #include "client/mod_vfs.h"
 #include "common/c_types.h" // LuaError
+#include "log.h"
+
+#include <cstdlib>
+#include <string>
 
 // Timeout for channel operations in the worker. If the main process is
 // unresponsive for this long, we give up and exit. Matches the worker stub.
@@ -24,6 +28,13 @@ SSCSMEnvironment::~SSCSMEnvironment() = default;
 
 void SSCSMEnvironment::run()
 {
+	// Fault-injection: LUANTI_SSCSM_DIE_ON_EVENT=N crashes the worker while
+	// processing the Nth event (1-based). Tests the mid-session death path.
+	int die_on_event = 0;
+	int event_count = 0;
+	if (const char *s = std::getenv("LUANTI_SSCSM_DIE_ON_EVENT"))
+		die_on_event = std::atoi(s);
+
 	while (true) {
 		auto next_event = [&]{
 			auto request = SSCSMRequestPollNextEvent{};
@@ -33,6 +44,12 @@ void SSCSMEnvironment::run()
 
 		if (next_event->getType() == SSCSMEventType::TearDown) {
 			break;
+		}
+
+		if (die_on_event > 0 && ++event_count == die_on_event) {
+			warningstream << "sscsm-worker: DIE_ON_EVENT=" << die_on_event
+					<< " — calling _Exit(12)" << std::endl;
+			std::_Exit(12);
 		}
 
 		try {
