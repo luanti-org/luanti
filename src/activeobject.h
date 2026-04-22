@@ -21,7 +21,6 @@ enum ActiveObjectType {
 // ACTIVEOBJECT_TYPE_FIREFLY = 5,
 // ACTIVEOBJECT_TYPE_MOBV2 = 6,
 // End obsolete stuff
-// Special type, only exists as LuaEntitySAO
 	ACTIVEOBJECT_TYPE_LUAENTITY = 7,
 // Special type, not stored as a static object
 	ACTIVEOBJECT_TYPE_PLAYER = 100,

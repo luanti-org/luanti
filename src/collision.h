@@ -6,6 +6,7 @@
 
 #include "irrlichttypes_bloated.h"
 #include <vector>
+#include "object_properties.h"
 
 class IGameDef;
 class Environment;
@@ -58,7 +59,8 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		f32 stepheight, f32 dtime,
 		v3f *pos_f, v3f *speed_f,
 		v3f accel_f, ActiveObject *self,
-		bool collide_with_objects);
+		bool collide_with_objects,
+		NewStepUp new_step_up);
 
 /// @brief A simpler version of "collisionMoveSimple" that only checks whether
 ///        a collision occurs at the given position.
