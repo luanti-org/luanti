@@ -222,6 +222,14 @@ int run_sscsm_worker(const std::string &shm_name)
 	std::signal(SIGINT, SIG_DFL);
 	std::signal(SIGTERM, SIG_DFL);
 
+#if defined(__linux__)
+	// If the parent process dies for any reason (including SIGKILL where
+	// it can't run cleanup), the kernel delivers SIGKILL to us. Without
+	// this, the worker would orphan-spin in the channel wait loop until
+	// its timeout (minutes) before exiting.
+	prctl(PR_SET_PDEATHSIG, SIGKILL, 0, 0, 0);
+#endif
+
 	// main() wired stderr at LL_ACTION before forking into the worker.
 	// Bump to LL_INFO + LL_VERBOSE so the worker's load messages, Lua
 	// errors, and sandbox notices are visible on the parent's terminal.
