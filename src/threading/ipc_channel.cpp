@@ -9,9 +9,11 @@
 #include "log.h"
 #include "porting.h"
 #include <atomic>
+#include <chrono>
 #include <cstring>
 #include <new>
 #include <string>
+#include <thread>
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -23,11 +25,21 @@
 #include <errno.h>
 #endif
 
-// Spin-wait until the buffer's flag becomes 1, then reset it.
+// Wait until the buffer's flag becomes 1, then reset it.
 // timeout_ms_abs: absolute deadline from porting::getTimeMs(), or 0 for no timeout.
 // Returns false on timeout.
+//
+// Two-phase wait:
+//   Phase 1 (iter < SPIN_ITERS): busy spin with yield(). Catches
+//     back-to-back sub-requests with sub-microsecond latency.
+//   Phase 2 (iter >= SPIN_ITERS): sleep 1ms in the kernel per iteration.
+//     Gives ~0% idle CPU at the cost of up to 1ms wake latency, which
+//     is ~6% of a 60Hz frame budget — invisible in practice.
+static constexpr int SPIN_ITERS = 100;
+
 static bool wait_in(IPCChannelEnd::Dir *dir, u64 timeout_ms_abs) noexcept
 {
+	int iter = 0;
 	while (true) {
 		u32 expected = 1;
 		if (dir->buf_in->flag.compare_exchange_weak(expected, 0,
@@ -36,7 +48,13 @@ static bool wait_in(IPCChannelEnd::Dir *dir, u64 timeout_ms_abs) noexcept
 		}
 		if (timeout_ms_abs > 0 && porting::getTimeMs() > timeout_ms_abs)
 			return false;
-		std::this_thread::yield();
+
+		if (iter < SPIN_ITERS) {
+			std::this_thread::yield();
+			++iter;
+		} else {
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
 	}
 }
 
