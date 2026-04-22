@@ -178,7 +178,7 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 			moveresult = collisionMoveSimple(m_env, m_env->getGameDef(),
 					box, m_prop.stepheight, dtime,
 					&p_pos, &p_velocity, p_acceleration,
-					this, m_prop.collideWithObjects, m_prop.new_step_up);
+					this, m_prop.collideWithObjects);
 			moveresult_p = &moveresult;
 
 			// Apply results

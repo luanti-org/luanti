@@ -19,6 +19,8 @@
 #include "util/timetaker.h"
 #include "profiler.h"
 #include "object_properties.h"
+#include "client/content_cao.h"
+#include "server/luaentity_sao.h"
 
 #ifdef __FAST_MATH__
 #warning "-ffast-math is known to cause bugs in collision code, do not use!"
@@ -379,14 +381,45 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		f32 stepheight, f32 dtime,
 		v3f *pos_f, v3f *speed_f,
 		v3f accel_f, ActiveObject *self,
-		bool collide_with_objects,
-		NewStepUp new_step_up)
+		bool collide_with_objects)
 {
 	static bool time_notification_done = false;
 
 	ScopeProfiler sp(g_profiler, PROFILER_NAME("collisionMoveSimple()"), SPT_AVG, PRECISION_MICRO);
 
 	collisionMoveResult result;
+
+	// Figure out what this thing is and what kind of new_step_up it has.
+	NewStepUp new_step_up = NewStepUp::LEGACY;
+	if (self != NULL) {
+		switch (self->getType())
+		{
+		// Lua Entities.
+		case ACTIVEOBJECT_TYPE_LUAENTITY: {
+			LuaEntitySAO* l_sao = dynamic_cast<LuaEntitySAO *>(self);
+			// Go up the chain of pointers safely.
+			if (l_sao != nullptr) {
+				ObjectProperties* prop = l_sao->accessObjectProperties();
+				if (prop != nullptr) {
+					new_step_up = prop->new_step_up;
+				}
+			}
+			break;
+		}
+		// Players.
+		case ACTIVEOBJECT_TYPE_GENERIC: {
+			GenericCAO* m_cao = dynamic_cast<GenericCAO *>(self);
+			if (m_cao != nullptr) {
+				new_step_up = m_cao->getProperties().new_step_up;
+			}
+			break;
+		}
+		// Every other type of active object doesn't hit this function.
+		// So ignore it.
+		default:
+			break;
+		}
+	}
 
 	// Assume no collisions when no velocity and no acceleration
 	if (*speed_f == v3f() && accel_f == v3f())
