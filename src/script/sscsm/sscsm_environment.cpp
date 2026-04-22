@@ -64,6 +64,30 @@ void SSCSMEnvironment::run()
 
 SerializedSSCSMAnswer SSCSMEnvironment::exchange(SerializedSSCSMRequest req)
 {
+	// Fault-injection: LUANTI_SSCSM_GARBAGE_REQUEST=N replaces the Nth
+	// outgoing request (1-based) with a single 0xFF byte — an unknown
+	// request type tag — to exercise the parent's deserializer.
+	static int garbage_at = []{
+		if (const char *s = std::getenv("LUANTI_SSCSM_GARBAGE_REQUEST"))
+			return std::atoi(s);
+		return 0;
+	}();
+	static int request_count = 0;
+	++request_count;
+	if (garbage_at > 0 && request_count == garbage_at) {
+		warningstream << "sscsm-worker: GARBAGE_REQUEST=" << garbage_at
+				<< " — sending 1 byte of 0xFF instead of request #"
+				<< request_count << std::endl;
+		char garbage = '\xff';
+		if (!m_channel.exchangeWithTimeout(&garbage, 1,
+				SSCSM_CHANNEL_TIMEOUT_MS)) {
+			std::exit(4);
+		}
+		return SerializedSSCSMAnswer(
+				static_cast<const char *>(m_channel.getRecvData()),
+				m_channel.getRecvSize());
+	}
+
 	if (!m_channel.exchangeWithTimeout(req.data(), req.size(),
 			SSCSM_CHANNEL_TIMEOUT_MS)) {
 		// Main process unresponsive — nothing we can do. Exit worker.
