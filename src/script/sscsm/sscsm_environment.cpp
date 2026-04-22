@@ -52,6 +52,16 @@ void SSCSMEnvironment::run()
 			std::_Exit(12);
 		}
 
+		// Fault-injection: LUANTI_SSCSM_FATAL_ERROR=1 triggers the
+		// SetFatalError request path on the first event, exercising
+		// the controller's "worker says it's broken" handling.
+		if (std::getenv("LUANTI_SSCSM_FATAL_ERROR")) {
+			warningstream << "sscsm-worker: FATAL_ERROR — sending "
+					"SSCSMRequestSetFatalError" << std::endl;
+			setFatalError("LUANTI_SSCSM_FATAL_ERROR injected");
+			std::_Exit(13);
+		}
+
 		try {
 			next_event->exec(this);
 		} catch (LuaError &e) {
