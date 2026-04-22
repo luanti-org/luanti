@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <vector>
+#include <sys/socket.h>
 #include <sys/syscall.h>
 #endif
 
@@ -223,6 +224,22 @@ int run_sscsm_worker(const std::string &shm_name)
 	// in-process, it still can't exec, connect to the network, or
 	// spawn children.
 	install_sandbox();
+
+#if !defined(_WIN32)
+	// Sanity check: LUANTI_SSCSM_SECCOMP_TEST=1 attempts a blocked syscall
+	// (socket(2)) to verify the filter is live. If seccomp is working the
+	// kernel delivers SIGSYS and the worker dies before the next line; if
+	// we reach the errorstream below, the sandbox is broken.
+	if (std::getenv("LUANTI_SSCSM_SECCOMP_TEST")) {
+		warningstream << "sscsm-worker: seccomp self-test — "
+				"attempting blocked socket(AF_INET, ...)" << std::endl;
+		int s = socket(AF_INET, SOCK_STREAM, 0);
+		errorstream << "sscsm-worker: seccomp SELF-TEST FAILED — socket() "
+				"returned " << s << " (errno=" << errno << "); "
+				"sandbox is NOT enforcing denylist" << std::endl;
+		return 3;
+	}
+#endif
 
 	auto resources = IPCChannelResourcesShm::makeSecond(shm_name);
 	if (!resources) {
