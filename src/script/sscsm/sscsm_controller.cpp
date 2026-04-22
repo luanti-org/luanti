@@ -39,12 +39,29 @@ std::unique_ptr<SSCSMController> SSCSMController::create()
 
 	// Wait for the worker to send its initial PollNextEvent request.
 	if (!end_a.recvWithTimeout(SSCSM_HANDSHAKE_TIMEOUT_MS)) {
-		errorstream << "SSCSM: worker did not respond within "
-				<< SSCSM_HANDSHAKE_TIMEOUT_MS << "ms; giving up" << std::endl;
+		// Distinguish "worker crashed on startup" (exit code visible)
+		// from "worker is still alive but unresponsive".
+		if (process->waitWithTimeout(0)) {
+			errorstream << "SSCSM: worker exited during handshake (code "
+					<< process->getExitCode() << ")" << std::endl;
+		} else {
+			errorstream << "SSCSM: worker did not respond within "
+					<< SSCSM_HANDSHAKE_TIMEOUT_MS << "ms; giving up"
+					<< std::endl;
+		}
 		process->terminate();
 		return nullptr;
 	}
-	auto req0 = deserializeSSCSMRequest(receive_one(end_a));
+
+	std::unique_ptr<ISSCSMRequest> req0;
+	try {
+		req0 = deserializeSSCSMRequest(receive_one(end_a));
+	} catch (std::exception &e) {
+		errorstream << "SSCSM: worker sent malformed first request ("
+				<< e.what() << "); giving up" << std::endl;
+		process->terminate();
+		return nullptr;
+	}
 	if (req0->getType() != SSCSMRequestType::PollNextEvent) {
 		errorstream << "SSCSM: worker first request must be PollNextEvent"
 				<< std::endl;
@@ -59,6 +76,12 @@ SSCSMController::SSCSMController(IPCChannelEnd channel,
 		std::unique_ptr<IPCChildProcess> process) :
 	m_channel(std::move(channel)), m_process(std::move(process))
 {
+	// A healthy worker exits in milliseconds after TearDown; a sick
+	// worker gets SIGTERM from our own code below. Either way there's
+	// no reason to let the IPCChildProcess default (2 min) gate
+	// shutdown.
+	if (m_process)
+		m_process->setDestructorTimeoutMs(2000);
 }
 
 SSCSMController::~SSCSMController()
@@ -128,10 +151,26 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 						<< "ms with worker still alive; disabling SSCSM"
 						<< std::endl;
 				m_dead = true;
+				// Worker is alive but not responding — kill it so we
+				// don't stall shutdown on an unresponsive orphan.
+				if (m_process && m_process->isValid())
+					m_process->terminate();
 			}
 			return;
 		}
-		auto request = deserializeSSCSMRequest(receive_one(m_channel));
+		std::unique_ptr<ISSCSMRequest> request;
+		try {
+			request = deserializeSSCSMRequest(receive_one(m_channel));
+		} catch (std::exception &e) {
+			errorstream << "SSCSM: malformed request from worker ("
+					<< e.what() << "); disabling SSCSM" << std::endl;
+			m_dead = true;
+			// Worker is wedged waiting for our reply to its bad request.
+			// Kill it now so shutdown doesn't stall on the orphan.
+			if (m_process && m_process->isValid())
+				m_process->terminate();
+			return;
+		}
 
 		// SSCSMRequestPollNextEvent means `event` is finished and we need to
 		// answer with the next event (that will be passed in a subsequent runEvent()
