@@ -56,7 +56,17 @@ IPCChildProcess::~IPCChildProcess()
 				<< std::endl;
 		terminate();
 		// Give it a brief moment to die before we give up
-		(void)waitWithTimeout(1000);
+		if (!waitWithTimeout(1000)) {
+#if !defined(_WIN32)
+			// SIGTERM may have been caught (e.g. if the child installed
+			// a graceful-shutdown handler). Escalate to SIGKILL.
+			warningstream << "IPCChildProcess: child ignored SIGTERM, "
+					"escalating to SIGKILL" << std::endl;
+			if (m_pid > 0 && !m_reaped)
+				kill(m_pid, SIGKILL);
+			(void)waitWithTimeout(1000);
+#endif
+		}
 	}
 
 #if defined(_WIN32)
@@ -224,10 +234,11 @@ bool IPCChildProcess::waitWithTimeout(int timeout_ms) noexcept
 	}
 
 	// Polling loop with small sleep intervals.
-	// Deadline relative to now.
+	// Do at least one WNOHANG probe before sleeping, so timeout_ms=0
+	// works as a non-blocking "is it dead right now?" check.
 	const int step_ms = 10;
 	int elapsed = 0;
-	while (elapsed < timeout_ms) {
+	while (true) {
 		int status = 0;
 		pid_t r = waitpid(m_pid, &status, WNOHANG);
 		if (r == m_pid) {
@@ -240,11 +251,12 @@ bool IPCChildProcess::waitWithTimeout(int timeout_ms) noexcept
 		}
 		if (r < 0 && errno != EINTR)
 			return false;
+		if (elapsed >= timeout_ms)
+			return false;
 		int sleep_for = std::min(step_ms, timeout_ms - elapsed);
 		std::this_thread::sleep_for(std::chrono::milliseconds(sleep_for));
 		elapsed += sleep_for;
 	}
-	return false;
 }
 
 void IPCChildProcess::terminate() noexcept
