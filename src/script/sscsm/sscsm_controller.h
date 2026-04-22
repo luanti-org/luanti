@@ -26,8 +26,13 @@ class SSCSMController
 {
 	IPCChannelEnd m_channel;
 	std::unique_ptr<IPCChildProcess> m_process;
+	// Set once we've detected the worker is gone (exited or unresponsive).
+	// Subsequent runEvent() calls become no-ops so we don't re-stall on each.
+	bool m_dead = false;
 
 	SerializedSSCSMAnswer handleRequest(Client *client, ISSCSMRequest *req);
+	// Returns true and sets m_dead if the worker has exited.
+	bool checkWorkerDead();
 
 public:
 	// Spawns the worker process and waits for its initial PollNextEvent

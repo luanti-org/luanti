@@ -8,14 +8,19 @@
 #include "log.h"
 #include "threading/ipc_child_process.h"
 
-// Timeout for channel operations on the main-process side. If the worker
-// doesn't respond within this long, we treat the channel as broken.
-static constexpr int SSCSM_CHANNEL_TIMEOUT_MS = 2 * 60 * 1000;
+// Timeout for channel operations on the main-process side. No legitimate
+// event should take more than a few seconds; a stuck worker past this is
+// either crashed or wedged in a Lua infinite loop — either way, nothing
+// useful is coming back. A longer timeout just means a longer visible
+// stall on the loading screen.
+static constexpr int SSCSM_CHANNEL_TIMEOUT_MS = 5 * 1000;
 
-// Shorter timeout for the initial handshake. A worker that can't send its
-// first PollNextEvent within a few seconds is broken (crashed on startup,
-// sandboxed away, wrong binary); no point blocking client init for minutes.
+// Timeout for the initial handshake. Same reasoning as above.
 static constexpr int SSCSM_HANDSHAKE_TIMEOUT_MS = 5 * 1000;
+
+// Timeout for sending the TearDown message in ~SSCSMController. If the
+// worker is dead this would hang shutdown; we want a quick give-up.
+static constexpr int SSCSM_TEARDOWN_TIMEOUT_MS = 1 * 1000;
 
 static SerializedSSCSMAnswer receive_one(IPCChannelEnd &ch)
 {
@@ -58,15 +63,39 @@ SSCSMController::SSCSMController(IPCChannelEnd channel,
 
 SSCSMController::~SSCSMController()
 {
-	// Send tear-down event as the answer to the worker's pending PollNextEvent.
-	auto answer0 = SSCSMRequestPollNextEvent::Answer{};
-	answer0.next_event = std::make_unique<SSCSMEventTearDown>();
-	auto answer = serializeSSCSMAnswer(std::move(answer0));
-	(void)m_channel.sendWithTimeout(answer.data(), answer.size(),
-			SSCSM_CHANNEL_TIMEOUT_MS);
+	// Skip teardown send if the worker is already gone — otherwise we'd
+	// block for SSCSM_TEARDOWN_TIMEOUT_MS on every shutdown after a
+	// worker crash.
+	if (!m_dead && !checkWorkerDead()) {
+		// Send tear-down event as the answer to the worker's pending PollNextEvent.
+		auto answer0 = SSCSMRequestPollNextEvent::Answer{};
+		answer0.next_event = std::make_unique<SSCSMEventTearDown>();
+		auto answer = serializeSSCSMAnswer(std::move(answer0));
+		(void)m_channel.sendWithTimeout(answer.data(), answer.size(),
+				SSCSM_TEARDOWN_TIMEOUT_MS);
+	}
 
 	// Wait for the worker to exit cleanly; m_process's destructor
 	// will escalate to termination if it doesn't.
+}
+
+bool SSCSMController::checkWorkerDead()
+{
+	if (m_dead)
+		return true;
+	if (!m_process || !m_process->isValid()) {
+		m_dead = true;
+		return true;
+	}
+	// Non-blocking poll: waitpid(WNOHANG) via a tiny timeout. If the
+	// worker has already exited, this returns true immediately.
+	if (m_process->waitWithTimeout(0)) {
+		warningstream << "SSCSM: worker has exited (code "
+				<< m_process->getExitCode() << ")" << std::endl;
+		m_dead = true;
+		return true;
+	}
+	return false;
 }
 
 SerializedSSCSMAnswer SSCSMController::handleRequest(Client *client, ISSCSMRequest *req)
@@ -76,6 +105,11 @@ SerializedSSCSMAnswer SSCSMController::handleRequest(Client *client, ISSCSMReque
 
 void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> event)
 {
+	// Fast-path: worker is already known dead; don't bother serializing
+	// and waiting SSCSM_CHANNEL_TIMEOUT_MS to rediscover that.
+	if (checkWorkerDead())
+		return;
+
 	auto answer0 = SSCSMRequestPollNextEvent::Answer{};
 	answer0.next_event = std::move(event);
 	auto answer = serializeSSCSMAnswer(std::move(answer0));
@@ -83,8 +117,18 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 	while (true) {
 		if (!m_channel.exchangeWithTimeout(answer.data(), answer.size(),
 				SSCSM_CHANNEL_TIMEOUT_MS)) {
-			errorstream << "SSCSM: worker channel timed out, assuming dead"
-					<< std::endl;
+			// Timeout. Distinguish "worker exited silently" (common,
+			// expected after a crash) from "worker wedged" (rare).
+			if (checkWorkerDead()) {
+				errorstream << "SSCSM: worker died during runEvent; "
+						"clientmods now disabled" << std::endl;
+			} else {
+				errorstream << "SSCSM: worker channel timed out after "
+						<< SSCSM_CHANNEL_TIMEOUT_MS
+						<< "ms with worker still alive; disabling SSCSM"
+						<< std::endl;
+				m_dead = true;
+			}
 			return;
 		}
 		auto request = deserializeSSCSMRequest(receive_one(m_channel));
