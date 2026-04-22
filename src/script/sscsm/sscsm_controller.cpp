@@ -12,6 +12,11 @@
 // doesn't respond within this long, we treat the channel as broken.
 static constexpr int SSCSM_CHANNEL_TIMEOUT_MS = 2 * 60 * 1000;
 
+// Shorter timeout for the initial handshake. A worker that can't send its
+// first PollNextEvent within a few seconds is broken (crashed on startup,
+// sandboxed away, wrong binary); no point blocking client init for minutes.
+static constexpr int SSCSM_HANDSHAKE_TIMEOUT_MS = 5 * 1000;
+
 static SerializedSSCSMAnswer receive_one(IPCChannelEnd &ch)
 {
 	return SerializedSSCSMAnswer(
@@ -28,9 +33,9 @@ std::unique_ptr<SSCSMController> SSCSMController::create()
 	}
 
 	// Wait for the worker to send its initial PollNextEvent request.
-	if (!end_a.recvWithTimeout(SSCSM_CHANNEL_TIMEOUT_MS)) {
+	if (!end_a.recvWithTimeout(SSCSM_HANDSHAKE_TIMEOUT_MS)) {
 		errorstream << "SSCSM: worker did not respond within "
-				<< SSCSM_CHANNEL_TIMEOUT_MS << "ms; giving up" << std::endl;
+				<< SSCSM_HANDSHAKE_TIMEOUT_MS << "ms; giving up" << std::endl;
 		process->terminate();
 		return nullptr;
 	}
