@@ -180,7 +180,7 @@ Client::Client(
 
 	m_sscsm_controller = SSCSMController::create();
 
-	{
+	if (m_sscsm_controller) {
 		auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
 
 		ModVFS tmp_mod_vfs;
@@ -200,12 +200,17 @@ Client::Client(
 		auto event2 = std::make_unique<SSCSMEventLoadMods>();
 		event2->mods.emplace_back("*client_builtin*", "*client_builtin*:sscsm_client/init.lua");
 		m_sscsm_controller->runEvent(this, std::move(event2));
+	} else {
+		warningstream << "SSCSM: controller unavailable — clientmods will not run"
+				<< std::endl;
 	}
 
 }
 
 void Client::pushSSCSMContentDefs()
 {
+	if (!m_sscsm_controller)
+		return;
 	const NodeDefManager *ndef = getNodeDefManager();
 	auto event = std::make_unique<SSCSMEventUpdateContentDefs>();
 	for (u32 i = 0; i < ndef->size(); ++i) {
@@ -222,6 +227,8 @@ void Client::loadSSCSMMods(
 		std::vector<std::pair<std::string, std::string>> &&mods_to_load)
 {
 	if (files.empty())
+		return;
+	if (!m_sscsm_controller)
 		return;
 
 	// Verify integrity of all files before inserting any into VFS
@@ -607,7 +614,7 @@ void Client::step(float dtime)
 	*/
 	LocalPlayer *player = m_env.getLocalPlayer();
 
-	{
+	if (m_sscsm_controller) {
 		auto event = std::make_unique<SSCSMEventOnStep>();
 		event->dtime = dtime;
 		m_sscsm_controller->runEvent(this, std::move(event));
