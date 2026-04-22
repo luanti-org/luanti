@@ -9,6 +9,8 @@
 #include "sscsm_environment.h"
 #include "threading/ipc_channel.h"
 
+#include <csignal>
+
 #if !defined(_WIN32)
 #include <unistd.h>
 #include <dirent.h>
@@ -208,6 +210,14 @@ int run_sscsm_worker(const std::string &shm_name)
 	// main() registered this thread as "Main" before the worker shortcut;
 	// rename so worker log lines are distinguishable from the parent's.
 	g_logger.registerThread("SSCSMWorker");
+
+	// main()'s signal_handler_init installed a graceful-shutdown handler
+	// for SIGINT/SIGTERM that just sets a flag. The worker doesn't poll
+	// that flag, so it would ignore the parent's SIGTERM on shutdown —
+	// an orphan'd worker would survive the parent's exit. Restore the
+	// default disposition so SIGTERM just kills us.
+	std::signal(SIGINT, SIG_DFL);
+	std::signal(SIGTERM, SIG_DFL);
 
 	// main() wired stderr at LL_ACTION before forking into the worker.
 	// Bump to LL_INFO + LL_VERBOSE so the worker's load messages, Lua
