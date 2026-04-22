@@ -1097,6 +1097,12 @@ bool Game::connectToServer(const GameStartData &start_data,
 	}
 
 
+	// Covers the SSCSM worker startup inside Client's constructor, which
+	// can stall up to SSCSM_HANDSHAKE_TIMEOUT_MS if the worker fails to
+	// come up. Without this the loading screen would still read
+	// "Resolving address..." during that wait, which is misleading.
+	showOverlayMessage(N_("Initializing client mods..."), 0, 17);
+
 	try {
 		client = new Client(start_data.name.c_str(),
 				start_data.password,
