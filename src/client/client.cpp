@@ -219,6 +219,19 @@ void Client::pushSSCSMContentDefs()
 			continue;
 		event->defs.emplace_back(static_cast<u16>(i), cf.name);
 	}
+	// Fault-injection: LUANTI_SSCSM_OVERSIZED_DEFS=N pads the event with
+	// N synthetic definitions to exercise the channel's large-message
+	// path with multi-MB payloads.
+	if (const char *s = std::getenv("LUANTI_SSCSM_OVERSIZED_DEFS")) {
+		int n = std::atoi(s);
+		warningstream << "SSCSM: OVERSIZED_DEFS — padding event with "
+				<< n << " synthetic defs" << std::endl;
+		for (int i = 0; i < n; ++i) {
+			event->defs.emplace_back(
+					static_cast<u16>(60000 + (i & 0xFFFF)),
+					"synthetic_def_" + std::to_string(i));
+		}
+	}
 	m_sscsm_controller->runEvent(this, std::move(event));
 }
 
