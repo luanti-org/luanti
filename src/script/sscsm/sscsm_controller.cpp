@@ -7,7 +7,23 @@
 #include "sscsm_events.h"
 #include "log.h"
 #include "porting.h"
+#include "profiler.h"
 #include "threading/ipc_child_process.h"
+
+#include <optional>
+
+static const char *request_type_name(SSCSMRequestType t)
+{
+	switch (t) {
+	case SSCSMRequestType::PollNextEvent:      return "PollNextEvent";
+	case SSCSMRequestType::SetFatalError:      return "SetFatalError";
+	case SSCSMRequestType::Print:              return "Print";
+	case SSCSMRequestType::Log:                return "Log";
+	case SSCSMRequestType::GetNode:            return "GetNode";
+	case SSCSMRequestType::DisplayChatMessage: return "DisplayChatMessage";
+	}
+	return "?";
+}
 
 // Timeout for the initial handshake. A worker that can't ack its own
 // spawn within a few seconds is broken (crashed on startup, sandboxed
@@ -152,6 +168,15 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 
 	const SSCSMEventType event_type = event->getType();
 
+	// Wall-clock per OnStep invocation. Other event types fire
+	// once-per-session at most (LoadMods, UpdateContentDefs, etc.) and
+	// don't need a profiler row — only OnStep is interesting since
+	// it's the per-frame critical path where stutter is visible.
+	std::optional<ScopeProfiler> sp;
+	if (event_type == SSCSMEventType::OnStep) {
+		sp.emplace(g_profiler, "SSCSM: OnStep [ms]", SPT_AVG);
+	}
+
 	auto answer0 = SSCSMRequestPollNextEvent::Answer{};
 	answer0.next_event = std::move(event);
 	auto answer = serializeSSCSMAnswer(std::move(answer0));
@@ -202,6 +227,13 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 			return;
 		}
 
+		// Per-request-type counter for the in-game profiler. Sum over
+		// the period — easy to spot a runaway clientmod by which row
+		// climbs fastest (e.g. a flood of DisplayChatMessage).
+		g_profiler->add(
+				std::string("SSCSM: req ") +
+				request_type_name(request->getType()) + " [#]", 1);
+
 		// SSCSMRequestPollNextEvent means `event` is finished and we need to
 		// answer with the next event (that will be passed in a subsequent runEvent()
 		// call).
@@ -243,4 +275,9 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 
 		answer = handleRequest(client, request.get());
 	}
+
+	// How many sub-requests this event produced. Useful side-by-side
+	// with "SSCSM: <event-type> [ms]" to tell "slow handler" from
+	// "chatty handler".
+	g_profiler->avg("SSCSM: requests/event [#]", request_count);
 }
