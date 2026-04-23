@@ -30,7 +30,8 @@ enum class SSCSMEventType : u8 {
 	UpdateVFSFiles = 1,
 	LoadMods = 2,
 	OnStep = 3,
-	UpdateContentDefs = 4,
+	// 4 was UpdateContentDefs, removed — content defs now ride the
+	// *core:content_defs* clientmod channel, see sscsm_bridge.lua.
 	OnModChannelMessage = 5,
 	OnModChannelSignal = 6,
 	OnClientModChannelMessage = 7,

@@ -408,7 +408,6 @@ public:
 	}
 
 	// Push the current node content def mapping (id <-> name) into SSCSM
-	void pushSSCSMContentDefs();
 
 	// The following set of functions is used by ClientMediaDownloader
 	// Insert a media file appropriately into the appropriate manager

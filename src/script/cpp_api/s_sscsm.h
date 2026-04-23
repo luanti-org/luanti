@@ -13,8 +13,6 @@ public:
 
 	void environment_step(float dtime);
 
-	void set_content_defs(const std::vector<std::pair<u16, std::string>> &defs);
-
 	void on_modchannel_message(const std::string &channel,
 			const std::string &sender, const std::string &message);
 	void on_modchannel_signal(const std::string &channel, u8 signal);

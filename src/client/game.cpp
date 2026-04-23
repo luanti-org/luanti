@@ -954,10 +954,13 @@ bool Game::createClient(const GameStartData &start_data)
 			}
 
 			if (!sscsm_files.empty()) {
-				// Push node content defs before loading mods so
-				// core.get_content_id() works from the start
-				client->pushSSCSMContentDefs();
-
+				// Content-def mappings (core.registered_content_ids)
+				// are now delivered by builtin/game/sscsm_bridge.lua
+				// over the *core:content_defs* clientmod channel,
+				// after on_joinplayer fires. Clientmod *init* code
+				// can no longer call core.get_content_id() — it must
+				// wait for the channel message via core.after or
+				// register_globalstep.
 				infostream << "SSCSM: Loading " << sscsm_mods.size()
 						<< " clientmod(s)" << std::endl;
 				client->loadSSCSMMods(std::move(sscsm_files),

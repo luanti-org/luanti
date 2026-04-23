@@ -72,9 +72,6 @@ std::unique_ptr<ISSCSMEvent> deserializeSSCSMEvent(std::istream &is)
 	case SSCSMEventType::OnStep:
 		return std::make_unique<SSCSMEventOnStep>(
 				SSCSMEventOnStep::deserializeBody(is));
-	case SSCSMEventType::UpdateContentDefs:
-		return std::make_unique<SSCSMEventUpdateContentDefs>(
-				SSCSMEventUpdateContentDefs::deserializeBody(is));
 	case SSCSMEventType::OnModChannelMessage:
 		return std::make_unique<SSCSMEventOnModChannelMessage>(
 				SSCSMEventOnModChannelMessage::deserializeBody(is));

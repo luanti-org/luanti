@@ -49,9 +49,9 @@ static constexpr int SSCSM_TEARDOWN_TIMEOUT_MS = 1 * 1000;
 //   * OnStep runs every frame and *is* the frame budget; we cap it
 //     tight to keep stutters visible-but-survivable (~6 dropped
 //     frames at 60 Hz).
-//   * The other events (UpdateVFSFiles, LoadMods, UpdateContentDefs)
-//     run during loading where some delay is expected and clientmod
-//     init may legitimately take longer; we're more generous.
+//   * The other events (UpdateVFSFiles, LoadMods, ...) run during
+//     loading where some delay is expected and clientmod init may
+//     legitimately take longer; we're more generous.
 static constexpr u64 SSCSM_BUDGET_ONSTEP_MS = 100;
 static constexpr u64 SSCSM_BUDGET_OTHER_MS = 2000;
 
@@ -169,9 +169,9 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 	const SSCSMEventType event_type = event->getType();
 
 	// Wall-clock per OnStep invocation. Other event types fire
-	// once-per-session at most (LoadMods, UpdateContentDefs, etc.) and
-	// don't need a profiler row — only OnStep is interesting since
-	// it's the per-frame critical path where stutter is visible.
+	// once-per-session at most (LoadMods, etc.) and don't need a
+	// profiler row — only OnStep is interesting since it's the
+	// per-frame critical path where stutter is visible.
 	std::optional<ScopeProfiler> sp;
 	if (event_type == SSCSMEventType::OnStep) {
 		sp.emplace(g_profiler, "SSCSM: OnStep [ms]", SPT_AVG);
@@ -189,8 +189,8 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 
 	while (true) {
 		// Pass the remaining budget down so a single oversized exchange
-		// (e.g. a multi-MB UpdateContentDefs fragmented across many
-		// channel sends) can't outlast the per-event budget.
+		// (e.g. a multi-MB clientmod-channel message fragmented across
+		// many channel sends) can't outlast the per-event budget.
 		u64 now = porting::getTimeMs();
 		int remaining_ms = (now < deadline)
 				? static_cast<int>(deadline - now) : 0;
