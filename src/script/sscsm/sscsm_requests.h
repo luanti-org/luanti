@@ -237,3 +237,116 @@ struct SSCSMRequestGetNode final : public ISSCSMRequest
 		return serializeSSCSMAnswer(std::move(answer));
 	}
 };
+
+// core.mod_channel_join(name)
+struct SSCSMRequestJoinModChannel final : public ISSCSMRequest
+{
+	static constexpr SSCSMRequestType TYPE = SSCSMRequestType::JoinModChannel;
+
+	struct Answer final : public ISSCSMAnswer
+	{
+		bool ok;
+		void serializeBody(std::ostream &os) const { writeU8(os, ok ? 1 : 0); }
+		static Answer deserializeBody(std::istream &is)
+		{
+			Answer a;
+			a.ok = readU8(is) != 0;
+			return a;
+		}
+	};
+
+	std::string name;
+
+	SSCSMRequestType getType() const override { return TYPE; }
+	void serializeBody(std::ostream &os) const override
+	{
+		os << serializeString16(name);
+	}
+	static SSCSMRequestJoinModChannel deserializeBody(std::istream &is)
+	{
+		SSCSMRequestJoinModChannel r;
+		r.name = deSerializeString16(is);
+		return r;
+	}
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		Answer a;
+		a.ok = client->joinModChannel(name);
+		return serializeSSCSMAnswer(std::move(a));
+	}
+};
+
+// channel:leave()
+struct SSCSMRequestLeaveModChannel final : public ISSCSMRequest
+{
+	static constexpr SSCSMRequestType TYPE = SSCSMRequestType::LeaveModChannel;
+
+	struct Answer final : public ISSCSMAnswer
+	{
+		void serializeBody(std::ostream &os) const {}
+		static Answer deserializeBody(std::istream &is) { return Answer{}; }
+	};
+
+	std::string name;
+
+	SSCSMRequestType getType() const override { return TYPE; }
+	void serializeBody(std::ostream &os) const override
+	{
+		os << serializeString16(name);
+	}
+	static SSCSMRequestLeaveModChannel deserializeBody(std::istream &is)
+	{
+		SSCSMRequestLeaveModChannel r;
+		r.name = deSerializeString16(is);
+		return r;
+	}
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		client->leaveModChannel(name);
+		return serializeSSCSMAnswer(Answer{});
+	}
+};
+
+// channel:send_all(message)
+struct SSCSMRequestSendModChannelMessage final : public ISSCSMRequest
+{
+	static constexpr SSCSMRequestType TYPE = SSCSMRequestType::SendModChannelMessage;
+
+	struct Answer final : public ISSCSMAnswer
+	{
+		bool ok;
+		void serializeBody(std::ostream &os) const { writeU8(os, ok ? 1 : 0); }
+		static Answer deserializeBody(std::istream &is)
+		{
+			Answer a;
+			a.ok = readU8(is) != 0;
+			return a;
+		}
+	};
+
+	std::string channel;
+	std::string message;
+
+	SSCSMRequestType getType() const override { return TYPE; }
+	void serializeBody(std::ostream &os) const override
+	{
+		os << serializeString16(channel);
+		os << serializeString32(message);
+	}
+	static SSCSMRequestSendModChannelMessage deserializeBody(std::istream &is)
+	{
+		SSCSMRequestSendModChannelMessage r;
+		r.channel = deSerializeString16(is);
+		r.message = deSerializeString32(is);
+		return r;
+	}
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		Answer a;
+		a.ok = client->sendModChannelMessage(channel, message);
+		return serializeSSCSMAnswer(std::move(a));
+	}
+};

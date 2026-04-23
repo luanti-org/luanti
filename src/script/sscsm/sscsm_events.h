@@ -157,3 +157,60 @@ struct SSCSMEventUpdateContentDefs final : public ISSCSMEvent
 	}
 };
 
+struct SSCSMEventOnModChannelMessage final : public ISSCSMEvent
+{
+	static constexpr SSCSMEventType TYPE = SSCSMEventType::OnModChannelMessage;
+
+	std::string channel;
+	std::string sender;
+	std::string message;
+
+	SSCSMEventType getType() const override { return TYPE; }
+	void serializeBody(std::ostream &os) const override
+	{
+		os << serializeString16(channel);
+		os << serializeString16(sender);
+		os << serializeString32(message);
+	}
+	static SSCSMEventOnModChannelMessage deserializeBody(std::istream &is)
+	{
+		SSCSMEventOnModChannelMessage e;
+		e.channel = deSerializeString16(is);
+		e.sender = deSerializeString16(is);
+		e.message = deSerializeString32(is);
+		return e;
+	}
+
+	void exec(SSCSMEnvironment *env) override
+	{
+		env->getScript()->on_modchannel_message(channel, sender, message);
+	}
+};
+
+struct SSCSMEventOnModChannelSignal final : public ISSCSMEvent
+{
+	static constexpr SSCSMEventType TYPE = SSCSMEventType::OnModChannelSignal;
+
+	std::string channel;
+	u8 signal;
+
+	SSCSMEventType getType() const override { return TYPE; }
+	void serializeBody(std::ostream &os) const override
+	{
+		os << serializeString16(channel);
+		writeU8(os, signal);
+	}
+	static SSCSMEventOnModChannelSignal deserializeBody(std::istream &is)
+	{
+		SSCSMEventOnModChannelSignal e;
+		e.channel = deSerializeString16(is);
+		e.signal = readU8(is);
+		return e;
+	}
+
+	void exec(SSCSMEnvironment *env) override
+	{
+		env->getScript()->on_modchannel_signal(channel, signal);
+	}
+};
+

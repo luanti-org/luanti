@@ -15,6 +15,13 @@ private:
 	// display_chat_message(text)
 	static int l_display_chat_message(lua_State *L);
 
+	// mod_channel_join(name) -> bool
+	static int l_mod_channel_join(lua_State *L);
+	// mod_channel_leave(name)
+	static int l_mod_channel_leave(lua_State *L);
+	// mod_channel_send_all(channel, message) -> bool
+	static int l_mod_channel_send_all(lua_State *L);
+
 public:
 	static void Initialize(lua_State *L, int top);
 };

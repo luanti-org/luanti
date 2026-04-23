@@ -55,3 +55,27 @@ void ScriptApiSSCSM::set_content_defs(
 
 	lua_pop(L, 1); // pop core
 }
+
+void ScriptApiSSCSM::on_modchannel_message(const std::string &channel,
+		const std::string &sender, const std::string &message)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "registered_on_modchannel_message");
+	lua_pushstring(L, channel.c_str());
+	lua_pushstring(L, sender.c_str());
+	lua_pushstring(L, message.c_str());
+	runCallbacks(3, RUN_CALLBACKS_MODE_FIRST);
+}
+
+void ScriptApiSSCSM::on_modchannel_signal(const std::string &channel, u8 signal)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "registered_on_modchannel_signal");
+	lua_pushstring(L, channel.c_str());
+	lua_pushinteger(L, signal);
+	runCallbacks(2, RUN_CALLBACKS_MODE_FIRST);
+}

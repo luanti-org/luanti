@@ -45,8 +45,41 @@ int ModApiSSCSM::l_display_chat_message(lua_State *L)
 	return 1;
 }
 
+// mod_channel_join(name) -> bool
+int ModApiSSCSM::l_mod_channel_join(lua_State *L)
+{
+	auto request = SSCSMRequestJoinModChannel{};
+	request.name = luaL_checkstring(L, 1);
+	auto answer = getSSCSMEnv(L)->doRequest(std::move(request));
+	lua_pushboolean(L, answer.ok);
+	return 1;
+}
+
+// mod_channel_leave(name)
+int ModApiSSCSM::l_mod_channel_leave(lua_State *L)
+{
+	auto request = SSCSMRequestLeaveModChannel{};
+	request.name = luaL_checkstring(L, 1);
+	getSSCSMEnv(L)->doRequest(std::move(request));
+	return 0;
+}
+
+// mod_channel_send_all(channel, message) -> bool
+int ModApiSSCSM::l_mod_channel_send_all(lua_State *L)
+{
+	auto request = SSCSMRequestSendModChannelMessage{};
+	request.channel = luaL_checkstring(L, 1);
+	request.message = luaL_checkstring(L, 2);
+	auto answer = getSSCSMEnv(L)->doRequest(std::move(request));
+	lua_pushboolean(L, answer.ok);
+	return 1;
+}
+
 void ModApiSSCSM::Initialize(lua_State *L, int top)
 {
 	API_FCT(get_node_or_nil);
 	API_FCT(display_chat_message);
+	API_FCT(mod_channel_join);
+	API_FCT(mod_channel_leave);
+	API_FCT(mod_channel_send_all);
 }

@@ -17,6 +17,8 @@
 #include "client/minimap.h"
 #include "itemdef.h"
 #include "modchannels.h"
+#include "script/sscsm/sscsm_controller.h"
+#include "script/sscsm/sscsm_events.h"
 #include "nodedef.h"
 #include "serialization.h"
 #include "util/strfnd.h"
@@ -1781,6 +1783,15 @@ void Client::handleCommand_ModChannelMsg(NetworkPacket *pkt)
 	}
 
 	m_script->on_modchannel_message(channel_name, sender, channel_msg);
+
+	// Fan out to SSCSM worker if alive.
+	if (m_sscsm_controller) {
+		auto event = std::make_unique<SSCSMEventOnModChannelMessage>();
+		event->channel = channel_name;
+		event->sender = sender;
+		event->message = channel_msg;
+		m_sscsm_controller->runEvent(this, std::move(event));
+	}
 }
 
 void Client::handleCommand_ModChannelSignal(NetworkPacket *pkt)
@@ -1849,8 +1860,16 @@ void Client::handleCommand_ModChannelSignal(NetworkPacket *pkt)
 	}
 
 	// If signal is valid, forward it to client side mods
-	if (valid_signal)
+	if (valid_signal) {
 		m_script->on_modchannel_signal(channel, signal);
+
+		if (m_sscsm_controller) {
+			auto event = std::make_unique<SSCSMEventOnModChannelSignal>();
+			event->channel = channel;
+			event->signal = static_cast<u8>(signal);
+			m_sscsm_controller->runEvent(this, std::move(event));
+		}
+	}
 }
 
 void Client::handleCommand_MinimapModes(NetworkPacket *pkt)
