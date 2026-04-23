@@ -9,14 +9,9 @@
 #include "porting.h"
 #include "threading/ipc_child_process.h"
 
-// Timeout for channel operations on the main-process side. No legitimate
-// event should take more than a few seconds; a stuck worker past this is
-// either crashed or wedged in a Lua infinite loop — either way, nothing
-// useful is coming back. A longer timeout just means a longer visible
-// stall on the loading screen.
-static constexpr int SSCSM_CHANNEL_TIMEOUT_MS = 5 * 1000;
-
-// Timeout for the initial handshake. Same reasoning as above.
+// Timeout for the initial handshake. A worker that can't ack its own
+// spawn within a few seconds is broken (crashed on startup, sandboxed
+// away, wrong binary); waiting longer helps nobody.
 static constexpr int SSCSM_HANDSHAKE_TIMEOUT_MS = 5 * 1000;
 
 // Timeout for sending the TearDown message in ~SSCSMController. If the
@@ -151,7 +146,7 @@ SerializedSSCSMAnswer SSCSMController::handleRequest(Client *client, ISSCSMReque
 void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> event)
 {
 	// Fast-path: worker is already known dead; don't bother serializing
-	// and waiting SSCSM_CHANNEL_TIMEOUT_MS to rediscover that.
+	// and waiting the per-event budget to rediscover that.
 	if (checkWorkerDead())
 		return;
 
@@ -168,18 +163,23 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 	int request_count = 0;
 
 	while (true) {
+		// Pass the remaining budget down so a single oversized exchange
+		// (e.g. a multi-MB UpdateContentDefs fragmented across many
+		// channel sends) can't outlast the per-event budget.
+		u64 now = porting::getTimeMs();
+		int remaining_ms = (now < deadline)
+				? static_cast<int>(deadline - now) : 0;
 		if (!m_channel.exchangeWithTimeout(answer.data(), answer.size(),
-				SSCSM_CHANNEL_TIMEOUT_MS)) {
+				remaining_ms)) {
 			// Timeout. Distinguish "worker exited silently" (common,
 			// expected after a crash) from "worker wedged" (rare).
 			if (checkWorkerDead()) {
 				errorstream << "SSCSM: worker died during runEvent; "
 						"clientmods now disabled" << std::endl;
 			} else {
-				errorstream << "SSCSM: worker channel timed out after "
-						<< SSCSM_CHANNEL_TIMEOUT_MS
-						<< "ms with worker still alive; disabling SSCSM"
-						<< std::endl;
+				errorstream << "SSCSM: worker did not finish within "
+						<< budget_ms << "ms budget for this event; "
+						"disabling SSCSM" << std::endl;
 				m_dead = true;
 				// Worker is alive but not responding — kill it so we
 				// don't stall shutdown on an unresponsive orphan.
