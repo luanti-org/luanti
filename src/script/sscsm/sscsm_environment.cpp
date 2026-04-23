@@ -149,6 +149,36 @@ SerializedSSCSMAnswer SSCSMEnvironment::exchange(SerializedSSCSMRequest req)
 				m_channel.getRecvSize());
 	}
 
+	// Fault-injection: LUANTI_SSCSM_LYING_LENGTH=N replaces the Nth
+	// request with a valid SetFatalError type tag (0x01) + a length
+	// prefix claiming 4 GB of body bytes that are not actually sent.
+	// Tests the parent's behavior when the wire size disagrees with
+	// the embedded length — the deserializer should bail safely, not
+	// allocate 4 GB or read past buffer.
+	static int lying_at = []{
+		if (const char *s = std::getenv("LUANTI_SSCSM_LYING_LENGTH"))
+			return std::atoi(s);
+		return 0;
+	}();
+	if (lying_at > 0 && request_count == lying_at) {
+		warningstream << "sscsm-worker: LYING_LENGTH=" << lying_at
+				<< " — sending SetFatalError with claimed 4 GB body"
+				<< std::endl;
+		// Tag (1 byte) + u32 BE length=0xFFFFFFFF — total 5 bytes wire,
+		// but deserializer will believe length and try to read 4 GB.
+		unsigned char buf[5] = {
+				0x01, // SSCSMRequestType::SetFatalError
+				0xff, 0xff, 0xff, 0xff, // serializeString32 length prefix
+		};
+		if (!m_channel.exchangeWithTimeout(buf, sizeof(buf),
+				SSCSM_CHANNEL_TIMEOUT_MS)) {
+			std::exit(4);
+		}
+		return SerializedSSCSMAnswer(
+				static_cast<const char *>(m_channel.getRecvData()),
+				m_channel.getRecvSize());
+	}
+
 	if (!m_channel.exchangeWithTimeout(req.data(), req.size(),
 			SSCSM_CHANNEL_TIMEOUT_MS)) {
 		// Main process unresponsive — nothing we can do. Exit worker.
