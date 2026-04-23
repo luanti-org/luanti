@@ -6,6 +6,7 @@
 #include "sscsm_requests.h"
 #include "sscsm_events.h"
 #include "log.h"
+#include "porting.h"
 #include "threading/ipc_child_process.h"
 
 // Timeout for channel operations on the main-process side. No legitimate
@@ -21,6 +22,27 @@ static constexpr int SSCSM_HANDSHAKE_TIMEOUT_MS = 5 * 1000;
 // Timeout for sending the TearDown message in ~SSCSMController. If the
 // worker is dead this would hang shutdown; we want a quick give-up.
 static constexpr int SSCSM_TEARDOWN_TIMEOUT_MS = 1 * 1000;
+
+// Per-event time budgets. A single event-handler invocation in the
+// worker must not be allowed to monopolize the parent's main thread —
+// this is the parent's only line of defense against a malicious or
+// buggy clientmod that, e.g., sits in a tight
+// `core.display_chat_message` loop. Budget exceeded => disable SSCSM,
+// kill the worker.
+//
+// Time-based (not request-count-based) so the protection holds
+// equivalently on a fast desktop and a slow phone: the bound is on
+// perceived freeze time, not on request volume.
+//
+// Two budgets:
+//   * OnStep runs every frame and *is* the frame budget; we cap it
+//     tight to keep stutters visible-but-survivable (~6 dropped
+//     frames at 60 Hz).
+//   * The other events (UpdateVFSFiles, LoadMods, UpdateContentDefs)
+//     run during loading where some delay is expected and clientmod
+//     init may legitimately take longer; we're more generous.
+static constexpr u64 SSCSM_BUDGET_ONSTEP_MS = 100;
+static constexpr u64 SSCSM_BUDGET_OTHER_MS = 2000;
 
 static SerializedSSCSMAnswer receive_one(IPCChannelEnd &ch)
 {
@@ -133,9 +155,17 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 	if (checkWorkerDead())
 		return;
 
+	const SSCSMEventType event_type = event->getType();
+
 	auto answer0 = SSCSMRequestPollNextEvent::Answer{};
 	answer0.next_event = std::move(event);
 	auto answer = serializeSSCSMAnswer(std::move(answer0));
+
+	const u64 budget_ms = (event_type == SSCSMEventType::OnStep)
+			? SSCSM_BUDGET_ONSTEP_MS
+			: SSCSM_BUDGET_OTHER_MS;
+	const u64 deadline = porting::getTimeMs() + budget_ms;
+	int request_count = 0;
 
 	while (true) {
 		if (!m_channel.exchangeWithTimeout(answer.data(), answer.size(),
@@ -177,6 +207,23 @@ void SSCSMController::runEvent(Client *client, std::unique_ptr<ISSCSMEvent> even
 		// call).
 		if (request->getType() == SSCSMRequestType::PollNextEvent) {
 			break;
+		}
+
+		// Enforce per-event time budget. A clientmod that issues an
+		// unbounded number of requests in one handler would otherwise
+		// freeze the main game thread for as long as it keeps sending
+		// — confirmed in pen-testing: 10M chat messages = 28 s of
+		// frozen UI before any limit was in place.
+		++request_count;
+		if (porting::getTimeMs() > deadline) {
+			errorstream << "SSCSM: worker exceeded " << budget_ms
+					<< "ms budget in a single event ("
+					<< request_count << " requests so far); disabling SSCSM"
+					<< std::endl;
+			m_dead = true;
+			if (m_process && m_process->isValid())
+				m_process->terminate();
+			return;
 		}
 
 		// SetFatalError is the worker's "I'm broken, give up on me" signal —
