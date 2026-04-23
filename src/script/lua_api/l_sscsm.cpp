@@ -75,6 +75,36 @@ int ModApiSSCSM::l_mod_channel_send_all(lua_State *L)
 	return 1;
 }
 
+// clientmodchannel_join(name) -> bool
+int ModApiSSCSM::l_clientmodchannel_join(lua_State *L)
+{
+	auto request = SSCSMRequestJoinClientModChannel{};
+	request.name = luaL_checkstring(L, 1);
+	auto answer = getSSCSMEnv(L)->doRequest(std::move(request));
+	lua_pushboolean(L, answer.ok);
+	return 1;
+}
+
+// clientmodchannel_leave(name)
+int ModApiSSCSM::l_clientmodchannel_leave(lua_State *L)
+{
+	auto request = SSCSMRequestLeaveClientModChannel{};
+	request.name = luaL_checkstring(L, 1);
+	getSSCSMEnv(L)->doRequest(std::move(request));
+	return 0;
+}
+
+// clientmodchannel_send(channel, message) -> bool
+int ModApiSSCSM::l_clientmodchannel_send(lua_State *L)
+{
+	auto request = SSCSMRequestSendClientModChannelMessage{};
+	request.channel = luaL_checkstring(L, 1);
+	request.message = luaL_checkstring(L, 2);
+	auto answer = getSSCSMEnv(L)->doRequest(std::move(request));
+	lua_pushboolean(L, answer.ok);
+	return 1;
+}
+
 void ModApiSSCSM::Initialize(lua_State *L, int top)
 {
 	API_FCT(get_node_or_nil);
@@ -82,4 +112,7 @@ void ModApiSSCSM::Initialize(lua_State *L, int top)
 	API_FCT(mod_channel_join);
 	API_FCT(mod_channel_leave);
 	API_FCT(mod_channel_send_all);
+	API_FCT(clientmodchannel_join);
+	API_FCT(clientmodchannel_leave);
+	API_FCT(clientmodchannel_send);
 }

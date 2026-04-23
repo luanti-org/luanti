@@ -214,3 +214,59 @@ struct SSCSMEventOnModChannelSignal final : public ISSCSMEvent
 	}
 };
 
+// Server -> SSCSM message on a clientmod channel. No `sender` field —
+// it's always the server, by construction of the protocol.
+struct SSCSMEventOnClientModChannelMessage final : public ISSCSMEvent
+{
+	static constexpr SSCSMEventType TYPE = SSCSMEventType::OnClientModChannelMessage;
+
+	std::string channel;
+	std::string message;
+
+	SSCSMEventType getType() const override { return TYPE; }
+	void serializeBody(std::ostream &os) const override
+	{
+		os << serializeString16(channel);
+		os << serializeString32(message);
+	}
+	static SSCSMEventOnClientModChannelMessage deserializeBody(std::istream &is)
+	{
+		SSCSMEventOnClientModChannelMessage e;
+		e.channel = deSerializeString16(is);
+		e.message = deSerializeString32(is);
+		return e;
+	}
+
+	void exec(SSCSMEnvironment *env) override
+	{
+		env->getScript()->on_clientmodchannel_message(channel, message);
+	}
+};
+
+struct SSCSMEventOnClientModChannelSignal final : public ISSCSMEvent
+{
+	static constexpr SSCSMEventType TYPE = SSCSMEventType::OnClientModChannelSignal;
+
+	std::string channel;
+	u8 signal;
+
+	SSCSMEventType getType() const override { return TYPE; }
+	void serializeBody(std::ostream &os) const override
+	{
+		os << serializeString16(channel);
+		writeU8(os, signal);
+	}
+	static SSCSMEventOnClientModChannelSignal deserializeBody(std::istream &is)
+	{
+		SSCSMEventOnClientModChannelSignal e;
+		e.channel = deSerializeString16(is);
+		e.signal = readU8(is);
+		return e;
+	}
+
+	void exec(SSCSMEnvironment *env) override
+	{
+		env->getScript()->on_clientmodchannel_signal(channel, signal);
+	}
+};
+

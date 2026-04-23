@@ -22,6 +22,13 @@ private:
 	// mod_channel_send_all(channel, message) -> bool
 	static int l_mod_channel_send_all(lua_State *L);
 
+	// clientmodchannel_join(name) -> bool
+	static int l_clientmodchannel_join(lua_State *L);
+	// clientmodchannel_leave(name)
+	static int l_clientmodchannel_leave(lua_State *L);
+	// clientmodchannel_send(channel, message) -> bool
+	static int l_clientmodchannel_send(lua_State *L);
+
 public:
 	static void Initialize(lua_State *L, int top);
 };

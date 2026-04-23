@@ -161,7 +161,8 @@ Client::Client(
 	m_chosen_auth_mech(AUTH_MECHANISM_NONE),
 	m_media_downloader(std::make_unique<ClientMediaDownloader>()),
 	m_state(LC_Created),
-	m_modchannel_mgr(new ModChannelMgr())
+	m_modchannel_mgr(new ModChannelMgr()),
+	m_clientmod_channel_mgr(new ModChannelMgr())
 {
 	// Add local player
 	m_env.setLocalPlayer(new LocalPlayer(this, playername));
@@ -2171,6 +2172,48 @@ bool Client::sendModChannelMessage(const std::string &channel, const std::string
 ModChannel* Client::getModChannel(const std::string &channel)
 {
 	return m_modchannel_mgr->getModChannel(channel);
+}
+
+bool Client::joinClientModChannel(const std::string &channel)
+{
+	if (m_clientmod_channel_mgr->channelRegistered(channel))
+		return false;
+
+	NetworkPacket pkt(TOSERVER_CMC_JOIN, 2 + channel.size());
+	pkt << channel;
+	Send(&pkt);
+	m_clientmod_channel_mgr->joinChannel(channel, 0);
+	return true;
+}
+
+bool Client::leaveClientModChannel(const std::string &channel)
+{
+	if (!m_clientmod_channel_mgr->channelRegistered(channel))
+		return false;
+
+	NetworkPacket pkt(TOSERVER_CMC_LEAVE, 2 + channel.size());
+	pkt << channel;
+	Send(&pkt);
+	m_clientmod_channel_mgr->leaveChannel(channel, 0);
+	return true;
+}
+
+bool Client::sendClientModChannelMessage(const std::string &channel,
+		const std::string &message)
+{
+	if (!m_clientmod_channel_mgr->channelRegistered(channel))
+		return false;
+	if (message.size() > STRING_MAX_LEN) {
+		warningstream << "ClientModChannel message too long, dropping ("
+				<< message.size() << " > " << STRING_MAX_LEN
+				<< ", channel: " << channel << ")" << std::endl;
+		return false;
+	}
+	NetworkPacket pkt(TOSERVER_CMC_MSG,
+			2 + channel.size() + 4 + message.size());
+	pkt << channel << message;
+	Send(&pkt);
+	return true;
 }
 
 const std::string &Client::getFormspecPrepend() const

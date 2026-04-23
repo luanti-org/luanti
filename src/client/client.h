@@ -206,6 +206,8 @@ public:
 	void handleCommand_UpdatePlayerList(NetworkPacket* pkt);
 	void handleCommand_ModChannelMsg(NetworkPacket *pkt);
 	void handleCommand_ModChannelSignal(NetworkPacket *pkt);
+	void handleCommand_CMCMsg(NetworkPacket *pkt);
+	void handleCommand_CMCSignal(NetworkPacket *pkt);
 	void handleCommand_SrpBytesSandB(NetworkPacket *pkt);
 	void handleCommand_FormspecPrepend(NetworkPacket *pkt);
 	void handleCommand_CSMRestrictionFlags(NetworkPacket *pkt);
@@ -455,6 +457,13 @@ public:
 			const std::string &message) override;
 	ModChannel *getModChannel(const std::string &channel) override;
 
+	// Clientmod channels (for SSCSM use). The client sends JOIN/LEAVE/MSG
+	// to the server; received messages always come from the server.
+	bool joinClientModChannel(const std::string &channel);
+	bool leaveClientModChannel(const std::string &channel);
+	bool sendClientModChannelMessage(const std::string &channel,
+			const std::string &message);
+
 	const std::string &getFormspecPrepend() const;
 
 	inline MeshGrid getMeshGrid()
@@ -631,6 +640,9 @@ private:
 	u32 m_csm_restriction_noderange = 8;
 
 	std::unique_ptr<ModChannelMgr> m_modchannel_mgr;
+	// Clientmod channels we've joined (server tracks the authoritative
+	// subscription; this is for our own canWrite/registered checks).
+	std::unique_ptr<ModChannelMgr> m_clientmod_channel_mgr;
 
 	// The number of blocks the client will combine for mesh generation.
 	MeshGrid m_mesh_grid;

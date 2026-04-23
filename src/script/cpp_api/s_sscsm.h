@@ -18,4 +18,10 @@ public:
 	void on_modchannel_message(const std::string &channel,
 			const std::string &sender, const std::string &message);
 	void on_modchannel_signal(const std::string &channel, u8 signal);
+
+	// Clientmod channel handlers — sender is implicit (always server),
+	// so the message handler has no sender field.
+	void on_clientmodchannel_message(const std::string &channel,
+			const std::string &message);
+	void on_clientmodchannel_signal(const std::string &channel, u8 signal);
 };

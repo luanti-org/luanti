@@ -22,6 +22,40 @@ assert(loadfile(commonpath .. "item_s.lua"))(builtin_shared)
 assert(loadfile(commonpath .. "register.lua"))(builtin_shared)
 assert(loadfile(mypath .. "register.lua"))(builtin_shared)
 
+-- Channel-object wrapper around the bare clientmodchannel_* C bindings.
+-- Server-mod ↔ SSCSM RPC primitive; sends always go to server-mods, never
+-- fanned out to other clients. See doc/sscsm_api.md.
+do
+	local raw_join = core.clientmodchannel_join
+	local raw_send = core.clientmodchannel_send
+	local raw_leave = core.clientmodchannel_leave
+
+	local ClientModChannel = {}
+	ClientModChannel.__index = ClientModChannel
+
+	function ClientModChannel:get_name()
+		return self._name
+	end
+	function ClientModChannel:send(message)
+		if self._closed then return false end
+		return raw_send(self._name, message)
+	end
+	function ClientModChannel:leave()
+		if self._closed then return end
+		self._closed = true
+		raw_leave(self._name)
+	end
+
+	function core.clientmodchannel_join(name)
+		local ok = raw_join(name)
+		if not ok then return nil end
+		return setmetatable({ _name = name, _closed = false },
+				ClientModChannel)
+	end
+
+	-- Bare functional access stays available too.
+end
+
 dofile(commonpath .. "after.lua")
 
 -- unset, as promised in initializeSecuritySSCSM()

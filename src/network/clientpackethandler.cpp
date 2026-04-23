@@ -1872,6 +1872,62 @@ void Client::handleCommand_ModChannelSignal(NetworkPacket *pkt)
 	}
 }
 
+void Client::handleCommand_CMCMsg(NetworkPacket *pkt)
+{
+	std::string channel_name, message;
+	*pkt >> channel_name >> message;
+
+	verbosestream << "ClientModChannel msg on " << channel_name
+			<< " (" << message.size() << " B)" << std::endl;
+
+	// Fan out to SSCSM only — the regular CSM doesn't subscribe to
+	// clientmod channels (they're a server-mod ↔ SSCSM primitive).
+	if (m_sscsm_controller) {
+		auto event = std::make_unique<SSCSMEventOnClientModChannelMessage>();
+		event->channel = channel_name;
+		event->message = message;
+		m_sscsm_controller->runEvent(this, std::move(event));
+	}
+}
+
+void Client::handleCommand_CMCSignal(NetworkPacket *pkt)
+{
+	u8 signal_tmp;
+	std::string channel;
+	*pkt >> signal_tmp >> channel;
+	ModChannelSignal signal = (ModChannelSignal) signal_tmp;
+
+	switch (signal) {
+	case MODCHANNEL_SIGNAL_JOIN_OK:
+		m_clientmod_channel_mgr->setChannelState(channel,
+				MODCHANNEL_STATE_READ_WRITE);
+		infostream << "Server ack our clientmod channel join on "
+				<< channel << std::endl;
+		break;
+	case MODCHANNEL_SIGNAL_JOIN_FAILURE:
+		m_clientmod_channel_mgr->leaveChannel(channel, 0);
+		infostream << "Server refused our clientmod channel join on "
+				<< channel << std::endl;
+		break;
+	case MODCHANNEL_SIGNAL_LEAVE_OK:
+	case MODCHANNEL_SIGNAL_LEAVE_FAILURE:
+	case MODCHANNEL_SIGNAL_CHANNEL_NOT_REGISTERED:
+		break;
+	default:
+		warningstream << "Unhandled clientmod channel signal "
+				<< signal << std::endl;
+		return;
+	}
+
+	// Fan out to SSCSM.
+	if (m_sscsm_controller) {
+		auto event = std::make_unique<SSCSMEventOnClientModChannelSignal>();
+		event->channel = channel;
+		event->signal = signal_tmp;
+		m_sscsm_controller->runEvent(this, std::move(event));
+	}
+}
+
 void Client::handleCommand_MinimapModes(NetworkPacket *pkt)
 {
 	u16 count; // modes

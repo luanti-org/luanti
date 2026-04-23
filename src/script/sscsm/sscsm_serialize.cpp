@@ -43,6 +43,15 @@ std::unique_ptr<ISSCSMRequest> deserializeSSCSMRequest(const SerializedSSCSMRequ
 	case SSCSMRequestType::SendModChannelMessage:
 		return std::make_unique<SSCSMRequestSendModChannelMessage>(
 				SSCSMRequestSendModChannelMessage::deserializeBody(is));
+	case SSCSMRequestType::JoinClientModChannel:
+		return std::make_unique<SSCSMRequestJoinClientModChannel>(
+				SSCSMRequestJoinClientModChannel::deserializeBody(is));
+	case SSCSMRequestType::LeaveClientModChannel:
+		return std::make_unique<SSCSMRequestLeaveClientModChannel>(
+				SSCSMRequestLeaveClientModChannel::deserializeBody(is));
+	case SSCSMRequestType::SendClientModChannelMessage:
+		return std::make_unique<SSCSMRequestSendClientModChannelMessage>(
+				SSCSMRequestSendClientModChannelMessage::deserializeBody(is));
 	}
 	throw SerializationError("Unknown SSCSM request type tag");
 }
@@ -72,6 +81,12 @@ std::unique_ptr<ISSCSMEvent> deserializeSSCSMEvent(std::istream &is)
 	case SSCSMEventType::OnModChannelSignal:
 		return std::make_unique<SSCSMEventOnModChannelSignal>(
 				SSCSMEventOnModChannelSignal::deserializeBody(is));
+	case SSCSMEventType::OnClientModChannelMessage:
+		return std::make_unique<SSCSMEventOnClientModChannelMessage>(
+				SSCSMEventOnClientModChannelMessage::deserializeBody(is));
+	case SSCSMEventType::OnClientModChannelSignal:
+		return std::make_unique<SSCSMEventOnClientModChannelSignal>(
+				SSCSMEventOnClientModChannelSignal::deserializeBody(is));
 	}
 	throw SerializationError("Unknown SSCSM event type tag");
 }

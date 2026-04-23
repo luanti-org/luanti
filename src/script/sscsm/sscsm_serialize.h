@@ -18,6 +18,9 @@ enum class SSCSMRequestType : u8 {
 	JoinModChannel = 6,
 	LeaveModChannel = 7,
 	SendModChannelMessage = 8,
+	JoinClientModChannel = 9,
+	LeaveClientModChannel = 10,
+	SendClientModChannelMessage = 11,
 };
 
 // Type tag for SSCSM events (main -> SSCSM env).
@@ -30,4 +33,6 @@ enum class SSCSMEventType : u8 {
 	UpdateContentDefs = 4,
 	OnModChannelMessage = 5,
 	OnModChannelSignal = 6,
+	OnClientModChannelMessage = 7,
+	OnClientModChannelSignal = 8,
 };
