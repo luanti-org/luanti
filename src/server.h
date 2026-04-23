@@ -241,6 +241,9 @@ public:
 	void handleCommand_SrpBytesM(NetworkPacket* pkt);
 	void handleCommand_HaveMedia(NetworkPacket *pkt);
 	void handleCommand_UpdateClientInfo(NetworkPacket *pkt);
+	void handleCommand_CMCJoin(NetworkPacket *pkt);
+	void handleCommand_CMCLeave(NetworkPacket *pkt);
+	void handleCommand_CMCMsg(NetworkPacket *pkt);
 
 	void ProcessData(NetworkPacket *pkt);
 
@@ -433,6 +436,13 @@ public:
 	bool leaveModChannel(const std::string &channel) override;
 	bool sendModChannelMessage(const std::string &channel, const std::string &message) override;
 	ModChannel *getModChannel(const std::string &channel) override;
+
+	// Clientmod channel: server -> all subscribers (server-mod originated).
+	void broadcastClientModChannel(const std::string &channel,
+			const std::string &message);
+	// Clientmod channel: server -> one player (no-op if not subscribed).
+	bool sendClientModChannelToPlayer(const std::string &channel,
+			const std::string &player_name, const std::string &message);
 
 	// Send block to specific player only
 	bool SendBlock(session_t peer_id, const v3s16 &blockpos);
@@ -803,6 +813,12 @@ private:
 
 	// ModChannel manager
 	std::unique_ptr<ModChannelMgr> m_modchannel_mgr;
+	// Subscriptions for clientmod channels — one peer per subscribed
+	// SSCSM client. Server-mods do NOT appear here; they publish via
+	// broadcastClientModChannel / sendClientModChannelToPlayer and
+	// receive inbound messages via on_clientmodchannel_message
+	// callbacks regardless of subscription.
+	std::unique_ptr<ModChannelMgr> m_clientmod_channel_mgr;
 
 	// Inventory manager
 	std::unique_ptr<ServerInventoryManager> m_inventory_mgr;

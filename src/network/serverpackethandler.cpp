@@ -1713,6 +1713,59 @@ void Server::handleCommand_SrpBytesM(NetworkPacket* pkt)
  * Mod channels
  */
 
+void Server::handleCommand_CMCJoin(NetworkPacket *pkt)
+{
+	std::string channel_name;
+	*pkt >> channel_name;
+
+	session_t peer_id = pkt->getPeerId();
+	NetworkPacket resp_pkt(TOCLIENT_CMC_SIGNAL,
+			1 + 2 + channel_name.size(), peer_id);
+
+	if (g_settings->getBool("enable_clientmod_channels") &&
+			m_clientmod_channel_mgr->joinChannel(channel_name, peer_id)) {
+		resp_pkt << (u8) MODCHANNEL_SIGNAL_JOIN_OK;
+		infostream << "Peer " << peer_id << " joined clientmod channel "
+				<< channel_name << std::endl;
+	} else {
+		resp_pkt << (u8) MODCHANNEL_SIGNAL_JOIN_FAILURE;
+	}
+	resp_pkt << channel_name;
+	Send(&resp_pkt);
+}
+
+void Server::handleCommand_CMCLeave(NetworkPacket *pkt)
+{
+	std::string channel_name;
+	*pkt >> channel_name;
+
+	session_t peer_id = pkt->getPeerId();
+	NetworkPacket resp_pkt(TOCLIENT_CMC_SIGNAL,
+			1 + 2 + channel_name.size(), peer_id);
+
+	if (m_clientmod_channel_mgr->leaveChannel(channel_name, peer_id))
+		resp_pkt << (u8) MODCHANNEL_SIGNAL_LEAVE_OK;
+	else
+		resp_pkt << (u8) MODCHANNEL_SIGNAL_LEAVE_FAILURE;
+	resp_pkt << channel_name;
+	Send(&resp_pkt);
+}
+
+void Server::handleCommand_CMCMsg(NetworkPacket *pkt)
+{
+	std::string channel_name, channel_msg;
+	*pkt >> channel_name >> channel_msg;
+
+	session_t peer_id = pkt->getPeerId();
+	std::string sender = getPlayerName(peer_id);
+
+	verbosestream << "ClientModChannel msg from peer " << peer_id
+			<< " on " << channel_name << ": " << channel_msg << std::endl;
+
+	// Server-mod-only delivery: never rebroadcast to other clients.
+	m_script->on_clientmodchannel_message(channel_name, sender, channel_msg);
+}
+
 void Server::handleCommand_ModChannelJoin(NetworkPacket *pkt)
 {
 	std::string channel_name;

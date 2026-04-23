@@ -302,7 +302,8 @@ Server::Server(
 	m_clients(m_con),
 	m_admin_chat(iface),
 	m_shutdown_errmsg(shutdown_errmsg),
-	m_modchannel_mgr(new ModChannelMgr())
+	m_modchannel_mgr(new ModChannelMgr()),
+	m_clientmod_channel_mgr(new ModChannelMgr())
 {
 	if (m_path_world.empty())
 		throw ServerError("Supplied empty world path");
@@ -3107,6 +3108,7 @@ void Server::kickAllPlayers(AccessDeniedCode reason,
 void Server::DisconnectPeer(session_t peer_id)
 {
 	m_modchannel_mgr->leaveAllChannels(peer_id);
+	m_clientmod_channel_mgr->leaveAllChannels(peer_id);
 	m_con->DisconnectPeer(peer_id);
 }
 
@@ -4404,6 +4406,61 @@ void Server::broadcastModChannelMessage(const std::string &channel,
 	if (from_peer != PEER_ID_SERVER) {
 		m_script->on_modchannel_message(channel, sender, message);
 	}
+}
+
+void Server::broadcastClientModChannel(const std::string &channel,
+		const std::string &message)
+{
+	if (message.size() > STRING_MAX_LEN) {
+		warningstream << "ClientModChannel: message too long, dropping ("
+				<< message.size() << " > " << STRING_MAX_LEN
+				<< ", channel: " << channel << ")" << std::endl;
+		return;
+	}
+
+	const std::vector<u16> &peers =
+			m_clientmod_channel_mgr->getChannelPeers(channel);
+	if (peers.empty())
+		return;
+
+	NetworkPacket pkt(TOCLIENT_CMC_MSG,
+			2 + channel.size() + 4 + message.size());
+	pkt << channel << message;
+	for (session_t peer_id : peers)
+		Send(peer_id, &pkt);
+}
+
+bool Server::sendClientModChannelToPlayer(const std::string &channel,
+		const std::string &player_name, const std::string &message)
+{
+	if (message.size() > STRING_MAX_LEN) {
+		warningstream << "ClientModChannel: message too long, dropping ("
+				<< message.size() << " > " << STRING_MAX_LEN
+				<< ", channel: " << channel << ")" << std::endl;
+		return false;
+	}
+
+	RemotePlayer *player = m_env->getPlayer(player_name.c_str());
+	if (!player)
+		return false;
+	session_t peer_id = player->getPeerId();
+	if (peer_id == PEER_ID_INEXISTENT)
+		return false;
+
+	const std::vector<u16> &peers =
+			m_clientmod_channel_mgr->getChannelPeers(channel);
+	bool subscribed = false;
+	for (session_t p : peers) {
+		if (p == peer_id) { subscribed = true; break; }
+	}
+	if (!subscribed)
+		return false;
+
+	NetworkPacket pkt(TOCLIENT_CMC_MSG,
+			2 + channel.size() + 4 + message.size(), peer_id);
+	pkt << channel << message;
+	Send(&pkt);
+	return true;
 }
 
 Translations *Server::getTranslationLanguage(const std::string &lang_code)

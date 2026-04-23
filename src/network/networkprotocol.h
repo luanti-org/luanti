@@ -712,7 +712,26 @@ enum ToClientCommand : u16
 			u8[len] serialized ParticleParameters
 	*/
 
-	TOCLIENT_NUM_MSG_TYPES = 0x65,
+	TOCLIENT_CMC_MSG = 0x66,
+	/*
+		Client-mod channel message, server -> this client. Sender is
+		implicit (= the server). For server-mod ↔ SSCSM RPC; never
+		fanned out to other peers.
+		u16 channel name length
+		std::string channel name
+		u32 message length
+		std::string message
+	*/
+
+	TOCLIENT_CMC_SIGNAL = 0x67,
+	/*
+		Client-mod channel signal (join/leave ack).
+		u8 signal id
+		u16 channel name length
+		std::string channel name
+	*/
+
+	TOCLIENT_NUM_MSG_TYPES = 0x68,
 };
 
 enum ToServerCommand : u16
@@ -919,7 +938,32 @@ enum ToServerCommand : u16
 		v2f32 max_fs_info
 	*/
 
-	TOSERVER_NUM_MSG_TYPES = 0x54,
+	TOSERVER_CMC_JOIN = 0x55,
+	/*
+		Subscribe this client (its SSCSM) to a clientmod channel.
+		u16 channel name length
+		std::string channel name
+	*/
+
+	TOSERVER_CMC_LEAVE = 0x56,
+	/*
+		Unsubscribe.
+		u16 channel name length
+		std::string channel name
+	*/
+
+	TOSERVER_CMC_MSG = 0x57,
+	/*
+		SSCSM-to-server message on a clientmod channel. Server delivers
+		to its registered_on_clientmodchannel_message callbacks only;
+		never rebroadcast to other clients.
+		u16 channel name length
+		std::string channel name
+		u32 message length
+		std::string message
+	*/
+
+	TOSERVER_NUM_MSG_TYPES = 0x58,
 };
 
 enum AuthMechanism

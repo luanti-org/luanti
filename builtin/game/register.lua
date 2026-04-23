@@ -615,6 +615,7 @@ core.registered_on_priv_revoke, core.register_on_priv_revoke = make_registration
 core.registered_on_authplayers, core.register_on_authplayer = make_registration()
 core.registered_can_bypass_userlimit, core.register_can_bypass_userlimit = make_registration()
 core.registered_on_modchannel_message, core.register_on_modchannel_message = make_registration()
+core.registered_on_clientmodchannel_message, core.register_on_clientmodchannel_message = make_registration()
 core.registered_on_player_inventory_actions, core.register_on_player_inventory_action = make_registration()
 core.registered_allow_player_inventory_actions, core.register_allow_player_inventory_action = make_registration()
 core.registered_on_rightclickplayers, core.register_on_rightclickplayer = make_registration()

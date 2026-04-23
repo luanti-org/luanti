@@ -112,6 +112,9 @@ const ToClientCommandHandler toClientCommandTable[TOCLIENT_NUM_MSG_TYPES] =
 	{ "TOCLIENT_MINIMAP_MODES",            TOCLIENT_STATE_CONNECTED, &Client::handleCommand_MinimapModes }, // 0x62,
 	{ "TOCLIENT_SET_LIGHTING",             TOCLIENT_STATE_CONNECTED, &Client::handleCommand_SetLighting }, // 0x63,
 	{ "TOCLIENT_SPAWN_PARTICLE_BATCH",     TOCLIENT_STATE_CONNECTED, &Client::handleCommand_SpawnParticleBatch }, // 0x64,
+	null_command_handler, // 0x65
+	{ "TOCLIENT_CMC_MSG",                  TOCLIENT_STATE_CONNECTED, &Client::handleCommand_CMCMsg }, // 0x66
+	{ "TOCLIENT_CMC_SIGNAL",               TOCLIENT_STATE_CONNECTED, &Client::handleCommand_CMCSignal }, // 0x67
 };
 
 const static ServerCommandFactory null_command_factory = { nullptr, 0, false };
@@ -212,4 +215,8 @@ const ServerCommandFactory serverCommandFactoryTable[TOSERVER_NUM_MSG_TYPES] =
 	{ "TOSERVER_SRP_BYTES_A",        1, true }, // 0x51
 	{ "TOSERVER_SRP_BYTES_M",        1, true }, // 0x52
 	{ "TOSERVER_UPDATE_CLIENT_INFO", 2, true }, // 0x53
+	null_command_factory, // 0x54
+	{ "TOSERVER_CMC_JOIN",           0, true }, // 0x55
+	{ "TOSERVER_CMC_LEAVE",          0, true }, // 0x56
+	{ "TOSERVER_CMC_MSG",            0, true }, // 0x57
 };

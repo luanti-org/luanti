@@ -460,6 +460,7 @@ void set_default_settings()
 	settings->setDefault("default_privs", "interact, shout");
 	settings->setDefault("enable_pvp", "true");
 	settings->setDefault("enable_mod_channels", "false");
+	settings->setDefault("enable_clientmod_channels", "true");
 	settings->setDefault("disallow_empty_password", "false");
 	settings->setDefault("anticheat_flags", flagdesc_anticheat,
 		AC_DIGGING | AC_INTERACTION | AC_MOVEMENT);

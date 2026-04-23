@@ -15,6 +15,7 @@ set(common_SCRIPT_LUA_API_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/l_itemstackmeta.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/l_mapgen.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/l_metadata.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/l_clientmodchannels.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/l_modchannels.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/l_nodemeta.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/l_nodetimer.cpp
