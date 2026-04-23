@@ -46,6 +46,14 @@ void SSCSMEnvironment::run()
 	if (const char *s = std::getenv("LUANTI_SSCSM_FLOOD_REQUESTS"))
 		flood_n = std::atoi(s);
 
+	// Fault-injection: LUANTI_SSCSM_FLOOD_PER_STEP=N issues N requests
+	// every OnStep. Models a slow-burn DoS that stays under the per-
+	// event budget but accumulates indefinitely (memory, chat queue).
+	int flood_per_step = 0;
+	if (const char *s = std::getenv("LUANTI_SSCSM_FLOOD_PER_STEP"))
+		flood_per_step = std::atoi(s);
+	int per_step_total = 0;
+
 	while (true) {
 		auto next_event = [&]{
 			auto request = SSCSMRequestPollNextEvent{};
@@ -79,6 +87,16 @@ void SSCSMEnvironment::run()
 			setFatalError(std::string("Lua error: ") + e.what());
 		} catch (ModError &e) {
 			setFatalError(std::string("Mod error: ") + e.what());
+		}
+
+		// Slow-burn flood: fixed cost per OnStep, sustained.
+		if (flood_per_step > 0 &&
+				next_event->getType() == SSCSMEventType::OnStep) {
+			for (int i = 0; i < flood_per_step; ++i) {
+				auto req = SSCSMRequestDisplayChatMessage{};
+				req.text = "burn " + std::to_string(per_step_total++);
+				doRequest(std::move(req));
+			}
 		}
 
 		// Flood fires on the first in-game OnStep so we exercise the
