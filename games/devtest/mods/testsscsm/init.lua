@@ -1,16 +1,14 @@
 -- Server-side companion for the SSCSM test mod.
--- Joins a mod channel and echoes whatever the client sends.
+-- Uses the new clientmodchannel API (server-mod ↔ SSCSM RPC) so the
+-- ping does NOT leak to other connected players.
 
 local CHANNEL = "testsscsm:hello"
+local ch = core.clientmodchannel_open(CHANNEL)
 
-core.mod_channel_join(CHANNEL)
-
-core.register_on_modchannel_message(function(channel, sender, msg)
+core.register_on_clientmodchannel_message(function(channel, sender, msg)
 	if channel ~= CHANNEL then return end
 	core.log("action", "[testsscsm server] got '" .. msg ..
 			"' from " .. sender .. ", echoing")
-	local ch = core.mod_channel_join(CHANNEL)
-	if ch and ch:is_writeable() then
-		ch:send_all("echo: " .. msg)
-	end
+	-- Send back to just the sender, not all subscribers.
+	ch:send_to_player(sender, "echo: " .. msg)
 end)
