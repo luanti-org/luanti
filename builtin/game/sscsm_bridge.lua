@@ -25,11 +25,15 @@ local function build_content_defs_payload()
 	return table.concat(parts, ";")
 end
 
-core.register_on_joinplayer(function(player)
-	-- Sent unicast: only this player's SSCSM gets the mapping.
-	-- If the player's SSCSM hasn't subscribed yet, send_to_player
-	-- silently drops; the SSCSM is responsible for joining the
-	-- channel before it expects to receive content defs.
+-- Request-driven: SSCSM sends "ready" after its JOIN_OK signal, we
+-- respond with the payload. Avoids the race where on_joinplayer would
+-- fire before the SSCSM's JOIN packet had been processed server-side.
+core.register_on_clientmodchannel_message(function(channel, sender, msg)
+	if channel ~= CONTENT_DEFS_CHANNEL then return end
+	if msg ~= "ready" then return end
 	local payload = build_content_defs_payload()
-	content_defs_ch:send_to_player(player:get_player_name(), payload)
+	local ok = content_defs_ch:send_to_player(sender, payload)
+	core.log("info", "sscsm_bridge: pushed " .. #payload ..
+			" B of content defs to " .. sender ..
+			" (ok=" .. tostring(ok) .. ")")
 end)

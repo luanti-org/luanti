@@ -28,6 +28,14 @@ core.register_on_clientmodchannel_message(function(channel, msg)
 	core.registered_content_names = names
 end)
 
+-- Ask for content defs once the server has acked our JOIN. Pull rather
+-- than push so the server doesn't race against subscription state.
+core.register_on_clientmodchannel_signal(function(channel, signal)
+	if channel == CONTENT_DEFS_CHANNEL and signal == 0 then  -- JOIN_OK
+		core.clientmodchannel_send(CONTENT_DEFS_CHANNEL, "ready")
+	end
+end)
+
 core.clientmodchannel_join(CONTENT_DEFS_CHANNEL)
 core.log("info", "SSCSM server_builtin loaded; subscribed to "
 		.. CONTENT_DEFS_CHANNEL)
