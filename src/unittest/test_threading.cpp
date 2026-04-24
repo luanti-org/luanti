@@ -5,6 +5,7 @@
 #include "test.h"
 
 #include <atomic>
+#include <cstring>
 #include <iostream>
 #include "threading/ipc_channel.h"
 #include "threading/ipc_child_process.h"
@@ -405,6 +406,15 @@ void TestThreading::testIPCChildProcess()
 
 	// Wait for clean exit.
 	UASSERT(child->waitWithTimeout(5000));
+	if (child->getExitCode() != 0) {
+		// Surface signal info if the worker died by signal — without
+		// this, "exit code -1" tells us nothing about why.
+		std::cerr << "testIPCChildProcess: worker exit=" << child->getExitCode()
+				<< " term_signal=" << child->getTermSignal();
+		if (child->getTermSignal() != 0)
+			std::cerr << " (" << strsignal(child->getTermSignal()) << ")";
+		std::cerr << std::endl;
+	}
 	UASSERTEQ(int, child->getExitCode(), 0);
 }
 #endif // CHECK_CLIENT_BUILD()

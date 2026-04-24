@@ -224,10 +224,13 @@ bool IPCChildProcess::waitWithTimeout(int timeout_ms) noexcept
 		} while (r < 0 && errno == EINTR);
 		if (r == m_pid) {
 			m_reaped = true;
-			if (WIFEXITED(status))
+			if (WIFEXITED(status)) {
 				m_exit_code = WEXITSTATUS(status);
-			else
+			} else {
 				m_exit_code = -1;
+				if (WIFSIGNALED(status))
+					m_term_signal = WTERMSIG(status);
+			}
 			return true;
 		}
 		return false;
@@ -243,10 +246,13 @@ bool IPCChildProcess::waitWithTimeout(int timeout_ms) noexcept
 		pid_t r = waitpid(m_pid, &status, WNOHANG);
 		if (r == m_pid) {
 			m_reaped = true;
-			if (WIFEXITED(status))
+			if (WIFEXITED(status)) {
 				m_exit_code = WEXITSTATUS(status);
-			else
+			} else {
 				m_exit_code = -1;
+				if (WIFSIGNALED(status))
+					m_term_signal = WTERMSIG(status);
+			}
 			return true;
 		}
 		if (r < 0 && errno != EINTR)

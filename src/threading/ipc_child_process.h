@@ -59,8 +59,14 @@ public:
 	// Safe to call multiple times.
 	void terminate() noexcept;
 
-	// Exit code if the child has exited, or -1 if not yet / killed / error.
+	// Exit code if the child has exited normally, or -1 if not yet / killed
+	// by signal / error. When -1, getTermSignal() may give the signal number.
 	int getExitCode() const noexcept { return m_exit_code; }
+
+	// Signal number that terminated the child (POSIX), or 0 if the child
+	// exited normally / hasn't exited / wasn't seen. Use this to
+	// distinguish "exited via SIGSEGV" from "exited via SIGSYS" etc.
+	int getTermSignal() const noexcept { return m_term_signal; }
 
 	// Set the grace period used by the destructor before terminate() is
 	// called. The default is DEFAULT_WAIT_MS. Set to 0 to terminate
@@ -78,5 +84,6 @@ private:
 	bool m_reaped = false;
 #endif
 	int m_exit_code = -1;
+	int m_term_signal = 0;
 	int m_destructor_timeout_ms = DEFAULT_WAIT_MS;
 };
