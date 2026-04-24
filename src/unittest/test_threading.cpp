@@ -10,10 +10,15 @@
 #include "threading/ipc_child_process.h"
 #include "threading/semaphore.h"
 #include "threading/thread.h"
+// SSCSM headers pull in client/client.h (request exec() bodies call into
+// Client). The IPCChildProcess smoke test below speaks the SSCSM protocol,
+// so we can only build that test in client-enabled builds.
+#if CHECK_CLIENT_BUILD()
 #include "script/sscsm/sscsm_events.h"
 #include "script/sscsm/sscsm_ievent.h"
 #include "script/sscsm/sscsm_irequest.h"
 #include "script/sscsm/sscsm_requests.h"
+#endif
 
 #if !defined(_WIN32)
 #include <sys/types.h>
@@ -33,7 +38,9 @@ public:
 	void testTLS();
 	void testIPCChannel();
 	void testIPCChannelShm();
+#if CHECK_CLIENT_BUILD()
 	void testIPCChildProcess();
+#endif
 };
 
 static TestThreading g_test_instance;
@@ -45,7 +52,9 @@ void TestThreading::runTests(IGameDef *gamedef)
 	TEST(testTLS);
 	TEST(testIPCChannel);
 	TEST(testIPCChannelShm);
+#if CHECK_CLIENT_BUILD()
 	TEST(testIPCChildProcess);
+#endif
 }
 
 class SimpleTestThread : public Thread {
@@ -371,6 +380,7 @@ void TestThreading::testIPCChannelShm()
 #endif
 }
 
+#if CHECK_CLIENT_BUILD()
 void TestThreading::testIPCChildProcess()
 {
 	// Smoke test: spawn the real luanti binary as an SSCSM worker, speak
@@ -397,3 +407,4 @@ void TestThreading::testIPCChildProcess()
 	UASSERT(child->waitWithTimeout(5000));
 	UASSERTEQ(int, child->getExitCode(), 0);
 }
+#endif // CHECK_CLIENT_BUILD()
