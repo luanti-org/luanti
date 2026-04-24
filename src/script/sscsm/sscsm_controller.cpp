@@ -15,12 +15,18 @@
 static const char *request_type_name(SSCSMRequestType t)
 {
 	switch (t) {
-	case SSCSMRequestType::PollNextEvent:      return "PollNextEvent";
-	case SSCSMRequestType::SetFatalError:      return "SetFatalError";
-	case SSCSMRequestType::Print:              return "Print";
-	case SSCSMRequestType::Log:                return "Log";
-	case SSCSMRequestType::GetNode:            return "GetNode";
-	case SSCSMRequestType::DisplayChatMessage: return "DisplayChatMessage";
+	case SSCSMRequestType::PollNextEvent:               return "PollNextEvent";
+	case SSCSMRequestType::SetFatalError:               return "SetFatalError";
+	case SSCSMRequestType::Print:                       return "Print";
+	case SSCSMRequestType::Log:                         return "Log";
+	case SSCSMRequestType::GetNode:                     return "GetNode";
+	case SSCSMRequestType::DisplayChatMessage:          return "DisplayChatMessage";
+	case SSCSMRequestType::JoinModChannel:              return "JoinModChannel";
+	case SSCSMRequestType::LeaveModChannel:             return "LeaveModChannel";
+	case SSCSMRequestType::SendModChannelMessage:       return "SendModChannelMessage";
+	case SSCSMRequestType::JoinClientModChannel:        return "JoinClientModChannel";
+	case SSCSMRequestType::LeaveClientModChannel:       return "LeaveClientModChannel";
+	case SSCSMRequestType::SendClientModChannelMessage: return "SendClientModChannelMessage";
 	}
 	return "?";
 }
