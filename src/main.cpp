@@ -193,8 +193,19 @@ int main(int argc, char *argv[])
 #if CHECK_CLIENT_BUILD()
 	// SSCSM worker: minimal entry point, no client/server setup needed.
 	// See src/script/sscsm/ for the worker implementation.
-	if (cmd_args.exists("sscsm-worker"))
-		return run_sscsm_worker(cmd_args.get("sscsm-worker"));
+	//
+	// Use _Exit, not return, so the C++ runtime's static destructors and
+	// atexit handlers don't run — they touch syscalls (e.g. clone3 for
+	// pthread cleanup, mmap variants for libc freeres) that our seccomp
+	// denylist may reject, leaving the worker SIGSYS-killed instead of
+	// cleanly exit-coded. Confirmed in CI: signal 31 ("Bad system call")
+	// during normal teardown. The worker has no meaningful state to
+	// clean up; flushing stderr is sufficient.
+	if (cmd_args.exists("sscsm-worker")) {
+		int rc = run_sscsm_worker(cmd_args.get("sscsm-worker"));
+		std::cerr.flush();
+		std::_Exit(rc);
+	}
 #endif
 
 	if (!create_userdata_path()) {
