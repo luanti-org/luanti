@@ -112,8 +112,8 @@ jobs:
           cd build
           rm -rf macos
           cpack -G ZIP -B macos
-          f=macos/*.zip
-          mv "$f" "${f%.zip}${osver}-${arch}.zip"
+          set -- macos/*.zip
+          mv "$1" "${1%.zip}${osver}-${arch}.zip"
 
       - name: Upload
         uses: actions/upload-artifact@v7
