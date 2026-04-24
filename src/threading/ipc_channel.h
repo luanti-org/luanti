@@ -271,9 +271,24 @@ struct IPCChannelResourcesShm final : public IPCChannelResources
 	static std::unique_ptr<IPCChannelResourcesShm>
 			makeSecond(const std::string &name);
 
-	// The shm object name. Only meaningful for the parent after makeFirst.
-	// The child must receive this name through some other channel.
+	// The shm object handle the child must use to attach. Format depends
+	// on platform:
+	//   POSIX (non-Android): "/luanti-sscsm-PID-N" — a shm_open name.
+	//   Win32: "luanti-sscsm-PID-N" — a CreateFileMapping name.
+	//   Android: "fd:N" — an inherited file descriptor number; the parent
+	//     must arrange for the actual fd to land at that slot in the child.
 	const std::string &getName() const noexcept { return m_name; }
+
+	// On Android: the parent-side fd that needs to be inherited by the
+	// child via posix_spawn_file_actions (dup'd to the slot referenced
+	// in getName()). Returns -1 on platforms that don't pass fds.
+	int getFdToInherit() const noexcept {
+#if defined(__ANDROID__)
+		return m_fd;
+#else
+		return -1;
+#endif
+	}
 
 	void cleanupLast() noexcept override;
 	void cleanupNotLast() noexcept override;
@@ -285,5 +300,10 @@ private:
 	bool m_is_creator = false;
 #if defined(_WIN32)
 	void *m_mapping_handle = nullptr;
+#endif
+#if defined(__ANDROID__)
+	// Parent side: ashmem fd to inherit into the child.
+	// Child side: the inherited fd (closed once mapped).
+	int m_fd = -1;
 #endif
 };

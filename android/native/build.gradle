@@ -4,7 +4,7 @@ apply plugin: 'de.undercouch.download'
 android {
 	ndkVersion "$ndk_version"
 	defaultConfig {
-		minSdkVersion 21
+		minSdkVersion 28
 		compileSdk 34
 		targetSdkVersion 34
 		externalNativeBuild {

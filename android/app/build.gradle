@@ -4,7 +4,7 @@ android {
 	ndkVersion "$ndk_version"
 	defaultConfig {
 		applicationId 'net.minetest.minetest'
-		minSdkVersion 21
+		minSdkVersion 28
 		compileSdk 34
 		targetSdkVersion 35
 		versionName "${versionMajor}.${versionMinor}.${versionPatch}"

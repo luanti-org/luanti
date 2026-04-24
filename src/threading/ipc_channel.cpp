@@ -286,7 +286,110 @@ void IPCChannelResourcesShm::cleanupNotLast() noexcept
 		CloseHandle(m_mapping_handle);
 }
 
-#else // POSIX
+#elif defined(__ANDROID__)
+
+// Android lacks shm_open. Use ASharedMemory_create (NDK API 26+, which
+// wraps ashmem) to allocate a region; the resulting fd has to be passed
+// to the child via posix_spawn_file_actions inheritance. The "name"
+// passed to the child is the literal string "fd:N" where N is the slot
+// the parent arranged for the fd to land in.
+
+#include <android/sharedmem.h>
+
+static std::atomic<u32> g_shm_counter{0};
+
+// The fd slot the parent dup2's the ashmem fd into for the child.
+// stdin/stdout/stderr are 0/1/2; we use 3 for the SSCSM channel.
+static constexpr int CHILD_INHERITED_FD = 3;
+
+std::unique_ptr<IPCChannelResourcesShm>
+IPCChannelResourcesShm::makeFirst(const std::string &name_prefix)
+{
+	u32 n = g_shm_counter.fetch_add(1);
+	std::string label = name_prefix + "-" +
+			std::to_string(getpid()) + "-" + std::to_string(n);
+
+	int fd = ASharedMemory_create(label.c_str(), sizeof(IPCChannelShared));
+	if (fd < 0) {
+		errorstream << "IPCChannelResourcesShm: ASharedMemory_create "
+				"failed for " << label << ": "
+				<< std::strerror(errno) << std::endl;
+		return nullptr;
+	}
+	void *addr = mmap(nullptr, sizeof(IPCChannelShared),
+			PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	if (addr == MAP_FAILED) {
+		errorstream << "IPCChannelResourcesShm: mmap failed: "
+				<< std::strerror(errno) << std::endl;
+		close(fd);
+		return nullptr;
+	}
+
+	auto *shared = new (addr) IPCChannelShared();
+
+	auto ret = std::make_unique<IPCChannelResourcesShm>();
+	ret->m_name = "fd:" + std::to_string(CHILD_INHERITED_FD);
+	ret->m_is_creator = true;
+	ret->m_fd = fd;
+	Data d{};
+	d.shared = shared;
+	ret->setFirst(d);
+	return ret;
+}
+
+std::unique_ptr<IPCChannelResourcesShm>
+IPCChannelResourcesShm::makeSecond(const std::string &name)
+{
+	if (name.compare(0, 3, "fd:") != 0) {
+		errorstream << "IPCChannelResourcesShm: expected fd:N handle on "
+				"Android, got: " << name << std::endl;
+		return nullptr;
+	}
+	int fd = std::atoi(name.c_str() + 3);
+	void *addr = mmap(nullptr, sizeof(IPCChannelShared),
+			PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	if (addr == MAP_FAILED) {
+		errorstream << "IPCChannelResourcesShm: mmap from inherited fd "
+				<< fd << " failed: " << std::strerror(errno) << std::endl;
+		return nullptr;
+	}
+	// Close the fd; the mapping survives. Releases the descriptor slot.
+	close(fd);
+
+	auto *shared = reinterpret_cast<IPCChannelShared *>(addr);
+
+	auto ret = std::make_unique<IPCChannelResourcesShm>();
+	ret->m_name = name;
+	ret->m_is_creator = false;
+	ret->m_fd = -1;
+	Data d{};
+	d.shared = shared;
+	if (!ret->setSecond(d)) {
+		munmap(addr, sizeof(IPCChannelShared));
+		return nullptr;
+	}
+	return ret;
+}
+
+void IPCChannelResourcesShm::cleanupLast() noexcept
+{
+	if (data.shared) {
+		data.shared->~IPCChannelShared();
+		munmap(data.shared, sizeof(IPCChannelShared));
+	}
+	if (m_fd >= 0)
+		close(m_fd);
+}
+
+void IPCChannelResourcesShm::cleanupNotLast() noexcept
+{
+	if (data.shared)
+		munmap(data.shared, sizeof(IPCChannelShared));
+	if (m_fd >= 0)
+		close(m_fd);
+}
+
+#else // POSIX, non-Android
 
 static std::atomic<u32> g_shm_counter{0};
 
@@ -398,11 +501,12 @@ make_child_ipc_channel(const std::string &exec_path)
 		return {IPCChannelEnd{}, nullptr};
 	}
 	std::string shm_name = parent_res->getName();
+	int inherit_fd = parent_res->getFdToInherit();
 
 	std::vector<std::string> args = {"--sscsm-worker", shm_name};
 	auto child = exec_path.empty()
-			? std::make_unique<IPCChildProcess>(args)
-			: std::make_unique<IPCChildProcess>(exec_path, args);
+			? std::make_unique<IPCChildProcess>(args, inherit_fd)
+			: std::make_unique<IPCChildProcess>(exec_path, args, inherit_fd);
 
 	if (!child->isValid()) {
 		// Teardown: parent_res destructor unlinks the shm name.

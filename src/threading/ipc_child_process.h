@@ -34,11 +34,17 @@ public:
 	// Spawn a child process using the current executable and the given args.
 	// On failure, isValid() returns false.
 	// `args` should not include argv[0]; it is set automatically.
-	explicit IPCChildProcess(const std::vector<std::string> &args);
+	// inherit_fd: if >= 0, dup2'd to fd 3 in the child via posix_spawn
+	// file_actions (used by the Android SSCSM worker spawn path that
+	// has to pass a memory fd rather than a shared name). -1 = no
+	// inheritance.
+	explicit IPCChildProcess(const std::vector<std::string> &args,
+			int inherit_fd = -1);
 
 	// Spawn a specific executable.
 	IPCChildProcess(const std::string &exec_path,
-			const std::vector<std::string> &args);
+			const std::vector<std::string> &args,
+			int inherit_fd = -1);
 
 	~IPCChildProcess();
 
@@ -75,7 +81,8 @@ public:
 
 private:
 	void spawnInternal(const std::string &exec_path,
-			const std::vector<std::string> &args);
+			const std::vector<std::string> &args,
+			int inherit_fd);
 
 #if defined(_WIN32)
 	void *m_process_handle = nullptr; // HANDLE

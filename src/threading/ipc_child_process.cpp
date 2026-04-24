@@ -33,16 +33,17 @@ static std::string getExecPath()
 	return buf;
 }
 
-IPCChildProcess::IPCChildProcess(const std::vector<std::string> &args)
-	: IPCChildProcess(getExecPath(), args)
+IPCChildProcess::IPCChildProcess(const std::vector<std::string> &args,
+		int inherit_fd)
+	: IPCChildProcess(getExecPath(), args, inherit_fd)
 {
 }
 
 IPCChildProcess::IPCChildProcess(const std::string &exec_path,
-		const std::vector<std::string> &args)
+		const std::vector<std::string> &args, int inherit_fd)
 {
 	if (!exec_path.empty())
-		spawnInternal(exec_path, args);
+		spawnInternal(exec_path, args, inherit_fd);
 }
 
 IPCChildProcess::~IPCChildProcess()
@@ -119,8 +120,9 @@ bool IPCChildProcess::isValid() const noexcept
 #if defined(_WIN32)
 
 void IPCChildProcess::spawnInternal(const std::string &exec_path,
-		const std::vector<std::string> &args)
+		const std::vector<std::string> &args, int inherit_fd)
 {
+	(void)inherit_fd; // Win32 uses explicit handle inheritance instead.
 	// Build command line: "exec_path" arg1 arg2 ...
 	std::string cmdline;
 	auto append_quoted = [&](const std::string &s) {
@@ -183,7 +185,7 @@ void IPCChildProcess::terminate() noexcept
 #else // POSIX
 
 void IPCChildProcess::spawnInternal(const std::string &exec_path,
-		const std::vector<std::string> &args)
+		const std::vector<std::string> &args, int inherit_fd)
 {
 	// Build argv: [exec_path, args..., nullptr]
 	std::vector<std::string> storage;
@@ -198,9 +200,33 @@ void IPCChildProcess::spawnInternal(const std::string &exec_path,
 		argv.push_back(s.data());
 	argv.push_back(nullptr);
 
+	// Optional fd inheritance: dup the parent's fd into slot 3 in the
+	// child. Used by the Android SSCSM spawn path (no shm_open, fd has
+	// to be passed explicitly). On non-Android, our worker takes a shm
+	// name string and inherit_fd will be -1.
+	posix_spawn_file_actions_t file_actions;
+	posix_spawn_file_actions_t *p_file_actions = nullptr;
+	if (inherit_fd >= 0) {
+		if (posix_spawn_file_actions_init(&file_actions) != 0) {
+			errorstream << "IPCChildProcess: file_actions_init failed: "
+					<< std::strerror(errno) << std::endl;
+			return;
+		}
+		if (posix_spawn_file_actions_adddup2(&file_actions,
+				inherit_fd, 3) != 0) {
+			errorstream << "IPCChildProcess: file_actions adddup2 failed: "
+					<< std::strerror(errno) << std::endl;
+			posix_spawn_file_actions_destroy(&file_actions);
+			return;
+		}
+		p_file_actions = &file_actions;
+	}
+
 	pid_t pid = 0;
-	int rc = posix_spawn(&pid, exec_path.c_str(), nullptr, nullptr,
+	int rc = posix_spawn(&pid, exec_path.c_str(), p_file_actions, nullptr,
 			argv.data(), environ);
+	if (p_file_actions)
+		posix_spawn_file_actions_destroy(p_file_actions);
 	if (rc != 0) {
 		errorstream << "IPCChildProcess: posix_spawn failed: "
 				<< std::strerror(rc) << std::endl;
