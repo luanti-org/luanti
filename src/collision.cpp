@@ -109,6 +109,10 @@ inline v3f rangelimv(const v3f vec, const f32 low, const f32 high)
 }
 }
 
+static bool locate_cboxes_in_movement_range(KineticObject collider,
+		aabb3f box_0, f32 dtime, IGameDef *gamedef, Environment *env,
+		std::vector<NearbyCollisionInfo> &cinfo);
+
 static bool should_step_up(aabb3f movingbox, aabb3f cbox, v3f avg_speed,
 		f32 dtime, Collision collision, f32 stepheight,
 		std::vector<NearbyCollisionInfo> const &cinfo);
@@ -456,32 +460,17 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	// cached allocation
 	thread_local std::vector<NearbyCollisionInfo> cinfo;
 	cinfo.clear();
-	{
-		// Movement if no collisions
-		v3f newpos_f = *pos_f + aspeed_f * dtime;
-		v3f minpos_f(
-			MYMIN(pos_f->X, newpos_f.X),
-			MYMIN(pos_f->Y, newpos_f.Y) + 0.01f * BS, // bias rounding, player often at +/-n.5
-			MYMIN(pos_f->Z, newpos_f.Z)
-		);
-		v3f maxpos_f(
-			MYMAX(pos_f->X, newpos_f.X),
-			MYMAX(pos_f->Y, newpos_f.Y),
-			MYMAX(pos_f->Z, newpos_f.Z)
-		);
-		v3s16 min = floatToInt(minpos_f + box_0.MinEdge, BS) - v3s16(1, 1, 1);
-		v3s16 max = floatToInt(maxpos_f + box_0.MaxEdge, BS) + v3s16(1, 1, 1);
 
-		bool any_position_valid = add_area_node_boxes(min, max, gamedef, env, cinfo);
+	KineticObject collider{pos_f, speed_f, &aspeed_f, &accel_f};
 
-		// Do not move if world has not loaded yet, since custom node boxes
-		// are not available for collision detection.
-		// This also intentionally occurs in the case of the object being positioned
-		// solely on loaded CONTENT_IGNORE nodes, no matter where they come from.
-		if (!any_position_valid) {
-			*speed_f = v3f(0, 0, 0);
-			return CollisionMoveResult{};
-		}
+	// Do not move if world has not loaded yet, since custom node boxes
+	// are not available for collision detection.
+	// This also intentionally occurs in the case of the object being positioned
+	// solely on loaded CONTENT_IGNORE nodes, no matter where they come from.
+	if (!locate_cboxes_in_movement_range(
+				collider, box_0, dtime, gamedef, env, cinfo)) {
+		*speed_f = v3f(0, 0, 0);
+		return CollisionMoveResult{};
 	}
 
 	// Collect object boxes in movement range
@@ -521,7 +510,6 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		bool step_up = should_step_up(
 				movingbox, cbox, aspeed_f, dtime, collision, stepheight, cinfo);
 
-		KineticObject collider{pos_f, speed_f, &aspeed_f, &accel_f};
 		move_object_to_collision(collider, dtime, collision, step_up);
 
 		result = collide(
@@ -573,6 +561,25 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 
 	result.collides = !result.collisions.empty();
 	return result;
+}
+
+bool locate_cboxes_in_movement_range(KineticObject collider, aabb3f box_0,
+		f32 dtime, IGameDef *gamedef, Environment *env,
+		std::vector<NearbyCollisionInfo> &cinfo)
+{
+	// Movement if no collisions
+	v3f newpos_f = *collider.pos + *collider.speed * dtime;
+	v3f minpos_f(MYMIN(collider.pos->X, newpos_f.X),
+			MYMIN(collider.pos->Y, newpos_f.Y) +
+					0.01f * BS, // bias rounding, player often at +/-n.5
+			MYMIN(collider.pos->Z, newpos_f.Z));
+	v3f maxpos_f(MYMAX(collider.pos->X, newpos_f.X),
+			MYMAX(collider.pos->Y, newpos_f.Y),
+			MYMAX(collider.pos->Z, newpos_f.Z));
+	v3s16 min = floatToInt(minpos_f + box_0.MinEdge, BS) - v3s16(1, 1, 1);
+	v3s16 max = floatToInt(maxpos_f + box_0.MaxEdge, BS) + v3s16(1, 1, 1);
+
+	return add_area_node_boxes(min, max, gamedef, env, cinfo);
 }
 
 bool should_step_up(aabb3f movingbox, aabb3f cbox, v3f avg_speed, f32 dtime,
