@@ -3,6 +3,7 @@
 
 #include "CGLTFMeshFileLoader.h"
 
+#include "IndexBuffer.h"
 #include "SMaterialLayer.h"
 #include "coreutil.h"
 #include "SkinnedMesh.h"
@@ -357,24 +358,6 @@ IAnimatedMesh* SelfType::createMesh(io::IReadFile* file)
 	return nullptr;
 }
 
-static void checkIndices(const std::vector<u16> &indices, const std::size_t nVerts)
-{
-	for (u16 index : indices) {
-		if (index >= nVerts)
-			throw std::runtime_error("index out of bounds");
-	}
-}
-
-// Generate descending indices nVerts - 1, ..., 0
-static std::vector<u16> generateIndices(const std::size_t nVerts)
-{
-	std::vector<u16> indices(nVerts);
-	std::iota(indices.begin(), indices.end(), 0);
-	// Reverses winding order (and "triangle order", but that doesn't matter)
-	std::reverse(indices.begin(), indices.end());
-	return indices;
-}
-
 using Wrap = tiniergltf::Sampler::Wrap;
 static video::E_TEXTURE_CLAMP convertTextureWrap(const Wrap wrap) {
 	switch (wrap) {
@@ -412,16 +395,8 @@ void SelfType::MeshExtractor::addPrimitive(
 		return;
 	}
 
-	auto maybeIndices = getIndices(primitive);
-	std::vector<u16> indices;
-	if (maybeIndices.has_value()) {
-		indices = std::move(*maybeIndices);
-		checkIndices(indices, vertices->size());
-	} else {
-		// Non-indexed geometry
-		indices = generateIndices(vertices->size());
-	}
-	if (indices.size() % 3 != 0)
+	auto indices = getIndices(primitive, vertices->size());
+	if (indices->getCount() % 3 != 0)
 		throw std::runtime_error("index count for triangles not divisible by 3");
 
 	auto *meshbuf = new SSkinMeshBuffer(std::move(*vertices), std::move(indices));
@@ -766,15 +741,15 @@ SkinnedMesh *SelfType::MeshExtractor::load()
 	}
 }
 
-/**
- * Extracts GLTF mesh indices.
- */
-std::optional<std::vector<u16>> SelfType::MeshExtractor::getIndices(
-		const tiniergltf::MeshPrimitive &primitive) const
+irr_ptr<IndexBuffer> SelfType::MeshExtractor::getIndices(
+		const tiniergltf::MeshPrimitive &primitive, u32 nVerts) const
 {
 	const auto accessorIdx = primitive.indices;
-	if (!accessorIdx.has_value())
-		return std::nullopt; // non-indexed geometry
+	if (!accessorIdx.has_value()) {
+		return IndexBuffer::descending(nVerts);
+	}
+
+	auto res = make_irr<IndexBuffer>();
 
 	const auto accessor = ([&]() -> AccessorVariant<u8, u16, u32> {
 		const auto &acc = m_gltf_model.accessors->at(*accessorIdx);
@@ -791,12 +766,12 @@ std::optional<std::vector<u16>> SelfType::MeshExtractor::getIndices(
 	})();
 	const auto count = std::visit([](auto &&a) { return a.getCount(); }, accessor);
 
-	std::vector<u16> indices;
+	// TODO hoist the std::holds_alternative out of the loop using template functions
 	for (std::size_t i = 0; i < count; ++i) {
 		// TODO (low-priority, maybe never) also reverse winding order based on determinant of global transform
 		// FIXME this hack also reverses triangle draw order
 		std::size_t elemIdx = count - i - 1; // reverse index order
-		u16 index;
+		u32 index;
 		// Note: glTF forbids the max value for each component type.
 		if (std::holds_alternative<Accessor<u8>>(accessor)) {
 			index = std::get<Accessor<u8>>(accessor).get(elemIdx);
@@ -808,16 +783,16 @@ std::optional<std::vector<u16>> SelfType::MeshExtractor::getIndices(
 				throw std::runtime_error("invalid index");
 		} else {
 			assert(std::holds_alternative<Accessor<u32>>(accessor));
-			u32 indexWide = std::get<Accessor<u32>>(accessor).get(elemIdx);
-			// Use >= here for consistency.
-			if (indexWide >= std::numeric_limits<u16>::max())
-				throw std::runtime_error("index too large (>= 65536)");
-			index = static_cast<u16>(indexWide);
+			index = std::get<Accessor<u32>>(accessor).get(elemIdx);
+			if (index == std::numeric_limits<u32>::max())
+				throw std::runtime_error("invalid index");
 		}
-		indices.push_back(index);
+		if (index >= nVerts)
+			throw std::runtime_error("index out of bounds");
+		res->pushBack(index);
 	}
 
-	return indices;
+	return res;
 }
 
 /**

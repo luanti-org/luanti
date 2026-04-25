@@ -31,7 +31,7 @@ namespace scene
 {
 class IMeshBuffer;
 class IVertexBuffer;
-class IndexBuffer;
+struct IndexBuffer;
 class IMesh;
 class IMeshManipulator;
 class ISceneNode;
