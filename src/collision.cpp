@@ -77,7 +77,7 @@ struct KineticObject
 	v3f *pos;
 	v3f *speed;
 	v3f *avg_speed;
-	v3f accel;
+	v3f *accel;
 };
 
 // Helper functions:
@@ -113,6 +113,10 @@ static Collision find_nearest_collision(
 
 static void move_object_to_collision(KineticObject &collider, f32 &dtime,
 		Collision collision, bool step_up);
+
+static void collide(KineticObject &collider, Collision collision,
+		NearbyCollisionInfo &nearest_info, bool step_up,
+		StepUpMode step_up_mode, CollisionMoveResult &result);
 
 // Helper function:
 // Checks for collision of a moving aabbox with a static aabbox
@@ -530,49 +534,13 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 						d));
 		}
 
-		// Get bounce multiplier
-		float bounce = -(float)nearest_info.bouncy / 100.0f;
-
-		KineticObject collider{pos_f, speed_f, &aspeed_f, accel_f};
+		KineticObject collider{pos_f, speed_f, &aspeed_f, &accel_f};
 		move_object_to_collision(collider, dtime, collision, step_up);
 
 		v3f old_speed_f = *speed_f;
 
-		// Set the speed component that caused the collision to zero
-		if (step_up && (step_up_mode == StepUpMode::LEGACY ||
-				(step_up_mode == StepUpMode::FLOATY && speed_f->Y <= 0.0f) ||
-				(step_up_mode == StepUpMode::RIGID && speed_f->Y == 0.0f))) {
-			// Special case: Handle stairs
-			nearest_info.is_step_up = true;
-		} else if (collision.axis == COLLISION_AXIS_X) {
-			if (bounce < -1e-4 && fabsf(speed_f->X) > BS * 3) {
-				speed_f->X *= bounce;
-			} else {
-				speed_f->X = 0;
-				accel_f.X = 0; // avoid colliding in the next iterations
-			}
-		} else if (collision.axis == COLLISION_AXIS_Y) {
-			if (bounce < -1e-4 && fabsf(speed_f->Y) > BS * 3) {
-				speed_f->Y *= bounce;
-			} else {
-				if (speed_f->Y < 0.0f) {
-					// FIXME: This code is necessary until `axisAlignedCollision` takes acceleration
-					// into consideration for the time calculation. Otherwise, the colliding faces
-					// never line up, especially at high step (dtime) intervals.
-					result.touching_ground = true;
-					result.standing_on_object = nearest_info.isObject();
-				}
-				speed_f->Y = 0;
-				accel_f.Y = 0; // avoid colliding in the next iterations
-			}
-		} else { /* collision.axis == COLLISION_AXIS_Z */
-			if (bounce < -1e-4 && fabsf(speed_f->Z) > BS * 3) {
-				speed_f->Z *= bounce;
-			} else {
-				speed_f->Z = 0;
-				accel_f.Z = 0; // avoid colliding in the next iterations
-			}
-		}
+		collide(collider, collision, nearest_info, step_up, step_up_mode,
+				result);
 
 		if (!nearest_info.is_unloaded && !step_up) {
 			CollisionInfo info;
@@ -688,18 +656,69 @@ void move_object_to_collision(KineticObject &collider, f32 &dtime,
 	} else if (collision.dtime > 0) {
 		// updated average speed for the sub-interval up to
 		// collision.dtime
-		*collider.avg_speed = *collider.speed +
-				      collider.accel * 0.5f * collision.dtime;
+		*collider.avg_speed =
+				*collider.speed + *collider.accel * 0.5f * collision.dtime;
 		*collider.pos += *collider.avg_speed * collision.dtime;
 		// Speed at (approximated) collision:
-		*collider.speed += collider.accel * collision.dtime;
+		*collider.speed += *collider.accel * collision.dtime;
 		// Limit speed for avoiding hangs
 		*collider.speed = truncate(
-				rangelimv(*collider.speed, -5000.0f, 5000.0f),
-				10000.0f);
+				rangelimv(*collider.speed, -5000.0f, 5000.0f), 10000.0f);
 		dtime -= collision.dtime;
 	}
 }
+
+void collide(KineticObject &collider, Collision collision,
+		NearbyCollisionInfo &nearest_info, bool step_up,
+		StepUpMode step_up_mode, CollisionMoveResult &result)
+{
+	// Get bounce multiplier
+	float bounce = -(float) nearest_info.bouncy / 100.0f;
+
+	// Set the speed component that caused the collision to zero
+	if (step_up && (step_up_mode == StepUpMode::LEGACY ||
+						   (step_up_mode == StepUpMode::FLOATY &&
+								   collider.speed->Y <= 0.0f) ||
+						   (step_up_mode == StepUpMode::RIGID &&
+								   collider.speed->Y == 0.0f))) {
+		// Special case: Handle stairs
+		nearest_info.is_step_up = true;
+	} else if (collision.axis == COLLISION_AXIS_X) {
+		if (bounce < -1e-4 && fabsf(collider.speed->X) > BS * 3) {
+			collider.speed->X *= bounce;
+		} else {
+			collider.speed->X = 0;
+			// avoid colliding in the next iterations
+			collider.accel->X = 0;
+		}
+	} else if (collision.axis == COLLISION_AXIS_Y) {
+		if (bounce < -1e-4 && fabsf(collider.speed->Y) > BS * 3) {
+			collider.speed->Y *= bounce;
+		} else {
+			if (collider.speed->Y < 0.0f) {
+				// FIXME: This code is necessary until
+				// `axisAlignedCollision` takes acceleration
+				// into consideration for the time calculation.
+				// Otherwise, the colliding faces never line up,
+				// especially at high step (dtime) intervals.
+				result.touching_ground    = true;
+				result.standing_on_object = nearest_info.isObject();
+			}
+			collider.speed->Y = 0;
+			// avoid colliding in the next iterations
+			collider.accel->Y = 0;
+		}
+	} else { /* collision.axis == COLLISION_AXIS_Z */
+		if (bounce < -1e-4 && fabsf(collider.speed->Z) > BS * 3) {
+			collider.speed->Z *= bounce;
+		} else {
+			collider.speed->Z = 0;
+			// avoid colliding in the next iterations
+			collider.accel->Z = 0;
+		}
+	}
+}
+
 
 bool collision_check_intersection(Environment *env, IGameDef *gamedef,
 		const aabb3f &box_0, const v3f &pos_f, ActiveObject *self,
