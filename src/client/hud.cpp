@@ -112,7 +112,7 @@ Hud::Hud(Client *client, LocalPlayer *player,
 	m_rotation_mesh_buffer.reset(new scene::SMeshBuffer());
 	auto *b = m_rotation_mesh_buffer.get();
 	auto &vertices = b->Vertices->Data;
-	auto &indices = b->Indices->Data;
+	auto &indices = b->Indices->data;
 	vertices.resize(4);
 	indices.resize(6);
 

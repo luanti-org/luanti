@@ -249,7 +249,7 @@ bool CB3DMeshFileLoader::readChunkMESH(SkinnedMesh::SJoint *inJoint)
 			if (!NormalsInFile) {
 				s32 i;
 
-				auto &indices = meshBuffer->Indices->Data;
+				auto &indices = meshBuffer->Indices->data;
 				for (i = 0; i < (s32)indices.size(); i += 3) {
 					core::plane3df p(meshBuffer->getVertex(indices[i + 0])->Pos,
 							meshBuffer->getVertex(indices[i + 1])->Pos,
@@ -425,7 +425,7 @@ bool CB3DMeshFileLoader::readChunkTRIS(scene::SSkinMeshBuffer *meshBuffer, u32 m
 	}
 
 	const s32 memoryNeeded = B3dStack.getLast().length / sizeof(s32);
-	meshBuffer->Indices->Data.reserve(memoryNeeded + meshBuffer->Indices->Data.size() + 1);
+	meshBuffer->Indices->data.reserve(memoryNeeded + meshBuffer->Indices->data.size() + 1);
 
 	while ((B3dStack.getLast().startposition + B3dStack.getLast().length) > B3DFile->getPos()) // this chunk repeats
 	{
@@ -497,9 +497,9 @@ bool CB3DMeshFileLoader::readChunkTRIS(scene::SSkinMeshBuffer *meshBuffer, u32 m
 			}
 		}
 
-		meshBuffer->Indices->Data.push_back(AnimatedVertices_VertexID[vertex_id[0]]);
-		meshBuffer->Indices->Data.push_back(AnimatedVertices_VertexID[vertex_id[1]]);
-		meshBuffer->Indices->Data.push_back(AnimatedVertices_VertexID[vertex_id[2]]);
+		meshBuffer->Indices->data.push_back(AnimatedVertices_VertexID[vertex_id[0]]);
+		meshBuffer->Indices->data.push_back(AnimatedVertices_VertexID[vertex_id[1]]);
+		meshBuffer->Indices->data.push_back(AnimatedVertices_VertexID[vertex_id[2]]);
 	}
 
 	B3dStack.erase(B3dStack.size() - 1);

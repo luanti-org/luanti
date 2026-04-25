@@ -163,7 +163,7 @@ void Clouds::updateMesh()
 
 	auto *mb = m_meshbuffer.get();
 	auto &vertices = mb->Vertices->Data;
-	auto &indices = mb->Indices->Data;
+	auto &indices = mb->Indices->data;
 	{
 		const u32 vertex_count = num_faces_to_draw * 16 * m_cloud_radius_i * m_cloud_radius_i;
 		const u32 quad_count = vertex_count / 4;

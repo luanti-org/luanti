@@ -576,7 +576,7 @@ void COpenGL3DriverBase::deleteHardwareBuffer(SHWBufferLink *HWBuffer)
 }
 
 void COpenGL3DriverBase::drawBuffers(const scene::IVertexBuffer *vb,
-	const scene::IIndexBuffer *ib, u32 PrimitiveCount,
+	const scene::IndexBuffer *ib, u32 PrimitiveCount,
 	scene::E_PRIMITIVE_TYPE PrimitiveType)
 {
 	if (!vb || !ib)
@@ -623,7 +623,7 @@ void COpenGL3DriverBase::drawBuffers(const scene::IVertexBuffer *vb,
 	}
 
 	drawVertexPrimitiveList(vertices, vb->getCount(), indexList,
-		PrimitiveCount, vb->getType(), PrimitiveType, ib->getType());
+		PrimitiveCount, vb->getType(), PrimitiveType, ib->getIndexType());
 
 	if (hw_weights) {
 		GL.DisableVertexAttribArray(EVA_WEIGHTS);

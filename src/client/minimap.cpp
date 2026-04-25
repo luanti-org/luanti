@@ -544,7 +544,7 @@ irr_ptr<scene::SMeshBuffer> Minimap::createMinimapMeshBuffer()
 {
 	auto buf = make_irr<scene::SMeshBuffer>();
 	auto &vertices = buf->Vertices->Data;
-	auto &indices = buf->Indices->Data;
+	auto &indices = buf->Indices->data;
 	vertices.resize(4);
 	indices.resize(6);
 	static const video::SColor c(255, 255, 255, 255);
