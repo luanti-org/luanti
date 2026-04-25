@@ -129,9 +129,8 @@ static bool should_step_up(KineticBox const &movingbox, f32 dtime,
 		Collision collision, f32 stepheight,
 		std::vector<NearbyCollisionInfo> const &cinfo);
 
-static Collision find_nearest_collision(
-		std::vector<NearbyCollisionInfo> const &cinfo,
-		aabb3f const &movingbox, v3f aspeed_f, f32 dtime);
+static Collision find_nearest_collision(KineticBox const &movingbox,
+		std::vector<NearbyCollisionInfo> const &cinfo, f32 dtime);
 
 // Helper function:
 // Checks for collision of a moving aabbox with a static aabbox
@@ -490,12 +489,11 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 			break;
 		}
 
-		aabb3f movingbox = box_0;
-		movingbox.MinEdge += *pos_f;
-		movingbox.MaxEdge += *pos_f;
+		KineticBox movingbox{box_0, aspeed_f};
+		movingbox.box.MinEdge += *pos_f;
+		movingbox.box.MaxEdge += *pos_f;
 
-		Collision collision = find_nearest_collision(
-				cinfo, movingbox, aspeed_f, dtime);
+		Collision collision = find_nearest_collision(movingbox, cinfo, dtime);
 
 		if (collision.axis == COLLISION_AXIS_NONE) {
 			// No collision with any collision box.
@@ -511,8 +509,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		// Otherwise, a collision occurred.
 		NearbyCollisionInfo &nearest_info = cinfo[collision.boxindex];
 
-		KineticBox bb{movingbox, aspeed_f};
-		bool step_up = should_step_up(bb, dtime, collision, stepheight, cinfo);
+		bool step_up = should_step_up(movingbox, dtime, collision, stepheight, cinfo);
 
 		collider.moveToCollision(dtime, collision, step_up);
 
@@ -614,8 +611,8 @@ bool should_step_up(KineticBox const &movingbox, f32 dtime, Collision collision,
 	}
 }
 
-Collision find_nearest_collision(std::vector<NearbyCollisionInfo> const &cinfo,
-		aabb3f const &movingbox, v3f aspeed_f, f32 dtime)
+Collision find_nearest_collision(KineticBox const &movingbox,
+		std::vector<NearbyCollisionInfo> const &cinfo, f32 dtime)
 {
 	CollisionAxis nearest_collided = COLLISION_AXIS_NONE;
 	f32 nearest_dtime              = dtime;
@@ -632,7 +629,7 @@ Collision find_nearest_collision(std::vector<NearbyCollisionInfo> const &cinfo,
 		// Find nearest collision of the two boxes (raytracing-like)
 		f32 dtime_tmp          = nearest_dtime;
 		CollisionAxis collided = axisAlignedCollision(
-				box_info.box, movingbox, aspeed_f, &dtime_tmp);
+				box_info.box, movingbox.box, movingbox.avg_speed, &dtime_tmp);
 		if (collided == -1 || dtime_tmp >= nearest_dtime) {
 			continue;
 		}
