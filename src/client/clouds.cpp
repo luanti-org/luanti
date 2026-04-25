@@ -163,15 +163,9 @@ void Clouds::updateMesh()
 
 	auto *mb = m_meshbuffer.get();
 	auto &vertices = mb->Vertices->Data;
-	auto &indices = mb->Indices->data;
 	{
 		const u32 vertex_count = num_faces_to_draw * 16 * m_cloud_radius_i * m_cloud_radius_i;
-		const u32 quad_count = vertex_count / 4;
-		const u32 index_count = quad_count * 6;
-
-		// reserve memory
 		vertices.reserve(vertex_count);
-		indices.reserve(index_count);
 	}
 
 #define GETINDEX(x, z, radius) (((z)+(radius))*(radius)*2 + (x)+(radius))
@@ -338,25 +332,13 @@ void Clouds::updateMesh()
 	}
 	mb->setDirty(scene::EBT_VERTEX);
 
+	mb->Indices->data = {};
 	const u32 quad_count = mb->getVertexCount() / 4;
-	const u32 index_count = quad_count * 6;
-	// rewrite index array as needed
-	if (mb->getIndexCount() > index_count) {
-		indices.resize(index_count);
-		mb->setDirty(scene::EBT_INDEX);
-	} else if (mb->getIndexCount() < index_count) {
-		const u32 start = mb->getIndexCount() / 6;
-		assert(start * 6 == mb->getIndexCount());
-		for (u32 k = start; k < quad_count; k++) {
-			indices.push_back(4 * k + 0);
-			indices.push_back(4 * k + 1);
-			indices.push_back(4 * k + 2);
-			indices.push_back(4 * k + 2);
-			indices.push_back(4 * k + 3);
-			indices.push_back(4 * k + 0);
-		}
-		mb->setDirty(scene::EBT_INDEX);
+	for (u32 k = 0; k < quad_count; ++k) {
+		u32 quad_idxs[6] = {0, 1, 2, 2, 3, 0};
+		mb->Indices->appendWithOffset(&quad_idxs[0], &quad_idxs[6], 4 * k);
 	}
+	mb->setDirty(scene::EBT_INDEX);
 
 	tracestream << "Cloud::updateMesh(): " << mb->getVertexCount() << " vertices"
 		<< std::endl;
