@@ -22,7 +22,9 @@
 #include "game.h"
 #include "gettext.h"
 #include "gettime.h"
+#include "gui/drawItemStack.h"
 #include "guiscalingfilter.h"
+#include "inventory.h"
 #include "item_visuals_manager.h"
 #include "itemdef.h"
 #include "mapblock.h"
@@ -35,6 +37,7 @@
 #include "shader.h"
 #include "translation.h"
 #include "util/auth.h"
+#include "util/base64.h"
 #include "util/pointedthing.h"
 #include "util/screenshot.h"
 #include "util/serialize.h"
@@ -48,6 +51,59 @@
 #include "modchannels.h"
 #include "script/common/c_types.h" // LuaError
 #include "script/scripting_client.h"
+
+static video::IImage *generateInventoryPreviewImage(Client *client,
+		std::string_view texture_name)
+{
+	static const std::string_view prefix = "[inventorypreview:";
+	if (texture_name.compare(0, prefix.size(), prefix) != 0)
+		return nullptr;
+
+	std::string_view encoded = texture_name.substr(prefix.size());
+	if (size_t modifier_pos = encoded.find('^'); modifier_pos != std::string_view::npos)
+		encoded = encoded.substr(0, modifier_pos);
+
+	std::string itemstring = base64_decode(encoded);
+	if (itemstring.empty())
+		return nullptr;
+
+	ItemStack item;
+	item.deSerialize(itemstring, client->getItemDefManager());
+	if (item.empty())
+		return nullptr;
+
+	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
+	if (!driver || !driver->queryFeature(video::EVDF_RENDER_TO_TARGET))
+		return nullptr;
+
+	static u32 preview_counter = 0;
+	const core::dimension2du size(64, 64);
+	std::string rt_name = "__inventory_preview_" + itos(++preview_counter);
+	video::ITexture *render_target = driver->addRenderTargetTexture(
+			size, rt_name.c_str(), video::ECF_A8R8G8B8);
+	if (!render_target)
+		return nullptr;
+
+	core::rect<s32> old_viewport = driver->getViewPort();
+	driver->setRenderTarget(render_target, true, true, video::SColor(0, 0, 0, 0));
+
+	core::rect<s32> rect(0, 0, size.Width, size.Height);
+	drawItemStack(driver, nullptr, item, rect, nullptr, client, IT_ROT_NONE);
+
+	driver->setRenderTarget(nullptr, false, false);
+	driver->setViewPort(old_viewport);
+
+	void *data = render_target->lock(video::ETLM_READ_ONLY);
+	video::IImage *image = nullptr;
+	if (data) {
+		image = driver->createImageFromData(render_target->getColorFormat(),
+			render_target->getSize(), data, false);
+		render_target->unlock();
+	}
+	driver->removeTexture(render_target);
+
+	return image;
+}
 
 // SSCSM
 #include "client/mod_vfs.h"
@@ -161,6 +217,10 @@ Client::Client(
 	m_state(LC_Created),
 	m_modchannel_mgr(new ModChannelMgr())
 {
+	m_tsrc->setInventoryPreviewGenerator([this] (std::string_view texture_name) {
+		return generateInventoryPreviewImage(this, texture_name);
+	});
+
 	// Add local player
 	m_env.setLocalPlayer(new LocalPlayer(this, playername));
 

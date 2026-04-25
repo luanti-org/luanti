@@ -109,6 +109,9 @@ private:
 	// serialize_roundtrip(obj)
 	static int l_serialize_roundtrip(lua_State *L);
 
+	// get_item_inventory_texture(name)
+	static int l_get_item_inventory_texture(lua_State *L);
+
 public:
 	static void Initialize(lua_State *L, int top);
 	static void InitializeAsync(lua_State *L, int top);

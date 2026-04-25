@@ -109,6 +109,7 @@ public:
 	// Insert a source image into the cache without touching the filesystem.
 	// Shall be called from the main thread.
 	void insertSourceImage(const std::string &name, video::IImage *img);
+	void setInventoryPreviewGenerator(IWritableTextureSource::InventoryPreviewGenerator generator);
 
 	// Rebuild images and textures from the current set of source images
 	// Shall be called from the main thread.
@@ -132,6 +133,7 @@ private:
 	// Generates and caches source images
 	// This should be only accessed from the main thread
 	ImageSource m_imagesource;
+	IWritableTextureSource::InventoryPreviewGenerator m_inventory_preview_generator;
 
 	// Is the image cache enabled?
 	bool m_image_cache_enabled = false;
@@ -235,6 +237,17 @@ video::IImage *TextureSource::getOrGenerateImage(const std::string &name,
 		source_image_names.merge(copy);
 		it->second.image->grab();
 		return it->second.image;
+	}
+
+	static constexpr std::string_view inventory_preview_prefix = "[inventorypreview:";
+	if (m_inventory_preview_generator &&
+			name.compare(0, inventory_preview_prefix.size(), inventory_preview_prefix) == 0) {
+		auto *img = m_inventory_preview_generator(name);
+		if (img && m_image_cache_enabled) {
+			img->grab();
+			m_image_cache[name] = {img, {}};
+		}
+		return img;
 	}
 
 	std::set<std::string> tmp;
@@ -554,6 +567,11 @@ void TextureSource::insertSourceImage(const std::string &name, video::IImage *im
 	if (affected > 0)
 		verbosestream << "TextureSource: inserting \"" << name << "\" caused rebuild of "
 				<< affected << " textures." << std::endl;
+}
+
+void TextureSource::setInventoryPreviewGenerator(IWritableTextureSource::InventoryPreviewGenerator generator)
+{
+	m_inventory_preview_generator = std::move(generator);
 }
 
 void TextureSource::rebuildImagesAndTextures()

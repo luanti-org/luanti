@@ -11,6 +11,8 @@
 #include "cpp_api/s_base.h"
 #include "cpp_api/s_security.h"
 #include "filesys.h"
+#include "inventory.h"
+#include "itemdef.h"
 #include "log.h"
 #include "lua_api/l_internal.h"
 #include "network/connection.h"
@@ -18,6 +20,7 @@
 #include "scripting_server.h"
 #include "server.h"
 #include "serverenvironment.h"
+#include "util/base64.h"
 
 #include <algorithm>
 
@@ -680,6 +683,27 @@ int ModApiServer::l_serialize_roundtrip(lua_State *L)
 	return 1;
 }
 
+// get_item_inventory_texture(name)
+int ModApiServer::l_get_item_inventory_texture(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	const char *name = luaL_checkstring(L, 1);
+	Server *server = getServer(L);
+	IItemDefManager *idef = server->getItemDefManager();
+	ItemStack item(name, 1, 0, idef);
+	const ItemDefinition &def = item.getDefinition(idef);
+
+	if (def.name == "unknown" && item.name != "unknown") { // unknown item
+		lua_pushnil(L);
+		return 1;
+	}
+
+	std::string texture = "[inventorypreview:" + base64_encode(item.getItemString());
+	lua_pushstring(L, texture.c_str());
+	return 1;
+}
+
 void ModApiServer::Initialize(lua_State *L, int top)
 {
 	API_FCT(request_shutdown);
@@ -721,6 +745,8 @@ void ModApiServer::Initialize(lua_State *L, int top)
 	API_FCT(serialize_roundtrip);
 
 	API_FCT(register_mapgen_script);
+
+	API_FCT(get_item_inventory_texture);
 }
 
 void ModApiServer::InitializeAsync(lua_State *L, int top)
