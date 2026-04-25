@@ -111,25 +111,18 @@ Hud::Hud(Client *client, LocalPlayer *player,
 	// Prepare mesh for compass drawing
 	m_rotation_mesh_buffer.reset(new scene::SMeshBuffer());
 	auto *b = m_rotation_mesh_buffer.get();
-	auto &vertices = b->Vertices->Data;
-	auto &indices = b->Indices->data;
-	vertices.resize(4);
-	indices.resize(6);
+
+	b->Indices->data = std::vector<u16>{0, 1, 2, 2, 3, 0};
 
 	video::SColor white(255, 255, 255, 255);
 	v3f normal(0.f, 0.f, 1.f);
 
+	auto &vertices = b->Vertices->Data;
+	vertices.resize(4);
 	vertices[0] = video::S3DVertex(v3f(-1.f, -1.f, 0.f), normal, white, v2f(0.f, 1.f));
 	vertices[1] = video::S3DVertex(v3f(-1.f,  1.f, 0.f), normal, white, v2f(0.f, 0.f));
 	vertices[2] = video::S3DVertex(v3f( 1.f,  1.f, 0.f), normal, white, v2f(1.f, 0.f));
 	vertices[3] = video::S3DVertex(v3f( 1.f, -1.f, 0.f), normal, white, v2f(1.f, 1.f));
-
-	indices[0] = 0;
-	indices[1] = 1;
-	indices[2] = 2;
-	indices[3] = 2;
-	indices[4] = 3;
-	indices[5] = 0;
 
 	b->getMaterial().MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 	b->setHardwareMappingHint(scene::EHM_STATIC);

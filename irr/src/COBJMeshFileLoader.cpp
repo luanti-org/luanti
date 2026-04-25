@@ -231,23 +231,16 @@ IAnimatedMesh *COBJMeshFileLoader::createMesh(io::IReadFile *file)
 			}
 
 			// triangulate the face
-			auto &indices = currMtl->Meshbuffer->Indices->data;
+			auto &indices = *currMtl->Meshbuffer->Indices;
 			const int c = faceCorners[0];
 			for (u32 i = 1; i < faceCorners.size() - 1; ++i) {
 				// Add a triangle
 				const int a = faceCorners[i + 1];
 				const int b = faceCorners[i];
 				if (a != b && a != c && b != c) { // ignore degenerated faces. We can get them when we merge vertices above in the VertMap.
-					u16 ua = a, ub = b, uc = c;
-					if (ua != a || ub != b || uc != c) {
-						os::Printer::log("Dropping triangle from mesh"
-								" (indices exceed u16 bounds)",
-								file->getFileName(), ELL_WARNING);
-					} else {
-						indices.push_back(ua);
-						indices.push_back(ub);
-						indices.push_back(uc);
-					}
+					indices.pushBack(a);
+					indices.pushBack(b);
+					indices.pushBack(c);
 				} else {
 					++degeneratedFaces;
 				}

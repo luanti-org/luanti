@@ -99,20 +99,13 @@ public:
 			return;
 
 		const u32 vertexCount = getVertexCount();
-		const u32 indexCount = getIndexCount();
 
 		auto *vt = static_cast<const T *>(vertices);
 		Vertices->Data.insert(Vertices->Data.end(), vt, vt + numVertices);
 		for (u32 i = vertexCount; i < getVertexCount(); i++)
 			BoundingBox.addInternalPoint(Vertices->getPosition(i));
 
-		Indices->data.insert(Indices->data.end(), indices, indices + numIndices);
-		if (vertexCount != 0) {
-			for (u32 i = indexCount; i < getIndexCount(); i++) {
-				// TODO check bounds
-				Indices->data[i] += vertexCount;
-			}
-		}
+		Indices->appendWithOffset(indices, indices + numIndices, vertexCount);
 	}
 
 	//! Describe what kind of primitive geometry is used by the meshbuffer
