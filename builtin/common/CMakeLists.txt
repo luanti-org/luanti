@@ -15,5 +15,6 @@ set(BUILTIN_COMMON_SRCS
 	common/serialize.lua
 	common/strict.lua
 	common/vector.lua
+	common/vector2.lua
 	${BUILTIN_COMMON_SETTINGS_SRCS}
 	PARENT_SCOPE)
