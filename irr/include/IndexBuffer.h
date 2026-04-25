@@ -75,13 +75,14 @@ public:
 	void pushBack(u32 index)
 	{
 		if (auto *vec_16 = std::get_if<std::vector<u16>>(&data)) {
-			if (index <= U16_MAX) {
+			// Note: < instead of <= to be safe
+			if (index < U16_MAX) {
 				vec_16->push_back(static_cast<u16>(index));
 				return;
 			}
 			data = std::vector<u32>(vec_16->begin(), vec_16->end());
 		}
-		std::get<std::vector<u16>>(data).push_back(index);
+		std::get<std::vector<u32>>(data).push_back(index);
 	}
 
 	template<typename T>
