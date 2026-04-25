@@ -10,7 +10,7 @@
 #include "IContextManager.h"
 #include "IndexBuffer.h"
 #include "IVertexBuffer.h"
-#include "irrTypes.h"
+#include "irr_types.h"
 
 #ifdef _IRR_COMPILE_WITH_OPENGL_
 

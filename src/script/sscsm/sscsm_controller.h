@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "sscsm_irequest.h"
 #include "sscsm_ievent.h"
 #include "util/basic_macros.h"

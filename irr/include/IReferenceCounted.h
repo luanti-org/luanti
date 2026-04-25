@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "irrTypes.h"
+#include "irr_types.h"
 #include <cassert>
 
 //! Base class of most objects of the Irrlicht Engine.

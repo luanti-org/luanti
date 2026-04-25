@@ -9,7 +9,7 @@
 #include "SSkinMeshBuffer.h"
 #include "IAnimatedMesh.h"
 #include "IReadFile.h"
-#include "irrTypes.h"
+#include "irr_types.h"
 #include "irr_ptr.h"
 #include "matrix4.h"
 #include "path.h"
