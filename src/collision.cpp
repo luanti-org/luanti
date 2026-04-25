@@ -114,9 +114,9 @@ static Collision find_nearest_collision(
 static void move_object_to_collision(KineticObject &collider, f32 &dtime,
 		Collision collision, bool step_up);
 
-static void collide(KineticObject &collider, Collision collision,
+static CollisionMoveResult collide(KineticObject &collider, Collision collision,
 		NearbyCollisionInfo &nearest_info, bool step_up,
-		StepUpMode step_up_mode, CollisionMoveResult &result);
+		StepUpMode step_up_mode);
 
 // Helper function:
 // Checks for collision of a moving aabbox with a static aabbox
@@ -423,7 +423,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 
 	// Assume no collisions when no velocity and no acceleration
 	if (*speed_f == v3f() && accel_f == v3f())
-		return result;
+		return CollisionMoveResult{};
 
 	/*
 		Calculate new velocity
@@ -474,7 +474,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		// solely on loaded CONTENT_IGNORE nodes, no matter where they come from.
 		if (!any_position_valid) {
 			*speed_f = v3f(0, 0, 0);
-			return result;
+			return CollisionMoveResult{};
 		}
 	}
 
@@ -537,22 +537,8 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		KineticObject collider{pos_f, speed_f, &aspeed_f, &accel_f};
 		move_object_to_collision(collider, dtime, collision, step_up);
 
-		v3f old_speed_f = *speed_f;
-
-		collide(collider, collision, nearest_info, step_up, step_up_mode,
-				result);
-
-		if (!nearest_info.is_unloaded && !step_up) {
-			CollisionInfo info;
-			info.axis = collision.axis;
-			info.type = nearest_info.isObject() ? COLLISION_OBJECT : COLLISION_NODE;
-			info.node_p = nearest_info.position;
-			info.object = nearest_info.obj;
-			info.new_pos = *pos_f;
-			info.old_speed = old_speed_f;
-			info.new_speed = *speed_f;
-			result.collisions.push_back(info);
-		}
+		result = collide(
+				collider, collision, nearest_info, step_up, step_up_mode);
 
 		if (dtime < BS * 1e-10f)
 			break;
@@ -668,10 +654,14 @@ void move_object_to_collision(KineticObject &collider, f32 &dtime,
 	}
 }
 
-void collide(KineticObject &collider, Collision collision,
+CollisionMoveResult collide(KineticObject &collider, Collision collision,
 		NearbyCollisionInfo &nearest_info, bool step_up,
-		StepUpMode step_up_mode, CollisionMoveResult &result)
+		StepUpMode step_up_mode)
 {
+	CollisionMoveResult result;
+
+	v3f old_speed_f = *collider.speed;
+
 	// Get bounce multiplier
 	float bounce = -(float) nearest_info.bouncy / 100.0f;
 
@@ -717,8 +707,21 @@ void collide(KineticObject &collider, Collision collision,
 			collider.accel->Z = 0;
 		}
 	}
-}
 
+	if (!nearest_info.is_unloaded && !step_up) {
+		CollisionInfo info;
+		info.axis = collision.axis;
+		info.type = nearest_info.isObject() ? COLLISION_OBJECT : COLLISION_NODE;
+		info.node_p    = nearest_info.position;
+		info.object    = nearest_info.obj;
+		info.new_pos   = *collider.pos;
+		info.old_speed = old_speed_f;
+		info.new_speed = *collider.speed;
+		result.collisions.push_back(info);
+	}
+
+	return result;
+}
 
 bool collision_check_intersection(Environment *env, IGameDef *gamedef,
 		const aabb3f &box_0, const v3f &pos_f, ActiveObject *self,
