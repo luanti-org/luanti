@@ -80,6 +80,9 @@ struct KineticObject
 	v3f *speed;
 	v3f *avg_speed;
 	v3f *accel;
+
+	void moveToCollision(f32 &dtime, Collision collision, bool step_up);
+
 };
 
 // Helper functions:
@@ -120,9 +123,6 @@ static bool should_step_up(aabb3f movingbox, aabb3f cbox, v3f avg_speed,
 static Collision find_nearest_collision(
 		std::vector<NearbyCollisionInfo> const &cinfo,
 		aabb3f const &movingbox, v3f aspeed_f, f32 dtime);
-
-static void move_object_to_collision(KineticObject &collider, f32 &dtime,
-		Collision collision, bool step_up);
 
 static CollisionMoveResult collide(KineticObject &collider, Collision collision,
 		NearbyCollisionInfo &nearest_info, bool step_up,
@@ -510,7 +510,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		bool step_up = should_step_up(
 				movingbox, cbox, aspeed_f, dtime, collision, stepheight, cinfo);
 
-		move_object_to_collision(collider, dtime, collision, step_up);
+		collider.moveToCollision(dtime, collision, step_up);
 
 		result = collide(
 				collider, collision, nearest_info, step_up, step_up_mode);
@@ -641,8 +641,8 @@ Collision find_nearest_collision(std::vector<NearbyCollisionInfo> const &cinfo,
 	return Collision{nearest_dtime, nearest_boxindex, nearest_collided};
 }
 
-void move_object_to_collision(KineticObject &collider, f32 &dtime,
-		Collision collision, bool step_up)
+void KineticObject::moveToCollision(
+		f32 &dtime, Collision collision, bool step_up)
 {
 	// Move to the point of collision and reduce dtime by collision.dtime
 	if (collision.dtime < 0) {
@@ -652,26 +652,25 @@ void move_object_to_collision(KineticObject &collider, f32 &dtime,
 		// with above and resolve this collision
 		if (!step_up) {
 			if (collision.axis == COLLISION_AXIS_X) {
-				collider.pos->X += collider.avg_speed->X * collision.dtime;
+				this->pos->X += this->avg_speed->X * collision.dtime;
 			}
 			if (collision.axis == COLLISION_AXIS_Y) {
-				collider.pos->Y += collider.avg_speed->Y * collision.dtime;
+				this->pos->Y += this->avg_speed->Y * collision.dtime;
 			}
 			if (collision.axis == COLLISION_AXIS_Z) {
-				collider.pos->Z += collider.avg_speed->Z * collision.dtime;
+				this->pos->Z += this->avg_speed->Z * collision.dtime;
 			}
 		}
 	} else if (collision.dtime > 0) {
 		// updated average speed for the sub-interval up to
 		// collision.dtime
-		*collider.avg_speed =
-				*collider.speed + *collider.accel * 0.5f * collision.dtime;
-		*collider.pos += *collider.avg_speed * collision.dtime;
+		*this->avg_speed = *this->speed + *this->accel * 0.5f * collision.dtime;
+		*this->pos += *this->avg_speed * collision.dtime;
 		// Speed at (approximated) collision:
-		*collider.speed += *collider.accel * collision.dtime;
+		*this->speed += *this->accel * collision.dtime;
 		// Limit speed for avoiding hangs
-		*collider.speed = truncate(
-				rangelimv(*collider.speed, -5000.0f, 5000.0f), 10000.0f);
+		*this->speed =
+				truncate(rangelimv(*this->speed, -5000.0f, 5000.0f), 10000.0f);
 		dtime -= collision.dtime;
 	}
 }
