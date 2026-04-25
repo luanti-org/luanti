@@ -103,6 +103,9 @@ static Collision find_nearest_collision(
 		std::vector<NearbyCollisionInfo> const &cinfo,
 		aabb3f const &movingbox, v3f aspeed_f, f32 dtime);
 
+static void move_object_to_collision(v3f *pos_f, v3f *speed_f, v3f &aspeed_f,
+		v3f accel_f, f32 &dtime, Collision collision, bool step_up);
+
 // Helper function:
 // Checks for collision of a moving aabbox with a static aabbox
 // Returns -1 if no collision, 0 if X collision, 1 if Y collision, 2 if Z collision
@@ -522,29 +525,8 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		// Get bounce multiplier
 		float bounce = -(float)nearest_info.bouncy / 100.0f;
 
-		// Move to the point of collision and reduce dtime by collision.dtime
-		if (collision.dtime < 0) {
-			// Handle negative collision.dtime
-			// This largely means an "instant" collision, e.g., with the floor.
-			// We use aspeed and collision.dtime to be consistent with above and resolve this collision
-			if (!step_up) {
-				if (collision.axis == COLLISION_AXIS_X)
-					pos_f->X += aspeed_f.X * collision.dtime;
-				if (collision.axis == COLLISION_AXIS_Y)
-					pos_f->Y += aspeed_f.Y * collision.dtime;
-				if (collision.axis == COLLISION_AXIS_Z)
-					pos_f->Z += aspeed_f.Z * collision.dtime;
-			}
-		} else if (collision.dtime > 0) {
-			// updated average speed for the sub-interval up to collision.dtime
-			aspeed_f = *speed_f + accel_f * 0.5f * collision.dtime;
-			*pos_f += aspeed_f * collision.dtime;
-			// Speed at (approximated) collision:
-			*speed_f += accel_f * collision.dtime;
-			// Limit speed for avoiding hangs
-			*speed_f = truncate(rangelimv(*speed_f, -5000.0f, 5000.0f), 10000.0f);
-			dtime -= collision.dtime;
-		}
+		move_object_to_collision(pos_f, speed_f, aspeed_f, accel_f,
+				dtime, collision, step_up);
 
 		v3f old_speed_f = *speed_f;
 
@@ -673,6 +655,40 @@ Collision find_nearest_collision(std::vector<NearbyCollisionInfo> const &cinfo,
 	}
 
 	return Collision{nearest_dtime, nearest_boxindex, nearest_collided};
+}
+
+void move_object_to_collision(v3f *pos_f, v3f *speed_f, v3f &aspeed_f,
+		v3f accel_f, f32 &dtime, Collision collision, bool step_up)
+{
+	// Move to the point of collision and reduce dtime by collision.dtime
+	if (collision.dtime < 0) {
+		// Handle negative collision.dtime
+		// This largely means an "instant" collision, e.g., with the
+		// floor. We use aspeed and collision.dtime to be consistent
+		// with above and resolve this collision
+		if (!step_up) {
+			if (collision.axis == COLLISION_AXIS_X) {
+				pos_f->X += aspeed_f.X * collision.dtime;
+			}
+			if (collision.axis == COLLISION_AXIS_Y) {
+				pos_f->Y += aspeed_f.Y * collision.dtime;
+			}
+			if (collision.axis == COLLISION_AXIS_Z) {
+				pos_f->Z += aspeed_f.Z * collision.dtime;
+			}
+		}
+	} else if (collision.dtime > 0) {
+		// updated average speed for the sub-interval up to
+		// collision.dtime
+		aspeed_f = *speed_f + accel_f * 0.5f * collision.dtime;
+		*pos_f += aspeed_f * collision.dtime;
+		// Speed at (approximated) collision:
+		*speed_f += accel_f * collision.dtime;
+		// Limit speed for avoiding hangs
+		*speed_f = truncate(rangelimv(*speed_f, -5000.0f, 5000.0f),
+				10000.0f);
+		dtime -= collision.dtime;
+	}
 }
 
 bool collision_check_intersection(Environment *env, IGameDef *gamedef,
