@@ -830,7 +830,7 @@ void Sky::updateStars()
 		m_star_params.count = 0x4000;
 	}
 	auto &vertices = m_stars->Vertices->Data;
-	auto &indices = m_stars->Indices->Data;
+	auto &indices = m_stars->Indices->data;
 	vertices.reserve(4 * m_star_params.count);
 	indices.reserve(6 * m_star_params.count);
 

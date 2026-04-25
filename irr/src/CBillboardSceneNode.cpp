@@ -21,7 +21,7 @@ CBillboardSceneNode::CBillboardSceneNode(ISceneNode *parent, ISceneManager *mgr,
 	setSize(size);
 
 	auto &Vertices = Buffer->Vertices->Data;
-	auto &Indices = Buffer->Indices->Data;
+	auto &Indices = Buffer->Indices->data;
 
 	Vertices.resize(4);
 	Indices.resize(6);

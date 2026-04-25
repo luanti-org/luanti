@@ -8,28 +8,33 @@
 #include "EPrimitiveTypes.h"
 #include "SVertexIndex.h"
 #include "HWBuffer.h"
+#include <vector>
 
 namespace scene
 {
 
-class IIndexBuffer : public virtual IReferenceCounted, public HWBuffer
+class IndexBuffer : public virtual IReferenceCounted, public HWBuffer
 {
 public:
-	//! Get type of index data which is stored in this meshbuffer.
-	/** \return Index type of this buffer. */
-	virtual video::E_INDEX_TYPE getType() const = 0;
 
-	//! Get access to indices.
-	/** \return Pointer to indices array. */
-	virtual const void *getData() const = 0;
+	HWBuffer::Type getBufferType() const override
+	{ return HWBuffer::Type::INDEX; }
 
-	//! Get access to indices.
-	/** \return Pointer to indices array. */
-	virtual void *getData() = 0;
+	const void *getData() const override
+	{ return data.data(); }
 
-	//! Get amount of indices in this meshbuffer.
-	/** \return Number of indices in this buffer. */
-	virtual u32 getCount() const = 0;
+	void *getData()
+	{ return data.data(); }
+
+	u32 getElementSize() const override
+	{ return sizeof(u16); }
+
+	u32 getCount() const override
+	{ return static_cast<u32>(data.size()); }
+
+	// TODO support 32-bit by std::variant or similar
+	video::E_INDEX_TYPE getIndexType() const
+	{ return video::EIT_16BIT; }
 
 	//! Calculate how many geometric primitives would be drawn
 	u32 getPrimitiveCount(E_PRIMITIVE_TYPE primitiveType) const
@@ -55,6 +60,8 @@ public:
 		}
 		return 0;
 	}
+
+	std::vector<u16> data;
 };
 
 } // end namespace scene

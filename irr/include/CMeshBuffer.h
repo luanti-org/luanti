@@ -7,7 +7,7 @@
 #include <vector>
 #include "IMeshBuffer.h"
 #include "CVertexBuffer.h"
-#include "CIndexBuffer.h"
+#include "IndexBuffer.h"
 
 namespace scene
 {
@@ -21,7 +21,7 @@ public:
 			PrimitiveType(EPT_TRIANGLES)
 	{
 		Vertices = new CVertexBuffer<T>();
-		Indices = new SIndexBuffer();
+		Indices = new IndexBuffer();
 	}
 
 	~CMeshBuffer()
@@ -54,12 +54,12 @@ public:
 		return Vertices;
 	}
 
-	const scene::IIndexBuffer *getIndexBuffer() const override
+	const scene::IndexBuffer *getIndexBuffer() const override
 	{
 		return Indices;
 	}
 
-	scene::IIndexBuffer *getIndexBuffer() override
+	scene::IndexBuffer *getIndexBuffer() override
 	{
 		return Indices;
 	}
@@ -106,10 +106,12 @@ public:
 		for (u32 i = vertexCount; i < getVertexCount(); i++)
 			BoundingBox.addInternalPoint(Vertices->getPosition(i));
 
-		Indices->Data.insert(Indices->Data.end(), indices, indices + numIndices);
+		Indices->data.insert(Indices->data.end(), indices, indices + numIndices);
 		if (vertexCount != 0) {
-			for (u32 i = indexCount; i < getIndexCount(); i++)
-				Indices->Data[i] += vertexCount;
+			for (u32 i = indexCount; i < getIndexCount(); i++) {
+				// TODO check bounds
+				Indices->data[i] += vertexCount;
+			}
 		}
 	}
 
@@ -130,7 +132,7 @@ public:
 	//! Vertex buffer
 	CVertexBuffer<T> *Vertices;
 	//! Index buffer
-	SIndexBuffer *Indices;
+	IndexBuffer *Indices;
 	//! Bounding box of this meshbuffer.
 	core::aabbox3d<f32> BoundingBox{{0, 0, 0}};
 	//! Primitive type used for rendering (triangles, lines, ...)

@@ -122,11 +122,11 @@ void copyVertices(const scene::IVertexBuffer *src, scene::CVertexBuffer<T> *dst)
 	dst->Data.assign(data, data + src->getCount());
 }
 
-static void copyIndices(const scene::IIndexBuffer *src, scene::SIndexBuffer *dst)
+static void copyIndices(const scene::IndexBuffer *src, scene::IndexBuffer *dst)
 {
-	assert(src->getType() == video::EIT_16BIT);
+	assert(src->getIndexType() == video::EIT_16BIT);
 	auto *data = static_cast<const u16*>(src->getData());
-	dst->Data.assign(data, data + src->getCount());
+	dst->data.assign(data, data + src->getCount());
 }
 
 //! Clones a static IMesh into a modifyable SMesh.

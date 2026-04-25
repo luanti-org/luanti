@@ -31,7 +31,7 @@ namespace scene
 {
 class IMeshBuffer;
 class IVertexBuffer;
-class IIndexBuffer;
+class IndexBuffer;
 class IMesh;
 class IMeshManipulator;
 class ISceneNode;
@@ -753,7 +753,7 @@ public:
 	 * @param pType primitive type
 	 */
 	virtual void drawBuffers(const scene::IVertexBuffer *vb,
-		const scene::IIndexBuffer *ib, u32 primCount,
+		const scene::IndexBuffer *ib, u32 primCount,
 		scene::E_PRIMITIVE_TYPE pType = scene::EPT_TRIANGLES) = 0;
 
 	//! Draws normals of a mesh buffer
