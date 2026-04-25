@@ -7,8 +7,10 @@
 #include "IMeshLoader.h"
 #include "IReadFile.h"
 #include "irr_types.h"
+#include "irr_ptr.h"
 #include "path.h"
 #include "S3DVertex.h"
+#include "IndexBuffer.h"
 
 #include "tiniergltf.hpp"
 
@@ -105,8 +107,9 @@ private:
 		 *
 		 * Values are return in Irrlicht winding order.
 		 */
-		std::optional<std::vector<u16>> getIndices(
-				const tiniergltf::MeshPrimitive &primitive) const;
+		irr_ptr<IndexBuffer> getIndices(
+				const tiniergltf::MeshPrimitive &primitive,
+				const std::size_t nVerts) const;
 
 		std::optional<std::vector<video::S3DVertex>> getVertices(
 				const tiniergltf::MeshPrimitive &primitive) const;

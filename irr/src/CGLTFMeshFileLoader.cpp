@@ -1,4 +1,4 @@
-// Minetest
+// Luanti
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #include "CGLTFMeshFileLoader.h"
@@ -363,26 +363,6 @@ IAnimatedMesh* SelfType::createMesh(io::IReadFile* file)
 	return nullptr;
 }
 
-static void checkIndices(const std::vector<u16> &indices, const std::size_t nVerts)
-{
-	for (u16 index : indices) {
-		if (index >= nVerts)
-			throw std::runtime_error("index out of bounds");
-	}
-}
-
-static std::vector<u16> generateIndices(const std::size_t nVerts)
-{
-	std::vector<u16> indices(nVerts);
-	for (std::size_t i = 0; i < nVerts; i += 3) {
-		// Reverse winding order per triangle
-		indices[i] = i + 2;
-		indices[i + 1] = i + 1;
-		indices[i + 2] = i;
-	}
-	return indices;
-}
-
 using Wrap = tiniergltf::Sampler::Wrap;
 static video::E_TEXTURE_CLAMP convertTextureWrap(const Wrap wrap) {
 	switch (wrap) {
@@ -407,20 +387,7 @@ void SelfType::MeshExtractor::addPrimitive(
 		return; // "When positions are not specified, client implementations SHOULD skip primitive’s rendering"
 
 	const auto n_vertices = vertices->size();
-
-	// Excludes the max value for consistency.
-	if (n_vertices >= std::numeric_limits<u16>::max())
-		throw std::runtime_error("too many vertices");
-
-	auto maybeIndices = getIndices(primitive);
-	std::vector<u16> indices;
-	if (maybeIndices.has_value()) {
-		indices = std::move(*maybeIndices);
-		checkIndices(indices, vertices->size());
-	} else {
-		// Non-indexed geometry
-		indices = generateIndices(vertices->size());
-	}
+	irr_ptr<IndexBuffer> indices = getIndices(primitive, vertices->size());
 
 	auto *meshbuf = new SSkinMeshBuffer(std::move(*vertices), std::move(indices));
 	const auto meshbufNr = m_irr_model.addMeshBuffer(meshbuf);
@@ -729,15 +696,42 @@ SkinnedMesh *SelfType::MeshExtractor::load()
 	}
 }
 
+template<typename T>
+static std::vector<T> generateIndices(const std::size_t nVerts)
+{
+	std::vector<T> indices(nVerts);
+	for (std::size_t i = 0; i < nVerts; i += 3) {
+		// Reverse winding order per triangle
+		indices[i] = i + 2;
+		indices[i + 1] = i + 1;
+		indices[i + 2] = i;
+	}
+	return indices;
+}
+
+static irr_ptr<IndexBuffer> generateIndexBuffer(const std::size_t nVerts)
+{
+	auto ib = make_irr<IndexBuffer>();
+	if (nVerts <= U16_MAX)
+		ib->data = generateIndices<u16>(nVerts);
+	else
+		ib->data = generateIndices<u32>(nVerts);
+	return ib;
+}
+
 /**
  * Extracts GLTF mesh indices.
  */
-std::optional<std::vector<u16>> SelfType::MeshExtractor::getIndices(
-		const tiniergltf::MeshPrimitive &primitive) const
+irr_ptr<IndexBuffer> SelfType::MeshExtractor::getIndices(
+		const tiniergltf::MeshPrimitive &primitive,
+		const std::size_t nVerts) const
 {
 	const auto accessorIdx = primitive.indices;
-	if (!accessorIdx.has_value())
-		return std::nullopt; // non-indexed geometry
+	if (!accessorIdx.has_value()) {
+		return generateIndexBuffer(nVerts); // non-indexed geometry
+	}
+
+	auto res = make_irr<IndexBuffer>();
 
 	const auto accessor = ([&]() -> AccessorVariant<u8, u16, u32> {
 		const auto &acc = m_gltf_model.accessors->at(*accessorIdx);
@@ -754,12 +748,12 @@ std::optional<std::vector<u16>> SelfType::MeshExtractor::getIndices(
 	})();
 	const auto count = std::visit([](auto &&a) { return a.getCount(); }, accessor);
 
-	std::vector<u16> indices;
+	// TODO hoist the std::holds_alternative out of the loop using template functions
 	for (std::size_t i = 0; i < count; ++i) {
 		// TODO (low-priority, maybe never) also reverse winding order based on determinant of global transform
 		// FIXME this hack also reverses triangle draw order
 		std::size_t elemIdx = count - i - 1; // reverse index order
-		u16 index;
+		u32 index;
 		// Note: glTF forbids the max value for each component type.
 		if (std::holds_alternative<Accessor<u8>>(accessor)) {
 			index = std::get<Accessor<u8>>(accessor).get(elemIdx);
@@ -771,16 +765,16 @@ std::optional<std::vector<u16>> SelfType::MeshExtractor::getIndices(
 				throw std::runtime_error("invalid index");
 		} else {
 			assert(std::holds_alternative<Accessor<u32>>(accessor));
-			u32 indexWide = std::get<Accessor<u32>>(accessor).get(elemIdx);
-			// Use >= here for consistency.
-			if (indexWide >= std::numeric_limits<u16>::max())
-				throw std::runtime_error("index too large (>= 65536)");
-			index = static_cast<u16>(indexWide);
+			index = std::get<Accessor<u32>>(accessor).get(elemIdx);
+			if (index == std::numeric_limits<u32>::max())
+				throw std::runtime_error("invalid index");
 		}
-		indices.push_back(index);
+		if (index >= nVerts)
+			throw std::runtime_error("index out of bounds");
+		res->pushBack(index);
 	}
 
-	return indices;
+	return res;
 }
 
 /**
@@ -805,7 +799,7 @@ std::optional<std::vector<video::S3DVertex>> SelfType::MeshExtractor::getVertice
 	if (normalAccessorIdx.has_value()) {
 		copyNormals(normalAccessorIdx.value(), vertices);
 	}
-	// TODO verify that the automatic normal recalculation done in Minetest indeed works correctly
+	// TODO verify that the automatic normal recalculation done in Luanti indeed works correctly
 
 	const auto &texcoords = attributes.texcoord;
 	if (texcoords.has_value()) {

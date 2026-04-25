@@ -11,6 +11,7 @@
 #include "IVertexBuffer.h"
 #include "S3DVertex.h"
 #include "vector3d.h"
+#include "irr_ptr.h"
 #include <cassert>
 
 namespace scene
@@ -31,11 +32,11 @@ struct SSkinMeshBuffer final : public IMeshBuffer
 	}
 
 	//! Constructor for standard vertices
-	SSkinMeshBuffer(std::vector<video::S3DVertex> &&vertices, std::vector<u16> &&indices) :
+	SSkinMeshBuffer(std::vector<video::S3DVertex> &&vertices, irr_ptr<IndexBuffer> &&indices) :
 			SSkinMeshBuffer()
 	{
 		Vertices_Standard->Data = std::move(vertices);
-		Indices->data = std::move(indices);
+		Indices->data = std::move(indices->data);
 	}
 
 	~SSkinMeshBuffer()
