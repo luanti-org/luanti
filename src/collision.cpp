@@ -119,7 +119,7 @@ static bool locate_cboxes_in_movement_range(KineticObject collider,
 		aabb3f box_0, f32 dtime, IGameDef *gamedef, Environment *env,
 		std::vector<NearbyCollisionInfo> &cinfo);
 
-static bool should_step_up(aabb3f movingbox, aabb3f cbox, v3f avg_speed,
+static bool should_step_up(aabb3f movingbox, v3f avg_speed,
 		f32 dtime, Collision collision, f32 stepheight,
 		std::vector<NearbyCollisionInfo> const &cinfo);
 
@@ -504,10 +504,9 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		assert(!std::isinf(collision.dtime) && !std::isnan(collision.dtime));
 		// Otherwise, a collision occurred.
 		NearbyCollisionInfo &nearest_info = cinfo[collision.boxindex];
-		const aabb3f& cbox = nearest_info.box;
 
 		bool step_up = should_step_up(
-				movingbox, cbox, aspeed_f, dtime, collision, stepheight, cinfo);
+				movingbox, aspeed_f, dtime, collision, stepheight, cinfo);
 
 		collider.moveToCollision(dtime, collision, step_up);
 
@@ -581,7 +580,7 @@ bool locate_cboxes_in_movement_range(KineticObject collider, aabb3f box_0,
 	return add_area_node_boxes(min, max, gamedef, env, cinfo);
 }
 
-bool should_step_up(aabb3f movingbox, aabb3f cbox, v3f avg_speed, f32 dtime,
+bool should_step_up(aabb3f movingbox, v3f avg_speed, f32 dtime,
 		Collision collision, f32 stepheight,
 		std::vector<NearbyCollisionInfo> const &cinfo)
 {
@@ -599,6 +598,7 @@ bool should_step_up(aabb3f movingbox, aabb3f cbox, v3f avg_speed, f32 dtime,
 		stepbox.MaxEdge.X += avg_speed.X * extra_dtime;
 		stepbox.MaxEdge.Z += avg_speed.Z * extra_dtime;
 		// Check for stairs.
+		const aabb3f &cbox = cinfo[collision.boxindex].box;
 		return (movingbox.MinEdge.Y < cbox.MaxEdge.Y) &&
 			   (movingbox.MinEdge.Y + stepheight > cbox.MaxEdge.Y) &&
 			   (!wouldCollideWithCeiling(cinfo, stepbox,
