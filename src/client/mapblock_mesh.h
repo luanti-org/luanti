@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "irr_ptr.h"
 #include "IMesh.h"
 #include "CMeshBuffer.h"

@@ -6,7 +6,7 @@
 #include "SkinnedMesh.h"
 #include "IMeshLoader.h"
 #include "IReadFile.h"
-#include "irrTypes.h"
+#include "irr_types.h"
 #include "path.h"
 #include "S3DVertex.h"
 

@@ -9,7 +9,7 @@
 #include <vector>
 #include <optional>
 
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "util/enriched_string.h"
 
 // Chat console related classes

@@ -79,7 +79,7 @@
  *
  */
 
-#include "irrTypes.h"
+#include "irr_types.h"
 
 namespace sound {
 

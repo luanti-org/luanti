@@ -8,7 +8,7 @@
 #include "IVideoDriver.h"
 #include "ISceneManager.h"
 #include "Transform.h"
-#include "irrTypes.h"
+#include "irr_types.h"
 #include "matrix4.h"
 #include "os.h"
 #include "SkinnedMesh.h"

@@ -3,7 +3,7 @@
 // Copyright (C) 2018 rubenwardy <rw@rubenwardy.com>
 
 #pragma once
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include <string>
 
 enum class ContentType

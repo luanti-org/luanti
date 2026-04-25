@@ -8,7 +8,7 @@
 #include <vector>
 #include <cassert>
 
-#include "irrTypes.h"
+#include "irr_types.h"
 #include "irrMath.h"
 
 namespace core

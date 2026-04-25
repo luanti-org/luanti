@@ -11,7 +11,7 @@
 #include <mutex>
 #include "threading/mutex_auto_lock.h"
 #include "util/basic_macros.h"
-#include "irrlichttypes.h"
+#include <irr_types.h>
 
 class ILogOutput;
 
