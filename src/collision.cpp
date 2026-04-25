@@ -33,6 +33,8 @@ bool g_collision_problems_encountered = false;
 
 namespace {
 
+f32 constexpr g_mystery_constant{0.0f};
+
 struct NearbyCollisionInfo {
 	// node
 	NearbyCollisionInfo(bool is_ul, int bouncy, v3s16 pos, const aabb3f &box) :
@@ -106,6 +108,10 @@ inline v3f rangelimv(const v3f vec, const f32 low, const f32 high)
 	);
 }
 }
+
+static bool should_step_up(aabb3f movingbox, aabb3f cbox, v3f avg_speed,
+		f32 dtime, Collision collision, f32 stepheight,
+		std::vector<NearbyCollisionInfo> const &cinfo);
 
 static Collision find_nearest_collision(
 		std::vector<NearbyCollisionInfo> const &cinfo,
@@ -483,8 +489,6 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		add_object_boxes(env, box_0, dtime, *pos_f, aspeed_f, self, cinfo);
 	}
 
-	// Collision detection
-	f32 d = 0.0f;
 	for (int loopcount = 0;; loopcount++) {
 		if (loopcount >= 100) {
 			warningstream << "collisionMoveSimple: Loop count exceeded, aborting to avoid infinite loop" << std::endl;
@@ -514,25 +518,8 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		NearbyCollisionInfo &nearest_info = cinfo[collision.boxindex];
 		const aabb3f& cbox = nearest_info.box;
 
-		//movingbox except moved to the horizontal position it would be after step up
-		bool step_up = false;
-		if (collision.axis != COLLISION_AXIS_Y) {
-			aabb3f stepbox = movingbox;
-			// Look slightly ahead  for checking the height when stepping
-			// to ensure we also check above the node we collided with
-			// otherwise, might allow glitches such as a stack of stairs
-			float extra_dtime = collision.dtime + 0.1f * fabsf(dtime - collision.dtime);
-			stepbox.MinEdge.X += aspeed_f.X * extra_dtime;
-			stepbox.MinEdge.Z += aspeed_f.Z * extra_dtime;
-			stepbox.MaxEdge.X += aspeed_f.X * extra_dtime;
-			stepbox.MaxEdge.Z += aspeed_f.Z * extra_dtime;
-			// Check for stairs.
-			step_up = (movingbox.MinEdge.Y < cbox.MaxEdge.Y) &&
-				(movingbox.MinEdge.Y + stepheight > cbox.MaxEdge.Y) &&
-				(!wouldCollideWithCeiling(cinfo, stepbox,
-						cbox.MaxEdge.Y - movingbox.MinEdge.Y,
-						d));
-		}
+		bool step_up = should_step_up(
+				movingbox, cbox, aspeed_f, dtime, collision, stepheight, cinfo);
 
 		KineticObject collider{pos_f, speed_f, &aspeed_f, &accel_f};
 		move_object_to_collision(collider, dtime, collision, step_up);
@@ -566,9 +553,9 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 			X-Z-area.
 		*/
 
-		if (cbox.MaxEdge.X - d > box.MinEdge.X && cbox.MinEdge.X + d < box.MaxEdge.X &&
-				cbox.MaxEdge.Z - d > box.MinEdge.Z &&
-				cbox.MinEdge.Z + d < box.MaxEdge.Z) {
+		if (cbox.MaxEdge.X - g_mystery_constant > box.MinEdge.X && cbox.MinEdge.X + g_mystery_constant < box.MaxEdge.X &&
+				cbox.MaxEdge.Z - g_mystery_constant > box.MinEdge.Z &&
+				cbox.MinEdge.Z + g_mystery_constant < box.MaxEdge.Z) {
 			if (box_info.is_step_up) {
 				pos_f->Y += cbox.MaxEdge.Y - box.MinEdge.Y;
 				box = box_0;
@@ -586,6 +573,34 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 
 	result.collides = !result.collisions.empty();
 	return result;
+}
+
+bool should_step_up(aabb3f movingbox, aabb3f cbox, v3f avg_speed, f32 dtime,
+		Collision collision, f32 stepheight,
+		std::vector<NearbyCollisionInfo> const &cinfo)
+{
+	if (collision.axis != COLLISION_AXIS_Y) {
+		// movingbox except moved to the horizontal position it would be after
+		// step up
+		aabb3f stepbox = movingbox;
+		// Look slightly ahead  for checking the height when stepping
+		// to ensure we also check above the node we collided with
+		// otherwise, might allow glitches such as a stack of stairs
+		float extra_dtime =
+				collision.dtime + 0.1f * fabsf(dtime - collision.dtime);
+		stepbox.MinEdge.X += avg_speed.X * extra_dtime;
+		stepbox.MinEdge.Z += avg_speed.Z * extra_dtime;
+		stepbox.MaxEdge.X += avg_speed.X * extra_dtime;
+		stepbox.MaxEdge.Z += avg_speed.Z * extra_dtime;
+		// Check for stairs.
+		return (movingbox.MinEdge.Y < cbox.MaxEdge.Y) &&
+			   (movingbox.MinEdge.Y + stepheight > cbox.MaxEdge.Y) &&
+			   (!wouldCollideWithCeiling(cinfo, stepbox,
+					   cbox.MaxEdge.Y - movingbox.MinEdge.Y,
+					   g_mystery_constant));
+	} else {
+		return false;
+	}
 }
 
 Collision find_nearest_collision(std::vector<NearbyCollisionInfo> const &cinfo,
