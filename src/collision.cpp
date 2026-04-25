@@ -83,6 +83,9 @@ struct KineticObject
 
 	void moveToCollision(f32 &dtime, Collision collision, bool step_up);
 
+	CollisionMoveResult collideWith(Collision collision,
+			NearbyCollisionInfo &nearest_info, bool step_up,
+			StepUpMode step_up_mode);
 };
 
 // Helper functions:
@@ -123,10 +126,6 @@ static bool should_step_up(aabb3f movingbox, aabb3f cbox, v3f avg_speed,
 static Collision find_nearest_collision(
 		std::vector<NearbyCollisionInfo> const &cinfo,
 		aabb3f const &movingbox, v3f aspeed_f, f32 dtime);
-
-static CollisionMoveResult collide(KineticObject &collider, Collision collision,
-		NearbyCollisionInfo &nearest_info, bool step_up,
-		StepUpMode step_up_mode);
 
 // Helper function:
 // Checks for collision of a moving aabbox with a static aabbox
@@ -512,8 +511,8 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 
 		collider.moveToCollision(dtime, collision, step_up);
 
-		result = collide(
-				collider, collision, nearest_info, step_up, step_up_mode);
+		result = collider.collideWith(
+				collision, nearest_info, step_up, step_up_mode);
 
 		if (dtime < BS * 1e-10f)
 			break;
@@ -675,13 +674,13 @@ void KineticObject::moveToCollision(
 	}
 }
 
-CollisionMoveResult collide(KineticObject &collider, Collision collision,
+CollisionMoveResult KineticObject::collideWith(Collision collision,
 		NearbyCollisionInfo &nearest_info, bool step_up,
 		StepUpMode step_up_mode)
 {
 	CollisionMoveResult result;
 
-	v3f old_speed_f = *collider.speed;
+	v3f old_speed_f = *this->speed;
 
 	// Get bounce multiplier
 	float bounce = -(float) nearest_info.bouncy / 100.0f;
@@ -689,24 +688,24 @@ CollisionMoveResult collide(KineticObject &collider, Collision collision,
 	// Set the speed component that caused the collision to zero
 	if (step_up && (step_up_mode == StepUpMode::LEGACY ||
 						   (step_up_mode == StepUpMode::FLOATY &&
-								   collider.speed->Y <= 0.0f) ||
+								   this->speed->Y <= 0.0f) ||
 						   (step_up_mode == StepUpMode::RIGID &&
-								   collider.speed->Y == 0.0f))) {
+								   this->speed->Y == 0.0f))) {
 		// Special case: Handle stairs
 		nearest_info.is_step_up = true;
 	} else if (collision.axis == COLLISION_AXIS_X) {
-		if (bounce < -1e-4 && fabsf(collider.speed->X) > BS * 3) {
-			collider.speed->X *= bounce;
+		if (bounce < -1e-4 && fabsf(this->speed->X) > BS * 3) {
+			this->speed->X *= bounce;
 		} else {
-			collider.speed->X = 0;
+			this->speed->X = 0;
 			// avoid colliding in the next iterations
-			collider.accel->X = 0;
+			this->accel->X = 0;
 		}
 	} else if (collision.axis == COLLISION_AXIS_Y) {
-		if (bounce < -1e-4 && fabsf(collider.speed->Y) > BS * 3) {
-			collider.speed->Y *= bounce;
+		if (bounce < -1e-4 && fabsf(this->speed->Y) > BS * 3) {
+			this->speed->Y *= bounce;
 		} else {
-			if (collider.speed->Y < 0.0f) {
+			if (this->speed->Y < 0.0f) {
 				// FIXME: This code is necessary until
 				// `axisAlignedCollision` takes acceleration
 				// into consideration for the time calculation.
@@ -715,17 +714,17 @@ CollisionMoveResult collide(KineticObject &collider, Collision collision,
 				result.touching_ground    = true;
 				result.standing_on_object = nearest_info.isObject();
 			}
-			collider.speed->Y = 0;
+			this->speed->Y = 0;
 			// avoid colliding in the next iterations
-			collider.accel->Y = 0;
+			this->accel->Y = 0;
 		}
 	} else { /* collision.axis == COLLISION_AXIS_Z */
-		if (bounce < -1e-4 && fabsf(collider.speed->Z) > BS * 3) {
-			collider.speed->Z *= bounce;
+		if (bounce < -1e-4 && fabsf(this->speed->Z) > BS * 3) {
+			this->speed->Z *= bounce;
 		} else {
-			collider.speed->Z = 0;
+			this->speed->Z = 0;
 			// avoid colliding in the next iterations
-			collider.accel->Z = 0;
+			this->accel->Z = 0;
 		}
 	}
 
@@ -735,9 +734,9 @@ CollisionMoveResult collide(KineticObject &collider, Collision collision,
 		info.type = nearest_info.isObject() ? COLLISION_OBJECT : COLLISION_NODE;
 		info.node_p    = nearest_info.position;
 		info.object    = nearest_info.obj;
-		info.new_pos   = *collider.pos;
+		info.new_pos   = *this->pos;
 		info.old_speed = old_speed_f;
-		info.new_speed = *collider.speed;
+		info.new_speed = *this->speed;
 		result.collisions.push_back(info);
 	}
 
