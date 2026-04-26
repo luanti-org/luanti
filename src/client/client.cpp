@@ -59,11 +59,24 @@ static video::IImage *generateInventoryPreviewImage(Client *client,
 	if (texture_name.compare(0, prefix.size(), prefix) != 0)
 		return nullptr;
 
-	std::string_view encoded = texture_name.substr(prefix.size());
-	if (size_t modifier_pos = encoded.find('^'); modifier_pos != std::string_view::npos)
-		encoded = encoded.substr(0, modifier_pos);
+	std::string_view rest = texture_name.substr(prefix.size());
+	if (size_t modifier_pos = rest.find('^'); modifier_pos != std::string_view::npos)
+		rest = rest.substr(0, modifier_pos);
 
-	std::string itemstring = base64_decode(encoded);
+	// Parse optional :WxH resolution suffix (must be after base64 data)
+	u32 width = 64, height = 64;
+	if (size_t colon_pos = rest.rfind(':'); colon_pos != std::string_view::npos) {
+		std::string_view size_str = rest.substr(colon_pos + 1);
+		if (size_t x_pos = size_str.find('x'); x_pos != std::string_view::npos) {
+			width = atoi(std::string(size_str.substr(0, x_pos)).c_str());
+			height = atoi(std::string(size_str.substr(x_pos + 1)).c_str());
+			width = std::clamp(width, 16u, 512u);
+			height = std::clamp(height, 16u, 512u);
+		}
+		rest = rest.substr(0, colon_pos);
+	}
+
+	std::string itemstring = base64_decode(rest);
 	if (itemstring.empty())
 		return nullptr;
 
@@ -77,7 +90,7 @@ static video::IImage *generateInventoryPreviewImage(Client *client,
 		return nullptr;
 
 	static u32 preview_counter = 0;
-	const core::dimension2du size(64, 64);
+	const core::dimension2du size(width, height);
 	std::string rt_name = "__inventory_preview_" + itos(++preview_counter);
 	video::ITexture *render_target = driver->addRenderTargetTexture(
 			size, rt_name.c_str(), video::ECF_A8R8G8B8);

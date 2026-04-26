@@ -1039,6 +1039,24 @@ embedding a whole image, this may vary by use case.
 
 *See notes: `TEXMOD_UPSCALE`*
 
+#### `[inventorypreview:<base64>[:<W>x<H>]`
+
+Renders the inventory preview of an itemstack using the same rendering
+pipeline as the inventory GUI. The itemstack is provided as a base64-encoded
+serialized itemstack string.
+
+The optional `W` and `H` parameters specify the texture resolution in pixels.
+If omitted, the default resolution is 64x64. Values are clamped to 16-512.
+
+This texture modifier is useful for showing accurate 2D previews of
+complex nodes (stairs, slabs, nodeboxes, meshes) on entities.
+Use `core.get_item_inventory_texture` to generate a valid string.
+
+    [inventorypreview:ZGVmYXVsdDpwaWNrX3N0b25l:64x64
+    [inventorypreview:ZGVmYXVsdDpwaWNrX3N0b25l:128x128
+
+*See notes: `TEXMOD_UPSCALE`*
+
 Hardware coloring
 -----------------
 
@@ -7285,6 +7303,15 @@ Item handling
 
 * `core.inventorycube(img1, img2, img3)`
     * Returns a string for making an image of a cube (useful as an item image)
+* `core.get_item_inventory_texture(itemstring[, size])`
+    * Returns a texture string `[inventorypreview:...` that renders the
+      inventory preview of `itemstring`, using the same pipeline as the
+      inventory GUI.
+    * `itemstring`: the item name or full itemstring (e.g. `"default:stone"`)
+    * `size`: optional resolution in pixels (default: 64, clamped to 16-512)
+    * Returns `nil` if the item is unknown.
+    * Useful for showing accurate 2D previews of complex nodes (stairs,
+      slabs, nodeboxes, meshes) on entities.
 * `core.get_pointed_thing_position(pointed_thing, above)`
     * Returns the position of a `pointed_thing` or `nil` if the `pointed_thing`
       does not refer to a node or entity.

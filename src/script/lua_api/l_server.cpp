@@ -683,12 +683,17 @@ int ModApiServer::l_serialize_roundtrip(lua_State *L)
 	return 1;
 }
 
-// get_item_inventory_texture(name)
+// get_item_inventory_texture(name[, size])
 int ModApiServer::l_get_item_inventory_texture(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
 	const char *name = luaL_checkstring(L, 1);
+	int size = 64;
+	if (lua_gettop(L) >= 2 && !lua_isnil(L, 2))
+		size = luaL_checkinteger(L, 2);
+	size = std::clamp(size, 16, 512);
+
 	Server *server = getServer(L);
 	IItemDefManager *idef = server->getItemDefManager();
 	ItemStack item(name, 1, 0, idef);
@@ -699,7 +704,8 @@ int ModApiServer::l_get_item_inventory_texture(lua_State *L)
 		return 1;
 	}
 
-	std::string texture = "[inventorypreview:" + base64_encode(item.getItemString());
+	std::string texture = "[inventorypreview:" + base64_encode(item.getItemString())
+		+ ":" + itos(size) + "x" + itos(size);
 	lua_pushstring(L, texture.c_str());
 	return 1;
 }
