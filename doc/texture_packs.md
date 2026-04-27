@@ -220,12 +220,15 @@ Here are targets you can choose from:
 | special4       | The fourth entry in the special_tiles list        |
 | special5       | The fifth entry in the special_tiles list         |
 | special6       | The sixth entry in the special_tiles list         |
+| overlay_left   | The overlay on the x- face                        |
+| overlay_right  | The overlay on the x+ face                        |
+| overlay_front  | The overlay on the z- face                        |
+| overlay_back   | The overlay on the z+ face                        |
 | overlay_top    | The overlay on the y+ face                        |
 | overlay_bottom | The overlay on the y- face                        |
-| overlay_right  | The overlay on the x+ face                        |
-| overlay_left   | The overlay on the x- face                        |
-| overlay_back   | The overlay on the z+ face                        |
-| overlay_front  | The overlay on the z- face                        |
+| overlay_sides  | The overlay on the x-, x+, z-, z+ faces           |
+| overlay_all    | The overlay on all faces.                         |
+| overlay_*      | The overlay on all faces.                         |
 | inventory      | The inventory texture                             |
 | wield          | The texture used when held by the player          |
 | align_world=N  | Overrides the "world align" behavior of tiles ¹   |
