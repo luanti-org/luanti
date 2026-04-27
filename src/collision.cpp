@@ -87,7 +87,7 @@ struct KineticObject
 	v3f *avg_speed;
 	v3f *accel;
 
-	void moveToCollision(f32 &dtime, Collision collision, bool step_up);
+	void moveToCollision(Collision collision, f32 &dtime, bool step_up);
 
 	CollisionMoveResult collideWith(Collision collision,
 			NearbyCollisionInfo &nearest_info, bool step_up,
@@ -511,7 +511,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 
 		bool step_up = should_step_up(movingbox, dtime, collision, stepheight, cinfo);
 
-		collider.moveToCollision(dtime, collision, step_up);
+		collider.moveToCollision(collision, dtime, step_up);
 
 		result = collider.collideWith(
 				collision, nearest_info, step_up, step_up_mode);
@@ -643,7 +643,7 @@ Collision find_nearest_collision(KineticBox const &movingbox,
 }
 
 void KineticObject::moveToCollision(
-		f32 &dtime, Collision collision, bool step_up)
+		Collision collision, f32 &dtime, bool step_up)
 {
 	// Move to the point of collision and reduce dtime by collision.dtime
 	if (collision.dtime < 0) {
