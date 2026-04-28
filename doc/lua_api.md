@@ -9979,12 +9979,12 @@ Player properties need to be saved manually.
     -- If set to true the entity will show as a marker on the minimap.
 
     step_up_mode = "legacy",
-    -- Defaults to 'legacy' for players and entities.
-    -- This field controls the jump and step-up behavior. Option:
-    -- 'legacy': Objects always jolt up on the edge of a node, which increases climbing speed.
-    -- 'floaty': Balance between 'legacy' and 'rigid'. Step-up is only possible when
+    -- Defaults to "legacy" for players and entities.
+    -- This field controls the jump and step-up behavior. Options:
+    -- "legacy": Objects always jolt up on the edge of a node, which increases climbing speed.
+    -- "floaty": Balance between "legacy" and "rigid". Step-up is only possible when
     --   standing on ground or falling. In practice, this allows walking over 1 node gaps.
-    -- 'rigid': Step-up is only possible when standing on ground.
+    -- "rigid": Step-up is only possible when standing on ground.
     --   In practice, you cannot parkour clutch edges of nodes.
     -- Supported by clients >= 5.16.0.
 }
