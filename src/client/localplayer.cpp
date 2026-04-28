@@ -331,14 +331,14 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 	const v3f initial_speed = m_speed;
 
 
-	NewStepUp new_step_up = NewStepUp::LEGACY;
+	StepUpMode step_up_mode = StepUpMode::LEGACY;
 	if (m_cao != nullptr) {
-		new_step_up = m_cao->getProperties().new_step_up;
+		step_up_mode = m_cao->getProperties().step_up_mode;
 	}
 
 	collisionMoveResult result = collisionMoveSimple(env, m_client,
 		m_collisionbox, player_stepheight, dtime,
-		&position, &m_speed, accel_f, m_cao, true, new_step_up);
+		&position, &m_speed, accel_f, m_cao, true, step_up_mode);
 
 	bool could_sneak = control.sneak && !free_move && !in_liquid &&
 		!is_climbing && physics_override.sneak;
@@ -956,14 +956,14 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 	const v3f initial_position = position;
 	const v3f initial_speed = m_speed;
 
-	NewStepUp new_step_up = NewStepUp::LEGACY;
+	StepUpMode step_up_mode = StepUpMode::LEGACY;
 	if (m_cao != nullptr) {
-		new_step_up = m_cao->getProperties().new_step_up;
+		step_up_mode = m_cao->getProperties().step_up_mode;
 	}
 
 	collisionMoveResult result = collisionMoveSimple(env, m_client,
 		m_collisionbox, player_stepheight, dtime,
-		&position, &m_speed, accel_f, m_cao, true, new_step_up);
+		&position, &m_speed, accel_f, m_cao, true, step_up_mode);
 
 	// Position was slightly changed; update standing node pos
 	if (touching_ground)
@@ -1224,15 +1224,15 @@ void LocalPlayer::handleAutojump(f32 dtime, Environment *env,
 	v3f jump_pos = initial_position + v3f(0.0f, jump_height, 0.0f);
 	v3f jump_speed = initial_speed;
 
-	NewStepUp new_step_up = NewStepUp::LEGACY;
+	StepUpMode step_up_mode = StepUpMode::LEGACY;
 	if (m_cao != nullptr) {
-		new_step_up = m_cao->getProperties().new_step_up;
+		step_up_mode = m_cao->getProperties().step_up_mode;
 	}
 
 	// try at peak of jump, zero step height
 	collisionMoveResult jump_result = collisionMoveSimple(env, m_client,
 		m_collisionbox, 0.0f, dtime, &jump_pos, &jump_speed, v3f(0.0f), m_cao, true,
-		new_step_up);
+		step_up_mode);
 
 	// see if we can get a little bit farther horizontally if we had
 	// jumped

@@ -27,11 +27,11 @@ const struct EnumString es_ObjectVisual[] =
 	{0, nullptr},
 };
 
-const struct EnumString es_NewStepUp[] =
+const struct EnumString es_StepUpMode[] =
 {
-	{static_cast<u8>(NewStepUp::LEGACY), "legacy"},
-	{static_cast<u8>(NewStepUp::FLOATY), "floaty"},
-	{static_cast<u8>(NewStepUp::RIGID), "rigid"},
+	{static_cast<u8>(StepUpMode::LEGACY), "legacy"},
+	{static_cast<u8>(StepUpMode::FLOATY), "floaty"},
+	{static_cast<u8>(StepUpMode::RIGID), "rigid"},
 	{0, nullptr},
 };
 
@@ -98,7 +98,7 @@ std::string ObjectProperties::dump() const
 	os << ", shaded=" << shaded;
 	os << ", show_on_minimap=" << show_on_minimap;
 	os << ", nametag_scale_z=" << nametag_scale_z;
-	os << ", new_step_up=" << enum_to_string(es_NewStepUp, new_step_up);
+	os << ", step_up_mode=" << enum_to_string(es_StepUpMode, step_up_mode);
 	return os.str();
 }
 
@@ -115,7 +115,7 @@ static inline auto tie(const ObjectProperties &o)
 	o.node, o.hp_max, o.breath_max, o.glow, o.pointable, o.physical,
 	o.collideWithObjects, o.rotate_selectionbox, o.is_visible, o.makes_footstep_sound,
 	o.automatic_face_movement_dir, o.backface_culling, o.static_save, o.use_texture_alpha,
-	o.shaded, o.show_on_minimap, o.nametag_scale_z, o.new_step_up
+	o.shaded, o.show_on_minimap, o.nametag_scale_z, o.step_up_mode
 	);
 }
 
@@ -225,7 +225,7 @@ void ObjectProperties::serialize(std::ostream &os) const
 		writeU32(os, nametag_fontsize.value());
 
 	writeU8(os, nametag_scale_z);
-	writeU8(os, static_cast<u8>(new_step_up));
+	writeU8(os, static_cast<u8>(step_up_mode));
 
 	// Add stuff only at the bottom.
 	// Never remove anything, because we don't want new versions of this!
@@ -333,7 +333,7 @@ void ObjectProperties::deSerialize(std::istream &is)
 		return;
 	// >= 5.16.0-dev
 
-	new_step_up = static_cast<NewStepUp>(readU8(is));
+	step_up_mode = static_cast<StepUpMode>(readU8(is));
 
 	//if (!canRead(is))
 	//	return;

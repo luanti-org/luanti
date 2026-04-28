@@ -319,7 +319,7 @@ const std::array<const char *, 36> object_property_keys = {
 	// "node" is intentionally not here as it's gated behind `fallback` below!
 	"nametag_fontsize",
 	"nametag_scale_z",
-	"new_step_up"
+	"step_up_mode"
 };
 
 /******************************************************************************/
@@ -519,10 +519,10 @@ void read_object_properties(lua_State *L, int index,
 	getboolfield(L, -1, "show_on_minimap", prop->show_on_minimap);
 
 	// Don't set if nil
-	std::string new_step_up;
-	if (getstringfield(L, -1, "new_step_up", new_step_up)) {
-		if (!string_to_enum(es_NewStepUp, prop->new_step_up, new_step_up)) {
-			throw LuaError("Unsupported new_step_up: " + new_step_up);
+	std::string step_up_mode;
+	if (getstringfield(L, -1, "step_up_mode", step_up_mode)) {
+		if (!string_to_enum(es_StepUpMode, prop->step_up_mode, step_up_mode)) {
+			throw LuaError("Unsupported step_up_mode: " + step_up_mode);
 		}
 	}
 
@@ -634,8 +634,8 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 	lua_setfield(L, -2, "damage_texture_modifier");
 	lua_pushboolean(L, prop->show_on_minimap);
 	lua_setfield(L, -2, "show_on_minimap");
-	lua_pushstring(L, enum_to_string(es_NewStepUp, prop->new_step_up));
-	lua_setfield(L, -2, "new_step_up");
+	lua_pushstring(L, enum_to_string(es_StepUpMode, prop->step_up_mode));
+	lua_setfield(L, -2, "step_up_mode");
 
 	// Remember to update object_property_keys above
 	// when adding a new property

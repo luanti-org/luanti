@@ -9978,7 +9978,7 @@ Player properties need to be saved manually.
     -- Defaults to true for players, false for other entities.
     -- If set to true the entity will show as a marker on the minimap.
 
-    new_step_up = "legacy",
+    step_up_mode = "legacy",
     -- Defaults to 'legacy' for players and entities.
     -- This field controls the jump and step-up behavior. Option:
     -- 'legacy': Objects always jolt up on the edge of a node, which increases climbing speed.
