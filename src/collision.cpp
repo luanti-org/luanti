@@ -84,9 +84,9 @@ class KineticObject
 {
 public:
 	aabb3f collisionbox;
-	v3f *pos;
-	v3f *speed;
-	v3f *accel;
+	v3f pos;
+	v3f speed;
+	v3f accel;
 
 	CollisionMoveResult simulateFor(f32 dtime,
 			std::vector<NearbyCollisionInfo> &cinfo, f32 stepheight,
@@ -134,7 +134,7 @@ inline v3f rangelimv(const v3f vec, const f32 low, const f32 high)
 }
 }
 
-static bool locate_cboxes_in_movement_range(KineticObject collider, f32 dtime,
+static bool locate_cboxes_in_movement_range(KineticObject &collider, f32 dtime,
 		IGameDef *gamedef, Environment *env,
 		std::vector<NearbyCollisionInfo> &cinfo);
 
@@ -471,7 +471,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	thread_local std::vector<NearbyCollisionInfo> cinfo;
 	cinfo.clear();
 
-	KineticObject collider{box_0, pos_f, speed_f, &accel_f};
+	KineticObject collider{box_0, *pos_f, *speed_f, accel_f};
 
 	// Do not move if world has not loaded yet, since custom node boxes
 	// are not available for collision detection.
@@ -491,22 +491,25 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	CollisionMoveResult result =
 			collider.simulateFor(dtime, cinfo, stepheight, step_up_mode);
 
+	*pos_f = collider.pos;
+	*speed_f = collider.speed;
+
 	return result;
 }
 
-bool locate_cboxes_in_movement_range(KineticObject collider, f32 dtime,
+bool locate_cboxes_in_movement_range(KineticObject &collider, f32 dtime,
 		IGameDef *gamedef, Environment *env,
 		std::vector<NearbyCollisionInfo> &cinfo)
 {
 	// Movement if no collisions
-	v3f newpos_f = *collider.pos + *collider.speed * dtime;
-	v3f minpos_f(MYMIN(collider.pos->X, newpos_f.X),
-			MYMIN(collider.pos->Y, newpos_f.Y) +
+	v3f newpos_f = collider.pos + collider.speed * dtime;
+	v3f minpos_f(MYMIN(collider.pos.X, newpos_f.X),
+			MYMIN(collider.pos.Y, newpos_f.Y) +
 					0.01f * BS, // bias rounding, player often at +/-n.5
-			MYMIN(collider.pos->Z, newpos_f.Z));
-	v3f maxpos_f(MYMAX(collider.pos->X, newpos_f.X),
-			MYMAX(collider.pos->Y, newpos_f.Y),
-			MYMAX(collider.pos->Z, newpos_f.Z));
+			MYMIN(collider.pos.Z, newpos_f.Z));
+	v3f maxpos_f(MYMAX(collider.pos.X, newpos_f.X),
+			MYMAX(collider.pos.Y, newpos_f.Y),
+			MYMAX(collider.pos.Z, newpos_f.Z));
 	v3s16 min = floatToInt(minpos_f + collider.collisionbox.MinEdge, BS) -
 				v3s16(1, 1, 1);
 	v3s16 max = floatToInt(maxpos_f + collider.collisionbox.MaxEdge, BS) +
@@ -533,19 +536,19 @@ CollisionMoveResult KineticObject::simulateFor(f32 dtime,
 		v3f const avg_speed_estimate{this->getProjectedAvgSpeed(dtime)};
 
 		MovingBox movingbox{this->collisionbox, avg_speed_estimate};
-		movingbox.box.MinEdge += *this->pos;
-		movingbox.box.MaxEdge += *this->pos;
+		movingbox.box.MinEdge += this->pos;
+		movingbox.box.MaxEdge += this->pos;
 
 		Collision collision = find_nearest_collision(movingbox, cinfo, dtime);
 
 		if (collision.axis == COLLISION_AXIS_NONE) {
 			// No collision with any collision box.
-			*this->pos += avg_speed_estimate * dtime;
+			this->pos += avg_speed_estimate * dtime;
 			// Final speed:
-			*this->speed += *this->accel * dtime;
+			this->speed += this->accel * dtime;
 			// Limit speed for avoiding hangs
-			*this->speed = truncate(
-					rangelimv(*this->speed, -5000.0f, 5000.0f), 10000.0f);
+			this->speed = truncate(
+					rangelimv(this->speed, -5000.0f, 5000.0f), 10000.0f);
 			break;
 		}
 
@@ -575,7 +578,7 @@ CollisionMoveResult KineticObject::simulateFor(f32 dtime,
 
 v3f KineticObject::getProjectedAvgSpeed(f32 dtime) const
 {
-	v3f const avg = *this->speed + *this->accel * 0.5f * dtime;
+	v3f const avg = this->speed + this->accel * 0.5f * dtime;
 	// Limit speed for avoiding hangs
 	return truncate(rangelimv(avg, -5000.0f, 5000.0f), 10000.0f);
 }
@@ -650,26 +653,26 @@ void KineticObject::moveToCollision(
 		// with above and resolve this collision
 		if (!step_up) {
 			if (collision.axis == COLLISION_AXIS_X) {
-				this->pos->X += avg_speed.X * collision.dtime;
+				this->pos.X += avg_speed.X * collision.dtime;
 			}
 			if (collision.axis == COLLISION_AXIS_Y) {
-				this->pos->Y += avg_speed.Y * collision.dtime;
+				this->pos.Y += avg_speed.Y * collision.dtime;
 			}
 			if (collision.axis == COLLISION_AXIS_Z) {
-				this->pos->Z += avg_speed.Z * collision.dtime;
+				this->pos.Z += avg_speed.Z * collision.dtime;
 			}
 		}
 	} else if (collision.dtime > 0) {
 		// updated average speed for the sub-interval up to
 		// collision.dtime
 		v3f const subinterval_avg_speed =
-				*this->speed + *this->accel * 0.5f * collision.dtime;
-		*this->pos += subinterval_avg_speed * collision.dtime;
+				this->speed + this->accel * 0.5f * collision.dtime;
+		this->pos += subinterval_avg_speed * collision.dtime;
 		// Speed at (approximated) collision:
-		*this->speed += *this->accel * collision.dtime;
+		this->speed += this->accel * collision.dtime;
 		// Limit speed for avoiding hangs
-		*this->speed =
-				truncate(rangelimv(*this->speed, -5000.0f, 5000.0f), 10000.0f);
+		this->speed =
+				truncate(rangelimv(this->speed, -5000.0f, 5000.0f), 10000.0f);
 	}
 }
 
@@ -679,7 +682,7 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 {
 	CollisionMoveResult result;
 
-	v3f old_speed_f = *this->speed;
+	v3f old_speed_f = this->speed;
 
 	// Get bounce multiplier
 	float bounce = -(float) nearest_info.bouncy / 100.0f;
@@ -687,24 +690,24 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 	// Set the speed component that caused the collision to zero
 	if (step_up && (step_up_mode == StepUpMode::LEGACY ||
 						   (step_up_mode == StepUpMode::FLOATY &&
-								   this->speed->Y <= 0.0f) ||
+								   this->speed.Y <= 0.0f) ||
 						   (step_up_mode == StepUpMode::RIGID &&
-								   this->speed->Y == 0.0f))) {
+								   this->speed.Y == 0.0f))) {
 		// Special case: Handle stairs
 		nearest_info.is_step_up = true;
 	} else if (collision.axis == COLLISION_AXIS_X) {
-		if (bounce < -1e-4 && fabsf(this->speed->X) > BS * 3) {
-			this->speed->X *= bounce;
+		if (bounce < -1e-4 && fabsf(this->speed.X) > BS * 3) {
+			this->speed.X *= bounce;
 		} else {
-			this->speed->X = 0;
+			this->speed.X = 0;
 			// avoid colliding in the next iterations
-			this->accel->X = 0;
+			this->accel.X = 0;
 		}
 	} else if (collision.axis == COLLISION_AXIS_Y) {
-		if (bounce < -1e-4 && fabsf(this->speed->Y) > BS * 3) {
-			this->speed->Y *= bounce;
+		if (bounce < -1e-4 && fabsf(this->speed.Y) > BS * 3) {
+			this->speed.Y *= bounce;
 		} else {
-			if (this->speed->Y < 0.0f) {
+			if (this->speed.Y < 0.0f) {
 				// FIXME: This code is necessary until
 				// `axisAlignedCollision` takes acceleration
 				// into consideration for the time calculation.
@@ -713,17 +716,17 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 				result.touching_ground    = true;
 				result.standing_on_object = nearest_info.isObject();
 			}
-			this->speed->Y = 0;
+			this->speed.Y = 0;
 			// avoid colliding in the next iterations
-			this->accel->Y = 0;
+			this->accel.Y = 0;
 		}
 	} else { /* collision.axis == COLLISION_AXIS_Z */
-		if (bounce < -1e-4 && fabsf(this->speed->Z) > BS * 3) {
-			this->speed->Z *= bounce;
+		if (bounce < -1e-4 && fabsf(this->speed.Z) > BS * 3) {
+			this->speed.Z *= bounce;
 		} else {
-			this->speed->Z = 0;
+			this->speed.Z = 0;
 			// avoid colliding in the next iterations
-			this->accel->Z = 0;
+			this->accel.Z = 0;
 		}
 	}
 
@@ -733,9 +736,9 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 		info.type = nearest_info.isObject() ? COLLISION_OBJECT : COLLISION_NODE;
 		info.node_p    = nearest_info.position;
 		info.object    = nearest_info.obj;
-		info.new_pos   = *this->pos;
+		info.new_pos   = this->pos;
 		info.old_speed = old_speed_f;
-		info.new_speed = *this->speed;
+		info.new_speed = this->speed;
 		result.collisions.push_back(info);
 	}
 
@@ -749,8 +752,8 @@ void KineticObject::stepUpStairs(std::vector<NearbyCollisionInfo> const &cinfo,
 		Final touches: Check if standing on ground, step up stairs.
 	*/
 	aabb3f box = this->collisionbox;
-	box.MinEdge += *this->pos;
-	box.MaxEdge += *this->pos;
+	box.MinEdge += this->pos;
+	box.MaxEdge += this->pos;
 	for (auto const &box_info : cinfo) {
 		aabb3f const &cbox = box_info.box;
 
@@ -767,10 +770,10 @@ void KineticObject::stepUpStairs(std::vector<NearbyCollisionInfo> const &cinfo,
 				cbox.MaxEdge.Z - g_mystery_constant > box.MinEdge.Z &&
 				cbox.MinEdge.Z + g_mystery_constant < box.MaxEdge.Z) {
 			if (box_info.is_step_up) {
-				this->pos->Y += cbox.MaxEdge.Y - box.MinEdge.Y;
+				this->pos.Y += cbox.MaxEdge.Y - box.MinEdge.Y;
 				box = this->collisionbox;
-				box.MinEdge += *this->pos;
-				box.MaxEdge += *this->pos;
+				box.MinEdge += this->pos;
+				box.MaxEdge += this->pos;
 			}
 			if (std::fabs(cbox.MaxEdge.Y - box.MinEdge.Y) < 0.05f) {
 				// This is code is technically only required if
