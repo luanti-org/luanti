@@ -526,7 +526,7 @@ CollisionMoveResult KineticObject::simulateFor(f32 dtime,
 
 	for (int loopcount = 0;; loopcount++) {
 		if (loopcount >= 100) {
-			warningstream << "collisionMoveSimple: Loop count exceeded, "
+			warningstream << "KineticObject::simulateFor: Loop count exceeded, "
 							 "aborting to avoid infinite loop"
 						  << std::endl;
 			g_collision_problems_encountered = true;
