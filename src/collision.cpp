@@ -80,14 +80,19 @@ struct KineticBox
 	v3f avg_speed;
 };
 
-struct KineticObject
+class KineticObject
 {
+public:
 	aabb3f collisionbox;
 	v3f *pos;
 	v3f *speed;
 	v3f *avg_speed;
 	v3f *accel;
 
+	collisionMoveResult simulateFor(std::vector<NearbyCollisionInfo> &cinfo,
+			f32 stepheight, StepUpMode step_up_mode, f32 dtime);
+
+private:
 	void moveToCollision(Collision collision, f32 &dtime, bool step_up);
 
 	CollisionMoveResult collideWith(Collision collision,
@@ -125,10 +130,6 @@ inline v3f rangelimv(const v3f vec, const f32 low, const f32 high)
 static bool locate_cboxes_in_movement_range(KineticObject collider, f32 dtime,
 		IGameDef *gamedef, Environment *env,
 		std::vector<NearbyCollisionInfo> &cinfo);
-
-collisionMoveResult simulate_for(KineticObject &collider,
-		std::vector<NearbyCollisionInfo> &cinfo, f32 stepheight,
-		StepUpMode step_up_mode, f32 dtime);
 
 static bool should_step_up(KineticBox const &movingbox, f32 dtime,
 		Collision collision, f32 stepheight,
@@ -486,7 +487,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	}
 
 	CollisionMoveResult result =
-			simulate_for(collider, cinfo, stepheight, step_up_mode, dtime);
+			collider.simulateFor(cinfo, stepheight, step_up_mode, dtime);
 
 	/*
 		Final touches: Check if standing on ground, step up stairs.
@@ -548,7 +549,7 @@ bool locate_cboxes_in_movement_range(KineticObject collider, f32 dtime,
 	return add_area_node_boxes(min, max, gamedef, env, cinfo);
 }
 
-collisionMoveResult simulate_for(KineticObject &collider,
+collisionMoveResult KineticObject::simulateFor(
 		std::vector<NearbyCollisionInfo> &cinfo, f32 stepheight,
 		StepUpMode step_up_mode, f32 dtime)
 {
@@ -563,20 +564,20 @@ collisionMoveResult simulate_for(KineticObject &collider,
 			break;
 		}
 
-		KineticBox movingbox{collider.collisionbox, *collider.avg_speed};
-		movingbox.box.MinEdge += *collider.pos;
-		movingbox.box.MaxEdge += *collider.pos;
+		KineticBox movingbox{this->collisionbox, *this->avg_speed};
+		movingbox.box.MinEdge += *this->pos;
+		movingbox.box.MaxEdge += *this->pos;
 
 		Collision collision = find_nearest_collision(movingbox, cinfo, dtime);
 
 		if (collision.axis == COLLISION_AXIS_NONE) {
 			// No collision with any collision box.
-			*collider.pos += *collider.avg_speed * dtime;
+			*this->pos += *this->avg_speed * dtime;
 			// Final speed:
-			*collider.speed += *collider.accel * dtime;
+			*this->speed += *this->accel * dtime;
 			// Limit speed for avoiding hangs
-			*collider.speed = truncate(
-					rangelimv(*collider.speed, -5000.0f, 5000.0f), 10000.0f);
+			*this->speed = truncate(
+					rangelimv(*this->speed, -5000.0f, 5000.0f), 10000.0f);
 			break;
 		}
 
@@ -587,9 +588,9 @@ collisionMoveResult simulate_for(KineticObject &collider,
 		bool step_up =
 				should_step_up(movingbox, dtime, collision, stepheight, cinfo);
 
-		collider.moveToCollision(collision, dtime, step_up);
+		this->moveToCollision(collision, dtime, step_up);
 
-		result = collider.collideWith(
+		result = this->collideWith(
 				collision, nearest_info, step_up, step_up_mode);
 
 		if (dtime < BS * 1e-10f) {
@@ -597,10 +598,10 @@ collisionMoveResult simulate_for(KineticObject &collider,
 		}
 
 		// Speed for finding the next collision
-		*collider.avg_speed = *collider.speed + *collider.accel * 0.5f * dtime;
+		*this->avg_speed = *this->speed + *this->accel * 0.5f * dtime;
 		// Limit speed for avoiding hangs
-		*collider.avg_speed = truncate(
-				rangelimv(*collider.avg_speed, -5000.0f, 5000.0f), 10000.0f);
+		*this->avg_speed = truncate(
+				rangelimv(*this->avg_speed, -5000.0f, 5000.0f), 10000.0f);
 	}
 
 	return result;
