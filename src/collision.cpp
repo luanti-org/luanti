@@ -86,15 +86,17 @@ public:
 	aabb3f collisionbox;
 	v3f *pos;
 	v3f *speed;
-	v3f *avg_speed;
 	v3f *accel;
 
 	collisionMoveResult simulateFor(f32 dtime,
 			std::vector<NearbyCollisionInfo> &cinfo, f32 stepheight,
 			StepUpMode step_up_mode);
 
+	v3f getProjectedAvgSpeed(f32 dtime) const;
+
 private:
-	void moveToCollision(Collision collision, f32 dtime, bool step_up);
+	void moveToCollision(
+			Collision collision, v3f avg_speed, f32 dtime, bool step_up);
 
 	CollisionMoveResult collideWith(Collision collision,
 			NearbyCollisionInfo &nearest_info, bool step_up,
@@ -459,18 +461,13 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		time_notification_done = false;
 	}
 
-	// Average speed
-	v3f aspeed_f = *speed_f + accel_f * 0.5f * dtime;
-	// Limit speed for avoiding hangs
-	aspeed_f = truncate(rangelimv(aspeed_f, -5000.0f, 5000.0f), 10000.0f);
-
 	// Collect node boxes in movement range
 
 	// cached allocation
 	thread_local std::vector<NearbyCollisionInfo> cinfo;
 	cinfo.clear();
 
-	KineticObject collider{box_0, pos_f, speed_f, &aspeed_f, &accel_f};
+	KineticObject collider{box_0, pos_f, speed_f, &accel_f};
 
 	// Do not move if world has not loaded yet, since custom node boxes
 	// are not available for collision detection.
@@ -484,7 +481,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 
 	// Collect object boxes in movement range
 	if (collide_with_objects) {
-		add_object_boxes(env, box_0, dtime, *pos_f, aspeed_f, self, cinfo);
+		add_object_boxes(env, box_0, dtime, *pos_f, collider.getProjectedAvgSpeed(dtime), self, cinfo);
 	}
 
 	CollisionMoveResult result =
@@ -565,7 +562,9 @@ collisionMoveResult KineticObject::simulateFor(f32 dtime,
 			break;
 		}
 
-		KineticBox movingbox{this->collisionbox, *this->avg_speed};
+		v3f const avg_speed_estimate{this->getProjectedAvgSpeed(dtime)};
+
+		KineticBox movingbox{this->collisionbox, avg_speed_estimate};
 		movingbox.box.MinEdge += *this->pos;
 		movingbox.box.MaxEdge += *this->pos;
 
@@ -573,7 +572,7 @@ collisionMoveResult KineticObject::simulateFor(f32 dtime,
 
 		if (collision.axis == COLLISION_AXIS_NONE) {
 			// No collision with any collision box.
-			*this->pos += *this->avg_speed * dtime;
+			*this->pos += avg_speed_estimate * dtime;
 			// Final speed:
 			*this->speed += *this->accel * dtime;
 			// Limit speed for avoiding hangs
@@ -589,7 +588,7 @@ collisionMoveResult KineticObject::simulateFor(f32 dtime,
 		bool step_up =
 				should_step_up(movingbox, dtime, collision, stepheight, cinfo);
 
-		this->moveToCollision(collision, dtime, step_up);
+		this->moveToCollision(collision, avg_speed_estimate, dtime, step_up);
 		dtime -= collision.dtime;
 
 		result = this->collideWith(
@@ -598,15 +597,16 @@ collisionMoveResult KineticObject::simulateFor(f32 dtime,
 		if (dtime < BS * 1e-10f) {
 			break;
 		}
-
-		// Speed for finding the next collision
-		*this->avg_speed = *this->speed + *this->accel * 0.5f * dtime;
-		// Limit speed for avoiding hangs
-		*this->avg_speed = truncate(
-				rangelimv(*this->avg_speed, -5000.0f, 5000.0f), 10000.0f);
 	}
 
 	return result;
+}
+
+v3f KineticObject::getProjectedAvgSpeed(f32 dtime) const
+{
+	v3f const avg = *this->speed + *this->accel * 0.5f * dtime;
+	// Limit speed for avoiding hangs
+	return truncate(rangelimv(avg, -5000.0f, 5000.0f), 10000.0f);
 }
 
 bool should_step_up(KineticBox const &movingbox, f32 dtime, Collision collision,
@@ -669,7 +669,7 @@ Collision find_nearest_collision(KineticBox const &movingbox,
 }
 
 void KineticObject::moveToCollision(
-		Collision collision, f32 dtime, bool step_up)
+		Collision collision, v3f avg_speed, f32 dtime, bool step_up)
 {
 	// Move to the point of collision and reduce dtime by collision.dtime
 	if (collision.dtime < 0) {
@@ -679,20 +679,21 @@ void KineticObject::moveToCollision(
 		// with above and resolve this collision
 		if (!step_up) {
 			if (collision.axis == COLLISION_AXIS_X) {
-				this->pos->X += this->avg_speed->X * collision.dtime;
+				this->pos->X += avg_speed.X * collision.dtime;
 			}
 			if (collision.axis == COLLISION_AXIS_Y) {
-				this->pos->Y += this->avg_speed->Y * collision.dtime;
+				this->pos->Y += avg_speed.Y * collision.dtime;
 			}
 			if (collision.axis == COLLISION_AXIS_Z) {
-				this->pos->Z += this->avg_speed->Z * collision.dtime;
+				this->pos->Z += avg_speed.Z * collision.dtime;
 			}
 		}
 	} else if (collision.dtime > 0) {
 		// updated average speed for the sub-interval up to
 		// collision.dtime
-		*this->avg_speed = *this->speed + *this->accel * 0.5f * collision.dtime;
-		*this->pos += *this->avg_speed * collision.dtime;
+		v3f const subinterval_avg_speed =
+				*this->speed + *this->accel * 0.5f * collision.dtime;
+		*this->pos += subinterval_avg_speed * collision.dtime;
 		// Speed at (approximated) collision:
 		*this->speed += *this->accel * collision.dtime;
 		// Limit speed for avoiding hangs
