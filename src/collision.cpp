@@ -77,7 +77,7 @@ struct Collision
 struct MovingBox
 {
 	aabb3f box;
-	v3f avg_speed;
+	v3f velocity;
 };
 
 class KineticObject
@@ -592,10 +592,10 @@ bool should_step_up(MovingBox const &movingbox, f32 dtime, Collision collision,
 		// otherwise, might allow glitches such as a stack of stairs
 		float extra_dtime =
 				collision.dtime + 0.1f * fabsf(dtime - collision.dtime);
-		stepbox.MinEdge.X += movingbox.avg_speed.X * extra_dtime;
-		stepbox.MinEdge.Z += movingbox.avg_speed.Z * extra_dtime;
-		stepbox.MaxEdge.X += movingbox.avg_speed.X * extra_dtime;
-		stepbox.MaxEdge.Z += movingbox.avg_speed.Z * extra_dtime;
+		stepbox.MinEdge.X += movingbox.velocity.X * extra_dtime;
+		stepbox.MinEdge.Z += movingbox.velocity.Z * extra_dtime;
+		stepbox.MaxEdge.X += movingbox.velocity.X * extra_dtime;
+		stepbox.MaxEdge.Z += movingbox.velocity.Z * extra_dtime;
 		// Check for stairs.
 		aabb3f const &cbox = cinfo[collision.boxindex].box;
 		return (movingbox.box.MinEdge.Y < cbox.MaxEdge.Y) &&
@@ -626,7 +626,7 @@ Collision find_nearest_collision(MovingBox const &movingbox,
 		// Find nearest collision of the two boxes (raytracing-like)
 		f32 dtime_tmp          = nearest_dtime;
 		CollisionAxis collided = axisAlignedCollision(
-				box_info.box, movingbox.box, movingbox.avg_speed, &dtime_tmp);
+				box_info.box, movingbox.box, movingbox.velocity, &dtime_tmp);
 		if (collided == -1 || dtime_tmp >= nearest_dtime) {
 			continue;
 		}
