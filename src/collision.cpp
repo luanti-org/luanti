@@ -85,7 +85,7 @@ class KineticObject
 public:
 	aabb3f collisionbox;
 	v3f pos;
-	v3f speed;
+	v3f velocity;
 	v3f accel;
 
 	CollisionMoveResult simulateFor(f32 dtime,
@@ -492,7 +492,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 			collider.simulateFor(dtime, cinfo, stepheight, step_up_mode);
 
 	*pos_f = collider.pos;
-	*speed_f = collider.speed;
+	*speed_f = collider.velocity;
 
 	return result;
 }
@@ -502,7 +502,7 @@ bool locate_cboxes_in_movement_range(KineticObject &collider, f32 dtime,
 		std::vector<NearbyCollisionInfo> &cinfo)
 {
 	// Movement if no collisions
-	v3f newpos_f = collider.pos + collider.speed * dtime;
+	v3f newpos_f = collider.pos + collider.velocity * dtime;
 	v3f minpos_f(MYMIN(collider.pos.X, newpos_f.X),
 			MYMIN(collider.pos.Y, newpos_f.Y) +
 					0.01f * BS, // bias rounding, player often at +/-n.5
@@ -546,10 +546,10 @@ CollisionMoveResult KineticObject::simulateFor(f32 dtime,
 			// No collision with any collision box.
 			this->pos += avg_speed_estimate * dtime;
 			// Final speed:
-			this->speed += this->accel * dtime;
+			this->velocity += this->accel * dtime;
 			// Limit speed for avoiding hangs
-			this->speed = truncate(
-					rangelimv(this->speed, -5000.0f, 5000.0f), 10000.0f);
+			this->velocity = truncate(
+					rangelimv(this->velocity, -5000.0f, 5000.0f), 10000.0f);
 			break;
 		}
 
@@ -579,7 +579,7 @@ CollisionMoveResult KineticObject::simulateFor(f32 dtime,
 
 v3f KineticObject::getProjectedAvgSpeed(f32 dtime) const
 {
-	v3f const avg = this->speed + this->accel * 0.5f * dtime;
+	v3f const avg = this->velocity + this->accel * 0.5f * dtime;
 	// Limit speed for avoiding hangs
 	return truncate(rangelimv(avg, -5000.0f, 5000.0f), 10000.0f);
 }
@@ -667,13 +667,13 @@ void KineticObject::moveToCollision(
 		// updated average speed for the sub-interval up to
 		// collision.dtime
 		v3f const subinterval_avg_speed =
-				this->speed + this->accel * 0.5f * collision.dtime;
+				this->velocity + this->accel * 0.5f * collision.dtime;
 		this->pos += subinterval_avg_speed * collision.dtime;
 		// Speed at (approximated) collision:
-		this->speed += this->accel * collision.dtime;
+		this->velocity += this->accel * collision.dtime;
 		// Limit speed for avoiding hangs
-		this->speed =
-				truncate(rangelimv(this->speed, -5000.0f, 5000.0f), 10000.0f);
+		this->velocity =
+				truncate(rangelimv(this->velocity, -5000.0f, 5000.0f), 10000.0f);
 	}
 }
 
@@ -683,7 +683,7 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 {
 	CollisionMoveResult result;
 
-	v3f old_speed_f = this->speed;
+	v3f old_speed_f = this->velocity;
 
 	// Get bounce multiplier
 	float bounce = -(float) nearest_info.bouncy / 100.0f;
@@ -691,24 +691,24 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 	// Set the speed component that caused the collision to zero
 	if (step_up && (step_up_mode == StepUpMode::LEGACY ||
 						   (step_up_mode == StepUpMode::FLOATY &&
-								   this->speed.Y <= 0.0f) ||
+								   this->velocity.Y <= 0.0f) ||
 						   (step_up_mode == StepUpMode::RIGID &&
-								   this->speed.Y == 0.0f))) {
+								   this->velocity.Y == 0.0f))) {
 		// Special case: Handle stairs
 		nearest_info.is_step_up = true;
 	} else if (collision.axis == COLLISION_AXIS_X) {
-		if (bounce < -1e-4 && fabsf(this->speed.X) > BS * 3) {
-			this->speed.X *= bounce;
+		if (bounce < -1e-4 && fabsf(this->velocity.X) > BS * 3) {
+			this->velocity.X *= bounce;
 		} else {
-			this->speed.X = 0;
+			this->velocity.X = 0;
 			// avoid colliding in the next iterations
 			this->accel.X = 0;
 		}
 	} else if (collision.axis == COLLISION_AXIS_Y) {
-		if (bounce < -1e-4 && fabsf(this->speed.Y) > BS * 3) {
-			this->speed.Y *= bounce;
+		if (bounce < -1e-4 && fabsf(this->velocity.Y) > BS * 3) {
+			this->velocity.Y *= bounce;
 		} else {
-			if (this->speed.Y < 0.0f) {
+			if (this->velocity.Y < 0.0f) {
 				// FIXME: This code is necessary until
 				// `axisAlignedCollision` takes acceleration
 				// into consideration for the time calculation.
@@ -717,15 +717,15 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 				result.touching_ground    = true;
 				result.standing_on_object = nearest_info.isObject();
 			}
-			this->speed.Y = 0;
+			this->velocity.Y = 0;
 			// avoid colliding in the next iterations
 			this->accel.Y = 0;
 		}
 	} else { /* collision.axis == COLLISION_AXIS_Z */
-		if (bounce < -1e-4 && fabsf(this->speed.Z) > BS * 3) {
-			this->speed.Z *= bounce;
+		if (bounce < -1e-4 && fabsf(this->velocity.Z) > BS * 3) {
+			this->velocity.Z *= bounce;
 		} else {
-			this->speed.Z = 0;
+			this->velocity.Z = 0;
 			// avoid colliding in the next iterations
 			this->accel.Z = 0;
 		}
@@ -739,7 +739,7 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 		info.object    = nearest_info.obj;
 		info.new_pos   = this->pos;
 		info.old_speed = old_speed_f;
-		info.new_speed = this->speed;
+		info.new_speed = this->velocity;
 		result.collisions.push_back(info);
 	}
 
