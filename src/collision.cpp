@@ -125,6 +125,10 @@ static bool locate_cboxes_in_movement_range(KineticObject collider,
 		aabb3f box_0, f32 dtime, IGameDef *gamedef, Environment *env,
 		std::vector<NearbyCollisionInfo> &cinfo);
 
+collisionMoveResult simulate_for(KineticObject &collider, aabb3f const &box_0,
+		std::vector<NearbyCollisionInfo> &cinfo, f32 stepheight,
+		StepUpMode step_up_mode, f32 dtime);
+
 static bool should_step_up(KineticBox const &movingbox, f32 dtime,
 		Collision collision, f32 stepheight,
 		std::vector<NearbyCollisionInfo> const &cinfo);
@@ -433,8 +437,6 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 
 	ScopeProfiler sp(g_profiler, PROFILER_NAME("collisionMoveSimple()"), SPT_AVG, PRECISION_MICRO);
 
-	CollisionMoveResult result;
-
 	// Assume no collisions when no velocity and no acceleration
 	if (*speed_f == v3f() && accel_f == v3f())
 		return CollisionMoveResult{};
@@ -482,48 +484,8 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		add_object_boxes(env, box_0, dtime, *pos_f, aspeed_f, self, cinfo);
 	}
 
-	for (int loopcount = 0;; loopcount++) {
-		if (loopcount >= 100) {
-			warningstream << "collisionMoveSimple: Loop count exceeded, aborting to avoid infinite loop" << std::endl;
-			g_collision_problems_encountered = true;
-			break;
-		}
-
-		KineticBox movingbox{box_0, aspeed_f};
-		movingbox.box.MinEdge += *pos_f;
-		movingbox.box.MaxEdge += *pos_f;
-
-		Collision collision = find_nearest_collision(movingbox, cinfo, dtime);
-
-		if (collision.axis == COLLISION_AXIS_NONE) {
-			// No collision with any collision box.
-			*pos_f += aspeed_f * dtime;
-			// Final speed:
-			*speed_f += accel_f * dtime;
-			// Limit speed for avoiding hangs
-			*speed_f = truncate(rangelimv(*speed_f, -5000.0f, 5000.0f), 10000.0f);
-			break;
-		}
-
-		assert(!std::isinf(collision.dtime) && !std::isnan(collision.dtime));
-		// Otherwise, a collision occurred.
-		NearbyCollisionInfo &nearest_info = cinfo[collision.boxindex];
-
-		bool step_up = should_step_up(movingbox, dtime, collision, stepheight, cinfo);
-
-		collider.moveToCollision(collision, dtime, step_up);
-
-		result = collider.collideWith(
-				collision, nearest_info, step_up, step_up_mode);
-
-		if (dtime < BS * 1e-10f)
-			break;
-
-		// Speed for finding the next collision
-		aspeed_f = *speed_f + accel_f * 0.5f * dtime;
-		// Limit speed for avoiding hangs
-		aspeed_f = truncate(rangelimv(aspeed_f, -5000.0f, 5000.0f), 10000.0f);
-	}
+	CollisionMoveResult result = simulate_for(
+			collider, box_0, cinfo, stepheight, step_up_mode, dtime);
 
 	/*
 		Final touches: Check if standing on ground, step up stairs.
@@ -581,6 +543,64 @@ bool locate_cboxes_in_movement_range(KineticObject collider, aabb3f box_0,
 	v3s16 max = floatToInt(maxpos_f + box_0.MaxEdge, BS) + v3s16(1, 1, 1);
 
 	return add_area_node_boxes(min, max, gamedef, env, cinfo);
+}
+
+collisionMoveResult simulate_for(KineticObject &collider, aabb3f const &box_0,
+		std::vector<NearbyCollisionInfo> &cinfo, f32 stepheight,
+		StepUpMode step_up_mode, f32 dtime)
+{
+	collisionMoveResult result;
+
+	for (int loopcount = 0;; loopcount++) {
+		if (loopcount >= 100) {
+			warningstream << "collisionMoveSimple: Loop count exceeded, "
+							 "aborting to avoid infinite loop"
+						  << std::endl;
+			g_collision_problems_encountered = true;
+			break;
+		}
+
+		KineticBox movingbox{box_0, *collider.avg_speed};
+		movingbox.box.MinEdge += *collider.pos;
+		movingbox.box.MaxEdge += *collider.pos;
+
+		Collision collision = find_nearest_collision(movingbox, cinfo, dtime);
+
+		if (collision.axis == COLLISION_AXIS_NONE) {
+			// No collision with any collision box.
+			*collider.pos += *collider.avg_speed * dtime;
+			// Final speed:
+			*collider.speed += *collider.accel * dtime;
+			// Limit speed for avoiding hangs
+			*collider.speed = truncate(
+					rangelimv(*collider.speed, -5000.0f, 5000.0f), 10000.0f);
+			break;
+		}
+
+		assert(!std::isinf(collision.dtime) && !std::isnan(collision.dtime));
+		// Otherwise, a collision occurred.
+		NearbyCollisionInfo &nearest_info = cinfo[collision.boxindex];
+
+		bool step_up =
+				should_step_up(movingbox, dtime, collision, stepheight, cinfo);
+
+		collider.moveToCollision(collision, dtime, step_up);
+
+		result = collider.collideWith(
+				collision, nearest_info, step_up, step_up_mode);
+
+		if (dtime < BS * 1e-10f) {
+			break;
+		}
+
+		// Speed for finding the next collision
+		*collider.avg_speed = *collider.speed + *collider.accel * 0.5f * dtime;
+		// Limit speed for avoiding hangs
+		*collider.avg_speed = truncate(
+				rangelimv(*collider.avg_speed, -5000.0f, 5000.0f), 10000.0f);
+	}
+
+	return result;
 }
 
 bool should_step_up(KineticBox const &movingbox, f32 dtime, Collision collision,
