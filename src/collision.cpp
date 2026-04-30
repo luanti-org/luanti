@@ -89,8 +89,9 @@ public:
 	v3f *avg_speed;
 	v3f *accel;
 
-	collisionMoveResult simulateFor(std::vector<NearbyCollisionInfo> &cinfo,
-			f32 stepheight, StepUpMode step_up_mode, f32 dtime);
+	collisionMoveResult simulateFor(f32 dtime,
+			std::vector<NearbyCollisionInfo> &cinfo, f32 stepheight,
+			StepUpMode step_up_mode);
 
 private:
 	void moveToCollision(Collision collision, f32 &dtime, bool step_up);
@@ -487,7 +488,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	}
 
 	CollisionMoveResult result =
-			collider.simulateFor(cinfo, stepheight, step_up_mode, dtime);
+			collider.simulateFor(dtime, cinfo, stepheight, step_up_mode);
 
 	/*
 		Final touches: Check if standing on ground, step up stairs.
@@ -549,9 +550,9 @@ bool locate_cboxes_in_movement_range(KineticObject collider, f32 dtime,
 	return add_area_node_boxes(min, max, gamedef, env, cinfo);
 }
 
-collisionMoveResult KineticObject::simulateFor(
+collisionMoveResult KineticObject::simulateFor(f32 dtime,
 		std::vector<NearbyCollisionInfo> &cinfo, f32 stepheight,
-		StepUpMode step_up_mode, f32 dtime)
+		StepUpMode step_up_mode)
 {
 	collisionMoveResult result;
 
