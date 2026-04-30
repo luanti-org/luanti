@@ -528,7 +528,7 @@ CollisionMoveResult KineticObject::simulateFor(f32 dtime,
 		if (loopcount >= 100) {
 			warningstream << "KineticObject::simulateFor: Loop count exceeded, "
 							 "aborting to avoid infinite loop"
-						  << std::endl;
+					<< std::endl;
 			g_collision_problems_encountered = true;
 			break;
 		}
@@ -690,10 +690,10 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 
 	// Set the speed component that caused the collision to zero
 	if (step_up && (step_up_mode == StepUpMode::LEGACY ||
-						   (step_up_mode == StepUpMode::FLOATY &&
-								   this->velocity.Y <= 0.0f) ||
-						   (step_up_mode == StepUpMode::RIGID &&
-								   this->velocity.Y == 0.0f))) {
+			(step_up_mode == StepUpMode::FLOATY &&
+					this->velocity.Y <= 0.0f) ||
+			(step_up_mode == StepUpMode::RIGID &&
+					this->velocity.Y == 0.0f))) {
 		// Special case: Handle stairs
 		nearest_info.is_step_up = true;
 	} else if (collision.axis == COLLISION_AXIS_X) {
