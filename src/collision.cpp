@@ -94,7 +94,7 @@ public:
 			StepUpMode step_up_mode);
 
 private:
-	void moveToCollision(Collision collision, f32 &dtime, bool step_up);
+	void moveToCollision(Collision collision, f32 dtime, bool step_up);
 
 	CollisionMoveResult collideWith(Collision collision,
 			NearbyCollisionInfo &nearest_info, bool step_up,
@@ -590,6 +590,7 @@ collisionMoveResult KineticObject::simulateFor(f32 dtime,
 				should_step_up(movingbox, dtime, collision, stepheight, cinfo);
 
 		this->moveToCollision(collision, dtime, step_up);
+		dtime -= collision.dtime;
 
 		result = this->collideWith(
 				collision, nearest_info, step_up, step_up_mode);
@@ -668,7 +669,7 @@ Collision find_nearest_collision(KineticBox const &movingbox,
 }
 
 void KineticObject::moveToCollision(
-		Collision collision, f32 &dtime, bool step_up)
+		Collision collision, f32 dtime, bool step_up)
 {
 	// Move to the point of collision and reduce dtime by collision.dtime
 	if (collision.dtime < 0) {
@@ -697,7 +698,6 @@ void KineticObject::moveToCollision(
 		// Limit speed for avoiding hangs
 		*this->speed =
 				truncate(rangelimv(*this->speed, -5000.0f, 5000.0f), 10000.0f);
-		dtime -= collision.dtime;
 	}
 }
 
