@@ -82,6 +82,7 @@ struct KineticBox
 
 struct KineticObject
 {
+	aabb3f collisionbox;
 	v3f *pos;
 	v3f *speed;
 	v3f *avg_speed;
@@ -121,11 +122,11 @@ inline v3f rangelimv(const v3f vec, const f32 low, const f32 high)
 }
 }
 
-static bool locate_cboxes_in_movement_range(KineticObject collider,
-		aabb3f box_0, f32 dtime, IGameDef *gamedef, Environment *env,
+static bool locate_cboxes_in_movement_range(KineticObject collider, f32 dtime,
+		IGameDef *gamedef, Environment *env,
 		std::vector<NearbyCollisionInfo> &cinfo);
 
-collisionMoveResult simulate_for(KineticObject &collider, aabb3f const &box_0,
+collisionMoveResult simulate_for(KineticObject &collider,
 		std::vector<NearbyCollisionInfo> &cinfo, f32 stepheight,
 		StepUpMode step_up_mode, f32 dtime);
 
@@ -467,14 +468,14 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	thread_local std::vector<NearbyCollisionInfo> cinfo;
 	cinfo.clear();
 
-	KineticObject collider{pos_f, speed_f, &aspeed_f, &accel_f};
+	KineticObject collider{box_0, pos_f, speed_f, &aspeed_f, &accel_f};
 
 	// Do not move if world has not loaded yet, since custom node boxes
 	// are not available for collision detection.
 	// This also intentionally occurs in the case of the object being positioned
 	// solely on loaded CONTENT_IGNORE nodes, no matter where they come from.
 	if (!locate_cboxes_in_movement_range(
-				collider, box_0, dtime, gamedef, env, cinfo)) {
+				collider, dtime, gamedef, env, cinfo)) {
 		*speed_f = v3f(0, 0, 0);
 		return CollisionMoveResult{};
 	}
@@ -484,8 +485,8 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		add_object_boxes(env, box_0, dtime, *pos_f, aspeed_f, self, cinfo);
 	}
 
-	CollisionMoveResult result = simulate_for(
-			collider, box_0, cinfo, stepheight, step_up_mode, dtime);
+	CollisionMoveResult result =
+			simulate_for(collider, cinfo, stepheight, step_up_mode, dtime);
 
 	/*
 		Final touches: Check if standing on ground, step up stairs.
@@ -526,8 +527,8 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	return result;
 }
 
-bool locate_cboxes_in_movement_range(KineticObject collider, aabb3f box_0,
-		f32 dtime, IGameDef *gamedef, Environment *env,
+bool locate_cboxes_in_movement_range(KineticObject collider, f32 dtime,
+		IGameDef *gamedef, Environment *env,
 		std::vector<NearbyCollisionInfo> &cinfo)
 {
 	// Movement if no collisions
@@ -539,13 +540,15 @@ bool locate_cboxes_in_movement_range(KineticObject collider, aabb3f box_0,
 	v3f maxpos_f(MYMAX(collider.pos->X, newpos_f.X),
 			MYMAX(collider.pos->Y, newpos_f.Y),
 			MYMAX(collider.pos->Z, newpos_f.Z));
-	v3s16 min = floatToInt(minpos_f + box_0.MinEdge, BS) - v3s16(1, 1, 1);
-	v3s16 max = floatToInt(maxpos_f + box_0.MaxEdge, BS) + v3s16(1, 1, 1);
+	v3s16 min = floatToInt(minpos_f + collider.collisionbox.MinEdge, BS) -
+				v3s16(1, 1, 1);
+	v3s16 max = floatToInt(maxpos_f + collider.collisionbox.MaxEdge, BS) +
+				v3s16(1, 1, 1);
 
 	return add_area_node_boxes(min, max, gamedef, env, cinfo);
 }
 
-collisionMoveResult simulate_for(KineticObject &collider, aabb3f const &box_0,
+collisionMoveResult simulate_for(KineticObject &collider,
 		std::vector<NearbyCollisionInfo> &cinfo, f32 stepheight,
 		StepUpMode step_up_mode, f32 dtime)
 {
@@ -560,7 +563,7 @@ collisionMoveResult simulate_for(KineticObject &collider, aabb3f const &box_0,
 			break;
 		}
 
-		KineticBox movingbox{box_0, *collider.avg_speed};
+		KineticBox movingbox{collider.collisionbox, *collider.avg_speed};
 		movingbox.box.MinEdge += *collider.pos;
 		movingbox.box.MaxEdge += *collider.pos;
 
