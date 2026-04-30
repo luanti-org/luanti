@@ -539,7 +539,8 @@ CollisionMoveResult KineticObject::simulateFor(f32 dtime,
 		movingbox.box.MinEdge += this->pos;
 		movingbox.box.MaxEdge += this->pos;
 
-		Collision collision = find_nearest_collision(movingbox, cinfo, dtime);
+		Collision const collision =
+				find_nearest_collision(movingbox, cinfo, dtime);
 
 		if (collision.axis == COLLISION_AXIS_NONE) {
 			// No collision with any collision box.
@@ -556,7 +557,7 @@ CollisionMoveResult KineticObject::simulateFor(f32 dtime,
 		// Otherwise, a collision occurred.
 		NearbyCollisionInfo &nearest_info = cinfo[collision.boxindex];
 
-		bool step_up =
+		bool const step_up =
 				should_step_up(movingbox, dtime, collision, stepheight, cinfo);
 
 		this->moveToCollision(collision, avg_speed_estimate, dtime, step_up);
