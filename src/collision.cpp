@@ -88,7 +88,7 @@ public:
 	v3f *speed;
 	v3f *accel;
 
-	collisionMoveResult simulateFor(f32 dtime,
+	CollisionMoveResult simulateFor(f32 dtime,
 			std::vector<NearbyCollisionInfo> &cinfo, f32 stepheight,
 			StepUpMode step_up_mode);
 
@@ -101,6 +101,10 @@ private:
 	CollisionMoveResult collideWith(Collision collision,
 			NearbyCollisionInfo &nearest_info, bool step_up,
 			StepUpMode step_up_mode);
+
+	void stepUpStairs(std::vector<NearbyCollisionInfo> const &cinfo,
+			CollisionMoveResult &result);
+
 };
 
 // Helper functions:
@@ -487,42 +491,6 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	CollisionMoveResult result =
 			collider.simulateFor(dtime, cinfo, stepheight, step_up_mode);
 
-	/*
-		Final touches: Check if standing on ground, step up stairs.
-	*/
-	aabb3f box = box_0;
-	box.MinEdge += *pos_f;
-	box.MaxEdge += *pos_f;
-	for (const auto &box_info : cinfo) {
-		const aabb3f &cbox = box_info.box;
-
-		/*
-			See if the object is touching ground.
-
-			Object touches ground if object's minimum Y is near node's
-			maximum Y and object's X-Z-area overlaps with the node's
-			X-Z-area.
-		*/
-
-		if (cbox.MaxEdge.X - g_mystery_constant > box.MinEdge.X && cbox.MinEdge.X + g_mystery_constant < box.MaxEdge.X &&
-				cbox.MaxEdge.Z - g_mystery_constant > box.MinEdge.Z &&
-				cbox.MinEdge.Z + g_mystery_constant < box.MaxEdge.Z) {
-			if (box_info.is_step_up) {
-				pos_f->Y += cbox.MaxEdge.Y - box.MinEdge.Y;
-				box = box_0;
-				box.MinEdge += *pos_f;
-				box.MaxEdge += *pos_f;
-			}
-			if (std::fabs(cbox.MaxEdge.Y - box.MinEdge.Y) < 0.05f) {
-				// This code is technically only required if `box_info.is_step_up == true`.
-				// However, players rely on this check/condition to climb stairs faster. See PR #10587.
-				result.touching_ground = true;
-				result.standing_on_object = box_info.isObject();
-			}
-		}
-	}
-
-	result.collides = !result.collisions.empty();
 	return result;
 }
 
@@ -547,11 +515,11 @@ bool locate_cboxes_in_movement_range(KineticObject collider, f32 dtime,
 	return add_area_node_boxes(min, max, gamedef, env, cinfo);
 }
 
-collisionMoveResult KineticObject::simulateFor(f32 dtime,
+CollisionMoveResult KineticObject::simulateFor(f32 dtime,
 		std::vector<NearbyCollisionInfo> &cinfo, f32 stepheight,
 		StepUpMode step_up_mode)
 {
-	collisionMoveResult result;
+	CollisionMoveResult result;
 
 	for (int loopcount = 0;; loopcount++) {
 		if (loopcount >= 100) {
@@ -598,6 +566,9 @@ collisionMoveResult KineticObject::simulateFor(f32 dtime,
 			break;
 		}
 	}
+
+	this->stepUpStairs(cinfo, result);
+	result.collides = !result.collisions.empty();
 
 	return result;
 }
@@ -769,6 +740,47 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 	}
 
 	return result;
+}
+
+void KineticObject::stepUpStairs(std::vector<NearbyCollisionInfo> const &cinfo,
+		CollisionMoveResult &result)
+{
+	/*
+		Final touches: Check if standing on ground, step up stairs.
+	*/
+	aabb3f box = this->collisionbox;
+	box.MinEdge += *this->pos;
+	box.MaxEdge += *this->pos;
+	for (auto const &box_info : cinfo) {
+		aabb3f const &cbox = box_info.box;
+
+		/*
+			See if the object is touching ground.
+
+			Object touches ground if object's minimum Y is near node's
+			maximum Y and object's X-Z-area overlaps with the node's
+			X-Z-area.
+		*/
+
+		if (cbox.MaxEdge.X - g_mystery_constant > box.MinEdge.X &&
+				cbox.MinEdge.X + g_mystery_constant < box.MaxEdge.X &&
+				cbox.MaxEdge.Z - g_mystery_constant > box.MinEdge.Z &&
+				cbox.MinEdge.Z + g_mystery_constant < box.MaxEdge.Z) {
+			if (box_info.is_step_up) {
+				this->pos->Y += cbox.MaxEdge.Y - box.MinEdge.Y;
+				box = this->collisionbox;
+				box.MinEdge += *this->pos;
+				box.MaxEdge += *this->pos;
+			}
+			if (std::fabs(cbox.MaxEdge.Y - box.MinEdge.Y) < 0.05f) {
+				// This is code is technically only required if
+				// `box_info.is_step_up == true`. However, players rely on this
+				// check/condition to climb stairs faster. See PR #10587.
+				result.touching_ground    = true;
+				result.standing_on_object = box_info.isObject();
+			}
+		}
+	}
 }
 
 bool collision_check_intersection(Environment *env, IGameDef *gamedef,
