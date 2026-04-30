@@ -74,7 +74,7 @@ struct Collision
 	CollisionAxis axis{COLLISION_AXIS_NONE};
 };
 
-struct KineticBox
+struct MovingBox
 {
 	aabb3f box;
 	v3f avg_speed;
@@ -138,11 +138,11 @@ static bool locate_cboxes_in_movement_range(KineticObject collider, f32 dtime,
 		IGameDef *gamedef, Environment *env,
 		std::vector<NearbyCollisionInfo> &cinfo);
 
-static bool should_step_up(KineticBox const &movingbox, f32 dtime,
+static bool should_step_up(MovingBox const &movingbox, f32 dtime,
 		Collision collision, f32 stepheight,
 		std::vector<NearbyCollisionInfo> const &cinfo);
 
-static Collision find_nearest_collision(KineticBox const &movingbox,
+static Collision find_nearest_collision(MovingBox const &movingbox,
 		std::vector<NearbyCollisionInfo> const &cinfo, f32 dtime);
 
 // Helper function:
@@ -532,7 +532,7 @@ CollisionMoveResult KineticObject::simulateFor(f32 dtime,
 
 		v3f const avg_speed_estimate{this->getProjectedAvgSpeed(dtime)};
 
-		KineticBox movingbox{this->collisionbox, avg_speed_estimate};
+		MovingBox movingbox{this->collisionbox, avg_speed_estimate};
 		movingbox.box.MinEdge += *this->pos;
 		movingbox.box.MaxEdge += *this->pos;
 
@@ -580,7 +580,7 @@ v3f KineticObject::getProjectedAvgSpeed(f32 dtime) const
 	return truncate(rangelimv(avg, -5000.0f, 5000.0f), 10000.0f);
 }
 
-bool should_step_up(KineticBox const &movingbox, f32 dtime, Collision collision,
+bool should_step_up(MovingBox const &movingbox, f32 dtime, Collision collision,
 		f32 stepheight, std::vector<NearbyCollisionInfo> const &cinfo)
 {
 	if (collision.axis != COLLISION_AXIS_Y) {
@@ -608,7 +608,7 @@ bool should_step_up(KineticBox const &movingbox, f32 dtime, Collision collision,
 	}
 }
 
-Collision find_nearest_collision(KineticBox const &movingbox,
+Collision find_nearest_collision(MovingBox const &movingbox,
 		std::vector<NearbyCollisionInfo> const &cinfo, f32 dtime)
 {
 	CollisionAxis nearest_collided = COLLISION_AXIS_NONE;
