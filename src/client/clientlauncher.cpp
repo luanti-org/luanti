@@ -78,11 +78,13 @@ ClientLauncher::~ClientLauncher()
 	delete g_gamecallback;
 	g_gamecallback = nullptr;
 
-	guiroot = nullptr;
-	guienv = nullptr;
 	assert(g_menumgr.menuCount() == 0);
 
 	delete m_rendering_engine;
+
+	// CGUIEnvironment causes calls to `deletingMenu`, which needs `guienv != nullptr`.
+	guiroot = nullptr;
+	guienv = nullptr;
 
 	// delete event receiver only after all Irrlicht stuff is gone
 	delete receiver;
