@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
+#include <cassert>
 #include "collision.h"
 #include <cmath>
 #include "irr_aabb3d.h"
+#include <limits>
 #include "mapblock.h"
 #include "map.h"
 #include "nodedef.h"
@@ -19,9 +21,6 @@
 #include "util/timetaker.h"
 #include "profiler.h"
 #include "object_properties.h"
-
-#include <cassert>
-#include <limits>
 #include <vector>
 
 #ifdef __FAST_MATH__
@@ -32,8 +31,6 @@
 bool g_collision_problems_encountered = false;
 
 namespace {
-
-f32 constexpr g_mystery_constant{0.0f};
 
 struct NearbyCollisionInfo {
 	// node
@@ -606,7 +603,7 @@ bool should_step_up(MovingBox const &movingbox, f32 dtime, Collision collision,
 			   (movingbox.box.MinEdge.Y + stepheight > cbox.MaxEdge.Y) &&
 			   (!wouldCollideWithCeiling(cinfo, stepbox,
 					   cbox.MaxEdge.Y - movingbox.box.MinEdge.Y,
-					   g_mystery_constant));
+					   0.0f));
 	} else {
 		return false;
 	}
@@ -766,10 +763,10 @@ void KineticObject::stepUpStairs(std::vector<NearbyCollisionInfo> const &cinfo,
 			X-Z-area.
 		*/
 
-		if (cbox.MaxEdge.X - g_mystery_constant > box.MinEdge.X &&
-				cbox.MinEdge.X + g_mystery_constant < box.MaxEdge.X &&
-				cbox.MaxEdge.Z - g_mystery_constant > box.MinEdge.Z &&
-				cbox.MinEdge.Z + g_mystery_constant < box.MaxEdge.Z) {
+		if (cbox.MaxEdge.X > box.MinEdge.X &&
+				cbox.MinEdge.X < box.MaxEdge.X &&
+				cbox.MaxEdge.Z > box.MinEdge.Z &&
+				cbox.MinEdge.Z < box.MaxEdge.Z) {
 			if (box_info.is_step_up) {
 				this->pos.Y += cbox.MaxEdge.Y - box.MinEdge.Y;
 				box = this->collisionbox;
