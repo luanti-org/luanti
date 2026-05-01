@@ -719,7 +719,7 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 			}
 			this->velocity.Y = 0.f;
 			// avoid colliding in the next iterations
-			this->accel.Y = 0;
+			this->accel.Y = 0.f;
 		}
 	} else { /* collision.axis == COLLISION_AXIS_Z */
 		if (bounce < -1e-4 && fabsf(this->velocity.Z) > BS * 3) {
