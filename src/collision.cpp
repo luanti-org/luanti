@@ -130,7 +130,7 @@ inline v3f rangelimv(const v3f vec, const f32 low, const f32 high)
 }
 }
 
-static bool locate_cboxes_in_movement_range(KineticObject &collider, f32 dtime,
+static bool add_collisions_in_movement_range(KineticObject const &collider, f32 dtime,
 		IGameDef *gamedef, Environment *env, std::vector<NearbyCollisionInfo> &cinfo);
 
 static bool should_step_up(MovingBox const &movingbox, f32 dtime, Collision collision,
@@ -471,7 +471,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	// are not available for collision detection.
 	// This also intentionally occurs in the case of the object being positioned
 	// solely on loaded CONTENT_IGNORE nodes, no matter where they come from.
-	if (!locate_cboxes_in_movement_range(
+	if (!add_collisions_in_movement_range(
 				collider, dtime, gamedef, env, cinfo)) {
 		*speed_f = v3f(0.f, 0.f, 0.f);
 		return CollisionMoveResult{};
@@ -491,8 +491,8 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	return result;
 }
 
-bool locate_cboxes_in_movement_range(KineticObject &collider, f32 dtime, IGameDef *gamedef,
-		Environment *env, std::vector<NearbyCollisionInfo> &cinfo)
+bool add_collisions_in_movement_range(KineticObject const &collider, f32 dtime,
+		IGameDef *gamedef, Environment *env, std::vector<NearbyCollisionInfo> &cinfo)
 {
 	// Movement if no collisions
 	v3f newpos_f = collider.pos + collider.velocity * dtime;
