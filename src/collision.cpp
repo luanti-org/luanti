@@ -647,7 +647,7 @@ void KineticObject::moveToCollision(
 		Collision collision, v3f avg_speed, f32 dtime, bool step_up)
 {
 	// Move to the point of collision and reduce dtime by collision.dtime
-	if (collision.dtime < 0) {
+	if (collision.dtime < 0.f) {
 		// Handle negative collision.dtime
 		// This largely means an "instant" collision, e.g., with the
 		// floor. We use aspeed and collision.dtime to be consistent
