@@ -717,7 +717,7 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 				result.touching_ground    = true;
 				result.standing_on_object = nearest_info.isObject();
 			}
-			this->velocity.Y = 0;
+			this->velocity.Y = 0.f;
 			// avoid colliding in the next iterations
 			this->accel.Y = 0;
 		}
