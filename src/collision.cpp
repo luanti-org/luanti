@@ -663,7 +663,7 @@ void KineticObject::moveToCollision(
 				this->pos.Z += avg_speed.Z * collision.dtime;
 			}
 		}
-	} else if (collision.dtime > 0) {
+	} else if (collision.dtime > 0.f) {
 		// updated average speed for the sub-interval up to
 		// collision.dtime
 		v3f const subinterval_avg_speed =
