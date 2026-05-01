@@ -17,6 +17,9 @@ namespace gui
 CGUISkin::CGUISkin(video::IVideoDriver* driver)
 : SpriteBank(0), Driver(driver)
 {
+	for (video::SColor &c : Colors)
+		c = 0xFFFF0000; // red
+
 	Colors[EGDC_3D_DARK_SHADOW]     = video::SColor(101,50,50,50);
 	Colors[EGDC_3D_SHADOW]          = video::SColor(101,130,130,130);
 	Colors[EGDC_3D_FACE]            = video::SColor(185,85,85,85);
@@ -43,6 +46,8 @@ CGUISkin::CGUISkin(video::IVideoDriver* driver)
 	Colors[EGDC_GRAY_EDITABLE]		= video::SColor(255,120,120,120);
 	Colors[EGDC_FOCUSED_EDITABLE]	= video::SColor(255,240,240,255);
 
+	for (s32 &s : Sizes)
+		s = 0;
 
 	Sizes[EGDS_SCROLLBAR_SIZE] = 14;
 	Sizes[EGDS_MENU_HEIGHT] = 30;
@@ -69,6 +74,9 @@ CGUISkin::CGUISkin(video::IVideoDriver* driver)
 	Sizes[EGDS_BUTTON_PRESSED_TEXT_OFFSET_X] = 0;
 	Sizes[EGDS_BUTTON_PRESSED_TEXT_OFFSET_Y] = 2;
 
+	for (core::stringw &text : Texts)
+		text = L"<UNDEFINED>";
+
 	Texts[EGDT_MSG_BOX_OK] = L"OK";
 	Texts[EGDT_MSG_BOX_CANCEL] = L"Cancel";
 	Texts[EGDT_MSG_BOX_YES] = L"Yes";
@@ -77,6 +85,9 @@ CGUISkin::CGUISkin(video::IVideoDriver* driver)
 	Texts[EGDT_WINDOW_RESTORE] = L"Restore";
 	Texts[EGDT_WINDOW_MINIMIZE] = L"Minimize";
 	Texts[EGDT_WINDOW_MAXIMIZE] = L"Maximize";
+
+	for (u32 &icon : Icons)
+		icon = 0;
 
 	Icons[EGDI_WINDOW_MAXIMIZE] = 225;
 	Icons[EGDI_WINDOW_RESTORE] = 226;
