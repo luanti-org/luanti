@@ -125,9 +125,6 @@ private:
 
 	Collision findNearestCollision(MovingBox const &movingbox);
 
-	bool addCollisionsInMovementRange(
-			KineticObject const &collider, IGameDef *gamedef, Environment *env);
-
 	CollisionMoveResult simulateFor(
 			KineticObject *collider, f32 stepheight, StepUpMode step_up_mode);
 
@@ -505,7 +502,8 @@ CollisionMoveResult MovementContext::collideMove(Environment *env, IGameDef *gam
 	// are not available for collision detection.
 	// This also intentionally occurs in the case of the object being positioned
 	// solely on loaded CONTENT_IGNORE nodes, no matter where they come from.
-	if (!this->addCollisionsInMovementRange(*collider, gamedef, env)) {
+	core::aabbox3d<s16> const range{collider->getMovementRange(this->remaining_dtime)};
+	if (!add_area_node_boxes(range.MinEdge, range.MaxEdge, gamedef, env, this->cinfo)) {
 		collider->velocity = v3f();
 		return CollisionMoveResult{};
 	}
@@ -518,13 +516,6 @@ CollisionMoveResult MovementContext::collideMove(Environment *env, IGameDef *gam
 	return this->simulateFor(collider, stepheight, step_up_mode);
 }
 
-
-bool MovementContext::addCollisionsInMovementRange(
-		KineticObject const &collider, IGameDef *gamedef, Environment *env)
-{
-	core::aabbox3d<s16> const range{collider.getMovementRange(this->remaining_dtime)};
-	return add_area_node_boxes(range.MinEdge, range.MaxEdge, gamedef, env, this->cinfo);
-}
 
 core::aabbox3d<s16> KineticObject::getMovementRange(f32 dtime) const
 {
