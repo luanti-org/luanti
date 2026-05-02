@@ -540,7 +540,7 @@ CollisionMoveResult KineticObject::simulateFor(f32 dtime,
 			break;
 		}
 
-		assert(!std::isinf(collision.dtime) && !std::isnan(collision.dtime));
+		assert(std::isfinite(collision.dtime));
 		// Otherwise, a collision occurred.
 		NearbyCollisionInfo &nearest_info = cinfo[collision.boxindex];
 
