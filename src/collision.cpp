@@ -92,6 +92,8 @@ struct KineticObject
 		return translate(this->collisionbox, this->pos);
 	}
 
+	core::aabbox3d<s16> getMovementRange(f32 dtime) const;
+
 	v3f getProjectedAvgSpeed(f32 dtime) const;
 
 	void moveUnobstructed(f32 dtime);
@@ -107,21 +109,14 @@ struct KineticObject
 class MovementContext
 {
 public:
+	CollisionMoveResult collideMove(Environment *env, IGameDef *gamedef, f32 stepheight,
+			f32 dtime, KineticObject *collider, ActiveObject *self, bool collide_with_objects,
+			StepUpMode step_up_mode);
+
+private:
 	std::vector<NearbyCollisionInfo> cinfo;
 	f32 remaining_dtime;
 
-	void clear()
-	{
-		this->cinfo.clear();
-	}
-
-	bool addCollisionsInMovementRange(
-			KineticObject const &collider, IGameDef *gamedef, Environment *env);
-
-	CollisionMoveResult simulateFor(
-			KineticObject *collider, f32 stepheight, StepUpMode step_up_mode);
-
-private:
 	struct MovingBox
 	{
 		aabb3f box;
@@ -129,6 +124,12 @@ private:
 	};
 
 	Collision findNearestCollision(MovingBox const &movingbox);
+
+	bool addCollisionsInMovementRange(
+			KineticObject const &collider, IGameDef *gamedef, Environment *env);
+
+	CollisionMoveResult simulateFor(
+			KineticObject *collider, f32 stepheight, StepUpMode step_up_mode);
 
 	bool shouldStepUp(MovingBox const &movingbox, Collision collision, f32 stepheight);
 
@@ -481,29 +482,11 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	// Collect node boxes in movement range
 
 	// cached allocation
-	thread_local std::vector<NearbyCollisionInfo> cinfo;
-	cinfo.clear();
+	thread_local MovementContext ctx;
 
 	KineticObject collider{box_0, *pos_f, *speed_f, accel_f};
-
-	// Do not move if world has not loaded yet, since custom node boxes
-	// are not available for collision detection.
-	// This also intentionally occurs in the case of the object being positioned
-	// solely on loaded CONTENT_IGNORE nodes, no matter where they come from.
-
-	thread_local MovementContext ctx{cinfo, dtime};
-
-	if (!ctx.addCollisionsInMovementRange(collider, gamedef, env)) {
-		*speed_f = v3f();
-		return CollisionMoveResult{};
-	}
-
-	// Collect object boxes in movement range
-	if (collide_with_objects) {
-		add_object_boxes(env, box_0, dtime, *pos_f, collider.getProjectedAvgSpeed(dtime), self, cinfo);
-	}
-
-	CollisionMoveResult result = ctx.simulateFor(&collider, stepheight, step_up_mode);
+	CollisionMoveResult result{ctx.collideMove(env, gamedef, stepheight, dtime, &collider,
+			self, collide_with_objects, step_up_mode)};
 
 	*pos_f = collider.pos;
 	*speed_f = collider.velocity;
@@ -511,21 +494,51 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	return result;
 }
 
+CollisionMoveResult MovementContext::collideMove(Environment *env, IGameDef *gamedef,
+		f32 stepheight, f32 dtime, KineticObject *collider, ActiveObject *self,
+		bool collide_with_objects, StepUpMode step_up_mode)
+{
+	this->cinfo.clear();
+	this->remaining_dtime = dtime;
+
+	// Do not move if world has not loaded yet, since custom node boxes
+	// are not available for collision detection.
+	// This also intentionally occurs in the case of the object being positioned
+	// solely on loaded CONTENT_IGNORE nodes, no matter where they come from.
+	if (!this->addCollisionsInMovementRange(*collider, gamedef, env)) {
+		collider->velocity = v3f();
+		return CollisionMoveResult{};
+	}
+
+	// Collect object boxes in movement range
+	if (collide_with_objects) {
+		add_object_boxes(env, collider->collisionbox, this->remaining_dtime, collider->pos, collider->getProjectedAvgSpeed(this->remaining_dtime), self, this->cinfo);
+	}
+
+	return this->simulateFor(collider, stepheight, step_up_mode);
+}
+
+
 bool MovementContext::addCollisionsInMovementRange(
 		KineticObject const &collider, IGameDef *gamedef, Environment *env)
 {
-	// Movement if no collisions
-	v3f newpos_f = collider.pos + collider.velocity * this->remaining_dtime;
-	v3f minpos_f(MYMIN(collider.pos.X, newpos_f.X),
-			MYMIN(collider.pos.Y, newpos_f.Y) +
-					0.01f * BS, // bias rounding, player often at +/-n.5
-			MYMIN(collider.pos.Z, newpos_f.Z));
-	v3f maxpos_f(MYMAX(collider.pos.X, newpos_f.X), MYMAX(collider.pos.Y, newpos_f.Y),
-			MYMAX(collider.pos.Z, newpos_f.Z));
-	v3s16 min = floatToInt(minpos_f + collider.collisionbox.MinEdge, BS) - v3s16(1, 1, 1);
-	v3s16 max = floatToInt(maxpos_f + collider.collisionbox.MaxEdge, BS) + v3s16(1, 1, 1);
+	core::aabbox3d<s16> const range{collider.getMovementRange(this->remaining_dtime)};
+	return add_area_node_boxes(range.MinEdge, range.MaxEdge, gamedef, env, this->cinfo);
+}
 
-	return add_area_node_boxes(min, max, gamedef, env, this->cinfo);
+core::aabbox3d<s16> KineticObject::getMovementRange(f32 dtime) const
+{
+	// Movement if no collisions
+	v3f newpos_f = this->pos + this->velocity * dtime;
+	v3f minpos_f(MYMIN(this->pos.X, newpos_f.X),
+			MYMIN(this->pos.Y, newpos_f.Y) +
+					0.01f * BS, // bias rounding, player often at +/-n.5
+			MYMIN(this->pos.Z, newpos_f.Z));
+	v3f maxpos_f(MYMAX(this->pos.X, newpos_f.X), MYMAX(this->pos.Y, newpos_f.Y),
+			MYMAX(this->pos.Z, newpos_f.Z));
+	v3s16 min = floatToInt(minpos_f + this->collisionbox.MinEdge, BS) - v3s16(1, 1, 1);
+	v3s16 max = floatToInt(maxpos_f + this->collisionbox.MaxEdge, BS) + v3s16(1, 1, 1);
+	return core::aabbox3d<s16>{min, max};
 }
 
 CollisionMoveResult MovementContext::simulateFor(
