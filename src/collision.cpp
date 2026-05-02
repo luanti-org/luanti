@@ -110,6 +110,8 @@ struct KineticObject
 	void collideZ(f32 bounce);
 
 	bool collideY(f32 bounce);
+
+	void jerkUpwards(float dy);
 };
 
 class MovementContext
@@ -803,7 +805,7 @@ void MovementContext::stepUpStairs(KineticObject *collider, CollisionMoveResult 
 		if (cbox.MaxEdge.X > box.MinEdge.X && cbox.MinEdge.X < box.MaxEdge.X &&
 				cbox.MaxEdge.Z > box.MinEdge.Z && cbox.MinEdge.Z < box.MaxEdge.Z) {
 			if (box_info.is_step_up) {
-				collider->pos.Y += cbox.MaxEdge.Y - box.MinEdge.Y;
+				collider->jerkUpwards(cbox.MaxEdge.Y - box.MinEdge.Y);
 				box = collider->getAbsCollisionbox();
 			}
 			if (std::fabs(cbox.MaxEdge.Y - box.MinEdge.Y) < 0.05f) {
@@ -815,6 +817,11 @@ void MovementContext::stepUpStairs(KineticObject *collider, CollisionMoveResult 
 			}
 		}
 	}
+}
+
+void KineticObject::jerkUpwards(f32 dy)
+{
+	this->pos.Y += dy;
 }
 
 bool collision_check_intersection(Environment *env, IGameDef *gamedef,
