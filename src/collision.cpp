@@ -108,6 +108,12 @@ struct KineticObject
 	CollisionMoveResult collideWith(Collision collision,
 			NearbyCollisionInfo &nearest_info, bool step_up,
 			StepUpMode step_up_mode);
+
+	void collideX(f32 bounce);
+
+	void collideZ(f32 bounce);
+
+	bool collideY(f32 bounce);
 };
 
 class MovementContext
@@ -712,26 +718,11 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 		// Special case: Handle stairs
 		nearest_info.is_step_up = true;
 	} else if (collision.axis == COLLISION_AXIS_X) {
-		if (bounce < -1e-4 && fabsf(this->velocity.X) > BS * 3) {
-			this->velocity.X *= bounce;
-		} else {
-			this->velocity.X = 0.f;
-			// avoid colliding in the next iterations
-			this->accel.X = 0.f;
-		}
+		this->collideX(bounce);
 	} else if (collision.axis == COLLISION_AXIS_Z) {
-		if (bounce < -1e-4 && fabsf(this->velocity.Z) > BS * 3) {
-			this->velocity.Z *= bounce;
-		} else {
-			this->velocity.Z = 0.f;
-			// avoid colliding in the next iterations
-			this->accel.Z = 0.f;
-		}
+		this->collideZ(bounce);
 	} else { // collision.axis == COLLISION_AXIS_Y)
-		if (bounce < -1e-4 && fabsf(this->velocity.Y) > BS * 3) {
-			this->velocity.Y *= bounce;
-		} else {
-			if (this->velocity.Y < 0.0f) {
+		if (this->collideY(bounce)) {
 				// FIXME: This code is necessary until
 				// `axisAlignedCollision` takes acceleration
 				// into consideration for the time calculation.
@@ -739,10 +730,6 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 				// especially at high step (dtime) intervals.
 				result.touching_ground    = true;
 				result.standing_on_object = nearest_info.isObject();
-			}
-			this->velocity.Y = 0.f;
-			// avoid colliding in the next iterations
-			this->accel.Y = 0.f;
 		}
 	}
 
@@ -758,6 +745,44 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 		result.collisions.push_back(info);
 	}
 
+	return result;
+}
+
+void KineticObject::collideX(f32 bounce)
+{
+	if (bounce < -1e-4 && fabsf(this->velocity.X) > BS * 3) {
+		this->velocity.X *= bounce;
+	} else {
+		this->velocity.X = 0.f;
+		// avoid colliding in the next interations
+		this->accel.X = 0.f;
+	}
+}
+
+void KineticObject::collideZ(f32 bounce)
+{
+	if (bounce < -1e-4 && fabsf(this->velocity.Z) > BS * 3) {
+		this->velocity.Z *= bounce;
+	} else {
+		this->velocity.Z = 0.f;
+		// avoid colliding in the next iterations
+		this->accel.Z = 0.f;
+	}
+}
+
+bool KineticObject::collideY(f32 bounce)
+{
+	bool result{false};
+	if (bounce < -1e-4 && fabsf(this->velocity.Y) > BS * 3) {
+		this->velocity.Y *= bounce;
+	} else {
+		if (this->velocity.Y < 0.0f) {
+			result = true;
+		}
+		this->velocity.Y = 0.f;
+		// avoid colliding in the next iterations
+		this->accel.Y = 0.f;
+	}
 	return result;
 }
 
