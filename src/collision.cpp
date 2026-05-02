@@ -73,8 +73,10 @@ struct NearbyCollisionInfo {
 
 struct Collision
 {
-	// This is the delta between the current dtime and the time at
-	// which the collision is predicted to occur.
+	/**
+	 * This is the delta between the current dtime and the time at
+	 * which the collision is predicted to occur.
+	 */
 	f32 dtime{std::numeric_limits<f32>::infinity()};
 	int boxindex{-1};
 	CollisionAxis axis{COLLISION_AXIS_NONE};
