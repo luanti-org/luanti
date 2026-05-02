@@ -82,12 +82,13 @@ struct Collision
 	CollisionAxis axis{COLLISION_AXIS_NONE};
 };
 
-struct KineticObject
+class KineticObject
 {
-	aabb3f collisionbox;
-	v3f pos;
-	v3f velocity;
-	v3f accel;
+public:
+	KineticObject(aabb3f cbox, v3f pos, v3f velocity, v3f accel)
+		: collisionbox{cbox}, pos{pos}, velocity{velocity}, accel{accel}
+	{
+	}
 
 	aabb3f getAbsCollisionbox() const
 	{
@@ -114,6 +115,27 @@ struct KineticObject
 	void stopInPlace();
 
 	void jerkUpwards(float dy);
+
+	const aabb3f& getCollisionbox() const
+	{
+		return this->collisionbox;
+	}
+
+	v3f getPosition() const
+	{
+		return this->pos;
+	}
+
+	v3f getVelocity() const
+	{
+		return this->velocity;
+	}
+
+private:
+	aabb3f collisionbox;
+	v3f pos;
+	v3f velocity;
+	v3f accel;
 };
 
 class MovementContext
@@ -494,8 +516,8 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	CollisionMoveResult result{ctx.collideMove(env, gamedef, stepheight, dtime, &collider,
 			self, collide_with_objects, step_up_mode)};
 
-	*pos_f = collider.pos;
-	*speed_f = collider.velocity;
+	*pos_f = collider.getPosition();
+	*speed_f = collider.getVelocity();
 
 	return result;
 }
@@ -522,8 +544,9 @@ CollisionMoveResult MovementContext::collideMove(Environment *env, IGameDef *gam
 
 	// Collect object boxes in movement range
 	if (collide_with_objects) {
-		add_object_boxes(env, collider->collisionbox, this->remaining_dtime, collider->pos,
-				collider->getProjectedAvgSpeed(this->remaining_dtime), self, this->cinfo);
+		add_object_boxes(env, collider->getCollisionbox(), this->remaining_dtime,
+				collider->getPosition(), collider->getProjectedAvgSpeed(this->remaining_dtime),
+				self, this->cinfo);
 	}
 
 	return this->simulateFor(collider, stepheight);
@@ -712,15 +735,16 @@ CollisionMoveResult MovementContext::collideWith(KineticObject *collider, Collis
 {
 	CollisionMoveResult result;
 
-	v3f old_speed_f = collider->velocity;
+	v3f old_speed_f = collider->getVelocity();
 
 	// Get bounce multiplier
 	float bounce = -(float) nearest_info.bouncy / 100.0f;
 
+	const f32 y_velocity{collider->getVelocity().Y};
 	// Set the speed component that caused the collision to zero
 	if (step_up && (this->step_up_mode == StepUpMode::LEGACY ||
-			(this->step_up_mode == StepUpMode::FLOATY && collider->velocity.Y <= 0.0f) ||
-			(this->step_up_mode == StepUpMode::RIGID && collider->velocity.Y == 0.0f))) {
+			(this->step_up_mode == StepUpMode::FLOATY && y_velocity <= 0.0f) ||
+			(this->step_up_mode == StepUpMode::RIGID && y_velocity == 0.0f))) {
 		// Special case: Handle stairs
 		nearest_info.is_step_up = true;
 	} else if (axis == COLLISION_AXIS_X) {
@@ -745,9 +769,9 @@ CollisionMoveResult MovementContext::collideWith(KineticObject *collider, Collis
 		info.type      = nearest_info.isObject() ? COLLISION_OBJECT : COLLISION_NODE;
 		info.node_p    = nearest_info.position;
 		info.object    = nearest_info.obj;
-		info.new_pos   = collider->pos;
+		info.new_pos   = collider->getPosition();
 		info.old_speed = old_speed_f;
-		info.new_speed = collider->velocity;
+		info.new_speed = collider->getVelocity();
 		result.collisions.push_back(info);
 	}
 
