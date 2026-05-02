@@ -478,8 +478,6 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		time_notification_done = false;
 	}
 
-	// Collect node boxes in movement range
-
 	// cached allocation
 	thread_local MovementContext ctx;
 
@@ -499,6 +497,8 @@ CollisionMoveResult MovementContext::collideMove(Environment *env, IGameDef *gam
 {
 	this->cinfo.clear();
 	this->remaining_dtime = dtime;
+
+	// Collect node boxes in movement range
 
 	// Do not move if world has not loaded yet, since custom node boxes
 	// are not available for collision detection.
