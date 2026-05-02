@@ -79,13 +79,17 @@ class KineticObject;
 		v3f velocity;
 	};
 
-struct MovementContext
+class MovementContext
 {
+public:
 	std::vector<NearbyCollisionInfo> cinfo;
 	f32 remaining_dtime;
 
 	CollisionMoveResult simulateFor(
 			KineticObject *collider, f32 stepheight, StepUpMode step_up_mode);
+
+private:
+	Collision findNearestCollision(MovingBox const &movingbox);
 };
 
 class KineticObject
@@ -111,8 +115,6 @@ public:
 	static bool shouldStepUp(MovingBox const &movingbox, f32 dtime, Collision collision,
 		f32 stepheight, std::vector<NearbyCollisionInfo> const &cinfo);
 
-	static Collision findNearestCollision(MovingBox const &movingbox,
-			std::vector<NearbyCollisionInfo> const &cinfo, f32 dtime);
 	};
 
 // Helper functions:
@@ -534,8 +536,7 @@ CollisionMoveResult MovementContext::simulateFor(
 		movingbox.box.MinEdge += collider->pos;
 		movingbox.box.MaxEdge += collider->pos;
 
-		Collision const collision =
-				collider->findNearestCollision(movingbox, this->cinfo, this->remaining_dtime);
+		Collision const collision = this->findNearestCollision(movingbox);
 
 		if (collision.axis == COLLISION_AXIS_NONE) {
 			// No collision with any collision box.
@@ -605,16 +606,15 @@ bool KineticObject::shouldStepUp(MovingBox const &movingbox, f32 dtime, Collisio
 	}
 }
 
-Collision KineticObject::findNearestCollision(
-		MovingBox const &movingbox, std::vector<NearbyCollisionInfo> const &cinfo, f32 dtime)
+Collision MovementContext::findNearestCollision(MovingBox const &movingbox)
 {
 	CollisionAxis nearest_collided = COLLISION_AXIS_NONE;
-	f32 nearest_dtime              = dtime;
+	f32 nearest_dtime              = this->remaining_dtime;
 	int nearest_boxindex           = -1;
 
 	// Go through every nodebox, find nearest collision
-	for (u32 boxindex = 0; boxindex < cinfo.size(); boxindex++) {
-		NearbyCollisionInfo const &box_info = cinfo[boxindex];
+	for (u32 boxindex = 0; boxindex < this->cinfo.size(); boxindex++) {
+		NearbyCollisionInfo const &box_info = this->cinfo[boxindex];
 		// Ignore if already stepped up this nodebox.
 		if (box_info.is_step_up) {
 			continue;
