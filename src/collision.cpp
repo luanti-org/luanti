@@ -138,6 +138,15 @@ inline v3f rangelimv(const v3f vec, const f32 low, const f32 high)
 		rangelim(vec.Z, low, high)
 	);
 }
+
+template <typename T>
+core::aabbox3d<T> translate(core::aabbox3d<T> const &bbox, core::vector3d<T> const &v)
+{
+	core::aabbox3d<T> result{bbox};
+	result.MinEdge += v;
+	result.MaxEdge += v;
+	return result;
+}
 }
 
 static bool add_collisions_in_movement_range(KineticObject const &collider, f32 dtime,
@@ -345,9 +354,7 @@ static bool add_area_node_boxes(const v3s16 min, const v3s16 max, IGameDef *game
 
 			v3f posf = intToFloat(p, BS);
 			for (auto box : nodeboxes) {
-				box.MinEdge += posf;
-				box.MaxEdge += posf;
-				cinfo.emplace_back(false, n_bouncy_value, p, box);
+				cinfo.emplace_back(false, n_bouncy_value, p, translate(box, posf));
 			}
 		} else {
 			// Collide with loaded CONTENT_IGNORE nodes
@@ -395,10 +402,8 @@ static void add_object_boxes(Environment *env,
 		LocalPlayer *lplayer = c_env->getLocalPlayer();
 		auto *obj = (ClientActiveObject*) lplayer->getCAO();
 		if (!self || (self != obj && self != obj->getParent())) {
-			aabb3f lplayer_collisionbox = lplayer->getCollisionbox();
-			v3f lplayer_pos = lplayer->getPosition();
-			lplayer_collisionbox.MinEdge += lplayer_pos;
-			lplayer_collisionbox.MaxEdge += lplayer_pos;
+			aabb3f const lplayer_collisionbox =
+					translate(lplayer->getCollisionbox(), lplayer->getPosition());
 			cinfo.emplace_back(obj, 0, lplayer_collisionbox);
 		}
 	}
@@ -528,10 +533,8 @@ CollisionMoveResult MovementContext::simulateFor(
 
 		v3f const avg_speed_estimate{collider->getProjectedAvgSpeed(this->remaining_dtime)};
 
-		MovingBox movingbox{collider->collisionbox, avg_speed_estimate};
-		movingbox.box.MinEdge += collider->pos;
-		movingbox.box.MaxEdge += collider->pos;
-
+		MovingBox movingbox{
+			translate(collider->collisionbox, collider->pos), avg_speed_estimate};
 		Collision const collision = this->findNearestCollision(movingbox);
 
 		if (collision.axis == COLLISION_AXIS_NONE) {
@@ -740,9 +743,7 @@ void MovementContext::stepUpStairs(KineticObject *collider, CollisionMoveResult 
 	/*
 		Final touches: Check if standing on ground, step up stairs.
 	*/
-	aabb3f box = collider->collisionbox;
-	box.MinEdge += collider->pos;
-	box.MaxEdge += collider->pos;
+	aabb3f box = translate(collider->collisionbox, collider->pos);
 	for (auto const &box_info : this->cinfo) {
 		aabb3f const &cbox = box_info.box;
 
@@ -758,9 +759,7 @@ void MovementContext::stepUpStairs(KineticObject *collider, CollisionMoveResult 
 				cbox.MaxEdge.Z > box.MinEdge.Z && cbox.MinEdge.Z < box.MaxEdge.Z) {
 			if (box_info.is_step_up) {
 				collider->pos.Y += cbox.MaxEdge.Y - box.MinEdge.Y;
-				box = collider->collisionbox;
-				box.MinEdge += collider->pos;
-				box.MaxEdge += collider->pos;
+				box = translate(collider->collisionbox, collider->pos);
 			}
 			if (std::fabs(cbox.MaxEdge.Y - box.MinEdge.Y) < 0.05f) {
 				// This is code is technically only required if `box_info.is_step_up == true`.
