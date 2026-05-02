@@ -106,6 +106,8 @@ struct KineticObject
 
 	v3f getProjectedAvgSpeed(f32 dtime) const;
 
+	void moveUnobstructed(f32 dtime);
+
 	void moveToCollision(
 			Collision collision, v3f avg_speed, f32 dtime, bool step_up);
 
@@ -559,13 +561,7 @@ CollisionMoveResult MovementContext::simulateFor(
 		Collision const collision = this->findNearestCollision(movingbox);
 
 		if (collision.axis == COLLISION_AXIS_NONE) {
-			// No collision with any collision box.
-			collider->pos += avg_speed_estimate * this->remaining_dtime;
-			// Final speed:
-			collider->velocity += collider->accel * this->remaining_dtime;
-			// Limit speed for avoiding hangs
-			collider->velocity =
-					truncate(rangelimv(collider->velocity, -5000.0f, 5000.0f), 10000.0f);
+			collider->moveUnobstructed(this->remaining_dtime);
 			break;
 		}
 
@@ -597,6 +593,16 @@ v3f KineticObject::getProjectedAvgSpeed(f32 dtime) const
 	v3f const avg = this->velocity + this->accel * 0.5f * dtime;
 	// Limit speed for avoiding hangs
 	return truncate(rangelimv(avg, -5000.0f, 5000.0f), 10000.0f);
+}
+
+void KineticObject::moveUnobstructed(f32 dtime)
+{
+	// No collision with any collision box.
+	this->pos += this->getProjectedAvgSpeed(dtime) * dtime;
+	// Final speed:
+	this->velocity += this->accel * dtime;
+	// Limit speed for avoiding hangs
+	this->velocity = truncate(rangelimv(this->velocity, -5000.0f, 5000.0f), 10000.0f);
 }
 
 bool MovementContext::shouldStepUp(
