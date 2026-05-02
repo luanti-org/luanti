@@ -105,10 +105,6 @@ struct KineticObject
 	void moveToCollision(
 			Collision collision, v3f avg_speed, f32 dtime, bool step_up);
 
-	CollisionMoveResult collideWith(Collision collision,
-			NearbyCollisionInfo &nearest_info, bool step_up,
-			StepUpMode step_up_mode);
-
 	void collideX(f32 bounce);
 
 	void collideZ(f32 bounce);
@@ -139,6 +135,9 @@ private:
 			KineticObject *collider, f32 stepheight, StepUpMode step_up_mode);
 
 	bool shouldStepUp(const MovingBox &movingbox, Collision collision, f32 stepheight);
+
+	CollisionMoveResult collideWith(KineticObject *collider, CollisionAxis axis,
+			NearbyCollisionInfo &nearest_info, bool step_up, StepUpMode step_up_mode);
 
 	void stepUpStairs(KineticObject *collider, CollisionMoveResult &result);
 };
@@ -577,7 +576,8 @@ CollisionMoveResult MovementContext::simulateFor(
 				collision, avg_speed_estimate, this->remaining_dtime, step_up);
 		this->remaining_dtime -= collision.dtime;
 
-		result = collider->collideWith(collision, nearest_info, step_up, step_up_mode);
+		result = this->collideWith(
+				collider, collision.axis, nearest_info, step_up, step_up_mode);
 
 		if (this->remaining_dtime < BS * 1e-10f) {
 			break;
@@ -701,28 +701,28 @@ void KineticObject::moveToCollision(
 	}
 }
 
-CollisionMoveResult KineticObject::collideWith(Collision collision,
+CollisionMoveResult MovementContext::collideWith(KineticObject *collider, CollisionAxis axis,
 		NearbyCollisionInfo &nearest_info, bool step_up, StepUpMode step_up_mode)
 {
 	CollisionMoveResult result;
 
-	v3f old_speed_f = this->velocity;
+	v3f old_speed_f = collider->velocity;
 
 	// Get bounce multiplier
 	float bounce = -(float) nearest_info.bouncy / 100.0f;
 
 	// Set the speed component that caused the collision to zero
 	if (step_up && (step_up_mode == StepUpMode::LEGACY ||
-			(step_up_mode == StepUpMode::FLOATY && this->velocity.Y <= 0.0f) ||
-			(step_up_mode == StepUpMode::RIGID && this->velocity.Y == 0.0f))) {
+			(step_up_mode == StepUpMode::FLOATY && collider->velocity.Y <= 0.0f) ||
+			(step_up_mode == StepUpMode::RIGID && collider->velocity.Y == 0.0f))) {
 		// Special case: Handle stairs
 		nearest_info.is_step_up = true;
-	} else if (collision.axis == COLLISION_AXIS_X) {
-		this->collideX(bounce);
-	} else if (collision.axis == COLLISION_AXIS_Z) {
-		this->collideZ(bounce);
-	} else { // collision.axis == COLLISION_AXIS_Y)
-		if (this->collideY(bounce)) {
+	} else if (axis == COLLISION_AXIS_X) {
+		collider->collideX(bounce);
+	} else if (axis == COLLISION_AXIS_Z) {
+		collider->collideZ(bounce);
+	} else { // axis == COLLISION_AXIS_Y)
+		if (collider->collideY(bounce)) {
 				// FIXME: This code is necessary until
 				// `axisAlignedCollision` takes acceleration
 				// into consideration for the time calculation.
@@ -735,13 +735,13 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 
 	if (!nearest_info.is_unloaded && !step_up) {
 		CollisionInfo info;
-		info.axis      = collision.axis;
+		info.axis      = axis;
 		info.type      = nearest_info.isObject() ? COLLISION_OBJECT : COLLISION_NODE;
 		info.node_p    = nearest_info.position;
 		info.object    = nearest_info.obj;
-		info.new_pos   = this->pos;
+		info.new_pos   = collider->pos;
 		info.old_speed = old_speed_f;
-		info.new_speed = this->velocity;
+		info.new_speed = collider->velocity;
 		result.collisions.push_back(info);
 	}
 
