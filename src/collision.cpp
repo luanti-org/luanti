@@ -71,32 +71,6 @@ struct Collision
 	CollisionAxis axis{COLLISION_AXIS_NONE};
 };
 
-<<<<<<< HEAD
-struct KineticObject;
-
-	struct MovingBox
-	{
-		aabb3f box;
-		v3f velocity;
-	};
-
-class MovementContext
-{
-public:
-	std::vector<NearbyCollisionInfo> cinfo;
-	f32 remaining_dtime;
-
-	CollisionMoveResult simulateFor(
-			KineticObject *collider, f32 stepheight, StepUpMode step_up_mode);
-
-private:
-	Collision findNearestCollision(MovingBox const &movingbox);
-
-	bool shouldStepUp(MovingBox const &movingbox, Collision collision, f32 stepheight);
-};
-
-=======
->>>>>>> fc6714645 (Move `stepUpStairs` to `MovementContext`)
 struct KineticObject
 {
 	aabb3f collisionbox;
@@ -719,7 +693,15 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 			// avoid colliding in the next iterations
 			this->accel.X = 0.f;
 		}
-	} else if (collision.axis == COLLISION_AXIS_Y) {
+	} else if (collision.axis == COLLISION_AXIS_Z) {
+		if (bounce < -1e-4 && fabsf(this->velocity.Z) > BS * 3) {
+			this->velocity.Z *= bounce;
+		} else {
+			this->velocity.Z = 0.f;
+			// avoid colliding in the next iterations
+			this->accel.Z = 0.f;
+		}
+	} else { // collision.axis == COLLISION_AXIS_Y)
 		if (bounce < -1e-4 && fabsf(this->velocity.Y) > BS * 3) {
 			this->velocity.Y *= bounce;
 		} else {
@@ -735,14 +717,6 @@ CollisionMoveResult KineticObject::collideWith(Collision collision,
 			this->velocity.Y = 0.f;
 			// avoid colliding in the next iterations
 			this->accel.Y = 0.f;
-		}
-	} else { /* collision.axis == COLLISION_AXIS_Z */
-		if (bounce < -1e-4 && fabsf(this->velocity.Z) > BS * 3) {
-			this->velocity.Z *= bounce;
-		} else {
-			this->velocity.Z = 0.f;
-			// avoid colliding in the next iterations
-			this->accel.Z = 0.f;
 		}
 	}
 
