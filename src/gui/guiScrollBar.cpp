@@ -12,13 +12,17 @@ GUIScrollBar::GUIScrollBar(IGUIEnvironment *environment, IGUIElement *parent, s3
 		CGUIScrollBar(environment, parent, id, rectangle, horizontal)
 {
 	// We use GUIButton instead of CGUIButton
-	if (UpButton)
+	if (UpButton) {
+		UpButton->remove();
 		UpButton->drop();
+	}
 	UpButton = new GUIButton(Environment, this, -1, {}, tsrc, NoClip);
 	UpButton->setSubElement(true);
 	UpButton->setTabStop(false);
-	if (DownButton)
+	if (DownButton) {
+		DownButton->remove();
 		DownButton->drop();
+	}
 	DownButton = new GUIButton(Environment, this, -1, {}, tsrc, NoClip);
 	DownButton->setSubElement(true);
 	DownButton->setTabStop(false);
