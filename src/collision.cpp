@@ -32,6 +32,15 @@ bool g_collision_problems_encountered = false;
 
 namespace {
 
+template <typename T>
+core::aabbox3d<T> translate(core::aabbox3d<T> const &bbox, core::vector3d<T> const &v)
+{
+	core::aabbox3d<T> result{bbox};
+	result.MinEdge += v;
+	result.MaxEdge += v;
+	return result;
+}
+
 struct NearbyCollisionInfo {
 	// node
 	NearbyCollisionInfo(bool is_ul, int bouncy, v3s16 pos, const aabb3f &box) :
@@ -77,6 +86,11 @@ struct KineticObject
 	v3f pos;
 	v3f velocity;
 	v3f accel;
+
+	aabb3f getAbsCollisionbox() const
+	{
+		return translate(this->collisionbox, this->pos);
+	}
 
 	v3f getProjectedAvgSpeed(f32 dtime) const;
 
@@ -137,15 +151,6 @@ inline v3f rangelimv(const v3f vec, const f32 low, const f32 high)
 		rangelim(vec.Y, low, high),
 		rangelim(vec.Z, low, high)
 	);
-}
-
-template <typename T>
-core::aabbox3d<T> translate(core::aabbox3d<T> const &bbox, core::vector3d<T> const &v)
-{
-	core::aabbox3d<T> result{bbox};
-	result.MinEdge += v;
-	result.MaxEdge += v;
-	return result;
 }
 }
 
@@ -533,8 +538,7 @@ CollisionMoveResult MovementContext::simulateFor(
 
 		v3f const avg_speed_estimate{collider->getProjectedAvgSpeed(this->remaining_dtime)};
 
-		MovingBox movingbox{
-			translate(collider->collisionbox, collider->pos), avg_speed_estimate};
+		MovingBox movingbox{collider->getAbsCollisionbox(), avg_speed_estimate};
 		Collision const collision = this->findNearestCollision(movingbox);
 
 		if (collision.axis == COLLISION_AXIS_NONE) {
@@ -743,7 +747,7 @@ void MovementContext::stepUpStairs(KineticObject *collider, CollisionMoveResult 
 	/*
 		Final touches: Check if standing on ground, step up stairs.
 	*/
-	aabb3f box = translate(collider->collisionbox, collider->pos);
+	aabb3f box = collider->getAbsCollisionbox();
 	for (auto const &box_info : this->cinfo) {
 		aabb3f const &cbox = box_info.box;
 
@@ -759,7 +763,7 @@ void MovementContext::stepUpStairs(KineticObject *collider, CollisionMoveResult 
 				cbox.MaxEdge.Z > box.MinEdge.Z && cbox.MinEdge.Z < box.MaxEdge.Z) {
 			if (box_info.is_step_up) {
 				collider->pos.Y += cbox.MaxEdge.Y - box.MinEdge.Y;
-				box = translate(collider->collisionbox, collider->pos);
+				box = collider->getAbsCollisionbox();
 			}
 			if (std::fabs(cbox.MaxEdge.Y - box.MinEdge.Y) < 0.05f) {
 				// This is code is technically only required if `box_info.is_step_up == true`.
