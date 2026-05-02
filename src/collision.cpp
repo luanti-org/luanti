@@ -71,7 +71,7 @@ struct Collision
 	CollisionAxis axis{COLLISION_AXIS_NONE};
 };
 
-class KineticObject;
+struct KineticObject;
 
 	struct MovingBox
 	{
@@ -94,9 +94,8 @@ private:
 	bool shouldStepUp(MovingBox const &movingbox, Collision collision, f32 stepheight);
 };
 
-class KineticObject
+struct KineticObject
 {
-public:
 	aabb3f collisionbox;
 	v3f pos;
 	v3f velocity;
