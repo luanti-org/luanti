@@ -100,6 +100,8 @@ struct KineticObject
 
 	void moveUnobstructed(f32 dtime);
 
+	void moveUnobstructed(f32 dtime, v3f speed);
+
 	void moveToCollision(
 			Collision collision, v3f avg_speed, f32 dtime, bool step_up);
 
@@ -591,8 +593,13 @@ v3f KineticObject::getProjectedAvgSpeed(f32 dtime) const
 
 void KineticObject::moveUnobstructed(f32 dtime)
 {
+	this->moveUnobstructed(dtime, this->getProjectedAvgSpeed(dtime));
+}
+
+void KineticObject::moveUnobstructed(f32 dtime, v3f speed)
+{
 	// No collision with any collision box.
-	this->pos += this->getProjectedAvgSpeed(dtime) * dtime;
+	this->pos += speed * dtime;
 	// Final speed:
 	this->velocity += this->accel * dtime;
 	// Limit speed for avoiding hangs
@@ -659,7 +666,7 @@ Collision MovementContext::findNearestCollision(const MovingBox &movingbox)
 void KineticObject::moveToCollision(
 		Collision collision, v3f avg_speed, f32 dtime, bool step_up)
 {
-	// Move to the point of collision and reduce dtime by collision.dtime
+	// Move to the point of collision
 	if (collision.dtime < 0.f) {
 		// Handle negative collision.dtime
 		// This largely means an "instant" collision, e.g., with the
@@ -679,13 +686,12 @@ void KineticObject::moveToCollision(
 	} else if (collision.dtime > 0.f) {
 		// updated average speed for the sub-interval up to
 		// collision.dtime
-		const v3f subinterval_avg_speed =
+
+		// We can't use getProjectedAvgSpeed here, because we don't truncate
+		// the velocity before movement.
+		const v3f subinterval_avg_velocity =
 				this->velocity + this->accel * 0.5f * collision.dtime;
-		this->pos += subinterval_avg_speed * collision.dtime;
-		// Speed at (approximated) collision:
-		this->velocity += this->accel * collision.dtime;
-		// Limit speed for avoiding hangs
-		this->velocity = truncate(rangelimv(this->velocity, -5000.0f, 5000.0f), 10000.0f);
+		this->moveUnobstructed(collision.dtime, subinterval_avg_velocity);
 	}
 }
 
