@@ -473,7 +473,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	// solely on loaded CONTENT_IGNORE nodes, no matter where they come from.
 	if (!add_collisions_in_movement_range(
 				collider, dtime, gamedef, env, cinfo)) {
-		*speed_f = v3f(0.f, 0.f, 0.f);
+		*speed_f = v3f();
 		return CollisionMoveResult{};
 	}
 
