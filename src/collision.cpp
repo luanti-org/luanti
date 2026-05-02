@@ -71,6 +71,12 @@ struct Collision
 	CollisionAxis axis{COLLISION_AXIS_NONE};
 };
 
+struct MovementContext
+{
+	std::vector<NearbyCollisionInfo> cinfo;
+	f32 remaining_dtime;
+};
+
 class KineticObject
 {
 public:
@@ -79,8 +85,8 @@ public:
 	v3f velocity;
 	v3f accel;
 
-	CollisionMoveResult simulateFor(f32 dtime, std::vector<NearbyCollisionInfo> &cinfo,
-			f32 stepheight, StepUpMode step_up_mode);
+	CollisionMoveResult simulateFor(
+			MovementContext ctx, f32 stepheight, StepUpMode step_up_mode);
 
 	v3f getProjectedAvgSpeed(f32 dtime) const;
 
@@ -481,8 +487,8 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		add_object_boxes(env, box_0, dtime, *pos_f, collider.getProjectedAvgSpeed(dtime), self, cinfo);
 	}
 
-	CollisionMoveResult result =
-			collider.simulateFor(dtime, cinfo, stepheight, step_up_mode);
+	MovementContext ctx{cinfo, dtime};
+	CollisionMoveResult result = collider.simulateFor(ctx, stepheight, step_up_mode);
 
 	*pos_f = collider.pos;
 	*speed_f = collider.velocity;
@@ -507,8 +513,8 @@ bool add_collisions_in_movement_range(KineticObject const &collider, f32 dtime,
 	return add_area_node_boxes(min, max, gamedef, env, cinfo);
 }
 
-CollisionMoveResult KineticObject::simulateFor(f32 dtime,
-		std::vector<NearbyCollisionInfo> &cinfo, f32 stepheight, StepUpMode step_up_mode)
+CollisionMoveResult KineticObject::simulateFor(
+		MovementContext ctx, f32 stepheight, StepUpMode step_up_mode)
 {
 	CollisionMoveResult result;
 
@@ -521,19 +527,20 @@ CollisionMoveResult KineticObject::simulateFor(f32 dtime,
 			break;
 		}
 
-		v3f const avg_speed_estimate{this->getProjectedAvgSpeed(dtime)};
+		v3f const avg_speed_estimate{this->getProjectedAvgSpeed(ctx.remaining_dtime)};
 
 		MovingBox movingbox{this->collisionbox, avg_speed_estimate};
 		movingbox.box.MinEdge += this->pos;
 		movingbox.box.MaxEdge += this->pos;
 
-		Collision const collision = findNearestCollision(movingbox, cinfo, dtime);
+		Collision const collision =
+				findNearestCollision(movingbox, ctx.cinfo, ctx.remaining_dtime);
 
 		if (collision.axis == COLLISION_AXIS_NONE) {
 			// No collision with any collision box.
-			this->pos += avg_speed_estimate * dtime;
+			this->pos += avg_speed_estimate * ctx.remaining_dtime;
 			// Final speed:
-			this->velocity += this->accel * dtime;
+			this->velocity += this->accel * ctx.remaining_dtime;
 			// Limit speed for avoiding hangs
 			this->velocity = truncate(rangelimv(this->velocity, -5000.0f, 5000.0f), 10000.0f);
 			break;
@@ -541,21 +548,22 @@ CollisionMoveResult KineticObject::simulateFor(f32 dtime,
 
 		assert(std::isfinite(collision.dtime));
 		// Otherwise, a collision occurred.
-		NearbyCollisionInfo &nearest_info = cinfo[collision.boxindex];
+		NearbyCollisionInfo &nearest_info = ctx.cinfo[collision.boxindex];
 
-		bool const step_up = shouldStepUp(movingbox, dtime, collision, stepheight, cinfo);
+		bool const step_up =
+				shouldStepUp(movingbox, ctx.remaining_dtime, collision, stepheight, ctx.cinfo);
 
-		this->moveToCollision(collision, avg_speed_estimate, dtime, step_up);
-		dtime -= collision.dtime;
+		this->moveToCollision(collision, avg_speed_estimate, ctx.remaining_dtime, step_up);
+		ctx.remaining_dtime -= collision.dtime;
 
 		result = this->collideWith(collision, nearest_info, step_up, step_up_mode);
 
-		if (dtime < BS * 1e-10f) {
+		if (ctx.remaining_dtime < BS * 1e-10f) {
 			break;
 		}
 	}
 
-	this->stepUpStairs(cinfo, result);
+	this->stepUpStairs(ctx.cinfo, result);
 	result.collides = !result.collisions.empty();
 
 	return result;
