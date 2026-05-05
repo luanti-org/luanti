@@ -430,8 +430,6 @@ void GameFormSpec::showPauseMenu()
 		os << strgettext("Singleplayer");
 	}
 	os << "\n";
-	os << "- IP: " << get_local_ip_for_pause() << "\n";
-
 	if (simple_singleplayer_mode || address.empty()) {
 		static const std::string on = strgettext("On");
 		static const std::string off = strgettext("Off");
@@ -454,6 +452,8 @@ void GameFormSpec::showPauseMenu()
 
 		}
 	}
+	if (!simple_singleplayer_mode)
+		os << strgettext("- IP: ")  << Address::get_local_ip_for_pause() << "\n";
 	os << ";]";
 
 	/* Create menu */
