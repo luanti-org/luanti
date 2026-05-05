@@ -60,6 +60,8 @@ public:
 	void setAddress(const IPv6AddressBytes *ipv6_bytes);
 	void setPort(u16 port);
 
+	static std::string get_local_ip_for_pause();
+
 private:
 	unsigned short m_addr_family = 0;
 	union
