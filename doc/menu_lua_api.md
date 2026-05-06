@@ -443,6 +443,15 @@ Helpers
   [RFC 3986, section 2.3](https://datatracker.ietf.org/doc/html/rfc3986#section-2.3).
 
 
+Clipboard
+-----
+
+* `core.copy_to_clipboard(text)`
+  * Copies text to the clipboard.
+* `core.get_text_from_clipboard()`
+  * Returns text from clipboard.
+
+
 Async
 -----
 
