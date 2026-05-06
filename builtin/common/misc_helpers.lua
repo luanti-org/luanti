@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
 -- Localize functions to avoid table lookups (better performance).
-local string_sub, string_find, string_rep = string.sub, string.find, string.rep
+local string_sub, string_find, string_rep, string_format = string.sub, string.find, string.rep ,string.format
 local math = math
 
 --------------------------------------------------------------------------------
@@ -508,6 +508,27 @@ function core.string_to_pos(value)
 	return nil
 end
 
+--------------------------------------------------------------------------------
+-- Obtains a nodemeta inventory location from a node position.
+--
+-- Parameters:
+-- * pos: target node position
+--
+-- Returns: an inventory location string corresponding to the node position
+--
+-- Examples:
+-- * `core.get_nodemeta_inventory_location(vector.new(4, 5, -9))` returns `"nodemeta:4,5,-9"`
+-- * `core.get_nodemeta_inventory_location(vector.new(0, 0, 0))` returns `"nodemeta:0,0,0"`
+-- * `core.get_nodemeta_inventory_location(vector.new(599, -30029, -9054))` returns `"nodemeta:599,-30029,-9054"`
+--------------------------------------------------------------------------------
+
+do
+	local prototype = "nodemeta:%d,%d,%d"
+	
+	function core.get_nodemeta_inventory_location(pos)
+		return string_format(prototype, pos.x, pos.y, pos.z)
+	end
+end
 
 --------------------------------------------------------------------------------
 
