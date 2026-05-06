@@ -1998,9 +1998,6 @@ Displays an image on the HUD.
 
 Displays text on the HUD.
 
-* `scale`: Defines the bounding rectangle of the text, syntax is
-  `{ x = <number>, y = <number> }`.
-  A value such as `{ x = 100, y = 100 }` should work.
 * `text`: The text to be displayed in the HUD element.
   Supports `core.translate` (always)
   and `core.colorize` (since protocol version 44)
