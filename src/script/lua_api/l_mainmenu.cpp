@@ -1111,22 +1111,22 @@ int ModApiMainMenu::l_do_async_callback(lua_State *L)
 /******************************************************************************/
 int ModApiMainMenu::l_copy_to_clipboard(lua_State *L)
 {
-    GUIEngine* engine = getGuiEngine(L);
-    sanity_check(engine != NULL);
+	GUIEngine* engine = getGuiEngine(L);
+	sanity_check(engine != NULL);
 
-    const char *text = luaL_checkstring(L, 1);
+	const char *text = luaL_checkstring(L, 1);
 
 	auto *env = engine->m_rendering_engine->get_gui_env();
-    env->getOSOperator()->copyToClipboard(text);
+	env->getOSOperator()->copyToClipboard(text);
 
-    return 0;
+	return 0;
 }
 
 /******************************************************************************/
 int ModApiMainMenu::l_get_text_from_clipboard(lua_State *L)
 {
 	GUIEngine* engine = getGuiEngine(L);
-    sanity_check(engine != NULL);
+	sanity_check(engine != NULL);
 
 	auto *env = engine->m_rendering_engine->get_gui_env();
 	auto text = env->getOSOperator()->getTextFromClipboard();
