@@ -1119,6 +1119,11 @@ int ModApiMainMenu::l_copy_to_clipboard(lua_State *L)
 	auto *env = engine->m_rendering_engine->get_gui_env();
 	env->getOSOperator()->copyToClipboard(text);
 
+	if (engine->m_status_text) {
+        engine->m_status_text->setMainMenuStyle();
+        engine->m_status_text->showStatusText(utf8_to_wide("Copied to clipboard!"));
+    }
+
 	return 0;
 }
 
