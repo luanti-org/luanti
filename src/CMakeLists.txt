@@ -299,7 +299,7 @@ if(WIN32)
 			NOMINMAX
 		)
 	endif()
-	list(APPEND PLATFORM_LIBS ws2_32.lib version.lib shlwapi.lib winmm.lib)
+	list(APPEND PLATFORM_LIBS iphlpapi.lib ws2_32.lib version.lib shlwapi.lib winmm.lib)
 
 	set(EXTRA_DLL "" CACHE FILEPATH "Optional paths to additional DLLs that should be packaged")
 
