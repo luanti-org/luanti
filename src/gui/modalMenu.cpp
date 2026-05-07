@@ -123,6 +123,9 @@ bool GUIModalMenu::remapClickOutside(const SEvent &event)
 	if (isChild(hovered, this))
 		return false;
 
+	if (!g_settings->getBool("formspec_exit_on_click_outside"))
+		return false;
+
 	if (event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN) {
 		m_last_click_outside = current;
 		return true;
