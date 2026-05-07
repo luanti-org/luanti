@@ -394,7 +394,7 @@ static bool add_area_node_boxes(const v3s16 min, const v3s16 max, IGameDef *game
 			n.getCollisionBoxes(nodedef, &nodeboxes, neighbors);
 
 			v3f posf = intToFloat(p, BS);
-			for (auto box : nodeboxes) {
+			for (const auto &box : nodeboxes) {
 				cinfo.emplace_back(false, n_bouncy_value, p, translate(box, posf));
 			}
 		} else {
