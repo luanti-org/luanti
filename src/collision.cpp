@@ -557,12 +557,16 @@ core::aabbox3d<s16> KineticObject::getMovementRange(f32 dtime) const
 {
 	// Movement if no collisions
 	v3f newpos_f = this->pos + this->velocity * dtime;
-	v3f minpos_f(MYMIN(this->pos.X, newpos_f.X),
-			MYMIN(this->pos.Y, newpos_f.Y) +
-					0.01f * BS, // bias rounding, player often at +/-n.5
-			MYMIN(this->pos.Z, newpos_f.Z));
-	v3f maxpos_f(MYMAX(this->pos.X, newpos_f.X), MYMAX(this->pos.Y, newpos_f.Y),
-			MYMAX(this->pos.Z, newpos_f.Z));
+	v3f minpos_f(
+		MYMIN(this->pos.X, newpos_f.X),
+		MYMIN(this->pos.Y, newpos_f.Y) + 0.01f * BS, // bias rounding, player often at +/-n.5
+		MYMIN(this->pos.Z, newpos_f.Z)
+	);
+	v3f maxpos_f(
+		MYMAX(this->pos.X, newpos_f.X),
+		MYMAX(this->pos.Y, newpos_f.Y),
+		MYMAX(this->pos.Z, newpos_f.Z)
+	);
 	v3s16 min = floatToInt(minpos_f + this->collisionbox.MinEdge, BS) - v3s16(1, 1, 1);
 	v3s16 max = floatToInt(maxpos_f + this->collisionbox.MaxEdge, BS) + v3s16(1, 1, 1);
 	return core::aabbox3d<s16>{min, max};
