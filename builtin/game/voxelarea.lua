@@ -101,12 +101,8 @@ local function clamp_range(query_min, query_max, target_min, target_max)
 		return -1, -2
 	end
 	-- Otherwise, clamp the requested range to the target range.
-	if query_min < target_min then
-		query_min = target_min
-	end
-	if query_max > target_max then
-		query_max = target_max
-	end
+	query_min = math.max(query_min, target_min)
+	query_max = math.min(query_max, target_max)
 	return query_min, query_max
 end
 
