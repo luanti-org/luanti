@@ -100,6 +100,7 @@ local function clamp_range(query_min, query_max, target_min, target_max)
 		-- Use fixed values for simplicity.
 		return -1, -2
 	end
+
 	-- Otherwise, clamp the requested range to the target range.
 	query_min = math.max(query_min, target_min)
 	query_max = math.min(query_max, target_max)
@@ -111,10 +112,10 @@ function VoxelArea:iter(minx, miny, minz, maxx, maxy, maxz)
 	miny, maxy = clamp_range(miny, maxy, self.MinEdge.y, self.MaxEdge.y)
 	minz, maxz = clamp_range(minz, maxz, self.MinEdge.z, self.MaxEdge.z)
 
-	-- if the range is invalid or empty return an empty iterator
+	-- If the range is invalid or empty, return an empty iterator.
 	if minx > maxx or miny > maxy or minz > maxz then
 		return function()
-			-- explicit nil for clear iterator protocol
+			-- An explicit nil for clear iterator protocol.
 			return nil
 		end
 	end

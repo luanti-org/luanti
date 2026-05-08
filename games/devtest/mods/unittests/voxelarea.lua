@@ -1,25 +1,22 @@
 
-local function test_voxelarea_invalid_area_example(player, pos)
+local function test_voxelarea_invalid_area_iteration()
 	local p1, p2 = vector.new(0,16,0), vector.new(15,31,15)
 	local va = VoxelArea(p1, p2)
-	local vmax = va:getVolume() -- this is 4096
+	-- This is 4096.
+	local vmax = va:getVolume()
 	for i in va:iter(0, 16, 0, 15, 0, 15) do
 		if i < 0 or i > vmax then
-			error(("index %d is invalid"):format(i))
+			error(("VoxelArea index %d is invalid."):format(i))
 		end
 	end
 end
 
-unittests.register("test_voxelarea_invalid_area_example", test_voxelarea_invalid_area_example, {})
+unittests.register("test_voxelarea_invalid_area_iteration", test_voxelarea_invalid_area_iteration, {})
 
--- Compare two (functions returning) iterators for equality.
--- We need to use functions returning iterators because
---		otherwise changing the iterator implementation
---		could change which of the 6 parameters are nil,
---		and how they line up.
+-- Compare two table-packed iterators for equality.
 local function compare_iterators(iterable_a, iterable_b)
-	local fun_a, state_a, control_a = iterable_a()
-	local fun_b, state_b, control_b = iterable_b()
+	local fun_a, state_a, control_a = table.unpack(iterable_a)
+	local fun_b, state_b, control_b = table.unpack(iterable_b)
 	while true do
 		control_a = fun_a(state_a, control_a)
 		control_b = fun_b(state_b, control_b)
@@ -37,39 +34,31 @@ end
 -- These are equivalent:
 --		`va:iter(0, 10, 0, 15, 20, 15)`
 --		`va:iter(0, 16, 0, 15, 20, 15)`
-local function test_voxelarea_equivalence_example(player, pos)
+local function test_voxelarea_clipped_iterator_equivalence()
 	local p1, p2 = vector.new(0,16,0), vector.new(15,31,15)
 	local va = VoxelArea(p1, p2)
 
 	local comparison_success = compare_iterators(
-			function() return va:iter(0, 10, 0, 15, 20, 15) end,
-			function() return va:iter(0, 16, 0, 15, 20, 15) end
+			table.pack(va:iter(0, 10, 0, 15, 20, 15)),
+			table.pack(va:iter(0, 16, 0, 15, 20, 15))
 		)
 	if not comparison_success then
-		error("Unexpected mismatch between VoxelArea iterators!")
-	end
-
-end
-unittests.register("test_voxelarea_equivalence_example", test_voxelarea_equivalence_example, {})
-
-local function empty_iterator()
-	return function()
-		return nil
+		error("Unexpected mismatch between clipped and non-clipped VoxelArea iterators!")
 	end
 end
+unittests.register("test_voxelarea_clipped_iterator_equivalence", test_voxelarea_clipped_iterator_equivalence, {})
 
 -- `va:iter(0, 10, 0, 15, 12, 15)` produces no results.
-local function test_voxelarea_empty_example(player, pos)
+local function test_voxelarea_empty_out_of_bounds_iterator()
 	local p1, p2 = vector.new(0,16,0), vector.new(15,31,15)
 	local va = VoxelArea(p1, p2)
 
 	local comparison_success = compare_iterators(
-			function() return va:iter(0, 10, 0, 15, 12, 15) end,
-			empty_iterator
+			table.pack(va:iter(0, 10, 0, 15, 12, 15)),
+			table.pack(function() return nil end)
 		)
 	if not comparison_success then
-		error("supposedly empty VoxelArea iterator was not empty")
+		error("Out-of-bounds VoxelArea iterator was not empty.")
 	end
 end
-
-unittests.register("test_voxelarea_empty_example", test_voxelarea_empty_example, {})
+unittests.register("test_voxelarea_empty_out_of_bounds_iterator", test_voxelarea_empty_out_of_bounds_iterator, {})
