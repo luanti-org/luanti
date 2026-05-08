@@ -108,8 +108,8 @@ end
 
 function VoxelArea:iter(minx, miny, minz, maxx, maxy, maxz)
 	minx, maxx = clamp_range(minx, maxx, self.MinEdge.x, self.MaxEdge.x)
-	miny, maxy = clamp_range(miny, maxy, self.MinEdge.x, self.MaxEdge.x)
-	minz, maxz = clamp_range(minz, maxz, self.MinEdge.x, self.MaxEdge.x)
+	miny, maxy = clamp_range(miny, maxy, self.MinEdge.y, self.MaxEdge.y)
+	minz, maxz = clamp_range(minz, maxz, self.MinEdge.z, self.MaxEdge.z)
 
 	-- if the range is invalid or empty return an empty iterator
 	if minx > maxx or miny > maxy or minz > maxz then
