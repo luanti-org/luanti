@@ -13,10 +13,14 @@ end
 
 unittests.register("test_voxelarea_invalid_area_iteration", test_voxelarea_invalid_area_iteration, {})
 
+local function pack_triple(a, b, c)
+	return function() return a, b, c end
+end
+
 -- Compare two table-packed iterators for equality.
 local function compare_iterators(iterable_a, iterable_b)
-	local fun_a, state_a, control_a = table.unpack(iterable_a)
-	local fun_b, state_b, control_b = table.unpack(iterable_b)
+	local fun_a, state_a, control_a = iterable_a()
+	local fun_b, state_b, control_b = iterable_b()
 	while true do
 		control_a = fun_a(state_a, control_a)
 		control_b = fun_b(state_b, control_b)
@@ -39,8 +43,8 @@ local function test_voxelarea_clipped_iterator_equivalence()
 	local va = VoxelArea(p1, p2)
 
 	local comparison_success = compare_iterators(
-			table.pack(va:iter(0, 10, 0, 15, 20, 15)),
-			table.pack(va:iter(0, 16, 0, 15, 20, 15))
+			pack_triple(va:iter(0, 10, 0, 15, 20, 15)),
+			pack_triple(va:iter(0, 16, 0, 15, 20, 15))
 		)
 	if not comparison_success then
 		error("Unexpected mismatch between clipped and non-clipped VoxelArea iterators!")
@@ -54,8 +58,8 @@ local function test_voxelarea_empty_out_of_bounds_iterator()
 	local va = VoxelArea(p1, p2)
 
 	local comparison_success = compare_iterators(
-			table.pack(va:iter(0, 10, 0, 15, 12, 15)),
-			table.pack(function() return nil end)
+			pack_triple(va:iter(0, 10, 0, 15, 12, 15)),
+			pack_triple(function() return nil end)
 		)
 	if not comparison_success then
 		error("Out-of-bounds VoxelArea iterator was not empty.")
