@@ -93,7 +93,36 @@ function VoxelArea:containsi(i)
 	return (i >= 1) and (i <= self:getVolume())
 end
 
+local function clamp_range(query_min, query_max, target_min, target_max)
+	-- Return an invalid range if the requested range is empty,
+	--     or doesn't intersect the target range.
+	if query_min > query_max or query_max < target_min or query_min > target_max then
+		-- Use fixed values for simplicity.
+		return {-1, -2}
+	end
+	-- Otherwise, clamp the requested range to the target range.
+	if query_min < target_min then
+		query_min = target_min
+	end
+	if query_max > target_max then
+		query_max = target_max
+	end
+	return {query_min, query_max}
+end
+
 function VoxelArea:iter(minx, miny, minz, maxx, maxy, maxz)
+	minx, maxx = clamp_range(minx, maxx, self.MinEdge.x, self.MaxEdge.x)
+	miny, maxy = clamp_range(miny, maxy, self.MinEdge.x, self.MaxEdge.x)
+	minz, maxz = clamp_range(minz, maxz, self.MinEdge.x, self.MaxEdge.x)
+
+	-- if the range is invalid or empty return an empty iterator
+	if minx > maxx or miny > maxy or minz > maxz then
+		return function()
+			-- explicit nil for clear iterator protocol
+			return nil
+		end
+	end
+
 	local i = self:index(minx, miny, minz) - 1
 	local xrange = maxx - minx + 1
 	local nextaction = i + 1 + xrange
