@@ -42,8 +42,8 @@ local function test_voxelarea_equivalence_example(player, pos)
 	local va = VoxelArea(p1, p2)
 
 	local comparison_success = compare_iterators(
-			function() va:iter(0, 10, 0, 15, 20, 15) end,
-			function() va:iter(0, 16, 0, 15, 20, 15) end
+			function() return va:iter(0, 10, 0, 15, 20, 15) end,
+			function() return va:iter(0, 16, 0, 15, 20, 15) end
 		)
 	if not comparison_success then
 		error("Unexpected mismatch between VoxelArea iterators!")
@@ -64,7 +64,7 @@ local function test_voxelarea_empty_example(player, pos)
 	local va = VoxelArea(p1, p2)
 
 	local comparison_success = compare_iterators(
-			function() va:iter(0, 10, 0, 15, 12, 15) end,
+			function() return va:iter(0, 10, 0, 15, 12, 15) end,
 			empty_iterator
 		)
 	if not comparison_success then
