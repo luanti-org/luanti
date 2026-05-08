@@ -98,7 +98,7 @@ local function clamp_range(query_min, query_max, target_min, target_max)
 	--     or doesn't intersect the target range.
 	if query_min > query_max or query_max < target_min or query_min > target_max then
 		-- Use fixed values for simplicity.
-		return {-1, -2}
+		return -1, -2
 	end
 	-- Otherwise, clamp the requested range to the target range.
 	if query_min < target_min then
@@ -107,7 +107,7 @@ local function clamp_range(query_min, query_max, target_min, target_max)
 	if query_max > target_max then
 		query_max = target_max
 	end
-	return {query_min, query_max}
+	return query_min, query_max
 end
 
 function VoxelArea:iter(minx, miny, minz, maxx, maxy, maxz)
