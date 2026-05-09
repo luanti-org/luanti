@@ -10,7 +10,6 @@
 #include "lua_api/l_noise.h"
 #include "lua_api/l_vmanip.h"
 #include "lua_api/l_object.h"
-#include "common/helper.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
 #include "scripting_server.h"
@@ -750,10 +749,14 @@ void ModApiEnvBase::collectNodeIds(lua_State *L, int idx, const NodeDefManager *
 	std::vector<content_t> &filter)
 {
 	if (lua_istable(L, idx)) {
-		LuaHelper::for_ipairs(L, idx, [&]() {
+		lua_pushnil(L);
+		while (lua_next(L, idx) != 0) {
+			// key at index -2 and value at index -1
 			luaL_checktype(L, -1, LUA_TSTRING);
 			ndef->getIds(readParam<std::string>(L, -1), filter);
-		});
+			// removes value, keeps key for next iteration
+			lua_pop(L, 1);
+		}
 	} else if (lua_isstring(L, idx)) {
 		ndef->getIds(readParam<std::string>(L, idx), filter);
 	}
