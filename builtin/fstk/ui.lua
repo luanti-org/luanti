@@ -184,6 +184,9 @@ core.button_handler = function(fields)
 		return
 	elseif fields["btn_error_copy"] then
 		core.copy_to_clipboard(gamedata.errormessage)
+		gamedata.errormessage = nil
+		gamedata.reconnect_requested = false
+        ui.update()
 		return
 	end
 
