@@ -1,0 +1,3 @@
+[submodule "lib/keychain"]
+	path = lib/keychain
+	url = https://github.com/hrantzsch/keychain
