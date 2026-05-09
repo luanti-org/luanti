@@ -13,11 +13,13 @@ end
 
 unittests.register("test_voxelarea_invalid_area_iteration", test_voxelarea_invalid_area_iteration, {})
 
+-- Pack 3 items into a closure.
+-- Used to pack an iterator for `compare_iterators()`.
 local function pack_triple(a, b, c)
 	return function() return a, b, c end
 end
 
--- Compare two table-packed iterators for equality.
+-- Compare two closure-packed iterators for equality.
 local function compare_iterators(iterable_a, iterable_b)
 	local fun_a, state_a, control_a = iterable_a()
 	local fun_b, state_b, control_b = iterable_b()
