@@ -186,7 +186,7 @@ core.button_handler = function(fields)
 		core.copy_to_clipboard(gamedata.errormessage)
 		gamedata.errormessage = nil
 		gamedata.reconnect_requested = false
-        ui.update()
+		ui.update()
 		return
 	end
 
