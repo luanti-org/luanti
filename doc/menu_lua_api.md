@@ -191,6 +191,12 @@ Passed to `HTTPApiTable.fetch` callback. Returned by
 ```
 
 
+HTTP Requests
+-------------
+
+<!-- TODO -->
+
+
 Formspec
 --------
 

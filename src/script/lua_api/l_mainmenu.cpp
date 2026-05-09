@@ -28,6 +28,7 @@
 #include "gettext.h"
 #include "log.h"
 #include "util/string.h"
+#include "keychain/keychain.h"
 
 #include <cassert>
 #include <iostream>
@@ -937,6 +938,85 @@ int ModApiMainMenu::l_download_file(lua_State *L)
 }
 
 /******************************************************************************/
+int ModApiMainMenu::l_keychain_is_available(lua_State *L)
+{
+	keychain::Error error;
+	// TODO return error details
+	lua_pushboolean(L, keychain::isAvailable(error));
+	return 1;
+}
+
+/******************************************************************************/
+int ModApiMainMenu::l_keychain_set_password(lua_State *L)
+{
+	const char *url      = luaL_checkstring(L, 1);
+	const char *user     = luaL_checkstring(L, 2);
+	const char *password = luaL_checkstring(L, 3);
+
+	keychain::Error error;
+
+    keychain::setPassword("org.luanti.luanti", url, user, password, error);
+
+    if (error) {
+	    lua_pushboolean(L, false);
+	    lua_pushstring(L, error.message.c_str());
+	    return 2;
+    } else {
+	    lua_pushboolean(L, true);
+		return 1;
+	}
+
+}
+
+/******************************************************************************/
+int ModApiMainMenu::l_keychain_get_password(lua_State *L)
+{
+	const char *url      = luaL_checkstring(L, 1);
+	const char *user     = luaL_checkstring(L, 2);
+
+	keychain::Error error;
+
+	std::string password = keychain::getPassword("org.luanti.luanti", url, user, error);
+
+    if (error.type == keychain::ErrorType::NotFound) {
+		// No error getting the password
+	    lua_pushboolean(L, true);
+		// But no password was found
+		lua_pushnil(L);
+        return 2;
+    } else if (error) {
+	    lua_pushboolean(L, false);
+	    lua_pushstring(L, error.message.c_str());
+	    return 2;
+    } else {
+	    lua_pushboolean(L, true);
+		lua_pushstring(L, password.c_str());
+	    return 2;
+	}
+}
+
+/******************************************************************************/
+int ModApiMainMenu::l_keychain_delete_password(lua_State *L)
+{
+	const char *url      = luaL_checkstring(L, 1);
+	const char *user     = luaL_checkstring(L, 2);
+
+	keychain::Error error;
+
+	keychain::deletePassword("org.luanti.luanti", url, user, error);
+
+    if (error) {
+	    lua_pushboolean(L, false);
+	    lua_pushstring(L, error.message.c_str());
+	    return 2;
+    } else {
+	    lua_pushboolean(L, true);
+	    return 1;
+	}
+
+}
+
+/******************************************************************************/
 int ModApiMainMenu::l_get_language(lua_State *L)
 {
 	std::string lang = gettext("LANG_CODE");
@@ -1150,6 +1230,10 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(get_mainmenu_path);
 	API_FCT(show_path_select_dialog);
 	API_FCT(download_file);
+	API_FCT(keychain_is_available);
+	API_FCT(keychain_set_password);
+	API_FCT(keychain_get_password);
+	API_FCT(keychain_delete_password);
 	API_FCT(get_language);
 	API_FCT(get_window_info);
 	API_FCT(get_active_renderer);
