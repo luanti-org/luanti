@@ -113,9 +113,9 @@ local function check_range(query_min, query_max, target_min, target_max, var)
 end
 
 function VoxelArea:iter(minx, miny, minz, maxx, maxy, maxz)
-	check_range(minx, maxx, self.MinEdge.x, self.MaxEdge.x)
-	check_range(miny, maxy, self.MinEdge.y, self.MaxEdge.y)
-	check_range(minz, maxz, self.MinEdge.z, self.MaxEdge.z)
+	check_range(minx, maxx, self.MinEdge.x, self.MaxEdge.x, "x")
+	check_range(miny, maxy, self.MinEdge.y, self.MaxEdge.y, "y")
+	check_range(minz, maxz, self.MinEdge.z, self.MaxEdge.z, "z")
 
 	local i = self:index(minx, miny, minz) - 1
 	local xrange = maxx - minx + 1
