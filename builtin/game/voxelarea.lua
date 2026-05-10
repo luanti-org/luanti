@@ -94,7 +94,7 @@ function VoxelArea:containsi(i)
 end
 
 local function assert_integral(num, var, which)
-	if math.floor(num) != num then
+	if math.floor(num) ~= num then
 		error((which .. var .. " %f is not an integer"):format(num))
 	end
 end
