@@ -1,4 +1,4 @@
-Luanti Lua Mainmenu API Reference 5.16.0
+Luanti Lua Mainmenu API Reference 5.16.1
 ========================================
 
 Introduction
