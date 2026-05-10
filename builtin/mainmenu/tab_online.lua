@@ -82,6 +82,7 @@ local function set_selected_server(server)
 		-- This will always fail if remember_login is false
 		-- because nothing has been stored, nor will it ever be
 		local login = keyringmgr.get_last_login(address, port)
+		-- FIXME: I have to click on a server to have the password field pre-filled. it should also be filled when clicking on the join game tab and at startup.
 		if login then
 			input_playername = login.playername
 			input_password = login.password
