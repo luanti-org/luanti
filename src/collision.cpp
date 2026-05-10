@@ -748,7 +748,7 @@ CollisionMoveResult MovementContext::collideWith(KineticObject *collider, Collis
 	// Get bounce multiplier
 	float bounce = -(float) nearest_info.bouncy / 100.0f;
 
-	const f32 y_velocity{collider->getVelocity().Y};
+	const f32 y_velocity = collider->getVelocity().Y;
 	// Set the speed component that caused the collision to zero
 	if (step_up && (this->step_up_mode == StepUpMode::LEGACY ||
 			(this->step_up_mode == StepUpMode::FLOATY && y_velocity <= 0.0f) ||
@@ -810,7 +810,7 @@ void KineticObject::collideZ(f32 bounce)
 
 bool KineticObject::collideY(f32 bounce)
 {
-	bool result{false};
+	bool result = false;
 	if (bounce < -1e-4 && fabsf(this->velocity.Y) > BS * 3) {
 		this->velocity.Y *= bounce;
 	} else {
