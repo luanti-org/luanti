@@ -106,11 +106,16 @@ public:
 	void moveToCollision(
 			Collision collision, v3f avg_speed, f32 dtime, bool step_up);
 
-	void collideX(f32 bounce);
-
-	void collideZ(f32 bounce);
-
-	bool collideY(f32 bounce);
+	template <float v3f::*AX> void collide(f32 bounce)
+	{
+		if (bounce < -1e-4 && fabsf(velocity.*AX) > BS * 3) {
+			velocity.*AX *= bounce;
+		} else {
+			velocity.*AX = 0.f;
+			// avoid colliding in the next iterations
+			accel.*AX = 0.f;
+		}
+	}
 
 	v3f getPosition() const
 	{
@@ -740,11 +745,12 @@ CollisionMoveResult MovementContext::collideWith(KineticObject *collider, Collis
 		// Special case: Handle stairs
 		nearest_info.is_step_up = true;
 	} else if (axis == COLLISION_AXIS_X) {
-		collider->collideX(bounce);
+		collider->collide<&v3f::X>(bounce);
 	} else if (axis == COLLISION_AXIS_Z) {
-		collider->collideZ(bounce);
+		collider->collide<&v3f::Z>(bounce);
 	} else { // axis == COLLISION_AXIS_Y)
-		if (collider->collideY(bounce)) {
+		if ((bounce >= -1e-4 || fabsf(collider->velocity.Y) <= BS * 3) &&
+				collider->velocity.Y < 0.0f) {
 			// FIXME: This code is necessary until
 			// `axisAlignedCollision` takes acceleration
 			// into consideration for the time calculation.
@@ -753,6 +759,7 @@ CollisionMoveResult MovementContext::collideWith(KineticObject *collider, Collis
 			result.touching_ground    = true;
 			result.standing_on_object = nearest_info.isObject();
 		}
+		collider->collide<&v3f::Y>(bounce);
 	}
 
 	if (!nearest_info.is_unloaded && !step_up) {
@@ -767,44 +774,6 @@ CollisionMoveResult MovementContext::collideWith(KineticObject *collider, Collis
 		result.collisions.push_back(info);
 	}
 
-	return result;
-}
-
-void KineticObject::collideX(f32 bounce)
-{
-	if (bounce < -1e-4 && fabsf(velocity.X) > BS * 3) {
-		velocity.X *= bounce;
-	} else {
-		velocity.X = 0.f;
-		// avoid colliding in the next interations
-		accel.X = 0.f;
-	}
-}
-
-void KineticObject::collideZ(f32 bounce)
-{
-	if (bounce < -1e-4 && fabsf(velocity.Z) > BS * 3) {
-		velocity.Z *= bounce;
-	} else {
-		velocity.Z = 0.f;
-		// avoid colliding in the next iterations
-		accel.Z = 0.f;
-	}
-}
-
-bool KineticObject::collideY(f32 bounce)
-{
-	bool result = false;
-	if (bounce < -1e-4 && fabsf(velocity.Y) > BS * 3) {
-		velocity.Y *= bounce;
-	} else {
-		if (velocity.Y < 0.0f) {
-			result = true;
-		}
-		velocity.Y = 0.f;
-		// avoid colliding in the next iterations
-		accel.Y = 0.f;
-	}
 	return result;
 }
 
