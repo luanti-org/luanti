@@ -108,7 +108,10 @@ local function check_range(query_min, query_max, target_min, target_max, var)
 				.. var .. "' range is reversed or empty.")
 	elseif query_min > target_max or query_max < target_min then
 		error("Requested VoxelArea iteration axis '"
-				.. var .. "' range is outside the VoxelArea.")
+				.. var .. "' range is fully outside the VoxelArea.")
+	elseif query_min < target_min or query_max > target_max then
+		error("Requested Voxelarea iteration axis '"
+				.. var .. "' range is partly outside the VoxelArea.")
 	end
 end
 
