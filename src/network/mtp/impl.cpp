@@ -1632,7 +1632,10 @@ void Connection::DisconnectPeer(session_t peer_id)
 
 void Connection::SetPeerID(session_t id)
 {
-	m_peer_id = id;
+	{
+		MutexAutoLock _(m_info_mutex);
+		m_peer_id = id;
+	}
 	// fix peer id in existing queued reliable packets
 	if (id != PEER_ID_INEXISTENT)
 		putCommand(ConnectionCommand::peer_id_set(id));
