@@ -1977,6 +1977,10 @@ Default 0. By convention, the following values are recommended:
 If your HUD element doesn't fit into any category, pick an integer
 between the suggested values.
 
+If the `unhideable` field is set, players can not hide the element.
+It can be used to for example obstruct the view of players.
+Does not take effect for clients older than version 5.17
+
 Below are the specific uses for fields in each type; fields not listed for that
 type are ignored.
 
@@ -6146,6 +6150,8 @@ Utilities
       get_modnames_load_order = true,
       -- `ObjectRef:set_camera()` accepts `nil` to indicate reset (5.16.0)
       set_camera_resettable = true,
+      -- The HUD element field `unhideable` exists (5.17.0)
+      hud_unhideable_field = true,
   }
   ```
 
@@ -11914,6 +11920,8 @@ Used by `ObjectRef:hud_add`. Returned by `ObjectRef:hud_get`.
     -- Z index: lower z-index HUDs are displayed behind higher z-index HUDs
 
     style = 0, -- integer [u32]
+
+    unhideable = false, -- bool
 }
 ```
 

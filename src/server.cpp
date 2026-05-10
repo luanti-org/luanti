@@ -1884,7 +1884,7 @@ void Server::SendHUDAdd(session_t peer_id, u32 id, HudElement *form)
 	else
 		pkt << v2s32::from(form->size);
 
-	pkt << form->z_index << form->text2 << form->style;
+	pkt << form->z_index << form->text2 << form->style << form->flags;
 
 	Send(&pkt);
 }

@@ -71,6 +71,7 @@ enum HudElementStat : u8 {
 	HUD_STAT_Z_INDEX,
 	HUD_STAT_TEXT2,
 	HUD_STAT_STYLE,
+	HUD_STAT_UNHIDEABLE,
 	HudElementStat_END // Dummy for validity check
 };
 
@@ -97,6 +98,14 @@ struct HudElement {
 	s16 z_index = 0;
 	std::string text2;
 	u32 style;
+	u8 flags = 0; // Only used for unhideable, can be used for other bool fields in the future
+
+	bool is_unhideable() { return flags & 1; }
+	void set_unhideable(bool unhideable)
+	{
+		flags = unhideable ? (flags | 1) : (flags & ~1);
+	}
+
 };
 
 extern const EnumString es_HudElementType[];

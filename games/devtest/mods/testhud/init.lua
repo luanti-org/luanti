@@ -377,6 +377,70 @@ core.register_chatcommand("hudinventories", {
 	end
 })
 
+-- Unhideable elements
+
+local hud_unhideable_def = {
+	type = "image",
+	position = {x=0.5, y=0.5},
+	scale = {x = 100, y = 100},
+	text = "smoke_puff.png",
+	unhideable = true,
+}
+
+local player_hud_unhideable_element = {}
+core.register_chatcommand("hudunhideable", {
+	description = "Adds an unhideable HUD image element",
+	params = "[ add | remove ]",
+	func = function(name, params)
+		local player = core.get_player_by_name(name)
+		if not player then
+			return false, "No player."
+		end
+
+		if params == "remove" then
+			if player_hud_unhideable_element[name] then
+				player:hud_remove(player_hud_unhideable_element[name])
+			end
+			return true, "HUD unhideable image removed."
+		end
+
+		-- params == "add" or default
+		if not player_hud_unhideable_element[name] then
+			player_hud_unhideable_element[name] = player:hud_add(hud_unhideable_def)
+			assert(player:hud_get(player_hud_unhideable_element[name]).unhideable)
+			return true, "HUD unhideable image added."
+		end
+		return true, "HUD unhideable image already present."
+	end
+})
+
+local player_hud_all_unhideable = {}
+core.register_chatcommand("hudtoggleunhideable", {
+	description = "Makes all HUD elements unhideable",
+	func = function(name, params)
+		local player = core.get_player_by_name(name)
+		if not player then
+			return false, "No player."
+		end
+
+		if player_hud_all_unhideable[name] then
+			for id, _ in pairs(player:hud_get_all()) do
+				player:hud_change(id, "unhideable", false)
+			end
+			player_hud_all_unhideable[name] = false
+			return true, "All HUD elements are hideable now."
+		else
+			for id, _ in pairs(player:hud_get_all()) do
+				player:hud_change(id, "unhideable", true)
+			end
+			player_hud_all_unhideable[name] = true
+			return true, "All HUD elements are unhideable now."
+		end
+	end
+})
+
+
+
 
 core.register_on_leaveplayer(function(player)
 	local playername = player:get_player_name()
@@ -384,6 +448,8 @@ core.register_on_leaveplayer(function(player)
 	player_waypoints[playername] = nil
 	player_hud_hotbars[playername] = nil
 	player_hud_inventories[playername] = nil
+	player_hud_unhideable_element[playername] = nil
+	player_hud_all_unhideable[playername] = nil
 end)
 
 core.register_chatcommand("hudprint", {

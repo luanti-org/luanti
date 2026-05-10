@@ -2406,6 +2406,8 @@ void read_hud_element(lua_State *L, HudElement *elem)
 
 	elem->style = getintfield_default(L, 2, "style", 0);
 
+	elem->set_unhideable(getboolfield_default(L, 2, "unhideable", false));
+
 	/* check for known deprecated element usage */
 	if ((elem->type  == HUD_ELEM_STATBAR) && (elem->size == v2f()))
 		log_deprecated(L,"Deprecated usage of statbar without size!");
@@ -2471,6 +2473,9 @@ void push_hud_element(lua_State *L, HudElement *elem)
 
 	lua_pushinteger(L, elem->style);
 	lua_setfield(L, -2, "style");
+
+	lua_pushboolean(L, elem->is_unhideable());
+	lua_setfield(L, -2, "unhideable");
 }
 
 bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value)
@@ -2539,6 +2544,10 @@ bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void 
 		case HUD_STAT_STYLE:
 			elem->style = luaL_checknumber(L, 4);
 			*value = &elem->style;
+			break;
+		case HUD_STAT_UNHIDEABLE:
+			elem->set_unhideable(lua_toboolean(L, 4));
+			*value = &elem->flags;
 			break;
 		case HudElementStat_END:
 			return false;
