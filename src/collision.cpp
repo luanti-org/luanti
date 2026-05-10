@@ -33,7 +33,7 @@ bool g_collision_problems_encountered = false;
 namespace {
 
 template <typename T>
-core::aabbox3d<T> translate(core::aabbox3d<T> const &bbox, core::vector3d<T> const &v)
+core::aabbox3d<T> translate(const core::aabbox3d<T> &bbox, const core::vector3d<T> &v)
 {
 	core::aabbox3d<T> result{bbox};
 	result.MinEdge += v;
@@ -116,7 +116,7 @@ public:
 
 	void jerkUpwards(float dy);
 
-	const aabb3f& getCollisionbox() const
+	const aabb3f &getCollisionbox() const
 	{
 		return this->collisionbox;
 	}
@@ -446,7 +446,7 @@ static void add_object_boxes(Environment *env,
 		LocalPlayer *lplayer = c_env->getLocalPlayer();
 		auto *obj = (ClientActiveObject*) lplayer->getCAO();
 		if (!self || (self != obj && self != obj->getParent())) {
-			aabb3f const lplayer_collisionbox =
+			const aabb3f lplayer_collisionbox =
 					translate(lplayer->getCollisionbox(), lplayer->getPosition());
 			cinfo.emplace_back(obj, 0, lplayer_collisionbox);
 		}
