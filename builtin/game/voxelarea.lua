@@ -93,7 +93,30 @@ function VoxelArea:containsi(i)
 	return (i >= 1) and (i <= self:getVolume())
 end
 
+local function assert_integral(num, var, which)
+	if math.floor(num) != num then
+		error((which .. var .. " %f is not an integer"):format(num))
+	end
+end
+
+local function check_range(query_min, query_max, target_min, target_max, var)
+	assert_integral(query_min, var, "min")
+	assert_integral(query_max, var, "max")
+
+	if query_min > query_max then
+		error("Requested VoxelArea iteration axis '"
+				.. var .. "' range is reversed or empty.")
+	elseif query_min > target_max or query_max < target_min then
+		error("Requested VoxelArea iteration axis '"
+				.. var .. "' range is outside the VoxelArea.")
+	end
+end
+
 function VoxelArea:iter(minx, miny, minz, maxx, maxy, maxz)
+	check_range(minx, maxx, self.MinEdge.x, self.MaxEdge.x)
+	check_range(miny, maxy, self.MinEdge.y, self.MaxEdge.y)
+	check_range(minz, maxz, self.MinEdge.z, self.MaxEdge.z)
+
 	local i = self:index(minx, miny, minz) - 1
 	local xrange = maxx - minx + 1
 	local nextaction = i + 1 + xrange
