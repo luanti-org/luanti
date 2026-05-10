@@ -148,6 +148,7 @@ public:
 private:
 	std::vector<NearbyCollisionInfo> cinfo;
 	f32 remaining_dtime;
+	f32 stepheight;
 	StepUpMode step_up_mode;
 
 	struct MovingBox
@@ -156,9 +157,11 @@ private:
 		v3f velocity;
 	};
 
-	CollisionMoveResult simulateFor(KineticObject *collider, f32 stepheight);
+	Collision findNearestCollision(const MovingBox &movingbox);
 
-	bool shouldStepUp(const MovingBox &movingbox, Collision collision, f32 stepheight);
+	CollisionMoveResult simulateFor(KineticObject *collider);
+
+	bool shouldStepUp(const MovingBox &movingbox, Collision collision);
 
 	CollisionMoveResult collideWith(KineticObject *collider, CollisionAxis axis,
 			NearbyCollisionInfo &nearest_info, bool step_up);
@@ -528,6 +531,7 @@ CollisionMoveResult MovementContext::collideMove(Environment *env, IGameDef *gam
 {
 	this->cinfo.clear();
 	this->remaining_dtime = dtime;
+	this->stepheight = stepheight;
 	this->step_up_mode = step_up_mode;
 
 	// Collect node boxes in movement range
@@ -549,26 +553,26 @@ CollisionMoveResult MovementContext::collideMove(Environment *env, IGameDef *gam
 				self, this->cinfo);
 	}
 
-	return this->simulateFor(collider, stepheight);
+	return this->simulateFor(collider);
 }
 
 
 core::aabbox3d<s16> KineticObject::getMovementRange(f32 dtime) const
 {
 	// Movement if no collisions
-	v3f newpos_f = this->pos + this->velocity * dtime;
-	v3f minpos_f(
-		MYMIN(this->pos.X, newpos_f.X),
-		MYMIN(this->pos.Y, newpos_f.Y) + 0.01f * BS, // bias rounding, player often at +/-n.5
-		MYMIN(this->pos.Z, newpos_f.Z)
+	v3f newpos = this->pos + this->velocity * dtime;
+	v3f minpos(
+		MYMIN(this->pos.X, newpos.X),
+		MYMIN(this->pos.Y, newpos.Y) + 0.01f * BS, // bias rounding, player often at +/-n.5
+		MYMIN(this->pos.Z, newpos.Z)
 	);
-	v3f maxpos_f(
-		MYMAX(this->pos.X, newpos_f.X),
-		MYMAX(this->pos.Y, newpos_f.Y),
-		MYMAX(this->pos.Z, newpos_f.Z)
+	v3f maxpos(
+		MYMAX(this->pos.X, newpos.X),
+		MYMAX(this->pos.Y, newpos.Y),
+		MYMAX(this->pos.Z, newpos.Z)
 	);
-	v3s16 min = floatToInt(minpos_f + this->collisionbox.MinEdge, BS) - v3s16(1, 1, 1);
-	v3s16 max = floatToInt(maxpos_f + this->collisionbox.MaxEdge, BS) + v3s16(1, 1, 1);
+	v3s16 min = floatToInt(minpos + this->collisionbox.MinEdge, BS) - v3s16(1, 1, 1);
+	v3s16 max = floatToInt(maxpos + this->collisionbox.MaxEdge, BS) + v3s16(1, 1, 1);
 	return core::aabbox3d<s16>{min, max};
 }
 
@@ -577,7 +581,7 @@ void KineticObject::stopInPlace()
 	this->velocity = v3f();
 }
 
-CollisionMoveResult MovementContext::simulateFor(KineticObject *collider, f32 stepheight)
+CollisionMoveResult MovementContext::simulateFor(KineticObject *collider)
 {
 	CollisionMoveResult result;
 
@@ -604,7 +608,7 @@ CollisionMoveResult MovementContext::simulateFor(KineticObject *collider, f32 st
 		// Otherwise, a collision occurred.
 		NearbyCollisionInfo &nearest_info = this->cinfo[collision.boxindex];
 
-		const bool step_up = this->shouldStepUp(movingbox, collision, stepheight);
+		const bool step_up = this->shouldStepUp(movingbox, collision);
 
 		collider->moveToCollision(
 				collision, avg_speed_estimate, this->remaining_dtime, step_up);
@@ -645,31 +649,31 @@ void KineticObject::moveUnobstructed(f32 dtime, v3f speed)
 	this->velocity = truncate(rangelimv(this->velocity, -5000.0f, 5000.0f), 10000.0f);
 }
 
-bool MovementContext::shouldStepUp(
-		const MovingBox &movingbox, Collision collision, f32 stepheight)
+bool MovementContext::shouldStepUp(const MovingBox &movingbox, Collision collision)
 {
-	if (collision.axis != COLLISION_AXIS_Y) {
-		// movingbox except moved to the horizontal position it would be after
-		// step up
-		aabb3f stepbox = movingbox.box;
-		// Look slightly ahead  for checking the height when stepping
-		// to ensure we also check above the node we collided with
-		// otherwise, might allow glitches such as a stack of stairs
-		float extra_dtime =
-				collision.dtime + 0.1f * fabsf(this->remaining_dtime - collision.dtime);
-		stepbox.MinEdge.X += movingbox.velocity.X * extra_dtime;
-		stepbox.MinEdge.Z += movingbox.velocity.Z * extra_dtime;
-		stepbox.MaxEdge.X += movingbox.velocity.X * extra_dtime;
-		stepbox.MaxEdge.Z += movingbox.velocity.Z * extra_dtime;
-		// Check for stairs.
-		const aabb3f &cbox = this->cinfo[collision.boxindex].box;
-		return (movingbox.box.MinEdge.Y < cbox.MaxEdge.Y) &&
-			   (movingbox.box.MinEdge.Y + stepheight > cbox.MaxEdge.Y) &&
-			   (!wouldCollideWithCeiling(
-					   this->cinfo, stepbox, cbox.MaxEdge.Y - movingbox.box.MinEdge.Y, 0.0f));
-	} else {
+	// This function applies only to X or Z collision
+	if (collision.axis == COLLISION_AXIS_Y) {
 		return false;
 	}
+
+	// movingbox except moved to the horizontal position it would be after
+	// step up
+	aabb3f stepbox = movingbox.box;
+	// Look slightly ahead  for checking the height when stepping
+	// to ensure we also check above the node we collided with
+	// otherwise, might allow glitches such as a stack of stairs
+	float extra_dtime =
+			collision.dtime + 0.1f * fabsf(this->remaining_dtime - collision.dtime);
+	stepbox.MinEdge.X += movingbox.velocity.X * extra_dtime;
+	stepbox.MinEdge.Z += movingbox.velocity.Z * extra_dtime;
+	stepbox.MaxEdge.X += movingbox.velocity.X * extra_dtime;
+	stepbox.MaxEdge.Z += movingbox.velocity.Z * extra_dtime;
+	// Check for stairs.
+	const aabb3f &cbox = this->cinfo[collision.boxindex].box;
+	return (movingbox.box.MinEdge.Y < cbox.MaxEdge.Y) &&
+		   (movingbox.box.MinEdge.Y + this->stepheight > cbox.MaxEdge.Y) &&
+		   (!wouldCollideWithCeiling(
+				   this->cinfo, stepbox, cbox.MaxEdge.Y - movingbox.box.MinEdge.Y, 0.0f));
 }
 
 Collision MovementContext::findNearestCollision(const MovingBox &movingbox)
@@ -757,13 +761,13 @@ CollisionMoveResult MovementContext::collideWith(KineticObject *collider, Collis
 		collider->collideZ(bounce);
 	} else { // axis == COLLISION_AXIS_Y)
 		if (collider->collideY(bounce)) {
-				// FIXME: This code is necessary until
-				// `axisAlignedCollision` takes acceleration
-				// into consideration for the time calculation.
-				// Otherwise, the colliding faces never line up,
-				// especially at high step (dtime) intervals.
-				result.touching_ground    = true;
-				result.standing_on_object = nearest_info.isObject();
+			// FIXME: This code is necessary until
+			// `axisAlignedCollision` takes acceleration
+			// into consideration for the time calculation.
+			// Otherwise, the colliding faces never line up,
+			// especially at high step (dtime) intervals.
+			result.touching_ground    = true;
+			result.standing_on_object = nearest_info.isObject();
 		}
 	}
 
