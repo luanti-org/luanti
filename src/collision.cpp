@@ -112,15 +112,6 @@ public:
 
 	bool collideY(f32 bounce);
 
-	void stopInPlace();
-
-	void jerkUpwards(float dy);
-
-	const aabb3f &getCollisionbox() const
-	{
-		return collisionbox;
-	}
-
 	v3f getPosition() const
 	{
 		return pos;
@@ -136,8 +127,12 @@ private:
 	v3f pos;
 	v3f velocity;
 	v3f accel;
+
+	friend class MovementContext;
 };
 
+// This class is a friend of KineticObject. It is responsible for upholding all
+// invariants of KineticObject at all times.
 class MovementContext
 {
 public:
@@ -542,15 +537,14 @@ CollisionMoveResult MovementContext::collideMove(Environment *env, IGameDef *gam
 	// solely on loaded CONTENT_IGNORE nodes, no matter where they come from.
 	const core::aabbox3d<s16> range{collider->getMovementRange(remaining_dtime)};
 	if (!add_area_node_boxes(range.MinEdge, range.MaxEdge, gamedef, env, cinfo)) {
-		collider->stopInPlace();
+		collider->velocity = v3f();
 		return CollisionMoveResult{};
 	}
 
 	// Collect object boxes in movement range
 	if (collide_with_objects) {
-		add_object_boxes(env, collider->getCollisionbox(), remaining_dtime,
-				collider->getPosition(), collider->getProjectedAvgSpeed(remaining_dtime),
-				self, cinfo);
+		add_object_boxes(env, collider->collisionbox, remaining_dtime, collider->pos,
+				collider->getProjectedAvgSpeed(remaining_dtime), self, cinfo);
 	}
 
 	return simulateFor(collider);
@@ -574,11 +568,6 @@ core::aabbox3d<s16> KineticObject::getMovementRange(f32 dtime) const
 	v3s16 min = floatToInt(minpos + collisionbox.MinEdge, BS) - v3s16(1, 1, 1);
 	v3s16 max = floatToInt(maxpos + collisionbox.MaxEdge, BS) + v3s16(1, 1, 1);
 	return core::aabbox3d<s16>{min, max};
-}
-
-void KineticObject::stopInPlace()
-{
-	velocity = v3f();
 }
 
 CollisionMoveResult MovementContext::simulateFor(KineticObject *collider)
@@ -772,9 +761,9 @@ CollisionMoveResult MovementContext::collideWith(KineticObject *collider, Collis
 		info.type      = nearest_info.isObject() ? COLLISION_OBJECT : COLLISION_NODE;
 		info.node_p    = nearest_info.position;
 		info.object    = nearest_info.obj;
-		info.new_pos   = collider->getPosition();
+		info.new_pos   = collider->pos;
 		info.old_speed = old_speed_f;
-		info.new_speed = collider->getVelocity();
+		info.new_speed = collider->velocity;
 		result.collisions.push_back(info);
 	}
 
@@ -839,7 +828,7 @@ void MovementContext::stepUpStairs(KineticObject *collider, CollisionMoveResult 
 		if (cbox.MaxEdge.X > box.MinEdge.X && cbox.MinEdge.X < box.MaxEdge.X &&
 				cbox.MaxEdge.Z > box.MinEdge.Z && cbox.MinEdge.Z < box.MaxEdge.Z) {
 			if (box_info.is_step_up) {
-				collider->jerkUpwards(cbox.MaxEdge.Y - box.MinEdge.Y);
+				collider->pos.Y += (cbox.MaxEdge.Y - box.MinEdge.Y);
 				box = collider->getAbsCollisionbox();
 			}
 			if (std::fabs(cbox.MaxEdge.Y - box.MinEdge.Y) < 0.05f) {
@@ -851,11 +840,6 @@ void MovementContext::stepUpStairs(KineticObject *collider, CollisionMoveResult 
 			}
 		}
 	}
-}
-
-void KineticObject::jerkUpwards(f32 dy)
-{
-	pos.Y += dy;
 }
 
 bool collision_check_intersection(Environment *env, IGameDef *gamedef,
