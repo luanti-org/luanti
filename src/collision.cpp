@@ -716,12 +716,10 @@ void KineticObject::moveToCollision(
 		if (!step_up) {
 			if (collision.axis == COLLISION_AXIS_X) {
 				pos.X += avg_speed.X * collision.dtime;
-			}
-			if (collision.axis == COLLISION_AXIS_Y) {
-				pos.Y += avg_speed.Y * collision.dtime;
-			}
-			if (collision.axis == COLLISION_AXIS_Z) {
+			} else if (collision.axis == COLLISION_AXIS_Z) {
 				pos.Z += avg_speed.Z * collision.dtime;
+			} else { // collision.axis == COLLISION_AXIS_Y)
+				pos.Y += avg_speed.Y * collision.dtime;
 			}
 		}
 	} else if (collision.dtime > 0.f) {
