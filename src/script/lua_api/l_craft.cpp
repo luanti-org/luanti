@@ -12,7 +12,7 @@
 #include "server.h"
 #include "craftdef.h"
 
-struct EnumString ModApiCraft::es_CraftMethod[] =
+EnumString ModApiCraft::es_CraftMethod[] =
 {
 	{CRAFT_METHOD_NORMAL, "normal"},
 	{CRAFT_METHOD_COOKING, "cooking"},
@@ -405,27 +405,19 @@ static void push_craft_recipe(lua_State *L, IGameDef *gdef,
 		lua_rawseti(L, -2, j);
 	}
 	lua_setfield(L, -2, "items");
+
+	// Field kept for other craft recipes for backwards compatibility
 	setintfield(L, -1, "width", input.width);
 
-	std::string method_s;
-	switch (input.method) {
-	case CRAFT_METHOD_NORMAL:
-		method_s = "normal";
-		break;
-	case CRAFT_METHOD_COOKING:
-		method_s = "cooking";
-		break;
-	case CRAFT_METHOD_FUEL:
-		method_s = "fuel";
-		break;
-	default:
+	const char *method_s = enum_to_string(ModApiCraft::es_CraftMethod, input.method);
+	if (!method_s)
 		method_s = "unknown";
-	}
-	lua_pushstring(L, method_s.c_str());
+
+	lua_pushstring(L, method_s);
 	lua_setfield(L, -2, "method");
 
 	// Deprecated, only for compatibility's sake
-	lua_pushstring(L, method_s.c_str());
+	lua_pushstring(L, method_s);
 	lua_setfield(L, -2, "type");
 
 	lua_pushstring(L, output.item.c_str());

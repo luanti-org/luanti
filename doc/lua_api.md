@@ -6212,6 +6212,9 @@ Utilities
       hud_hideable_field = true,
       -- "raw_deflate" method for compress/decompress (5.17.0)
       compress_raw_deflate = true,
+      -- Whether `core.get_all_craft_recipes` returns the correct `method` for fuels
+      -- and `width = 0` for non-shaped recipes. (5.17.0)
+      get_all_craft_recipes_fuel = true,
   }
   ```
 
@@ -7425,7 +7428,7 @@ Item handling
       or `nil` if no recipe was found.
     * recipe entry table:
         * `method`: 'normal' or 'cooking' or 'fuel'
-        * `width`: 0-3, 0 means shapeless recipe
+        * `width`: 0-3, 0 means shapeless recipe. Only valid for `method = "normal"`.
         * `items`: indexed [1-9] table with recipe items
         * `output`: string with item name and quantity
     * Example result for `"default:gold_ingot"` with two recipes:
