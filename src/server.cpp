@@ -276,6 +276,15 @@ static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool in
 	e.append(" @").append(oss.str());
 }
 
+static void appendActiveObjectMessage(std::string &buffer,
+		const ActiveObjectMessage &aom)
+{
+	char idbuf[2];
+	writeU16((u8*) idbuf, aom.id);
+	buffer.append(idbuf, sizeof(idbuf));
+	buffer.append(serializeString16(aom.datastring));
+}
+
 /*
 	Server
 */
@@ -951,8 +960,9 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 					// Go through every message
 					for (const ActiveObjectMessage &aom : *list) {
 						// Send position updates to players who do not see the attachment
-						if (aom.datastring[0] == AO_CMD_UPDATE_POSITION) {
-							if (sao->getId() == player->getId())
+						if (!aom.datastring.empty() &&
+								aom.datastring[0] == AO_CMD_UPDATE_POSITION) {
+							if (player && sao->getId() == player->getId())
 								continue;
 
 							// Do not send position updates for attached players
@@ -965,12 +975,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 
 						// Add full new data to appropriate buffer
 						std::string &buffer = aom.reliable ? reliable_data : unreliable_data;
-						char idbuf[2];
-						writeU16((u8*) idbuf, aom.id);
-						// u16 id
-						// std::string data
-						buffer.append(idbuf, sizeof(idbuf));
-						buffer.append(serializeString16(aom.datastring));
+						appendActiveObjectMessage(buffer, aom);
 					}
 				}
 				/*
@@ -2088,8 +2093,9 @@ void Server::SendPlayerBreath(PlayerSAO *sao)
 
 void Server::SendMovePlayer(PlayerSAO *sao)
 {
-	// Send attachment updates instantly to the client prior updating position
+	// Send attachment updates instantly to clients prior updating position
 	sao->sendOutdatedData();
+	SendActiveObjectMessages(sao);
 
 	NetworkPacket pkt(TOCLIENT_MOVE_PLAYER, sizeof(v3f) + sizeof(f32) * 2, sao->getPeerID());
 	pkt << sao->getBasePosition() << sao->getLookPitch() << sao->getRotation().Y;
@@ -2103,6 +2109,82 @@ void Server::SendMovePlayer(PlayerSAO *sao)
 	}
 
 	Send(&pkt);
+}
+
+void Server::SendActiveObjectMessages(ServerActiveObject *sao)
+{
+	assert(sao);
+
+	ClientInterface::AutoLock clientlock(m_clients);
+	const RemoteClientMap &clients = m_clients.getClientList();
+	bool known_by_any_client = false;
+	for (const auto &client_it : clients) {
+		RemoteClient *client = client_it.second;
+		if (client->m_known_objects.find(sao->getId()) != client->m_known_objects.end()) {
+			known_by_any_client = true;
+			break;
+		}
+	}
+
+	if (!known_by_any_client)
+		return;
+
+	std::queue<ActiveObjectMessage> message_queue;
+	sao->dumpAOMessagesToQueue(message_queue);
+	if (message_queue.empty())
+		return;
+
+	std::vector<ActiveObjectMessage> messages;
+	messages.reserve(message_queue.size());
+	u32 count_reliable = 0, count_unreliable = 0;
+
+	while (!message_queue.empty()) {
+		ActiveObjectMessage &aom = message_queue.front();
+		if (aom.reliable)
+			count_reliable++;
+		else
+			count_unreliable++;
+		messages.emplace_back(std::move(aom));
+		message_queue.pop();
+	}
+
+	m_aom_buffer_counter[0]->increment(count_reliable);
+	m_aom_buffer_counter[1]->increment(count_unreliable);
+
+	std::string reliable_data, unreliable_data;
+	for (const auto &client_it : clients) {
+		RemoteClient *client = client_it.second;
+		if (client->m_known_objects.find(sao->getId()) == client->m_known_objects.end())
+			continue;
+
+		reliable_data.clear();
+		unreliable_data.clear();
+
+		PlayerSAO *player = getPlayerSAO(client->peer_id);
+
+		for (const ActiveObjectMessage &aom : messages) {
+			if (!aom.datastring.empty() && aom.datastring[0] == AO_CMD_UPDATE_POSITION) {
+				if (player && sao->getId() == player->getId())
+					continue;
+
+				// Do not send position updates for attached players
+				// as long the parent is known to the client.
+				ServerActiveObject *parent = sao->getParent();
+				if (parent && client->m_known_objects.find(parent->getId()) !=
+						client->m_known_objects.end())
+					continue;
+			}
+
+			std::string &buffer = aom.reliable ? reliable_data : unreliable_data;
+			appendActiveObjectMessage(buffer, aom);
+		}
+
+		if (!reliable_data.empty())
+			SendActiveObjectMessages(client->peer_id, reliable_data);
+
+		if (!unreliable_data.empty())
+			SendActiveObjectMessages(client->peer_id, unreliable_data, false);
+	}
 }
 
 void Server::SendMovePlayerRel(session_t peer_id, const v3f &added_pos)

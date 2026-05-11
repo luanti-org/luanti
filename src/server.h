@@ -46,6 +46,7 @@ class RemotePlayer;
 class ServerEnvironment;
 class ServerInventoryManager;
 class ServerModManager;
+class ServerActiveObject;
 class ServerScripting;
 class ServerThread;
 class Settings;
@@ -616,6 +617,7 @@ private:
 	void SendSpawnParticles();
 
 	void SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersao);
+	void SendActiveObjectMessages(ServerActiveObject *sao);
 	void SendActiveObjectMessages(session_t peer_id, const std::string &datas,
 		bool reliable = true);
 	void SendCSMRestrictionFlags(session_t peer_id);
