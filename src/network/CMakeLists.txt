@@ -9,8 +9,15 @@ set(common_network_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/networkpacket.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/networkprotocol.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/socket.cpp
-	PARENT_SCOPE
 )
+
+if (ENABLE_EXPERIMENTAL_QUIC_TRANSPORT)
+	list(APPEND common_network_SRCS
+		${CMAKE_CURRENT_SOURCE_DIR}/quic_connection.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/quic_tls.cpp
+	)
+endif()
+set(common_network_SRCS ${common_network_SRCS} PARENT_SCOPE)
 
 set(server_network_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/serveropcodes.cpp

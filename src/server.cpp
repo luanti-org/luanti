@@ -54,6 +54,10 @@
 
 // Network
 #include "network/connection.h"
+#ifdef USE_NGTCP2_QUIC
+#include "network/quic_connection.h"
+#include "network/quic_tls.h"
+#endif
 #include "network/networkexceptions.h"
 #include "network/networkpacket.h"
 #include "network/networkprotocol.h"
@@ -608,6 +612,11 @@ void Server::start()
 	// Stop thread if already running
 	m_thread->stop();
 
+#ifdef USE_NGTCP2_QUIC
+	// Set up the QUIC server certificate and private key
+	configureQuicServerCertificates();
+#endif
+
 	// Initialize connection
 	m_con->Serve(m_bind_addr);
 
@@ -638,6 +647,64 @@ void Server::start()
 	m_bind_addr.print(actionstream);
 	actionstream << "." << std::endl;
 }
+
+#ifdef USE_NGTCP2_QUIC
+void Server::configureQuicServerCertificates()
+{
+	auto *quic = dynamic_cast<con::QuicConnection *>(m_con.get());
+	if (!quic) {
+		warningstream << "QUIC build, but the connection is not a QuicConnection. "
+			"Skipping certificate configuration." << std::endl;
+		return;
+	}
+
+	// Use the cert/key file as defined in the settings. Otherwise, create or load
+	// from <world>/quic by default.
+	std::string cert_path = g_settings->get("quic_cert_file");
+	std::string key_path = g_settings->get("quic_key_file");
+
+	const std::string default_dir = m_path_world + DIR_DELIM + "quic";
+	const std::string default_cert = default_dir + DIR_DELIM + "server.cert.pem";
+	const std::string default_key = default_dir + DIR_DELIM + "server.key.pem";
+
+	if (cert_path.empty())
+		cert_path = default_cert;
+	if (key_path.empty())
+		key_path = default_key;
+
+	const bool have_cert = fs::PathExists(cert_path);
+	const bool have_key = fs::PathExists(key_path);
+
+	if (!have_cert || !have_key) {
+		if (g_settings->existsLocal("quic_cert_file")
+			|| g_settings->existsLocal("quic_key_file")) {
+			throw ServerError(std::string(
+				"QUIC server certificate or private key not found at the configured path. "
+				"Set quic_cert_file= and quic_key_file= correctly, or unset them to "
+				"generate a private key and certificate automatically."));
+		}
+		actionstream << "QUIC: no certificate found, generating a self-signed key pair at "
+			<< default_dir << std::endl;
+		if (!fs::CreateAllDirs(default_dir))
+			throw ServerError("Failed to create QUIC certificate directory: " + default_dir);
+		std::string bind_host = m_bind_addr.serializeString();
+		if (!con::generate_self_signed_cert(cert_path, key_path, bind_host)) {
+			throw ServerError("Failed to generate self-signed QUIC certificate");
+		}
+	}
+
+	quic->setServerCertificates(cert_path, key_path);
+
+	std::string fingerprint = con::compute_pem_fingerprint_b64(cert_path);
+	if (fingerprint.empty()) {
+		warningstream << "QUIC: could not read fingerprint from " << cert_path << std::endl;
+	} else {
+		actionstream << "QUIC: server certificate loaded from " << cert_path << std::endl;
+		actionstream << "QUIC: clients should connect using <host>:<port>+" << fingerprint
+			<< std::endl;
+	}
+}
+#endif
 
 void Server::stop()
 {
