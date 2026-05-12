@@ -338,6 +338,72 @@ int ModApiCraft::l_clear_craft(lua_State *L)
 	return 1;
 }
 
+/// Pushes to table @ Lua top: method, (type), width, items
+static void push_craft_result_input(lua_State *L,
+		IGameDef *gdef,
+		const CraftInput &input,
+		bool push_itemstacks,
+		bool undocumented_0_4_14_compat)
+{
+	const char *method_s = enum_to_string(ModApiCraft::es_CraftMethod, input.method);
+	if (!method_s)
+		method_s = "unknown";
+
+	lua_pushstring(L, method_s);
+	lua_setfield(L, -2, "method");
+
+	if (undocumented_0_4_14_compat) {
+		// Before 0.4.14 (commit 5c0e659), only "type" (undocumented) was provided.
+		lua_pushstring(L, method_s);
+		lua_setfield(L, -2, "type");
+	}
+
+	// Field kept for other craft recipes for backwards compatibility
+	setintfield(L, -1, "width", input.width);
+
+	if (push_itemstacks) {
+		push_items(L, input.items);
+	} else {
+		lua_newtable(L); // items
+		auto iter = input.items.begin();
+		for (u16 j = 1; iter != input.items.end(); ++iter, j++) {
+			// Inconsistency: empty ingredients are represented as `nil`.
+			if (iter->empty())
+				continue;
+			lua_pushstring(L, iter->name.c_str());
+			lua_rawseti(L, -2, j);
+		}
+	}
+	lua_setfield(L, -2, "items");
+}
+
+/// Pushes to table @ Lua top: item
+static void push_craft_result_output(lua_State *L,
+		IGameDef *gdef,
+		bool is_craft_valid,
+		const char *output_field,
+		const CraftOutput &output,
+		bool push_itemstacks)
+{
+	if (is_craft_valid) {
+		if (push_itemstacks) {
+			ItemStack item;
+			item.deSerialize(output.item, gdef->idef());
+			LuaItemStack::create(L, item);
+		} else {
+			lua_pushstring(L, output.item.c_str());
+		}
+		lua_setfield(L, -2, output_field);
+	} else {
+		FATAL_ERROR_IF(!push_itemstacks, "only used for get_craft_result");
+		LuaItemStack::create(L, ItemStack());
+		lua_setfield(L, -2, output_field);
+	}
+
+	// "time" is handled separately
+}
+
+
 // get_craft_result(input)
 int ModApiCraft::l_get_craft_result(lua_State *L)
 {
@@ -362,29 +428,25 @@ int ModApiCraft::l_get_craft_result(lua_State *L)
 	CraftOutput output;
 	std::vector<ItemStack> output_replacements;
 	bool got = cdef->getCraftResult(input, output, output_replacements, true, gdef);
-	lua_newtable(L); // output table
-	if (got) {
-		ItemStack item;
-		item.deSerialize(output.item, gdef->idef());
-		LuaItemStack::create(L, item);
-		lua_setfield(L, -2, "item");
-		setintfield(L, -1, "time", output.time);
-		push_items(L, output_replacements);
-		lua_setfield(L, -2, "replacements");
-	} else {
-		LuaItemStack::create(L, ItemStack());
-		lua_setfield(L, -2, "item");
-		setintfield(L, -1, "time", 0);
-		lua_newtable(L);
+
+	lua_newtable(L); // return#2 output table
+	{
+		push_craft_result_output(L, gdef, got, "item", output, true);
+
+		setintfield(L, -1, "time", got ? output.time : 0);
+
+		if (got)
+			push_items(L, output_replacements);
+		else
+			lua_newtable(L);
 		lua_setfield(L, -2, "replacements");
 	}
-	lua_newtable(L); // decremented input table
-	lua_pushstring(L, method_s.c_str());
-	lua_setfield(L, -2, "method");
-	lua_pushinteger(L, width);
-	lua_setfield(L, -2, "width");
-	push_items(L, input.items);
-	lua_setfield(L, -2, "items");
+
+	lua_newtable(L); // return#1 decremented input table
+	{
+		push_craft_result_input(L, gdef, input, true, false);
+	}
+
 	return 2;
 }
 
@@ -396,50 +458,19 @@ static void push_craft_recipe(lua_State *L, IGameDef *gdef,
 	CraftInput input = recipe->getInput(tmpout, gdef);
 	CraftOutput output = recipe->getOutput(input, gdef);
 
-	lua_newtable(L); // items
-	auto iter = input.items.begin();
-	for (u16 j = 1; iter != input.items.end(); ++iter, j++) {
-		if (iter->empty())
-			continue;
-		lua_pushstring(L, iter->name.c_str());
-		lua_rawseti(L, -2, j);
-	}
-	lua_setfield(L, -2, "items");
+	push_craft_result_output(L, gdef, true, "output", output, false);
+	push_craft_result_input(L, gdef, input, false, true);
 
-	// Field kept for other craft recipes for backwards compatibility
-	setintfield(L, -1, "width", input.width);
-
-	const char *method_s = enum_to_string(ModApiCraft::es_CraftMethod, input.method);
-	if (!method_s)
-		method_s = "unknown";
-
-	lua_pushstring(L, method_s);
-	lua_setfield(L, -2, "method");
-
-	// Deprecated, only for compatibility's sake
-	lua_pushstring(L, method_s);
-	lua_setfield(L, -2, "type");
-
-	lua_pushstring(L, output.item.c_str());
-	lua_setfield(L, -2, "output");
-}
-
-static void push_craft_recipes(lua_State *L, IGameDef *gdef,
-		const std::vector<CraftDefinition*> &recipes,
-		const CraftOutput &output)
-{
-	if (recipes.empty()) {
-		lua_pushnil(L);
-		return;
-	}
-
-	lua_createtable(L, recipes.size(), 0);
-
-	auto it = recipes.begin();
-	for (unsigned i = 0; it != recipes.end(); ++it) {
-		lua_newtable(L);
-		push_craft_recipe(L, gdef, *it, output);
-		lua_rawseti(L, -2, ++i);
+	// NOTE: The returned table can get very large, hence avoid unused fields
+	// unless needed for the sake of compatibility
+	switch (input.method) {
+		case CRAFT_METHOD_COOKING:
+		case CRAFT_METHOD_FUEL:
+			setintfield(L, -1, "time", output.time);
+			break;
+		case CRAFT_METHOD_NORMAL:
+			// no such field
+			break;
 	}
 }
 
@@ -476,7 +507,19 @@ int ModApiCraft::l_get_all_craft_recipes(lua_State *L)
 	CraftOutput output(item, 0);
 	auto recipes = gdef->cdef()->getCraftRecipes(output, gdef);
 
-	push_craft_recipes(L, gdef, recipes, output);
+	if (recipes.empty()) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	lua_createtable(L, recipes.size(), 0);
+
+	auto it = recipes.begin();
+	for (unsigned i = 0; it != recipes.end(); ++it) {
+		lua_newtable(L);
+		push_craft_recipe(L, gdef, *it, output);
+		lua_rawseti(L, -2, ++i);
+	}
 	return 1;
 }
 

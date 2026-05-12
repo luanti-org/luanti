@@ -6213,7 +6213,7 @@ Utilities
       -- "raw_deflate" method for compress/decompress (5.17.0)
       compress_raw_deflate = true,
       -- Whether `core.get_all_craft_recipes` returns the correct `method` for fuels
-      -- and `width = 0` for non-shaped recipes. (5.17.0)
+      -- `width = 0` for non-shaped recipes and provides the optional `time` field (5.17.0)
       get_all_craft_recipes_fuel = true,
   }
   ```
@@ -7415,22 +7415,23 @@ Item handling
       placed in `decremented_input.items`. Replacements can be placed in
       `decremented_input` if the stack of the replaced item has a count of 1.
     * `decremented_input` = like `input`
-* `core.get_craft_recipe(output)`: returns input
-    * returns last registered recipe for output item (node)
-    * `output` is a node or item type such as `"default:torch"`
-    * `input.method` = `"normal"` or `"cooking"` or `"fuel"`
-    * `input.width` = for example `3`
-    * `input.items` = for example
-      `{stack1, stack2, stack3, stack4, stack 5, stack 6, stack 7, stack 8, stack 9}`
-        * `input.items` = `nil` if no recipe found
-* `core.get_all_craft_recipes(query item)`: returns a table or `nil`
-    * returns indexed table with all registered recipes for query item (node)
-      or `nil` if no recipe was found.
-    * recipe entry table:
+* `core.get_craft_recipe(output)`: returns a table
+    * Returns the last registered recipe for the `output` item name
+    * Return value:
+        * No recipe found: `{ items = nil, width = 0 }`
+        * Recipe found: see `core.get_all_craft_recipes` table values.
+* `core.get_all_craft_recipes(output)`: returns a table or `nil`
+    * Returns an indexed table of all registered recipes which have the result `output`.
+    * Returns `nil` if no recipe was found.
+    * `output`: an item name, such as `"default:torch"`.
+    * Returned table values:
         * `method`: 'normal' or 'cooking' or 'fuel'
-        * `width`: 0-3, 0 means shapeless recipe. Only valid for `method = "normal"`.
-        * `items`: indexed [1-9] table with recipe items
+        * `width`: in range [0, N] (2 or 3 is used often). 0 means shapeless recipe.
+          Only valid for `method = "normal"`.
+        * `items`: list of recipe item names.
+          Empty ingredients (itemstring `""`) are represented as `nil`.
         * `output`: string with item name and quantity
+        * `time` (for 'cooking' or 'fuel'): is `cooktime` or `burntime` (since 5.17.0)
     * Example result for `"default:gold_ingot"` with two recipes:
       ```lua
       {
