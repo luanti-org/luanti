@@ -87,7 +87,7 @@ typedef enum {
  * The caller is responsible for freeing the memory allocated for bytes_v
  *
  * The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type.
- * If provided, they must contain ASCII text of the hexidecimal notation.
+ * If provided, they must contain ASCII text of the hexadecimal notation.
  *
  * If bytes_s == NULL, it is filled with random data.
  * The caller is responsible for freeing.
