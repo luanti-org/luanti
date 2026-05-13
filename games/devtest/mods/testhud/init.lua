@@ -423,20 +423,13 @@ core.register_chatcommand("hudtoggleunhideable", {
 			return false, "No player."
 		end
 
-		if player_hud_all_unhideable[name] then
-			for id, _ in pairs(player:hud_get_all()) do
-				player:hud_change(id, "unhideable", false)
-			end
-			player_hud_all_unhideable[name] = false
-			return true, "All HUD elements are hideable now."
-		else
-			for id, _ in pairs(player:hud_get_all()) do
-				player:hud_change(id, "unhideable", true)
-			end
-			player_hud_all_unhideable[name] = true
-			return true, "All HUD elements are unhideable now."
+		-- Toggle un/hideable
+		local to_set = not player_hud_all_unhideable[name]
+		for id, _ in pairs(player:hud_get_all()) do
+			player:hud_change(id, "unhideable", to_set)
 		end
-	end
+		player_hud_all_unhideable[name] = to_set
+		return true, "All HUD elements are " ... (to_set and "unhideable" or "hideable") .. " now."
 })
 
 
