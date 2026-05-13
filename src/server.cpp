@@ -1884,9 +1884,9 @@ void Server::SendHUDAdd(session_t peer_id, u32 id, HudElement *form)
 	else
 		pkt << v2s32::from(form->size);
 
-	/// Bit 0: unhideable
+	/// Bit 0: hideable
 	/// Bits 1 ... 8: unused (set to 0)
-	u8 flags = form->unhideable ? 1 : 0;
+	u8 flags = form->hideable ? 1 : 0;
 
 	pkt << form->z_index << form->text2 << form->style << flags;
 
@@ -1928,7 +1928,7 @@ void Server::SendHUDChange(session_t peer_id, u32 id, HudElementStat stat, void 
 				pkt << v2s32::from(*v);
 			break;
 		}
-		case HUD_STAT_UNHIDEABLE:
+		case HUD_STAT_HIDEABLE:
 			pkt << u32{*(bool *) value};
 			break;
 		default: // all other types

@@ -52,7 +52,7 @@ struct ClientEventHudAdd
 	v3f world_pos;
 	v2f size;
 	s16 z_index;
-	bool unhideable;
+	bool hideable;
 };
 
 struct ClientEventHudChange

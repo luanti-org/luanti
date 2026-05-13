@@ -2406,7 +2406,7 @@ void read_hud_element(lua_State *L, HudElement *elem)
 
 	elem->style = getintfield_default(L, 2, "style", 0);
 
-	elem->unhideable = getboolfield_default(L, 2, "unhideable", false);
+	elem->hideable = getboolfield_default(L, 2, "hideable", true);
 
 	/* check for known deprecated element usage */
 	if ((elem->type  == HUD_ELEM_STATBAR) && (elem->size == v2f()))
@@ -2474,8 +2474,8 @@ void push_hud_element(lua_State *L, HudElement *elem)
 	lua_pushinteger(L, elem->style);
 	lua_setfield(L, -2, "style");
 
-	lua_pushboolean(L, elem->unhideable);
-	lua_setfield(L, -2, "unhideable");
+	lua_pushboolean(L, elem->hideable);
+	lua_setfield(L, -2, "hideable");
 }
 
 bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value)
@@ -2545,9 +2545,9 @@ bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void 
 			elem->style = luaL_checknumber(L, 4);
 			*value = &elem->style;
 			break;
-		case HUD_STAT_UNHIDEABLE:
-			elem->unhideable = lua_toboolean(L, 4);
-			*value = &elem->unhideable;
+		case HUD_STAT_HIDEABLE:
+			elem->hideable = lua_toboolean(L, 4);
+			*value = &elem->hideable;
 			break;
 		case HudElementStat_END:
 			return false;
