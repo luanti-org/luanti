@@ -68,6 +68,8 @@ void GUIModalMenu::draw()
 	if (!IsVisible)
 		return;
 
+	m_is_window_focused = RenderingEngine::get_raw_device()->isWindowFocused();
+
 	video::IVideoDriver *driver = Environment->getVideoDriver();
 	v2u32 screensize = driver->getScreenSize();
 	if (screensize != m_screensize_old) {
@@ -121,6 +123,9 @@ bool GUIModalMenu::remapClickOutside(const SEvent &event)
 	gui::IGUIElement *hovered =
 			Environment->getRootGUIElement()->getElementFromPoint(current.pos);
 	if (isChild(hovered, this))
+		return false;
+
+	if (!m_is_window_focused)
 		return false;
 
 	if (event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN) {

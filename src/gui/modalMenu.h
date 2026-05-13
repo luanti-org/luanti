@@ -84,6 +84,7 @@ protected:
 
 private:
 	IMenuManager *m_menumgr;
+	bool m_is_window_focused = false;
 	/* If true, remap a click outside the formspec to ESC. This is so that, for
 	 * example, touchscreen users can close formspecs.
 	 * The default for this setting is true. Currently, it's set to false for
