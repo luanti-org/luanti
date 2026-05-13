@@ -1884,7 +1884,11 @@ void Server::SendHUDAdd(session_t peer_id, u32 id, HudElement *form)
 	else
 		pkt << v2s32::from(form->size);
 
-	pkt << form->z_index << form->text2 << form->style << form->flags;
+	/// Bit 0: unhideable
+	/// Bits 1 ... 8: unused (set to 0)
+	u8 flags = form->unhideable ? 1 : 0;
+
+	pkt << form->z_index << form->text2 << form->style << flags;
 
 	Send(&pkt);
 }

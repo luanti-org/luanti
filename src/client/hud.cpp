@@ -370,7 +370,7 @@ void Hud::drawLuaElements(const v3s16 &camera_offset, bool only_unhidable)
 	});
 
 	for (HudElement *e : elems) {
-		if (only_unhidable && !e->is_unhideable())
+		if (only_unhidable && !e->unhideable)
 			continue;
 
 		v2s32 pos(floor(e->pos.X * (float) m_screensize.X + 0.5),

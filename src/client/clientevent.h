@@ -43,7 +43,7 @@ enum ClientEventType : u8
 struct ClientEventHudAdd
 {
 	u32 server_id;
-	u8 type, flags;
+	u8 type;
 	v2f pos, scale;
 	std::string name;
 	std::string text, text2;
@@ -52,6 +52,7 @@ struct ClientEventHudAdd
 	v3f world_pos;
 	v2f size;
 	s16 z_index;
+	bool unhideable;
 };
 
 struct ClientEventHudChange

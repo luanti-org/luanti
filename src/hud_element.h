@@ -98,14 +98,7 @@ struct HudElement {
 	s16 z_index = 0;
 	std::string text2;
 	u32 style;
-	u8 flags = 0; // Only used for unhideable, can be used for other bool fields in the future
-
-	bool is_unhideable() { return flags & 1; }
-	void set_unhideable(bool unhideable)
-	{
-		flags = unhideable ? (flags | 1) : (flags & ~1);
-	}
-
+	bool unhideable = false;
 };
 
 extern const EnumString es_HudElementType[];

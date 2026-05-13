@@ -2304,7 +2304,7 @@ void Game::handleClientEvent_HudAdd(ClientEvent *event, CameraOrientation *cam)
 	e->z_index   = event->hudadd->z_index;
 	e->text2     = event->hudadd->text2;
 	e->style     = event->hudadd->style;
-	e->flags     = event->hudadd->flags;
+	e->unhideable = event->hudadd->unhideable;
 	m_hud_server_to_client[server_id] = player->addHud(e);
 
 	delete event->hudadd;
@@ -2373,7 +2373,7 @@ void Game::handleClientEvent_HudChange(ClientEvent *event, CameraOrientation *ca
 
 		CASE_SET(HUD_STAT_STYLE, style, data);
 
-		CASE_SET(HUD_STAT_UNHIDEABLE, flags, data);
+		CASE_SET(HUD_STAT_UNHIDEABLE, unhideable, data);
 
 		case HudElementStat_END:
 			break;
