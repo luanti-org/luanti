@@ -1928,6 +1928,9 @@ void Server::SendHUDChange(session_t peer_id, u32 id, HudElementStat stat, void 
 				pkt << v2s32::from(*v);
 			break;
 		}
+		case HUD_STAT_UNHIDEABLE:
+			pkt << u32{*(bool *) value};
+			break;
 		default: // all other types
 			pkt << *(u32 *) value;
 			break;

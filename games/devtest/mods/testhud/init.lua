@@ -417,7 +417,7 @@ core.register_chatcommand("hudunhideable", {
 local player_hud_all_unhideable = {}
 core.register_chatcommand("hudtoggleunhideable", {
 	description = "Makes all HUD elements unhideable",
-	func = function(name, params)
+	func = function(name)
 		local player = core.get_player_by_name(name)
 		if not player then
 			return false, "No player."
@@ -429,7 +429,8 @@ core.register_chatcommand("hudtoggleunhideable", {
 			player:hud_change(id, "unhideable", to_set)
 		end
 		player_hud_all_unhideable[name] = to_set
-		return true, "All HUD elements are " ... (to_set and "unhideable" or "hideable") .. " now."
+		return true, "All HUD elements are " .. (to_set and "unhideable" or "hideable") .. " now."
+	end
 })
 
 
