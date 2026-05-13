@@ -108,13 +108,18 @@ public:
 
 	template <float v3f::*AX> void collide(f32 bounce)
 	{
-		if (bounce < -1e-4 && fabsf(velocity.*AX) > BS * 3) {
+		if (canBounce<AX>(bounce)) {
 			velocity.*AX *= bounce;
 		} else {
 			velocity.*AX = 0.f;
 			// avoid colliding in the next iterations
 			accel.*AX = 0.f;
 		}
+	}
+
+	template <float v3f::*AX> bool canBounce(f32 bounce)
+	{
+		return bounce < -1e-4 && fabsf(velocity.*AX) <= BS * 3;
 	}
 
 	v3f getPosition() const
@@ -749,8 +754,7 @@ CollisionMoveResult MovementContext::collideWith(KineticObject *collider, Collis
 	} else if (axis == COLLISION_AXIS_Z) {
 		collider->collide<&v3f::Z>(bounce);
 	} else { // axis == COLLISION_AXIS_Y)
-		if ((bounce >= -1e-4 || fabsf(collider->velocity.Y) <= BS * 3) &&
-				collider->velocity.Y < 0.0f) {
+		if (!collider->canBounce<&v3f::Y>(bounce) && collider->velocity.Y < 0.0f) {
 			// FIXME: This code is necessary until
 			// `axisAlignedCollision` takes acceleration
 			// into consideration for the time calculation.
