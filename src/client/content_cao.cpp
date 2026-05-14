@@ -1039,15 +1039,28 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 			ClientActiveObject *obj = m_env->getActiveObject(cao_id);
 			if (obj) {
 				scene::ISceneNode *child_node = obj->getSceneNode();
-				// The node's parent is always an IDummyTraformationSceneNode,
+				// The node's parent is always an IDummyTransformationSceneNode,
 				// so we need to reparent that one instead.
 				if (child_node)
 					child_node->getParent()->setParent(m_smgr->getRootSceneNode());
 			}
 		}
 
+		if (m_animated_meshnode) {
+			// Preserve current frames of playing animations
+			// TODO might want to preserve bone transformation matrices in the future
+			const auto &anim = m_animated_meshnode->getAnimation();
+			for (const auto &[track_nr, track] : anim.tracks) {
+				m_animation.tracks[track_nr].cur_frame = track.cur_frame;
+			}
+		}
+
 		removeFromScene(false);
 		addToScene(m_client->tsrc(), m_smgr);
+
+		if (m_animated_meshnode) {
+			m_animated_meshnode->getAnimation() = m_animation; // Restore animation
+		}
 
 		// Attachments, part 2: Now that the parent has been refreshed, put its attachments back
 		for (u16 cao_id : m_attachment_child_ids) {

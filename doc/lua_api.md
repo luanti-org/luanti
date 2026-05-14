@@ -9008,9 +9008,14 @@ Track numbers start at 1.
         Higher priority animations are applied after lower priority ones,
         taking precedence if the same bones are being animated.
     * Example: `obj:play_animation("walk")`.
+    * Animations continue playing at the current frame when
+      the mesh is changed using `set_properties({mesh = ...})`,
+      but animation blending may be interrupted.
 * `update_animation(track, update)`
     * `update` is a table with the following optional fields:
       * `speed`: New animation speed
+    * Example: `obj:play_animation("walk", {speed = 0})`
+      pauses the animation currently playing on the track named `walk` at the current frame.
 * `stop_animation([track])`: Stop animation on the given track, if playing.
     * If no track is given, all currently playing animations are stopped.
 * `get_animations()`: Returns a table of currently playing animations
