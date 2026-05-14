@@ -2165,7 +2165,7 @@ void Game::pauseAnimation()
 void Game::resumeAnimation()
 {
 	for (const auto &paused: paused_animated_nodes) {
-		for (const auto &track: paused.tracks) {
+		for (const PausedNode::Track &track: paused.tracks) {
 			auto &spec = paused.node->getAnimation().tracks[track.id];
 			spec.fps = track.fps;
 		}

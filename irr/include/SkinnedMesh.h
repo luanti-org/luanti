@@ -56,7 +56,7 @@ public:
 
 	std::optional<u16> getTrackNumber(const std::string &track_name) const override;
 
-	f32 getMaxFrameNumber(u16 track) const override;
+	f32 getMaxFrameNumber(u16 track_nr) const override;
 
 	void prepareForAnimation(u16 max_hw_joints) override;
 
@@ -312,7 +312,7 @@ public:
 	};
 
 	struct AnimationProgress {
-		u16 track;
+		u16 track_nr;
 		f32 frame;
 		f32 blend; // from 0 (old) to 1 (new)
 	};

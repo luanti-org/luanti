@@ -286,7 +286,7 @@ public:
 	// Reason: updateTextures(m_previous_texture_modifier);
 	void updateTextures(std::string mod);
 
-	void updateAnimation(u16 track);
+	void updateAnimation(u16 track_nr);
 	void setLocalPlayerAnimation(LocalPlayerAnimation local_anim, float speed);
 
 	/// @note logs a warning for invalid IDs

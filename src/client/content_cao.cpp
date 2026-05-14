@@ -1354,7 +1354,7 @@ void GenericCAO::updateTextures(std::string mod)
 		updateMeshCulling();
 }
 
-void GenericCAO::updateAnimation(u16 track)
+void GenericCAO::updateAnimation(u16 track_nr)
 {
 	if (!m_animated_meshnode)
 		return;
@@ -1366,7 +1366,7 @@ void GenericCAO::updateAnimation(u16 track)
 		return;
 	}
 
-	m_animated_meshnode->getAnimation().tracks[track] = m_animation.tracks[track];
+	m_animated_meshnode->getAnimation().tracks[track_nr] = m_animation.tracks[track_nr];
 }
 
 void GenericCAO::setLocalPlayerAnimation(LocalPlayerAnimation local_anim, float speed)

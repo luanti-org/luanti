@@ -25,7 +25,7 @@ public:
 	virtual std::optional<u16> getTrackNumber(const std::string &track_name) const = 0;
 
 	//! Gets the maximum frame number, 0 if the mesh is static.
-	virtual f32 getMaxFrameNumber(u16 track) const = 0;
+	virtual f32 getMaxFrameNumber(u16 track_nr) const = 0;
 
 	virtual void prepareForAnimation(u16 max_hw_joints) = 0;
 
