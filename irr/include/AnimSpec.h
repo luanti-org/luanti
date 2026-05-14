@@ -19,13 +19,13 @@ struct TrackAnimSpec {
 	f32 max_frame = 0.0f;
 	f32 fps = 1.0f; ///< can be negative for reversed playback
 	bool loop = true;
-	f32 blend = 0.0f;
+	f32 blend_duration = 0.0f; ///< timespan in seconds over which to lerp to the new animation
 
 	s32 priority = 0; ///< higher priority tracks override lower priority ones
 
 	// Animation progress
 	f32 cur_frame = 0.0f;
-	f32 blend_progress = 0.0f;
+	f32 blend_progress = 0.0f; ///< how many seconds of blending have passed so far
 
 	void advance(f32 dtime_s);
 

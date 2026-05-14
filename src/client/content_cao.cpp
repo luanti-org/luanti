@@ -1652,7 +1652,7 @@ void GenericCAO::processMessage(const std::string &data)
 		scene::TrackAnimSpec anim;
 		v2f range = readV2F32(is);
 		anim.fps = readF32(is);
-		anim.blend = readF32(is);
+		anim.blend_duration = readF32(is);
 		// these are sent inverted so we get true when the server sends nothing
 		anim.loop = !readU8(is);
 

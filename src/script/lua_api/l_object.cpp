@@ -427,7 +427,7 @@ int ObjectRef::l_set_animation(lua_State *L)
 	anim_spec.min_frame = frame_range.X;
 	anim_spec.max_frame = frame_range.Y;
 	anim_spec.fps = frame_speed;
-	anim_spec.blend = frame_blend;
+	anim_spec.blend_duration = frame_blend;
 	anim_spec.loop = frame_loop;
 
 	sao->setAnimation((u16) 0, anim_spec);
@@ -451,7 +451,7 @@ int ObjectRef::l_get_animation(lua_State *L)
 	if (const auto &spec = sao->getAnimation((u16) 0)) {
 		frames = v2f(spec->min_frame, spec->max_frame);
 		frame_speed = spec->fps;
-		frame_blend = spec->blend;
+		frame_blend = spec->blend_duration;
 		frame_loop = spec->loop;
 	}
 
@@ -499,7 +499,7 @@ static void read_track_anim_spec(lua_State *L, int tidx,
 	anim.fps = getfloatfield_default(L, tidx, "speed", 1.0f);
 	anim.cur_frame = getfloatfield_default(L, tidx, "frame",
 			anim.fps >= 0 ? anim.min_frame : anim.max_frame);
-	anim.blend = getfloatfield_default(L, tidx, "blend", 0.0f);
+	anim.blend_duration = getfloatfield_default(L, tidx, "blend", 0.0f);
 	anim.loop = getboolfield_default(L, tidx, "loop", true);
 	anim.priority = getintfield_default(L, tidx, "priority", 0);
 }
@@ -512,7 +512,7 @@ static void pushTrackAnimSpec(lua_State *L,
 	setfloatfield(L, -1, "max_frame", anim.max_frame);
 	setfloatfield(L, -1, "frame", anim.cur_frame);
 	setfloatfield(L, -1, "speed", anim.fps);
-	setfloatfield(L, -1, "blend", anim.blend);
+	setfloatfield(L, -1, "blend", anim.blend_duration);
 	setboolfield(L, -1, "loop", anim.loop);
 	setintfield(L, -1, "priority", anim.priority);
 }

@@ -449,7 +449,7 @@ void AnimatedMeshSceneNode::animateJoints()
 		SkinnedMesh::AnimationProgress progress = {
 			track,
 			anim.cur_frame,
-			anim.blend > 0.0f ? (anim.blend_progress / anim.blend) : 1.0f,
+			anim.blend_duration > 0.0f ? (anim.blend_progress / anim.blend_duration) : 1.0f,
 		};
 		progresses.push_back({progress, anim.priority});
 	}
