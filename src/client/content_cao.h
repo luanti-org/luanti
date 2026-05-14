@@ -17,7 +17,6 @@
 #include "client/tile.h"
 #include <cassert>
 #include <memory>
-#include <sstream>
 
 namespace scene {
 	class IMeshSceneNode;
