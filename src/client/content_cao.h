@@ -116,6 +116,7 @@ private:
 	SmoothTranslatorWrappedv3f rot_translator;
 
 	// Spritesheet stuff
+	// TODO move into own struct
 	v2f m_tx_size = v2f(1,1);
 	v2s16 m_tx_basepos;
 	bool m_initial_tx_basepos_set = false;
@@ -125,7 +126,12 @@ private:
 	float m_anim_framelength = 0.2f;
 	float m_anim_timer = 0.0f;
 
+	/// The animation for all tracks as specified by the server.
+	/// This is usually what is used, unless overridden by a local player animation.
 	scene::AnimSpec m_animation;
+	/// For the local player CAO, animations may be overridden by the client
+	/// based on the in-game state of the local player (e.g. walking, digging, idling).
+	/// See also localplayer.h (e.g. LocalPlayerAnimation, LocalPlayer::last_animation).
 	bool m_local_player_animation = false;
 
 	// stores position and rotation for each bone name
