@@ -64,8 +64,9 @@ private:
 	// if true, all sounds will be directly paused after creation
 	bool m_is_paused = false;
 
-	// used for printing warnings only once
+	// stuff for only-once / rate-limited warnings
 	std::unordered_set<std::string> m_warned_positional_stereo_sounds;
+	u64 m_next_lingering_sounds_print; // timestamp from porting::getTimeS()
 
 public:
 	// used for communication with ProxySoundManager
@@ -114,6 +115,12 @@ private:
 	 * @return Number of removed sounds.
 	 */
 	int removeDeadSounds();
+
+	/**
+	 * Logs names of playing sounds into warningstream.
+	 * Used for diagnosis, i.e. if no new sound sources can be allocated.
+	 */
+	void printLingeringPlayingSounds();
 
 public:
 	OpenALSoundManager(SoundManagerSingleton *smg,

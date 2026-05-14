@@ -32,6 +32,7 @@ class PlayingSound final
 	bool m_is_positional;
 	bool m_stopped_means_dead = true;
 	std::optional<FadeState> m_fade_state = std::nullopt;
+	u64 m_creation_time_s; // timestamp from porting::getTimeS()
 
 public:
 	PlayingSound(ALuint source_id, std::shared_ptr<ISoundDataOpen> data, bool loop,
@@ -92,6 +93,10 @@ public:
 		if (getState() == AL_PAUSED)
 			play();
 	}
+
+	std::string getLoggingName() const;
+
+	u64 getCreationTimeS() const { return m_creation_time_s; }
 };
 
 } // namespace sound
