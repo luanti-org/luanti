@@ -125,7 +125,8 @@ void CGUIComboBox::removeItem(u32 idx)
 //! Returns caption of this element.
 const wchar_t *CGUIComboBox::getText() const
 {
-	return getItem(Selected);
+	const wchar_t *item = getItem(Selected);
+	return item ? item : L"";
 }
 
 //! adds an item and returns the index of it
