@@ -40,9 +40,9 @@ std::optional<u16> SkinnedMesh::getTrackNumber(const std::string &track_name) co
 	return it->second;
 }
 
-f32 SkinnedMesh::getMaxFrameNumber(u16 track) const
+f32 SkinnedMesh::getMaxFrameNumber(u16 track_nr) const
 {
-	return animations.at(track).end_frame;
+	return animations.at(track_nr).end_frame;
 }
 
 void SkinnedMesh::prepareForAnimation(u16 max_hw_joints)
@@ -88,7 +88,7 @@ std::vector<VariantTransform> SkinnedMesh::animateMesh(
 	std::vector<bool> animated_joints(AllJoints.size(), false);
 	std::vector<VariantTransform> result(AllJoints.size());
 	for (const auto &progress : progresses) {
-		const auto &anim = animations.at(progress.track);
+		const auto &anim = animations.at(progress.track_nr);
 		assert(progress.frame >= 0 && progress.frame <= anim.end_frame);
 		for (const auto &joint_keys : anim.joint_keys) {
 			const auto joint_id = joint_keys.joint_id;
