@@ -399,6 +399,10 @@ Call these functions only at load time!
       Negative step will lower the sound volume, positive step will increase
       the sound volume.
     * `gain` the target gain for the fade.
+* `core.debug_print_playing_sounds()`
+    * Logs a list of all currently playing sounds to warningstream.
+    * Only for debugging, don't depend on the output format or existence of this
+      function.
 
 ### Timing
 * `core.after(time, func, ...)`

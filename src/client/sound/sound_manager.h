@@ -116,12 +116,6 @@ private:
 	 */
 	int removeDeadSounds();
 
-	/**
-	 * Logs names of playing sounds into warningstream.
-	 * Used for diagnosis, i.e. if no new sound sources can be allocated.
-	 */
-	void printLingeringPlayingSounds();
-
 public:
 	OpenALSoundManager(SoundManagerSingleton *smg,
 			std::unique_ptr<SoundFallbackPathProvider> fallback_path_provider);
@@ -152,6 +146,8 @@ private:
 	void stopSound(sound_handle_t sound);
 	void fadeSound(sound_handle_t soundid, f32 step, f32 target_gain);
 	void updateSoundPosVel(sound_handle_t sound, const v3f &pos_, const v3f &vel_);
+
+	void printPlayingSounds(bool rate_limit);
 
 protected:
 	/* Thread stuff */

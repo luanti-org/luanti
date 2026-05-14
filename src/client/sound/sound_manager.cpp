@@ -163,7 +163,7 @@ std::shared_ptr<PlayingSound> OpenALSoundManager::createPlayingSound(
 	if (auto err = warn_if_al_error("createPlayingSound (alGenSources)"); err != AL_NO_ERROR) {
 		if (err == AL_OUT_OF_MEMORY) {
 			// this usually means there are too many sources
-			printLingeringPlayingSounds();
+			printPlayingSounds(true);
 		}
 		return nullptr;
 	}
@@ -254,13 +254,15 @@ int OpenALSoundManager::removeDeadSounds()
 	return num_deleted_sounds;
 }
 
-void OpenALSoundManager::printLingeringPlayingSounds()
+void OpenALSoundManager::printPlayingSounds(bool rate_limit)
 {
-	// Do at most every LINGERIN_SOUND_PRINT_INTERVAL seconds
+	// Do at most every PLAYING_SOUNDS_PRINT_INTERVAL seconds
 	u64 tnow_sec = porting::getTimeS();
-	if (m_next_lingering_sounds_print > tnow_sec)
-		return;
-	m_next_lingering_sounds_print = tnow_sec + LINGERIN_SOUND_PRINT_INTERVAL;
+	if (rate_limit) {
+		if (m_next_lingering_sounds_print > tnow_sec)
+			return;
+		m_next_lingering_sounds_print = tnow_sec + PLAYING_SOUNDS_PRINT_INTERVAL;
+	}
 
 	// Count sounds per name
 	struct Agg {
@@ -537,6 +539,9 @@ void *OpenALSoundManager::run()
 			mgr.fadeSound(msg.soundid, msg.step, msg.target_gain); return Result::Ok; }
 		Result operator()(UpdateSoundPosVel &&msg) {
 			mgr.updateSoundPosVel(msg.sound, msg.pos_, msg.vel_); return Result::Ok; }
+
+		Result operator()(PrintPlayingSounds &&msg) {
+			mgr.printPlayingSounds(false); return Result::Ok; }
 
 		Result operator()(PleaseStop &&msg) {
 			return Result::StopRequested; }

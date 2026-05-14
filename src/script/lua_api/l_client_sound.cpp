@@ -52,9 +52,20 @@ int ModApiClientSound::l_sound_play(lua_State *L)
 	return 1;
 }
 
+// debug_print_playing_sounds()
+int ModApiClientSound::l_debug_print_playing_sounds(lua_State *L)
+{
+	ISoundManager *sound_manager = getClient(L)->getSoundManager();
+
+	sound_manager->printPlayingSounds();
+
+	return 0;
+}
+
 void ModApiClientSound::Initialize(lua_State *L, int top)
 {
 	API_FCT(sound_play);
+	API_FCT(debug_print_playing_sounds);
 }
 
 /* ClientSoundHandle */
