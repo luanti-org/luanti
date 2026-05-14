@@ -236,11 +236,10 @@ bool CGUIComboBox::OnEvent(const SEvent &event)
 			switch (event.GUIEvent.EventType) {
 			case EGET_ELEMENT_FOCUS_LOST:
 				if (ListBox &&
-						(Environment->hasFocus(ListBox) || ListBox->isMyDescendant(event.GUIEvent.Caller)) &&
+						// Newly focused element
 						event.GUIEvent.Element != this &&
-						!isMyDescendant(event.GUIEvent.Element) &&
-						!ListBox->isMyDescendant(event.GUIEvent.Element)) {
-					openCloseMenu();
+						!isMyDescendant(event.GUIEvent.Element)) {
+					openCloseMenu(); // close
 				}
 				break;
 			case EGET_BUTTON_CLICKED:
@@ -264,28 +263,23 @@ bool CGUIComboBox::OnEvent(const SEvent &event)
 				break;
 			}
 			break;
-		case EET_MOUSE_INPUT_EVENT:
+		case EET_MOUSE_INPUT_EVENT: {
+			core::position2d<s32> p(event.MouseInput.X, event.MouseInput.Y);
 
 			switch (event.MouseInput.Event) {
 			case EMIE_LMOUSE_PRESSED_DOWN: {
-				core::position2d<s32> p(event.MouseInput.X, event.MouseInput.Y);
 
-				// send to list box
-				if (ListBox && ListBox->isPointInside(p) && ListBox->OnEvent(event))
+				if (!ListBox && isPointInside(p)) {
+					// Quick select: mouse down -> drag to position -> mouse up -> (selected)
+					openCloseMenu(); // open
 					return true;
+				}
 
-				return true;
+				break;
 			}
 			case EMIE_LMOUSE_LEFT_UP: {
-				core::position2d<s32> p(event.MouseInput.X, event.MouseInput.Y);
-
-				// send to list box
-				if (!(ListBox &&
-							ListBox->getAbsolutePosition().isPointInside(p) &&
-							ListBox->OnEvent(event))) {
-					openCloseMenu();
-				}
-				return true;
+				// Eaten by CGUIListBox
+				break;
 			}
 			case EMIE_MOUSE_WHEEL: {
 				// Try scrolling parent first
@@ -311,7 +305,13 @@ bool CGUIComboBox::OnEvent(const SEvent &event)
 			default:
 				break;
 			}
+
+			// Prevent interaction with underlying elements.
+			if (isPointInside(p) || (ListBox && ListBox->isPointInside(p)))
+				return true;
+
 			break;
+		}
 		default:
 			break;
 		}
