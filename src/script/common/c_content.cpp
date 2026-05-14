@@ -2546,7 +2546,7 @@ bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void 
 			*value = &elem->style;
 			break;
 		case HUD_STAT_HIDEABLE:
-			elem->hideable = lua_toboolean(L, 4);
+			elem->hideable = lua_isnoneornil(L, 4) ? true : lua_toboolean(L, 4);
 			*value = &elem->hideable;
 			break;
 		case HudElementStat_END:
