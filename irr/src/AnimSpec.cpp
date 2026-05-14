@@ -9,7 +9,7 @@ namespace scene {
 
 void TrackAnimSpec::advance(f32 dtime_s) {
 	cur_frame += fps * dtime_s;
-	blend_progress = std::min(blend_progress + dtime_s, blend);
+	blend_progress = std::min(blend_progress + dtime_s, blend_duration);
 	if (fps < 0) {
 		cur_frame = loop
 			? (max_frame - framemod(max_frame - cur_frame))
