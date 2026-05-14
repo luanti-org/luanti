@@ -18,10 +18,11 @@ public:
 	struct TrackAnimation {
 		scene::TrackAnimSpec spec;
 		enum class State : u8 {
-			SENT,
-			NEEDS_RESEND,
-			NEEDS_SPEED_RESEND,
-			STOPPED,
+			SENT, ///< animation state on clients is up to date, nothing to do
+			NEEDS_RESEND, ///< animation has been started, emit AO_CMD_SET_ANIMATION
+			NEEDS_SPEED_RESEND, ///< speed has been changed, emit AO_CMD_SET_ANIMATION_SPEED
+			STOPPED, ///< animation has been stopped (not paused), emit AO_CMD_STOP_ANIMATION
+			         ///< @note animations can be paused by setting speed to 0
 		};
 		State state = State::NEEDS_RESEND;
 	};
