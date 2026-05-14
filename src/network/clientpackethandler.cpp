@@ -1180,7 +1180,7 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 	s16 z_index = 0;
 	std::string text2;
 	u32 style = 0;
-	u8 flags = 0;
+	u8 flags = 1;
 
 	*pkt >> server_id >> type >> pos >> name >> scale >> text >> number >> item
 		>> dir >> align >> offset;
