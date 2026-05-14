@@ -2014,6 +2014,9 @@ Displays text on the HUD.
       a rounded down integer value.
 * `style`: determines font style
   Bitfield with 1 = bold, 2 = italic, 4 = monospace
+* `scale`: Do not use.
+  Note: Previous versions of the documentation claimed this field sets
+  a "bounding rectangle" for the text, but it never worked.
 
 ### `statbar`
 
