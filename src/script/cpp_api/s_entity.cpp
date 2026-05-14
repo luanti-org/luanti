@@ -212,7 +212,7 @@ void ScriptApiEntity::luaentity_GetProperties(u16 id,
 }
 
 void ScriptApiEntity::luaentity_Step(u16 id, float dtime,
-	const collisionMoveResult *moveresult)
+	const CollisionMoveResult *moveresult)
 {
 	SCRIPTAPI_PRECHECKHEADER
 

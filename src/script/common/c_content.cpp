@@ -2563,7 +2563,7 @@ static const char *collision_axis_str[] = {
 	"z",
 };
 
-void push_collision_move_result(lua_State *L, const collisionMoveResult &res)
+void push_collision_move_result(lua_State *L, const CollisionMoveResult &res)
 {
 	// use faster Lua helper if possible
 	if (res.collisions.size() == 1 && res.collisions.front().type == COLLISION_NODE) {
