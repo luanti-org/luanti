@@ -154,8 +154,6 @@ private:
 	// clipboard
 	static int l_copy_to_clipboard(lua_State *L);
 
-	static int l_get_text_from_clipboard(lua_State *L);
-
 public:
 
 	/**
