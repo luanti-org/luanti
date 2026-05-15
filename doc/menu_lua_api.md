@@ -448,8 +448,6 @@ Clipboard
 
 * `core.copy_to_clipboard(text)`
   * Copies text to the clipboard.
-* `core.get_text_from_clipboard()`
-  * Returns text from clipboard.
 
 
 Async

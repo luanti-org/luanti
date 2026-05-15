@@ -1128,19 +1128,6 @@ int ModApiMainMenu::l_copy_to_clipboard(lua_State *L)
 }
 
 /******************************************************************************/
-int ModApiMainMenu::l_get_text_from_clipboard(lua_State *L)
-{
-	GUIEngine* engine = getGuiEngine(L);
-	sanity_check(engine != NULL);
-
-	auto *env = engine->m_rendering_engine->get_gui_env();
-	auto text = env->getOSOperator()->getTextFromClipboard();
-
-	lua_pushstring(L, text ? text : "");
-	return 1;
-}
-
-/******************************************************************************/
 void ModApiMainMenu::Initialize(lua_State *L, int top)
 {
 	API_FCT(update_formspec);
@@ -1196,7 +1183,6 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(share_file);
 	API_FCT(do_async_callback);
 	API_FCT(copy_to_clipboard);
-	API_FCT(get_text_from_clipboard);
 
 	lua_pushboolean(L, g_first_run);
 	lua_setfield(L, top, "is_first_run");
