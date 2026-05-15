@@ -55,8 +55,15 @@ int ModApiClientSound::l_sound_play(lua_State *L)
 // debug_print_playing_sounds()
 int ModApiClientSound::l_debug_print_playing_sounds(lua_State *L)
 {
-	ISoundManager *sound_manager = getClient(L)->getSoundManager();
+	Client *client = getClient(L);
 
+	if (!client->checkPrivilege("debug")) {
+		warningstream << "core.debug_print_playing_sounds(): Missing priv: debug"
+				<< std::endl;
+		return 0;
+	}
+
+	ISoundManager *sound_manager = client->getSoundManager();
 	sound_manager->printPlayingSounds();
 
 	return 0;

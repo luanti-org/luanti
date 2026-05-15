@@ -403,6 +403,7 @@ Call these functions only at load time!
     * Logs a list of all currently playing sounds to warningstream.
     * Only for debugging, don't depend on the output format or existence of this
       function.
+    * Requires `debug` privilege.
 
 ### Timing
 * `core.after(time, func, ...)`
