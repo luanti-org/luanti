@@ -9,6 +9,7 @@
 #include <map>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 class Translations;
@@ -19,15 +20,18 @@ class Translations
 public:
 	void loadTranslation(const std::string &filename, const std::string &data);
 	void clear();
+
 	const std::wstring &getTranslation(
 			const std::wstring &textdomain, const std::wstring &s) const;
 	const std::wstring &getPluralTranslation(const std::wstring &textdomain,
 			const std::wstring &s, unsigned long int number) const;
-	static const std::string_view getFileLanguage(const std::string &filename);
-	static inline bool isTranslationFile(const std::string &filename)
+
+	static const std::string_view getFileLanguage(std::string_view filename);
+	static inline bool isTranslationFile(std::string_view filename)
 	{
-		return getFileLanguage(filename) != "";
+		return !getFileLanguage(filename).empty();
 	}
+
 	// for testing
 	inline size_t size()
 	{

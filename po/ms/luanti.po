@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Malay (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-06 23:13+0100\n"
+"POT-Creation-Date: 2026-05-06 19:14+0200\n"
 "PO-Revision-Date: 2024-11-28 13:00+0000\n"
 "Last-Translator: Muhammad Nuruddin <nuruddin6106@gmail.com>\n"
 "Language-Team: Malay <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -66,6 +66,7 @@ msgstr "Perintah tidak tersedia: "
 msgid "Get help for commands (-t: output in chat)"
 msgstr "Dapatkan bantuan untuk perintah (-t: output di sembang)"
 
+#. TRANSLATORS: 'help' and 'all' mustn't be translated. cmd = command
 #: builtin/common/chatcommands.lua
 msgid ""
 "Use '.help <cmd>' to get more information, or '.help all' to list everything."
@@ -73,6 +74,7 @@ msgstr ""
 "Gunakan '.help <perintah>' untuk dapatkan maklumat lanjut, atau '.help all' "
 "untuk senaraikan kesemuanya."
 
+#. TRANSLATORS: Syntax of 'help' command. Don't translate anything except 'cmd' (=command)
 #: builtin/common/chatcommands.lua
 msgid "[all | <cmd>] [-t]"
 msgstr "[all | <perintah>] [-t]"
@@ -240,6 +242,7 @@ msgstr ""
 msgid "Scales the noise in the $1 axis by this value."
 msgstr ""
 
+#. TRANSLATORS: Value for randomness
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Seed"
@@ -280,7 +283,7 @@ msgstr ""
 msgid "This results in spiky noise."
 msgstr ""
 
-#. ~ "absvalue" is a noise parameter flag.
+#. TRANSLATORS: "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
 #. It can be enabled in noise settings in
 #. the settings menu.
@@ -288,14 +291,14 @@ msgstr ""
 msgid "absvalue"
 msgstr "nilai mutlak"
 
-#. ~ "defaults" is a noise parameter flag.
+#. TRANSLATORS: "defaults" is a noise parameter flag.
 #. It describes the default processing options
 #. for noise settings in the settings menu.
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "defaults"
 msgstr "lalai"
 
-#. ~ "eased" is a noise parameter flag.
+#. TRANSLATORS: "eased" is a noise parameter flag.
 #. It is used to make the map smoother and
 #. can be enabled in noise settings in
 #. the settings menu.
@@ -303,6 +306,8 @@ msgstr "lalai"
 msgid "eased"
 msgstr "tumpul"
 
+#. TRANSLATORS: "automatic exposure" refers to light. This note
+#. will be displayed for the graphics setting 'enable_auto_exposure'
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "(The game will need to enable automatic exposure as well)"
@@ -322,20 +327,28 @@ msgstr "(Permainan akan perlu membolehkan bayang juga)"
 msgid "(Use system language)"
 msgstr "(Guna bahasa sistem)"
 
+#. TRANSLATORS: Shown when a default setting is the empty string
+#: builtin/common/settings/dlg_settings.lua
+msgid "<empty>"
+msgstr ""
+
 #: builtin/common/settings/dlg_settings.lua
 msgid "Accessibility"
 msgstr "Ketercapaian"
 
+#. TRANSLATORS: Automatic
 #: builtin/common/settings/dlg_settings.lua
 msgid "Auto"
 msgstr "Automatik"
 
+#. TRANSLATORS: Button text to go back
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
 msgid "Back"
 msgstr "Kembali"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 msgid "Buttons with crosshair"
 msgstr ""
@@ -345,6 +358,7 @@ msgstr ""
 msgid "Chat"
 msgstr "Sembang"
 
+#. TRANSLATORS: Tooltip of a button that clears input
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Clear"
 msgstr "Padam"
@@ -352,6 +366,11 @@ msgstr "Padam"
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "Controls"
 msgstr "Kawalan"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+#, fuzzy
+msgid "Damage"
+msgstr "Boleh cedera / PvP"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/common/settings/shadows_component.lua
@@ -362,10 +381,12 @@ msgstr "Dilumpuhkan"
 msgid "Enabled"
 msgstr "Dibolehkan"
 
+#. TRANSLATORS: Category for general settings
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "General"
 msgstr "Umum"
 
+#. TRANSLATORS: Touchscreen gesture
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
 msgstr ""
@@ -374,12 +395,13 @@ msgstr ""
 msgid "Movement"
 msgstr "Pergerakan"
 
+#. TRANSLATORS: No search results
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No results"
 msgstr "Tiada hasil"
 
-#. ~ Indicates that the action does not have a corresponding keybinding.
+#. TRANSLATORS: Indicates that the action does not have a corresponding keybinding.
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Not bound"
@@ -389,14 +411,17 @@ msgstr "Tidak dijumpai"
 msgid "Reset setting to default"
 msgstr "Tetap semula tetapan lalai"
 
+#. TRANSLATORS: $1 will be replaced with a default setting value
 #: builtin/common/settings/dlg_settings.lua
-msgid "Reset setting to default ($1)"
+#, fuzzy
+msgid "Reset setting to default: $1"
 msgstr "Tetap semula tetapan lalai ($1)"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
 msgstr "Cari"
 
+#. TRANSLATORS: Touchscreen gesture
 #: builtin/common/settings/dlg_settings.lua
 msgid "Short tap"
 msgstr ""
@@ -405,15 +430,18 @@ msgstr ""
 msgid "Show advanced settings"
 msgstr "Tunjuk tetapan lanjutan"
 
+#. TRANSLATORS: Checkbox that toggles displaying the technical setting names
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show technical names"
 msgstr "Tunjuk nama teknikal"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Tap"
 msgstr "Tab"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
 msgstr ""
@@ -571,6 +599,8 @@ msgstr "ContentDB tidak tersedia apabila Minetest dikompil tanpa cURL"
 msgid "Downloading..."
 msgstr "Memuat turun..."
 
+#. TRANSLATORS: A 'featured' package in ContentDB is a package that is
+#. more prominently displayed than other packages
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
 msgstr "Diketengahkan"
@@ -598,6 +628,7 @@ msgstr "Tiada pakej yang boleh diambil"
 msgid "No updates"
 msgstr "Tiada kemas kini"
 
+#. TRANSLATORS: A download is queued
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Queued"
 msgstr "Menunggu giliran"
@@ -611,14 +642,17 @@ msgstr "Pek tekstur"
 msgid "The package $1 was not found."
 msgstr "Pakej $1 tidak dijumpai."
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Update All [$1]"
 msgstr "Kemas Kini Semua [$1]"
 
+#. TRANSLATORS: $1 is the name of a package and $2 is a number of depencencies
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 and $2 dependencies will be installed."
 msgstr "Kebergantungan $1 dan $2 akan dipasangkan."
 
+#. TRANSLATORS: Package (mod, texture pack, etc.) info: $1 = package name, $2 = package author
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 by $2"
 msgstr "$1 oleh $2"
@@ -627,6 +661,7 @@ msgstr "$1 oleh $2"
 msgid "$1 required dependencies could not be found."
 msgstr "$1 memerlukan kebergantungan yang tidak dijumpai."
 
+#. TRANSLATORS: $1 is the name of a package and $2 is a number of depencencies
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 will be installed, and $2 dependencies will be skipped."
 msgstr "$1 akan dipasangkan, dan $2 kebergantungan akan dilangkau."
@@ -639,6 +674,7 @@ msgstr "Sudah dipasang"
 msgid "Base Game:"
 msgstr "Permainan Asas:"
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Dependencies:"
@@ -714,11 +750,13 @@ msgstr "Topik Forum"
 msgid "Information"
 msgstr "Maklumat:"
 
+#. TRANSLATORS: $1 = download size
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
 msgid "Install [$1]"
 msgstr "Pasang $1"
 
+#. TRANSLATORS: Also known as 'bug tracker'
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
 msgstr "Penjejak Isu"
@@ -727,6 +765,7 @@ msgstr "Penjejak Isu"
 msgid "Reviews"
 msgstr ""
 
+#. TRANSLATORS: Link to source code repository
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
 msgstr "Sumber"
@@ -753,6 +792,10 @@ msgstr "Lawati laman sesawang"
 msgid "by $1"
 msgstr "$1 oleh $2"
 
+#. TRANSLATORS: Info line for a ContentDB package:
+#. $1 = author,
+#. $2 = number of downloads,
+#. $3, $4, $5 = number of positive/neutral/negative reviews
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
 msgstr "oleh $1  —  $2 muat turun  —  +$3 / $4 / -$5"
@@ -790,16 +833,19 @@ msgstr "Tidak mampu memasang $1 sebagai pek tekstur"
 msgid "World mods"
 msgstr "Nama dunia"
 
+#. TRANSLATORS: $1 = server name
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
 "Players connected to\n"
 "$1"
 msgstr ""
 
+#. TRANSLATORS: Message in the mod list when a mod is enabled with error
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
 msgstr "(Dibolehkan, ada ralat)"
 
+#. TRANSLATORS: Displayed when a mod dependency is unsatisfied
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Unsatisfied)"
 msgstr "(Tidak dipenuhi)"
@@ -840,6 +886,7 @@ msgstr "Mods:"
 msgid "Mods located inside the world folder."
 msgstr ""
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
 msgstr "Tiada kebergantungan (pilihan)"
@@ -848,6 +895,7 @@ msgstr "Tiada kebergantungan (pilihan)"
 msgid "No game description provided."
 msgstr "Tiada perihal permainan tersedia."
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No hard dependencies"
 msgstr "Tiada kebergantungan wajib"
@@ -856,10 +904,12 @@ msgstr "Tiada kebergantungan wajib"
 msgid "No modpack description provided."
 msgstr "Tiada perihal pek mods tersedia."
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No optional dependencies"
 msgstr "Tiada kebergantungan pilihan"
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Optional dependencies:"
 msgstr "Kebergantungan pilihan:"
@@ -901,6 +951,7 @@ msgstr "Kedinginan altitud"
 msgid "Altitude dry"
 msgstr "Kekeringan altitud"
 
+#. TRANSLATORS: Smooth transition between biomes
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Biome blending"
 msgstr "Penyebatian biom"
@@ -921,6 +972,7 @@ msgstr "Gua"
 msgid "Create"
 msgstr "Cipta"
 
+#. TRANSLATORS: Map generator decorations (used for structures, trees, plants, and more)
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Decorations"
 msgstr "Hiasan"
@@ -1128,6 +1180,7 @@ msgstr ""
 msgid "Confirm Password"
 msgstr "Sahkan Kata Laluan"
 
+#. TRANSLATORS: Message when joining a server
 #: builtin/mainmenu/dlg_register.lua
 msgid "Joining $1"
 msgstr "Menyertai $1"
@@ -1150,10 +1203,12 @@ msgstr "Kata laluan"
 msgid "Passwords do not match"
 msgstr "Kata laluan tidak padan"
 
+#. TRANSLATORS: Register an account on a server
 #: builtin/mainmenu/dlg_register.lua builtin/mainmenu/tab_online.lua
 msgid "Register"
 msgstr "Daftar"
 
+#. TRANSLATORS: Dismiss a dialog window/message
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid "Dismiss"
 msgstr "Ketepikan"
@@ -1200,11 +1255,13 @@ msgstr ""
 "Pek mods ini mempunyai nama khusus diberikan dalam fail modpack.conf "
 "miliknya yang akan mengatasi sebarang penamaan semula di sini."
 
+#. TRANSLATORS: Expand all entries in a tree view
 #: builtin/mainmenu/dlg_server_list_mods.lua
 #, fuzzy
 msgid "Expand all"
 msgstr "Membolehkan semua"
 
+#. TRANSLATORS: A checkbox; if enabled, it will group mods by their prefix
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Group by prefix"
 msgstr ""
@@ -1217,10 +1274,12 @@ msgstr ""
 msgid "The $1 server uses the following mods:"
 msgstr ""
 
+#. TRANSLATORS: $1 = name of the engine
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
 msgstr "Versi $1 baharu kini tersedia"
 
+#. TRANSLATORS: $1 and $2 are version numbers, $3 is a URL
 #: builtin/mainmenu/dlg_version_info.lua
 msgid ""
 "Installed version: $1\n"
@@ -1249,6 +1308,7 @@ msgstr "Lawati laman sesawang"
 msgid "Debug build, expect worse performance"
 msgstr ""
 
+#. TRANSLATORS: Try to keep the translation short
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "Tetapan"
@@ -1311,6 +1371,7 @@ msgstr "Kongsikan log nyahpepijat"
 msgid "Browse online content"
 msgstr "Layari kandungan dalam talian"
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/tab_content.lua
 msgid "Browse online content [$1]"
 msgstr "Layari kandungan dalam talian [$1]"
@@ -1319,6 +1380,7 @@ msgstr "Layari kandungan dalam talian [$1]"
 msgid "Content"
 msgstr "Kandungan"
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/tab_content.lua
 msgid "Content [$1]"
 msgstr "Kandungan [$1]"
@@ -1406,6 +1468,7 @@ msgstr "Buat Baru"
 msgid "Play Game"
 msgstr "Mula Main"
 
+#. TRANSLATORS: Network port
 #: builtin/mainmenu/tab_local.lua builtin/mainmenu/tab_online.lua
 msgid "Port"
 msgstr "Port"
@@ -1437,6 +1500,7 @@ msgstr ""
 msgid "Add favorite"
 msgstr "Buang kegemaran"
 
+#. TRANSLATORS: Network address
 #: builtin/mainmenu/tab_online.lua
 msgid "Address"
 msgstr "Alamat"
@@ -1445,7 +1509,7 @@ msgstr "Alamat"
 msgid "Creative mode"
 msgstr "Mod Kreatif"
 
-#. ~ PvP = Player versus Player
+#. TRANSLATORS: PvP = Player versus Player
 #: builtin/mainmenu/tab_online.lua
 msgid "Damage / PvP"
 msgstr "Boleh cedera / PvP"
@@ -1467,6 +1531,7 @@ msgstr "Pelayan Tidak Serasi"
 msgid "Join Game"
 msgstr "Sertai Permainan"
 
+#. TRANSLATORS: Login to server
 #: builtin/mainmenu/tab_online.lua
 msgid "Login"
 msgstr "Log masuk"
@@ -1481,10 +1546,12 @@ msgstr "Jumlah jalur timbul"
 msgid "Open server website"
 msgstr "Langkah pelayan khusus"
 
+#. TRANSLATORS: Also known as "latency"
 #: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "Ping"
 
+#. TRANSLATORS: $1 is a list of players
 #: builtin/mainmenu/tab_online.lua
 #, fuzzy
 msgid ""
@@ -1493,17 +1560,15 @@ msgid ""
 msgstr "Klien"
 
 #: builtin/mainmenu/tab_online.lua
-msgid ""
-"Possible filters\n"
-"game:<name>\n"
-"mod:<name>\n"
-"player:<name>"
-msgstr ""
+#, fuzzy
+msgid "Possible filters"
+msgstr "Penapisan poisson"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
 msgstr "Pelayan Awam"
 
+#. TRANSLATORS: As in 'reload'/'check again'
 #: builtin/mainmenu/tab_online.lua
 msgid "Refresh"
 msgstr "Segarkan semula"
@@ -1544,7 +1609,7 @@ msgstr "Sedang memuatkan tekstur..."
 msgid "Rebuilding shaders..."
 msgstr "Sedang membina semula pembayang..."
 
-#: src/client/client.cpp src/util/screenshot.cpp
+#: src/client/client.cpp src/gui/guiEngine.cpp src/util/screenshot.cpp
 #, fuzzy, c-format
 msgid "Saved screenshot to \"%s\""
 msgstr "Tangkap layar"
@@ -1581,6 +1646,11 @@ msgstr ""
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
 msgstr "Sedang memuatkan media..."
+
+#: src/client/fontengine.cpp
+#, fuzzy
+msgid "Failed to find a valid font"
+msgstr "Gagal untuk kompil pembayang \"%s\"."
 
 #: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
 #: src/server.cpp
@@ -1883,6 +1953,7 @@ msgstr "Rangka dawai ditunjukkan"
 msgid "Zoom currently disabled by game or mod"
 msgstr "Zum dilumpuhkan oleh permainan atau mods ketika ini"
 
+#. TRANSLATORS: Game mode (server or singleplayer)
 #: src/client/game_formspec.cpp
 msgid "- Mode: "
 msgstr "- Mod: "
@@ -1891,7 +1962,7 @@ msgstr "- Mod: "
 msgid "- Public: "
 msgstr "- Awam: "
 
-#. ~ PvP = Player versus Player
+#. TRANSLATORS: PvP = Player versus Player
 #: src/client/game_formspec.cpp
 msgid "- PvP: "
 msgstr "- PvP: "
@@ -1900,10 +1971,12 @@ msgstr "- PvP: "
 msgid "- Server Name: "
 msgstr "- Nama Pelayan: "
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Change Password"
 msgstr "Tukar Kata Laluan"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Continue"
 msgstr "Teruskan"
@@ -1936,10 +2009,12 @@ msgstr ""
 "- sentuh&seret, ketik dengan jari ke2\n"
 " --> letak satu item dalam slot\n"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Exit to Menu"
 msgstr "Keluar ke Menu"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short (OS = Operating System)
 #: src/client/game_formspec.cpp
 msgid "Exit to OS"
 msgstr "Keluar Terus Permainan"
@@ -1972,6 +2047,7 @@ msgstr "Pelayan jarak jauh"
 msgid "Respawn"
 msgstr "Jelma semula"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Sound Volume"
 msgstr "Kekuatan Bunyi"
@@ -2013,7 +2089,7 @@ msgstr "Pembukah ditunjukkan (halaman %d / %d)"
 msgid "Backspace"
 msgstr "Backspace"
 
-#. ~ Usually paired with the Pause key
+#. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
 msgid "Break Key"
 msgstr "Kekunci Putus"
@@ -2078,7 +2154,7 @@ msgstr "Menu Kiri"
 msgid "Left Shift"
 msgstr "Shift Kiri"
 
-#. ~ Name of key
+#. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Windows Kiri"
@@ -2091,10 +2167,18 @@ msgstr "Kekunci Menu"
 msgid "Middle Click"
 msgstr ""
 
+#. TRANSLATORS: This is for mouse buttons without an intuitive description. %d is the number of the button.
+#: src/client/keycode.cpp
+#, c-format
+msgid "Mouse Button %d"
+msgstr ""
+
+#. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
 msgid "Mouse X1"
 msgstr ""
 
+#. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
 msgid "Mouse X2"
 msgstr ""
@@ -2171,7 +2255,7 @@ msgstr "Page Down"
 msgid "Page Up"
 msgstr "Page Up"
 
-#. ~ Usually paired with the Break key
+#. TRANSLATORS: Usually paired with the Break key
 #: src/client/keycode.cpp
 msgid "Pause Key"
 msgstr "Kekunci Jeda"
@@ -2180,7 +2264,7 @@ msgstr "Kekunci Jeda"
 msgid "Play"
 msgstr "Mula Main"
 
-#. ~ "Print screen" key
+#. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
 msgstr "Print Screen"
@@ -2210,7 +2294,7 @@ msgstr "Menu Kanan"
 msgid "Right Shift"
 msgstr "Shift Kanan"
 
-#. ~ Name of key
+#. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Windows Kanan"
@@ -2269,6 +2353,11 @@ msgstr "Peta mini dalam mod tekstur"
 msgid "Failed to create the texture \"%s\" for the rendering pipeline."
 msgstr ""
 
+#: src/client/renderingengine.cpp
+#, fuzzy
+msgid "Could not initialize any supported video driver!"
+msgstr "Pembayang dibolehkan tetapi GLSL tidak disokong oleh pemacu."
+
 #: src/client/shader.cpp
 #, c-format
 msgid "Failed to compile the \"%s\" shader."
@@ -2279,12 +2368,14 @@ msgstr "Gagal untuk kompil pembayang \"%s\"."
 msgid "Failed to find \"%s\" shader files."
 msgstr "Gagal untuk kompil pembayang \"%s\"."
 
+#. TRANSLATORS: GLSL = OpenGL Shading Language
 #: src/client/shader.cpp
 #, fuzzy
 msgid "GLSL is not supported by the driver"
 msgstr "Pembayang dibolehkan tetapi GLSL tidak disokong oleh pemacu."
 
-#. ~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
+#. TRANSLATORS: Error when a mod is missing dependencies.
+#. Example: "Mod Title is missing: mod1, mod2, mod3"
 #: src/content/mod_configuration.cpp
 #, c-format
 msgid "%s is missing:"
@@ -2321,6 +2412,11 @@ msgstr "Gagal buka laman sesawang"
 #: src/gui/guiChatConsole.cpp
 msgid "Opening webpage"
 msgstr "Membuka laman sesawang"
+
+#: src/gui/guiEngine.cpp
+#, fuzzy
+msgid "Failed to load main menu script!"
+msgstr "Skrip menu utama"
 
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
@@ -2496,7 +2592,7 @@ msgstr "Ralat dalaman pelayan"
 msgid "Invalid password"
 msgstr "Kata Laluan Lama"
 
-#. ~ DO NOT TRANSLATE THIS LITERALLY!
+#. TRANSLATORS: DO NOT TRANSLATE THIS LITERALLY!
 #. This is a special string which needs to contain the translation's
 #. language code (e.g. "de" for German).
 #: src/network/clientpackethandler.cpp src/script/lua_api/l_client.cpp
@@ -2878,11 +2974,13 @@ msgid "Anticheat movement tolerance"
 msgstr "Toleransi pergerakan antitipu"
 
 #: src/settings_translation_file.cpp
-msgid "Append item name"
-msgstr "Tambah nama item"
+#, fuzzy
+msgid "Append item name to tooltips"
+msgstr "Tambah nama item ke tip alatan."
 
 #: src/settings_translation_file.cpp
-msgid "Append item name to tooltip."
+#, fuzzy
+msgid "Append the full item name to the tooltip of item stacks."
 msgstr "Tambah nama item ke tip alatan."
 
 #: src/settings_translation_file.cpp
@@ -3466,6 +3564,11 @@ msgstr ""
 "Juga mengawal warna rerambut silang objek"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Damage flash"
+msgstr "Bendera janapeta"
+
+#: src/settings_translation_file.cpp
 msgid "Debug log file size threshold"
 msgstr "Nilai ambang saiz fail log nyahpepijat"
 
@@ -3812,6 +3915,11 @@ msgstr "Membolehkan Penakaian Surihan Sinar"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
+msgid "Enable SSCSM"
+msgstr "Membolehkan semua"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Enable a confirmation dialog before closing."
 msgstr "Membolehkan animasi item dalam inventori."
 
@@ -4098,6 +4206,10 @@ msgstr ""
 "Membaiki kedudukan kayu bedik maya.\n"
 "Jika dilumpuhkan, kedudukan tengah untuk kayu bedik maya akan ditetapkan ke "
 "kedudukan sentuhan pertama."
+
+#: src/settings_translation_file.cpp
+msgid "Flashing of the screen when taking damage."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Floatland density"
@@ -5117,6 +5229,16 @@ msgid "Keyboard and Mouse"
 msgstr "Papan Kekunci dan Tetikus"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Keyboard camera speed"
+msgstr "Papan Kekunci dan Tetikus"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Keyboard-controlled camera rotation speed, in degrees per second."
+msgstr "Kelajuan memanjat menegak, dalam unit nod per saat."
+
+#: src/settings_translation_file.cpp
 msgid "Kick players who sent more than X messages per 10 seconds."
 msgstr "Tendang pemain yang menghantar mesej lebih daripada X setiap 10 saat."
 
@@ -5332,6 +5454,23 @@ msgstr "Memuatkan Pengubah Blok"
 #: src/settings_translation_file.cpp
 msgid "Local command"
 msgstr "Perintah tempatan"
+
+#: src/settings_translation_file.cpp
+msgid "Look down"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Look left"
+msgstr "Pergerakan"
+
+#: src/settings_translation_file.cpp
+msgid "Look right"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Look up"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -6584,6 +6723,13 @@ msgstr "Senarai Pelayan dan Mesej Harian"
 #: src/settings_translation_file.cpp
 msgid "Serverlist file"
 msgstr "Fail senarai pelayan"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Set proxy to use by cURL. This is an URI just like the *_proxy environment "
+"variables.\n"
+"Note that this will not apply to Luanti's in-game protocol."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7849,6 +7995,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Where to enable server-sent client-side modding (SSCSM).\n"
+"Warning: Experimental."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Whether name tag backgrounds should be shown by default.\n"
 "Mods may still set a background."
 msgstr ""
@@ -8035,47 +8187,14 @@ msgstr "Had masa saling tindak cURL"
 msgid "cURL parallel limit"
 msgstr "Had cURL selari"
 
+#: src/settings_translation_file.cpp
+msgid "cURL proxy address"
+msgstr ""
+
 #: src/util/screenshot.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
 msgstr ""
 
-#~ msgid ""
-#~ "Number of emerge threads to use.\n"
-#~ "Value 0:\n"
-#~ "-    Automatic selection. The number of emerge threads will be\n"
-#~ "-    'number of processors - 2', with a lower limit of 1.\n"
-#~ "Any other value:\n"
-#~ "-    Specifies the number of emerge threads, with a lower limit of 1.\n"
-#~ "WARNING: Increasing the number of emerge threads increases engine mapgen\n"
-#~ "speed, but this may harm game performance by interfering with other\n"
-#~ "processes, especially in singleplayer and/or when running Lua code in\n"
-#~ "'on_generated'. For many users the optimum setting may be '1'."
-#~ msgstr ""
-#~ "Jumlah jalur timbul untuk digunakan.\n"
-#~ "Nilai 0:\n"
-#~ "-    Pemilihan automatik. Jumlah jalur timbul akan dikira berdasarkan\n"
-#~ "-    'jumlah pemproses - 2', dengan had minimum 1.\n"
-#~ "Sebarang nilai lain:\n"
-#~ "-    Menetapkan jumlah jalur timbul, dengan had minimum 1.\n"
-#~ "AMARAN: Menaikkan jumlah jalur timbul meningkatkan kelajuan penjanaan "
-#~ "peta enjin, tetapi\n"
-#~ "ia boleh memberi kesan buruk kepada prestasi permainan dengan mengganggu "
-#~ "proses-proses\n"
-#~ "lain, terutamanya dalam mod ekapemain dan/atau apabila menjalankan kod "
-#~ "Lua\n"
-#~ "dalam fungsi 'on_generated'. Untuk kebanyakan pengguna, tetapan optimum "
-#~ "ialah '1'."
-
-#~ msgid "Provided world path doesn't exist: "
-#~ msgstr "Laluan dunia diberi tidak wujud: "
-
-#~ msgid "Shadow map max distance in nodes to render shadows"
-#~ msgstr ""
-#~ "Jarak maksimum peta bayang untuk mengemas gabung bayang, dalam unit nod"
-
-#~ msgid "Y spread"
-#~ msgstr "Sebaran Y"
-
-#~ msgid "Z spread"
-#~ msgstr "Sebaran Z"
+#~ msgid "Append item name"
+#~ msgstr "Tambah nama item"

@@ -293,6 +293,93 @@ core.register_chatcommand("dump_wear_bar", {
 	end,
 })
 
+core.register_chatcommand("mapblock_stats", {
+	params = "",
+	description = "Prints counts of loadable, loaded, and active mapblocks",
+	func = function(name, param)
+		local loadable = core.get_loadable_blocks()
+		local loaded = core.get_loaded_blocks()
+		local active = core.get_active_blocks()
+		return true, ("Loadable mapblocks: %d\nLoaded mapblocks: %d\nActive mapblocks: %d")
+				:format(#loadable, #loaded, #active)
+	end,
+})
+
+local function swap_nodes_in_mapblock(blockpos, from_id, to_id)
+	local minp = blockpos * core.MAP_BLOCKSIZE
+	local maxp = minp + vector.new(core.MAP_BLOCKSIZE - 1,
+			core.MAP_BLOCKSIZE - 1, core.MAP_BLOCKSIZE - 1)
+	local vm = core.get_voxel_manip(minp, maxp)
+	local data = vm:get_data()
+	local changed_nodes = 0
+	for i = 1, #data do
+		if data[i] == from_id then
+			data[i] = to_id
+			changed_nodes = changed_nodes + 1
+		end
+	end
+	if changed_nodes > 0 then
+		vm:set_data(data)
+		vm:write_to_map()
+	end
+	vm:close()
+	return changed_nodes
+end
+
+local function mapblocks_change_season(name, action, source, blocks)
+	local grass_id = core.get_content_id("basenodes:dirt_with_grass")
+	local snow_id = core.get_content_id("basenodes:dirt_with_snow")
+	local from_id = grass_id
+	local to_id = snow_id
+	if action == "spring" then
+		from_id = snow_id
+		to_id = grass_id
+	end
+	local changed_blocks = 0
+	local changed_nodes = 0
+	for i, blockpos in ipairs(blocks) do
+		local changed = swap_nodes_in_mapblock(blockpos, from_id, to_id)
+		if changed > 0 then
+			changed_blocks = changed_blocks + 1
+			changed_nodes = changed_nodes + changed
+		end
+		if i % 1000 == 0 then
+			core.chat_send_player(name, ("Processed %d/%d %s mapblocks...")
+					:format(i, #blocks, source))
+		end
+	end
+	return changed_blocks, changed_nodes
+end
+
+local MAPBLOCK_SOURCES = {
+	active = core.get_active_blocks,
+	loaded = core.get_loaded_blocks,
+	loadable = core.get_loadable_blocks,
+}
+
+local function register_mapblocks_season_command(cmd, action)
+	core.register_chatcommand(cmd, {
+		params = "<active|loaded|loadable>",
+		description = action == "spring" and
+				"Turn dirt_with_snow into dirt_with_grass in selected mapblocks" or
+				"Turn dirt_with_grass into dirt_with_snow in selected mapblocks",
+		func = function(name, param)
+			local source = param:match("^%s*(.-)%s*$")
+			local block_getter = MAPBLOCK_SOURCES[source]
+			if not block_getter then
+				return false, "Invalid scope. Use: active, loaded, or loadable."
+			end
+			local blocks = block_getter()
+			local changed_blocks, changed_nodes = mapblocks_change_season(name, action, source, blocks)
+			return true, ("Checked %d %s mapblocks, changed %d mapblock(s), changed %d node(s)")
+					:format(#blocks, source, changed_blocks, changed_nodes)
+		end,
+	})
+end
+
+register_mapblocks_season_command("mapblocks_spring", "spring")
+register_mapblocks_season_command("mapblocks_winter", "winter")
+
 core.register_chatcommand("set_saturation", {
 	params = "<saturation>",
 	description = "Set the saturation for current player.",

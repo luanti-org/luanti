@@ -3,6 +3,7 @@
 // Copyright (C) 2013 sapier
 
 #include "guiEngine.h"
+#include "statusTextHelper.h"
 
 #include "client/fontengine.h"
 #include "client/guiscalingfilter.h"
@@ -12,10 +13,12 @@
 #include "content/content.h"
 #include "content/mods.h"
 #include "filesys.h"
+#include "gettext.h"
 #include "guiMainMenu.h"
 #include "httpfetch.h"
 #include "irrlicht_changes/static_text.h"
 #include "log.h"
+#include "gettext.h"
 #include "porting.h"
 #include "scripting_mainmenu.h"
 #include "settings.h"
@@ -106,6 +109,7 @@ void MenuMusicFetcher::addThePaths(const std::string &name,
 /******************************************************************************/
 /** GUIEngine                                                                 */
 /******************************************************************************/
+
 GUIEngine::GUIEngine(JoystickController *joystick,
 		gui::IGUIElement *parent,
 		RenderingEngine *rendering_engine,
@@ -176,31 +180,47 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 	m_menu->defaultAllowClose(false);
 	m_menu->lockSize(true,v2u32(800,600));
 
-	// Initialize scripting
-
-	infostream << "GUIEngine: Initializing Lua" << std::endl;
-
-	m_script = std::make_unique<MainMenuScripting>(this);
+	// Status message for main menu notifications
+	m_status_text = std::make_unique<StatusTextHelper>(
+		rendering_engine->get_gui_env(), m_parent);
+	m_status_text->setMainMenuStyle();
 
 	g_settings->registerChangedCallback("fullscreen", fullscreenChangedCallback, this);
+
+	const auto &report_fatal_error = [&] () {
+		// Throwing an exception from here would make cleanup messy since
+		// ~GUIEngine() won't be called, so we do the error reporting like this:
+		auto err = strgettext("Failed to load main menu script!");
+		RenderingEngine::showErrorMessageBox(err);
+		m_kill = 1; // break game-menu loop
+		m_data->script_data.errormessage = err;
+	};
+
+
+	// Initialize scripting
+	infostream << "GUIEngine: Initializing Lua" << std::endl;
+	try {
+		m_script = std::make_unique<MainMenuScripting>(this);
+	} catch (ModError &e) {
+		errorstream << e.what() << std::endl;
+		report_fatal_error();
+		return;
+	}
 
 	try {
 		m_script->setMainMenuData(&m_data->script_data);
 		m_data->script_data.errormessage.clear();
 
 		if (!loadMainMenuScript()) {
-			errorstream << "No future without main menu!" << std::endl;
-			abort();
+			report_fatal_error();
+			return;
 		}
 
 		run();
-	} catch (LuaError &e) {
+	} catch (ModError &e) {
 		errorstream << "Main menu error: " << e.what() << std::endl;
 		m_data->script_data.errormessage = e.what();
 	}
-
-	m_menu->quitMenu();
-	m_menu.reset();
 }
 
 
@@ -365,7 +385,15 @@ void GUIEngine::run()
 			if (m_take_screenshot) {
 				m_take_screenshot = false;
 				std::string filename;
-				takeScreenshot(driver, filename);
+				if (takeScreenshot(driver, filename)) {
+					std::string msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
+					m_status_text->showStatusText(utf8_to_wide(msg));
+				}
+			}
+
+			// Update status message
+			if (m_status_text) {
+				m_status_text->update(dtime);
 			}
 
 			driver->endScene();
@@ -395,6 +423,11 @@ GUIEngine::~GUIEngine()
 	// deinitialize script first. gc destructors might depend on other stuff
 	infostream << "GUIEngine: Deinitializing scripting" << std::endl;
 	m_script.reset();
+
+	if (m_menu) {
+		m_menu->quitMenu();
+		m_menu.reset();
+	}
 
 	m_sound_manager.reset();
 

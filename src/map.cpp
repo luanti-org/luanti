@@ -347,16 +347,12 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 		}
 	} else {
 		std::priority_queue<TimeOrderedMapBlock> mapblock_queue;
-		MapBlockVect blocks;
 		for (auto &sector_it : m_sectors) {
-			MapSector *sector = sector_it.second;
-
-			blocks.clear();
-			sector->getBlocks(blocks);
-
-			for (MapBlock *block : blocks) {
+			const MapSector *sector = sector_it.second;
+			for (const auto &entry : sector->getBlocks()) {
+				MapBlock *block = entry.second.get();
 				block->incrementUsageTimer(dtime);
-				mapblock_queue.push(TimeOrderedMapBlock(sector, block));
+				mapblock_queue.push(TimeOrderedMapBlock(const_cast<MapSector*>(sector), block));
 			}
 		}
 		block_count_all = mapblock_queue.size();
@@ -764,6 +760,14 @@ MMVManip::MMVManip(Map *map):
 	assert(map);
 }
 
+MMVManip::~MMVManip()
+{
+	for (auto **ref_ref : m_tracked_refs) {
+		assert(*ref_ref == this);
+		*ref_ref = nullptr;
+	}
+}
+
 void MMVManip::initialEmerge(v3s16 p_min, v3s16 p_max, bool load_if_inexistent)
 {
 	TimeTaker timer1("initialEmerge", &emerge_time);
@@ -919,6 +923,16 @@ void MMVManip::reparent(Map *map)
 {
 	assert(map && !m_map);
 	m_map = map;
+}
+
+std::list<MMVManip **>::iterator MMVManip::addTrackedRef(MMVManip **ref_ref)
+{
+	return m_tracked_refs.insert(m_tracked_refs.end(), ref_ref);
+}
+
+void MMVManip::removeTrackedRef(std::list<MMVManip **>::iterator it)
+{
+	m_tracked_refs.erase(it);
 }
 
 //END

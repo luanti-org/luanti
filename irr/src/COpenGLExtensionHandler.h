@@ -1055,8 +1055,6 @@ public:
 	void irrGlClientActiveTexture(GLenum texture);
 	void extGlPointParameterf(GLint loc, GLfloat f);
 	void extGlPointParameterfv(GLint loc, const GLfloat *v);
-	void extGlStencilFuncSeparate(GLenum frontfunc, GLenum backfunc, GLint ref, GLuint mask);
-	void extGlStencilOpSeparate(GLenum face, GLenum fail, GLenum zfail, GLenum zpass);
 	void irrGlCompressedTexImage2D(GLenum target, GLint level,
 			GLenum internalformat, GLsizei width, GLsizei height,
 			GLint border, GLsizei imageSize, const void *data);
@@ -1075,50 +1073,26 @@ public:
 	void extGlLoadProgram(GLenum target, GLuint id, GLsizei len, const GLubyte *string);
 	void extGlDeletePrograms(GLsizei n, const GLuint *programs);
 	void extGlProgramLocalParameter4fv(GLenum, GLuint, const GLfloat *);
-	GLhandleARB extGlCreateShaderObject(GLenum shaderType);
 	GLuint extGlCreateShader(GLenum shaderType);
-	// note: Due to the type confusion between shader_objects and OpenGL 2.0
-	// we have to add the ARB extension for proper method definitions in case
-	// that handleARB and uint are the same type
-	void extGlShaderSourceARB(GLhandleARB shader, GLsizei numOfStrings, const char **strings, const GLint *lenOfStrings);
 	void extGlShaderSource(GLuint shader, GLsizei numOfStrings, const char **strings, const GLint *lenOfStrings);
-	// note: Due to the type confusion between shader_objects and OpenGL 2.0
-	// we have to add the ARB extension for proper method definitions in case
-	// that handleARB and uint are the same type
-	void extGlCompileShaderARB(GLhandleARB shader);
 	void extGlCompileShader(GLuint shader);
-	GLhandleARB extGlCreateProgramObject(void);
 	GLuint extGlCreateProgram(void);
-	void extGlAttachObject(GLhandleARB program, GLhandleARB shader);
 	void extGlAttachShader(GLuint program, GLuint shader);
-	void extGlLinkProgramARB(GLhandleARB program);
-	// note: Due to the type confusion between shader_objects and OpenGL 2.0
-	// we have to add the ARB extension for proper method definitions in case
-	// that handleARB and uint are the same type
 	void extGlLinkProgram(GLuint program);
-	void extGlUseProgramObject(GLhandleARB prog);
 	void irrGlUseProgram(GLuint prog);
-	void extGlDeleteObject(GLhandleARB object);
 	void extGlDeleteProgram(GLuint object);
 	void extGlDeleteShader(GLuint shader);
 	void extGlGetAttachedShaders(GLuint program, GLsizei maxcount, GLsizei *count, GLuint *shaders);
-	void extGlGetAttachedObjects(GLhandleARB program, GLsizei maxcount, GLsizei *count, GLhandleARB *shaders);
 	void extGlGetInfoLog(GLhandleARB object, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog);
 	void extGlGetShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
 	void extGlGetProgramInfoLog(GLuint program, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
-	void extGlGetObjectParameteriv(GLhandleARB object, GLenum type, GLint *param);
 	void extGlGetShaderiv(GLuint shader, GLenum type, GLint *param);
 	void extGlGetProgramiv(GLuint program, GLenum type, GLint *param);
-	GLint extGlGetUniformLocationARB(GLhandleARB program, const char *name);
 	GLint extGlGetUniformLocation(GLuint program, const char *name);
 	void extGlUniform1fv(GLint loc, GLsizei count, const GLfloat *v);
 	void extGlUniform2fv(GLint loc, GLsizei count, const GLfloat *v);
 	void extGlUniform3fv(GLint loc, GLsizei count, const GLfloat *v);
 	void extGlUniform4fv(GLint loc, GLsizei count, const GLfloat *v);
-	void extGlUniform1bv(GLint loc, GLsizei count, const bool *v);
-	void extGlUniform2bv(GLint loc, GLsizei count, const bool *v);
-	void extGlUniform3bv(GLint loc, GLsizei count, const bool *v);
-	void extGlUniform4bv(GLint loc, GLsizei count, const bool *v);
 	void extGlUniform1iv(GLint loc, GLsizei count, const GLint *v);
 	void extGlUniform2iv(GLint loc, GLsizei count, const GLint *v);
 	void extGlUniform3iv(GLint loc, GLsizei count, const GLint *v);
@@ -1192,20 +1166,6 @@ public:
 	void irrGlBlendFuncSeparateIndexed(GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
 	void irrGlBlendEquationIndexed(GLuint buf, GLenum mode);
 	void irrGlBlendEquationSeparateIndexed(GLuint buf, GLenum modeRGB, GLenum modeAlpha);
-
-	void extGlTextureSubImage2D(GLuint texture, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels);
-	void extGlTextureStorage2D(GLuint texture, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
-	void extGlTextureStorage3D(GLuint texture, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth);
-	void extGlGetTextureImage(GLuint texture, GLenum target, GLint level, GLenum format, GLenum type, GLsizei bufSize, void *pixels);
-	void extGlNamedFramebufferTexture(GLuint framebuffer, GLenum attachment, GLuint texture, GLint level);
-	void extGlTextureParameteri(GLuint texture, GLenum pname, GLint param);
-	void extGlTextureParameterf(GLuint texture, GLenum pname, GLfloat param);
-	void extGlTextureParameteriv(GLuint texture, GLenum pname, const GLint *params);
-	void extGlTextureParameterfv(GLuint texture, GLenum pname, const GLfloat *params);
-	void extGlCreateTextures(GLenum target, GLsizei n, GLuint *textures);
-	void extGlCreateFramebuffers(GLsizei n, GLuint *framebuffers);
-	void extGlBindTextures(GLuint first, GLsizei count, const GLuint *textures, const GLenum *targets);
-	void extGlGenerateTextureMipmap(GLuint texture, GLenum target);
 
 	// the global feature array
 	bool FeatureAvailable[IRR_OpenGL_Feature_Count];
@@ -1445,24 +1405,11 @@ inline void COpenGLExtensionHandler::extGlProgramLocalParameter4fv(GLenum n, GLu
 		pGlProgramLocalParameter4fvARB(n, i, f);
 }
 
-inline GLhandleARB COpenGLExtensionHandler::extGlCreateShaderObject(GLenum shaderType)
-{
-	if (pGlCreateShaderObjectARB)
-		return pGlCreateShaderObjectARB(shaderType);
-	return 0;
-}
-
 inline GLuint COpenGLExtensionHandler::extGlCreateShader(GLenum shaderType)
 {
 	if (pGlCreateShader)
 		return pGlCreateShader(shaderType);
 	return 0;
-}
-
-inline void COpenGLExtensionHandler::extGlShaderSourceARB(GLhandleARB shader, GLsizei numOfStrings, const char **strings, const GLint *lenOfStrings)
-{
-	if (pGlShaderSourceARB)
-		pGlShaderSourceARB(shader, numOfStrings, strings, lenOfStrings);
 }
 
 inline void COpenGLExtensionHandler::extGlShaderSource(GLuint shader, GLsizei numOfStrings, const char **strings, const GLint *lenOfStrings)
@@ -1471,23 +1418,10 @@ inline void COpenGLExtensionHandler::extGlShaderSource(GLuint shader, GLsizei nu
 		pGlShaderSource(shader, numOfStrings, strings, lenOfStrings);
 }
 
-inline void COpenGLExtensionHandler::extGlCompileShaderARB(GLhandleARB shader)
-{
-	if (pGlCompileShaderARB)
-		pGlCompileShaderARB(shader);
-}
-
 inline void COpenGLExtensionHandler::extGlCompileShader(GLuint shader)
 {
 	if (pGlCompileShader)
 		pGlCompileShader(shader);
-}
-
-inline GLhandleARB COpenGLExtensionHandler::extGlCreateProgramObject(void)
-{
-	if (pGlCreateProgramObjectARB)
-		return pGlCreateProgramObjectARB();
-	return 0;
 }
 
 inline GLuint COpenGLExtensionHandler::extGlCreateProgram(void)
@@ -1497,22 +1431,10 @@ inline GLuint COpenGLExtensionHandler::extGlCreateProgram(void)
 	return 0;
 }
 
-inline void COpenGLExtensionHandler::extGlAttachObject(GLhandleARB program, GLhandleARB shader)
-{
-	if (pGlAttachObjectARB)
-		pGlAttachObjectARB(program, shader);
-}
-
 inline void COpenGLExtensionHandler::extGlAttachShader(GLuint program, GLuint shader)
 {
 	if (pGlAttachShader)
 		pGlAttachShader(program, shader);
-}
-
-inline void COpenGLExtensionHandler::extGlLinkProgramARB(GLhandleARB program)
-{
-	if (pGlLinkProgramARB)
-		pGlLinkProgramARB(program);
 }
 
 inline void COpenGLExtensionHandler::extGlLinkProgram(GLuint program)
@@ -1521,22 +1443,10 @@ inline void COpenGLExtensionHandler::extGlLinkProgram(GLuint program)
 		pGlLinkProgram(program);
 }
 
-inline void COpenGLExtensionHandler::extGlUseProgramObject(GLhandleARB prog)
-{
-	if (pGlUseProgramObjectARB)
-		pGlUseProgramObjectARB(prog);
-}
-
 inline void COpenGLExtensionHandler::irrGlUseProgram(GLuint prog)
 {
 	if (pGlUseProgram)
 		pGlUseProgram(prog);
-}
-
-inline void COpenGLExtensionHandler::extGlDeleteObject(GLhandleARB object)
-{
-	if (pGlDeleteObjectARB)
-		pGlDeleteObjectARB(object);
 }
 
 inline void COpenGLExtensionHandler::extGlDeleteProgram(GLuint object)
@@ -1549,14 +1459,6 @@ inline void COpenGLExtensionHandler::extGlDeleteShader(GLuint shader)
 {
 	if (pGlDeleteShader)
 		pGlDeleteShader(shader);
-}
-
-inline void COpenGLExtensionHandler::extGlGetAttachedObjects(GLhandleARB program, GLsizei maxcount, GLsizei *count, GLhandleARB *shaders)
-{
-	if (count)
-		*count = 0;
-	if (pGlGetAttachedObjectsARB)
-		pGlGetAttachedObjectsARB(program, maxcount, count, shaders);
 }
 
 inline void COpenGLExtensionHandler::extGlGetAttachedShaders(GLuint program, GLsizei maxcount, GLsizei *count, GLuint *shaders)
@@ -1591,12 +1493,6 @@ inline void COpenGLExtensionHandler::extGlGetProgramInfoLog(GLuint program, GLsi
 		pGlGetProgramInfoLog(program, maxLength, length, infoLog);
 }
 
-inline void COpenGLExtensionHandler::extGlGetObjectParameteriv(GLhandleARB object, GLenum type, GLint *param)
-{
-	if (pGlGetObjectParameterivARB)
-		pGlGetObjectParameterivARB(object, type, param);
-}
-
 inline void COpenGLExtensionHandler::extGlGetShaderiv(GLuint shader, GLenum type, GLint *param)
 {
 	if (pGlGetShaderiv)
@@ -1607,13 +1503,6 @@ inline void COpenGLExtensionHandler::extGlGetProgramiv(GLuint program, GLenum ty
 {
 	if (pGlGetProgramiv)
 		pGlGetProgramiv(program, type, param);
-}
-
-inline GLint COpenGLExtensionHandler::extGlGetUniformLocationARB(GLhandleARB program, const char *name)
-{
-	if (pGlGetUniformLocationARB)
-		return pGlGetUniformLocationARB(program, name);
-	return 0;
 }
 
 inline GLint COpenGLExtensionHandler::extGlGetUniformLocation(GLuint program, const char *name)
@@ -1791,22 +1680,6 @@ inline void COpenGLExtensionHandler::extGlPointParameterfv(GLint loc, const GLfl
 {
 	if (pGlPointParameterfvARB)
 		pGlPointParameterfvARB(loc, v);
-}
-
-inline void COpenGLExtensionHandler::extGlStencilFuncSeparate(GLenum frontfunc, GLenum backfunc, GLint ref, GLuint mask)
-{
-	if (pGlStencilFuncSeparate)
-		pGlStencilFuncSeparate(frontfunc, backfunc, ref, mask);
-	else if (pGlStencilFuncSeparateATI)
-		pGlStencilFuncSeparateATI(frontfunc, backfunc, ref, mask);
-}
-
-inline void COpenGLExtensionHandler::extGlStencilOpSeparate(GLenum face, GLenum fail, GLenum zfail, GLenum zpass)
-{
-	if (pGlStencilOpSeparate)
-		pGlStencilOpSeparate(face, fail, zfail, zpass);
-	else if (pGlStencilOpSeparateATI)
-		pGlStencilOpSeparateATI(face, fail, zfail, zpass);
 }
 
 inline void COpenGLExtensionHandler::irrGlCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width,
@@ -2152,417 +2025,6 @@ inline void COpenGLExtensionHandler::irrGlBlendEquationSeparateIndexed(GLuint bu
 		pGlBlendEquationSeparateiARB(buf, modeRGB, modeAlpha);
 	else if (FeatureAvailable[IRR_AMD_draw_buffers_blend] && pGlBlendEquationSeparateIndexedAMD)
 		pGlBlendEquationSeparateIndexedAMD(buf, modeRGB, modeAlpha);
-}
-
-inline void COpenGLExtensionHandler::extGlTextureSubImage2D(GLuint texture, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
-{
-	if (Version >= 405 || FeatureAvailable[IRR_ARB_direct_state_access]) {
-		if (pGlTextureSubImage2D)
-			pGlTextureSubImage2D(texture, level, xoffset, yoffset, width, height, format, type, pixels);
-	} else if (FeatureAvailable[IRR_EXT_direct_state_access]) {
-		if (pGlTextureSubImage2DEXT)
-			pGlTextureSubImage2DEXT(texture, target, level, xoffset, yoffset, width, height, format, type, pixels);
-	} else {
-		GLint bound;
-		switch (target) {
-#ifdef GL_VERSION_3_0
-		case GL_TEXTURE_1D_ARRAY:
-			glGetIntegerv(GL_TEXTURE_BINDING_1D_ARRAY, &bound);
-			break;
-#elif GL_EXT_texture_array
-		case GL_TEXTURE_1D_ARRAY_EXT:
-			glGetIntegerv(GL_TEXTURE_BINDING_1D_ARRAY_EXT, &bound);
-			break;
-#endif
-		case GL_TEXTURE_2D:
-			glGetIntegerv(GL_TEXTURE_BINDING_2D, &bound);
-			break;
-#ifdef GL_VERSION_3_2
-		case GL_TEXTURE_2D_MULTISAMPLE:
-			glGetIntegerv(GL_TEXTURE_BINDING_2D_MULTISAMPLE, &bound);
-			break;
-#endif
-		case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
-		case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
-		case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
-		case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
-		case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
-		case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
-			glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &bound);
-			break;
-#ifdef GL_VERSION_3_1
-		case GL_TEXTURE_RECTANGLE:
-			glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &bound);
-			break;
-#elif defined(GL_ARB_texture_rectangle)
-		case GL_TEXTURE_RECTANGLE_ARB:
-			glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE_ARB, &bound);
-			break;
-#endif
-		default:
-			return;
-		}
-		glBindTexture(target, texture);
-		glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
-		glBindTexture(target, bound);
-	}
-}
-
-inline void COpenGLExtensionHandler::extGlTextureStorage2D(GLuint texture, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)
-{
-	if (Version >= 405 || FeatureAvailable[IRR_ARB_direct_state_access]) {
-		if (pGlTextureStorage2D)
-			pGlTextureStorage2D(texture, levels, internalformat, width, height);
-	} else if (FeatureAvailable[IRR_EXT_direct_state_access]) {
-		if (pGlTextureStorage2DEXT)
-			pGlTextureStorage2DEXT(texture, target, levels, internalformat, width, height);
-	}
-
-	else if (pGlTexStorage2D) {
-		GLint bound;
-		switch (target) {
-#ifdef GL_VERSION_3_0
-		case GL_TEXTURE_1D_ARRAY:
-			glGetIntegerv(GL_TEXTURE_BINDING_1D_ARRAY, &bound);
-			break;
-#elif GL_EXT_texture_array
-		case GL_TEXTURE_1D_ARRAY_EXT:
-			glGetIntegerv(GL_TEXTURE_BINDING_1D_ARRAY_EXT, &bound);
-			break;
-#endif
-		case GL_TEXTURE_2D:
-			glGetIntegerv(GL_TEXTURE_BINDING_2D, &bound);
-			break;
-		case GL_TEXTURE_CUBE_MAP:
-			glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &bound);
-			break;
-#ifdef GL_VERSION_3_1
-		case GL_TEXTURE_RECTANGLE:
-			glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &bound);
-			break;
-#elif defined(GL_ARB_texture_rectangle)
-		case GL_TEXTURE_RECTANGLE_ARB:
-			glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE_ARB, &bound);
-			break;
-#endif
-		default:
-			return;
-		}
-		glBindTexture(target, texture);
-		pGlTexStorage2D(target, levels, internalformat, width, height);
-		glBindTexture(target, bound);
-	}
-}
-
-inline void COpenGLExtensionHandler::extGlTextureStorage3D(GLuint texture, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)
-{
-	if (Version >= 405 || FeatureAvailable[IRR_ARB_direct_state_access]) {
-		if (pGlTextureStorage3D)
-			pGlTextureStorage3D(texture, levels, internalformat, width, height, depth);
-	} else if (FeatureAvailable[IRR_EXT_direct_state_access]) {
-		if (pGlTextureStorage3DEXT)
-			pGlTextureStorage3DEXT(texture, target, levels, internalformat, width, height, depth);
-	} else if (pGlTexStorage3D) {
-		GLint bound;
-		switch (target) {
-#ifdef GL_VERSION_3_0
-		case GL_TEXTURE_2D_ARRAY:
-			glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &bound);
-			break;
-#elif GL_EXT_texture_array
-		case GL_TEXTURE_2D_ARRAY_EXT:
-			glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY_EXT, &bound);
-			break;
-#endif
-		case GL_TEXTURE_3D:
-			glGetIntegerv(GL_TEXTURE_BINDING_3D, &bound);
-			break;
-#ifdef GL_VERSION_4_0
-		case GL_TEXTURE_CUBE_MAP_ARRAY:
-			glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP_ARRAY, &bound);
-			break;
-#elif defined(GL_ARB_texture_cube_map_array)
-		case GL_TEXTURE_CUBE_MAP_ARRAY_ARB:
-			glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP_ARRAY_ARB, &bound);
-			break;
-#endif
-		default:
-			return;
-		}
-		glBindTexture(target, texture);
-		pGlTexStorage3D(target, levels, internalformat, width, height, depth);
-		glBindTexture(target, bound);
-	}
-}
-
-inline void COpenGLExtensionHandler::extGlGetTextureImage(GLuint texture, GLenum target, GLint level, GLenum format, GLenum type, GLsizei bufSize, void *pixels)
-{
-	if (Version >= 405 || FeatureAvailable[IRR_ARB_direct_state_access]) {
-		if (pGlGetTextureImage)
-			pGlGetTextureImage(texture, level, format, type, bufSize, pixels);
-	} else if (FeatureAvailable[IRR_EXT_direct_state_access]) {
-		if (pGlGetTextureImageEXT)
-			pGlGetTextureImageEXT(texture, target, level, format, type, pixels);
-	} else {
-		GLint bound;
-		switch (target) {
-#ifdef GL_VERSION_3_0
-		case GL_TEXTURE_2D_ARRAY:
-			glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &bound);
-			break;
-#elif GL_EXT_texture_array
-		case GL_TEXTURE_2D_ARRAY_EXT:
-			glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY_EXT, &bound);
-			break;
-#endif
-		case GL_TEXTURE_3D:
-			glGetIntegerv(GL_TEXTURE_BINDING_3D, &bound);
-			break;
-#ifdef GL_VERSION_4_0
-		case GL_TEXTURE_CUBE_MAP_ARRAY:
-			glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP_ARRAY, &bound);
-			break;
-#elif defined(GL_ARB_texture_cube_map_array)
-		case GL_TEXTURE_CUBE_MAP_ARRAY_ARB:
-			glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP_ARRAY_ARB, &bound);
-			break;
-#endif
-		default:
-			return;
-		}
-		glBindTexture(target, texture);
-		glGetTexImage(target, level, format, type, pixels);
-		glBindTexture(target, bound);
-	}
-}
-
-inline void COpenGLExtensionHandler::extGlNamedFramebufferTexture(GLuint framebuffer, GLenum attachment, GLuint texture, GLint level)
-{
-	if (!needsDSAFramebufferHack) {
-		if (Version >= 405 || FeatureAvailable[IRR_ARB_direct_state_access]) {
-			pGlNamedFramebufferTexture(framebuffer, attachment, texture, level);
-			return;
-		} else if (FeatureAvailable[IRR_EXT_direct_state_access]) {
-			pGlNamedFramebufferTextureEXT(framebuffer, attachment, texture, level);
-			return;
-		}
-	}
-
-	GLuint bound;
-	glGetIntegerv(GL_FRAMEBUFFER_BINDING, reinterpret_cast<GLint *>(&bound));
-
-	if (bound != framebuffer)
-		pGlBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-	pGlFramebufferTexture(GL_FRAMEBUFFER, attachment, texture, level);
-	if (bound != framebuffer)
-		pGlBindFramebuffer(GL_FRAMEBUFFER, bound);
-}
-
-inline void COpenGLExtensionHandler::extGlTextureParameteri(GLuint texture, GLenum pname, GLint param)
-{
-	if (pGlTextureParameteri)
-		pGlTextureParameteri(texture, pname, param);
-}
-
-inline void COpenGLExtensionHandler::extGlTextureParameterf(GLuint texture, GLenum pname, GLfloat param)
-{
-	if (pGlTextureParameterf)
-		pGlTextureParameterf(texture, pname, param);
-}
-
-inline void COpenGLExtensionHandler::extGlTextureParameteriv(GLuint texture, GLenum pname, const GLint *params)
-{
-	if (pGlTextureParameteriv)
-		pGlTextureParameteriv(texture, pname, params);
-}
-
-inline void COpenGLExtensionHandler::extGlTextureParameterfv(GLuint texture, GLenum pname, const GLfloat *params)
-{
-	if (pGlTextureParameterfv)
-		pGlTextureParameterfv(texture, pname, params);
-}
-
-inline void COpenGLExtensionHandler::extGlCreateTextures(GLenum target, GLsizei n, GLuint *textures)
-{
-	if (Version >= 405) {
-		if (pGlCreateTextures)
-			pGlCreateTextures(target, n, textures);
-		else if (textures)
-			memset(textures, 0, n * sizeof(GLuint));
-	} else {
-		glGenTextures(n, textures);
-	}
-}
-
-inline void COpenGLExtensionHandler::extGlCreateFramebuffers(GLsizei n, GLuint *framebuffers)
-{
-	if (!needsDSAFramebufferHack) {
-		if (Version >= 405) {
-			pGlCreateFramebuffers(n, framebuffers);
-			return;
-		}
-	}
-
-	pGlGenFramebuffers(n, framebuffers);
-}
-
-inline void COpenGLExtensionHandler::extGlBindTextures(GLuint first, GLsizei count, const GLuint *textures, const GLenum *targets)
-{
-	const GLenum supportedTargets[] = {GL_TEXTURE_1D, GL_TEXTURE_2D // GL 1.x
-			,
-			GL_TEXTURE_3D // GL 2.x
-#ifdef GL_VERSION_3_1
-			,
-			GL_TEXTURE_RECTANGLE
-#elif defined(GL_ARB_texture_rectangle)
-			,
-			GL_TEXTURE_RECTANGLE_ARB
-#endif
-			,
-			GL_TEXTURE_CUBE_MAP
-#ifdef GL_VERSION_3_0
-			,
-			GL_TEXTURE_1D_ARRAY, GL_TEXTURE_2D_ARRAY // GL 3.x
-#elif GL_EXT_texture_array
-			,
-			GL_TEXTURE_1D_ARRAY_EXT, GL_TEXTURE_2D_ARRAY_EXT
-#endif
-#ifdef GL_VERSION_3_1
-			,
-			GL_TEXTURE_BUFFER
-#elif defined(GL_ARB_texture_buffer_object)
-			,
-			GL_TEXTURE_BUFFER_ARB
-#elif defined(GL_EXT_texture_buffer_object)
-			,
-			GL_TEXTURE_BUFFER_EXT
-#endif
-#ifdef GL_VERSION_4_0
-			,
-			GL_TEXTURE_CUBE_MAP_ARRAY // GL 4.x
-#elif defined(GL_ARB_texture_cube_map_array)
-			,
-			GL_TEXTURE_CUBE_MAP_ARRAY_ARB
-#endif
-#ifdef GL_VERSION_3_2
-			,
-			GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_2D_MULTISAMPLE_ARRAY
-#endif
-	};
-
-	if (Version >= 404 || FeatureAvailable[IRR_ARB_multi_bind]) {
-		if (pGlBindTextures)
-			pGlBindTextures(first, count, textures);
-	} else {
-		GLint activeTex = 0;
-		glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTex);
-
-		for (GLsizei i = 0; i < count; i++) {
-			GLuint texture = textures ? textures[i] : 0;
-
-			GLuint unit = first + i;
-			irrGlActiveTexture(GL_TEXTURE0 + unit);
-
-			if (texture)
-				glBindTexture(targets[i], texture);
-			else {
-				for (size_t j = 0; j < sizeof(supportedTargets) / sizeof(GLenum); j++)
-					glBindTexture(supportedTargets[j], 0);
-			}
-		}
-
-		irrGlActiveTexture(activeTex);
-	}
-}
-
-inline void COpenGLExtensionHandler::extGlGenerateTextureMipmap(GLuint texture, GLenum target)
-{
-	if (Version >= 405 || FeatureAvailable[IRR_ARB_direct_state_access]) {
-		if (pGlGenerateTextureMipmap)
-			pGlGenerateTextureMipmap(texture);
-	} else if (FeatureAvailable[IRR_EXT_direct_state_access]) {
-		if (pGlGenerateTextureMipmapEXT)
-			pGlGenerateTextureMipmapEXT(texture, target);
-	} else if (pGlGenerateMipmap) {
-		GLint bound;
-		switch (target) {
-		case GL_TEXTURE_1D:
-			glGetIntegerv(GL_TEXTURE_BINDING_1D, &bound);
-			break;
-#ifdef GL_VERSION_3_0
-		case GL_TEXTURE_1D_ARRAY:
-			glGetIntegerv(GL_TEXTURE_BINDING_1D_ARRAY, &bound);
-			break;
-#elif GL_EXT_texture_array
-		case GL_TEXTURE_1D_ARRAY_EXT:
-			glGetIntegerv(GL_TEXTURE_BINDING_1D_ARRAY_EXT, &bound);
-			break;
-#endif
-		case GL_TEXTURE_2D:
-			glGetIntegerv(GL_TEXTURE_BINDING_2D, &bound);
-			break;
-#ifdef GL_VERSION_3_0
-		case GL_TEXTURE_2D_ARRAY:
-			glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &bound);
-			break;
-#elif GL_EXT_texture_array
-		case GL_TEXTURE_2D_ARRAY_EXT:
-			glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY_EXT, &bound);
-			break;
-#endif
-#ifdef GL_VERSION_3_2
-		case GL_TEXTURE_2D_MULTISAMPLE:
-			glGetIntegerv(GL_TEXTURE_BINDING_2D_MULTISAMPLE, &bound);
-			break;
-		case GL_TEXTURE_2D_MULTISAMPLE_ARRAY:
-			glGetIntegerv(GL_TEXTURE_BINDING_2D_MULTISAMPLE_ARRAY, &bound);
-			break;
-#endif
-		case GL_TEXTURE_3D:
-			glGetIntegerv(GL_TEXTURE_BINDING_3D, &bound);
-			break;
-#ifdef GL_VERSION_3_1
-		case GL_TEXTURE_BUFFER:
-			glGetIntegerv(GL_TEXTURE_BINDING_BUFFER, &bound);
-			break;
-#elif defined(GL_ARB_texture_buffer_object)
-		case GL_TEXTURE_BUFFER_ARB:
-			glGetIntegerv(GL_TEXTURE_BINDING_BUFFER_ARB, &bound);
-			break;
-#elif defined(GL_EXT_texture_buffer_object)
-		case GL_TEXTURE_BUFFER_EXT:
-			glGetIntegerv(GL_TEXTURE_BINDING_BUFFER_EXT, &bound);
-			break;
-#endif
-		case GL_TEXTURE_CUBE_MAP:
-			glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &bound);
-			break;
-#ifdef GL_VERSION_4_0
-		case GL_TEXTURE_CUBE_MAP_ARRAY:
-			glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP_ARRAY, &bound);
-			break;
-#elif defined(GL_ARB_texture_cube_map_array)
-		case GL_TEXTURE_CUBE_MAP_ARRAY_ARB:
-			glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP_ARRAY_ARB, &bound);
-			break;
-#endif
-#ifdef GL_VERSION_3_1
-		case GL_TEXTURE_RECTANGLE:
-			glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &bound);
-			break;
-#elif defined(GL_ARB_texture_rectangle)
-		case GL_TEXTURE_RECTANGLE_ARB:
-			glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE_ARB, &bound);
-			break;
-#endif
-		default:
-			os::Printer::log("DevSH would like to ask you what are you doing!!??\n", ELL_ERROR);
-			return;
-		}
-		glBindTexture(target, texture);
-		pGlGenerateMipmap(target);
-		glBindTexture(target, bound);
-	}
 }
 
 }

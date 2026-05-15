@@ -26,8 +26,6 @@
 	#include <SDL_version.h>
 #endif
 
-#include "fast_atof.h"
-
 // constructor
 COSOperator::COSOperator()
 {}

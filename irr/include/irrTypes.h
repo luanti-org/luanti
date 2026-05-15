@@ -66,6 +66,12 @@ typedef char fschar_t;
 #define IRR_CODE_UNREACHABLE() (void)0
 #endif
 
+#ifdef NDEBUG
+#define IRR_DOWN_CAST static_cast
+#else
+#define IRR_DOWN_CAST dynamic_cast
+#endif
+
 //! creates four CC codes used in Irrlicht for simple ids
 /** some compilers can create those by directly writing the
 code like 'code', but some generate warnings so we use this macro here */

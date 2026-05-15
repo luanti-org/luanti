@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Vietnamese (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-06 23:13+0100\n"
+"POT-Creation-Date: 2026-05-06 19:14+0200\n"
 "PO-Revision-Date: 2025-11-21 00:51+0000\n"
 "Last-Translator: Nguyễn Phạm Hải Đăng <abcsgamers@gmail.com>\n"
 "Language-Team: Vietnamese <https://hosted.weblate.org/projects/minetest/"
@@ -66,6 +66,7 @@ msgstr "Lệnh không có sẵn: "
 msgid "Get help for commands (-t: output in chat)"
 msgstr "Trợ giúp về lệnh (-t: hiển thị trong trò chuyện)"
 
+#. TRANSLATORS: 'help' and 'all' mustn't be translated. cmd = command
 #: builtin/common/chatcommands.lua
 msgid ""
 "Use '.help <cmd>' to get more information, or '.help all' to list everything."
@@ -73,6 +74,7 @@ msgstr ""
 "Dùng '.help <câu lệnh>' để có thêm thông tin về một câu lệnh hoặc dùng "
 "'.help all' để xem danh sách về những câu lệnh có sẵn."
 
+#. TRANSLATORS: Syntax of 'help' command. Don't translate anything except 'cmd' (=command)
 #: builtin/common/chatcommands.lua
 msgid "[all | <cmd>] [-t]"
 msgstr "[all | <câu lệnh>] [-t]"
@@ -240,6 +242,7 @@ msgstr ""
 msgid "Scales the noise in the $1 axis by this value."
 msgstr ""
 
+#. TRANSLATORS: Value for randomness
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Seed"
@@ -280,7 +283,7 @@ msgstr ""
 msgid "This results in spiky noise."
 msgstr ""
 
-#. ~ "absvalue" is a noise parameter flag.
+#. TRANSLATORS: "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
 #. It can be enabled in noise settings in
 #. the settings menu.
@@ -288,14 +291,14 @@ msgstr ""
 msgid "absvalue"
 msgstr "Giá trị tuyệt đối"
 
-#. ~ "defaults" is a noise parameter flag.
+#. TRANSLATORS: "defaults" is a noise parameter flag.
 #. It describes the default processing options
 #. for noise settings in the settings menu.
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "defaults"
 msgstr "Mặc định"
 
-#. ~ "eased" is a noise parameter flag.
+#. TRANSLATORS: "eased" is a noise parameter flag.
 #. It is used to make the map smoother and
 #. can be enabled in noise settings in
 #. the settings menu.
@@ -303,6 +306,8 @@ msgstr "Mặc định"
 msgid "eased"
 msgstr "Nới lỏng"
 
+#. TRANSLATORS: "automatic exposure" refers to light. This note
+#. will be displayed for the graphics setting 'enable_auto_exposure'
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable automatic exposure as well)"
 msgstr "(Trò chơi cũng sẽ cần bật phơi sáng tự động)"
@@ -319,20 +324,28 @@ msgstr "(Trò chơi cần bật chế độ ánh sáng chân thực)"
 msgid "(Use system language)"
 msgstr "(Dùng ngôn ngữ hệ thống)"
 
+#. TRANSLATORS: Shown when a default setting is the empty string
+#: builtin/common/settings/dlg_settings.lua
+msgid "<empty>"
+msgstr ""
+
 #: builtin/common/settings/dlg_settings.lua
 msgid "Accessibility"
 msgstr "Trợ năng"
 
+#. TRANSLATORS: Automatic
 #: builtin/common/settings/dlg_settings.lua
 msgid "Auto"
 msgstr "Tự động"
 
+#. TRANSLATORS: Button text to go back
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
 msgid "Back"
 msgstr "Quay lại"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 msgid "Buttons with crosshair"
 msgstr "Các nút với tâm ngắm"
@@ -342,6 +355,7 @@ msgstr "Các nút với tâm ngắm"
 msgid "Chat"
 msgstr "Trò chuyện"
 
+#. TRANSLATORS: Tooltip of a button that clears input
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Clear"
 msgstr "Xóa"
@@ -349,6 +363,11 @@ msgstr "Xóa"
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "Controls"
 msgstr "Điều khiển"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+#, fuzzy
+msgid "Damage"
+msgstr "Sát thương / PvP"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/common/settings/shadows_component.lua
@@ -359,10 +378,12 @@ msgstr "Đã vô hiệu"
 msgid "Enabled"
 msgstr "Đã kích hoạt"
 
+#. TRANSLATORS: Category for general settings
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "General"
 msgstr "Chung"
 
+#. TRANSLATORS: Touchscreen gesture
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
 msgstr "Nhấn dài"
@@ -371,12 +392,13 @@ msgstr "Nhấn dài"
 msgid "Movement"
 msgstr "Chuyển động"
 
+#. TRANSLATORS: No search results
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No results"
 msgstr "Không có kết quả"
 
-#. ~ Indicates that the action does not have a corresponding keybinding.
+#. TRANSLATORS: Indicates that the action does not have a corresponding keybinding.
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Not bound"
@@ -386,14 +408,17 @@ msgstr "Không tìm thấy"
 msgid "Reset setting to default"
 msgstr "Đặt lại cài đặt vể mặc định"
 
+#. TRANSLATORS: $1 will be replaced with a default setting value
 #: builtin/common/settings/dlg_settings.lua
-msgid "Reset setting to default ($1)"
+#, fuzzy
+msgid "Reset setting to default: $1"
 msgstr "Đặt lại cài đặt về mặc định ($1)"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
 msgstr "Tìm kiếm"
 
+#. TRANSLATORS: Touchscreen gesture
 #: builtin/common/settings/dlg_settings.lua
 msgid "Short tap"
 msgstr "Nhấn nhanh"
@@ -402,14 +427,17 @@ msgstr "Nhấn nhanh"
 msgid "Show advanced settings"
 msgstr "Hiển thị cài đặt nâng cao"
 
+#. TRANSLATORS: Checkbox that toggles displaying the technical setting names
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show technical names"
 msgstr "Hiển thị tên kỹ thuật"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap"
 msgstr "Nhấn"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
 msgstr "Chạm với tâm ngắm"
@@ -565,6 +593,8 @@ msgstr "ContentDB không hoạt động khi Minetest không có cURL"
 msgid "Downloading..."
 msgstr "Đang tải xuống..."
 
+#. TRANSLATORS: A 'featured' package in ContentDB is a package that is
+#. more prominently displayed than other packages
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
 msgstr "Nổi bật"
@@ -592,6 +622,7 @@ msgstr "Không nhận được gói nào"
 msgid "No updates"
 msgstr "Không có cập nhật mới"
 
+#. TRANSLATORS: A download is queued
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Queued"
 msgstr "Đã thêm vào hàng chờ"
@@ -605,14 +636,17 @@ msgstr "Gói kết cấu"
 msgid "The package $1 was not found."
 msgstr "Không thể tìm thấy gói $1."
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Update All [$1]"
 msgstr "Cập nhật tất cả [$1]"
 
+#. TRANSLATORS: $1 is the name of a package and $2 is a number of depencencies
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 and $2 dependencies will be installed."
 msgstr "Phần phụ thuộc $1 và $2 sẽ được cài đặt."
 
+#. TRANSLATORS: Package (mod, texture pack, etc.) info: $1 = package name, $2 = package author
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 by $2"
 msgstr "$1 bởi $2"
@@ -621,6 +655,7 @@ msgstr "$1 bởi $2"
 msgid "$1 required dependencies could not be found."
 msgstr "Không tìm thấy phần phụ thuộc cần cho $1."
 
+#. TRANSLATORS: $1 is the name of a package and $2 is a number of depencencies
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 will be installed, and $2 dependencies will be skipped."
 msgstr "$1 sẽ được cài đặt, phần phụ thuộc $2 sẽ bị bỏ qua."
@@ -633,6 +668,7 @@ msgstr "Đã được cài đặt"
 msgid "Base Game:"
 msgstr "Trò chơi cơ bản:"
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Dependencies:"
@@ -704,11 +740,13 @@ msgstr ""
 msgid "Information"
 msgstr "Thông tin:"
 
+#. TRANSLATORS: $1 = download size
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
 msgid "Install [$1]"
 msgstr "Cài đặt $1"
 
+#. TRANSLATORS: Also known as 'bug tracker'
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
 msgid "Issue Tracker"
@@ -718,6 +756,7 @@ msgstr "Theo dõi vấn đề"
 msgid "Reviews"
 msgstr "Đánh giá"
 
+#. TRANSLATORS: Link to source code repository
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
 msgstr "Nguồn"
@@ -742,6 +781,10 @@ msgstr "Trang chủ"
 msgid "by $1"
 msgstr ""
 
+#. TRANSLATORS: Info line for a ContentDB package:
+#. $1 = author,
+#. $2 = number of downloads,
+#. $3, $4, $5 = number of positive/neutral/negative reviews
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
 msgstr ""
@@ -779,6 +822,7 @@ msgstr "Không thể cài đặt $1 dưới dạng gói kết cấu"
 msgid "World mods"
 msgstr "Tên thế giới"
 
+#. TRANSLATORS: $1 = server name
 #: builtin/mainmenu/dlg_clients_list.lua
 #, fuzzy
 msgid ""
@@ -788,10 +832,12 @@ msgstr ""
 "Người chơi đã kết nối tới\n"
 "$1"
 
+#. TRANSLATORS: Message in the mod list when a mod is enabled with error
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
 msgstr "(Đã kích hoạt, có lỗi)"
 
+#. TRANSLATORS: Displayed when a mod dependency is unsatisfied
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Unsatisfied)"
 msgstr "(Chưa thỏa mãn)"
@@ -832,6 +878,7 @@ msgstr "Mod:"
 msgid "Mods located inside the world folder."
 msgstr ""
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
 msgstr "Không có phần phụ thuộc (tùy chọn) nào"
@@ -840,6 +887,7 @@ msgstr "Không có phần phụ thuộc (tùy chọn) nào"
 msgid "No game description provided."
 msgstr "Không có mô tả trò chơi được cung cấp."
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No hard dependencies"
 msgstr "Không có phần phụ thuộc bắt buộc nào"
@@ -848,10 +896,12 @@ msgstr "Không có phần phụ thuộc bắt buộc nào"
 msgid "No modpack description provided."
 msgstr "Không có mô tả modpack được cung cấp."
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No optional dependencies"
 msgstr "Không có phần phụ thuộc tùy chọn nào"
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Optional dependencies:"
 msgstr "Phần phụ thuộc tùy chọn:"
@@ -893,6 +943,7 @@ msgstr "Độ cao lạnh"
 msgid "Altitude dry"
 msgstr "Độ cao khô ráo"
 
+#. TRANSLATORS: Smooth transition between biomes
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Biome blending"
 msgstr "Pha trộn quần xã"
@@ -913,6 +964,7 @@ msgstr "Hang động"
 msgid "Create"
 msgstr "Tạo ra"
 
+#. TRANSLATORS: Map generator decorations (used for structures, trees, plants, and more)
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Decorations"
 msgstr "Vật trang trí"
@@ -1117,6 +1169,7 @@ msgstr "Hệ thống xử lí nhập đã được làm lại trong Luanti 5.12.
 msgid "Confirm Password"
 msgstr "Xác nhận mật khẩu"
 
+#. TRANSLATORS: Message when joining a server
 #: builtin/mainmenu/dlg_register.lua
 msgid "Joining $1"
 msgstr "Đang tham gia $1"
@@ -1139,10 +1192,12 @@ msgstr "Mật khẩu"
 msgid "Passwords do not match"
 msgstr "Mật khẩu không khớp"
 
+#. TRANSLATORS: Register an account on a server
 #: builtin/mainmenu/dlg_register.lua builtin/mainmenu/tab_online.lua
 msgid "Register"
 msgstr "Đăng ký"
 
+#. TRANSLATORS: Dismiss a dialog window/message
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid "Dismiss"
 msgstr "Bỏ qua"
@@ -1187,10 +1242,12 @@ msgstr ""
 "Modpack này có một tên rõ ràng được đưa ra trong tệp modpack.conf của nó, "
 "tên này sẽ ghi đè bất kỳ sự đổi tên nào ở đây."
 
+#. TRANSLATORS: Expand all entries in a tree view
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Expand all"
 msgstr "Mở rộng"
 
+#. TRANSLATORS: A checkbox; if enabled, it will group mods by their prefix
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Group by prefix"
 msgstr ""
@@ -1203,10 +1260,12 @@ msgstr "Máy chử $1 chạy trò chơi $2 và có các mod:"
 msgid "The $1 server uses the following mods:"
 msgstr "Máy chủ $1 có các mod:"
 
+#. TRANSLATORS: $1 = name of the engine
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
 msgstr "Phiên bản mới của $1 hiện có sẵn"
 
+#. TRANSLATORS: $1 and $2 are version numbers, $3 is a URL
 #: builtin/mainmenu/dlg_version_info.lua
 msgid ""
 "Installed version: $1\n"
@@ -1235,6 +1294,7 @@ msgstr "Truy cập website"
 msgid "Debug build, expect worse performance"
 msgstr ""
 
+#. TRANSLATORS: Try to keep the translation short
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "Cài đặt"
@@ -1297,6 +1357,7 @@ msgstr "Chia sẻ nhật kí gỡ lỗi"
 msgid "Browse online content"
 msgstr "Duyệt nội dung trực tuyến"
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/tab_content.lua
 msgid "Browse online content [$1]"
 msgstr "Duyệt nội dung trên mạng [$1]"
@@ -1305,6 +1366,7 @@ msgstr "Duyệt nội dung trên mạng [$1]"
 msgid "Content"
 msgstr "Nội dung"
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/tab_content.lua
 msgid "Content [$1]"
 msgstr "Nội dung [$1]"
@@ -1387,6 +1449,7 @@ msgstr "Mới"
 msgid "Play Game"
 msgstr "Chơi trò chơi"
 
+#. TRANSLATORS: Network port
 #: builtin/mainmenu/tab_local.lua builtin/mainmenu/tab_online.lua
 msgid "Port"
 msgstr "Cổng"
@@ -1415,6 +1478,7 @@ msgstr "Bạn cần tải một trò chơi trước khi có thể tạo thế gi
 msgid "Add favorite"
 msgstr "Thêm yêu thích"
 
+#. TRANSLATORS: Network address
 #: builtin/mainmenu/tab_online.lua
 msgid "Address"
 msgstr "Địa chỉ"
@@ -1423,7 +1487,7 @@ msgstr "Địa chỉ"
 msgid "Creative mode"
 msgstr "Chế độ sáng tạo"
 
-#. ~ PvP = Player versus Player
+#. TRANSLATORS: PvP = Player versus Player
 #: builtin/mainmenu/tab_online.lua
 msgid "Damage / PvP"
 msgstr "Sát thương / PvP"
@@ -1444,6 +1508,7 @@ msgstr "Máy chủ không tương thích"
 msgid "Join Game"
 msgstr "Tham gia trò chơi"
 
+#. TRANSLATORS: Login to server
 #: builtin/mainmenu/tab_online.lua
 msgid "Login"
 msgstr "Đăng nhập"
@@ -1456,10 +1521,12 @@ msgstr "Số mod: $1"
 msgid "Open server website"
 msgstr "Mở trang của máy chủ"
 
+#. TRANSLATORS: Also known as "latency"
 #: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "Ping"
 
+#. TRANSLATORS: $1 is a list of players
 #: builtin/mainmenu/tab_online.lua
 msgid ""
 "Players:\n"
@@ -1469,17 +1536,14 @@ msgstr ""
 "$1"
 
 #: builtin/mainmenu/tab_online.lua
-msgid ""
-"Possible filters\n"
-"game:<name>\n"
-"mod:<name>\n"
-"player:<name>"
+msgid "Possible filters"
 msgstr ""
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
 msgstr "Máy chủ công cộng"
 
+#. TRANSLATORS: As in 'reload'/'check again'
 #: builtin/mainmenu/tab_online.lua
 msgid "Refresh"
 msgstr "Làm mới"
@@ -1520,7 +1584,7 @@ msgstr "Đang tải kết cấu..."
 msgid "Rebuilding shaders..."
 msgstr "Đang xây dựng lại trình đổ bóng..."
 
-#: src/client/client.cpp src/util/screenshot.cpp
+#: src/client/client.cpp src/gui/guiEngine.cpp src/util/screenshot.cpp
 #, fuzzy, c-format
 msgid "Saved screenshot to \"%s\""
 msgstr "Ảnh chụp màn hình"
@@ -1558,6 +1622,11 @@ msgstr ""
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
 msgstr "Nội dung...."
+
+#: src/client/fontengine.cpp
+#, fuzzy
+msgid "Failed to find a valid font"
+msgstr "Lỗi khi tạo shader \"%s\""
 
 #: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
 #: src/server.cpp
@@ -1859,6 +1928,7 @@ msgstr "Hiện khung dây"
 msgid "Zoom currently disabled by game or mod"
 msgstr "Thu phóng đã bị vô hiệu bởi trò chơi hoặc mod"
 
+#. TRANSLATORS: Game mode (server or singleplayer)
 #: src/client/game_formspec.cpp
 msgid "- Mode: "
 msgstr "- Chế độ: "
@@ -1867,7 +1937,7 @@ msgstr "- Chế độ: "
 msgid "- Public: "
 msgstr "- Công cộng: "
 
-#. ~ PvP = Player versus Player
+#. TRANSLATORS: PvP = Player versus Player
 #: src/client/game_formspec.cpp
 msgid "- PvP: "
 msgstr "- PvP: "
@@ -1876,10 +1946,12 @@ msgstr "- PvP: "
 msgid "- Server Name: "
 msgstr "- Tên máy chủ: "
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Change Password"
 msgstr "Đổi mật khẩu"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Continue"
 msgstr "Tiếp tục"
@@ -1913,10 +1985,12 @@ msgstr ""
 "- chạm và kéo, chạm vào ngón tay thứ 2\n"
 " -> đặt một mục duy nhất vào vị trí\n"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Exit to Menu"
 msgstr "Thoát ra màn hình chính"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short (OS = Operating System)
 #: src/client/game_formspec.cpp
 msgid "Exit to OS"
 msgstr "Thoát Minetest"
@@ -1949,6 +2023,7 @@ msgstr "Máy chủ từ xa"
 msgid "Respawn"
 msgstr "Hồi sinh"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Sound Volume"
 msgstr "Âm lượng"
@@ -1990,7 +2065,7 @@ msgstr "Hồ sơ đã được hiển thị (trang thứ %d trên %d)"
 msgid "Backspace"
 msgstr "Backspace"
 
-#. ~ Usually paired with the Pause key
+#. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
 msgid "Break Key"
 msgstr "Phím nghỉ"
@@ -2056,7 +2131,7 @@ msgstr "Menu trái"
 msgid "Left Shift"
 msgstr "Shift trái"
 
-#. ~ Name of key
+#. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Windows trái"
@@ -2070,10 +2145,18 @@ msgstr "Menu"
 msgid "Middle Click"
 msgstr ""
 
+#. TRANSLATORS: This is for mouse buttons without an intuitive description. %d is the number of the button.
+#: src/client/keycode.cpp
+#, c-format
+msgid "Mouse Button %d"
+msgstr ""
+
+#. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
 msgid "Mouse X1"
 msgstr ""
 
+#. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
 msgid "Mouse X2"
 msgstr ""
@@ -2152,7 +2235,7 @@ msgstr "Page down"
 msgid "Page Up"
 msgstr "Page up"
 
-#. ~ Usually paired with the Break key
+#. TRANSLATORS: Usually paired with the Break key
 #: src/client/keycode.cpp
 msgid "Pause Key"
 msgstr "Phím dừng"
@@ -2161,7 +2244,7 @@ msgstr "Phím dừng"
 msgid "Play"
 msgstr "Chơi"
 
-#. ~ "Print screen" key
+#. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
 msgstr "Print Screen"
@@ -2191,7 +2274,7 @@ msgstr "Menu phải"
 msgid "Right Shift"
 msgstr "Shift phải"
 
-#. ~ Name of key
+#. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Windows phải"
@@ -2250,6 +2333,11 @@ msgstr "Minimap ở chế độ kết cấu"
 msgid "Failed to create the texture \"%s\" for the rendering pipeline."
 msgstr ""
 
+#: src/client/renderingengine.cpp
+#, fuzzy
+msgid "Could not initialize any supported video driver!"
+msgstr "Khung dây không được hỗ trợ bởi trình điều khiển phương tiện"
+
 #: src/client/shader.cpp
 #, c-format
 msgid "Failed to compile the \"%s\" shader."
@@ -2260,11 +2348,13 @@ msgstr "Lỗi khi tạo shader \"%s\""
 msgid "Failed to find \"%s\" shader files."
 msgstr "Lỗi khi tạo shader \"%s\""
 
+#. TRANSLATORS: GLSL = OpenGL Shading Language
 #: src/client/shader.cpp
 msgid "GLSL is not supported by the driver"
 msgstr "GLSL không được trình điều khiển hỗ trợ"
 
-#. ~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
+#. TRANSLATORS: Error when a mod is missing dependencies.
+#. Example: "Mod Title is missing: mod1, mod2, mod3"
 #: src/content/mod_configuration.cpp
 #, c-format
 msgid "%s is missing:"
@@ -2298,6 +2388,10 @@ msgstr "Đã xảy ra lỗi khi mở trang web"
 #: src/gui/guiChatConsole.cpp
 msgid "Opening webpage"
 msgstr "Đang mở trang web"
+
+#: src/gui/guiEngine.cpp
+msgid "Failed to load main menu script!"
+msgstr ""
 
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
@@ -2464,7 +2558,7 @@ msgstr ""
 msgid "Invalid password"
 msgstr "Mật khẩu không hợp lệ"
 
-#. ~ DO NOT TRANSLATE THIS LITERALLY!
+#. TRANSLATORS: DO NOT TRANSLATE THIS LITERALLY!
 #. This is a special string which needs to contain the translation's
 #. language code (e.g. "de" for German).
 #: src/network/clientpackethandler.cpp src/script/lua_api/l_client.cpp
@@ -2796,11 +2890,11 @@ msgid "Anticheat movement tolerance"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Append item name"
+msgid "Append item name to tooltips"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Append item name to tooltip."
+msgid "Append the full item name to the tooltip of item stacks."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3320,6 +3414,11 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Damage flash"
+msgstr "Tùy chọn phương pháp tạo"
+
+#: src/settings_translation_file.cpp
 msgid "Debug log file size threshold"
 msgstr ""
 
@@ -3639,6 +3738,11 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
+msgid "Enable SSCSM"
+msgstr "Kích hoạt tất cả"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Enable a confirmation dialog before closing."
 msgstr "Kích hoạt hoạt ảnh của các vật phẩm trong túi đồ."
 
@@ -3883,6 +3987,10 @@ msgid ""
 msgstr ""
 "(Android) Sửa vị trí của joystick ảo.\n"
 "Nếu vô hiệu, joystick ảo sẽ ở vị trị giữa của lần chạm đầu tiên."
+
+#: src/settings_translation_file.cpp
+msgid "Flashing of the screen when taking damage."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Floatland density"
@@ -4737,6 +4845,15 @@ msgid "Keyboard and Mouse"
 msgstr "Bàn phím và Chuột"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Keyboard camera speed"
+msgstr "Bàn phím và Chuột"
+
+#: src/settings_translation_file.cpp
+msgid "Keyboard-controlled camera rotation speed, in degrees per second."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Kick players who sent more than X messages per 10 seconds."
 msgstr "Đá người chơi gửi hơn X tin nhắn trong 10 giây."
 
@@ -4921,6 +5038,23 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Local command"
 msgstr "Lệnh cục bộ"
+
+#: src/settings_translation_file.cpp
+msgid "Look down"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Look left"
+msgstr "Đi nhanh"
+
+#: src/settings_translation_file.cpp
+msgid "Look right"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Look up"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -5995,6 +6129,13 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Set proxy to use by cURL. This is an URI just like the *_proxy environment "
+"variables.\n"
+"Note that this will not apply to Luanti's in-game protocol."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Set the default tilt of Sun/Moon orbit in degrees.\n"
 "Games may change orbit tilt via API.\n"
 "Value of 0 means no tilt / vertical orbit."
@@ -7008,6 +7149,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Where to enable server-sent client-side modding (SSCSM).\n"
+"Warning: Experimental."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Whether name tag backgrounds should be shown by default.\n"
 "Mods may still set a background."
 msgstr ""
@@ -7167,16 +7314,11 @@ msgstr "Hết thời gian tương tác với cURL"
 msgid "cURL parallel limit"
 msgstr "Gặp giới hạn số lượng tệp tải xuống trong cURL"
 
+#: src/settings_translation_file.cpp
+msgid "cURL proxy address"
+msgstr ""
+
 #: src/util/screenshot.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
 msgstr "Thất bại khi lưu ảnh chụp màn hình vào \"%s\""
-
-#~ msgid "Provided world path doesn't exist: "
-#~ msgstr "Đường dẫn thế giới được cung cấp không tồn tại: "
-
-#~ msgid "Y spread"
-#~ msgstr "Y lan rộng"
-
-#~ msgid "Z spread"
-#~ msgstr "Z lan rộng"

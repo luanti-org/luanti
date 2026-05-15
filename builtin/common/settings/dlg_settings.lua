@@ -131,6 +131,8 @@ local function load()
 			{ heading = fgettext_ne("Movement") },
 			"arm_inertia",
 			"view_bobbing_amount",
+			{ heading = fgettext_ne("Damage") },
+			"hurt_flash_enabled"
 		},
 	})
 
@@ -629,17 +631,32 @@ local function get_formspec(dialogdata)
 
 		if show_reset then
 			local default = comp.setting.default
-			if comp.setting.type == "key" then
+
+			if comp.setting.type == "bool" then
+				if default == "true" then
+					default = fgettext_ne("Enabled")
+				elseif default == "false" then
+					default = fgettext_ne("Disabled")
+				end
+			elseif comp.setting.type == "key" then
 				default = (default ~= "")
 					and core.get_key_description(default)
 
 					-- TRANSLATORS: Indicates that the action does not have a corresponding keybinding.
 					or fgettext_ne("Not bound")
+			else
+				local sinfo = get_setting_info(comp.setting.name)
+				if sinfo and sinfo.option_labels and sinfo.option_labels[default] then
+					default = sinfo.option_labels[default]
+				elseif default == "" then
+					-- TRANSLATORS: Shown when a default setting is the empty string
+					default = fgettext_ne("<empty>")
+				end
 			end
 
 			local reset_tooltip = default and
 					-- TRANSLATORS: $1 will be replaced with a default setting value
-					fgettext("Reset setting to default ($1)", tostring(default)) or
+					fgettext("Reset setting to default: $1", tostring(default)) or
 					fgettext("Reset setting to default")
 			fs[#fs + 1] = ("image_button[%f,%f;0.5,0.5;%s;%s;]"):format(
 					right_pane_width - 1.4, info_reset_y, reset_icon_path, "reset_" .. i)

@@ -36,7 +36,12 @@ public:
 	u32 getSize() const { return m_datasize; }
 	session_t getPeerId() const { return m_peer_id; }
 	u16 getCommand() const { return m_command; }
+
+	/// Read OR write offset (context-depending)
+	inline u32 getOffset() const { return m_read_offset; }
+
 	u32 getRemainingBytes() const { return m_datasize - m_read_offset; }
+	inline bool hasRemainingBytes() const { return getRemainingBytes() != 0; }
 
 	// Returns a pointer to buffer data.
 	// A better name for this would be getRawString()

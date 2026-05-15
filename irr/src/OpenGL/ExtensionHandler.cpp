@@ -8,7 +8,6 @@
 
 #include "irrString.h"
 #include "SMaterial.h"
-#include "fast_atof.h"
 #include "os.h"
 #include <mt_opengl.h>
 

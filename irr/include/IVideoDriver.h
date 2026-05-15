@@ -20,6 +20,7 @@
 #include "SOverrideMaterial.h"
 #include "S3DVertex.h" // E_VERTEX_TYPE
 #include "SVertexIndex.h" // E_INDEX_TYPE
+#include "HWBuffer.h"
 
 namespace io
 {
@@ -54,12 +55,16 @@ const c8 *const FogTypeNames[] = {
 struct SFrameStats {
 	//! Number of draw calls
 	u32 Drawcalls = 0;
-	//! Count of primitives drawn
+	//! Number of primitives drawn
 	u32 PrimitivesDrawn = 0;
 	//! Number of hardware buffers uploaded (new or updated)
 	u32 HWBuffersUploaded = 0;
 	//! Number of active hardware buffers
 	u32 HWBuffersActive = 0;
+	//! Number of software skinned mesh scene nodes
+	u32 SWSkinnedMeshes = 0;
+	//! Number of hardware skinned mesh scene nodes
+	u32 HWSkinnedMeshes = 0;
 };
 
 struct SDriverLimits {
@@ -140,6 +145,12 @@ public:
 	world, or projection.
 	\param mat Matrix describing the transformation. */
 	virtual void setTransform(E_TRANSFORMATION_STATE state, const core::matrix4 &mat) = 0;
+
+	//! Returns the maximum number of joint transformation matrices the hardware and driver support.
+	virtual u16 getMaxJointTransforms() const = 0;
+
+	//! Sets joint transformation matrices for skinned meshes.
+	virtual void setJointTransforms(const std::vector<core::matrix4> &jointMatrices) = 0;
 
 	//! Returns the transformation set by setTransform
 	/** \param state Transformation type to query
@@ -313,20 +324,11 @@ public:
 	//! Eagerly upload buffer to hardware
 	/** This can be a good idea if you have a newly created or modified buffer,
 	which you know you will draw in the near future (e.g. end of same frame,
-	or next frame), because it gives the GPU driver to copy the contents. */
-	virtual void updateHardwareBuffer(const scene::IVertexBuffer *vb) = 0;
-
-	//! Eagerly upload buffer to hardware
-	/** This can be a good idea if you have a newly created or modified buffer,
-	which you know you will draw in the near future (e.g. end of same frame,
-	or next frame), because it gives the GPU driver to copy the contents. */
-	virtual void updateHardwareBuffer(const scene::IIndexBuffer *ib) = 0;
+	or next frame), because it gives the GPU driver time to copy the contents. */
+	virtual void updateHardwareBuffer(const scene::HWBuffer *buf) = 0;
 
 	//! Remove hardware buffer
-	virtual void removeHardwareBuffer(const scene::IVertexBuffer *vb) = 0;
-
-	//! Remove hardware buffer
-	virtual void removeHardwareBuffer(const scene::IIndexBuffer *ib) = 0;
+	virtual void removeHardwareBuffer(const scene::HWBuffer *buf) = 0;
 
 	//! Remove all hardware buffers
 	virtual void removeAllHardwareBuffers() = 0;
@@ -799,8 +801,10 @@ public:
 	\return Size of render target or screen/window */
 	virtual const core::dimension2d<u32> &getCurrentRenderTargetSize() const = 0;
 
-	//! Return some statistics about the last frame
-	virtual SFrameStats getFrameStats() const = 0;
+	//! Get statistics as a mutable reference so they
+	//! can be updated from outside during rendering.
+	//! \return Statistics about the last (current) frame.
+	virtual SFrameStats &getFrameStats() = 0;
 
 	//! Gets name of this video driver.
 	/** \return Returns the name of the video driver, e.g. in case

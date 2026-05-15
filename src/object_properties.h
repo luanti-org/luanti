@@ -27,6 +27,13 @@ enum ObjectVisual : u8 {
 
 extern const EnumString es_ObjectVisual[];
 
+enum class StepUpMode : u8 {
+	LEGACY,
+	FLOATY,
+	RIGID,
+};
+
+extern const EnumString es_StepUpMode[];
 
 struct ObjectProperties
 {
@@ -75,6 +82,7 @@ struct ObjectProperties
 	bool shaded = true;
 	bool show_on_minimap = false;
 	bool nametag_scale_z = false;
+	StepUpMode step_up_mode = StepUpMode::LEGACY;
 
 	ObjectProperties();
 

@@ -42,11 +42,12 @@ extern "C" {
 
 enum class ScriptingType: u8 {
 	Async, // either mainmenu (client) or ingame (server)
-	Client,
+	Client, // CPCSM
 	MainMenu,
 	Server,
 	Emerge,
 	PauseMenu,
+	SSCSM,
 };
 
 class Server;
@@ -57,8 +58,10 @@ class EmergeThread;
 class IGameDef;
 class Environment;
 class GUIEngine;
+class SSCSMEnvironment;
 class ServerActiveObject;
 struct PlayerHPChangeReason;
+struct ModVFS;
 
 class ScriptApiBase : protected LuaHelper {
 public:
@@ -76,7 +79,7 @@ public:
 	void loadScript(const std::string &script_path);
 
 #if CHECK_CLIENT_BUILD()
-	void loadModFromMemory(const std::string &mod_name);
+	void loadModFromMemory(const std::string &mod_name, std::string init_path = "");
 #endif
 
 	void runCallbacksRaw(int nargs,
@@ -89,9 +92,10 @@ public:
 	ScriptingType getType() { return m_type; }
 
 	IGameDef *getGameDef() { return m_gamedef; }
-	Server* getServer();
+	Server *getServer();
 #if CHECK_CLIENT_BUILD()
-	Client* getClient();
+	Client *getClient();
+	ModVFS *getModVFS();
 #endif
 
 	// IMPORTANT: These cannot be used for any security-related uses, they exist
@@ -157,6 +161,9 @@ protected:
 #if CHECK_CLIENT_BUILD()
 	GUIEngine* getGuiEngine() { return m_guiengine; }
 	void setGuiEngine(GUIEngine* guiengine) { m_guiengine = guiengine; }
+
+	SSCSMEnvironment *getSSCSMEnv() { return m_sscsm_environment; }
+	void setSSCSMEnv(SSCSMEnvironment *env) { m_sscsm_environment = env; }
 #endif
 
 	EmergeThread* getEmergeThread() { return m_emerge; }
@@ -177,14 +184,15 @@ protected:
 private:
 	static int luaPanic(lua_State *L);
 
-	lua_State      *m_luastack = nullptr;
+	lua_State        *m_luastack = nullptr;
 
-	IGameDef       *m_gamedef = nullptr;
-	Environment    *m_environment = nullptr;
+	IGameDef         *m_gamedef = nullptr;
+	Environment      *m_environment = nullptr;
 #if CHECK_CLIENT_BUILD()
-	GUIEngine      *m_guiengine = nullptr;
+	GUIEngine        *m_guiengine = nullptr;
+	SSCSMEnvironment *m_sscsm_environment = nullptr;
 #endif
-	EmergeThread   *m_emerge = nullptr;
+	EmergeThread     *m_emerge = nullptr;
 
-	ScriptingType  m_type;
+	ScriptingType     m_type;
 };

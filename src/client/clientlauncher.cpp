@@ -13,6 +13,7 @@
 #include "gettext.h"
 #include "inputhandler.h"
 #include "profiler.h"
+#include "exceptions.h"
 #include "gui/guiEngine.h"
 #include "fontengine.h"
 #include "clientlauncher.h"
@@ -60,16 +61,30 @@ ClientLauncher::~ClientLauncher()
 
 	g_settings->deregisterAllChangedCallbacks(this);
 
+	if (g_menucloudsmgr) {
+		assert(g_menucloudsmgr->getReferenceCount() == 1);
+		g_menucloudsmgr->drop();
+		g_menucloudsmgr = nullptr;
+	}
+
+	if (g_menuclouds) {
+		assert(g_menuclouds->getReferenceCount() == 1);
+		g_menuclouds->drop();
+		g_menuclouds = nullptr;
+	}
+
 	delete g_fontengine;
 	g_fontengine = nullptr;
 	delete g_gamecallback;
 	g_gamecallback = nullptr;
 
-	guiroot = nullptr;
-	guienv = nullptr;
 	assert(g_menumgr.menuCount() == 0);
 
 	delete m_rendering_engine;
+
+	// CGUIEnvironment causes calls to `deletingMenu`, which needs `guienv != nullptr`.
+	guiroot = nullptr;
+	guienv = nullptr;
 
 	// delete event receiver only after all Irrlicht stuff is gone
 	delete receiver;
@@ -82,26 +97,17 @@ ClientLauncher::~ClientLauncher()
 
 bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 {
-	/* This function is called when a client must be started.
-	 * Covered cases:
-	 *   - Singleplayer (address but map provided)
-	 *   - Join server (no map but address provided)
-	 *   - Local server (for main menu only)
-	*/
-
 	init_args(start_data, cmd_args);
 
-#if USE_SOUND
-	g_sound_manager_singleton = createSoundManagerSingleton();
-#endif
-
-	if (!init_engine())
-		return false;
-
-	if (!m_rendering_engine->get_video_driver()) {
-		errorstream << "Could not initialize video driver." << std::endl;
+	try {
+		init_engine();
+	} catch (BaseException &e) {
+		errorstream << e.what() << std::endl;
+		RenderingEngine::showErrorMessageBox(e.what());
 		return false;
 	}
+
+	sanity_check(m_rendering_engine->get_video_driver() != nullptr);
 
 	m_rendering_engine->setupTopLevelWindow();
 
@@ -110,6 +116,10 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 
 	m_rendering_engine->setResizable(true);
 
+#if USE_SOUND
+	g_sound_manager_singleton = createSoundManagerSingleton();
+#endif
+
 	init_input();
 
 	guienv = m_rendering_engine->get_gui_env();
@@ -117,19 +127,33 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 	g_settings->registerChangedCallback("dpi_change_notifier", setting_changed_callback, this);
 	g_settings->registerChangedCallback("display_density_factor", setting_changed_callback, this);
 	g_settings->registerChangedCallback("gui_scaling", setting_changed_callback, this);
+	g_settings->registerChangedCallback("smooth_scrolling", setting_changed_callback, this);
 
-	g_fontengine = new FontEngine(guienv);
+	try {
+		g_fontengine = new FontEngine(guienv);
+	} catch (BaseException &e) {
+		errorstream << e.what() << std::endl;
+		RenderingEngine::showErrorMessageBox(e.what());
+		return false;
+	}
 
 	// Create the menu clouds
 	// This is only global so it can be used by RenderingEngine::draw_load_screen().
 	assert(!g_menucloudsmgr && !g_menuclouds);
-	std::unique_ptr<IWritableShaderSource> ssrc(createShaderSource());
-	ssrc->addShaderUniformSetterFactory(std::make_unique<FogShaderUniformSetterFactory>());
-	g_menucloudsmgr = m_rendering_engine->get_scene_manager()->createNewSceneManager();
-	{
-		struct tm tm = mt_localtime();
+	std::unique_ptr<IWritableShaderSource> ssrc;
+	try {
+		ssrc.reset(createShaderSource());
+		ssrc->addShaderUniformSetterFactory(std::make_unique<FogShaderUniformSetterFactory>());
+
+		g_menucloudsmgr = m_rendering_engine->get_scene_manager()->createNewSceneManager();
+
+		auto tm = mt_localtime();
 		u32 seed = (tm.tm_year << 16) | tm.tm_yday; // unique clouds every day
 		g_menuclouds = new Clouds(g_menucloudsmgr, ssrc.get(), -1, seed);
+	} catch (BaseException &e) {
+		errorstream << e.what() << std::endl;
+		RenderingEngine::showErrorMessageBox(e.what());
+		return false;
 	}
 	g_menuclouds->setHeight(100.0f);
 	g_menuclouds->update(v3f(0, 0, 0), m_rendering_engine->m_menu_clouds_color);
@@ -171,14 +195,14 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 #ifdef NDEBUG
 		try {
 #endif
-			m_rendering_engine->get_gui_env()->clear();
+			guienv->clear();
 
 			/*
 				We need some kind of a root node to be able to add
 				custom gui elements directly on the screen.
 				Otherwise they won't be automatically drawn.
 			*/
-			guiroot = m_rendering_engine->get_gui_env()->addStaticText(L"",
+			guiroot = guienv->addStaticText(L"",
 				core::rect<s32>(0, 0, 10000, 10000));
 
 			bool should_run_game = launch_game(error_message, reconnect_requested,
@@ -221,10 +245,8 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 
 		m_rendering_engine->get_scene_manager()->clear();
 
-		if (g_touchcontrols) {
-			delete g_touchcontrols;
-			g_touchcontrols = NULL;
-		}
+		delete g_touchcontrols;
+		g_touchcontrols = nullptr;
 
 		/* Save the settings when leaving the game.
 		 * This makes sure that setting changes made in-game are persisted even
@@ -250,13 +272,6 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 		g_profiler->print(infostream);
 		g_profiler->clear();
 	}
-
-	assert(g_menucloudsmgr->getReferenceCount() == 1);
-	g_menucloudsmgr->drop();
-	g_menucloudsmgr = nullptr;
-	assert(g_menuclouds->getReferenceCount() == 1);
-	g_menuclouds->drop();
-	g_menuclouds = nullptr;
 
 	return retval;
 }
@@ -293,15 +308,11 @@ void ClientLauncher::init_args(GameStartData &start_data, const Settings &cmd_ar
 			|| cmd_args.getFlag("random-input");
 }
 
-bool ClientLauncher::init_engine()
+void ClientLauncher::init_engine()
 {
 	receiver = new MyEventReceiver();
-	try {
-		m_rendering_engine = new RenderingEngine(receiver);
-	} catch (std::exception &e) {
-		errorstream << e.what() << std::endl;
-	}
-	return !!m_rendering_engine;
+	// Note: this can throw
+	m_rendering_engine = new RenderingEngine(receiver);
 }
 
 void ClientLauncher::init_input()
@@ -373,6 +384,9 @@ void ClientLauncher::config_guienv()
 	skin->setSize(gui::EGDS_CHECK_BOX_WIDTH, (s32)(17.0f * density));
 	skin->setSize(gui::EGDS_SCROLLBAR_SIZE, (s32)(21.0f * density));
 	skin->setSize(gui::EGDS_WINDOW_BUTTON_WIDTH, (s32)(15.0f * density));
+
+	skin->setBehavior(gui::EGDB_SMOOTH_SCROLL, g_settings->getBool("smooth_scrolling"));
+	skin->setBehavior(gui::EGDB_SCOLLBAR_JUMP_TO_CLICKED, true);
 
 	static u32 orig_sprite_id = skin->getIcon(gui::EGDI_CHECK_BOX_CHECKED);
 	static std::unordered_map<std::string, u32> sprite_ids;
@@ -574,11 +588,10 @@ void ClientLauncher::main_menu(MainMenuData *menudata)
 	framemarker.end();
 	infostream << "Waited for other menus" << std::endl;
 
+	// Make sure normal mouse cursor is restored
 	auto *cur_control = device->getCursorControl();
 	if (cur_control) {
-		// Cursor can be non-visible when coming from the game
 		cur_control->setVisible(true);
-		// Set absolute mouse mode
 		cur_control->setRelativeMode(false);
 	}
 
@@ -593,7 +606,7 @@ void ClientLauncher::main_menu(MainMenuData *menudata)
 	 * even in case of a later unclean exit from the game.
 	 * This is especially useful on Android because closing the app from the
 	 * "Recents screen" results in an unclean exit.
-	 * Caveat: This means that the settings are saved twice when exiting Minetest.
+	 * Caveat: This means that the settings are saved twice when exiting Luanti.
 	 */
 	if (!g_settings_path.empty())
 		g_settings->updateConfigFile(g_settings_path.c_str());

@@ -24,7 +24,7 @@ public:
 
 private:
 	void init_args(GameStartData &start_data, const Settings &cmd_args);
-	bool init_engine();
+	void init_engine();
 	void init_input();
 	void init_joysticks();
 

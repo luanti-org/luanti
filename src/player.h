@@ -129,7 +129,9 @@ enum CameraMode : int {
 	CAMERA_MODE_ANY = 0,
 	CAMERA_MODE_FIRST,
 	CAMERA_MODE_THIRD,
-	CAMERA_MODE_THIRD_FRONT
+	CAMERA_MODE_THIRD_FRONT,
+
+	CameraMode_END // Dummy for validity check
 };
 
 extern const struct EnumString es_CameraMode[];

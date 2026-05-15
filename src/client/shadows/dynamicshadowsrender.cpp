@@ -509,8 +509,8 @@ void ShadowRenderer::renderShadowObjects(
 			auto &current_mat = shadow_node.node->getMaterial(m);
 
 			BufferMaterialList.push_back(current_mat.MaterialType);
-			// Note: this suffers from the same misdesign and will break once we
-			// start doing more special shader things for entities.
+			// Note: this suffers from the same misdesign as renderShadowMap()
+			// and will break once we start doing more special shader things for entities.
 			current_mat.MaterialType = depth_shader;
 
 			BufferMaterialCullingList.emplace_back(
@@ -552,9 +552,21 @@ void ShadowRenderer::createShaders()
 	a_const["USE_ARRAY_TEXTURE"] = 1;
 
 	{
+		// As this shader is used for objects, it must support skinning
+		// (c.f. object_shader/opengl_vertex.glsl)
+		// Maybe have two instances of this shader, one with USE_SKINNING=0?
+		// (Does not seem necessary at the moment, performance impact of USE_SKINNING=1
+		// when weights are disabled should be negligible.)
+		const auto max_joints = m_driver->getMaxJointTransforms();
+		ShaderConstants consts;
+		if (max_joints > 0) {
+			// only if the driver supports HW skinning at all
+			consts["USE_SKINNING"] = 1;
+			consts["MAX_JOINTS"] = max_joints;
+		}
 		auto *cb = new ShadowDepthUniformSetter();
 		m_shadow_depth_cb.push_back(cb);
-		u32 shader_id = shdsrc->getShader("shadow/pass1", {},
+		u32 shader_id = shdsrc->getShader("shadow/pass1", consts,
 			video::EMT_SOLID, cb);
 		depth_shader = shdsrc->getShaderInfo(shader_id).material;
 	}

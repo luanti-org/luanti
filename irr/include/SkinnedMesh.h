@@ -5,9 +5,6 @@
 #pragma once
 
 #include "IAnimatedMesh.h"
-#include "ISceneManager.h"
-#include "CMeshBuffer.h"
-#include "SSkinMeshBuffer.h"
 #include "aabbox3d.h"
 #include "irrMath.h"
 #include "irrTypes.h"
@@ -17,6 +14,7 @@
 #include "vector3d.h"
 #include "Transform.h"
 
+#include <algorithm>
 #include <optional>
 #include <string>
 #include <variant>
@@ -26,8 +24,9 @@ namespace scene
 {
 
 class AnimatedMeshSceneNode;
-class IBoneSceneNode;
+class BoneSceneNode;
 class ISceneManager;
+struct SSkinMeshBuffer;
 
 class SkinnedMesh : public IAnimatedMesh
 {
@@ -43,7 +42,6 @@ public:
 	//! constructor
 	SkinnedMesh(SourceFormat src_format) :
 		EndFrame(0.f), FramesPerSecond(25.f),
-		HasAnimation(false), PreparedForSkinning(false),
 		SrcFormat(src_format)
 	{
 		SkinningBuffers = &LocalBuffers;
@@ -59,9 +57,19 @@ public:
 	//! If the duration is 0, it is a static (=non animated) mesh.
 	f32 getMaxFrameNumber() const override;
 
+	void prepareForAnimation(u16 max_hw_joints) override;
+
+	bool needsHwSkinning() const override { return !UseSwSkinning && HasWeights; }
+
+	bool useSoftwareSkinning() const { return UseSwSkinning; }
+
 	//! Turns the given array of local matrices into an array of global matrices
 	//! by multiplying with respective parent matrices.
 	void calculateGlobalMatrices(std::vector<core::matrix4> &matrices) const;
+
+	std::vector<core::matrix4> calculateSkinMatrices(const std::vector<core::matrix4> &global_matrices) const;
+
+	void rigidAnimation(const std::vector<core::matrix4> &global_matrices);
 
 	//! Performs a software skin on this mesh based on the given joint matrices
 	void skinMesh(const std::vector<core::matrix4> &animated_transforms);
@@ -120,9 +128,9 @@ public:
 	void convertMeshToTangents();
 
 	//! Does the mesh have no animation
-	bool isStatic() const {
-		return !HasAnimation;
-	}
+	bool isStatic() const { return !HasAnimation; }
+	//! Does the mesh have skinning weights?
+	bool hasWeights() const { return HasWeights; }
 
 	//! Back up static pose after local buffers have been modified directly
 	void updateStaticPose();
@@ -131,7 +139,7 @@ public:
 	void resetAnimation();
 
 	//! Creates an array of joints from this mesh as children of node
-	std::vector<IBoneSceneNode *> addJoints(
+	std::vector<BoneSceneNode *> addJoints(
 			AnimatedMeshSceneNode *node, ISceneManager *smgr);
 
 	template <class T>
@@ -326,7 +334,8 @@ public:
 	}
 
 protected:
-	bool checkForAnimation() const;
+	bool checkForWeights() const;
+	bool checkForKeys() const;
 
 	void prepareForSkinning();
 
@@ -360,8 +369,10 @@ protected:
 	f32 EndFrame;
 	f32 FramesPerSecond;
 
-	bool HasAnimation;
-	bool PreparedForSkinning;
+	bool HasAnimation = false;
+	bool HasWeights = false;
+	bool PreparedForSkinning = false;
+	bool UseSwSkinning = false;
 
 	SourceFormat SrcFormat;
 };

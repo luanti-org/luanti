@@ -87,7 +87,7 @@ private:
 
 /*
 	CavesRandomWalk is an implementation of a cave-digging algorithm that
-	operates on the principle of a "random walk" to approximate the stochiastic
+	operates on the principle of a "random walk" to approximate the stochastic
 	activity of cavern development.
 
 	In summary, this algorithm works by carving a randomly sized tunnel in a

@@ -177,6 +177,11 @@ invert_mouse (Invert mouse) bool false
 #    Requires: keyboard_mouse
 mouse_sensitivity (Mouse sensitivity) float 0.2 0.001 10.0
 
+#    Keyboard-controlled camera rotation speed, in degrees per second.
+#
+#    Requires: keyboard_mouse
+keyboard_camera_speed (Keyboard camera speed) float 170.0 0.001 720.0
+
 #    Enable mouse wheel (scroll) for item selection in hotbar.
 #
 #    Requires: keyboard_mouse
@@ -257,6 +262,11 @@ keymap_fullscreen (Toggle fullscreen) key SYSTEM_SCANCODE_68
 keymap_drop (Drop item) key SYSTEM_SCANCODE_20
 
 keymap_zoom (Zoom) key SYSTEM_SCANCODE_29
+
+keymap_camera_yaw_left (Look left) key
+keymap_camera_yaw_right (Look right) key
+keymap_camera_pitch_up (Look up) key
+keymap_camera_pitch_down (Look down) key
 
 keymap_toggle_hud (Toggle HUD) key SYSTEM_SCANCODE_58
 
@@ -501,6 +511,11 @@ arm_inertia (Arm inertia) bool true
 #    Enable view bobbing and amount of view bobbing.
 #    For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.
 view_bobbing_amount (View bobbing factor) float 1.0 0.0 7.9
+
+[**Damage]
+
+#    Flashing of the screen when taking damage.
+hurt_flash_enabled (Damage flash) bool true
 
 [**Camera]
 
@@ -879,8 +894,8 @@ gui_scaling_filter (GUI scaling filter) bool false
 #    Delay showing tooltips, stated in milliseconds.
 tooltip_show_delay (Tooltip delay) int 400 0
 
-#    Append item name to tooltip.
-tooltip_append_itemname (Append item name) bool false
+#    Append the full item name to the tooltip of item stacks.
+tooltip_append_itemname (Append item name to tooltips) bool false
 
 #    Use a cloud animation for the main menu background.
 menu_clouds (Clouds in menu) bool true
@@ -1892,6 +1907,10 @@ mgvalleys_np_dungeons (Dungeon noise) noise_params_3d 0.9, 0.5, (500, 500, 500),
 #    Enable Lua modding support on client.
 #    This support is experimental and API can change.
 enable_client_modding (Client modding) [client] bool false
+
+#    Where to enable server-sent client-side modding (SSCSM).
+#    Warning: Experimental.
+enable_sscsm (Enable SSCSM) [client] enum nowhere nowhere,singleplayer,localhost,lan,everywhere
 
 #    Replaces the default main menu with a custom one.
 main_menu_script (Main menu script) [client] string

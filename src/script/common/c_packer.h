@@ -15,7 +15,7 @@ extern "C" {
 
 /*
 	This file defines an in-memory representation of Lua objects including
-	support for functions and userdata. It it used to move data between Lua
+	support for functions and userdata. It is used to move data between Lua
 	states and cannot be used for persistence or network transfer.
 */
 

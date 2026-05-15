@@ -211,10 +211,21 @@ void Client::handleCommand_AccessDenied(NetworkPacket* pkt)
 		return;
 
 	u8 denyCode;
+	u8 reconnect = 0; // default of 'm_access_denied_reconnect'
 	*pkt >> denyCode;
 
-	if (pkt->getRemainingBytes() > 0)
+	do {
+		if (!pkt->hasRemainingBytes())
+			break;
+		// Reliably available since 5.10.0-dev
 		*pkt >> m_access_denied_reason;
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// Reliably available since 5.10.0-dev
+		*pkt >> reconnect;
+	} while (0);
+
 
 	if (m_access_denied_reason.empty()) {
 		if (denyCode >= SERVER_ACCESSDENIED_MAX) {
@@ -226,9 +237,7 @@ void Client::handleCommand_AccessDenied(NetworkPacket* pkt)
 
 	if (denyCode == SERVER_ACCESSDENIED_TOO_MANY_USERS) {
 		m_access_denied_reconnect = true;
-	} else if (pkt->getRemainingBytes() > 0) {
-		u8 reconnect;
-		*pkt >> reconnect;
+	} else {
 		m_access_denied_reconnect = reconnect & 1;
 	}
 }
@@ -335,7 +344,15 @@ void Client::handleCommand_Inventory(NetworkPacket* pkt)
 	if (pkt->getSize() < 1)
 		return;
 
-	std::string datastring(pkt->getString(0), pkt->getSize());
+	std::string datastring;
+
+	if (m_proto_ver > 51) {
+		datastring = pkt->readLongString();
+		*pkt >> m_skip_next_wield_animation;
+	} else {
+		datastring = std::string(pkt->getString(0), pkt->getSize());
+	}
+
 	std::istringstream is(datastring, std::ios_base::binary);
 
 	LocalPlayer *player = m_env.getLocalPlayer();
@@ -421,7 +438,7 @@ void Client::handleCommand_ActiveObjectRemoveAdd(NetworkPacket* pkt)
 		}
 	*/
 
-	try {
+	do {
 		u8 type;
 		u16 removed_count, added_count, id;
 
@@ -442,10 +459,7 @@ void Client::handleCommand_ActiveObjectRemoveAdd(NetworkPacket* pkt)
 			*pkt >> id >> type;
 			m_env.addActiveObject(id, type, pkt->readLongString());
 		}
-	} catch (PacketError &e) {
-		infostream << "handleCommand_ActiveObjectRemoveAdd: " << e.what()
-				<< ". The packet is unreliable, ignoring" << std::endl;
-	}
+	} while (0);
 
 	// m_activeobjects_received is false before the first
 	// TOCLIENT_ACTIVE_OBJECT_REMOVE_ADD packet is received
@@ -506,11 +520,10 @@ void Client::handleCommand_Fov(NetworkPacket *pkt)
 
 	*pkt >> fov >> is_multiplier;
 
-	// Wrap transition_time extraction within a
-	// try-catch to preserve backwards compat
-	try {
+	if (pkt->hasRemainingBytes()) {
+		// >= 5.3.0-dev
 		*pkt >> transition_time;
-	} catch (PacketError &e) {};
+	}
 
 	LocalPlayer *player = m_env.getLocalPlayer();
 	assert(player);
@@ -528,9 +541,10 @@ void Client::handleCommand_HP(NetworkPacket *pkt)
 	u16 hp;
 	*pkt >> hp;
 	bool damage_effect = true;
-	try {
+	if (pkt->hasRemainingBytes()) {
+		// >= 5.6.0-dev
 		*pkt >> damage_effect;
-	} catch (PacketError &e) {};
+	}
 
 	player->hp = hp;
 
@@ -714,7 +728,7 @@ void Client::handleCommand_Media(NetworkPacket* pkt)
 		} else {
 			// Check pending dynamic transfers, one of them must be it
 			for (const auto &it : m_pending_media_downloads) {
-				if (it.second->conventionalTransferDone(name, data, this)) {
+				if (it.d->conventionalTransferDone(name, data, this)) {
 					ok = true;
 					break;
 				}
@@ -799,14 +813,20 @@ void Client::handleCommand_PlaySound(NetworkPacket* pkt)
 	bool ephemeral = false;
 
 	*pkt >> server_id >> spec.name >> spec.gain >> (u8 &)type >> pos >> object_id >> spec.loop;
+	*pkt >> spec.fade >> spec.pitch;
 	pos *= 1.0f/BS;
 
-	try {
-		*pkt >> spec.fade;
-		*pkt >> spec.pitch;
+	do {
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.2.0-dev
 		*pkt >> ephemeral;
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.8.0-dev
 		*pkt >> spec.start_time;
-	} catch (PacketError &e) {};
+	} while (0);
 
 	// Generate a new id
 	sound_handle_t client_id = (ephemeral && object_id == 0) ? 0 : m_sound->allocateId(2);
@@ -1156,20 +1176,39 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 	v2f align;
 	v2f offset;
 	v3f world_pos;
-	v2s32 size;
+	v2f size;
 	s16 z_index = 0;
 	std::string text2;
 	u32 style = 0;
 
 	*pkt >> server_id >> type >> pos >> name >> scale >> text >> number >> item
 		>> dir >> align >> offset;
-	try {
-		*pkt >> world_pos;
+	*pkt >> world_pos;
+
+	if (m_proto_ver >= 52) {
 		*pkt >> size;
+	} else {
+		v2s32 old_format;
+		*pkt >> old_format;
+		size = v2f::from(old_format);
+	}
+
+	do {
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.2.0-dev
 		*pkt >> z_index;
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.3.0-dev
 		*pkt >> text2;
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.5.0-dev
 		*pkt >> style;
-	} catch(PacketError &e) {};
+	} while (0);
 
 	ClientEvent *event = new ClientEvent();
 	event->type              = CE_HUDADD;
@@ -1211,7 +1250,6 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 	v2f v2fdata;
 	v3f v3fdata;
 	u32 intdata = 0;
-	v2s32 v2s32data;
 	u32 server_id;
 	u8 stat;
 
@@ -1239,7 +1277,13 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 			*pkt >> v3fdata;
 			break;
 		case HUD_STAT_SIZE:
-			*pkt >> v2s32data;
+			if (m_proto_ver >= 52) {
+				*pkt >> v2fdata;
+			} else {
+				v2s32 old_format;
+				*pkt >> old_format;
+				v2fdata = v2f::from(old_format);
+			}
 			break;
 		default:
 			*pkt >> intdata;
@@ -1255,7 +1299,6 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 	event->hudchange->v3fdata   = v3fdata;
 	event->hudchange->sdata     = sdata;
 	event->hudchange->data      = intdata;
-	event->hudchange->v2s32data = v2s32data;
 	m_client_event_queue.push(event);
 }
 
@@ -1388,17 +1431,27 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 			>> c.night_sky >> c.night_horizon >> c.indoors;
 	}
 
-	if (pkt->getRemainingBytes() >= 4) {
+	do {
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.7.0-dev
 		*pkt >> skybox.body_orbit_tilt;
-	}
 
-	if (pkt->getRemainingBytes() >= 6) {
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.8.0-dev
 		*pkt >> skybox.fog_distance >> skybox.fog_start;
-	}
 
-	if (pkt->getRemainingBytes() >= 4) {
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.9.0-dev
 		*pkt >> skybox.fog_color;
-	}
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.16.0-dev
+		*pkt >> skybox.auto_dim_skybox;
+	} while (0);
 
 	ClientEvent *event = new ClientEvent();
 	event->type = CE_SET_SKY;
@@ -1438,10 +1491,17 @@ void Client::handleCommand_HudSetStars(NetworkPacket *pkt)
 
 	*pkt >> stars.visible >> stars.count
 		>> stars.starcolor >> stars.scale;
-	try {
+	do {
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.6.0-dev
 		*pkt >> stars.day_opacity;
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.15.0-dev
 		*pkt >> stars.star_seed;
-	} catch (PacketError &e) {};
+	} while (0);
 
 	ClientEvent *event = new ClientEvent();
 	event->type        = CE_SET_STARS;
@@ -1463,7 +1523,8 @@ void Client::handleCommand_CloudParams(NetworkPacket* pkt)
 	*pkt >> density >> color_bright >> color_ambient
 			>> height >> thickness >> speed;
 
-	if (pkt->getRemainingBytes() >= 4) {
+	if (pkt->hasRemainingBytes()) {
+		// >= 5.10.0-dev
 		*pkt >> color_shadow;
 	}
 
@@ -1526,10 +1587,13 @@ void Client::handleCommand_EyeOffset(NetworkPacket* pkt)
 	assert(player != NULL);
 
 	*pkt >> player->eye_offset_first >> player->eye_offset_third;
-	try {
+
+	// Fallback for older servers
+	player->eye_offset_third_front = player->eye_offset_third;
+
+	if (pkt->hasRemainingBytes()) {
+		// >= 5.8.0-dev
 		*pkt >> player->eye_offset_third_front;
-	} catch (PacketError &e) {
-		player->eye_offset_third_front = player->eye_offset_third;
 	}
 }
 
@@ -1541,6 +1605,8 @@ void Client::handleCommand_Camera(NetworkPacket* pkt)
 	u8 tmp;
 	*pkt >> tmp;
 	player->allowed_camera_mode = static_cast<CameraMode>(tmp);
+	if (player->allowed_camera_mode >= CameraMode_END)
+		player->allowed_camera_mode = CAMERA_MODE_ANY;
 
 	m_client_event_queue.push(new ClientEvent(CE_UPDATE_CAMERA));
 }
@@ -1672,9 +1738,20 @@ void Client::handleCommand_MediaPush(NetworkPacket *pkt)
 		return;
 	}
 
-	// create a downloader for this file
+	auto it = std::find_if(m_pending_media_downloads.begin(),
+		m_pending_media_downloads.end(), [&] (const PendingMediaDownload &pend) {
+		return pend.name == filename;
+	});
+	if (it != m_pending_media_downloads.end()) {
+		// The server sent another push for a file we're already downloading.
+		verbosestream << "Merged with ongoing identical request." << std::endl;
+		it->tokens.push_back(token);
+		return;
+	}
+
+	// Create a downloader for this file
 	auto downloader(std::make_shared<SingleMediaDownloader>(cached));
-	m_pending_media_downloads.emplace_back(token, downloader);
+	m_pending_media_downloads.emplace_back(token, filename, downloader);
 	downloader->addFile(filename, raw_hash);
 	for (const auto &baseurl : m_remote_media_servers)
 		downloader->addRemoteServer(baseurl);
@@ -1805,25 +1882,37 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 {
 	Lighting& lighting = m_env.getLocalPlayer()->getLighting();
 
-	if (pkt->getRemainingBytes() >= 4)
-		*pkt >> lighting.shadow_intensity;
-	if (pkt->getRemainingBytes() >= 4)
+	*pkt >> lighting.shadow_intensity;
+	do {
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.7.0-dev
 		*pkt >> lighting.saturation;
-	if (pkt->getRemainingBytes() >= 24) {
+		// >= 5.7.0-dev
 		*pkt >> lighting.exposure.luminance_min
 				>> lighting.exposure.luminance_max
 				>> lighting.exposure.exposure_correction
 				>> lighting.exposure.speed_dark_bright
 				>> lighting.exposure.speed_bright_dark
 				>> lighting.exposure.center_weight_power;
-	}
-	if (pkt->getRemainingBytes() >= 4)
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.9.0-dev
 		*pkt >> lighting.volumetric_light_strength;
-	if (pkt->getRemainingBytes() >= 4)
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.10.0-dev
 		*pkt >> lighting.shadow_tint;
-	if (pkt->getRemainingBytes() >= 12) {
+		// >= 5.10.0-dev
 		*pkt >> lighting.bloom_intensity
 				>> lighting.bloom_strength_factor
 				>> lighting.bloom_radius;
-	}
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.16.0-dev
+		*pkt >> lighting.shadow_direction;
+	} while (0);
 }

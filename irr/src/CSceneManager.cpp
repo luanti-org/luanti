@@ -137,6 +137,7 @@ IAnimatedMesh *CSceneManager::getUncachedMesh(io::IReadFile *file, const io::pat
 			file->seek(0);
 			IAnimatedMesh *msh = (*it)->createMesh(file);
 			if (msh) {
+				msh->prepareForAnimation(Driver->getMaxJointTransforms());
 				MeshCache->addMesh(cachename, msh);
 				msh->drop();
 				os::Printer::log("Loaded mesh", filename, ELL_DEBUG);

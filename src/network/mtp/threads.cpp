@@ -29,6 +29,8 @@ namespace con
 // TODO: Clean this up.
 #define LOG(a) a
 
+#define INIT_PHASE_MIN_TIMEOUT 5.0f
+
 #define MAX_NEW_PEERS_PER_SEC 30
 
 static inline session_t readPeerId(const u8 *packetdata)
@@ -192,7 +194,7 @@ void ConnectionSendThread::runTimeouts(float dtime, u32 peer_packet_quota)
 		// When the connection is half-open give the peer less time.
 		// Note that this time is also fixed since the timeout is not reset in half-open state.
 		const float peer_timeout = peer->isHalfOpen() ?
-			MYMAX(5.0f, m_timeout / 4) : m_timeout;
+			std::max(INIT_PHASE_MIN_TIMEOUT, m_timeout / 4) : m_timeout;
 		std::string reason;
 		if (peer->isTimedOut(peer_timeout, reason)) {
 			infostream << m_connection->getDesc()
@@ -429,8 +431,17 @@ void ConnectionSendThread::processReliableCommand(ConnectionCommandPtr &c)
 
 			auto list = channel.outgoing_reliables_sent.getResend(0, 1);
 
-			if (!list.empty())
-				resendReliable(channel, list.front().get(), -1);
+			if (!list.empty()) {
+				auto *packet = list.front().get();
+				// During the init phase, if we want to resend a packet more
+				// often than reasonable (let's say once per second which
+				// the init phase can take), someone is probably flooding us
+				// so stop replying.
+				constexpr u32 limit = INIT_PHASE_MIN_TIMEOUT + 1;
+				if (packet->resend_count > limit)
+					return;
+				resendReliable(channel, packet, -1);
+			}
 
 			return;
 		}

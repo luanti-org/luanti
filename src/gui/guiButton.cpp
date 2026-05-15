@@ -8,6 +8,7 @@
 #include "client/guiscalingfilter.h"
 #include "IGUISkin.h"
 #include "IGUIEnvironment.h"
+#include "IGUISpriteBank.h"
 #include "IVideoDriver.h"
 #include "IGUIFont.h"
 #include "irrlicht_changes/static_text.h"

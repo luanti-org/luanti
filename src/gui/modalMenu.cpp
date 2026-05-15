@@ -11,7 +11,6 @@
 #include "gui/guiInventoryList.h"
 #include "porting.h"
 #include "settings.h"
-#include "touchcontrols.h"
 
 PointerAction PointerAction::fromEvent(const SEvent &event) {
 	switch (event.EventType) {
@@ -61,7 +60,7 @@ void GUIModalMenu::allowFocusRemoval(bool allow)
 
 bool GUIModalMenu::canTakeFocus(gui::IGUIElement *e)
 {
-	return (e && (e == this || isMyChild(e))) || m_allow_focus_removal;
+	return (e && (e == this || isMyDescendant(e))) || m_allow_focus_removal;
 }
 
 void GUIModalMenu::draw()
@@ -90,12 +89,8 @@ void GUIModalMenu::draw()
 void GUIModalMenu::quitMenu()
 {
 	allowFocusRemoval(true);
-	// This removes Environment's grab on us
-	Environment->removeFocus(this);
 	m_menumgr->deletingMenu(this);
 	this->remove();
-	if (g_touchcontrols)
-		g_touchcontrols->show();
 }
 
 static bool isChild(gui::IGUIElement *tocheck, gui::IGUIElement *parent)
@@ -127,15 +122,6 @@ bool GUIModalMenu::remapClickOutside(const SEvent &event)
 			Environment->getRootGUIElement()->getElementFromPoint(current.pos);
 	if (isChild(hovered, this))
 		return false;
-
-	// Dropping items is also done by tapping outside the formspec. If an item
-	// is selected, make sure it is dropped without closing the formspec.
-	// We have to explicitly restrict this to GUIInventoryList because other
-	// GUI elements like text fields like to absorb events for no reason.
-	GUIInventoryList *focused = dynamic_cast<GUIInventoryList *>(Environment->getFocus());
-	if (focused && focused->OnEvent(event))
-		// Return true since the event was handled, even if it wasn't handled by us.
-		return true;
 
 	if (event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN) {
 		m_last_click_outside = current;
@@ -175,11 +161,11 @@ bool GUIModalMenu::simulateMouseEvent(ETOUCH_INPUT_EVENT touch_event, bool secon
 	switch (touch_event) {
 	case ETIE_PRESSED_DOWN:
 		mouse_event.MouseInput.Event = EMIE_LMOUSE_PRESSED_DOWN;
-		mouse_event.MouseInput.ButtonStates = EMBSM_LEFT;
+		mouse_event.MouseInput.ButtonStates = SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
 		break;
 	case ETIE_MOVED:
 		mouse_event.MouseInput.Event = EMIE_MOUSE_MOVED;
-		mouse_event.MouseInput.ButtonStates = EMBSM_LEFT;
+		mouse_event.MouseInput.ButtonStates = SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
 		break;
 	case ETIE_LEFT_UP:
 		mouse_event.MouseInput.Event = EMIE_LMOUSE_LEFT_UP;
@@ -188,7 +174,7 @@ bool GUIModalMenu::simulateMouseEvent(ETOUCH_INPUT_EVENT touch_event, bool secon
 	case ETIE_COUNT:
 		// ETIE_COUNT is used for double-tap events.
 		mouse_event.MouseInput.Event = EMIE_LMOUSE_DOUBLE_CLICK;
-		mouse_event.MouseInput.ButtonStates = EMBSM_LEFT;
+		mouse_event.MouseInput.ButtonStates = SDL_BUTTON_MASK(SDL_BUTTON_LEFT);
 		break;
 	default:
 		return false;

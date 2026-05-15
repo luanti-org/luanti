@@ -18,7 +18,9 @@
 #if CHECK_CLIENT_BUILD()
 #include "irr_ptr.h"
 #include <IFileArchive.h>
+#include <IFileList.h>
 #include <IFileSystem.h>
+#include <IReadFile.h>
 #endif
 
 #ifdef _WIN32

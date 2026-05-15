@@ -28,6 +28,9 @@ private:
 	// get us precision time
 	static int l_get_us_time(lua_State *L);
 
+	// get_us_time() for SSCSM. less precise
+	static int l_get_us_time_sscsm(lua_State *L);
+
 	// parse_json(str[, nullvalue])
 	static int l_parse_json(lua_State *L);
 
@@ -137,4 +140,5 @@ public:
 	static void Initialize(lua_State *L, int top);
 	static void InitializeAsync(lua_State *L, int top);
 	static void InitializeClient(lua_State *L, int top);
+	static void InitializeSSCSM(lua_State *L, int top);
 };
