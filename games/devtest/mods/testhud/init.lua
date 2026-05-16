@@ -298,6 +298,7 @@ core.register_chatcommand("hudhotbars", {
 			for _, id in ipairs(id_table) do
 				player:hud_remove(id)
 			end
+			player_hud_hotbars[name] = {}
 			return true, "Hotbars removed."
 		end
 
@@ -366,6 +367,7 @@ core.register_chatcommand("hudinventories", {
 			for _, id in ipairs(id_table) do
 				player:hud_remove(id)
 			end
+			player_hud_inventories[name] = {}
 			return true, "HUD Inventories removed."
 		end
 
