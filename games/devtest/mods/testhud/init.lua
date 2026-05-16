@@ -400,6 +400,7 @@ core.register_chatcommand("hudunhideable", {
 		if params == "remove" then
 			if player_hud_unhideable_element[name] then
 				player:hud_remove(player_hud_unhideable_element[name])
+				player_hud_unhideable_element[name] = nil
 			end
 			return true, "HUD unhideable image removed."
 		end
