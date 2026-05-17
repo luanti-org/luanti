@@ -28,10 +28,12 @@ public:
 
 	static const std::string_view getFileBaseName(std::string_view filename);
 	static const std::string_view getFileLanguage(std::string_view filename);
+	// Checks just the file extension
 	static inline bool isTranslationFileType(std::string_view filename)
 	{
 		return !getFileBaseName(filename).empty();
 	}
+	// Checks that the filename includes a language tag
 	static inline bool isTranslationFile(std::string_view filename)
 	{
 		return !getFileLanguage(filename).empty();
