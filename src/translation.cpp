@@ -17,12 +17,17 @@ Translations *g_client_translations = &client_translations;
 Translations *g_client_translations = nullptr;
 #endif
 
-const std::string_view Translations::getFileLanguage(std::string_view filename)
+const std::string_view Translations::getFileBaseName(std::string_view filename)
 {
 	const char *translate_ext[] = {
 		".tr", ".po", ".mo", NULL
 	};
-	auto basename = removeStringEnd(filename, translate_ext);
+	return removeStringEnd(filename, translate_ext);
+}
+
+const std::string_view Translations::getFileLanguage(std::string_view filename)
+{
+	auto basename = getFileBaseName(filename);
 	auto pos = basename.rfind('.');
 	if (pos == basename.npos)
 		return "";

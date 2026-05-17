@@ -2755,10 +2755,11 @@ void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_co
 	auto include = [&] (const std::string &name, const MediaInfo &info) -> bool {
 		if (info.no_announce)
 			return false;
-		// Only send translations matching the client's language
-		auto this_lang_code = Translations::getFileLanguage(name);
-		if (!this_lang_code.empty() && this_lang_code != lang_code)
-			return false;
+		if (Translations::isTranslationFileType(name)) {
+			// Only send translations matching the client's language
+			auto this_lang_code = Translations::getFileLanguage(name);
+			return !this_lang_code.empty() && this_lang_code == lang_code;
+		}
 		return true;
 	};
 
