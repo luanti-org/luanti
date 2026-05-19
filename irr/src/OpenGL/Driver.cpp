@@ -6,7 +6,10 @@
 
 #include "Driver.h"
 #include <cassert>
+#include <string>
 #include "CNullDriver.h"
+#include "EDriverTypes.h"
+#include "EMaterialTypes.h"
 #include "IContextManager.h"
 
 #include "COpenGLCoreTexture.h"
@@ -15,6 +18,7 @@
 
 #include "HWBuffer.h"
 #include "Common.h"
+#include "IShaderConstantSetCallBack.h"
 #include "WeightBuffer.h"
 #include "MaterialRenderer.h"
 #include "FixedPipelineRenderer.h"
@@ -23,6 +27,7 @@
 #include "EVertexAttributes.h"
 #include "CImage.h"
 #include "IReadFile.h"
+#include "irr_ptr.h"
 #include "matrix4.h"
 #include "os.h"
 
@@ -386,51 +391,66 @@ void COpenGL3DriverBase::loadShaderData(const io::path &vertexShaderName, const 
 
 void COpenGL3DriverBase::createMaterialRenderers()
 {
-	// Create callbacks.
-
-	COpenGL3MaterialSolidCB *SolidCB = new COpenGL3MaterialSolidCB();
-	COpenGL3MaterialSolidCB *TransparentAlphaChannelCB = new COpenGL3MaterialSolidCB();
-	COpenGL3MaterialSolidCB *TransparentAlphaChannelRefCB = new COpenGL3MaterialSolidCB();
-	COpenGL3MaterialSolidCB *TransparentVertexAlphaCB = new COpenGL3MaterialSolidCB();
-	COpenGL3MaterialOneTextureBlendCB *OneTextureBlendCB = new COpenGL3MaterialOneTextureBlendCB();
-
 	// Create built-in materials.
-	// The addition order must be the same as in the E_MATERIAL_TYPE enumeration. Thus the
+	// The order must be the same as in the E_MATERIAL_TYPE enumeration.
 
-	const core::stringc VertexShader = OGLES2ShaderPath + "Solid.vsh";
+	// TODO consolidate with src/client/shader.cpp
+	const core::stringc vsh_path = OGLES2ShaderPath + "Solid.vsh";
+	const auto vsh_prog_base = FileSystem->readFile(vsh_path);
+	if (!vsh_prog_base) {
+		os::Printer::log("Failed to read vertex shader", vsh_path, ELL_ERROR);
+		return;
+	}
+	std::string vsh_prog_header;
+	std::string sh_version;
+	if (getMaxJointTransforms() > 0) {
+		// c.f. ShaderSource::generateShader in src/client/shader.cpp
+		if (getDriverType() == EDT_OPENGL3) {
+			sh_version = "#version 150\n";
+		} else {
+			sh_version = "#version 300 es\n";
+		}
+		vsh_prog_header += "#define USE_SKINNING 1\n";
+		vsh_prog_header += "#define MAX_JOINTS " + std::to_string(getMaxJointTransforms()) + "\n";
+	} else {
+		sh_version = "#version 100\n";
+	}
+	vsh_prog_header += "#line 0\n";
 
-	// EMT_SOLID
-	core::stringc FragmentShader = OGLES2ShaderPath + "Solid.fsh";
-	addHighLevelShaderMaterialFromFiles(VertexShader, FragmentShader, "", "Solid",
-			scene::EPT_TRIANGLES, scene::EPT_TRIANGLE_STRIP, 0, SolidCB, EMT_SOLID, 0);
+	std::string vsh_prog = sh_version + vsh_prog_header + *vsh_prog_base;
 
-	// EMT_TRANSPARENT_ALPHA_CHANNEL
-	FragmentShader = OGLES2ShaderPath + "TransparentAlphaChannel.fsh";
-	addHighLevelShaderMaterialFromFiles(VertexShader, FragmentShader, "", "TransparentAlphaChannel",
-			scene::EPT_TRIANGLES, scene::EPT_TRIANGLE_STRIP, 0, TransparentAlphaChannelCB, EMT_TRANSPARENT_ALPHA_CHANNEL, 0);
+	const auto add_shader_material = [&](const E_MATERIAL_TYPE emt,
+			const char *name, IShaderConstantSetCallBack *cb)
+	{
+		irr_ptr<IShaderConstantSetCallBack> cb_dropper(cb);
+		core::stringc fsh_path = OGLES2ShaderPath + name + ".fsh";
+		const auto fsh_prog_base = FileSystem->readFile(fsh_path);
+		if (!fsh_prog_base) {
+			os::Printer::log("Failed to read fragment shader", fsh_path, ELL_ERROR);
+			return;
+		}
+		std::string fsh_prog = sh_version + "#line 0\n" + *fsh_prog_base;
+		addHighLevelShaderMaterial(
+				vsh_prog.data(), fsh_prog.data(), nullptr, name,
+				scene::EPT_TRIANGLES, scene::EPT_TRIANGLE_STRIP, 0,
+				cb, emt, 0);
+	};
 
-	// EMT_TRANSPARENT_ALPHA_CHANNEL_REF
-	FragmentShader = OGLES2ShaderPath + "TransparentAlphaChannelRef.fsh";
-	addHighLevelShaderMaterialFromFiles(VertexShader, FragmentShader, "", "TransparentAlphaChannelRef",
-			scene::EPT_TRIANGLES, scene::EPT_TRIANGLE_STRIP, 0, TransparentAlphaChannelRefCB, EMT_SOLID, 0);
-
-	// EMT_TRANSPARENT_VERTEX_ALPHA
-	FragmentShader = OGLES2ShaderPath + "TransparentVertexAlpha.fsh";
-	addHighLevelShaderMaterialFromFiles(VertexShader, FragmentShader, "", "TransparentVertexAlpha",
-			scene::EPT_TRIANGLES, scene::EPT_TRIANGLE_STRIP, 0, TransparentVertexAlphaCB, EMT_TRANSPARENT_ALPHA_CHANNEL, 0);
-
-	// EMT_ONETEXTURE_BLEND
-	FragmentShader = OGLES2ShaderPath + "OneTextureBlend.fsh";
-	addHighLevelShaderMaterialFromFiles(VertexShader, FragmentShader, "", "OneTextureBlend",
-			scene::EPT_TRIANGLES, scene::EPT_TRIANGLE_STRIP, 0, OneTextureBlendCB, EMT_ONETEXTURE_BLEND, 0);
-
-	// Drop callbacks.
-
-	SolidCB->drop();
-	TransparentAlphaChannelCB->drop();
-	TransparentAlphaChannelRefCB->drop();
-	TransparentVertexAlphaCB->drop();
-	OneTextureBlendCB->drop();
+	add_shader_material(EMT_SOLID,
+			"Solid",
+			new COpenGL3MaterialSolidCB());
+	add_shader_material(EMT_TRANSPARENT_ALPHA_CHANNEL,
+			"TransparentAlphaChannel",
+			new COpenGL3MaterialSolidCB());
+	add_shader_material(EMT_TRANSPARENT_ALPHA_CHANNEL_REF,
+			"TransparentAlphaChannelRef",
+			new COpenGL3MaterialSolidCB());
+	add_shader_material(EMT_TRANSPARENT_VERTEX_ALPHA,
+			"TransparentVertexAlpha",
+			new COpenGL3MaterialSolidCB());
+	add_shader_material(EMT_ONETEXTURE_BLEND,
+			"OneTextureBlend",
+			new COpenGL3MaterialOneTextureBlendCB());
 
 	// Create 2D material renderers
 

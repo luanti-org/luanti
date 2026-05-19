@@ -5,13 +5,16 @@
 #pragma once
 
 #include "IReferenceCounted.h"
+#include "IReadFile.h"
 #include "path.h"
+
+#include <string>
+#include <optional>
 
 namespace io
 {
 
 class IArchiveLoader;
-class IReadFile;
 class IWriteFile;
 class IFileList;
 
@@ -35,6 +38,14 @@ public:
 	The returned pointer should be dropped when no longer needed.
 	See IReferenceCounted::drop() for more information. */
 	virtual IReadFile *createAndOpenFile(const path &filename) = 0;
+
+	std::optional<std::string> readFile(const path &filename)
+	{
+		IReadFile *file = createAndOpenFile(filename);
+		if (!file)
+			return std::nullopt;
+		return file->readAll();
+	}
 
 	//! Creates an IReadFile interface for accessing memory like a file.
 	/** This allows you to use a pointer to memory where an IReadFile is requested.

@@ -8,6 +8,8 @@
 #include "EReadFileType.h"
 #include "path.h"
 
+#include <string>
+
 namespace io
 {
 
@@ -20,6 +22,15 @@ public:
 	\param sizeToRead Amount of bytes to read from the file.
 	\return How many bytes were read. */
 	virtual size_t read(void *buffer, size_t sizeToRead) = 0;
+
+	std::string readAll()
+	{
+		std::string res;
+		const size_t size = getSize();
+		res.resize(size);
+		read(res.data(), size);
+		return res;
+	}
 
 	//! Changes position in file
 	/** \param finalPos Destination position in the file.
