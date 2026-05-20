@@ -7,6 +7,7 @@
 #include "IReferenceCounted.h"
 #include "IReadFile.h"
 #include "path.h"
+#include "irr_ptr.h"
 
 #include <string>
 #include <optional>
@@ -41,7 +42,7 @@ public:
 
 	std::optional<std::string> readFile(const path &filename)
 	{
-		IReadFile *file = createAndOpenFile(filename);
+		irr_ptr<IReadFile> file(createAndOpenFile(filename));
 		if (!file)
 			return std::nullopt;
 		return file->readAll();
