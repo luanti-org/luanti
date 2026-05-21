@@ -1520,7 +1520,7 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 	m_fields.push_back(spec);
 }
 
-void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
+gui::IGUIEditBox *GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 	core::rect<s32> &rect, bool is_multiline)
 {
 	bool is_editable = !spec.fname.empty();
@@ -1528,7 +1528,7 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 		// spec field id to 0, this stops submit searching for a value that isn't there
 		gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
 				data->current_parent, 0);
-		return;
+		return nullptr;
 	}
 
 	if (is_editable) {
@@ -1590,6 +1590,8 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 		if (t)
 			t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 	}
+
+	return e;
 }
 
 void GUIFormSpecMenu::parseSimpleField(parserData *data,
@@ -1660,13 +1662,10 @@ void GUIFormSpecMenu::parseTextArea(parserData* data, std::vector<std::string>& 
 
 		geom.X = (stof(v_geom[0]) * spacing.X) - (spacing.X - imgsize.X);
 
-		if (type == "textarea")
-		{
+		if (type == "textarea") {
 			geom.Y = (stof(v_geom[1]) * (float)imgsize.Y) - (spacing.Y-imgsize.Y);
 			pos.Y += m_btn_height;
-		}
-		else
-		{
+		} else {
 			pos.Y += (stof(v_geom[1]) * (float)imgsize.Y)/2;
 			pos.Y -= m_btn_height;
 			geom.Y = m_btn_height*2;
@@ -1693,7 +1692,37 @@ void GUIFormSpecMenu::parseTextArea(parserData* data, std::vector<std::string>& 
 		ECI_IBEAM
 	);
 
-	createTextField(data, spec, rect, type == "textarea");
+	auto style = getDefaultStyleForElement("textarea", "");
+
+	// Parse halign
+	std::string halign_str = style.get(StyleSpec::HALIGN, "left");
+	EGUI_ALIGNMENT halign = gui::EGUIA_UPPERLEFT;
+
+	if (halign_str == "center")
+		halign = gui::EGUIA_CENTER;
+	else if (halign_str == "right")
+		halign = gui::EGUIA_LOWERRIGHT;
+
+	// Parse valign
+	std::string valign_str = style.get(StyleSpec::VALIGN, "top");
+	EGUI_ALIGNMENT valign = gui::EGUIA_UPPERLEFT;
+
+	if (valign_str == "center")
+		valign = gui::EGUIA_CENTER;
+	else if (valign_str == "bottom")
+		valign = gui::EGUIA_LOWERRIGHT;
+
+	gui::IGUIEditBox *e = createTextField(data, spec, rect, type == "textarea");
+
+	// calculates if a scrollbar is needed (the same way as in irr/src/CGUIEditBox.cpp at the end of the file).
+	// basically if the height of the wrapped text exceeds the textarea height,
+	// force top alignment to prevent text being cut off vertically
+	core::dimension2du text_dim = e->getTextDimension();
+	if (text_dim.Height > (u32)rect.getHeight()) {
+		valign = gui::EGUIA_UPPERLEFT;
+	}
+
+	e->setTextAlignment(halign, valign);
 
 	// Note: Before 5.2.0 "parts.size() >= 6" resulted in a
 	// warning referring to field_close_on_enter[]!
