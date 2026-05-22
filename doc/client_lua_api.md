@@ -42,8 +42,8 @@ In order to load client-side mods, the following conditions need to be satisfied
 
 1) `$path_user/minetest.conf` contains the setting `enable_client_modding = true`
 
-2) The client-side mod located in `$path_user/clientmods/<modname>` is added to
-    `$path_user/clientmods/mods.conf` as `load_mod_<modname> = true`.
+2) The client-side mod located in `$path_user/clientmods/<mod location>` is added to
+    `$path_user/clientmods/mods.conf` as `load_mod_<mod.conf name field> = true`.
 
 Note: Depending on the remote server's settings, client-side mods might not
 be loaded or have limited functionality. See setting `csm_restriction_flags` for reference.
