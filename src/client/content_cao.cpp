@@ -1670,11 +1670,12 @@ void GenericCAO::processMessage(const std::string &data)
 		anim.loop = !readU8(is);
 
 		scene::TrackId track_id = (u16) 0;
+		std::optional<f32> cur_frame;
 		if (canRead(is)) {
 			// New animation API since 5.16.0
 			track_id = readTrackIdentifier(is);
 			anim.priority = readS32(is);
-			anim.cur_frame = readF32(is);
+			cur_frame = std::max(0.0f, readF32(is));
 		}
 
 		auto track_nr_opt = resolveTrackId(track_id);
@@ -1682,14 +1683,16 @@ void GenericCAO::processMessage(const std::string &data)
 			return;
 		u16 track_nr = *track_nr_opt;
 
-		anim.min_frame = std::min(range.X, range.Y);
-		anim.max_frame = std::max(range.X, range.Y);
+		anim.min_frame = std::max(0.0f, std::min(range.X, range.Y));
+		anim.max_frame = std::max(0.0f, std::max(range.X, range.Y));
 		if (m_animated_meshnode) {
 			anim.max_frame = std::min(anim.max_frame,
 					m_animated_meshnode->getMesh()->getMaxFrameNumber(track_nr));
 		}
 
-		anim.cur_frame = anim.fps >= 0 ? anim.min_frame : anim.max_frame;
+		anim.cur_frame = cur_frame.value_or(anim.fps >= 0
+				? anim.min_frame : anim.max_frame);
+		anim.cur_frame = std::clamp(anim.cur_frame, anim.min_frame, anim.max_frame);
 
 		// Apply animation
 		if (!m_is_local_player) {

@@ -9060,7 +9060,8 @@ Tracks are identified by their name or track number.
 Track numbers start at 1.
 
 * `play_animation(track, [animation])`
-    * `.x` and `.b3d` models only have a single animation track.
+    * Starts or restarts an animation on the given track.
+    * `.x` and `.b3d` models only have a single, unnamed animation track `1`.
     * `animation` is an optional table with the following optional fields:
       * `min_frame = 0.0`, `max_frame = math.huge`, animation range in frames (seconds);
          clamped on the client to first and last frame in the corresponding track.
@@ -9072,7 +9073,7 @@ Track numbers start at 1.
       * `loop = true`, boolean, whether the animation repeats after completion.
         Defaults to `true`.
       * `blend = 0.0`, transition time in seconds when changing to the new animation.
-      * `priority = 0.0`, integer.
+      * `priority = 0`, integer.
         Higher priority animations are applied after lower priority ones,
         taking precedence if the same bones are being animated.
     * Example: `obj:play_animation("walk")`.
@@ -9082,7 +9083,7 @@ Track numbers start at 1.
 * `update_animation(track, update)`
     * `update` is a table with the following optional fields:
       * `speed`: New animation speed
-    * Example: `obj:play_animation("walk", {speed = 0})`
+    * Example: `obj:update_animation("walk", {speed = 0})`
       pauses the animation currently playing on the track named `walk` at the current frame.
 * `stop_animation([track])`: Stop animation on the given track, if playing.
     * If no track is given, all currently playing animations are stopped.
