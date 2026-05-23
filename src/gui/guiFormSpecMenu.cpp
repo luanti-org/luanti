@@ -2832,8 +2832,12 @@ void GUIFormSpecMenu::parseModel(parserData *data, const std::string &element)
 
 	core::rect<s32> rect(pos, pos + geom);
 
-	GUIScene *e = new GUIScene(Environment, m_client->getSceneManager(),
-			data->current_parent, rect, spec.fid);
+	GUIScene *e = new GUIScene(Environment,
+			m_client->getSceneManager(),
+			data->current_parent,
+			m_client->getShaderSource(),
+			rect,
+			spec.fid);
 
 	auto meshnode = e->setMesh(mesh);
 	mesh->drop();

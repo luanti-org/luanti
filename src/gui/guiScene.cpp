@@ -8,11 +8,17 @@
 #include <AnimatedMeshSceneNode.h>
 #include <IVideoDriver.h>
 #include <ISceneManager.h>
+#include "client/shader.h"
+#include "nodedef.h"
 #include "porting.h"
 #include "client/mesh.h"
 
-GUIScene::GUIScene(gui::IGUIEnvironment *env, scene::ISceneManager *smgr,
-		   gui::IGUIElement *parent, core::recti rect, s32 id)
+GUIScene::GUIScene(gui::IGUIEnvironment *env,
+		scene::ISceneManager *smgr,
+		gui::IGUIElement *parent,
+		IShaderSource *shdsrc,
+		core::recti rect,
+		s32 id)
 	: IGUIElement(gui::EGUIET_ELEMENT, env, parent, id, rect)
 {
 	m_driver = env->getVideoDriver();
@@ -20,6 +26,12 @@ GUIScene::GUIScene(gui::IGUIEnvironment *env, scene::ISceneManager *smgr,
 
 	m_cam = m_smgr->addCameraSceneNode(0, v3f(0.f, 0.f, -100.f), v3f(0.f));
 	m_cam->setFOV(30.f * core::DEGTORAD);
+
+	u32 shader_id = shdsrc->getShader("fs_model_shader",
+			TILE_MATERIAL_ALPHA, // maps to video::EMT_TRANSPARENT_ALPHA_CHANNEL
+			NDT_MESH, // unused
+			false, true);
+	m_material_type = shdsrc->getShaderInfo(shader_id).material;
 }
 
 GUIScene::~GUIScene()
@@ -49,10 +61,9 @@ scene::AnimatedMeshSceneNode *GUIScene::setMesh(scene::IAnimatedMesh *mesh)
 void GUIScene::setTexture(u32 idx, video::ITexture *texture)
 {
 	video::SMaterial &material = m_mesh->getMaterial(idx);
-	material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-	material.MaterialTypeParam = 0.5f;
+	material.MaterialType = m_material_type;
 	material.TextureLayers[0].Texture = texture;
-	material.FogEnable = true;
+	material.FogEnable = false;
 	material.TextureLayers[0].MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
 	material.TextureLayers[0].MagFilter = video::ETMAGF_NEAREST;
 	material.BackfaceCulling = false;

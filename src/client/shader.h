@@ -267,6 +267,8 @@ public:
 		IShaderUniformSetterRC *setter_cb = nullptr) = 0;
 
 	/// @brief Helper: Generates or gets a shader suitable for nodes and entities
+	/// @param skinning Enable hardware skinning support (mesh animation);
+	///                 static meshes will still render as expected.
 	u32 getShader(const std::string &name,
 		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL,
 		bool array_texture = false, bool skinning = false);
