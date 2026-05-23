@@ -152,6 +152,7 @@ void GUIScene::setFrameLoop(f32 begin, f32 end)
 
 /**
  * Sets the animation speed (FPS) for the mesh
+ * @note setFrameLoop() must be called before this
  */
 void GUIScene::setAnimationSpeed(f32 speed)
 {

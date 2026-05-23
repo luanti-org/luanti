@@ -116,8 +116,9 @@ std::string PlayerSAO::getClientInitializationData(u16 protocol_version)
 	};
 	append_message(getPropertyPacket());
 	append_message(generateUpdateArmorGroupsCommand());
-	for (const auto &[track, _] : getAnimation().tracks)
-		append_message(generateUpdateAnimationCommand(track));
+	for (const auto &[track, anim] : getAnimation().tracks)
+		if (anim.state != TrackAnimation::State::STOPPED)
+			append_message(generateUpdateAnimationCommand(track));
 	for (const auto &it : m_bone_override) {
 		append_message(generateUpdateBoneOverrideCommand(
 			it.first, it.second));
