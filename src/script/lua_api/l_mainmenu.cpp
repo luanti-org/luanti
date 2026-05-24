@@ -1111,8 +1111,8 @@ int ModApiMainMenu::l_do_async_callback(lua_State *L)
 /******************************************************************************/
 int ModApiMainMenu::l_copy_to_clipboard(lua_State *L)
 {
-	GUIEngine* engine = getGuiEngine(L);
-	sanity_check(engine != NULL);
+	GUIEngine *engine = getGuiEngine(L);
+	sanity_check(engine != nullptr);
 
 	const char *text = luaL_checkstring(L, 1);
 
