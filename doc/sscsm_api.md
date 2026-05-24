@@ -50,6 +50,7 @@ Functions that take or return paths always use virtual paths.
 ### Global callbacks
 
 * `core.register_globalstep(function(dtime))`
+* `code.register_on_pointed_update(function(pointed))`
 
 
 ### SSCSM-specific API

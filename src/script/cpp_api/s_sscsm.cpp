@@ -5,6 +5,7 @@
 #include "s_sscsm.h"
 
 #include "s_internal.h"
+#include "script/common/c_content.h"
 #include "script/sscsm/sscsm_environment.h"
 
 void ScriptApiSSCSM::load_mods(const std::vector<std::pair<std::string, std::string>> &mods)
@@ -25,5 +26,17 @@ void ScriptApiSSCSM::environment_step(float dtime)
 	lua_getfield(L, -1, "registered_globalsteps");
 	// Call callbacks
 	lua_pushnumber(L, dtime);
+	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
+}
+
+void ScriptApiSSCSM::pointed_update(const PointedThing &pointed)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	// Get core.registered_on_pointed_updates
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "registered_on_pointed_updates");
+	// Call callbacks
+	push_pointed_thing(L, pointed, true);
 	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
 }

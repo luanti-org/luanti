@@ -39,6 +39,7 @@
 #include "server.h"
 #include "settings.h"
 #include "shader.h"
+#include "script/sscsm/sscsm_events.h"
 #include "sound_maker.h"
 #include "threading/lambda.h"
 #include "translation.h"
@@ -2717,8 +2718,14 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 			!runData.btn_down_for_dig,
 			camera_offset);
 
-	if (pointed != runData.pointed_old)
+	if (pointed != runData.pointed_old) {
 		infostream << "Pointing at " << pointed.dump() << std::endl;
+
+		// TODO eventually move the selection box update logic
+		// from updatePointedThing to CPSSCSM?
+		auto event = std::make_unique<SSCSMEventOnPointedUpdate>(pointed);
+		client->getSSCSMController()->runEvent(client, std::move(event));
+	}
 
 	if (g_touchcontrols) {
 		auto mode = selected_def.touch_interaction.getMode(selected_def, pointed.type);

@@ -6,10 +6,14 @@
 
 #include "cpp_api/s_base.h"
 
+struct PointedThing;
+
 class ScriptApiSSCSM : virtual public ScriptApiBase
 {
 public:
 	void load_mods(const std::vector<std::pair<std::string, std::string>> &mods);
 
 	void environment_step(float dtime);
+
+	void pointed_update(const PointedThing &pointed);
 };

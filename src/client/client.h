@@ -382,6 +382,7 @@ public:
 	ModStorageDatabase *getModStorageDatabase() override { return m_mod_storage_database; }
 
 	ItemVisualsManager *getItemVisualsManager() { return m_item_visuals_manager; }
+	SSCSMController* getSSCSMController() { return m_sscsm_controller.get(); }
 
 	// Migrates away old files-based mod storage if necessary
 	void migrateModStorage();

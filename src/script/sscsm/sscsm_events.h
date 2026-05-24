@@ -8,6 +8,7 @@
 #include "debug.h"
 #include "irrlichttypes.h"
 #include "sscsm_environment.h"
+#include "util/pointedthing.h"
 
 struct SSCSMEventTearDown : public ISSCSMEvent
 {
@@ -46,6 +47,18 @@ struct SSCSMEventOnStep : public ISSCSMEvent
 	void exec(SSCSMEnvironment *env) override
 	{
 		env->getScript()->environment_step(dtime);
+	}
+};
+
+struct SSCSMEventOnPointedUpdate : public ISSCSMEvent
+{
+	PointedThing pointed;
+
+	SSCSMEventOnPointedUpdate(const PointedThing &p) : pointed(p) {};
+
+	void exec(SSCSMEnvironment *env) override
+	{
+		env->getScript()->pointed_update(pointed);
 	}
 };
 
