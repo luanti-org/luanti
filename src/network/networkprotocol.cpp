@@ -73,17 +73,19 @@
 		[scheduled bump for 5.14.0]
 	PROTOCOL VERSION 51
 		Only send first frame of animated item/wield images to older client,
-		Add artificial light color, scattering_coefficients,
-		vignette, specular intensity, foliage translucency and cdl parameters to Lighting packets
 		[scheduled bump for 5.15.0]
 	PROTOCOL VERSION 52
 		Added "skip_wield_anim" to TOCLIENT_INVENTORY
 		Type of TOCLIENT_HUDADD `size` changed from v2s32 to v2f
 		[scheduled bump for 5.16.0]
+	PROTOCOL VERSION 53
+		Add artificial light color, scattering_coefficients,
+		vignette, specular intensity, foliage translucency and cdl parameters to Lighting packets
+		[scheduled bump for 5.17.0]
 */
 
 // Note: Also update core.protocol_versions in builtin when bumping
-const u16 LATEST_PROTOCOL_VERSION = 52;
+const u16 LATEST_PROTOCOL_VERSION = 53;
 
 // See also formspec [Version History] in doc/lua_api.md
 const u16 FORMSPEC_API_VERSION = 10;
