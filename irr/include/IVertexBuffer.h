@@ -11,7 +11,7 @@
 namespace scene
 {
 
-class WeightBuffer;
+struct WeightBuffer;
 
 class IVertexBuffer : public virtual IReferenceCounted, public HWBuffer
 {

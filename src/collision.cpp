@@ -18,6 +18,7 @@
 #include "server/serveractiveobject.h"
 #include "util/timetaker.h"
 #include "profiler.h"
+#include "object_properties.h"
 
 #ifdef __FAST_MATH__
 #warning "-ffast-math is known to cause bugs in collision code, do not use!"
@@ -373,18 +374,19 @@ static void add_object_boxes(Environment *env,
 
 #define PROFILER_NAME(text) (dynamic_cast<ServerEnvironment*>(env) ? ("Server: " text) : ("Client: " text))
 
-collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
+CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		const aabb3f &box_0,
 		f32 stepheight, f32 dtime,
 		v3f *pos_f, v3f *speed_f,
 		v3f accel_f, ActiveObject *self,
-		bool collide_with_objects)
+		bool collide_with_objects,
+		StepUpMode step_up_mode)
 {
 	static bool time_notification_done = false;
 
 	ScopeProfiler sp(g_profiler, PROFILER_NAME("collisionMoveSimple()"), SPT_AVG, PRECISION_MICRO);
 
-	collisionMoveResult result;
+	CollisionMoveResult result;
 
 	// Assume no collisions when no velocity and no acceleration
 	if (*speed_f == v3f() && accel_f == v3f())
@@ -547,7 +549,9 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		v3f old_speed_f = *speed_f;
 
 		// Set the speed component that caused the collision to zero
-		if (step_up) {
+		if (step_up && (step_up_mode == StepUpMode::LEGACY ||
+				(step_up_mode == StepUpMode::FLOATY && speed_f->Y <= 0.0f) ||
+				(step_up_mode == StepUpMode::RIGID && speed_f->Y == 0.0f))) {
 			// Special case: Handle stairs
 			nearest_info.is_step_up = true;
 		} else if (nearest_collided == COLLISION_AXIS_X) {

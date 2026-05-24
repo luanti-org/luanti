@@ -39,10 +39,14 @@ template <>
 float LuaHelper::readParam(lua_State *L, int index)
 {
 	lua_Number v = luaL_checknumber(L, index);
-	if (std::isnan(v) || std::isinf(v))
-		throw LuaError("Invalid float value (NaN or infinity)");
+	if (!std::isfinite(v))
+		throw LuaError("Invalid number value (NaN or infinity)");
+	// cast could turn it into Inf
+	float ret = static_cast<float>(v);
+	if (std::isinf(ret))
+		throw LuaError("Number value is out-of-range for float");
 
-	return static_cast<float>(v);
+	return ret;
 }
 
 template <>

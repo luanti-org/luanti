@@ -4,9 +4,6 @@
 
 #include "test.h"
 
-#include <algorithm>
-#include <numeric>
-
 #include "gamedef.h"
 #include "inventory.h" // ItemStack
 #include "dummygamedef.h"
@@ -14,6 +11,7 @@
 #include "client/mapblock_mesh.h"
 #include "client/meshgen/collector.h"
 #include "client/node_visuals.h"
+#include <memory>
 #include "mesh_compare.h"
 
 namespace {
@@ -28,17 +26,19 @@ public:
 		return const_cast<NodeDefManager *>(m_nodedef);
 	}
 
-	// ContentFeatures that doesn't destroy the visuals
-	// Needed because nodedef.set(feature) creates a copy of the ContentFeatures and since
-	// the NodeDefManager destructs its ContentFeatures, this prevents double free.
-	// Should only be used if the visuals get freed somewhere else.
-	struct CContentFeatures : public ContentFeatures {
-		~CContentFeatures() { visuals = nullptr; }
-	};
-
-	content_t registerNode(ItemDefinition itemdef, const CContentFeatures &nodedef) {
+	content_t registerNode(const ItemDefinition &itemdef, const ContentFeatures &nodedef,
+			std::unique_ptr<NodeVisuals> visuals) {
 		item_mgr()->registerItem(itemdef);
-		return node_mgr()->set(nodedef.name, nodedef);
+
+		NodeDefManager *mgr = node_mgr();
+		content_t id = mgr->set(nodedef.name, nodedef);
+
+		// mgr->set cannot add ContentFeatures that already contain visuals
+		// We set them manually instead of calling NodeVisuals::fillNodeVisuals
+		ContentFeatures &f = const_cast<ContentFeatures&>(mgr->get(id));
+		setNodeVisuals(f, std::move(visuals));
+
+		return id;
 	}
 
 	void finalize() {
@@ -47,7 +47,7 @@ public:
 		// Need to fill node visuals for predefined nodes
 		node_mgr()->applyFunction([] (ContentFeatures &f) {
 			if (!f.visuals)
-				f.visuals = constructNodeVisuals(&f);
+				setNodeVisuals(f);
 		});
 	}
 
@@ -72,18 +72,18 @@ public:
 		itemdef.name = "test:" + name;
 		itemdef.description = name;
 
-		CContentFeatures f;
-		f.visuals = constructNodeVisuals(&f);
+		ContentFeatures f;
+		auto visuals = constructNodeVisuals(&f);
 		f.name = itemdef.name;
 		f.drawtype = NDT_NORMAL;
-		f.visuals->solidness = 2;
+		visuals->solidness = 2;
 		f.alpha = ALPHAMODE_OPAQUE;
 		for (TileDef &tiledef : f.tiledef)
 			tiledef.name = name + ".png";
-		for (TileSpec &tile : f.visuals->tiles)
+		for (TileSpec &tile : visuals->tiles)
 			tile.layers[0].texture_id = texture;
 
-		return registerNode(itemdef, f);
+		return registerNode(itemdef, f, std::move(visuals));
 	}
 
 	content_t addLiquidSource(std::string name, u32 texture)
@@ -93,11 +93,11 @@ public:
 		itemdef.name = "test:" + name + "_source";
 		itemdef.description = name;
 
-		CContentFeatures f;
-		f.visuals = constructNodeVisuals(&f);
+		ContentFeatures f;
+		auto visuals = constructNodeVisuals(&f);
 		f.name = itemdef.name;
 		f.drawtype = NDT_LIQUID;
-		f.visuals->solidness = 1;
+		visuals->solidness = 1;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;
@@ -108,10 +108,10 @@ public:
 		f.liquid_alternative_flowing = "test:" + name + "_flowing";
 		for (TileDef &tiledef : f.tiledef)
 			tiledef.name = name + ".png";
-		for (TileSpec &tile : f.visuals->tiles)
+		for (TileSpec &tile : visuals->tiles)
 			tile.layers[0].texture_id = texture;
 
-		return registerNode(itemdef, f);
+		return registerNode(itemdef, f, std::move(visuals));
 	}
 
 	content_t addLiquidFlowing(std::string name, u32 texture_top, u32 texture_side)
@@ -121,11 +121,11 @@ public:
 		itemdef.name = "test:" + name + "_flowing";
 		itemdef.description = name;
 
-		CContentFeatures f;
-		f.visuals = constructNodeVisuals(&f);
+		ContentFeatures f;
+		auto visuals = constructNodeVisuals(&f);
 		f.name = itemdef.name;
 		f.drawtype = NDT_FLOWINGLIQUID;
-		f.visuals->solidness = 0;
+		visuals->solidness = 0;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;
@@ -136,10 +136,10 @@ public:
 		f.liquid_alternative_flowing = "test:" + name + "_flowing";
 		f.tiledef_special[0].name = name + "_top.png";
 		f.tiledef_special[1].name = name + "_side.png";
-		f.visuals->special_tiles[0].layers[0].texture_id = texture_top;
-		f.visuals->special_tiles[1].layers[0].texture_id = texture_side;
+		visuals->special_tiles[0].layers[0].texture_id = texture_top;
+		visuals->special_tiles[1].layers[0].texture_id = texture_side;
 
-		return registerNode(itemdef, f);
+		return registerNode(itemdef, f, std::move(visuals));
 	}
 };
 

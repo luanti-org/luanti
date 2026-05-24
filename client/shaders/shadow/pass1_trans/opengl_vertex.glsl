@@ -10,7 +10,9 @@ uniform float xyPerspectiveBias1;
 uniform float zPerspectiveBias;
 
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
-CENTROID_ VARYING_ float varTexLayer; // actually int
+#ifdef USE_ARRAY_TEXTURE
+flat VARYING_ uint varTexLayer;
+#endif
 
 vec4 getRelativePosition(in vec4 position)
 {

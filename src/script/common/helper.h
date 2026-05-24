@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string_view>
+#include <type_traits>
 
 extern "C" {
 #include <lua.h>
@@ -12,6 +13,48 @@ extern "C" {
 
 class LuaHelper
 {
+public:
+
+	/**
+	 * @brief Utility for list iteration.
+	 * Usage:
+	 * ```cpp
+	 * for (int i = 0; LuaHelper::geti(L, -1, i); ++i, lua_pop(L, 1)) ...
+	 * ```
+	 * @param table index of the table t on the stack
+	 * @param i integer to index table with
+	 * @return false if `t[i + 1]` is nil, true otherwise;
+	 *         `t[i + 1]` is left on the stack in the latter case.
+	 */
+	static bool geti(lua_State *L, int table, int i)
+	{
+		lua_rawgeti(L, table, i + 1);
+		if (lua_isnil(L, -1)) {
+			lua_pop(L, 1);
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * @brief Iterate values `t[1]`, `t[2]`, ... of the given table in order.
+	 * @details Iterates up to the first `nil` value, similar to `ipairs` in Lua.
+	 *          Values will be left on the stack for `f()`.
+	 *          `f()` must leave the stack level unchanged.
+	 * @param table Lua stack (pseudo-)index of table
+	 * @param f Function (typically lambda) to be called for each value.
+	 */
+	template <typename F>
+	static void for_ipairs(lua_State *L, int table, const F &f)
+	{
+		if (table < 0)
+			table = lua_gettop(L) + table + 1;
+		static_assert(std::is_same_v<std::invoke_result_t<F>, void>);
+		for (int i = 0; geti(L, table, i); ++i, lua_pop(L, 1))
+			f();
+	}
+
+
 protected:
 	/**
 	 * Read a value using a template type T from Lua state L at index

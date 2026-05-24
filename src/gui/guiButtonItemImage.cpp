@@ -18,10 +18,10 @@ GUIButtonItemImage::GUIButtonItemImage(gui::IGUIEnvironment *environment,
 		bool noclip)
 		: GUIButton (environment, parent, id, rectangle, tsrc, noclip)
 {
-	m_image = new GUIItemImage(environment, this, id,
+	m_image.reset(new GUIItemImage(environment, this, id,
 			core::rect<s32>(0,0,rectangle.getWidth(),rectangle.getHeight()),
-			item, getActiveFont(), client);
-	sendToBack(m_image);
+			item, getActiveFont(), client));
+	sendToBack(m_image.get());
 
 	m_client = client;
 }

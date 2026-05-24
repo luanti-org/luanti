@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Hungarian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-06 23:13+0100\n"
+"POT-Creation-Date: 2026-05-06 19:14+0200\n"
 "PO-Revision-Date: 2026-01-16 15:02+0000\n"
 "Last-Translator: Wuzzy <Wuzzy@disroot.org>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/minetest/"
@@ -66,6 +66,7 @@ msgstr "A parancs nem elérhető: "
 msgid "Get help for commands (-t: output in chat)"
 msgstr "Segítség kérése a parancsokhoz (-t: megjelenítés a csevegésben)"
 
+#. TRANSLATORS: 'help' and 'all' mustn't be translated. cmd = command
 #: builtin/common/chatcommands.lua
 msgid ""
 "Use '.help <cmd>' to get more information, or '.help all' to list everything."
@@ -73,6 +74,7 @@ msgstr ""
 "További információkhoz adja ki a '.help <cmd>' parancsot, vagy az összes "
 "kilistázásához a '.help all' parancsot."
 
+#. TRANSLATORS: Syntax of 'help' command. Don't translate anything except 'cmd' (=command)
 #: builtin/common/chatcommands.lua
 msgid "[all | <cmd>] [-t]"
 msgstr "[all | <parancs>] [-t]"
@@ -239,6 +241,7 @@ msgstr ""
 msgid "Scales the noise in the $1 axis by this value."
 msgstr ""
 
+#. TRANSLATORS: Value for randomness
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Seed"
@@ -279,7 +282,7 @@ msgstr ""
 msgid "This results in spiky noise."
 msgstr ""
 
-#. ~ "absvalue" is a noise parameter flag.
+#. TRANSLATORS: "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
 #. It can be enabled in noise settings in
 #. the settings menu.
@@ -287,14 +290,14 @@ msgstr ""
 msgid "absvalue"
 msgstr "abszolút érték"
 
-#. ~ "defaults" is a noise parameter flag.
+#. TRANSLATORS: "defaults" is a noise parameter flag.
 #. It describes the default processing options
 #. for noise settings in the settings menu.
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "defaults"
 msgstr "alapértelmezett"
 
-#. ~ "eased" is a noise parameter flag.
+#. TRANSLATORS: "eased" is a noise parameter flag.
 #. It is used to make the map smoother and
 #. can be enabled in noise settings in
 #. the settings menu.
@@ -302,6 +305,8 @@ msgstr "alapértelmezett"
 msgid "eased"
 msgstr "könyített"
 
+#. TRANSLATORS: "automatic exposure" refers to light. This note
+#. will be displayed for the graphics setting 'enable_auto_exposure'
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable automatic exposure as well)"
 msgstr "(A játéknak engedélyeznie kell az automatikus expozíciót is)"
@@ -318,20 +323,28 @@ msgstr "(A játéknak engedélyeznie kell a sugaras megvilágítást is)"
 msgid "(Use system language)"
 msgstr "(Eszköz nyelve)"
 
+#. TRANSLATORS: Shown when a default setting is the empty string
+#: builtin/common/settings/dlg_settings.lua
+msgid "<empty>"
+msgstr ""
+
 #: builtin/common/settings/dlg_settings.lua
 msgid "Accessibility"
 msgstr "Kényelmes használat"
 
+#. TRANSLATORS: Automatic
 #: builtin/common/settings/dlg_settings.lua
 msgid "Auto"
 msgstr "Automatikus"
 
+#. TRANSLATORS: Button text to go back
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
 msgid "Back"
 msgstr "Vissza"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 msgid "Buttons with crosshair"
 msgstr "Gombok célkereszttel"
@@ -341,6 +354,7 @@ msgstr "Gombok célkereszttel"
 msgid "Chat"
 msgstr "Csevegés"
 
+#. TRANSLATORS: Tooltip of a button that clears input
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Clear"
 msgstr "Törlés"
@@ -348,6 +362,11 @@ msgstr "Törlés"
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "Controls"
 msgstr "Irányítás"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+#, fuzzy
+msgid "Damage"
+msgstr "Sérülés / PvP"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/common/settings/shadows_component.lua
@@ -358,10 +377,12 @@ msgstr "Letiltva"
 msgid "Enabled"
 msgstr "Engedélyezve"
 
+#. TRANSLATORS: Category for general settings
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "General"
 msgstr "Általános"
 
+#. TRANSLATORS: Touchscreen gesture
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
 msgstr "Hosszú koppintás"
@@ -370,12 +391,13 @@ msgstr "Hosszú koppintás"
 msgid "Movement"
 msgstr "Mozgás"
 
+#. TRANSLATORS: No search results
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No results"
 msgstr "Nincs találat"
 
-#. ~ Indicates that the action does not have a corresponding keybinding.
+#. TRANSLATORS: Indicates that the action does not have a corresponding keybinding.
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Not bound"
@@ -385,14 +407,17 @@ msgstr "Nem található"
 msgid "Reset setting to default"
 msgstr "Beállítások viszaállítása alapértelmezettre"
 
+#. TRANSLATORS: $1 will be replaced with a default setting value
 #: builtin/common/settings/dlg_settings.lua
-msgid "Reset setting to default ($1)"
+#, fuzzy
+msgid "Reset setting to default: $1"
 msgstr "Beállítások alapértelmezettre állítása ($1)"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
 msgstr "Keresés"
 
+#. TRANSLATORS: Touchscreen gesture
 #: builtin/common/settings/dlg_settings.lua
 msgid "Short tap"
 msgstr "Rövid koppintás"
@@ -401,14 +426,17 @@ msgstr "Rövid koppintás"
 msgid "Show advanced settings"
 msgstr "Haladó beállítások mutatása"
 
+#. TRANSLATORS: Checkbox that toggles displaying the technical setting names
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show technical names"
 msgstr "Technikai nevek megjelenítése"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap"
 msgstr "Koppintás"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
 msgstr "Koppintás célkereszttel"
@@ -564,6 +592,8 @@ msgstr "A ContentDB nem elérhető, ha cURL nélkül lett lefordítva a Luanti"
 msgid "Downloading..."
 msgstr "Letöltés…"
 
+#. TRANSLATORS: A 'featured' package in ContentDB is a package that is
+#. more prominently displayed than other packages
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
 msgstr "Kiemelt"
@@ -591,6 +621,7 @@ msgstr "A csomagok nem nyerhetők vissza"
 msgid "No updates"
 msgstr "Nincsenek frissítések"
 
+#. TRANSLATORS: A download is queued
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Queued"
 msgstr "Sorba állítva"
@@ -603,14 +634,17 @@ msgstr "Textúracsomagok"
 msgid "The package $1 was not found."
 msgstr "A(z) $1 csomag nem található."
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Update All [$1]"
 msgstr "Összes frissítése [$1]"
 
+#. TRANSLATORS: $1 is the name of a package and $2 is a number of depencencies
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 and $2 dependencies will be installed."
 msgstr "$1 és $2 függőségek telepítve lesznek."
 
+#. TRANSLATORS: Package (mod, texture pack, etc.) info: $1 = package name, $2 = package author
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 by $2"
 msgstr "$1 az $2-ből"
@@ -619,6 +653,7 @@ msgstr "$1 az $2-ből"
 msgid "$1 required dependencies could not be found."
 msgstr "Ehhez szükséges függőségek nem találhatók: $1."
 
+#. TRANSLATORS: $1 is the name of a package and $2 is a number of depencencies
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 will be installed, and $2 dependencies will be skipped."
 msgstr "$1 telepítve lesz, és $2 függőségek ki lesznek hagyva."
@@ -631,6 +666,7 @@ msgstr "Már telepítve"
 msgid "Base Game:"
 msgstr "Alapjáték:"
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Dependencies:"
@@ -701,10 +737,12 @@ msgstr "Fórumtéma"
 msgid "Information"
 msgstr "Információk"
 
+#. TRANSLATORS: $1 = download size
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Install [$1]"
 msgstr "[$1] telepítése"
 
+#. TRANSLATORS: Also known as 'bug tracker'
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
 msgstr "Problémajelzés"
@@ -713,6 +751,7 @@ msgstr "Problémajelzés"
 msgid "Reviews"
 msgstr "Értékelések"
 
+#. TRANSLATORS: Link to source code repository
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
 msgstr "Forráskód"
@@ -737,6 +776,10 @@ msgstr "Weboldal"
 msgid "by $1"
 msgstr "$1 -ből"
 
+#. TRANSLATORS: Info line for a ContentDB package:
+#. $1 = author,
+#. $2 = number of downloads,
+#. $3, $4, $5 = number of positive/neutral/negative reviews
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
 msgstr "készítő: $1  —  $2 letöltés  —  +$3 / $4 / -$5"
@@ -774,6 +817,7 @@ msgstr "Egy $1 telepítése textúracsomagként meghiúsult"
 msgid "World mods"
 msgstr "Világ neve"
 
+#. TRANSLATORS: $1 = server name
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
 "Players connected to\n"
@@ -782,10 +826,12 @@ msgstr ""
 "Csatlakozott játékosok ehhez:\n"
 "$1"
 
+#. TRANSLATORS: Message in the mod list when a mod is enabled with error
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
 msgstr "(Engedélyezve, hibás)"
 
+#. TRANSLATORS: Displayed when a mod dependency is unsatisfied
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Unsatisfied)"
 msgstr "(Kielégítetlen)"
@@ -826,6 +872,7 @@ msgstr "Mod:"
 msgid "Mods located inside the world folder."
 msgstr ""
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
 msgstr "Nincsenek (választható) függőségek"
@@ -834,6 +881,7 @@ msgstr "Nincsenek (választható) függőségek"
 msgid "No game description provided."
 msgstr "Nincs elérhető játékleírás."
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No hard dependencies"
 msgstr "Nincsenek kötelező függőségek"
@@ -842,10 +890,12 @@ msgstr "Nincsenek kötelező függőségek"
 msgid "No modpack description provided."
 msgstr "Nincs elérhető mod csomag leírás."
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No optional dependencies"
 msgstr "Nincsenek választható függőségek"
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Optional dependencies:"
 msgstr "Választható függőségek:"
@@ -887,6 +937,7 @@ msgstr "Hőmérséklet-csökkenés a magassággal"
 msgid "Altitude dry"
 msgstr "Páratartalom csökkenés a magassággal"
 
+#. TRANSLATORS: Smooth transition between biomes
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Biome blending"
 msgstr "Biom keverés"
@@ -907,6 +958,7 @@ msgstr "Barlangok"
 msgid "Create"
 msgstr "Létrehozás"
 
+#. TRANSLATORS: Map generator decorations (used for structures, trees, plants, and more)
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Decorations"
 msgstr "Dekorációk"
@@ -1114,6 +1166,7 @@ msgstr "A Luanti 5.12.0-ban átdolgozták a beviteli kezelőrendszert."
 msgid "Confirm Password"
 msgstr "Jelszó megerősítése"
 
+#. TRANSLATORS: Message when joining a server
 #: builtin/mainmenu/dlg_register.lua
 msgid "Joining $1"
 msgstr "Csatlakozás ehhez: $1"
@@ -1136,10 +1189,12 @@ msgstr "Jelszó"
 msgid "Passwords do not match"
 msgstr "A jelszavak nem egyeznek"
 
+#. TRANSLATORS: Register an account on a server
 #: builtin/mainmenu/dlg_register.lua builtin/mainmenu/tab_online.lua
 msgid "Register"
 msgstr "Regisztráció"
 
+#. TRANSLATORS: Dismiss a dialog window/message
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid "Dismiss"
 msgstr "Elhagy(ás)"
@@ -1184,10 +1239,12 @@ msgstr ""
 "Ennek a modcsomagnak a neve a modpack.conf fájlban meghatározott, ami "
 "felülír minden itteni átnevezést."
 
+#. TRANSLATORS: Expand all entries in a tree view
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Expand all"
 msgstr "Összes kibontása"
 
+#. TRANSLATORS: A checkbox; if enabled, it will group mods by their prefix
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Group by prefix"
 msgstr "Csoportosítás előtag szerint"
@@ -1200,10 +1257,12 @@ msgstr "A(z) $1 szerver egy $2 nevű játékot használ és a következő modoka
 msgid "The $1 server uses the following mods:"
 msgstr "A(z) $1 szerver a következő modokat használja:"
 
+#. TRANSLATORS: $1 = name of the engine
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
 msgstr "$1 új verziója elérhető"
 
+#. TRANSLATORS: $1 and $2 are version numbers, $3 is a URL
 #: builtin/mainmenu/dlg_version_info.lua
 msgid ""
 "Installed version: $1\n"
@@ -1232,6 +1291,7 @@ msgstr "Weboldal megtekintése"
 msgid "Debug build, expect worse performance"
 msgstr ""
 
+#. TRANSLATORS: Try to keep the translation short
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "Beállítások"
@@ -1295,6 +1355,7 @@ msgstr "Hibakeresési napló megosztása"
 msgid "Browse online content"
 msgstr "Online tartalmak böngészése"
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/tab_content.lua
 msgid "Browse online content [$1]"
 msgstr "Online tartalmak böngészése [$1]"
@@ -1303,6 +1364,7 @@ msgstr "Online tartalmak böngészése [$1]"
 msgid "Content"
 msgstr "Tartalom"
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/tab_content.lua
 msgid "Content [$1]"
 msgstr "Tartalom [$1]"
@@ -1387,6 +1449,7 @@ msgstr "Új"
 msgid "Play Game"
 msgstr "Játék indítása"
 
+#. TRANSLATORS: Network port
 #: builtin/mainmenu/tab_local.lua builtin/mainmenu/tab_online.lua
 msgid "Port"
 msgstr "Port"
@@ -1416,6 +1479,7 @@ msgstr ""
 msgid "Add favorite"
 msgstr "Kedvenc hozzáadása"
 
+#. TRANSLATORS: Network address
 #: builtin/mainmenu/tab_online.lua
 msgid "Address"
 msgstr "Cím"
@@ -1424,7 +1488,7 @@ msgstr "Cím"
 msgid "Creative mode"
 msgstr "Kreatív mód"
 
-#. ~ PvP = Player versus Player
+#. TRANSLATORS: PvP = Player versus Player
 #: builtin/mainmenu/tab_online.lua
 msgid "Damage / PvP"
 msgstr "Sérülés / PvP"
@@ -1445,6 +1509,7 @@ msgstr "Nem kompatibilis szerverek"
 msgid "Join Game"
 msgstr "Csatlakozás játékhoz"
 
+#. TRANSLATORS: Login to server
 #: builtin/mainmenu/tab_online.lua
 msgid "Login"
 msgstr "Bejelentkezés"
@@ -1457,10 +1522,12 @@ msgstr "Modok száma: $1"
 msgid "Open server website"
 msgstr "Szerver weboldalának megnyitása"
 
+#. TRANSLATORS: Also known as "latency"
 #: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "Ping"
 
+#. TRANSLATORS: $1 is a list of players
 #: builtin/mainmenu/tab_online.lua
 msgid ""
 "Players:\n"
@@ -1470,21 +1537,15 @@ msgstr ""
 "$1"
 
 #: builtin/mainmenu/tab_online.lua
-msgid ""
-"Possible filters\n"
-"game:<name>\n"
-"mod:<name>\n"
-"player:<name>"
-msgstr ""
-"Lehetséges szűrők\n"
-"game:<name>\n"
-"mod:<name>\n"
-"player:<name>"
+#, fuzzy
+msgid "Possible filters"
+msgstr "Poisson szűrés"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
 msgstr "Nyilvános szerverek"
 
+#. TRANSLATORS: As in 'reload'/'check again'
 #: builtin/mainmenu/tab_online.lua
 msgid "Refresh"
 msgstr "Frissítés"
@@ -1525,7 +1586,7 @@ msgstr "Textúrák betöltése…"
 msgid "Rebuilding shaders..."
 msgstr "Árnyalók újraépítése…"
 
-#: src/client/client.cpp src/util/screenshot.cpp
+#: src/client/client.cpp src/gui/guiEngine.cpp src/util/screenshot.cpp
 #, c-format
 msgid "Saved screenshot to \"%s\""
 msgstr "Képernyőképek elmentve ide: \"%s\""
@@ -1561,6 +1622,11 @@ msgstr ""
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
 msgstr "Tartalom..."
+
+#: src/client/fontengine.cpp
+#, fuzzy
+msgid "Failed to find a valid font"
+msgstr "A(z) \"%s\" árnyékoló lefordítása nem sikerült."
 
 #: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
 #: src/server.cpp
@@ -1860,6 +1926,7 @@ msgstr "Drótváz megjelenítése"
 msgid "Zoom currently disabled by game or mod"
 msgstr "Nagyítás letiltva (szerver, vagy mod által)"
 
+#. TRANSLATORS: Game mode (server or singleplayer)
 #: src/client/game_formspec.cpp
 msgid "- Mode: "
 msgstr "- Mód: "
@@ -1868,7 +1935,7 @@ msgstr "- Mód: "
 msgid "- Public: "
 msgstr "- Nyilvános: "
 
-#. ~ PvP = Player versus Player
+#. TRANSLATORS: PvP = Player versus Player
 #: src/client/game_formspec.cpp
 msgid "- PvP: "
 msgstr "- PvP: "
@@ -1877,10 +1944,12 @@ msgstr "- PvP: "
 msgid "- Server Name: "
 msgstr "- Szerver neve: "
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Change Password"
 msgstr "Jelszó módosítása"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Continue"
 msgstr "Folytatás"
@@ -1913,10 +1982,12 @@ msgstr ""
 "- érint&húz, érintés 2. ujjal\n"
 " --> letesz egyetlen tárgyat a helyre\n"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Exit to Menu"
 msgstr "Kilépés a Menübe"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short (OS = Operating System)
 #: src/client/game_formspec.cpp
 msgid "Exit to OS"
 msgstr "Kilépés a játékból"
@@ -1949,6 +2020,7 @@ msgstr "Távoli szerver"
 msgid "Respawn"
 msgstr "Újraéledés"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Sound Volume"
 msgstr "Hangerő"
@@ -1990,7 +2062,7 @@ msgstr "Profiler megjelenítése (lap: %d1 ennyiből: %d2)"
 msgid "Backspace"
 msgstr "Backspace"
 
-#. ~ Usually paired with the Pause key
+#. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
 msgid "Break Key"
 msgstr "Szüneteltetés"
@@ -2051,7 +2123,7 @@ msgstr "Bal menü"
 msgid "Left Shift"
 msgstr "Bal Shift"
 
-#. ~ Name of key
+#. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Bal Windows"
@@ -2064,10 +2136,18 @@ msgstr "Menü"
 msgid "Middle Click"
 msgstr "Középső Egérgomb"
 
+#. TRANSLATORS: This is for mouse buttons without an intuitive description. %d is the number of the button.
+#: src/client/keycode.cpp
+#, c-format
+msgid "Mouse Button %d"
+msgstr ""
+
+#. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
 msgid "Mouse X1"
 msgstr "X1 Egérgomb"
 
+#. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
 msgid "Mouse X2"
 msgstr "X2 Egérgomb"
@@ -2144,7 +2224,7 @@ msgstr "Lapozás lefelé"
 msgid "Page Up"
 msgstr "Lapozás felfele"
 
-#. ~ Usually paired with the Break key
+#. TRANSLATORS: Usually paired with the Break key
 #: src/client/keycode.cpp
 msgid "Pause Key"
 msgstr "Szünet"
@@ -2153,7 +2233,7 @@ msgstr "Szünet"
 msgid "Play"
 msgstr "Játék"
 
-#. ~ "Print screen" key
+#. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
 msgstr "PrintScreen"
@@ -2182,7 +2262,7 @@ msgstr "Jobb menü"
 msgid "Right Shift"
 msgstr "Jobb Shift"
 
-#. ~ Name of key
+#. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Jobb Windows"
@@ -2239,6 +2319,11 @@ msgstr "Kistérkép textúramódban"
 msgid "Failed to create the texture \"%s\" for the rendering pipeline."
 msgstr ""
 
+#: src/client/renderingengine.cpp
+#, fuzzy
+msgid "Could not initialize any supported video driver!"
+msgstr "A Wireframe-et nem támogatja a grafikus illesztőprogram"
+
 #: src/client/shader.cpp
 #, c-format
 msgid "Failed to compile the \"%s\" shader."
@@ -2249,11 +2334,13 @@ msgstr "A(z) \"%s\" árnyékoló lefordítása nem sikerült."
 msgid "Failed to find \"%s\" shader files."
 msgstr "A(z) \"%s\" árnyékoló lefordítása nem sikerült."
 
+#. TRANSLATORS: GLSL = OpenGL Shading Language
 #: src/client/shader.cpp
 msgid "GLSL is not supported by the driver"
 msgstr "A GLSL-t nem támogatja az illesztőprogram"
 
-#. ~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
+#. TRANSLATORS: Error when a mod is missing dependencies.
+#. Example: "Mod Title is missing: mod1, mod2, mod3"
 #: src/content/mod_configuration.cpp
 #, c-format
 msgid "%s is missing:"
@@ -2289,6 +2376,11 @@ msgstr "Weblap megnyitása nem sikerült"
 #: src/gui/guiChatConsole.cpp
 msgid "Opening webpage"
 msgstr "Weblap megnyitása"
+
+#: src/gui/guiEngine.cpp
+#, fuzzy
+msgid "Failed to load main menu script!"
+msgstr "Főmenü szkript"
 
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
@@ -2457,7 +2549,7 @@ msgstr "Belső szerverhiba"
 msgid "Invalid password"
 msgstr "Érvénytelen jelszó"
 
-#. ~ DO NOT TRANSLATE THIS LITERALLY!
+#. TRANSLATORS: DO NOT TRANSLATE THIS LITERALLY!
 #. This is a special string which needs to contain the translation's
 #. language code (e.g. "de" for German).
 #: src/network/clientpackethandler.cpp src/script/lua_api/l_client.cpp
@@ -2834,11 +2926,13 @@ msgid "Anticheat movement tolerance"
 msgstr "Csaláselhárító mozgási tűréshatára"
 
 #: src/settings_translation_file.cpp
-msgid "Append item name"
-msgstr "Elemnév hozzáadása"
+#, fuzzy
+msgid "Append item name to tooltips"
+msgstr "Elem nevének hozzáadása az eszköztipphez."
 
 #: src/settings_translation_file.cpp
-msgid "Append item name to tooltip."
+#, fuzzy
+msgid "Append the full item name to the tooltip of item stacks."
 msgstr "Elem nevének hozzáadása az eszköztipphez."
 
 #: src/settings_translation_file.cpp
@@ -3417,6 +3511,11 @@ msgstr ""
 "Az objektum célkereszt színét is állítja"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Damage flash"
+msgstr "Térképgenerátor kapcsolói"
+
+#: src/settings_translation_file.cpp
 msgid "Debug log file size threshold"
 msgstr "Hibakeresési naplófájl méretküszöbe"
 
@@ -3772,6 +3871,11 @@ msgstr "Raytraced Culling engedélyezése"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
+msgid "Enable SSCSM"
+msgstr "Összes engedélyezése"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Enable a confirmation dialog before closing."
 msgstr "Az felszerelésben lévő tárgyak animációjának engedélyezése."
 
@@ -4056,6 +4160,10 @@ msgstr ""
 "A virtuális joystick helyének rögzítése.\n"
 "Ha le van tiltva, akkor a kijelző megérintésének kezdőpozíciója lesz a "
 "virtuális joystick középpontja."
+
+#: src/settings_translation_file.cpp
+msgid "Flashing of the screen when taking damage."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Floatland density"
@@ -5052,6 +5160,16 @@ msgid "Keyboard and Mouse"
 msgstr "Billentyűzet és egér"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Keyboard camera speed"
+msgstr "Billentyűzet és egér"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Keyboard-controlled camera rotation speed, in degrees per second."
+msgstr "Függőleges mászási sebesség kocka/másodpercben."
+
+#: src/settings_translation_file.cpp
 msgid "Kick players who sent more than X messages per 10 seconds."
 msgstr ""
 "Azon játékosok kirúgása, akik 10 másodpercenként több mint X üzenetet "
@@ -5270,6 +5388,24 @@ msgstr "Blokk módosítók betöltése"
 #: src/settings_translation_file.cpp
 msgid "Local command"
 msgstr "Helyi parancs"
+
+#: src/settings_translation_file.cpp
+msgid "Look down"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Look left"
+msgstr "Mozgás balra"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Look right"
+msgstr "Mozgás jobbra"
+
+#: src/settings_translation_file.cpp
+msgid "Look up"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -6530,6 +6666,13 @@ msgstr "Szerverlista fájl"
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Set proxy to use by cURL. This is an URI just like the *_proxy environment "
+"variables.\n"
+"Note that this will not apply to Luanti's in-game protocol."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Set the default tilt of Sun/Moon orbit in degrees.\n"
 "Games may change orbit tilt via API.\n"
 "Value of 0 means no tilt / vertical orbit."
@@ -7785,6 +7928,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Where to enable server-sent client-side modding (SSCSM).\n"
+"Warning: Experimental."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Whether name tag backgrounds should be shown by default.\n"
 "Mods may still set a background."
 msgstr ""
@@ -7962,47 +8111,25 @@ msgstr "cURL interaktív időtúllépés"
 msgid "cURL parallel limit"
 msgstr "cURL párhuzamossági korlát"
 
+#: src/settings_translation_file.cpp
+msgid "cURL proxy address"
+msgstr ""
+
 #: src/util/screenshot.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
 msgstr "A képernyőképet nem sikerült \"%s\"-be menteni"
 
+#~ msgid "Append item name"
+#~ msgstr "Elemnév hozzáadása"
+
 #~ msgid ""
-#~ "Number of emerge threads to use.\n"
-#~ "Value 0:\n"
-#~ "-    Automatic selection. The number of emerge threads will be\n"
-#~ "-    'number of processors - 2', with a lower limit of 1.\n"
-#~ "Any other value:\n"
-#~ "-    Specifies the number of emerge threads, with a lower limit of 1.\n"
-#~ "WARNING: Increasing the number of emerge threads increases engine mapgen\n"
-#~ "speed, but this may harm game performance by interfering with other\n"
-#~ "processes, especially in singleplayer and/or when running Lua code in\n"
-#~ "'on_generated'. For many users the optimum setting may be '1'."
+#~ "Possible filters\n"
+#~ "game:<name>\n"
+#~ "mod:<name>\n"
+#~ "player:<name>"
 #~ msgstr ""
-#~ "A használandó keletkező szálak száma.\n"
-#~ "Érték 0:\n"
-#~ "-    Automatikus választás. A keletkező szálak száma\n"
-#~ "-    \"processzorok száma - 2\" lesz, de legalább 1.\n"
-#~ "Bármilyen más érték:\n"
-#~ "-    Meghatározza a pályablokkbetöltő szálak számát, amelynek alsó "
-#~ "korlátja 1.\n"
-#~ "FIGYELEM: A pályablokkbetöltő szálak számának növelése növeli a "
-#~ "játékmotor mapgen\n"
-#~ "folyamatainak sebességét, de csökkentheti a játékteljesítményt azáltal, "
-#~ "hogy más\n"
-#~ "folyamatokat akadályoznak, különösen egyjátékos módban és/vagy Lua kódok "
-#~ "futtatásakor\n"
-#~ "az 'on_generated' eseményben. Sok játékos számára valószínűleg az 1 az "
-#~ "optimális beállítás."
-
-#~ msgid "Provided world path doesn't exist: "
-#~ msgstr "A megadott útvonalon nem létezik világ: "
-
-#~ msgid "Shadow map max distance in nodes to render shadows"
-#~ msgstr "Az árnyéktérkép maximális renderelési távolsága kockákban"
-
-#~ msgid "Y spread"
-#~ msgstr "Y kiterjedés"
-
-#~ msgid "Z spread"
-#~ msgstr "Z kiterjedés"
+#~ "Lehetséges szűrők\n"
+#~ "game:<name>\n"
+#~ "mod:<name>\n"
+#~ "player:<name>"

@@ -27,6 +27,8 @@ namespace sound_manager_messages_to_mgr {
 	struct FadeSound { sound_handle_t soundid; f32 step; f32 target_gain; };
 	struct UpdateSoundPosVel { sound_handle_t sound; v3f pos_; v3f vel_; };
 
+	struct PrintPlayingSounds{};
+
 	struct PleaseStop {};
 }
 
@@ -48,6 +50,8 @@ using SoundManagerMsgToMgr = std::variant<
 		sound_manager_messages_to_mgr::StopSound,
 		sound_manager_messages_to_mgr::FadeSound,
 		sound_manager_messages_to_mgr::UpdateSoundPosVel,
+
+		sound_manager_messages_to_mgr::PrintPlayingSounds,
 
 		sound_manager_messages_to_mgr::PleaseStop
 	>;

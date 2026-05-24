@@ -68,7 +68,7 @@ public:
 	/// Sets cache parameters.
 	void setCacheParams(bool enabled, u8 block_radius, size_t limit);
 
-	/// Returns a pointer to the area coresponding to the passed ID,
+	/// Returns a pointer to the area corresponding to the passed ID,
 	/// or NULL if it doesn't exist.
 	const Area *getArea(u32 id) const;
 

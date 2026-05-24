@@ -1628,60 +1628,78 @@ void MapblockMeshGenerator::drawNodeboxNode()
 	std::vector<aabb3f> boxes;
 	cur_node.n.getNodeBoxes(nodedef, &boxes, neighbors_set);
 
-	bool isTransparent = false;
+	std::vector<u8> masks;
+	masks.reserve(boxes.size());
+	for (const auto &box : boxes)
+		masks.push_back(getNodeBoxMask(box, solid_neighbors, sametype_neighbors));
 
+	bool is_transparent = false;
 	for (const TileSpec &tile : tiles) {
 		if (tile.layers[0].isTransparent()) {
-			isTransparent = true;
+			is_transparent = true;
 			break;
 		}
 	}
 
-	if (isTransparent) {
+	// If "blend"-mode transparent, split boxes, so transparency sorting can work
+	// properly.
+	if (is_transparent) {
 		std::vector<float> sections;
-		// Preallocate 8 default splits + Min&Max for each nodebox
+		// There will be 8 default splits + Min&Max for each nodebox
 		sections.reserve(8 + 2 * boxes.size());
 
+		// Default split at node bounds, up to 3 nodes in each direction
+		for (int half_node = -7; half_node < 8; half_node += 2)
+			sections.push_back(half_node * 0.5f * BS);
+		assert(sections.size() == 8);
+
 		for (int axis = 0; axis < 3; axis++) {
+			// Faces that would appear between split boxes will be masked away
+			// using these masks, they hate this simple trick.
+			// mask_neg / _pos for the box side that goes in negative / positive
+			// `axis` direction respectively.
+			int mask_axis = std::array<int, 3>{1, 0, 2}[axis];
+			u8 mask_pos = 1 << (mask_axis * 2);
+			u8 mask_neg = 1 << (mask_axis * 2 + 1);
+
 			// identify sections
 
-			if (axis == 0) {
-				// Default split at node bounds, up to 3 nodes in each direction
-				for (float s = -3.5f * BS; s < 4.0f * BS; s += 1.0f * BS)
-					sections.push_back(s);
-			}
-			else {
-				// Avoid readding the same 8 default splits for Y and Z
-				sections.resize(8);
-			}
+			// Start with the 8 default splits
+			sections.resize(8);
 
-			// Add edges of existing node boxes, rounded to 1E-3
+			// Add edges of existing node boxes
 			for (size_t i = 0; i < boxes.size(); i++) {
-				sections.push_back(std::floor(boxes[i].MinEdge[axis] * 1E3) * 1E-3);
-				sections.push_back(std::floor(boxes[i].MaxEdge[axis] * 1E3) * 1E-3);
+				sections.push_back(boxes[i].MinEdge[axis]);
+				sections.push_back(boxes[i].MaxEdge[axis]);
 			}
 
 			// split the boxes at recorded sections
+
 			// limit splits to avoid runaway crash if inner loop adds infinite splits
 			// due to e.g. precision problems.
 			// 100 is just an arbitrary, reasonably high number.
 			for (size_t i = 0; i < boxes.size() && i < 100; i++) {
 				aabb3f *box = &boxes[i];
 				for (float section : sections) {
-					if (box->MinEdge[axis] < section && box->MaxEdge[axis] > section) {
+					if (box->MinEdge[axis] < section - 1.0e-3f
+							&& box->MaxEdge[axis] > section + 1.0e-3f) {
 						aabb3f copy(*box);
 						copy.MinEdge[axis] = section;
 						box->MaxEdge[axis] = section;
 						boxes.push_back(copy);
+						masks.push_back(masks[i] | mask_neg);
+						masks[i] |= mask_pos;
 						box = &boxes[i]; // find new address of the box in case of reallocation
 					}
 				}
 			}
 		}
 	}
+	assert(masks.size() == boxes.size());
 
-	for (auto &box : boxes) {
-		u8 mask = getNodeBoxMask(box, solid_neighbors, sametype_neighbors);
+	for (size_t i = 0; i < boxes.size(); ++i) {
+		const auto &box = boxes[i];
+		u8 mask = masks[i];
 
 		f32 txc[24];
 		generateCuboidTextureCoords(box, txc);

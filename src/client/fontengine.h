@@ -7,7 +7,6 @@
 #include <map>
 #include <unordered_map>
 #include "irr_ptr.h"
-#include "irrlicht_changes/CGUITTFont.h"
 #include "util/basic_macros.h"
 #include "irrlichttypes.h"
 #include "irrString.h" // utf8_to_wide
@@ -16,6 +15,11 @@
 namespace gui {
 	class IGUIEnvironment;
 	class IGUIFont;
+}
+
+// Luanti namespace
+namespace gui {
+	struct SGUITTFace;
 }
 
 #define FONT_SIZE_UNSPECIFIED 0xFFFFFFFF

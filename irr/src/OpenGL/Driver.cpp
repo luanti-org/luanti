@@ -22,6 +22,7 @@
 
 #include "EVertexAttributes.h"
 #include "CImage.h"
+#include "IReadFile.h"
 #include "matrix4.h"
 #include "os.h"
 
@@ -62,7 +63,7 @@ static const VertexType vtStandard = {
 				{EVA_NORMAL, 3, GL_FLOAT, VertexAttribute::Mode::Regular, offsetof(S3DVertex, Normal)},
 				{EVA_COLOR, 4, GL_UNSIGNED_BYTE, VertexAttribute::Mode::Normalized, offsetof(S3DVertex, Color)},
 				{EVA_TCOORD0, 2, GL_FLOAT, VertexAttribute::Mode::Regular, offsetof(S3DVertex, TCoords)},
-				{EVA_AUX, 1, GL_UNSIGNED_SHORT, VertexAttribute::Mode::Regular, offsetof(S3DVertex, Aux)},
+				{EVA_AUX, 1, GL_UNSIGNED_SHORT, VertexAttribute::Mode::Integer, offsetof(S3DVertex, Aux)},
 		},
 };
 
@@ -536,6 +537,7 @@ bool COpenGL3DriverBase::updateHardwareBuffer(SHWBufferLink *HWBuffer)
 
 	auto *b = static_cast<SHWBufferLink_opengl *>(HWBuffer);
 
+	b->UnusedCounter = 0;
 	assert(b->Buffer);
 	if (b->ChangedID != b->Buffer->getChangedID() || !b->Vbo.exists()) {
 		if (!_updateHardwareBuffer(b))
@@ -1036,6 +1038,11 @@ void COpenGL3DriverBase::drawGeneric(const void *vertices, const void *indexList
 void COpenGL3DriverBase::beginDraw(const VertexType &vertexType, uintptr_t verticesBase)
 {
 	for (auto &attr : vertexType) {
+		if (attr.mode == VertexAttribute::Mode::Integer && Version.Major < 3) {
+			// assume we know what we're doing and just skip if not supported
+			continue;
+		}
+
 		GL.EnableVertexAttribArray(attr.Index);
 		switch (attr.mode) {
 		case VertexAttribute::Mode::Regular:

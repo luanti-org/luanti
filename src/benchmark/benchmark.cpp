@@ -1,18 +1,22 @@
 // Luanti
 // SPDX-License-Identifier: LGPL-2.1-or-later
-// Copyright (C) 2022 Minetest Authors
+// Copyright (C) 2022 Luanti Authors
 
 #include "benchmark/benchmark.h"
 
-#define CATCH_CONFIG_ENABLE_BENCHMARKING
 #include "catch.h"
 
-bool run_benchmarks(const char *arg)
+int run_catch2_benchmarks(int argc, char *argv[])
 {
-	const char *const argv[] = {
-		"MinetestBenchmark", arg, nullptr
-	};
-	const int argc = arg ? 2 : 1;
-	int errCount = Catch::Session().run(argc, argv);
-	return errCount == 0;
+	Catch::Session session;
+
+	int status = session.applyCommandLine(argc, argv);
+	if (status != 0)
+		return status;
+
+	auto config = session.configData();
+	config.skipBenchmarks = false;
+	session.useConfigData(config);
+
+	return session.run();
 }

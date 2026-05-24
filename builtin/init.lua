@@ -44,6 +44,7 @@ local asyncpath = scriptdir .. "async" .. DIR_DELIM
 
 dofile(commonpath .. "math.lua")
 dofile(commonpath .. "vector.lua")
+dofile(commonpath .. "vector2.lua")
 dofile(commonpath .. "strict.lua")
 dofile(commonpath .. "serialize.lua")
 dofile(commonpath .. "misc_helpers.lua")

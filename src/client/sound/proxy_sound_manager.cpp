@@ -149,4 +149,9 @@ void ProxySoundManager::updateSoundPosVel(sound_handle_t sound, const v3f &pos_,
 	send(sound_manager_messages_to_mgr::UpdateSoundPosVel{sound, pos_, vel_});
 }
 
+void ProxySoundManager::printPlayingSounds()
+{
+	send(sound_manager_messages_to_mgr::PrintPlayingSounds{});
+}
+
 } // namespace sound

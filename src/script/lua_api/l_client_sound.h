@@ -17,6 +17,9 @@ private:
 	// sound_play(spec, parameters)
 	static int l_sound_play(lua_State *L);
 
+	// debug_print_playing_sounds()
+	static int l_debug_print_playing_sounds(lua_State *L);
+
 public:
 	static void Initialize(lua_State *L, int top);
 };

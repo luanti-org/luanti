@@ -482,7 +482,7 @@ int ModApiUtil::l_get_dir_list(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 	const char *path = luaL_checkstring(L, 1);
-	bool list_all = !lua_isboolean(L, 2); // if its not a boolean list all
+	bool list_all = !lua_isboolean(L, 2); // if it's not a boolean list all
 	bool list_dirs = readParam<bool>(L, 2); // true: list dirs, false: list files
 
 	CHECK_SECURE_PATH(L, path, false);

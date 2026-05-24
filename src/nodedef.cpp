@@ -970,6 +970,10 @@ content_t NodeDefManager::set(const std::string &name, const ContentFeatures &de
 	assert(!name.empty());
 	assert(name != "ignore");
 	assert(name == def.name);
+#if CHECK_CLIENT_BUILD()
+	// The ContentFeatures default copy constructor is only valid if visuals is null
+	assert(!def.visuals);
+#endif
 
 	content_t id = CONTENT_IGNORE;
 	if (!m_name_id_mapping.getId(name, id)) { // ignore aliases
@@ -1061,7 +1065,9 @@ void NodeDefManager::applyTextureOverrides(const std::vector<TextureOverride> &o
 
 		ContentFeatures &nodedef = m_content_features[id];
 
-		auto apply = [&] (TileDef &tile) {
+		auto apply = [&] (OverrideTarget target, TileDef &tile) {
+			if (!texture_override.hasTarget(target))
+				return;
 			tile.name = texture_override.texture;
 			if (texture_override.world_scale > 0) {
 				tile.align_style = ALIGN_STYLE_WORLD;
@@ -1070,43 +1076,28 @@ void NodeDefManager::applyTextureOverrides(const std::vector<TextureOverride> &o
 		};
 
 		// Override tiles
-		if (texture_override.hasTarget(OverrideTarget::TOP))
-			apply(nodedef.tiledef[0]);
-
-		if (texture_override.hasTarget(OverrideTarget::BOTTOM))
-			apply(nodedef.tiledef[1]);
-
-		if (texture_override.hasTarget(OverrideTarget::RIGHT))
-			apply(nodedef.tiledef[2]);
-
-		if (texture_override.hasTarget(OverrideTarget::LEFT))
-			apply(nodedef.tiledef[3]);
-
-		if (texture_override.hasTarget(OverrideTarget::BACK))
-			apply(nodedef.tiledef[4]);
-
-		if (texture_override.hasTarget(OverrideTarget::FRONT))
-			apply(nodedef.tiledef[5]);
-
+		apply(OverrideTarget::TOP,    nodedef.tiledef[0]);
+		apply(OverrideTarget::BOTTOM, nodedef.tiledef[1]);
+		apply(OverrideTarget::RIGHT,  nodedef.tiledef[2]);
+		apply(OverrideTarget::LEFT,   nodedef.tiledef[3]);
+		apply(OverrideTarget::BACK,   nodedef.tiledef[4]);
+		apply(OverrideTarget::FRONT,  nodedef.tiledef[5]);
 
 		// Override special tiles, if applicable
-		if (texture_override.hasTarget(OverrideTarget::SPECIAL_1))
-			apply(nodedef.tiledef_special[0]);
+		apply(OverrideTarget::SPECIAL_1, nodedef.tiledef_special[0]);
+		apply(OverrideTarget::SPECIAL_2, nodedef.tiledef_special[1]);
+		apply(OverrideTarget::SPECIAL_3, nodedef.tiledef_special[2]);
+		apply(OverrideTarget::SPECIAL_4, nodedef.tiledef_special[3]);
+		apply(OverrideTarget::SPECIAL_5, nodedef.tiledef_special[4]);
+		apply(OverrideTarget::SPECIAL_6, nodedef.tiledef_special[5]);
 
-		if (texture_override.hasTarget(OverrideTarget::SPECIAL_2))
-			apply(nodedef.tiledef_special[1]);
-
-		if (texture_override.hasTarget(OverrideTarget::SPECIAL_3))
-			apply(nodedef.tiledef_special[2]);
-
-		if (texture_override.hasTarget(OverrideTarget::SPECIAL_4))
-			apply(nodedef.tiledef_special[3]);
-
-		if (texture_override.hasTarget(OverrideTarget::SPECIAL_5))
-			apply(nodedef.tiledef_special[4]);
-
-		if (texture_override.hasTarget(OverrideTarget::SPECIAL_6))
-			apply(nodedef.tiledef_special[5]);
+		// Override overlay tiles, if applicable
+		apply(OverrideTarget::OVERLAY_TOP,    nodedef.tiledef_overlay[0]);
+		apply(OverrideTarget::OVERLAY_BOTTOM, nodedef.tiledef_overlay[1]);
+		apply(OverrideTarget::OVERLAY_RIGHT,  nodedef.tiledef_overlay[2]);
+		apply(OverrideTarget::OVERLAY_LEFT,   nodedef.tiledef_overlay[3]);
+		apply(OverrideTarget::OVERLAY_BACK,   nodedef.tiledef_overlay[4]);
+		apply(OverrideTarget::OVERLAY_FRONT,  nodedef.tiledef_overlay[5]);
 	}
 }
 

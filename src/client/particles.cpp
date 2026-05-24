@@ -112,9 +112,9 @@ void Particle::step(float dtime, ClientEnvironment *env)
 		aabb3f box(v3f(-m_p.size / 2.0f), v3f(m_p.size / 2.0f));
 		v3f p_pos = m_pos * BS;
 		v3f p_velocity = m_velocity * BS;
-		collisionMoveResult r = collisionMoveSimple(env, env->getGameDef(),
+		CollisionMoveResult r = collisionMoveSimple(env, env->getGameDef(),
 			box, 0.0f, dtime, &p_pos, &p_velocity, m_acceleration * BS, nullptr,
-			m_p.object_collision);
+			m_p.object_collision, StepUpMode::LEGACY);
 
 		f32 bounciness = m_p.bounce.pickWithin();
 		if (r.collides && (m_p.collision_removal || bounciness > 0)) {

@@ -163,7 +163,7 @@ For `load_mod_<mod>`, the possible values are:
     * Must be one of the following:
         * `mods/`: mods in the user path's mods folder (ex. `/home/user/.minetest/mods`)
         * `share/`: mods in the share's mods folder (ex. `/usr/share/minetest/mods`)
-        * `/path/to/env`: you can use absolute paths to mods inside folders specified with the `MINETEST_MOD_PATH` `env` variable.
+        * `/path/to/env`: you can use absolute paths to mods inside folders specified with the `LUANTI_MOD_PATH` `env` variable.
     * Other locations and absolute paths are not supported.
     * Note that `moddir` is the directory name, not the mod name specified in mod.conf.
 

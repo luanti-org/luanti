@@ -67,6 +67,7 @@
 
 #include <IAnimatedMesh.h>
 #include <IFileSystem.h>
+#include <IReadFile.h>
 #include <json/json.h>
 
 #include <iostream>
@@ -100,6 +101,7 @@ void PacketCounter::print(std::ostream &o) const
 	}
 }
 
+[[maybe_unused]]
 static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool include_pos)
 {
 	const u16 cmd = pkt.getCommand();
@@ -400,14 +402,7 @@ Client::~Client()
 
 	m_mesh_update_manager->stop();
 	m_mesh_update_manager->wait();
-
-	MeshUpdateResult r;
-	while (m_mesh_update_manager->getNextResult(r)) {
-		for (auto block : r.map_blocks)
-			if (block)
-				block->refDrop();
-		delete r.mesh;
-	}
+	m_mesh_update_manager->clearAllQueues(true);
 
 	// Delete detached inventories
 	for (auto &m_detached_inventorie : m_detached_inventories) {
@@ -683,17 +678,13 @@ void Client::step(float dtime)
 					if (minimap_mapblocks.empty())
 						do_mapper_update = false;
 
-					if (r.mesh->isEmpty()) {
-						delete r.mesh;
-					} else {
+					if (!r.mesh->isEmpty()) {
 						// Replace with the new mesh
-						block->mesh = r.mesh;
+						block->mesh = r.mesh.release();
 						if (r.urgent)
 							force_update_shadows = true;
 					}
 				}
-			} else {
-				delete r.mesh;
 			}
 
 			if (m_minimap && do_mapper_update) {
@@ -751,23 +742,25 @@ void Client::step(float dtime)
 		std::vector<u32> done;
 		for (auto it = m_pending_media_downloads.begin();
 				it != m_pending_media_downloads.end();) {
-			assert(it->second->isStarted());
-			it->second->step(this);
-			if (it->second->isDone()) {
-				done.emplace_back(it->first);
+			assert(it->d->isStarted());
+			it->d->step(this);
+			if (it->d->isDone()) {
+				done.insert(done.end(), it->tokens.begin(), it->tokens.end());
 
 				it = m_pending_media_downloads.erase(it);
 			} else {
 				it++;
 			}
-
-			if (done.size() == 255) { // maximum in one packet
-				sendHaveMedia(done);
-				done.clear();
-			}
 		}
-		if (!done.empty())
-			sendHaveMedia(done);
+		while (!done.empty()) {
+			// this looks stupid, but is a simple and correct way to chunk them
+			std::vector<u32> part;
+			while (!done.empty() && part.size() < 255) {
+				part.push_back(done.back());
+				done.pop_back();
+			}
+			sendHaveMedia(part);
+		}
 	}
 
 	/*
@@ -1660,6 +1653,13 @@ bool Client::updateWieldedItem()
 		list->setModified(false);
 
 	return true;
+}
+
+bool Client::consumeSkipNextWieldAnimation()
+{
+	bool v = m_skip_next_wield_animation;
+	m_skip_next_wield_animation = false;
+	return v;
 }
 
 scene::ISceneManager* Client::getSceneManager()

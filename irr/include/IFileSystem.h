@@ -5,14 +5,22 @@
 #pragma once
 
 #include "IReferenceCounted.h"
-#include "IFileArchive.h"
+#include "path.h"
 
 namespace io
 {
 
+class IArchiveLoader;
 class IReadFile;
 class IWriteFile;
 class IFileList;
+
+//! FileSystemType: which filesystem should be used for e.g. browsing
+enum EFileSystemType
+{
+	FILESYSTEM_NATIVE = 0, // Native OS FileSystem
+	FILESYSTEM_VIRTUAL     // Virtual FileSystem
+};
 
 //! The FileSystem manages files and archives and provides access to them.
 /** It manages where files are, so that modules which use the the IO do not

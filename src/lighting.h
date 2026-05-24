@@ -6,6 +6,7 @@
 #include "SColor.h"
 #include "irr_v3d.h"
 
+
 /**
  * Parameters for automatic exposure compensation
  *
@@ -86,4 +87,5 @@ struct Lighting
 	float bloom_intensity {0.05f};
 	float bloom_strength_factor {1.0f};
 	float bloom_radius {1.0f};
+	v3f shadow_direction;
 };

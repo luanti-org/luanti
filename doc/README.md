@@ -18,6 +18,7 @@ Here is a list with descriptions of relevant files:
     but also file structure and everything else.)
     If you want to make a mod or game, look here!
     A rendered version is also available at <https://api.luanti.org/>.
+    [mkdocs/README.md](Documentation building instructions)
 - [builtin_entities.md](builtin_entities.md): Doc for entities predefined by the
     engine (in builtin), i.e. dropped items and falling nodes.
 
