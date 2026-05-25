@@ -4480,8 +4480,9 @@ Methods
 * `rot:compose(...)`: Shorthand for `Rotation.compose(rot, ...)`.
 * `rot:apply(vec)`: Returns the result of applying the rotation to the given vector.
 * `rot:invert()`: Returns the inverse rotation.
-* `from:slerp(to, time)`: Interpolate from one rotation to another.
-  * `time = 0` is all `from`, `time = 1` is all `to`.
+* `from:slerp(to, time)`: Returns an interpolated rotation.
+  * Uses shortest path spherical linear interpolation.
+  * `time = 0` is all `self`, `time = 1` is all `to`.
 * `rot:angle_to(other)`: Returns the absolute angle between two quaternions.
   * Useful to measure similarity.
 
