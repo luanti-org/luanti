@@ -95,12 +95,12 @@ int LuaRotation::l_euler_zxy(lua_State *L)
 	return 1;
 }
 
-int LuaRotation::l_mapsto(lua_State *L)
+int LuaRotation::l_maps_to(lua_State *L)
 {
 	v3f dir_from = readParam<v3f>(L, 1);
 	v3f dir_to = readParam<v3f>(L, 2);
 
-	create(L, core::quaternion::mapsto(dir_from, dir_to));
+	create(L, core::quaternion::maps_to(dir_from, dir_to));
 	return 1;
 }
 
@@ -245,7 +245,7 @@ void LuaRotation::Register(lua_State *L)
 	CONSTRUCTOR(euler_xyz)
 	CONSTRUCTOR(euler_zxy)
 	CONSTRUCTOR(compose)
-	CONSTRUCTOR(mapsto)
+	CONSTRUCTOR(maps_to)
 
 #undef CONSTRUCTOR
 
