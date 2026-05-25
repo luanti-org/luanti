@@ -76,8 +76,8 @@ private:
 
 	// get_translation(self)
 	static int l_get_translation(lua_State *L);
-	// rotation, scale = get_rs(self)
-	static int l_get_rs(lua_State *L);
+	// rotation, scale = get_rotation_scale(self)
+	static int l_get_rotation_scale(lua_State *L);
 
 	// set_translation(self, translation)
 	static int l_set_translation(lua_State *L);
