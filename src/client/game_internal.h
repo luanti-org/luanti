@@ -225,6 +225,10 @@ protected:
 	static void settingChangedCallback(const std::string &setting_name, void *data);
 	void readSettings();
 
+	inline float getAxisValue(GameKeyType k)
+	{
+		return input->getAxisValue(k);
+	}
 	inline bool isKeyDown(GameKeyType k)
 	{
 		return input->isKeyDown(k);

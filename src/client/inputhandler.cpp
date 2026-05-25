@@ -89,40 +89,41 @@ void MyEventReceiver::reloadKeybindings()
 	}
 }
 
-bool MyEventReceiver::setKeyDown(KeyPress keyCode, bool is_down)
+bool MyEventReceiver::setKeyDown(KeyPress keyCode, float value)
 {
 	if (keysListenedFor.find(keyCode) == keysListenedFor.end()) // ignore irrelevant key input
 		return false;
 	auto action = keysListenedFor[keyCode];
-	if (is_down)
-		physicalKeyDown.insert(keyCode);
+	if (value > 0)
+		physicalKeyDown[keyCode] = value;
 	else
 		physicalKeyDown.erase(keyCode);
 	setKeyDown(action, checkKeyDown(action));
 	return true;
 }
 
-void MyEventReceiver::setKeyDown(GameKeyType action, bool is_down)
+void MyEventReceiver::setKeyDown(GameKeyType action, float value)
 {
-	if (is_down) {
+	if (InputHandler::analogToBoolean(value)) {
 		if (!IsKeyDown(action))
 			keyWasPressed.set(action);
-		keyIsDown.set(action);
+		axisValues[action] = value;
 		keyWasDown.set(action);
 	} else {
 		if (IsKeyDown(action))
 			keyWasReleased.set(action);
-		keyIsDown.reset(action);
+		axisValues[action] = 0;
 	}
 }
 
-bool MyEventReceiver::checkKeyDown(GameKeyType action) const
+float MyEventReceiver::checkKeyDown(GameKeyType action) const
 {
+	auto value = 0.0f;
 	for (const auto &key : keybindings[action]) {
-		if (physicalKeyDown.find(key) != physicalKeyDown.end())
-			return true;
+		if (auto p = physicalKeyDown.find(key); p != physicalKeyDown.end())
+			value = std::max(value, p->second);
 	}
-	return false;
+	return value;
 }
 
 bool MyEventReceiver::OnEvent(const SEvent &event)
@@ -211,13 +212,13 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		case EMIE_MMOUSE_PRESSED_DOWN:
 		case EMIE_RMOUSE_PRESSED_DOWN:
 		case EMIE_XMOUSE_PRESSED_DOWN:
-			setKeyDown(KeyPress(event.MouseInput), true);
+			setKeyDown(KeyPress(event.MouseInput), 1);
 			break;
 		case EMIE_LMOUSE_LEFT_UP:
 		case EMIE_MMOUSE_LEFT_UP:
 		case EMIE_RMOUSE_LEFT_UP:
 		case EMIE_XMOUSE_LEFT_UP:
-			setKeyDown(KeyPress(event.MouseInput), false);
+			setKeyDown(KeyPress(event.MouseInput), 0);
 			break;
 		case EMIE_MOUSE_WHEEL:
 			mouse_wheel += event.MouseInput.Wheel;
@@ -227,7 +228,7 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		}
 	} else if (event.EventType == EET_USER_EVENT && event.UserEvent.type == EUET_GAME_KEY) {
 		KeyPress keyCode(static_cast<GameKeyType>(event.UserEvent.UserData1));
-		setKeyDown(keyCode, event.UserEvent.UserData2 != 0);
+		setKeyDown(keyCode, InputHandler::intToAnalog(event.UserEvent.UserData2));
 		return true;
 	}
 
@@ -240,17 +241,11 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
  */
 float RealInputHandler::getJoystickSpeed()
 {
-	if (g_touchcontrols && g_touchcontrols->getJoystickSpeed())
-		return g_touchcontrols->getJoystickSpeed();
 	return joystick.getMovementSpeed();
 }
 
 float RealInputHandler::getJoystickDirection()
 {
-	// `getJoystickDirection() == 0` means forward, so we cannot use
-	// `getJoystickDirection()` as a condition.
-	if (g_touchcontrols && g_touchcontrols->getJoystickSpeed())
-		return g_touchcontrols->getJoystickDirection();
 	return joystick.getMovementDirection();
 }
 

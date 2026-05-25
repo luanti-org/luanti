@@ -8,13 +8,82 @@
 #include "irr_v2d.h"
 #include "joystick_controller.h"
 #include <array>
+#include <map>
 #include <set>
 #include <unordered_map>
 #include "keycode.h"
 #include "settings.h"
 #include "util/string.h"
 
-class InputHandler;
+class InputHandler
+{
+public:
+	InputHandler()
+	{
+		for (const auto &name: Settings::getLayer(SL_DEFAULTS)->getNames())
+			if (str_starts_with(name, "keymap_"))
+				g_settings->registerChangedCallback(name, &settingChangedCallback, this);
+	}
+
+	virtual ~InputHandler() = default;
+
+	virtual bool isRandom() const
+	{
+		return false;
+	}
+
+	// Convert an analog axis value to a boolean
+	static inline bool analogToBoolean(float value)
+	{
+		return value >= ANALOG_THRESHOLD;
+	}
+
+	static inline s16 analogToInt(float value)
+	{
+		return value > 0 ? std::min(1.0f, value) * 32767.0f : 0;
+	}
+
+	static inline float intToAnalog(s16 value)
+	{
+		return value > 0 ? value / 32767.0f : 0;
+	}
+
+	virtual float getAxisValue(GameKeyType k) = 0;
+	virtual bool isKeyDown(GameKeyType k) {
+		return analogToBoolean(getAxisValue(k));
+	}
+	virtual bool wasKeyDown(GameKeyType k) = 0;
+	virtual bool wasKeyPressed(GameKeyType k) = 0;
+	virtual bool wasKeyReleased(GameKeyType k) = 0;
+	virtual bool cancelPressed() = 0;
+
+	virtual float getJoystickSpeed() = 0;
+	virtual float getJoystickDirection() = 0;
+
+	virtual void clearWasKeyPressed() {}
+	virtual void clearWasKeyReleased() {}
+
+	virtual void reloadKeybindings() {}
+
+	virtual v2s32 getMousePos() = 0;
+	virtual void setMousePos(s32 x, s32 y) = 0;
+
+	virtual s32 getMouseWheel() = 0;
+
+	virtual void step(float dtime) {}
+
+	virtual void clear() {}
+	virtual void releaseAllKeys() {}
+
+	static void settingChangedCallback(const std::string &name, void *data)
+	{
+		static_cast<InputHandler *>(data)->reloadKeybindings();
+	}
+
+	JoystickController joystick;
+
+	static constexpr float ANALOG_THRESHOLD = 0.05;
+};
 
 enum class PointerType {
 	Mouse,
@@ -27,7 +96,14 @@ public:
 	// This is the one method that we have to implement
 	virtual bool OnEvent(const SEvent &event);
 
-	bool IsKeyDown(GameKeyType key) const { return keyIsDown[key]; }
+	// Gets the analog value corresponding to a key
+	float GetAxisValue(GameKeyType key) const { return axisValues[key]; }
+
+	// Checks whether a key is held down
+	bool IsKeyDown(GameKeyType key) const
+	{
+		return InputHandler::analogToBoolean(GetAxisValue(key));
+	}
 
 	// Checks whether a key was down and resets the state
 	bool WasKeyDown(GameKeyType key)
@@ -58,7 +134,7 @@ public:
 	void clearInput()
 	{
 		physicalKeyDown.clear();
-		keyIsDown.reset();
+		axisValues.fill(0);
 		keyWasDown.reset();
 		keyWasPressed.reset();
 		keyWasReleased.reset();
@@ -69,8 +145,9 @@ public:
 	void releaseAllKeys()
 	{
 		physicalKeyDown.clear();
-		keyWasReleased |= keyIsDown;
-		keyIsDown.reset();
+		for (size_t i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++)
+			keyWasReleased[i] = keyWasReleased[i] || InputHandler::analogToBoolean(axisValues[i]);
+		axisValues.fill(0);
 	}
 
 	void clearWasKeyPressed()
@@ -94,9 +171,9 @@ private:
 			keysListenedFor[keyCode] = action;
 	}
 
-	bool setKeyDown(KeyPress keyCode, bool is_down);
-	void setKeyDown(GameKeyType action, bool is_down);
-	bool checkKeyDown(GameKeyType action) const;
+	bool setKeyDown(KeyPress keyCode, float value);
+	void setKeyDown(GameKeyType action, float value);
+	float checkKeyDown(GameKeyType action) const;
 
 	/* This is faster than using getKeySetting with the tradeoff that functions
 	 * using it must make sure that it's initialised before using it and there is
@@ -108,12 +185,12 @@ private:
 	s32 mouse_wheel = 0;
 
 	// The current state of physical keys.
-	std::set<KeyPress> physicalKeyDown;
+	std::map<KeyPress, float> physicalKeyDown;
 
 	// The current state of keys
-	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyIsDown;
+	std::array<float, GameKeyType::INTERNAL_ENUM_COUNT> axisValues;
 
-	// Like keyIsDown but only reset when that key is read
+	// Like axisValues but only reset when that key is read
 	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyWasDown;
 
 	// Whether a key has just been pressed
@@ -134,55 +211,6 @@ private:
 	PointerType last_pointer_type = PointerType::Mouse;
 };
 
-class InputHandler
-{
-public:
-	InputHandler()
-	{
-		for (const auto &name: Settings::getLayer(SL_DEFAULTS)->getNames())
-			if (str_starts_with(name, "keymap_"))
-				g_settings->registerChangedCallback(name, &settingChangedCallback, this);
-	}
-
-	virtual ~InputHandler() = default;
-
-	virtual bool isRandom() const
-	{
-		return false;
-	}
-
-	virtual bool isKeyDown(GameKeyType k) = 0;
-	virtual bool wasKeyDown(GameKeyType k) = 0;
-	virtual bool wasKeyPressed(GameKeyType k) = 0;
-	virtual bool wasKeyReleased(GameKeyType k) = 0;
-	virtual bool cancelPressed() = 0;
-
-	virtual float getJoystickSpeed() = 0;
-	virtual float getJoystickDirection() = 0;
-
-	virtual void clearWasKeyPressed() {}
-	virtual void clearWasKeyReleased() {}
-
-	virtual void reloadKeybindings() {}
-
-	virtual v2s32 getMousePos() = 0;
-	virtual void setMousePos(s32 x, s32 y) = 0;
-
-	virtual s32 getMouseWheel() = 0;
-
-	virtual void step(float dtime) {}
-
-	virtual void clear() {}
-	virtual void releaseAllKeys() {}
-
-	static void settingChangedCallback(const std::string &name, void *data)
-	{
-		static_cast<InputHandler *>(data)->reloadKeybindings();
-	}
-
-	JoystickController joystick;
-};
-
 /*
 	Separated input handler implementations
 */
@@ -201,9 +229,11 @@ public:
 		m_receiver->joystick = nullptr;
 	}
 
-	virtual bool isKeyDown(GameKeyType k)
+	virtual float getAxisValue(GameKeyType k)
 	{
-		return m_receiver->IsKeyDown(k) || joystick.isKeyDown(k);
+		if (joystick.isKeyDown(k))
+			return 1.0;
+		return m_receiver->GetAxisValue(k);
 	}
 	virtual bool wasKeyDown(GameKeyType k)
 	{
@@ -276,7 +306,7 @@ public:
 		return true;
 	}
 
-	virtual bool isKeyDown(GameKeyType k) { return keydown[k]; }
+	virtual float getAxisValue(GameKeyType k) { return keydown[k]; }
 	virtual bool wasKeyDown(GameKeyType k) { return false; }
 	virtual bool wasKeyPressed(GameKeyType k) { return false; }
 	virtual bool wasKeyReleased(GameKeyType k) { return false; }
