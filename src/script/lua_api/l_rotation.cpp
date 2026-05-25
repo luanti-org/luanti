@@ -190,7 +190,7 @@ int LuaRotation::l_angle_to(lua_State *L)
 int LuaRotation::mt_tostring(lua_State *L)
 {
 	const auto &q = check(L, 1);
-	std::stringstream ss;
+	std::ostringstream ss;
 	ss << q;
 	std::string str = ss.str();
 	lua_pushlstring(L, str.c_str(), str.size());

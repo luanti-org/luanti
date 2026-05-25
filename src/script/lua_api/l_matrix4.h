@@ -107,8 +107,8 @@ private:
 
 public:
 
-	// Constructor. Leaves the value on top of the stack.
-	// Returns a reference that *must* be overwritten.
+	/// Constructor. Leaves the value on top of the stack.
+	/// @return a reference to a matrix that *must* be overwritten.
 	[[nodiscard]] static inline core::matrix4 &create(lua_State *L);
 
 	[[nodiscard]] static core::matrix4 &check(lua_State *L, int index);
