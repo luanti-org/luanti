@@ -15,7 +15,6 @@
 #include "common/c_packer.h"
 #include "common/c_converter.h"
 
-#include <cmath>
 #include <lauxlib.h>
 #include <lua.h>
 #include <sstream>
@@ -24,9 +23,7 @@
 template<int MAX>
 int LuaMatrix4::readIndex(lua_State *L, int index)
 {
-	f64 value = readParam<f64>(L, index);
-	if (std::floor(value) != value)
-		luaL_argerror(L, index, "index must be integer");
+	lua_Integer value = luaL_checkinteger(L, index);
 	if (value < 1 || value > MAX)
 		luaL_argerror(L, index, "index out of range");
 	return static_cast<int>(value) - 1;
