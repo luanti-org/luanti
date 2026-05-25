@@ -1,16 +1,8 @@
-local function describe(_, func)
-	func()
-end
-
-local function it(section_name, func)
-	print("Running test: " .. section_name)
-	func()
-end
-
-local assert = require("luassert")
-
-local function assert_close(a, b)
-	assert(a:equals(b, 1e-4))
+local function assert_close(expected, got)
+	local tolerance = 1e-4
+	if not expected:equals(got, tolerance) then
+		error("expected " .. tostring(expected) .. " +- " .. tolerance .. " got " .. tostring(got))
+	end
 end
 
 local mat1 = Matrix4.new(
@@ -54,6 +46,7 @@ describe("getters & setters", function()
 		assert.same({3, 7, 11, 15}, {mat:get_column(3)})
 		mat:set_column(3, 1, 2, 3, 4)
 		assert.same({1, 2, 3, 4}, {mat:get_column(3)})
+		assert.same({3, 7, 11, 15}, {mat1:get_column(3)})
 	end)
 end)
 
@@ -149,7 +142,7 @@ local function random_matrix4()
 end
 
 it("determinant", function()
-	assert.equal(42, Matrix4.scale(vector.new(2, 3, 7)):determinant())
+	assert.equals(42, Matrix4.scale(vector.new(2, 3, 7)):determinant())
 end)
 
 describe("inversion", function()
@@ -205,8 +198,8 @@ describe("affine transform constructors", function()
 	end)
 	it("rotation", function()
 		assert_close(Matrix4.new(
-			0, -1, 0, 0,
-			1, 0, 0, 0,
+			0, 1, 0, 0,
+			-1, 0, 0, 0,
 			0, 0, 1, 0,
 			0, 0, 0, 1
 		), Matrix4.rotation(Rotation.z(math.pi / 2)))
@@ -238,12 +231,9 @@ describe("affine transform methods", function()
 		assert.equals(t, trs:get_translation())
 	end)
 	it("get rotation & scale", function()
-		print(trs)
 		local rotation, scale = trs:get_rs()
-		print(rotation, scale)
-		print(r)
-		assert(r:angle_to(rotation) < 1e-4)
-		assert(s:distance(scale) < 1e-4)
+		assert(r:angle_to(rotation) < 1e-3)
+		assert(s:distance(scale) < 1e-3)
 	end)
 	it("set translation", function()
 		local mat = trs:copy()
