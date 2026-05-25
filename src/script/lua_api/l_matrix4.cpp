@@ -203,7 +203,6 @@ int LuaMatrix4::l_unpack(lua_State *L)
 {
 	auto matrix = check(L, 1);
 	matrix = matrix.getTransposed();
-	lua_createtable(L, 16, 0);
 	for (int i = 0; i < 16; ++i)
 		lua_pushnumber(L, matrix[i]);
 	return 16;
@@ -301,7 +300,7 @@ int LuaMatrix4::l_equals(lua_State *L)
 int LuaMatrix4::l_is_affine_transform(lua_State *L)
 {
 	const auto &matrix = check(L, 1);
-	f32 tol = luaL_optnumber(L, 3, 0.0);
+	f32 tol = luaL_optnumber(L, 2, 0.0);
 	lua_pushboolean(L, matrix.isAffine(tol));
 	return 1;
 }

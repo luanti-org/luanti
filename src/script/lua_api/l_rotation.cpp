@@ -231,11 +231,11 @@ void LuaRotation::Register(lua_State *L)
 	registerClass<LuaRotation>(L, methods, metamethods);
 
 	lua_createtable(L, 0, 0);
-	int Matrix4 = lua_gettop(L);
+	int Rotation = lua_gettop(L);
 
 #define SET_CONSTRUCTOR(name, method) \
 	lua_pushcfunction(L, method); \
-	lua_setfield(L, Matrix4, name); \
+	lua_setfield(L, Rotation, name); \
 
 #define CONSTRUCTOR(name) SET_CONSTRUCTOR(#name, l_##name)
 

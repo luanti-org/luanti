@@ -4340,6 +4340,8 @@ vectors are written like this: `(x, y, z)`:
     * Returns a new vector `(a, b, c)`.
     * Deprecated: `vector.new()` does the same as `vector.zero()` and
       `vector.new(v)` does the same as `vector.copy(v)`
+* `vector.unpack(v)`:
+    * Returns `v.x, v.y, v.z`.
 * `vector.sort(v1, v2)`:
     * Returns in order minp, maxp vectors of the cuboid defined by `v1`, `v2`.
 * `vector.cross(v1, v2)`:
@@ -4423,7 +4425,7 @@ Constructors
   * `axis` is a nonzero vector, which need not be normalized
   * `angle` is in radians
   * Example: `Rotation.axis_angle(vector.new(1, 0, 1), math.pi/2)`
-    is a half-turn around the bisector between the X and Z axes.
+    is a quarter-turn around the bisector between the X and Z axes.
   * Let `v1`, `v2` be nonzero direction vectors.
     It holds that `Rotation.axis_angle(v1:cross(v2), v1:angle(v2)):apply(v1)` is (approximately) `v2`.
     A shorthand for this is provided as `Rotation.maps_to(v1, v2)`.
@@ -4444,7 +4446,9 @@ Constructors
 * `Rotation.maps_to(dir_from, dir_to)`:
   Construct a rotation that maps `dir_from` to `dir_to`.
   * `dir_from` and `dir_to` are nonzero direction vectors.
-  * The given rotation only rotates in the plane spanned by the two vectors. It is thus uniquely defined.
+  * The given rotation only rotates in the plane spanned by the two vectors.
+    If `dir_from` and `dir_to` are parallel, any plane containing the spanned line may be chosen.
+    Otherwise, the returned rotation is uniquely defined.
 * `Rotation.compose(...)`: Returns the composition of the given rotations.
   * `Rotation.compose()` is an alias for `Rotation.identity()`.
   * `Rotation.compose(rot)` copies the rotation.
@@ -4474,7 +4478,7 @@ when passed to the corresponding constructor.
 * `pitch, yaw, roll = rot:to_euler_zxy()`
   * Same as `to_euler_xyz`, except uses Z-X-Y rotation order.
   * To obtain a right-handed rotation in Z-X-Y order used for entities,
-    you can do `-vector.new(rot:to_euler_xyz())`.
+    you can do `-vector.new(rot:to_euler_zxy())`.
 
 Rotations can also be converted to matrices using `Matrix4.rotation(rot)`.
 
@@ -4538,8 +4542,6 @@ Constructors
   All parameters are optional and default to identity transforms.
 * `Matrix4.reflection(normal)`: Constructs a matrix that reflects vectors
   at the plane with the given plane normal vector (which need not be normalized).
-* `Matrix4.compose(...)`: Variadic composition of the given matrices.
-  As is common in mathematics, matrices are applied in left-to-right order.
 * `Matrix4.compose(...)`: Returns the composition of the given matrices.
   * `Matrix4.compose()` is an alias for `Matrix4.identity()`.
   * `Matrix4.compose(mat)` copies the matrix.
@@ -4588,7 +4590,7 @@ Linear algebra:
 For working with affine transforms, the following methods are available:
 
 * `mat:get_translation()`: Returns the translation as a vector.
-* `mat:set_translation(vec)`: Sets (overwrites) the translation in the last row.
+* `mat:set_translation(vec)`: Sets (overwrites) the translation in the last column.
 
 For TRS transforms specifically,
 let `mat = Matrix4.compose(Matrix4.translation(t), Matrix4.rotation(r), Matrix4.scale(s))`.
@@ -4658,6 +4660,8 @@ vectors are written like this: `(x, y)`:
 
 * `vector2.new(x, y)`:
     * Returns a new vector `(x, y)`.
+* `vector2.unpack(v)`:
+    * Returns `v.x, v.y`.
 * `vector2.from_angle(angle)`:
     * Returns a new unit vector from an angle.
     * `angle` is the angle in radians from the positive x-axis (counterclockwise).

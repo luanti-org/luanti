@@ -8,6 +8,7 @@
 #include "irrMath.h"
 #include "matrix4.h"
 #include "vector3d.h"
+#include <cmath>
 
 // NOTE: You *only* need this when updating an application from Irrlicht before 1.8 to Irrlicht 1.8 or later.
 // Between Irrlicht 1.7 and Irrlicht 1.8 the quaternion-matrix conversions changed.
@@ -49,6 +50,7 @@ public:
 
 	//! Constructor which maps dir_from to dir_to by rotating
 	//! in the plane spanned by the two vectors.
+	//! @note if the vectors are antiparallel, any plane containing the line may be chosen.
 	static quaternion maps_to(
 		const vector3df &dir_from, const vector3df &dir_to);
 
@@ -117,6 +119,7 @@ public:
 			const f32 tolerance = ROUNDING_ERROR_f32) const;
 
 	//! Normalizes the quaternion
+	//! @note quaternion must not be zero
 	inline quaternion &normalize();
 
 #ifndef IRR_TEST_BROKEN_QUATERNION_USE
@@ -296,9 +299,20 @@ inline quaternion quaternion::maps_to(
 		const vector3df &dir_from, const vector3df &dir_to)
 {
 	vector3df axis = dir_from.crossProduct(dir_to);
-	// Don't just do an acos of the dot product for numerical stability.
-	// See https://www.jwwalker.com/pages/angle-between-vectors.html
-	f32 angle = atan2(axis.getLength(), dir_from.dotProduct(dir_to));
+	f32 dot = dir_from.dotProduct(dir_to);
+	f32 angle = 0;
+	if (core::iszero(axis.getLength())) { // dirs are (almost) parallel
+		// Choose any nonzero orthogonal vector as axis.
+		const vector3df &v = dir_from;
+		axis = std::abs(v.X) > std::abs(v.Y)
+				? vector3df(-v.Y, v.X, 0)
+				: vector3df(0, -v.Z, v.Y);
+		angle = dot < 0 ? PI : 0; // opposite or same direction?
+	} else {
+		// Don't just do an acos of the dot product for numerical stability.
+		// See https://www.jwwalker.com/pages/angle-between-vectors.html
+		angle = atan2(axis.getLength(), dot);
+	}
 	quaternion q;
 	axis.normalize();
 	q.fromAngleAxis(angle, axis);
@@ -306,7 +320,7 @@ inline quaternion quaternion::maps_to(
 }
 
 //! Multiplication operator. this is applied first, other second.
-// FIXME swap this for consistency with matrix multiplications and the rest of mathematics
+// TODO swap this for consistency with matrix multiplications and the rest of mathematics
 inline quaternion quaternion::operator*(const quaternion &other) const
 {
 	quaternion tmp;

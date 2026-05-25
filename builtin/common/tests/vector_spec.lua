@@ -223,7 +223,6 @@ describe("vector", function()
 	end)
 
 	it("cross()", function()
-		--
 		local x, y, z = vector.new(1, 0, 0), vector.new(0, 1, 0), vector.new(0, 0, 1)
 		assert.equal(z, x:cross(y))
 
