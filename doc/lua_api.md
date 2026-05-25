@@ -4342,12 +4342,12 @@ vectors are written like this: `(x, y, z)`:
       `vector.new(v)` does the same as `vector.copy(v)`
 * `vector.sort(v1, v2)`:
     * Returns in order minp, maxp vectors of the cuboid defined by `v1`, `v2`.
-* `vector.angle(v1, v2)`:
-    * Returns the angle between `v1` and `v2` in radians.
 * `vector.cross(v1, v2)`:
-    * Returns the *right-handed* cross product of `v1` and `v2`.
-    * To get the left-handed cross product
-      (e.g. for use with rotations), swap `v1` and `v2`.
+    * Returns the cross product `v1` x `v2`.
+    * Signedness: `+X` x `+Y` is `+Z`, **not** `-Z`.
+* `vector.angle(v1, v2)`:
+    * Returns the unsigned angle between `v1` and `v2` in radians.
+    * See also `Rotation.axis_angle`.
 * `vector.offset(v, x, y, z)`:
     * Returns the sum of the vectors `v` and `(x, y, z)`.
 * `vector.random_in_area(min, max)`:
@@ -4424,6 +4424,9 @@ Constructors
   * `angle` is in radians
   * Example: `Rotation.axis_angle(vector.new(1, 0, 1), math.pi/2)`
     is a half-turn around the bisector between the X and Z axes.
+  * Let `v1`, `v2` be nonzero direction vectors.
+    It holds that `Rotation.axis_angle(v1:cross(v2), v1:angle(v2)):apply(v1)` is (approximately) `v2`.
+    A shorthand for this is provided as `Rotation.maps_to(v1, v2)`.
   * There are shorthands for rotations around the cardinal axes:
     * `Rotation.x(pitch)`
     * `Rotation.y(yaw)`

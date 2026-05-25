@@ -39,6 +39,11 @@ describe("constructors", function()
 	it("axis-angle", function()
 		assert_close(Rotation.quaternion(1, 1, 1, 0),
 				Rotation.axis_angle(vector.new(1, 1, 1), math.pi))
+
+		local v1 = vector.new(1, 2, 3)
+		local v2 = Rotation.euler_xyz(1, 2, 3):apply(v1)
+		assert_close_vec(v2, Rotation.axis_angle(v1:cross(v2), v1:angle(v2)):apply(v1))
+		assert_close_vec(v1, Rotation.axis_angle(v2:cross(v1), v2:angle(v1)):apply(v2))
 	end)
 	it("axis-angle shorthands", function()
 		local angle = math.pi
