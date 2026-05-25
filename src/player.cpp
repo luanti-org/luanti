@@ -8,6 +8,7 @@
 #include "hud_element.h"
 #include "constants.h"
 #include "gamedef.h"
+#include "client/inputhandler.h"
 #include <tuple>
 
 const struct EnumString es_CameraMode[] = {
@@ -151,43 +152,22 @@ u16 Player::getMaxHotbarItemcount()
 
 void PlayerControl::setMovementFromKeys()
 {
-	bool a_up = direction_keys & (1 << 0),
-		a_down = direction_keys & (1 << 1),
-		a_left = direction_keys & (1 << 2),
-		a_right = direction_keys & (1 << 3);
-
-	if (a_up || a_down || a_left || a_right)  {
-		// if contradictory keys pressed, stay still
-		if (a_up && a_down && a_left && a_right)
-			movement_speed = 0.0f;
-		else if (a_up && a_down && !a_left && !a_right)
-			movement_speed = 0.0f;
-		else if (!a_up && !a_down && a_left && a_right)
-			movement_speed = 0.0f;
-		else
-			// If there is a keyboard event, assume maximum speed
-			movement_speed = 1.0f;
-	}
-
-	// Check keyboard for input
-	float x = 0, y = 0;
-	if (a_up)
-		y += 1;
-	if (a_down)
-		y -= 1;
-	if (a_left)
-		x -= 1;
-	if (a_right)
-		x += 1;
-
-	if (x != 0 || y != 0)
+	float x = right - left;
+	float y = up - down;
+	if (x != 0 || y != 0) {
 		// If there is a keyboard event, it takes priority
 		movement_direction = std::atan2(x, y);
+		movement_speed = std::min(1.0f, sqrtf(x*x + y*y));
+	}
 }
 
 u32 PlayerControl::getKeysPressed() const
 {
 	u32 keypress_bits =
+		( (u32)((up    > 0) & 1) << 0) |
+		( (u32)((down  > 0) & 1) << 1) |
+		( (u32)((left  > 0) & 1) << 2) |
+		( (u32)((right > 0) & 1) << 3) |
 		( (u32)(jump  & 1) << 4) |
 		( (u32)(aux1  & 1) << 5) |
 		( (u32)(sneak & 1) << 6) |
@@ -196,42 +176,16 @@ u32 PlayerControl::getKeysPressed() const
 		( (u32)(zoom  & 1) << 9)
 	;
 
-	// If any direction keys are pressed pass those through
-	if (direction_keys != 0)
-	{
-		keypress_bits |= direction_keys;
-	}
-	// Otherwise set direction keys based on joystick movement (for mod compatibility)
-	else if (isMoving())
-	{
-		float abs_d;
-
-		// (absolute value indicates forward / backward)
-		abs_d = std::abs(movement_direction);
-		if (abs_d < 3.0f / 8.0f * M_PI)
-			keypress_bits |= (u32)1; // Forward
-		if (abs_d > 5.0f / 8.0f * M_PI)
-			keypress_bits |= (u32)1 << 1; // Backward
-
-		// rotate entire coordinate system by 90 degree
-		abs_d = movement_direction + M_PI_2;
-		if (abs_d >= M_PI)
-			abs_d -= 2 * M_PI;
-		abs_d = std::abs(abs_d);
-		// (value now indicates left / right)
-		if (abs_d < 3.0f / 8.0f * M_PI)
-			keypress_bits |= (u32)1 << 2; // Left
-		if (abs_d > 5.0f / 8.0f * M_PI)
-			keypress_bits |= (u32)1 << 3; // Right
-	}
-
 	return keypress_bits;
 }
 
 
 void PlayerControl::unpackKeysPressed(u32 keypress_bits)
 {
-	direction_keys = keypress_bits & 0xf;
+	up    = keypress_bits & (1 << 0);
+	down  = keypress_bits & (1 << 1);
+	left  = keypress_bits & (1 << 2);
+	right = keypress_bits & (1 << 3);
 	jump  = keypress_bits & (1 << 4);
 	aux1  = keypress_bits & (1 << 5);
 	sneak = keypress_bits & (1 << 6);

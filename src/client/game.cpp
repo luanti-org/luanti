@@ -2057,10 +2057,10 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 	//TimeTaker tt("update player control", NULL, PRECISION_NANO);
 
 	PlayerControl control(
-		isKeyDown(KeyType::FORWARD),
-		isKeyDown(KeyType::BACKWARD),
-		isKeyDown(KeyType::LEFT),
-		isKeyDown(KeyType::RIGHT),
+		getAxisValue(KeyType::FORWARD),
+		getAxisValue(KeyType::BACKWARD),
+		getAxisValue(KeyType::LEFT),
+		getAxisValue(KeyType::RIGHT),
 		isKeyDown(KeyType::JUMP) || player->getAutojump(),
 		getTogglableKeyState(KeyType::AUX1,  m_cache_toggle_aux1_key, player->control.aux1),
 		getTogglableKeyState(KeyType::SNEAK, allow_sneak_toggle,      player->control.sneak),
