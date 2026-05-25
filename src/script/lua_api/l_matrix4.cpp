@@ -75,7 +75,7 @@ int LuaMatrix4::l_new(lua_State *L)
 
 int LuaMatrix4::l_translation(lua_State *L)
 {
-	v3f translation = readParam<v3f>(L, 1);
+	v3f translation = readParamRaw<v3f>(L, 1);
 	core::matrix4 &matrix = create(L);
 	matrix = core::matrix4();
 	matrix.setTranslation(translation);
@@ -93,8 +93,8 @@ int LuaMatrix4::l_rotation(lua_State *L)
 int LuaMatrix4::l_scale(lua_State *L)
 {
 	v3f scale = lua_isnumber(L, 1)
-			? v3f(readParam<f32>(L, 1))
-			: readParam<v3f>(L, 1);
+			? v3f(readParamRaw<f32>(L, 1))
+			: readParamRaw<v3f>(L, 1);
 	core::matrix4 &matrix = create(L);
 	matrix = core::matrix4();
 	matrix.setScale(scale);
@@ -103,13 +103,17 @@ int LuaMatrix4::l_scale(lua_State *L)
 
 int LuaMatrix4::l_trs(lua_State *L)
 {
-	v3f translation = lua_isnoneornil(L, 1) ? v3f() : readParam<v3f>(L, 1);
+	v3f translation = lua_isnoneornil(L, 1) ? v3f() : readParamRaw<v3f>(L, 1);
 	core::quaternion rotation = lua_isnoneornil(L, 2)
 			? core::quaternion()
 			: LuaRotation::check(L, 2);
-	v3f scale = lua_isnoneornil(L, 3)
-			? v3f(1)
-			: lua_isnumber(L, 3) ? v3f(readParam<f32>(L, 3)) : readParam<v3f>(L, 3);
+	v3f scale(1);
+	if (!lua_isnoneornil(L, 3)) {
+		if (lua_isnumber(L, 3))
+			scale = v3f(readParamRaw<f32>(L, 3));
+		else
+			scale = readParamRaw<v3f>(L, 3);
+	}
 	// FIXME core::Transform should use left-handed rotation conventions
 	core::Transform trs{translation, rotation.makeInverse(), scale};
 	core::matrix4 &matrix = create(L);
@@ -119,7 +123,7 @@ int LuaMatrix4::l_trs(lua_State *L)
 
 int LuaMatrix4::l_reflection(lua_State *L)
 {
-	v3f normal = readParam<v3f>(L, 1);
+	v3f normal = readParamRaw<v3f>(L, 1);
 	normal.normalize();
 	core::matrix4 &matrix = create(L);
 	matrix = core::matrix4::reflection(normal);
@@ -143,7 +147,7 @@ int LuaMatrix4::l_set(lua_State *L)
 	auto &matrix = check(L, 1);
 	int row = readIndex(L, 2);
 	int col = readIndex(L, 3);
-	matrix(col, row) = readParam<f32>(L, 4);
+	matrix(col, row) = readParamRaw<f32>(L, 4);
 	return 0;
 }
 
@@ -230,7 +234,7 @@ int LuaMatrix4::l_transform_4d(lua_State *L)
 int LuaMatrix4::l_transform_pos(lua_State *L)
 {
 	const auto &matrix = check(L, 1);
-	v3f vec = readParam<v3f>(L, 2);
+	v3f vec = readParamRaw<v3f>(L, 2);
 	matrix.transformVect(vec);
 	push_v3f(L, vec);
 	return 1;
@@ -239,7 +243,7 @@ int LuaMatrix4::l_transform_pos(lua_State *L)
 int LuaMatrix4::l_transform_dir(lua_State *L)
 {
 	const auto &matrix = check(L, 1);
-	v3f vec = readParam<v3f>(L, 2);
+	v3f vec = readParamRaw<v3f>(L, 2);
 	v3f res = matrix.rotateAndScaleVect(vec);
 	push_v3f(L, res);
 	return 1;
@@ -331,7 +335,7 @@ int LuaMatrix4::l_get_rs(lua_State *L)
 int LuaMatrix4::l_set_translation(lua_State *L)
 {
 	auto &matrix = check(L, 1);
-	v3f translation = readParam<v3f>(L, 2);
+	v3f translation = readParamRaw<v3f>(L, 2);
 	matrix.setTranslation(translation);
 	return 0;
 }

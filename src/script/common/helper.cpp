@@ -14,6 +14,7 @@ extern "C" {
 #include <string_view>
 #include "c_types.h"
 #include "c_converter.h"
+#include "c_types.h"
 
 /*
  * Read template functions
@@ -83,6 +84,12 @@ template <>
 v2f LuaHelper::readParam(lua_State *L, int index)
 {
 	return check_v2f(L, index);
+}
+
+template <>
+v3f LuaHelper::readParamRaw(lua_State *L, int index)
+{
+	return read_v3f(L, index);
 }
 
 template <>
