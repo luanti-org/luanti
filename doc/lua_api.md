@@ -4589,7 +4589,7 @@ For TRS transforms specifically,
 let `mat = Matrix4.compose(Matrix4.translation(t), Matrix4.rotation(r), Matrix4.scale(s))`.
 Then we can decompose `mat` further. Note that `mat` must not shear or reflect.
 
-* `rotation, scale = mat:get_rs()`:
+* `rotation, scale = mat:get_rotation_scale()`:
   Extracts a `Rotation` equivalent to `r`,
   along with the corresponding component-wise scaling factors as a vector.
 

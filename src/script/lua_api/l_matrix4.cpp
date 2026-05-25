@@ -315,7 +315,7 @@ int LuaMatrix4::l_get_translation(lua_State *L)
 	return 1;
 }
 
-int LuaMatrix4::l_get_rs(lua_State *L)
+int LuaMatrix4::l_get_rotation_scale(lua_State *L)
 {
 	// TODO maybe check that it is, in fact, a rotation matrix;
 	// not a fake rotation (axis flip) or a shear matrix
@@ -470,7 +470,7 @@ const luaL_Reg LuaMatrix4::methods[] = {
 	METHOD(equals),
 	METHOD(is_affine_transform),
 	METHOD(get_translation),
-	METHOD(get_rs),
+	METHOD(get_rotation_scale),
 	METHOD(set_translation),
 	{0,0}
 };
