@@ -4494,7 +4494,8 @@ Matrices
 ========
 
 Luanti uses 4x4 matrices to represent linear transformations of 3D vectors.
-For this, 3D vectors are embedded into 4D space, typically using homogenous coordinates
+For this, 3D vectors are embedded into 4D space, typically using
+[homogenous coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates)
 (for positions) or by adding a fourth component of zero (for directions).
 This class was added in Luanti 5.17.0.
 
@@ -4508,8 +4509,11 @@ The arithmetic precision of matrix computations may change (improve) in the futu
 Matrices currently use 32-bit floats (*less* precision than the Lua number type).
 
 Matrices are very suitable for constructing, composing and applying
-linear transformations; they are not useful for exact storage of
-TRS (translation, rotation, scale) transformations if the properties need to be handled separately:
+linear 4D transformations (which are equivalent to 3D projective transformations
+when using homogenous coordinates).
+
+Matrices should be avoided for exact storage of TRS (translation, rotation, scale)
+transformations if the properties need to be handled separately:
 Decomposition into rotation and scale will be expensive and inexact.
 You should instead store the translation, rotation and scale.
 
