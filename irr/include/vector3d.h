@@ -226,8 +226,9 @@ public:
 		return vector3d<T>(X - other.X, Y - other.Y, Z - other.Z).getLengthSQ();
 	}
 
-	//! Calculates the *right-handed* cross product with another vector.
-	/** \param p Vector to multiply with.
+	//! Calculates the cross product with another vector.
+	/** \note cross product of +X and +Y is +Z, not -Z.
+	\param p Vector to multiply with.
 	\return Cross product of this vector with p. */
 	vector3d<T> crossProduct(const vector3d<T> &p) const
 	{

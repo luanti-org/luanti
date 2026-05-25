@@ -4489,15 +4489,19 @@ vectors are written like this: `(x, y, z)`:
     * Returns a new vector `(a, b, c)`.
     * Deprecated: `vector.new()` does the same as `vector.zero()` and
       `vector.new(v)` does the same as `vector.copy(v)`
+* `vector.unpack(v)`:
+    * Returns `v.x, v.y, v.z`.
 * `vector.sort(v1, v2)`:
     * Returns in order minp, maxp vectors of the cuboid defined by `v1`, `v2`.
 * `vector.angle(v1, v2)`:
     * Returns the angle between `v1` and `v2` in radians.
     * The result is in the range `[0, pi]`.
 * `vector.cross(v1, v2)`:
-    * Returns the *right-handed* cross product of `v1` and `v2`.
-    * To get the left-handed cross product
-      (e.g. for use with rotations), swap `v1` and `v2`.
+    * Returns the cross product `v1` x `v2`.
+    * Signedness: `+X` x `+Y` is `+Z`, **not** `-Z`.
+* `vector.angle(v1, v2)`:
+    * Returns the unsigned angle between `v1` and `v2` in radians.
+    * See also `Rotation.axis_angle`.
 * `vector.offset(v, x, y, z)`:
     * Returns the sum of the vectors `v` and `(x, y, z)`.
 * `vector.random_in_area(min, max)`:
@@ -4552,7 +4556,7 @@ For example:
 Rotations
 =========
 
-Luanti provides a proper helper class for working with 3d rotations.
+Luanti provides a proper helper class for working with 3D rotations.
 Using vectors of Euler angles instead is discouraged as it is error-prone.
 This class was added in Luanti 5.17.0.
 
@@ -4561,6 +4565,7 @@ In the current implementation, rotations are internally represented as quaternio
 of 32-bit floats (*less* precision than the Lua number type).
 
 Rotations use **left-handed** conventions.
+For example a quarter turn (+pi/2) around the Y-axis will map +Z to +X.
 
 Constructors
 ------------
@@ -4573,7 +4578,10 @@ Constructors
   * `axis` is a nonzero vector, which need not be normalized
   * `angle` is in radians
   * Example: `Rotation.axis_angle(vector.new(1, 0, 1), math.pi/2)`
-    is a half-turn around the bisector between the X and Z axes.
+    is a quarter-turn around the bisector between the X and Z axes.
+  * Let `v1`, `v2` be nonzero direction vectors.
+    It holds that `Rotation.axis_angle(v1:cross(v2), v1:angle(v2)):apply(v1)` is (approximately) `v2`.
+    A shorthand for this is provided as `Rotation.maps_to(v1, v2)`.
   * There are shorthands for rotations around the cardinal axes:
     * `Rotation.x(pitch)`
     * `Rotation.y(yaw)`
@@ -4591,7 +4599,9 @@ Constructors
 * `Rotation.maps_to(dir_from, dir_to)`:
   Construct a rotation that maps `dir_from` to `dir_to`.
   * `dir_from` and `dir_to` are nonzero direction vectors.
-  * The given rotation only rotates in the plane spanned by the two vectors. It is thus uniquely defined.
+  * The given rotation only rotates in the plane spanned by the two vectors.
+    If `dir_from` and `dir_to` are parallel, any plane containing the spanned line may be chosen.
+    Otherwise, the returned rotation is uniquely defined.
 * `Rotation.compose(...)`: Returns the composition of the given rotations.
   * `Rotation.compose()` is an alias for `Rotation.identity()`.
   * `Rotation.compose(rot)` copies the rotation.
@@ -4620,8 +4630,8 @@ when passed to the corresponding constructor.
   * Inverse of `Rotation.euler_xyz`.
 * `pitch, yaw, roll = rot:to_euler_zxy()`
   * Same as `to_euler_xyz`, except uses Z-X-Y rotation order.
-  * To obtain a rotation for an entity, you can do
-    `-vector.new(rot:to_euler_xyz())`.
+  * To obtain a right-handed rotation in Z-X-Y order used for entities,
+    you can do `-vector.new(rot:to_euler_zxy())`.
 
 Rotations can also be converted to matrices using `Matrix4.rotation(rot)`.
 
@@ -4645,7 +4655,9 @@ Matrices
 ========
 
 Luanti uses 4x4 matrices to represent linear transformations of 3D vectors.
-For this, 3D vectors are embedded into 4D space.
+For this, 3D vectors are embedded into 4D space, typically using
+[homogenous coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates)
+(for positions) or by adding a fourth component of zero (for directions).
 This class was added in Luanti 5.17.0.
 
 The matrices use column-major conventions.
@@ -4658,8 +4670,11 @@ The arithmetic precision of matrix computations may change (improve) in the futu
 Matrices currently use 32-bit floats (*less* precision than the Lua number type).
 
 Matrices are very suitable for constructing, composing and applying
-linear transformations; they are not useful for exact storage of
-TRS transformations if the properties need to be handled separately:
+linear 4D transformations (which are equivalent to 3D projective transformations
+when using homogenous coordinates).
+
+Matrices should be avoided for exact storage of TRS (translation, rotation, scale)
+transformations if the properties need to be handled separately:
 Decomposition into rotation and scale will be expensive and inexact.
 You should instead store the translation, rotation and scale.
 
@@ -4680,8 +4695,6 @@ Constructors
   All parameters are optional and default to identity transforms.
 * `Matrix4.reflection(normal)`: Constructs a matrix that reflects vectors
   at the plane with the given plane normal vector (which need not be normalized).
-* `Matrix4.compose(...)`: Variadic composition of the given matrices.
-  As is common in mathematics, matrices are applied in left-to-right order.
 * `Matrix4.compose(...)`: Returns the composition of the given matrices.
   * `Matrix4.compose()` is an alias for `Matrix4.identity()`.
   * `Matrix4.compose(mat)` copies the matrix.
@@ -4730,7 +4743,7 @@ Linear algebra:
 For working with affine transforms, the following methods are available:
 
 * `mat:get_translation()`: Returns the translation as a vector.
-* `mat:set_translation(vec)`: Sets (overwrites) the translation in the last row.
+* `mat:set_translation(vec)`: Sets (overwrites) the translation in the last column.
 
 For TRS transforms specifically,
 let `mat = Matrix4.compose(Matrix4.translation(t), Matrix4.rotation(r), Matrix4.scale(s))`.
@@ -4800,6 +4813,8 @@ vectors are written like this: `(x, y)`:
 
 * `vector2.new(x, y)`:
     * Returns a new vector `(x, y)`.
+* `vector2.unpack(v)`:
+    * Returns `v.x, v.y`.
 * `vector2.from_angle(angle)`:
     * Returns a new unit vector from an angle.
     * `angle` is the angle in radians from the positive x-axis (counterclockwise).

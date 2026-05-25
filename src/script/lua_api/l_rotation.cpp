@@ -100,7 +100,7 @@ int LuaRotation::l_maps_to(lua_State *L)
 	v3f dir_from = readParam<v3f>(L, 1);
 	v3f dir_to = readParam<v3f>(L, 2);
 
-	create(L, core::quaternion::maps_to(dir_from, dir_to));
+	create(L, core::quaternion::mapsTo(dir_from, dir_to));
 	return 1;
 }
 
@@ -141,7 +141,8 @@ int LuaRotation::l_to_euler_xyz(lua_State *L)
 int LuaRotation::l_to_euler_zxy(lua_State *L)
 {
 	const auto &q = check(L, 1);
-	const v3f euler = getPitchYawRollRad(q.getMatrix());
+	core::matrix4 mat = q.getMatrix();
+	const v3f euler = getPitchYawRollRad(mat);
 	lua_pushnumber(L, euler.X);
 	lua_pushnumber(L, euler.Y);
 	lua_pushnumber(L, euler.Z);
@@ -231,11 +232,11 @@ void LuaRotation::Register(lua_State *L)
 	registerClass<LuaRotation>(L, methods, metamethods);
 
 	lua_createtable(L, 0, 0);
-	int Matrix4 = lua_gettop(L);
+	int Rotation = lua_gettop(L);
 
 #define SET_CONSTRUCTOR(name, method) \
 	lua_pushcfunction(L, method); \
-	lua_setfield(L, Matrix4, name); \
+	lua_setfield(L, Rotation, name); \
 
 #define CONSTRUCTOR(name) SET_CONSTRUCTOR(#name, l_##name)
 

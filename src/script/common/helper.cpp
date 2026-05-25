@@ -14,7 +14,6 @@ extern "C" {
 #include <string_view>
 #include "c_types.h"
 #include "c_converter.h"
-#include "c_types.h"
 
 /*
  * Read template functions
