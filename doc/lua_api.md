@@ -4405,7 +4405,7 @@ Luanti provides a proper helper class for working with 3d rotations.
 Using vectors of Euler angles instead is discouraged as it is error-prone.
 This class was added in Luanti 5.17.0.
 
-The precision of the implementation may change (improve) in the future.
+The arithmetic precision of rotation computations may change (improve) in the future.
 In the current implementation, rotations are internally represented as quaternions
 of 32-bit floats (*less* precision than the Lua number type).
 
@@ -4482,7 +4482,7 @@ Methods
 * `rot:invert()`: Returns the inverse rotation.
 * `from:slerp(to, time)`: Returns an interpolated rotation.
   * Uses shortest path spherical linear interpolation.
-  * `time = 0` is all `self`, `time = 1` is all `to`.
+  * `time = 0` is all `from`, `time = 1` is all `to`.
 * `rot:angle_to(other)`: Returns the absolute angle between two quaternions.
   * Useful to measure similarity.
 
@@ -4503,14 +4503,8 @@ This means the first column is the image of the vector (1, 0, 0, 0),
 the second column is the image of (0, 1, 0, 0), and so on.
 Thus the translation is in the last column.
 
-You must account for loss of precision in matrix calculations.
+The arithmetic precision of matrix computations may change (improve) in the future.
 Matrices currently use 32-bit floats (*less* precision than the Lua number type).
-However, your code should not expect imprecisions either.
-Matrices may carry out computations more precisely in the future.
-
-You should not rely on the internal representation or type of matrices.
-You should only interact with matrices through the interface documented below.
-This allows us to replace the implementation in the future.
 
 Matrices are very suitable for constructing, composing and applying
 linear transformations; they are not useful for exact storage of
