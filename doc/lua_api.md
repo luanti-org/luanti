@@ -4508,7 +4508,7 @@ Matrices currently use 32-bit floats (*less* precision than the Lua number type)
 
 Matrices are very suitable for constructing, composing and applying
 linear transformations; they are not useful for exact storage of
-TRS transformations if the properties need to be handled separately:
+TRS (translation, rotation, scale) transformations if the properties need to be handled separately:
 Decomposition into rotation and scale will be expensive and inexact.
 You should instead store the translation, rotation and scale.
 
