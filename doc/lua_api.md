@@ -4406,7 +4406,8 @@ Using vectors of Euler angles instead is discouraged as it is error-prone.
 This class was added in Luanti 5.17.0.
 
 The precision of the implementation may change (improve) in the future.
-Rotations currently use 32-bit floats (*less* precision than the Lua number type).
+In the current implementation, rotations are internally represented as quaternions
+of 32-bit floats (*less* precision than the Lua number type).
 
 Rotations use **left-handed** conventions.
 
