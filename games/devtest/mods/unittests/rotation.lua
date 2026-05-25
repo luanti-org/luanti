@@ -21,6 +21,13 @@ local function random_rotation()
 	return Rotation.quaternion(srandom(4))
 end
 
+it("is left-handed", function()
+	local x, y, z = vector.new(1, 0, 0), vector.new(0, 1, 0), vector.new(0, 0, 1)
+	assert_close_vec(Rotation.x(math.pi/2):apply(y), z)
+	assert_close_vec(Rotation.y(math.pi/2):apply(z), x)
+	assert_close_vec(Rotation.z(math.pi/2):apply(y), -x)
+end)
+
 describe("constructors", function()
 	it("identity", function()
 		local rot = Rotation.identity()

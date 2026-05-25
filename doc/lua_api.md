@@ -4410,6 +4410,7 @@ In the current implementation, rotations are internally represented as quaternio
 of 32-bit floats (*less* precision than the Lua number type).
 
 Rotations use **left-handed** conventions.
+For example a quarter turn (+pi/2) around the Y-axis will map +Z to +X.
 
 Constructors
 ------------
