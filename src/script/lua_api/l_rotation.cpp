@@ -52,7 +52,7 @@ int LuaRotation::l_quaternion(lua_State *L)
 int LuaRotation::l_axis_angle(lua_State *L)
 {
 	v3f axis = readParam<v3f>(L, 1);
-	f32 angle = readParamRaw<f32>(L, 2);
+	f32 angle = readParam<f32>(L, 2);
 	core::quaternion quaternion;
 	axis.normalize();
 	quaternion.fromAngleAxis(angle, axis);
@@ -63,7 +63,7 @@ int LuaRotation::l_axis_angle(lua_State *L)
 template<float v3f::* C>
 int LuaRotation::l_fixed_axis_angle(lua_State *L)
 {
-	f32 angle = readParamRaw<f32>(L, 1);
+	f32 angle = readParam<f32>(L, 1);
 	v3f euler_angles;
 	euler_angles.*C = angle;
 	create(L, core::quaternion(euler_angles));
@@ -72,9 +72,9 @@ int LuaRotation::l_fixed_axis_angle(lua_State *L)
 
 int LuaRotation::l_euler_xyz(lua_State *L)
 {
-	f32 pitch = readFiniteParam<f32>(L, 1);
-	f32 yaw = readFiniteParam<f32>(L, 2);
-	f32 roll = readFiniteParam<f32>(L, 3);
+	f32 pitch = readParam<f32>(L, 1);
+	f32 yaw = readParam<f32>(L, 2);
+	f32 roll = readParam<f32>(L, 3);
 	core::quaternion quaternion;
 	quaternion.set(pitch, yaw, roll);
 	create(L, quaternion);
