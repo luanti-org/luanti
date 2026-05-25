@@ -49,7 +49,7 @@ public:
 
 	//! Constructor which maps dir_from to dir_to by rotating
 	//! in the plane spanned by the two vectors.
-	static quaternion mapsto(
+	static quaternion maps_to(
 		const vector3df &dir_from, const vector3df &dir_to);
 
 	//! Equality operator
@@ -292,7 +292,7 @@ inline quaternion &quaternion::operator=(const matrix4 &m)
 }
 #endif
 
-inline quaternion quaternion::mapsto(
+inline quaternion quaternion::maps_to(
 		const vector3df &dir_from, const vector3df &dir_to)
 {
 	vector3df axis = dir_from.crossProduct(dir_to);

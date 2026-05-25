@@ -4436,7 +4436,7 @@ Constructors
   * This is consistent with the Euler angles that can be used for entities.
     You can do `Rotation.euler_zxy((-rotation):unpack())`
     to convert an entity rotation vector (note the handedness conversion).
-* `Rotation.mapsto(dir_from, dir_to)`:
+* `Rotation.maps_to(dir_from, dir_to)`:
   Construct a rotation that maps `dir_from` to `dir_to`.
   * `dir_from` and `dir_to` are nonzero direction vectors.
   * The given rotation only rotates in the plane spanned by the two vectors. It is thus uniquely defined.
