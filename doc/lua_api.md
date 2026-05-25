@@ -4494,7 +4494,8 @@ Matrices
 ========
 
 Luanti uses 4x4 matrices to represent linear transformations of 3D vectors.
-For this, 3D vectors are embedded into 4D space.
+For this, 3D vectors are embedded into 4D space, typically using homogenous coordinates
+(for positions) or by adding a fourth component of zero (for directions).
 This class was added in Luanti 5.17.0.
 
 The matrices use column-major conventions.
