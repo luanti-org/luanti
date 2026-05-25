@@ -23,7 +23,7 @@ end)
 
 describe("getters & setters", function()
 	it("get & set", function()
-		local mat = Matrix4.all(0)
+		local mat = Matrix4.full(0)
 		local i = 0
 		for row = 1, 4 do
 			for col = 1, 4 do
@@ -58,28 +58,39 @@ it("unpack", function()
 	assert.equals(mat1, Matrix4.new(mat1:unpack()))
 end)
 
+local function dot(v, w)
+	assert(#v == #w)
+	local sum = 0
+	for i = 1, #v do
+		sum = sum + v[i] * w[i]
+	end
+	return sum
+end
+
 describe("transform", function()
 	it("4d", function()
+		local v = {1, 2, 3, 4}
 		assert.same({
-			1 * 1 + 2 * 5 + 3 * 9 + 4 * 13,
-			1 * 2 + 2 * 6 + 3 * 10 + 4 * 14,
-			1 * 3 + 2 * 7 + 3 * 11 + 4 * 15,
-			1 * 4 + 2 * 8 + 3 * 12 + 4 * 16,
-		}, {mat1:transform_4d(1, 2, 3, 4)})
+			dot({1, 2, 3, 4}, v),
+			dot({5, 6, 7, 8}, v),
+			dot({9, 10, 11, 12}, v),
+			dot({13, 14, 15, 16}, v),
+		}, {mat1:transform_4d(unpack(v))})
 	end)
+	local v = {1, 2, 3}
 	it("position", function()
 		assert.equals(vector.new(
-			1 * 1 + 2 * 5 + 3 * 9,
-			1 * 2 + 2 * 6 + 3 * 10,
-			1 * 3 + 2 * 7 + 3 * 11
-		):offset(13, 14, 15), mat1:transform_position(vector.new(1, 2, 3)))
+			dot({1, 2, 3}, v),
+			dot({5, 6, 7}, v),
+			dot({9, 10, 11}, v)
+		):offset(4, 8, 12), mat1:transform_position(vector.new(unpack(v))))
 	end)
 	it("direction", function()
 		assert.equals(vector.new(
-			1 * 1 + 2 * 5 + 3 * 9,
-			1 * 2 + 2 * 6 + 3 * 10,
-			1 * 3 + 2 * 7 + 3 * 11
-		), mat1:transform_direction(vector.new(1, 2, 3)))
+			dot({1, 2, 3}, v),
+			dot({5, 6, 7}, v),
+			dot({9, 10, 11}, v)
+		), mat1:transform_direction(vector.new(unpack(v))))
 	end)
 end)
 
@@ -96,21 +107,18 @@ describe("composition", function()
 		assert(Matrix4.identity():equals(Matrix4.compose()))
 	end)
 	it("same matrix for single argument", function()
-		local mat = Matrix4.new(
-			1, 2, 3, 4,
-			5, 6, 7, 8,
-			9, 10, 11, 12,
-			13, 14, 15, 16
-		)
-		assert(mat:equals(mat:compose()))
+		assert(mat1:equals(mat1:compose()))
 	end)
 	it("matrix multiplication for two arguments", function()
 		local composition = mat1:compose(mat2)
+		local function rc_dot(m1_row, m2_col)
+			return dot({mat1:get_row(m1_row)}, {mat2:get_column(m2_col)})
+		end
 		assert.equals(Matrix4.new(
-			386, 444, 502, 560,
-			274, 316, 358, 400,
-			162, 188, 214, 240,
-			50, 60, 70, 80
+			rc_dot(1, 1), rc_dot(1, 2), rc_dot(1, 3), rc_dot(1, 4),
+			rc_dot(2, 1), rc_dot(2, 2), rc_dot(2, 3), rc_dot(2, 4),
+			rc_dot(3, 1), rc_dot(3, 2), rc_dot(3, 3), rc_dot(3, 4),
+			rc_dot(4, 1), rc_dot(4, 2), rc_dot(4, 3), rc_dot(4, 4)
 		), composition)
 		assert.same({mat1:transform_4d(mat2:transform_4d(1, 2, 3, 4))},
 				{composition:transform_4d(1, 2, 3, 4)})
@@ -182,10 +190,10 @@ end)
 describe("affine transform constructors", function()
 	it("translation", function()
 		assert.equals(Matrix4.new(
-			1, 0, 0, 0,
-			0, 1, 0, 0,
-			0, 0, 1, 0,
-			1, 2, 3, 1
+			1, 0, 0, 1,
+			0, 1, 0, 2,
+			0, 0, 1, 3,
+			0, 0, 0, 1
 		), Matrix4.translation(vector.new(1, 2, 3)))
 	end)
 	it("scale", function()
@@ -198,8 +206,8 @@ describe("affine transform constructors", function()
 	end)
 	it("rotation", function()
 		assert_close(Matrix4.new(
-			0, 1, 0, 0,
-			-1, 0, 0, 0,
+			0, -1, 0, 0,
+			1, 0, 0, 0,
 			0, 0, 1, 0,
 			0, 0, 0, 1
 		), Matrix4.rotation(Rotation.z(math.pi / 2)))
@@ -245,10 +253,10 @@ end)
 
 describe("metamethods", function()
 	it("addition", function()
-		assert.equals(Matrix4.all(17), mat1 + mat2)
+		assert.equals(Matrix4.full(17), mat1 + mat2)
 	end)
 	it("subtraction", function()
-		assert.equals(Matrix4.all(0), mat1 - mat1)
+		assert.equals(Matrix4.full(0), mat1 - mat1)
 	end)
 	it("unary minus", function()
 		assert.equals(-1 * mat1, -mat1)
