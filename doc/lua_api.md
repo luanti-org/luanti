@@ -4398,7 +4398,7 @@ Rotations
 =========
 
 Luanti provides a proper helper class for working with 3d rotations.
-Using vectors of euler angles instead is discouraged as it is error-prone.
+Using vectors of Euler angles instead is discouraged as it is error-prone.
 This class was added in Luanti 5.17.0.
 
 The precision of the implementation may change (improve) in the future.
@@ -4425,10 +4425,10 @@ Constructors
   * All angles in radians.
   * Uses X-Y-Z rotation order, equivalent to
     `Rotation.compose(Rotation.z(roll), Rotation.y(yaw), Rotation.x(pitch))`.
-  * Consistent with the euler angles that can be used for bones or attachments.
+  * Consistent with the Euler angles that can be used for bones or attachments.
 * `Rotation.euler_zxy(pitch, yaw, roll)`
   * Same as `euler_xyz`, but uses Z-X-Y rotation order.
-  * This is consistent with the euler angles that can be used for entities.
+  * This is consistent with the Euler angles that can be used for entities.
     You can do `Rotation.euler_zxy((-rotation):unpack())`
     to convert an entity rotation vector (note the handedness conversion).
 * `Rotation.compose(...)`: Returns the composition of the given rotations.
