@@ -61,10 +61,10 @@ int LuaRotation::l_axis_angle(lua_State *L)
 template<float v3f::* C>
 int LuaRotation::l_fixed_axis_angle(lua_State *L)
 {
-	f32 angle = readParam<f32>(L, 1);
-	v3f axis;
-	axis.*C = 1.0f;
-	create(L, core::quaternion().fromAngleAxis(angle, axis));
+	f32 angle = readParamRaw<f32>(L, 1);
+	v3f euler_angles;
+	euler_angles.*C = angle;
+	create(L, core::quaternion(euler_angles));
 	return 1;
 }
 

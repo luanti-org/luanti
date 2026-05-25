@@ -78,7 +78,7 @@ int LuaMatrix4::l_rotation(lua_State *L)
 {
 	const core::quaternion &rotation = LuaRotation::check(L, 1);
 	core::matrix4 &matrix = create(L);
-	rotation.getMatrix_transposed(matrix);
+	rotation.getMatrix(matrix);
 	return 1;
 }
 
@@ -297,7 +297,7 @@ int LuaMatrix4::l_get_translation(lua_State *L)
 
 int LuaMatrix4::l_get_rs(lua_State *L)
 {
-	// TODO ? should check that it is, in fact, a rotation matrix;
+	// TODO maybe check that it is, in fact, a rotation matrix;
 	// not a fake rotation (axis flip) or a shear matrix
 	auto matrix = check(L, 1);
 	v3f scale = matrix.getScale();
