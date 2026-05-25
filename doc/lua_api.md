@@ -4401,7 +4401,7 @@ For example:
 Rotations
 =========
 
-Luanti provides a proper helper class for working with 3d rotations.
+Luanti provides a proper helper class for working with 3D rotations.
 Using vectors of Euler angles instead is discouraged as it is error-prone.
 This class was added in Luanti 5.17.0.
 
@@ -4473,8 +4473,8 @@ when passed to the corresponding constructor.
   * Inverse of `Rotation.euler_xyz`.
 * `pitch, yaw, roll = rot:to_euler_zxy()`
   * Same as `to_euler_xyz`, except uses Z-X-Y rotation order.
-  * To obtain a rotation for an entity, you can do
-    `-vector.new(rot:to_euler_xyz())`.
+  * To obtain a right-handed rotation in Z-X-Y order used for entities,
+    you can do `-vector.new(rot:to_euler_xyz())`.
 
 Rotations can also be converted to matrices using `Matrix4.rotation(rot)`.
 
