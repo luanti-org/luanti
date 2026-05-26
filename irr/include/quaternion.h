@@ -10,16 +10,6 @@
 #include "vector3d.h"
 #include <cmath>
 
-// NOTE: You *only* need this when updating an application from Irrlicht before 1.8 to Irrlicht 1.8 or later.
-// Between Irrlicht 1.7 and Irrlicht 1.8 the quaternion-matrix conversions changed.
-// Before the fix they had mixed left- and right-handed rotations.
-// To test if your code was affected by the change enable IRR_TEST_BROKEN_QUATERNION_USE and try to compile your application.
-// This defines removes those functions so you get compile errors anywhere you use them in your code.
-// For every line with a compile-errors you have to change the corresponding lines like that:
-// - When you pass the matrix to the quaternion constructor then replace the matrix by the transposed matrix.
-// - For uses of getMatrix() you have to use quaternion::getMatrix_transposed instead.
-// #define IRR_TEST_BROKEN_QUATERNION_USE
-
 namespace core
 {
 
@@ -43,10 +33,8 @@ public:
 	//! Constructor which converts Euler angles (radians) to a quaternion
 	quaternion(const vector3df &vec);
 
-#ifndef IRR_TEST_BROKEN_QUATERNION_USE
 	//! Constructor which converts a matrix to a quaternion
 	quaternion(const matrix4 &mat);
-#endif
 
 	//! Constructor which maps dir_from to dir_to by rotating
 	//! in the plane spanned by the two vectors.
@@ -69,10 +57,8 @@ public:
 		return !(*this == other);
 	}
 
-#ifndef IRR_TEST_BROKEN_QUATERNION_USE
 	//! Matrix assignment operator
 	inline quaternion &operator=(const matrix4 &other);
-#endif
 
 	//! Add operator
 	quaternion operator+(const quaternion &other) const;
@@ -125,10 +111,9 @@ public:
 	//! @note quaternion must not be zero
 	inline quaternion &normalize();
 
-#ifndef IRR_TEST_BROKEN_QUATERNION_USE
 	//! Creates a matrix from this quaternion
 	matrix4 getMatrix() const;
-#endif
+
 	//! Faster method to create a rotation matrix, you should normalize the quaternion before!
 	void getMatrixFast(matrix4 &dest) const;
 
@@ -234,15 +219,12 @@ inline quaternion::quaternion(const vector3df &vec)
 	set(vec.X, vec.Y, vec.Z);
 }
 
-#ifndef IRR_TEST_BROKEN_QUATERNION_USE
 // Constructor which converts a matrix to a quaternion
 inline quaternion::quaternion(const matrix4 &mat)
 {
 	(*this) = mat;
 }
-#endif
 
-#ifndef IRR_TEST_BROKEN_QUATERNION_USE
 // matrix assignment operator
 inline quaternion &quaternion::operator=(const matrix4 &m)
 {
@@ -293,7 +275,6 @@ inline quaternion &quaternion::operator=(const matrix4 &m)
 	normalize();
 	return *this;
 }
-#endif
 
 inline quaternion quaternion::mapsTo(
 		const vector3df &dir_from, const vector3df &dir_to)
@@ -360,7 +341,6 @@ inline quaternion quaternion::operator+(const quaternion &b) const
 	return quaternion(X + b.X, Y + b.Y, Z + b.Z, W + b.W);
 }
 
-#ifndef IRR_TEST_BROKEN_QUATERNION_USE
 // Creates a matrix from this quaternion
 inline matrix4 quaternion::getMatrix() const
 {
@@ -368,7 +348,6 @@ inline matrix4 quaternion::getMatrix() const
 	getMatrix(m);
 	return m;
 }
-#endif
 
 //! Faster method to create a rotation matrix, you should normalize the quaternion before!
 inline void quaternion::getMatrixFast(matrix4 &dest) const

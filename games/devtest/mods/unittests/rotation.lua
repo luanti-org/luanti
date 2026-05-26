@@ -50,6 +50,8 @@ describe("constructors", function()
 		assert_close(Rotation.quaternion(1, 0, 0, 0), Rotation.x(angle))
 		assert_close(Rotation.quaternion(0, 1, 0, 0), Rotation.y(angle))
 		assert_close(Rotation.quaternion(0, 0, 1, 0), Rotation.z(angle))
+		angle = math.pi/2
+		assert_close(Rotation.axis_angle(vector.new(0, 1, 0), angle), Rotation.y(angle))
 	end)
 	it("euler angles", function()
 		local pitch, yaw, roll = 1, 2, 3

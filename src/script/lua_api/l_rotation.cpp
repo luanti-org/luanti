@@ -141,7 +141,8 @@ int LuaRotation::l_to_euler_xyz(lua_State *L)
 int LuaRotation::l_to_euler_zxy(lua_State *L)
 {
 	const auto &q = check(L, 1);
-	const v3f euler = getPitchYawRollRad(q.getMatrix());
+	core::matrix4 mat = q.getMatrix();
+	const v3f euler = getPitchYawRollRad(mat);
 	lua_pushnumber(L, euler.X);
 	lua_pushnumber(L, euler.Y);
 	lua_pushnumber(L, euler.Z);
