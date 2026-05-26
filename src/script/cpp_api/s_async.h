@@ -211,7 +211,7 @@ private:
 	// Only set for the server async environment (duh)
 	Server *server = nullptr;
 
-	// Internal store for registred state initializers
+	// Internal store for registered state initializers
 	std::vector<StateInitializer> stateInitializers;
 
 	// Internal counter to create job IDs
