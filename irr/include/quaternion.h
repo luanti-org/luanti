@@ -50,8 +50,8 @@ public:
 
 	//! Constructor which maps dir_from to dir_to by rotating
 	//! in the plane spanned by the two vectors.
-	//! @note if the vectors are antiparallel, any plane containing the line may be chosen.
-	static quaternion maps_to(
+	//! @note if the vectors lie in a common line, any plane containing the line may be chosen.
+	static quaternion mapsTo(
 		const vector3df &dir_from, const vector3df &dir_to);
 
 	//! Equality operator
@@ -77,21 +77,24 @@ public:
 	//! Add operator
 	quaternion operator+(const quaternion &other) const;
 
-	//! Multiplication operator
-	//! Be careful, unfortunately the operator order here is opposite of that in CMatrix4::operator*
+	//! Quaternion multiplication (composition of rotations).
+	//! @note The returned quaternion applies `this` first, `other` second.
+	//!       That is, if `p` and `q` are quaternions and `v` is a vector,
+	//!       `p * (q * v)` equals `(q * p) * v` and *not* `(p * q) * v`.
 	quaternion operator*(const quaternion &other) const;
 
-	//! Multiplication operator with scalar
+	//! Quaternion multiplication (composition of rotations).
+	//! @note *Not* equivalent to `a = a * b`, but rather to `a = b * a`.
+	quaternion &operator*=(const quaternion &other);
+
+	//! Multiplication with scalar
 	quaternion operator*(f32 s) const;
 
-	//! Multiplication operator with scalar
+	//! Multiplication with scalar
 	quaternion &operator*=(f32 s);
 
-	//! Multiplication operator
+	//! Quaternion-vector multiplication (application of a rotation).
 	vector3df operator*(const vector3df &v) const;
-
-	//! Multiplication operator
-	quaternion &operator*=(const quaternion &other);
 
 	//! Calculates the dot product
 	inline f32 dotProduct(const quaternion &other) const;
@@ -212,9 +215,6 @@ public:
 	//! Set quaternion to identity
 	quaternion &makeIdentity();
 
-	//! Set quaternion to represent a rotation from one vector to another.
-	quaternion &rotationFromTo(const vector3df &from, const vector3df &to);
-
 	//! Quaternion elements.
 	f32 X; // vectorial (imaginary) part
 	f32 Y;
@@ -295,7 +295,7 @@ inline quaternion &quaternion::operator=(const matrix4 &m)
 }
 #endif
 
-inline quaternion quaternion::maps_to(
+inline quaternion quaternion::mapsTo(
 		const vector3df &dir_from, const vector3df &dir_to)
 {
 	vector3df axis = dir_from.crossProduct(dir_to);
@@ -319,10 +319,10 @@ inline quaternion quaternion::maps_to(
 	return q;
 }
 
-//! Multiplication operator. this is applied first, other second.
-// TODO swap this for consistency with matrix multiplications and the rest of mathematics
 inline quaternion quaternion::operator*(const quaternion &other) const
 {
+	// TODO swap `this` and `other` for consistency with matrix multiplications and the rest of mathematics.
+
 	quaternion tmp;
 
 	tmp.W = (other.W * W) - (other.X * X) - (other.Y * Y) - (other.Z * Z);
@@ -349,7 +349,6 @@ inline quaternion &quaternion::operator*=(f32 s)
 	return *this;
 }
 
-// multiplication operator
 inline quaternion &quaternion::operator*=(const quaternion &other)
 {
 	return (*this = other * (*this));
@@ -710,35 +709,6 @@ inline core::quaternion &quaternion::makeIdentity()
 	Y = 0.f;
 	Z = 0.f;
 	return *this;
-}
-
-inline core::quaternion &quaternion::rotationFromTo(const vector3df &from, const vector3df &to)
-{
-	// Based on Stan Melax's article in Game Programming Gems
-	// Optimized by Robert Eisele: https://raw.org/proof/quaternion-from-two-vectors
-
-	// Copy, since cannot modify local
-	vector3df v0 = from;
-	vector3df v1 = to;
-	v0.normalize();
-	v1.normalize();
-
-	const f32 d = v0.dotProduct(v1);
-	if (d >= 1.0f) { // If dot == 1, vectors are the same
-		return makeIdentity();
-	} else if (d <= -1.0f) { // exactly opposite
-		core::vector3df axis(1.0f, 0.f, 0.f);
-		axis = axis.crossProduct(v0);
-		if (axis.getLength() == 0) {
-			axis.set(0.f, 1.f, 0.f);
-			axis = axis.crossProduct(v0);
-		}
-		// same as fromAngleAxis(core::PI, axis).normalize();
-		return set(axis.X, axis.Y, axis.Z, 0).normalize();
-	}
-
-	const vector3df c = v0.crossProduct(v1);
-	return set(c.X, c.Y, c.Z, 1 + d).normalize();
 }
 
 } // end namespace core

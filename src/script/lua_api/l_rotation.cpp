@@ -100,7 +100,7 @@ int LuaRotation::l_maps_to(lua_State *L)
 	v3f dir_from = readParam<v3f>(L, 1);
 	v3f dir_to = readParam<v3f>(L, 2);
 
-	create(L, core::quaternion::maps_to(dir_from, dir_to));
+	create(L, core::quaternion::mapsTo(dir_from, dir_to));
 	return 1;
 }
 
