@@ -45,6 +45,8 @@ int LuaRotation::l_quaternion(lua_State *L)
 	f32 w = readParam<f32>(L, 4);
 	core::quaternion q(x, y, z, w);
 	q.normalize();
+	if (!std::isfinite(q.W))
+		throw LuaError("quaternion can not be normalized (length zero)");
 	create(L, q);
 	return 1;
 }
