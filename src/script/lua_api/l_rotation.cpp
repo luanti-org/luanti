@@ -12,6 +12,7 @@
 #include "util/numeric.h"
 #include "irrlicht_changes/printing.h"
 
+#include <cmath>
 #include <lauxlib.h>
 #include <lua.h>
 #include <sstream>
@@ -57,6 +58,8 @@ int LuaRotation::l_axis_angle(lua_State *L)
 	f32 angle = readParam<f32>(L, 2);
 	core::quaternion quaternion;
 	axis.normalize();
+	if (!std::isfinite(axis.X))
+		throw LuaError("axis must be nonzero");
 	quaternion.fromAngleAxis(angle, axis);
 	create(L, quaternion);
 	return 1;
