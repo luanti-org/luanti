@@ -980,7 +980,7 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	f.waving = getintfield_default(L, index,
 			"waving", f.waving);
 
-	// Set to true if paramtype used to be 'facedir_simple'
+	// Set to true if paramtype2 used to be 'facedir_simple'
 	getboolfield(L, index, "legacy_facedir_simple", f.legacy_facedir_simple);
 	// Set to true if wall_mounted used to be set to true
 	getboolfield(L, index, "legacy_wallmounted", f.legacy_wallmounted);

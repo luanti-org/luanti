@@ -19,7 +19,7 @@
  * 2) IS_CLIENT_BUILD = 0 and CHECK_CLIENT_BUILD() = 0
  * 3) IS_CLIENT_BUILD = 0 and CHECK_CLIENT_BUILD() undefined
  * As a function style macro CHECK_CLIENT_BUILD() has the special property that it
- * cause a compile error if it used but not defined.
+ * cause a compile error if used but not defined.
  *
  * v v v v v v v v v READ THIS PART v v v v v v v v v
  * So that object files can be safely shared, these macros need to be used like so:

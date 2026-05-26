@@ -265,7 +265,7 @@ protected:
 		- Whether this object is to be removed when nobody knows about
 		  it anymore.
 		- Removal is delayed to preserve the id for the time during which
-		  it could be confused to some other object by some client.
+		  it could be confused with some other object by some client.
 		- This is usually set to true by the step() method when the object wants
 		  to be deleted but can be set by anything else too.
 		Note: Do not assign this directly, use markForRemoval() instead.

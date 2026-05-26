@@ -203,7 +203,7 @@ public:
 		setAttachment(0, "", v3f(), v3f(), false);
 	}
 
-	// To be be called from setAttachment() and descendants, but not manually!
+	// To be called from setAttachment() and descendants, but not manually!
 	virtual void addAttachmentChild(object_t child_id) {}
 	virtual void removeAttachmentChild(object_t child_id) {}
 

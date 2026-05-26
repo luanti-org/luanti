@@ -50,7 +50,7 @@ public:
 	// return false means streaming finished
 	bool stepStream(bool playback_speed_changed = false);
 
-	// retruns true if it wasn't fading already
+	// returns true if it wasn't fading already
 	bool fade(f32 step, f32 target_gain) noexcept;
 
 	// returns true if more fade is needed later

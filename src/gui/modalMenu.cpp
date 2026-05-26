@@ -153,7 +153,7 @@ bool GUIModalMenu::simulateMouseEvent(ETOUCH_INPUT_EVENT touch_event, bool secon
 	else
 		target = m_touch_hovered.get();
 
-	SEvent mouse_event{}; // value-initialized, not unitialized
+	SEvent mouse_event{}; // value-initialized, not uninitialized
 	mouse_event.EventType = EET_MOUSE_INPUT_EVENT;
 	mouse_event.MouseInput.X = m_pointer.X;
 	mouse_event.MouseInput.Y = m_pointer.Y;

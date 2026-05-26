@@ -63,7 +63,7 @@ float Environment::getTimeOfDayF()
 
 bool Environment::line_of_sight(v3f pos1, v3f pos2, v3s16 *p)
 {
-	// Iterate trough nodes on the line
+	// Iterate through nodes on the line
 	voxalgo::VoxelLineIterator iterator(pos1 / BS, (pos2 - pos1) / BS);
 	do {
 		MapNode n = getMap().getNode(iterator.m_current_node_pos);

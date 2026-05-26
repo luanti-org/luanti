@@ -527,7 +527,7 @@ static bool hopcroft_karp_can_match_all(const std::vector<std::vector<u16>> &bip
 			queue.pop();
 
 			if (dist[u] < dist[nil]) { // if dummy not yet reached
-				for (u16 v : bip_graph[u]) { // for all adjanced of u
+				for (u16 v : bip_graph[u]) { // for all adjacent of u
 					u16 u_back = pair_v[v];
 					// if u_back unvisited, go there
 					if (dist[u_back] == inf) {

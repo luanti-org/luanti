@@ -111,7 +111,7 @@ protected:
 			std::vector<std::string> &paths) override;
 };
 
-/** implementation of main menu based uppon formspecs */
+/** implementation of main menu based upon formspecs */
 class GUIEngine {
 	/** grant ModApiMainMenu access to private members */
 	friend class ModApiMainMenu;

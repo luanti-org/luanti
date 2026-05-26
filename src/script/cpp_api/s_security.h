@@ -93,7 +93,7 @@ protected:
 
 private:
 	int getThread(lua_State *L);
-	// sets the enviroment to the table thats on top of the stack
+	// sets the environment to the table that's on top of the stack
 	void setLuaEnv(lua_State *L, int thread);
 	// creates an empty Lua environment
 	void createEmptyEnv(lua_State *L);

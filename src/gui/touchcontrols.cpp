@@ -653,7 +653,7 @@ void TouchControls::step(float dtime)
 	// thus the camera position can change, it doesn't suffice to update the
 	// shootline when a touch event occurs.
 	// Only updating when m_has_move_id means that the shootline will stay at
-	// it's last in-world position when the player doesn't need it.
+	// its last in-world position when the player doesn't need it.
 	if (m_interaction_style == TAP && (m_has_move_id || m_had_move_id)) {
 		m_shootline = m_device
 				->getSceneManager()

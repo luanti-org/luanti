@@ -518,7 +518,7 @@ void LBMManager::applyLBMs(ServerEnvironment *env, MapBlock *block,
 		}
 		for (auto &lbm_def : batch.l) {
 			if (!first) {
-				// The fun part: since any LBM call can change the nodes inside of he
+				// The fun part: since any LBM call can change the nodes inside of the
 				// block, we have to recheck the positions to see if the wanted node
 				// is still there.
 				// Note that we don't rescan the whole block, we don't want to include new changes.
