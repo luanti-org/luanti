@@ -23,6 +23,7 @@ public:
 		for (const auto &name: Settings::getLayer(SL_DEFAULTS)->getNames())
 			if (str_starts_with(name, "keymap_"))
 				g_settings->registerChangedCallback(name, &settingChangedCallback, this);
+		g_settings->registerChangedCallback("joystick_deadzone", &settingChangedCallback, this);
 	}
 
 	virtual ~InputHandler() = default;
@@ -174,6 +175,9 @@ private:
 	 * faster (up to 10x faster) key lookup is an asset.
 	 */
 	std::array<std::vector<KeyPress>, KeyType::INTERNAL_ENUM_COUNT> keybindings;
+
+	// Joystick deadzone
+	s16 joystick_deadzone = 0;
 
 	s32 mouse_wheel = 0;
 

@@ -2488,7 +2488,7 @@ serverlist_file (Serverlist file) [client] string favoriteservers.json
 enable_joysticks (Enable joysticks) bool false
 
 #    The dead zone of the joystick
-joystick_deadzone (Joystick dead zone) int 2048 0 65535
+joystick_deadzone (Joystick dead zone) int 8000 0 32767
 
 #    The sensitivity of the joystick axes for moving the
 #    in-game view frustum around.

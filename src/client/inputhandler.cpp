@@ -87,6 +87,8 @@ void MyEventReceiver::reloadKeybindings()
 			listenForKey(key, game_key);
 		}
 	}
+
+	joystick_deadzone = g_settings->getS16("joystick_deadzone");
 }
 
 bool MyEventReceiver::setKeyDown(KeyPress keyCode, float value)
@@ -228,6 +230,8 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		return true;
 	} else if (event.EventType == EET_GAMEPAD_AXIS_EVENT) {
 		auto event_value = event.GamepadAxisEvent.Value;
+		if (event_value > -joystick_deadzone && event_value < joystick_deadzone)
+			event_value = 0;
 		float analog_value = event_value > 0 ? event_value/32767.0f : -event_value/32768.0f;
 		setKeyDown(KeyPress(event.GamepadAxisEvent), analog_value);
 		// reset the analog joystick in the opposite value
