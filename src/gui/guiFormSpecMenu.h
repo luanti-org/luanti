@@ -27,7 +27,6 @@ class ISimpleTextureSource;
 class Client;
 class GUIScrollContainer;
 class ISoundManager;
-class JoystickController;
 
 enum FormspecFieldType {
 	f_Button,
@@ -150,8 +149,7 @@ class GUIFormSpecMenu : public GUIModalMenu
 	};
 
 public:
-	GUIFormSpecMenu(JoystickController *joystick,
-			gui::IGUIElement* parent, s32 id,
+	GUIFormSpecMenu(gui::IGUIElement* parent, s32 id,
 			IMenuManager *menumgr,
 			Client *client,
 			gui::IGUIEnvironment *guienv,
@@ -165,7 +163,7 @@ public:
 	~GUIFormSpecMenu();
 
 	static void create(GUIFormSpecMenu *&cur_formspec, Client *client,
-		gui::IGUIEnvironment *guienv, JoystickController *joystick, IFormSource *fs_src,
+		gui::IGUIEnvironment *guienv, IFormSource *fs_src,
 		TextDest *txt_dest, const std::string &formspecPrepend,
 		ISoundManager *sound_manager);
 
@@ -387,7 +385,6 @@ private:
 	std::string                m_last_formname;
 	u16                        m_formspec_version = 1;
 	std::optional<std::string> m_focused_element = std::nullopt;
-	JoystickController        *m_joystick;
 	bool                       m_show_debug = false;
 	bool                       m_show_focus = false;
 	gui::IGUIElement          *m_last_focused = nullptr;

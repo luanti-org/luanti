@@ -22,7 +22,6 @@
 #include <IGUIImage.h>
 #include <AnimatedMeshSceneNode.h>
 #include "client/renderingengine.h"
-#include "client/joystick_controller.h"
 #include "log.h"
 #include "drawItemStack.h"
 #include "gettext.h"
@@ -87,8 +86,7 @@ inline u32 clamp_u8(s32 value)
 	return (u32) MYMIN(MYMAX(value, 0), 255);
 }
 
-GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
-		gui::IGUIElement *parent, s32 id, IMenuManager *menumgr,
+GUIFormSpecMenu::GUIFormSpecMenu(gui::IGUIElement *parent, s32 id, IMenuManager *menumgr,
 		Client *client, gui::IGUIEnvironment *guienv, ISimpleTextureSource *tsrc,
 		ISoundManager *sound_manager, IFormSource *fsrc, TextDest *tdst,
 		const std::string &formspecPrepend, bool remap_dbl_click):
@@ -99,8 +97,7 @@ GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
 	m_client(client),
 	m_formspec_prepend(formspecPrepend),
 	m_form_src(fsrc),
-	m_text_dst(tdst),
-	m_joystick(joystick)
+	m_text_dst(tdst)
 {
 	current_keys_pending.key_down = false;
 	current_keys_pending.key_up = false;
@@ -119,7 +116,7 @@ GUIFormSpecMenu::~GUIFormSpecMenu()
 }
 
 void GUIFormSpecMenu::create(GUIFormSpecMenu *&cur_formspec, Client *client,
-	gui::IGUIEnvironment *guienv, JoystickController *joystick, IFormSource *fs_src,
+	gui::IGUIEnvironment *guienv, IFormSource *fs_src,
 	TextDest *txt_dest, const std::string &formspecPrepend, ISoundManager *sound_manager)
 {
 	if (cur_formspec && cur_formspec->getReferenceCount() == 1) {
@@ -136,7 +133,7 @@ void GUIFormSpecMenu::create(GUIFormSpecMenu *&cur_formspec, Client *client,
 	}
 
 	if (cur_formspec == nullptr) {
-		cur_formspec = new GUIFormSpecMenu(joystick, guiroot, -1, &g_menumgr,
+		cur_formspec = new GUIFormSpecMenu(guiroot, -1, &g_menumgr,
 			client, guienv, client->getTextureSource(), sound_manager, fs_src,
 			txt_dest, formspecPrepend);
 
@@ -4173,21 +4170,6 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 			hovered->OnEvent(event);
 			return event.MouseInput.Event == EMIE_MOUSE_WHEEL;
 		}
-	}
-
-	if (event.EventType == EET_JOYSTICK_INPUT_EVENT) {
-		if (event.JoystickEvent.Joystick != m_joystick->getJoystickId())
-			return false;
-
-		bool handled = m_joystick->handleEvent(event.JoystickEvent);
-		if (handled) {
-			if (m_joystick->wasKeyDown(KeyType::ESC)) {
-				tryClose();
-			} else if (m_joystick->wasKeyDown(KeyType::JUMP)) {
-				trySubmitClose();
-			}
-		}
-		return handled;
 	}
 
 	return false;

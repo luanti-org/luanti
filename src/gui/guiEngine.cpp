@@ -110,8 +110,7 @@ void MenuMusicFetcher::addThePaths(const std::string &name,
 /** GUIEngine                                                                 */
 /******************************************************************************/
 
-GUIEngine::GUIEngine(JoystickController *joystick,
-		gui::IGUIElement *parent,
+GUIEngine::GUIEngine(gui::IGUIElement *parent,
 		RenderingEngine *rendering_engine,
 		IMenuManager *menumgr,
 		MainMenuData *data,
@@ -164,7 +163,6 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 
 	/* Create menu */
 	m_menu = make_irr<GUIFormSpecMenu>(
-			joystick,
 			m_parent,
 			-1,
 			m_menumanager,
