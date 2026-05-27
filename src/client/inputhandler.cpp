@@ -223,6 +223,16 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		default:
 			break;
 		}
+	} else if (event.EventType == EET_GAMEPAD_BUTTON_EVENT) {
+		setKeyDown(KeyPress(event.GamepadButtonEvent), event.GamepadButtonEvent.PressedDown);
+		return true;
+	} else if (event.EventType == EET_GAMEPAD_AXIS_EVENT) {
+		auto event_value = event.GamepadAxisEvent.Value;
+		float analog_value = event_value > 0 ? event_value/32767.0f : -event_value/32768.0f;
+		setKeyDown(KeyPress(event.GamepadAxisEvent), analog_value);
+		// reset the analog joystick in the opposite value
+		setKeyDown(KeyPress(event.GamepadAxisEvent, true), 0);
+		return true;
 	} else if (event.EventType == EET_USER_EVENT && event.UserEvent.type == EUET_GAME_KEY) {
 		KeyPress keyCode(static_cast<GameKeyType>(event.UserEvent.UserData1));
 		setKeyDown(keyCode, InputHandler::intToAnalog(event.UserEvent.UserData2));
