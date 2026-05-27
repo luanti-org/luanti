@@ -383,7 +383,7 @@ void set_default_settings()
 	settings->setDefault("continuous_forward", "false");
 	settings->setDefault("enable_joysticks", "false");
 	settings->setDefault("joystick_frustum_sensitivity", "170");
-	settings->setDefault("joystick_deadzone", "2048");
+	settings->setDefault("joystick_deadzone", "8000");
 
 	// Main menu
 	settings->setDefault("main_menu_path", "");
