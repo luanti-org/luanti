@@ -48,8 +48,7 @@ struct PlayerControl
 		bool a_jump, bool a_aux1, bool a_sneak,
 		bool a_zoom,
 		bool a_dig, bool a_place,
-		float a_pitch, float a_yaw,
-		float a_movement_speed, float a_movement_direction
+		float a_pitch, float a_yaw
 	)
 	{
 		up = a_up;
@@ -64,8 +63,6 @@ struct PlayerControl
 		place = a_place;
 		pitch = a_pitch;
 		yaw = a_yaw;
-		movement_speed = a_movement_speed;
-		movement_direction = a_movement_direction;
 	}
 
 	// Sets movement_speed and movement_direction according to direction_keys

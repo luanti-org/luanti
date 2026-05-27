@@ -325,30 +325,6 @@ void ClientLauncher::init_input()
 		input = new RandomInputHandler();
 	else
 		input = new RealInputHandler(receiver);
-
-	if (g_settings->getBool("enable_joysticks"))
-		init_joysticks();
-}
-
-void ClientLauncher::init_joysticks()
-{
-	core::array<SJoystickInfo> infos;
-	std::vector<SJoystickInfo> joystick_infos;
-
-	// Make sure this is called maximum once per
-	// irrlicht device, otherwise it will give you
-	// multiple events for the same joystick.
-	if (!m_rendering_engine->get_raw_device()->activateJoysticks(infos)) {
-		errorstream << "Could not activate joystick support." << std::endl;
-		return;
-	}
-
-	infostream << "Joystick support enabled" << std::endl;
-	joystick_infos.reserve(infos.size());
-	for (u32 i = 0; i < infos.size(); i++) {
-		joystick_infos.push_back(infos[i]);
-	}
-	input->joystick.onJoystickConnect(joystick_infos);
 }
 
 void ClientLauncher::setting_changed_callback(const std::string &name, void *data)
@@ -581,7 +557,7 @@ void ClientLauncher::main_menu(MainMenuData *menudata)
 	}
 
 	/* show main menu */
-	GUIEngine mymenu(&input->joystick, guiroot, m_rendering_engine, &g_menumgr, menudata, *kill);
+	GUIEngine mymenu(guiroot, m_rendering_engine, &g_menumgr, menudata, *kill);
 
 	/* leave scene manager in a clean state */
 	m_rendering_engine->get_scene_manager()->clear();

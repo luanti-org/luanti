@@ -10,7 +10,6 @@
 #include "client/inputhandler.h"
 #include "client/texturepaths.h"
 #include "client/keys.h"
-#include "client/joystick_controller.h"
 #include "client/mapblock_mesh.h"
 #include "client/sound.h"
 #include "clientmap.h"
@@ -2013,12 +2012,6 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 			input->setMousePos(center.X, center.Y);
 	}
 
-	if (m_cache_enable_joysticks) {
-		f32 c = m_cache_joystick_frustum_sensitivity * dtime * sens_scale;
-		cam->camera_yaw -= input->joystick.getAxisWithoutDead(JA_FRUSTUM_HORIZONTAL) * c;
-		cam->camera_pitch += input->joystick.getAxisWithoutDead(JA_FRUSTUM_VERTICAL) * c;
-	}
-
 	// Keyboard look
 	const f32 rate = m_cache_keyboard_camera_speed * dtime * sens_scale;
 
@@ -2068,9 +2061,7 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 		isKeyDown(KeyType::DIG),
 		isKeyDown(KeyType::PLACE),
 		cam.camera_pitch,
-		cam.camera_yaw,
-		input->getJoystickSpeed(),
-		input->getJoystickDirection()
+		cam.camera_yaw
 	);
 	control.setMovementFromKeys();
 
@@ -2820,12 +2811,6 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 	// Ensure DIG & PLACE are marked as handled
 	wasKeyDown(KeyType::DIG);
 	wasKeyDown(KeyType::PLACE);
-
-	input->joystick.clearWasKeyPressed(KeyType::DIG);
-	input->joystick.clearWasKeyPressed(KeyType::PLACE);
-
-	input->joystick.clearWasKeyReleased(KeyType::DIG);
-	input->joystick.clearWasKeyReleased(KeyType::PLACE);
 }
 
 
@@ -3748,7 +3733,6 @@ void Game::readSettings()
 	m_cache_doubletap_jump               = g_settings->getBool("doubletap_jump");
 	m_cache_toggle_sneak_key             = g_settings->getBool("toggle_sneak_key");
 	m_cache_toggle_aux1_key              = g_settings->getBool("toggle_aux1_key");
-	m_cache_enable_joysticks             = g_settings->getBool("enable_joysticks");
 	m_cache_enable_fog                   = g_settings->getBool("enable_fog");
 	m_cache_mouse_sensitivity            = g_settings->getFloat("mouse_sensitivity", 0.001f, 10.0f);
 	m_cache_keyboard_camera_speed        = g_settings->getFloat("keyboard_camera_speed", 0.001f, 720.0f);

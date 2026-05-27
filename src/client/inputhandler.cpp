@@ -202,9 +202,6 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		// In case of touchcontrols, we have to handle different events
 		g_touchcontrols->translateEvent(event);
 		return true;
-	} else if (event.EventType == EET_JOYSTICK_INPUT_EVENT) {
-		// joystick may be nullptr if game is launched with '--random-input' parameter
-		return joystick && joystick->handleEvent(event.JoystickEvent);
 	} else if (event.EventType == EET_MOUSE_INPUT_EVENT) {
 		// Handle mouse events
 		switch (event.MouseInput.Event) {
@@ -239,16 +236,6 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 /*
  * RealInputHandler
  */
-float RealInputHandler::getJoystickSpeed()
-{
-	return joystick.getMovementSpeed();
-}
-
-float RealInputHandler::getJoystickDirection()
-{
-	return joystick.getMovementDirection();
-}
-
 v2s32 RealInputHandler::getMousePos()
 {
 	auto control = RenderingEngine::get_raw_device()->getCursorControl();
@@ -310,25 +297,4 @@ void RandomInputHandler::step(float dtime)
 		}
 	}
 	mousepos += mousespeed;
-	static bool useJoystick = false;
-	{
-		static float counterUseJoystick = 0;
-		counterUseJoystick -= dtime;
-		if (counterUseJoystick < 0.0) {
-			counterUseJoystick = 5.0; // switch between joystick and keyboard direction input
-			useJoystick = !useJoystick;
-		}
-	}
-	if (useJoystick) {
-		static float counterMovement = 0;
-		counterMovement -= dtime;
-		if (counterMovement < 0.0) {
-			counterMovement = 0.1 * Rand(1, 40);
-			joystickSpeed = Rand(0,100)*0.01;
-			joystickDirection = Rand(-100, 100)*0.01 * M_PI;
-		}
-	} else {
-		joystickSpeed = 0.0f;
-		joystickDirection = 0.0f;
-	}
 }
