@@ -286,6 +286,12 @@ KeyPress::KeyPress(const std::string &name)
 		return;
 	if (loadUnsignedFromPrefix<InputType::MOUSE_BUTTON>(name, "MOUSE_BUTTON_"))
 		return;
+	if (loadUnsignedFromPrefix<InputType::GAMEPAD_BUTTON>(name, "GAMEPAD_BUTTON_"))
+		return;
+	if (loadUnsignedFromPrefix<InputType::GAMEPAD_AXIS_PLUS>(name, "GAMEPAD_AXIS_PLUS_"))
+		return;
+	if (loadUnsignedFromPrefix<InputType::GAMEPAD_AXIS_MINUS>(name, "GAMEPAD_AXIS_MINUS_"))
+		return;
 	const auto &key = lookup_keyname(name);
 	loadFromKey(key.Key, key.Char);
 }
@@ -316,6 +322,19 @@ KeyPress::KeyPress(const SEvent::SMouseInput &in)
 	}
 }
 
+KeyPress::KeyPress(const SEvent::SGamepadButtonEvent &in)
+{
+	emplace<InputType::GAMEPAD_BUTTON>(in.Button);
+}
+
+KeyPress::KeyPress(const SEvent::SGamepadAxisEvent &in, bool flip)
+{
+	if ((in.Value >= 0) ^ flip)
+		emplace<InputType::GAMEPAD_AXIS_PLUS>(in.Axis);
+	else
+		emplace<InputType::GAMEPAD_AXIS_MINUS>(in.Axis);
+}
+
 std::string KeyPress::sym() const
 {
 	switch (getType()) {
@@ -323,6 +342,12 @@ std::string KeyPress::sym() const
 		return "SYSTEM_SCANCODE_" + std::to_string(get<InputType::KEYBOARD>());
 	case InputType::MOUSE_BUTTON:
 		return "MOUSE_BUTTON_" + std::to_string(get<InputType::MOUSE_BUTTON>());
+	case InputType::GAMEPAD_BUTTON:
+		return "GAMEPAD_BUTTON_" + std::to_string(get<InputType::GAMEPAD_BUTTON>());
+	case InputType::GAMEPAD_AXIS_PLUS:
+		return "GAMEPAD_AXIS_PLUS_" + std::to_string(get<InputType::GAMEPAD_AXIS_PLUS>());
+	case InputType::GAMEPAD_AXIS_MINUS:
+		return "GAMEPAD_AXIS_MINUS_" + std::to_string(get<InputType::GAMEPAD_AXIS_MINUS>());
 	default:
 		return "";
 	}
@@ -360,6 +385,18 @@ std::string KeyPress::name() const
 			return fmtgettext("Mouse Button %d", button);
 		}
 	}
+	case InputType::GAMEPAD_BUTTON: {
+		auto button = get<InputType::GAMEPAD_BUTTON>();
+		return fmtgettext("Gamepad Button %d", button);
+	}
+	case InputType::GAMEPAD_AXIS_PLUS: {
+		auto axis = get<InputType::GAMEPAD_AXIS_PLUS>();
+		return fmtgettext("Gamepad Axis %d +", axis);
+	}
+	case InputType::GAMEPAD_AXIS_MINUS: {
+		auto axis = get<InputType::GAMEPAD_AXIS_MINUS>();
+		return fmtgettext("Gamepad Axis %d -", axis);
+	}
 	default:
 		return "";
 	}
@@ -387,6 +424,11 @@ KeyPress::operator bool() const
 		return get<InputType::MOUSE_BUTTON>() != 0;
 	case InputType::GAME_ACTION:
 		return get<InputType::GAME_ACTION>() < KeyType::INTERNAL_ENUM_COUNT;
+	case InputType::GAMEPAD_BUTTON:
+	case InputType::GAMEPAD_AXIS_PLUS:
+	case InputType::GAMEPAD_AXIS_MINUS:
+		// TODO: correct this to use SDL_GAMEPAD_BUTTON_COUNT and SDL_GAMEPAD_AXIS_COUNT
+		return true;
 	default:
 		return false;
 	}

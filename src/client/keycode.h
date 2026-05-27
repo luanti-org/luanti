@@ -22,6 +22,9 @@ public:
 		KEYBOARD, // Keyboard input (scancodes)
 		MOUSE_BUTTON, // Mouse button input
 		GAME_ACTION, // GameKeyType input passed by touchscreen buttons
+		GAMEPAD_BUTTON, // Gamepad button
+		GAMEPAD_AXIS_PLUS, // Gamepad axis in the positive direction
+		GAMEPAD_AXIS_MINUS, // Gamepad axis in the negative direction
 	};
 
 	KeyPress() = default;
@@ -29,9 +32,9 @@ public:
 	KeyPress(const std::string &name);
 
 	KeyPress(const SEvent::SKeyInput &in);
-
 	KeyPress(const SEvent::SMouseInput &in);
-
+	KeyPress(const SEvent::SGamepadButtonEvent &in);
+	KeyPress(const SEvent::SGamepadAxisEvent &in, bool flip = false);
 	KeyPress(GameKeyType key) : value(key) {}
 
 	// Get a string representation that is suitable for use in minetest.conf
@@ -74,7 +77,7 @@ private:
 	// The same data type may be used for different variants, so this should be indexed using InputType.
 	// The get, getIf, and emplace methods are wrappers for their std::variant counterparts. This allows using
 	// InputType enum values instead of numeric indices.
-	using value_type = std::variant<u32, u32, GameKeyType>;
+	using value_type = std::variant<u32, u32, GameKeyType, u8, u8, u8>;
 
 	template<InputType I>
 	using value_alternative_t = std::variant_alternative_t<static_cast<size_t>(I), value_type>;

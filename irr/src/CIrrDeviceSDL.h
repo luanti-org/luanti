@@ -24,8 +24,14 @@
 #include <SDL.h>
 #endif
 
+#include <map>
 #include <memory>
 #include <unordered_map>
+
+#ifndef _IRR_USE_SDL3_
+	// Backward compatibility for SDL2
+	#define SDL_Gamepad SDL_GameController
+#endif
 
 class CIrrDeviceSDL : public CIrrDeviceStub
 {
@@ -94,9 +100,6 @@ public:
 
 	//! Get the position of this window on screen
 	core::position2di getWindowPosition() override;
-
-	//! Activate any joysticks, and generate events for them.
-	bool activateJoysticks(core::array<SJoystickInfo> &joystickInfo) override;
 
 	//! Get the device type
 	E_DEVICE_TYPE getType() const override
@@ -327,7 +330,7 @@ private:
 	SDL_GLContext Context;
 	SDL_Window *Window;
 #if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
-	core::array<SDL_Joystick *> Joysticks;
+	std::map<u32, SDL_Gamepad*> gamepads;
 #endif
 
 	s32 MouseX, MouseY;

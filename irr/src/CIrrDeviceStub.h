@@ -101,9 +101,6 @@ public:
 	//! Checks if the window is running in fullscreen mode.
 	bool isFullscreen() const override;
 
-	//! Activate any joysticks, and generate events for them.
-	bool activateJoysticks(core::array<SJoystickInfo> &joystickInfo) override;
-
 	//! Activate accelerometer.
 	bool activateAccelerometer(float updateInterval = 0.016666f) override;
 

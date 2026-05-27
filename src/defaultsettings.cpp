@@ -131,34 +131,34 @@ void set_default_settings()
 	settings->setDefault("chat_weblink_color", "#8888FF");
 
 	// Keymap
-	settings->setDefault("keymap_forward", "SYSTEM_SCANCODE_26"); // KEY_KEY_W
+	settings->setDefault("keymap_forward", "SYSTEM_SCANCODE_26|GAMEPAD_AXIS_MINUS_1"); // KEY_KEY_W|Left Joystick
 	settings->setDefault("keymap_autoforward", "");
-	settings->setDefault("keymap_backward", "SYSTEM_SCANCODE_22"); // KEY_KEY_S
-	settings->setDefault("keymap_left", "SYSTEM_SCANCODE_4"); // KEY_KEY_A
-	settings->setDefault("keymap_right", "SYSTEM_SCANCODE_7"); // KEY_KEY_D
-	settings->setDefault("keymap_jump", "SYSTEM_SCANCODE_44"); // KEY_SPACE
-	settings->setDefault("keymap_sneak", "SYSTEM_SCANCODE_225"); // KEY_LSHIFT
-	settings->setDefault("keymap_dig", "MOUSE_BUTTON_1");
-	settings->setDefault("keymap_place", "MOUSE_BUTTON_3");
-	settings->setDefault("keymap_drop", "SYSTEM_SCANCODE_20"); // KEY_KEY_Q
-	settings->setDefault("keymap_zoom", "SYSTEM_SCANCODE_29"); // KEY_KEY_Z
-	settings->setDefault("keymap_inventory", "SYSTEM_SCANCODE_12"); // KEY_KEY_I
-	settings->setDefault("keymap_aux1", "SYSTEM_SCANCODE_8"); // KEY_KEY_E
+	settings->setDefault("keymap_backward", "SYSTEM_SCANCODE_22|GAMEPAD_AXIS_PLUS_1"); // KEY_KEY_S|Left Joystick
+	settings->setDefault("keymap_left", "SYSTEM_SCANCODE_4|GAMEPAD_AXIS_MINUS_0"); // KEY_KEY_A|Left Joystick
+	settings->setDefault("keymap_right", "SYSTEM_SCANCODE_7|GAMEPAD_AXIS_PLUS_0"); // KEY_KEY_D|Left Joystick
+	settings->setDefault("keymap_jump", "SYSTEM_SCANCODE_44|GAMEPAD_BUTTON_0"); // KEY_SPACE|Gamepad South
+	settings->setDefault("keymap_sneak", "SYSTEM_SCANCODE_225|GAMEPAD_BUTTON_1"); // KEY_LSHIFT|Gamepad East
+	settings->setDefault("keymap_dig", "MOUSE_BUTTON_1|GAMEPAD_AXIS_PLUS_5"); // LMB|Gamepad RT
+	settings->setDefault("keymap_place", "MOUSE_BUTTON_3|GAMEPAD_AXIS_PLUS_4"); // RMB|Gamepad LT
+	settings->setDefault("keymap_drop", "SYSTEM_SCANCODE_20|GAMEPAD_BUTTON_12"); // KEY_KEY_Q|D-Pad Down
+	settings->setDefault("keymap_zoom", "SYSTEM_SCANCODE_29|GAMEPAD_BUTTON_11"); // KEY_KEY_Z|D-Pad Up
+	settings->setDefault("keymap_inventory", "SYSTEM_SCANCODE_12|GAMEPAD_BUTTON_3"); // KEY_KEY_I|Gamepad North
+	settings->setDefault("keymap_aux1", "SYSTEM_SCANCODE_8|GAMEPAD_BUTTON_2"); // KEY_KEY_E|Gamepad West
 	settings->setDefault("keymap_chat", "SYSTEM_SCANCODE_23"); // KEY_KEY_T
 	settings->setDefault("keymap_cmd", "SYSTEM_SCANCODE_56"); // /
 	settings->setDefault("keymap_cmd_local", "SYSTEM_SCANCODE_55"); // .
-	settings->setDefault("keymap_minimap", "SYSTEM_SCANCODE_25"); // KEY_KEY_V
+	settings->setDefault("keymap_minimap", "SYSTEM_SCANCODE_25|GAMEPAD_BUTTON_4"); // KEY_KEY_V|Gamepad Back
 	settings->setDefault("keymap_console", "SYSTEM_SCANCODE_67"); // KEY_F10
 
 	// see <https://github.com/luanti-org/luanti/issues/12792>
 	settings->setDefault("keymap_rangeselect", has_touch ? "SYSTEM_SCANCODE_21" : ""); // KEY_KEY_R
 
-	settings->setDefault("keymap_freemove", "SYSTEM_SCANCODE_14"); // KEY_KEY_K
+	settings->setDefault("keymap_freemove", "SYSTEM_SCANCODE_14|GAMEPAD_BUTTON_13"); // KEY_KEY_K|D-Pad Left
 	settings->setDefault("keymap_pitchmove", "");
 	settings->setDefault("keymap_fastmove", "SYSTEM_SCANCODE_13"); // KEY_KEY_J
 	settings->setDefault("keymap_noclip", "SYSTEM_SCANCODE_11"); // KEY_KEY_H
-	settings->setDefault("keymap_hotbar_next", "SYSTEM_SCANCODE_17"); // KEY_KEY_N
-	settings->setDefault("keymap_hotbar_previous", "SYSTEM_SCANCODE_5"); // KEY_KEY_B
+	settings->setDefault("keymap_hotbar_next", "SYSTEM_SCANCODE_17|GAMEPAD_BUTTON_10"); // KEY_KEY_N|Gamepad RB
+	settings->setDefault("keymap_hotbar_previous", "SYSTEM_SCANCODE_5|GAMEPAD_BUTTON_9"); // KEY_KEY_B|Gamepad LB
 	settings->setDefault("keymap_mute", "SYSTEM_SCANCODE_16"); // KEY_KEY_M
 	settings->setDefault("keymap_increase_volume", "");
 	settings->setDefault("keymap_decrease_volume", "");
@@ -175,11 +175,11 @@ void set_default_settings()
 	settings->setDefault("keymap_toggle_debug", "SYSTEM_SCANCODE_62"); // KEY_F5
 	settings->setDefault("keymap_toggle_profiler", "SYSTEM_SCANCODE_63"); // KEY_F6
 	settings->setDefault("keymap_camera_mode", "SYSTEM_SCANCODE_6"); // KEY_KEY_C
-	settings->setDefault("keymap_camera_yaw_left", "");
-	settings->setDefault("keymap_camera_yaw_right", "");
-	settings->setDefault("keymap_camera_pitch_up", "");
-	settings->setDefault("keymap_camera_pitch_down", "");
-	settings->setDefault("keymap_screenshot", "SYSTEM_SCANCODE_69"); // KEY_F12
+	settings->setDefault("keymap_camera_yaw_left", "GAMEPAD_AXIS_MINUS_2"); // Right Joystick
+	settings->setDefault("keymap_camera_yaw_right", "GAMEPAD_AXIS_PLUS_2"); // Right Joystick
+	settings->setDefault("keymap_camera_pitch_up", "GAMEPAD_AXIS_MINUS_3"); // Right Joystick
+	settings->setDefault("keymap_camera_pitch_down", "GAMEPAD_AXIS_PLUS_3"); // Right Joystick
+	settings->setDefault("keymap_screenshot", "SYSTEM_SCANCODE_69|GAMEPAD_BUTTON_14"); // KEY_F12|D-Pad Right
 	settings->setDefault("keymap_fullscreen", "SYSTEM_SCANCODE_68"); // KEY_F11
 	settings->setDefault("keymap_increase_viewing_range_min", "SYSTEM_SCANCODE_46"); // +
 	settings->setDefault("keymap_decrease_viewing_range_min", "SYSTEM_SCANCODE_45"); // -
