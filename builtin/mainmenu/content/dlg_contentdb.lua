@@ -110,6 +110,7 @@ local function load()
 			sort_and_filter_pkgs()
 			do_auto_install()
 		end
+		core.event_handler("ContentDBLoaded")
 		ui.update()
 	end)
 end
@@ -485,9 +486,28 @@ local function handle_submit(this, fields)
 	return false
 end
 
+local function check_show_package_reporting_dialog()
+	if contentdb.load_ok and contentdb.should_show_package_reporting_dialog() then
+		local this = ui.find_by_name("contentdb")
+		if this then
+			local dlg = create_package_reporting_consent()
+			dlg:set_parent(this)
+			this:hide()
+			dlg:show()
+			return true
+		end
+	end
+end
+
 
 local function handle_events(event)
+	if event == "ContentDBLoaded" then
+		check_show_package_reporting_dialog()
+	end
+
 	if event == "DialogShow" then
+		check_show_package_reporting_dialog()
+
 		-- Don't show the header image behind the dialog.
 		mm_game_theme.set_engine(true)
 

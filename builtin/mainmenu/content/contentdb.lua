@@ -656,3 +656,120 @@ function contentdb.get_formspec_size()
 
 	return size
 end
+
+local function get_installed_content_ids(content_list)
+	local retval = {}
+	for _, item in pairs(content_list) do
+		local cdb_id = pkgmgr.get_contentdb_id(item)
+		if cdb_id then
+			retval[#retval + 1] = cdb_id
+		end
+	end
+	return retval
+end
+
+function contentdb.should_show_package_reporting_dialog()
+	local user_id = core.settings:get("contentdb_report_installed_packages_id") or ""
+	return user_id == "" and pkgmgr.has_packages_from_cdb()
+end
+
+function contentdb.enable_package_reporting()
+	local user_id = tostring(math.random(100000000000, 999999999999))
+	core.settings:set("contentdb_report_installed_packages_id", user_id)
+end
+
+function contentdb.disable_package_reporting()
+	core.settings:set("contentdb_report_installed_packages_id", "false")
+end
+
+function contentdb.post_installed_packages()
+	local user_id = core.settings:get("contentdb_report_installed_packages_id") or ""
+	if #user_id < 10 then
+		return
+	end
+
+	if check_cache_age("cdb_installed_packages_last_report", 24 * 3600) then
+		return
+	end
+
+	cache_settings:set("cdb_installed_packages_last_report", tostring(os.time()))
+
+	core.log("action", "Reporting installed packages to ContentDB")
+
+	pkgmgr.load_all()
+	local packages = {
+		mods = get_installed_content_ids(pkgmgr.global_mods:get_list()),
+		games = get_installed_content_ids(pkgmgr.games),
+		texture_packs = get_installed_content_ids(pkgmgr.texture_packs),
+	}
+
+	local function find_mod_id(key, value)
+		local is_virtual_path = type(value) == "string" and value:find("/")
+		if is_virtual_path then
+			for _, mod in pairs(pkgmgr.global_mods:get_list()) do
+				if mod.virtual_path == value then
+					if mod.author and mod.author ~= "" then
+						return mod.author .. "/" .. mod.name
+					else
+						return mod.name
+					end
+				end
+			end
+		end
+
+		if is_virtual_path or core.is_yes(value) or type(value) == "boolean" then
+			if value ~= false and value ~= "false" then
+				if key:sub(1, 9) == "load_mod_" then
+					key = key:sub(10)
+				end
+				return key
+			end
+		end
+
+		return nil
+	end
+
+	local worlds = {}
+	local raw_worlds = menudata.worldlist:get_raw_list()
+	for _, world in pairs(raw_worlds) do
+		local mods = {}
+		local config = pkgmgr.get_worldconfig(world.path)
+		for key, value in pairs(config.global_mods) do
+			local mod_id = find_mod_id(key, value)
+			if mod_id then
+				mods[#mods + 1] = mod_id
+			end
+		end
+
+		local game = pkgmgr.find_by_gameid(world.gameid)
+		local game_author = game and game.author or ""
+		worlds[#worlds + 1] = {
+			game = game_author ~= "" and (game_author .. "/" .. world.gameid) or world.gameid,
+			mods = mods,
+		}
+	end
+
+	local function post_installed_packages_sync(data)
+		local base_url = core.settings:get("contentdb_url")
+		local url = base_url .. "/api/installed_packages/"
+
+		local http = core.get_http_api()
+		local response = http.fetch_sync({
+			url = url,
+			method = "POST",
+			data = core.write_json(data),
+			extra_headers = { "Content-Type: application/json" },
+		})
+		if not response.succeeded then
+			core.log("error", "Failed to post installed packages")
+		end
+	end
+
+	local data = {
+		user_id = user_id,
+		packages = packages,
+		worlds = worlds,
+	}
+
+	core.handle_async(post_installed_packages_sync, data, function() end)
+end

@@ -418,6 +418,7 @@ void set_default_settings()
 	settings->setDefault("contentdb_url", "https://content.luanti.org");
 	settings->setDefault("contentdb_enable_updates_indicator", "true");
 	settings->setDefault("contentdb_max_concurrent_downloads", "3");
+	settings->setDefault("contentdb_report_installed_packages_id", "");
 
 #ifdef __ANDROID__
 	settings->setDefault("contentdb_flag_blacklist", "nonfree, android_default");
