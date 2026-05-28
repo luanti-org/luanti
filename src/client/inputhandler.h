@@ -18,13 +18,7 @@
 class InputHandler
 {
 public:
-	InputHandler()
-	{
-		for (const auto &name: Settings::getLayer(SL_DEFAULTS)->getNames())
-			if (str_starts_with(name, "keymap_"))
-				g_settings->registerChangedCallback(name, &settingChangedCallback, this);
-		g_settings->registerChangedCallback("joystick_deadzone", &settingChangedCallback, this);
-	}
+	InputHandler();
 
 	virtual ~InputHandler() = default;
 
@@ -169,12 +163,41 @@ private:
 	void setKeyDown(GameKeyType action, float value);
 	float checkKeyDown(GameKeyType action) const;
 
+	struct Keybinding {
+		Keybinding() = default;
+		Keybinding(std::vector<KeyPress> in_keys): keys(in_keys) {}
+
+		inline float getScale(KeyPress::InputType input_type) const
+		{
+			if (auto p = scale.find(input_type); p != scale.end())
+				return p->second;
+			else
+				return 1.0f;
+		}
+
+		inline void setKBMScale(float value)
+		{
+			scale[KeyPress::InputType::KEYBOARD] = value;
+			scale[KeyPress::InputType::MOUSE_BUTTON] = value;
+		}
+
+		inline void setJoystickScale(float value)
+		{
+			scale[KeyPress::InputType::GAMEPAD_BUTTON] = value;
+			scale[KeyPress::InputType::GAMEPAD_AXIS_PLUS] = value;
+			scale[KeyPress::InputType::GAMEPAD_AXIS_MINUS] = value;
+		}
+
+		std::vector<KeyPress> keys;
+		std::map<KeyPress::InputType, float> scale;
+	};
+
 	/* This is faster than using getKeySetting with the tradeoff that functions
 	 * using it must make sure that it's initialised before using it and there is
 	 * no error handling (for example bounds checking). This is useful here as the
 	 * faster (up to 10x faster) key lookup is an asset.
 	 */
-	std::array<std::vector<KeyPress>, KeyType::INTERNAL_ENUM_COUNT> keybindings;
+	std::array<Keybinding, KeyType::INTERNAL_ENUM_COUNT> keybindings;
 
 	// Joystick deadzone
 	s16 joystick_deadzone = 0;

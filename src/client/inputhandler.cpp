@@ -12,6 +12,21 @@
 #include "log_internal.h"
 #include "client/renderingengine.h"
 
+static const std::array input_settings = {
+	"joystick_deadzone",
+	"keyboard_camera_speed",
+	"joystick_frustum_sensitivity"
+};
+
+InputHandler::InputHandler()
+{
+	for (const auto &name: Settings::getLayer(SL_DEFAULTS)->getNames())
+		if (str_starts_with(name, "keymap_"))
+			g_settings->registerChangedCallback(name, &settingChangedCallback, this);
+	for (const auto &name: input_settings)
+		g_settings->registerChangedCallback(name, &settingChangedCallback, this);
+}
+
 void MyEventReceiver::reloadKeybindings()
 {
 	clearKeyCache();
@@ -82,13 +97,27 @@ void MyEventReceiver::reloadKeybindings()
 	keysListenedFor.clear();
 	for (int i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++) {
 		GameKeyType game_key = static_cast<GameKeyType>(i);
-		keybindings[i].emplace_back(game_key);
-		for (auto key: keybindings[i]) {
+		keybindings[i].keys.emplace_back(game_key);
+		for (auto key: keybindings[i].keys) {
 			listenForKey(key, game_key);
 		}
 	}
 
 	joystick_deadzone = g_settings->getS16("joystick_deadzone");
+
+	static const std::array camera_rotation_actions = {
+		KeyType::CAMERA_YAW_LEFT,
+		KeyType::CAMERA_YAW_RIGHT,
+		KeyType::CAMERA_PITCH_UP,
+		KeyType::CAMERA_PITCH_DOWN
+	};
+	for (const auto action: camera_rotation_actions) {
+		auto &keybinding = keybindings[action];
+		keybinding.setKBMScale(g_settings->getFloat("keyboard_camera_speed", 0.001f, 720.0f));
+		//errorstream << keybinding.getScale(KeyPress::InputType::KEYBOARD) << std::endl;
+		keybinding.setJoystickScale(g_settings->getFloat("joystick_frustum_sensitivity", 0.001f, 720.0f));
+	}
+
 }
 
 bool MyEventReceiver::setKeyDown(KeyPress keyCode, float value)
@@ -121,9 +150,9 @@ void MyEventReceiver::setKeyDown(GameKeyType action, float value)
 float MyEventReceiver::checkKeyDown(GameKeyType action) const
 {
 	auto value = 0.0f;
-	for (const auto &key : keybindings[action]) {
+	for (const auto &key : keybindings[action].keys) {
 		if (auto p = physicalKeyDown.find(key); p != physicalKeyDown.end())
-			value = std::max(value, p->second);
+			value = std::max(value, p->second * keybindings[action].getScale(key.getType()));
 	}
 	return value;
 }
