@@ -380,11 +380,10 @@ Game::Game() :
 
 	const char *settings[] = {
 		"chat_log_level", "doubletap_jump", "toggle_sneak_key", "toggle_aux1_key",
-		"enable_joysticks", "enable_fog", "mouse_sensitivity", "joystick_frustum_sensitivity",
+		"enable_joysticks", "enable_fog", "mouse_sensitivity",
 		"repeat_place_time", "repeat_dig_time", "noclip", "free_move", "fog_start",
 		"cinematic", "cinematic_camera_smoothing", "camera_smoothing", "invert_mouse",
 		"enable_hotbar_mouse_wheel", "invert_hotbar_mouse_wheel", "pause_on_lost_focus",
-		"keyboard_camera_speed",
 	};
 	for (auto s : settings)
 		g_settings->registerChangedCallback(s, &settingChangedCallback, this);
@@ -2013,16 +2012,16 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 	}
 
 	// Keyboard look
-	const f32 rate = m_cache_keyboard_camera_speed * dtime * sens_scale;
+	const f32 rate = dtime * sens_scale;
 
 	if (input->isKeyDown(KeyType::CAMERA_YAW_LEFT))
-		cam->camera_yaw += rate;
+		cam->camera_yaw += input->getAxisValue(KeyType::CAMERA_YAW_LEFT) * rate;
 	if (input->isKeyDown(KeyType::CAMERA_YAW_RIGHT))
-		cam->camera_yaw -= rate;
+		cam->camera_yaw -= input->getAxisValue(KeyType::CAMERA_YAW_RIGHT) * rate;
 	if (input->isKeyDown(KeyType::CAMERA_PITCH_UP))
-		cam->camera_pitch -= rate;
+		cam->camera_pitch -= input->getAxisValue(KeyType::CAMERA_PITCH_UP) * rate;
 	if (input->isKeyDown(KeyType::CAMERA_PITCH_DOWN))
-		cam->camera_pitch += rate;
+		cam->camera_pitch += input->getAxisValue(KeyType::CAMERA_PITCH_DOWN) * rate;
 
 	cam->camera_pitch = rangelim(cam->camera_pitch, -90, 90);
 }
@@ -3735,8 +3734,6 @@ void Game::readSettings()
 	m_cache_toggle_aux1_key              = g_settings->getBool("toggle_aux1_key");
 	m_cache_enable_fog                   = g_settings->getBool("enable_fog");
 	m_cache_mouse_sensitivity            = g_settings->getFloat("mouse_sensitivity", 0.001f, 10.0f);
-	m_cache_keyboard_camera_speed        = g_settings->getFloat("keyboard_camera_speed", 0.001f, 720.0f);
-	m_cache_joystick_frustum_sensitivity = std::max(g_settings->getFloat("joystick_frustum_sensitivity"), 0.001f);
 	m_repeat_place_time                  = g_settings->getFloat("repeat_place_time", 0.16f, 2.0f);
 	m_repeat_dig_time                    = g_settings->getFloat("repeat_dig_time", 0.0f, 2.0f);
 
