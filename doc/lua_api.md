@@ -717,25 +717,19 @@ It overlays a scaled frame of the crack texture, `crack_anylength.png`,
 over a texture, with options for alpha and blitting multiple times for
 tile sheets / animated textures.
 
-With `crack`, the crack will be overlaid over the whole base
-texture, while with `cracko`, the crack will only be overlaid
+With `[crack`, the crack will be overlaid over the whole base
+texture, while with `[cracko`, the crack will only be overlaid
 over fully opaque base texture regions.
 
-Parameters if `grid` is omitted:
+Parameters:
 
-* `vertical_frames`: Amount of times the crack will be applied
-  in vertical direction on the base texture (integer [imagesize])
-* `crack_frame`: Crack animation frame (integer [imageframe], counting
-  starts at 0)
-
-Parameters if `grid` is present:
-
-* `grid`: Creates a square grid of multiple cracks, with
+* `grid` (optional): Creates a square grid of multiple cracks, with
   side length `grid`, e.g. the number 3 creates a 3x3 grid of cracks
   (integer [imagesize], default 1)
 * `vertical_frames`: Amount of times the grid created by `grid`
   will be repeated vertically (integer [imagesize], often `1`)
-* `crack_frame`: (see above)
+* `crack_frame`: Crack animation frame (integer [imageframe], counting
+  starts at 0)
 
 Note: The resulting crack (or cracks) texture will always be scaled
 to the size of the base texture.
@@ -758,11 +752,11 @@ Examples:
 
 * Blits a 3x3 grid of crack textures, each at frame 0, on `example.png`
 
-#### `[combine:<w>x<h>:<textures>`
+#### `[combine:<w>x<h>:<parts>`
 
 * `<w>`: width of resulting texture (integer [imagesize])
 * `<h>`: height of resulting texture (integer [imagesize])
-* `<textures>`: Colon-separated (`:`) list of locations `x`, `y` and textures to
+* `<parts>`: Colon-separated (`:`) list of locations `x`, `y` and textures to
   blit; written in the form `<x>,<y>=<texture>` for each texture. Can be empty.
 
 `x` and `y` are integers [imageframe].
@@ -979,9 +973,8 @@ by the `ratio`:
 
 * Defaults to the alpha of `color` if omitted
 * If it's an integer from 0 (only base texture color) to 255 (only `color`),
-  it's directly used as interpolation ratio: The resulting color of a pixel is
-  `ratio` times `color` plus `(255 - ratio)` times base texture color;
-* If it's the string `"alpha"`, the texture pixel's alpha value determines the
+  the resulting color of a pixel is `ratio * color + (255 - ratio) * base_tex_color`.
+* If `ratio = "alpha"`, the texture pixel's alpha value determines the
   ratio per pixel
 
 #### `[colorizehsl:<hue>:<saturation>:<lightness>`
