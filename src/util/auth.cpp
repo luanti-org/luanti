@@ -16,13 +16,13 @@
 // blank, we send a blank password - this is for backwards
 // compatibility with password-less players).
 std::string translate_password(const std::string &name,
-	const std::string &password)
+	const SecureString &password)
 {
 	if (password.length() == 0)
 		return "";
 
-	std::string slt = name + password;
-	std::string digest = hashing::sha1(slt);
+	SecureString slt = name + password;
+	std::string digest = hashing::sha1(slt.str());
 	std::string pwd = base64_encode(digest);
 	return pwd;
 }
@@ -32,7 +32,7 @@ std::string translate_password(const std::string &name,
 // and error checking common to all srp verifier generation code.
 // See docs of srp_create_salted_verification_key for more info.
 static inline void gen_srp_v(const std::string &name,
-	const std::string &password, char **salt, size_t *salt_len,
+	const SecureString &password, char **salt, size_t *salt_len,
 	char **bytes_v, size_t *len_v)
 {
 	std::string n_name = lowercase(name);
@@ -45,7 +45,7 @@ static inline void gen_srp_v(const std::string &name,
 
 /// Creates a verification key with given salt and password.
 std::string generate_srp_verifier(const std::string &name,
-	const std::string &password, const std::string &salt)
+	const SecureString &password, const std::string &salt)
 {
 	size_t salt_len = salt.size();
 	// The API promises us that the salt doesn't
@@ -62,7 +62,7 @@ std::string generate_srp_verifier(const std::string &name,
 
 /// Creates a verification key and salt with given password.
 void generate_srp_verifier_and_salt(const std::string &name,
-	const std::string &password, std::string *verifier,
+	const SecureString &password, std::string *verifier,
 	std::string *salt)
 {
 	char *bytes_v = nullptr;
@@ -79,7 +79,7 @@ void generate_srp_verifier_and_salt(const std::string &name,
 /// Gets an SRP verifier, generating a salt,
 /// and encodes it as DB-ready string.
 std::string get_encoded_srp_verifier(const std::string &name,
-	const std::string &password)
+	const SecureString &password)
 {
 	std::string verifier;
 	std::string salt;

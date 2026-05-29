@@ -12,6 +12,8 @@
 #include "translation.h"
 #include "strfnd.h"
 
+#include "util/secure_string.h"
+
 #include <algorithm>
 #include <array>
 #include <sstream>
@@ -139,6 +141,35 @@ std::string wide_to_utf8(std::wstring_view input)
 	return out;
 }
 
+SecureString secure_wide_to_utf8(const SecureWString &input)
+{
+	thread_local IconvSmartPointer cd;
+	if (!cd)
+		cd.reset(iconv_open("UTF-8", DEFAULT_ENCODING));
+
+	const size_t inbuf_size = input.length() * sizeof(wchar_t);
+	// maximum possible size: utf-8 encodes codepoints using 1 up to 4 bytes
+	size_t outbuf_size = input.length() * 4;
+
+	char *inbuf = new char[inbuf_size]; // intentionally NOT null-terminated
+	memcpy(inbuf, input.data(), inbuf_size);
+	SecureString out;
+	out.resize(outbuf_size);
+
+	if (!convert(cd.get(), &out[0], &outbuf_size, inbuf, inbuf_size)) {
+		infostream << "Couldn't convert SecureWString"
+			<< " into UTF-8 string" << std::endl;
+		porting::secure_clear_memory(inbuf, inbuf_size);
+		delete[] inbuf;
+		return "<invalid wide string>";
+	}
+	porting::secure_clear_memory(inbuf, inbuf_size);
+	delete[] inbuf;
+
+	out.resize(outbuf_size);
+	return out;
+}
+
 #else // _WIN32
 
 std::wstring utf8_to_wide(std::string_view input)
@@ -161,6 +192,19 @@ std::string wide_to_utf8(std::wstring_view input)
 	WideCharToMultiByte(CP_UTF8, 0, input.data(), input.size(),
 		outbuf, outbuf_size, NULL, NULL);
 	std::string out(outbuf);
+	delete[] outbuf;
+	return out;
+}
+
+SecureString secure_wide_to_utf8(const SecureWString &input)
+{
+	size_t outbuf_size = (input.size() + 1) * 6;
+	char *outbuf = new char[outbuf_size];
+	memset(outbuf, 0, outbuf_size);
+	WideCharToMultiByte(CP_UTF8, 0, input.data(), input.size(),
+		outbuf, outbuf_size, NULL, NULL);
+	SecureString out(outbuf);
+	porting::secure_clear_memory(outbuf, outbuf_size);
 	delete[] outbuf;
 	return out;
 }
@@ -730,7 +774,7 @@ static void translate_string(std::wstring_view s, Translations *translations,
 			// This is an escape sequence *inside* the template string to translate itself.
 			// This should not happen, show an error message.
 			errorstream << "Ignoring escape sequence '"
-				<< wide_to_utf8(escape_sequence) << "' in translation" << std::endl;
+				<< wide_to_utf8(std::wstring_view(escape_sequence)) << "' in translation" << std::endl;
 		}
 	}
 
@@ -961,7 +1005,7 @@ std::string sanitizeDirName(std::string_view str, std::string_view optional_pref
 			safe_name[i] = L'_';
 	}
 
-	return wide_to_utf8(safe_name);
+	return wide_to_utf8(std::wstring_view(safe_name));
 }
 
 template <class F>

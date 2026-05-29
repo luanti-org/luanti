@@ -346,6 +346,10 @@ bool open_url(const std::string &url);
  */
 bool open_directory(const std::string &path);
 
+
+/// Clear memory by overwriting every character (used for security)
+void secure_clear_memory(volatile void *ptr, size_t size);
+
 } // namespace porting
 
 #ifdef __ANDROID__

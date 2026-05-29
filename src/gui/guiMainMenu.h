@@ -5,6 +5,7 @@
 #pragma once
 
 #include "gameparams.h"
+#include "util/secure_string.h"
 #include <string>
 
 struct MainMenuDataForScript {
@@ -26,7 +27,7 @@ struct MainMenuData {
 	std::string address;
 	std::string port;
 	std::string name;
-	std::string password;
+	SecureString password;
 	// Whether to reconnect
 	bool do_reconnect = false;
 

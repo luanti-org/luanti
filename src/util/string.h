@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "util/secure_string.h"
 #include "irrlichttypes_bloated.h"
 #include "config.h" // IS_CLIENT_BUILD
 #if IS_CLIENT_BUILD
@@ -74,6 +75,7 @@ struct FlagDesc {
 // input/output stuff via Irrlicht
 [[nodiscard]] std::wstring utf8_to_wide(std::string_view input);
 [[nodiscard]] std::string wide_to_utf8(std::wstring_view input);
+[[nodiscard]] SecureString secure_wide_to_utf8(const SecureWString &input);
 
 void wide_add_codepoint(std::wstring &result, char32_t codepoint);
 
