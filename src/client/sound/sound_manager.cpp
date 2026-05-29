@@ -160,8 +160,11 @@ std::shared_ptr<PlayingSound> OpenALSoundManager::createPlayingSound(
 
 	ALuint source_id;
 	alGenSources(1, &source_id);
-	if (warn_if_al_error("createPlayingSound (alGenSources)") != AL_NO_ERROR) {
-		// happens ie. if there are too many sources (out of memory)
+	if (auto err = warn_if_al_error("createPlayingSound (alGenSources)"); err != AL_NO_ERROR) {
+		if (err == AL_OUT_OF_MEMORY) {
+			// this usually means there are too many sources
+			printPlayingSounds(true);
+		}
 		return nullptr;
 	}
 
@@ -251,13 +254,72 @@ int OpenALSoundManager::removeDeadSounds()
 	return num_deleted_sounds;
 }
 
+void OpenALSoundManager::printPlayingSounds(bool rate_limit)
+{
+	// Do at most every PLAYING_SOUNDS_PRINT_INTERVAL seconds
+	u64 tnow_sec = porting::getTimeS();
+	if (rate_limit) {
+		if (m_next_lingering_sounds_print > tnow_sec)
+			return;
+		m_next_lingering_sounds_print = tnow_sec + PLAYING_SOUNDS_PRINT_INTERVAL;
+	}
+
+	// Count sounds per name
+	struct Agg {
+		uint32_t count = 0;
+		u64 age_oldest; // in seconds
+	};
+	std::unordered_map<std::string, Agg> aggregate;
+
+	for (const auto &[_handle, snd] : m_sounds_playing) {
+		assert(snd);
+		auto &agg = aggregate[snd->getLoggingName()];
+
+		u64 age = tnow_sec - std::min(snd->getCreationTimeS(), tnow_sec);
+		if (agg.count == 0 || agg.age_oldest < age)
+			agg.age_oldest = age;
+
+		agg.count += 1;
+	}
+
+	// Sort
+	struct Row {
+		std::string name;
+		Agg agg;
+	};
+
+	std::vector<Row> rows;
+	rows.reserve(aggregate.size());
+
+	for (auto &[name, agg] : aggregate) {
+		rows.push_back({name, agg});
+	}
+
+	std::sort(rows.begin(), rows.end(),
+		[](const Row &l, const Row &r) {
+			if (l.agg.age_oldest != r.agg.age_oldest)
+				return l.agg.age_oldest > r.agg.age_oldest;
+			return l.agg.count > r.agg.count;
+		});
+
+	// print
+	warningstream << "OpenALSoundManager: "
+			<< "There are "<< m_sounds_playing.size() << " playing sounds:\n"
+			<< "count | age (oldest) | name\n"
+			<< "------|--------------|---------\n";
+	for (const auto &r : rows) {
+		warningstream << r.agg.count << " | " << r.agg.age_oldest << " s | " << r.name << "\n";
+	}
+}
+
 OpenALSoundManager::OpenALSoundManager(SoundManagerSingleton *smg,
 		std::unique_ptr<SoundFallbackPathProvider> fallback_path_provider) :
 	Thread("OpenALSoundManager"),
 	m_fallback_path_provider(std::move(fallback_path_provider)),
 	m_device(smg->m_device.get()),
 	m_context(smg->m_context.get()),
-	m_exts(m_device)
+	m_exts(m_device),
+	m_next_lingering_sounds_print(porting::getTimeS())
 {
 	SANITY_CHECK(!!m_fallback_path_provider);
 
@@ -477,6 +539,9 @@ void *OpenALSoundManager::run()
 			mgr.fadeSound(msg.soundid, msg.step, msg.target_gain); return Result::Ok; }
 		Result operator()(UpdateSoundPosVel &&msg) {
 			mgr.updateSoundPosVel(msg.sound, msg.pos_, msg.vel_); return Result::Ok; }
+
+		Result operator()(PrintPlayingSounds &&msg) {
+			mgr.printPlayingSounds(false); return Result::Ok; }
 
 		Result operator()(PleaseStop &&msg) {
 			return Result::StopRequested; }

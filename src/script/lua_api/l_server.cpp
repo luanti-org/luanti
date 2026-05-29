@@ -180,7 +180,7 @@ int ModApiServer::l_get_player_information(lua_State *L)
 	lua_settable(L, table);
 
 	/*
-		Be careful not to introduce a depdendency on the connection to
+		Be careful not to introduce a dependency on the connection to
 		the peer here. This function is >>REQUIRED<< to still be able to return
 		values even when the peer unexpectedly disappears.
 		Hence all the ConInfo values here are optional.

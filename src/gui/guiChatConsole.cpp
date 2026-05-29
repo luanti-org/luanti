@@ -735,7 +735,7 @@ bool GUIChatConsole::weblinkClick(s32 col, s32 row)
 			frags = m_chat_backend->getConsoleBuffer().getFormattedLine(row).fragments;
 	std::string weblink = ""; // from frag meta
 
-	// Identify targetted fragment, if exists
+	// Identify targeted fragment, if exists
 	int indx = frags.size() - 1;
 	if (indx < 0) {
 		// Invalid row, frags is empty

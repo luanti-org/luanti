@@ -159,7 +159,7 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 
 	m_last_sent_position_timer += dtime;
 
-	collisionMoveResult moveresult, *moveresult_p = nullptr;
+	CollisionMoveResult moveresult, *moveresult_p = nullptr;
 
 	// Each frame, parent position is copied if the object is attached, otherwise it's calculated normally
 	// If the object gets detached this comes into effect automatically from the last known origin

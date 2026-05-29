@@ -1180,6 +1180,7 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 	s16 z_index = 0;
 	std::string text2;
 	u32 style = 0;
+	u8 flags = 1;
 
 	*pkt >> server_id >> type >> pos >> name >> scale >> text >> number >> item
 		>> dir >> align >> offset;
@@ -1208,6 +1209,12 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 			break;
 		// >= 5.5.0-dev
 		*pkt >> style;
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.17.0-dev
+		*pkt >> flags;
+
 	} while (0);
 
 	ClientEvent *event = new ClientEvent();
@@ -1229,6 +1236,7 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 	event->hudadd->z_index   = z_index;
 	event->hudadd->text2     = text2;
 	event->hudadd->style     = style;
+	event->hudadd->hideable  = flags % 2;
 	m_client_event_queue.push(event);
 }
 

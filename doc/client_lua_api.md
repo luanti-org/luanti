@@ -1,4 +1,4 @@
-Luanti Lua Client Modding API Reference 5.16.0
+Luanti Lua Client Modding API Reference 5.17.0
 ==============================================
 
 **WARNING**: if you're looking for the `minetest` namespace (e.g. `minetest.something`),
@@ -399,6 +399,11 @@ Call these functions only at load time!
       Negative step will lower the sound volume, positive step will increase
       the sound volume.
     * `gain` the target gain for the fade.
+* `core.debug_print_playing_sounds()`
+    * Logs a list of all currently playing sounds to warningstream.
+    * Only for debugging, don't depend on the output format or existence of this
+      function.
+    * Requires `debug` privilege.
 
 ### Timing
 * `core.after(time, func, ...)`

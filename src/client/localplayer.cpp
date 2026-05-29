@@ -336,7 +336,7 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 		step_up_mode = m_cao->getProperties().step_up_mode;
 	}
 
-	collisionMoveResult result = collisionMoveSimple(env, m_client,
+	CollisionMoveResult result = collisionMoveSimple(env, m_client,
 		m_collisionbox, player_stepheight, dtime,
 		&position, &m_speed, accel_f, m_cao, true, step_up_mode);
 
@@ -961,7 +961,7 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 		step_up_mode = m_cao->getProperties().step_up_mode;
 	}
 
-	collisionMoveResult result = collisionMoveSimple(env, m_client,
+	CollisionMoveResult result = collisionMoveSimple(env, m_client,
 		m_collisionbox, player_stepheight, dtime,
 		&position, &m_speed, accel_f, m_cao, true, step_up_mode);
 
@@ -1169,7 +1169,7 @@ float LocalPlayer::getSlipFactor(Environment *env, const v3f &speedH)
 }
 
 void LocalPlayer::handleAutojump(f32 dtime, Environment *env,
-	const collisionMoveResult &result, v3f initial_position, v3f initial_speed)
+	const CollisionMoveResult &result, v3f initial_position, v3f initial_speed)
 {
 	PlayerSettings &player_settings = getPlayerSettings();
 	if (!player_settings.autojump)
@@ -1230,7 +1230,7 @@ void LocalPlayer::handleAutojump(f32 dtime, Environment *env,
 	}
 
 	// try at peak of jump, zero step height
-	collisionMoveResult jump_result = collisionMoveSimple(env, m_client,
+	CollisionMoveResult jump_result = collisionMoveSimple(env, m_client,
 		m_collisionbox, 0.0f, dtime, &jump_pos, &jump_speed, v3f(0.0f), m_cao, true,
 		step_up_mode);
 

@@ -790,7 +790,7 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	// special_tiles = {}
 	lua_getfield(L, index, "special_tiles");
 	if (lua_istable(L, -1)) {
-		for (int i = 0; LuaHelper::geti(L, index, i); ++i, lua_pop(L, 1)) {
+		for (int i = 0; LuaHelper::geti(L, -1, i); ++i, lua_pop(L, 1)) {
 			if (i >= CF_SPECIAL_COUNT) {
 				script_log_unique(L, "Ignoring extraneous special_tiles", warningstream);
 				lua_pop(L, 1);
@@ -980,7 +980,7 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	f.waving = getintfield_default(L, index,
 			"waving", f.waving);
 
-	// Set to true if paramtype used to be 'facedir_simple'
+	// Set to true if paramtype2 used to be 'facedir_simple'
 	getboolfield(L, index, "legacy_facedir_simple", f.legacy_facedir_simple);
 	// Set to true if wall_mounted used to be set to true
 	getboolfield(L, index, "legacy_wallmounted", f.legacy_wallmounted);
@@ -2406,6 +2406,8 @@ void read_hud_element(lua_State *L, HudElement *elem)
 
 	elem->style = getintfield_default(L, 2, "style", 0);
 
+	elem->hideable = getboolfield_default(L, 2, "hideable", true);
+
 	/* check for known deprecated element usage */
 	if ((elem->type  == HUD_ELEM_STATBAR) && (elem->size == v2f()))
 		log_deprecated(L,"Deprecated usage of statbar without size!");
@@ -2471,6 +2473,9 @@ void push_hud_element(lua_State *L, HudElement *elem)
 
 	lua_pushinteger(L, elem->style);
 	lua_setfield(L, -2, "style");
+
+	lua_pushboolean(L, elem->hideable);
+	lua_setfield(L, -2, "hideable");
 }
 
 bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value)
@@ -2540,6 +2545,10 @@ bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void 
 			elem->style = luaL_checknumber(L, 4);
 			*value = &elem->style;
 			break;
+		case HUD_STAT_HIDEABLE:
+			elem->hideable = lua_isnoneornil(L, 4) ? true : lua_toboolean(L, 4);
+			*value = &elem->hideable;
+			break;
 		case HudElementStat_END:
 			return false;
 			break;
@@ -2563,7 +2572,7 @@ static const char *collision_axis_str[] = {
 	"z",
 };
 
-void push_collision_move_result(lua_State *L, const collisionMoveResult &res)
+void push_collision_move_result(lua_State *L, const CollisionMoveResult &res)
 {
 	// use faster Lua helper if possible
 	if (res.collisions.size() == 1 && res.collisions.front().type == COLLISION_NODE) {

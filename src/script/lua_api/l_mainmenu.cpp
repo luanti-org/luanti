@@ -1109,6 +1109,25 @@ int ModApiMainMenu::l_do_async_callback(lua_State *L)
 }
 
 /******************************************************************************/
+int ModApiMainMenu::l_copy_to_clipboard(lua_State *L)
+{
+	GUIEngine *engine = getGuiEngine(L);
+	sanity_check(engine != nullptr);
+
+	const char *text = luaL_checkstring(L, 1);
+
+	auto *env = engine->m_rendering_engine->get_gui_env();
+	env->getOSOperator()->copyToClipboard(text);
+
+	if (engine->m_status_text) {
+		engine->m_status_text->setMainMenuStyle();
+		engine->m_status_text->showStatusText(wstrgettext("Copied to clipboard!"));
+	}
+
+	return 0;
+}
+
+/******************************************************************************/
 void ModApiMainMenu::Initialize(lua_State *L, int top)
 {
 	API_FCT(update_formspec);
@@ -1163,6 +1182,7 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(open_dir);
 	API_FCT(share_file);
 	API_FCT(do_async_callback);
+	API_FCT(copy_to_clipboard);
 
 	lua_pushboolean(L, g_first_run);
 	lua_setfield(L, top, "is_first_run");

@@ -352,7 +352,7 @@ private:
 
 	How this is implemented:
 	- there are two maps: new and real
-	- if inserting duration iteration, the value is inserted into the "new" map
+	- if inserting during iteration, the value is inserted into the "new" map
 	- if deleting during iteration, the value is set to null (to be GC'd later)
 	- when iteration finishes the "new" map is merged into the "real" map
 */

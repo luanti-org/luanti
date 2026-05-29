@@ -330,7 +330,7 @@ void ScriptApiBase::runCallbacksRaw(int nargs,
 {
 #if CHECK_CLIENT_BUILD()
 	// Hard fail for bad guarded callbacks
-	// Only run callbacks when the scripting enviroment is loaded
+	// Only run callbacks when the scripting environment is loaded
 	FATAL_ERROR_IF(m_type == ScriptingType::Client &&
 			!getClient()->modsLoaded(), fxn);
 #endif

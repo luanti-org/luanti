@@ -1977,6 +1977,10 @@ Default 0. By convention, the following values are recommended:
 If your HUD element doesn't fit into any category, pick an integer
 between the suggested values.
 
+If the `hideable` field is set to `false`, players can not hide the element.
+It can be used to for example obstruct the view of players.
+Does not take effect for clients older than version 5.17
+
 Below are the specific uses for fields in each type; fields not listed for that
 type are ignored.
 
@@ -1998,9 +2002,6 @@ Displays an image on the HUD.
 
 Displays text on the HUD.
 
-* `scale`: Defines the bounding rectangle of the text, syntax is
-  `{ x = <number>, y = <number> }`.
-  A value such as `{ x = 100, y = 100 }` should work.
 * `text`: The text to be displayed in the HUD element.
   Supports `core.translate` (always)
   and `core.colorize` (since protocol version 44)
@@ -2017,6 +2018,9 @@ Displays text on the HUD.
       a rounded down integer value.
 * `style`: determines font style
   Bitfield with 1 = bold, 2 = italic, 4 = monospace
+* `scale`: Do not use.
+  Note: Previous versions of the documentation claimed this field sets
+  a "bounding rectangle" for the text, but it never worked.
 
 ### `statbar`
 
@@ -6146,6 +6150,8 @@ Utilities
       get_modnames_load_order = true,
       -- `ObjectRef:set_camera()` accepts `nil` to indicate reset (5.16.0)
       set_camera_resettable = true,
+      -- The HUD element field `hideable` exists (5.17.0)
+      hud_hideable_field = true,
   }
   ```
 
@@ -11914,6 +11920,8 @@ Used by `ObjectRef:hud_add`. Returned by `ObjectRef:hud_get`.
     -- Z index: lower z-index HUDs are displayed behind higher z-index HUDs
 
     style = 0, -- integer [u32]
+
+    hideable = true, -- bool
 }
 ```
 

@@ -374,7 +374,7 @@ static void add_object_boxes(Environment *env,
 
 #define PROFILER_NAME(text) (dynamic_cast<ServerEnvironment*>(env) ? ("Server: " text) : ("Client: " text))
 
-collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
+CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		const aabb3f &box_0,
 		f32 stepheight, f32 dtime,
 		v3f *pos_f, v3f *speed_f,
@@ -386,7 +386,7 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 
 	ScopeProfiler sp(g_profiler, PROFILER_NAME("collisionMoveSimple()"), SPT_AVG, PRECISION_MICRO);
 
-	collisionMoveResult result;
+	CollisionMoveResult result;
 
 	// Assume no collisions when no velocity and no acceleration
 	if (*speed_f == v3f() && accel_f == v3f())
@@ -559,7 +559,7 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 				speed_f->X *= bounce;
 			} else {
 				speed_f->X = 0;
-				accel_f.X = 0; // avoid colliding in the next interations
+				accel_f.X = 0; // avoid colliding in the next iterations
 			}
 		} else if (nearest_collided == COLLISION_AXIS_Y) {
 			if (bounce < -1e-4 && fabsf(speed_f->Y) > BS * 3) {
@@ -573,14 +573,14 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 					result.standing_on_object = nearest_info.isObject();
 				}
 				speed_f->Y = 0;
-				accel_f.Y = 0; // avoid colliding in the next interations
+				accel_f.Y = 0; // avoid colliding in the next iterations
 			}
 		} else { /* nearest_collided == COLLISION_AXIS_Z */
 			if (bounce < -1e-4 && fabsf(speed_f->Z) > BS * 3) {
 				speed_f->Z *= bounce;
 			} else {
 				speed_f->Z = 0;
-				accel_f.Z = 0; // avoid colliding in the next interations
+				accel_f.Z = 0; // avoid colliding in the next iterations
 			}
 		}
 
@@ -632,7 +632,7 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 				box.MaxEdge += *pos_f;
 			}
 			if (std::fabs(cbox.MaxEdge.Y - box.MinEdge.Y) < 0.05f) {
-				// This is code is technically only required if `box_info.is_step_up == true`.
+				// This code is technically only required if `box_info.is_step_up == true`.
 				// However, players rely on this check/condition to climb stairs faster. See PR #10587.
 				result.touching_ground = true;
 				result.standing_on_object = box_info.isObject();
@@ -672,7 +672,7 @@ bool collision_check_intersection(Environment *env, IGameDef *gamedef,
 	*/
 	aabb3f checkbox = box_0;
 	// aabbox3d::intersectsWithBox(box) returns true when the faces are touching perfectly.
-	// However, we do not want want a true-ish return value in that case. Add some tolerance.
+	// However, we do not want a true-ish return value in that case. Add some tolerance.
 	checkbox.MinEdge += pos_f + (0.1f * BS);
 	checkbox.MaxEdge += pos_f - (0.1f * BS);
 

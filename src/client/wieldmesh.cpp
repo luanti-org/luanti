@@ -373,7 +373,7 @@ static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
 			buf->append(&p.vertices[0], p.vertices.size(),
 					&p.indices[0], p.indices.size());
 
-			// note: material type is left unset, overriden later
+			// note: material type is left unset, overridden later
 			p.layer.applyMaterialOptions(buf->Material, layer);
 
 			mesh->addMeshBuffer(buf.get());

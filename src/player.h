@@ -24,7 +24,7 @@ struct PlayerFovSpec
 	// Whether to multiply the client's FOV or to override it
 	bool is_multiplier;
 
-	// The time to be take to trasition to the new FOV value.
+	// The time to be take to transition to the new FOV value.
 	// Transition is instantaneous if omitted. Omitted by default.
 	f32 transition_time = 0;
 

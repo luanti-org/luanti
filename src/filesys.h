@@ -85,7 +85,7 @@ std::vector<std::string> GetRecursiveDirs(const std::string &dir);
 /* The path itself not included, returns a list of all subpaths.
    dst - vector that contains all the subpaths.
    list files - include files in the list of subpaths.
-   ignore - paths that start with one of these charcters will not be listed.
+   ignore - paths that start with one of these characters will not be listed.
 */
 void GetRecursiveSubPaths(const std::string &path,
 		std::vector<std::string> &dst,

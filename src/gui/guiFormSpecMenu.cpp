@@ -410,7 +410,7 @@ void GUIFormSpecMenu::parseScrollContainer(parserData *data, const std::string &
 
 	clipper->drop();
 
-	// remove interferring offset of normal containers
+	// remove interfering offset of normal containers
 	container_stack.push(pos_offset);
 	pos_offset.X = 0.0f;
 	pos_offset.Y = 0.0f;
@@ -1832,7 +1832,7 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 
 			if (data->real_coordinates) {
 				// Lines are spaced at the distance of 1/2 imgsize.
-				// This alows lines that line up with the new elements
+				// This allows lines that line up with the new elements
 				// easily without sacrificing good line distance.  If
 				// it was one whole imgsize, it would have too much
 				// spacing.

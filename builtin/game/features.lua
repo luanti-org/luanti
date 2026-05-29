@@ -55,6 +55,7 @@ core.features = {
 	item_inventory_image_animation = true,
 	get_modnames_load_order = true,
 	set_camera_resettable = true,
+	hud_hideable_field = true,
 }
 
 function core.has_feature(arg)

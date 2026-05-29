@@ -335,7 +335,7 @@ bool Hud::calculateScreenPos(const v3s16 &camera_offset, HudElement *e, v2s32 *p
 	return true;
 }
 
-void Hud::drawLuaElements(const v3s16 &camera_offset)
+void Hud::drawLuaElements(const v3s16 &camera_offset, bool only_unhidable)
 {
 	const u32 text_height = g_fontengine->getTextHeight();
 	gui::IGUIFont *const font = g_fontengine->getFont();
@@ -370,6 +370,8 @@ void Hud::drawLuaElements(const v3s16 &camera_offset)
 	});
 
 	for (HudElement *e : elems) {
+		if (only_unhidable && e->hideable)
+			continue;
 
 		v2s32 pos(floor(e->pos.X * (float) m_screensize.X + 0.5),
 				floor(e->pos.Y * (float) m_screensize.Y + 0.5));
@@ -408,8 +410,7 @@ void Hud::drawLuaElements(const v3s16 &camera_offset)
 				core::dimension2d<u32> textsize = textfont->getDimension(text.c_str());
 
 				v2s32 offset(0, (e->align.Y - 1.0) * (textsize.Height / 2));
-				core::rect<s32> size(0, 0, e->scale.X * m_scale_factor,
-						text_height * e->scale.Y * m_scale_factor);
+				core::rect<s32> size(0, 0, m_scale_factor, text_height * m_scale_factor);
 				v2s32 offs(e->offset.X * m_scale_factor,
 						e->offset.Y * m_scale_factor);
 

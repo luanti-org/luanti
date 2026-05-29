@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: German (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-05-06 19:14+0200\n"
-"PO-Revision-Date: 2026-02-25 18:09+0000\n"
+"PO-Revision-Date: 2026-05-07 19:11+0000\n"
 "Last-Translator: Wuzzy <Wuzzy@disroot.org>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/minetest/minetest/"
 "de/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16.1-dev\n"
+"X-Generator: Weblate 5.17.1\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -348,7 +348,7 @@ msgstr "(Systemsprache verwenden)"
 #. TRANSLATORS: Shown when a default setting is the empty string
 #: builtin/common/settings/dlg_settings.lua
 msgid "<empty>"
-msgstr ""
+msgstr "<leer>"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Accessibility"
@@ -386,9 +386,8 @@ msgid "Controls"
 msgstr "Steuerung"
 
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
-#, fuzzy
 msgid "Damage"
-msgstr "Schaden / PvP"
+msgstr "Schaden"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/common/settings/shadows_component.lua
@@ -430,9 +429,8 @@ msgstr "Auf Standard zurücksetzen"
 
 #. TRANSLATORS: $1 will be replaced with a default setting value
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Reset setting to default: $1"
-msgstr "Auf Standard zurücksetzen ($1)"
+msgstr "Auf Standard zurücksetzen: $1"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
@@ -1561,9 +1559,8 @@ msgstr ""
 "$1"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Possible filters"
-msgstr "Poissonfilter"
+msgstr "Mögliche Filter"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
@@ -1650,9 +1647,8 @@ msgid "Media..."
 msgstr "Medien …"
 
 #: src/client/fontengine.cpp
-#, fuzzy
 msgid "Failed to find a valid font"
-msgstr "Die „%s“-Shader-Dateien konnten nicht gefunden werden."
+msgstr "Es konnte keine gültige Schrift gefunden werden"
 
 #: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
 #: src/server.cpp
@@ -2165,7 +2161,7 @@ msgstr "Mittelklick"
 #: src/client/keycode.cpp
 #, c-format
 msgid "Mouse Button %d"
-msgstr ""
+msgstr "Maustaste %d"
 
 #. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
@@ -2346,9 +2342,8 @@ msgstr ""
 "Die Textur „%s“ konnte für die Rendering-Pipeline nicht erstellt werden."
 
 #: src/client/renderingengine.cpp
-#, fuzzy
 msgid "Could not initialize any supported video driver!"
-msgstr "Drahtmodell vom Treiber nicht unterstützt"
+msgstr "Es konnte kein unterstützter Grafiktreiber initialisiert werden!"
 
 #: src/client/shader.cpp
 #, c-format
@@ -2404,9 +2399,8 @@ msgid "Opening webpage"
 msgstr "Öffne Webseite"
 
 #: src/gui/guiEngine.cpp
-#, fuzzy
 msgid "Failed to load main menu script!"
-msgstr "Hauptmenü-Skript"
+msgstr "Das Hauptmenü-Skript konnte nicht geladen werden!"
 
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
@@ -2969,14 +2963,14 @@ msgid "Anticheat movement tolerance"
 msgstr "Anticheat-Bewegungs-Toleranz"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Append item name to tooltips"
-msgstr "Gegenstandsnamen an Tooltip anhängen."
+msgstr "Gegenstandsnamen an Tooltips anhängen"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Append the full item name to the tooltip of item stacks."
-msgstr "Gegenstandsnamen an Tooltip anhängen."
+msgstr ""
+"Den vollständigen Gegenstandsnamen an das Tooltip von Gegenstandsstapeln "
+"anhängen."
 
 #: src/settings_translation_file.cpp
 msgid "Apple trees noise"
@@ -3564,9 +3558,8 @@ msgstr ""
 "Gilt auch für das Objektfadenkreuz"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Damage flash"
-msgstr "Kartengenerator-Flags"
+msgstr "Schadensaufblitzen"
 
 #: src/settings_translation_file.cpp
 msgid "Debug log file size threshold"
@@ -3927,9 +3920,8 @@ msgid "Enable Raytraced Culling"
 msgstr "Raytraced Culling aktivieren"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable SSCSM"
-msgstr "Alle aktivieren"
+msgstr "SSCSM aktivieren"
 
 #: src/settings_translation_file.cpp
 msgid "Enable a confirmation dialog before closing."
@@ -4217,7 +4209,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Flashing of the screen when taking damage."
-msgstr ""
+msgstr "Der Bildschirm blitzt auf, wenn Schaden genommen wird."
 
 #: src/settings_translation_file.cpp
 msgid "Floatland density"
@@ -5232,14 +5224,13 @@ msgid "Keyboard and Mouse"
 msgstr "Tastatur und Maus"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keyboard camera speed"
-msgstr "Tastatur und Maus"
+msgstr "Tastaturkamerageschwindigkeit"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keyboard-controlled camera rotation speed, in degrees per second."
-msgstr "Vertikale Klettergeschwindigkeit, in Blöcken pro Sekunde."
+msgstr ""
+"Rotationsgeschwindigkeit der tastaturgesteuerten Kamera, in Grad pro Sekunde."
 
 #: src/settings_translation_file.cpp
 msgid "Kick players who sent more than X messages per 10 seconds."
@@ -5461,21 +5452,19 @@ msgstr "Lokaler Befehl"
 
 #: src/settings_translation_file.cpp
 msgid "Look down"
-msgstr ""
+msgstr "Runter schauen"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Look left"
-msgstr "Nach links bewegen"
+msgstr "Links schauen"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Look right"
-msgstr "Nach rechts bewegen"
+msgstr "Rechts schauen"
 
 #: src/settings_translation_file.cpp
 msgid "Look up"
-msgstr ""
+msgstr "Hoch schauen"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -6734,6 +6723,9 @@ msgid ""
 "variables.\n"
 "Note that this will not apply to Luanti's in-game protocol."
 msgstr ""
+"Den von cURL zu verwendenden Proxy festlegen. Das ist eine URI wie die "
+"„*_proxy“-Umgebungsvariablen.\n"
+"Beachten Sie, dass dies sich nicht auf Luantis Spielprotokoll auswirkt."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7995,6 +7987,8 @@ msgid ""
 "Where to enable server-sent client-side modding (SSCSM).\n"
 "Warning: Experimental."
 msgstr ""
+"Wo Server-Sent Client Side Modding (SSCSM) aktiviert wird.\n"
+"Achtung: Experimentell."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -8181,7 +8175,7 @@ msgstr "cURL-Parallel-Begrenzung"
 
 #: src/settings_translation_file.cpp
 msgid "cURL proxy address"
-msgstr ""
+msgstr "cURL-Proxy-Adresse"
 
 #: src/util/screenshot.cpp
 #, c-format
