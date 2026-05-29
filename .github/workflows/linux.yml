@@ -35,6 +35,7 @@ on:
 
 env:
   MINETEST_POSTGRESQL_CONNECT_STRING: 'host=localhost user=minetest password=minetest dbname=minetest'
+  LUANTI_MARIADB_CONNECT_STRING: 'host=127.0.0.1 port=3306 user=luanti password=luanti dbname=luanti'
 
 jobs:
   # Older gcc version (should be close to our minimum supported version)

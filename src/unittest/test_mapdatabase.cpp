@@ -17,6 +17,9 @@
 #if USE_POSTGRESQL
 #include "database/database-postgresql.h"
 #endif
+#if USE_MARIADB
+#include "database/database-mariadb.h"
+#endif
 
 namespace
 {
@@ -128,6 +131,19 @@ void TestMapDatabase::runTests(IGameDef *gamedef)
 
 		provider = new MapDatabaseProvider([&] () {
 			return new MapDatabasePostgreSQL(connstr);
+		});
+		runTestsForCurrentDB();
+		delete provider;
+	}
+#endif
+
+#if USE_MARIADB
+	const char *mariadb_connstr = getenv("LUANTI_MARIADB_CONNECT_STRING");
+	if (mariadb_connstr) {
+		rawstream << "-------- MariaDB" << std::endl;
+
+		provider = new MapDatabaseProvider([&] () {
+			return new MapDatabaseMariaDB(mariadb_connstr);
 		});
 		runTestsForCurrentDB();
 		delete provider;

@@ -37,6 +37,10 @@
 #if USE_POSTGRESQL
 #include "database/database-postgresql.h"
 #endif
+#if USE_MARIADB
+#include "database/database-mariadb.h"
+#endif
+
 
 /*
 	Helpers
@@ -615,6 +619,9 @@ std::vector<std::string> ServerMap::getDatabaseBackends()
 #if USE_POSTGRESQL
 	ret.emplace_back("postgresql");
 #endif
+#if USE_MARIADB
+	ret.emplace_back("mariadb");
+#endif
 	return ret;
 }
 
@@ -651,6 +658,13 @@ MapDatabase *ServerMap::createDatabase(
 		std::string connect_string;
 		conf.getNoEx("pgsql_connection", connect_string);
 		db = new MapDatabasePostgreSQL(connect_string);
+	}
+#endif
+#if USE_MARIADB
+	else if (name == "mariadb") {
+		std::string connect_string;
+		conf.getNoEx("mariadb_connection", connect_string);
+		db = new MapDatabaseMariaDB(connect_string);
 	}
 #endif
 
