@@ -92,14 +92,14 @@ static EGUI_ALIGNMENT get_halign(const StyleSpec &style)
 
 static EGUI_ALIGNMENT get_valign(const StyleSpec &style)
 {
-    std::string valign_str = style.get(StyleSpec::VALIGN, "top");
+	std::string valign_str = style.get(StyleSpec::VALIGN, "top");
 
-    if (valign_str == "center")
-        return gui::EGUIA_CENTER;
-    if (valign_str == "bottom")
-        return gui::EGUIA_LOWERRIGHT;
+	if (valign_str == "center")
+		return gui::EGUIA_CENTER;
+	if (valign_str == "bottom")
+		return gui::EGUIA_LOWERRIGHT;
 
-    return gui::EGUIA_UPPERLEFT; // default top
+	return gui::EGUIA_UPPERLEFT; // default top
 }
 
 static unsigned int font_line_height(gui::IGUIFont *font)
