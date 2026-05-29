@@ -78,6 +78,9 @@
 		Added "skip_wield_anim" to TOCLIENT_INVENTORY
 		Type of TOCLIENT_HUDADD `size` changed from v2s32 to v2f
 		[scheduled bump for 5.16.0]
+	PROTOCOL VERSION 53
+		"[combine:WxH:x1,y1,w1=" 3rd parameter extension
+		<TODO for 5.17.0>
 */
 
 // Note: Also update core.protocol_versions in builtin when bumping
