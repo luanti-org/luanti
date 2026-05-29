@@ -297,6 +297,8 @@ endif()
 
 add_subdirectory(lib/tiniergltf)
 
+add_subdirectory(lib/keychain)
+
 # Subdirectories
 # Be sure to add all relevant definitions above this
 add_subdirectory(src)

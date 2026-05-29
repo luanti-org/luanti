@@ -23,6 +23,7 @@ dofile(basepath .. "fstk" .. DIR_DELIM .. "ui.lua")
 dofile(menupath .. DIR_DELIM .. "async_event.lua")
 dofile(menupath .. DIR_DELIM .. "common.lua")
 dofile(menupath .. DIR_DELIM .. "serverlistmgr.lua")
+dofile(menupath .. DIR_DELIM .. "keyringmgr.lua")
 dofile(menupath .. DIR_DELIM .. "game_theme.lua")
 dofile(menupath .. DIR_DELIM .. "content" .. DIR_DELIM .. "init.lua")
 

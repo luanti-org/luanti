@@ -695,6 +695,7 @@ if(BUILD_CLIENT)
 		${LUA_LIBRARY}
 		${GMP_LIBRARY}
 		${JSON_LIBRARY}
+		keychain
 		${LUA_BIT_LIBRARY}
 		lstrpack
 		sha256
