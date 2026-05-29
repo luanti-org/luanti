@@ -2793,6 +2793,13 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 		if (wasKeyPressed(KeyType::DIG) && (!client->modsLoaded() ||
 				!client->getScript()->on_item_use(selected_item, pointed)))
 			client->interact(INTERACT_USE, pointed);
+
+		if (wasKeyPressed(KeyType::PLACE)) {
+			if (pointed.type == POINTEDTHING_NODE)
+				handlePointingAtNode(pointed, selected_item, hand_item, dtime);
+			else
+				handlePointingAtNothing(selected_item);
+		}
 	} else if (pointed.type == POINTEDTHING_NODE) {
 		handlePointingAtNode(pointed, selected_item, hand_item, dtime);
 	} else if (pointed.type == POINTEDTHING_OBJECT) {
@@ -2806,6 +2813,13 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 		// Run callback even though item is not usable
 		if (wasKeyPressed(KeyType::DIG) && client->modsLoaded())
 			client->getScript()->on_item_use(selected_item, pointed);
+
+		if (wasKeyPressed(KeyType::PLACE)) {
+			if (pointed.type == POINTEDTHING_NODE)
+				handlePointingAtNode(pointed, selected_item, hand_item, dtime);
+			else
+				handlePointingAtNothing(selected_item);
+		}
 	} else if (wasKeyPressed(KeyType::PLACE)) {
 		handlePointingAtNothing(selected_item);
 	}
