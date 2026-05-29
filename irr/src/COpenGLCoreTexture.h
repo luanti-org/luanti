@@ -105,10 +105,10 @@ public:
 
 		TEST_GL_ERROR(Driver);
 
-		initTexture((u32)tmpImages->size());
+		initTexture(tmpImages->size());
 
 		if (Type == ETT_2D_ARRAY) {
-			upload2DArrayTexture((u32)tmpImages->size(), tmpImages->data());
+			upload2DArrayTexture(tmpImages->size(), tmpImages->data());
 		} else {
 			for (size_t i = 0; i < tmpImages->size(); ++i)
 				uploadTexture((u32)i, 0, (*tmpImages)[i]->getData());
@@ -527,7 +527,7 @@ protected:
 		}
 	}
 
-	void initTexture(u32 layers)
+	void initTexture(size_t layers)
 	{
 		// Compressed textures cannot be pre-allocated and are initialized on upload
 		if (IImage::isCompressedFormat(ColorFormat)) {
@@ -670,7 +670,7 @@ protected:
 		}
 	}
 
-	void upload2DArrayTexture(const u32 layers, video::IImage *const *images)
+	void upload2DArrayTexture(const size_t layers, video::IImage *const *images)
 	{
 		if (!layers)
 			return;
@@ -682,7 +682,7 @@ protected:
 		assert(TextureType == GL_TEXTURE_2D_ARRAY);
 
 		const u32 imageBytes = IImage::getDataSizeFromFormat(ColorFormat, width, height);
-		constexpr u32 MAX_TMP_BUFFER = 16 * 1024 * 1024;
+		constexpr size_t MAX_TMP_BUFFER = 16 * 1024 * 1024;
 
 		// Uploading small textures layer-by-layer can apparently be very slow.
 		// Maybe a PBO would be cleaner here but copying to a temporary buffer
@@ -699,7 +699,7 @@ protected:
 			tmpBuffer.clear();
 		};
 		CImage *tmpImage = nullptr;
-		for (u32 i = 0; i < layers; i++) {
+		for (size_t i = 0; i < layers; i++) {
 			u8 *data;
 			if (Converter) {
 				// this may look redundant but CImage does special alignment
