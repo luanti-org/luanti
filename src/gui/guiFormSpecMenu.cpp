@@ -77,6 +77,31 @@ constexpr s32 ID_PROCEED_BTN = 257;
 /*
 	GUIFormSpecMenu
 */
+
+static EGUI_ALIGNMENT get_halign(const StyleSpec &style)
+{
+	std::string halign_str = style.get(StyleSpec::HALIGN, "left");
+
+	if (halign_str == "center")
+		return gui::EGUIA_CENTER;
+	if (halign_str == "right")
+		return gui::EGUIA_LOWERRIGHT;
+
+	return gui::EGUIA_UPPERLEFT; // default left
+}
+
+static EGUI_ALIGNMENT get_valign(const StyleSpec &style)
+{
+    std::string valign_str = style.get(StyleSpec::VALIGN, "top");
+
+    if (valign_str == "center")
+        return gui::EGUIA_CENTER;
+    if (valign_str == "bottom")
+        return gui::EGUIA_LOWERRIGHT;
+
+    return gui::EGUIA_UPPERLEFT; // default top
+}
+
 static unsigned int font_line_height(gui::IGUIFont *font)
 {
 	return font->getDimension(L"Ay").Height + font->getKerning(L'A').Y;
@@ -1694,23 +1719,8 @@ void GUIFormSpecMenu::parseTextArea(parserData* data, std::vector<std::string>& 
 
 	auto style = getDefaultStyleForElement("textarea", "");
 
-	// Parse halign
-	std::string halign_str = style.get(StyleSpec::HALIGN, "left");
-	EGUI_ALIGNMENT halign = gui::EGUIA_UPPERLEFT;
-
-	if (halign_str == "center")
-		halign = gui::EGUIA_CENTER;
-	else if (halign_str == "right")
-		halign = gui::EGUIA_LOWERRIGHT;
-
-	// Parse valign
-	std::string valign_str = style.get(StyleSpec::VALIGN, "top");
-	EGUI_ALIGNMENT valign = gui::EGUIA_UPPERLEFT;
-
-	if (valign_str == "center")
-		valign = gui::EGUIA_CENTER;
-	else if (valign_str == "bottom")
-		valign = gui::EGUIA_LOWERRIGHT;
+	EGUI_ALIGNMENT halign = get_halign(style);
+	EGUI_ALIGNMENT valign = get_valign(style);
 
 	gui::IGUIEditBox *e = createTextField(data, spec, rect, type == "textarea");
 
@@ -1823,23 +1833,8 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 	if (!font)
 		font = m_font;
 
-	// Parse halign
-	std::string halign_str = style.get(StyleSpec::HALIGN, "left");
-	EGUI_ALIGNMENT halign = gui::EGUIA_UPPERLEFT;
-
-	if (halign_str == "center")
-		halign = gui::EGUIA_CENTER;
-	else if (halign_str == "right")
-		halign = gui::EGUIA_LOWERRIGHT;
-
-	// Parse valign
-	std::string valign_str = style.get(StyleSpec::VALIGN, "top");
-	EGUI_ALIGNMENT valign = gui::EGUIA_UPPERLEFT;
-
-	if (valign_str == "center")
-		valign = gui::EGUIA_CENTER;
-	else if (valign_str == "bottom")
-		valign = gui::EGUIA_LOWERRIGHT;
+	EGUI_ALIGNMENT halign = get_halign(style);
+	EGUI_ALIGNMENT valign = get_valign(style);
 
 	auto add_label = [&](core::rect<s32> rect, const EnrichedString &text,
 			EGUI_ALIGNMENT align_h, EGUI_ALIGNMENT align_v, bool word_wrap) {
