@@ -8,6 +8,7 @@
 #include "irr_v3d.h"
 #include <quaternion.h>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 
@@ -36,6 +37,8 @@ struct ActiveObjectMessage
 		reliable(reliable_),
 		datastring(data_)
 	{}
+
+	void appendTo(std::string &data) const;
 
 	u16 id;
 	bool reliable;

@@ -965,12 +965,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 
 						// Add full new data to appropriate buffer
 						std::string &buffer = aom.reliable ? reliable_data : unreliable_data;
-						char idbuf[2];
-						writeU16((u8*) idbuf, aom.id);
-						// u16 id
-						// std::string data
-						buffer.append(idbuf, sizeof(idbuf));
-						buffer.append(serializeString16(aom.datastring));
+						aom.appendTo(buffer);
 					}
 				}
 				/*
@@ -2095,7 +2090,15 @@ void Server::SendPlayerBreath(PlayerSAO *sao)
 
 void Server::SendMovePlayer(PlayerSAO *sao)
 {
-	// Send attachment updates instantly to the client prior updating position
+	// Send attachment updates instantly to the client prior updating position.
+	// The update is still queued below for normal delivery to other observers.
+	if (sao->isAttachmentOutdated() && !sao->isAttached()) {
+		std::string data;
+		ActiveObjectMessage aom(
+				sao->getId(), true, sao->generateUpdateAttachmentCommand());
+		aom.appendTo(data);
+		SendActiveObjectMessages(sao->getPeerID(), data);
+	}
 	sao->sendOutdatedData();
 
 	NetworkPacket pkt(TOCLIENT_MOVE_PLAYER, sizeof(v3f) + sizeof(f32) * 2, sao->getPeerID());
