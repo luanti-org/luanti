@@ -239,7 +239,7 @@ T SelfType::Accessor<T>::get(std::size_t i) const
 	// We differ slightly from glTF here in that
 	// we default-initialize quaternions and matrices properly,
 	// but this does not cause any discrepancies for valid glTF models.
-	std::get<std::tuple<>>(source);
+	(void)std::get<std::tuple<>>(source);
 	return T();
 }
 

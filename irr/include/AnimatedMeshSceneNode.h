@@ -192,7 +192,7 @@ private:
 		std::vector<irr_ptr<BoneSceneNode>> SceneNodes;
 		std::vector<core::matrix4> GlobalMatrices;
 		std::vector<std::optional<core::Transform>> PreTransSaves;
-		void setN(u16 n) {
+		void setN(size_t n) {
 			SceneNodes.clear();
 			SceneNodes.resize(n);
 			GlobalMatrices.clear();

@@ -539,7 +539,7 @@ void AnimatedMeshSceneNode::addJoints()
 		assert(parent);
 		const auto *matrix = std::get_if<core::matrix4>(&joint->transform);
 		PerJoint.SceneNodes.push_back(irr_ptr<BoneSceneNode>(new BoneSceneNode(
-				parent, SceneManager, 0, i, joint->Name,
+				parent, SceneManager, 0, (u32)i, joint->Name,
 				matrix ? core::Transform{} : std::get<core::Transform>(joint->transform),
 				matrix ? *matrix : std::optional<core::matrix4>{})));
 	}

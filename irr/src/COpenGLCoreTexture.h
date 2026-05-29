@@ -105,13 +105,13 @@ public:
 
 		TEST_GL_ERROR(Driver);
 
-		initTexture(tmpImages->size());
+		initTexture((u32)tmpImages->size());
 
 		if (Type == ETT_2D_ARRAY) {
-			upload2DArrayTexture(tmpImages->size(), tmpImages->data());
+			upload2DArrayTexture((u32)tmpImages->size(), tmpImages->data());
 		} else {
 			for (size_t i = 0; i < tmpImages->size(); ++i)
-				uploadTexture(i, 0, (*tmpImages)[i]->getData());
+				uploadTexture((u32)i, 0, (*tmpImages)[i]->getData());
 		}
 
 		if (HasMipMaps) {
@@ -692,7 +692,7 @@ protected:
 		u32 layerOffset = 0;
 		const auto &uploadMultiple = [&] () {
 			assert(tmpBuffer.size() % imageBytes == 0);
-			size_t curLayers = tmpBuffer.size() / imageBytes;
+			u32 curLayers = u32(tmpBuffer.size() / imageBytes);
 			assert(curLayers > 0);
 			GL.TexSubImage3D(TextureType, 0, 0, 0, layerOffset, width, height, curLayers, PixelFormat, PixelType, tmpBuffer.data());
 			layerOffset += curLayers;

@@ -115,7 +115,7 @@ void COpenGL3MaterialRenderer::init(s32 &outMaterialTypeNr,
 		if (!createShader(GL_FRAGMENT_SHADER, pixelShaderProgram))
 			return;
 
-	for (size_t i = 0; i < EVA_COUNT; ++i)
+	for (u32 i = 0; i < EVA_COUNT; ++i)
 		GL.BindAttribLocation(Program, i, sBuiltInVertexAttributeNames[i]);
 
 	if (!linkProgram())
