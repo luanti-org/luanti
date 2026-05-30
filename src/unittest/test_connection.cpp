@@ -273,7 +273,7 @@ void TestConnection::testConnectSendReceive()
 		UASSERT(server.ReceiveTimeoutMs(&recvpacket, timeout_ms));
 		infostream << "** Server received: peer_id=" << pkt.getPeerId()
 				<< ", size=" << pkt.getSize()
-				<< ", data=" << pkt.getString(0)
+				<< ", data=" << pkt.getRemainingNoCopy()
 				<< std::endl;
 
 		auto recvdata = pkt.oldForgePacket();
@@ -298,7 +298,7 @@ void TestConnection::testConnectSendReceive()
 				infostream << " ";
 			char buf[10];
 			porting::mt_snprintf(buf, sizeof(buf), "%.2X",
-				((int)(pkt.getString(0))[i]) & 0xff);
+				((int)(pkt.getRemainingNoCopy()[i])) & 0xff);
 			infostream<<buf;
 		}
 		if (datasize > 20)

@@ -43,10 +43,8 @@ public:
 	u32 getRemainingBytes() const { return m_datasize - m_read_offset; }
 	inline bool hasRemainingBytes() const { return getRemainingBytes() != 0; }
 
-	// Returns a pointer to buffer data.
-	// A better name for this would be getRawString()
-	const char *getString(u32 from_offset) const;
-	const char *getRemainingString() const { return getString(m_read_offset); }
+	//! Does not advance the data read offset!
+	std::string_view getRemainingNoCopy() const;
 
 	// Perform length check and skip ahead by `count` bytes.
 	void skip(u32 count);

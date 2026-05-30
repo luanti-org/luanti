@@ -45,11 +45,13 @@ void NetworkPacket::clear()
 	m_peer_id = 0;
 }
 
-const char* NetworkPacket::getString(u32 from_offset) const
+std::string_view NetworkPacket::getRemainingNoCopy() const
 {
-	checkReadOffset(from_offset, 0);
+	size_t len = getRemainingBytes();
+	if (len == 0)
+		return "";
 
-	return reinterpret_cast<const char*>(&m_data[from_offset]);
+	return std::string_view(reinterpret_cast<const char*>(&m_data[m_read_offset]), len);
 }
 
 void NetworkPacket::skip(u32 count)
