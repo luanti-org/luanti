@@ -965,9 +965,10 @@ by the `ratio`:
   the resulting color of a pixel is `ratio * color + (255 - ratio) * base_tex_color`.
 * If `ratio = "alpha"`, the texture pixel's alpha value determines the
   ratio per pixel (NOT RECOMMENDED)
-* NOTE: Due to bugs, we currently can only recommend the base image to be fully
-  opaque, `ratio` to be explicitly specified, and the alpha in `color` to equal 255.
-  Anything else leads to undefined behavior
+* NOTE: Due to bugs, we currently can only recommend the base image to
+  **avoid semitransparent pixels entirely** (all pixels should have alpha = 0 or alpha = 255),
+  `ratio` to be explicitly specified, and the alpha in `color` to equal 255.
+  Anything else leads to undefined behavior.
 
 #### `[colorizehsl:<hue>:<saturation>:<lightness>`
 
