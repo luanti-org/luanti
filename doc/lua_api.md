@@ -872,15 +872,7 @@ Example:
 Renders a cube similar to how it would look in the inventory with the three
 given textures using simple software rendering.
 
-The resulting image will be 9 times the nearest power of 2 large, enough to
-contain the dimensions of the largest image, clamped to a range of at least
-4 and at most 64.
-
-As a formula:
-
-    9 * max(4, min(64, 2^ceil(log_2(max(d)))))
-
-where `d` is the set of dimensions (width and height) of all faces.
+The resulting image size depends on the size of the source texture.
 
 Escaping does not apply here and `^` is replaced by `&` in texture names
 instead.
@@ -920,6 +912,7 @@ Examples:
 
 Blit the lower `<percent>`% part of `<texture>` on the base texture.
 `<percent>` is an integer with range [0, 100].
+`<texture>` can contain escaped texture modifiers.
 
 Example:
 
@@ -944,9 +937,6 @@ Applies a *bitwise and* to all RGBA values of `texture` and the base texture.
 
 If a pixel of the base texture is out of bounds on texture, it is preserved.
 
-Masking is associative and commutative if all involved textures have the same
-dimensions.
-
 *See notes: `TEXMOD_UPSCALE`*
 
 #### `[sheet:<w>x<h>:<x>,<y>`
@@ -962,8 +952,7 @@ which is assumed to be a tilesheet with dimensions
 
 #### `[colorize:<color>:<ratio>`
 
-
-* `color` is a ColorString
+* `color` is a ColorString (should not use alpha)
 * `ratio` is an optional integer in range [0, 255] or the string `"alpha"`
 
 Colorizes the textures with the given color.
@@ -971,11 +960,14 @@ Colorizes the textures with the given color.
 Interpolates between `color` and the pixel colors of the base texture as specified
 by the `ratio`:
 
-* Defaults to the alpha of `color` if omitted
+* Defaults to the alpha of `color` if omitted (NOT RECOMMENDED)
 * If it's an integer from 0 (only base texture color) to 255 (only `color`),
   the resulting color of a pixel is `ratio * color + (255 - ratio) * base_tex_color`.
 * If `ratio = "alpha"`, the texture pixel's alpha value determines the
-  ratio per pixel
+  ratio per pixel (NOT RECOMMENDED)
+* NOTE: Due to bugs, we currently can only recommend the base image to be fully
+  opaque, `ratio` to be explicitly specified, and the alpha in `color` to equal 255.
+  Anything else leads to undefined behavior
 
 #### `[colorizehsl:<hue>:<saturation>:<lightness>`
 
