@@ -96,6 +96,13 @@ void TestConnection::testNetworkPacketSerialize()
 		pkt >> pkt_s;
 
 		UASSERT(pkt_s == L"\U00020b9a");
+
+		// Test for out-of-range reads
+		UASSERT(pkt.getRemainingBytes() == 0);
+		EXCEPTION_CHECK(PacketError, pkt.readLongString());
+		EXCEPTION_CHECK(PacketError, pkt.skip((u32)-1));
+		pkt.seek(0);
+		UASSERTEQ(u32, pkt.getRemainingBytes(), sizeof(expected) - 2 /* u16 command */);
 	}
 }
 

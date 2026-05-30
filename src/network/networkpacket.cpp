@@ -7,15 +7,17 @@
 #include "util/serialize.h"
 #include "networkprotocol.h"
 
-void NetworkPacket::checkReadOffset(u32 from_offset, u32 field_size) const
+u32 NetworkPacket::checkReadOffset(u32 from_offset, u32 field_size) const
 {
-	if (from_offset + field_size > m_datasize) {
+	u32 sum = from_offset + field_size;
+	if (sum > m_datasize || sum < field_size /* overflow? */) {
 		std::ostringstream ss;
 		ss << "Reading outside packet: cmd=" << getCommand()
 			<< " offset=" << from_offset
 			<< " size=" << getSize();
 		throw PacketError(ss.str());
 	}
+	return sum;
 }
 
 void NetworkPacket::putRawPacket(const u8 *data, u32 datasize, session_t peer_id)
@@ -52,12 +54,6 @@ std::string_view NetworkPacket::getRemainingNoCopy() const
 		return "";
 
 	return std::string_view(reinterpret_cast<const char*>(&m_data[m_read_offset]), len);
-}
-
-void NetworkPacket::seek(u32 offset)
-{
-	checkReadOffset(offset, 0);
-	m_read_offset = offset;
 }
 
 void NetworkPacket::putRawString(const char* src, u32 len)
