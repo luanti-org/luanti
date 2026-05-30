@@ -54,10 +54,10 @@ std::string_view NetworkPacket::getRemainingNoCopy() const
 	return std::string_view(reinterpret_cast<const char*>(&m_data[m_read_offset]), len);
 }
 
-void NetworkPacket::skip(u32 count)
+void NetworkPacket::seek(u32 offset)
 {
-	checkReadOffset(m_read_offset, count);
-	m_read_offset += count;
+	checkReadOffset(offset, 0);
+	m_read_offset = offset;
 }
 
 void NetworkPacket::putRawString(const char* src, u32 len)

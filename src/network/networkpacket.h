@@ -47,7 +47,9 @@ public:
 	std::string_view getRemainingNoCopy() const;
 
 	// Perform length check and skip ahead by `count` bytes.
-	void skip(u32 count);
+	inline void skip(u32 count) { seek(m_read_offset + count); }
+	//! Sets the read OR write offset (context-dependent)
+	void seek(u32 position);
 
 	// Appends bytes from string buffer to packet
 	void putRawString(const char *src, u32 len);
