@@ -1717,22 +1717,32 @@ void GUIFormSpecMenu::parseTextArea(parserData* data, std::vector<std::string>& 
 		ECI_IBEAM
 	);
 
-	auto style = getDefaultStyleForElement("textarea", "");
-
-	EGUI_ALIGNMENT halign = get_halign(style);
-	EGUI_ALIGNMENT valign = get_valign(style);
-
 	gui::IGUIEditBox *e = createTextField(data, spec, rect, type == "textarea");
 
-	// calculates if a scrollbar is needed (the same way as in irr/src/CGUIEditBox.cpp at the end of the file).
-	// basically if the height of the wrapped text exceeds the textarea height,
-	// force top alignment to prevent text being cut off vertically
-	core::dimension2du text_dim = e->getTextDimension();
-	if (text_dim.Height > (u32)rect.getHeight()) {
-		valign = gui::EGUIA_UPPERLEFT;
-	}
+	if (e) {
+		if (type == "textarea") {
+			auto style = getDefaultStyleForElement("textarea", "");
 
-	e->setTextAlignment(halign, valign);
+			EGUI_ALIGNMENT halign = get_halign(style);
+			EGUI_ALIGNMENT valign = get_valign(style);
+
+			// calculates if a scrollbar is needed (the same way as in irr/src/CGUIEditBox.cpp at the end of the file).
+			// basically if the height of the wrapped text exceeds the textarea height,
+			// force top alignment to prevent text being cut off vertically
+			core::dimension2du text_dim = e->getTextDimension();
+			if (text_dim.Height > (u32)rect.getHeight()) {
+				valign = gui::EGUIA_UPPERLEFT;
+			}
+
+			e->setTextAlignment(halign, valign);
+		} else {
+			auto style = getDefaultStyleForElement("field", "");
+			EGUI_ALIGNMENT halign = get_halign(style);
+
+			// field[] is a single line of text - only horizontal alignment makes sense
+       		e->setTextAlignment(halign, gui::EGUIA_UPPERLEFT);
+		}
+	}
 
 	// Note: Before 5.2.0 "parts.size() >= 6" resulted in a
 	// warning referring to field_close_on_enter[]!
