@@ -5,7 +5,9 @@
 #include "clientmap.h"
 #include "client.h"
 #include "client/mesh.h"
+#include "content_mapblock.h"
 #include "mapblock_mesh.h"
+#include <ICameraSceneNode.h>
 #include <IMaterialRenderer.h>
 #include <ISceneManager.h>
 #include <IVideoDriver.h>
@@ -19,9 +21,9 @@
 #include "settings.h"
 #include "camera.h"
 #include "util/basic_macros.h"
+#include "util/convex_polygon.h"
 #include "util/tracy_wrapper.h"
 #include "client/renderingengine.h"
-
 #include <queue>
 
 namespace {
@@ -1375,39 +1377,312 @@ int ClientMap::getBackgroundBrightness(float max_d, u32 daylight_factor,
 	return ret;
 }
 
-void ClientMap::renderPostFx(CameraMode cam_mode)
+std::vector<std::pair<ConvexPolygon, video::SColor>>
+ClientMap::getPostFxPolygons()
 {
-	// Sadly ISceneManager has no "post effects" render pass, in that case we
-	// could just register for that and handle it in renderMap().
+	using mat4 = core::matrix4;
+	using v4f = std::array<f32, 4>;
 
-	MapNode n = getNode(floatToInt(m_camera_position, BS));
+	auto vector_cross_4d = [](const v4f &v1, const v4f &v2, const v4f &v3) -> v4f
+	{
+		using varr3 = std::array<f32, 3>;
+		using mat33 = std::array<varr3, 3>;
 
-	const ContentFeatures& features = m_nodedef->get(n);
-	video::SColor post_color = features.post_effect_color;
-
-	if (features.post_effect_color_shaded) {
-		auto apply_light = [] (u32 color, u32 light) {
-			return core::clamp(core::round32(color * light / 255.0f), 0, 255);
+		auto det_3d = [](const mat33 &m) {
+			return m[0][0] * (m[1][1] * m[2][2] - m[2][1] * m[1][2])
+					- m[0][1] * (m[1][0] * m[2][2] - m[2][0] * m[1][2])
+					+ m[0][2] * (m[1][0] * m[2][1] - m[2][0] * m[1][1]);
 		};
-		post_color.setRed(apply_light(post_color.getRed(), m_camera_light_color.getRed()));
-		post_color.setGreen(apply_light(post_color.getGreen(), m_camera_light_color.getGreen()));
-		post_color.setBlue(apply_light(post_color.getBlue(), m_camera_light_color.getBlue()));
+
+		auto index33 = [&](int i1, int i2, int i3) -> mat33 {
+			return {
+				varr3{v1[i1], v1[i2], v1[i3]},
+				varr3{v2[i1], v2[i2], v2[i3]},
+				varr3{v3[i1], v3[i2], v3[i3]}
+			};
+		};
+
+		return v4f{
+			+det_3d(index33(   1, 2, 3)),
+			-det_3d(index33(0,    2, 3)),
+			+det_3d(index33(0, 1,    3)),
+			-det_3d(index33(0, 1, 2   )),
+		};
+	};
+
+	auto mat4_mult_v4f = [](const mat4 &m, const v4f &v) {
+		v4f ret;
+		m.transformVec4(ret.data(), v.data());
+		return ret;
+	};
+
+	auto get_post_color = [&](const ContentFeatures &features) {
+		video::SColor post_color = features.post_effect_color;
+
+		if (features.post_effect_color_shaded) {
+			auto apply_light = [](u32 color, u32 light) {
+				return core::clamp(core::round32(color * light / 255.0f), 0, 255);
+			};
+			post_color.setRed(apply_light(post_color.getRed(), m_camera_light_color.getRed()));
+			post_color.setGreen(apply_light(post_color.getGreen(), m_camera_light_color.getGreen()));
+			post_color.setBlue(apply_light(post_color.getBlue(), m_camera_light_color.getBlue()));
+		}
+
+		// Solid nodes are full of darkness.
+		if (features.visuals->solidness == 2 && !m_control.allow_noclip)
+			post_color = video::SColor(255, 0, 0, 0);
+
+		return post_color;
+	};
+
+	const std::optional<LiquidWaveParams> liquid_wave_params =
+			g_settings->getBool("enable_waving_water") ?
+			LiquidWaveParams{
+				g_settings->getFloat("water_wave_height"),
+				g_settings->getFloat("water_wave_length"),
+				g_settings->getFloat("water_wave_speed"),
+				(float)(m_client->getEnv().getFrameTime() % 1000000) / 100000.f,
+			}
+			: std::optional<LiquidWaveParams>(std::nullopt);
+
+	const bool smooth_lighting = g_settings->getBool("smooth_lighting");
+
+	// transposed inversed view-(quasi)projection matrix
+	// This matrix moves the near plane from camera-offset-local world-space to
+	// clip-space.
+	// (It's the transposed inversed because we want to transform planes.)
+	// (Only the near plane is transformed correctly (we don't care about the
+	// rest of the space), therefore "(quasi)projection".)
+	// (We also don't care for positive scalar multiples, so the adjugate would
+	// work too.)
+	const mat4 vp_mat_ti = [&]() {
+		auto camera_node = m_client->getCamera()->getCameraNode();
+
+		const mat4 view_mat = camera_node->getViewMatrix();
+
+		// The projection matrix moves the near-left-up corner of the frustum
+		// to (-1,1,-1), and near-right-down to (1,-1,-1). But we need (0,0,0)
+		// and (1,1,0). coord_transf moves the near plane accordingly.
+		// (We only care about the near plane, so this scale + translate is ok.)
+		const mat4 coord_transf = mat4(
+				0.5f,  0.0f, 0.0f, 0.5f,
+				0.0f, -0.5f, 0.0f, 0.5f,
+				0.0f,  0.0f, 1.0f, 1.0f,
+				0.0f,  0.0f, 0.0f, 1.0f
+			).getTransposed();
+		const mat4 proj_mat = coord_transf * camera_node->getProjectionMatrix();
+
+		return mat4(proj_mat * view_mat, mat4::EM4CONST_INVERSE_TRANSPOSED);
+	}();
+
+	std::vector<std::pair<ConvexPolygon, video::SColor>> polygons;
+
+	// Go through all 8 nodes that the near plane possibly instersects with
+
+	// the one in the (-1,-1,-1) corner
+	const v3s16 minus_corner(
+			std::floor(m_camera_position.X/BS),
+			std::floor(m_camera_position.Y/BS),
+			std::floor(m_camera_position.Z/BS)
+		);
+
+	for (const v3s16 &corner_dir : {
+				v3s16(0, 0, 0),
+				v3s16(1, 0, 0),
+				v3s16(0, 1, 0),
+				v3s16(1, 1, 0),
+				v3s16(0, 0, 1),
+				v3s16(1, 0, 1),
+				v3s16(0, 1, 1),
+				v3s16(1, 1, 1),
+			}) {
+		const v3s16 npos = minus_corner + corner_dir;
+
+		const MapNode node = getNode(npos);
+
+		const ContentFeatures &features = m_nodedef->get(node);
+		const video::SColor post_color = get_post_color(features);
+
+		if (post_color.getAlpha() == 0)
+			continue;
+
+		const ConvexPolygon screen_polygon{{
+				{0.0f, 0.0f}, // upper-left
+				{1.0f, 0.0f}, // upper-right
+				{1.0f, 1.0f}, // lower-right
+				{0.0f, 1.0f}, // lower-left
+			}};
+
+		// the (inverse and inverse transposed) world matrix for the node
+		// Transforms planes from node-local space to camera-offset-local world
+		// BS space.
+		mat4 world_mat_i = mat4::EM4CONST_IDENTITY;
+		world_mat_i.setTranslation(intToFloat(-npos + m_camera_offset, 1.0f));
+		world_mat_i.setScale(1.0f/BS);
+		const mat4 world_mat_ti(world_mat_i, mat4::EM4CONST_TRANSPOSED);
+
+		const mat4 wvp_mat_ti = vp_mat_ti * world_mat_ti;
+
+		auto clip_polygon_by_objsp_plane = [&](ConvexPolygon &polyg,
+				const v4f &clip_plane) -> bool {
+			v4f clip_plane_clipspace = mat4_mult_v4f(wvp_mat_ti, clip_plane);
+
+			// The clip plane (and all points p in the clip plane) are at z=0.
+			// So the c component in the following inequation drops away:
+			// a*p.X + b*p.Y + c*p.Z + d >= 0
+			v3f clip_line(clip_plane_clipspace[0], clip_plane_clipspace[1], clip_plane_clipspace[3]);
+
+			polyg = polyg.clip(clip_line);
+			return polyg.vertices.size() >= 3;
+		};
+
+		auto clip_polygon_by_objsp_planes = [&](ConvexPolygon &polyg,
+				const std::vector<v4f> &clip_planes) -> bool {
+			for (const v4f &clip_plane : clip_planes)
+				if (!clip_polygon_by_objsp_plane(polyg, clip_plane))
+					return false;
+			return true;
+		};
+
+		if (features.drawtype == NDT_NORMAL) {
+			// draw full cube
+			ConvexPolygon polygon = screen_polygon;
+			if (!clip_polygon_by_objsp_planes(polygon, {
+						{ 2.0f, 0.0f, 0.0f, 1.0f},
+						{-2.0f, 0.0f, 0.0f, 1.0f},
+						{0.0f,  2.0f, 0.0f, 1.0f},
+						{0.0f, -2.0f, 0.0f, 1.0f},
+						{0.0f, 0.0f,  2.0f, 1.0f},
+						{0.0f, 0.0f, -2.0f, 1.0f},
+					}))
+				continue;
+			polygons.emplace_back(std::move(polygon), post_color);
+
+		} else if (features.drawtype == NDT_LIQUID
+				|| features.drawtype == NDT_FLOWINGLIQUID) {
+			ConvexPolygon polygon = screen_polygon;
+			// clip by all but top
+			if (!clip_polygon_by_objsp_planes(polygon, {
+						{ 2.0f, 0.0f, 0.0f, 1.0f},
+						{-2.0f, 0.0f, 0.0f, 1.0f},
+						{0.0f,  2.0f, 0.0f, 1.0f},
+						{0.0f, 0.0f,  2.0f, 1.0f},
+						{0.0f, 0.0f, -2.0f, 1.0f},
+					}))
+				continue;
+
+			// The top side of the water has two triangles, separated by the
+			// quad diagonal, so we need two convex polygons for the two convex
+			// polytopes that have these triangles as top
+
+			// if there is no top face, the full cube is filled with liquid
+			auto top_corners_heights = getLiquidTopFaceHeights(npos, liquid_wave_params)
+					.value_or(std::array{0.5f, 0.5f, 0.5f, 0.5f});
+
+			std::array<v4f, 4> vertices{
+				v4f{-0.5f, top_corners_heights[0], -0.5f, 1.0f},
+				v4f{ 0.5f, top_corners_heights[1], -0.5f, 1.0f},
+				v4f{-0.5f, top_corners_heights[2],  0.5f, 1.0f},
+				v4f{ 0.5f, top_corners_heights[3],  0.5f, 1.0f},
+			};
+
+			// For smooth lit solid nodes, the quad diagonal depends on lighting
+			QuadDiagonal quad_diag = QuadDiagonal::Diag02;
+			if (features.drawtype == NDT_LIQUID && smooth_lighting) {
+				// same as light_dirs[light_indices[0][0..4]] in content_mapblock.cpp
+				constexpr v3s16 corners[4] = {
+						v3s16(-1,  1,  1),
+						v3s16( 1,  1,  1),
+						v3s16( 1,  1, -1),
+						v3s16(-1,  1, -1),
+					};
+				LightPair lights[4];
+				for (int k = 0; k < 4; ++k) {
+					lights[k] = LightPair(getSmoothLightSolid(npos, v3s16(0,1,0),
+							corners[k], m_nodedef,
+							[this](v3s16 p) { return getNode(p); }
+						));
+				}
+				quad_diag = LightPair::quadDiagonalForFace(lights);
+			}
+			v4f triangle_split_plane;
+			v4f triangle_split_plane_neg;
+			std::array<int, 6> indices;
+			if (quad_diag == QuadDiagonal::Diag02) {
+				triangle_split_plane     = {-1.0f, 0.0f, -1.0f, 0.0f};
+				triangle_split_plane_neg = { 1.0f, 0.0f,  1.0f, 0.0f};
+				indices = {0, 1, 2,  1, 3, 2};
+			} else {
+				triangle_split_plane     = { 1.0f, 0.0f, -1.0f, 0.0f};
+				triangle_split_plane_neg = {-1.0f, 0.0f,  1.0f, 0.0f};
+				indices = {0, 1, 3,  0, 3, 2};
+			}
+
+			ConvexPolygon polygon1 = polygon;
+			ConvexPolygon &polygon2 = polygon;
+
+			if (clip_polygon_by_objsp_plane(polygon1, triangle_split_plane)
+					&& clip_polygon_by_objsp_plane(polygon1,
+							vector_cross_4d(vertices[indices[0]], vertices[indices[1]],
+									vertices[indices[2]]))) {
+				polygons.emplace_back(std::move(polygon1), post_color);
+			}
+
+			if (clip_polygon_by_objsp_plane(polygon2, triangle_split_plane_neg)
+					&& clip_polygon_by_objsp_plane(polygon2,
+							vector_cross_4d(vertices[indices[3]], vertices[indices[4]],
+									vertices[indices[5]]))) {
+				polygons.emplace_back(std::move(polygon2), post_color);
+			}
+
+		} else {
+			// for other drawtypes: draw color fullscreen if camera in node
+			if (floatToInt(m_camera_position, BS) != npos)
+				continue;
+			polygons.emplace_back(screen_polygon, post_color);
+		}
 	}
 
-	// If the camera is in a solid node, make everything black.
-	// (first person mode only)
-	if (features.visuals->solidness == 2 && cam_mode == CAMERA_MODE_FIRST &&
-			!m_control.allow_noclip) {
-		post_color = video::SColor(255, 0, 0, 0);
+	return polygons;
+}
+
+video::SColorf ClientMap::renderPostFx()
+{
+	auto polygons = getPostFxPolygons();
+
+	video::IVideoDriver *driver = SceneManager->getVideoDriver();
+
+	for (const auto &[polygon, post_color] : polygons) {
+		polygon.draw(driver, post_color);
 	}
 
-	if (post_color.getAlpha() != 0) {
-		// Draw a full-screen rectangle
-		video::IVideoDriver* driver = SceneManager->getVideoDriver();
-		v2u32 ss = driver->getScreenSize();
-		core::rect<s32> rect(0,0, ss.X, ss.Y);
-		driver->draw2DRectangle(post_color, rect);
+	// Color for wield item
+	// We take the weighted (by area and alpha) sum of all polygons.
+	// The result is alpha-premultiplied.
+	video::SColorf color_sum(0.0f, 0.0f, 0.0f, 0.0f);
+
+	for (const auto &[polygon, post_color] : polygons) {
+		video::SColorf color = post_color;
+
+		// (screen size and aspect ratio don't matter for relative screen area)
+		f32 area = polygon.area();
+		color.a *= area;
+
+		color_sum.r += color.a * color.r;
+		color_sum.g += color.a * color.g;
+		color_sum.b += color.a * color.b;
+		color_sum.a = color_sum.a + color.a;
 	}
+
+	if (color_sum.a > 1.0f) {
+		f32 reci_a = 1.0f / color_sum.a;
+		color_sum.a *= reci_a;
+		color_sum.r *= reci_a;
+		color_sum.g *= reci_a;
+		color_sum.b *= reci_a;
+	}
+
+	return color_sum;
 }
 
 void ClientMap::PrintInfo(std::ostream &out)
@@ -1643,6 +1918,124 @@ void ClientMap::updateTransparentMeshBuffers()
 	g_profiler->avg("CM::Transparent Buffers - Sorted", sorted_blocks);
 	g_profiler->avg("CM::Transparent Buffers - Unsorted", unsorted_blocks);
 	m_needs_update_transparent_meshes = false;
+}
+
+std::optional<std::array<f32, 4>>
+ClientMap::getLiquidTopFaceHeights(v3s16 pos,
+		const std::optional<LiquidWaveParams> &wave_params)
+{
+	std::optional<std::array<f32, 4>> heights_opt = std::nullopt;
+
+	const content_t node_c = getNode(pos).getContent();
+	const ContentFeatures &node_f = m_nodedef->get(node_c);
+	const content_t node_above_c = getNode(pos + v3s16(0, 1, 0)).getContent();
+
+	if (node_f.drawtype == NDT_LIQUID) {
+		if (MapblockMeshGenerator::isSolidFaceDrawn(node_c, node_f, node_above_c,
+				m_nodedef))
+			heights_opt = std::array<f32, 4>{0.5f, 0.5f, 0.5f, 0.5f};
+
+	} else if (node_f.drawtype == NDT_FLOWINGLIQUID) {
+		using LiquidNeighborData = MapblockMeshGenerator::LiquidData::NeighborData;
+
+		content_t c_flowing = node_f.liquid_alternative_flowing_id;
+		content_t c_source = node_f.liquid_alternative_source_id;
+		u8 liquid_range = node_f.liquid_range;
+		auto get_node_rel = [&](v3s16 relpos) -> MapNode {
+			return getNode(pos + relpos);
+		};
+
+		std::array<std::array<LiquidNeighborData, 3>, 3> neighbors =
+				MapblockMeshGenerator::getLiquidNeighborsData(c_source, c_flowing,
+						liquid_range, get_node_rel);
+
+		if (!neighbors[1][1].top_is_same_liquid) {
+			std::array<std::array<f32, 2>, 2> corners =
+					MapblockMeshGenerator::calculateLiquidCornerLevels(c_source,
+							c_flowing, neighbors);
+
+			heights_opt = {
+					corners[0][0], corners[0][1],
+					corners[1][0], corners[1][1]
+				};
+		}
+	}
+
+	if (!heights_opt || !wave_params || node_f.waving != 3)
+		return heights_opt;
+
+	// do the wave
+	// Note: The same thing is implemented in the nodes vertex shader. Keep
+	//       them consistent!
+	auto wave_func = [&wave_params](v3f wavePos) {
+		using v4f = std::array<f32, 4>;
+
+		// Why does C++ still not have a normal mod function?!
+		auto mod = [](f32 a, f32 b) {
+			return a - b * std::floor(a/b);
+		};
+
+		//
+		// Simple, fast noise function.
+		// See: https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
+		//
+		auto perm = [&mod](v4f v) -> v4f {
+			auto f = [&](f32 x) { return mod(((x * 34.0f) + 1.0f) * x, 289.0f); };
+			return v4f{f(v[0]), f(v[1]), f(v[2]), f(v[3])};
+		};
+
+		auto snoise = [&perm, &mod](v3f p) -> f32 {
+			auto v4add = [](v4f v1, v4f v2) {
+				return v4f{v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2], v1[3] + v2[3]};
+			};
+			auto v4adds = [](v4f v, f32 s) {
+				return v4f{v[0] + s, v[1] + s, v[2] + s, v[3] + s};
+			};
+			auto v4scale = [](v4f v, f32 s) {
+				return v4f{v[0] * s, v[1] * s, v[2] * s, v[3] * s};
+			};
+			auto v3schur = [](v3f v1, v3f v2) {
+				return v3f{v1.X * v2.X, v1.Y * v2.Y, v1.Z * v2.Z};
+			};
+
+			v3f a = v3f{std::floor(p.X), std::floor(p.Y), std::floor(p.Z)};
+			v3f d = p - a;
+			d = v3schur(v3schur(d, d), v3f(3.0f) - 2.0f * d);
+
+			v4f b = v4add(v4f{a.X, a.X, a.Y, a.Y}, v4f{0.0f, 1.0f, 0.0f, 1.0f});
+			v4f k1 = perm(v4f{b[0], b[1], b[0], b[1]});
+			v4f k2 = perm(v4add(v4f{k1[0], k1[1], k1[0], k1[1]}, v4f{b[2], b[2], b[3], b[3]}));
+
+			v4f c = v4adds(k2, a.Z);
+			v4f k3 = perm(c);
+			v4f k4 = perm(v4adds(c, 1.0f));
+
+			auto f1 = [&](f32 x) { return mod(x * (1.0f / 41.0f), 1.0f); };
+			v4f o1 = {f1(k3[0]), f1(k3[1]), f1(k3[2]), f1(k3[3])};
+			v4f o2 = {f1(k4[0]), f1(k4[1]), f1(k4[2]), f1(k4[3])};
+
+			v4f o3 = v4add(v4scale(o2, d.Z), v4scale(o1, 1.0f - d.Z));
+			v2f o4 = v2f{o3[1], o3[3]} * d.X + v2f{o3[0], o3[2]} * (1.0f - d.X);
+
+			return o4.Y * d.Y + o4.X * (1.0f - d.Y);
+		};
+
+		// The waves are slightly compressed along the z-axis to get
+		// wave-fronts along the x-axis.
+		wavePos.X /= wave_params->length * 3.0f;
+		wavePos.Z /= wave_params->length * 2.0f;
+		wavePos.Z += wave_params->animation_timer * wave_params->speed * 10.0f;
+		return (snoise(wavePos) - 1.0f) * wave_params->height * 5.0f;
+	};
+
+	const v3f pos_bs = intToFloat(pos, BS);
+	auto &heights = *heights_opt;
+	heights[0] += wave_func(pos_bs + BS * v3f(-0.5f, heights[0], -0.5f)) * (1.0f/BS);
+	heights[1] += wave_func(pos_bs + BS * v3f( 0.5f, heights[1], -0.5f)) * (1.0f/BS);
+	heights[2] += wave_func(pos_bs + BS * v3f(-0.5f, heights[2],  0.5f)) * (1.0f/BS);
+	heights[3] += wave_func(pos_bs + BS * v3f( 0.5f, heights[3],  0.5f)) * (1.0f/BS);
+
+	return heights_opt;
 }
 
 video::SMaterial &DrawDescriptor::getMaterial()

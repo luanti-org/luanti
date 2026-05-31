@@ -100,6 +100,8 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float> m_bloom_strength_pixel{"bloomStrength"};
 	CachedPixelShaderSetting<float> m_bloom_radius_pixel{"bloomRadius"};
 	CachedPixelShaderSetting<float> m_saturation_pixel{"saturation"};
+	CachedPixelShaderSetting<float, 4>
+		m_wield_posteffect_color{"wield_posteffect_color"};
 	bool m_volumetric_light_enabled;
 	CachedPixelShaderSetting<float, 3>
 		m_sun_position_pixel{"sunPositionScreen"};
@@ -212,6 +214,8 @@ public:
 
 		float saturation = lighting.saturation;
 		m_saturation_pixel.set(&saturation, services);
+
+		m_wield_posteffect_color.set(m_client->getWieldPostEffectColor(), services);
 
 		if (m_volumetric_light_enabled) {
 			// Map directional light to screen space
