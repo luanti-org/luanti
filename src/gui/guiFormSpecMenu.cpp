@@ -1740,7 +1740,7 @@ void GUIFormSpecMenu::parseTextArea(parserData* data, std::vector<std::string>& 
 			EGUI_ALIGNMENT halign = get_halign(style);
 
 			// field[] is a single line of text - only horizontal alignment makes sense
-       		e->setTextAlignment(halign, gui::EGUIA_UPPERLEFT);
+			e->setTextAlignment(halign, gui::EGUIA_UPPERLEFT);
 		}
 	}
 
