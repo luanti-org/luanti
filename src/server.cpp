@@ -2091,7 +2091,6 @@ void Server::SendPlayerBreath(PlayerSAO *sao)
 void Server::SendMovePlayer(PlayerSAO *sao)
 {
 	// Send attachment updates instantly to the client prior updating position.
-	// The update is still queued below for normal delivery to other observers.
 	if (sao->isAttachmentOutdated() && !sao->isAttached()) {
 		std::string data;
 		ActiveObjectMessage aom(
@@ -2099,7 +2098,6 @@ void Server::SendMovePlayer(PlayerSAO *sao)
 		aom.appendTo(data);
 		SendActiveObjectMessages(sao->getPeerID(), data);
 	}
-	sao->sendOutdatedData();
 
 	NetworkPacket pkt(TOCLIENT_MOVE_PLAYER, sizeof(v3f) + sizeof(f32) * 2, sao->getPeerID());
 	pkt << sao->getBasePosition() << sao->getLookPitch() << sao->getRotation().Y;
