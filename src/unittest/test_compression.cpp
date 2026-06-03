@@ -20,6 +20,7 @@ public:
 
 	void testRLECompression();
 	void testZlibCompression();
+	void testRawDeflateCompression();
 	void testZlibLargeData();
 	void testZstdLargeData();
 	void testZlibLimit();
@@ -32,6 +33,7 @@ void TestCompression::runTests(IGameDef *gamedef)
 {
 	TEST(testRLECompression);
 	TEST(testZlibCompression);
+	TEST(testRawDeflateCompression);
 	TEST(testZlibLargeData);
 	TEST(testZstdLargeData);
 	TEST(testZlibLimit);
@@ -122,6 +124,25 @@ void TestCompression::testZlibCompression()
 
 	for (u32 i = 0; i < str_out2.size(); i++)
 		UASSERT(str_out2[i] == fromdata[i]);
+}
+
+void TestCompression::testRawDeflateCompression()
+{
+	const std::string data_in = "raw deflate data can be embedded in other formats";
+
+	std::ostringstream os_compressed(std::ios::binary);
+	compressZlib(data_in, os_compressed, -1, true);
+	std::string compressed = os_compressed.str();
+
+	std::istringstream is_compressed(compressed, std::ios::binary);
+	std::ostringstream os_decompressed(std::ios::binary);
+	decompressZlib(is_compressed, os_decompressed, 0, true);
+
+	UASSERTEQ(std::string, os_decompressed.str(), data_in);
+
+	std::istringstream is_wrapped(compressed, std::ios::binary);
+	std::ostringstream os_wrapped(std::ios::binary);
+	EXCEPTION_CHECK(SerializationError, decompressZlib(is_wrapped, os_wrapped));
 }
 
 void TestCompression::testZlibLargeData()
@@ -254,4 +275,3 @@ void TestCompression::_testZlibLimit(u32 size, u32 limit)
 				i, str_decompressed[i], i, data_in[i]);
 	}
 }
-

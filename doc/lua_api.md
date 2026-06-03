@@ -6152,6 +6152,8 @@ Utilities
       set_camera_resettable = true,
       -- The HUD element field `hideable` exists (5.17.0)
       hud_hideable_field = true,
+      -- "raw_deflate" method for compress/decompress (5.17.0)
+      compress_raw_deflate = true,
   }
   ```
 
@@ -8047,10 +8049,12 @@ Misc.
     * `method` is a string identifying the compression method to be used.
     * Supported compression methods:
         * Deflate (zlib): `"deflate"`
+        * Deflate (raw): `"raw_deflate"`
         * Zstandard: `"zstd"`
     * `...` indicates method-specific arguments. Currently defined arguments
       are:
         * Deflate: `level` - Compression level, integer in range [0, 9] or `nil`.
+          Supported by `"deflate"` and `"raw_deflate"`.
         * Zstandard: `level` - Compression level. Integer or `nil`. Default `3`.
         Note any supported Zstandard compression level could be used here,
         but these are subject to change between Zstandard versions.
