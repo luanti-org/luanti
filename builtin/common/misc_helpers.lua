@@ -524,7 +524,7 @@ end
 
 do
 	local prototype = "nodemeta:%d,%d,%d"
-	
+
 	function core.get_nodemeta_inventory_location(pos)
 		return string_format(prototype, pos.x, pos.y, pos.z)
 	end
