@@ -33,6 +33,8 @@ gtags.files
 .vscode/*
 !.vscode/extensions.json
 build/.cmake/
+# Zed
+.zed/
 # Fleet
 .fleet
 # Gradle

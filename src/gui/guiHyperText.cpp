@@ -1004,7 +1004,7 @@ void TextDrawer::draw(const core::rect<s32> &clip_rect,
 }
 
 // -----------------------------------------------------------------------------
-// GUIHyperText - The formated text area formspec item
+// GUIHyperText - The formatted text area formspec item
 
 //! constructor
 GUIHyperText::GUIHyperText(const wchar_t *text, IGUIEnvironment *environment,

@@ -2,10 +2,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-06 23:13+0100\n"
-"PO-Revision-Date: 2026-01-19 08:01+0000\n"
-"Last-Translator: 109247019824 <109247019824@users.noreply.hosted.weblate.org>"
-"\n"
+"POT-Creation-Date: 2026-05-06 19:14+0200\n"
+"PO-Revision-Date: 2026-04-20 07:09+0000\n"
+"Last-Translator: 109247019824 "
+"<109247019824@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Bulgarian <https://hosted.weblate.org/projects/minetest/"
 "minetest/bg/>\n"
 "Language: bg\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 5.17.1-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -67,6 +67,7 @@ msgstr "Недостъпни команди: "
 msgid "Get help for commands (-t: output in chat)"
 msgstr "Помощ за командите (-t: извежда в разговорите)"
 
+#. TRANSLATORS: 'help' and 'all' mustn't be translated. cmd = command
 #: builtin/common/chatcommands.lua
 msgid ""
 "Use '.help <cmd>' to get more information, or '.help all' to list everything."
@@ -74,6 +75,7 @@ msgstr ""
 "Въведете „.help <cmd>“ за повече информация или „.help all“ за списък с "
 "всички команди."
 
+#. TRANSLATORS: Syntax of 'help' command. Don't translate anything except 'cmd' (=command)
 #: builtin/common/chatcommands.lua
 msgid "[all | <cmd>] [-t]"
 msgstr "[all | <команда>] [-t]"
@@ -127,6 +129,8 @@ msgid ""
 "2D noise: flag on.\n"
 "3D noise: flag off."
 msgstr ""
+"2D шум: флаг включен.\n"
+"3D шум: флаг включен."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
@@ -196,12 +200,16 @@ msgid ""
 "Making 3D noise eased is not recommended because it significantly increases "
 "the load."
 msgstr ""
+"Не се препоръчва да намалявате нивото на 3D шума, защото това значително "
+"увеличава натоварването."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Maps noise gradient values onto a quintic S-curve before performing "
 "interpolation."
 msgstr ""
+"Преди да бъде извършена интерполация стойностите на шумовия градиент биват "
+"нанесени върху S-крива от пета степен."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Octaves"
@@ -242,6 +250,7 @@ msgstr "Мащабира всяка октава с (мащаба на пред�
 msgid "Scales the noise in the $1 axis by this value."
 msgstr ""
 
+#. TRANSLATORS: Value for randomness
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Seed"
@@ -282,7 +291,7 @@ msgstr ""
 msgid "This results in spiky noise."
 msgstr ""
 
-#. ~ "absvalue" is a noise parameter flag.
+#. TRANSLATORS: "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
 #. It can be enabled in noise settings in
 #. the settings menu.
@@ -290,14 +299,14 @@ msgstr ""
 msgid "absvalue"
 msgstr "абсолютна стойност"
 
-#. ~ "defaults" is a noise parameter flag.
+#. TRANSLATORS: "defaults" is a noise parameter flag.
 #. It describes the default processing options
 #. for noise settings in the settings menu.
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "defaults"
 msgstr "подразбирани"
 
-#. ~ "eased" is a noise parameter flag.
+#. TRANSLATORS: "eased" is a noise parameter flag.
 #. It is used to make the map smoother and
 #. can be enabled in noise settings in
 #. the settings menu.
@@ -305,6 +314,8 @@ msgstr "подразбирани"
 msgid "eased"
 msgstr "загладено"
 
+#. TRANSLATORS: "automatic exposure" refers to light. This note
+#. will be displayed for the graphics setting 'enable_auto_exposure'
 #: builtin/common/settings/dlg_settings.lua
 msgid "(The game will need to enable automatic exposure as well)"
 msgstr "(В играта трябва да включите и автоматичната експозиция)"
@@ -321,20 +332,28 @@ msgstr "(В играта трябва да включите и обемното 
 msgid "(Use system language)"
 msgstr "(Системен език)"
 
+#. TRANSLATORS: Shown when a default setting is the empty string
+#: builtin/common/settings/dlg_settings.lua
+msgid "<empty>"
+msgstr ""
+
 #: builtin/common/settings/dlg_settings.lua
 msgid "Accessibility"
 msgstr "Достъпност"
 
+#. TRANSLATORS: Automatic
 #: builtin/common/settings/dlg_settings.lua
 msgid "Auto"
 msgstr "Автоматично"
 
+#. TRANSLATORS: Button text to go back
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
 msgid "Back"
 msgstr "Назад"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 msgid "Buttons with crosshair"
 msgstr "Бутони с мерник"
@@ -344,6 +363,7 @@ msgstr "Бутони с мерник"
 msgid "Chat"
 msgstr "Разговори"
 
+#. TRANSLATORS: Tooltip of a button that clears input
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Clear"
 msgstr "Изчистване"
@@ -351,6 +371,11 @@ msgstr "Изчистване"
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "Controls"
 msgstr "Управление"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+#, fuzzy
+msgid "Damage"
+msgstr "Щети / PvP"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/common/settings/shadows_component.lua
@@ -361,10 +386,12 @@ msgstr "Изключено"
 msgid "Enabled"
 msgstr "Включено"
 
+#. TRANSLATORS: Category for general settings
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "General"
 msgstr "Общи"
 
+#. TRANSLATORS: Touchscreen gesture
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
 msgstr "Продължително докосване"
@@ -373,12 +400,13 @@ msgstr "Продължително докосване"
 msgid "Movement"
 msgstr "Придвижване"
 
+#. TRANSLATORS: No search results
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No results"
 msgstr "Няма резултати"
 
-#. ~ Indicates that the action does not have a corresponding keybinding.
+#. TRANSLATORS: Indicates that the action does not have a corresponding keybinding.
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Not bound"
@@ -388,14 +416,17 @@ msgstr "Не е намерено"
 msgid "Reset setting to default"
 msgstr "Подразбирани настройки"
 
+#. TRANSLATORS: $1 will be replaced with a default setting value
 #: builtin/common/settings/dlg_settings.lua
-msgid "Reset setting to default ($1)"
+#, fuzzy
+msgid "Reset setting to default: $1"
 msgstr "Нулиране до подразбирана стойност ($1)"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
 msgstr "Търсене"
 
+#. TRANSLATORS: Touchscreen gesture
 #: builtin/common/settings/dlg_settings.lua
 msgid "Short tap"
 msgstr "Кратко докосване"
@@ -404,14 +435,17 @@ msgstr "Кратко докосване"
 msgid "Show advanced settings"
 msgstr "Разширени настройки"
 
+#. TRANSLATORS: Checkbox that toggles displaying the technical setting names
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show technical names"
 msgstr "Технически наименования"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap"
 msgstr "Докосване"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
 msgstr "Докосване с мерник"
@@ -569,6 +603,8 @@ msgstr ""
 msgid "Downloading..."
 msgstr "Изтегляне…"
 
+#. TRANSLATORS: A 'featured' package in ContentDB is a package that is
+#. more prominently displayed than other packages
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
 msgstr "Препоръчани"
@@ -596,6 +632,7 @@ msgstr "Добавките не могат да бъдат получени"
 msgid "No updates"
 msgstr "Няма обновяване"
 
+#. TRANSLATORS: A download is queued
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Queued"
 msgstr "Изчакващи"
@@ -608,14 +645,17 @@ msgstr "Пакети с текстури"
 msgid "The package $1 was not found."
 msgstr "Добавката $1 не е намерена."
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Update All [$1]"
 msgstr "Обновяване всички [$1]"
 
+#. TRANSLATORS: $1 is the name of a package and $2 is a number of depencencies
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 and $2 dependencies will be installed."
 msgstr "$1 и $2 зависимости ще бъдат инсталирани."
 
+#. TRANSLATORS: Package (mod, texture pack, etc.) info: $1 = package name, $2 = package author
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 by $2"
 msgstr "$1 от $2"
@@ -624,6 +664,7 @@ msgstr "$1 от $2"
 msgid "$1 required dependencies could not be found."
 msgstr "$1 задължителни зависимости не могат да бъдат намерени."
 
+#. TRANSLATORS: $1 is the name of a package and $2 is a number of depencencies
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 will be installed, and $2 dependencies will be skipped."
 msgstr "$1 ще бъдат инсталирани, а $2 зависимости ще бъдат пропуснати."
@@ -636,6 +677,7 @@ msgstr "Вече инсталирано"
 msgid "Base Game:"
 msgstr "Основна игра:"
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Dependencies:"
@@ -706,10 +748,12 @@ msgstr "Страница на форума"
 msgid "Information"
 msgstr "Сведения"
 
+#. TRANSLATORS: $1 = download size
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Install [$1]"
 msgstr "Инсталиране [$1]"
 
+#. TRANSLATORS: Also known as 'bug tracker'
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
 msgstr "Дефекти"
@@ -718,6 +762,7 @@ msgstr "Дефекти"
 msgid "Reviews"
 msgstr "Отзиви"
 
+#. TRANSLATORS: Link to source code repository
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
 msgstr "Изходен код"
@@ -742,6 +787,10 @@ msgstr "Страница"
 msgid "by $1"
 msgstr "от $1"
 
+#. TRANSLATORS: Info line for a ContentDB package:
+#. $1 = author,
+#. $2 = number of downloads,
+#. $3, $4, $5 = number of positive/neutral/negative reviews
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
 msgstr "автор $1  –  $2 изтегляния  –  +$3 / $4 / -$5"
@@ -781,6 +830,7 @@ msgstr "$1 не може да бъде инсталирано като паке�
 msgid "World mods"
 msgstr "Име на света"
 
+#. TRANSLATORS: $1 = server name
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
 "Players connected to\n"
@@ -789,10 +839,12 @@ msgstr ""
 "Играчи, свързани с\n"
 "$1"
 
+#. TRANSLATORS: Message in the mod list when a mod is enabled with error
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
 msgstr "(Включено, има грешки)"
 
+#. TRANSLATORS: Displayed when a mod dependency is unsatisfied
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Unsatisfied)"
 msgstr "(Неудовлетворено)"
@@ -833,6 +885,7 @@ msgstr "Модификация:"
 msgid "Mods located inside the world folder."
 msgstr ""
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
 msgstr "Няма (незадължителни) зависимости"
@@ -841,6 +894,7 @@ msgstr "Няма (незадължителни) зависимости"
 msgid "No game description provided."
 msgstr "Играта няма описание."
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No hard dependencies"
 msgstr "Няма задължителни зависимости"
@@ -849,10 +903,12 @@ msgstr "Няма задължителни зависимости"
 msgid "No modpack description provided."
 msgstr "Пакетът с модификации няма описание."
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No optional dependencies"
 msgstr "Няма незадължителни зависимости"
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Optional dependencies:"
 msgstr "Незадължителни зависимости:"
@@ -894,6 +950,7 @@ msgstr "Застудяване във височина"
 msgid "Altitude dry"
 msgstr "Засушаване във височина"
 
+#. TRANSLATORS: Smooth transition between biomes
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Biome blending"
 msgstr "Смесване на биоми"
@@ -914,6 +971,7 @@ msgstr "Пещери"
 msgid "Create"
 msgstr "Създаване"
 
+#. TRANSLATORS: Map generator decorations (used for structures, trees, plants, and more)
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Decorations"
 msgstr "Декорации"
@@ -1121,6 +1179,7 @@ msgstr "Системата за обработка на входни данни 
 msgid "Confirm Password"
 msgstr "Парола отново"
 
+#. TRANSLATORS: Message when joining a server
 #: builtin/mainmenu/dlg_register.lua
 msgid "Joining $1"
 msgstr "Присъединяване към $1"
@@ -1143,10 +1202,12 @@ msgstr "Парола"
 msgid "Passwords do not match"
 msgstr "Паролите не съвпадат"
 
+#. TRANSLATORS: Register an account on a server
 #: builtin/mainmenu/dlg_register.lua builtin/mainmenu/tab_online.lua
 msgid "Register"
 msgstr "Регистриране"
 
+#. TRANSLATORS: Dismiss a dialog window/message
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid "Dismiss"
 msgstr "Пропускане"
@@ -1192,10 +1253,12 @@ msgstr ""
 "Този пакет с модификации има изрично зададено име в modpack.conf, което ще "
 "отмени всяко преименуване."
 
+#. TRANSLATORS: Expand all entries in a tree view
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Expand all"
 msgstr "Разгъване всички"
 
+#. TRANSLATORS: A checkbox; if enabled, it will group mods by their prefix
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Group by prefix"
 msgstr "Групиране по наставка"
@@ -1208,10 +1271,12 @@ msgstr "На сървъра $1 има игра с име $2 със следни�
 msgid "The $1 server uses the following mods:"
 msgstr "Сървъра $1 има следните модификации:"
 
+#. TRANSLATORS: $1 = name of the engine
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
 msgstr "Налично е издание $1"
 
+#. TRANSLATORS: $1 and $2 are version numbers, $3 is a URL
 #: builtin/mainmenu/dlg_version_info.lua
 msgid ""
 "Installed version: $1\n"
@@ -1221,7 +1286,7 @@ msgid ""
 msgstr ""
 "Инсталирано издание: $1\n"
 "Последно издание: $2\n"
-"За да разберете как да се сдобиете с последното издание и да поличите най-"
+"За да разберете как да се сдобиете с последното издание и да получите най-"
 "новите възможности и поправки, посетете $3."
 
 #: builtin/mainmenu/dlg_version_info.lua
@@ -1240,6 +1305,7 @@ msgstr "Към страницата"
 msgid "Debug build, expect worse performance"
 msgstr ""
 
+#. TRANSLATORS: Try to keep the translation short
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "Настройки"
@@ -1301,6 +1367,7 @@ msgstr "Споделяне на дневник за отстраняване н�
 msgid "Browse online content"
 msgstr "Преглед на съдържание онлайн"
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/tab_content.lua
 msgid "Browse online content [$1]"
 msgstr "Преглед на съдържание онлайн [$1]"
@@ -1309,6 +1376,7 @@ msgstr "Преглед на съдържание онлайн [$1]"
 msgid "Content"
 msgstr "Съдържание"
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/tab_content.lua
 msgid "Content [$1]"
 msgstr "Съдържание [$1]"
@@ -1393,6 +1461,7 @@ msgstr "Създаване"
 msgid "Play Game"
 msgstr "Започване на игра"
 
+#. TRANSLATORS: Network port
 #: builtin/mainmenu/tab_local.lua builtin/mainmenu/tab_online.lua
 msgid "Port"
 msgstr "Порт"
@@ -1421,6 +1490,7 @@ msgstr "Необходимо е да инсталирате игра преди 
 msgid "Add favorite"
 msgstr "Добавяне към избраните"
 
+#. TRANSLATORS: Network address
 #: builtin/mainmenu/tab_online.lua
 msgid "Address"
 msgstr "Адрес"
@@ -1429,7 +1499,7 @@ msgstr "Адрес"
 msgid "Creative mode"
 msgstr "Творчески режим"
 
-#. ~ PvP = Player versus Player
+#. TRANSLATORS: PvP = Player versus Player
 #: builtin/mainmenu/tab_online.lua
 msgid "Damage / PvP"
 msgstr "Щети / PvP"
@@ -1450,6 +1520,7 @@ msgstr "Несъвместими сървъри"
 msgid "Join Game"
 msgstr "Включване към игра"
 
+#. TRANSLATORS: Login to server
 #: builtin/mainmenu/tab_online.lua
 msgid "Login"
 msgstr "Вход"
@@ -1462,10 +1533,12 @@ msgstr "Брой модификации: $1"
 msgid "Open server website"
 msgstr "Страница на сървъра"
 
+#. TRANSLATORS: Also known as "latency"
 #: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr "Забавяне"
 
+#. TRANSLATORS: $1 is a list of players
 #: builtin/mainmenu/tab_online.lua
 msgid ""
 "Players:\n"
@@ -1475,21 +1548,15 @@ msgstr ""
 "$1"
 
 #: builtin/mainmenu/tab_online.lua
-msgid ""
-"Possible filters\n"
-"game:<name>\n"
-"mod:<name>\n"
-"player:<name>"
-msgstr ""
-"Възможни филтри\n"
-"game:<игра>\n"
-"mod:<модификация>\n"
-"player:<играч>"
+#, fuzzy
+msgid "Possible filters"
+msgstr "Филтър на Поасон"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
 msgstr "Обществени сървъри"
 
+#. TRANSLATORS: As in 'reload'/'check again'
 #: builtin/mainmenu/tab_online.lua
 msgid "Refresh"
 msgstr "Презареждане"
@@ -1530,7 +1597,7 @@ msgstr "Зареждане на текстури…"
 msgid "Rebuilding shaders..."
 msgstr "Пресъздаване на шейдери…"
 
-#: src/client/client.cpp src/util/screenshot.cpp
+#: src/client/client.cpp src/gui/guiEngine.cpp src/util/screenshot.cpp
 #, c-format
 msgid "Saved screenshot to \"%s\""
 msgstr "Екранната снимка е запазена в „%s“"
@@ -1566,6 +1633,11 @@ msgstr ""
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
 msgstr "Медия…"
+
+#: src/client/fontengine.cpp
+#, fuzzy
+msgid "Failed to find a valid font"
+msgstr "Грешка при компилиране на шейдъра „%s“."
 
 #: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
 #: src/server.cpp
@@ -1866,6 +1938,7 @@ msgstr "Показани са телените рамки"
 msgid "Zoom currently disabled by game or mod"
 msgstr "Мащабирането е спряно или от играта, или от модификация"
 
+#. TRANSLATORS: Game mode (server or singleplayer)
 #: src/client/game_formspec.cpp
 msgid "- Mode: "
 msgstr "- Режим: "
@@ -1874,7 +1947,7 @@ msgstr "- Режим: "
 msgid "- Public: "
 msgstr "- Обществен: "
 
-#. ~ PvP = Player versus Player
+#. TRANSLATORS: PvP = Player versus Player
 #: src/client/game_formspec.cpp
 msgid "- PvP: "
 msgstr "- PvP: "
@@ -1883,10 +1956,12 @@ msgstr "- PvP: "
 msgid "- Server Name: "
 msgstr "- Име на сървър: "
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Change Password"
 msgstr "Промяна на парола"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Continue"
 msgstr "Продължаване"
@@ -1919,10 +1994,12 @@ msgstr ""
 "- докосване и плъзгане, докосване с втори пръст\n"
 " → поставяне на единичен елемент в празно място\n"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Exit to Menu"
 msgstr "Изход към менюто"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short (OS = Operating System)
 #: src/client/game_formspec.cpp
 msgid "Exit to OS"
 msgstr "Изход към ОС"
@@ -1955,6 +2032,7 @@ msgstr "Отдалечен сървър"
 msgid "Respawn"
 msgstr "Прераждане"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Sound Volume"
 msgstr "Сила на звука"
@@ -1996,7 +2074,7 @@ msgstr "Инструментът за профилиране е видим (ст
 msgid "Backspace"
 msgstr "Backspace"
 
-#. ~ Usually paired with the Pause key
+#. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
 msgid "Break Key"
 msgstr "Break"
@@ -2057,7 +2135,7 @@ msgstr "Ляв Menu"
 msgid "Left Shift"
 msgstr "Ляв Shift"
 
-#. ~ Name of key
+#. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
 msgid "Left Windows"
 msgstr "Ляв Windows"
@@ -2070,10 +2148,18 @@ msgstr "Клавиш Меню"
 msgid "Middle Click"
 msgstr "Средно щракване"
 
+#. TRANSLATORS: This is for mouse buttons without an intuitive description. %d is the number of the button.
+#: src/client/keycode.cpp
+#, c-format
+msgid "Mouse Button %d"
+msgstr ""
+
+#. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
 msgid "Mouse X1"
 msgstr "X1 на мишката"
 
+#. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
 msgid "Mouse X2"
 msgstr "X2 на мишката"
@@ -2150,7 +2236,7 @@ msgstr "Page Down"
 msgid "Page Up"
 msgstr "Page Up"
 
-#. ~ Usually paired with the Break key
+#. TRANSLATORS: Usually paired with the Break key
 #: src/client/keycode.cpp
 msgid "Pause Key"
 msgstr "Pause"
@@ -2159,7 +2245,7 @@ msgstr "Pause"
 msgid "Play"
 msgstr "Изпълняване"
 
-#. ~ "Print screen" key
+#. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
 msgstr "PrtSc"
@@ -2188,7 +2274,7 @@ msgstr "Десен Menu"
 msgid "Right Shift"
 msgstr "Десен Shift"
 
-#. ~ Name of key
+#. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
 msgid "Right Windows"
 msgstr "Десен Windows"
@@ -2245,6 +2331,11 @@ msgstr "Картата е в режим на текстура"
 msgid "Failed to create the texture \"%s\" for the rendering pipeline."
 msgstr ""
 
+#: src/client/renderingengine.cpp
+#, fuzzy
+msgid "Could not initialize any supported video driver!"
+msgstr "Рамки не се поддържат от софтуера за управление на устройството"
+
 #: src/client/shader.cpp
 #, c-format
 msgid "Failed to compile the \"%s\" shader."
@@ -2255,11 +2346,13 @@ msgstr "Грешка при компилиране на шейдъра „%s“.
 msgid "Failed to find \"%s\" shader files."
 msgstr "Грешка при компилиране на шейдъра „%s“."
 
+#. TRANSLATORS: GLSL = OpenGL Shading Language
 #: src/client/shader.cpp
 msgid "GLSL is not supported by the driver"
 msgstr "GLSL не се поддържа от софтуера за управление на устройството"
 
-#. ~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
+#. TRANSLATORS: Error when a mod is missing dependencies.
+#. Example: "Mod Title is missing: mod1, mod2, mod3"
 #: src/content/mod_configuration.cpp
 #, c-format
 msgid "%s is missing:"
@@ -2295,6 +2388,11 @@ msgstr "Грешка при отваряне на страница"
 #: src/gui/guiChatConsole.cpp
 msgid "Opening webpage"
 msgstr "Отваряне на страница"
+
+#: src/gui/guiEngine.cpp
+#, fuzzy
+msgid "Failed to load main menu script!"
+msgstr "Скрипт за главното меню"
 
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
@@ -2462,7 +2560,7 @@ msgstr "Грешка на сървъра"
 msgid "Invalid password"
 msgstr "Невярна парола"
 
-#. ~ DO NOT TRANSLATE THIS LITERALLY!
+#. TRANSLATORS: DO NOT TRANSLATE THIS LITERALLY!
 #. This is a special string which needs to contain the translation's
 #. language code (e.g. "de" for German).
 #: src/network/clientpackethandler.cpp src/script/lua_api/l_client.cpp
@@ -2843,11 +2941,13 @@ msgid "Anticheat movement tolerance"
 msgstr "Толеранс на движенията при защита от измама"
 
 #: src/settings_translation_file.cpp
-msgid "Append item name"
-msgstr "Добавяне името на предмета"
+#, fuzzy
+msgid "Append item name to tooltips"
+msgstr "Името на предмета да бъде добавено в подсказката."
 
 #: src/settings_translation_file.cpp
-msgid "Append item name to tooltip."
+#, fuzzy
+msgid "Append the full item name to the tooltip of item stacks."
 msgstr "Името на предмета да бъде добавено в подсказката."
 
 #: src/settings_translation_file.cpp
@@ -3428,6 +3528,11 @@ msgstr ""
 "Управлява цвета на обекта на мерника"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Damage flash"
+msgstr "Настройки на света"
+
+#: src/settings_translation_file.cpp
 msgid "Debug log file size threshold"
 msgstr "Ограничение на размера на файла с дневника"
 
@@ -3782,6 +3887,11 @@ msgstr "Лъчево премахване на невидимите блоков
 
 #: src/settings_translation_file.cpp
 #, fuzzy
+msgid "Enable SSCSM"
+msgstr "Включване всички"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
 msgid "Enable a confirmation dialog before closing."
 msgstr "Включва анимиране на предметите в инвентара."
 
@@ -4068,6 +4178,10 @@ msgstr ""
 "Фиксиране на местоположението на виртуалния контролер.\n"
 "Когато не е отметнато контролерът ще се появи на мястото на първото "
 "докосване."
+
+#: src/settings_translation_file.cpp
+msgid "Flashing of the screen when taking damage."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Floatland density"
@@ -5061,6 +5175,16 @@ msgid "Keyboard and Mouse"
 msgstr "Клавиатура и мишка"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Keyboard camera speed"
+msgstr "Клавиатура и мишка"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Keyboard-controlled camera rotation speed, in degrees per second."
+msgstr "Скорост на катерене, във възли/секунда."
+
+#: src/settings_translation_file.cpp
 msgid "Kick players who sent more than X messages per 10 seconds."
 msgstr "Изгонване на играча, изпратил повече от Х съобщения за 10 секунди."
 
@@ -5275,6 +5399,24 @@ msgstr "Модификатори на зареждащия блок (LBM)"
 #: src/settings_translation_file.cpp
 msgid "Local command"
 msgstr "Местна команда"
+
+#: src/settings_translation_file.cpp
+msgid "Look down"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Look left"
+msgstr "Движение наляво"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Look right"
+msgstr "Движение на дясно"
+
+#: src/settings_translation_file.cpp
+msgid "Look up"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -6537,6 +6679,13 @@ msgstr "Файл за списъка със сървъри"
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Set proxy to use by cURL. This is an URI just like the *_proxy environment "
+"variables.\n"
+"Note that this will not apply to Luanti's in-game protocol."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Set the default tilt of Sun/Moon orbit in degrees.\n"
 "Games may change orbit tilt via API.\n"
 "Value of 0 means no tilt / vertical orbit."
@@ -7775,6 +7924,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Where to enable server-sent client-side modding (SSCSM).\n"
+"Warning: Experimental."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Whether name tag backgrounds should be shown by default.\n"
 "Mods may still set a background."
 msgstr ""
@@ -7952,42 +8107,25 @@ msgstr "Изчакване за взаимодействие с cURL"
 msgid "cURL parallel limit"
 msgstr "Ограничение на едновременните връзки на cURL"
 
+#: src/settings_translation_file.cpp
+msgid "cURL proxy address"
+msgstr ""
+
 #: src/util/screenshot.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
 msgstr "Грешка при запазване на екранната снимка в „%s“"
 
+#~ msgid "Append item name"
+#~ msgstr "Добавяне името на предмета"
+
 #~ msgid ""
-#~ "Number of emerge threads to use.\n"
-#~ "Value 0:\n"
-#~ "-    Automatic selection. The number of emerge threads will be\n"
-#~ "-    'number of processors - 2', with a lower limit of 1.\n"
-#~ "Any other value:\n"
-#~ "-    Specifies the number of emerge threads, with a lower limit of 1.\n"
-#~ "WARNING: Increasing the number of emerge threads increases engine mapgen\n"
-#~ "speed, but this may harm game performance by interfering with other\n"
-#~ "processes, especially in singleplayer and/or when running Lua code in\n"
-#~ "'on_generated'. For many users the optimum setting may be '1'."
+#~ "Possible filters\n"
+#~ "game:<name>\n"
+#~ "mod:<name>\n"
+#~ "player:<name>"
 #~ msgstr ""
-#~ "Брой на подготвящите нишки, които да бъдат използвани.\n"
-#~ "• стойност 0 – автоматичен избор. Броят на нишките ще бъде равен\n"
-#~ "на „броя на процесорите - 2“, минимум 1.\n"
-#~ "• всяка друга стойност – брой на нишките, минимум 1.\n"
-#~ "\n"
-#~ "ВНИМАНИЕ: Увеличаване на стойността увеличава бързодействието\n"
-#~ "при създаване на света, но може да навреди на бързодействието на\n"
-#~ "играта като цяло и по-специално в режим на един играч и/или при\n"
-#~ "изпълняване на код на Lua при „on_generated“. За повечето потребители\n"
-#~ "оптималната стойност е 1."
-
-#~ msgid "Provided world path doesn't exist: "
-#~ msgstr "Зададеният път към света не съществува: "
-
-#~ msgid "Shadow map max distance in nodes to render shadows"
-#~ msgstr "Ограничение на разстоянието на картата на сенките, във възли"
-
-#~ msgid "Y spread"
-#~ msgstr "Разпределение по Y"
-
-#~ msgid "Z spread"
-#~ msgstr "Разпределение по Z"
+#~ "Възможни филтри\n"
+#~ "game:<игра>\n"
+#~ "mod:<модификация>\n"
+#~ "player:<играч>"

@@ -30,7 +30,7 @@ void NetworkPacket::putRawPacket(const u8 *data, u32 datasize, session_t peer_id
 
 	m_data.resize(m_datasize);
 
-	// split command and datas
+	// split command and data
 	m_command = readU16(&data[0]);
 	if (m_datasize > 0)
 		memcpy(m_data.data(), &data[2], m_datasize);

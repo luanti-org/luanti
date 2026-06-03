@@ -317,7 +317,7 @@ std::string PlayerSAO::generateUpdatePhysicsOverrideCommand() const
 	writeF32(os, phys.speed);
 	writeF32(os, phys.jump);
 	writeF32(os, phys.gravity);
-	// MT 0.4.10 legacy: send inverted for detault `true` if the server sends nothing
+	// MT 0.4.10 legacy: send inverted for default `true` if the server sends nothing
 	writeU8(os, !phys.sneak);
 	writeU8(os, !phys.sneak_glitch);
 	writeU8(os, !phys.new_move);

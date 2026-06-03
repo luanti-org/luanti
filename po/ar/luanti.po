@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-06 23:13+0100\n"
-"PO-Revision-Date: 2024-05-21 09:01+0000\n"
+"POT-Creation-Date: 2026-05-06 19:14+0200\n"
+"PO-Revision-Date: 2026-04-06 09:09+0000\n"
 "Last-Translator: Jamil Mohamad Alhussein <jamilmohamadalhoseen@gmail.com>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/minetest/minetest/"
 "ar/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.6-dev\n"
+"X-Generator: Weblate 5.17-dev\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -68,21 +68,22 @@ msgstr "الأمر غير متاح: "
 msgid "Get help for commands (-t: output in chat)"
 msgstr "احصل على تعليمات الأوامر"
 
+#. TRANSLATORS: 'help' and 'all' mustn't be translated. cmd = command
 #: builtin/common/chatcommands.lua
 msgid ""
 "Use '.help <cmd>' to get more information, or '.help all' to list everything."
 msgstr ""
 "استخدم '.help <cmd>' للحصول على مزيد من المعلومات أو '.help all' لعرض كل شيء."
 
+#. TRANSLATORS: Syntax of 'help' command. Don't translate anything except 'cmd' (=command)
 #: builtin/common/chatcommands.lua
 #, fuzzy
 msgid "[all | <cmd>] [-t]"
 msgstr "[all | <cmd>]"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Add keybinding"
-msgstr "روابط المفاتيح."
+msgstr "روابط المفاتيح"
 
 #: builtin/common/settings/components.lua
 msgid "Browse"
@@ -178,19 +179,20 @@ msgstr ""
 msgid ""
 "Lower values make the terrain simple and higher values make the terrain "
 "rough."
-msgstr ""
+msgstr "القيم الأصغر تجعل التضاريس بسيطة والقيم الأكبر تجعل التضاريس أخشن."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Lower values make the terrain smooth and higher values make the terrain have "
 "fine detail."
 msgstr ""
+"القيم الأصغر تجعل التضاريس ملساء و القيم الأكبر تجعل التضاريس ذات تفاصيل أدق."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Lower values will result in smoother noise and higher values will result in "
 "rougher noise."
-msgstr ""
+msgstr "القيم الأصغر تؤدي إلى ضوضاء ناعمة و القيم الأكبر تؤدي إلى ضوضاء خشنة."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
@@ -244,6 +246,7 @@ msgstr ""
 msgid "Scales the noise in the $1 axis by this value."
 msgstr ""
 
+#. TRANSLATORS: Value for randomness
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Seed"
@@ -284,7 +287,7 @@ msgstr ""
 msgid "This results in spiky noise."
 msgstr ""
 
-#. ~ "absvalue" is a noise parameter flag.
+#. TRANSLATORS: "absvalue" is a noise parameter flag.
 #. It is short for "absolute value".
 #. It can be enabled in noise settings in
 #. the settings menu.
@@ -292,14 +295,14 @@ msgstr ""
 msgid "absvalue"
 msgstr "القيمة المطلقة"
 
-#. ~ "defaults" is a noise parameter flag.
+#. TRANSLATORS: "defaults" is a noise parameter flag.
 #. It describes the default processing options
 #. for noise settings in the settings menu.
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "defaults"
 msgstr "إفتراضي"
 
-#. ~ "eased" is a noise parameter flag.
+#. TRANSLATORS: "eased" is a noise parameter flag.
 #. It is used to make the map smoother and
 #. can be enabled in noise settings in
 #. the settings menu.
@@ -307,6 +310,8 @@ msgstr "إفتراضي"
 msgid "eased"
 msgstr "مخفف"
 
+#. TRANSLATORS: "automatic exposure" refers to light. This note
+#. will be displayed for the graphics setting 'enable_auto_exposure'
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "(The game will need to enable automatic exposure as well)"
@@ -326,20 +331,28 @@ msgstr "(ستحتاج اللعبة إلى تمكين الظلال أيضًا)"
 msgid "(Use system language)"
 msgstr "(استخدم لغة النظام)"
 
+#. TRANSLATORS: Shown when a default setting is the empty string
+#: builtin/common/settings/dlg_settings.lua
+msgid "<empty>"
+msgstr ""
+
 #: builtin/common/settings/dlg_settings.lua
 msgid "Accessibility"
 msgstr "إمكانية الوصول"
 
+#. TRANSLATORS: Automatic
 #: builtin/common/settings/dlg_settings.lua
 msgid "Auto"
 msgstr ""
 
+#. TRANSLATORS: Button text to go back
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 #: builtin/mainmenu/content/dlg_package.lua src/gui/guiVolumeChange.cpp
 msgid "Back"
 msgstr "عُد"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 msgid "Buttons with crosshair"
 msgstr ""
@@ -349,6 +362,7 @@ msgstr ""
 msgid "Chat"
 msgstr "دردشة"
 
+#. TRANSLATORS: Tooltip of a button that clears input
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Clear"
 msgstr "امسح"
@@ -356,6 +370,11 @@ msgstr "امسح"
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "Controls"
 msgstr "التحكم"
+
+#: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
+#, fuzzy
+msgid "Damage"
+msgstr "الضرر / قتال اللاعبين"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/common/settings/shadows_component.lua
@@ -366,10 +385,12 @@ msgstr "عطِّل"
 msgid "Enabled"
 msgstr "مُفعل"
 
+#. TRANSLATORS: Category for general settings
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
 msgid "General"
 msgstr "عام"
 
+#. TRANSLATORS: Touchscreen gesture
 #: builtin/common/settings/dlg_settings.lua
 msgid "Long tap"
 msgstr ""
@@ -378,12 +399,13 @@ msgstr ""
 msgid "Movement"
 msgstr "حركة"
 
+#. TRANSLATORS: No search results
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No results"
 msgstr "بدون نتائج"
 
-#. ~ Indicates that the action does not have a corresponding keybinding.
+#. TRANSLATORS: Indicates that the action does not have a corresponding keybinding.
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Not bound"
@@ -394,14 +416,17 @@ msgstr "لم يُعثر عليه"
 msgid "Reset setting to default"
 msgstr "إستعِد الإفتراضي"
 
+#. TRANSLATORS: $1 will be replaced with a default setting value
 #: builtin/common/settings/dlg_settings.lua
-msgid "Reset setting to default ($1)"
+#, fuzzy
+msgid "Reset setting to default: $1"
 msgstr "إعادة تعيين الإعداد إلى الافتراضي (1$)"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
 msgstr "إبحث"
 
+#. TRANSLATORS: Touchscreen gesture
 #: builtin/common/settings/dlg_settings.lua
 msgid "Short tap"
 msgstr ""
@@ -410,15 +435,18 @@ msgstr ""
 msgid "Show advanced settings"
 msgstr "أظهر الاعدادات المتقدمة"
 
+#. TRANSLATORS: Checkbox that toggles displaying the technical setting names
 #: builtin/common/settings/dlg_settings.lua
 msgid "Show technical names"
 msgstr "إعرض الأسماء التقنية"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 #, fuzzy
 msgid "Tap"
 msgstr "Tab"
 
+#. TRANSLATORS: Touchscreen interaction style
 #: builtin/common/settings/dlg_settings.lua
 msgid "Tap with crosshair"
 msgstr ""
@@ -576,6 +604,8 @@ msgstr "لا يمكن استخدام ContentDB عند بناء Minetest بدون
 msgid "Downloading..."
 msgstr "يحمل..."
 
+#. TRANSLATORS: A 'featured' package in ContentDB is a package that is
+#. more prominently displayed than other packages
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Featured"
 msgstr ""
@@ -593,7 +623,7 @@ msgstr "يحمل..."
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Mods"
-msgstr "التعديلات"
+msgstr "إضافات"
 
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "No packages could be retrieved"
@@ -603,6 +633,7 @@ msgstr "تعذر استيراد الحزم"
 msgid "No updates"
 msgstr "لا توجد تحديثات"
 
+#. TRANSLATORS: A download is queued
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Queued"
 msgstr "في الطابور"
@@ -616,14 +647,17 @@ msgstr "حِزم الإكساء"
 msgid "The package $1 was not found."
 msgstr "لم يتم العثور على الحزمة 1$."
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/content/dlg_contentdb.lua
 msgid "Update All [$1]"
 msgstr "حدِّث الكل [$1]"
 
+#. TRANSLATORS: $1 is the name of a package and $2 is a number of depencencies
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 and $2 dependencies will be installed."
 msgstr "الاعتماديتان \"$1\" و $2 ستثبتان."
 
+#. TRANSLATORS: Package (mod, texture pack, etc.) info: $1 = package name, $2 = package author
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 by $2"
 msgstr "$1 بواسطة $2"
@@ -632,6 +666,7 @@ msgstr "$1 بواسطة $2"
 msgid "$1 required dependencies could not be found."
 msgstr "يحتاج $1 لكن لم يُعثر عليها."
 
+#. TRANSLATORS: $1 is the name of a package and $2 is a number of depencencies
 #: builtin/mainmenu/content/dlg_install.lua
 msgid "$1 will be installed, and $2 dependencies will be skipped."
 msgstr "$1 سيُثبت، واعتماديات $1 ستُتجاهل."
@@ -644,6 +679,7 @@ msgstr "مثبت مسبقا"
 msgid "Base Game:"
 msgstr "اللعبة القاعدية :"
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/content/dlg_install.lua
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Dependencies:"
@@ -719,11 +755,13 @@ msgstr ""
 msgid "Information"
 msgstr "معلومات:"
 
+#. TRANSLATORS: $1 = download size
 #: builtin/mainmenu/content/dlg_package.lua
 #, fuzzy
 msgid "Install [$1]"
 msgstr "ثبت $1"
 
+#. TRANSLATORS: Also known as 'bug tracker'
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Issue Tracker"
 msgstr ""
@@ -732,6 +770,7 @@ msgstr ""
 msgid "Reviews"
 msgstr ""
 
+#. TRANSLATORS: Link to source code repository
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "Source"
 msgstr ""
@@ -758,6 +797,10 @@ msgstr "زر الموقع"
 msgid "by $1"
 msgstr "$1 بواسطة $2"
 
+#. TRANSLATORS: Info line for a ContentDB package:
+#. $1 = author,
+#. $2 = number of downloads,
+#. $3, $4, $5 = number of positive/neutral/negative reviews
 #: builtin/mainmenu/content/dlg_package.lua
 msgid "by $1  —  $2 downloads  —  +$3 / $4 / -$5"
 msgstr ""
@@ -796,16 +839,19 @@ msgstr "فشل تثبيت $1 كحزمة إكساء"
 msgid "World mods"
 msgstr "إسم العالم"
 
+#. TRANSLATORS: $1 = server name
 #: builtin/mainmenu/dlg_clients_list.lua
 msgid ""
 "Players connected to\n"
 "$1"
 msgstr ""
 
+#. TRANSLATORS: Message in the mod list when a mod is enabled with error
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Enabled, has error)"
 msgstr "(مفعل، به خطأ)"
 
+#. TRANSLATORS: Displayed when a mod dependency is unsatisfied
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "(Unsatisfied)"
 msgstr "(غير محقق)"
@@ -846,6 +892,7 @@ msgstr "التعديل:"
 msgid "Mods located inside the world folder."
 msgstr ""
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No (optional) dependencies"
 msgstr "بدون إعتماديات إختيارية"
@@ -854,6 +901,7 @@ msgstr "بدون إعتماديات إختيارية"
 msgid "No game description provided."
 msgstr "لا يتوفر وصف للعبة."
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No hard dependencies"
 msgstr "بدون إعتماديات لازمة"
@@ -862,10 +910,12 @@ msgstr "بدون إعتماديات لازمة"
 msgid "No modpack description provided."
 msgstr "وصف حزمة التعديلات غير متوفر."
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua
 msgid "No optional dependencies"
 msgstr "بدون إعتماديات إختيارية"
 
+#. TRANSLATORS: About mod dependencies
 #: builtin/mainmenu/dlg_config_world.lua builtin/mainmenu/tab_content.lua
 msgid "Optional dependencies:"
 msgstr "الإعتماديات الإختيارية:"
@@ -907,6 +957,7 @@ msgstr "تبريد مع زيادة الارتفاع"
 msgid "Altitude dry"
 msgstr "نقص الرطوبة مع الارتفاع"
 
+#. TRANSLATORS: Smooth transition between biomes
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Biome blending"
 msgstr "دمج المواطن البيئية"
@@ -927,6 +978,7 @@ msgstr "مغارات"
 msgid "Create"
 msgstr "أنشئ"
 
+#. TRANSLATORS: Map generator decorations (used for structures, trees, plants, and more)
 #: builtin/mainmenu/dlg_create_world.lua
 msgid "Decorations"
 msgstr "تزيينات"
@@ -1130,6 +1182,7 @@ msgstr ""
 msgid "Confirm Password"
 msgstr "أكد كلمة المرور"
 
+#. TRANSLATORS: Message when joining a server
 #: builtin/mainmenu/dlg_register.lua
 msgid "Joining $1"
 msgstr "انضمام 1$"
@@ -1152,10 +1205,12 @@ msgstr "كلمة المرور"
 msgid "Passwords do not match"
 msgstr "كلمتا المرور غير متطابقتين"
 
+#. TRANSLATORS: Register an account on a server
 #: builtin/mainmenu/dlg_register.lua builtin/mainmenu/tab_online.lua
 msgid "Register"
 msgstr "سجل"
 
+#. TRANSLATORS: Dismiss a dialog window/message
 #: builtin/mainmenu/dlg_reinstall_mtg.lua
 msgid "Dismiss"
 msgstr "رفض"
@@ -1201,11 +1256,13 @@ msgid ""
 msgstr ""
 "اسم حزمة التعديلات هذه مصرح في modpack.conf لذا أي تسمية سيتم استبدالها."
 
+#. TRANSLATORS: Expand all entries in a tree view
 #: builtin/mainmenu/dlg_server_list_mods.lua
 #, fuzzy
 msgid "Expand all"
 msgstr "فعِل الكل"
 
+#. TRANSLATORS: A checkbox; if enabled, it will group mods by their prefix
 #: builtin/mainmenu/dlg_server_list_mods.lua
 msgid "Group by prefix"
 msgstr ""
@@ -1218,10 +1275,12 @@ msgstr ""
 msgid "The $1 server uses the following mods:"
 msgstr ""
 
+#. TRANSLATORS: $1 = name of the engine
 #: builtin/mainmenu/dlg_version_info.lua
 msgid "A new $1 version is available"
 msgstr "إصدار جديد ل 1$ متوفر"
 
+#. TRANSLATORS: $1 and $2 are version numbers, $3 is a URL
 #: builtin/mainmenu/dlg_version_info.lua
 msgid ""
 "Installed version: $1\n"
@@ -1250,6 +1309,7 @@ msgstr "زر الموقع"
 msgid "Debug build, expect worse performance"
 msgstr ""
 
+#. TRANSLATORS: Try to keep the translation short
 #: builtin/mainmenu/init.lua src/client/game_formspec.cpp
 msgid "Settings"
 msgstr "إعدادات"
@@ -1310,6 +1370,7 @@ msgstr "مشاركة سجل التصحيح"
 msgid "Browse online content"
 msgstr "تصفح المحتوى عبر الانترنت"
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/tab_content.lua
 #, fuzzy
 msgid "Browse online content [$1]"
@@ -1319,6 +1380,7 @@ msgstr "تصفح المحتوى عبر الانترنت"
 msgid "Content"
 msgstr "المحتوى"
 
+#. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/tab_content.lua
 #, fuzzy
 msgid "Content [$1]"
@@ -1405,6 +1467,7 @@ msgstr "جديد"
 msgid "Play Game"
 msgstr "إلعب"
 
+#. TRANSLATORS: Network port
 #: builtin/mainmenu/tab_local.lua builtin/mainmenu/tab_online.lua
 msgid "Port"
 msgstr "المنفذ"
@@ -1435,6 +1498,7 @@ msgstr "يجب عليك تنزيل اللعبة قبل إضافة التعديل
 msgid "Add favorite"
 msgstr "حذف المفضلة"
 
+#. TRANSLATORS: Network address
 #: builtin/mainmenu/tab_online.lua
 msgid "Address"
 msgstr "عنوان"
@@ -1443,7 +1507,7 @@ msgstr "عنوان"
 msgid "Creative mode"
 msgstr "النمط الإبداعي"
 
-#. ~ PvP = Player versus Player
+#. TRANSLATORS: PvP = Player versus Player
 #: builtin/mainmenu/tab_online.lua
 msgid "Damage / PvP"
 msgstr "الضرر / قتال اللاعبين"
@@ -1465,6 +1529,7 @@ msgstr "خوادم غير متوافقة"
 msgid "Join Game"
 msgstr "انضم للعبة"
 
+#. TRANSLATORS: Login to server
 #: builtin/mainmenu/tab_online.lua
 msgid "Login"
 msgstr "تسجيل الدخول"
@@ -1477,10 +1542,12 @@ msgstr ""
 msgid "Open server website"
 msgstr ""
 
+#. TRANSLATORS: Also known as "latency"
 #: builtin/mainmenu/tab_online.lua
 msgid "Ping"
 msgstr ""
 
+#. TRANSLATORS: $1 is a list of players
 #: builtin/mainmenu/tab_online.lua
 #, fuzzy
 msgid ""
@@ -1489,17 +1556,14 @@ msgid ""
 msgstr "عميل"
 
 #: builtin/mainmenu/tab_online.lua
-msgid ""
-"Possible filters\n"
-"game:<name>\n"
-"mod:<name>\n"
-"player:<name>"
+msgid "Possible filters"
 msgstr ""
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
 msgstr "خوادم عمومية"
 
+#. TRANSLATORS: As in 'reload'/'check again'
 #: builtin/mainmenu/tab_online.lua
 msgid "Refresh"
 msgstr "حدِّث"
@@ -1541,7 +1605,7 @@ msgstr "يحمل الإكساء..."
 msgid "Rebuilding shaders..."
 msgstr "يعيد بناء المظلِلات..."
 
-#: src/client/client.cpp src/util/screenshot.cpp
+#: src/client/client.cpp src/gui/guiEngine.cpp src/util/screenshot.cpp
 #, fuzzy, c-format
 msgid "Saved screenshot to \"%s\""
 msgstr "لقطات الشاشة"
@@ -1577,6 +1641,11 @@ msgstr ""
 #: src/client/clientmedia.cpp src/client/game.cpp
 msgid "Media..."
 msgstr "وسائط…"
+
+#: src/client/fontengine.cpp
+#, fuzzy
+msgid "Failed to find a valid font"
+msgstr "فشل فتح صفحة الويب"
 
 #: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
 #: src/server.cpp
@@ -1880,6 +1949,7 @@ msgstr "تم إظهار الإطار السلكي"
 msgid "Zoom currently disabled by game or mod"
 msgstr "التكبير معطل من قبل لعبة أو تعديل"
 
+#. TRANSLATORS: Game mode (server or singleplayer)
 #: src/client/game_formspec.cpp
 msgid "- Mode: "
 msgstr "- النمط: "
@@ -1888,7 +1958,7 @@ msgstr "- النمط: "
 msgid "- Public: "
 msgstr "- عام: "
 
-#. ~ PvP = Player versus Player
+#. TRANSLATORS: PvP = Player versus Player
 #: src/client/game_formspec.cpp
 msgid "- PvP: "
 msgstr "- قتال اللاعبين: "
@@ -1897,10 +1967,12 @@ msgstr "- قتال اللاعبين: "
 msgid "- Server Name: "
 msgstr "- اسم الخادم: "
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Change Password"
 msgstr "غير كلمة المرور"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Continue"
 msgstr "تابع"
@@ -1934,10 +2006,12 @@ msgstr ""
 "- لمس وسحب, ولمس باصبع ثان: \n"
 " --> وضع عنصر واحد في خانة\n"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Exit to Menu"
 msgstr "اخرج للقائمة"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short (OS = Operating System)
 #: src/client/game_formspec.cpp
 msgid "Exit to OS"
 msgstr "اخرج لنظام التشغيل"
@@ -1970,6 +2044,7 @@ msgstr "خادوم بعيد"
 msgid "Respawn"
 msgstr "أعِد الإحياء"
 
+#. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Sound Volume"
 msgstr "حجم الصوت"
@@ -2012,7 +2087,7 @@ msgstr "محلل البيانات ظاهر ( صفحة %d من %d)"
 msgid "Backspace"
 msgstr "Backspace"
 
-#. ~ Usually paired with the Pause key
+#. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
 msgid "Break Key"
 msgstr "مفتاح الكسر"
@@ -2085,7 +2160,7 @@ msgstr "القائمة اليسرى"
 msgid "Left Shift"
 msgstr "Left Shift"
 
-#. ~ Name of key
+#. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Left Windows"
@@ -2100,10 +2175,18 @@ msgstr "Menu"
 msgid "Middle Click"
 msgstr ""
 
+#. TRANSLATORS: This is for mouse buttons without an intuitive description. %d is the number of the button.
+#: src/client/keycode.cpp
+#, c-format
+msgid "Mouse Button %d"
+msgstr ""
+
+#. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
 msgid "Mouse X1"
 msgstr ""
 
+#. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
 msgid "Mouse X2"
 msgstr ""
@@ -2198,7 +2281,7 @@ msgstr "Page down"
 msgid "Page Up"
 msgstr "Page up"
 
-#. ~ Usually paired with the Break key
+#. TRANSLATORS: Usually paired with the Break key
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Pause Key"
@@ -2209,7 +2292,7 @@ msgstr "Pause"
 msgid "Play"
 msgstr "Play"
 
-#. ~ "Print screen" key
+#. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Print"
@@ -2245,7 +2328,7 @@ msgstr "Right Menu"
 msgid "Right Shift"
 msgstr "Right Shift"
 
-#. ~ Name of key
+#. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
 #, fuzzy
 msgid "Right Windows"
@@ -2308,6 +2391,10 @@ msgstr "الخريطة المصغرة في وضع الاكساء"
 msgid "Failed to create the texture \"%s\" for the rendering pipeline."
 msgstr ""
 
+#: src/client/renderingengine.cpp
+msgid "Could not initialize any supported video driver!"
+msgstr ""
+
 #: src/client/shader.cpp
 #, fuzzy, c-format
 msgid "Failed to compile the \"%s\" shader."
@@ -2318,12 +2405,14 @@ msgstr "فشل فتح صفحة الويب"
 msgid "Failed to find \"%s\" shader files."
 msgstr "فشل فتح صفحة الويب"
 
+#. TRANSLATORS: GLSL = OpenGL Shading Language
 #: src/client/shader.cpp
 #, fuzzy
 msgid "GLSL is not supported by the driver"
 msgstr "نظام الصوت غير مدمج أثناء البناء"
 
-#. ~ Error when a mod is missing dependencies. Ex: "Mod Title is missing: mod1, mod2, mod3"
+#. TRANSLATORS: Error when a mod is missing dependencies.
+#. Example: "Mod Title is missing: mod1, mod2, mod3"
 #: src/content/mod_configuration.cpp
 #, c-format
 msgid "%s is missing:"
@@ -2362,6 +2451,10 @@ msgstr "فشل فتح صفحة الويب"
 #: src/gui/guiChatConsole.cpp
 msgid "Opening webpage"
 msgstr "يفتح صفحة الويب"
+
+#: src/gui/guiEngine.cpp
+msgid "Failed to load main menu script!"
+msgstr ""
 
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
@@ -2532,7 +2625,7 @@ msgstr ""
 msgid "Invalid password"
 msgstr "كلمة المرور القديمة"
 
-#. ~ DO NOT TRANSLATE THIS LITERALLY!
+#. TRANSLATORS: DO NOT TRANSLATE THIS LITERALLY!
 #. This is a special string which needs to contain the translation's
 #. language code (e.g. "de" for German).
 #: src/network/clientpackethandler.cpp src/script/lua_api/l_client.cpp
@@ -2867,11 +2960,12 @@ msgid "Anticheat movement tolerance"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Append item name"
+#, fuzzy
+msgid "Append item name to tooltips"
 msgstr "ضمّن اسم العنصر"
 
 #: src/settings_translation_file.cpp
-msgid "Append item name to tooltip."
+msgid "Append the full item name to the tooltip of item stacks."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3404,6 +3498,10 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Damage flash"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Debug log file size threshold"
 msgstr ""
 
@@ -3711,6 +3809,11 @@ msgid "Enable Raytraced Culling"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Enable SSCSM"
+msgstr "فعِل الكل"
+
+#: src/settings_translation_file.cpp
 msgid "Enable a confirmation dialog before closing."
 msgstr ""
 
@@ -3949,6 +4052,10 @@ msgid ""
 msgstr ""
 "(أندرويد) ثبت موقع عصى التحكم.\n"
 "اذا عُطل ستنتقل عصى التحكم لموقع اللمسة الأولى."
+
+#: src/settings_translation_file.cpp
+msgid "Flashing of the screen when taking damage."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Floatland density"
@@ -4854,6 +4961,14 @@ msgid "Keyboard and Mouse"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Keyboard camera speed"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Keyboard-controlled camera rotation speed, in degrees per second."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Kick players who sent more than X messages per 10 seconds."
 msgstr "اطرد اللاعبين الذين أرسلوا أكثر من X رسالة في 10 ثوانٍ."
 
@@ -5039,6 +5154,23 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Local command"
 msgstr "الأمر المحلي"
+
+#: src/settings_translation_file.cpp
+msgid "Look down"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Look left"
+msgstr "حركة"
+
+#: src/settings_translation_file.cpp
+msgid "Look right"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Look up"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -6113,6 +6245,13 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Set proxy to use by cURL. This is an URI just like the *_proxy environment "
+"variables.\n"
+"Note that this will not apply to Luanti's in-game protocol."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Set the default tilt of Sun/Moon orbit in degrees.\n"
 "Games may change orbit tilt via API.\n"
 "Value of 0 means no tilt / vertical orbit."
@@ -7113,6 +7252,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Where to enable server-sent client-side modding (SSCSM).\n"
+"Warning: Experimental."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Whether name tag backgrounds should be shown by default.\n"
 "Mods may still set a background."
 msgstr ""
@@ -7258,17 +7403,11 @@ msgstr ""
 msgid "cURL parallel limit"
 msgstr ""
 
+#: src/settings_translation_file.cpp
+msgid "cURL proxy address"
+msgstr ""
+
 #: src/util/screenshot.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
 msgstr ""
-
-#~ msgid "Provided world path doesn't exist: "
-#~ msgstr "مسار العالم المدخل غير موجود: "
-
-#, fuzzy
-#~ msgid "Y spread"
-#~ msgstr "التوزع على محور Y"
-
-#~ msgid "Z spread"
-#~ msgstr "التوزع على محور Z"

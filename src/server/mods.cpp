@@ -27,7 +27,7 @@ ServerModManager::ServerModManager(const std::string &worldpath, SubgameSpec gam
 	configuration.checkConflictsAndDeps();
 }
 
-// This function cannot be currenctly easily tested but it should be ASAP
+// This function cannot be currently easily tested but it should be ASAP
 void ServerModManager::loadMods(ServerScripting &script)
 {
 	// Print mods

@@ -19,12 +19,12 @@
 ## General
 
 #    Smooths rotation of camera, also called look or mouse smoothing. 0 to disable.
-#    type: float min: 0 max: 0.99
+#    type: float min: 0 max: 100
 # camera_smoothing = 0.0
 
 #    Smooths rotation of camera when in cinematic mode, 0 to disable. Enter cinematic mode by using the key set in Controls.
-#    type: float min: 0 max: 0.99
-# cinematic_camera_smoothing = 0.7
+#    type: float min: 0 max: 100
+# cinematic_camera_smoothing = 0.05
 
 #    If enabled, you can place nodes at the position (feet + eye level) where you stand.
 #    This is helpful when working with nodeboxes in small areas.
@@ -87,6 +87,10 @@
 #    Mouse sensitivity multiplier.
 #    type: float min: 0.001 max: 10
 # mouse_sensitivity = 0.2
+
+#    Keyboard-controlled camera rotation speed, in degrees per second.
+#    type: float min: 0.001 max: 720
+# keyboard_camera_speed = 170.0
 
 #    Enable mouse wheel (scroll) for item selection in hotbar.
 #    type: bool
@@ -249,6 +253,26 @@
 #    See https://docs.luanti.org/for-players/controls/
 #    type: key
 # keymap_zoom = SYSTEM_SCANCODE_29
+
+#    Look left
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_camera_yaw_left =
+
+#    Look right
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_camera_yaw_right =
+
+#    Look up
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_camera_pitch_up =
+
+#    Look down
+#    See https://docs.luanti.org/for-players/controls/
+#    type: key
+# keymap_camera_pitch_down =
 
 #    Toggle HUD
 #    See https://docs.luanti.org/for-players/controls/
@@ -616,6 +640,12 @@
 #    For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.
 #    type: float min: 0 max: 7.9
 # view_bobbing_amount = 1.0
+
+### Damage
+
+#    Flashing of the screen when taking damage.
+#    type: bool
+# hurt_flash_enabled = true
 
 ### Camera
 
@@ -1004,7 +1034,7 @@
 #    type: int min: 0
 # tooltip_show_delay = 400
 
-#    Append item name to tooltip.
+#    Append the full item name to the tooltip of item stacks.
 #    type: bool
 # tooltip_append_itemname = false
 
@@ -2960,6 +2990,11 @@
 #    type: bool
 # enable_client_modding = false
 
+#    Where to enable server-sent client-side modding (SSCSM).
+#    Warning: Experimental.
+#    type: enum values: nowhere, singleplayer, localhost, lan, everywhere
+# enable_sscsm = nowhere
+
 #    Replaces the default main menu with a custom one.
 #    type: string
 # main_menu_script =
@@ -3567,6 +3602,11 @@
 #    Maximum time an interactive request (e.g. server list fetch) may take, stated in milliseconds.
 #    type: int min: 1000 max: 2147483647
 # curl_timeout = 20000
+
+#    Set proxy to use by cURL. This is an URI just like the *_proxy environment variables.
+#    Note that this will not apply to Luanti's in-game protocol.
+#    type: string
+# secure.curl_proxy =
 
 #    Limits number of parallel HTTP requests. Affects:
 #    -    Media fetch if server uses remote_media setting.

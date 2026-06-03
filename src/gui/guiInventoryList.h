@@ -102,7 +102,7 @@ public:
 		return m_slot_size;
 	}
 
-	// returns -1 if not item is at pos p
+	// returns -1 if no item is at pos p
 	s32 getItemIndexAtPos(v2s32 p) const;
 
 private:

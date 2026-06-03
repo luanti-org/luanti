@@ -78,15 +78,15 @@ jobs:
            cp -v "$dest"/*.exe $GITHUB_WORKSPACE/artifact/
         if: ${{ matrix.config.nsis }}
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
-          name: "mingw${{ matrix.config.bits }}"
+          archive: false
           path: artifact/*.zip
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
-          name: "mingw${{ matrix.config.bits }}-nsis"
+          archive: false
           path: artifact/*.exe
           if-no-files-found: error
         if: ${{ matrix.config.nsis }}
@@ -145,9 +145,10 @@ jobs:
         run: |
           cpack -G ZIP -B "$env:GITHUB_WORKSPACE\Package"
           rm -r $env:GITHUB_WORKSPACE\Package\_CPack_Packages
+          Get-ChildItem "$env:GITHUB_WORKSPACE\Package\*.zip" | Rename-Item -NewName { $_.Name -replace '\.zip$', '-msvc.zip' }
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
-          name: msvc-${{ matrix.config.arch }}
+          archive: false
           path: .\Package\
           if-no-files-found: error

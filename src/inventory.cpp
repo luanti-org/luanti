@@ -1029,7 +1029,7 @@ InventoryList * Inventory::addList(const std::string &name, u32 size)
 	// Reset existing lists instead of re-creating if possible.
 	// InventoryAction::apply() largely caches InventoryList pointers which must not be
 	// invalidated by Lua API calls (e.g. InvRef:set_list), hence do resize & clear which
-	// also include the neccessary resize lock checks.
+	// also include the necessary resize lock checks.
 	s32 i = getListIndex(name);
 	if (i != -1) {
 		InventoryList *list = m_lists[i];

@@ -153,7 +153,7 @@ inline constexpr core::vector3d<T> componentwise_max(const core::vector3d<T> &a,
 	return {std::max(a.X, b.X), std::max(a.Y, b.Y), std::max(a.Z, b.Z)};
 }
 
-/// @brief Describes a grid with given step, oirginating at (0,0,0)
+/// @brief Describes a grid with given step, originating at (0,0,0)
 struct MeshGrid {
 	u16 cell_size;
 
@@ -204,7 +204,7 @@ struct MeshGrid {
  *  See test.cpp for example cases.
  *
  *  \note This is also used in cases where degrees wrapped to the range [0, 360]
- *  is innapropriate (e.g. pitch needs negative values)
+ *  is inappropriate (e.g. pitch needs negative values)
  */
 [[nodiscard]]
 inline float modulo360f(float f)
@@ -477,7 +477,7 @@ inline v3f getPitchYawRoll(const core::matrix4 &m)
 	return getPitchYawRollRad(m) * core::RADTODEG;
 }
 
-// Muliply the RGB value of a color linearly, and clamp to black/white
+// Multiply the RGB value of a color linearly, and clamp to black/white
 inline video::SColor multiplyColorValue(const video::SColor &color, float mod)
 {
 	return video::SColor(color.getAlpha(),

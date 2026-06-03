@@ -99,13 +99,13 @@ local function get_formspec(tabview, name, tabdata)
 	local retval =
 		-- Search
 		"field[0.25,0.25;7,0.75;te_search;;" .. core.formspec_escape(tabdata.search_for) .. "]" ..
-		"tooltip[te_search;" .. table.concat({
+		"tooltip[te_search;" .. core.formspec_escape(table.concat({
 				fgettext("Possible filters"),
 				"game:<name>",
 				"mod:<name>",
 				"player:<name>",
 				"sort:[-](name|relevance|players|mods|uptime|ping|lag)",
-		}, "\n") .. "]" ..
+		}, "\n")) .. "]" ..
 		"field_enter_after_edit[te_search;true]" ..
 		"container[7.25,0.25]" ..
 		"image_button[0,0;0.75,0.75;" .. core.formspec_escape(defaulttexturedir .. "search.png") .. ";btn_mp_search;]" ..

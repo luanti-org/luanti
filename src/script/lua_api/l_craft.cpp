@@ -8,6 +8,7 @@
 #include "lua_api/l_item.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
+#include "common/helper.h"
 #include "server.h"
 #include "craftdef.h"
 
@@ -23,39 +24,32 @@ struct EnumString ModApiCraft::es_CraftMethod[] =
 bool ModApiCraft::readCraftRecipeShaped(lua_State *L, int index,
 		int &width, std::vector<std::string> &recipe)
 {
-	if(index < 0)
+	if (index < 0)
 		index = lua_gettop(L) + 1 + index;
 
-	if(!lua_istable(L, index))
+	if (!lua_istable(L, index))
 		return false;
 
-	lua_pushnil(L);
-	int rowcount = 0;
-	while(lua_next(L, index) != 0){
-		int colcount = 0;
-		// key at index -2 and value at index -1
-		if(!lua_istable(L, -1))
-			return false;
-		int table2 = lua_gettop(L);
-		lua_pushnil(L);
-		while(lua_next(L, table2) != 0){
-			// key at index -2 and value at index -1
-			if(!lua_isstring(L, -1))
-				return false;
-			recipe.emplace_back(readParam<std::string>(L, -1));
-			// removes value, keeps key for next iteration
+	for (int row = 0; LuaHelper::geti(L, index, row); ++row, lua_pop(L, 1)) {
+		if (!lua_istable(L, -1)) {
 			lua_pop(L, 1);
-			colcount++;
+			return false;
 		}
-		if(rowcount == 0){
-			width = colcount;
-		} else {
-			if(colcount != width)
+		int index2 = lua_gettop(L);
+		int col = 0;
+		for (; LuaHelper::geti(L, index2, col); ++col, lua_pop(L, 1)) {
+			if (!lua_isstring(L, -1)) {
+				lua_pop(L, 2);
 				return false;
+			}
+			recipe.emplace_back(readParam<std::string>(L, -1));
 		}
-		// removes value, keeps key for next iteration
-		lua_pop(L, 1);
-		rowcount++;
+		if (row == 0) {
+			width = col;
+		} else if (col != width) {
+			lua_pop(L, 1);
+			return false;
+		}
 	}
 	return width != 0;
 }
@@ -64,20 +58,18 @@ bool ModApiCraft::readCraftRecipeShaped(lua_State *L, int index,
 bool ModApiCraft::readCraftRecipeShapeless(lua_State *L, int index,
 		std::vector<std::string> &recipe)
 {
-	if(index < 0)
+	if (index < 0)
 		index = lua_gettop(L) + 1 + index;
 
-	if(!lua_istable(L, index))
+	if (!lua_istable(L, index))
 		return false;
 
-	lua_pushnil(L);
-	while(lua_next(L, index) != 0){
-		// key at index -2 and value at index -1
-		if(!lua_isstring(L, -1))
+	for (int i = 0; LuaHelper::geti(L, index, i); ++i, lua_pop(L, 1)) {
+		if (!lua_isstring(L, -1)) {
+			lua_pop(L, 1);
 			return false;
+		}
 		recipe.emplace_back(readParam<std::string>(L, -1));
-		// removes value, keeps key for next iteration
-		lua_pop(L, 1);
 	}
 	return true;
 }
@@ -86,24 +78,24 @@ bool ModApiCraft::readCraftRecipeShapeless(lua_State *L, int index,
 bool ModApiCraft::readCraftReplacements(lua_State *L, int index,
 		CraftReplacements &replacements)
 {
-	if(index < 0)
+	if (index < 0)
 		index = lua_gettop(L) + 1 + index;
 
-	if(!lua_istable(L, index))
+	if (!lua_istable(L, index))
 		return false;
 
 	lua_pushnil(L);
-	while(lua_next(L, index) != 0){
+	while (lua_next(L, index) != 0) {
 		// key at index -2 and value at index -1
-		if(!lua_istable(L, -1))
+		if (!lua_istable(L, -1))
 			return false;
 		lua_rawgeti(L, -1, 1);
-		if(!lua_isstring(L, -1))
+		if (!lua_isstring(L, -1))
 			return false;
 		std::string replace_from = readParam<std::string>(L, -1);
 		lua_pop(L, 1);
 		lua_rawgeti(L, -1, 2);
-		if(!lua_isstring(L, -1))
+		if (!lua_isstring(L, -1))
 			return false;
 		std::string replace_to = readParam<std::string>(L, -1);
 		lua_pop(L, 1);

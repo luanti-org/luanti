@@ -25,7 +25,7 @@ struct SSCSMRequestPollNextEvent final : public ISSCSMRequest
 	}
 };
 
-// Some error occured in the SSCSM env
+// Some error occurred in the SSCSM env
 struct SSCSMRequestSetFatalError final : public ISSCSMRequest
 {
 	struct Answer final : public ISSCSMAnswer

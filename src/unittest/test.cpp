@@ -364,7 +364,7 @@ void TestBase::runTest(const char *name, std::function<void()> &&test)
 }
 
 /*
-	NOTE: These tests became non-working then NodeContainer was removed.
+	NOTE: These tests became non-working when NodeContainer was removed.
 	      These should be redone, utilizing some kind of a virtual
 		  interface for Map (IMap would be fine).
 */

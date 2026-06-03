@@ -71,6 +71,7 @@ enum HudElementStat : u8 {
 	HUD_STAT_Z_INDEX,
 	HUD_STAT_TEXT2,
 	HUD_STAT_STYLE,
+	HUD_STAT_HIDEABLE,
 	HudElementStat_END // Dummy for validity check
 };
 
@@ -97,6 +98,7 @@ struct HudElement {
 	s16 z_index = 0;
 	std::string text2;
 	u32 style;
+	bool hideable = true;
 };
 
 extern const EnumString es_HudElementType[];

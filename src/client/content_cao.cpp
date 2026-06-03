@@ -1095,7 +1095,7 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 			aabb3f box = m_prop.collisionbox;
 			box.MinEdge *= BS;
 			box.MaxEdge *= BS;
-			collisionMoveResult moveresult;
+			CollisionMoveResult moveresult;
 			v3f p_pos = m_position;
 			v3f p_velocity = m_velocity;
 			moveresult = collisionMoveSimple(env,env->getGameDef(),
