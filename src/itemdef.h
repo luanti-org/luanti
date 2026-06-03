@@ -7,6 +7,7 @@
 
 #include "irrlichttypes_bloated.h"
 #include <string>
+#include <vector>
 #include <iostream>
 #include <optional>
 #include <set>
@@ -92,9 +93,11 @@ struct ItemDefinition
 	/*
 		Visual properties
 	*/
+	std::string mesh; // Optional mesh model for inventory, wield and dropped item visuals
+	std::vector<std::string> textures; // Mesh textures, in mesh material order
 	ItemImageDef inventory_image; // Optional for nodes, mandatory for tools/craftitems
 	ItemImageDef inventory_overlay; // Overlay of inventory_image.
-	ItemImageDef wield_image; // If empty, inventory_image or mesh (only nodes) is used
+	ItemImageDef wield_image; // If empty, inventory_image, mesh, or node mesh is used
 	ItemImageDef wield_overlay; // Overlay of wield_image.
 	std::string palette_image; // If specified, the item will be colorized based on this
 	video::SColor color; // The fallback color of the node.

@@ -18,6 +18,11 @@ do
 	register_entity("blender_cube", cube_textures)
 	register_entity("blender_cube_scaled", cube_textures)
 	register_entity("blender_cube_matrix_transform", cube_textures)
+	core.register_craftitem("gltf:blender_cube_item", {
+		description = "glTF mesh item",
+		mesh = "gltf_blender_cube.gltf",
+		textures = cube_textures,
+	})
 	core.register_entity("gltf:blender_cube_glb", {
 		initial_properties = {
 			visual = "mesh",

@@ -18,6 +18,7 @@
 #include "client/texturesource.h"
 #include "util/numeric.h"
 #include <map>
+#include <IAnimatedMesh.h>
 #include <IMeshManipulator.h>
 #include "client/renderingengine.h"
 #include <SMesh.h>
@@ -27,6 +28,7 @@
 
 #define WIELD_SCALE_FACTOR 30.0f
 #define WIELD_SCALE_FACTOR_EXTRUDED 40.0f
+#define WIELD_SCALE_FACTOR_MESH 5.0f
 
 #define MIN_EXTRUSION_MESH_RESOLUTION 16
 #define MAX_EXTRUSION_MESH_RESOLUTION 512
@@ -134,6 +136,71 @@ static video::ITexture *extractTexture(const TileDef &def, const TileLayer &laye
 		return tsrc->getTextureForMesh(def.name);
 
 	return fallback ? tsrc->getTextureForMesh("no_texture.png") : nullptr;
+}
+
+static scene::SMesh *createMeshItemMesh(Client *client, const ItemDefinition &def,
+		const char *shader_name, bool inventory_filters,
+		std::vector<ItemMeshBufferInfo> *buffer_info)
+{
+	if (def.mesh.empty())
+		return nullptr;
+
+	scene::IAnimatedMesh *animated_mesh = client->getMesh(def.mesh);
+	if (!animated_mesh) {
+		errorstream << "createMeshItemMesh(): Mesh not found: \""
+				<< def.mesh << "\"" << std::endl;
+		return nullptr;
+	}
+
+	scene::SMesh *mesh = cloneStaticMesh(animated_mesh);
+	if (!mesh) {
+		animated_mesh->drop();
+		return nullptr;
+	}
+
+	ITextureSource *tsrc = client->getTextureSource();
+	IShaderSource *shdsrc = client->getShaderSource();
+	u32 shader_id = shdsrc->getShader(shader_name, TILE_MATERIAL_BASIC, NDT_NORMAL);
+	video::E_MATERIAL_TYPE material_type = shdsrc->getShaderInfo(shader_id).material;
+
+	for (u32 i = 0; i < mesh->getMeshBufferCount(); ++i) {
+		scene::IMeshBuffer *buf = mesh->getMeshBuffer(i);
+		video::SMaterial &material = buf->getMaterial();
+
+		std::string texture_name = "no_texture.png";
+		if (!def.textures.empty()) {
+			size_t texture_index = animated_mesh->getTextureSlot(i);
+			if (texture_index >= def.textures.size())
+				texture_index = def.textures.size() - 1;
+			if (!def.textures[texture_index].empty())
+				texture_name = def.textures[texture_index];
+		}
+
+		material.setTexture(0, tsrc->getTextureForMesh(texture_name));
+		material.MaterialType = material_type;
+		material.MaterialTypeParam = 0.5f;
+		material.BackfaceCulling = true;
+		if (inventory_filters) {
+			material.forEachTexture([] (auto &tex) {
+				tex.MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;
+				tex.MagFilter = video::ETMAGF_NEAREST;
+			});
+		} else {
+			bool bilinear = g_settings->getBool("bilinear_filter");
+			bool trilinear = g_settings->getBool("trilinear_filter");
+			bool anisotropic = g_settings->getBool("anisotropic_filter");
+			material.forEachTexture([=] (auto &tex) {
+				setMaterialFilters(tex, bilinear, trilinear, anisotropic);
+			});
+		}
+
+		if (buffer_info)
+			buffer_info->emplace_back(0);
+	}
+
+	mesh->recalculateBoundingBox();
+	animated_mesh->drop();
+	return mesh;
 }
 
 void getAdHocNodeShader(video::SMaterial &mat, IShaderSource *shdsrc,
@@ -490,6 +557,20 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		return;
 	}
 
+	if (def.type != ITEM_NODE && !def.mesh.empty()) {
+		mesh = createMeshItemMesh(client, def, "object_shader", false, &m_buffer_info);
+		if (mesh) {
+			changeToMesh(mesh);
+			mesh->drop();
+			m_meshnode->setScale(wield_scale * WIELD_SCALE_FACTOR_MESH);
+		} else {
+			setExtruded(tsrc->getTexture("no_texture.png"), nullptr, wield_scale);
+			m_buffer_info.emplace_back(0);
+		}
+		setColor(video::SColor(0xFFFFFFFF));
+		return;
+	}
+
 	// Handle nodes
 	if (def.type == ITEM_NODE) {
 		switch (f.drawtype) {
@@ -670,6 +751,18 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 		// overlay is white, if present
 		result->buffer_info.emplace_back(1, &animation_overlay,
 				true, video::SColor(0xFFFFFFFF));
+	} else if (def.type != ITEM_NODE && !def.mesh.empty()) {
+		mesh = createMeshItemMesh(client, def, "inventory_shader", true,
+				&result->buffer_info);
+		if (mesh) {
+			scaleMesh(mesh, def.wield_scale * 0.12f);
+			rotateMeshXZby(mesh, -45);
+			rotateMeshYZby(mesh, -30);
+			result->needs_shading = true;
+		} else {
+			mesh = getExtrudedMesh(tsrc->getTexture("no_texture.png"));
+			result->buffer_info.emplace_back(0);
+		}
 	} else if (def.type == ITEM_NODE && f.drawtype == NDT_AIRLIKE) {
 		// Fallback image for airlike node
 		mesh = getExtrudedMesh(tsrc->getTexture("no_texture_airlike.png"),

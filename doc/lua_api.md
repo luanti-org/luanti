@@ -6152,6 +6152,8 @@ Utilities
       set_camera_resettable = true,
       -- The HUD element field `hideable` exists (5.17.0)
       hud_hideable_field = true,
+      -- Item definitions support mesh item visuals (5.17.0)
+      mesh_items = true,
   }
   ```
 
@@ -10274,16 +10276,27 @@ Used by `core.register_node`, `core.register_craftitem`, and
     --      {bendy = 2, snappy = 1},
     --      {hard = 1, metal = 1, spikes = 1}
 
+    mesh = "",
+    -- Mesh model to use for non-node inventory, wield, and dropped item visuals.
+    -- Requires `textures` to be set.
+    -- `inventory_image` and `wield_image` override the mesh where they apply.
+    -- For nodes, `mesh` is used by the node drawtype instead.
+
+    textures = {},
+    -- Textures applied to the mesh materials in order.
+    -- If there are fewer textures than materials, the last texture is reused.
+
     inventory_image = <Item image definition>,
     -- Image shown in the inventory GUI
-    -- Defaults to a 3D rendering of the node if left empty.
+    -- Defaults to the mesh item visual, or a 3D rendering of the node, if left empty.
 
     inventory_overlay = <Item image definition>,
     -- An overlay image which is not affected by colorization
 
     wield_image = <Item image definition>,
     -- Image shown when item is held in hand
-    -- Defaults to a 3D rendering of the node if left empty.
+    -- Defaults to the mesh item visual, `inventory_image`, or a 3D rendering
+    -- of the node if left empty.
 
     wield_overlay = <Item image definition>,
     -- Like inventory_overlay but only used in the same situation as wield_image

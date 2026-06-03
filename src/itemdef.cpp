@@ -120,6 +120,8 @@ ItemDefinition& ItemDefinition::operator=(const ItemDefinition &def)
 	name = def.name;
 	description = def.description;
 	short_description = def.short_description;
+	mesh = def.mesh;
+	textures = def.textures;
 	inventory_image = def.inventory_image;
 	inventory_overlay = def.inventory_overlay;
 	wield_image = def.wield_image;
@@ -166,6 +168,8 @@ void ItemDefinition::reset()
 	name.clear();
 	description.clear();
 	short_description.clear();
+	mesh.clear();
+	textures.clear();
 	inventory_image.reset();
 	inventory_overlay.reset();
 	wield_image.reset();
@@ -267,6 +271,12 @@ void ItemDefinition::serialize(std::ostream &os, u16 protocol_version) const
 	} else {
 		writeU8(os, 0);
 	}
+
+	os << serializeString16(mesh);
+	u16 texture_count = textures.size() > 65535 ? 65535 : static_cast<u16>(textures.size());
+	writeU16(os, texture_count);
+	for (u16 i = 0; i < texture_count; ++i)
+		os << serializeString16(textures[i]);
 }
 
 void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
@@ -368,8 +378,22 @@ void ItemDefinition::deSerialize(std::istream &is, u16 protocol_version)
 		if (readU8(is)) // "have wear bar params"
 			wear_bar_params = WearBarParams::deserialize(is);
 
-		//if (!canRead(is))
-		//	break;
+		if (!canRead(is))
+			break;
+
+		mesh = deSerializeString16(is);
+
+		if (!canRead(is))
+			break;
+
+		u16 texture_count = readU16(is);
+		textures.clear();
+		textures.reserve(texture_count);
+		for (u16 i = 0; i < texture_count; ++i)
+			textures.emplace_back(deSerializeString16(is));
+
+		// if (!canRead(is))
+		// 	break;
 		// Add new code here
 	} while (0);
 }

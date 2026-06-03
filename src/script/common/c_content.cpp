@@ -74,6 +74,7 @@ void read_item_definition(lua_State *L, int index,
 
 	getstringfield(L, index, "description", def.description);
 	getstringfield(L, index, "short_description", def.short_description);
+	getstringfield(L, index, "mesh", def.mesh);
 
 	lua_getfield(L, index, "inventory_image");
 	def.inventory_image = read_item_image_definition(L, -1);
@@ -89,6 +90,27 @@ void read_item_definition(lua_State *L, int index,
 	lua_pop(L, 1);
 
 	getstringfield(L, index, "palette", def.palette_image);
+
+	lua_getfield(L, index, "textures");
+	if (lua_istable(L, -1)) {
+		def.textures.clear();
+		LuaHelper::for_ipairs(L, -1, [&]() {
+			int type = lua_type(L, -1);
+			if (type == LUA_TSTRING) {
+				def.textures.emplace_back(lua_tostring(L, -1));
+			} else {
+				script_log_unique(L, std::string("Item textures must be strings, got ") +
+						lua_typename(L, type), warningstream);
+				def.textures.emplace_back("");
+			}
+		});
+	}
+	lua_pop(L, 1);
+
+	if (def.type == ITEM_NODE) {
+		def.mesh.clear();
+		def.textures.clear();
+	}
 
 	// Read item color.
 	lua_getfield(L, index, "color");
@@ -228,6 +250,19 @@ void push_item_definition_full(lua_State *L, const ItemDefinition &i)
 	}
 	lua_pushstring(L, type.c_str());
 	lua_setfield(L, -2, "type");
+	if (!i.mesh.empty()) {
+		lua_pushstring(L, i.mesh.c_str());
+		lua_setfield(L, -2, "mesh");
+	}
+	if (!i.textures.empty()) {
+		lua_createtable(L, i.textures.size(), 0);
+		int idx = 1;
+		for (const std::string &texture : i.textures) {
+			lua_pushlstring(L, texture.c_str(), texture.size());
+			lua_rawseti(L, -2, idx++);
+		}
+		lua_setfield(L, -2, "textures");
+	}
 	push_item_image_definition(L, i.inventory_image);
 	lua_setfield(L, -2, "inventory_image");
 	push_item_image_definition(L, i.inventory_overlay);
