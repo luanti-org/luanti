@@ -140,20 +140,27 @@ See [Player File Format](#player-file-format) below.
 
 ## `world.mt`
 
-World metadata.
+World metadata. This file is created and updated by Luanti when creating a
+world, changing per-world settings in the main menu, configuring world mods, or
+migrating database backends. It is not a per-world `minetest.conf` replacement,
+and is not usually meant to be edited by hand.
+
+Games and mods may store their own settings in this file too. Such settings are
+not documented here; see the documentation for the game or mod that owns them.
 
     gameid = mesetint             - name of the game
+    world_name = Sol III          - name of the world (if not set, the world folder name will be used)
+                                    shown in the main menu and used as a technical identifier
     enable_damage = true          - whether damage is enabled or not
     creative_mode = false         - whether creative mode is enabled or not
+    server_announce = false       - whether the server is publicly announced or not
     backend = sqlite3             - which DB backend to use for blocks (sqlite3, dummy, leveldb, redis, postgresql)
     player_backend = sqlite3      - which DB backend to use for player data
     readonly_backend = sqlite3    - optionally read-only seed DB (DB file _must_ be located in "readonly" subfolder)
-    auth_backend = files          - which DB backend to use for authentication data
+    auth_backend = sqlite3        - which DB backend to use for authentication data
     mod_storage_backend = sqlite3 - which DB backend to use for mod storage
-    server_announce = false       - whether the server is publicly announced or not
     load_mod_<mod> = false        - whether <mod> is to be loaded in this world
-    world_name = Sol III          - name of the world (if not set, the world folder name will be used)
-                                    shown in the main menu and used as a technical identifier
+    blocksize = 32                - mapblock size, only written by non-standard builds
 
 For `load_mod_<mod>`, the possible values are:
 
