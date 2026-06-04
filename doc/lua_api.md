@@ -8510,13 +8510,13 @@ an itemstring, a table or `nil`.
         * `description` in item metadata (See [Item Metadata](#item-metadata).)
         * `description` in item definition
         * item name
-* `get_short_description()`: returns the short description or nil.
+* `get_short_description()`: returns the short description.
     * Unlike the description, this does not include new lines.
     * Fields for finding the short description, in order:
         * `short_description` in item metadata (See [Item Metadata](#item-metadata).)
         * `short_description` in item definition
         * first line of the description (From item meta or def, see `get_description()`.)
-        * Returns nil if none of the above are set
+        * item name
 * `clear()`: removes all items from the stack, making it empty.
 * `replace(item)`: replace the contents of this stack.
     * `item` can also be an itemstring or table.
