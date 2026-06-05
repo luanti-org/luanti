@@ -2002,6 +2002,9 @@ AuthDatabase *ServerEnvironment::openAuthDatabase(
 	if (name == "files")
 		return new AuthDatabaseFiles(savedir);
 
+	if (name == "dummy")
+		return new AuthDatabaseDummy();
+
 #if USE_LEVELDB
 	if (name == "leveldb")
 		return new AuthDatabaseLevelDB(savedir);
