@@ -13,7 +13,8 @@ void NetworkPacket::checkReadOffset(u32 from_offset, u32 field_size) const
 		std::ostringstream ss;
 		ss << "Reading outside packet: cmd=" << getCommand()
 			<< " offset=" << from_offset
-			<< " size=" << getSize();
+			<< " size=" << getSize()
+		    << " command" << m_command;
 		throw PacketError(ss.str());
 	}
 }
