@@ -712,9 +712,10 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 		}
 		auto digest = hex_encode(hashing::sha256(code));
 		if (it->second != digest) {
-			warningstream << "SHA256 of builtin file \"" << path
-					<< "\" does not match. Expected: " << it->second
-					<< " Found: " << digest.c_str() << std::endl;;
+			warningstream << "SHA256 of builtin file \"" << path << "\" does not match."
+					<< "\nExpected: " << it->second
+					<< "\nFound:    " << digest
+					<< std::endl;
 		}
 	} while (false);
 

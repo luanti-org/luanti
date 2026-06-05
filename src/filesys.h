@@ -112,7 +112,7 @@ bool MoveDir(const std::string &source, const std::string &target);
 bool PathStartsWith(const std::string &path, const std::string &prefix);
 
 // If child is (as absolute path) inside parent (also as absolute path), returns
-// the part of child that is relative to parent (without leading /).
+// the part of child that is relative to parent.
 // Symlinks and "." and ".." components are removed.
 // If child and parent are (absolute) the same, the result is ".". (Otherwise it
 // never starts with '.'.)
