@@ -4,7 +4,7 @@
 
 #include "httpfetch.h"
 #include "porting.h" // for sleep_ms(), get_sysinfo(), secure_rand_fill_buf()
-#include <list>
+#include <deque>
 #include <unordered_map>
 #include <mutex>
 #include "threading/event.h"
@@ -478,7 +478,7 @@ protected:
 
 	// Variables exclusively used within thread
 	std::vector<std::unique_ptr<HTTPFetchOngoing>> m_all_ongoing;
-	std::list<HTTPFetchRequest> m_queued_fetches;
+	std::deque<HTTPFetchRequest> m_queued_fetches;
 
 public:
 	CurlFetchThread(int parallel_limit) :

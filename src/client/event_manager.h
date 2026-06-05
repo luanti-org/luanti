@@ -5,8 +5,8 @@
 #pragma once
 
 #include "mtevent.h"
-#include <list>
-#include <map>
+#include <vector>
+#include <cassert>
 
 class EventManager : public MtEventManager
 {
@@ -19,47 +19,53 @@ class EventManager : public MtEventManager
 
 	struct Dest
 	{
-		std::list<FuncSpec> funcs{};
+		std::vector<FuncSpec> funcs;
 	};
-	std::map<MtEvent::Type, Dest> m_dest{};
+	std::vector<Dest> m_dest;
 
 public:
+	EventManager() {
+		m_dest.resize(MtEvent::Type::TYPE_MAX);
+	}
+
 	~EventManager() override = default;
 
 	void put(MtEvent *e) override
 	{
-		auto i = m_dest.find(e->getType());
-		if (i != m_dest.end()) {
-			std::list<FuncSpec> &funcs = i->second.funcs;
-			for (FuncSpec &func : funcs) {
-				(*(func.f))(e, func.d);
-			}
+		const size_t type = e->getType();
+		if (type >= MtEvent::Type::TYPE_MAX) {
+			assert(false);
+			return;
+		}
+		const auto &funcs = m_dest[type].funcs;
+		for (const FuncSpec &func : funcs) {
+			(*(func.f))(e, func.d);
 		}
 		delete e;
 	}
+
 	void reg(MtEvent::Type type, event_receive_func f, void *data) override
 	{
-		auto i = m_dest.find(type);
-		if (i != m_dest.end()) {
-			i->second.funcs.emplace_back(f, data);
-		} else {
-			Dest dest;
-			dest.funcs.emplace_back(f, data);
-			m_dest[type] = dest;
+		if (type >= MtEvent::Type::TYPE_MAX) {
+			assert(false);
+			return;
 		}
+		m_dest[type].funcs.emplace_back(f, data);
 	}
+
 	void dereg(MtEvent::Type type, event_receive_func f, void *data) override
 	{
-		auto i = m_dest.find(type);
-		if (i != m_dest.end()) {
-			std::list<FuncSpec> &funcs = i->second.funcs;
-			for (auto j = funcs.begin(); j != funcs.end(); ) {
-				bool remove = (j->f == f && (!data || j->d == data));
-				if (remove)
-					j = funcs.erase(j);
-				else
-					++j;
-			}
+		if (type >= MtEvent::Type::TYPE_MAX) {
+			assert(false);
+			return;
+		}
+		auto &funcs = m_dest[type].funcs;
+		for (auto j = funcs.begin(); j != funcs.end(); ) {
+			bool remove = j->f == f && (!data || j->d == data);
+			if (remove)
+				j = funcs.erase(j);
+			else
+				++j;
 		}
 	}
 };
