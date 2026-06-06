@@ -2395,7 +2395,8 @@ void GUIFormSpecMenu::parseTooltip(parserData* data, const std::string &element)
 	// Read colors
 	video::SColor bgcolor = m_default_tooltip_bgcolor;
 	video::SColor color   = m_default_tooltip_color;
-	if (parts.size() == base_size + 2 &&
+	bool explicit_colors = (parts.size() == base_size + 2);
+	if (explicit_colors &&
 			(!parseColorString(parts[base_size], bgcolor, false) ||
 				!parseColorString(parts[base_size + 1], color, false))) {
 		errorstream << "Invalid color in tooltip element(" << parts.size()
@@ -2405,7 +2406,7 @@ void GUIFormSpecMenu::parseTooltip(parserData* data, const std::string &element)
 
 	// Make tooltip spec
 	std::string text = unescape_string(parts[rect_mode ? 2 : 1]);
-	TooltipSpec spec(utf8_to_wide(text), bgcolor, color);
+	TooltipSpec spec(utf8_to_wide(text), bgcolor, color, explicit_colors);
 
 	// Add tooltip
 	if (rect_mode) {
@@ -3283,6 +3284,41 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	} else if (!container_stack.empty()) {
 		errorstream << "Invalid formspec string: container was never closed!"
 			<< std::endl;
+	}
+
+	// Apply tooltip styling from style_type[tooltip;...]
+	{
+		auto tooltip_style = getDefaultStyleForElement("tooltip", "");
+
+		if (tooltip_style.isNotDefault(StyleSpec::BGCOLOR))
+			m_default_tooltip_bgcolor = tooltip_style.getColor(StyleSpec::BGCOLOR);
+		if (tooltip_style.isNotDefault(StyleSpec::TEXTCOLOR))
+			m_default_tooltip_color = tooltip_style.getColor(StyleSpec::TEXTCOLOR);
+
+		gui::IGUIFont *tooltip_font = tooltip_style.getFont();
+		if (!tooltip_font)
+			tooltip_font = m_font;
+
+		// Update tooltips that were created during parsing with old defaults.
+		// Only update tooltips without explicit per-tooltip colors.
+		for (auto &pair : m_tooltips) {
+			if (!pair.second.explicit_colors) {
+				pair.second.bgcolor = m_default_tooltip_bgcolor;
+				pair.second.color = m_default_tooltip_color;
+			}
+		}
+
+		for (auto &pair : m_tooltip_rects) {
+			if (!pair.second.explicit_colors) {
+				pair.second.bgcolor = m_default_tooltip_bgcolor;
+				pair.second.color = m_default_tooltip_color;
+			}
+		}
+
+		// Update the tooltip element with resolved style.
+		m_tooltip_element->setBackgroundColor(m_default_tooltip_bgcolor);
+		m_tooltip_element->setOverrideColor(m_default_tooltip_color);
+		m_tooltip_element->setOverrideFont(tooltip_font);
 	}
 
 	// get the scrollbar elements for scroll_containers

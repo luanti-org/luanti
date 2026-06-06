@@ -3767,6 +3767,7 @@ Some types may inherit styles from parent types.
 * table
 * textarea
 * textlist
+* tooltip
 * vertlabel, inherits from label
 
 
@@ -3873,6 +3874,11 @@ Some types may inherit styles from parent types.
     * font - Sets font type. See button `font` property for more information.
     * font_size - Sets font size. See button `font_size` property for more information.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+* tooltip
+    * bgcolor - color, sets tooltip background color. Default `#6E823CFF`.
+    * font - Sets font type. See button `font` property for more information.
+    * font_size - Sets font size. See button `font_size` property for more information.
+    * textcolor - color, sets tooltip text color. Default white.
 
 ### Valid States
 
