@@ -92,15 +92,15 @@ Where each location is on each platform:
 * Windows installed:
     * `bin`   = `C:\Program Files\Minetest\bin (Depends on the install location)`
     * `share` = `C:\Program Files\Minetest (Depends on the install location)`
-    * `user`  = `%APPDATA%\Minetest` or `%MINETEST_USER_PATH%`
+    * `user`  = `%APPDATA%\luanti` or `%MINETEST_USER_PATH%`
 * Linux installed:
     * `bin`   = `/usr/bin`
     * `share` = `/usr/share/minetest`
-    * `user`  = `~/.minetest` or `$MINETEST_USER_PATH`
+    * `user`  = `~/.luanti` or `$MINETEST_USER_PATH`
 * macOS:
     * `bin`   = `Contents/MacOS`
     * `share` = `Contents/Resources`
-    * `user`  = `Contents/User` or `~/Library/Application Support/minetest` or `$MINETEST_USER_PATH`
+    * `user`  = `Contents/User` or `~/Library/Application Support/luanti` or `$MINETEST_USER_PATH`
 
 Worlds can be found as separate folders in: `user/worlds/`
 
