@@ -4,6 +4,7 @@
 #include "tileanimation.h"
 #include "util/serialize.h"
 #include "util/string.h"
+#include <json/json.h>
 
 void TileAnimationParams::serialize(std::ostream &os, u16 protocol_ver) const
 {
@@ -40,6 +41,61 @@ void TileAnimationParams::deSerialize(std::istream &is, u16 protocol_ver)
 			sheet_2d.frames_w = readU8(is);
 			sheet_2d.frames_h = readU8(is);
 			sheet_2d.frame_length = readF32(is);
+			break;
+		default:
+			type = TAT_NONE;
+			break;
+	}
+}
+
+Json::Value TileAnimationParams::serializeJson() const
+{
+	Json::Value root;
+	root["type"] = type;
+	if (type == TAT_VERTICAL_FRAMES) {
+		root["aspect_w"] = vertical_frames.aspect_w;
+		root["aspect_h"] = vertical_frames.aspect_h;
+		root["length"] = vertical_frames.length;
+	} else if (type == TAT_SHEET_2D) {
+		root["frames_w"] = sheet_2d.frames_w;
+		root["frames_h"] = sheet_2d.frames_h;
+		root["frame_length"] = sheet_2d.frame_length;
+	}
+
+	return root;
+}
+
+void TileAnimationParams::deserializeJson(const Json::Value root)
+{
+
+	if (!root.isObject() || !root["type"].isInt()) {
+		type = TileAnimationType::TAT_NONE;
+		return;
+	}
+
+	type = (TileAnimationType) root["type"].asInt();
+	switch(type) {
+		case TAT_NONE:
+			break;
+		case TAT_VERTICAL_FRAMES:
+			if (!root["aspect_w"].isInt() || !root["aspect_h"].isInt() ||
+					!root["length"].isDouble()) {
+				type = TileAnimationType::TAT_NONE;
+				return;
+			}
+			vertical_frames.aspect_w = root["aspect_w"].asInt();
+			vertical_frames.aspect_h = root["aspect_h"].asInt();
+			vertical_frames.length = root["length"].asDouble();
+			break;
+		case TAT_SHEET_2D:
+			if (!root["frames_w"].isInt() || !root["frames_h"].isInt() ||
+					!root["frame_length"].isDouble()) {
+				type = TileAnimationType::TAT_NONE;
+				return;
+			}
+			sheet_2d.frames_w = root["frames_w"].asInt();
+			sheet_2d.frames_h = root["frames_h"].asInt();
+			sheet_2d.frame_length = root["frame_length"].asDouble();
 			break;
 		default:
 			type = TAT_NONE;
