@@ -251,18 +251,31 @@ if(ENABLE_SPATIAL)
 endif(ENABLE_SPATIAL)
 
 option(ENABLE_OPENSSL "Use OpenSSL's libcrypto for faster SHA implementations" TRUE)
+option(ENABLE_EXPERIMENTAL_QUIC_TRANSPORT "Build experimental QUIC transport" FALSE)
 set(USE_OPENSSL FALSE)
+set(USE_NGTCP2_QUIC FALSE)
 
-if(ENABLE_OPENSSL)
-	find_package(OpenSSL 3.0)
+if(ENABLE_OPENSSL OR ENABLE_EXPERIMENTAL_QUIC_TRANSPORT)
+	# QUIC needs both libssl and libcrypto
+	# Plain SHA acceleration only needs Crypto
+	if(ENABLE_EXPERIMENTAL_QUIC_TRANSPORT)
+		find_package(OpenSSL 3.5 COMPONENTS SSL Crypto)
+	else()
+		find_package(OpenSSL 3.0 COMPONENTS Crypto)
+	endif()
 	if(OPENSSL_FOUND)
 		set(USE_OPENSSL TRUE)
-		message(STATUS "OpenSSL's libcrypto SHA enabled.")
+		message(STATUS "OpenSSL enabled (version ${OPENSSL_VERSION}).")
 	else()
 		message(STATUS "OpenSSL not found!")
 	endif()
-endif(ENABLE_OPENSSL)
+endif()
 
+if(ENABLE_EXPERIMENTAL_QUIC_TRANSPORT)
+	find_package(Ngtcp2 REQUIRED)
+	set(USE_NGTCP2_QUIC TRUE)
+	add_compile_definitions(USE_NGTCP2_QUIC=1)
+endif()
 
 find_package(ZLIB REQUIRED)
 find_package(Zstd REQUIRED)
@@ -616,6 +629,13 @@ target_link_libraries(EngineCommon
 if(USE_OPENSSL)
 	target_link_libraries(EngineCommon OpenSSL::Crypto)
 endif()
+if(USE_NGTCP2_QUIC)
+	target_link_libraries(EngineCommon
+		Ngtcp2::Ngtcp2
+		Ngtcp2::CryptoOssl
+		OpenSSL::SSL
+		OpenSSL::Crypto)
+endif()
 get_target_property(
 	IRRLICHT_INCLUDES IrrlichtMt::IrrlichtMt INTERFACE_INCLUDE_DIRECTORIES)
 target_include_directories(EngineCommon PRIVATE ${IRRLICHT_INCLUDES})
@@ -753,6 +773,13 @@ if(BUILD_CLIENT)
 	if (USE_OPENSSL)
 		target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto)
 	endif()
+	if (USE_NGTCP2_QUIC)
+		target_link_libraries(${PROJECT_NAME}
+			Ngtcp2::Ngtcp2
+			Ngtcp2::CryptoOssl
+			OpenSSL::SSL
+			OpenSSL::Crypto)
+	endif()
 	if(BUILD_UNITTESTS OR BUILD_BENCHMARKS)
 		target_link_libraries(${PROJECT_NAME} Catch2::Catch2)
 	endif()
@@ -825,6 +852,13 @@ if(BUILD_SERVER)
 	endif()
 	if (USE_OPENSSL)
 		target_link_libraries(${PROJECT_NAME}server OpenSSL::Crypto)
+	endif()
+	if (USE_NGTCP2_QUIC)
+		target_link_libraries(${PROJECT_NAME}server
+			Ngtcp2::Ngtcp2
+			Ngtcp2::CryptoOssl
+			OpenSSL::SSL
+			OpenSSL::Crypto)
 	endif()
 	if(USE_CURL)
 		target_link_libraries(

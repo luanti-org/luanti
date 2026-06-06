@@ -15,6 +15,7 @@
 
 #include <ostream>
 #include <cstring>
+#include <string>
 #include "irrlichttypes.h"
 
 struct IPv6AddressBytes
@@ -41,6 +42,26 @@ public:
 	struct in6_addr getAddress6() const { return m_address.ipv6; }
 	u16 getPort() const { return m_port; }
 
+	const std::string &getHostName() const { return m_hostname; }
+	const std::string &getPinnedCertSha256Base64() const { return m_pinned_cert_sha256_base64; }
+
+	// These setters are for testing address parsing
+	void setHostName(const std::string &h) { m_hostname = h; }
+	void setNumericHostName(bool numeric) { m_name_was_numeric = numeric; }
+	void setPinnedCertSha256Base64(const std::string &b64)
+		{ m_pinned_cert_sha256_base64 = b64; }
+
+	bool hasPinnedCertSha256() const { return !m_pinned_cert_sha256_base64.empty(); }
+	bool isNumericHostName() const { return m_name_was_numeric; }
+	bool shouldUseWebPki() const
+	{
+		return !m_hostname.empty() && !m_name_was_numeric && !hasPinnedCertSha256();
+	}
+	bool requiresPinnedCertSha256() const
+	{
+		return m_name_was_numeric || hasPinnedCertSha256();
+	}
+
 	void print(std::ostream &s) const;
 	std::string serializeString() const;
 
@@ -49,7 +70,8 @@ public:
 	// Is this an address referring to the local host?
 	bool isLocalhost() const;
 
-	// `name`: hostname or numeric IP
+	// `name`: hostname or numeric IP optionally followed by `+` and the
+	// base64 certificate fingerprint
 	// `fallback`: fallback IP to try gets written here
 	// any empty name resets the IP to the "any address"
 	// may throw ResolveError (address is unchanged in this case)
@@ -69,4 +91,7 @@ private:
 	} m_address;
 	// port is separate from in_addr structures
 	u16 m_port = 0;
+	std::string m_hostname;
+	std::string m_pinned_cert_sha256_base64;
+	bool m_name_was_numeric = false;
 };

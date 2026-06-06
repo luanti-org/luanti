@@ -195,6 +195,13 @@ public:
 
 	void start();
 	void stop();
+
+#ifdef USE_NGTCP2_QUIC
+	// Loads or auto-generates the server-side QUIC certificate and key,
+	// then hands them to the QUIC connection. Logs the public SHA-256
+	// fingerprint operators should publish as 'host:port+<base64>'.
+	void configureQuicServerCertificates();
+#endif
 	// Actual processing is done in another thread.
 	// This just checks if there was an error in that thread.
 	void step();

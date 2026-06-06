@@ -15,4 +15,14 @@ set(test_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_nodedef.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_serveractiveobjectmgr.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_translations.cpp
-	PARENT_SCOPE)
+)
+
+if(USE_NGTCP2_QUIC)
+	list(APPEND test_SRCS
+		${CMAKE_CURRENT_SOURCE_DIR}/test_quic_address.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/test_quic_tls.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/test_quic_connection.cpp
+	)
+endif()
+
+set(test_SRCS ${test_SRCS} PARENT_SCOPE)

@@ -447,6 +447,8 @@ void set_default_settings()
 	settings->setDefault("ipv6_server", "true");
 	settings->setDefault("max_packets_per_iteration", "1024");
 	settings->setDefault("port", "30000");
+	settings->setDefault("quic_cert_file", "");
+	settings->setDefault("quic_key_file", "");
 	settings->setDefault("strict_protocol_version_checking", "false");
 	settings->setDefault("protocol_version_min", "1");
 	settings->setDefault("player_transfer_distance", "0");

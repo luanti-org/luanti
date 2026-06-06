@@ -297,6 +297,11 @@ endif()
 
 add_subdirectory(lib/tiniergltf)
 
+# QUIC support
+if(ENABLE_EXPERIMENTAL_QUIC_TRANSPORT)
+	find_package(Ngtcp2 REQUIRED)
+endif()
+
 # Subdirectories
 # Be sure to add all relevant definitions above this
 add_subdirectory(src)

@@ -7,8 +7,14 @@
 #include <iostream>
 #include <cstring>
 #include <cerrno>
+#include <algorithm>
+#include <cassert>
+#include <cctype>
+
 #include "network/networkexceptions.h"
 #include "settings.h"
+#include "util/base64.h"
+#include "util/hashing.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -28,6 +34,44 @@ typedef int socklen_t;
 #define LAST_SOCKET_ERR() (errno)
 typedef int socket_t;
 #endif
+
+namespace {
+
+struct ParsedEndpoint {
+	std::string host;
+	std::string pinned_cert_sha256_base64;
+};
+
+bool isNumericHost(const std::string &host)
+{
+	in_addr ipv4 {};
+	if (inet_pton(AF_INET, host.c_str(), &ipv4) == 1)
+		return true;
+
+	in6_addr ipv6 {};
+	return inet_pton(AF_INET6, host.c_str(), &ipv6) == 1;
+}
+
+ParsedEndpoint parseEndpoint(std::string name)
+{
+	ParsedEndpoint out;
+
+	auto plus_pos = name.find('+');
+	if (plus_pos != std::string::npos) {
+		out.pinned_cert_sha256_base64 = name.substr(plus_pos + 1);
+		name.resize(plus_pos);
+
+		if (!base64_is_valid(out.pinned_cert_sha256_base64))
+			throw ResolveError("Pinned certificate fingerprint is not valid base64");
+		if (base64_decode(out.pinned_cert_sha256_base64).size() != hashing::SHA256_DIGEST_SIZE)
+			throw ResolveError("Pinned certificate fingerprint must decode to 32 bytes");
+	}
+
+	out.host = name;
+	return out;
+}
+
+} // namespace
 
 /*
 	Address
@@ -80,6 +124,9 @@ bool Address::operator==(const Address &other) const
 void Address::Resolve(const char *name, Address *fallback)
 {
 	if (!name || name[0] == 0) {
+		m_hostname.clear();
+		m_pinned_cert_sha256_base64.clear();
+		m_name_was_numeric = false;
 		if (m_addr_family == AF_INET)
 			setAddress(static_cast<u32>(0));
 		else if (m_addr_family == AF_INET6)
@@ -87,6 +134,14 @@ void Address::Resolve(const char *name, Address *fallback)
 		if (fallback)
 			*fallback = Address();
 		return;
+	}
+
+	ParsedEndpoint parsed = parseEndpoint(name);
+
+	// We keep the same pinned certificate fingerprint if we were already given one
+	if (parsed.pinned_cert_sha256_base64.empty()
+			&& !m_pinned_cert_sha256_base64.empty()) {
+		parsed.pinned_cert_sha256_base64 = m_pinned_cert_sha256_base64;
 	}
 
 	const auto &copy_from_ai = [] (const struct addrinfo *ai, Address *to) {
@@ -118,17 +173,25 @@ void Address::Resolve(const char *name, Address *fallback)
 
 	// Do getaddrinfo()
 	struct addrinfo *resolved = nullptr;
-	int e = getaddrinfo(name, nullptr, &hints, &resolved);
+	int e = getaddrinfo(parsed.host.c_str(), nullptr, &hints, &resolved);
 	if (e != 0)
 		throw ResolveError(gai_strerror(e));
 	assert(resolved);
 
 	// Copy data
 	copy_from_ai(resolved, this);
+	m_hostname = parsed.host;
+	m_pinned_cert_sha256_base64 = parsed.pinned_cert_sha256_base64;
+	m_name_was_numeric = isNumericHost(parsed.host);
+
 	if (fallback) {
 		*fallback = Address();
-		if (resolved->ai_next)
+		if (resolved->ai_next) {
 			copy_from_ai(resolved->ai_next, fallback);
+			fallback->m_hostname = parsed.host;
+			fallback->m_pinned_cert_sha256_base64 = parsed.pinned_cert_sha256_base64;
+			fallback->m_name_was_numeric = m_name_was_numeric;
+		}
 	}
 
 	freeaddrinfo(resolved);
