@@ -499,7 +499,7 @@ bool setSystemPaths()
 		len = GetEnvironmentVariable("APPDATA", buf, sizeof(buf));
 		FATAL_ERROR_IF(len == 0 || len > sizeof(buf), "Failed to get APPDATA");
 		// TODO: Luanti with migration
-		path_user = std::string(buf) + DIR_DELIM "Minetest";
+		path_user = std::string(buf) + DIR_DELIM "luanti";
 	} else {
 		path_user = std::string(buf);
 	}
@@ -564,7 +564,7 @@ bool setSystemPaths()
 		path_user = std::move(user_path_env.value());
 	} else {
 		// TODO: luanti with migration
-		path_user = std::string(getHomeOrFail()) + DIR_DELIM "." "minetest";
+		path_user = std::string(getHomeOrFail()) + DIR_DELIM "." "luanti";
 	}
 
 	return true;
@@ -594,7 +594,7 @@ bool setSystemPaths()
 	} else {
 		// TODO: luanti with migration
 		path_user = std::string(getHomeOrFail())
-			+ "/Library/Application Support/" "minetest";
+			+ "/Library/Application Support/" "luanti";
 	}
 	return true;
 }
@@ -611,7 +611,7 @@ bool setSystemPaths()
 		path_user = std::move(user_path_env.value());
 	} else {
 		// TODO: luanti with migration
-		path_user  = std::string(getHomeOrFail()) + DIR_DELIM "." "minetest";
+		path_user  = std::string(getHomeOrFail()) + DIR_DELIM "." "luanti";
 	}
 	return true;
 }
@@ -719,12 +719,12 @@ void initializePaths()
 	const char *home_dir = getenv("HOME");
 	if (cache_dir && cache_dir[0] != '\0') {
 		// TODO: luanti with migration
-		path_cache = std::string(cache_dir) + DIR_DELIM "minetest";
+		path_cache = std::string(cache_dir) + DIR_DELIM "luanti";
 	} else if (home_dir) {
 		// Then try $HOME/.cache/PROJECT_NAME
 		// TODO: luanti with migration
 		path_cache = std::string(home_dir) + DIR_DELIM ".cache"
-			DIR_DELIM "minetest";
+			DIR_DELIM "luanti";
 	} else {
 		// If neither works, use $PATH_USER/cache
 		path_cache = path_user + DIR_DELIM "cache";
