@@ -801,6 +801,7 @@ Methods:
 
 * `get_armor_groups()`
     * returns a table with the armor group ratings
+    * It can return `nil` if the player CAO is not yet initialized.
 * `hud_add(definition)`
     * add a HUD element described by HUD def, returns ID number on success and `nil` on failure.
     * See [`HUD definition`](#hud-definition-hud_add-hud_get)

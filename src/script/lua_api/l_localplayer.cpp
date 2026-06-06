@@ -346,6 +346,8 @@ int LuaLocalPlayer::l_get_movement(lua_State *L)
 int LuaLocalPlayer::l_get_armor_groups(lua_State *L)
 {
 	LocalPlayer *player = getobject(L, 1);
+	if (!player->getCAO())
+		return 0;
 	push_groups(L, player->getCAO()->getGroups());
 	return 1;
 }
