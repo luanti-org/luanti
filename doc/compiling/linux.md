@@ -16,9 +16,11 @@
 | LuaJIT     | 2.0+    | Bundled Lua 5.1 is used if not present |
 | GMP        | 5.0.0+  | Bundled mini-GMP is used if not present |
 | JsonCPP    | 1.0.0+  | Bundled JsonCPP is used if not present |
-| Curl       | 7.56.0+ | Optional   |
-| gettext    | -       | Optional   |
+| Curl       | 7.66.0+ | Optional, but recommended |
+| gettext    | -       | Optional, but recommended |
 | OpenSSL    | 3.0+    | Optional (only libcrypto used) |
+
+<!-- TODO: audio stuff is missing here -->
 
 For Debian/Ubuntu users:
 
