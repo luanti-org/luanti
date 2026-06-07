@@ -87,6 +87,15 @@ public:
 
 	PointerType getLastPointerType() { return last_pointer_type; }
 
+	// Returns the GameKeyType action bound to this key, or INTERNAL_ENUM_COUNT if unbound
+	GameKeyType getActionFromKey(KeyPress key) const
+	{
+		auto it = keysListenedFor.find(key);
+		if (it != keysListenedFor.end())
+			return it->second;
+		return GameKeyType::INTERNAL_ENUM_COUNT;
+	}
+
 private:
 	void listenForKey(KeyPress keyCode, GameKeyType action)
 	{
@@ -157,6 +166,9 @@ public:
 	virtual bool wasKeyReleased(GameKeyType k) = 0;
 	virtual bool cancelPressed() = 0;
 
+	// Returns the GameKeyType action bound to this key, or INTERNAL_ENUM_COUNT if unbound
+	virtual GameKeyType getActionFromKey(KeyPress key) { return GameKeyType::INTERNAL_ENUM_COUNT; }
+
 	virtual float getJoystickSpeed() = 0;
 	virtual float getJoystickDirection() = 0;
 
@@ -225,6 +237,11 @@ public:
 	virtual bool cancelPressed()
 	{
 		return wasKeyDown(KeyType::ESC);
+	}
+
+	virtual GameKeyType getActionFromKey(KeyPress key)
+	{
+		return m_receiver->getActionFromKey(key);
 	}
 
 	virtual void clearWasKeyPressed()

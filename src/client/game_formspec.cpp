@@ -245,7 +245,7 @@ void GameFormSpec::showFormSpec(const std::string &formspec, const std::string &
 	// Replace the currently open formspec
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
 		&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
-		m_client->getSoundManager());
+		m_client->getSoundManager(), m_input);
 	m_formspec->setName(formname);
 }
 
@@ -260,7 +260,7 @@ void GameFormSpec::showCSMFormSpec(const std::string &formspec, const std::strin
 
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
 			&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
-			m_client->getSoundManager());
+			m_client->getSoundManager(), m_input);
 	m_formspec->setName(formname);
 }
 
@@ -284,7 +284,7 @@ void GameFormSpec::showPauseMenuFormSpec(const std::string &formspec, const std:
 	GUIFormSpecMenu::create(fs, m_client, m_rendering_engine->get_gui_env(),
 			// Ignore formspec prepend.
 			&m_input->joystick, fs_src, txt_dst, "",
-			m_client->getSoundManager());
+			m_client->getSoundManager(), m_input);
 
 	fs->setName(formname);
 	fs->doPause = true;
@@ -304,7 +304,7 @@ void GameFormSpec::showNodeFormspec(const std::string &formspec, const v3s16 &no
 
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
 		&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
-		m_client->getSoundManager());
+		m_client->getSoundManager(), m_input);
 
 	m_formspec->setFormSpec(formspec, inventoryloc);
 }
@@ -347,7 +347,7 @@ void GameFormSpec::showPlayerInventory(const std::string *fs_override)
 
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
 		&m_input->joystick, fs_src.get(), txt_dst, m_client->getFormspecPrepend(),
-		m_client->getSoundManager());
+		m_client->getSoundManager(), m_input);
 
 	m_formspec->setFormSpec(fs_src->getForm(), inventoryloc);
 	fs_src.release(); // owned by GUIFormSpecMenu
@@ -461,7 +461,7 @@ void GameFormSpec::showPauseMenu()
 
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
 			&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
-			m_client->getSoundManager());
+			m_client->getSoundManager(), m_input);
 	m_formspec->setFocus("btn_continue");
 	// game will be paused in next step, if in singleplayer (see Game::m_is_paused)
 	m_formspec->doPause = true;
@@ -485,7 +485,7 @@ void GameFormSpec::showDeathFormspecLegacy()
 
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
 		&m_input->joystick, fs_src, txt_dst, m_client->getFormspecPrepend(),
-		m_client->getSoundManager());
+		m_client->getSoundManager(), m_input);
 	m_formspec->setFocus("btn_respawn");
 }
 
