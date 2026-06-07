@@ -4268,6 +4268,17 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 				m_show_debug = !m_show_debug;
 		}
 
+		if (event.KeyInput.PressedDown && m_client && keySettingHasMatch("keymap_drop", kp)) {
+			if (const GUIInventoryList::ItemSpec hovered = getHoveredItem(); hovered.isValid()) {
+				auto *a = new IDropAction();
+				a->count = event.KeyInput.Shift ? 1 : 0;
+				a->from_inv = hovered.inventoryloc;
+				a->from_list = hovered.listname;
+				a->from_i = hovered.i;
+				m_client->inventoryAction(a);
+			}
+		}
+
 		// Handle slot keys for item swapping
 		if (event.KeyInput.PressedDown && m_input) {
 			GameKeyType action = m_input->getActionFromKey(kp);
