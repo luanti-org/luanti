@@ -19,6 +19,7 @@
 #include "MaterialRenderer.h"
 #include "FixedPipelineRenderer.h"
 #include "Renderer2D.h"
+#include "ShaderCache.h"
 
 #include "EVertexAttributes.h"
 #include "CImage.h"
@@ -157,7 +158,8 @@ COpenGL3DriverBase::COpenGL3DriverBase(const SIrrlichtCreationParameters &params
 		MaterialRenderer2DActive(0), MaterialRenderer2DTexture(0), MaterialRenderer2DNoTexture(0),
 		CurrentRenderMode(ERM_NONE), Transformation3DChanged(true),
 		OGLES2ShaderPath(params.OGLES2ShaderPath),
-		ContextManager(contextManager), EnableErrorTest(params.DriverDebug)
+		ContextManager(contextManager), EnableErrorTest(params.DriverDebug),
+		ShaderCache(this, io, params.ShaderCachePath)
 {
 	if (!ContextManager)
 		return;
