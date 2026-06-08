@@ -27,10 +27,9 @@ GUIScene::GUIScene(gui::IGUIEnvironment *env,
 	m_cam = m_smgr->addCameraSceneNode(0, v3f(0.f, 0.f, -100.f), v3f(0.f));
 	m_cam->setFOV(30.f * core::DEGTORAD);
 
-	u32 shader_id = shdsrc->getShader("fs_model_shader",
-			TILE_MATERIAL_ALPHA, // maps to video::EMT_TRANSPARENT_ALPHA_CHANNEL
-			NDT_MESH, // unused
-			false, true);
+	ShaderFeatures features;
+	features.skinning = true;
+	u32 shader_id = shdsrc->getShaderRaw("fs_model_shader", true, features);
 	m_material_type = shdsrc->getShaderInfo(shader_id).material;
 }
 

@@ -227,6 +227,19 @@ using CachedStructPixelShaderSetting = CachedStructShaderSetting<T, count, cache
 	It is uniquely identified by a name, base material and the input constants.
 */
 
+struct ShaderFeatures {
+	/// Enable support for array textures,
+	/// texture indices are expected in the Aux vertex attribute.
+	bool array_texture = false;
+	/// Enable hardware skinning support (mesh animation);
+	/// static meshes will still render as expected.
+	/// Joint transforms are expected in the JointMatrices UBO.
+	/// @see irr::video::IVideoDriver::setJointTransforms
+	bool skinning = false;
+
+	void setConstants(ShaderConstants &consts) const;
+};
+
 struct ShaderInfo {
 	std::string name;
 	video::E_MATERIAL_TYPE base_material = video::EMT_INVALID;
@@ -266,12 +279,10 @@ public:
 		const ShaderConstants &input_const, video::E_MATERIAL_TYPE base_mat,
 		IShaderUniformSetterRC *setter_cb = nullptr) = 0;
 
-	/// @brief Helper: Generates or gets a shader suitable for nodes and entities
-	/// @param skinning Enable hardware skinning support (mesh animation);
-	///                 static meshes will still render as expected.
+	/// Helper: Generates or gets a shader suitable for nodes and entities.
 	u32 getShader(const std::string &name,
 		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL,
-		bool array_texture = false, bool skinning = false);
+		const ShaderFeatures &features = {});
 
 	/**
 	 * Helper: Generates or gets a shader for common, general use.
@@ -279,11 +290,14 @@ public:
 	 * @param blendAlpha enable alpha blending for this material?
 	 * @return shader ID
 	 */
-	inline u32 getShaderRaw(const std::string &name, bool blendAlpha = false)
+	inline u32 getShaderRaw(const std::string &name, bool blendAlpha = false,
+			const ShaderFeatures &features = {})
 	{
 		auto base_mat = blendAlpha ? video::EMT_TRANSPARENT_ALPHA_CHANNEL :
 			video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
-		return getShader(name, ShaderConstants(), base_mat);
+		ShaderConstants consts;
+		features.setConstants(consts);
+		return getShader(name, consts, base_mat);
 	}
 
 	/**
