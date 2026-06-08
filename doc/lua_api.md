@@ -10515,6 +10515,7 @@ Used by `core.register_node`.
     -- node. For torchlike, the image will start at the surface to which the
     -- node "attaches". For the other drawtypes the image will be centered
     -- on the node.
+    -- note: Do not set a visual_scale != 1.0 for drawtypes that don't support it.
 
     tiles = {tile definition 1, def2, def3, def4, def5, def6},
     -- Textures of node; +Y, -Y, +X, -X, +Z, -Z
