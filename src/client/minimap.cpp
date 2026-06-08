@@ -543,23 +543,14 @@ v3f Minimap::getYawVec()
 irr_ptr<scene::SMeshBuffer> Minimap::createMinimapMeshBuffer()
 {
 	auto buf = make_irr<scene::SMeshBuffer>();
+	buf->Indices->data = std::vector<u16>{0, 1, 2, 2, 3, 0};
 	auto &vertices = buf->Vertices->Data;
-	auto &indices = buf->Indices->Data;
 	vertices.resize(4);
-	indices.resize(6);
 	static const video::SColor c(255, 255, 255, 255);
-
 	vertices[0] = video::S3DVertex(-1, -1, 0, 0, 0, 1, c, 0, 1);
 	vertices[1] = video::S3DVertex(-1,  1, 0, 0, 0, 1, c, 0, 0);
 	vertices[2] = video::S3DVertex( 1,  1, 0, 0, 0, 1, c, 1, 0);
 	vertices[3] = video::S3DVertex( 1, -1, 0, 0, 0, 1, c, 1, 1);
-
-	indices[0] = 0;
-	indices[1] = 1;
-	indices[2] = 2;
-	indices[3] = 2;
-	indices[4] = 3;
-	indices[5] = 0;
 
 	buf->setHardwareMappingHint(scene::EHM_STATIC);
 	return buf;

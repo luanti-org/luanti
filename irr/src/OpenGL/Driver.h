@@ -60,7 +60,7 @@ public:
 	void deleteHardwareBuffer(SHWBufferLink *HWBuffer) override;
 
 	void drawBuffers(const scene::IVertexBuffer *vb,
-		const scene::IIndexBuffer *ib, u32 primCount,
+		const scene::IndexBuffer *ib, u32 primCount,
 		scene::E_PRIMITIVE_TYPE pType = scene::EPT_TRIANGLES) override;
 
 	IRenderTarget *addRenderTarget() override;

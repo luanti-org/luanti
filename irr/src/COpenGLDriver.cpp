@@ -8,9 +8,9 @@
 #include "EHardwareBufferFlags.h"
 #include "HWBuffer.h"
 #include "IContextManager.h"
-#include "IIndexBuffer.h"
+#include "IndexBuffer.h"
 #include "IVertexBuffer.h"
-#include "irrTypes.h"
+#include "irr_types.h"
 
 #ifdef _IRR_COMPILE_WITH_OPENGL_
 
@@ -330,7 +330,7 @@ bool COpenGLDriver::updateIndexHardwareBuffer(SHWBufferLink_opengl *link)
 		return false;
 
 
-	const auto *ib = IRR_DOWN_CAST<const scene::IIndexBuffer *>(link->Buffer);
+	const auto *ib = IRR_DOWN_CAST<const scene::IndexBuffer *>(link->Buffer);
 
 	const void *indices = ib->getData();
 	u32 indexCount = ib->getCount();
@@ -430,7 +430,7 @@ void COpenGLDriver::deleteHardwareBuffer(SHWBufferLink *_link)
 }
 
 void COpenGLDriver::drawBuffers(const scene::IVertexBuffer *vb,
-	const scene::IIndexBuffer *ib, u32 PrimitiveCount,
+	const scene::IndexBuffer *ib, u32 PrimitiveCount,
 	scene::E_PRIMITIVE_TYPE PrimitiveType)
 {
 	if (!vb || !ib)
@@ -454,7 +454,7 @@ void COpenGLDriver::drawBuffers(const scene::IVertexBuffer *vb,
 	}
 
 	drawVertexPrimitiveList(vertices, vb->getCount(), indexList,
-		PrimitiveCount, vb->getType(), PrimitiveType, ib->getType());
+		PrimitiveCount, vb->getType(), PrimitiveType, ib->getIndexType());
 
 	if (hwvert)
 		extGlBindBuffer(GL_ARRAY_BUFFER, 0);

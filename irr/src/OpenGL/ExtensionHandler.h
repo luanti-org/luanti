@@ -9,7 +9,7 @@
 #include <unordered_set>
 
 #include "EDriverFeatures.h"
-#include "irrTypes.h"
+#include "irr_types.h"
 #include "os.h"
 
 #include "Common.h"

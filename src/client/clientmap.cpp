@@ -99,7 +99,6 @@ namespace {
 	void appendToMeshBuffer(scene::SMeshBuffer *dst, const scene::IMeshBuffer *src, v3f translate)
 	{
 		const size_t vcount = dst->Vertices->Data.size();
-		const size_t icount = dst->Indices->Data.size();
 
 		assert(src->getVertexType() == video::EVT_STANDARD);
 		const auto vptr = static_cast<const video::S3DVertex*>(src->getVertices());
@@ -110,13 +109,7 @@ namespace {
 			dst->Vertices->Data[j].Pos += translate;
 
 		const auto iptr = src->getIndices();
-		dst->Indices->Data.insert(dst->Indices->Data.end(),
-			iptr, iptr + src->getIndexCount());
-		// fixup indices
-		if (vcount != 0) {
-			for (size_t j = icount; j < dst->Indices->Data.size(); j++)
-				dst->Indices->Data[j] += vcount;
-		}
+		dst->Indices->appendWithOffset(iptr, iptr + src->getIndexCount(), vcount);
 	}
 
 	template <typename T>
@@ -963,7 +956,7 @@ static u32 transformBuffersToDrawOrder(
 				tmp->Material = buf->getMaterial();
 				// preallocate approximately
 				tmp->Vertices->Data.reserve(MYMIN(U16_MAX, total_vtx));
-				tmp->Indices->Data.reserve(total_idx);
+				// TODO this might actually matter: tmp->Indices->data.reserve(total_idx);
 			}
 			appendToMeshBuffer(tmp, buf, translate);
 		}

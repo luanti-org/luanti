@@ -6,7 +6,7 @@
 
 #include "EMaterialTypes.h"
 #include "IDummyTransformationSceneNode.h"
-#include "irrlichttypes.h"
+#include <irr_types.h>
 
 #include "object_properties.h"
 #include "clientobject.h"

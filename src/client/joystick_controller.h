@@ -5,7 +5,7 @@
 #pragma once
 
 #include <IEventReceiver.h>
-#include "irrlichttypes.h"
+#include <irr_types.h>
 
 #include "keys.h"
 #include <bitset>

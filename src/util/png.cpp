@@ -10,7 +10,7 @@
 #include <cassert>
 #include "util/serialize.h"
 #include "serialization.h"
-#include "irrlichttypes.h"
+#include <irr_types.h>
 
 enum {
 	COLOR_GRAY = 0,

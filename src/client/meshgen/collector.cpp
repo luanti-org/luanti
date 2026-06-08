@@ -55,6 +55,7 @@ PreMeshBuffer &MeshCollector::findBuffer(
 		const TileLayer &layer, u8 layernum, u32 numVertices)
 {
 	if (numVertices > U16_MAX)
+		// TODO support 32-bit index buffers; but only use them if necessary
 		throw std::invalid_argument(
 				"Mesh can't contain more than 65536 vertices");
 	std::vector<PreMeshBuffer> &buffers = prebuffers[layernum];

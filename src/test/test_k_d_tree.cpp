@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #include "catch.h"
-#include "irrTypes.h"
+#include "irr_types.h"
 #include "noise.h"
 #include "util/k_d_tree.h"
 
