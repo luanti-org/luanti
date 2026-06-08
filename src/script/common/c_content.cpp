@@ -754,7 +754,7 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 				<< " has unknown drawtype \"" << str << '"' << std::endl;
 	}
 
-	getfloatfield(L, index, "visual_scale", f.visual_scale);'
+	getfloatfield(L, index, "visual_scale", f.visual_scale);
 
 	if (f.visual_scale != 1.0f &&
 			(f.drawtype != NDT_PLANTLIKE &&
