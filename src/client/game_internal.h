@@ -137,7 +137,7 @@ protected:
 	void processQueues();
 	void updateProfilers(const RunStats &stats, const FpsControl &draw_times, f32 dtime);
 	void updateDebugState();
-	void updateStats(RunStats *stats, const FpsControl &draw_times, f32 dtime);
+	void updateStats(RunStats *stats, f32 dtime);
 	void updateProfilerGraphs(ProfilerGraph *graph);
 
 	// Input related
