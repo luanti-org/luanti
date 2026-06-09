@@ -9,10 +9,10 @@
 extern const u16 LATEST_PROTOCOL_VERSION;
 
 // Server's supported network protocol range
-constexpr u16 SERVER_PROTOCOL_VERSION_MIN = 37;
+constexpr u16 SERVER_PROTOCOL_VERSION_MIN = 40;
 
 // Client's supported network protocol range
-constexpr u16 CLIENT_PROTOCOL_VERSION_MIN = 37;
+constexpr u16 CLIENT_PROTOCOL_VERSION_MIN = 40;
 
 extern const u16 FORMSPEC_API_VERSION;
 

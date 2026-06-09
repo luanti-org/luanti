@@ -253,13 +253,8 @@ void Server::handleCommand_Init(NetworkPacket* pkt)
 	verbosestream << "Sending TOCLIENT_HELLO with auth method field: "
 		<< auth_mechs << std::endl;
 
-	NetworkPacket resp_pkt(TOCLIENT_HELLO, 0, peer_id);
-
-	resp_pkt << serialization_ver << u16(0) /* unused */
-		<< net_proto_version
-		<< auth_mechs << std::string_view() /* unused */;
-
-	Send(&resp_pkt);
+	m_netserver->sendHello(peer_id, serialization_ver,
+		net_proto_version, auth_mechs);
 
 	client->allowed_auth_mechs = auth_mechs;
 
@@ -322,9 +317,10 @@ void Server::handleCommand_Init2(NetworkPacket* pkt)
 	// Send time of day
 	u16 time = m_env->getTimeOfDay();
 	float time_speed = g_settings->getFloat("time_speed");
-	SendTimeOfDay(peer_id, time, time_speed);
+	m_netserver->sendTimeOfDay(peer_id, time, time_speed);
 
-	SendCSMRestrictionFlags(peer_id);
+	m_netserver->sendCSMRestrictionFlags(peer_id,
+		m_csm_restriction_flags, m_csm_restriction_noderange);
 }
 
 void Server::handleCommand_RequestMedia(NetworkPacket* pkt)
@@ -393,11 +389,7 @@ void Server::handleCommand_ClientReady(NetworkPacket* pkt)
 	// Send player list to this client
 	{
 		const std::vector<std::string> &players = m_clients.getPlayerNames();
-		NetworkPacket list_pkt(TOCLIENT_UPDATE_PLAYER_LIST, 0, peer_id);
-		list_pkt << (u8) PLAYER_LIST_INIT << (u16) players.size();
-		for (const auto &player : players)
-			list_pkt << player;
-		Send(peer_id, &list_pkt);
+		m_netserver->sendPlayerListUpdateTo(peer_id, PLAYER_LIST_INIT, players);
 	}
 
 	s64 last_login;
@@ -1619,9 +1611,7 @@ void Server::handleCommand_SrpBytesA(NetworkPacket* pkt)
 		return;
 	}
 
-	NetworkPacket resp_pkt(TOCLIENT_SRP_BYTES_S_B, 0, peer_id);
-	resp_pkt << salt << std::string(bytes_B, len_B);
-	Send(&resp_pkt);
+	m_netserver->sendSrpBytesSandB(peer_id, salt, bytes_B, len_B);
 }
 
 void Server::handleCommand_SrpBytesM(NetworkPacket* pkt)
@@ -1718,23 +1708,21 @@ void Server::handleCommand_ModChannelJoin(NetworkPacket *pkt)
 	*pkt >> channel_name;
 
 	session_t peer_id = pkt->getPeerId();
-	NetworkPacket resp_pkt(TOCLIENT_MODCHANNEL_SIGNAL,
-		1 + 2 + channel_name.size(), peer_id);
 
 	// Send signal to client to notify join succeed or not
+	ModChannelSignal sig;
 	if (g_settings->getBool("enable_mod_channels") &&
 			m_modchannel_mgr->joinChannel(channel_name, peer_id)) {
-		resp_pkt << (u8) MODCHANNEL_SIGNAL_JOIN_OK;
+		sig = MODCHANNEL_SIGNAL_JOIN_OK;
 		infostream << "Peer " << peer_id << " joined channel " <<
 			channel_name << std::endl;
 	}
 	else {
-		resp_pkt << (u8)MODCHANNEL_SIGNAL_JOIN_FAILURE;
+		sig = MODCHANNEL_SIGNAL_JOIN_FAILURE;
 		infostream << "Peer " << peer_id << " tried to join channel " <<
 			channel_name << ", but was already registered." << std::endl;
 	}
-	resp_pkt << channel_name;
-	Send(&resp_pkt);
+	m_netserver->sendModChannelSignal(peer_id, sig, channel_name);
 }
 
 void Server::handleCommand_ModChannelLeave(NetworkPacket *pkt)
@@ -1743,22 +1731,19 @@ void Server::handleCommand_ModChannelLeave(NetworkPacket *pkt)
 	*pkt >> channel_name;
 
 	session_t peer_id = pkt->getPeerId();
-	NetworkPacket resp_pkt(TOCLIENT_MODCHANNEL_SIGNAL,
-		1 + 2 + channel_name.size(), peer_id);
 
-	// Send signal to client to notify join succeed or not
+	ModChannelSignal sig;
 	if (g_settings->getBool("enable_mod_channels") &&
 			m_modchannel_mgr->leaveChannel(channel_name, peer_id)) {
-		resp_pkt << (u8)MODCHANNEL_SIGNAL_LEAVE_OK;
+		sig = MODCHANNEL_SIGNAL_LEAVE_OK;
 		infostream << "Peer " << peer_id << " left channel " << channel_name <<
 			std::endl;
 	} else {
-		resp_pkt << (u8) MODCHANNEL_SIGNAL_LEAVE_FAILURE;
+		sig = MODCHANNEL_SIGNAL_LEAVE_FAILURE;
 		infostream << "Peer " << peer_id << " left channel " << channel_name <<
 			", but was not registered." << std::endl;
 	}
-	resp_pkt << channel_name;
-	Send(&resp_pkt);
+	m_netserver->sendModChannelSignal(peer_id, sig, channel_name);
 }
 
 void Server::handleCommand_ModChannelMsg(NetworkPacket *pkt)
@@ -1778,10 +1763,8 @@ void Server::handleCommand_ModChannelMsg(NetworkPacket *pkt)
 
 	// If channel not registered, signal it and ignore message
 	if (!m_modchannel_mgr->channelRegistered(channel_name)) {
-		NetworkPacket resp_pkt(TOCLIENT_MODCHANNEL_SIGNAL,
-			1 + 2 + channel_name.size(), peer_id);
-		resp_pkt << (u8)MODCHANNEL_SIGNAL_CHANNEL_NOT_REGISTERED << channel_name;
-		Send(&resp_pkt);
+		m_netserver->sendModChannelSignal(peer_id,
+			MODCHANNEL_SIGNAL_CHANNEL_NOT_REGISTERED, channel_name);
 		return;
 	}
 

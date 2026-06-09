@@ -33,6 +33,7 @@ gtags.files
 .vscode/*
 !.vscode/extensions.json
 build/.cmake/
+.kilo/
 # Zed
 .zed/
 # Fleet
@@ -141,3 +142,4 @@ lib/irrlichtmt
 
 # Generated mod storage database
 client/mod_storage.sqlite
+rust/

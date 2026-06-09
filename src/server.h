@@ -9,6 +9,7 @@
 #include "hud_element.h" // HudElementStat
 #include "gamedef.h"
 #include "content/subgames.h"
+#include "network/inetserver.h"
 #include "network/peerhandler.h"
 #include "util/thread.h"
 #include "util/basic_macros.h"
@@ -244,9 +245,6 @@ public:
 
 	void ProcessData(NetworkPacket *pkt);
 
-	void Send(NetworkPacket *pkt);
-	void Send(session_t peer_id, NetworkPacket *pkt);
-
 	// Helper for handleCommand_PlayerPos and handleCommand_Interact
 	void process_PlayerPos(RemotePlayer *player, PlayerSAO *playersao,
 		NetworkPacket *pkt);
@@ -418,14 +416,7 @@ public:
 	void SendPlayerBreath(PlayerSAO *sao);
 	void SendInventory(RemotePlayer *player, bool incremental, bool skip_wield_anim = false);
 	void SendMovePlayer(PlayerSAO *sao);
-	void SendMovePlayerRel(session_t peer_id, const v3f &added_pos);
-	void SendPlayerSpeed(session_t peer_id, const v3f &added_vel);
 	void SendPlayerFov(session_t peer_id);
-	void SendCamera(session_t peer_id, Player *player);
-
-	void SendMinimapModes(session_t peer_id,
-			std::vector<MinimapMode> &modes,
-			size_t wanted_mode);
 
 	void sendDetachedInventories(session_t peer_id, bool incremental);
 
@@ -529,6 +520,13 @@ private:
 
 	void init();
 
+public:
+	// --- Server::Send* thin wrappers.
+	// All real packet serialization lives in `netserver.cpp`.
+	// These stay as one-line delegations for callers in other
+	// translation units (script, packet handler, SAO) that
+	// only have a `Server*` and don't (and shouldn't) need
+	// direct access to the underlying `INetSender`.
 	void SendMovement(session_t peer_id);
 	void SendHP(session_t peer_id, u16 hp, bool effect);
 	void SendBreath(session_t peer_id, u16 breath);
@@ -537,31 +535,20 @@ private:
 	void SendItemDef(session_t peer_id, IItemDefManager *itemdef, u16 protocol_version);
 	void SendNodeDef(session_t peer_id, const NodeDefManager *nodedef,
 		u16 protocol_version);
+	void SendCamera(session_t peer_id, Player *player);
+	void SendMovePlayerRel(session_t peer_id, const v3f &added_pos);
+	void SendPlayerSpeed(session_t peer_id, const v3f &added_vel);
+	void SendShowFormspecMessage(session_t peer_id, const std::string &formspec,
+		const std::string &formname);
+	void SendMinimapModes(session_t peer_id,
+			std::vector<MinimapMode> &modes,
+			size_t wanted_mode);
 
-
+	// --- Server::Send* with non-trivial business logic.
 	virtual void SendChatMessage(session_t peer_id, const ChatMessage &message);
-	void SendTimeOfDay(session_t peer_id, u16 time, f32 time_speed);
-
-	void SendLocalPlayerAnimations(session_t peer_id, v2f animation_frames[4],
-		f32 animation_speed);
-	void SendEyeOffset(session_t peer_id, v3f first, v3f third, v3f third_front);
 	void SendPlayerPrivileges(session_t peer_id);
 	void SendPlayerInventoryFormspec(session_t peer_id);
 	void SendPlayerFormspecPrepend(session_t peer_id);
-	void SendShowFormspecMessage(session_t peer_id, const std::string &formspec,
-		const std::string &formname);
-	void SendHUDAdd(session_t peer_id, u32 id, HudElement *form);
-	void SendHUDRemove(session_t peer_id, u32 id);
-	void SendHUDChange(session_t peer_id, u32 id, HudElementStat stat, void *value);
-	void SendHUDSetFlags(session_t peer_id, u32 flags, u32 mask);
-	void SendHUDSetParam(session_t peer_id, u16 param, std::string_view value);
-	void SendSetSky(session_t peer_id, const SkyboxParams &params);
-	void SendSetSun(session_t peer_id, const SunParams &params);
-	void SendSetMoon(session_t peer_id, const MoonParams &params);
-	void SendSetStars(session_t peer_id, const StarParams &params);
-	void SendCloudParams(session_t peer_id, const CloudParams &params);
-	void SendOverrideDayNightRatio(session_t peer_id, bool do_override, float ratio);
-	void SendSetLighting(session_t peer_id, const Lighting &lighting);
 
 	void broadcastModChannelMessage(const std::string &channel,
 			const std::string &message, session_t from_peer);
@@ -572,16 +559,17 @@ private:
 		far_d_nodes are ignored and their peer_ids are added to far_players
 	*/
 	// Envlock and conlock should be locked when calling these
-	void sendRemoveNode(v3s16 p, std::unordered_set<u16> *far_players = nullptr,
-			float far_d_nodes = 100);
-	void sendAddNode(v3s16 p, MapNode n,
-			std::unordered_set<u16> *far_players = nullptr,
-			float far_d_nodes = 100, bool remove_metadata = true);
-	void sendNodeChangePkt(NetworkPacket &pkt, v3s16 block_pos,
-			v3f p, float far_d_nodes, std::unordered_set<u16> *far_players);
-
 	void sendMetadataChanged(const std::unordered_set<v3s16> &positions,
 			float far_d_nodes = 100);
+
+	// Helper for MEET_ADDNODE / MEET_SWAPNODE / MEET_REMOVENODE:
+	// populate `peers` with the list of clients eligible to receive
+	// a per-node change at `p_f` (block sent, in range, CS_Active),
+	// and call SetBlocksNotSent on the remaining clients so that
+	// the affected blocks get re-sent whole on the next pass.
+	// `maxd` is in node units (already multiplied by BS).
+	void collectPeersForNodeEdit(const MapEditEvent &event,
+			const v3f &p_f, float maxd, std::vector<session_t> &peers);
 
 	// Environment and Connection must be locked when called
 	// `cache` may only be very short lived! (invalidation not handled)
@@ -607,8 +595,6 @@ private:
 	void SendAddParticleSpawner(session_t peer_id, u16 protocol_version,
 		const ParticleSpawnerParameters &p, u16 attached_id, u32 id);
 
-	void SendDeleteParticleSpawner(session_t peer_id, u32 id);
-
 	// Spawn particles for a specific client, batching them if clients support it.
 	void SendSpawnParticles(RemotePlayer *player,
 			const std::vector<ParticleParameters> &particles);
@@ -618,7 +604,6 @@ private:
 	void SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersao);
 	void SendActiveObjectMessages(session_t peer_id, const std::string &datas,
 		bool reliable = true);
-	void SendCSMRestrictionFlags(session_t peer_id);
 
 	/*
 		Something random
@@ -737,6 +722,24 @@ private:
 	 	Client interface
 	*/
 	ClientInterface m_clients;
+
+	/*
+		Outgoing network abstraction.
+
+		Owns a `server::ConnectionNetServer` (the production
+		implementation of `INetServer`) by default. The send-side
+		of the server is now routed through this interface, so
+		swapping in a fake sender (e.g. for unit tests) is a
+		one-line change. This header only needs the *interface*
+		(`server::INetServer`); the concrete implementation is
+		included by `server.cpp`.
+
+		See `src/network/inetsender.h`,
+		`src/network/inetserver.h`,
+		`src/network/netserver.h` and
+		`.kilo/plans/luanti-server-refactor-modular.md` §10.5.
+	*/
+	std::unique_ptr<server::INetServer> m_netserver;
 
 	std::unordered_map<session_t, std::string> m_formspec_state_data;
 

@@ -23,5 +23,6 @@ pkgs.mkShell {
     pkgs.gmp
     pkgs.freetype
     pkgs.sqlite
+    pkgs.vscode
   ];
 }
