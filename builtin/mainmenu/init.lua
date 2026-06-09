@@ -147,6 +147,8 @@ local function init_globals()
 
 	-- asynchronous, will only be shown if we're still on "maintab"
 	check_new_version()
+
+	contentdb.post_installed_packages()
 end
 
 assert(os.execute == nil)
