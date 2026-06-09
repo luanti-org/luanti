@@ -6345,7 +6345,7 @@ Logging
 * `core.log([level,] text [, stack_level, once])`
     * `level` is one of `"none"`, `"error"`, `"warning"`, `"action"`,
       `"info"`, `"verbose"`, or "deprecated"`.  Default is `"none"`.
-    * `stack_level` and `once` are only used when `level` is `"deprecated"`. 
+    * `stack_level` and `once` are only used when `level` is `"deprecated"`.
       If `once` is true, the message will only be logged one time.
 
 Registration functions
