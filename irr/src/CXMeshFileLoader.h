@@ -17,7 +17,8 @@ class IReadFile;
 namespace scene
 {
 
-//! Meshloader capable of loading x meshes.
+//! Meshloader capable of loading .x meshes.
+//! See https://paulbourke.net/dataformats/directx/ for a specification.
 class CXMeshFileLoader : public IMeshLoader
 {
 public:
