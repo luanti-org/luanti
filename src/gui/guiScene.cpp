@@ -144,16 +144,19 @@ void GUIScene::setStyles(const std::array<StyleSpec, StyleSpec::NUM_STATES> &sty
  */
 void GUIScene::setFrameLoop(f32 begin, f32 end)
 {
-	if (m_mesh->getStartFrame() != begin || m_mesh->getEndFrame() != end)
-		m_mesh->setFrameLoop(begin, end);
+	auto &track = m_mesh->getAnimation().tracks[0];
+	track.min_frame = begin;
+	track.max_frame = end;
+	track.cur_frame = track.fps >= 0 ? begin : end;
 }
 
 /**
  * Sets the animation speed (FPS) for the mesh
+ * @note setFrameLoop() must be called before this
  */
 void GUIScene::setAnimationSpeed(f32 speed)
 {
-	m_mesh->setAnimationSpeed(speed);
+	m_mesh->getAnimation().tracks.at(0).fps = speed;
 }
 
 /* Camera control functions */
