@@ -12,6 +12,8 @@
 #include "IVideoDriver.h"
 #include "IReadFile.h"
 
+#include <algorithm>
+
 #ifdef _DEBUG
 #define _XREADER_DEBUG
 #endif
@@ -963,8 +965,8 @@ bool CXMeshFileLoader::parseDataObjectMeshNormals(SXMesh &mesh)
 
 	// read face normal indices
 	const u32 nFNormals = readInt();
-	// if (nFNormals >= mesh.IndexCountPerFace.size())
-	if (0) { // this condition doesn't work for some reason
+
+	if (nFNormals > mesh.IndexCountPerFace.size()) {
 		os::Printer::log("Too many face normals found in x file", ELL_WARNING);
 		os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 		SET_ERR_AND_RETURN();
@@ -983,11 +985,20 @@ bool CXMeshFileLoader::parseDataObjectMeshNormals(SXMesh &mesh)
 			SET_ERR_AND_RETURN();
 		}
 
+		const auto set_normal = [&](u32 normalnum) {
+			if (normalidx >= mesh.Indices.size())
+				return;
+			const auto idx = mesh.Indices[normalidx++];
+			if (normalnum >= normals.size())
+				return;
+			mesh.Vertices[idx].Normal.set(normals[normalnum]);
+		};
+
 		if (indexcount == 3) {
 			// default, only one triangle in this face
 			for (u32 h = 0; h < 3; ++h) {
 				const u32 normalnum = readInt();
-				mesh.Vertices[mesh.Indices[normalidx++]].Normal.set(normals[normalnum]);
+				set_normal(normalnum);
 			}
 		} else {
 			polygonfaces.set_used(fcnt);
@@ -996,9 +1007,9 @@ bool CXMeshFileLoader::parseDataObjectMeshNormals(SXMesh &mesh)
 				polygonfaces[h] = readInt();
 
 			for (u32 jk = 0; jk < triangles; ++jk) {
-				mesh.Vertices[mesh.Indices[normalidx++]].Normal.set(normals[polygonfaces[0]]);
-				mesh.Vertices[mesh.Indices[normalidx++]].Normal.set(normals[polygonfaces[jk + 1]]);
-				mesh.Vertices[mesh.Indices[normalidx++]].Normal.set(normals[polygonfaces[jk + 2]]);
+				set_normal(polygonfaces[0]);
+				set_normal(polygonfaces[jk + 1]);
+				set_normal(polygonfaces[jk + 2]);
 			}
 		}
 	}
@@ -1030,8 +1041,7 @@ bool CXMeshFileLoader::parseDataObjectMeshTextureCoords(SXMesh &mesh)
 	}
 
 	const u32 nCoords = readInt();
-	// if (nCoords >= mesh.Vertices.size())
-	if (0) { // this condition doesn't work for some reason
+	if (nCoords > mesh.Vertices.size()) {
 		os::Printer::log("Too many texture coords found in x file", ELL_WARNING);
 		os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 		SET_ERR_AND_RETURN();
@@ -1106,8 +1116,8 @@ bool CXMeshFileLoader::parseDataObjectMeshMaterialList(SXMesh &mesh)
 	}
 
 	// read material count
-	const u32 nMaterials = readInt();
-	mesh.Materials.reallocate(nMaterials);
+	const u32 nMaterials = std::clamp<u32>(readInt(), 1U, 30000U /* well below s16 max */);
+	mesh.Materials.set_used(nMaterials);
 
 	// read non triangulated face material index count
 	const u32 nFaceIndices = readInt();
@@ -1125,7 +1135,7 @@ bool CXMeshFileLoader::parseDataObjectMeshMaterialList(SXMesh &mesh)
 	for (u32 tfi = 0; tfi < mesh.IndexCountPerFace.size(); ++tfi) {
 		if (tfi < nFaceIndices)
 			ind = readInt();
-		if (ind >= core::max_(nMaterials, 1U)) {
+		if (ind >= nMaterials) {
 			os::Printer::log("Out of range index found in x file", ELL_WARNING);
 			os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 			SET_ERR_AND_RETURN();
@@ -1142,7 +1152,7 @@ bool CXMeshFileLoader::parseDataObjectMeshMaterialList(SXMesh &mesh)
 			++P;
 	}
 
-	// read following data objects
+	// Skip following data objects (materials); no material properties are read here.
 
 	while (true) {
 		core::stringc objectName = getNextToken();
@@ -1156,7 +1166,6 @@ bool CXMeshFileLoader::parseDataObjectMeshMaterialList(SXMesh &mesh)
 		} else if (objectName == "{") {
 			// template materials now available thanks to joeWright
 			objectName = getNextToken();
-			mesh.Materials.push_back(video::SMaterial());
 			getNextToken(); // skip }
 		} else if (objectName == "Material") {
 			mesh.Materials.push_back(video::SMaterial());
@@ -1577,20 +1586,29 @@ core::stringc CXMeshFileLoader::getNextToken()
 
 		s16 tok = readBinWord();
 		u32 len;
+		if (P >= End)
+			return core::stringc();
+
+		const auto read_string = [&]() {
+			u32 len = readBinDWord();
+			if (P >= End)
+				return core::stringc();
+			len = (u32) std::min<size_t>(len, End - P);
+			core::stringc res(P, len);
+			P += len;
+			return res;
+		};
 
 		// standalone tokens
 		switch (tok) {
 		case 1:
 			// name token
-			len = readBinDWord();
-			s = core::stringc(P, len);
-			P += len;
-			return s;
+			return read_string();
 		case 2:
 			// string token
-			len = readBinDWord();
-			s = core::stringc(P, len);
-			P += (len + 2);
+			s = read_string();
+			// unclear what is being skipped here, probably a null terminator in UTF-16
+			P += 2;
 			return s;
 		case 3:
 			// integer token
@@ -1832,7 +1850,7 @@ f32 CXMeshFileLoader::readFloat()
 			// TODO: Check if data is properly converted here
 			f32 ctmp[2];
 			ctmp[1] = os::Byteswap::byteswap(*(f32 *)P);
-			ctmp[0] = os::Byteswap::byteswap(*(f32 *)P + 4);
+			ctmp[0] = os::Byteswap::byteswap(*(f32 *)(P + 4));
 			const f32 tmp = (f32)(*(f64 *)(void *)ctmp);
 #else
 			const f32 tmp = (f32)(*(f64 *)P);
