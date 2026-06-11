@@ -589,6 +589,8 @@ Call these functions only at load time!
     * returns the exact position on the surface of a pointed node
 * `core.global_exists(name)`
     * Checks if a global variable has been set, without triggering a warning.
+* `core.get_nodemeta_inventory_location(pos)`
+    * Converts a node position into a node metadata inventory location in the form `"nodemeta:<X>,<Y>,<Z>"`.
 
 ### UI
 * `core.ui.minimap`
