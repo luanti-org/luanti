@@ -3894,6 +3894,11 @@ Some types may inherit styles from parent types.
     * font_size - Sets font size. See button `font_size` property for more information.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * textcolor - color. Default white.
+    * halign - Sets horizontal alignment of text. Can either be `left`, `center`, or `right`. Default `left`
+    * valign - Sets vertical alignment of text. Can either be `top`, `center`, or `bottom`. Default `top`
+               **NOTE**: `valign` only has an effect when the text fits completely inside the element vertically.
+               If the text is too long (and a scrollbar appears in `textarea[]`), it is forced to `top` alignment
+               to prevent text being cut off. `valign` also does not work in `field[]`, however `halign` does.
 * model
     * bgcolor - color, sets background color.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
@@ -3907,6 +3912,10 @@ Some types may inherit styles from parent types.
     * font - Sets font type. See button `font` property for more information.
     * font_size - Sets font size. See button `font_size` property for more information.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+    * halign - Sets horizontal alignment of text. **Note**: Only applies for "area label"
+    syntax (`label[x,y;w,h;text]`). Can either be `left`, `center`, or `right`. Default `left`
+    * valign - Sets vertical alignment of text. **Note**: Only applies for "area label"
+    syntax (`label[x,y;w,h;text]`). Can either be `top`, `center`, or `bottom`. Default `top`
 * list
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * size - 2d vector, sets the size of inventory slots in coordinates.

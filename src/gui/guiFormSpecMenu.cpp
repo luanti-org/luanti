@@ -77,6 +77,31 @@ constexpr s32 ID_PROCEED_BTN = 257;
 /*
 	GUIFormSpecMenu
 */
+
+static EGUI_ALIGNMENT get_halign(const StyleSpec &style)
+{
+	std::string halign_str = style.get(StyleSpec::HALIGN, "left");
+
+	if (halign_str == "center")
+		return gui::EGUIA_CENTER;
+	if (halign_str == "right")
+		return gui::EGUIA_LOWERRIGHT;
+
+	return gui::EGUIA_UPPERLEFT; // default left
+}
+
+static EGUI_ALIGNMENT get_valign(const StyleSpec &style)
+{
+	std::string valign_str = style.get(StyleSpec::VALIGN, "top");
+
+	if (valign_str == "center")
+		return gui::EGUIA_CENTER;
+	if (valign_str == "bottom")
+		return gui::EGUIA_LOWERRIGHT;
+
+	return gui::EGUIA_UPPERLEFT; // default top
+}
+
 static unsigned int font_line_height(gui::IGUIFont *font)
 {
 	return font->getDimension(L"Ay").Height + font->getKerning(L'A').Y;
@@ -1520,7 +1545,7 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 	m_fields.push_back(spec);
 }
 
-void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
+gui::IGUIEditBox *GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 	core::rect<s32> &rect, bool is_multiline)
 {
 	bool is_editable = !spec.fname.empty();
@@ -1528,7 +1553,7 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 		// spec field id to 0, this stops submit searching for a value that isn't there
 		gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
 				data->current_parent, 0);
-		return;
+		return nullptr;
 	}
 
 	if (is_editable) {
@@ -1590,6 +1615,8 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 		if (t)
 			t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 	}
+
+	return e;
 }
 
 void GUIFormSpecMenu::parseSimpleField(parserData *data,
@@ -1660,13 +1687,10 @@ void GUIFormSpecMenu::parseTextArea(parserData* data, std::vector<std::string>& 
 
 		geom.X = (stof(v_geom[0]) * spacing.X) - (spacing.X - imgsize.X);
 
-		if (type == "textarea")
-		{
+		if (type == "textarea") {
 			geom.Y = (stof(v_geom[1]) * (float)imgsize.Y) - (spacing.Y-imgsize.Y);
 			pos.Y += m_btn_height;
-		}
-		else
-		{
+		} else {
 			pos.Y += (stof(v_geom[1]) * (float)imgsize.Y)/2;
 			pos.Y -= m_btn_height;
 			geom.Y = m_btn_height*2;
@@ -1693,7 +1717,32 @@ void GUIFormSpecMenu::parseTextArea(parserData* data, std::vector<std::string>& 
 		ECI_IBEAM
 	);
 
-	createTextField(data, spec, rect, type == "textarea");
+	gui::IGUIEditBox *e = createTextField(data, spec, rect, type == "textarea");
+
+	if (e) {
+		if (type == "textarea") {
+			auto style = getDefaultStyleForElement("textarea", "");
+
+			EGUI_ALIGNMENT halign = get_halign(style);
+			EGUI_ALIGNMENT valign = get_valign(style);
+
+			// calculates if a scrollbar is needed (the same way as in irr/src/CGUIEditBox.cpp at the end of the file).
+			// basically if the height of the wrapped text exceeds the textarea height,
+			// force top alignment to prevent text being cut off vertically
+			core::dimension2du text_dim = e->getTextDimension();
+			if (text_dim.Height > (u32)rect.getHeight()) {
+				valign = gui::EGUIA_UPPERLEFT;
+			}
+
+			e->setTextAlignment(halign, valign);
+		} else {
+			auto style = getDefaultStyleForElement("field", "");
+			EGUI_ALIGNMENT halign = get_halign(style);
+
+			// field[] is a single line of text - only horizontal alignment makes sense
+			e->setTextAlignment(halign, gui::EGUIA_UPPERLEFT);
+		}
+	}
 
 	// Note: Before 5.2.0 "parts.size() >= 6" resulted in a
 	// warning referring to field_close_on_enter[]!
@@ -1794,6 +1843,9 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 	if (!font)
 		font = m_font;
 
+	EGUI_ALIGNMENT halign = get_halign(style);
+	EGUI_ALIGNMENT valign = get_valign(style);
+
 	auto add_label = [&](core::rect<s32> rect, const EnrichedString &text,
 			EGUI_ALIGNMENT align_h, EGUI_ALIGNMENT align_v, bool word_wrap) {
 		FieldSpec spec(
@@ -1873,12 +1925,24 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 		}
 	} else {
 		v2s32 pos = getRealCoordinateBasePos(v_pos);
-		core::rect<s32> rect(
-				pos.X, pos.Y,
-				pos.X + geom.X,
-				pos.Y + geom.Y);
 
-		add_label(rect, str, gui::EGUIA_UPPERLEFT, gui::EGUIA_UPPERLEFT, true);
+		auto dim = font->getDimension(str.c_str());
+		s32 text_h = dim.Height;
+
+		s32 top = pos.Y;
+
+		if (valign == gui::EGUIA_CENTER) {
+			top = pos.Y + (geom.Y - text_h) / 2;
+		} else if (valign == gui::EGUIA_LOWERRIGHT) {
+			top = pos.Y + (geom.Y - text_h);
+		}
+
+		core::rect<s32> rect(
+				pos.X, top,
+				pos.X + geom.X,
+				top + text_h);
+
+		add_label(rect, str, halign, gui::EGUIA_UPPERLEFT, true);
 	}
 }
 
