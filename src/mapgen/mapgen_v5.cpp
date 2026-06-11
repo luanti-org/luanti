@@ -261,6 +261,8 @@ void MapgenV5::makeChunk(BlockMakeData *data)
 			full_node_min, full_node_max);
 	}
 
+	removeOvergeneratedCStone();
+
 	this->generating = false;
 }
 
