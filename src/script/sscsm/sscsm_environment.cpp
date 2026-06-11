@@ -53,14 +53,14 @@ SerializedSSCSMAnswer SSCSMEnvironment::exchange(SerializedSSCSMRequest req)
 void SSCSMEnvironment::updateVFSFiles(std::vector<std::pair<std::string, std::string>> &&files)
 {
 	for (auto &&p : files) {
-		m_vfs->m_vfs.emplace(std::move(p.first), std::move(p.second));
+		m_vfs->files.emplace(std::move(p.first), std::move(p.second));
 	}
 }
 
 std::optional<std::string_view> SSCSMEnvironment::readVFSFile(const std::string &path)
 {
-	auto it = m_vfs->m_vfs.find(path);
-	if (it == m_vfs->m_vfs.end())
+	auto it = m_vfs->files.find(path);
+	if (it == m_vfs->files.end())
 		return std::nullopt;
 	else
 		return it->second;
