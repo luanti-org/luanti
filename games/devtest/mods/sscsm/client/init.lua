@@ -1,0 +1,5 @@
+assert(assert(loadfile("sscsm:common/foo.lua"))() == "foo")
+assert(assert(loadfile("sscsm:client/bar.lua"))() == "bar")
+core.after(0, function()
+	print("sscsm: hello world!")
+end)
