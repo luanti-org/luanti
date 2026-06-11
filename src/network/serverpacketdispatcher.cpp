@@ -5,16 +5,21 @@
 #include "network/serverpacketdispatcher.h"
 
 #include "constants.h"
+#include "exceptions.h"
 #include "log.h"
-#include "network/connection.h" // con::SendFailedException
+#include "network/connection.h" // con::SendFailedException, con::IConnection
 #include "network/networkexceptions.h"
 #include "network/networkpacket.h"
 #include "network/serveropcodes.h"
+#include "porting.h" // porting::getTimeUs
+#include "profiler.h" // g_profiler, ScopeProfiler
 #include "serialization.h" // SER_FMT_VER_INVALID
-#include "server.h"
+#include "server.h" // EnvAutoLock
 #include "util/pointedthing.h"
 #include "util/srp.h"
+#include "util/tracy_wrapper.h" // ZoneScoped, FrameMarker
 #include <algorithm>
+#include <cmath>
 #include <sstream>
 
 namespace server
@@ -314,8 +319,32 @@ static UpdateClientInfoPayload decodeUpdateClientInfo(NetworkPacket &pkt)
 // ServerPacketDispatcher
 // ---------------------------------------------------------------------------
 
-ServerPacketDispatcher::ServerPacketDispatcher()
-	: m_table{}
+static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool include_pos)
+{
+	const u16 cmd = pkt.getCommand();
+	std::ostringstream oss;
+	if (cmd < TOSERVER_NUM_MSG_TYPES)
+		oss << " name=" << toServerCommandTable[cmd].name;
+
+	if (include_pos) {
+		// (not necessary for PacketError: already in e.what())
+
+		oss << " cmd=" << cmd
+			<< " offset=" << pkt.getOffset()
+			<< " size=" << pkt.getSize();
+	}
+
+	e.append(" @").append(oss.str());
+}
+
+ServerPacketDispatcher::ServerPacketDispatcher(MetricsBackend *metrics)
+	: m_table{},
+		m_packet_recv_counter(metrics ? metrics->addCounter(
+			"minetest_core_server_packet_recv",
+			"Processable packets received") : nullptr),
+		m_packet_recv_processed_counter(metrics ? metrics->addCounter(
+			"minetest_core_server_packet_recv_processed",
+			"Valid received packets processed") : nullptr)
 {
 	// Helper to populate one entry. The macro saves us from writing the
 	// dispatch-entry boilerplate 24 times and the entire table stays
@@ -354,7 +383,70 @@ ServerPacketDispatcher::ServerPacketDispatcher()
 	#undef REGISTER
 }
 
-void ServerPacketDispatcher::dispatch(NetworkPacket *pkt, Server *owner)
+void ServerPacketDispatcher::processIncomingPackets(con::IConnection *con, Server *owner, float min_time)
+{
+	ZoneScoped;
+	auto framemarker = FrameMarker("Server::Receive()-frame").started();
+
+	const u64 t0 = porting::getTimeUs();
+	const float min_time_us = min_time * 1e6f;
+	auto remaining_time_us = [&]() -> float {
+		return std::max(0.0f, min_time_us - (porting::getTimeUs() - t0));
+	};
+
+	NetworkPacket pkt;
+	session_t peer_id;
+	for (;;) {
+		pkt.clear();
+		peer_id = 0;
+		try {
+			// Round up since the target step length is the minimum step length,
+			// we only have millisecond precision and we don't want to busy-wait
+			// by calling ReceiveTimeoutMs(.., 0) repeatedly.
+			const u32 cur_timeout_ms = std::ceil(remaining_time_us() / 1000.0f);
+
+			if (!con->ReceiveTimeoutMs(&pkt, cur_timeout_ms)) {
+				// No incoming data.
+				if (remaining_time_us() > 0.0f)
+					continue;
+				else
+					break;
+			}
+
+			peer_id = pkt.getPeerId();
+			if (m_packet_recv_counter)
+				m_packet_recv_counter->increment();
+			{
+				Server::EnvAutoLock envlock(owner);
+				ScopeProfiler sp(g_profiler, "Server: Process network packet (sum)");
+				dispatchSinglePacket(&pkt, owner);
+			}
+			if (m_packet_recv_processed_counter)
+				m_packet_recv_processed_counter->increment();
+		} catch (const con::InvalidIncomingDataException &e) {
+			infostream << "Server::Receive(): InvalidIncomingDataException: what()="
+					<< e.what() << std::endl;
+		} catch (SerializationError &e) {
+			enrich_exception(e, pkt, true);
+			infostream << "Server::Receive(): SerializationError: what()="
+					<< e.what() << std::endl;
+		} catch (PacketError &e) {
+			enrich_exception(e, pkt, false);
+			actionstream << "Server::Receive(): PacketError: what()="
+					<< e.what() << std::endl;
+		} catch (const ClientStateError &e) {
+			errorstream << "ClientStateError: peer=" << peer_id << " what()="
+					 << e.what() << std::endl;
+			owner->DenyAccess(peer_id, SERVER_ACCESSDENIED_UNEXPECTED_DATA);
+		} catch (con::PeerNotFoundException &e) {
+			infostream << "Server: PeerNotFoundException" << std::endl;
+		} catch (ClientNotFoundException &e) {
+			infostream << "Server: ClientNotFoundException" << std::endl;
+		}
+	}
+}
+
+void ServerPacketDispatcher::dispatchSinglePacket(NetworkPacket *pkt, Server *owner)
 {
 	const u16 cmd = pkt->getCommand();
 	if (cmd >= TOSERVER_NUM_MSG_TYPES) {
@@ -436,9 +528,8 @@ void ServerPacketDispatcher::dispatch(NetworkPacket *pkt, Server *owner)
 		return;
 	}
 
-	PacketContext ctx{peer_id, pkt};
 	try {
-		e.handle(owner, ctx, decoded);
+		e.handle(owner, peer_id, decoded);
 	} catch (SendFailedException &err) {
 		errorstream << "Server::ProcessData(): SendFailedException: "
 			<< err.what() << std::endl;
@@ -475,9 +566,9 @@ void ServerPacketDispatcher::destroyPayload(u16 cmd, void *ptr) const
 		e.destroy(ptr);
 }
 
-std::unique_ptr<IPacketDispatcher> newPacketDispatcher()
+std::unique_ptr<IPacketDispatcher> newPacketDispatcher(MetricsBackend *metrics)
 {
-	return std::make_unique<ServerPacketDispatcher>();
+	return std::make_unique<ServerPacketDispatcher>(metrics);
 }
 
 } // namespace server

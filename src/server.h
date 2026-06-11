@@ -11,7 +11,7 @@
 #include "content/subgames.h"
 #include "network/inetserver.h"
 #include "network/peerhandler.h"
-#include "network/serverpacketdispatcher.h"
+#include "network/serverpacketdispatcher.h" // server:: payload types
 #include "util/thread.h"
 #include "util/basic_macros.h"
 #include "util/metricsbackend.h"
@@ -203,9 +203,6 @@ public:
 
 	// This is run by ServerThread and does the actual processing
 	void AsyncRunStep(float dtime, bool initial_step = false);
-	/// Receive and process all incoming packets. Sleep if the time goal isn't met.
-	/// @param min_time minimum time to take [s]
-	void Receive(float min_time);
 	void yieldToOtherThreads(float dtime);
 
 	// Full player initialization after they processed all static media
@@ -215,37 +212,35 @@ public:
 	/*
 	 * Command Handlers
 	 *
-	 * Each handler takes a typed decoded payload (see
-	 * network/serverpacketdispatcher.h) plus a PacketContext carrying the
-	 * peer id and the raw NetworkPacket for handlers that still need
-	 * stream access. The Server::PacketDispatcher (see
-	 * network/serverpacketdispatcher.cpp) is the single place that knows
-	 * the wire format.
+	 * Each handler takes the peer id of the sender and a typed decoded
+	 * payload (see network/serverpacketdispatcher.h). The
+	 * Server::PacketDispatcher (see network/serverpacketdispatcher.cpp)
+	 * is the single place that knows the wire format.
 	 */
 
-	void handleCommand_Init(const server::PacketContext &ctx, const server::InitPayload &p);
-	void handleCommand_Init2(const server::PacketContext &ctx, const server::Init2Payload &p);
-	void handleCommand_ModChannelJoin(const server::PacketContext &ctx, const server::ModChannelJoinPayload &p);
-	void handleCommand_ModChannelLeave(const server::PacketContext &ctx, const server::ModChannelLeavePayload &p);
-	void handleCommand_ModChannelMsg(const server::PacketContext &ctx, const server::ModChannelMsgPayload &p);
-	void handleCommand_RequestMedia(const server::PacketContext &ctx, const server::RequestMediaPayload &p);
-	void handleCommand_ClientReady(const server::PacketContext &ctx, const server::ClientReadyPayload &p);
-	void handleCommand_GotBlocks(const server::PacketContext &ctx, const server::GotBlocksPayload &p);
-	void handleCommand_PlayerPos(const server::PacketContext &ctx, const server::PlayerPosPayload &p);
-	void handleCommand_DeletedBlocks(const server::PacketContext &ctx, const server::DeletedBlocksPayload &p);
-	void handleCommand_InventoryAction(const server::PacketContext &ctx, const server::InventoryActionPayload &p);
-	void handleCommand_ChatMessage(const server::PacketContext &ctx, const server::ChatMessagePayload &p);
-	void handleCommand_Damage(const server::PacketContext &ctx, const server::DamagePayload &p);
-	void handleCommand_PlayerItem(const server::PacketContext &ctx, const server::PlayerItemPayload &p);
-	void handleCommand_Interact(const server::PacketContext &ctx, const server::InteractPayload &p);
-	void handleCommand_RemovedSounds(const server::PacketContext &ctx, const server::RemovedSoundsPayload &p);
-	void handleCommand_NodeMetaFields(const server::PacketContext &ctx, const server::NodeMetaFieldsPayload &p);
-	void handleCommand_InventoryFields(const server::PacketContext &ctx, const server::InventoryFieldsPayload &p);
-	void handleCommand_FirstSrp(const server::PacketContext &ctx, const server::FirstSrpPayload &p);
-	void handleCommand_SrpBytesA(const server::PacketContext &ctx, const server::SrpBytesAPayload &p);
-	void handleCommand_SrpBytesM(const server::PacketContext &ctx, const server::SrpBytesMPayload &p);
-	void handleCommand_HaveMedia(const server::PacketContext &ctx, const server::HaveMediaPayload &p);
-	void handleCommand_UpdateClientInfo(const server::PacketContext &ctx, const server::UpdateClientInfoPayload &p);
+	void handleCommand_Init(session_t peer_id, const server::InitPayload &p);
+	void handleCommand_Init2(session_t peer_id, const server::Init2Payload &p);
+	void handleCommand_ModChannelJoin(session_t peer_id, const server::ModChannelJoinPayload &p);
+	void handleCommand_ModChannelLeave(session_t peer_id, const server::ModChannelLeavePayload &p);
+	void handleCommand_ModChannelMsg(session_t peer_id, const server::ModChannelMsgPayload &p);
+	void handleCommand_RequestMedia(session_t peer_id, const server::RequestMediaPayload &p);
+	void handleCommand_ClientReady(session_t peer_id, const server::ClientReadyPayload &p);
+	void handleCommand_GotBlocks(session_t peer_id, const server::GotBlocksPayload &p);
+	void handleCommand_PlayerPos(session_t peer_id, const server::PlayerPosPayload &p);
+	void handleCommand_DeletedBlocks(session_t peer_id, const server::DeletedBlocksPayload &p);
+	void handleCommand_InventoryAction(session_t peer_id, const server::InventoryActionPayload &p);
+	void handleCommand_ChatMessage(session_t peer_id, const server::ChatMessagePayload &p);
+	void handleCommand_Damage(session_t peer_id, const server::DamagePayload &p);
+	void handleCommand_PlayerItem(session_t peer_id, const server::PlayerItemPayload &p);
+	void handleCommand_Interact(session_t peer_id, const server::InteractPayload &p);
+	void handleCommand_RemovedSounds(session_t peer_id, const server::RemovedSoundsPayload &p);
+	void handleCommand_NodeMetaFields(session_t peer_id, const server::NodeMetaFieldsPayload &p);
+	void handleCommand_InventoryFields(session_t peer_id, const server::InventoryFieldsPayload &p);
+	void handleCommand_FirstSrp(session_t peer_id, const server::FirstSrpPayload &p);
+	void handleCommand_SrpBytesA(session_t peer_id, const server::SrpBytesAPayload &p);
+	void handleCommand_SrpBytesM(session_t peer_id, const server::SrpBytesMPayload &p);
+	void handleCommand_HaveMedia(session_t peer_id, const server::HaveMediaPayload &p);
+	void handleCommand_UpdateClientInfo(session_t peer_id, const server::UpdateClientInfoPayload &p);
 
 	// Helper for handleCommand_PlayerPos (kept for shared use; Interact
 	// delegates here too).
@@ -485,6 +480,7 @@ protected:
 private:
 	friend class EmergeThread;
 	friend class RemoteClient;
+	friend class ServerThread;
 
 	// unittest classes
 	friend class TestServerShutdownState;
@@ -744,7 +740,7 @@ public:
 	*/
 	std::unique_ptr<server::INetServer> m_netserver;
 
-	// Decodes NetworkPackets into typed payloads and dispatches to the
+	// Decodes incoming packets into typed payloads and dispatches to the
 	// handleCommand_* members above. See network/serverpacketdispatcher.h.
 	std::unique_ptr<server::IPacketDispatcher> m_dispatcher;
 
@@ -821,8 +817,6 @@ public:
 	MetricGaugePtr m_timeofday_gauge;
 	MetricGaugePtr m_lag_gauge;
 	MetricCounterPtr m_aom_buffer_counter[2]; // [0] = rel, [1] = unrel
-	MetricCounterPtr m_packet_recv_counter;
-	MetricCounterPtr m_packet_recv_processed_counter;
 	MetricCounterPtr m_map_edit_event_counter;
 
 	// Particles to send this server step

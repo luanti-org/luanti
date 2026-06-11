@@ -7,6 +7,7 @@
 #include "irr_v3d.h"
 #include "network/networkprotocol.h"
 #include "network/networkpacket.h"
+#include "util/metricsbackend.h"
 #include "util/pointedthing.h"
 #include "util/string.h"
 #include <array>
@@ -17,15 +18,12 @@
 
 class Server;
 
+namespace con { class IConnection; }
+
 namespace server
 {
 
 // Per-packet context injected alongside the decoded payload.
-struct PacketContext {
-	session_t peer_id = 0;
-	NetworkPacket *raw = nullptr;
-};
-
 struct InitPayload {
 	u8  max_ser_ver = 0;
 	u16 unused = 0;
@@ -104,7 +102,7 @@ static_assert(sizeof(InteractPayload) <= MAX_PAYLOAD_SIZE,
 // shared in-place buffer is ready for the next packet.
 struct DispatchEntry {
 	void *(*decode)(NetworkPacket &, void *out);
-	void (*handle)(Server *, const PacketContext &, const void *payload);
+	void (*handle)(Server *, session_t, const void *payload);
 	void (*destroy)(void *);
 };
 
@@ -112,9 +110,14 @@ class IPacketDispatcher {
 public:
 	virtual ~IPacketDispatcher() = default;
 
-	// Validate range, apply state filter, decode payload, call the typed
-	// handler. Never throws (catches SendFailedException internally).
-	virtual void dispatch(NetworkPacket *pkt, Server *owner) = 0;
+	// Pump incoming packets from `con` for up to `min_time` seconds.
+	// Performs the receive loop (was Server::Receive): for each packet,
+	// validates the command, applies the state filter, decodes the payload,
+	// and calls the typed handler. Catches con::InvalidIncomingDataException,
+	// PacketError, SerializationError, ClientStateError,
+	// PeerNotFoundException, ClientNotFoundException and logs them exactly
+	// as the original Server::Receive did. Never throws.
+	virtual void processIncomingPackets(con::IConnection *con, Server *owner, float min_time) = 0;
 
 	// For debug / Profiler output.
 	virtual const char *commandName(u16 cmd) const = 0;
@@ -130,18 +133,26 @@ public:
 
 class ServerPacketDispatcher final : public IPacketDispatcher {
 public:
-	ServerPacketDispatcher();
+	// Registers per-packet counters with `metrics`; lifetime of `metrics`
+	// must outlive the dispatcher.
+	explicit ServerPacketDispatcher(MetricsBackend *metrics);
 
-	void dispatch(NetworkPacket *pkt, Server *owner) override;
+	void processIncomingPackets(con::IConnection *con, Server *owner, float min_time) override;
 	const char *commandName(u16 cmd) const override;
 	void *decode(u16 cmd, NetworkPacket &pkt, void *out) const override;
 	void destroyPayload(u16 cmd, void *ptr) const override;
 
 private:
+	// Validate range, apply state filter, decode payload, call the typed
+	// handler. Never throws (catches SendFailedException internally).
+	void dispatchSinglePacket(NetworkPacket *pkt, Server *owner);
+
 	std::array<DispatchEntry, TOSERVER_NUM_MSG_TYPES> m_table;
+	MetricCounterPtr m_packet_recv_counter;
+	MetricCounterPtr m_packet_recv_processed_counter;
 };
 
-std::unique_ptr<IPacketDispatcher> newPacketDispatcher();
+std::unique_ptr<IPacketDispatcher> newPacketDispatcher(MetricsBackend *metrics);
 
 // Internal: bind a typed Server::* handler to a stateless C-function pointer
 // that takes a `const void *` payload. The thunk reinterprets the pointer
@@ -158,10 +169,10 @@ inline void typedDestroyEntry(void *p)
 	static_cast<T *>(p)->~T();
 }
 
-template <typename T, void (Server::*M)(const PacketContext &, const T &)>
-inline void typedHandlerEntry(Server *s, const PacketContext &ctx, const void *payload)
+template <typename T, void (Server::*M)(session_t, const T &)>
+inline void typedHandlerEntry(Server *s, session_t peer_id, const void *payload)
 {
-	(s->*M)(ctx, *static_cast<const T *>(payload));
+	(s->*M)(peer_id, *static_cast<const T *>(payload));
 }
 
 } // namespace server

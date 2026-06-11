@@ -19,9 +19,7 @@
 #include "nodedef.h" // NodeDefManager
 #include "particles.h"
 #include "serialization.h" // compressZstd, compressZlib
-#include "server.h" // CloudParams, MinimapMode, SkyboxParams, SunParams,
-                   // MoonParams, StarParams, ServerPlayingSound,
-                   // AccessDeniedCode
+#include "server.h"
 #include "skyparams.h"
 #include "util/base64.h"
 #include "util/serialize.h"

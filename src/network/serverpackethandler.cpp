@@ -34,10 +34,9 @@
 
 #include <algorithm>
 
-void Server::handleCommand_Init(const server::PacketContext &ctx,
+void Server::handleCommand_Init(session_t peer_id,
 	const server::InitPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	RemoteClient *client = getClient(peer_id, CS_Created);
 
 	Address addr;
@@ -247,10 +246,9 @@ void Server::handleCommand_Init(const server::PacketContext &ctx,
 	m_clients.event(peer_id, CSE_Hello);
 }
 
-void Server::handleCommand_Init2(const server::PacketContext &ctx,
+void Server::handleCommand_Init2(session_t peer_id,
 	const server::Init2Payload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	verbosestream << "Server: Got TOSERVER_INIT2 from " << peer_id << std::endl;
 
 	RemoteClient *client = getClientNoEx(peer_id, CS_Invalid);
@@ -308,10 +306,9 @@ void Server::handleCommand_Init2(const server::PacketContext &ctx,
 		m_csm_restriction_flags, m_csm_restriction_noderange);
 }
 
-void Server::handleCommand_RequestMedia(const server::PacketContext &ctx,
+void Server::handleCommand_RequestMedia(session_t peer_id,
 	const server::RequestMediaPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	verbosestream << "Client " << getPlayerName(peer_id)
 		<< " requested media file(s):\n";
 	for (const std::string &name : p.files)
@@ -321,10 +318,9 @@ void Server::handleCommand_RequestMedia(const server::PacketContext &ctx,
 	sendRequestedMedia(peer_id, p.files);
 }
 
-void Server::handleCommand_ClientReady(const server::PacketContext &ctx,
+void Server::handleCommand_ClientReady(session_t peer_id,
 	const server::ClientReadyPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	RemoteClient *client = getClient(peer_id, CS_Created);
 	assert(client);
 
@@ -367,11 +363,11 @@ void Server::handleCommand_ClientReady(const server::PacketContext &ctx,
 		SendChatMessage(peer_id, m_shutdown_state.getShutdownTimerMessage());
 }
 
-void Server::handleCommand_GotBlocks(const server::PacketContext &ctx,
+void Server::handleCommand_GotBlocks(session_t peer_id,
 	const server::GotBlocksPayload &p)
 {
 	ClientInterface::AutoLock lock(m_clients);
-	RemoteClient *client = m_clients.lockedGetClientNoEx(ctx.peer_id);
+	RemoteClient *client = m_clients.lockedGetClientNoEx(peer_id);
 	if (!client)
 		return;
 
@@ -418,10 +414,10 @@ void Server::process_PlayerPos(RemotePlayer *player, PlayerSAO *playersao,
 	}
 }
 
-void Server::handleCommand_PlayerPos(const server::PacketContext &ctx,
+void Server::handleCommand_PlayerPos(session_t peer_id,
 	const server::PlayerPosPayload &p)
 {
-	RemotePlayer *player = m_env->getPlayer(ctx.peer_id);
+	RemotePlayer *player = m_env->getPlayer(peer_id);
 	if (!player) {
 		warningstream << FUNCTION_NAME << ": player is null" << std::endl;
 		return;
@@ -443,11 +439,11 @@ void Server::handleCommand_PlayerPos(const server::PacketContext &ctx,
 	process_PlayerPos(player, playersao, p);
 }
 
-void Server::handleCommand_DeletedBlocks(const server::PacketContext &ctx,
+void Server::handleCommand_DeletedBlocks(session_t peer_id,
 	const server::DeletedBlocksPayload &p)
 {
 	ClientInterface::AutoLock lock(m_clients);
-	RemoteClient *client = m_clients.lockedGetClientNoEx(ctx.peer_id);
+	RemoteClient *client = m_clients.lockedGetClientNoEx(peer_id);
 	if (!client)
 		return;
 
@@ -455,10 +451,9 @@ void Server::handleCommand_DeletedBlocks(const server::PacketContext &ctx,
 		client->SetBlockNotSent(pos);
 }
 
-void Server::handleCommand_InventoryAction(const server::PacketContext &ctx,
+void Server::handleCommand_InventoryAction(session_t peer_id,
 	const server::InventoryActionPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	RemotePlayer *player = m_env->getPlayer(peer_id);
 	if (!player) {
 		warningstream << FUNCTION_NAME << ": player is null" << std::endl;
@@ -648,10 +643,9 @@ void Server::handleCommand_InventoryAction(const server::PacketContext &ctx,
 	a->apply(m_inventory_mgr.get(), playersao, this);
 }
 
-void Server::handleCommand_ChatMessage(const server::PacketContext &ctx,
+void Server::handleCommand_ChatMessage(session_t peer_id,
 	const server::ChatMessagePayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	RemotePlayer *player = m_env->getPlayer(peer_id);
 	if (!player) {
 		warningstream << FUNCTION_NAME << ": player is null" << std::endl;
@@ -668,10 +662,9 @@ void Server::handleCommand_ChatMessage(const server::PacketContext &ctx,
 	}
 }
 
-void Server::handleCommand_Damage(const server::PacketContext &ctx,
+void Server::handleCommand_Damage(session_t peer_id,
 	const server::DamagePayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	RemotePlayer *player = m_env->getPlayer(peer_id);
 	if (!player) {
 		warningstream << FUNCTION_NAME << ": player is null" << std::endl;
@@ -701,10 +694,9 @@ void Server::handleCommand_Damage(const server::PacketContext &ctx,
 	}
 }
 
-void Server::handleCommand_PlayerItem(const server::PacketContext &ctx,
+void Server::handleCommand_PlayerItem(session_t peer_id,
 	const server::PlayerItemPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	RemotePlayer *player = m_env->getPlayer(peer_id);
 	if (!player) {
 		warningstream << FUNCTION_NAME << ": player is null" << std::endl;
@@ -759,14 +751,13 @@ static inline void getWieldedItem(const PlayerSAO *playersao, std::optional<Item
 	playersao->getWieldedItem(&(*ret));
 }
 
-void Server::handleCommand_Interact(const server::PacketContext &ctx,
+void Server::handleCommand_Interact(session_t peer_id,
 	const server::InteractPayload &p)
 {
 	verbosestream << "TOSERVER_INTERACT: action=" << (int)p.action
 		<< ", item=" << p.item
 		<< ", pointed=" << p.pointed.dump() << std::endl;
 
-	const session_t peer_id = ctx.peer_id;
 	RemotePlayer *player = m_env->getPlayer(peer_id);
 	if (!player) {
 		warningstream << FUNCTION_NAME << ": player is null" << std::endl;
@@ -1148,10 +1139,9 @@ void Server::handleCommand_Interact(const server::PacketContext &ctx,
 	}
 }
 
-void Server::handleCommand_RemovedSounds(const server::PacketContext &ctx,
+void Server::handleCommand_RemovedSounds(session_t peer_id,
 	const server::RemovedSoundsPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	for (s32 id : p.ids) {
 		auto i = m_playing_sounds.find(id);
 		if (i == m_playing_sounds.end())
@@ -1164,10 +1154,9 @@ void Server::handleCommand_RemovedSounds(const server::PacketContext &ctx,
 	}
 }
 
-void Server::handleCommand_NodeMetaFields(const server::PacketContext &ctx,
+void Server::handleCommand_NodeMetaFields(session_t peer_id,
 	const server::NodeMetaFieldsPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	RemotePlayer *player = m_env->getPlayer(peer_id);
 	if (!player) {
 		warningstream << FUNCTION_NAME << ": player is null" << std::endl;
@@ -1202,10 +1191,9 @@ void Server::handleCommand_NodeMetaFields(const server::PacketContext &ctx,
 	}
 }
 
-void Server::handleCommand_InventoryFields(const server::PacketContext &ctx,
+void Server::handleCommand_InventoryFields(session_t peer_id,
 	const server::InventoryFieldsPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	RemotePlayer *player = m_env->getPlayer(peer_id);
 
 	if (!player)
@@ -1248,10 +1236,9 @@ void Server::handleCommand_InventoryFields(const server::PacketContext &ctx,
 	actionstream << ", possible exploitation attempt" << std::endl;
 }
 
-void Server::handleCommand_FirstSrp(const server::PacketContext &ctx,
+void Server::handleCommand_FirstSrp(session_t peer_id,
 	const server::FirstSrpPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	RemoteClient *client = getClient(peer_id, CS_Invalid);
 	ClientState cstate = client->getState();
 	const std::string playername = client->getName();
@@ -1337,10 +1324,9 @@ void Server::handleCommand_FirstSrp(const server::PacketContext &ctx,
 	}
 }
 
-void Server::handleCommand_SrpBytesA(const server::PacketContext &ctx,
+void Server::handleCommand_SrpBytesA(session_t peer_id,
 	const server::SrpBytesAPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	RemoteClient *client = getClient(peer_id, CS_Invalid);
 	ClientState cstate = client->getState();
 
@@ -1444,10 +1430,9 @@ void Server::handleCommand_SrpBytesA(const server::PacketContext &ctx,
 	m_netserver->sendSrpBytesSandB(peer_id, salt, bytes_B, len_B);
 }
 
-void Server::handleCommand_SrpBytesM(const server::PacketContext &ctx,
+void Server::handleCommand_SrpBytesM(session_t peer_id,
 	const server::SrpBytesMPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	RemoteClient *client = getClient(peer_id, CS_Invalid);
 	ClientState cstate = client->getState();
 	const std::string addr_s = client->getAddress().serializeString();
@@ -1532,10 +1517,9 @@ void Server::handleCommand_SrpBytesM(const server::PacketContext &ctx,
  * Mod channels
  */
 
-void Server::handleCommand_ModChannelJoin(const server::PacketContext &ctx,
+void Server::handleCommand_ModChannelJoin(session_t peer_id,
 	const server::ModChannelJoinPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	const std::string &channel_name = p.channel_name;
 
 	// Send signal to client to notify join succeed or not
@@ -1554,10 +1538,9 @@ void Server::handleCommand_ModChannelJoin(const server::PacketContext &ctx,
 	m_netserver->sendModChannelSignal(peer_id, sig, channel_name);
 }
 
-void Server::handleCommand_ModChannelLeave(const server::PacketContext &ctx,
+void Server::handleCommand_ModChannelLeave(session_t peer_id,
 	const server::ModChannelLeavePayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	const std::string &channel_name = p.channel_name;
 
 	ModChannelSignal sig;
@@ -1574,10 +1557,9 @@ void Server::handleCommand_ModChannelLeave(const server::PacketContext &ctx,
 	m_netserver->sendModChannelSignal(peer_id, sig, channel_name);
 }
 
-void Server::handleCommand_ModChannelMsg(const server::PacketContext &ctx,
+void Server::handleCommand_ModChannelMsg(session_t peer_id,
 	const server::ModChannelMsgPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	const std::string &channel_name = p.channel_name;
 	const std::string &channel_msg = p.message;
 
@@ -1602,10 +1584,9 @@ void Server::handleCommand_ModChannelMsg(const server::PacketContext &ctx,
 	broadcastModChannelMessage(channel_name, channel_msg, peer_id);
 }
 
-void Server::handleCommand_HaveMedia(const server::PacketContext &ctx,
+void Server::handleCommand_HaveMedia(session_t peer_id,
 	const server::HaveMediaPayload &p)
 {
-	const session_t peer_id = ctx.peer_id;
 	auto player = m_env->getPlayer(peer_id);
 
 	for (const u32 token : p.tokens) {
@@ -1620,7 +1601,7 @@ void Server::handleCommand_HaveMedia(const server::PacketContext &ctx,
 	}
 }
 
-void Server::handleCommand_UpdateClientInfo(const server::PacketContext &ctx,
+void Server::handleCommand_UpdateClientInfo(session_t peer_id,
 	const server::UpdateClientInfoPayload &p)
 {
 	ClientDynamicInfo info;
@@ -1631,7 +1612,6 @@ void Server::handleCommand_UpdateClientInfo(const server::PacketContext &ctx,
 	info.max_fs_size = v2f32((f32)p.max_fs_size.X, (f32)p.max_fs_size.Y);
 	info.touch_controls = p.touch_controls;
 
-	const session_t peer_id = ctx.peer_id;
 	RemoteClient *client = getClient(peer_id, CS_Invalid);
 	client->setDynamicInfo(info);
 }

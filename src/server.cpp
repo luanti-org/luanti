@@ -55,7 +55,7 @@
 // Network
 #include "network/connection.h"
 #include "network/networkexceptions.h"
-#include "network/networkpacket.h"
+#include "network/serverpacketdispatcher.h"
 #include "network/networkprotocol.h"
 #include "network/netserver.h" // server::ConnectionNetServer
 #include "network/serveropcodes.h"
@@ -75,14 +75,6 @@
 #include <algorithm>
 #include <sstream>
 #include <csignal>
-
-class ClientNotFoundException : public BaseException
-{
-public:
-	ClientNotFoundException(const char *s):
-		BaseException(s)
-	{}
-};
 
 ModIPCStore::~ModIPCStore()
 {
@@ -118,7 +110,7 @@ void *ServerThread::run()
 	 * The real business of the server happens on the ServerThread.
 	 * How this works:
 	 * AsyncRunStep() (which runs the actual server step) is called at the
-	 * server-step frequency. Receive() is used for waiting between the steps.
+	 * server-step frequency. Packet dispatching is used for waiting between the steps.
 	 */
 
 	auto framemarker = FrameMarker("ServerThread::run()-frame").started();
@@ -153,7 +145,7 @@ void *ServerThread::run()
 
 			const float remaining_time = step_settings.steplen
 					- 1e-6f * (porting::getTimeUs() - t0);
-			m_server->Receive(remaining_time);
+			m_server->m_dispatcher->processIncomingPackets(m_server->m_con.get(), m_server, remaining_time);
 
 		} catch (con::PeerNotFoundException &e) {
 			infostream<<"Server: PeerNotFoundException"<<std::endl;
@@ -259,24 +251,6 @@ std::wstring Server::ShutdownState::getShutdownTimerMessage() const
 	return ws.str();
 }
 
-static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool include_pos)
-{
-	const u16 cmd = pkt.getCommand();
-	std::ostringstream oss;
-	if (cmd < TOSERVER_NUM_MSG_TYPES)
-		oss << " name=" << toServerCommandTable[cmd].name;
-
-	if (include_pos) {
-		// (not necessary for PacketError: already in e.what())
-
-		oss << " cmd=" << cmd
-			<< " offset=" << pkt.getOffset()
-			<< " size=" << pkt.getSize();
-	}
-
-	e.append(" @").append(oss.str());
-}
-
 /*
 	Server
 */
@@ -341,14 +315,6 @@ Server::Server(
 				{{"type", aom_types[i]}});
 	}
 
-	m_packet_recv_counter = m_metrics_backend->addCounter(
-			"minetest_core_server_packet_recv",
-			"Processable packets received");
-
-	m_packet_recv_processed_counter = m_metrics_backend->addCounter(
-			"minetest_core_server_packet_recv_processed",
-			"Valid received packets processed");
-
 	m_map_edit_event_counter = m_metrics_backend->addCounter(
 			"minetest_core_map_edit_events",
 			"Number of map edit events");
@@ -363,7 +329,7 @@ Server::Server(
 	// Construct the packet dispatcher. It owns the opcode -> decoder ->
 	// Server::handleCommand_* tables. Tests can substitute their own
 	// IPacketDispatcher before the first call to ProcessData.
-	m_dispatcher = server::newPacketDispatcher();
+	m_dispatcher = server::newPacketDispatcher(m_metrics_backend.get());
 
 	m_lag_gauge->set(g_settings->getFloat("dedicated_server_step"));
 
@@ -1049,7 +1015,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		while (!m_unsent_map_edit_queue.empty()) {
 			MapEditEvent* event = m_unsent_map_edit_queue.front();
 			m_unsent_map_edit_queue.pop();
-			
+
 		switch (event->type) {
 		case MEET_ADDNODE:
 		case MEET_SWAPNODE: {
@@ -1161,67 +1127,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 	}
 
 	m_shutdown_state.tick(dtime, this);
-}
-
-void Server::Receive(float min_time)
-{
-	ZoneScoped;
-	auto framemarker = FrameMarker("Server::Receive()-frame").started();
-
-	const u64 t0 = porting::getTimeUs();
-	const float min_time_us = min_time * 1e6f;
-	auto remaining_time_us = [&]() -> float {
-		return std::max(0.0f, min_time_us - (porting::getTimeUs() - t0));
-	};
-
-	NetworkPacket pkt;
-	session_t peer_id;
-	for (;;) {
-		pkt.clear();
-		peer_id = 0;
-		try {
-			// Round up since the target step length is the minimum step length,
-			// we only have millisecond precision and we don't want to busy-wait
-			// by calling ReceiveTimeoutMs(.., 0) repeatedly.
-			const u32 cur_timeout_ms = std::ceil(remaining_time_us() / 1000.0f);
-
-			if (!m_con->ReceiveTimeoutMs(&pkt, cur_timeout_ms)) {
-				// No incoming data.
-				if (remaining_time_us() > 0.0f)
-					continue;
-				else
-					break;
-			}
-
-			peer_id = pkt.getPeerId();
-			m_packet_recv_counter->increment();
-			{
-				EnvAutoLock envlock(this);
-				ScopeProfiler sp(g_profiler, "Server: Process network packet (sum)");
-				m_dispatcher->dispatch(&pkt, this);
-			}
-			m_packet_recv_processed_counter->increment();
-		} catch (const con::InvalidIncomingDataException &e) {
-			infostream << "Server::Receive(): InvalidIncomingDataException: what()="
-					<< e.what() << std::endl;
-		} catch (SerializationError &e) {
-			enrich_exception(e, pkt, true);
-			infostream << "Server::Receive(): SerializationError: what()="
-					<< e.what() << std::endl;
-		} catch (PacketError &e) {
-			enrich_exception(e, pkt, false);
-			actionstream << "Server::Receive(): PacketError: what()="
-					<< e.what() << std::endl;
-		} catch (const ClientStateError &e) {
-			errorstream << "ClientStateError: peer=" << peer_id << " what()="
-					 << e.what() << std::endl;
-			DenyAccess(peer_id, SERVER_ACCESSDENIED_UNEXPECTED_DATA);
-		} catch (con::PeerNotFoundException &e) {
-			infostream << "Server: PeerNotFoundException" << std::endl;
-		} catch (ClientNotFoundException &e) {
-			infostream << "Server: ClientNotFoundException" << std::endl;
-		}
-	}
 }
 
 void Server::yieldToOtherThreads(float dtime)
@@ -2403,7 +2308,7 @@ void Server::sendDetachedInventory(Inventory *inventory, const std::string &name
 	std::string serialized;
 	bool update = inventory != nullptr;
 	if (update) {
-		// Serialization & NetworkPacket isn't a love story
+		// Serialization isn't a love story
 		std::ostringstream os(std::ios_base::binary);
 		inventory->serialize(os);
 		inventory->setModified(false);

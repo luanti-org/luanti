@@ -10,26 +10,33 @@
 #include <cmath>
 #include <cstring>
 #include <string>
+#include <vector>
 
 // ---------------------------------------------------------------------------
-// Helpers for building a NetworkPacket from a raw byte sequence. We bypass
-// the public NetworkPacket constructor that would also set the command, and
-// instead fill the packet's data buffer directly. That's good enough for
-// testing the dispatcher + decoders in isolation.
+// Helper for building a NetworkPacket from typed fields. We append big-endian
+// bytes to an in-memory buffer and then frame the buffer with the command word
+// before installing it via putRawPacket, which sets the read offset to 0
+// (matching how packets arrive on the wire). putRawPacket asserts that no
+// command has been set on the target packet, so the NetworkPacket must be
+// default-constructed here.
 // ---------------------------------------------------------------------------
 
 namespace
 {
 
 struct PacketBuilder {
-	std::string data;
+	std::vector<u8> data;
 
-	void u8_(u8 v)    { data.push_back(static_cast<char>(v)); }
-	void u16_(u16 v)  { data.push_back(static_cast<char>(v & 0xff));
-	                     data.push_back(static_cast<char>((v >> 8) & 0xff)); }
+	void u8_(u8 v)    { data.push_back(v); }
+	void u16_(u16 v)  {
+		data.push_back((v >> 8) & 0xff);
+		data.push_back((v >> 0) & 0xff);
+	}
 	void u32_(u32 v)  {
-		for (int i = 0; i < 4; i++)
-			data.push_back(static_cast<char>((v >> (8 * i)) & 0xff));
+		data.push_back((v >> 24) & 0xff);
+		data.push_back((v >> 16) & 0xff);
+		data.push_back((v >>  8) & 0xff);
+		data.push_back((v >>  0) & 0xff);
 	}
 	void s32_(s32 v)  { u32_(static_cast<u32>(v)); }
 	void f32_(f32 v)  {
@@ -39,7 +46,7 @@ struct PacketBuilder {
 	}
 	void string_(const std::string &s) {
 		u16_(static_cast<u16>(s.size()));
-		data.append(s);
+		data.insert(data.end(), s.begin(), s.end());
 	}
 	void wstring_(const std::wstring &s) {
 		u16_(static_cast<u16>(s.size()));
@@ -49,15 +56,19 @@ struct PacketBuilder {
 	}
 	void longstring_(const std::string &s) {
 		u32_(static_cast<u32>(s.size()));
-		data.append(s);
+		data.insert(data.end(), s.begin(), s.end());
 	}
 	void v3s32_(v3s32 v) {
 		s32_(v.X); s32_(v.Y); s32_(v.Z);
 	}
 
-	void writeInto(NetworkPacket &pkt) const {
-		for (char c : data)
-			pkt << static_cast<u8>(c);
+	void writeInto(NetworkPacket &pkt, u16 cmd) const {
+		std::vector<u8> framed;
+		framed.reserve(2 + data.size());
+		framed.push_back((cmd >> 8) & 0xff);
+		framed.push_back((cmd >> 0) & 0xff);
+		framed.insert(framed.end(), data.begin(), data.end());
+		pkt.putRawPacket(framed.data(), framed.size(), 0);
 	}
 };
 
@@ -65,13 +76,14 @@ struct PacketBuilder {
 
 TEST_CASE("ServerPacketDispatcher table integrity")
 {
-	auto disp = server::newPacketDispatcher();
+	auto disp = server::newPacketDispatcher(nullptr);
 
-	SECTION("every named opcode has a non-null decoder and handler")
+	SECTION("every named opcode has a TOSERVER_-prefixed name")
 	{
 		for (u16 cmd = 0; cmd < TOSERVER_NUM_MSG_TYPES; cmd++) {
 			const char *name = toServerCommandTable[cmd].name;
-			REQUIRE(name != nullptr);
+			if (name == nullptr)
+				continue; // reserved / unused opcode
 			REQUIRE(std::string(name).substr(0, 9) == "TOSERVER_");
 		}
 	}
@@ -99,11 +111,11 @@ TEST_CASE("ServerPacketDispatcher decodes InitPayload")
 	b.u16_(42);                // max_net_proto_version
 	b.string_("Alice");        // player name
 
-	NetworkPacket pkt(TOSERVER_INIT, 0);
-	b.writeInto(pkt);
+	NetworkPacket pkt;
+	b.writeInto(pkt, TOSERVER_INIT);
 
 	// Decode via the dispatcher.
-	auto disp = server::newPacketDispatcher();
+	auto disp = server::newPacketDispatcher(nullptr);
 	std::aligned_storage<server::MAX_PAYLOAD_SIZE,
 		alignof(max_align_t)>::type buf;
 	void *out = disp->decode(TOSERVER_INIT, pkt, &buf);
@@ -125,7 +137,7 @@ TEST_CASE("ServerPacketDispatcher rejects truncated packet")
 	// Empty payload — should throw on read.
 	std::aligned_storage<server::MAX_PAYLOAD_SIZE,
 		alignof(max_align_t)>::type buf;
-	auto disp = server::newPacketDispatcher();
+	auto disp = server::newPacketDispatcher(nullptr);
 	REQUIRE_THROWS(disp->decode(TOSERVER_INIT, pkt, &buf));
 }
 
@@ -143,10 +155,10 @@ TEST_CASE("ServerPacketDispatcher decodes PlayerPosPayload (modern fields)")
 	b.f32_(0.5f);                     // movement_speed
 	b.s32_(3);                        // movement_direction
 
-	NetworkPacket pkt(TOSERVER_PLAYERPOS, 0);
-	b.writeInto(pkt);
+	NetworkPacket pkt;
+	b.writeInto(pkt, TOSERVER_PLAYERPOS);
 
-	auto disp = server::newPacketDispatcher();
+	auto disp = server::newPacketDispatcher(nullptr);
 	std::aligned_storage<server::MAX_PAYLOAD_SIZE,
 		alignof(max_align_t)>::type buf;
 	void *out = disp->decode(TOSERVER_PLAYERPOS, pkt, &buf);
@@ -173,10 +185,10 @@ TEST_CASE("ServerPacketDispatcher decodes ChatMessagePayload")
 	std::wstring msg = L"Hello, world!";
 	b.wstring_(msg);
 
-	NetworkPacket pkt(TOSERVER_CHAT_MESSAGE, 0);
-	b.writeInto(pkt);
+	NetworkPacket pkt;
+	b.writeInto(pkt, TOSERVER_CHAT_MESSAGE);
 
-	auto disp = server::newPacketDispatcher();
+	auto disp = server::newPacketDispatcher(nullptr);
 	std::aligned_storage<server::MAX_PAYLOAD_SIZE,
 		alignof(max_align_t)>::type buf;
 	void *out = disp->decode(TOSERVER_CHAT_MESSAGE, pkt, &buf);
@@ -191,18 +203,20 @@ TEST_CASE("ServerPacketDispatcher decodes ChatMessagePayload")
 TEST_CASE("ServerPacketDispatcher decodes InventoryActionPayload (raw bytes)")
 {
 	PacketBuilder b;
-	b.string_("ignored-prefix-bytes");
-	NetworkPacket pkt(TOSERVER_INVENTORY_ACTION, 0);
-	b.writeInto(pkt);
+	const std::string blob = "Move 99 player:foo list:inv slot:0 player:bar list:inv slot:1";
+	for (char c : blob)
+		b.u8_(static_cast<u8>(c));
+	NetworkPacket pkt;
+	b.writeInto(pkt, TOSERVER_INVENTORY_ACTION);
 
-	auto disp = server::newPacketDispatcher();
+	auto disp = server::newPacketDispatcher(nullptr);
 	std::aligned_storage<server::MAX_PAYLOAD_SIZE,
 		alignof(max_align_t)>::type buf;
 	void *out = disp->decode(TOSERVER_INVENTORY_ACTION, pkt, &buf);
 	REQUIRE(out != nullptr);
 
 	const auto &p = *static_cast<const server::InventoryActionPayload *>(out);
-	CHECK(p.serialized == "ignored-prefix-bytes");
+	CHECK(p.serialized == blob);
 
 	disp->destroyPayload(TOSERVER_INVENTORY_ACTION, out);
 }
@@ -213,9 +227,7 @@ TEST_CASE("Fake dispatcher demonstrates IPacketDispatcher substitutability")
 	public:
 		std::vector<u16> seen;
 
-		void dispatch(NetworkPacket *pkt, Server *) override {
-			seen.push_back(pkt->getCommand());
-		}
+		void processIncomingPackets(con::IConnection *, Server *, float) override {}
 		const char *commandName(u16) const override { return "FAKE"; }
 		void *decode(u16, NetworkPacket &, void *) const override { return nullptr; }
 		void destroyPayload(u16, void *) const override {}
@@ -224,11 +236,8 @@ TEST_CASE("Fake dispatcher demonstrates IPacketDispatcher substitutability")
 	FakeDispatcher fake;
 	REQUIRE(fake.commandName(0) == std::string("FAKE"));
 
-	NetworkPacket p1(TOSERVER_INIT, 0);
-	NetworkPacket p2(TOSERVER_CHAT_MESSAGE, 0);
-	fake.dispatch(&p1, nullptr);
-	fake.dispatch(&p2, nullptr);
-	REQUIRE(fake.seen.size() == 2);
-	CHECK(fake.seen[0] == TOSERVER_INIT);
-	CHECK(fake.seen[1] == TOSERVER_CHAT_MESSAGE);
+	// Smoke-check that pump can be called through the interface pointer.
+	con::IConnection *con = nullptr;
+	fake.processIncomingPackets(con, nullptr, 0.0f);
+	CHECK(fake.seen.empty());
 }

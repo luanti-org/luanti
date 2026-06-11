@@ -58,6 +58,11 @@ public:
 	PacketError(const std::string &s): BaseException(s) {}
 };
 
+class ClientNotFoundException : public BaseException {
+public:
+	ClientNotFoundException(const char *s): BaseException(s) {}
+};
+
 class SettingNotFoundException : public BaseException {
 public:
 	SettingNotFoundException(const std::string &s): BaseException(s) {}
