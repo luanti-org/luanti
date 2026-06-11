@@ -6,11 +6,14 @@
 #include "settings.h"
 #include "profiler.h"
 #include "client.h"
+#include "camera.h"
 #include "mapblock.h"
 #include "mapblock_mesh.h"
 #include "map.h"
+#include "nodedef.h"
 #include "util/directiontables.h"
 #include "porting.h"
+#include "shader.h"
 
 /*
 	QueuedMeshUpdate
@@ -102,7 +105,8 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	bool urgent, bool from_neighbor)
 {
 	// If block that causes update does not exist, skip.
-	if (!map->getBlockNoCreateNoEx(p))
+	MapBlock *block = map->getBlockNoCreateNoEx(p);
+	if (!block)
 		return false;
 
 	const MeshGrid mesh_grid = m_client->getMeshGrid();
@@ -131,6 +135,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 			q->crack_pos = m_client->getCrackPos();
 			q->urgent |= urgent;
 			q->retrieveBlocks(map, mesh_grid.cell_size);
+			q->lod = block->lod;
 			return true;
 		}
 	}
@@ -146,6 +151,7 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	q->crack_pos = m_client->getCrackPos();
 	q->urgent = urgent;
 	q->retrieveBlocks(map, mesh_grid.cell_size);
+	q->lod = block->lod;
 
 	/*
 		Air blocks won't suddenly become visible due to a neighbor update, so
@@ -245,8 +251,8 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	MeshUpdateWorkerThread
 */
 
-MeshUpdateWorkerThread::MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager) :
-		UpdateThread("Mesh"), m_client(client), m_queue_in(queue_in), m_manager(manager)
+MeshUpdateWorkerThread::MeshUpdateWorkerThread(Client *client, MeshUpdateQueue *queue_in, MeshUpdateManager *manager, const u32 solid_shader_id) :
+		UpdateThread("Mesh"), m_client(client), m_queue_in(queue_in), m_manager(manager), m_solid_shader_id(solid_shader_id)
 {
 	m_generation_interval = g_settings->getU16("mesh_generation_interval");
 	m_generation_interval = rangelim(m_generation_interval, 0, 25);
@@ -259,7 +265,7 @@ void MeshUpdateWorkerThread::doUpdate()
 		ScopeProfiler sp(g_profiler, "Client: Mesh making (sum)");
 
 		// This generates the mesh:
-		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data);
+		MapBlockMesh *mesh_new = new MapBlockMesh(m_client, q->data, q->lod, m_solid_shader_id);
 
 		MeshUpdateResult r;
 		r.p = q->p;
@@ -300,8 +306,12 @@ MeshUpdateManager::MeshUpdateManager(Client *client):
 	number_of_threads = std::max(1, number_of_threads);
 	infostream << "MeshUpdateManager: using " << number_of_threads << " threads" << std::endl;
 
+	// getShader only works in this thread, so it has to be passed along from here
+	const u32 solid_shader_id = client->getShaderSource()->getShader(
+		"nodes_shader", TILE_MATERIAL_BASIC, NDT_NORMAL, false, false, true);
+
 	for (int i = 0; i < number_of_threads; i++)
-		m_workers.push_back(std::make_unique<MeshUpdateWorkerThread>(client, &m_queue_in, this));
+		m_workers.push_back(std::make_unique<MeshUpdateWorkerThread>(client, &m_queue_in, this, solid_shader_id));
 }
 
 void MeshUpdateManager::updateBlock(Map *map, v3s16 p, bool ack_block_to_server,
