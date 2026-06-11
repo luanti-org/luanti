@@ -14,6 +14,7 @@ set(common_network_SRCS
 
 set(server_network_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/serveropcodes.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/serverpacketdispatcher.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/serverpackethandler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/netserver.cpp
 	PARENT_SCOPE

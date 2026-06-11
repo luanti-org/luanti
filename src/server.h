@@ -11,6 +11,7 @@
 #include "content/subgames.h"
 #include "network/inetserver.h"
 #include "network/peerhandler.h"
+#include "network/serverpacketdispatcher.h"
 #include "util/thread.h"
 #include "util/basic_macros.h"
 #include "util/metricsbackend.h"
@@ -213,41 +214,43 @@ public:
 
 	/*
 	 * Command Handlers
+	 *
+	 * Each handler takes a typed decoded payload (see
+	 * network/serverpacketdispatcher.h) plus a PacketContext carrying the
+	 * peer id and the raw NetworkPacket for handlers that still need
+	 * stream access. The Server::PacketDispatcher (see
+	 * network/serverpacketdispatcher.cpp) is the single place that knows
+	 * the wire format.
 	 */
 
-	void handleCommand(NetworkPacket* pkt);
+	void handleCommand_Init(const server::PacketContext &ctx, const server::InitPayload &p);
+	void handleCommand_Init2(const server::PacketContext &ctx, const server::Init2Payload &p);
+	void handleCommand_ModChannelJoin(const server::PacketContext &ctx, const server::ModChannelJoinPayload &p);
+	void handleCommand_ModChannelLeave(const server::PacketContext &ctx, const server::ModChannelLeavePayload &p);
+	void handleCommand_ModChannelMsg(const server::PacketContext &ctx, const server::ModChannelMsgPayload &p);
+	void handleCommand_RequestMedia(const server::PacketContext &ctx, const server::RequestMediaPayload &p);
+	void handleCommand_ClientReady(const server::PacketContext &ctx, const server::ClientReadyPayload &p);
+	void handleCommand_GotBlocks(const server::PacketContext &ctx, const server::GotBlocksPayload &p);
+	void handleCommand_PlayerPos(const server::PacketContext &ctx, const server::PlayerPosPayload &p);
+	void handleCommand_DeletedBlocks(const server::PacketContext &ctx, const server::DeletedBlocksPayload &p);
+	void handleCommand_InventoryAction(const server::PacketContext &ctx, const server::InventoryActionPayload &p);
+	void handleCommand_ChatMessage(const server::PacketContext &ctx, const server::ChatMessagePayload &p);
+	void handleCommand_Damage(const server::PacketContext &ctx, const server::DamagePayload &p);
+	void handleCommand_PlayerItem(const server::PacketContext &ctx, const server::PlayerItemPayload &p);
+	void handleCommand_Interact(const server::PacketContext &ctx, const server::InteractPayload &p);
+	void handleCommand_RemovedSounds(const server::PacketContext &ctx, const server::RemovedSoundsPayload &p);
+	void handleCommand_NodeMetaFields(const server::PacketContext &ctx, const server::NodeMetaFieldsPayload &p);
+	void handleCommand_InventoryFields(const server::PacketContext &ctx, const server::InventoryFieldsPayload &p);
+	void handleCommand_FirstSrp(const server::PacketContext &ctx, const server::FirstSrpPayload &p);
+	void handleCommand_SrpBytesA(const server::PacketContext &ctx, const server::SrpBytesAPayload &p);
+	void handleCommand_SrpBytesM(const server::PacketContext &ctx, const server::SrpBytesMPayload &p);
+	void handleCommand_HaveMedia(const server::PacketContext &ctx, const server::HaveMediaPayload &p);
+	void handleCommand_UpdateClientInfo(const server::PacketContext &ctx, const server::UpdateClientInfoPayload &p);
 
-	void handleCommand_Null(NetworkPacket* pkt) {};
-	void handleCommand_Deprecated(NetworkPacket* pkt);
-	void handleCommand_Init(NetworkPacket* pkt);
-	void handleCommand_Init2(NetworkPacket* pkt);
-	void handleCommand_ModChannelJoin(NetworkPacket *pkt);
-	void handleCommand_ModChannelLeave(NetworkPacket *pkt);
-	void handleCommand_ModChannelMsg(NetworkPacket *pkt);
-	void handleCommand_RequestMedia(NetworkPacket* pkt);
-	void handleCommand_ClientReady(NetworkPacket* pkt);
-	void handleCommand_GotBlocks(NetworkPacket* pkt);
-	void handleCommand_PlayerPos(NetworkPacket* pkt);
-	void handleCommand_DeletedBlocks(NetworkPacket* pkt);
-	void handleCommand_InventoryAction(NetworkPacket* pkt);
-	void handleCommand_ChatMessage(NetworkPacket* pkt);
-	void handleCommand_Damage(NetworkPacket* pkt);
-	void handleCommand_PlayerItem(NetworkPacket* pkt);
-	void handleCommand_Interact(NetworkPacket* pkt);
-	void handleCommand_RemovedSounds(NetworkPacket* pkt);
-	void handleCommand_NodeMetaFields(NetworkPacket* pkt);
-	void handleCommand_InventoryFields(NetworkPacket* pkt);
-	void handleCommand_FirstSrp(NetworkPacket* pkt);
-	void handleCommand_SrpBytesA(NetworkPacket* pkt);
-	void handleCommand_SrpBytesM(NetworkPacket* pkt);
-	void handleCommand_HaveMedia(NetworkPacket *pkt);
-	void handleCommand_UpdateClientInfo(NetworkPacket *pkt);
-
-	void ProcessData(NetworkPacket *pkt);
-
-	// Helper for handleCommand_PlayerPos and handleCommand_Interact
+	// Helper for handleCommand_PlayerPos (kept for shared use; Interact
+	// delegates here too).
 	void process_PlayerPos(RemotePlayer *player, PlayerSAO *playersao,
-		NetworkPacket *pkt);
+		const server::PlayerPosPayload &p);
 
 	// Both setter and getter need no envlock,
 	// can be called freely from threads
@@ -740,6 +743,10 @@ public:
 		`.kilo/plans/luanti-server-refactor-modular.md` §10.5.
 	*/
 	std::unique_ptr<server::INetServer> m_netserver;
+
+	// Decodes NetworkPackets into typed payloads and dispatches to the
+	// handleCommand_* members above. See network/serverpacketdispatcher.h.
+	std::unique_ptr<server::IPacketDispatcher> m_dispatcher;
 
 	std::unordered_map<session_t, std::string> m_formspec_state_data;
 

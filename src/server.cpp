@@ -360,6 +360,11 @@ Server::Server(
 	// `INetSender` before the first call to `Send`.
 	m_netserver = std::make_unique<server::ConnectionNetServer>(*m_con, m_clients);
 
+	// Construct the packet dispatcher. It owns the opcode -> decoder ->
+	// Server::handleCommand_* tables. Tests can substitute their own
+	// IPacketDispatcher before the first call to ProcessData.
+	m_dispatcher = server::newPacketDispatcher();
+
 	m_lag_gauge->set(g_settings->getFloat("dedicated_server_step"));
 
 	m_path_mod_data = porting::path_user + DIR_DELIM "mod_data";
@@ -1190,7 +1195,11 @@ void Server::Receive(float min_time)
 
 			peer_id = pkt.getPeerId();
 			m_packet_recv_counter->increment();
-			ProcessData(&pkt);
+			{
+				EnvAutoLock envlock(this);
+				ScopeProfiler sp(g_profiler, "Server: Process network packet (sum)");
+				m_dispatcher->dispatch(&pkt, this);
+			}
 			m_packet_recv_processed_counter->increment();
 		} catch (const con::InvalidIncomingDataException &e) {
 			infostream << "Server::Receive(): InvalidIncomingDataException: what()="
@@ -1338,66 +1347,6 @@ PlayerSAO *Server::StageTwoClientInit(session_t peer_id)
 		actionstream << player->getName() << std::endl;
 	}
 	return playersao;
-}
-
-inline void Server::handleCommand(NetworkPacket *pkt)
-{
-	const ToServerCommandHandler &opHandle = toServerCommandTable[pkt->getCommand()];
-	(this->*opHandle.handler)(pkt);
-}
-
-void Server::ProcessData(NetworkPacket *pkt)
-{
-	// Environment is locked first.
-	EnvAutoLock envlock(this);
-
-	ScopeProfiler sp(g_profiler, "Server: Process network packet (sum)");
-	u32 peer_id = pkt->getPeerId();
-
-	try {
-		ToServerCommand command = (ToServerCommand) pkt->getCommand();
-
-		// Command must be handled into ToServerCommandHandler
-		if (command >= TOSERVER_NUM_MSG_TYPES) {
-			infostream << "Server: Ignoring unknown command "
-					 << static_cast<unsigned>(command) << std::endl;
-			return;
-		}
-
-		if (toServerCommandTable[command].state == TOSERVER_STATE_NOT_CONNECTED) {
-			handleCommand(pkt);
-			return;
-		}
-
-		u8 peer_ser_ver = getClient(peer_id, CS_InitDone)->serialization_version;
-
-		if(peer_ser_ver == SER_FMT_VER_INVALID) {
-			errorstream << "Server: Peer serialization format invalid. "
-					"Skipping incoming command "
-					<< static_cast<unsigned>(command) << std::endl;
-			return;
-		}
-
-		/* Handle commands related to client startup */
-		if (toServerCommandTable[command].state == TOSERVER_STATE_STARTUP) {
-			handleCommand(pkt);
-			return;
-		}
-
-		if (m_clients.getClientState(peer_id) < CS_Active) {
-			warningstream << "Server: Got packet command "
-					<< static_cast<unsigned>(command)
-					<< " for peer id " << peer_id
-					<< " but client isn't active yet. Dropping packet." << std::endl;
-			return;
-		}
-
-		handleCommand(pkt);
-	} catch (SendFailedException &e) {
-		errorstream << "Server::ProcessData(): SendFailedException: "
-				<< "what=" << e.what()
-				<< std::endl;
-	}
 }
 
 void Server::setTimeOfDay(u32 time)
