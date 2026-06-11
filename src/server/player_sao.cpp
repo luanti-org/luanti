@@ -356,14 +356,14 @@ void PlayerSAO::setPos(const v3f &pos)
 
 	// Send mapblock of target location
 	v3s16 blockpos = v3s16(pos.X / MAP_BLOCKSIZE, pos.Y / MAP_BLOCKSIZE, pos.Z / MAP_BLOCKSIZE);
-	m_env->getGameDef()->SendBlock(getPeerID(), blockpos);
+	m_env->getServer()->SendBlock(getPeerID(), blockpos);
 
 	setBasePosition(pos);
 	// Movement caused by this command is always valid
 	m_last_good_position = getBasePosition();
 	m_move_pool.empty();
 	m_time_from_last_teleport = 0.0;
-	m_env->getGameDef()->SendMovePlayer(this);
+	m_env->getServer()->SendMovePlayer(this);
 }
 
 void PlayerSAO::addPos(const v3f &added_pos)
@@ -380,14 +380,14 @@ void PlayerSAO::addPos(const v3f &added_pos)
 	// Send mapblock of target location
 	v3f pos = getBasePosition() + added_pos;
 	v3s16 blockpos = v3s16(pos.X / MAP_BLOCKSIZE, pos.Y / MAP_BLOCKSIZE, pos.Z / MAP_BLOCKSIZE);
-	m_env->getGameDef()->SendBlock(getPeerID(), blockpos);
+	m_env->getServer()->SendBlock(getPeerID(), blockpos);
 
 	setBasePosition(pos);
 	// Movement caused by this command is always valid
 	m_last_good_position = getBasePosition();
 	m_move_pool.empty();
 	m_time_from_last_teleport = 0.0;
-	m_env->getGameDef()->SendMovePlayerRel(getPeerID(), added_pos);
+	m_env->getServer()->SendMovePlayerRel(getPeerID(), added_pos);
 }
 
 void PlayerSAO::moveTo(v3f pos, bool continuous)
@@ -400,7 +400,7 @@ void PlayerSAO::moveTo(v3f pos, bool continuous)
 	m_last_good_position = getBasePosition();
 	m_move_pool.empty();
 	m_time_from_last_teleport = 0.0;
-	m_env->getGameDef()->SendMovePlayer(this);
+	m_env->getServer()->SendMovePlayer(this);
 }
 
 void PlayerSAO::setPlayerYaw(const float yaw)
@@ -432,7 +432,7 @@ void PlayerSAO::setWantedRange(const s16 range)
 void PlayerSAO::setPlayerYawAndSend(const float yaw)
 {
 	setPlayerYaw(yaw);
-	m_env->getGameDef()->SendMovePlayer(this);
+	m_env->getServer()->SendMovePlayer(this);
 }
 
 void PlayerSAO::setLookPitch(const float pitch)
@@ -446,7 +446,7 @@ void PlayerSAO::setLookPitch(const float pitch)
 void PlayerSAO::setLookPitchAndSend(const float pitch)
 {
 	setLookPitch(pitch);
-	m_env->getGameDef()->SendMovePlayer(this);
+	m_env->getServer()->SendMovePlayer(this);
 }
 
 u32 PlayerSAO::punch(v3f dir,
@@ -529,9 +529,9 @@ void PlayerSAO::setHP(s32 target_hp, const PlayerHPChangeReason &reason, bool fr
 
 	if (hp != m_hp) {
 		m_hp = hp;
-		m_env->getGameDef()->HandlePlayerHPChange(this, reason);
+		m_env->getServer()->HandlePlayerHPChange(this, reason);
 	} else if (from_client)
-		m_env->getGameDef()->SendPlayerHP(this, true);
+		m_env->getServer()->SendPlayerHP(this, true);
 }
 
 void PlayerSAO::setBreath(const u16 breath, bool send)
@@ -542,7 +542,7 @@ void PlayerSAO::setBreath(const u16 breath, bool send)
 	m_breath = rangelim(breath, 0, m_prop.breath_max);
 
 	if (send)
-		m_env->getGameDef()->SendPlayerBreath(this);
+		m_env->getServer()->SendPlayerBreath(this);
 }
 
 void PlayerSAO::respawn()
@@ -556,7 +556,7 @@ void PlayerSAO::respawn()
 	bool repositioned = m_env->getScriptIface()->on_respawnplayer(this);
 	if (!repositioned) {
 		// setPos will send the new position to client
-		setPos(m_env->getGameDef()->findSpawnPos());
+		setPos(m_env->getServer()->findSpawnPos());
 	}
 }
 

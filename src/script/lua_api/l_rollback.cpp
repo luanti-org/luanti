@@ -5,7 +5,7 @@
 #include "lua_api/l_rollback.h"
 #include "lua_api/l_internal.h"
 #include "common/c_converter.h"
-#include "server.h"
+#include "server.h" // getRollbackManager(), rollbackRevertActions()
 #include "rollback_interface.h"
 
 

@@ -11,7 +11,7 @@
 #include "server/player_sao.h"
 #include "filesys.h"
 #include "porting.h"
-#include "server.h"
+#include "server.h" // dynamic_cast<Server *>
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
 #include "client/mod_vfs.h"

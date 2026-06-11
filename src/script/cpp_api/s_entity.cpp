@@ -8,7 +8,8 @@
 #include "object_properties.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
-#include "server.h"
+#include "gamedef.h"
+#include <sstream>
 
 bool ScriptApiEntity::luaentity_Add(u16 id, const char *name)
 {
@@ -197,7 +198,7 @@ void ScriptApiEntity::luaentity_GetProperties(u16 id,
 	// Set default values that differ from ObjectProperties defaults
 	prop->hp_max = 10;
 
-	auto *idef = getServer()->idef();
+	auto *idef = getGameDef()->idef();
 
 	// Deprecated: read object properties directly
 	// TODO: this should be changed to not read the legacy place

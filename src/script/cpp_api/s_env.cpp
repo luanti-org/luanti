@@ -7,9 +7,8 @@
 #include "common/c_converter.h"
 #include "common/helper.h"
 #include "log.h"
-#include "mapgen/mapgen.h"
 #include "lua_api/l_env.h"
-#include "server.h"
+#include "server.h" // setAsyncFatalError()
 #include "serverenvironment.h"
 #include "scripting_server.h"
 #include "script/common/c_content.h"

@@ -322,6 +322,11 @@ ServerMap & ServerEnvironment::getServerMap()
 	return *m_map;
 }
 
+IGameDef *ServerEnvironment::getGameDef()
+{
+	return m_server;
+}
+
 RemotePlayer *ServerEnvironment::getPlayer(const session_t peer_id)
 {
 	for (RemotePlayer *player : m_players) {
