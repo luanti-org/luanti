@@ -4331,6 +4331,26 @@ ModChannel* Server::getModChannel(const std::string &channel)
 	return m_modchannel_mgr->getModChannel(channel);
 }
 
+void Server::sendSSCSM(session_t peer)
+{
+	NetworkPacket pkt(TOCLIENT_LOAD_SSCSM, 0);
+	{
+		u32 count = m_sscsm_init.vfs.files.size();
+		pkt << count;
+		for (const auto &[path, contents] : m_sscsm_init.vfs.files) {
+			pkt << path;
+			pkt.putLongString(contents);
+		}
+	}
+	{
+		u32 count = m_sscsm_init.mod_init_scripts.size();
+		pkt << count;
+		for (const auto &[modname, path] : m_sscsm_init.mod_init_scripts)
+			pkt << modname << path;
+	}
+	Send(peer, &pkt);
+}
+
 void Server::broadcastModChannelMessage(const std::string &channel,
 		const std::string &message, session_t from_peer)
 {

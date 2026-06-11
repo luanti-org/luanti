@@ -4,21 +4,22 @@
 mod with a version check (i.e. at least check if `core.get_version().proto_max`
 is (less or) equal to (any of) the tested version(s)).
 
+For security reasons, SSCSM can currently only be used in singleplayer.
+This restriction will be lifted eventually.
+
 In SSCSM, the server sends scripts to the client, which it executes
 client-side (in a sandbox, see also `sscsm_security.md`).
 As modder, you can add these scripts to your server-side mod, and tell the engine
 to send them.
 
-Please refer to `lua_api.md` for server-side modding.
+Please refer to `lua_api.md` for server-side modding (SSM).
 (And refer to `client_lua_api.md` for client-provided client-side modding (CPCSM).)
-
-
 
 ## Loading mods
 
 ### Paths
 
-SSCSM uses a virtual file system (just a dictionary of virtual paths (strings)
+SSCSM uses a virtual file system (VFS, just a dictionary of virtual paths (strings)
 to file contents (strings)).
 
 Each mod's files have paths of the form `modname:foo/bla.lua`.
@@ -36,10 +37,32 @@ SSCSM, and the client builtin is located on the client.
 
 ### Mod sending API
 
-Currently, you can not add any mods. There's only a small hardcoded preview script
-in C++ which is loaded when you set `enable_sscsm` to `singleplayer`.
+Call `core.register_sscsm(params)` *at load time* from your SSM
+`params` is a table with two fields:
 
+* `init_path`: The virtual relative path of the client mod's init script (equivalent to `init.lua` in SSM)
+* `paths`: A mapping of virtual relative paths to actual paths in the mod folder
+    * This is a table mapping strings to strings, or `true` if values are to be the same as keys.
+    * Values can be relative paths of folders, in which case all files will be mapped recursively.
 
+The given files are assumed not to change while the server runs.
+
+Conventionally, client-only scripts should reside in a `client` folder,
+including a `client/init.lua` that is run on startup.
+Scripts common to client and server (e.g. utilities) are placed in a `common` folder.
+Like this:
+
+```lua
+core.register_sscsm({
+    init_path = "client/init.lua",
+    paths = {
+       client = true,
+       common = true,
+    },
+})
+```
+
+Init scripts will be run in mod load order.
 
 ## API
 
