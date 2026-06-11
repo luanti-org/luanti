@@ -10,7 +10,6 @@
 #include "irrlicht_changes/printing.h"
 #include "player_sao.h"
 #include "scripting_server.h"
-#include "server.h"
 #include "serverenvironment.h"
 #include "util/serialize.h"
 

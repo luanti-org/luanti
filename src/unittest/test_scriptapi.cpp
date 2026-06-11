@@ -11,7 +11,7 @@
 #include "script/common/c_converter.h"
 #include "script/common/helper.h"
 #include "irrlicht_changes/printing.h"
-#include "server.h"
+#include "server.h" // getBuiltinLuaPath()
 
 namespace {
 	class MyScriptApi : virtual public ScriptApiBase {

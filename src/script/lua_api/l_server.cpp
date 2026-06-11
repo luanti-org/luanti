@@ -136,7 +136,7 @@ int ModApiServer::l_get_player_ip(lua_State *L)
 		return 1;
 	}
 
-	lua_pushstring(L, env->getGameDef()->getPeerAddress(
+	lua_pushstring(L, env->getServer()->getPeerAddress(
 		player->getPeerId()).serializeString().c_str()
 	);
 	return 1;
@@ -154,7 +154,7 @@ int ModApiServer::l_get_player_information(lua_State *L)
 		return 1;
 	}
 
-	Server *server = env->getGameDef();
+	Server *server = env->getServer();
 	ClientInfo info;
 	if (!server->getClientInfo(player->getPeerId(), info)) {
 		warningstream << FUNCTION_NAME << ": no client info?!" << std::endl;
@@ -280,7 +280,7 @@ int ModApiServer::l_get_player_window_information(lua_State *L)
 	if (!player)
 		return 0;
 
-	Server *server = env->getGameDef();
+	Server *server = env->getServer();
 	auto dynamic = server->getClientDynamicInfo(player->getPeerId());
 
 	if (!dynamic || dynamic->render_target_size == v2u32())
@@ -341,7 +341,7 @@ int ModApiServer::l_ban_player(lua_State *L)
 		return 1;
 	}
 
-	Server *server = env->getGameDef();
+	Server *server = env->getServer();
 	std::string ip_str = server->getPeerAddress(player->getPeerId()).serializeString();
 	server->setIpBanned(ip_str, name);
 	lua_pushboolean(L, true);
@@ -368,7 +368,7 @@ int ModApiServer::l_disconnect_player(lua_State *L)
 
 	bool reconnect = readParam<bool>(L, 3, false);
 
-	Server *server = env->getGameDef();
+	Server *server = env->getServer();
 	server->DenyAccess(player->getPeerId(), SERVER_ACCESSDENIED_CUSTOM_STRING, message, reconnect);
 	lua_pushboolean(L, true);
 	return 1;

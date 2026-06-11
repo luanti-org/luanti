@@ -10,7 +10,7 @@
 #include "porting.h"
 #include "mapgen/mapgen.h" // Mapgen::setDefaultSettings
 #include "util/string.h"
-#include "server.h"
+#include "server.h" // flagdesc_anticheat
 
 
 /*

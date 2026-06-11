@@ -8,7 +8,7 @@
 #include "util/hashing.h"
 #include "util/hex.h"
 #include "builtin_files.h"
-#include "server.h"
+#include "server.h" // getBuiltinLuaPath()
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
 #include "client/mod_vfs.h"
@@ -17,7 +17,6 @@
 #include "settings.h"
 #include "constants.h"
 
-#include <cerrno>
 #include <string>
 #include <algorithm>
 #include <iostream>
