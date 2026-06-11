@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "mod_vfs.h"
 #include "irr_v3d.h"
 #include "map.h"
 #include "hud_element.h" // HudElementStat
@@ -434,6 +435,8 @@ public:
 	bool sendModChannelMessage(const std::string &channel, const std::string &message) override;
 	ModChannel *getModChannel(const std::string &channel) override;
 
+	void sendSSCSM(session_t peer_id);
+
 	// Send block to specific player only
 	bool SendBlock(session_t peer_id, const v3s16 &blockpos);
 
@@ -462,6 +465,14 @@ public:
 	std::vector<std::pair<std::string, std::string>> m_async_init_files;
 	// Identical but for mapgen env
 	std::vector<std::pair<std::string, std::string>> m_mapgen_init_files;
+
+	struct SSCSMInit {
+		/// SSCSM files (usually Lua) to be distributed to clients
+		ModVFS vfs;
+		/// Pairs of modnames and paths to init scripts, run in the given order
+		std::vector<std::pair<std::string, std::string>> mod_init_scripts;
+	};
+	SSCSMInit m_sscsm_init;
 
 	// Data transferred into other Lua envs at init time
 	std::unique_ptr<PackedValue> m_lua_globals_data;

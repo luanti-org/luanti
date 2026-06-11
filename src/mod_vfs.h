@@ -13,14 +13,14 @@ struct ModVFS
 	/// to virtual paths by prepending the virtual prefix.
 	/// @note hidden entries (starting with `.`) are ignored
 	void scanModSubfolder(const std::string &virt_prefix, const std::string &real_path,
-			std::string subpath);
+			std::string subpath = "");
 
 	/// Load the given file into the VFS under the given virtual path
 	void loadFile(const std::string &virt_path, const std::string &real_path);
 
 	inline void scanModIntoMemory(const std::string &mod_name, const std::string &mod_path)
 	{
-		scanModSubfolder(mod_name, mod_path, "");
+		scanModSubfolder(mod_name + ":", mod_path);
 	}
 
 	const std::string *getModFile(std::string filename);

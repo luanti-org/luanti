@@ -80,6 +80,7 @@ elseif INIT == "client" then
 elseif INIT == "sscsm" and core.get_current_modname() == "*client_builtin*" then
 	dofile(scriptdir .. "sscsm_client" .. DIR_DELIM .. "init.lua")
 elseif INIT == "sscsm" and core.get_current_modname() == "*server_builtin*" then
+	-- TODO this should just be registered
 	dofile(scriptdir .. "sscsm_server" .. DIR_DELIM .. "init.lua")
 elseif INIT == "emerge" then
 	dofile(scriptdir .. "emerge" .. DIR_DELIM .. "init.lua")

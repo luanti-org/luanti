@@ -50,7 +50,7 @@
 #include "script/scripting_client.h"
 
 // SSCSM
-#include "client/mod_vfs.h"
+#include "mod_vfs.h"
 #include "script/sscsm/sscsm_controller.h"
 #include "script/sscsm/sscsm_events.h"
 
