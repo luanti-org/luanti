@@ -11,6 +11,7 @@
 #include <map>
 #include <set>
 #include <unordered_map>
+#include <utility>
 #include "keycode.h"
 #include "settings.h"
 #include "util/string.h"
@@ -154,8 +155,8 @@ private:
 	}
 
 	bool setKeyDown(KeyPress keyCode, float value);
-	void setKeyDown(GameKeyType action, float value);
-	float checkKeyDown(GameKeyType action) const;
+	void setKeyDown(GameKeyType action, std::pair<float, bool> new_state);
+	std::pair<float, bool> checkKeyDown(GameKeyType action) const;
 
 	struct Keybinding {
 		Keybinding() = default;
