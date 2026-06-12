@@ -7428,16 +7428,19 @@ Item handling
         * `width`: 0-3, 0 means shapeless recipe
         * `items`: indexed [1-9] table with recipe items
         * `output`: string with item name and quantity
+        * `replacements`: see [Crafting recipes](#Crafting recipes), is nil if crafting method doesn't support replacements
     * Example result for `"default:gold_ingot"` with two recipes:
       ```lua
       {
           {
               method = "cooking", width = 3,
-              output = "default:gold_ingot", items = {"default:gold_lump"}
+              output = "default:gold_ingot", items = {"default:gold_lump"},
+              replacements = {}
           },
           {
               method = "normal", width = 1,
-              output = "default:gold_ingot 9", items = {"default:goldblock"}
+              output = "default:gold_ingot 9", items = {"default:goldblock"},
+              replacements = {}
           }
       }
       ```
