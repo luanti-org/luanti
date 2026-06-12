@@ -164,11 +164,13 @@ void MyEventReceiver::setKeyDown(GameKeyType action, std::pair<float, bool> new_
 {
 	auto value = new_state.first;
 	if (InputHandler::analogToBoolean(value)) {
-		if (!IsKeyDown(action))
+		if (!IsKeyDown(action)) {
 			keyWasPressed.set(action);
-		axisValues[action] = value;
+			keyWasDown.set(action);
+		}
 		if (new_state.second)
 			keyWasDown.set(action);
+		axisValues[action] = value;
 	} else {
 		if (IsKeyDown(action))
 			keyWasReleased.set(action);
