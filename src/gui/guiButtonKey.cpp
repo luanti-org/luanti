@@ -129,7 +129,24 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 			else
 				nostart = false; // lift nostart restriction if "mouse" (finger) is released outside the button
 		}
+		break;
 	default:
+		if (KeyPressEvent kpevent(event); kpevent) {
+			if (kpevent.isPressed()) {
+				if (capturing) {
+					setPressed(true);
+					setKey(kpevent.key);
+					return true;
+				}
+			} else {
+				if (isPressed() && key_value == kpevent.key) {
+					setPressed(false);
+					cancelCapture();
+					sendKey();
+					return true;
+				}
+			}
+		}
 		break;
 	}
 
