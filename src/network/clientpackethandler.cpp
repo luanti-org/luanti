@@ -1263,7 +1263,7 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 		return;
 	}
 
-	// Keep in sync with:server.cpp -> SendHUDChange
+	// Keep in sync with:netserver.cpp -> sendHUDChange
 	switch (static_cast<HudElementStat>(stat)) {
 		case HUD_STAT_POS:
 		case HUD_STAT_SCALE:
@@ -1358,62 +1358,6 @@ void Client::handleCommand_HudSetParam(NetworkPacket* pkt)
 
 void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 {
-	if (m_proto_ver < 39) {
-		// Handle Protocol 38 and below servers with old set_sky,
-		// ensuring the classic look is kept.
-		std::istringstream is(std::string(pkt->getRemainingNoCopy()), std::ios_base::binary);
-
-		SkyboxParams skybox;
-		skybox.bgcolor = video::SColor(readARGB8(is));
-		skybox.type = std::string(deSerializeString16(is));
-		u16 count = readU16(is);
-
-		for (size_t i = 0; i < count; i++)
-			skybox.textures.emplace_back(deSerializeString16(is));
-
-		skybox.clouds = readU8(is) != 0;
-
-		// Use default skybox settings:
-		SunParams sun = SkyboxDefaults::getSunDefaults();
-		MoonParams moon = SkyboxDefaults::getMoonDefaults();
-		StarParams stars = SkyboxDefaults::getStarDefaults();
-
-		// Fix for "regular" skies, as color isn't kept:
-		if (skybox.type == "regular") {
-			skybox.sky_color = SkyboxDefaults::getSkyColorDefaults();
-			skybox.fog_tint_type = "default";
-			skybox.fog_moon_tint = video::SColor(255, 255, 255, 255);
-			skybox.fog_sun_tint = video::SColor(255, 255, 255, 255);
-		} else {
-			sun.visible = false;
-			sun.sunrise_visible = false;
-			moon.visible = false;
-			stars.visible = false;
-		}
-
-		// Skybox, sun, moon and stars ClientEvents:
-		ClientEvent *sky_event = new ClientEvent();
-		sky_event->type = CE_SET_SKY;
-		sky_event->set_sky = new SkyboxParams(skybox);
-		m_client_event_queue.push(sky_event);
-
-		ClientEvent *sun_event = new ClientEvent();
-		sun_event->type = CE_SET_SUN;
-		sun_event->sun_params = new SunParams(sun);
-		m_client_event_queue.push(sun_event);
-
-		ClientEvent *moon_event = new ClientEvent();
-		moon_event->type = CE_SET_MOON;
-		moon_event->moon_params = new MoonParams(moon);
-		m_client_event_queue.push(moon_event);
-
-		ClientEvent *star_event = new ClientEvent();
-		star_event->type = CE_SET_STARS;
-		star_event->star_params = new StarParams(stars);
-		m_client_event_queue.push(star_event);
-		return;
-	}
-
 	SkyboxParams skybox;
 
 	*pkt >> skybox.bgcolor >> skybox.type >> skybox.clouds >>
@@ -1704,13 +1648,9 @@ void Client::handleCommand_MediaPush(NetworkPacket *pkt)
 	bool cached;
 
 	*pkt >> raw_hash >> filename >> cached;
-	if (m_proto_ver >= 40)
-		*pkt >> token;
-	else
-		filedata = pkt->readLongString();
+	*pkt >> token;
 
 	if (raw_hash.size() != 20 || filename.empty() ||
-			(m_proto_ver < 40 && filedata.empty()) ||
 			!string_allowed(filename, TEXTURENAME_ALLOWED_CHARS)) {
 		throw PacketError("Illegal filename, data or hash");
 	}

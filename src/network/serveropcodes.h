@@ -5,10 +5,12 @@
 
 #pragma once
 
-#include "server.h"
+#include "network/networkprotocol.h"
 
 class NetworkPacket;
-// Note: don't forward-declare Server here (#14324)
+// Forward-declare Server here. The Server::* member pointer used to live in
+// this header; it has since moved to the packet dispatcher, so no include is
+// required (#14324).
 
 enum ToServerConnectionState {
 	TOSERVER_STATE_NOT_CONNECTED,
@@ -20,7 +22,6 @@ struct ToServerCommandHandler
 {
 	const char *name;
 	ToServerConnectionState state;
-	void (Server::*handler)(NetworkPacket* pkt);
 };
 
 struct ClientCommandFactory
