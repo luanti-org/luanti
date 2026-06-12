@@ -18,6 +18,7 @@
 class KeyPress
 {
 public:
+	// Type of the input value
 	enum class InputType {
 		KEYBOARD, // Keyboard input (scancodes)
 		MOUSE_BUTTON, // Mouse button input
@@ -25,6 +26,14 @@ public:
 		GAMEPAD_BUTTON, // Gamepad button
 		GAMEPAD_AXIS_PLUS, // Gamepad axis in the positive direction
 		GAMEPAD_AXIS_MINUS, // Gamepad axis in the negative direction
+	};
+
+	// Type of the input device
+	enum class InputSourceType {
+		KEYBOARD,
+		MOUSE,
+		TOUCHSCREEN,
+		GAMEPAD
 	};
 
 	KeyPress() = default;
@@ -67,6 +76,9 @@ public:
 	InputType getType() const {
 		return static_cast<InputType>(value.index());
 	}
+
+	// Get the source type of input
+	InputSourceType getSourceType() const;
 
 	// Check whether the keypress is valid
 	operator bool() const;
