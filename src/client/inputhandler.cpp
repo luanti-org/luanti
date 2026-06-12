@@ -117,7 +117,6 @@ void MyEventReceiver::reloadKeybindings()
 	for (const auto action: camera_rotation_actions) {
 		auto &keybinding = keybindings[action];
 		keybinding.setKBMScale(g_settings->getFloat("keyboard_camera_speed", 0.001f, 720.0f));
-		//errorstream << keybinding.getScale(KeyPress::InputType::KEYBOARD) << std::endl;
 		keybinding.setJoystickScale(g_settings->getFloat("joystick_frustum_sensitivity", 0.001f, 720.0f));
 	}
 
