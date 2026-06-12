@@ -434,6 +434,24 @@ KeyPress::operator bool() const
 	}
 }
 
+KeyPress::InputSourceType KeyPress::getSourceType() const
+{
+	switch (getType()) {
+	case InputType::KEYBOARD:
+		return InputSourceType::KEYBOARD;
+	case InputType::MOUSE_BUTTON:
+		return InputSourceType::MOUSE;
+	case InputType::GAME_ACTION:
+		return InputSourceType::TOUCHSCREEN;
+	case InputType::GAMEPAD_BUTTON:
+	case InputType::GAMEPAD_AXIS_PLUS:
+	case InputType::GAMEPAD_AXIS_MINUS:
+		return InputSourceType::GAMEPAD;
+	default:
+		assert(false);
+	}
+}
+
 std::unordered_map<std::string, KeyPress> specialKeyCache;
 KeyPress KeyPress::getSpecialKey(const std::string &name)
 {

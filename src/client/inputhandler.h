@@ -96,13 +96,7 @@ public:
 	}
 
 	// Checks whether a key was down and resets the state
-	bool WasKeyDown(GameKeyType key)
-	{
-		bool b = keyWasDown[key];
-		if (b)
-			keyWasDown.reset(key);
-		return b;
-	}
+	bool WasKeyDown(GameKeyType key);
 
 	// Checks whether a key was just pressed. State will be cleared
 	// in the subsequent iteration of Game::processPlayerInteraction
@@ -192,6 +186,11 @@ private:
 		std::map<KeyPress::InputType, float> scale;
 	};
 
+	struct KeyState {
+		float analog_value;
+		float last_binary_update; // The last time the binary state ("is this pressed?") is updated
+	};
+
 	/* This is faster than using getKeySetting with the tradeoff that functions
 	 * using it must make sure that it's initialised before using it and there is
 	 * no error handling (for example bounds checking). This is useful here as the
@@ -202,10 +201,13 @@ private:
 	// Joystick deadzone
 	s16 joystick_deadzone = 0;
 
+	// Repetition interval for joystick input
+	float repeat_joystick_button_time = 0.0f;
+
 	s32 mouse_wheel = 0;
 
 	// The current state of physical keys.
-	std::map<KeyPress, float> physicalKeyDown;
+	std::map<KeyPress, KeyState> physicalKeyDown;
 
 	// The current state of keys
 	std::array<float, GameKeyType::INTERNAL_ENUM_COUNT> axisValues;

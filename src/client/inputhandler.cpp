@@ -3,6 +3,7 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 // Copyright (C) 2017 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
 
+#include "porting.h"
 #include "settings.h"
 #include "util/numeric.h"
 #include "inputhandler.h"
@@ -15,7 +16,8 @@
 static const std::array input_settings = {
 	"joystick_deadzone",
 	"keyboard_camera_speed",
-	"joystick_frustum_sensitivity"
+	"joystick_frustum_sensitivity",
+	"repeat_joystick_button_time"
 };
 
 InputHandler::InputHandler()
@@ -104,6 +106,7 @@ void MyEventReceiver::reloadKeybindings()
 	}
 
 	joystick_deadzone = g_settings->getS16("joystick_deadzone");
+	repeat_joystick_button_time = g_settings->getFloat("repeat_joystick_button_time");
 
 	static const std::array camera_rotation_actions = {
 		KeyType::CAMERA_YAW_LEFT,
@@ -120,15 +123,42 @@ void MyEventReceiver::reloadKeybindings()
 
 }
 
+bool MyEventReceiver::WasKeyDown(GameKeyType key)
+{
+	bool b = keyWasDown[key];
+	if (b) {
+		keyWasDown.reset(key);
+	} else if (IsKeyDown(key)) {
+		for (auto kp: keybindings[key].keys) {
+			if (kp.getSourceType() != KeyPress::InputSourceType::GAMEPAD)
+				continue;
+			auto down_ent = physicalKeyDown.find(kp);
+			if (down_ent == physicalKeyDown.end())
+				continue;
+			if (auto &keystate = down_ent->second; InputHandler::analogToBoolean(keystate.analog_value)) {
+				auto time_now = porting::getTimeMs() / 1000.0f;
+				if (time_now - keystate.last_binary_update >= repeat_joystick_button_time) {
+					b = true;
+					keystate.last_binary_update = time_now;
+				}
+			}
+		}
+	}
+	return b;
+}
+
 bool MyEventReceiver::setKeyDown(KeyPress keyCode, float value)
 {
 	if (keysListenedFor.find(keyCode) == keysListenedFor.end()) // ignore irrelevant key input
 		return false;
 	auto action = keysListenedFor[keyCode];
-	if (value > 0)
-		physicalKeyDown[keyCode] = value;
-	else
+	if (value > 0) {
+		if (physicalKeyDown.find(keyCode) == physicalKeyDown.end())
+			physicalKeyDown[keyCode].last_binary_update = porting::getTimeMs() / 1000.0f;
+		physicalKeyDown[keyCode].analog_value = value;
+	} else {
 		physicalKeyDown.erase(keyCode);
+	}
 	setKeyDown(action, checkKeyDown(action));
 	return true;
 }
@@ -152,7 +182,7 @@ float MyEventReceiver::checkKeyDown(GameKeyType action) const
 	auto value = 0.0f;
 	for (const auto &key : keybindings[action].keys) {
 		if (auto p = physicalKeyDown.find(key); p != physicalKeyDown.end())
-			value = std::max(value, p->second * keybindings[action].getScale(key.getType()));
+			value = std::max(value, p->second.analog_value * keybindings[action].getScale(key.getType()));
 	}
 	return value;
 }
