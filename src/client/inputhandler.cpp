@@ -162,13 +162,15 @@ bool MyEventReceiver::setKeyDown(KeyPress keyCode, float value)
 	return true;
 }
 
-void MyEventReceiver::setKeyDown(GameKeyType action, float value)
+void MyEventReceiver::setKeyDown(GameKeyType action, std::pair<float, bool> new_state)
 {
+	auto value = new_state.first;
 	if (InputHandler::analogToBoolean(value)) {
 		if (!IsKeyDown(action))
 			keyWasPressed.set(action);
 		axisValues[action] = value;
-		keyWasDown.set(action);
+		if (new_state.second)
+			keyWasDown.set(action);
 	} else {
 		if (IsKeyDown(action))
 			keyWasReleased.set(action);
@@ -176,14 +178,17 @@ void MyEventReceiver::setKeyDown(GameKeyType action, float value)
 	}
 }
 
-float MyEventReceiver::checkKeyDown(GameKeyType action) const
+std::pair<float, bool> MyEventReceiver::checkKeyDown(GameKeyType action) const
 {
 	auto value = 0.0f;
+	bool setWasKeyDown = false;
 	for (const auto &key : keybindings[action].keys) {
-		if (auto p = physicalKeyDown.find(key); p != physicalKeyDown.end())
+		if (auto p = physicalKeyDown.find(key); p != physicalKeyDown.end()) {
 			value = std::max(value, p->second.analog_value * keybindings[action].getScale(key.getType()));
+			setWasKeyDown |= p->first.getSourceType() != KeyPress::InputSourceType::GAMEPAD;
+		}
 	}
-	return value;
+	return std::pair(value, setWasKeyDown);
 }
 
 bool MyEventReceiver::OnEvent(const SEvent &event)
