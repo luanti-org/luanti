@@ -106,6 +106,9 @@ struct CraftReplacements
 	CraftReplacements(const std::vector<std::pair<std::string, std::string> > &pairs_):
 		pairs(pairs_)
 	{}
+	CraftReplacements(const CraftReplacements &copied):
+		pairs(copied.pairs)
+	{}
 	std::string dump() const;
 };
 
