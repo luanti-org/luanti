@@ -43,7 +43,7 @@ public:
 	KeyPress(const SEvent::SKeyInput &in);
 	KeyPress(const SEvent::SMouseInput &in);
 	KeyPress(const SEvent::SGamepadButtonEvent &in);
-	KeyPress(const SEvent::SGamepadAxisEvent &in, bool flip = false);
+	KeyPress(const SEvent::SGamepadAxisEvent &in);
 	KeyPress(GameKeyType key) : value(key) {}
 
 	// Get a string representation that is suitable for use in minetest.conf
@@ -79,6 +79,9 @@ public:
 
 	// Get the source type of input
 	InputSourceType getSourceType() const;
+
+	// Get the joystick axis in the opposite direction (if available)
+	KeyPress flip() const;
 
 	// Check whether the keypress is valid
 	operator bool() const;
@@ -143,3 +146,20 @@ bool keySettingHasMatch(const std::string &settingname, KeyPress kp);
 
 // Clear fast lookup cache
 void clearKeyCache();
+
+// Generalized keypress event
+struct KeyPressEvent {
+	KeyPress key;
+	float analog_value = 0;
+
+	// Construct a KeyPressEvent from an Irrlicht event. User events (e.g. touchscreen input) is not handled.
+	KeyPressEvent(const SEvent &event);
+
+	operator bool() const {
+		return key;
+	}
+
+	bool isPressed() const {
+		return analog_value > 0;
+	}
+};
