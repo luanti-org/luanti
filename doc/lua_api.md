@@ -5676,6 +5676,8 @@ All numbers used in these methods must be integers.
   indices.
     * from (`minx`,`miny`,`minz`) to (`maxx`,`maxy`,`maxz`) in the order of
       `[z [y [x]]]`.
+    * errors if the arguments are not integers
+    * errors if (`minx`, `miny`, `minz`) to (`maxx`, `maxy`, `maxz`) is not completely inside the VoxelArea.
 * `iterp(minp, maxp)`: same as above, except takes a vector
 
 ### Y stride and z stride of a flat array
