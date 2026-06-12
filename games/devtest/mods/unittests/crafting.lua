@@ -12,6 +12,9 @@ local function test_clear_craft()
 		recipe = {{"foo", "bar"}}
 	})
 	assert(#core.get_all_craft_recipes("foo") == 2)
+	local arbitrary_recipe = core.get_all_craft_recipes("foo")[1]
+	assert(arbitrary_recipe.replacements) -- Both are shaped, and should have an empty replacements table
+	assert(not arbitrary_recipe.replacements[1])
 	core.clear_craft({output="foo"})
 	assert(core.get_all_craft_recipes("foo") == nil)
 	-- Clearing by input
