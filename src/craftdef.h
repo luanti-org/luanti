@@ -190,6 +190,8 @@ public:
 	virtual std::string getName() const;
 	virtual bool check(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftOutput getOutput(const CraftInput &input, IGameDef *gamedef) const;
+	// Returns the CraftReplacements associated with the recipe as-is
+	CraftReplacements getReplacements(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftInput getInput(const CraftOutput &output, IGameDef *gamedef) const;
 	virtual void decrementInput(CraftInput &input,
 		std::vector<ItemStack> &output_replacements, IGameDef *gamedef) const;
@@ -234,6 +236,8 @@ public:
 	virtual std::string getName() const;
 	virtual bool check(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftOutput getOutput(const CraftInput &input, IGameDef *gamedef) const;
+	// Returns the CraftReplacements associated with the recipe as-is
+	CraftReplacements getReplacements(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftInput getInput(const CraftOutput &output, IGameDef *gamedef) const;
 	virtual void decrementInput(CraftInput &input,
 		std::vector<ItemStack> &output_replacements, IGameDef *gamedef) const;
@@ -315,6 +319,8 @@ public:
 	virtual std::string getName() const;
 	virtual bool check(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftOutput getOutput(const CraftInput &input, IGameDef *gamedef) const;
+	// Returns the CraftReplacements associated with the recipe as-is
+	CraftReplacements getReplacements(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftInput getInput(const CraftOutput &output, IGameDef *gamedef) const;
 	virtual void decrementInput(CraftInput &input,
 		std::vector<ItemStack> &output_replacements, IGameDef *gamedef) const;
@@ -358,6 +364,8 @@ public:
 	virtual std::string getName() const;
 	virtual bool check(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftOutput getOutput(const CraftInput &input, IGameDef *gamedef) const;
+	// Returns the CraftReplacements associated with the recipe as-is
+	CraftReplacements getReplacements(const CraftInput &input, IGameDef *gamedef) const;
 	virtual CraftInput getInput(const CraftOutput &output, IGameDef *gamedef) const;
 	virtual void decrementInput(CraftInput &input,
 		std::vector<ItemStack> &output_replacements, IGameDef *gamedef) const;
