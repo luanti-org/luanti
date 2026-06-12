@@ -327,9 +327,9 @@ KeyPress::KeyPress(const SEvent::SGamepadButtonEvent &in)
 	emplace<InputType::GAMEPAD_BUTTON>(in.Button);
 }
 
-KeyPress::KeyPress(const SEvent::SGamepadAxisEvent &in, bool flip)
+KeyPress::KeyPress(const SEvent::SGamepadAxisEvent &in)
 {
-	if ((in.Value >= 0) ^ flip)
+	if (in.Value >= 0)
 		emplace<InputType::GAMEPAD_AXIS_PLUS>(in.Axis);
 	else
 		emplace<InputType::GAMEPAD_AXIS_MINUS>(in.Axis);
@@ -415,6 +415,22 @@ bool KeyPress::loadUnsignedFromPrefix(const std::string &name, const std::string
 	return true;
 }
 
+KeyPress KeyPress::flip() const
+{
+	KeyPress flipped;
+	switch (getType()) {
+	case InputType::GAMEPAD_AXIS_PLUS:
+		flipped.emplace<InputType::GAMEPAD_AXIS_MINUS>(get<InputType::GAMEPAD_AXIS_PLUS>());
+		break;
+	case InputType::GAMEPAD_AXIS_MINUS:
+		flipped.emplace<InputType::GAMEPAD_AXIS_PLUS>(get<InputType::GAMEPAD_AXIS_MINUS>());
+		break;
+	default:
+		break;
+	}
+	return flipped;
+}
+
 KeyPress::operator bool() const
 {
 	switch (getType()) {
@@ -495,4 +511,49 @@ bool keySettingHasMatch(const std::string &settingname, KeyPress kp)
 void clearKeyCache()
 {
 	g_key_setting_cache.clear();
+}
+
+KeyPressEvent::KeyPressEvent(const SEvent &event)
+{
+	switch (event.EventType) {
+	case EET_KEY_INPUT_EVENT:
+		key = KeyPress(event.KeyInput);
+		analog_value = event.KeyInput.PressedDown;
+		break;
+	case EET_MOUSE_INPUT_EVENT:
+		switch (event.MouseInput.Event) {
+		case EMIE_LMOUSE_PRESSED_DOWN:
+		case EMIE_MMOUSE_PRESSED_DOWN:
+		case EMIE_RMOUSE_PRESSED_DOWN:
+		case EMIE_XMOUSE_PRESSED_DOWN:
+			key = KeyPress(event.MouseInput);
+			analog_value = 1;
+			break;
+		case EMIE_LMOUSE_LEFT_UP:
+		case EMIE_MMOUSE_LEFT_UP:
+		case EMIE_RMOUSE_LEFT_UP:
+		case EMIE_XMOUSE_LEFT_UP:
+			key = KeyPress(event.MouseInput);
+			analog_value = 0;
+			break;
+		default: // ignore irrelevant events
+			break;
+		}
+		break;
+	case EET_GAMEPAD_BUTTON_EVENT:
+		key = KeyPress(event.GamepadButtonEvent);
+		analog_value = event.GamepadButtonEvent.PressedDown;
+		break;
+	case EET_GAMEPAD_AXIS_EVENT: {
+		key = KeyPress(event.GamepadAxisEvent);
+		auto event_value = event.GamepadAxisEvent.Value;
+		auto joystick_deadzone = g_settings->getS16("joystick_deadzone");
+		if (event_value > -joystick_deadzone && event_value < joystick_deadzone)
+			event_value = 0;
+		analog_value = event_value > 0 ? event_value/32767.0f : -event_value/32768.0f;
+		break;
+	}
+	default: // ignore irrelevant events
+		break;
+	}
 }

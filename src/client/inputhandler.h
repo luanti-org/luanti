@@ -199,9 +199,6 @@ private:
 	 */
 	std::array<Keybinding, KeyType::INTERNAL_ENUM_COUNT> keybindings;
 
-	// Joystick deadzone
-	s16 joystick_deadzone = 0;
-
 	// Repetition interval for joystick input
 	float repeat_joystick_button_time = 0.0f;
 

@@ -14,7 +14,6 @@
 #include "client/renderingengine.h"
 
 static const std::array input_settings = {
-	"joystick_deadzone",
 	"keyboard_camera_speed",
 	"joystick_frustum_sensitivity",
 	"repeat_joystick_button_time"
@@ -105,7 +104,6 @@ void MyEventReceiver::reloadKeybindings()
 		}
 	}
 
-	joystick_deadzone = g_settings->getS16("joystick_deadzone");
 	repeat_joystick_button_time = g_settings->getFloat("repeat_joystick_button_time");
 
 	static const std::array camera_rotation_actions = {
@@ -259,50 +257,21 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 	}
 
 	// Remember whether each key is down or up
-	if (event.EventType == EET_KEY_INPUT_EVENT) {
-		KeyPress keyCode(event.KeyInput);
-		if (setKeyDown(keyCode, event.KeyInput.PressedDown))
-			return true;
-	} else if (g_touchcontrols && event.EventType == EET_TOUCH_INPUT_EVENT) {
+	if (g_touchcontrols && event.EventType == EET_TOUCH_INPUT_EVENT) {
 		// In case of touchcontrols, we have to handle different events
 		g_touchcontrols->translateEvent(event);
 		return true;
-	} else if (event.EventType == EET_MOUSE_INPUT_EVENT) {
-		// Handle mouse events
-		switch (event.MouseInput.Event) {
-		case EMIE_LMOUSE_PRESSED_DOWN:
-		case EMIE_MMOUSE_PRESSED_DOWN:
-		case EMIE_RMOUSE_PRESSED_DOWN:
-		case EMIE_XMOUSE_PRESSED_DOWN:
-			setKeyDown(KeyPress(event.MouseInput), 1);
-			break;
-		case EMIE_LMOUSE_LEFT_UP:
-		case EMIE_MMOUSE_LEFT_UP:
-		case EMIE_RMOUSE_LEFT_UP:
-		case EMIE_XMOUSE_LEFT_UP:
-			setKeyDown(KeyPress(event.MouseInput), 0);
-			break;
-		case EMIE_MOUSE_WHEEL:
-			mouse_wheel += event.MouseInput.Wheel;
-			break;
-		default:
-			break;
-		}
-	} else if (event.EventType == EET_GAMEPAD_BUTTON_EVENT) {
-		setKeyDown(KeyPress(event.GamepadButtonEvent), event.GamepadButtonEvent.PressedDown);
-		return true;
-	} else if (event.EventType == EET_GAMEPAD_AXIS_EVENT) {
-		auto event_value = event.GamepadAxisEvent.Value;
-		if (event_value > -joystick_deadzone && event_value < joystick_deadzone)
-			event_value = 0;
-		float analog_value = event_value > 0 ? event_value/32767.0f : -event_value/32768.0f;
-		setKeyDown(KeyPress(event.GamepadAxisEvent), analog_value);
-		// reset the analog joystick in the opposite value
-		setKeyDown(KeyPress(event.GamepadAxisEvent, true), 0);
-		return true;
+	} else if (event.EventType == EET_MOUSE_INPUT_EVENT && event.MouseInput.Event == EMIE_MOUSE_WHEEL) {
+		mouse_wheel += event.MouseInput.Wheel;
 	} else if (event.EventType == EET_USER_EVENT && event.UserEvent.type == EUET_GAME_KEY) {
 		KeyPress keyCode(static_cast<GameKeyType>(event.UserEvent.UserData1));
 		setKeyDown(keyCode, InputHandler::intToAnalog(event.UserEvent.UserData2));
+		return true;
+	} else if (KeyPressEvent kpevent(event); kpevent) {
+		setKeyDown(kpevent.key, kpevent.analog_value);
+		if (auto flipped = kpevent.key.flip(); flipped) {
+			setKeyDown(flipped, 0);
+		}
 		return true;
 	}
 
