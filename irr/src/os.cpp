@@ -75,6 +75,12 @@ f32 Byteswap::byteswap(f32 num)
 	tmp = bswap_32(tmp);
 	return irrBitCast<f32>(tmp);
 }
+f64 Byteswap::byteswap(f64 num)
+{
+	u64 tmp = irrBitCast<u64>(num);
+	tmp = bswap_64(tmp);
+	return irrBitCast<f64>(tmp);
+}
 }
 
 #if defined(_IRR_WINDOWS_API_)

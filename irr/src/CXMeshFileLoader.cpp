@@ -1147,8 +1147,8 @@ bool CXMeshFileLoader::parseDataObjectMeshMaterialList(SXMesh &mesh)
 
 	// in version 03.02, the face indices end with two semicolons.
 	// commented out version check, as version 03.03 exported from blender also has 2 semicolons
-	if (!BinaryFormat) { // && MajorVersion == 3 && MinorVersion <= 2)
-		if (P[0] == ';')
+	if (!eof() && !BinaryFormat) { // && MajorVersion == 3 && MinorVersion <= 2)
+		if (*P == ';')
 			++P;
 	}
 
@@ -1584,47 +1584,37 @@ core::stringc CXMeshFileLoader::getNextToken()
 		// in binary mode it will only return NAME and STRING token
 		// and (correctly) skip over other tokens.
 
-		s16 tok = readBinWord();
+		const auto tok = readBinNum<u16>();
 		u32 len;
-		if (P >= End)
+		if (eof())
 			return core::stringc();
-
-		const auto read_string = [&]() {
-			u32 len = readBinDWord();
-			if (P >= End)
-				return core::stringc();
-			len = (u32) std::min<size_t>(len, End - P);
-			core::stringc res(P, len);
-			P += len;
-			return res;
-		};
 
 		// standalone tokens
 		switch (tok) {
 		case 1:
 			// name token
-			return read_string();
+			return readBinString();
 		case 2:
 			// string token
-			s = read_string();
+			s = readBinString();
 			// unclear what is being skipped here, probably a null terminator in UTF-16
-			P += 2;
+			advance(2);
 			return s;
 		case 3:
 			// integer token
-			P += 4;
+			advance(4);
 			return "<integer>";
 		case 5:
 			// GUID token
-			P += 16;
+			advance(16);
 			return "<guid>";
 		case 6:
-			len = readBinDWord();
-			P += (len * 4);
+			len = readBinNum<u32>();
+			advance(len * 4);
 			return "<int_list>";
 		case 7:
-			len = readBinDWord();
-			P += (len * FloatSize);
+			len = readBinNum<u32>();
+			advance(len * FloatSize);
 			return "<flt_list>";
 		case 0x0a:
 			return "{";
@@ -1682,19 +1672,19 @@ core::stringc CXMeshFileLoader::getNextToken()
 	else {
 		findNextNoneWhiteSpace();
 
-		if (P >= End)
+		if (eof())
 			return s;
 
-		while ((P < End) && !core::isspace(P[0])) {
+		while (!eof() && !core::isspace(*P)) {
 			// either keep token delimiters when already holding a token, or return if first valid char
-			if (P[0] == ';' || P[0] == '}' || P[0] == '{' || P[0] == ',') {
+			if (*P == ';' || *P == '}' || *P == '{' || *P == ',') {
 				if (!s.size()) {
-					s.append(P[0]);
+					s.append(*P);
 					++P;
 				}
 				break; // stop for delimiter
 			}
-			s.append(P[0]);
+			s.append(*P);
 			++P;
 		}
 	}
@@ -1708,8 +1698,8 @@ void CXMeshFileLoader::findNextNoneWhiteSpaceNumber()
 	if (BinaryFormat)
 		return;
 
-	while ((P < End) && (P[0] != '-') && (P[0] != '.') &&
-			!(core::isdigit(P[0]))) {
+	while (!eof() && (*P != '-') && (*P != '.') &&
+			!(core::isdigit(*P))) {
 		// check if this is a comment
 		if ((P[0] == '/' && P[1] == '/') || P[0] == '#')
 			readUntilEndOfLine();
@@ -1725,18 +1715,17 @@ void CXMeshFileLoader::findNextNoneWhiteSpace()
 		return;
 
 	while (true) {
-		while ((P < End) && core::isspace(P[0])) {
+		while (!eof() && core::isspace(*P)) {
 			if (*P == '\n')
 				++Line;
 			++P;
 		}
 
-		if (P >= End)
+		if (eof())
 			return;
 
 		// check if this is a comment
-		if ((P[0] == '/' && P[1] == '/') ||
-				P[0] == '#')
+		if ((P[0] == '/' && (!eof() && P[1] == '/')) || P[0] == '#')
 			readUntilEndOfLine();
 		else
 			break;
@@ -1752,19 +1741,22 @@ bool CXMeshFileLoader::getNextTokenAsString(core::stringc &out)
 	}
 	findNextNoneWhiteSpace();
 
-	if (P >= End)
+	if (eof())
 		return false;
 
-	if (P[0] != '"')
+	if (*P != '"')
 		return false;
 	++P;
 
-	while (P < End && P[0] != '"') {
-		out.append(P[0]);
+	while (!eof() && *P != '"') {
+		out.append(*P);
 		++P;
 	}
 
-	if (P[1] != ';' || P[0] != '"')
+	if (remainingBytes() < 2)
+		return false;
+
+	if (P[0] != '"' || P[1] != ';')
 		return false;
 	P += 2;
 
@@ -1776,8 +1768,8 @@ void CXMeshFileLoader::readUntilEndOfLine()
 	if (BinaryFormat)
 		return;
 
-	while (P < End) {
-		if (P[0] == '\n' || P[0] == '\r') {
+	while (!eof()) {
+		if (*P == '\n' || *P == '\r') {
 			++P;
 			++Line;
 			return;
@@ -1787,44 +1779,18 @@ void CXMeshFileLoader::readUntilEndOfLine()
 	}
 }
 
-u16 CXMeshFileLoader::readBinWord()
-{
-	if (P >= End)
-		return 0;
-#ifdef __BIG_ENDIAN__
-	const u16 tmp = os::Byteswap::byteswap(*(u16 *)P);
-#else
-	const u16 tmp = *(u16 *)P;
-#endif
-	P += 2;
-	return tmp;
-}
-
-u32 CXMeshFileLoader::readBinDWord()
-{
-	if (P >= End)
-		return 0;
-#ifdef __BIG_ENDIAN__
-	const u32 tmp = os::Byteswap::byteswap(*(u32 *)P);
-#else
-	const u32 tmp = *(u32 *)P;
-#endif
-	P += 4;
-	return tmp;
-}
-
 u32 CXMeshFileLoader::readInt()
 {
 	if (BinaryFormat) {
 		if (!BinaryNumCount) {
-			const u16 tmp = readBinWord(); // 0x06 or 0x03
+			const auto tmp = readBinNum<u16>(); // 0x06 or 0x03
 			if (tmp == 0x06)
-				BinaryNumCount = readBinDWord();
+				BinaryNumCount = readBinNum<u32>();
 			else
 				BinaryNumCount = 1; // single int
 		}
 		--BinaryNumCount;
-		return readBinDWord();
+		return readBinNum<u32>();
 	} else {
 		findNextNoneWhiteSpaceNumber();
 		char *end = nullptr;
@@ -1838,40 +1804,31 @@ f32 CXMeshFileLoader::readFloat()
 {
 	if (BinaryFormat) {
 		if (!BinaryNumCount) {
-			const u16 tmp = readBinWord(); // 0x07 or 0x42
+			const auto tmp = readBinNum<u16>(); // 0x07 or 0x42
 			if (tmp == 0x07)
-				BinaryNumCount = readBinDWord();
+				BinaryNumCount = readBinNum<u32>();
 			else
 				BinaryNumCount = 1; // single int
 		}
 		--BinaryNumCount;
-		if (FloatSize == 8) {
-#ifdef __BIG_ENDIAN__
-			// TODO: Check if data is properly converted here
-			f32 ctmp[2];
-			ctmp[1] = os::Byteswap::byteswap(*(f32 *)P);
-			ctmp[0] = os::Byteswap::byteswap(*(f32 *)(P + 4));
-			const f32 tmp = (f32)(*(f64 *)(void *)ctmp);
-#else
-			const f32 tmp = (f32)(*(f64 *)P);
-#endif
-			P += 8;
-			return tmp;
-		} else {
-#ifdef __BIG_ENDIAN__
-			const f32 tmp = os::Byteswap::byteswap(*(f32 *)P);
-#else
-			const f32 tmp = *(f32 *)P;
-#endif
-			P += 4;
-			return tmp;
-		}
+		return FloatSize == 8 ? static_cast<f32>(readBinNum<f64>()) : readBinNum<f32>();
 	}
 	findNextNoneWhiteSpaceNumber();
 	char *end = nullptr;
 	f32 ftmp = (f32)strtod(P, &end);
 	P = end;
 	return ftmp;
+}
+
+core::stringc CXMeshFileLoader::readBinString()
+{
+	auto len = readBinNum<u32>();
+	if (eof())
+		return core::stringc();
+	len = (u32) std::min<size_t>(len, End - P);
+	core::stringc res(P, len);
+	advance(len);
+	return res;
 }
 
 // read 2-dimensional vector. Stops at semicolon after second value for text file format

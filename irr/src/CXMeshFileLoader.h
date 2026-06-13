@@ -10,6 +10,9 @@
 #include "S3DVertex.h"
 #include "SkinnedMesh.h"
 
+#include <algorithm>
+#include <cstring>
+
 namespace io
 {
 class IReadFile;
@@ -149,14 +152,51 @@ private:
 
 	void readUntilEndOfLine();
 
-	u16 readBinWord();
-	u32 readBinDWord();
+	size_t remainingBytes() { return End - P; }
+
+	// Incrementing P past End is UB, so don't do that.
+	void advance(size_t n) { P += std::min(n, remainingBytes()); }
+
+	// P == End should suffice, but P >= End is more robust.
+	bool eof() { return P >= End; }
+
+	template<size_t N>
+	std::array<u8, N> readBytes()
+	{
+		std::array<u8, N> res{}; // zeroed
+		size_t got = std::min(N, remainingBytes());
+		std::memcpy(res.data(), P, got);
+		P += got;
+		return res;
+	}
+
+	template<typename T>
+	T readBinNum()
+	{
+		const auto bytes = readBytes<sizeof(T)>();
+		T res;
+		std::memcpy(&res, bytes.data(), sizeof(T));
+#ifdef __BIG_ENDIAN__
+		res = os::Byteswap::byteswap(res);
+#endif
+		return res;
+	}
+
+	/// Read a binary-encoded string (u32 length followed by characters)
+	core::stringc readBinString();
+
 	u32 readInt();
+
 	f32 readFloat();
+
 	bool readVector2(core::vector2df &vec);
+
 	bool readVector3(core::vector3df &vec);
+
 	bool readMatrix(core::matrix4 &mat);
+
 	bool readRGB(video::SColor &color);
+
 	bool readRGBA(video::SColor &color);
 
 	SkinnedMeshBuilder AnimatedMesh;
