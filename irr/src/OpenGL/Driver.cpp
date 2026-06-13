@@ -1301,7 +1301,7 @@ void COpenGL3DriverBase::setBasicRenderStates(const SMaterial &material, const S
 	}
 
 	// Blend Factor
-	if (IR(material.BlendFactor) & 0xFFFFFFFF // TODO: why the & 0xFFFFFFFF?
+	if (irrBitCast<u32>(material.BlendFactor) & 0xFFFFFFFF // TODO: why the & 0xFFFFFFFF?
 			&& material.MaterialType != EMT_ONETEXTURE_BLEND) {
 		E_BLEND_FACTOR srcRGBFact = EBF_ZERO;
 		E_BLEND_FACTOR dstRGBFact = EBF_ZERO;

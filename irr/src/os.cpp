@@ -71,9 +71,9 @@ s64 Byteswap::byteswap(s64 num)
 }
 f32 Byteswap::byteswap(f32 num)
 {
-	u32 tmp = IR(num);
+	u32 tmp = irrBitCast<u32>(num);
 	tmp = bswap_32(tmp);
-	return (FR(tmp));
+	return irrBitCast<f32>(tmp);
 }
 }
 
