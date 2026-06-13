@@ -358,7 +358,6 @@ private:
 	bool m_cache_doubletap_jump;
 	bool m_cache_toggle_sneak_key;
 	bool m_cache_toggle_aux1_key;
-	bool m_cache_enable_joysticks;
 	bool m_cache_enable_fog;
 	bool m_cache_enable_noclip;
 	bool m_cache_enable_free_move;
