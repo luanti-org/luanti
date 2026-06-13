@@ -5,6 +5,7 @@
 #pragma once
 
 #include "irrTypes.h"
+#include "irrBitCast.h"
 #include <cmath>
 #include <cfloat>
 #include <cstdlib> // for abs() etc.
