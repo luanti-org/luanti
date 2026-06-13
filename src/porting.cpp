@@ -38,6 +38,7 @@
 	#include <android/api-level.h>
 #endif
 #if defined(__APPLE__)
+	#include <TargetConditionals.h>
 	#include <mach-o/dyld.h>
 	#include <CoreFoundation/CoreFoundation.h>
 	#include <sys/types.h>
@@ -45,6 +46,9 @@
 	// For _NSGetEnviron()
 	// Related: https://gitlab.haskell.org/ghc/ghc/issues/2458
 	#include <crt_externs.h>
+	#if TARGET_OS_IPHONE
+	#include "porting_ios.h"
+	#endif
 #endif
 
 #if defined(__HAIKU__)
@@ -588,6 +592,10 @@ bool setSystemPaths()
 	}
 	CFRelease(resources_url);
 
+	// for iPhoneSimulator, TARGET_OS_IPHONE=1 and TARGET_OS_MAC=1
+#if TARGET_OS_IPHONE
+	path_user = getAppleDocumentsDirectory();
+#elif TARGET_OS_MAC
 	auto user_path_env = getUserPathEnvVar();
 	if (user_path_env) {
 		path_user = std::move(user_path_env.value());
@@ -596,6 +604,9 @@ bool setSystemPaths()
 		path_user = std::string(getHomeOrFail())
 			+ "/Library/Application Support/" "minetest";
 	}
+#else
+	#error "Not supported Apple OS."
+#endif
 	return true;
 }
 
@@ -713,6 +724,8 @@ void initializePaths()
 	sanity_check(!path_cache.empty());
 #  elif defined(_WIN32)
 	path_cache = path_user + DIR_DELIM "cache";
+#  elif TARGET_OS_IOS
+	path_cache = getAppleCacheDirectory();
 #  else
 	// First try $XDG_CACHE_HOME/PROJECT_NAME
 	const char *cache_dir = getenv("XDG_CACHE_HOME");
