@@ -153,6 +153,11 @@ public:
 	/** \param filename is the string identifying the file which should be tested for existence.
 	\return True if file exists, and false if it does not exist or an error occurred. */
 	virtual bool existFile(const path &filename) const = 0;
+
+	//! Deletes a file from the file system.
+	/** \param filename is the string identifying the file which should be deleted.
+	\return True if file was deleted, and false if it could not be deleted or an error occurred. */
+	virtual bool deleteFile(const path &filename) = 0;
 };
 
 } // end namespace io

@@ -86,6 +86,9 @@ public:
 	//! determines if a file exists and would be able to be opened.
 	bool existFile(const io::path &filename) const override;
 
+	//! Deletes a file from the file system.
+	bool deleteFile(const io::path &filename) override;
+
 private:
 	//! Currently used FileSystemType
 	EFileSystemType FileSystemType = FILESYSTEM_NATIVE;

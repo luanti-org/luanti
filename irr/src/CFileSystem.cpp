@@ -479,6 +479,16 @@ bool CFileSystem::existFile(const io::path &filename) const
 #endif
 }
 
+//! Deletes a file from the file system.
+bool CFileSystem::deleteFile(const io::path &filename)
+{
+#if defined(_MSC_VER)
+	return (_unlink(filename.c_str()) == 0);
+#else
+	return (unlink(filename.c_str()) == 0);
+#endif
+}
+
 //! creates a filesystem which is able to open files from the ordinary file system,
 //! and out of zipfiles, which are able to be added to the filesystem.
 IFileSystem *createFileSystem()
