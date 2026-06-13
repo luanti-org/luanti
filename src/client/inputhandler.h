@@ -6,143 +6,20 @@
 
 #include "irrlichttypes.h"
 #include "irr_v2d.h"
-#include "joystick_controller.h"
 #include <array>
+#include <bitset>
+#include <map>
 #include <set>
 #include <unordered_map>
+#include <utility>
 #include "keycode.h"
 #include "settings.h"
 #include "util/string.h"
 
-class InputHandler;
-
-enum class PointerType {
-	Mouse,
-	Touch,
-};
-
-class MyEventReceiver : public IEventReceiver
-{
-public:
-	// This is the one method that we have to implement
-	virtual bool OnEvent(const SEvent &event);
-
-	bool IsKeyDown(GameKeyType key) const { return keyIsDown[key]; }
-
-	// Checks whether a key was down and resets the state
-	bool WasKeyDown(GameKeyType key)
-	{
-		bool b = keyWasDown[key];
-		if (b)
-			keyWasDown.reset(key);
-		return b;
-	}
-
-	// Checks whether a key was just pressed. State will be cleared
-	// in the subsequent iteration of Game::processPlayerInteraction
-	bool WasKeyPressed(GameKeyType key) const { return keyWasPressed[key]; }
-
-	// Checks whether a key was just released. State will be cleared
-	// in the subsequent iteration of Game::processPlayerInteraction
-	bool WasKeyReleased(GameKeyType key) const { return keyWasReleased[key]; }
-
-	void reloadKeybindings();
-
-	s32 getMouseWheel()
-	{
-		s32 a = mouse_wheel;
-		mouse_wheel = 0;
-		return a;
-	}
-
-	void clearInput()
-	{
-		physicalKeyDown.clear();
-		keyIsDown.reset();
-		keyWasDown.reset();
-		keyWasPressed.reset();
-		keyWasReleased.reset();
-
-		mouse_wheel = 0;
-	}
-
-	void releaseAllKeys()
-	{
-		physicalKeyDown.clear();
-		keyWasReleased |= keyIsDown;
-		keyIsDown.reset();
-	}
-
-	void clearWasKeyPressed()
-	{
-		keyWasPressed.reset();
-	}
-
-	void clearWasKeyReleased()
-	{
-		keyWasReleased.reset();
-	}
-
-	JoystickController *joystick = nullptr;
-
-	PointerType getLastPointerType() { return last_pointer_type; }
-
-private:
-	void listenForKey(KeyPress keyCode, GameKeyType action)
-	{
-		if (keyCode)
-			keysListenedFor[keyCode] = action;
-	}
-
-	bool setKeyDown(KeyPress keyCode, bool is_down);
-	void setKeyDown(GameKeyType action, bool is_down);
-	bool checkKeyDown(GameKeyType action) const;
-
-	/* This is faster than using getKeySetting with the tradeoff that functions
-	 * using it must make sure that it's initialised before using it and there is
-	 * no error handling (for example bounds checking). This is useful here as the
-	 * faster (up to 10x faster) key lookup is an asset.
-	 */
-	std::array<std::vector<KeyPress>, KeyType::INTERNAL_ENUM_COUNT> keybindings;
-
-	s32 mouse_wheel = 0;
-
-	// The current state of physical keys.
-	std::set<KeyPress> physicalKeyDown;
-
-	// The current state of keys
-	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyIsDown;
-
-	// Like keyIsDown but only reset when that key is read
-	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyWasDown;
-
-	// Whether a key has just been pressed
-	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyWasPressed;
-
-	// Whether a key has just been released
-	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyWasReleased;
-
-	// List of keys we listen for
-	std::unordered_map<KeyPress, GameKeyType> keysListenedFor;
-
-	// Intentionally not reset by clearInput/releaseAllKeys.
-	bool fullscreen_is_down = false;
-
-	bool close_world_down = false;
-	bool esc_down = false;
-
-	PointerType last_pointer_type = PointerType::Mouse;
-};
-
 class InputHandler
 {
 public:
-	InputHandler()
-	{
-		for (const auto &name: Settings::getLayer(SL_DEFAULTS)->getNames())
-			if (str_starts_with(name, "keymap_"))
-				g_settings->registerChangedCallback(name, &settingChangedCallback, this);
-	}
+	InputHandler();
 
 	virtual ~InputHandler() = default;
 
@@ -151,14 +28,30 @@ public:
 		return false;
 	}
 
-	virtual bool isKeyDown(GameKeyType k) = 0;
+	// Convert an analog axis value to a boolean
+	static inline bool analogToBoolean(float value)
+	{
+		return value >= ANALOG_THRESHOLD;
+	}
+
+	static inline s16 analogToInt(float value)
+	{
+		return value > 0 ? std::min(1.0f, value) * 32767.0f : 0;
+	}
+
+	static inline float intToAnalog(s16 value)
+	{
+		return value > 0 ? value / 32767.0f : 0;
+	}
+
+	virtual float getAxisValue(GameKeyType k) = 0;
+	virtual bool isKeyDown(GameKeyType k) {
+		return analogToBoolean(getAxisValue(k));
+	}
 	virtual bool wasKeyDown(GameKeyType k) = 0;
 	virtual bool wasKeyPressed(GameKeyType k) = 0;
 	virtual bool wasKeyReleased(GameKeyType k) = 0;
 	virtual bool cancelPressed() = 0;
-
-	virtual float getJoystickSpeed() = 0;
-	virtual float getJoystickDirection() = 0;
 
 	virtual void clearWasKeyPressed() {}
 	virtual void clearWasKeyReleased() {}
@@ -180,7 +73,162 @@ public:
 		static_cast<InputHandler *>(data)->reloadKeybindings();
 	}
 
-	JoystickController joystick;
+	static constexpr float ANALOG_THRESHOLD = 0.05;
+};
+
+enum class PointerType {
+	Mouse,
+	Touch,
+};
+
+class MyEventReceiver : public IEventReceiver
+{
+public:
+	// This is the one method that we have to implement
+	virtual bool OnEvent(const SEvent &event);
+
+	// Gets the analog value corresponding to a key
+	float GetAxisValue(GameKeyType key) const { return axisValues[key]; }
+
+	// Checks whether a key is held down
+	bool IsKeyDown(GameKeyType key) const
+	{
+		return InputHandler::analogToBoolean(GetAxisValue(key));
+	}
+
+	// Checks whether a key was down and resets the state
+	bool WasKeyDown(GameKeyType key);
+
+	// Checks whether a key was just pressed. State will be cleared
+	// in the subsequent iteration of Game::processPlayerInteraction
+	bool WasKeyPressed(GameKeyType key) const { return keyWasPressed[key]; }
+
+	// Checks whether a key was just released. State will be cleared
+	// in the subsequent iteration of Game::processPlayerInteraction
+	bool WasKeyReleased(GameKeyType key) const { return keyWasReleased[key]; }
+
+	void reloadKeybindings();
+
+	s32 getMouseWheel()
+	{
+		s32 a = mouse_wheel;
+		mouse_wheel = 0;
+		return a;
+	}
+
+	void clearInput()
+	{
+		physicalKeyDown.clear();
+		axisValues.fill(0);
+		keyWasDown.reset();
+		keyWasPressed.reset();
+		keyWasReleased.reset();
+
+		mouse_wheel = 0;
+	}
+
+	void releaseAllKeys()
+	{
+		physicalKeyDown.clear();
+		for (size_t i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++)
+			keyWasReleased[i] = keyWasReleased[i] || InputHandler::analogToBoolean(axisValues[i]);
+		axisValues.fill(0);
+	}
+
+	void clearWasKeyPressed()
+	{
+		keyWasPressed.reset();
+	}
+
+	void clearWasKeyReleased()
+	{
+		keyWasReleased.reset();
+	}
+
+	PointerType getLastPointerType() { return last_pointer_type; }
+
+private:
+	void listenForKey(KeyPress keyCode, GameKeyType action)
+	{
+		if (keyCode)
+			keysListenedFor[keyCode] = action;
+	}
+
+	bool setKeyDown(KeyPress keyCode, float value);
+	void setKeyDown(GameKeyType action, std::pair<float, bool> new_state);
+	std::pair<float, bool> checkKeyDown(GameKeyType action) const;
+
+	struct Keybinding {
+		Keybinding() = default;
+		Keybinding(std::vector<KeyPress> in_keys): keys(in_keys) {}
+
+		inline float getScale(KeyPress::InputType input_type) const
+		{
+			if (auto p = scale.find(input_type); p != scale.end())
+				return p->second;
+			else
+				return 1.0f;
+		}
+
+		inline void setKBMScale(float value)
+		{
+			scale[KeyPress::InputType::KEYBOARD] = value;
+			scale[KeyPress::InputType::MOUSE_BUTTON] = value;
+		}
+
+		inline void setJoystickScale(float value)
+		{
+			scale[KeyPress::InputType::GAMEPAD_BUTTON] = value;
+			scale[KeyPress::InputType::GAMEPAD_AXIS_PLUS] = value;
+			scale[KeyPress::InputType::GAMEPAD_AXIS_MINUS] = value;
+		}
+
+		std::vector<KeyPress> keys;
+		std::map<KeyPress::InputType, float> scale;
+	};
+
+	struct KeyState {
+		float analog_value;
+		float last_binary_update; // The last time the binary state ("is this pressed?") is updated
+	};
+
+	/* This is faster than using getKeySetting with the tradeoff that functions
+	 * using it must make sure that it's initialised before using it and there is
+	 * no error handling (for example bounds checking). This is useful here as the
+	 * faster (up to 10x faster) key lookup is an asset.
+	 */
+	std::array<Keybinding, KeyType::INTERNAL_ENUM_COUNT> keybindings;
+
+	// Repetition interval for joystick input
+	float repeat_joystick_button_time = 0.0f;
+
+	s32 mouse_wheel = 0;
+
+	// The current state of physical keys.
+	std::map<KeyPress, KeyState> physicalKeyDown;
+
+	// The current state of keys
+	std::array<float, GameKeyType::INTERNAL_ENUM_COUNT> axisValues;
+
+	// Like axisValues but only reset when that key is read
+	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyWasDown;
+
+	// Whether a key has just been pressed
+	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyWasPressed;
+
+	// Whether a key has just been released
+	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keyWasReleased;
+
+	// List of keys we listen for
+	std::unordered_map<KeyPress, GameKeyType> keysListenedFor;
+
+	// Intentionally not reset by clearInput/releaseAllKeys.
+	bool fullscreen_is_down = false;
+
+	bool close_world_down = false;
+	bool esc_down = false;
+
+	PointerType last_pointer_type = PointerType::Mouse;
 };
 
 /*
@@ -192,35 +240,25 @@ class RealInputHandler final : public InputHandler
 public:
 	RealInputHandler(MyEventReceiver *receiver) : m_receiver(receiver)
 	{
-		m_receiver->joystick = &joystick;
 		m_receiver->reloadKeybindings();
 	}
 
-	virtual ~RealInputHandler()
+	virtual float getAxisValue(GameKeyType k)
 	{
-		m_receiver->joystick = nullptr;
-	}
-
-	virtual bool isKeyDown(GameKeyType k)
-	{
-		return m_receiver->IsKeyDown(k) || joystick.isKeyDown(k);
+		return m_receiver->GetAxisValue(k);
 	}
 	virtual bool wasKeyDown(GameKeyType k)
 	{
-		return m_receiver->WasKeyDown(k) || joystick.wasKeyDown(k);
+		return m_receiver->WasKeyDown(k);
 	}
 	virtual bool wasKeyPressed(GameKeyType k)
 	{
-		return m_receiver->WasKeyPressed(k) || joystick.wasKeyPressed(k);
+		return m_receiver->WasKeyPressed(k);
 	}
 	virtual bool wasKeyReleased(GameKeyType k)
 	{
-		return m_receiver->WasKeyReleased(k) || joystick.wasKeyReleased(k);
+		return m_receiver->WasKeyReleased(k);
 	}
-
-	virtual float getJoystickSpeed();
-
-	virtual float getJoystickDirection();
 
 	virtual bool cancelPressed()
 	{
@@ -251,13 +289,11 @@ public:
 
 	void clear()
 	{
-		joystick.clear();
 		m_receiver->clearInput();
 	}
 
 	void releaseAllKeys()
 	{
-		joystick.releaseAllKeys();
 		m_receiver->releaseAllKeys();
 	}
 
@@ -276,13 +312,11 @@ public:
 		return true;
 	}
 
-	virtual bool isKeyDown(GameKeyType k) { return keydown[k]; }
+	virtual float getAxisValue(GameKeyType k) { return keydown[k]; }
 	virtual bool wasKeyDown(GameKeyType k) { return false; }
 	virtual bool wasKeyPressed(GameKeyType k) { return false; }
 	virtual bool wasKeyReleased(GameKeyType k) { return false; }
 	virtual bool cancelPressed() { return false; }
-	virtual float getJoystickSpeed() { return joystickSpeed; }
-	virtual float getJoystickDirection() { return joystickDirection; }
 	virtual v2s32 getMousePos() { return mousepos; }
 	virtual void setMousePos(s32 x, s32 y) { mousepos = v2s32(x, y); }
 
@@ -296,6 +330,4 @@ private:
 	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keydown;
 	v2s32 mousepos;
 	v2s32 mousespeed;
-	float joystickSpeed;
-	float joystickDirection;
 };

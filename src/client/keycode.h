@@ -18,10 +18,22 @@
 class KeyPress
 {
 public:
+	// Type of the input value
 	enum class InputType {
 		KEYBOARD, // Keyboard input (scancodes)
 		MOUSE_BUTTON, // Mouse button input
 		GAME_ACTION, // GameKeyType input passed by touchscreen buttons
+		GAMEPAD_BUTTON, // Gamepad button
+		GAMEPAD_AXIS_PLUS, // Gamepad axis in the positive direction
+		GAMEPAD_AXIS_MINUS, // Gamepad axis in the negative direction
+	};
+
+	// Type of the input device
+	enum class InputSourceType {
+		KEYBOARD,
+		MOUSE,
+		TOUCHSCREEN,
+		GAMEPAD
 	};
 
 	KeyPress() = default;
@@ -29,9 +41,9 @@ public:
 	KeyPress(const std::string &name);
 
 	KeyPress(const SEvent::SKeyInput &in);
-
 	KeyPress(const SEvent::SMouseInput &in);
-
+	KeyPress(const SEvent::SGamepadButtonEvent &in);
+	KeyPress(const SEvent::SGamepadAxisEvent &in);
 	KeyPress(GameKeyType key) : value(key) {}
 
 	// Get a string representation that is suitable for use in minetest.conf
@@ -65,6 +77,12 @@ public:
 		return static_cast<InputType>(value.index());
 	}
 
+	// Get the source type of input
+	InputSourceType getSourceType() const;
+
+	// Get the joystick axis in the opposite direction (if available)
+	KeyPress flip() const;
+
 	// Check whether the keypress is valid
 	operator bool() const;
 
@@ -74,7 +92,7 @@ private:
 	// The same data type may be used for different variants, so this should be indexed using InputType.
 	// The get, getIf, and emplace methods are wrappers for their std::variant counterparts. This allows using
 	// InputType enum values instead of numeric indices.
-	using value_type = std::variant<u32, u32, GameKeyType>;
+	using value_type = std::variant<u32, u32, GameKeyType, u8, u8, u8>;
 
 	template<InputType I>
 	using value_alternative_t = std::variant_alternative_t<static_cast<size_t>(I), value_type>;
@@ -128,3 +146,20 @@ bool keySettingHasMatch(const std::string &settingname, KeyPress kp);
 
 // Clear fast lookup cache
 void clearKeyCache();
+
+// Generalized keypress event
+struct KeyPressEvent {
+	KeyPress key;
+	float analog_value = 0;
+
+	// Construct a KeyPressEvent from an Irrlicht event. User events (e.g. touchscreen input) is not handled.
+	KeyPressEvent(const SEvent &event);
+
+	operator bool() const {
+		return key;
+	}
+
+	bool isPressed() const {
+		return analog_value > 0;
+	}
+};

@@ -225,6 +225,10 @@ protected:
 	static void settingChangedCallback(const std::string &setting_name, void *data);
 	void readSettings();
 
+	inline float getAxisValue(GameKeyType k)
+	{
+		return input->getAxisValue(k);
+	}
 	inline bool isKeyDown(GameKeyType k)
 	{
 		return input->isKeyDown(k);
@@ -354,13 +358,10 @@ private:
 	bool m_cache_doubletap_jump;
 	bool m_cache_toggle_sneak_key;
 	bool m_cache_toggle_aux1_key;
-	bool m_cache_enable_joysticks;
 	bool m_cache_enable_fog;
 	bool m_cache_enable_noclip;
 	bool m_cache_enable_free_move;
 	f32  m_cache_mouse_sensitivity;
-	f32  m_cache_keyboard_camera_speed;
-	f32  m_cache_joystick_frustum_sensitivity;
 	f32  m_repeat_place_time;
 	f32  m_repeat_dig_time;
 	f32  m_cache_cam_smoothing;

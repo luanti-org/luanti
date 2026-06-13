@@ -44,18 +44,17 @@ struct PlayerControl
 	PlayerControl() = default;
 
 	PlayerControl(
-		bool a_up, bool a_down, bool a_left, bool a_right,
+		float a_up, float a_down, float a_left, float a_right,
 		bool a_jump, bool a_aux1, bool a_sneak,
 		bool a_zoom,
 		bool a_dig, bool a_place,
-		float a_pitch, float a_yaw,
-		float a_movement_speed, float a_movement_direction
+		float a_pitch, float a_yaw
 	)
 	{
-		// Encode direction keys into a single value so nobody uses it accidentally
-		// as movement_{speed,direction} is supposed to be the source of truth.
-		direction_keys = (a_up&1) | ((a_down&1) << 1) |
-			((a_left&1) << 2) | ((a_right&1) << 3);
+		up = a_up;
+		down = a_down;
+		left = a_left;
+		right = a_right;
 		jump = a_jump;
 		aux1 = a_aux1;
 		sneak = a_sneak;
@@ -64,8 +63,6 @@ struct PlayerControl
 		place = a_place;
 		pitch = a_pitch;
 		yaw = a_yaw;
-		movement_speed = a_movement_speed;
-		movement_direction = a_movement_direction;
 	}
 
 	// Sets movement_speed and movement_direction according to direction_keys
@@ -81,7 +78,10 @@ struct PlayerControl
 	void unpackKeysPressed(u32 keypress_bits);
 	v2f getMovement() const;
 
-	u8 direction_keys = 0;
+	float up = 0;
+	float down = 0;
+	float left = 0;
+	float right = 0;
 	bool jump = false;
 	bool aux1 = false;
 	bool sneak = false;
