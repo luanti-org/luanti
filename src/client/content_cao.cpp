@@ -596,8 +596,10 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 				material_type = (m_prop.use_texture_alpha) ?
 					TILE_MATERIAL_PLAIN_ALPHA : TILE_MATERIAL_PLAIN;
 
-			u32 shader_id = shader_source->getShader("object_shader", material_type, NDT_NORMAL,
-				false, hw_skin);
+			ShaderFeatures features;
+			features.skinning = hw_skin;
+			u32 shader_id = shader_source->getShader(
+					"object_shader", material_type, NDT_NORMAL, features);
 			m_material_type = shader_source->getShaderInfo(shader_id).material;
 		} else {
 			// Not used, so make sure it's not valid
