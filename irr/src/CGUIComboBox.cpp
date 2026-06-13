@@ -164,8 +164,7 @@ void CGUIComboBox::setSelected(s32 idx)
 	else
 		SelectedText->setText(Items[Selected].Name.c_str());
 
-	if (ListButton)
-		ListButton->setEnabled(Items.size() > 1);
+	ListButton->setEnabled(Items.size() > 1);
 }
 
 //! Sets the selected item and emits a change event.
