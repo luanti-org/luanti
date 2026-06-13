@@ -143,10 +143,14 @@ See [Player File Format](#player-file-format) below.
 World metadata. This file is created and updated by Luanti when creating a
 world, changing per-world settings in the main menu, configuring world mods, or
 migrating database backends. It is not a per-world `minetest.conf` replacement,
-and is not usually meant to be edited by hand.
+Worlds launched from the main menu using managed ContentDB content usually do
+not require manual edits. Headless servers, advanced settings, custom mod paths,
+and database migrations may require editing this file directly.
 
 Games and mods may store their own settings in this file too. Such settings are
 not documented here; see the documentation for the game or mod that owns them.
+Custom keys should be namespaced to avoid conflicts with Luanti and other
+content. The convention is `<modname>.<setting>`.
 
     gameid = mesetint             - name of the game
     world_name = Sol III          - name of the world (if not set, the world folder name will be used)
