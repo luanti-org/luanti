@@ -815,6 +815,7 @@ Methods:
     * It is discouraged to change foreign HUD elements.
 * `hud_remove(id)`
     * remove the HUD element of the specified id, returns `true` on success
+    * Note: Elements with `hideable = false` cannot be changed or removed by CSM
 * `hud_change(id, stat, value)`
     * change a value of a previously added HUD element
     * element `stat` values: `position`, `name`, `scale`, `text`, `number`, `item`, `dir`

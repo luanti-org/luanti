@@ -374,6 +374,13 @@ int LuaLocalPlayer::l_hud_remove(lua_State *L)
 {
 	LocalPlayer *player = getobject(L, 1);
 	u32 id = luaL_checkinteger(L, 2);
+
+	{ // CSM is not allowed to tamper with unhideable elements
+		HudElement *element = player->getHud(id);
+		if (element && !element->hideable)
+			return 0;
+	}
+
 	HudElement *element = player->removeHud(id);
 	if (!element)
 		lua_pushboolean(L, false);
@@ -391,7 +398,7 @@ int LuaLocalPlayer::l_hud_change(lua_State *L)
 	u32 id = luaL_checkinteger(L, 2);
 
 	HudElement *element = player->getHud(id);
-	if (!element)
+	if (!element || !element->hideable)
 		return 0;
 
 	HudElementStat stat;
