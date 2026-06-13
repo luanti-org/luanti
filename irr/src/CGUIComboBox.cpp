@@ -29,8 +29,7 @@ CGUIComboBox::CGUIComboBox(IGUIEnvironment *environment, IGUIElement *parent,
 	ListButton = Environment->addButton(core::recti(0, 0, 1, 1), this, -1, L"");
 	if (skin && skin->getSpriteBank()) {
 		ListButton->setSpriteBank(skin->getSpriteBank());
-		ListButton->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(EGDC_WINDOW_SYMBOL));
-		ListButton->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(EGDC_WINDOW_SYMBOL));
+		// Use no icon for state EGBS_BUTTON_DISABLED
 	}
 	ListButton->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
 	ListButton->setSubElement(true);
@@ -164,6 +163,9 @@ void CGUIComboBox::setSelected(s32 idx)
 		SelectedText->setText(L"");
 	else
 		SelectedText->setText(Items[Selected].Name.c_str());
+
+	if (ListButton)
+		ListButton->setEnabled(Items.size() > 1);
 }
 
 //! Sets the selected item and emits a change event.
@@ -269,9 +271,11 @@ bool CGUIComboBox::OnEvent(const SEvent &event)
 			switch (event.MouseInput.Event) {
 			case EMIE_LMOUSE_PRESSED_DOWN: {
 
-				if (!ListBox && isPointInside(p)) {
-					// Quick select: mouse down -> drag to position -> mouse up -> (selected)
-					openCloseMenu(); // open
+				if (isPointInside(p)) {
+					// If ListBox == nullptr: Quick select mode
+					//    Mouse down -> (open menu) -> drag to position -> mouse up -> (selected)
+					// If ListBox != nullptr: Close combo box
+					openCloseMenu();
 					return true;
 				}
 
@@ -383,8 +387,14 @@ void CGUIComboBox::draw()
 		SelectedText->setDrawBackground(false);
 		SelectedText->setOverrideColor(skin->getColor(EGDC_GRAY_TEXT));
 	}
-	ListButton->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL));
-	ListButton->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL));
+
+	{
+		u32           icon  = skin->getIcon (ListBox     ? EGDI_CURSOR_UP     : EGDI_CURSOR_DOWN);
+		video::SColor color = skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
+
+		ListButton->setSprite(EGBS_BUTTON_UP,   icon, color);
+		ListButton->setSprite(EGBS_BUTTON_DOWN, icon, color);
+	}
 
 	core::rect<s32> frameRect(AbsoluteRect);
 
@@ -405,6 +415,9 @@ void CGUIComboBox::openCloseMenu()
 		ListBox->remove();
 		ListBox = nullptr;
 	} else {
+		if (Items.size() <= 1)
+			return; // Too few entries. Do nothing.
+
 		if (Parent) {
 			SEvent event;
 			event.EventType = EET_GUI_EVENT;
