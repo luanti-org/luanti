@@ -2,8 +2,9 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#include "COpenGLDriver.h"
 #include <cassert>
+
+#include "COpenGLDriver.h"
 #include "CNullDriver.h"
 #include "EHardwareBufferFlags.h"
 #include "HWBuffer.h"
@@ -11,6 +12,7 @@
 #include "IIndexBuffer.h"
 #include "IVertexBuffer.h"
 #include "irrTypes.h"
+#include "irrBitCast.h"
 
 #ifdef _IRR_COMPILE_WITH_OPENGL_
 
@@ -1827,7 +1829,7 @@ void COpenGLDriver::setBasicRenderStates(const SMaterial &material, const SMater
 	}
 
 	// Blend Factor
-	if (IR(material.BlendFactor) & 0xFFFFFFFF // TODO: why the & 0xFFFFFFFF?
+	if (irrBitCast<u32>(material.BlendFactor) & 0xFFFFFFFF // TODO: why the & 0xFFFFFFFF?
 			&& material.MaterialType != EMT_ONETEXTURE_BLEND) {
 		E_BLEND_FACTOR srcRGBFact = EBF_ZERO;
 		E_BLEND_FACTOR dstRGBFact = EBF_ZERO;

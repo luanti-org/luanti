@@ -7,6 +7,7 @@
 #include "SColor.h"
 #include "matrix4.h"
 #include "irrMath.h"
+#include "irrBitCast.h"
 #include "EMaterialTypes.h" // IWYU pragma: export
 #include "EMaterialProps.h" // IWYU pragma: export
 #include "SMaterialLayer.h"
@@ -116,7 +117,7 @@ inline f32 pack_textureBlendFunc(const E_BLEND_FACTOR srcFact, const E_BLEND_FAC
 		const E_MODULATE_FUNC modulate = EMFN_MODULATE_1X, const u32 alphaSource = EAS_TEXTURE)
 {
 	const u32 tmp = (alphaSource << 20) | (modulate << 16) | (srcFact << 12) | (dstFact << 8) | (srcFact << 4) | dstFact;
-	return FR(tmp);
+	return irrBitCast<f32>(tmp);
 }
 
 //! Pack srcRGBFact, dstRGBFact, srcAlphaFact, dstAlphaFact, Modulate and alpha source to MaterialTypeParam or BlendFactor
@@ -126,7 +127,7 @@ inline f32 pack_textureBlendFuncSeparate(const E_BLEND_FACTOR srcRGBFact, const 
 		const E_MODULATE_FUNC modulate = EMFN_MODULATE_1X, const u32 alphaSource = EAS_TEXTURE)
 {
 	const u32 tmp = (alphaSource << 20) | (modulate << 16) | (srcAlphaFact << 12) | (dstAlphaFact << 8) | (srcRGBFact << 4) | dstRGBFact;
-	return FR(tmp);
+	return irrBitCast<f32>(tmp);
 }
 
 //! Unpack srcFact, dstFact, modulo and alphaSource factors
@@ -134,7 +135,7 @@ inline f32 pack_textureBlendFuncSeparate(const E_BLEND_FACTOR srcRGBFact, const 
 inline void unpack_textureBlendFunc(E_BLEND_FACTOR &srcFact, E_BLEND_FACTOR &dstFact,
 		E_MODULATE_FUNC &modulo, u32 &alphaSource, const f32 param)
 {
-	const u32 state = IR(param);
+	const u32 state = irrBitCast<u32>(param);
 	alphaSource = (state & 0x00F00000) >> 20;
 	modulo = E_MODULATE_FUNC((state & 0x000F0000) >> 16);
 	srcFact = E_BLEND_FACTOR((state & 0x000000F0) >> 4);
@@ -147,7 +148,7 @@ inline void unpack_textureBlendFuncSeparate(E_BLEND_FACTOR &srcRGBFact, E_BLEND_
 		E_BLEND_FACTOR &srcAlphaFact, E_BLEND_FACTOR &dstAlphaFact,
 		E_MODULATE_FUNC &modulo, u32 &alphaSource, const f32 param)
 {
-	const u32 state = IR(param);
+	const u32 state = irrBitCast<u32>(param);
 	alphaSource = (state & 0x00F00000) >> 20;
 	modulo = E_MODULATE_FUNC((state & 0x000F0000) >> 16);
 	srcAlphaFact = E_BLEND_FACTOR((state & 0x0000F000) >> 12);

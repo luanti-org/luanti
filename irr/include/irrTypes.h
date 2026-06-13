@@ -6,6 +6,8 @@
 
 #include <cstdint>
 #include <cassert>
+#include <cstring>
+#include <type_traits>
 
 //! 8 bit unsigned variable.
 typedef uint8_t u8;
