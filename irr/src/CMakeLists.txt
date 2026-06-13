@@ -320,6 +320,7 @@ if(ENABLE_OPENGL3 OR ENABLE_GLES2)
 		OpenGL/ExtensionHandler.cpp
 		OpenGL/FixedPipelineRenderer.cpp
 		OpenGL/MaterialRenderer.cpp
+		OpenGL/ShaderCache.cpp
 		OpenGL/Renderer2D.cpp
 		OpenGL/BufferObject.cpp
 	)
