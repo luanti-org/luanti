@@ -2,8 +2,9 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-#include "COpenGLDriver.h"
 #include <cassert>
+
+#include "COpenGLDriver.h"
 #include "CNullDriver.h"
 #include "EHardwareBufferFlags.h"
 #include "HWBuffer.h"
@@ -11,6 +12,7 @@
 #include "IIndexBuffer.h"
 #include "IVertexBuffer.h"
 #include "irrTypes.h"
+#include "irrBitCast.h"
 
 #ifdef _IRR_COMPILE_WITH_OPENGL_
 

@@ -74,18 +74,6 @@ typedef char fschar_t;
 #define IRR_DOWN_CAST dynamic_cast
 #endif
 
-// TODO in C++ 20 we'll be able to replace this with bit_cast
-template <typename T, typename U>
-T irrBitCast(const U &x)
-{
-	T res;
-	static_assert(sizeof(T) == sizeof(U));
-	static_assert(std::is_trivially_copyable_v<T>);
-	static_assert(std::is_trivially_copyable_v<U>);
-	std::memcpy(&res, &x, sizeof(U));
-	return res;
-}
-
 //! creates four CC codes used in Irrlicht for simple ids
 /** some compilers can create those by directly writing the
 code like 'code', but some generate warnings so we use this macro here */

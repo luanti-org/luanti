@@ -7,6 +7,7 @@
 #include "SColor.h"
 #include "matrix4.h"
 #include "irrMath.h"
+#include "irrBitCast.h"
 #include "EMaterialTypes.h" // IWYU pragma: export
 #include "EMaterialProps.h" // IWYU pragma: export
 #include "SMaterialLayer.h"

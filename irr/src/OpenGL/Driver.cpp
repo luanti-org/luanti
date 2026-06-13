@@ -4,8 +4,9 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in Irrlicht.h
 
-#include "Driver.h"
 #include <cassert>
+
+#include "Driver.h"
 #include "CNullDriver.h"
 #include "IContextManager.h"
 
@@ -25,6 +26,7 @@
 #include "IReadFile.h"
 #include "matrix4.h"
 #include "os.h"
+#include "irrBitCast.h"
 
 #include "mt_opengl.h"
 

@@ -5,6 +5,7 @@
 #include "os.h"
 #include "irrString.h"
 #include "irrMath.h"
+#include "irrBitCast.h"
 
 #if defined(_IRR_COMPILE_WITH_SDL_DEVICE_)
 #ifdef _IRR_USE_SDL3_
