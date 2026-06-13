@@ -419,6 +419,11 @@ CraftOutput CraftDefinitionShaped::getOutput(const CraftInput &input, IGameDef *
 	return CraftOutput(output, 0);
 }
 
+CraftReplacements CraftDefinitionShaped::getReplacements(const CraftInput &input, IGameDef *gamedef) const
+{
+	return CraftReplacements(replacements);
+}
+
 CraftInput CraftDefinitionShaped::getInput(const CraftOutput &output, IGameDef *gamedef) const
 {
 	return CraftInput(CRAFT_METHOD_NORMAL,width,craftGetItems(recipe,gamedef));
@@ -673,6 +678,11 @@ CraftOutput CraftDefinitionShapeless::getOutput(const CraftInput &input, IGameDe
 	return CraftOutput(output, 0);
 }
 
+CraftReplacements CraftDefinitionShapeless::getReplacements(const CraftInput &input, IGameDef *gamedef) const
+{
+	return CraftReplacements(replacements);
+}
+
 CraftInput CraftDefinitionShapeless::getInput(const CraftOutput &output, IGameDef *gamedef) const
 {
 	return CraftInput(CRAFT_METHOD_NORMAL, 0, craftGetItems(recipe, gamedef));
@@ -868,6 +878,11 @@ CraftOutput CraftDefinitionCooking::getOutput(const CraftInput &input, IGameDef 
 	return CraftOutput(output, cooktime);
 }
 
+CraftReplacements CraftDefinitionCooking::getReplacements(const CraftInput &input, IGameDef *gamedef) const
+{
+	return CraftReplacements(replacements);
+}
+
 CraftInput CraftDefinitionCooking::getInput(const CraftOutput &output, IGameDef *gamedef) const
 {
 	std::vector<std::string> rec;
@@ -969,6 +984,11 @@ bool CraftDefinitionFuel::check(const CraftInput &input, IGameDef *gamedef) cons
 CraftOutput CraftDefinitionFuel::getOutput(const CraftInput &input, IGameDef *gamedef) const
 {
 	return CraftOutput("", burntime);
+}
+
+CraftReplacements CraftDefinitionFuel::getReplacements(const CraftInput &input, IGameDef *gamedef) const
+{
+	return CraftReplacements(replacements);
 }
 
 CraftInput CraftDefinitionFuel::getInput(const CraftOutput &output, IGameDef *gamedef) const
