@@ -16,65 +16,7 @@
 #include "settings.h"
 #include "util/string.h"
 
-class InputHandler
-{
-public:
-	InputHandler();
-
-	virtual ~InputHandler() = default;
-
-	virtual bool isRandom() const
-	{
-		return false;
-	}
-
-	// Convert an analog axis value to a boolean
-	static inline bool analogToBoolean(float value)
-	{
-		return value >= ANALOG_THRESHOLD;
-	}
-
-	static inline s16 analogToInt(float value)
-	{
-		return value > 0 ? std::min(1.0f, value) * 32767.0f : 0;
-	}
-
-	static inline float intToAnalog(s16 value)
-	{
-		return value > 0 ? value / 32767.0f : 0;
-	}
-
-	virtual float getAxisValue(GameKeyType k) = 0;
-	virtual bool isKeyDown(GameKeyType k) {
-		return analogToBoolean(getAxisValue(k));
-	}
-	virtual bool wasKeyDown(GameKeyType k) = 0;
-	virtual bool wasKeyPressed(GameKeyType k) = 0;
-	virtual bool wasKeyReleased(GameKeyType k) = 0;
-	virtual bool cancelPressed() = 0;
-
-	virtual void clearWasKeyPressed() {}
-	virtual void clearWasKeyReleased() {}
-
-	virtual void reloadKeybindings() {}
-
-	virtual v2s32 getMousePos() = 0;
-	virtual void setMousePos(s32 x, s32 y) = 0;
-
-	virtual s32 getMouseWheel() = 0;
-
-	virtual void step(float dtime) {}
-
-	virtual void clear() {}
-	virtual void releaseAllKeys() {}
-
-	static void settingChangedCallback(const std::string &name, void *data)
-	{
-		static_cast<InputHandler *>(data)->reloadKeybindings();
-	}
-
-	static constexpr float ANALOG_THRESHOLD = 0.05;
-};
+class InputHandler;
 
 enum class PointerType {
 	Mouse,
@@ -93,7 +35,7 @@ public:
 	// Checks whether a key is held down
 	bool IsKeyDown(GameKeyType key) const
 	{
-		return InputHandler::analogToBoolean(GetAxisValue(key));
+		return GetAxisValue(key) > 0;
 	}
 
 	// Checks whether a key was down and resets the state
@@ -131,7 +73,7 @@ public:
 	{
 		physicalKeyDown.clear();
 		for (size_t i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++)
-			keyWasReleased[i] = keyWasReleased[i] || InputHandler::analogToBoolean(axisValues[i]);
+			keyWasReleased[i] = keyWasReleased[i] || axisValues[i] > 0;
 		axisValues.fill(0);
 	}
 
@@ -229,6 +171,58 @@ private:
 	bool esc_down = false;
 
 	PointerType last_pointer_type = PointerType::Mouse;
+};
+
+class InputHandler
+{
+public:
+	InputHandler();
+
+	virtual ~InputHandler() = default;
+
+	virtual bool isRandom() const
+	{
+		return false;
+	}
+
+	static inline s16 analogToInt(float value)
+	{
+		return value > 0 ? std::min(1.0f, value) * 32767.0f : 0;
+	}
+
+	static inline float intToAnalog(s16 value)
+	{
+		return value > 0 ? value / 32767.0f : 0;
+	}
+
+	virtual float getAxisValue(GameKeyType k) = 0;
+	virtual bool isKeyDown(GameKeyType k) {
+		return getAxisValue(k) > 0;
+	}
+	virtual bool wasKeyDown(GameKeyType k) = 0;
+	virtual bool wasKeyPressed(GameKeyType k) = 0;
+	virtual bool wasKeyReleased(GameKeyType k) = 0;
+	virtual bool cancelPressed() = 0;
+
+	virtual void clearWasKeyPressed() {}
+	virtual void clearWasKeyReleased() {}
+
+	virtual void reloadKeybindings() {}
+
+	virtual v2s32 getMousePos() = 0;
+	virtual void setMousePos(s32 x, s32 y) = 0;
+
+	virtual s32 getMouseWheel() = 0;
+
+	virtual void step(float dtime) {}
+
+	virtual void clear() {}
+	virtual void releaseAllKeys() {}
+
+	static void settingChangedCallback(const std::string &name, void *data)
+	{
+		static_cast<InputHandler *>(data)->reloadKeybindings();
+	}
 };
 
 /*

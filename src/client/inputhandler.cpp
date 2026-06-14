@@ -133,7 +133,7 @@ bool MyEventReceiver::WasKeyDown(GameKeyType key)
 			auto down_ent = physicalKeyDown.find(kp);
 			if (down_ent == physicalKeyDown.end())
 				continue;
-			if (auto &keystate = down_ent->second; InputHandler::analogToBoolean(keystate.analog_value)) {
+			if (auto &keystate = down_ent->second; keystate.analog_value > 0) {
 				auto time_now = porting::getTimeMs() / 1000.0f;
 				if (time_now - keystate.last_binary_update >= repeat_joystick_button_time) {
 					b = true;
@@ -164,7 +164,7 @@ bool MyEventReceiver::setKeyDown(KeyPress keyCode, float value)
 void MyEventReceiver::setKeyDown(GameKeyType action, std::pair<float, bool> new_state)
 {
 	auto value = new_state.first;
-	if (InputHandler::analogToBoolean(value)) {
+	if (value > 0) {
 		if (!IsKeyDown(action)) {
 			keyWasPressed.set(action);
 			keyWasDown.set(action);
