@@ -89,6 +89,9 @@ public:
 	//! Deletes a file from the file system.
 	bool deleteFile(const io::path &filename) override;
 
+	//! Determines if a path exists and is specifically a directory
+	bool existDirectory(const io::path &filename) const override;
+
 	//! Creates a directory.
 	bool createDirectory(const io::path &dirname) override;
 

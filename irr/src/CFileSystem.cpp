@@ -19,8 +19,10 @@
 #endif
 
 #if defined(_IRR_WINDOWS_API_)
-#include <direct.h> // for _chdir
-#include <io.h>     // for _access
+#include <direct.h>   // for _chdir
+#include <io.h>       // for _access
+#include <sys/types.h>
+#include <sys/stat.h> // for _stat, _S_IFDIR
 #include <tchar.h>
 #elif (defined(_IRR_POSIX_API_) || defined(_IRR_OSX_PLATFORM_) || defined(_IRR_ANDROID_PLATFORM_))
 #include <cstdio>
@@ -476,6 +478,18 @@ bool CFileSystem::existFile(const io::path &filename) const
 	return (access(filename.c_str(), F_OK) != -1);
 #else
 	return (access(filename.c_str(), 0) != -1);
+#endif
+}
+
+//! Determines if a path exists and is specifically a directory
+bool CFileSystem::existDirectory(const io::path &filename) const
+{
+#if defined(_WIN32) || defined(_MSC_VER)
+	struct _stat info;
+	return (_stat(filename.c_str(), &info) == 0) && (info.st_mode & _S_IFDIR);
+#else
+	struct stat info;
+	return (stat(filename.c_str(), &info) == 0) && S_ISDIR(info.st_mode);
 #endif
 }
 

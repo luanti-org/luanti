@@ -163,6 +163,11 @@ public:
 	/** \param directory is the string identifying the directory which should be created.
 	\return True if directory was created, and false if it could not be created or an error occurred. */
 	virtual bool createDirectory(const path &directory) = 0;
+
+	//! Determines if a path exists and is specifically a directory.
+	/** \param filename is the string identifying the path which should be tested for existence.
+	\return True if path exists and is a directory, and false if it does not exist, is not a directory, or an error occurred. */
+	virtual bool existDirectory(const path &filename) const = 0;
 };
 
 } // end namespace io
