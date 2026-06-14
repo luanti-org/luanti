@@ -407,9 +407,6 @@ static void push_craft_recipe(lua_State *L, IGameDef *gdef,
 	lua_setfield(L, -2, "items");
 	setintfield(L, -1, "width", input.width);
 
-	bool hasReplacements = false;
-	CraftReplacements replacements;
-
 	std::string method_s;
 	switch (input.method) {
 	case CRAFT_METHOD_NORMAL:
@@ -433,6 +430,9 @@ static void push_craft_recipe(lua_State *L, IGameDef *gdef,
 
 	lua_pushstring(L, output.item.c_str());
 	lua_setfield(L, -2, "output");
+
+	bool hasReplacements = false;
+	CraftReplacements replacements;
 
 	{
 		const CraftDefinitionShaped *craftdef = dynamic_cast<const CraftDefinitionShaped*>(recipe);
