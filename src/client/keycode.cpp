@@ -475,13 +475,13 @@ std::string KeyPress::name() const
 		auto axis = get<InputType::GAMEPAD_AXIS_MINUS>();
 		switch (axis) {
 		case SDL_GAMEPAD_AXIS_LEFTX:
-			return strgettext("Left joystick X-");
+			return strgettext("Left Joystick X-");
 		case SDL_GAMEPAD_AXIS_LEFTY:
-			return strgettext("Left joystick Y-");
+			return strgettext("Left Joystick Y-");
 		case SDL_GAMEPAD_AXIS_RIGHTX:
-			return strgettext("Right joystick X-");
+			return strgettext("Right Joystick X-");
 		case SDL_GAMEPAD_AXIS_RIGHTY:
-			return strgettext("Right joystick Y-");
+			return strgettext("Right Joystick Y-");
 		default:
 			return fmtgettext("Gamepad Axis %d -", axis);
 		}
