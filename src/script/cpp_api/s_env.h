@@ -7,11 +7,13 @@
 #include "cpp_api/s_base.h"
 #include "irr_v3d.h"
 #include "mapnode.h"
+#include "server/blockmodifier.h"
 #include <unordered_set>
 #include <vector>
 
 class ServerEnvironment;
 class MapBlock;
+class LuaABM;
 struct ScriptCallbackState;
 
 class ScriptApiEnv : virtual public ScriptApiBase
@@ -50,7 +52,10 @@ public:
 	void triggerLBM(int id, MapBlock *block,
 		const std::unordered_set<v3s16> &positions, float dtime_s);
 
+	static int override_abm(lua_State * L, ServerEnvironment *env);
 private:
+	static LuaABM *read_abm(lua_State *L, int abm_index, int id);
+
 	void readABMs();
 
 	void readLBMs();

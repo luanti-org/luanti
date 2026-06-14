@@ -55,12 +55,15 @@ ABMHandler::ABMHandler(std::vector<ABMWithState> &abms,
 			abmws.timer += dtime_s;
 			if (abmws.timer < trigger_interval)
 				continue;
-			abmws.timer -= trigger_interval;
+			// Use modulo to handle runtime interval changes gracefully,
+			// preventing multiple consecutive ABM calls or negative timer values
+			// in case of big runtime ABM interval changes
+			abmws.timer = std::fmod(abmws.timer, trigger_interval);
 			actual_interval = trigger_interval;
 		}
 		float chance = abm->getTriggerChance();
 		if (chance == 0)
-			chance = 1;
+			continue;
 
 		ActiveABM aabm;
 		aabm.abm = abm;
