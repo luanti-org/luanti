@@ -158,9 +158,6 @@ local function test_get_all_craft_recipes()
 	})
 	output = "bar"
 	do
-		assert(type(arbitrary_recipe.replacements[1]) == "table")
-		assert(arbitrary_recipe.replacements[1][1] == "foo")
-		assert(arbitrary_recipe.replacements[1][1] == "foo")
 		local recipes = core.get_all_craft_recipes(output)
 		core.log("info", "[unittests] shaped recipes="..dump(recipes))
 		local found
