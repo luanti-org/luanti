@@ -8,6 +8,7 @@
 #include "log.h"
 #include "renderingengine.h"
 #include "util/basic_macros.h"
+#include "util/numeric.h"
 #include "util/string.h"
 #include <unordered_map>
 #include <vector>
@@ -639,10 +640,10 @@ KeyPressEvent::KeyPressEvent(const SEvent &event)
 	case EET_GAMEPAD_AXIS_EVENT: {
 		key = KeyPress(event.GamepadAxisEvent);
 		auto event_value = event.GamepadAxisEvent.Value;
-		auto joystick_deadzone = g_settings->getS16("joystick_deadzone");
-		if (event_value > -joystick_deadzone && event_value < joystick_deadzone)
-			event_value = 0;
 		analog_value = event_value > 0 ? event_value/32767.0f : -event_value/32768.0f;
+		auto inner_deadzone = g_settings->getFloat("joystick_inner_deadzone", 0, 1);
+		auto outer_deadzone = g_settings->getFloat("joystick_outer_deadzone", inner_deadzone, 1);
+		analog_value = rangelim((analog_value-inner_deadzone)/(outer_deadzone-inner_deadzone), 0, 1);
 		break;
 	}
 	default: // ignore irrelevant events
