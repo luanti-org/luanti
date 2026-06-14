@@ -89,6 +89,9 @@ public:
 	//! Deletes a file from the file system.
 	bool deleteFile(const io::path &filename) override;
 
+	//! Creates a directory.
+	bool createDirectory(const io::path &dirname) override;
+
 private:
 	//! Currently used FileSystemType
 	EFileSystemType FileSystemType = FILESYSTEM_NATIVE;

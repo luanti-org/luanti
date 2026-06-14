@@ -158,6 +158,11 @@ public:
 	/** \param filename is the string identifying the file which should be deleted.
 	\return True if file was deleted, and false if it could not be deleted or an error occurred. */
 	virtual bool deleteFile(const path &filename) = 0;
+
+	//! Create a directory.
+	/** \param directory is the string identifying the directory which should be created.
+	\return True if directory was created, and false if it could not be created or an error occurred. */
+	virtual bool createDirectory(const path &directory) = 0;
 };
 
 } // end namespace io

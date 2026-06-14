@@ -489,6 +489,16 @@ bool CFileSystem::deleteFile(const io::path &filename)
 #endif
 }
 
+//! Creates a directory.
+bool CFileSystem::createDirectory(const io::path &dirname)
+{
+#if defined(_MSC_VER)
+	return (_mkdir(dirname.c_str()) == 0);
+#else
+	return (mkdir(dirname.c_str(), 0755) == 0);
+#endif
+}
+
 //! creates a filesystem which is able to open files from the ordinary file system,
 //! and out of zipfiles, which are able to be added to the filesystem.
 IFileSystem *createFileSystem()
