@@ -4276,6 +4276,10 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 		}
 
 	}
+	if (auto kpe = KeyPressEvent(event); kpe && kpe.isPressed() && keySettingHasMatch("keymap_pause", kpe.key)) {
+		tryClose();
+		return true;
+	}
 
 	/* Mouse event other than movement, or crossing the border of inventory
 	   field while holding left, right, or middle mouse button
