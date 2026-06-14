@@ -3,8 +3,10 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include <map>
+#include <thread>
 #include "irrlichttypes_bloated.h"
 #include "chat_interface.h"
+#include "util/string.h"
 #include "debug.h"
 #include "unittest/test.h"
 #include "server.h"
@@ -1244,14 +1246,28 @@ static bool run_dedicated_server(const GameParams &game_params, const Settings &
 	} {
 #endif
 		try {
+			ChatInterface iface;
+			volatile auto &kill = *porting::signal_handler_killstatus();
+
+			// Thread that reads stdin line by line and forwards to the server
+			std::thread stdin_thread([&iface, &kill]() {
+				std::string line;
+				while (!kill && std::getline(std::cin, line)) {
+					if (!line.empty())
+						iface.command_queue.push_back(
+							new ChatEventChat("", utf8_to_wide(line)));
+				}
+			});
+
 			// Create server
 			Server server(game_params.world_path, game_params.game_spec, false,
-				bind_addr, true);
+				bind_addr, true, &iface);
 			server.start();
 
 			// Run server
-			volatile auto &kill = *porting::signal_handler_killstatus();
 			dedicated_server_loop(server, kill);
+
+			stdin_thread.detach();
 
 		} catch (const ModError &e) {
 			errorstream << "ModError: " << e.what() << std::endl;
