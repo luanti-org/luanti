@@ -473,50 +473,19 @@ static void push_craft_recipe(lua_State *L, IGameDef *gdef,
 			break;
 	}
 
-	bool hasReplacements = false;
-	CraftReplacements replacements;
-
-	{
-		const CraftDefinitionShaped *craftdef = dynamic_cast<const CraftDefinitionShaped*>(recipe);
-		if (craftdef) {
-			hasReplacements = true;
-			replacements = craftdef->getReplacements(input, gdef);
-		}
+	CraftReplacements replacements = output.replacements;
+	// replacements
+	lua_newtable(L);
+	auto iter = replacements.pairs.begin();
+	for (u16 j = 1; iter != replacements.pairs.end(); ++iter, j++) {
+		lua_newtable(L);
+		lua_pushstring(L, iter->first.c_str());
+		lua_rawseti(L, -2, 1);
+		lua_pushstring(L, iter->second.c_str());
+		lua_rawseti(L, -2, 2);
+		lua_rawseti(L, -2, j);
 	}
-	{
-		const CraftDefinitionShapeless *craftdef = dynamic_cast<const CraftDefinitionShapeless*>(recipe);
-		if (craftdef) {
-			hasReplacements = true;
-			replacements = craftdef->getReplacements(input, gdef);
-		}
-	}
-	{
-		const CraftDefinitionCooking *craftdef = dynamic_cast<const CraftDefinitionCooking*>(recipe);
-		if (craftdef) {
-			hasReplacements = true;
-			replacements = craftdef->getReplacements(input, gdef);
-		}
-	}
-	{
-		const CraftDefinitionFuel *craftdef = dynamic_cast<const CraftDefinitionFuel*>(recipe);
-		if (craftdef) {
-			hasReplacements = true;
-			replacements = craftdef->getReplacements(input, gdef);
-		}
-	}
-	if (hasReplacements) {
-		lua_newtable(L); // replacements
-		auto iter = replacements.pairs.begin();
-		for (u16 j = 1; iter != replacements.pairs.end(); ++iter, j++) {
-			lua_newtable(L);
-			lua_pushstring(L, iter->first.c_str());
-			lua_rawseti(L, -2, 1);
-			lua_pushstring(L, iter->second.c_str());
-			lua_rawseti(L, -2, 2);
-			lua_rawseti(L, -2, j);
-		}
-		lua_setfield(L, -2, "replacements");
-	}
+	lua_setfield(L, -2, "replacements");
 }
 
 

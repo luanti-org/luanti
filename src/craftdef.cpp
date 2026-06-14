@@ -416,12 +416,7 @@ bool CraftDefinitionShaped::check(const CraftInput &input, IGameDef *gamedef) co
 
 CraftOutput CraftDefinitionShaped::getOutput(const CraftInput &input, IGameDef *gamedef) const
 {
-	return CraftOutput(output, 0);
-}
-
-CraftReplacements CraftDefinitionShaped::getReplacements(const CraftInput &input, IGameDef *gamedef) const
-{
-	return CraftReplacements(replacements);
+	return CraftOutput(output, 0, replacements);
 }
 
 CraftInput CraftDefinitionShaped::getInput(const CraftOutput &output, IGameDef *gamedef) const
@@ -675,12 +670,7 @@ bool CraftDefinitionShapeless::check(const CraftInput &input, IGameDef *gamedef)
 
 CraftOutput CraftDefinitionShapeless::getOutput(const CraftInput &input, IGameDef *gamedef) const
 {
-	return CraftOutput(output, 0);
-}
-
-CraftReplacements CraftDefinitionShapeless::getReplacements(const CraftInput &input, IGameDef *gamedef) const
-{
-	return CraftReplacements(replacements);
+	return CraftOutput(output, 0, replacements);
 }
 
 CraftInput CraftDefinitionShapeless::getInput(const CraftOutput &output, IGameDef *gamedef) const
@@ -875,12 +865,7 @@ bool CraftDefinitionCooking::check(const CraftInput &input, IGameDef *gamedef) c
 
 CraftOutput CraftDefinitionCooking::getOutput(const CraftInput &input, IGameDef *gamedef) const
 {
-	return CraftOutput(output, cooktime);
-}
-
-CraftReplacements CraftDefinitionCooking::getReplacements(const CraftInput &input, IGameDef *gamedef) const
-{
-	return CraftReplacements(replacements);
+	return CraftOutput(output, cooktime, replacements);
 }
 
 CraftInput CraftDefinitionCooking::getInput(const CraftOutput &output, IGameDef *gamedef) const
@@ -983,12 +968,7 @@ bool CraftDefinitionFuel::check(const CraftInput &input, IGameDef *gamedef) cons
 
 CraftOutput CraftDefinitionFuel::getOutput(const CraftInput &input, IGameDef *gamedef) const
 {
-	return CraftOutput("", burntime);
-}
-
-CraftReplacements CraftDefinitionFuel::getReplacements(const CraftInput &input, IGameDef *gamedef) const
-{
-	return CraftReplacements(replacements);
+	return CraftOutput("", burntime, replacements);
 }
 
 CraftInput CraftDefinitionFuel::getInput(const CraftOutput &output, IGameDef *gamedef) const
