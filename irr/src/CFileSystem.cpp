@@ -472,19 +472,17 @@ IFileList *CFileSystem::createEmptyFileList(const io::path &path, bool ignoreCas
 //! determines if a file exists and would be able to be opened.
 bool CFileSystem::existFile(const io::path &filename) const
 {
-#if defined(_MSC_VER)
+#if defined(_IRR_WINDOWS_API_)
 	return (_access(filename.c_str(), 0) != -1);
-#elif defined(F_OK)
-	return (access(filename.c_str(), F_OK) != -1);
 #else
-	return (access(filename.c_str(), 0) != -1);
+	return (access(filename.c_str(), F_OK) != -1);
 #endif
 }
 
 //! Determines if a path exists and is specifically a directory
 bool CFileSystem::existDirectory(const io::path &filename) const
 {
-#if defined(_WIN32) || defined(_MSC_VER)
+#if defined(_IRR_WINDOWS_API_)
 	struct _stat info;
 	return (_stat(filename.c_str(), &info) == 0) && (info.st_mode & _S_IFDIR);
 #else
@@ -496,7 +494,7 @@ bool CFileSystem::existDirectory(const io::path &filename) const
 //! Deletes a file from the file system.
 bool CFileSystem::deleteFile(const io::path &filename)
 {
-#if defined(_MSC_VER)
+#if defined(_IRR_WINDOWS_API_)
 	return (_unlink(filename.c_str()) == 0);
 #else
 	return (unlink(filename.c_str()) == 0);
@@ -506,7 +504,7 @@ bool CFileSystem::deleteFile(const io::path &filename)
 //! Creates a directory.
 bool CFileSystem::createDirectory(const io::path &dirname)
 {
-#if defined(_MSC_VER)
+#if defined(_IRR_WINDOWS_API_)
 	return (_mkdir(dirname.c_str()) == 0);
 #else
 	return (mkdir(dirname.c_str(), 0755) == 0);
