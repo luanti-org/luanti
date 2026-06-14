@@ -7434,7 +7434,7 @@ Item handling
           Empty ingredients (itemstring `""`) are represented as `nil`.
         * `output`: string with item name and quantity
         * `time` (for 'cooking' or 'fuel'): is `cooktime` or `burntime` (since 5.17.0)
-        * `replacements`: see [Crafting recipes](#crafting-recipes), is nil if crafting method doesn't support replacements (since 5.17.0)
+        * `replacements`: see [Crafting recipes](#crafting-recipes) (since 5.17.0)
     * Example result for `"default:gold_ingot"` with two recipes:
       ```lua
       {
