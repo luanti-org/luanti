@@ -79,9 +79,18 @@ COPY --from=builder /usr/local/bin/luantiserver /usr/local/bin/luantiserver
 COPY --from=builder /usr/local/share/doc/luanti/minetest.conf.example /etc/minetest/minetest.conf
 COPY --from=builder /usr/local/lib/libspatialindex* /usr/local/lib/
 COPY --from=builder /usr/local/lib/libluajit* /usr/local/lib/
+
+RUN printf '#!/bin/sh\n\
+if [ -n "$GITHUB_TOKEN" ]; then\n\
+  git -C /home/container/games/core pull 2>/dev/null || \\\n\
+  git clone https://x-access-token:${GITHUB_TOKEN}@github.com/project-lmp/core /home/container/games/core\n\
+fi\n\
+exec /usr/local/bin/luantiserver "$@"\n' > /usr/local/bin/entrypoint.sh && \
+	chmod +x /usr/local/bin/entrypoint.sh
+
 USER container:container
 
 EXPOSE 30000/udp 30000/tcp
 
-ENTRYPOINT ["/usr/local/bin/luantiserver"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["--config", "/etc/minetest/minetest.conf"]
