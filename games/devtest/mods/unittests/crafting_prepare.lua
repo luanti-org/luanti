@@ -48,6 +48,16 @@ core.register_craft({
 })
 
 core.register_craft({
+	output = "bar",
+	recipe = {
+		{"foo"},
+	},
+	replacements = {
+		{"foo", "bar"},
+	}
+})
+
+core.register_craft({
 	type = "cooking",
 	output = "unittests:steel_ingot_alias",
 	recipe = "unittests:iron_lump_alias",
