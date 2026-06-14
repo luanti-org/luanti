@@ -51,6 +51,7 @@ core.register_craft({
 	type = "cooking",
 	output = "unittests:steel_ingot_alias",
 	recipe = "unittests:iron_lump_alias",
+	cooktime = 10,
 })
 
 core.register_craft({

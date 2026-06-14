@@ -92,8 +92,8 @@ jobs:
         if: ${{ matrix.config.nsis }}
 
   msvc:
-    name: VS 2022 ${{ matrix.config.arch }}
-    runs-on: windows-2025
+    name: VS 2026 ${{ matrix.config.arch }}
+    runs-on: windows-2025-vs2026
     env:
       VCPKG_DEFAULT_TRIPLET: ${{matrix.config.vcpkg_triplet}}
     strategy:
@@ -102,12 +102,12 @@ jobs:
         config:
           - {
               arch: x86,
-              generator: "-G'Visual Studio 17 2022' -A Win32",
+              generator: "-G'Visual Studio 18 2026' -A Win32",
               vcpkg_triplet: x86-windows
             }
           - {
               arch: x64,
-              generator: "-G'Visual Studio 17 2022' -A x64",
+              generator: "-G'Visual Studio 18 2026' -A x64",
               vcpkg_triplet: x64-windows
             }
 
@@ -120,12 +120,10 @@ jobs:
           vcpkgDirectory: '${{ github.workspace }}\vcpkg'
 
       - name: CMake
-        # Note: See #15976 for why CMAKE_POLICY_VERSION_MINIMUM=3.5 is set.
         run: |
           cmake ${{matrix.config.generator}}  `
           -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake"  `
           -DCMAKE_BUILD_TYPE=Release  `
-          -DCMAKE_POLICY_VERSION_MINIMUM=3.5  `
           -DENABLE_POSTGRESQL=OFF  `
           -DENABLE_LUAJIT=TRUE  `
           -DREQUIRE_LUAJIT=TRUE  `
