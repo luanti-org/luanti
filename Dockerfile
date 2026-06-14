@@ -68,20 +68,20 @@ FROM $DOCKER_IMAGE AS runtime
 
 RUN apk add --no-cache curl gmp libstdc++ libgcc libpq jsoncpp zstd-libs \
 				sqlite-libs postgresql hiredis leveldb && \
-	adduser -D minetest --uid 30000 -h /var/lib/minetest && \
-	chown -R minetest:minetest /var/lib/minetest
+	adduser -D container --uid 1000 -h /home/container && \
+	mkdir -p /home/container /etc/minetest && \
+	chown -R container:container /home/container /etc/minetest
 
-WORKDIR /var/lib/minetest
+WORKDIR /home/container
 
 COPY --from=builder /usr/local/share/luanti /usr/local/share/luanti
 COPY --from=builder /usr/local/bin/luantiserver /usr/local/bin/luantiserver
 COPY --from=builder /usr/local/share/doc/luanti/minetest.conf.example /etc/minetest/minetest.conf
 COPY --from=builder /usr/local/lib/libspatialindex* /usr/local/lib/
 COPY --from=builder /usr/local/lib/libluajit* /usr/local/lib/
-USER minetest:minetest
+USER container:container
 
 EXPOSE 30000/udp 30000/tcp
-VOLUME /var/lib/minetest/ /etc/minetest/
 
 ENTRYPOINT ["/usr/local/bin/luantiserver"]
 CMD ["--config", "/etc/minetest/minetest.conf"]
