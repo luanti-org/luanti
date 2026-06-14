@@ -359,4 +359,14 @@ public:
 		(void)scancode;
 		return Keycode(KEY_UNKNOWN, (wchar_t)0xFFFF);
 	}
+
+	//! Get the label of a button on a gamepad.
+	/** This is a wrapper for SDL_GamepadButtonLabel.
+	\param button The gamepad button.
+	\return The corresponding label, or 0 if no sensible value can be determined.
+	*/
+	virtual u16 getGamepadButtonLabel(const u8 button) const {
+		// Dummy implementation
+		return 0;
+	}
 };

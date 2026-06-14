@@ -334,6 +334,15 @@ Keycode CIrrDeviceSDL::getKeyFromScancode(const u32 scancode) const
 	return Keycode(irrcode, keychar);
 }
 
+u16 CIrrDeviceSDL::getGamepadButtonLabel(const u8 button) const
+{
+#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_) && defined(_IRR_USE_SDL3_)
+	if (auto fp = gamepads.begin(); fp != gamepads.end())
+		return SDL_GetGamepadButtonLabel(fp->second, static_cast<SDL_GamepadButton>(button));
+#endif
+	return 0;
+}
+
 void CIrrDeviceSDL::resetReceiveTextInputEvents()
 {
 	gui::IGUIElement *elem = GUIEnvironment->getFocus();

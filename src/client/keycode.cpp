@@ -387,7 +387,26 @@ std::string KeyPress::name() const
 	}
 	case InputType::GAMEPAD_BUTTON: {
 		auto button = get<InputType::GAMEPAD_BUTTON>();
+		auto label = RenderingEngine::get_raw_device()->getGamepadButtonLabel(button);
 		// Note: only use "(Gamepad)" for names that are otherwise ambiguous or confusing
+		switch (label) {
+		case SDL_GAMEPAD_BUTTON_LABEL_A:
+			return strgettext("A (Gamepad)");
+		case SDL_GAMEPAD_BUTTON_LABEL_B:
+			return strgettext("B (Gamepad)");
+		case SDL_GAMEPAD_BUTTON_LABEL_X:
+			return strgettext("X (Gamepad)");
+		case SDL_GAMEPAD_BUTTON_LABEL_Y:
+			return strgettext("Y (Gamepad)");
+		case SDL_GAMEPAD_BUTTON_LABEL_CROSS:
+			return strgettext("Cross (Gamepad)");
+		case SDL_GAMEPAD_BUTTON_LABEL_CIRCLE:
+			return strgettext("Circle (Gamepad)");
+		case SDL_GAMEPAD_BUTTON_LABEL_SQUARE:
+			return strgettext("Square (Gamepad)");
+		case SDL_GAMEPAD_BUTTON_LABEL_TRIANGLE:
+			return strgettext("Triangle (Gamepad)");
+		}
 		switch (button) {
 		case SDL_GAMEPAD_BUTTON_SOUTH:
 			return strgettext("Bottom Face Button (Gamepad)");

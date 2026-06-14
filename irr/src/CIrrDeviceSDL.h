@@ -315,6 +315,8 @@ private:
 	u32 getScancodeFromKey(const Keycode &key) const override;
 	Keycode getKeyFromScancode(const u32 scancode) const override;
 
+	u16 getGamepadButtonLabel(const u8 button) const override;
+
 	// Check if a text box is in focus. Enable or disable SDL_TEXTINPUT events only if in focus.
 	void resetReceiveTextInputEvents();
 
