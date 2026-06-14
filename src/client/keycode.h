@@ -30,6 +30,7 @@ public:
 
 	// Type of the input device
 	enum class InputSourceType {
+		INVALID,
 		KEYBOARD,
 		MOUSE,
 		TOUCHSCREEN,

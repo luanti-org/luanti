@@ -542,6 +542,8 @@ KeyPress::operator bool() const
 
 KeyPress::InputSourceType KeyPress::getSourceType() const
 {
+	if (!operator bool())
+		return InputSourceType::INVALID;
 	switch (getType()) {
 	case InputType::KEYBOARD:
 		return InputSourceType::KEYBOARD;
@@ -554,7 +556,7 @@ KeyPress::InputSourceType KeyPress::getSourceType() const
 	case InputType::GAMEPAD_AXIS_MINUS:
 		return InputSourceType::GAMEPAD;
 	default:
-		assert(false);
+		return InputSourceType::INVALID;
 	}
 }
 
