@@ -12,9 +12,6 @@ local function test_clear_craft()
 		recipe = {{"foo", "bar"}}
 	})
 	assert(#core.get_all_craft_recipes("foo") == 2)
-	local arbitrary_recipe = core.get_all_craft_recipes("foo")[1]
-	assert(type(arbitrary_recipe.replacements) == "table") -- Both are shaped, and should have an empty replacements table
-	assert(arbitrary_recipe.replacements[1] == nil)
 	core.clear_craft({output="foo"})
 	assert(core.get_all_craft_recipes("foo") == nil)
 	-- Clearing by input
@@ -152,6 +149,40 @@ local function test_get_all_craft_recipes()
 		assert(ItemStack(found.output) == ItemStack(output)) -- handle aliases
 		assert(found.time == 40) -- burntime
 	end
+
+	-- shaped
+	core.register_craft({
+		output = "bar",
+		recipe = {{"foo"}},
+		replacements = {{"foo", "bar"}}
+	})
+	output = "bar"
+	do
+		assert(type(arbitrary_recipe.replacements[1]) == "table")
+		assert(arbitrary_recipe.replacements[1][1] == "foo")
+		assert(arbitrary_recipe.replacements[1][1] == "foo")
+		local recipes = core.get_all_craft_recipes(output)
+		core.log("info", "[unittests] shaped recipes="..dump(recipes))
+		local found
+		for _, recipe in ipairs(recipes) do
+			if recipe.type == "normal" and recipe.items[1][1] == "foo" then
+				assert(found == nil, "found too many")
+				found = recipe
+			end
+		end
+		assert(found)
+		assert(#found.items == 1) -- height is appropriate
+		assert(#found.items[1] == 1) -- width is good
+		assert(ItemStack(found.output) == ItemStack(output)) -- handle aliases
+		local replacements = found.replacements
+		assert(type(replacements) == "table") -- replacements exist and are as a table
+		assert(#replacements == 1) -- only one exists
+		local replacement = replacements[1]
+		assert(type(replacement) == "table") -- replacement exists and is a table
+		assert(#replacement == 2) -- replacement is a pair
+		assert(replacement[1] == "foo" and replacement[2] == "bar") -- replacement is adequate
+	end
+
 
 end
 unittests.register("test_get_all_craft_recipes", test_get_all_craft_recipes)
