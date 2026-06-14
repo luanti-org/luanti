@@ -191,6 +191,10 @@ keymap_place (Place/use) key KEY_RBUTTON
 
 keymap_inventory (Open inventory) key SYSTEM_SCANCODE_12
 
+#    Key for opening the pause menu in-game.
+#    Pressing the escape key always opens the pause menu.
+keymap_pause (Open pause menu) key GAMEPAD_BUTTON_6
+
 #    Key for moving fast in fast mode.
 keymap_aux1 (Aux1) key SYSTEM_SCANCODE_8
 
