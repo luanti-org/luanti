@@ -131,7 +131,7 @@ private:
 
 	struct KeyState {
 		float analog_value;
-		float last_binary_update; // The last time the binary state ("is this pressed?") is updated
+		f64 last_binary_update; // The last time the binary state ("is this pressed?") is updated
 	};
 
 	/* This is faster than using getKeySetting with the tradeoff that functions

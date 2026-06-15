@@ -134,7 +134,7 @@ bool MyEventReceiver::WasKeyDown(GameKeyType key)
 			if (down_ent == physicalKeyDown.end())
 				continue;
 			if (auto &keystate = down_ent->second; keystate.analog_value > 0) {
-				auto time_now = porting::getTimeMs() / 1000.0f;
+				auto time_now = porting::getTimeMs() / 1000.0;
 				if (time_now - keystate.last_binary_update >= repeat_joystick_button_time) {
 					b = true;
 					keystate.last_binary_update = time_now;
@@ -152,7 +152,7 @@ bool MyEventReceiver::setKeyDown(KeyPress keyCode, float value)
 	auto action = keysListenedFor[keyCode];
 	if (value > 0) {
 		if (physicalKeyDown.find(keyCode) == physicalKeyDown.end())
-			physicalKeyDown[keyCode].last_binary_update = porting::getTimeMs() / 1000.0f;
+			physicalKeyDown[keyCode].last_binary_update = porting::getTimeMs() / 1000.0;
 		physicalKeyDown[keyCode].analog_value = value;
 	} else {
 		physicalKeyDown.erase(keyCode);
