@@ -505,20 +505,20 @@ bool KeyPress::loadUnsignedFromPrefix(const std::string &name, const std::string
 	return true;
 }
 
-KeyPress KeyPress::flip() const
+KeyPress KeyPress::getOppositeAxisDirection() const
 {
-	KeyPress flipped;
+	KeyPress opposite;
 	switch (getType()) {
 	case InputType::GAMEPAD_AXIS_PLUS:
-		flipped.emplace<InputType::GAMEPAD_AXIS_MINUS>(get<InputType::GAMEPAD_AXIS_PLUS>());
+		opposite.emplace<InputType::GAMEPAD_AXIS_MINUS>(get<InputType::GAMEPAD_AXIS_PLUS>());
 		break;
 	case InputType::GAMEPAD_AXIS_MINUS:
-		flipped.emplace<InputType::GAMEPAD_AXIS_PLUS>(get<InputType::GAMEPAD_AXIS_MINUS>());
+		opposite.emplace<InputType::GAMEPAD_AXIS_PLUS>(get<InputType::GAMEPAD_AXIS_MINUS>());
 		break;
 	default:
 		break;
 	}
-	return flipped;
+	return opposite;
 }
 
 KeyPress::operator bool() const

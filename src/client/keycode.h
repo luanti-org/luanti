@@ -87,7 +87,7 @@ public:
 	InputSourceType getSourceType() const;
 
 	/// Get the joystick axis in the opposite direction (if available)
-	KeyPress flip() const;
+	KeyPress getOppositeAxisDirection() const;
 
 	// Check whether the keypress is valid
 	operator bool() const;

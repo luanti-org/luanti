@@ -273,8 +273,8 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		return true;
 	} else if (KeyPressEvent kpevent(event); kpevent) {
 		setKeyDown(kpevent.key, kpevent.analog_value);
-		if (auto flipped = kpevent.key.flip(); flipped) {
-			setKeyDown(flipped, 0);
+		if (auto opposite = kpevent.key.getOppositeAxisDirection(); opposite) {
+			setKeyDown(opposite, 0);
 		}
 		return true;
 	}
