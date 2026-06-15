@@ -15,6 +15,7 @@
 
 #include "COpenGLCoreTexture.h"
 #include "COpenGLCoreCacheHandler.h"
+#include <optional>
 
 namespace video
 {
@@ -103,9 +104,12 @@ void COpenGL3MaterialRenderer::init(s32 &outMaterialTypeNr,
 {
 	outMaterialTypeNr = -1;
 
-	auto cachedProgram = Driver->getShaderCache().load(
-		vertexShaderProgram ? vertexShaderProgram : "",
-		pixelShaderProgram ? pixelShaderProgram : "");
+	std::optional<GLuint> cachedProgram;
+	if (Driver->BinaryCacheSupported) {
+		cachedProgram = Driver->getShaderCache().load(
+			vertexShaderProgram ? vertexShaderProgram : "",
+			pixelShaderProgram ? pixelShaderProgram : "");
+	}
 
 	if (cachedProgram) {
 		Program = *cachedProgram;
@@ -139,17 +143,20 @@ void COpenGL3MaterialRenderer::init(s32 &outMaterialTypeNr,
 		if (!setupProgram())
 			return;
 
-        bool savedOk = Driver->getShaderCache().save(
-            vertexShaderProgram ? vertexShaderProgram : "",
-            pixelShaderProgram ? pixelShaderProgram : "", Program);
+		// Try to save to cache if supported
+		if (Driver->BinaryCacheSupported) {
+			bool savedOk = Driver->getShaderCache().save(
+				vertexShaderProgram ? vertexShaderProgram : "",
+				pixelShaderProgram ? pixelShaderProgram : "", Program);
 
-        if (savedOk) {
-            os::Printer::log("Saved compiled shader binary to cache",
-           		debugName ? debugName : "unknown", ELL_INFORMATION);
-        } else {
-        	os::Printer::log("Failed to save compiled shader binary to cache",
-		   		debugName ? debugName : "unknown", ELL_WARNING);
-        }
+			if (savedOk) {
+				os::Printer::log("Saved compiled shader binary to cache",
+					debugName ? debugName : "unknown", ELL_INFORMATION);
+			} else {
+				os::Printer::log("Failed to save compiled shader binary to cache",
+					debugName ? debugName : "unknown", ELL_WARNING);
+			}
+		}
 	}
 	if (debugName)
 		Driver->irrGlObjectLabel(GL_PROGRAM, Program, debugName);

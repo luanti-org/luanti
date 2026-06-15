@@ -31,8 +31,9 @@ class COpenGL3DriverBase;
 class COpenGL3ShaderCache
 {
 public:
-	COpenGL3ShaderCache(COpenGL3DriverBase *driver, io::IFileSystem *fs, const io::path &cache_dir) :
-		m_driver(driver), m_fs(fs), m_cache_dir(cache_dir) {}
+	COpenGL3ShaderCache(COpenGL3DriverBase *driver, io::IFileSystem *fs,
+		const io::path &cache_dir) :
+		m_cache_dir(cache_dir), m_driver(driver), m_fs(fs) {}
 
 	/// Loads a shader program from the cache.
 	/// Returns the program ID if successful, std::nullopt otherwise.
@@ -44,20 +45,27 @@ public:
 	bool save(std::string_view vertexShaderProgram, std::string_view pixelShaderProgram,
 		GLuint program) const;
 
+	/// Prunes the cache by removing entries that are no longer valid for the current OpenGL context
+	void prune() const;
+
 private:
 	typedef std::array<std::byte, 32> SHA256Hash;
 
 	/// Gets the cache filename for a given hash.
 	io::path getCacheFilename(const SHA256Hash &hash) const;
 
+	/// Loads a shader program from a cache file.
+	/// Returns the program ID if successful, std::nullopt otherwise.
+	std::optional<GLuint> loadFromFile(const io::path &filepath) const;
+
 	/// Calculates a hash for the given shader programs and the current
 	/// OpenGL context.
 	static SHA256Hash calculateHash(std::string_view vertexShaderProgram,
 		std::string_view pixelShaderProgram);
 
+	io::path m_cache_dir;
 	COpenGL3DriverBase *m_driver;
 	io::IFileSystem *m_fs;
-	io::path m_cache_dir;
 };
 
 } // end namespace video

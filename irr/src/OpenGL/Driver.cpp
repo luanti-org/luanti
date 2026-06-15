@@ -275,6 +275,10 @@ bool COpenGL3DriverBase::genericDriverInit(const core::dimension2d<u32> &screenS
 		KHRDebugSupported = false;
 	}
 
+	if (BinaryCacheSupported) {
+		ShaderCache.prune();
+	}
+
 	initQuadsIndices();
 	initMaxJointTransforms();
 

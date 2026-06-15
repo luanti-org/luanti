@@ -7,6 +7,7 @@
 
 #include "CReadFile.h"
 #include "CWriteFile.h"
+#include "IFileList.h"
 #include "coreutil.h"
 #include "mt_opengl.h"
 #include "os.h"
@@ -23,6 +24,8 @@
 
 namespace
 {
+
+constexpr std::string_view SHADER_EXTENSION = ".bin";
 
 // Used when hashing multiple strings together to separate them
 constexpr std::string_view HASH_KEY_SEPARATOR{"\0", 1};
@@ -86,16 +89,84 @@ COpenGL3ShaderCache::SHA256Hash COpenGL3ShaderCache::calculateHash(
 std::optional<GLuint> COpenGL3ShaderCache::load(
 		std::string_view vertexShaderProgram, std::string_view pixelShaderProgram) const
 {
-	if (m_cache_dir.empty() || !m_driver->BinaryCacheSupported) {
+	if (m_cache_dir.empty()) {
 		return std::nullopt;
 	}
 
-	// Calculate the hash and the corresponding cache file path
-	auto hash = calculateHash(vertexShaderProgram, pixelShaderProgram);
+	SHA256Hash hash   = calculateHash(vertexShaderProgram, pixelShaderProgram);
 	io::path filepath = getCacheFilename(hash);
 
-	if (!m_fs->existFile(filepath)) {
-		return std::nullopt; // Cache file does not exist
+	return loadFromFile(filepath);
+}
+
+bool COpenGL3ShaderCache::save(std::string_view vertexShaderProgram,
+		std::string_view pixelShaderProgram, GLuint program) const
+{
+	if (m_cache_dir.empty()) {
+		return false;
+	}
+
+	GLint binaryLength = 0;
+	GL.GetProgramiv(program, GL_PROGRAM_BINARY_LENGTH, &binaryLength);
+	if (m_driver->testGLError(__FILE__, __LINE__) || binaryLength <= 0) {
+		os::Printer::log("Failed to get shader program binary length", ELL_WARNING);
+		return false;
+	}
+
+	std::vector<char> binary(binaryLength);
+	GLenum file_format = 0;
+	GLsizei file_effective_size = 0;
+
+	GL.GetProgramBinary(program, binaryLength, &file_effective_size, &file_format, binary.data());
+	if (m_driver->testGLError(__FILE__, __LINE__)) {
+		os::Printer::log("Failed to retrieve shader program binary", ELL_WARNING);
+		return false;
+	}
+	if (file_effective_size <= 0) {
+		os::Printer::log("Failed to retrieve shader program binary", ELL_WARNING);
+		return false;
+	}
+
+	io::path filepath = getCacheFilename(calculateHash(vertexShaderProgram, pixelShaderProgram));
+
+	if (!m_fs->existDirectory(m_cache_dir) && !m_fs->createDirectory(m_cache_dir)) {
+		os::Printer::log("Failed to create shader cache directory", m_cache_dir.c_str(), ELL_WARNING);
+		return false;
+	}
+
+	io::CWriteFile writer(filepath.c_str(), false);
+	if (!writer.isOpen()) {
+		os::Printer::log("Failed to open shader cache file for writing", filepath.c_str(), ELL_WARNING);
+		return false;
+	}
+
+	if (writer.write(&file_format, sizeof(file_format)) != sizeof(file_format)) {
+		os::Printer::log("Failed to write shader cache format", filepath.c_str(), ELL_WARNING);
+		return false;
+	}
+
+	if (writer.write(binary.data(), file_effective_size) != static_cast<size_t>(file_effective_size)) {
+		os::Printer::log("Failed to write shader cache binary data", filepath.c_str(), ELL_WARNING);
+		return false;
+	}
+
+	if (!writer.flush()) {
+		os::Printer::log("Failed to flush shader cache file", filepath.c_str(), ELL_WARNING);
+		return false;
+	}
+
+	return true;
+}
+
+io::path COpenGL3ShaderCache::getCacheFilename(const SHA256Hash &hash) const
+{
+	return core::mergeFilename(m_cache_dir, to_hex(hash) + std::string(SHADER_EXTENSION));
+}
+
+std::optional<GLuint> COpenGL3ShaderCache::loadFromFile(const io::path &filepath) const
+{
+	if (filepath.empty() || !m_fs->existFile(filepath)) {
+		return std::nullopt;
 	}
 
 	io::CReadFile reader(filepath.c_str());
@@ -163,68 +234,44 @@ std::optional<GLuint> COpenGL3ShaderCache::load(
 	return std::make_optional(program);
 }
 
-bool COpenGL3ShaderCache::save(std::string_view vertexShaderProgram,
-		std::string_view pixelShaderProgram, GLuint program) const
+void COpenGL3ShaderCache::prune() const
 {
-	if (m_cache_dir.empty() || !m_driver->BinaryCacheSupported) {
-		return false;
+	if (m_cache_dir.empty() || !m_fs->existDirectory(m_cache_dir)) {
+		return;
 	}
 
-	GLint binaryLength = 0;
-	GL.GetProgramiv(program, GL_PROGRAM_BINARY_LENGTH, &binaryLength);
-	if (m_driver->testGLError(__FILE__, __LINE__) || binaryLength <= 0) {
-		os::Printer::log("Failed to get shader program binary length", ELL_WARNING);
-		return false;
+	auto check_file = [this](const io::path &filename) {
+		// Ignore files that don't have the expected shader cache extension
+		if (filename.size() <= SHADER_EXTENSION.size()
+			|| !core::hasFileExtension(filename, SHADER_EXTENSION.data())) {
+			return;
+		}
+
+		// Attempt to load the shader program from the cache file. If it fails, delete the file.
+		auto program = loadFromFile(filename);
+		if (!program) {
+			os::Printer::log("Removing invalid shader cache file", filename.c_str(), ELL_WARNING);
+			m_fs->deleteFile(filename);
+		} else {
+			GL.DeleteProgram(*program);
+		}
+	};
+
+	auto old_working_dir = m_fs->getWorkingDirectory();
+	m_fs->changeWorkingDirectoryTo(m_cache_dir);
+
+	io::IFileList *file_list = m_fs->createFileList();
+	if (file_list) {
+		for (u32 i = 0; i < file_list->getFileCount(); ++i) {
+			io::path filename = file_list->getFileName(i);
+			check_file(filename);
+		}
+		file_list->drop();
+	} else {
+		os::Printer::log("Failed to create file list for shader cache pruning", m_cache_dir.c_str(), ELL_WARNING);
 	}
 
-	std::vector<char> binary(binaryLength);
-	GLenum file_format = 0;
-	GLsizei file_effective_size = 0;
-
-	GL.GetProgramBinary(program, binaryLength, &file_effective_size, &file_format, binary.data());
-	if (m_driver->testGLError(__FILE__, __LINE__)) {
-		os::Printer::log("Failed to retrieve shader program binary", ELL_WARNING);
-		return false;
-	}
-	if (file_effective_size <= 0) {
-		os::Printer::log("Failed to retrieve shader program binary", ELL_WARNING);
-		return false;
-	}
-
-	io::path filepath = getCacheFilename(calculateHash(vertexShaderProgram, pixelShaderProgram));
-
-	if (!m_fs->existDirectory(m_cache_dir) && !m_fs->createDirectory(m_cache_dir)) {
-		os::Printer::log("Failed to create shader cache directory", m_cache_dir.c_str(), ELL_WARNING);
-		return false;
-	}
-
-	io::CWriteFile writer(filepath.c_str(), false);
-	if (!writer.isOpen()) {
-		os::Printer::log("Failed to open shader cache file for writing", filepath.c_str(), ELL_WARNING);
-		return false;
-	}
-
-	if (writer.write(&file_format, sizeof(file_format)) != sizeof(file_format)) {
-		os::Printer::log("Failed to write shader cache format", filepath.c_str(), ELL_WARNING);
-		return false;
-	}
-
-	if (writer.write(binary.data(), file_effective_size) != static_cast<size_t>(file_effective_size)) {
-		os::Printer::log("Failed to write shader cache binary data", filepath.c_str(), ELL_WARNING);
-		return false;
-	}
-
-	if (!writer.flush()) {
-		os::Printer::log("Failed to flush shader cache file", filepath.c_str(), ELL_WARNING);
-		return false;
-	}
-
-	return true;
-}
-
-io::path COpenGL3ShaderCache::getCacheFilename(const SHA256Hash &hash) const
-{
-	return core::mergeFilename(m_cache_dir, to_hex(hash) + ".bin");
+	m_fs->changeWorkingDirectoryTo(old_working_dir);
 }
 
 } // end namespace video
