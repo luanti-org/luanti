@@ -642,8 +642,8 @@ KeyPressEvent::KeyPressEvent(const SEvent &event)
 		auto event_value = event.GamepadAxisEvent.Value;
 		analog_value = event_value > 0 ? event_value/32767.0f : -event_value/32768.0f;
 		auto inner_deadzone = g_settings->getFloat("joystick_inner_deadzone", 0, 1);
-		auto outer_deadzone = g_settings->getFloat("joystick_outer_deadzone", inner_deadzone, 1);
-		analog_value = rangelim((analog_value-inner_deadzone)/(outer_deadzone-inner_deadzone), 0, 1);
+		auto outer_deadzone = g_settings->getFloat("joystick_outer_deadzone", 0,  1-inner_deadzone);
+		analog_value = rangelim((analog_value-inner_deadzone)/(1-outer_deadzone-inner_deadzone), 0, 1);
 		break;
 	}
 	default: // ignore irrelevant events

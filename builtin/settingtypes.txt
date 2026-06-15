@@ -436,7 +436,7 @@ repeat_joystick_button_time (Joystick button repetition interval) float 0.17 0.0
 
 joystick_inner_deadzone (Joystick inner dead zone) float 0.25 0 1
 
-joystick_outer_deadzone (Joystick outer dead zone) float 1 0 1
+joystick_outer_deadzone (Joystick outer dead zone) float 0 0 1
 
 #    The sensitivity of the joystick axes for moving the
 #    in-game view frustum around.
