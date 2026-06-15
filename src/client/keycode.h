@@ -18,17 +18,22 @@
 class KeyPress
 {
 public:
-	// Type of the input value
+	/**
+	 * The type of the input value.
+	 *
+	 * When constructing the KeyPress object from an Irrilcht event, the direction of the gamepad axis is
+	 * determined by the value along the axis. 0 is mapped to the positive direction.
+	 */
 	enum class InputType {
-		KEYBOARD, // Keyboard input (scancodes)
-		MOUSE_BUTTON, // Mouse button input
-		GAME_ACTION, // GameKeyType input passed by touchscreen buttons
-		GAMEPAD_BUTTON, // Gamepad button
-		GAMEPAD_AXIS_PLUS, // Gamepad axis in the positive direction
-		GAMEPAD_AXIS_MINUS, // Gamepad axis in the negative direction
+		KEYBOARD, ///< Keyboard input (scancodes)
+		MOUSE_BUTTON, ///< Mouse button input
+		GAME_ACTION, ///< GameKeyType input passed by touchscreen buttons
+		GAMEPAD_BUTTON, ///< Gamepad button
+		GAMEPAD_AXIS_PLUS, ///< Gamepad axis in the positive direction
+		GAMEPAD_AXIS_MINUS, ///< Gamepad axis in the negative direction
 	};
 
-	// Type of the input device
+	/// Type of the input device
 	enum class InputSourceType {
 		INVALID,
 		KEYBOARD,

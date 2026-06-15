@@ -127,6 +127,7 @@ bool MyEventReceiver::WasKeyDown(GameKeyType key)
 	if (b) {
 		keyWasDown.reset(key);
 	} else if (IsKeyDown(key)) {
+		// Gamepad events are not repeated so these need to be repeated here
 		for (auto kp: keybindings[key].keys) {
 			if (kp.getSourceType() != KeyPress::InputSourceType::GAMEPAD)
 				continue;
