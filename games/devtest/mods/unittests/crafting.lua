@@ -151,13 +151,13 @@ local function test_get_all_craft_recipes()
 	end
 
 	-- shaped
-	output = "bar"
+	output = "unittests:iron_lump"
 	do
 		local recipes = core.get_all_craft_recipes(output)
 		core.log("info", "[unittests] shaped recipes="..dump(recipes))
 		local found
 		for _, recipe in ipairs(recipes) do
-			if recipe.type == "normal" and recipe.items[1] == "foo" then
+			if recipe.type == "normal" and recipe.items[1] == "unittests:steel_ingot" then
 				assert(found == nil, "found too many")
 				found = recipe
 			end
@@ -171,7 +171,7 @@ local function test_get_all_craft_recipes()
 		local replacement = replacements[1]
 		assert(type(replacement) == "table") -- replacement exists and is a table
 		assert(#replacement == 2) -- replacement is a pair
-		assert(replacement[1] == "foo" and replacement[2] == "bar") -- replacement is adequate
+		assert(replacement[1] == "unittests:steel_ingot" and replacement[2] == "unittests:coal_lump") -- replacement is adequate
 	end
 
 

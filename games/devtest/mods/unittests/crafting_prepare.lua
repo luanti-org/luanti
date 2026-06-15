@@ -48,12 +48,12 @@ core.register_craft({
 })
 
 core.register_craft({
-	output = "bar",
+	output = "unittests:iron_lump",
 	recipe = {
-		{"foo"},
+		{"unittests:steel_ingot"},
 	},
 	replacements = {
-		{"foo", "bar"},
+		{"unittests:steel_ingot", "unittests:coal_lump"},
 	}
 })
 
