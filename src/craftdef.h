@@ -97,7 +97,7 @@ struct CraftReplacements
 struct CraftOutput
 {
 	// Used for normal crafting and cooking, itemstring
-	std::string item = "";
+	std::string item;
 	// Used for cooking (cook time) and fuel (burn time), seconds
 	float time = 0.0f;
 
