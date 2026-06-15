@@ -192,7 +192,7 @@ public:
 
 	static inline float intToAnalog(s16 value)
 	{
-		return value > 0 ? value / 32767.0f : 0;
+		return value > 0 ? value / (f32)INT16_MAX : 0.0f;
 	}
 
 	virtual float getAxisValue(GameKeyType k) = 0;
