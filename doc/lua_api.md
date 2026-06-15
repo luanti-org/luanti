@@ -6216,7 +6216,7 @@ Utilities
       -- `width = 0` for non-shaped recipes and provides the optional `time` field (5.17.0)
       get_all_craft_recipes_fuel = true,
       -- Whether `core.get_all_craft_recipes` returns the `replacements` used in the recipes' registration (5.17.0)
-      get_all_craft_recipes_fuel = true,
+      get_all_craft_recipes_replacements = true,
   }
   ```
 
