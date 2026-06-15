@@ -2,6 +2,7 @@ _G.core = {}
 
 _G.setfenv = require 'busted.compatibility'.setfenv
 
+dofile("builtin/common/misc_helpers.lua")
 dofile("builtin/common/serialize.lua")
 dofile("builtin/common/vector.lua")
 
