@@ -78,10 +78,10 @@ public:
 		return static_cast<InputType>(value.index());
 	}
 
-	// Get the source type of input
+	/// Get the source type of input
 	InputSourceType getSourceType() const;
 
-	// Get the joystick axis in the opposite direction (if available)
+	/// Get the joystick axis in the opposite direction (if available)
 	KeyPress flip() const;
 
 	// Check whether the keypress is valid
@@ -148,12 +148,12 @@ bool keySettingHasMatch(const std::string &settingname, KeyPress kp);
 // Clear fast lookup cache
 void clearKeyCache();
 
-// Generalized keypress event
+/// Generalized keypress event
 struct KeyPressEvent {
 	KeyPress key;
 	float analog_value = 0;
 
-	// Construct a KeyPressEvent from an Irrlicht event. User events (e.g. touchscreen input) is not handled.
+	/// Construct a KeyPressEvent from an Irrlicht event. User events (e.g. touchscreen input) is not handled.
 	KeyPressEvent(const SEvent &event);
 
 	operator bool() const {
