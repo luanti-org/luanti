@@ -129,7 +129,7 @@ private:
 		std::map<KeyPress::InputType, float> scale;
 	};
 
-	struct KeyState {
+	struct PhysicalKeyState {
 		float analog_value;
 		f64 last_binary_update; // The last time the binary state ("is this pressed?") is updated
 	};
@@ -147,7 +147,7 @@ private:
 	s32 mouse_wheel = 0;
 
 	// The current state of physical keys.
-	std::map<KeyPress, KeyState> physicalKeyDown;
+	std::map<KeyPress, PhysicalKeyState> physicalKeyDown;
 
 	// The current state of keys
 	std::array<float, GameKeyType::INTERNAL_ENUM_COUNT> axisValues;
