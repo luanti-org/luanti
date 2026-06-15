@@ -165,13 +165,7 @@ local function test_get_all_craft_recipes()
 		assert(found)
 		assert(#found.items == 1) -- height is appropriate
 		assert(ItemStack(found.output) == ItemStack(output)) -- handle aliases
-		local replacements = found.replacements
-		assert(type(replacements) == "table") -- replacements exist and are as a table
-		assert(#replacements == 1) -- only one exists
-		local replacement = replacements[1]
-		assert(type(replacement) == "table") -- replacement exists and is a table
-		assert(#replacement == 2) -- replacement is a pair
-		assert(replacement[1] == "unittests:steel_ingot" and replacement[2] == "unittests:coal_lump") -- replacement is adequate
+		assert_same(found.replacements, {{"unittests:steel_ingot", "unittests:coal_lump"}})
 	end
 
 
