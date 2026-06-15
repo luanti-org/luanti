@@ -115,8 +115,8 @@ void MyEventReceiver::reloadKeybindings()
 	};
 	for (const auto action: camera_rotation_actions) {
 		auto &keybinding = keybindings[action];
-		keybinding.setKBMScale(g_settings->getFloat("keyboard_camera_speed", 0.001f, 720.0f));
-		keybinding.setJoystickScale(g_settings->getFloat("joystick_frustum_sensitivity", 0.001f, 720.0f));
+		keybinding.scale.keyboard_mouse = g_settings->getFloat("keyboard_camera_speed", 0.001f, 720.0f);
+		keybinding.scale.joystick = g_settings->getFloat("joystick_frustum_sensitivity", 0.001f, 720.0f);
 	}
 
 }

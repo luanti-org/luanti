@@ -101,32 +101,29 @@ private:
 	std::pair<float, bool> checkKeyDown(GameKeyType action) const;
 
 	struct Keybinding {
+		std::vector<KeyPress> keys;
+		struct {
+			float keyboard_mouse = 1.0f;
+			float joystick = 1.0f;
+		} scale;
+
 		Keybinding() = default;
-		Keybinding(std::vector<KeyPress> in_keys): keys(in_keys) {}
+		Keybinding(const std::vector<KeyPress> &in_keys): keys(in_keys) {}
 
 		inline float getScale(KeyPress::InputType input_type) const
 		{
-			if (auto p = scale.find(input_type); p != scale.end())
-				return p->second;
-			else
+			switch (input_type) {
+			case KeyPress::InputType::KEYBOARD:
+			case KeyPress::InputType::MOUSE_BUTTON:
+				return scale.keyboard_mouse;
+			case KeyPress::InputType::GAMEPAD_BUTTON:
+			case KeyPress::InputType::GAMEPAD_AXIS_PLUS:
+			case KeyPress::InputType::GAMEPAD_AXIS_MINUS:
+				return scale.joystick;
+			default:
 				return 1.0f;
+			}
 		}
-
-		inline void setKBMScale(float value)
-		{
-			scale[KeyPress::InputType::KEYBOARD] = value;
-			scale[KeyPress::InputType::MOUSE_BUTTON] = value;
-		}
-
-		inline void setJoystickScale(float value)
-		{
-			scale[KeyPress::InputType::GAMEPAD_BUTTON] = value;
-			scale[KeyPress::InputType::GAMEPAD_AXIS_PLUS] = value;
-			scale[KeyPress::InputType::GAMEPAD_AXIS_MINUS] = value;
-		}
-
-		std::vector<KeyPress> keys;
-		std::map<KeyPress::InputType, float> scale;
 	};
 
 	struct PhysicalKeyState {
