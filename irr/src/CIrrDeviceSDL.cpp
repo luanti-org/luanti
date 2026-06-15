@@ -1132,8 +1132,17 @@ bool CIrrDeviceSDL::run()
 #else
 			auto id = SDL_event.cdevice.which;
 #endif
-			if (auto gamepad = SDL_OpenGamepad(id); gamepad != nullptr)
+			if (auto gamepad = SDL_OpenGamepad(id); gamepad != nullptr) {
 				gamepads.emplace(id, gamepad);
+				os::Printer::log("Gamepad connected", SDL_GetGamepadName(gamepad), ELL_INFORMATION);
+				os::Printer::log("Gamepad type", SDL_GetGamepadStringForType(SDL_GetGamepadType(gamepad)), ELL_INFORMATION);
+				if (auto mapping = SDL_GetGamepadMapping(gamepad); mapping != nullptr) {
+					os::Printer::log("Gamepad mapping", mapping, ELL_INFORMATION);
+					SDL_free(mapping);
+				}
+			} else {
+				os::Printer::log("Unable to open gamepad", SDL_GetError(), ELL_ERROR);
+			}
 			break;
 		}
 
@@ -1144,6 +1153,7 @@ bool CIrrDeviceSDL::run()
 			auto id = SDL_event.cdevice.which;
 #endif
 			if (auto p = gamepads.find(id); p != gamepads.end()) {
+				os::Printer::log("Gamepad disconnected", SDL_GetGamepadName(p->second), ELL_INFORMATION);
 				SDL_CloseGamepad(p->second);
 				gamepads.erase(id);
 			}
