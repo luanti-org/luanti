@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "COBJMeshFileLoader.h"
+#include "ILogger.h"
 #include "IMeshManipulator.h"
 #include "IVideoDriver.h"
 #include "SMesh.h"
@@ -230,16 +231,16 @@ IAnimatedMesh *COBJMeshFileLoader::createMesh(io::IReadFile *file)
 			}
 
 			// triangulate the face
-			auto &Indices = currMtl->Meshbuffer->Indices->Data;
+			auto &indices = *currMtl->Meshbuffer->Indices;
 			const int c = faceCorners[0];
 			for (u32 i = 1; i < faceCorners.size() - 1; ++i) {
 				// Add a triangle
 				const int a = faceCorners[i + 1];
 				const int b = faceCorners[i];
 				if (a != b && a != c && b != c) { // ignore degenerated faces. We can get them when we merge vertices above in the VertMap.
-					Indices.push_back(a);
-					Indices.push_back(b);
-					Indices.push_back(c);
+					indices.pushBack(a);
+					indices.pushBack(b);
+					indices.pushBack(c);
 				} else {
 					++degeneratedFaces;
 				}

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
+#include <irr_types.h>
 
 enum ModifiedState : u16
 {

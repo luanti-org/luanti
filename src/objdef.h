@@ -5,7 +5,7 @@
 #pragma once
 
 #include "util/basic_macros.h" // DISABLE_CLASS_COPY
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include <string>
 #include <vector>
 

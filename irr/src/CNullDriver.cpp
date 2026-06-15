@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "CNullDriver.h"
-#include "IIndexBuffer.h"
+#include "IndexBuffer.h"
 #include "IVertexBuffer.h"
 #include "IVideoDriver.h"
 #include "SMaterial.h"
@@ -939,7 +939,7 @@ void CNullDriver::getFog(SColor &color, E_FOG_TYPE &fogType, f32 &start, f32 &en
 }
 
 void CNullDriver::drawBuffers(const scene::IVertexBuffer *vb,
-		const scene::IIndexBuffer *ib, u32 primCount,
+		const scene::IndexBuffer *ib, u32 primCount,
 		scene::E_PRIMITIVE_TYPE pType)
 {
 	if (!vb || !ib)
@@ -949,7 +949,7 @@ void CNullDriver::drawBuffers(const scene::IVertexBuffer *vb,
 	assert(!vb->Link && !ib->Link);
 
 	drawVertexPrimitiveList(vb->getData(), vb->getCount(), ib->getData(),
-		primCount, vb->getType(), pType, ib->getType());
+		primCount, vb->getType(), pType, ib->getIndexType());
 }
 
 //! Draws the normals of a mesh buffer
@@ -1050,7 +1050,7 @@ bool CNullDriver::isHardwareBufferRecommend(const scene::HWBuffer *buf)
 
 	if (dynamic_cast<const scene::IVertexBuffer *>(buf)) {
 		return buf->getCount() >= MinVertexCountForVBO;
-	} else if (dynamic_cast<const scene::IIndexBuffer *>(buf)) {
+	} else if (dynamic_cast<const scene::IndexBuffer *>(buf)) {
 		// This is a bit stupid
 		return buf->getCount() >= 3 * MinVertexCountForVBO;
 	} else {

@@ -9,7 +9,7 @@
 #include <string>
 #include <mutex>
 #include "database.h"
-#include "irrlichttypes.h"
+#include <irr_types.h>
 
 class Database_Dummy : public MapDatabase, public PlayerDatabase, public ModStorageDatabase
 {

@@ -214,14 +214,12 @@ bool CXMeshFileLoader::load(io::IReadFile *file)
 			memset(vCountArray, 0, mesh->Buffers.size() * sizeof(u32));
 			for (i = 0; i < mesh->FaceMaterialIndices.size(); ++i)
 				++vCountArray[mesh->FaceMaterialIndices[i]];
-			for (i = 0; i != mesh->Buffers.size(); ++i)
-				mesh->Buffers[i]->Indices->Data.reserve(vCountArray[i]);
 			delete[] vCountArray;
 			// create indices per buffer
 			for (i = 0; i < mesh->FaceMaterialIndices.size(); ++i) {
 				scene::SSkinMeshBuffer *buffer = mesh->Buffers[mesh->FaceMaterialIndices[i]];
 				for (u32 id = i * 3 + 0; id != i * 3 + 3; ++id) {
-					buffer->Indices->Data.push_back(verticesLinkIndex[mesh->Indices[id]]);
+					buffer->Indices->pushBack(verticesLinkIndex[mesh->Indices[id]]);
 				}
 			}
 		}

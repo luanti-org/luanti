@@ -5,7 +5,7 @@
 #include "content/subgames.h"
 #include "filesys.h"
 
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "irr_ptr.h"
 
 #include "EDriverTypes.h"

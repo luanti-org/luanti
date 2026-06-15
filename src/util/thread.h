@@ -5,7 +5,7 @@
 #pragma once
 
 #include <utility> // std::move
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "threading/thread.h"
 #include "threading/mutex_auto_lock.h"
 #include "container.h"

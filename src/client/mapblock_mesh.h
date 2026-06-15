@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "irr_ptr.h"
 #include "IMesh.h"
 #include "CMeshBuffer.h"
@@ -148,9 +148,9 @@ class PartialMeshBuffer
 {
 public:
 	PartialMeshBuffer(scene::SMeshBuffer *buffer, std::vector<u16> &&vertex_indices) :
-			m_buffer(buffer), m_indices(make_irr<scene::SIndexBuffer>())
+			m_buffer(buffer), m_indices(make_irr<scene::IndexBuffer>())
 	{
-		m_indices->Data = std::move(vertex_indices);
+		m_indices->data = std::move(vertex_indices);
 		m_indices->MappingHint = scene::EHM_STATIC;
 	}
 
@@ -160,7 +160,7 @@ public:
 
 private:
 	scene::SMeshBuffer *m_buffer;
-	irr_ptr<scene::SIndexBuffer> m_indices;
+	irr_ptr<scene::IndexBuffer> m_indices;
 };
 
 /*

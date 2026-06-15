@@ -8,7 +8,7 @@
 #include "gamedef.h"
 #include "gameparams.h" // ELoginRegister
 #include "inventorymanager.h"
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "network/address.h"
 #include "network/networkprotocol.h" // multiple enums
 #include "network/peerhandler.h"

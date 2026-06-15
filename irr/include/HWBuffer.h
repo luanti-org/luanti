@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IReferenceCounted.h"
-#include "irrTypes.h"
+#include "irr_types.h"
 #include "EHardwareBufferFlags.h"
 
 namespace scene

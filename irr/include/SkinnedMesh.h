@@ -7,7 +7,7 @@
 #include "IAnimatedMesh.h"
 #include "aabbox3d.h"
 #include "irrMath.h"
-#include "irrTypes.h"
+#include "irr_types.h"
 #include "irr_ptr.h"
 #include "matrix4.h"
 #include "quaternion.h"

@@ -247,20 +247,22 @@ bool CB3DMeshFileLoader::readChunkMESH(SkinnedMesh::SJoint *inJoint)
 				return false;
 
 			if (!NormalsInFile) {
-				s32 i;
 
-				auto &indices = meshBuffer->Indices->Data;
-				for (i = 0; i < (s32)indices.size(); i += 3) {
-					core::plane3df p(meshBuffer->getVertex(indices[i + 0])->Pos,
-							meshBuffer->getVertex(indices[i + 1])->Pos,
-							meshBuffer->getVertex(indices[i + 2])->Pos);
+				auto &indices = *meshBuffer->Indices;
+				for (u32 i = 0; i < indices.getCount(); i += 3) {
+					u32 i0 = indices.get(i + 0);
+					u32 i1 = indices.get(i + 1);
+					u32 i2 = indices.get(i + 2);
+					core::plane3df p(meshBuffer->getVertex(i0)->Pos,
+							meshBuffer->getVertex(i1)->Pos,
+							meshBuffer->getVertex(i2)->Pos);
 
-					meshBuffer->getVertex(indices[i + 0])->Normal += p.Normal;
-					meshBuffer->getVertex(indices[i + 1])->Normal += p.Normal;
-					meshBuffer->getVertex(indices[i + 2])->Normal += p.Normal;
+					meshBuffer->getVertex(i0)->Normal += p.Normal;
+					meshBuffer->getVertex(i1)->Normal += p.Normal;
+					meshBuffer->getVertex(i2)->Normal += p.Normal;
 				}
 
-				for (i = 0; i < (s32)meshBuffer->getVertexCount(); ++i) {
+				for (u32 i = 0; i < meshBuffer->getVertexCount(); ++i) {
 					meshBuffer->getVertex(i)->Normal.normalize();
 					BaseVertices[VerticesStart + i].Normal = meshBuffer->getVertex(i)->Normal;
 				}
@@ -424,9 +426,6 @@ bool CB3DMeshFileLoader::readChunkTRIS(scene::SSkinMeshBuffer *meshBuffer, u32 m
 		meshBuffer->Material = B3dMaterial->Material;
 	}
 
-	const s32 memoryNeeded = B3dStack.getLast().length / sizeof(s32);
-	meshBuffer->Indices->Data.reserve(memoryNeeded + meshBuffer->Indices->Data.size() + 1);
-
 	while ((B3dStack.getLast().startposition + B3dStack.getLast().length) > B3DFile->getPos()) // this chunk repeats
 	{
 		s32 vertex_id[3];
@@ -497,9 +496,9 @@ bool CB3DMeshFileLoader::readChunkTRIS(scene::SSkinMeshBuffer *meshBuffer, u32 m
 			}
 		}
 
-		meshBuffer->Indices->Data.push_back(AnimatedVertices_VertexID[vertex_id[0]]);
-		meshBuffer->Indices->Data.push_back(AnimatedVertices_VertexID[vertex_id[1]]);
-		meshBuffer->Indices->Data.push_back(AnimatedVertices_VertexID[vertex_id[2]]);
+		meshBuffer->Indices->pushBack(AnimatedVertices_VertexID[vertex_id[0]]);
+		meshBuffer->Indices->pushBack(AnimatedVertices_VertexID[vertex_id[1]]);
+		meshBuffer->Indices->pushBack(AnimatedVertices_VertexID[vertex_id[2]]);
 	}
 
 	B3dStack.erase(B3dStack.size() - 1);
