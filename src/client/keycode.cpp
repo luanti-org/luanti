@@ -640,7 +640,7 @@ KeyPressEvent::KeyPressEvent(const SEvent &event)
 	case EET_GAMEPAD_AXIS_EVENT: {
 		key = KeyPress(event.GamepadAxisEvent);
 		auto event_value = event.GamepadAxisEvent.Value;
-		analog_value = event_value > 0 ? event_value/INT16_MAX : event_value/INT16_MIN;
+		analog_value = event_value > 0 ? event_value/32767.0f : -event_value/32768.0f;
 		auto inner_deadzone = g_settings->getFloat("joystick_inner_deadzone", 0, 1);
 		auto outer_deadzone = g_settings->getFloat("joystick_outer_deadzone", inner_deadzone, 1);
 		analog_value = rangelim((analog_value-inner_deadzone)/(outer_deadzone-inner_deadzone), 0, 1);
