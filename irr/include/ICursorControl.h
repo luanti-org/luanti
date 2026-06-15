@@ -133,7 +133,8 @@ public:
 		When false return the last known (buffered) position ( this is useful to
 		check what has become of a setPosition call with float numbers).
 	\return Returns the current position of the cursor. The returned position
-	is the position of the mouse cursor in pixel units. */
+	is the position of the mouse cursor in pixel units. The returned position
+	may be outside of the window bounds. */
 	virtual const core::position2d<s32> &getPosition(bool updateCursor = true) = 0;
 
 	//! Returns the current position of the mouse cursor.
