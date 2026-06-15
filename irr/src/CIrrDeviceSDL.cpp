@@ -1132,7 +1132,7 @@ bool CIrrDeviceSDL::run()
 #else
 			auto id = SDL_event.cdevice.which;
 #endif
-			if (auto gamepad = SDL_OpenGamepad(id); gamepad != NULL)
+			if (auto gamepad = SDL_OpenGamepad(id); gamepad != nullptr)
 				gamepads.emplace(id, gamepad);
 			break;
 		}

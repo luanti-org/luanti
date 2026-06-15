@@ -187,7 +187,7 @@ public:
 
 	static inline s16 analogToInt(float value)
 	{
-		return value > 0 ? std::min(1.0f, value) * 32767.0f : 0;
+		return value > 0 ? std::min(1.0f, value) * INT16_MAX : 0;
 	}
 
 	static inline float intToAnalog(s16 value)
@@ -196,7 +196,8 @@ public:
 	}
 
 	virtual float getAxisValue(GameKeyType k) = 0;
-	virtual bool isKeyDown(GameKeyType k) {
+	virtual bool isKeyDown(GameKeyType k)
+	{
 		return getAxisValue(k) > 0;
 	}
 	virtual bool wasKeyDown(GameKeyType k) = 0;
