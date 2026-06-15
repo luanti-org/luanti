@@ -457,13 +457,13 @@ std::string KeyPress::name() const
 		auto axis = get<InputType::GAMEPAD_AXIS_PLUS>();
 		switch (axis) {
 		case SDL_GAMEPAD_AXIS_LEFTX:
-			return strgettext("Left Joystick X+");
+			return strgettext("Left Joystick Right");
 		case SDL_GAMEPAD_AXIS_LEFTY:
-			return strgettext("Left Joystick Y+");
+			return strgettext("Left Joystick Down");
 		case SDL_GAMEPAD_AXIS_RIGHTX:
-			return strgettext("Right Joystick X+");
+			return strgettext("Right Joystick Right");
 		case SDL_GAMEPAD_AXIS_RIGHTY:
-			return strgettext("Right Joystick Y+");
+			return strgettext("Right Joystick Down");
 		case SDL_GAMEPAD_AXIS_LEFT_TRIGGER:
 			return strgettext("Left Trigger");
 		case SDL_GAMEPAD_AXIS_RIGHT_TRIGGER:
@@ -476,13 +476,13 @@ std::string KeyPress::name() const
 		auto axis = get<InputType::GAMEPAD_AXIS_MINUS>();
 		switch (axis) {
 		case SDL_GAMEPAD_AXIS_LEFTX:
-			return strgettext("Left Joystick X-");
+			return strgettext("Left Joystick Left");
 		case SDL_GAMEPAD_AXIS_LEFTY:
-			return strgettext("Left Joystick Y-");
+			return strgettext("Left Joystick Up");
 		case SDL_GAMEPAD_AXIS_RIGHTX:
-			return strgettext("Right Joystick X-");
+			return strgettext("Right Joystick Left");
 		case SDL_GAMEPAD_AXIS_RIGHTY:
-			return strgettext("Right Joystick Y-");
+			return strgettext("Right Joystick Up");
 		default:
 			return fmtgettext("Gamepad Axis %d -", axis);
 		}
