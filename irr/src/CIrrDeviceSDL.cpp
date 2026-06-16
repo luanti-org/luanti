@@ -338,13 +338,13 @@ Keycode CIrrDeviceSDL::getKeyFromScancode(const u32 scancode) const
 	return Keycode(irrcode, keychar);
 }
 
-u16 CIrrDeviceSDL::getGamepadButtonLabel(const u8 button) const
+GamepadButtonLabel CIrrDeviceSDL::getGamepadButtonLabel(const GamepadButton button) const
 {
 #if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_) && defined(_IRR_USE_SDL3_)
 	if (auto fp = gamepads.begin(); fp != gamepads.end())
-		return SDL_GetGamepadButtonLabel(fp->second, static_cast<SDL_GamepadButton>(button));
+		return static_cast<GamepadButtonLabel>(SDL_GetGamepadButtonLabel(fp->second, static_cast<SDL_GamepadButton>(button)));
 #endif
-	return 0;
+	return GamepadButtonLabel::UNKNOWN;
 }
 
 void CIrrDeviceSDL::resetReceiveTextInputEvents()
@@ -1169,10 +1169,10 @@ bool CIrrDeviceSDL::run()
 			irrevent.EventType = EET_GAMEPAD_BUTTON_EVENT;
 #ifdef _IRR_USE_SDL3_
 			irrevent.GamepadButtonEvent.ID = SDL_event.gbutton.which;
-			irrevent.GamepadButtonEvent.Button = SDL_event.gbutton.button;
+			irrevent.GamepadButtonEvent.Button = static_cast<GamepadButton>(SDL_event.gbutton.button);
 #else
 			irrevent.GamepadButtonEvent.ID = SDL_event.cbutton.which;
-			irrevent.GamepadButtonEvent.Button = SDL_event.cbutton.button;
+			irrevent.GamepadButtonEvent.Button = static_cast<GamepadButton>(SDL_event.cbutton.button);
 #endif
 			irrevent.GamepadButtonEvent.PressedDown = (SDL_event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN);
 			postEventFromUser(irrevent);
@@ -1182,11 +1182,11 @@ bool CIrrDeviceSDL::run()
 			irrevent.EventType = EET_GAMEPAD_AXIS_EVENT;
 #if _IRR_USE_SDL3_
 			irrevent.GamepadAxisEvent.ID = SDL_event.gaxis.which;
-			irrevent.GamepadAxisEvent.Axis = SDL_event.gaxis.axis;
+			irrevent.GamepadAxisEvent.Axis = static_cast<GamepadAxis>(SDL_event.gaxis.axis);
 			irrevent.GamepadAxisEvent.Value = SDL_event.gaxis.value;
 #else
 			irrevent.GamepadAxisEvent.ID = SDL_event.caxis.which;
-			irrevent.GamepadAxisEvent.Axis = SDL_event.caxis.axis;
+			irrevent.GamepadAxisEvent.Axis = static_cast<GamepadAxis>(SDL_event.caxis.axis);
 			irrevent.GamepadAxisEvent.Value = SDL_event.caxis.value;
 #endif
 			postEventFromUser(irrevent);

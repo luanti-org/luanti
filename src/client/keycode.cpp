@@ -344,11 +344,11 @@ std::string KeyPress::sym() const
 	case InputType::MOUSE_BUTTON:
 		return "MOUSE_BUTTON_" + std::to_string(get<InputType::MOUSE_BUTTON>());
 	case InputType::GAMEPAD_BUTTON:
-		return "GAMEPAD_BUTTON_" + std::to_string(get<InputType::GAMEPAD_BUTTON>());
+		return "GAMEPAD_BUTTON_" + std::to_string(getCast<InputType::GAMEPAD_BUTTON, u8>());
 	case InputType::GAMEPAD_AXIS_PLUS:
-		return "GAMEPAD_AXIS_PLUS_" + std::to_string(get<InputType::GAMEPAD_AXIS_PLUS>());
+		return "GAMEPAD_AXIS_PLUS_" + std::to_string(getCast<InputType::GAMEPAD_AXIS_PLUS, u8>());
 	case InputType::GAMEPAD_AXIS_MINUS:
-		return "GAMEPAD_AXIS_MINUS_" + std::to_string(get<InputType::GAMEPAD_AXIS_MINUS>());
+		return "GAMEPAD_AXIS_MINUS_" + std::to_string(getCast<InputType::GAMEPAD_AXIS_MINUS, u8>());
 	default:
 		return "";
 	}
@@ -391,63 +391,66 @@ std::string KeyPress::name() const
 		auto label = RenderingEngine::get_raw_device()->getGamepadButtonLabel(button);
 		// Note: only use "(Gamepad)" for names that are otherwise ambiguous or confusing
 		switch (label) {
-		case SDL_GAMEPAD_BUTTON_LABEL_A:
+		case GamepadButtonLabel::A:
 			return strgettext("A (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_LABEL_B:
+		case GamepadButtonLabel::B:
 			return strgettext("B (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_LABEL_X:
+		case GamepadButtonLabel::X:
 			return strgettext("X (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_LABEL_Y:
+		case GamepadButtonLabel::Y:
 			return strgettext("Y (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_LABEL_CROSS:
+		case GamepadButtonLabel::CROSS:
 			return strgettext("Cross (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_LABEL_CIRCLE:
+		case GamepadButtonLabel::CIRCLE:
 			return strgettext("Circle (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_LABEL_SQUARE:
+		case GamepadButtonLabel::SQUARE:
 			return strgettext("Square (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_LABEL_TRIANGLE:
+		case GamepadButtonLabel::TRIANGLE:
 			return strgettext("Triangle (Gamepad)");
+		default:
+			// Return a generic name if no button label is available
+			break;
 		}
 		switch (button) {
-		case SDL_GAMEPAD_BUTTON_SOUTH:
+		case GamepadButton::SOUTH:
 			return strgettext("Bottom Face Button (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_EAST:
+		case GamepadButton::EAST:
 			return strgettext("Right Face Button (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_WEST:
+		case GamepadButton::WEST:
 			return strgettext("Left Face Button (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_NORTH:
+		case GamepadButton::NORTH:
 			return strgettext("Top Face Button (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_BACK:
+		case GamepadButton::BACK:
 			return strgettext("Back Button (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_GUIDE:
+		case GamepadButton::GUIDE:
 			return strgettext("Guide Button (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_START:
+		case GamepadButton::START:
 			return strgettext("Start Button (Gamepad)");
-		case SDL_GAMEPAD_BUTTON_LEFT_STICK:
+		case GamepadButton::LEFT_STICK:
 			return strgettext("Left Joystick Button");
-		case SDL_GAMEPAD_BUTTON_RIGHT_STICK:
+		case GamepadButton::RIGHT_STICK:
 			return strgettext("Right Joystick Button");
-		case SDL_GAMEPAD_BUTTON_LEFT_SHOULDER:
+		case GamepadButton::LEFT_SHOULDER:
 			return strgettext("Left Shoulder");
-		case SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER:
+		case GamepadButton::RIGHT_SHOULDER:
 			return strgettext("Right Shoulder");
-		case SDL_GAMEPAD_BUTTON_DPAD_UP:
+		case GamepadButton::DPAD_UP:
 			return strgettext("D-Pad Up");
-		case SDL_GAMEPAD_BUTTON_DPAD_DOWN:
+		case GamepadButton::DPAD_DOWN:
 			return strgettext("D-Pad Down");
-		case SDL_GAMEPAD_BUTTON_DPAD_LEFT:
+		case GamepadButton::DPAD_LEFT:
 			return strgettext("D-Pad Left");
-		case SDL_GAMEPAD_BUTTON_DPAD_RIGHT:
+		case GamepadButton::DPAD_RIGHT:
 			return strgettext("D-Pad Right");
-		case SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1:
+		case GamepadButton::RIGHT_PADDLE1:
 			return strgettext("Primary Right Paddle");
-		case SDL_GAMEPAD_BUTTON_LEFT_PADDLE1:
+		case GamepadButton::LEFT_PADDLE1:
 			return strgettext("Primary Left Paddle");
-		case SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2:
+		case GamepadButton::RIGHT_PADDLE2:
 			return strgettext("Secondary Right Paddle");
-		case SDL_GAMEPAD_BUTTON_LEFT_PADDLE2:
+		case GamepadButton::LEFT_PADDLE2:
 			return strgettext("Secondary Left Paddle");
-		case SDL_GAMEPAD_BUTTON_TOUCHPAD:
+		case GamepadButton::TOUCHPAD:
 			return strgettext("Touchpad Button (Gamepad)");
 		default:
 			return fmtgettext("Gamepad Button %d", button);
@@ -456,17 +459,17 @@ std::string KeyPress::name() const
 	case InputType::GAMEPAD_AXIS_PLUS: {
 		auto axis = get<InputType::GAMEPAD_AXIS_PLUS>();
 		switch (axis) {
-		case SDL_GAMEPAD_AXIS_LEFTX:
+		case GamepadAxis::LEFTX:
 			return strgettext("Left Joystick Right");
-		case SDL_GAMEPAD_AXIS_LEFTY:
+		case GamepadAxis::LEFTY:
 			return strgettext("Left Joystick Down");
-		case SDL_GAMEPAD_AXIS_RIGHTX:
+		case GamepadAxis::RIGHTX:
 			return strgettext("Right Joystick Right");
-		case SDL_GAMEPAD_AXIS_RIGHTY:
+		case GamepadAxis::RIGHTY:
 			return strgettext("Right Joystick Down");
-		case SDL_GAMEPAD_AXIS_LEFT_TRIGGER:
+		case GamepadAxis::LEFT_TRIGGER:
 			return strgettext("Left Trigger");
-		case SDL_GAMEPAD_AXIS_RIGHT_TRIGGER:
+		case GamepadAxis::RIGHT_TRIGGER:
 			return strgettext("Right Trigger");
 		default:
 			return fmtgettext("Gamepad Axis %d +", axis);
@@ -475,13 +478,13 @@ std::string KeyPress::name() const
 	case InputType::GAMEPAD_AXIS_MINUS: {
 		auto axis = get<InputType::GAMEPAD_AXIS_MINUS>();
 		switch (axis) {
-		case SDL_GAMEPAD_AXIS_LEFTX:
+		case GamepadAxis::LEFTX:
 			return strgettext("Left Joystick Left");
-		case SDL_GAMEPAD_AXIS_LEFTY:
+		case GamepadAxis::LEFTY:
 			return strgettext("Left Joystick Up");
-		case SDL_GAMEPAD_AXIS_RIGHTX:
+		case GamepadAxis::RIGHTX:
 			return strgettext("Right Joystick Left");
-		case SDL_GAMEPAD_AXIS_RIGHTY:
+		case GamepadAxis::RIGHTY:
 			return strgettext("Right Joystick Up");
 		default:
 			return fmtgettext("Gamepad Axis %d -", axis);
@@ -501,7 +504,7 @@ bool KeyPress::loadUnsignedFromPrefix(const std::string &name, const std::string
 	const auto code = strtoul(name.c_str()+prefix.size(), &p, 10);
 	if (p != name.c_str() + name.size())
 		return false;
-	emplace<I>(code);
+	emplace<I>(static_cast<value_alternative_t<I>>(code));
 	return true;
 }
 
@@ -531,11 +534,11 @@ KeyPress::operator bool() const
 	case InputType::GAME_ACTION:
 		return get<InputType::GAME_ACTION>() < KeyType::INTERNAL_ENUM_COUNT;
 	case InputType::GAMEPAD_BUTTON:
-		return get<InputType::GAMEPAD_BUTTON>() < SDL_GAMEPAD_BUTTON_COUNT;
+		return get<InputType::GAMEPAD_BUTTON>() < GamepadButton::COUNT;
 	case InputType::GAMEPAD_AXIS_PLUS:
-		return get<InputType::GAMEPAD_AXIS_PLUS>() < SDL_GAMEPAD_AXIS_COUNT;
+		return get<InputType::GAMEPAD_AXIS_PLUS>() < GamepadAxis::COUNT;
 	case InputType::GAMEPAD_AXIS_MINUS:
-		return get<InputType::GAMEPAD_AXIS_MINUS>() < SDL_GAMEPAD_AXIS_COUNT;
+		return get<InputType::GAMEPAD_AXIS_MINUS>() < GamepadAxis::COUNT;
 	default:
 		return false;
 	}

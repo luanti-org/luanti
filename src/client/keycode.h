@@ -98,7 +98,7 @@ private:
 	// The same data type may be used for different variants, so this should be indexed using InputType.
 	// The get, getIf, and emplace methods are wrappers for their std::variant counterparts. This allows using
 	// InputType enum values instead of numeric indices.
-	using value_type = std::variant<u32, u32, GameKeyType, u8, u8, u8>;
+	using value_type = std::variant<u32, u32, GameKeyType, GamepadButton, GamepadAxis, GamepadAxis>;
 
 	template<InputType I>
 	using value_alternative_t = std::variant_alternative_t<static_cast<size_t>(I), value_type>;
@@ -113,6 +113,11 @@ private:
 	template<InputType I>
 	value_alternative_t<I> get() const {
 		return std::get<static_cast<size_t>(I)>(value);
+	}
+
+	template<InputType I, typename T>
+	T getCast() const {
+		return static_cast<T>(get<I>());
 	}
 
 	template<InputType I>

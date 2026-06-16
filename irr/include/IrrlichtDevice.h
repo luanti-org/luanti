@@ -365,8 +365,8 @@ public:
 	\param button The gamepad button.
 	\return The corresponding label, or 0 if no sensible value can be determined.
 	*/
-	virtual u16 getGamepadButtonLabel(const u8 button) const {
+	virtual GamepadButtonLabel getGamepadButtonLabel(const GamepadButton button) const {
 		// Dummy implementation
-		return 0;
+		return GamepadButtonLabel::UNKNOWN;
 	}
 };

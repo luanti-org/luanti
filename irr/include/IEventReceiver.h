@@ -173,52 +173,6 @@ enum EMOUSE_INPUT_EVENT
 #define SDL_BUTTON_X2 5
 #endif
 
-// These would interfere with SDL headers so these are only defined for Luanti
-#ifdef USE_CMAKE_CONFIG_H
-// SDL_GamepadButton and SDL_GamepadAxis include invalid entries, but these are negative and outside the range of u8 (which is passed by events)
-#define SDL_GAMEPAD_AXIS_LEFTX 0
-#define SDL_GAMEPAD_AXIS_LEFTY 1
-#define SDL_GAMEPAD_AXIS_RIGHTX 2
-#define SDL_GAMEPAD_AXIS_RIGHTY 3
-#define SDL_GAMEPAD_AXIS_LEFT_TRIGGER 4
-#define SDL_GAMEPAD_AXIS_RIGHT_TRIGGER 5
-#define SDL_GAMEPAD_AXIS_COUNT 6
-
-#define SDL_GAMEPAD_BUTTON_SOUTH 0
-#define SDL_GAMEPAD_BUTTON_EAST 1
-#define SDL_GAMEPAD_BUTTON_WEST 2
-#define SDL_GAMEPAD_BUTTON_NORTH 3
-#define SDL_GAMEPAD_BUTTON_BACK 4
-#define SDL_GAMEPAD_BUTTON_GUIDE 5
-#define SDL_GAMEPAD_BUTTON_START 6
-#define SDL_GAMEPAD_BUTTON_LEFT_STICK 7
-#define SDL_GAMEPAD_BUTTON_RIGHT_STICK 8
-#define SDL_GAMEPAD_BUTTON_LEFT_SHOULDER 9
-#define SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER 10
-#define SDL_GAMEPAD_BUTTON_DPAD_UP 11
-#define SDL_GAMEPAD_BUTTON_DPAD_DOWN 12
-#define SDL_GAMEPAD_BUTTON_DPAD_LEFT 13
-#define SDL_GAMEPAD_BUTTON_DPAD_RIGHT 14
-#define SDL_GAMEPAD_BUTTON_MISC1 15
-#define SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1 16
-#define SDL_GAMEPAD_BUTTON_LEFT_PADDLE1 17
-#define SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2 18
-#define SDL_GAMEPAD_BUTTON_LEFT_PADDLE2 19
-#define SDL_GAMEPAD_BUTTON_TOUCHPAD 20
-// Skip SDL_GAMEPAD_BUTTON_MISC* as they do not need special cases
-#define SDL_GAMEPAD_BUTTON_COUNT 26
-
-#define SDL_GAMEPAD_BUTTON_LABEL_UNKNOWN 0
-#define SDL_GAMEPAD_BUTTON_LABEL_A 1
-#define SDL_GAMEPAD_BUTTON_LABEL_B 2
-#define SDL_GAMEPAD_BUTTON_LABEL_X 3
-#define SDL_GAMEPAD_BUTTON_LABEL_Y 4
-#define SDL_GAMEPAD_BUTTON_LABEL_CROSS 5
-#define SDL_GAMEPAD_BUTTON_LABEL_CIRCLE 6
-#define SDL_GAMEPAD_BUTTON_LABEL_SQUARE 7
-#define SDL_GAMEPAD_BUTTON_LABEL_TRIANGLE 8
-#endif
-
 //! Enumeration for all touch input events
 enum ETOUCH_INPUT_EVENT
 {
@@ -509,7 +463,7 @@ struct SEvent
 		u32 ID;
 
 		//! The button that is pressed or released.
-		u8 Button;
+		GamepadButton Button;
 
 		//! Whether the button is pressed.
 		bool PressedDown;
@@ -522,7 +476,7 @@ struct SEvent
 		u32 ID;
 
 		//! The axis that was changed.
-		u8 Axis;
+		GamepadAxis Axis;
 
 		//! The value of the axis.
 		s16 Value;
