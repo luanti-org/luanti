@@ -185,7 +185,8 @@ std::pair<float, bool> MyEventReceiver::checkKeyDown(GameKeyType action) const
 	auto value = 0.0f;
 	bool setWasKeyDown = false;
 	for (const auto &key : keybindings[action].keys) {
-		if (auto p = physicalKeyDown.find(key); p != physicalKeyDown.end()) {
+		auto p = physicalKeyDown.find(key);
+		if (p != physicalKeyDown.end()) {
 			value = std::max(value, p->second.analog_value * keybindings[action].getScale(key.getType()));
 			setWasKeyDown |= p->first.getSourceType() != KeyPress::InputSourceType::GAMEPAD;
 		}
