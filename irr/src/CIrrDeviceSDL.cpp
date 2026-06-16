@@ -79,6 +79,10 @@
 
 	#define SDL_OpenGamepad SDL_GameControllerOpen
 	#define SDL_CloseGamepad SDL_GameControllerClose
+	#define SDL_GetGamepadName SDL_GameControllerName
+	#define SDL_GetGamepadMapping SDL_GameControllerMapping
+	#define SDL_GetGamepadType SDL_GameControllerGetType
+	#define SDL_GetGamepadStringForType(type) nullptr
 
 	#define SDL_GetWindowSizeInPixels SDL_GL_GetDrawableSize
 	#define SDL_DestroySurface SDL_FreeSurface
