@@ -341,11 +341,24 @@ Keycode CIrrDeviceSDL::getKeyFromScancode(const u32 scancode) const
 GamepadButtonLabel CIrrDeviceSDL::getGamepadButtonLabel(const GamepadButton button) const
 {
 #if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_) && defined(_IRR_USE_SDL3_)
-	if (auto fp = gamepads.begin(); fp != gamepads.end())
-		return static_cast<GamepadButtonLabel>(SDL_GetGamepadButtonLabel(fp->second, static_cast<SDL_GamepadButton>(button)));
+	if (auto gamepad = getRecentGamepad(); gamepad != nullptr)
+		return static_cast<GamepadButtonLabel>(SDL_GetGamepadButtonLabel(gamepad, static_cast<SDL_GamepadButton>(button)));
 #endif
 	return GamepadButtonLabel::UNKNOWN;
 }
+
+#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_) && defined(_IRR_USE_SDL3_)
+SDL_Gamepad *CIrrDeviceSDL::getRecentGamepad() const
+{
+	auto p = gamepads.find(recentGamepadID);
+	if (p != gamepads.end())
+		return p->second;
+	p = gamepads.begin();
+	if (p != gamepads.end())
+		return p->second;
+	return nullptr;
+}
+#endif
 
 void CIrrDeviceSDL::resetReceiveTextInputEvents()
 {
@@ -1138,6 +1151,7 @@ bool CIrrDeviceSDL::run()
 #endif
 			if (auto gamepad = SDL_OpenGamepad(id); gamepad != nullptr) {
 				gamepads.emplace(id, gamepad);
+				recentGamepadID = id;
 				os::Printer::log("Gamepad connected", SDL_GetGamepadName(gamepad), ELL_INFORMATION);
 				os::Printer::log("Gamepad type", SDL_GetGamepadStringForType(SDL_GetGamepadType(gamepad)), ELL_INFORMATION);
 				if (auto mapping = SDL_GetGamepadMapping(gamepad); mapping != nullptr) {
@@ -1165,32 +1179,38 @@ bool CIrrDeviceSDL::run()
 		}
 
 		case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
-		case SDL_EVENT_GAMEPAD_BUTTON_UP:
+		case SDL_EVENT_GAMEPAD_BUTTON_UP: {
 			irrevent.EventType = EET_GAMEPAD_BUTTON_EVENT;
 #ifdef _IRR_USE_SDL3_
-			irrevent.GamepadButtonEvent.ID = SDL_event.gbutton.which;
+			auto id = SDL_event.gbutton.which;
 			irrevent.GamepadButtonEvent.Button = static_cast<GamepadButton>(SDL_event.gbutton.button);
 #else
-			irrevent.GamepadButtonEvent.ID = SDL_event.cbutton.which;
+			auto id = SDL_event.cbutton.which;
 			irrevent.GamepadButtonEvent.Button = static_cast<GamepadButton>(SDL_event.cbutton.button);
 #endif
+			irrevent.GamepadButtonEvent.ID = id;
 			irrevent.GamepadButtonEvent.PressedDown = (SDL_event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN);
+			recentGamepadID = id;
 			postEventFromUser(irrevent);
 			break;
+		}
 
-		case SDL_EVENT_GAMEPAD_AXIS_MOTION:
+		case SDL_EVENT_GAMEPAD_AXIS_MOTION: {
 			irrevent.EventType = EET_GAMEPAD_AXIS_EVENT;
 #if _IRR_USE_SDL3_
-			irrevent.GamepadAxisEvent.ID = SDL_event.gaxis.which;
+			auto id = SDL_event.gaxis.which;
 			irrevent.GamepadAxisEvent.Axis = static_cast<GamepadAxis>(SDL_event.gaxis.axis);
 			irrevent.GamepadAxisEvent.Value = SDL_event.gaxis.value;
 #else
-			irrevent.GamepadAxisEvent.ID = SDL_event.caxis.which;
+			auto id = SDL_event.caxis.which;
 			irrevent.GamepadAxisEvent.Axis = static_cast<GamepadAxis>(SDL_event.caxis.axis);
 			irrevent.GamepadAxisEvent.Value = SDL_event.caxis.value;
 #endif
+			irrevent.GamepadAxisEvent.ID = id;
+			recentGamepadID = id;
 			postEventFromUser(irrevent);
 			break;
+		}
 #endif // _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
 
 		default:
