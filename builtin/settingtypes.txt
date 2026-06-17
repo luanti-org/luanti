@@ -838,7 +838,7 @@ enable_translucent_foliage (Translucent foliage) bool false
 
 #   When enabled, liquid reflections are simulated.
 #
-#   Requires: enable_waving_water, enable_dynamic_shadows
+#   Requires: enable_waving_water
 enable_water_reflections (Liquid reflections) bool false
 
 [*Audio]
