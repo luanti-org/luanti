@@ -4,7 +4,6 @@
 
 #include "client.h"
 
-#include "builtin_files.h"
 #include "chatmessage.h"
 #include "client/clientevent.h"
 #include "clientdynamicinfo.h"
@@ -36,8 +35,6 @@
 #include "shader.h"
 #include "translation.h"
 #include "util/auth.h"
-#include "util/hashing.h"
-#include "util/hex.h"
 #include "util/pointedthing.h"
 #include "util/screenshot.h"
 #include "util/serialize.h"
@@ -183,45 +180,13 @@ Client::Client(
 
 	// Load SSCSM client-builtin
 	{
-		auto event_add_files = std::make_unique<SSCSMEventUpdateVFSFiles>();
+		auto event_add_files = std::make_unique<SSCSMEventUpdateVFSFiles>(); //TODO: take ModVFS
 
-		for (auto rel_path : g_builtin_sscsm_client_files) {
-			std::string rel_path_os{rel_path};
-			std::replace(rel_path_os.begin(), rel_path_os.end(), '/', DIR_DELIM_CHAR);
+		ModVFS tmp_mod_vfs;
+		tmp_mod_vfs.scanSSCSMClientBuiltin(getBuiltinLuaPath());
 
-			std::string real_path = getBuiltinLuaPath() + DIR_DELIM + rel_path_os;
-			std::string vfs_path = std::string("*client_builtin*:") + std::string(rel_path);
-			infostream << "Client::Client(): Loading sscsm client-builtin file \""
-					<< real_path << "\" as \"" << vfs_path << "\"." << std::endl;
-
-			std::string contents;
-			if (!fs::ReadFile(real_path, contents)) {
-				errorstream << "Client::Client(): Can't read sscsm client-builtin file \""
-						<< real_path << "\"." << std::endl;
-				continue;
-			}
-
-			// Check sha256 digest of file (to prevent cheating without rebuilding)
-			{
-				auto digest = hex_encode(hashing::sha256(contents));
-				auto it = g_builtin_file_sha256_map.find(rel_path);
-				if (it == g_builtin_file_sha256_map.end()) {
-					std::ostringstream err;
-					err << "No SHA256 known for SSCSM client-builtin file \""
-							<< rel_path << "\"";
-					throw BaseException(err.str());
-				}
-				if (it->second != digest) {
-					std::ostringstream err;
-					err << "SHA256 of SSCSM client-builtin file \"" << rel_path
-							<< "\" does not match."
-							<< "\nExpected: " << it->second
-							<< "\nFound:    " << digest;
-					throw BaseException(err.str());
-				}
-			}
-
-			event_add_files->files.emplace_back(std::move(vfs_path), std::move(contents));
+		for (auto &&[vfs_path, contents] : tmp_mod_vfs.m_vfs) {
+			event_add_files->files.emplace_back(vfs_path, std::move(contents));
 		}
 
 		m_sscsm_controller->runEvent(this, std::move(event_add_files));
