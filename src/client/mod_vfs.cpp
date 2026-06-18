@@ -102,3 +102,11 @@ void ModVFS::scanSSCSMClientBuiltin(const std::string &builtin_path)
 		m_vfs.emplace(std::move(vfs_path), std::move(contents));
 	}
 }
+
+void ModVFS::merge(ModVFS &&other)
+{
+	for (auto &&p : other.m_vfs) {
+		m_vfs.insert(std::move(p));
+	}
+	other.m_vfs.clear();
+}
