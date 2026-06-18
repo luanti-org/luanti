@@ -34,7 +34,7 @@ void ModVFS::scanModSubfolder(const std::string &mod_name, const std::string &mo
 			continue;
 		}
 
-		m_vfs.emplace(vfs_path, contents);
+		m_vfs.emplace(std::move(vfs_path), std::move(contents));
 	}
 }
 

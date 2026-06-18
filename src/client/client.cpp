@@ -4,6 +4,7 @@
 
 #include "client.h"
 
+#include "builtin_files.h"
 #include "chatmessage.h"
 #include "client/clientevent.h"
 #include "clientdynamicinfo.h"
@@ -178,23 +179,37 @@ Client::Client(
 
 	m_sscsm_controller = SSCSMController::create();
 
+	// Load SSCSM client-builtin
 	{
-		auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
+		auto event_add_files = std::make_unique<SSCSMEventUpdateVFSFiles>();
 
-		ModVFS tmp_mod_vfs;
-		// FIXME: only read files that are relevant to sscsm, and compute sha2 digests
-		tmp_mod_vfs.scanModIntoMemory("*client_builtin*", getBuiltinLuaPath());
+		for (auto rel_path : g_builtin_sscsm_client_files) {
+			std::string rel_path_os{rel_path};
+			std::replace(rel_path_os.begin(), rel_path_os.end(), '/', DIR_DELIM_CHAR);
 
-		for (auto &p : tmp_mod_vfs.m_vfs) {
-			event1->files.emplace_back(p.first, std::move(p.second));
+			std::string real_path = getBuiltinLuaPath() + DIR_DELIM + rel_path_os;
+			std::string vfs_path = std::string("*client_builtin*:") + std::string(rel_path);
+			infostream << "Client::Client(): Loading sscsm client-builtin file \""
+					<< real_path << "\" as \"" << vfs_path << "\"." << std::endl;
+
+			std::string contents;
+			if (!fs::ReadFile(real_path, contents)) {
+				errorstream << "Client::Client(): Can't read sscsm client-builtin file \""
+						<< real_path << "\"." << std::endl;
+				continue;
+			}
+
+			//TODO: compute sha256
+
+			event_add_files->files.emplace_back(std::move(vfs_path), std::move(contents));
 		}
 
-		m_sscsm_controller->runEvent(this, std::move(event1));
+		m_sscsm_controller->runEvent(this, std::move(event_add_files));
 
 		// load client builtin immediately
-		auto event2 = std::make_unique<SSCSMEventLoadMods>();
-		event2->mods.emplace_back("*client_builtin*", "*client_builtin*:init.lua");
-		m_sscsm_controller->runEvent(this, std::move(event2));
+		auto event_execute = std::make_unique<SSCSMEventLoadMods>();
+		event_execute->mods.emplace_back("*client_builtin*", "*client_builtin*:init.lua");
+		m_sscsm_controller->runEvent(this, std::move(event_execute));
 	}
 
 	{
