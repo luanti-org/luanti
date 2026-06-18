@@ -7,6 +7,7 @@
 #include "sscsm_ievent.h"
 #include "debug.h"
 #include "irrlichttypes.h"
+#include "client/mod_vfs.h"
 #include "sscsm_environment.h"
 
 struct SSCSMEventTearDown : public ISSCSMEvent
@@ -19,8 +20,7 @@ struct SSCSMEventTearDown : public ISSCSMEvent
 
 struct SSCSMEventUpdateVFSFiles : public ISSCSMEvent
 {
-	// pairs are virtual path and file content
-	std::vector<std::pair<std::string, std::string>> files;
+	ModVFS files;
 
 	void exec(SSCSMEnvironment *env) override
 	{

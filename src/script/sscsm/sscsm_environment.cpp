@@ -50,11 +50,9 @@ SerializedSSCSMAnswer SSCSMEnvironment::exchange(SerializedSSCSMRequest req)
 	return m_channel->exchangeA(std::move(req));
 }
 
-void SSCSMEnvironment::updateVFSFiles(std::vector<std::pair<std::string, std::string>> &&files)
+void SSCSMEnvironment::updateVFSFiles(ModVFS &&files)
 {
-	for (auto &&p : files) {
-		m_vfs->m_vfs.emplace(std::move(p.first), std::move(p.second));
-	}
+	m_vfs->merge(std::move(files));
 }
 
 std::optional<std::string_view> SSCSMEnvironment::readVFSFile(const std::string &path)
