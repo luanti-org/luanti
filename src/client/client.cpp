@@ -36,6 +36,8 @@
 #include "shader.h"
 #include "translation.h"
 #include "util/auth.h"
+#include "util/hashing.h"
+#include "util/hex.h"
 #include "util/pointedthing.h"
 #include "util/screenshot.h"
 #include "util/serialize.h"
@@ -199,7 +201,25 @@ Client::Client(
 				continue;
 			}
 
-			//TODO: compute sha256
+			// Check sha256 digest of file (to prevent cheating without rebuilding)
+			{
+				auto digest = hex_encode(hashing::sha256(contents));
+				auto it = g_builtin_file_sha256_map.find(rel_path);
+				if (it == g_builtin_file_sha256_map.end()) {
+					std::ostringstream err;
+					err << "No SHA256 known for SSCSM client-builtin file \""
+							<< rel_path << "\"";
+					throw BaseException(err.str());
+				}
+				if (it->second != digest) {
+					std::ostringstream err;
+					err << "SHA256 of SSCSM client-builtin file \"" << rel_path
+							<< "\" does not match."
+							<< "\nExpected: " << it->second
+							<< "\nFound:    " << digest;
+					throw BaseException(err.str());
+				}
+			}
 
 			event_add_files->files.emplace_back(std::move(vfs_path), std::move(contents));
 		}
