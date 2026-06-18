@@ -21,7 +21,7 @@ struct ModVFS
 
 	void scanSSCSMClientBuiltin(const std::string &builtin_path);
 
-	void merge(ModVFS &&other);
+	void merge(ModVFS &&other) { m_vfs.merge(std::move(other.m_vfs)); }
 
 	// virtual path -> file content
 	std::unordered_map<std::string, std::string> m_vfs;
