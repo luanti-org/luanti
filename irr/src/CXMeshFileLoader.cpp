@@ -1299,7 +1299,7 @@ bool CXMeshFileLoader::parseDataObjectAnimation()
 #endif
 			joint = addJoint(nullptr, FrameName.c_str());
 		}
-		addKeys(joint, std::move(keys));
+		addKeys(joint->JointID, std::move(keys));
 	} else
 		os::Printer::log("joint name was never given", ELL_WARNING);
 
@@ -1906,16 +1906,16 @@ SkinnedMesh::SJoint *CXMeshFileLoader::addJoint(SkinnedMesh::SJoint *parent, std
 	return joint;
 }
 
-void CXMeshFileLoader::addKeys(SkinnedMesh::SJoint *joint, SkinnedMesh::Keys &&keys)
+void CXMeshFileLoader::addKeys(u16 joint_id, SkinnedMesh::Keys &&keys)
 {
 	auto &animation = AnimatedMesh.getAnimation(0);
-	auto &joint_keys_idx = JointKeysIdx.at(joint->JointID);
+	auto &joint_keys_idx = JointKeysIdx.at(joint_id);
 	if (joint_keys_idx) {
 		animation.joint_keys.at(*joint_keys_idx).keys.append(keys);
 	} else {
 		joint_keys_idx = animation.joint_keys.size();
 		animation.joint_keys.emplace_back(SkinnedMesh::Animation::JointKeys{
-				joint->JointID, std::move(keys) });
+				joint_id, std::move(keys) });
 	}
 }
 

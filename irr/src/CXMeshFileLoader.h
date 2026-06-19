@@ -159,7 +159,7 @@ private:
 	bool readRGBA(video::SColor &color);
 
 	SkinnedMesh::SJoint *addJoint(SkinnedMesh::SJoint *parent, std::string name);
-	void addKeys(SkinnedMesh::SJoint *joint, SkinnedMesh::Keys &&keys);
+	void addKeys(u16 joint_id, SkinnedMesh::Keys &&keys);
 
 	SkinnedMeshBuilder AnimatedMesh;
 	/// Mapping from joint ID to index in joint keys
