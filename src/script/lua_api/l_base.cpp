@@ -7,7 +7,7 @@
 #include "content/mods.h"
 #include "profiler.h"
 #include "porting.h"
-#include "server.h" // getInventoryMgr()
+#include "server.h"
 #include <algorithm>
 #include <sstream>
 

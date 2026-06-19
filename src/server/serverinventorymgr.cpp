@@ -7,7 +7,7 @@
 #include "nodemetadata.h"
 #include "player_sao.h"
 #include "remoteplayer.h"
-#include "server.h" // sendDetachedInventory()
+#include "server.h"
 #include "serverenvironment.h"
 
 ServerInventoryManager::ServerInventoryManager() : InventoryManager()

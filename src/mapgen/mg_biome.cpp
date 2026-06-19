@@ -6,7 +6,7 @@
 #include "mg_biome.h"
 #include "mg_decoration.h"
 #include "emerge.h"
-#include "server.h" // getEmergeManager()
+#include "server.h"
 #include "nodedef.h"
 #include "settings.h"
 

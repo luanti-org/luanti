@@ -5,7 +5,7 @@
 #include "common/c_packer.h"
 #include "debug.h"
 #include "lua_api/l_internal.h"
-#include "server.h" // ModIPCStore
+#include "server.h"
 #include <chrono>
 #include <memory>
 #include <mutex>

@@ -10,7 +10,7 @@
 #include "log.h"
 #include "lua_api/l_internal.h"
 #include "lua_api/l_item.h"
-#include "server.h" // getWritableCraftDefManager()
+#include "server.h"
 
 struct EnumString ModApiCraft::es_CraftMethod[] =
 {

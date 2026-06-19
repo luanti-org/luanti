@@ -10,7 +10,7 @@
 #include <json/json.h>
 #include "convert_json.h"
 #include "httpfetch.h"
-#include "server.h" // getProtocolVersionMin(), getProtocolVersionMax()
+#include "server.h"
 
 namespace ServerList
 {

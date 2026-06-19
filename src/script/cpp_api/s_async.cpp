@@ -11,7 +11,7 @@ extern "C" {
 #include <lualib.h>
 }
 
-#include "server.h" // getBuiltinLuaPath(), setAsyncFatalError(), m_async_init_files
+#include "server.h"
 #include "s_async.h"
 #include "threading/mutex_auto_lock.h"
 #include "log.h"

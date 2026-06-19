@@ -3,7 +3,7 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "scripting_server.h"
-#include "server.h" // getBuiltinLuaPath(), m_lua_globals_data
+#include "server.h"
 #include "log.h"
 #include "settings.h"
 #include "filesys.h"

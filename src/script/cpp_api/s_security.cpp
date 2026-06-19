@@ -8,7 +8,7 @@
 #include "util/hashing.h"
 #include "util/hex.h"
 #include "builtin_files.h"
-#include "server.h" // getBuiltinLuaPath()
+#include "server.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
 #include "client/mod_vfs.h"

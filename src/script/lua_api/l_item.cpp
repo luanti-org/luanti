@@ -9,7 +9,7 @@
 #include "common/c_packer.h"
 #include "itemdef.h"
 #include "nodedef.h"
-#include "server.h" // getWritableItemDefManager()
+#include "server.h"
 #include "inventory.h"
 
 

@@ -9,7 +9,7 @@
 #include "common/c_content.h"
 #include "common/helper.h"
 #include "cpp_api/s_security.h"
-#include "server.h" // getEmergeManager()
+#include "server.h"
 #include "serverenvironment.h"
 #include "servermap.h"
 #include "emerge_internal.h"

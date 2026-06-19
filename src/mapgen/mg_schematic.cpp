@@ -5,7 +5,7 @@
 
 #include <fstream>
 #include "mg_schematic.h"
-#include "server.h" // getEmergeManager()
+#include "server.h"
 #include "mapgen.h"
 #include "emerge.h"
 #include "map.h"

@@ -9,7 +9,7 @@
 #include "lua_api/l_particleparams.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
-#include "server.h" // spawnParticle(), addParticleSpawner(), deleteParticleSpawner()
+#include "server.h"
 #include "particles.h"
 
 void LuaParticleParams::readTexValue(lua_State* L, ServerParticleTexture& tex)

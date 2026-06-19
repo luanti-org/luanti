@@ -4,7 +4,7 @@
 
 #include "scripting_emerge.h"
 #include "emerge_internal.h"
-#include "server.h" // m_lua_globals_data, setGameDef(Server*)
+#include "server.h"
 #include "settings.h"
 #include "cpp_api/s_internal.h"
 #include "common/c_packer.h"

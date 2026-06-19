@@ -8,7 +8,7 @@
 #include "common/helper.h"
 #include "log.h"
 #include "lua_api/l_env.h"
-#include "server.h" // setAsyncFatalError()
+#include "server.h"
 #include "serverenvironment.h"
 #include "scripting_server.h"
 #include "script/common/c_content.h"
