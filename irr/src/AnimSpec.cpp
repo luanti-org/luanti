@@ -3,7 +3,9 @@
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "AnimSpec.h"
-#include <cmath>
+#include "irrMath.h"
+
+#include <algorithm>
 
 namespace scene {
 
@@ -11,21 +13,13 @@ void TrackAnimSpec::advance(f32 dtime_s)
 {
 	cur_frame += fps * dtime_s;
 	blend_progress = std::min(blend_progress + dtime_s, blend_duration);
-	if (fps < 0) {
-		cur_frame = loop
-			? (max_frame - framemod(max_frame - cur_frame))
-			: std::max(cur_frame, min_frame);
+	if (loop) {
+		const f32 duration = max_frame - min_frame;
+		const f32 rem = duration == 0.0f ? 0.0f : core::frem(cur_frame - min_frame, duration);
+		cur_frame = rem + min_frame;
 	} else {
-		cur_frame = loop
-			? (min_frame + framemod(cur_frame - min_frame))
-			: std::min(cur_frame, max_frame);
+		cur_frame = std::clamp(cur_frame, min_frame, max_frame);
 	}
-}
-
-f32 TrackAnimSpec::framemod(f32 frame) const
-{
-	const f32 frame_duration = max_frame - min_frame;
-	return frame_duration == 0.0f ? 0.0f : std::fmod(frame, frame_duration);
 }
 
 void AnimSpec::advance(f32 dtime_s)

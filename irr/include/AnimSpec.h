@@ -24,14 +24,10 @@ struct TrackAnimSpec {
 	s32 priority = 0; ///< higher priority tracks override lower priority ones
 
 	// Animation progress
-	f32 cur_frame = 0.0f;
+	f32 cur_frame = 0.0f; ///< must be in [min_frame, max_frame]
 	f32 blend_progress = 0.0f; ///< how many seconds of blending have passed so far
 
 	void advance(f32 dtime_s);
-
-private:
-
-	f32 framemod(f32 frame) const;
 };
 
 /// Specification for multiple animation tracks

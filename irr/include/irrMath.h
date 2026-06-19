@@ -434,6 +434,18 @@ inline f32 fract(f32 x)
 	return x - floorf(x);
 }
 
+/// Remainder of lhs divided by rhs. Equivalent to `rhs - floor(lhs / rhs) * rhs`.
+/// @note rhs must not be 0
+/// @return remainder in [0, rhs) if rhs > 0, resp. (rhs, 0] if rhs < 0.
+template<class T, std::enable_if_t<std::is_floating_point<T>::value, bool> = true>
+T frem(const T lhs, const T rhs)
+{
+	T res = std::fmod(lhs, rhs);
+	if ((rhs > 0 && res < 0) || (rhs < 0 && res > 0))
+		res += rhs; // signs differ? wrap around once more
+	return res;
+}
+
 } // end namespace core
 
 using core::FR;
