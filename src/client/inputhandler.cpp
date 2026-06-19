@@ -162,12 +162,18 @@ bool MyEventReceiver::setKeyDown(KeyPress keyCode, float value)
 	return true;
 }
 
+/* new_state:
+ * float: the analog value of the joystick
+ * bool: whether keyWasDown should be set
+ */
 void MyEventReceiver::setKeyDown(GameKeyType action, std::pair<float, bool> new_state)
 {
 	auto value = new_state.first;
 	if (value > 0) {
 		if (!IsKeyDown(action)) {
 			keyWasPressed.set(action);
+			// checkKeyDown does not check whether the key for an action is already down, so we set this unconditionally
+			// if the key was previously not yet pressed
 			keyWasDown.set(action);
 		}
 		if (new_state.second)
