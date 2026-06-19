@@ -69,14 +69,14 @@ void ModVFS::scanSSCSMClientBuiltin(const std::string &builtin_path)
 
 		std::string real_path = builtin_path + DIR_DELIM + rel_path_os;
 		std::string vfs_path = std::string("*client_builtin*:") + std::string(rel_path);
-		infostream << "Client::Client(): Loading sscsm client-builtin file \""
+		infostream << "ModVFS::scanSSCSMClientBuiltin(): Loading SSCSM client-builtin file \""
 				<< real_path << "\" as \"" << vfs_path << "\"." << std::endl;
 
 		std::string contents;
 		if (!fs::ReadFile(real_path, contents)) {
-			errorstream << "Client::Client(): Can't read sscsm client-builtin file \""
-					<< real_path << "\"." << std::endl;
-			continue;
+			std::ostringstream err;
+			err << "Can't read SSCSM client-builtin file \"" << real_path << "\".";
+			throw BaseException(err.str());
 		}
 
 		// Check sha256 digest of file (to prevent cheating without rebuilding)
@@ -84,6 +84,8 @@ void ModVFS::scanSSCSMClientBuiltin(const std::string &builtin_path)
 			auto digest = hex_encode(hashing::sha256(contents));
 			auto it = g_builtin_file_sha256_map.find(rel_path);
 			if (it == g_builtin_file_sha256_map.end()) {
+				// This means something is broken in the build, as every file in
+				// g_builtin_sscsm_client_files should be in g_builtin_file_sha256_map.
 				std::ostringstream err;
 				err << "No SHA256 known for SSCSM client-builtin file \""
 						<< rel_path << "\"";
