@@ -125,8 +125,6 @@ public:
 	ServerScripting* getScriptIface()
 	{ return m_script; }
 
-	IGameDef *getGameDef();
-
 	Server *getServer()
 	{ return m_server; }
 
