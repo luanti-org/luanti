@@ -528,6 +528,12 @@ struct SEvent
 		struct SUserEvent UserEvent;
 		struct SApplicationEvent ApplicationEvent;
 	};
+
+	SEvent() {
+		EventType = static_cast<EEVENT_TYPE>(0);
+		// zero the biggest union member we have, which clears all others too
+		memset(&AccelerometerEvent, 0, sizeof(AccelerometerEvent));
+	}
 };
 
 //! Interface of an object which can receive events.
