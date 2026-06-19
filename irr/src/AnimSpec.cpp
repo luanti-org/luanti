@@ -7,7 +7,8 @@
 
 namespace scene {
 
-void TrackAnimSpec::advance(f32 dtime_s) {
+void TrackAnimSpec::advance(f32 dtime_s)
+{
 	cur_frame += fps * dtime_s;
 	blend_progress = std::min(blend_progress + dtime_s, blend_duration);
 	if (fps < 0) {
@@ -21,12 +22,14 @@ void TrackAnimSpec::advance(f32 dtime_s) {
 	}
 }
 
-f32 TrackAnimSpec::framemod(f32 frame) const {
+f32 TrackAnimSpec::framemod(f32 frame) const
+{
 	const f32 frame_duration = max_frame - min_frame;
 	return frame_duration == 0.0f ? 0.0f : std::fmod(frame, frame_duration);
 }
 
-void AnimSpec::advance(f32 dtime_s) {
+void AnimSpec::advance(f32 dtime_s)
+{
 	for (auto &[_, track] : tracks) {
 		track.advance(dtime_s);
 	}
