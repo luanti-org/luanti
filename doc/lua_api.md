@@ -9054,7 +9054,9 @@ The old animation interface consists of `set_animation`, `get_animation`, and `s
 
 The new animation interface is intended for use with glTF animations
 and allows mixing and matching multiple separate, named animation tracks.
-This API is only supported properly by Luanti 5.16+ clients.
+This API is only supported properly by Luanti 5.17.0+ clients.
+If you need to support older clients, you may want to use `set_observers()`
+to send different objects to clients depending on their version.
 
 Tracks are identified by their name or track number.
 Track numbers start at 1.
