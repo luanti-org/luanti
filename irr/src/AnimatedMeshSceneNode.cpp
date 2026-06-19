@@ -43,7 +43,7 @@ AnimatedMeshSceneNode::AnimatedMeshSceneNode(IAnimatedMesh *mesh,
 
 void AnimatedMeshSceneNode::advanceAnimations(f32 dtime_s)
 {
-	anim_spec.advance(dtime_s);
+	Anim.advance(dtime_s);
 }
 
 void AnimatedMeshSceneNode::OnRegisterSceneNode()
@@ -379,7 +379,7 @@ void AnimatedMeshSceneNode::setMesh(IAnimatedMesh *mesh)
 		checkJoints();
 	}
 
-	anim_spec.tracks.clear();
+	Anim.tracks.clear();
 }
 
 //! updates the absolute position based on the relative and the parents position
@@ -438,14 +438,14 @@ void AnimatedMeshSceneNode::animateJoints()
 
 	checkJoints();
 
-	const u16 n_tracks = anim_spec.tracks.size();
+	const u16 n_tracks = Anim.tracks.size();
 	std::vector<u16> anim_idxs(n_tracks);
 	struct Progress {
 		SkinnedMesh::AnimationProgress progress;
 		s32 priority;
 	};
 	std::vector<Progress> progresses;
-	for (const auto [track, anim] : anim_spec.tracks) {
+	for (const auto [track, anim] : Anim.tracks) {
 		SkinnedMesh::AnimationProgress progress = {
 			track,
 			anim.cur_frame,
@@ -524,7 +524,7 @@ ISceneNode *AnimatedMeshSceneNode::clone(ISceneNode *newParent, ISceneManager *n
 	newNode->PassCount = PassCount;
 	newNode->PerJoint.SceneNodes = PerJoint.SceneNodes;
 	newNode->PerJoint.PreTransSaves = PerJoint.PreTransSaves;
-	newNode->anim_spec = anim_spec;
+	newNode->Anim = Anim;
 	newNode->RenderFromIdentity = RenderFromIdentity;
 
 	return newNode;

@@ -113,7 +113,7 @@ public:
 	void setRenderFromIdentity(bool On);
 
 	AnimSpec &getAnimation()
-	{ return anim_spec; }
+	{ return Anim; }
 
 private:
 
@@ -127,7 +127,7 @@ private:
 
 	u32 LastTimeMs;
 
-	AnimSpec anim_spec;
+	AnimSpec Anim;
 
 	bool JointsUsed;
 
