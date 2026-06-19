@@ -321,3 +321,37 @@ function core.run_lbm(id, pos_list, dtime_s)
 		end
 	end
 end
+
+--
+-- Tool wear inside craftrecipe, uses {craft_wear = [uses]} group
+--
+
+core.register_on_craft(function (crafted, player, old_craft_grid, craft_inv)
+	for index, item in ipairs(old_craft_grid) do
+		local item_name = item:get_name()
+		local can_wear = core.get_item_group(item_name, "craft_wear")
+		local is_tool = core.registered_tools[item_name]
+
+		if is_tool and can_wear > 0 then
+			local current_stack = craft_inv:get_stack("craft", index)
+			-- add wear only if tool is returned as a replacement
+			if current_stack:get_name() == item_name then
+				local new_wear = item:get_wear() + (65535 / can_wear + 1)
+				-- tool broken, remove and play sound
+				if new_wear > 65535 then
+					craft_inv:set_stack("craft", index, ItemStack(""))
+					local pos = player:get_pos()
+					if pos then
+						local sound = is_tool.sound and is_tool.sound.breaks or
+								"default_tool_breaks"
+						core.sound_play(sound,
+								{pos = pos, gain = 0.3, max_hear_distance = 1}, true)
+					end
+				else
+					current_stack:set_wear(new_wear)
+					craft_inv:set_stack("craft", index, current_stack)
+				end
+			end
+		end
+	end
+end)
