@@ -17,6 +17,7 @@
 #include "settings.h"
 #include "constants.h"
 
+#include <cerrno>
 #include <string>
 #include <algorithm>
 #include <iostream>

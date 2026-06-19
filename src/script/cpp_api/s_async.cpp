@@ -13,7 +13,6 @@ extern "C" {
 
 #include "server.h"
 #include "s_async.h"
-#include "threading/mutex_auto_lock.h"
 #include "log.h"
 #include "config.h"
 #include "filesys.h"

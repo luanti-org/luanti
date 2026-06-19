@@ -7,6 +7,7 @@
 #include "common/c_converter.h"
 #include "common/helper.h"
 #include "log.h"
+#include "mapgen/mapgen.h"
 #include "lua_api/l_env.h"
 #include "server.h"
 #include "serverenvironment.h"
