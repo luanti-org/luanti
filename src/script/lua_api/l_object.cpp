@@ -504,7 +504,7 @@ static void read_track_anim_spec(lua_State *L, int tidx,
 	anim.priority = getintfield_default(L, tidx, "priority", 0);
 }
 
-static void pushTrackAnimSpec(lua_State *L,
+static void push_TrackAnimSpec(lua_State *L,
 		const scene::TrackAnimSpec &anim)
 {
 	lua_newtable(L);
@@ -585,7 +585,7 @@ int ObjectRef::l_get_animations(lua_State *L)
 	lua_newtable(L);
 	for (const auto &[track_id, anim] : sao->getAllAnimations()) {
 		push_track_id(L, track_id);
-		pushTrackAnimSpec(L, anim);
+		push_TrackAnimSpec(L, anim);
 		lua_rawset(L, -3);
 	}
 
