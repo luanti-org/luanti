@@ -592,7 +592,7 @@ int ObjectRef::l_get_animations(lua_State *L)
 	return 1;
 }
 
-// set_animation_frame_speed(self, frame_speed, [track])
+// set_animation_frame_speed(self, frame_speed)
 int ObjectRef::l_set_animation_frame_speed(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;

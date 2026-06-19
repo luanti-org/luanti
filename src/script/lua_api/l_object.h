@@ -119,7 +119,7 @@ private:
 
 	// set_animation(self, frame_range, frame_speed, frame_blend, frame_loop)
 	static int l_set_animation(lua_State *L);
-	// set_animation_frame_speed(self, [track], frame_speed)
+	// set_animation_frame_speed(self, frame_speed)
 	static int l_set_animation_frame_speed(lua_State *L);
 	// get_animation(self)
 	static int l_get_animation(lua_State *L);

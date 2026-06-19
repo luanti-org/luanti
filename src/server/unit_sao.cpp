@@ -377,6 +377,7 @@ std::string UnitSAO::generateUpdateAnimationSpeedCommand(const scene::TrackId &t
 	writeU8(os, AO_CMD_SET_ANIMATION_SPEED);
 	// parameters
 	writeF32(os, m_animation.tracks.at(track).spec.fps);
+	// >= 5.17.0-dev
 	writeTrackIdentifier(os, track);
 	return os.str();
 }
@@ -395,6 +396,7 @@ std::string UnitSAO::generateUpdateAnimationCommand(const scene::TrackId &track)
 	// sent inverted so we get true when the server sends nothing
 	writeU8(os, !anim.loop);
 
+	// >= 5.17.0-dev
 	writeTrackIdentifier(os, track);
 	writeS32(os, anim.priority);
 	writeF32(os, anim.cur_frame);

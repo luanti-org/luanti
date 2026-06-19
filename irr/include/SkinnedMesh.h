@@ -428,6 +428,7 @@ public:
 	//! Adds a new weight to the mesh
 	void addWeight(SJoint *joint, u16 buf, u32 vert_id, f32 strength);
 
+	/// @return index of the appended (no-op) animation
 	u16 addAnimation()
 	{
 		mesh->animations.emplace_back();
