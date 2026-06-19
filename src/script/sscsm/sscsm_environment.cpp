@@ -52,7 +52,10 @@ SerializedSSCSMAnswer SSCSMEnvironment::exchange(SerializedSSCSMRequest req)
 
 void SSCSMEnvironment::updateVFSFiles(ModVFS &&files)
 {
-	m_vfs->merge(std::move(files));
+	// we're "update", so prefer new files
+	std::swap(m_vfs->m_vfs, files.m_vfs);
+	m_vfs->m_vfs.merge(std::move(files.m_vfs));
+	files.m_vfs.clear();
 }
 
 std::optional<std::string_view> SSCSMEnvironment::readVFSFile(const std::string &path)
