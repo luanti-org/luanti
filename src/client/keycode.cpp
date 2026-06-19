@@ -421,11 +421,11 @@ std::string KeyPress::name() const
 		case GamepadButton::NORTH:
 			return strgettext("Top Face Button (Gamepad)");
 		case GamepadButton::BACK:
-			return strgettext("Back Button (Gamepad)");
+			return strgettext("Back (Gamepad)");
 		case GamepadButton::GUIDE:
-			return strgettext("Guide Button (Gamepad)");
+			return strgettext("Guide (Gamepad)");
 		case GamepadButton::START:
-			return strgettext("Start Button (Gamepad)");
+			return strgettext("Start (Gamepad)");
 		case GamepadButton::LEFT_STICK:
 			return strgettext("Left Joystick Button");
 		case GamepadButton::RIGHT_STICK:
