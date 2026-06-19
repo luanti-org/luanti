@@ -72,7 +72,6 @@ Player::Player(const std::string &name, IItemDefManager *idef):
 
 Player::~Player()
 {
-	clearHud();
 }
 
 void Player::setWieldIndex(u16 index)
@@ -103,14 +102,14 @@ ItemStack &Player::getWieldedItem(ItemStack *selected, ItemStack *hand) const
 	return (hand && selected->name.empty()) ? *hand : *selected;
 }
 
-u32 Player::addHud(HudElement *toadd)
+u32 Player::addHud(std::unique_ptr<HudElement> toadd)
 {
 	u32 id = getFreeHudID();
 
 	if (id < hud.size())
-		hud[id] = toadd;
+		hud[id] = std::move(toadd);
 	else
-		hud.push_back(toadd);
+		hud.push_back(std::move(toadd));
 
 	return id;
 }
@@ -118,29 +117,26 @@ u32 Player::addHud(HudElement *toadd)
 HudElement* Player::getHud(u32 id)
 {
 	if (id < hud.size())
-		return hud[id];
+		return hud[id].get();
 	return nullptr;
 }
 
-HudElement* Player::removeHud(u32 id)
+bool Player::removeHud(u32 id)
 {
-	HudElement* retval = nullptr;
+	bool removed = false;
 	if (id < hud.size()) {
-		retval = hud[id];
-		hud[id] = nullptr;
+		hud[id].reset();
+		removed = true;
 	}
 	// shrink list if possible
 	while (!hud.empty() && hud.back() == nullptr)
 		hud.pop_back();
-	return retval;
+	return removed;
 }
 
 void Player::clearHud()
 {
-	while (!hud.empty()) {
-		delete hud.back();
-		hud.pop_back();
-	}
+	hud.clear();
 }
 
 u16 Player::getMaxHotbarItemcount()

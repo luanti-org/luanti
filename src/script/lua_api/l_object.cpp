@@ -1824,12 +1824,11 @@ int ObjectRef::l_hud_add(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	HudElement *elem = new HudElement;
-	read_hud_element(L, elem);
+	auto elem = std::make_unique<HudElement>();
+	read_hud_element(L, elem.get());
 
-	u32 id = getServer(L)->hudAdd(player, elem);
+	u32 id = getServer(L)->hudAdd(player, std::move(elem));
 	if (id == U32_MAX) {
-		delete elem;
 		return 0;
 	}
 
@@ -1912,9 +1911,9 @@ int ObjectRef::l_hud_get_all(lua_State *L)
 
 	lua_newtable(L);
 	u32 id = 0;
-	for (HudElement *elem : player->getHudElements()) {
+	for (auto const &elem : player->getHudElements()) {
 		if (elem != nullptr) {
-			push_hud_element(L, elem);
+			push_hud_element(L, elem.get());
 			lua_rawseti(L, -2, id);
 		}
 		++id;

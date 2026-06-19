@@ -7,6 +7,7 @@
 #include "irrlichttypes_bloated.h"
 #include "inventory.h"
 #include "util/basic_macros.h"
+#include <memory>
 #include <string>
 #include <string_view>
 
@@ -220,8 +221,8 @@ public:
 
 	const auto &getHudElements() const { return hud; }
 	HudElement* getHud(u32 id);
-	u32         addHud(HudElement* hud);
-	HudElement* removeHud(u32 id);
+	u32         addHud(std::unique_ptr<HudElement> hud);
+	bool        removeHud(u32 id);
 	void        clearHud();
 
 	u32 hud_flags;
@@ -237,5 +238,5 @@ protected:
 	PlayerFovSpec m_fov_override_spec = { 0.0f, false, 0.0f };
 
 private:
-	std::vector<HudElement *> hud;
+	std::vector<std::unique_ptr<HudElement>> hud;
 };
