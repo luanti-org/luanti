@@ -1913,9 +1913,9 @@ void CXMeshFileLoader::addKeys(u16 joint_id, SkinnedMesh::Keys &&keys)
 	if (joint_keys_idx) {
 		animation.joint_keys.at(*joint_keys_idx).keys.append(keys);
 	} else {
-		joint_keys_idx = animation.joint_keys.size();
 		animation.joint_keys.emplace_back(SkinnedMesh::Animation::JointKeys{
 				joint_id, std::move(keys) });
+		joint_keys_idx = animation.joint_keys.size() - 1;
 	}
 }
 
