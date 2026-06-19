@@ -12,6 +12,7 @@
 #include "map.h"
 #include "client.h"
 #include "content_cao.h"
+#include "hud_element.h"
 
 /*
 	PlayerSettings

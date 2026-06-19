@@ -124,6 +124,25 @@ struct PlayerPhysicsOverride
 	}
 };
 
+struct HudElement;
+
+struct PlayerHud
+{
+	const auto &getElements() const { return m_elements; }
+	/// Returns `nullptr` if not found
+	HudElement *get(u32 id);
+	/// Returns the ID of the added element
+	u32         add(std::unique_ptr<HudElement> e);
+	/// Returns whether removal succeeded
+	bool        remove(u32 id);
+	void        clear();
+
+private:
+	u32 getFreeID();
+
+	std::vector<std::unique_ptr<HudElement>> m_elements;
+};
+
 /// @note numeric values are part of network protocol
 enum CameraMode : int {
 	// not a mode. indicates that any may be used.
@@ -136,8 +155,6 @@ enum CameraMode : int {
 };
 
 extern const struct EnumString es_CameraMode[];
-
-struct HudElement;
 
 class Player
 {
@@ -158,16 +175,6 @@ public:
 	v3f getSpeed() const { return m_speed; }
 
 	const std::string& getName() const { return m_name; }
-
-	u32 getFreeHudID()
-	{
-		size_t size = hud.size();
-		for (size_t i = 0; i != size; i++) {
-			if (!hud[i])
-				return i;
-		}
-		return size;
-	}
 
 	CameraMode allowed_camera_mode = CAMERA_MODE_ANY;
 
@@ -219,11 +226,7 @@ public:
 		return m_fov_override_spec;
 	}
 
-	const auto &getHudElements() const { return hud; }
-	HudElement* getHud(u32 id);
-	u32         addHud(std::unique_ptr<HudElement> hud);
-	bool        removeHud(u32 id);
-	void        clearHud();
+	PlayerHud hud;
 
 	u32 hud_flags;
 	s32 hud_hotbar_itemcount;
@@ -236,7 +239,4 @@ protected:
 	v3f m_speed; // velocity; in BS-space
 	u16 m_wield_index = 0;
 	PlayerFovSpec m_fov_override_spec = { 0.0f, false, 0.0f };
-
-private:
-	std::vector<std::unique_ptr<HudElement>> hud;
 };

@@ -105,6 +105,8 @@ public:
 	float hurt_tilt_timer = 0.0f;
 	float hurt_tilt_strength = 0.0f;
 
+	PlayerHud csm_hud;
+
 	GenericCAO *getCAO() const { return m_cao; }
 
 	ClientActiveObject *getParent() const;

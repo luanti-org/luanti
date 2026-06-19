@@ -1865,7 +1865,7 @@ int ObjectRef::l_hud_change(lua_State *L)
 
 	u32 id = luaL_checkint(L, 2);
 
-	HudElement *elem = player->getHud(id);
+	HudElement *elem = player->hud.get(id);
 	if (elem == nullptr)
 		return 0;
 
@@ -1892,7 +1892,7 @@ int ObjectRef::l_hud_get(lua_State *L)
 
 	u32 id = luaL_checkint(L, 2);
 
-	HudElement *elem = player->getHud(id);
+	HudElement *elem = player->hud.get(id);
 	if (elem == nullptr)
 		return 0;
 
@@ -1911,7 +1911,7 @@ int ObjectRef::l_hud_get_all(lua_State *L)
 
 	lua_newtable(L);
 	u32 id = 0;
-	for (auto const &elem : player->getHudElements()) {
+	for (auto const &elem : player->hud.getElements()) {
 		if (elem != nullptr) {
 			push_hud_element(L, elem.get());
 			lua_rawseti(L, -2, id);

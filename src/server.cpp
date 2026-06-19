@@ -1261,7 +1261,7 @@ PlayerSAO *Server::StageTwoClientInit(session_t peer_id)
 	m_env->addPlayer(player);
 
 	/* Clean up old HUD elements from previous sessions */
-	player->clearHud();
+	player->hud.clear();
 
 	/* Add object to environment */
 	PlayerSAO *playersao = sao.get();
@@ -3536,9 +3536,9 @@ u32 Server::hudAdd(RemotePlayer *player, std::unique_ptr<HudElement> form)
 	if (!player)
 		return -1;
 
-	u32 id = player->addHud(std::move(form));
+	u32 id = player->hud.add(std::move(form));
 
-	SendHUDAdd(player->getPeerId(), id, player->getHud(id));
+	SendHUDAdd(player->getPeerId(), id, player->hud.get(id));
 
 	return id;
 }
@@ -3547,7 +3547,7 @@ bool Server::hudRemove(RemotePlayer *player, u32 id) {
 	if (!player)
 		return false;
 
-	if (!player->removeHud(id))
+	if (!player->hud.remove(id))
 		return false;
 
 	SendHUDRemove(player->getPeerId(), id);
