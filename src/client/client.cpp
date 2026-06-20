@@ -656,6 +656,9 @@ void Client::step(float dtime)
 		if (new_chunk_pos != last_chunk_pos) {
 			u16 updates = 0;
 			u16 examinations = 0;
+			f32 lod_threshold = g_settings->getFloat("lod_threshold");
+			f32 lod_quality = g_settings->getFloat("lod_quality");
+			f32 client_mesh_chunk = g_settings->getFloat("client_mesh_chunk");
 			const v3s16 player_block_pos = getNodeBlockPos(floatToInt(player->getPosition(), BS));
 			const v3s16 player_chunk_pos = m_mesh_grid.getCellPos(player_block_pos);
 			for (s16 z = player_chunk_pos.Z - cs * 9; z < player_chunk_pos.Z + cs * 10; z++)
@@ -668,9 +671,7 @@ void Client::step(float dtime)
 				examinations++;
 				const v3s16 block_chunk_pos = m_mesh_grid.getMeshPos(p);
 				const u8 new_lod = determineLodForBlock(player_chunk_pos, block_chunk_pos,
-					g_settings->getFloat("lod_threshold"),
-					g_settings->getFloat("lod_quality"),
-					g_settings->getFloat("client_mesh_chunk"));
+					lod_threshold, lod_quality, client_mesh_chunk);
 				// only queue updates when lod changed
 				if (new_lod != b->lod) {
 					b->lod = new_lod;
