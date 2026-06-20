@@ -329,19 +329,17 @@ end
 core.register_on_craft(function (crafted, player, old_craft_grid, craft_inv)
 	for index, item in ipairs(old_craft_grid) do
 		local item_name = item:get_name()
-		local can_wear = core.get_item_group(item_name, "craft_wear")
-		local is_tool = can_wear > 0 and core.registered_tools[item_name]
+		local can_wear = core.get_item_group(item_name, "craft_uses")
+		local tool = can_wear > 0 and core.registered_tools[item_name]
 
-		if is_tool then
+		if tool then
 			local item_replacement = craft_inv:get_stack("craft", index):get_name()
 			if item_replacement == item_name then
 				item:add_wear_by_uses(can_wear)
 				if item:is_empty() then
 					local pos = player:get_pos()
 					if pos then
-						local sound = is_tool.sound and is_tool.sound.breaks or
-								"default_tool_breaks"
-						core.sound_play(sound,
+						core.sound_play(tool.sound and tool.sound.breaks,
 								{pos = pos, gain = 0.3, max_hear_distance = 1}, true)
 					end
 				end
