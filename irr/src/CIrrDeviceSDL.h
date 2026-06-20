@@ -24,8 +24,14 @@
 #include <SDL.h>
 #endif
 
+#include <map>
 #include <memory>
 #include <unordered_map>
+
+#ifndef _IRR_USE_SDL3_
+	// Backward compatibility for SDL2
+	#define SDL_Gamepad SDL_GameController
+#endif
 
 class CIrrDeviceSDL : public CIrrDeviceStub
 {
@@ -94,9 +100,6 @@ public:
 
 	//! Get the position of this window on screen
 	core::position2di getWindowPosition() override;
-
-	//! Activate any joysticks, and generate events for them.
-	bool activateJoysticks(core::array<SJoystickInfo> &joystickInfo) override;
 
 	//! Get the device type
 	E_DEVICE_TYPE getType() const override
@@ -296,6 +299,11 @@ public:
 		gui::ECURSOR_ICON ActiveIcon = gui::ECURSOR_ICON::ECI_NORMAL;
 	};
 
+	u32 getScancodeFromKey(const Keycode &key) const override;
+	Keycode getKeyFromScancode(const u32 scancode) const override;
+
+	GamepadButtonLabel getGamepadButtonLabel(const GamepadButton button) const override;
+
 private:
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 	static EM_BOOL MouseUpDownCallback(int eventType, const EmscriptenMouseEvent *event, void *userData);
@@ -308,9 +316,6 @@ private:
 
 	// Return the Char that should be sent to Irrlicht for the given key (either the one passed in or 0).
 	static wchar_t findCharToPassToIrrlicht(uint32_t sdlKey, EKEY_CODE irrlichtKey, u16 keymod);
-
-	std::variant<u32, EKEY_CODE> getScancodeFromKey(const Keycode &key) const override;
-	Keycode getKeyFromScancode(const u32 scancode) const override;
 
 	// Check if a text box is in focus. Enable or disable SDL_TEXTINPUT events only if in focus.
 	void resetReceiveTextInputEvents();
@@ -327,8 +332,14 @@ private:
 	SDL_GLContext Context;
 	SDL_Window *Window;
 #if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
-	core::array<SDL_Joystick *> Joysticks;
-#endif
+	std::map<SDL_JoystickID, SDL_Gamepad*> gamepads;
+#ifdef _IRR_USE_SDL3
+	SDL_JoystickID recentGamepadID = -1;
+#else
+	SDL_JoystickID recentGamepadID = 0;
+#endif // _IRR_USE_SDL3_
+	SDL_Gamepad *getRecentGamepad() const;
+#endif // _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
 
 	s32 MouseX, MouseY;
 	// these two only continue to exist for some Emscripten stuff idk about

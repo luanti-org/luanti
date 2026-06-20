@@ -3,11 +3,11 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "lua_api/l_inventory.h"
+#include "common/c_content.h"
+#include "common/c_converter.h"
+#include "gamedef.h"
 #include "lua_api/l_internal.h"
 #include "lua_api/l_item.h"
-#include "common/c_converter.h"
-#include "common/c_content.h"
-#include "server.h"
 #include "server/serverinventorymgr.h"
 /*
 	InvRef
@@ -179,7 +179,7 @@ int InvRef::l_set_stack(lua_State *L)
 	InvRef *ref = checkObject<InvRef>(L, 1);
 	const char *listname = luaL_checkstring(L, 2);
 	int i = luaL_checknumber(L, 3) - 1;
-	ItemStack newitem = read_item(L, 4, getServer(L)->idef());
+	ItemStack newitem = read_item(L, 4, getGameDef(L)->idef());
 	InventoryList *list = getlist(L, ref, listname);
 	if(list != NULL && i >= 0 && i < (int) list->getSize()){
 		list->changeItem(i, newitem);
@@ -224,9 +224,9 @@ int InvRef::l_set_list(lua_State *L)
 	InventoryList *list = inv->getList(listname);
 	if(list)
 		read_inventory_list(L, 3, inv, listname,
-				getServer(L), list->getSize());
+				getGameDef(L), list->getSize());
 	else
-		read_inventory_list(L, 3, inv, listname, getServer(L));
+		read_inventory_list(L, 3, inv, listname, getGameDef(L));
 	reportInventoryChange(L, ref);
 	return 0;
 }
@@ -258,13 +258,13 @@ int InvRef::l_set_lists(lua_State *L)
 	Inventory tempInv(*inv);
 	tempInv.clear();
 
-	Server *server = getServer(L);
+	IGameDef *gamedef = getGameDef(L);
 
 	lua_pushnil(L);
 	luaL_checktype(L, 2, LUA_TTABLE);
 	while (lua_next(L, 2)) {
 		const char *listname = luaL_checkstring(L, -2);
-		read_inventory_list(L, -1, &tempInv, listname, server);
+		read_inventory_list(L, -1, &tempInv, listname, gamedef);
 		lua_pop(L, 1);
 	}
 	*inv = tempInv;
@@ -278,7 +278,7 @@ int InvRef::l_add_item(lua_State *L)
 	NO_MAP_LOCK_REQUIRED;
 	InvRef *ref = checkObject<InvRef>(L, 1);
 	const char *listname = luaL_checkstring(L, 2);
-	ItemStack item = read_item(L, 3, getServer(L)->idef());
+	ItemStack item = read_item(L, 3, getGameDef(L)->idef());
 	InventoryList *list = getlist(L, ref, listname);
 	if(list){
 		ItemStack leftover = list->addItem(item);
@@ -298,7 +298,7 @@ int InvRef::l_room_for_item(lua_State *L)
 	NO_MAP_LOCK_REQUIRED;
 	InvRef *ref = checkObject<InvRef>(L, 1);
 	const char *listname = luaL_checkstring(L, 2);
-	ItemStack item = read_item(L, 3, getServer(L)->idef());
+	ItemStack item = read_item(L, 3, getGameDef(L)->idef());
 	InventoryList *list = getlist(L, ref, listname);
 	if(list){
 		lua_pushboolean(L, list->roomForItem(item));
@@ -315,7 +315,7 @@ int InvRef::l_contains_item(lua_State *L)
 	NO_MAP_LOCK_REQUIRED;
 	InvRef *ref = checkObject<InvRef>(L, 1);
 	const char *listname = luaL_checkstring(L, 2);
-	ItemStack item = read_item(L, 3, getServer(L)->idef());
+	ItemStack item = read_item(L, 3, getGameDef(L)->idef());
 	InventoryList *list = getlist(L, ref, listname);
 	bool match_meta = readParam<bool>(L, 4, false);
 	if (list) {
@@ -333,7 +333,7 @@ int InvRef::l_remove_item(lua_State *L)
 	NO_MAP_LOCK_REQUIRED;
 	InvRef *ref = checkObject<InvRef>(L, 1);
 	const char *listname = luaL_checkstring(L, 2);
-	ItemStack item = read_item(L, 3, getServer(L)->idef());
+	ItemStack item = read_item(L, 3, getGameDef(L)->idef());
 	InventoryList *list = getlist(L, ref, listname);
 	bool match_meta = readParam<bool>(L, 4, false);
 	if(list){
@@ -483,7 +483,7 @@ int ModApiInventory::l_create_detached_inventory_raw(lua_State *L)
 	NO_MAP_LOCK_REQUIRED;
 	const char *name = luaL_checkstring(L, 1);
 	std::string player = readParam<std::string>(L, 2, "");
-	if (getServerInventoryMgr(L)->createDetachedInventory(name, getServer(L)->idef(), player) != NULL) {
+	if (getServerInventoryMgr(L)->createDetachedInventory(name, getGameDef(L)->idef(), player) != NULL) {
 		InventoryLocation loc;
 		loc.setDetached(name);
 		InvRef::create(L, loc);

@@ -5,12 +5,8 @@
 #include "lua_api/l_auth.h"
 #include "lua_api/l_internal.h"
 #include "common/c_converter.h"
-#include "common/c_content.h"
-#include "cpp_api/s_base.h"
-#include "server.h"
 #include "serverenvironment.h"
 #include "database/database.h"
-#include <algorithm>
 
 // common start: ensure auth db
 AuthDatabase *ModApiAuth::getAuthDb(lua_State *L)

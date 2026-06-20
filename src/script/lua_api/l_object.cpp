@@ -11,6 +11,7 @@
 #include "lua_api/l_playermeta.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
+#include "common/helper.h"
 #include "cpp_api/s_base.h"
 #include "log.h"
 #include "player.h"
@@ -345,7 +346,7 @@ int ObjectRef::l_get_wielded_item(lua_State *L)
 	return 1;
 }
 
-// set_wielded_item(self, item)
+// set_wielded_item(self, item, skip_anim)
 int ObjectRef::l_set_wielded_item(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
@@ -354,11 +355,14 @@ int ObjectRef::l_set_wielded_item(lua_State *L)
 	if (sao == nullptr)
 		return 0;
 
-	ItemStack item = read_item(L, 2, getServer(L)->idef());
-
+	ItemStack item = read_item(L, 2, getGameDef(L)->idef());
 	bool success = sao->setWieldedItem(item);
+
 	if (success && sao->getType() == ACTIVEOBJECT_TYPE_PLAYER) {
-		getServer(L)->SendInventory(((PlayerSAO *)sao)->getPlayer(), true);
+		bool skip_anim = readParam<bool>(L, 3, false);
+		RemotePlayer *player = dynamic_cast<PlayerSAO*>(sao)->getPlayer();
+
+		getServer(L)->SendInventory(player, true, skip_anim);
 	}
 	lua_pushboolean(L, success);
 	return 1;
@@ -533,12 +537,16 @@ int ObjectRef::l_set_camera(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	luaL_checktype(L, 2, LUA_TTABLE);
+	if (lua_isnoneornil(L, 2)) {
+		player->allowed_camera_mode = CAMERA_MODE_ANY;
+	} else {
+		luaL_checktype(L, 2, LUA_TTABLE);
 
-	lua_getfield(L, -1, "mode");
-	if (lua_isstring(L, -1))
-		string_to_enum(es_CameraMode, player->allowed_camera_mode, lua_tostring(L, -1));
-	lua_pop(L, 1);
+		lua_getfield(L, -1, "mode");
+		if (lua_isstring(L, -1))
+			string_to_enum(es_CameraMode, player->allowed_camera_mode, lua_tostring(L, -1));
+		lua_pop(L, 1);
+	}
 
 	getServer(L)->SendCamera(player->getPeerId(), player);
 	return 0;
@@ -870,7 +878,7 @@ int ObjectRef::l_set_properties(lua_State *L)
 		return 0;
 
 	const auto old = *prop;
-	read_object_properties(L, 2, sao, prop, getServer(L)->idef());
+	read_object_properties(L, 2, sao, prop, getGameDef(L)->idef());
 	if (*prop != old) {
 		prop->validate();
 		sao->notifyObjectPropertiesModified();
@@ -1659,13 +1667,13 @@ int ObjectRef::l_get_player_control(lua_State *L)
 		return 1;
 
 	const PlayerControl &control = player->getPlayerControl();
-	lua_pushboolean(L, control.direction_keys & (1 << 0));
+	lua_pushboolean(L, control.up > 0);
 	lua_setfield(L, -2, "up");
-	lua_pushboolean(L, control.direction_keys & (1 << 1));
+	lua_pushboolean(L, control.down > 0);
 	lua_setfield(L, -2, "down");
-	lua_pushboolean(L, control.direction_keys & (1 << 2));
+	lua_pushboolean(L, control.left > 0);
 	lua_setfield(L, -2, "left");
-	lua_pushboolean(L, control.direction_keys & (1 << 3));
+	lua_pushboolean(L, control.right > 0);
 	lua_setfield(L, -2, "right");
 	lua_pushboolean(L, control.jump);
 	lua_setfield(L, -2, "jump");
@@ -1710,7 +1718,10 @@ int ObjectRef::l_get_player_control_bits(lua_State *L)
 	// This is very close to PlayerControl::getKeysPressed() but duplicated
 	// here so the encoding in the API is not inadvertedly changed.
 	u32 keypress_bits =
-		c.direction_keys |
+		( (u32)((c.up    > 0) & 1) << 0) |
+		( (u32)((c.down  > 0) & 1) << 1) |
+		( (u32)((c.left  > 0) & 1) << 2) |
+		( (u32)((c.right > 0) & 1) << 3) |
 		( (u32)(c.jump  & 1) << 4) |
 		( (u32)(c.aux1  & 1) << 5) |
 		( (u32)(c.sneak & 1) << 6) |
@@ -2083,13 +2094,9 @@ int ObjectRef::l_set_sky(lua_State *L)
 		lua_getfield(L, 2, "textures");
 		sky_params.textures.clear();
 		if (lua_istable(L, -1) && sky_params.type == "skybox") {
-			lua_pushnil(L);
-			while (lua_next(L, -2) != 0) {
-				// Key is at index -2 and value at index -1
+			LuaHelper::for_ipairs(L, -1, [&]() {
 				sky_params.textures.emplace_back(readParam<std::string>(L, -1));
-				// Removes the value, but keeps the key for iteration
-				lua_pop(L, 1);
-			}
+			});
 		}
 		lua_pop(L, 1);
 
@@ -2097,7 +2104,7 @@ int ObjectRef::l_set_sky(lua_State *L)
 		if (sky_params.textures.size() != 6 && !sky_params.textures.empty())
 			throw LuaError("Skybox expects 6 textures!");
 
-		sky_params.clouds = getboolfield_default(L, 2, "clouds", sky_params.clouds);
+		getboolfield(L, 2, "clouds", sky_params.clouds);
 
 		lua_getfield(L, 2, "sky_color");
 		if (lua_istable(L, -1)) {
@@ -2159,6 +2166,8 @@ int ObjectRef::l_set_sky(lua_State *L)
 			lua_pop(L, 1);
 		}
 		lua_pop(L, 1);
+
+		getboolfield(L, 2, "auto_dim_skybox", sky_params.auto_dim_skybox);
 	} else {
 		// Handle old set_sky calls, and log deprecated:
 		log_deprecated(L, "Deprecated call to set_sky, please check lua_api.md");
@@ -2190,13 +2199,9 @@ int ObjectRef::l_set_sky(lua_State *L)
 
 		sky_params.textures.clear();
 		if (lua_istable(L, 4)) {
-			lua_pushnil(L);
-			while (lua_next(L, 4) != 0) {
-				// Key at index -2, and value at index -1
+			LuaHelper::for_ipairs(L, 4, [&]() {
 				sky_params.textures.emplace_back(readParam<std::string>(L, -1));
-				// Remove the value, keep the key for the next iteration
-				lua_pop(L, 1);
-			}
+			});
 		}
 		if (sky_params.type == "skybox" && sky_params.textures.size() != 6)
 			throw LuaError("Skybox expects 6 textures.");
@@ -2288,6 +2293,9 @@ int ObjectRef::l_get_sky(lua_State *L)
 	lua_setfield(L, -2, "textures");
 	lua_pushboolean(L, skybox_params.clouds);
 	lua_setfield(L, -2, "clouds");
+
+	lua_pushboolean(L, skybox_params.auto_dim_skybox);
+	lua_setfield(L, -2, "auto_dim_skybox");
 
 	push_sky_color(L, skybox_params);
 	lua_setfield(L, -2, "sky_color");
@@ -2613,6 +2621,37 @@ int ObjectRef::l_get_day_night_ratio(lua_State *L)
 	return 1;
 }
 
+static std::optional<MinimapMode> read_minimap_mode(lua_State *L, int index)
+{
+	if (!lua_istable(L, index))
+		return std::nullopt;
+
+	MinimapMode mode;
+
+	std::string type = getstringfield_default(L, index, "type", "");
+	if (type == "off")
+		mode.type = MINIMAP_TYPE_OFF;
+	else if (type == "surface")
+		mode.type = MINIMAP_TYPE_SURFACE;
+	else if (type == "radar")
+		mode.type = MINIMAP_TYPE_RADAR;
+	else if (type == "texture") {
+		mode.type = MINIMAP_TYPE_TEXTURE;
+		mode.texture = getstringfield_default(L, index, "texture", "");
+		mode.scale = getintfield_default(L, index, "scale", 1);
+	} else {
+		warningstream << "Minimap mode of unknown type \"" << type.c_str()
+			<< "\" ignored.\n" << std::endl;
+		return std::nullopt;
+	}
+
+	mode.label = getstringfield_default(L, index, "label", "");
+	// Size is limited to 512. Performance gets poor if size too large, and
+	// segfaults have been experienced.
+	mode.size = rangelim(getintfield_default(L, index, "size", 0), 1, 512);
+	return mode;
+}
+
 // set_minimap_modes(self, modes, selected_mode)
 int ObjectRef::l_set_minimap_modes(lua_State *L)
 {
@@ -2626,41 +2665,10 @@ int ObjectRef::l_set_minimap_modes(lua_State *L)
 	std::vector<MinimapMode> modes;
 	s16 selected_mode = readParam<s16>(L, 3);
 
-	lua_pushnil(L);
-	while (lua_next(L, 2) != 0) {
-		/* key is at index -2, value is at index -1 */
-		if (lua_istable(L, -1)) {
-			bool ok = true;
-			MinimapMode mode;
-			std::string type = getstringfield_default(L, -1, "type", "");
-			if (type == "off")
-				mode.type = MINIMAP_TYPE_OFF;
-			else if (type == "surface")
-				mode.type = MINIMAP_TYPE_SURFACE;
-			else if (type == "radar")
-				mode.type = MINIMAP_TYPE_RADAR;
-			else if (type == "texture") {
-				mode.type = MINIMAP_TYPE_TEXTURE;
-				mode.texture = getstringfield_default(L, -1, "texture", "");
-				mode.scale = getintfield_default(L, -1, "scale", 1);
-			} else {
-				warningstream << "Minimap mode of unknown type \"" << type.c_str()
-					<< "\" ignored.\n" << std::endl;
-				ok = false;
-			}
-
-			if (ok) {
-				mode.label = getstringfield_default(L, -1, "label", "");
-				// Size is limited to 512. Performance gets poor if size too large, and
-				// segfaults have been experienced.
-				mode.size = rangelim(getintfield_default(L, -1, "size", 0), 1, 512);
-				modes.push_back(mode);
-			}
-		}
-		/* removes 'value'; keeps 'key' for next iteration */
-		lua_pop(L, 1);
-	}
-	lua_pop(L, 1); // Remove key
+	LuaHelper::for_ipairs(L, 2, [&]() {
+		if (auto mode = read_minimap_mode(L, -1))
+			modes.push_back(*mode);
+	});
 
 	getServer(L)->SendMinimapModes(player->getPeerId(), modes, selected_mode);
 	return 0;
@@ -2686,6 +2694,10 @@ int ObjectRef::l_set_lighting(lua_State *L)
 			lua_getfield(L, -1, "tint");
 			read_color(L, -1, &lighting.shadow_tint);
 			lua_pop(L, 1); // tint
+			lua_getfield(L, -1, "direction");
+			if (!lua_isnil(L, -1))
+				lighting.shadow_direction = check_v3f(L, -1);
+			lua_pop(L, 1); // direction
 		}
 		lua_pop(L, 1); // shadows
 
@@ -2739,6 +2751,8 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	lua_setfield(L, -2, "intensity");
 	push_ARGB8(L, lighting.shadow_tint);
 	lua_setfield(L, -2, "tint");
+	push_v3f(L, lighting.shadow_direction);
+	lua_setfield(L, -2, "direction");
 	lua_setfield(L, -2, "shadows");
 	lua_pushnumber(L, lighting.saturation);
 	lua_setfield(L, -2, "saturation");

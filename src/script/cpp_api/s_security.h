@@ -44,8 +44,11 @@ public:
 
 	/// Loads a string as Lua code safely (doesn't allow bytecode).
 	static bool safeLoadString(lua_State *L, std::string_view code, const char *chunk_name);
+	/// Same as above, but removes shebangs.
+	static bool safeLoadFileContent(lua_State *L, std::string_view code, const char *chunk_name);
 	/// Loads a file as Lua code safely (doesn't allow bytecode).
 	/// @warning path is not validated in any way
+	/// Prints warnings for modified builtin files.
 	static bool safeLoadFile(lua_State *L, const char *path, const char *display_name = nullptr);
 
 	/**
@@ -93,7 +96,7 @@ protected:
 
 private:
 	int getThread(lua_State *L);
-	// sets the enviroment to the table thats on top of the stack
+	// sets the environment to the table that's on top of the stack
 	void setLuaEnv(lua_State *L, int thread);
 	// creates an empty Lua environment
 	void createEmptyEnv(lua_State *L);

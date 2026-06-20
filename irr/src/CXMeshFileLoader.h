@@ -5,7 +5,9 @@
 #pragma once
 
 #include "IMeshLoader.h"
+#include "irrArray.h"
 #include "irrString.h"
+#include "S3DVertex.h"
 #include "SkinnedMesh.h"
 
 namespace io

@@ -527,7 +527,7 @@ static bool hopcroft_karp_can_match_all(const std::vector<std::vector<u16>> &bip
 			queue.pop();
 
 			if (dist[u] < dist[nil]) { // if dummy not yet reached
-				for (u16 v : bip_graph[u]) { // for all adjanced of u
+				for (u16 v : bip_graph[u]) { // for all adjacent of u
 					u16 u_back = pair_v[v];
 					// if u_back unvisited, go there
 					if (dist[u_back] == inf) {
@@ -799,7 +799,7 @@ CraftInput CraftDefinitionToolRepair::getInput(const CraftOutput &output, IGameD
 {
 	std::vector<ItemStack> stack;
 	stack.emplace_back();
-	return CraftInput(CRAFT_METHOD_COOKING, additional_wear, stack);
+	return CraftInput(CRAFT_METHOD_NORMAL, 0, stack);
 }
 
 void CraftDefinitionToolRepair::decrementInput(CraftInput &input, std::vector<ItemStack> &output_replacements,
@@ -872,7 +872,7 @@ CraftInput CraftDefinitionCooking::getInput(const CraftOutput &output, IGameDef 
 {
 	std::vector<std::string> rec;
 	rec.push_back(recipe);
-	return CraftInput(CRAFT_METHOD_COOKING,cooktime,craftGetItems(rec,gamedef));
+	return CraftInput(CRAFT_METHOD_COOKING, 0, craftGetItems(rec, gamedef));
 }
 
 void CraftDefinitionCooking::decrementInput(CraftInput &input, std::vector<ItemStack> &output_replacements,
@@ -975,7 +975,7 @@ CraftInput CraftDefinitionFuel::getInput(const CraftOutput &output, IGameDef *ga
 {
 	std::vector<std::string> rec;
 	rec.push_back(recipe);
-	return CraftInput(CRAFT_METHOD_COOKING,(int)burntime,craftGetItems(rec,gamedef));
+	return CraftInput(CRAFT_METHOD_FUEL, 0, craftGetItems(rec,gamedef));
 }
 
 void CraftDefinitionFuel::decrementInput(CraftInput &input, std::vector<ItemStack> &output_replacements,

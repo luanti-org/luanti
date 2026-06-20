@@ -77,6 +77,7 @@ public:
 	// Object properties
 	ObjectProperties *accessObjectProperties() override;
 	void notifyObjectPropertiesModified() override;
+	bool isAttachmentOutdated() const { return !m_attachment_sent; }
 	void sendOutdatedData();
 
 	// Update packets

@@ -130,7 +130,7 @@
 #endif
 
 
-// Helper for making sure frames end in all possible control flow path
+// Helper for making sure frames end in all possible control flow paths
 class FrameMarker
 {
 	const char *m_name;

@@ -6,7 +6,6 @@
 
 #include "BoneSceneNode.h"
 #include "ISceneNode.h"
-#include "IAnimatedMesh.h"
 
 #include "SkinnedMesh.h"
 #include "Transform.h"
@@ -15,6 +14,9 @@
 
 namespace scene
 {
+
+class IAnimatedMesh;
+class ISceneManager;
 
 class AnimatedMeshSceneNode : public ISceneNode
 {
@@ -190,7 +192,7 @@ private:
 		std::vector<irr_ptr<BoneSceneNode>> SceneNodes;
 		std::vector<core::matrix4> GlobalMatrices;
 		std::vector<std::optional<core::Transform>> PreTransSaves;
-		void setN(u16 n) {
+		void setN(size_t n) {
 			SceneNodes.clear();
 			SceneNodes.resize(n);
 			GlobalMatrices.clear();

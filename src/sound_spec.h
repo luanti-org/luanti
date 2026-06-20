@@ -11,7 +11,7 @@
  * Describes the sound information for playback.
  * Positional handling is done separately.
  *
- * `SimpleSoundSpec`, as used by modding, is a `SoundSpec` with only name, fain,
+ * `SimpleSoundSpec`, as used by modding, is a `SoundSpec` with only name, gain,
  * pitch and fade.
 */
 struct SoundSpec

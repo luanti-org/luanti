@@ -14,7 +14,7 @@ set(CLANG_MINIMUM_VERSION "7.0.1")
 
 # You should not need to edit these manually, use util/bump_version.sh
 set(VERSION_MAJOR 5)
-set(VERSION_MINOR 16)
+set(VERSION_MINOR 17)
 set(VERSION_PATCH 0)
 set(VERSION_EXTRA "" CACHE STRING "Stuff to append to version string")
 
@@ -296,6 +296,13 @@ if(BUILD_UNITTESTS OR BUILD_BENCHMARKS)
 endif()
 
 add_subdirectory(lib/tiniergltf)
+
+# Builtin
+add_subdirectory(builtin)
+
+list(TRANSFORM BUILTIN_SRCS
+	PREPEND "${BUILTIN_BASE_PATH}/"
+	OUTPUT_VARIABLE BUILTIN_SRCS_ABS)
 
 # Subdirectories
 # Be sure to add all relevant definitions above this

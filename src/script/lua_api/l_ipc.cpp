@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #include "lua_api/l_ipc.h"
-#include "lua_api/l_internal.h"
 #include "common/c_packer.h"
-#include "server.h"
 #include "debug.h"
+#include "lua_api/l_internal.h"
+#include "server.h"
 #include <chrono>
+#include <memory>
+#include <mutex>
+#include <shared_mutex>
 
 typedef std::shared_lock<std::shared_mutex> SharedReadLock;
 typedef std::unique_lock<std::shared_mutex> SharedWriteLock;

@@ -6,6 +6,7 @@
 #include "SMaterialLayer.h"
 #include "coreutil.h"
 #include "SkinnedMesh.h"
+#include "SSkinMeshBuffer.h"
 #include "IAnimatedMesh.h"
 #include "IReadFile.h"
 #include "irrTypes.h"
@@ -238,7 +239,7 @@ T SelfType::Accessor<T>::get(std::size_t i) const
 	// We differ slightly from glTF here in that
 	// we default-initialize quaternions and matrices properly,
 	// but this does not cause any discrepancies for valid glTF models.
-	std::get<std::tuple<>>(source);
+	assert(std::holds_alternative<std::tuple<>>(source));
 	return T();
 }
 

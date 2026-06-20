@@ -71,6 +71,7 @@ enum HudElementStat : u8 {
 	HUD_STAT_Z_INDEX,
 	HUD_STAT_TEXT2,
 	HUD_STAT_STYLE,
+	HUD_STAT_HIDEABLE,
 	HudElementStat_END // Dummy for validity check
 };
 
@@ -93,10 +94,11 @@ struct HudElement {
 	v2f align;
 	v2f offset;
 	v3f world_pos;
-	v2s32 size;
+	v2f size; // Either pixel size (int) or fractional scaling of text (float)
 	s16 z_index = 0;
 	std::string text2;
 	u32 style;
+	bool hideable = true;
 };
 
 extern const EnumString es_HudElementType[];

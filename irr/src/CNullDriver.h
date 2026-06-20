@@ -305,12 +305,13 @@ protected:
 		const scene::HWBuffer *Buffer;
 		size_t ListPosition = static_cast<size_t>(-1);
 		u32 ChangedID = 0;
+		u16 UnusedCounter = 0;
 	};
 
 	//! Gets hardware buffer link from a buffer (may create or update buffer)
 	virtual SHWBufferLink *getBufferLink(const scene::HWBuffer *buf);
 
-	//! updates hardware buffer if needed  (only some drivers can)
+	//! updates hardware buffer if needed
 	virtual bool updateHardwareBuffer(SHWBufferLink *HWBuffer) { return false; }
 
 	//! Delete hardware buffer

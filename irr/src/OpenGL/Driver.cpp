@@ -22,6 +22,7 @@
 
 #include "EVertexAttributes.h"
 #include "CImage.h"
+#include "IReadFile.h"
 #include "matrix4.h"
 #include "os.h"
 
@@ -536,6 +537,7 @@ bool COpenGL3DriverBase::updateHardwareBuffer(SHWBufferLink *HWBuffer)
 
 	auto *b = static_cast<SHWBufferLink_opengl *>(HWBuffer);
 
+	b->UnusedCounter = 0;
 	assert(b->Buffer);
 	if (b->ChangedID != b->Buffer->getChangedID() || !b->Vbo.exists()) {
 		if (!_updateHardwareBuffer(b))

@@ -22,7 +22,6 @@
 #include <IGUIImage.h>
 #include <AnimatedMeshSceneNode.h>
 #include "client/renderingengine.h"
-#include "client/joystick_controller.h"
 #include "log.h"
 #include "drawItemStack.h"
 #include "gettext.h"
@@ -87,8 +86,7 @@ inline u32 clamp_u8(s32 value)
 	return (u32) MYMIN(MYMAX(value, 0), 255);
 }
 
-GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
-		gui::IGUIElement *parent, s32 id, IMenuManager *menumgr,
+GUIFormSpecMenu::GUIFormSpecMenu(gui::IGUIElement *parent, s32 id, IMenuManager *menumgr,
 		Client *client, gui::IGUIEnvironment *guienv, ISimpleTextureSource *tsrc,
 		ISoundManager *sound_manager, IFormSource *fsrc, TextDest *tdst,
 		const std::string &formspecPrepend, bool remap_dbl_click):
@@ -99,8 +97,7 @@ GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
 	m_client(client),
 	m_formspec_prepend(formspecPrepend),
 	m_form_src(fsrc),
-	m_text_dst(tdst),
-	m_joystick(joystick)
+	m_text_dst(tdst)
 {
 	current_keys_pending.key_down = false;
 	current_keys_pending.key_up = false;
@@ -119,7 +116,7 @@ GUIFormSpecMenu::~GUIFormSpecMenu()
 }
 
 void GUIFormSpecMenu::create(GUIFormSpecMenu *&cur_formspec, Client *client,
-	gui::IGUIEnvironment *guienv, JoystickController *joystick, IFormSource *fs_src,
+	gui::IGUIEnvironment *guienv, IFormSource *fs_src,
 	TextDest *txt_dest, const std::string &formspecPrepend, ISoundManager *sound_manager)
 {
 	if (cur_formspec && cur_formspec->getReferenceCount() == 1) {
@@ -136,7 +133,7 @@ void GUIFormSpecMenu::create(GUIFormSpecMenu *&cur_formspec, Client *client,
 	}
 
 	if (cur_formspec == nullptr) {
-		cur_formspec = new GUIFormSpecMenu(joystick, guiroot, -1, &g_menumgr,
+		cur_formspec = new GUIFormSpecMenu(guiroot, -1, &g_menumgr,
 			client, guienv, client->getTextureSource(), sound_manager, fs_src,
 			txt_dest, formspecPrepend);
 
@@ -167,6 +164,12 @@ void GUIFormSpecMenu::removeTooltip()
 
 void GUIFormSpecMenu::setInitialFocus()
 {
+	if (m_held_mouse_button != BET_OTHER) {
+		// Ongoing inventory list interaction (they have no `FieldSpec::fname` to focus).
+		Environment->setFocus(this);
+		return;
+	}
+
 	// Set initial focus according to following order of precedence:
 	// 1. first empty editbox
 	// 2. first editbox
@@ -404,7 +407,7 @@ void GUIFormSpecMenu::parseScrollContainer(parserData *data, const std::string &
 
 	clipper->drop();
 
-	// remove interferring offset of normal containers
+	// remove interfering offset of normal containers
 	container_stack.push(pos_offset);
 	pos_offset.X = 0.0f;
 	pos_offset.Y = 0.0f;
@@ -681,7 +684,7 @@ void GUIFormSpecMenu::parseScrollBar(parserData* data, const std::string &elemen
 	spec.ftype = f_ScrollBar;
 	spec.send  = true;
 	GUIScrollBar *e = new GUIScrollBar(Environment, data->current_parent,
-			spec.fid, rect, is_horizontal, true, m_tsrc);
+			spec.fid, rect, is_horizontal, m_tsrc);
 
 	auto style = getDefaultStyleForElement("scrollbar", name);
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
@@ -1826,7 +1829,7 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 
 			if (data->real_coordinates) {
 				// Lines are spaced at the distance of 1/2 imgsize.
-				// This alows lines that line up with the new elements
+				// This allows lines that line up with the new elements
 				// easily without sacrificing good line distance.  If
 				// it was one whole imgsize, it would have too much
 				// spacing.
@@ -2826,10 +2829,15 @@ void GUIFormSpecMenu::parseModel(parserData *data, const std::string &element)
 
 	core::rect<s32> rect(pos, pos + geom);
 
-	GUIScene *e = new GUIScene(Environment, m_client->getSceneManager(),
-			data->current_parent, rect, spec.fid);
+	GUIScene *e = new GUIScene(Environment,
+			m_client->getSceneManager(),
+			data->current_parent,
+			m_client->getShaderSource(),
+			rect,
+			spec.fid);
 
 	auto meshnode = e->setMesh(mesh);
+	mesh->drop();
 
 	for (u32 i = 0; i < meshnode->getMaterialCount(); ++i) {
 		const auto texture_idx = mesh->getTextureSlot(i);
@@ -2993,7 +3001,8 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 
 		// Preserve focus
 		gui::IGUIElement *focused_element = Environment->getFocus();
-		if (focused_element && focused_element->getParent() == this) {
+		// Check recursively to cover elements inside e.g. scroll containers
+		if (focused_element && isMyDescendant(focused_element)) {
 			s32 focused_id = focused_element->getID();
 			if (focused_id > ID_PROCEED_BTN) {
 				for (const GUIFormSpecMenu::FieldSpec &field : m_fields) {
@@ -3006,6 +3015,13 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		}
 	} else {
 		// Don't keep old focus value
+		m_focused_element = std::nullopt;
+		// Discard active inventory list interaction
+		m_held_mouse_button = BET_OTHER;
+	}
+
+	if (m_held_mouse_button != BET_OTHER) {
+		// Inventory list interaction -> focus "this". See also: `setInitialFocus`
 		m_focused_element = std::nullopt;
 	}
 
@@ -3313,7 +3329,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	// Set initial focus if parser didn't set it
 	gui::IGUIElement *focused_element = Environment->getFocus();
 	if (!focused_element
-			|| !isMyChild(focused_element)
+			|| !isMyDescendant(focused_element)
 			|| focused_element->getType() == gui::EGUIET_TAB_CONTROL)
 		setInitialFocus();
 
@@ -3360,8 +3376,14 @@ void GUIFormSpecMenu::legacySortElements(std::list<IGUIElement *>::iterator from
 		// TODO: getSpecByID is a linear search. It should made O(1), or cached here.
 		const FieldSpec *spec_a = getSpecByID(a->getID());
 		const FieldSpec *spec_b = getSpecByID(b->getID());
-		return spec_a && spec_b &&
-			spec_a->priority < spec_b->priority;
+		// The comparison has to be compatible with strict weak ordering
+		if (spec_a && spec_b)
+			return spec_a->priority < spec_b->priority;
+
+		if (spec_a && !spec_b)
+			return true;
+
+		return false;
 	});
 
 	// 3: Re-assign the pointers
@@ -3723,7 +3745,7 @@ void GUIFormSpecMenu::autoScroll()
 
 	// Find the scroll container that contains the focused element
 	for (const auto &cont : m_scroll_containers) {
-		if (!cont.second->isMyChild(focus))
+		if (!cont.second->isMyDescendant(focus))
 			continue;
 
 		gui::IGUIElement *clipper = cont.second->getParent();
@@ -4048,6 +4070,14 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 	}
 }
 
+bool GUIFormSpecMenu::remapClickOutside(const SEvent &event)
+{
+	// Don't remap a click outside the formspec to ESC when holding an item.
+	if (m_selected_item)
+		return false;
+	return GUIModalMenu::remapClickOutside(event);
+}
+
 bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 {
 	// This must be done first so that GUIModalMenu can set m_pointer_type
@@ -4099,7 +4129,7 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 		gui::IGUIElement *hovered =
 			Environment->getRootGUIElement()->getElementFromPoint(
 				core::position2d<s32>(x, y));
-		if (hovered && isMyChild(hovered) &&
+		if (hovered && isMyDescendant(hovered) &&
 				hovered->getType() == gui::EGUIET_TAB_CONTROL) {
 			gui::IGUISkin* skin = Environment->getSkin();
 			sanity_check(skin != NULL);
@@ -4120,7 +4150,7 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 				|| keySettingHasMatch("keymap_inventory", kp)
 				|| event.KeyInput.Key==KEY_RETURN) {
 			gui::IGUIElement *focused = Environment->getFocus();
-			if (focused && isMyChild(focused) &&
+			if (focused && isMyDescendant(focused) &&
 					(focused->getType() == gui::EGUIET_LIST_BOX ||
 					focused->getType() == gui::EGUIET_CHECK_BOX) &&
 					(focused->getParent()->getType() != gui::EGUIET_COMBO_BOX ||
@@ -4140,25 +4170,10 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 		gui::IGUIElement *hovered =
 			Environment->getRootGUIElement()->getElementFromPoint(
 				core::position2d<s32>(x, y));
-		if (hovered && isMyChild(hovered)) {
+		if (hovered && isMyDescendant(hovered)) {
 			hovered->OnEvent(event);
 			return event.MouseInput.Event == EMIE_MOUSE_WHEEL;
 		}
-	}
-
-	if (event.EventType == EET_JOYSTICK_INPUT_EVENT) {
-		if (event.JoystickEvent.Joystick != m_joystick->getJoystickId())
-			return false;
-
-		bool handled = m_joystick->handleEvent(event.JoystickEvent);
-		if (handled) {
-			if (m_joystick->wasKeyDown(KeyType::ESC)) {
-				tryClose();
-			} else if (m_joystick->wasKeyDown(KeyType::JUMP)) {
-				trySubmitClose();
-			}
-		}
-		return handled;
 	}
 
 	return false;
@@ -4264,6 +4279,10 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 			return true;
 		}
 
+	}
+	if (auto kpe = KeyPressEvent(event); kpe && kpe.isPressed() && keySettingHasMatch("keymap_pause", kpe.key)) {
+		tryClose();
+		return true;
 	}
 
 	/* Mouse event other than movement, or crossing the border of inventory

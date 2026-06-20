@@ -209,7 +209,8 @@ bool CZipReader::scanZipHeader(bool ignoreGPBits)
 	// move forward length of data
 	File->seek(entry.header.DataDescriptor.CompressedSize, true);
 
-	addItem(ZipFileName, entry.Offset, entry.header.DataDescriptor.UncompressedSize, ZipFileName.lastChar() == '/', FileInfo.size());
+	addItem(ZipFileName, entry.Offset, entry.header.DataDescriptor.UncompressedSize,
+			ZipFileName.lastChar() == '/', (u32)FileInfo.size());
 	FileInfo.push_back(entry);
 
 	return true;

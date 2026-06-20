@@ -16,6 +16,7 @@
 #include "util/string.h"
 #include "guiScrollBar.h"
 #include <IOSOperator.h>
+#include <IVideoDriver.h>
 #include <string>
 
 inline u32 clamp_u8(s32 value)
@@ -86,7 +87,7 @@ GUIChatConsole::GUIChatConsole(
 	m_is_ctrl_down = false;
 	m_cache_clickable_chat_weblinks = g_settings->getBool("clickable_chat_weblinks");
 
-	m_scrollbar.reset(new GUIScrollBar(env, this, -1, core::rect<s32>(0, 0, 30, m_height), false, true, tsrc));
+	m_scrollbar.reset(new GUIScrollBar(env, this, -1, core::rect<s32>(0, 0, 30, m_height), false, tsrc));
 	m_scrollbar->setSubElement(true);
 	m_scrollbar->setLargeStep(1);
 	m_scrollbar->setSmallStep(1);
@@ -734,7 +735,7 @@ bool GUIChatConsole::weblinkClick(s32 col, s32 row)
 			frags = m_chat_backend->getConsoleBuffer().getFormattedLine(row).fragments;
 	std::string weblink = ""; // from frag meta
 
-	// Identify targetted fragment, if exists
+	// Identify targeted fragment, if exists
 	int indx = frags.size() - 1;
 	if (indx < 0) {
 		// Invalid row, frags is empty

@@ -874,22 +874,12 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 
 u32 IShaderSource::getShader(const std::string &name,
 	MaterialType material_type, NodeDrawType drawtype,
-	bool array_texture, bool skinning, bool is_textureless)
+	const ShaderFeatures &features)
 {
 	ShaderConstants input_const;
 	input_const["MATERIAL_TYPE"] = (int)material_type;
 	(void) drawtype; // unused
-	if (array_texture)
-		input_const["USE_ARRAY_TEXTURE"] = 1;
-	if (is_textureless)
-		input_const["TEXTURELESS"] = 1;
-	if (skinning) {
-		const auto max_joints = RenderingEngine::get_video_driver()->getMaxJointTransforms();
-		if (max_joints > 0) {
-			input_const["USE_SKINNING"] = 1;
-			input_const["MAX_JOINTS"] = max_joints;
-		}
-	}
+	features.setConstants(input_const);
 
 	video::E_MATERIAL_TYPE base_mat = video::EMT_SOLID;
 	switch (material_type) {
@@ -911,6 +901,21 @@ u32 IShaderSource::getShader(const std::string &name,
 	}
 
 	return getShader(name, input_const, base_mat);
+}
+
+void ShaderFeatures::setConstants(ShaderConstants &consts) const
+{
+	if (array_texture)
+		consts["USE_ARRAY_TEXTURE"] = 1;
+	if (skinning) {
+		const auto max_joints = RenderingEngine::get_video_driver()->getMaxJointTransforms();
+		if (max_joints > 0) {
+			consts["USE_SKINNING"] = 1;
+			consts["MAX_JOINTS"] = max_joints;
+		}
+	}
+	if (is_textureless)
+		consts["TEXTURELESS"] = 1;
 }
 
 void dumpShaderProgram(std::ostream &os,

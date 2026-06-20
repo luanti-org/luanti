@@ -216,6 +216,15 @@ private:
 	// forceloads a block
 	static int l_forceload_block(lua_State *L);
 
+	// get_loaded_blocks() -> {blockpos1, blockpos2, ...}
+	static int l_get_loaded_blocks(lua_State *L);
+
+	// get_loadable_blocks() -> {blockpos1, blockpos2, ...}
+	static int l_get_loadable_blocks(lua_State *L);
+
+	// get_active_blocks() -> {blockpos1, blockpos2, ...}
+	static int l_get_active_blocks(lua_State *L);
+
 	// forceload_free_block(blockpos)
 	// stops forceloading a position
 	static int l_forceload_free_block(lua_State *L);

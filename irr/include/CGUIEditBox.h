@@ -163,6 +163,8 @@ protected:
 	//! update the vertical scrollBar (visibilty & position)
 	void updateVScrollBar();
 
+	//! Ctrl+Left, Ctrl+Del uses entire words. This gets the indices.
+	s32 getCtrlKeyWord(s32 startpos, s8 dir);
 	bool processKey(const SEvent &event);
 	//! KEY_LEFT / KEY_RIGHT inputs
 	void processKeyLR(const SEvent::SKeyInput &input, s32 &new_mark_begin,
@@ -173,9 +175,7 @@ protected:
 	void onKeyControlC(const SEvent &event);
 	bool onKeyControlX(const SEvent &event, s32 &mark_begin, s32 &mark_end);
 	bool onKeyControlV(const SEvent &event, s32 &mark_begin, s32 &mark_end);
-	bool onKeyBack();
-	//! delete current selection or next char
-	bool onKeyDelete();
+	bool onKeyBackDelete(const SEvent::SKeyInput &input);
 
 	bool processMouse(const SEvent &event);
 	s32 getCursorPos(s32 x, s32 y);

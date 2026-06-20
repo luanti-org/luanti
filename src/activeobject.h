@@ -8,6 +8,7 @@
 #include "irr_v3d.h"
 #include <quaternion.h>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 
@@ -36,6 +37,8 @@ struct ActiveObjectMessage
 		reliable(reliable_),
 		datastring(data_)
 	{}
+
+	void appendTo(std::string &data) const;
 
 	u16 id;
 	bool reliable;
@@ -203,7 +206,7 @@ public:
 		setAttachment(0, "", v3f(), v3f(), false);
 	}
 
-	// To be be called from setAttachment() and descendants, but not manually!
+	// To be called from setAttachment() and descendants, but not manually!
 	virtual void addAttachmentChild(object_t child_id) {}
 	virtual void removeAttachmentChild(object_t child_id) {}
 

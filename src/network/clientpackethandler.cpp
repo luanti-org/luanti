@@ -254,11 +254,11 @@ void Client::handleCommand_AddNode(NetworkPacket* pkt)
 	v3s16 p;
 	*pkt >> p;
 
-	auto *ptr = reinterpret_cast<const u8*>(pkt->getRemainingString());
+	std::string_view str = pkt->getRemainingNoCopy();
 	pkt->skip(MapNode::serializedLength(m_server_ser_ver)); // performs length check
 
 	MapNode n;
-	n.deSerialize(ptr, m_server_ser_ver);
+	n.deSerialize((const u8 *)str.data(), m_server_ser_ver);
 
 	bool keep_metadata;
 	*pkt >> keep_metadata;
@@ -301,8 +301,7 @@ void Client::handleCommand_BlockData(NetworkPacket* pkt)
 	v3s16 p;
 	*pkt >> p;
 
-	std::string datastring(pkt->getRemainingString(), pkt->getRemainingBytes());
-	std::istringstream istr(datastring, std::ios_base::binary);
+	std::istringstream istr(std::string(pkt->getRemainingNoCopy()), std::ios_base::binary);
 
 	MapSector *sector;
 	MapBlock *block;
@@ -348,7 +347,15 @@ void Client::handleCommand_Inventory(NetworkPacket* pkt)
 	if (pkt->getSize() < 1)
 		return;
 
-	std::string datastring(pkt->getString(0), pkt->getSize());
+	std::string datastring;
+
+	if (m_proto_ver > 51) {
+		datastring = pkt->readLongString();
+		*pkt >> m_skip_next_wield_animation;
+	} else {
+		datastring = pkt->getRemainingNoCopy();
+	}
+
 	std::istringstream is(datastring, std::ios_base::binary);
 
 	LocalPlayer *player = m_env.getLocalPlayer();
@@ -472,8 +479,7 @@ void Client::handleCommand_ActiveObjectMessages(NetworkPacket* pkt)
 			string message
 		}
 	*/
-	std::string datastring(pkt->getString(0), pkt->getSize());
-	std::istringstream is(datastring, std::ios_base::binary);
+	std::istringstream is(std::string(pkt->getRemainingNoCopy()), std::ios_base::binary);
 
 	while (canRead(is)) {
 		u16 id = readU16(is);
@@ -724,7 +730,7 @@ void Client::handleCommand_Media(NetworkPacket* pkt)
 		} else {
 			// Check pending dynamic transfers, one of them must be it
 			for (const auto &it : m_pending_media_downloads) {
-				if (it.second->conventionalTransferDone(name, data, this)) {
+				if (it.d->conventionalTransferDone(name, data, this)) {
 					ok = true;
 					break;
 				}
@@ -953,8 +959,7 @@ void Client::handleCommand_DetachedInventory(NetworkPacket* pkt)
 	// this used to be the length of the following string, ignore it
 	pkt->skip(2);
 
-	std::string contents(pkt->getRemainingString(), pkt->getRemainingBytes());
-	std::istringstream is(contents, std::ios::binary);
+	std::istringstream is(std::string(pkt->getRemainingNoCopy()), std::ios::binary);
 	inv->deSerialize(is);
 }
 
@@ -976,8 +981,7 @@ void Client::handleCommand_ShowFormSpec(NetworkPacket* pkt)
 
 void Client::handleCommand_SpawnParticle(NetworkPacket* pkt)
 {
-	std::string datastring(pkt->getString(0), pkt->getSize());
-	std::istringstream is(datastring, std::ios_base::binary);
+	std::istringstream is(std::string(pkt->getRemainingNoCopy()), std::ios_base::binary);
 
 	ParticleParameters p;
 	p.deSerialize(is, m_proto_ver);
@@ -1014,8 +1018,7 @@ void Client::handleCommand_SpawnParticleBatch(NetworkPacket *pkt)
 
 void Client::handleCommand_AddParticleSpawner(NetworkPacket* pkt)
 {
-	std::string datastring(pkt->getString(0), pkt->getSize());
-	std::istringstream is(datastring, std::ios_base::binary);
+	std::istringstream is(std::string(pkt->getRemainingNoCopy()), std::ios_base::binary);
 
 	ParticleSpawnerParameters p;
 	u32 server_id;
@@ -1172,14 +1175,24 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 	v2f align;
 	v2f offset;
 	v3f world_pos;
-	v2s32 size;
+	v2f size;
 	s16 z_index = 0;
 	std::string text2;
 	u32 style = 0;
+	u8 flags = 1;
 
 	*pkt >> server_id >> type >> pos >> name >> scale >> text >> number >> item
 		>> dir >> align >> offset;
-	*pkt >> world_pos >> size;
+	*pkt >> world_pos;
+
+	if (m_proto_ver >= 52) {
+		*pkt >> size;
+	} else {
+		v2s32 old_format;
+		*pkt >> old_format;
+		size = v2f::from(old_format);
+	}
+
 	do {
 		if (!pkt->hasRemainingBytes())
 			break;
@@ -1195,6 +1208,12 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 			break;
 		// >= 5.5.0-dev
 		*pkt >> style;
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.17.0-dev
+		*pkt >> flags;
+
 	} while (0);
 
 	ClientEvent *event = new ClientEvent();
@@ -1216,6 +1235,7 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 	event->hudadd->z_index   = z_index;
 	event->hudadd->text2     = text2;
 	event->hudadd->style     = style;
+	event->hudadd->hideable  = flags % 2;
 	m_client_event_queue.push(event);
 }
 
@@ -1237,7 +1257,6 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 	v2f v2fdata;
 	v3f v3fdata;
 	u32 intdata = 0;
-	v2s32 v2s32data;
 	u32 server_id;
 	u8 stat;
 
@@ -1265,7 +1284,13 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 			*pkt >> v3fdata;
 			break;
 		case HUD_STAT_SIZE:
-			*pkt >> v2s32data;
+			if (m_proto_ver >= 52) {
+				*pkt >> v2fdata;
+			} else {
+				v2s32 old_format;
+				*pkt >> old_format;
+				v2fdata = v2f::from(old_format);
+			}
 			break;
 		default:
 			*pkt >> intdata;
@@ -1281,7 +1306,6 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 	event->hudchange->v3fdata   = v3fdata;
 	event->hudchange->sdata     = sdata;
 	event->hudchange->data      = intdata;
-	event->hudchange->v2s32data = v2s32data;
 	m_client_event_queue.push(event);
 }
 
@@ -1341,8 +1365,7 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 	if (m_proto_ver < 39) {
 		// Handle Protocol 38 and below servers with old set_sky,
 		// ensuring the classic look is kept.
-		std::string datastring(pkt->getString(0), pkt->getSize());
-		std::istringstream is(datastring, std::ios_base::binary);
+		std::istringstream is(std::string(pkt->getRemainingNoCopy()), std::ios_base::binary);
 
 		SkyboxParams skybox;
 		skybox.bgcolor = video::SColor(readARGB8(is));
@@ -1429,6 +1452,11 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 			break;
 		// >= 5.9.0-dev
 		*pkt >> skybox.fog_color;
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.16.0-dev
+		*pkt >> skybox.auto_dim_skybox;
 	} while (0);
 
 	ClientEvent *event = new ClientEvent();
@@ -1583,6 +1611,8 @@ void Client::handleCommand_Camera(NetworkPacket* pkt)
 	u8 tmp;
 	*pkt >> tmp;
 	player->allowed_camera_mode = static_cast<CameraMode>(tmp);
+	if (player->allowed_camera_mode >= CameraMode_END)
+		player->allowed_camera_mode = CAMERA_MODE_ANY;
 
 	m_client_event_queue.push(new ClientEvent(CE_UPDATE_CAMERA));
 }
@@ -1714,9 +1744,20 @@ void Client::handleCommand_MediaPush(NetworkPacket *pkt)
 		return;
 	}
 
-	// create a downloader for this file
+	auto it = std::find_if(m_pending_media_downloads.begin(),
+		m_pending_media_downloads.end(), [&] (const PendingMediaDownload &pend) {
+		return pend.name == filename;
+	});
+	if (it != m_pending_media_downloads.end()) {
+		// The server sent another push for a file we're already downloading.
+		verbosestream << "Merged with ongoing identical request." << std::endl;
+		it->tokens.push_back(token);
+		return;
+	}
+
+	// Create a downloader for this file
 	auto downloader(std::make_shared<SingleMediaDownloader>(cached));
-	m_pending_media_downloads.emplace_back(token, downloader);
+	m_pending_media_downloads.emplace_back(token, filename, downloader);
 	downloader->addFile(filename, raw_hash);
 	for (const auto &baseurl : m_remote_media_servers)
 		downloader->addRemoteServer(baseurl);
@@ -1874,5 +1915,10 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 		*pkt >> lighting.bloom_intensity
 				>> lighting.bloom_strength_factor
 				>> lighting.bloom_radius;
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.16.0-dev
+		*pkt >> lighting.shadow_direction;
 	} while (0);
 }

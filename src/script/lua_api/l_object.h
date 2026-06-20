@@ -100,7 +100,7 @@ private:
 	// get_wielded_item(self)
 	static int l_get_wielded_item(lua_State *L);
 
-	// set_wielded_item(self, item)
+	// set_wielded_item(self, item, skip_anim)
 	static int l_set_wielded_item(lua_State *L);
 
 	// set_armor_groups(self, groups)

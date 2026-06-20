@@ -27,7 +27,6 @@ class ISimpleTextureSource;
 class Client;
 class GUIScrollContainer;
 class ISoundManager;
-class JoystickController;
 
 enum FormspecFieldType {
 	f_Button,
@@ -150,8 +149,7 @@ class GUIFormSpecMenu : public GUIModalMenu
 	};
 
 public:
-	GUIFormSpecMenu(JoystickController *joystick,
-			gui::IGUIElement* parent, s32 id,
+	GUIFormSpecMenu(gui::IGUIElement* parent, s32 id,
 			IMenuManager *menumgr,
 			Client *client,
 			gui::IGUIEnvironment *guienv,
@@ -165,7 +163,7 @@ public:
 	~GUIFormSpecMenu();
 
 	static void create(GUIFormSpecMenu *&cur_formspec, Client *client,
-		gui::IGUIEnvironment *guienv, JoystickController *joystick, IFormSource *fs_src,
+		gui::IGUIEnvironment *guienv, IFormSource *fs_src,
 		TextDest *txt_dest, const std::string &formspecPrepend,
 		ISoundManager *sound_manager);
 
@@ -257,21 +255,22 @@ public:
 	/*
 		Remove and re-add (or reposition) stuff
 	*/
-	void regenerateGui(v2u32 screensize);
+	void regenerateGui(v2u32 screensize) override;
 
 	GUIInventoryList::ItemSpec getItemAtPos(v2s32 p) const;
 	void drawSelectedItem();
-	void drawMenu();
+	void drawMenu() override;
 	void updateSelectedItem();
 	ItemStack verifySelectedItem();
 
 	s16 getNextInventoryRing(const InventoryLocation &inventoryloc, const std::string &listname);
 
 	void acceptInput(FormspecQuitMode quitmode=quit_mode_no);
-	bool preprocessEvent(const SEvent& event);
-	bool OnEvent(const SEvent& event);
-	bool doPause;
-	bool pausesGame() { return doPause; }
+	bool preprocessEvent(const SEvent& event) override;
+	bool OnEvent(const SEvent& event) override;
+
+	bool doPause = false;
+	bool pausesGame() override { return doPause; }
 
 	GUITable* getTable(const std::string &tablename);
 	std::vector<std::string>* getDropDownValues(const std::string &name);
@@ -289,12 +288,15 @@ public:
 	static double getImgsize(v2u32 avail_screensize, double screen_dpi, double gui_scaling);
 
 protected:
+	bool remapClickOutside(const SEvent &event) override;
+
 	v2s32 getBasePos() const
 	{
 			return padding + offset + AbsoluteRect.UpperLeftCorner;
 	}
-	std::wstring getLabelByID(s32 id);
-	std::string getNameByID(s32 id);
+
+	std::wstring getLabelByID(s32 id) override;
+	std::string getNameByID(s32 id) override;
 	const FieldSpec *getSpecByID(s32 id);
 	v2s32 getElementBasePos(const std::vector<std::string> *v_pos);
 	v2s32 getRealCoordinateBasePos(const std::vector<std::string> &v_pos);
@@ -383,7 +385,6 @@ private:
 	std::string                m_last_formname;
 	u16                        m_formspec_version = 1;
 	std::optional<std::string> m_focused_element = std::nullopt;
-	JoystickController        *m_joystick;
 	bool                       m_show_debug = false;
 	bool                       m_show_focus = false;
 	gui::IGUIElement          *m_last_focused = nullptr;

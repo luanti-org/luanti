@@ -7,20 +7,16 @@
 #include "ISceneNode.h"
 #include "IVideoDriver.h"
 #include "ISceneManager.h"
-#include "S3DVertex.h"
 #include "Transform.h"
 #include "irrTypes.h"
 #include "matrix4.h"
 #include "os.h"
 #include "SkinnedMesh.h"
-#include "IDummyTransformationSceneNode.h"
 #include "BoneSceneNode.h"
-#include "IMaterialRenderer.h"
 #include "IMesh.h"
-#include "IMeshCache.h"
+#include "IMeshBuffer.h"
 #include "IAnimatedMesh.h"
-#include "IFileSystem.h"
-#include "quaternion.h"
+#include "SSkinMeshBuffer.h"
 #include <algorithm>
 #include <cstddef>
 #include <optional>
@@ -543,7 +539,7 @@ void AnimatedMeshSceneNode::addJoints()
 		assert(parent);
 		const auto *matrix = std::get_if<core::matrix4>(&joint->transform);
 		PerJoint.SceneNodes.push_back(irr_ptr<BoneSceneNode>(new BoneSceneNode(
-				parent, SceneManager, 0, i, joint->Name,
+				parent, SceneManager, 0, (u32)i, joint->Name,
 				matrix ? core::Transform{} : std::get<core::Transform>(joint->transform),
 				matrix ? *matrix : std::optional<core::matrix4>{})));
 	}

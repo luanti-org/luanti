@@ -141,7 +141,7 @@ public:
 	virtual u16 getHP() const
 	{ return 0; }
 
-	/// @brief Returns an unique ID for this object (persistent across unload, server restarts).
+	/// @brief Returns a unique ID for this object (persistent across unload, server restarts).
 	/// @note Because these strings are very short, copying them is not expensive.
 	virtual std::string getGUID() const = 0;
 
@@ -253,7 +253,7 @@ protected:
 
 	/*
 		Same purpose as m_pending_removal but for deactivation.
-		deactvation = save static data in block, remove active object
+		deactivation = save static data in block, remove active object
 
 		If this is set alongside with m_pending_removal, removal takes
 		priority.
@@ -265,7 +265,7 @@ protected:
 		- Whether this object is to be removed when nobody knows about
 		  it anymore.
 		- Removal is delayed to preserve the id for the time during which
-		  it could be confused to some other object by some client.
+		  it could be confused with some other object by some client.
 		- This is usually set to true by the step() method when the object wants
 		  to be deleted but can be set by anything else too.
 		Note: Do not assign this directly, use markForRemoval() instead.

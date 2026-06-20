@@ -41,10 +41,10 @@ struct DungeonParams {
 	bool only_in_ground;
 	// Number of rooms
 	u16 num_rooms;
-	// Room size random range. Includes walls / floor / ceilng
+	// Room size random range. Includes walls / floor / ceiling
 	v3s16 room_size_min;
 	v3s16 room_size_max;
-	// Large room size random range. Includes walls / floor / ceilng
+	// Large room size random range. Includes walls / floor / ceiling
 	v3s16 room_size_large_min;
 	v3s16 room_size_large_max;
 	// Value 0 disables large rooms.
@@ -53,7 +53,7 @@ struct DungeonParams {
 	// '1 in value' chance of being large.
 	u16 large_room_chance;
 	// Dimensions of 3D 'brush' that creates corridors.
-	// Dimensions are of the empty space, not including walls / floor / ceilng.
+	// Dimensions are of the empty space, not including walls / floor / ceiling.
 	// Diagonal corridors must have hole width >=2 to be passable.
 	// Currently, hole width >= 3 causes stair corridor bugs.
 	v3s16 holesize;

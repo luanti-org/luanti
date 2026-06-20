@@ -77,12 +77,12 @@ inline bool ser_ver_supported_write(s32 v)
 	Compression functions
 */
 
-void compressZlib(const u8 *data, size_t data_size, std::ostream &os, int level = -1);
-inline void compressZlib(std::string_view data, std::ostream &os, int level = -1)
+void compressZlib(const u8 *data, size_t data_size, std::ostream &os, int level = -1, bool raw = false);
+inline void compressZlib(std::string_view data, std::ostream &os, int level = -1, bool raw = false)
 {
-	compressZlib(reinterpret_cast<const u8*>(data.data()), data.size(), os, level);
+	compressZlib(reinterpret_cast<const u8*>(data.data()), data.size(), os, level, raw);
 }
-void decompressZlib(std::istream &is, std::ostream &os, size_t limit = 0);
+void decompressZlib(std::istream &is, std::ostream &os, size_t limit = 0, bool raw = false);
 
 void compressZstd(const u8 *data, size_t data_size, std::ostream &os, int level = 0);
 inline void compressZstd(std::string_view data, std::ostream &os, int level = 0)

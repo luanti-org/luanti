@@ -10,6 +10,7 @@
 
 #include "al_extensions.h"
 #include "sound_constants.h"
+#include "porting.h"
 #include <cassert>
 #include <cmath>
 
@@ -19,8 +20,12 @@ PlayingSound::PlayingSound(ALuint source_id, std::shared_ptr<ISoundDataOpen> dat
 		bool loop, f32 volume, f32 pitch, f32 start_time,
 		const std::optional<std::pair<v3f, v3f>> &pos_vel_opt,
 		const ALExtensions &exts [[maybe_unused]])
-	: m_source_id(source_id), m_data(std::move(data)), m_looping(loop),
-	m_is_positional(pos_vel_opt.has_value())
+	:
+	m_source_id(source_id),
+	m_data(std::move(data)),
+	m_looping(loop),
+	m_is_positional(pos_vel_opt.has_value()),
+	m_creation_time_s(porting::getTimeS())
 {
 	// Calculate actual start_time (see lua_api.txt for specs)
 	f32 len_seconds = m_data->m_decode_info.length_seconds;
@@ -260,6 +265,14 @@ void PlayingSound::setPitch(f32 pitch)
 	alSourcef(m_source_id, AL_PITCH, pitch);
 	if (isStreaming())
 		stepStream(true);
+}
+
+std::string PlayingSound::getLoggingName() const
+{
+	if (!m_data)
+		return "<no_data>";
+
+	return m_data->m_decode_info.name_for_logging;
 }
 
 } // namespace sound

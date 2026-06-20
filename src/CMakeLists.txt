@@ -396,6 +396,26 @@ add_custom_target(GenerateVersion
 	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 
+# Command for builtin_files.cpp
+add_custom_command(
+	OUTPUT "${PROJECT_BINARY_DIR}/builtin_files.cpp"
+	COMMAND ${CMAKE_COMMAND}
+	-D "PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR}"
+	-D "PROJECT_BINARY_DIR=${PROJECT_BINARY_DIR}"
+	-D "BUILTIN_BASE_PATH=${BUILTIN_BASE_PATH}"
+	-D "BUILTIN_SRCS=\"${BUILTIN_SRCS}\"" # (relative paths, so should work without escaping)
+	-P "${CMAKE_SOURCE_DIR}/cmake/Modules/HashBuiltinFiles.cmake"
+	DEPENDS
+		${BUILTIN_SRCS_ABS}
+		"${PROJECT_SOURCE_DIR}/builtin_files.cpp.in"
+		"${CMAKE_SOURCE_DIR}/cmake/Modules/HashBuiltinFiles.cmake"
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+# Target to generate just builtin_files.cpp (used by util/ci/clang-tidy.sh)
+add_custom_target(GenerateBuiltinFilesCpp
+	DEPENDS "${PROJECT_BINARY_DIR}/builtin_files.cpp")
+
+
 add_subdirectory(threading)
 add_subdirectory(content)
 add_subdirectory(database)
@@ -405,11 +425,20 @@ add_subdirectory(script)
 add_subdirectory(util)
 add_subdirectory(server)
 
+if(BUILD_UNITTESTS)
+	add_subdirectory(test)
+	add_subdirectory(unittest)
+endif()
+if(BUILD_BENCHMARKS)
+	add_subdirectory(benchmark)
+endif()
+
 # Source files that are identical between server & client builds.
 # This means they don't use or include anything that depends on the
 # CHECK_CLIENT_BUILD() macro. If you wrongly add something here there will be
 # a compiler error and you need to instead add it to client_SRCS or common_SRCS.
 set(independent_SRCS
+	activeobject.cpp
 	chat.cpp
 	content_nodemeta.cpp
 	convert_json.cpp
@@ -440,6 +469,7 @@ set(independent_SRCS
 	texture_override.cpp
 	tileanimation.cpp
 	tool.cpp
+	${PROJECT_BINARY_DIR}/builtin_files.cpp
 	${common_network_SRCS}
 	${content_SRCS}
 	${database_SRCS}
@@ -484,24 +514,17 @@ set(common_SRCS
 	version.cpp
 	voxel.cpp
 	voxelalgorithms.cpp
+	${benchmark_SRCS}
 	${common_SCRIPT_SRCS}
 	${common_server_SRCS}
 	${mapgen_SRCS}
 	${server_network_SRCS}
+	${test_SRCS}
+	${unittest_SRCS}
 )
 
 if(ANDROID)
 	list(APPEND common_SRCS porting_android.cpp)
-endif()
-
-if(BUILD_UNITTESTS)
-	add_subdirectory(unittest)
-	list(APPEND common_SRCS ${UNITTEST_SRCS})
-endif()
-
-if(BUILD_BENCHMARKS)
-	add_subdirectory(benchmark)
-	list(APPEND common_SRCS ${BENCHMARK_SRCS})
 endif()
 
 if(BUILD_UNITTESTS OR BUILD_BENCHMARKS)
@@ -537,20 +560,15 @@ if (BUILD_CLIENT)
 endif(BUILD_CLIENT)
 
 list(APPEND client_SRCS
+	${benchmark_client_SRCS}
 	${common_SRCS}
 	${gui_SRCS}
 	${client_network_SRCS}
 	${client_irrlicht_changes_SRCS}
 	${client_SCRIPT_SRCS}
+	${test_client_SRCS}
+	${unittest_client_SRCS}
 )
-
-if(BUILD_UNITTESTS)
-	list(APPEND client_SRCS ${UNITTEST_CLIENT_SRCS})
-endif()
-
-if(BUILD_BENCHMARKS)
-	list(APPEND client_SRCS ${BENCHMARK_CLIENT_SRCS})
-endif()
 
 # Server sources
 # (nothing here because a client always comes with a server)
@@ -612,7 +630,7 @@ endif()
 add_library(EngineCommon OBJECT
 	${independent_SRCS}
 )
-add_dependencies(EngineCommon GenerateVersion)
+add_dependencies(EngineCommon GenerateVersion GenerateBuiltinFilesCpp)
 target_link_libraries(EngineCommon
 	sha256
 )

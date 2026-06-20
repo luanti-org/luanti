@@ -78,7 +78,7 @@ public:
 	 * @param map Map
 	 * @param p block position
 	 * @param ack_to_server Should be acked to server when done?
-	 * @param urget High-priority?
+	 * @param urgent High-priority?
 	 * @param from_neighbor was this update only necessary due to a neighbor change?
 	 */
 	bool addBlock(Map *map, v3s16 p, bool ack_to_server, bool urgent, bool from_neighbor);
@@ -95,6 +95,9 @@ public:
 		MutexAutoLock lock(m_mutex);
 		return m_queue.size();
 	}
+
+	/// @param finish if true, also clears updates that need to be acked to the server
+	void clear(bool finish = false);
 
 private:
 	Client *m_client;
@@ -113,7 +116,7 @@ private:
 struct MeshUpdateResult
 {
 	v3s16 p = v3s16(-1338, -1338, -1338);
-	MapBlockMesh *mesh = nullptr;
+	std::unique_ptr<MapBlockMesh> mesh;
 	u8 solid_sides;
 	std::vector<v3s16> ack_list;
 	bool urgent = false;
@@ -151,10 +154,14 @@ public:
 	// update for the block at p
 	void updateBlock(Map *map, v3s16 p, bool ack_block_to_server, bool urgent,
 			bool update_neighbors = false);
-	void putResult(const MeshUpdateResult &r);
+
+	void putResult(MeshUpdateResult &&r);
+
 	/// @note caller needs to refDrop() the affected map_blocks
 	bool getNextResult(MeshUpdateResult &r);
 
+	/// @param finish if true, also clears updates that need to be acked to the server
+	void clearAllQueues(bool finish = false);
 
 	void start();
 	void stop();
@@ -163,12 +170,13 @@ public:
 	bool isRunning();
 
 private:
+	typedef MutexedQueue<MeshUpdateResult> ResultQueue;
+
 	void deferUpdate();
 
-
 	MeshUpdateQueue m_queue_in;
-	MutexedQueue<MeshUpdateResult> m_queue_out;
-	MutexedQueue<MeshUpdateResult> m_queue_out_urgent;
+	ResultQueue m_queue_out;
+	ResultQueue m_queue_out_urgent;
 
 	std::vector<std::unique_ptr<MeshUpdateWorkerThread>> m_workers;
 };

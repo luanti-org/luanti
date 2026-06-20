@@ -150,7 +150,6 @@ Functions that take or return paths always use virtual paths.
 * `assert`
 * `collectgarbage`
 * `error`
-* `getfenv`
 * `ipairs`
 * `next`
 * `pairs`
@@ -160,7 +159,6 @@ Functions that take or return paths always use virtual paths.
 * `rawget`
 * `rawset`
 * `select`
-* `setfenv`
 * `getmetatable`
 * `setmetatable`
 * `tonumber`

@@ -6,6 +6,7 @@
 
 #include "exceptions.h"
 #include <IFileSystem.h>
+#include <IReadFile.h>
 #include "imagefilters.h"
 #include "renderingengine.h"
 #include "settings.h"

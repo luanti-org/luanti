@@ -271,6 +271,13 @@ void Server::handleCommand_Init2(NetworkPacket* pkt)
 	session_t peer_id = pkt->getPeerId();
 	verbosestream << "Server: Got TOSERVER_INIT2 from " << peer_id << std::endl;
 
+	RemoteClient *client = getClientNoEx(peer_id, CS_Invalid);
+	if (!client || client->getState() != CS_AwaitingInit2) {
+		actionstream << "Server: Ignoring TOSERVER_INIT2 in wrong state from "
+			<< peer_id << std::endl;
+		return;
+	}
+
 	m_clients.event(peer_id, CSE_GotInit2);
 	u16 protocol_version = m_clients.getProtocolVersion(peer_id);
 
@@ -295,9 +302,6 @@ void Server::handleCommand_Init2(NetworkPacket* pkt)
 
 	// Send media announcement
 	sendMediaAnnouncement(peer_id, lang);
-
-	RemoteClient *client = getClient(peer_id, CS_InitDone);
-	assert(client);
 
 	// Keep client language for server translations
 	client->setLangCode(lang);
@@ -579,8 +583,7 @@ void Server::handleCommand_InventoryAction(NetworkPacket* pkt)
 	}
 
 	// Strip command and create a stream
-	std::string datastring(pkt->getString(0), pkt->getSize());
-	std::istringstream is(datastring, std::ios_base::binary);
+	std::istringstream is(std::string(pkt->getRemainingNoCopy()), std::ios_base::binary);
 	// Create an action
 	std::unique_ptr<InventoryAction> a(InventoryAction::deSerialize(is));
 	if (!a) {

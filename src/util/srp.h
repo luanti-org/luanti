@@ -87,13 +87,13 @@ typedef enum {
  * The caller is responsible for freeing the memory allocated for bytes_v
  *
  * The n_hex and g_hex parameters should be 0 unless SRP_NG_CUSTOM is used for ng_type.
- * If provided, they must contain ASCII text of the hexidecimal notation.
+ * If provided, they must contain ASCII text of the hexadecimal notation.
  *
  * If bytes_s == NULL, it is filled with random data.
  * The caller is responsible for freeing.
  *
  * Returns SRP_OK on success, and SRP_ERR on error.
- * bytes_s might be in this case invalid, don't free it.
+ * bytes_s might be invalid in this case, don't free it.
  */
 SRP_Result srp_create_salted_verification_key(SRP_HashAlgorithm alg,
 	SRP_NGType ng_type, const char *username_for_verifier,
@@ -160,7 +160,7 @@ const unsigned char *srp_user_get_session_key(struct SRPUser *usr, size_t *key_l
 size_t srp_user_get_session_key_length(struct SRPUser *usr);
 
 /* Output: username, bytes_A, len_A.
- * If you don't want it get written, set username to NULL.
+ * If you don't want it to be written, set username to NULL.
  * If bytes_a == NULL, random data is used for a. */
 SRP_Result srp_user_start_authentication(struct SRPUser* usr, char **username,
 	const unsigned char *bytes_a, size_t len_a,

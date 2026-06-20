@@ -38,12 +38,13 @@
 
 #ifndef _IRR_USE_SDL3_
 	// SDL2 backwards compatibility for things that were renamed in SDL3.
+	#define SDL_INIT_GAMEPAD SDL_INIT_GAMECONTROLLER
+
 	#define SDL_KMOD_SHIFT KMOD_SHIFT
 	#define SDL_KMOD_CTRL  KMOD_CTRL
 	#define SDL_KMOD_NUM   KMOD_NUM
 
 	#define SDL_TextInputActive(unused) SDL_IsTextInputActive()
-	#define SDL_CloseJoystick SDL_JoystickClose
 	#define SDL_GL_DestroyContext SDL_GL_DeleteContext
 
 	#define SDL_WINDOW_HIGH_PIXEL_DENSITY SDL_WINDOW_ALLOW_HIGHDPI
@@ -70,17 +71,18 @@
 	#define SDL_EVENT_RENDER_TARGETS_RESET SDL_RENDER_TARGETS_RESET
 	#define SDL_EVENT_RENDER_DEVICE_LOST SDL_RENDER_DEVICE_RESET
 
-	#define SDL_UpdateJoysticks SDL_JoystickUpdate
-	#define SDL_GetNumJoystickButtons SDL_JoystickNumButtons
+	#define SDL_EVENT_GAMEPAD_ADDED SDL_CONTROLLERDEVICEADDED
+	#define SDL_EVENT_GAMEPAD_REMOVED SDL_CONTROLLERDEVICEREMOVED
+	#define SDL_EVENT_GAMEPAD_BUTTON_DOWN SDL_CONTROLLERBUTTONDOWN
+	#define SDL_EVENT_GAMEPAD_BUTTON_UP SDL_CONTROLLERBUTTONUP
+	#define SDL_EVENT_GAMEPAD_AXIS_MOTION SDL_CONTROLLERAXISMOTION
 
-	#define SDL_GetNumJoystickAxes SDL_JoystickNumAxes
-	#define SDL_GetJoystickButton SDL_JoystickGetButton
-	#define SDL_GetJoystickAxis SDL_JoystickGetAxis
-	#define SDL_GetNumJoystickHats SDL_JoystickNumHats
-	#define SDL_GetJoystickHat SDL_JoystickGetHat
-
-	#define SDL_OpenJoystick SDL_JoystickOpen
-	#define SDL_GetJoystickName SDL_JoystickName
+	#define SDL_OpenGamepad SDL_GameControllerOpen
+	#define SDL_CloseGamepad SDL_GameControllerClose
+	#define SDL_GetGamepadName SDL_GameControllerName
+	#define SDL_GetGamepadMapping SDL_GameControllerMapping
+	#define SDL_GetGamepadType SDL_GameControllerGetType
+	#define SDL_GetGamepadStringForType(type) nullptr
 
 	#define SDL_GetWindowSizeInPixels SDL_GL_GetDrawableSize
 	#define SDL_DestroySurface SDL_FreeSurface
@@ -101,21 +103,6 @@
 #else
 	#define SDL_FINGER_ID(ev) ((ev).tfinger.fingerId)
 #endif
-
-// Since SDL doesn't have mouse keys as keycodes we need to fall back to EKEY_CODE in some cases.
-static inline bool is_fake_key(EKEY_CODE key) {
-	switch (key) {
-	case KEY_LBUTTON:
-	case KEY_MBUTTON:
-	case KEY_RBUTTON:
-	case KEY_XBUTTON1:
-	case KEY_XBUTTON2:
-		return true;
-
-	default:
-		return false;
-	}
-}
 
 static int SDLDeviceInstances = 0;
 
@@ -308,13 +295,10 @@ wchar_t CIrrDeviceSDL::findCharToPassToIrrlicht(uint32_t sdlKey, EKEY_CODE irrli
 	}
 }
 
-std::variant<u32, EKEY_CODE> CIrrDeviceSDL::getScancodeFromKey(const Keycode &key) const
+u32 CIrrDeviceSDL::getScancodeFromKey(const Keycode &key) const
 {
 	u32 keynum = 0;
 	if (const auto *keycode = std::get_if<EKEY_CODE>(&key)) {
-		// Fake keys (e.g. mouse buttons): use EKEY_CODE since there is no corresponding scancode.
-		if (is_fake_key(*keycode))
-			return *keycode;
 		// Try to convert the EKEY_CODE to a SDL scancode.
 		for (const auto &entry: KeyMap) {
 			if (entry.second == *keycode) {
@@ -328,14 +312,14 @@ std::variant<u32, EKEY_CODE> CIrrDeviceSDL::getScancodeFromKey(const Keycode &ke
 
 	// SDL3 returns a valid scancode for keycode 0. This is undesired.
 	if (keynum == 0)
-		return (u32) 0;
+		return 0;
 
 #ifdef _IRR_USE_SDL3_
 	SDL_Keymod kmod = SDL_KMOD_NONE; // TODO: respect modifiers
-	return (u32)SDL_GetScancodeFromKey(keynum, &kmod);
+	return SDL_GetScancodeFromKey(keynum, &kmod);
 #else
 	// Modifiers not supported
-	return (u32)SDL_GetScancodeFromKey(keynum);
+	return SDL_GetScancodeFromKey(keynum);
 #endif
 }
 
@@ -353,6 +337,28 @@ Keycode CIrrDeviceSDL::getKeyFromScancode(const u32 scancode) const
 	wchar_t keychar = findCharToPassToIrrlicht(keycode, irrcode, false);
 	return Keycode(irrcode, keychar);
 }
+
+GamepadButtonLabel CIrrDeviceSDL::getGamepadButtonLabel(const GamepadButton button) const
+{
+#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_) && defined(_IRR_USE_SDL3_)
+	if (auto gamepad = getRecentGamepad(); gamepad != nullptr)
+		return static_cast<GamepadButtonLabel>(SDL_GetGamepadButtonLabel(gamepad, static_cast<SDL_GamepadButton>(button)));
+#endif
+	return GamepadButtonLabel::UNKNOWN;
+}
+
+#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_) && defined(_IRR_USE_SDL3_)
+SDL_Gamepad *CIrrDeviceSDL::getRecentGamepad() const
+{
+	auto p = gamepads.find(recentGamepadID);
+	if (p != gamepads.end())
+		return p->second;
+	p = gamepads.begin();
+	if (p != gamepads.end())
+		return p->second;
+	return nullptr;
+}
+#endif
 
 void CIrrDeviceSDL::resetReceiveTextInputEvents()
 {
@@ -455,6 +461,7 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 			flags |= SDL_INIT_VIDEO;
 #if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
 		flags |= SDL_INIT_JOYSTICK;
+		flags |= SDL_INIT_GAMEPAD;
 #endif
 
 #ifdef _IRR_USE_SDL3_
@@ -507,9 +514,8 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 CIrrDeviceSDL::~CIrrDeviceSDL()
 {
 #if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
-	const u32 numJoysticks = Joysticks.size();
-	for (u32 i = 0; i < numJoysticks; ++i)
-		SDL_CloseJoystick(Joysticks[i]);
+	for (const auto &p: gamepads)
+		SDL_CloseGamepad(p.second);
 #endif
 	if (Window && Context) {
 		SDL_GL_MakeCurrent(Window, NULL);
@@ -942,54 +948,35 @@ bool CIrrDeviceSDL::run()
 			if (button == SDL_BUTTON_X2)
 				button = SDL_BUTTON_RIGHT;
 #endif
+			irrevent.MouseInput.Button = button;
+			auto is_down = SDL_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN;
+
+			if (is_down)
+				MouseButtonStates |= SDL_BUTTON_MASK(button);
+			else
+				MouseButtonStates &= ~SDL_BUTTON_MASK(button);
+
 			switch (button) {
 			case SDL_BUTTON_LEFT:
-				if (SDL_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-					irrevent.MouseInput.Event = EMIE_LMOUSE_PRESSED_DOWN;
-					MouseButtonStates |= EMBSM_LEFT;
-				} else {
-					irrevent.MouseInput.Event = EMIE_LMOUSE_LEFT_UP;
-					MouseButtonStates &= ~EMBSM_LEFT;
-				}
+				irrevent.MouseInput.Event = is_down ? EMIE_LMOUSE_PRESSED_DOWN : EMIE_LMOUSE_LEFT_UP;
 				break;
 
 			case SDL_BUTTON_RIGHT:
-				if (SDL_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-					irrevent.MouseInput.Event = EMIE_RMOUSE_PRESSED_DOWN;
-					MouseButtonStates |= EMBSM_RIGHT;
-				} else {
-					irrevent.MouseInput.Event = EMIE_RMOUSE_LEFT_UP;
-					MouseButtonStates &= ~EMBSM_RIGHT;
-				}
+				irrevent.MouseInput.Event = is_down ? EMIE_RMOUSE_PRESSED_DOWN : EMIE_RMOUSE_LEFT_UP;
 				break;
 
 			case SDL_BUTTON_MIDDLE:
-				if (SDL_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-					irrevent.MouseInput.Event = EMIE_MMOUSE_PRESSED_DOWN;
-					MouseButtonStates |= EMBSM_MIDDLE;
-				} else {
-					irrevent.MouseInput.Event = EMIE_MMOUSE_LEFT_UP;
-					MouseButtonStates &= ~EMBSM_MIDDLE;
-				}
+				irrevent.MouseInput.Event = is_down ? EMIE_MMOUSE_PRESSED_DOWN : EMIE_MMOUSE_LEFT_UP;
 				break;
 
-			// Since Irrlicht does not have event types for X1/X2 buttons, we simply pass
-			// those as keycodes instead. This is relatively hacky but avoids the effort of
-			// adding more mouse events that will be discarded anyway once we switch to SDL
-			case SDL_BUTTON_X1:
-				irrevent.EventType = EET_KEY_INPUT_EVENT;
-				irrevent.KeyInput.Key = KEY_XBUTTON1;
-				break;
-
-			case SDL_BUTTON_X2:
-				irrevent.EventType = EET_KEY_INPUT_EVENT;
-				irrevent.KeyInput.Key = KEY_XBUTTON2;
+			default: // Other mouse buttons do not have dedicated events:
+				irrevent.MouseInput.Event = is_down ? EMIE_XMOUSE_PRESSED_DOWN : EMIE_XMOUSE_LEFT_UP;
 				break;
 			}
 
 			bool shift = (keymod & SDL_KMOD_SHIFT) != 0;
 			bool control = (keymod & SDL_KMOD_CTRL) != 0;
-			if (irrevent.EventType == EET_MOUSE_INPUT_EVENT && irrevent.MouseInput.Event != EMIE_MOUSE_MOVED) {
+			if (irrevent.MouseInput.Event != EMIE_MOUSE_MOVED) {
 				irrevent.MouseInput.ButtonStates = MouseButtonStates;
 				irrevent.MouseInput.X = static_cast<s32>(SDL_event.button.x * ScaleX);
 				irrevent.MouseInput.Y = static_cast<s32>(SDL_event.button.y * ScaleY);
@@ -1007,12 +994,6 @@ bool CIrrDeviceSDL::run()
 						postEventFromUser(irrevent);
 					}
 				}
-			} else if (irrevent.EventType == EET_KEY_INPUT_EVENT) {
-				irrevent.KeyInput.Char = 0;
-				irrevent.KeyInput.PressedDown = SDL_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN;
-				irrevent.KeyInput.Shift = shift;
-				irrevent.KeyInput.Control = control;
-				postEventFromUser(irrevent);
 			}
 			break;
 		}
@@ -1161,137 +1142,84 @@ bool CIrrDeviceSDL::run()
 			os::Printer::log("Received SDL_RENDER_DEVICE_RESET. Rendering is probably broken.", ELL_ERROR);
 			break;
 
+#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
+		case SDL_EVENT_GAMEPAD_ADDED: {
+#ifdef _IRR_USE_SDL3_
+			auto id = SDL_event.gdevice.which;
+#else
+			auto id = SDL_event.cdevice.which;
+#endif
+			if (auto gamepad = SDL_OpenGamepad(id); gamepad != nullptr) {
+				gamepads.emplace(id, gamepad);
+				recentGamepadID = id;
+				os::Printer::log("Gamepad connected", SDL_GetGamepadName(gamepad), ELL_INFORMATION);
+				os::Printer::log("Gamepad type", SDL_GetGamepadStringForType(SDL_GetGamepadType(gamepad)), ELL_INFORMATION);
+				if (auto mapping = SDL_GetGamepadMapping(gamepad); mapping != nullptr) {
+					os::Printer::log("Gamepad mapping", mapping, ELL_INFORMATION);
+					SDL_free(mapping);
+				}
+			} else {
+				os::Printer::log("Unable to open gamepad", SDL_GetError(), ELL_ERROR);
+			}
+			break;
+		}
+
+		case SDL_EVENT_GAMEPAD_REMOVED: {
+#ifdef _IRR_USE_SDL3_
+			auto id = SDL_event.gdevice.which;
+#else
+			auto id = SDL_event.cdevice.which;
+#endif
+			if (auto p = gamepads.find(id); p != gamepads.end()) {
+				os::Printer::log("Gamepad disconnected", SDL_GetGamepadName(p->second), ELL_INFORMATION);
+				SDL_CloseGamepad(p->second);
+				gamepads.erase(id);
+			}
+			break;
+		}
+
+		case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+		case SDL_EVENT_GAMEPAD_BUTTON_UP: {
+			irrevent.EventType = EET_GAMEPAD_BUTTON_EVENT;
+#ifdef _IRR_USE_SDL3_
+			auto id = SDL_event.gbutton.which;
+			irrevent.GamepadButtonEvent.Button = static_cast<GamepadButton>(SDL_event.gbutton.button);
+#else
+			auto id = SDL_event.cbutton.which;
+			irrevent.GamepadButtonEvent.Button = static_cast<GamepadButton>(SDL_event.cbutton.button);
+#endif
+			irrevent.GamepadButtonEvent.ID = id;
+			irrevent.GamepadButtonEvent.PressedDown = (SDL_event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN);
+			recentGamepadID = id;
+			postEventFromUser(irrevent);
+			break;
+		}
+
+		case SDL_EVENT_GAMEPAD_AXIS_MOTION: {
+			irrevent.EventType = EET_GAMEPAD_AXIS_EVENT;
+#if _IRR_USE_SDL3_
+			auto id = SDL_event.gaxis.which;
+			irrevent.GamepadAxisEvent.Axis = static_cast<GamepadAxis>(SDL_event.gaxis.axis);
+			irrevent.GamepadAxisEvent.Value = SDL_event.gaxis.value;
+#else
+			auto id = SDL_event.caxis.which;
+			irrevent.GamepadAxisEvent.Axis = static_cast<GamepadAxis>(SDL_event.caxis.axis);
+			irrevent.GamepadAxisEvent.Value = SDL_event.caxis.value;
+#endif
+			irrevent.GamepadAxisEvent.ID = id;
+			recentGamepadID = id;
+			postEventFromUser(irrevent);
+			break;
+		}
+#endif // _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
+
 		default:
 			break;
 		} // end switch
 		resetReceiveTextInputEvents();
 	} // end while
 
-#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
-	// TODO: Check if the multiple open/close calls are too expensive, then
-	// open/close in the constructor/destructor instead
-
-	// update joystick states manually
-	SDL_UpdateJoysticks();
-	// we'll always send joystick input events...
-	SEvent joyevent;
-	joyevent.EventType = EET_JOYSTICK_INPUT_EVENT;
-	for (u32 i = 0; i < Joysticks.size(); ++i) {
-		SDL_Joystick *joystick = Joysticks[i];
-		if (joystick) {
-			int j;
-			// query all buttons
-			const int numButtons = core::min_(SDL_GetNumJoystickButtons(joystick), 32);
-			joyevent.JoystickEvent.ButtonStates = 0;
-			for (j = 0; j < numButtons; ++j)
-				joyevent.JoystickEvent.ButtonStates |= (SDL_GetJoystickButton(joystick, j) << j);
-
-			// query all axes, already in correct range
-			const int numAxes = core::min_(SDL_GetNumJoystickAxes(joystick),
-					(int)SEvent::SJoystickEvent::NUMBER_OF_AXES);
-			joyevent.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_X] = 0;
-			joyevent.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_Y] = 0;
-			joyevent.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_Z] = 0;
-			joyevent.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_R] = 0;
-			joyevent.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_U] = 0;
-			joyevent.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_V] = 0;
-			for (j = 0; j < numAxes; ++j)
-				joyevent.JoystickEvent.Axis[j] = SDL_GetJoystickAxis(joystick, j);
-
-			// we can only query one hat, SDL only supports 8 directions
-			if (SDL_GetNumJoystickHats(joystick) > 0) {
-				switch (SDL_GetJoystickHat(joystick, 0)) {
-				case SDL_HAT_UP:
-					joyevent.JoystickEvent.POV = 0;
-					break;
-				case SDL_HAT_RIGHTUP:
-					joyevent.JoystickEvent.POV = 4500;
-					break;
-				case SDL_HAT_RIGHT:
-					joyevent.JoystickEvent.POV = 9000;
-					break;
-				case SDL_HAT_RIGHTDOWN:
-					joyevent.JoystickEvent.POV = 13500;
-					break;
-				case SDL_HAT_DOWN:
-					joyevent.JoystickEvent.POV = 18000;
-					break;
-				case SDL_HAT_LEFTDOWN:
-					joyevent.JoystickEvent.POV = 22500;
-					break;
-				case SDL_HAT_LEFT:
-					joyevent.JoystickEvent.POV = 27000;
-					break;
-				case SDL_HAT_LEFTUP:
-					joyevent.JoystickEvent.POV = 31500;
-					break;
-				case SDL_HAT_CENTERED:
-				default:
-					joyevent.JoystickEvent.POV = 65535;
-					break;
-				}
-			} else {
-				joyevent.JoystickEvent.POV = 65535;
-			}
-
-			// we map the number directly
-			joyevent.JoystickEvent.Joystick = static_cast<u8>(i);
-			// now post the event
-			postEventFromUser(joyevent);
-			// and close the joystick
-		}
-	}
-#endif
 	return !Close;
-}
-
-//! Activate any joysticks, and generate events for them.
-bool CIrrDeviceSDL::activateJoysticks(core::array<SJoystickInfo> &joystickInfo)
-{
-#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
-	joystickInfo.clear();
-
-	int numJoysticks = 0;
-#ifdef _IRR_USE_SDL3_
-	(void)SDL_GetJoysticks(&numJoysticks);
-#else
-	numJoysticks = SDL_NumJoysticks();
-#endif
-	// we can name up to 256 different joysticks
-	numJoysticks = core::min_(numJoysticks, 256);
-
-	Joysticks.reallocate(numJoysticks);
-	joystickInfo.reallocate(numJoysticks);
-
-	int joystick = 0;
-	for (; joystick < numJoysticks; ++joystick) {
-		Joysticks.push_back(SDL_OpenJoystick(joystick));
-		SJoystickInfo info;
-
-		info.Joystick = joystick;
-		info.Axes = SDL_GetNumJoystickAxes(Joysticks[joystick]);
-		info.Buttons = SDL_GetNumJoystickButtons(Joysticks[joystick]);
-		info.Name = SDL_GetJoystickName(Joysticks[joystick]);
-		info.PovHat = (SDL_GetNumJoystickHats(Joysticks[joystick]) > 0)
-							  ? SJoystickInfo::POV_HAT_PRESENT
-							  : SJoystickInfo::POV_HAT_ABSENT;
-
-		joystickInfo.push_back(info);
-	}
-
-	for (joystick = 0; joystick < (int)joystickInfo.size(); ++joystick) {
-		char logString[256];
-		snprintf_irr(logString, sizeof(logString), "Found joystick %d, %d axes, %d buttons '%s'",
-				joystick, joystickInfo[joystick].Axes,
-				joystickInfo[joystick].Buttons, joystickInfo[joystick].Name.c_str());
-		os::Printer::log(logString, ELL_INFORMATION);
-	}
-
-	return true;
-
-#endif // _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
-
-	return false;
 }
 
 void CIrrDeviceSDL::updateSizeAndScale()

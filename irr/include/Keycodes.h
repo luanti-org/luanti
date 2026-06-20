@@ -8,12 +8,7 @@
 enum EKEY_CODE
 {
 	KEY_UNKNOWN = 0x0,
-	KEY_LBUTTON = 0x01,           // Left mouse button
-	KEY_RBUTTON = 0x02,           // Right mouse button
 	KEY_CANCEL = 0x03,            // Control-break processing
-	KEY_MBUTTON = 0x04,           // Middle mouse button (three-button mouse)
-	KEY_XBUTTON1 = 0x05,          // Windows 2000/XP: X1 mouse button
-	KEY_XBUTTON2 = 0x06,          // Windows 2000/XP: X2 mouse button
 	KEY_BACK = 0x08,              // BACKSPACE key
 	KEY_TAB = 0x09,               // TAB key
 	KEY_CLEAR = 0x0C,             // CLEAR key
@@ -204,4 +199,62 @@ public:
 	{
 		return code > 0 && code < KEY_KEY_CODES_COUNT;
 	}
+};
+
+/// A GamepadAxis represents a physical axis on the gamepad.
+/// The values are taken from SDL_GamepadAxis.
+enum class GamepadAxis {
+	LEFTX,
+	LEFTY,
+	RIGHTX,
+	RIGHTY,
+	LEFT_TRIGGER,
+	RIGHT_TRIGGER,
+	COUNT
+};
+
+/// A GamepadButton represents a physical button on the gamepad.
+/// The values are taken from SDL_GamepadButton.
+enum class GamepadButton {
+	SOUTH,
+	EAST,
+	WEST,
+	NORTH,
+	BACK,
+	GUIDE,
+	START,
+	LEFT_STICK,
+	RIGHT_STICK,
+	LEFT_SHOULDER,
+	RIGHT_SHOULDER,
+	DPAD_UP,
+	DPAD_DOWN,
+	DPAD_LEFT,
+	DPAD_RIGHT,
+	MISC1,
+	RIGHT_PADDLE1,
+	LEFT_PADDLE1,
+	RIGHT_PADDLE2,
+	LEFT_PADDLE2,
+	TOUCHPAD,
+	MISC2,
+	MISC3,
+	MISC4,
+	MISC5,
+	MISC6,
+	COUNT
+};
+
+/// A GamepadButtonLabel represents the label on the gamepad button.
+/// The values are taken from SDL_GamepadButtonLabel.
+enum class GamepadButtonLabel {
+	UNKNOWN,
+	A,
+	B,
+	X,
+	Y,
+	CROSS,
+	CIRCLE,
+	SQUARE,
+	TRIANGLE
 };

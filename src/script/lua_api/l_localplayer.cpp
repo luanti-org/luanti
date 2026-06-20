@@ -252,10 +252,10 @@ int LuaLocalPlayer::l_get_control(lua_State *L)
 	lua_pushnumber(L, movement.Y);
 	lua_setfield(L, -2, "movement_y");
 
-	set("up",    c.direction_keys & (1 << 0));
-	set("down",  c.direction_keys & (1 << 1));
-	set("left",  c.direction_keys & (1 << 2));
-	set("right", c.direction_keys & (1 << 3));
+	set("up",    c.up    > 0);
+	set("down",  c.down  > 0);
+	set("left",  c.left  > 0);
+	set("right", c.right > 0);
 
 	return 1;
 }
@@ -346,6 +346,8 @@ int LuaLocalPlayer::l_get_movement(lua_State *L)
 int LuaLocalPlayer::l_get_armor_groups(lua_State *L)
 {
 	LocalPlayer *player = getobject(L, 1);
+	if (!player->getCAO())
+		return 0;
 	push_groups(L, player->getCAO()->getGroups());
 	return 1;
 }

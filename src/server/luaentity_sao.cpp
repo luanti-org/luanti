@@ -10,7 +10,6 @@
 #include "irrlicht_changes/printing.h"
 #include "player_sao.h"
 #include "scripting_server.h"
-#include "server.h"
 #include "serverenvironment.h"
 #include "util/serialize.h"
 
@@ -159,7 +158,7 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 
 	m_last_sent_position_timer += dtime;
 
-	collisionMoveResult moveresult, *moveresult_p = nullptr;
+	CollisionMoveResult moveresult, *moveresult_p = nullptr;
 
 	// Each frame, parent position is copied if the object is attached, otherwise it's calculated normally
 	// If the object gets detached this comes into effect automatically from the last known origin
@@ -178,7 +177,7 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 			moveresult = collisionMoveSimple(m_env, m_env->getGameDef(),
 					box, m_prop.stepheight, dtime,
 					&p_pos, &p_velocity, p_acceleration,
-					this, m_prop.collideWithObjects);
+					this, m_prop.collideWithObjects, m_prop.step_up_mode);
 			moveresult_p = &moveresult;
 
 			// Apply results

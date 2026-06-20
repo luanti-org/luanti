@@ -8,6 +8,7 @@
 #include "log.h"
 #include "renderingengine.h"
 #include "util/basic_macros.h"
+#include "util/numeric.h"
 #include "util/string.h"
 #include <unordered_map>
 #include <vector>
@@ -75,15 +76,8 @@ static std::vector<table_key> table = {
 
 	// Keys without a Char
 	// Note: we add "Key" to the description if the string could be confused for something else
-	DEFINEKEY1(KEY_LBUTTON, N_("Left Click"))
-	DEFINEKEY1(KEY_RBUTTON, N_("Right Click"))
 	// TRANSLATORS: Usually paired with the Pause key
 	DEFINEKEY1(KEY_CANCEL, N_("Break Key"))
-	DEFINEKEY1(KEY_MBUTTON, N_("Middle Click"))
-	// TRANSLATORS: Mouse button
-	DEFINEKEY1(KEY_XBUTTON1, N_("Mouse X1"))
-	// TRANSLATORS: Mouse button
-	DEFINEKEY1(KEY_XBUTTON2, N_("Mouse X2"))
 	DEFINEKEY1(KEY_BACK, N_("Backspace"))
 	DEFINEKEY1(KEY_TAB, N_("Tab Key"))
 	DEFINEKEY1(KEY_CLEAR, N_("Clear Key"))
@@ -273,27 +267,31 @@ static const table_key &lookup_keyname(std::string_view name)
 
 static const table_key &lookup_scancode(const u32 scancode)
 {
+	if (!scancode)
+		return invalid_key;
 	auto key = RenderingEngine::get_raw_device()->getKeyFromScancode(scancode);
 	return std::holds_alternative<EKEY_CODE>(key) ?
 		lookup_keykey(std::get<EKEY_CODE>(key)) :
 		lookup_keychar(std::get<wchar_t>(key));
 }
 
-static const table_key &lookup_scancode(const std::variant<u32, EKEY_CODE> &scancode)
-{
-	return std::holds_alternative<EKEY_CODE>(scancode) ?
-		lookup_keykey(std::get<EKEY_CODE>(scancode)) :
-		lookup_scancode(std::get<u32>(scancode));
-}
-
 void KeyPress::loadFromKey(EKEY_CODE keycode, wchar_t keychar)
 {
-	scancode = RenderingEngine::get_raw_device()->getScancodeFromKey(Keycode(keycode, keychar));
+	auto scancode = RenderingEngine::get_raw_device()->getScancodeFromKey(Keycode(keycode, keychar));
+	emplace<InputType::KEYBOARD>(scancode);
 }
 
 KeyPress::KeyPress(const std::string &name)
 {
-	if (loadFromScancode(name))
+	if (loadUnsignedFromPrefix<InputType::KEYBOARD>(name, "SYSTEM_SCANCODE_"))
+		return;
+	if (loadUnsignedFromPrefix<InputType::MOUSE_BUTTON>(name, "MOUSE_BUTTON_"))
+		return;
+	if (loadUnsignedFromPrefix<InputType::GAMEPAD_BUTTON>(name, "GAMEPAD_BUTTON_"))
+		return;
+	if (loadUnsignedFromPrefix<InputType::GAMEPAD_AXIS_PLUS>(name, "GAMEPAD_AXIS_PLUS_"))
+		return;
+	if (loadUnsignedFromPrefix<InputType::GAMEPAD_AXIS_MINUS>(name, "GAMEPAD_AXIS_MINUS_"))
 		return;
 	const auto &key = lookup_keyname(name);
 	loadFromKey(key.Key, key.Char);
@@ -302,56 +300,268 @@ KeyPress::KeyPress(const std::string &name)
 KeyPress::KeyPress(const SEvent::SKeyInput &in)
 {
 	if (in.SystemKeyCode)
-		scancode.emplace<u32>(in.SystemKeyCode);
+		emplace<InputType::KEYBOARD>(in.SystemKeyCode);
 	else
-		scancode.emplace<EKEY_CODE>(in.Key);
+		loadFromKey(in.Key, in.Char);
 }
 
-std::string KeyPress::formatScancode() const
+KeyPress::KeyPress(const SEvent::SMouseInput &in)
 {
-	if (auto pv = std::get_if<u32>(&scancode))
-		return *pv == 0 ? "" : "SYSTEM_SCANCODE_" + std::to_string(*pv);
-	return "";
+	switch (in.Event) {
+	case EMIE_LMOUSE_PRESSED_DOWN:
+	case EMIE_MMOUSE_PRESSED_DOWN:
+	case EMIE_RMOUSE_PRESSED_DOWN:
+	case EMIE_XMOUSE_PRESSED_DOWN:
+	case EMIE_LMOUSE_LEFT_UP:
+	case EMIE_MMOUSE_LEFT_UP:
+	case EMIE_RMOUSE_LEFT_UP:
+	case EMIE_XMOUSE_LEFT_UP:
+		emplace<InputType::MOUSE_BUTTON>(in.Button);
+		break;
+	default:
+		assert(false);
+	}
+}
+
+KeyPress::KeyPress(const SEvent::SGamepadButtonEvent &in)
+{
+	emplace<InputType::GAMEPAD_BUTTON>(in.Button);
+}
+
+KeyPress::KeyPress(const SEvent::SGamepadAxisEvent &in)
+{
+	if (in.Value >= 0)
+		emplace<InputType::GAMEPAD_AXIS_PLUS>(in.Axis);
+	else
+		emplace<InputType::GAMEPAD_AXIS_MINUS>(in.Axis);
 }
 
 std::string KeyPress::sym() const
 {
-	std::string name = lookup_scancode(scancode).Name;
-	if (auto newname = formatScancode(); !newname.empty())
-		return newname;
-	return name;
+	switch (getType()) {
+	case InputType::KEYBOARD:
+		return "SYSTEM_SCANCODE_" + std::to_string(get<InputType::KEYBOARD>());
+	case InputType::MOUSE_BUTTON:
+		return "MOUSE_BUTTON_" + std::to_string(get<InputType::MOUSE_BUTTON>());
+	case InputType::GAMEPAD_BUTTON:
+		return "GAMEPAD_BUTTON_" + std::to_string(getCast<InputType::GAMEPAD_BUTTON, u8>());
+	case InputType::GAMEPAD_AXIS_PLUS:
+		return "GAMEPAD_AXIS_PLUS_" + std::to_string(getCast<InputType::GAMEPAD_AXIS_PLUS, u8>());
+	case InputType::GAMEPAD_AXIS_MINUS:
+		return "GAMEPAD_AXIS_MINUS_" + std::to_string(getCast<InputType::GAMEPAD_AXIS_MINUS, u8>());
+	default:
+		return "";
+	}
 }
 
 std::string KeyPress::name() const
 {
-	const auto &name = lookup_scancode(scancode).LangName;
-	if (!name.empty())
-		return strgettext(name);
-	if (auto scancode = getScancode())
-		return fmtgettext("Scancode: %d", scancode);
-	return "";
+	switch (getType()) {
+	case InputType::KEYBOARD: {
+		auto scancode = getScancode();
+		const auto &name = lookup_scancode(scancode).LangName;
+		if (!name.empty())
+			return strgettext(name);
+		if (scancode)
+			return fmtgettext("Scancode: %d", scancode);
+		return "";
+	}
+	case InputType::MOUSE_BUTTON: {
+		auto button = get<InputType::MOUSE_BUTTON>();
+		switch (button) {
+		case SDL_BUTTON_LEFT:
+			return strgettext("Left Click");
+		case SDL_BUTTON_MIDDLE:
+			return strgettext("Middle Click");
+		case SDL_BUTTON_RIGHT:
+			return strgettext("Right Click");
+		case SDL_BUTTON_X1:
+			// TRANSLATORS: This is a mouse button.
+			return strgettext("Mouse X1");
+		case SDL_BUTTON_X2:
+			// TRANSLATORS: This is a mouse button.
+			return strgettext("Mouse X2");
+		default:
+			// TRANSLATORS: This is for mouse buttons without an intuitive description. %d is the number of the button.
+			return fmtgettext("Mouse Button %d", button);
+		}
+	}
+	case InputType::GAMEPAD_BUTTON: {
+		auto button = get<InputType::GAMEPAD_BUTTON>();
+		auto label = RenderingEngine::get_raw_device()->getGamepadButtonLabel(button);
+		// Note: only use "(Gamepad)" for names that are otherwise ambiguous or confusing
+		switch (label) {
+		case GamepadButtonLabel::A:
+			return strgettext("A (Gamepad)");
+		case GamepadButtonLabel::B:
+			return strgettext("B (Gamepad)");
+		case GamepadButtonLabel::X:
+			return strgettext("X (Gamepad)");
+		case GamepadButtonLabel::Y:
+			return strgettext("Y (Gamepad)");
+		case GamepadButtonLabel::CROSS:
+			return strgettext("Cross (Gamepad)");
+		case GamepadButtonLabel::CIRCLE:
+			return strgettext("Circle (Gamepad)");
+		case GamepadButtonLabel::SQUARE:
+			return strgettext("Square (Gamepad)");
+		case GamepadButtonLabel::TRIANGLE:
+			return strgettext("Triangle (Gamepad)");
+		default:
+			// Return a generic name if no button label is available
+			break;
+		}
+		switch (button) {
+		case GamepadButton::SOUTH:
+			return strgettext("Bottom Face Button (Gamepad)");
+		case GamepadButton::EAST:
+			return strgettext("Right Face Button (Gamepad)");
+		case GamepadButton::WEST:
+			return strgettext("Left Face Button (Gamepad)");
+		case GamepadButton::NORTH:
+			return strgettext("Top Face Button (Gamepad)");
+		case GamepadButton::BACK:
+			return strgettext("Back (Gamepad)");
+		case GamepadButton::GUIDE:
+			return strgettext("Guide (Gamepad)");
+		case GamepadButton::START:
+			return strgettext("Start (Gamepad)");
+		case GamepadButton::LEFT_STICK:
+			return strgettext("Left Joystick Button");
+		case GamepadButton::RIGHT_STICK:
+			return strgettext("Right Joystick Button");
+		case GamepadButton::LEFT_SHOULDER:
+			return strgettext("Left Shoulder");
+		case GamepadButton::RIGHT_SHOULDER:
+			return strgettext("Right Shoulder");
+		case GamepadButton::DPAD_UP:
+			return strgettext("D-Pad Up");
+		case GamepadButton::DPAD_DOWN:
+			return strgettext("D-Pad Down");
+		case GamepadButton::DPAD_LEFT:
+			return strgettext("D-Pad Left");
+		case GamepadButton::DPAD_RIGHT:
+			return strgettext("D-Pad Right");
+		case GamepadButton::RIGHT_PADDLE1:
+			return strgettext("Primary Right Paddle");
+		case GamepadButton::LEFT_PADDLE1:
+			return strgettext("Primary Left Paddle");
+		case GamepadButton::RIGHT_PADDLE2:
+			return strgettext("Secondary Right Paddle");
+		case GamepadButton::LEFT_PADDLE2:
+			return strgettext("Secondary Left Paddle");
+		case GamepadButton::TOUCHPAD:
+			return strgettext("Touchpad Button (Gamepad)");
+		default:
+			return fmtgettext("Gamepad Button %d", button);
+		}
+	}
+	case InputType::GAMEPAD_AXIS_PLUS: {
+		auto axis = get<InputType::GAMEPAD_AXIS_PLUS>();
+		switch (axis) {
+		case GamepadAxis::LEFTX:
+			return strgettext("Left Joystick Right");
+		case GamepadAxis::LEFTY:
+			return strgettext("Left Joystick Down");
+		case GamepadAxis::RIGHTX:
+			return strgettext("Right Joystick Right");
+		case GamepadAxis::RIGHTY:
+			return strgettext("Right Joystick Down");
+		case GamepadAxis::LEFT_TRIGGER:
+			return strgettext("Left Trigger");
+		case GamepadAxis::RIGHT_TRIGGER:
+			return strgettext("Right Trigger");
+		default:
+			return fmtgettext("Gamepad Axis %d +", axis);
+		}
+	}
+	case InputType::GAMEPAD_AXIS_MINUS: {
+		auto axis = get<InputType::GAMEPAD_AXIS_MINUS>();
+		switch (axis) {
+		case GamepadAxis::LEFTX:
+			return strgettext("Left Joystick Left");
+		case GamepadAxis::LEFTY:
+			return strgettext("Left Joystick Up");
+		case GamepadAxis::RIGHTX:
+			return strgettext("Right Joystick Left");
+		case GamepadAxis::RIGHTY:
+			return strgettext("Right Joystick Up");
+		default:
+			return fmtgettext("Gamepad Axis %d -", axis);
+		}
+	}
+	default:
+		return "";
+	}
 }
 
-EKEY_CODE KeyPress::getKeycode() const
+template<KeyPress::InputType I>
+bool KeyPress::loadUnsignedFromPrefix(const std::string &name, const std::string &prefix)
 {
-	return lookup_scancode(scancode).Key;
-}
-
-wchar_t KeyPress::getKeychar() const
-{
-	return lookup_scancode(scancode).Char;
-}
-
-bool KeyPress::loadFromScancode(const std::string &name)
-{
-	if (!str_starts_with(name, "SYSTEM_SCANCODE_"))
+	if (!str_starts_with(name, prefix))
 		return false;
 	char *p;
-	const auto code = strtoul(name.c_str()+16, &p, 10);
+	const auto code = strtoul(name.c_str()+prefix.size(), &p, 10);
 	if (p != name.c_str() + name.size())
 		return false;
-	scancode.emplace<u32>(code);
+	emplace<I>(static_cast<value_alternative_t<I>>(code));
 	return true;
+}
+
+KeyPress KeyPress::getOppositeAxisDirection() const
+{
+	KeyPress opposite;
+	switch (getType()) {
+	case InputType::GAMEPAD_AXIS_PLUS:
+		opposite.emplace<InputType::GAMEPAD_AXIS_MINUS>(get<InputType::GAMEPAD_AXIS_PLUS>());
+		break;
+	case InputType::GAMEPAD_AXIS_MINUS:
+		opposite.emplace<InputType::GAMEPAD_AXIS_PLUS>(get<InputType::GAMEPAD_AXIS_MINUS>());
+		break;
+	default:
+		break;
+	}
+	return opposite;
+}
+
+KeyPress::operator bool() const
+{
+	switch (getType()) {
+	case InputType::KEYBOARD:
+		return get<InputType::KEYBOARD>() != 0;
+	case InputType::MOUSE_BUTTON:
+		return get<InputType::MOUSE_BUTTON>() != 0;
+	case InputType::GAME_ACTION:
+		return get<InputType::GAME_ACTION>() < KeyType::INTERNAL_ENUM_COUNT;
+	case InputType::GAMEPAD_BUTTON:
+		return get<InputType::GAMEPAD_BUTTON>() < GamepadButton::COUNT;
+	case InputType::GAMEPAD_AXIS_PLUS:
+		return get<InputType::GAMEPAD_AXIS_PLUS>() < GamepadAxis::COUNT;
+	case InputType::GAMEPAD_AXIS_MINUS:
+		return get<InputType::GAMEPAD_AXIS_MINUS>() < GamepadAxis::COUNT;
+	default:
+		return false;
+	}
+}
+
+KeyPress::InputSourceType KeyPress::getSourceType() const
+{
+	if (!*this)
+		return InputSourceType::INVALID;
+	switch (getType()) {
+	case InputType::KEYBOARD:
+		return InputSourceType::KEYBOARD;
+	case InputType::MOUSE_BUTTON:
+		return InputSourceType::MOUSE;
+	case InputType::GAME_ACTION:
+		return InputSourceType::TOUCHSCREEN;
+	case InputType::GAMEPAD_BUTTON:
+	case InputType::GAMEPAD_AXIS_PLUS:
+	case InputType::GAMEPAD_AXIS_MINUS:
+		return InputSourceType::GAMEPAD;
+	default:
+		return InputSourceType::INVALID;
+	}
 }
 
 std::unordered_map<std::string, KeyPress> specialKeyCache;
@@ -397,4 +607,49 @@ bool keySettingHasMatch(const std::string &settingname, KeyPress kp)
 void clearKeyCache()
 {
 	g_key_setting_cache.clear();
+}
+
+KeyPressEvent::KeyPressEvent(const SEvent &event)
+{
+	switch (event.EventType) {
+	case EET_KEY_INPUT_EVENT:
+		key = KeyPress(event.KeyInput);
+		analog_value = event.KeyInput.PressedDown;
+		break;
+	case EET_MOUSE_INPUT_EVENT:
+		switch (event.MouseInput.Event) {
+		case EMIE_LMOUSE_PRESSED_DOWN:
+		case EMIE_MMOUSE_PRESSED_DOWN:
+		case EMIE_RMOUSE_PRESSED_DOWN:
+		case EMIE_XMOUSE_PRESSED_DOWN:
+			key = KeyPress(event.MouseInput);
+			analog_value = 1;
+			break;
+		case EMIE_LMOUSE_LEFT_UP:
+		case EMIE_MMOUSE_LEFT_UP:
+		case EMIE_RMOUSE_LEFT_UP:
+		case EMIE_XMOUSE_LEFT_UP:
+			key = KeyPress(event.MouseInput);
+			analog_value = 0;
+			break;
+		default: // ignore irrelevant events
+			break;
+		}
+		break;
+	case EET_GAMEPAD_BUTTON_EVENT:
+		key = KeyPress(event.GamepadButtonEvent);
+		analog_value = event.GamepadButtonEvent.PressedDown;
+		break;
+	case EET_GAMEPAD_AXIS_EVENT: {
+		key = KeyPress(event.GamepadAxisEvent);
+		auto event_value = event.GamepadAxisEvent.Value;
+		analog_value = event_value > 0 ? event_value/(f32)INT16_MAX : event_value/(f32)INT16_MIN;
+		auto inner_deadzone = g_settings->getFloat("joystick_inner_deadzone", 0, 1);
+		auto outer_deadzone = g_settings->getFloat("joystick_outer_deadzone", 0,  1-inner_deadzone);
+		analog_value = rangelim((analog_value-inner_deadzone)/(1-outer_deadzone-inner_deadzone), 0, 1);
+		break;
+	}
+	default: // ignore irrelevant events
+		break;
+	}
 }

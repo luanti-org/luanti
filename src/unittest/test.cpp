@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include "catch.h"
-
 #include "test.h"
 
+#include "catch.h"
 #include "nodedef.h"
 #include "itemdef.h"
 #include "dummygamedef.h"
@@ -16,8 +15,6 @@
 #include "debug.h"
 
 #include <iostream>
-
-#include "catch.h"
 
 content_t t_CONTENT_STONE;
 content_t t_CONTENT_GRASS;
@@ -367,7 +364,7 @@ void TestBase::runTest(const char *name, std::function<void()> &&test)
 }
 
 /*
-	NOTE: These tests became non-working then NodeContainer was removed.
+	NOTE: These tests became non-working when NodeContainer was removed.
 	      These should be redone, utilizing some kind of a virtual
 		  interface for Map (IMap would be fine).
 */

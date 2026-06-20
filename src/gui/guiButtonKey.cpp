@@ -81,8 +81,9 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 				return true;
 			}
 			[[fallthrough]];
-		case EMIE_MMOUSE_LEFT_UP: [[fallthrough]];
+		case EMIE_MMOUSE_LEFT_UP:
 		case EMIE_RMOUSE_LEFT_UP:
+		case EMIE_XMOUSE_LEFT_UP:
 			setPressed(false);
 			if (capturing) {
 				cancelCapture();
@@ -98,7 +99,7 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 						return true;
 				} else {
 					setPressed(true);
-					setKey(LMBKey);
+					setKey(KeyPress(event.MouseInput));
 					return true;
 				}
 			} else if (in_rect) {
@@ -108,16 +109,11 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 			}
 			break;
 		case EMIE_MMOUSE_PRESSED_DOWN:
-			if (capturing) {
-				setPressed(true);
-				setKey(MMBKey);
-				return true;
-			}
-			break;
 		case EMIE_RMOUSE_PRESSED_DOWN:
+		case EMIE_XMOUSE_PRESSED_DOWN:
 			if (capturing) {
 				setPressed(true);
-				setKey(RMBKey);
+				setKey(KeyPress(event.MouseInput));
 				return true;
 			}
 			break;
@@ -133,7 +129,24 @@ bool GUIButtonKey::OnEvent(const SEvent & event)
 			else
 				nostart = false; // lift nostart restriction if "mouse" (finger) is released outside the button
 		}
+		break;
 	default:
+		if (KeyPressEvent kpevent(event); kpevent) {
+			if (kpevent.isPressed()) {
+				if (capturing) {
+					setPressed(true);
+					setKey(kpevent.key);
+					return true;
+				}
+			} else {
+				if (isPressed() && key_value == kpevent.key) {
+					setPressed(false);
+					cancelCapture();
+					sendKey();
+					return true;
+				}
+			}
+		}
 		break;
 	}
 

@@ -34,6 +34,7 @@ class ProfilerGraph;
 class EventManager;
 class GUIChatConsole;
 class QuicktuneShortcutter;
+struct GameErrorData;
 
 const static float object_hit_delay = 0.2;
 
@@ -99,8 +100,7 @@ public:
 			InputHandler *input,
 			RenderingEngine *rendering_engine,
 			const GameStartData &game_params,
-			std::string &error_message,
-			bool *reconnect,
+			GameErrorData &errordata,
 			ChatBackend *chat_backend);
 
 	void run();
@@ -225,6 +225,10 @@ protected:
 	static void settingChangedCallback(const std::string &setting_name, void *data);
 	void readSettings();
 
+	inline float getAxisValue(GameKeyType k)
+	{
+		return input->getAxisValue(k);
+	}
 	inline bool isKeyDown(GameKeyType k)
 	{
 		return input->isKeyDown(k);
@@ -337,8 +341,7 @@ private:
 	video::IVideoDriver        *driver;
 	scene::ISceneManager       *smgr;
 	volatile std::sig_atomic_t *kill;
-	std::string                *error_message;
-	bool                       *reconnect_requested;
+	GameErrorData              *errordata;
 	PausedNodesList             paused_animated_nodes;
 
 	bool simple_singleplayer_mode;
@@ -355,12 +358,10 @@ private:
 	bool m_cache_doubletap_jump;
 	bool m_cache_toggle_sneak_key;
 	bool m_cache_toggle_aux1_key;
-	bool m_cache_enable_joysticks;
 	bool m_cache_enable_fog;
 	bool m_cache_enable_noclip;
 	bool m_cache_enable_free_move;
 	f32  m_cache_mouse_sensitivity;
-	f32  m_cache_joystick_frustum_sensitivity;
 	f32  m_repeat_place_time;
 	f32  m_repeat_dig_time;
 	f32  m_cache_cam_smoothing;
