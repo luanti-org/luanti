@@ -4667,7 +4667,7 @@ core.register_chatcommand("playtime", {
         return true, PS(
             "You have been playing for @1 minute.",
             "You have been playing for @1 minutes.",
-            minutes, tostring(minutes))
+            playtime, tostring(playtime))
     end,
 })
 ```
