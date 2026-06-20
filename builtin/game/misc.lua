@@ -333,13 +333,10 @@ core.register_on_craft(function (crafted, player, old_craft_grid, craft_inv)
 		local is_tool = can_wear > 0 and core.registered_tools[item_name]
 
 		if is_tool then
-			local current_stack = craft_inv:get_stack("craft", index)
-			-- add wear only if tool is returned as a replacement
-			if current_stack:get_name() == item_name then
-				local new_wear = item:get_wear() + (65535 / can_wear + 1)
-				-- tool broken, remove and play sound
-				if new_wear > 65535 then
-					current_stack:clear()
+			local item_replacement = craft_inv:get_stack("craft", index):get_name()
+			if item_replacement == item_name then
+				item:add_wear_by_uses(can_wear)
+				if item:is_empty() then
 					local pos = player:get_pos()
 					if pos then
 						local sound = is_tool.sound and is_tool.sound.breaks or
@@ -347,10 +344,8 @@ core.register_on_craft(function (crafted, player, old_craft_grid, craft_inv)
 						core.sound_play(sound,
 								{pos = pos, gain = 0.3, max_hear_distance = 1}, true)
 					end
-				else
-					current_stack:set_wear(new_wear)
 				end
-				craft_inv:set_stack("craft", index, current_stack)
+				craft_inv:set_stack("craft", index, item)
 			end
 		end
 	end
