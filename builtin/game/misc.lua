@@ -323,7 +323,7 @@ function core.run_lbm(id, pos_list, dtime_s)
 end
 
 --
--- Tool wear inside craftrecipe, uses {craft_wear = [uses]} group
+-- Tool wear inside craftrecipe, uses {craft_uses = [uses]} group
 --
 
 core.register_on_craft(function (crafted, player, old_craft_grid, craft_inv)
