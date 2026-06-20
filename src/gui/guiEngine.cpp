@@ -175,6 +175,7 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 			formspecgui.release(),
 			buttonhandler.release(),
 			"",
+			nullptr,
 			false);
 
 	m_menu->defaultAllowClose(false);

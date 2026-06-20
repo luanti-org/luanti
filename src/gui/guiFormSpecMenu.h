@@ -28,6 +28,7 @@ class Client;
 class GUIScrollContainer;
 class ISoundManager;
 class JoystickController;
+class InputHandler;
 
 enum FormspecFieldType {
 	f_Button,
@@ -160,6 +161,7 @@ public:
 			IFormSource* fs_src,
 			TextDest* txt_dst,
 			const std::string &formspecPrepend,
+			InputHandler *input,
 			bool remap_dbl_click = true);
 
 	~GUIFormSpecMenu();
@@ -167,7 +169,7 @@ public:
 	static void create(GUIFormSpecMenu *&cur_formspec, Client *client,
 		gui::IGUIEnvironment *guienv, JoystickController *joystick, IFormSource *fs_src,
 		TextDest *txt_dest, const std::string &formspecPrepend,
-		ISoundManager *sound_manager);
+		ISoundManager *sound_manager, InputHandler *input);
 
 	void setFormSpec(const std::string &formspec_string,
 			const InventoryLocation &current_inventory_location)
@@ -242,6 +244,11 @@ public:
 	u16 getSelectedAmount() const
 	{
 		return m_selected_amount;
+	}
+
+	GUIInventoryList::ItemSpec getHoveredItem() const
+	{
+		return getItemAtPos(m_pointer);
 	}
 
 	bool doTooltipAppendItemname() const
@@ -388,6 +395,7 @@ private:
 	u16                        m_formspec_version = 1;
 	std::optional<std::string> m_focused_element = std::nullopt;
 	JoystickController        *m_joystick;
+	InputHandler              *m_input = nullptr;
 	bool                       m_show_debug = false;
 	bool                       m_show_focus = false;
 	gui::IGUIElement          *m_last_focused = nullptr;

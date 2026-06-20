@@ -11,6 +11,7 @@
 #include "EGUIElementTypes.h"
 #include "itemdef.h"
 #include "gamedef.h"
+#include "hud_element.h"
 #include "client/keycode.h"
 #include "gui/guiTable.h"
 #include <IGUIButton.h>
@@ -91,7 +92,7 @@ GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
 		gui::IGUIElement *parent, s32 id, IMenuManager *menumgr,
 		Client *client, gui::IGUIEnvironment *guienv, ISimpleTextureSource *tsrc,
 		ISoundManager *sound_manager, IFormSource *fsrc, TextDest *tdst,
-		const std::string &formspecPrepend, bool remap_dbl_click):
+		const std::string &formspecPrepend, InputHandler *input, bool remap_dbl_click):
 	GUIModalMenu(guienv, parent, id, menumgr, remap_dbl_click),
 	m_invmgr(client),
 	m_tsrc(tsrc),
@@ -100,7 +101,8 @@ GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
 	m_formspec_prepend(formspecPrepend),
 	m_form_src(fsrc),
 	m_text_dst(tdst),
-	m_joystick(joystick)
+	m_joystick(joystick),
+	m_input(input)
 {
 	current_keys_pending.key_down = false;
 	current_keys_pending.key_up = false;
@@ -120,7 +122,9 @@ GUIFormSpecMenu::~GUIFormSpecMenu()
 
 void GUIFormSpecMenu::create(GUIFormSpecMenu *&cur_formspec, Client *client,
 	gui::IGUIEnvironment *guienv, JoystickController *joystick, IFormSource *fs_src,
-	TextDest *txt_dest, const std::string &formspecPrepend, ISoundManager *sound_manager)
+	TextDest *txt_dest, const std::string &formspecPrepend, ISoundManager *sound_manager,
+	InputHandler *input)
+
 {
 	if (cur_formspec && cur_formspec->getReferenceCount() == 1) {
 		/*
@@ -138,7 +142,7 @@ void GUIFormSpecMenu::create(GUIFormSpecMenu *&cur_formspec, Client *client,
 	if (cur_formspec == nullptr) {
 		cur_formspec = new GUIFormSpecMenu(joystick, guiroot, -1, &g_menumgr,
 			client, guienv, client->getTextureSource(), sound_manager, fs_src,
-			txt_dest, formspecPrepend);
+			txt_dest, formspecPrepend, input);
 
 		/*
 			Caution: do not call (*cur_formspec)->drop() here --
@@ -4266,6 +4270,60 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 		if (event.KeyInput.PressedDown && keySettingHasMatch("keymap_toggle_debug", kp)) {
 			if (!m_client || m_client->checkPrivilege("debug"))
 				m_show_debug = !m_show_debug;
+		}
+
+		if (event.KeyInput.PressedDown && m_client && keySettingHasMatch("keymap_drop", kp)) {
+			if (const GUIInventoryList::ItemSpec hovered = getHoveredItem(); hovered.isValid()) {
+				auto *a = new IDropAction();
+				a->count = event.KeyInput.Shift ? 1 : 0;
+				a->from_inv = hovered.inventoryloc;
+				a->from_list = hovered.listname;
+				a->from_i = hovered.i;
+				m_client->inventoryAction(a);
+			}
+		}
+
+		// Handle slot keys for item swapping
+		if (event.KeyInput.PressedDown && m_input) {
+			GameKeyType action = m_input->getActionFromKey(kp);
+			if (action >= KeyType::SLOT_1 && action < KeyType::SLOT_1 + HUD_HOTBAR_ITEMCOUNT_MAX) {
+				u16 i = action - KeyType::SLOT_1;
+
+				// Try to swap the hovered item with hotbar slot i
+				if (const GUIInventoryList::ItemSpec hovered = getHoveredItem(); hovered.isValid()) {
+					auto *a = new IMoveAction();
+					a->count = 0;
+
+					// IMoveAction doesn't attempt to swap from an empty slot into a full slot,
+					// So to get this behaviour, we need to check which slot is occupied and swap ourselves
+					const Inventory *inv = m_invmgr->getInventory(hovered.inventoryloc);
+					const InventoryList *list = inv ? inv->getList(hovered.listname) : nullptr;
+					bool hovered_empty = !list || list->getItem(hovered.i).empty();
+
+					if (hovered_empty) {
+						// Pull from hotbar slot to empty slot
+						a->from_inv.setCurrentPlayer();
+						a->from_list = "main";
+						a->from_i = i;
+						a->to_inv = hovered.inventoryloc;
+						a->to_list = hovered.listname;
+						a->to_i = hovered.i;
+					} else {
+						// Push hovered item to hotbar slot
+						a->from_inv = hovered.inventoryloc;
+						a->from_list = hovered.listname;
+						a->from_i = hovered.i;
+						a->to_inv.setCurrentPlayer();
+						a->to_list = "main";
+						a->to_i = i;
+					}
+
+					m_client->inventoryAction(a);
+				}
+
+				// Consume event to prevent switching active hotbar slot
+				return true;
+			}
 		}
 
 		if (event.KeyInput.PressedDown &&
