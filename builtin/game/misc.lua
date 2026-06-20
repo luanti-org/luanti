@@ -323,19 +323,19 @@ function core.run_lbm(id, pos_list, dtime_s)
 end
 
 --
--- Tool wear inside craftrecipe, uses {craft_uses = [uses]} group
+-- Tool wear inside craftrecipe using {craft_uses = [uses]} group
 --
 
 core.register_on_craft(function (crafted, player, old_craft_grid, craft_inv)
 	for index, item in ipairs(old_craft_grid) do
 		local item_name = item:get_name()
-		local can_wear = core.get_item_group(item_name, "craft_uses")
-		local tool = can_wear > 0 and core.registered_tools[item_name]
+		local wear = core.get_item_group(item_name, "craft_uses")
+		local tool = wear > 0 and core.registered_tools[item_name]
 
 		if tool then
 			local item_replacement = craft_inv:get_stack("craft", index):get_name()
 			if item_replacement == item_name then
-				item:add_wear_by_uses(can_wear)
+				item:add_wear_by_uses(wear)
 				if item:is_empty() then
 					local pos = player:get_pos()
 					if pos then
