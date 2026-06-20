@@ -116,6 +116,13 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 
 	const MeshGrid mesh_grid = m_client->getMeshGrid();
 
+	if (block->lod == 255) {
+		const v3s16 player_block_pos = getNodeBlockPos(floatToInt(m_client->getCamera()->getPosition(), BS));
+		const v3s16 player_chunk_pos = mesh_grid.getCellPos(player_block_pos);
+		block->lod = m_client->determineLodForBlock(player_chunk_pos, mesh_grid.getCellPos(p), g_settings->getFloat("lod_threshold"),
+			g_settings->getFloat("lod_quality"), g_settings->getFloat("client_mesh_chunk"));
+	}
+
 	// Mesh is placed at the corner block of a chunk
 	// (where all coordinate are divisible by the chunk size)
 	const v3s16 mesh_position = mesh_grid.getMeshPos(p);
