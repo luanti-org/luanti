@@ -164,7 +164,7 @@ content. The convention is `<modname>.<setting>`.
     auth_backend = sqlite3        - which DB backend to use for authentication data
     mod_storage_backend = sqlite3 - which DB backend to use for mod storage
     load_mod_<mod> = false        - whether <mod> is to be loaded in this world
-    blocksize = 32                - mapblock size, only written by non-standard builds
+    blocksize = 32                - mapblock size, only written if it's non-standard (16)
 
 For `load_mod_<mod>`, the possible values are:
 
