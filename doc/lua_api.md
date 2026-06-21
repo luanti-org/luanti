@@ -1479,10 +1479,10 @@ Examples:
 }
 ```
 
-Special sound-
+Special sound-groups
 --------------------
 
-These sound- are played back by the engine if provided.
+These sound-groups are played back by the engine if provided.
 
  * `player_damage`: Played when the local player takes damage (gain = 0.5)
  * `player_falling_damage`: Played when the local player takes
