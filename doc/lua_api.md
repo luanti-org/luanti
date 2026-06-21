@@ -1479,10 +1479,10 @@ Examples:
 }
 ```
 
-Special sound-groups
+Special sound-
 --------------------
 
-These sound-groups are played back by the engine if provided.
+These sound- are played back by the engine if provided.
 
  * `player_damage`: Played when the local player takes damage (gain = 0.5)
  * `player_falling_damage`: Played when the local player takes
@@ -2594,6 +2594,9 @@ to games.
 
 * `disable_repair`: If set to 1 for a tool, it cannot be repaired using the
   `"toolrepair"` crafting recipe
+* `craft_uses`: Contains the number of uses a tool can be used inside a
+  crafting recipe, but only when the tool itself is returned by using the
+  replacements table.
 
 
 ### `ObjectRef` armor groups
