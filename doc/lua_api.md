@@ -9058,8 +9058,8 @@ This API is only supported properly by Luanti 5.17.0+ clients.
 If you need to support older clients, you may want to use `set_observers()`
 to send different objects to clients depending on their version.
 
-Tracks are identified by their name or track number.
-Track numbers start at 1.
+Tracks are identified either by name or track number. Track numbers start at 1.
+You **must not** mix names and track numbers to refer to the same animation.
 
 * `play_animation(track, [animation])`
     * Starts or restarts an animation on the given track.

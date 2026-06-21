@@ -133,6 +133,10 @@ private:
 	/// based on the in-game state of the local player (e.g. walking, digging, idling).
 	/// See also localplayer.h (e.g. LocalPlayerAnimation, LocalPlayer::last_animation).
 	bool m_local_player_animation = false;
+	/// Deferred set animation commands, to be run once the scene node exists
+	std::vector<std::pair<std::string, scene::TrackAnimSpec>> deferred_set_animation_cmds;
+
+	void applyTrackAnimation(scene::TrackId &&track_id, scene::TrackAnimSpec anim);
 
 	// stores position and rotation for each bone name
 	BoneOverrideMap m_bone_override;

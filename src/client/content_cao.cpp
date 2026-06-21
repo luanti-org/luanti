@@ -32,15 +32,18 @@
 #include "settings.h"
 #include "tool.h"
 #include "wieldmesh.h"
-#include <algorithm>
-#include <cmath>
+
 #include "client/shader.h"
 #include "client/minimap.h"
-#include <optional>
 #include <quaternion.h>
 #include <SMesh.h>
 #include <IMeshBuffer.h>
 #include <CMeshBuffer.h>
+
+#include <algorithm>
+#include <cmath>
+#include <variant>
+#include <optional>
 
 struct ToolCapabilities;
 
@@ -827,6 +830,11 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 			}
 		}
 	}
+
+	for (auto &&[track_name, anim] : deferred_set_animation_cmds) {
+		applyTrackAnimation(std::move(track_name), anim);
+	}
+	deferred_set_animation_cmds.clear();
 }
 
 void GenericCAO::updateLight(u32 day_night_ratio)
@@ -1523,6 +1531,48 @@ std::optional<u16> GenericCAO::resolveTrackId(const scene::TrackId &track_id)
 	return track_nr;
 }
 
+void GenericCAO::applyTrackAnimation(scene::TrackId &&track_id, scene::TrackAnimSpec anim)
+{
+	auto *track_name = std::get_if<std::string>(&track_id);
+	if (track_name && !m_smgr) {
+		// Not added to scene yet, mesh has not been resolved.
+		// Defer resolving the track name to after the scene node has been set up.
+		deferred_set_animation_cmds.emplace_back(std::move(*track_name), anim);
+		return;
+	}
+
+	const auto track_nr = resolveTrackId(track_id);
+	if (!track_nr)
+		return;
+
+	if (m_animated_meshnode) {
+		anim.max_frame = std::min(anim.max_frame,
+				m_animated_meshnode->getMesh()->getMaxFrameNumber(*track_nr));
+	}
+
+	anim.cur_frame = std::clamp(anim.cur_frame, anim.min_frame, anim.max_frame);
+
+	if (!m_is_local_player) {
+		m_animation.tracks[*track_nr] = anim;
+		updateAnimation(*track_nr);
+	} else {
+		LocalPlayer *player = m_env->getLocalPlayer();
+		// update animation only if local animations present
+		// and received animation is unknown (except idle animation)
+		bool is_known = false;
+		for (const auto &local_anim : player->local_animations) {
+			if (track_nr == 0 && anim.max_frame == local_anim.Y)
+				is_known = true;
+		}
+		if (!is_known ||
+				(player->local_animations[1].Y + player->local_animations[2].Y < 1))
+		{
+			updateAnimation(*track_nr);
+		}
+		// FIXME: ^ This code is trash. It's also broken.
+	}
+}
+
 void GenericCAO::processMessage(const std::string &data)
 {
 	//infostream<<"GenericCAO: Got message"<<std::endl;
@@ -1672,48 +1722,18 @@ void GenericCAO::processMessage(const std::string &data)
 		scene::TrackId track_id = (u16) 0;
 		std::optional<f32> cur_frame;
 		if (canRead(is)) {
-			// New animation API since 5.16.0
+			// New animation API since 5.17.0
 			track_id = readTrackIdentifier(is);
 			anim.priority = readS32(is);
 			cur_frame = std::max(0.0f, readF32(is));
 		}
 
-		auto track_nr_opt = resolveTrackId(track_id);
-		if (!track_nr_opt)
-			return;
-		u16 track_nr = *track_nr_opt;
-
 		anim.min_frame = std::max(0.0f, std::min(range.X, range.Y));
 		anim.max_frame = std::max(0.0f, std::max(range.X, range.Y));
-		if (m_animated_meshnode) {
-			anim.max_frame = std::min(anim.max_frame,
-					m_animated_meshnode->getMesh()->getMaxFrameNumber(track_nr));
-		}
+		anim.cur_frame = cur_frame.value_or(anim.fps >= 0 ? anim.min_frame : anim.max_frame);
 
-		anim.cur_frame = cur_frame.value_or(anim.fps >= 0
-				? anim.min_frame : anim.max_frame);
-		anim.cur_frame = std::clamp(anim.cur_frame, anim.min_frame, anim.max_frame);
-
-		// Apply animation
-		if (!m_is_local_player) {
-			m_animation.tracks[track_nr] = anim;
-			updateAnimation(track_nr);
-		} else {
-			LocalPlayer *player = m_env->getLocalPlayer();
-			// update animation only if local animations present
-			// and received animation is unknown (except idle animation)
-			bool is_known = false;
-			for (const auto &local_anim : player->local_animations) {
-				if (track_nr == 0 && anim.max_frame == local_anim.Y)
-					is_known = true;
-			}
-			if (!is_known ||
-					(player->local_animations[1].Y + player->local_animations[2].Y < 1))
-			{
-				updateAnimation(track_nr);
-			}
-			// FIXME: ^ This code is trash. It's also broken.
-		}
+		// Also clamps cur_frame & max_frame to the track max frame number in the mesh
+		applyTrackAnimation(std::move(track_id), anim);
 	} else if (cmd == AO_CMD_SET_ANIMATION_SPEED) {
 		f32 new_fps = readF32(is);
 		const auto track_id = readTrackIdentifier(is);
