@@ -337,10 +337,10 @@ core.register_on_craft(function (crafted, player, old_craft_grid, craft_inv)
 			if item_replacement == item_name then
 				item:add_wear_by_uses(wear)
 				if item:is_empty() then
-					local pos = player:get_pos()
-					if pos then
+					local name = player:get_player_name()
+					if name then
 						core.sound_play(tool.sound and tool.sound.breaks,
-								{pos = pos, gain = 0.3, max_hear_distance = 1}, true)
+								{to_player = name, gain = 0.5}, true)
 					end
 				end
 				craft_inv:set_stack("craft", index, item)
