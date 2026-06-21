@@ -201,6 +201,18 @@ public:
 	}
 };
 
+// A SensorType represents different sensors either built into the device itself or a gamepad.
+// The values are taken from SDL_SensorType
+enum class SensorType {
+    ACCEL,
+    GYRO,
+    ACCEL_L,
+    GYRO_L,
+    ACCEL_R,
+    GYRO_R,
+    COUNT
+};
+
 /// A GamepadAxis represents a physical axis on the gamepad.
 /// The values are taken from SDL_GamepadAxis.
 enum class GamepadAxis {
