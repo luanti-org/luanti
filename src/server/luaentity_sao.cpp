@@ -267,9 +267,10 @@ std::string LuaEntitySAO::getClientInitializationData(u16 protocol_version)
 
 	append_message(getPropertyPacket());
 	append_message(generateUpdateArmorGroupsCommand());
-	for (const auto &[track, anim] : getAnimation().tracks)
+	for (const auto &[track, anim] : getAnimation().tracks) {
 		if (anim.state != TrackAnimation::State::STOPPED)
 			append_message(generateUpdateAnimationCommand(track));
+	}
 	for (const auto &bone_override : m_bone_override) {
 		append_message(generateUpdateBoneOverrideCommand(
 			bone_override.first, bone_override.second));

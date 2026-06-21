@@ -127,7 +127,7 @@ core.register_entity("gltf:multi_track", {
 	initial_properties = {
 		visual = "mesh",
 		mesh = "gltf_multi_track_1.glb",
-		textures = {"no_texture.png"},
+		textures = {"[fill:1x1:green"},
 		infotext = table.concat({
 			"Multi-track animation:",
 			"- Punch to (un)pause one track",
