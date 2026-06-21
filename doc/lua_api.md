@@ -8280,6 +8280,9 @@ Misc.
     * You must register the metatable in both the main environment
       and the async environment for this mechanism to work.
 
+* `core.get_nodemeta_inventory_location(pos)`
+    * Converts a node position into a node metadata inventory location in the form `"nodemeta:<X>,<Y>,<Z>"`.
+
 Global objects
 --------------
 

@@ -353,3 +353,10 @@ test_expression([[setref(1){
 		end)
 	end)
 end)
+
+describe("inventory helpers", function()
+	it("get_nodemeta_inventory_location()", function()
+		assert(core.get_nodemeta_inventory_location(vector.new(1,25,-400)) == "nodemeta:1,25,-400")
+	end)
+end)
+
