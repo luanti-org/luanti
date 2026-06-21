@@ -7,7 +7,9 @@
 #include "irrlichttypes.h"
 #include <SColor.h>
 #include <dimension2d.h>
+#include <functional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace video
@@ -122,6 +124,8 @@ public:
 	IWritableTextureSource() = default;
 	virtual ~IWritableTextureSource() = default;
 
+	using InventoryPreviewGenerator = std::function<video::IImage *(std::string_view)>;
+
 	/// @brief Fulfil texture requests from other threads
 	virtual void processQueue()=0;
 
@@ -130,6 +134,12 @@ public:
 	 * Takes ownership of @p img
 	 */
 	virtual void insertSourceImage(const std::string &name, video::IImage *img)=0;
+
+	/**
+	 * Sets a callback for generating [inventorypreview:*] virtual textures.
+	 * The returned image must be newly allocated and will be dropped by the caller.
+	 */
+	virtual void setInventoryPreviewGenerator(InventoryPreviewGenerator generator)=0;
 
 	/**
 	 * Rebuilds all textures (in case-source images have changed)
