@@ -171,7 +171,6 @@ For `load_mod_<mod>`, the possible values are:
 
     pgsql_connection = host=127.0.0.1 port=5432 user=mt_user password=mt_password dbname=minetest
     pgsql_player_connection = (same parameters as above)
-    pgsql_readonly_connection = (same parameters as above)
     pgsql_auth_connection = (same parameters as above)
     pgsql_mod_storage_connection = (same parameters as above)
 
