@@ -150,6 +150,7 @@ World metadata.
     readonly_backend = sqlite3    - optionally read-only seed DB (DB file _must_ be located in "readonly" subfolder)
     auth_backend = files          - which DB backend to use for authentication data
     mod_storage_backend = sqlite3 - which DB backend to use for mod storage
+    rollback_backend = sqlite3    - which DB backend to use for rollback. If unset, defaults to `sqlite3`.
     server_announce = false       - whether the server is publicly announced or not
     load_mod_<mod> = false        - whether <mod> is to be loaded in this world
     world_name = Sol III          - name of the world (if not set, the world folder name will be used)
