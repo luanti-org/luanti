@@ -84,6 +84,7 @@
 	#define SDL_GetGamepadMapping SDL_GameControllerMapping
 	#define SDL_GetGamepadType SDL_GameControllerGetType
 	#define SDL_GetGamepadStringForType(type) nullptr
+	#define SDL_GamepadHasSensor SDL_GameControllerHasSensor
 
 	#define SDL_GetWindowSizeInPixels SDL_GL_GetDrawableSize
 	#define SDL_DestroySurface SDL_FreeSurface
@@ -1158,6 +1159,14 @@ bool CIrrDeviceSDL::run()
 				if (auto mapping = SDL_GetGamepadMapping(gamepad); mapping != nullptr) {
 					os::Printer::log("Gamepad mapping", mapping, ELL_INFORMATION);
 					SDL_free(mapping);
+				}
+				if (SDL_GamepadHasSensor(gamepad, SDL_SENSOR_GYRO)) {
+#ifdef _IRR_USE_SDL3_
+					SDL_SetGamepadSensorEnabled(gamepad, SDL_SENSOR_GYRO, true);
+#else
+					SDL_GameControllerSetSensorEnabled(gamepad, SDL_SENSOR_GYRO, SDL_TRUE);
+#endif
+					os::Printer::log("Gyro enabled", ELL_INFORMATION);
 				}
 			} else {
 				os::Printer::log("Unable to open gamepad", SDL_GetError(), ELL_ERROR);
