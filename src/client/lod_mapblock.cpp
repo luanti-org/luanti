@@ -130,7 +130,7 @@ void LodMeshGenerator::drawSolidNode()
 		const content_t surf_neigh_t = surf_neigh_n.getContent();
 		if (surf_neigh_t == CONTENT_IGNORE)
 			continue;
-		if (surf_neigh_p.Y == m_cur_node.surface_p.Y) {
+		if (surf_neigh_p.Y == m_cur_node.surface_p.Y || face == UP || face == DOWN) {
 			if (surf_neigh_t == m_cur_node.n.getContent() || surf_neigh_t == CONTENT_IGNORE)
 				continue;
 			if (surf_neigh_t != CONTENT_AIR) {
