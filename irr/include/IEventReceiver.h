@@ -192,6 +192,19 @@ enum ETOUCH_INPUT_EVENT
 	ETIE_COUNT
 };
 
+// A SensorType represents different sensors either built into the device itself or a gamepad.
+// The values are taken from SDL_SensorType
+enum SENSOR_TYPE {
+	UNKNOWN,
+    ACCEL,
+    GYRO,
+    ACCEL_L,
+    GYRO_L,
+    ACCEL_R,
+    GYRO_R,
+    COUNT
+};
+
 //! Enumeration for a commonly used application state events (it's useful mainly for mobile devices)
 enum EAPPLICATION_EVENT_TYPE
 {
@@ -492,7 +505,7 @@ struct SEvent
 		u32 ID;
 
 		//! the type of sensor
-		SensorType Type;
+		SENSOR_TYPE Type;
 
 		// accel: left-right
 		// gyro: pitch

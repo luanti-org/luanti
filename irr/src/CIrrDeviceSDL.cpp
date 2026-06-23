@@ -1226,13 +1226,13 @@ bool CIrrDeviceSDL::run()
 			irrevent.EventType = EET_GAMEPAD_SENSOR_EVENT;
 #if _IRR_USE_SDL3_
 			auto id = SDL_event.gsensor.which;
-			irrevent.GamepadSensorEvent.Type = static_cast<SensorType>(SDL_event.gsensor.sensor);
+			irrevent.GamepadSensorEvent.Type = static_cast<SENSOR_TYPE>(SDL_event.gsensor.sensor);
 			irrevent.GamepadSensorEvent.X = SDL_event.gsensor.data[0];
 			irrevent.GamepadSensorEvent.Y = SDL_event.gsensor.data[1];
 			irrevent.GamepadSensorEvent.Z = SDL_event.gsensor.data[2];
 #else
 			auto id = SDL_event.csensor.which;
-			irrevent.GamepadSensorEvent.Type = static_cast<SensorType>(SDL_event.csensor.sensor);
+			irrevent.GamepadSensorEvent.Type = static_cast<SENSOR_TYPE>(SDL_event.csensor.sensor);
 			irrevent.GamepadSensorEvent.X = SDL_event.csensor.data[0];
 			irrevent.GamepadSensorEvent.Y = SDL_event.csensor.data[1];
 			irrevent.GamepadSensorEvent.Z = SDL_event.csensor.data[2];
