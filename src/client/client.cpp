@@ -644,41 +644,47 @@ void Client::step(float dtime)
 	*/
 	{
 		const u16 cs = m_mesh_grid.cell_size;
+		u16 updates = 0;
+		u16 examinations = 0;
+		f32 lod_threshold = g_settings->getFloat("lod_threshold");
+		f32 lod_quality = g_settings->getFloat("lod_quality");
+		f32 client_mesh_chunk = g_settings->getFloat("client_mesh_chunk");
+
+		const v3s16 player_block_pos = getNodeBlockPos(floatToInt(player->getPosition(), BS));
+		const v3s16 player_chunk_pos = m_mesh_grid.getCellPos(player_block_pos);
+
 		// cant use MeshGrid.getMeshPos here because we want to trigger when crossing the center of a chunk
-		const v3s16 new_chunk_pos = floatToInt(player->getPosition(), BS * MAP_BLOCKSIZE * cs);
-		const v3s16 last_chunk_pos = floatToInt(player->last_position, BS * MAP_BLOCKSIZE * cs);
+		const v3s16 new_chunk_pos = floatToInt(player->getPosition(), BS * MAP_BLOCKSIZE);
+		const v3s16 last_chunk_pos = floatToInt(player->last_position, BS * MAP_BLOCKSIZE);
 		if (new_chunk_pos != last_chunk_pos) {
-			u16 updates = 0;
-			u16 examinations = 0;
-			f32 lod_threshold = g_settings->getFloat("lod_threshold");
-			f32 lod_quality = g_settings->getFloat("lod_quality");
-			f32 client_mesh_chunk = g_settings->getFloat("client_mesh_chunk");
-			const v3s16 player_block_pos = getNodeBlockPos(floatToInt(player->getPosition(), BS));
-			const v3s16 player_chunk_pos = m_mesh_grid.getCellPos(player_block_pos);
-			for (s16 z = player_chunk_pos.Z - cs * 9; z < player_chunk_pos.Z + cs * 10; z++)
-			for (s16 x = player_chunk_pos.X - cs * 9; x < player_chunk_pos.X + cs * 10; x++)
-			for (s16 y = player_chunk_pos.Y - cs * 9; y < player_chunk_pos.Y + cs * 10; y++) {
+			for (s16 z = player_block_pos.Z - cs * 5; z <= player_block_pos.Z + cs * 5; z++)
+			for (s16 x = player_block_pos.X - cs * 5; x <= player_block_pos.X + cs * 5; x++)
+			for (s16 y = player_block_pos.Y - cs * 5; y <= player_block_pos.Y + cs * 5; y++) {
 				v3s16 p(x, y, z);
-				MapBlock *b = m_env.getClientMap().getBlockNoCreateNoEx(p);
-				if (!b)
-					continue;
-				examinations++;
-				const v3s16 block_chunk_pos = m_mesh_grid.getMeshPos(p);
-				const u8 new_lod = determineLodForBlock(player_chunk_pos, block_chunk_pos,
-					lod_threshold, lod_quality, client_mesh_chunk);
-				// only queue updates when lod changed
-				if (new_lod != b->lod) {
-					b->lod = new_lod;
-					// and only for one block in the mesh chunk since the entire chunk will get regenerated anyway
-					if (p == block_chunk_pos) {
-						m_mesh_update_manager->updateBlock(&m_env.getMap(), p, false, new_lod == 0);
-						updates++;
-					}
-				}
+				if (m_mesh_grid.isMeshPos(p))
+					m_lod_stale_blocks.push(p);
 			}
-			g_profiler->add("MapBlocks LOD examined [#]", examinations);
-			g_profiler->add("MapBlocks LOD redrawn [#]", updates);
 		}
+
+		for (u16 i = 0; i < 10000 && !m_lod_stale_blocks.empty(); i++) {
+			examinations++;
+			v3s16 p = m_lod_stale_blocks.front();
+			m_lod_stale_blocks.pop();
+
+			MapBlock *b = m_env.getClientMap().getBlockNoCreateNoEx(p);
+			if (!b)
+				continue;
+			const u8 new_lod = determineLodForBlock(player_chunk_pos, p,
+				lod_threshold, lod_quality, client_mesh_chunk);
+			// only queue updates when lod changed
+			if (new_lod != b->lod) {
+				updates++;
+				b->lod = new_lod;
+				m_mesh_update_manager->updateBlock(&m_env.getMap(), p, false, new_lod == 0);
+			}
+		}
+		g_profiler->add("MapBlocks LOD examined [#]", examinations);
+		g_profiler->add("MapBlocks LOD redrawn [#]", updates);
 	}
 
 	/*

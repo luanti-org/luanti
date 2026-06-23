@@ -621,4 +621,6 @@ private:
 
 	// The number of blocks the client will combine for mesh generation.
 	MeshGrid m_mesh_grid;
+
+	std::queue<v3s16> m_lod_stale_blocks;
 };
