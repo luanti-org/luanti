@@ -2383,8 +2383,8 @@ block_send_optimize_distance (Block send optimize distance) int 4 2 2047
 server_side_occlusion_culling (Server-side occlusion culling) bool true
 
 #    At this distance the server will perform a simpler and cheaper occlusion check.
-#    Smaller values potentially improve performance, at the expense of temporarily visible
-#    rendering glitches (missing blocks).
+#    Smaller values improve performance, at the expense of possibly loading more
+#    blocks (especially in caves of openings).
 #    This is especially useful for very large viewing range (upwards of 500).
 #    Stated in MapBlocks (16 nodes).
 block_cull_optimize_distance (Block cull optimize distance) int 25 2 2047
