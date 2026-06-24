@@ -1925,24 +1925,12 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 		}
 	} else {
 		v2s32 pos = getRealCoordinateBasePos(v_pos);
-
-		auto dim = font->getDimension(str.c_str());
-		s32 text_h = dim.Height;
-
-		s32 top = pos.Y;
-
-		if (valign == gui::EGUIA_CENTER) {
-			top = pos.Y + (geom.Y - text_h) / 2;
-		} else if (valign == gui::EGUIA_LOWERRIGHT) {
-			top = pos.Y + (geom.Y - text_h);
-		}
-
 		core::rect<s32> rect(
-				pos.X, top,
+				pos.X, pos.Y,
 				pos.X + geom.X,
-				top + text_h);
+				pos.Y + geom.Y);
 
-		add_label(rect, str, halign, gui::EGUIA_UPPERLEFT, true);
+		add_label(rect, str, halign, valign, true);
 	}
 }
 
