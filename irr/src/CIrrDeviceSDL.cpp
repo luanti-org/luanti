@@ -1237,7 +1237,7 @@ bool CIrrDeviceSDL::run()
 			irrevent.GamepadSensorEvent.Y = SDL_event.csensor.data[1];
 			irrevent.GamepadSensorEvent.Z = SDL_event.csensor.data[2];
 #endif
-			irrevent.GamepadAxisEvent.ID = id;
+			irrevent.GamepadSensorEvent.ID = id;
 			recentGamepadID = id;
 			postEventFromUser(irrevent);
 			break;
