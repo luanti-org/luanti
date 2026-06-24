@@ -29,6 +29,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -102,19 +103,25 @@ public class MainActivity extends AppCompatActivity {
 		mTextView = findViewById(R.id.textView);
 		sharedPreferences = getSharedPreferences(SETTINGS, Context.MODE_PRIVATE);
 
-		checkAppVersion();
-
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
 			createNotificationChannel();
+
+		checkAppVersion();
 	}
 
 	private void checkAppVersion() {
-		if (UnzipService.getIsRunning()) {
+		if (UnzipService.getIsRunning()) { // when exactly does this happen?
+			Log.i("MainActivity", "unzip is still running");
 			mProgressBar.setVisibility(View.VISIBLE);
 			mProgressBar.setIndeterminate(true);
 			mTextView.setVisibility(View.VISIBLE);
-		} else if (sharedPreferences.getInt(TAG_VERSION_CODE, 0) == versionCode &&
-				Utils.isInstallValid(this)) {
+			return;
+		}
+		int stored = sharedPreferences.getInt(TAG_VERSION_CODE, 0);
+		boolean valid = Utils.isInstallValid(this);
+		Log.i("MainActivity", String.format("found v%d, want v%d, install is %s",
+			stored, versionCode, valid ? "valid" : "invalid"));
+		if (stored == versionCode && valid) {
 			startNative();
 		} else {
 			mProgressBar.setVisibility(View.VISIBLE);
@@ -127,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void startNative() {
+		Log.i("MainActivity", "starting native code");
 		sharedPreferences.edit().putInt(TAG_VERSION_CODE, versionCode).apply();
 		Intent intent = new Intent(this, GameActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
