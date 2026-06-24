@@ -21,7 +21,7 @@ GyroControls::~GyroControls()
 
 bool GyroControls::OnEvent(const SEvent &event)
 {
-	if (event.EventType != EET_GAMEPAD_SENSOR_EVENT || event.GamepadSensorEvent.Type != GYRO)
+	if (event.EventType != EET_GAMEPAD_SENSOR_EVENT || event.GamepadSensorEvent.Type != ESENSOR_GYRO)
 		return false;
 
 	vec.X += radToDeg(event.GamepadSensorEvent.Y);
