@@ -442,6 +442,14 @@ joystick_outer_deadzone (Joystick outer dead zone) float 0 0 1
 #    in-game view frustum around.
 joystick_frustum_sensitivity (Joystick frustum sensitivity) float 170.0 0.001
 
+[**Gyro]
+
+# Gyro sensitivity on the yaw axis as a multiplier of gamepad rotation
+gyro_yaw_sensitivity (Yaw sensitivity) float 2.5 0.1 20.0
+
+# Gyro sensitivity on the pitch axis as a multiplier of gamepad rotation
+gyro_pitch_sensitivity (Pitch sensitivity) float 2.5 0.1 20.0
+
 [Graphics and Audio] [client]
 
 [*Graphics]

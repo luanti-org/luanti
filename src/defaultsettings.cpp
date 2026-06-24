@@ -386,6 +386,8 @@ void set_default_settings()
 	settings->setDefault("joystick_frustum_sensitivity", "170");
 	settings->setDefault("joystick_inner_deadzone", "0.25");
 	settings->setDefault("joystick_outer_deadzone", "0");
+	settings->setDefault("gyro_yaw_sensitivity", "2.5");
+	settings->setDefault("gyro_pitch_sensitivity", "2.5");
 
 	// Main menu
 	settings->setDefault("main_menu_path", "");
