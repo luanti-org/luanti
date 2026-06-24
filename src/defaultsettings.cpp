@@ -184,6 +184,9 @@ void set_default_settings()
 	settings->setDefault("keymap_fullscreen", "SYSTEM_SCANCODE_68"); // KEY_F11
 	settings->setDefault("keymap_increase_viewing_range_min", "SYSTEM_SCANCODE_46"); // +
 	settings->setDefault("keymap_decrease_viewing_range_min", "SYSTEM_SCANCODE_45"); // -
+	settings->setDefault("keymap_cycle_view_range_preset", "SYSTEM_SCANCODE_65"); // KEY_F8
+	// Comma-separated list of view distance presets cycled by keymap_cycle_view_range_preset
+	settings->setDefault("viewing_range_presets", "64,128,256,512,1024");
 	settings->setDefault("keymap_close_world", "");
 	settings->setDefault("keymap_slot1", "SYSTEM_SCANCODE_30"); // KEY_KEY_1
 	settings->setDefault("keymap_slot2", "SYSTEM_SCANCODE_31"); // KEY_KEY_2

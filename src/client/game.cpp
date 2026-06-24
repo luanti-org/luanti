@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <csignal>
+#include <sstream>
 #include "client/gameui.h"
 #include "client/inputhandler.h"
 #include "client/texturepaths.h"
@@ -1512,6 +1513,8 @@ void Game::processKeyInput()
 		decreaseViewRange();
 	} else if (wasKeyPressed(KeyType::RANGESELECT)) {
 		toggleFullViewRange();
+	} else if (wasKeyPressed(KeyType::CYCLE_VIEW_RANGE_PRESET)) {
+		cycleViewRangePreset();
 	} else if (wasKeyDown(KeyType::ZOOM)) {
 		checkZoomEnabled();
 	} else if (wasKeyDown(KeyType::QUICKTUNE_NEXT)) {
@@ -1918,6 +1921,68 @@ void Game::toggleFullViewRange()
 	} else {
 		m_game_ui->showTranslatedStatusText("Unlimited viewing range disabled");
 	}
+}
+
+
+void Game::cycleViewRangePreset()
+{
+	// Parse the comma-separated preset list from settings
+	std::string presets_str = g_settings->get("viewing_range_presets");
+	std::vector<s16> presets;
+
+	std::istringstream ss(presets_str);
+	std::string token;
+	while (std::getline(ss, token, ',')) {
+		// Trim whitespace
+		token.erase(0, token.find_first_not_of(" \t"));
+		token.erase(token.find_last_not_of(" \t") + 1);
+		if (!token.empty()) {
+			try {
+				s16 val = static_cast<s16>(std::stoi(token));
+				if (val > 0)
+					presets.push_back(val);
+			} catch (...) {
+				// Ignore malformed entries
+			}
+		}
+	}
+
+	if (presets.empty()) {
+		m_game_ui->showTranslatedStatusText("No view range presets configured");
+		return;
+	}
+
+	s16 current = g_settings->getS16("viewing_range");
+	s16 server_limit = sky->getFogDistance();
+
+	// Find the preset after the current value.
+	// If current matches a preset, advance to the next one (wrapping around).
+	// Otherwise, pick the first preset greater than the current range.
+	s16 next_preset = presets[0];
+	bool found_exact = false;
+	for (size_t i = 0; i < presets.size(); i++) {
+		if (presets[i] == current) {
+			next_preset = presets[(i + 1) % presets.size()];
+			found_exact = true;
+			break;
+		}
+	}
+	if (!found_exact) {
+		// Jump to first preset larger than current, or wrap to first
+		for (s16 p : presets) {
+			if (p > current) {
+				next_preset = p;
+				break;
+			}
+		}
+	}
+
+	g_settings->set("viewing_range", itos(next_preset));
+
+	std::wstring msg = server_limit >= 0 && next_preset > server_limit
+		? fwgettext("View range preset: %d (limited to %d by game or mod)", next_preset, server_limit)
+		: fwgettext("View range preset: %d", next_preset);
+	m_game_ui->showStatusText(msg);
 }
 
 

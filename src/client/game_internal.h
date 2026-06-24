@@ -165,6 +165,7 @@ protected:
 	void increaseViewRange();
 	void decreaseViewRange();
 	void toggleFullViewRange();
+	void cycleViewRangePreset();
 	void checkZoomEnabled();
 
 	void updateCameraDirection(CameraOrientation *cam, float dtime);
