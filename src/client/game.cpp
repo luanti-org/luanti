@@ -954,6 +954,8 @@ bool Game::initGui()
 	if (shouldShowTouchControls())
 		g_touchcontrols = new TouchControls(device, texture_src);
 
+	g_gyrocontrols = new GyroControls(device);
+
 	return true;
 }
 
@@ -2009,6 +2011,13 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 
 		if (dist.X != 0 || dist.Y != 0)
 			input->setMousePos(center.X, center.Y);
+	}
+
+	// Gyro look
+	if (g_gyrocontrols) {
+		v2f32 vec = g_gyrocontrols->getVector();
+		cam->camera_yaw += vec.X * dtime;
+		cam->camera_pitch -= vec.Y * dtime;
 	}
 
 	// Keyboard look

@@ -17,6 +17,7 @@
 #include "clientdynamicinfo.h"
 #include "clouds.h"
 #include "gui/touchcontrols.h"
+#include "gui/gyrocontrols.h"
 #include "irr_ptr.h"
 #include "irrlichttypes_bloated.h"
 #include "log_internal.h"
