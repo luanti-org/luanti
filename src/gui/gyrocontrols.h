@@ -22,6 +22,7 @@ public:
 	DISABLE_CLASS_COPY(GyroControls);
 
 	bool OnEvent(const SEvent &event);
+	bool isActive(const bool toggle);
 
 	v2f32 getVector()
 	{

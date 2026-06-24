@@ -20,6 +20,16 @@ GyroControls::~GyroControls()
 
 }
 
+bool GyroControls::isActive(const bool toggle)
+{
+	if (g_settings->get("gyro_toggle_mode") == "enable" && !toggle)
+		return false;
+	else if (g_settings->get("gyro_toggle_mode") == "disable" && toggle)
+		return false;
+
+	return true;
+}
+
 bool GyroControls::OnEvent(const SEvent &event)
 {
 	if (event.EventType != EET_GAMEPAD_SENSOR_EVENT || event.GamepadSensorEvent.Type != ESENSOR_GYRO)

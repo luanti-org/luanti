@@ -2014,10 +2014,13 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 	}
 
 	// Gyro look
-	if (g_gyrocontrols) {
+	if (g_gyrocontrols && g_gyrocontrols->isActive(input->isKeyDown(KeyType::GYRO_TOGGLE))) {
+		const int dir = (g_settings->get("gyro_toggle_mode") == "invert"
+			&& !input->isKeyDown(KeyType::GYRO_TOGGLE))?
+			1 : -1;
 		v2f32 vec = g_gyrocontrols->getVector();
-		cam->camera_yaw += vec.X * dtime;
-		cam->camera_pitch -= vec.Y * dtime;
+		cam->camera_yaw += vec.X * dtime * dir;
+		cam->camera_pitch -= vec.Y * dtime * dir;
 	}
 
 	// Keyboard look
