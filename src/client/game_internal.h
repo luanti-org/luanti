@@ -281,6 +281,7 @@ private:
 		CameraOrientation *cam);
 	void handleClientEvent_CloudParams(ClientEvent *event, CameraOrientation *cam);
 	void handleClientEvent_UpdateCamera(ClientEvent *event, CameraOrientation *cam);
+	void handleClientEvent_HudAnimate(ClientEvent *event, CameraOrientation *cam);
 
 	void updateChat(f32 dtime);
 
@@ -328,6 +329,12 @@ private:
 
 	// Map server hud ids to client hud ids
 	std::unordered_map<u32, u32> m_hud_server_to_client;
+	// list of pending anims that may have arrived out of order
+	struct PendingHudAnimation {
+		HudElementAnimations animations;
+		f32 age = 0.0f;
+	};
+	std::unordered_map<u32, PendingHudAnimation> m_pending_hud_animations;
 
 	GameRunData runData;
 	Flags m_flags;

@@ -289,6 +289,12 @@ bool RenderingEngine::setWindowIcon()
 	return m_device->setWindowIcon(img.get());
 }
 
+void RenderingEngine::step(float dtime)
+{
+	if (core)
+		core->step(dtime);
+}
+
 /*
 	Draws a screen with a single text on it.
 	Text will be removed when the screen is drawn the next time.
