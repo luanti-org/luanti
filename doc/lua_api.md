@@ -9329,6 +9329,14 @@ You **must not** mix names and track numbers to refer to the same animation.
   element.
     * `stat` supports the same keys as in the hud definition table except for
       `"type"` (or the deprecated `"hud_elem_type"`).
+* `hud_animate(id, animation definition)`: animate properties of a HUD element by keyframes.
+    * `id` is the HUD element ID returned by `hud_add`.
+    * See [HUD animation definition](#hud-animation-definition) for the format.
+    * Animations are applied client-side, server sends the definition
+      to the client which applies them locally.
+    * Multiple properties can be animated simultaneously in one anim def, but only one anim def can exist per element at a time. Calling this function on an element that's already animating will replace the existing animation set.
+    * Pass an empty table `{}` to cancel any animation on an element
+    * While an animation is active, it overwrites the animated properties each frame. Any `hud_change` calls on those properties will have no visible effect until the animation finishes or is cancelled.
 * `hud_get(id)`: gets the HUD element definition structure of the specified ID
 * `hud_get_all()`:
     * Returns a table in the form `{ [id] = HUD definition, [id] = ... }`.
@@ -12068,6 +12076,48 @@ Used by `ObjectRef:hud_add`. Returned by `ObjectRef:hud_get`.
     style = 0, -- integer [u32]
 
     hideable = true, -- bool
+
+    opacity = 1,-- float
+    -- value between 0 and 1, where 0 is invisible, and 1 is fully opaque. Default 1
+}
+```
+
+HUD animation definition
+-------------------------
+
+Used by `ObjectRef:hud_animate`.
+
+Each field in the table corresponds to an animatable HUD element property.
+Multiple properties can be animated at the same time by listing them in the same animation definition table. Any property not listed will be untouched by the animation.
+
+```lua
+{
+    pos_x = { -- pos_x is used as example, each available property has the same definition table
+        keyframes = { {0.1, 0.5}, {0.9, 0.5}, {0.1} },
+        -- List of {value, duration} pairs.
+        -- Duration is the time in seconds to transition FROM this keyframe TO the next one.
+        -- Last keyframe's duration is the time to transition back to the
+        -- first keyframe when looping. If not looping, or upon finishing finite loops,
+        -- the animation holds at the last keyframe's value
+
+        easing = "linear",
+        -- method of Interpolation to use between keyframes.
+        -- "linear" (default), "easein", "easeout", "easeinout"
+        -- these use quadratic easing functions under the hood
+
+        loop = 0,
+        -- Number of times to repeat the animation.
+        -- 0 = play once (default), -1 = loop forever, N = repeat N times
+    },
+
+    -- Animatable properties - multiple can be specified in one table to animate them simultaneously
+    -- Each property is animated independently, with its own elapsed time and loop count,
+    -- So you can specify different properties with their different durations and loop counts, and they will simply drift out of sync.
+    -- pos_x, pos_y : HUD element position
+    -- scale_x, scale_y : HUD element scale, a multiplier
+    -- offset_x, offset_y  : HUD element offset, in pixels
+    -- size_x, size_y : HUD element size, in pixels
+    -- opacity : HUD element opacity, clamped 0 to 1
 }
 ```
 
