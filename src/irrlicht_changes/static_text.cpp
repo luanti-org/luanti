@@ -73,7 +73,7 @@ void StaticText::draw()
 		core::rect<s32> r = frameRect;
 		s32 height_line = font->getDimension(L"A").Height + font->getKerning(L'A').Y;
 		s32 height_total = height_line * BrokenText.size();
-		if (VAlign == EGUIA_CENTER)
+		if (VAlign == EGUIA_CENTER && WordWrap)
 		{
 			r.UpperLeftCorner.Y = r.getCenter().Y - (height_total / 2);
 		}
@@ -94,16 +94,20 @@ void StaticText::draw()
 					font->getDimension(str.c_str()).Width;
 			}
 
+			// When WordWrap == true, StaticText already handles vertical alignment.
+			bool font_vcenter = (VAlign == EGUIA_CENTER) && !WordWrap;
+
 			if (font->getType() == gui::EGFT_CUSTOM) {
 				CGUITTFont *tmp = static_cast<CGUITTFont*>(font);
 				tmp->draw(str,
-					r, HAlign == EGUIA_CENTER, false,
+					r, HAlign == EGUIA_CENTER, font_vcenter,
 					(RestrainTextInside ? &AbsoluteClippingRect : NULL));
-			} else {
+			} else
+			{
 				// Draw non-colored text
 				font->draw(str.c_str(),
 					r, str.getDefaultColor(), // TODO: Implement colorization
-					HAlign == EGUIA_CENTER, false,
+					HAlign == EGUIA_CENTER, font_vcenter,
 					(RestrainTextInside ? &AbsoluteClippingRect : NULL));
 			}
 
