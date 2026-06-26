@@ -672,15 +672,17 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 	bool is_valid_position;
 	/*
 	 * When the map is "dense" (when all visible blocks are loaded) we can start 3-4
-	 * layers before the block we want to check. Either the prior blocks are loaded
-	 * in which case we check them, or they not loaded (because they are invisible),
+	 * blocks before the target block. Either the prior blocks are loaded
+	 * in which case we check them, or they not loaded (because they are invisible,
+	 * see the occlusion logic RemoteClient::getNextBlocks(...)),
 	 * in which case we can treat them as opaque, because blocks behind cannot be
 	 * visible either. This saves a *lot* of CPU time.
-	 * The map is dense on the server, and sparse on the client (we do not even load
+	 * The map is dense on the server, and sparse on the client (we mostly don't even send
 	 * all-air blocks for example).
 	 * For a sparse map we need to check from the origin as before.
 	 */
-	float offset = dense ? std::max(BS, distance - 4.0f * 1.732f * MAP_BLOCKSIZE * BS) : BS;
+	constexpr float DENSE_CHECK_DISTANCE = 4 * MAP_BLOCKSIZE;
+	float offset = dense ? std::max(BS, distance - DENSE_CHECK_DISTANCE * 1.732f * BS) : BS;
 
 	for (; offset < distance + end_offset; offset += step) {
 		v3f pos_node_f = pos_origin_f + direction * offset;
@@ -693,6 +695,13 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 			if (!is_valid_position ||
 					!m_nodedef->getLightingFlags(node).light_propagates) {
 				// Cannot see through light-blocking nodes --> occluded
+				/*
+				 * Note that we do not honor needed_count.
+				 * In the dense case we are more precise and traverse fewer
+				 * blocks before we reach the target block, and we *want*
+				 * the extra precisions (so that we can reuse the "unloaded"
+				 * block information)
+				 */
 				return true;
 			}
 		} else {
