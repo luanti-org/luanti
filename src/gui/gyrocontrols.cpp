@@ -1,10 +1,26 @@
 
 #include "gyrocontrols.h"
 
+#include "log.h"
 #include "settings.h"
 #include "client/inputhandler.h"
 #include <IrrlichtDevice.h>
 #include "irrMath.h"
+#include "util/enum_string.h"
+
+static const char *setting_names[] = {
+	"gyro_yaw_sensitivity",
+	"gyro_pitch_sensitivity",
+	"gyro_toggle_mode"
+};
+
+const struct EnumString es_GyroToggleMode[] =
+{
+	{GYRO_ENABLE, "enable"},
+	{GYRO_DISABLE, "disable"},
+	{GYRO_INVERT, "invert"},
+	{0, NULL},
+};
 
 GyroControls *g_gyrocontrols;
 
@@ -12,7 +28,9 @@ GyroControls::GyroControls(IrrlichtDevice *device):
 		m_device(device),
 		m_receiver(device->getEventReceiver())
 {
-
+	readSettings();
+	for (auto name : setting_names)
+		g_settings->registerChangedCallback(name, settingChangedCallback, this);
 }
 
 GyroControls::~GyroControls()
@@ -20,27 +38,50 @@ GyroControls::~GyroControls()
 
 }
 
-bool GyroControls::isActive(const bool toggle)
+void GyroControls::readSettings()
 {
-	if (g_settings->get("gyro_toggle_mode") == "enable" && !toggle)
-		return false;
-	else if (g_settings->get("gyro_toggle_mode") == "disable" && toggle)
-		return false;
+	const std::string &s = g_settings->get("gyro_toggle_mode");
+	if (!string_to_enum(es_GyroToggleMode, m_toggle_mode, s)) {
+		m_toggle_mode = GYRO_DISABLE;
+		warningstream << "Invalid gyro_toggle_mode value" << std::endl;
+	}
+	initActive();
 
-	return true;
+	m_yaw_sensitivity = g_settings->getFloat("gyro_yaw_sensitivity", 0.1f, 20.0f);
+	m_pitch_sensitivity = g_settings->getFloat("gyro_pitch_sensitivity", 0.1f, 20.0f);
+}
+
+void GyroControls::settingChangedCallback(const std::string &name, void *data)
+{
+	static_cast<GyroControls *>(data)->readSettings();
+}
+
+void GyroControls::initActive()
+{
+	if (m_toggle_mode == GYRO_DISABLE || m_toggle_mode == GYRO_INVERT)
+		m_active = true;
+	if (m_toggle_mode == GYRO_ENABLE)
+		m_active = false;
+}
+
+void GyroControls::toggle()
+{
+	if (m_toggle_mode == GYRO_ENABLE || m_toggle_mode == GYRO_DISABLE)
+		m_active = !m_active;
+	if (m_toggle_mode == GYRO_INVERT)
+		m_dir = -m_dir;
 }
 
 bool GyroControls::OnEvent(const SEvent &event)
 {
+	if (!m_active)
+		return false;
 	if (event.EventType != EET_GAMEPAD_SENSOR_EVENT || event.GamepadSensorEvent.Type != ESENSOR_GYRO)
 		return false;
 
-	const double yaw_sens = g_settings->getFloat("gyro_yaw_sensitivity", 0.1f, 20.0f);
-	const double pitch_sens = g_settings->getFloat("gyro_pitch_sensitivity", 0.1f, 20.0f);
-
-	vec.X += radToDeg(event.GamepadSensorEvent.Y) * yaw_sens;
-	vec.Y += radToDeg(event.GamepadSensorEvent.X) * pitch_sens;
-	samples++;
+	m_vector.X += radToDeg(event.GamepadSensorEvent.Y) * m_yaw_sensitivity* m_dir;
+	m_vector.Y += radToDeg(event.GamepadSensorEvent.X) * m_pitch_sensitivity * m_dir;
+	m_samples++;
 
 	return false;
 }

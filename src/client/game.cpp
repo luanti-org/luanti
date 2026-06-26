@@ -1531,6 +1531,9 @@ void Game::processKeyInput()
 		runData.jump_timer_up = 0.0f;
 	}
 
+	if (wasKeyPressed(KeyType::GYRO_TOGGLE) || wasKeyReleased(KeyType::GYRO_TOGGLE))
+		g_gyrocontrols->toggle();
+
 	if (quicktune->hasMessage()) {
 		m_game_ui->showStatusText(utf8_to_wide(quicktune->getMessage()));
 	}
@@ -2014,13 +2017,10 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 	}
 
 	// Gyro look
-	if (g_gyrocontrols && g_gyrocontrols->isActive(input->isKeyDown(KeyType::GYRO_TOGGLE))) {
-		const int dir = (g_settings->get("gyro_toggle_mode") == "invert"
-			&& !input->isKeyDown(KeyType::GYRO_TOGGLE))?
-			1 : -1;
+	if (g_gyrocontrols) {
 		v2f32 vec = g_gyrocontrols->getVector();
-		cam->camera_yaw += vec.X * dtime * dir;
-		cam->camera_pitch -= vec.Y * dtime * dir;
+		cam->camera_yaw += vec.X * dtime;
+		cam->camera_pitch -= vec.Y * dtime;
 	}
 
 	// Keyboard look
