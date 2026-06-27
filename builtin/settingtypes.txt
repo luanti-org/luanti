@@ -971,6 +971,10 @@ contentdb_url (ContentDB URL) string https://content.luanti.org
 #    check for package updates when opening the mainmenu.
 contentdb_enable_updates_indicator (Enable updates available indicator on content tab) bool true
 
+#    Whether a list of installed packages and worlds should be shared with
+#    ContentDB for statistical / recommendation purposes.
+contentdb_report_installed_packages_id (Report installed and used packages) string
+
 #    Comma-separated list of flags to hide in the content repository.
 #    "nonfree" can be used to hide packages which do not qualify as 'free software',
 #    as defined by the Free Software Foundation.

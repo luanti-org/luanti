@@ -865,6 +865,16 @@ function pkgmgr.get_contentdb_id(content)
 end
 
 --------------------------------------------------------------------------------
+function pkgmgr.has_packages_from_cdb()
+	for _, content in pairs(pkgmgr.get_all()) do
+		if pkgmgr.get_contentdb_id(content) then
+			return true
+		end
+	end
+	return false
+end
+
+--------------------------------------------------------------------------------
 -- Normalizes ID of a game. Keep in sync with subgames.cpp, `normalizeGameId`.
 function pkgmgr.normalize_game_id(name)
 	return name:match("(.*)_game$") or name

@@ -58,16 +58,6 @@ local function get_latest_releases(callback)
 end
 
 
-local function has_packages_from_cdb()
-	for _, content in pairs(pkgmgr.get_all()) do
-		if pkgmgr.get_contentdb_id(content) then
-			return true
-		end
-	end
-	return false
-end
-
-
 --- @returns a new table with all keys lowercase
 local function lowercase_keys(tab)
 	local ret = {}
@@ -79,7 +69,7 @@ end
 
 
 local function fetch()
-	if has_fetched or not has_packages_from_cdb() then
+	if has_fetched or not pkgmgr.has_packages_from_cdb() then
 		return
 	end
 
