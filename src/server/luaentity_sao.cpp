@@ -545,8 +545,11 @@ void LuaEntitySAO::sendPosition(bool do_interpolate, bool is_movement_end)
 		m_rotation,
 		do_interpolate,
 		is_movement_end,
-		update_interval
+		update_interval,
+		m_rotation_interpolate
 	);
+	// Reset per-update rotation interpolation flag to default
+	m_rotation_interpolate = true;
 	// create message and add to list
 	m_messages_out.emplace(getId(), false, str);
 }

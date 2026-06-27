@@ -1155,7 +1155,7 @@ int ObjectRef::l_get_acceleration(lua_State *L)
 	return 1;
 }
 
-// set_rotation(self, rotation)
+// set_rotation(self, rotation, interpolate)
 int ObjectRef::l_set_rotation(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
@@ -1166,9 +1166,12 @@ int ObjectRef::l_set_rotation(lua_State *L)
 
 	v3f rotation = check_v3f(L, 2) * core::RADTODEG;
 
+	// Optional second parameter: interpolate (default true)
+	bool interpolate = lua_isboolean(L, 3) ? lua_toboolean(L, 3) : true;
+
 	// Note: These angles are inverted before being applied using setPitchYawRoll,
 	// hence we end up with a right-handed rotation
-	entitysao->setRotation(rotation);
+	entitysao->setRotation(rotation, interpolate);
 	return 0;
 }
 
