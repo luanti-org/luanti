@@ -6405,9 +6405,11 @@ Logging
 * `core.debug(...)`
     * Calls `core.log` with all arguments converted to string and separated by tabs
       (similar to `print`).
-* `core.log([level,] text)`
+* `core.log([level,] text [, stack_level, once])`
     * `level` is one of `"none"`, `"error"`, `"warning"`, `"action"`,
-      `"info"`, or `"verbose"`.  Default is `"none"`.
+      `"info"`, `"verbose"`, or "deprecated"`.  Default is `"none"`.
+    * `stack_level` and `once` are only used when `level` is `"deprecated"`.
+      If `once` is true, the message will only be logged one time.
 
 Registration functions
 ----------------------
