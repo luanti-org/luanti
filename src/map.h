@@ -297,8 +297,7 @@ protected:
 	bool determineAdditionalOcclusionCheck(v3s16 pos_camera,
 		const core::aabbox3d<s16> &block_bounds, v3s16 &to_check);
 	bool isOccluded(v3s16 pos_camera, v3s16 pos_target,
-		float step, float stepfac, float end_offset,
-		u32 needed_count, bool dense);
+		float end_offset, u32 needed_count, bool dense);
 };
 
 class MMVManip : public VoxelManipulator
