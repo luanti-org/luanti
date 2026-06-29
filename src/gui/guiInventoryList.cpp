@@ -22,7 +22,8 @@ GUIInventoryList::GUIInventoryList(gui::IGUIEnvironment *env,
 	const v2f32 &slot_spacing,
 	GUIFormSpecMenu *fs_menu,
 	const Options &options,
-	gui::IGUIFont *font) :
+	gui::IGUIFont *font,
+	ISimpleTextureSource *tsrc) :
 	gui::IGUIElement(gui::EGUIET_ELEMENT, env, parent, id, rectangle),
 	m_invmgr(invmgr),
 	m_inventoryloc(inventoryloc),
@@ -34,6 +35,7 @@ GUIInventoryList::GUIInventoryList(gui::IGUIEnvironment *env,
 	m_fs_menu(fs_menu),
 	m_options(options),
 	m_font(font),
+	m_tsrc(tsrc),
 	m_hovered_i(-1),
 	m_already_warned(false)
 {
@@ -67,6 +69,8 @@ void GUIInventoryList::draw()
 		return;
 	}
 	m_already_warned = false;
+
+	video::IVideoDriver *driver = Environment->getVideoDriver();
 
 	Client *client = m_fs_menu->getClient();
 	const ItemSpec *selected_item = m_fs_menu->getSelectedItem();
@@ -138,7 +142,37 @@ void GUIInventoryList::draw()
 		bool selected = item_i == selected_index;
 		bool hovering = item_i == m_hovered_i;
 
-		add_rectangle(true, hovering ? m_options.slotbg_h : m_options.slotbg_n, rect_clip);
+		if (m_options.slotbgimg_n != nullptr) {
+			video::ITexture *tex = hovering && m_options.slotbgimg_h
+					? m_options.slotbgimg_h
+					: m_options.slotbgimg_n;
+
+			if (tex) {
+				std::vector<video::S3DVertex> verts;
+				std::vector<u16> indices = {0, 1, 2, 0, 2, 3};
+
+				const auto min = rect_clip.UpperLeftCorner;
+				const auto max = rect_clip.LowerRightCorner;
+				video::SColor white(255, 255, 255, 255);
+
+				verts.emplace_back(min.X, min.Y, 4, 0,0,0, white, 0,0);
+				verts.emplace_back(max.X, min.Y, 4, 0,0,0, white, 1,0);
+				verts.emplace_back(max.X, max.Y, 4, 0,0,0, white, 1,1);
+				verts.emplace_back(min.X, max.Y, 4, 0,0,0, white, 0,1);
+
+				video::SMaterial mat = driver->getMaterial2D();
+				mat.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+				mat.setTexture(0, tex);
+				driver->setMaterial(mat);
+
+				driver->draw2DVertexPrimitiveList(
+					verts.data(), verts.size(),
+					indices.data(), indices.size() / 3,
+					video::EVT_STANDARD, scene::EPT_TRIANGLES, video::EIT_16BIT);
+			}
+		} else {
+			add_rectangle(true, hovering ? m_options.slotbg_h : m_options.slotbg_n, rect_clip);
+		}
 
 		// Draw inv slot borders
 		if (m_options.slotborder) {
@@ -183,8 +217,6 @@ void GUIInventoryList::draw()
 			m_fs_menu->addHoveredItemTooltip(tooltip);
 		}
 	}
-
-	video::IVideoDriver *driver = Environment->getVideoDriver();
 
 	video::SMaterial mat = driver->getMaterial2D();
 	mat.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
