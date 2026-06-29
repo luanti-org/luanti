@@ -48,6 +48,7 @@ struct MeshMakeData
 	bool m_generate_minimap = false;
 	bool m_smooth_lighting = false;
 	bool m_enable_water_reflections = false;
+	bool m_enable_waving_water = false;
 
 	const NodeDefManager *m_nodedef;
 
