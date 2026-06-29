@@ -161,7 +161,7 @@ end
 function core.is_colored_paramtype(ptype)
 	return (ptype == "color") or (ptype == "colorfacedir") or
 		(ptype == "color4dir") or (ptype == "colorwallmounted") or
-		(ptype == "colordegrotate")
+		(ptype == "colordegrotate") or (ptype == "colorliquid")
 end
 
 function core.strip_param2_color(param2, paramtype2)
@@ -175,6 +175,8 @@ function core.strip_param2_color(param2, paramtype2)
 		return math.floor(param2 / 8) * 8
 	elseif paramtype2 == "colordegrotate" then
 		return math.floor(param2 / 32) * 32
+	elseif paramtype2 == "colorliquid" then
+		return math.floor(param2 / 16) * 16
 	else
 		return nil
 	end
