@@ -6,6 +6,7 @@
 #include <fstream>
 #include <json/json.h>
 #include <algorithm>
+#include "content/mod_errors.h"
 #include "content/mods.h"
 #include "database/database.h"
 #include "filesys.h"
@@ -16,21 +17,17 @@
 
 void ModSpec::checkAndLog() const
 {
-	if (!string_allowed(name, MODNAME_ALLOWED_CHARS)) {
-		throw ModError("Error loading mod \"" + name +
-			"\": Mod name does not follow naming conventions: "
-				"Only characters [a-z0-9_] are allowed.");
-	}
+	ModErrors::logErrors();
 
 	// Log deprecation messages
-	auto handling_mode = get_deprecated_handling_mode();
-	if (!deprecation_msgs.empty() && handling_mode != DeprecatedHandlingMode::Ignore) {
+	auto deprecation_handling_mode = get_deprecated_handling_mode();
+	if (!deprecation_msgs.empty() && deprecation_handling_mode != DeprecatedHandlingMode::Ignore) {
 		std::ostringstream os;
 		os << "Mod " << name << " at " << path << ":" << std::endl;
 		for (auto msg : deprecation_msgs)
 			os << "\t" << msg << std::endl;
 
-		if (handling_mode == DeprecatedHandlingMode::Error)
+		if (deprecation_handling_mode == DeprecatedHandlingMode::Error)
 			throw ModError(os.str());
 		else
 			warningstream << os.str();
@@ -70,6 +67,7 @@ bool parseModContents(ModSpec &spec)
 	} else if (fs::IsFile(spec.path + DIR_DELIM + "modpack.txt")) {
 		spec.is_modpack = true;
 	} else if (!fs::IsFile(spec.path + DIR_DELIM + "init.lua")) {
+		ModErrors::setModError(spec.path, "Mod does not contain 'init.lua");
 		return false;
 	} else {
 		// Is a mod
@@ -86,6 +84,10 @@ bool parseModContents(ModSpec &spec)
 	if (info.exists("name")) {
 		spec.name = info.get("name");
 		spec.is_name_explicit = true;
+		if (!string_allowed(spec.name, MODNAME_ALLOWED_CHARS)) {
+			ModErrors::setModError(spec.path, "Mod does not follow naming conventions" "Only characters [a-z0-9_] are allowed.");
+			return false;
+		}
 	} else if (!spec.is_modpack) {
 		spec.deprecation_msgs.push_back("Mods not having a mod.conf file with the name is deprecated.");
 	}
@@ -192,6 +194,8 @@ std::map<std::string, ModSpec> getModsInPath(
 			result[modname] = std::move(spec);
 		}
 	}
+	// Log mod errors after we finish loading them all
+	ModErrors::logErrors();
 	return result;
 }
 
