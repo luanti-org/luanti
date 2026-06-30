@@ -175,10 +175,10 @@ class GUIFormSpecMenu : public GUIModalMenu
 		std::string parent_name;
 		std::string text;
 		core::rect<s32> hover_rect;
-		v2s32 stpos; //< static tooltip position
-		s32 width; //< in pixels
-		bool floating; //< whether the position is NON-static (i.e. ignore stpos)
-		bool bound = false; //< whether it's cached
+		v2s32 stpos; ///< static tooltip position
+		s32 width; ///< in pixels
+		bool floating; ///< whether the position is NON-static (i.e. ignore stpos)
+		bool bound = false; ///< whether it's cached
 	};
 
 public:
