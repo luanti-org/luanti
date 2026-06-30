@@ -45,7 +45,7 @@ struct ActiveObjectMessage
 	std::string datastring;
 };
 
-enum ActiveObjectCommand {
+enum ActiveObjectCommand : u8 {
 	AO_CMD_SET_PROPERTIES,
 	AO_CMD_UPDATE_POSITION,
 	AO_CMD_SET_TEXTURE_MOD,
@@ -62,6 +62,8 @@ enum ActiveObjectCommand {
 	AO_CMD_SET_ANIMATION_SPEED,
 	// >= 5.17.0-dev
 	AO_CMD_STOP_ANIMATION,
+	// When adding new commands, update Server::AsyncRunStep()
+	// to drop newer commands for older clients
 };
 
 struct BoneOverride
