@@ -56,6 +56,7 @@ core.features = {
 	get_modnames_load_order = true,
 	set_camera_resettable = true,
 	hud_hideable_field = true,
+	hud_animate = true,
 	compress_raw_deflate = true,
 	get_all_craft_recipes_fuel = true,
 }

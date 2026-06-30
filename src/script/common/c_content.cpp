@@ -2423,6 +2423,8 @@ void read_hud_element(lua_State *L, HudElement *elem)
 
 	elem->hideable = getboolfield_default(L, 2, "hideable", true);
 
+	elem->opacity = getfloatfield_default(L, 2, "opacity", 1.0f);
+
 	/* check for known deprecated element usage */
 	if ((elem->type  == HUD_ELEM_STATBAR) && (elem->size == v2f()))
 		log_deprecated(L,"Deprecated usage of statbar without size!");
@@ -2491,6 +2493,9 @@ void push_hud_element(lua_State *L, HudElement *elem)
 
 	lua_pushboolean(L, elem->hideable);
 	lua_setfield(L, -2, "hideable");
+
+	lua_pushnumber(L, elem->opacity);
+	lua_setfield(L, -2, "opacity");
 }
 
 bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value)
@@ -2564,12 +2569,97 @@ bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void 
 			elem->hideable = lua_isnoneornil(L, 4) ? true : lua_toboolean(L, 4);
 			*value = &elem->hideable;
 			break;
+		case HUD_STAT_OPACITY:
+			elem->opacity = lua_isnoneornil(L, 4) ? 1.0f : luaL_checknumber(L, 4);
+			*value = &elem->opacity;
+			break;
 		case HudElementStat_END:
 			return false;
 			break;
 	}
 
 	return true;
+}
+
+/******************************************************************************/
+
+static const struct {
+	const char *name;
+	HudAnimationStat stat;
+} hud_anim_property_names[] = {
+	{"pos_x",    HUD_ANIM_POS_X},
+	{"pos_y",    HUD_ANIM_POS_Y},
+	{"scale_x",  HUD_ANIM_SCALE_X},
+	{"scale_y",  HUD_ANIM_SCALE_Y},
+	{"offset_x", HUD_ANIM_OFFSET_X},
+	{"offset_y", HUD_ANIM_OFFSET_Y},
+	{"size_x",   HUD_ANIM_SIZE_X},
+	{"size_y",   HUD_ANIM_SIZE_Y},
+	{"opacity",  HUD_ANIM_OPACITY},
+};
+
+void read_hud_animation(lua_State *L, int index, HudElementAnimations &anims)
+{
+	for (const auto &pn : hud_anim_property_names) {
+		lua_getfield(L, index, pn.name);
+		if (!lua_istable(L, -1)) {
+			lua_pop(L, 1);
+			continue;
+		}
+
+		int prop_table = lua_gettop(L);
+		HudAnimProperty prop;
+
+		// Read easing
+		lua_getfield(L, prop_table, "easing");
+		if (lua_isstring(L, -1)) {
+			std::string easing = lua_tostring(L, -1);
+			if (easing == "easein")
+				prop.easing = HUD_ANIM_EASING_EASE_IN;
+			else if (easing == "easeout")
+				prop.easing = HUD_ANIM_EASING_EASE_OUT;
+			else if (easing == "easeinout")
+				prop.easing = HUD_ANIM_EASING_EASE_IN_OUT;
+		}
+		lua_pop(L, 1);
+
+		// Read loop
+		lua_getfield(L, prop_table, "loop");
+		if (lua_isnumber(L, -1))
+			prop.loop = lua_tonumber(L, -1);
+		lua_pop(L, 1);
+
+		// Read keyframes
+		lua_getfield(L, prop_table, "keyframes");
+		if (lua_istable(L, -1)) {
+			int kf_table = lua_gettop(L);
+			size_t num_kf = lua_objlen(L, kf_table);
+			prop.keyframes.reserve(num_kf);
+
+			for (size_t i = 1; i <= num_kf; i++) {
+				lua_rawgeti(L, kf_table, i);
+				if (lua_istable(L, -1)) {
+					HudAnimKeyframe kf;
+					lua_rawgeti(L, -1, 1);
+					kf.value = lua_tonumber(L, -1);
+					lua_pop(L, 1);
+
+					lua_rawgeti(L, -1, 2);
+					kf.duration = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0.0f;
+					lua_pop(L, 1);
+
+					prop.keyframes.push_back(kf);
+				}
+				lua_pop(L, 1);
+			}
+		}
+		lua_pop(L, 1);
+
+		if (!prop.keyframes.empty())
+			anims.properties[static_cast<u8>(pn.stat)] = std::move(prop);
+
+		lua_pop(L, 1);
+	}
 }
 
 /******************************************************************************/
