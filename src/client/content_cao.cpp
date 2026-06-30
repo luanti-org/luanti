@@ -1644,6 +1644,7 @@ void GenericCAO::processMessage(const std::string &data)
 		bool do_interpolate = readU8(is);
 		bool is_end_position = readU8(is);
 		float update_interval = readF32(is);
+		bool do_interpolate_rotation = is.peek() != EOF ? readU8(is) : true;
 
 		if(getParent() != NULL) // Just in case
 			return;
@@ -1655,7 +1656,10 @@ void GenericCAO::processMessage(const std::string &data)
 		} else {
 			pos_translator.init(m_position);
 		}
-		rot_translator.update(m_rotation, false, update_interval);
+		if (do_interpolate_rotation)
+			rot_translator.update(m_rotation, false, update_interval);
+		else
+			rot_translator.init(m_rotation);
 		updateNodePos();
 	} else if (cmd == AO_CMD_SET_TEXTURE_MOD) {
 		std::string mod = deSerializeString16(is);
