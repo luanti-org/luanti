@@ -703,6 +703,7 @@ void TextDrawer::place(const core::rect<s32> &dest_rect)
 	m_floating.clear();
 	s32 y = 0;
 	s32 ymargin = m_text.margin;
+	bool first_paragraph = true;
 
 	// Iterator used :
 	// p - Current paragraph, walked only once
@@ -713,7 +714,7 @@ void TextDrawer::place(const core::rect<s32> &dest_rect)
 		// Find and place floating stuff in paragraph
 		for (auto e = p.elements.begin(); e != p.elements.end(); ++e) {
 			if (e->floating != ParsedText::FLOAT_NONE) {
-				if (y)
+				if (!first_paragraph)
 					e->pos.Y = y + std::max(ymargin, e->margin);
 				else
 					e->pos.Y = ymargin;
@@ -732,8 +733,10 @@ void TextDrawer::place(const core::rect<s32> &dest_rect)
 			}
 		}
 
-		if (y)
+		if (!first_paragraph)
 			y = y + std::max(ymargin, p.margin);
+		else
+			y = y + ymargin;
 
 		ymargin = p.margin;
 
@@ -905,6 +908,8 @@ void TextDrawer::place(const core::rect<s32> &dest_rect)
 			}
 			y += charsheight;
 		} // Elements (actually lines)
+
+		first_paragraph = false;
 	} // Paragraph
 
 	// Check if float goes under paragraph
