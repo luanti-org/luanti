@@ -264,6 +264,11 @@ local function load()
 		["disable"] = fgettext_ne("Disable"),
 		["invert"] = fgettext_ne("Invert"),
 	}
+
+	get_setting_info("gyro_turn_axis").option_labels = {
+		["yaw"] = fgettext_ne("Yaw"),
+		["roll"] = fgettext_ne("Roll"),
+	}
 end
 
 

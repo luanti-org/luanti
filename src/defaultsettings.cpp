@@ -389,6 +389,8 @@ void set_default_settings()
 	settings->setDefault("joystick_outer_deadzone", "0");
 	settings->setDefault("gyro_yaw_sensitivity", "2.5");
 	settings->setDefault("gyro_pitch_sensitivity", "2.5");
+	settings->setDefault("gyro_toggle_mode", "disable");
+	settings->setDefault("gyro_turn_axis", "yaw");
 
 	// Main menu
 	settings->setDefault("main_menu_path", "");

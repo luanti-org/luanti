@@ -2018,7 +2018,7 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 
 	// Gyro look
 	if (g_gyrocontrols) {
-		v2f32 vec = g_gyrocontrols->getVector();
+		v2f32 vec = g_gyrocontrols->getCameraOffset();
 		cam->camera_yaw += vec.X * dtime;
 		cam->camera_pitch -= vec.Y * dtime;
 	}

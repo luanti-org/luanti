@@ -20,7 +20,14 @@ enum GyroToggleMode : u8
 	GYRO_DISABLE,
 	GYRO_INVERT
 };
-extern const struct EnumString es_TouchInteractionStyle[];
+extern const struct EnumString es_GyroToggleMode[];
+
+enum GyroTurnAxis : u8
+{
+	GYRO_YAW,
+	GYRO_ROLL
+};
+extern const struct EnumString es_GyroTurnAxis[];
 
 class GyroControls
 {
@@ -35,14 +42,31 @@ public:
 	bool OnEvent(const SEvent &event);
 	void toggle();
 
-	v2f32 getVector()
+	v2f32 getCameraOffset()
 	{
-		if (m_samples == 0)
-			return v2f32(0.0, 0.0);
-		v2f32 v = m_vector / m_samples;
-		m_vector = v2f32(0.0, 0.0);
-		m_samples = 0;
-		return v;
+		v3f average_vector = getAverageGyro();
+		v2f32 out_vector = v2f32(0.0, 0.0);
+		if (m_turn_axis == GYRO_YAW) {
+			out_vector.X = average_vector.X;
+			out_vector.Y = average_vector.Y;
+		} else if (m_turn_axis == GYRO_ROLL) {
+			// roll needs to be inverted
+			out_vector.X = -average_vector.Z;
+			out_vector.Y = average_vector.Y;
+		}
+		out_vector.X *= m_yaw_sensitivity * m_dir;
+		out_vector.Y *= m_pitch_sensitivity * m_dir;
+		return out_vector;
+	}
+
+	v3f getAverageGyro()
+	{
+		if (m_gyro_samples_count == 0)
+			return v3f(0.0, 0.0, 0.0);
+		v3f average_vector = m_gyro_samples / m_gyro_samples_count;
+		m_gyro_samples = v3f(0.0, 0.0, 0.0);
+		m_gyro_samples_count = 0;
+		return average_vector;
 	}
 
 private:
@@ -53,6 +77,7 @@ private:
 
 	// cached settings
 	GyroToggleMode m_toggle_mode;
+	GyroTurnAxis m_turn_axis;
 	double m_yaw_sensitivity;
 	double m_pitch_sensitivity;
 
@@ -60,9 +85,9 @@ private:
 	int m_dir = 1;
 
 	// accumulated rotation in degrees
-	v2f32 m_vector = v2f32(0.0, 0.0);
+	v3f m_gyro_samples = v3f(0.0, 0.0, 0.0);
 	// number of samples accumulated
-	int m_samples = 0;
+	int m_gyro_samples_count = 0;
 };
 
 extern GyroControls *g_gyrocontrols;

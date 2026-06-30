@@ -465,6 +465,16 @@ gyro_pitch_sensitivity (Pitch sensitivity) float 2.5 0.1 20.0
 #
 gyro_toggle_mode (Gyro Toggle Mode) enum disable enable,disable,invert
 
+# Which gyro axis to use for horizontal camera turning
+#
+#    * Yaw
+#      Use the yaw axis, best used with gamepads
+#
+#    * Roll
+#      Use the roll axis, best used with handhelds
+#
+gyro_turn_axis (Turn Axis) enum yaw yaw,roll
+
 [Graphics and Audio] [client]
 
 [*Graphics]
