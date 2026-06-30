@@ -4020,7 +4020,7 @@ void GUIFormSpecMenu::showHyperTip(GUIHyperText *e, const HyperTipSpec &spec)
 {
 	// Hypertip size and offset
 	s32 tooltip_width = spec.width;
-	s32 tooltip_height = e->getTextHeight() + 5;
+	s32 tooltip_height = e->getTextHeight();
 	s32 tooltip_x, tooltip_y;
 
 	v2u32 screenSize = Environment->getVideoDriver()->getScreenSize();
