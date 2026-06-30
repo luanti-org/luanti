@@ -194,6 +194,11 @@ bool GUIInventoryList::isPointInside(const core::position2d<s32> &point) const
 	return getItemIndexAtPos(point) != -1;
 }
 
+void GUIInventoryList::setHoveredIndex(s32 item_i)
+{
+	m_hovered_i = item_i;
+}
+
 s32 GUIInventoryList::getItemIndexAtPos(v2s32 p) const
 {
 	// no item if no gui element at pointer

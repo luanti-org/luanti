@@ -75,6 +75,8 @@ public:
 
 	bool isPointInside(const core::position2d<s32> &point) const override;
 
+	void setHoveredIndex(s32 item_i);
+
 	const InventoryLocation &getInventoryloc() const
 	{
 		return m_inventoryloc;
