@@ -423,14 +423,14 @@ int ObjectRef::l_set_animation(lua_State *L)
 	float frame_blend = readParam<float>(L, 4, 0.0f);
 	bool frame_loop   = readParam<bool>(L, 5, true);
 
-	scene::TrackAnimSpec anim_spec;
-	anim_spec.min_frame = frame_range.X;
-	anim_spec.max_frame = frame_range.Y;
-	anim_spec.fps = frame_speed;
-	anim_spec.blend_duration = frame_blend;
-	anim_spec.loop = frame_loop;
+	scene::TrackAnimSpec anim;
+	anim.min_frame = frame_range.X;
+	anim.max_frame = frame_range.Y;
+	anim.fps = frame_speed;
+	anim.blend_duration = frame_blend;
+	anim.loop = frame_loop;
 
-	sao->setAnimation((u16) 0, anim_spec);
+	sao->setAnimation((u16) 0, anim);
 	return 0;
 }
 

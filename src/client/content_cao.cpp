@@ -1408,13 +1408,13 @@ void GenericCAO::setLocalPlayerAnimation(LocalPlayerAnimation local_anim, float 
 	if (range == v2f())
 		return; // animation not defined, stick to current animation
 
-	scene::TrackAnimSpec track_anim;
-	track_anim.min_frame = track_anim.cur_frame = range.X;
-	track_anim.max_frame = range.Y;
-	track_anim.fps = speed;
+	scene::TrackAnimSpec anim;
+	anim.setFrameRange(range.X, range.Y);
+	anim.fps = speed;
+	anim.cur_frame = anim.fps >= 0 ? anim.min_frame : anim.max_frame;
 
 	m_local_player_animation = true;
-	m_animated_meshnode->getAnimation() = scene::AnimSpec{{{0, track_anim}}};
+	m_animated_meshnode->getAnimation() = scene::AnimSpec{{{0, anim}}};
 
 	player->last_animation = local_anim;
 	player->last_animation_speed = speed;
@@ -1730,8 +1730,7 @@ void GenericCAO::processMessage(const std::string &data)
 			cur_frame = std::max(0.0f, readF32(is));
 		}
 
-		anim.min_frame = std::max(0.0f, std::min(range.X, range.Y));
-		anim.max_frame = std::max(0.0f, std::max(range.X, range.Y));
+		anim.setFrameRange(range.X, range.Y);
 		anim.cur_frame = cur_frame.value_or(anim.fps >= 0 ? anim.min_frame : anim.max_frame);
 
 		// Also clamps cur_frame & max_frame to the track max frame number in the mesh

@@ -28,6 +28,9 @@ struct TrackAnimSpec {
 	f32 blend_progress = 0.0f; ///< how many seconds of blending have passed so far
 
 	void advance(f32 dtime_s);
+
+	/// Set the frame range between frame1 and frame2, sorted and clamped
+	void setFrameRange(f32 frame1, f32 frame2);
 };
 
 /// Specification for multiple animation tracks
