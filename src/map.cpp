@@ -671,15 +671,16 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 	u32 count = 0;
 	bool is_valid_position;
 	/*
-	 * When the map is "dense" (when all visible blocks are loaded) we can start 3-4
+	 * When the map is "dense" (when all visible blocks are loaded) we check
+	 * a few blocks close to the camera and then we can jump to a few
 	 * blocks before the target block. Either the prior blocks are loaded
-	 * in which case we check them, or they not loaded (because they are invisible,
-	 * see the occlusion logic RemoteClient::getNextBlocks(...)),
-	 * in which case we can treat them as opaque, because blocks behind cannot be
-	 * visible either. This saves a *lot* of CPU time.
+	 * in which case we check them, or they are not loaded, in which case we
+	 * assume this is because they are not visible and treat them as opaque.
+	 * (see the occlusion logic RemoteClient::getNextBlocks).
+	 * This saves a *lot* of CPU time.
 	 * The map is dense on the server, and sparse on the client (we mostly don't even send
 	 * all-air blocks for example).
-	 * For a sparse map we need to check from the origin as before.
+	 * For a sparse map we need to check from the origin as before (cheap stays false).
 	 */
 	constexpr float DENSE_CHECK_DISTANCE = 3 * MAP_BLOCKSIZE;
 
@@ -687,7 +688,7 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 	float offset = BS;
 	// Starting step size, value between 1m and sqrt(3)m
 	float step = BS * 1.2f;
-	// Multiply step by each iteraction by 'stepfac' to reduce checks in distance
+	// Multiply step by each iteration by 'stepfac' to reduce checks in distance
 	float stepfac = 1.05f;
 
 	bool cheap = false;
