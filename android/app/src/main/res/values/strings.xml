@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="label">Luanti</string>
+	<string name="label">Workshop 47</string>
 	<string name="loading">Loading&#8230;</string>
 	<string name="notification_channel_name">General notification</string>
 	<string name="notification_channel_description">Notifications from Luanti</string>
