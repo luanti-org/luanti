@@ -53,6 +53,10 @@ function vector.copy(v)
 	return fast_new(v.x, v.y, v.z)
 end
 
+function vector.unpack(v)
+	return v.x, v.y, v.z
+end
+
 function vector.from_string(s, init)
 	local x, y, z, np = string.match(s, "^%s*%(%s*([^%s,]+)%s*[,%s]%s*([^%s,]+)%s*[,%s]" ..
 			"%s*([^%s,]+)%s*[,%s]?%s*%)()", init)

@@ -11,6 +11,7 @@
 #include "util/string.h"
 #include "util/base64.h"
 #include "util/colorize.h"
+#include "vector3d.h"
 
 class TestUtilities : public TestBase {
 public:
@@ -554,6 +555,15 @@ void TestUtilities::testEulerConversion()
 	// ... however the rotation matrix is the same for both
 	setPitchYawRoll(m2, v2);
 	UASSERT(within(m1, m2, tolL));
+
+	// Check the handedness.
+	core::matrix4 m3;
+	setPitchYawRollRad(m3, core::vector3df(0, M_PI/2.0f, 0));
+	core::vector3df z(0, 0, 1);
+	m3.transformVect(z);
+	// +Z should be mapped to +X if left-handed, -X if right-handed.
+	// We don't really care about the precision here.
+	UASSERT(within(z.X, 1.0f, tolH));
 }
 
 void TestUtilities::testBase64()
