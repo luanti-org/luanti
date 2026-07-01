@@ -136,16 +136,18 @@ class GUIFormSpecMenu : public GUIModalMenu
 	{
 		TooltipSpec() = default;
 		TooltipSpec(const std::wstring &a_tooltip, video::SColor a_bgcolor,
-				video::SColor a_color):
+				video::SColor a_color, bool a_explicit_colors = false):
 			tooltip(translate_string(a_tooltip)),
 			bgcolor(a_bgcolor),
-			color(a_color)
+			color(a_color),
+			explicit_colors(a_explicit_colors)
 		{
 		}
 
 		std::wstring tooltip;
 		video::SColor bgcolor;
 		video::SColor color;
+		bool explicit_colors = false;
 	};
 
 public:
