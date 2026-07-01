@@ -22,12 +22,6 @@ void TrackAnimSpec::advance(f32 dtime_s)
 	}
 }
 
-void TrackAnimSpec::setFrameRange(f32 frame1, f32 frame2)
-{
-	min_frame = std::max(0.0f, std::min(frame1, frame2));
-	max_frame = std::max(0.0f, std::max(frame1, frame2));
-}
-
 void TrackAnimSpec::clamp(f32 model_max_frame)
 {
 	max_frame = std::min(max_frame, model_max_frame);

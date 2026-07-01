@@ -5,6 +5,7 @@
 #pragma once
 
 #include "irrTypes.h"
+#include <algorithm>
 #include <unordered_map>
 #include <variant>
 #include <string>
@@ -30,7 +31,11 @@ struct TrackAnimSpec {
 	void advance(f32 dtime_s);
 
 	/// Set the frame range between frame1 and frame2, sorted and clamped
-	void setFrameRange(f32 frame1, f32 frame2);
+	void setFrameRange(f32 frame1, f32 frame2)
+	{
+		min_frame = std::max(0.0f, std::min(frame1, frame2));
+		max_frame = std::max(0.0f, std::max(frame1, frame2));
+	}
 
 	/// Clamp min/max/cur frame to model track max frame
 	void clamp(f32 model_max_frame);
