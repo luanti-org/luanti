@@ -154,8 +154,7 @@ void GUIScene::setStyles(const std::array<StyleSpec, StyleSpec::NUM_STATES> &sty
 void GUIScene::setFrameLoop(f32 begin, f32 end)
 {
 	auto &anim = m_mesh->getAnimation().tracks[0];
-	anim.min_frame = begin;
-	anim.max_frame = end;
+	anim.setFrameRange(begin, end);
 	anim.cur_frame = anim.fps >= 0 ? begin : end;
 }
 

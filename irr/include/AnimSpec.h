@@ -31,6 +31,9 @@ struct TrackAnimSpec {
 
 	/// Set the frame range between frame1 and frame2, sorted and clamped
 	void setFrameRange(f32 frame1, f32 frame2);
+
+	/// Clamp min/max/cur frame to model track max frame
+	void clamp(f32 model_max_frame);
 };
 
 /// Specification for multiple animation tracks

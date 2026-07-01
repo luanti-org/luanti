@@ -1068,7 +1068,10 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 		removeFromScene(false);
 		addToScene(m_client->tsrc(), m_smgr);
 
-		if (m_animated_meshnode) {
+		if (m_animated_meshnode && m_animated_meshnode->getMesh()) {
+			for (auto &[track_nr, track] : m_animation.tracks) {
+				track.clamp(m_animated_meshnode->getMesh()->getMaxFrameNumber(track_nr));
+			}
 			m_animated_meshnode->getAnimation() = m_animation; // Restore animation
 		}
 
@@ -1548,11 +1551,8 @@ void GenericCAO::applyTrackAnimation(scene::TrackId &&track_id, scene::TrackAnim
 		return;
 
 	if (m_animated_meshnode) {
-		anim.max_frame = std::min(anim.max_frame,
-				m_animated_meshnode->getMesh()->getMaxFrameNumber(*track_nr));
+		anim.clamp(m_animated_meshnode->getMesh()->getMaxFrameNumber(*track_nr));
 	}
-
-	anim.cur_frame = std::clamp(anim.cur_frame, anim.min_frame, anim.max_frame);
 
 	if (!m_is_local_player) {
 		m_animation.tracks[*track_nr] = anim;

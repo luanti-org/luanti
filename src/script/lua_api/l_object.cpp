@@ -424,8 +424,7 @@ int ObjectRef::l_set_animation(lua_State *L)
 	bool frame_loop   = readParam<bool>(L, 5, true);
 
 	scene::TrackAnimSpec anim;
-	anim.min_frame = frame_range.X;
-	anim.max_frame = frame_range.Y;
+	anim.setFrameRange(frame_range.X, frame_range.Y);
 	anim.fps = frame_speed;
 	anim.blend_duration = frame_blend;
 	anim.loop = frame_loop;
@@ -496,6 +495,8 @@ static void read_track_anim_spec(lua_State *L, int tidx,
 	anim.min_frame = getfloatfield_default(L, tidx, "min_frame", 0.0f);
 	anim.max_frame = getfloatfield_default(L, tidx, "max_frame",
 			std::numeric_limits<f32>::infinity());
+	if (anim.min_frame > anim.max_frame)
+		throw LuaError("expected min_frame <= max_frame");
 	anim.fps = getfloatfield_default(L, tidx, "speed", 1.0f);
 	anim.cur_frame = getfloatfield_default(L, tidx, "start_frame",
 			anim.fps >= 0 ? anim.min_frame : anim.max_frame);
