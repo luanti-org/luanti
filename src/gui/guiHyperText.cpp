@@ -1065,13 +1065,15 @@ GUIHyperText::GUIHyperText(const wchar_t *text, IGUIEnvironment *environment,
 		IGUIElement *parent, s32 id, const core::rect<s32> &rectangle,
 		Client *client, ISimpleTextureSource *tsrc,
 		video::SColor default_background_color,
-		video::SColor default_color) :
+		video::SColor default_color,
+		bool is_hypertip) :
 		IGUIElement(EGUIET_ELEMENT, environment, parent, id, rectangle),
 		m_tsrc(tsrc), m_vscrollbar(nullptr),
 		m_drawer(text, client, environment, tsrc, default_background_color, default_color),
 		m_text_scrollpos(0, 0),
 		m_default_background_color(default_background_color),
-		m_default_color(default_color)
+		m_default_color(default_color),
+		m_draw_state(is_hypertip ? 0 : 2) // disable delay hack for non-hypertip hypertext
 {
 
 	IGUISkin *skin = nullptr;

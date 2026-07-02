@@ -199,7 +199,8 @@ public:
 			const core::rect<s32> &rectangle, Client *client,
 			ISimpleTextureSource *tsrc,
 			video::SColor default_background_color,
-			video::SColor default_color);
+			video::SColor default_color,
+			bool is_hypertip = false);
 
 	//! destructor
 	virtual ~GUIHyperText();
