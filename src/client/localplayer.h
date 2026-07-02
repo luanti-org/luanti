@@ -165,6 +165,14 @@ public:
 	}
 
 	inline Lighting& getLighting() { return m_lighting; }
+	// const version for read-only access, needed for const access
+	inline const Lighting& getLighting() const { return m_lighting; }
+	// smooths the transition when a mod sets new lighting
+	void updateCustomLighting(float dtime);
+	// calculated sun/moon/light colors from mod set + smoothing
+	video::SColorf m_sunlight_color;
+	video::SColorf m_moonlight_color;
+	video::SColorf m_lightsource_color;
 
 	inline PlayerSettings &getPlayerSettings() { return m_player_settings; }
 
@@ -222,4 +230,5 @@ private:
 
 	PlayerSettings m_player_settings;
 	Lighting m_lighting;
+
 };
