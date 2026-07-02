@@ -9802,9 +9802,19 @@ You **must not** mix names and track numbers to refer to the same animation.
         * `ao_gamma`: Strength of node ambient-occlusion shading. Lower is darker, Higher is lighter.
           * Recommended range: from 0.25 to 3.0, default: 1.8
           * A value of 0.0 will disable this shading entirely.
+      * `sunlight_color`: overrides the color of sunlight (`ColorSpec` or `false`).
+      * `moonlight_color`: overrides the color of moonlight (`ColorSpec` or `false`).
+      * `lightsource_color`: overrides the color of light emitted by light
+        sources, e.g. torches (`ColorSpec` or `false`).
+        * All three default to the engine's built-in colors. Omitting any leaves the value unchanged.
+          Passing `false` resets an individual color to its engine default.
+        * `sunlight_color` and `moonlight_color` are still blended by time of
+          day.
 
 * `get_lighting()`: returns the current state of lighting for the player.
     * Result is a table with the same fields as `light_definition` in `set_lighting`.
+    * `sunlight_color`, `moonlight_color` and `lightsource_color` are only
+      present if overridden.
 * `respawn()`: Respawns the player using the same mechanism as the death screen,
   including calling `on_respawnplayer` callbacks.
 * `get_flags()`: returns a table of player flags (the following boolean fields):

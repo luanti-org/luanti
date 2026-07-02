@@ -1927,5 +1927,12 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 		if (s.light_curve_set)
 			pkt->readRawString(reinterpret_cast<char*>(s.light_curve), sizeof(s.light_curve));
 		*pkt >> s.ao_gamma;
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.18.0-dev
+		*pkt >> lighting.has_sunlight_color >> lighting.sunlight_color;
+		*pkt >> lighting.has_moonlight_color >> lighting.moonlight_color;
+		*pkt >> lighting.has_lightsource_color >> lighting.lightsource_color;
 	} while (0);
 }
