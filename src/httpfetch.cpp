@@ -255,13 +255,11 @@ HTTPFetchOngoing::HTTPFetchOngoing(const HTTPFetchRequest &request_,
 	const char *protocols = "HTTP,HTTPS,FTP,FTPS";
 	curl_easy_setopt(curl, CURLOPT_PROTOCOLS_STR, protocols);
 	curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS_STR, protocols);
-#elif LIBCURL_VERSION_NUM >= 0x071304
+#else
 	// These settings were introduced in curl 7.19.4, and later deprecated.
 	long protocols =
-		CURLPROTO_HTTP |
-		CURLPROTO_HTTPS |
-		CURLPROTO_FTP |
-		CURLPROTO_FTPS;
+		CURLPROTO_HTTP | CURLPROTO_HTTPS |
+		CURLPROTO_FTP | CURLPROTO_FTPS;
 	curl_easy_setopt(curl, CURLOPT_PROTOCOLS, protocols);
 	curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS, protocols);
 #endif
@@ -450,13 +448,6 @@ HTTPFetchOngoing::~HTTPFetchOngoing()
 	pool->free(curl);
 }
 
-
-#if LIBCURL_VERSION_NUM >= 0x074200
-#define HAVE_CURL_MULTI_POLL
-#else
-#undef HAVE_CURL_MULTI_POLL
-#endif
-
 class CurlFetchThread : public Thread
 {
 protected:
@@ -609,38 +600,12 @@ protected:
 	{
 		CURLMcode mres;
 
-#ifdef HAVE_CURL_MULTI_POLL
 		mres = curl_multi_poll(m_multi, nullptr, 0, timeout, nullptr);
 
 		if (mres != CURLM_OK) {
 			errorstream << "curl_multi_poll returned error code "
 				<< mres << std::endl;
 		}
-#else
-		// If there's nothing to do curl_multi_wait() will immediately return
-		// so we have to emulate the sleeping.
-
-		fd_set dummy;
-		int max_fd;
-		mres = curl_multi_fdset(m_multi, &dummy, &dummy, &dummy, &max_fd);
-		if (mres != CURLM_OK) {
-			errorstream << "curl_multi_fdset returned error code "
-				<< mres << std::endl;
-			max_fd = -1;
-		}
-
-		if (max_fd == -1) { // curl has nothing to wait for
-			if (timeout > 0)
-				sleep_ms(timeout);
-		} else {
-			mres = curl_multi_wait(m_multi, nullptr, 0, timeout, nullptr);
-
-			if (mres != CURLM_OK) {
-				errorstream << "curl_multi_wait returned error code "
-					<< mres << std::endl;
-			}
-		}
-#endif
 	}
 
 	void *run()
