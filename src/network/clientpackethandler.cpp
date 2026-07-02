@@ -156,7 +156,7 @@ void Client::handleCommand_AuthAccept(NetworkPacket* pkt)
 		lang.clear();
 
 	// TODO drop these restrictions as SSCSM matures
-	bool want_sscsm = g_settings->get("enable_sscsm") == "singleplayer" && m_internal_server;
+	bool want_sscsm = g_settings->get("enable_sscsm") == "singleplayer" && m_simple_singleplayer_mode;
 	u16 sscsm_version = want_sscsm ? 1 : 0;
 
 	NetworkPacket resp_pkt(TOSERVER_INIT2, 2*sizeof(u16) + lang.size());
@@ -1934,7 +1934,7 @@ void Client::handleCommand_LoadSSCSM(NetworkPacket *pkt)
 	// TODO drop these restrictions as SSCSM matures
 	if (g_settings->get("enable_sscsm") != "singleplayer")
 		throw PacketError("Refusing to load SSCSM");
-	if (!m_internal_server)
+	if (!m_simple_singleplayer_mode)
 		throw PacketError("Refusing to load SSCSM outside of singleplayer");
 
 	std::vector<std::pair<std::string, std::string>> vfs_update;
