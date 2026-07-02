@@ -5,7 +5,10 @@
 #include "client/client.h"
 
 #include "exceptions.h"
+#include "irrTypes.h"
 #include "irr_v2d.h"
+#include "settings.h"
+#include "sscsm/sscsm_events.h"
 #include "util/base64.h"
 #include "client/camera.h"
 #include "client/mesh_generator_thread.h"
@@ -20,6 +23,7 @@
 #include "nodedef.h"
 #include "serialization.h"
 #include "util/strfnd.h"
+#include "util/string.h"
 #include "client/clientevent.h"
 #include "client/sound.h"
 #include "client/localplayer.h"
@@ -27,6 +31,7 @@
 #include "network/connection.h"
 #include "network/networkpacket.h"
 #include "script/scripting_client.h"
+#include "script/sscsm/sscsm_controller.h"
 #include "util/serialize.h"
 #include "util/srp.h"
 #include "util/hashing.h"
@@ -150,8 +155,13 @@ void Client::handleCommand_AuthAccept(NetworkPacket* pkt)
 	if (lang == "LANG_CODE")
 		lang.clear();
 
-	NetworkPacket resp_pkt(TOSERVER_INIT2, sizeof(u16) + lang.size());
+	// TODO drop these restrictions as SSCSM matures
+	bool want_sscsm = g_settings->get("enable_sscsm") == "singleplayer" && m_internal_server;
+	u16 sscsm_version = want_sscsm ? 1 : 0;
+
+	NetworkPacket resp_pkt(TOSERVER_INIT2, 2*sizeof(u16) + lang.size());
 	resp_pkt << lang;
+	resp_pkt << sscsm_version;
 	Send(&resp_pkt);
 
 	m_state = LC_Init;
@@ -1917,4 +1927,45 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 		// >= 5.16.0-dev
 		*pkt >> lighting.shadow_direction;
 	} while (0);
+}
+
+void Client::handleCommand_LoadSSCSM(NetworkPacket *pkt)
+{
+	// TODO drop these restrictions as SSCSM matures
+	if (g_settings->get("enable_sscsm") != "singleplayer")
+		throw PacketError("Refusing to load SSCSM");
+	if (!m_internal_server)
+		throw PacketError("Refusing to load SSCSM outside of singleplayer");
+
+	std::vector<std::pair<std::string, std::string>> vfs_update;
+	{
+		u32 count = 0;
+		*pkt >> count;
+		for (u32 i = 0; i < count; ++i) {
+			std::string path, contents;
+			*pkt >> path;
+			contents = pkt->readLongString();
+			vfs_update.emplace_back(path, contents);
+		}
+	}
+
+	std::vector<std::pair<std::string, std::string>> load_mods;
+	{
+		u32 count = 0;
+		*pkt >> count;
+		for (u32 i = 0; i < count; ++i) {
+			std::string modname, path;
+			*pkt >> modname >> path;
+			load_mods.emplace_back(modname, path);
+		}
+	}
+
+	auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
+	event1->files = std::move(vfs_update);
+	// actually don't want to run immediately, use submit
+	m_sscsm_controller->runEvent(this, std::move(event1));
+
+	auto event2 = std::make_unique<SSCSMEventLoadMods>();
+	event2->mods = std::move(load_mods);
+	m_sscsm_controller->runEvent(this, std::move(event2));
 }

@@ -453,6 +453,7 @@ set(independent_SRCS
 	log.cpp
 	metadata.cpp
 	modchannels.cpp
+	mod_vfs.cpp
 	nameidmapping.cpp
 	nodemetadata.cpp
 	nodetimer.cpp
