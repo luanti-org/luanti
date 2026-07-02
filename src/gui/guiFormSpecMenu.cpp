@@ -1485,17 +1485,23 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 		Environment->setFocus(e);
 	}
 
+	auto style = getDefaultStyleForElement("pwdfield", name, "field");
+
 	if (label.length() >= 1) {
 		int font_height = g_fontengine->getTextHeight();
 		rect.UpperLeftCorner.Y -= font_height;
 		rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + font_height;
-		gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
+		gui::IGUIStaticText *t = gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
 			data->current_parent, 0);
+		if (t) {
+			t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+			t->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
+			t->setOverrideFont(style.getFont());
+		}
 	}
 
 	e->setPasswordBox(true,L'*');
 
-	auto style = getDefaultStyleForElement("pwdfield", name, "field");
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 	e->setDrawBorder(style.getBool(StyleSpec::BORDER, true));
 	e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
@@ -1522,8 +1528,13 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 	bool is_editable = !spec.fname.empty();
 	if (!is_editable && !is_multiline) {
 		// spec field id to 0, this stops submit searching for a value that isn't there
-		gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
+		gui::IGUIStaticText *t = gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
 				data->current_parent, 0);
+
+		auto style = getDefaultStyleForElement("field");
+		t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+		t->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
+		t->setOverrideFont(style.getFont());
 		return;
 	}
 
@@ -1580,11 +1591,13 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 		int font_height = g_fontengine->getTextHeight();
 		rect.UpperLeftCorner.Y -= font_height;
 		rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + font_height;
-		IGUIElement *t = gui::StaticText::add(Environment, spec.flabel.c_str(),
+		gui::IGUIStaticText *t = gui::StaticText::add(Environment, spec.flabel.c_str(),
 				rect, false, true, data->current_parent, 0);
-
-		if (t)
+		if (t) {
 			t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+			t->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
+			t->setOverrideFont(style.getFont());
+		}
 	}
 }
 
