@@ -44,7 +44,7 @@ public:
 	SSCSMScripting *getScript() { return m_script.get(); }
 
 	ModVFS *getModVFS() { return m_vfs.get(); }
-	void updateVFSFiles(std::vector<std::pair<std::string, std::string>> &&files);
+	void updateVFSFiles(ModVFS &&files);
 	std::optional<std::string_view> readVFSFile(const std::string &path);
 
 	void setFatalError(const std::string &reason);
