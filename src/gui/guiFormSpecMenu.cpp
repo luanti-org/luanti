@@ -3908,9 +3908,10 @@ ItemStack GUIFormSpecMenu::verifySelectedItem()
 					ItemStack stack = list->getItem(m_selected_item->i);
 					if (!m_selected_swap.empty()) {
 						if (m_selected_swap.name == stack.name &&
-								m_selected_swap.count == stack.count)
+								m_selected_swap.count == stack.count) {
 							m_selected_swap.clear();
 							m_selected_amount = stack.count;
+						}
 					} else {
 						m_selected_amount = std::min(m_selected_amount, stack.count);
 					}
