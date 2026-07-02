@@ -25,11 +25,6 @@ to file contents (strings)).
 Each mod's files have paths of the form `modname:foo/bla.lua`.
 Please don't rely on this, use `core.get_modpath()` instead.
 
-The virtual file paths within a mod are meant to mimic the filepaths on the
-server, for example `<modpath>/common/foo.lua` gets sent as `modname:common/foo.lua`.
-
-The engine loads `modname:init.lua` for all mods, in server mod dependency order.
-
 There is client and server builtin (modnames are `*client_builtin*` and
 `*server_builtin*`). The server builtin is sent from the server, like any other
 SSCSM, and the client builtin is located on the client.
@@ -37,37 +32,8 @@ SSCSM, and the client builtin is located on the client.
 
 ### Mod sending API
 
-Call `core.register_sscsm(params)` *once at load time* from your SSM.
-`params` is a table specifying the scripts to be sent:
-
-* `init_path`: The virtual relative path of the client mod's init script (equivalent to `init.lua` in SSM).
-    * Must be specified.
-* `paths`: A mapping (table) from virtual relative paths (keys, strings)
-  to relative real paths (values, strings) in the mod folder.
-    * For convenience, values can also be `true`, in which case the key will be used as value.
-    * If the value is a path to a directory, all files in the directory will be mapped recursively.
-        * Hidden files and subdirectories (`.foo`) will be ignored.
-        * Files will be loaded *irrespective of their extension*.
-          You can use this for (small) non-code resources (e.g. JSON files)
-          and custom extensions for Lua preprocessors.
-    * Mapped files must not be changed while the server runs.
-
-Conventionally, client-only scripts should reside in a `client` folder,
-including a `client/init.lua` that is run on startup.
-Scripts common to client and server (e.g. utilities) are placed in a `common` folder.
-Example:
-
-```lua
-core.register_sscsm({
-    init_path = "client/init.lua",
-    paths = {
-       client = true,
-       common = true,
-    },
-})
-```
-
-Init scripts will be run in SSM load order.
+To register a SSCSM, call `core.register_sscsm(params)` *once at load time* from your SSM.
+See `lua_api.md` for details.
 
 ## API
 

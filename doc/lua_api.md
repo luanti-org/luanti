@@ -7833,6 +7833,46 @@ core.ipc_get("test:foo") -- returns an empty table
   * `timeout`: maximum wait time, in milliseconds (positive values only)
   * returns: true on success, false on timeout
 
+SSCSM
+-----
+
+For many purposes, it is important to be able to run code on the client.
+This is possible using *server-sent client-side mods* (SSCSM).
+
+**Warning:** SSCSM is very experimental. The API (including `core.register_sscsm`) will break.
+
+To register a SSCSM, call `core.register_sscsm(params)` *once at load time* from your SSM.
+`params` is a table specifying the scripts to be sent:
+
+* `init_path`: The virtual relative path of the client mod's init script (equivalent to `init.lua` in SSM).
+    * Must be specified.
+* `paths`: A mapping (table) from virtual relative paths (keys, strings)
+  to relative real paths (values, strings) in the mod folder.
+    * For convenience, values can also be `true`, in which case the key will be used as value.
+    * If the value is a path to a directory, all files in the directory will be mapped recursively.
+        * Hidden files and subdirectories (`.foo`) will be ignored.
+        * Files will be loaded *irrespective of their extension*.
+          You can use this for (small) non-code resources (e.g. JSON files)
+          and custom extensions for Lua preprocessors.
+    * Mapped files must not be changed while the server runs.
+
+Conventionally, client-only scripts should reside in a `client` folder,
+including a `client/init.lua` that is run on startup.
+Scripts common to client and server (e.g. utilities) are placed in a `common` folder.
+Example:
+
+```lua
+core.register_sscsm({
+    init_path = "client/init.lua",
+    paths = {
+       client = true,
+       common = true,
+    },
+})
+```
+
+Init scripts will be run in SSM load order.
+
 Bans
 ----
 
