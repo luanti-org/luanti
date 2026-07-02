@@ -1492,7 +1492,7 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 		int font_height = g_fontengine->getTextHeight();
 		rect.UpperLeftCorner.Y -= font_height;
 		rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + font_height;
-		gui::IGUIStaticText* t = gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
+		gui::IGUIStaticText *t = gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
 			data->current_parent, 0);
 		if (t) {
 			t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
@@ -1529,14 +1529,13 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 	bool is_editable = !spec.fname.empty();
 	if (!is_editable && !is_multiline) {
 		// spec field id to 0, this stops submit searching for a value that isn't there
-		gui::IGUIStaticText* t = gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
+		gui::IGUIStaticText *t = gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
 				data->current_parent, 0);
-		if (t) {
-			auto style = getDefaultStyleForElement("field");
-			t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
-			t->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
-			t->setOverrideFont(style.getFont());
-		}
+
+		auto style = getDefaultStyleForElement("field");
+		t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+		t->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
+		t->setOverrideFont(style.getFont());
 		return;
 	}
 
