@@ -1944,6 +1944,8 @@ void Client::handleCommand_LoadSSCSM(NetworkPacket *pkt)
 		for (u32 i = 0; i < count; ++i) {
 			std::string path, contents;
 			*pkt >> path;
+			if (str_starts_with(path, "*client_builtin*:"))
+				throw PacketError("invalid virtual path");
 			contents = pkt->readLongString();
 			vfs_update.emplace_back(path, contents);
 		}
@@ -1956,6 +1958,8 @@ void Client::handleCommand_LoadSSCSM(NetworkPacket *pkt)
 		for (u32 i = 0; i < count; ++i) {
 			std::string modname, path;
 			*pkt >> modname >> path;
+			if (modname == "*client_builtin*")
+				throw PacketError("invalid modname");
 			load_mods.emplace_back(modname, path);
 		}
 	}
