@@ -180,6 +180,7 @@ void set_default_settings()
 	settings->setDefault("keymap_camera_yaw_right", "GAMEPAD_AXIS_PLUS_2"); // Right Joystick
 	settings->setDefault("keymap_camera_pitch_up", "GAMEPAD_AXIS_MINUS_3"); // Right Joystick
 	settings->setDefault("keymap_camera_pitch_down", "GAMEPAD_AXIS_PLUS_3"); // Right Joystick
+	settings->setDefault("keymap_gyro_toggle", "");
 	settings->setDefault("keymap_screenshot", "SYSTEM_SCANCODE_69|GAMEPAD_BUTTON_14"); // KEY_F12|D-Pad Right
 	settings->setDefault("keymap_fullscreen", "SYSTEM_SCANCODE_68"); // KEY_F11
 	settings->setDefault("keymap_increase_viewing_range_min", "SYSTEM_SCANCODE_46"); // +
@@ -386,6 +387,10 @@ void set_default_settings()
 	settings->setDefault("joystick_frustum_sensitivity", "170");
 	settings->setDefault("joystick_inner_deadzone", "0.25");
 	settings->setDefault("joystick_outer_deadzone", "0");
+	settings->setDefault("gyro_yaw_sensitivity", "2.5");
+	settings->setDefault("gyro_pitch_sensitivity", "2.5");
+	settings->setDefault("gyro_toggle_mode", "disable");
+	settings->setDefault("gyro_turn_axis", "yaw");
 
 	// Main menu
 	settings->setDefault("main_menu_path", "");

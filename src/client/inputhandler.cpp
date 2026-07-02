@@ -9,6 +9,7 @@
 #include "inputhandler.h"
 #include "gui/mainmenumanager.h"
 #include "gui/touchcontrols.h"
+#include "gui/gyrocontrols.h"
 #include "hud_element.h"
 #include "log_internal.h"
 #include "client/renderingengine.h"
@@ -84,6 +85,7 @@ void MyEventReceiver::reloadKeybindings()
 	keybindings[KeyType::CAMERA_YAW_RIGHT] = getKeySetting("keymap_camera_yaw_right");
 	keybindings[KeyType::CAMERA_PITCH_UP] = getKeySetting("keymap_camera_pitch_up");
 	keybindings[KeyType::CAMERA_PITCH_DOWN] = getKeySetting("keymap_camera_pitch_down");
+	keybindings[KeyType::GYRO_TOGGLE] = getKeySetting("keymap_gyro_toggle");
 
 	keybindings[KeyType::QUICKTUNE_NEXT] = getKeySetting("keymap_quicktune_next");
 	keybindings[KeyType::QUICKTUNE_PREV] = getKeySetting("keymap_quicktune_prev");
@@ -274,6 +276,9 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		return true;
 	} else if (event.EventType == EET_MOUSE_INPUT_EVENT && event.MouseInput.Event == EMIE_MOUSE_WHEEL) {
 		mouse_wheel += event.MouseInput.Wheel;
+	} else if (g_gyrocontrols && event.EventType == EET_GAMEPAD_SENSOR_EVENT) {
+		g_gyrocontrols->OnEvent(event);
+		return true;
 	} else if (event.EventType == EET_USER_EVENT && event.UserEvent.type == EUET_GAME_KEY) {
 		KeyPress keyCode(static_cast<GameKeyType>(event.UserEvent.UserData1));
 		setKeyDown(keyCode, InputHandler::intToAnalog(event.UserEvent.UserData2));
