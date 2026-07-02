@@ -93,7 +93,7 @@ jobs:
 
   msvc:
     name: VS 2026 ${{ matrix.config.arch }}
-    runs-on: windows-2025-vs2026
+    runs-on: ${{ matrix.config.runner }}
     env:
       VCPKG_DEFAULT_TRIPLET: ${{matrix.config.vcpkg_triplet}}
     strategy:
@@ -103,12 +103,20 @@ jobs:
           - {
               arch: x86,
               generator: "-G'Visual Studio 18 2026' -A Win32",
+              runner: windows-2025-vs2026,
               vcpkg_triplet: x86-windows
             }
           - {
               arch: x64,
               generator: "-G'Visual Studio 18 2026' -A x64",
+              runner: windows-2025-vs2026,
               vcpkg_triplet: x64-windows
+            }
+          - {
+              arch: arm64,
+              generator: "-G'Visual Studio 18 2026' -A ARM64",
+              runner: windows-11-vs2026-arm,
+              vcpkg_triplet: arm64-windows
             }
 
     steps:
