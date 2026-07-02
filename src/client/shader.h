@@ -237,6 +237,8 @@ struct ShaderFeatures {
 	/// @see irr::video::IVideoDriver::setJointTransforms
 	bool skinning = false;
 
+	bool is_textureless = false;
+
 	void setConstants(ShaderConstants &consts) const;
 };
 
