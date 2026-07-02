@@ -2055,6 +2055,10 @@ void Server::SendSetLighting(session_t peer_id, const Lighting &lighting)
 
 	pkt << lighting.shadow_direction;
 
+	pkt << lighting.has_sunlight_color << lighting.sunlight_color;
+	pkt << lighting.has_moonlight_color << lighting.moonlight_color;
+	pkt << lighting.has_lightsource_color << lighting.lightsource_color;
+
 	Send(&pkt);
 }
 

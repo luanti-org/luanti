@@ -9566,9 +9566,19 @@ child will follow movement and rotation of that bone.
             * Currently, bloom `intensity` and `strength_factor` affect volumetric
               lighting `strength` and vice versa. This behavior is to be changed
               in the future, do not rely on it.
+      * `sunlight_color`: overrides the color of sunlight (`ColorSpec` or `false`).
+      * `moonlight_color`: overrides the color of moonlight (`ColorSpec` or `false`).
+      * `lightsource_color`: overrides the color of light emitted by light
+        sources, e.g. torches (`ColorSpec` or `false`).
+        * All three default to the engine's built-in colors. Omitting any leaves the value unchanged.
+          Passing `false` resets an individual color to its engine default.
+        * `sunlight_color` and `moonlight_color` are still blended by time of
+          day.
 
 * `get_lighting()`: returns the current state of lighting for the player.
     * Result is a table with the same fields as `light_definition` in `set_lighting`.
+    * `sunlight_color`, `moonlight_color` and `lightsource_color` are only
+      present if overridden.
 * `respawn()`: Respawns the player using the same mechanism as the death screen,
   including calling `on_respawnplayer` callbacks.
 * `get_flags()`: returns a table of player flags (the following boolean fields):

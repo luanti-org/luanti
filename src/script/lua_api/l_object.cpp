@@ -2728,6 +2728,27 @@ int ObjectRef::l_set_lighting(lua_State *L)
 			lighting.bloom_radius          = getfloatfield_default(L, -1, "radius",          lighting.bloom_radius);
 		}
 		lua_pop(L, 1); // bloom
+
+		lua_getfield(L, 2, "sunlight_color");
+		if (lua_isboolean(L, -1) && !lua_toboolean(L, -1))
+			lighting.has_sunlight_color = false;
+		else if (!lua_isnil(L, -1))
+			lighting.has_sunlight_color = read_color(L, -1, &lighting.sunlight_color);
+		lua_pop(L, 1); // sunlight_color
+
+		lua_getfield(L, 2, "moonlight_color");
+		if (lua_isboolean(L, -1) && !lua_toboolean(L, -1))
+			lighting.has_moonlight_color = false;
+		else if (!lua_isnil(L, -1))
+			lighting.has_moonlight_color = read_color(L, -1, &lighting.moonlight_color);
+		lua_pop(L, 1); // moonlight_color
+
+		lua_getfield(L, 2, "lightsource_color");
+		if (lua_isboolean(L, -1) && !lua_toboolean(L, -1))
+			lighting.has_lightsource_color = false;
+		else if (!lua_isnil(L, -1))
+			lighting.has_lightsource_color = read_color(L, -1, &lighting.lightsource_color);
+		lua_pop(L, 1); // lightsource_color
 }
 
 	getServer(L)->setLighting(player, lighting);
@@ -2782,6 +2803,18 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	lua_pushnumber(L, lighting.bloom_radius);
 	lua_setfield(L, -2, "radius");
 	lua_setfield(L, -2, "bloom");
+	if (lighting.has_sunlight_color) {
+		push_ARGB8(L, lighting.sunlight_color);
+		lua_setfield(L, -2, "sunlight_color");
+	}
+	if (lighting.has_moonlight_color) {
+		push_ARGB8(L, lighting.moonlight_color);
+		lua_setfield(L, -2, "moonlight_color");
+	}
+	if (lighting.has_lightsource_color) {
+		push_ARGB8(L, lighting.lightsource_color);
+		lua_setfield(L, -2, "lightsource_color");
+	}
 	return 1;
 }
 
