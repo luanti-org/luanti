@@ -37,20 +37,25 @@ SSCSM, and the client builtin is located on the client.
 
 ### Mod sending API
 
-Call `core.register_sscsm(params)` *at load time* from your SSM
-`params` is a table with two fields:
+Call `core.register_sscsm(params)` *once at load time* from your SSM.
+`params` is a table specifying the scripts to be sent:
 
-* `init_path`: The virtual relative path of the client mod's init script (equivalent to `init.lua` in SSM)
-* `paths`: A mapping of virtual relative paths to actual paths in the mod folder
-    * This is a table mapping strings to strings, or `true` if values are to be the same as keys.
-    * Values can be relative paths of folders, in which case all files will be mapped recursively.
-
-The given files are assumed not to change while the server runs.
+* `init_path`: The virtual relative path of the client mod's init script (equivalent to `init.lua` in SSM).
+    * Must be specified.
+* `paths`: A mapping (table) from virtual relative paths (keys, strings)
+  to relative real paths (values, strings) in the mod folder.
+    * For convenience, values can also be `true`, in which case the key will be used as value.
+    * If the value is a path to a directory, all files in the directory will be mapped recursively.
+        * Hidden files and subdirectories (`.foo`) will be ignored.
+        * Files will be loaded *irrespective of their extension*.
+          You can use this for (small) non-code resources (e.g. JSON files)
+          and custom extensions for Lua preprocessors.
+    * Mapped files must not be changed while the server runs.
 
 Conventionally, client-only scripts should reside in a `client` folder,
 including a `client/init.lua` that is run on startup.
 Scripts common to client and server (e.g. utilities) are placed in a `common` folder.
-Like this:
+Example:
 
 ```lua
 core.register_sscsm({
@@ -62,7 +67,7 @@ core.register_sscsm({
 })
 ```
 
-Init scripts will be run in mod load order.
+Init scripts will be run in SSM load order.
 
 ## API
 

@@ -19,6 +19,7 @@
 #include "scripting_server.h"
 #include "server.h"
 #include "serverenvironment.h"
+#include "script/sscsm/sscsm_init.h"
 
 #include <algorithm>
 #include <lauxlib.h>
@@ -674,7 +675,18 @@ int ModApiServer::l_register_sscsm(lua_State *L)
 	std::string init_path;
 	if (!getstringfield(L, 1, "init_path", init_path))
 		throw LuaError("init_path must be a string");
-	server->m_sscsm_init.mod_init_scripts.emplace_back(mod_name, mod_name + ":" + init_path);
+
+	auto &mod_init_scripts = server->m_sscsm_init->mod_init_scripts;
+	if (mod_init_scripts.end() != std::find_if(
+			mod_init_scripts.begin(),
+			mod_init_scripts.end(),
+			[&mod_name](const auto &pair) {
+				return pair.first == mod_name;
+			})) {
+		throw LuaError("register_sscsm must be called at most once per mod");
+	}
+
+	server->m_sscsm_init->mod_init_scripts.emplace_back(mod_name, mod_name + ":" + init_path);
 
 	lua_getfield(L, 1, "paths");
 	int paths = lua_gettop(L);
@@ -698,13 +710,13 @@ int ModApiServer::l_register_sscsm(lua_State *L)
 		}
 		std::string abs_path = mod_spec->path + DIR_DELIM + real_path;
 		CHECK_SECURE_PATH(L, abs_path.c_str(), false); // TODO maybe insufficient
-		if (!virt_prefix.empty())
-			virt_prefix += "/";
 		virt_prefix = mod_name + ":" + virt_prefix;
 		if (fs::IsFile(abs_path)) {
-			server->m_sscsm_init.vfs.loadFile(virt_prefix, abs_path);
+			server->m_sscsm_init->vfs.loadFile(virt_prefix, abs_path);
 		} else {
-			server->m_sscsm_init.vfs.scanModSubfolder(virt_prefix, abs_path);
+			if (!virt_prefix.empty())
+				virt_prefix += "/";
+			server->m_sscsm_init->vfs.scanModSubfolder(virt_prefix, abs_path);
 		}
 		// removes value; keeps key for next iteration
 		lua_pop(L, 1);

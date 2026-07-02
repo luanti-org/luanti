@@ -1962,7 +1962,6 @@ void Client::handleCommand_LoadSSCSM(NetworkPacket *pkt)
 
 	auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
 	event1->files = std::move(vfs_update);
-	// actually don't want to run immediately, use submit
 	m_sscsm_controller->runEvent(this, std::move(event1));
 
 	auto event2 = std::make_unique<SSCSMEventLoadMods>();

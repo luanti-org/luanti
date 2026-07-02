@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "mod_vfs.h"
 #include "irr_v3d.h"
 #include "map.h"
 #include "hud_element.h" // HudElementStat
@@ -50,6 +49,7 @@ class ServerModManager;
 class ServerScripting;
 class ServerThread;
 class Settings;
+struct SSCSMInit;
 
 struct ChatEventChat;
 struct ChatInterface;
@@ -466,13 +466,7 @@ public:
 	// Identical but for mapgen env
 	std::vector<std::pair<std::string, std::string>> m_mapgen_init_files;
 
-	struct SSCSMInit {
-		/// SSCSM files (usually Lua) to be distributed to clients
-		ModVFS vfs;
-		/// Pairs of modnames and paths to init scripts, run in the given order
-		std::vector<std::pair<std::string, std::string>> mod_init_scripts;
-	};
-	SSCSMInit m_sscsm_init;
+	std::unique_ptr<SSCSMInit> m_sscsm_init;
 
 	// Data transferred into other Lua envs at init time
 	std::unique_ptr<PackedValue> m_lua_globals_data;
