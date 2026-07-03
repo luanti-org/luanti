@@ -1534,7 +1534,8 @@ std::optional<u16> GenericCAO::resolveTrackId(const scene::TrackId &track_id)
 	u16 track_nr = std::get<u16>(track_id);
 	u16 max_track_nr = mesh->getTrackCount();
 	if (track_nr >= max_track_nr) {
-		warningstream << "Track number " << track_nr << " out of bounds for mesh " << m_prop.mesh
+		// 1-indexed track number for consistency with Lua API
+		warningstream << "Track number " << (track_nr + 1) << " out of bounds for mesh " << m_prop.mesh
 			<< " (max: " << max_track_nr << ")" << std::endl;
 		return std::nullopt;
 	}
