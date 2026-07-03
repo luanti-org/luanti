@@ -276,6 +276,16 @@ v2s32 GUIFormSpecMenu::getRealCoordinateGeometry(const std::vector<std::string> 
 	return v2s32(stof(v_geom[0]) * imgsize.X, stof(v_geom[1]) * imgsize.Y);
 }
 
+gui::IGUIStaticText* GUIFormSpecMenu::addLabel(const EnrichedString& text, const core::rect<s32>& rect,
+	gui::IGUIElement* parent, StyleSpec& style, bool wordWrap, s32 id)
+{
+	gui::IGUIStaticText* t = gui::StaticText::add(Environment, text, rect, false, wordWrap, parent, id);
+	t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+	t->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
+	t->setOverrideFont(style.getFont());
+	return t;
+}
+
 bool GUIFormSpecMenu::precheckElement(const std::string &name, const std::string &element,
 	size_t args_min, size_t args_max, std::vector<std::string> &parts)
 {
@@ -1492,13 +1502,7 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 		int font_height = g_fontengine->getTextHeight();
 		rect.UpperLeftCorner.Y -= font_height;
 		rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + font_height;
-		gui::IGUIStaticText *t = gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
-			data->current_parent, 0);
-		if (t) {
-			t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
-			t->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
-			t->setOverrideFont(style.getFont());
-		}
+		addLabel(EnrichedString(spec.flabel.c_str()), rect, data->current_parent, style);
 	}
 
 	e->setPasswordBox(true,L'*');
@@ -1529,13 +1533,8 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 	bool is_editable = !spec.fname.empty();
 	if (!is_editable && !is_multiline) {
 		// spec field id to 0, this stops submit searching for a value that isn't there
-		gui::IGUIStaticText *t = gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
-				data->current_parent, 0);
-
 		auto style = getDefaultStyleForElement("field");
-		t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
-		t->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
-		t->setOverrideFont(style.getFont());
+		addLabel(EnrichedString(spec.flabel.c_str()), rect, data->current_parent, style);
 		return;
 	}
 
@@ -1592,13 +1591,7 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 		int font_height = g_fontengine->getTextHeight();
 		rect.UpperLeftCorner.Y -= font_height;
 		rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + font_height;
-		gui::IGUIStaticText *t = gui::StaticText::add(Environment, spec.flabel.c_str(),
-				rect, false, true, data->current_parent, 0);
-		if (t) {
-			t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
-			t->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
-			t->setOverrideFont(style.getFont());
-		}
+		addLabel(EnrichedString(spec.flabel.c_str()), rect, data->current_parent, style);
 	}
 }
 
@@ -1813,15 +1806,9 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 			258 + m_fields.size(),
 			4
 		);
-		gui::IGUIStaticText *e = gui::StaticText::add(Environment,
-				text, rect, false, false, data->current_parent,
-				spec.fid);
+		gui::IGUIStaticText *e = addLabel(text, rect, data->current_parent, style, false, spec.fid);
 		e->setTextAlignment(align_h, align_v);
 		e->setWordWrap(word_wrap);
-
-		e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
-		e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
-		e->setOverrideFont(font);
 
 		m_fields.push_back(spec);
 
@@ -1954,14 +1941,8 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 		258 + m_fields.size()
 	);
 
-	gui::IGUIStaticText *e = gui::StaticText::add(Environment, vlabel,
-			rect, false, false, data->current_parent, spec.fid);
-
+	gui::IGUIStaticText* e = addLabel(vlabel, rect, data->current_parent, style, false, spec.fid);
 	e->setTextAlignment(gui::EGUIA_CENTER, gui::EGUIA_CENTER);
-
-	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
-	e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
-	e->setOverrideFont(font);
 
 	m_fields.push_back(spec);
 
