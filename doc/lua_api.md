@@ -9557,8 +9557,15 @@ You **must not** mix names and track numbers to refer to the same animation.
     * See also `core.time_to_day_night_ratio`,
 * `get_day_night_ratio()`: returns the ratio or nil if it isn't overridden
 * `set_local_animation(idle, walk, dig, walk_while_dig, frame_speed)`:
-  set animation for player model in third person view.
-    * Every animation equals to a `{x=starting frame, y=ending frame}` table.
+  Set local animations for player model in third person view.
+    * Applied immediately on the client based on in-game player state ("local").
+    * Local animations currently always use the first animation track.
+    * Local animations override server-sent animations on the first animation track if both use the same frame range.
+      (This is to not interrupt playing local animations.)
+    * Server-sent animations (`set_animation()`, `play_animation()`)
+      override local animations if they use a different frame range.
+    * Every animation is given as a `{x = start frame, y = end frame}` table.
+      You can use `{x = 0, y = 0}` for "no animation", deferring to server-sent animations.
     * `frame_speed` sets the animations frame speed. Default is 30.
 * `get_local_animation()`: returns idle, walk, dig, walk_while_dig tables and
   `frame_speed`.

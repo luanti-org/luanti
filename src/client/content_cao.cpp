@@ -1408,8 +1408,14 @@ void GenericCAO::setLocalPlayerAnimation(LocalPlayerAnimation local_anim, float 
 		return; // no change
 
 	v2f range = player->local_animations[static_cast<u8>(local_anim)];
-	if (range == v2f())
+	if (range == v2f()) {
+		if (m_local_player_animation) {
+			// Reset local player animation override
+			m_local_player_animation = false;
+			m_animated_meshnode->getAnimation() = m_animation;
+		}
 		return; // animation not defined, stick to current animation
+	}
 
 	scene::TrackAnimSpec anim;
 	anim.setFrameRange(range.X, range.Y);
@@ -1554,24 +1560,22 @@ void GenericCAO::applyTrackAnimation(scene::TrackId &&track_id, scene::TrackAnim
 		anim.clamp(m_animated_meshnode->getMesh()->getMaxFrameNumber(*track_nr));
 	}
 
+	// Update stored animation in either case.
+	// This becomes relevant if local animations are left unspecified,
+	// in which case the stored animation is reapplied.
+	m_animation.tracks[*track_nr] = anim;
 	if (!m_is_local_player) {
-		m_animation.tracks[*track_nr] = anim;
 		updateAnimation(*track_nr);
 	} else {
-		LocalPlayer *player = m_env->getLocalPlayer();
-		// update animation only if local animations present
-		// and received animation is unknown (except idle animation)
-		bool is_known = false;
-		for (const auto &local_anim : player->local_animations) {
-			if (track_nr == 0 && anim.max_frame == local_anim.Y)
-				is_known = true;
-		}
-		if (!is_known ||
-				(player->local_animations[1].Y + player->local_animations[2].Y < 1))
-		{
+		const auto &local_anims = m_env->getLocalPlayer()->local_animations;
+		bool is_known = track_nr == 0 && std::any_of(local_anims.begin(), local_anims.end(),
+				[&](v2f range) {
+					return anim.min_frame == range.X && anim.max_frame == range.Y;
+				});
+		// Apply the animation if it is not a known local animation
+		if (!is_known) {
 			updateAnimation(*track_nr);
 		}
-		// FIXME: ^ This code is trash. It's also broken.
 	}
 }
 

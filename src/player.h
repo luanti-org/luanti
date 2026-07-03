@@ -10,6 +10,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <array>
 
 #define PLAYERNAME_SIZE 20
 
@@ -197,7 +198,7 @@ public:
 	f32 movement_liquid_sink;
 	f32 movement_gravity;
 
-	v2f local_animations[4];
+	std::array<v2f, 4> local_animations;
 	float local_animation_speed;
 
 	std::string inventory_formspec;
