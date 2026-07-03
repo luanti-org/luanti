@@ -276,10 +276,10 @@ v2s32 GUIFormSpecMenu::getRealCoordinateGeometry(const std::vector<std::string> 
 	return v2s32(stof(v_geom[0]) * imgsize.X, stof(v_geom[1]) * imgsize.Y);
 }
 
-gui::IGUIStaticText* GUIFormSpecMenu::addLabel(const EnrichedString& text, const core::rect<s32>& rect,
-	gui::IGUIElement* parent, StyleSpec& style, bool wordWrap, s32 id)
+gui::IGUIStaticText* GUIFormSpecMenu::addLabel(const EnrichedString &text, const core::rect<s32> &rect,
+	gui::IGUIElement *parent, const StyleSpec &style, bool word_wrap, s32 id)
 {
-	gui::IGUIStaticText* t = gui::StaticText::add(Environment, text, rect, false, wordWrap, parent, id);
+	gui::IGUIStaticText* t = gui::StaticText::add(Environment, text, rect, false, word_wrap, parent, id);
 	t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 	t->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
 	t->setOverrideFont(style.getFont());

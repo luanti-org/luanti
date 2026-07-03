@@ -501,7 +501,7 @@ private:
 		const video::SColor &bgcolor);
 
 	gui::IGUIStaticText* addLabel(const EnrichedString &text, const core::rect<s32> &rect,
-		gui::IGUIElement* parent, StyleSpec &style, bool wordWrap = true, s32 id = 0);
+		gui::IGUIElement *parent, const StyleSpec &style, bool word_wrap = true, s32 id = 0);
 
 	/**
 	 * Auto-scrolls a scroll container to center the focused element.
