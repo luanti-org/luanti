@@ -500,7 +500,7 @@ private:
 	void showTooltip(const std::wstring &text, const video::SColor &color,
 		const video::SColor &bgcolor);
 
-	gui::IGUIStaticText* addLabel(const EnrichedString &text, const core::rect<s32> &rect,
+	gui::IGUIStaticText *addLabel(const EnrichedString &text, const core::rect<s32> &rect,
 		gui::IGUIElement *parent, const StyleSpec &style, bool word_wrap = true, s32 id = 0);
 
 	/**
