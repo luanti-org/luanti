@@ -714,6 +714,14 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 				return true;
 			}
 		} else {
+			if (dense && offset >= DENSE_CHECK_DISTANCE * 1.732f * BS) {
+				// switch to "cheap" mode
+				cheap = true;
+				// reset precision
+				step = BS * 1.2f;
+				// And jump ahead to only a few blocks before our target block
+				offset = std::max(offset, distance - DENSE_CHECK_DISTANCE * 1.732f * BS);
+			}
 			// treat unloaded blocks as transparent
 			// Cannot see through light-blocking nodes --> occluded
 			if (is_valid_position &&
@@ -721,14 +729,6 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 				count++;
 				if (count >= needed_count)
 					return true;
-			}
-			if (dense && offset >= DENSE_CHECK_DISTANCE * 1.732f * BS) {
-				/*
-				 * switch to "cheap" mode
-				 * And jump ahead to only a few blocks before our target block
-				 */
-				cheap = true;
-				offset = std::max(offset, distance - DENSE_CHECK_DISTANCE * 1.732f * BS);
 			}
 		}
 		step *= stepfac;
