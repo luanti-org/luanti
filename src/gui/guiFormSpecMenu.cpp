@@ -3910,6 +3910,7 @@ ItemStack GUIFormSpecMenu::verifySelectedItem()
 						if (m_selected_swap.name == stack.name &&
 								m_selected_swap.count == stack.count) {
 							m_selected_swap.clear();
+							// After a sucessful swap, make sure the whole stack is selected.
 							m_selected_amount = stack.count;
 						}
 					} else {
