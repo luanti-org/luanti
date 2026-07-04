@@ -8,8 +8,7 @@
 
 #include "IGUIStaticText.h"
 
-#include <vector>
-
+#include "dimension2d.h"
 #include "util/enriched_string.h"
 #include <IGUIEnvironment.h>
 
@@ -128,11 +127,16 @@ namespace gui
 		//! Sets the new caption of this element.
 		virtual void setText(const wchar_t* text);
 
+		//! Returns the text dimensions when drawn
+		core::dimension2du getTextDimensions() const;
+
 		//! Returns the height of the text in pixels when it is drawn.
-		virtual s32 getTextHeight() const;
+		virtual s32 getTextHeight() const
+		{ return getTextDimensions().Height; }
 
 		//! Returns the width of the current text, in the current font
-		virtual s32 getTextWidth() const;
+		virtual s32 getTextWidth() const
+		{ return getTextDimensions().Width; }
 
 		//! Updates the absolute position, splits text if word wrap is enabled
 		virtual void updateAbsolutePosition();
@@ -170,7 +174,7 @@ namespace gui
 		gui::IGUIFont* LastBreakFont; // stored because: if skin changes, line break must be recalculated.
 
 		EnrichedString ColoredText;
-		std::vector<EnrichedString> BrokenText;
+		EnrichedString BrokenText;
 	};
 
 

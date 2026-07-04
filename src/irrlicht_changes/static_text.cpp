@@ -10,8 +10,11 @@
 #include <IVideoDriver.h>
 #include <rect.h>
 #include <SColor.h>
+#include <EGUIAlignment.h>
+#include <dimension2d.h>
 
 #include "CGUITTFont.h"
+#include "util/enriched_string.h"
 
 
 namespace gui
@@ -66,55 +69,27 @@ void StaticText::draw()
 
 	// draw the text
 	IGUIFont *font = getActiveFont();
-	if (font && BrokenText.size()) {
+	if (font && !BrokenText.empty()) {
 		if (font != LastBreakFont)
 			updateText();
 
 		core::rect<s32> r = frameRect;
-		s32 height_line = font->getDimension(L"A").Height + font->getKerning(L'A').Y;
-		s32 height_total = height_line * BrokenText.size();
-		if (VAlign == EGUIA_CENTER && WordWrap)
-		{
-			r.UpperLeftCorner.Y = r.getCenter().Y - (height_total / 2);
-		}
-		else if (VAlign == EGUIA_LOWERRIGHT)
-		{
-			r.UpperLeftCorner.Y = r.LowerRightCorner.Y - height_total;
-		}
-		if (HAlign == EGUIA_LOWERRIGHT)
-		{
-			r.UpperLeftCorner.X = r.LowerRightCorner.X -
-				getTextWidth();
+		const auto text_dim = getTextDimensions();
+		if (VAlign == EGUIA_CENTER) {
+			r.UpperLeftCorner.Y = r.getCenter().Y - (text_dim.Height / 2);
+		} else if (VAlign == EGUIA_LOWERRIGHT) {
+			r.UpperLeftCorner.Y = r.LowerRightCorner.Y - text_dim.Height;
 		}
 
-		for (const EnrichedString &str : BrokenText) {
-			if (HAlign == EGUIA_LOWERRIGHT)
-			{
-				r.UpperLeftCorner.X = frameRect.LowerRightCorner.X -
-					font->getDimension(str.c_str()).Width;
-			}
-
-			// When WordWrap == true, StaticText already handles vertical alignment.
-			bool font_vcenter = (VAlign == EGUIA_CENTER) && !WordWrap;
-
-			if (font->getType() == gui::EGFT_CUSTOM) {
-				CGUITTFont *tmp = static_cast<CGUITTFont*>(font);
-				tmp->draw(str,
-					r, HAlign == EGUIA_CENTER, font_vcenter,
-					(RestrainTextInside ? &AbsoluteClippingRect : NULL));
-			} else
-			{
-				// Draw non-colored text
-				font->draw(str.c_str(),
-					r, str.getDefaultColor(), // TODO: Implement colorization
-					HAlign == EGUIA_CENTER, font_vcenter,
-					(RestrainTextInside ? &AbsoluteClippingRect : NULL));
-			}
-
-
-			r.LowerRightCorner.Y += height_line;
-			r.UpperLeftCorner.Y += height_line;
+		if (HAlign == EGUIA_CENTER) {
+			r.UpperLeftCorner.X = r.getCenter().X - (text_dim.Width / 2);
+		} else if (HAlign == EGUIA_LOWERRIGHT) {
+			r.UpperLeftCorner.X = r.LowerRightCorner.X - text_dim.Width;
 		}
+
+		IRR_DOWN_CAST<CGUITTFont *>(font)->draw(BrokenText, r,
+				false, false,
+				RestrainTextInside ? &AbsoluteClippingRect : nullptr);
 	}
 
 	IGUIElement::draw();
@@ -296,7 +271,7 @@ void StaticText::updateText()
 		setDrawBackground(false);
 
 	if (!WordWrap) {
-		BrokenText.push_back(cText);
+		BrokenText = cText;
 		return;
 	}
 
@@ -319,7 +294,11 @@ void StaticText::updateText()
 		elWidth -= 2*skin->getSize(EGDS_TEXT_DISTANCE_X);
 	wchar_t c;
 
-	//std::vector<video::SColor> colors;
+	const auto add_line = [&](const EnrichedString &l) {
+		if (!BrokenText.empty())
+			BrokenText.addCharNoColor('\n');
+		BrokenText += l;
+	};
 
 	// We have to deal with right-to-left and left-to-right differently
 	// However, most parts of the following code is the same, it's just
@@ -335,11 +314,6 @@ void StaticText::updateText()
 			if (c == L'\r') // Mac or Windows breaks
 			{
 				lineBreak = true;
-				//if (Text[i+1] == L'\n') // Windows breaks
-				//{
-				//	Text.erase(i+1);
-				//	--size;
-				//}
 				c = '\0';
 			}
 			else if (c == L'\n') // Unix breaks
@@ -352,7 +326,6 @@ void StaticText::updateText()
 			if ( !isWhitespace )
 			{
 				// part of a word
-				//word += c;
 				word.addChar(cText, i);
 			}
 
@@ -377,7 +350,7 @@ void StaticText::updateText()
 							EnrichedString first = word.substr(0, where);
 							EnrichedString second = word.substr(where, word.size() - where);
 							first.addCharNoColor(L'-');
-							BrokenText.push_back(line + first);
+							add_line(line + first);
 							const s32 secondLength = font->getDimension(second.c_str()).Width;
 
 							length = secondLength;
@@ -388,7 +361,7 @@ void StaticText::updateText()
 							// No soft hyphen found, so there's nothing more we can do
 							// break to next line
 							if (length)
-								BrokenText.push_back(line);
+								add_line(line);
 							length = wordlgth;
 							line = word;
 						}
@@ -396,7 +369,7 @@ void StaticText::updateText()
 					else if (length && (length + wordlgth + whitelgth > elWidth))
 					{
 						// break to next line
-						BrokenText.push_back(line);
+						add_line(line);
 						length = wordlgth;
 						line = word;
 					}
@@ -422,7 +395,7 @@ void StaticText::updateText()
 				{
 					line += whitespace;
 					line += word;
-					BrokenText.push_back(line);
+					add_line(line);
 					line.clear();
 					word.clear();
 					whitespace.clear();
@@ -433,7 +406,7 @@ void StaticText::updateText()
 
 		line += whitespace;
 		line += word;
-		BrokenText.push_back(line);
+		add_line(line);
 	}
 	else
 	{
@@ -446,11 +419,6 @@ void StaticText::updateText()
 			if (c == L'\r') // Mac or Windows breaks
 			{
 				lineBreak = true;
-				//if ((i>0) && Text[i-1] == L'\n') // Windows breaks
-				//{
-				//	Text.erase(i-1);
-				//	--size;
-				//}
 				c = '\0';
 			}
 			else if (c == L'\n') // Unix breaks
@@ -471,7 +439,7 @@ void StaticText::updateText()
 					if (length && (length + wordlgth + whitelgth > elWidth))
 					{
 						// break to next line
-						BrokenText.push_back(line);
+						add_line(line);
 						length = wordlgth;
 						line = word;
 					}
@@ -496,7 +464,7 @@ void StaticText::updateText()
 				{
 					line = whitespace + line;
 					line = word + line;
-					BrokenText.push_back(line);
+					add_line(line);
 					line.clear();
 					word.clear();
 					whitespace.clear();
@@ -513,7 +481,7 @@ void StaticText::updateText()
 
 		line = whitespace + line;
 		line = word + line;
-		BrokenText.push_back(line);
+		add_line(line);
 	}
 }
 
@@ -537,40 +505,11 @@ void StaticText::updateAbsolutePosition()
 	updateText();
 }
 
-
-//! Returns the height of the text in pixels when it is drawn.
-s32 StaticText::getTextHeight() const
+core::dimension2du StaticText::getTextDimensions() const
 {
-	IGUIFont* font = getActiveFont();
-	if (!font)
-		return 0;
-
-	if (WordWrap) {
-		s32 height = font->getDimension(L"A").Height + font->getKerning(L'A').Y;
-		return height * BrokenText.size();
-	}
-	// There may be intentional new lines without WordWrap
-	return font->getDimension(BrokenText[0].c_str()).Height;
+	if (const auto font = getActiveFont())
+		return font->getDimension(BrokenText.c_str());
+	return core::dimension2du();
 }
-
-
-s32 StaticText::getTextWidth() const
-{
-	IGUIFont *font = getActiveFont();
-	if (!font)
-		return 0;
-
-	s32 widest = 0;
-
-	for (const EnrichedString &line : BrokenText) {
-		s32 width = font->getDimension(line.c_str()).Width;
-
-		if (width > widest)
-			widest = width;
-	}
-
-	return widest;
-}
-
 
 } // end namespace gui
