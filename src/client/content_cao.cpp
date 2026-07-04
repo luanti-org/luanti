@@ -1742,7 +1742,11 @@ void GenericCAO::processMessage(const std::string &data)
 		applyTrackAnimation(std::move(track_id), anim);
 	} else if (cmd == AO_CMD_SET_ANIMATION_SPEED) {
 		f32 new_fps = readF32(is);
-		const auto track_id = readTrackIdentifier(is);
+		scene::TrackId track_id = (u16) 0;
+		if (canRead(is)) {
+			// New animation API since 5.17.0
+			track_id = readTrackIdentifier(is);
+		}
 
 		auto track_nr_opt = resolveTrackId(track_id);
 		if (!track_nr_opt)
@@ -1755,6 +1759,7 @@ void GenericCAO::processMessage(const std::string &data)
 			m_animated_meshnode->getAnimation().tracks[track_nr].fps = new_fps;
 		}
 	} else if (cmd == AO_CMD_STOP_ANIMATION) {
+		// New animation API since 5.17.0
 		const auto track_id = readTrackIdentifier(is);
 
 		auto track_nr_opt = resolveTrackId(track_id);
