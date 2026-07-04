@@ -101,7 +101,7 @@ volatile std::sig_atomic_t *signal_handler_killstatus()
 static void signal_handler(int sig)
 {
 	if (!g_killed) {
-		volatile ssize_t ignore;
+		volatile ssize_t ignore = 0;
 		if (sig == SIGINT) {
 			const char *dbg_text{"INFO: signal_handler(): "
 				"Ctrl-C pressed, shutting down.\n"};
