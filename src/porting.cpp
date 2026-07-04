@@ -101,15 +101,15 @@ volatile std::sig_atomic_t *signal_handler_killstatus()
 static void signal_handler(int sig)
 {
 	if (!g_killed) {
-		volatile ssize_t ignore = 0;
 		if (sig == SIGINT) {
 			const char *dbg_text{"INFO: signal_handler(): "
 				"Ctrl-C pressed, shutting down.\n"};
-			ignore = write(STDERR_FILENO, dbg_text, strlen(dbg_text));
+			//nothing we can safely do in a signal handler
+			if (write(STDERR_FILENO, dbg_text, strlen(dbg_text)) < 0) {}
 		} else if (sig == SIGTERM) {
 			const char *dbg_text{"INFO: signal_handler(): "
 				"got SIGTERM, shutting down.\n"};
-			ignore = write(STDERR_FILENO, dbg_text, strlen(dbg_text));
+			if (write(STDERR_FILENO, dbg_text, strlen(dbg_text)) < 0) {}
 		}
 		g_killed = true;
 	} else {
