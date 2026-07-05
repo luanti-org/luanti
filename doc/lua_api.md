@@ -10630,8 +10630,7 @@ Used by `core.register_node`, `core.register_craftitem`, and
     after_use = function(itemstack, user, node, digparams),
     -- Called after a tool is used to dig a node and will replace the default
     -- tool wear-out handling.
-    -- Shall return the leftover itemstack or nil to not
-    -- modify the dropped item.
+    -- Shall return the leftover itemstack or nil to not modify the item (tool).
     -- The user may be any ObjectRef or nil.
     -- default: nil
 
@@ -10885,15 +10884,19 @@ Used by `core.register_node`.
     legacy_wallmounted = false,
 
     waving = 0,
-    -- Valid for drawtypes:
-    -- mesh, nodebox, plantlike, allfaces_optional, liquid, flowingliquid.
-    -- 1 - wave node like plants (node top moves side-to-side, bottom is fixed)
-    -- 2 - wave node like leaves (whole node moves side-to-side)
-    -- 3 - wave node like liquids (whole node moves up and down)
+    -- Describes whether the node shall be animated (position transformation).
+    -- Supported for drawtypes:
+    --   mesh, nodebox, plantlike, allfaces_optional, liquid, flowingliquid.
+    -- Values:
+    --   0: Not waving.
+    --   1: Node top moves side-to-side, bottom is fixed. (plants)
+    --   2: Whole node moves side-to-side. (leaves)
+    --   3: Whole node moves up and down. (liquids)
+    -- Note: Each wave effect depends on its client-side setting `enable_waving_*`.
     -- Not all models will properly wave.
-    -- plantlike drawtype can only wave like plants.
-    -- allfaces_optional drawtype can only wave like leaves.
-    -- liquid, flowingliquid drawtypes can only wave like liquids.
+    -- When `waving > 0`, plantlike always behaves like `1` and allfaces_optional
+    --   always behaves like `2`. This behavior may be removed in the future.
+    -- The drawtypes "liquid" and "flowingliquid" only accept value 3 (and 0).
 
     sounds = {
         -- Definition of node sounds to be played at various events.
