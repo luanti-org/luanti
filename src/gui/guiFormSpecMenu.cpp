@@ -1559,7 +1559,7 @@ gui::IGUIEditBox *GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &
 		// spec field id to 0, this stops submit searching for a value that isn't there
 		auto style = getDefaultStyleForElement("field");
 		addLabel(EnrichedString(spec.flabel.c_str()), rect, data->current_parent, style);
-		return;
+		return nullptr;
 	}
 
 	if (is_editable) {
