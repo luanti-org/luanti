@@ -667,7 +667,7 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 	if (distance > 0.0f)
 		direction /= distance;
 
-	v3f pos_origin_f = intToFloat(pos_camera, BS);
+	const v3f pos_origin_f = intToFloat(pos_camera, BS);
 	u32 count = 0;
 	bool is_valid_position;
 	/*
@@ -682,14 +682,14 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 	 * all-air blocks for example).
 	 * For a sparse map we need to check from the origin as before (cheap stays false).
 	 */
-	constexpr float DENSE_CHECK_DISTANCE = 3 * MAP_BLOCKSIZE;
+	constexpr float DENSE_CHECK_DISTANCE = 3 * MAP_BLOCKSIZE * 1.732f * BS;
 
 	// Starting offset
 	float offset = BS;
 	// Starting step size, value between 1m and sqrt(3)m
 	float step = BS * 1.2f;
 	// Multiply step by each iteration by 'stepfac' to reduce checks in distance
-	float stepfac = 1.05f;
+	const float stepfac = 1.05f;
 
 	bool cheap = false;
 
@@ -714,13 +714,13 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 				return true;
 			}
 		} else {
-			if (dense && offset >= DENSE_CHECK_DISTANCE * 1.732f * BS) {
+			if (dense && offset >= DENSE_CHECK_DISTANCE) {
 				// switch to "cheap" mode
 				cheap = true;
 				// reset precision
 				step = BS * 1.2f;
 				// And jump ahead to only a few blocks before our target block
-				offset = std::max(offset, distance - DENSE_CHECK_DISTANCE * 1.732f * BS);
+				offset = std::max(offset, distance - DENSE_CHECK_DISTANCE);
 			}
 			// treat unloaded blocks as transparent
 			// Cannot see through light-blocking nodes --> occluded
