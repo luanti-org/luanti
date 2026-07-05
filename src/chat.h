@@ -150,6 +150,8 @@ public:
 	ChatPrompt(const std::wstring &prompt, u32 history_limit);
 	~ChatPrompt() = default;
 
+	void setChatBuffer(ChatBuffer *b) { m_chat_buffer = b; };
+
 	// Input character or string
 	void input(wchar_t ch);
 	void input(const std::wstring &str);
@@ -175,7 +177,7 @@ public:
 	void historyNext();
 
 	// Nick completion
-	void nickCompletion(const std::set<std::string> &names, bool backwards);
+	void nickCompletion(const std::set<std::string> &names);
 
 	// Update console size and reformat the visible portion of the prompt
 	void reformat(u32 cols);
@@ -260,10 +262,10 @@ private:
 	// Cursor length (length of selected portion of line)
 	s32 m_cursor_len = 0;
 
-	// Last nick completion start (index into m_line)
-	s32 m_nick_completion_start = 0;
-	// Last nick completion start (index into m_line)
-	s32 m_nick_completion_end = 0;
+	// To show nick autocompletion options
+	u64 m_last_autocomplete_time = 0;
+	// To print nick autocompletion
+	ChatBuffer *m_chat_buffer = nullptr;
 };
 
 class ChatBackend

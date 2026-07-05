@@ -7,6 +7,9 @@
 #include <algorithm>
 
 #include "debug.h"
+#include "gettext.h" // wstrgettext
+#include "player.h" // PLAYERNAME_ALLOWED_CHARS
+#include "porting.h"
 #include "settings.h"
 #include "util/strfnd.h"
 #include "util/string.h"
@@ -478,18 +481,16 @@ void ChatPrompt::input(wchar_t ch)
 {
 	makeLineRef().insert(m_cursor, 1, ch);
 	m_cursor++;
+	m_last_autocomplete_time = 0;
 	clampView();
-	m_nick_completion_start = 0;
-	m_nick_completion_end = 0;
 }
 
 void ChatPrompt::input(const std::wstring &str)
 {
 	makeLineRef().insert(m_cursor, str);
 	m_cursor += str.size();
+	m_last_autocomplete_time = 0;
 	clampView();
-	m_nick_completion_start = 0;
-	m_nick_completion_end = 0;
 }
 
 void ChatPrompt::addToHistory(const std::wstring &line)
@@ -528,8 +529,6 @@ void ChatPrompt::clear()
 	makeLineRef().clear();
 	m_view = 0;
 	m_cursor = 0;
-	m_nick_completion_start = 0;
-	m_nick_completion_end = 0;
 }
 
 std::wstring ChatPrompt::replace(const std::wstring &line)
@@ -538,8 +537,6 @@ std::wstring ChatPrompt::replace(const std::wstring &line)
 	makeLineRef() = line;
 	m_view = m_cursor = line.size();
 	clampView();
-	m_nick_completion_start = 0;
-	m_nick_completion_end = 0;
 	return old_line;
 }
 
@@ -549,8 +546,6 @@ void ChatPrompt::historyPrev()
 		--m_history_index;
 		m_view = m_cursor = getLineRef().size();
 		clampView();
-		m_nick_completion_start = 0;
-		m_nick_completion_end = 0;
 	}
 }
 
@@ -560,87 +555,110 @@ void ChatPrompt::historyNext()
 		m_history_index++;
 		m_view = m_cursor = getLineRef().size();
 		clampView();
-		m_nick_completion_start = 0;
-		m_nick_completion_end = 0;
 	}
 }
 
-void ChatPrompt::nickCompletion(const std::set<std::string> &names, bool backwards)
+void ChatPrompt::nickCompletion(const std::set<std::string> &names)
 {
-	const std::wstring_view line(getLineRef());
-	// Two cases:
-	// (a) m_nick_completion_start == m_nick_completion_end == 0
-	//     Then no previous nick completion is active.
-	//     Get the word around the cursor and replace with any nick
-	//     that has that word as a prefix.
-	// (b) else, continue a previous nick completion.
-	//     m_nick_completion_start..m_nick_completion_end are the
-	//     interval where the originally used prefix was. Cycle
-	//     through the list of completions of that prefix.
-	u32 prefix_start = m_nick_completion_start;
-	u32 prefix_end = m_nick_completion_end;
-	bool initial = (prefix_end == 0);
-	if (initial)
+	bool print_options;
 	{
-		// no previous nick completion is active
-		prefix_start = prefix_end = m_cursor;
-		while (prefix_start > 0 && !iswspace(line[prefix_start-1]))
+		const u64 time_now = porting::getTimeMs();
+		if (!m_last_autocomplete_time)
+			m_last_autocomplete_time = time_now;
+
+		print_options = time_now - m_last_autocomplete_time < 1000;
+		m_last_autocomplete_time = time_now;
+	}
+
+	const std::wstring_view line(getLineRef());
+
+	// Search for the nickname around the cursor
+	// "foo MyEnteredNickn bar"
+	//      ^ prefix_start (first character of the nickname)
+	//                    ^ prefix_end (at space character or '\0')
+	u32 prefix_start = m_cursor;
+	u32 prefix_end = m_cursor;
+
+	auto is_playername_char = [](wchar_t c) -> bool {
+		if (c > 0x7F)
+			return false;
+
+		return strchr(PLAYERNAME_ALLOWED_CHARS, (char)c) != nullptr;
+	};
+
+	{
+		while (prefix_start > 0 && is_playername_char(line[prefix_start - 1]))
 			--prefix_start;
-		while (prefix_end < line.size() && !iswspace(line[prefix_end]))
+		while (prefix_end < line.size() && is_playername_char(line[prefix_end]))
 			++prefix_end;
 		if (prefix_start == prefix_end)
 			return;
 	}
+	// prefix: "MyEnteredNickn"
 	auto prefix = line.substr(prefix_start, prefix_end - prefix_start);
 
-	// find all names that start with the selected prefix
-	std::vector<std::wstring> completions;
+	std::vector<std::wstring> completions; ///< With matching substrings (case-insensitive)
+	std::wstring shortest; ///< Shortest common nickname prefix
 	for (const std::string &name : names) {
 		std::wstring completion = utf8_to_wide(name);
-		if (str_starts_with(completion, prefix, true)) {
-			if (prefix_start == 0)
-				completion += L": ";
-			completions.push_back(completion);
+		if (!str_starts_with(completion, prefix, true))
+			continue;
+
+		completions.push_back(completion);
+
+		if (shortest.empty()) {
+			shortest = completion;
+		} else {
+			// >1 completion: Trim to common characters
+			bool did_cut = false;
+			for (size_t i = prefix.size(); i < std::min(shortest.size(), completion.size()); ++i) {
+				if (my_tolower(shortest[i]) != my_tolower(completion[i])) {
+					shortest.resize(i);
+					did_cut = true;
+					break;
+				}
+			}
+			// Same prefix but difference in length --> pick shorter name.
+			if (!did_cut && completion.size() < shortest.size()) {
+				shortest = completion;
+			}
 		}
 	}
 
 	if (completions.empty())
 		return;
 
-	// find a replacement string and the word that will be replaced
-	u32 word_end = prefix_end;
-	u32 replacement_index = 0;
-	if (!initial)
-	{
-		while (word_end < line.size() && !iswspace(line[word_end]))
-			++word_end;
-		auto word = line.substr(prefix_start, word_end - prefix_start);
+	if (completions.size() > 1 && prefix.size() == shortest.size()) {
+		if (!print_options)
+			return;
 
-		// cycle through completions
-		for (u32 i = 0; i < completions.size(); ++i)
-		{
-			if (str_equal(word, completions[i], true))
-			{
-				if (backwards)
-					replacement_index = i + completions.size() - 1;
-				else
-					replacement_index = i + 1;
-				replacement_index %= completions.size();
-				break;
-			}
+		std::wstring options = wstrgettext("Selection options: ");
+		for (auto v : completions)
+			options.append(v).append(L", ");
+		options.resize(options.size() - 2); // ", "
+
+		if (m_chat_buffer) {
+			m_chat_buffer->addLine(
+				EnrichedString(L""),
+				EnrichedString(options, video::SColor(255, 200, 200, 200))
+			);
+		} else {
+			rawstream << wide_to_utf8(options) << std::endl;
 		}
+		return;
 	}
-	const auto &replacement = completions[replacement_index];
-	if (word_end < line.size() && iswspace(line[word_end]))
-		++word_end;
 
-	// replace existing word with replacement word,
-	// place the cursor at the end and record the completion prefix
-	makeLineRef().replace(prefix_start, word_end - prefix_start, replacement);
-	m_cursor = prefix_start + replacement.size();
+	if (completions.size() == 1) {
+		if (prefix.size() == line.size())
+			shortest.append(L": ");
+		else if (prefix_end == line.size())
+			shortest.append(L" ");
+	}
+
+	makeLineRef().replace(prefix_start, prefix_end - prefix_start, shortest);
+	m_cursor = prefix_start + shortest.size();
+	m_cursor_len = 0;
 	clampView();
-	m_nick_completion_start = prefix_start;
-	m_nick_completion_end = prefix_end;
 }
 
 void ChatPrompt::reformat(u32 cols)
@@ -741,9 +759,6 @@ void ChatPrompt::cursorOperation(CursorOp op, CursorOpDir dir, CursorOpScope sco
 	}
 
 	clampView();
-
-	m_nick_completion_start = 0;
-	m_nick_completion_end = 0;
 }
 
 void ChatPrompt::clampView()
@@ -769,6 +784,7 @@ ChatBackend::ChatBackend():
 	m_recent_buffer(6),
 	m_prompt(L"]", 1500)
 {
+	m_prompt.setChatBuffer(&m_console_buffer);
 }
 
 void ChatBackend::addMessage(const std::wstring &name, std::wstring text)
