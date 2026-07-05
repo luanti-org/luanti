@@ -6,12 +6,12 @@
 
 #include "static_text.h"
 
+#include <dimension2d.h>
+#include <EGUIAlignment.h>
 #include <IGUIFont.h>
 #include <IVideoDriver.h>
 #include <rect.h>
 #include <SColor.h>
-#include <EGUIAlignment.h>
-#include <dimension2d.h>
 
 #include "CGUITTFont.h"
 #include "util/enriched_string.h"
