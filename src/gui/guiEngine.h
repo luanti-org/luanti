@@ -111,7 +111,7 @@ protected:
 			std::vector<std::string> &paths) override;
 };
 
-/** implementation of main menu based uppon formspecs */
+/** implementation of main menu based upon formspecs */
 class GUIEngine {
 	/** grant ModApiMainMenu access to private members */
 	friend class ModApiMainMenu;
@@ -127,8 +127,7 @@ public:
 	 * @param smgr scene manager to add scene elements to
 	 * @param data struct to transfer data to main game handling
 	 */
-	GUIEngine(JoystickController *joystick,
-			gui::IGUIElement *parent,
+	GUIEngine(gui::IGUIElement *parent,
 			RenderingEngine *rendering_engine,
 			IMenuManager *menumgr,
 			MainMenuData *data,

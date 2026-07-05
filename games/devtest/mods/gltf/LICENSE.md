@@ -12,3 +12,7 @@ The glTF test models (and corresponding textures) in this mod are all licensed f
 * Minimal triangle, triangle without indices (`gltf_minimal_triangle.gltf`, `gltf_triangle_without_indices.gltf`)
   * From [the glTF sample model collection](https://github.com/KhronosGroup/glTF-Sample-Models)
   * Licensed under CC0 / public domain
+* Minimal multi-track animation test (`gltf_multi_track_{1,2}.glb`)
+  * By [Sumi](https://github.com/SumianVoice)
+  * Licensed under CC0
+  * No meaningful difference between the two versions, only a minimal string change to make sure they don't have the same hash

@@ -69,7 +69,7 @@ private:
 	bool isErrored = false;
 };
 
-// Asynchornous thread and job management
+// Asynchronous thread and job management
 class AsyncEngine {
 	friend class AsyncWorkerThread;
 	typedef void (*StateInitializer)(lua_State *L, int top);
@@ -211,7 +211,7 @@ private:
 	// Only set for the server async environment (duh)
 	Server *server = nullptr;
 
-	// Internal store for registred state initializers
+	// Internal store for registered state initializers
 	std::vector<StateInitializer> stateInitializers;
 
 	// Internal counter to create job IDs

@@ -165,61 +165,38 @@ safe_dig_and_place (Safe digging and placing) bool false
 #	 Enable a confirmation dialog before closing.
 enable_esc_dialog (Confirmation dialog before closing) bool true
 
-[*Keyboard and Mouse]
+[*Actions and Keybindings]
 
-#    Invert vertical mouse movement.
-#
-#    Requires: keyboard_mouse
-invert_mouse (Invert mouse) bool false
-
-#    Mouse sensitivity multiplier.
-#
-#    Requires: keyboard_mouse
-mouse_sensitivity (Mouse sensitivity) float 0.2 0.001 10.0
-
-#    Keyboard-controlled camera rotation speed, in degrees per second.
-#
-#    Requires: keyboard_mouse
-keyboard_camera_speed (Keyboard camera speed) float 170.0 0.001 720.0
-
-#    Enable mouse wheel (scroll) for item selection in hotbar.
-#
-#    Requires: keyboard_mouse
-enable_hotbar_mouse_wheel (Hotbar: Enable mouse wheel for selection) bool true
-
-#    Invert mouse wheel (scroll) direction for item selection in hotbar.
-#
-#    Requires: keyboard_mouse
-invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
-
-[**Keybindings]
-
-keymap_forward (Move forward) key SYSTEM_SCANCODE_26
+keymap_forward (Move forward) key SYSTEM_SCANCODE_26|GAMEPAD_AXIS_MINUS_1
 
 #    Will also disable autoforward, when active.
-keymap_backward (Move backward) key SYSTEM_SCANCODE_22
+keymap_backward (Move backward) key SYSTEM_SCANCODE_22|GAMEPAD_AXIS_PLUS_1
 
-keymap_left (Move left) key SYSTEM_SCANCODE_4
+keymap_left (Move left) key SYSTEM_SCANCODE_4|GAMEPAD_AXIS_MINUS_0
 
-keymap_right (Move right) key SYSTEM_SCANCODE_7
+keymap_right (Move right) key SYSTEM_SCANCODE_7|GAMEPAD_AXIS_PLUS_0
 
-keymap_jump (Jump) key SYSTEM_SCANCODE_44
+keymap_jump (Jump) key SYSTEM_SCANCODE_44|GAMEPAD_BUTTON_0
 
 #    Also used for climbing down and descending in water if aux1_descends is disabled.
-keymap_sneak (Sneak) key SYSTEM_SCANCODE_225
+keymap_sneak (Sneak) key SYSTEM_SCANCODE_225|GAMEPAD_BUTTON_1
 
 #    Key for digging, punching or using something.
 #    (Note: The actual meaning might vary on a per-game basis.)
-keymap_dig (Dig/punch/use) key KEY_LBUTTON
+keymap_dig (Dig/punch/use) key KEY_LBUTTON|GAMEPAD_AXIS_PLUS_5
 
 #    Key for placing an item/block or for using something.
 #    (Note: The actual meaning might vary on a per-game basis.)
-keymap_place (Place/use) key KEY_RBUTTON
+keymap_place (Place/use) key KEY_RBUTTON|GAMEPAD_AXIS_PLUS_4
 
-keymap_inventory (Open inventory) key SYSTEM_SCANCODE_12
+keymap_inventory (Open inventory) key SYSTEM_SCANCODE_12|GAMEPAD_BUTTON_3
+
+#    Key for opening the pause menu in-game.
+#    Pressing the escape key always opens the pause menu.
+keymap_pause (Open pause menu) key GAMEPAD_BUTTON_6
 
 #    Key for moving fast in fast mode.
-keymap_aux1 (Aux1) key SYSTEM_SCANCODE_8
+keymap_aux1 (Aux1) key SYSTEM_SCANCODE_8|GAMEPAD_BUTTON_2
 
 keymap_chat (Open chat) key SYSTEM_SCANCODE_23
 
@@ -231,7 +208,7 @@ keymap_cmd_local (Local command) key SYSTEM_SCANCODE_55
 
 keymap_rangeselect (Toggle unlimited view range) key
 
-keymap_freemove (Toggle fly) key SYSTEM_SCANCODE_14
+keymap_freemove (Toggle fly) key SYSTEM_SCANCODE_14|GAMEPAD_BUTTON_13
 
 keymap_pitchmove (Toggle pitchmove) key
 
@@ -239,9 +216,9 @@ keymap_fastmove (Toggle fast) key SYSTEM_SCANCODE_13
 
 keymap_noclip (Toggle noclip) key SYSTEM_SCANCODE_11
 
-keymap_hotbar_next (Hotbar: select next item) key SYSTEM_SCANCODE_17
+keymap_hotbar_next (Hotbar: select next item) key SYSTEM_SCANCODE_17|GAMEPAD_BUTTON_10
 
-keymap_hotbar_previous (Hotbar: select previous item) key SYSTEM_SCANCODE_5
+keymap_hotbar_previous (Hotbar: select previous item) key SYSTEM_SCANCODE_5|GAMEPAD_BUTTON_9
 
 keymap_mute (Mute) key SYSTEM_SCANCODE_16
 
@@ -253,20 +230,20 @@ keymap_autoforward (Toggle automatic forward) key
 
 keymap_cinematic (Toggle cinematic mode) key
 
-keymap_minimap (Toggle minimap) key SYSTEM_SCANCODE_25
+keymap_minimap (Toggle minimap) key SYSTEM_SCANCODE_25|GAMEPAD_BUTTON_4
 
-keymap_screenshot (Screenshot) key SYSTEM_SCANCODE_69
+keymap_screenshot (Screenshot) key SYSTEM_SCANCODE_69|GAMEPAD_BUTTON_14
 
 keymap_fullscreen (Toggle fullscreen) key SYSTEM_SCANCODE_68
 
-keymap_drop (Drop item) key SYSTEM_SCANCODE_20
+keymap_drop (Drop item) key SYSTEM_SCANCODE_20|GAMEPAD_BUTTON_12
 
-keymap_zoom (Zoom) key SYSTEM_SCANCODE_29
+keymap_zoom (Zoom) key SYSTEM_SCANCODE_29|GAMEPAD_BUTTON_11
 
-keymap_camera_yaw_left (Look left) key
-keymap_camera_yaw_right (Look right) key
-keymap_camera_pitch_up (Look up) key
-keymap_camera_pitch_down (Look down) key
+keymap_camera_yaw_left (Look left) key GAMEPAD_AXIS_MINUS_2
+keymap_camera_yaw_right (Look right) key GAMEPAD_AXIS_PLUS_2
+keymap_camera_pitch_up (Look up) key GAMEPAD_AXIS_MINUS_3
+keymap_camera_pitch_down (Look down) key GAMEPAD_AXIS_PLUS_3
 
 keymap_toggle_hud (Toggle HUD) key SYSTEM_SCANCODE_58
 
@@ -358,6 +335,33 @@ keymap_slot31 (Hotbar slot 31) key
 
 keymap_slot32 (Hotbar slot 32) key
 
+[*Keyboard and Mouse]
+
+#    Invert vertical mouse movement.
+#
+#    Requires: keyboard_mouse
+invert_mouse (Invert mouse) bool false
+
+#    Mouse sensitivity multiplier.
+#
+#    Requires: keyboard_mouse
+mouse_sensitivity (Mouse sensitivity) float 0.2 0.001 10.0
+
+#    Keyboard-controlled camera rotation speed, in degrees per second.
+#
+#    Requires: keyboard_mouse
+keyboard_camera_speed (Keyboard camera speed) float 170.0 0.001 720.0
+
+#    Enable mouse wheel (scroll) for item selection in hotbar.
+#
+#    Requires: keyboard_mouse
+enable_hotbar_mouse_wheel (Hotbar: Enable mouse wheel for selection) bool true
+
+#    Invert mouse wheel (scroll) direction for item selection in hotbar.
+#
+#    Requires: keyboard_mouse
+invert_hotbar_mouse_wheel (Hotbar: Invert mouse wheel direction) bool false
+
 [*Touchscreen]
 
 #    Enables the touchscreen controls, allowing you to play the game with a touchscreen.
@@ -423,6 +427,20 @@ fixed_virtual_joystick (Fixed virtual joystick) bool false
 #
 #    Requires: touchscreen
 virtual_joystick_triggers_aux1 (Virtual joystick triggers Aux1 button) bool false
+
+[*Gamepads and Joysticks]
+
+#    The time in seconds it takes between repeated events
+#    when holding down a joystick button combination.
+repeat_joystick_button_time (Joystick button repetition interval) float 0.17 0.001
+
+joystick_inner_deadzone (Joystick inner dead zone) float 0.25 0 1
+
+joystick_outer_deadzone (Joystick outer dead zone) float 0 0 1
+
+#    The sensitivity of the joystick axes for moving the
+#    in-game view frustum around.
+joystick_frustum_sensitivity (Joystick frustum sensitivity) float 170.0 0.001
 
 [Graphics and Audio] [client]
 
@@ -2480,29 +2498,6 @@ enable_remote_media_server (Connect to external media server) [client] bool true
 #    File in client/serverlist/ that contains your favorite servers displayed in the
 #    Multiplayer Tab.
 serverlist_file (Serverlist file) [client] string favoriteservers.json
-
-
-[*Gamepads] [client]
-
-#    Enable joysticks. Requires a restart to take effect
-enable_joysticks (Enable joysticks) bool false
-
-#    The identifier of the joystick to use
-joystick_id (Joystick ID) int 0 0 255
-
-#    The type of joystick
-joystick_type (Joystick type) enum auto auto,generic,xbox,ps5,dragonrise_gamecube
-
-#    The time in seconds it takes between repeated events
-#    when holding down a joystick button combination.
-repeat_joystick_button_time (Joystick button repetition interval) float 0.17 0.001
-
-#    The dead zone of the joystick
-joystick_deadzone (Joystick dead zone) int 2048 0 65535
-
-#    The sensitivity of the joystick axes for moving the
-#    in-game view frustum around.
-joystick_frustum_sensitivity (Joystick frustum sensitivity) float 170.0 0.001
 
 
 [*Hide: Temporary Settings] [common]

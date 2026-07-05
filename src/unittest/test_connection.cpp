@@ -96,6 +96,13 @@ void TestConnection::testNetworkPacketSerialize()
 		pkt >> pkt_s;
 
 		UASSERT(pkt_s == L"\U00020b9a");
+
+		// Test for out-of-range reads
+		UASSERT(pkt.getRemainingBytes() == 0);
+		EXCEPTION_CHECK(PacketError, pkt.readLongString());
+		EXCEPTION_CHECK(PacketError, pkt.skip((u32)-1));
+		pkt.seek(0);
+		UASSERTEQ(u32, pkt.getRemainingBytes(), sizeof(expected) - 2 /* u16 command */);
 	}
 }
 
@@ -273,7 +280,7 @@ void TestConnection::testConnectSendReceive()
 		UASSERT(server.ReceiveTimeoutMs(&recvpacket, timeout_ms));
 		infostream << "** Server received: peer_id=" << pkt.getPeerId()
 				<< ", size=" << pkt.getSize()
-				<< ", data=" << pkt.getString(0)
+				<< ", data=" << pkt.getRemainingNoCopy()
 				<< std::endl;
 
 		auto recvdata = pkt.oldForgePacket();
@@ -287,10 +294,16 @@ void TestConnection::testConnectSendReceive()
 	*/
 	{
 		const int datasize = 30000;
+
 		NetworkPacket pkt(0xff, datasize);
 		for (u16 i=0; i<datasize; i++) {
 			pkt << static_cast<u8>(i/4);
 		}
+		// NOTE: There is only one offset counter, hence reset it before reading.
+		pkt.seek(0);
+
+		std::string_view raw = pkt.getRemainingNoCopy();
+		UASSERTEQ(size_t, raw.size(), datasize);
 
 		infostream << "Sending data (size=" << datasize << "):";
 		for (int i = 0; i < datasize && i < 20; i++) {
@@ -298,7 +311,7 @@ void TestConnection::testConnectSendReceive()
 				infostream << " ";
 			char buf[10];
 			porting::mt_snprintf(buf, sizeof(buf), "%.2X",
-				((int)(pkt.getString(0))[i]) & 0xff);
+				((int)raw[i]) & 0xff);
 			infostream<<buf;
 		}
 		if (datasize > 20)

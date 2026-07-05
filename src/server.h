@@ -370,7 +370,7 @@ public:
 	ServerEnvironment & getEnv() { return *m_env; }
 	v3f findSpawnPos();
 
-	u32 hudAdd(RemotePlayer *player, HudElement *element);
+	u32 hudAdd(RemotePlayer *player, std::unique_ptr<HudElement> element);
 	bool hudRemove(RemotePlayer *player, u32 id);
 	bool hudChange(RemotePlayer *player, u32 id, HudElementStat stat, void *value);
 	bool hudSetFlags(RemotePlayer *player, u32 flags, u32 mask);
@@ -584,7 +584,7 @@ private:
 			float far_d_nodes = 100);
 
 	// Environment and Connection must be locked when called
-	// `cache` may only be very short lived! (invalidation not handeled)
+	// `cache` may only be very short lived! (invalidation not handled)
 	void SendBlockNoLock(session_t peer_id, MapBlock *block, u8 ver,
 		u16 net_proto_version, SerializedBlockCache *cache = nullptr);
 

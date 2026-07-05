@@ -204,3 +204,36 @@ core.register_chatcommand("text", {
 core.register_on_mods_loaded(function()
 	core.log("Yeah preview mod is loaded with other CSM mods.")
 end)
+
+
+-- Test commands
+
+local id_list = {}
+core.register_chatcommand("test_hud", {
+	func = function(param)
+		if param == "list" then
+			print(dump(core.localplayer:hud_get_all()))
+			return true, "See stdout"
+		elseif param == "add" then
+			local n = math.random(5) + 1
+			for i = 1, n do
+				id_list[#id_list + 1] = core.localplayer:hud_add({
+					type = "text",
+					position = {x=math.random(), y=math.random()},
+					name = "lab:" .. math.random(999),
+					text = math.random(999999)
+				})
+			end
+			return true, "Added " .. n .. " elements"
+		elseif param == "clear" then
+			local n = #id_list
+			for _, id in ipairs(id_list) do
+				assert(core.localplayer:hud_remove(id))
+			end
+			id_list = {}
+			return true, "Removed " .. n .. " elements"
+		end
+
+		return false, "Unknown command?"
+	end
+})

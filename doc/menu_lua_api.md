@@ -1,4 +1,4 @@
-Luanti Lua Mainmenu API Reference 5.16.0
+Luanti Lua Mainmenu API Reference 5.17.0
 ========================================
 
 Introduction
@@ -40,8 +40,10 @@ The "gamedata" table is read when calling `core.start()`. It should contain:
     password       = <password>,
     address        = <IP/address>,
     port           = <port>,
+    do_reconnect   = <bool>,
+    allow_login_or_register = "login"|"register"|"any",
     selected_world = <index>, -- 0 for client mode
-    singleplayer   = <true/false>,
+    mode           = "singleplayer"|"host"|"join",
 }
 ```
 
@@ -441,6 +443,13 @@ Helpers
 * `core.urlencode(str)`: Encodes non-unreserved URI characters by a
   percent sign followed by two hex digits. See
   [RFC 3986, section 2.3](https://datatracker.ietf.org/doc/html/rfc3986#section-2.3).
+
+
+Clipboard
+-----
+
+* `core.copy_to_clipboard(text)`
+  * Copies text to the clipboard.
 
 
 Async

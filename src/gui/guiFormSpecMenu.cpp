@@ -22,7 +22,6 @@
 #include <IGUIImage.h>
 #include <AnimatedMeshSceneNode.h>
 #include "client/renderingengine.h"
-#include "client/joystick_controller.h"
 #include "log.h"
 #include "drawItemStack.h"
 #include "gettext.h"
@@ -31,12 +30,12 @@
 #include "settings.h"
 #include "client/client.h"
 #include "client/fontengine.h"
+#include "client/guiscalingfilter.h"
 #include "client/sound.h"
 #include "util/numeric.h"
 #include "util/screenshot.h"
 #include "util/string.h" // for parseColorString()
 #include "irrlicht_changes/static_text.h"
-#include "client/guiscalingfilter.h"
 #include "guiAnimatedImage.h"
 #include "guiBackgroundImage.h"
 #include "guiBox.h"
@@ -48,7 +47,6 @@
 #include "guiInventoryList.h"
 #include "guiItemImage.h"
 #include "guiScrollContainer.h"
-#include "guiHyperText.h"
 #include "guiScene.h"
 
 #define MY_CHECKPOS(a,b)													\
@@ -112,8 +110,7 @@ inline u32 clamp_u8(s32 value)
 	return (u32) MYMIN(MYMAX(value, 0), 255);
 }
 
-GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
-		gui::IGUIElement *parent, s32 id, IMenuManager *menumgr,
+GUIFormSpecMenu::GUIFormSpecMenu(gui::IGUIElement *parent, s32 id, IMenuManager *menumgr,
 		Client *client, gui::IGUIEnvironment *guienv, ISimpleTextureSource *tsrc,
 		ISoundManager *sound_manager, IFormSource *fsrc, TextDest *tdst,
 		const std::string &formspecPrepend, bool remap_dbl_click):
@@ -124,8 +121,7 @@ GUIFormSpecMenu::GUIFormSpecMenu(JoystickController *joystick,
 	m_client(client),
 	m_formspec_prepend(formspecPrepend),
 	m_form_src(fsrc),
-	m_text_dst(tdst),
-	m_joystick(joystick)
+	m_text_dst(tdst)
 {
 	current_keys_pending.key_down = false;
 	current_keys_pending.key_up = false;
@@ -144,7 +140,7 @@ GUIFormSpecMenu::~GUIFormSpecMenu()
 }
 
 void GUIFormSpecMenu::create(GUIFormSpecMenu *&cur_formspec, Client *client,
-	gui::IGUIEnvironment *guienv, JoystickController *joystick, IFormSource *fs_src,
+	gui::IGUIEnvironment *guienv, IFormSource *fs_src,
 	TextDest *txt_dest, const std::string &formspecPrepend, ISoundManager *sound_manager)
 {
 	if (cur_formspec && cur_formspec->getReferenceCount() == 1) {
@@ -161,7 +157,7 @@ void GUIFormSpecMenu::create(GUIFormSpecMenu *&cur_formspec, Client *client,
 	}
 
 	if (cur_formspec == nullptr) {
-		cur_formspec = new GUIFormSpecMenu(joystick, guiroot, -1, &g_menumgr,
+		cur_formspec = new GUIFormSpecMenu(guiroot, -1, &g_menumgr,
 			client, guienv, client->getTextureSource(), sound_manager, fs_src,
 			txt_dest, formspecPrepend);
 
@@ -304,6 +300,16 @@ v2s32 GUIFormSpecMenu::getRealCoordinateGeometry(const std::vector<std::string> 
 	return v2s32(stof(v_geom[0]) * imgsize.X, stof(v_geom[1]) * imgsize.Y);
 }
 
+gui::IGUIStaticText *GUIFormSpecMenu::addLabel(const EnrichedString &text, const core::rect<s32> &rect,
+	gui::IGUIElement *parent, const StyleSpec &style, bool word_wrap, s32 id)
+{
+	gui::IGUIStaticText *t = gui::StaticText::add(Environment, text, rect, false, word_wrap, parent, id);
+	t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+	t->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
+	t->setOverrideFont(style.getFont());
+	return t;
+}
+
 bool GUIFormSpecMenu::precheckElement(const std::string &name, const std::string &element,
 	size_t args_min, size_t args_max, std::vector<std::string> &parts)
 {
@@ -435,7 +441,7 @@ void GUIFormSpecMenu::parseScrollContainer(parserData *data, const std::string &
 
 	clipper->drop();
 
-	// remove interferring offset of normal containers
+	// remove interfering offset of normal containers
 	container_stack.push(pos_offset);
 	pos_offset.X = 0.0f;
 	pos_offset.Y = 0.0f;
@@ -1514,17 +1520,17 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 		Environment->setFocus(e);
 	}
 
+	auto style = getDefaultStyleForElement("pwdfield", name, "field");
+
 	if (label.length() >= 1) {
 		int font_height = g_fontengine->getTextHeight();
 		rect.UpperLeftCorner.Y -= font_height;
 		rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + font_height;
-		gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
-			data->current_parent, 0);
+		addLabel(EnrichedString(spec.flabel.c_str()), rect, data->current_parent, style);
 	}
 
 	e->setPasswordBox(true,L'*');
 
-	auto style = getDefaultStyleForElement("pwdfield", name, "field");
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 	e->setDrawBorder(style.getBool(StyleSpec::BORDER, true));
 	e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
@@ -1551,9 +1557,9 @@ gui::IGUIEditBox *GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &
 	bool is_editable = !spec.fname.empty();
 	if (!is_editable && !is_multiline) {
 		// spec field id to 0, this stops submit searching for a value that isn't there
-		gui::StaticText::add(Environment, spec.flabel.c_str(), rect, false, true,
-				data->current_parent, 0);
-		return nullptr;
+		auto style = getDefaultStyleForElement("field");
+		addLabel(EnrichedString(spec.flabel.c_str()), rect, data->current_parent, style);
+		return;
 	}
 
 	if (is_editable) {
@@ -1609,11 +1615,7 @@ gui::IGUIEditBox *GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &
 		int font_height = g_fontengine->getTextHeight();
 		rect.UpperLeftCorner.Y -= font_height;
 		rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + font_height;
-		IGUIElement *t = gui::StaticText::add(Environment, spec.flabel.c_str(),
-				rect, false, true, data->current_parent, 0);
-
-		if (t)
-			t->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+		addLabel(EnrichedString(spec.flabel.c_str()), rect, data->current_parent, style);
 	}
 
 	return e;
@@ -1812,10 +1814,149 @@ void GUIFormSpecMenu::parseHyperText(parserData *data, const std::string &elemen
 	spec.sound = style.get(StyleSpec::Property::SOUND, "");
 
 	GUIHyperText *e = new GUIHyperText(spec.flabel.c_str(), Environment,
-			data->current_parent, spec.fid, rect, m_client, m_tsrc);
+			data->current_parent, spec.fid, rect, m_client, m_tsrc,
+			video::SColor(0,0,0,0),
+			video::SColor(255,255,255,255),
+			false);
 	e->drop();
 
 	m_fields.push_back(spec);
+}
+
+void GUIFormSpecMenu::parseHyperTip(parserData *data, const std::string &element)
+{
+	std::vector<std::string> parts;
+
+	if (!precheckElement("hypertip", element, 5, 6, parts))
+		return;
+
+	// rect_mode is true if the formspec element uses coordinates and
+	// size as the first 2 arguments, false otherwise
+	const bool rect_mode = parts[0].find(',') != std::string::npos;
+	// Number of expected hypertip arguments
+	size_t base_size = 5;
+	// arg_cursor counts the next argument position and must be incremented
+	// each time an argument is consumed
+	size_t arg_cursor = 1;
+	if (rect_mode) {
+		base_size++;
+		arg_cursor++;
+	}
+	if (parts.size() < base_size) {
+		errorstream << "Invalid hypertip element(" << parts.size() << "): '"
+				<< element << "'"  << std::endl;
+		return;
+	}
+
+	// If true, hypertip follows the cursor,
+	// otherwise it will be rendered at a static formspec position
+	bool floating = true;
+
+	// get staticPos argument
+	std::vector<std::string> v_stpos;
+	size_t static_pos_index = arg_cursor;
+	arg_cursor += 2;
+
+	if (parts[static_pos_index] != "") {
+		v_stpos = split(parts[static_pos_index], ',');
+		if (v_stpos.size() != 2) {
+			errorstream << "Invalid staticPos in hypertip element(" << parts.size() <<
+				"): \"" << parts[static_pos_index] << "\"" << std::endl;
+			return;
+		}
+		floating = false;
+	}
+
+	std::string name = parts[arg_cursor++];
+	std::string text = parts[arg_cursor++];
+
+	if (m_form_src)
+		text = m_form_src->resolveText(text);
+
+	FieldSpec spec(
+		name,
+		translate_string(utf8_to_wide(unescape_string(text))),
+		L"",
+		258 + m_fields.size()
+	);
+
+	m_fields.push_back(spec);
+
+	if (rect_mode) {
+		std::vector<std::string> v_pos = split(parts[0], ',');
+		std::vector<std::string> v_geom = split(parts[1], ',');
+
+		MY_CHECKPOS("hypertip", 0);
+		MY_CHECKGEOM("hypertip", 1);
+
+		// Tooltip width is defined in em units of the default font
+		s32 em = g_fontengine->getFontSize(FM_Standard);
+		s32 width = stof(parts[3]) * em;
+
+		v2s32 pos;
+		v2s32 geom;
+		v2s32 stpos;
+
+		if (data->real_coordinates) {
+			pos = getRealCoordinateBasePos(v_pos);
+			geom = getRealCoordinateGeometry(v_geom);
+
+			if (!floating)
+				stpos = getRealCoordinateBasePos(v_stpos);
+		} else {
+			pos = getElementBasePos(&v_pos);
+			geom.X = stof(v_geom[0]) * spacing.X;
+			geom.Y = stof(v_geom[1]) * spacing.Y;
+
+			if (!floating)
+				stpos = getElementBasePos(&v_stpos);
+		}
+
+		core::rect<s32> rect(pos, pos + geom);
+
+		GUIHyperText *e = new GUIHyperText(spec.flabel.c_str(), Environment,
+				data->current_parent, spec.fid, rect, m_client, m_tsrc,
+				m_default_tooltip_bgcolor,
+				m_default_tooltip_color,
+				true);
+
+		auto style = getStyleForElement("hypertip", spec.fname);
+		e->setStyles(style);
+
+		HyperTipSpec geospec(name, "", text, e->getAbsoluteClippingRect(), stpos, width, floating);
+
+		m_hypertips.emplace_back(e, geospec);
+
+		e->setVisible(false);
+		e->drop();
+		return;
+	}
+
+	std::string fieldname = parts[0];
+	core::rect<s32> rect;
+
+	for (const auto &f : m_fields) {
+		if (f.fname == fieldname) {
+			auto *e = getElementFromId(f.fid, true);
+			rect = e->getAbsoluteClippingRect();
+			break;
+		}
+	}
+
+	// Tooltip width is defined in em units of the default font
+	s32 em = g_fontengine->getFontSize(FM_Standard);
+	s32 width = stof(parts[2]) * em;
+
+	v2s32 stpos;
+
+	if (!floating) {
+		if (data->real_coordinates)
+			stpos = getRealCoordinateBasePos(v_stpos);
+		else
+			stpos = getElementBasePos(&v_stpos);
+	}
+
+	m_hypertip_map[fieldname] = HyperTipSpec(name, fieldname, text, rect, stpos, width, floating);
 }
 
 void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
@@ -1855,15 +1996,9 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 			258 + m_fields.size(),
 			4
 		);
-		gui::IGUIStaticText *e = gui::StaticText::add(Environment,
-				text, rect, false, false, data->current_parent,
-				spec.fid);
+		gui::IGUIStaticText *e = addLabel(text, rect, data->current_parent, style, false, spec.fid);
 		e->setTextAlignment(align_h, align_v);
 		e->setWordWrap(word_wrap);
-
-		e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
-		e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
-		e->setOverrideFont(font);
 
 		m_fields.push_back(spec);
 
@@ -1884,7 +2019,7 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 
 			if (data->real_coordinates) {
 				// Lines are spaced at the distance of 1/2 imgsize.
-				// This alows lines that line up with the new elements
+				// This allows lines that line up with the new elements
 				// easily without sacrificing good line distance.  If
 				// it was one whole imgsize, it would have too much
 				// spacing.
@@ -1996,14 +2131,8 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 		258 + m_fields.size()
 	);
 
-	gui::IGUIStaticText *e = gui::StaticText::add(Environment, vlabel,
-			rect, false, false, data->current_parent, spec.fid);
-
+	gui::IGUIStaticText *e = addLabel(vlabel, rect, data->current_parent, style, false, spec.fid);
 	e->setTextAlignment(gui::EGUIA_CENTER, gui::EGUIA_CENTER);
-
-	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
-	e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
-	e->setOverrideFont(font);
 
 	m_fields.push_back(spec);
 
@@ -2437,7 +2566,13 @@ void GUIFormSpecMenu::parseTooltip(parserData* data, const std::string &element)
 
 	// Get mode and check size
 	bool rect_mode = parts[0].find(',') != std::string::npos;
-	size_t base_size = rect_mode ? 3 : 2;
+	size_t base_size = 2;
+	// See parseHyperTip
+	size_t arg_cursor = 1;
+	if (rect_mode) {
+		base_size++;
+		arg_cursor++;
+	}
 	if (parts.size() != base_size && parts.size() != base_size + 2) {
 		errorstream << "Invalid tooltip element(" << parts.size() << "): '"
 				<< element << "'"  << std::endl;
@@ -2456,7 +2591,8 @@ void GUIFormSpecMenu::parseTooltip(parserData* data, const std::string &element)
 	}
 
 	// Make tooltip spec
-	std::string text = unescape_string(parts[rect_mode ? 2 : 1]);
+	std::string text = unescape_string(parts[arg_cursor++]);
+
 	TooltipSpec spec(utf8_to_wide(text), bgcolor, color);
 
 	// Add tooltip
@@ -2884,8 +3020,12 @@ void GUIFormSpecMenu::parseModel(parserData *data, const std::string &element)
 
 	core::rect<s32> rect(pos, pos + geom);
 
-	GUIScene *e = new GUIScene(Environment, m_client->getSceneManager(),
-			data->current_parent, rect, spec.fid);
+	GUIScene *e = new GUIScene(Environment,
+			m_client->getSceneManager(),
+			data->current_parent,
+			m_client->getShaderSource(),
+			rect,
+			spec.fid);
 
 	auto meshnode = e->setMesh(mesh);
 	mesh->drop();
@@ -2988,6 +3128,7 @@ const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFo
 		{"bgcolor",                &GUIFormSpecMenu::parseBackgroundColor},
 		{"listcolors",             &GUIFormSpecMenu::parseListColors},
 		{"tooltip",                &GUIFormSpecMenu::parseTooltip},
+		{"hypertip",               &GUIFormSpecMenu::parseHyperTip},
 		{"scrollbar",              &GUIFormSpecMenu::parseScrollBar},
 		{"real_coordinates",       &GUIFormSpecMenu::parseRealCoordinates},
 		{"style",                  &GUIFormSpecMenu::parseStyle},
@@ -3025,7 +3166,6 @@ void GUIFormSpecMenu::parseElement(parserData* data, const std::string &element)
 		it->second(this, data, description);
 		return;
 	}
-
 
 	// Ignore others
 	infostream << "Unknown DrawSpec: type=" << type << ", data=\"" << description << "\""
@@ -3097,6 +3237,8 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	m_scrollbars.clear();
 	m_fields.clear();
 	m_tooltips.clear();
+	m_hypertips.clear();
+	m_hypertip_map.clear();
 	m_tooltip_rects.clear();
 	m_inventory_rings.clear();
 	m_dropdowns.clear();
@@ -3587,6 +3729,19 @@ void GUIFormSpecMenu::drawMenu()
 		}
 	}
 
+	/*
+		Draw rect_mode hypertip
+	*/
+	for (const auto &pair : m_hypertips) {
+		if (m_hypertip_map.count(pair.second.parent_name) == 0) {
+			const auto &hover_rect = pair.second.hover_rect;
+			if (hover_rect.getArea() > 0 && hover_rect.isPointInside(m_pointer)) {
+				showHyperTip(pair.first, pair.second);
+				break;
+			}
+		}
+	}
+
 	// Some elements are only visible while being drawn
 	for (gui::IGUIElement *e : m_clickthrough_elements)
 		e->setVisible(true);
@@ -3615,6 +3770,10 @@ void GUIFormSpecMenu::drawMenu()
 			core::rect<s32>(v2s32(0, 0), v2s32(0, 0)),
 			NULL, m_client, IT_ROT_HOVERED);
 	}
+
+	for (const auto &pair : m_hypertips)
+		if (pair.first->isVisible())
+			pair.first->setVisible(false);
 
 	/*
 		Draw fields/buttons tooltips and update the mouse cursor
@@ -3666,9 +3825,42 @@ void GUIFormSpecMenu::drawMenu()
 
 				if (delta >= m_tooltip_show_delay) {
 					const std::wstring &text = m_tooltips[field.fname].tooltip;
-					if (!text.empty())
+					if (!text.empty()) {
+						/* Tooltips get the priority over hypertips */
 						showTooltip(text, m_tooltips[field.fname].color,
 							m_tooltips[field.fname].bgcolor);
+					} else if (m_hypertip_map.count(field.fname) != 0) {
+						auto &spec = m_hypertip_map[field.fname];
+
+						if (!spec.bound) {
+							spec.bound = true;
+							auto *parent_element = getElementFromId(field.fid, true);
+							auto txt = translate_string(utf8_to_wide(unescape_string(spec.text)));
+
+							GUIHyperText *e = new GUIHyperText(
+									txt.c_str(), Environment,
+									parent_element->getParent(), field.fid,
+									spec.hover_rect, m_client, m_tsrc,
+									m_default_tooltip_bgcolor,
+									m_default_tooltip_color,
+									false);
+
+							auto style = getStyleForElement("hypertip", spec.name);
+							e->setStyles(style);
+
+							m_hypertips.emplace_back(e, spec);
+
+							e->setVisible(false);
+							e->drop();
+						} else {
+							for (const auto &pair : m_hypertips) {
+								if (field.fname == pair.second.parent_name) {
+									showHyperTip(pair.first, pair.second);
+									break;
+								}
+							}
+						}
+					}
 				}
 
 				if (cursor_control &&
@@ -3720,21 +3912,8 @@ void GUIFormSpecMenu::drawMenu()
 	skin->setFont(old_font);
 }
 
-
-void GUIFormSpecMenu::showTooltip(const std::wstring &text,
-	const video::SColor &color, const video::SColor &bgcolor)
+void GUIFormSpecMenu::positionTooltip(s32 tooltip_width, s32 tooltip_height, s32 &tooltip_x, s32 &tooltip_y)
 {
-	EnrichedString ntext(text);
-	ntext.setDefaultColor(color);
-	if (!ntext.hasBackground())
-		ntext.setBackground(bgcolor);
-
-	setStaticText(m_tooltip_element, ntext);
-
-	// Tooltip size and offset
-	s32 tooltip_width = m_tooltip_element->getTextWidth() + m_btn_height;
-	s32 tooltip_height = m_tooltip_element->getTextHeight() + 5;
-
 	v2u32 screenSize = Environment->getVideoDriver()->getScreenSize();
 	int tooltip_offset_x = m_btn_height;
 	int tooltip_offset_y = m_btn_height;
@@ -3747,8 +3926,30 @@ void GUIFormSpecMenu::showTooltip(const std::wstring &text,
 	}
 
 	// Calculate and set the tooltip position
-	s32 tooltip_x = m_pointer.X + tooltip_offset_x;
-	s32 tooltip_y = m_pointer.Y + tooltip_offset_y;
+	tooltip_x = m_pointer.X + tooltip_offset_x;
+	tooltip_y = m_pointer.Y + tooltip_offset_y;
+}
+
+void GUIFormSpecMenu::showTooltip(const std::wstring &text,
+	const video::SColor &color, const video::SColor &bgcolor)
+{
+	EnrichedString ntext(text);
+	ntext.setDefaultColor(color);
+	if (!ntext.hasBackground())
+		ntext.setBackground(bgcolor);
+
+	setStaticText(m_tooltip_element, ntext);
+
+	// Tooltip size
+	s32 tooltip_width = m_tooltip_element->getTextWidth() + m_btn_height;
+	s32 tooltip_height = m_tooltip_element->getTextHeight() + 5;
+
+	v2u32 screenSize = Environment->getVideoDriver()->getScreenSize();
+
+	// Tooltip offset
+	s32 tooltip_x, tooltip_y;
+	positionTooltip(tooltip_width, tooltip_height, tooltip_x, tooltip_y);
+
 	// Bottom/Left limited positions (if the tooltip is too far out)
 	s32 tooltip_x_alt = (s32)screenSize.X - tooltip_width  - m_btn_height;
 	s32 tooltip_y_alt = (s32)screenSize.Y - tooltip_height - m_btn_height;
@@ -3864,6 +4065,50 @@ void GUIFormSpecMenu::autoScroll()
 	}
 }
 
+
+void GUIFormSpecMenu::showHyperTip(GUIHyperText *e, const HyperTipSpec &spec)
+{
+	// Hypertip size and offset
+	s32 tooltip_width = spec.width;
+	s32 tooltip_height = e->getTextHeight();
+	s32 tooltip_x, tooltip_y;
+
+	v2u32 screenSize = Environment->getVideoDriver()->getScreenSize();
+
+	// Calculate and set the tooltip position
+	if (spec.floating) {
+		/* Dynamic tooltip position, relative to cursor */
+		positionTooltip(tooltip_width, tooltip_height, tooltip_x, tooltip_y);
+	} else {
+		/* Static tooltip position, using formspec coordinates */
+		tooltip_x = spec.stpos[0];
+		tooltip_y = spec.stpos[1];
+	}
+
+	if (tooltip_x + tooltip_width  > (s32)screenSize.X)
+		tooltip_x = (s32)screenSize.X - tooltip_width;
+	if (tooltip_y + tooltip_height > (s32)screenSize.Y)
+		tooltip_y = (s32)screenSize.Y - tooltip_height;
+
+	if (spec.floating) {
+		v2s32 base_pos = e->getParent()->getAbsolutePosition().UpperLeftCorner;
+		tooltip_x -= base_pos.X;
+		tooltip_y -= base_pos.Y;
+	}
+
+	e->setRelativePosition(
+		core::rect<s32>(
+			core::position2d<s32>(tooltip_x, tooltip_y),
+			core::dimension2d<s32>(tooltip_width, tooltip_height)
+		)
+	);
+
+	// Display the hypertip
+	e->setVisible(true);
+	bringToFront(e);
+}
+
+
 void GUIFormSpecMenu::updateSelectedItem()
 {
 	// Don't update when dragging an item
@@ -3959,8 +4204,11 @@ ItemStack GUIFormSpecMenu::verifySelectedItem()
 					ItemStack stack = list->getItem(m_selected_item->i);
 					if (!m_selected_swap.empty()) {
 						if (m_selected_swap.name == stack.name &&
-								m_selected_swap.count == stack.count)
+								m_selected_swap.count == stack.count) {
 							m_selected_swap.clear();
+							// After a sucessful swap, make sure the whole stack is selected.
+							m_selected_amount = stack.count;
+						}
 					} else {
 						m_selected_amount = std::min(m_selected_amount, stack.count);
 					}
@@ -4227,21 +4475,6 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 		}
 	}
 
-	if (event.EventType == EET_JOYSTICK_INPUT_EVENT) {
-		if (event.JoystickEvent.Joystick != m_joystick->getJoystickId())
-			return false;
-
-		bool handled = m_joystick->handleEvent(event.JoystickEvent);
-		if (handled) {
-			if (m_joystick->wasKeyDown(KeyType::ESC)) {
-				tryClose();
-			} else if (m_joystick->wasKeyDown(KeyType::JUMP)) {
-				trySubmitClose();
-			}
-		}
-		return handled;
-	}
-
 	return false;
 }
 
@@ -4345,6 +4578,10 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 			return true;
 		}
 
+	}
+	if (auto kpe = KeyPressEvent(event); kpe && kpe.isPressed() && keySettingHasMatch("keymap_pause", kpe.key)) {
+		tryClose();
+		return true;
 	}
 
 	/* Mouse event other than movement, or crossing the border of inventory
@@ -4890,7 +5127,6 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 			// they are swapped
 			if (leftover.count == stack_from.count && leftover.name == stack_from.name) {
 				if (m_selected_swap.empty()) {
-					m_selected_amount = stack_to.count;
 					m_selected_dragging = false;
 
 					// WARNING: BLACK MAGIC, BUT IN A REDUCED SET

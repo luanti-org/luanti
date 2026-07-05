@@ -90,7 +90,7 @@ function core.encode_png(width, height, data, compression)
 	return o_encode_png(width, height, data, compression or 6)
 end
 
--- Helper that pushes a collisionMoveResult structure
+-- Helper that pushes a CollisionMoveResult structure
 if core.set_push_moveresult1 then
 	-- must match CollisionAxis in collision.h
 	local AXES = {"x", "y", "z"}

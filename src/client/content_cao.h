@@ -4,9 +4,11 @@
 
 #pragma once
 
-#include "EMaterialTypes.h"
-#include "IDummyTransformationSceneNode.h"
 #include "irrlichttypes.h"
+
+#include <EMaterialTypes.h>
+#include <IDummyTransformationSceneNode.h>
+#include <AnimSpec.h>
 
 #include "object_properties.h"
 #include "clientobject.h"
@@ -26,6 +28,8 @@ class Client;
 struct Nametag;
 struct MinimapMarker;
 class WieldMeshSceneNode;
+
+enum class LocalPlayerAnimation : u8;
 
 /*
 	SmoothTranslator and other helpers
@@ -112,18 +116,27 @@ private:
 	SmoothTranslatorWrappedv3f rot_translator;
 
 	// Spritesheet stuff
+	// TODO move into own struct
 	v2f m_tx_size = v2f(1,1);
 	v2s16 m_tx_basepos;
 	bool m_initial_tx_basepos_set = false;
 	bool m_tx_select_horiz_by_yawpitch = false;
-	bool m_animation_loop = true;
-	v2f m_animation_range;
-	float m_animation_speed = 15.0f;
-	float m_animation_blend = 0.0f;
 	int m_anim_frame = 0;
 	int m_anim_num_frames = 1;
 	float m_anim_framelength = 0.2f;
 	float m_anim_timer = 0.0f;
+
+	/// The animation for all tracks as specified by the server.
+	/// This is usually what is used, unless overridden by a local player animation.
+	scene::AnimSpec m_animation;
+	/// For the local player CAO, animations may be overridden by the client
+	/// based on the in-game state of the local player (e.g. walking, digging, idling).
+	/// See also localplayer.h (e.g. LocalPlayerAnimation, LocalPlayer::last_animation).
+	bool m_local_player_animation = false;
+	/// Deferred set animation commands, to be run once the scene node exists
+	std::vector<std::pair<std::string, scene::TrackAnimSpec>> deferred_set_animation_cmds;
+
+	void applyTrackAnimation(scene::TrackId &&track_id, scene::TrackAnimSpec anim);
 
 	// stores position and rotation for each bone name
 	BoneOverrideMap m_bone_override;
@@ -282,9 +295,11 @@ public:
 	// Reason: updateTextures(m_previous_texture_modifier);
 	void updateTextures(std::string mod);
 
-	void updateAnimation();
+	void updateAnimation(u16 track_nr);
+	void setLocalPlayerAnimation(LocalPlayerAnimation local_anim, float speed);
 
-	void updateAnimationSpeed();
+	/// @note logs a warning for invalid IDs
+	std::optional<u16> resolveTrackId(const scene::TrackId &id);
 
 	void processMessage(const std::string &data) override;
 

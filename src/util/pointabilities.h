@@ -49,7 +49,7 @@ struct Pointabilities
 	void serialize(std::ostream &os) const;
 	void deSerialize(std::istream &is);
 
-	// For a save enum conversion.
+	// For a safe enum conversion.
 	static PointabilityType deSerializePointabilityType(std::istream &is);
 	static void serializePointabilityType(std::ostream &os, PointabilityType pointable_type);
 	static std::string toStringPointabilityType(PointabilityType pointable_type);

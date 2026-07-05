@@ -110,8 +110,7 @@ void MenuMusicFetcher::addThePaths(const std::string &name,
 /** GUIEngine                                                                 */
 /******************************************************************************/
 
-GUIEngine::GUIEngine(JoystickController *joystick,
-		gui::IGUIElement *parent,
+GUIEngine::GUIEngine(gui::IGUIElement *parent,
 		RenderingEngine *rendering_engine,
 		IMenuManager *menumgr,
 		MainMenuData *data,
@@ -164,7 +163,6 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 
 	/* Create menu */
 	m_menu = make_irr<GUIFormSpecMenu>(
-			joystick,
 			m_parent,
 			-1,
 			m_menumanager,
@@ -193,7 +191,7 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 		auto err = strgettext("Failed to load main menu script!");
 		RenderingEngine::showErrorMessageBox(err);
 		m_kill = 1; // break game-menu loop
-		m_data->script_data.errormessage = err;
+		m_data->script_data.message = err;
 	};
 
 
@@ -209,7 +207,7 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 
 	try {
 		m_script->setMainMenuData(&m_data->script_data);
-		m_data->script_data.errormessage.clear();
+		m_data->script_data.message.clear();
 
 		if (!loadMainMenuScript()) {
 			report_fatal_error();
@@ -219,7 +217,7 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 		run();
 	} catch (ModError &e) {
 		errorstream << "Main menu error: " << e.what() << std::endl;
-		m_data->script_data.errormessage = e.what();
+		m_data->script_data.message = e.what();
 	}
 }
 

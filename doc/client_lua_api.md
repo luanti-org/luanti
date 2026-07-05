@@ -1,4 +1,4 @@
-Luanti Lua Client Modding API Reference 5.16.0
+Luanti Lua Client Modding API Reference 5.17.0
 ==============================================
 
 **WARNING**: if you're looking for the `minetest` namespace (e.g. `minetest.something`),
@@ -399,6 +399,11 @@ Call these functions only at load time!
       Negative step will lower the sound volume, positive step will increase
       the sound volume.
     * `gain` the target gain for the fade.
+* `core.debug_print_playing_sounds()`
+    * Logs a list of all currently playing sounds to warningstream.
+    * Only for debugging, don't depend on the output format or existence of this
+      function.
+    * Requires `debug` privilege.
 
 ### Timing
 * `core.after(time, func, ...)`
@@ -549,10 +554,12 @@ Call these functions only at load time!
     * `method` is a string identifying the compression method to be used.
     * Supported compression methods:
         * Deflate (zlib): `"deflate"`
+        * Deflate (raw): `"raw_deflate"`
         * Zstandard: `"zstd"`
     * `...` indicates method-specific arguments. Currently defined arguments
       are:
         * Deflate: `level` - Compression level, `0`-`9` or `nil`.
+          Supported by `"deflate"` and `"raw_deflate"`.
         * Zstandard: `level` - Compression level. Integer or `nil`. Default `3`.
         Note any supported Zstandard compression level could be used here,
         but these are subject to change between Zstandard versions.
@@ -796,6 +803,7 @@ Methods:
 
 * `get_armor_groups()`
     * returns a table with the armor group ratings
+    * It can return `nil` if the player CAO is not yet initialized.
 * `hud_add(definition)`
     * add a HUD element described by HUD def, returns ID number on success and `nil` on failure.
     * See [`HUD definition`](#hud-definition-hud_add-hud_get)

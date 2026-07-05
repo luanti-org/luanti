@@ -39,9 +39,9 @@ struct CollisionInfo
 	v3f new_speed;
 };
 
-struct collisionMoveResult
+struct CollisionMoveResult
 {
-	collisionMoveResult() = default;
+	CollisionMoveResult() = default;
 
 	bool collides = false;
 	bool touching_ground = false;
@@ -54,7 +54,7 @@ struct collisionMoveResult
 extern bool g_collision_problems_encountered;
 
 /// @param self (optional) ActiveObject to ignore in the collision detection.
-collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
+CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		const aabb3f &box_0,
 		f32 stepheight, f32 dtime,
 		v3f *pos_f, v3f *speed_f,

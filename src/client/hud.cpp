@@ -308,7 +308,11 @@ void Hud::drawItems(v2s32 screen_pos, v2s32 screen_offset, s32 itemcount, v2f al
 
 bool Hud::hasElementOfType(HudElementType type)
 {
-	for (HudElement *e : player->getHudElements()) {
+	for (auto const &e : player->hud.getElements()) {
+		if (e && e->type == type)
+			return true;
+	}
+	for (auto const &e : player->csm_hud.getElements()) {
 		if (e && e->type == type)
 			return true;
 	}
@@ -335,17 +339,21 @@ bool Hud::calculateScreenPos(const v3s16 &camera_offset, HudElement *e, v2s32 *p
 	return true;
 }
 
-void Hud::drawLuaElements(const v3s16 &camera_offset)
+void Hud::drawLuaElements(const v3s16 &camera_offset, bool only_unhidable)
 {
 	const u32 text_height = g_fontengine->getTextHeight();
 	gui::IGUIFont *const font = g_fontengine->getFont();
 
 	std::vector<HudElement*> elems;
 
-	elems.reserve(player->getHudElements().size());
-	for (HudElement *e : player->getHudElements()) {
+	elems.reserve(player->hud.getElements().size() + player->csm_hud.getElements().size());
+	for (auto const &e : player->hud.getElements()) {
 		if (e)
-			elems.push_back(e);
+			elems.push_back(e.get());
+	}
+	for (auto const &e : player->csm_hud.getElements()) {
+		if (e)
+			elems.push_back(e.get());
 	}
 
 	// Add builtin elements if the server doesn't send them.
@@ -370,6 +378,8 @@ void Hud::drawLuaElements(const v3s16 &camera_offset)
 	});
 
 	for (HudElement *e : elems) {
+		if (only_unhidable && e->hideable)
+			continue;
 
 		v2s32 pos(floor(e->pos.X * (float) m_screensize.X + 0.5),
 				floor(e->pos.Y * (float) m_screensize.Y + 0.5));
@@ -408,8 +418,7 @@ void Hud::drawLuaElements(const v3s16 &camera_offset)
 				core::dimension2d<u32> textsize = textfont->getDimension(text.c_str());
 
 				v2s32 offset(0, (e->align.Y - 1.0) * (textsize.Height / 2));
-				core::rect<s32> size(0, 0, e->scale.X * m_scale_factor,
-						text_height * e->scale.Y * m_scale_factor);
+				core::rect<s32> size(0, 0, m_scale_factor, text_height * m_scale_factor);
 				v2s32 offs(e->offset.X * m_scale_factor,
 						e->offset.Y * m_scale_factor);
 

@@ -4,8 +4,9 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in Irrlicht.h
 
-#include "Driver.h"
 #include <cassert>
+
+#include "Driver.h"
 #include "CNullDriver.h"
 #include "IContextManager.h"
 
@@ -1301,8 +1302,7 @@ void COpenGL3DriverBase::setBasicRenderStates(const SMaterial &material, const S
 	}
 
 	// Blend Factor
-	if (IR(material.BlendFactor) & 0xFFFFFFFF // TODO: why the & 0xFFFFFFFF?
-			&& material.MaterialType != EMT_ONETEXTURE_BLEND) {
+	if (material.BlendFactor != 0.0f && material.MaterialType != EMT_ONETEXTURE_BLEND) {
 		E_BLEND_FACTOR srcRGBFact = EBF_ZERO;
 		E_BLEND_FACTOR dstRGBFact = EBF_ZERO;
 		E_BLEND_FACTOR srcAlphaFact = EBF_ZERO;

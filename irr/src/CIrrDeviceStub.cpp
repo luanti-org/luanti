@@ -262,12 +262,6 @@ bool CIrrDeviceStub::isFullscreen() const
 }
 
 //! No-op in this implementation
-bool CIrrDeviceStub::activateJoysticks(core::array<SJoystickInfo> &joystickInfo)
-{
-	return false;
-}
-
-//! No-op in this implementation
 bool CIrrDeviceStub::activateAccelerometer(float updateInterval)
 {
 	return false;

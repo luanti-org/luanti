@@ -40,7 +40,7 @@ public:
 	virtual float getTriggerInterval() = 0;
 	// Random chance of (1 / return value), 0 is disallowed
 	virtual u32 getTriggerChance() = 0;
-	// Whether to modify chance to simulate time lost by an unnattended block
+	// Whether to modify chance to simulate time lost by an unattended block
 	virtual bool getSimpleCatchUp() = 0;
 	// get min Y for apply abm
 	virtual s16 getMinY() = 0;

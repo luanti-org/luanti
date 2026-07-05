@@ -5,16 +5,16 @@ CORE_NAME=minetest
 ogg_version=1.3.5
 openal_version=1.25.1
 vorbis_version=1.3.7
-curl_version=8.19.0
+curl_version=8.21.0
 gettext_version=0.20.2
 freetype_version=2.14.3
-sqlite3_version=3.51.3
-luajit_version=20260304
+sqlite3_version=3.53.3
+luajit_version=20260629
 leveldb_version=1.23
 zlib_version=1.3.2
 zstd_version=1.5.7
-libjpeg_version=3.0.1
-libpng_version=1.6.56
+libjpeg_version=3.2.0
+libpng_version=1.6.58
 sdl2_version=2.32.10
 
 download () {

@@ -3,6 +3,7 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 // Copyright (C) 2017 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
 
+#include "porting.h"
 #include "settings.h"
 #include "util/numeric.h"
 #include "inputhandler.h"
@@ -11,6 +12,21 @@
 #include "hud_element.h"
 #include "log_internal.h"
 #include "client/renderingengine.h"
+
+static const std::array input_settings = {
+	"keyboard_camera_speed",
+	"joystick_frustum_sensitivity",
+	"repeat_joystick_button_time"
+};
+
+InputHandler::InputHandler()
+{
+	for (const auto &name: Settings::getLayer(SL_DEFAULTS)->getNames())
+		if (str_starts_with(name, "keymap_"))
+			g_settings->registerChangedCallback(name, &settingChangedCallback, this);
+	for (const auto &name: input_settings)
+		g_settings->registerChangedCallback(name, &settingChangedCallback, this);
+}
 
 void MyEventReceiver::reloadKeybindings()
 {
@@ -26,7 +42,8 @@ void MyEventReceiver::reloadKeybindings()
 	keybindings[KeyType::DIG] = getKeySetting("keymap_dig");
 	keybindings[KeyType::PLACE] = getKeySetting("keymap_place");
 
-	keybindings[KeyType::ESC] = std::vector<KeyPress>{EscapeKey};
+	keybindings[KeyType::ESC] = getKeySetting("keymap_pause");
+	keybindings[KeyType::ESC].keys.emplace_back(EscapeKey);
 
 	keybindings[KeyType::AUTOFORWARD] = getKeySetting("keymap_autoforward");
 
@@ -82,47 +99,105 @@ void MyEventReceiver::reloadKeybindings()
 	keysListenedFor.clear();
 	for (int i = 0; i < KeyType::INTERNAL_ENUM_COUNT; i++) {
 		GameKeyType game_key = static_cast<GameKeyType>(i);
-		keybindings[i].emplace_back(game_key);
-		for (auto key: keybindings[i]) {
+		keybindings[i].keys.emplace_back(game_key);
+		for (auto key: keybindings[i].keys) {
 			listenForKey(key, game_key);
 		}
 	}
+
+	repeat_joystick_button_time = g_settings->getFloat("repeat_joystick_button_time");
+
+	static const std::array camera_rotation_actions = {
+		KeyType::CAMERA_YAW_LEFT,
+		KeyType::CAMERA_YAW_RIGHT,
+		KeyType::CAMERA_PITCH_UP,
+		KeyType::CAMERA_PITCH_DOWN
+	};
+	for (const auto action: camera_rotation_actions) {
+		auto &keybinding = keybindings[action];
+		keybinding.scale.keyboard_mouse = g_settings->getFloat("keyboard_camera_speed", 0.001f, 720.0f);
+		keybinding.scale.joystick = g_settings->getFloat("joystick_frustum_sensitivity", 0.001f, 720.0f);
+	}
+
 }
 
-bool MyEventReceiver::setKeyDown(KeyPress keyCode, bool is_down)
+bool MyEventReceiver::WasKeyDown(GameKeyType key)
+{
+	bool b = keyWasDown[key];
+	if (b) {
+		keyWasDown.reset(key);
+	} else if (IsKeyDown(key)) {
+		// Gamepad events are not repeated so these need to be repeated here
+		for (auto kp: keybindings[key].keys) {
+			if (kp.getSourceType() != KeyPress::InputSourceType::GAMEPAD)
+				continue;
+			auto down_ent = physicalKeyDown.find(kp);
+			if (down_ent == physicalKeyDown.end())
+				continue;
+			if (auto &keystate = down_ent->second; keystate.analog_value > 0) {
+				auto time_now = porting::getTimeMs() / 1000.0;
+				if (time_now - keystate.last_binary_update >= repeat_joystick_button_time) {
+					b = true;
+					keystate.last_binary_update = time_now;
+				}
+			}
+		}
+	}
+	return b;
+}
+
+bool MyEventReceiver::setKeyDown(KeyPress keyCode, float value)
 {
 	if (keysListenedFor.find(keyCode) == keysListenedFor.end()) // ignore irrelevant key input
 		return false;
 	auto action = keysListenedFor[keyCode];
-	if (is_down)
-		physicalKeyDown.insert(keyCode);
-	else
+	if (value > 0) {
+		if (physicalKeyDown.find(keyCode) == physicalKeyDown.end())
+			physicalKeyDown[keyCode].last_binary_update = porting::getTimeMs() / 1000.0;
+		physicalKeyDown[keyCode].analog_value = value;
+	} else {
 		physicalKeyDown.erase(keyCode);
+	}
 	setKeyDown(action, checkKeyDown(action));
 	return true;
 }
 
-void MyEventReceiver::setKeyDown(GameKeyType action, bool is_down)
+/* new_state:
+ * float: the analog value of the joystick
+ * bool: whether keyWasDown should be set
+ */
+void MyEventReceiver::setKeyDown(GameKeyType action, std::pair<float, bool> new_state)
 {
-	if (is_down) {
-		if (!IsKeyDown(action))
+	auto value = new_state.first;
+	if (value > 0) {
+		if (!IsKeyDown(action)) {
 			keyWasPressed.set(action);
-		keyIsDown.set(action);
-		keyWasDown.set(action);
+			// checkKeyDown does not check whether the key for an action is already down, so we set this unconditionally
+			// if the key was previously not yet pressed
+			keyWasDown.set(action);
+		}
+		if (new_state.second)
+			keyWasDown.set(action);
+		axisValues[action] = value;
 	} else {
 		if (IsKeyDown(action))
 			keyWasReleased.set(action);
-		keyIsDown.reset(action);
+		axisValues[action] = 0;
 	}
 }
 
-bool MyEventReceiver::checkKeyDown(GameKeyType action) const
+std::pair<float, bool> MyEventReceiver::checkKeyDown(GameKeyType action) const
 {
-	for (const auto &key : keybindings[action]) {
-		if (physicalKeyDown.find(key) != physicalKeyDown.end())
-			return true;
+	auto value = 0.0f;
+	bool setWasKeyDown = false;
+	for (const auto &key : keybindings[action].keys) {
+		auto p = physicalKeyDown.find(key);
+		if (p != physicalKeyDown.end()) {
+			value = std::max(value, p->second.analog_value * keybindings[action].getScale(key.getType()));
+			setWasKeyDown |= p->first.getSourceType() != KeyPress::InputSourceType::GAMEPAD;
+		}
 	}
-	return false;
+	return std::pair(value, setWasKeyDown);
 }
 
 bool MyEventReceiver::OnEvent(const SEvent &event)
@@ -193,41 +268,21 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 	}
 
 	// Remember whether each key is down or up
-	if (event.EventType == EET_KEY_INPUT_EVENT) {
-		KeyPress keyCode(event.KeyInput);
-		if (setKeyDown(keyCode, event.KeyInput.PressedDown))
-			return true;
-	} else if (g_touchcontrols && event.EventType == EET_TOUCH_INPUT_EVENT) {
+	if (g_touchcontrols && event.EventType == EET_TOUCH_INPUT_EVENT) {
 		// In case of touchcontrols, we have to handle different events
 		g_touchcontrols->translateEvent(event);
 		return true;
-	} else if (event.EventType == EET_JOYSTICK_INPUT_EVENT) {
-		// joystick may be nullptr if game is launched with '--random-input' parameter
-		return joystick && joystick->handleEvent(event.JoystickEvent);
-	} else if (event.EventType == EET_MOUSE_INPUT_EVENT) {
-		// Handle mouse events
-		switch (event.MouseInput.Event) {
-		case EMIE_LMOUSE_PRESSED_DOWN:
-		case EMIE_MMOUSE_PRESSED_DOWN:
-		case EMIE_RMOUSE_PRESSED_DOWN:
-		case EMIE_XMOUSE_PRESSED_DOWN:
-			setKeyDown(KeyPress(event.MouseInput), true);
-			break;
-		case EMIE_LMOUSE_LEFT_UP:
-		case EMIE_MMOUSE_LEFT_UP:
-		case EMIE_RMOUSE_LEFT_UP:
-		case EMIE_XMOUSE_LEFT_UP:
-			setKeyDown(KeyPress(event.MouseInput), false);
-			break;
-		case EMIE_MOUSE_WHEEL:
-			mouse_wheel += event.MouseInput.Wheel;
-			break;
-		default:
-			break;
-		}
+	} else if (event.EventType == EET_MOUSE_INPUT_EVENT && event.MouseInput.Event == EMIE_MOUSE_WHEEL) {
+		mouse_wheel += event.MouseInput.Wheel;
 	} else if (event.EventType == EET_USER_EVENT && event.UserEvent.type == EUET_GAME_KEY) {
 		KeyPress keyCode(static_cast<GameKeyType>(event.UserEvent.UserData1));
-		setKeyDown(keyCode, event.UserEvent.UserData2 != 0);
+		setKeyDown(keyCode, InputHandler::intToAnalog(event.UserEvent.UserData2));
+		return true;
+	} else if (KeyPressEvent kpevent(event); kpevent) {
+		setKeyDown(kpevent.key, kpevent.analog_value);
+		if (auto opposite = kpevent.key.getOppositeAxisDirection(); opposite) {
+			setKeyDown(opposite, 0);
+		}
 		return true;
 	}
 
@@ -238,22 +293,6 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 /*
  * RealInputHandler
  */
-float RealInputHandler::getJoystickSpeed()
-{
-	if (g_touchcontrols && g_touchcontrols->getJoystickSpeed())
-		return g_touchcontrols->getJoystickSpeed();
-	return joystick.getMovementSpeed();
-}
-
-float RealInputHandler::getJoystickDirection()
-{
-	// `getJoystickDirection() == 0` means forward, so we cannot use
-	// `getJoystickDirection()` as a condition.
-	if (g_touchcontrols && g_touchcontrols->getJoystickSpeed())
-		return g_touchcontrols->getJoystickDirection();
-	return joystick.getMovementDirection();
-}
-
 v2s32 RealInputHandler::getMousePos()
 {
 	auto control = RenderingEngine::get_raw_device()->getCursorControl();
@@ -315,25 +354,4 @@ void RandomInputHandler::step(float dtime)
 		}
 	}
 	mousepos += mousespeed;
-	static bool useJoystick = false;
-	{
-		static float counterUseJoystick = 0;
-		counterUseJoystick -= dtime;
-		if (counterUseJoystick < 0.0) {
-			counterUseJoystick = 5.0; // switch between joystick and keyboard direction input
-			useJoystick = !useJoystick;
-		}
-	}
-	if (useJoystick) {
-		static float counterMovement = 0;
-		counterMovement -= dtime;
-		if (counterMovement < 0.0) {
-			counterMovement = 0.1 * Rand(1, 40);
-			joystickSpeed = Rand(0,100)*0.01;
-			joystickDirection = Rand(-100, 100)*0.01 * M_PI;
-		}
-	} else {
-		joystickSpeed = 0.0f;
-		joystickDirection = 0.0f;
-	}
 }

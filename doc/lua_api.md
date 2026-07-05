@@ -419,8 +419,8 @@ to check whether a model is a valid glTF file.
 Many glTF features are not supported *yet*, including:
 
 * Animations
-  * Only a single animation is supported, use frame ranges within this animation.
-  * `CUBICSPLINE` interpolation is not supported.
+  * `CUBICSPLINE` interpolation is not supported
+  * Morph animations
 * Cameras
 * Materials
   * Only base color textures are supported
@@ -429,7 +429,12 @@ Many glTF features are not supported *yet*, including:
 * Alternative means of supplying data
   * Embedded images. You can use `gltfutil.py` from the
     [modding tools](https://github.com/luanti-org/modtools) to strip or extract embedded images.
-  * References to files via URIs
+  * References to files via URIs (e.g. `.bin` binary data buffers).
+    Buffers need to be embedded base64-encoded, or you can use `.glb` files.
+
+Note that unlike the `.x` and `.b3d` file formats, per the specification,
+glTF files should use timestamps in seconds as animation frame numbers.
+This means you should normally set an animation frame speed of `1.0` for glTF animations.
 
 Textures are supplied solely via the same means as for the other model file formats:
 The `textures` object property, the `tiles` node definition field and
@@ -706,42 +711,65 @@ on top of `cobble.png`.
 
 #### Crack
 
-* `[crack:<n>:<p>`
-* `[cracko:<n>:<p>`
-* `[crack:<t>:<n>:<p>`
-* `[cracko:<t>:<n>:<p>`
+* `[crack:<vertical_frames>:<crack_frame>`
+* `[cracko:<vertical_frames>:<crack_frame>`
+* `[crack:<grid>:<vertical_frames>:<crack_frame>`
+* `[cracko:<grid>:<vertical_frames>:<crack_frame>`
 
-Parameters (all integers):
+This draws a step of the crack animation on the texture.
 
-* `<t>`: draws a grid of `<t> * <t>` cracks onto each frame
-  (integer [imagesize], default: `1`)
-* `<n>`: vertical count of frames of the base texture
-  (integer [imagesize], often `1`)
-* `<p>`: crack animation frame
-  (integer [imageframe], counting starts at 0)
+It overlays a scaled frame of the crack texture, `crack_anylength.png`,
+over a texture, with options for alpha and blitting multiple times for
+tile sheets / animated textures.
 
-Draws a step of the crack animation on the texture.
-`crack` draws it normally, while `cracko` lays it over, keeping transparent
-pixels intact.
+With `[crack`, the crack will be overlaid over the whole base
+texture, while with `[cracko`, the crack will only be overlaid
+over fully opaque base texture regions.
 
-Example:
+Parameters:
 
-    default_cobble.png^[crack:10:1
+* `grid` (optional): Creates a square grid of multiple cracks, with
+  side length `grid`, e.g. the number 3 creates a 3x3 grid of cracks
+  (integer [imagesize], default 1)
+* `vertical_frames`: Amount of times the grid created by `grid`
+  will be repeated vertically (integer [imagesize], often `1`)
+* `crack_frame`: Crack animation frame (integer [imageframe], counting
+  starts at 0)
 
-#### `[combine:<w>x<h>:<x1>,<y1>=<file1>:<x2>,<y2>=<file2>:...`
+Note: The resulting crack (or cracks) texture will always be scaled
+to the size of the base texture.
 
-* `<w>`: width (integer [imagesize])
-* `<h>`: height (integer [imagesize])
-* `<x>`: x position (integer [s32])
-* `<y>`: y position (integer [s32])
-* `<file>`: texture to combine
+Examples:
 
-Creates a texture of size `<w>` times `<h>` and blits the listed source images
-to their specified `<x>,<y>` coordinates of the target texture. Pixels
-that would end up outside the target texture (e.g. if the source texture is
-larger than the target texture), they are discarded.
-Negative coordinates are allowed. This just means the origin of the listed file
-is to the left and/or upwards of the origin of the target texture.
+    default_stone.png^[crack:1:2
+
+* Cracked stone
+* Use the third crack progression (`2` because of 0-indexing)
+  and draw it once on a stone texture
+
+    default_lava_source_animated.png^[crack:8:2
+
+* Cracked lava
+* Use the 3rd crack progression and draw it 8 times on top of the base texture
+* The base texture should have 8 vertical frames as well
+
+    example.png^[crack:3:1:0
+
+* Blits a 3x3 grid of crack textures, each at frame 0, on `example.png`
+
+#### `[combine:<w>x<h>:<parts>`
+
+* `<w>`: width of resulting texture (integer [imagesize])
+* `<h>`: height of resulting texture (integer [imagesize])
+* `<parts>`: Colon-separated (`:`) list of locations `x`, `y` and textures to
+  blit; written in the form `<x>,<y>=<texture>` for each texture. Can be empty.
+
+`x` and `y` are integers [imageframe].
+A `<texture>` (in `<textures>`) can contain texture modifiers, but these must
+be escaped according to the rules in [Escaping](#Escaping).
+
+Creates a texture of size `<w>` times `<h>` and blits the listed files to their
+specified coordinates. The background is black and transparent (`#00000000`).
 
 Example:
 
@@ -758,11 +786,14 @@ Example:
 
     default_sandstone.png^[resize:16x16
 
-#### `[opacity:<r>`
+#### `[opacity:<ratio>`
 
-Makes the base image transparent according to the given ratio.
+Makes the base image transparent according to the given `ratio`.
 
-`r` is an integer in range [0, 255]. 0 = transparent, 255 = opaque.
+This multiplies the alpha value of each pixel of the base texture
+with `ratio/255` and rounds the result to the closest integer afterwards.
+
+`ratio` is an integer in range [0, 255]. 0 = transparent, 255 = opaque.
 
 Example:
 
@@ -770,9 +801,10 @@ Example:
 
 #### `[invert:<mode>`
 
-Inverts the given channels of the base image.
-Mode may contain the characters "r", "g", "b", "a".
-Only the channels that are mentioned in the mode string will be inverted.
+* `mode` is a string which may contain the characters `r`, `g`, `b` and `a`.
+
+The channels corresponding to the occurring characters (red, green, blue
+and alpha) will be inverted (set to `255 - value`).
 
 Example:
 
@@ -780,7 +812,8 @@ Example:
 
 #### `[brighten`
 
-Brightens the texture.
+Interpolates 50:50 between the color of each pixel of the base texture and
+white.
 
 Example:
 
@@ -788,7 +821,11 @@ Example:
 
 #### `[noalpha`
 
-Makes the texture completely opaque.
+Makes the texture completely opaque by setting the alpha channel of the base
+texture to the maximum value (`255`).
+
+As the red, green and blue channels aren't pre-multiplied with alpha in PNGs,
+this might reveal hidden colors of otherwise transparent portions of an image.
 
 Example:
 
@@ -797,6 +834,13 @@ Example:
 #### `[makealpha:<r>,<g>,<b>`
 
 Convert the given color to transparency.
+
+Pixels of the base texture having the exact same RGB color will have their
+alpha value set to `0`.
+
+As the red, green and blue channels are kept, the original color can be
+restored using `[noalpha` (which will however also make originally
+semi-transparent portions of the image opaque).
 
 * `r`: red (integer in range [0, 255])
 * `g`: green (integer in range [0, 255])
@@ -808,21 +852,21 @@ Example:
 
 #### `[transform<t>`
 
-* `<t>`: transformation(s) to apply
-
 Rotates and/or flips the image.
 
-`<t>` can be an integer (in range [0, 7]) or a transform name.
-Rotations are counter-clockwise.
+`<t>` is the concatenation of either integers or names identifying
+transformations from the following table:
 
-    0  I      identity
-    1  R90    rotate by 90 degrees
-    2  R180   rotate by 180 degrees
-    3  R270   rotate by 270 degrees
+    0  I      identity (no transformation)
+    1  R90    rotate by 90° counterclockwise
+    2  R180   rotate by 180° counterclockwise
+    3  R270   rotate by 270° counterclockwise
     4  FX     flip X
-    5  FXR90  flip X then rotate by 90 degrees
+    5  FXR90  flip X then rotate by 90° counterclockwise
     6  FY     flip Y
-    7  FYR90  flip Y then rotate by 90 degrees
+    7  FYR90  flip Y then rotate by 90° counterclockwise
+
+Transformation names are case-insensitive.
 
 Example:
 
@@ -830,16 +874,19 @@ Example:
 
 #### `[inventorycube{<top>{<left>{<right>`
 
+Renders a cube similar to how it would look in the inventory with the three
+given textures using simple software rendering.
+
+The resulting image size depends on the size of the source texture.
+
 Escaping does not apply here and `^` is replaced by `&` in texture names
 instead.
-
-Create an inventory cube texture using the side textures.
 
 Example:
 
     [inventorycube{grass.png{dirt.png&grass_side.png{dirt.png&grass_side.png
 
-Creates an inventorycube with `grass.png`, `dirt.png^grass_side.png` and
+Renders a cube with `grass.png`, `dirt.png^grass_side.png` and
 `dirt.png^grass_side.png` textures
 
 #### `[fill:<w>x<h>:<x>,<y>:<color>`
@@ -866,10 +913,11 @@ Examples:
     [fill:16x16:#20F02080
     texture.png^[fill:8x8:4,4:red
 
-#### `[lowpart:<percent>:<file>`
+#### `[lowpart:<percent>:<texture>`
 
-Blit the lower `<percent>`% part of `<file>` on the texture.
+Blit the lower `<percent>`% part of `<texture>` on the base texture.
 `<percent>` is an integer with range [0, 100].
+`<texture>` can contain escaped texture modifiers.
 
 Example:
 
@@ -886,11 +934,13 @@ Example:
 
     default_torch_animated.png^[verticalframe:16:8
 
-#### `[mask:<file>`
+#### `[mask:<texture>`
 
-Apply a mask to the base image.
+* `texture` is an escaped texture modifier
 
-The mask is applied using binary AND.
+Applies a *bitwise and* to all RGBA values of `texture` and the base texture.
+
+If a pixel of the base texture is out of bounds on texture, it is preserved.
 
 *See notes: `TEXMOD_UPSCALE`*
 
@@ -898,23 +948,32 @@ The mask is applied using binary AND.
 
 * `<w>`: sheet width in tiles (integer [imagesize])
 * `<h>`: sheet height in tiles (integer [imagesize])
-* `<x>`: x position in tiles (integer [imageframe])
-* `<y>`: y position in tiles (integer [imageframe])
+* `<x>`: x position in tiles (integer [imageframe], starts at 0)
+* `<y>`: y position in tiles (integer [imageframe], starts at 0)
 
-Retrieves a tile at tile position `<x>,<y>` from the base image,
-which is assumed to be a tile sheet with tile dimensions `<w>,<h>`.
+Retrieves the tile of a base image at position `x`, `y`,
+which is assumed to be a tilesheet with dimensions
+`w`, `h` (in tiles).
 
 #### `[colorize:<color>:<ratio>`
 
-Colorize the textures with the given color.
-`<color>` is specified as a `ColorString`.
-`<ratio>` is an integer in range [0, 255] or the string `"alpha"`. If
-it is an integer, then it specifies how far to interpolate between the
-colors where 0 is only the texture color and 255 is only `<color>`. If
-omitted, the alpha of `<color>` will be used as the ratio.  If it is
-the word "`alpha`", then each texture pixel will contain the RGB of
-`<color>` and the alpha of `<color>` multiplied by the alpha of the
-texture pixel.
+* `color` is a ColorString (should not use alpha)
+* `ratio` is an optional integer in range [0, 255] or the string `"alpha"`
+
+Colorizes the textures with the given color.
+
+Interpolates between `color` and the pixel colors of the base texture as specified
+by the `ratio`:
+
+* Defaults to the alpha of `color` if omitted (NOT RECOMMENDED)
+* If it's an integer from 0 (only base texture color) to 255 (only `color`),
+  the resulting color of a pixel is `ratio * color + (255 - ratio) * base_tex_color`.
+* If `ratio = "alpha"`, the texture pixel's alpha value determines the
+  ratio per pixel (NOT RECOMMENDED)
+* NOTE: Due to bugs, we currently can only recommend the base image to
+  **avoid semitransparent pixels entirely** (all pixels should have alpha = 0 or alpha = 255),
+  `ratio` to be explicitly specified, and the alpha in `color` to equal 255.
+  Anything else leads to undefined behavior.
 
 #### `[colorizehsl:<hue>:<saturation>:<lightness>`
 
@@ -936,7 +995,8 @@ and -120° is blue.
 
 #### `[multiply:<color>`
 
-Multiplies texture colors with the given color.
+Multiplies the RGB values of the base texture per pixel with the RGB
+values of `color`; the `alpha` value of `color` is ignored.
 `<color>` is specified as a `ColorString`.
 Result is more like what you'd expect if you put a color on top of another
 color, meaning white surfaces get a lot of your new color while black parts
@@ -1019,9 +1079,12 @@ swapped, i.e. `A.png^[hardlight:B.png` is the same as `B.png^[overlay:A.png`
 
 *See notes: `TEXMOD_UPSCALE`*
 
-#### `[png:<base64>`
+#### `[png:<data>`
 
-Embed a base64 encoded PNG image in the texture string.
+* `data` is a base64-encoded PNG bytestring
+
+Creates a texture from an embedded base64-encoded PNG image
+in the `data` string.
 You can produce a valid string for this by calling
 `core.encode_base64(core.encode_png(tex))`,
 where `tex` is pixel data. Refer to the documentation of these
@@ -1977,6 +2040,10 @@ Default 0. By convention, the following values are recommended:
 If your HUD element doesn't fit into any category, pick an integer
 between the suggested values.
 
+If the `hideable` field is set to `false`, players can not hide the element.
+It can be used to for example obstruct the view of players.
+Does not take effect for clients older than version 5.17
+
 Below are the specific uses for fields in each type; fields not listed for that
 type are ignored.
 
@@ -1998,9 +2065,6 @@ Displays an image on the HUD.
 
 Displays text on the HUD.
 
-* `scale`: Defines the bounding rectangle of the text, syntax is
-  `{ x = <number>, y = <number> }`.
-  A value such as `{ x = 100, y = 100 }` should work.
 * `text`: The text to be displayed in the HUD element.
   Supports `core.translate` (always)
   and `core.colorize` (since protocol version 44)
@@ -2017,6 +2081,9 @@ Displays text on the HUD.
       a rounded down integer value.
 * `style`: determines font style
   Bitfield with 1 = bold, 2 = italic, 4 = monospace
+* `scale`: Do not use.
+  Note: Previous versions of the documentation claimed this field sets
+  a "bounding rectangle" for the text, but it never worked.
 
 ### `statbar`
 
@@ -3177,6 +3244,7 @@ Elements
 ### `tooltip[<gui_element_name>;<tooltip_text>;<bgcolor>;<fontcolor>]`
 
 * Adds tooltip for an element
+* It has to be declared *after* the element that is bound to
 * `bgcolor` tooltip background color as `ColorString` (optional)
 * `fontcolor` tooltip font color as `ColorString` (optional)
 
@@ -3185,6 +3253,25 @@ Elements
 * Adds tooltip for an area. Other tooltips will take priority when present.
 * `bgcolor` tooltip background color as `ColorString` (optional)
 * `fontcolor` tooltip font color as `ColorString` (optional)
+
+### `hypertip[<gui_element_name>;<staticPos>;<width>;<name>;<text>]`
+
+* Adds a hypertext tooltip for an element. Displays a formatted text
+  using `Markup Language` in a tooltip.
+* This tooltip has to be declared *after* the element that is bound to.
+* `staticPos` is an optional position of the form `posX,posY` in formspec coordinates.
+  If specified, the tooltip will always appear at these given formspec coordinates.
+  If this field is empty, the tooltip will follow the cursor.
+* `width` sets the tooltip width (in typographical 'em' units of the default font style).
+* `name` is the name of the field.
+* `text` is the formatted text using `Markup Language` described below.
+
+### `hypertip[<X>,<Y>;<W>,<H>;<staticPos>;<width>;<name>;<text>]`
+
+* Adds a hypertext tooltip for an area. Displays a formatted text
+  using `Markup Language` in a tooltip.
+* `X`, `Y`, `W` and `H` set the cursor hover area that allows the tooltip to pop-up.
+* `staticPos`, `width`, `name`, `text`: See above.
 
 ### `image[<X>,<Y>;<W>,<H>;<texture name>;<middle>]`
 
@@ -3759,6 +3846,7 @@ Some types may inherit styles from parent types.
 * model
 * pwdfield, inherits from field
 * scrollbar
+* hypertip
 * tabheader
 * table
 * textarea
@@ -3870,6 +3958,12 @@ Some types may inherit styles from parent types.
     * sound - a sound to be played when triggered.
 * scrollbar
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+* hypertip
+    * bgcolor - color, sets background color.
+    * border - boolean, draw border. Set to false to hide the bevelled tooltip pane. Default true.
+    * bgimg - standard background image. Defaults to none.
+    * bgimg_middle - Makes the bgimg textures render in 9-sliced mode and defines the middle rect.
+                     See background9[] documentation for more details.
 * tabheader
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * sound - a sound to be played when a different tab is selected.
@@ -3974,7 +4068,7 @@ Make that text a clickable text triggering an action.
 
 When clicked, the formspec is send to the server. The value of the text field
 sent to `on_player_receive_fields` will be "action:" concatenated to the action
-name.
+name. Note: This element is not clickable in hypertip elements.
 
 `<img name=... float=... width=... height=...>`
 
@@ -4676,7 +4770,7 @@ core.register_chatcommand("playtime", {
         return true, PS(
             "You have been playing for @1 minute.",
             "You have been playing for @1 minutes.",
-            minutes, tostring(minutes))
+            playtime, tostring(playtime))
     end,
 })
 ```
@@ -6155,6 +6249,13 @@ Utilities
       get_modnames_load_order = true,
       -- `ObjectRef:set_camera()` accepts `nil` to indicate reset (5.16.0)
       set_camera_resettable = true,
+      -- The HUD element field `hideable` exists (5.17.0)
+      hud_hideable_field = true,
+      -- "raw_deflate" method for compress/decompress (5.17.0)
+      compress_raw_deflate = true,
+      -- Whether `core.get_all_craft_recipes` returns the correct `method` for fuels
+      -- `width = 0` for non-shaped recipes and provides the optional `time` field (5.17.0)
+      get_all_craft_recipes_fuel = true,
   }
   ```
 
@@ -7355,22 +7456,23 @@ Item handling
       placed in `decremented_input.items`. Replacements can be placed in
       `decremented_input` if the stack of the replaced item has a count of 1.
     * `decremented_input` = like `input`
-* `core.get_craft_recipe(output)`: returns input
-    * returns last registered recipe for output item (node)
-    * `output` is a node or item type such as `"default:torch"`
-    * `input.method` = `"normal"` or `"cooking"` or `"fuel"`
-    * `input.width` = for example `3`
-    * `input.items` = for example
-      `{stack1, stack2, stack3, stack4, stack 5, stack 6, stack 7, stack 8, stack 9}`
-        * `input.items` = `nil` if no recipe found
-* `core.get_all_craft_recipes(query item)`: returns a table or `nil`
-    * returns indexed table with all registered recipes for query item (node)
-      or `nil` if no recipe was found.
-    * recipe entry table:
+* `core.get_craft_recipe(output)`: returns a table
+    * Returns the last registered recipe for the `output` item name
+    * Return value:
+        * No recipe found: `{ items = nil, width = 0 }`
+        * Recipe found: see `core.get_all_craft_recipes` table values.
+* `core.get_all_craft_recipes(output)`: returns a table or `nil`
+    * Returns an indexed table of all registered recipes which have the result `output`.
+    * Returns `nil` if no recipe was found.
+    * `output`: an item name, such as `"default:torch"`.
+    * Returned table values:
         * `method`: 'normal' or 'cooking' or 'fuel'
-        * `width`: 0-3, 0 means shapeless recipe
-        * `items`: indexed [1-9] table with recipe items
+        * `width`: in range [0, N] (2 or 3 is used often). 0 means shapeless recipe.
+          Only valid for `method = "normal"`.
+        * `items`: list of recipe item names.
+          Empty ingredients (itemstring `""`) are represented as `nil`.
         * `output`: string with item name and quantity
+        * `time` (for 'cooking' or 'fuel'): is `cooktime` or `burntime` (since 5.17.0)
     * Example result for `"default:gold_ingot"` with two recipes:
       ```lua
       {
@@ -8050,10 +8152,12 @@ Misc.
     * `method` is a string identifying the compression method to be used.
     * Supported compression methods:
         * Deflate (zlib): `"deflate"`
+        * Deflate (raw): `"raw_deflate"`
         * Zstandard: `"zstd"`
     * `...` indicates method-specific arguments. Currently defined arguments
       are:
         * Deflate: `level` - Compression level, integer in range [0, 9] or `nil`.
+          Supported by `"deflate"` and `"raw_deflate"`.
         * Zstandard: `level` - Compression level. Integer or `nil`. Default `3`.
         Note any supported Zstandard compression level could be used here,
         but these are subject to change between Zstandard versions.
@@ -8513,13 +8617,13 @@ an itemstring, a table or `nil`.
         * `description` in item metadata (See [Item Metadata](#item-metadata).)
         * `description` in item definition
         * item name
-* `get_short_description()`: returns the short description or nil.
+* `get_short_description()`: returns the short description.
     * Unlike the description, this does not include new lines.
     * Fields for finding the short description, in order:
         * `short_description` in item metadata (See [Item Metadata](#item-metadata).)
         * `short_description` in item definition
         * first line of the description (From item meta or def, see `get_description()`.)
-        * Returns nil if none of the above are set
+        * item name
 * `clear()`: removes all items from the stack, making it empty.
 * `replace(item)`: replace the contents of this stack.
     * `item` can also be an itemstring or table.
@@ -8850,26 +8954,6 @@ child will follow movement and rotation of that bone.
     * sets the object's full list of armor groups
     * same table syntax as for `get_armor_groups`
     * note: all armor groups not in the table will be removed
-* `set_animation(frame_range, frame_speed, frame_blend, frame_loop)`
-    * Sets the object animation parameters and (re)starts the animation
-    * Animations only work with a `"mesh"` visual
-    * `frame_range`: Beginning and end frame (as specified in the mesh file).
-       * Syntax: `{x=start_frame, y=end_frame}`
-       * Animation interpolates towards the end frame but stops when it is reached
-       * If looped, there is no interpolation back to the start frame
-       * If looped, the model should look identical at start and end
-       * default: `{x=1.0, y=1.0}`
-    * `frame_speed`: How fast the animation plays, in frames per second (number)
-       * default: `15.0`
-    * `frame_blend`: number, default: `0.0`
-    * `frame_loop`: If `true`, animation will loop. If false, it will play once
-       * default: `true`
-* `get_animation()`: returns current animation parameters set by `set_animation`:
-    * `frame_range`, `frame_speed`, `frame_blend`, `frame_loop`.
-* `set_animation_frame_speed(frame_speed)`
-    * Sets the frame speed of the object's animation
-    * Unlike `set_animation`, this will not restart the animation
-    * `frame_speed`: See `set_animation`
 * `set_attach(parent[, bone, position, rotation, forced_visible])`
     * Attaches object to `parent`
     * See 'Attachments' section for details
@@ -8980,6 +9064,73 @@ child will follow movement and rotation of that bone.
     * GUIDs persist between object reloads, and their format is guaranteed not to change.
       Thus you can use the GUID to identify an object in a particular world online and offline.
 
+##### Animations
+
+The old animation interface consists of `set_animation`, `get_animation`, and `set_animation_frame_speed`.
+
+* `set_animation(frame_range, frame_speed, frame_blend, frame_loop)`
+    * Sets the object animation parameters and (re)starts the animation
+    * Animations only work with a `"mesh"` visual
+    * `frame_range`: Beginning and end frame (as specified in the mesh file).
+       * Syntax: `{x=start_frame, y=end_frame}`
+       * Animation interpolates towards the end frame but stops when it is reached
+       * If looped, there is no interpolation back to the start frame
+       * If looped, the model should look identical at start and end
+       * default: `{x=1.0, y=1.0}`
+    * `frame_speed`: How fast the animation plays, in frames per second (number)
+       * **Important:** You normally need to use `1.0` for glTF models
+       * default: `15.0`
+    * `frame_blend`: How many seconds it takes to transition from
+       the previous animation to the new one, in seconds (number)
+       * default: `0.0`
+    * `frame_loop`: If `true`, animation will loop. If `false`, it will play once
+       * default: `true`
+* `get_animation()`: returns current animation parameters set by `set_animation`:
+    * `frame_range`, `frame_speed`, `frame_blend`, `frame_loop`.
+* `set_animation_frame_speed(new_frame_speed)`
+    * Sets the frame speed of the object's animation
+    * Unlike `set_animation`, this will not restart the animation
+    * `frame_speed`: See `set_animation`
+
+The new animation interface is intended for use with glTF animations
+and allows mixing and matching multiple separate, named animation tracks.
+This API is only supported properly by Luanti 5.17.0+ clients.
+If you need to support older clients, you may want to use `set_observers()`
+to send different objects to clients depending on their version.
+
+Tracks are identified either by name or track number. Track numbers start at 1.
+You **must not** mix names and track numbers to refer to the same animation.
+
+* `play_animation(track, [animation])`
+    * Starts or restarts an animation on the given track.
+    * `.x` and `.b3d` models only have a single, unnamed animation track `1`.
+    * `animation` is an optional table with the following optional fields:
+      * `min_frame = 0.0`, `max_frame = math.huge`, animation range in frames (seconds);
+         clamped on the client to first and last frame in the corresponding track.
+      * `start_frame`, where to start playing the animation, defaults to `min_frame` if `speed >= 0`, `max_frame` otherwise.
+      * `speed = 1.0`, animation speed in frames per second.
+        (Recall that glTF frames are typically just timetamps in seconds.)
+        A negative speed plays the animation backwards.
+        A speed of `0.0` can be used to pause an animation.
+      * `loop = true`, boolean, whether the animation repeats after completion.
+        Defaults to `true`.
+      * `blend = 0.0`, transition time in seconds when changing to the new animation.
+      * `priority = 0`, integer.
+        Higher priority animations are applied after lower priority ones,
+        taking precedence if the same bones are being animated.
+    * Example: `obj:play_animation("walk")`.
+    * Animations continue playing at the current frame when
+      the mesh is changed using `set_properties({mesh = ...})`,
+      but animation blending may be interrupted.
+* `update_animation(track, update)`
+    * `update` is a table with the following optional fields:
+      * `speed`: New animation speed
+    * Example: `obj:update_animation("walk", {speed = 0})`
+      pauses the animation currently playing on the track named `walk` at the current frame.
+* `stop_animation([track])`: Stop animation on the given track, if playing.
+    * If no track is given, all currently playing animations are stopped.
+* `get_animations()`: Returns a table of currently playing animations
+  `{[track] = animation}`, in the same format as the parameters of `play_animation`.
 
 #### Lua entity only (no-op for other objects)
 
@@ -10518,6 +10669,7 @@ Used by `core.register_node`.
     -- node. For torchlike, the image will start at the surface to which the
     -- node "attaches". For the other drawtypes the image will be centered
     -- on the node.
+    -- note: Do not set a visual_scale != 1.0 for drawtypes that don't support it.
 
     tiles = {tile definition 1, def2, def3, def4, def5, def6},
     -- Textures of node; +Y, -Y, +X, -X, +Z, -Z
@@ -11923,6 +12075,8 @@ Used by `ObjectRef:hud_add`. Returned by `ObjectRef:hud_get`.
     -- Z index: lower z-index HUDs are displayed behind higher z-index HUDs
 
     style = 0, -- integer [u32]
+
+    hideable = true, -- bool
 }
 ```
 

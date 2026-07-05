@@ -68,6 +68,8 @@ void GUIModalMenu::draw()
 	if (!IsVisible)
 		return;
 
+	m_is_window_focused = RenderingEngine::get_raw_device()->isWindowFocused();
+
 	video::IVideoDriver *driver = Environment->getVideoDriver();
 	v2u32 screensize = driver->getScreenSize();
 	if (screensize != m_screensize_old) {
@@ -123,6 +125,9 @@ bool GUIModalMenu::remapClickOutside(const SEvent &event)
 	if (isChild(hovered, this))
 		return false;
 
+	if (!m_is_window_focused)
+		return false;
+
 	if (event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN) {
 		m_last_click_outside = current;
 		return true;
@@ -153,7 +158,7 @@ bool GUIModalMenu::simulateMouseEvent(ETOUCH_INPUT_EVENT touch_event, bool secon
 	else
 		target = m_touch_hovered.get();
 
-	SEvent mouse_event{}; // value-initialized, not unitialized
+	SEvent mouse_event{}; // value-initialized, not uninitialized
 	mouse_event.EventType = EET_MOUSE_INPUT_EVENT;
 	mouse_event.MouseInput.X = m_pointer.X;
 	mouse_event.MouseInput.Y = m_pointer.Y;

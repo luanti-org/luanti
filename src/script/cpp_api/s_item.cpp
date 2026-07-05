@@ -6,13 +6,14 @@
 #include "cpp_api/s_internal.h"
 #include "common/c_converter.h"
 #include "common/c_content.h"
-#include "lua_api/l_item.h"
-#include "lua_api/l_inventory.h"
-#include "server.h"
-#include "log.h"
-#include "util/pointedthing.h"
+#include "gamedef.h"
 #include "inventory.h"
 #include "inventorymanager.h"
+#include "irrlicht_changes/printing.h"
+#include "lua_api/l_item.h"
+#include "lua_api/l_inventory.h"
+#include "log.h"
+#include "util/pointedthing.h"
 
 #define WRAP_LUAERROR(e, detail) \
 	LuaError(std::string(__FUNCTION__) + ": " + (e).what() + ". " detail)
@@ -40,7 +41,7 @@ u16 ScriptApiItem::item_OnDrop(const ItemStack &item,
 	PCALL_RES(lua_pcall(L, 3, 1, error_handler));
 	if (!lua_isnil(L, -1)) {
 		try {
-			ItemStack item2 = read_item(L, -1, getServer()->idef());
+			ItemStack item2 = read_item(L, -1, getGameDef()->idef());
 			returned_count = item2.count;
 		} catch (LuaError &e) {
 			throw WRAP_LUAERROR(e, "item=" + item.name);
@@ -75,7 +76,7 @@ bool ScriptApiItem::item_OnPlace(std::optional<ItemStack> &ret_item,
 	PCALL_RES(lua_pcall(L, 3, 1, error_handler));
 	if (!lua_isnil(L, -1)) {
 		try {
-			ret_item = read_item(L, -1, getServer()->idef());
+			ret_item = read_item(L, -1, getGameDef()->idef());
 		} catch (LuaError &e) {
 			throw WRAP_LUAERROR(e, "item=" + item.name);
 		}
@@ -105,7 +106,7 @@ bool ScriptApiItem::item_OnUse(std::optional<ItemStack> &ret_item,
 	PCALL_RES(lua_pcall(L, 3, 1, error_handler));
 	if(!lua_isnil(L, -1)) {
 		try {
-			ret_item = read_item(L, -1, getServer()->idef());
+			ret_item = read_item(L, -1, getGameDef()->idef());
 		} catch (LuaError &e) {
 			throw WRAP_LUAERROR(e, "item=" + item.name);
 		}
@@ -133,7 +134,7 @@ bool ScriptApiItem::item_OnSecondaryUse(std::optional<ItemStack> &ret_item,
 	PCALL_RES(lua_pcall(L, 3, 1, error_handler));
 	if (!lua_isnil(L, -1)) {
 		try {
-			ret_item = read_item(L, -1, getServer()->idef());
+			ret_item = read_item(L, -1, getGameDef()->idef());
 		} catch (LuaError &e) {
 			throw WRAP_LUAERROR(e, "item=" + item.name);
 		}
@@ -167,7 +168,7 @@ bool ScriptApiItem::item_OnCraft(ItemStack &item, ServerActiveObject *user,
 	PCALL_RES(lua_pcall(L, 4, 1, error_handler));
 	if (!lua_isnil(L, -1)) {
 		try {
-			item = read_item(L, -1, getServer()->idef());
+			item = read_item(L, -1, getGameDef()->idef());
 		} catch (LuaError &e) {
 			throw WRAP_LUAERROR(e, "item=" + item.name);
 		}
@@ -199,7 +200,7 @@ bool ScriptApiItem::item_CraftPredict(ItemStack &item, ServerActiveObject *user,
 	PCALL_RES(lua_pcall(L, 4, 1, error_handler));
 	if (!lua_isnil(L, -1)) {
 		try {
-			item = read_item(L, -1, getServer()->idef());
+			item = read_item(L, -1, getGameDef()->idef());
 		} catch (LuaError &e) {
 			throw WRAP_LUAERROR(e, "item=" + item.name);
 		}

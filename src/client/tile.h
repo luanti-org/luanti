@@ -101,12 +101,12 @@ struct TileLayer
 	/**
 	 * Set some material parameters accordingly.
 	 * @note does not set `MaterialType`!
-	 * @param material material to mody
+	 * @param material material to modify
 	 * @param layer index of this layer in the `TileSpec`
 	 */
 	void applyMaterialOptions(video::SMaterial &material, int layer) const;
 
-	/// @return is this layer uninitalized?
+	/// @return is this layer uninitialized?
 	bool empty() const
 	{
 		return !shader_id && !texture_id;

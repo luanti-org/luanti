@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: luanti\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-05-06 19:14+0200\n"
-"PO-Revision-Date: 2026-02-05 03:02+0000\n"
-"Last-Translator: Zaman Hüseynli <zamanhuseynli23@gmail.com>\n"
+"PO-Revision-Date: 2026-05-07 19:11+0000\n"
+"Last-Translator: Krock <mk939@ymail.com>\n"
 "Language-Team: Azerbaijani <https://hosted.weblate.org/projects/minetest/"
 "minetest/az/>\n"
 "Language: az\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 5.17.1\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -2514,7 +2514,7 @@ msgstr ""
 #: src/network/clientpackethandler.cpp src/script/lua_api/l_client.cpp
 #: src/script/lua_api/l_mainmenu.cpp
 msgid "LANG_CODE"
-msgstr ""
+msgstr "az"
 
 #: src/network/clientpackethandler.cpp
 msgid ""

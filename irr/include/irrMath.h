@@ -5,6 +5,7 @@
 #pragma once
 
 #include "irrTypes.h"
+#include "irrBitCast.h"
 #include <cmath>
 #include <cfloat>
 #include <cstdlib> // for abs() etc.
@@ -190,17 +191,6 @@ inline bool equalsRelative(const T a, const T b, const T factor = relativeErrorF
 	return (maxMagnitude * factor + maxi) == (maxMagnitude * factor + mini); // MAD Wise
 }
 
-union FloatIntUnion32
-{
-	FloatIntUnion32(float f1 = 0.0f) :
-			f(f1) {}
-	// Portable sign-extraction
-	bool sign() const { return (i >> 31) != 0; }
-
-	s32 i;
-	f32 f;
-};
-
 //! We compare the difference in ULP's (spacing between floating-point numbers, aka ULP=1 means there exists no float between).
 //\result true when numbers have a ULP <= maxUlpDiff AND have the same sign.
 inline bool equalsByUlp(f32 a, f32 b, int maxUlpDiff)
@@ -211,19 +201,17 @@ inline bool equalsByUlp(f32 a, f32 b, int maxUlpDiff)
 	// by one integer number. Also works the other way round, an integer of 1 interpreted as float
 	// is for example the smallest possible float number.
 
-	const FloatIntUnion32 fa(a);
-	const FloatIntUnion32 fb(b);
+	const auto ai = irrBitCast<s32>(a);
+	const auto bi = irrBitCast<s32>(b);
 
 	// Different signs, we could maybe get difference to 0, but so close to 0 using epsilons is better.
-	if (fa.sign() != fb.sign()) {
+	if (std::signbit(a) != std::signbit(b)) {
 		// Check for equality to make sure +0==-0
-		if (fa.i == fb.i)
-			return true;
-		return false;
+		return a == b;
 	}
 
 	// Find the difference in ULPs.
-	const int ulpsDiff = abs_(fa.i - fb.i);
+	const int ulpsDiff = std::abs(ai - bi);
 	if (ulpsDiff <= maxUlpDiff)
 		return true;
 
@@ -284,6 +272,7 @@ inline s32 s32_clamp(s32 value, s32 low, s32 high)
 // integer log2 of an integer. returning 0 if denormal
 inline s32 u32_log2(u32 in)
 {
+	// TODO use std::bit_width once we're on C++ 20
 	s32 ret = 0;
 	while (in > 1) {
 		in >>= 1;
@@ -304,36 +293,6 @@ inline s32 u32_log2(u32 in)
 	+NaN   0x7fc00000 or 0x7ff00000
 	in general: number = (sign ? -1:1) * 2^(exponent) * 1.(mantissa bits)
 */
-
-typedef union
-{
-	u32 u;
-	s32 s;
-	f32 f;
-} inttofloat;
-
-//! code is taken from IceFPU
-//! Integer representation of a floating-point value.
-inline u32 IR(f32 x)
-{
-	inttofloat tmp;
-	tmp.f = x;
-	return tmp.u;
-}
-
-//! Floating-point representation of an integer value.
-inline f32 FR(u32 x)
-{
-	inttofloat tmp;
-	tmp.u = x;
-	return tmp.f;
-}
-inline f32 FR(s32 x)
-{
-	inttofloat tmp;
-	tmp.s = x;
-	return tmp.f;
-}
 
 #define F32_LOWER_0(n) ((n) < 0.0f)
 #define F32_LOWER_EQUAL_0(n) ((n) <= 0.0f)
@@ -434,7 +393,16 @@ inline f32 fract(f32 x)
 	return x - floorf(x);
 }
 
-} // end namespace core
+/// Remainder of lhs divided by rhs. Equivalent to `rhs - floor(lhs / rhs) * rhs`.
+/// @note rhs must not be 0
+/// @return remainder in [0, rhs) if rhs > 0, resp. (rhs, 0] if rhs < 0.
+template<class T, std::enable_if_t<std::is_floating_point<T>::value, bool> = true>
+T frem(const T lhs, const T rhs)
+{
+	T res = std::fmod(lhs, rhs);
+	if ((rhs > 0 && res < 0) || (rhs < 0 && res > 0))
+		res += rhs; // signs differ? wrap around once more
+	return res;
+}
 
-using core::FR;
-using core::IR;
+} // end namespace core

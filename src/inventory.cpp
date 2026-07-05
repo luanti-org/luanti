@@ -585,7 +585,7 @@ void InventoryList::deSerialize(std::istream &is)
 		}
 		else if(name == "Item")
 		{
-			if(item_i > getSize() - 1)
+			if (item_i >= getSize())
 				throw SerializationError("too many items");
 			ItemStack item;
 			item.deSerialize(iss, m_itemdef);
@@ -593,7 +593,7 @@ void InventoryList::deSerialize(std::istream &is)
 		}
 		else if(name == "Empty")
 		{
-			if(item_i > getSize() - 1)
+			if (item_i >= getSize())
 				throw SerializationError("too many items");
 			m_items[item_i++].clear();
 		} else if (name == "Keep") {
@@ -1029,7 +1029,7 @@ InventoryList * Inventory::addList(const std::string &name, u32 size)
 	// Reset existing lists instead of re-creating if possible.
 	// InventoryAction::apply() largely caches InventoryList pointers which must not be
 	// invalidated by Lua API calls (e.g. InvRef:set_list), hence do resize & clear which
-	// also include the neccessary resize lock checks.
+	// also include the necessary resize lock checks.
 	s32 i = getListIndex(name);
 	if (i != -1) {
 		InventoryList *list = m_lists[i];

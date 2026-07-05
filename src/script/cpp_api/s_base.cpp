@@ -302,7 +302,7 @@ void ScriptApiBase::loadModFromMemory(const std::string &mod_name, std::string i
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
-	bool ok = ScriptApiSecurity::safeLoadString(L, *contents, chunk_name.c_str());
+	bool ok = ScriptApiSecurity::safeLoadFileContent(L, *contents, chunk_name.c_str());
 	if (ok)
 		ok = !lua_pcall(L, 0, 0, error_handler);
 	if (!ok) {
@@ -330,7 +330,7 @@ void ScriptApiBase::runCallbacksRaw(int nargs,
 {
 #if CHECK_CLIENT_BUILD()
 	// Hard fail for bad guarded callbacks
-	// Only run callbacks when the scripting enviroment is loaded
+	// Only run callbacks when the scripting environment is loaded
 	FATAL_ERROR_IF(m_type == ScriptingType::Client &&
 			!getClient()->modsLoaded(), fxn);
 #endif
