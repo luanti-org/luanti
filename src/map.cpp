@@ -691,47 +691,42 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 	// Multiply step by each iteration by 'stepfac' to reduce checks in distance
 	const float stepfac = 1.05f;
 
-	bool cheap = false;
+	// Phase 1: Preliminary search (standard sparse mode or until dense check distance)
+	for (; offset < (dense ? DENSE_CHECK_DISTANCE : distance + end_offset); offset += step) {
+		const v3f pos_node_f = pos_origin_f + direction * offset;
+		MapNode node = getNode(floatToInt(pos_node_f, BS), &is_valid_position);
 
-	for (; offset < distance + end_offset; offset += step) {
-		v3f pos_node_f = pos_origin_f + direction * offset;
-		v3s16 pos_node = floatToInt(pos_node_f, BS);
+		// treat unloaded blocks as transparent
+		// Cannot see through light-blocking nodes --> occluded
+		if (is_valid_position && !m_nodedef->getLightingFlags(node).light_propagates) {
+			if (++count >= needed_count)
+				return true;
+		}
+		step *= stepfac;
+	}
 
-		MapNode node = getNode(pos_node, &is_valid_position);
+	// Phase 2: Dense near-target search
+	if (dense && offset < distance + end_offset) {
+		// Jump ahead and reset precision for the final check
+		offset = std::max(offset, distance - DENSE_CHECK_DISTANCE);
+		step = BS * 1.2f;
 
-		if (cheap) {
+		for (; offset < distance + end_offset; offset += step) {
+			const v3f pos_node_f = pos_origin_f + direction * offset;
+			MapNode node = getNode(floatToInt(pos_node_f, BS), &is_valid_position);
+
 			// treat unloaded blocks as opaque
 			// Cannot see through non-existant blocks or light-blocking nodes --> occluded
-			if (!is_valid_position ||
-					!m_nodedef->getLightingFlags(node).light_propagates) {
+			if (!is_valid_position || !m_nodedef->getLightingFlags(node).light_propagates) {
 				/*
 				 * Note that we do not honor needed_count.
-				 * In the dense case we are more precise and traverse fewer
-				 * blocks before we reach the target block, and we *want*
-				 * the extra precisions (so that we can reuse the "unloaded"
-				 * block information)
+				 * In the dense case we *want* the extra precisions (so that we can reuse the
+				 * "unloaded" block information)
 				 */
 				return true;
 			}
-		} else {
-			// treat unloaded blocks as transparent
-			// Cannot see through light-blocking nodes --> occluded
-			if (is_valid_position &&
-					!m_nodedef->getLightingFlags(node).light_propagates) {
-				count++;
-				if (count >= needed_count)
-					return true;
-			}
-			if (dense && offset >= DENSE_CHECK_DISTANCE) {
-				// switch to "cheap" mode
-				cheap = true;
-				// reset precision
-				step = BS * 1.2f;
-				// And jump ahead to only a few blocks before our target block
-				offset = std::max(offset, distance - DENSE_CHECK_DISTANCE);
-			}
+			step *= stepfac;
 		}
-		step *= stepfac;
 	}
 	return false;
 }
