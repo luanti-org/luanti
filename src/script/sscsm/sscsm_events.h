@@ -28,6 +28,14 @@ struct SSCSMEventUpdateVFSFiles : public ISSCSMEvent
 	}
 };
 
+struct SSCSMEventAddItemdefs : public ISSCSMEvent
+{
+	void exec(SSCSMEnvironment *env) override
+	{
+		env->getScript()->add_itemdefs();
+	}
+};
+
 struct SSCSMEventLoadMods : public ISSCSMEvent
 {
 	// modnames and paths to init.lua file, in load order

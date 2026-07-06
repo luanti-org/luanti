@@ -282,6 +282,78 @@ void push_item_definition_full(lua_State *L, const ItemDefinition &i)
 	lua_setfield(L, -2, "touch_interaction");
 }
 
+void push_item_definition_for_sscsm(lua_State *L, const ItemDefinition &i)
+{
+	const char *type = enum_to_string(es_ItemType, i.type);
+
+	lua_newtable(L);
+	lua_pushstring(L, i.name.c_str());
+	lua_setfield(L, -2, "name");
+	lua_pushstring(L, type);
+	lua_setfield(L, -2, "type");
+	lua_pushstring(L, i.description.c_str());
+	lua_setfield(L, -2, "description");
+	if (!i.short_description.empty()) {
+		lua_pushstring(L, i.short_description.c_str());
+		lua_setfield(L, -2, "short_description");
+	}
+	push_groups(L, i.groups);
+	lua_setfield(L, -2, "groups");
+	push_item_image_definition(L, i.inventory_image);
+	lua_setfield(L, -2, "inventory_image");
+	push_item_image_definition(L, i.inventory_overlay);
+	lua_setfield(L, -2, "inventory_overlay");
+	push_item_image_definition(L, i.wield_image);
+	lua_setfield(L, -2, "wield_image");
+	push_item_image_definition(L, i.wield_overlay);
+	lua_setfield(L, -2, "wield_overlay");
+	push_v3f(L, i.wield_scale);
+	lua_setfield(L, -2, "wield_scale");
+	lua_pushstring(L, i.palette_image.c_str());
+	lua_setfield(L, -2, "palette_image");
+	push_ARGB8(L, i.color);
+	lua_setfield(L, -2, "color");
+	lua_pushinteger(L, i.stack_max);
+	lua_setfield(L, -2, "stack_max");
+	lua_pushnumber(L, i.range);
+	lua_setfield(L, -2, "range");
+	lua_pushboolean(L, i.liquids_pointable);
+	lua_setfield(L, -2, "liquids_pointable");
+	if (i.pointabilities) {
+		push_pointabilities(L, *i.pointabilities);
+		lua_setfield(L, -2, "pointabilities");
+	}
+	if (i.tool_capabilities) {
+		push_tool_capabilities(L, *i.tool_capabilities);
+		lua_setfield(L, -2, "tool_capabilities");
+	}
+	if (i.wear_bar_params.has_value()) {
+		push_wear_bar_params(L, *i.wear_bar_params);
+		lua_setfield(L, -2, "wear_color");
+	}
+	lua_pushstring(L, i.node_placement_prediction.c_str());
+	lua_setfield(L, -2, "node_placement_prediction");
+	{
+		lua_createtable(L, 0, 3);
+		const TouchInteraction &inter = i.touch_interaction;
+		lua_pushstring(L, enum_to_string(es_TouchInteractionMode, inter.pointed_nothing));
+		lua_setfield(L, -2,"pointed_nothing");
+		lua_pushstring(L, enum_to_string(es_TouchInteractionMode, inter.pointed_node));
+		lua_setfield(L, -2,"pointed_node");
+		lua_pushstring(L, enum_to_string(es_TouchInteractionMode, inter.pointed_object));
+		lua_setfield(L, -2,"pointed_object");
+		lua_setfield(L, -2, "touch_interaction");
+	}
+	lua_pushboolean(L, i.usable);
+	lua_setfield(L, -2, "usable");
+	push_simplesoundspec(L, i.sound_place);
+	lua_setfield(L, -2, "sound_place");
+	push_simplesoundspec(L, i.sound_place_failed);
+	lua_setfield(L, -2, "sound_place_failed");
+	lua_pushboolean(L, i.wallmounted_rotate_vertical);
+	lua_setfield(L, -2, "wallmounted_rotate_vertical");
+}
+
 /******************************************************************************/
 const std::array<const char *, 36> object_property_keys = {
 	"hp_max",
@@ -1090,6 +1162,135 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 			lua_setfield(L, -2, "palette");
 		}
 #endif
+	}
+	lua_pushnumber(L, c.waving);
+	lua_setfield(L, -2, "waving");
+	lua_pushnumber(L, c.connect_sides);
+	lua_setfield(L, -2, "connect_sides");
+
+	lua_createtable(L, c.connects_to.size(), 0);
+	u16 i = 1;
+	for (const std::string &it : c.connects_to) {
+		lua_pushlstring(L, it.c_str(), it.size());
+		lua_rawseti(L, -2, i++);
+	}
+	lua_setfield(L, -2, "connects_to");
+
+	push_ARGB8(L, c.post_effect_color);
+	lua_setfield(L, -2, "post_effect_color");
+	lua_pushboolean(L, c.post_effect_color_shaded);
+	lua_setfield(L, -2, "post_effect_color_shaded");
+	lua_pushnumber(L, c.leveled);
+	lua_setfield(L, -2, "leveled");
+	lua_pushnumber(L, c.leveled_max);
+	lua_setfield(L, -2, "leveled_max");
+	lua_pushboolean(L, c.sunlight_propagates);
+	lua_setfield(L, -2, "sunlight_propagates");
+	lua_pushnumber(L, c.light_source);
+	lua_setfield(L, -2, "light_source");
+	lua_pushboolean(L, c.is_ground_content);
+	lua_setfield(L, -2, "is_ground_content");
+	lua_pushboolean(L, c.walkable);
+	lua_setfield(L, -2, "walkable");
+	push_pointability_type(L, c.pointable);
+	lua_setfield(L, -2, "pointable");
+	lua_pushboolean(L, c.diggable);
+	lua_setfield(L, -2, "diggable");
+	lua_pushboolean(L, c.climbable);
+	lua_setfield(L, -2, "climbable");
+	lua_pushboolean(L, c.buildable_to);
+	lua_setfield(L, -2, "buildable_to");
+	lua_pushboolean(L, c.rightclickable);
+	lua_setfield(L, -2, "rightclickable");
+	lua_pushnumber(L, c.damage_per_second);
+	lua_setfield(L, -2, "damage_per_second");
+	if (c.isLiquid()) {
+		lua_pushstring(L, liquid_type.c_str());
+		lua_setfield(L, -2, "liquid_type");
+		lua_pushstring(L, c.liquid_alternative_flowing.c_str());
+		lua_setfield(L, -2, "liquid_alternative_flowing");
+		lua_pushstring(L, c.liquid_alternative_source.c_str());
+		lua_setfield(L, -2, "liquid_alternative_source");
+		lua_pushnumber(L, c.liquid_viscosity);
+		lua_setfield(L, -2, "liquid_viscosity");
+		lua_pushboolean(L, c.liquid_renewable);
+		lua_setfield(L, -2, "liquid_renewable");
+		lua_pushnumber(L, c.liquid_range);
+		lua_setfield(L, -2, "liquid_range");
+	}
+	lua_pushnumber(L, c.drowning);
+	lua_setfield(L, -2, "drowning");
+	lua_pushboolean(L, c.floodable);
+	lua_setfield(L, -2, "floodable");
+	push_nodebox(L, c.node_box);
+	lua_setfield(L, -2, "node_box");
+	push_nodebox(L, c.selection_box);
+	lua_setfield(L, -2, "selection_box");
+	push_nodebox(L, c.collision_box);
+	lua_setfield(L, -2, "collision_box");
+	lua_newtable(L);
+	push_simplesoundspec(L, c.sound_footstep);
+	lua_setfield(L, -2, "sound_footstep");
+	push_simplesoundspec(L, c.sound_dig);
+	lua_setfield(L, -2, "sound_dig");
+	push_simplesoundspec(L, c.sound_dug);
+	lua_setfield(L, -2, "sound_dug");
+	lua_setfield(L, -2, "sounds");
+	lua_pushboolean(L, c.legacy_facedir_simple);
+	lua_setfield(L, -2, "legacy_facedir_simple");
+	lua_pushboolean(L, c.legacy_wallmounted);
+	lua_setfield(L, -2, "legacy_wallmounted");
+	lua_pushstring(L, c.node_dig_prediction.c_str());
+	lua_setfield(L, -2, "node_dig_prediction");
+	lua_pushnumber(L, c.move_resistance);
+	lua_setfield(L, -2, "move_resistance");
+	lua_pushboolean(L, c.liquid_move_physics);
+	lua_setfield(L, -2, "liquid_move_physics");
+}
+
+void push_content_features_for_sscsm(lua_State *L, const ContentFeatures &c)
+{
+	std::string paramtype = enum_to_string(ScriptApiNode::es_ContentParamType, c.param_type);
+	std::string paramtype2 = enum_to_string(ScriptApiNode::es_ContentParamType2, c.param_type_2);
+	std::string drawtype = enum_to_string(ScriptApiNode::es_DrawType, c.drawtype);
+	std::string liquid_type = enum_to_string(ScriptApiNode::es_LiquidType, c.liquid_type);
+
+	/* Missing "tiles" because TODO. */
+
+	lua_newtable(L);
+	lua_pushboolean(L, c.has_on_construct);
+	lua_setfield(L, -2, "has_on_construct");
+	lua_pushboolean(L, c.has_on_destruct);
+	lua_setfield(L, -2, "has_on_destruct");
+	lua_pushboolean(L, c.has_after_destruct);
+	lua_setfield(L, -2, "has_after_destruct");
+	lua_pushstring(L, c.name.c_str());
+	lua_setfield(L, -2, "name");
+	push_groups(L, c.groups);
+	lua_setfield(L, -2, "groups");
+	lua_pushstring(L, paramtype.c_str());
+	lua_setfield(L, -2, "paramtype");
+	lua_pushstring(L, paramtype2.c_str());
+	lua_setfield(L, -2, "paramtype2");
+	lua_pushstring(L, drawtype.c_str());
+	lua_setfield(L, -2, "drawtype");
+	if (!c.mesh.empty()) {
+		lua_pushstring(L, c.mesh.c_str());
+		lua_setfield(L, -2, "mesh");
+	}
+	// NOTE: c.visuals is filled in by fillNodeVisuals() on the main/render
+	// thread and must not be dereferenced here: this function runs on the
+	// SSCSM environment thread, so minimap_color/palette are left out for now.
+	lua_pushnumber(L, c.visual_scale);
+	lua_setfield(L, -2, "visual_scale");
+	lua_pushnumber(L, c.alpha);
+	lua_setfield(L, -2, "alpha");
+	if (!c.palette_name.empty()) {
+		push_ARGB8(L, c.color);
+		lua_setfield(L, -2, "color");
+
+		lua_pushstring(L, c.palette_name.c_str());
+		lua_setfield(L, -2, "palette_name");
 	}
 	lua_pushnumber(L, c.waving);
 	lua_setfield(L, -2, "waving");
