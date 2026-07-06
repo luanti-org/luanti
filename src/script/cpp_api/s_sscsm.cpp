@@ -32,7 +32,7 @@ void ScriptApiSSCSM::add_itemdefs()
 	for (const ItemDefinition &item_def : answer.items) {
 		lua_pushstring(L, item_def.name.c_str());
 		int idx_name = lua_gettop(L);
-		push_item_definition_for_sscsm(L, item_def);
+		push_item_definition_full(L, item_def);
 		int idx_def = lua_gettop(L);
 
 		// insert into core.registered_items
@@ -78,7 +78,7 @@ void ScriptApiSSCSM::add_itemdefs()
 		}
 		int idx_existing = lua_gettop(L);
 
-		push_content_features_for_sscsm(L, node_def);
+		push_content_features(L, node_def);
 		int idx_extra = lua_gettop(L);
 
 		// merge node-only fields into the existing item def table

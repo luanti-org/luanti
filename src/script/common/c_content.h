@@ -65,7 +65,6 @@ extern const std::array<const char *, 36> object_property_keys;
 
 void read_content_features(lua_State *L, ContentFeatures &f, int index);
 void push_content_features(lua_State *L, const ContentFeatures &c);
-void push_content_features_for_sscsm(lua_State *L, const ContentFeatures &c);
 
 void push_nodebox(lua_State *L, const NodeBox &box);
 void push_palette(lua_State *L, const std::vector<video::SColor> *palette);
@@ -102,7 +101,6 @@ void read_item_definition(lua_State *L, int index,
 		const ItemDefinition &default_def, ItemDefinition &def);
 void push_item_definition(lua_State *L, const ItemDefinition &i);
 void push_item_definition_full(lua_State *L, const ItemDefinition &i);
-void push_item_definition_for_sscsm(lua_State *L, const ItemDefinition &i);
 
 /// @param fallback set to true if reading from bare entity table (not initial_properties)
 void read_object_properties(lua_State *L, int index,

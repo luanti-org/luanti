@@ -1915,6 +1915,14 @@ void Client::afterContentReceived()
 	m_nodedef->setNodeRegistrationStatus(true);
 	m_nodedef->runNodeResolveCallbacks();
 
+	std::string enable_sscsm = g_settings->get("enable_sscsm");
+	bool sscsm_enabled = enable_sscsm == "singleplayer"; //FIXME: enum
+
+	// Must run before fillNodeVisuals(), which sets ContentFeatures::visuals
+	// and may resolve drawtypes based on this client's local render settings.
+	if (sscsm_enabled)
+		m_sscsm_controller->runEvent(this, std::make_unique<SSCSMEventAddItemdefs>());
+
 	// Update node textures and assign shaders to each tile
 	infostream<<"- Updating node textures"<<std::endl;
 	TextureUpdateArgs tu_args;
@@ -1926,16 +1934,12 @@ void Client::afterContentReceived()
 	infostream<<"- Starting mesh update thread"<<std::endl;
 	m_mesh_update_manager->start();
 
-	{
-		std::string enable_sscsm = g_settings->get("enable_sscsm");
-		if (enable_sscsm == "singleplayer") { //FIXME: enum
-			m_sscsm_controller->runEvent(this, std::make_unique<SSCSMEventAddItemdefs>());
+	if (sscsm_enabled) {
+		auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
 
-			auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
-
-			// some simple test code
-			event1->files.emplace_back("sscsm_test0:init.lua",
-					R"=+=(
+		// some simple test code
+		event1->files.emplace_back("sscsm_test0:init.lua",
+				R"=+=(
 print("sscsm_test0: loading")
 
 --print(dump(_G))
@@ -1957,14 +1961,13 @@ do
 	print("sscsm_test0: registered_nodes count: " .. n)
 end
 print("sscsm_test0: air def: " .. dump(core.registered_nodes["air"]))
-					)=+=");
+				)=+=");
 
-			m_sscsm_controller->runEvent(this, std::move(event1));
+		m_sscsm_controller->runEvent(this, std::move(event1));
 
-			auto event2 = std::make_unique<SSCSMEventLoadMods>();
-			event2->mods.emplace_back("sscsm_test0", "sscsm_test0:init.lua");
-			m_sscsm_controller->runEvent(this, std::move(event2));
-		}
+		auto event2 = std::make_unique<SSCSMEventLoadMods>();
+		event2->mods.emplace_back("sscsm_test0", "sscsm_test0:init.lua");
+		m_sscsm_controller->runEvent(this, std::move(event2));
 	}
 
 	m_state = LC_Ready;
