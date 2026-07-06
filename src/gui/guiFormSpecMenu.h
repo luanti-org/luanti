@@ -495,7 +495,7 @@ private:
 	void parseFieldCloseOnEnter(parserData *data, const std::string &element);
 	void parsePwdField(parserData* data, const std::string &element);
 	void parseField(parserData* data, const std::string &element);
-	gui::IGUIEditBox *createTextField(parserData *data, FieldSpec &spec,
+	void createTextField(parserData *data, FieldSpec &spec,
 		core::rect<s32> &rect, bool is_multiline);
 	void parseSimpleField(parserData* data,std::vector<std::string> &parts);
 	void parseTextArea(parserData* data,std::vector<std::string>& parts,

@@ -1551,7 +1551,7 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 	m_fields.push_back(spec);
 }
 
-gui::IGUIEditBox *GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
+void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 	core::rect<s32> &rect, bool is_multiline)
 {
 	bool is_editable = !spec.fname.empty();
@@ -1559,7 +1559,7 @@ gui::IGUIEditBox *GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &
 		// spec field id to 0, this stops submit searching for a value that isn't there
 		auto style = getDefaultStyleForElement("field");
 		addLabel(EnrichedString(spec.flabel.c_str()), rect, data->current_parent, style);
-		return nullptr;
+		return;
 	}
 
 	if (is_editable) {
@@ -1586,10 +1586,22 @@ gui::IGUIEditBox *GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &
 		if (is_editable && spec.fname == m_focused_element)
 			Environment->setFocus(e);
 
+		EGUI_ALIGNMENT halign = get_halign(style);
+		EGUI_ALIGNMENT valign = gui::EGUIA_UPPERLEFT; // default for field[]
+
 		if (is_multiline) {
 			e->setMultiLine(true);
 			e->setWordWrap(true);
-			e->setTextAlignment(gui::EGUIA_UPPERLEFT, gui::EGUIA_UPPERLEFT);
+
+			valign = get_valign(style);
+
+			// calculates if a scrollbar is needed (the same way as in irr/src/CGUIEditBox.cpp at the end of the file).
+			// basically if the height of the wrapped text exceeds the textarea height,
+			// force top alignment to prevent text being cut off vertically
+			core::dimension2du text_dim = e->getTextDimension();
+			if (text_dim.Height > (u32)rect.getHeight()) {
+				valign = gui::EGUIA_UPPERLEFT;
+			}
 		} else {
 			SEvent evt;
 			evt.EventType            = EET_KEY_INPUT_EVENT;
@@ -1601,6 +1613,7 @@ gui::IGUIEditBox *GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &
 			e->OnEvent(evt);
 		}
 
+		e->setTextAlignment(halign, valign);
 		e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 		e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
 		bool border = style.getBool(StyleSpec::BORDER, true);
@@ -1617,8 +1630,6 @@ gui::IGUIEditBox *GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &
 		rect.LowerRightCorner.Y = rect.UpperLeftCorner.Y + font_height;
 		addLabel(EnrichedString(spec.flabel.c_str()), rect, data->current_parent, style);
 	}
-
-	return e;
 }
 
 void GUIFormSpecMenu::parseSimpleField(parserData *data,
@@ -1719,32 +1730,7 @@ void GUIFormSpecMenu::parseTextArea(parserData* data, std::vector<std::string>& 
 		ECI_IBEAM
 	);
 
-	gui::IGUIEditBox *e = createTextField(data, spec, rect, type == "textarea");
-
-	if (e) {
-		if (type == "textarea") {
-			auto style = getDefaultStyleForElement("textarea", "");
-
-			EGUI_ALIGNMENT halign = get_halign(style);
-			EGUI_ALIGNMENT valign = get_valign(style);
-
-			// calculates if a scrollbar is needed (the same way as in irr/src/CGUIEditBox.cpp at the end of the file).
-			// basically if the height of the wrapped text exceeds the textarea height,
-			// force top alignment to prevent text being cut off vertically
-			core::dimension2du text_dim = e->getTextDimension();
-			if (text_dim.Height > (u32)rect.getHeight()) {
-				valign = gui::EGUIA_UPPERLEFT;
-			}
-
-			e->setTextAlignment(halign, valign);
-		} else {
-			auto style = getDefaultStyleForElement("field", "");
-			EGUI_ALIGNMENT halign = get_halign(style);
-
-			// field[] is a single line of text - only horizontal alignment makes sense
-			e->setTextAlignment(halign, gui::EGUIA_UPPERLEFT);
-		}
-	}
+	createTextField(data, spec, rect, type == "textarea");
 
 	// Note: Before 5.2.0 "parts.size() >= 6" resulted in a
 	// warning referring to field_close_on_enter[]!
