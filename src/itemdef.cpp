@@ -429,6 +429,14 @@ public:
 		}
 	}
 
+	virtual void getDefinitions(std::vector<ItemDefinition> &result) const
+	{
+		result.clear();
+		result.reserve(m_item_definitions.size());
+		for (const auto &item_definition : m_item_definitions)
+			result.push_back(*item_definition.second);
+	}
+
 	virtual bool isKnown(const std::string &name_) const
 	{
 		const std::string &name = getAlias(name_);

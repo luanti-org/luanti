@@ -123,20 +123,12 @@ struct SSCSMRequestGetItemDefs final : public ISSCSMRequest
 	{
 		Answer answer{};
 
-		std::set<std::string> item_names;
-		client->idef()->getAll(item_names);
-		answer.items.reserve(item_names.size());
-		for (const std::string &name : item_names)
-			answer.items.push_back(client->idef()->get(name));
+		client->idef()->getDefinitions(answer.items);
 
 		const NodeDefManager *ndef = client->ndef();
 		for (u32 c = 0; c < ndef->size(); c++) {
 			const ContentFeatures &cf = ndef->get(c);
-			if (cf.name.empty())
-				continue; // unregistered/removed id
 			answer.nodes.push_back(cf);
-			// null visuals since they're not thread safe to copy
-			answer.nodes.back().visuals = nullptr;
 		}
 
 		return serializeSSCSMAnswer(std::move(answer));
