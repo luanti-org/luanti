@@ -82,11 +82,13 @@ struct EnumString ScriptApiNode::es_NodeBoxType[] =
 		{0, NULL},
 	};
 
+// Should be ordered exactly like enum AlphaMode in nodedef.h
 struct EnumString ScriptApiNode::es_TextureAlphaMode[] =
 	{
-		{ALPHAMODE_OPAQUE, "opaque"},
-		{ALPHAMODE_CLIP, "clip"},
 		{ALPHAMODE_BLEND, "blend"},
+		{ALPHAMODE_CLIP, "clip"},
+		{ALPHAMODE_OPAQUE, "opaque"},
+		{ALPHAMODE_LEGACY_COMPAT, "opaque"},
 		{0, NULL},
 	};
 
