@@ -451,9 +451,9 @@ This item image must be inline: <item name=testformspec:node width=32 height=32>
 
 ]]
 
-local string = ""
+local multiline_str = ""
 for i = 1, 40 do
-	string = string .. words[math.random(#words)] .. "\n"
+	multiline_str = multiline_str .. words[math.random(#words)] .. "\n"
 end
 
 local text_alignment_fs = [[
@@ -507,25 +507,25 @@ local text_alignment_fs = [[
 
 	container[0,5.33]
 	style_type[textarea;halign=left;valign=left]
-	textarea[0,0;3.667,2;textarea_1;Default textarea;]] .. string .. [[]
+	textarea[0,0;3.667,2;textarea_1;Default textarea;]] .. multiline_str .. [[]
 
 	box[0,2;5.5,2;#222]
 	style_type[textarea;halign=left;valign=left]
-	textarea[0,2;3.667,2;;;]] .. string .. [[]
+	textarea[0,2;3.667,2;;;]] .. multiline_str .. [[]
 
 	box[3.667,0;3.667,2;#222]
 	style_type[textarea;halign=center;valign=center]
-	textarea[3.667,0;3.667,2;;Centered textarea;]] .. string .. [[]
+	textarea[3.667,0;3.667,2;;Centered textarea;]] .. multiline_str .. [[]
 
 	style_type[textarea;halign=center;valign=center]
-	textarea[3.667,2;3.667,2;textarea_2;;]] .. string .. [[]
+	textarea[3.667,2;3.667,2;textarea_2;;]] .. multiline_str .. [[]
 
 	box[7.333,2;3.667,2;#222]
 	style_type[textarea;halign=right;valign=center]
-	textarea[7.333,2;3.667,2;;;]] .. string .. [[]
+	textarea[7.333,2;3.667,2;;;]] .. multiline_str .. [[]
 
 	style_type[textarea;halign=right;valign=center]
-	textarea[7.333,0;3.667,2;textarea_3;Right-aligned textarea;]] .. string .. [[]
+	textarea[7.333,0;3.667,2;textarea_3;Right-aligned textarea;]] .. multiline_str .. [[]
 	container_end[]
 
 	style_type[label;font=bold;font_size=18]
