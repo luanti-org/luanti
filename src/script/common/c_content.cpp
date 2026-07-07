@@ -744,6 +744,10 @@ static void push_tile_animation_params(lua_State *L, const TileAnimationParams &
 /******************************************************************************/
 void push_tile_definition(lua_State *L, const TileDef &def)
 {
+	if (def.name.empty()) {
+		lua_pushnil(L);
+		return;
+	}
 	lua_newtable(L);
 	lua_pushstring(L, def.name.c_str());
 	lua_setfield(L, -2, "name");
@@ -763,8 +767,10 @@ void push_tile_definition(lua_State *L, const TileDef &def)
 	lua_setfield(L, -2, "align_style");
 	lua_pushnumber(L, def.scale);
 	lua_setfield(L, -2, "scale");
-	push_tile_animation_params(L, def.animation);
-	lua_setfield(L, -2, "animation");
+	if (def.animation.type != TAT_NONE) {
+		push_tile_animation_params(L, def.animation);
+		lua_setfield(L, -2, "animation");
+	}
 }
 
 /******************************************************************************/

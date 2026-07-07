@@ -950,6 +950,8 @@ It can be created via `Raycast(pos1, pos2, objects, liquids)` or
 
 #### Tile Definition
 
+`nil` if the tile is unset.
+
 ```lua
 {
     name = string,                  -- Texture name
@@ -959,8 +961,8 @@ It can be created via `Raycast(pos1, pos2, objects, liquids)` or
     color = <Color>,                -- Tile color *May not exist*
     align_style = string,           -- "node", "world" or "user"
     scale = number,                 -- Scale of the tile
-    animation = {                   -- Tile animation parameters
-        type = string,              -- "none", "vertical_frames" or "sheet_2d"
+    animation = {                   -- Tile animation parameters *May not exist*
+        type = string,              -- "vertical_frames" or "sheet_2d"
         -- if type == "vertical_frames":
         aspect_w = number,
         aspect_h = number,
