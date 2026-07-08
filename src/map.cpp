@@ -707,7 +707,7 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 
 	// Phase 2: Dense near-target search
 	if (dense && offset < distance + end_offset) {
-		// Jump ahead and reset precision for the final check
+		// Jump ahead and reset precision for the final checks
 		offset = std::max(offset, distance - DENSE_CHECK_DISTANCE);
 		step = BS * 1.2f;
 
@@ -716,13 +716,9 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 			MapNode node = getNode(floatToInt(pos_node_f, BS), &is_valid_position);
 
 			// treat unloaded blocks as opaque
-			// Cannot see through non-existant blocks or light-blocking nodes --> occluded
+			// Cannot see through non-existent blocks or light-blocking nodes --> occluded
 			if (!is_valid_position || !m_nodedef->getLightingFlags(node).light_propagates) {
-				/*
-				 * Note that we do not honor needed_count.
-				 * In the dense case we *want* the extra precisions (so that we can reuse the
-				 * "unloaded" block information)
-				 */
+				// Note: ignoring needed_count should be fine here since the preliminary search is already done
 				return true;
 			}
 			step *= stepfac;
