@@ -57,6 +57,13 @@ Functions that take or return paths always use virtual paths.
 * `core.get_node_or_nil(pos)`
 * `core.get_content_id(name)`
 * `core.get_name_from_content_id(id)`
+* `core.hud_add(form)`
+* `core.hud_remove(id)`
+* `core.hud_change(id, stat, data)`
+* `core.hud_get(id)`
+* `core.hud_get_all()`
+  * Shares an id space with client-provided CSM (CPCSM) HUD elements;
+    see `client_lua_api.md`.
 
 
 ### Util API

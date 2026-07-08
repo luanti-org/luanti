@@ -166,11 +166,15 @@ void push_pointed_thing(lua_State *L, const PointedThing &pointed, bool csm =
 
 void push_objectRef(lua_State *L, const u16 id);
 
-void read_hud_element(lua_State *L, HudElement *elem);
+void read_hud_element(lua_State *L, HudElement *elem, int table_idx = 2);
 
 void push_hud_element(lua_State *L, HudElement *elem);
 
-bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value);
+bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value,
+		int stat_idx = 3, int data_idx = 4);
+
+// Applies one stat computed on the SSCSM thread onto the element's main-thread copy.
+void copy_hud_stat(HudElementStat stat, const HudElement &from, HudElement *to);
 
 void push_collision_move_result(lua_State *L, const CollisionMoveResult &res);
 
