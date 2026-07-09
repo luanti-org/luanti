@@ -126,6 +126,7 @@ struct SSCSMRequestGetItemDefs final : public ISSCSMRequest
 		client->idef()->getDefinitions(answer.items);
 
 		const NodeDefManager *ndef = client->ndef();
+		answer.nodes.reserve(ndef->size());
 		for (u32 c = 0; c < ndef->size(); c++) {
 			const ContentFeatures &cf = ndef->get(c);
 			answer.nodes.push_back(cf);

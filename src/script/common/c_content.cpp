@@ -38,6 +38,14 @@ struct EnumString es_TileAnimationType[] =
 	{0, nullptr},
 };
 
+struct EnumString es_AlignStyle[] =
+{
+	{ALIGN_STYLE_NODE, "node"},
+	{ALIGN_STYLE_WORLD, "world"},
+	{ALIGN_STYLE_USER_DEFINED, "user"},
+	{0, nullptr},
+};
+
 struct EnumString es_ItemType[] =
 {
 	{ITEM_NONE, "none"},
@@ -761,9 +769,7 @@ void push_tile_definition(lua_State *L, const TileDef &def)
 		push_ARGB8(L, def.color);
 		lua_setfield(L, -2, "color");
 	}
-	const char *align_style = def.align_style == ALIGN_STYLE_WORLD ? "world" :
-			def.align_style == ALIGN_STYLE_USER_DEFINED ? "user" : "node";
-	lua_pushstring(L, align_style);
+	lua_pushstring(L, enum_to_string(es_AlignStyle, def.align_style));
 	lua_setfield(L, -2, "align_style");
 	lua_pushnumber(L, def.scale);
 	lua_setfield(L, -2, "scale");

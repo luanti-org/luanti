@@ -58,6 +58,7 @@ namespace Json { class Value; }
 namespace treegen { struct TreeDef; }
 
 extern struct EnumString es_TileAnimationType[];
+extern struct EnumString es_AlignStyle[];
 extern struct EnumString es_ItemType[];
 extern struct EnumString es_TouchInteractionMode[];
 

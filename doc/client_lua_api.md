@@ -988,6 +988,7 @@ It can be created via `Raycast(pos1, pos2, objects, liquids)` or
     color = Color,                  -- Color for item
     wield_scale = Vector,           -- Wieldmesh scale
     stack_max = number,             -- Number of items stackable together
+    range = number,                 -- Range of node/object pointing that overrides the default
     usable = bool,                  -- Has on_use callback defined
     liquids_pointable = bool,       -- Whether you can point at liquids with the item
     tool_capabilities = <table>,    -- If the item is a tool, tool capabilities of the item

@@ -199,7 +199,7 @@ Client::Client(
 
 	//FIXME: network packets
 	//FIXME: check that *client_builtin* is not overridden
-	// The sscsm_test0 preview mod is loaded from afterContentReceived(),
+	// The sscsm_test0 preview mod is loaded from loadSSCSM(),
 	// once itemdefs/nodedefs actually exist to populate core.registered_*.
 }
 
@@ -1934,12 +1934,28 @@ void Client::afterContentReceived()
 	infostream<<"- Starting mesh update thread"<<std::endl;
 	m_mesh_update_manager->start();
 
-	if (sscsm_enabled) {
-		auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
+	m_state = LC_Ready;
+	sendReady();
 
-		// some simple test code
-		event1->files.emplace_back("sscsm_test0:init.lua",
-				R"=+=(
+	if (m_mods_loaded)
+		m_script->on_client_ready(m_env.getLocalPlayer());
+
+	m_rendering_engine->draw_load_screen(wstrgettext("Done!"), guienv, m_tsrc, 0, 100);
+	infostream<<"Client::afterContentReceived() done"<<std::endl;
+}
+
+void Client::loadSSCSM()
+{
+	std::string enable_sscsm = g_settings->get("enable_sscsm");
+	bool sscsm_enabled = enable_sscsm == "singleplayer"; //FIXME: enum
+	if (!sscsm_enabled)
+		return;
+
+	auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
+
+	// some simple test code
+	event1->files.emplace_back("sscsm_test0:init.lua",
+			R"=+=(
 print("sscsm_test0: loading")
 
 --print(dump(_G))
@@ -1963,21 +1979,11 @@ end
 print("sscsm_test0: air def: " .. dump(core.registered_nodes["air"]))
 				)=+=");
 
-		m_sscsm_controller->runEvent(this, std::move(event1));
+	m_sscsm_controller->runEvent(this, std::move(event1));
 
-		auto event2 = std::make_unique<SSCSMEventLoadMods>();
-		event2->mods.emplace_back("sscsm_test0", "sscsm_test0:init.lua");
-		m_sscsm_controller->runEvent(this, std::move(event2));
-	}
-
-	m_state = LC_Ready;
-	sendReady();
-
-	if (m_mods_loaded)
-		m_script->on_client_ready(m_env.getLocalPlayer());
-
-	m_rendering_engine->draw_load_screen(wstrgettext("Done!"), guienv, m_tsrc, 0, 100);
-	infostream<<"Client::afterContentReceived() done"<<std::endl;
+	auto event2 = std::make_unique<SSCSMEventLoadMods>();
+	event2->mods.emplace_back("sscsm_test0", "sscsm_test0:init.lua");
+	m_sscsm_controller->runEvent(this, std::move(event2));
 }
 
 float Client::getRTT()
