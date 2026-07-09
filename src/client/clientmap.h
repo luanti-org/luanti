@@ -10,6 +10,8 @@
 #include <map>
 #include <functional>
 
+struct ConvexPolygon;
+
 struct MapDrawControl
 {
 	// Wanted drawing range
@@ -20,6 +22,13 @@ struct MapDrawControl
 	bool allow_noclip = false;
 	// show a wire frame for debugging
 	bool show_wireframe = false;
+};
+
+struct LiquidWaveParams {
+	f32 height;
+	f32 length;
+	f32 speed;
+	f32 animation_timer;
 };
 
 class Client;
@@ -113,7 +122,8 @@ public:
 	int getBackgroundBrightness(float max_d, u32 daylight_factor,
 			int oldvalue, bool *sunlight_seen_result);
 
-	void renderPostFx(CameraMode cam_mode);
+	// Returns the post effect color for the wield hand
+	video::SColorf renderPostFx();
 
 	void invalidateMapBlockMesh(MapBlockMesh *mesh);
 
@@ -124,6 +134,24 @@ public:
 	f32 getWantedRange() const { return m_control.wanted_range; }
 	f32 getCameraFov() const { return m_camera_fov; }
 
+	/**
+	 * Finds the heights of the corners of the top face of a liquid node at the
+	 * given pos.
+	 *
+	 * Note: Liquid top faces are not quads, but two triangles, split by a
+	 * diagonal.
+	 *
+	 * @param pos The position of the node.
+	 * @param wave_params If given, the corner heights are waved like in the node
+	 *                    shader.
+	 * @return The heights of the corners in local node space coordinates, in the
+	 *         following order: {-x-z, +x-z, -x+z, +x+z}
+	 *         Or nullopt if there is no lquid top face.
+	 */
+	std::optional<std::array<f32, 4>>
+	getLiquidTopFaceHeights(v3s16 pos,
+			const std::optional<LiquidWaveParams> &wave_params);
+
 	void onSettingChanged(std::string_view name, bool all);
 
 protected:
@@ -131,11 +159,15 @@ protected:
 	virtual ~ClientMap();
 
 	void reportMetrics(u64 save_time_us, u32 saved_blocks, u32 all_blocks) override;
+
 private:
 	bool isMeshOccluded(MapBlock *mesh_block, u16 mesh_size, v3s16 cam_pos_nodes);
 
 	// update the vertex order in transparent mesh buffers
 	void updateTransparentMeshBuffers();
+
+	// helper for renderPostFx
+	std::vector<std::pair<ConvexPolygon, video::SColor>> getPostFxPolygons();
 
 	// Orders blocks by distance to the camera
 	class MapBlockComparer

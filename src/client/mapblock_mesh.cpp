@@ -141,11 +141,10 @@ u16 getFaceLight(MapNode n, MapNode n2, const NodeDefManager *ndef)
 	Calculate smooth lighting at the XYZ- corner of p.
 	Both light banks
 */
+template <typename F>
 static u16 getSmoothLightCombined(const v3s16 &p,
-	const std::array<v3s16,8> &dirs, MeshMakeData *data)
+	const std::array<v3s16,8> &dirs, const NodeDefManager *ndef, F &&get_node)
 {
-	const NodeDefManager *ndef = data->m_nodedef;
-
 	u16 ambient_occlusion = 0;
 	u16 light_count = 0;
 	u8 light_source_max = 0;
@@ -158,7 +157,7 @@ static u16 getSmoothLightCombined(const v3s16 &p,
 			ambient_occlusion++;
 			return false;
 		}
-		MapNode n = data->m_vmanip.getNodeNoExNoEmerge(p + dirs[i]);
+		MapNode n = get_node(p + dirs[i]);
 		if (n.getContent() == CONTENT_IGNORE)
 			return true;
 		const ContentFeatures &f = ndef->get(n);
@@ -248,19 +247,11 @@ static u16 getSmoothLightCombined(const v3s16 &p,
 /*
 	Calculate smooth lighting at the given corner of p.
 	Both light banks.
-	Node at p is solid, and thus the lighting is face-dependent.
-*/
-u16 getSmoothLightSolid(const v3s16 &p, const v3s16 &face_dir, const v3s16 &corner, MeshMakeData *data)
-{
-	return getSmoothLightTransparent(p + face_dir, corner - 2 * face_dir, data);
-}
-
-/*
-	Calculate smooth lighting at the given corner of p.
-	Both light banks.
 	Node at p is not solid, and the lighting is not face-dependent.
 */
-u16 getSmoothLightTransparent(const v3s16 &p, const v3s16 &corner, MeshMakeData *data)
+template <typename F>
+static u16 getSmoothLightTransparent(const v3s16 &p, const v3s16 &corner,
+		const NodeDefManager *ndef, F &&get_node)
 {
 	const std::array<v3s16,8> dirs = {{
 		// Always shine light
@@ -275,7 +266,35 @@ u16 getSmoothLightTransparent(const v3s16 &p, const v3s16 &corner, MeshMakeData 
 		v3s16(0,corner.Y,corner.Z),
 		v3s16(corner.X,corner.Y,corner.Z)
 	}};
-	return getSmoothLightCombined(p, dirs, data);
+
+	return getSmoothLightCombined(p, dirs, ndef, std::forward<F>(get_node));
+}
+
+u16 getSmoothLightTransparent(const v3s16 &p, const v3s16 &corner, MeshMakeData *data)
+{
+	return getSmoothLightTransparent(p, corner, data->m_nodedef,
+			[data](v3s16 p) -> MapNode {
+				return data->m_vmanip.getNodeNoExNoEmerge(p);
+			}
+		);
+}
+
+/*
+	Calculate smooth lighting at the given corner of p.
+	Both light banks.
+	Node at p is solid, and thus the lighting is face-dependent.
+*/
+u16 getSmoothLightSolid(const v3s16 &p, const v3s16 &face_dir, const v3s16 &corner,
+		MeshMakeData *data)
+{
+	return getSmoothLightTransparent(p + face_dir, corner - 2 * face_dir, data);
+}
+
+u16 getSmoothLightSolid(const v3s16 &p, const v3s16 &face_dir, const v3s16 &corner,
+		const NodeDefManager *ndef, const std::function<MapNode(v3s16)> &get_node)
+{
+	return getSmoothLightTransparent(p + face_dir, corner - 2 * face_dir,
+			ndef, get_node);
 }
 
 void get_sunlight_color(video::SColorf *sunlight, u32 daynight_ratio)
