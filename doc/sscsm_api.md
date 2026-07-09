@@ -62,8 +62,8 @@ Functions that take or return paths always use virtual paths.
 * `core.hud_change(id, stat, data)`
 * `core.hud_get(id)`
 * `core.hud_get_all()`
-  * Shares an id space with client-provided CSM (CPCSM) HUD elements;
-    see `client_lua_api.md`.
+  * Shares an id space with server-added HUD elements, like the ones added
+    by a server-side mod via `core.hud_add`.
 
 
 ### Util API

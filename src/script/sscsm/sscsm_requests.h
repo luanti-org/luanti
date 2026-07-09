@@ -13,7 +13,6 @@
 #include "hud_element.h"
 #include "log_internal.h"
 #include "script/common/c_content.h"
-#include <optional>
 
 // Poll the next event (e.g. on_globalstep)
 struct SSCSMRequestPollNextEvent final : public ISSCSMRequest
@@ -123,7 +122,7 @@ struct SSCSMRequestHudAdd final : public ISSCSMRequest
 	SerializedSSCSMAnswer exec(Client *client) override
 	{
 		LocalPlayer *player = client->getEnv().getLocalPlayer();
-		u32 id = player->csm_hud.add(std::make_unique<HudElement>(std::move(elem)));
+		u32 id = player->hud.add(std::make_unique<HudElement>(std::move(elem)));
 
 		Answer answer;
 		answer.id = id;
@@ -146,7 +145,7 @@ struct SSCSMRequestHudRemove final : public ISSCSMRequest
 		LocalPlayer *player = client->getEnv().getLocalPlayer();
 
 		Answer answer;
-		answer.ok = player->csm_hud.remove(id);
+		answer.ok = player->hud.remove(id);
 		return serializeSSCSMAnswer(std::move(answer));
 	}
 };
@@ -165,7 +164,7 @@ struct SSCSMRequestHudGet final : public ISSCSMRequest
 	SerializedSSCSMAnswer exec(Client *client) override
 	{
 		LocalPlayer *player = client->getEnv().getLocalPlayer();
-		HudElement *e = player->csm_hud.get(id);
+		HudElement *e = player->hud.get(id);
 
 		Answer answer;
 		answer.found = (e != nullptr);
@@ -188,7 +187,7 @@ struct SSCSMRequestHudGetAll final : public ISSCSMRequest
 		LocalPlayer *player = client->getEnv().getLocalPlayer();
 
 		Answer answer;
-		const auto &elements = player->csm_hud.getElements();
+		const auto &elements = player->hud.getElements();
 		for (u32 id = 0; id < elements.size(); id++) {
 			if (elements[id])
 				answer.elems.emplace_back(id, *elements[id]);
@@ -213,7 +212,7 @@ struct SSCSMRequestHudChange final : public ISSCSMRequest
 	SerializedSSCSMAnswer exec(Client *client) override
 	{
 		LocalPlayer *player = client->getEnv().getLocalPlayer();
-		HudElement *elem = player->csm_hud.get(id);
+		HudElement *elem = player->hud.get(id);
 
 		Answer answer;
 		answer.ok = (elem != nullptr);
