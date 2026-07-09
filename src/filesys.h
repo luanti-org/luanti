@@ -156,6 +156,8 @@ bool safeWriteToFile(const std::string &path, std::string_view content);
 
 #if IS_CLIENT_BUILD
 bool extractZipFile(io::IFileSystem *fs, const char *filename, const std::string &destination);
+
+bool createZipFile(const std::string &source_dir, const std::string &zipfile);
 #endif
 
 bool ReadFile(const std::string &path, std::string &out, bool log_error = false);

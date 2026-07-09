@@ -32,6 +32,10 @@ public:
 	void testNonExist();
 	void testRecursiveDelete();
 	void testGetRecursiveSubPaths();
+
+#if CHECK_CLIENT_BUILD()
+	void testWriteZipFile();
+#endif
 };
 
 static TestFileSys g_test_instance;
@@ -50,6 +54,10 @@ void TestFileSys::runTests(IGameDef *gamedef)
 	TEST(testNonExist);
 	TEST(testRecursiveDelete);
 	TEST(testGetRecursiveSubPaths);
+
+#if CHECK_CLIENT_BUILD()
+	TEST(testWriteZipFile);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +158,6 @@ void TestFileSys::testPathStartsWith()
 	}
 }
 
-
 void TestFileSys::testMakePathRelativeTo()
 {
 	const auto dir_path = getTestTempDirectory() + DIR_DELIM "testMakePathRelativeToTestDir";
@@ -209,7 +216,6 @@ void TestFileSys::testMakePathRelativeTo()
 	UASSERTEQ(auto, rel("d1/../d1/d2/", "d1"), p("d2"));
 }
 
-
 void TestFileSys::testRemoveLastPathComponent()
 {
 	std::string path, result, removed;
@@ -265,7 +271,6 @@ void TestFileSys::testRemoveLastPathComponent()
 #endif
 }
 
-
 void TestFileSys::testRemoveLastPathComponentWithTrailingDelimiter()
 {
 	std::string path, result, removed;
@@ -297,7 +302,6 @@ void TestFileSys::testRemoveLastPathComponentWithTrailingDelimiter()
 	UASSERT(removed == p("home/user/minetest/bin/../worlds/world1"));
 }
 
-
 void TestFileSys::testRemoveRelativePathComponent()
 {
 	std::string path, result;
@@ -324,7 +328,6 @@ void TestFileSys::testRemoveRelativePathComponent()
 	result = fs::RemoveRelativePathComponents(path);
 	UASSERT(result == p("/a/e"));
 }
-
 
 void TestFileSys::testAbsolutePath()
 {
@@ -367,7 +370,6 @@ void TestFileSys::testAbsolutePath()
 	// or with an empty path
 	UASSERTEQ(auto, fs::AbsolutePathPartial(""), "");
 }
-
 
 void TestFileSys::testSafeWriteToFile()
 {
@@ -427,6 +429,127 @@ void TestFileSys::testCopyFileContents()
 	UASSERT(fs::ReadFile(file2, contents_actual));
 	UASSERTEQ(auto, contents_actual, test_data);
 }
+
+#if CHECK_CLIENT_BUILD()
+void TestFileSys::testWriteZipFile()
+{
+	const auto dir_path = getTestTempDirectory() + DIR_DELIM "ziptest";
+	const auto nested_dir = dir_path + DIR_DELIM "sub";
+	UASSERT(fs::CreateAllDirs(nested_dir));
+
+	const std::string top_level_data = "hello";
+	const std::string nested_data = "nested data";
+
+	const auto top_level_file = dir_path + DIR_DELIM "file.txt";
+	{
+		auto os = open_ofstream(top_level_file.c_str(), false);
+		UASSERT(os.good());
+		os.write(top_level_data.data(), top_level_data.size());
+		UASSERT(os.good());
+	}
+
+	const auto nested_file = nested_dir + DIR_DELIM "nested.txt";
+	{
+		auto os = open_ofstream(nested_file.c_str(), false);
+		UASSERT(os.good());
+		os.write(nested_data.data(), nested_data.size());
+		UASSERT(os.good());
+	}
+
+	const auto zip_path = getTestTempFile();
+	UASSERT(fs::createZipFile(dir_path, zip_path));
+	UASSERT(fs::IsFile(zip_path));
+
+	std::string contents;
+	UASSERT(fs::ReadFile(zip_path, contents));
+
+	size_t position = 0;
+	auto read_u16 = [&]() -> u16 {
+		UASSERT(position + 2 <= contents.size());
+		u16 value = static_cast<u8>(contents[position]) |
+				(static_cast<u16>(static_cast<u8>(contents[position + 1])) << 8);
+		position += 2;
+		return value;
+	};
+	auto read_u32 = [&]() -> u32 {
+		UASSERT(position + 4 <= contents.size());
+		u32 value = static_cast<u8>(contents[position]) |
+				(static_cast<u32>(static_cast<u8>(contents[position + 1])) << 8) |
+				(static_cast<u32>(static_cast<u8>(contents[position + 2])) << 16) |
+				(static_cast<u32>(static_cast<u8>(contents[position + 3])) << 24);
+		position += 4;
+		return value;
+	};
+	auto read_string = [&](size_t length) {
+		UASSERT(position + length <= contents.size());
+		std::string value = contents.substr(position, length);
+		position += length;
+		return value;
+	};
+
+	auto expect_local_file = [&](const std::string &archive_path,
+			const std::string &file_data, u32 crc32, size_t expected_offset) {
+		UASSERTEQ(size_t, position, expected_offset);
+		UASSERTEQ(u32, read_u32(), 0x04034b50);
+		UASSERTEQ(u16, read_u16(), 20);
+		UASSERTEQ(u16, read_u16(), 0);
+		UASSERTEQ(u16, read_u16(), 0);
+		UASSERTEQ(u16, read_u16(), 0);
+		UASSERTEQ(u16, read_u16(), 0x0021);
+		UASSERTEQ(u32, read_u32(), crc32);
+		UASSERTEQ(u32, read_u32(), static_cast<u32>(file_data.size()));
+		UASSERTEQ(u32, read_u32(), static_cast<u32>(file_data.size()));
+		UASSERTEQ(u16, read_u16(), static_cast<u16>(archive_path.size()));
+		UASSERTEQ(u16, read_u16(), 0);
+		UASSERTEQ(auto, read_string(archive_path.size()), archive_path);
+		UASSERTEQ(auto, read_string(file_data.size()), file_data);
+	};
+
+	auto expect_central_directory_entry = [&](const std::string &archive_path,
+			const std::string &file_data, u32 crc32, u32 local_header_offset) {
+		UASSERTEQ(u32, read_u32(), 0x02014b50);
+		UASSERTEQ(u16, read_u16(), 20);
+		UASSERTEQ(u16, read_u16(), 20);
+		UASSERTEQ(u16, read_u16(), 0);
+		UASSERTEQ(u16, read_u16(), 0);
+		UASSERTEQ(u16, read_u16(), 0);
+		UASSERTEQ(u16, read_u16(), 0x0021);
+		UASSERTEQ(u32, read_u32(), crc32);
+		UASSERTEQ(u32, read_u32(), static_cast<u32>(file_data.size()));
+		UASSERTEQ(u32, read_u32(), static_cast<u32>(file_data.size()));
+		UASSERTEQ(u16, read_u16(), static_cast<u16>(archive_path.size()));
+		UASSERTEQ(u16, read_u16(), 0);
+		UASSERTEQ(u16, read_u16(), 0);
+		UASSERTEQ(u16, read_u16(), 0);
+		UASSERTEQ(u16, read_u16(), 0);
+		UASSERTEQ(u32, read_u32(), 0);
+		UASSERTEQ(u32, read_u32(), local_header_offset);
+		UASSERTEQ(auto, read_string(archive_path.size()), archive_path);
+	};
+
+	// createZipFile sorts entries by archive path before writing.
+	expect_local_file("file.txt", top_level_data, 0x3610a686, 0);
+	expect_local_file("sub/nested.txt", nested_data, 0xb8428ee9, 43);
+
+	const size_t central_directory_offset = position;
+	expect_central_directory_entry("file.txt", top_level_data, 0x3610a686, 0);
+	expect_central_directory_entry("sub/nested.txt", nested_data, 0xb8428ee9, 43);
+	const u32 central_directory_size = static_cast<u32>(position - central_directory_offset);
+
+	UASSERTEQ(u32, read_u32(), 0x06054b50);
+	UASSERTEQ(u16, read_u16(), 0);
+	UASSERTEQ(u16, read_u16(), 0);
+	UASSERTEQ(u16, read_u16(), 2);
+	UASSERTEQ(u16, read_u16(), 2);
+	UASSERTEQ(u32, read_u32(), central_directory_size);
+	UASSERTEQ(u32, read_u32(), static_cast<u32>(central_directory_offset));
+	UASSERTEQ(u16, read_u16(), 0);
+	UASSERTEQ(size_t, position, contents.size());
+
+	fs::DeleteSingleFileOrEmptyDirectory(zip_path);
+	fs::RecursiveDelete(dir_path);
+}
+#endif
 
 void TestFileSys::testNonExist()
 {

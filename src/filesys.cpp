@@ -4,6 +4,7 @@
 
 #include "filesys.h"
 #include "util/string.h"
+#include <algorithm>
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
@@ -21,6 +22,7 @@
 #include <IFileList.h>
 #include <IFileSystem.h>
 #include <IReadFile.h>
+#include <zlib.h>
 #endif
 
 #ifdef _WIN32
@@ -1063,6 +1065,430 @@ bool extractZipFile(io::IFileSystem *fs, const char *filename, const std::string
 		}
 	}
 
+	return true;
+}
+
+struct ZipEntry {
+	std::string path;
+	std::string archive_path;
+	u32 file_size;
+	u32 crc32;
+	u32 header_offset;
+};
+
+static bool writeZipU16(std::ostream &os, u16 value)
+{
+	u8 bytes[2];
+	u8 low = static_cast<u8>(value & 0xFF);
+	u8 high = static_cast<u8>((value >> 8) & 0xFF);
+	bytes[0] = low;
+	bytes[1] = high;
+	os.write(reinterpret_cast<const char *>(bytes), 2);
+	return static_cast<bool>(os);
+}
+
+static bool writeZipU32(std::ostream &os, u32 value)
+{
+	u8 bytes[4];
+	u8 low = static_cast<u8>(value & 0xFF);
+	u8 mid_low = static_cast<u8>((value >> 8) & 0xFF);
+	u8 mid_high = static_cast<u8>((value >> 16) & 0xFF);
+	u8 high = static_cast<u8>((value >> 24) & 0xFF);
+	bytes[0] = low;
+	bytes[1] = mid_low;
+	bytes[2] = mid_high;
+	bytes[3] = high;
+	os.write(reinterpret_cast<const char *>(bytes), 4);
+	return static_cast<bool>(os);
+}
+
+static bool copyZipFileBytes(std::ostream &os, const std::string &filename)
+{
+	auto file = open_ifstream(filename.c_str(), true);
+	if (!file) {
+		warningstream << "fs::createZipFile(): failed to open source file "
+				<< filename << std::endl;
+		return false;
+	}
+
+	char buffer[4096];
+	while (file) {
+		file.read(buffer, sizeof(buffer));
+		std::streamsize bytes_read = file.gcount();
+
+		if (bytes_read > 0)
+			os.write(buffer, bytes_read);
+		if (!os) {
+			warningstream << "fs::createZipFile(): failed to write copy of file "
+					<< filename << std::endl;
+			return false;
+		}
+	}
+
+	if (!file.eof()) {
+		warningstream << "fs::createZipFile(): failed to read file "
+				<< filename << std::endl;
+		return false;
+	}
+	return true;
+}
+
+static bool getZipFileCrc32(const std::string &filename, u32 &out_crc32)
+{
+	auto file = open_ifstream(filename.c_str(), true);
+	if (!file) {
+		warningstream << "fs::createZipFile(): failed to open source file "
+				<< filename << std::endl;
+		return false;
+	}
+
+	uLong crc = crc32(0L, Z_NULL, 0);
+	char buffer[4096];
+	while (file) {
+		file.read(buffer, sizeof(buffer));
+		std::streamsize bytes_read = file.gcount();
+
+		if (bytes_read > 0) {
+			uInt chunk_size = static_cast<uInt>(bytes_read);
+			crc = crc32(crc, reinterpret_cast<const Bytef *>(buffer), chunk_size);
+		}
+	}
+
+	if (!file.eof()) {
+		warningstream << "fs::createZipFile(): failed while reading source file "
+				<< filename << std::endl;
+		return false;
+	}
+	out_crc32 = static_cast<u32>(crc);
+	return true;
+}
+
+static bool getZipFileSize(const std::string &filename, u32 &out_size)
+{
+	auto file = open_ifstream(filename.c_str(), true, std::ios::ate);
+	if (!file) {
+		warningstream << "fs::createZipFile(): failed to open source file "
+				<< filename << std::endl;
+		return false;
+	}
+
+	auto pos = file.tellg();
+	if (pos == std::streampos(-1) || !file) {
+		warningstream << "fs::createZipFile(): failed to determine size of file "
+				<< filename << std::endl;
+		return false;
+	}
+
+	std::streamoff raw_size = pos;
+	if (raw_size < 0) {
+		warningstream << "fs::createZipFile(): failed to determine size of file "
+				<< filename << std::endl;
+		return false;
+	}
+	if (raw_size > U32_MAX) {
+		warningstream << "fs::createZipFile(): file too large for ZIP32 "
+				<< filename << std::endl;
+		return false;
+	}
+
+	out_size = static_cast<u32>(raw_size);
+	return true;
+}
+
+static bool collectZipEntries(
+		const std::string &current_directory,
+		const std::string &archive_prefix,
+		std::vector<ZipEntry> &entries)
+{
+	std::vector<DirListNode> listing = GetDirListing(current_directory);
+	for (const DirListNode &node : listing) {
+		if (node.dir) {
+			const std::string next_directory = current_directory + DIR_DELIM + node.name;
+			const std::string next_prefix = archive_prefix + node.name + "/";
+			if (!collectZipEntries(next_directory, next_prefix, entries))
+				return false;
+		} else {
+			std::string full_path = current_directory + DIR_DELIM + node.name;
+			u32 file_size = 0;
+			if (!getZipFileSize(full_path, file_size))
+				return false;
+
+			u32 crc32 = 0;
+			if (!getZipFileCrc32(full_path, crc32))
+				return false;
+
+			ZipEntry entry;
+			entry.path = full_path;
+			entry.archive_path = archive_prefix + node.name;
+			entry.file_size = file_size;
+			entry.crc32 = crc32;
+			entry.header_offset = 0;
+			entries.push_back(entry);
+		}
+	}
+	return true;
+}
+
+static bool writeZipCentralDirectoryFileHeader(std::ostream &os, const ZipEntry &entry)
+{
+	// Central directory file header signature
+	if (!writeZipU32(os, 0x02014b50))
+		return false;
+	// Version made by
+	if (!writeZipU16(os, 20))
+		return false;
+	// Version needed to extract
+	if (!writeZipU16(os, 20))
+		return false;
+	// General purpose bit flag
+	if (!writeZipU16(os, 0))
+		return false;
+	// Compression method
+	if (!writeZipU16(os, 0))
+		return false;
+	// Last file modification time
+	if (!writeZipU16(os, 0))
+		return false;
+	// Last file modification date, DOS 01/01/1980
+	if (!writeZipU16(os, 0x0021))
+		return false;
+	// Entry CRC32
+	if (!writeZipU32(os, entry.crc32))
+		return false;
+	// Compressed file size
+	if (!writeZipU32(os, entry.file_size))
+		return false;
+	// Uncompressed file size
+	if (!writeZipU32(os, entry.file_size))
+		return false;
+
+	// File name length
+	auto raw_length = entry.archive_path.size();
+	if (raw_length == 0 || raw_length > U16_MAX)
+		return false;
+	u16 filename_length = static_cast<u16>(raw_length);
+	if (!writeZipU16(os, filename_length))
+		return false;
+	// Extra field length
+	if (!writeZipU16(os, 0))
+		return false;
+	// File comment length
+	if (!writeZipU16(os, 0))
+		return false;
+	// Disk number start
+	if (!writeZipU16(os, 0))
+		return false;
+	// Internal file attributes
+	if (!writeZipU16(os, 0))
+		return false;
+	// External file attributes
+	if (!writeZipU32(os, 0))
+		return false;
+	// Relative offset of local header
+	if (!writeZipU32(os, entry.header_offset))
+		return false;
+
+	// File name bytes
+	os.write(entry.archive_path.data(), filename_length);
+	return static_cast<bool>(os);
+}
+
+static bool writeZipEndOfCentralDirectory(std::ostream &os, u16 entry_count,
+		u32 central_directory_size, u32 central_directory_offset)
+{
+	// End of central directory signature
+	if (!writeZipU32(os, 0x06054b50))
+		return false;
+	// Disk number
+	if (!writeZipU16(os, 0))
+		return false;
+	// Central directory start disk
+	if (!writeZipU16(os, 0))
+		return false;
+	// Entries on disk
+	if (!writeZipU16(os, entry_count))
+		return false;
+	// Total entries
+	if (!writeZipU16(os, entry_count))
+		return false;
+	// Central directory size
+	if (!writeZipU32(os, central_directory_size))
+		return false;
+	// Central directory offset
+	if (!writeZipU32(os, central_directory_offset))
+		return false;
+	// Comment length
+	if (!writeZipU16(os, 0))
+		return false;
+
+	return true;
+}
+
+static bool writeZipLocalFileHeader(std::ostream &os, const ZipEntry &entry)
+{
+	// Local file header signature
+	if (!writeZipU32(os, 0x04034b50))
+		return false;
+	// Version needed to extract
+	if (!writeZipU16(os, 20))
+		return false;
+	// General purpose bit flag
+	if (!writeZipU16(os, 0))
+		return false;
+	// Compression method
+	if (!writeZipU16(os, 0))
+		return false;
+	// Last file modification time
+	if (!writeZipU16(os, 0))
+		return false;
+	// Last file modification date, DOS 01/01/1980
+	if (!writeZipU16(os, 0x0021))
+		return false;
+	// CRC32
+	if (!writeZipU32(os, entry.crc32))
+		return false;
+	// Compressed file size
+	if (!writeZipU32(os, entry.file_size))
+		return false;
+	// Uncompressed file size
+	if (!writeZipU32(os, entry.file_size))
+		return false;
+
+	// File name length
+	auto raw_length = entry.archive_path.size();
+	if (raw_length == 0 || raw_length > U16_MAX)
+		return false;
+	u16 filename_length = static_cast<u16>(raw_length);
+	if (!writeZipU16(os, filename_length))
+		return false;
+	// Extra field length
+	if (!writeZipU16(os, 0))
+		return false;
+
+	// File name bytes
+	os.write(entry.archive_path.data(), filename_length);
+	return static_cast<bool>(os);
+}
+
+static bool getZipStreamOffset(std::ostream &os, u32 &out_offset)
+{
+	std::streampos raw_offset = os.tellp();
+	if (raw_offset == std::streampos(-1))
+		return false;
+
+	std::streamoff offset = static_cast<std::streamoff>(raw_offset);
+	if (offset < 0 || offset > U32_MAX)
+		return false;
+
+	out_offset = static_cast<u32>(offset);
+	return true;
+}
+
+bool createZipFile(const std::string &source_dir, const std::string &zipfile)
+{
+	if (!fs::IsDir(source_dir))
+		return false;
+
+	std::vector<ZipEntry> entries;
+	if (!collectZipEntries(source_dir, "", entries))
+		return false;
+
+	std::size_t raw_entry_count = entries.size();
+	if (raw_entry_count > U16_MAX)
+		return false;
+	u16 entry_count = static_cast<u16>(raw_entry_count);
+
+	std::sort(entries.begin(), entries.end(),
+			[](const ZipEntry &a, const ZipEntry &b) {
+				return a.archive_path < b.archive_path;
+			});
+
+	auto os = open_ofstream(zipfile.c_str(), true);
+	if (!os) {
+		warningstream << "fs::createZipFile(): failed to open output stream for "
+				<< zipfile << std::endl;
+		return false;
+	}
+
+	for (ZipEntry &entry : entries) {
+		u32 header_offset = 0;
+		if (!getZipStreamOffset(os, header_offset)) {
+			warningstream << "fs::createZipFile(): failed to obtain stream offset for "
+					<< entry.path << std::endl;
+			os.close();
+			remove(zipfile.c_str());
+			return false;
+		}
+		entry.header_offset = header_offset;
+
+		if (!writeZipLocalFileHeader(os, entry)) {
+			warningstream << "fs::createZipFile(): failed to write local file header for "
+					<< zipfile << std::endl;
+			os.close();
+			remove(zipfile.c_str());
+			return false;
+		}
+		if (!copyZipFileBytes(os, entry.path)) {
+			warningstream << "fs::createZipFile(): failed to write file data for "
+					<< zipfile << std::endl;
+			os.close();
+			remove(zipfile.c_str());
+			return false;
+		}
+	}
+
+	u32 central_directory_offset = 0;
+	if (!getZipStreamOffset(os, central_directory_offset)) {
+		warningstream << "fs::createZipFile(): failed to obtain central directory offset for "
+				<< zipfile << std::endl;
+		os.close();
+		remove(zipfile.c_str());
+		return false;
+	}
+
+	for (const ZipEntry &entry : entries) {
+		if (!writeZipCentralDirectoryFileHeader(os, entry)) {
+			warningstream << "fs::createZipFile(): failed to write central directory header for "
+					<< zipfile << std::endl;
+			os.close();
+			remove(zipfile.c_str());
+			return false;
+		}
+	}
+
+	u32 central_directory_end = 0;
+	if (!getZipStreamOffset(os, central_directory_end)) {
+		warningstream << "fs::createZipFile(): failed to obtain central directory end offset for "
+				<< zipfile << std::endl;
+		os.close();
+		remove(zipfile.c_str());
+		return false;
+	}
+	if (central_directory_end < central_directory_offset) {
+		warningstream << "fs::createZipFile(): invalid central directory offsets for "
+				<< zipfile << std::endl;
+		os.close();
+		remove(zipfile.c_str());
+		return false;
+	}
+
+	u32 central_directory_size = central_directory_end - central_directory_offset;
+	if (!writeZipEndOfCentralDirectory(os, entry_count, central_directory_size,
+			central_directory_offset)) {
+		warningstream << "fs::createZipFile(): failed to write end of central directory for "
+				<< zipfile << std::endl;
+		os.close();
+		remove(zipfile.c_str());
+		return false;
+	}
+
+	os.close();
+	if (!os) {
+		warningstream << "fs::createZipFile(): failed on closing output stream for "
+				<< zipfile << std::endl;
+		remove(zipfile.c_str());
+		return false;
+	}
 	return true;
 }
 #endif

@@ -99,6 +99,7 @@ doc/mkdocs/venv/
 
 ## Build files
 build/
+build-intellisense/
 CMakeFiles
 Makefile
 cmake_install.cmake
