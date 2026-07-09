@@ -60,6 +60,13 @@ int ModApiSSCSM::l_hud_change(lua_State *L)
 {
 	u32 id = luaL_checkinteger(L, 1);
 
+	HudElementStat stat;
+	if (!read_hud_stat_name(L, stat, 2)) {
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	std::string statstr = lua_tostring(L, 2);
+
 	SSCSMRequestHudGet get_request;
 	get_request.id = id;
 	auto get_answer = getSSCSMEnv(L)->doRequest(std::move(get_request));
@@ -68,19 +75,10 @@ int ModApiSSCSM::l_hud_change(lua_State *L)
 		return 1;
 	}
 
-	HudElement scratch = get_answer.elem;
-	HudElementStat stat;
-	void *unused;
-	bool ok = read_hud_change(L, stat, &scratch, &unused, 2, 3);
-	if (!ok) {
-		lua_pushboolean(L, false);
-		return 1;
-	}
-
 	SSCSMRequestHudChange change_request;
 	change_request.id = id;
 	change_request.stat = stat;
-	change_request.value = scratch;
+	change_request.value = read_hud_stat_value(L, stat, statstr, get_answer.elem.type, 3);
 	auto change_answer = getSSCSMEnv(L)->doRequest(std::move(change_request));
 
 	lua_pushboolean(L, change_answer.ok);

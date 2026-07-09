@@ -196,8 +196,7 @@ struct SSCSMRequestHudGetAll final : public ISSCSMRequest
 	}
 };
 
-// Step 2 of core.hud_change: apply the stat computed on the SSCSM thread
-// via read_hud_change against a scratch element onto the main-thread element.
+// Step 2 of core.hud_change: apply a stat value read on the SSCSM thread onto the main-thread element.
 struct SSCSMRequestHudChange final : public ISSCSMRequest
 {
 	struct Answer final : public ISSCSMAnswer
@@ -207,7 +206,7 @@ struct SSCSMRequestHudChange final : public ISSCSMRequest
 
 	u32 id;
 	HudElementStat stat;
-	HudElement value;
+	HudElementStatValue value;
 
 	SerializedSSCSMAnswer exec(Client *client) override
 	{
@@ -217,7 +216,7 @@ struct SSCSMRequestHudChange final : public ISSCSMRequest
 		Answer answer;
 		answer.ok = (elem != nullptr);
 		if (elem)
-			copy_hud_stat(stat, value, elem);
+			apply_hud_stat(stat, value, elem);
 		return serializeSSCSMAnswer(std::move(answer));
 	}
 };

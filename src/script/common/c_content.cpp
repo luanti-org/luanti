@@ -2493,14 +2493,22 @@ void push_hud_element(lua_State *L, HudElement *elem)
 	lua_setfield(L, -2, "hideable");
 }
 
-bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value,
-		int stat_idx, int data_idx)
+bool read_hud_stat_name(lua_State *L, HudElementStat &stat, int stat_idx)
 {
 	std::string statstr = lua_tostring(L, stat_idx);
 	if (!string_to_enum(es_HudElementStat, stat, statstr)) {
 		script_log_unique(L, "Unknown HUD stat type: " + statstr, warningstream);
 		return false;
 	}
+	return true;
+}
+
+bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value,
+		int stat_idx, int data_idx)
+{
+	if (!read_hud_stat_name(L, stat, stat_idx))
+		return false;
+	std::string statstr = lua_tostring(L, stat_idx);
 
 	switch (stat) {
 		case HUD_STAT_POS:
@@ -2573,27 +2581,40 @@ bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void 
 	return true;
 }
 
-void copy_hud_stat(HudElementStat stat, const HudElement &from, HudElement *to)
+HudElementStatValue read_hud_stat_value(lua_State *L, HudElementStat stat,
+		const std::string &statstr, HudElementType type, int data_idx)
 {
 	switch (stat) {
-		case HUD_STAT_POS:      to->pos      = from.pos;      break;
-		case HUD_STAT_NAME:     to->name     = from.name;     break;
-		case HUD_STAT_SCALE:    to->scale    = from.scale;    break;
-		case HUD_STAT_TEXT:     to->text     = from.text;     break;
-		case HUD_STAT_NUMBER:   to->number   = from.number;   break;
-		case HUD_STAT_ITEM:     to->item     = from.item;     break;
-		case HUD_STAT_DIR:      to->dir      = from.dir;      break;
-		case HUD_STAT_ALIGN:    to->align    = from.align;    break;
-		case HUD_STAT_OFFSET:   to->offset   = from.offset;   break;
-		case HUD_STAT_WORLD_POS: to->world_pos = from.world_pos; break;
-		case HUD_STAT_SIZE:     to->size     = from.size;     break;
-		case HUD_STAT_Z_INDEX:  to->z_index  = from.z_index;  break;
-		case HUD_STAT_TEXT2:    to->text2    = from.text2;    break;
-		case HUD_STAT_STYLE:    to->style    = from.style;    break;
-		case HUD_STAT_HIDEABLE: to->hideable = from.hideable; break;
+		case HUD_STAT_POS:
+		case HUD_STAT_SCALE:
+		case HUD_STAT_ALIGN:
+		case HUD_STAT_OFFSET:
+		case HUD_STAT_SIZE:
+			return read_v2f(L, data_idx);
+		case HUD_STAT_NAME:
+		case HUD_STAT_TEXT:
+		case HUD_STAT_TEXT2:
+			return std::string(luaL_checkstring(L, data_idx));
+		case HUD_STAT_NUMBER:
+		case HUD_STAT_DIR:
+		case HUD_STAT_STYLE:
+			return (u32) luaL_checknumber(L, data_idx);
+		case HUD_STAT_ITEM: {
+			u32 item = luaL_checknumber(L, data_idx);
+			if (type == HUD_ELEM_WAYPOINT && statstr == "precision")
+				item++;
+			return item;
+		}
+		case HUD_STAT_WORLD_POS:
+			return read_v3f(L, data_idx);
+		case HUD_STAT_Z_INDEX:
+			return (s16) MYMAX(S16_MIN, MYMIN(S16_MAX, luaL_checknumber(L, data_idx)));
+		case HUD_STAT_HIDEABLE:
+			return (bool) (lua_isnoneornil(L, data_idx) ? true : lua_toboolean(L, data_idx));
 		case HudElementStat_END:
 			break;
 	}
+	return {};
 }
 
 /******************************************************************************/
