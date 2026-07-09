@@ -34,7 +34,7 @@ int ModApiSSCSM::l_get_node_or_nil(lua_State *L)
 // hud_add(form)
 int ModApiSSCSM::l_hud_add(lua_State *L)
 {
-	auto request = SSCSMRequestHudAdd{};
+	SSCSMRequestHudAdd request;
 	read_hud_element(L, &request.elem, 1);
 
 	auto answer = getSSCSMEnv(L)->doRequest(std::move(request));
@@ -46,7 +46,7 @@ int ModApiSSCSM::l_hud_add(lua_State *L)
 // hud_remove(id)
 int ModApiSSCSM::l_hud_remove(lua_State *L)
 {
-	auto request = SSCSMRequestHudRemove{};
+	SSCSMRequestHudRemove request;
 	request.id = luaL_checkinteger(L, 1);
 
 	auto answer = getSSCSMEnv(L)->doRequest(std::move(request));
@@ -60,7 +60,7 @@ int ModApiSSCSM::l_hud_change(lua_State *L)
 {
 	u32 id = luaL_checkinteger(L, 1);
 
-	auto get_request = SSCSMRequestHudGet{};
+	SSCSMRequestHudGet get_request;
 	get_request.id = id;
 	auto get_answer = getSSCSMEnv(L)->doRequest(std::move(get_request));
 	if (!get_answer.found) {
@@ -77,7 +77,7 @@ int ModApiSSCSM::l_hud_change(lua_State *L)
 		return 1;
 	}
 
-	auto change_request = SSCSMRequestHudChange{};
+	SSCSMRequestHudChange change_request;
 	change_request.id = id;
 	change_request.stat = stat;
 	change_request.value = scratch;
@@ -90,7 +90,7 @@ int ModApiSSCSM::l_hud_change(lua_State *L)
 // hud_get(id)
 int ModApiSSCSM::l_hud_get(lua_State *L)
 {
-	auto request = SSCSMRequestHudGet{};
+	SSCSMRequestHudGet request;
 	request.id = luaL_checkinteger(L, 1);
 
 	auto answer = getSSCSMEnv(L)->doRequest(std::move(request));
@@ -109,10 +109,8 @@ int ModApiSSCSM::l_hud_get_all(lua_State *L)
 	auto answer = getSSCSMEnv(L)->doRequest(SSCSMRequestHudGetAll{});
 
 	lua_newtable(L);
-	for (u32 id = 0; id < answer.elems.size(); id++) {
-		if (!answer.elems[id])
-			continue;
-		push_hud_element(L, &*answer.elems[id]);
+	for (auto &[id, elem] : answer.elems) {
+		push_hud_element(L, &elem);
 		lua_rawseti(L, -2, id);
 	}
 	return 1;

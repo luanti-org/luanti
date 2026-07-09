@@ -115,7 +115,7 @@ struct SSCSMRequestHudAdd final : public ISSCSMRequest
 {
 	struct Answer final : public ISSCSMAnswer
 	{
-		u32 id;
+		u32 id = 0;
 	};
 
 	HudElement elem;
@@ -125,7 +125,7 @@ struct SSCSMRequestHudAdd final : public ISSCSMRequest
 		LocalPlayer *player = client->getEnv().getLocalPlayer();
 		u32 id = player->csm_hud.add(std::make_unique<HudElement>(std::move(elem)));
 
-		Answer answer{};
+		Answer answer;
 		answer.id = id;
 		return serializeSSCSMAnswer(std::move(answer));
 	}
@@ -136,7 +136,7 @@ struct SSCSMRequestHudRemove final : public ISSCSMRequest
 {
 	struct Answer final : public ISSCSMAnswer
 	{
-		bool ok;
+		bool ok = false;
 	};
 
 	u32 id;
@@ -145,7 +145,7 @@ struct SSCSMRequestHudRemove final : public ISSCSMRequest
 	{
 		LocalPlayer *player = client->getEnv().getLocalPlayer();
 
-		Answer answer{};
+		Answer answer;
 		answer.ok = player->csm_hud.remove(id);
 		return serializeSSCSMAnswer(std::move(answer));
 	}
@@ -156,7 +156,7 @@ struct SSCSMRequestHudGet final : public ISSCSMRequest
 {
 	struct Answer final : public ISSCSMAnswer
 	{
-		bool found;
+		bool found = false;
 		HudElement elem;
 	};
 
@@ -167,7 +167,7 @@ struct SSCSMRequestHudGet final : public ISSCSMRequest
 		LocalPlayer *player = client->getEnv().getLocalPlayer();
 		HudElement *e = player->csm_hud.get(id);
 
-		Answer answer{};
+		Answer answer;
 		answer.found = (e != nullptr);
 		if (e)
 			answer.elem = *e;
@@ -180,16 +180,18 @@ struct SSCSMRequestHudGetAll final : public ISSCSMRequest
 {
 	struct Answer final : public ISSCSMAnswer
 	{
-		std::vector<std::optional<HudElement>> elems;
+		std::vector<std::pair<u32, HudElement>> elems;
 	};
 
 	SerializedSSCSMAnswer exec(Client *client) override
 	{
 		LocalPlayer *player = client->getEnv().getLocalPlayer();
 
-		Answer answer{};
-		for (const auto &e : player->csm_hud.getElements()) {
-			answer.elems.push_back(e ? std::optional<HudElement>(*e) : std::nullopt);
+		Answer answer;
+		const auto &elements = player->csm_hud.getElements();
+		for (u32 id = 0; id < elements.size(); id++) {
+			if (elements[id])
+				answer.elems.emplace_back(id, *elements[id]);
 		}
 		return serializeSSCSMAnswer(std::move(answer));
 	}
@@ -201,7 +203,7 @@ struct SSCSMRequestHudChange final : public ISSCSMRequest
 {
 	struct Answer final : public ISSCSMAnswer
 	{
-		bool ok;
+		bool ok = false;
 	};
 
 	u32 id;
@@ -213,7 +215,7 @@ struct SSCSMRequestHudChange final : public ISSCSMRequest
 		LocalPlayer *player = client->getEnv().getLocalPlayer();
 		HudElement *elem = player->csm_hud.get(id);
 
-		Answer answer{};
+		Answer answer;
 		answer.ok = (elem != nullptr);
 		if (elem)
 			copy_hud_stat(stat, value, elem);

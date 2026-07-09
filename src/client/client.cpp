@@ -224,7 +224,7 @@ do
 end
 
 -- SSCSM hud_* round-trip self-check: add an element, read it back via
--- hud_get/hud_get_all, and change one stat, logging PASS/FAIL for each step.
+-- hud_get/hud_get_all, and change one stat.
 do
 	-- deep-compares only the keys present in `a` (extra keys in `b` are fine);
 	-- numbers use an epsilon since HudElement stores floats that don't
@@ -247,15 +247,6 @@ do
 		return true
 	end
 
-	local function fields_match(a, b)
-		for k, v in pairs(a) do
-			if not deep_equal(v, b[k]) then
-				return false, k, v, b[k]
-			end
-		end
-		return true
-	end
-
 	local form = {
 		type = "text",
 		position = {x = 0.5, y = 0.1},
@@ -263,29 +254,19 @@ do
 		number = 0xffffff,
 	}
 	local id = core.hud_add(form)
-	print(string.format("sscsm_test0: hud_add returned id=%s", tostring(id)))
 
 	local got = core.hud_get(id)
-	local ok, mismatch_key, expected, actual = fields_match(form, got or {})
-	print(string.format("sscsm_test0: hud_get round-trip %s%s",
-			ok and "PASS" or "FAIL",
-			ok and "" or (string.format(" (field: %s, expected: %s, got: %s)",
-					tostring(mismatch_key), dump(expected), dump(actual)))))
-	print(string.format("sscsm_test0: hud_get position (expected: %s, got: %s)",
-			dump(form.position), dump(got and got.position)))
+	assert(deep_equal(form, got or {}))
 
 	local all = core.hud_get_all()
-	print(string.format("sscsm_test0: hud_get_all %s (id %s present: %s)",
-			(all ~= nil) and "PASS" or "FAIL", tostring(id), tostring(all[id] ~= nil)))
+	assert(all and all[id] ~= nil)
 
 	local changed = core.hud_change(id, "text", "sscsm_test0 hud changed")
 	local got2 = core.hud_get(id)
-	print(string.format("sscsm_test0: hud_change %s (expected: %s, got: %s)",
-			(changed and got2 and got2.text == "sscsm_test0 hud changed") and "PASS" or "FAIL",
-			dump("sscsm_test0 hud changed"), dump(got2 and got2.text)))
+	assert(changed and got2 and got2.text == "sscsm_test0 hud changed")
 
 	local removed = core.hud_remove(id)
-	print(string.format("sscsm_test0: hud_remove %s", removed and "PASS" or "FAIL"))
+	assert(removed)
 
 	-- left on screen so hud_add can be visually confirmed
 	core.hud_add({
