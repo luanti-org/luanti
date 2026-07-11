@@ -2499,6 +2499,9 @@ enable_remote_media_server (Connect to external media server) [client] bool true
 #    Multiplayer Tab.
 serverlist_file (Serverlist file) [client] string favoriteservers.json
 
+#    If enabled, shows more details in the progress bar when entering a game
+main_menu_show_progress_bar_details (Show progress bar details) [client] bool false
+
 
 [*Hide: Temporary Settings] [common]
 
