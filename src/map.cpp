@@ -658,7 +658,7 @@ bool Map::determineAdditionalOcclusionCheck(const v3s16 pos_camera,
 }
 
 bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
-	float step, float stepfac, float offset, float end_offset, u32 needed_count)
+	float end_offset, u32 needed_count, bool dense)
 {
 	v3f direction = intToFloat(pos_target - pos_camera, BS);
 	float distance = direction.getLength();
@@ -667,29 +667,66 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 	if (distance > 0.0f)
 		direction /= distance;
 
-	v3f pos_origin_f = intToFloat(pos_camera, BS);
+	const v3f pos_origin_f = intToFloat(pos_camera, BS);
 	u32 count = 0;
 	bool is_valid_position;
+	/*
+	 * When the map is "dense" (when all visible blocks are loaded) we check
+	 * a few blocks close to the camera and then we can jump to a few
+	 * blocks before the target block. Either the prior blocks are loaded
+	 * in which case we check them, or they are not loaded, in which case we
+	 * assume this is because they are not visible and treat them as opaque.
+	 * (see the occlusion logic RemoteClient::getNextBlocks).
+	 * This saves a *lot* of CPU time.
+	 * The map is dense on the server, and sparse on the client (we mostly don't even send
+	 * all-air blocks for example).
+	 */
+	constexpr float DENSE_CHECK_DISTANCE = 3 * MAP_BLOCKSIZE * 1.732f * BS;
 
-	for (; offset < distance + end_offset; offset += step) {
-		v3f pos_node_f = pos_origin_f + direction * offset;
-		v3s16 pos_node = floatToInt(pos_node_f, BS);
+	// Starting offset
+	float offset = BS;
+	// Starting step size, value between 1m and sqrt(3)m
+	float step = BS * 1.2f;
+	// Multiply step by each iteration by 'stepfac' to reduce checks in distance
+	const float stepfac = 1.05f;
 
-		MapNode node = getNode(pos_node, &is_valid_position);
+	// Phase 1: Preliminary search (standard sparse mode or until dense check distance)
+	for (; offset < (dense ? DENSE_CHECK_DISTANCE : distance + end_offset); offset += step) {
+		const v3f pos_node_f = pos_origin_f + direction * offset;
+		MapNode node = getNode(floatToInt(pos_node_f, BS), &is_valid_position);
 
-		if (is_valid_position &&
-				!m_nodedef->getLightingFlags(node).light_propagates) {
-			// Cannot see through light-blocking nodes --> occluded
-			count++;
-			if (count >= needed_count)
+		// treat unloaded blocks as transparent
+		// Cannot see through light-blocking nodes --> occluded
+		if (is_valid_position && !m_nodedef->getLightingFlags(node).light_propagates) {
+			if (++count >= needed_count)
 				return true;
 		}
 		step *= stepfac;
 	}
+
+	// Phase 2: Dense near-target search
+	if (dense && offset < distance + end_offset) {
+		// Jump ahead and reset precision for the final checks
+		offset = std::max(offset, distance - DENSE_CHECK_DISTANCE);
+		step = BS * 1.2f;
+
+		for (; offset < distance + end_offset; offset += step) {
+			const v3f pos_node_f = pos_origin_f + direction * offset;
+			MapNode node = getNode(floatToInt(pos_node_f, BS), &is_valid_position);
+
+			// treat unloaded blocks as opaque
+			// Cannot see through non-existent blocks or light-blocking nodes --> occluded
+			if (!is_valid_position || !m_nodedef->getLightingFlags(node).light_propagates) {
+				// Note: ignoring needed_count should be fine here since the preliminary search is already done
+				return true;
+			}
+			step *= stepfac;
+		}
+	}
 	return false;
 }
 
-bool Map::isBlockOccluded(v3s16 pos_relative, v3s16 cam_pos_nodes, bool simple_check)
+bool Map::isBlockOccluded(v3s16 pos_relative, v3s16 cam_pos_nodes, bool dense)
 {
 	// Check occlusion for center and all 8 corners of the mapblock
 	// Overshoot a little for less flickering
@@ -708,13 +745,6 @@ bool Map::isBlockOccluded(v3s16 pos_relative, v3s16 cam_pos_nodes, bool simple_c
 
 	v3s16 pos_blockcenter = pos_relative + (MAP_BLOCKSIZE / 2);
 
-	// Starting step size, value between 1m and sqrt(3)m
-	float step = BS * 1.2f;
-	// Multiply step by each iteraction by 'stepfac' to reduce checks in distance
-	float stepfac = 1.05f;
-
-	float start_offset = BS * 1.0f;
-
 	// The occlusion search of 'isOccluded()' must stop short of the target
 	// point by distance 'end_offset' to not enter the target mapblock.
 	// For the 8 mapblock corners 'end_offset' must therefore be the maximum
@@ -727,27 +757,18 @@ bool Map::isBlockOccluded(v3s16 pos_relative, v3s16 cam_pos_nodes, bool simple_c
 	// this is a HACK, we should think of a more precise algorithm
 	u32 needed_count = 2;
 
-	// This should be only used in server occlusion cullung.
-	// The client recalculates the complete drawlist periodically,
-	// and random sampling could lead to visible flicker.
-	if (simple_check) {
-		v3s16 random_point(myrand_range(-bs2, bs2), myrand_range(-bs2, bs2), myrand_range(-bs2, bs2));
-		return isOccluded(cam_pos_nodes, pos_blockcenter + random_point, step, stepfac,
-					start_offset, end_offset, 1);
-	}
-
 	// Additional occlusion check, see comments in that function
 	v3s16 check;
 	if (determineAdditionalOcclusionCheck(cam_pos_nodes, MapBlock::getBox(pos_relative), check)) {
 		// node is always on a side facing the camera, end_offset can be lower
-		if (!isOccluded(cam_pos_nodes, check, step, stepfac, start_offset,
-				-1.0f, needed_count))
+		if (!isOccluded(cam_pos_nodes, check,
+				-1.0f, needed_count, dense))
 			return false;
 	}
 
 	for (const v3s16 &dir : dir9) {
-		if (!isOccluded(cam_pos_nodes, pos_blockcenter + dir, step, stepfac,
-				start_offset, end_offset, needed_count))
+		if (!isOccluded(cam_pos_nodes, pos_blockcenter + dir,
+				end_offset, needed_count, dense))
 			return false;
 	}
 	return true;
