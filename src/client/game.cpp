@@ -1143,7 +1143,7 @@ bool Game::getServerContent(bool *aborted)
 			return false;
 		}
 
-		auto adjust_unit = [](float &v, const char* units[2]) -> const char* {
+		auto adjust_unit = [](float &v, const char **units) -> const char* {
 			int i = 0;
 			if (v > 900) {
 				v /= 1024.0;
@@ -1180,14 +1180,16 @@ bool Game::getServerContent(bool *aborted)
 						<< " [" << recived << "/" << total <<  "]";
 
 				recived_size /= 1024.0;
-				std::string unit = adjust_unit(recived_size, (const char*[]){"KiB", "MiB"});
+				const char* units[] = {"KiB", "MiB"};
+				std::string unit = adjust_unit(recived_size, units);
 				message.precision(2);
 				message << " " << recived_size << " " << unit;
 			}
 
 			if (USE_CURL == 0 || !g_settings->getBool("enable_remote_media_server")) {
 				float cur = client->getCurRate();
-				auto cur_unit = adjust_unit(cur, (const char*[]){"KiB/s", "MiB/s"});
+				const char* units[] = {"KiB/s", "MiB/s"};
+				auto cur_unit = adjust_unit(cur, units);
 				message.precision(2);
 				message << " (" << cur << ' ' << cur_unit << ")";
 			}
