@@ -1143,6 +1143,15 @@ bool Game::getServerContent(bool *aborted)
 			return false;
 		}
 
+		auto adjust_unit = [](float &v, const char* units[2]) -> const char* {
+			int i = 0;
+			if (v > 900) {
+				v /= 1024.0;
+				i = 1;
+			}
+			return gettext(units[i]);
+		};
+
 		// Display status
 		int progress = 25;
 
@@ -1157,28 +1166,34 @@ bool Game::getServerContent(bool *aborted)
 		} else {
 			std::ostringstream message;
 			std::fixed(message);
-			message.precision(0);
-			float receive = client->mediaReceiveProgress() * 100;
 			message << gettext("Media...");
-			if (receive > 0)
-				message << " " << receive << "%";
-			message.precision(2);
+			float recived_percent = 0.f;
+			s32 recived = 0;
+			s32 total = 0;;
+			float recived_size = 0.f;
+			if (client->mediaReceiveProgress(recived, total, recived_size)) {
+				if (total > 0)
+					recived_percent = ((float) recived / total);
 
-			if ((USE_CURL == 0) ||
-					(!g_settings->getBool("enable_remote_media_server"))) {
+				message.precision(0);
+				message << " " << recived_percent * 100.f << "%"
+						<< " [" << recived << "/" << total <<  "]";
+
+				recived_size /= 1024.0;
+				std::string unit = adjust_unit(recived_size, (const char*[]){"KiB", "MiB"});
+				message.precision(2);
+				message << " " << recived_size << " " << unit;
+			}
+
+			if (USE_CURL == 0 || !g_settings->getBool("enable_remote_media_server")) {
 				float cur = client->getCurRate();
-				std::string cur_unit = gettext("KiB/s");
-
-				if (cur > 900) {
-					cur /= 1024.0;
-					cur_unit = gettext("MiB/s");
-				}
-
+				auto cur_unit = adjust_unit(cur, (const char*[]){"KiB/s", "MiB/s"});
+				message.precision(2);
 				message << " (" << cur << ' ' << cur_unit << ")";
 			}
 
 			// 30% -> 65%
-			progress = 30 + std::ceil(client->mediaReceiveProgress() * 35 + 0.5f);
+			progress = 30 + std::ceil(recived_percent * 35 + 0.5f);
 			m_rendering_engine->draw_load_screen(utf8_to_wide(message.str()), guienv,
 				texture_src, dtime, progress);
 		}
