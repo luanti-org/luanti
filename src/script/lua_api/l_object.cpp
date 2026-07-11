@@ -25,6 +25,7 @@
 #include "serverenvironment.h"
 #include "settings.h"
 #include "hud_element.h"
+#include "server/line_sao.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 #include "server/serverinventorymgr.h"
@@ -51,6 +52,16 @@ LuaEntitySAO* ObjectRef::getluaobject(ObjectRef *ref)
 	if (sao->getType() != ACTIVEOBJECT_TYPE_LUAENTITY)
 		return nullptr;
 	return (LuaEntitySAO*)sao;
+}
+
+LineSAO* ObjectRef::getlineobject(ObjectRef *ref)
+{
+	ServerActiveObject *sao = getobject(ref);
+	if (sao == nullptr)
+		return nullptr;
+	if (sao->getType() != ACTIVEOBJECT_TYPE_LINE)
+		return nullptr;
+	return (LineSAO*)sao;
 }
 
 PlayerSAO* ObjectRef::getplayersao(ObjectRef *ref)
@@ -1441,6 +1452,67 @@ int ObjectRef::l_get_luaentity(lua_State *L)
 
 	luaentity_get(L, entitysao->getId());
 	return 1;
+}
+
+/* Line-only */
+
+// get_points(self)
+int ObjectRef::l_get_points(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	LineSAO *line = getlineobject(ref);
+	if (line == nullptr)
+		return 0;
+
+	push_line_points(L, line->getPoints(), line->getEnv());
+	return 1;
+}
+
+// set_points(self, points)
+int ObjectRef::l_set_points(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	LineSAO *line = getlineobject(ref);
+	if (line == nullptr)
+		return 0;
+
+	std::vector<LinePoint> points;
+	read_line_points(L, 2, points);
+	if (points.size() < 2)
+		throw LuaError("set_points: must have at least 2 points");
+
+	line->setPoints(std::move(points));
+	return 0;
+}
+
+// get_line_properties(self)
+int ObjectRef::l_get_line_properties(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	LineSAO *line = getlineobject(ref);
+	if (line == nullptr)
+		return 0;
+
+	push_line_properties(L, line->getProperties());
+	return 1;
+}
+
+// set_line_properties(self, properties)
+int ObjectRef::l_set_line_properties(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	LineSAO *line = getlineobject(ref);
+	if (line == nullptr)
+		return 0;
+
+	LineProperties properties = line->getProperties();
+	read_line_properties(L, 2, properties);
+	line->setProperties(properties);
+	return 0;
 }
 
 /* Player-only */
@@ -3078,6 +3150,12 @@ luaL_Reg ObjectRef::methods[] = {
 	luamethod_aliased(ObjectRef, set_sprite, setsprite),
 	luamethod(ObjectRef, get_entity_name),
 	luamethod(ObjectRef, get_luaentity),
+
+	// Line-only
+	luamethod(ObjectRef, get_points),
+	luamethod(ObjectRef, set_points),
+	luamethod(ObjectRef, get_line_properties),
+	luamethod(ObjectRef, set_line_properties),
 
 	// Player-only
 	luamethod(ObjectRef, is_player),

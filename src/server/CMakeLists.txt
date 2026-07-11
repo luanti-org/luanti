@@ -6,6 +6,7 @@ set(common_server_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/ban.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/blockmodifier.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/clientiface.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/line_sao.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/luaentity_sao.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/mods.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/player_sao.cpp

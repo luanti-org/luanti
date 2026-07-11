@@ -6969,6 +6969,37 @@ Environment access
 * `core.add_item(pos, item)`: Spawn item
     * Returns `ObjectRef`, or `nil` if failed
     * Items can be added also to unloaded and non-generated blocks.
+* `core.add_line(def)`: Create a persistent server-side line, or polyline,
+  object, for visuals only - no collision, callbacks or punch/interact
+    * Returns `ObjectRef`, or `nil` if failed
+    * `def` is a table with the following fields:
+        * `points`: list of at least 2 points, each either `{pos = vector}`
+          or `{object = ObjectRef}`. Points that use `object` follow that
+          object's position.
+            * Persisted the same way any other cross-object reference would
+              be: internally by the target's GUID (see `ObjectRef:get_guid()`),
+              If the target no longer exists on reload, the point falls back
+              to its last known world position.
+        * `color`: `ColorSpec` applied to the whole line (default: white)
+        * `colors`: optional list of one `ColorSpec` per point, to
+          interpolate color along the line; overrides `color` if present
+        * `alpha_mode`: `"opaque"`, `"blend"` or `"add"` (default:`"opaque"`).
+          `"blend"` alpha-blends using `color`/`colors`' alpha;
+          `"add"` blends additively.
+        * TODO: Support '+' shaped lines (two quads) and hex-tube shaped lines
+          both of which can take an extra param of width, and can be textured
+    * A line's activation (and thus visibility and persistence) is tied to
+      the map block containing its first point. If that block isn't loaded,
+      the line won't be sent to any client, even if its other points are in
+      loaded blocks near a player.
+    * Lines are not automatically removed when whatever spawned them goes
+      away. Store a line line's`get_guid()` and look it up again later via
+      `core.objects_by_guid`, or use `core.get_objects_in_area`/
+      `core.get_objects_inside_radius`
+* `core.line_helpers.parabola_points(p1, p2, sag, segments)`: Returns a
+  list of `segments + 1` points approximating a parabola sagging between
+  `p1` and `p2` by `sag` nodes at its lowest point. Not catenary.
+   Suitable directly as `points` in `core.add_line`/`ObjectRef:set_points()`.
 * `core.get_player_by_name(name)`: Get an `ObjectRef` to a player
     * Returns nothing in case of error (player offline, doesn't exist, ...).
 * `core.get_objects_inside_radius(center, radius)`
@@ -9176,6 +9207,22 @@ You **must not** mix names and track numbers to refer to the same animation.
 * `get_entity_name()`:
     * **Deprecated**: Will be removed in a future version,
       use `:get_luaentity().name` instead.
+
+#### Line only (no-op for other objects)
+
+Objects created via `core.add_line`. Lines have no callbacks and no
+persistent Lua table (`self`) - they only carry the small set of synced
+properties below, same as any other active object.
+
+* `get_points()`: returns the current list of points, in the same format
+  as `def.points` in `core.add_line`.
+* `set_points(points)`: replaces the line's points. Must have at least 2.
+* `get_line_properties()`: returns a table with `color`, `colors` and
+  `alpha_mode`.
+    * Named `get_line_properties` (not `get_properties`) to avoid colliding
+      with the generic `ObjectRef:get_properties()` (`ObjectProperties`),
+      which is a no-op for lines.
+* `set_line_properties(props)`: updates one or more of the properties above.
 
 #### Player only (no-op for other objects)
 

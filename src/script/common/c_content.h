@@ -32,6 +32,9 @@ class Inventory;
 class InventoryList;
 class NodeDefManager;
 class ServerActiveObject;
+class ServerEnvironment;
+struct LinePoint;
+struct LineProperties;
 
 struct CollisionMoveResult;
 struct ContentFeatures;
@@ -108,6 +111,17 @@ void read_object_properties(lua_State *L, int index,
 		IItemDefManager *idef, bool fallback = false);
 
 void push_object_properties(lua_State *L, const ObjectProperties *prop);
+
+/// @param index stack index of the `points` array table
+void read_line_points(lua_State *L, int index, std::vector<LinePoint> &points);
+/// Points attached to another object are pushed as a live `ObjectRef`
+/// (resolved via `env`) if that object is currently active, otherwise as
+/// a plain `pos`, matching the fallback behavior of `LinePoint`.
+void push_line_points(lua_State *L, const std::vector<LinePoint> &points,
+		ServerEnvironment *env);
+/// @param index stack index of the def/properties table
+void read_line_properties(lua_State *L, int index, LineProperties &properties);
+void push_line_properties(lua_State *L, const LineProperties &properties);
 
 void push_inventory_list(lua_State *L, const InventoryList &invlist);
 void push_inventory_lists(lua_State *L, const Inventory &inv);
