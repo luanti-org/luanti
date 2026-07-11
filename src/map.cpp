@@ -680,7 +680,6 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 	 * This saves a *lot* of CPU time.
 	 * The map is dense on the server, and sparse on the client (we mostly don't even send
 	 * all-air blocks for example).
-	 * For a sparse map we need to check from the origin as before (cheap stays false).
 	 */
 	constexpr float DENSE_CHECK_DISTANCE = 3 * MAP_BLOCKSIZE * 1.732f * BS;
 
