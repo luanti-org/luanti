@@ -5,10 +5,12 @@
 #include "CGUITabControl.h"
 
 #include "CGUIButton.h"
+#include "IEventReceiver.h"
 #include "IGUISkin.h"
 #include "IGUIEnvironment.h"
 #include "IGUIFont.h"
 #include "IVideoDriver.h"
+#include "Keycodes.h"
 #include "rect.h"
 #include "os.h"
 
@@ -370,6 +372,16 @@ bool CGUITabControl::OnEvent(const SEvent &event)
 				}
 				break;
 			}
+			default:
+				break;
+			}
+			break;
+		case EET_GAMEPAD_BUTTON_EVENT:
+			switch (event.GamepadButtonEvent.Button) {
+			case GamepadButton::LEFT_SHOULDER:
+				break;
+			case GamepadButton::RIGHT_SHOULDER:
+				break;
 			default:
 				break;
 			}

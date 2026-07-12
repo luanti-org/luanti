@@ -4447,6 +4447,30 @@ void GUIFormSpecMenu::trySubmitClose()
 	}
 }
 
+bool GUIFormSpecMenu::switchTab(bool next)
+{
+	// Try to find a tab control among our elements
+	for (const FieldSpec &s : m_fields) {
+		if (s.ftype != f_TabHeader)
+			continue;
+
+		IGUIElement *element = getElementFromId(s.fid, true);
+		if (!element || element->getType() != gui::EGUIET_TAB_CONTROL)
+			continue;
+
+		gui::IGUITabControl *tabs = static_cast<gui::IGUITabControl *>(element);
+		s32 num_tabs = tabs->getTabCount();
+		if (num_tabs <= 1)
+			continue;
+
+		s32 active = tabs->getActiveTab();
+		active = (active + (next ? 1 : -1) + num_tabs) % num_tabs;
+		tabs->setActiveTab(active);
+		return true; // handled
+	}
+	return false;
+}
+
 bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 {
 	if (event.EventType==EET_KEY_INPUT_EVENT) {
@@ -4454,28 +4478,11 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 		// Ctrl (+ Shift) + Tab: Select the (previous or) next tab of a TabControl instance.
 		bool shift = event.KeyInput.Shift;
 		bool ctrl = event.KeyInput.Control;
-		if (event.KeyInput.PressedDown && (event.KeyInput.Key == KEY_TAB && ctrl)) {
-			// Try to find a tab control among our elements
-			for (const FieldSpec &s : m_fields) {
-				if (s.ftype != f_TabHeader)
-					continue;
-
-				IGUIElement *element = getElementFromId(s.fid, true);
-				if (!element || element->getType() != gui::EGUIET_TAB_CONTROL)
-					continue;
-
-				gui::IGUITabControl *tabs = static_cast<gui::IGUITabControl *>(element);
-				s32 num_tabs = tabs->getTabCount();
-				if (num_tabs <= 1)
-					continue;
-
-				s32 active = tabs->getActiveTab();
-				// Shift: Previous tab, No shift: Next tab
-				active = (active + (shift ? -1 : 1) + num_tabs) % num_tabs;
-				tabs->setActiveTab(active);
-				return true; // handled
-			}
+		if (event.KeyInput.PressedDown && (event.KeyInput.Key == KEY_TAB && ctrl) &&
+				switchTab(!shift)) {
+			return true; // switched tab
 		}
+
 		if (event.KeyInput.PressedDown && (
 				(kp == EscapeKey) ||
 				((m_client != NULL) && (keySettingHasMatch("keymap_inventory", kp))))) {

@@ -320,6 +320,11 @@ public:
 	static double getImgsize(v2u32 avail_screensize, double screen_dpi, double gui_scaling);
 
 protected:
+
+	/// Try to switch to a neighboring tab (right neighbor if next = true, left neighbor otherwise).
+	/// @return if the operation succeeded.
+	bool switchTab(bool next);
+
 	bool remapClickOutside(const SEvent &event) override;
 
 	v2s32 getBasePos() const
