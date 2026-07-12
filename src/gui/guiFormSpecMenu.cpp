@@ -9,6 +9,8 @@
 #include <limits>
 #include "guiFormSpecMenu.h"
 #include "EGUIElementTypes.h"
+#include "IEventReceiver.h"
+#include "Keycodes.h"
 #include "itemdef.h"
 #include "gamedef.h"
 #include "client/keycode.h"
@@ -4473,6 +4475,25 @@ bool GUIFormSpecMenu::switchTab(bool next)
 
 bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 {
+	if (event.EventType == EET_GAMEPAD_BUTTON_EVENT) {
+		const auto &gp_btn_event = event.GamepadButtonEvent;
+		if (gp_btn_event.PressedDown) {
+			switch (gp_btn_event.Button) {
+			// Tab control navigation
+			case GamepadButton::LEFT_SHOULDER:
+				if (switchTab(false))
+					return true;
+				break;
+			case GamepadButton::RIGHT_SHOULDER:
+				if (switchTab(true))
+					return true;
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
 	if (event.EventType==EET_KEY_INPUT_EVENT) {
 		KeyPress kp(event.KeyInput);
 		// Ctrl (+ Shift) + Tab: Select the (previous or) next tab of a TabControl instance.
