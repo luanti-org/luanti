@@ -11,6 +11,8 @@
 #include "EGUIElementTypes.h"
 #include "IEventReceiver.h"
 #include "Keycodes.h"
+#include "environment.h"
+#include "irrlichttypes.h"
 #include "itemdef.h"
 #include "gamedef.h"
 #include "client/keycode.h"
@@ -38,6 +40,7 @@
 #include "util/screenshot.h"
 #include "util/string.h" // for parseColorString()
 #include "irrlicht_changes/static_text.h"
+#include "irrlicht_changes/printing.h"
 #include "guiAnimatedImage.h"
 #include "guiBackgroundImage.h"
 #include "guiBox.h"
@@ -4473,6 +4476,86 @@ bool GUIFormSpecMenu::switchTab(bool next)
 	return false;
 }
 
+void GUIFormSpecMenu::switchFocus(s32 v2s32::* axis, s32 v2s32::* ortho_axis, s8 sign)
+{
+	const auto *focus = Environment->getFocus();
+	v2s32 focus_minp, focus_maxp;
+	if (focus) {
+		const auto focus_rect = focus->getAbsoluteClippingRect();
+		focus_minp = focus_rect.UpperLeftCorner;
+		focus_maxp = focus_rect.LowerRightCorner;
+	} else {
+		focus_minp.*axis = sign * (1 << 30);
+		focus_maxp.*axis = sign * (1 << 30);
+		focus_minp.*ortho_axis = S32_MIN;
+		focus_maxp.*ortho_axis = S32_MAX;
+	}
+
+	struct Candidate
+	{
+		IGUIElement *element = nullptr;
+		s32 axis_offset = 0;
+		s32 ortho_offset = 0;
+
+		bool proper() const
+		{
+			return ortho_offset == 0 && axis_offset >= 0;
+		}
+
+		bool beats(Candidate other) const
+		{
+			if ((element == nullptr) != (other.element == nullptr))
+				return element != nullptr;
+			// One candidate is in the same row, the other is not
+			if (proper() != other.proper())
+				return proper();
+			if (proper() && other.proper())
+				return axis_offset < other.axis_offset;
+			if ((ortho_offset > 0) != (other.ortho_offset > 0))
+				return ortho_offset > 0;
+			if (ortho_offset == other.ortho_offset)
+				return axis_offset < other.axis_offset;
+			return ortho_offset < other.ortho_offset; // wrap around
+		}
+	};
+
+	Candidate best_candidate;
+
+	visitDescendants([&](IGUIElement *elem) -> bool {
+		if (elem == focus)
+			return false;
+		if (elem->isTabStop() && elem->isEnabled() && elem->isVisible()) {
+			const auto rect = elem->getAbsoluteClippingRect();
+			const auto minp = rect.UpperLeftCorner;
+			const auto maxp = rect.LowerRightCorner;
+
+			Candidate candidate;
+			candidate.element = elem;
+
+			if ((candidate.ortho_offset = maxp.*ortho_axis - focus_minp.*ortho_axis) < 0) {
+			} else if ((candidate.ortho_offset = minp.*ortho_axis - focus_maxp.*ortho_axis) > 0) {
+			} else {
+				candidate.ortho_offset = 0;
+			}
+			candidate.ortho_offset *= sign;
+
+			if (sign > 0) {
+				candidate.axis_offset = minp.*axis - focus_maxp.*axis;
+			} else {
+				candidate.axis_offset = focus_minp.*axis - maxp.*axis;
+			}
+			if (candidate.beats(best_candidate)) {
+				best_candidate = candidate;
+				return false;
+			}
+		}
+		return true;
+	});
+
+	if (best_candidate.element)
+		Environment->setFocus(best_candidate.element);
+}
+
 bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 {
 	if (event.EventType == EET_GAMEPAD_BUTTON_EVENT) {
@@ -4488,6 +4571,18 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 				if (switchTab(true))
 					return true;
 				break;
+			case GamepadButton::DPAD_RIGHT:
+				switchFocus(&v2s32::X, &v2s32::Y, 1);
+				return true;
+			case GamepadButton::DPAD_LEFT:
+				switchFocus(&v2s32::X, &v2s32::Y, -1);
+				return true;
+			case GamepadButton::DPAD_DOWN:
+				switchFocus(&v2s32::Y, &v2s32::X, 1);
+				return true;
+			case GamepadButton::DPAD_UP:
+				switchFocus(&v2s32::Y, &v2s32::X, -1);
+				return true;
 			default:
 				break;
 			}

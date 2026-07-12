@@ -325,6 +325,9 @@ protected:
 	/// @return if the operation succeeded.
 	bool switchTab(bool next);
 
+	/// Try to switch focus in the given direction
+	void switchFocus(s32 v2s32::* axis, s32 v2s32::* ortho_axis, s8 sign);
+
 	bool remapClickOutside(const SEvent &event) override;
 
 	v2s32 getBasePos() const
