@@ -573,7 +573,10 @@ void CNullDriver::drawVertexPrimitiveList(const void *vertices, u32 vertexCount,
 }
 
 //! draws a vertex primitive list in 2d
-void CNullDriver::draw2DVertexPrimitiveList(const void *vertices, u32 vertexCount, const void *indexList, u32 primitiveCount, E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType)
+void CNullDriver::draw2DVertexPrimitiveList(const void *vertices, u32 vertexCount,
+		const void *indexList, u32 primitiveCount,
+		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType,
+		const core::rect<s32> *clipRect)
 {
 	if ((iType == EIT_16BIT) && (vertexCount > 65536))
 		os::Printer::log("Too many vertices for 16bit index type, render artifacts may occur.");
