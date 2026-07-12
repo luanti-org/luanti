@@ -4583,6 +4583,9 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 			case GamepadButton::DPAD_UP:
 				switchFocus(&v2s32::Y, &v2s32::X, -1);
 				return true;
+			case GamepadButton::EAST:
+				tryClose();
+				return true;
 			default:
 				break;
 			}
