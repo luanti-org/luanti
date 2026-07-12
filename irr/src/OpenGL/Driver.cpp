@@ -689,7 +689,8 @@ void COpenGL3DriverBase::drawVertexPrimitiveList(const void *vertices, u32 verte
 //! draws a vertex primitive list in 2d
 void COpenGL3DriverBase::draw2DVertexPrimitiveList(const void *vertices, u32 vertexCount,
 		const void *indexList, u32 primitiveCount,
-		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType)
+		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType,
+		const core::rect<s32> *clipRect)
 {
 	if (!primitiveCount || !vertexCount)
 		return;
@@ -700,6 +701,9 @@ void COpenGL3DriverBase::draw2DVertexPrimitiveList(const void *vertices, u32 ver
 	if (!checkPrimitiveCount(primitiveCount))
 		return;
 
+	if (clipRect && !clipRect->isValid())
+		return;
+
 	CNullDriver::draw2DVertexPrimitiveList(vertices, vertexCount, indexList, primitiveCount, vType, pType, iType);
 
 	setRenderStates2DMode(
@@ -708,7 +712,21 @@ void COpenGL3DriverBase::draw2DVertexPrimitiveList(const void *vertices, u32 ver
 		Material.MaterialType == EMT_TRANSPARENT_ALPHA_CHANNEL
 	);
 
+	if (clipRect) {
+		const core::dimension2d<u32> &targetSize = getCurrentRenderTargetSize();
+
+		GL.Enable(GL_SCISSOR_TEST);
+		GL.Scissor(
+			clipRect->UpperLeftCorner.X, targetSize.Height - clipRect->LowerRightCorner.Y,
+			clipRect->getWidth(), clipRect->getHeight()
+		);
+	}
+
 	drawGeneric(vertices, indexList, primitiveCount, vType, pType, iType);
+
+	if (clipRect)
+		GL.Disable(GL_SCISSOR_TEST);
+	TEST_GL_ERROR(this);
 }
 
 void COpenGL3DriverBase::draw2DImage(const video::ITexture *texture, const core::position2d<s32> &destPos,
