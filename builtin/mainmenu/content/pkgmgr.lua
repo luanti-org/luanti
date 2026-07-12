@@ -743,8 +743,6 @@ function pkgmgr.reload_global_mods()
 	end
 	pkgmgr.global_mods = filterlist.create(pkgmgr.preparemodlist,
 			pkgmgr.comparemod, is_equal, nil, {})
-	pkgmgr.global_mods:add_sort_mechanism("alphabetic", sort_mod_list)
-	pkgmgr.global_mods:set_sortmode("alphabetic")
 end
 
 --------------------------------------------------------------------------------

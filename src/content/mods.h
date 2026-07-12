@@ -6,13 +6,19 @@
 
 #include <vector>
 #include <string>
-#include <map>
+#include <set>
 #include <unordered_set>
 #include "metadata.h"
 
 class ModStorageDatabase;
+struct ModSpec;
 
 #define MODNAME_ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyz0123456789_"
+
+struct ModSpecSorter {
+	bool operator()(const ModSpec &a, const ModSpec &b) const;
+};
+using ModSpecList = std::set<ModSpec, ModSpecSorter>;
 
 struct ModSpec
 {
@@ -53,7 +59,7 @@ struct ModSpec
 	std::vector<const char *> deprecation_msgs;
 
 	// if modpack:
-	std::map<std::string, ModSpec> modpack_content;
+	ModSpecList modpack_content;
 
 	ModSpec()
 	{
@@ -80,14 +86,14 @@ struct ModSpec
  * @param Path to search, should be absolute
  * @param modpack_depth If > 0: Is this searching within a modpack
  * @param virtual_path Virtual path for this directory, see comment in ModSpec
- * @returns map of mods
+ * @returns list of mods, sorted by name
  */
-std::map<std::string, ModSpec> getModsInPath(const std::string &path,
+ModSpecList getModsInPath(const std::string &path,
 		const std::string &virtual_path, int modpack_depth = 0);
 
 // replaces modpack Modspecs with their content
-std::vector<ModSpec> flattenMods(const std::map<std::string, ModSpec> &mods,
-		bool discard_modpacks = true);
+std::vector<ModSpec> flattenMods(const ModSpecList &mods,
+		bool discard_modpacks);
 
 
 class ModStorage : public IMetadata
