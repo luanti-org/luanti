@@ -4339,6 +4339,21 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 
 	// Handle keyboard and touch input to show/hide focus outline
 	switch (event.EventType) {
+	case EET_GAMEPAD_BUTTON_EVENT:
+		switch (event.GamepadButtonEvent.Button) {
+		case GamepadButton::DPAD_RIGHT:
+		case GamepadButton::DPAD_LEFT:
+		case GamepadButton::DPAD_UP:
+		case GamepadButton::DPAD_DOWN:
+			if (event.GamepadButtonEvent.PressedDown) {
+				m_show_focus = true;
+				m_last_focused = nullptr;
+			}
+			break;
+		default:
+			break;
+		}
+		break;
 	case EET_KEY_INPUT_EVENT:
 		if (event.KeyInput.PressedDown && event.KeyInput.Key == KEY_TAB &&
 				!event.KeyInput.Control) {
