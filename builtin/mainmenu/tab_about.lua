@@ -83,8 +83,8 @@ return {
 		hypertext = table.concat(hypertext):sub(1, -2)
 
 		local fs = "image[1.5,0.6;2.5,2.5;" .. core.formspec_escape(logofile) .. "]" ..
-			"style[label_button;border=false]" ..
-			"button[0.1,3.4;5.3,0.5;label_button;" ..
+			"style_type[label;valign=center;halign=center]" ..
+			"label[0.1,3.4;5.3,0.5;" ..
 			core.formspec_escape(version.project .. " " .. version.string) .. "]" ..
 			"button_url[1.5,4.1;2.5,0.8;homepage;luanti.org;https://www.luanti.org/]"
 
@@ -99,9 +99,8 @@ return {
 
 		local active_renderer_info = fgettext("Active renderer:") .. "\n" ..
 			core.formspec_escape(get_renderer_info())
-		fs = fs .. "style[label_button2;border=false]" ..
-			"button[0.1,6;5.3,1;label_button2;" .. active_renderer_info .. "]"..
-			"tooltip[label_button2;" .. active_renderer_info .. "]" ..
+		fs = fs .. "style_type[textarea;valign=center]" ..
+			"textarea[0.1,6;5.7,1;;" .. active_renderer_info .. ";]" ..
 			"hypertext[5.5,0.25;9.75,6.6;credits;" .. core.formspec_escape(hypertext) .. "]"
 
 		return fs
