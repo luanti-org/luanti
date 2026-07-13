@@ -26,6 +26,7 @@ uniform float crackTextureScale;
 uniform vec3 dynLightPos[MAX_DYNAMIC_LIGHTS];
 uniform vec3 dynLightColor[MAX_DYNAMIC_LIGHTS];
 uniform float dynLightRadius[MAX_DYNAMIC_LIGHTS];
+uniform float dynLightFalloff[MAX_DYNAMIC_LIGHTS];
 uniform int dynLightCount;
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
@@ -440,7 +441,7 @@ vec3 applyDynamicLights(vec3 worldPos, vec3 base_color)
 	for (int i = 0; i < dynLightCount; i++) {
 		float dist = length(worldPos - dynLightPos[i]);
 		float t = clamp(1.0 - (dist * dist) / (dynLightRadius[i] * dynLightRadius[i]), 0.0, 1.0);
-		float brighten = t * t;
+		float brighten = pow(t, dynLightFalloff[i]);
 		// Tighter falloff than brighten - hue shift is only strong close to the light.
 		float colorize = brighten * brighten;
 

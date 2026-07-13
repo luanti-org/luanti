@@ -19,13 +19,16 @@ struct DynamicLight
 	v3f pos;
 	float radius = 0.0f;
 	video::SColorf color;
+	// Exponent shaping the radial falloff curve, brighten = t^falloff.
+	// Higher values keep the light near-full-strength longer before dropping off.
+	float falloff = 2.0f;
 };
 
 // Client-side, purely additive point lights on top of the real baked lighting
 class DynamicLightManager
 {
 public:
-	void addOrUpdate(u32 id, v3f pos, float radius, video::SColorf color);
+	void addOrUpdate(u32 id, v3f pos, float radius, video::SColorf color, float falloff = 2.0f);
 	void remove(u32 id);
 
 	// Selects the nearest MAX_DYNAMIC_LIGHTS lights intersecting the frustum out of the full pool

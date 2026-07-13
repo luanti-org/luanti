@@ -5,13 +5,14 @@
 #include "camera.h"
 #include <algorithm>
 
-void DynamicLightManager::addOrUpdate(u32 id, v3f pos, float radius, video::SColorf color)
+void DynamicLightManager::addOrUpdate(u32 id, v3f pos, float radius, video::SColorf color, float falloff)
 {
 	DynamicLight &light = m_lights[id];
 	light.id = id;
 	light.pos = pos;
 	light.radius = radius;
 	light.color = color;
+	light.falloff = falloff;
 }
 
 void DynamicLightManager::remove(u32 id)

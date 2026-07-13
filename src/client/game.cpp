@@ -312,6 +312,7 @@ class DynamicLightUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float, MAX_DYNAMIC_LIGHTS * 3> m_positions{"dynLightPos"};
 	CachedPixelShaderSetting<float, MAX_DYNAMIC_LIGHTS * 3> m_colors{"dynLightColor"};
 	CachedPixelShaderSetting<float, MAX_DYNAMIC_LIGHTS> m_radii{"dynLightRadius"};
+	CachedPixelShaderSetting<float, MAX_DYNAMIC_LIGHTS> m_falloffs{"dynLightFalloff"};
 	CachedPixelShaderSetting<s32> m_count{"dynLightCount"};
 
 public:
@@ -326,6 +327,7 @@ public:
 		float positions[MAX_DYNAMIC_LIGHTS * 3] = {};
 		float colors[MAX_DYNAMIC_LIGHTS * 3] = {};
 		float radii[MAX_DYNAMIC_LIGHTS] = {};
+		float falloffs[MAX_DYNAMIC_LIGHTS] = {};
 		s32 count = 0;
 
 		for (const DynamicLight &light : m_client->getDynamicLightManager()->getVisibleLights()) {
@@ -337,12 +339,14 @@ public:
 			colors[count * 3 + 1] = light.color.g;
 			colors[count * 3 + 2] = light.color.b;
 			radii[count] = light.radius;
+			falloffs[count] = light.falloff;
 			count++;
 		}
 
 		m_positions.set(positions, services);
 		m_colors.set(colors, services);
 		m_radii.set(radii, services);
+		m_falloffs.set(falloffs, services);
 		m_count.set(&count, services);
 	}
 };
@@ -3544,7 +3548,7 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 	// Remove once there's a real way to spawn one.
 	client->getDynamicLightManager()->addOrUpdate(
 			1, player->getPosition() + v3f(0.0f, BS, 0.0f),
-			8.0f * BS, video::SColorf(1.0f, 0.6f, 0.2f));
+			8.0f * BS, video::SColorf(1.0f, 0.6f, 0.2f), 2.0f);
 	client->getDynamicLightManager()->cull(*camera);
 
 	/*
