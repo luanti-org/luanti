@@ -305,6 +305,65 @@ public:
 	}
 };
 
+class DynamicLightUniformSetter : public IShaderUniformSetter
+{
+	Client *m_client;
+
+	CachedPixelShaderSetting<float, MAX_DYNAMIC_LIGHTS * 3> m_positions{"dynLightPos"};
+	CachedPixelShaderSetting<float, MAX_DYNAMIC_LIGHTS * 3> m_colors{"dynLightColor"};
+	CachedPixelShaderSetting<float, MAX_DYNAMIC_LIGHTS> m_radii{"dynLightRadius"};
+	CachedPixelShaderSetting<s32> m_count{"dynLightCount"};
+
+public:
+	DynamicLightUniformSetter(Client *client) :
+		m_client(client)
+	{}
+
+	void onSetUniforms(video::IMaterialRendererServices *services) override
+	{
+		v3f cam_offset = intToFloat(m_client->getCamera()->getOffset(), BS);
+
+		float positions[MAX_DYNAMIC_LIGHTS * 3] = {};
+		float colors[MAX_DYNAMIC_LIGHTS * 3] = {};
+		float radii[MAX_DYNAMIC_LIGHTS] = {};
+		s32 count = 0;
+
+		for (const DynamicLight &light : m_client->getDynamicLightManager()->getVisibleLights()) {
+			v3f rel_pos = light.pos - cam_offset;
+			positions[count * 3 + 0] = rel_pos.X;
+			positions[count * 3 + 1] = rel_pos.Y;
+			positions[count * 3 + 2] = rel_pos.Z;
+			colors[count * 3 + 0] = light.color.r;
+			colors[count * 3 + 1] = light.color.g;
+			colors[count * 3 + 2] = light.color.b;
+			radii[count] = light.radius;
+			count++;
+		}
+
+		m_positions.set(positions, services);
+		m_colors.set(colors, services);
+		m_radii.set(radii, services);
+		m_count.set(&count, services);
+	}
+};
+
+class DynamicLightUniformSetterFactory : public IShaderUniformSetterFactory
+{
+	Game *m_game;
+
+public:
+	DynamicLightUniformSetterFactory(Game *game) :
+		m_game(game)
+	{}
+
+	virtual IShaderUniformSetter *create(const std::string &name)
+	{
+		if (str_starts_with(name, "shadow/"))
+			return nullptr;
+		return new DynamicLightUniformSetter(m_game->getClient());
+	}
+};
+
 class NodeShaderConstantSetter : public IShaderConstantSetter
 {
 public:
@@ -874,6 +933,9 @@ bool Game::createClient(const GameStartData &start_data)
 
 	shader_src->addShaderUniformSetterFactory(
 		std::make_unique<FogShaderUniformSetterFactory>());
+
+	shader_src->addShaderUniformSetterFactory(
+		std::make_unique<DynamicLightUniformSetterFactory>(this));
 
 	ShadowRenderer::preInit(shader_src);
 
@@ -3473,6 +3535,17 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 		Update particles
 	*/
 	client->getParticleManager()->step(dtime);
+
+	/*
+		Update dynamic lights
+	*/
+	// TEMPORARY test hack: a light that follows the player, to validate
+	// the dynamic-light shader path before LightSAO/LightCAO exist.
+	// Remove once there's a real way to spawn one.
+	client->getDynamicLightManager()->addOrUpdate(
+			1, player->getPosition() + v3f(0.0f, BS, 0.0f),
+			8.0f * BS, video::SColorf(1.0f, 0.6f, 0.2f));
+	client->getDynamicLightManager()->cull(*camera);
 
 	/*
 		Damage camera tilt

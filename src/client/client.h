@@ -5,6 +5,7 @@
 #pragma once
 
 #include "clientenvironment.h"
+#include "dynamiclight.h"
 #include "gamedef.h"
 #include "gameparams.h" // ELoginRegister
 #include "inventorymanager.h"
@@ -376,7 +377,7 @@ public:
 	virtual ISoundManager* getSoundManager();
 	MtEventManager* getEventManager();
 	virtual ParticleManager* getParticleManager();
-
+	DynamicLightManager* getDynamicLightManager();
 	bool checkLocalPrivilege(const std::string &priv)
 	{ return checkPrivilege(priv); }
 
@@ -508,6 +509,7 @@ private:
 	std::unique_ptr<MeshUpdateManager> m_mesh_update_manager;
 	ClientEnvironment m_env;
 	std::unique_ptr<ParticleManager> m_particle_manager;
+	std::unique_ptr<DynamicLightManager> m_dynamic_light_manager;
 	std::unique_ptr<con::IConnection> m_con;
 	std::string m_address_name;
 	ELoginRegister m_allow_login_or_register = ELoginRegister::Any;

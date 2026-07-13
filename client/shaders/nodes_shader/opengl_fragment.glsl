@@ -19,6 +19,15 @@ uniform float crackAnimationLength;
 uniform float crackLevel;
 uniform float crackTextureScale;
 
+// Must match MAX_DYNAMIC_LIGHTS in src/client/dynamiclight.h.
+#define MAX_DYNAMIC_LIGHTS 8
+// Client-side movable point lights, purely additive, unoccluded.
+// dynLightPos is already relative to cameraOffset, see worldPosition below.
+uniform vec3 dynLightPos[MAX_DYNAMIC_LIGHTS];
+uniform vec3 dynLightColor[MAX_DYNAMIC_LIGHTS];
+uniform float dynLightRadius[MAX_DYNAMIC_LIGHTS];
+uniform int dynLightCount;
+
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// shadow texture
 	uniform sampler2D ShadowMapSampler;
@@ -425,6 +434,27 @@ float getShadow(sampler2D shadowsampler, vec2 smTexCoord, float realDistance)
 #endif
 #endif
 
+vec3 applyDynamicLights(vec3 worldPos, vec3 base_color)
+{
+	vec3 result = base_color;
+	for (int i = 0; i < dynLightCount; i++) {
+		float dist = length(worldPos - dynLightPos[i]);
+		float t = clamp(1.0 - (dist * dist) / (dynLightRadius[i] * dynLightRadius[i]), 0.0, 1.0);
+		float brighten = t * t;
+		// Tighter falloff than brighten - hue shift is only strong close to the light.
+		float colorize = brighten * brighten;
+
+		float luminance = dot(dynLightColor[i], vec3(0.299, 0.587, 0.114));
+		// Brighten toward white using luminance only, so the surface's own
+		// hue is preserved as a screen blend, scaled by remaining headroom.
+		result += (1.0 - result) * (luminance * brighten);
+		// Nudge hue toward the light's color, weighted down and only near it.
+		vec3 hue = dynLightColor[i] / max(luminance, 1e-4);
+		result = mix(result, result * hue, colorize * 0.35);
+	}
+	return clamp(result, 0.0, 1.0);
+}
+
 // maps [0, N] to [0, 1] like GL_REPEAT would
 vec2 uv_repeat(vec2 v)
 {
@@ -467,7 +497,10 @@ void main(void)
 		base = mix(base, crack, crack.a);
 	}
 
-	vec4 col = vec4(base.rgb * varColor.rgb, 1.0);
+	// Applied to the light term itself, before the texture multiply, so a
+	// fully dark node still shows its texture instead of flat black.
+	vec3 lit_color = applyDynamicLights(worldPosition, varColor.rgb);
+	vec4 col = vec4(base.rgb * lit_color, 1.0);
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// Fragment normal, can differ from vNormal which is derived from vertex normals.

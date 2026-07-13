@@ -153,6 +153,7 @@ Client::Client(
 		tsrc, this
 	),
 	m_particle_manager(std::make_unique<ParticleManager>(&m_env)),
+	m_dynamic_light_manager(std::make_unique<DynamicLightManager>()),
 	m_allow_login_or_register(allow_login_or_register),
 	m_server_ser_ver(SER_FMT_VER_INVALID),
 	m_last_chat_message_sent(time(NULL)),
@@ -2060,6 +2061,11 @@ MtEventManager* Client::getEventManager()
 ParticleManager* Client::getParticleManager()
 {
 	return m_particle_manager.get();
+}
+
+DynamicLightManager* Client::getDynamicLightManager()
+{
+	return m_dynamic_light_manager.get();
 }
 
 scene::IAnimatedMesh *Client::getMesh(const std::string &filename, bool *is_shared)

@@ -12,6 +12,15 @@ uniform float fogShadingParameter;
 // The cameraOffset is the current center of the visible world.
 uniform highp vec3 cameraOffset;
 uniform float animationTimer;
+
+// Must match MAX_DYNAMIC_LIGHTS in src/client/dynamiclight.h.
+#define MAX_DYNAMIC_LIGHTS 8
+// Client-side movable point lights, purely additive, unoccluded.
+// dynLightPos is already relative to cameraOffset, see worldPosition below.
+uniform vec3 dynLightPos[MAX_DYNAMIC_LIGHTS];
+uniform vec3 dynLightColor[MAX_DYNAMIC_LIGHTS];
+uniform float dynLightRadius[MAX_DYNAMIC_LIGHTS];
+uniform int dynLightCount;
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// shadow texture
 	uniform sampler2D ShadowMapSampler;
@@ -365,6 +374,27 @@ float getShadow(sampler2D shadowsampler, vec2 smTexCoord, float realDistance)
 #endif
 
 
+vec3 applyDynamicLights(vec3 worldPos, vec3 base_color)
+{
+	vec3 result = base_color;
+	for (int i = 0; i < dynLightCount; i++) {
+		float dist = length(worldPos - dynLightPos[i]);
+		float t = clamp(1.0 - (dist * dist) / (dynLightRadius[i] * dynLightRadius[i]), 0.0, 1.0);
+		float brighten = t * t;
+		// Tighter falloff than brighten - hue shift is only strong close to the light.
+		float colorize = brighten * brighten;
+
+		float luminance = dot(dynLightColor[i], vec3(0.299, 0.587, 0.114));
+		// Brighten toward white using luminance only, so the surface's own
+		// hue is preserved as a screen blend, scaled by remaining headroom.
+		result += (1.0 - result) * (luminance * brighten);
+		// Nudge hue toward the light's color, weighted down and only near it.
+		vec3 hue = dynLightColor[i] / max(luminance, 1e-4);
+		result = mix(result, result * hue, colorize * 0.35);
+	}
+	return clamp(result, 0.0, 1.0);
+}
+
 void main(void)
 {
 	vec2 uv = varTexCoord.st;
@@ -385,7 +415,10 @@ void main(void)
 		discard;
 #endif
 
-	vec4 col = vec4(base.rgb * varColor.rgb, 1.0);
+	// Applied to the light term itself, before the texture multiply, so a
+	// fully dark object still shows its texture instead of flat black.
+	vec3 lit_color = applyDynamicLights(worldPosition, varColor.rgb);
+	vec4 col = vec4(base.rgb * lit_color, 1.0);
 	col.rgb *= vIDiff;
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
