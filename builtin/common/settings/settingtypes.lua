@@ -44,7 +44,7 @@ local function flags_to_table(flags)
 end
 
 -- returns error message, or nil
-local function parse_setting_line(settings, line, read_all, base_level, allow_secure, force_context)
+local function parse_setting_line(settings, line, source, read_all, base_level, allow_secure, force_context)
 
 	-- strip carriage returns (CR, /r)
 	line = line:gsub("\r", "")
@@ -114,6 +114,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			name = category,
 			level = category_level,
 			type = "category",
+			source = source,
 		})
 		return
 	end
@@ -220,6 +221,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			readable_name = readable_name,
 			type = "int",
 			default = default,
+			source = source,
 			min = min,
 			max = max,
 			requires = requires,
@@ -246,6 +248,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			readable_name = readable_name,
 			type = setting_type,
 			default = default,
+			source = source,
 			requires = requires,
 			context = context,
 			comment = comment,
@@ -298,6 +301,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 				lacunarity = values[9],
 				flags = values[10]
 			},
+			source = source,
 			values = values,
 			requires = requires,
 			context = context,
@@ -318,6 +322,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			readable_name = readable_name,
 			type = "bool",
 			default = remaining_line,
+			source = source,
 			requires = requires,
 			context = context,
 			comment = comment,
@@ -344,6 +349,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			readable_name = readable_name,
 			type = "float",
 			default = default,
+			source = source,
 			min = min,
 			max = max,
 			requires = requires,
@@ -369,6 +375,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			readable_name = readable_name,
 			type = "enum",
 			default = default,
+			source = source,
 			values = values:split(",", true),
 			requires = requires,
 			context = context,
@@ -389,6 +396,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			readable_name = readable_name,
 			type = setting_type,
 			default = default,
+			source = source,
 			requires = requires,
 			context = context,
 			comment = comment,
@@ -419,6 +427,7 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 			readable_name = readable_name,
 			type = "flags",
 			default = default,
+			source = source,
 			possible = flags_to_table(possible),
 			requires = requires,
 			context = context,
@@ -430,14 +439,14 @@ local function parse_setting_line(settings, line, read_all, base_level, allow_se
 	return "Invalid setting type \"" .. setting_type .. "\""
 end
 
-local function parse_single_file(file, filepath, read_all, result, base_level, allow_secure, force_context)
+local function parse_single_file(file, filepath, source, read_all, result, base_level, allow_secure, force_context)
 	-- store this helper variable in the table so it's easier to pass to parse_setting_line()
 	result.current_comment = {}
 	result.current_hide_level = nil
 
 	local line = file:read("*line")
 	while line do
-		local error_msg = parse_setting_line(result, line, read_all, base_level, allow_secure, force_context)
+		local error_msg = parse_setting_line(result, line, source, read_all, base_level, allow_secure, force_context)
 		if error_msg then
 			core.log("error", error_msg .. " in " .. filepath .. " \"" .. line .. "\"")
 		end
@@ -464,7 +473,7 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 			return settings
 		end
 
-		parse_single_file(file, builtin_path, read_all, settings, 0, true)
+		parse_single_file(file, builtin_path, nil, read_all, settings, 0, true)
 
 		file:close()
 	end
@@ -494,14 +503,16 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 					games_category_initialized = true
 				end
 
+				local source = core.get_content_info(game.path)
 				table.insert(settings, {
 					name = game.path,
 					readable_name = game.title,
 					level = 1,
 					type = "category",
+					source = source,
 				})
 
-				parse_single_file(file, path, read_all, settings, 2, false, "server")
+				parse_single_file(file, path, source, read_all, settings, 2, false, "server")
 
 				file:close()
 			end
@@ -527,14 +538,16 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 					mods_category_initialized = true
 				end
 
+				local source = core.get_content_info(mod.path)
 				table.insert(settings, {
 					name = mod.path,
 					readable_name = mod.title or mod.name,
 					level = 1,
 					type = "category",
+					source = source,
 				})
 
-				parse_single_file(file, path, read_all, settings, 2, false, "server")
+				parse_single_file(file, path, source, read_all, settings, 2, false, "server")
 
 				file:close()
 			end
@@ -565,7 +578,7 @@ function settingtypes.parse_config_file(read_all, parse_mods)
 					type = "category",
 				})
 
-				parse_single_file(file, path, read_all, settings, 2, false, "client")
+				parse_single_file(file, path, nil, read_all, settings, 2, false, "client")
 
 				file:close()
 			end
