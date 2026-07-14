@@ -710,6 +710,7 @@ if(BUILD_CLIENT)
 	target_link_libraries(
 		${PROJECT_NAME}
 		${ZLIB_LIBRARIES}
+		libzip::zip
 		IrrlichtMt::IrrlichtMt
 		${ZSTD_LIBRARY}
 		${SOUND_LIBRARIES}

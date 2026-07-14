@@ -8,7 +8,7 @@
 Install dependencies with homebrew:
 
 ```
-brew install cmake freetype gettext gmp hiredis jpeg-turbo jsoncpp leveldb libogg libpng libvorbis luajit zstd gettext sdl2 openal-soft
+brew install cmake freetype gettext gmp hiredis jpeg-turbo jsoncpp leveldb libogg libpng libvorbis luajit zstd gettext sdl2 openal-soft libzip
 ```
 
 ## Download
@@ -71,12 +71,13 @@ cmake .. \
     -DZSTD_LIBRARY=/path/to/lib/dir/libzstd.a \
     -DGMP_LIBRARY=/path/to/lib/dir/libgmp.a \
     -DJSON_LIBRARY=/path/to/lib/dir/libjsoncpp.a \
+    -DENABLE_SYSTEM_LIBZIP=TRUE \
     -DENABLE_LEVELDB=OFF \
     -DENABLE_POSTGRESQL=OFF \
     -DENABLE_REDIS=OFF \
     -DJPEG_LIBRARY=/path/to/lib/dir/libjpeg.a \
     -DPNG_LIBRARY=/path/to/lib/dir/libpng.a \
-    -DCMAKE_EXE_LINKER_FLAGS=-lbz2\
+    -DCMAKE_EXE_LINKER_FLAGS=-lbz2 \
     -GXcode
 ```
 

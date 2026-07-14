@@ -37,6 +37,7 @@ jobs:
         run: |
           if git ls-files |\
             grep -E '\.txt$|\.md$|\.[ch]$|\.cpp$|\.hpp$|\.sh$|\.cmake$|\.glsl$' |\
+            grep -v '^lib/libzip/' |\
             xargs grep -n '\s$';\
           then\
             echo -e "\033[0;31mFound trailing whitespace";\
