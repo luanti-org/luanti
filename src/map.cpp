@@ -667,6 +667,9 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 	if (distance > 0.0f)
 		direction /= distance;
 
+	// adjust for end offset
+	distance += end_offset;
+
 	const v3f pos_origin_f = intToFloat(pos_camera, BS);
 	u32 count = 0;
 	bool is_valid_position;
@@ -681,7 +684,7 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 	 * The map is dense on the server, and sparse on the client (we mostly don't even send
 	 * all-air blocks for example).
 	 */
-	constexpr float DENSE_CHECK_DISTANCE = 3 * MAP_BLOCKSIZE * 1.732f * BS;
+	constexpr float DENSE_CHECK_DISTANCE = 2 * MAP_BLOCKSIZE * 1.732f * BS;
 
 	// Starting offset
 	float offset = BS;
@@ -691,7 +694,7 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 	const float stepfac = 1.05f;
 
 	// Phase 1: Preliminary search (standard sparse mode or until dense check distance)
-	for (; offset < (dense ? DENSE_CHECK_DISTANCE : distance + end_offset); offset += step) {
+	for (; offset < (dense ? DENSE_CHECK_DISTANCE : distance); offset += step) {
 		const v3f pos_node_f = pos_origin_f + direction * offset;
 		MapNode node = getNode(floatToInt(pos_node_f, BS), &is_valid_position);
 
@@ -705,12 +708,12 @@ bool Map::isOccluded(const v3s16 pos_camera, const v3s16 pos_target,
 	}
 
 	// Phase 2: Dense near-target search
-	if (dense && offset < distance + end_offset) {
+	if (dense && offset < distance) {
 		// Jump ahead and reset precision for the final checks
 		offset = std::max(offset, distance - DENSE_CHECK_DISTANCE);
 		step = BS * 1.2f;
 
-		for (; offset < distance + end_offset; offset += step) {
+		for (; offset < distance; offset += step) {
 			const v3f pos_node_f = pos_origin_f + direction * offset;
 			MapNode node = getNode(floatToInt(pos_node_f, BS), &is_valid_position);
 
