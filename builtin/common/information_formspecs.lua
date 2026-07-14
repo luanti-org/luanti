@@ -53,6 +53,7 @@ core.after(0, load_mod_command_tree)
 local function build_chatcommands_formspec(name, sel, copy)
 	local rows = {}
 	rows[1] = "#FFF,0,"..F(S("Command"))..","..F(S("Parameters"))
+	local help_command = INIT == "client" and ".help <cmd>" or "/help <cmd>"
 
 	local description = S("For more information, click on "
 		.. "any entry in the list.").. "\n" ..
@@ -80,8 +81,9 @@ local function build_chatcommands_formspec(name, sel, copy)
 		end
 	end
 
+	-- TRANSLATORS: @1 is the command used to get help for one command.
 	return LIST_FORMSPEC_DESCRIPTION:format(
-			F(S("Available commands: (see also: /help <cmd>)")),
+			F(S("Available commands: (see also: @1)", help_command)),
 			table.concat(rows, ","), sel or 0,
 			F(description), F(S("Close"))
 		)
