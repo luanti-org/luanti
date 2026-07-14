@@ -1,4 +1,4 @@
-name: Bug report
+name: Bug report (form, recommended)
 description: Report a problem or mistake
 labels: ["Unconfirmed bug"]
 body:
