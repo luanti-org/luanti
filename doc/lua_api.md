@@ -1144,9 +1144,11 @@ You can register one node/item, which can have up to 256 colors.
 
 When using palettes, you always provide a pixel index for the given
 node or `ItemStack`. The palette is read from left to right and from
-top to bottom. If the palette has less than 256 pixels, then it is
-stretched to contain exactly 256 pixels (after arranging the pixels
-to one line). Palette colors are indexed in range [0, 255].
+top to bottom. If the palette has fewer than 256 pixels, its pixels are
+repeated rather than interpolated after arranging them into one line.
+Use a power-of-two number of pixels so each color occupies an equal
+number of the 256 palette indices. Palette colors are indexed in range
+[0, 255].
 
 Examples:
 
