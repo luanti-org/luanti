@@ -16,7 +16,27 @@
 #include <IVideoDriver.h>
 #include <CMeshBuffer.h>
 #include <irr_ptr.h>
+#include <cmath>
 #include <sstream>
+
+// A perpendicular unit vector to `dir`, which must be unit
+static v3f perpAxis(v3f dir)
+{
+	v3f up(0.0f, 1.0f, 0.0f);
+	if (std::fabs(dir.dotProduct(up)) > 0.99f)
+		up = v3f(1.0f, 0.0f, 0.0f);
+	v3f axis = dir.crossProduct(up);
+	axis.normalize();
+	return axis;
+}
+
+// Rodrigues rotation formula: rotate `v` by `angle_rad` around the `axis`
+static v3f rotateAroundAxis(v3f v, v3f axis, float angle_rad)
+{
+	float c = std::cos(angle_rad);
+	float s = std::sin(angle_rad);
+	return v * c + axis.crossProduct(v) * s + axis * (axis.dotProduct(v) * (1.0f - c));
+}
 
 /*
 	Custom scene node wrapping a single rebuildable SMeshBuffer. Kept
@@ -94,6 +114,64 @@ static void appendLineStrip(scene::SMeshBuffer &buf, const std::vector<v3f> &poi
 			c = multiplyColor(c, light_colors[i]);
 		vertices.emplace_back(points[i] - origin, v3f(0, 1, 0), c, v2f(0, 0));
 		indices.push_back((u16)i);
+	}
+}
+
+// Appends a closed hexagonal tube
+// 6 offset axes evenly spaced around each segment's own direction
+// This is a static mesh, only rebuilt when points/properties change
+static void appendTube(scene::SMeshBuffer &buf, const std::vector<v3f> &points,
+		const LineCAO::Properties &props, v3f origin,
+		const std::vector<video::SColor> &light_colors)
+{
+	constexpr int num_axes = 6;
+	auto &vertices = buf.Vertices->Data;
+	auto &indices = buf.Indices->Data;
+
+	float half_width = props.width * BS / 2.0f;
+	float angle_step = 2.0f * (float)M_PI / num_axes;
+
+	for (size_t seg = 0; seg + 1 < points.size(); seg++) {
+		v3f p0 = points[seg];
+		v3f p1 = points[seg + 1];
+		float seg_len = p0.getDistanceFrom(p1);
+		if (seg_len < 0.001f * BS)
+			continue; // skip if too short
+
+		v3f dir = (p1 - p0) / seg_len;
+		v3f axis0 = perpAxis(dir);
+
+		video::SColor c0 = seg < props.colors.size() ? props.colors[seg] : props.color;
+		video::SColor c1 = (seg + 1) < props.colors.size() ? props.colors[seg + 1] : props.color;
+		if (props.lit) {
+			if (seg < light_colors.size())
+				c0 = multiplyColor(c0, light_colors[seg]);
+			if ((seg + 1) < light_colors.size())
+				c1 = multiplyColor(c1, light_colors[seg + 1]);
+		}
+
+		for (int k = 0; k < num_axes; k++) {
+			v3f offset_a = rotateAroundAxis(axis0, dir, angle_step * k) * half_width;
+			v3f offset_b = rotateAroundAxis(axis0, dir, angle_step * ((k + 1) % num_axes)) * half_width;
+
+			v3f normal_a = offset_a;
+			normal_a.normalize();
+			v3f normal_b = offset_b;
+			normal_b.normalize();
+
+			u16 base = (u16)vertices.size();
+			vertices.emplace_back(p0 + offset_a - origin, normal_a, c0, v2f(0, 0));
+			vertices.emplace_back(p0 + offset_b - origin, normal_b, c0, v2f(0, 0));
+			vertices.emplace_back(p1 + offset_b - origin, normal_b, c1, v2f(0, 0));
+			vertices.emplace_back(p1 + offset_a - origin, normal_a, c1, v2f(0, 0));
+
+			indices.push_back(base + 0);
+			indices.push_back(base + 1);
+			indices.push_back(base + 2);
+			indices.push_back(base + 2);
+			indices.push_back(base + 3);
+			indices.push_back(base + 0);
+		}
 	}
 }
 
@@ -231,6 +309,11 @@ void LineCAO::deserializeProperties(std::istream &is)
 	m_properties.alpha_mode = raw_alpha_mode <= (u8)LineAlphaMode::LINE_ALPHA_ADD ?
 			(LineAlphaMode)raw_alpha_mode : LineAlphaMode::LINE_ALPHA_OPAQUE;
 	m_properties.lit = readU8(is);
+	m_properties.width = readF32(is);
+	u8 raw_shape = readU8(is);
+	// fall back to "line" for an out-of-range byte rather than casting blindly
+	m_properties.shape = raw_shape <= (u8)LineShape::LINE_SHAPE_TUBE ?
+			(LineShape)raw_shape : LineShape::LINE_SHAPE_LINE;
 }
 
 void LineCAO::rebuildMesh()
@@ -245,8 +328,13 @@ void LineCAO::rebuildMesh()
 	v3f origin = m_points.empty() ? v3f() : m_points[0];
 
 	if (m_points.size() >= 2) {
-		buf->setPrimitiveType(scene::EPT_LINE_STRIP);
-		appendLineStrip(*buf, m_points, m_properties, origin, m_light_colors);
+		if (m_properties.shape == LineShape::LINE_SHAPE_TUBE) {
+			buf->setPrimitiveType(scene::EPT_TRIANGLES);
+			appendTube(*buf, m_points, m_properties, origin, m_light_colors);
+		} else {
+			buf->setPrimitiveType(scene::EPT_LINE_STRIP);
+			appendLineStrip(*buf, m_points, m_properties, origin, m_light_colors);
+		}
 	}
 
 	buf->recalculateBoundingBox();

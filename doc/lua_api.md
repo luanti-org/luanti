@@ -6988,8 +6988,11 @@ Environment access
           `"add"` blends additively.
         * `lit`: if `true` (default), applies lighting to each point of the
         * line at its position, like a mesh entity. If `false`, drawn full-bright.
-        * TODO: Support '+' shaped lines (two quads) and hex-tube shaped lines
-          both of which can take an extra param of width, and can be textured
+        * `shape`: `"line"` (default) or `"tube"`.
+            * `"line"`: a constant-width 1 pixel line strip.
+            * `"tube"`: a hexagonal tube of the given `width`.
+        * `width`: diameter of the tube, in nodes (default: `0.1`).
+            * Only used when `shape` is `"tube"`.
     * A line's activation (and thus visibility and persistence) is tied to
       the map block containing its first point. If that block isn't loaded,
       the line won't be sent to any client, even if its other points are in
@@ -9220,7 +9223,7 @@ properties below, same as any other active object.
   as `def.points` in `core.add_line`.
 * `set_points(points)`: replaces the line's points. Must have at least 2.
 * `get_line_properties()`: returns a table with `color`, `colors`,
-  `alpha_mode` and `lit`.
+  `alpha_mode`, `lit`, `shape` and `width`.
     * Named `get_line_properties` (not `get_properties`) to avoid colliding
       with the generic `ObjectRef:get_properties()` (`ObjectProperties`),
       which is a no-op for lines.

@@ -19,6 +19,12 @@ enum class LineAlphaMode : u8
 	LINE_ALPHA_ADD,
 };
 
+enum class LineShape : u8
+{
+	LINE_SHAPE_LINE,
+	LINE_SHAPE_TUBE,
+};
+
 // Wire commands for LineSAO/LineCAO's own private message protocol
 enum class LineCommand : u8
 {

@@ -728,6 +728,11 @@ void read_line_properties(lua_State *L, int index, LineProperties &properties)
 			es_LineAlphaMode, (int)properties.alpha_mode);
 
 	getboolfield(L, index, "lit", properties.lit);
+
+	properties.width = getfloatfield_default(L, index, "width", properties.width);
+
+	properties.shape = (LineShape)getenumfield(L, index, "shape",
+			es_LineShape, (int)properties.shape);
 }
 
 void push_line_properties(lua_State *L, const LineProperties &properties)
@@ -749,6 +754,12 @@ void push_line_properties(lua_State *L, const LineProperties &properties)
 
 	lua_pushboolean(L, properties.lit);
 	lua_setfield(L, -2, "lit");
+
+	lua_pushnumber(L, properties.width);
+	lua_setfield(L, -2, "width");
+
+	lua_pushstring(L, enum_to_string(es_LineShape, properties.shape));
+	lua_setfield(L, -2, "shape");
 }
 
 /******************************************************************************/

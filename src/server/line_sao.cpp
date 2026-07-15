@@ -16,6 +16,12 @@ const EnumString es_LineAlphaMode[] = {
 	{0, nullptr},
 };
 
+const EnumString es_LineShape[] = {
+	{(int)LineShape::LINE_SHAPE_LINE, "line"},
+	{(int)LineShape::LINE_SHAPE_TUBE, "tube"},
+	{0, nullptr},
+};
+
 namespace
 {
 
@@ -64,6 +70,8 @@ void serializeProperties(std::ostream &os, const LineProperties &properties)
 		writeARGB8(os, color);
 	writeU8(os, (u8)properties.alpha_mode);
 	writeU8(os, properties.lit);
+	writeF32(os, properties.width);
+	writeU8(os, (u8)properties.shape);
 }
 
 void deserializeProperties(std::istream &is, LineProperties &properties)
@@ -78,6 +86,11 @@ void deserializeProperties(std::istream &is, LineProperties &properties)
 	properties.alpha_mode = raw_alpha_mode <= (u8)LineAlphaMode::LINE_ALPHA_ADD ?
 			(LineAlphaMode)raw_alpha_mode : LineAlphaMode::LINE_ALPHA_OPAQUE;
 	properties.lit = readU8(is);
+	properties.width = readF32(is);
+	u8 raw_shape = readU8(is);
+	// fall back to "line" for an out-of-range byte rather than casting blindly
+	properties.shape = raw_shape <= (u8)LineShape::LINE_SHAPE_TUBE ?
+			(LineShape)raw_shape : LineShape::LINE_SHAPE_LINE;
 }
 
 } // namespace

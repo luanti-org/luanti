@@ -24,6 +24,8 @@ public:
 		std::vector<video::SColor> colors;
 		LineAlphaMode alpha_mode = LineAlphaMode::LINE_ALPHA_OPAQUE;
 		bool lit = true;
+		float width = 0.1f; // Only used by shape == LINE_SHAPE_TUBE, in nodes
+		LineShape shape = LineShape::LINE_SHAPE_LINE;
 	};
 
 	LineCAO(Client *client, ClientEnvironment *env);
