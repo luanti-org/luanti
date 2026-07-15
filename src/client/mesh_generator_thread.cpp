@@ -236,6 +236,12 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	}
 
 	data->setCrack(q->crack_level, q->crack_pos);
+
+	// Changes to static lighting will cause a re-mesh of the entire map, so
+	// this doesn't need an update mechanism.
+	float ao_gamma = m_client->getCommittedStaticLighting().ao_gamma;
+	data->m_ao_gamma_inv = ao_gamma == 0.0f ? 0.0f : (1.0f / ao_gamma);
+
 	data->m_generate_minimap = !!m_client->getMinimap();
 	data->m_smooth_lighting = m_cache_smooth_lighting;
 	data->m_enable_water_reflections = m_cache_enable_water_reflections;
