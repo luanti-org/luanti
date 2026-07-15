@@ -502,24 +502,34 @@ void CGUIScrollBar::refreshControls()
 	DownButton->setVisible(visible);
 }
 
-static inline s32 interpolate_scroll(s32 from, s32 to, f32 amount)
+static inline s32 interpolate_scroll(s32 from, s32 to, u32 deltaMs)
 {
-	s32 step = core::round32((to - from) * core::clamp(amount, 0.001f, 1.0f));
-	if (step == 0)
+	const s32 diff = to - from;
+	if (diff == 0)
 		return to;
+
+	// Adjust to match 60 FPS. This also means that interpolation is
+	// effectively disabled at <= 30 FPS.
+	s32 step = core::round32(diff * 0.5f * (deltaMs / 16.667f));
+	// Step at least by 1. Relevant for low ranges.
+	if (step == 0)
+		step = (diff > 0) * 2 - 1; // { 0, 1 } -> { -1, 1 }
+
+	// Note: This is clamped later by `setPosRaw`.
 	return from + step;
 }
 
 void CGUIScrollBar::interpolatePos(u32 deltaMs)
 {
-	if (TargetPos.has_value()) {
-		// Adjust to match 60 FPS. This also means that interpolation is
-		// effectively disabled at <= 30 FPS.
-		f32 amount = 0.5f * (deltaMs / 16.667f);
-		setPosRaw(interpolate_scroll(Pos, *TargetPos, amount));
-		if (Pos == TargetPos)
-			TargetPos = std::nullopt;
+	if (!TargetPos.has_value())
+		return;
 
+	const s32 oldPos = Pos;
+	setPosRaw(interpolate_scroll(Pos, *TargetPos, deltaMs));
+	if (Pos == TargetPos)
+		TargetPos = std::nullopt;
+
+	if (Pos != oldPos) {
 		SEvent e;
 		e.EventType = EET_GUI_EVENT;
 		e.GUIEvent.Caller = this;

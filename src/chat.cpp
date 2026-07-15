@@ -200,11 +200,7 @@ void ChatBuffer::scrollAbsolute(s32 scroll)
 	s32 top = getTopScrollPos();
 	s32 bottom = getBottomScrollPos();
 
-	m_scroll = scroll;
-	if (m_scroll < top)
-		m_scroll = top;
-	if (m_scroll > bottom)
-		m_scroll = bottom;
+	m_scroll = std::clamp(scroll, top, bottom); // Note: bottom > top
 }
 
 void ChatBuffer::scrollBottom()
