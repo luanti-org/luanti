@@ -29,6 +29,7 @@ struct LineProperties
 	video::SColor color = video::SColor(0xFFFFFFFF);
 	std::vector<video::SColor> colors; // one per point, overrides `color` if non-empty
 	LineAlphaMode alpha_mode = LineAlphaMode::LINE_ALPHA_OPAQUE;
+	bool lit = true;
 };
 
 // A lightweight, persistent, server-side polyline with no callbacks or Lua state.

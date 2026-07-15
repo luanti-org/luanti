@@ -63,6 +63,7 @@ void serializeProperties(std::ostream &os, const LineProperties &properties)
 	for (video::SColor color : properties.colors)
 		writeARGB8(os, color);
 	writeU8(os, (u8)properties.alpha_mode);
+	writeU8(os, properties.lit);
 }
 
 void deserializeProperties(std::istream &is, LineProperties &properties)
@@ -76,6 +77,7 @@ void deserializeProperties(std::istream &is, LineProperties &properties)
 	// fall back to opaque for an out-of-range byte rather than casting blindly
 	properties.alpha_mode = raw_alpha_mode <= (u8)LineAlphaMode::LINE_ALPHA_ADD ?
 			(LineAlphaMode)raw_alpha_mode : LineAlphaMode::LINE_ALPHA_OPAQUE;
+	properties.lit = readU8(is);
 }
 
 } // namespace

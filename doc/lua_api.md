@@ -6986,6 +6986,8 @@ Environment access
         * `alpha_mode`: `"opaque"`, `"blend"` or `"add"` (default:`"opaque"`).
           `"blend"` alpha-blends using `color`/`colors`' alpha;
           `"add"` blends additively.
+        * `lit`: if `true` (default), applies lighting to each point of the
+        * line at its position, like a mesh entity. If `false`, drawn full-bright.
         * TODO: Support '+' shaped lines (two quads) and hex-tube shaped lines
           both of which can take an extra param of width, and can be textured
     * A line's activation (and thus visibility and persistence) is tied to
@@ -9217,8 +9219,8 @@ properties below, same as any other active object.
 * `get_points()`: returns the current list of points, in the same format
   as `def.points` in `core.add_line`.
 * `set_points(points)`: replaces the line's points. Must have at least 2.
-* `get_line_properties()`: returns a table with `color`, `colors` and
-  `alpha_mode`.
+* `get_line_properties()`: returns a table with `color`, `colors`,
+  `alpha_mode` and `lit`.
     * Named `get_line_properties` (not `get_properties`) to avoid colliding
       with the generic `ObjectRef:get_properties()` (`ObjectProperties`),
       which is a no-op for lines.

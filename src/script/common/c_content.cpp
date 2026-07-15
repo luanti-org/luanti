@@ -726,6 +726,8 @@ void read_line_properties(lua_State *L, int index, LineProperties &properties)
 
 	properties.alpha_mode = (LineAlphaMode)getenumfield(L, index, "alpha_mode",
 			es_LineAlphaMode, (int)properties.alpha_mode);
+
+	getboolfield(L, index, "lit", properties.lit);
 }
 
 void push_line_properties(lua_State *L, const LineProperties &properties)
@@ -744,6 +746,9 @@ void push_line_properties(lua_State *L, const LineProperties &properties)
 
 	lua_pushstring(L, enum_to_string(es_LineAlphaMode, properties.alpha_mode));
 	lua_setfield(L, -2, "alpha_mode");
+
+	lua_pushboolean(L, properties.lit);
+	lua_setfield(L, -2, "lit");
 }
 
 /******************************************************************************/

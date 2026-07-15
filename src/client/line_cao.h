@@ -23,6 +23,7 @@ public:
 		video::SColor color = video::SColor(0xFFFFFFFF);
 		std::vector<video::SColor> colors;
 		LineAlphaMode alpha_mode = LineAlphaMode::LINE_ALPHA_OPAQUE;
+		bool lit = true;
 	};
 
 	LineCAO(Client *client, ClientEnvironment *env);
@@ -39,6 +40,10 @@ public:
 
 	// Only used to track the client's camera-offset recentering
 	void step(float dtime, ClientEnvironment *env) override;
+	// Only does anything when m_properties.lit is set - rebuilds the mesh
+	// with per-point map light baked into vertex colors, same trigger
+	// GenericCAO uses.
+	void updateLight(u32 day_night_ratio) override;
 
 	bool getCollisionBox(aabb3f *toset) const override { return false; }
 	bool getSelectionBox(aabb3f *toset) const override { return false; }
@@ -49,6 +54,10 @@ private:
 
 	void deserializePoints(std::istream &is);
 	void deserializeProperties(std::istream &is);
+
+	// Samples map light at each point's own position; empty vector semantics
+	// mirror m_light_colors (only meaningful while m_properties.lit is set).
+	std::vector<video::SColor> computeLightColors(u32 day_night_ratio) const;
 
 	void rebuildMesh();
 	void updateMaterial();
@@ -62,4 +71,7 @@ private:
 
 	std::vector<v3f> m_points;
 	Properties m_properties;
+	// One per point, sampled at that point's own position. Only populated
+	// (and kept up to date by updateLight()) while m_properties.lit is set.
+	std::vector<video::SColor> m_light_colors;
 };

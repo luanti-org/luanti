@@ -3,8 +3,12 @@
 // Copyright (C) 2026 Zenon Seth <Zenon.Seth@gmail.com>
 
 #include "line_cao.h"
+#include "client/client.h"
 #include "client/clientenvironment.h"
 #include "constants.h"
+#include "light.h"
+#include "map.h"
+#include "nodedef.h"
 #include "util/numeric.h"
 #include "util/serialize.h"
 #include <ISceneManager.h>
@@ -66,16 +70,28 @@ private:
 	bool m_transparent = false;
 };
 
+static video::SColor multiplyColor(video::SColor c, video::SColor light)
+{
+	return video::SColor(c.getAlpha(),
+			c.getRed() * light.getRed() / 255,
+			c.getGreen() * light.getGreen() / 255,
+			c.getBlue() * light.getBlue() / 255);
+}
+
 // Vertex positions are emitted relative to `origin`rather than in absolute
-// world coordinates, to work with the client's camera-offset
+// world coordinates, to work with the client's camera-offset. `light_colors`
+// is only used when `props.lit` is set.
 static void appendLineStrip(scene::SMeshBuffer &buf, const std::vector<v3f> &points,
-		const LineCAO::Properties &props, v3f origin)
+		const LineCAO::Properties &props, v3f origin,
+		const std::vector<video::SColor> &light_colors)
 {
 	auto &vertices = buf.Vertices->Data;
 	auto &indices = buf.Indices->Data;
 
 	for (size_t i = 0; i < points.size(); i++) {
 		video::SColor c = i < props.colors.size() ? props.colors[i] : props.color;
+		if (props.lit && i < light_colors.size())
+			c = multiplyColor(c, light_colors[i]);
 		vertices.emplace_back(points[i] - origin, v3f(0, 1, 0), c, v2f(0, 0));
 		indices.push_back((u16)i);
 	}
@@ -126,6 +142,37 @@ void LineCAO::step(float dtime, ClientEnvironment *env)
 	updateNodePosition();
 }
 
+std::vector<video::SColor> LineCAO::computeLightColors(u32 day_night_ratio) const
+{
+	// Blend day/night here on the CPU, since no shader exists for lines.
+	// same approach that Particle::updateLight() uses.
+	const NodeDefManager *ndef = m_client->ndef();
+
+	std::vector<video::SColor> light_colors(m_points.size());
+	for (size_t i = 0; i < m_points.size(); i++) {
+		bool pos_ok = false;
+		v3s16 pos = floatToInt(m_points[i], BS);
+		MapNode n = m_env->getMap().getNode(pos, &pos_ok);
+		u8 light = pos_ok ? n.getLightBlend(day_night_ratio, ndef->getLightingFlags(n)) :
+				blend_light(day_night_ratio, LIGHT_SUN, 0);
+		u8 brightness = decode_light(light);
+		light_colors[i] = video::SColor(255, brightness, brightness, brightness);
+	}
+	return light_colors;
+}
+
+void LineCAO::updateLight(u32 day_night_ratio)
+{
+	if (!m_properties.lit || m_points.empty())
+		return;
+
+	auto light_colors = computeLightColors(day_night_ratio);
+	if (light_colors == m_light_colors)
+		return;
+	m_light_colors = std::move(light_colors);
+	rebuildMesh();
+}
+
 void LineCAO::updateNodePosition()
 {
 	if (!m_scenenode || m_points.empty())
@@ -158,6 +205,8 @@ void LineCAO::processMessage(const std::string &data)
 	default:
 		return;
 	}
+	if (m_properties.lit)
+		m_light_colors = computeLightColors(m_env->getDayNightRatio());
 	rebuildMesh();
 }
 
@@ -181,6 +230,7 @@ void LineCAO::deserializeProperties(std::istream &is)
 	// rather than casting blindly.
 	m_properties.alpha_mode = raw_alpha_mode <= (u8)LineAlphaMode::LINE_ALPHA_ADD ?
 			(LineAlphaMode)raw_alpha_mode : LineAlphaMode::LINE_ALPHA_OPAQUE;
+	m_properties.lit = readU8(is);
 }
 
 void LineCAO::rebuildMesh()
@@ -196,7 +246,7 @@ void LineCAO::rebuildMesh()
 
 	if (m_points.size() >= 2) {
 		buf->setPrimitiveType(scene::EPT_LINE_STRIP);
-		appendLineStrip(*buf, m_points, m_properties, origin);
+		appendLineStrip(*buf, m_points, m_properties, origin, m_light_colors);
 	}
 
 	buf->recalculateBoundingBox();
