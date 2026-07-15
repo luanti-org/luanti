@@ -4357,9 +4357,16 @@ void GUIFormSpecMenu::acceptInput(FormspecQuitMode quitmode)
 
 bool GUIFormSpecMenu::remapClickOutside(const SEvent &event)
 {
-	// Don't remap a click outside the formspec to ESC when holding an item.
-	if (m_selected_item)
+	if (m_selected_item) {
+		// Click outside the formspec while holding an item: deliver the event
+		// directly to OnEvent so the drop handler runs even when a focused
+		// child element (e.g. a button) would otherwise consume LMOUSE events.
+		if (event.EventType == EET_MOUSE_INPUT_EVENT &&
+				!getAbsoluteClippingRect().isPointInside(
+						v2s32(event.MouseInput.X, event.MouseInput.Y)))
+			return OnEvent(event);
 		return false;
+	}
 	return GUIModalMenu::remapClickOutside(event);
 }
 
