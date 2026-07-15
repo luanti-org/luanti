@@ -9,6 +9,10 @@
 #include <limits>
 #include "guiFormSpecMenu.h"
 #include "EGUIElementTypes.h"
+#include "IEventReceiver.h"
+#include "Keycodes.h"
+#include "environment.h"
+#include "irrlichttypes.h"
 #include "itemdef.h"
 #include "gamedef.h"
 #include "client/keycode.h"
@@ -36,6 +40,7 @@
 #include "util/screenshot.h"
 #include "util/string.h" // for parseColorString()
 #include "irrlicht_changes/static_text.h"
+#include "irrlicht_changes/printing.h"
 #include "guiAnimatedImage.h"
 #include "guiBackgroundImage.h"
 #include "guiBox.h"
@@ -4372,6 +4377,21 @@ bool GUIFormSpecMenu::preprocessEvent(const SEvent& event)
 
 	// Handle keyboard and touch input to show/hide focus outline
 	switch (event.EventType) {
+	case EET_GAMEPAD_BUTTON_EVENT:
+		switch (event.GamepadButtonEvent.Button) {
+		case GamepadButton::DPAD_RIGHT:
+		case GamepadButton::DPAD_LEFT:
+		case GamepadButton::DPAD_UP:
+		case GamepadButton::DPAD_DOWN:
+			if (event.GamepadButtonEvent.PressedDown) {
+				m_show_focus = true;
+				m_last_focused = nullptr;
+			}
+			break;
+		default:
+			break;
+		}
+		break;
 	case EET_KEY_INPUT_EVENT:
 		if (event.KeyInput.PressedDown && event.KeyInput.Key == KEY_TAB &&
 				!event.KeyInput.Control) {
@@ -4485,35 +4505,156 @@ void GUIFormSpecMenu::trySubmitClose()
 	}
 }
 
+bool GUIFormSpecMenu::switchTab(bool next)
+{
+	// Try to find a tab control among our elements
+	for (const FieldSpec &s : m_fields) {
+		if (s.ftype != f_TabHeader)
+			continue;
+
+		IGUIElement *element = getElementFromId(s.fid, true);
+		if (!element || element->getType() != gui::EGUIET_TAB_CONTROL)
+			continue;
+
+		gui::IGUITabControl *tabs = static_cast<gui::IGUITabControl *>(element);
+		s32 num_tabs = tabs->getTabCount();
+		if (num_tabs <= 1)
+			continue;
+
+		s32 active = tabs->getActiveTab();
+		active = (active + (next ? 1 : -1) + num_tabs) % num_tabs;
+		tabs->setActiveTab(active);
+		return true; // handled
+	}
+	return false;
+}
+
+void GUIFormSpecMenu::switchFocus(s32 v2s32::* axis, s32 v2s32::* ortho_axis, s8 sign)
+{
+	const auto *focus = Environment->getFocus();
+	v2s32 focus_minp, focus_maxp;
+	if (focus) {
+		const auto focus_rect = focus->getAbsoluteClippingRect();
+		focus_minp = focus_rect.UpperLeftCorner;
+		focus_maxp = focus_rect.LowerRightCorner;
+	} else {
+		focus_minp.*axis = sign * (1 << 30);
+		focus_maxp.*axis = sign * (1 << 30);
+		focus_minp.*ortho_axis = S32_MIN;
+		focus_maxp.*ortho_axis = S32_MAX;
+	}
+
+	struct Candidate
+	{
+		IGUIElement *element = nullptr;
+		s32 axis_offset = 0;
+		s32 ortho_offset = 0;
+
+		bool proper() const
+		{
+			return ortho_offset == 0 && axis_offset >= 0;
+		}
+
+		bool beats(Candidate other) const
+		{
+			if ((element == nullptr) != (other.element == nullptr))
+				return element != nullptr;
+			// One candidate is in the same row, the other is not
+			if (proper() != other.proper())
+				return proper();
+			if (proper() && other.proper())
+				return axis_offset < other.axis_offset;
+			if ((ortho_offset > 0) != (other.ortho_offset > 0))
+				return ortho_offset > 0;
+			if (ortho_offset == other.ortho_offset)
+				return axis_offset < other.axis_offset;
+			return ortho_offset < other.ortho_offset; // wrap around
+		}
+	};
+
+	Candidate best_candidate;
+
+	visitDescendants([&](IGUIElement *elem) -> bool {
+		if (elem == focus)
+			return false;
+		if (elem->isTabStop() && elem->isEnabled() && elem->isVisible()) {
+			const auto rect = elem->getAbsoluteClippingRect();
+			const auto minp = rect.UpperLeftCorner;
+			const auto maxp = rect.LowerRightCorner;
+
+			Candidate candidate;
+			candidate.element = elem;
+
+			if ((candidate.ortho_offset = maxp.*ortho_axis - focus_minp.*ortho_axis) < 0) {
+			} else if ((candidate.ortho_offset = minp.*ortho_axis - focus_maxp.*ortho_axis) > 0) {
+			} else {
+				candidate.ortho_offset = 0;
+			}
+			candidate.ortho_offset *= sign;
+
+			if (sign > 0) {
+				candidate.axis_offset = minp.*axis - focus_maxp.*axis;
+			} else {
+				candidate.axis_offset = focus_minp.*axis - maxp.*axis;
+			}
+			if (candidate.beats(best_candidate)) {
+				best_candidate = candidate;
+				return false;
+			}
+		}
+		return true;
+	});
+
+	if (best_candidate.element)
+		Environment->setFocus(best_candidate.element);
+}
+
 bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 {
+	if (event.EventType == EET_GAMEPAD_BUTTON_EVENT) {
+		const auto &gp_btn_event = event.GamepadButtonEvent;
+		if (gp_btn_event.PressedDown) {
+			switch (gp_btn_event.Button) {
+			// Tab control navigation
+			case GamepadButton::LEFT_SHOULDER:
+				if (switchTab(false))
+					return true;
+				break;
+			case GamepadButton::RIGHT_SHOULDER:
+				if (switchTab(true))
+					return true;
+				break;
+			case GamepadButton::DPAD_RIGHT:
+				switchFocus(&v2s32::X, &v2s32::Y, 1);
+				return true;
+			case GamepadButton::DPAD_LEFT:
+				switchFocus(&v2s32::X, &v2s32::Y, -1);
+				return true;
+			case GamepadButton::DPAD_DOWN:
+				switchFocus(&v2s32::Y, &v2s32::X, 1);
+				return true;
+			case GamepadButton::DPAD_UP:
+				switchFocus(&v2s32::Y, &v2s32::X, -1);
+				return true;
+			case GamepadButton::EAST:
+				tryClose();
+				return true;
+			default:
+				break;
+			}
+		}
+	}
+
 	if (event.EventType==EET_KEY_INPUT_EVENT) {
 		KeyPress kp(event.KeyInput);
 		// Ctrl (+ Shift) + Tab: Select the (previous or) next tab of a TabControl instance.
 		bool shift = event.KeyInput.Shift;
 		bool ctrl = event.KeyInput.Control;
-		if (event.KeyInput.PressedDown && (event.KeyInput.Key == KEY_TAB && ctrl)) {
-			// Try to find a tab control among our elements
-			for (const FieldSpec &s : m_fields) {
-				if (s.ftype != f_TabHeader)
-					continue;
-
-				IGUIElement *element = getElementFromId(s.fid, true);
-				if (!element || element->getType() != gui::EGUIET_TAB_CONTROL)
-					continue;
-
-				gui::IGUITabControl *tabs = static_cast<gui::IGUITabControl *>(element);
-				s32 num_tabs = tabs->getTabCount();
-				if (num_tabs <= 1)
-					continue;
-
-				s32 active = tabs->getActiveTab();
-				// Shift: Previous tab, No shift: Next tab
-				active = (active + (shift ? -1 : 1) + num_tabs) % num_tabs;
-				tabs->setActiveTab(active);
-				return true; // handled
-			}
+		if (event.KeyInput.PressedDown && (event.KeyInput.Key == KEY_TAB && ctrl) &&
+				switchTab(!shift)) {
+			return true; // switched tab
 		}
+
 		if (event.KeyInput.PressedDown && (
 				(kp == EscapeKey) ||
 				((m_client != NULL) && (keySettingHasMatch("keymap_inventory", kp))))) {

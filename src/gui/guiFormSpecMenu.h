@@ -321,6 +321,14 @@ public:
 	static double getImgsize(v2u32 avail_screensize, double screen_dpi, double gui_scaling);
 
 protected:
+
+	/// Try to switch to a neighboring tab (right neighbor if next = true, left neighbor otherwise).
+	/// @return if the operation succeeded.
+	bool switchTab(bool next);
+
+	/// Try to switch focus in the given direction
+	void switchFocus(s32 v2s32::* axis, s32 v2s32::* ortho_axis, s8 sign);
+
 	bool remapClickOutside(const SEvent &event) override;
 
 	v2s32 getBasePos() const
