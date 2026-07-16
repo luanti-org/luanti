@@ -312,7 +312,7 @@ void CGUISkin::drawColored3DButtonPaneStandard(IGUIElement* element,
 	rect.LowerRightCorner.Y -= 1;
 	batch.addRectangle(true, colors[EGDC_3D_FACE], rect);
 
-	batch.draw(Driver, true, clip);
+	batch.draw(Driver, true, clip, nullptr);
 }
 // END PATCH
 

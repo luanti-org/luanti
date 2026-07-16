@@ -5,6 +5,7 @@
 #include "CBatchDraw2D.h"
 
 #include "IVideoDriver.h"
+#include "S3DVertex.h"
 
 namespace video {
 
@@ -38,6 +39,7 @@ void CBatchDraw2D::addRectangle(bool filled, video::SColor color, const core::re
 	}
 
 	/*
+		Winding order: GL_CW
 		0 --- 1
 		|     |
 		3 --- 2
@@ -45,15 +47,21 @@ void CBatchDraw2D::addRectangle(bool filled, video::SColor color, const core::re
 	const auto min = rect.UpperLeftCorner;
 	const auto max = rect.LowerRightCorner;
 	Vertices.emplace_back(min.X, min.Y - 0.5f, 4, 0,0,0, color, 0,0);
-	Vertices.emplace_back(max.X, min.Y - 0.5f, 4, 0,0,0, color, 0,0);
-	Vertices.emplace_back(max.X, max.Y - 0.0f, 4, 0,0,0, color, 0,0);
-	Vertices.emplace_back(min.X, max.Y - 0.0f, 4, 0,0,0, color, 0,0);
+	Vertices.emplace_back(max.X, min.Y - 0.5f, 4, 0,0,0, color, 1,0);
+	Vertices.emplace_back(max.X, max.Y - 0.0f, 4, 0,0,0, color, 1,1);
+	Vertices.emplace_back(min.X, max.Y - 0.0f, 4, 0,0,0, color, 0,1);
 }
 
-void CBatchDraw2D::draw(IVideoDriver *driver, bool trianglesFirst, const core::rect<s32> *clip)
+void CBatchDraw2D::draw(IVideoDriver *driver, bool trianglesFirst,
+		const core::rect<s32> *clip, const video::SMaterial *material)
 {
-	video::SMaterial mat = driver->getMaterial2D();
-	mat.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
+	video::SMaterial mat;
+	if (material) {
+		mat = *material;
+	} else {
+		mat = driver->getMaterial2D();
+		mat.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
+	}
 	driver->setMaterial(mat);
 
 	for (int i = 0; i < 2; ++i) {

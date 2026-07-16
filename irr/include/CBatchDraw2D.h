@@ -5,7 +5,6 @@
 #pragma once
 
 #include "rect.h"
-#include "S3DVertex.h"
 #include "SColor.h"
 #include <vector>
 
@@ -13,6 +12,8 @@ namespace video
 {
 
 class IVideoDriver;
+class SMaterial;
+struct S3DVertex;
 
 class CBatchDraw2D
 {
@@ -24,7 +25,9 @@ public:
 
 	void addRectangle(bool filled, video::SColor color, const core::rect<s32> &rect);
 
-	void draw(IVideoDriver *driver, bool trianglesFirst, const core::rect<s32> *clip);
+	/// `clip` and `material` are optional
+	void draw(IVideoDriver *driver, bool trianglesFirst,
+			const core::rect<s32> *clip, const video::SMaterial *material);
 
 private:
 	std::vector<video::S3DVertex> Vertices;
