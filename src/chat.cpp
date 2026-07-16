@@ -481,7 +481,6 @@ void ChatPrompt::input(wchar_t ch)
 {
 	makeLineRef().insert(m_cursor, 1, ch);
 	m_cursor++;
-	m_last_autocomplete_time = 0;
 	clampView();
 }
 
@@ -489,7 +488,6 @@ void ChatPrompt::input(const std::wstring &str)
 {
 	makeLineRef().insert(m_cursor, str);
 	m_cursor += str.size();
-	m_last_autocomplete_time = 0;
 	clampView();
 }
 
@@ -560,16 +558,6 @@ void ChatPrompt::historyNext()
 
 void ChatPrompt::nickCompletion(const std::set<std::string> &names)
 {
-	bool print_options;
-	{
-		const u64 time_now = porting::getTimeMs();
-		if (!m_last_autocomplete_time)
-			m_last_autocomplete_time = time_now;
-
-		print_options = time_now - m_last_autocomplete_time < 1000;
-		m_last_autocomplete_time = time_now;
-	}
-
 	const std::wstring_view line(getLineRef());
 
 	// Search for the nickname around the cursor
@@ -629,9 +617,6 @@ void ChatPrompt::nickCompletion(const std::set<std::string> &names)
 		return;
 
 	if (completions.size() > 1 && prefix.size() == shortest.size()) {
-		if (!print_options)
-			return;
-
 		std::wstring options = wstrgettext("Selection options: ");
 		for (auto v : completions)
 			options.append(v).append(L", ");

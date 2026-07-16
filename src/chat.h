@@ -262,8 +262,6 @@ private:
 	// Cursor length (length of selected portion of line)
 	s32 m_cursor_len = 0;
 
-	// To show nick autocompletion options
-	u64 m_last_autocomplete_time = 0;
 	// To print nick autocompletion
 	ChatBuffer *m_chat_buffer = nullptr;
 };
