@@ -7,6 +7,7 @@
 #include "common/c_content.h"
 #include "common/c_converter.h"
 #include "common/c_packer.h"
+#include "common/c_types.h"
 #include "content/mods.h" // ModSpec
 #include "cpp_api/s_base.h"
 #include "cpp_api/s_security.h"
@@ -18,8 +19,11 @@
 #include "scripting_server.h"
 #include "server.h"
 #include "serverenvironment.h"
+#include "script/sscsm/sscsm_init.h"
 
 #include <algorithm>
+#include <lauxlib.h>
+#include <lua.h>
 
 // request_shutdown()
 int ModApiServer::l_request_shutdown(lua_State *L)
@@ -656,6 +660,72 @@ int ModApiServer::l_register_mapgen_script(lua_State *L)
 	return 1;
 }
 
+// register_sscsm(params)
+int ModApiServer::l_register_sscsm(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	auto *server = getServer(L);
+
+	const std::string mod_name = ScriptApiBase::getCurrentModNameInsecure(L);
+	if (mod_name.empty())
+		throw LuaError("register_sscsm must be called at load time");
+	const ModSpec *mod_spec = getGameDef(L)->getModSpec(mod_name);
+	SANITY_CHECK(mod_spec);
+
+	std::string init_path;
+	if (!getstringfield(L, 1, "init_path", init_path))
+		throw LuaError("init_path must be a string");
+
+	auto &mod_init_scripts = server->m_sscsm_init->mod_init_scripts;
+	if (mod_init_scripts.end() != std::find_if(
+			mod_init_scripts.begin(),
+			mod_init_scripts.end(),
+			[&mod_name](const auto &pair) {
+				return pair.first == mod_name;
+			})) {
+		throw LuaError("register_sscsm must be called at most once per mod");
+	}
+
+	server->m_sscsm_init->mod_init_scripts.emplace_back(mod_name, mod_name + ":" + init_path);
+
+	lua_getfield(L, 1, "paths");
+	int paths = lua_gettop(L);
+	if (!lua_istable(L, paths))
+		throw LuaError("paths must be a table");
+
+	lua_pushnil(L); // first key
+	while (lua_next(L, paths) != 0) {
+		// key at index -2, value at index -1
+		if (!lua_isstring(L, -2))
+			throw LuaError("virtual paths must be strings");
+		std::string virt_prefix = lua_tostring(L, -2);
+
+		std::string real_path;
+		if (lua_isstring(L, -1)) {
+			real_path = lua_tostring(L, -1);
+		} else if (lua_isboolean(L, -1) && lua_toboolean(L, -1)) {
+			real_path = virt_prefix;
+		} else {
+			throw LuaError("real paths must be strings or the boolean true");
+		}
+		std::string abs_path = mod_spec->path + DIR_DELIM + real_path;
+		CHECK_SECURE_PATH(L, abs_path.c_str(), false); // TODO maybe insufficient
+		virt_prefix = mod_name + ":" + virt_prefix;
+		if (fs::IsFile(abs_path)) {
+			server->m_sscsm_init->vfs.loadFile(virt_prefix, abs_path);
+		} else {
+			if (!virt_prefix.empty())
+				virt_prefix += "/";
+			server->m_sscsm_init->vfs.scanModSubfolder(virt_prefix, abs_path);
+		}
+		// removes value; keeps key for next iteration
+		lua_pop(L, 1);
+	}
+
+	lua_pushboolean(L, true);
+	return 1;
+}
+
 // serialize_roundtrip(value)
 // Meant for unit testing the packer from Lua
 int ModApiServer::l_serialize_roundtrip(lua_State *L)
@@ -721,6 +791,8 @@ void ModApiServer::Initialize(lua_State *L, int top)
 	API_FCT(serialize_roundtrip);
 
 	API_FCT(register_mapgen_script);
+
+	API_FCT(register_sscsm);
 }
 
 void ModApiServer::InitializeAsync(lua_State *L, int top)

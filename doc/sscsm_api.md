@@ -4,30 +4,26 @@
 mod with a version check (i.e. at least check if `core.get_version().proto_max`
 is (less or) equal to (any of) the tested version(s)).
 
+For security reasons, SSCSM can currently only be used in singleplayer.
+This restriction will be lifted eventually.
+
 In SSCSM, the server sends scripts to the client, which it executes
 client-side (in a sandbox, see also `sscsm_security.md`).
 As modder, you can add these scripts to your server-side mod, and tell the engine
 to send them.
 
-Please refer to `lua_api.md` for server-side modding.
+Please refer to `lua_api.md` for server-side modding (SSM).
 (And refer to `client_lua_api.md` for client-provided client-side modding (CPCSM).)
-
-
 
 ## Loading mods
 
 ### Paths
 
-SSCSM uses a virtual file system (just a dictionary of virtual paths (strings)
+SSCSM uses a virtual file system (VFS, just a dictionary of virtual paths (strings)
 to file contents (strings)).
 
 Each mod's files have paths of the form `modname:foo/bla.lua`.
 Please don't rely on this, use `core.get_modpath()` instead.
-
-The virtual file paths within a mod are meant to mimic the filepaths on the
-server, for example `<modpath>/common/foo.lua` gets sent as `modname:common/foo.lua`.
-
-The engine loads `modname:init.lua` for all mods, in server mod dependency order.
 
 There is client and server builtin (modnames are `*client_builtin*` and
 `*server_builtin*`). The server builtin is sent from the server, like any other
@@ -36,10 +32,8 @@ SSCSM, and the client builtin is located on the client.
 
 ### Mod sending API
 
-Currently, you can not add any mods. There's only a small hardcoded preview script
-in C++ which is loaded when you set `enable_sscsm` to `singleplayer`.
-
-
+To register a SSCSM, call `core.register_sscsm(params)` *once at load time* from your SSM.
+See `lua_api.md` for details.
 
 ## API
 

@@ -710,7 +710,18 @@ enum ToClientCommand : u16
 			u8[len] serialized ParticleParameters
 	*/
 
-	TOCLIENT_NUM_MSG_TYPES = 0x65,
+	/*
+		NOTE: This packet is currently singleplayer-only, so can be changed freely!
+		u32 count, for each virtual file:
+			std::string virtual path
+			std::string contents (long string)
+		u32 count, for each mod, in load order:
+			std::string modname
+			std::string virtual path to init.lua
+	*/
+	TOCLIENT_LOAD_SSCSM = 0x65,
+
+	TOCLIENT_NUM_MSG_TYPES = 0x66,
 };
 
 enum ToServerCommand : u16
@@ -730,6 +741,9 @@ enum ToServerCommand : u16
 	/*
 		Sent as an ACK for TOCLIENT_AUTH_ACCEPT.
 		After this, the server can send data.
+
+		std::string lang_code
+		u16 sscsm_version (0 if unsupported)
 	*/
 
 	TOSERVER_MODCHANNEL_JOIN = 0x17,
