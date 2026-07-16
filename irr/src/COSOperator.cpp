@@ -11,7 +11,7 @@
 #include <unistd.h>
 #ifndef _IRR_ANDROID_PLATFORM_
 #include <sys/types.h>
-#ifdef _IRR_OSX_PLATFORM_
+#if defined(_IRR_OSX_PLATFORM_) || defined(_IRR_IOS_PLATFORM_)
 #include <sys/sysctl.h>
 #endif
 #endif
