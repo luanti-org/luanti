@@ -33,6 +33,7 @@ Contributions are welcome! Here's how you can help:
       [Lua API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md),
       [Luanti Documentation](https://docs.luanti.org/) and other
       [documentation](https://github.com/luanti-org/luanti/tree/master/doc).
+    - Follow the [AI policy](../doc/ai_policy.md) when writing your code.
     - Follow the [C/C++](https://docs.luanti.org/for-engine-devs/code-style-guidelines/) and
       [Lua](https://docs.luanti.org/for-engine-devs/lua-code-style-guidelines/) code style guidelines.
     - Check your code works as expected and document any changes to the Lua API.
@@ -63,12 +64,14 @@ Contributions are welcome! Here's how you can help:
 1. It follows [the roadmap](../doc/direction.md) in some way and fits the whole
    picture of the project.
 2. It works.
-3. It follows the code style for
+3. It follows [the AI policy](../doc/ai_policy.md) for all code, documentation,
+   and other media.
+4. It follows the code style for
    [C/C++](https://docs.luanti.org/for-engine-devs/code-style-guidelines/) or
    [Lua](https://docs.luanti.org/for-engine-devs/lua-code-style-guidelines/).
-4. The code's interfaces are well designed, regardless of other aspects that
+5. The code's interfaces are well designed, regardless of other aspects that
    might need more work in the future.
-5. It uses protocols and formats which include the required compatibility.
+6. It uses protocols and formats which include the required compatibility.
 
 ## Issues
 
