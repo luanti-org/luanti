@@ -451,6 +451,99 @@ This item image must be inline: <item name=testformspec:node width=32 height=32>
 
 ]]
 
+local multiline_str = ""
+for i = 1, 40 do
+	multiline_str = multiline_str .. words[math.random(#words)] .. "\n"
+end
+
+local text_alignment_fs = [[
+	style_type[label;font=bold;font_size=18]
+	label[0,0;Labels]
+
+	box[0,0.25;11,0.05;#e6e6e665]
+
+	container[0,0.5]
+	box[0,0;3.446,1;#222]
+	style_type[label;font=normal;font_size=*1]
+	label[0,0;3.446,1;Default label]
+
+	box[3.776,0;3.446,1;#222]
+	style_type[label;halign=center;valign=center]
+	label[3.776,0;3.446,1;Centered label]
+
+	box[7.552,0;3.446,1;#222]
+	style_type[label;halign=right;valign=bottom]
+	label[7.552,0;3.446,1;Bottom-right label]
+
+	box[0,1.33;3.446,1;#222]
+	style_type[label;halign=left;valign=bottom]
+	label[0,1.33;3.446,1;Bottom-left label]
+
+	box[3.776,1.33;3.446,1;#222]
+	style_type[label;halign=center;valign=top]
+	label[3.776,1.33;3.446,1;Top-center label]
+
+	box[7.552,1.33;3.446,1;#222]
+	style_type[label;halign=right;valign=center]
+	label[7.552,1.33;3.446,1;Center-right label]
+
+	box[0,2.66;3.446,1;#222]
+	style_type[label;halign=center;valign=center;font_size=20]
+	label[0,2.66;3.446,1;Size 20]
+
+	box[3.776,2.66;3.446,1;#222]
+	style_type[label;font_size=28]
+	label[3.776,2.66;3.446,1;Size 28]
+
+	box[7.552,2.66;3.446,1;#222]
+	style_type[label;font_size=36]
+	label[7.552,2.66;3.446,1;Size 36]
+	container_end[]
+
+	style_type[label;font=bold;font_size=18]
+	label[0,4.66;Textareas]
+
+	box[0,4.91;11,0.05;#e6e6e665]
+
+	container[0,5.33]
+	style_type[textarea;halign=left;valign=left]
+	textarea[0,0;3.667,2;textarea_1;Default textarea;]] .. multiline_str .. [[]
+
+	box[0,2;5.5,2;#222]
+	style_type[textarea;halign=left;valign=left]
+	textarea[0,2;3.667,2;;;]] .. multiline_str .. [[]
+
+	box[3.667,0;3.667,2;#222]
+	style_type[textarea;halign=center;valign=center]
+	textarea[3.667,0;3.667,2;;Centered textarea;]] .. multiline_str .. [[]
+
+	style_type[textarea;halign=center;valign=center]
+	textarea[3.667,2;3.667,2;textarea_2;;]] .. multiline_str .. [[]
+
+	box[7.333,2;3.667,2;#222]
+	style_type[textarea;halign=right;valign=center]
+	textarea[7.333,2;3.667,2;;;]] .. multiline_str .. [[]
+
+	style_type[textarea;halign=right;valign=center]
+	textarea[7.333,0;3.667,2;textarea_3;Right-aligned textarea;]] .. multiline_str .. [[]
+	container_end[]
+
+	style_type[label;font=bold;font_size=18]
+	label[0,9.83;Fields]
+
+	box[0,10.08;11,0.05;#e6e6e665]
+
+	container[0,10.5]
+	field[0,0;3.667,0.8;field_1;Default;test]
+
+	style_type[field;halign=center]
+	field[3.667,0;3.667,0.8;field_2;Centered;test]
+
+	style_type[field;halign=right]
+	field[7.333,0;3.667,0.8;field_3;Right-aligned;test]
+	container_end[]
+]]
+
 local window = {
 	sizex = 12,
 	sizey = 13,
@@ -668,6 +761,10 @@ mouse control = true]
 			label[1,0.5;10,1;Tooltip test with listcolors element specifying default tooltip colors. Hover a square or button for a tooltip.]
 		]]..
 		tooltip_fs,
+
+	-- Text alignment
+		"size[12,13]real_coordinates[true]" ..
+		"container[0.5,0.5]" .. text_alignment_fs .. "container_end[]",
 }
 
 local page_id = 2
@@ -677,7 +774,7 @@ local function show_test_formspec(pname)
 		page = page()
 	end
 
-	local fs = page .. "tabheader[0,0;11,0.65;maintabs;Real Coord,Styles,Noclip,Table,Hypertext,Tabs,Invs,Window,Anim,Model,ScrollC,Autoscroll,Sound,Background,Unsized,Tooltip,Tooltip+Listcolors;" .. page_id .. ";false;false]"
+	local fs = page .. "tabheader[0,0;11,0.65;maintabs;Real Coord,Styles,Noclip,Table,Hypertext,Tabs,Invs,Window,Anim,Model,ScrollC,Autoscroll,Sound,Background,Unsized,Tooltip,Tooltip+Listcolors,Text Alignment;" .. page_id .. ";false;false]"
 
 	core.show_formspec(pname, "testformspec:formspec", fs)
 end

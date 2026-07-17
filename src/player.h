@@ -10,6 +10,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <array>
 
 #define PLAYERNAME_SIZE 20
 
@@ -156,6 +157,16 @@ enum CameraMode : int {
 
 extern const struct EnumString es_CameraMode[];
 
+// Note: Part of the protocol, do not reorder.
+enum class LocalPlayerAnimation : u8
+{
+	NO_ANIM,
+	WALK_ANIM,
+	DIG_ANIM,
+	WD_ANIM, // walking + digging
+	COUNT
+};
+
 class Player
 {
 public:
@@ -197,7 +208,7 @@ public:
 	f32 movement_liquid_sink;
 	f32 movement_gravity;
 
-	v2f local_animations[4];
+	std::array<v2f, (size_t) LocalPlayerAnimation::COUNT> local_animations;
 	float local_animation_speed;
 
 	std::string inventory_formspec;

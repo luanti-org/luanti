@@ -3920,6 +3920,11 @@ Some types may inherit styles from parent types.
     * font_size - Sets font size. See button `font_size` property for more information.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * textcolor - color. Default white.
+    * halign - Sets horizontal alignment of text. Can either be `left`, `center`, or `right`. Default `left`.
+    * valign - Sets vertical alignment of text. Can either be `top`, `center`, or `bottom`. Default `top`.
+    **Note**: `valign` only has an effect when the text fits completely inside the element vertically.
+    If the text is too long (and a scrollbar appears in `textarea[]`), it is forced to `top` alignment
+    to prevent text being cut off. `valign` also does not work in `field[]`, however `halign` does.
 * model
     * bgcolor - color, sets background color.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
@@ -3933,6 +3938,10 @@ Some types may inherit styles from parent types.
     * font - Sets font type. See button `font` property for more information.
     * font_size - Sets font size. See button `font_size` property for more information.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+    * halign - Sets horizontal alignment of text. **Note**: Only applies for "area label"
+    syntax (`label[x,y;w,h;text]`). Can either be `left`, `center`, or `right`. Default `left`.
+    * valign - Sets vertical alignment of text. **Note**: Only applies for "area label"
+    syntax (`label[x,y;w,h;text]`). Can either be `top`, `center`, or `bottom`. Default `top`.
 * list
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * size - 2d vector, sets the size of inventory slots in coordinates.
@@ -9557,8 +9566,15 @@ You **must not** mix names and track numbers to refer to the same animation.
     * See also `core.time_to_day_night_ratio`,
 * `get_day_night_ratio()`: returns the ratio or nil if it isn't overridden
 * `set_local_animation(idle, walk, dig, walk_while_dig, frame_speed)`:
-  set animation for player model in third person view.
-    * Every animation equals to a `{x=starting frame, y=ending frame}` table.
+  Set local animations for player model in third person view.
+    * Applied immediately on the client based on in-game player state ("local").
+    * Local animations currently always use the first animation track.
+    * Local animations override server-sent animations on the first animation track if both use the same frame range.
+      (This is to not interrupt playing local animations.)
+    * Server-sent animations (`set_animation()`, `play_animation()`)
+      override local animations if they use a different frame range.
+    * Every animation is given as a `{x = start frame, y = end frame}` table.
+      You can use `{x = 0, y = 0}` for "no animation", deferring to server-sent animations.
     * `frame_speed` sets the animations frame speed. Default is 30.
 * `get_local_animation()`: returns idle, walk, dig, walk_while_dig tables and
   `frame_speed`.
@@ -10630,8 +10646,7 @@ Used by `core.register_node`, `core.register_craftitem`, and
     after_use = function(itemstack, user, node, digparams),
     -- Called after a tool is used to dig a node and will replace the default
     -- tool wear-out handling.
-    -- Shall return the leftover itemstack or nil to not
-    -- modify the dropped item.
+    -- Shall return the leftover itemstack or nil to not modify the item (tool).
     -- The user may be any ObjectRef or nil.
     -- default: nil
 
@@ -10885,15 +10900,19 @@ Used by `core.register_node`.
     legacy_wallmounted = false,
 
     waving = 0,
-    -- Valid for drawtypes:
-    -- mesh, nodebox, plantlike, allfaces_optional, liquid, flowingliquid.
-    -- 1 - wave node like plants (node top moves side-to-side, bottom is fixed)
-    -- 2 - wave node like leaves (whole node moves side-to-side)
-    -- 3 - wave node like liquids (whole node moves up and down)
+    -- Describes whether the node shall be animated (position transformation).
+    -- Supported for drawtypes:
+    --   mesh, nodebox, plantlike, allfaces_optional, liquid, flowingliquid.
+    -- Values:
+    --   0: Not waving.
+    --   1: Node top moves side-to-side, bottom is fixed. (plants)
+    --   2: Whole node moves side-to-side. (leaves)
+    --   3: Whole node moves up and down. (liquids)
+    -- Note: Each wave effect depends on its client-side setting `enable_waving_*`.
     -- Not all models will properly wave.
-    -- plantlike drawtype can only wave like plants.
-    -- allfaces_optional drawtype can only wave like leaves.
-    -- liquid, flowingliquid drawtypes can only wave like liquids.
+    -- When `waving > 0`, plantlike always behaves like `1` and allfaces_optional
+    --   always behaves like `2`. This behavior may be removed in the future.
+    -- The drawtypes "liquid" and "flowingliquid" only accept value 3 (and 0).
 
     sounds = {
         -- Definition of node sounds to be played at various events.

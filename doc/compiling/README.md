@@ -39,7 +39,6 @@ General options and their default values:
     ENABLE_PROMETHEUS=OFF      - Build with Prometheus metrics exporter (listens on tcp/30000 by default)
     ENABLE_SYSTEM_GMP=ON       - Use GMP from system (much faster than bundled mini-gmp)
     ENABLE_SYSTEM_JSONCPP=ON   - Use JsonCPP from system
-    ENABLE_SYSTEM_LIBZIP=TRUE  - Use system libzip
     RUN_IN_PLACE=FALSE         - Create a portable install (worlds, settings etc. in current directory)
     ENABLE_UPDATE_CHECKER=TRUE - Whether to enable update checks by default
     INSTALL_DEVTEST=FALSE      - Whether the Development Test game should be installed alongside Luanti

@@ -8,7 +8,7 @@
 | CMake      | 3.5+    |            |
 | libjpeg    | -       |            |
 | libpng     | -       |            |
-| libzip     | 1.11.4  |            |
+| libzip     | 1.7.2+  |            |
 | SDL        | 2.x     |            |
 | Freetype   | 2.0+    |            |
 | SQLite3    | 3+      |            |

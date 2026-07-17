@@ -701,11 +701,6 @@ void SelfType::MeshExtractor::loadAnimation(const std::size_t animIdx)
 	auto &irr_anim = m_irr_model.getAnimation(m_irr_model.addAnimation());
 	irr_anim.name = anim.name.value_or("");
 
-	for (const auto &chan : anim.channels) {
-		if (!chan.target.node.has_value())
-			throw std::runtime_error("no animated node");
-	}
-
 	std::vector<decltype(anim.channels)::const_iterator> chan_its(anim.channels.size());
 	std::iota(chan_its.begin(), chan_its.end(), anim.channels.cbegin());
 	// Group by target node
@@ -715,10 +710,17 @@ void SelfType::MeshExtractor::loadAnimation(const std::size_t animIdx)
 			});
 
 	for (auto it = chan_its.begin(); it != chan_its.end();) {
+		if (!(*it)->target.node) {
+			warn("animation channel targets no node, ignoring");
+			++it;
+			continue;
+		}
+
 		const std::size_t target_node = *((*it)->target.node);
 		const auto *joint = m_loaded_nodes.at(target_node);
 		if (std::holds_alternative<core::matrix4>(joint->transform)) {
 			warn("nodes using matrix transforms must not be animated");
+			++it;
 			continue;
 		}
 		SkinnedMesh::Keys keys;

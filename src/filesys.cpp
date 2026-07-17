@@ -995,12 +995,19 @@ bool safeWriteToFile(const std::string &path, std::string_view content)
 #if CHECK_CLIENT_BUILD()
 bool extractZipFile(const char *filename, const std::string &destination)
 {
+	const std::string normalized_destination = fs::RemoveRelativePathComponents(destination);
+	if (normalized_destination.empty()) {
+		warningstream << "fs::extractZipFile(): failed, invalid destination received" << std::endl;
+		return false;
+	}
 
-	struct ZipArchiveDiscard {
-	void operator()(zip_t *archive) const noexcept {
-		if (archive) {
-			zip_discard(archive);
-		}
+	struct ZipArchiveDiscard
+	{
+		void operator()(zip_t *archive) const noexcept
+		{
+			if (archive) {
+				zip_discard(archive);
+			}
 		}
 	};
 
@@ -1041,11 +1048,11 @@ bool extractZipFile(const char *filename, const std::string &destination)
 			warningstream << "fs::extractZipFile(): entry size was invalid" << std::endl;
 			return false;
 		}
-		std::string fullpath = destination + DIR_DELIM;
+		std::string fullpath = normalized_destination + DIR_DELIM;
 		fullpath += entry.name;
 
 		fullpath = fs::RemoveRelativePathComponents(fullpath);
-		if (!fs::PathStartsWith(fullpath, destination)) {
+		if (!fs::PathStartsWith(fullpath, normalized_destination)) {
 			warningstream << "fs::extractZipFile(): refusing to extract file: " << entry.name << std::endl;
 			continue;
 		}
@@ -1056,8 +1063,10 @@ bool extractZipFile(const char *filename, const std::string &destination)
 			return false;
 		}
 
-		struct ZipEntryClose {
-			void operator()(zip_file_t *entry) const noexcept {
+		struct ZipEntryClose
+		{
+			void operator()(zip_file_t *entry) const noexcept
+			{
 				if (zip_fclose(entry) != 0) {
 					warningstream << "fs::extractZipFile(): zip_fclose() failed on cleanup" << std::endl;
 				}
@@ -1073,7 +1082,8 @@ bool extractZipFile(const char *filename, const std::string &destination)
 		}
 
 		// Remove partial written files if write exits early
-		struct DestinationDeleter {
+		struct DestinationDeleter
+		{
 			std::string fullpath;
 			bool complete = false;
 

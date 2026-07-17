@@ -71,7 +71,6 @@ cmake .. \
     -DZSTD_LIBRARY=/path/to/lib/dir/libzstd.a \
     -DGMP_LIBRARY=/path/to/lib/dir/libgmp.a \
     -DJSON_LIBRARY=/path/to/lib/dir/libjsoncpp.a \
-    -DENABLE_SYSTEM_LIBZIP=TRUE \
     -DENABLE_LEVELDB=OFF \
     -DENABLE_POSTGRESQL=OFF \
     -DENABLE_REDIS=OFF \

@@ -1071,9 +1071,9 @@ GUIHyperText::GUIHyperText(const wchar_t *text, IGUIEnvironment *environment,
 		m_tsrc(tsrc), m_vscrollbar(nullptr),
 		m_drawer(text, client, environment, tsrc, default_background_color, default_color),
 		m_text_scrollpos(0, 0),
+		m_draw_state(is_hypertip ? 0 : 2), // disable delay hack for non-hypertip hypertext
 		m_default_background_color(default_background_color),
-		m_default_color(default_color),
-		m_draw_state(is_hypertip ? 0 : 2) // disable delay hack for non-hypertip hypertext
+		m_default_color(default_color)
 {
 
 	IGUISkin *skin = nullptr;

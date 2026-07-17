@@ -291,80 +291,8 @@ endif()
 add_subdirectory(lib/lstrpack)
 add_subdirectory(lib/sha256)
 
-option(ENABLE_SYSTEM_LIBZIP "Enable using a system-wide libzip" TRUE)
-
 if(BUILD_CLIENT)
-	if(ENABLE_SYSTEM_LIBZIP)
-		find_package(libzip CONFIG QUIET)
-	endif()
-
-	if(TARGET libzip::zip)
-		message(STATUS "Using system libzip.")
-	else()
-		message(STATUS "Using bundled libzip 1.11.4.")
-
-		# libzip uses global CMake option names that can affect Luanti.
-		# Preserve the existing values before configuring the bundled copy.
-		get_property(BUILD_SHARED_LIBS_WAS_SET
-			CACHE BUILD_SHARED_LIBS PROPERTY TYPE SET)
-		if(BUILD_SHARED_LIBS_WAS_SET)
-			set(SAVED_BUILD_SHARED_LIBS "${BUILD_SHARED_LIBS}")
-		endif()
-
-		get_property(ENABLE_OPENSSL_WAS_SET
-			CACHE ENABLE_OPENSSL PROPERTY TYPE SET)
-		if(ENABLE_OPENSSL_WAS_SET)
-			set(SAVED_ENABLE_OPENSSL "${ENABLE_OPENSSL}")
-		endif()
-
-		# Build only the static libzip library needed by Luanti.
-		set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
-		set(LIBZIP_DO_INSTALL OFF CACHE BOOL
-			"Install libzip and related files" FORCE)
-
-		set(BUILD_TOOLS OFF CACHE BOOL "Build libzip tools" FORCE)
-		set(BUILD_REGRESS OFF CACHE BOOL "Build libzip regression tests" FORCE)
-		set(BUILD_OSSFUZZ OFF CACHE BOOL "Build libzip fuzzers" FORCE)
-		set(BUILD_EXAMPLES OFF CACHE BOOL "Build libzip examples" FORCE)
-		set(BUILD_DOC OFF CACHE BOOL "Build libzip documentation" FORCE)
-
-		# Match the minimal vcpkg configuration: Store and Deflate support only.
-		set(ENABLE_BZIP2 OFF CACHE BOOL "Enable libzip BZip2 support" FORCE)
-		set(ENABLE_LZMA OFF CACHE BOOL "Enable libzip LZMA support" FORCE)
-		set(ENABLE_ZSTD OFF CACHE BOOL "Enable libzip Zstandard support" FORCE)
-
-		set(ENABLE_COMMONCRYPTO OFF CACHE BOOL
-			"Enable libzip CommonCrypto support" FORCE)
-		set(ENABLE_GNUTLS OFF CACHE BOOL
-			"Enable libzip GnuTLS support" FORCE)
-		set(ENABLE_MBEDTLS OFF CACHE BOOL
-			"Enable libzip mbed TLS support" FORCE)
-		set(ENABLE_OPENSSL OFF CACHE BOOL
-			"Enable libzip OpenSSL support" FORCE)
-		set(ENABLE_WINDOWS_CRYPTO OFF CACHE BOOL
-			"Enable libzip Windows cryptography support" FORCE)
-
-		add_subdirectory(lib/libzip EXCLUDE_FROM_ALL)
-
-		# Restore Luanti's global option state after libzip has been configured.
-		if(BUILD_SHARED_LIBS_WAS_SET)
-			set(BUILD_SHARED_LIBS "${SAVED_BUILD_SHARED_LIBS}"
-				CACHE BOOL "Build shared libraries" FORCE)
-		else()
-			unset(BUILD_SHARED_LIBS CACHE)
-		endif()
-
-		if(ENABLE_OPENSSL_WAS_SET)
-			set(ENABLE_OPENSSL "${SAVED_ENABLE_OPENSSL}"
-				CACHE BOOL "Enable OpenSSL" FORCE)
-		else()
-			unset(ENABLE_OPENSSL CACHE)
-		endif()
-	endif()
-
-	if(NOT TARGET libzip::zip)
-		message(FATAL_ERROR "Failed to provide the libzip::zip target.")
-	endif()
+	find_package(libzip 1.7.2 CONFIG REQUIRED)
 endif()
 
 if(BUILD_UNITTESTS OR BUILD_BENCHMARKS)

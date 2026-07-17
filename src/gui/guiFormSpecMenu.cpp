@@ -75,6 +75,31 @@ constexpr s32 ID_PROCEED_BTN = 257;
 /*
 	GUIFormSpecMenu
 */
+
+static EGUI_ALIGNMENT get_halign(const StyleSpec &style)
+{
+	std::string halign_str = style.get(StyleSpec::HALIGN, "left");
+
+	if (halign_str == "center")
+		return gui::EGUIA_CENTER;
+	if (halign_str == "right")
+		return gui::EGUIA_LOWERRIGHT;
+
+	return gui::EGUIA_UPPERLEFT; // default left
+}
+
+static EGUI_ALIGNMENT get_valign(const StyleSpec &style)
+{
+	std::string valign_str = style.get(StyleSpec::VALIGN, "top");
+
+	if (valign_str == "center")
+		return gui::EGUIA_CENTER;
+	if (valign_str == "bottom")
+		return gui::EGUIA_LOWERRIGHT;
+
+	return gui::EGUIA_UPPERLEFT; // default top
+}
+
 static unsigned int font_line_height(gui::IGUIFont *font)
 {
 	return font->getDimension(L"Ay").Height + font->getKerning(L'A').Y;
@@ -1561,10 +1586,22 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 		if (is_editable && spec.fname == m_focused_element)
 			Environment->setFocus(e);
 
+		EGUI_ALIGNMENT halign = get_halign(style);
+		EGUI_ALIGNMENT valign = gui::EGUIA_UPPERLEFT; // default for field[]
+
 		if (is_multiline) {
 			e->setMultiLine(true);
 			e->setWordWrap(true);
-			e->setTextAlignment(gui::EGUIA_UPPERLEFT, gui::EGUIA_UPPERLEFT);
+
+			valign = get_valign(style);
+
+			// calculates if a scrollbar is needed (the same way as in irr/src/CGUIEditBox.cpp at the end of the file).
+			// basically if the height of the wrapped text exceeds the textarea height,
+			// force top alignment to prevent text being cut off vertically
+			core::dimension2du text_dim = e->getTextDimension();
+			if (text_dim.Height > (u32)rect.getHeight()) {
+				valign = gui::EGUIA_UPPERLEFT;
+			}
 		} else {
 			SEvent evt;
 			evt.EventType            = EET_KEY_INPUT_EVENT;
@@ -1576,6 +1613,7 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 			e->OnEvent(evt);
 		}
 
+		e->setTextAlignment(halign, valign);
 		e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 		e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
 		bool border = style.getBool(StyleSpec::BORDER, true);
@@ -1662,13 +1700,10 @@ void GUIFormSpecMenu::parseTextArea(parserData* data, std::vector<std::string>& 
 
 		geom.X = (stof(v_geom[0]) * spacing.X) - (spacing.X - imgsize.X);
 
-		if (type == "textarea")
-		{
+		if (type == "textarea") {
 			geom.Y = (stof(v_geom[1]) * (float)imgsize.Y) - (spacing.Y-imgsize.Y);
 			pos.Y += m_btn_height;
-		}
-		else
-		{
+		} else {
 			pos.Y += (stof(v_geom[1]) * (float)imgsize.Y)/2;
 			pos.Y -= m_btn_height;
 			geom.Y = m_btn_height*2;
@@ -1935,6 +1970,9 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 	if (!font)
 		font = m_font;
 
+	EGUI_ALIGNMENT halign = get_halign(style);
+	EGUI_ALIGNMENT valign = get_valign(style);
+
 	auto add_label = [&](core::rect<s32> rect, const EnrichedString &text,
 			EGUI_ALIGNMENT align_h, EGUI_ALIGNMENT align_v, bool word_wrap) {
 		FieldSpec spec(
@@ -2013,7 +2051,7 @@ void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
 				pos.X + geom.X,
 				pos.Y + geom.Y);
 
-		add_label(rect, str, gui::EGUIA_UPPERLEFT, gui::EGUIA_UPPERLEFT, true);
+		add_label(rect, str, halign, valign, true);
 	}
 }
 
