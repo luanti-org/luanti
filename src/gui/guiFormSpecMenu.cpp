@@ -3524,6 +3524,16 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		m_last_formname = m_text_dst->m_formname;
 		m_is_form_regenerated = true;
 	}
+
+	// Restore hover state for inventory lists
+	if (m_pointer.X != -1) {
+		for (GUIInventoryList *list : m_inventorylists) {
+			s32 hovered = list->getItemIndexAtPos(m_pointer);
+			if (hovered != -1) {
+				list->setHoveredIndex(hovered);
+			}
+		}
+	}
 }
 
 void GUIFormSpecMenu::legacySortElements(std::list<IGUIElement *>::iterator from)
