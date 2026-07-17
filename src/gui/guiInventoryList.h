@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "client/texturesource.h"
 #include "inventorymanager.h"
 #include <IGUIElement.h>
 #include <IGUIEnvironment.h>
@@ -52,6 +53,8 @@ public:
 		// colors for normal and highlighted slot background
 		video::SColor slotbg_n = video::SColor(255, 128, 128, 128);
 		video::SColor slotbg_h = video::SColor(255, 192, 192, 192);
+		video::ITexture *slotbgimg_n = nullptr;
+		video::ITexture *slotbgimg_h = nullptr;
 	};
 
 	GUIInventoryList(gui::IGUIEnvironment *env,
@@ -67,7 +70,8 @@ public:
 		const v2f32 &slot_spacing,
 		GUIFormSpecMenu *fs_menu,
 		const Options &options,
-		gui::IGUIFont *font);
+		gui::IGUIFont *font,
+		ISimpleTextureSource *tsrc);
 
 	void draw() override;
 
@@ -89,6 +93,12 @@ public:
 	{
 		m_options.slotbg_n = slotbg_n;
 		m_options.slotbg_h = slotbg_h;
+	}
+
+	void setSlotBGImages(video::ITexture *normal, video::ITexture *hover)
+	{
+		m_options.slotbgimg_n = normal;
+		m_options.slotbgimg_h = hover;
 	}
 
 	void setSlotBorders(bool slotborder, const video::SColor &slotbordercolor)
@@ -127,6 +137,10 @@ private:
 
 	// the font
 	gui::IGUIFont *m_font;
+
+	ISimpleTextureSource *m_tsrc;
+
+	ISimpleTextureSource *getTextureSource() { return m_tsrc; }
 
 	// the index of the hovered item; -1 if no item is hovered
 	s32 m_hovered_i;

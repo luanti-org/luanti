@@ -22,7 +22,8 @@ GUIInventoryList::GUIInventoryList(gui::IGUIEnvironment *env,
 	const v2f32 &slot_spacing,
 	GUIFormSpecMenu *fs_menu,
 	const Options &options,
-	gui::IGUIFont *font) :
+	gui::IGUIFont *font,
+	ISimpleTextureSource *tsrc) :
 	gui::IGUIElement(gui::EGUIET_ELEMENT, env, parent, id, rectangle),
 	m_invmgr(invmgr),
 	m_inventoryloc(inventoryloc),
@@ -34,6 +35,7 @@ GUIInventoryList::GUIInventoryList(gui::IGUIEnvironment *env,
 	m_fs_menu(fs_menu),
 	m_options(options),
 	m_font(font),
+	m_tsrc(tsrc),
 	m_hovered_i(-1),
 	m_already_warned(false)
 {
@@ -101,10 +103,22 @@ void GUIInventoryList::draw()
 			(hovering ? IT_ROT_HOVERED : IT_ROT_NONE);
 
 		// layer 0
-		if (hovering) {
-			driver->draw2DRectangle(m_options.slotbg_h, rect, &AbsoluteClippingRect);
+		if (m_options.slotbgimg_n) {
+			video::ITexture *tex = hovering && m_options.slotbgimg_h ? m_options.slotbgimg_h : m_options.slotbgimg_n;
+			if (tex) {
+				core::rect<s32> src(0, 0, tex->getOriginalSize().Width, tex->getOriginalSize().Height);
+				driver->draw2DImage(tex, rect, src, &AbsoluteClippingRect, nullptr, true);
+			} else {
+				// fallback
+				driver->draw2DRectangle(hovering ? m_options.slotbg_h : m_options.slotbg_n, rect, &AbsoluteClippingRect);
+			}
 		} else {
-			driver->draw2DRectangle(m_options.slotbg_n, rect, &AbsoluteClippingRect);
+			// Original color-based background
+			if (hovering) {
+				driver->draw2DRectangle(m_options.slotbg_h, rect, &AbsoluteClippingRect);
+			} else {
+				driver->draw2DRectangle(m_options.slotbg_n, rect, &AbsoluteClippingRect);
+			}
 		}
 
 		// Draw inv slot borders
