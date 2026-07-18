@@ -885,8 +885,7 @@ int ModApiMainMenu::l_extract_zip(lua_State *L)
 	CHECK_SECURE_PATH(L, zipfile, false)
 	CHECK_SECURE_PATH(L, destination, true)
 
-	auto fs = RenderingEngine::get_raw_device()->getFileSystem();
-	bool ok = fs::extractZipFile(fs, zipfile, destination);
+	bool ok = fs::extractZipFile(zipfile, destination);
 	lua_pushboolean(L, ok);
 	return 1;
 }

@@ -16,11 +16,8 @@
 #include "config.h"
 #include "porting.h"
 #if CHECK_CLIENT_BUILD()
-#include "irr_ptr.h"
-#include <IFileArchive.h>
-#include <IFileList.h>
-#include <IFileSystem.h>
-#include <IReadFile.h>
+#include <zip.h>
+#include <algorithm>
 #endif
 
 #ifdef _WIN32
@@ -996,73 +993,140 @@ bool safeWriteToFile(const std::string &path, std::string_view content)
 }
 
 #if CHECK_CLIENT_BUILD()
-bool extractZipFile(io::IFileSystem *fs, const char *filename, const std::string &destination)
+bool extractZipFile(const char *filename, const std::string &destination)
 {
-	// Be careful here not to touch the global file hierarchy in Irrlicht
-	// since this function needs to be thread-safe!
+	const std::string normalized_destination = fs::RemoveRelativePathComponents(destination);
+	if (normalized_destination.empty()) {
+		warningstream << "fs::extractZipFile(): failed, invalid destination received" << std::endl;
+		return false;
+	}
 
-	io::IArchiveLoader *zip_loader = nullptr;
-	for (u32 i = 0; i < fs->getArchiveLoaderCount(); i++) {
-		if (fs->getArchiveLoader(i)->isALoadableFileFormat(io::EFAT_ZIP)) {
-			zip_loader = fs->getArchiveLoader(i);
-			break;
+	struct ZipArchiveDiscard
+	{
+		void operator()(zip_t *archive) const noexcept
+		{
+			if (archive) {
+				zip_discard(archive);
+			}
 		}
-	}
-	if (!zip_loader) {
-		warningstream << "fs::extractZipFile(): Irrlicht said it doesn't support ZIPs." << std::endl;
+	};
+
+	int error_num = 0;
+	std::unique_ptr<zip_t, ZipArchiveDiscard> archive(zip_open(filename, ZIP_RDONLY, &error_num));
+	if (!archive) {
+		zip_error_t zip_error;
+		zip_error_init_with_code(&zip_error, error_num);
+		warningstream << "fs::extractZipFile(): was unable to open archive: " << zip_error_strerror(&zip_error) << std::endl;
+		zip_error_fini(&zip_error);
 		return false;
 	}
 
-	irr_ptr<io::IFileArchive> opened_zip(zip_loader->createArchive(filename, false, false));
-	if (!opened_zip)
-		return false;
-	const io::IFileList* files_in_zip = opened_zip->getFileList();
+	const auto zip_num_entries = static_cast<zip_uint64_t>(zip_get_num_entries(archive.get(), 0));
 
-	for (u32 i = 0; i < files_in_zip->getFileCount(); i++) {
-		if (files_in_zip->isDirectory(i))
-			continue; // ignore, we create dirs as necessary
+	for (zip_uint64_t i = 0; i < zip_num_entries; ++i) {
+		zip_stat_t entry;
+		zip_stat_init(&entry);
 
-		const auto &filename = files_in_zip->getFullFileName(i);
-		std::string fullpath = destination + DIR_DELIM;
-		fullpath += filename.c_str();
+		if (zip_stat_index(archive.get(), i, 0, &entry) < 0) {
+			warningstream << "fs::extractZipFile(): failed to get metadata" << std::endl;
+			return false;
+		}
+		if (!(entry.valid & ZIP_STAT_NAME) || !entry.name || entry.name[0] == '\0') {
+			warningstream << "fs::extractZipFile(): entry has no valid name" << std::endl;
+			return false;
+		}
+
+		size_t name_length = std::strlen(entry.name);
+		if (entry.name[name_length - 1] == '/') {
+			// Is a directory
+			continue;
+		}
+
+		if (!(entry.valid & ZIP_STAT_SIZE)) {
+			warningstream << "fs::extractZipFile(): entry size was invalid" << std::endl;
+			return false;
+		}
+		std::string fullpath = normalized_destination;
+		fullpath.append(DIR_DELIM).append(entry.name);
 
 		fullpath = fs::RemoveRelativePathComponents(fullpath);
-		if (!fs::PathStartsWith(fullpath, destination)) {
-			warningstream << "fs::extractZipFile(): refusing to extract file \""
-				<< filename.c_str() << "\"" << std::endl;
+		if (!fs::PathStartsWith(fullpath, normalized_destination)) {
+			warningstream << "fs::extractZipFile(): refusing to extract file: " << entry.name << std::endl;
 			continue;
 		}
 
 		std::string fullpath_dir = fs::RemoveLastPathComponent(fullpath);
 
-		if (!fs::PathExists(fullpath_dir) && !fs::CreateAllDirs(fullpath_dir))
+		if (!fs::PathExists(fullpath_dir) && !fs::CreateAllDirs(fullpath_dir)) {
 			return false;
+		}
 
-		irr_ptr<io::IReadFile> toread(opened_zip->createAndOpenFile(i));
+		struct ZipEntryClose
+		{
+			void operator()(zip_file_t *entry) const noexcept
+			{
+				if (zip_fclose(entry) != 0) {
+					warningstream << "fs::extractZipFile(): zip_fclose() failed on cleanup" << std::endl;
+				}
+			}
+		};
+
+		std::unique_ptr<zip_file_t, ZipEntryClose> zip_file (zip_fopen_index(archive.get(), i, 0));
+
+		if (!zip_file) {
+			zip_error_t *file_error = zip_get_error(archive.get());
+			warningstream << "fs::extractZipFile(): failed to open zip entry " << zip_error_strerror(file_error) << std::endl;
+			return false;
+		}
+
+		// Remove partial written files if write exits early
+		struct DestinationDeleter
+		{
+			std::string fullpath;
+			bool complete = false;
+
+			DestinationDeleter(const std::string &path) : fullpath(path) {}
+
+			~DestinationDeleter() {
+				if (!complete)
+					remove(fullpath.c_str());
+			}
+		};
+		DestinationDeleter write_check(fullpath);
 
 		auto os = open_ofstream(fullpath.c_str(), true);
-		if (!os.good())
+		if (os.fail()) {
 			return false;
-
+		}
 		char buffer[4096];
-		long total_read = 0;
 
-		while (total_read < toread->getSize()) {
-			long bytes_read = toread->read(buffer, sizeof(buffer));
-			bool error = true;
-			if (bytes_read != 0) {
-				os.write(buffer, bytes_read);
-				error = os.fail();
-			}
-			if (error) {
-				os.close();
-				remove(fullpath.c_str());
+		for (zip_uint64_t total_read = 0; total_read < entry.size;) {
+			zip_uint64_t requested_bytes = std::min<zip_uint64_t>(entry.size - total_read, sizeof(buffer));
+			zip_int64_t bytes_read = zip_fread(zip_file.get(), buffer, requested_bytes);
+			if (bytes_read <= 0) {
+				warningstream << "fs::extractZipFile(): failed to read: " << entry.name << std::endl;
 				return false;
 			}
-			total_read += bytes_read;
+			os.write(buffer, static_cast<std::streamsize>(bytes_read));
+			if (os.fail()) {
+				warningstream << "fs::extractZipFile(): failed to write " << entry.name << std::endl;
+				return false;
+			}
+			total_read += static_cast<zip_uint64_t>(bytes_read);
 		}
+		os.close();
+		if (os.fail()) {
+			warningstream << "fs::extractZipFile(): failed to close write stream for: " << entry.name << std::endl;
+			return false;
+		}
+		zip_file_t *handle = zip_file.release();
+		if (zip_fclose(handle) != 0) {
+			warningstream << "fs::extractZipFile(): failed to close zip entry: " << entry.name << std::endl;
+			return false;
+		}
+		// Only allow file to skip cleanup if both closes
+		write_check.complete = true;
 	}
-
 	return true;
 }
 #endif
