@@ -1016,7 +1016,7 @@ bool extractZipFile(const char *filename, const std::string &destination)
 	if (!archive) {
 		zip_error_t zip_error;
 		zip_error_init_with_code(&zip_error, error_num);
-		warningstream << "fs::extractZipFile(): was unable to open archive with error " << zip_error_strerror(&zip_error) << std::endl;
+		warningstream << "fs::extractZipFile(): was unable to open archive: " << zip_error_strerror(&zip_error) << std::endl;
 		zip_error_fini(&zip_error);
 		return false;
 	}
