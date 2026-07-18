@@ -57,7 +57,8 @@ cmake_args=(
 	-DCMAKE_TOOLCHAIN_FILE=$toolchain_file
 	-DCMAKE_INSTALL_PREFIX=/tmp
 	-DBUILD_CLIENT=1 -DBUILD_SERVER=0
-	-DEXTRA_DLL="$runtime_dlls$(_dlls "$libdir/libzip/bin/libzip.dll")"
+	-DEXTRA_DLL="$runtime_dlls"
+	-DLIBZIP_DLL=$libdir/libzip/bin/libzip.dll
 
 	-DENABLE_SOUND=1
 	-DENABLE_CURL=1
