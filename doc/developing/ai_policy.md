@@ -30,25 +30,22 @@ That said, the following specific limitations are put in place:
   the creative and artistic processes, and we as the Luanti maintainers respect
   those views highly.
 
-Since the state of AI tooling is constantly changing, we may lift some
-restrictions on AI-generated code in the future.
+Since the state of AI tooling is constantly changing, these restrictions may be
+lifted or reinforced in the future.
 
 ## Permissible uses of AI
 
 In general, any other usage of AI is permissible. For example, here are some
-perfectly licit uses of generative AI:
+cases where generative AI is perfectly allowed:
 
-- Exploring the Luanti codebase in a fuzzy way or understanding code
+- Exploring the Luanti codebase with "fuzzy" searches or understanding code
   architecture quickly with AI tooling.
 - Using an LLM as a powerful search engine or knowledge base for coding
-  purposes, keeping in mind that you must take responsibility for truly
-  understanding your contribution.
-- Having an LLM review your code or check for potential bugs in order to
-  improve the quality of your contribution. Note that all PRs must still be
-  fully reviewed and approved by a human maintainer.
+  purposes, as long as you truly understand your contribution.
+- Having an AI tool review your code or check for potential bugs in order to
+  improve the quality of your contribution.
 - Using an LLM to debug an issue or search for security vulnerabilities, but
-  bear in mind that AIs may not be used for human-to-human communication! Make
-  sure to understand the AI's analysis completely and communicate it yourself.
+  make sure to verify the analysis completely and communicate it yourself.
 
 In any case, any significant AI usage used in a contribution must be disclosed
 in the PR description.
