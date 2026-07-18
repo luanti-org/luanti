@@ -136,6 +136,7 @@ endif()
 
 if(BUILD_CLIENT)
 	find_package(Freetype REQUIRED)
+	find_package(libzip 1.7.2 CONFIG REQUIRED)
 endif()
 
 option(ENABLE_CURSES "Enable ncurses console" ${BUILD_SERVER})

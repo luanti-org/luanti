@@ -1021,9 +1021,7 @@ bool extractZipFile(const char *filename, const std::string &destination)
 		return false;
 	}
 
-	zip_int64_t num_entries = zip_get_num_entries(archive.get(), 0);
-
-	auto zip_num_entries = static_cast<zip_uint64_t>(num_entries);
+	const auto zip_num_entries = static_cast<zip_uint64_t>(zip_get_num_entries(archive.get(), 0));
 
 	for (zip_uint64_t i = 0; i < zip_num_entries; ++i) {
 		zip_stat_t entry;
@@ -1048,8 +1046,8 @@ bool extractZipFile(const char *filename, const std::string &destination)
 			warningstream << "fs::extractZipFile(): entry size was invalid" << std::endl;
 			return false;
 		}
-		std::string fullpath = normalized_destination + DIR_DELIM;
-		fullpath += entry.name;
+		std::string fullpath = normalized_destination;
+		fullpath.append(DIR_DELIM).append(entry.name);
 
 		fullpath = fs::RemoveRelativePathComponents(fullpath);
 		if (!fs::PathStartsWith(fullpath, normalized_destination)) {
