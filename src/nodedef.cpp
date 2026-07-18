@@ -648,9 +648,8 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 
 		post_effect_color_shaded = readU8(is);
 
-		//if (!canRead(is))
-		//	break;
-		// Add new code here
+		// if (!canRead(is))
+		// 	break;
 	} while (0);
 }
 
