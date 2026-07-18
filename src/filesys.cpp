@@ -1103,8 +1103,7 @@ bool extractZipFile(const char *filename, const std::string &destination)
 		char buffer[4096];
 
 		for (zip_uint64_t total_read = 0; total_read < entry.size;) {
-			zip_uint64_t remaining_bytes = entry.size - total_read;
-			zip_uint64_t requested_bytes = std::min(remaining_bytes, static_cast<zip_uint64_t>(sizeof(buffer)));
+			zip_uint64_t requested_bytes = std::min<zip_uint64_t>(entry.size - total_read, sizeof(buffer));
 			zip_int64_t bytes_read = zip_fread(zip_file.get(), buffer, requested_bytes);
 			if (bytes_read <= 0) {
 				warningstream << "fs::extractZipFile(): failed to read: " << entry.name << std::endl;
