@@ -15,6 +15,7 @@
 #include "EDriverFeatures.h"
 #include "ExtensionHandler.h"
 #include "IContextManager.h"
+#include "ShaderCache.h"
 
 namespace video
 {
@@ -239,6 +240,9 @@ public:
 
 	COpenGL3CacheHandler *getCacheHandler() const;
 
+	COpenGL3ShaderCache& getShaderCache() { return ShaderCache; }
+	const COpenGL3ShaderCache& getShaderCache() const { return ShaderCache; }
+
 protected:
 	virtual bool genericDriverInit(const core::dimension2d<u32> &screenSize, bool stencilBuffer);
 
@@ -362,6 +366,8 @@ private:
 
 	void debugCb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message);
 	static void APIENTRY debugCb(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);
+
+	COpenGL3ShaderCache ShaderCache;
 };
 
 } // end namespace video
