@@ -76,7 +76,6 @@ AppDir
 !/clientmods/preview/
 /client/mod_storage/
 /mod_data
-/build-unit
 ## Configuration/log files
 minetest.conf
 debug.txt

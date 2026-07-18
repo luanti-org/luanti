@@ -993,6 +993,43 @@ bool safeWriteToFile(const std::string &path, std::string_view content)
 }
 
 #if CHECK_CLIENT_BUILD()
+
+struct ZipArchiveDiscard
+{
+	void operator()(zip_t *archive) const noexcept
+	{
+		if (archive) {
+			zip_discard(archive);
+		}
+	}
+};
+
+struct ZipEntryClose
+{
+	void operator()(zip_file_t *entry) const noexcept
+	{
+		zip_fclose(entry);
+	}
+};
+
+// Delete partially written files
+struct DestinationDeleter
+{
+	std::string fullpath;
+	bool complete = false;
+
+	DestinationDeleter(const std::string &path) :
+		fullpath(path)
+	{
+	}
+
+	~DestinationDeleter()
+	{
+		if (!complete)
+			remove(fullpath.c_str());
+	}
+};
+
 bool extractZipFile(const char *filename, const std::string &destination)
 {
 	const std::string normalized_destination = fs::RemoveRelativePathComponents(destination);
@@ -1000,16 +1037,6 @@ bool extractZipFile(const char *filename, const std::string &destination)
 		warningstream << "fs::extractZipFile(): failed, invalid destination received" << std::endl;
 		return false;
 	}
-
-	struct ZipArchiveDiscard
-	{
-		void operator()(zip_t *archive) const noexcept
-		{
-			if (archive) {
-				zip_discard(archive);
-			}
-		}
-	};
 
 	int error_num = 0;
 	std::unique_ptr<zip_t, ZipArchiveDiscard> archive(zip_open(filename, ZIP_RDONLY, &error_num));
@@ -1021,9 +1048,7 @@ bool extractZipFile(const char *filename, const std::string &destination)
 		return false;
 	}
 
-	zip_int64_t num_entries = zip_get_num_entries(archive.get(), 0);
-
-	auto zip_num_entries = static_cast<zip_uint64_t>(num_entries);
+	const auto zip_num_entries = static_cast<zip_uint64_t>(zip_get_num_entries(archive.get(), 0));
 
 	for (zip_uint64_t i = 0; i < zip_num_entries; ++i) {
 		zip_stat_t entry;
@@ -1048,8 +1073,8 @@ bool extractZipFile(const char *filename, const std::string &destination)
 			warningstream << "fs::extractZipFile(): entry size was invalid" << std::endl;
 			return false;
 		}
-		std::string fullpath = normalized_destination + DIR_DELIM;
-		fullpath += entry.name;
+		std::string fullpath = normalized_destination;
+		fullpath.append(DIR_DELIM).append(entry.name);
 
 		fullpath = fs::RemoveRelativePathComponents(fullpath);
 		if (!fs::PathStartsWith(fullpath, normalized_destination)) {
@@ -1063,16 +1088,6 @@ bool extractZipFile(const char *filename, const std::string &destination)
 			return false;
 		}
 
-		struct ZipEntryClose
-		{
-			void operator()(zip_file_t *entry) const noexcept
-			{
-				if (zip_fclose(entry) != 0) {
-					warningstream << "fs::extractZipFile(): zip_fclose() failed on cleanup" << std::endl;
-				}
-			}
-		};
-
 		std::unique_ptr<zip_file_t, ZipEntryClose> zip_file (zip_fopen_index(archive.get(), i, 0));
 
 		if (!zip_file) {
@@ -1081,19 +1096,6 @@ bool extractZipFile(const char *filename, const std::string &destination)
 			return false;
 		}
 
-		// Remove partial written files if write exits early
-		struct DestinationDeleter
-		{
-			std::string fullpath;
-			bool complete = false;
-
-			DestinationDeleter(const std::string &path) : fullpath(path) {}
-
-			~DestinationDeleter() {
-				if (!complete)
-					remove(fullpath.c_str());
-			}
-		};
 		DestinationDeleter write_check(fullpath);
 
 		auto os = open_ofstream(fullpath.c_str(), true);
@@ -1121,12 +1123,6 @@ bool extractZipFile(const char *filename, const std::string &destination)
 			warningstream << "fs::extractZipFile(): failed to close write stream for: " << entry.name << std::endl;
 			return false;
 		}
-		zip_file_t *handle = zip_file.release();
-		if (zip_fclose(handle) != 0) {
-			warningstream << "fs::extractZipFile(): failed to close zip entry: " << entry.name << std::endl;
-			return false;
-		}
-		// Only allow file to skip cleanup if both closes
 		write_check.complete = true;
 	}
 	return true;
