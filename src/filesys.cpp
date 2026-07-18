@@ -845,22 +845,11 @@ std::string AbsolutePath(const std::string &path)
 	std::filesystem::path absolute_path(abs_path);
 	free(abs_path);
 
-	//remove any trailing delim before return
-	std::filesystem::path root_path = absolute_path.root_path();
-	if (absolute_path == root_path) {
-		std::string abs_path_str = absolute_path.string();
-		return abs_path_str;
-	}
-	std::string path_string = absolute_path.string();
-	std::string root_string = root_path.string();
-	while (path_string.length() > root_string.length()) {
-		if (IsDirDelimiter(path_string.back())) {
-			path_string.pop_back();
-		} else {
-		break;
-		}
-	}
-	std::string abs_path_str = path_string;
+	// remove any trailing delim before return
+	std::string abs_path_str = absolute_path.string();
+	std::string root_string = absolute_path.root_path().string();
+	while (abs_path_str.length() > root_string.length() && IsDirDelimiter(abs_path_str.back()))
+		abs_path_str.pop_back();
 	return abs_path_str;
 }
 
