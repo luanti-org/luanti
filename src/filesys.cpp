@@ -5,6 +5,7 @@
 #include "filesys.h"
 #include "util/string.h"
 #include <iostream>
+#include <filesystem>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -841,8 +842,14 @@ std::string AbsolutePath(const std::string &path)
 #endif
 	if (!abs_path)
 		return "";
-	std::string abs_path_str(abs_path);
+	std::filesystem::path absolute_path(abs_path);
 	free(abs_path);
+
+	// remove any trailing delim before return
+	std::string abs_path_str = absolute_path.string();
+	std::string root_string = absolute_path.root_path().string();
+	while (abs_path_str.length() > root_string.length() && IsDirDelimiter(abs_path_str.back()))
+		abs_path_str.pop_back();
 	return abs_path_str;
 }
 
