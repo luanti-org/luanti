@@ -6256,6 +6256,8 @@ Utilities
       -- Whether `core.get_all_craft_recipes` returns the correct `method` for fuels
       -- `width = 0` for non-shaped recipes and provides the optional `time` field (5.17.0)
       get_all_craft_recipes_fuel = true,
+      -- Whether `core.get_all_craft_recipes` may return the `replacements` field (5.17.0)
+      get_all_craft_recipes_replacements = true,
   }
   ```
 
@@ -7473,16 +7475,35 @@ Item handling
           Empty ingredients (itemstring `""`) are represented as `nil`.
         * `output`: string with item name and quantity
         * `time` (for 'cooking' or 'fuel'): is `cooktime` or `burntime` (since 5.17.0)
+        * `replacements`: see [Crafting recipes](#crafting-recipes) (since 5.17.0)
     * Example result for `"default:gold_ingot"` with two recipes:
       ```lua
       {
           {
               method = "cooking", width = 3,
-              output = "default:gold_ingot", items = {"default:gold_lump"}
+              output = "default:gold_ingot", items = {"default:gold_lump"},
           },
           {
               method = "normal", width = 1,
-              output = "default:gold_ingot 9", items = {"default:goldblock"}
+              output = "default:gold_ingot 9", items = {"default:goldblock"},
+          }
+      }
+      ```
+    * Example result for `""` (fuel) with two recipes:
+      ```lua
+      {
+          {
+              method = "fuel", width = 0,
+              output = "", items = {"example:wood_scrap"},
+              time = 4,
+          },
+          {
+              method = "fuel", width = 0,
+              output = "", items = {"bucket:bucket_lava"},
+              time = 60,
+              replacements = {
+                  {"bucket:bucket_lava", "bucket:bucket_empty"}
+              },
           }
       }
       ```

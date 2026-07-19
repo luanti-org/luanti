@@ -70,24 +70,6 @@ struct CraftInput
 };
 
 /*
-	Output: Result of crafting operation
-*/
-struct CraftOutput
-{
-	// Used for normal crafting and cooking, itemstring
-	std::string item = "";
-	// Used for cooking (cook time) and fuel (burn time), seconds
-	float time = 0.0f;
-
-	CraftOutput() = default;
-
-	CraftOutput(const std::string &item_, float time_):
-		item(item_), time(time_)
-	{}
-	std::string dump() const;
-};
-
-/*
 	A list of replacements. A replacement indicates that a specific
 	input item should not be deleted (when crafting) but replaced with
 	a different item. Each replacements is a pair (itemstring to remove,
@@ -105,6 +87,30 @@ struct CraftReplacements
 	CraftReplacements() = default;
 	CraftReplacements(const std::vector<std::pair<std::string, std::string> > &pairs_):
 		pairs(pairs_)
+	{}
+	std::string dump() const;
+};
+
+/*
+	Output: Result of crafting operation
+*/
+struct CraftOutput
+{
+	// Used for normal crafting and cooking, itemstring
+	std::string item;
+	// Used for cooking (cook time) and fuel (burn time), seconds
+	float time = 0.0f;
+
+	CraftReplacements replacements;
+
+	CraftOutput() = default;
+
+	CraftOutput(const std::string &item_, float time_):
+		item(item_), time(time_)
+	{}
+
+	CraftOutput(const std::string &item_, float time_, CraftReplacements replacements):
+		item(item_), time(time_), replacements(replacements)
 	{}
 	std::string dump() const;
 };
