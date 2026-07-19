@@ -19,8 +19,8 @@ That said, the following specific limitations are put in place:
 
 - AI may not be used to generate substantial pieces of code. AI assistance may
   be used for simple tasks, such as code completion, find-and-replace tasks,
-  or generating boilerplate code. In particular, "vibe-coding" or autonomous AI
-  usage is completely unacceptable.
+  small bugfixes, or generating boilerplate code. In particular, "vibe-coding"
+  or autonomous AI usage is completely unacceptable.
 - Do not use AI-generated text when communicating with other humans, including
   when writing documentation. Nobody wants to talk to another person and get a
   machine-generated response: this is basic respect. That said, using AI tools
