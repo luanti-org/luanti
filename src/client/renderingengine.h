@@ -123,6 +123,8 @@ public:
 		return m_device->getGUIEnvironment();
 	}
 
+	void step(float dtime);
+
 	// If "indef_pos" is given, the value of "percent" is ignored and an indefinite
 	// progress bar is drawn.
 	void draw_load_screen(const std::wstring &text,

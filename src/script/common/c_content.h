@@ -172,6 +172,8 @@ void push_hud_element(lua_State *L, HudElement *elem);
 
 bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value);
 
+void read_hud_animation(lua_State *L, int index, HudElementAnimations &anims);
+
 void push_collision_move_result(lua_State *L, const CollisionMoveResult &res);
 
 void push_mod_spec(lua_State *L, const ModSpec &spec, bool include_unsatisfied);

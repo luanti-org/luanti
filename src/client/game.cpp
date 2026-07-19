@@ -56,6 +56,8 @@
 	#include "client/sound/sound_openal.h"
 #endif
 
+const static float PENDING_HUD_ANIM_TIMEOUT_SEC = 10.0f;
+
 typedef s32 SamplerLayer_t;
 
 
@@ -2184,6 +2186,7 @@ const ClientEventHandler Game::clientEventHandler[CLIENTEVENT_MAX] = {
 	{&Game::handleClientEvent_OverrideDayNightRatio},
 	{&Game::handleClientEvent_CloudParams},
 	{&Game::handleClientEvent_UpdateCamera},
+	{&Game::handleClientEvent_HudAnimate},
 };
 
 void Game::handleClientEvent_None(ClientEvent *event, CameraOrientation *cam)
@@ -2300,7 +2303,19 @@ void Game::handleClientEvent_HudAdd(ClientEvent *event, CameraOrientation *cam)
 	e->text2     = event->hudadd->text2;
 	e->style     = event->hudadd->style;
 	e->hideable  = event->hudadd->hideable;
+	e->opacity   = event->hudadd->opacity;
 	m_hud_server_to_client[server_id] = player->hud.add(std::move(e));
+
+	// check for pending aims that may have arrived out of order
+	auto pending = m_pending_hud_animations.find(server_id);
+	if (pending != m_pending_hud_animations.end()) {
+		HudElement *elem = player->hud.get(m_hud_server_to_client[server_id]);
+		if (pending->second.animations.properties.empty())
+			elem->animations.reset();
+		else
+			elem->animations = std::move(pending->second.animations);
+		m_pending_hud_animations.erase(pending);
+	}
 
 	delete event->hudadd;
 }
@@ -2313,6 +2328,7 @@ void Game::handleClientEvent_HudRemove(ClientEvent *event, CameraOrientation *ca
 	if (i != m_hud_server_to_client.end()) {
 		player->hud.remove(i->second);
 		m_hud_server_to_client.erase(i);
+		m_pending_hud_animations.erase(event->hudrm.id);
 	}
 
 }
@@ -2369,6 +2385,8 @@ void Game::handleClientEvent_HudChange(ClientEvent *event, CameraOrientation *ca
 
 		CASE_SET(HUD_STAT_HIDEABLE, hideable, data);
 
+		CASE_SET(HUD_STAT_OPACITY, opacity, v2fdata.X);
+
 		case HudElementStat_END:
 			break;
 	}
@@ -2376,6 +2394,27 @@ void Game::handleClientEvent_HudChange(ClientEvent *event, CameraOrientation *ca
 #undef CASE_SET
 
 	delete event->hudchange;
+}
+
+void Game::handleClientEvent_HudAnimate(ClientEvent *event, CameraOrientation *cam)
+{
+	LocalPlayer *player = client->getEnv().getLocalPlayer();
+
+	auto i = m_hud_server_to_client.find(event->hudanimate->server_id);
+	if (i != m_hud_server_to_client.end()) {
+		HudElement *e = player->hud.get(i->second);
+		if (e) {
+			if (event->hudanimate->animations.properties.empty())
+				e->animations.reset();
+			else
+				e->animations = std::move(event->hudanimate->animations);
+		}
+	} else {
+		m_pending_hud_animations[event->hudanimate->server_id] =
+			{std::move(event->hudanimate->animations), 0.0f};
+	}
+
+	delete event->hudanimate;
 }
 
 void Game::handleClientEvent_SetSky(ClientEvent *event, CameraOrientation *cam)
@@ -3466,6 +3505,20 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 		Update particles
 	*/
 	client->getParticleManager()->step(dtime);
+
+	/*
+	    Update rendering engine
+	*/
+	m_rendering_engine->step(dtime);
+
+	// cleanup any too-old pending anims to avoid keeping them forever
+	for (auto it = m_pending_hud_animations.begin(); it != m_pending_hud_animations.end();) {
+		it->second.age += dtime;
+		if (it->second.age > PENDING_HUD_ANIM_TIMEOUT_SEC)
+			it = m_pending_hud_animations.erase(it);
+		else
+			++it;
+	}
 
 	/*
 		Damage camera tilt

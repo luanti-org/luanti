@@ -412,6 +412,22 @@ inline f32 damp(f32 a, f32 b, f32 lambda) {
 	return core::lerp(a, b, 1.0f - std::exp(-lambda));
 }
 
+// Easing functions: remap t in [0,1] to a quadratic eased curve
+inline f32 ease_in(f32 t)
+{
+	return t * t;
+}
+
+inline f32 ease_out(f32 t)
+{
+	return t * (2.0f - t);
+}
+
+inline f32 ease_in_out(f32 t)
+{
+	return (t < 0.5f) ? 2.0f * t * t : -1.0f + (4.0f - 2.0f * t) * t;
+}
+
 constexpr inline bool is_power_of_two(u32 n)
 {
 	return n != 0 && (n & (n - 1)) == 0;
