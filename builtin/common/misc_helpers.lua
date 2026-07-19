@@ -878,7 +878,7 @@ end
 -- Supports circular tables; does not support table keys
 -- Correctly checks whether a mapping of references ("same") exists
 -- Is significantly more efficient than assert.same
-function assert_same(a, b, same)
+local function assert_same(a, b, same)
 	same = same or {}
 	if same[a] or same[b] then
 		assert(same[a] == b and same[b] == a)
@@ -904,3 +904,5 @@ function assert_same(a, b, same)
 	end
 	assert(count == 0)
 end
+
+core.assert_same = assert_same

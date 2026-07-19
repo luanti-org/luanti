@@ -11,6 +11,8 @@ local t1, t2 = {x, x, y, y}, {x, y, x, y}
 assert.same(t1, t2) -- will succeed because it only checks whether the depths match
 assert(not pcall(assert_same, t1, t2)) -- will correctly fail because it checks whether the refs match
 
+local assert_same = core.assert_same
+
 describe("serialize", function()
 	local function assert_preserves(value)
 		local preserved_value = core.deserialize(core.serialize(value))
