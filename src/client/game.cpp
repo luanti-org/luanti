@@ -77,6 +77,7 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	int m_crack_texture_scale_i = 0;
 	CachedPixelShaderSetting<float> m_crack_texture_scale{"crackTextureScale"};
 	CachedPixelShaderSetting<float, 3> m_day_light{"dayLight"};
+	CachedVertexShaderSetting<float, 3> m_artificial_light_vertex{"artificialLight"};
 	CachedPixelShaderSetting<float, 3> m_minimap_yaw{"yawVec"};
 	CachedPixelShaderSetting<float, 3> m_camera_offset_pixel{"cameraOffset"};
 	CachedVertexShaderSetting<float, 3> m_camera_offset_vertex{"cameraOffset"};
@@ -148,9 +149,13 @@ public:
 	void onSetUniforms(video::IMaterialRendererServices *services) override
 	{
 		u32 daynight_ratio = (float)m_client->getEnv().getDayNightRatio();
+		const LocalPlayer *lp = m_client->getEnv().getLocalPlayer();
+		const auto &lighting = lp->getLighting();
 		video::SColorf sunlight;
-		get_sunlight_color(&sunlight, daynight_ratio);
+		get_sunlight_color(&sunlight, daynight_ratio,
+				lp->m_moonlight_color, lp->m_sunlight_color);
 		m_day_light.set(sunlight, services);
+		m_artificial_light_vertex.set(lp->m_lightsource_color, services);
 
 		u32 animation_timer = m_client->getEnv().getFrameTime() % 1000000;
 		float animation_timer_f = (float)animation_timer / 100000.f;
@@ -185,8 +190,6 @@ public:
 			tmp = m_crack_texture_scale_i;
 			m_crack_texture_scale.set(&tmp, services);
 		}
-
-		const auto &lighting = m_client->getEnv().getLocalPlayer()->getLighting();
 
 		const AutoExposure &exposure_params = lighting.exposure;
 		std::array<float, 7> exposure_buffer = {
@@ -2895,8 +2898,12 @@ PointedThing Game::updatePointedThing(
 		}
 
 		u32 daynight_ratio = client->getEnv().getDayNightRatio();
+		const LocalPlayer *lp = client->getEnv().getLocalPlayer();
+		video::SColorf dayLight;
+		get_sunlight_color(&dayLight, daynight_ratio,
+				lp->m_moonlight_color, lp->m_sunlight_color);
 		video::SColor c;
-		final_color_blend(&c, light_level, daynight_ratio);
+		final_color_blend(&c, encode_light(light_level, 0), dayLight, lp->m_lightsource_color);
 
 		// Modify final color a bit with time
 		u32 timer = client->getEnv().getFrameTime() % 5000;

@@ -278,13 +278,34 @@ u16 getSmoothLightTransparent(const v3s16 &p, const v3s16 &corner, MeshMakeData 
 	return getSmoothLightCombined(p, dirs, data);
 }
 
+// Default color endpoints for the day-night blend, extracted from the original final_color_blend()
+const video::SColorf DEFAULT_SUNLIGHT_COLOR(0.96f, 0.96f, 1.058f);
+const video::SColorf DEFAULT_MOONLIGHT_COLOR(-0.04f, -0.04f, 0.078f);
+const video::SColorf DEFAULT_LIGHTSOURCE_COLOR(1.04f, 1.04f, 1.04f);
+
+static video::SColorf lerp_skylight_color(
+		const video::SColorf &moonlight, const video::SColorf &sunlight,
+		u32 daynight_ratio)
+{
+	f32 t = daynight_ratio / 1000.0f;
+	video::SColorf result;
+	result.r = moonlight.r + (sunlight.r - moonlight.r) * t;
+	result.g = moonlight.g + (sunlight.g - moonlight.g) * t;
+	result.b = moonlight.b + (sunlight.b - moonlight.b) * t;
+	return result;
+}
+
 void get_sunlight_color(video::SColorf *sunlight, u32 daynight_ratio)
 {
-	f32 rg = daynight_ratio / 1000.0f - 0.04f;
-	f32 b = (0.98f * daynight_ratio) / 1000.0f + 0.078f;
-	sunlight->r = rg;
-	sunlight->g = rg;
-	sunlight->b = b;
+	*sunlight = lerp_skylight_color(DEFAULT_MOONLIGHT_COLOR,
+			DEFAULT_SUNLIGHT_COLOR, daynight_ratio);
+}
+
+
+void get_sunlight_color(video::SColorf *sunlight, u32 daynight_ratio,
+		const video::SColorf &moonlight, const video::SColorf &sunlightColor)
+{
+	*sunlight = lerp_skylight_color(moonlight, sunlightColor, daynight_ratio);
 }
 
 void final_color_blend(video::SColor *result,
@@ -296,17 +317,23 @@ void final_color_blend(video::SColor *result,
 		encode_light(light, 0), dayLight);
 }
 
+
 void final_color_blend(video::SColor *result,
 		const video::SColor &data, const video::SColorf &dayLight)
 {
-	static const video::SColorf artificialColor(1.04f, 1.04f, 1.04f);
+	final_color_blend(result, data, dayLight, DEFAULT_LIGHTSOURCE_COLOR);
+}
 
+void final_color_blend(video::SColor *result,
+		const video::SColor &data, const video::SColorf &dayLight,
+		const video::SColorf &lightsourceColor)
+{
 	video::SColorf c(data);
 	f32 n = 1 - c.a;
 
-	f32 r = c.r * (c.a * dayLight.r + n * artificialColor.r) * 2.0f;
-	f32 g = c.g * (c.a * dayLight.g + n * artificialColor.g) * 2.0f;
-	f32 b = c.b * (c.a * dayLight.b + n * artificialColor.b) * 2.0f;
+	f32 r = c.r * (c.a * dayLight.r + n * lightsourceColor.r) * 2.0f;
+	f32 g = c.g * (c.a * dayLight.g + n * lightsourceColor.g) * 2.0f;
+	f32 b = c.b * (c.a * dayLight.b + n * lightsourceColor.b) * 2.0f;
 
 	// Emphase blue a bit in darker places
 	// Each entry of this array represents a range of 8 blue levels
