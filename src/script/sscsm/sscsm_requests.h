@@ -10,6 +10,8 @@
 #include "map.h"
 #include "client/client.h"
 #include "log_internal.h"
+#include "itemdef.h"
+#include "nodedef.h"
 
 // Poll the next event (e.g. on_globalstep)
 struct SSCSMRequestPollNextEvent final : public ISSCSMRequest
@@ -102,6 +104,34 @@ struct SSCSMRequestGetNode final : public ISSCSMRequest
 		Answer answer{};
 		answer.node = node;
 		answer.is_pos_ok = is_pos_ok;
+		return serializeSSCSMAnswer(std::move(answer));
+	}
+};
+
+// Fetch all currently known item and node definitions, to populate
+// core.registered_items/_nodes/_tools/_craftitems on the SSCSM side.
+// TODO: aliases and the content-id name mapping are not sent yet.
+struct SSCSMRequestGetItemDefs final : public ISSCSMRequest
+{
+	struct Answer final : public ISSCSMAnswer
+	{
+		std::vector<ItemDefinition> items;
+		std::vector<ContentFeatures> nodes;
+	};
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		Answer answer{};
+
+		client->idef()->getDefinitions(answer.items);
+
+		const NodeDefManager *ndef = client->ndef();
+		answer.nodes.reserve(ndef->size());
+		for (u32 c = 0; c < ndef->size(); c++) {
+			const ContentFeatures &cf = ndef->get(c);
+			answer.nodes.push_back(cf);
+		}
+
 		return serializeSSCSMAnswer(std::move(answer));
 	}
 };

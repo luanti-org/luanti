@@ -349,6 +349,7 @@ public:
 
 	void drawLoadScreen(const std::wstring &text, float dtime, int percent);
 	void afterContentReceived();
+	void loadSSCSM();
 	void showUpdateProgressTexture(void *args, float progress);
 
 	float getRTT();

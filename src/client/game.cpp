@@ -879,6 +879,7 @@ bool Game::createClient(const GameStartData &start_data)
 
 	// Update cached textures, meshes and materials
 	client->afterContentReceived();
+	client->loadSSCSM();
 
 	/* Camera
 	 */

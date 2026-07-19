@@ -58,6 +58,7 @@ namespace Json { class Value; }
 namespace treegen { struct TreeDef; }
 
 extern struct EnumString es_TileAnimationType[];
+extern struct EnumString es_AlignStyle[];
 extern struct EnumString es_ItemType[];
 extern struct EnumString es_TouchInteractionMode[];
 
@@ -70,6 +71,7 @@ void push_nodebox(lua_State *L, const NodeBox &box);
 void push_palette(lua_State *L, const std::vector<video::SColor> *palette);
 
 TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special);
+void push_tile_definition(lua_State *L, const TileDef &def);
 
 void read_simplesoundspec(lua_State *L, int index, SoundSpec &spec);
 NodeBox read_nodebox(lua_State *L, int index);
