@@ -273,9 +273,9 @@ public:
 
 	bool isBlockOccluded(MapBlock *block, v3s16 cam_pos_nodes)
 	{
-		return isBlockOccluded(block->getPosRelative(), cam_pos_nodes, false);
+		return isBlockOccluded(block->getPosRelative(), cam_pos_nodes);
 	}
-	bool isBlockOccluded(v3s16 pos_relative, v3s16 cam_pos_nodes, bool simple_check = false);
+	bool isBlockOccluded(v3s16 pos_relative, v3s16 cam_pos_nodes, bool dense = false);
 
 protected:
 	IGameDef *m_gamedef;
@@ -297,8 +297,7 @@ protected:
 	bool determineAdditionalOcclusionCheck(v3s16 pos_camera,
 		const core::aabbox3d<s16> &block_bounds, v3s16 &to_check);
 	bool isOccluded(v3s16 pos_camera, v3s16 pos_target,
-		float step, float stepfac, float start_offset, float end_offset,
-		u32 needed_count);
+		float end_offset, u32 needed_count, bool dense);
 };
 
 class MMVManip : public VoxelManipulator

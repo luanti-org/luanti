@@ -98,17 +98,26 @@ volatile std::sig_atomic_t *signal_handler_killstatus()
 
 #if !defined(_WIN32) // POSIX
 
+// Used to silence compiler warnings about unused function results.
+// Note that static_cast<void>(...) does not suffice for the [warn_unused_result] attribute.
+template<typename... Args>
+static void ignore(Args &&...)
+{
+}
+
 static void signal_handler(int sig)
 {
 	if (!g_killed) {
 		if (sig == SIGINT) {
-			const char *dbg_text{"INFO: signal_handler(): "
-				"Ctrl-C pressed, shutting down.\n"};
-			write(STDERR_FILENO, dbg_text, strlen(dbg_text));
+			const char *dbg_text = "INFO: signal_handler(): "
+				"Ctrl-C pressed, shutting down.\n";
+			// Not much we can safely do in a signal handler so ignore failing writes
+			ignore(write(STDERR_FILENO, dbg_text, strlen(dbg_text)));
 		} else if (sig == SIGTERM) {
-			const char *dbg_text{"INFO: signal_handler(): "
-				"got SIGTERM, shutting down.\n"};
-			write(STDERR_FILENO, dbg_text, strlen(dbg_text));
+			const char *dbg_text = "INFO: signal_handler(): "
+				"got SIGTERM, shutting down.\n";
+			// Not much we can safely do in a signal handler so ignore failing writes
+			ignore(write(STDERR_FILENO, dbg_text, strlen(dbg_text)));
 		}
 		g_killed = true;
 	} else {

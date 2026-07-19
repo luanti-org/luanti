@@ -110,7 +110,7 @@ Inventory *ServerInventoryManager::createDetachedInventory(
 
 		// if player is connected, send him the inventory
 		if (p) {
-			m_env->getGameDef()->sendDetachedInventory(
+			m_env->getServer()->sendDetachedInventory(
 					inv, name, p->getPeerId());
 		}
 	} else {
@@ -118,7 +118,7 @@ Inventory *ServerInventoryManager::createDetachedInventory(
 			return inv; // Mods are not loaded yet, don't send
 
 		// Inventory is for everybody, broadcast
-		m_env->getGameDef()->sendDetachedInventory(inv, name, PEER_ID_INEXISTENT);
+		m_env->getServer()->sendDetachedInventory(inv, name, PEER_ID_INEXISTENT);
 	}
 
 	return inv;
@@ -138,12 +138,12 @@ bool ServerInventoryManager::removeDetachedInventory(const std::string &name)
 			RemotePlayer *player = m_env->getPlayer(owner.c_str());
 
 			if (player)
-				m_env->getGameDef()->sendDetachedInventory(
+				m_env->getServer()->sendDetachedInventory(
 						nullptr, name, player->getPeerId());
 		}
 	} else if (m_env) {
 		// Notify all players about the change as soon ServerEnv exists
-		m_env->getGameDef()->sendDetachedInventory(
+		m_env->getServer()->sendDetachedInventory(
 				nullptr, name, PEER_ID_INEXISTENT);
 	}
 

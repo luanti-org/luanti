@@ -22,6 +22,7 @@ public:
 	static u64 byteswap(u64 num);
 	static s64 byteswap(s64 num);
 	static f32 byteswap(f32 num);
+	static f64 byteswap(f64 num);
 	// prevent accidental swapping of chars
 	static inline u8 byteswap(u8 num) { return num; }
 	static inline c8 byteswap(c8 num) { return num; }

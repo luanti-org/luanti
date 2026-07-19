@@ -3,6 +3,8 @@
 This document contains a list of breaking changes to be made in the next major version.
 This list is largely advisory and items may be reevaluated once the time comes.
 
+* remove support for the `.x` model file format
+  * see https://github.com/luanti-org/luanti/issues/15619 for discussion
 * remove attachment space multiplier (*10)
 * remove space multiplier for models (*10)
 * remove player gravity multiplier (*2)

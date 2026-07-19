@@ -10,7 +10,6 @@
 #include "client/inputhandler.h"
 #include "client/texturepaths.h"
 #include "client/keys.h"
-#include "client/joystick_controller.h"
 #include "client/mapblock_mesh.h"
 #include "client/sound.h"
 #include "clientmap.h"
@@ -381,11 +380,10 @@ Game::Game() :
 
 	const char *settings[] = {
 		"chat_log_level", "doubletap_jump", "toggle_sneak_key", "toggle_aux1_key",
-		"enable_joysticks", "enable_fog", "mouse_sensitivity", "joystick_frustum_sensitivity",
+		"enable_fog", "mouse_sensitivity",
 		"repeat_place_time", "repeat_dig_time", "noclip", "free_move", "fog_start",
 		"cinematic", "cinematic_camera_smoothing", "camera_smoothing", "invert_mouse",
 		"enable_hotbar_mouse_wheel", "invert_hotbar_mouse_wheel", "pause_on_lost_focus",
-		"keyboard_camera_speed",
 	};
 	for (auto s : settings)
 		g_settings->registerChangedCallback(s, &settingChangedCallback, this);
@@ -2013,23 +2011,17 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 			input->setMousePos(center.X, center.Y);
 	}
 
-	if (m_cache_enable_joysticks) {
-		f32 c = m_cache_joystick_frustum_sensitivity * dtime * sens_scale;
-		cam->camera_yaw -= input->joystick.getAxisWithoutDead(JA_FRUSTUM_HORIZONTAL) * c;
-		cam->camera_pitch += input->joystick.getAxisWithoutDead(JA_FRUSTUM_VERTICAL) * c;
-	}
-
 	// Keyboard look
-	const f32 rate = m_cache_keyboard_camera_speed * dtime * sens_scale;
+	const f32 rate = dtime * sens_scale;
 
 	if (input->isKeyDown(KeyType::CAMERA_YAW_LEFT))
-		cam->camera_yaw += rate;
+		cam->camera_yaw += input->getAxisValue(KeyType::CAMERA_YAW_LEFT) * rate;
 	if (input->isKeyDown(KeyType::CAMERA_YAW_RIGHT))
-		cam->camera_yaw -= rate;
+		cam->camera_yaw -= input->getAxisValue(KeyType::CAMERA_YAW_RIGHT) * rate;
 	if (input->isKeyDown(KeyType::CAMERA_PITCH_UP))
-		cam->camera_pitch -= rate;
+		cam->camera_pitch -= input->getAxisValue(KeyType::CAMERA_PITCH_UP) * rate;
 	if (input->isKeyDown(KeyType::CAMERA_PITCH_DOWN))
-		cam->camera_pitch += rate;
+		cam->camera_pitch += input->getAxisValue(KeyType::CAMERA_PITCH_DOWN) * rate;
 
 	cam->camera_pitch = rangelim(cam->camera_pitch, -90, 90);
 }
@@ -2057,10 +2049,10 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 	//TimeTaker tt("update player control", NULL, PRECISION_NANO);
 
 	PlayerControl control(
-		isKeyDown(KeyType::FORWARD),
-		isKeyDown(KeyType::BACKWARD),
-		isKeyDown(KeyType::LEFT),
-		isKeyDown(KeyType::RIGHT),
+		getAxisValue(KeyType::FORWARD),
+		getAxisValue(KeyType::BACKWARD),
+		getAxisValue(KeyType::LEFT),
+		getAxisValue(KeyType::RIGHT),
 		isKeyDown(KeyType::JUMP) || player->getAutojump(),
 		getTogglableKeyState(KeyType::AUX1,  m_cache_toggle_aux1_key, player->control.aux1),
 		getTogglableKeyState(KeyType::SNEAK, allow_sneak_toggle,      player->control.sneak),
@@ -2068,9 +2060,7 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 		isKeyDown(KeyType::DIG),
 		isKeyDown(KeyType::PLACE),
 		cam.camera_pitch,
-		cam.camera_yaw,
-		input->getJoystickSpeed(),
-		input->getJoystickDirection()
+		cam.camera_yaw
 	);
 	control.setMovementFromKeys();
 
@@ -2149,11 +2139,12 @@ static void pauseNodeAnimation(PausedNodesList &paused, scene::ISceneNode *node)
 	if (node->getType() != scene::ESNT_ANIMATED_MESH)
 		return;
 	auto animated_node = static_cast<scene::AnimatedMeshSceneNode *>(node);
-	float speed = animated_node->getAnimationSpeed();
-	if (!speed)
-		return;
-	paused.emplace_back(grab(animated_node), speed);
-	animated_node->setAnimationSpeed(0.0f);
+	std::vector<PausedNode::Track> tracks;
+	for (auto &[track, spec] : animated_node->getAnimation().tracks) {
+		tracks.emplace_back(PausedNode::Track{track, spec.fps});
+		spec.fps = 0.0f;
+	}
+	paused.emplace_back(PausedNode{grab(animated_node), tracks});
 }
 
 void Game::pauseAnimation()
@@ -2163,8 +2154,12 @@ void Game::pauseAnimation()
 
 void Game::resumeAnimation()
 {
-	for (auto &&pair: paused_animated_nodes)
-		pair.first->setAnimationSpeed(pair.second);
+	for (const auto &paused: paused_animated_nodes) {
+		for (const PausedNode::Track &track: paused.tracks) {
+			auto &spec = paused.node->getAnimation().tracks[track.id];
+			spec.fps = track.fps;
+		}
+	}
 	paused_animated_nodes.clear();
 }
 
@@ -2288,7 +2283,7 @@ void Game::handleClientEvent_HudAdd(ClientEvent *event, CameraOrientation *cam)
 		return;
 	}
 
-	HudElement *e = new HudElement;
+	auto e = std::make_unique<HudElement>();
 	e->type   = static_cast<HudElementType>(event->hudadd->type);
 	e->pos    = event->hudadd->pos;
 	e->name   = event->hudadd->name;
@@ -2305,7 +2300,7 @@ void Game::handleClientEvent_HudAdd(ClientEvent *event, CameraOrientation *cam)
 	e->text2     = event->hudadd->text2;
 	e->style     = event->hudadd->style;
 	e->hideable  = event->hudadd->hideable;
-	m_hud_server_to_client[server_id] = player->addHud(e);
+	m_hud_server_to_client[server_id] = player->hud.add(std::move(e));
 
 	delete event->hudadd;
 }
@@ -2316,8 +2311,7 @@ void Game::handleClientEvent_HudRemove(ClientEvent *event, CameraOrientation *ca
 
 	auto i = m_hud_server_to_client.find(event->hudrm.id);
 	if (i != m_hud_server_to_client.end()) {
-		HudElement *e = player->removeHud(i->second);
-		delete e;
+		player->hud.remove(i->second);
 		m_hud_server_to_client.erase(i);
 	}
 
@@ -2331,7 +2325,7 @@ void Game::handleClientEvent_HudChange(ClientEvent *event, CameraOrientation *ca
 
 	auto i = m_hud_server_to_client.find(event->hudchange->id);
 	if (i != m_hud_server_to_client.end()) {
-		e = player->getHud(i->second);
+		e = player->hud.get(i->second);
 	}
 
 	if (e == nullptr) {
@@ -2820,12 +2814,6 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 	// Ensure DIG & PLACE are marked as handled
 	wasKeyDown(KeyType::DIG);
 	wasKeyDown(KeyType::PLACE);
-
-	input->joystick.clearWasKeyPressed(KeyType::DIG);
-	input->joystick.clearWasKeyPressed(KeyType::PLACE);
-
-	input->joystick.clearWasKeyReleased(KeyType::DIG);
-	input->joystick.clearWasKeyReleased(KeyType::PLACE);
 }
 
 
@@ -3748,11 +3736,8 @@ void Game::readSettings()
 	m_cache_doubletap_jump               = g_settings->getBool("doubletap_jump");
 	m_cache_toggle_sneak_key             = g_settings->getBool("toggle_sneak_key");
 	m_cache_toggle_aux1_key              = g_settings->getBool("toggle_aux1_key");
-	m_cache_enable_joysticks             = g_settings->getBool("enable_joysticks");
 	m_cache_enable_fog                   = g_settings->getBool("enable_fog");
 	m_cache_mouse_sensitivity            = g_settings->getFloat("mouse_sensitivity", 0.001f, 10.0f);
-	m_cache_keyboard_camera_speed        = g_settings->getFloat("keyboard_camera_speed", 0.001f, 720.0f);
-	m_cache_joystick_frustum_sensitivity = std::max(g_settings->getFloat("joystick_frustum_sensitivity"), 0.001f);
 	m_repeat_place_time                  = g_settings->getFloat("repeat_place_time", 0.16f, 2.0f);
 	m_repeat_dig_time                    = g_settings->getFloat("repeat_dig_time", 0.0f, 2.0f);
 

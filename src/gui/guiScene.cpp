@@ -99,13 +99,9 @@ void GUIScene::draw()
 		m_cam->bindTargetAndRotation(true);
 	}
 
-	cameraLoop();
-
 	// Continuous rotation
 	if (m_inf_rot)
 		rotateCamera(v3f(0.f, -0.03f * (float)dtime_ms, 0.f));
-
-	m_smgr->drawAll();
 
 	if (m_initial_rotation && m_mesh) {
 		rotateCamera(v3f(m_custom_rot.X, m_custom_rot.Y, 0.f));
@@ -113,6 +109,9 @@ void GUIScene::draw()
 
 		m_initial_rotation = false;
 	}
+
+	cameraLoop();
+	m_smgr->drawAll();
 
 	m_driver->setViewPort(oldViewPort);
 }
@@ -154,16 +153,18 @@ void GUIScene::setStyles(const std::array<StyleSpec, StyleSpec::NUM_STATES> &sty
  */
 void GUIScene::setFrameLoop(f32 begin, f32 end)
 {
-	if (m_mesh->getStartFrame() != begin || m_mesh->getEndFrame() != end)
-		m_mesh->setFrameLoop(begin, end);
+	auto &anim = m_mesh->getAnimation().tracks[0];
+	anim.setFrameRange(begin, end);
+	anim.cur_frame = anim.fps >= 0 ? begin : end;
 }
 
 /**
  * Sets the animation speed (FPS) for the mesh
+ * @note setFrameLoop() must be called before this
  */
 void GUIScene::setAnimationSpeed(f32 speed)
 {
-	m_mesh->setAnimationSpeed(speed);
+	m_mesh->getAnimation().tracks.at(0).fps = speed;
 }
 
 /* Camera control functions */
@@ -176,6 +177,7 @@ inline void GUIScene::calcOptimalDistance()
 	f32 depth  = box.MaxEdge.Z - box.MinEdge.Z;
 	f32 max_width = width > depth ? width : depth;
 
+	m_cam->updateMatrices(); // Updates the frustum
 	const scene::SViewFrustum *f = m_cam->getViewFrustum();
 	f32 cam_far = m_cam->getFarValue();
 	f32 far_width = core::line3df(f->getFarLeftUp(), f->getFarRightUp()).getLength();

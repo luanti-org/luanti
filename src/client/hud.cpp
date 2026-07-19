@@ -308,7 +308,11 @@ void Hud::drawItems(v2s32 screen_pos, v2s32 screen_offset, s32 itemcount, v2f al
 
 bool Hud::hasElementOfType(HudElementType type)
 {
-	for (HudElement *e : player->getHudElements()) {
+	for (auto const &e : player->hud.getElements()) {
+		if (e && e->type == type)
+			return true;
+	}
+	for (auto const &e : player->csm_hud.getElements()) {
 		if (e && e->type == type)
 			return true;
 	}
@@ -342,10 +346,14 @@ void Hud::drawLuaElements(const v3s16 &camera_offset, bool only_unhidable)
 
 	std::vector<HudElement*> elems;
 
-	elems.reserve(player->getHudElements().size());
-	for (HudElement *e : player->getHudElements()) {
+	elems.reserve(player->hud.getElements().size() + player->csm_hud.getElements().size());
+	for (auto const &e : player->hud.getElements()) {
 		if (e)
-			elems.push_back(e);
+			elems.push_back(e.get());
+	}
+	for (auto const &e : player->csm_hud.getElements()) {
+		if (e)
+			elems.push_back(e.get());
 	}
 
 	// Add builtin elements if the server doesn't send them.

@@ -419,8 +419,8 @@ to check whether a model is a valid glTF file.
 Many glTF features are not supported *yet*, including:
 
 * Animations
-  * Only a single animation is supported, use frame ranges within this animation.
-  * `CUBICSPLINE` interpolation is not supported.
+  * `CUBICSPLINE` interpolation is not supported
+  * Morph animations
 * Cameras
 * Materials
   * Only base color textures are supported
@@ -429,7 +429,12 @@ Many glTF features are not supported *yet*, including:
 * Alternative means of supplying data
   * Embedded images. You can use `gltfutil.py` from the
     [modding tools](https://github.com/luanti-org/modtools) to strip or extract embedded images.
-  * References to files via URIs
+  * References to files via URIs (e.g. `.bin` binary data buffers).
+    Buffers need to be embedded base64-encoded, or you can use `.glb` files.
+
+Note that unlike the `.x` and `.b3d` file formats, per the specification,
+glTF files should use timestamps in seconds as animation frame numbers.
+This means you should normally set an animation frame speed of `1.0` for glTF animations.
 
 Textures are supplied solely via the same means as for the other model file formats:
 The `textures` object property, the `tiles` node definition field and
@@ -3239,6 +3244,7 @@ Elements
 ### `tooltip[<gui_element_name>;<tooltip_text>;<bgcolor>;<fontcolor>]`
 
 * Adds tooltip for an element
+* It has to be declared *after* the element that is bound to
 * `bgcolor` tooltip background color as `ColorString` (optional)
 * `fontcolor` tooltip font color as `ColorString` (optional)
 
@@ -3247,6 +3253,25 @@ Elements
 * Adds tooltip for an area. Other tooltips will take priority when present.
 * `bgcolor` tooltip background color as `ColorString` (optional)
 * `fontcolor` tooltip font color as `ColorString` (optional)
+
+### `hypertip[<gui_element_name>;<staticPos>;<width>;<name>;<text>]`
+
+* Adds a hypertext tooltip for an element. Displays a formatted text
+  using `Markup Language` in a tooltip.
+* This tooltip has to be declared *after* the element that is bound to.
+* `staticPos` is an optional position of the form `posX,posY` in formspec coordinates.
+  If specified, the tooltip will always appear at these given formspec coordinates.
+  If this field is empty, the tooltip will follow the cursor.
+* `width` sets the tooltip width (in typographical 'em' units of the default font style).
+* `name` is the name of the field.
+* `text` is the formatted text using `Markup Language` described below.
+
+### `hypertip[<X>,<Y>;<W>,<H>;<staticPos>;<width>;<name>;<text>]`
+
+* Adds a hypertext tooltip for an area. Displays a formatted text
+  using `Markup Language` in a tooltip.
+* `X`, `Y`, `W` and `H` set the cursor hover area that allows the tooltip to pop-up.
+* `staticPos`, `width`, `name`, `text`: See above.
 
 ### `image[<X>,<Y>;<W>,<H>;<texture name>;<middle>]`
 
@@ -3821,6 +3846,7 @@ Some types may inherit styles from parent types.
 * model
 * pwdfield, inherits from field
 * scrollbar
+* hypertip
 * tabheader
 * table
 * textarea
@@ -3894,6 +3920,11 @@ Some types may inherit styles from parent types.
     * font_size - Sets font size. See button `font_size` property for more information.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * textcolor - color. Default white.
+    * halign - Sets horizontal alignment of text. Can either be `left`, `center`, or `right`. Default `left`.
+    * valign - Sets vertical alignment of text. Can either be `top`, `center`, or `bottom`. Default `top`.
+    **Note**: `valign` only has an effect when the text fits completely inside the element vertically.
+    If the text is too long (and a scrollbar appears in `textarea[]`), it is forced to `top` alignment
+    to prevent text being cut off. `valign` also does not work in `field[]`, however `halign` does.
 * model
     * bgcolor - color, sets background color.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
@@ -3907,6 +3938,10 @@ Some types may inherit styles from parent types.
     * font - Sets font type. See button `font` property for more information.
     * font_size - Sets font size. See button `font_size` property for more information.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+    * halign - Sets horizontal alignment of text. **Note**: Only applies for "area label"
+    syntax (`label[x,y;w,h;text]`). Can either be `left`, `center`, or `right`. Default `left`.
+    * valign - Sets vertical alignment of text. **Note**: Only applies for "area label"
+    syntax (`label[x,y;w,h;text]`). Can either be `top`, `center`, or `bottom`. Default `top`.
 * list
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * size - 2d vector, sets the size of inventory slots in coordinates.
@@ -3923,6 +3958,12 @@ Some types may inherit styles from parent types.
     * sound - a sound to be played when triggered.
 * scrollbar
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+* hypertip
+    * bgcolor - color, sets background color.
+    * border - boolean, draw border. Set to false to hide the bevelled tooltip pane. Default true.
+    * bgimg - standard background image. Defaults to none.
+    * bgimg_middle - Makes the bgimg textures render in 9-sliced mode and defines the middle rect.
+                     See background9[] documentation for more details.
 * tabheader
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * sound - a sound to be played when a different tab is selected.
@@ -4027,7 +4068,7 @@ Make that text a clickable text triggering an action.
 
 When clicked, the formspec is send to the server. The value of the text field
 sent to `on_player_receive_fields` will be "action:" concatenated to the action
-name.
+name. Note: This element is not clickable in hypertip elements.
 
 `<img name=... float=... width=... height=...>`
 
@@ -4729,7 +4770,7 @@ core.register_chatcommand("playtime", {
         return true, PS(
             "You have been playing for @1 minute.",
             "You have been playing for @1 minutes.",
-            minutes, tostring(minutes))
+            playtime, tostring(playtime))
     end,
 })
 ```
@@ -8918,26 +8959,6 @@ child will follow movement and rotation of that bone.
     * sets the object's full list of armor groups
     * same table syntax as for `get_armor_groups`
     * note: all armor groups not in the table will be removed
-* `set_animation(frame_range, frame_speed, frame_blend, frame_loop)`
-    * Sets the object animation parameters and (re)starts the animation
-    * Animations only work with a `"mesh"` visual
-    * `frame_range`: Beginning and end frame (as specified in the mesh file).
-       * Syntax: `{x=start_frame, y=end_frame}`
-       * Animation interpolates towards the end frame but stops when it is reached
-       * If looped, there is no interpolation back to the start frame
-       * If looped, the model should look identical at start and end
-       * default: `{x=1.0, y=1.0}`
-    * `frame_speed`: How fast the animation plays, in frames per second (number)
-       * default: `15.0`
-    * `frame_blend`: number, default: `0.0`
-    * `frame_loop`: If `true`, animation will loop. If false, it will play once
-       * default: `true`
-* `get_animation()`: returns current animation parameters set by `set_animation`:
-    * `frame_range`, `frame_speed`, `frame_blend`, `frame_loop`.
-* `set_animation_frame_speed(frame_speed)`
-    * Sets the frame speed of the object's animation
-    * Unlike `set_animation`, this will not restart the animation
-    * `frame_speed`: See `set_animation`
 * `set_attach(parent[, bone, position, rotation, forced_visible])`
     * Attaches object to `parent`
     * See 'Attachments' section for details
@@ -9048,6 +9069,73 @@ child will follow movement and rotation of that bone.
     * GUIDs persist between object reloads, and their format is guaranteed not to change.
       Thus you can use the GUID to identify an object in a particular world online and offline.
 
+##### Animations
+
+The old animation interface consists of `set_animation`, `get_animation`, and `set_animation_frame_speed`.
+
+* `set_animation(frame_range, frame_speed, frame_blend, frame_loop)`
+    * Sets the object animation parameters and (re)starts the animation
+    * Animations only work with a `"mesh"` visual
+    * `frame_range`: Beginning and end frame (as specified in the mesh file).
+       * Syntax: `{x=start_frame, y=end_frame}`
+       * Animation interpolates towards the end frame but stops when it is reached
+       * If looped, there is no interpolation back to the start frame
+       * If looped, the model should look identical at start and end
+       * default: `{x=1.0, y=1.0}`
+    * `frame_speed`: How fast the animation plays, in frames per second (number)
+       * **Important:** You normally need to use `1.0` for glTF models
+       * default: `15.0`
+    * `frame_blend`: How many seconds it takes to transition from
+       the previous animation to the new one, in seconds (number)
+       * default: `0.0`
+    * `frame_loop`: If `true`, animation will loop. If `false`, it will play once
+       * default: `true`
+* `get_animation()`: returns current animation parameters set by `set_animation`:
+    * `frame_range`, `frame_speed`, `frame_blend`, `frame_loop`.
+* `set_animation_frame_speed(new_frame_speed)`
+    * Sets the frame speed of the object's animation
+    * Unlike `set_animation`, this will not restart the animation
+    * `frame_speed`: See `set_animation`
+
+The new animation interface is intended for use with glTF animations
+and allows mixing and matching multiple separate, named animation tracks.
+This API is only supported properly by Luanti 5.17.0+ clients.
+If you need to support older clients, you may want to use `set_observers()`
+to send different objects to clients depending on their version.
+
+Tracks are identified either by name or track number. Track numbers start at 1.
+You **must not** mix names and track numbers to refer to the same animation.
+
+* `play_animation(track, [animation])`
+    * Starts or restarts an animation on the given track.
+    * `.x` and `.b3d` models only have a single, unnamed animation track `1`.
+    * `animation` is an optional table with the following optional fields:
+      * `min_frame = 0.0`, `max_frame = math.huge`, animation range in frames (seconds);
+         clamped on the client to first and last frame in the corresponding track.
+      * `start_frame`, where to start playing the animation, defaults to `min_frame` if `speed >= 0`, `max_frame` otherwise.
+      * `speed = 1.0`, animation speed in frames per second.
+        (Recall that glTF frames are typically just timetamps in seconds.)
+        A negative speed plays the animation backwards.
+        A speed of `0.0` can be used to pause an animation.
+      * `loop = true`, boolean, whether the animation repeats after completion.
+        Defaults to `true`.
+      * `blend = 0.0`, transition time in seconds when changing to the new animation.
+      * `priority = 0`, integer.
+        Higher priority animations are applied after lower priority ones,
+        taking precedence if the same bones are being animated.
+    * Example: `obj:play_animation("walk")`.
+    * Animations continue playing at the current frame when
+      the mesh is changed using `set_properties({mesh = ...})`,
+      but animation blending may be interrupted.
+* `update_animation(track, update)`
+    * `update` is a table with the following optional fields:
+      * `speed`: New animation speed
+    * Example: `obj:update_animation("walk", {speed = 0})`
+      pauses the animation currently playing on the track named `walk` at the current frame.
+* `stop_animation([track])`: Stop animation on the given track, if playing.
+    * If no track is given, all currently playing animations are stopped.
+* `get_animations()`: Returns a table of currently playing animations
+  `{[track] = animation}`, in the same format as the parameters of `play_animation`.
 
 #### Lua entity only (no-op for other objects)
 
@@ -9483,8 +9571,15 @@ child will follow movement and rotation of that bone.
     * See also `core.time_to_day_night_ratio`,
 * `get_day_night_ratio()`: returns the ratio or nil if it isn't overridden
 * `set_local_animation(idle, walk, dig, walk_while_dig, frame_speed)`:
-  set animation for player model in third person view.
-    * Every animation equals to a `{x=starting frame, y=ending frame}` table.
+  Set local animations for player model in third person view.
+    * Applied immediately on the client based on in-game player state ("local").
+    * Local animations currently always use the first animation track.
+    * Local animations override server-sent animations on the first animation track if both use the same frame range.
+      (This is to not interrupt playing local animations.)
+    * Server-sent animations (`set_animation()`, `play_animation()`)
+      override local animations if they use a different frame range.
+    * Every animation is given as a `{x = start frame, y = end frame}` table.
+      You can use `{x = 0, y = 0}` for "no animation", deferring to server-sent animations.
     * `frame_speed` sets the animations frame speed. Default is 30.
 * `get_local_animation()`: returns idle, walk, dig, walk_while_dig tables and
   `frame_speed`.
@@ -10556,8 +10651,7 @@ Used by `core.register_node`, `core.register_craftitem`, and
     after_use = function(itemstack, user, node, digparams),
     -- Called after a tool is used to dig a node and will replace the default
     -- tool wear-out handling.
-    -- Shall return the leftover itemstack or nil to not
-    -- modify the dropped item.
+    -- Shall return the leftover itemstack or nil to not modify the item (tool).
     -- The user may be any ObjectRef or nil.
     -- default: nil
 
@@ -10586,6 +10680,7 @@ Used by `core.register_node`.
     -- node. For torchlike, the image will start at the surface to which the
     -- node "attaches". For the other drawtypes the image will be centered
     -- on the node.
+    -- note: Do not set a visual_scale != 1.0 for drawtypes that don't support it.
 
     tiles = {tile definition 1, def2, def3, def4, def5, def6},
     -- Textures of node; +Y, -Y, +X, -X, +Z, -Z
@@ -10810,15 +10905,19 @@ Used by `core.register_node`.
     legacy_wallmounted = false,
 
     waving = 0,
-    -- Valid for drawtypes:
-    -- mesh, nodebox, plantlike, allfaces_optional, liquid, flowingliquid.
-    -- 1 - wave node like plants (node top moves side-to-side, bottom is fixed)
-    -- 2 - wave node like leaves (whole node moves side-to-side)
-    -- 3 - wave node like liquids (whole node moves up and down)
+    -- Describes whether the node shall be animated (position transformation).
+    -- Supported for drawtypes:
+    --   mesh, nodebox, plantlike, allfaces_optional, liquid, flowingliquid.
+    -- Values:
+    --   0: Not waving.
+    --   1: Node top moves side-to-side, bottom is fixed. (plants)
+    --   2: Whole node moves side-to-side. (leaves)
+    --   3: Whole node moves up and down. (liquids)
+    -- Note: Each wave effect depends on its client-side setting `enable_waving_*`.
     -- Not all models will properly wave.
-    -- plantlike drawtype can only wave like plants.
-    -- allfaces_optional drawtype can only wave like leaves.
-    -- liquid, flowingliquid drawtypes can only wave like liquids.
+    -- When `waving > 0`, plantlike always behaves like `1` and allfaces_optional
+    --   always behaves like `2`. This behavior may be removed in the future.
+    -- The drawtypes "liquid" and "flowingliquid" only accept value 3 (and 0).
 
     sounds = {
         -- Definition of node sounds to be played at various events.

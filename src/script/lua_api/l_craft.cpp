@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-
 #include "lua_api/l_craft.h"
+#include "common/c_content.h"
+#include "common/c_converter.h"
+#include "common/helper.h"
+#include "craftdef.h"
+#include "log.h"
 #include "lua_api/l_internal.h"
 #include "lua_api/l_item.h"
-#include "common/c_converter.h"
-#include "common/c_content.h"
-#include "common/helper.h"
 #include "server.h"
-#include "craftdef.h"
 
 EnumString ModApiCraft::es_CraftMethod[] =
 {
@@ -148,7 +148,7 @@ int ModApiCraft::l_register_craft(lua_State *L)
 
 		CraftDefinition *def = new CraftDefinitionShaped(
 				output, width, recipe, replacements);
-		craftdef->registerCraft(def, getServer(L));
+		craftdef->registerCraft(def, getGameDef(L));
 	}
 	/*
 		CraftDefinitionShapeless
@@ -180,7 +180,7 @@ int ModApiCraft::l_register_craft(lua_State *L)
 
 		CraftDefinition *def = new CraftDefinitionShapeless(
 				output, recipe, replacements);
-		craftdef->registerCraft(def, getServer(L));
+		craftdef->registerCraft(def, getGameDef(L));
 	}
 	/*
 		CraftDefinitionToolRepair
@@ -191,7 +191,7 @@ int ModApiCraft::l_register_craft(lua_State *L)
 
 		CraftDefinition *def = new CraftDefinitionToolRepair(
 				additional_wear);
-		craftdef->registerCraft(def, getServer(L));
+		craftdef->registerCraft(def, getGameDef(L));
 	}
 	/*
 		CraftDefinitionCooking
@@ -221,7 +221,7 @@ int ModApiCraft::l_register_craft(lua_State *L)
 
 		CraftDefinition *def = new CraftDefinitionCooking(
 				output, recipe, cooktime, replacements);
-		craftdef->registerCraft(def, getServer(L));
+		craftdef->registerCraft(def, getGameDef(L));
 	}
 	/*
 		CraftDefinitionFuel
@@ -245,7 +245,7 @@ int ModApiCraft::l_register_craft(lua_State *L)
 
 		CraftDefinition *def = new CraftDefinitionFuel(
 				recipe, burntime, replacements);
-		craftdef->registerCraft(def, getServer(L));
+		craftdef->registerCraft(def, getGameDef(L));
 	}
 	else
 	{
@@ -271,7 +271,7 @@ int ModApiCraft::l_clear_craft(lua_State *L)
 
 	if (!output.empty()) {
 		CraftOutput c_output(output, 0);
-		if (craftdef->clearCraftsByOutput(c_output, getServer(L))) {
+		if (craftdef->clearCraftsByOutput(c_output, getGameDef(L))) {
 			lua_pushboolean(L, true);
 			return 1;
 		}
@@ -317,11 +317,11 @@ int ModApiCraft::l_clear_craft(lua_State *L)
 	std::vector<ItemStack> items;
 	items.reserve(recipe.size());
 	for (const auto &item : recipe) {
-		items.emplace_back(item, 1, 0, getServer(L)->idef());
+		items.emplace_back(item, 1, 0, getGameDef(L)->idef());
 	}
 	CraftInput input(method, width, items);
 
-	if (!craftdef->clearCraftsByInput(input, getServer(L))) {
+	if (!craftdef->clearCraftsByInput(input, getGameDef(L))) {
 		warningstream << "No craft recipe matches input (type: " << type
 				<< ", items: [";
 		for (size_t i = 0; i < items.size(); ++i) {

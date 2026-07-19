@@ -639,11 +639,16 @@ local function get_formspec(dialogdata)
 					default = fgettext_ne("Disabled")
 				end
 			elseif comp.setting.type == "key" then
-				default = (default ~= "")
-					and core.get_key_description(default)
-
+				local keys = default:split("|")
+				for k, v in pairs(keys) do
+					keys[k] = core.get_key_description(v)
+				end
+				if #keys > 0 then
+					default = table.concat(keys, " | ")
+				else
 					-- TRANSLATORS: Indicates that the action does not have a corresponding keybinding.
-					or fgettext_ne("Not bound")
+					default = fgettext_ne("Not bound")
+				end
 			else
 				local sinfo = get_setting_info(comp.setting.name)
 				if sinfo and sinfo.option_labels and sinfo.option_labels[default] then
