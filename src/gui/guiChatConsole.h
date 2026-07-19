@@ -76,13 +76,16 @@ private:
 	// If the selected text changed, we need to update the (X11) primary selection.
 	void updatePrimarySelection();
 
-	void updateScrollbar(bool update_size = false);
+	void updateScrollbar(bool update_size);
 
 private:
 	ChatBackend* m_chat_backend;
 	Client* m_client;
 	IMenuManager* m_menumgr;
 	irr_ptr<GUIScrollBar> m_scrollbar;
+	/// Tells apart whether the chat was scrolled by the scrollbar or
+	/// directly (new messages, Page Up/Down or Wheel)
+	s32 m_pos_scrolled_by_scrollbar = -1;
 
 	// current screen size
 	v2u32 m_screensize;

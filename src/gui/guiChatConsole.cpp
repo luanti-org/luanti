@@ -19,6 +19,11 @@
 #include <IVideoDriver.h>
 #include <string>
 
+/// Scrollbars use integers, hence give enough room to interpolate for smooth scrolling.
+static constexpr s32 SCROLLBAR_SCALE = 128;
+static constexpr s32 SCROLL_SMALL_STEP = 3;
+
+
 inline u32 clamp_u8(s32 value)
 {
 	return (u32) MYMIN(MYMAX(value, 0), 255);
@@ -89,8 +94,9 @@ GUIChatConsole::GUIChatConsole(
 
 	m_scrollbar.reset(new GUIScrollBar(env, this, -1, core::rect<s32>(0, 0, 30, m_height), false, tsrc));
 	m_scrollbar->setSubElement(true);
-	m_scrollbar->setLargeStep(1);
-	m_scrollbar->setSmallStep(1);
+	// Steps = Amount of chat lines
+	m_scrollbar->setLargeStep(SCROLLBAR_SCALE * 5);
+	m_scrollbar->setSmallStep(SCROLLBAR_SCALE * SCROLL_SMALL_STEP);
 }
 
 void GUIChatConsole::openConsole(f32 scale)
@@ -353,7 +359,7 @@ void GUIChatConsole::drawText()
 		}
 	}
 
-	updateScrollbar();
+	updateScrollbar(false);
 }
 
 void GUIChatConsole::drawPrompt()
@@ -668,7 +674,7 @@ bool GUIChatConsole::OnEvent(const SEvent& event)
 	{
 		if (event.MouseInput.Event == EMIE_MOUSE_WHEEL)
 		{
-			s32 rows = myround(-3.0 * event.MouseInput.Wheel);
+			s32 rows = myround(-SCROLL_SMALL_STEP * event.MouseInput.Wheel);
 			m_chat_backend->scroll(rows);
 		}
 		// Middle click or ctrl-click opens weblink, if enabled in config
@@ -703,7 +709,11 @@ bool GUIChatConsole::OnEvent(const SEvent& event)
 	else if (event.EventType == EET_GUI_EVENT && event.GUIEvent.EventType == EGET_SCROLL_BAR_CHANGED &&
 			(void*) event.GUIEvent.Caller == (void*) m_scrollbar.get())
 	{
-		m_chat_backend->getConsoleBuffer().scrollAbsolute(m_scrollbar->getPos());
+		ChatBuffer &buf = m_chat_backend->getConsoleBuffer();
+		buf.scrollAbsolute(
+			(m_scrollbar->getPos() + (SCROLLBAR_SCALE / 2)) / SCROLLBAR_SCALE
+		);
+		m_pos_scrolled_by_scrollbar = buf.getScrollPosition();
 	}
 
 	return Parent ? Parent->OnEvent(event) : false;
@@ -793,10 +803,12 @@ void GUIChatConsole::updatePrimarySelection()
 void GUIChatConsole::updateScrollbar(bool update_size)
 {
 	ChatBuffer &buf = m_chat_backend->getConsoleBuffer();
-	m_scrollbar->setMin(buf.getTopScrollPos());
-	m_scrollbar->setMax(buf.getBottomScrollPos());
-	m_scrollbar->setPos(buf.getScrollPosition());
+	m_scrollbar->setMin(SCROLLBAR_SCALE * buf.getTopScrollPos());
+	m_scrollbar->setMax(SCROLLBAR_SCALE * buf.getBottomScrollPos());
 	m_scrollbar->setPageSize(m_fontsize.Y * buf.getLineCount());
+	if (buf.getScrollPosition() != m_pos_scrolled_by_scrollbar)
+		m_scrollbar->setPos(SCROLLBAR_SCALE * buf.getScrollPosition());
+
 	m_scrollbar->setVisible(m_scrollbar->getMin() != m_scrollbar->getMax());
 
 	if (update_size) {
