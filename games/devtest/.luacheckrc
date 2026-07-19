@@ -30,7 +30,6 @@ read_globals = {
 	"check",
 	"PseudoRandom",
 	"PcgRandom",
-	"assert_same",
 
 	string = {fields = {"split", "trim"}},
 	table  = {fields = {"copy", "getn", "indexof", "insert_all", "key_value_swap"}},
