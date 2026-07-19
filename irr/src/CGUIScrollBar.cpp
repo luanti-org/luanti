@@ -510,7 +510,8 @@ static inline s32 interpolate_scroll(s32 from, s32 to, u32 deltaMs)
 
 	// Adjust to match 60 FPS. This also means that interpolation is
 	// effectively disabled at <= 30 FPS.
-	s32 step = core::round32(diff * 0.5f * (deltaMs / 16.667f));
+	f32 factor = std::min(0.5f * (deltaMs / 16.667f), 1.0f);
+	s32 step = core::round32(diff * factor);
 	// Step at least by 1. Relevant for low ranges.
 	if (step == 0)
 		step = (diff > 0) * 2 - 1; // { 0, 1 } -> { -1, 1 }
