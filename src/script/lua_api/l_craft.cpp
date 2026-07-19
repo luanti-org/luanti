@@ -474,6 +474,7 @@ static void push_craft_recipe(lua_State *L, IGameDef *gdef,
 	}
 
 	CraftReplacements replacements = output.replacements;
+	if (replacements.pairs.empty()) return;
 	// replacements
 	lua_newtable(L);
 	int l_replacements = lua_gettop(L);
