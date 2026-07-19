@@ -473,21 +473,22 @@ static void push_craft_recipe(lua_State *L, IGameDef *gdef,
 			break;
 	}
 
-	CraftReplacements replacements = output.replacements;
-	if (replacements.pairs.empty()) return;
 	// replacements
-	lua_newtable(L);
-	int l_replacements = lua_gettop(L);
-	auto iter = replacements.pairs.begin();
-	for (u16 j = 1; iter != replacements.pairs.end(); ++iter, j++) {
+	const auto &replacements = output.replacements.pairs;
+	if (!replacements.empty()) {
 		lua_newtable(L);
-		lua_pushstring(L, iter->first.c_str());
-		lua_rawseti(L, -2, 1);
-		lua_pushstring(L, iter->second.c_str());
-		lua_rawseti(L, -2, 2);
-		lua_rawseti(L, l_replacements, j);
+		int l_replacements = lua_gettop(L);
+		auto iter = replacements.begin();
+		for (u16 j = 1; iter != replacements.end(); ++iter, j++) {
+			lua_newtable(L);
+			lua_pushstring(L, iter->first.c_str());
+			lua_rawseti(L, -2, 1);
+			lua_pushstring(L, iter->second.c_str());
+			lua_rawseti(L, -2, 2);
+			lua_rawseti(L, l_replacements, j);
+		}
+		lua_setfield(L, -2, "replacements");
 	}
-	lua_setfield(L, -2, "replacements");
 }
 
 
