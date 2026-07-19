@@ -11,6 +11,8 @@ local function modname_valid(name)
 end
 
 local function init_data(data)
+	-- Note: `pkgmgr.global_mods` is similar, but without the world + gameid filter.
+
 	data.list = filterlist.create(
 		pkgmgr.preparemodlist,
 		pkgmgr.comparemod,
