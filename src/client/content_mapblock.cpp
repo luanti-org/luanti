@@ -454,12 +454,12 @@ void MapblockMeshGenerator::drawSolidNode()
 		// is directly above: wave animation can pull the surface down and expose
 		// a gap where the face was culled. Also keep backface culling off so the
 		// face is visible from below e.g. looking up from underwater.
-		// Submerged solids surrounded by liquid or other solid nodes on all sides are excluded.
 		bool liquid_needs_top_face = face == 0
 			&& cur_node.f->drawtype == NDT_LIQUID
 			&& cur_node.f->waving == 3
 			&& data->m_enable_waving_water;
 		if (liquid_needs_top_face) {
+			// Deal with the case of submerged top faces
 			liquid_needs_top_face = false;
 			static const v3s16 h_dirs[4] = {
 				v3s16(1,0,0), v3s16(-1,0,0), v3s16(0,0,1), v3s16(0,0,-1)
