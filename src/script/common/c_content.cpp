@@ -19,7 +19,10 @@
 #include "tool.h"
 #include "noise.h"
 #include "porting.h" // strlcpy
+#include "cpp_api/s_base.h"
+#include "server/line_sao.h"
 #include "server/player_sao.h"
+#include "serverenvironment.h"
 #include "util/pointedthing.h"
 #include "debug.h" // For FATAL_ERROR
 #include <SColor.h>
@@ -638,6 +641,125 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 
 	// Remember to update object_property_keys above
 	// when adding a new property
+}
+
+/******************************************************************************/
+void read_line_points(lua_State *L, int index, std::vector<LinePoint> &points)
+{
+	if (index < 0)
+		index = lua_gettop(L) + 1 + index;
+	luaL_checktype(L, index, LUA_TTABLE);
+
+	points.clear();
+	s32 len = lua_objlen(L, index);
+	for (s32 i = 1; i <= len; i++) {
+		lua_rawgeti(L, index, i);
+		luaL_checktype(L, -1, LUA_TTABLE);
+
+		LinePoint point;
+
+		lua_getfield(L, -1, "object");
+		if (!lua_isnil(L, -1)) {
+			ObjectRef *ref = ModApiBase::checkObject<ObjectRef>(L, -1);
+			ServerActiveObject *sao = ObjectRef::getobject(ref);
+			if (!sao)
+				throw LuaError("core.add_line: point references an invalid object");
+			point.attached_guid = sao->getGUID();
+			point.pos = sao->getBasePosition();
+		} else {
+			lua_getfield(L, -2, "pos");
+			point.pos = read_v3f(L, -1) * BS;
+			lua_pop(L, 1); // pos
+		}
+		lua_pop(L, 1); // object
+
+		lua_pop(L, 1); // point table
+		points.push_back(std::move(point));
+	}
+}
+
+void push_line_points(lua_State *L, const std::vector<LinePoint> &points,
+		ServerEnvironment *env)
+{
+	lua_createtable(L, points.size(), 0);
+	u16 i = 1;
+	for (const LinePoint &point : points) {
+		lua_createtable(L, 0, 2);
+
+		ServerActiveObject *target = point.attached_id != 0 ?
+				env->getActiveObject(point.attached_id) : nullptr;
+		if (target) {
+			ModApiBase::getScriptApiBase(L)->objectrefGetOrCreate(L, target);
+			lua_setfield(L, -2, "object");
+		} else {
+			push_v3f(L, point.pos / BS);
+			lua_setfield(L, -2, "pos");
+		}
+		lua_rawseti(L, -2, i++);
+	}
+}
+
+void read_line_properties(lua_State *L, int index, LineProperties &properties)
+{
+	if (index < 0)
+		index = lua_gettop(L) + 1 + index;
+	luaL_checktype(L, index, LUA_TTABLE);
+
+	lua_getfield(L, index, "color");
+	if (!lua_isnil(L, -1))
+		read_color(L, -1, &properties.color);
+	lua_pop(L, 1);
+
+	lua_getfield(L, index, "colors");
+	if (lua_istable(L, -1)) {
+		properties.colors.clear();
+		s32 len = lua_objlen(L, -1);
+		for (s32 i = 1; i <= len; i++) {
+			lua_rawgeti(L, -1, i);
+			video::SColor color;
+			read_color(L, -1, &color);
+			properties.colors.push_back(color);
+			lua_pop(L, 1);
+		}
+	}
+	lua_pop(L, 1);
+
+	properties.alpha_mode = (LineAlphaMode)getenumfield(L, index, "alpha_mode",
+			es_LineAlphaMode, (int)properties.alpha_mode);
+
+	getboolfield(L, index, "lit", properties.lit);
+
+	properties.width = getfloatfield_default(L, index, "width", properties.width);
+
+	properties.shape = (LineShape)getenumfield(L, index, "shape",
+			es_LineShape, (int)properties.shape);
+}
+
+void push_line_properties(lua_State *L, const LineProperties &properties)
+{
+	lua_newtable(L);
+	push_ARGB8(L, properties.color);
+	lua_setfield(L, -2, "color");
+
+	lua_createtable(L, properties.colors.size(), 0);
+	u16 i = 1;
+	for (const video::SColor &color : properties.colors) {
+		push_ARGB8(L, color);
+		lua_rawseti(L, -2, i++);
+	}
+	lua_setfield(L, -2, "colors");
+
+	lua_pushstring(L, enum_to_string(es_LineAlphaMode, properties.alpha_mode));
+	lua_setfield(L, -2, "alpha_mode");
+
+	lua_pushboolean(L, properties.lit);
+	lua_setfield(L, -2, "lit");
+
+	lua_pushnumber(L, properties.width);
+	lua_setfield(L, -2, "width");
+
+	lua_pushstring(L, enum_to_string(es_LineShape, properties.shape));
+	lua_setfield(L, -2, "shape");
 }
 
 /******************************************************************************/
