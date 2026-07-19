@@ -2345,14 +2345,14 @@ void push_objectRef(lua_State *L, const u16 id)
 	lua_remove(L, -2); // core
 }
 
-void read_hud_element(lua_State *L, HudElement *elem)
+void read_hud_element(lua_State *L, HudElement *elem, int table_idx)
 {
 	std::string type_string;
-	bool has_type = getstringfield(L, 2, "type", type_string);
+	bool has_type = getstringfield(L, table_idx, "type", type_string);
 
 	// Handle deprecated hud_elem_type
 	std::string deprecated_type_string;
-	if (getstringfield(L, 2, "hud_elem_type", deprecated_type_string)) {
+	if (getstringfield(L, table_idx, "hud_elem_type", deprecated_type_string)) {
 		if (has_type && deprecated_type_string != type_string) {
 			log_deprecated(L, "Ambiguous HUD element fields \"type\" and \"hud_elem_type\", "
 					"\"type\" will be used.", 1, true);
@@ -2370,58 +2370,58 @@ void read_hud_element(lua_State *L, HudElement *elem)
 	else
 		elem->type = HUD_ELEM_TEXT;
 
-	lua_getfield(L, 2, "position");
+	lua_getfield(L, table_idx, "position");
 	elem->pos = lua_istable(L, -1) ? read_v2f(L, -1) : v2f();
 	lua_pop(L, 1);
 
-	lua_getfield(L, 2, "scale");
+	lua_getfield(L, table_idx, "scale");
 	elem->scale = lua_istable(L, -1) ? read_v2f(L, -1) : v2f();
 	lua_pop(L, 1);
 
-	lua_getfield(L, 2, "size");
+	lua_getfield(L, table_idx, "size");
 	elem->size = lua_istable(L, -1) ? read_v2f(L, -1) : v2f();
 	lua_pop(L, 1);
 
-	elem->name    = getstringfield_default(L, 2, "name", "");
-	elem->text    = getstringfield_default(L, 2, "text", "");
-	elem->number  = getintfield_default(L, 2, "number", 0);
+	elem->name    = getstringfield_default(L, table_idx, "name", "");
+	elem->text    = getstringfield_default(L, table_idx, "text", "");
+	elem->number  = getintfield_default(L, table_idx, "number", 0);
 	if (elem->type == HUD_ELEM_WAYPOINT) {
 		// Waypoints reuse the item field to store precision,
 		// item = precision + 1 and item = 0 <=> precision = 10 for backwards compatibility.
-		int precision = getintfield_default(L, 2, "precision", 10);
+		int precision = getintfield_default(L, table_idx, "precision", 10);
 		if (precision < 0)
 			throw LuaError("Waypoint precision must be non-negative");
 		elem->item = precision + 1;
 	} else {
-		elem->item = getintfield_default(L, 2, "item", 0);
+		elem->item = getintfield_default(L, table_idx, "item", 0);
 	}
-	elem->dir     = getintfield_default(L, 2, "direction", 0);
+	elem->dir     = getintfield_default(L, table_idx, "direction", 0);
 	elem->z_index = MYMAX(S16_MIN, MYMIN(S16_MAX,
-			getintfield_default(L, 2, "z_index", 0)));
-	elem->text2   = getstringfield_default(L, 2, "text2", "");
+			getintfield_default(L, table_idx, "z_index", 0)));
+	elem->text2   = getstringfield_default(L, table_idx, "text2", "");
 
 	// Deprecated, only for compatibility's sake
 	if (elem->dir == 0)
-		elem->dir = getintfield_default(L, 2, "dir", 0);
+		elem->dir = getintfield_default(L, table_idx, "dir", 0);
 
-	lua_getfield(L, 2, "alignment");
+	lua_getfield(L, table_idx, "alignment");
 	if (lua_istable(L, -1))
 		elem->align = read_v2f(L, -1);
 	else
 		elem->align = elem->type == HUD_ELEM_INVENTORY ? v2f(1.0f, 1.0f) : v2f();
 	lua_pop(L, 1);
 
-	lua_getfield(L, 2, "offset");
+	lua_getfield(L, table_idx, "offset");
 	elem->offset = lua_istable(L, -1) ? read_v2f(L, -1) : v2f();
 	lua_pop(L, 1);
 
-	lua_getfield(L, 2, "world_pos");
+	lua_getfield(L, table_idx, "world_pos");
 	elem->world_pos = lua_istable(L, -1) ? read_v3f(L, -1) : v3f();
 	lua_pop(L, 1);
 
-	elem->style = getintfield_default(L, 2, "style", 0);
+	elem->style = getintfield_default(L, table_idx, "style", 0);
 
-	elem->hideable = getboolfield_default(L, 2, "hideable", true);
+	elem->hideable = getboolfield_default(L, table_idx, "hideable", true);
 
 	/* check for known deprecated element usage */
 	if ((elem->type  == HUD_ELEM_STATBAR) && (elem->size == v2f()))
@@ -2493,75 +2493,84 @@ void push_hud_element(lua_State *L, HudElement *elem)
 	lua_setfield(L, -2, "hideable");
 }
 
-bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value)
+bool read_hud_stat_name(lua_State *L, HudElementStat &stat, int stat_idx)
 {
-	std::string statstr = lua_tostring(L, 3);
+	std::string statstr = lua_tostring(L, stat_idx);
 	if (!string_to_enum(es_HudElementStat, stat, statstr)) {
 		script_log_unique(L, "Unknown HUD stat type: " + statstr, warningstream);
 		return false;
 	}
+	return true;
+}
+
+bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value,
+		int stat_idx, int data_idx)
+{
+	if (!read_hud_stat_name(L, stat, stat_idx))
+		return false;
+	std::string statstr = lua_tostring(L, stat_idx);
 
 	switch (stat) {
 		case HUD_STAT_POS:
-			elem->pos = read_v2f(L, 4);
+			elem->pos = read_v2f(L, data_idx);
 			*value = &elem->pos;
 			break;
 		case HUD_STAT_NAME:
-			elem->name = luaL_checkstring(L, 4);
+			elem->name = luaL_checkstring(L, data_idx);
 			*value = &elem->name;
 			break;
 		case HUD_STAT_SCALE:
-			elem->scale = read_v2f(L, 4);
+			elem->scale = read_v2f(L, data_idx);
 			*value = &elem->scale;
 			break;
 		case HUD_STAT_TEXT:
-			elem->text = luaL_checkstring(L, 4);
+			elem->text = luaL_checkstring(L, data_idx);
 			*value = &elem->text;
 			break;
 		case HUD_STAT_NUMBER:
-			elem->number = luaL_checknumber(L, 4);
+			elem->number = luaL_checknumber(L, data_idx);
 			*value = &elem->number;
 			break;
 		case HUD_STAT_ITEM:
-			elem->item = luaL_checknumber(L, 4);
+			elem->item = luaL_checknumber(L, data_idx);
 			if (elem->type == HUD_ELEM_WAYPOINT && statstr == "precision")
 				elem->item++;
 			*value = &elem->item;
 			break;
 		case HUD_STAT_DIR:
-			elem->dir = luaL_checknumber(L, 4);
+			elem->dir = luaL_checknumber(L, data_idx);
 			*value = &elem->dir;
 			break;
 		case HUD_STAT_ALIGN:
-			elem->align = read_v2f(L, 4);
+			elem->align = read_v2f(L, data_idx);
 			*value = &elem->align;
 			break;
 		case HUD_STAT_OFFSET:
-			elem->offset = read_v2f(L, 4);
+			elem->offset = read_v2f(L, data_idx);
 			*value = &elem->offset;
 			break;
 		case HUD_STAT_WORLD_POS:
-			elem->world_pos = read_v3f(L, 4);
+			elem->world_pos = read_v3f(L, data_idx);
 			*value = &elem->world_pos;
 			break;
 		case HUD_STAT_SIZE:
-			elem->size = read_v2f(L, 4);
+			elem->size = read_v2f(L, data_idx);
 			*value = &elem->size;
 			break;
 		case HUD_STAT_Z_INDEX:
-			elem->z_index = MYMAX(S16_MIN, MYMIN(S16_MAX, luaL_checknumber(L, 4)));
+			elem->z_index = MYMAX(S16_MIN, MYMIN(S16_MAX, luaL_checknumber(L, data_idx)));
 			*value = &elem->z_index;
 			break;
 		case HUD_STAT_TEXT2:
-			elem->text2 = luaL_checkstring(L, 4);
+			elem->text2 = luaL_checkstring(L, data_idx);
 			*value = &elem->text2;
 			break;
 		case HUD_STAT_STYLE:
-			elem->style = luaL_checknumber(L, 4);
+			elem->style = luaL_checknumber(L, data_idx);
 			*value = &elem->style;
 			break;
 		case HUD_STAT_HIDEABLE:
-			elem->hideable = lua_isnoneornil(L, 4) ? true : lua_toboolean(L, 4);
+			elem->hideable = lua_isnoneornil(L, data_idx) ? true : lua_toboolean(L, data_idx);
 			*value = &elem->hideable;
 			break;
 		case HudElementStat_END:
@@ -2570,6 +2579,42 @@ bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void 
 	}
 
 	return true;
+}
+
+HudElementStatValue read_hud_stat_value(lua_State *L, HudElementStat stat,
+		const std::string &statstr, HudElementType type, int data_idx)
+{
+	switch (stat) {
+		case HUD_STAT_POS:
+		case HUD_STAT_SCALE:
+		case HUD_STAT_ALIGN:
+		case HUD_STAT_OFFSET:
+		case HUD_STAT_SIZE:
+			return read_v2f(L, data_idx);
+		case HUD_STAT_NAME:
+		case HUD_STAT_TEXT:
+		case HUD_STAT_TEXT2:
+			return std::string(luaL_checkstring(L, data_idx));
+		case HUD_STAT_NUMBER:
+		case HUD_STAT_DIR:
+		case HUD_STAT_STYLE:
+			return (u32) luaL_checknumber(L, data_idx);
+		case HUD_STAT_ITEM: {
+			u32 item = luaL_checknumber(L, data_idx);
+			if (type == HUD_ELEM_WAYPOINT && statstr == "precision")
+				item++;
+			return item;
+		}
+		case HUD_STAT_WORLD_POS:
+			return read_v3f(L, data_idx);
+		case HUD_STAT_Z_INDEX:
+			return (s16) MYMAX(S16_MIN, MYMIN(S16_MAX, luaL_checknumber(L, data_idx)));
+		case HUD_STAT_HIDEABLE:
+			return (bool) (lua_isnoneornil(L, data_idx) ? true : lua_toboolean(L, data_idx));
+		case HudElementStat_END:
+			break;
+	}
+	return {};
 }
 
 /******************************************************************************/

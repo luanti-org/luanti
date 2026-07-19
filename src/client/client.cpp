@@ -222,6 +222,60 @@ do
 	end
 	core.after(0, print_nodes)
 end
+
+-- SSCSM hud_* round-trip self-check: add an element, read it back via
+-- hud_get/hud_get_all, and change one stat.
+do
+	-- deep-compares only the keys present in `a` (extra keys in `b` are fine);
+	-- numbers use an epsilon since HudElement stores floats that don't
+	-- round-trip exactly through Lua's doubles.
+	local function deep_equal(a, b)
+		if type(a) == "number" and type(b) == "number" then
+			return math.abs(a - b) < 0.0001
+		end
+		if type(a) ~= "table" then
+			return a == b
+		end
+		if type(b) ~= "table" then
+			return false
+		end
+		for k, v in pairs(a) do
+			if not deep_equal(v, b[k]) then
+				return false
+			end
+		end
+		return true
+	end
+
+	local form = {
+		type = "text",
+		position = {x = 0.5, y = 0.1},
+		text = "sscsm_test0 hud",
+		number = 0xffffff,
+	}
+	local id = core.hud_add(form)
+
+	local got = core.hud_get(id)
+	assert(deep_equal(form, got or {}))
+
+	local all = core.hud_get_all()
+	assert(all and all[id] ~= nil)
+
+	local changed = core.hud_change(id, "text", "sscsm_test0 hud changed")
+	local got2 = core.hud_get(id)
+	assert(changed and got2 and got2.text == "sscsm_test0 hud changed")
+
+	local removed = core.hud_remove(id)
+	assert(removed)
+
+	-- left on screen so hud_add can be visually confirmed
+	core.hud_add({
+		type = "text",
+		position = {x = 0.5, y = 0.2},
+		text = "sscsm_test0 persistent hud",
+		number = 0xffffff,
+	})
+end
 					)=+=");
 
 			m_sscsm_controller->runEvent(this, std::move(event1));
