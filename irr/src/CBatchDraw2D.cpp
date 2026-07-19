@@ -17,7 +17,7 @@ CBatchDraw2D::CBatchDraw2D(size_t nLines, size_t nRectsFilled)
 
 	Vertices.reserve(nLines * 2 + nRectsFilled * 4);
 
-	assert(Vertices.size() <= UINT16_MAX); // video::EIT_16BIT check
+	assert(Vertices.capacity() <= UINT16_MAX); // video::EIT_16BIT check
 }
 
 void CBatchDraw2D::reset()
