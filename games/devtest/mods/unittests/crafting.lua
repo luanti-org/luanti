@@ -163,7 +163,7 @@ local function test_get_all_craft_recipes()
 			end
 		end
 		assert(found)
-		assert(#found.items == 1) -- height is appropriate
+		assert(#found.items == 1)
 		assert(ItemStack(found.output) == ItemStack(output)) -- handle aliases
 		core.assert_same(found.replacements, {{"unittests:steel_ingot", "unittests:coal_lump"}})
 	end
