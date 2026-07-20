@@ -2106,6 +2106,8 @@ Displays a horizontal bar made up of half-images with an optional background.
 ### `inventory`
 
 * `text`: The name of the inventory list to be displayed.
+* `text2`: Optional texture name for the inventory background. If not specified,
+  the player's hotbar background is used.
 * `number`: Amount of item slots in the inventory to be displayed.
   Integer in range [u16].
 * `item`: Position of item that is selected. Integer in range [u16].
