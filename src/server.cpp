@@ -2061,6 +2061,13 @@ void Server::SendSetLighting(session_t peer_id, const Lighting &lighting)
 
 	pkt << lighting.shadow_direction;
 
+	pkt << lighting.sky_light.color_offset.X
+			<< lighting.sky_light.color_offset.Y
+			<< lighting.sky_light.color_offset.Z
+			<< lighting.sky_light.color_ratio_coef.X
+			<< lighting.sky_light.color_ratio_coef.Y
+			<< lighting.sky_light.color_ratio_coef.Z;
+
 	Send(&pkt);
 }
 

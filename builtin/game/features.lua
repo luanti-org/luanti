@@ -58,6 +58,7 @@ core.features = {
 	hud_hideable_field = true,
 	compress_raw_deflate = true,
 	get_all_craft_recipes_fuel = true,
+	sky_light = true,
 }
 
 function core.has_feature(arg)

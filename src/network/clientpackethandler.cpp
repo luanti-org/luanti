@@ -1916,5 +1916,14 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 			break;
 		// >= 5.16.0-dev
 		*pkt >> lighting.shadow_direction;
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.17.0-dev
+		*pkt >> lighting.sky_light.color_offset.X
+				>> lighting.sky_light.color_offset.Y
+				>> lighting.sky_light.color_offset.Z
+				>> lighting.sky_light.color_ratio_coef.X
+				>> lighting.sky_light.color_ratio_coef.Y
+				>> lighting.sky_light.color_ratio_coef.Z;
 	} while (0);
 }
