@@ -571,7 +571,8 @@ void ChatPrompt::nickCompletion(const std::set<std::string> &names)
 		if (c > 0x7F)
 			return false;
 
-		return strchr(PLAYERNAME_ALLOWED_CHARS, (char)c) != nullptr;
+		constexpr std::string_view allowed_chars(PLAYERNAME_ALLOWED_CHARS);
+		return allowed_chars.find(static_cast<char>(c)) != std::string_view::npos;
 	};
 
 	{
@@ -617,7 +618,7 @@ void ChatPrompt::nickCompletion(const std::set<std::string> &names)
 		return;
 
 	if (completions.size() > 1 && prefix.size() == shortest.size()) {
-		std::wstring options = wstrgettext("Selection options: ");
+		std::wstring options = wstrgettext("Player names: ");
 		for (auto v : completions)
 			options.append(v).append(L", ");
 		options.resize(options.size() - 2); // ", "
