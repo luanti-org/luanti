@@ -258,6 +258,17 @@ local function load()
 		-- TRANSLATORS: Touchscreen gesture
 		["long_tap"] = fgettext_ne("Long tap"),
 	}
+
+	get_setting_info("gyro_toggle_mode").option_labels = {
+		["enable"] = fgettext_ne("Enable"),
+		["disable"] = fgettext_ne("Disable"),
+		["invert"] = fgettext_ne("Invert"),
+	}
+
+	get_setting_info("gyro_turn_axis").option_labels = {
+		["yaw"] = fgettext_ne("Yaw"),
+		["roll"] = fgettext_ne("Roll"),
+	}
 end
 
 

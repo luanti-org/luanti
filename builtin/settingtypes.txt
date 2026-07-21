@@ -245,6 +245,8 @@ keymap_camera_yaw_right (Look right) key GAMEPAD_AXIS_PLUS_2
 keymap_camera_pitch_up (Look up) key GAMEPAD_AXIS_MINUS_3
 keymap_camera_pitch_down (Look down) key GAMEPAD_AXIS_PLUS_3
 
+keymap_gyro_toggle (Toggle Gyro) key
+
 keymap_toggle_hud (Toggle HUD) key SYSTEM_SCANCODE_58
 
 keymap_toggle_chat (Toggle chat log) key SYSTEM_SCANCODE_59
@@ -441,6 +443,37 @@ joystick_outer_deadzone (Joystick outer dead zone) float 0 0 1
 #    The sensitivity of the joystick axes for moving the
 #    in-game view frustum around.
 joystick_frustum_sensitivity (Joystick frustum sensitivity) float 170.0 0.001
+
+[**Gyro]
+
+# Gyro sensitivity on the yaw axis as a multiplier of gamepad rotation
+gyro_yaw_sensitivity (Yaw sensitivity) float 2.5 0.1 20.0
+
+# Gyro sensitivity on the pitch axis as a multiplier of gamepad rotation
+gyro_pitch_sensitivity (Pitch sensitivity) float 2.5 0.1 20.0
+
+# Behavior of the "Toggle Gyro" action
+#
+#    * Enable
+#      Gyro is disabled by default, holding the button enables it
+#
+#    * Disable
+#      Gyro is enabled by default, holding the button disables it
+#
+#    * Invert
+#      Gyro is always enabled, holding the button inverts direction
+#
+gyro_toggle_mode (Gyro Toggle Mode) enum disable enable,disable,invert
+
+# Which gyro axis to use for horizontal camera turning
+#
+#    * Yaw
+#      Use the yaw axis, best used with gamepads
+#
+#    * Roll
+#      Use the roll axis, best used with handhelds
+#
+gyro_turn_axis (Turn Axis) enum yaw yaw,roll
 
 [Graphics and Audio] [client]
 
