@@ -11,9 +11,9 @@ Luanti engine may only use generative AI tools as permitted by this policy.
 
 ## Prohibited uses of AI
 
-The most important requirement when using AI tools in Luanti is to understand
-and take responsibility for your _entire_ contribution, regardless of whether
-AI tooling was used, and to be respectful to others in your usage of AI tools.
+The most important requirement when using AI tools is to understand and take
+responsibility for your _entire_ contribution, regardless of whether AI tooling
+was used, and to be respectful to others in your usage of AI tools.
 
 That said, the following specific limitations are put in place:
 
@@ -26,10 +26,10 @@ That said, the following specific limitations are put in place:
   when writing documentation. Nobody wants to talk to another person and get a
   machine-generated response: this is basic respect. That said, using AI tools
   to assist with grammar or translations on human-written text is fine.
-- AI may not be used to generate art, music, sounds, or any other media. Many
-  people feel very strongly about how machines should be used to participate in
-  the creative and artistic processes, and we as the Luanti maintainers respect
-  those views highly.
+- AI may not be used to generate art, music, sounds, or any other media in the
+  Luanti engine. Many people feel very strongly about how machines should be
+  used to participate in the creative and artistic processes, and we respect
+  those views highly, even though the engine itself has very little media.
 
 Since the state of AI tooling is constantly changing, these restrictions may be
 lifted or reinforced in the future.
