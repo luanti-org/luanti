@@ -1143,12 +1143,10 @@ bool Game::getServerContent(bool *aborted)
 			return false;
 		}
 
-		auto adjust_unit = [](float &v, const char **units) -> const char* {
-			int i = 0;
-			if (v > 900) {
-				v /= 1024.0;
-				i = 1;
-			}
+		const char* units[] = {gettext("KiB"), gettext("MiB")};
+		auto adjust_unit = [&units](float &v) -> const char* {
+			int i = (v > 900) ? 1 : 0;
+			v /= (i == 1) ? 1024.0f : 1.0f;
 			return units[i];
 		};
 
@@ -1166,41 +1164,28 @@ bool Game::getServerContent(bool *aborted)
 		} else {
 			std::ostringstream message;
 			std::fixed(message);
-			std::ostringstream sub_message;
-			std::fixed(sub_message);
+			std::string sub_message;
 			message << gettext("Media...");
-			float recived_percent = 0.f;
-			s32 recived = 0;
-			s32 total = 0;;
-			float recived_size = 0.f;
-			if (client->mediaReceiveProgress(recived, total, recived_size)) {
+			float received_ratio = 0.f;
+			s32 received = 0, total = 0;
+			size_t received_size = 0;
+			if (client->mediaReceiveProgress(received, total, received_size)) {
 				if (total > 0)
-					recived_percent = ((float) recived / total);
+					received_ratio = ((float) received) / total;
 
 				message.precision(0);
-				message << " " << recived_percent * 100.f << "%";
+				message << " " << received_ratio * 100.f << "%";
 
-				sub_message << "Files: " << recived << " / " << total;
-
-				recived_size /= 1024.0;
-				const char* units[] = {gettext("KiB"), gettext("MiB")};
-				std::string unit = adjust_unit(recived_size, units);
-				sub_message.precision(2);
-				sub_message << "\nSize: " << recived_size << " " << unit;
-
-				if (USE_CURL == 0 || !g_settings->getBool("enable_remote_media_server")) {
-					float cur = client->getCurRate();
-					const char* units[] = {gettext("KiB/s"), gettext("MiB/s")};
-					auto cur_unit = adjust_unit(cur, units);
-					sub_message << " (" << cur << ' ' << cur_unit << ")";
-				}
+				float adjusted_size = ((float) received_size) / 1024.0f;
+				auto unit = adjust_unit(adjusted_size);
+				sub_message = fmtgettext("Files: %d / %d", received, total) + "\n"
+							+ fmtgettext("Size: %.2f %s", adjusted_size, unit);
 			}
-			EnrichedString bottom_text(utf8_to_wide(sub_message.str()));
 
 			// 30% -> 65%
-			progress = 30 + std::ceil(recived_percent * 35 + 0.5f);
+			progress = 30 + std::ceil(received_ratio * 35 + 0.5f);
 			m_rendering_engine->draw_load_screen(utf8_to_wide(message.str()), guienv,
-					texture_src, dtime, progress, nullptr, &bottom_text);
+					texture_src, dtime, progress, nullptr, utf8_to_wide(sub_message));
 		}
 	}
 	framemarker.end();

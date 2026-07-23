@@ -345,7 +345,7 @@ public:
 	// server hosted by a different Luanti instance.
 	bool m_internal_server;
 
-	bool mediaReceiveProgress(s32 &recived, s32 &total, float &recived_size) const;
+	bool mediaReceiveProgress(s32 &received, s32 &total, size_t &received_size) const;
 
 	void drawLoadScreen(const std::wstring &text, float dtime, int percent);
 	void afterContentReceived();

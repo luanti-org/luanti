@@ -1865,10 +1865,10 @@ const Address Client::getServerAddress()
 	return m_con ? m_con->GetPeerAddress(PEER_ID_SERVER) : Address();
 }
 
-bool Client::mediaReceiveProgress(s32 &recived, s32 &total, float &recived_size) const
+bool Client::mediaReceiveProgress(s32 &received, s32 &total, size_t &received_size) const
 {
 	if (m_media_downloader) {
-		m_media_downloader->getProgress(recived, total, recived_size);
+		m_media_downloader->getProgress(received, total, received_size);
 		return true;
 	}
 

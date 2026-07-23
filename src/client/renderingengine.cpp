@@ -296,7 +296,7 @@ bool RenderingEngine::setWindowIcon()
 */
 void RenderingEngine::draw_load_screen(const std::wstring &text,
 		gui::IGUIEnvironment *guienv, ITextureSource *tsrc, float dtime,
-		int percent, float *indef_pos, const EnrichedString *bottom_text)
+		int percent, float *indef_pos, const std::wstring &bottom_text)
 {
 	v2u32 screensize = getWindowSize();
 
@@ -309,11 +309,11 @@ void RenderingEngine::draw_load_screen(const std::wstring &text,
 	guitext->setTextAlignment(gui::EGUIA_CENTER, gui::EGUIA_UPPERLEFT);
 
 	gui::IGUIStaticText *gui_bottom_text = nullptr;
-	if (bottom_text) {
+	if (!bottom_text.empty()) {
 		v2s32 size(240, g_fontengine->getLineHeight()*2);
 		v2s32 pos = center + v2s32{-120, 32};
 		core::rect<s32> rect(pos, pos + size);
-		gui_bottom_text = gui::StaticText::add(guienv, *bottom_text, rect, false, false);
+		gui_bottom_text = gui::StaticText::add(guienv, bottom_text, rect, false, false);
 	}
 
 	auto *driver = get_video_driver();
