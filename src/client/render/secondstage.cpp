@@ -107,6 +107,8 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	static const u8 TEXTURE_MSAA_COLOR = 7;
 	static const u8 TEXTURE_MSAA_DEPTH = 8;
 
+	static const u8 TEXTURE_MOTIONBLUR = 9;
+
 	static const u8 TEXTURE_SCALE_DOWN = 10;
 	static const u8 TEXTURE_SCALE_UP = 20;
 
@@ -147,6 +149,7 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 
 	const bool enable_ssaa = antialiasing == "ssaa";
 	const bool enable_fxaa = g_settings->getBool("fxaa");
+	const bool enable_motion_blur = g_settings->getBool("enable_motion_blur");
 
 	verbosestream << "addPostProcessing(): AA = "
 		<< (enable_msaa ? "msaa" : enable_ssaa ? "ssaa" : "none")
@@ -191,7 +194,25 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 
 	// post-processing stage
 
-	u8 source = TEXTURE_COLOR;
+	// The base color texture that all following steps read from. Motion blur,
+	// if enabled, replaces it with a blurred copy.
+	u8 base = TEXTURE_COLOR;
+
+	// Camera (velocity) motion blur. Reconstructs each pixel's world position
+	// from the depth buffer and reprojects it with the previous frame's
+	// view-projection matrix to obtain a screen-space velocity, then blurs
+	// the color buffer along it.
+	if (enable_motion_blur) {
+		buffer->setTexture(TEXTURE_MOTIONBLUR, scale, "motionblur", color_format);
+		shader_id = client->getShaderSource()->getShaderRaw("motion_blur");
+		auto motion_blur = pipeline->addStep<PostProcessingStep>(shader_id, std::vector<u8> { TEXTURE_COLOR, TEXTURE_DEPTH });
+		motion_blur->setRenderSource(buffer);
+		motion_blur->setBilinearFilter(0, true);
+		motion_blur->setRenderTarget(pipeline->createOwned<TextureBufferOutput>(buffer, TEXTURE_MOTIONBLUR));
+		base = TEXTURE_MOTIONBLUR;
+	}
+
+	u8 source = base;
 
 	// common downsampling step for bloom or autoexposure
 	if (enable_bloom || enable_auto_exposure) {
@@ -260,14 +281,14 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	}
 
 	// FXAA
-	u8 final_stage_source = TEXTURE_COLOR;
+	u8 final_stage_source = base;
 
 	if (enable_fxaa) {
 		final_stage_source = TEXTURE_FXAA;
 
 		buffer->setTexture(TEXTURE_FXAA, scale, "fxaa", color_format);
 		shader_id = client->getShaderSource()->getShaderRaw("fxaa");
-		PostProcessingStep *effect = pipeline->createOwned<PostProcessingStep>(shader_id, std::vector<u8> { TEXTURE_COLOR });
+		PostProcessingStep *effect = pipeline->createOwned<PostProcessingStep>(shader_id, std::vector<u8> { base });
 		pipeline->addStep(effect);
 		effect->setBilinearFilter(0, true);
 		effect->setRenderSource(buffer);

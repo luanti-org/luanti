@@ -109,6 +109,23 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float>
 		m_volumetric_light_strength_pixel{"volumetricLightStrength"};
 
+	bool m_motion_blur_enabled;
+	float m_motion_blur_strength;
+	CachedPixelShaderSetting<float, 16> m_motion_blur_inv_view_proj{"mInvViewProj"};
+	CachedPixelShaderSetting<float, 16> m_motion_blur_prev_view_proj{"mPrevViewProj"};
+	CachedPixelShaderSetting<float> m_motion_blur_strength_pixel{"motionBlurStrength"};
+	// Previous frame's view-projection matrix and camera offset, used to
+	// compute per-pixel screen-space velocity for motion blur.
+	core::matrix4 m_prev_view_proj;
+	core::matrix4 m_cur_view_proj;
+	v3s16 m_prev_camera_offset;
+	v3s16 m_cur_camera_offset;
+	// Matrices actually uploaded to the shader, recomputed once per frame.
+	core::matrix4 m_motion_blur_inv_vp;
+	core::matrix4 m_motion_blur_prev_vp;
+	u32 m_motion_blur_last_frame = 0;
+	bool m_motion_blur_have_prev = false;
+
 	static constexpr std::array<const char*, 1> SETTING_CALLBACKS = {
 		"exposure_compensation",
 	};
@@ -137,6 +154,8 @@ public:
 		m_user_exposure_compensation = g_settings->getFloat("exposure_compensation", -1.0f, 1.0f);
 		m_bloom_enabled = g_settings->getBool("enable_bloom");
 		m_volumetric_light_enabled = g_settings->getBool("enable_volumetric_lighting") && m_bloom_enabled;
+		m_motion_blur_enabled = g_settings->getBool("enable_motion_blur");
+		m_motion_blur_strength = g_settings->getFloat("motion_blur_strength", 0.0f, 4.0f);
 		m_crack_animation_length_i = game->crack_animation_length;
 	}
 
@@ -176,6 +195,50 @@ public:
 
 		m_texel_size0_vertex.set(m_texel_size0, services);
 		m_texel_size0_pixel.set(m_texel_size0, services);
+
+		if (m_motion_blur_enabled) {
+			// onSetUniforms is called once per material, i.e. many times per
+			// frame. The motion-blur matrices depend only on the camera, so we
+			// recompute them just once per frame (when the frame time changes)
+			// and reuse the cached result for every other call.
+			u32 frame_time = m_client->getEnv().getFrameTime();
+			if (!m_motion_blur_have_prev || frame_time != m_motion_blur_last_frame) {
+				auto *camera = m_client->getCamera();
+				auto *camera_node = camera->getCameraNode();
+
+				core::matrix4 view_proj = camera_node->getProjectionMatrix();
+				view_proj *= camera_node->getViewMatrix();
+				v3s16 camera_offset = camera->getOffset();
+
+				if (!m_motion_blur_have_prev) {
+					// First frame: no history yet, reproject onto itself so the
+					// velocity is zero (no blur).
+					m_prev_view_proj = view_proj;
+					m_prev_camera_offset = camera_offset;
+					m_motion_blur_have_prev = true;
+				} else {
+					m_prev_view_proj = m_cur_view_proj;
+					m_prev_camera_offset = m_cur_camera_offset;
+				}
+				m_cur_view_proj = view_proj;
+				m_cur_camera_offset = camera_offset;
+				m_motion_blur_last_frame = frame_time;
+
+				view_proj.getInverse(m_motion_blur_inv_vp);
+
+				// The world is rendered relative to the camera offset, which can
+				// change between frames. Bake the offset delta into the previous
+				// view-projection matrix so reprojection stays continuous.
+				v3f offset_delta = intToFloat(camera_offset - m_prev_camera_offset, BS);
+				core::matrix4 offset_translation;
+				offset_translation.setTranslation(offset_delta);
+				m_motion_blur_prev_vp = m_prev_view_proj * offset_translation;
+			}
+
+			m_motion_blur_inv_view_proj.set(m_motion_blur_inv_vp, services);
+			m_motion_blur_prev_view_proj.set(m_motion_blur_prev_vp, services);
+			m_motion_blur_strength_pixel.set(&m_motion_blur_strength, services);
+		}
 
 		{
 			float tmp = m_crack_animation_length_i;
