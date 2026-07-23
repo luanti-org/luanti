@@ -32,9 +32,16 @@ float noise(vec3 uvd) {
 
 float sampleVolumetricLight(vec2 uv, vec3 lightVec, float rawDepth)
 {
+	// We use the depth map to approximate the effect of depth on the light intensity.
+	// The exponent was chosen based on aesthetic preference.
+	float depthFactor = pow(rawDepth, 128.0);
+	// Anything that isn't sky-distance zeroes the result; skip the raymarch.
+	if (depthFactor < 1e-4)
+		return 0.;
+
 	lightVec = 0.5 * lightVec / lightVec.z + 0.5;
-	const float samples = 30.;
-	float result = texture2D(depthmap, uv).r < 1. ? 0.0 : 1.0;
+	const float samples = 16.;
+	float result = rawDepth < 1. ? 0.0 : 1.0;
 	float bias = noise(vec3(uv, rawDepth));
 	vec2 samplepos;
 	for (float i = 1.; i < samples; i++) {
@@ -42,9 +49,7 @@ float sampleVolumetricLight(vec2 uv, vec3 lightVec, float rawDepth)
 		if (min(samplepos.x, samplepos.y) > 0. && max(samplepos.x, samplepos.y) < 1.)
 			result += texture2D(depthmap, samplepos).r < 1. ? 0.0 : 1.0;
 	}
-	// We use the depth map to approximate the effect of depth on the light intensity.
-	// The exponent was chosen based on aesthetic preference.
-	return result / samples * pow(texture2D(depthmap, uv).r, 128.0);
+	return result / samples * depthFactor;
 }
 
 vec3 getDirectLightScatteringAtGround(vec3 v_LightDirection)
@@ -78,13 +83,17 @@ vec3 applyVolumetricLight(vec3 color, vec2 uv, float rawDepth)
 		sourcePosition = moonPositionScreen;
 	}
 
-	float cameraDirectionFactor = pow(clamp(dot(sourcePosition, vec3(0., 0., 1.)), 0.0, 0.7), 2.5);
-	float viewAngleFactor = pow(max(0., dot(sourcePosition, lookDirection)), 8.);
+	// No visible light source (sun/moon below horizon or behind camera):
+	// lightFactor would be 0, so skip the raymarch entirely.
+	if (brightness > 0.) {
+		float cameraDirectionFactor = pow(clamp(dot(sourcePosition, vec3(0., 0., 1.)), 0.0, 0.7), 2.5);
+		float viewAngleFactor = pow(max(0., dot(sourcePosition, lookDirection)), 8.);
 
-	float lightFactor = brightness * sampleVolumetricLight(uv, sourcePosition, rawDepth) *
-			(0.05 * cameraDirectionFactor + 0.95 * viewAngleFactor);
+		float lightFactor = brightness * sampleVolumetricLight(uv, sourcePosition, rawDepth) *
+				(0.05 * cameraDirectionFactor + 0.95 * viewAngleFactor);
 
-	color = mix(color, boost * getDirectLightScatteringAtGround(v_LightDirection) * dayLight, lightFactor);
+		color = mix(color, boost * getDirectLightScatteringAtGround(v_LightDirection) * dayLight, lightFactor);
+	}
 
 	// a factor of 5 tested well
 	color *= volumetricLightStrength * 5.0;
