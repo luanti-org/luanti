@@ -1176,16 +1176,14 @@ bool Game::getServerContent(bool *aborted)
 					recived_percent = ((float) recived / total);
 
 				message.precision(0);
-				message << " " << recived_percent * 100.f << "%";
+				message << " " << recived_percent * 100.f << "%"
+						<< " [" << recived << "/" << total <<  "]";
 
-				if (g_settings->getBool("main_menu_show_progress_bar_details")) {
-					message << " [" << recived << "/" << total <<  "]";
-					recived_size /= 1024.0;
-					const char* units[] = {gettext("KiB"), gettext("MiB")};
-					std::string unit = adjust_unit(recived_size, units);
-					message.precision(2);
-					message << " " << recived_size << " " << unit;
-				}
+				recived_size /= 1024.0;
+				const char* units[] = {gettext("KiB"), gettext("MiB")};
+				std::string unit = adjust_unit(recived_size, units);
+				message.precision(2);
+				message << " " << recived_size << " " << unit;
 			}
 
 			if (USE_CURL == 0 || !g_settings->getBool("enable_remote_media_server")) {
