@@ -87,12 +87,10 @@ public:
 	ClientMediaDownloader();
 	~ClientMediaDownloader();
 
-	float getProgress() const {
-		if (m_uncached_count >= 1)
-			return 1.0f * m_uncached_received_count /
-				m_uncached_count;
-
-		return 0.0f;
+	void getProgress(s32 &received, s32 &total, size_t &received_size) const {
+		received = m_uncached_received_count;
+		total = m_uncached_count;
+		received_size = m_received_file_size;
 	}
 
 	bool isStarted() const override {
@@ -160,6 +158,9 @@ private:
 
 	// Number of media files that have been received
 	s32 m_uncached_received_count = 0;
+
+	// Stores the total size of all received files in bytes
+	size_t m_received_file_size = 0;
 
 	// Status of remote transfers
 	u64 m_httpfetch_caller;

@@ -1865,12 +1865,14 @@ const Address Client::getServerAddress()
 	return m_con ? m_con->GetPeerAddress(PEER_ID_SERVER) : Address();
 }
 
-float Client::mediaReceiveProgress()
+bool Client::mediaReceiveProgress(s32 &received, s32 &total, size_t &received_size) const
 {
-	if (m_media_downloader)
-		return m_media_downloader->getProgress();
+	if (m_media_downloader) {
+		m_media_downloader->getProgress(received, total, received_size);
+		return true;
+	}
 
-	return 1.0f; // downloader only exists when not yet done
+	return false; // downloader only exists when not yet done
 }
 
 void Client::drawLoadScreen(const std::wstring &text, float dtime, int percent)

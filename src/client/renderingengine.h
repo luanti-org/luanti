@@ -127,7 +127,8 @@ public:
 	// progress bar is drawn.
 	void draw_load_screen(const std::wstring &text,
 			gui::IGUIEnvironment *guienv, ITextureSource *tsrc,
-			float dtime = 0, int percent = 0, float *indef_pos = nullptr);
+			float dtime = 0, int percent = 0, float *indef_pos = nullptr,
+			const std::wstring &bottom_text = {});
 
 	void draw_scene(video::SColor skycolor, bool show_hud,
 			bool draw_wield_tool, bool draw_crosshair);
