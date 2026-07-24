@@ -23,6 +23,7 @@
 #include "util/srp.h"
 #include "util/string.h"
 #include "face_position_cache.h"
+#include "profiler.h"
 
 static std::string string_sanitize_ascii(const std::string &s, u32 max_length)
 {
@@ -366,7 +367,10 @@ void RemoteClient::GetNextBlocks (
 			if (want_emerge) {
 				if (nearest_emerged_d == -1)
 					nearest_emerged_d = d;
-				if (emerge->enqueueBlockEmerge(peer_id, p, generate))
+				// send as low-priority so that the emerge process
+				// does not interfere with the nearest_emerged_d logic
+				// see SetBlockNotSent(...)
+				if (emerge->enqueueBlockEmerge(peer_id, p, generate, false, true))
 					continue;
 				else
 					goto queue_full_break;
@@ -451,6 +455,7 @@ void RemoteClient::SetBlockNotSent(v3s16 p, bool low_priority)
 		// Instead, the send loop will get to the block in the next full loop iteration.
 		if (!low_priority || this_d < m_block_cull_optimize_distance) {
 			m_nearest_unsent_d = std::min(m_nearest_unsent_d, this_d);
+			g_profiler->add("Server: Send loop reset [#]", 1);
 		}
 	}
 }
