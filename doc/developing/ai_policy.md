@@ -22,10 +22,13 @@ That said, the following specific limitations are put in place:
   for simple tasks, such as code completion, find-and-replace tasks, small
   bugfixes, or generating boilerplate code. On the other hand, "vibe-coding" or
   autonomous AI usage is completely unacceptable.
+
 - Do not use AI-generated text when communicating with other humans, including
-  when writing documentation. Nobody wants to talk to another person and get a
-  machine-generated response: this is basic respect. That said, using AI tools
-  to assist with grammar or translations on human-written text is fine.
+  when writing documentation. It is disrespectful to use a machine to generate
+  text in response to another person, or to generate documentation and PR/issue
+  descriptions meant for the benefit of humans. That said, using AI tools to
+  assist with grammar or translations on human-written text is fine.
+
 - AI may not be used to generate art, music, sounds, or any other media in the
   Luanti engine. Many people feel very strongly about how machines should be
   used to participate in the creative and artistic processes, and we respect
