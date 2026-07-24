@@ -1867,12 +1867,12 @@ const Address Client::getServerAddress()
 
 bool Client::mediaReceiveProgress(s32 &received, s32 &total, size_t &received_size) const
 {
-	if (m_media_downloader) {
+	if (m_media_downloader && m_media_downloader->isStarted()) {
 		m_media_downloader->getProgress(received, total, received_size);
 		return true;
 	}
 
-	return false; // downloader only exists when not yet done
+	return false;
 }
 
 void Client::drawLoadScreen(const std::wstring &text, float dtime, int percent)
