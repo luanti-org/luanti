@@ -1,8 +1,12 @@
 #define rendered texture0
 #define depthmap texture1
+#define rigidMask texture3
 
 uniform sampler2D rendered;
 uniform sampler2D depthmap;
+// Mask of objects that move with the camera: the player's own body and whatever
+// it is riding. See CameraRigidMaskStep. 1 where such an object is visible.
+uniform sampler2D rigidMask;
 
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
 
@@ -135,6 +139,17 @@ void main(void)
 {
 	vec2 uv = varTexCoord.st;
 	vec4 color = texture2D(rendered, uv);
+
+	// Objects rigidly attached to the camera are motionless on screen, but the
+	// reprojection below assumes every pixel is fixed in the world and would
+	// give them the full camera smear — worst of all for the player's own body
+	// and vehicle, which sit closest to the camera. They are masked out during
+	// the scene draw, so leave them exactly as they are.
+	if (texture2D(rigidMask, uv).r > 0.5) {
+		gl_FragColor = vec4(color.rgb, 1.0);
+		return;
+	}
+
 	highp float rawDepth = texture2D(depthmap, uv).r;
 
 	// Reconstruct the world-space (camera-relative) position of this pixel.
