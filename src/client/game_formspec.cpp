@@ -353,7 +353,7 @@ void GameFormSpec::showPlayerInventory(const std::string *fs_override)
 	fs_src.release(); // owned by GUIFormSpecMenu
 }
 
-#define SIZE_TAG "size[11,5.5,true]" // Fixed size (ignored in touchscreen mode)
+#define SIZE_TAG "size[14.25,7.275,true]" // Fixed size (ignored in touchscreen mode)
 
 void GameFormSpec::showPauseMenu()
 {
@@ -377,46 +377,56 @@ void GameFormSpec::showPauseMenu()
 
 	auto simple_singleplayer_mode = m_client->m_simple_singleplayer_mode;
 
-	float ypos = simple_singleplayer_mode ? 0.7f : 0.1f;
+	const float button_height = 0.8f;
+	const float spacing = 0.38f;
+	float ypos = simple_singleplayer_mode ? 1.05f : 0.325f;
 	std::ostringstream os;
 
-	os << "formspec_version[1]" << SIZE_TAG
-		<< "button_exit[4," << (ypos++) << ";3,0.5;btn_continue;"
+	os << "formspec_version[2]" << SIZE_TAG;
+
+	if (simple_singleplayer_mode) {
+		os << "style_type[label;halign=center;valign=center]";
+		os << "label[5.375,0;3.5," << ypos << ";" << strgettext("Game paused") << "]";
+	}
+
+	os << "container[5.375,0]";
+	os << "button_exit[0," << ypos << ";3.5," << button_height << ";btn_continue;"
 		// TRANSLATORS: Pause menu button, try to keep the translation short
 		<< strgettext("Continue") << "]";
 
 	if (!simple_singleplayer_mode) {
-		os << "button[4," << (ypos++) << ";3,0.5;btn_change_password;"
+		os << "button[0," << (ypos += button_height + spacing) << ";3.5," << button_height << ";btn_change_password;"
 			// TRANSLATORS: Pause menu button, try to keep the translation short
 			<< strgettext("Change Password") << "]";
-	} else {
-		os << "field[4.95,0;5,1.5;;" << strgettext("Game paused") << ";]";
 	}
 
-	os	<< "button[4," << (ypos++) << ";3,0.5;btn_settings;"
+	os << "button[0," << (ypos += button_height + spacing) << ";3.5," << button_height << ";btn_settings;"
 		// TRANSLATORS: Try to keep the translation short
 		<< strgettext("Settings") << "]";
 
 #ifndef __ANDROID__
 #if USE_SOUND
-	os << "button[4," << (ypos++) << ";3,0.5;btn_sound;"
+	os << "button[0," << (ypos += button_height + spacing) << ";3.5," << button_height << ";btn_sound;"
 		// TRANSLATORS: Pause menu button, try to keep the translation short
 		<< strgettext("Sound Volume") << "]";
 #endif
 #endif
 
-	os		<< "button_exit[4," << (ypos++) << ";3,0.5;btn_exit_menu;"
+	os << "button_exit[0," << (ypos += button_height + spacing) << ";3.5," << button_height << ";btn_exit_menu;"
 		// TRANSLATORS: Pause menu button, try to keep the translation short
 		<< strgettext("Exit to Menu") << "]";
-	os		<< "button_exit[4," << (ypos++) << ";3,0.5;btn_exit_os;"
+
+	os << "button_exit[0," << (ypos += button_height + spacing) << ";3.5," << button_height << ";btn_exit_os;"
 		// TRANSLATORS: Pause menu button, try to keep the translation short (OS = Operating System)
-		<< strgettext("Exit to OS")   << "]";
+		<< strgettext("Exit to OS") << "]";
+
+	os << "container_end[]";
 	if (!control_text.empty()) {
-	os		<< "textarea[7.5,0.25;3.9,6.25;;" << control_text << ";]";
+		os << "textarea[9.25,0.8;4.625,6.1;;" << control_text << ";]";
 	}
-	os		<< "textarea[0.4,0.25;3.9,6.25;;" << PROJECT_NAME_C " " VERSION_STRING "\n"
-		<< "\n"
-		<<  strgettext("Game info:") << "\n";
+	os << "textarea[0.375,0.8;4.625,6.075;;" << PROJECT_NAME_C " " VERSION_STRING "\n"
+		<< "\n" <<  strgettext("Game info:") << "\n";
+
 	const std::string &address = m_client->getAddressName();
 	// TRANSLATORS: Game mode (server or singleplayer)
 	os << strgettext("- Mode: ");
