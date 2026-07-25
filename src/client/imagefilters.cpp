@@ -16,6 +16,21 @@ static void imageCleanTransparentWithInlining(video::IImage *src, u32 threshold)
 	void *const src_data = src->getData();
 	const core::dimension2d<u32> dim = src->getDimension();
 
+	// position math helpers
+	auto addp = [=](v2u32 p, v2u32 operand) -> v2u32 {
+		return {
+			std::min(p.X + operand.X, dim.Width),
+			std::min(p.Y + operand.Y, dim.Height),
+		};
+	};
+	auto subp = [=](v2u32 p, v2u32 operand) -> v2u32 {
+		return {
+			p.X <= operand.X ? 0 : (p.X - operand.X),
+			p.Y <= operand.Y ? 0 : (p.Y - operand.Y),
+		};
+	};
+
+	// pixel accessors
 	auto get_pixel = [=](u32 x, u32 y) -> video::SColor {
 		if constexpr (IS_A8R8G8B8) {
 			return reinterpret_cast<u32 *>(src_data)[y*dim.Width + x];
@@ -36,15 +51,20 @@ static void imageCleanTransparentWithInlining(video::IImage *src, u32 threshold)
 
 	// First pass: Mark all opaque pixels
 	// Note: loop y around x for better cache locality.
-	for (u32 ctry = 0; ctry < dim.Height; ctry++)
-	for (u32 ctrx = 0; ctrx < dim.Width; ctrx++) {
-		if (get_pixel(ctrx, ctry).getAlpha() > threshold)
-			bitmap.set(ctrx, ctry);
+	v2u32 bmin = dim, bmax = {0,0}; // bounding box of opaque pixels
+	for (v2u32 pp; pp.Y < dim.Height; pp.Y++)
+	for (pp.X = 0; pp.X < dim.Width; pp.X++) {
+		if (get_pixel(pp.X, pp.Y).getAlpha() > threshold) {
+			bitmap.set(pp.X, pp.Y);
+			bmin = componentwise_min(bmin, pp);
+			bmax = componentwise_max(bmax, pp);
+		}
 	}
 
-	// Exit early if all pixels opaque
-	if (bitmap.all())
+	// Exit early if there is nothing to propagate
+	if (bitmap.all() || bitmap.none())
 		return;
+	assert(bmin <= bmax);
 
 	Bitmap newmap = bitmap;
 
@@ -57,20 +77,22 @@ static void imageCleanTransparentWithInlining(video::IImage *src, u32 threshold)
 	// we're finished.
 	for (int iter = 0; iter < iter_max; iter++) {
 
-	for (u32 ctry = 0; ctry < dim.Height; ctry++)
-	for (u32 ctrx = 0; ctrx < dim.Width; ctrx++) {
+	// We can only make progress on pixels that have any neighbors. We're keeping
+	// track so only iterate the relevant area.
+	const v2u32 cstart = subp(bmin, {1,1}), cend = addp(bmax, {2,2});
+	v2u32 cp;
+	for (cp.Y = cstart.Y; cp.Y < cend.Y; cp.Y++)
+	for (cp.X = cstart.X; cp.X < cend.X; cp.X++) {
 		// Skip pixels we have already processed
-		if (bitmap.get(ctrx, ctry))
+		if (bitmap.get(cp.X, cp.Y))
 			continue;
 
-		// Sample size and total weighted r, g, b values
 		u32 ss = 0, sr = 0, sg = 0, sb = 0;
 
-		// Walk each neighbor pixel (clipped to image bounds)
-		for (u32 sy = (ctry < 1) ? 0 : (ctry - 1);
-				sy <= (ctry + 1) && sy < dim.Height; sy++)
-		for (u32 sx = (ctrx < 1) ? 0 : (ctrx - 1);
-				sx <= (ctrx + 1) && sx < dim.Width; sx++) {
+		// Walk nine neighbor pixels (clipped to image bounds)
+		const v2u32 sstart = subp(cp, {1,1}), send = addp(cp, {2,2});
+		for (u32 sy = sstart.Y; sy < send.Y; sy++)
+		for (u32 sx = sstart.X; sx < send.X; sx++) {
 			// Ignore pixels we haven't processed
 			if (!bitmap.get(sx, sy))
 				continue;
@@ -85,14 +107,17 @@ static void imageCleanTransparentWithInlining(video::IImage *src, u32 threshold)
 			sb += a * d.getBlue();
 		}
 
-		// Set pixel to average weighted by alpha
+		// Set color to average weighted by alpha
 		if (ss > 0) {
-			video::SColor c = get_pixel(ctrx, ctry);
+			video::SColor c = get_pixel(cp.X, cp.Y);
 			c.setRed(sr / ss);
 			c.setGreen(sg / ss);
 			c.setBlue(sb / ss);
-			set_pixel(ctrx, ctry, c);
-			newmap.set(ctrx, ctry);
+			set_pixel(cp.X, cp.Y, c);
+
+			newmap.set(cp.X, cp.Y);
+			bmin = componentwise_min(bmin, cp);
+			bmax = componentwise_max(bmax, cp);
 		}
 	}
 
