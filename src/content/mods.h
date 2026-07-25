@@ -15,10 +15,10 @@ struct ModSpec;
 
 #define MODNAME_ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyz0123456789_"
 
-struct ModSpecSorter {
+struct ModSpecCompare {
 	bool operator()(const ModSpec &a, const ModSpec &b) const;
 };
-using ModSpecList = std::set<ModSpec, ModSpecSorter>;
+using ModSpecList = std::set<ModSpec, ModSpecCompare>;
 
 struct ModSpec
 {

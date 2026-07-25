@@ -14,7 +14,7 @@
 #include "script/common/c_internal.h"
 #include "exceptions.h"
 
-bool ModSpecSorter::operator()(const ModSpec &a, const ModSpec &b) const
+bool ModSpecCompare::operator()(const ModSpec &a, const ModSpec &b) const
 {
 	return strcasecmp(a.name.c_str(), b.name.c_str()) < 0;
 }
@@ -200,25 +200,27 @@ ModSpecList getModsInPath(
 	return result;
 }
 
+static void flatten_recursive(std::vector<ModSpec> &result, const ModSpecList &mods,
+		bool discard_modpacks)
+{
+	for (const ModSpec &mod : mods) {
+		if (!mod.is_modpack || !discard_modpacks)
+			result.push_back(mod);
+
+		if (mod.is_modpack)
+			flatten_recursive(result, mod.modpack_content, discard_modpacks);
+	}
+}
+
 std::vector<ModSpec> flattenMods(const ModSpecList &mods, bool discard_modpacks)
 {
 	std::vector<ModSpec> result;
-	for (const ModSpec &mod : mods) {
-		if (!mod.is_modpack || !discard_modpacks) {
-			result.push_back(mod);
-		}
-		if (mod.is_modpack) {
-			std::vector<ModSpec> content = flattenMods(mod.modpack_content, discard_modpacks);
-			result.reserve(result.size() + content.size());
-			result.insert(result.end(), content.begin(), content.end());
-		}
-	}
+	flatten_recursive(result, mods, discard_modpacks);
 
 	if (discard_modpacks)
-		std::sort(result.begin(), result.end(), ModSpecSorter());
+		std::sort(result.begin(), result.end(), ModSpecCompare());
 	return result;
 }
-
 
 ModStorage::ModStorage(const std::string &mod_name, ModStorageDatabase *database):
 	m_mod_name(mod_name), m_database(database)
