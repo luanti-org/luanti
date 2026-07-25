@@ -171,6 +171,14 @@ void CameraRigidMaskStep::run(PipelineContext &context)
 	LocalPlayer *player = m_client->getEnv().getLocalPlayer();
 	if (!player)
 		return;
+
+	// Nothing will be blurred this frame, so nothing needs masking. The target
+	// was still activated above, which clears the mask to zero.
+	if (resolveMotionBlurStrength(player->getLighting(),
+			g_settings->getBool("enable_motion_blur"),
+			g_settings->getFloat("motion_blur_strength", 0.0f, 4.0f)) <= 0.0f)
+		return;
+
 	GenericCAO *cao = player->getCAO();
 	if (!cao)
 		return;
@@ -264,7 +272,13 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 
 	const bool enable_ssaa = antialiasing == "ssaa";
 	const bool enable_fxaa = g_settings->getBool("fxaa");
-	const bool enable_motion_blur = g_settings->getBool("enable_motion_blur");
+	// Note this is deliberately NOT gated on the `enable_motion_blur` setting.
+	// A server can push a motion blur strength that overrides the player's
+	// settings, including switching the effect on for someone who has it off,
+	// so the pass has to exist even when the player does not currently want it.
+	// It idles cheaply in that case: the shader early-outs at zero velocity and
+	// the mask step below skips its geometry entirely.
+	const bool enable_motion_blur = true;
 
 	verbosestream << "addPostProcessing(): AA = "
 		<< (enable_msaa ? "msaa" : enable_ssaa ? "ssaa" : "none")

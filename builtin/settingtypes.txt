@@ -849,11 +849,13 @@ enable_volumetric_lighting (Volumetric lighting) bool false
 
 #    Blur the view in the direction of camera movement, so fast turns and
 #    movement smear the image.
+#    Note that a game or mod can override this and enable the effect anyway.
 #
 #    Requires: enable_post_processing
 enable_motion_blur (Motion blur) bool false
 
 #    Strength of the motion blur effect.
+#    Note that a game or mod can override this with a strength of its own.
 #
 #    Requires: enable_post_processing, enable_motion_blur
 motion_blur_strength (Motion blur strength) float 0.4 0.0 4.0

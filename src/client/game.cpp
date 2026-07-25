@@ -63,6 +63,10 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 {
 	Sky *m_sky;
 	Client *m_client;
+	/// Only the motion blur shader consumes the motion blur uniforms, and this
+	/// setter is instantiated per shader program, so everything else can skip
+	/// the work (which includes a 4x4 matrix inverse) entirely.
+	bool m_is_motion_blur_shader;
 
 	CachedVertexShaderSetting<float> m_animation_timer_vertex{"animationTimer"};
 	CachedPixelShaderSetting<float> m_animation_timer_pixel{"animationTimer"};
@@ -173,9 +177,10 @@ public:
 
 	void setSky(Sky *sky) { m_sky = sky; }
 
-	GameGlobalShaderUniformSetter(Sky *sky, Game *game) :
+	GameGlobalShaderUniformSetter(Sky *sky, Game *game, bool is_motion_blur_shader) :
 		m_sky(sky),
-		m_client(game->getClient())
+		m_client(game->getClient()),
+		m_is_motion_blur_shader(is_motion_blur_shader)
 	{
 		for (auto &name : SETTING_CALLBACKS)
 			g_settings->registerChangedCallback(name, settingsCallback, this);
@@ -225,7 +230,9 @@ public:
 		m_texel_size0_vertex.set(m_texel_size0, services);
 		m_texel_size0_pixel.set(m_texel_size0, services);
 
-		if (m_motion_blur_enabled) {
+		const auto &lighting = m_client->getEnv().getLocalPlayer()->getLighting();
+
+		if (m_is_motion_blur_shader) {
 			auto *camera = m_client->getCamera();
 			auto *camera_node = camera->getCameraNode();
 
@@ -274,7 +281,14 @@ public:
 
 			m_motion_blur_inv_view_proj.set(inv_view_proj, services);
 			m_motion_blur_prev_view_proj.set(prev_view_proj, services);
-			m_motion_blur_strength_pixel.set(&m_motion_blur_strength, services);
+
+			// A strength pushed by the server wins outright: it may exceed the
+			// player's configured strength and switches the effect on even if
+			// the player has it disabled. Their settings apply only when the
+			// server has left it unset.
+			float strength = resolveMotionBlurStrength(lighting,
+					m_motion_blur_enabled, m_motion_blur_strength);
+			m_motion_blur_strength_pixel.set(&strength, services);
 		}
 
 		{
@@ -285,8 +299,6 @@ public:
 			tmp = m_crack_texture_scale_i;
 			m_crack_texture_scale.set(&tmp, services);
 		}
-
-		const auto &lighting = m_client->getEnv().getLocalPlayer()->getLighting();
 
 		const AutoExposure &exposure_params = lighting.exposure;
 		std::array<float, 7> exposure_buffer = {
@@ -398,7 +410,8 @@ public:
 	{
 		if (str_starts_with(name, "shadow/"))
 			return nullptr;
-		auto *scs = new GameGlobalShaderUniformSetter(m_sky, m_game);
+		auto *scs = new GameGlobalShaderUniformSetter(m_sky, m_game,
+				name == "motion_blur");
 		if (!m_sky)
 			created_nosky.push_back(scs);
 		return scs;
