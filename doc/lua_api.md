@@ -401,7 +401,8 @@ depends on by supplying a file with an equal name.
 Only a subset of model file format features is supported:
 
 Simple textured meshes (with multiple textures), optionally with normals.
-The .x, .b3d and .gltf formats additionally support (a single) animation.
+.x and .b3d support a single animation.
+.gltf support multiple animation tracks.
 
 #### glTF
 
