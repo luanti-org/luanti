@@ -340,7 +340,7 @@ void set_default_settings()
 	settings->setDefault("enable_bloom_debug", "false");
 	settings->setDefault("enable_volumetric_lighting", "false");
 	settings->setDefault("enable_motion_blur", "false");
-	settings->setDefault("motion_blur_strength", "1.0");
+	settings->setDefault("motion_blur_strength", "0.4");
 	settings->setDefault("motion_blur_quality", "8");
 	settings->setDefault("enable_water_reflections", "false");
 	settings->setDefault("enable_translucent_foliage", "false");
