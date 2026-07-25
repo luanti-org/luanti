@@ -107,6 +107,27 @@ const float EMISSION_LENGTH_BOOST = 2.5;
 const float EMISSION_UNIFORM_LO = 0.35;
 const float EMISSION_UNIFORM_HI = 0.60;
 
+// --- Working color space ---------------------------------------------------
+// The color buffer at this point in the pipeline is gamma-encoded; second_stage
+// is what converts it to linear (pow 2.2) much later. Averaging gamma-encoded
+// values is not energy-conserving — it makes a smear noticeably darker than the
+// light that produced it. Averaging a full-bright pixel with a dark one gives
+// ~0.55 encoded (0.27 linear) where the true answer is ~0.50 linear. That
+// missing energy is a large part of what the emissive path above exists to
+// fight. So decode to linear before combining samples, and re-encode on the way
+// out.
+//
+// Gamma 2.0 rather than the engine's 2.2: the round trip is exact either way,
+// so a pixel that ends up unblurred comes out bit-identical and the pass stays
+// a true no-op where nothing moved. Only the weighting of the average differs,
+// and square/sqrt is far cheaper than a pow() per sample.
+vec3 gammaToLinear(vec3 c) { return c * c; }
+vec3 linearToGamma(vec3 c) { return sqrt(c); }
+
+// EMISSION_STRENGTH expresses a perceptual multiplier, so square it to apply in
+// the linear domain we now accumulate in.
+const float EMISSION_STRENGTH_LINEAR = EMISSION_STRENGTH * EMISSION_STRENGTH;
+
 void main(void)
 {
 	vec2 uv = varTexCoord.st;
@@ -199,16 +220,20 @@ void main(void)
 		// Diffuse sample along the ordinary blur line.
 		vec2 samplePos = clamp(uv + velocity * t, vec2(0.0), vec2(1.0));
 		vec3 c = texture2D(rendered, samplePos).rgb;
-		sum += c;
+		sum += gammaToLinear(c);
 
 		// Emissive sample along an EXTENDED line so bright sources reach further.
 		// The reach grows with how emissive the sampled pixel is, so brighter =
 		// longer smear.
 		vec2 emPos = clamp(uv + velocity * (t * EMISSION_LENGTH_BOOST), vec2(0.0), vec2(1.0));
 		vec3 ec = texture2D(rendered, emPos).rgb;
+		// Note that the emissive *detection* below deliberately stays in the
+		// gamma-encoded domain: these thresholds describe how bright a pixel
+		// looks, which is a perceptual question, and keeping them here means
+		// they mean exactly what they did before the linear-space change.
 		float ev = max(ec.r, max(ec.g, ec.b));
 		float e = smoothstep(EMISSION_THRESHOLD, 1.0, ev);
-		emissive = max(emissive, ec * e);
+		emissive = max(emissive, gammaToLinear(ec) * e);
 		minEmissiveV = min(minEmissiveV, ev);
 	}
 
@@ -223,8 +248,8 @@ void main(void)
 	vec3 base = sum * invSamples;
 	// Where the trail is emissive, take the bright bar; elsewhere it is ~0 and
 	// the normal averaged blur shows through unchanged.
-	vec3 result = max(base, emissive * EMISSION_STRENGTH);
-	gl_FragColor = vec4(result, 1.0);
+	vec3 result = max(base, emissive * EMISSION_STRENGTH_LINEAR);
+	gl_FragColor = vec4(linearToGamma(result), 1.0);
 }
 
 #endif // MOTION_BLUR_UNSUPPORTED
