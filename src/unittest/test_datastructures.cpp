@@ -5,6 +5,7 @@
 #include "test.h"
 
 #include "util/container.h"
+#include "util/bitmap.h"
 
 class TestDataStructures : public TestBase
 {
@@ -19,6 +20,7 @@ public:
 	void testMap3();
 	void testMap4();
 	void testMap5();
+	void testBitmap(u32 w, u32 h);
 };
 
 static TestDataStructures g_test_instance;
@@ -31,6 +33,12 @@ void TestDataStructures::runTests(IGameDef *gamedef)
 	TEST(testMap3);
 	TEST(testMap4);
 	TEST(testMap5);
+
+	rawstream << "-------- Bitmap" << std::endl;
+	TEST(testBitmap, 1, 7); // 1 bit of padding
+	TEST(testBitmap, 7, 1); // ^
+	TEST(testBitmap, 3, 3); // 7
+	TEST(testBitmap, 4, 4); // 0
 }
 
 namespace {
@@ -167,4 +175,29 @@ void TestDataStructures::testMap5()
 		UASSERTEQ(u32, map.get(1), 200);
 		break;
 	}
+}
+
+void TestDataStructures::testBitmap(u32 w, u32 h)
+{
+	Bitmap b(w, h);
+
+	UASSERT(b.none());
+	b.reset(true);
+	UASSERT(b.all());
+	// touch the last value specifically because it may be next to padding (special handling)
+	UASSERT(b.get(w-1, h-1));
+	b.toggle(w-1, h-1);
+	UASSERT(!b.all());
+	UASSERT(!b.none());
+	b.reset(false);
+	UASSERT(b.none());
+
+	for (u32 x = 0; x < w; x++)
+	for (u32 y = 0; y < h; y++)
+		b.set(x, y);
+	UASSERT(b.all());
+	for (u32 x = 0; x < w; x++)
+	for (u32 y = 0; y < h; y++)
+		b.unset(x, y);
+	UASSERT(b.none());
 }
