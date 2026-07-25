@@ -4,6 +4,26 @@
 uniform sampler2D rendered;
 uniform sampler2D depthmap;
 
+CENTROID_ VARYING_ mediump vec2 varTexCoord;
+
+// Reconstructing a world-space position from the depth buffer needs high
+// floating-point precision. On OpenGL ES highp is only optionally supported in
+// the fragment stage, and a shader that uses it where it is unsupported fails
+// to compile outright (the second_stage shader disables dithering for the same
+// reason). Where it is missing, compile a passthrough instead of the effect.
+#if defined(GL_ES) && !defined(GL_FRAGMENT_PRECISION_HIGH)
+#define MOTION_BLUR_UNSUPPORTED 1
+#endif
+
+#ifdef MOTION_BLUR_UNSUPPORTED
+
+void main(void)
+{
+	gl_FragColor = vec4(texture2D(rendered, varTexCoord.st).rgb, 1.0);
+}
+
+#else
+
 #ifdef ENABLE_AUTO_EXPOSURE
 #define exposureMap texture2
 // 1x1 auto-exposure texture (log2 scale), same one the second stage reads. The
@@ -23,8 +43,6 @@ uniform float motionBlurStrength;
 // Higher = smoother, less banded blur but more texture fetches. Clamped on the
 // engine side to [2, MAX_SAMPLES].
 uniform float motionBlurQuality;
-
-CENTROID_ VARYING_ mediump vec2 varTexCoord;
 
 // Hard upper bound on the sample count. GLSL ES requires a constant loop bound,
 // so we always loop to MAX_SAMPLES and break early once we have taken
@@ -92,6 +110,7 @@ const float EMISSION_UNIFORM_HI = 0.60;
 void main(void)
 {
 	vec2 uv = varTexCoord.st;
+	vec4 color = texture2D(rendered, uv);
 	highp float rawDepth = texture2D(depthmap, uv).r;
 
 	// Reconstruct the world-space (camera-relative) position of this pixel.
@@ -101,6 +120,18 @@ void main(void)
 
 	// Reproject it through last frame's camera to find its previous screen pos.
 	highp vec4 prevClip = mPrevViewProj * vec4(worldPos.xyz, 1.0);
+
+	// A pixel visible now may have been BEHIND the previous camera: during a
+	// fast turn, or when moving past geometry that was very close. Then w is
+	// negative, the perspective divide mirrors the position through the origin,
+	// and the resulting velocity points the wrong way — producing a full-length
+	// smear in the opposite direction (the magnitude clamp below does not help,
+	// it only limits length). Leave those pixels unblurred instead.
+	if (prevClip.w <= 0.0) {
+		gl_FragColor = vec4(color.rgb, 1.0);
+		return;
+	}
+
 	vec2 prevUv = (prevClip.xy / prevClip.w) * 0.5 + 0.5;
 
 	// Screen-space velocity in UV units.
@@ -119,8 +150,6 @@ void main(void)
 	float len = length(velocity);
 	if (len > MAX_VELOCITY)
 		velocity *= MAX_VELOCITY / len;
-
-	vec4 color = texture2D(rendered, uv);
 
 	// Nothing (or barely anything) moved: skip the blur entirely.
 	if (len < 0.0005) {
@@ -150,7 +179,11 @@ void main(void)
 	// guards against motionBlurQuality arriving as 0 (e.g. an engine build that
 	// doesn't yet upload the uniform), which would otherwise divide by zero below
 	// and flash the screen black.
-	int numSamples = clamp(int(motionBlurQuality), 2, MAX_SAMPLES);
+	//
+	// Clamp in float and convert afterwards: GLSL ES 1.00 and GLSL 1.20 have no
+	// integer overload of clamp(), so clamp(int, int, int) fails to compile on
+	// the OpenGL ES 2 and legacy OpenGL code paths.
+	int numSamples = int(clamp(motionBlurQuality, 2.0, float(MAX_SAMPLES)));
 	float invSamples = 1.0 / float(numSamples);
 	for (int i = 0; i < MAX_SAMPLES; i++) {
 		// Stop once we have taken the requested number of samples. The loop bound
@@ -193,3 +226,5 @@ void main(void)
 	vec3 result = max(base, emissive * EMISSION_STRENGTH);
 	gl_FragColor = vec4(result, 1.0);
 }
+
+#endif // MOTION_BLUR_UNSUPPORTED

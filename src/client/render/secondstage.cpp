@@ -205,14 +205,21 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	if (enable_motion_blur) {
 		buffer->setTexture(TEXTURE_MOTIONBLUR, scale, "motionblur", color_format);
 		shader_id = client->getShaderSource()->getShaderRaw("motion_blur");
-		// When auto exposure is on, also feed the (previous frame's) exposure
-		// texture as texture2 so the blur can scale its length with exposure:
-		// longer smear in dark, exposure-boosted scenes and shorter in bright
-		// ones. TEXTURE_EXPOSURE_1 holds the settled exposure at this point in
-		// the pipeline (it is swapped in at the end of the frame).
-		std::vector<u8> motion_blur_textures { TEXTURE_COLOR, TEXTURE_DEPTH };
-		if (enable_auto_exposure)
-			motion_blur_textures.push_back(TEXTURE_EXPOSURE_1);
+		// Feed the (previous frame's) exposure texture as texture2 so the blur
+		// can scale its length with exposure: longer smear in dark,
+		// exposure-boosted scenes and shorter in bright ones. TEXTURE_EXPOSURE_1
+		// holds the settled exposure at this point in the pipeline (it is
+		// swapped in at the end of the frame).
+		//
+		// This is bound unconditionally on purpose. The shader guards its use
+		// behind ENABLE_AUTO_EXPOSURE, which the shader source derives from the
+		// raw `enable_auto_exposure` setting, whereas `enable_auto_exposure`
+		// here *also* requires float render target support. When those two
+		// disagree the shader would sample an unbound sampler. The texture is
+		// created unconditionally above and cleared to zero, which decodes to a
+		// neutral exposure factor of 1.
+		std::vector<u8> motion_blur_textures {
+				TEXTURE_COLOR, TEXTURE_DEPTH, TEXTURE_EXPOSURE_1 };
 		auto motion_blur = pipeline->addStep<PostProcessingStep>(shader_id, motion_blur_textures);
 		motion_blur->setRenderSource(buffer);
 		motion_blur->setBilinearFilter(0, true);

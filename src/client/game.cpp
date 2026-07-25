@@ -128,15 +128,38 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	u32 m_motion_blur_last_frame = 0;
 	bool m_motion_blur_have_prev = false;
 
-	static constexpr std::array<const char*, 1> SETTING_CALLBACKS = {
+	static constexpr std::array<const char*, 3> SETTING_CALLBACKS = {
 		"exposure_compensation",
+		"motion_blur_strength",
+		"motion_blur_quality",
 	};
+
+	void readMotionBlurStrength()
+	{
+		m_motion_blur_strength = g_settings->getFloat("motion_blur_strength", 0.0f, 4.0f);
+	}
+
+	void readMotionBlurQuality()
+	{
+		// Must match MAX_SAMPLES in the motion_blur fragment shader.
+		m_motion_blur_quality = rangelim(
+				(float)g_settings->getS32("motion_blur_quality"), 2.0f, 32.0f);
+	}
 
 public:
 	void onSettingsChange(const std::string &name)
 	{
 		if (name == "exposure_compensation")
 			m_user_exposure_compensation = g_settings->getFloat("exposure_compensation", -1.0f, 1.0f);
+		// Note that `enable_motion_blur` itself is deliberately absent: it
+		// decides whether the render pipeline gets a motion blur step at all,
+		// and the pipeline is only built when the world is loaded (same as
+		// `enable_bloom`). Strength and quality are plain uniforms, so those
+		// can and should take effect immediately.
+		else if (name == "motion_blur_strength")
+			readMotionBlurStrength();
+		else if (name == "motion_blur_quality")
+			readMotionBlurQuality();
 	}
 
 	static void settingsCallback(const std::string &name, void *userdata)
@@ -157,10 +180,8 @@ public:
 		m_bloom_enabled = g_settings->getBool("enable_bloom");
 		m_volumetric_light_enabled = g_settings->getBool("enable_volumetric_lighting") && m_bloom_enabled;
 		m_motion_blur_enabled = g_settings->getBool("enable_motion_blur");
-		m_motion_blur_strength = g_settings->getFloat("motion_blur_strength", 0.0f, 4.0f);
-		// Must match MAX_SAMPLES in the motion_blur fragment shader.
-		m_motion_blur_quality = (float)g_settings->getS32("motion_blur_quality");
-		m_motion_blur_quality = rangelim(m_motion_blur_quality, 2.0f, 32.0f);
+		readMotionBlurStrength();
+		readMotionBlurQuality();
 		m_crack_animation_length_i = game->crack_animation_length;
 	}
 
