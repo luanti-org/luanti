@@ -482,6 +482,10 @@ void ClientEnvironment::getSelectedActiveObjects(
 
 void ClientEnvironment::updateFrameTime(bool is_paused)
 {
+	// Counts every frame, including paused ones, so that it stays a reliable
+	// frame-boundary signal regardless of pause state or frame rate.
+	m_frame_counter++;
+
 	// if paused, m_frame_time_pause_accumulator increases by dtime,
 	// otherwise, m_frame_time increases by dtime
 	if (is_paused) {

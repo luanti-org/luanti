@@ -116,17 +116,33 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float, 16> m_motion_blur_prev_view_proj{"mPrevViewProj"};
 	CachedPixelShaderSetting<float> m_motion_blur_strength_pixel{"motionBlurStrength"};
 	CachedPixelShaderSetting<float> m_motion_blur_quality_pixel{"motionBlurQuality"};
-	// Previous frame's view-projection matrix and camera offset, used to
-	// compute per-pixel screen-space velocity for motion blur.
-	core::matrix4 m_prev_view_proj;
-	core::matrix4 m_cur_view_proj;
-	v3s16 m_prev_camera_offset;
-	v3s16 m_cur_camera_offset;
-	// Matrices actually uploaded to the shader, recomputed once per frame.
-	core::matrix4 m_motion_blur_inv_vp;
-	core::matrix4 m_motion_blur_prev_vp;
-	u32 m_motion_blur_last_frame = 0;
-	bool m_motion_blur_have_prev = false;
+	/*
+		Motion blur reprojects each pixel through the previous frame's camera,
+		so it needs that camera's view-projection matrix and camera offset.
+
+		This has to be tracked per *view*, not just per frame. The stereo modes
+		(anaglyph, sidebyside, topbottom, crossview) run the whole 3D stage —
+		including this post-processing pipeline — once per eye, with
+		OffsetCameraStep moving the camera node in between. A single history
+		slot would hand the right eye the left eye's matrix, which differs by
+		the eye separation and would show up as a constant sideways smear in
+		one eye.
+
+		Views are rendered in a fixed order within a frame, so indexing the
+		history by "how many times we have been called this frame" reliably
+		gives each eye its own slot. A hypothetical mode with more views than
+		this would share the last slot rather than misbehave.
+	*/
+	static constexpr u32 MOTION_BLUR_MAX_VIEWS = 2;
+	struct MotionBlurView {
+		core::matrix4 view_proj;
+		v3s16 camera_offset;
+		bool valid = false;
+	};
+	std::array<MotionBlurView, MOTION_BLUR_MAX_VIEWS> m_motion_blur_views;
+	u64 m_motion_blur_frame = 0;
+	bool m_motion_blur_seen_frame = false;
+	u32 m_motion_blur_view = 0;
 
 	static constexpr std::array<const char*, 3> SETTING_CALLBACKS = {
 		"exposure_compensation",
@@ -223,46 +239,54 @@ public:
 		m_texel_size0_pixel.set(m_texel_size0, services);
 
 		if (m_motion_blur_enabled) {
-			// onSetUniforms is called once per material, i.e. many times per
-			// frame. The motion-blur matrices depend only on the camera, so we
-			// recompute them just once per frame (when the frame time changes)
-			// and reuse the cached result for every other call.
-			u32 frame_time = m_client->getEnv().getFrameTime();
-			if (!m_motion_blur_have_prev || frame_time != m_motion_blur_last_frame) {
-				auto *camera = m_client->getCamera();
-				auto *camera_node = camera->getCameraNode();
+			auto *camera = m_client->getCamera();
+			auto *camera_node = camera->getCameraNode();
 
-				core::matrix4 view_proj = camera_node->getProjectionMatrix();
-				view_proj *= camera_node->getViewMatrix();
-				v3s16 camera_offset = camera->getOffset();
+			// Read the camera fresh every call rather than caching it per
+			// frame: in stereo modes this runs once per eye against a
+			// different camera transform, so a cached matrix would reconstruct
+			// the second eye's world positions with the first eye's camera.
+			core::matrix4 view_proj = camera_node->getProjectionMatrix();
+			view_proj *= camera_node->getViewMatrix();
+			v3s16 camera_offset = camera->getOffset();
 
-				if (!m_motion_blur_have_prev) {
-					// First frame: no history yet, reproject onto itself so the
-					// velocity is zero (no blur).
-					m_prev_view_proj = view_proj;
-					m_prev_camera_offset = camera_offset;
-					m_motion_blur_have_prev = true;
-				} else {
-					m_prev_view_proj = m_cur_view_proj;
-					m_prev_camera_offset = m_cur_camera_offset;
-				}
-				m_cur_view_proj = view_proj;
-				m_cur_camera_offset = camera_offset;
-				m_motion_blur_last_frame = frame_time;
+			// Pick this view's history slot: back to the first on a new frame,
+			// otherwise the next eye of the frame we are already in.
+			u64 frame = m_client->getEnv().getFrameCounter();
+			if (!m_motion_blur_seen_frame || frame != m_motion_blur_frame) {
+				m_motion_blur_frame = frame;
+				m_motion_blur_seen_frame = true;
+				m_motion_blur_view = 0;
+			} else if (m_motion_blur_view + 1 < MOTION_BLUR_MAX_VIEWS) {
+				m_motion_blur_view++;
+			}
+			MotionBlurView &history = m_motion_blur_views[m_motion_blur_view];
 
-				view_proj.getInverse(m_motion_blur_inv_vp);
+			core::matrix4 inv_view_proj;
+			view_proj.getInverse(inv_view_proj);
 
+			core::matrix4 prev_view_proj;
+			if (history.valid) {
 				// The world is rendered relative to the camera offset, which can
 				// change between frames. Bake the offset delta into the previous
 				// view-projection matrix so reprojection stays continuous.
-				v3f offset_delta = intToFloat(camera_offset - m_prev_camera_offset, BS);
+				v3f offset_delta = intToFloat(camera_offset - history.camera_offset, BS);
 				core::matrix4 offset_translation;
 				offset_translation.setTranslation(offset_delta);
-				m_motion_blur_prev_vp = m_prev_view_proj * offset_translation;
+				prev_view_proj = history.view_proj * offset_translation;
+			} else {
+				// No history for this view yet (first frame, or first frame
+				// after the view count grew): reproject onto itself so the
+				// velocity is zero and nothing blurs.
+				prev_view_proj = view_proj;
 			}
 
-			m_motion_blur_inv_view_proj.set(m_motion_blur_inv_vp, services);
-			m_motion_blur_prev_view_proj.set(m_motion_blur_prev_vp, services);
+			history.view_proj = view_proj;
+			history.camera_offset = camera_offset;
+			history.valid = true;
+
+			m_motion_blur_inv_view_proj.set(inv_view_proj, services);
+			m_motion_blur_prev_view_proj.set(prev_view_proj, services);
 			m_motion_blur_strength_pixel.set(&m_motion_blur_strength, services);
 			m_motion_blur_quality_pixel.set(&m_motion_blur_quality, services);
 		}
