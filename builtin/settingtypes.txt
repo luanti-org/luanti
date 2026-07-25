@@ -847,6 +847,24 @@ enable_bloom (Enable Bloom) bool false
 #    Requires: enable_post_processing, enable_bloom
 enable_volumetric_lighting (Volumetric lighting) bool false
 
+#    Blur the view in the direction of camera movement, so fast turns and
+#    movement smear the image.
+#
+#    Requires: enable_post_processing
+enable_motion_blur (Motion blur) bool false
+
+#    Strength of the motion blur effect.
+#
+#    Requires: enable_post_processing, enable_motion_blur
+motion_blur_strength (Motion blur strength) float 1.0 0.0 4.0
+
+#    Quality of the motion blur effect. Higher values take more samples along
+#    the blur direction, giving a smoother, less banded smear at a higher GPU
+#    cost.
+#
+#    Requires: enable_post_processing, enable_motion_blur
+motion_blur_quality (Motion blur quality) int 8 2 32
+
 [**Other Effects]
 
 #   Simulate translucency when looking at foliage in the sunlight.

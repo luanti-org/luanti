@@ -111,9 +111,11 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 
 	bool m_motion_blur_enabled;
 	float m_motion_blur_strength;
+	float m_motion_blur_quality;
 	CachedPixelShaderSetting<float, 16> m_motion_blur_inv_view_proj{"mInvViewProj"};
 	CachedPixelShaderSetting<float, 16> m_motion_blur_prev_view_proj{"mPrevViewProj"};
 	CachedPixelShaderSetting<float> m_motion_blur_strength_pixel{"motionBlurStrength"};
+	CachedPixelShaderSetting<float> m_motion_blur_quality_pixel{"motionBlurQuality"};
 	// Previous frame's view-projection matrix and camera offset, used to
 	// compute per-pixel screen-space velocity for motion blur.
 	core::matrix4 m_prev_view_proj;
@@ -156,6 +158,9 @@ public:
 		m_volumetric_light_enabled = g_settings->getBool("enable_volumetric_lighting") && m_bloom_enabled;
 		m_motion_blur_enabled = g_settings->getBool("enable_motion_blur");
 		m_motion_blur_strength = g_settings->getFloat("motion_blur_strength", 0.0f, 4.0f);
+		// Must match MAX_SAMPLES in the motion_blur fragment shader.
+		m_motion_blur_quality = (float)g_settings->getS32("motion_blur_quality");
+		m_motion_blur_quality = rangelim(m_motion_blur_quality, 2.0f, 32.0f);
 		m_crack_animation_length_i = game->crack_animation_length;
 	}
 
@@ -238,6 +243,7 @@ public:
 			m_motion_blur_inv_view_proj.set(m_motion_blur_inv_vp, services);
 			m_motion_blur_prev_view_proj.set(m_motion_blur_prev_vp, services);
 			m_motion_blur_strength_pixel.set(&m_motion_blur_strength, services);
+			m_motion_blur_quality_pixel.set(&m_motion_blur_quality, services);
 		}
 
 		{

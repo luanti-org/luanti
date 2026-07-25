@@ -4,6 +4,13 @@
 uniform sampler2D rendered;
 uniform sampler2D depthmap;
 
+#ifdef ENABLE_AUTO_EXPOSURE
+#define exposureMap texture2
+// 1x1 auto-exposure texture (log2 scale), same one the second stage reads. The
+// engine only binds this when auto exposure is enabled.
+uniform sampler2D exposureMap;
+#endif
+
 // Inverse of the current frame's view-projection matrix (used to reconstruct
 // each pixel's world-space position from its depth).
 uniform highp mat4 mInvViewProj;
@@ -12,16 +19,35 @@ uniform highp mat4 mInvViewProj;
 uniform highp mat4 mPrevViewProj;
 // User-facing strength multiplier for the effect.
 uniform float motionBlurStrength;
+// User-facing quality: how many samples to take along the velocity vector.
+// Higher = smoother, less banded blur but more texture fetches. Clamped on the
+// engine side to [2, MAX_SAMPLES].
+uniform float motionBlurQuality;
 
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
 
-// Number of samples taken along the velocity vector. Higher = smoother blur
-// but more texture fetches.
-const int NUM_SAMPLES = 8;
+// Hard upper bound on the sample count. GLSL ES requires a constant loop bound,
+// so we always loop to MAX_SAMPLES and break early once we have taken
+// motionBlurQuality samples.
+const int MAX_SAMPLES = 32;
 
 // Maximum blur length in UV units, so fast rotation / the sky don't smear the
 // whole screen into mush.
 const float MAX_VELOCITY = 0.15;
+
+// --- Exposure-linked blur length ------------------------------------------
+// When auto exposure is on, the eye/camera opens up in dark scenes (exposure
+// factor > 1) and stops down in bright ones (factor < 1). We tie the blur
+// length to that factor so darker, exposure-boosted areas smear MORE and
+// well-lit areas smear LESS, mirroring how a real longer exposure both
+// brightens the frame and captures more motion.
+//
+// INFLUENCE: 0 = ignore exposure entirely, 1 = scale blur length directly by
+// the exposure factor. MIN/MAX clamp the multiplier so an extreme exposure
+// (pitch-black or blown-out) can't collapse or explode the smear.
+const float EXPOSURE_BLUR_INFLUENCE = 1.0;
+const float EXPOSURE_BLUR_MIN = 0.5;
+const float EXPOSURE_BLUR_MAX = 2.5;
 
 // --- Emissive ("lightsaber") smearing -------------------------------------
 // Ordinary motion blur AVERAGES the samples, so a moving object's light is
@@ -44,6 +70,25 @@ const float EMISSION_THRESHOLD = 0.70;
 // brightness (clamped by the buffer) so the following bloom pass halos it.
 const float EMISSION_STRENGTH = 1.25;
 
+// Brighter light smears FURTHER. The emissive part of the blur samples along a
+// line that is up to this many times longer than the ordinary (diffuse) blur.
+// Because we gather with max() over that longer line, a saturated source paints
+// a streak well past where the averaged blur fades out, so bright areas visibly
+// get "more" motion blur than the rest of the scene. The extra reach is scaled
+// per-sample by how emissive the sampled pixel is, so a dim glow only extends a
+// little while a full-bright source uses the whole boosted length.
+const float EMISSION_LENGTH_BOOST = 2.5;
+
+// The emissive boost must fire for a localized moving light (a lamp, a
+// lightsaber) but NOT for a large uniformly-bright region such as the sky, which
+// would otherwise flash brighter whenever the camera moves. We tell them apart
+// by the DARKEST point along the smear line: a real light source is small, so
+// its smear line runs off the source into darker background (low minimum); the
+// sky is bright along the entire line (high minimum). If the darkest sample is
+// below _LO the streak is fully boosted; above _HI it is fully suppressed.
+const float EMISSION_UNIFORM_LO = 0.35;
+const float EMISSION_UNIFORM_HI = 0.60;
+
 void main(void)
 {
 	vec2 uv = varTexCoord.st;
@@ -60,6 +105,16 @@ void main(void)
 
 	// Screen-space velocity in UV units.
 	vec2 velocity = (uv - prevUv) * motionBlurStrength;
+
+#ifdef ENABLE_AUTO_EXPOSURE
+	// Auto-exposure is stored on a log2 scale; pow(2, x) gives the linear
+	// factor (>1 dark scene, <1 bright scene). Scale the blur length by it so
+	// the smear grows in the dark and shrinks in the light.
+	float exposure = pow(2., texture2D(exposureMap, vec2(0.5)).r);
+	float exposureFactor = clamp(mix(1.0, exposure, EXPOSURE_BLUR_INFLUENCE),
+			EXPOSURE_BLUR_MIN, EXPOSURE_BLUR_MAX);
+	velocity *= exposureFactor;
+#endif
 
 	float len = length(velocity);
 	if (len > MAX_VELOCITY)
@@ -87,20 +142,52 @@ void main(void)
 	// bright source paints a full-brightness bar along its path instead of a
 	// dimmed average.
 	vec3 emissive = vec3(0.0);
-	for (int i = 0; i < NUM_SAMPLES; i++) {
+	// Darkest value-channel sample seen along the emissive line, used below to
+	// decide whether this is a localized source (line dips dark) or a uniform
+	// bright region like the sky (line stays bright).
+	float minEmissiveV = 1.0;
+	// Resolve the sample count locally and clamp it to a sane range. This also
+	// guards against motionBlurQuality arriving as 0 (e.g. an engine build that
+	// doesn't yet upload the uniform), which would otherwise divide by zero below
+	// and flash the screen black.
+	int numSamples = clamp(int(motionBlurQuality), 2, MAX_SAMPLES);
+	float invSamples = 1.0 / float(numSamples);
+	for (int i = 0; i < MAX_SAMPLES; i++) {
+		// Stop once we have taken the requested number of samples. The loop bound
+		// stays constant (MAX_SAMPLES) so GLSL ES is happy; the break makes the
+		// effective sample count follow the motionBlurQuality setting.
+		if (i >= numSamples)
+			break;
+
 		// Spread samples symmetrically around the current pixel: t in [-0.5, 0.5],
 		// jittered by a fraction of the step so the trail has no gaps.
-		float t = (float(i) + jitter) / float(NUM_SAMPLES) - 0.5;
+		float t = (float(i) + jitter) * invSamples - 0.5;
+
+		// Diffuse sample along the ordinary blur line.
 		vec2 samplePos = clamp(uv + velocity * t, vec2(0.0), vec2(1.0));
 		vec3 c = texture2D(rendered, samplePos).rgb;
 		sum += c;
 
-		// How emissive this sample is, by its brightest channel (soft knee).
-		float e = smoothstep(EMISSION_THRESHOLD, 1.0, max(c.r, max(c.g, c.b)));
-		emissive = max(emissive, c * e);
+		// Emissive sample along an EXTENDED line so bright sources reach further.
+		// The reach grows with how emissive the sampled pixel is, so brighter =
+		// longer smear.
+		vec2 emPos = clamp(uv + velocity * (t * EMISSION_LENGTH_BOOST), vec2(0.0), vec2(1.0));
+		vec3 ec = texture2D(rendered, emPos).rgb;
+		float ev = max(ec.r, max(ec.g, ec.b));
+		float e = smoothstep(EMISSION_THRESHOLD, 1.0, ev);
+		emissive = max(emissive, ec * e);
+		minEmissiveV = min(minEmissiveV, ev);
 	}
 
-	vec3 base = sum / float(NUM_SAMPLES);
+	// Suppress the boost for uniformly-bright regions (the sky): if even the
+	// darkest point along the smear line is bright, this is not a localized light
+	// source, so don't push it brighter on motion. A real light source's line
+	// dips into dark background, keeping localness ~1 across its whole streak
+	// (body included), so the source stays a solid bright bar with no leftover.
+	float localness = 1.0 - smoothstep(EMISSION_UNIFORM_LO, EMISSION_UNIFORM_HI, minEmissiveV);
+	emissive *= localness;
+
+	vec3 base = sum * invSamples;
 	// Where the trail is emissive, take the bright bar; elsewhere it is ~0 and
 	// the normal averaged blur shows through unchanged.
 	vec3 result = max(base, emissive * EMISSION_STRENGTH);

@@ -205,7 +205,15 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	if (enable_motion_blur) {
 		buffer->setTexture(TEXTURE_MOTIONBLUR, scale, "motionblur", color_format);
 		shader_id = client->getShaderSource()->getShaderRaw("motion_blur");
-		auto motion_blur = pipeline->addStep<PostProcessingStep>(shader_id, std::vector<u8> { TEXTURE_COLOR, TEXTURE_DEPTH });
+		// When auto exposure is on, also feed the (previous frame's) exposure
+		// texture as texture2 so the blur can scale its length with exposure:
+		// longer smear in dark, exposure-boosted scenes and shorter in bright
+		// ones. TEXTURE_EXPOSURE_1 holds the settled exposure at this point in
+		// the pipeline (it is swapped in at the end of the frame).
+		std::vector<u8> motion_blur_textures { TEXTURE_COLOR, TEXTURE_DEPTH };
+		if (enable_auto_exposure)
+			motion_blur_textures.push_back(TEXTURE_EXPOSURE_1);
+		auto motion_blur = pipeline->addStep<PostProcessingStep>(shader_id, motion_blur_textures);
 		motion_blur->setRenderSource(buffer);
 		motion_blur->setBilinearFilter(0, true);
 		motion_blur->setRenderTarget(pipeline->createOwned<TextureBufferOutput>(buffer, TEXTURE_MOTIONBLUR));
