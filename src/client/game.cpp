@@ -111,11 +111,9 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 
 	bool m_motion_blur_enabled;
 	float m_motion_blur_strength;
-	float m_motion_blur_quality;
 	CachedPixelShaderSetting<float, 16> m_motion_blur_inv_view_proj{"mInvViewProj"};
 	CachedPixelShaderSetting<float, 16> m_motion_blur_prev_view_proj{"mPrevViewProj"};
 	CachedPixelShaderSetting<float> m_motion_blur_strength_pixel{"motionBlurStrength"};
-	CachedPixelShaderSetting<float> m_motion_blur_quality_pixel{"motionBlurQuality"};
 	/*
 		Motion blur reprojects each pixel through the previous frame's camera,
 		so it needs that camera's view-projection matrix and camera offset.
@@ -144,10 +142,9 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	bool m_motion_blur_seen_frame = false;
 	u32 m_motion_blur_view = 0;
 
-	static constexpr std::array<const char*, 3> SETTING_CALLBACKS = {
+	static constexpr std::array<const char*, 2> SETTING_CALLBACKS = {
 		"exposure_compensation",
 		"motion_blur_strength",
-		"motion_blur_quality",
 	};
 
 	void readMotionBlurStrength()
@@ -155,27 +152,18 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 		m_motion_blur_strength = g_settings->getFloat("motion_blur_strength", 0.0f, 4.0f);
 	}
 
-	void readMotionBlurQuality()
-	{
-		// Must match MAX_SAMPLES in the motion_blur fragment shader.
-		m_motion_blur_quality = rangelim(
-				(float)g_settings->getS32("motion_blur_quality"), 2.0f, 32.0f);
-	}
-
 public:
 	void onSettingsChange(const std::string &name)
 	{
 		if (name == "exposure_compensation")
 			m_user_exposure_compensation = g_settings->getFloat("exposure_compensation", -1.0f, 1.0f);
-		// Note that `enable_motion_blur` itself is deliberately absent: it
-		// decides whether the render pipeline gets a motion blur step at all,
-		// and the pipeline is only built when the world is loaded (same as
-		// `enable_bloom`). Strength and quality are plain uniforms, so those
-		// can and should take effect immediately.
+		// Strength is a plain uniform, so it can take effect immediately.
+		// `enable_motion_blur` and `motion_blur_quality` are deliberately
+		// absent: the former decides whether the render pipeline gets a motion
+		// blur step at all, the latter is compiled into the shader as a
+		// constant, and both are only applied when the world is loaded.
 		else if (name == "motion_blur_strength")
 			readMotionBlurStrength();
-		else if (name == "motion_blur_quality")
-			readMotionBlurQuality();
 	}
 
 	static void settingsCallback(const std::string &name, void *userdata)
@@ -197,7 +185,6 @@ public:
 		m_volumetric_light_enabled = g_settings->getBool("enable_volumetric_lighting") && m_bloom_enabled;
 		m_motion_blur_enabled = g_settings->getBool("enable_motion_blur");
 		readMotionBlurStrength();
-		readMotionBlurQuality();
 		m_crack_animation_length_i = game->crack_animation_length;
 	}
 
@@ -288,7 +275,6 @@ public:
 			m_motion_blur_inv_view_proj.set(inv_view_proj, services);
 			m_motion_blur_prev_view_proj.set(prev_view_proj, services);
 			m_motion_blur_strength_pixel.set(&m_motion_blur_strength, services);
-			m_motion_blur_quality_pixel.set(&m_motion_blur_quality, services);
 		}
 
 		{

@@ -204,7 +204,15 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	// the color buffer along it.
 	if (enable_motion_blur) {
 		buffer->setTexture(TEXTURE_MOTIONBLUR, scale, "motionblur", color_format);
-		shader_id = client->getShaderSource()->getShaderRaw("motion_blur");
+		// The sample count is baked into the shader as a compile-time constant
+		// so that its sampling loop has a literal bound and can be unrolled.
+		// One program is compiled and cached per distinct value; the cost is
+		// that changing the setting only takes effect on world reload.
+		ShaderConstants motion_blur_constants;
+		motion_blur_constants["MOTION_BLUR_SAMPLES"] =
+				(int)rangelim(g_settings->getS32("motion_blur_quality"), 2, 32);
+		shader_id = client->getShaderSource()->getShader("motion_blur",
+				motion_blur_constants, video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF);
 		// Feed the (previous frame's) exposure texture as texture2 so the blur
 		// can scale its length with exposure: longer smear in dark,
 		// exposure-boosted scenes and shorter in bright ones. TEXTURE_EXPOSURE_1

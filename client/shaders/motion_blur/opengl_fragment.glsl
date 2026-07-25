@@ -39,15 +39,18 @@ uniform highp mat4 mInvViewProj;
 uniform highp mat4 mPrevViewProj;
 // User-facing strength multiplier for the effect.
 uniform float motionBlurStrength;
-// User-facing quality: how many samples to take along the velocity vector.
-// Higher = smoother, less banded blur but more texture fetches. Clamped on the
-// engine side to [2, MAX_SAMPLES].
-uniform float motionBlurQuality;
 
-// Hard upper bound on the sample count. GLSL ES requires a constant loop bound,
-// so we always loop to MAX_SAMPLES and break early once we have taken
-// motionBlurQuality samples.
-const int MAX_SAMPLES = 32;
+// How many samples to take along the velocity vector. Higher = smoother, less
+// banded blur but more texture fetches.
+//
+// This arrives as a compile-time constant from the `motion_blur_quality`
+// setting rather than as a uniform, so the loop bound below is a literal the
+// driver can unroll. That is also why changing the setting needs the world
+// reloaded: it selects a different shader program. The engine clamps the value
+// to [2, 32] and caches one program per distinct value.
+#ifndef MOTION_BLUR_SAMPLES
+#define MOTION_BLUR_SAMPLES 8
+#endif
 
 // Maximum blur length in UV units, so fast rotation / the sky don't smear the
 // whole screen into mush.
@@ -196,23 +199,8 @@ void main(void)
 	// decide whether this is a localized source (line dips dark) or a uniform
 	// bright region like the sky (line stays bright).
 	float minEmissiveV = 1.0;
-	// Resolve the sample count locally and clamp it to a sane range. This also
-	// guards against motionBlurQuality arriving as 0 (e.g. an engine build that
-	// doesn't yet upload the uniform), which would otherwise divide by zero below
-	// and flash the screen black.
-	//
-	// Clamp in float and convert afterwards: GLSL ES 1.00 and GLSL 1.20 have no
-	// integer overload of clamp(), so clamp(int, int, int) fails to compile on
-	// the OpenGL ES 2 and legacy OpenGL code paths.
-	int numSamples = int(clamp(motionBlurQuality, 2.0, float(MAX_SAMPLES)));
-	float invSamples = 1.0 / float(numSamples);
-	for (int i = 0; i < MAX_SAMPLES; i++) {
-		// Stop once we have taken the requested number of samples. The loop bound
-		// stays constant (MAX_SAMPLES) so GLSL ES is happy; the break makes the
-		// effective sample count follow the motionBlurQuality setting.
-		if (i >= numSamples)
-			break;
-
+	const float invSamples = 1.0 / float(MOTION_BLUR_SAMPLES);
+	for (int i = 0; i < MOTION_BLUR_SAMPLES; i++) {
 		// Spread samples symmetrically around the current pixel: t in [-0.5, 0.5],
 		// jittered by a fraction of the step so the trail has no gaps.
 		float t = (float(i) + jitter) * invSamples - 0.5;

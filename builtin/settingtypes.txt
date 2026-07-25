@@ -861,6 +861,7 @@ motion_blur_strength (Motion blur strength) float 1.0 0.0 4.0
 #    Quality of the motion blur effect. Higher values take more samples along
 #    the blur direction, giving a smoother, less banded smear at a higher GPU
 #    cost.
+#    A restart is required after changing this.
 #
 #    Requires: enable_post_processing, enable_motion_blur
 motion_blur_quality (Motion blur quality) int 8 2 32
