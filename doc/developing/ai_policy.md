@@ -39,8 +39,8 @@ lifted or reinforced in the future.
 
 ## Permissible uses of AI
 
-In general, any other usage of AI is permissible. For example, here are some
-cases where generative AI is perfectly allowed:
+As a general rule, other usage of AI is permissible. Here are some notable
+cases where generative AI is explicitly allowed:
 
 - Exploring the Luanti codebase with "fuzzy" searches or understanding code
   architecture quickly with AI tooling.
