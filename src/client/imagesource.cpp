@@ -163,10 +163,6 @@ static void apply_overlay(video::IImage *overlay, video::IImage *dst,
 static void apply_brightness_contrast(video::IImage *dst, v2u32 dst_pos, v2u32 size,
 		s32 brightness, s32 contrast);
 
-// Apply a mask to an image
-static void apply_mask(video::IImage *mask, video::IImage *dst,
-		v2s32 mask_pos, v2s32 dst_pos, v2u32 size);
-
 // Draw or overlay a crack
 static void draw_crack(video::IImage *crack, video::IImage *dst,
 		bool use_overlay, s32 frame_count, s32 progression,
@@ -766,26 +762,6 @@ static void apply_brightness_contrast(video::IImage *dst, v2u32 dst_pos, v2u32 s
 		);
 		return dst_c;
 	});
-}
-
-/*
-	Apply mask to destination
-*/
-static void apply_mask(video::IImage *mask, video::IImage *dst,
-		v2s32 mask_pos, v2s32 dst_pos, v2u32 size)
-{
-	for (u32 y0 = 0; y0 < size.Y; y0++) {
-		for (u32 x0 = 0; x0 < size.X; x0++) {
-			s32 mask_x = x0 + mask_pos.X;
-			s32 mask_y = y0 + mask_pos.Y;
-			s32 dst_x = x0 + dst_pos.X;
-			s32 dst_y = y0 + dst_pos.Y;
-			video::SColor mask_c = mask->getPixel(mask_x, mask_y);
-			video::SColor dst_c = dst->getPixel(dst_x, dst_y);
-			dst_c.color &= mask_c.color;
-			dst->setPixel(dst_x, dst_y, dst_c);
-		}
-	}
 }
 
 static video::IImage *create_crack_image(video::IImage *crack, s32 frame_index,
@@ -1422,8 +1398,7 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			if (img) {
 				upscaleImagesToMatchLargest(baseimg, img);
 
-				apply_mask(img, baseimg, v2s32(0, 0), v2s32(0, 0),
-						img->getDimension());
+				imageApplyMask(baseimg, img);
 				img->drop();
 			} else {
 				errorstream << "generateImagePart(): Failed to load image \""

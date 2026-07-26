@@ -5,6 +5,7 @@
 #include "imagefilters.h"
 #include "util/numeric.h"
 #include "util/bitmap.h"
+#include "exceptions.h"
 #include <cmath>
 #include <cassert>
 #include <algorithm>
@@ -239,7 +240,6 @@ video::SColor imageAverageColor(const video::IImage *img)
 		return imageAverageColorInline<false>(img);
 }
 
-
 /**********************************/
 
 void imageScaleNNAA(video::IImage *src, const core::rect<s32> &srcrect, video::IImage *dest)
@@ -326,4 +326,21 @@ void imageScaleNNAA(video::IImage *src, const core::rect<s32> &srcrect, video::I
 		}
 		dest->setPixel(dx, dy, pxl);
 	}
+}
+
+/**********************************/
+
+void imageApplyMask(video::IImage *dest, const video::IImage *mask)
+{
+	if (dest->getColorFormat() != mask->getColorFormat())
+		throw BaseException("imageApplyMask: color formats do not match");
+	if (dest->getDimension() != mask->getDimension())
+		throw BaseException("imageApplyMask: dimensions do not match");
+
+	// Now it's trivial: just run through the entire buffer
+	u8 *const dest_data = reinterpret_cast<u8*>(dest->getData());
+	const u8 *const mask_data = reinterpret_cast<u8*>(mask->getData());
+	const size_t nbytes = dest->getPitch() * dest->getDimension().Height;
+	for (size_t i = 0; i < nbytes; i++)
+		dest_data[i] &= mask_data[i];
 }
