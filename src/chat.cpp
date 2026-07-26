@@ -638,8 +638,17 @@ void ChatPrompt::nickCompletion(const std::set<std::string> &names)
 		if (prefix.size() == line.size()) {
 			shortest.append(L": ");
 		} else if (prefix_end == line.size()) {
-			if (g_settings->getBool("chat_autocomplete_append_space"))
-				shortest.append(L" ");
+			bool is_valid = false;
+			auto what = trim(g_settings->get("chat_autocomplete_append"));
+			if (what.size() >= 2) {
+				if (what[0] == '"' && what[what.size() - 1] == '"') {
+					what.remove_prefix(1);
+					what.remove_suffix(1);
+					is_valid = true;
+				}
+			}
+
+			shortest.append(is_valid ? utf8_to_wide(what) : L" ");
 		}
 	}
 

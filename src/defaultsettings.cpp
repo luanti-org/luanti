@@ -129,7 +129,7 @@ void set_default_settings()
 	settings->setDefault("occlusion_culler", "bfs");
 	settings->setDefault("enable_raytraced_culling", "true");
 	settings->setDefault("chat_weblink_color", "#8888FF");
-	settings->setDefault("chat_autocomplete_append_space", "true");
+	settings->setDefault("chat_autocomplete_append", "\" \"");
 
 	// Keymap
 	settings->setDefault("keymap_forward", "SYSTEM_SCANCODE_26|GAMEPAD_AXIS_MINUS_1"); // KEY_KEY_W|Left Joystick
