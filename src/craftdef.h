@@ -55,7 +55,7 @@ const int craft_hash_type_max = (int) CRAFT_HASH_TYPE_UNHASHED;
 struct CraftInput
 {
 	CraftMethod method = CRAFT_METHOD_NORMAL;
-	unsigned int width = 0;
+	unsigned int width = 0; //< used only for shaped recipes
 	std::vector<ItemStack> items;
 
 	CraftInput() = default;

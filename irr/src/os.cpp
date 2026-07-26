@@ -5,6 +5,7 @@
 #include "os.h"
 #include "irrString.h"
 #include "irrMath.h"
+#include "irrBitCast.h"
 
 #if defined(_IRR_COMPILE_WITH_SDL_DEVICE_)
 #ifdef _IRR_USE_SDL3_
@@ -71,9 +72,15 @@ s64 Byteswap::byteswap(s64 num)
 }
 f32 Byteswap::byteswap(f32 num)
 {
-	u32 tmp = IR(num);
+	u32 tmp = irrBitCast<u32>(num);
 	tmp = bswap_32(tmp);
-	return (FR(tmp));
+	return irrBitCast<f32>(tmp);
+}
+f64 Byteswap::byteswap(f64 num)
+{
+	u64 tmp = irrBitCast<u64>(num);
+	tmp = bswap_64(tmp);
+	return irrBitCast<f64>(tmp);
 }
 }
 

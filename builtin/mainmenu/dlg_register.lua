@@ -55,6 +55,7 @@ local function register_buttonhandler(this, fields)
 			return true
 		end
 
+		gamedata.mode       = "join"
 		gamedata.playername = fields.name
 		gamedata.password   = fields.password
 		gamedata.address    = this.data.address
@@ -67,12 +68,7 @@ local function register_buttonhandler(this, fields)
 		local server = this.data.server
 		if server then
 			serverlistmgr.add_favorite(server)
-			gamedata.servername        = server.name
-			gamedata.serverdescription = server.description
 		else
-			gamedata.servername        = ""
-			gamedata.serverdescription = ""
-
 			serverlistmgr.add_favorite({
 				address = gamedata.address,
 				port = gamedata.port,

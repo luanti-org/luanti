@@ -654,8 +654,7 @@ bool GUIChatConsole::OnEvent(const SEvent& event)
 			// Tab or Shift-Tab pressed
 			// Nick completion
 			auto names = m_client->getConnectedPlayerNames();
-			bool backwards = event.KeyInput.Shift;
-			prompt.nickCompletion(names, backwards);
+			prompt.nickCompletion(names);
 			return true;
 		}
 

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #include "settings.h"
-#include "server.h"
+#include "server.h" // g_settings, flagdesc_anticheat
 
 void migrate_settings()
 {

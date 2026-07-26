@@ -370,7 +370,7 @@ public:
 	ServerEnvironment & getEnv() { return *m_env; }
 	v3f findSpawnPos();
 
-	u32 hudAdd(RemotePlayer *player, HudElement *element);
+	u32 hudAdd(RemotePlayer *player, std::unique_ptr<HudElement> element);
 	bool hudRemove(RemotePlayer *player, u32 id);
 	bool hudChange(RemotePlayer *player, u32 id, HudElementStat stat, void *value);
 	bool hudSetFlags(RemotePlayer *player, u32 flags, u32 mask);

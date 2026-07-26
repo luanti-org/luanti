@@ -799,7 +799,7 @@ CraftInput CraftDefinitionToolRepair::getInput(const CraftOutput &output, IGameD
 {
 	std::vector<ItemStack> stack;
 	stack.emplace_back();
-	return CraftInput(CRAFT_METHOD_COOKING, additional_wear, stack);
+	return CraftInput(CRAFT_METHOD_NORMAL, 0, stack);
 }
 
 void CraftDefinitionToolRepair::decrementInput(CraftInput &input, std::vector<ItemStack> &output_replacements,
@@ -872,7 +872,7 @@ CraftInput CraftDefinitionCooking::getInput(const CraftOutput &output, IGameDef 
 {
 	std::vector<std::string> rec;
 	rec.push_back(recipe);
-	return CraftInput(CRAFT_METHOD_COOKING,cooktime,craftGetItems(rec,gamedef));
+	return CraftInput(CRAFT_METHOD_COOKING, 0, craftGetItems(rec, gamedef));
 }
 
 void CraftDefinitionCooking::decrementInput(CraftInput &input, std::vector<ItemStack> &output_replacements,
@@ -975,7 +975,7 @@ CraftInput CraftDefinitionFuel::getInput(const CraftOutput &output, IGameDef *ga
 {
 	std::vector<std::string> rec;
 	rec.push_back(recipe);
-	return CraftInput(CRAFT_METHOD_COOKING,(int)burntime,craftGetItems(rec,gamedef));
+	return CraftInput(CRAFT_METHOD_FUEL, 0, craftGetItems(rec,gamedef));
 }
 
 void CraftDefinitionFuel::decrementInput(CraftInput &input, std::vector<ItemStack> &output_replacements,

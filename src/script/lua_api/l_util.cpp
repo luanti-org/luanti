@@ -312,12 +312,14 @@ int ModApiUtil::l_get_user_path(lua_State *L)
 enum LuaCompressMethod
 {
 	LUA_COMPRESS_METHOD_DEFLATE,
+	LUA_COMPRESS_METHOD_RAW_DEFLATE,
 	LUA_COMPRESS_METHOD_ZSTD,
 };
 
 static const struct EnumString es_LuaCompressMethod[] =
 {
 	{LUA_COMPRESS_METHOD_DEFLATE, "deflate"},
+	{LUA_COMPRESS_METHOD_RAW_DEFLATE, "raw_deflate"},
 	{LUA_COMPRESS_METHOD_ZSTD, "zstd"},
 	{0, nullptr},
 };
@@ -348,12 +350,13 @@ int ModApiUtil::l_compress(lua_State *L)
 
 	std::ostringstream os(std::ios_base::binary);
 
-	if (method == LUA_COMPRESS_METHOD_DEFLATE) {
+	if (method == LUA_COMPRESS_METHOD_DEFLATE ||
+			method == LUA_COMPRESS_METHOD_RAW_DEFLATE) {
 		int level = -1;
 		if (!lua_isnoneornil(L, 3))
 			level = readParam<int>(L, 3);
 
-		compressZlib(data, os, level);
+		compressZlib(data, os, level, method == LUA_COMPRESS_METHOD_RAW_DEFLATE);
 	} else if (method == LUA_COMPRESS_METHOD_ZSTD) {
 		int level = ZSTD_CLEVEL_DEFAULT;
 		if (!lua_isnoneornil(L, 3))
@@ -381,8 +384,9 @@ int ModApiUtil::l_decompress(lua_State *L)
 	std::istringstream is(std::string(data), std::ios_base::binary);
 	std::ostringstream os(std::ios_base::binary);
 
-	if (method == LUA_COMPRESS_METHOD_DEFLATE) {
-		decompressZlib(is, os);
+	if (method == LUA_COMPRESS_METHOD_DEFLATE ||
+			method == LUA_COMPRESS_METHOD_RAW_DEFLATE) {
+		decompressZlib(is, os, 0, method == LUA_COMPRESS_METHOD_RAW_DEFLATE);
 	} else if (method == LUA_COMPRESS_METHOD_ZSTD) {
 		decompressZstd(is, os);
 	}

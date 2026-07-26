@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cmath>
 #include "client/shadows/dynamicshadowsrender.h"
+#include "SMaterial.h"
 #include "client/shadows/shadowsScreenQuad.h"
 #include "client/shadows/shadowsshadercallbacks.h"
 #include "settings.h"
@@ -488,6 +489,15 @@ void ShadowRenderer::renderShadowObjects(
 	m_driver->setTransform(video::ETS_VIEW, light.getViewMatrix());
 	m_driver->setTransform(video::ETS_PROJECTION, light.getProjectionMatrix());
 
+	struct MaterialProps {
+		video::E_MATERIAL_TYPE type;
+		bool backface_culling;
+		bool frontface_culling;
+		video::E_BLEND_OPERATION blend;
+	};
+
+	std::vector<MaterialProps> old_materials;
+
 	for (const auto &shadow_node : m_shadow_node_array) {
 		// we only take care of the shadow casters and only visible nodes cast shadows
 		if (shadow_node.shadowMode == ESM_RECEIVE || !shadow_node.node->isVisible())
@@ -495,12 +505,9 @@ void ShadowRenderer::renderShadowObjects(
 
 		// render other objects
 		u32 n_node_materials = shadow_node.node->getMaterialCount();
-		std::vector<video::E_MATERIAL_TYPE> BufferMaterialList;
-		std::vector<std::pair<bool, bool>> BufferMaterialCullingList;
-		std::vector<video::E_BLEND_OPERATION> BufferBlendOperationList;
-		BufferMaterialList.reserve(n_node_materials);
-		BufferMaterialCullingList.reserve(n_node_materials);
-		BufferBlendOperationList.reserve(n_node_materials);
+
+		old_materials.clear();
+		old_materials.reserve(n_node_materials);
 
 		// backup materialtype for each material
 		// (aka shader)
@@ -508,17 +515,17 @@ void ShadowRenderer::renderShadowObjects(
 		for (u32 m = 0; m < n_node_materials; m++) {
 			auto &current_mat = shadow_node.node->getMaterial(m);
 
-			BufferMaterialList.push_back(current_mat.MaterialType);
+			// backup original material properties
+			old_materials.push_back({current_mat.MaterialType, current_mat.BackfaceCulling,
+					current_mat.FrontfaceCulling, current_mat.BlendOperation});
+
 			// Note: this suffers from the same misdesign as renderShadowMap()
 			// and will break once we start doing more special shader things for entities.
 			current_mat.MaterialType = depth_shader;
 
-			BufferMaterialCullingList.emplace_back(
-				(bool)current_mat.BackfaceCulling, (bool)current_mat.FrontfaceCulling);
 			current_mat.BackfaceCulling = true;
 			current_mat.FrontfaceCulling = false;
 
-			BufferBlendOperationList.push_back(current_mat.BlendOperation);
 			// shouldn't we be setting EBO_MIN here?
 		}
 
@@ -530,13 +537,12 @@ void ShadowRenderer::renderShadowObjects(
 
 		for (u32 m = 0; m < n_node_materials; m++) {
 			auto &current_mat = shadow_node.node->getMaterial(m);
+			auto &old_mat = old_materials[m];
 
-			current_mat.MaterialType = BufferMaterialList[m];
-
-			current_mat.BackfaceCulling = BufferMaterialCullingList[m].first;
-			current_mat.FrontfaceCulling = BufferMaterialCullingList[m].second;
-
-			current_mat.BlendOperation = BufferBlendOperationList[m];
+			current_mat.MaterialType = old_mat.type;
+			current_mat.BackfaceCulling = old_mat.backface_culling;
+			current_mat.FrontfaceCulling = old_mat.frontface_culling;
+			current_mat.BlendOperation = old_mat.blend;
 		}
 
 	} // end for caster shadow nodes

@@ -5,7 +5,6 @@
 #include "environment.h"
 #include "collision.h"
 #include "raycast.h"
-#include "server.h"
 #include "settings.h"
 #include "daynightratio.h"
 #include "emerge.h"

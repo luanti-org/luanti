@@ -12,6 +12,7 @@
 #include "porting.h"
 #include "settings.h"
 #include "client/guiscalingfilter.h"
+#include "client/inputhandler.h"
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
 #include "util/enum_string.h"
@@ -28,13 +29,13 @@
 
 TouchControls *g_touchcontrols;
 
-void TouchControls::emitGameKeyEvent(GameKeyType key, bool pressed)
+void TouchControls::emitGameKeyEvent(GameKeyType key, float value)
 {
 	SEvent e{};
 	e.EventType           = EET_USER_EVENT;
 	e.UserEvent.type      = EUET_GAME_KEY;
 	e.UserEvent.UserData1 = static_cast<size_t>(key);
-	e.UserEvent.UserData2 = pressed;
+	e.UserEvent.UserData2 = InputHandler::analogToInt(value);
 	m_receiver->OnEvent(e);
 }
 
@@ -425,8 +426,10 @@ void TouchControls::handleReleaseEvent(size_t pointer_id)
 		m_has_joystick_id = false;
 
 		// reset joystick
-		m_joystick_direction = 0.0f;
-		m_joystick_speed = 0.0f;
+		emitGameKeyEvent(KeyType::FORWARD, 0);
+		emitGameKeyEvent(KeyType::BACKWARD, 0);
+		emitGameKeyEvent(KeyType::LEFT, 0);
+		emitGameKeyEvent(KeyType::RIGHT, 0);
 		m_joystick_status_aux1 = false;
 		applyJoystickStatus();
 
@@ -578,18 +581,19 @@ void TouchControls::translateEvent(const SEvent &event)
 					(!m_fixed_joystick && distance_sq > touch_threshold_sq)) {
 				m_joystick_has_really_moved = true;
 
-				m_joystick_direction = atan2(dir.X, -dir.Y);
-
 				const double distance = sqrt(distance_sq);
-				if (distance <= m_touchscreen_threshold) {
-					m_joystick_speed = 0.0f;
-				} else {
-					m_joystick_speed = distance / m_button_size;
-					if (m_joystick_speed > 1.0f)
-						m_joystick_speed = 1.0f;
+				m_joystick_status_aux1 = distance > (half_button_size * 3);
+				float joystick_scale = 0.0f;
+				if (distance > m_touchscreen_threshold) {
+					joystick_scale = 1.0f / m_button_size;
 				}
 
-				m_joystick_status_aux1 = distance > (half_button_size * 3);
+				float joystick_x = dir.X * joystick_scale;
+				float joystick_y = dir.Y * joystick_scale;
+				emitGameKeyEvent(KeyType::FORWARD, std::max(0.0f, -joystick_y));
+				emitGameKeyEvent(KeyType::BACKWARD, std::max(0.0f, joystick_y));
+				emitGameKeyEvent(KeyType::LEFT, std::max(0.0f, -joystick_x));
+				emitGameKeyEvent(KeyType::RIGHT, std::max(0.0f, joystick_x));
 
 				if (distance > m_button_size) {
 					// move joystick "button"

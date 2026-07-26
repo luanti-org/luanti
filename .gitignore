@@ -107,6 +107,7 @@ CPackConfig.cmake
 CPackSourceConfig.cmake
 src/cmake_config.h
 src/cmake_config_githash.h
+src/builtin_files.cpp
 /locale/
 .directory
 *.cbp
