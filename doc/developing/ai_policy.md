@@ -46,8 +46,8 @@ cases where generative AI is perfectly allowed:
   architecture quickly with AI tooling.
 - Using an LLM as a powerful search engine or knowledge base for coding
   purposes, as long as you truly understand your contribution.
-- Having an AI tool review your code or check for potential bugs in order to
-  improve the quality of your contribution.
+- Having an AI tool review your code locally (not in the PR thread) or check
+  for potential bugs in order to improve the quality of your contribution.
 - Using an LLM to debug an issue or search for security vulnerabilities, but
   make sure to verify the analysis completely and communicate it yourself.
 
