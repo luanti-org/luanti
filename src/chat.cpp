@@ -635,10 +635,12 @@ void ChatPrompt::nickCompletion(const std::set<std::string> &names)
 	}
 
 	if (completions.size() == 1) {
-		if (prefix.size() == line.size())
+		if (prefix.size() == line.size()) {
 			shortest.append(L": ");
-		else if (prefix_end == line.size())
-			shortest.append(L" ");
+		} else if (prefix_end == line.size()) {
+			if (g_settings->getBool("chat_autocomplete_append_space"))
+				shortest.append(L" ");
+		}
 	}
 
 	makeLineRef().replace(prefix_start, prefix_end - prefix_start, shortest);
