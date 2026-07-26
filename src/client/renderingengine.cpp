@@ -261,11 +261,6 @@ void RenderingEngine::setResizable(bool resize)
 	m_device->setResizable(resize);
 }
 
-void RenderingEngine::removeMesh(const scene::IMesh* mesh)
-{
-	m_device->getSceneManager()->getMeshCache()->removeMesh(mesh);
-}
-
 void RenderingEngine::cleanupMeshCache()
 {
 	auto mesh_cache = m_device->getSceneManager()->getMeshCache();

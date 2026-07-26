@@ -496,14 +496,15 @@ void NodeVisuals::updateMesh(Client *client, const TextureSettings &tsettings)
 	if (f->drawtype != NDT_MESH || mesh.empty())
 		return;
 
-	// Note: By freshly reading, we get an unencumbered mesh.
-	if (scene::IMesh *src_mesh = client->getMesh(mesh)) {
+	bool must_clone;
+	if (scene::IMesh *src_mesh = client->getOriginalMesh(mesh, &must_clone)) {
 		bool apply_bs = false;
 		if (auto *skinned_mesh = dynamic_cast<scene::SkinnedMesh *>(src_mesh)) {
-			// Compatibility: Animated meshes, as well as static gltf meshes, are not scaled by BS.
-			// See https://github.com/luanti-org/luanti/pull/16112#issuecomment-2881860329
-			bool is_gltf = skinned_mesh->getSourceFormat() ==
-					scene::SkinnedMesh::SourceFormat::GLTF;
+			/*
+			 * Compatibility mess: Animated meshes - as well as static gltf meshes -
+			 * are not scaled by BS. see <https://github.com/luanti-org/luanti/pull/16112#issuecomment-2881860329>
+			 */
+			bool is_gltf = skinned_mesh->getSourceFormat() == scene::SkinnedMesh::SourceFormat::GLTF;
 			apply_bs = skinned_mesh->isStatic() && !is_gltf;
 			// Nodes do not support mesh animation, so we clone the static pose.
 			// This simplifies working with the mesh: We can just scale the vertices
@@ -511,12 +512,18 @@ void NodeVisuals::updateMesh(Client *client, const TextureSettings &tsettings)
 			mesh_ptr = cloneStaticMesh(src_mesh);
 			src_mesh->drop();
 		} else {
-			auto *static_mesh = dynamic_cast<scene::SMesh *>(src_mesh);
-			assert(static_mesh);
-			mesh_ptr = static_mesh;
-			// Compatibility: Apply BS scaling to static meshes (.obj). See #15811.
+			if (must_clone) {
+				mesh_ptr = cloneStaticMesh(src_mesh);
+				src_mesh->drop();
+			} else {
+				mesh_ptr = dynamic_cast<scene::SMesh *>(src_mesh);
+			}
+			assert(mesh_ptr);
+			// Compatibility: Apply BS scaling to static meshes (.obj), see #15811.
 			apply_bs = true;
 		}
+		src_mesh = nullptr;
+
 		scaleMesh(mesh_ptr, v3f((apply_bs ? BS : 1.0f) * f->visual_scale));
 		recalculateBoundingBox(mesh_ptr);
 		if (!checkMeshNormals(mesh_ptr)) {
@@ -526,6 +533,7 @@ void NodeVisuals::updateMesh(Client *client, const TextureSettings &tsettings)
 			manip->recalculateNormals(mesh_ptr, true, false);
 		}
 	} else {
+		errorstream << "NodeVisuals::updateMesh(): Could not load mesh " << mesh << std::endl;
 		mesh_ptr = nullptr;
 	}
 }

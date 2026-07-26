@@ -12,6 +12,7 @@
 #include "clientmap.h"
 #include "clientmedia.h"
 #include "client/mesh_generator_thread.h"
+#include "client/mesh.h"
 #include "client/particles.h"
 #include "client/renderingengine.h"
 #include "client/sound.h"
@@ -68,6 +69,8 @@
 #include <IAnimatedMesh.h>
 #include <IFileSystem.h>
 #include <IReadFile.h>
+#include <IMeshCache.h>
+#include <SMesh.h>
 #include <json/json.h>
 
 #include <iostream>
@@ -118,6 +121,14 @@ static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool in
 	}
 
 	e.append(" @").append(oss.str());
+}
+
+static bool isMeshStatic(scene::IAnimatedMesh *mesh)
+{
+	if (mesh->getTrackCount() == 0)
+		return true;
+	// are empty tracks supposed to be cleaned up on load? seems they're not
+	return mesh->getTrackCount() == 1 && mesh->getMaxFrameNumber(0) == 0.0f;
 }
 
 /*
@@ -2043,29 +2054,56 @@ ParticleManager* Client::getParticleManager()
 	return m_particle_manager.get();
 }
 
-scene::IAnimatedMesh* Client::getMesh(const std::string &filename, bool cache)
+scene::IAnimatedMesh *Client::getOriginalMesh(const std::string &filename, bool *must_clone)
 {
-	StringMap::const_iterator it = m_mesh_data.find(filename);
-	if (it == m_mesh_data.end()) {
-		errorstream << "Client::getMesh(): Mesh not found: \"" << filename
-			<< "\"" << std::endl;
-		return NULL;
-	}
-	const std::string &data    = it->second;
+	assert(must_clone); // caller must make use of this
 
-	// Create the mesh, remove it from cache and return it
-	// This allows unique vertex colors and other properties for each instance
+	auto it = m_mesh_data.find(filename);
+	if (it == m_mesh_data.end())
+		return nullptr;
+	const std::string &data = it->second;
+
+	// Try getting it from cache explicitly
+	auto *sm = m_rendering_engine->get_scene_manager();
+	auto *mesh = sm->getMeshCache()->getMeshByName(filename.c_str());
+	if (mesh) {
+		*must_clone = true;
+		mesh->grab();
+		return mesh;
+	}
+
+	// Load the mesh from file data
 	io::IReadFile *rfile = m_rendering_engine->get_filesystem()->createMemoryReadFile(
 			data.c_str(), data.size(), filename.c_str());
 	FATAL_ERROR_IF(!rfile, "Could not create/open RAM file");
 
-	scene::IAnimatedMesh *mesh = m_rendering_engine->get_scene_manager()->getMesh(rfile);
+	mesh = sm->getMesh(rfile);
 	rfile->drop();
 	if (!mesh)
 		return nullptr;
 	mesh->grab();
-	if (!cache)
-		m_rendering_engine->removeMesh(mesh);
+	// We can (currently) only clone static meshes, so only cache those
+	if (isMeshStatic(mesh)) {
+		*must_clone = true;
+	} else {
+		sm->getMeshCache()->removeMesh(mesh);
+		*must_clone = false;
+	}
+	return mesh;
+}
+
+scene::IAnimatedMesh *Client::getMesh(const std::string &filename)
+{
+	bool must_clone;
+	auto *mesh = getOriginalMesh(filename, &must_clone);
+	if (mesh && must_clone) {
+		// Clone it to allow unique vertex colors and other modifications
+		assert(isMeshStatic(mesh));
+		auto *ret = cloneStaticMesh(mesh);
+		assert(ret);
+		mesh->drop();
+		return ret;
+	}
 	return mesh;
 }
 

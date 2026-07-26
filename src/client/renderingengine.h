@@ -82,8 +82,6 @@ public:
 	bool setWindowIcon();
 	void cleanupMeshCache();
 
-	void removeMesh(const scene::IMesh* mesh);
-
 	/**
 	 * This takes 3d_mode into account - side-by-side will return a
 	 * halved horizontal size.

@@ -690,7 +690,7 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		});
 		break;
 	} case OBJECTVISUAL_MESH: {
-		scene::IAnimatedMesh *mesh = m_client->getMesh(m_prop.mesh, true);
+		scene::IAnimatedMesh *mesh = m_client->getMesh(m_prop.mesh);
 		if (mesh) {
 			if (!checkMeshNormals(mesh)) {
 				infostream << "GenericCAO: recalculating normals for mesh "
@@ -705,7 +705,7 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 			m_animated_meshnode->setScale(m_prop.visual_size);
 
 			// set vertex colors to ensure alpha is set
-			setMeshColor(m_animated_meshnode->getMesh(), video::SColor(0xFFFFFFFF));
+			setMeshColor(mesh, video::SColor(0xFFFFFFFF));
 
 			setSceneNodeMaterials(m_animated_meshnode, mesh->needsHwSkinning());
 
@@ -731,8 +731,9 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 					++it;
 				}
 			});
-		} else
+		} else {
 			errorstream<<"GenericCAO::addToScene(): Could not load mesh "<<m_prop.mesh<<std::endl;
+		}
 		break;
 	}
 	case OBJECTVISUAL_WIELDITEM:

@@ -375,9 +375,17 @@ public:
 	virtual ISoundManager* getSoundManager();
 	MtEventManager* getEventManager();
 	virtual ParticleManager* getParticleManager();
+
 	bool checkLocalPrivilege(const std::string &priv)
 	{ return checkPrivilege(priv); }
-	virtual scene::IAnimatedMesh* getMesh(const std::string &filename, bool cache = false);
+
+	// Gets an unique copy of a named mesh
+	// (returned pointer must be dropped)
+	scene::IAnimatedMesh *getMesh(const std::string &filename);
+	// Gets a pointer to a named mesh, you may need to clone it before use
+	// (returned pointer must be dropped)
+	scene::IAnimatedMesh *getOriginalMesh(const std::string &filename, bool *must_clone);
+
 	ModVFS *getModVFS() { return m_mod_vfs.get(); }
 	ModStorageDatabase *getModStorageDatabase() override { return m_mod_storage_database; }
 
