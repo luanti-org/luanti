@@ -842,7 +842,7 @@ std::string AbsolutePath(const std::string &path)
 #endif
 	if (!abs_path)
 		return "";
-	std::filesystem::path absolute_path(abs_path);
+	std::filesystem::path absolute_path(abs_path, std::filesystem::path::format::native_format);
 	free(abs_path);
 
 	// remove any trailing delim before return
