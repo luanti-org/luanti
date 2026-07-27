@@ -3525,8 +3525,17 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		m_is_form_regenerated = true;
 	}
 
-	// Restore hover state for inventory lists
+	// Restore hover state
 	if (m_pointer.X != -1) {
+		SEvent event;
+		event.EventType = EET_MOUSE_INPUT_EVENT;
+		event.MouseInput.Event = EMIE_MOUSE_MOVED;
+		event.MouseInput.X = m_pointer.X;
+		event.MouseInput.Y = m_pointer.Y;
+
+		Environment->postEventFromUser(event);
+
+		// explicitly update inventory lists
 		for (GUIInventoryList *list : m_inventorylists) {
 			s32 hovered = list->getItemIndexAtPos(m_pointer);
 			if (hovered != -1) {
