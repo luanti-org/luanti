@@ -26,9 +26,9 @@ private:
 	static bool readCraftRecipeShaped(lua_State *L, int index,
 			int &width, std::vector<std::string> &recipe);
 
+public:
 	static struct EnumString es_CraftMethod[];
 
-public:
 	static void Initialize(lua_State *L, int top);
 	static void InitializeAsync(lua_State *L, int top);
 };

@@ -2,38 +2,11 @@ _G.core = {}
 
 _G.setfenv = require 'busted.compatibility'.setfenv
 
+dofile("builtin/common/misc_helpers.lua")
 dofile("builtin/common/serialize.lua")
 dofile("builtin/common/vector.lua")
 
--- Supports circular tables; does not support table keys
--- Correctly checks whether a mapping of references ("same") exists
--- Is significantly more efficient than assert.same
-local function assert_same(a, b, same)
-	same = same or {}
-	if same[a] or same[b] then
-		assert(same[a] == b and same[b] == a)
-		return
-	end
-	if a == b then
-		return
-	end
-	if type(a) ~= "table" or type(b) ~= "table" then
-		assert(a == b)
-		return
-	end
-	same[a] = b
-	same[b] = a
-	local count = 0
-	for k, v in pairs(a) do
-		count = count + 1
-		assert(type(k) ~= "table")
-		assert_same(v, b[k], same)
-	end
-	for _ in pairs(b) do
-		count = count - 1
-	end
-	assert(count == 0)
-end
+local assert_same = core.assert_same
 
 local x, y = {}, {}
 local t1, t2 = {x, x, y, y}, {x, y, x, y}

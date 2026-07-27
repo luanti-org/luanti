@@ -151,7 +151,9 @@ void getAdHocNodeShader(video::SMaterial &mat, IShaderSource *shdsrc,
 	if (mat.getTexture(0))
 		array_texture = mat.getTexture(0)->getType() == video::ETT_2D_ARRAY;
 
-	u32 shader_id = shdsrc->getShader(shader, type, NDT_NORMAL, array_texture);
+	ShaderFeatures features;
+	features.array_texture = array_texture;
+	u32 shader_id = shdsrc->getShader(shader, type, NDT_NORMAL, features);
 	mat.MaterialType = shdsrc->getShaderInfo(shader_id).material;
 }
 

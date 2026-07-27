@@ -21,7 +21,10 @@ public:
 	/// @note does not create on GL side
 	OGLBufferObject(Target target) : m_target(target) {}
 	/// @note does not free on GL side
-	~OGLBufferObject() = default;
+	~OGLBufferObject() {}
+	// ^ Do not use `= default;`. These should be equivalent here, but `= default`
+	// results in a linking error for obscure configurations
+	// (Edison Design Group C++ frontend + MCST LCC 1.29.16 and similar), see #17232.
 
 	/// @return "name" (ID) of this buffer in GL
 	GLuint getName() const { return m_name; }

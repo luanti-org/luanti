@@ -110,8 +110,7 @@ void MenuMusicFetcher::addThePaths(const std::string &name,
 /** GUIEngine                                                                 */
 /******************************************************************************/
 
-GUIEngine::GUIEngine(JoystickController *joystick,
-		gui::IGUIElement *parent,
+GUIEngine::GUIEngine(gui::IGUIElement *parent,
 		RenderingEngine *rendering_engine,
 		IMenuManager *menumgr,
 		MainMenuData *data,
@@ -164,7 +163,6 @@ GUIEngine::GUIEngine(JoystickController *joystick,
 
 	/* Create menu */
 	m_menu = make_irr<GUIFormSpecMenu>(
-			joystick,
 			m_parent,
 			-1,
 			m_menumanager,
@@ -240,7 +238,7 @@ std::string findLocaleFileWithExtension(const std::string &path)
 /******************************************************************************/
 std::string findLocaleFileInMods(const std::string &path, const std::string &filename_no_ext)
 {
-	std::vector<ModSpec> mods = flattenMods(getModsInPath(path, "root", 0));
+	std::vector<ModSpec> mods = flattenMods(getModsInPath(path, "root", 0), true);
 
 	for (const auto &mod : mods) {
 		std::string ret = findLocaleFileWithExtension(

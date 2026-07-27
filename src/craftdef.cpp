@@ -416,7 +416,7 @@ bool CraftDefinitionShaped::check(const CraftInput &input, IGameDef *gamedef) co
 
 CraftOutput CraftDefinitionShaped::getOutput(const CraftInput &input, IGameDef *gamedef) const
 {
-	return CraftOutput(output, 0);
+	return CraftOutput(output, 0, replacements);
 }
 
 CraftInput CraftDefinitionShaped::getInput(const CraftOutput &output, IGameDef *gamedef) const
@@ -670,7 +670,7 @@ bool CraftDefinitionShapeless::check(const CraftInput &input, IGameDef *gamedef)
 
 CraftOutput CraftDefinitionShapeless::getOutput(const CraftInput &input, IGameDef *gamedef) const
 {
-	return CraftOutput(output, 0);
+	return CraftOutput(output, 0, replacements);
 }
 
 CraftInput CraftDefinitionShapeless::getInput(const CraftOutput &output, IGameDef *gamedef) const
@@ -799,7 +799,7 @@ CraftInput CraftDefinitionToolRepair::getInput(const CraftOutput &output, IGameD
 {
 	std::vector<ItemStack> stack;
 	stack.emplace_back();
-	return CraftInput(CRAFT_METHOD_COOKING, additional_wear, stack);
+	return CraftInput(CRAFT_METHOD_NORMAL, 0, stack);
 }
 
 void CraftDefinitionToolRepair::decrementInput(CraftInput &input, std::vector<ItemStack> &output_replacements,
@@ -865,14 +865,14 @@ bool CraftDefinitionCooking::check(const CraftInput &input, IGameDef *gamedef) c
 
 CraftOutput CraftDefinitionCooking::getOutput(const CraftInput &input, IGameDef *gamedef) const
 {
-	return CraftOutput(output, cooktime);
+	return CraftOutput(output, cooktime, replacements);
 }
 
 CraftInput CraftDefinitionCooking::getInput(const CraftOutput &output, IGameDef *gamedef) const
 {
 	std::vector<std::string> rec;
 	rec.push_back(recipe);
-	return CraftInput(CRAFT_METHOD_COOKING,cooktime,craftGetItems(rec,gamedef));
+	return CraftInput(CRAFT_METHOD_COOKING, 0, craftGetItems(rec, gamedef));
 }
 
 void CraftDefinitionCooking::decrementInput(CraftInput &input, std::vector<ItemStack> &output_replacements,
@@ -968,14 +968,14 @@ bool CraftDefinitionFuel::check(const CraftInput &input, IGameDef *gamedef) cons
 
 CraftOutput CraftDefinitionFuel::getOutput(const CraftInput &input, IGameDef *gamedef) const
 {
-	return CraftOutput("", burntime);
+	return CraftOutput("", burntime, replacements);
 }
 
 CraftInput CraftDefinitionFuel::getInput(const CraftOutput &output, IGameDef *gamedef) const
 {
 	std::vector<std::string> rec;
 	rec.push_back(recipe);
-	return CraftInput(CRAFT_METHOD_COOKING,(int)burntime,craftGetItems(rec,gamedef));
+	return CraftInput(CRAFT_METHOD_FUEL, 0, craftGetItems(rec,gamedef));
 }
 
 void CraftDefinitionFuel::decrementInput(CraftInput &input, std::vector<ItemStack> &output_replacements,

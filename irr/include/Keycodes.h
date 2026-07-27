@@ -200,3 +200,61 @@ public:
 		return code > 0 && code < KEY_KEY_CODES_COUNT;
 	}
 };
+
+/// A GamepadAxis represents a physical axis on the gamepad.
+/// The values are taken from SDL_GamepadAxis.
+enum class GamepadAxis {
+	LEFTX,
+	LEFTY,
+	RIGHTX,
+	RIGHTY,
+	LEFT_TRIGGER,
+	RIGHT_TRIGGER,
+	COUNT
+};
+
+/// A GamepadButton represents a physical button on the gamepad.
+/// The values are taken from SDL_GamepadButton.
+enum class GamepadButton {
+	SOUTH,
+	EAST,
+	WEST,
+	NORTH,
+	BACK,
+	GUIDE,
+	START,
+	LEFT_STICK,
+	RIGHT_STICK,
+	LEFT_SHOULDER,
+	RIGHT_SHOULDER,
+	DPAD_UP,
+	DPAD_DOWN,
+	DPAD_LEFT,
+	DPAD_RIGHT,
+	MISC1,
+	RIGHT_PADDLE1,
+	LEFT_PADDLE1,
+	RIGHT_PADDLE2,
+	LEFT_PADDLE2,
+	TOUCHPAD,
+	MISC2,
+	MISC3,
+	MISC4,
+	MISC5,
+	MISC6,
+	COUNT
+};
+
+/// A GamepadButtonLabel represents the label on the gamepad button.
+/// The values are taken from SDL_GamepadButtonLabel.
+enum class GamepadButtonLabel {
+	UNKNOWN,
+	A,
+	B,
+	X,
+	Y,
+	CROSS,
+	CIRCLE,
+	SQUARE,
+	TRIANGLE
+};

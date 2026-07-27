@@ -125,7 +125,7 @@ public:
 	ServerScripting* getScriptIface()
 	{ return m_script; }
 
-	Server *getGameDef()
+	Server *getServer()
 	{ return m_server; }
 
 	float getSendRecommendedInterval()

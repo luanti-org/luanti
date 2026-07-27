@@ -707,7 +707,8 @@ u8 ServerEnvironment::findSunlight(v3s16 pos) const
 			MapNode node = m_map->getNode(neighborPos, &is_position_ok);
 			if (!is_position_ok) {
 				// This happens very rarely because the map at currentPos is loaded
-				m_map->emergeBlock(neighborPos, false);
+				v3s16 blockpos = getNodeBlockPos(neighborPos);
+				m_map->emergeBlock(blockpos, false);
 				node = m_map->getNode(neighborPos, &is_position_ok);
 				if (!is_position_ok)
 					continue; // not generated

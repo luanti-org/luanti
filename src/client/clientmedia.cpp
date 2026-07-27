@@ -350,6 +350,7 @@ void ClientMediaDownloader::remoteMediaReceived(
 			filestatus->received = true;
 			assert(m_uncached_received_count < m_uncached_count);
 			m_uncached_received_count++;
+			m_received_file_size += fetch_result.data.size();
 		}
 	}
 }
@@ -501,6 +502,7 @@ bool ClientMediaDownloader::conventionalTransferDone(
 	filestatus->received = true;
 	assert(m_uncached_received_count < m_uncached_count);
 	m_uncached_received_count++;
+	m_received_file_size += data.size();
 
 	// Check that received file matches announced checksum
 	// If so, load it

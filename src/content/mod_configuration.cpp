@@ -39,7 +39,7 @@ void ModConfiguration::addModsInPath(const std::string &path, const std::string 
 {
 	verbosestream << "Adding mods from path " << path << " virtual=\""
 		<< virtual_path << "\"" << std::endl;
-	addMods(flattenMods(getModsInPath(path, virtual_path)));
+	addMods(flattenMods(getModsInPath(path, virtual_path), true));
 }
 
 void ModConfiguration::addMods(const std::vector<ModSpec> &new_mods)
@@ -147,7 +147,9 @@ void ModConfiguration::addModsFromConfig(
 	 * and used in an error message later.
 	 */
 	for (const auto &modPath : modPaths) {
-		std::vector<ModSpec> addon_mods_in_path = flattenMods(getModsInPath(modPath.second, modPath.first));
+		std::vector<ModSpec> addon_mods_in_path =
+			flattenMods(getModsInPath(modPath.second, modPath.first), true);
+
 		for (const auto &mod : addon_mods_in_path) {
 			const auto &pair = load_mod_names.find(mod.name);
 			if (pair != load_mod_names.end()) {

@@ -38,6 +38,8 @@ public:
 		PADDING,
 		FONT,
 		FONT_SIZE,
+		HALIGN,
+		VALIGN,
 		COLORS,
 		BORDERCOLORS,
 		BORDERWIDTHS,
@@ -109,6 +111,10 @@ public:
 			return FONT;
 		} else if (name == "font_size") {
 			return FONT_SIZE;
+		} else if (name == "halign") {
+			return HALIGN;
+		} else if (name == "valign") {
+			return VALIGN;
 		} else if (name == "colors") {
 			return COLORS;
 		} else if (name == "bordercolors") {

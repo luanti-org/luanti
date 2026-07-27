@@ -88,13 +88,12 @@ public class UnzipService extends IntentService {
 
 			unzip(notificationBuilder, zipFile, userDataDirectory);
 		} catch (IOException e) {
+			Log.w("UnzipService", null, e);
 			isSuccess = false;
 			failureMessage = e.getLocalizedMessage();
 		} finally {
 			setIsRunning(false);
-			if (!zipFile.delete()) {
-				Log.w("UnzipService", "Minetest installation ZIP cannot be deleted");
-			}
+			zipFile.delete();
 		}
 	}
 
@@ -140,6 +139,7 @@ public class UnzipService extends IntentService {
 		try (ZipFile zipSize = new ZipFile(zipFile)) {
 			size = zipSize.size();
 		}
+		Log.i("UnzipService", String.format("Extracting %d entries", size));
 
 		int readLen;
 		byte[] readBuffer = new byte[16384];
@@ -153,36 +153,16 @@ public class UnzipService extends IntentService {
 					continue;
 				}
 				publishProgress(notificationBuilder, R.string.loading, 100 * ++per / size);
-				try (OutputStream outputStream = new FileOutputStream(
-						new File(userDataDirectory, ze.getName()))) {
+				File destFile = new File(userDataDirectory, ze.getName());
+				try (OutputStream outputStream = new FileOutputStream(destFile)) {
 					while ((readLen = zipInputStream.read(readBuffer)) != -1) {
 						outputStream.write(readBuffer, 0, readLen);
 					}
 				}
 			}
 		}
-	}
 
-	void moveFileOrDir(@NonNull File src, @NonNull File dst) throws IOException {
-		try {
-			Process p = new ProcessBuilder("/system/bin/mv",
-				src.getAbsolutePath(), dst.getAbsolutePath()).start();
-			int exitCode = p.waitFor();
-			if (exitCode != 0)
-				throw new IOException("Move failed with exit code " + exitCode);
-		} catch (InterruptedException e) {
-			throw new IOException("Move operation interrupted");
-		}
-	}
-
-	boolean recursivelyDeleteDirectory(@NonNull File loc) {
-		try {
-			Process p = new ProcessBuilder("/system/bin/rm", "-rf",
-				loc.getAbsolutePath()).start();
-			return p.waitFor() == 0;
-		} catch (IOException | InterruptedException e) {
-			return false;
-		}
+		Log.i("UnzipService", "Done extracting");
 	}
 
 	private void publishProgress(@Nullable Notification.Builder notificationBuilder, @StringRes int message, int progress) {

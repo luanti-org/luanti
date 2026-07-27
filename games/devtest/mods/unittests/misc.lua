@@ -119,6 +119,7 @@ local function test_compress()
 	local text = "The\000 icey canoe couldn't move very well on the\128 lake. The\000 ice was too stiff and the icey canoe's paddles simply wouldn't punch through."
 	local methods = {
 		"deflate",
+		"raw_deflate",
 		"zstd",
 		-- "noodle", -- for warning alarm test
 	}

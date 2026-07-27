@@ -405,13 +405,17 @@ void NodeVisuals::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc, Cl
 	}
 
 	GetShaderCallback tile_shader = [&] (bool array_texture) {
-		return shdsrc->getShader("nodes_shader", material_type, drawtype, array_texture);
+		ShaderFeatures features;
+		features.array_texture = array_texture;
+		return shdsrc->getShader("nodes_shader", material_type, drawtype, features);
 	};
 
 	MaterialType overlay_material = material_type_with_alpha(material_type);
 
 	GetShaderCallback overlay_shader = [&] (bool array_texture) {
-		return shdsrc->getShader("nodes_shader", overlay_material, drawtype, array_texture);
+		ShaderFeatures features;
+		features.array_texture = array_texture;
+		return shdsrc->getShader("nodes_shader", overlay_material, drawtype, features);
 	};
 
 	// minimap pixel color = average color of top tile
@@ -464,7 +468,9 @@ void NodeVisuals::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc, Cl
 	}
 
 	GetShaderCallback special_shader = [&] (bool array_texture) {
-		return shdsrc->getShader("nodes_shader", special_material, drawtype, array_texture);
+		ShaderFeatures features;
+		features.array_texture = array_texture;
+		return shdsrc->getShader("nodes_shader", special_material, drawtype, features);
 	};
 
 	// Special tiles (fill in f->special_tiles[])
