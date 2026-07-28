@@ -1092,7 +1092,7 @@ bool extractZipFile(const char *filename, const std::string &destination)
 
 		if (!zip_file) {
 			zip_error_t *file_error = zip_get_error(archive.get());
-			warningstream << "fs::extractZipFile(): failed to open zip entry " << zip_error_strerror(file_error) << std::endl;
+			warningstream << "fs::extractZipFile(): failed to open zip entry: " << zip_error_strerror(file_error) << std::endl;
 			return false;
 		}
 
