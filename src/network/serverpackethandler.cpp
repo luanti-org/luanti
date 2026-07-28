@@ -284,6 +284,11 @@ void Server::handleCommand_Init2(NetworkPacket* pkt)
 	std::string lang;
 	if (pkt->getSize() > 0)
 		*pkt >> lang;
+	u16 sscsm_version = 0;
+	if (pkt->hasRemainingBytes())
+		*pkt >> sscsm_version;
+
+	// TODO expose SSCSM version via core.get_player_information()
 
 	/*
 		Send some initialization data
@@ -297,6 +302,10 @@ void Server::handleCommand_Init2(NetworkPacket* pkt)
 
 	// Send node definitions
 	SendNodeDef(peer_id, m_nodedef, protocol_version);
+
+	// Send SSCSM
+	if (sscsm_version >= 1)
+		sendSSCSM(peer_id);
 
 	m_clients.event(peer_id, CSE_SetDefinitionsSent);
 

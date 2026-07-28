@@ -14,7 +14,7 @@
 #include "server.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
-#include "client/mod_vfs.h"
+#include "mod_vfs.h"
 #include "sscsm/sscsm_environment.h"
 #endif
 

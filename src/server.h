@@ -49,6 +49,7 @@ class ServerModManager;
 class ServerScripting;
 class ServerThread;
 class Settings;
+struct SSCSMInit;
 
 struct ChatEventChat;
 struct ChatInterface;
@@ -434,6 +435,8 @@ public:
 	bool sendModChannelMessage(const std::string &channel, const std::string &message) override;
 	ModChannel *getModChannel(const std::string &channel) override;
 
+	void sendSSCSM(session_t peer_id);
+
 	// Send block to specific player only
 	bool SendBlock(session_t peer_id, const v3s16 &blockpos);
 
@@ -462,6 +465,8 @@ public:
 	std::vector<std::pair<std::string, std::string>> m_async_init_files;
 	// Identical but for mapgen env
 	std::vector<std::pair<std::string, std::string>> m_mapgen_init_files;
+
+	std::unique_ptr<SSCSMInit> m_sscsm_init;
 
 	// Data transferred into other Lua envs at init time
 	std::unique_ptr<PackedValue> m_lua_globals_data;

@@ -106,6 +106,9 @@ private:
 	// register_mapgen_script(path)
 	static int l_register_mapgen_script(lua_State *L);
 
+	// register_sscsm(params)
+	static int l_register_sscsm(lua_State *L);
+
 	// serialize_roundtrip(obj)
 	static int l_serialize_roundtrip(lua_State *L);
 
