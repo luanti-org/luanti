@@ -1078,7 +1078,7 @@ bool extractZipFile(const char *filename, const std::string &destination)
 
 		fullpath = fs::RemoveRelativePathComponents(fullpath);
 		if (!fs::PathStartsWith(fullpath, normalized_destination)) {
-			warningstream << "fs::extractZipFile(): refusing to extract file: " << entry.name << std::endl;
+			warningstream << "fs::extractZipFile(): refusing to extract file: \"" << entry.name << "\"" << std::endl;
 			continue;
 		}
 
