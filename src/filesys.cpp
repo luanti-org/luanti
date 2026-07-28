@@ -1120,7 +1120,7 @@ bool extractZipFile(const char *filename, const std::string &destination)
 		}
 		os.close();
 		if (os.fail()) {
-			warningstream << "fs::extractZipFile(): failed to close write stream for: " << entry.name << std::endl;
+			warningstream << "fs::extractZipFile(): failed to write \"" << entry.name << "\"" << std::endl;
 			return false;
 		}
 		write_check.complete = true;
