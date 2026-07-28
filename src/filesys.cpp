@@ -1112,10 +1112,8 @@ bool extractZipFile(const char *filename, const std::string &destination)
 				return false;
 			}
 			os.write(buffer, static_cast<std::streamsize>(bytes_read));
-			if (os.fail()) {
-				warningstream << "fs::extractZipFile(): failed to write " << entry.name << std::endl;
-				return false;
-			}
+			if (os.fail())
+				break;
 			total_read += static_cast<zip_uint64_t>(bytes_read);
 		}
 		os.close();
