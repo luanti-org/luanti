@@ -3242,6 +3242,20 @@ Elements
 * Sets default background color of tooltips
 * Sets default font color of tooltips
 
+### `listimages[<slot_bgimg_normal>;<slot_bgimg_hover>]`
+
+* Works like `listcolors[]`, but uses images rather than solid colors.
+* `slot_bgimg_normal` Sets background image of slots.
+* `slot_bgimg_hover` Sets background image of slots when hovered.
+
+### `listimages[<slot_bgimg_normal>;<slot_bgimg_hover>;<tooltip_bgcolor>;<tooltip_fontcolor>]`
+
+* Works like `listcolors[]`, but uses images rather than solid colors.
+* `slot_bgimg_normal` Sets background image of slots.
+* `slot_bgimg_hover` Sets background image of slots when hovered.
+* Sets background color of tooltips for inventory slots.
+* Sets font color of tooltips for inventory slots.
+
 ### `tooltip[<gui_element_name>;<tooltip_text>;<bgcolor>;<fontcolor>]`
 
 * Adds tooltip for an element
