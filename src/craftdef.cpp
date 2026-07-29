@@ -303,7 +303,8 @@ std::string CraftInput::dump() const
 std::string CraftOutput::dump() const
 {
 	std::ostringstream os(std::ios::binary);
-	os << "(item=\"" << item << "\", time=" << time << ")";
+	os << "(item=\"" << item << "\", time=" << time
+			<< ", replacements=" << replacements.dump() << ")";
 	return os.str();
 }
 
