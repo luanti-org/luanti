@@ -9125,7 +9125,7 @@ You **must not** mix names and track numbers to refer to the same animation.
 
 * `play_animation(track, [animation])`
     * Starts or restarts an animation on the given track.
-    * `.x` and `.b3d` models only have a single, unnamed animation track `1`.
+    * `.x` and `.b3d` models have only (at most) a single, unnamed animation track `1`.
     * `animation` is an optional table with the following optional fields:
       * `min_frame = 0.0`, `max_frame = math.huge`, animation range in frames (seconds);
          clamped on the client to first and last frame in the corresponding track.
@@ -9144,6 +9144,8 @@ You **must not** mix names and track numbers to refer to the same animation.
     * Animations continue playing at the current frame when
       the mesh is changed using `set_properties({mesh = ...})`,
       but animation blending may be interrupted.
+      If you change to a mesh missing some of the currently playing tracks,
+      you **must** stop playback on these tracks first.
 * `update_animation(track, update)`
     * `update` is a table with the following optional fields:
       * `speed`: New animation speed

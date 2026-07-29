@@ -65,7 +65,6 @@ IAnimatedMesh *CXMeshFileLoader::createMesh(io::IReadFile *file)
 #endif
 
 	AnimatedMesh = SkinnedMeshBuilder(SkinnedMesh::SourceFormat::X);
-	AnimatedMesh.addAnimation();
 
 	SkinnedMesh *res = nullptr;
 	if (load(file)) {
@@ -1883,7 +1882,7 @@ SkinnedMesh::SJoint *CXMeshFileLoader::addJoint(SkinnedMesh::SJoint *parent, std
 
 void CXMeshFileLoader::addKeys(u16 joint_id, SkinnedMesh::Keys &&keys)
 {
-	auto &animation = AnimatedMesh.getAnimation(0);
+	auto &animation = AnimatedMesh.getSingleAnimation();
 	auto &joint_keys_idx = JointKeysIdx.at(joint_id);
 	if (joint_keys_idx) {
 		animation.joint_keys.at(*joint_keys_idx).keys.append(keys);

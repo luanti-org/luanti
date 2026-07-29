@@ -438,6 +438,16 @@ public:
 	SkinnedMesh::Animation &getAnimation(u16 index)
 	{ return mesh->animations.at(index); }
 
+	//! Used by the .b3d and .x readers to add a single animation, if necessary
+	SkinnedMesh::Animation &getSingleAnimation()
+	{
+		if (mesh->getTrackCount() == 0) {
+			static_cast<void>(addAnimation());
+		}
+		assert(mesh->getTrackCount() == 1);
+		return getAnimation(0);
+	}
+
 private:
 
 	void topoSortJoints();

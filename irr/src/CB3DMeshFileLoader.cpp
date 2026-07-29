@@ -52,7 +52,6 @@ IAnimatedMesh *CB3DMeshFileLoader::createMesh(io::IReadFile *file)
 
 	B3DFile = file;
 	AnimatedMesh = scene::SkinnedMeshBuilder(SkinnedMesh::SourceFormat::B3D);
-	AnimatedMesh.addAnimation();
 	ShowWarning = true; // If true a warning is issued if too many textures are used
 	VerticesStart = 0;
 
@@ -606,7 +605,7 @@ bool CB3DMeshFileLoader::readChunkKEYS(SkinnedMesh::SJoint *inJoint)
 	}
 
 	B3dStack.erase(B3dStack.size() - 1);
-	auto &anim = AnimatedMesh.getAnimation(0);
+	auto &anim = AnimatedMesh.getSingleAnimation();
 	anim.joint_keys.emplace_back(SkinnedMesh::Animation::JointKeys{
 			inJoint->JointID, std::move(keys)});
 	return true;

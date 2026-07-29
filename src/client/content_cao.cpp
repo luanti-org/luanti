@@ -1069,8 +1069,14 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 		addToScene(m_client->tsrc(), m_smgr);
 
 		if (m_animated_meshnode && m_animated_meshnode->getMesh()) {
-			for (auto &[track_nr, track] : m_animation.tracks) {
-				track.clamp(m_animated_meshnode->getMesh()->getMaxFrameNumber(track_nr));
+			for (auto it = m_animation.tracks.begin(); it != m_animation.tracks.end();) {
+				const auto track_nr = it->first;
+				if (track_nr < m_animated_meshnode->getMesh()->getTrackCount()) {
+					it->second.clamp(m_animated_meshnode->getMesh()->getMaxFrameNumber(track_nr));
+					++it;
+				} else {
+					it = m_animation.tracks.erase(it);
+				}
 			}
 			m_animated_meshnode->getAnimation() = m_animation; // Restore animation
 		}
@@ -1397,7 +1403,7 @@ void GenericCAO::updateAnimation(u16 track_nr)
 
 void GenericCAO::setLocalPlayerAnimation(LocalPlayerAnimation local_anim, float speed)
 {
-	if (!m_animated_meshnode)
+	if (!m_animated_meshnode || m_animated_meshnode->getMesh()->getTrackCount() > 0)
 		return;
 
 	assert(m_is_local_player);
