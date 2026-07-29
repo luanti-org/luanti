@@ -116,7 +116,7 @@ struct SSCSMRequestGetItemDefs final : public ISSCSMRequest
 	struct Answer final : public ISSCSMAnswer
 	{
 		std::vector<ItemDefinition> items;
-		std::vector<ContentFeatures> nodes;
+		std::vector<ContentFeaturesSSCSM> nodes;
 	};
 
 	SerializedSSCSMAnswer exec(Client *client) override
@@ -129,7 +129,7 @@ struct SSCSMRequestGetItemDefs final : public ISSCSMRequest
 		answer.nodes.reserve(ndef->size());
 		for (u32 c = 0; c < ndef->size(); c++) {
 			const ContentFeatures &cf = ndef->get(c);
-			answer.nodes.push_back(cf);
+			answer.nodes.push_back(cf.copyWithoutVisuals());
 		}
 
 		return serializeSSCSMAnswer(std::move(answer));

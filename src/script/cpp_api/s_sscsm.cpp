@@ -8,6 +8,7 @@
 #include "script/sscsm/sscsm_environment.h"
 #include "script/sscsm/sscsm_requests.h"
 #include "script/common/c_content.h"
+#include "script/common/c_converter.h"
 #include "itemdef.h"
 
 void ScriptApiSSCSM::after_content_received()
@@ -67,8 +68,8 @@ void ScriptApiSSCSM::after_content_received()
 		lua_pop(L, 2); // def, name
 	}
 
-	for (const ContentFeatures &node_def : answer.nodes) {
-		lua_pushstring(L, node_def.name.c_str());
+	for (const ContentFeaturesSSCSM &node_def : answer.nodes) {
+		lua_pushstring(L, node_def.cf.name.c_str());
 		lua_gettable(L, idx_registered_nodes);
 		if (lua_isnil(L, -1)) {
 			// registered as a node but not as an item (e.g. CONTENT_UNKNOWN);
@@ -78,8 +79,16 @@ void ScriptApiSSCSM::after_content_received()
 		}
 		int idx_existing = lua_gettop(L);
 
-		push_content_features(L, node_def);
+		push_content_features(L, node_def.cf);
 		int idx_extra = lua_gettop(L);
+		if (node_def.had_visuals) {
+			push_ARGB8(L, node_def.minimap_color);
+			lua_setfield(L, idx_extra, "minimap_color");
+			if (!node_def.cf.palette_name.empty()) {
+				push_palette(L, &node_def.palette);
+				lua_setfield(L, idx_extra, "palette");
+			}
+		}
 
 		// merge node-only fields into the existing item def table
 		lua_pushnil(L);
