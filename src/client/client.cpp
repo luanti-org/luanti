@@ -1915,13 +1915,9 @@ void Client::afterContentReceived()
 	m_nodedef->setNodeRegistrationStatus(true);
 	m_nodedef->runNodeResolveCallbacks();
 
-	std::string enable_sscsm = g_settings->get("enable_sscsm");
-	bool sscsm_enabled = enable_sscsm == "singleplayer"; //FIXME: enum
-
 	// Must run before fillNodeVisuals(), which sets ContentFeatures::visuals
 	// and may resolve drawtypes based on this client's local render settings.
-	if (sscsm_enabled)
-		m_sscsm_controller->runEvent(this, std::make_unique<SSCSMEventAfterContentReceived>());
+	m_sscsm_controller->runEvent(this, std::make_unique<SSCSMEventAfterContentReceived>());
 
 	// Update node textures and assign shaders to each tile
 	infostream<<"- Updating node textures"<<std::endl;
