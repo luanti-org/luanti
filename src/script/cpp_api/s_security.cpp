@@ -701,7 +701,9 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 	do {
 		assert(path != nullptr);
 		auto path_local = fs::MakePathRelativeTo(path, Server::getBuiltinLuaPath());
-		if (path_local.empty())
+		if (path_local.empty() )
+			break; // error
+		if (str_starts_with(path_local, ".."))
 			break; // not in builtin
 
 		auto it = g_builtin_file_sha256_map.find(path_local);

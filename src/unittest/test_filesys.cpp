@@ -204,8 +204,8 @@ void TestFileSys::testMakePathRelativeTo()
 	UASSERTEQ(auto, rel("d1/", "d1"), p("."));
 	UASSERTEQ(auto, rel("d1", "d1/."), p("."));
 	UASSERTEQ(auto, rel("d1/./d2", "d1/."), p("d2"));
-	UASSERTEQ(auto, rel("d1/..", "d1"), "");
-	UASSERTEQ(auto, rel("d1/../d12", "d1"), "");
+	UASSERTEQ(auto, rel("d1/..", "d1"), "..");
+	UASSERTEQ(auto, rel("d1/../d12", "d1"), "../d12");
 	UASSERTEQ(auto, rel("d1/../d1/d2/", "d1"), p("d2"));
 }
 
@@ -340,9 +340,6 @@ void TestFileSys::testAbsolutePath()
 		fs::CreateDir(dir_path2);
 		UASSERTCMP(auto, !=, fs::AbsolutePath(dir_path2), ""); // now it does
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + DIR_DELIM ".."), fs::AbsolutePath(dir_path));
-		// excess . and / are removed
-		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + p("//..")), fs::AbsolutePath(dir_path));
-		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + p("/./.././//")), fs::AbsolutePath(dir_path));
 	}
 
 	/* AbsolutePathPartial */

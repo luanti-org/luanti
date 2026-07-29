@@ -115,8 +115,9 @@ bool PathStartsWith(const std::string &path, const std::string &prefix);
 // the part of child that is relative to parent.
 // Symlinks and "." and ".." components are removed.
 // If child and parent are (absolute) the same, the result is ".". (Otherwise it
-// never starts with '.'.)
-// Returns "" if child is not in parent, also returns "" on failure.
+// never starts with a single '.'.)
+// Returns a relative path starting with ".." components if child is not in parent.
+// Returns "" on failure.
 std::string MakePathRelativeTo(const std::string &child, const std::string &parent);
 
 // Remove last path component and the dir delimiter before and/or after it.

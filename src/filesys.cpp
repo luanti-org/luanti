@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cerrno>
+#include <filesystem>
 #include <fstream>
 #include <atomic>
 #include <memory>
@@ -718,22 +719,16 @@ bool PathStartsWith(const std::string &path, const std::string &prefix)
 
 std::string MakePathRelativeTo(const std::string &child, const std::string &parent)
 {
-	std::string child_abs = fs::AbsolutePathPartial(child);
-	std::string parent_abs = fs::AbsolutePathPartial(parent);
-	if (child.empty() || parent.empty())
+	auto p_child = std::filesystem::path(child, std::filesystem::path::format::native_format);
+	auto p_parent = std::filesystem::path(parent, std::filesystem::path::format::native_format);
+
+	std::error_code ec;
+	auto p_rel = std::filesystem::relative(p_child, p_parent, ec);
+	if (ec) {
 		return ""; // error
-
-	if (!fs::PathStartsWith(child_abs, parent_abs))
-		return ""; // not child
-
-	if (child_abs.size() == parent_abs.size()) {
-		assert(child_abs == parent_abs);
-		return ".";
-	} else {
-		assert(child_abs.size() >= parent_abs.size() + 1);
-		assert(child_abs[parent_abs.size()] == DIR_DELIM_CHAR);
-		return std::move(child_abs).substr(parent_abs.size() + 1);
 	}
+
+	return p_rel.native();
 }
 
 std::string RemoveLastPathComponent(const std::string &path,
