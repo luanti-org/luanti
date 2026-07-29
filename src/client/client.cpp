@@ -123,12 +123,11 @@ static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool in
 	e.append(" @").append(oss.str());
 }
 
-static bool isMeshStatic(scene::IAnimatedMesh *mesh)
+static bool isMeshStatic(const scene::IAnimatedMesh *mesh)
 {
-	if (mesh->getTrackCount() == 0)
-		return true;
-	// are empty tracks supposed to be cleaned up on load? seems they're not
-	return mesh->getTrackCount() == 1 && mesh->getMaxFrameNumber(0) == 0.0f;
+	if (!mesh)
+		return false;
+	return mesh->getTrackCount() == 0;
 }
 
 /*
@@ -2054,9 +2053,12 @@ ParticleManager* Client::getParticleManager()
 	return m_particle_manager.get();
 }
 
-scene::IAnimatedMesh *Client::getOriginalMesh(const std::string &filename, bool *must_clone)
+scene::IAnimatedMesh *Client::getMesh(const std::string &filename, bool *is_shared)
 {
-	assert(must_clone); // caller must make use of this
+	const auto &set_shared = [=] (bool v) {
+		if (is_shared)
+			*is_shared = v;
+	};
 
 	auto it = m_mesh_data.find(filename);
 	if (it == m_mesh_data.end())
@@ -2067,7 +2069,7 @@ scene::IAnimatedMesh *Client::getOriginalMesh(const std::string &filename, bool 
 	auto *sm = m_rendering_engine->get_scene_manager();
 	auto *mesh = sm->getMeshCache()->getMeshByName(filename.c_str());
 	if (mesh) {
-		*must_clone = true;
+		set_shared(true);
 		mesh->grab();
 		return mesh;
 	}
@@ -2084,20 +2086,20 @@ scene::IAnimatedMesh *Client::getOriginalMesh(const std::string &filename, bool 
 	mesh->grab();
 	// We can (currently) only clone static meshes, so only cache those
 	if (isMeshStatic(mesh)) {
-		*must_clone = true;
+		set_shared(true);
 	} else {
 		sm->getMeshCache()->removeMesh(mesh);
-		*must_clone = false;
+		set_shared(false);
 	}
+
 	return mesh;
 }
 
-scene::IAnimatedMesh *Client::getMesh(const std::string &filename)
+scene::IAnimatedMesh *Client::getMeshCopy(const std::string &filename)
 {
-	bool must_clone;
-	auto *mesh = getOriginalMesh(filename, &must_clone);
-	if (mesh && must_clone) {
-		// Clone it to allow unique vertex colors and other modifications
+	bool is_shared;
+	auto *mesh = getMesh(filename, &is_shared);
+	if (mesh && is_shared) {
 		assert(isMeshStatic(mesh));
 		auto *ret = cloneStaticMesh(mesh);
 		assert(ret);

@@ -690,6 +690,7 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		});
 		break;
 	} case OBJECTVISUAL_MESH: {
+		// NOTE: the mesh can be shared, don't modify it
 		scene::IAnimatedMesh *mesh = m_client->getMesh(m_prop.mesh);
 		if (mesh) {
 			if (!checkMeshNormals(mesh)) {
@@ -705,6 +706,7 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 			m_animated_meshnode->setScale(m_prop.visual_size);
 
 			// set vertex colors to ensure alpha is set
+			// (FIXME: doing this to a shared mesh is fishy)
 			setMeshColor(mesh, video::SColor(0xFFFFFFFF));
 
 			setSceneNodeMaterials(m_animated_meshnode, mesh->needsHwSkinning());

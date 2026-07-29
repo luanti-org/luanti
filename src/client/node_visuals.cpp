@@ -496,8 +496,8 @@ void NodeVisuals::updateMesh(Client *client, const TextureSettings &tsettings)
 	if (f->drawtype != NDT_MESH || mesh.empty())
 		return;
 
-	bool must_clone;
-	if (scene::IMesh *src_mesh = client->getOriginalMesh(mesh, &must_clone)) {
+	bool need_copy;
+	if (scene::IMesh *src_mesh = client->getMesh(mesh, &need_copy)) {
 		bool apply_bs = false;
 		if (auto *skinned_mesh = dynamic_cast<scene::SkinnedMesh *>(src_mesh)) {
 			/*
@@ -512,7 +512,7 @@ void NodeVisuals::updateMesh(Client *client, const TextureSettings &tsettings)
 			mesh_ptr = cloneStaticMesh(src_mesh);
 			src_mesh->drop();
 		} else {
-			if (must_clone) {
+			if (need_copy) {
 				mesh_ptr = cloneStaticMesh(src_mesh);
 				src_mesh->drop();
 			} else {

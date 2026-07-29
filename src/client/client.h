@@ -381,10 +381,11 @@ public:
 
 	// Gets an unique copy of a named mesh
 	// (returned pointer must be dropped)
-	scene::IAnimatedMesh *getMesh(const std::string &filename);
-	// Gets a pointer to a named mesh, you may need to clone it before use
+	scene::IAnimatedMesh *getMeshCopy(const std::string &filename);
+	// Gets a pointer to a named mesh
+	// You may need to clone it before modifying (-> `is_shared`)
 	// (returned pointer must be dropped)
-	scene::IAnimatedMesh *getOriginalMesh(const std::string &filename, bool *must_clone);
+	scene::IAnimatedMesh *getMesh(const std::string &filename, bool *is_shared = nullptr);
 
 	ModVFS *getModVFS() { return m_mod_vfs.get(); }
 	ModStorageDatabase *getModStorageDatabase() override { return m_mod_storage_database; }
