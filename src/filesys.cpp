@@ -728,7 +728,7 @@ std::string MakePathRelativeTo(const std::string &child, const std::string &pare
 		return ""; // error
 	}
 
-	return p_rel.native();
+	return p_rel.string();
 }
 
 std::string RemoveLastPathComponent(const std::string &path,
