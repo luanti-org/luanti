@@ -52,8 +52,6 @@ public:
 	//! Important for legacy reasons pertaining to different mesh loader behavior.
 	SourceFormat getSourceFormat() const { return SrcFormat; }
 
-	u16 getTrackCount() const override { return animations.size(); }
-
 	std::optional<u16> getTrackNumber(const std::string &track_name) const override;
 
 	f32 getMaxFrameNumber(u16 track_nr) const override;
@@ -128,8 +126,10 @@ public:
 	/** E.g. used for bump mapping. */
 	void convertMeshToTangents();
 
-	//! Does the mesh have no animation
-	bool isStatic() const { return !HasAnimation; }
+	//! How many animation tracks the mesh has
+	u16 getTrackCount() const override { return animations.size(); }
+	//! Is the mesh not animatable (no weights, no animation tracks)?
+	bool isStatic() const { return !IsAnimatable; }
 	//! Does the mesh have skinning weights?
 	bool hasWeights() const { return HasWeights; }
 
@@ -373,7 +373,7 @@ protected:
 	//! Bounding box of the mesh in static pose
 	core::aabbox3df StaticPoseBox{{0, 0, 0}};
 
-	bool HasAnimation = false;
+	bool IsAnimatable = false;
 	bool HasWeights = false;
 	bool PreparedForSkinning = false;
 	bool UseSwSkinning = false;

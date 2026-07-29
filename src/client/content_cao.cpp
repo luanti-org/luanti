@@ -833,8 +833,8 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		}
 	}
 
-	for (auto &&[track_name, anim] : deferred_set_animation_cmds) {
-		applyTrackAnimation(std::move(track_name), anim);
+	for (auto &&[track_id, anim] : deferred_set_animation_cmds) {
+		applyTrackAnimation(std::move(track_id), anim);
 	}
 	deferred_set_animation_cmds.clear();
 }
@@ -1517,7 +1517,7 @@ static scene::TrackId readTrackIdentifier(std::istringstream &is)
 	return deSerializeString16(is);
 }
 
-std::optional<u16> GenericCAO::resolveTrackId(const scene::TrackId &track_id)
+std::optional<u16> GenericCAO::resolveTrackId(const scene::TrackId &track_id, bool lax)
 {
 	if (!m_animated_meshnode)
 		return std::nullopt;
@@ -1534,9 +1534,16 @@ std::optional<u16> GenericCAO::resolveTrackId(const scene::TrackId &track_id)
 	u16 track_nr = std::get<u16>(track_id);
 	u16 max_track_nr = mesh->getTrackCount();
 	if (track_nr >= max_track_nr) {
-		// 1-indexed track number for consistency with Lua API
-		warningstream << "Track number " << (track_nr + 1) << " out of bounds for mesh " << m_prop.mesh
-			<< " (max: " << max_track_nr << ")" << std::endl;
+		if (!lax) {
+			if (track_nr == 0) {
+				warningstream << "Tried to change animation of mesh " << m_prop.mesh
+					<< ", but mesh has no predefined animations" << std::endl;
+			} else {
+				// 1-indexed track number for consistency with Lua API
+				warningstream << "Track number " << (track_nr + 1) << " out of bounds for mesh "
+					<< m_prop.mesh << " (max: " << max_track_nr << ")" << std::endl;
+			}
+		}
 		return std::nullopt;
 	}
 
@@ -1545,15 +1552,18 @@ std::optional<u16> GenericCAO::resolveTrackId(const scene::TrackId &track_id)
 
 void GenericCAO::applyTrackAnimation(scene::TrackId &&track_id, scene::TrackAnimSpec anim)
 {
-	auto *track_name = std::get_if<std::string>(&track_id);
-	if (track_name && !m_smgr) {
+	if (!m_smgr) {
 		// Not added to scene yet, mesh has not been resolved.
-		// Defer resolving the track name to after the scene node has been set up.
-		deferred_set_animation_cmds.emplace_back(std::move(*track_name), anim);
+		// Defer resolving the track id to after the scene node has been set up.
+		deferred_set_animation_cmds.emplace_back(std::move(track_id), anim);
 		return;
 	}
 
-	const auto track_nr = resolveTrackId(track_id);
+	// HACK pre-5.17.0 servers send such animations unconditionally for objects at init,
+	// including static objects
+	const bool lax = anim.min_frame == 0.0f && anim.max_frame == 0.0f &&
+			track_id == scene::TrackId((u16) 0);
+	const auto track_nr = resolveTrackId(track_id, lax);
 	if (!track_nr)
 		return;
 
@@ -1741,6 +1751,7 @@ void GenericCAO::processMessage(const std::string &data)
 		// Also clamps cur_frame & max_frame to the track max frame number in the mesh
 		applyTrackAnimation(std::move(track_id), anim);
 	} else if (cmd == AO_CMD_SET_ANIMATION_SPEED) {
+		// Note: Init message list never contains this command, so it need not apply to deferred animations
 		f32 new_fps = readF32(is);
 		scene::TrackId track_id = (u16) 0;
 		if (canRead(is)) {

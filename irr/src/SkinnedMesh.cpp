@@ -83,7 +83,7 @@ std::vector<VariantTransform> SkinnedMesh::animateMesh(
 		const std::vector<AnimationProgress> &progresses,
 		const std::vector<std::optional<core::Transform>> &old_transforms) const
 {
-	assert(HasAnimation);
+	assert(IsAnimatable);
 
 	std::vector<bool> animated_joints(AllJoints.size(), false);
 	std::vector<VariantTransform> result(AllJoints.size());
@@ -177,7 +177,7 @@ void SkinnedMesh::rigidAnimation(const std::vector<core::matrix4> &global_matric
 
 void SkinnedMesh::skinMesh(const std::vector<core::matrix4> &global_matrices)
 {
-	if (!HasAnimation)
+	if (!IsAnimatable)
 		return;
 
 	// Premultiply with global inversed matrices, if present
@@ -301,8 +301,8 @@ void SkinnedMesh::prepareForSkinning()
 {
 	HasWeights = checkForWeights();
 	// Meshes with weights are animatable (e.g. with bone overrides)
-	HasAnimation = HasWeights || checkForKeys();
-	if (!HasAnimation || PreparedForSkinning)
+	IsAnimatable = HasWeights || checkForKeys();
+	if (!IsAnimatable || PreparedForSkinning)
 		return;
 
 	PreparedForSkinning = true;

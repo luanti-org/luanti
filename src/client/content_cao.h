@@ -134,7 +134,7 @@ private:
 	/// See also LocalPlayerAnimation (player.h), LocalPlayer::last_animation (localplayer.h).
 	bool m_local_player_animation = false;
 	/// Deferred set animation commands, to be run once the scene node exists
-	std::vector<std::pair<std::string, scene::TrackAnimSpec>> deferred_set_animation_cmds;
+	std::vector<std::pair<scene::TrackId, scene::TrackAnimSpec>> deferred_set_animation_cmds;
 
 	void applyTrackAnimation(scene::TrackId &&track_id, scene::TrackAnimSpec anim);
 
@@ -298,8 +298,8 @@ public:
 	void updateAnimation(u16 track_nr);
 	void setLocalPlayerAnimation(LocalPlayerAnimation local_anim, float speed);
 
-	/// @note logs a warning for invalid IDs
-	std::optional<u16> resolveTrackId(const scene::TrackId &id);
+	/// @param lax if false, logs a warning for invalid IDs
+	std::optional<u16> resolveTrackId(const scene::TrackId &id, bool lax = false);
 
 	void processMessage(const std::string &data) override;
 
