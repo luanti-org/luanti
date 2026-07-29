@@ -12,7 +12,6 @@
 #include "clientmap.h"
 #include "clientmedia.h"
 #include "client/mesh_generator_thread.h"
-#include "client/mesh.h"
 #include "client/particles.h"
 #include "client/renderingengine.h"
 #include "client/sound.h"
@@ -70,7 +69,6 @@
 #include <IFileSystem.h>
 #include <IReadFile.h>
 #include <IMeshCache.h>
-#include <SMesh.h>
 #include <json/json.h>
 
 #include <iostream>
