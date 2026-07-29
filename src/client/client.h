@@ -379,12 +379,9 @@ public:
 	bool checkLocalPrivilege(const std::string &priv)
 	{ return checkPrivilege(priv); }
 
-	// Gets an unique copy of a named mesh
-	// (returned pointer must be dropped)
-	scene::IAnimatedMesh *getMeshCopy(const std::string &filename);
 	// Gets a pointer to a named mesh
-	// You may need to clone it before modifying (-> `is_shared`)
-	// (returned pointer must be dropped)
+	// If you want to modify it, you may need to clone it first (-> `is_shared`)
+	// (the returned pointer must be dropped)
 	scene::IAnimatedMesh *getMesh(const std::string &filename, bool *is_shared = nullptr);
 
 	ModVFS *getModVFS() { return m_mod_vfs.get(); }

@@ -123,13 +123,6 @@ static void enrich_exception(BaseException &e, const NetworkPacket &pkt, bool in
 	e.append(" @").append(oss.str());
 }
 
-static bool isMeshStatic(const scene::IAnimatedMesh *mesh)
-{
-	if (!mesh)
-		return false;
-	return mesh->getTrackCount() == 0;
-}
-
 /*
 	Client
 */
@@ -2055,26 +2048,23 @@ ParticleManager* Client::getParticleManager()
 
 scene::IAnimatedMesh *Client::getMesh(const std::string &filename, bool *is_shared)
 {
-	const auto &set_shared = [=] (bool v) {
-		if (is_shared)
-			*is_shared = v;
-	};
-
 	auto it = m_mesh_data.find(filename);
 	if (it == m_mesh_data.end())
 		return nullptr;
-	const std::string &data = it->second;
+
+	if (is_shared)
+		*is_shared = true; // this is currently always the case
 
 	// Try getting it from cache explicitly
 	auto *sm = m_rendering_engine->get_scene_manager();
 	auto *mesh = sm->getMeshCache()->getMeshByName(filename.c_str());
 	if (mesh) {
-		set_shared(true);
 		mesh->grab();
 		return mesh;
 	}
 
 	// Load the mesh from file data
+	const std::string &data = it->second;
 	io::IReadFile *rfile = m_rendering_engine->get_filesystem()->createMemoryReadFile(
 			data.c_str(), data.size(), filename.c_str());
 	FATAL_ERROR_IF(!rfile, "Could not create/open RAM file");
@@ -2084,28 +2074,6 @@ scene::IAnimatedMesh *Client::getMesh(const std::string &filename, bool *is_shar
 	if (!mesh)
 		return nullptr;
 	mesh->grab();
-	// We can (currently) only clone static meshes, so only cache those
-	if (isMeshStatic(mesh)) {
-		set_shared(true);
-	} else {
-		sm->getMeshCache()->removeMesh(mesh);
-		set_shared(false);
-	}
-
-	return mesh;
-}
-
-scene::IAnimatedMesh *Client::getMeshCopy(const std::string &filename)
-{
-	bool is_shared;
-	auto *mesh = getMesh(filename, &is_shared);
-	if (mesh && is_shared) {
-		assert(isMeshStatic(mesh));
-		auto *ret = cloneStaticMesh(mesh);
-		assert(ret);
-		mesh->drop();
-		return ret;
-	}
 	return mesh;
 }
 
