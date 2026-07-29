@@ -750,7 +750,7 @@ static void push_tile_animation_params(lua_State *L, const TileAnimationParams &
 }
 
 /******************************************************************************/
-void push_tile_definition(lua_State *L, const TileDef &def)
+void push_tiledef(lua_State *L, const TileDef &def)
 {
 	if (def.name.empty()) {
 		lua_pushnil(L);
@@ -1132,7 +1132,7 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 	const auto push_tiles = [&](const char *name, const TileDef *tiledefs, size_t count) {
 		lua_createtable(L, count, 0);
 		for (size_t i = 0; i < count; i++) {
-			push_tile_definition(L, tiledefs[i]);
+			push_tiledef(L, tiledefs[i]);
 			lua_rawseti(L, -2, i + 1);
 		}
 		lua_setfield(L, -2, name);

@@ -895,9 +895,9 @@ It can be created via `Raycast(pos1, pos2, objects, liquids)` or
     paramtype2 = string,            -- ParamType2 of the node
     drawtype = string,              -- Drawtype of the node
     mesh = <string>,                -- Mesh name if existent
-    tiles = {tile definition, ...},         -- 6 base tiles
-    overlay_tiles = {tile definition, ...}, -- 6 overlay tiles, drawn over the base tiles
-    special_tiles = {tile definition, ...}, -- Special tiles, amount varies by drawtype
+    tiles = {tile definition, ...},         -- 6 base tiles, entries may be nil
+    overlay_tiles = {tile definition, ...}, -- 6 overlay tiles, drawn over the base tiles, entries may be nil
+    special_tiles = {tile definition, ...}, -- Special tiles, amount varies by drawtype, entries may be nil
     minimap_color = <Color>,        -- Color of node on minimap *May not exist*
     visual_scale = number,          -- Visual scale of node
     alpha = number,                 -- Raw AlphaMode enum ordinal (0=blend, 1=clip, 2=opaque)
@@ -988,7 +988,7 @@ It can be created via `Raycast(pos1, pos2, objects, liquids)` or
     color = Color,                  -- Color for item
     wield_scale = Vector,           -- Wieldmesh scale
     stack_max = number,             -- Number of items stackable together
-    range = number,                 -- Range of node/object pointing that overrides the default
+    range = number,                 -- Range of node/object pointing
     usable = bool,                  -- Has on_use callback defined
     liquids_pointable = bool,       -- Whether you can point at liquids with the item
     tool_capabilities = <table>,    -- If the item is a tool, tool capabilities of the item

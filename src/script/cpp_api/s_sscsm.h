@@ -9,7 +9,7 @@
 class ScriptApiSSCSM : virtual public ScriptApiBase
 {
 public:
-	void add_itemdefs();
+	void after_content_received();
 
 	void load_mods(const std::vector<std::pair<std::string, std::string>> &mods);
 

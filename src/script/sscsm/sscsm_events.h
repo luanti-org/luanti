@@ -28,11 +28,11 @@ struct SSCSMEventUpdateVFSFiles : public ISSCSMEvent
 	}
 };
 
-struct SSCSMEventAddItemdefs : public ISSCSMEvent
+struct SSCSMEventAfterContentReceived : public ISSCSMEvent
 {
 	void exec(SSCSMEnvironment *env) override
 	{
-		env->getScript()->add_itemdefs();
+		env->getScript()->after_content_received();
 	}
 };
 

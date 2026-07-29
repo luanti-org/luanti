@@ -1921,7 +1921,7 @@ void Client::afterContentReceived()
 	// Must run before fillNodeVisuals(), which sets ContentFeatures::visuals
 	// and may resolve drawtypes based on this client's local render settings.
 	if (sscsm_enabled)
-		m_sscsm_controller->runEvent(this, std::make_unique<SSCSMEventAddItemdefs>());
+		m_sscsm_controller->runEvent(this, std::make_unique<SSCSMEventAfterContentReceived>());
 
 	// Update node textures and assign shaders to each tile
 	infostream<<"- Updating node textures"<<std::endl;
