@@ -1915,16 +1915,16 @@ void Client::afterContentReceived()
 	m_nodedef->setNodeRegistrationStatus(true);
 	m_nodedef->runNodeResolveCallbacks();
 
-	// Must run before fillNodeVisuals(), which sets ContentFeatures::visuals
-	// and may resolve drawtypes based on this client's local render settings.
-	m_sscsm_controller->runEvent(this, std::make_unique<SSCSMEventAfterContentReceived>());
-
 	// Update node textures and assign shaders to each tile
 	infostream<<"- Updating node textures"<<std::endl;
 	TextureUpdateArgs tu_args;
 	tu_args.last_time_ms = porting::getTimeMs();
 	tu_args.text_base = wstrgettext("Initializing nodes");
 	NodeVisuals::fillNodeVisuals(m_nodedef, this, &tu_args);
+
+	// Runs after fillNodeVisuals(), which is where ContentFeatures::visuals and thus
+	// minimap_color, and palette - the two values we care for in SSCSM, get populated
+	m_sscsm_controller->runEvent(this, std::make_unique<SSCSMEventAfterContentReceived>());
 
 	// Start mesh update thread after setting up content definitions
 	infostream<<"- Starting mesh update thread"<<std::endl;

@@ -79,16 +79,8 @@ void ScriptApiSSCSM::after_content_received()
 		}
 		int idx_existing = lua_gettop(L);
 
-		push_content_features(L, node_def.cf);
+		push_content_features_sscsm(L, node_def);
 		int idx_extra = lua_gettop(L);
-		if (node_def.had_visuals) {
-			push_ARGB8(L, node_def.minimap_color);
-			lua_setfield(L, idx_extra, "minimap_color");
-			if (!node_def.cf.palette_name.empty()) {
-				push_palette(L, &node_def.palette);
-				lua_setfield(L, idx_extra, "palette");
-			}
-		}
 
 		// merge node-only fields into the existing item def table
 		lua_pushnil(L);
