@@ -415,7 +415,7 @@ void Minimap::blitMinimapPixelsToImageSurface(
 		} else if (overlay.name.empty() && tile.has_color) {
 			tilecolor = tile.color;
 		} else {
-			f.visuals->getColor(mmpixel->n.param2, &tilecolor);
+			f.visuals->getColor(&f, mmpixel->n.param2, &tilecolor);
 		}
 		// Multiply with pre-generated "color of texture"
 		video::SColor &minimap_color = f.visuals->minimap_color;

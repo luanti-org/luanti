@@ -340,7 +340,7 @@ void getNodeTileN(MapNode mn, const v3s16 &p, u8 tileindex, MeshMakeData *data, 
 		if (layer.empty())
 			continue;
 		if (!layer.has_color)
-			f.visuals->getColor(mn.param2, &(layer.color));
+			f.visuals->getColor(&f, mn.param2, &(layer.color));
 		// Apply temporary crack
 		if (has_crack)
 			layer.material_flags |= MATERIAL_FLAG_CRACK;

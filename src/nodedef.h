@@ -350,9 +350,6 @@ struct ContentFeatures
 	// The Client class fills this for its NodeDefManager using fillNodeVisuals,
 	// thus for ContentFeatures of a Client it is not a nullptr.
 	std::unique_ptr<NodeVisuals> visuals;
-
-	// Default initializes them.
-	void createVisuals();
 #endif
 
 	// --- LIGHTING-RELATED ---

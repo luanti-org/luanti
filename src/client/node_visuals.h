@@ -36,10 +36,11 @@ struct NodeVisuals
 	// alpha stays in ContentFeatures due to compatibility code that is necessary,
 	// because it was part of the node definition table in the past.
 
+	NodeVisuals() = default;
 	~NodeVisuals();
 
 	// Get color from palette or content features
-	void getColor(u8 param2, video::SColor *color) const;
+	void getColor(const ContentFeatures *f, u8 param2, video::SColor *color) const;
 
 	/*!
 	 * Creates NodeVisuals for every content feature in the passed NodeDefManager.
@@ -53,27 +54,19 @@ struct NodeVisuals
 	static void fillNodeVisuals(NodeDefManager *ndef, Client *client,
 			void *progress_callback_args);
 
-	/*!
-	 * Creates default constructed NodeVisuals for a single content feature object.
-	 * @param features the content will be coupled together
-	 */
-	static void create(ContentFeatures *features);
-
 	DISABLE_CLASS_COPY(NodeVisuals);
 
 private:
-	NodeVisuals(ContentFeatures *features) : f{features} {}
-
-	ContentFeatures *f = nullptr;
-
 	// Functions needed for initialisation
-	void preUpdateTextures(ITextureSource *tsrc,
+	void preUpdateTextures(const ContentFeatures *f, ITextureSource *tsrc,
 			std::unordered_set<std::string> &pool, const TextureSettings &tsettings);
 	// May override the alpha and drawtype of the content features
-	void updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc, Client *client,
+	void updateTextures(ContentFeatures *f, ITextureSource *tsrc,
+			IShaderSource *shdsrc,Client *client,
 			PreLoadedTextures *texture_pool, const TextureSettings &tsettings);
-	void updateMesh(Client *client, const TextureSettings &tsettings);
-	void collectMaterials(std::vector<u32> &leaves_materials);
+	void updateMesh(const ContentFeatures *f, Client *client,
+			const TextureSettings &tsettings);
+	void collectMaterials(const ContentFeatures *f, std::vector<u32> &leaves_materials);
 };
 
 /**

@@ -312,13 +312,6 @@ ContentFeatures::ContentFeatures()
 // Defined here, since NodeVisuals is not a complete type in the header
 ContentFeatures::~ContentFeatures() = default;
 
-#if CHECK_CLIENT_BUILD()
-void ContentFeatures::createVisuals()
-{
-	NodeVisuals::create(this);
-}
-#endif
-
 void ContentFeatures::reset()
 {
 	/*

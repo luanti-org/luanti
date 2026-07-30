@@ -217,7 +217,7 @@ NodeVisuals::~NodeVisuals()
 		mesh_ptr->drop();
 }
 
-void NodeVisuals::preUpdateTextures(ITextureSource *tsrc,
+void NodeVisuals::preUpdateTextures(const ContentFeatures *f, ITextureSource *tsrc,
 		std::unordered_set<std::string> &pool, const TextureSettings &tsettings)
 {
 	// Find out the exact texture strings this node might use, and put them into the pool
@@ -258,7 +258,8 @@ void NodeVisuals::preUpdateTextures(ITextureSource *tsrc,
 	}
 }
 
-void NodeVisuals::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc, Client *client,
+void NodeVisuals::updateTextures(ContentFeatures *f, ITextureSource *tsrc,
+		IShaderSource *shdsrc, Client *client,
 		PreLoadedTextures *texture_pool, const TextureSettings &tsettings)
 {
 	// Things needed form ContentFeatures
@@ -487,7 +488,8 @@ void NodeVisuals::updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc, Cl
 		palette = tsrc->getPalette(palette_name);
 }
 
-void NodeVisuals::updateMesh(Client *client, const TextureSettings &tsettings)
+void NodeVisuals::updateMesh(const ContentFeatures *f, Client *client,
+		const TextureSettings &tsettings)
 {
 	auto *manip = client->getSceneManager()->getMeshManipulator();
 	(void)tsettings;
@@ -538,7 +540,7 @@ void NodeVisuals::updateMesh(Client *client, const TextureSettings &tsettings)
 	}
 }
 
-void NodeVisuals::collectMaterials(std::vector<u32> &leaves_materials)
+void NodeVisuals::collectMaterials(const ContentFeatures *f, std::vector<u32> &leaves_materials)
 {
 	if (f->drawtype == NDT_AIRLIKE)
 		return;
@@ -552,7 +554,7 @@ void NodeVisuals::collectMaterials(std::vector<u32> &leaves_materials)
 	}
 }
 
-void NodeVisuals::getColor(u8 param2, video::SColor *color) const
+void NodeVisuals::getColor(const ContentFeatures *f, u8 param2, video::SColor *color) const
 {
 	if (palette) {
 		*color = (*palette)[param2];
@@ -576,8 +578,8 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, Client *client, void *pr
 	/* collect all textures we might use */
 	std::unordered_set<std::string> pool;
 	ndef->applyFunction([&](ContentFeatures &f) {
-		f.createVisuals();
-		f.visuals->preUpdateTextures(tsrc, pool, tsettings);
+		f.visuals = std::make_unique<NodeVisuals>();
+		f.visuals->preUpdateTextures(&f, tsrc, pool, tsettings);
 	});
 
 	/* texture pre-loading stage */
@@ -639,9 +641,9 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, Client *client, void *pr
 	u32 progress = 0;
 	ndef->applyFunction([&](ContentFeatures &f) {
 		auto &v = f.visuals;
-		v->updateTextures(tsrc, shdsrc, client, &plt, tsettings);
-		v->updateMesh(client, tsettings);
-		v->collectMaterials(ndef->m_leaves_materials);
+		v->updateTextures(&f, tsrc, shdsrc, client, &plt, tsettings);
+		v->updateMesh(&f, client, tsettings);
+		v->collectMaterials(&f, ndef->m_leaves_materials);
 
 		client->showUpdateProgressTexture(progress_callback_args,
 				0.66666f + 0.33333f * progress / size);
@@ -655,8 +657,3 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, Client *client, void *pr
 	plt.printStats(infostream);
 	tsrc->setImageCaching(false);
 }
-
-void NodeVisuals::create(ContentFeatures *features)
-{
-	features->visuals = std::unique_ptr<NodeVisuals>(new NodeVisuals(features));
-};

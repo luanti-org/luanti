@@ -108,7 +108,7 @@ void MapblockMeshGenerator::getSpecialTile(int index, TileSpec *tile_ret, bool a
 			continue;
 		top_layer = layer;
 		if (!layer->has_color)
-			f.visuals->getColor(cur_node.n.param2, &layer->color);
+			f.visuals->getColor(&f, cur_node.n.param2, &layer->color);
 	}
 
 	if (apply_crack)

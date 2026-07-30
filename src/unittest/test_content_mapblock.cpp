@@ -41,7 +41,7 @@ public:
 		// Need to fill node visuals for predefined nodes
 		node_mgr()->applyFunction([] (ContentFeatures &f) {
 			if (!f.visuals)
-				f.createVisuals();
+				f.visuals = std::make_unique<NodeVisuals>();
 		});
 	}
 
@@ -67,7 +67,7 @@ public:
 		itemdef.description = name;
 
 		ContentFeatures f;
-		f.createVisuals();
+		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_NORMAL;
 		f.visuals->solidness = 2;
@@ -88,7 +88,7 @@ public:
 		itemdef.description = name;
 
 		ContentFeatures f;
-		f.createVisuals();
+		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_LIQUID;
 		f.visuals->solidness = 1;
@@ -116,7 +116,7 @@ public:
 		itemdef.description = name;
 
 		ContentFeatures f;
-		f.createVisuals();
+		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_FLOWINGLIQUID;
 		f.visuals->solidness = 0;
