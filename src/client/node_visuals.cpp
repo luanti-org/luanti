@@ -576,8 +576,7 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, Client *client, void *pr
 	/* collect all textures we might use */
 	std::unordered_set<std::string> pool;
 	ndef->applyFunction([&](ContentFeatures &f) {
-		assert(!f.visuals);
-		f.visuals = new NodeVisuals(&f);
+		f.createVisuals();
 		f.visuals->preUpdateTextures(tsrc, pool, tsettings);
 	});
 
@@ -639,7 +638,7 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, Client *client, void *pr
 	/* final step */
 	u32 progress = 0;
 	ndef->applyFunction([&](ContentFeatures &f) {
-		auto *v = f.visuals;
+		auto &v = f.visuals;
 		v->updateTextures(tsrc, shdsrc, client, &plt, tsettings);
 		v->updateMesh(client, tsettings);
 		v->collectMaterials(ndef->m_leaves_materials);
@@ -656,3 +655,8 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, Client *client, void *pr
 	plt.printStats(infostream);
 	tsrc->setImageCaching(false);
 }
+
+void NodeVisuals::create(ContentFeatures *features)
+{
+	features->visuals = std::unique_ptr<NodeVisuals>(new NodeVisuals(features));
+};

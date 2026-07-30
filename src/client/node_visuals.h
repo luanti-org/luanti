@@ -35,6 +35,7 @@ struct NodeVisuals
 
 	// alpha stays in ContentFeatures due to compatibility code that is necessary,
 	// because it was part of the node definition table in the past.
+
 	~NodeVisuals();
 
 	// Get color from palette or content features
@@ -52,11 +53,16 @@ struct NodeVisuals
 	static void fillNodeVisuals(NodeDefManager *ndef, Client *client,
 			void *progress_callback_args);
 
+	/*!
+	 * Creates default constructed NodeVisuals for a single content feature object.
+	 * @param features the content will be coupled together
+	 */
+	static void create(ContentFeatures *features);
+
 	DISABLE_CLASS_COPY(NodeVisuals);
 
 private:
 	NodeVisuals(ContentFeatures *features) : f{features} {}
-	friend class DummyGameDef; // Unittests need constructor
 
 	ContentFeatures *f = nullptr;
 

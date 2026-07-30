@@ -615,13 +615,13 @@ int ModApiItem::l_register_item_raw(lua_State *L)
 		if (f.name.empty())
 			throw LuaError("Cannot register node with empty name");
 
-		content_t id = ndef->set(f.name, f);
+		content_t id = ndef->set(f.name, std::move(f));
 
 		// CONTENT_IGNORE is returned if we're somehow already at the hard limit
 		if (id == CONTENT_IGNORE || id >= MAX_REGISTERED_CONTENT) {
 			throw LuaError("Number of registerable nodes (about "
 					+ itos(MAX_REGISTERED_CONTENT)
-					+ ") exceeded: " + f.name);
+					+ ") exceeded: " + name);
 		}
 	}
 
