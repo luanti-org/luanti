@@ -19,5 +19,8 @@ struct ModVFS
 
 	const std::string *getModFile(std::string filename);
 
+	void scanSSCSMClientBuiltin(const std::string &builtin_path);
+
+	// virtual path -> file content
 	std::unordered_map<std::string, std::string> m_vfs;
 };
