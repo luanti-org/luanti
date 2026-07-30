@@ -729,6 +729,7 @@ std::string MakePathRelativeTo(const std::string &child, const std::string &pare
 	auto p_child_abs = std::filesystem::path(child_abs, std::filesystem::path::format::native_format);
 	auto p_parent_abs = std::filesystem::path(parent_abs, std::filesystem::path::format::native_format);
 
+	// this removes trailing "/"s
 	auto p_rel = p_child_abs.lexically_relative(p_parent_abs);
 
 	return p_rel.string();
@@ -846,28 +847,6 @@ std::string AbsolutePath(const std::string &path)
 
 std::string AbsolutePathPartial(const std::string &path)
 {
-	/*
-	if (path.empty())
-		return "";
-
-	auto p_path = std::filesystem::path(path, std::filesystem::path::format::native_format);
-
-	std::error_code ec;
-
-	if (p_path.is_relative()) {
-		p_path = "." / p_path;
-	}
-
-	p_path = std::filesystem::weakly_canonical(p_path, ec);
-	if (ec) {
-		return ""; // error
-	}
-	p_path /= "a";
-	p_path = p_path.lexically_normal();
-
-	return p_path.string();
-	*/
-
 	if (path.empty())
 		return "";
 	// Try to determine absolute path
