@@ -316,8 +316,8 @@ local function create_world_formspec(dialogdata)
 
 		-- Menu buttons
 		"container[0,6.9]"..
-		"button[3.25,0;3,0.5;world_create_confirm;" .. fgettext("Create") .. "]" ..
-		"button[6.25,0;3,0.5;world_create_cancel;" .. fgettext("Cancel") .. "]" ..
+		"button[3.25,0;3,0.5;world_create_cancel;" .. fgettext("Cancel") .. "]" ..
+		"button[6.25,0;3,0.5;world_create_confirm;" .. fgettext("Create") .. "]" ..
 		"container_end[]"
 
 	return retval

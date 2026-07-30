@@ -7,8 +7,8 @@
 local function delete_content_formspec(dialogdata)
 	return confirmation_formspec(
 		fgettext("Are you sure you want to delete \"$1\"?", dialogdata.content.name),
-		'dlg_delete_content_confirm', fgettext("Delete"),
-		'dlg_delete_content_cancel', fgettext("Cancel"))
+		'dlg_delete_content_cancel', fgettext("Cancel"),
+		'dlg_delete_content_confirm', fgettext("Delete"))
 end
 
 --------------------------------------------------------------------------------
