@@ -40,7 +40,7 @@ struct NodeVisuals
 	~NodeVisuals();
 
 	// Get color from palette or content features
-	void getColor(const ContentFeatures *f, u8 param2, video::SColor *color) const;
+	video::SColor getColor(const ContentFeatures &f, u8 param2) const;
 
 	/*!
 	 * Creates NodeVisuals for every content feature in the passed NodeDefManager.
@@ -57,16 +57,19 @@ struct NodeVisuals
 	DISABLE_CLASS_COPY(NodeVisuals);
 
 private:
+
 	// Functions needed for initialisation
-	void preUpdateTextures(const ContentFeatures *f, ITextureSource *tsrc,
+	void preUpdateTextures(const ContentFeatures &f, ITextureSource *tsrc,
 			std::unordered_set<std::string> &pool, const TextureSettings &tsettings);
+
 	// May override the alpha and drawtype of the content features
-	void updateTextures(ContentFeatures *f, ITextureSource *tsrc,
-			IShaderSource *shdsrc,Client *client,
-			PreLoadedTextures *texture_pool, const TextureSettings &tsettings);
-	void updateMesh(const ContentFeatures *f, Client *client,
+	void updateTextures(ContentFeatures &f, ITextureSource *tsrc,
+			IShaderSource *shdsrc, Client *client, PreLoadedTextures *texture_pool,
 			const TextureSettings &tsettings);
-	void collectMaterials(const ContentFeatures *f, std::vector<u32> &leaves_materials);
+
+	void updateMesh(const std::string &mesh, float visual_scale, Client *client,
+			const TextureSettings &tsettings);
+	void collectMaterials(std::vector<u32> &leaves_materials);
 };
 
 /**

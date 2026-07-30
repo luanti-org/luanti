@@ -217,7 +217,7 @@ NodeVisuals::~NodeVisuals()
 		mesh_ptr->drop();
 }
 
-void NodeVisuals::preUpdateTextures(const ContentFeatures *f, ITextureSource *tsrc,
+void NodeVisuals::preUpdateTextures(const ContentFeatures &f, ITextureSource *tsrc,
 		std::unordered_set<std::string> &pool, const TextureSettings &tsettings)
 {
 	// Find out the exact texture strings this node might use, and put them into the pool
@@ -229,7 +229,7 @@ void NodeVisuals::preUpdateTextures(const ContentFeatures *f, ITextureSource *ts
 	std::string append_overlay = append, append_special = append;
 	bool use = true, use_overlay = true, use_special = true;
 
-	if (f->drawtype == NDT_ALLFACES_OPTIONAL) {
+	if (f.drawtype == NDT_ALLFACES_OPTIONAL) {
 		use_special = (tsettings.leaves_style == LEAVES_SIMPLE);
 		use = !use_special;
 		if (tsettings.leaves_style == LEAVES_OPAQUE)
@@ -246,32 +246,32 @@ void NodeVisuals::preUpdateTextures(const ContentFeatures *f, ITextureSource *ts
 
 	for (u32 j = 0; j < 6; j++) {
 		if (use)
-			consider_tile(f->tiledef[j], append);
+			consider_tile(f.tiledef[j], append);
 	}
 	for (u32 j = 0; j < 6; j++) {
 		if (use_overlay)
-			consider_tile(f->tiledef_overlay[j], append_overlay);
+			consider_tile(f.tiledef_overlay[j], append_overlay);
 	}
 	for (u32 j = 0; j < CF_SPECIAL_COUNT; j++) {
 		if (use_special)
-			consider_tile(f->tiledef_special[j], append_special);
+			consider_tile(f.tiledef_special[j], append_special);
 	}
 }
 
-void NodeVisuals::updateTextures(ContentFeatures *f, ITextureSource *tsrc,
-		IShaderSource *shdsrc, Client *client,
-		PreLoadedTextures *texture_pool, const TextureSettings &tsettings)
+void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
+		IShaderSource *shdsrc, Client *client, PreLoadedTextures *texture_pool,
+		const TextureSettings &tsettings)
 {
 	// Things needed form ContentFeatures
-	auto &alpha = f->alpha;
-	auto &drawtype = f->drawtype;
-	const auto &tiledef = f->tiledef;
-	const auto &tiledef_overlay = f->tiledef_overlay;
-	const auto &tiledef_special = f->tiledef_special;
-	const auto &waving = f->waving;
-	const auto &color = f->color;
-	const auto &param_type_2 = f->param_type_2;
-	const auto &palette_name = f->palette_name;
+	auto &alpha = f.alpha;
+	auto &drawtype = f.drawtype;
+	const auto &tiledef = f.tiledef;
+	const auto &tiledef_overlay = f.tiledef_overlay;
+	const auto &tiledef_special = f.tiledef_special;
+	const auto &waving = f.waving;
+	const auto &color = f.color;
+	const auto &param_type_2 = f.param_type_2;
+	const auto &palette_name = f.palette_name;
 
 	// Figure out the actual tiles to use
 	TileDef tdef[6];
@@ -488,14 +488,13 @@ void NodeVisuals::updateTextures(ContentFeatures *f, ITextureSource *tsrc,
 		palette = tsrc->getPalette(palette_name);
 }
 
-void NodeVisuals::updateMesh(const ContentFeatures *f, Client *client,
-		const TextureSettings &tsettings)
+void NodeVisuals::updateMesh(const std::string &mesh, float visual_scale,
+		Client *client, const TextureSettings &tsettings)
 {
 	auto *manip = client->getSceneManager()->getMeshManipulator();
 	(void)tsettings;
 
-	const auto &mesh = f->mesh;
-	if (f->drawtype != NDT_MESH || mesh.empty())
+	if (mesh.empty())
 		return;
 
 	bool need_copy;
@@ -526,7 +525,7 @@ void NodeVisuals::updateMesh(const ContentFeatures *f, Client *client,
 		}
 		src_mesh = nullptr;
 
-		scaleMesh(mesh_ptr, v3f((apply_bs ? BS : 1.0f) * f->visual_scale));
+		scaleMesh(mesh_ptr, v3f((apply_bs ? BS : 1.0f) * visual_scale));
 		recalculateBoundingBox(mesh_ptr);
 		if (!checkMeshNormals(mesh_ptr)) {
 			// TODO this should be done consistently when the mesh is loaded
@@ -540,11 +539,8 @@ void NodeVisuals::updateMesh(const ContentFeatures *f, Client *client,
 	}
 }
 
-void NodeVisuals::collectMaterials(const ContentFeatures *f, std::vector<u32> &leaves_materials)
+void NodeVisuals::collectMaterials(std::vector<u32> &leaves_materials)
 {
-	if (f->drawtype == NDT_AIRLIKE)
-		return;
-
 	for (u16 j = 0; j < 6; j++) {
 		auto &l = tiles[j].layers;
 		if (!l[0].empty() && l[0].material_type == TILE_MATERIAL_WAVING_LEAVES)
@@ -554,13 +550,12 @@ void NodeVisuals::collectMaterials(const ContentFeatures *f, std::vector<u32> &l
 	}
 }
 
-void NodeVisuals::getColor(const ContentFeatures *f, u8 param2, video::SColor *color) const
+video::SColor NodeVisuals::getColor(const ContentFeatures &f, u8 param2) const
 {
 	if (palette) {
-		*color = (*palette)[param2];
-		return;
+		return (*palette)[param2];
 	}
-	*color = f->color;
+	return f.color;
 }
 
 void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, Client *client, void *progress_callback_args)
@@ -579,7 +574,7 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, Client *client, void *pr
 	std::unordered_set<std::string> pool;
 	ndef->applyFunction([&](ContentFeatures &f) {
 		f.visuals = std::make_unique<NodeVisuals>();
-		f.visuals->preUpdateTextures(&f, tsrc, pool, tsettings);
+		f.visuals->preUpdateTextures(f, tsrc, pool, tsettings);
 	});
 
 	/* texture pre-loading stage */
@@ -641,9 +636,13 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, Client *client, void *pr
 	u32 progress = 0;
 	ndef->applyFunction([&](ContentFeatures &f) {
 		auto &v = f.visuals;
-		v->updateTextures(&f, tsrc, shdsrc, client, &plt, tsettings);
-		v->updateMesh(&f, client, tsettings);
-		v->collectMaterials(&f, ndef->m_leaves_materials);
+		v->updateTextures(f, tsrc, shdsrc, client, &plt, tsettings);
+
+		if (f.drawtype == NDT_MESH)
+			v->updateMesh(f.mesh, f.visual_scale, client, tsettings);
+
+		if (f.drawtype != NDT_AIRLIKE)
+			v->collectMaterials(ndef->m_leaves_materials);
 
 		client->showUpdateProgressTexture(progress_callback_args,
 				0.66666f + 0.33333f * progress / size);

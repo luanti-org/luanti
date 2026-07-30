@@ -908,7 +908,7 @@ bool ParticleManager::getNodeParticleParams(Client *client, const MapNode &n,
 	if (tile.has_color)
 		*color = tile.color;
 	else
-		f.visuals->getColor(&f, n.param2, color);
+		*color = f.visuals->getColor(f, n.param2);
 
 	return true;
 }
