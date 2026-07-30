@@ -204,8 +204,8 @@ void TestFileSys::testMakePathRelativeTo()
 	UASSERTEQ(auto, rel("d1/", "d1"), p("."));
 	UASSERTEQ(auto, rel("d1", "d1/."), p("."));
 	UASSERTEQ(auto, rel("d1/./d2", "d1/."), p("d2"));
-	UASSERTEQ(auto, rel("d1/..", "d1"), "..");
-	UASSERTEQ(auto, rel("d1/../d12", "d1"), "../d12");
+	UASSERTEQ(auto, rel("d1/..", "d1"), p(".."));
+	UASSERTEQ(auto, rel("d1/../d12", "d1"), p("../d12"));
 	UASSERTEQ(auto, rel("d1/../d1/d2/", "d1"), p("d2"));
 }
 
