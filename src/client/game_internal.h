@@ -337,9 +337,6 @@ private:
 	Minimap *mapper = nullptr;
 	GameFormSpec m_game_formspec;
 
-	// Map server hud ids to client hud ids
-	std::unordered_map<u32, u32> m_hud_server_to_client;
-
 	GameRunData runData;
 	Flags m_flags;
 

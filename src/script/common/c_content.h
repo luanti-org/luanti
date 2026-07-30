@@ -166,11 +166,19 @@ void push_pointed_thing(lua_State *L, const PointedThing &pointed, bool csm =
 
 void push_objectRef(lua_State *L, const u16 id);
 
-void read_hud_element(lua_State *L, HudElement *elem);
+void read_hud_element(lua_State *L, HudElement *elem, int table_idx = 2);
 
 void push_hud_element(lua_State *L, HudElement *elem);
 
-bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value);
+bool read_hud_change(lua_State *L, HudElementStat &stat, HudElement *elem, void **value,
+		int stat_idx = 3, int data_idx = 4);
+
+// Parses the stat name at stat_idx into a HudElementStat (part 1 of read_hud_change).
+bool read_hud_stat_name(lua_State *L, HudElementStat &stat, int stat_idx);
+
+// Reads the value at data_idx for the given stat, without writing it into an elem.
+HudElementStatValue read_hud_stat_value(lua_State *L, HudElementStat stat,
+		const std::string &statstr, HudElementType type, int data_idx);
 
 void push_collision_move_result(lua_State *L, const CollisionMoveResult &res);
 
