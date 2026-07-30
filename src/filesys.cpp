@@ -724,7 +724,7 @@ std::string MakePathRelativeTo(const std::string &child, const std::string &pare
 
 	std::error_code ec;
 	auto p_rel = std::filesystem::relative(p_child, p_parent, ec);
-	if (ec) {
+	if (ec || p_rel.empty()) {
 		return ""; // error
 	}
 
