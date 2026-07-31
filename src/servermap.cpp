@@ -706,18 +706,7 @@ bool ServerMap::saveBlock(MapBlock *block, MapDatabase *db, int compression_leve
 	return ret;
 }
 
-void ServerMap::deSerializeBlock(MapBlock *block, std::istream &is)
-{
-	ScopeProfiler sp(g_profiler, "ServerMap: deSer block", SPT_AVG, PRECISION_MICRO);
-
-	u8 version = readU8(is);
-	if (is.fail())
-		throw SerializationError("Failed to read MapBlock version");
-
-	block->deSerialize(is, version, true);
-}
-
-MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_after_load)
+MapBlock *ServerMap::loadBlock(std::istream &is, v3s16 p3d, bool save_after_load, u8 version)
 {
 	ScopeProfiler sp(g_profiler, "ServerMap: load block", SPT_AVG, PRECISION_MICRO);
 	MapBlock *block = nullptr;
@@ -735,8 +724,20 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 		}
 
 		{
-			std::istringstream iss(blob, std::ios_base::binary);
-			deSerializeBlock(block, iss);
+			if (version == 0)
+				version = readU8(is);
+			if (is.fail())
+				throw SerializationError("Failed to read MapBlock version");
+
+			{
+			ScopeProfiler sp(g_profiler, "ServerMap: deSer block", SPT_AVG, PRECISION_MICRO);
+
+			if (version >= 29) {
+				block->deSerializeUncompressed(is, version, true);
+			}
+			else
+				block->deSerialize(is, version, true);
+			}
 		}
 
 		// If it's a new block, insert it to the map
@@ -796,8 +797,11 @@ MapBlock* ServerMap::loadBlock(v3s16 blockpos)
 		m_db.loadBlock(blockpos, data);
 	}
 
-	if (!data.empty())
-		return loadBlock(data, blockpos);
+	if (!data.empty()) {
+		std::stringstream iss(data, std::ios_base::binary);
+		return loadBlock(iss, blockpos);
+
+	}
 	return getBlockNoCreateNoEx(blockpos);
 }
 

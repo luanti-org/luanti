@@ -76,7 +76,7 @@ private:
 	 * @return what to do for this block
 	 */
 	EmergeAction getBlockOrStartGen(v3s16 pos, bool allow_gen,
-		const std::string *from_db,  MapBlock **block, BlockMakeData *data);
+               std::istream *from_db,  MapBlock **block, BlockMakeData *data, u8 version);
 
 	MapBlock *finishGen(v3s16 pos, BlockMakeData *bmdata,
 		std::map<v3s16, MapBlock *> *modified_blocks);
