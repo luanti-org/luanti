@@ -1374,7 +1374,11 @@ static bool recompress_map_database(const GameParams &game_params, const Setting
 
 		{
 			MapBlock mb(v3s16(0,0,0), &server);
-			ServerMap::deSerializeBlock(&mb, iss);
+			u8 version = readU8(iss);
+			if (iss.fail())
+				throw SerializationError("Failed to read MapBlock version");
+
+			mb.deSerialize(iss, version, true);
 
 			oss.str("");
 			oss.clear();

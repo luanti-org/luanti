@@ -122,11 +122,7 @@ public:
 	MapBlock *loadBlock(v3s16 p);
 	/// Load a block that was already read from disk. Used by EmergeManager.
 	/// @return non-null block (but can be blank)
-	MapBlock *loadBlock(const std::string &blob, v3s16 p, bool save_after_load=false);
-
-	// Helper for deserializing blocks from disk
-	// @throws SerializationError
-	static void deSerializeBlock(MapBlock *block, std::istream &is);
+	MapBlock *loadBlock(std::istream &iss, v3s16 p, bool save_after_load=false, u8 version=0);
 
 	// Blocks are removed from the map but not deleted from memory until
 	// deleteDetachedBlocks() is called, since pointers to them may still exist

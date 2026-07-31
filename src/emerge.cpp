@@ -26,6 +26,8 @@
 #include "scripting_emerge.h"
 #include "script/common/c_types.h" // LuaError
 #include "server.h"
+#include "serialization.h"
+#include "util/serialize.h"
 #include "settings.h"
 #include "voxel.h"
 
@@ -543,7 +545,7 @@ bool EmergeThread::popBlockEmerge(v3s16 *pos, BlockEmergeData *bedata)
 
 
 EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
-	 const std::string *from_db, MapBlock **block, BlockMakeData *bmdata)
+        std::istream *from_db, MapBlock **block, BlockMakeData *bmdata, u8 version)
 {
 	//TimeTaker tt("", nullptr, PRECISION_MICRO);
 	Server::EnvAutoLock envlock(m_server);
@@ -569,11 +571,9 @@ EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
 			return EMERGE_FROM_DISK;
 		}
 		// 2). Second invocation, we have the data
-		if (!from_db->empty()) {
-			*block = m_map->loadBlock(*from_db, pos);
-			if (block_ok(*block))
-				return EMERGE_FROM_DISK;
-		}
+		*block = m_map->loadBlock(*from_db, pos, false, version);
+		if (block_ok(*block))
+			return EMERGE_FROM_DISK;
 	}
 
 	// 3). Attempt to start generation
@@ -708,7 +708,7 @@ void *EmergeThread::run()
 		bool allow_gen = bedata.flags & BLOCK_EMERGE_ALLOW_GEN;
 		EMERGE_DBG_OUT("pos=" << pos << " allow_gen=" << allow_gen);
 
-		action = getBlockOrStartGen(pos, allow_gen, nullptr, &block, &bmdata);
+		action = getBlockOrStartGen(pos, allow_gen, nullptr, &block, &bmdata, 0);
 
 		/* Try to load it */
 		if (action == EMERGE_FROM_DISK) {
@@ -720,8 +720,24 @@ void *EmergeThread::run()
 				// a good, safe way to handle it.
 				m_db.loadBlock(pos, databuf);
 			}
+
+			// decompress if possible, then
 			// actually load it, then decide again
-			action = getBlockOrStartGen(pos, allow_gen, &databuf, &block, &bmdata);
+			std::istringstream is(databuf, std::ios_base::binary);
+			u8 version = readU8(is);
+			if (is.good() && version >= 29) {
+				std::stringstream in_raw(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
+				{
+				ScopeProfiler sp(g_profiler, "EmergeThread: deCompress block", SPT_AVG, PRECISION_MICRO);
+				decompress(is, in_raw, version);
+				}
+				action = getBlockOrStartGen(pos, allow_gen, &in_raw, &block, &bmdata, version);
+			} else {
+				// unread the version
+				is.seekg(0);
+				action = getBlockOrStartGen(pos, allow_gen, &is, &block, &bmdata, 0);
+			}
+
 			databuf.clear();
 		}
 
