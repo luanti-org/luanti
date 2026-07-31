@@ -26,7 +26,6 @@ class TestSchematic;
 #endif
 #if CHECK_CLIENT_BUILD()
 struct NodeVisuals;
-struct ContentFeaturesSSCSM;
 #endif
 
 enum ContentParamType : u8
@@ -489,30 +488,11 @@ struct ContentFeatures
 		return itemgroup_get(groups, group);
 	}
 
-#if CHECK_CLIENT_BUILD()
-	// Copies everything except visuals, which is GPU/mesh state that isn't
-	// safe to copy. Named explicitly since it's not a full copy.
-	ContentFeaturesSSCSM copyWithoutVisuals() const;
-#endif
-
 private:
 	void setAlphaFromLegacy(u8 legacy_alpha);
 
 	u8 getAlphaForLegacy() const;
 };
-
-#if CHECK_CLIENT_BUILD()
-// Result of ContentFeatures::copyWithoutVisuals(). cf.visuals is always
-// nullptr; minimap_color/palette are carried alongside instead.
-struct ContentFeaturesSSCSM
-{
-	ContentFeatures cf;
-	// Whether cf.visuals was set at copy time; if false, ignore the fields below.
-	bool had_visuals = false;
-	video::SColor minimap_color;
-	std::vector<video::SColor> palette;
-};
-#endif
 
 /*!
  * @brief This class is for getting the actual properties of nodes from their

@@ -1252,25 +1252,6 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 	lua_setfield(L, -2, "liquid_move_physics");
 }
 
-#if CHECK_CLIENT_BUILD()
-/******************************************************************************/
-void push_content_features_sscsm(lua_State *L, const ContentFeaturesSSCSM &c)
-{
-	push_content_features(L, c.cf);
-	// c.cf.visuals is always nullptr, see ContentFeaturesSSCSM
-	// push minimap_color and palette from the fields instead
-	int idx = lua_gettop(L);
-	if (c.had_visuals) {
-		push_ARGB8(L, c.minimap_color);
-		lua_setfield(L, idx, "minimap_color");
-		if (!c.cf.palette_name.empty()) {
-			push_palette(L, &c.palette);
-			lua_setfield(L, idx, "palette");
-		}
-	}
-}
-#endif
-
 /******************************************************************************/
 void push_nodebox(lua_State *L, const NodeBox &box)
 {

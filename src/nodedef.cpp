@@ -316,24 +316,6 @@ ContentFeatures::~ContentFeatures()
 #endif
 }
 
-#if CHECK_CLIENT_BUILD()
-ContentFeaturesSSCSM ContentFeatures::copyWithoutVisuals() const
-{
-	ContentFeaturesSSCSM result;
-	result.cf = *this;
-	// Null this out before anything else runs, so the shallow copy
-	// above never gets a chance to double-delete visuals.
-	result.cf.visuals = nullptr;
-	result.had_visuals = visuals != nullptr;
-	if (visuals) {
-		result.minimap_color = visuals->minimap_color;
-		if (visuals->palette)
-			result.palette = *visuals->palette;
-	}
-	return result;
-}
-#endif
-
 void ContentFeatures::reset()
 {
 	/*

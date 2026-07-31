@@ -36,9 +36,6 @@ class ServerActiveObject;
 
 struct CollisionMoveResult;
 struct ContentFeatures;
-#if CHECK_CLIENT_BUILD()
-struct ContentFeaturesSSCSM;
-#endif
 struct DigParams;
 struct EnumString;
 struct FlagDesc;
@@ -70,9 +67,6 @@ extern const std::array<const char *, 36> object_property_keys;
 
 void read_content_features(lua_State *L, ContentFeatures &f, int index);
 void push_content_features(lua_State *L, const ContentFeatures &c);
-#if CHECK_CLIENT_BUILD()
-void push_content_features_sscsm(lua_State *L, const ContentFeaturesSSCSM &c);
-#endif
 
 void push_nodebox(lua_State *L, const NodeBox &box);
 void push_palette(lua_State *L, const std::vector<video::SColor> *palette);

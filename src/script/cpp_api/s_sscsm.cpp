@@ -68,8 +68,8 @@ void ScriptApiSSCSM::after_content_received()
 		lua_pop(L, 2); // def, name
 	}
 
-	for (const ContentFeaturesSSCSM &node_def : answer.nodes) {
-		lua_pushstring(L, node_def.cf.name.c_str());
+	for (const ContentFeatures *f : answer.nodes) {
+		lua_pushstring(L, f->name.c_str());
 		lua_gettable(L, idx_registered_nodes);
 		if (lua_isnil(L, -1)) {
 			// registered as a node but not as an item (e.g. CONTENT_UNKNOWN);
@@ -79,7 +79,7 @@ void ScriptApiSSCSM::after_content_received()
 		}
 		int idx_existing = lua_gettop(L);
 
-		push_content_features_sscsm(L, node_def);
+		push_content_features(L, *f);
 		int idx_extra = lua_gettop(L);
 
 		// merge node-only fields into the existing item def table
