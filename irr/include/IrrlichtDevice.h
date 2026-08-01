@@ -171,6 +171,13 @@ public:
 	/** \return True if window is minimized. */
 	virtual bool isWindowMinimized() const = 0;
 
+	//! Allows or prevents the OS screen saver from starting
+	/** By default the screen saver is prevented from starting while the
+	device exists. Pass true to allow it to start again (e.g. while the
+	window is minimized), and false to prevent it (e.g. once the window
+	is restored). */
+	virtual void setScreenSaverEnabled(bool enabled) = 0;
+
 	//! Checks if the Irrlicht window is maximized
 	//! Only fully works on SDL. Returns false, or the last value set via
 	//! maximizeWindow() and restoreWindow(), on other backends.

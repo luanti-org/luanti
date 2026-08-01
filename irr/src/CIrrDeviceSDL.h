@@ -66,6 +66,9 @@ public:
 	//! returns if window is minimized.
 	bool isWindowMinimized() const override;
 
+	//! allows or prevents the OS screen saver from starting
+	void setScreenSaverEnabled(bool enabled) override;
+
 	//! notifies the device that it should close itself
 	void closeDevice() override;
 

@@ -1490,6 +1490,15 @@ bool CIrrDeviceSDL::isWindowMinimized() const
 	return Window && (SDL_GetWindowFlags(Window) & SDL_WINDOW_MINIMIZED) != 0;
 }
 
+//! allows or prevents the OS screen saver from starting
+void CIrrDeviceSDL::setScreenSaverEnabled(bool enabled)
+{
+	if (enabled)
+		SDL_EnableScreenSaver();
+	else
+		SDL_DisableScreenSaver();
+}
+
 bool CIrrDeviceSDL::showErrorMessageBox(SDL_Window *window, const char *title, const char *message)
 {
 	auto ret = SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, message, window);

@@ -596,6 +596,14 @@ void Game::run()
 		if (m_does_lost_focus_pause_game && !device->isWindowFocused() && !isMenuActive()) {
 			m_game_formspec.showPauseMenu();
 		}
+
+		// Allow the screen saver to start while minimized, and suppress it
+		// again once the window is restored.
+		const bool is_minimized = device->isWindowMinimized();
+		if (is_minimized != m_was_minimized) {
+			device->setScreenSaverEnabled(is_minimized);
+			m_was_minimized = is_minimized;
+		}
 	}
 
 	framemarker.end();
