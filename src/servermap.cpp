@@ -794,7 +794,7 @@ MapBlock* ServerMap::loadBlock(v3s16 blockpos)
 	}
 
 	if (!data.empty()) {
-		std::stringstream iss(data, std::ios_base::binary);
+		std::istringstream iss(data, std::ios_base::binary);
 		return loadBlock(iss, blockpos);
 
 	}
