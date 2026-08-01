@@ -723,21 +723,17 @@ MapBlock *ServerMap::loadBlock(std::istream &is, v3s16 p3d, bool save_after_load
 			block = block_created_new.get();
 		}
 
-		{
+		if (version >= 29) {
+			ScopeProfiler sp(g_profiler, "ServerMap: deSer block unComp", SPT_AVG, PRECISION_MICRO);
+			block->deSerializeUncompressed(is, version, true);
+		} else {
 			if (version == 0)
 				version = readU8(is);
 			if (is.fail())
 				throw SerializationError("Failed to read MapBlock version");
 
-			{
 			ScopeProfiler sp(g_profiler, "ServerMap: deSer block", SPT_AVG, PRECISION_MICRO);
-
-			if (version >= 29) {
-				block->deSerializeUncompressed(is, version, true);
-			}
-			else
-				block->deSerialize(is, version, true);
-			}
+			block->deSerialize(is, version, true);
 		}
 
 		// If it's a new block, insert it to the map
