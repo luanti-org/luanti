@@ -5,10 +5,11 @@
 #include "CZipReader.h"
 
 #include "os.h"
-
 #include "CFileList.h"
 #include "CReadFile.h"
 #include "coreutil.h"
+
+#include <string>
 
 #include <zlib.h> // use system lib
 
@@ -150,14 +151,11 @@ bool CZipReader::scanZipHeader(bool ignoreGPBits)
 
 	// read filename
 	{
-		const u16 len = entry.header.FilenameLength;
-		c8 *tmp = new c8[((u32) len) + 2];
-		const bool ok = try_read(File, tmp, len);
-		tmp[len] = 0;
-		ZipFileName = tmp;
-		delete[] tmp;
-		if (!ok)
+		std::string tmp;
+		tmp.resize(entry.header.FilenameLength);
+		if (!try_read(File, tmp.data(), tmp.size()))
 			return false;
+		ZipFileName = std::move(tmp);
 	}
 
 	if (entry.header.ExtraFieldLength)
