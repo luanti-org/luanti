@@ -545,8 +545,29 @@ bool EmergeThread::popBlockEmerge(v3s16 *pos, BlockEmergeData *bedata)
 
 
 EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
-        std::istream *from_db, MapBlock **block, BlockMakeData *bmdata, u8 version)
+	 const std::string *from_db, MapBlock **block, BlockMakeData *bmdata)
 {
+	// attempt to uncompress the block data without holding the lock
+	std::unique_ptr<std::istream> is_ptr;
+	u8 version = 0;
+	if (from_db && !from_db->empty()) {
+		is_ptr = std::make_unique<std::istringstream>(*from_db, std::ios_base::binary);
+		version = readU8(*is_ptr);
+		if (is_ptr->good() && version >= 29) {
+			// we can uncompress right here
+			ScopeProfiler sp(g_profiler, "EmergeThread: deCompress block", SPT_AVG, PRECISION_MICRO);
+			auto in_raw = std::make_unique<std::stringstream>(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
+			decompress(*is_ptr, *in_raw, version);
+			is_ptr = std::move(in_raw);
+		}
+		else
+		{
+			// reset the stream
+			is_ptr->seekg(0);
+			version = 0;
+		}
+	}
+
 	//TimeTaker tt("", nullptr, PRECISION_MICRO);
 	Server::EnvAutoLock envlock(m_server);
 	//g_profiler->avg("EmergeThread: lock wait time [us]", tt.stop());
@@ -571,9 +592,11 @@ EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
 			return EMERGE_FROM_DISK;
 		}
 		// 2). Second invocation, we have the data
-		*block = m_map->loadBlock(*from_db, pos, false, version);
-		if (block_ok(*block))
-			return EMERGE_FROM_DISK;
+		if (!from_db->empty()) {
+			*block = m_map->loadBlock(*is_ptr.get(), pos, false, version);
+			if (block_ok(*block))
+				return EMERGE_FROM_DISK;
+		}
 	}
 
 	// 3). Attempt to start generation
@@ -708,7 +731,7 @@ void *EmergeThread::run()
 		bool allow_gen = bedata.flags & BLOCK_EMERGE_ALLOW_GEN;
 		EMERGE_DBG_OUT("pos=" << pos << " allow_gen=" << allow_gen);
 
-		action = getBlockOrStartGen(pos, allow_gen, nullptr, &block, &bmdata, 0);
+		action = getBlockOrStartGen(pos, allow_gen, nullptr, &block, &bmdata);
 
 		/* Try to load it */
 		if (action == EMERGE_FROM_DISK) {
@@ -720,24 +743,8 @@ void *EmergeThread::run()
 				// a good, safe way to handle it.
 				m_db.loadBlock(pos, databuf);
 			}
-
-			// decompress if possible, then
 			// actually load it, then decide again
-			std::istringstream is(databuf, std::ios_base::binary);
-			u8 version = readU8(is);
-			if (is.good() && version >= 29) {
-				std::stringstream in_raw(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
-				{
-				ScopeProfiler sp(g_profiler, "EmergeThread: deCompress block", SPT_AVG, PRECISION_MICRO);
-				decompress(is, in_raw, version);
-				}
-				action = getBlockOrStartGen(pos, allow_gen, &in_raw, &block, &bmdata, version);
-			} else {
-				// unread the version
-				is.seekg(0);
-				action = getBlockOrStartGen(pos, allow_gen, &is, &block, &bmdata, 0);
-			}
-
+			action = getBlockOrStartGen(pos, allow_gen, &databuf, &block, &bmdata);
 			databuf.clear();
 		}
 
