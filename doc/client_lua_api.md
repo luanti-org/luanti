@@ -903,8 +903,8 @@ It can be created via `Raycast(pos1, pos2, objects, liquids)` or
     alpha = number,                 -- Raw AlphaMode enum ordinal (0=blend, 1=clip, 2=opaque)
     use_texture_alpha = string,     -- "blend", "clip" or "opaque"
     color = <Color>,                -- Color of node *May not exist*
-    palette_name = <string>,        -- Filename of palette *May not exist*
-    palette = <{                    -- List of colors
+    palette = <string>,             -- Filename of palette *May not exist*
+    palette_colors = <{             -- List of colors or nil if not available
         Color,
         Color
     }>,

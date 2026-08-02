@@ -1158,12 +1158,12 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 		lua_setfield(L, -2, "color");
 
 		lua_pushstring(L, c.palette_name.c_str());
-		lua_setfield(L, -2, "palette_name");
+		lua_setfield(L, -2, "palette");
 
 #if CHECK_CLIENT_BUILD()
 		if (c.visuals) {
 			push_palette(L, c.visuals->palette);
-			lua_setfield(L, -2, "palette");
+			lua_setfield(L, -2, "palette_colors");
 		}
 #endif
 	}
