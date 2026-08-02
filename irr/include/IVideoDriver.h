@@ -502,9 +502,8 @@ public:
 	\param iType Index type, e.g. video::EIT_16BIT for 16bit indices. */
 	virtual void draw2DVertexPrimitiveList(const void *vertices, u32 vertexCount,
 			const void *indexList, u32 primCount,
-			E_VERTEX_TYPE vType = EVT_STANDARD,
-			scene::E_PRIMITIVE_TYPE pType = scene::EPT_TRIANGLES,
-			E_INDEX_TYPE iType = EIT_16BIT) = 0;
+			E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType,
+			const core::rect<s32> *clipRect = nullptr) = 0;
 
 	//! Draws an indexed triangle list.
 	/** Note that there may be at maximum 65536 vertices, because
