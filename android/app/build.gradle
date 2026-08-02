@@ -59,16 +59,18 @@ def localeFolder = layout.buildDirectory.dir("locale").get().asFile
 tasks.register("compileTranslations") {
 	def projRoot = rootDir.parent
 	// See issue #4638
-	def unsupportedLanguages = new File("${projRoot}/src/unsupported_language_list.txt").text.readLines()
+	def unsupportedLanguages = file("${projRoot}/src/unsupported_language_list.txt").text.readLines()
 
 	// FIXME: gradle 9 has removed `project.exec` so this will need to work differently.
-	fileTree("${projRoot}/po").include("**/*.po").grep {
-		it.parentFile.name !in unsupportedLanguages
-	}.forEach { poFile ->
-		def moPath = "${localeFolder}/${poFile.parentFile.name}/LC_MESSAGES/"
-		file(moPath).mkdirs()
-		project.exec {
-			commandLine 'msgfmt', '-o', "${moPath}/luanti.mo", poFile
+	doLast {
+		fileTree("${projRoot}/po").include("**/*.po").grep {
+			it.parentFile.name !in unsupportedLanguages
+		}.forEach { poFile ->
+			def moPath = "${localeFolder}/${poFile.parentFile.name}/LC_MESSAGES/"
+			file(moPath).mkdirs()
+			project.exec {
+				commandLine 'msgfmt', '-o', "${moPath}/luanti.mo", poFile
+			}
 		}
 	}
 }
