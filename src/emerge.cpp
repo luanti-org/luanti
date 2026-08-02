@@ -553,15 +553,16 @@ EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
 	if (from_db && !from_db->empty()) {
 		is_ptr = std::make_unique<std::istringstream>(*from_db, std::ios_base::binary);
 		version = readU8(*is_ptr);
+		if (!ser_ver_supported_read(version))
+			throw VersionMismatchException("ERROR: MapBlock format not supported");
 		if (is_ptr->good() && version >= 29) {
 			// we can uncompress right here
 			ScopeProfiler sp(g_profiler, "EmergeThread: deCompress block", SPT_AVG, PRECISION_MICRO);
 			auto in_raw = std::make_unique<std::stringstream>(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
 			decompress(*is_ptr, *in_raw, version);
+			// use the decompressed stream
 			is_ptr = std::move(in_raw);
-		}
-		else
-		{
+		} else {
 			// reset the stream
 			is_ptr->seekg(0);
 			version = 0;

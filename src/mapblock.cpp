@@ -501,6 +501,11 @@ void MapBlock::serializeNetworkSpecific(std::ostream &os)
 
 void MapBlock::deSerialize(std::istream &in_compressed, u8 version, bool disk)
 {
+	if (!ser_ver_supported_read(version))
+		throw VersionMismatchException("ERROR: MapBlock format not supported");
+
+	TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()<<std::endl);
+
 	if(version < 29)
 	{
 		deSerialize_pre29(in_compressed, version, disk);
@@ -626,11 +631,6 @@ u32 MapBlock::clearObjects()
 
 void MapBlock::deSerialize_pre29(std::istream &is, u8 version, bool disk)
 {
-	if (!ser_ver_supported_read(version))
-		throw VersionMismatchException("ERROR: MapBlock format not supported");
-
-	TRACESTREAM(<<"MapBlock::deSerialize "<<getPos()<<std::endl);
-
 	m_is_air_expired = true;
 	expandNodesIfNeeded();
 
