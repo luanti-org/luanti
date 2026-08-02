@@ -5,7 +5,7 @@ android {
 	defaultConfig {
 		applicationId 'net.minetest.minetest'
 		minSdkVersion 21
-		compileSdk 34
+		compileSdk = 34
 		targetSdkVersion 35
 		versionName "${versionMajor}.${versionMinor}.${versionPatch}"
 		versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
@@ -55,8 +55,8 @@ android {
 	namespace 'net.minetest.minetest'
 }
 
-task prepareAssets() {
-	def assetsFolder = "build/assets"
+def assetsFolder = "build/assets"
+tasks.register('prepareAssets') {
 	def projRoot = rootDir.parent
 
 	// See issue #4638
@@ -89,31 +89,36 @@ task prepareAssets() {
 		}
 
 		// compile translations
+		// FIXME: gradle 9 has removed `project.exec` so this will need to work differently.
+		// our best bet is to let cmake do it (like on other platforms), but there is no way we can
+		// reach into the build folder from here and pull the files.
+		// so it will need to be a -DMO_OUTPUT_PATH=... option passed to cmake.
 		fileTree("${projRoot}/po").include("**/*.po").grep {
 			it.parentFile.name !in unsupportedLanguages
 		}.forEach { poFile ->
 			def moPath = "${assetsFolder}/locale/${poFile.parentFile.name}/LC_MESSAGES/"
 			file(moPath).mkdirs()
-			exec {
+			project.exec {
 				commandLine 'msgfmt', '-o', "${moPath}/luanti.mo", poFile
 			}
 		}
 
 		file("${assetsFolder}/.nomedia").text = ""
 	}
-
-	task zipAssets(dependsOn: prepareAssets, type: Zip) {
-		archiveFileName = "assets.zip"
-		from assetsFolder
-		destinationDirectory = file("src/main/assets")
-	}
 }
 
-preBuild.dependsOn zipAssets
-prepareAssets.dependsOn ':native:getDeps'
+tasks.register("zipAssets", Zip) {
+	dependsOn tasks.named("prepareAssets")
+
+	archiveFileName = "assets.zip"
+	from assetsFolder
+	destinationDirectory = file("src/main/assets")
+}
+
+preBuild.dependsOn tasks.named("zipAssets")
 
 clean {
-	delete new File("src/main/assets", "assets.zip")
+	delete file("src/main/assets/assets.zip")
 }
 
 dependencies {
