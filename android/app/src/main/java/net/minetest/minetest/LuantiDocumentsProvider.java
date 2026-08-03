@@ -8,6 +8,7 @@ import android.database.MatrixCursor;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsProvider;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -33,8 +34,13 @@ public class LuantiDocumentsProvider extends DocumentsProvider {
 	@Override
 	public boolean onCreate()
 	{
-		dataDirectory = Utils.getUserDataDirectory(getContext()).getAbsolutePath();
-		return true;
+		try {
+			dataDirectory = Utils.getUserDataDirectory(getContext()).getCanonicalPath();
+		} catch (IOException e) {
+			Log.w("LuantiDocumentsProvider", e);
+			return false;
+		}
+		return new File(dataDirectory).isDirectory();
 	}
 
 	@Override
@@ -93,8 +99,8 @@ public class LuantiDocumentsProvider extends DocumentsProvider {
 		try {
 			relative = makeRelative(file);
 		} catch (IOException e) {
-			// document providers are not allowed to throw an IOException, so just bail out
-			return;
+			Log.w("LuantiDocumentsProvider", "can't make relative: " + file.getAbsolutePath(), e);
+			return; // document providers are not allowed to throw an IOException, so just bail out
 		}
 		row.add(Document.COLUMN_DOCUMENT_ID, relative);
 		row.add(Document.COLUMN_DISPLAY_NAME, file.getName());
