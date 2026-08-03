@@ -55,31 +55,35 @@ android {
 	namespace 'net.minetest.minetest'
 }
 
+// Register one task for each locale file
 def localeFolder = layout.buildDirectory.dir("locale").get().asFile
-tasks.register("compileTranslations") {
-	def projRoot = rootDir.parent
-	// See issue #4638
-	def unsupportedLanguages = file("${projRoot}/src/unsupported_language_list.txt").text.readLines()
+def projRoot = rootDir.parent
+def unsupportedLanguages = file("${projRoot}/src/unsupported_language_list.txt").readLines()
+def localeTasks = []
 
-	// FIXME: gradle 9 has removed `project.exec` so this will need to work differently.
-	doLast {
-		fileTree("${projRoot}/po").include("**/*.po").grep {
-			it.parentFile.name !in unsupportedLanguages
-		}.forEach { poFile ->
-			def moPath = "${localeFolder}/${poFile.parentFile.name}/LC_MESSAGES/"
-			file(moPath).mkdirs()
-			project.exec {
-				commandLine 'msgfmt', '-o', "${moPath}/luanti.mo", poFile
-			}
-		}
+fileTree("${projRoot}/po").include("**/*.po").grep {
+	it.parentFile.name !in unsupportedLanguages
+}.forEach { poFile ->
+	def lang = poFile.parentFile.name
+	def moPath = "${localeFolder}/${lang}/LC_MESSAGES/"
+
+	def task = tasks.register("compileTranslation[${lang}]", Exec) {
+		inputs.file(poFile)
+		outputs.file("${moPath}/luanti.mo")
+		doFirst { file(moPath).mkdirs() }
+		commandLine("msgfmt", "-o", "${moPath}/luanti.mo", poFile)
 	}
+	localeTasks << task
+}
+
+tasks.register("compileTranslations") {
+	dependsOn localeTasks
 }
 
 def assetsFolder = layout.buildDirectory.dir("assets").get().asFile
 tasks.register("prepareAssets") {
 	dependsOn tasks.named("compileTranslations")
 
-	def projRoot = rootDir.parent
 	doFirst {
 		logger.lifecycle('Preparing assets at {}', assetsFolder)
 	}
