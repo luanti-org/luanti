@@ -562,10 +562,6 @@ EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
 			decompress(*is_ptr, *in_raw, version);
 			// use the decompressed stream
 			is_ptr = std::move(in_raw);
-		} else {
-			// reset the stream
-			is_ptr->seekg(0);
-			version = 0;
 		}
 	}
 
