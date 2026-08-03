@@ -9,107 +9,147 @@ import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsProvider;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-
-import net.minetest.minetest.Utils;
-import net.minetest.minetest.R;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 public class LuantiDocumentsProvider extends DocumentsProvider {
-  private String externalAppDataDirectory;
+	private String dataDirectory;
 
-  private static final String[] DEFAULT_ROOT_PROJECTION = new String[] {Root.COLUMN_ROOT_ID, Root.COLUMN_MIME_TYPES, Root.COLUMN_FLAGS, Root.COLUMN_ICON, Root.COLUMN_TITLE, Root.COLUMN_DOCUMENT_ID};
+	private static final String[] DEFAULT_ROOT_PROJECTION = new String[] {
+		Root.COLUMN_ROOT_ID, Root.COLUMN_MIME_TYPES, Root.COLUMN_FLAGS, Root.COLUMN_ICON, Root.COLUMN_TITLE, Root.COLUMN_DOCUMENT_ID
+	};
 
-  private static final String[] DEFAULT_DOCUMENT_PROJECTION = new String[] {Document.COLUMN_DOCUMENT_ID, Document.COLUMN_DISPLAY_NAME, Document.COLUMN_MIME_TYPE, Document.COLUMN_LAST_MODIFIED, Document.COLUMN_FLAGS, Document.COLUMN_SIZE};
+	private static final String[] DEFAULT_DOCUMENT_PROJECTION = new String[] {
+		Document.COLUMN_DOCUMENT_ID, Document.COLUMN_DISPLAY_NAME, Document.COLUMN_MIME_TYPE, Document.COLUMN_LAST_MODIFIED, Document.COLUMN_FLAGS, Document.COLUMN_SIZE
+	};
 
-  @Override
-  public boolean onCreate() {
-	externalAppDataDirectory = Utils.getUserDataDirectory(getContext()).getAbsolutePath();
-    return true;
-  }
+	private static final String ROOT_ID = "1"; // no particular meaning, we only have one root
 
-  @Override
-  public Cursor queryRoots(String[] projection) throws FileNotFoundException {
-    final MatrixCursor result = new MatrixCursor(resolveRootProjection(projection));
-    final MatrixCursor.RowBuilder appDataRootRow = result.newRow();
+	private static final Pattern TEXT_FILE_REGEX = Pattern.compile("\\.(lua|txt|md|example|conf|po|tr|json|obj)$");
 
-    appDataRootRow.add(Root.COLUMN_ROOT_ID, externalAppDataDirectory);
-    appDataRootRow.add(Root.COLUMN_MIME_TYPES, "*/*");
-    appDataRootRow.add(Root.COLUMN_FLAGS, 0);
-    appDataRootRow.add(Root.COLUMN_ICON, R.mipmap.ic_launcher);
-    appDataRootRow.add(Root.COLUMN_TITLE, getContext().getString(R.string.label));
-    appDataRootRow.add(Root.COLUMN_DOCUMENT_ID, externalAppDataDirectory);
+	@Override
+	public boolean onCreate()
+	{
+		dataDirectory = Utils.getUserDataDirectory(getContext()).getAbsolutePath();
+		return true;
+	}
 
-    return result;
-  }
+	@Override
+	public Cursor queryRoots(String[] projection)
+	{
+		final MatrixCursor result = new MatrixCursor(resolveRootProjection(projection));
+		final MatrixCursor.RowBuilder row = result.newRow();
 
-  @Override
-  public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder) throws FileNotFoundException {
-    final MatrixCursor result = new MatrixCursor(resolveDocumentProjection(projection));
-    final File parent = new File(parentDocumentId);
-    for (File child : parent.listFiles()) {
-      final MatrixCursor.RowBuilder childDocumentRow = result.newRow();
+		row.add(Root.COLUMN_ROOT_ID, ROOT_ID);
+		row.add(Root.COLUMN_FLAGS, Root.FLAG_LOCAL_ONLY);
+		row.add(Root.COLUMN_ICON, R.mipmap.ic_launcher);
+		row.add(Root.COLUMN_TITLE, getContext().getString(R.string.label));
+		row.add(Root.COLUMN_DOCUMENT_ID, ".");
 
-      childDocumentRow.add(Document.COLUMN_DOCUMENT_ID, child.getAbsolutePath());
-      childDocumentRow.add(Document.COLUMN_DISPLAY_NAME, child.getName());
-      if (child.isDirectory()) {
-        childDocumentRow.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
-      } else {
-        childDocumentRow.add(Document.COLUMN_MIME_TYPE, "*/*");
-      }
-      childDocumentRow.add(Document.COLUMN_LAST_MODIFIED, child.lastModified());
-      childDocumentRow.add(Document.COLUMN_FLAGS, 0);
-      childDocumentRow.add(Document.COLUMN_SIZE, child.length());
-    }
-    return result;
-  }
+		return result;
+	}
 
-  @Override
-  public Cursor queryDocument(String documentId, String[] projection) throws FileNotFoundException {
-    final MatrixCursor result = new MatrixCursor(resolveDocumentProjection(projection));
-    final File document = new File(documentId);
+	/* the provider exposes relative paths, so we have these two helpers */
+	private String makeRelative(@NonNull File file)
+	{
+		final String base = dataDirectory;
+		String fileAbs = file.getAbsolutePath();
+		if (fileAbs.equals(base))
+			return ".";
+		if (fileAbs.length() <= base.length() || !fileAbs.startsWith(base + "/"))
+			throw new IllegalArgumentException("path is not relative to base");
+		return fileAbs.substring(base.length() + 1);
+	}
 
-    final MatrixCursor.RowBuilder documentRow = result.newRow();
+	private File fromRelative(@NonNull String s)
+	{
+		final String base = dataDirectory;
+		if (s.contains("../"))
+			throw new IllegalArgumentException("no parent folder allowed");
+		return new File(base + "/" + s);
+	}
 
-    documentRow.add(Document.COLUMN_DOCUMENT_ID, document.getAbsolutePath());
-    documentRow.add(Document.COLUMN_DISPLAY_NAME, document.getName());
-    if (document.isDirectory()) {
-      documentRow.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
-    } else {
-      documentRow.add(Document.COLUMN_MIME_TYPE, "*/*");
-    }
-    documentRow.add(Document.COLUMN_LAST_MODIFIED, document.lastModified());
-    documentRow.add(Document.COLUMN_FLAGS, 0);
-    documentRow.add(Document.COLUMN_SIZE, document.length());
+	private String guessMimeType(@NonNull String filename)
+	{
+		filename = filename.toLowerCase(Locale.ROOT);
+		// Perform some basic guessing. This might help other apps handle the files correctly.
+		if (TEXT_FILE_REGEX.matcher(filename).find() || filename.equals("world.mt"))
+			return "text/plain";
+		if (filename.endsWith(".png"))
+			return "image/png";
+		if (filename.endsWith(".jpg") || filename.endsWith(".jpeg"))
+			return "image/jpeg";
+		if (filename.endsWith(".ogg"))
+			return "audio/ogg";
+		return "application/octet-stream";
+	}
 
-    return result;
-  }
+	private void makeDocumentRow(@NonNull File file, @NonNull MatrixCursor.RowBuilder row)
+	{
+		final String relative = makeRelative(file);
+		row.add(Document.COLUMN_DOCUMENT_ID, relative);
+		row.add(Document.COLUMN_DISPLAY_NAME, file.getName());
+		if (file.isDirectory()) {
+			row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
+		} else {
+			row.add(Document.COLUMN_MIME_TYPE, guessMimeType(file.getName()));
+		}
+		row.add(Document.COLUMN_LAST_MODIFIED, file.lastModified());
+		row.add(Document.COLUMN_FLAGS, 0);
+		row.add(Document.COLUMN_SIZE, file.length());
+	}
 
-  @Override
-  public ParcelFileDescriptor openDocument(final String documentId, final String mode, CancellationSignal signal) throws UnsupportedOperationException, FileNotFoundException {
-    final File file = new File(documentId);
+	@Override
+	public Cursor queryChildDocuments(String parentDocumentId, String[] projection, String sortOrder)
+	{
+		final MatrixCursor result = new MatrixCursor(resolveDocumentProjection(projection));
+		final File parent = fromRelative(parentDocumentId);
+		final File[] files = parent.listFiles();
+		if (files == null)
+			return result;
+		for (File child : files) {
+			if (child.getName().equals(".nomedia"))
+				continue;
+			makeDocumentRow(child, result.newRow());
+		}
+		return result;
+	}
 
-    if (mode != "r") {
-      throw new UnsupportedOperationException("Only r mode (MODE_READ_ONLY) is supported");
-    }
+	@Override
+	public Cursor queryDocument(String documentId, String[] projection) throws FileNotFoundException
+	{
+		final MatrixCursor result = new MatrixCursor(resolveDocumentProjection(projection));
+		final File file = fromRelative(documentId);
+		if (!file.exists())
+			throw new FileNotFoundException("File not found");
+		makeDocumentRow(file, result.newRow());
+		return result;
+	}
 
-    return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
-  }
+	@Override
+	public ParcelFileDescriptor openDocument(final String documentId, final String mode, CancellationSignal signal)
+		throws UnsupportedOperationException, FileNotFoundException
+	{
+		if (!mode.equals("r"))
+			throw new UnsupportedOperationException("Only reading supported");
+		final File file = fromRelative(documentId);
+		if (!file.exists())
+			throw new FileNotFoundException("File not found");
+		return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+	}
 
-  // Helper methods
-  private static String[] resolveRootProjection(String[] projection) {
-    if (projection == null) {
-      return DEFAULT_ROOT_PROJECTION;
-    } else {
-      return projection;
-    }
-  }
+	// Helper methods
+	private static String[] resolveRootProjection(String[] projection)
+	{
+		return projection == null ? DEFAULT_ROOT_PROJECTION : projection;
+	}
 
-  private static String[] resolveDocumentProjection(String[] projection) {
-    if (projection == null) {
-      return DEFAULT_DOCUMENT_PROJECTION;
-    } else {
-      return projection;
-    }
-  }
+	private static String[] resolveDocumentProjection(String[] projection)
+	{
+		return projection == null ? DEFAULT_DOCUMENT_PROJECTION : projection;
+	}
 }

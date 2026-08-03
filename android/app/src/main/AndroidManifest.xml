@@ -50,6 +50,7 @@
 			android:enabled="true"
 			android:exported="false" />
 
+		<!-- FIXME: we can probably drop this and use the documents provider to share files -->
 		<provider
 			android:name="androidx.core.content.FileProvider"
 			android:authorities="net.minetest.minetest.fileprovider"
@@ -61,7 +62,7 @@
 		</provider>
 
 		<provider
-            android:name="net.minetest.minetest.LuantiDocumentsProvider"
+            android:name=".LuantiDocumentsProvider"
             android:authorities="net.minetest.minetest.documents"
             android:exported="true"
             android:grantUriPermissions="true"
