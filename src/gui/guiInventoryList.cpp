@@ -106,9 +106,9 @@ void GUIInventoryList::draw()
 		const auto min = rect.UpperLeftCorner;
 		const auto max = rect.LowerRightCorner;
 		vertices.emplace_back(min.X, min.Y - 1, 4, 0,0,0, color, 0,0);
-		vertices.emplace_back(max.X, min.Y - 1, 4, 0,0,0, color, 0,0);
-		vertices.emplace_back(max.X, max.Y - 0, 4, 0,0,0, color, 0,0);
-		vertices.emplace_back(min.X, max.Y - 0, 4, 0,0,0, color, 0,0);
+		vertices.emplace_back(max.X, min.Y - 1, 4, 0,0,0, color, 1,0);
+		vertices.emplace_back(max.X, max.Y - 0, 4, 0,0,0, color, 1,1);
+		vertices.emplace_back(min.X, max.Y - 0, 4, 0,0,0, color, 0,1);
 	};
 
 	const s32 list_size = (s32)ilist->getSize();
@@ -143,32 +143,19 @@ void GUIInventoryList::draw()
 		bool hovering = item_i == m_hovered_i;
 
 		if (m_options.slotbgimg_n != nullptr) {
-			video::ITexture *tex = hovering && m_options.slotbgimg_h
-					? m_options.slotbgimg_h
-					: m_options.slotbgimg_n;
+			if (hovering) {
+				// the hovered slot
+				video::ITexture *tex = m_options.slotbgimg_h
+						? m_options.slotbgimg_h
+						: m_options.slotbgimg_n;
 
-			if (tex) {
-				std::vector<video::S3DVertex> verts;
-				std::vector<u16> indices = {0, 1, 2, 0, 2, 3};
-
-				const auto min = rect_clip.UpperLeftCorner;
-				const auto max = rect_clip.LowerRightCorner;
-				video::SColor white(255, 255, 255, 255);
-
-				verts.emplace_back(min.X, min.Y, 4, 0,0,0, white, 0,0);
-				verts.emplace_back(max.X, min.Y, 4, 0,0,0, white, 1,0);
-				verts.emplace_back(max.X, max.Y, 4, 0,0,0, white, 1,1);
-				verts.emplace_back(min.X, max.Y, 4, 0,0,0, white, 0,1);
-
-				video::SMaterial mat = driver->getMaterial2D();
-				mat.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-				mat.setTexture(0, tex);
-				driver->setMaterial(mat);
-
-				driver->draw2DVertexPrimitiveList(
-					verts.data(), verts.size(),
-					indices.data(), indices.size() / 3,
-					video::EVT_STANDARD, scene::EPT_TRIANGLES, video::EIT_16BIT);
+				if (tex) {
+					core::rect<s32> src(0, 0, tex->getOriginalSize().Width, tex->getOriginalSize().Height);
+					driver->draw2DImage(tex, rect_clip, src, &AbsoluteClippingRect, nullptr, true);
+				}
+			} else {
+				// all other non-hovered slots
+				add_rectangle(true, video::SColor(255, 255, 255, 255), rect_clip);
 			}
 		} else {
 			add_rectangle(true, hovering ? m_options.slotbg_h : m_options.slotbg_n, rect_clip);
@@ -219,7 +206,15 @@ void GUIInventoryList::draw()
 	}
 
 	video::SMaterial mat = driver->getMaterial2D();
-	mat.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
+
+	if (m_options.slotbgimg_n) {
+		mat.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+		mat.setTexture(0, m_options.slotbgimg_n);
+	} else {
+		mat.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
+		mat.setTexture(0, nullptr);
+	}
+
 	driver->setMaterial(mat);
 
 	driver->draw2DVertexPrimitiveList(
@@ -227,6 +222,11 @@ void GUIInventoryList::draw()
 		indices_3.data(), indices_3.size() / 3,
 		video::EVT_STANDARD, scene::EPT_TRIANGLES, video::EIT_16BIT
 	);
+
+	mat.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
+	mat.setTexture(0, nullptr);
+	driver->setMaterial(mat);
+
 	driver->draw2DVertexPrimitiveList(
 		vertices.data(), vertices.size(),
 		indices_2.data(), indices_2.size() / 2,
