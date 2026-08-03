@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -26,8 +27,6 @@ public class LuantiDocumentsProvider extends DocumentsProvider {
 	private static final String[] DEFAULT_DOCUMENT_PROJECTION = new String[] {
 		Document.COLUMN_DOCUMENT_ID, Document.COLUMN_DISPLAY_NAME, Document.COLUMN_MIME_TYPE, Document.COLUMN_LAST_MODIFIED, Document.COLUMN_FLAGS, Document.COLUMN_SIZE
 	};
-
-	private static final String ROOT_ID = "1"; // no particular meaning, we only have one root
 
 	private static final Pattern TEXT_FILE_REGEX = Pattern.compile("\\.(lua|txt|md|example|conf|po|tr|json|obj)$");
 
@@ -44,7 +43,7 @@ public class LuantiDocumentsProvider extends DocumentsProvider {
 		final MatrixCursor result = new MatrixCursor(resolveRootProjection(projection));
 		final MatrixCursor.RowBuilder row = result.newRow();
 
-		row.add(Root.COLUMN_ROOT_ID, ROOT_ID);
+		row.add(Root.COLUMN_ROOT_ID, "1"); // no particular meaning, we only have one root
 		row.add(Root.COLUMN_FLAGS, Root.FLAG_LOCAL_ONLY);
 		row.add(Root.COLUMN_ICON, R.mipmap.ic_launcher);
 		row.add(Root.COLUMN_TITLE, getContext().getString(R.string.label));
@@ -54,10 +53,10 @@ public class LuantiDocumentsProvider extends DocumentsProvider {
 	}
 
 	/* the provider exposes relative paths, so we have these two helpers */
-	private String makeRelative(@NonNull File file)
+	private String makeRelative(@NonNull File file) throws IOException
 	{
 		final String base = dataDirectory;
-		String fileAbs = file.getAbsolutePath();
+		String fileAbs = file.getCanonicalPath();
 		if (fileAbs.equals(base))
 			return ".";
 		if (fileAbs.length() <= base.length() || !fileAbs.startsWith(base + "/"))
@@ -90,7 +89,13 @@ public class LuantiDocumentsProvider extends DocumentsProvider {
 
 	private void makeDocumentRow(@NonNull File file, @NonNull MatrixCursor.RowBuilder row)
 	{
-		final String relative = makeRelative(file);
+		final String relative;
+		try {
+			relative = makeRelative(file);
+		} catch (IOException e) {
+			// document providers are not allowed to throw an IOException, so just bail out
+			return;
+		}
 		row.add(Document.COLUMN_DOCUMENT_ID, relative);
 		row.add(Document.COLUMN_DISPLAY_NAME, file.getName());
 		if (file.isDirectory()) {
