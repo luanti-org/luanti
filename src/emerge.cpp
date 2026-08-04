@@ -547,23 +547,8 @@ bool EmergeThread::popBlockEmerge(v3s16 *pos, BlockEmergeData *bedata)
 EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
 	 const std::string *from_db, MapBlock **block, BlockMakeData *bmdata)
 {
-	// attempt to uncompress the block data without holding the lock
-	std::unique_ptr<std::istream> is_ptr;
-	u8 version = 0;
-	if (from_db && !from_db->empty()) {
-		is_ptr = std::make_unique<std::istringstream>(*from_db, std::ios_base::binary);
-		version = readU8(*is_ptr);
-		if (!ser_ver_supported_read(version))
-			throw VersionMismatchException("ERROR: MapBlock format not supported");
-		if (is_ptr->good() && version >= 29) {
-			// we can uncompress right here
-			ScopeProfiler sp(g_profiler, "EmergeThread: deCompress block", SPT_AVG, PRECISION_MICRO);
-			auto in_raw = std::make_unique<std::stringstream>(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
-			decompress(*is_ptr, *in_raw, version);
-			// use the decompressed stream
-			is_ptr = std::move(in_raw);
-		}
-	}
+	// create block stream without holding the lock
+	auto [is_ptr, version] = m_map->createBlockIStream(from_db);
 
 	//TimeTaker tt("", nullptr, PRECISION_MICRO);
 	Server::EnvAutoLock envlock(m_server);

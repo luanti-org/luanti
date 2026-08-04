@@ -118,6 +118,8 @@ public:
 	bool saveBlock(MapBlock *block) override;
 	static bool saveBlock(MapBlock *block, MapDatabase *db, int compression_level = -1);
 
+	std::pair<std::unique_ptr<std::istream>, u8> createBlockIStream(const std::string *from_db);
+
 	// Load block in a synchronous fashion
 	MapBlock *loadBlock(v3s16 p);
 	/// Load a block that was already read from disk. Used by EmergeManager.
