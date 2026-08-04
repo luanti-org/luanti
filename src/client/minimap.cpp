@@ -735,7 +735,8 @@ void MinimapMapblock::getMinimapNodes(VoxelManipulator *vmanip, const NodeDefMan
 
 		for (s16 y = MAP_BLOCKSIZE -1; y >= 0; y--) {
 			v3s16 p(x, y, z);
-			MapNode n = vmanip->getNodeNoEx(pos + p);
+			assert(vmanip->m_area.contains(pos + p));
+			MapNode n = vmanip->getNodeRefUnsafeCheckFlags(pos + p);
 			const ContentFeatures &f = nodedef->get(n);
 			if (!surface_found && f.drawtype != NDT_AIRLIKE) {
 				mmpixel->height = y;
