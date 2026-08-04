@@ -711,6 +711,17 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 		if (use_glsl3) {
 			shaders_header << "#define ATTRIBUTE_(n) layout(location = n) in\n"
 				"#define texture2D texture\n";
+		} else if (use_glsl15) {
+			// GLSL 1.5 doesn't have `layout(location=...)` without an ARB
+			// extension, but attribute indices are already assigned by name
+			// via glBindAttribLocation() before linking (see
+			// COpenGL3MaterialRenderer::init), so plain `in` is enough.
+			// Unlike `attribute`, `in` also works under a Core profile
+			// context (used on macOS, see CIrrDeviceSDL.cpp), whereas
+			// `attribute` is a Compatibility-profile-only keyword.
+			// `texture2D()` was likewise removed from GLSL 1.30+ core.
+			shaders_header << "#define ATTRIBUTE_(n) in\n"
+				"#define texture2D texture\n";
 		} else {
 			shaders_header << "#define ATTRIBUTE_(n) attribute\n";
 		}
@@ -755,7 +766,14 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 				"#define gl_FragColor outFragColor\n"
 				"layout(location = 0) out vec4 outFragColor;\n";
 		} else if (use_glsl15) {
-			fragment_header += "#define VARYING_ in\n";
+			// `gl_FragColor` is a Compatibility-profile-only builtin; under
+			// a Core profile context (macOS) it doesn't exist, so declare
+			// our own output. With a single fragment output and no explicit
+			// layout qualifier it's implicitly bound to color number 0,
+			// same as GLSL 1.5 doesn't have `layout(location=...)` above.
+			fragment_header += "#define VARYING_ in\n"
+				"#define gl_FragColor outFragColor\n"
+				"out vec4 outFragColor;\n";
 		} else {
 			fragment_header += "#define VARYING_ varying\n";
 		}
