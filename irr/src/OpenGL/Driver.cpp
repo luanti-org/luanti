@@ -986,18 +986,38 @@ void COpenGL3DriverBase::drawQuad(const VertexType &vertexType, const S3DVertex 
 	drawArrays(GL_TRIANGLE_FAN, vertexType, vertices, 4);
 }
 
+uintptr_t COpenGL3DriverBase::uploadClientVertexData(const VertexType &vertexType, const void *vertices, int vertexCount)
+{
+	// Core profile rejects glVertexAttribPointer calls that reference client
+	// (CPU-side) memory: the pointer argument is only valid as an offset into
+	// whatever's bound to GL_ARRAY_BUFFER. Compatibility profile has no such
+	// restriction, so leave its (already working) client-array path alone.
+	if (Version.Spec != OpenGLSpec::Core)
+		return reinterpret_cast<uintptr_t>(vertices);
+
+	ScratchVBO.upload(vertices, static_cast<size_t>(vertexCount) * vertexType.VertexSize, 0, GL_STREAM_DRAW);
+	// OGLBufferObject::upload() unbinds GL_ARRAY_BUFFER when it's done, so
+	// re-bind for the VertexAttribPointer calls beginDraw() is about to make.
+	GL.BindBuffer(GL_ARRAY_BUFFER, ScratchVBO.getName());
+	return 0;
+}
+
 void COpenGL3DriverBase::drawArrays(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount)
 {
-	beginDraw(vertexType, reinterpret_cast<uintptr_t>(vertices));
+	beginDraw(vertexType, uploadClientVertexData(vertexType, vertices, vertexCount));
 	GL.DrawArrays(primitiveType, 0, vertexCount);
 	endDraw(vertexType);
+	if (Version.Spec == OpenGLSpec::Core)
+		GL.BindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void COpenGL3DriverBase::drawElements(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount, const u16 *indices, int indexCount)
 {
-	beginDraw(vertexType, reinterpret_cast<uintptr_t>(vertices));
+	beginDraw(vertexType, uploadClientVertexData(vertexType, vertices, vertexCount));
 	GL.DrawRangeElements(primitiveType, 0, vertexCount - 1, indexCount, GL_UNSIGNED_SHORT, indices);
 	endDraw(vertexType);
+	if (Version.Spec == OpenGLSpec::Core)
+		GL.BindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void COpenGL3DriverBase::drawGeneric(const void *vertices, const void *indexList,

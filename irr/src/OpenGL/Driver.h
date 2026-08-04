@@ -296,6 +296,7 @@ protected:
 	virtual void setJointTransforms(const std::vector<core::matrix4> &jointMatrices) override;
 
 	void drawQuad(const VertexType &vertexType, const S3DVertex (&vertices)[4]);
+	uintptr_t uploadClientVertexData(const VertexType &vertexType, const void *vertices, int vertexCount);
 	void drawArrays(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount);
 	void drawElements(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount, const u16 *indices, int indexCount);
 
@@ -355,6 +356,13 @@ private:
 
 	OGLBufferObject QuadIndexVBO = OGLBufferObject(OGLBufferObject::TARGET_VBO);
 	void initQuadsIndices(u32 max_vertex_count = 65536);
+
+	// Core profile forbids vertex attribute pointers into client (CPU-side)
+	// memory; every glVertexAttribPointer call must reference an offset into
+	// a bound GL_ARRAY_BUFFER. drawArrays()/drawElements() are handed plain
+	// client-side arrays (e.g. by draw2DImage/draw2DRectangle/draw3DLine), so
+	// under Core profile they first copy that data into this scratch VBO.
+	OGLBufferObject ScratchVBO = OGLBufferObject(OGLBufferObject::TARGET_VBO);
 
 	u16 MaxJointTransforms = 0;
 	void initMaxJointTransforms();
