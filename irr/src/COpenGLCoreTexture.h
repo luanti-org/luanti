@@ -397,12 +397,19 @@ public:
 		const COpenGLCoreTexture *prevTexture = cache.get(0);
 		cache.set(0, this);
 
+#ifndef __APPLE__
+		// GL_GENERATE_MIPMAP_HINT is valid on GLES and under a Compatibility
+		// profile, but is not a legal enum under a Core profile context
+		// (the only kind macOS's OpenGL3 driver uses, see CIrrDeviceSDL.cpp)
+		// and raises GL_INVALID_ENUM there. It's purely a quality hint for
+		// glGenerateMipmap() below, safe to just skip.
 		if (Driver->getTextureCreationFlag(ETCF_OPTIMIZED_FOR_SPEED))
 			GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
 		else if (Driver->getTextureCreationFlag(ETCF_OPTIMIZED_FOR_QUALITY))
 			GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 		else
 			GL.Hint(GL_GENERATE_MIPMAP_HINT, GL_DONT_CARE);
+#endif
 
 		Driver->irrGlGenerateMipmap(TextureType);
 		TEST_GL_ERROR(Driver);
