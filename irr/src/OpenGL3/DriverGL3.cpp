@@ -33,9 +33,26 @@ OpenGLVersion COpenGL3Driver::getVersionFromOpenGL() const
 
 void COpenGL3Driver::initFeatures()
 {
+#ifdef __APPLE__
+	// macOS never implemented a compatibility profile above 2.1, so
+	// CIrrDeviceSDL requests (and we must accept) a core profile there
+	// instead. Core profile forbids draws with no VAO bound; this driver
+	// re-specifies vertex attribute pointers before every draw rather than
+	// caching them in a VAO, so binding one throwaway VAO for the lifetime
+	// of the context is enough to satisfy that requirement.
+	if (Version.Spec != OpenGLSpec::Core && Version.Spec != OpenGLSpec::Compat) {
+		throw std::runtime_error("OpenGL 3 driver requires Core or Compatibility context");
+	}
+	if (Version.Spec == OpenGLSpec::Core) {
+		GLuint vao = 0;
+		GL.GenVertexArrays(1, &vao);
+		GL.BindVertexArray(vao);
+	}
+#else
 	if (Version.Spec != OpenGLSpec::Compat) {
 		throw std::runtime_error("OpenGL 3 driver requires Compatibility context");
 	}
+#endif
 	if (!isVersionAtLeast(3, 2)) {
 		throw std::runtime_error("OpenGL 3 driver requires OpenGL >= 3.2");
 	}

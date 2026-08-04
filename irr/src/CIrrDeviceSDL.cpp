@@ -700,7 +700,14 @@ bool CIrrDeviceSDL::createWindowWithContext()
 	case video::EDT_OPENGL3:
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+#ifdef __APPLE__
+		// macOS never implemented a compatibility profile above 2.1; only
+		// core profile is available for GL 3.2+, so requesting
+		// COMPATIBILITY here makes context creation fail outright (#16041).
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#else
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+#endif
 		break;
 	case video::EDT_OGLES2:
 	case video::EDT_WEBGL1:
