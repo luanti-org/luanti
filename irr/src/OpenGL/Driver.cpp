@@ -683,7 +683,7 @@ void COpenGL3DriverBase::drawVertexPrimitiveList(const void *vertices, u32 verte
 
 	setRenderStates3DMode();
 
-	drawGeneric(vertices, indexList, primitiveCount, vType, pType, iType);
+	drawGeneric(vertices, vertexCount, indexList, primitiveCount, vType, pType, iType);
 }
 
 //! draws a vertex primitive list in 2d
@@ -719,7 +719,7 @@ void COpenGL3DriverBase::draw2DVertexPrimitiveList(const void *vertices, u32 ver
 		have_texture_alpha
 	);
 
-	drawGeneric(vertices, indexList, primitiveCount, vType, pType, iType);
+	drawGeneric(vertices, vertexCount, indexList, primitiveCount, vType, pType, iType);
 }
 
 void COpenGL3DriverBase::draw2DImage(const video::ITexture *texture, const core::position2d<s32> &destPos,
@@ -1002,6 +1002,19 @@ uintptr_t COpenGL3DriverBase::uploadClientVertexData(const VertexType &vertexTyp
 	return 0;
 }
 
+uintptr_t COpenGL3DriverBase::uploadClientIndexData(const void *indexList, u32 indexCount, GLenum indexType)
+{
+	if (Version.Spec != OpenGLSpec::Core)
+		return reinterpret_cast<uintptr_t>(indexList);
+
+	size_t elemSize = (indexType == GL_UNSIGNED_SHORT) ? sizeof(u16) : sizeof(u32);
+	ScratchEBO.upload(indexList, static_cast<size_t>(indexCount) * elemSize, 0, GL_STREAM_DRAW);
+	// OGLBufferObject::upload() unbinds GL_ELEMENT_ARRAY_BUFFER when it's
+	// done, so re-bind for the draw call about to use it.
+	GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, ScratchEBO.getName());
+	return 0;
+}
+
 void COpenGL3DriverBase::drawArrays(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount)
 {
 	beginDraw(vertexType, uploadClientVertexData(vertexType, vertices, vertexCount));
@@ -1020,12 +1033,15 @@ void COpenGL3DriverBase::drawElements(GLenum primitiveType, const VertexType &ve
 		GL.BindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void COpenGL3DriverBase::drawGeneric(const void *vertices, const void *indexList,
+void COpenGL3DriverBase::drawGeneric(const void *vertices, u32 vertexCount, const void *indexList,
 		u32 primitiveCount,
 		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType)
 {
 	auto &vTypeDesc = getVertexTypeDescription(vType);
-	beginDraw(vTypeDesc, reinterpret_cast<uintptr_t>(vertices));
+	uintptr_t verticesBase = vertices
+		? uploadClientVertexData(vTypeDesc, vertices, vertexCount)
+		: reinterpret_cast<uintptr_t>(vertices);
+	beginDraw(vTypeDesc, verticesBase);
 	GLenum indexSize = 0;
 
 	switch (iType) {
@@ -1037,34 +1053,65 @@ void COpenGL3DriverBase::drawGeneric(const void *vertices, const void *indexList
 		break;
 	}
 
+	// Precompute how many indices this draw will read, so a client-side
+	// indexList (see uploadClientIndexData) can be sized and uploaded once,
+	// before dispatching on primitive type below.
+	u32 indexCount = 0;
+	switch (pType) {
+	case scene::EPT_LINE_STRIP:
+		indexCount = primitiveCount + 1;
+		break;
+	case scene::EPT_LINE_LOOP:
+		indexCount = primitiveCount;
+		break;
+	case scene::EPT_LINES:
+		indexCount = primitiveCount * 2;
+		break;
+	case scene::EPT_TRIANGLE_STRIP:
+	case scene::EPT_TRIANGLE_FAN:
+		indexCount = primitiveCount + 2;
+		break;
+	case scene::EPT_TRIANGLES:
+		indexCount = primitiveCount * 3;
+		break;
+	default:
+		break;
+	}
+	if (indexList && indexCount)
+		indexList = reinterpret_cast<const void *>(uploadClientIndexData(indexList, indexCount, indexSize));
+
 	switch (pType) {
 	case scene::EPT_POINTS:
 	case scene::EPT_POINT_SPRITES:
 		GL.DrawArrays(GL_POINTS, 0, primitiveCount);
 		break;
 	case scene::EPT_LINE_STRIP:
-		GL.DrawElements(GL_LINE_STRIP, primitiveCount + 1, indexSize, indexList);
+		GL.DrawElements(GL_LINE_STRIP, indexCount, indexSize, indexList);
 		break;
 	case scene::EPT_LINE_LOOP:
-		GL.DrawElements(GL_LINE_LOOP, primitiveCount, indexSize, indexList);
+		GL.DrawElements(GL_LINE_LOOP, indexCount, indexSize, indexList);
 		break;
 	case scene::EPT_LINES:
-		GL.DrawElements(GL_LINES, primitiveCount * 2, indexSize, indexList);
+		GL.DrawElements(GL_LINES, indexCount, indexSize, indexList);
 		break;
 	case scene::EPT_TRIANGLE_STRIP:
-		GL.DrawElements(GL_TRIANGLE_STRIP, primitiveCount + 2, indexSize, indexList);
+		GL.DrawElements(GL_TRIANGLE_STRIP, indexCount, indexSize, indexList);
 		break;
 	case scene::EPT_TRIANGLE_FAN:
-		GL.DrawElements(GL_TRIANGLE_FAN, primitiveCount + 2, indexSize, indexList);
+		GL.DrawElements(GL_TRIANGLE_FAN, indexCount, indexSize, indexList);
 		break;
 	case scene::EPT_TRIANGLES:
-		GL.DrawElements(GL_TRIANGLES, primitiveCount * 3, indexSize, indexList);
+		GL.DrawElements(GL_TRIANGLES, indexCount, indexSize, indexList);
 		break;
 	default:
 		break;
 	}
 
 	endDraw(vTypeDesc);
+	if (Version.Spec == OpenGLSpec::Core) {
+		GL.BindBuffer(GL_ARRAY_BUFFER, 0);
+		GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
 }
 
 void COpenGL3DriverBase::beginDraw(const VertexType &vertexType, uintptr_t verticesBase)

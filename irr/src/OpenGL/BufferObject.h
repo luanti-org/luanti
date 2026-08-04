@@ -16,6 +16,7 @@ public:
 	enum Target : GLenum {
 		TARGET_VBO = GL_ARRAY_BUFFER,
 		TARGET_UBO = GL_UNIFORM_BUFFER,
+		TARGET_EBO = GL_ELEMENT_ARRAY_BUFFER,
 	};
 
 	/// @note does not create on GL side

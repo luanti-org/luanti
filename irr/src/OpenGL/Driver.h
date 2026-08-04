@@ -297,10 +297,11 @@ protected:
 
 	void drawQuad(const VertexType &vertexType, const S3DVertex (&vertices)[4]);
 	uintptr_t uploadClientVertexData(const VertexType &vertexType, const void *vertices, int vertexCount);
+	uintptr_t uploadClientIndexData(const void *indexList, u32 indexCount, GLenum indexType);
 	void drawArrays(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount);
 	void drawElements(GLenum primitiveType, const VertexType &vertexType, const void *vertices, int vertexCount, const u16 *indices, int indexCount);
 
-	void drawGeneric(const void *vertices, const void *indexList, u32 primitiveCount,
+	void drawGeneric(const void *vertices, u32 vertexCount, const void *indexList, u32 primitiveCount,
 		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType);
 
 	void beginDraw(const VertexType &vertexType, uintptr_t verticesBase);
@@ -359,10 +360,14 @@ private:
 
 	// Core profile forbids vertex attribute pointers into client (CPU-side)
 	// memory; every glVertexAttribPointer call must reference an offset into
-	// a bound GL_ARRAY_BUFFER. drawArrays()/drawElements() are handed plain
-	// client-side arrays (e.g. by draw2DImage/draw2DRectangle/draw3DLine), so
-	// under Core profile they first copy that data into this scratch VBO.
+	// a bound GL_ARRAY_BUFFER. drawArrays()/drawElements()/drawGeneric() are
+	// sometimes handed plain client-side arrays (e.g. by draw2DImage,
+	// draw2DRectangle, draw3DLine, draw2DVertexPrimitiveList, and dynamic
+	// meshes with no hardware buffer cache), so under Core profile they
+	// first copy that data into these scratch buffers. Same restriction
+	// applies to element/index data and GL_ELEMENT_ARRAY_BUFFER.
 	OGLBufferObject ScratchVBO = OGLBufferObject(OGLBufferObject::TARGET_VBO);
+	OGLBufferObject ScratchEBO = OGLBufferObject(OGLBufferObject::TARGET_EBO);
 
 	u16 MaxJointTransforms = 0;
 	void initMaxJointTransforms();
