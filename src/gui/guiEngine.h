@@ -9,12 +9,14 @@
 /******************************************************************************/
 #include "irrlichttypes.h"
 #include "guiFormSpecMenu.h"
+#include "statusTextHelper.h"
 #include "client/clouds.h"
 #include "client/sound.h"
 #include "util/enriched_string.h"
 #include "translation.h"
 
 #include <csignal>
+#include <memory>
 
 /******************************************************************************/
 /* Structs and macros                                                         */
@@ -109,7 +111,7 @@ protected:
 			std::vector<std::string> &paths) override;
 };
 
-/** implementation of main menu based uppon formspecs */
+/** implementation of main menu based upon formspecs */
 class GUIEngine {
 	/** grant ModApiMainMenu access to private members */
 	friend class ModApiMainMenu;
@@ -125,8 +127,7 @@ public:
 	 * @param smgr scene manager to add scene elements to
 	 * @param data struct to transfer data to main game handling
 	 */
-	GUIEngine(JoystickController *joystick,
-			gui::IGUIElement *parent,
+	GUIEngine(gui::IGUIElement *parent,
 			RenderingEngine *rendering_engine,
 			IMenuManager *menumgr,
 			MainMenuData *data,
@@ -272,6 +273,9 @@ private:
 	gui::IGUIStaticText *m_irr_toplefttext = nullptr;
 	/** and text that is in it */
 	EnrichedString m_toplefttext;
+
+	/** status message element for menu notifications */
+	std::unique_ptr<StatusTextHelper> m_status_text;
 
 	/** do preprocessing for cloud subsystem */
 	void drawClouds(float dtime);

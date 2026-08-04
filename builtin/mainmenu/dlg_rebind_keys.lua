@@ -4,7 +4,6 @@
 -- Note that this is only needed for migrating from <5.11 to 5.12.
 
 local doc_url = "https://docs.luanti.org/for-players/controls/"
-local SETTING_NAME = "no_keycode_migration_warning"
 
 local function get_formspec(dialogdata)
 	local markup = table.concat({
@@ -27,7 +26,6 @@ local function get_formspec(dialogdata)
 end
 
 local function close_dialog(this)
-	cache_settings:set_bool(SETTING_NAME, true)
 	this:delete()
 end
 
@@ -74,32 +72,45 @@ local function create_rebind_keys_dlg()
 	return dlg
 end
 
+local compatible_keycodes = {
+	-- Keycodes that can be substituted without requiring potential manual reconfiguration
+	KEY_LBUTTON = "MOUSE_BUTTON_1",
+	KEY_MBUTTON = "MOUSE_BUTTON_2",
+	KEY_RBUTTON = "MOUSE_BUTTON_3",
+	KEY_XBUTTON1 = "MOUSE_BUTTON_4",
+	KEY_XBUTTON2 = "MOUSE_BUTTON_5",
+}
+
 local function normalize_key_setting(str)
 	if str == "|" then -- normalize keybinding with the "|" keychar (<5.12)
-		return core.normalize_keycode(str)
+		return core.normalize_keycode(str), true
 	end
+	local needs_manual
 	local t = string.split(str, "|")
 	for k, v in pairs(t) do
-		t[k] = core.normalize_keycode(v)
+		if compatible_keycodes[v] then
+			t[k] = compatible_keycodes[v]
+		else
+			t[k] = core.normalize_keycode(v)
+			if t[k] ~= v then
+				needs_manual = true
+			end
+		end
 	end
-	return table.concat(t, "|")
+	return table.concat(t, "|"), needs_manual
 end
 
 function migrate_keybindings(parent)
-	-- Show migration dialog if the user upgraded from an earlier version
-	-- and this has not yet been shown before, *or* if keys settings had to be changed
-	if core.is_first_run then
-		cache_settings:set_bool(SETTING_NAME, true)
-	end
-	local has_migration = not cache_settings:get_bool(SETTING_NAME)
+	-- Show migration dialog if keys settings had to be changed
+	local has_migration = false
 
 	-- normalize all existing key settings, this converts them from KEY_KEY_C to SYSTEM_SCANCODE_6
 	local settings = core.settings:to_table()
 	for name, value in pairs(settings) do
 		if name:match("^keymap_") then
-			local normalized = normalize_key_setting(value)
+			local normalized, needs_manual = normalize_key_setting(value)
 			if value ~= normalized then
-				has_migration = true
+				has_migration = has_migration or needs_manual
 				core.settings:set(name, normalized)
 			end
 		end

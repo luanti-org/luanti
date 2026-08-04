@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include "catch.h"
-
 #include "test.h"
 
+#include "catch.h"
 #include "nodedef.h"
 #include "itemdef.h"
 #include "dummygamedef.h"
@@ -16,8 +15,6 @@
 #include "debug.h"
 
 #include <iostream>
-
-#include "catch.h"
 
 content_t t_CONTENT_STONE;
 content_t t_CONTENT_GRASS;
@@ -84,7 +81,7 @@ void TestGameDef::defineSomeNodes()
 		tiledef.name = "default_stone.png";
 	f.is_ground_content = true;
 	idef->registerItem(itemdef);
-	t_CONTENT_STONE = ndef->set(f.name, f);
+	t_CONTENT_STONE = ndef->set(f.name, std::move(f));
 
 	//// Grass
 	itemdef = ItemDefinition();
@@ -104,7 +101,7 @@ void TestGameDef::defineSomeNodes()
 		f.tiledef[i].name = "default_dirt.png^default_grass_side.png";
 	f.is_ground_content = true;
 	idef->registerItem(itemdef);
-	t_CONTENT_GRASS = ndef->set(f.name, f);
+	t_CONTENT_GRASS = ndef->set(f.name, std::move(f));
 
 	//// Torch (minimal definition for lighting tests)
 	itemdef = ItemDefinition();
@@ -117,7 +114,7 @@ void TestGameDef::defineSomeNodes()
 	f.sunlight_propagates = true;
 	f.light_source = LIGHT_MAX-1;
 	idef->registerItem(itemdef);
-	t_CONTENT_TORCH = ndef->set(f.name, f);
+	t_CONTENT_TORCH = ndef->set(f.name, std::move(f));
 
 	//// Water
 	itemdef = ItemDefinition();
@@ -140,7 +137,7 @@ void TestGameDef::defineSomeNodes()
 	for (TileDef &tiledef : f.tiledef)
 		tiledef.name = "default_water.png";
 	idef->registerItem(itemdef);
-	t_CONTENT_WATER = ndef->set(f.name, f);
+	t_CONTENT_WATER = ndef->set(f.name, std::move(f));
 
 	//// Lava
 	itemdef = ItemDefinition();
@@ -162,7 +159,7 @@ void TestGameDef::defineSomeNodes()
 	for (TileDef &tiledef : f.tiledef)
 		tiledef.name = "default_lava.png";
 	idef->registerItem(itemdef);
-	t_CONTENT_LAVA = ndef->set(f.name, f);
+	t_CONTENT_LAVA = ndef->set(f.name, std::move(f));
 
 
 	//// Brick
@@ -181,7 +178,7 @@ void TestGameDef::defineSomeNodes()
 		tiledef.name = "default_brick.png";
 	f.is_ground_content = true;
 	idef->registerItem(itemdef);
-	t_CONTENT_BRICK = ndef->set(f.name, f);
+	t_CONTENT_BRICK = ndef->set(f.name, std::move(f));
 }
 
 bool TestGameDef::joinModChannel(const std::string &channel)
@@ -367,7 +364,7 @@ void TestBase::runTest(const char *name, std::function<void()> &&test)
 }
 
 /*
-	NOTE: These tests became non-working then NodeContainer was removed.
+	NOTE: These tests became non-working when NodeContainer was removed.
 	      These should be redone, utilizing some kind of a virtual
 		  interface for Map (IMap would be fine).
 */

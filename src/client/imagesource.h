@@ -48,6 +48,8 @@ struct ImageSource {
 	// The exact value is 23170 but this provides some leeway.
 	// In theory something like 33333x123 could be allowed, but there is no strong
 	// need or argument. Irrlicht also has the same limit.
+	// IMPORTANT: If you change this value, you MUST also update the [imagesize]
+	// range in doc/lua_api.md.
 	static constexpr int MAX_IMAGE_DIMENSION = 23000;
 
 private:

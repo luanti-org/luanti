@@ -201,14 +201,13 @@ std::string serializeJsonString(std::string_view plain)
 				tmp.append("\\t");
 				break;
 			default: {
-				if (c >= 32 && c <= 126) {
-					tmp.push_back(c);
-				} else {
-					// We pretend that Unicode codepoints map to bytes (they don't)
-					u8 cnum = static_cast<u8>(c);
+				u8 cnum = static_cast<u8>(c);
+				if (cnum < 32 || cnum == 127) {
 					tmp.append("\\u00");
 					tmp.push_back(hex_chars[cnum >> 4]);
 					tmp.push_back(hex_chars[cnum & 0xf]);
+				} else {
+					tmp.push_back(c);
 				}
 				break;
 			}

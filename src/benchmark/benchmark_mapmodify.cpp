@@ -78,6 +78,7 @@ TEST_CASE("ModifySafeMap") {
 	BENCH_REMOVE(1000)
 }
 
+#ifdef TEST_STDLIB
 using TestMap2 = std::map<u16, void*>;
 
 static inline void fill2(TestMap2 &map, size_t n)
@@ -124,7 +125,6 @@ static inline void remove2(TestMap2 &map, size_t offset, size_t count)
 		}); \
 	};
 
-#ifdef TEST_STDLIB
 TEST_CASE("std::map") {
 	BENCH2_ITERATE(50)
 	BENCH2_ITERATE(400)

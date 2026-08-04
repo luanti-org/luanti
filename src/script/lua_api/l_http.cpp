@@ -67,13 +67,13 @@ void ModApiHttp::read_http_fetch_request(lua_State *L, HTTPFetchRequest &req)
 
 	lua_getfield(L, 1, "extra_headers");
 	if (lua_istable(L, 2)) {
-		lua_pushnil(L);
-		while (lua_next(L, 2) != 0) {
+		LuaHelper::for_ipairs(L, 2, [&]() {
 			req.extra_headers.emplace_back(readParam<std::string>(L, -1));
-			lua_pop(L, 1);
-		}
+		});
 	}
 	lua_pop(L, 1);
+
+	req.quiet = getboolfield_default(L, 1, "quiet", false);
 }
 
 void ModApiHttp::push_http_fetch_result(lua_State *L, HTTPFetchResult &res, bool completed)

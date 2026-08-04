@@ -50,12 +50,11 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 
 	// Key only consists of item name + image name,
 	// because animation currently cannot be overridden by meta
-	std::ostringstream os(def.name);
+	std::string cache_key = def.name;
 	if (!inventory_image.name.empty())
-		os << "/" << inventory_image.name;
+		cache_key.append("/").append(inventory_image.name);
 	if (!inventory_overlay.name.empty())
-		os << ":" << inventory_overlay.name;
-	std::string cache_key = os.str();
+		cache_key.append(":").append(inventory_overlay.name);
 
 
 	// Skip if already in cache

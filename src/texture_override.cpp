@@ -26,9 +26,18 @@ static const std::map<std::string, OverrideTarget> override_LUT = {
 	{ "special4", OverrideTarget::SPECIAL_4 },
 	{ "special5", OverrideTarget::SPECIAL_5 },
 	{ "special6", OverrideTarget::SPECIAL_6 },
+	{ "overlay_top", OverrideTarget::OVERLAY_TOP },
+	{ "overlay_bottom", OverrideTarget::OVERLAY_BOTTOM },
+	{ "overlay_left", OverrideTarget::OVERLAY_LEFT },
+	{ "overlay_right", OverrideTarget::OVERLAY_RIGHT },
+	{ "overlay_front", OverrideTarget::OVERLAY_FRONT },
+	{ "overlay_back", OverrideTarget::OVERLAY_BACK },
 	{ "sides", OverrideTarget::SIDES },
 	{ "all", OverrideTarget::ALL_FACES },
-	{ "*", OverrideTarget::ALL_FACES }
+	{ "*", OverrideTarget::ALL_FACES },
+	{ "overlay_sides", OverrideTarget::OVERLAY_SIDES },
+	{ "overlay_all",   OverrideTarget::OVERLAY_ALL },
+	{ "overlay_*",     OverrideTarget::OVERLAY_ALL },
 };
 
 TextureOverrideSource::TextureOverrideSource(const std::string &filepath)

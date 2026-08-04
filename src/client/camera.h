@@ -151,7 +151,7 @@ public:
 	void setDigging(s32 button);
 
 	// Replace the wielded item mesh
-	void wield(const ItemStack &item);
+	void wield(const ItemStack &item, bool animate = true);
 
 	// Draw the wielded tool.
 	// This has to happen *after* the main scene is drawn.
@@ -185,6 +185,8 @@ private:
 	// Use getFrustumCuller().
 	// This helper just exists to decrease the header's number of includes.
 	std::array<core::plane3d<f32>, 4> getFrustumCullPlanes() const;
+
+	void updateWieldedTool();
 
 	// Nodes
 	scene::ISceneNode *m_playernode = nullptr;

@@ -53,7 +53,7 @@ struct button_info
 {
 	touch_gui_button_id id;
 	float repeat_counter;
-	KeyPress keypress;
+	GameKeyType game_key;
 	std::vector<size_t> pointer_ids;
 	std::shared_ptr<IGUIImage> gui_button = nullptr;
 
@@ -104,9 +104,6 @@ public:
 	 */
 	line3d<f32> getShootline() { return m_shootline; }
 
-	float getJoystickDirection() { return m_joystick_direction; }
-	float getJoystickSpeed() { return m_joystick_speed; }
-
 	void step(float dtime);
 
 	void setVisible(bool visible);
@@ -117,7 +114,7 @@ public:
 	void registerHotbarRect(u16 index, const recti &rect);
 	std::optional<u16> getHotbarSelection();
 
-	bool isStatusTextOverriden() { return m_overflow_open; }
+	bool isStatusTextOverridden() { return m_overflow_open; }
 	IGUIStaticText *getStatusText() { return m_status_text.get(); }
 
 private:
@@ -176,8 +173,6 @@ private:
 	bool m_has_joystick_id = false;
 	size_t m_joystick_id;
 	bool m_joystick_has_really_moved = false;
-	float m_joystick_direction = 0.0f; // assume forward
-	float m_joystick_speed = 0.0f; // no movement
 	bool m_joystick_status_aux1 = false;
 	std::shared_ptr<IGUIImage> m_joystick_btn_off;
 	std::shared_ptr<IGUIImage> m_joystick_btn_bg;
@@ -198,7 +193,7 @@ private:
 	// for its buttons. We only want static image display, not interactivity,
 	// from Irrlicht.
 
-	void emitKeyboardEvent(KeyPress keycode, bool pressed);
+	void emitGameKeyEvent(GameKeyType key, float value);
 
 	void loadButtonTexture(IGUIImage *gui_button, const std::string &path);
 	void buttonEmitAction(button_info &btn, bool action);

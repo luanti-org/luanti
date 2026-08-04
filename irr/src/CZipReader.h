@@ -7,11 +7,13 @@
 #include <vector>
 #include "IReadFile.h"
 #include "irrString.h"
+#include "IFileArchive.h"
 #include "IFileSystem.h"
 #include "CFileList.h"
 
 namespace io
 {
+
 // the fields crc-32, compressed size and uncompressed size are set to
 // zero in the local header
 static constexpr s16 ZIP_INFO_IN_DATA_DESCRIPTOR = 0x0008;

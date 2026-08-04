@@ -21,7 +21,7 @@ TEST_CASE("benchmark_lighting")
 	{
 		ContentFeatures f;
 		f.name = "stone";
-		content_wall = ndef->set(f.name, f);
+		content_wall = ndef->set(f.name, std::move(f));
 	}
 
 	content_t content_light;
@@ -31,7 +31,7 @@ TEST_CASE("benchmark_lighting")
 		f.param_type = CPT_LIGHT;
 		f.light_propagates = true;
 		f.light_source = 14;
-		content_light = ndef->set(f.name, f);
+		content_light = ndef->set(f.name, std::move(f));
 	}
 
 	// Make a platform with a light below it.

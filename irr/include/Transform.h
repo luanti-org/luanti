@@ -26,13 +26,19 @@ struct Transform {
 
 	matrix4 buildMatrix() const
 	{
-		matrix4 T;
-		T.setTranslation(translation);
-		matrix4 R;
-		rotation.getMatrix_transposed(R);
-		matrix4 S;
-		S.setScale(scale);
-		return T * R * S;
+		matrix4 trs;
+		rotation.getMatrix_transposed(trs);
+		auto scale_row = [&trs](int col, f32 scale) {
+			int i = 4 * col;
+			trs[i] *= scale;
+			trs[i + 1] *= scale;
+			trs[i + 2] *= scale;
+		};
+		scale_row(0, scale.X);
+		scale_row(1, scale.Y);
+		scale_row(2, scale.Z);
+		trs.setTranslation(translation);
+		return trs;
 	}
 };
 

@@ -128,6 +128,16 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 	});
 	lua_setfield(m_luastack, -2, "set_push_vector");
 	lua_pushcfunction(m_luastack, [](lua_State *L) -> int {
+		lua_rawseti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_READ_VECTOR2);
+		return 0;
+	});
+	lua_setfield(m_luastack, -2, "set_read_vector2");
+	lua_pushcfunction(m_luastack, [](lua_State *L) -> int {
+		lua_rawseti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_PUSH_VECTOR2);
+		return 0;
+	});
+	lua_setfield(m_luastack, -2, "set_push_vector2");
+	lua_pushcfunction(m_luastack, [](lua_State *L) -> int {
 		lua_rawseti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_READ_NODE);
 		return 0;
 	});
@@ -209,6 +219,8 @@ void ScriptApiBase::checkSetByBuiltin()
 
 	CHECK(CUSTOM_RIDX_READ_VECTOR, "read_vector");
 	CHECK(CUSTOM_RIDX_PUSH_VECTOR, "push_vector");
+	CHECK(CUSTOM_RIDX_READ_VECTOR2, "read_vector2");
+	CHECK(CUSTOM_RIDX_PUSH_VECTOR2, "push_vector2");
 
 	if (getType() == ScriptingType::Server ||
 			(getType() == ScriptingType::Async && m_gamedef) ||
@@ -290,7 +302,7 @@ void ScriptApiBase::loadModFromMemory(const std::string &mod_name, std::string i
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
-	bool ok = ScriptApiSecurity::safeLoadString(L, *contents, chunk_name.c_str());
+	bool ok = ScriptApiSecurity::safeLoadFileContent(L, *contents, chunk_name.c_str());
 	if (ok)
 		ok = !lua_pcall(L, 0, 0, error_handler);
 	if (!ok) {
@@ -318,7 +330,7 @@ void ScriptApiBase::runCallbacksRaw(int nargs,
 {
 #if CHECK_CLIENT_BUILD()
 	// Hard fail for bad guarded callbacks
-	// Only run callbacks when the scripting enviroment is loaded
+	// Only run callbacks when the scripting environment is loaded
 	FATAL_ERROR_IF(m_type == ScriptingType::Client &&
 			!getClient()->modsLoaded(), fxn);
 #endif

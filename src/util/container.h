@@ -230,8 +230,37 @@ public:
 		return t;
 	}
 
+	auto iterLocked()
+	{
+		return IterationHelper(this);
+	}
+
 protected:
+	// Helper class that allows direct access to the queue with locking
+	struct IterationHelper {
+		friend class MutexedQueue<T>;
+		~IterationHelper() {
+			q->getMutex().unlock();
+			q->getSignal().post(); // assume modified
+		}
+
+		auto begin() { return q->getQueue().begin(); }
+		auto end() { return q->getQueue().end(); }
+
+		auto erase(typename std::deque<T>::iterator it) {
+			return q->getQueue().erase(it);
+		}
+
+	private:
+		IterationHelper(MutexedQueue<T> *parent) : q(parent) {
+			q->getMutex().lock();
+		}
+
+		MutexedQueue<T> *q;
+	};
+
 	std::mutex &getMutex() { return m_mutex; }
+	Semaphore &getSignal() { return m_signal; }
 
 	std::deque<T> &getQueue() { return m_queue; }
 
@@ -251,14 +280,14 @@ public:
 	LRUCache(size_t limit, void (*cache_miss)(void *data, const K &key, V *dest),
 			void *data)
 	{
-		m_limit = limit;
+		setLimit(limit);
 		m_cache_miss = cache_miss;
 		m_cache_miss_data = data;
 	}
 
 	void setLimit(size_t limit)
 	{
-		m_limit = limit;
+		m_limit = std::max<size_t>(1, limit);
 		invalidate();
 	}
 
@@ -268,27 +297,27 @@ public:
 		m_queue.clear();
 	}
 
-	const V *lookupCache(K key)
+	const V *lookupCache(const K &key)
 	{
-		typename cache_type::iterator it = m_map.find(key);
-		V *ret;
+		auto it = m_map.find(key);
+		const V *ret;
 		if (it != m_map.end()) {
 			// found!
-
-			cache_entry_t &entry = it->second;
+			cache_entry &entry = it->second;
 
 			ret = &entry.second;
 
 			// update the usage information
-			m_queue.erase(entry.first);
-			m_queue.push_front(key);
-			entry.first = m_queue.begin();
+			if (entry.first != m_queue.begin()) {
+				m_queue.erase(entry.first);
+				m_queue.push_front(key);
+				entry.first = m_queue.begin();
+			}
 		} else {
 			// cache miss -- enter into cache
-			cache_entry_t &entry =
-				m_map[key];
-			ret = &entry.second;
+			cache_entry &entry = m_map[key];
 			m_cache_miss(m_cache_miss_data, key, &entry.second);
+			ret = &entry.second;
 
 			// delete old entries
 			if (m_queue.size() == m_limit) {
@@ -302,12 +331,15 @@ public:
 		}
 		return ret;
 	}
+
 private:
+	typedef typename std::pair<typename std::list<K>::iterator, V> cache_entry;
+	typedef std::map<K, cache_entry> cache_type;
+
 	void (*m_cache_miss)(void *data, const K &key, V *dest);
 	void *m_cache_miss_data;
 	size_t m_limit;
-	typedef typename std::template pair<typename std::template list<K>::iterator, V> cache_entry_t;
-	typedef std::template map<K, cache_entry_t> cache_type;
+
 	cache_type m_map;
 	// we can't use std::deque here, because its iterators get invalidated
 	std::list<K> m_queue;
@@ -323,7 +355,7 @@ private:
 
 	How this is implemented:
 	- there are two maps: new and real
-	- if inserting duration iteration, the value is inserted into the "new" map
+	- if inserting during iteration, the value is inserted into the "new" map
 	- if deleting during iteration, the value is set to null (to be GC'd later)
 	- when iteration finishes the "new" map is merged into the "real" map
 */

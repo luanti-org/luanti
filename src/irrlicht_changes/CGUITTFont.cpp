@@ -35,7 +35,12 @@
 
 #include "log.h"
 #include "debug.h"
+#include "util/basic_macros.h"
+#include "util/enriched_string.h"
+
 #include "IGUIEnvironment.h"
+#include "IImage.h"
+#include "IVideoDriver.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -99,6 +104,138 @@ SGUITTFace* SGUITTFace::loadFace(const io::path &filename)
 	bool ok = FT_New_Face(ft, filename.c_str(), 0, &face->face) == 0;
 	return ok ? face.release() : nullptr;
 }
+
+
+//////////////////////
+
+//! Wrapper struct for a preloaded glyph
+struct SGUITTGlyphPending {
+	SGUITTGlyphPending(const SGUITTGlyph *glyph, video::IImage *surface) noexcept :
+		glyph(glyph), surface(surface)
+	{}
+	~SGUITTGlyphPending()
+	{
+		if (surface)
+			surface->drop();
+	}
+
+	DISABLE_CLASS_COPY(SGUITTGlyphPending)
+
+	SGUITTGlyphPending(SGUITTGlyphPending &&other) noexcept :
+		glyph(other.glyph), surface(other.surface)
+	{
+		other.surface = nullptr;
+	}
+
+	const SGUITTGlyph *glyph;
+	video::IImage *surface;
+};
+
+
+//////////////////////
+
+//! Holds a sheet of glyphs.
+class CGUITTGlyphPage
+{
+	public:
+		CGUITTGlyphPage(video::IVideoDriver *Driver, const io::path &texture_name) :
+			texture(0), available_slots(0), used_slots(0),
+			driver(Driver), name(texture_name)
+		{}
+		~CGUITTGlyphPage()
+		{
+			if (texture)
+				driver->removeTexture(texture);
+		}
+
+		//! Create the actual page texture,
+		bool createPageTexture(u8 pixel_mode, core::dimension2du texture_size);
+
+		//! Add the glyph to a list of glyphs to be paged.
+		//! This collection will be cleared after updateTexture is called.
+		void pushGlyphToBePaged(const SGUITTGlyph *glyph, video::IImage *surface)
+		{
+			if (!glyph || !surface)
+				return;
+			glyph_to_be_paged.emplace_back(glyph, surface);
+		}
+
+		inline bool isDirty() const
+		{
+			return !glyph_to_be_paged.empty();
+		}
+
+		//! Updates the texture atlas with new glyphs.
+		void updateTexture();
+
+		video::ITexture* texture;
+		u32 available_slots;
+		u32 used_slots;
+
+		std::vector<core::vector2di> render_positions;
+		std::vector<core::recti> render_source_rects;
+		std::vector<video::SColor> render_colors;
+
+	private:
+		std::vector<SGUITTGlyphPending> glyph_to_be_paged;
+		video::IVideoDriver* driver;
+		io::path name;
+};
+
+
+bool CGUITTGlyphPage::createPageTexture(const u8 pixel_mode,
+	const core::dimension2du texture_size)
+{
+	if (texture)
+		return false;
+
+	bool flgmip = driver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
+	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
+	bool flgcpy = driver->getTextureCreationFlag(video::ETCF_ALLOW_MEMORY_COPY);
+	driver->setTextureCreationFlag(video::ETCF_ALLOW_MEMORY_COPY, true);
+
+	// Create texture
+	switch (pixel_mode) {
+		case FT_PIXEL_MODE_MONO:
+			texture = driver->addTexture(texture_size, name, video::ECF_A1R5G5B5);
+			break;
+		case FT_PIXEL_MODE_GRAY:
+		default:
+			texture = driver->addTexture(texture_size, name, video::ECF_A8R8G8B8);
+			break;
+	}
+
+	// Restore texture creation flags
+	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, flgmip);
+	driver->setTextureCreationFlag(video::ETCF_ALLOW_MEMORY_COPY, flgcpy);
+
+	return texture ? true : false;
+}
+
+//! Updates the texture atlas with new glyphs.
+void CGUITTGlyphPage::updateTexture()
+{
+	if (!isDirty())
+		return;
+
+	void *ptr = texture->lock();
+	if (!ptr)
+		return;
+
+	video::ECOLOR_FORMAT format = texture->getColorFormat();
+	core::dimension2du size = texture->getOriginalSize();
+	video::IImage* pageholder = driver->createImageFromData(format, size, ptr, true, false);
+
+	for (auto &it : glyph_to_be_paged)
+		it.surface->copyTo(pageholder, it.glyph->source_rect.UpperLeftCorner);
+
+	pageholder->drop();
+	texture->unlock();
+	glyph_to_be_paged.clear();
+}
+
+
+//////////////////////
 
 video::IImage* SGUITTGlyph::createGlyphImage(const FT_Bitmap& bits, video::IVideoDriver* driver) const
 {
@@ -227,56 +364,6 @@ void SGUITTGlyph::unload()
 	source_rect = core::recti();
 }
 
-bool CGUITTGlyphPage::createPageTexture(const u8 pixel_mode,
-	const core::dimension2du texture_size)
-{
-	if (texture)
-		return false;
-
-	bool flgmip = driver->getTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS);
-	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
-	bool flgcpy = driver->getTextureCreationFlag(video::ETCF_ALLOW_MEMORY_COPY);
-	driver->setTextureCreationFlag(video::ETCF_ALLOW_MEMORY_COPY, true);
-
-	// Create texture
-	switch (pixel_mode) {
-		case FT_PIXEL_MODE_MONO:
-			texture = driver->addTexture(texture_size, name, video::ECF_A1R5G5B5);
-			break;
-		case FT_PIXEL_MODE_GRAY:
-		default:
-			texture = driver->addTexture(texture_size, name, video::ECF_A8R8G8B8);
-			break;
-	}
-
-	// Restore texture creation flags
-	driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, flgmip);
-	driver->setTextureCreationFlag(video::ETCF_ALLOW_MEMORY_COPY, flgcpy);
-
-	return texture ? true : false;
-}
-
-//! Updates the texture atlas with new glyphs.
-void CGUITTGlyphPage::updateTexture()
-{
-	if (!isDirty())
-		return;
-
-	void *ptr = texture->lock();
-	if (!ptr)
-		return;
-
-	video::ECOLOR_FORMAT format = texture->getColorFormat();
-	core::dimension2du size = texture->getOriginalSize();
-	video::IImage* pageholder = driver->createImageFromData(format, size, ptr, true, false);
-
-	for (auto &it : glyph_to_be_paged)
-		it.surface->copyTo(pageholder, it.glyph->source_rect.UpperLeftCorner);
-
-	pageholder->drop();
-	texture->unlock();
-	glyph_to_be_paged.clear();
-}
 
 //////////////////////
 
@@ -329,7 +416,7 @@ bool CGUITTFont::load(SGUITTFace *face, const u32 size, const bool antialias,
 	update_load_flags();
 
 	// Store our face.
-	face->grab();
+	m_face.grab(face);
 	tt_face = face->face;
 
 	// Store font metrics.

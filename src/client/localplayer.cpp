@@ -12,6 +12,7 @@
 #include "map.h"
 #include "client.h"
 #include "content_cao.h"
+#include "hud_element.h"
 
 /*
 	PlayerSettings
@@ -323,13 +324,22 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 	float player_stepheight = (m_cao == nullptr) ? 0.0f :
 		(touching_ground ? m_cao->getStepHeight() : (0.2f * BS));
 
+	// (BS * 0.6f) is the default stepheight while standing on ground
+	const float sneak_stepheight = 0.6f * BS;
+
 	v3f accel_f(0, -gravity, 0);
 	const v3f initial_position = position;
 	const v3f initial_speed = m_speed;
 
-	collisionMoveResult result = collisionMoveSimple(env, m_client,
+
+	StepUpMode step_up_mode = StepUpMode::LEGACY;
+	if (m_cao != nullptr) {
+		step_up_mode = m_cao->getProperties().step_up_mode;
+	}
+
+	CollisionMoveResult result = collisionMoveSimple(env, m_client,
 		m_collisionbox, player_stepheight, dtime,
-		&position, &m_speed, accel_f, m_cao);
+		&position, &m_speed, accel_f, m_cao, true, step_up_mode);
 
 	bool could_sneak = control.sneak && !free_move && !in_liquid &&
 		!is_climbing && physics_override.sneak;
@@ -392,8 +402,7 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 		f32 y_diff = bmax.Y - position.Y;
 		m_standing_node = m_sneak_node;
 
-		// (BS * 0.6f) is the basic stepheight while standing on ground
-		if (y_diff < BS * 0.6f) {
+		if (y_diff < sneak_stepheight) {
 			// Only center player when they're on the node
 			position.X = rangelim(position.X,
 				bmin.X - sneak_max.X, bmax.X + sneak_max.X);
@@ -412,7 +421,7 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 
 			v3f check_pos = position;
 			check_pos.Y += y_diff * dtime * 22.0f + BS * 0.01f;
-			if (y_diff < BS * 0.6f || (physics_override.sneak_glitch
+			if (y_diff < sneak_stepheight || (physics_override.sneak_glitch
 					&& !collision_check_intersection(env, m_client, m_collisionbox, check_pos, m_cao))) {
 				// Smoothen the movement (based on 'position.Y = bmax.Y')
 				position.Y = std::min(check_pos.Y, bmax.Y);
@@ -421,7 +430,7 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 		}
 
 		// Allow jumping on node edges while sneaking
-		if (m_speed.Y == 0.0f || m_sneak_ladder_detected)
+		if ((touching_ground && m_speed.Y == 0.0f) || m_sneak_ladder_detected)
 			sneak_can_jump = true;
 
 		if (collision_info &&
@@ -948,9 +957,14 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 	const v3f initial_position = position;
 	const v3f initial_speed = m_speed;
 
-	collisionMoveResult result = collisionMoveSimple(env, m_client,
+	StepUpMode step_up_mode = StepUpMode::LEGACY;
+	if (m_cao != nullptr) {
+		step_up_mode = m_cao->getProperties().step_up_mode;
+	}
+
+	CollisionMoveResult result = collisionMoveSimple(env, m_client,
 		m_collisionbox, player_stepheight, dtime,
-		&position, &m_speed, accel_f, m_cao);
+		&position, &m_speed, accel_f, m_cao, true, step_up_mode);
 
 	// Position was slightly changed; update standing node pos
 	if (touching_ground)
@@ -1156,7 +1170,7 @@ float LocalPlayer::getSlipFactor(Environment *env, const v3f &speedH)
 }
 
 void LocalPlayer::handleAutojump(f32 dtime, Environment *env,
-	const collisionMoveResult &result, v3f initial_position, v3f initial_speed)
+	const CollisionMoveResult &result, v3f initial_position, v3f initial_speed)
 {
 	PlayerSettings &player_settings = getPlayerSettings();
 	if (!player_settings.autojump)
@@ -1211,9 +1225,15 @@ void LocalPlayer::handleAutojump(f32 dtime, Environment *env,
 	v3f jump_pos = initial_position + v3f(0.0f, jump_height, 0.0f);
 	v3f jump_speed = initial_speed;
 
+	StepUpMode step_up_mode = StepUpMode::LEGACY;
+	if (m_cao != nullptr) {
+		step_up_mode = m_cao->getProperties().step_up_mode;
+	}
+
 	// try at peak of jump, zero step height
-	collisionMoveResult jump_result = collisionMoveSimple(env, m_client,
-		m_collisionbox, 0.0f, dtime, &jump_pos, &jump_speed, v3f(0.0f), m_cao);
+	CollisionMoveResult jump_result = collisionMoveSimple(env, m_client,
+		m_collisionbox, 0.0f, dtime, &jump_pos, &jump_speed, v3f(0.0f), m_cao, true,
+		step_up_mode);
 
 	// see if we can get a little bit farther horizontally if we had
 	// jumped

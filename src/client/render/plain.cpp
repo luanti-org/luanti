@@ -47,10 +47,14 @@ void DrawHUD::run(PipelineContext &context)
 
 		if (context.draw_crosshair)
 			context.hud->drawCrosshair();
+	}
 
-		context.hud->drawLuaElements(context.client->getCamera()->getOffset());
+	context.hud->drawLuaElements(context.client->getCamera()->getOffset(), !context.show_hud);
+
+	if (context.show_hud) {
 		context.client->getCamera()->drawNametags();
 	}
+
 	context.device->getGUIEnvironment()->drawAll();
 }
 

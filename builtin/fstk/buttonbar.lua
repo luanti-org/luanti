@@ -43,6 +43,14 @@ local function buttonbar_formspec(self)
 	local btn_start_x = self.pos.x + btn_spacing
 	if show_scroll_btns then
 		btn_start_x = btn_start_x + BASE_SPACING + get_scroll_btn_width()
+
+		local btn_prev_pos = {
+			x = self.pos.x + BASE_SPACING,
+			y = self.pos.y + BASE_SPACING,
+		}
+		table.insert(formspec, string.format("button[%f,%f;%f,%f;%s;<]",
+			btn_prev_pos.x, btn_prev_pos.y, get_scroll_btn_width(), btn_size,
+			self.btn_prev_name))
 	end
 
 	for i = first_btn, first_btn + btns_per_page - 1 do
@@ -62,19 +70,10 @@ local function buttonbar_formspec(self)
 	end
 
 	if show_scroll_btns then
-		local btn_prev_pos = {
-			x = self.pos.x + BASE_SPACING,
-			y = self.pos.y + BASE_SPACING,
-		}
 		local btn_next_pos = {
 			x = self.pos.x + self.size.x - BASE_SPACING - get_scroll_btn_width(),
 			y = self.pos.y + BASE_SPACING,
 		}
-
-		table.insert(formspec, string.format("button[%f,%f;%f,%f;%s;<]",
-				btn_prev_pos.x, btn_prev_pos.y, get_scroll_btn_width(), btn_size,
-				self.btn_prev_name))
-
 		table.insert(formspec, string.format("button[%f,%f;%f,%f;%s;>]",
 				btn_next_pos.x, btn_next_pos.y, get_scroll_btn_width(), btn_size,
 				self.btn_next_name))

@@ -505,7 +505,7 @@ bool COpenGLExtensionHandler::queryFeature(E_VIDEO_DRIVER_FEATURE feature) const
 	case EVDF_TEXTURE_MULTISAMPLE:
 		return (Version >= 302) || FeatureAvailable[IRR_ARB_texture_multisample];
 	case EVDF_RENDER_TO_FLOAT_TEXTURE:
-		return Version >= 300;
+		return Version >= 300 || FeatureAvailable[IRR_ARB_color_buffer_float];
 
 	default:
 		return false;

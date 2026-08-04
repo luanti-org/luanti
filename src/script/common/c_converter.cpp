@@ -12,10 +12,11 @@ extern "C" {
 #include "log.h"
 #include "common/c_converter.h"
 #include "common/c_internal.h"
+#include "common/c_types.h"
+#include "common/helper.h"
 #include "constants.h"
 #include <set>
 #include <cmath>
-#include "common/c_types.h"
 
 static v3d read_v3d(lua_State *L, int index);
 static v3d check_v3d(lua_State *L, int index);
@@ -41,7 +42,9 @@ static v3d check_v3d(lua_State *L, int index);
 
 #define CHECK_FLOAT(value, name) do {\
 		if (std::isnan(value) || std::isinf(value)) { \
-			throw LuaError("Invalid float value for '" name \
+			/* "we have templates at home" */ \
+			const char *tname = sizeof(value) == sizeof(double) ? "double" : "float"; \
+			throw LuaError(std::string("Invalid ") + (tname) + " value for '" name \
 				"' (NaN or infinity)"); \
 		} \
 	} while (0)
@@ -67,6 +70,18 @@ static void read_v3_aux(lua_State *L, int index)
 	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_READ_VECTOR);
 	lua_insert(L, -2);
 	lua_call(L, 1, 3);
+}
+
+/**
+ * A helper which calls CUSTOM_RIDX_READ_VECTOR2 with the argument at the given index
+ */
+static void read_v2_aux(lua_State *L, int index)
+{
+	CHECK_POS_TAB(index);
+	lua_pushvalue(L, index);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_READ_VECTOR2);
+	lua_insert(L, -2);
+	lua_call(L, 1, 2);
 }
 
 // Retrieve an integer vector where all components are optional
@@ -96,11 +111,10 @@ void push_v3f(lua_State *L, v3f p)
 
 void push_v2f(lua_State *L, v2f p)
 {
-	lua_createtable(L, 0, 2);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_PUSH_VECTOR2);
 	lua_pushnumber(L, p.X);
-	lua_setfield(L, -2, "x");
 	lua_pushnumber(L, p.Y);
-	lua_setfield(L, -2, "y");
+	lua_call(L, 2, 1);
 }
 
 v2s16 read_v2s16(lua_State *L, int index)
@@ -115,20 +129,18 @@ void push_v2s16(lua_State *L, v2s16 p)
 
 void push_v2s32(lua_State *L, v2s32 p)
 {
-	lua_createtable(L, 0, 2);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_PUSH_VECTOR2);
 	lua_pushinteger(L, p.X);
-	lua_setfield(L, -2, "x");
 	lua_pushinteger(L, p.Y);
-	lua_setfield(L, -2, "y");
+	lua_call(L, 2, 1);
 }
 
 void push_v2u32(lua_State *L, v2u32 p)
 {
-	lua_createtable(L, 0, 2);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_PUSH_VECTOR2);
 	lua_pushinteger(L, p.X);
-	lua_setfield(L, -2, "x");
 	lua_pushinteger(L, p.Y);
-	lua_setfield(L, -2, "y");
+	lua_call(L, 2, 1);
 }
 
 v2s32 read_v2s32(lua_State *L, int index)
@@ -138,34 +150,26 @@ v2s32 read_v2s32(lua_State *L, int index)
 
 v2f read_v2f(lua_State *L, int index)
 {
-	v2f p;
-	CHECK_POS_TAB(index);
-	lua_getfield(L, index, "x");
-	CHECK_POS_COORD2(-1, "x");
-	p.X = lua_tonumber(L, -1);
-	lua_pop(L, 1);
-	lua_getfield(L, index, "y");
+	read_v2_aux(L, index);
+	CHECK_POS_COORD2(-2, "x");
 	CHECK_POS_COORD2(-1, "y");
-	p.Y = lua_tonumber(L, -1);
-	lua_pop(L, 1);
-	return p;
+	float x = lua_tonumber(L, -2);
+	float y = lua_tonumber(L, -1);
+	lua_pop(L, 2);
+	return v2f(x, y);
 }
 
 v2f check_v2f(lua_State *L, int index)
 {
-	v2f p;
-	CHECK_POS_TAB(index);
-	lua_getfield(L, index, "x");
-	CHECK_POS_COORD(-1, "x");
-	p.X = lua_tonumber(L, -1);
-	CHECK_FLOAT(p.X, "x");
-	lua_pop(L, 1);
-	lua_getfield(L, index, "y");
+	read_v2_aux(L, index);
+	CHECK_POS_COORD(-2, "x");
 	CHECK_POS_COORD(-1, "y");
-	p.Y = lua_tonumber(L, -1);
-	CHECK_FLOAT(p.Y, "y");
-	lua_pop(L, 1);
-	return p;
+	float x = lua_tonumber(L, -2);
+	float y = lua_tonumber(L, -1);
+	lua_pop(L, 2);
+	CHECK_FLOAT(x, "x");
+	CHECK_FLOAT(y, "y");
+	return v2f(x, y);
 }
 
 v3f read_v3f(lua_State *L, int index)
@@ -175,7 +179,20 @@ v3f read_v3f(lua_State *L, int index)
 
 v3f check_v3f(lua_State *L, int index)
 {
-	return v3f::from(check_v3d(L, index));
+	// This is *not* the same as `v3f::from(check_v3d(...))`, because
+	// then we would be casting after CHECK_FLOAT, which defeats the point.
+	read_v3_aux(L, index);
+	CHECK_POS_COORD(-3, "x");
+	CHECK_POS_COORD(-2, "y");
+	CHECK_POS_COORD(-1, "z");
+	float x = static_cast<float>(lua_tonumber(L, -3)),
+		y = static_cast<float>(lua_tonumber(L, -2)),
+		z = static_cast<float>(lua_tonumber(L, -1));
+	lua_pop(L, 3);
+	CHECK_FLOAT(x, "x");
+	CHECK_FLOAT(y, "y");
+	CHECK_FLOAT(z, "z");
+	return v3f(x, y, z);
 }
 
 v3d read_v3d(lua_State *L, int index)
@@ -184,9 +201,9 @@ v3d read_v3d(lua_State *L, int index)
 	CHECK_POS_COORD2(-3, "x");
 	CHECK_POS_COORD2(-2, "y");
 	CHECK_POS_COORD2(-1, "z");
-	double x = lua_tonumber(L, -3);
-	double y = lua_tonumber(L, -2);
-	double z = lua_tonumber(L, -1);
+	double x = lua_tonumber(L, -3),
+		y = lua_tonumber(L, -2),
+		z = lua_tonumber(L, -1);
 	lua_pop(L, 3);
 	return v3d(x, y, z);
 }
@@ -197,9 +214,9 @@ v3d check_v3d(lua_State *L, int index)
 	CHECK_POS_COORD(-3, "x");
 	CHECK_POS_COORD(-2, "y");
 	CHECK_POS_COORD(-1, "z");
-	double x = lua_tonumber(L, -3);
-	double y = lua_tonumber(L, -2);
-	double z = lua_tonumber(L, -1);
+	double x = lua_tonumber(L, -3),
+		y = lua_tonumber(L, -2),
+		z = lua_tonumber(L, -1);
 	lua_pop(L, 3);
 	CHECK_FLOAT(x, "x");
 	CHECK_FLOAT(y, "y");
@@ -414,14 +431,12 @@ size_t read_stringlist(lua_State *L, int index, std::vector<std::string> *result
 	size_t num_strings = 0;
 
 	if (lua_istable(L, index)) {
-		lua_pushnil(L);
-		while (lua_next(L, index)) {
+		LuaHelper::for_ipairs(L, index, [&]() {
 			if (lua_isstring(L, -1)) {
 				result->push_back(lua_tostring(L, -1));
 				num_strings++;
 			}
-			lua_pop(L, 1);
-		}
+		});
 	} else if (lua_isstring(L, index)) {
 		result->push_back(lua_tostring(L, index));
 		num_strings++;

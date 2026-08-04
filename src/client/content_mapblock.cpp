@@ -108,7 +108,7 @@ void MapblockMeshGenerator::getSpecialTile(int index, TileSpec *tile_ret, bool a
 			continue;
 		top_layer = layer;
 		if (!layer->has_color)
-			f.visuals->getColor(cur_node.n.param2, &layer->color);
+			layer->color = f.visuals->getColor(f, cur_node.n.param2);
 	}
 
 	if (apply_crack)
@@ -450,14 +450,44 @@ void MapblockMeshGenerator::drawSolidNode()
 			continue;
 		if (n2 == CONTENT_IGNORE)
 			continue;
+		// For a waving liquid source, keep the top face even when a solid node
+		// is directly above: wave animation can pull the surface down and expose
+		// a gap where the face was culled. Also keep backface culling off so the
+		// face is visible from below e.g. looking up from underwater.
+		// Submerged solids surrounded by liquid or other solid nodes on all sides are excluded.
+		bool liquid_needs_top_face = face == 0
+			&& cur_node.f->drawtype == NDT_LIQUID
+			&& cur_node.f->waving == 3
+			&& data->m_enable_waving_water;
+		if (liquid_needs_top_face) {
+			liquid_needs_top_face = false;
+			static const v3s16 h_dirs[4] = {
+				v3s16(1,0,0), v3s16(-1,0,0), v3s16(0,0,1), v3s16(0,0,-1)
+			};
+			for (const v3s16 &d : h_dirs) {
+				const ContentFeatures &f_side = nodedef->get(data->m_vmanip.getNodeNoEx(p2 + d));
+
+				bool side_is_translucent = !(f_side.visuals->solidness || f_side.visuals->visual_solidness);
+				bool side_is_same_flowing_liquid =
+					f_side.drawtype == NDT_FLOWINGLIQUID && cur_node.f->sameLiquidRender(f_side);
+
+				// Draw the top face as soon there's a translucent node diagonally above to
+				// avoid visual gaps in the liquid surface
+				if (side_is_translucent && !side_is_same_flowing_liquid) {
+					liquid_needs_top_face = true;
+					break;
+				}
+			}
+		}
 		if (n2 != CONTENT_AIR) {
 			const ContentFeatures &f2 = nodedef->get(n2);
-			if (f2.visuals->solidness == 2)
+			if (f2.visuals->solidness == 2 && !liquid_needs_top_face)
 				continue;
 			if (cur_node.f->drawtype == NDT_LIQUID) {
 				if (cur_node.f->sameLiquidRender(f2))
 					continue;
-				backface_culling = f2.visuals->solidness || f2.visuals->visual_solidness;
+				backface_culling =
+					!liquid_needs_top_face && (f2.visuals->solidness || f2.visuals->visual_solidness);
 			}
 		}
 		faces |= 1 << face;
@@ -1628,60 +1658,78 @@ void MapblockMeshGenerator::drawNodeboxNode()
 	std::vector<aabb3f> boxes;
 	cur_node.n.getNodeBoxes(nodedef, &boxes, neighbors_set);
 
-	bool isTransparent = false;
+	std::vector<u8> masks;
+	masks.reserve(boxes.size());
+	for (const auto &box : boxes)
+		masks.push_back(getNodeBoxMask(box, solid_neighbors, sametype_neighbors));
 
+	bool is_transparent = false;
 	for (const TileSpec &tile : tiles) {
 		if (tile.layers[0].isTransparent()) {
-			isTransparent = true;
+			is_transparent = true;
 			break;
 		}
 	}
 
-	if (isTransparent) {
+	// If "blend"-mode transparent, split boxes, so transparency sorting can work
+	// properly.
+	if (is_transparent) {
 		std::vector<float> sections;
-		// Preallocate 8 default splits + Min&Max for each nodebox
+		// There will be 8 default splits + Min&Max for each nodebox
 		sections.reserve(8 + 2 * boxes.size());
 
+		// Default split at node bounds, up to 3 nodes in each direction
+		for (int half_node = -7; half_node < 8; half_node += 2)
+			sections.push_back(half_node * 0.5f * BS);
+		assert(sections.size() == 8);
+
 		for (int axis = 0; axis < 3; axis++) {
+			// Faces that would appear between split boxes will be masked away
+			// using these masks, they hate this simple trick.
+			// mask_neg / _pos for the box side that goes in negative / positive
+			// `axis` direction respectively.
+			int mask_axis = std::array<int, 3>{1, 0, 2}[axis];
+			u8 mask_pos = 1 << (mask_axis * 2);
+			u8 mask_neg = 1 << (mask_axis * 2 + 1);
+
 			// identify sections
 
-			if (axis == 0) {
-				// Default split at node bounds, up to 3 nodes in each direction
-				for (float s = -3.5f * BS; s < 4.0f * BS; s += 1.0f * BS)
-					sections.push_back(s);
-			}
-			else {
-				// Avoid readding the same 8 default splits for Y and Z
-				sections.resize(8);
-			}
+			// Start with the 8 default splits
+			sections.resize(8);
 
-			// Add edges of existing node boxes, rounded to 1E-3
+			// Add edges of existing node boxes
 			for (size_t i = 0; i < boxes.size(); i++) {
-				sections.push_back(std::floor(boxes[i].MinEdge[axis] * 1E3) * 1E-3);
-				sections.push_back(std::floor(boxes[i].MaxEdge[axis] * 1E3) * 1E-3);
+				sections.push_back(boxes[i].MinEdge[axis]);
+				sections.push_back(boxes[i].MaxEdge[axis]);
 			}
 
 			// split the boxes at recorded sections
+
 			// limit splits to avoid runaway crash if inner loop adds infinite splits
 			// due to e.g. precision problems.
 			// 100 is just an arbitrary, reasonably high number.
 			for (size_t i = 0; i < boxes.size() && i < 100; i++) {
 				aabb3f *box = &boxes[i];
 				for (float section : sections) {
-					if (box->MinEdge[axis] < section && box->MaxEdge[axis] > section) {
+					if (box->MinEdge[axis] < section - 1.0e-3f
+							&& box->MaxEdge[axis] > section + 1.0e-3f) {
 						aabb3f copy(*box);
 						copy.MinEdge[axis] = section;
 						box->MaxEdge[axis] = section;
 						boxes.push_back(copy);
+						masks.push_back(masks[i] | mask_neg);
+						masks[i] |= mask_pos;
 						box = &boxes[i]; // find new address of the box in case of reallocation
 					}
 				}
 			}
 		}
 	}
+	assert(masks.size() == boxes.size());
 
-	for (auto &box : boxes) {
-		u8 mask = getNodeBoxMask(box, solid_neighbors, sametype_neighbors);
+	for (size_t i = 0; i < boxes.size(); ++i) {
+		const auto &box = boxes[i];
+		u8 mask = masks[i];
 
 		f32 txc[24];
 		generateCuboidTextureCoords(box, txc);

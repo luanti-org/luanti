@@ -349,7 +349,7 @@ struct ContentFeatures
 #if CHECK_CLIENT_BUILD()
 	// The Client class fills this for its NodeDefManager using fillNodeVisuals,
 	// thus for ContentFeatures of a Client it is not a nullptr.
-	NodeVisuals *visuals = nullptr;
+	std::unique_ptr<NodeVisuals> visuals;
 #endif
 
 	// --- LIGHTING-RELATED ---
@@ -435,6 +435,11 @@ struct ContentFeatures
 
 	ContentFeatures();
 	~ContentFeatures();
+	ContentFeatures(ContentFeatures&&) = default;
+	ContentFeatures& operator=(ContentFeatures&&) = default;
+
+	DISABLE_CLASS_COPY(ContentFeatures);
+
 	void reset();
 	void serialize(std::ostream &os, u16 protocol_version) const;
 	void deSerialize(std::istream &is, u16 protocol_version);
@@ -622,7 +627,7 @@ public:
 	 * @return ID of the registered node or @ref CONTENT_IGNORE if
 	 * the function could not allocate an ID.
 	 */
-	content_t set(const std::string &name, const ContentFeatures &def);
+	content_t set(const std::string &name, ContentFeatures &&def);
 
 	/*!
 	 * Allocates a blank node ID for the given name.

@@ -210,8 +210,8 @@ struct BufferedPacket {
 	float time = 0.0f; // Seconds from buffering the packet or re-sending
 	float totaltime = 0.0f; // Seconds from buffering the packet
 	u64 absolute_send_time = -1;
+	u32 resend_count = 0;
 	Address address; // Sender or destination
-	unsigned int resend_count = 0;
 
 private:
 	std::vector<u8> m_data; // Data of the packet, including headers

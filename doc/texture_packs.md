@@ -204,25 +204,34 @@ your override.txt files.
 
 Here are targets you can choose from:
 
-| target        | behavior                                          |
-|---------------|---------------------------------------------------|
-| left          | x- face                                           |
-| right         | x+ face                                           |
-| front         | z- face                                           |
-| back          | z+ face                                           |
-| top           | y+ face                                           |
-| bottom        | y- face                                           |
-| sides         | x-, x+, z-, z+ faces                              |
-| all           | All faces. You can also use '*' instead of 'all'. |
-| special1      | The first entry in the special_tiles list         |
-| special2      | The second entry in the special_tiles list        |
-| special3      | The third entry in the special_tiles list         |
-| special4      | The fourth entry in the special_tiles list        |
-| special5      | The fifth entry in the special_tiles list         |
-| special6      | The sixth entry in the special_tiles list         |
-| inventory     | The inventory texture                             |
-| wield         | The texture used when held by the player          |
-| align_world=N | Overrides the "world align" behavior of tiles ¹   |
+| target         | behavior                                          |
+|----------------|---------------------------------------------------|
+| left           | x- face                                           |
+| right          | x+ face                                           |
+| front          | z- face                                           |
+| back           | z+ face                                           |
+| top            | y+ face                                           |
+| bottom         | y- face                                           |
+| sides          | x-, x+, z-, z+ faces                              |
+| all            | All faces. You can also use '*' instead of 'all'. |
+| special1       | The first entry in the special_tiles list         |
+| special2       | The second entry in the special_tiles list        |
+| special3       | The third entry in the special_tiles list         |
+| special4       | The fourth entry in the special_tiles list        |
+| special5       | The fifth entry in the special_tiles list         |
+| special6       | The sixth entry in the special_tiles list         |
+| overlay_left   | The overlay on the x- face                        |
+| overlay_right  | The overlay on the x+ face                        |
+| overlay_front  | The overlay on the z- face                        |
+| overlay_back   | The overlay on the z+ face                        |
+| overlay_top    | The overlay on the y+ face                        |
+| overlay_bottom | The overlay on the y- face                        |
+| overlay_sides  | The overlay on the x-, x+, z-, z+ faces           |
+| overlay_all    | The overlay on all faces.                         |
+| overlay_*      | The overlay on all faces.                         |
+| inventory      | The inventory texture                             |
+| wield          | The texture used when held by the player          |
+| align_world=N  | Overrides the "world align" behavior of tiles ¹   |
 
 Nodes support all targets, but other items only support 'inventory'
 and 'wield'.

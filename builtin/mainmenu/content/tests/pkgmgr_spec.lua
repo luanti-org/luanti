@@ -129,6 +129,25 @@ describe("install_dir", function()
 		})
 	end)
 
+	it("updates game (alias)", function()
+		local old_game_path = games_dir .. "/mygame"
+		local env = reset()
+		-- Temporary download directory of the content
+		local DL_DIR = "/tmp/123"
+		env.pkgmgr.get_base_folder = function()
+			return { type = "game", path = DL_DIR }
+		end
+
+		local path, message = env.pkgmgr.install_dir("game", DL_DIR, "mynewgame", old_game_path)
+		assert.is.equal(games_dir .. "/mynewgame", path)
+		assert.is._nil(message)
+		env.assert_calls({
+			{ "delete_dir", games_dir .. "/mygame" },
+			{ "delete_dir", games_dir .. "/mynewgame" },
+			{ "copy_dir", DL_DIR, games_dir .. "/mynewgame", false },
+		})
+	end)
+
 	it("installs mod detects name", function()
 		local env = reset()
 		env.pkgmgr.get_base_folder = function()

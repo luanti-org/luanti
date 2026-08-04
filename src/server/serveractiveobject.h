@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include <optional>
 #include <queue>
+#include "AnimSpec.h"
 #include "irrlichttypes_bloated.h"
 #include "activeobject.h"
 #include "itemgroup.h"
@@ -141,7 +142,7 @@ public:
 	virtual u16 getHP() const
 	{ return 0; }
 
-	/// @brief Returns an unique ID for this object (persistent across unload, server restarts).
+	/// @brief Returns a unique ID for this object (persistent across unload, server restarts).
 	/// @note Because these strings are very short, copying them is not expensive.
 	virtual std::string getGUID() const = 0;
 
@@ -149,12 +150,20 @@ public:
 	{}
 	virtual const ItemGroupList &getArmorGroups() const
 	{ static ItemGroupList rv; return rv; }
-	virtual void setAnimation(v2f frames, float frame_speed, float frame_blend, bool frame_loop)
+
+	// Animation
+
+	virtual void setAnimation(const scene::TrackId &track, scene::TrackAnimSpec anim_spec)
 	{}
-	virtual void getAnimation(v2f *frames, float *frame_speed, float *frame_blend, bool *frame_loop)
+	virtual void stopAnimation(const scene::TrackId &track)
 	{}
-	virtual void setAnimationSpeed(float frame_speed)
+	virtual std::vector<std::pair<scene::TrackId, scene::TrackAnimSpec>> getAllAnimations() const
+	{ return {}; }
+	virtual std::optional<scene::TrackAnimSpec> getAnimation(const scene::TrackId &track) const
+	{ return std::nullopt; }
+	virtual void setAnimationSpeed(const scene::TrackId &track, f32 fps)
 	{}
+
 	virtual void setBoneOverride(const std::string &bone, const BoneOverride &props)
 	{}
 	virtual BoneOverride getBoneOverride(const std::string &bone)
@@ -253,7 +262,7 @@ protected:
 
 	/*
 		Same purpose as m_pending_removal but for deactivation.
-		deactvation = save static data in block, remove active object
+		deactivation = save static data in block, remove active object
 
 		If this is set alongside with m_pending_removal, removal takes
 		priority.
@@ -265,7 +274,7 @@ protected:
 		- Whether this object is to be removed when nobody knows about
 		  it anymore.
 		- Removal is delayed to preserve the id for the time during which
-		  it could be confused to some other object by some client.
+		  it could be confused with some other object by some client.
 		- This is usually set to true by the step() method when the object wants
 		  to be deleted but can be set by anything else too.
 		Note: Do not assign this directly, use markForRemoval() instead.

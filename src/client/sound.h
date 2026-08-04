@@ -128,6 +128,11 @@ public:
 			const v3f &vel) = 0;
 
 	/**
+	 * Prints all currently playing sounds, for debugging.
+	 */
+	virtual void printPlayingSounds() = 0;
+
+	/**
 	 * Get and reset the list of sounds that were stopped.
 	 */
 	std::vector<sound_handle_t> pollRemovedSounds()
@@ -173,6 +178,8 @@ public:
 	void stopSound(sound_handle_t sound) override {}
 	void fadeSound(sound_handle_t sound, f32 step, f32 target_gain) override {}
 	void updateSoundPosVel(sound_handle_t sound, const v3f &pos, const v3f &vel) override {}
+
+	void printPlayingSounds() override {}
 };
 
 /**

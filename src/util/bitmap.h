@@ -15,6 +15,8 @@ class Bitmap {
 	u32 linesize, lines;
 	std::vector<u8> data;
 
+	// NOTE: do not rely on the value of unused padding bits in `data`
+
 	static inline u32 bytepos(u32 index) { return index >> 3; }
 	static inline u8 bitpos(u32 index) { return index & 7; }
 
@@ -81,12 +83,25 @@ public:
 			if (data[i] != 0xff)
 				return false;
 		}
-		u8 last_byte = data.back(); // not used entirely
-		for (u8 i = 0; i < bitpos(linesize * lines); i++) {
-			if (!(last_byte & (1 << i)))
+		u8 last_byte = data.back(); // contains padding
+		u8 leftover_bits = bitpos(linesize * lines); // [0, 7]
+		u8 leftover_mask = (1 << leftover_bits) - 1; // 0, 1, 3, 7, ... or 127
+		return (last_byte & leftover_mask) == leftover_mask;
+	}
+
+	/// @brief Returns true if no bits in the bitmap are set
+	inline bool none() const
+	{
+		if (!linesize || !lines)
+			return (assert(0), true);
+		for (u32 i = 0; i < data.size() - 1; i++) {
+			if (data[i] != 0)
 				return false;
 		}
-		return true;
+		u8 last_byte = data.back();
+		u8 leftover_bits = bitpos(linesize * lines);
+		u8 leftover_mask = (1 << leftover_bits) - 1;
+		return (last_byte & leftover_mask) == 0;
 	}
 };
 

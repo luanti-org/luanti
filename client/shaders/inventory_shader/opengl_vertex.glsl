@@ -1,6 +1,8 @@
 CENTROID_ VARYING_ lowp vec4 varColor;
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
-CENTROID_ VARYING_ float varTexLayer; // actually int
+#ifdef USE_ARRAY_TEXTURE
+flat VARYING_ uint varTexLayer;
+#endif
 
 void main(void)
 {

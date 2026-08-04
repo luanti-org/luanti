@@ -36,6 +36,8 @@ fake_function() {
 	gettext("Invert vertical mouse movement.");
 	gettext("Mouse sensitivity");
 	gettext("Mouse sensitivity multiplier.");
+	gettext("Keyboard camera speed");
+	gettext("Keyboard-controlled camera rotation speed, in degrees per second.");
 	gettext("Hotbar: Enable mouse wheel for selection");
 	gettext("Enable mouse wheel (scroll) for item selection in hotbar.");
 	gettext("Hotbar: Invert mouse wheel direction");
@@ -78,6 +80,10 @@ fake_function() {
 	gettext("Toggle fullscreen");
 	gettext("Drop item");
 	gettext("Zoom");
+	gettext("Look left");
+	gettext("Look right");
+	gettext("Look up");
+	gettext("Look down");
 	gettext("Toggle HUD");
 	gettext("Toggle chat log");
 	gettext("Toggle large chat console");
@@ -177,6 +183,9 @@ fake_function() {
 	gettext("Arm inertia, gives a more realistic movement of\nthe arm when the camera moves.");
 	gettext("View bobbing factor");
 	gettext("Enable view bobbing and amount of view bobbing.\nFor example: 0 for no view bobbing; 1.0 for normal; 2.0 for double.");
+	gettext("Damage");
+	gettext("Damage flash");
+	gettext("Flashing of the screen when taking damage.");
 	gettext("Camera");
 	gettext("Field of view");
 	gettext("Field of view in degrees.");
@@ -325,8 +334,8 @@ fake_function() {
 	gettext("When gui_scaling_filter is true, all GUI images need to be\nfiltered in software, but some images are generated directly\nto hardware (e.g. render-to-texture for nodes in inventory).");
 	gettext("Tooltip delay");
 	gettext("Delay showing tooltips, stated in milliseconds.");
-	gettext("Append item name");
-	gettext("Append item name to tooltip.");
+	gettext("Append item name to tooltips");
+	gettext("Append the full item name to the tooltip of item stacks.");
 	gettext("Clouds in menu");
 	gettext("Use a cloud animation for the main menu background.");
 	gettext("Menu theme");
@@ -694,6 +703,8 @@ fake_function() {
 	gettext("Developer Options");
 	gettext("Client modding");
 	gettext("Enable Lua modding support on client.\nThis support is experimental and API can change.");
+	gettext("Enable SSCSM");
+	gettext("Where to enable server-sent client-side modding (SSCSM).\nWarning: Experimental.");
 	gettext("Main menu script");
 	gettext("Replaces the default main menu with a custom one.");
 	gettext("Mod Security");
@@ -910,6 +921,8 @@ fake_function() {
 	gettext("cURL");
 	gettext("cURL interactive timeout");
 	gettext("Maximum time an interactive request (e.g. server list fetch) may take, stated in milliseconds.");
+	gettext("cURL proxy address");
+	gettext("Set proxy to use by cURL. This is an URI just like the *_proxy environment variables.\nNote that this will not apply to Luanti's in-game protocol.");
 	gettext("cURL parallel limit");
 	gettext("Limits number of parallel HTTP requests. Affects:\n-    Media fetch if server uses remote_media setting.\n-    Serverlist download and server announcement.\n-    Downloads performed by main menu (e.g. mod manager).\nOnly has an effect if compiled with cURL.");
 	gettext("cURL file download timeout");

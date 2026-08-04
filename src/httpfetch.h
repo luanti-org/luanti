@@ -15,7 +15,7 @@
 // requests because the result does not have to be retrieved later).
 #define HTTPFETCH_SYNC 1
 // Print response body to console if the server returns an error code.
-#define HTTPFETCH_PRINT_ERR 2
+#define HTTPFETCH_PRINT_BODY 2
 // Start of regular allocated caller IDs.
 #define HTTPFETCH_CID_START 3
 
@@ -73,6 +73,9 @@ struct HTTPFetchRequest
 
 	// User agent to send
 	std::string useragent;
+
+	// If true, don't print to errorstream when result is not OK.
+	bool quiet = false;
 
 	HTTPFetchRequest();
 };

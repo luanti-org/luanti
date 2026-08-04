@@ -125,7 +125,8 @@ void CGUIComboBox::removeItem(u32 idx)
 //! Returns caption of this element.
 const wchar_t *CGUIComboBox::getText() const
 {
-	return getItem(Selected);
+	const wchar_t *item = getItem(Selected);
+	return item ? item : L"";
 }
 
 //! adds an item and returns the index of it
@@ -235,11 +236,10 @@ bool CGUIComboBox::OnEvent(const SEvent &event)
 			switch (event.GUIEvent.EventType) {
 			case EGET_ELEMENT_FOCUS_LOST:
 				if (ListBox &&
-						(Environment->hasFocus(ListBox) || ListBox->isMyChild(event.GUIEvent.Caller)) &&
+						// Newly focused element
 						event.GUIEvent.Element != this &&
-						!isMyChild(event.GUIEvent.Element) &&
-						!ListBox->isMyChild(event.GUIEvent.Element)) {
-					openCloseMenu();
+						!isMyDescendant(event.GUIEvent.Element)) {
+					openCloseMenu(); // close
 				}
 				break;
 			case EGET_BUTTON_CLICKED:
@@ -263,28 +263,23 @@ bool CGUIComboBox::OnEvent(const SEvent &event)
 				break;
 			}
 			break;
-		case EET_MOUSE_INPUT_EVENT:
+		case EET_MOUSE_INPUT_EVENT: {
+			core::position2d<s32> p(event.MouseInput.X, event.MouseInput.Y);
 
 			switch (event.MouseInput.Event) {
 			case EMIE_LMOUSE_PRESSED_DOWN: {
-				core::position2d<s32> p(event.MouseInput.X, event.MouseInput.Y);
 
-				// send to list box
-				if (ListBox && ListBox->isPointInside(p) && ListBox->OnEvent(event))
+				if (!ListBox && isPointInside(p)) {
+					// Quick select: mouse down -> drag to position -> mouse up -> (selected)
+					openCloseMenu(); // open
 					return true;
+				}
 
-				return true;
+				break;
 			}
 			case EMIE_LMOUSE_LEFT_UP: {
-				core::position2d<s32> p(event.MouseInput.X, event.MouseInput.Y);
-
-				// send to list box
-				if (!(ListBox &&
-							ListBox->getAbsolutePosition().isPointInside(p) &&
-							ListBox->OnEvent(event))) {
-					openCloseMenu();
-				}
-				return true;
+				// Eaten by CGUIListBox
+				break;
 			}
 			case EMIE_MOUSE_WHEEL: {
 				// Try scrolling parent first
@@ -310,7 +305,13 @@ bool CGUIComboBox::OnEvent(const SEvent &event)
 			default:
 				break;
 			}
+
+			// Prevent interaction with underlying elements.
+			if (isPointInside(p) || (ListBox && ListBox->isPointInside(p)))
+				return true;
+
 			break;
+		}
 		default:
 			break;
 		}
@@ -369,7 +370,7 @@ void CGUIComboBox::draw()
 
 	IGUIElement *currentFocus = Environment->getFocus();
 	if (currentFocus != LastFocus) {
-		HasFocus = currentFocus == this || isMyChild(currentFocus);
+		HasFocus = currentFocus == this || isMyDescendant(currentFocus);
 		LastFocus = currentFocus;
 	}
 

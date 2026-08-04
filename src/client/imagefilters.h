@@ -38,3 +38,8 @@ video::SColor imageAverageColor(const video::IImage *img);
  * and downscaling.
  */
 void imageScaleNNAA(video::IImage *src, const core::rect<s32> &srcrect, video::IImage *dest);
+
+/* Apply a mask to an image.
+ * The two images must have identical dimensions and color formats.
+ */
+void imageApplyMask(video::IImage *dest, const video::IImage *mask);

@@ -10,13 +10,21 @@
 namespace video
 {
 
-class OpenGLVBO
+class OGLBufferObject
 {
 public:
+	enum Target : GLenum {
+		TARGET_VBO = GL_ARRAY_BUFFER,
+		TARGET_UBO = GL_UNIFORM_BUFFER,
+	};
+
 	/// @note does not create on GL side
-	OpenGLVBO() = default;
+	OGLBufferObject(Target target) : m_target(target) {}
 	/// @note does not free on GL side
-	~OpenGLVBO() = default;
+	~OGLBufferObject() {}
+	// ^ Do not use `= default;`. These should be equivalent here, but `= default`
+	// results in a linking error for obscure configurations
+	// (Edison Design Group C++ frontend + MCST LCC 1.29.16 and similar), see #17232.
 
 	/// @return "name" (ID) of this buffer in GL
 	GLuint getName() const { return m_name; }
@@ -47,8 +55,10 @@ public:
 	void destroy();
 
 private:
+
 	GLuint m_name = 0;
 	size_t m_size = 0;
+	Target m_target;
 };
 
 }

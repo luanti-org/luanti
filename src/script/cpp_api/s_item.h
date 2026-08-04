@@ -27,7 +27,8 @@ public:
 	 * inventory without the engine interfering (see issue #6546).
 	 */
 
-	bool item_OnDrop(ItemStack &item,
+	/// @return count of remaining stack
+	u16 item_OnDrop(const ItemStack &item,
 			ServerActiveObject *dropper, v3f pos);
 	bool item_OnPlace(std::optional<ItemStack> &item,
 			ServerActiveObject *placer, const PointedThing &pointed);
@@ -46,7 +47,7 @@ protected:
 
 	bool getItemCallback(const char *name, const char *callbackname, const v3s16 *p = nullptr);
 	/*!
-	 * Pushes a `pointed_thing` tabe to the stack.
+	 * Pushes a `pointed_thing` table to the stack.
 	 * \param hitpoint If true, the exact pointing location is also pushed
 	 */
 	void pushPointedThing(const PointedThing &pointed, bool hitpoint = false);

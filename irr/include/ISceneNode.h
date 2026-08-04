@@ -352,7 +352,7 @@ public:
 	If you want the absolute rotation, use
 	getAbsoluteTransformation().getRotation()
 	\return Current relative rotation of the scene node. */
-	virtual const core::vector3df &getRotation() const
+	virtual core::vector3df getRotation() const
 	{
 		return RelativeRotation;
 	}

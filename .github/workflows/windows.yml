@@ -42,7 +42,7 @@ jobs:
           - { bits: 32, nsis: false }
           - { bits: 64, nsis: true }
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install compiler
         run: |
           source ./util/ci/common.sh
@@ -78,22 +78,22 @@ jobs:
            cp -v "$dest"/*.exe $GITHUB_WORKSPACE/artifact/
         if: ${{ matrix.config.nsis }}
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
-          name: "mingw${{ matrix.config.bits }}"
+          archive: false
           path: artifact/*.zip
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
-          name: "mingw${{ matrix.config.bits }}-nsis"
+          archive: false
           path: artifact/*.exe
           if-no-files-found: error
         if: ${{ matrix.config.nsis }}
 
   msvc:
-    name: VS 2022 ${{ matrix.config.arch }}
-    runs-on: windows-2025
+    name: VS 2026 ${{ matrix.config.arch }}
+    runs-on: windows-2025-vs2026
     env:
       VCPKG_DEFAULT_TRIPLET: ${{matrix.config.vcpkg_triplet}}
     strategy:
@@ -102,17 +102,17 @@ jobs:
         config:
           - {
               arch: x86,
-              generator: "-G'Visual Studio 17 2022' -A Win32",
+              generator: "-G'Visual Studio 18 2026' -A Win32",
               vcpkg_triplet: x86-windows
             }
           - {
               arch: x64,
-              generator: "-G'Visual Studio 17 2022' -A x64",
+              generator: "-G'Visual Studio 18 2026' -A x64",
               vcpkg_triplet: x64-windows
             }
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Restore from cache and run vcpkg
         uses: lukka/run-vcpkg@v11
@@ -120,12 +120,10 @@ jobs:
           vcpkgDirectory: '${{ github.workspace }}\vcpkg'
 
       - name: CMake
-        # Note: See #15976 for why CMAKE_POLICY_VERSION_MINIMUM=3.5 is set.
         run: |
           cmake ${{matrix.config.generator}}  `
           -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake"  `
           -DCMAKE_BUILD_TYPE=Release  `
-          -DCMAKE_POLICY_VERSION_MINIMUM=3.5  `
           -DENABLE_POSTGRESQL=OFF  `
           -DENABLE_LUAJIT=TRUE  `
           -DREQUIRE_LUAJIT=TRUE  `
@@ -145,9 +143,10 @@ jobs:
         run: |
           cpack -G ZIP -B "$env:GITHUB_WORKSPACE\Package"
           rm -r $env:GITHUB_WORKSPACE\Package\_CPack_Packages
+          Get-ChildItem "$env:GITHUB_WORKSPACE\Package\*.zip" | Rename-Item -NewName { $_.Name -replace '\.zip$', '-msvc.zip' }
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
-          name: msvc-${{ matrix.config.arch }}
+          archive: false
           path: .\Package\
           if-no-files-found: error

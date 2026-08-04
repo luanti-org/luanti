@@ -10,6 +10,8 @@
 #include "map.h"
 #include "client/client.h"
 #include "log_internal.h"
+#include "itemdef.h"
+#include "nodedef.h"
 
 // Poll the next event (e.g. on_globalstep)
 struct SSCSMRequestPollNextEvent final : public ISSCSMRequest
@@ -25,7 +27,7 @@ struct SSCSMRequestPollNextEvent final : public ISSCSMRequest
 	}
 };
 
-// Some error occured in the SSCSM env
+// Some error occurred in the SSCSM env
 struct SSCSMRequestSetFatalError final : public ISSCSMRequest
 {
 	struct Answer final : public ISSCSMAnswer
@@ -102,6 +104,34 @@ struct SSCSMRequestGetNode final : public ISSCSMRequest
 		Answer answer{};
 		answer.node = node;
 		answer.is_pos_ok = is_pos_ok;
+		return serializeSSCSMAnswer(std::move(answer));
+	}
+};
+
+// Fetch all currently known item and node definitions, to populate
+// core.registered_items/_nodes/_tools/_craftitems on the SSCSM side.
+// TODO: aliases and the content-id name mapping are not sent yet.
+struct SSCSMRequestGetItemDefs final : public ISSCSMRequest
+{
+	struct Answer final : public ISSCSMAnswer
+	{
+		std::vector<ItemDefinition> items;
+		// TODO: ContentFeatures may need to be copied,
+		// or direct store a serialized version
+		std::vector<const ContentFeatures*> nodes;
+	};
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		Answer answer{};
+
+		client->idef()->getDefinitions(answer.items);
+		const NodeDefManager *ndef = client->ndef();
+		answer.nodes.reserve(ndef->size());
+		for (u32 c = 0; c < ndef->size(); c++) {
+			answer.nodes.push_back(&ndef->get(c));
+		}
+
 		return serializeSSCSMAnswer(std::move(answer));
 	}
 };

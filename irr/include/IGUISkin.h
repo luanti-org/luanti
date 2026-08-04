@@ -332,6 +332,17 @@ const c8 *const GUISkinFontNames[EGDF_COUNT + 1] = {
 		0,
 	};
 
+enum EGUI_DEFAULT_BEHAVIOR {
+	//! Smooth scrolling
+	EGDB_SMOOTH_SCROLL,
+	//! Moves the slider instantly to the selected tray position
+	EGDB_SCOLLBAR_JUMP_TO_CLICKED,
+
+	//! value not used. count of enum values.
+	EGDB_COUNT
+};
+
+
 //! A skin modifies the look of the GUI elements.
 class IGUISkin : virtual public IReferenceCounted
 {
@@ -369,6 +380,9 @@ public:
 
 	//! sets a default font
 	virtual void setFont(IGUIFont *font, EGUI_DEFAULT_FONT which = EGDF_DEFAULT) = 0;
+
+	virtual s32  getBehavior(EGUI_DEFAULT_BEHAVIOR which) const = 0;
+	virtual void setBehavior(EGUI_DEFAULT_BEHAVIOR which, s32 value) = 0;
 
 	//! returns the sprite bank
 	virtual IGUISpriteBank *getSpriteBank() const = 0;

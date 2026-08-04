@@ -261,6 +261,8 @@ public:
 	// updated from the server. If it is true, it is set to false.
 	bool updateWieldedItem();
 
+	bool consumeSkipNextWieldAnimation();
+
 	/* InventoryManager interface */
 	Inventory* getInventory(const InventoryLocation &loc) override;
 	void inventoryAction(InventoryAction *a) override;
@@ -343,10 +345,11 @@ public:
 	// server hosted by a different Luanti instance.
 	bool m_internal_server;
 
-	float mediaReceiveProgress();
+	bool mediaReceiveProgress(s32 &received, s32 &total, size_t &received_size) const;
 
 	void drawLoadScreen(const std::wstring &text, float dtime, int percent);
 	void afterContentReceived();
+	void loadSSCSM();
 	void showUpdateProgressTexture(void *args, float progress);
 
 	float getRTT();
@@ -373,9 +376,15 @@ public:
 	virtual ISoundManager* getSoundManager();
 	MtEventManager* getEventManager();
 	virtual ParticleManager* getParticleManager();
+
 	bool checkLocalPrivilege(const std::string &priv)
 	{ return checkPrivilege(priv); }
-	virtual scene::IAnimatedMesh* getMesh(const std::string &filename, bool cache = false);
+
+	// Gets a pointer to a named mesh
+	// If you want to modify it, you may need to clone it first (-> `is_shared`)
+	// (the returned pointer must be dropped)
+	scene::IAnimatedMesh *getMesh(const std::string &filename, bool *is_shared = nullptr);
+
 	ModVFS *getModVFS() { return m_mod_vfs.get(); }
 	ModStorageDatabase *getModStorageDatabase() override { return m_mod_storage_database; }
 
@@ -441,6 +450,20 @@ public:
 	bool inhibit_inventory_revert = false;
 
 private:
+	struct PendingMediaDownload {
+		// Tokens to ack to the server. multiple because server can send duplicate
+		// requests
+		std::vector<u32> tokens;
+		std::string name; // Filename
+		std::shared_ptr<SingleMediaDownloader> d;
+
+		PendingMediaDownload(u32 token, const std::string &name,
+				const std::shared_ptr<SingleMediaDownloader> &d) : name(name), d(d)
+		{
+			tokens.push_back(token);
+		}
+	};
+
 	void loadMods();
 
 	// Virtual methods from con::PeerHandler
@@ -499,6 +522,7 @@ private:
 	u16 m_proto_ver = 0;
 
 	bool m_update_wielded_item = false;
+	bool m_skip_next_wield_animation = false;
 	std::unique_ptr<Inventory> m_inventory_from_server;
 	float m_inventory_from_server_age = 0.0f;
 	s32 m_mapblock_limit_logged = 0;
@@ -539,8 +563,8 @@ private:
 	std::vector<std::string> m_remote_media_servers;
 	// Media downloader, only exists during init
 	std::unique_ptr<ClientMediaDownloader> m_media_downloader;
-	// Pending downloads of dynamic media (key: token)
-	std::vector<std::pair<u32, std::shared_ptr<SingleMediaDownloader>>> m_pending_media_downloads;
+	// Pending downloads of dynamic media
+	std::vector<PendingMediaDownload> m_pending_media_downloads;
 
 	// An interval for generally sending object positions and stuff
 	float m_recommended_send_interval = 0.1f;

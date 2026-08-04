@@ -290,7 +290,7 @@ void CGUIButton::drawSprite(EGUI_BUTTON_STATE state, u32 startTime, const core::
 	core::rect<s32> srcRect = SpriteBank->getPositions()[rectIdx];
 
 	IGUISkin *skin = Environment->getSkin();
-	s32 scale = std::max(std::floor(skin->getScale()), 1.0f);
+	s32 scale = std::max((s32)skin->getScale(), 1);
 	core::rect<s32> rect(center, srcRect.getSize() * scale);
 	rect -= rect.getSize() / 2;
 

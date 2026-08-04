@@ -33,6 +33,8 @@ gtags.files
 .vscode/*
 !.vscode/extensions.json
 build/.cmake/
+# Zed
+.zed/
 # Fleet
 .fleet
 # Gradle
@@ -93,6 +95,7 @@ doc/doxygen_*
 public/
 doc/mkdocs/docs/*.md
 doc/mkdocs/mkdocs.yml
+doc/mkdocs/venv/
 
 ## Build files
 build/
@@ -104,6 +107,7 @@ CPackConfig.cmake
 CPackSourceConfig.cmake
 src/cmake_config.h
 src/cmake_config_githash.h
+src/builtin_files.cpp
 /locale/
 .directory
 *.cbp

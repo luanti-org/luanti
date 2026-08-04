@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "IIndexBuffer.h"
 #include "SIrrCreationParameters.h"
 
 
@@ -48,8 +49,7 @@ public:
 
 	struct SHWBufferLink_opengl : public SHWBufferLink
 	{
-		SHWBufferLink_opengl(const scene::IVertexBuffer *vb) : SHWBufferLink(vb) {}
-		SHWBufferLink_opengl(const scene::IIndexBuffer *ib) : SHWBufferLink(ib) {}
+		SHWBufferLink_opengl(const scene::HWBuffer *buf) : SHWBufferLink(buf) {}
 
 		GLuint vbo_ID = 0;
 		u32 vbo_Size = 0;
@@ -58,11 +58,7 @@ public:
 	//! updates hardware buffer if needed
 	bool updateHardwareBuffer(SHWBufferLink *HWBuffer) override;
 
-	//! Create hardware buffer from vertex buffer
-	SHWBufferLink *createHardwareBuffer(const scene::IVertexBuffer *vb) override;
-
-	//! Create hardware buffer from index buffer
-	SHWBufferLink *createHardwareBuffer(const scene::IIndexBuffer *ib) override;
+	SHWBufferLink *createHardwareBuffer(const scene::HWBuffer *buf) override;
 
 	//! Delete hardware buffer (only some drivers can)
 	void deleteHardwareBuffer(SHWBufferLink *HWBuffer) override;

@@ -19,10 +19,10 @@ Contributions are welcome! Here's how you can help:
    developers.
 
    Any Pull Request that isn't a bug fix and isn't covered by
-   [the roadmap](../doc/direction.md) will be closed within a month unless it
-   receives a concept approval from a Core Developer. For this reason, it is
-   recommended that you open an issue for any such pull requests before doing
-   the work, to avoid disappointment.
+   [the roadmap](https://github.com/luanti-org/luanti/blob/master/doc/direction.md)
+   will be closed within a month unless it receives a concept approval from a
+   Core Developer. For this reason, it is recommended that you open an issue
+   for any such pull requests before doing the work, to avoid disappointment.
 
    You may also benefit from discussing on our IRC development channel
    [#luanti-dev](https://docs.luanti.org/about/irc/). Note that a proper IRC client
@@ -33,6 +33,7 @@ Contributions are welcome! Here's how you can help:
       [Lua API](https://github.com/luanti-org/luanti/blob/master/doc/lua_api.md),
       [Luanti Documentation](https://docs.luanti.org/) and other
       [documentation](https://github.com/luanti-org/luanti/tree/master/doc).
+    - Follow the [AI policy](https://github.com/luanti-org/luanti/blob/master/doc/developing/ai_policy.md).
     - Follow the [C/C++](https://docs.luanti.org/for-engine-devs/code-style-guidelines/) and
       [Lua](https://docs.luanti.org/for-engine-devs/lua-code-style-guidelines/) code style guidelines.
     - Check your code works as expected and document any changes to the Lua API.
@@ -60,15 +61,17 @@ Contributions are welcome! Here's how you can help:
 
 ### A pull-request is considered merge-able when:
 
-1. It follows [the roadmap](../doc/direction.md) in some way and fits the whole
-   picture of the project.
+1. It follows [the roadmap](https://github.com/luanti-org/luanti/blob/master/doc/direction.md)
+   in some way and fits the whole picture of the project.
 2. It works.
-3. It follows the code style for
+3. It follows [the AI policy](https://github.com/luanti-org/luanti/blob/master/doc/developing/ai_policy.md)
+   for all code, documentation, and other media.
+4. It follows the code style for
    [C/C++](https://docs.luanti.org/for-engine-devs/code-style-guidelines/) or
    [Lua](https://docs.luanti.org/for-engine-devs/lua-code-style-guidelines/).
-4. The code's interfaces are well designed, regardless of other aspects that
+5. The code's interfaces are well designed, regardless of other aspects that
    might need more work in the future.
-5. It uses protocols and formats which include the required compatibility.
+6. It uses protocols and formats which include the required compatibility.
 
 ## Issues
 
@@ -93,9 +96,9 @@ closed after 1 month).
 ## Feature requests
 
 Feature requests are welcome but take a moment to see if your idea follows
-[the roadmap](../doc/direction.md) in some way and fits the whole picture of
-the project. You should provide a clear explanation with as much detail as
-possible.
+[the roadmap](https://github.com/luanti-org/luanti/blob/master/doc/direction.md)
+in some way and fits the whole picture of the project. You should provide a
+clear explanation with as much detail as possible.
 
 ## Translations
 
@@ -126,8 +129,9 @@ These notes are for those who have push access Luanti (core developers / maintai
 
 If a Pull Request is not a bug fix:
 
-* If it matches a goal in [the roadmap](../doc/direction.md), then the PR should
-  be labeled as "Roadmap" and the goal stated by number in the description.
+* If it matches a goal in [the roadmap](https://github.com/luanti-org/luanti/blob/master/doc/direction.md),
+  then the PR should be labeled as "Roadmap" and the goal stated by number in
+  the description.
 * If it doesn't match a goal, then it needs to receive a concept approval within
   a week of being opened to remain open. This 1 week deadline does not apply to
   PRs opened before the roadmap was adopted; instead, they may remain open or be

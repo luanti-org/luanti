@@ -54,8 +54,8 @@ void main()
 	{
 		float FogFactor = computeFog();
 		vec4 FogColor = uFogColor;
-		FogColor.a = 1.0;
-		Color = mix(FogColor, Color, FogFactor);
+		// Note: Robust against a bogus FogColor.a or FogFactor
+		Color.rgb = mix(FogColor.rgb, Color.rgb, FogFactor);
 	}
 
 	gl_FragColor = Color;

@@ -75,7 +75,7 @@ std::string ModApiBase::getCurrentModPath(lua_State *L)
 	if (current_mod_name.empty())
 		return ".";
 
-	const ModSpec *mod = getServer(L)->getModSpec(current_mod_name);
+	const ModSpec *mod = getGameDef(L)->getModSpec(current_mod_name);
 	if (!mod)
 		return ".";
 

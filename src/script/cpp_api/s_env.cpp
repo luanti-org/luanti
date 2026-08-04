@@ -5,6 +5,7 @@
 #include "cpp_api/s_env.h"
 #include "cpp_api/s_internal.h"
 #include "common/c_converter.h"
+#include "common/helper.h"
 #include "log.h"
 #include "mapgen/mapgen.h"
 #include "lua_api/l_env.h"
@@ -176,14 +177,10 @@ bool ScriptApiEnv::read_nodenames(lua_State *L, int idx, std::vector<std::string
 {
 	if (lua_istable(L, idx)) {
 		const int table = idx < 0 ? (lua_gettop(L) + idx + 1) : idx;
-		lua_pushnil(L);
-		while (lua_next(L, table)) {
-			// key at index -2 and value at index -1
+		LuaHelper::for_ipairs(L, table, [&]() {
 			luaL_checktype(L, -1, LUA_TSTRING);
 			to.emplace_back(readParam<std::string>(L, -1));
-			// removes value, keeps key for next iteration
-			lua_pop(L, 1);
-		}
+		});
 	} else if (lua_isstring(L, idx)) {
 		to.emplace_back(readParam<std::string>(L, idx));
 	} else {

@@ -435,14 +435,15 @@ SECTION("simple skin")
 		// Find the mesh buffer and search the weights
 		const auto *buf = dynamic_cast<scene::SSkinMeshBuffer *>(mesh->getMeshBuffer(0));
 		REQUIRE(buf);
-		REQUIRE(buf->Weights.has_value());
+		const auto *buf_weights = buf->getWeights();
+		REQUIRE(buf_weights != nullptr);
 		std::vector<f32> weights(buf->getVertexCount(), 0.0f);
 		for (size_t i = 0; i < buf->getVertexCount(); ++i) {
-			const auto &joint_ids = buf->Weights->getJointIds(i);
+			const auto &joint_ids = buf_weights->getJointIds(i);
 			const auto it = std::find(joint_ids.begin(), joint_ids.end(), joint->JointID);
 			if (it == joint_ids.end())
 				continue;
-			weights[i] = buf->Weights->getWeights(i)[std::distance(joint_ids.begin(), it)];
+			weights[i] = buf_weights->getWeights(i)[std::distance(joint_ids.begin(), it)];
 		}
 		return weights;
 	};

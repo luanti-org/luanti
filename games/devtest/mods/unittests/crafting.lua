@@ -110,3 +110,65 @@ local function test_get_craft_result()
 	assert(output.item:is_empty())
 end
 unittests.register("test_get_craft_result", test_get_craft_result)
+
+
+local function test_get_all_craft_recipes()
+	-- cooking
+	local output
+
+	output = "unittests:steel_ingot"
+	do
+		local recipes = core.get_all_craft_recipes(output)
+
+		core.log("info", "[unittests] cooking recipes="..dump(recipes))
+		local found
+		for _, recipe in ipairs(recipes) do
+			if recipe.type == "cooking" and recipe.items[1] == "unittests:iron_lump" then
+				assert(found == nil, "found too many")
+				found = recipe
+			end
+		end
+		assert(found)
+		assert(ItemStack(found.output) == ItemStack(output)) -- handle aliases
+		assert(found.time == 10) -- cooktime
+	end
+
+	-- fuel
+	output = ""
+	do
+		local recipes = core.get_all_craft_recipes(output)
+		core.log("info", "[unittests] fuel recipes="..dump(recipes))
+		local found
+		for _, recipe in ipairs(recipes) do
+			if recipe.type == "fuel" and recipe.items[1] == "unittests:coal_lump" then
+				assert(found == nil, "found too many")
+				found = recipe
+			end
+		end
+		assert(found)
+		assert(ItemStack(found.output) == ItemStack(output)) -- handle aliases
+		assert(found.time == 40) -- burntime
+	end
+
+	-- shaped
+	output = "unittests:iron_lump"
+	do
+		local recipes = core.get_all_craft_recipes(output)
+		core.log("info", "[unittests] shaped recipes="..dump(recipes))
+		local found
+		for _, recipe in ipairs(recipes) do
+			if recipe.type == "normal" and recipe.items[1] == "unittests:steel_ingot" then
+				assert(found == nil, "found too many")
+				found = recipe
+			end
+		end
+		assert(found)
+		assert(#found.items == 1)
+		assert(ItemStack(found.output) == ItemStack(output)) -- handle aliases
+		core.assert_same(found.replacements, {{"unittests:steel_ingot", "unittests:coal_lump"}})
+	end
+
+
+end
+unittests.register("test_get_all_craft_recipes", test_get_all_craft_recipes)
+

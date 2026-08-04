@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "irr_v3d.h"
 #include "lua_api/l_base.h"
+#include "util/basic_macros.h"
+#include <list>
 
 class Map;
 class MMVManip;
@@ -17,8 +18,11 @@ class LuaVoxelManip : public ModApiBase
 {
 private:
 	bool is_mapgen_vm = false;
+	std::list<MMVManip **>::iterator vm_ref_tracker{};
 
 	static const luaL_Reg methods[];
+
+	static LuaVoxelManip *checkObjectValid(lua_State *L, int narg);
 
 	static int gc_object(lua_State *L);
 
@@ -53,6 +57,7 @@ public:
 	LuaVoxelManip(MMVManip *mmvm, bool is_mapgen_vm);
 	LuaVoxelManip(Map *map);
 	~LuaVoxelManip();
+	DISABLE_CLASS_COPY(LuaVoxelManip)
 
 	// LuaVoxelManip()
 	// Creates a LuaVoxelManip and leaves it on top of stack

@@ -58,14 +58,14 @@ void WeightBuffer::skinVertex(u32 vertex_id, core::vector3df &pos, core::vector3
 }
 
 void WeightBuffer::skin(IVertexBuffer *dst,
-		const std::vector<core::matrix4> &joint_transforms) const
+		const std::vector<core::matrix4> &joint_transforms)
 {
 	assert(animated_vertices.has_value());
+	assert(static_pose);
 	for (u32 i = 0; i < animated_vertices->size(); ++i) {
-
 		u32 vertex_id = (*animated_vertices)[i];
-		auto pos = static_positions[i];
-		auto normal = static_normals[i];
+		auto pos = static_pose[i].pos;
+		auto normal = static_pose[i].normal;
 		skinVertex(vertex_id, pos, normal, joint_transforms);
 		dst->getPosition(vertex_id) = pos;
 		dst->getNormal(vertex_id) = normal;
@@ -80,7 +80,7 @@ void WeightBuffer::finalize()
 	// stores which vertices are animated.
 	assert(!animated_vertices.has_value());
 	animated_vertices.emplace();
-	for (u32 i = 0; i < size(); ++i) {
+	for (u32 i = 0; i < getCount(); ++i) {
 		auto &weights_i = weights[i].weights;
 		f32 total_weight = std::accumulate(weights_i.begin(), weights_i.end(), 0.0f);
 		if (core::equals(total_weight, 0.0f)) {
@@ -98,24 +98,24 @@ void WeightBuffer::finalize()
 
 void WeightBuffer::updateStaticPose(const IVertexBuffer *vbuf)
 {
-	if (!static_normals)
-		static_normals = std::make_unique<core::vector3df[]>(animated_vertices->size());
-	if (!static_positions)
-		static_positions = std::make_unique<core::vector3df[]>(animated_vertices->size());
+	if (!static_pose)
+		static_pose = std::make_unique<VertexGeometry[]>(animated_vertices->size());
 	for (size_t idx = 0; idx < animated_vertices->size(); ++idx) {
 		u32 vertex_id = (*animated_vertices)[idx];
-		static_positions[idx] = vbuf->getPosition(vertex_id);
-		static_normals[idx] = vbuf->getNormal(vertex_id);
+		static_pose[idx].pos = vbuf->getPosition(vertex_id);
+		static_pose[idx].normal = vbuf->getNormal(vertex_id);
 	}
 }
 
-void WeightBuffer::resetToStatic(IVertexBuffer *vbuf) const
+void WeightBuffer::resetToStaticPose(IVertexBuffer *vbuf) const
 {
 	assert(animated_vertices.has_value());
+	if (!static_pose)
+		return;
 	for (size_t idx = 0; idx < animated_vertices->size(); ++idx) {
 		u32 vertex_id = (*animated_vertices)[idx];
-		vbuf->getPosition(vertex_id) = static_positions[idx];
-		vbuf->getNormal(vertex_id) = static_normals[idx];
+		vbuf->getPosition(vertex_id) = static_pose[idx].pos;
+		vbuf->getNormal(vertex_id) = static_pose[idx].normal;
 	}
 	if (!animated_vertices->empty())
 		vbuf->setDirty();

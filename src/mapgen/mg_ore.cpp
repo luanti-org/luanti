@@ -483,7 +483,7 @@ void OreVein::generate(MMVManip *vm, int mapseed, u32 blockseed,
 		// randval ranges from -1..1
 		/*
 			Note: can generate values slightly larger than 1
-			but this can't be changed as mapgen must be deterministic accross versions.
+			but this can't be changed as mapgen must be deterministic across versions.
 		*/
 		float randval   = (float)pr.next() / float(pr.RANDOM_RANGE / 2) - 1.f;
 		float noiseval  = contour(noise->result[index]);

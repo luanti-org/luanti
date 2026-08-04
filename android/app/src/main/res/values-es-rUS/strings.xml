@@ -8,4 +8,5 @@
     <string name="label">Luanti</string>
     <string name="notification_channel_description">Notificaciones de Luanti</string>
     <string name="unzip_notification_title">Cargando Luanti</string>
+    <string name="game_notification_title">Luanti se está ejecutando</string>
 </resources>

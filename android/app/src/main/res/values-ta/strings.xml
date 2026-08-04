@@ -1,2 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="label">லுவாண்டி</string>
+    <string name="loading">ஏற்றுகிறது…</string>
+    <string name="notification_channel_name">பொது அறிவிப்பு</string>
+    <string name="notification_channel_description">Luanti இலிருந்து அறிவிப்புகள்</string>
+    <string name="unzip_notification_title">லுவான்டிஐ ஏற்றுகிறது</string>
+    <string name="unzip_notification_description">1 நிமிடத்திற்கும் குறைவாக…</string>
+    <string name="game_notification_title">லுவாண்டி ஓடுகிறார்</string>
+    <string name="ime_dialog_done">முடிந்தது</string>
+    <string name="no_web_browser">இணைய உலாவி இல்லை</string>
+</resources>

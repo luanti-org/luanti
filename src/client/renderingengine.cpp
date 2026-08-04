@@ -12,6 +12,7 @@
 #include "util/numeric.h"
 #include "guiscalingfilter.h"
 #include "localplayer.h"
+#include "gettext.h"
 #include "client/hud.h"
 #include "client/texturesource.h"
 #include "camera.h"
@@ -151,7 +152,7 @@ static IrrlichtDevice *createDevice(SIrrlichtCreationParameters params, std::opt
 			return device;
 	}
 
-	throw std::runtime_error("Could not initialize the device with any supported video driver");
+	throw BaseException(gettext("Could not initialize any supported video driver!"));
 }
 
 /* RenderingEngine class */
@@ -260,11 +261,6 @@ void RenderingEngine::setResizable(bool resize)
 	m_device->setResizable(resize);
 }
 
-void RenderingEngine::removeMesh(const scene::IMesh* mesh)
-{
-	m_device->getSceneManager()->getMeshCache()->removeMesh(mesh);
-}
-
 void RenderingEngine::cleanupMeshCache()
 {
 	auto mesh_cache = m_device->getSceneManager()->getMeshCache();
@@ -295,7 +291,7 @@ bool RenderingEngine::setWindowIcon()
 */
 void RenderingEngine::draw_load_screen(const std::wstring &text,
 		gui::IGUIEnvironment *guienv, ITextureSource *tsrc, float dtime,
-		int percent, float *indef_pos)
+		int percent, float *indef_pos, const std::wstring &bottom_text)
 {
 	v2u32 screensize = getWindowSize();
 
@@ -306,6 +302,14 @@ void RenderingEngine::draw_load_screen(const std::wstring &text,
 	gui::IGUIStaticText *guitext =
 			gui::StaticText::add(guienv, text, textrect, false, false);
 	guitext->setTextAlignment(gui::EGUIA_CENTER, gui::EGUIA_UPPERLEFT);
+
+	gui::IGUIStaticText *gui_bottom_text = nullptr;
+	if (!bottom_text.empty()) {
+		v2s32 size(240, g_fontengine->getLineHeight()*2);
+		v2s32 pos = center + v2s32{-120, 32};
+		core::rect<s32> rect(pos, pos + size);
+		gui_bottom_text = gui::StaticText::add(guienv, bottom_text, rect, false, false);
+	}
 
 	auto *driver = get_video_driver();
 
@@ -369,6 +373,8 @@ void RenderingEngine::draw_load_screen(const std::wstring &text,
 	guienv->drawAll();
 	driver->endScene();
 	guitext->remove();
+	if (gui_bottom_text)
+		gui_bottom_text->remove();
 }
 
 std::vector<video::E_DRIVER_TYPE> RenderingEngine::getSupportedVideoDrivers()
@@ -417,6 +423,12 @@ const VideoDriverInfo &RenderingEngine::getVideoDriverInfo(video::E_DRIVER_TYPE 
 		{(int)video::EDT_OGLES2,  {"ogles2",  "OpenGL ES 2"}},
 	};
 	return driver_info_map.at((int)type);
+}
+
+void RenderingEngine::showErrorMessageBox(const std::string &message)
+{
+	auto *device = s_singleton ? s_singleton->m_device : nullptr;
+	::showErrorMessageBox(device, PROJECT_NAME_C, message.c_str());
 }
 
 float RenderingEngine::getDisplayDensity()

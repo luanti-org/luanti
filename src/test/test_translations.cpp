@@ -14,7 +14,8 @@
 static std::string read_translation_file(const std::string &filename)
 {
 		auto gamespec = findSubgame("devtest");
-		REQUIRE(gamespec.isValid());
+		if(!gamespec.isValid())
+			SKIP("devtest not found");
 		auto path = gamespec.gamemods_path + (DIR_DELIM "testtranslations" DIR_DELIM "test_locale" DIR_DELIM) + filename;
 		std::string content;
 		REQUIRE(fs::ReadFile(path, content));
@@ -23,6 +24,25 @@ static std::string read_translation_file(const std::string &filename)
 
 TEST_CASE("test translations")
 {
+	SECTION("File type detection")
+	{
+		CHECK(Translations::getFileBaseName(TEST_PO_NAME) == "translation_po.de");
+		CHECK(Translations::getFileBaseName("de.po") == "de");
+		CHECK(Translations::getFileBaseName("blank.png") == "");
+
+		CHECK(Translations::getFileLanguage(TEST_PO_NAME) == "de");
+		CHECK(Translations::getFileLanguage("de.po") == "");
+		CHECK(Translations::getFileLanguage("blank.png") == "");
+
+		CHECK(Translations::isTranslationFileType(TEST_PO_NAME));
+		CHECK(Translations::isTranslationFileType("de.po"));
+		CHECK(!Translations::isTranslationFileType("blank.png"));
+
+		CHECK(Translations::isTranslationFile(TEST_PO_NAME));
+		CHECK(!Translations::isTranslationFile("de.po"));
+		CHECK(!Translations::isTranslationFile("blank.png"));
+	}
+
 	SECTION("Plural-Forms function for translations")
 	{
 #define REQUIRE_FORM_SIZE(x) {REQUIRE(form); REQUIRE(form.size() == (x));}

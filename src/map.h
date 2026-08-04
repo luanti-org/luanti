@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <list>
 #include <map>
 #include <ostream>
 #include <set>
@@ -46,6 +47,9 @@ struct MapEditEvent
 	MapNode n = CONTENT_AIR;
 	std::vector<v3s16> modified_blocks; // Represents a set
 	bool is_private_change = false;
+	// Setting low_priority to true allows the server
+	// to send this change to clients with some delay.
+	bool low_priority = false;
 
 	MapEditEvent() = default;
 
@@ -269,9 +273,9 @@ public:
 
 	bool isBlockOccluded(MapBlock *block, v3s16 cam_pos_nodes)
 	{
-		return isBlockOccluded(block->getPosRelative(), cam_pos_nodes, false);
+		return isBlockOccluded(block->getPosRelative(), cam_pos_nodes);
 	}
-	bool isBlockOccluded(v3s16 pos_relative, v3s16 cam_pos_nodes, bool simple_check = false);
+	bool isBlockOccluded(v3s16 pos_relative, v3s16 cam_pos_nodes, bool dense = false);
 
 protected:
 	IGameDef *m_gamedef;
@@ -293,15 +297,15 @@ protected:
 	bool determineAdditionalOcclusionCheck(v3s16 pos_camera,
 		const core::aabbox3d<s16> &block_bounds, v3s16 &to_check);
 	bool isOccluded(v3s16 pos_camera, v3s16 pos_target,
-		float step, float stepfac, float start_offset, float end_offset,
-		u32 needed_count);
+		float end_offset, u32 needed_count, bool dense);
 };
 
 class MMVManip : public VoxelManipulator
 {
 public:
 	MMVManip(Map *map);
-	virtual ~MMVManip() = default;
+	~MMVManip() override;
+	DISABLE_CLASS_COPY(MMVManip)
 
 	/*
 		Loads specified area from map and *adds* it to the area already
@@ -341,6 +345,10 @@ public:
 	// Is it impossible to call initialEmerge / blitBackAll?
 	inline bool isOrphan() const { return !m_map; }
 
+	std::list<MMVManip **>::iterator addTrackedRef(MMVManip **ref_ref);
+
+	void removeTrackedRef(std::list<MMVManip **>::iterator it);
+
 	bool m_is_dirty = false;
 
 protected:
@@ -348,4 +356,8 @@ protected:
 
 	// may be null
 	Map *m_map = nullptr;
+
+private:
+	// references to this that need to be cleared on destruction
+	std::list<MMVManip **> m_tracked_refs;
 };

@@ -18,6 +18,7 @@
 #include "server/serveractiveobject.h"
 #include "util/timetaker.h"
 #include "profiler.h"
+#include "object_properties.h"
 
 #ifdef __FAST_MATH__
 #warning "-ffast-math is known to cause bugs in collision code, do not use!"
@@ -27,6 +28,8 @@ bool g_collision_problems_encountered = false;
 
 namespace {
 
+//! NOTE: This struct is used for collision *candidates*. The effective
+//!       collisions are forwarded to the struct `CollisionInfo`.
 struct NearbyCollisionInfo {
 	// node
 	NearbyCollisionInfo(bool is_ul, int bouncy, v3s16 pos, const aabb3f &box) :
@@ -34,17 +37,14 @@ struct NearbyCollisionInfo {
 		box(box),
 		position(pos),
 		bouncy(bouncy),
-		is_unloaded(is_ul),
-		is_step_up(false)
+		is_unloaded(is_ul)
 	{}
 
 	// object
 	NearbyCollisionInfo(ActiveObject *obj, int bouncy, const aabb3f &box) :
 		obj(obj),
 		box(box),
-		bouncy(bouncy),
-		is_unloaded(false),
-		is_step_up(false)
+		bouncy(bouncy)
 	{}
 
 	inline bool isObject() const { return obj != nullptr; }
@@ -53,8 +53,8 @@ struct NearbyCollisionInfo {
 	aabb3f box;
 	v3s16 position;
 	u8 bouncy;
-	// bitfield to save space
-	bool is_unloaded:1, is_step_up:1;
+	bool is_unloaded = false,
+		is_step_up = false;
 };
 
 // Helper functions:
@@ -371,20 +371,44 @@ static void add_object_boxes(Environment *env,
 	}
 }
 
+template <float v3f::*AX>
+inline void collide_with(const aabb3f &box_mov, const aabb3f &box_stat,
+	v3f *pos_f, v3f *speed_f, v3f *accel_f, const v3f &aspeed_f, float bounce)
+{
+	const float speed = aspeed_f.*AX;
+
+	if (speed) {
+		// Set the position along the axis of collision to exactly where the box collided.
+		// This gets rid of nasty floating point errors introduced by calculating
+		// the collision position based on 'nearest_dtime' and average velocity.
+		pos_f->*AX = speed < 0.0f
+			? (box_stat.MaxEdge.*AX - box_mov.MinEdge.*AX)
+			: (box_stat.MinEdge.*AX - box_mov.MaxEdge.*AX);
+	}
+
+	if (bounce < -1e-4f && fabsf(speed) > BS * 3.0f) {
+		speed_f->*AX *= bounce;
+	} else {
+		speed_f->*AX = 0;
+		accel_f->*AX = 0; // avoid colliding in the next iterations
+	}
+}
+
 #define PROFILER_NAME(text) (dynamic_cast<ServerEnvironment*>(env) ? ("Server: " text) : ("Client: " text))
 
-collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
+CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		const aabb3f &box_0,
 		f32 stepheight, f32 dtime,
 		v3f *pos_f, v3f *speed_f,
 		v3f accel_f, ActiveObject *self,
-		bool collide_with_objects)
+		bool collide_with_objects,
+		StepUpMode step_up_mode)
 {
 	static bool time_notification_done = false;
 
 	ScopeProfiler sp(g_profiler, PROFILER_NAME("collisionMoveSimple()"), SPT_AVG, PRECISION_MICRO);
 
-	collisionMoveResult result;
+	CollisionMoveResult result;
 
 	// Assume no collisions when no velocity and no acceleration
 	if (*speed_f == v3f() && accel_f == v3f())
@@ -449,7 +473,6 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	}
 
 	// Collision detection
-	f32 d = 0.0f;
 	for (int loopcount = 0;; loopcount++) {
 		if (loopcount >= 100) {
 			warningstream << "collisionMoveSimple: Loop count exceeded, aborting to avoid infinite loop" << std::endl;
@@ -514,7 +537,7 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 				(movingbox.MinEdge.Y + stepheight > cbox.MaxEdge.Y) &&
 				(!wouldCollideWithCeiling(cinfo, stepbox,
 						cbox.MaxEdge.Y - movingbox.MinEdge.Y,
-						d));
+						0));
 		}
 
 		// Get bounce multiplier
@@ -522,17 +545,9 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 
 		// Move to the point of collision and reduce dtime by nearest_dtime
 		if (nearest_dtime < 0) {
-			// Handle negative nearest_dtime
-			// This largely means an "instant" collision, e.g., with the floor.
-			// We use aspeed and nearest_dtime to be consistent with above and resolve this collision
-			if (!step_up) {
-				if (nearest_collided == COLLISION_AXIS_X)
-					pos_f->X += aspeed_f.X * nearest_dtime;
-				if (nearest_collided == COLLISION_AXIS_Y)
-					pos_f->Y += aspeed_f.Y * nearest_dtime;
-				if (nearest_collided == COLLISION_AXIS_Z)
-					pos_f->Z += aspeed_f.Z * nearest_dtime;
-			}
+			// This largely means an "instant" collision, e.g., intersecting with the floor.
+			//   For `step_up == false`: Position is corrected by `collide_with`
+			//   For `step_up == true`:  Position is set by the step-up handler below.
 		} else if (nearest_dtime > 0) {
 			// updated average speed for the sub-interval up to nearest_dtime
 			aspeed_f = *speed_f + accel_f * 0.5f * nearest_dtime;
@@ -544,40 +559,27 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 			dtime -= nearest_dtime;
 		}
 
-		v3f old_speed_f = *speed_f;
+		const v3f old_speed_f = *speed_f;
 
 		// Set the speed component that caused the collision to zero
-		if (step_up) {
+		if (step_up && (step_up_mode == StepUpMode::LEGACY ||
+				(step_up_mode == StepUpMode::FLOATY && speed_f->Y <= 0.0f) ||
+				(step_up_mode == StepUpMode::RIGID && speed_f->Y == 0.0f))) {
 			// Special case: Handle stairs
 			nearest_info.is_step_up = true;
 		} else if (nearest_collided == COLLISION_AXIS_X) {
-			if (bounce < -1e-4 && fabsf(speed_f->X) > BS * 3) {
-				speed_f->X *= bounce;
-			} else {
-				speed_f->X = 0;
-				accel_f.X = 0; // avoid colliding in the next interations
-			}
+			collide_with<&v3f::X>(box_0, cbox, pos_f, speed_f, &accel_f, aspeed_f, bounce);
 		} else if (nearest_collided == COLLISION_AXIS_Y) {
-			if (bounce < -1e-4 && fabsf(speed_f->Y) > BS * 3) {
-				speed_f->Y *= bounce;
-			} else {
-				if (speed_f->Y < 0.0f) {
-					// FIXME: This code is necessary until `axisAlignedCollision` takes acceleration
-					// into consideration for the time calculation. Otherwise, the colliding faces
-					// never line up, especially at high step (dtime) intervals.
-					result.touching_ground = true;
-					result.standing_on_object = nearest_info.isObject();
-				}
-				speed_f->Y = 0;
-				accel_f.Y = 0; // avoid colliding in the next interations
+			collide_with<&v3f::Y>(box_0, cbox, pos_f, speed_f, &accel_f, aspeed_f, bounce);
+
+			if (accel_f.Y == 0 && aspeed_f.Y < 0.0f) {
+				// Collided with ground. Update relevant variables.
+				result.touching_ground = true;
+				result.standing_on_object = nearest_info.isObject();
 			}
-		} else { /* nearest_collided == COLLISION_AXIS_Z */
-			if (bounce < -1e-4 && fabsf(speed_f->Z) > BS * 3) {
-				speed_f->Z *= bounce;
-			} else {
-				speed_f->Z = 0;
-				accel_f.Z = 0; // avoid colliding in the next interations
-			}
+		} else {
+			assert(nearest_collided == COLLISION_AXIS_Z);
+			collide_with<&v3f::Z>(box_0, cbox, pos_f, speed_f, &accel_f, aspeed_f, bounce);
 		}
 
 		if (!nearest_info.is_unloaded && !step_up) {
@@ -602,33 +604,35 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	}
 
 	/*
-		Final touches: Check if standing on ground, step up stairs.
+		Final touches: Step up stairs and ground detection (compat).
 	*/
-	aabb3f box = box_0;
-	box.MinEdge += *pos_f;
-	box.MaxEdge += *pos_f;
+	aabb3f mbox = box_0;
+	mbox.MinEdge += *pos_f;
+	mbox.MaxEdge += *pos_f;
 	for (const auto &box_info : cinfo) {
-		const aabb3f &cbox = box_info.box;
+		const aabb3f &sbox = box_info.box;
 
 		/*
-			See if the object is touching ground.
+			`step_up == true` requires the object to intersect with the static box.
+			Hence, check whether that is still the case.
 
-			Object touches ground if object's minimum Y is near node's
-			maximum Y and object's X-Z-area overlaps with the node's
-			X-Z-area.
+			For compatibility reasons (ground detection), only X-Z are checked here.
 		*/
 
-		if (cbox.MaxEdge.X - d > box.MinEdge.X && cbox.MinEdge.X + d < box.MaxEdge.X &&
-				cbox.MaxEdge.Z - d > box.MinEdge.Z &&
-				cbox.MinEdge.Z + d < box.MaxEdge.Z) {
-			if (box_info.is_step_up) {
-				pos_f->Y += cbox.MaxEdge.Y - box.MinEdge.Y;
-				box = box_0;
-				box.MinEdge += *pos_f;
-				box.MaxEdge += *pos_f;
+		if (sbox.MaxEdge.X > mbox.MinEdge.X && sbox.MinEdge.X < mbox.MaxEdge.X &&
+				sbox.MaxEdge.Z > mbox.MinEdge.Z &&
+				sbox.MinEdge.Z < mbox.MaxEdge.Z) {
+
+			// Only allow stepping up, not down (if there are multiple collisions).
+			// These conditions are almost identical to `mbox.intersectsWithBox(sbox)`.
+			if (box_info.is_step_up && sbox.MaxEdge.Y > mbox.MinEdge.Y) {
+				pos_f->Y = sbox.MaxEdge.Y - box_0.MinEdge.Y;
+				mbox = box_0;
+				mbox.MinEdge += *pos_f;
+				mbox.MaxEdge += *pos_f;
 			}
-			if (std::fabs(cbox.MaxEdge.Y - box.MinEdge.Y) < 0.05f) {
-				// This is code is technically only required if `box_info.is_step_up == true`.
+			if (std::fabs(sbox.MaxEdge.Y - mbox.MinEdge.Y) < 0.05f) {
+				// This code is technically only required if `box_info.is_step_up == true`.
 				// However, players rely on this check/condition to climb stairs faster. See PR #10587.
 				result.touching_ground = true;
 				result.standing_on_object = box_info.isObject();
@@ -668,7 +672,7 @@ bool collision_check_intersection(Environment *env, IGameDef *gamedef,
 	*/
 	aabb3f checkbox = box_0;
 	// aabbox3d::intersectsWithBox(box) returns true when the faces are touching perfectly.
-	// However, we do not want want a true-ish return value in that case. Add some tolerance.
+	// However, we do not want a true-ish return value in that case. Add some tolerance.
 	checkbox.MinEdge += pos_f + (0.1f * BS);
 	checkbox.MaxEdge += pos_f - (0.1f * BS);
 

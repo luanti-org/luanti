@@ -130,8 +130,8 @@ bool isBlockInSight(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 	f32 cosangle = dforward / blockpos_adj.getLength();
 
 	// If block is not in the field of view, skip it
-	// HOTFIX: use sligthly increased angle (+10%) to fix too aggressive
-	// culling. Somebody have to find out whats wrong with the math here.
+	// HOTFIX: use slightly increased angle (+10%) to fix too aggressive
+	// culling. Somebody has to find out what's wrong with the math here.
 	// Previous value: camera_fov / 2
 	if (cosangle < std::cos(camera_fov * 0.55f))
 		return false;

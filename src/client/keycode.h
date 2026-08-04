@@ -5,6 +5,7 @@
 #pragma once
 
 #include "irrlichttypes.h"
+#include "keys.h"
 #include <Keycodes.h>
 #include <IEventReceiver.h>
 #include <string>
@@ -17,11 +18,39 @@
 class KeyPress
 {
 public:
+	/**
+	 * The type of the input value.
+	 *
+	 * When constructing the KeyPress object from an Irrilcht event, the direction of the gamepad axis is
+	 * determined by the value along the axis. 0 is mapped to the positive direction.
+	 */
+	enum class InputType {
+		KEYBOARD, ///< Keyboard input (scancodes)
+		MOUSE_BUTTON, ///< Mouse button input
+		GAME_ACTION, ///< GameKeyType input passed by touchscreen buttons
+		GAMEPAD_BUTTON, ///< Gamepad button
+		GAMEPAD_AXIS_PLUS, ///< Gamepad axis in the positive direction
+		GAMEPAD_AXIS_MINUS, ///< Gamepad axis in the negative direction
+	};
+
+	/// Type of the input device
+	enum class InputSourceType {
+		INVALID,
+		KEYBOARD,
+		MOUSE,
+		TOUCHSCREEN,
+		GAMEPAD
+	};
+
 	KeyPress() = default;
 
 	KeyPress(const std::string &name);
 
 	KeyPress(const SEvent::SKeyInput &in);
+	KeyPress(const SEvent::SMouseInput &in);
+	KeyPress(const SEvent::SGamepadButtonEvent &in);
+	KeyPress(const SEvent::SGamepadAxisEvent &in);
+	KeyPress(GameKeyType key) : value(key) {}
 
 	// Get a string representation that is suitable for use in minetest.conf
 	std::string sym() const;
@@ -29,22 +58,16 @@ public:
 	// Get a human-readable string representation
 	std::string name() const;
 
-	// Get the corresponding keycode or KEY_UNKNOWN if one is not available
-	EKEY_CODE getKeycode() const;
-
-	// Get the corresponding keychar or '\0' if one is not available
-	wchar_t getKeychar() const;
-
 	// Get the scancode or 0 is one is not available
 	u32 getScancode() const
 	{
-		if (auto pv = std::get_if<u32>(&scancode))
+		if (auto pv = getIf<InputType::KEYBOARD>())
 			return *pv;
 		return 0;
 	}
 
 	bool operator==(KeyPress o) const {
-		return scancode == o.scancode;
+		return value == o.value;
 	}
 	bool operator!=(KeyPress o) const {
 		return !(*this == o);
@@ -52,26 +75,60 @@ public:
 
 	// Used for e.g. std::set
 	bool operator<(KeyPress o) const {
-		return scancode < o.scancode;
+		return value < o.value;
 	}
 
-	// Check whether the keypress is valid
-	operator bool() const
-	{
-		return std::holds_alternative<EKEY_CODE>(scancode) ?
-			Keycode::isValid(std::get<EKEY_CODE>(scancode)) :
-			std::get<u32>(scancode) != 0;
+	// Get the type of input
+	InputType getType() const {
+		return static_cast<InputType>(value.index());
 	}
+
+	/// Get the source type of input
+	InputSourceType getSourceType() const;
+
+	/// Get the joystick axis in the opposite direction (if available)
+	KeyPress getOppositeAxisDirection() const;
+
+	// Check whether the keypress is valid
+	operator bool() const;
 
 	static KeyPress getSpecialKey(const std::string &name);
 
 private:
-	using value_type = std::variant<u32, EKEY_CODE>;
+	// The same data type may be used for different variants, so this should be indexed using InputType.
+	// The get, getIf, and emplace methods are wrappers for their std::variant counterparts. This allows using
+	// InputType enum values instead of numeric indices.
+	using value_type = std::variant<u32, u32, GameKeyType, GamepadButton, GamepadAxis, GamepadAxis>;
+
+	template<InputType I>
+	using value_alternative_t = std::variant_alternative_t<static_cast<size_t>(I), value_type>;
+
+	template<InputType I>
+	bool loadUnsignedFromPrefix(const std::string &name, const std::string &prefix);
 	bool loadFromScancode(const std::string &name);
 	void loadFromKey(EKEY_CODE keycode, wchar_t keychar);
-	std::string formatScancode() const;
 
-	value_type scancode = KEY_UNKNOWN;
+	value_type value;
+
+	template<InputType I>
+	value_alternative_t<I> get() const {
+		return std::get<static_cast<size_t>(I)>(value);
+	}
+
+	template<InputType I, typename T>
+	T getCast() const {
+		return static_cast<T>(get<I>());
+	}
+
+	template<InputType I>
+	std::add_pointer_t<const value_alternative_t<I>> getIf() const {
+		return std::get_if<static_cast<size_t>(I)>(&value);
+	}
+
+	template<InputType I>
+	void emplace(value_alternative_t<I> newValue) {
+		value.emplace<static_cast<size_t>(I)>(newValue);
+	}
 
 	friend std::hash<KeyPress>;
 };
@@ -80,7 +137,7 @@ template <>
 struct std::hash<KeyPress>
 {
 	size_t operator()(KeyPress kp) const noexcept {
-		return std::hash<KeyPress::value_type>{}(kp.scancode);
+		return std::hash<KeyPress::value_type>{}(kp.value);
 	}
 };
 
@@ -88,9 +145,6 @@ struct std::hash<KeyPress>
 // This implementation defers creation of the objects to make sure that the
 // IrrlichtDevice is initialized.
 #define EscapeKey KeyPress::getSpecialKey("KEY_ESCAPE")
-#define LMBKey KeyPress::getSpecialKey("KEY_LBUTTON")
-#define MMBKey KeyPress::getSpecialKey("KEY_MBUTTON") // Middle Mouse Button
-#define RMBKey KeyPress::getSpecialKey("KEY_RBUTTON")
 
 // Key configuration getter
 // Note that the reference may be invalidated by a next call to getKeySetting
@@ -103,3 +157,20 @@ bool keySettingHasMatch(const std::string &settingname, KeyPress kp);
 
 // Clear fast lookup cache
 void clearKeyCache();
+
+/// Generalized keypress event
+struct KeyPressEvent {
+	KeyPress key;
+	float analog_value = 0;
+
+	/// Construct a KeyPressEvent from an Irrlicht event. User events (e.g. touchscreen input) is not handled.
+	KeyPressEvent(const SEvent &event);
+
+	operator bool() const {
+		return key;
+	}
+
+	bool isPressed() const {
+		return analog_value > 0;
+	}
+};

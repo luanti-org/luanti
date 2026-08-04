@@ -6,7 +6,7 @@
 #include "catch.h"
 #include "irrTypes.h"
 #include "irr_aabb3d.h"
-#include "mock_serveractiveobject.h"
+#include "unittest/mock_serveractiveobject.h"
 #include <algorithm>
 #include <iterator>
 #include <random>

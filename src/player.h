@@ -7,8 +7,10 @@
 #include "irrlichttypes_bloated.h"
 #include "inventory.h"
 #include "util/basic_macros.h"
+#include <memory>
 #include <string>
 #include <string_view>
+#include <array>
 
 #define PLAYERNAME_SIZE 20
 
@@ -24,7 +26,7 @@ struct PlayerFovSpec
 	// Whether to multiply the client's FOV or to override it
 	bool is_multiplier;
 
-	// The time to be take to trasition to the new FOV value.
+	// The time to be take to transition to the new FOV value.
 	// Transition is instantaneous if omitted. Omitted by default.
 	f32 transition_time = 0;
 
@@ -44,18 +46,17 @@ struct PlayerControl
 	PlayerControl() = default;
 
 	PlayerControl(
-		bool a_up, bool a_down, bool a_left, bool a_right,
+		float a_up, float a_down, float a_left, float a_right,
 		bool a_jump, bool a_aux1, bool a_sneak,
 		bool a_zoom,
 		bool a_dig, bool a_place,
-		float a_pitch, float a_yaw,
-		float a_movement_speed, float a_movement_direction
+		float a_pitch, float a_yaw
 	)
 	{
-		// Encode direction keys into a single value so nobody uses it accidentally
-		// as movement_{speed,direction} is supposed to be the source of truth.
-		direction_keys = (a_up&1) | ((a_down&1) << 1) |
-			((a_left&1) << 2) | ((a_right&1) << 3);
+		up = a_up;
+		down = a_down;
+		left = a_left;
+		right = a_right;
 		jump = a_jump;
 		aux1 = a_aux1;
 		sneak = a_sneak;
@@ -64,8 +65,6 @@ struct PlayerControl
 		place = a_place;
 		pitch = a_pitch;
 		yaw = a_yaw;
-		movement_speed = a_movement_speed;
-		movement_direction = a_movement_direction;
 	}
 
 	// Sets movement_speed and movement_direction according to direction_keys
@@ -81,7 +80,10 @@ struct PlayerControl
 	void unpackKeysPressed(u32 keypress_bits);
 	v2f getMovement() const;
 
-	u8 direction_keys = 0;
+	float up = 0;
+	float down = 0;
+	float left = 0;
+	float right = 0;
 	bool jump = false;
 	bool aux1 = false;
 	bool sneak = false;
@@ -123,18 +125,47 @@ struct PlayerPhysicsOverride
 	}
 };
 
+struct HudElement;
+
+struct PlayerHud
+{
+	const auto &getElements() const { return m_elements; }
+	/// Returns `nullptr` if not found
+	HudElement *get(u32 id);
+	/// Returns the ID of the added element
+	u32         add(std::unique_ptr<HudElement> e);
+	/// Returns whether removal succeeded
+	bool        remove(u32 id);
+	void        clear();
+
+private:
+	u32 getFreeID();
+
+	std::vector<std::unique_ptr<HudElement>> m_elements;
+};
+
 /// @note numeric values are part of network protocol
 enum CameraMode : int {
 	// not a mode. indicates that any may be used.
 	CAMERA_MODE_ANY = 0,
 	CAMERA_MODE_FIRST,
 	CAMERA_MODE_THIRD,
-	CAMERA_MODE_THIRD_FRONT
+	CAMERA_MODE_THIRD_FRONT,
+
+	CameraMode_END // Dummy for validity check
 };
 
 extern const struct EnumString es_CameraMode[];
 
-struct HudElement;
+// Note: Part of the protocol, do not reorder.
+enum class LocalPlayerAnimation : u8
+{
+	NO_ANIM,
+	WALK_ANIM,
+	DIG_ANIM,
+	WD_ANIM, // walking + digging
+	COUNT
+};
 
 class Player
 {
@@ -155,16 +186,6 @@ public:
 	v3f getSpeed() const { return m_speed; }
 
 	const std::string& getName() const { return m_name; }
-
-	u32 getFreeHudID()
-	{
-		size_t size = hud.size();
-		for (size_t i = 0; i != size; i++) {
-			if (!hud[i])
-				return i;
-		}
-		return size;
-	}
 
 	CameraMode allowed_camera_mode = CAMERA_MODE_ANY;
 
@@ -187,7 +208,7 @@ public:
 	f32 movement_liquid_sink;
 	f32 movement_gravity;
 
-	v2f local_animations[4];
+	std::array<v2f, (size_t) LocalPlayerAnimation::COUNT> local_animations;
 	float local_animation_speed;
 
 	std::string inventory_formspec;
@@ -216,11 +237,7 @@ public:
 		return m_fov_override_spec;
 	}
 
-	const auto &getHudElements() const { return hud; }
-	HudElement* getHud(u32 id);
-	u32         addHud(HudElement* hud);
-	HudElement* removeHud(u32 id);
-	void        clearHud();
+	PlayerHud hud;
 
 	u32 hud_flags;
 	s32 hud_hotbar_itemcount;
@@ -233,7 +250,4 @@ protected:
 	v3f m_speed; // velocity; in BS-space
 	u16 m_wield_index = 0;
 	PlayerFovSpec m_fov_override_spec = { 0.0f, false, 0.0f };
-
-private:
-	std::vector<HudElement *> hud;
 };

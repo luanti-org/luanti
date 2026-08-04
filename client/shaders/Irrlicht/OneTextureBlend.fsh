@@ -56,19 +56,19 @@ void main()
 
 	if (uBlendType == 1)
 	{
-		FinalColor.w = Color0.w;
+		FinalColor.a = Color0.a;
 	}
 	else if (uBlendType == 2)
 	{
-		FinalColor.w = Color1.w;
+		FinalColor.a = Color1.a;
 	}
 
 	if (bool(uFogEnable))
 	{
 		float FogFactor = computeFog();
 		vec4 FogColor = uFogColor;
-		FogColor.a = 1.0;
-		FinalColor = mix(FogColor, FinalColor, FogFactor);
+		// Note: Robust against a bogus FogColor.a or FogFactor
+		FinalColor.rgb = mix(FogColor.rgb, FinalColor.rgb, FogFactor);
 	}
 
 	gl_FragColor = FinalColor;

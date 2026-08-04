@@ -90,7 +90,7 @@ function core.encode_png(width, height, data, compression)
 	return o_encode_png(width, height, data, compression or 6)
 end
 
--- Helper that pushes a collisionMoveResult structure
+-- Helper that pushes a CollisionMoveResult structure
 if core.set_push_moveresult1 then
 	-- must match CollisionAxis in collision.h
 	local AXES = {"x", "y", "z"}
@@ -133,6 +133,7 @@ core.protocol_versions = {
 	["5.13.0"] = 49,
 	["5.14.0"] = 50,
 	["5.15.0"] = 51,
+	["5.16.0"] = 52,
 }
 
 setmetatable(core.protocol_versions, {__newindex = function()

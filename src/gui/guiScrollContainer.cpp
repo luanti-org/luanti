@@ -3,6 +3,7 @@
 // Copyright (C) 2020 DS
 
 #include "guiScrollContainer.h"
+#include <IGUIEnvironment.h>
 
 GUIScrollContainer::GUIScrollContainer(gui::IGUIEnvironment *env,
 		gui::IGUIElement *parent, s32 id, const core::rect<s32> &rectangle,

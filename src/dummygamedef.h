@@ -7,6 +7,7 @@
 
 #include "gamedef.h"
 #include "itemdef.h"
+#include <memory>
 #include "nodedef.h"
 #include "craftdef.h"
 #include "content/mods.h"
@@ -65,8 +66,4 @@ protected:
 	NodeDefManager *m_nodedef = nullptr;
 	ICraftDefManager *m_craftdef = nullptr;
 	ModStorageDatabase *m_mod_storage_database = nullptr;
-
-#if CHECK_CLIENT_BUILD()
-	static NodeVisuals *constructNodeVisuals(ContentFeatures *f) { return new NodeVisuals(f); }
-#endif
 };

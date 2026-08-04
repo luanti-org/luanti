@@ -64,8 +64,9 @@ private:
 	// if true, all sounds will be directly paused after creation
 	bool m_is_paused = false;
 
-	// used for printing warnings only once
+	// stuff for only-once / rate-limited warnings
 	std::unordered_set<std::string> m_warned_positional_stereo_sounds;
+	u64 m_next_lingering_sounds_print; // timestamp from porting::getTimeS()
 
 public:
 	// used for communication with ProxySoundManager
@@ -145,6 +146,8 @@ private:
 	void stopSound(sound_handle_t sound);
 	void fadeSound(sound_handle_t soundid, f32 step, f32 target_gain);
 	void updateSoundPosVel(sound_handle_t sound, const v3f &pos_, const v3f &vel_);
+
+	void printPlayingSounds(bool rate_limit);
 
 protected:
 	/* Thread stuff */

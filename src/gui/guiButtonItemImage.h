@@ -25,5 +25,5 @@ public:
 
 private:
 	Client *m_client;
-	GUIItemImage *m_image;
+	irr_ptr<GUIItemImage> m_image;
 };

@@ -5,11 +5,7 @@
 #pragma once
 
 #include "IAnimatedMesh.h"
-#include "ISceneManager.h"
-#include "CMeshBuffer.h"
-#include "SSkinMeshBuffer.h"
 #include "aabbox3d.h"
-#include "irrMath.h"
 #include "irrTypes.h"
 #include "irr_ptr.h"
 #include "matrix4.h"
@@ -17,23 +13,26 @@
 #include "vector3d.h"
 #include "Transform.h"
 
+#include <algorithm>
 #include <optional>
 #include <string>
 #include <variant>
 #include <vector>
+#include <unordered_map>
 
 namespace scene
 {
 
 class AnimatedMeshSceneNode;
-class IBoneSceneNode;
+class BoneSceneNode;
 class ISceneManager;
+struct SSkinMeshBuffer;
 
 class SkinnedMesh : public IAnimatedMesh
 {
 public:
 
-	enum class SourceFormat {
+	enum class SourceFormat : u8 {
 		B3D,
 		X,
 		GLTF,
@@ -41,10 +40,7 @@ public:
 	};
 
 	//! constructor
-	SkinnedMesh(SourceFormat src_format) :
-		EndFrame(0.f), FramesPerSecond(25.f),
-		HasAnimation(false), PreparedForSkinning(false),
-		SrcFormat(src_format)
+	SkinnedMesh(SourceFormat src_format) : SrcFormat(src_format)
 	{
 		SkinningBuffers = &LocalBuffers;
 	}
@@ -56,12 +52,23 @@ public:
 	//! Important for legacy reasons pertaining to different mesh loader behavior.
 	SourceFormat getSourceFormat() const { return SrcFormat; }
 
-	//! If the duration is 0, it is a static (=non animated) mesh.
-	f32 getMaxFrameNumber() const override;
+	std::optional<u16> getTrackNumber(const std::string &track_name) const override;
+
+	f32 getMaxFrameNumber(u16 track_nr) const override;
+
+	void prepareForAnimation(u16 max_hw_joints) override;
+
+	bool needsHwSkinning() const override { return !UseSwSkinning && HasWeights; }
+
+	bool useSoftwareSkinning() const { return UseSwSkinning; }
 
 	//! Turns the given array of local matrices into an array of global matrices
 	//! by multiplying with respective parent matrices.
 	void calculateGlobalMatrices(std::vector<core::matrix4> &matrices) const;
+
+	std::vector<core::matrix4> calculateSkinMatrices(const std::vector<core::matrix4> &global_matrices) const;
+
+	void rigidAnimation(const std::vector<core::matrix4> &global_matrices);
 
 	//! Performs a software skin on this mesh based on the given joint matrices
 	void skinMesh(const std::vector<core::matrix4> &animated_transforms);
@@ -119,10 +126,12 @@ public:
 	/** E.g. used for bump mapping. */
 	void convertMeshToTangents();
 
-	//! Does the mesh have no animation
-	bool isStatic() const {
-		return !HasAnimation;
-	}
+	//! How many animation tracks the mesh has
+	u16 getTrackCount() const override { return animations.size(); }
+	//! Is the mesh not animatable (no weights, no animation tracks)?
+	bool isStatic() const { return !IsAnimatable; }
+	//! Does the mesh have skinning weights?
+	bool hasWeights() const { return HasWeights; }
 
 	//! Back up static pose after local buffers have been modified directly
 	void updateStaticPose();
@@ -131,7 +140,7 @@ public:
 	void resetAnimation();
 
 	//! Creates an array of joints from this mesh as children of node
-	std::vector<IBoneSceneNode *> addJoints(
+	std::vector<BoneSceneNode *> addJoints(
 			AnimatedMeshSceneNode *node, ISceneManager *smgr);
 
 	template <class T>
@@ -268,26 +277,6 @@ public:
 		using VariantTransform = std::variant<core::Transform, core::matrix4>;
 		VariantTransform transform{core::Transform{}};
 
-		VariantTransform animate(f32 frame) const {
-			if (keys.empty())
-				return transform;
-
-			if (std::holds_alternative<core::matrix4>(transform)) {
-				// .x lets animations override matrix transforms entirely,
-				// which is what we implement here.
-				// .gltf does not allow animation of nodes using matrix transforms.
-				// Note that a decomposition into a TRS transform need not exist!
-				core::Transform trs;
-				keys.updateTransform(frame, trs);
-				return {trs};
-			}
-
-			auto trs = std::get<core::Transform>(transform);
-			keys.updateTransform(frame, trs);
-			return {trs};
-		}
-
-
 		//! List of attached meshes
 		std::vector<u32> AttachedMeshes;
 		// TODO ^ should turn this into optional meshbuffer parent field?
@@ -312,8 +301,27 @@ public:
 		std::optional<u16> ParentJointID;
 	};
 
+	struct Animation {
+		struct JointKeys {
+			u16 joint_id;
+			Keys keys;
+		};
+		std::vector<JointKeys> joint_keys;
+		f32 end_frame = 0.0f;
+		std::string name;
+	};
+
+	struct AnimationProgress {
+		u16 track_nr;
+		f32 frame;
+		f32 blend; // from 0 (old) to 1 (new)
+	};
+
 	//! Animates joints based on frame input
-	std::vector<SJoint::VariantTransform> animateMesh(f32 frame);
+	//! \param progresses Vector of AnimationProgress, one per track, by decreasing priority.
+	std::vector<SJoint::VariantTransform> animateMesh(
+			const std::vector<AnimationProgress> &progresses,
+			const std::vector<std::optional<core::Transform>> &old_transforms) const;
 
 	//! Calculates a bounding box given an animation in the form of global joint transforms.
 	core::aabbox3df calculateBoundingBox(
@@ -325,8 +333,12 @@ public:
 		return AllJoints;
 	}
 
+	const Animation &getAnimation(u16 index) const
+	{ return animations.at(index); }
+
 protected:
-	bool checkForAnimation() const;
+	bool checkForWeights() const;
+	bool checkForKeys() const;
 
 	void prepareForSkinning();
 
@@ -351,17 +363,20 @@ protected:
 	//! Joints, topologically sorted (parents come before their children).
 	std::vector<SJoint *> AllJoints;
 
+	//! Animation tracks
+	std::vector<Animation> animations;
+	std::unordered_map<std::string, u16> anim_name_to_idx;
+
 	//! Bounding box of just the static parts of the mesh
 	core::aabbox3df StaticPartsBox{{0, 0, 0}};
 
 	//! Bounding box of the mesh in static pose
 	core::aabbox3df StaticPoseBox{{0, 0, 0}};
 
-	f32 EndFrame;
-	f32 FramesPerSecond;
-
-	bool HasAnimation;
-	bool PreparedForSkinning;
+	bool IsAnimatable = false;
+	bool HasWeights = false;
+	bool PreparedForSkinning = false;
+	bool UseSwSkinning = false;
 
 	SourceFormat SrcFormat;
 };
@@ -404,9 +419,7 @@ public:
 	SJoint *addJoint(SJoint *parent = nullptr);
 
 	std::optional<u32> getJointNumber(const std::string &name) const
-	{
-		return mesh->getJointNumber(name);
-	}
+	{ return mesh->getJointNumber(name); }
 
 	void addPositionKey(SJoint *joint, f32 frame, core::vector3df pos);
 	void addRotationKey(SJoint *joint, f32 frame, core::quaternion rotation);
@@ -415,13 +428,32 @@ public:
 	//! Adds a new weight to the mesh
 	void addWeight(SJoint *joint, u16 buf, u32 vert_id, f32 strength);
 
+	/// @return index of the appended (no-op) animation
+	u16 addAnimation()
+	{
+		mesh->animations.emplace_back();
+		return mesh->animations.size() - 1;
+	}
+
+	SkinnedMesh::Animation &getAnimation(u16 index)
+	{ return mesh->animations.at(index); }
+
+	//! Used by the .b3d and .x readers to add a single animation, if necessary
+	SkinnedMesh::Animation &getSingleAnimation()
+	{
+		if (mesh->getTrackCount() == 0) {
+			static_cast<void>(addAnimation());
+		}
+		assert(mesh->getTrackCount() == 1);
+		return getAnimation(0);
+	}
+
 private:
 
 	void topoSortJoints();
 
 	//! The mesh that is being built
 	irr_ptr<SkinnedMesh> mesh;
-
 	struct Weight {
 		u16 joint_id;
 		u16 buffer_id;
@@ -431,7 +463,6 @@ private:
 
 	//! Weights to be added once all mesh buffers have been loaded
 	std::vector<Weight> weights;
-
 };
 
 } // end namespace scene

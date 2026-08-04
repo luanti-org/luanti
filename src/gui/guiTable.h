@@ -9,9 +9,19 @@
 #include <string>
 #include <vector>
 
-#include "guiScrollBar.h"
+#include <IGUIElement.h>
+#include <SColor.h>
+
+namespace gui {
+	class IGUIFont;
+}
+
+namespace video {
+	class ITexture;
+}
 
 class ISimpleTextureSource;
+class GUIScrollBar;
 
 /*
 	A table GUI element for GUIFormSpecMenu.

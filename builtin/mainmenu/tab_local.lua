@@ -205,15 +205,14 @@ local function get_formspec(tabview, name, tabdata)
 		end
 	end
 
-	retval = retval ..
-			"container[5.25,4.875]" ..
-			"button[6.65,0;3.225,0.8;world_create;".. fgettext("New") .. "]"
+	retval = retval .. "container[5.25,4.875]"
 	if world then
 		retval = retval ..
 				"button[0,0;3.225,0.8;world_delete;".. fgettext("Delete") .. "]" ..
 				"button[3.325,0;3.225,0.8;world_configure;".. fgettext("Select Mods") .. "]"
 	end
 	retval = retval ..
+			"button[6.65,0;3.225,0.8;world_create;".. fgettext("New") .. "]" ..
 			"container_end[]" ..
 			"container[0.375,0.375]" ..
 			creative ..
@@ -382,6 +381,7 @@ local function main_button_handler(this, fields, name, tabdata)
 		end
 
 		if core.settings:get_bool("enable_server") then
+			gamedata.mode       = "host"
 			gamedata.playername = fields["te_playername"]
 			gamedata.password   = fields["te_passwd"]
 			gamedata.port       = fields["te_serverport"]
@@ -392,7 +392,7 @@ local function main_button_handler(this, fields, name, tabdata)
 				core.settings:set("bind_address",fields["te_serveraddr"])
 			end
 		else
-			gamedata.singleplayer = true
+			gamedata.mode = "singleplayer"
 		end
 
 		core.start()

@@ -13,6 +13,7 @@
 #include "gettext.h"
 #include "inputhandler.h"
 #include "profiler.h"
+#include "exceptions.h"
 #include "gui/guiEngine.h"
 #include "fontengine.h"
 #include "clientlauncher.h"
@@ -60,16 +61,30 @@ ClientLauncher::~ClientLauncher()
 
 	g_settings->deregisterAllChangedCallbacks(this);
 
+	if (g_menucloudsmgr) {
+		assert(g_menucloudsmgr->getReferenceCount() == 1);
+		g_menucloudsmgr->drop();
+		g_menucloudsmgr = nullptr;
+	}
+
+	if (g_menuclouds) {
+		assert(g_menuclouds->getReferenceCount() == 1);
+		g_menuclouds->drop();
+		g_menuclouds = nullptr;
+	}
+
 	delete g_fontengine;
 	g_fontengine = nullptr;
 	delete g_gamecallback;
 	g_gamecallback = nullptr;
 
-	guiroot = nullptr;
-	guienv = nullptr;
 	assert(g_menumgr.menuCount() == 0);
 
 	delete m_rendering_engine;
+
+	// CGUIEnvironment causes calls to `deletingMenu`, which needs `guienv != nullptr`.
+	guiroot = nullptr;
+	guienv = nullptr;
 
 	// delete event receiver only after all Irrlicht stuff is gone
 	delete receiver;
@@ -80,28 +95,22 @@ ClientLauncher::~ClientLauncher()
 }
 
 
-bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
+bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args)
 {
-	/* This function is called when a client must be started.
-	 * Covered cases:
-	 *   - Singleplayer (address but map provided)
-	 *   - Join server (no map but address provided)
-	 *   - Local server (for main menu only)
-	*/
+	GameStartData start_data;
+	static_cast<GameParams &>(start_data) = game_params;
 
 	init_args(start_data, cmd_args);
 
-#if USE_SOUND
-	g_sound_manager_singleton = createSoundManagerSingleton();
-#endif
-
-	if (!init_engine())
-		return false;
-
-	if (!m_rendering_engine->get_video_driver()) {
-		errorstream << "Could not initialize video driver." << std::endl;
+	try {
+		init_engine();
+	} catch (BaseException &e) {
+		errorstream << e.what() << std::endl;
+		RenderingEngine::showErrorMessageBox(e.what());
 		return false;
 	}
+
+	sanity_check(m_rendering_engine->get_video_driver() != nullptr);
 
 	m_rendering_engine->setupTopLevelWindow();
 
@@ -110,6 +119,10 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 
 	m_rendering_engine->setResizable(true);
 
+#if USE_SOUND
+	g_sound_manager_singleton = createSoundManagerSingleton();
+#endif
+
 	init_input();
 
 	guienv = m_rendering_engine->get_gui_env();
@@ -117,19 +130,33 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 	g_settings->registerChangedCallback("dpi_change_notifier", setting_changed_callback, this);
 	g_settings->registerChangedCallback("display_density_factor", setting_changed_callback, this);
 	g_settings->registerChangedCallback("gui_scaling", setting_changed_callback, this);
+	g_settings->registerChangedCallback("smooth_scrolling", setting_changed_callback, this);
 
-	g_fontengine = new FontEngine(guienv);
+	try {
+		g_fontengine = new FontEngine(guienv);
+	} catch (BaseException &e) {
+		errorstream << e.what() << std::endl;
+		RenderingEngine::showErrorMessageBox(e.what());
+		return false;
+	}
 
 	// Create the menu clouds
 	// This is only global so it can be used by RenderingEngine::draw_load_screen().
 	assert(!g_menucloudsmgr && !g_menuclouds);
-	std::unique_ptr<IWritableShaderSource> ssrc(createShaderSource());
-	ssrc->addShaderUniformSetterFactory(std::make_unique<FogShaderUniformSetterFactory>());
-	g_menucloudsmgr = m_rendering_engine->get_scene_manager()->createNewSceneManager();
-	{
-		struct tm tm = mt_localtime();
+	std::unique_ptr<IWritableShaderSource> ssrc;
+	try {
+		ssrc.reset(createShaderSource());
+		ssrc->addShaderUniformSetterFactory(std::make_unique<FogShaderUniformSetterFactory>());
+
+		g_menucloudsmgr = m_rendering_engine->get_scene_manager()->createNewSceneManager();
+
+		auto tm = mt_localtime();
 		u32 seed = (tm.tm_year << 16) | tm.tm_yday; // unique clouds every day
 		g_menuclouds = new Clouds(g_menucloudsmgr, ssrc.get(), -1, seed);
+	} catch (BaseException &e) {
+		errorstream << e.what() << std::endl;
+		RenderingEngine::showErrorMessageBox(e.what());
+		return false;
 	}
 	g_menuclouds->setHeight(100.0f);
 	g_menuclouds->update(v3f(0, 0, 0), m_rendering_engine->m_menu_clouds_color);
@@ -145,8 +172,7 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 
 	// If an error occurs, this is set to something by menu().
 	// It is then displayed before the menu shows on the next call to menu()
-	std::string error_message;
-	bool reconnect_requested = false;
+	GameErrorData errordata;
 
 	bool first_loop = true;
 
@@ -171,21 +197,20 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 #ifdef NDEBUG
 		try {
 #endif
-			m_rendering_engine->get_gui_env()->clear();
+			guienv->clear();
 
 			/*
 				We need some kind of a root node to be able to add
 				custom gui elements directly on the screen.
 				Otherwise they won't be automatically drawn.
 			*/
-			guiroot = m_rendering_engine->get_gui_env()->addStaticText(L"",
+			guiroot = guienv->addStaticText(L"",
 				core::rect<s32>(0, 0, 10000, 10000));
 
-			bool should_run_game = launch_game(error_message, reconnect_requested,
-				start_data, cmd_args);
+			bool should_run_game = launch_game(errordata, start_data, cmd_args);
 
 			// Reset the reconnect_requested flag
-			reconnect_requested = false;
+			errordata.reconnect_requested = false;
 
 			// If skip_main_menu, we only want to startup once
 			if (skip_main_menu && !first_loop)
@@ -207,24 +232,20 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 				input,
 				m_rendering_engine,
 				start_data,
-				error_message,
-				chat_backend,
-				&reconnect_requested
+				errordata,
+				chat_backend
 			);
 #ifdef NDEBUG
 		} catch (std::exception &e) {
-			error_message = "Some exception: ";
-			error_message.append(debug_describe_exc(e));
-			errorstream << error_message << std::endl;
+			errordata.message = "Some exception: " + debug_describe_exc(e);
+			errorstream << errordata.message << std::endl;
 		}
 #endif
 
 		m_rendering_engine->get_scene_manager()->clear();
 
-		if (g_touchcontrols) {
-			delete g_touchcontrols;
-			g_touchcontrols = NULL;
-		}
+		delete g_touchcontrols;
+		g_touchcontrols = nullptr;
 
 		/* Save the settings when leaving the game.
 		 * This makes sure that setting changes made in-game are persisted even
@@ -238,7 +259,7 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 
 		// If no main menu, show error and exit
 		if (skip_main_menu) {
-			if (!error_message.empty())
+			if (!errordata.message.empty())
 				retval = false;
 			break;
 		}
@@ -251,13 +272,6 @@ bool ClientLauncher::run(GameStartData &start_data, const Settings &cmd_args)
 		g_profiler->clear();
 	}
 
-	assert(g_menucloudsmgr->getReferenceCount() == 1);
-	g_menucloudsmgr->drop();
-	g_menucloudsmgr = nullptr;
-	assert(g_menuclouds->getReferenceCount() == 1);
-	g_menuclouds->drop();
-	g_menuclouds = nullptr;
-
 	return retval;
 }
 
@@ -268,12 +282,14 @@ void ClientLauncher::init_args(GameStartData &start_data, const Settings &cmd_ar
 	start_data.address = g_settings->get("address");
 	if (cmd_args.exists("address")) {
 		// Join a remote server
+		start_data.mode = GameClientData::GM_JOIN;
 		start_data.address = cmd_args.get("address");
 		start_data.world_path.clear();
 		start_data.name = g_settings->get("name");
 	}
 	if (!start_data.world_path.empty()) {
 		// Start a singleplayer instance
+		start_data.mode = GameClientData::GM_SINGLEPLAYER;
 		start_data.address = "";
 	}
 
@@ -282,6 +298,9 @@ void ClientLauncher::init_args(GameStartData &start_data, const Settings &cmd_ar
 
 	// If a world was commanded, select it
 	if (!start_data.world_path.empty()) {
+		if (!start_data.name.empty())
+			start_data.mode = GameClientData::GM_HOST_AND_JOIN;
+
 		auto &spec = start_data.world_spec;
 
 		spec.path = start_data.world_path;
@@ -293,15 +312,11 @@ void ClientLauncher::init_args(GameStartData &start_data, const Settings &cmd_ar
 			|| cmd_args.getFlag("random-input");
 }
 
-bool ClientLauncher::init_engine()
+void ClientLauncher::init_engine()
 {
 	receiver = new MyEventReceiver();
-	try {
-		m_rendering_engine = new RenderingEngine(receiver);
-	} catch (std::exception &e) {
-		errorstream << e.what() << std::endl;
-	}
-	return !!m_rendering_engine;
+	// Note: this can throw
+	m_rendering_engine = new RenderingEngine(receiver);
 }
 
 void ClientLauncher::init_input()
@@ -310,30 +325,6 @@ void ClientLauncher::init_input()
 		input = new RandomInputHandler();
 	else
 		input = new RealInputHandler(receiver);
-
-	if (g_settings->getBool("enable_joysticks"))
-		init_joysticks();
-}
-
-void ClientLauncher::init_joysticks()
-{
-	core::array<SJoystickInfo> infos;
-	std::vector<SJoystickInfo> joystick_infos;
-
-	// Make sure this is called maximum once per
-	// irrlicht device, otherwise it will give you
-	// multiple events for the same joystick.
-	if (!m_rendering_engine->get_raw_device()->activateJoysticks(infos)) {
-		errorstream << "Could not activate joystick support." << std::endl;
-		return;
-	}
-
-	infostream << "Joystick support enabled" << std::endl;
-	joystick_infos.reserve(infos.size());
-	for (u32 i = 0; i < infos.size(); i++) {
-		joystick_infos.push_back(infos[i]);
-	}
-	input->joystick.onJoystickConnect(joystick_infos);
 }
 
 void ClientLauncher::setting_changed_callback(const std::string &name, void *data)
@@ -374,6 +365,9 @@ void ClientLauncher::config_guienv()
 	skin->setSize(gui::EGDS_SCROLLBAR_SIZE, (s32)(21.0f * density));
 	skin->setSize(gui::EGDS_WINDOW_BUTTON_WIDTH, (s32)(15.0f * density));
 
+	skin->setBehavior(gui::EGDB_SMOOTH_SCROLL, g_settings->getBool("smooth_scrolling"));
+	skin->setBehavior(gui::EGDB_SCOLLBAR_JUMP_TO_CLICKED, true);
+
 	static u32 orig_sprite_id = skin->getIcon(gui::EGDI_CHECK_BOX_CHECKED);
 	static std::unordered_map<std::string, u32> sprite_ids;
 
@@ -404,14 +398,12 @@ void ClientLauncher::config_guienv()
 	}
 }
 
-bool ClientLauncher::launch_game(std::string &error_message,
-		bool reconnect_requested, GameStartData &start_data,
+bool ClientLauncher::launch_game(GameErrorData &errordata, GameStartData &start_data,
 		const Settings &cmd_args)
 {
-	// Prepare and check the start data to launch a game
-	std::string error_message_lua = error_message;
-	error_message.clear();
+	std::string &error_message = errordata.message;
 
+	// Prepare and check the start data to launch a game
 	if (cmd_args.exists("password"))
 		start_data.password = cmd_args.get("password");
 
@@ -431,17 +423,11 @@ bool ClientLauncher::launch_game(std::string &error_message,
 	/*
 	 * Show the GUI menu
 	 */
-	std::string server_name, server_description;
 	if (!skip_main_menu) {
 		// Initialize menu data
-		// TODO: Re-use existing structs (GameStartData)
-		MainMenuData menudata;
-		menudata.address                         = start_data.address;
-		menudata.name                            = start_data.name;
-		menudata.password                        = start_data.password;
-		menudata.port                            = itos(start_data.socket_port);
-		menudata.script_data.errormessage        = std::move(error_message_lua);
-		menudata.script_data.reconnect_requested = reconnect_requested;
+		MainMenuData menudata(errordata);
+		(GameClientData &)menudata = start_data;
+		menudata.port = itos(start_data.socket_port);
 
 		main_menu(&menudata);
 
@@ -449,11 +435,11 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		if (!m_rendering_engine->run() || *porting::signal_handler_killstatus())
 			return false;
 
-		if (!menudata.script_data.errormessage.empty()) {
+		if (!menudata.script_data.message.empty()) {
 			/* The calling function will pass this back into this function upon the
 			 * next iteration (if any) causing it to be displayed by the GUI
 			 */
-			error_message = menudata.script_data.errormessage;
+			error_message = menudata.script_data.message;
 			return false;
 		}
 
@@ -470,18 +456,7 @@ bool ClientLauncher::launch_game(std::string &error_message,
 			start_data.world_path = start_data.world_spec.path;
 		}
 
-		start_data.name = menudata.name;
-		start_data.password = menudata.password;
-		start_data.address = std::move(menudata.address);
-		start_data.allow_login_or_register = menudata.allow_login_or_register;
-		server_name = menudata.servername;
-		server_description = menudata.serverdescription;
-
-		start_data.local_server = !menudata.simple_singleplayer_mode &&
-			start_data.address.empty();
-	} else {
-		start_data.local_server = !start_data.world_path.empty() &&
-			start_data.address.empty() && !start_data.name.empty();
+		(GameClientData &)start_data = menudata;
 	}
 
 	if (!start_data.isSinglePlayer() && start_data.name.empty()) {
@@ -507,12 +482,12 @@ bool ClientLauncher::launch_game(std::string &error_message,
 	}
 
 	// For singleplayer and local server
-	if (start_data.address.empty()) {
+	if (start_data.isAnyServer()) {
 		auto &worldspec = start_data.world_spec;
 		if (worldspec.path.empty()) {
-			error_message = gettext("No world selected and no address "
-					"provided. Nothing to do.");
-			errorstream << error_message << std::endl;
+			errordata.setError(
+				gettext("No world selected and no address provided. Nothing to do.")
+			);
 			return false;
 		}
 
@@ -529,13 +504,13 @@ bool ClientLauncher::launch_game(std::string &error_message,
 		}
 
 		if (!start_data.game_spec.isValid()) {
+			std::string msg;
 			if (world_exists) {
-				error_message = gettext("Could not find or load game: ")
-					+ worldspec.gameid;
+				msg = gettext("Could not find or load game: ") + worldspec.gameid;
 			} else {
-				error_message = gettext("World does not exist and no game selected to create one.");
+				msg = gettext("World does not exist and no game selected to create one.");
 			}
-			errorstream << error_message << std::endl;
+			errordata.setError(msg);
 			return false;
 		}
 	}
@@ -574,16 +549,15 @@ void ClientLauncher::main_menu(MainMenuData *menudata)
 	framemarker.end();
 	infostream << "Waited for other menus" << std::endl;
 
+	// Make sure normal mouse cursor is restored
 	auto *cur_control = device->getCursorControl();
 	if (cur_control) {
-		// Cursor can be non-visible when coming from the game
 		cur_control->setVisible(true);
-		// Set absolute mouse mode
 		cur_control->setRelativeMode(false);
 	}
 
 	/* show main menu */
-	GUIEngine mymenu(&input->joystick, guiroot, m_rendering_engine, &g_menumgr, menudata, *kill);
+	GUIEngine mymenu(guiroot, m_rendering_engine, &g_menumgr, menudata, *kill);
 
 	/* leave scene manager in a clean state */
 	m_rendering_engine->get_scene_manager()->clear();
@@ -593,7 +567,7 @@ void ClientLauncher::main_menu(MainMenuData *menudata)
 	 * even in case of a later unclean exit from the game.
 	 * This is especially useful on Android because closing the app from the
 	 * "Recents screen" results in an unclean exit.
-	 * Caveat: This means that the settings are saved twice when exiting Minetest.
+	 * Caveat: This means that the settings are saved twice when exiting Luanti.
 	 */
 	if (!g_settings_path.empty())
 		g_settings->updateConfigFile(g_settings_path.c_str());

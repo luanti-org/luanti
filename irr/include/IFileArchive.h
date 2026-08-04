@@ -4,18 +4,14 @@
 
 #pragma once
 
-#include "IReadFile.h"
-#include "IFileList.h"
+#include "IReferenceCounted.h"
+#include "path.h"
 
 namespace io
 {
 
-//! FileSystemType: which filesystem should be used for e.g. browsing
-enum EFileSystemType
-{
-	FILESYSTEM_NATIVE = 0, // Native OS FileSystem
-	FILESYSTEM_VIRTUAL     // Virtual FileSystem
-};
+class IReadFile;
+class IFileList;
 
 //! Contains the different types of archives
 enum E_FILE_ARCHIVE_TYPE

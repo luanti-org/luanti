@@ -18,10 +18,16 @@ bool string_to_enum(const EnumString *spec, int &result, std::string_view str);
 template <typename T, std::enable_if_t<std::is_enum_v<T>, bool> = true>
 bool string_to_enum(const EnumString *spec, T &result, std::string_view str)
 {
-	int result_int = result;
+	int result_int = static_cast<int>(result);
 	bool ret = string_to_enum(spec, result_int, str);
 	result = static_cast<T>(result_int);
 	return ret;
 }
 
-[[nodiscard]] const char *enum_to_string(const EnumString *spec, int num);
+const char *enum_to_string(const EnumString *spec, int num);
+
+template <typename T, std::enable_if_t<std::is_enum_v<T>, bool> = true>
+[[nodiscard]] const char *enum_to_string(const EnumString *spec, T enu) {
+	int enu_int = static_cast<int>(enu);
+	return enum_to_string(spec, enu_int);
+}
