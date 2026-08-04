@@ -455,7 +455,7 @@ bool ServerMap::isBlockInQueue(v3s16 pos)
 }
 
 void ServerMap::addNodeAndUpdate(v3s16 p, MapNode n,
-		std::map<v3s16, MapBlock*> &modified_blocks,
+		ModifiedMapBlocks &modified_blocks,
 		bool remove_metadata)
 {
 	Map::addNodeAndUpdate(p, n, modified_blocks, remove_metadata);
@@ -766,7 +766,7 @@ MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_aft
 		ReflowScan scanner(this, m_emerge->ndef);
 		scanner.scan(block, &m_transforming_liquid);
 
-		std::map<v3s16, MapBlock*> modified_blocks;
+		ModifiedMapBlocks modified_blocks;
 		// Fix lighting if necessary
 		voxalgo::update_block_border_lighting(this, block, modified_blocks);
 		if (!modified_blocks.empty()) {
