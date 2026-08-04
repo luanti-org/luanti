@@ -29,7 +29,7 @@ public class LuantiDocumentsProvider extends DocumentsProvider {
 		Document.COLUMN_DOCUMENT_ID, Document.COLUMN_DISPLAY_NAME, Document.COLUMN_MIME_TYPE, Document.COLUMN_LAST_MODIFIED, Document.COLUMN_FLAGS, Document.COLUMN_SIZE
 	};
 
-	private static final Pattern TEXT_FILE_REGEX = Pattern.compile("\\.(lua|txt|md|example|conf|po|tr|json|obj)$");
+	private static final Pattern TEXT_FILE_REGEX = Pattern.compile("\\.(lua|txt|md|example|conf|po|tr|json)$");
 
 	@Override
 	public boolean onCreate()
@@ -82,6 +82,7 @@ public class LuantiDocumentsProvider extends DocumentsProvider {
 	{
 		filename = filename.toLowerCase(Locale.ROOT);
 		// Perform some basic guessing. This might help other apps handle the files correctly.
+		// See Client::loadMedia() for media file types.
 		if (TEXT_FILE_REGEX.matcher(filename).find() || filename.equals("world.mt"))
 			return "text/plain";
 		if (filename.endsWith(".png"))
