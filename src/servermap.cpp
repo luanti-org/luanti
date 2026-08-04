@@ -706,6 +706,30 @@ bool ServerMap::saveBlock(MapBlock *block, MapDatabase *db, int compression_leve
 	return ret;
 }
 
+std::pair<std::unique_ptr<std::istream>, u8> ServerMap::createBlockIStream(const std::string *from_db)
+{
+	if (!from_db || from_db->empty()) {
+		return {nullptr, 0};
+	}
+	// attempt to uncompress the block data without holding the lock
+	auto iss = std::make_unique<std::istringstream>(*from_db, std::ios_base::binary);
+	u8 version = readU8(*iss);
+
+	if (!ser_ver_supported_read(version))
+		throw VersionMismatchException("ERROR: MapBlock format not supported");
+
+	if (iss->good() && version >= 29) {
+		// we can uncompress right here
+		ScopeProfiler sp(g_profiler, "EmergeThread: deCompress block", SPT_AVG, PRECISION_MICRO);
+		auto decomp = std::make_unique<std::stringstream>(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
+		decompress(*iss, *decomp, version);
+		// use the decompressed stream
+		return {std::move(decomp), version};
+	} else {
+		return {std::move(iss), version};
+	}
+}
+
 MapBlock *ServerMap::loadBlock(std::istream &is, v3s16 p3d, bool save_after_load, std::optional<u8> version)
 {
 	ScopeProfiler sp(g_profiler, "ServerMap: load block", SPT_AVG, PRECISION_MICRO);
