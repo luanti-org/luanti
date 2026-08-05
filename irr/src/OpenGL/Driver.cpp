@@ -326,6 +326,47 @@ void COpenGL3DriverBase::printTextureFormats()
 	}
 }
 
+namespace
+{
+void replaceAll(std::string &s, const std::string &from, const std::string &to)
+{
+	size_t pos = 0;
+	while ((pos = s.find(from, pos)) != std::string::npos) {
+		s.replace(pos, from.length(), to);
+		pos += to.length();
+	}
+}
+
+// client/shaders/Irrlicht/*.vsh|.fsh (Irrlicht's built-in fixed-function-emulation
+// material shaders, used for e.g. draw2DImage()) are written in GLSL ES 1.00 for
+// the GLES2/GLES3 driver. Desktop Core profile GLSL starts at #version 150 and
+// dropped `attribute`/`varying`/`gl_FragColor`/`texture2D`/`precision` -- some
+// Core-profile compilers tolerate the ES 1.00 syntax anyway, but that isn't
+// spec-guaranteed, so translate it the same way generateShader() does for
+// Luanti's own shaders in src/client/shader.cpp. Only called for these built-in
+// files (see loadShaderData() below); Luanti's own shaders already emit a
+// Core-appropriate header directly and never pass through here.
+c8 *patchBuiltInShaderForCoreProfile(c8 *data, bool isFragmentShader)
+{
+	std::string src(data);
+	delete[] data;
+
+	replaceAll(src, "#version 100", "#version 150");
+	replaceAll(src, "precision mediump float;\n", "");
+	replaceAll(src, "attribute ", "in ");
+	replaceAll(src, "varying ", isFragmentShader ? "in " : "out ");
+	replaceAll(src, "texture2D(", "texture(");
+	if (isFragmentShader && src.find("gl_FragColor") != std::string::npos) {
+		replaceAll(src, "gl_FragColor", "outFragColor");
+		src.insert(src.find('\n') + 1, "out vec4 outFragColor;\n");
+	}
+
+	c8 *out = new c8[src.size() + 1];
+	memcpy(out, src.c_str(), src.size() + 1);
+	return out;
+}
+}
+
 void COpenGL3DriverBase::loadShaderData(const io::path &vertexShaderName, const io::path &fragmentShaderName, c8 **vertexShaderData, c8 **fragmentShaderData)
 {
 	io::path vsPath(OGLES2ShaderPath);
@@ -383,6 +424,13 @@ void COpenGL3DriverBase::loadShaderData(const io::path &vertexShaderName, const 
 
 	vsFile->drop();
 	fsFile->drop();
+
+	if (Version.Spec == OpenGLSpec::Core) {
+		if (*vertexShaderData)
+			*vertexShaderData = patchBuiltInShaderForCoreProfile(*vertexShaderData, false);
+		if (*fragmentShaderData)
+			*fragmentShaderData = patchBuiltInShaderForCoreProfile(*fragmentShaderData, true);
+	}
 }
 
 void COpenGL3DriverBase::createMaterialRenderers()
@@ -398,32 +446,40 @@ void COpenGL3DriverBase::createMaterialRenderers()
 	// Create built-in materials.
 	// The addition order must be the same as in the E_MATERIAL_TYPE enumeration. Thus the
 
-	const core::stringc VertexShader = OGLES2ShaderPath + "Solid.vsh";
+	// Routed through loadShaderData() (rather than the path-based
+	// addHighLevelShaderMaterialFromFiles()) so these built-in GLSL ES 1.00
+	// shaders get the same Core-profile patch-up applied to the 2D material
+	// renderers below.
+	auto addBuiltInMaterial = [this](const io::path &vertexShaderName, const io::path &fragmentShaderName,
+			const char *name, IShaderConstantSetCallBack *cb, E_MATERIAL_TYPE baseMaterial) {
+		c8 *vsData = 0, *fsData = 0;
+		loadShaderData(vertexShaderName, fragmentShaderName, &vsData, &fsData);
+		addHighLevelShaderMaterial(vsData, fsData, nullptr, name,
+				scene::EPT_TRIANGLES, scene::EPT_TRIANGLE_STRIP, 0, cb, baseMaterial, 0);
+		delete[] vsData;
+		delete[] fsData;
+	};
+
+	const io::path VertexShader("Solid.vsh");
 
 	// EMT_SOLID
-	core::stringc FragmentShader = OGLES2ShaderPath + "Solid.fsh";
-	addHighLevelShaderMaterialFromFiles(VertexShader, FragmentShader, "", "Solid",
-			scene::EPT_TRIANGLES, scene::EPT_TRIANGLE_STRIP, 0, SolidCB, EMT_SOLID, 0);
+	addBuiltInMaterial(VertexShader, io::path("Solid.fsh"), "Solid", SolidCB, EMT_SOLID);
 
 	// EMT_TRANSPARENT_ALPHA_CHANNEL
-	FragmentShader = OGLES2ShaderPath + "TransparentAlphaChannel.fsh";
-	addHighLevelShaderMaterialFromFiles(VertexShader, FragmentShader, "", "TransparentAlphaChannel",
-			scene::EPT_TRIANGLES, scene::EPT_TRIANGLE_STRIP, 0, TransparentAlphaChannelCB, EMT_TRANSPARENT_ALPHA_CHANNEL, 0);
+	addBuiltInMaterial(VertexShader, io::path("TransparentAlphaChannel.fsh"), "TransparentAlphaChannel",
+			TransparentAlphaChannelCB, EMT_TRANSPARENT_ALPHA_CHANNEL);
 
 	// EMT_TRANSPARENT_ALPHA_CHANNEL_REF
-	FragmentShader = OGLES2ShaderPath + "TransparentAlphaChannelRef.fsh";
-	addHighLevelShaderMaterialFromFiles(VertexShader, FragmentShader, "", "TransparentAlphaChannelRef",
-			scene::EPT_TRIANGLES, scene::EPT_TRIANGLE_STRIP, 0, TransparentAlphaChannelRefCB, EMT_SOLID, 0);
+	addBuiltInMaterial(VertexShader, io::path("TransparentAlphaChannelRef.fsh"), "TransparentAlphaChannelRef",
+			TransparentAlphaChannelRefCB, EMT_SOLID);
 
 	// EMT_TRANSPARENT_VERTEX_ALPHA
-	FragmentShader = OGLES2ShaderPath + "TransparentVertexAlpha.fsh";
-	addHighLevelShaderMaterialFromFiles(VertexShader, FragmentShader, "", "TransparentVertexAlpha",
-			scene::EPT_TRIANGLES, scene::EPT_TRIANGLE_STRIP, 0, TransparentVertexAlphaCB, EMT_TRANSPARENT_ALPHA_CHANNEL, 0);
+	addBuiltInMaterial(VertexShader, io::path("TransparentVertexAlpha.fsh"), "TransparentVertexAlpha",
+			TransparentVertexAlphaCB, EMT_TRANSPARENT_ALPHA_CHANNEL);
 
 	// EMT_ONETEXTURE_BLEND
-	FragmentShader = OGLES2ShaderPath + "OneTextureBlend.fsh";
-	addHighLevelShaderMaterialFromFiles(VertexShader, FragmentShader, "", "OneTextureBlend",
-			scene::EPT_TRIANGLES, scene::EPT_TRIANGLE_STRIP, 0, OneTextureBlendCB, EMT_ONETEXTURE_BLEND, 0);
+	addBuiltInMaterial(VertexShader, io::path("OneTextureBlend.fsh"), "OneTextureBlend",
+			OneTextureBlendCB, EMT_ONETEXTURE_BLEND);
 
 	// Drop callbacks.
 
