@@ -738,12 +738,6 @@
 #    type: bool
 # soft_clouds = false
 
-### Particles
-
-#    Enable client-side particle effects while digging and when a node is dug.
-#    type: bool
-# enable_dig_particles = true
-
 ### Filtering and Antialiasing
 
 #    Use mipmaps when scaling textures. May slightly increase performance,
@@ -3809,3 +3803,4 @@
 #    Controlled by a checkbox in the settings menu.
 #    type: bool
 # show_advanced = false
+
