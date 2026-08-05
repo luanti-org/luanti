@@ -11,30 +11,31 @@ namespace video
 {
 
 void OGLBufferObject::upload(const void *data, size_t size, size_t offset,
-		GLenum usage, bool mustShrink)
+		GLenum usage, bool mustShrink, bool orphan)
 {
 	assert(!(mustShrink && offset > 0)); // forbidden usage
+	assert(!(orphan && offset > 0)); // forbidden usage
+	bool newBuffer = false;
 	if (!m_name) {
 		GL.GenBuffers(1, &m_name);
 		if (!m_name)
 			return;
+		newBuffer = true;
+	} else if (orphan) {
+		newBuffer = true;
+	} else if (size > m_size || mustShrink) {
+		newBuffer = size != m_size;
 	}
 
 	GL.BindBuffer(m_target, m_name);
 
-	// Every caller replaces the buffer's entire contents on every call
-	// (offset is always 0 in practice), so always re-specify storage via
-	// BufferData rather than BufferSubData into the existing allocation.
-	// BufferSubData can force the driver to stall the CPU until the GPU is
-	// done reading the old contents; BufferData (even at an unchanged size)
-	// instead orphans the old storage and hands back a fresh allocation,
-	// letting the GPU keep draining the old one asynchronously. This matters
-	// most for buffers re-uploaded every frame or even multiple times per
-	// frame (joint transforms, streamed/dynamic meshes, the Core-profile
-	// client-array scratch buffers).
-	assert(offset == 0);
-	GL.BufferData(m_target, size, data, usage);
-	m_size = size;
+	if (newBuffer) {
+		assert(offset == 0);
+		GL.BufferData(m_target, size, data, usage);
+		m_size = size;
+	} else {
+		GL.BufferSubData(m_target, offset, size, data);
+	}
 
 	GL.BindBuffer(m_target, 0);
 }

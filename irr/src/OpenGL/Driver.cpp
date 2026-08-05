@@ -496,7 +496,8 @@ void COpenGL3DriverBase::setTransform(E_TRANSFORMATION_STATE state, const core::
 void COpenGL3DriverBase::setJointTransforms(const std::vector<core::matrix4> &jointMatrices)
 {
 	assert(jointMatrices.size() <= getMaxJointTransforms());
-	JointTransformsUBO.upload(jointMatrices.data(), jointMatrices.size() * sizeof(core::matrix4), 0, GL_DYNAMIC_DRAW);
+	JointTransformsUBO.upload(jointMatrices.data(), jointMatrices.size() * sizeof(core::matrix4), 0, GL_DYNAMIC_DRAW,
+		/*mustShrink:*/ false, /*orphan:*/ true);
 	GL.BindBufferBase(GL_UNIFORM_BUFFER, 0, JointTransformsUBO.getName());
 	TEST_GL_ERROR(this);
 }
@@ -995,7 +996,8 @@ uintptr_t COpenGL3DriverBase::uploadClientVertexData(const VertexType &vertexTyp
 	if (Version.Spec != OpenGLSpec::Core)
 		return reinterpret_cast<uintptr_t>(vertices);
 
-	ScratchVBO.upload(vertices, static_cast<size_t>(vertexCount) * vertexType.VertexSize, 0, GL_STREAM_DRAW);
+	ScratchVBO.upload(vertices, static_cast<size_t>(vertexCount) * vertexType.VertexSize, 0, GL_STREAM_DRAW,
+		/*mustShrink:*/ false, /*orphan:*/ true);
 	// OGLBufferObject::upload() unbinds GL_ARRAY_BUFFER when it's done, so
 	// re-bind for the VertexAttribPointer calls beginDraw() is about to make.
 	GL.BindBuffer(GL_ARRAY_BUFFER, ScratchVBO.getName());
@@ -1008,7 +1010,8 @@ uintptr_t COpenGL3DriverBase::uploadClientIndexData(const void *indexList, u32 i
 		return reinterpret_cast<uintptr_t>(indexList);
 
 	size_t elemSize = (indexType == GL_UNSIGNED_SHORT) ? sizeof(u16) : sizeof(u32);
-	ScratchEBO.upload(indexList, static_cast<size_t>(indexCount) * elemSize, 0, GL_STREAM_DRAW);
+	ScratchEBO.upload(indexList, static_cast<size_t>(indexCount) * elemSize, 0, GL_STREAM_DRAW,
+		/*mustShrink:*/ false, /*orphan:*/ true);
 	// OGLBufferObject::upload() unbinds GL_ELEMENT_ARRAY_BUFFER when it's
 	// done, so re-bind for the draw call about to use it.
 	GL.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, ScratchEBO.getName());

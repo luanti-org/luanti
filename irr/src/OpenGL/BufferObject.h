@@ -44,10 +44,19 @@ public:
 	 * @param offset offset to upload at
 	 * @param usage usage pattern passed to GL (only if buffer is new)
 	 * @param mustShrink force re-create of buffer if it became smaller
+	 * @param orphan force re-specifying (orphaning) the GL storage via
+	 *   BufferData instead of reusing the existing allocation via
+	 *   BufferSubData, even if the size is unchanged. Only valid with
+	 *   `offset == 0`. BufferSubData can make the driver stall the CPU
+	 *   until the GPU is done reading the old contents; orphaning avoids
+	 *   that at the cost of a fresh allocation. Only worth it for buffers
+	 *   whose *entire* contents are replaced on every upload and that are
+	 *   uploaded frequently (e.g. every frame or draw call) -- pass this
+	 *   explicitly per call site, don't flip the default.
 	 * @note modifies GL_ARRAY_BUFFER binding
 	 */
 	void upload(const void *data, size_t size, size_t offset,
-		GLenum usage, bool mustShrink = false);
+		GLenum usage, bool mustShrink = false, bool orphan = false);
 
 	/**
 	 * Free buffer in GL.
