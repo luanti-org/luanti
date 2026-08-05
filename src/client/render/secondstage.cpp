@@ -215,19 +215,36 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 			source = TEXTURE_BLOOM;
 		}
 
+		u8 downsample_start = 0;
 		if (enable_volumetric_light) {
-			buffer->setTexture(TEXTURE_VOLUME, scale, "volume", bloom_format);
+			// The volumetric pass is expensive (a raymarch per target pixel)
+			// and its output only reaches the screen through the blur of the
+			// bloom chain, whose first target is half resolution anyway. So
+			// with performance_tradeoffs enabled, render it directly into the
+			// first downsample target and skip the then-redundant first
+			// bloom_downsample step.
+			const bool half_res = g_settings->getFlag("performance_tradeoffs");
 
 			shader_id = client->getShaderSource()->getShaderRaw("volumetric_light");
 			auto volume = pipeline->addStep<PostProcessingStep>(shader_id, std::vector<u8> { source, TEXTURE_DEPTH });
 			volume->setRenderSource(buffer);
-			volume->setRenderTarget(pipeline->createOwned<TextureBufferOutput>(buffer, TEXTURE_VOLUME));
-			source = TEXTURE_VOLUME;
+			if (half_res) {
+				// Only the color input is minified; depth stays unfiltered
+				// because the shader does exact comparisons against 1.0.
+				volume->setBilinearFilter(0, true);
+				volume->setRenderTarget(pipeline->createOwned<TextureBufferOutput>(buffer, TEXTURE_SCALE_DOWN));
+				source = TEXTURE_SCALE_DOWN;
+				downsample_start = 1;
+			} else {
+				buffer->setTexture(TEXTURE_VOLUME, scale, "volume", bloom_format);
+				volume->setRenderTarget(pipeline->createOwned<TextureBufferOutput>(buffer, TEXTURE_VOLUME));
+				source = TEXTURE_VOLUME;
+			}
 		}
 
 		// downsample
 		shader_id = client->getShaderSource()->getShaderRaw("bloom_downsample");
-		for (u8 i = 0; i < MIPMAP_LEVELS; i++) {
+		for (u8 i = downsample_start; i < MIPMAP_LEVELS; i++) {
 			auto step = pipeline->addStep<PostProcessingStep>(shader_id, std::vector<u8> { source });
 			step->setRenderSource(buffer);
 			step->setBilinearFilter(0, true);
