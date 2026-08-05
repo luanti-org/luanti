@@ -106,7 +106,7 @@ private:
 
 	void drawItems(v2s32 screen_pos, v2s32 screen_offset, s32 itemcount, v2f alignment,
 			s32 inv_offset, InventoryList *mainlist, u16 selectitem,
-			u16 direction, bool is_hotbar);
+			u16 direction, bool is_hotbar, const std::string &background_image = "");
 
 	void drawItem(const ItemStack &item, const core::rect<s32> &rect, bool selected);
 
