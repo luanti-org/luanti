@@ -125,7 +125,7 @@ public:
 	/// Load a block that was already read from disk. Used by EmergeManager.
 	/// Caller must pass the version if it read the version off the stream.
 	/// @return non-null block (but can be blank)
-	MapBlock *loadBlock(std::istream &is, v3s16 p, bool save_after_load=false, std::optional<u8> version=std::nullopt);
+	MapBlock *loadBlock(std::istream &is, v3s16 p, u8 version);
 
 	// Blocks are removed from the map but not deleted from memory until
 	// deleteDetachedBlocks() is called, since pointers to them may still exist

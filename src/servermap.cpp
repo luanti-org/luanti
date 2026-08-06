@@ -730,7 +730,7 @@ std::pair<std::unique_ptr<std::istream>, u8> ServerMap::createBlockIStream(const
 	}
 }
 
-MapBlock *ServerMap::loadBlock(std::istream &is, v3s16 p3d, bool save_after_load, std::optional<u8> version)
+MapBlock *ServerMap::loadBlock(std::istream &is, v3s16 p3d, u8 version)
 {
 	ScopeProfiler sp(g_profiler, "ServerMap: load block", SPT_AVG, PRECISION_MICRO);
 	MapBlock *block = nullptr;
@@ -747,18 +747,12 @@ MapBlock *ServerMap::loadBlock(std::istream &is, v3s16 p3d, bool save_after_load
 			block = block_created_new.get();
 		}
 
-		if (version && *version >= 29) {
+		if (version >= 29) {
 			ScopeProfiler sp(g_profiler, "ServerMap: deSer block unComp", SPT_AVG, PRECISION_MICRO);
-			block->deSerializeUncompressed(is, *version, true);
+			block->deSerializeUncompressed(is, version, true);
 		} else {
-			if (!version) {
-				version = readU8(is);
-				if (is.fail())
-					throw SerializationError("Failed to read MapBlock version");
-			}
-
 			ScopeProfiler sp(g_profiler, "ServerMap: deSer block", SPT_AVG, PRECISION_MICRO);
-			block->deSerialize(is, *version, true);
+			block->deSerialize(is, version, true);
 		}
 
 		// If it's a new block, insert it to the map
@@ -800,9 +794,6 @@ MapBlock *ServerMap::loadBlock(std::istream &is, v3s16 p3d, bool save_after_load
 		}
 	}
 
-	if (save_after_load)
-		saveBlock(block);
-
 	// We just loaded it, so it's up-to-date.
 	block->resetModified();
 
@@ -819,8 +810,8 @@ MapBlock* ServerMap::loadBlock(v3s16 blockpos)
 	}
 
 	if (!data.empty()) {
-		std::istringstream iss(data, std::ios_base::binary);
-		return loadBlock(iss, blockpos);
+		auto [is_ptr, version] = createBlockIStream(&data);
+		return loadBlock(*is_ptr.get(), blockpos, version);
 
 	}
 	return getBlockNoCreateNoEx(blockpos);
