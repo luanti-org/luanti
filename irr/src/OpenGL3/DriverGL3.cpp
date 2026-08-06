@@ -71,6 +71,11 @@ void COpenGL3Driver::initFeatures()
 		MaxLabelLength = GetInteger(GL.MAX_LABEL_LENGTH);
 	RenderToFloatTextureSupported = true;
 
+	// https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGetProgramBinary.xhtml
+	GLint numFormats = 0;
+	GL.GetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &numFormats);
+	BinaryCacheSupported = (isVersionAtLeast(4, 1) || queryExtension("GL_ARB_get_program_binary")) && numFormats > 0;
+
 	// COGLESCoreExtensionHandler::Feature
 	static_assert(MATERIAL_MAX_TEXTURES <= 16, "Only up to 16 textures are guaranteed");
 	Feature.BlendOperation = true;
