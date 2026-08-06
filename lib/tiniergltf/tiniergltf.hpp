@@ -1118,6 +1118,39 @@ static inline std::string uriError(const std::string &uri) {
 	throw std::runtime_error("unsupported URI: " + uri);
 }
 
+template<bool skinning_attrs, typename T>
+static size_t checkConsistentAttributeCounts(const T &attributes,
+		const std::optional<std::vector<Accessor>> &accessors)
+{
+	// All present attribute accessors must have the same count, which is the number of vertices.
+	std::optional<size_t> vertex_count;
+	const auto check_accessor_idx = [&](std::optional<size_t> accessor_idx) {
+		if (!accessor_idx.has_value())
+			return;
+		const auto count = accessors.value().at(*accessor_idx).count;
+		if (!vertex_count)
+			vertex_count = count;
+		else
+			check(*vertex_count == count);
+	};
+	check_accessor_idx(attributes.position);
+	check_accessor_idx(attributes.normal);
+	check_accessor_idx(attributes.tangent);
+	const auto check_accessor_idxs = [&](const auto &accessor_idxs) {
+		checkForall(accessor_idxs, [&](const std::size_t &i) {
+			check_accessor_idx(i);
+		});
+	};
+	check_accessor_idxs(attributes.texcoord);
+	check_accessor_idxs(attributes.color);
+	if constexpr (skinning_attrs) {
+		check_accessor_idxs(attributes.joints);
+		check_accessor_idxs(attributes.weights);
+	}
+	// At least one attribute must be specified
+	return vertex_count.value();
+}
+
 struct GlTF {
 	std::optional<std::vector<Accessor>> accessors;
 	std::optional<std::vector<Animation>> animations;
@@ -1279,8 +1312,10 @@ struct GlTF {
 				checkAccessor(accessor, *accessor.bufferView, accessor.byteOffset, accessor.count);
 			if (accessor.sparse.has_value()) {
 				const auto &indices = accessor.sparse->indices;
+				check(!bufferViews.value().at(indices.bufferView).byteStride.has_value());
 				checkAccessor(indices, indices.bufferView, indices.byteOffset, accessor.sparse->count);
 				const auto &values = accessor.sparse->values;
+				check(!bufferViews.value().at(values.bufferView).byteStride.has_value());
 				checkAccessor(accessor, values.bufferView, values.byteOffset, accessor.sparse->count);
 			}
 		});
@@ -1323,6 +1358,9 @@ struct GlTF {
 						check(material.occlusionTexture->texCoord < primitive.attributes.texcoord->size());
 					}
 				}
+
+				const size_t vertex_count = checkConsistentAttributeCounts<true>(primitive.attributes, accessors);
+
 				checkForall(primitive.targets, [&](const MeshPrimitive::MorphTargets &target) {
 					checkIndex(accessors, target.normal);
 					checkIndex(accessors, target.position);
@@ -1333,6 +1371,8 @@ struct GlTF {
 					checkForall(target.color, [&](const std::size_t &i) {
 						checkIndex(accessors, i);
 					});
+					const size_t target_vertex_count = checkConsistentAttributeCounts<false>(target, accessors);
+					check(vertex_count == target_vertex_count);
 				});
 			}
 		});

@@ -29,7 +29,6 @@
 #include <numeric>
 #include <optional>
 #include <stdexcept>
-#include <tuple>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -86,14 +85,12 @@ template <class T>
 SelfType::Accessor<T>
 SelfType::Accessor<T>::sparseIndices(const tiniergltf::GlTF &model,
 		const tiniergltf::AccessorSparseIndices &indices,
-		const std::size_t count)
+		const std::size_t count,
+		const std::size_t byteStride)
 {
 	const auto &view = model.bufferViews->at(indices.bufferView);
-	const auto byteStride = view.byteStride.value_or(indices.elementSize());
-
 	const auto &buffer = model.buffers->at(view.buffer);
 	const auto source = buffer.data.data() + view.byteOffset + indices.byteOffset;
-
 	return SelfType::Accessor<T>(source, byteStride, count);
 }
 
@@ -102,14 +99,11 @@ SelfType::Accessor<T>
 SelfType::Accessor<T>::sparseValues(const tiniergltf::GlTF &model,
 		const tiniergltf::AccessorSparseValues &values,
 		const std::size_t count,
-		const std::size_t defaultByteStride)
+		const std::size_t byteStride)
 {
 	const auto &view = model.bufferViews->at(values.bufferView);
-	const auto byteStride = view.byteStride.value_or(defaultByteStride);
-
 	const auto &buffer = model.buffers->at(view.buffer);
 	const auto source = buffer.data.data() + view.byteOffset + values.byteOffset;
-
 	return SelfType::Accessor<T>(source, byteStride, count);
 }
 
@@ -151,20 +145,17 @@ SelfType::Accessor<T>::make(const tiniergltf::GlTF &model, std::size_t accessorI
 		const auto indicesAccessor = ([&]() -> AccessorVariant<u8, u16, u32> {
 			switch (accessor.sparse->indices.componentType) {
 			case tiniergltf::AccessorSparseIndices::ComponentType::UNSIGNED_BYTE:
-				return Accessor<u8>::sparseIndices(model, accessor.sparse->indices, overriddenCount);
+				return Accessor<u8>::sparseIndices(model, accessor.sparse->indices, overriddenCount, sizeof(u8));
 			case tiniergltf::AccessorSparseIndices::ComponentType::UNSIGNED_SHORT:
-				return Accessor<u16>::sparseIndices(model, accessor.sparse->indices, overriddenCount);
+				return Accessor<u16>::sparseIndices(model, accessor.sparse->indices, overriddenCount, sizeof(u16));
 			case tiniergltf::AccessorSparseIndices::ComponentType::UNSIGNED_INT:
-				return Accessor<u32>::sparseIndices(model, accessor.sparse->indices, overriddenCount);
+				return Accessor<u32>::sparseIndices(model, accessor.sparse->indices, overriddenCount, sizeof(u32));
 			}
 			throw std::logic_error("invalid enum value");
 		})();
 
 		const auto valuesAccessor = Accessor<T>::sparseValues(model,
-				accessor.sparse->values, overriddenCount,
-				accessor.bufferView.has_value()
-						? model.bufferViews->at(*accessor.bufferView).byteStride.value_or(accessor.elementSize())
-						: accessor.elementSize());
+				accessor.sparse->values, overriddenCount, accessor.elementSize());
 
 		for (std::size_t i = 0; i < overriddenCount; ++i) {
 			u32 index;
@@ -374,15 +365,13 @@ static void checkIndices(const std::vector<u16> &indices, const std::size_t nVer
 	}
 }
 
+// Generate descending indices nVerts - 1, ..., 0
 static std::vector<u16> generateIndices(const std::size_t nVerts)
 {
 	std::vector<u16> indices(nVerts);
-	for (std::size_t i = 0; i < nVerts; i += 3) {
-		// Reverse winding order per triangle
-		indices[i] = i + 2;
-		indices[i + 1] = i + 1;
-		indices[i + 2] = i;
-	}
+	std::iota(indices.begin(), indices.end(), 0);
+	// Reverses winding order (and "triangle order", but that doesn't matter)
+	std::reverse(indices.begin(), indices.end());
 	return indices;
 }
 
@@ -415,6 +404,14 @@ void SelfType::MeshExtractor::addPrimitive(
 	if (n_vertices >= std::numeric_limits<u16>::max())
 		throw std::runtime_error("too many vertices");
 
+	if (primitive.mode != tiniergltf::MeshPrimitive::Mode::TRIANGLES) {
+		// TODO support other primitive modes. Requires changes outside of this loader:
+		// recalculateNormals() and many other mesh helpers are written
+		// with an implicit assumption that mesh buffers only store triangles.
+		warn("ignoring primitive using a mode other than TRIANGLES");
+		return;
+	}
+
 	auto maybeIndices = getIndices(primitive);
 	std::vector<u16> indices;
 	if (maybeIndices.has_value()) {
@@ -424,6 +421,8 @@ void SelfType::MeshExtractor::addPrimitive(
 		// Non-indexed geometry
 		indices = generateIndices(vertices->size());
 	}
+	if (indices.size() % 3 != 0)
+		throw std::runtime_error("index count for triangles not divisible by 3");
 
 	auto *meshbuf = new SSkinMeshBuffer(std::move(*vertices), std::move(indices));
 	const auto meshbufNr = m_irr_model.addMeshBuffer(meshbuf);

@@ -419,6 +419,7 @@ to check whether a model is a valid glTF file.
 
 Many glTF features are not supported *yet*, including:
 
+* Primitive modes other than `TRIANGLES`
 * Animations
   * `CUBICSPLINE` interpolation is not supported
   * Morph animations
