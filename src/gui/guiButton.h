@@ -175,6 +175,10 @@ public:
 			const wchar_t *tooltiptext=L"");
 
 protected:
+
+	void startPress();
+	void stopPress();
+
 	void drawSprite(gui::EGUI_BUTTON_STATE state, u32 startTime, const core::position2di& center);
 	gui::EGUI_BUTTON_IMAGE_STATE getImageState(bool pressed) const;
 

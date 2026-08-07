@@ -5,6 +5,8 @@
 #include "guiButton.h"
 
 
+#include "IEventReceiver.h"
+#include "Keycodes.h"
 #include "client/guiscalingfilter.h"
 #include "IGUISkin.h"
 #include "IGUIEnvironment.h"
@@ -115,6 +117,29 @@ bool GUIButton::getSpriteLoop(EGUI_BUTTON_STATE state) const
 	return ButtonSprites[(u32)state].Loop;
 }
 
+void GUIButton::startPress()
+{
+	if (!IsPushButton)
+		setPressed(true);
+	else
+		setPressed(!Pressed);
+}
+
+void GUIButton::stopPress()
+{
+	if (!IsPushButton)
+		setPressed(false);
+
+	if (Parent) {
+		SEvent newEvent;
+		newEvent.EventType = EET_GUI_EVENT;
+		newEvent.GUIEvent.Caller = this;
+		newEvent.GUIEvent.Element = 0;
+		newEvent.GUIEvent.EventType = EGET_BUTTON_CLICKED;
+		Parent->OnEvent(newEvent);
+	}
+}
+
 //! called if an event happened.
 bool GUIButton::OnEvent(const SEvent& event)
 {
@@ -127,11 +152,7 @@ bool GUIButton::OnEvent(const SEvent& event)
 		if (event.KeyInput.PressedDown &&
 			(event.KeyInput.Key == KEY_RETURN || event.KeyInput.Key == KEY_SPACE))
 		{
-			if (!IsPushButton)
-				setPressed(true);
-			else
-				setPressed(!Pressed);
-
+			startPress();
 			return true;
 		}
 		if (Pressed && !IsPushButton && event.KeyInput.PressedDown && event.KeyInput.Key == KEY_ESCAPE)
@@ -143,22 +164,20 @@ bool GUIButton::OnEvent(const SEvent& event)
 		if (!event.KeyInput.PressedDown && Pressed &&
 			(event.KeyInput.Key == KEY_RETURN || event.KeyInput.Key == KEY_SPACE))
 		{
-
-			if (!IsPushButton)
-				setPressed(false);
-
-			if (Parent)
-			{
+			if (Parent) {
 				ClickShiftState = event.KeyInput.Shift;
 				ClickControlState = event.KeyInput.Control;
-
-				SEvent newEvent;
-				newEvent.EventType = EET_GUI_EVENT;
-				newEvent.GUIEvent.Caller = this;
-				newEvent.GUIEvent.Element = 0;
-				newEvent.GUIEvent.EventType = EGET_BUTTON_CLICKED;
-				Parent->OnEvent(newEvent);
 			}
+			stopPress();
+			return true;
+		}
+		break;
+	case EET_GAMEPAD_BUTTON_EVENT:
+		if (event.GamepadButtonEvent.Button == GamepadButton::SOUTH) {
+			if (event.GamepadButtonEvent.PressedDown)
+				startPress();
+			else
+				stopPress();
 			return true;
 		}
 		break;
