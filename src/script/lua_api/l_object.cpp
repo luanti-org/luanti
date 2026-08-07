@@ -2785,26 +2785,34 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	const Lighting &lighting = player->getLighting();
 
 	lua_newtable(L); // result
+
 	lua_newtable(L); // artificial_light
-	lua_pushnumber(L, lighting.artificial_light_color.r);
-	lua_setfield(L, -2, "r");
-	lua_pushnumber(L, lighting.artificial_light_color.g);
-	lua_setfield(L, -2, "g");
-	lua_pushnumber(L, lighting.artificial_light_color.b);
-	lua_setfield(L, -2, "b");
+	{
+		lua_pushnumber(L, lighting.artificial_light_color.r);
+		lua_setfield(L, -2, "r");
+		lua_pushnumber(L, lighting.artificial_light_color.g);
+		lua_setfield(L, -2, "g");
+		lua_pushnumber(L, lighting.artificial_light_color.b);
+		lua_setfield(L, -2, "b");
+	}
 	lua_setfield(L, -2, "artificial_light");
+
 	lua_pushnumber(L, lighting.foliage_translucency);
 	lua_setfield(L, -2, "foliage_translucency");
 	lua_pushnumber(L, lighting.specular_intensity);
 	lua_setfield(L, -2, "specular_intensity");
+
 	lua_newtable(L); // "shadows"
-	lua_pushnumber(L, lighting.shadow_intensity);
-	lua_setfield(L, -2, "intensity");
-	push_ARGB8(L, lighting.shadow_tint);
-	lua_setfield(L, -2, "tint");
-	push_v3f(L, lighting.shadow_direction);
-	lua_setfield(L, -2, "direction");
+	{
+		lua_pushnumber(L, lighting.shadow_intensity);
+		lua_setfield(L, -2, "intensity");
+		push_ARGB8(L, lighting.shadow_tint);
+		lua_setfield(L, -2, "tint");
+		push_v3f(L, lighting.shadow_direction);
+		lua_setfield(L, -2, "direction");
+	}
 	lua_setfield(L, -2, "shadows");
+
 	lua_pushnumber(L, lighting.saturation);
 	lua_setfield(L, -2, "saturation");
 	lua_newtable(L); // "exposure"
@@ -2835,22 +2843,29 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	lua_pushnumber(L, lighting.bloom_radius);
 	lua_setfield(L, -2, "radius");
 	lua_setfield(L, -2, "bloom");
+
 	lua_newtable(L); // "vignette"
-	lua_pushnumber(L, lighting.vignette.dark);
-	lua_setfield(L, -2, "dark");
-	lua_pushnumber(L, lighting.vignette.bright);
-	lua_setfield(L, -2, "bright");
-	lua_pushnumber(L, lighting.vignette.power);
-	lua_setfield(L, -2, "power");
+	{
+		lua_pushnumber(L, lighting.vignette.dark);
+		lua_setfield(L, -2, "dark");
+		lua_pushnumber(L, lighting.vignette.bright);
+		lua_setfield(L, -2, "bright");
+		lua_pushnumber(L, lighting.vignette.power);
+		lua_setfield(L, -2, "power");
+	}
 	lua_setfield(L, -2, "vignette");
+
 	lua_newtable(L); // "cdl"
-	push_v3f(L, lighting.cdl.slope);
-	lua_setfield(L, -2, "slope");
-	push_v3f(L, lighting.cdl.offset);
-	lua_setfield(L, -2, "offset");
-	push_v3f(L, lighting.cdl.power);
-	lua_setfield(L, -2, "power");
+	{
+		push_v3f(L, lighting.cdl.slope);
+		lua_setfield(L, -2, "slope");
+		push_v3f(L, lighting.cdl.offset);
+		lua_setfield(L, -2, "offset");
+		push_v3f(L, lighting.cdl.power);
+		lua_setfield(L, -2, "power");
+	}
 	lua_setfield(L, -2, "cdl");
+
 	return 1;
 }
 

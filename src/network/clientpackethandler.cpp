@@ -1918,25 +1918,27 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 				>> lighting.bloom_strength_factor
 				>> lighting.bloom_radius;
 
-		if (pkt->getRemainingBytes() >= 72) {
-			*pkt >> lighting.artificial_light_color.r
-				>> lighting.artificial_light_color.g
-				>> lighting.artificial_light_color.b;
-			*pkt >> lighting.scattering_coefficients;
-			*pkt >> lighting.vignette.dark
-					>> lighting.vignette.bright
-					>> lighting.vignette.power;
-			*pkt >> lighting.cdl.slope;
-			*pkt >> lighting.cdl.offset;
-			*pkt >> lighting.cdl.power;
-			*pkt >> lighting.foliage_translucency;
-			*pkt >> lighting.specular_intensity;
-		}
-
 		if (!pkt->hasRemainingBytes())
 			break;
 		// >= 5.16.0-dev
 		*pkt >> lighting.shadow_direction;
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.17.0-dev
+
+		*pkt >> lighting.artificial_light_color.r
+			>> lighting.artificial_light_color.g
+			>> lighting.artificial_light_color.b;
+		*pkt >> lighting.scattering_coefficients;
+		*pkt >> lighting.vignette.dark
+				>> lighting.vignette.bright
+				>> lighting.vignette.power;
+		*pkt >> lighting.cdl.slope
+			>> lighting.cdl.offset
+			>> lighting.cdl.power;
+		*pkt >> lighting.foliage_translucency;
+		*pkt >> lighting.specular_intensity;
 
 	} while (0);
 }

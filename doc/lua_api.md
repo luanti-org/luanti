@@ -9459,11 +9459,13 @@ child will follow movement and rotation of that bone.
             but keeping original luma and being symmetrical in terms of saturation
             (eg. -1 and 1 is the same saturation and luma, but different hues)
         * This value has no effect on clients who have shaders or post-processing disabled.
-      * `foliage_translucency` controls the intensity of the foliage translucency effect (default: `1.5`).
+      * `foliage_translucency` controls the intensity of the foliage translucency effect. (>= 5.17.0)
         * Subject to change and can be removed at any time.
-        * This has no effect when dynamic shadows are disabled and on clients who have the "Translucent foliage" effect disabled.
-      * `specular_intensity` controls the intensity of specular highlights on nodes and liquids (default: `0.0`).
+        * Default: `1.5`.
+        * This effect depends on the client settings "Dynamic shadows" and "Translucent foliage".
+      * `specular_intensity` controls the intensity of specular highlights on nodes and liquids. (>= 5.17.0)
         * Subject to change and can be removed at any time.
+        * Default: `0.0`.
         * This has no effect when dynamic shadows are disabled.
       * `shadows` is a table that controls ambient shadows
         * This has no effect on clients who have the "Dynamic Shadows" effect disabled.
@@ -9506,16 +9508,18 @@ child will follow movement and rotation of that bone.
             * Currently, bloom `intensity` and `strength_factor` affect volumetric
               lighting `strength` and vice versa. This behavior is to be changed
               in the future, do not rely on it.
-        * `scattering_coefficients`: the scattering coefficients that control the tint of sunlight during sunrise and sunset.
+        * `scattering_coefficients`: the scattering coefficients that control the tint of sunlight
+              during sunrise and sunset. (>= 5.17.0)
             * Defaults to `{ x = 3.3362176e-01, y = 8.75378289198826e-01, z = 1.95342379700656 }` which is physically accurate.
             * This may be used to create effects like differently colored sunsets on alien planets.
             * Setting all components to zero effectively disables tinted sunlight.
-      * `vignette`: is a table that controls the vignette post-processing effect.
+      * `vignette`: is a table that controls the vignette post-processing effect. (>= 5.17.0)
+        * Subject to change and can be removed at any time.
         * This has no effect on clients who have post processing disabled.
         * `dark`: brightness of the vignette's darkest part (default: `1.0`)
         * `bright`: brightness of the vignette's brightest part (default: `1.0`)
         * `power`: the higher this is set, the more the vignette "retreats" to the edges of the screen (default: `1.0`)
-      * `cdl`: is a table that controls the ASL CDL color grading effect.
+      * `cdl`: is a table that controls the ASL CDL color grading effect. (>= 5.17.0)
         * This has no effect on clients who have post processing disabled.
         * The output color follows the equation: `out = pow(in*slope+offset, power)`
         * `slope`: "Tints" the scene, affects brighter colors more (default: `{x=1.2, y=1.0, z=0.8}`)

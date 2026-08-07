@@ -802,8 +802,6 @@ tone_mapping (Filmic tone mapping) bool false
 
 #   Set the post processing gamma value.
 #   Higher values give lower contrast and vice versa.
-#   Range: from 1.0 to 5.0
-#   Default: 1.6
 #
 #   Requires: enable_post_processing, tone_mapping
 secondstage_gamma (Gamma) float 1.6 1.0 5.0
@@ -818,7 +816,6 @@ enable_auto_exposure (Enable Automatic Exposure) bool false
 
 #    Set the exposure compensation in EV units.
 #    Value of 0.0 (default) means no exposure compensation.
-#    Range: from -1 to 1.0
 #
 #    Requires: enable_post_processing, enable_auto_exposure
 exposure_compensation (Exposure compensation) float 0.0 -1.0 1.0
@@ -856,7 +853,7 @@ enable_volumetric_depth_attenuation (Volumetric Depth Attenuation) bool false
 enable_tinted_fog (Tinted fog) bool false
 
 #   Simulate translucency when looking at foliage in the sunlight.
-#   It is recommended to use this with the leaves style set to fancy.
+#   It is recommended to use this with setting "leaves_style" set to "fancy".
 #
 #   Requires: enable_dynamic_shadows
 enable_translucent_foliage (Translucent foliage) bool false

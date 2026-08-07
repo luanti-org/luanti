@@ -126,8 +126,9 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float> m_foliage_translucency_pixel{ "foliage_translucency" };
 	CachedPixelShaderSetting<float> m_specular_intensity_pixel{ "specular_intensity" };
 
-	static constexpr std::array<const char*, 1> SETTING_CALLBACKS = {
+	static constexpr std::array<const char*, 2> SETTING_CALLBACKS = {
 		"exposure_compensation",
+		"secondstage_gamma",
 	};
 
 public:
