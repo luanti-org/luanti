@@ -34,6 +34,7 @@
 #if USE_LEVELDB
 #include "database/database-leveldb.h"
 #endif
+#include "server/line_sao.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 
@@ -1570,6 +1571,8 @@ std::unique_ptr<ServerActiveObject> ServerEnvironment::createSAO(ActiveObjectTyp
 	switch (type) {
 		case ACTIVEOBJECT_TYPE_LUAENTITY:
 			return std::make_unique<LuaEntitySAO>(this, pos, data);
+		case ACTIVEOBJECT_TYPE_LINE:
+			return std::make_unique<LineSAO>(this, pos, data);
 		default:
 			warningstream << "ServerActiveObject: No factory for type=" << type << std::endl;
 	}
