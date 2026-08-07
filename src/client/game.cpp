@@ -132,15 +132,15 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	};
 
 public:
-	void onSettingsChange(const std::string &name)
+	void readChangeableSettings()
 	{
-		if (name == "exposure_compensation")
-			m_user_exposure_compensation = g_settings->getFloat("exposure_compensation", -1.0f, 1.0f);
+		m_user_exposure_compensation = g_settings->getFloat("exposure_compensation", -1.0f, 1.0f);
+		m_gamma = g_settings->getFloat("secondstage_gamma", 1.0f, 5.0f);
 	}
 
 	static void settingsCallback(const std::string &name, void *userdata)
 	{
-		reinterpret_cast<GameGlobalShaderUniformSetter*>(userdata)->onSettingsChange(name);
+		reinterpret_cast<GameGlobalShaderUniformSetter*>(userdata)->readChangeableSettings();
 	}
 
 	void setSky(Sky *sky) { m_sky = sky; }
@@ -152,10 +152,11 @@ public:
 		for (auto &name : SETTING_CALLBACKS)
 			g_settings->registerChangedCallback(name, settingsCallback, this);
 
+		readChangeableSettings();
+
 		m_user_exposure_compensation = g_settings->getFloat("exposure_compensation", -1.0f, 1.0f);
 		m_bloom_enabled = g_settings->getBool("enable_bloom");
 		m_volumetric_light_enabled = g_settings->getBool("enable_volumetric_lighting") && m_bloom_enabled;
-		m_gamma = g_settings->getFloat("secondstage_gamma");
 		m_crack_animation_length_i = game->crack_animation_length;
 	}
 

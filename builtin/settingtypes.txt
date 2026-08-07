@@ -778,7 +778,7 @@ shadow_sky_body_orbit_tilt (Sky Body Orbit Tilt) float 0.0 -60.0 60.0
 
 #    Tint sunlight during sunrise/sunset.
 #
-#    Requires: enable_dynamic_shadows, opengl
+#    Requires: enable_dynamic_shadows
 enable_sun_tint (Tinted sunlight) bool false
 
 #   When enabled, crude liquid reflections are simulated.

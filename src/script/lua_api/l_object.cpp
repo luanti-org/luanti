@@ -2687,7 +2687,7 @@ int ObjectRef::l_set_lighting(lua_State *L)
 		lighting = player->getLighting();
 
 		lua_getfield(L, 2, "artificial_light");
-		if (lua_istable(L, -1)) {
+		if (check_field_or_nil(L, -1, LUA_TTABLE, "artificial_light")) {
 			getfloatfield(L, -1, "r", lighting.artificial_light_color.r);
 			getfloatfield(L, -1, "g", lighting.artificial_light_color.g);
 			getfloatfield(L, -1, "b", lighting.artificial_light_color.b);
@@ -2700,10 +2700,7 @@ int ObjectRef::l_set_lighting(lua_State *L)
 			lua_getfield(L, -1, "tint");
 			read_color(L, -1, &lighting.shadow_tint);
 			lua_pop(L, 1); // tint
-			lua_getfield(L, -1, "direction");
-			if (!lua_isnil(L, -1))
-				lighting.shadow_direction = check_v3f(L, -1);
-			lua_pop(L, 1); // direction
+			get_v3f_field(L, -1, "direction", lighting.shadow_direction);
 		}
 		lua_pop(L, 1); // shadows
 
@@ -2727,11 +2724,7 @@ int ObjectRef::l_set_lighting(lua_State *L)
 			getfloatfield(L, -1, "strength", lighting.volumetric_light_strength);
 			lighting.volumetric_light_strength = rangelim(lighting.volumetric_light_strength, 0.0f, 1.0f);
 
-			lua_getfield(L, -1, "scattering_coefficients");
-			if (!lua_isnil(L, -1)) {
-				lighting.scattering_coefficients = check_v3f(L, -1);
-			}
-			lua_pop(L, 1); // scattering_coefficients
+			get_v3f_field(L, -1, "scattering_coefficients", lighting.scattering_coefficients);
 		}
 		lua_pop(L, 1); // volumetric_light
 
@@ -2753,18 +2746,9 @@ int ObjectRef::l_set_lighting(lua_State *L)
 
 		lua_getfield(L, 2, "cdl");
 		if (lua_istable(L, -1)) {
-			lua_getfield(L, -1, "slope");
-			if (!lua_isnil(L, -1))
-				lighting.cdl.slope = check_v3f(L, -1);
-			lua_pop(L, 1); // slope
-			lua_getfield(L, -1, "offset");
-			if (!lua_isnil(L, -1))
-				lighting.cdl.offset = check_v3f(L, -1);
-			lua_pop(L, 1); // offset
-			lua_getfield(L, -1, "power");
-			if (!lua_isnil(L, -1))
-				lighting.cdl.power = check_v3f(L, -1);
-			lua_pop(L, 1); // power
+			get_v3f_field(L, -1, "slope",  lighting.cdl.slope);
+			get_v3f_field(L, -1, "offset", lighting.cdl.offset);
+			get_v3f_field(L, -1, "power",  lighting.cdl.power);
 		}
 		lua_pop(L, 1); // cdl
 }

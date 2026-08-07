@@ -55,6 +55,8 @@ bool getstringfield(lua_State *L, int table,
 		const char *fieldname, std::string_view &result);
 size_t getstringlistfield(lua_State *L, int table,
 		const char *fieldname, std::vector<std::string> *result);
+bool get_v3f_field(lua_State *L, int table,
+		const char *fieldname, v3f &result);
 bool getboolfield(lua_State *L, int table,
 		const char *fieldname, bool &result);
 bool getfloatfield(lua_State *L, int table,
