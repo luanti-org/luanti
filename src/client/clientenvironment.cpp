@@ -230,6 +230,7 @@ void ClientEnvironment::step(float dtime)
 
 	// Update lighting on local player (used for wield item)
 	u32 day_night_ratio = getDayNightRatio();
+	lplayer->updateCustomLighting(dtime);
 	{
 		// Get node at head
 
@@ -242,7 +243,11 @@ void ClientEnvironment::step(float dtime)
 
 		u16 light = getInteriorLight(node_at_lplayer, 0, m_client->ndef());
 		lplayer->light_color = encode_light(light, 0); // this transfers light.alpha
-		final_color_blend(&lplayer->light_color, light, day_night_ratio);
+		video::SColorf dayLight;
+		get_sunlight_color(&dayLight, day_night_ratio,
+				lplayer->m_moonlight_color, lplayer->m_sunlight_color);
+		final_color_blend(&lplayer->light_color, lplayer->light_color, dayLight,
+				lplayer->m_lightsource_color);
 	}
 
 	/*

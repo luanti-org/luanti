@@ -44,7 +44,7 @@ CENTROID_ VARYING_ float nightRatio;
 
 VARYING_ highp vec3 eyeVec;
 // Color of the light emitted by the light sources.
-const vec3 artificialLight = vec3(1.04, 1.04, 1.04);
+uniform vec3 artificialLight;
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 
