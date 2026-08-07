@@ -59,7 +59,7 @@ static constexpr float F1000_MAX = (s32)((float)(S32_MAX) / FIXEDPOINT_FACTOR);
 
 extern FloatType g_serialize_f32_type;
 
-#if HAVE_ENDIAN_H
+#if HAVE_ENDIAN_FUNCS
 // use machine native byte swapping routines
 // Note: memcpy below is optimized out by modern compilers
 
