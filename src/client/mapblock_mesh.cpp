@@ -7,6 +7,7 @@
 #include "client.h"
 #include "mapblock.h"
 #include "node_visuals.h"
+#include "nodedef.h"
 #include "porting.h"
 #include "shader.h"
 #include "mesh.h"

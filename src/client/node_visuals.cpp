@@ -5,6 +5,7 @@
 #include "node_visuals.h"
 
 #include "mesh.h"
+#include "nodedef.h"
 #include "shader.h"
 #include "client.h"
 #include "renderingengine.h"
@@ -484,7 +485,8 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 			param_type_2 == CPT2_COLORED_FACEDIR ||
 			param_type_2 == CPT2_COLORED_4DIR ||
 			param_type_2 == CPT2_COLORED_WALLMOUNTED ||
-			param_type_2 == CPT2_COLORED_DEGROTATE)
+			param_type_2 == CPT2_COLORED_DEGROTATE ||
+			param_type_2 == CPT2_COLORED_LIQUID)
 		palette = tsrc->getPalette(palette_name);
 }
 
