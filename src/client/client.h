@@ -226,7 +226,8 @@ public:
 	void sendInventoryFields(const std::string &formname,
 		const StringMap &fields);
 	void sendInventoryAction(InventoryAction *a);
-	void sendChatMessage(const std::wstring &message);
+	void sendQueuedChatMessages(); // can call into SSCSM
+	void sendChatMessageRaw(const std::wstring &message);
 	void clearOutChatQueue();
 	void sendChangePassword(const std::string &oldpassword,
 		const std::string &newpassword);
@@ -294,7 +295,7 @@ public:
 	{ return m_privileges; }
 
 	bool getChatMessage(std::wstring &message);
-	void typeChatMessage(const std::wstring& message);
+	void enqueueChatMessage(const std::wstring &message);
 
 	u64 getMapSeed() const { return m_map_seed; }
 
@@ -531,6 +532,7 @@ private:
 	float m_animation_time = 0.0f;
 	int m_crack_level = -1;
 	v3s16 m_crack_pos;
+	// Sent chat messages are delayed to next client step, and also rate-limited
 	std::queue<std::wstring> m_out_chat_queue;
 	u32 m_last_chat_message_sent;
 	float m_chat_message_allowance = 5.0f;

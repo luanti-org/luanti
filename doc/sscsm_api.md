@@ -57,6 +57,12 @@ Functions that take or return paths always use virtual paths.
 * `core.get_node_or_nil(pos)`
 * `core.get_content_id(name)`
 * `core.get_name_from_content_id(id)`
+* `core.send_chat_message_raw(message)`
+  * Directly sends `message` to the server, without any chatcommand handling or similar.
+* `core.handle_sending_chat_message(message)`
+  * Called for every chat message sent by the user (or by CPCSM).
+  * By default handles chatcommands and calls `core.send_chat_message_raw`.
+  * Can be overwritten.
 
 
 ### Global tables

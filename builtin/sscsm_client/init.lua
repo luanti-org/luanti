@@ -20,6 +20,7 @@ assert(loadfile(commonpath .. "register.lua"))(builtin_shared)
 assert(loadfile(mypath .. "register.lua"))(builtin_shared)
 
 dofile(commonpath .. "after.lua")
+dofile(mypath .. "chat.lua")
 
 -- unset, as promised in initializeSecuritySSCSM()
 debug.getinfo = nil

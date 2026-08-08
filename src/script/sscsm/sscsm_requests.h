@@ -135,3 +135,20 @@ struct SSCSMRequestGetItemDefs final : public ISSCSMRequest
 		return serializeSSCSMAnswer(std::move(answer));
 	}
 };
+
+// core.send_chat_message_raw(message)
+struct SSCSMRequestSendChatMessageRaw final : public ISSCSMRequest
+{
+	struct Answer final : public ISSCSMAnswer
+	{
+	};
+
+	std::string message;
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		client->sendChatMessageRaw(utf8_to_wide(message));
+
+		return serializeSSCSMAnswer(Answer{});
+	}
+};

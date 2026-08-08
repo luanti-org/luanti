@@ -12,6 +12,9 @@ private:
 	// get_node_or_nil(pos)
 	static int l_get_node_or_nil(lua_State *L);
 
+	// core.send_chat_message_raw(message)
+	static int l_send_chat_message_raw(lua_State *L);
+
 public:
 	static void Initialize(lua_State *L, int top);
 };

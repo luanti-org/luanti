@@ -473,7 +473,7 @@ bool GUIChatConsole::OnEvent(const SEvent& event)
 		{
 			prompt.addToHistory(prompt.getLine());
 			std::wstring text = prompt.replace(L"");
-			m_client->typeChatMessage(text);
+			m_client->enqueueChatMessage(text);
 			if (m_close_on_enter) {
 				closeConsoleAtOnce();
 				m_close_on_enter = false;

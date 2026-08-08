@@ -479,7 +479,8 @@ Call these functions only at load time!
 * `core.run_server_chatcommand(cmd, param)`
     * Alias for `core.send_chat_message("/" .. cmd .. " " .. param)`
 * `core.clear_out_chat_queue()`
-    * Clears the out chat queue
+    * The client rate-limits sent chat messages, and stores them in a queue (with
+      possibly limited space). This clears the queue.
 * `core.localplayer`
     * Reference to the LocalPlayer object. See [`LocalPlayer`](#localplayer) class reference for methods.
 

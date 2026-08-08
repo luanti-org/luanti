@@ -545,10 +545,7 @@ void Client::step(float dtime)
 	/*
 		Send pending messages on out chat queue
 	*/
-	if (!m_out_chat_queue.empty() && canSendChatMessage()) {
-		sendChatMessage(m_out_chat_queue.front());
-		m_out_chat_queue.pop();
-	}
+	sendQueuedChatMessages();
 
 	/*
 		Handle environment
@@ -1356,10 +1353,16 @@ bool Client::canSendChatMessage() const
 	return true;
 }
 
-void Client::sendChatMessage(const std::wstring &message)
+void Client::sendQueuedChatMessages()
 {
-	const s16 max_queue_size = g_settings->getS16("max_out_chat_queue_size");
-	if (canSendChatMessage()) {
+	while (!m_out_chat_queue.empty() && canSendChatMessage()) {
+		std::wstring message = std::move(m_out_chat_queue.front());
+		m_out_chat_queue.pop();
+
+		auto message_utf8 = wide_to_utf8(message);
+		infostream << "Typed chat message: \"" << message_utf8 << "\"" << std::endl;
+
+		// Update rate-limit
 		u32 now = time(NULL);
 		float time_passed = now - m_last_chat_message_sent;
 		m_last_chat_message_sent = now;
@@ -1370,15 +1373,23 @@ void Client::sendChatMessage(const std::wstring &message)
 
 		m_chat_message_allowance -= 1.0f;
 
-		NetworkPacket pkt(TOSERVER_CHAT_MESSAGE, 2 + message.size() * sizeof(u16));
-		pkt << message;
-		Send(&pkt);
-	} else if (m_out_chat_queue.size() < (u16) max_queue_size || max_queue_size < 0) {
-		m_out_chat_queue.push(message);
-	} else {
-		infostream << "Could not queue chat message because maximum out chat queue size ("
-				<< max_queue_size << ") is reached." << std::endl;
+		// Let CPCSM handle it
+		if (m_mods_loaded && m_script->on_sending_message(message_utf8))
+			continue;
+
+		// Let SSCSM handle it
+		// (it will call sendChatMessageRaw)
+		auto sscsm_event = std::make_unique<SSCSMEventSendingChatMessage>();
+		sscsm_event->message = std::move(message_utf8);
+		m_sscsm_controller->runEvent(this, std::move(sscsm_event));
 	}
+}
+
+void Client::sendChatMessageRaw(const std::wstring &message)
+{
+	NetworkPacket pkt(TOSERVER_CHAT_MESSAGE, 2 + message.size() * sizeof(u16));
+	pkt << message;
+	Send(&pkt);
 }
 
 void Client::clearOutChatQueue()
@@ -1768,21 +1779,20 @@ bool Client::getChatMessage(std::wstring &res)
 	return true;
 }
 
-void Client::typeChatMessage(const std::wstring &message)
+void Client::enqueueChatMessage(const std::wstring &message)
 {
 	// Discard empty line
 	if (message.empty())
 		return;
 
-	auto message_utf8 = wide_to_utf8(message);
-	infostream << "Typed chat message: \"" << message_utf8 << "\"" << std::endl;
-
-	// If message was consumed by script API, don't send it to server
-	if (m_mods_loaded && m_script->on_sending_message(message_utf8))
+	const s16 max_queue_size = g_settings->getS16("max_out_chat_queue_size");
+	if (max_queue_size >= 0 && m_out_chat_queue.size() >= (u16) max_queue_size) {
+		warningstream << "Could not queue chat message because maximum out chat queue size ("
+				<< max_queue_size << ") is reached." << std::endl;
 		return;
+	}
 
-	// Send to others
-	sendChatMessage(message);
+	m_out_chat_queue.push(message);
 }
 
 void Client::addUpdateMeshTask(v3s16 p, bool ack_to_server, bool urgent)
