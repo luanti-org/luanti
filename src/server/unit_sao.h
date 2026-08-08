@@ -39,6 +39,10 @@ public:
 
 	// Rotation
 	void setRotation(v3f rotation) { m_rotation = rotation; }
+	void setRotation(v3f rotation, bool interpolate) {
+		m_rotation = rotation;
+		m_rotation_interpolate = interpolate;
+	}
 	const v3f &getRotation() const { return m_rotation; }
 	const v3f getTotalRotation() const {
 		// This replicates what happens clientside serverside
@@ -107,7 +111,8 @@ public:
 	std::string generateUpdateArmorGroupsCommand() const;
 	static std::string generateUpdatePositionCommand(const v3f &position,
 			const v3f &velocity, const v3f &acceleration, const v3f &rotation,
-			bool do_interpolate, bool is_movement_end, f32 update_interval);
+			bool do_interpolate, bool is_movement_end, f32 update_interval,
+			bool do_interpolate_rotation = true);
 	std::string generateSetPropertiesCommand(const ObjectProperties &prop) const;
 	static std::string generateUpdateBoneOverrideCommand(
 			const std::string &bone, const BoneOverride &props);
@@ -118,6 +123,7 @@ protected:
 
 	v3f m_rotation;
 	f32 m_rotation_add_yaw = 0;
+	bool m_rotation_interpolate = true; // per-update flag for rotation interpolation
 
 	ItemGroupList m_armor_groups;
 
