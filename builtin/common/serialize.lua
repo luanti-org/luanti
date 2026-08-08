@@ -8,6 +8,15 @@ local next, rawget, pairs, pcall, error, type, setfenv, loadstring
 local table_concat, string_dump, string_format, string_match, math_huge
 	= table.concat, string.dump, string.format, string.match, math.huge
 
+local unsupported_types = {userdata=true, thread=true}
+
+-- Userdata and thread can be used as a key and a value in lua tables so it must check for both.
+local function allowed_type(k,v)
+	local a = unsupported_types[type(k)] == true
+	local b = unsupported_types[type(v)] == true
+	return not (a or b)
+end
+
 -- Recursively counts occurrences of objects (non-primitives including strings) in a table.
 local function count_objects(value)
 	local counts = {}
@@ -25,12 +34,16 @@ local function count_objects(value)
 		if type_ == "table" then
 			if not count then
 				for k, v in pairs(val) do
-					count_values(k)
-					count_values(v)
+					-- Skip it if it's not a supported type.
+					if allowed_type(k, v) then
+						count_values(k)
+						count_values(v)
+					end
 				end
 			end
 		elseif type_ ~= "string" and type_ ~= "function" then
-			error("unsupported type: " .. type_)
+			-- Ignore unsupported types instead of erroring out.
+			return
 		end
 	end
 	count_values(value)
@@ -119,6 +132,12 @@ local function serialize(value, write)
 				return write(string_format("%.17g", value))
 			end
 		end
+
+		-- Failsafe for userdata/thread if it bypasses the filters.
+		if type_ == "userdata" or type_ == "thread" then
+			return write("nil")
+		end
+
 		-- Reference types: table, function and string
 		local ref = references[value]
 		if ref then
@@ -144,23 +163,31 @@ local function serialize(value, write)
 				local v = rawget(value, len + 1) -- use rawget to avoid metatables like the vector metatable
 				if v == nil then break end
 				if first then first = false else write(",") end
-				dump(v)
+				-- Write nil to preserve array indices if element is userdata.
+				if not allowed_type(v) then
+					write("nil")
+				else
+					dump(v)
+				end
 				len = len + 1
 			end
 			-- Now write map keys ([key] = value)
 			for k, v in next, value do
 				-- We have written all non-float keys in [1, len] already
 				if type(k) ~= "number" or k % 1 ~= 0 or k < 1 or k > len then
-					if first then first = false else write(",") end
-					if use_short_key(k) then
-						write(k)
-					else
-						write("[")
-						dump(k)
-						write("]")
+					-- Skip entire key if either key or value is userdata/thread.
+					if allowed_type(k, v) then
+						if first then first = false else write(",") end
+						if use_short_key(k) then
+							write(k)
+						else
+							write("[")
+							dump(k)
+							write("]")
+						end
+						write("=")
+						dump(v)
 					end
-					write("=")
-					dump(v)
 				end
 			end
 			write("}")
@@ -170,20 +197,22 @@ local function serialize(value, write)
 	-- Write the statements to fill circular tables
 	for table, ref in pairs(to_fill) do
 		for k, v in pairs(table) do
-			write("_[")
-			write(ref)
-			write("]")
-			if use_short_key(k) then
-				write(".")
-				write(k)
-			else
-				write("[")
-				dump(k)
+			if allowed_type(k, v) then
+				write("_[")
+				write(ref)
 				write("]")
+				if use_short_key(k) then
+					write(".")
+					write(k)
+				else
+					write("[")
+					dump(k)
+					write("]")
+				end
+				write("=")
+				dump(v)
+				write(";")
 			end
-			write("=")
-			dump(v)
-			write(";")
 		end
 	end
 	write("return ")
@@ -203,8 +232,10 @@ local function contains_function(value)
 			end
 			seen[val] = true
 			for k, v in pairs(val) do
-				if check(k) or check(v) then
-					return true
+				if allowed_type(k, v) then
+					if check(k) or check(v) then
+						return true
+					end
 				end
 			end
 		end
