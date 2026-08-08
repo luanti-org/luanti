@@ -1359,6 +1359,15 @@ int ModApiEnv::l_get_translated_string(lua_State * L)
 	return 1;
 }
 
+// override_abm(abm_name, parameters)
+int ModApiEnv::l_override_abm_raw(lua_State *L)
+{
+	GET_ENV_PTR;
+
+	// redirect to s_env.cpp to avoid need of public LuaABM definiton or reinterpret_cast
+	return ScriptApiEnv::override_abm(L, env);
+}
+
 void ModApiEnv::Initialize(lua_State *L, int top)
 {
 	API_FCT(set_node);
@@ -1414,6 +1423,7 @@ void ModApiEnv::Initialize(lua_State *L, int top)
 	API_FCT(forceload_free_block);
 	API_FCT(compare_block_status);
 	API_FCT(get_translated_string);
+	API_FCT(override_abm_raw);
 }
 
 void ModApiEnv::InitializeClient(lua_State *L, int top)
