@@ -564,6 +564,26 @@ private:
 
 typedef std::vector<MapBlock*> MapBlockVect;
 
+// Stores information about what parts of a MapBlock got modified
+struct ModifiedMapBlock
+{
+	// Whether borders changed, bit field, order like in g_6dirs
+	u8 m_borders = 0;
+
+	// A single node changed
+	void update(MapBlock *block, v3s16 rel_pos)
+	{
+		m_borders |= rel_pos.Z == MAP_BLOCKSIZE - 1;
+		m_borders |= (rel_pos.Y == MAP_BLOCKSIZE - 1) << 1;
+		m_borders |= (rel_pos.X == MAP_BLOCKSIZE - 1) << 2;
+		m_borders |= (rel_pos.Z == 0) << 3;
+		m_borders |= (rel_pos.Y == 0) << 4;
+		m_borders |= (rel_pos.X == 0) << 5;
+	}
+};
+
+typedef std::map<v3s16, ModifiedMapBlock> ModifiedMapBlocks;
+
 inline bool objectpos_over_limit(v3f p)
 {
 	const float max_limit_bs = (MAX_MAP_GENERATION_LIMIT + 0.5f) * BS;
