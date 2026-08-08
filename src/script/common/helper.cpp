@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2018 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
 
+
 extern "C" {
 #include <lauxlib.h>
 }
@@ -11,8 +12,8 @@ extern "C" {
 #include <irr_v2d.h>
 #include <irr_v3d.h>
 #include <string_view>
-#include "c_converter.h"
 #include "c_types.h"
+#include "c_converter.h"
 
 /*
  * Read template functions
@@ -50,6 +51,29 @@ float LuaHelper::readParam(lua_State *L, int index)
 }
 
 template <>
+float LuaHelper::readParamRaw(lua_State *L, int index)
+{
+	lua_Number v = luaL_checknumber(L, index);
+	return static_cast<float>(v);
+}
+
+template <>
+double LuaHelper::readParam(lua_State *L, int index)
+{
+	lua_Number v = luaL_checknumber(L, index);
+	if (!std::isfinite(v))
+		throw LuaError("Invalid number value (NaN or infinity)");
+	return static_cast<double>(v);
+}
+
+template <>
+double LuaHelper::readParamRaw(lua_State *L, int index)
+{
+	lua_Number v = luaL_checknumber(L, index);
+	return static_cast<double>(v);
+}
+
+template <>
 v2s16 LuaHelper::readParam(lua_State *L, int index)
 {
 	return read_v2s16(L, index);
@@ -59,6 +83,12 @@ template <>
 v2f LuaHelper::readParam(lua_State *L, int index)
 {
 	return check_v2f(L, index);
+}
+
+template <>
+v3f LuaHelper::readParamRaw(lua_State *L, int index)
+{
+	return read_v3f(L, index);
 }
 
 template <>
