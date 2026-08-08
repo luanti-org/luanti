@@ -11092,6 +11092,11 @@ Used by `core.register_node`.
     -- Returns true if node can be dug, or false if not.
     -- default: nil
 
+    can_place = function(pos, [player]),
+    -- Returns true if node can be placed, or false if not.
+    -- It is recommended to set node_placement_prediction to "" so the node does not flicker.
+    -- default: nil
+
     on_punch = function(pos, node, puncher, pointed_thing),
     -- default: core.node_punch
     -- Called when puncher (an ObjectRef) punches the node at pos.
