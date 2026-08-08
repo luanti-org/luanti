@@ -727,6 +727,10 @@ void Minimap::updateActiveMarkers()
 
 void MinimapMapblock::getMinimapNodes(VoxelManipulator *vmanip, const NodeDefManager *nodedef, const v3s16 &pos)
 {
+	// Uses getNodeRefUnsafeCheckFlags
+	assert(vmanip->m_area.contains(pos));
+	assert(vmanip->m_area.contains(pos + (MAP_BLOCKSIZE - 1)));
+
 	for (s16 x = 0; x < MAP_BLOCKSIZE; x++)
 	for (s16 z = 0; z < MAP_BLOCKSIZE; z++) {
 		s16 air_count = 0;
@@ -735,7 +739,7 @@ void MinimapMapblock::getMinimapNodes(VoxelManipulator *vmanip, const NodeDefMan
 
 		for (s16 y = MAP_BLOCKSIZE -1; y >= 0; y--) {
 			v3s16 p(x, y, z);
-			MapNode n = vmanip->getNodeNoEx(pos + p);
+			MapNode n = vmanip->getNodeRefUnsafeCheckFlags(pos + p);
 			const ContentFeatures &f = nodedef->get(n);
 			if (!surface_found && f.drawtype != NDT_AIRLIKE) {
 				mmpixel->height = y;
