@@ -1830,7 +1830,7 @@ void MapblockMeshGenerator::drawNode()
 
 	cur_node.origin = intToFloat(cur_node.p, BS);
 	if (cur_node.f->drawtype == NDT_LIQUID || cur_node.f->drawtype == NDT_NORMAL) {
-		drawSolidNode(); // Solid nodes don’t need the usual setup
+		drawSolidNode(); // Solid nodes don't need the usual setup
 		return;
 	}
 
@@ -1866,10 +1866,8 @@ void MapblockMeshGenerator::generate()
 	// Also see MeshMakeData::fillBlockDataBegin and MeshMakeData::fillSingleNode
 	// Currently all drawtypes use at most nodes one away except for NDT_PLANTLIKE_ROOTED
 	// which reads nodes at y+2 for getSmoothLightFrame
-	assert(data->m_vmanip.m_area.contains(VoxelArea(
-		blockpos_nodes - 3,
-		blockpos_nodes + data->m_side_length + 2
-	)));
+	assert(data->m_vmanip.m_area.contains(blockpos_nodes - 3));
+	assert(data->m_vmanip.m_area.contains(blockpos_nodes + (data->m_side_length + 2)));
 
 	for (cur_node.p.Z = 0; cur_node.p.Z < data->m_side_length; cur_node.p.Z++)
 	for (cur_node.p.Y = 0; cur_node.p.Y < data->m_side_length; cur_node.p.Y++)
