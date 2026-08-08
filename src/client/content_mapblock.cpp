@@ -1873,6 +1873,9 @@ void MapblockMeshGenerator::generate()
 	for (cur_node.p.Y = 0; cur_node.p.Y < data->m_side_length; cur_node.p.Y++)
 	for (cur_node.p.X = 0; cur_node.p.X < data->m_side_length; cur_node.p.X++) {
 		cur_node.n = data->m_vmanip.getNodeRefUnsafeCheckFlags(blockpos_nodes + cur_node.p);
+		content_t c = cur_node.n.getContent();
+		if (c == CONTENT_AIR)
+			continue;
 		cur_node.f = &nodedef->get(cur_node.n);
 		drawNode();
 	}
