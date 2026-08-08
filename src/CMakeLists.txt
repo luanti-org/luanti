@@ -136,6 +136,7 @@ endif()
 
 if(BUILD_CLIENT)
 	find_package(Freetype REQUIRED)
+	find_package(Libzip 1.7.2 REQUIRED)
 endif()
 
 option(ENABLE_CURSES "Enable ncurses console" ${BUILD_SERVER})
@@ -311,6 +312,7 @@ if(WIN32)
 			set(PNG_DLL "" CACHE FILEPATH "Path to libpng DLL for installation (optional)")
 			set(JPEG_DLL "" CACHE FILEPATH "Path to libjpeg DLL for installation (optional)")
 			set(SDL2_DLL "" CACHE FILEPATH "Path to SDL2 DLL for installation (optional)")
+			set(LIBZIP_DLL "" CACHE FILEPATH "Path to libzip DLL for installation (optional)")
 		endif()
 		if(BUILD_CLIENT AND ENABLE_SOUND)
 			set(OPENAL_DLL "" CACHE FILEPATH "Path to OpenAL DLL for installation (optional)")
@@ -710,6 +712,7 @@ if(BUILD_CLIENT)
 	target_link_libraries(
 		${PROJECT_NAME}
 		${ZLIB_LIBRARIES}
+		libzip::zip
 		IrrlichtMt::IrrlichtMt
 		${ZSTD_LIBRARY}
 		${SOUND_LIBRARIES}
@@ -1066,6 +1069,9 @@ if(WIN32)
 			endif()
 			if(SDL2_DLL)
 				install(FILES ${SDL2_DLL} DESTINATION ${BINDIR})
+			endif()
+			if(LIBZIP_DLL)
+				install(FILES ${LIBZIP_DLL} DESTINATION ${BINDIR})
 			endif()
 			if(FREETYPE_DLL)
 				install(FILES ${FREETYPE_DLL} DESTINATION ${BINDIR})
