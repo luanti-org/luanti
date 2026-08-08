@@ -6,6 +6,7 @@
 
 #include <sstream>
 #include <algorithm>
+#include <filesystem>
 
 #include "log.h"
 #include "serialization.h"
@@ -338,7 +339,13 @@ void TestFileSys::testAbsolutePath()
 		const auto dir_path2 = getTestTempFile();
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2), ""); // doesn't exist
 		fs::CreateDir(dir_path2);
-		UASSERTCMP(auto, !=, fs::AbsolutePath(dir_path2), ""); // now it does
+		const auto absolute_dir_path = fs::AbsolutePath(dir_path2);
+		UASSERTCMP(auto, !=, absolute_dir_path, "");// now it does
+		const std::filesystem::path absolute_path(absolute_dir_path);
+		const std::string root_path = absolute_path.root_path().string();
+		UASSERTEQ(auto, fs::AbsolutePath(root_path), root_path);
+		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + DIR_DELIM), absolute_dir_path);
+		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + DIR_DELIM + DIR_DELIM), absolute_dir_path);
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + DIR_DELIM ".."), fs::AbsolutePath(dir_path));
 		// excess . and / are removed
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + p("//..")), fs::AbsolutePath(dir_path));
