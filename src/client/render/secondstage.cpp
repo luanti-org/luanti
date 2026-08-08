@@ -6,9 +6,13 @@
 
 #include "secondstage.h"
 #include "client/client.h"
+#include "client/camera.h"
+#include "client/content_cao.h"
+#include "client/localplayer.h"
 #include "client/shader.h"
 #include "settings.h"
 #include "plain.h"
+#include <ICameraSceneNode.h>
 #include <ISceneManager.h>
 
 PostProcessingStep::PostProcessingStep(u32 _shader_id, const std::vector<u8> &_texture_map) :
@@ -82,6 +86,124 @@ void PostProcessingStep::setBilinearFilter(u8 index, bool value)
 	material.TextureLayers[index].MagFilter = value ? video::ETMAGF_LINEAR : video::ETMAGF_NEAREST;
 }
 
+void SharedDepthTextureOutput::activate(PipelineContext &context)
+{
+	// Never let the base class issue its blanket clear, which would destroy the
+	// borrowed depth buffer. Clearing our own colour attachment afterwards is
+	// enough: the mask has to start from zero every frame, the depth does not.
+	m_clear = false;
+	TextureBufferOutput::activate(context);
+	context.device->getVideoDriver()->clearBuffers(video::ECBF_COLOR,
+			video::SColor(0, 0, 0, 0));
+}
+
+CameraRigidMaskStep::CameraRigidMaskStep(Client *client) :
+	m_client(client)
+{
+	auto *driver = client->getSceneManager()->getVideoDriver();
+	auto *shdsrc = client->getShaderSource();
+
+	// The mask is drawn over entity meshes, which may be skinned, so the shader
+	// has to be built with skinning support exactly as the shadow depth shader
+	// is. One variant covers both cases: the vertex shader falls back to the
+	// unskinned path when the weight attribute is disabled.
+	ShaderConstants consts;
+	const auto max_joints = driver->getMaxJointTransforms();
+	if (max_joints > 0) {
+		consts["USE_SKINNING"] = 1;
+		consts["MAX_JOINTS"] = max_joints;
+	}
+
+	u32 shader_id = shdsrc->getShader("object_mask", consts, video::EMT_SOLID);
+	m_mask_material = shdsrc->getShaderInfo(shader_id).material;
+}
+
+void CameraRigidMaskStep::renderObject(video::IVideoDriver *driver, GenericCAO *cao)
+{
+	scene::ISceneNode *node = cao->getSceneNode();
+	if (node && node->isVisible()) {
+		const u32 count = node->getMaterialCount();
+
+		// Swap in the mask shader, following the same backup/restore dance the
+		// shadow renderer uses for entities. Depth writes are disabled because
+		// the depth buffer is shared with the scene: the values would come out
+		// identical, but writing to a buffer later steps read from is a trap
+		// worth not leaving lying around.
+		m_saved_material_types.clear();
+		m_saved_material_types.reserve(count);
+		for (u32 i = 0; i < count; i++) {
+			auto &material = node->getMaterial(i);
+			m_saved_material_types.push_back(material.MaterialType);
+			material.MaterialType = m_mask_material;
+		}
+
+		auto &override_material = driver->getOverrideMaterial();
+		override_material.reset();
+		override_material.Material.ZWriteEnable = video::EZW_OFF;
+		override_material.EnableProps = video::EMP_ZWRITE_ENABLE;
+		// We are drawing outside the scene manager, so the "enabled in this
+		// pass" flag the scene manager would normally maintain is ours to set.
+		override_material.Enabled = true;
+
+		driver->setTransform(video::ETS_WORLD, node->getAbsoluteTransformation());
+		node->render();
+
+		override_material.reset();
+
+		for (u32 i = 0; i < count; i++)
+			node->getMaterial(i).MaterialType = m_saved_material_types[i];
+	}
+
+	// Recurse into anything attached to this object. Note that renderObject
+	// reuses m_saved_material_types, so the recursion has to come after this
+	// object is done with it.
+	for (auto child_id : cao->getAttachmentChildIds()) {
+		if (GenericCAO *child = m_client->getEnv().getGenericCAO(child_id))
+			renderObject(driver, child);
+	}
+}
+
+void CameraRigidMaskStep::run(PipelineContext &context)
+{
+	if (m_target)
+		m_target->activate(context);
+
+	LocalPlayer *player = m_client->getEnv().getLocalPlayer();
+	if (!player)
+		return;
+
+	// Nothing will be blurred this frame, so nothing needs masking. The target
+	// was still activated above, which clears the mask to zero.
+	if (resolveMotionBlurStrength(player->getLighting(),
+			g_settings->getBool("enable_motion_blur"),
+			g_settings->getFloat("motion_blur_strength", 0.0f, 4.0f)) <= 0.0f)
+		return;
+
+	GenericCAO *cao = player->getCAO();
+	if (!cao)
+		return;
+
+	auto *driver = context.device->getVideoDriver();
+
+	// The camera transforms are still those left behind by the 3D draw, but set
+	// them explicitly rather than relying on that.
+	auto *camera_node = m_client->getCamera()->getCameraNode();
+	driver->setTransform(video::ETS_PROJECTION, camera_node->getProjectionMatrix());
+	driver->setTransform(video::ETS_VIEW, camera_node->getViewMatrix());
+
+	// Climb to the root of the attachment tree the player belongs to (the boat
+	// it is sitting in, say) and mask that whole tree.
+	GenericCAO *root = cao;
+	while (ClientActiveObject *parent = root->getParent()) {
+		GenericCAO *parent_cao = dynamic_cast<GenericCAO *>(parent);
+		if (!parent_cao)
+			break;
+		root = parent_cao;
+	}
+
+	renderObject(driver, root);
+}
+
 RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep, v2f scale, Client *client)
 {
 	auto buffer = pipeline->createOwned<TextureBuffer>();
@@ -106,6 +228,9 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 
 	static const u8 TEXTURE_MSAA_COLOR = 7;
 	static const u8 TEXTURE_MSAA_DEPTH = 8;
+
+	static const u8 TEXTURE_MOTIONBLUR = 9;
+	static const u8 TEXTURE_RIGID_MASK = 30;
 
 	static const u8 TEXTURE_SCALE_DOWN = 10;
 	static const u8 TEXTURE_SCALE_UP = 20;
@@ -147,6 +272,13 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 
 	const bool enable_ssaa = antialiasing == "ssaa";
 	const bool enable_fxaa = g_settings->getBool("fxaa");
+	// Note this is deliberately NOT gated on the `enable_motion_blur` setting.
+	// A server can push a motion blur strength that overrides the player's
+	// settings, including switching the effect on for someone who has it off,
+	// so the pass has to exist even when the player does not currently want it.
+	// It idles cheaply in that case: the shader early-outs at zero velocity and
+	// the mask step below skips its geometry entirely.
+	const bool enable_motion_blur = true;
 
 	verbosestream << "addPostProcessing(): AA = "
 		<< (enable_msaa ? "msaa" : enable_ssaa ? "ssaa" : "none")
@@ -191,7 +323,59 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 
 	// post-processing stage
 
-	u8 source = TEXTURE_COLOR;
+	// The base color texture that all following steps read from. Motion blur,
+	// if enabled, replaces it with a blurred copy.
+	u8 base = TEXTURE_COLOR;
+
+	// Camera (velocity) motion blur. Reconstructs each pixel's world position
+	// from the depth buffer and reprojects it with the previous frame's
+	// view-projection matrix to obtain a screen-space velocity, then blurs
+	// the color buffer along it.
+	if (enable_motion_blur) {
+		// Mask of objects that move with the camera (the player's own body and
+		// whatever it is riding). These are motionless on screen, so the blur
+		// has to be told to leave them alone; see CameraRigidMaskStep. A plain
+		// 8-bit target is plenty for a 0/1 mask. This shares TEXTURE_DEPTH, so
+		// it must run after the 3D draw has filled it and before anything
+		// overwrites it.
+		buffer->setTexture(TEXTURE_RIGID_MASK, scale, "rigidmask", video::ECF_A8R8G8B8);
+		auto rigid_mask = pipeline->addStep<CameraRigidMaskStep>(client);
+		rigid_mask->setRenderTarget(pipeline->createOwned<SharedDepthTextureOutput>(
+				buffer, std::vector<u8> { TEXTURE_RIGID_MASK }, TEXTURE_DEPTH));
+
+		buffer->setTexture(TEXTURE_MOTIONBLUR, scale, "motionblur", color_format);
+		// The sample count is baked into the shader as a compile-time constant
+		// so that its sampling loop has a literal bound and can be unrolled.
+		// One program is compiled and cached per distinct value; the cost is
+		// that changing the setting only takes effect on world reload.
+		ShaderConstants motion_blur_constants;
+		motion_blur_constants["MOTION_BLUR_SAMPLES"] =
+				(int)rangelim(g_settings->getS32("motion_blur_quality"), 2, 32);
+		shader_id = client->getShaderSource()->getShader("motion_blur",
+				motion_blur_constants, video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF);
+		// Feed the (previous frame's) exposure texture as texture2 so the blur
+		// can scale its length with exposure: longer smear in dark,
+		// exposure-boosted scenes and shorter in bright ones. TEXTURE_EXPOSURE_1
+		// holds the settled exposure at this point in the pipeline (it is
+		// swapped in at the end of the frame).
+		//
+		// This is bound unconditionally on purpose. The shader guards its use
+		// behind ENABLE_AUTO_EXPOSURE, which the shader source derives from the
+		// raw `enable_auto_exposure` setting, whereas `enable_auto_exposure`
+		// here *also* requires float render target support. When those two
+		// disagree the shader would sample an unbound sampler. The texture is
+		// created unconditionally above and cleared to zero, which decodes to a
+		// neutral exposure factor of 1.
+		std::vector<u8> motion_blur_textures {
+				TEXTURE_COLOR, TEXTURE_DEPTH, TEXTURE_EXPOSURE_1, TEXTURE_RIGID_MASK };
+		auto motion_blur = pipeline->addStep<PostProcessingStep>(shader_id, motion_blur_textures);
+		motion_blur->setRenderSource(buffer);
+		motion_blur->setBilinearFilter(0, true);
+		motion_blur->setRenderTarget(pipeline->createOwned<TextureBufferOutput>(buffer, TEXTURE_MOTIONBLUR));
+		base = TEXTURE_MOTIONBLUR;
+	}
+
+	u8 source = base;
 
 	// common downsampling step for bloom or autoexposure
 	if (enable_bloom || enable_auto_exposure) {
@@ -260,14 +444,14 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	}
 
 	// FXAA
-	u8 final_stage_source = TEXTURE_COLOR;
+	u8 final_stage_source = base;
 
 	if (enable_fxaa) {
 		final_stage_source = TEXTURE_FXAA;
 
 		buffer->setTexture(TEXTURE_FXAA, scale, "fxaa", color_format);
 		shader_id = client->getShaderSource()->getShaderRaw("fxaa");
-		PostProcessingStep *effect = pipeline->createOwned<PostProcessingStep>(shader_id, std::vector<u8> { TEXTURE_COLOR });
+		PostProcessingStep *effect = pipeline->createOwned<PostProcessingStep>(shader_id, std::vector<u8> { base });
 		pipeline->addStep(effect);
 		effect->setBilinearFilter(0, true);
 		effect->setRenderSource(buffer);
