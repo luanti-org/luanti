@@ -267,6 +267,8 @@ void MapgenFlat::makeChunk(BlockMakeData *data)
 	//setLighting(node_min - v3s16(1, 0, 1) * MAP_BLOCKSIZE,
 	//			node_max + v3s16(1, 0, 1) * MAP_BLOCKSIZE, 0xFF);
 
+	removeOvergeneratedCStone();
+
 	this->generating = false;
 }
 
