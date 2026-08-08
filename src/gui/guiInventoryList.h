@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "client/texturesource.h"
 #include "inventorymanager.h"
 #include <IGUIElement.h>
 #include <IGUIEnvironment.h>
@@ -70,8 +69,7 @@ public:
 		const v2f32 &slot_spacing,
 		GUIFormSpecMenu *fs_menu,
 		const Options &options,
-		gui::IGUIFont *font,
-		ISimpleTextureSource *tsrc);
+		gui::IGUIFont *font);
 
 	void draw() override;
 
@@ -139,10 +137,6 @@ private:
 
 	// the font
 	gui::IGUIFont *m_font;
-
-	ISimpleTextureSource *m_tsrc;
-
-	ISimpleTextureSource *getTextureSource() { return m_tsrc; }
 
 	// the index of the hovered item; -1 if no item is hovered
 	s32 m_hovered_i;

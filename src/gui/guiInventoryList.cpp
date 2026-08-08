@@ -22,8 +22,7 @@ GUIInventoryList::GUIInventoryList(gui::IGUIEnvironment *env,
 	const v2f32 &slot_spacing,
 	GUIFormSpecMenu *fs_menu,
 	const Options &options,
-	gui::IGUIFont *font,
-	ISimpleTextureSource *tsrc) :
+	gui::IGUIFont *font) :
 	gui::IGUIElement(gui::EGUIET_ELEMENT, env, parent, id, rectangle),
 	m_invmgr(invmgr),
 	m_inventoryloc(inventoryloc),
@@ -35,7 +34,6 @@ GUIInventoryList::GUIInventoryList(gui::IGUIEnvironment *env,
 	m_fs_menu(fs_menu),
 	m_options(options),
 	m_font(font),
-	m_tsrc(tsrc),
 	m_hovered_i(-1),
 	m_already_warned(false)
 {
@@ -142,21 +140,16 @@ void GUIInventoryList::draw()
 		bool selected = item_i == selected_index;
 		bool hovering = item_i == m_hovered_i;
 
-		if (m_options.slotbgimg_n != nullptr) {
-			if (hovering) {
-				// the hovered slot
-				video::ITexture *tex = m_options.slotbgimg_h
-						? m_options.slotbgimg_h
-						: m_options.slotbgimg_n;
+		if (hovering && m_options.slotbgimg_h) {
+			// the hovered slot
+			video::ITexture *tex = m_options.slotbgimg_h;
+			core::rect<s32> src(0, 0, tex->getOriginalSize().Width, tex->getOriginalSize().Height);
+			driver->draw2DImage(tex, rect_clip, src, &AbsoluteClippingRect, nullptr, true);
 
-				if (tex) {
-					core::rect<s32> src(0, 0, tex->getOriginalSize().Width, tex->getOriginalSize().Height);
-					driver->draw2DImage(tex, rect_clip, src, &AbsoluteClippingRect, nullptr, true);
-				}
-			} else {
-				// all other non-hovered slots
-				add_rectangle(true, video::SColor(255, 255, 255, 255), rect_clip);
-			}
+		} else if (m_options.slotbgimg_n) {
+			// all other non-hovered slots
+			add_rectangle(true, video::SColor(255, 255, 255, 255), rect_clip);
+
 		} else {
 			add_rectangle(true, hovering ? m_options.slotbg_h : m_options.slotbg_n, rect_clip);
 		}

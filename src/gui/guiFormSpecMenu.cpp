@@ -551,7 +551,7 @@ void GUIFormSpecMenu::parseList(parserData *data, const std::string &element)
 	GUIInventoryList *e = new GUIInventoryList(Environment, data->current_parent,
 			spec.fid, rect, m_invmgr, loc, listname, geom, start_i,
 			v2s32(slot_size.X, slot_size.Y), slot_spacing, this,
-			data->inventorylist_options, m_font, m_tsrc);
+			data->inventorylist_options, m_font);
 
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 
@@ -2549,28 +2549,19 @@ void GUIFormSpecMenu::parseListImages(parserData* data, const std::string &eleme
 	std::vector<std::string> parts;
 	// Supports:
 	// listimages[<normal>;<hover>]
-	// listimages[<normal>;<hover>;<tooltip_bgcolor>;<tooltip_fontcolor>]
-	if (!precheckElement("listimages", element, 2, 4, parts))
+	if (!precheckElement("listimages", element, 1, 2, parts))
 		return;
 
-	std::string normal_str = unescape_string(parts[0]);
-	std::string hover_str  = unescape_string(parts[1]);
+	video::ITexture *normal_tex = !parts[0].empty()
+			? m_tsrc->getTexture(unescape_string(parts[0]))
+			: nullptr;
 
-	video::ITexture *normal_tex = m_tsrc->getTexture(normal_str);
-	video::ITexture *hover_tex  = m_tsrc->getTexture(hover_str);
+	video::ITexture *hover_tex = (parts.size() >= 2 && !parts[1].empty())
+			? m_tsrc->getTexture(unescape_string(parts[1]))
+			: nullptr;
 
 	data->inventorylist_options.slotbgimg_n = normal_tex;
 	data->inventorylist_options.slotbgimg_h = hover_tex;
-
-	// also update tooltip colors if provided
-	if (parts.size() >= 4) {
-		video::SColor tmp;
-
-		if (parseColorString(parts[2], tmp, false))
-			m_default_tooltip_bgcolor = tmp;
-		if (parseColorString(parts[3], tmp, false))
-			m_default_tooltip_color = tmp;
-	}
 
 	// update all already parsed inventorylists
 	for (GUIInventoryList *e : m_inventorylists) {
