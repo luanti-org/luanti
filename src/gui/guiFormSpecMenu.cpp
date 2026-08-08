@@ -2562,11 +2562,6 @@ void GUIFormSpecMenu::parseListImages(parserData* data, const std::string &eleme
 
 	data->inventorylist_options.slotbgimg_n = normal_tex;
 	data->inventorylist_options.slotbgimg_h = hover_tex;
-
-	// update all already parsed inventorylists
-	for (GUIInventoryList *e : m_inventorylists) {
-		e->setSlotBGImages(normal_tex, hover_tex);
-	}
 }
 
 void GUIFormSpecMenu::parseTooltip(parserData* data, const std::string &element)
