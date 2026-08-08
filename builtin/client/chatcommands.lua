@@ -1,3 +1,7 @@
+local builtin_shared = ...
+
+local chatcommand_msg_time_threshold =
+	tonumber(core.settings:get("chatcommand_msg_time_threshold")) or 0.1
 core.register_on_sending_chat_message(function(message)
 	if message:sub(1,2) == ".." then
 		return false
@@ -8,35 +12,7 @@ core.register_on_sending_chat_message(function(message)
 		core.display_chat_message(core.gettext("Issued command: ") .. message)
 	end
 
-	if first_char ~= "." then
-		return false
-	end
-
-	local cmd, param = string.match(message, "^%.([^ ]+) *(.*)")
-	param = param or ""
-
-	if not cmd then
-		core.display_chat_message("-!- " .. core.gettext("Empty command."))
-		return true
-	end
-
-	-- Run core.registered_on_chatcommand callbacks.
-	if core.run_callbacks(core.registered_on_chatcommand, 5, cmd, param) then
-		return true
-	end
-
-	local cmd_def = core.registered_chatcommands[cmd]
-	if cmd_def then
-		core.set_last_run_mod(cmd_def.mod_origin)
-		local _, result = cmd_def.func(param)
-		if result then
-			core.display_chat_message(result)
-		end
-	else
-		core.display_chat_message("-!- " .. core.gettext("Invalid command: ") .. cmd)
-	end
-
-	return true
+	return builtin_shared.try_handle_chatcommand(nil, message, chatcommand_msg_time_threshold)
 end)
 
 core.register_chatcommand("list_players", {

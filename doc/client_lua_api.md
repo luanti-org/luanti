@@ -487,6 +487,8 @@ Call these functions only at load time!
 ### Privileges
 * `core.get_privilege_list()`
     * Returns a list of privileges the current player has in the format `{priv1=true,...}`
+* `core.check_local_player_privs(privs)`
+    * Same as `core.check_player_privs` in SSM, but with client-side priv values.
 * `core.string_to_privs(str)`: returns `{priv1=true,...}`
 * `core.privs_to_string(privs)`: returns `"priv1,priv2,..."`
     * Convert between two privilege representations
@@ -1007,6 +1009,7 @@ It can be created via `Raycast(pos1, pos2, objects, liquids)` or
 {
     params = "<name> <privilege>", -- Short parameter description
     description = "Remove privilege from player", -- Full description
+    privs = {}, -- Privs (checked locally only). Same format as `core.check_local_player_privs`.
     func = function(param),        -- Called when command is run.
                                    -- Returns boolean success and text output.
 }

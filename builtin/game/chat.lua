@@ -1,3 +1,5 @@
+local builtin_shared = ...
+
 local S = core.get_translator("__builtin")
 
 -- Helper function that implements search and replace without pattern matching
@@ -45,71 +47,10 @@ end
 
 core.chatcommands = core.registered_chatcommands -- backwards compatibility
 
-local msg_time_threshold =
+local chatcommand_msg_time_threshold =
 	tonumber(core.settings:get("chatcommand_msg_time_threshold")) or 0.1
 core.register_on_chat_message(function(name, message)
-	if message:sub(1,1) ~= "/" then
-		return
-	end
-
-	local cmd, param = string.match(message, "^/([^ ]+) *(.*)")
-	if not cmd then
-		core.chat_send_player(name, "-!- "..S("Empty command."))
-		return true
-	end
-
-	param = param or ""
-
-	core.log("verbose", string.format("Handling chat command %q with params %q", cmd, param))
-
-	-- Run core.registered_on_chatcommands callbacks.
-	if core.run_callbacks(core.registered_on_chatcommands, 5, name, cmd, param) then
-		return true
-	end
-
-	local cmd_def = core.registered_chatcommands[cmd]
-	if not cmd_def then
-		core.chat_send_player(name, "-!- "..S("Invalid command: @1", cmd))
-		return true
-	end
-	local has_privs, missing_privs = core.check_player_privs(name, cmd_def.privs)
-	if has_privs then
-		core.set_last_run_mod(cmd_def.mod_origin)
-		local t_before = core.get_us_time()
-		local success, result = cmd_def.func(name, param)
-		local delay = (core.get_us_time() - t_before) / 1000000
-		if success == false and result == nil then
-			core.chat_send_player(name, "-!- "..S("Invalid command usage."))
-			local help_def = core.registered_chatcommands["help"]
-			if help_def then
-				local _, helpmsg = help_def.func(name, cmd)
-				if helpmsg then
-					core.chat_send_player(name, helpmsg)
-				end
-			end
-		else
-			if delay > msg_time_threshold then
-				-- Show how much time it took to execute the command
-				if result then
-					result = result .. core.colorize("#f3d2ff", S(" (@1 s)",
-						string.format("%.5f", delay)))
-				else
-					result = core.colorize("#f3d2ff", S(
-						"Command execution took @1 s",
-						string.format("%.5f", delay)))
-				end
-			end
-			if result then
-				core.chat_send_player(name, result)
-			end
-		end
-	else
-		core.chat_send_player(name,
-				S("You don't have permission to run this command "
-				.. "(missing privileges: @1).",
-				table.concat(missing_privs, ", ")))
-	end
-	return true  -- Handled chat message
+	return builtin_shared.try_handle_chatcommand(name, message, chatcommand_msg_time_threshold)
 end)
 
 if core.settings:get_bool("profiler.load") then

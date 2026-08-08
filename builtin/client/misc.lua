@@ -1,3 +1,5 @@
+local builtin_shared = ...
+
 function core.setting_get_pos(name)
 	local value = core.settings:get(name)
 	if not value then
@@ -15,4 +17,11 @@ end
 
 function core.sound_fade(handle, ...)
 	return handle:fade(...)
+end
+
+function core.check_local_player_privs(...)
+	local requested_privs = {...}
+	local player_privs = core.get_privilege_list()
+
+	return builtin_shared.compare_privs(requested_privs, player_privs)
 end

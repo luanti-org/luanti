@@ -1,6 +1,24 @@
+local builtin_shared = ...
+
 -- For server-side translations (if INIT == "game")
 -- Otherwise, use core.gettext
 local S = core.get_translator("__builtin")
+
+local CMD_MARKER = INIT == "client" and "."
+		or (INIT == "game" or INIT == "sscsm") and "/"
+		or error("unexpected INIT: " .. INIT)
+
+local function call_with_name(func_with, func_without, name, ...)
+	if name then
+		return func_with(name, ...)
+	else
+		return func_without(...)
+	end
+end
+
+local function call_same_with_name(func, name, ...)
+	return call_with_name(func, func, name, ...)
+end
 
 core.registered_chatcommands = {}
 
@@ -68,8 +86,7 @@ function core.override_chatcommand(name, redefinition)
 end
 
 local function format_help_line(cmd, def)
-	local cmd_marker = INIT == "client" and "." or "/"
-	local msg = core.colorize("#00ffff", cmd_marker .. cmd)
+	local msg = core.colorize("#00ffff", CMD_MARKER .. cmd)
 	if def.params and def.params ~= "" then
 		msg = msg .. " " .. def.params
 	end
@@ -169,10 +186,91 @@ if INIT == "client" then
 			return do_help_cmd(nil, param)
 		end,
 	})
-else
+elseif INIT == "game" then
 	core.register_chatcommand("help", {
 		params = S("[all | privs | <cmd>] [-t]"),
 		description = S("Get help for commands or list privileges (-t: output in chat)"),
 		func = do_help_cmd,
 	})
+elseif INIT == "sscsm" then -- luacheck: ignore
+	-- FIXME: implement SSCSM /help that combines SSCSM and SSM
+end
+
+function builtin_shared.try_handle_chatcommand(name, message, chatcommand_msg_time_threshold)
+	if message:sub(1,1) ~= CMD_MARKER then
+		return false
+	end
+
+	local function display_msg(msg)
+		return call_with_name(core.chat_send_player, core.display_chat_message, name, msg)
+	end
+
+	local cmd, param = string.match(message, string.format("^%%%s([^ ]+) *(.*)", CMD_MARKER))
+	if not cmd then
+		display_msg("-!- "..S("Empty command."))
+		return true
+	end
+
+	param = param or ""
+
+	core.log("verbose", string.format("Handling chat command %q with params %q", cmd, param))
+
+	-- Run core.registered_on_chatcommands callbacks.
+	if name then
+		if core.run_callbacks(core.registered_on_chatcommands, 5, name, cmd, param) then
+			return true
+		end
+	else
+		if core.run_callbacks(core.registered_on_chatcommands, 5, cmd, param) then
+			return true
+		end
+	end
+
+	local cmd_def = core.registered_chatcommands[cmd]
+	if not cmd_def then
+		if INIT == "sscsm" then
+			return false -- send msg to server
+		else
+			display_msg("-!- "..S("Invalid command: @1", cmd))
+			return true
+		end
+	end
+	local has_privs, missing_privs = call_with_name(
+			core.check_player_privs, core.check_local_player_privs, name, cmd_def.privs)
+	if has_privs then
+		core.set_last_run_mod(cmd_def.mod_origin)
+		local t_before = core.get_us_time()
+		local success, result = call_same_with_name(cmd_def.func, name, param)
+		local delay = (core.get_us_time() - t_before) / 1000000
+		if success == false and result == nil then
+			display_msg("-!- "..S("Invalid command usage."))
+			local help_def = core.registered_chatcommands["help"]
+			if help_def then
+				local _, helpmsg = call_same_with_name(help_def.func, name, cmd)
+				if helpmsg then
+					display_msg(helpmsg)
+				end
+			end
+		else
+			if delay > chatcommand_msg_time_threshold then
+				-- Show how much time it took to execute the command
+				if result then
+					result = result .. core.colorize("#f3d2ff", S(" (@1 s)",
+						string.format("%.5f", delay)))
+				else
+					result = core.colorize("#f3d2ff", S(
+						"Command execution took @1 s",
+						string.format("%.5f", delay)))
+				end
+			end
+			if result then
+				display_msg(result)
+			end
+		end
+	else
+		display_msg(S("You don't have permission to run this command "
+				.. "(missing privileges: @1).",
+				table.concat(missing_privs, ", ")))
+	end
+	return true  -- Handled chat message
 end

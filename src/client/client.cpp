@@ -1988,6 +1988,15 @@ do
 	print("sscsm_test0: registered_nodes count: " .. n)
 end
 print("sscsm_test0: air def: " .. dump(core.registered_nodes["air"]))
+
+core.register_chatcommand("sscsm_echo", {
+	params = "msg",
+	description = "Echo the msg back.",
+	privs = {debug = true},
+	func = function(param)
+		return true, param
+	end,
+})
 				)=+=");
 
 	m_sscsm_controller->runEvent(this, std::move(event1));
