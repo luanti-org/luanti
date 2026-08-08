@@ -2031,6 +2031,31 @@ int ObjectRef::l_hud_change(lua_State *L)
 	return 1;
 }
 
+// hud_animate(self, id, animation_def)
+int ObjectRef::l_hud_animate(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	RemotePlayer *player = getplayer(ref);
+	if (player == nullptr)
+		return 0;
+
+	u32 id = luaL_checkint(L, 2);
+
+	HudElement *elem = player->hud.get(id);
+	if (elem == nullptr)
+		return 0;
+
+	HudElementAnimations anims;
+	if (lua_istable(L, 3))
+		read_hud_animation(L, 3, anims);
+
+	getServer(L)->hudAnimate(player, id, anims);
+
+	lua_pushboolean(L, true);
+	return 1;
+}
+
 // hud_get(self, id)
 int ObjectRef::l_hud_get(lua_State *L)
 {
@@ -3109,6 +3134,7 @@ luaL_Reg ObjectRef::methods[] = {
 	luamethod(ObjectRef, hud_add),
 	luamethod(ObjectRef, hud_remove),
 	luamethod(ObjectRef, hud_change),
+	luamethod(ObjectRef, hud_animate),
 	luamethod(ObjectRef, hud_get),
 	luamethod(ObjectRef, hud_get_all),
 	luamethod(ObjectRef, hud_set_flags),
