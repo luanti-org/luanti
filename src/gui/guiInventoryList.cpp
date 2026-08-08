@@ -68,6 +68,8 @@ void GUIInventoryList::draw()
 	}
 	m_already_warned = false;
 
+	video::IVideoDriver *driver = Environment->getVideoDriver();
+
 	Client *client = m_fs_menu->getClient();
 	const ItemSpec *selected_item = m_fs_menu->getSelectedItem();
 	const s32 selected_index = selected_item
@@ -102,9 +104,9 @@ void GUIInventoryList::draw()
 		const auto min = rect.UpperLeftCorner;
 		const auto max = rect.LowerRightCorner;
 		vertices.emplace_back(min.X, min.Y - 1, 4, 0,0,0, color, 0,0);
-		vertices.emplace_back(max.X, min.Y - 1, 4, 0,0,0, color, 0,0);
-		vertices.emplace_back(max.X, max.Y - 0, 4, 0,0,0, color, 0,0);
-		vertices.emplace_back(min.X, max.Y - 0, 4, 0,0,0, color, 0,0);
+		vertices.emplace_back(max.X, min.Y - 1, 4, 0,0,0, color, 1,0);
+		vertices.emplace_back(max.X, max.Y - 0, 4, 0,0,0, color, 1,1);
+		vertices.emplace_back(min.X, max.Y - 0, 4, 0,0,0, color, 0,1);
 	};
 
 	const s32 list_size = (s32)ilist->getSize();
@@ -138,7 +140,19 @@ void GUIInventoryList::draw()
 		bool selected = item_i == selected_index;
 		bool hovering = item_i == m_hovered_i;
 
-		add_rectangle(true, hovering ? m_options.slotbg_h : m_options.slotbg_n, rect_clip);
+		if (hovering && m_options.slotbgimg_h) {
+			// the hovered slot
+			video::ITexture *tex = m_options.slotbgimg_h;
+			core::rect<s32> src(0, 0, tex->getOriginalSize().Width, tex->getOriginalSize().Height);
+			driver->draw2DImage(tex, rect_clip, src, &AbsoluteClippingRect, nullptr, true);
+
+		} else if (m_options.slotbgimg_n) {
+			// all other non-hovered slots
+			add_rectangle(true, video::SColor(255, 255, 255, 255), rect_clip);
+
+		} else {
+			add_rectangle(true, hovering ? m_options.slotbg_h : m_options.slotbg_n, rect_clip);
+		}
 
 		// Draw inv slot borders
 		if (m_options.slotborder) {
@@ -184,10 +198,16 @@ void GUIInventoryList::draw()
 		}
 	}
 
-	video::IVideoDriver *driver = Environment->getVideoDriver();
-
 	video::SMaterial mat = driver->getMaterial2D();
-	mat.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
+
+	if (m_options.slotbgimg_n) {
+		mat.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+		mat.setTexture(0, m_options.slotbgimg_n);
+	} else {
+		mat.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
+		mat.setTexture(0, nullptr);
+	}
+
 	driver->setMaterial(mat);
 
 	driver->draw2DVertexPrimitiveList(
@@ -195,6 +215,11 @@ void GUIInventoryList::draw()
 		indices_3.data(), indices_3.size() / 3,
 		video::EVT_STANDARD, scene::EPT_TRIANGLES, video::EIT_16BIT
 	);
+
+	mat.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
+	mat.setTexture(0, nullptr);
+	driver->setMaterial(mat);
+
 	driver->draw2DVertexPrimitiveList(
 		vertices.data(), vertices.size(),
 		indices_2.data(), indices_2.size() / 2,

@@ -52,6 +52,8 @@ public:
 		// colors for normal and highlighted slot background
 		video::SColor slotbg_n = video::SColor(255, 128, 128, 128);
 		video::SColor slotbg_h = video::SColor(255, 192, 192, 192);
+		video::ITexture *slotbgimg_n = nullptr;
+		video::ITexture *slotbgimg_h = nullptr;
 	};
 
 	GUIInventoryList(gui::IGUIEnvironment *env,
@@ -91,6 +93,12 @@ public:
 	{
 		m_options.slotbg_n = slotbg_n;
 		m_options.slotbg_h = slotbg_h;
+	}
+
+	void setSlotBGImages(video::ITexture *normal, video::ITexture *hover)
+	{
+		m_options.slotbgimg_n = normal;
+		m_options.slotbgimg_h = hover;
 	}
 
 	void setSlotBorders(bool slotborder, const video::SColor &slotbordercolor)

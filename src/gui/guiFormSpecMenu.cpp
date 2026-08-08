@@ -2544,6 +2544,26 @@ void GUIFormSpecMenu::parseListColors(parserData* data, const std::string &eleme
 	}
 }
 
+void GUIFormSpecMenu::parseListImages(parserData* data, const std::string &element)
+{
+	std::vector<std::string> parts;
+	// Supports:
+	// listimages[<normal>;<hover>]
+	if (!precheckElement("listimages", element, 1, 2, parts))
+		return;
+
+	video::ITexture *normal_tex = !parts[0].empty()
+			? m_tsrc->getTexture(unescape_string(parts[0]))
+			: nullptr;
+
+	video::ITexture *hover_tex = (parts.size() >= 2 && !parts[1].empty())
+			? m_tsrc->getTexture(unescape_string(parts[1]))
+			: nullptr;
+
+	data->inventorylist_options.slotbgimg_n = normal_tex;
+	data->inventorylist_options.slotbgimg_h = hover_tex;
+}
+
 void GUIFormSpecMenu::parseTooltip(parserData* data, const std::string &element)
 {
 	std::vector<std::string> parts;
@@ -3113,6 +3133,7 @@ const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFo
 		{"box",                    &GUIFormSpecMenu::parseBox},
 		{"bgcolor",                &GUIFormSpecMenu::parseBackgroundColor},
 		{"listcolors",             &GUIFormSpecMenu::parseListColors},
+		{"listimages",             &GUIFormSpecMenu::parseListImages},
 		{"tooltip",                &GUIFormSpecMenu::parseTooltip},
 		{"hypertip",               &GUIFormSpecMenu::parseHyperTip},
 		{"scrollbar",              &GUIFormSpecMenu::parseScrollBar},
