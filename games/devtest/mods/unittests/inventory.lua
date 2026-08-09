@@ -1,3 +1,21 @@
+local function test_itemstack_ctor()
+	assert(ItemStack(""):is_known() == true)
+	-- Should trigger a deprecation warning or error
+	assert(ItemStack("-- invalid!"):get_name() == "--")
+	assert(ItemStack("-- invalid!"):is_known() == false)
+
+	assert(ItemStack({name = "-- foo bar"}):get_name() == "-- foo bar")
+	-- Should trigger a deprecation warning or error
+	assert(ItemStack({}):get_name() == "")
+end
+
+unittests.register("test_itemstack_ctor", test_itemstack_ctor)
+
+core.register_on_mods_loaded(function()
+	test_itemstack_ctor()
+end)
+
+
 local function get_stack_with_meta(count)
 	return ItemStack({name = "air", count = count, meta = {test = "abc"}})
 end

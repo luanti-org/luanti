@@ -2348,6 +2348,8 @@ and `ItemStack`.
 When an item must be passed to a function, it can usually be in any of
 these formats.
 
+Empty stacks (defined by name `""`) are always initialized with count = 0.
+
 ### Serialized
 
 This is called "stackstring" or "itemstring". It is a simple string with
@@ -2364,6 +2366,7 @@ Syntax:
 
 Examples:
 
+* (no value or `nil`): empty stack
 * `"default:apple"`: 1 apple
 * `"default:dirt 5"`: 5 dirt
 * `"default:pick_stone"`: a new stone pickaxe
@@ -2390,6 +2393,8 @@ and `core.itemstring_with_color(item, colorstring)` may be used to create
 item strings encoding color information in their metadata.
 
 ### Table format
+
+The field `name` is mandatory.
 
 Examples:
 
