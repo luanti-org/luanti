@@ -1404,10 +1404,21 @@ struct GlTF {
 		checkForall(animations, [&](const Animation &animation) {
 			for (const auto &sampler : animation.samplers) {
 				checkIndex(accessors, sampler.input);
-				const auto &accessor = accessors->at(sampler.input);
-				check(accessor.type == Accessor::Type::SCALAR);
-				check(accessor.componentType == Accessor::ComponentType::FLOAT);
+				const auto &in_acc = accessors->at(sampler.input);
+				check(in_acc.type == Accessor::Type::SCALAR);
+				check(in_acc.componentType == Accessor::ComponentType::FLOAT);
 				checkIndex(accessors, sampler.output);
+				const auto &out_acc = accessors->at(sampler.output);
+				switch (sampler.interpolation) {
+				case AnimationSampler::Interpolation::STEP:
+				case AnimationSampler::Interpolation::LINEAR:
+					check(in_acc.count == out_acc.count);
+					break;
+				case AnimationSampler::Interpolation::CUBICSPLINE:
+					check(in_acc.count >= 2);
+					check(out_acc.count == in_acc.count * 3);
+					break;
+				}
 			}
 			for (const auto &channel : animation.channels) {
 				checkIndex(nodes, channel.target.node);
