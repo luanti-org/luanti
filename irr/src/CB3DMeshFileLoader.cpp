@@ -263,7 +263,6 @@ bool CB3DMeshFileLoader::readChunkMESH(SkinnedMesh::SJoint *inJoint)
 
 				for (i = 0; i < (s32)meshBuffer->getVertexCount(); ++i) {
 					meshBuffer->getVertex(i)->Normal.normalize();
-					BaseVertices[VerticesStart + i].Normal = meshBuffer->getVertex(i)->Normal;
 				}
 			}
 		} else {
@@ -445,7 +444,7 @@ bool CB3DMeshFileLoader::readChunkTRIS(scene::SSkinMeshBuffer *meshBuffer, u32 m
 		vertex_id[2] += vertices_Start;
 
 		for (s32 i = 0; i < 3; ++i) {
-			if ((u32)vertex_id[i] >= AnimatedVertices_VertexID.size()) {
+			if (vertex_id[i] < vertices_Start || (u32)vertex_id[i] >= AnimatedVertices_VertexID.size()) {
 				os::Printer::log("Illegal vertex index found", B3DFile->getFileName(), ELL_ERROR);
 				return false;
 			}
