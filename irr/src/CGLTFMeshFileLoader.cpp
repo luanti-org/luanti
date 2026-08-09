@@ -433,7 +433,7 @@ void SelfType::MeshExtractor::addPrimitive(
 			const auto &texture = material.pbrMetallicRoughness->baseColorTexture;
 			if (texture.has_value()) {
 				m_irr_model.setTextureSlot(meshbufNr, static_cast<u32>(texture->index));
-				const auto samplerIdx = m_gltf_model.textures->at(texture->index).sampler;
+				const auto samplerIdx = m_gltf_model.textures.value().at(texture->index).sampler;
 				if (samplerIdx.has_value()) {
 					auto &sampler = m_gltf_model.samplers->at(*samplerIdx);
 					auto &layer = meshbuf->getMaterial().TextureLayers[0];

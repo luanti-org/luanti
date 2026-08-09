@@ -1296,7 +1296,7 @@ struct GlTF {
 
 		const auto checkAccessor = [&](const auto &accessor,
 				std::size_t bufferView, std::size_t byteOffset, std::size_t count) {
-			const BufferView &view = bufferViews->at(bufferView);
+			const BufferView &view = bufferViews.value().at(bufferView);
 			if (view.byteStride.has_value())
 				check(*view.byteStride % accessor.componentSize() == 0);
 
