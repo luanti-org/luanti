@@ -1633,7 +1633,7 @@ void Game::handleAndroidChatInput()
 		porting::AndroidDialogState dialogState = porting::getInputDialogState();
 		if (dialogState == porting::DIALOG_INPUTTED) {
 			std::string text = porting::getInputDialogMessage();
-			client->typeChatMessage(utf8_to_wide(text));
+			client->enqueueChatMessage(utf8_to_wide(text));
 		}
 		if (dialogState != porting::DIALOG_SHOWN)
 			m_android_chat_open = false;
