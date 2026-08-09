@@ -482,17 +482,10 @@ bool CB3DMeshFileLoader::readChunkTRIS(scene::SSkinMeshBuffer *meshBuffer, u32 m
 						Vertex->Color.setAlpha((s32)(B3dMaterial->alpha * 255.0f));
 
 					// Use texture's scale
-					if (B3dMaterial->Textures[0]) {
-						Vertex->TCoords.X *= B3dMaterial->Textures[0]->Xscale;
-						Vertex->TCoords.Y *= B3dMaterial->Textures[0]->Yscale;
+					if (const auto tex_id = B3dMaterial->texture_ids[0]) {
+						Vertex->TCoords.X *= Textures[*tex_id].Xscale;
+						Vertex->TCoords.Y *= Textures[*tex_id].Yscale;
 					}
-					/*
-					if (B3dMaterial->Textures[1])
-					{
-						Vertex->TCoords2.X *=B3dMaterial->Textures[1]->Xscale;
-						Vertex->TCoords2.Y *=B3dMaterial->Textures[1]->Yscale;
-					}
-					*/
 				}
 			}
 		}
@@ -738,14 +731,14 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 			texture_id = os::Byteswap::byteswap(texture_id);
 #endif
 			//--- Get pointers to the texture, based on the IDs ---
-			if ((u32)texture_id < Textures.size()) {
-				B3dMaterial.Textures[i] = &Textures[texture_id];
+			if (texture_id >= 0 && (u16)texture_id < Textures.size()) {
+				B3dMaterial.texture_ids[i] = (u16) texture_id;
 #ifdef _B3D_READER_DEBUG
 				os::Printer::log("Layer", core::stringc(i).c_str(), ELL_DEBUG);
 				os::Printer::log("using texture", Textures[texture_id].TextureName.c_str(), ELL_DEBUG);
 #endif
 			} else
-				B3dMaterial.Textures[i] = 0;
+				B3dMaterial.texture_ids[i].reset();
 		}
 		// skip other texture ids
 		for (i = 0; i < n_texs_offset; ++i) {
@@ -761,21 +754,21 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 		}
 
 		// Fixes problems when the lightmap is on the first texture:
-		if (B3dMaterial.Textures[0] != 0) {
-			if (B3dMaterial.Textures[0]->Flags & 65536) { // 65536 = secondary UV
-				SB3dTexture *TmpTexture;
-				TmpTexture = B3dMaterial.Textures[1];
-				B3dMaterial.Textures[1] = B3dMaterial.Textures[0];
-				B3dMaterial.Textures[0] = TmpTexture;
+		if (const auto tex_id = B3dMaterial.texture_ids[0]) {
+			const auto &texture = Textures[*tex_id];
+			if (texture.Flags & 65536) { // 65536 = secondary UV
+				std::swap(B3dMaterial.texture_ids[0], B3dMaterial.texture_ids[1]);
 			}
 		}
 
 		// If a preceeding texture slot is empty move the others down:
 		for (i = num_textures; i > 0; --i) {
 			for (u32 j = i - 1; j < num_textures - 1; ++j) {
-				if (B3dMaterial.Textures[j + 1] != 0 && B3dMaterial.Textures[j] == 0) {
-					B3dMaterial.Textures[j] = B3dMaterial.Textures[j + 1];
-					B3dMaterial.Textures[j + 1] = 0;
+				auto &cur = B3dMaterial.texture_ids[j];
+				auto &next = B3dMaterial.texture_ids[j + 1];
+				if (!cur.has_value() && next.has_value()) {
+					cur = next;
+					next.reset();
 				}
 			}
 		}
@@ -783,15 +776,16 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 		//------ Convert blitz flags/blend to irrlicht -------
 
 		// Two textures:
-		if (B3dMaterial.Textures[1]) {
+		if (B3dMaterial.texture_ids[1].has_value()) {
 			B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
 			B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
-		} else if (B3dMaterial.Textures[0]) { // One texture:
+		} else if (const auto tex_id = B3dMaterial.texture_ids[0]) { // One texture:
+			const auto &texture = Textures[*tex_id];
 			// Flags & 0x1 is usual SOLID, 0x8 is mipmap (handled before)
-			if (B3dMaterial.Textures[0]->Flags & 0x2) { // (Alpha mapped)
+			if (texture.Flags & 0x2) { // (Alpha mapped)
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 				B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
-			} else if (B3dMaterial.Textures[0]->Flags & 0x4)                                  //(Masked)
+			} else if (texture.Flags & 0x4) // (Masked)
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF; // TODO: create color key texture
 			else if (B3dMaterial.alpha == 1.f)
 				B3dMaterial.Material.MaterialType = video::EMT_SOLID;
