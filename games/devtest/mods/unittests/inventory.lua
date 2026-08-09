@@ -11,9 +11,6 @@ end
 
 unittests.register("test_itemstack_ctor", test_itemstack_ctor)
 
-core.register_on_mods_loaded(function()
-	test_itemstack_ctor()
-end)
 
 
 local function get_stack_with_meta(count)
