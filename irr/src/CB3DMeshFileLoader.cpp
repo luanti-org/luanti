@@ -10,6 +10,7 @@
 
 #include "IVideoDriver.h"
 #include "IFileSystem.h"
+#include "SB3DStructs.h"
 #include "SkinnedMesh.h"
 #include "SSkinMeshBuffer.h"
 #include "coreutil.h"
@@ -61,6 +62,23 @@ IAnimatedMesh *CB3DMeshFileLoader::createMesh(io::IReadFile *file)
 	return std::move(AnimatedMesh).finalize();
 }
 
+static constexpr int HEADER_BYTES = 8; // 4 + 4 bytes type + size
+
+std::optional<SB3dChunkHeader> CB3DMeshFileLoader::readChunkHeader(size_t sizelim)
+{
+	SB3dChunkHeader header;
+	B3DFile->read(&header.name, sizeof(header.name));
+	B3DFile->read(&header.size, sizeof(header.size));
+#ifdef __BIG_ENDIAN__
+	header.size = os::Byteswap::byteswap(header.size);
+#endif
+	if (header.size < 0 || (size_t)header.size + HEADER_BYTES > sizelim) {
+		os::Printer::log("Invalid chunk size", B3DFile->getFileName(), ELL_ERROR);
+		return std::nullopt;
+	}
+	return header;
+}
+
 bool CB3DMeshFileLoader::load()
 {
 	B3dStack.clear();
@@ -68,21 +86,17 @@ bool CB3DMeshFileLoader::load()
 	NormalsInFile = false;
 	HasVertexColors = false;
 
-	//------ Get header ------
+	const auto header = readChunkHeader(B3DFile->getRemainingBytes());
+	if (!header)
+		return false;
 
-	SB3dChunkHeader header;
-	B3DFile->read(&header, sizeof(header));
-#ifdef __BIG_ENDIAN__
-	header.size = os::Byteswap::byteswap(header.size);
-#endif
-
-	if (strncmp(header.name, "BB3D", 4) != 0) {
+	if (strncmp(header->name, "BB3D", 4) != 0) {
 		os::Printer::log("File is not a b3d file. Loading failed (No header found)", B3DFile->getFileName(), ELL_ERROR);
 		return false;
 	}
 
 	// Add main chunk...
-	B3dStack.push_back(SB3dChunk(header, B3DFile->getPos() - 8));
+	B3dStack.push_back(SB3dChunk(*header, B3DFile->getPos() - HEADER_BYTES));
 
 	// Get file version, but ignore it, as it's not important with b3d files...
 	s32 fileVersion;
@@ -93,12 +107,11 @@ bool CB3DMeshFileLoader::load()
 
 	//------ Read main chunk ------
 
-	while ((B3dStack.getLast().startposition + B3dStack.getLast().length) > B3DFile->getPos()) {
-		B3DFile->read(&header, sizeof(header));
-#ifdef __BIG_ENDIAN__
-		header.size = os::Byteswap::byteswap(header.size);
-#endif
-		B3dStack.push_back(SB3dChunk(header, B3DFile->getPos() - 8));
+	while (const auto remaining_bytes = getRemainingBytesInChunk()) {
+		const auto header = readChunkHeader(remaining_bytes);
+		if (!header)
+			return false;
+		B3dStack.push_back(SB3dChunk(*header, B3DFile->getPos() - HEADER_BYTES));
 
 		if (strncmp(B3dStack.getLast().name, "TEXS", 4) == 0) {
 			if (!readChunkTEXS())
@@ -162,15 +175,11 @@ bool CB3DMeshFileLoader::readChunkNODE(SkinnedMesh::SJoint *inJoint)
 	else
 		joint->GlobalMatrix = transform.buildMatrix();
 
-	while (B3dStack.getLast().startposition + B3dStack.getLast().length > B3DFile->getPos()) // this chunk repeats
-	{
-		SB3dChunkHeader header;
-		B3DFile->read(&header, sizeof(header));
-#ifdef __BIG_ENDIAN__
-		header.size = os::Byteswap::byteswap(header.size);
-#endif
-
-		B3dStack.push_back(SB3dChunk(header, B3DFile->getPos() - 8));
+	while (const auto remaining_bytes = getRemainingBytesInChunk()) {
+		const auto header = readChunkHeader(remaining_bytes);
+		if (!header)
+			return false;
+		B3dStack.push_back(SB3dChunk(*header, B3DFile->getPos() - HEADER_BYTES));
 
 		if (strncmp(B3dStack.getLast().name, "NODE", 4) == 0) {
 			if (!readChunkNODE(joint))
@@ -220,15 +229,11 @@ bool CB3DMeshFileLoader::readChunkMESH(SkinnedMesh::SJoint *inJoint)
 	NormalsInFile = false;
 	HasVertexColors = false;
 
-	while ((B3dStack.getLast().startposition + B3dStack.getLast().length) > B3DFile->getPos()) // this chunk repeats
-	{
-		SB3dChunkHeader header;
-		B3DFile->read(&header, sizeof(header));
-#ifdef __BIG_ENDIAN__
-		header.size = os::Byteswap::byteswap(header.size);
-#endif
-
-		B3dStack.push_back(SB3dChunk(header, B3DFile->getPos() - 8));
+	while (const auto remaining_bytes = getRemainingBytesInChunk()) {
+		const auto header = readChunkHeader(remaining_bytes);
+		if (!header)
+			return false;
+		B3dStack.push_back(SB3dChunk(*header, B3DFile->getPos() - HEADER_BYTES));
 
 		if (strncmp(B3dStack.getLast().name, "VRTS", 4) == 0) {
 			if (!readChunkVRTS(inJoint))
@@ -513,8 +518,8 @@ bool CB3DMeshFileLoader::readChunkBONE(SkinnedMesh::SJoint *inJoint)
 	os::Printer::log(logStr.c_str(), ELL_DEBUG);
 #endif
 
-	if (B3dStack.getLast().length > 8) {
-		while ((B3dStack.getLast().startposition + B3dStack.getLast().length) > B3DFile->getPos()) // this chunk repeats
+	if (B3dStack.getLast().length > HEADER_BYTES) {
+		while (getRemainingBytesInChunk() > 0) // this chunk repeats
 		{
 			u32 globalVertexID;
 			f32 strength;
