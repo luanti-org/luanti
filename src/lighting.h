@@ -54,9 +54,7 @@ struct Vignette {
 };
 
 /**
- * ASL CDL parameters
- *
- * Colors in ASL CDL follow the following equation:
+ * ASC CDL parameters. Colors are calculates as follows:
  *
  * out = pow(in * slope + offset, power)
  *
