@@ -193,15 +193,22 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 				break;
 			}
 
-			int len;
-			if (sscanf(count_str.c_str(), "%hd%n", &count, &len) != 1
-					|| (size_t)len != count_str.size()) {
-				// Read failed. Do not clear the stack.
-				count = 1;
-				warningstream << "Failed to parse stack size '" << count_str
-					<< "'. In a future engine version, this will result in an error." << std::endl;
-				//throw SerializationError("Invalid stack size");
-				break;
+			// Read size (count)
+			{
+				char *endp = nullptr;
+				long val = strtol(count_str.c_str(), &endp, 10);
+
+				if (*endp == '\0') {
+					count = val;
+				} else {
+					// Read failed. Do not clear the stack.
+					count = 1;
+
+					warningstream << "Failed to parse stack size '" << count_str
+						<< "'. In a future engine version, this will result in an error." << std::endl;
+					// TODO: enable this in 5.19.0
+					//throw SerializationError("Invalid stack size");
+				}
 			}
 
 			// Read the wear
