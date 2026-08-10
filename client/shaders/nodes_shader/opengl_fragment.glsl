@@ -556,6 +556,7 @@ void main(void)
 		reflect_ray = -normalize(v_LightDirection - fNormal * dot(v_LightDirection, fNormal) * 2.0);
 		float fresnel_factor = dot(fNormal, viewVec);
 
+		// Divide by alpha to normalize the reflection brightness - even crystal clear water should reflect light.
 		float brightness_factor = (1.0 - adjusted_night_ratio) / base.a;
 
 		// A little trig hack. We go from the dot product of viewVec and normal to the dot product of viewVec and tangent to apply a fresnel effect.
@@ -576,6 +577,9 @@ void main(void)
 
 #if (defined(ENABLE_NODE_SPECULAR) && !MATERIAL_WATER_REFLECTIONS)
 		// Apply specular to nodes.
+		// Some resources on PBR:
+		// https://learnopengl.com/PBR/Theory
+		// https://blog.selfshadow.com/publications/s2013-shading-course/
 		if (dot(v_LightDirection, vNormal) < 0.0) {
 			// This intensity/roughness is a placeholder and should be replaced by proper specular maps.
 			float intensity = 0.35 * min(1.0, length(varColor.rgb * base.rgb));
