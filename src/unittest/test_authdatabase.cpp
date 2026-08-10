@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include "database/database-files.h"
+#include "database/database-dummy.h"
 #include "database/database-sqlite3.h"
 #include "util/string.h"
 #include "filesys.h"
@@ -69,6 +70,17 @@ public:
 private:
 	std::string dir;
 	AuthDatabase *auth_db = nullptr;
+};
+
+class MemoryProvider : public AuthDatabaseProvider
+{
+public:
+	MemoryProvider() = default;
+	virtual ~MemoryProvider() = default;
+	virtual AuthDatabase *getAuthDatabase() { return &auth_db; };
+
+private:
+	AuthDatabaseDummy auth_db;
 };
 }
 
@@ -144,6 +156,17 @@ void TestAuthDatabase::runTests(IGameDef *gamedef)
 	rawstream << "-------- SQLite3 database (new objects)" << std::endl;
 
 	auth_provider = new SQLite3Provider(test_dir);
+
+	runTestsForCurrentDB();
+
+	delete auth_provider;
+
+	// The memory backend is volatile, so we only exercise it with a
+	// "same object" provider: recreating the database between calls would
+	// simply discard all stored data.
+	rawstream << "-------- Memory database (same object)" << std::endl;
+
+	auth_provider = new MemoryProvider();
 
 	runTestsForCurrentDB();
 

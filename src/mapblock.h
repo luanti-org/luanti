@@ -549,7 +549,7 @@ private:
 		sunlight is assumed if this is false.
 
 		In practice this is set to true if the block is completely
-		undeground with nothing visible above the ground except
+		underground with nothing visible above the ground except
 		caves.
 	*/
 	bool is_underground = false;

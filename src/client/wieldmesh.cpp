@@ -151,7 +151,9 @@ void getAdHocNodeShader(video::SMaterial &mat, IShaderSource *shdsrc,
 	if (mat.getTexture(0))
 		array_texture = mat.getTexture(0)->getType() == video::ETT_2D_ARRAY;
 
-	u32 shader_id = shdsrc->getShader(shader, type, NDT_NORMAL, array_texture);
+	ShaderFeatures features;
+	features.array_texture = array_texture;
+	u32 shader_id = shdsrc->getShader(shader, type, NDT_NORMAL, features);
 	mat.MaterialType = shdsrc->getShaderInfo(shader_id).material;
 }
 
@@ -373,7 +375,7 @@ static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
 			buf->append(&p.vertices[0], p.vertices.size(),
 					&p.indices[0], p.indices.size());
 
-			// note: material type is left unset, overriden later
+			// note: material type is left unset, overridden later
 			p.layer.applyMaterialOptions(buf->Material, layer);
 
 			mesh->addMeshBuffer(buf.get());

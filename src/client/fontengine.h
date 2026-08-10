@@ -40,7 +40,7 @@ enum FontMode : u8 {
 
 	// ----------------------------
 
-	/// Request the defult font specified by `s_default_font_mode`
+	/// Request the default font specified by `s_default_font_mode`
 	FM_Unspecified
 };
 

@@ -297,6 +297,13 @@ endif()
 
 add_subdirectory(lib/tiniergltf)
 
+# Builtin
+add_subdirectory(builtin)
+
+list(TRANSFORM BUILTIN_SRCS
+	PREPEND "${BUILTIN_BASE_PATH}/"
+	OUTPUT_VARIABLE BUILTIN_SRCS_ABS)
+
 # Subdirectories
 # Be sure to add all relevant definitions above this
 add_subdirectory(src)

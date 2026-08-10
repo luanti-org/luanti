@@ -10,6 +10,8 @@
 #include <zstd.h>
 #include <memory>
 
+constexpr int DEFAULT_WBITS = 15; // window size: 2^DEFAULT_WBITS
+
 /* report a zlib or i/o error */
 static void zerr(int ret)
 {
@@ -49,7 +51,7 @@ private:
 	z_stream *ptr_;
 };
 
-void compressZlib(const u8 *data, size_t data_size, std::ostream &os, int level)
+void compressZlib(const u8 *data, size_t data_size, std::ostream &os, int level, bool raw)
 {
 	z_stream z;
 	const s32 bufsize = 16384;
@@ -61,7 +63,9 @@ void compressZlib(const u8 *data, size_t data_size, std::ostream &os, int level)
 	z.zfree = Z_NULL;
 	z.opaque = Z_NULL;
 
-	ret = deflateInit(&z, level);
+	ret = deflateInit2(&z, level, Z_DEFLATED,
+		raw ? -DEFAULT_WBITS : DEFAULT_WBITS,
+		8, Z_DEFAULT_STRATEGY);
 	if(ret != Z_OK)
 		throw SerializationError("compressZlib: deflateInit failed");
 
@@ -92,7 +96,7 @@ void compressZlib(const u8 *data, size_t data_size, std::ostream &os, int level)
 	}
 }
 
-void decompressZlib(std::istream &is, std::ostream &os, size_t limit)
+void decompressZlib(std::istream &is, std::ostream &os, size_t limit, bool raw)
 {
 	z_stream z;
 	const s32 bufsize = 16384;
@@ -107,7 +111,7 @@ void decompressZlib(std::istream &is, std::ostream &os, size_t limit)
 	z.zfree = Z_NULL;
 	z.opaque = Z_NULL;
 
-	ret = inflateInit(&z);
+	ret = inflateInit2(&z, raw ? -DEFAULT_WBITS : DEFAULT_WBITS);
 	if(ret != Z_OK)
 		throw SerializationError("dcompressZlib: inflateInit failed");
 
@@ -365,5 +369,3 @@ void decompress(std::istream &is, std::ostream &os, u8 version)
 			break;
 	}
 }
-
-

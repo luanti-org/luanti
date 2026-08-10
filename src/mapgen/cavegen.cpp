@@ -228,10 +228,9 @@ bool CavernsNoise::generateCaverns(MMVManip *vm, v3s16 nmin, v3s16 nmax)
 	//// Place nodes
 	bool near_cavern = false;
 	const v3s32 &em = vm->m_area.getExtent();
-	u32 index2d = 0;
 
 	for (s16 z = nmin.Z; z <= nmax.Z; z++)
-	for (s16 x = nmin.X; x <= nmax.X; x++, index2d++) {
+	for (s16 x = nmin.X; x <= nmax.X; x++) {
 		// Reset cave_amp index to column top
 		cavern_amp_index = 0;
 		// Initial voxelmanip index at column top

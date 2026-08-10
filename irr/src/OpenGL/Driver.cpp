@@ -4,8 +4,9 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in Irrlicht.h
 
-#include "Driver.h"
 #include <cassert>
+
+#include "Driver.h"
 #include "CNullDriver.h"
 #include "IContextManager.h"
 
@@ -701,10 +702,21 @@ void COpenGL3DriverBase::draw2DVertexPrimitiveList(const void *vertices, u32 ver
 
 	CNullDriver::draw2DVertexPrimitiveList(vertices, vertexCount, indexList, primitiveCount, vType, pType, iType);
 
+	bool have_vertex_alpha  = Material.MaterialType == EMT_TRANSPARENT_VERTEX_ALPHA;
+	bool have_texture_alpha = Material.MaterialType == EMT_TRANSPARENT_ALPHA_CHANNEL;
+	if (Material.MaterialType == EMT_ONETEXTURE_BLEND) {
+		E_BLEND_FACTOR srcFact;
+		E_BLEND_FACTOR dstFact;
+		E_MODULATE_FUNC modulo;
+		u32 alphaSource;
+		unpack_textureBlendFunc(srcFact, dstFact, modulo, alphaSource, Material.MaterialTypeParam);
+		have_vertex_alpha  = alphaSource & video::EAS_VERTEX_COLOR;
+		have_texture_alpha = alphaSource & video::EAS_TEXTURE;
+	}
 	setRenderStates2DMode(
-		Material.MaterialType == EMT_TRANSPARENT_VERTEX_ALPHA,
+		have_vertex_alpha,
 		Material.getTexture(0),
-		Material.MaterialType == EMT_TRANSPARENT_ALPHA_CHANNEL
+		have_texture_alpha
 	);
 
 	drawGeneric(vertices, indexList, primitiveCount, vType, pType, iType);
@@ -1301,8 +1313,7 @@ void COpenGL3DriverBase::setBasicRenderStates(const SMaterial &material, const S
 	}
 
 	// Blend Factor
-	if (IR(material.BlendFactor) & 0xFFFFFFFF // TODO: why the & 0xFFFFFFFF?
-			&& material.MaterialType != EMT_ONETEXTURE_BLEND) {
+	if (material.BlendFactor != 0.0f && material.MaterialType != EMT_ONETEXTURE_BLEND) {
 		E_BLEND_FACTOR srcRGBFact = EBF_ZERO;
 		E_BLEND_FACTOR dstRGBFact = EBF_ZERO;
 		E_BLEND_FACTOR srcAlphaFact = EBF_ZERO;

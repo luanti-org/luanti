@@ -26,17 +26,11 @@ public:
 		return const_cast<NodeDefManager *>(m_nodedef);
 	}
 
-	content_t registerNode(const ItemDefinition &itemdef, const ContentFeatures &nodedef,
-			std::unique_ptr<NodeVisuals> visuals) {
+	content_t registerNode(const ItemDefinition &itemdef, ContentFeatures &&nodedef) {
 		item_mgr()->registerItem(itemdef);
 
 		NodeDefManager *mgr = node_mgr();
-		content_t id = mgr->set(nodedef.name, nodedef);
-
-		// mgr->set cannot add ContentFeatures that already contain visuals
-		// We set them manually instead of calling NodeVisuals::fillNodeVisuals
-		ContentFeatures &f = const_cast<ContentFeatures&>(mgr->get(id));
-		setNodeVisuals(f, std::move(visuals));
+		content_t id = mgr->set(nodedef.name, std::move(nodedef));
 
 		return id;
 	}
@@ -47,7 +41,7 @@ public:
 		// Need to fill node visuals for predefined nodes
 		node_mgr()->applyFunction([] (ContentFeatures &f) {
 			if (!f.visuals)
-				setNodeVisuals(f);
+				f.visuals = std::make_unique<NodeVisuals>();
 		});
 	}
 
@@ -73,17 +67,17 @@ public:
 		itemdef.description = name;
 
 		ContentFeatures f;
-		auto visuals = constructNodeVisuals(&f);
+		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_NORMAL;
-		visuals->solidness = 2;
+		f.visuals->solidness = 2;
 		f.alpha = ALPHAMODE_OPAQUE;
 		for (TileDef &tiledef : f.tiledef)
 			tiledef.name = name + ".png";
-		for (TileSpec &tile : visuals->tiles)
+		for (TileSpec &tile : f.visuals->tiles)
 			tile.layers[0].texture_id = texture;
 
-		return registerNode(itemdef, f, std::move(visuals));
+		return registerNode(itemdef, std::move(f));
 	}
 
 	content_t addLiquidSource(std::string name, u32 texture)
@@ -94,10 +88,10 @@ public:
 		itemdef.description = name;
 
 		ContentFeatures f;
-		auto visuals = constructNodeVisuals(&f);
+		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_LIQUID;
-		visuals->solidness = 1;
+		f.visuals->solidness = 1;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;
@@ -108,10 +102,10 @@ public:
 		f.liquid_alternative_flowing = "test:" + name + "_flowing";
 		for (TileDef &tiledef : f.tiledef)
 			tiledef.name = name + ".png";
-		for (TileSpec &tile : visuals->tiles)
+		for (TileSpec &tile : f.visuals->tiles)
 			tile.layers[0].texture_id = texture;
 
-		return registerNode(itemdef, f, std::move(visuals));
+		return registerNode(itemdef, std::move(f));
 	}
 
 	content_t addLiquidFlowing(std::string name, u32 texture_top, u32 texture_side)
@@ -122,10 +116,10 @@ public:
 		itemdef.description = name;
 
 		ContentFeatures f;
-		auto visuals = constructNodeVisuals(&f);
+		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_FLOWINGLIQUID;
-		visuals->solidness = 0;
+		f.visuals->solidness = 0;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;
@@ -136,10 +130,10 @@ public:
 		f.liquid_alternative_flowing = "test:" + name + "_flowing";
 		f.tiledef_special[0].name = name + "_top.png";
 		f.tiledef_special[1].name = name + "_side.png";
-		visuals->special_tiles[0].layers[0].texture_id = texture_top;
-		visuals->special_tiles[1].layers[0].texture_id = texture_side;
+		f.visuals->special_tiles[0].layers[0].texture_id = texture_top;
+		f.visuals->special_tiles[1].layers[0].texture_id = texture_side;
 
-		return registerNode(itemdef, f, std::move(visuals));
+		return registerNode(itemdef, std::move(f));
 	}
 };
 

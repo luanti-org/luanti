@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include <optional>
 #include <queue>
+#include "AnimSpec.h"
 #include "irrlichttypes_bloated.h"
 #include "activeobject.h"
 #include "itemgroup.h"
@@ -149,12 +150,20 @@ public:
 	{}
 	virtual const ItemGroupList &getArmorGroups() const
 	{ static ItemGroupList rv; return rv; }
-	virtual void setAnimation(v2f frames, float frame_speed, float frame_blend, bool frame_loop)
+
+	// Animation
+
+	virtual void setAnimation(const scene::TrackId &track, scene::TrackAnimSpec anim_spec)
 	{}
-	virtual void getAnimation(v2f *frames, float *frame_speed, float *frame_blend, bool *frame_loop)
+	virtual void stopAnimation(const scene::TrackId &track)
 	{}
-	virtual void setAnimationSpeed(float frame_speed)
+	virtual std::vector<std::pair<scene::TrackId, scene::TrackAnimSpec>> getAllAnimations() const
+	{ return {}; }
+	virtual std::optional<scene::TrackAnimSpec> getAnimation(const scene::TrackId &track) const
+	{ return std::nullopt; }
+	virtual void setAnimationSpeed(const scene::TrackId &track, f32 fps)
 	{}
+
 	virtual void setBoneOverride(const std::string &bone, const BoneOverride &props)
 	{}
 	virtual BoneOverride getBoneOverride(const std::string &bone)
@@ -265,7 +274,7 @@ protected:
 		- Whether this object is to be removed when nobody knows about
 		  it anymore.
 		- Removal is delayed to preserve the id for the time during which
-		  it could be confused to some other object by some client.
+		  it could be confused with some other object by some client.
 		- This is usually set to true by the step() method when the object wants
 		  to be deleted but can be set by anything else too.
 		Note: Do not assign this directly, use markForRemoval() instead.

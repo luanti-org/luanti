@@ -5,12 +5,18 @@
 #include "CZipReader.h"
 
 #include "os.h"
-
 #include "CFileList.h"
 #include "CReadFile.h"
 #include "coreutil.h"
 
+#include <string>
+
 #include <zlib.h> // use system lib
+
+[[nodiscard]] static bool try_read(io::IReadFile *file, void *ptr, size_t len)
+{
+	return file->read(ptr, len) == len;
+}
 
 namespace io
 {
@@ -71,14 +77,15 @@ IFileArchive *CArchiveLoaderZIP::createArchive(io::IReadFile *file, bool ignoreC
 \return True if file seems to be loadable. */
 bool CArchiveLoaderZIP::isALoadableFileFormat(io::IReadFile *file) const
 {
-	SZIPFileHeader header;
+	u32 sig;
 
-	file->read(&header.Sig, 4);
+	if (!try_read(file, &sig, 4))
+		return false;
 #ifdef __BIG_ENDIAN__
-	header.Sig = os::Byteswap::byteswap(header.Sig);
+	sig = os::Byteswap::byteswap(sig);
 #endif
 
-	return header.Sig == 0x04034b50; // ZIP
+	return sig == 0x04034b50; // ZIP
 }
 
 // -----------------------------------------------------------------------------
@@ -144,11 +151,11 @@ bool CZipReader::scanZipHeader(bool ignoreGPBits)
 
 	// read filename
 	{
-		c8 *tmp = new c8[entry.header.FilenameLength + 2];
-		File->read(tmp, entry.header.FilenameLength);
-		tmp[entry.header.FilenameLength] = 0;
-		ZipFileName = tmp;
-		delete[] tmp;
+		std::string tmp;
+		tmp.resize(entry.header.FilenameLength);
+		if (!try_read(File, tmp.data(), tmp.size()))
+			return false;
+		ZipFileName = std::move(tmp);
 	}
 
 	if (entry.header.ExtraFieldLength)
@@ -187,7 +194,8 @@ bool CZipReader::scanZipHeader(bool ignoreGPBits)
 			}
 			File->seek(-seek, true);
 		}
-		File->read(&dirEnd, sizeof(dirEnd));
+		if (!found || !try_read(File, &dirEnd, sizeof(dirEnd)))
+			return false;
 #ifdef __BIG_ENDIAN__
 		dirEnd.NumberDisk = os::Byteswap::byteswap(dirEnd.NumberDisk);
 		dirEnd.NumberStart = os::Byteswap::byteswap(dirEnd.NumberStart);
@@ -209,7 +217,8 @@ bool CZipReader::scanZipHeader(bool ignoreGPBits)
 	// move forward length of data
 	File->seek(entry.header.DataDescriptor.CompressedSize, true);
 
-	addItem(ZipFileName, entry.Offset, entry.header.DataDescriptor.UncompressedSize, ZipFileName.lastChar() == '/', FileInfo.size());
+	addItem(ZipFileName, entry.Offset, entry.header.DataDescriptor.UncompressedSize,
+			ZipFileName.lastChar() == '/', (u32)FileInfo.size());
 	FileInfo.push_back(entry);
 
 	return true;
@@ -220,7 +229,8 @@ bool CZipReader::scanCentralDirectoryHeader()
 {
 	io::path ZipFileName = "";
 	SZIPFileCentralDirFileHeader entry;
-	File->read(&entry, sizeof(SZIPFileCentralDirFileHeader));
+	if (!try_read(File, &entry, sizeof(entry)))
+		return false;
 
 #ifdef __BIG_ENDIAN__
 	entry.Sig = os::Byteswap::byteswap(entry.Sig);
@@ -247,13 +257,16 @@ bool CZipReader::scanCentralDirectoryHeader()
 
 	const long pos = File->getPos();
 	File->seek(entry.RelativeOffsetOfLocalHeader);
-	scanZipHeader(true);
+	// only on success did scanZipHeader append to both lists
+	const bool added = scanZipHeader(true);
 	File->seek(pos + entry.FilenameLength + entry.ExtraFieldLength + entry.FileCommentLength);
-	auto &lastInfo = FileInfo.back();
-	lastInfo.header.DataDescriptor.CompressedSize = entry.CompressedSize;
-	lastInfo.header.DataDescriptor.UncompressedSize = entry.UncompressedSize;
-	lastInfo.header.DataDescriptor.CRC32 = entry.CRC32;
-	Files.getLast().Size = entry.UncompressedSize;
+	if (added) {
+		auto &lastInfo = FileInfo.back();
+		lastInfo.header.DataDescriptor.CompressedSize = entry.CompressedSize;
+		lastInfo.header.DataDescriptor.UncompressedSize = entry.UncompressedSize;
+		lastInfo.header.DataDescriptor.CRC32 = entry.CRC32;
+		Files.getLast().Size = entry.UncompressedSize;
+	}
 	return true;
 }
 
@@ -290,9 +303,15 @@ IReadFile *CZipReader::createAndOpenFile(u32 index)
 	// 98 - PPMd - Compression Method, WinZip 10
 	// 99 - AES encryption, WinZip 9
 
-	const SZipFileEntry &e = FileInfo[Files[index].ID];
+	if (index >= Files.size())
+		return nullptr;
+	const u32 id = Files[index].ID;
+	if (id >= FileInfo.size())
+		return nullptr;
+
+	const SZipFileEntry &e = FileInfo[id];
 	char buf[64];
-	s16 actualCompressionMethod = e.header.CompressionMethod;
+	u16 actualCompressionMethod = e.header.CompressionMethod;
 	IReadFile *decrypted = 0;
 	u8 *decryptedBuf = 0;
 	u32 decryptedSize = e.header.DataDescriptor.CompressedSize;
@@ -327,7 +346,13 @@ IReadFile *CZipReader::createAndOpenFile(u32 index)
 
 			// memset(pcData, 0, decryptedSize);
 			File->seek(e.Offset);
-			File->read(pcData, decryptedSize);
+			if (!try_read(File, pcData, decryptedSize)) {
+				snprintf_irr(buf, 64, "Truncated data for %s", Files[index].FullName.c_str());
+				os::Printer::log(buf, ELL_ERROR);
+				delete[] pBuf;
+				delete[] pcData;
+				return nullptr;
+			}
 		}
 
 		// Setup the inflate stream.
@@ -344,11 +369,9 @@ IReadFile *CZipReader::createAndOpenFile(u32 index)
 		// Perform inflation. wbits < 0 indicates no zlib header inside the data.
 		err = inflateInit2(&stream, -MAX_WBITS);
 		if (err == Z_OK) {
-			err = inflate(&stream, Z_FINISH);
-			inflateEnd(&stream);
-			if (err == Z_STREAM_END)
-				err = Z_OK;
-			err = Z_OK;
+			inflate(&stream, Z_FINISH);
+			// Zero what inflate did not write
+			memset(pBuf + stream.total_out, 0, uncompressedSize - stream.total_out);
 			inflateEnd(&stream);
 		}
 

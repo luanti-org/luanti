@@ -75,6 +75,8 @@ public:
 
 	bool isPointInside(const core::position2d<s32> &point) const override;
 
+	void setHoveredIndex(s32 item_i);
+
 	const InventoryLocation &getInventoryloc() const
 	{
 		return m_inventoryloc;
@@ -102,7 +104,7 @@ public:
 		return m_slot_size;
 	}
 
-	// returns -1 if not item is at pos p
+	// returns -1 if no item is at pos p
 	s32 getItemIndexAtPos(v2s32 p) const;
 
 private:

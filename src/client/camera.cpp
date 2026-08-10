@@ -443,7 +443,7 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 			}
 		}
 
-		// If node blocks camera position don't move y to heigh
+		// If node blocks camera position don't move y to height
 		if (abort && my_cp.Y > player_position.Y+BS*2)
 			my_cp.Y = player_position.Y+BS*2;
 

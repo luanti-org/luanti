@@ -102,6 +102,8 @@ video::IImage* SourceImageCache::getOrLoad(const std::string &name)
 ////////////////////////////
 
 
+// TODO: maybe move these to imagefilters.cpp?
+
 /** Draw an image on top of another one with gamma-incorrect alpha compositing
  *
  * \tparam overlay If enabled, only modify pixels in dst which are fully opaque.
@@ -160,10 +162,6 @@ static void apply_overlay(video::IImage *overlay, video::IImage *dst,
 // way up to white or down to black.
 static void apply_brightness_contrast(video::IImage *dst, v2u32 dst_pos, v2u32 size,
 		s32 brightness, s32 contrast);
-
-// Apply a mask to an image
-static void apply_mask(video::IImage *mask, video::IImage *dst,
-		v2s32 mask_pos, v2s32 dst_pos, v2u32 size);
 
 // Draw or overlay a crack
 static void draw_crack(video::IImage *crack, video::IImage *dst,
@@ -480,41 +478,92 @@ static void blit_with_alpha2(video::IImage *src, video::IImage *dst,
 	}
 }
 
+namespace {
+	// Note: the implementation is split from applyPerPixel() to force inlining
+	template<typename F, bool IS_A8R8G8B8>
+	inline void applyPerPixelInlined(video::IImage *dst, v2u32 offset, v2u32 size, const F &fn)
+	{
+		u32 *const data = reinterpret_cast<u32*>(dst->getData());
+		const u32 ystride = dst->getDimension().Width;
+
+		video::SColor col;
+		for (u32 y = offset.Y; y < offset.Y + size.Y; y++)
+		for (u32 x = offset.X; x < offset.X + size.X; x++) {
+			if constexpr (IS_A8R8G8B8) {
+				col = data[y*ystride + x];
+			} else {
+				col = dst->getPixel(x, y);
+			}
+			col = fn(col);
+			if constexpr (IS_A8R8G8B8) {
+				data[y*ystride + x] = col.color;
+			} else {
+				dst->setPixel(x, y, col);
+			}
+		}
+	}
+
+	// Helper for implementing modifiers that operate per-pixel, with inlining
+	// to speed up the default A8R8G8B8 case.
+	// signature of F: (video::SColor) -> video::SColor
+	template<typename F>
+	void applyPerPixel(video::IImage *dst, v2u32 offset, v2u32 size, const F &fn)
+	{
+		// Truncate to actual area
+		const v2u32 dim = dst->getDimension();
+		if (offset.X >= dim.X || offset.Y >= dim.Y)
+			return;
+		size = componentwise_min(size, dim - offset);
+
+		if (dst->getColorFormat() == video::ECF_A8R8G8B8)
+			applyPerPixelInlined<F, true>(dst, offset, size, fn);
+		else
+			applyPerPixelInlined<F, false>(dst, offset, size, fn);
+	}
+
+	// (for entire image)
+	template<typename F>
+	void applyPerPixel(video::IImage *dst, const F &fn)
+	{
+		applyPerPixel(dst, {0,0}, dst->getDimension(), fn);
+	}
+
+} // namespace (anonymous)
+
 /*
 	Apply color to destination, using a weighted interpolation blend
 */
 static void apply_colorize(video::IImage *dst, v2u32 dst_pos, v2u32 size,
 		const video::SColor color, int ratio, bool keep_alpha)
 {
-	u32 alpha = color.getAlpha();
-	video::SColor dst_c;
-	if ((ratio == -1 && alpha == 255) || ratio == 255) { // full replacement of color
-		if (keep_alpha) { // replace the color with alpha = dest alpha * color alpha
-			dst_c = color;
-			for (u32 y = dst_pos.Y; y < dst_pos.Y + size.Y; y++)
-			for (u32 x = dst_pos.X; x < dst_pos.X + size.X; x++) {
-				u32 dst_alpha = dst->getPixel(x, y).getAlpha();
+	const u32 alpha = color.getAlpha();
+	if ((ratio == -1 && alpha == 255) || ratio == 255) {
+		// full replacement of color
+		if (keep_alpha) {
+			// replace the color with alpha = dest alpha * color alpha
+			applyPerPixel(dst, dst_pos, size, [=] (video::SColor pixel) {
+				u32 dst_alpha = pixel.getAlpha();
 				if (dst_alpha > 0) {
+					video::SColor dst_c = color;
 					dst_c.setAlpha(dst_alpha * alpha / 255);
-					dst->setPixel(x, y, dst_c);
+					return dst_c;
 				}
-			}
-		} else { // replace the color including the alpha
-			for (u32 y = dst_pos.Y; y < dst_pos.Y + size.Y; y++)
-			for (u32 x = dst_pos.X; x < dst_pos.X + size.X; x++)
-				if (dst->getPixel(x, y).getAlpha() > 0)
-					dst->setPixel(x, y, color);
+				return pixel;
+			});
+		} else {
+			// replace the color including the alpha
+			applyPerPixel(dst, dst_pos, size, [=] (video::SColor pixel) {
+				return pixel.getAlpha() > 0 ? color : pixel;
+			});
 		}
-	} else {  // interpolate between the color and destination
-		float interp = (ratio == -1 ? color.getAlpha() / 255.0f : ratio / 255.0f);
-		for (u32 y = dst_pos.Y; y < dst_pos.Y + size.Y; y++)
-		for (u32 x = dst_pos.X; x < dst_pos.X + size.X; x++) {
-			dst_c = dst->getPixel(x, y);
-			if (dst_c.getAlpha() > 0) {
-				dst_c = color.getInterpolated(dst_c, interp);
-				dst->setPixel(x, y, dst_c);
-			}
-		}
+	} else {
+		// interpolate between the color and destination
+		float interp = (ratio == -1 ? color.getAlpha() : ratio) / 255.0f;
+		applyPerPixel(dst, dst_pos, size, [=] (video::SColor pixel) {
+			if (pixel.getAlpha() > 0)
+				pixel = color.getInterpolated(pixel, interp);
+			return pixel;
+		});
 	}
 }
 
@@ -524,19 +573,15 @@ static void apply_colorize(video::IImage *dst, v2u32 dst_pos, v2u32 size,
 static void apply_multiplication(video::IImage *dst, v2u32 dst_pos, v2u32 size,
 		const video::SColor color)
 {
-	video::SColor dst_c;
-
-	for (u32 y = dst_pos.Y; y < dst_pos.Y + size.Y; y++)
-	for (u32 x = dst_pos.X; x < dst_pos.X + size.X; x++) {
-		dst_c = dst->getPixel(x, y);
+	applyPerPixel(dst, dst_pos, size, [=] (video::SColor dst_c) {
 		dst_c.set(
-				dst_c.getAlpha(),
-				(dst_c.getRed() * color.getRed()) / 255,
-				(dst_c.getGreen() * color.getGreen()) / 255,
-				(dst_c.getBlue() * color.getBlue()) / 255
-				);
-		dst->setPixel(x, y, dst_c);
-	}
+			dst_c.getAlpha(),
+			(dst_c.getRed() * color.getRed()) / 255,
+			(dst_c.getGreen() * color.getGreen()) / 255,
+			(dst_c.getBlue() * color.getBlue()) / 255
+		);
+		return dst_c;
+	});
 }
 
 /*
@@ -545,19 +590,15 @@ static void apply_multiplication(video::IImage *dst, v2u32 dst_pos, v2u32 size,
 static void apply_screen(video::IImage *dst, v2u32 dst_pos, v2u32 size,
 		const video::SColor color)
 {
-	video::SColor dst_c;
-
-	for (u32 y = dst_pos.Y; y < dst_pos.Y + size.Y; y++)
-	for (u32 x = dst_pos.X; x < dst_pos.X + size.X; x++) {
-		dst_c = dst->getPixel(x, y);
+	applyPerPixel(dst, dst_pos, size, [=] (video::SColor dst_c) {
 		dst_c.set(
 			dst_c.getAlpha(),
 			255 - ((255 - dst_c.getRed())   * (255 - color.getRed()))   / 255,
 			255 - ((255 - dst_c.getGreen()) * (255 - color.getGreen())) / 255,
 			255 - ((255 - dst_c.getBlue())  * (255 - color.getBlue()))  / 255
 		);
-		dst->setPixel(x, y, dst_c);
-	}
+		return dst_c;
+	});
 }
 
 /*
@@ -585,54 +626,52 @@ static void apply_hue_saturation(video::IImage *dst, v2u32 dst_pos, v2u32 size,
 		hsl.Saturation = core::clamp((f32)saturation, 0.0f, 100.0f);
 	}
 
-	for (u32 y = dst_pos.Y; y < dst_pos.Y + size.Y; y++)
-		for (u32 x = dst_pos.X; x < dst_pos.X + size.X; x++) {
+	applyPerPixel(dst, dst_pos, size, [&] (video::SColor in_c) {
+		if (colorize) {
+			f32 lum = in_c.getBrightness() / 255.0f;
 
-			if (colorize) {
-				f32 lum = dst->getPixel(x, y).getBrightness() / 255.0f;
-
-				if (norm_l < 0) {
-					lum *= norm_l + 1.0f;
-				} else {
-					lum = lum * (1.0f - norm_l) + norm_l;
-				}
-				hsl.Hue = 0;
-				hsl.Luminance = lum * 100;
-
+			if (norm_l < 0) {
+				lum *= norm_l + 1.0f;
 			} else {
-				// convert the RGB to HSL
-				colorf = video::SColorf(dst->getPixel(x, y));
-				hsl.fromRGB(colorf);
+				lum = lum * (1.0f - norm_l) + norm_l;
+			}
+			hsl.Hue = 0;
+			hsl.Luminance = lum * 100;
 
-				if (norm_l < 0) {
-					hsl.Luminance *= norm_l + 1.0f;
-				} else{
-					hsl.Luminance = hsl.Luminance + norm_l * (100.0f - hsl.Luminance);
-				}
+		} else {
+			// convert the RGB to HSL
+			colorf = video::SColorf(in_c);
+			hsl.fromRGB(colorf);
 
-				// Adjusting saturation in the same manner as lightness resulted in
-				// muted colors being affected too much and bright colors not
-				// affected enough, so I'm borrowing a leaf out of gimp's book and
-				// using a different scaling approach for saturation.
-				// https://github.com/GNOME/gimp/blob/6cc1e035f1822bf5198e7e99a53f7fa6e281396a/app/operations/gimpoperationhuesaturation.c#L139-L145=
-				// This difference is why values over 100% are not necessary for
-				// lightness but are very useful with saturation. An alternative UI
-				// approach would be to have an upper saturation limit of 100, but
-				// multiply positive values by ~3 to make it a more useful positive
-				// range scale.
-				hsl.Saturation *= norm_s + 1.0f;
-				hsl.Saturation = core::clamp(hsl.Saturation, 0.0f, 100.0f);
+			if (norm_l < 0) {
+				hsl.Luminance *= norm_l + 1.0f;
+			} else{
+				hsl.Luminance = hsl.Luminance + norm_l * (100.0f - hsl.Luminance);
 			}
 
-			// Apply the specified HSL adjustments
-			hsl.Hue = fmodf(hsl.Hue + hue, 360);
-			if (hsl.Hue < 0)
-				hsl.Hue += 360;
-
-			// Convert back to RGB
-			hsl.toRGB(colorf);
-			dst->setPixel(x, y, colorf.toSColor());
+			// Adjusting saturation in the same manner as lightness resulted in
+			// muted colors being affected too much and bright colors not
+			// affected enough, so I'm borrowing a leaf out of gimp's book and
+			// using a different scaling approach for saturation.
+			// https://github.com/GNOME/gimp/blob/6cc1e035f1822bf5198e7e99a53f7fa6e281396a/app/operations/gimpoperationhuesaturation.c#L139-L145=
+			// This difference is why values over 100% are not necessary for
+			// lightness but are very useful with saturation. An alternative UI
+			// approach would be to have an upper saturation limit of 100, but
+			// multiply positive values by ~3 to make it a more useful positive
+			// range scale.
+			hsl.Saturation *= norm_s + 1.0f;
+			hsl.Saturation = core::clamp(hsl.Saturation, 0.0f, 100.0f);
 		}
+
+		// Apply the specified HSL adjustments
+		hsl.Hue = fmodf(hsl.Hue + hue, 360);
+		if (hsl.Hue < 0)
+			hsl.Hue += 360;
+
+		// Convert back to RGB
+		hsl.toRGB(colorf);
+		return colorf.toSColor();
+	});
 }
 
 
@@ -714,39 +753,15 @@ static void apply_brightness_contrast(video::IImage *dst, v2u32 dst_pos, v2u32 s
 	// rounded rather than trunc'd.
 	c += 0.5f;
 
-	video::SColor dst_c;
-	for (u32 y = dst_pos.Y; y < dst_pos.Y + size.Y; y++)
-	for (u32 x = dst_pos.X; x < dst_pos.X + size.X; x++) {
-		dst_c = dst->getPixel(x, y);
-
+	applyPerPixel(dst, dst_pos, size, [=] (video::SColor dst_c) {
 		dst_c.set(
 			dst_c.getAlpha(),
 			core::clamp((int)(slope * dst_c.getRed()   + c), 0, 255),
 			core::clamp((int)(slope * dst_c.getGreen() + c), 0, 255),
 			core::clamp((int)(slope * dst_c.getBlue()  + c), 0, 255)
 		);
-		dst->setPixel(x, y, dst_c);
-	}
-}
-
-/*
-	Apply mask to destination
-*/
-static void apply_mask(video::IImage *mask, video::IImage *dst,
-		v2s32 mask_pos, v2s32 dst_pos, v2u32 size)
-{
-	for (u32 y0 = 0; y0 < size.Y; y0++) {
-		for (u32 x0 = 0; x0 < size.X; x0++) {
-			s32 mask_x = x0 + mask_pos.X;
-			s32 mask_y = y0 + mask_pos.Y;
-			s32 dst_x = x0 + dst_pos.X;
-			s32 dst_y = y0 + dst_pos.Y;
-			video::SColor mask_c = mask->getPixel(mask_x, mask_y);
-			video::SColor dst_c = dst->getPixel(dst_x, dst_y);
-			dst_c.color &= mask_c.color;
-			dst->setPixel(dst_x, dst_y, dst_c);
-		}
-	}
+		return dst_c;
+	});
 }
 
 static video::IImage *create_crack_image(video::IImage *crack, s32 frame_index,
@@ -832,17 +847,12 @@ static void brighten(video::IImage *image)
 	if (!image)
 		return;
 
-	core::dimension2d<u32> dim = image->getDimension();
-
-	for (u32 y=0; y<dim.Height; y++)
-	for (u32 x=0; x<dim.Width; x++)
-	{
-		video::SColor c = image->getPixel(x,y);
+	applyPerPixel(image, [=] (video::SColor c) {
 		c.setRed(127.5f + 0.5f * c.getRed());
 		c.setGreen(127.5f + 0.5f * c.getGreen());
 		c.setBlue(127.5f + 0.5f * c.getBlue());
-		image->setPixel(x,y,c);
-	}
+		return c;
+	});
 }
 
 static u32 parseImageTransform(std::string_view s)
@@ -1197,16 +1207,12 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 		else if (str_starts_with(part_of_name, "[noalpha"))
 		{
 			CHECK_BASEIMG();
-			core::dimension2d<u32> dim = baseimg->getDimension();
 
 			// Set alpha to full
-			for (u32 y=0; y<dim.Height; y++)
-			for (u32 x=0; x<dim.Width; x++)
-			{
-				video::SColor c = baseimg->getPixel(x,y);
+			applyPerPixel(baseimg, [] (video::SColor c) {
 				c.setAlpha(255);
-				baseimg->setPixel(x,y,c);
-			}
+				return c;
+			});
 		}
 		/*
 			[makealpha:R,G,B
@@ -1221,20 +1227,14 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			u32 g1 = stoi(sf.next(","));
 			u32 b1 = stoi(sf.next(""));
 
-			core::dimension2d<u32> dim = baseimg->getDimension();
-
-			for (u32 y=0; y<dim.Height; y++)
-			for (u32 x=0; x<dim.Width; x++)
-			{
-				video::SColor c = baseimg->getPixel(x,y);
+			applyPerPixel(baseimg, [=] (video::SColor c) {
 				u32 r = c.getRed();
 				u32 g = c.getGreen();
 				u32 b = c.getBlue();
-				if (!(r == r1 && g == g1 && b == b1))
-					continue;
-				c.setAlpha(0);
-				baseimg->setPixel(x,y,c);
-			}
+				if (r == r1 && g == g1 && b == b1)
+					c.setAlpha(0);
+				return c;
+			});
 		}
 		/*
 			[transformN
@@ -1398,8 +1398,7 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			if (img) {
 				upscaleImagesToMatchLargest(baseimg, img);
 
-				apply_mask(img, baseimg, v2s32(0, 0), v2s32(0, 0),
-						img->getDimension());
+				imageApplyMask(baseimg, img);
 				img->drop();
 			} else {
 				errorstream << "generateImagePart(): Failed to load image \""
@@ -1564,15 +1563,11 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 			u32 ratio = mystoi(sf.next(""), 0, 255);
 
-			core::dimension2d<u32> dim = baseimg->getDimension();
-
-			for (u32 y = 0; y < dim.Height; y++)
-			for (u32 x = 0; x < dim.Width; x++)
-			{
-				video::SColor c = baseimg->getPixel(x, y);
-				c.setAlpha(floor((c.getAlpha() * ratio) / 255 + 0.5));
-				baseimg->setPixel(x, y, c);
-			}
+			applyPerPixel(baseimg, [=] (video::SColor c) {
+				float alpha = (c.getAlpha() * ratio) / 255 + 0.5f;
+				c.setAlpha(floorf(alpha));
+				return c;
+			});
 		}
 		/*
 			[invert:mode
@@ -1598,15 +1593,10 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			if (mode.find('b') != std::string::npos)
 				mask |= 0x000000ffUL;
 
-			core::dimension2d<u32> dim = baseimg->getDimension();
-
-			for (u32 y = 0; y < dim.Height; y++)
-			for (u32 x = 0; x < dim.Width; x++)
-			{
-				video::SColor c = baseimg->getPixel(x, y);
+			applyPerPixel(baseimg, [=] (video::SColor c) {
 				c.color ^= mask;
-				baseimg->setPixel(x, y, c);
-			}
+				return c;
+			});
 		}
 		/*
 			[sheet:WxH:X,Y

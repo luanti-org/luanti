@@ -116,7 +116,7 @@ void CFileSystem::addArchiveLoader(IArchiveLoader *loader)
 //! Returns the total number of archive loaders added.
 u32 CFileSystem::getArchiveLoaderCount() const
 {
-	return ArchiveLoader.size();
+	return (u32)ArchiveLoader.size();
 }
 
 //! Gets the archive loader by index.

@@ -3,12 +3,13 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "cpp_api/s_node.h"
-#include "cpp_api/s_internal.h"
-#include "common/c_converter.h"
 #include "common/c_content.h"
-#include "nodedef.h"
-#include "server.h"
+#include "common/c_converter.h"
+#include "cpp_api/s_internal.h"
 #include "environment.h"
+#include "gamedef.h"
+#include "map.h"
+#include "nodedef.h"
 #include "util/pointedthing.h"
 
 
@@ -81,11 +82,13 @@ struct EnumString ScriptApiNode::es_NodeBoxType[] =
 		{0, NULL},
 	};
 
+// Should be ordered exactly like enum AlphaMode in nodedef.h
 struct EnumString ScriptApiNode::es_TextureAlphaMode[] =
 	{
-		{ALPHAMODE_OPAQUE, "opaque"},
-		{ALPHAMODE_CLIP, "clip"},
 		{ALPHAMODE_BLEND, "blend"},
+		{ALPHAMODE_CLIP, "clip"},
+		{ALPHAMODE_OPAQUE, "opaque"},
+		{ALPHAMODE_LEGACY_COMPAT, "opaque"},
 		{0, NULL},
 	};
 
@@ -96,7 +99,7 @@ bool ScriptApiNode::node_on_punch(v3s16 p, MapNode node,
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
-	const NodeDefManager *ndef = getServer()->ndef();
+	const NodeDefManager *ndef = getGameDef()->ndef();
 
 	// Push callback function on stack
 	if (!getItemCallback(ndef->get(node).name.c_str(), "on_punch", &p))
@@ -119,7 +122,7 @@ bool ScriptApiNode::node_on_dig(v3s16 p, MapNode node,
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
-	const NodeDefManager *ndef = getServer()->ndef();
+	const NodeDefManager *ndef = getGameDef()->ndef();
 
 	// Push callback function on stack
 	if (!getItemCallback(ndef->get(node).name.c_str(), "on_dig", &p))
@@ -145,7 +148,7 @@ void ScriptApiNode::node_on_construct(v3s16 p, MapNode node)
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
-	const NodeDefManager *ndef = getServer()->ndef();
+	const NodeDefManager *ndef = getGameDef()->ndef();
 
 	// Push callback function on stack
 	if (!getItemCallback(ndef->get(node).name.c_str(), "on_construct", &p))
@@ -163,7 +166,7 @@ void ScriptApiNode::node_on_destruct(v3s16 p, MapNode node)
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
-	const NodeDefManager *ndef = getServer()->ndef();
+	const NodeDefManager *ndef = getGameDef()->ndef();
 
 	// Push callback function on stack
 	if (!getItemCallback(ndef->get(node).name.c_str(), "on_destruct", &p))
@@ -181,7 +184,7 @@ bool ScriptApiNode::node_on_flood(v3s16 p, MapNode node, MapNode newnode)
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
-	const NodeDefManager *ndef = getServer()->ndef();
+	const NodeDefManager *ndef = getGameDef()->ndef();
 
 	// Push callback function on stack
 	if (!getItemCallback(ndef->get(node).name.c_str(), "on_flood", &p))
@@ -202,7 +205,7 @@ void ScriptApiNode::node_after_destruct(v3s16 p, MapNode node)
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
-	const NodeDefManager *ndef = getServer()->ndef();
+	const NodeDefManager *ndef = getGameDef()->ndef();
 
 	// Push callback function on stack
 	if (!getItemCallback(ndef->get(node).name.c_str(), "after_destruct", &p))
@@ -221,7 +224,7 @@ bool ScriptApiNode::node_on_timer(v3s16 p, MapNode node, f32 elapsed, f32 timeou
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
-	const NodeDefManager *ndef = getServer()->ndef();
+	const NodeDefManager *ndef = getGameDef()->ndef();
 
 	// Push callback function on stack
 	if (!getItemCallback(ndef->get(node).name.c_str(), "on_timer", &p))
@@ -248,7 +251,7 @@ void ScriptApiNode::node_on_receive_fields(v3s16 p,
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
-	const NodeDefManager *ndef = getServer()->ndef();
+	const NodeDefManager *ndef = getGameDef()->ndef();
 
 	// If node doesn't exist, we don't know what callback to call
 	MapNode node = getEnv()->getMap().getNode(p);

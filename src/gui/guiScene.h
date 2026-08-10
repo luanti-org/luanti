@@ -6,16 +6,21 @@
 
 #include "ICameraSceneNode.h"
 #include "StyleSpec.h"
+#include "client/shader.h"
 #include <AnimatedMeshSceneNode.h>
 #include <IGUIElement.h>
 #include <IGUIEnvironment.h>
-
+#include <EMaterialTypes.h>
 
 class GUIScene : public gui::IGUIElement
 {
 public:
-	GUIScene(gui::IGUIEnvironment *env, scene::ISceneManager *smgr,
-		 gui::IGUIElement *parent, core::recti rect, s32 id = -1);
+	GUIScene(gui::IGUIEnvironment *env,
+			scene::ISceneManager *smgr,
+			gui::IGUIElement *parent,
+			IShaderSource *shdsrc,
+			core::recti rect,
+			s32 id = -1);
 
 	~GUIScene();
 
@@ -47,11 +52,13 @@ private:
 	v3f getCameraRotation() const { return (m_cam_pos - m_target_pos).getHorizontalAngle(); };
 	void rotateCamera(const v3f &delta) { setCameraRotation(getCameraRotation() + delta); };
 
-	scene::ISceneManager *m_smgr;
-	video::IVideoDriver *m_driver;
-	scene::ICameraSceneNode *m_cam;
+	scene::ISceneManager *m_smgr = nullptr;
+	video::IVideoDriver *m_driver = nullptr;
+	scene::ICameraSceneNode *m_cam = nullptr;
 	scene::ISceneNode *m_target = nullptr;
 	scene::AnimatedMeshSceneNode *m_mesh = nullptr;
+
+	video::E_MATERIAL_TYPE m_material_type = video::EMT_INVALID;
 
 	f32 m_cam_distance = 50.f;
 

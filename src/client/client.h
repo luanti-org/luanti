@@ -345,10 +345,11 @@ public:
 	// server hosted by a different Luanti instance.
 	bool m_internal_server;
 
-	float mediaReceiveProgress();
+	bool mediaReceiveProgress(s32 &received, s32 &total, size_t &received_size) const;
 
 	void drawLoadScreen(const std::wstring &text, float dtime, int percent);
 	void afterContentReceived();
+	void loadSSCSM();
 	void showUpdateProgressTexture(void *args, float progress);
 
 	float getRTT();
@@ -375,9 +376,15 @@ public:
 	virtual ISoundManager* getSoundManager();
 	MtEventManager* getEventManager();
 	virtual ParticleManager* getParticleManager();
+
 	bool checkLocalPrivilege(const std::string &priv)
 	{ return checkPrivilege(priv); }
-	virtual scene::IAnimatedMesh* getMesh(const std::string &filename, bool cache = false);
+
+	// Gets a pointer to a named mesh
+	// If you want to modify it, you may need to clone it first (-> `is_shared`)
+	// (the returned pointer must be dropped)
+	scene::IAnimatedMesh *getMesh(const std::string &filename, bool *is_shared = nullptr);
+
 	ModVFS *getModVFS() { return m_mod_vfs.get(); }
 	ModStorageDatabase *getModStorageDatabase() override { return m_mod_storage_database; }
 

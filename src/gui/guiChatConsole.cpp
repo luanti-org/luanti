@@ -654,8 +654,7 @@ bool GUIChatConsole::OnEvent(const SEvent& event)
 			// Tab or Shift-Tab pressed
 			// Nick completion
 			auto names = m_client->getConnectedPlayerNames();
-			bool backwards = event.KeyInput.Shift;
-			prompt.nickCompletion(names, backwards);
+			prompt.nickCompletion(names);
 			return true;
 		}
 
@@ -735,7 +734,7 @@ bool GUIChatConsole::weblinkClick(s32 col, s32 row)
 			frags = m_chat_backend->getConsoleBuffer().getFormattedLine(row).fragments;
 	std::string weblink = ""; // from frag meta
 
-	// Identify targetted fragment, if exists
+	// Identify targeted fragment, if exists
 	int indx = frags.size() - 1;
 	if (indx < 0) {
 		// Invalid row, frags is empty

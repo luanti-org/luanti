@@ -12,12 +12,16 @@ Dummy database class
 
 bool Database_Dummy::saveBlock(const v3s16 &pos, std::string_view data)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	m_database[getBlockAsInteger(pos)] = data;
 	return true;
 }
 
 void Database_Dummy::loadBlock(const v3s16 &pos, std::string *block)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	s64 i = getBlockAsInteger(pos);
 	auto it = m_database.find(i);
 	if (it == m_database.end()) {
@@ -30,11 +34,15 @@ void Database_Dummy::loadBlock(const v3s16 &pos, std::string *block)
 
 bool Database_Dummy::deleteBlock(const v3s16 &pos)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	return m_database.erase(getBlockAsInteger(pos)) > 0;
 }
 
 void Database_Dummy::listAllLoadableBlocks(std::vector<v3s16> &dst)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	dst.reserve(m_database.size());
 	for (auto x = m_database.begin(); x != m_database.end(); ++x) {
 		dst.push_back(getIntegerAsBlock(x->first));
@@ -43,22 +51,30 @@ void Database_Dummy::listAllLoadableBlocks(std::vector<v3s16> &dst)
 
 void Database_Dummy::savePlayer(RemotePlayer *player)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	m_player_database.insert(player->getName());
 }
 
 bool Database_Dummy::loadPlayer(RemotePlayer *player, PlayerSAO *sao)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	return m_player_database.find(player->getName()) != m_player_database.end();
 }
 
 bool Database_Dummy::removePlayer(const std::string &name)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	m_player_database.erase(name);
 	return true;
 }
 
 void Database_Dummy::listPlayers(std::vector<std::string> &res)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	for (const auto &player : m_player_database) {
 		res.emplace_back(player);
 	}
@@ -66,6 +82,8 @@ void Database_Dummy::listPlayers(std::vector<std::string> &res)
 
 void Database_Dummy::getModEntries(const std::string &modname, StringMap *storage)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	const auto mod_pair = m_mod_storage_database.find(modname);
 	if (mod_pair != m_mod_storage_database.cend()) {
 		for (const auto &pair : mod_pair->second) {
@@ -76,6 +94,8 @@ void Database_Dummy::getModEntries(const std::string &modname, StringMap *storag
 
 void Database_Dummy::getModKeys(const std::string &modname, std::vector<std::string> *storage)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	const auto mod_pair = m_mod_storage_database.find(modname);
 	if (mod_pair != m_mod_storage_database.cend()) {
 		storage->reserve(storage->size() + mod_pair->second.size());
@@ -87,6 +107,8 @@ void Database_Dummy::getModKeys(const std::string &modname, std::vector<std::str
 bool Database_Dummy::getModEntry(const std::string &modname,
 	const std::string &key, std::string *value)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	auto mod_pair = m_mod_storage_database.find(modname);
 	if (mod_pair == m_mod_storage_database.end())
 		return false;
@@ -102,6 +124,8 @@ bool Database_Dummy::getModEntry(const std::string &modname,
 
 bool Database_Dummy::hasModEntry(const std::string &modname, const std::string &key)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	auto mod_pair = m_mod_storage_database.find(modname);
 	if (mod_pair == m_mod_storage_database.end())
 		return false;
@@ -113,6 +137,8 @@ bool Database_Dummy::hasModEntry(const std::string &modname, const std::string &
 bool Database_Dummy::setModEntry(const std::string &modname,
 	const std::string &key, std::string_view value)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	auto mod_pair = m_mod_storage_database.find(modname);
 	if (mod_pair == m_mod_storage_database.end()) {
 		auto &map = m_mod_storage_database[modname];
@@ -125,6 +151,8 @@ bool Database_Dummy::setModEntry(const std::string &modname,
 
 bool Database_Dummy::removeModEntry(const std::string &modname, const std::string &key)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	auto mod_pair = m_mod_storage_database.find(modname);
 	if (mod_pair != m_mod_storage_database.end())
 		return mod_pair->second.erase(key) > 0;
@@ -133,6 +161,8 @@ bool Database_Dummy::removeModEntry(const std::string &modname, const std::strin
 
 bool Database_Dummy::removeModEntries(const std::string &modname)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	auto mod_pair = m_mod_storage_database.find(modname);
 	if (mod_pair != m_mod_storage_database.end() && !mod_pair->second.empty()) {
 		mod_pair->second.clear();
@@ -143,7 +173,71 @@ bool Database_Dummy::removeModEntries(const std::string &modname)
 
 void Database_Dummy::listMods(std::vector<std::string> *res)
 {
+	auto lock = std::lock_guard(m_mutex);
+
 	for (const auto &pair : m_mod_storage_database) {
 		res->push_back(pair.first);
 	}
+}
+
+/* Auth */
+
+bool AuthDatabaseDummy::getAuth(const std::string &name, AuthEntry &res)
+{
+	auto lock = std::lock_guard(m_mutex);
+
+	auto it = m_auth_entries.find(name);
+	if (it == m_auth_entries.end())
+		return false;
+
+	res = it->second;
+	return true;
+}
+
+bool AuthDatabaseDummy::saveAuth(const AuthEntry &authEntry)
+{
+	auto lock = std::lock_guard(m_mutex);
+
+	auto it = m_auth_entries.find(authEntry.name);
+	if (it == m_auth_entries.end()) {
+		return false;
+	}
+
+	// Keep the existing ID; only mutable fields are overwritten.
+	AuthEntry entry = authEntry;
+	entry.id = it->second.id;
+	it->second = std::move(entry);
+	return true;
+}
+
+bool AuthDatabaseDummy::createAuth(AuthEntry &authEntry)
+{
+	auto lock = std::lock_guard(m_mutex);
+
+	if (m_auth_entries.find(authEntry.name) != m_auth_entries.end())
+		return false;
+
+	authEntry.id = m_next_id++;
+	m_auth_entries.emplace(authEntry.name, authEntry);
+	return true;
+}
+
+bool AuthDatabaseDummy::deleteAuth(const std::string &name)
+{
+	auto lock = std::lock_guard(m_mutex);
+	return m_auth_entries.erase(name) > 0;
+}
+
+void AuthDatabaseDummy::listNames(std::vector<std::string> &res)
+{
+	auto lock = std::lock_guard(m_mutex);
+	res.reserve(res.size() + m_auth_entries.size());
+	for (const auto &pair : m_auth_entries) {
+		res.emplace_back(pair.first);
+	}
+}
+
+void AuthDatabaseDummy::reload()
+{
+	// No-op: data is already in memory.
 }

@@ -313,15 +313,15 @@ public:
 
 	//! Compares the color to another color.
 	/** \return True if the colors are the same, and false if not. */
-	bool operator==(const SColor &other) const { return other.color == color; }
+	constexpr bool operator==(const SColor &other) const { return other.color == color; }
 
 	//! Compares the color to another color.
 	/** \return True if the colors are different, and false if they are the same. */
-	bool operator!=(const SColor &other) const { return other.color != color; }
+	constexpr bool operator!=(const SColor &other) const { return other.color != color; }
 
 	//! comparison operator
 	/** \return True if this color is smaller than the other one */
-	bool operator<(const SColor &other) const { return (color < other.color); }
+	constexpr bool operator<(const SColor &other) const { return (color < other.color); }
 
 	//! Adds two colors in a gamma-incorrect way
 	/** \param other Color to add to this color

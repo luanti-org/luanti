@@ -38,6 +38,14 @@ struct EnumString es_TileAnimationType[] =
 	{0, nullptr},
 };
 
+struct EnumString es_AlignStyle[] =
+{
+	{ALIGN_STYLE_NODE, "node"},
+	{ALIGN_STYLE_WORLD, "world"},
+	{ALIGN_STYLE_USER_DEFINED, "user"},
+	{0, nullptr},
+};
+
 struct EnumString es_ItemType[] =
 {
 	{ITEM_NONE, "none"},
@@ -244,6 +252,8 @@ void push_item_definition_full(lua_State *L, const ItemDefinition &i)
 	lua_setfield(L, -2, "wield_scale");
 	lua_pushinteger(L, i.stack_max);
 	lua_setfield(L, -2, "stack_max");
+	lua_pushnumber(L, i.range);
+	lua_setfield(L, -2, "range");
 	lua_pushboolean(L, i.usable);
 	lua_setfield(L, -2, "usable");
 	lua_pushboolean(L, i.liquids_pointable);
@@ -717,6 +727,59 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 }
 
 /******************************************************************************/
+static void push_tile_animation_params(lua_State *L, const TileAnimationParams &anim)
+{
+	lua_newtable(L);
+	lua_pushstring(L, enum_to_string(es_TileAnimationType, anim.type));
+	lua_setfield(L, -2, "type");
+	if (anim.type == TAT_VERTICAL_FRAMES) {
+		lua_pushnumber(L, anim.vertical_frames.aspect_w);
+		lua_setfield(L, -2, "aspect_w");
+		lua_pushnumber(L, anim.vertical_frames.aspect_h);
+		lua_setfield(L, -2, "aspect_h");
+		lua_pushnumber(L, anim.vertical_frames.length);
+		lua_setfield(L, -2, "length");
+	} else if (anim.type == TAT_SHEET_2D) {
+		lua_pushnumber(L, anim.sheet_2d.frames_w);
+		lua_setfield(L, -2, "frames_w");
+		lua_pushnumber(L, anim.sheet_2d.frames_h);
+		lua_setfield(L, -2, "frames_h");
+		lua_pushnumber(L, anim.sheet_2d.frame_length);
+		lua_setfield(L, -2, "frame_length");
+	}
+}
+
+/******************************************************************************/
+void push_tiledef(lua_State *L, const TileDef &def)
+{
+	if (def.name.empty()) {
+		lua_pushnil(L);
+		return;
+	}
+	lua_newtable(L);
+	lua_pushstring(L, def.name.c_str());
+	lua_setfield(L, -2, "name");
+	lua_pushboolean(L, def.backface_culling);
+	lua_setfield(L, -2, "backface_culling");
+	lua_pushboolean(L, def.tileable_horizontal);
+	lua_setfield(L, -2, "tileable_horizontal");
+	lua_pushboolean(L, def.tileable_vertical);
+	lua_setfield(L, -2, "tileable_vertical");
+	if (def.has_color) {
+		push_ARGB8(L, def.color);
+		lua_setfield(L, -2, "color");
+	}
+	lua_pushstring(L, enum_to_string(es_AlignStyle, def.align_style));
+	lua_setfield(L, -2, "align_style");
+	lua_pushnumber(L, def.scale);
+	lua_setfield(L, -2, "scale");
+	if (def.animation.type != TAT_NONE) {
+		push_tile_animation_params(L, def.animation);
+		lua_setfield(L, -2, "animation");
+	}
+}
+
+/******************************************************************************/
 void read_content_features(lua_State *L, ContentFeatures &f, int index)
 {
 	if(index < 0)
@@ -755,6 +818,21 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	}
 
 	getfloatfield(L, index, "visual_scale", f.visual_scale);
+
+	if (f.visual_scale != 1.0f &&
+			(f.drawtype != NDT_PLANTLIKE &&
+			f.drawtype != NDT_SIGNLIKE &&
+			f.drawtype != NDT_TORCHLIKE &&
+			f.drawtype != NDT_FIRELIKE &&
+			f.drawtype != NDT_MESH &&
+			f.drawtype != NDT_NODEBOX &&
+			f.drawtype != NDT_ALLFACES)) {
+		warningstream << "Node " << f.name
+				<< " specifies visual_scale, but the selected drawtype does not support it."
+				<< std::endl;
+
+		f.visual_scale = 1.0f;
+	}
 
 	/* Meshnode model filename */
 	getstringfield(L, index, "mesh", f.mesh);
@@ -980,7 +1058,7 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	f.waving = getintfield_default(L, index,
 			"waving", f.waving);
 
-	// Set to true if paramtype used to be 'facedir_simple'
+	// Set to true if paramtype2 used to be 'facedir_simple'
 	getboolfield(L, index, "legacy_facedir_simple", f.legacy_facedir_simple);
 	// Set to true if wall_mounted used to be set to true
 	getboolfield(L, index, "legacy_wallmounted", f.legacy_wallmounted);
@@ -1029,8 +1107,6 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 	std::string drawtype(enum_to_string(ScriptApiNode::es_DrawType, c.drawtype));
 	std::string liquid_type(enum_to_string(ScriptApiNode::es_LiquidType, c.liquid_type));
 
-	/* Missing "tiles" because I don't see a usecase (at least not yet). */
-
 	lua_newtable(L);
 	lua_pushboolean(L, c.has_on_construct);
 	lua_setfield(L, -2, "has_on_construct");
@@ -1052,6 +1128,19 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 		lua_pushstring(L, c.mesh.c_str());
 		lua_setfield(L, -2, "mesh");
 	}
+
+	const auto push_tiles = [&](const char *name, const TileDef *tiledefs, size_t count) {
+		lua_createtable(L, count, 0);
+		for (size_t i = 0; i < count; i++) {
+			push_tiledef(L, tiledefs[i]);
+			lua_rawseti(L, -2, i + 1);
+		}
+		lua_setfield(L, -2, name);
+	};
+	push_tiles("tiles", c.tiledef, 6);
+	push_tiles("overlay_tiles", c.tiledef_overlay, 6);
+	push_tiles("special_tiles", c.tiledef_special, CF_SPECIAL_COUNT);
+
 #if CHECK_CLIENT_BUILD()
 	if (c.visuals) {
 		push_ARGB8(L, c.visuals->minimap_color); // I know this is not set-able w/ register_node,
@@ -1062,17 +1151,19 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 	lua_setfield(L, -2, "visual_scale");
 	lua_pushnumber(L, c.alpha);
 	lua_setfield(L, -2, "alpha");
+	lua_pushstring(L, enum_to_string(ScriptApiNode::es_TextureAlphaMode, c.alpha));
+	lua_setfield(L, -2, "use_texture_alpha");
 	if (!c.palette_name.empty()) {
 		push_ARGB8(L, c.color);
 		lua_setfield(L, -2, "color");
 
 		lua_pushstring(L, c.palette_name.c_str());
-		lua_setfield(L, -2, "palette_name");
+		lua_setfield(L, -2, "palette");
 
 #if CHECK_CLIENT_BUILD()
 		if (c.visuals) {
 			push_palette(L, c.visuals->palette);
-			lua_setfield(L, -2, "palette");
+			lua_setfield(L, -2, "palette_colors");
 		}
 #endif
 	}
@@ -1216,6 +1307,10 @@ void push_nodebox(lua_State *L, const NodeBox &box)
 /******************************************************************************/
 void push_palette(lua_State *L, const std::vector<video::SColor> *palette)
 {
+	if (!palette) {
+		lua_pushnil(L);
+		return;
+	}
 	lua_createtable(L, palette->size(), 0);
 	int newTable = lua_gettop(L);
 	int index = 1;

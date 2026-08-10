@@ -44,7 +44,7 @@ public:
 
 protected:
 	// Only implemented by classes that have children themselves
-	// by copying the defintion and changing that argument type (!!!)
+	// by copying the definition and changing that argument type (!!!)
 	// Should defer to parent class cloneTo() if applicable and then copy
 	// over its own properties
 	void cloneTo(ObjDef *def) const;

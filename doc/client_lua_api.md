@@ -554,10 +554,12 @@ Call these functions only at load time!
     * `method` is a string identifying the compression method to be used.
     * Supported compression methods:
         * Deflate (zlib): `"deflate"`
+        * Deflate (raw): `"raw_deflate"`
         * Zstandard: `"zstd"`
     * `...` indicates method-specific arguments. Currently defined arguments
       are:
         * Deflate: `level` - Compression level, `0`-`9` or `nil`.
+          Supported by `"deflate"` and `"raw_deflate"`.
         * Zstandard: `level` - Compression level. Integer or `nil`. Default `3`.
         Note any supported Zstandard compression level could be used here,
         but these are subject to change between Zstandard versions.
@@ -801,6 +803,7 @@ Methods:
 
 * `get_armor_groups()`
     * returns a table with the armor group ratings
+    * It can return `nil` if the player CAO is not yet initialized.
 * `hud_add(definition)`
     * add a HUD element described by HUD def, returns ID number on success and `nil` on failure.
     * See [`HUD definition`](#hud-definition-hud_add-hud_get)
@@ -892,12 +895,16 @@ It can be created via `Raycast(pos1, pos2, objects, liquids)` or
     paramtype2 = string,            -- ParamType2 of the node
     drawtype = string,              -- Drawtype of the node
     mesh = <string>,                -- Mesh name if existent
+    tiles = {tile definition, ...},         -- 6 base tiles, entries may be nil
+    overlay_tiles = {tile definition, ...}, -- 6 overlay tiles, drawn over the base tiles, entries may be nil
+    special_tiles = {tile definition, ...}, -- Special tiles, amount varies by drawtype, entries may be nil
     minimap_color = <Color>,        -- Color of node on minimap *May not exist*
     visual_scale = number,          -- Visual scale of node
-    alpha = number,                 -- Alpha of the node. Only used for liquids
+    alpha = number,                 -- Raw AlphaMode enum ordinal (0=blend, 1=clip, 2=opaque)
+    use_texture_alpha = string,     -- "blend", "clip" or "opaque"
     color = <Color>,                -- Color of node *May not exist*
-    palette_name = <string>,        -- Filename of palette *May not exist*
-    palette = <{                    -- List of colors
+    palette = <string>,             -- Filename of palette *May not exist*
+    palette_colors = <{             -- List of colors or nil if not available
         Color,
         Color
     }>,
@@ -941,6 +948,33 @@ It can be created via `Raycast(pos1, pos2, objects, liquids)` or
 }
 ```
 
+#### Tile Definition
+
+`nil` if the tile is unset.
+
+```lua
+{
+    name = string,                  -- Texture name
+    backface_culling = bool,        -- Whether the tile's backface is culled
+    tileable_horizontal = bool,     -- Whether the tile is horizontally tileable
+    tileable_vertical = bool,       -- Whether the tile is vertically tileable
+    color = <Color>,                -- Tile color *May not exist*
+    align_style = string,           -- "node", "world" or "user"
+    scale = number,                 -- Scale of the tile
+    animation = {                   -- Tile animation parameters *May not exist*
+        type = string,              -- "vertical_frames" or "sheet_2d"
+        -- if type == "vertical_frames":
+        aspect_w = number,
+        aspect_h = number,
+        length = number,
+        -- if type == "sheet_2d":
+        frames_w = number,
+        frames_h = number,
+        frame_length = number,
+    },
+}
+```
+
 #### Item Definition
 
 ```lua
@@ -954,6 +988,7 @@ It can be created via `Raycast(pos1, pos2, objects, liquids)` or
     color = Color,                  -- Color for item
     wield_scale = Vector,           -- Wieldmesh scale
     stack_max = number,             -- Number of items stackable together
+    range = number,                 -- Range of node/object pointing
     usable = bool,                  -- Has on_use callback defined
     liquids_pointable = bool,       -- Whether you can point at liquids with the item
     tool_capabilities = <table>,    -- If the item is a tool, tool capabilities of the item
