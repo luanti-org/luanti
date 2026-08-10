@@ -2366,7 +2366,7 @@ Syntax:
 
 Examples:
 
-* (no value or `nil`): empty stack
+* (no value, `nil` or `""`): empty stack
 * `"default:apple"`: 1 apple
 * `"default:dirt 5"`: 5 dirt
 * `"default:pick_stone"`: a new stone pickaxe
