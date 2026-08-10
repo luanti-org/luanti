@@ -2549,14 +2549,14 @@ void GUIFormSpecMenu::parseListImages(parserData* data, const std::string &eleme
 	std::vector<std::string> parts;
 	// Supports:
 	// listimages[<normal>;<hover>]
-	if (!precheckElement("listimages", element, 1, 2, parts))
+	if (!precheckElement("listimages", element, 2, 2, parts))
 		return;
 
 	video::ITexture *normal_tex = !parts[0].empty()
 			? m_tsrc->getTexture(unescape_string(parts[0]))
 			: nullptr;
 
-	video::ITexture *hover_tex = (parts.size() >= 2 && !parts[1].empty())
+	video::ITexture *hover_tex = !parts[1].empty()
 			? m_tsrc->getTexture(unescape_string(parts[1]))
 			: nullptr;
 
