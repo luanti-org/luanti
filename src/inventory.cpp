@@ -198,7 +198,7 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 				char *endp = nullptr;
 				long val = strtol(count_str.c_str(), &endp, 10);
 
-				if (*endp == '\0') {
+				if (endp && *endp == '\0') {
 					count = val;
 				} else {
 					// Read failed. Do not clear the stack.
