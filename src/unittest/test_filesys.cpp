@@ -341,7 +341,8 @@ void TestFileSys::testAbsolutePath()
 		fs::CreateDir(dir_path2);
 		const auto absolute_dir_path = fs::AbsolutePath(dir_path2);
 		UASSERTCMP(auto, !=, absolute_dir_path, "");// now it does
-		const std::filesystem::path absolute_path(absolute_dir_path);
+		const std::filesystem::path absolute_path(absolute_dir_path,
+				std::filesystem::path::format::native_format);
 		const std::string root_path = absolute_path.root_path().string();
 		UASSERTEQ(auto, fs::AbsolutePath(root_path), root_path);
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + DIR_DELIM), absolute_dir_path);
