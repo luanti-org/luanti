@@ -3,6 +3,7 @@
 
 #include "dynamiclight.h"
 #include "camera.h"
+#include "settings.h"
 #include <algorithm>
 
 void DynamicLightManager::addOrUpdate(u32 id, v3f pos, float radius, video::SColorf color, float falloff)
@@ -31,14 +32,16 @@ void DynamicLightManager::cull(const Camera &camera)
 			m_visible_lights.push_back(light);
 	}
 
-	if (m_visible_lights.size() > MAX_DYNAMIC_LIGHTS) {
+	size_t limit = std::min<size_t>(MAX_DYNAMIC_LIGHTS,
+			g_settings->getU16("dynamic_lights_limit"));
+	if (m_visible_lights.size() > limit) {
 		v3f cam_pos = camera.getPosition();
 		std::nth_element(m_visible_lights.begin(),
-				m_visible_lights.begin() + MAX_DYNAMIC_LIGHTS,
+				m_visible_lights.begin() + limit,
 				m_visible_lights.end(),
 				[&cam_pos](const DynamicLight &a, const DynamicLight &b) {
 					return a.pos.getDistanceFromSQ(cam_pos) < b.pos.getDistanceFromSQ(cam_pos);
 				});
-		m_visible_lights.resize(MAX_DYNAMIC_LIGHTS);
+		m_visible_lights.resize(limit);
 	}
 }

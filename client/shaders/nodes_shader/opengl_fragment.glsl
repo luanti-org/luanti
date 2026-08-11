@@ -20,7 +20,7 @@ uniform float crackLevel;
 uniform float crackTextureScale;
 
 // Must match MAX_DYNAMIC_LIGHTS in src/client/dynamiclight.h.
-#define MAX_DYNAMIC_LIGHTS 8
+#define MAX_DYNAMIC_LIGHTS 20
 // Client-side movable point lights, purely additive, unoccluded.
 // dynLightPos is already relative to cameraOffset, see worldPosition below.
 uniform vec3 dynLightPos[MAX_DYNAMIC_LIGHTS];

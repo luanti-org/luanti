@@ -859,6 +859,10 @@ enable_translucent_foliage (Translucent foliage) bool false
 #   Requires: enable_waving_water, enable_dynamic_shadows
 enable_water_reflections (Liquid reflections) bool false
 
+#   Maximum number of dynamic point lights rendered at once.
+#   Higher values cost more to render. Hard-capped at 20.
+dynamic_lights_limit (Dynamic lights limit) int 8 0 20
+
 [*Audio]
 
 #    Volume of all sounds.
