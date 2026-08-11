@@ -1,5 +1,6 @@
 // Luanti
 // SPDX-License-Identifier: LGPL-2.1-or-later
+// Copyright (C) 2026 Zenon Seth <Zenon.Seth@gmail.com>
 
 #include "dynamiclight.h"
 #include "camera.h"
