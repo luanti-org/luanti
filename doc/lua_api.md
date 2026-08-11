@@ -7000,7 +7000,7 @@ Environment access
     * A free light is not removed when whatever spawned it goes away.
       An attached one will remove it self after a few seconds though.
       To get best results, store a light's `get_guid()` and look it up again later via
-      `core.objects_by_guid`, or use 
+      `core.objects_by_guid`, or use
       `core.get_objects_in_area` / `core.get_objects_inside_radius`
 * `core.get_player_by_name(name)`: Get an `ObjectRef` to a player
     * Returns nothing in case of error (player offline, doesn't exist, ...).
