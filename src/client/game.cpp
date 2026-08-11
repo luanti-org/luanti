@@ -3543,12 +3543,6 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 	/*
 		Update dynamic lights
 	*/
-	// TEMPORARY test hack: a light that follows the player, to validate
-	// the dynamic-light shader path before LightSAO/LightCAO exist.
-	// Remove once there's a real way to spawn one.
-	client->getDynamicLightManager()->addOrUpdate(
-			1, player->getPosition() + v3f(0.0f, BS, 0.0f),
-			8.0f * BS, video::SColorf(1.0f, 0.6f, 0.2f), 2.0f);
 	client->getDynamicLightManager()->cull(*camera);
 
 	/*

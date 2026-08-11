@@ -17,6 +17,7 @@ extern "C" {
 }
 
 #include "irrlichttypes.h"
+#include "irr_v3d.h"
 #include "common/c_internal.h"
 #include "debug.h"
 #include "config.h"
@@ -60,8 +61,11 @@ class Environment;
 class GUIEngine;
 class SSCSMEnvironment;
 class ServerActiveObject;
+class ServerEnvironment;
 struct PlayerHPChangeReason;
 struct ModVFS;
+
+void push_light_state(lua_State *L, v3f pos, u16 attached_id, ServerEnvironment *env);
 
 class ScriptApiBase : protected LuaHelper {
 public:
@@ -133,6 +137,8 @@ protected:
 	friend class ModApiEnv;
 	friend class LuaVoxelManip;
 	friend class TestMoveAction; // needs getStack()
+	friend void push_light_state(lua_State *L, v3f pos, u16 attached_id,
+			ServerEnvironment *env);
 
 	/*
 		Subtle edge case with coroutines: If for whatever reason you have a
