@@ -10,7 +10,7 @@ See the [releases page](https://github.com/luanti-org/luanti/releases).
 We ask that you report vulnerabilities privately first:
 
 * [Report a vulnerability on GitHub](https://github.com/luanti-org/luanti/security/advisories/new)
-* or [Email security@luanti.org](mailto:security@luanti.org)
+* or email [security@luanti.org](mailto:security@luanti.org)
 
 Depending on severity, we will either create a private issue for the vulnerability
 and release a patch version of Luanti, or give you permission to file the issue publicly.
