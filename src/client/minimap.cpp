@@ -729,7 +729,7 @@ void MinimapMapblock::getMinimapNodes(VoxelManipulator *vmanip, const NodeDefMan
 {
 	// Uses getNodeRefUnsafeCheckFlags
 	assert(vmanip->m_area.contains(pos));
-	assert(vmanip->m_area.contains(pos + (MAP_BLOCKSIZE - 1)));
+	assert(vmanip->m_area.contains(pos + v3s16(MAP_BLOCKSIZE - 1)));
 
 	for (s16 x = 0; x < MAP_BLOCKSIZE; x++)
 	for (s16 z = 0; z < MAP_BLOCKSIZE; z++) {

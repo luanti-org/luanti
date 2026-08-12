@@ -1867,7 +1867,7 @@ void MapblockMeshGenerator::generate()
 	// Currently all drawtypes use at most nodes one away except for NDT_PLANTLIKE_ROOTED
 	// which reads nodes at y+2 for getSmoothLightFrame
 	assert(data->m_vmanip.m_area.contains(blockpos_nodes - 3));
-	assert(data->m_vmanip.m_area.contains(blockpos_nodes + (data->m_side_length + 2)));
+	assert(data->m_vmanip.m_area.contains(blockpos_nodes + v3s16(data->m_side_length + 2)));
 
 	for (cur_node.p.Z = 0; cur_node.p.Z < data->m_side_length; cur_node.p.Z++)
 	for (cur_node.p.Y = 0; cur_node.p.Y < data->m_side_length; cur_node.p.Y++)
