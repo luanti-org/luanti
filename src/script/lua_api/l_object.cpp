@@ -1474,13 +1474,14 @@ int ObjectRef::l_set_light_state(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
-	LightSAO *light = getlightobject(ref);
-	if (light == nullptr)
-		return 0;
 
 	v3f pos;
 	std::string attached_guid;
 	read_light_state(L, 2, pos, attached_guid);
+
+	LightSAO *light = getlightobject(ref);
+	if (light == nullptr)
+		return 0;
 
 	if (attached_guid.empty())
 		light->setPos(pos);
@@ -1513,6 +1514,11 @@ int ObjectRef::l_set_light_properties(lua_State *L)
 
 	LightProperties properties = light->getProperties();
 	read_light_properties(L, 2, properties);
+
+	// The read above may have re-entered Lua, so light could be gone now.
+	light = getlightobject(ref);
+	if (light == nullptr)
+		return 0;
 	light->setProperties(properties);
 	return 0;
 }
