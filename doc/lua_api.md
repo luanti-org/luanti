@@ -8578,6 +8578,7 @@ An `InvRef` is a reference to an inventory.
     * If `match_meta` is `true` (available since feature `remove_item_match_meta`),
       item metadata is also considered when comparing items. Otherwise, only the
       items names are compared. Default: `false`
+    * Items are removed from the list in reverse order.
     * The method ignores wear.
 * `get_location()`: returns a location compatible to
   `core.get_inventory(location)`.
