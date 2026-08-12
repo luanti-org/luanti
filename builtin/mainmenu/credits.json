@@ -47,10 +47,13 @@
 	],
 	"#": "For updating active/previous contributors, see the script in ./util/gather_git_credits.py",
 	"contributors": [
-		"siliconsniffer",
 		"Wuzzy (Wuzzy2)",
-		"kromka-chleba",
 		"CrazyladMT",
+		"siliconsniffer",
+		"kromka-chleba",
+		"ZenonSeth",
+		"OgelGames",
+		"0-v-0",
 		"jordan4ibanez",
 		"Elias Åström"
 	],
