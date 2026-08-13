@@ -644,7 +644,7 @@ low-res textures not suddenly becoming filtered.
 
 ## Loading order
 
-Texture names are looked up in the following order. Top has the lowest priority.
+The priority order for textures is as follows: (in increasing order, lowest first)
 
 * Client: `$path_share/textures/base/pack`
 * Server: mod-provided textures, in their `textures` directory
