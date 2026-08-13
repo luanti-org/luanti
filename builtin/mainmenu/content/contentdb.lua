@@ -426,7 +426,7 @@ local function fetch_pkgs()
 		if package.author and
 				package.name and
 				package.author:match("^[%w _%-.]+$") and
-				package.name:match("^[%w_]+$") then
+				package.name:match("^[a-z0-9_]+$") then
 			packages[i] = package
 			i = i + 1
 		else
