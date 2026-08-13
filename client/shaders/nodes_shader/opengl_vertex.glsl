@@ -53,6 +53,7 @@ const float BS = 10.0;
 
 #ifdef ENABLE_TINTED_SUNLIGHT
 	uniform vec3 scattering_coefficients;
+	uniform float sun_tint_intensity;
 #endif
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
@@ -295,7 +296,7 @@ void main(void)
 				(1.0 - mtsmoothstep(0.762, 0.792, f_timeofday));
 			nightFactor = adj_shadow_strength / f_shadow_strength;
 #ifdef ENABLE_TINTED_SUNLIGHT
-			float tint_strength = 1.0 - mtsmoothstep(0.792, 0.5, f_timeofday) * mtsmoothstep(0.208, 0.5, f_timeofday);
+			float tint_strength = sun_tint_intensity * (1.0 - mtsmoothstep(0.792, 0.5, f_timeofday) * mtsmoothstep(0.208, 0.5, f_timeofday));
 			sunTint = mix(vec3(1.0), getDirectLightScatteringAtGround(v_LightDirection), nightFactor * tint_strength);
 #endif
 		}

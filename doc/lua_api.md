@@ -9699,6 +9699,8 @@ You **must not** mix names and track numbers to refer to the same animation.
             * Defaults to `{ x = 3.3362176e-01, y = 8.75378289198826e-01, z = 1.95342379700656 }` which is physically accurate.
             * This may be used to create effects like differently colored sunsets on alien planets.
             * Setting all components to zero effectively disables tinted sunlight.
+        * `sun_tint_intensity` controls the intensity of sunlight tint for all but the godrays effect. Range between 0 (off, default) to 1 (full strength).
+            * Only effective when the `enable_sun_tint` client setting is enabled and all `scattering_coefficients` are nonzero.
       * `vignette`: is a table that controls the vignette post-processing effect. (>= 5.17.0)
         * Subject to change and can be removed at any time.
         * This has no effect on clients who have post processing disabled.

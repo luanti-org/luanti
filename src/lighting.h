@@ -79,6 +79,7 @@ struct Lighting
 	// These factors are calculated based on expected value of scattering factor of 1e-5
 	// for Nitrogen at 532nm (green), 2e25 molecules/m3 in atmosphere
 	v3f scattering_coefficients{ 3.3362176e-01f, 8.753783e-01f, 1.9534237f };
+	float sun_tint_intensity = 0.0;
 	video::SColorf artificial_light_color{ 1.0f, 1.04f, 1.04f, 1.04f };
 	video::SColor shadow_tint {255, 0, 0, 0};
 	float bloom_intensity {0.05f};

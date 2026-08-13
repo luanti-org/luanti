@@ -2873,6 +2873,8 @@ int ObjectRef::l_set_lighting(lua_State *L)
 			lighting.volumetric_light_strength = rangelim(lighting.volumetric_light_strength, 0.0f, 1.0f);
 
 			get_v3f_field(L, -1, "scattering_coefficients", lighting.scattering_coefficients);
+			getfloatfield(L, -1, "sun_tint_intensity", lighting.sun_tint_intensity);
+			lighting.sun_tint_intensity = rangelim(lighting.sun_tint_intensity, 0.0f, 1.0f);
 		}
 		lua_pop(L, 1); // volumetric_light
 
@@ -2964,6 +2966,8 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	lua_setfield(L, -2, "strength");
 	push_v3f(L, lighting.scattering_coefficients);
 	lua_setfield(L, -2, "scattering_coefficients");
+	lua_pushnumber(L, lighting.sun_tint_intensity);
+	lua_setfield(L, -2, "sun_tint_intensity");
 	lua_setfield(L, -2, "volumetric_light");
 	lua_newtable(L); // "bloom"
 	lua_pushnumber(L, lighting.bloom_intensity);

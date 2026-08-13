@@ -123,6 +123,7 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float> m_vignette_bright_pixel{"vignette_bright"};
 	CachedPixelShaderSetting<float> m_vignette_power_pixel{"vignette_power"};
 	CachedPixelShaderSetting<float> m_foliage_translucency_pixel{ "foliage_translucency" };
+	CachedVertexShaderSetting<float> m_sun_tint_intensity_vertex{ "sun_tint_intensity" };
 
 	static constexpr std::array<const char*, 2> SETTING_CALLBACKS = {
 		"exposure_compensation",
@@ -295,6 +296,9 @@ public:
 		v3f scattering_coefficients = lighting.scattering_coefficients;
 		m_atmospheric_scattering_coefficients_vertex.set(scattering_coefficients, services);
 		m_atmospheric_scattering_coefficients_pixel.set(scattering_coefficients, services);
+
+		float sun_tint_intensity = lighting.sun_tint_intensity;
+		m_sun_tint_intensity_vertex.set(&sun_tint_intensity, services);
 	}
 
 	void onSetMaterial(const video::SMaterial &material) override

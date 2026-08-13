@@ -1932,6 +1932,7 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 			>> lighting.cdl.offset
 			>> lighting.cdl.power;
 		*pkt >> lighting.foliage_translucency;
+		*pkt >> lighting.sun_tint_intensity;
 
 	} while (0);
 }
