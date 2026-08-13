@@ -63,6 +63,9 @@ class Translations;
 	(((unsigned char)(x) < 0xe0) ? 2 :     \
 	(((unsigned char)(x) < 0xf0) ? 3 : 4))
 
+// Maximum length of an utf-8 multibyte sequence
+#define UTF8_MULTB_MAX 4
+
 typedef std::unordered_map<std::string, std::string> StringMap;
 
 struct FlagDesc {
@@ -76,6 +79,13 @@ struct FlagDesc {
 [[nodiscard]] std::string wide_to_utf8(std::wstring_view input);
 
 void wide_add_codepoint(std::wstring &result, char32_t codepoint);
+
+/**
+ * Takes a string that may end with a truncated UTF-8 sequence and gets rid of
+ * the incomplete sequence.
+ * @return number of bytes to remove off the end
+ */
+size_t utf8_truncate_count(std::string_view input);
 
 std::string urlencode(std::string_view str);
 std::string urldecode(std::string_view str);

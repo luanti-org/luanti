@@ -184,6 +184,26 @@ void wide_add_codepoint(std::wstring &result, char32_t codepoint)
 	result.push_back((wchar_t) codepoint);
 }
 
+size_t utf8_truncate_count(std::string_view input)
+{
+	// Iterate from end to find an UTF-8 start byte
+	for (size_t i = 1; i <= UTF8_MULTB_MAX; i++) {
+		if (i > input.size())
+			break;
+		char c = input[input.size() - i];
+		if (IS_UTF8_MULTB_START(c)) {
+			// Check if the sequence is complete
+			if (UTF8_MULTB_START_LEN(c) != i)
+				return i;
+			break;
+		} else if (!IS_UTF8_MULTB_INNER(c)) {
+			// Byte is ASCII or something else, bail out
+			break;
+		}
+	}
+	return 0;
+}
+
 std::string urlencode(std::string_view str)
 {
 	// Encodes reserved URI characters by a percent sign
