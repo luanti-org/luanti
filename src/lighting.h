@@ -76,7 +76,6 @@ struct Lighting
 	float saturation {1.0f};
 	float volumetric_light_strength {0.0f};
 	float foliage_translucency{1.5f};
-	float specular_intensity{0.0f};
 	// These factors are calculated based on expected value of scattering factor of 1e-5
 	// for Nitrogen at 532nm (green), 2e25 molecules/m3 in atmosphere
 	v3f scattering_coefficients{ 3.3362176e-01f, 8.753783e-01f, 1.9534237f };

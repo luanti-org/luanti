@@ -123,7 +123,6 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float> m_vignette_bright_pixel{"vignette_bright"};
 	CachedPixelShaderSetting<float> m_vignette_power_pixel{"vignette_power"};
 	CachedPixelShaderSetting<float> m_foliage_translucency_pixel{ "foliage_translucency" };
-	CachedPixelShaderSetting<float> m_specular_intensity_pixel{ "specular_intensity" };
 
 	static constexpr std::array<const char*, 2> SETTING_CALLBACKS = {
 		"exposure_compensation",
@@ -243,7 +242,6 @@ public:
 		m_vignette_power_pixel.set(&vignette_params.power, services);
 
 		m_foliage_translucency_pixel.set(&lighting.foliage_translucency, services);
-		m_specular_intensity_pixel.set(&lighting.specular_intensity, services);
 
 		const ColorDecisionList& cdl_params = lighting.cdl;
 		m_cdl_slope_pixel.set(cdl_params.slope, services);

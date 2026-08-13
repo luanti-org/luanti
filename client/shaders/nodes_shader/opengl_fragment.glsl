@@ -33,7 +33,6 @@ uniform float crackTextureScale;
 	uniform float xyPerspectiveBias1;
 	uniform vec3 shadow_tint;
 	uniform float foliage_translucency;
-	uniform float specular_intensity;
 
 	VARYING_ float adj_shadow_strength;
 	VARYING_ float cosLight;
@@ -568,7 +567,7 @@ void main(void)
 		col.rgb += reflection_color * pow(fresnel_factor, 2.0) * 0.3 * brightness_factor;
 
 		vec3 water_reflect_color =
-			1.5 * specular_intensity * sunTint * dayLight * fresnel_factor * max(1.0 - shadow_uncorrected, 0.0) *
+			1.5 * sunTint * dayLight * fresnel_factor * max(1.0 - shadow_uncorrected, 0.0) *
 			mtsmoothstep(0.85, 0.9, pow(clamp(dot(reflect_ray, viewVec), 0.0, 1.0), 32.0));
 
 		// Sun reflection
@@ -601,7 +600,7 @@ void main(void)
 			float fresnel_schlick = F0 + (1.0 - F0) * pow(1.0 - HV, 5.0);
 
 			col.rgb +=
-				sunTint * specular_intensity * f_shadow_factor * dayLight * (1.0 - nightRatio) * (1.0 - shadow_uncorrected) *
+				sunTint * f_shadow_factor * dayLight * (1.0 - nightRatio) * (1.0 - shadow_uncorrected) *
 				intensity * beckmann * geometry * fresnel_schlick / (VN * LN * PI);
 		}
 #endif

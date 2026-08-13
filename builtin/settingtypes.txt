@@ -822,7 +822,7 @@ tone_mapping (Filmic tone mapping) bool false
 #   Higher values give lower contrast and vice versa.
 #
 #   Requires: enable_post_processing, tone_mapping
-secondstage_gamma (Gamma) float 1.6 1.0 5.0
+secondstage_gamma (Post processing gamma) float 1.6 1.0 5.0
 
 #    Enable automatic exposure correction
 #    When enabled, the post-processing engine will

@@ -9653,10 +9653,6 @@ You **must not** mix names and track numbers to refer to the same animation.
         * Subject to change and can be removed at any time.
         * Default: `1.5`.
         * This effect depends on the client settings "Dynamic shadows" and "Translucent foliage".
-      * `specular_intensity` controls the intensity of specular highlights on nodes and liquids. (>= 5.17.0)
-        * Subject to change and can be removed at any time.
-        * Default: `0.0`.
-        * This has no effect when dynamic shadows are disabled.
       * `shadows` is a table that controls ambient shadows
         * This has no effect on clients who have the "Dynamic Shadows" effect disabled.
         * `intensity` sets the intensity of the shadows from 0 (no shadows, default) to 1 (blackness)

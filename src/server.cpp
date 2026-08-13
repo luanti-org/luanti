@@ -2072,7 +2072,6 @@ void Server::SendSetLighting(session_t peer_id, const Lighting &lighting)
 		<< lighting.cdl.offset
 		<< lighting.cdl.power;
 	pkt << lighting.foliage_translucency;
-	pkt << lighting.specular_intensity;
 
 	Send(&pkt);
 }
