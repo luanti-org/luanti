@@ -2110,7 +2110,9 @@ Displays a horizontal bar made up of half-images with an optional background.
 * `text`: The name of the inventory list to be displayed.
 * `number`: Amount of item slots in the inventory to be displayed.
   Integer in range [u16].
-* `item`: Position of item that is selected. Integer in range [u16].
+* `item`: The slot at this index is rendered as if it were selected
+  using the texture set by `player:hud_set_hotbar_selected_image(texturename)`.
+  Integer in range [u16].
 * `direction`: Direction the list will be displayed in
 * `offset`: offset in pixels from position.
 * `alignment`: The alignment of the inventory. Aligned at the top left corner if not specified.
