@@ -2855,7 +2855,6 @@ int ObjectRef::l_set_lighting(lua_State *L)
 
 		getfloatfield(L, -1, "saturation", lighting.saturation);
 		getfloatfield(L, -1, "foliage_translucency", lighting.foliage_translucency);
-		getfloatfield(L, -1, "specular_intensity", lighting.specular_intensity);
 
 		lua_getfield(L, 2, "exposure");
 		if (lua_istable(L, -1)) {
@@ -2932,8 +2931,6 @@ int ObjectRef::l_get_lighting(lua_State *L)
 
 	lua_pushnumber(L, lighting.foliage_translucency);
 	lua_setfield(L, -2, "foliage_translucency");
-	lua_pushnumber(L, lighting.specular_intensity);
-	lua_setfield(L, -2, "specular_intensity");
 
 	lua_newtable(L); // "shadows"
 	{
