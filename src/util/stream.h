@@ -36,12 +36,13 @@ public:
 			// Break line before starting a new UTF-8 character.
 			sync();
 			buffer[buffer_index++] = c;
-		} else {
-			// Normal case: append character, flush if necessary
-			buffer[buffer_index++] = c;
-			if (free_before_write == 1)
-				sync();
+			return;
 		}
+
+		// Normal case: append character, flush if necessary
+		buffer[buffer_index++] = c;
+		if (free_before_write == 1)
+			sync();
 	}
 
 	std::streamsize xsputn(const char *s, std::streamsize n) override {
