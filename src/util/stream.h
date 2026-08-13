@@ -12,6 +12,7 @@ template<unsigned int BufferLength, typename Emitter = std::function<void(std::s
 class StringStreamBuffer : public std::streambuf {
 public:
 	StringStreamBuffer(Emitter emitter) : m_emitter(emitter) {
+		static_assert(BufferLength > 10, "Line splitting requires larger buffer");
 		buffer_index = 0;
 	}
 
@@ -25,11 +26,21 @@ public:
 		// emit only complete lines, or if the buffer is full
 		if (c == '\n') {
 			sync();
-		} else {
+			return;
+		}
+		const size_t free_before_write = BufferLength - buffer_index;
+		if (free_before_write < 10 && std::isspace(c)) {
+			// Break line before space character.
+			sync();
+		} else if (free_before_write < 4 && ((unsigned char)c & 0b11000000) == 0b11000000) {
+			// Break line before starting a new UTF-8 character.
+			sync();
 			buffer[buffer_index++] = c;
-			if (buffer_index >= BufferLength) {
+		} else {
+			// Normal case: append character, flush if necessary
+			buffer[buffer_index++] = c;
+			if (free_before_write == 1)
 				sync();
-			}
 		}
 	}
 
