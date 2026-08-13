@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: luanti\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 19:14+0200\n"
+"POT-Creation-Date: 2026-08-10 17:35+0200\n"
 "PO-Revision-Date: 2026-03-02 16:10+0000\n"
 "Last-Translator: தமிழ்நேரம் <tamilneram247@gmail.com>\n"
 "Language-Team: Tamil <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -529,6 +529,10 @@ msgstr "லுவா ச்கிரிப்டில் பிழை ஏற்
 #: builtin/fstk/ui.lua
 msgid "An error occurred:"
 msgstr "பிழை ஏற்பட்டது:"
+
+#: builtin/fstk/ui.lua
+msgid "Copy to clipboard"
+msgstr ""
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1569,6 +1573,11 @@ msgstr "பிடித்ததை அகற்று"
 msgid "Server Description"
 msgstr "சேவையக விளக்கம்"
 
+#: src/chat.cpp
+#, fuzzy
+msgid "Player names: "
+msgstr "விளையாட்டு விளையாடுங்கள்"
+
 #: src/client/client.cpp
 msgid "Connection aborted (protocol error?)."
 msgstr "இணைப்பு கைவிடப்பட்டது (நெறிமுறை பிழை?)."
@@ -1762,6 +1771,11 @@ msgid "Fast mode enabled (note: no 'fast' privilege)"
 msgstr "வேகமான பயன்முறை இயக்கப்பட்டது (குறிப்பு: 'வேகமான' சலுகை இல்லை)"
 
 #: src/client/game.cpp
+#, c-format
+msgid "Files: %d / %d"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Fly mode disabled"
 msgstr "பறக்க பயன்முறை முடக்கப்பட்டது"
 
@@ -1790,11 +1804,13 @@ msgid "Item definitions..."
 msgstr "உருப்படி வரையறைகள் ..."
 
 #: src/client/game.cpp
-msgid "KiB/s"
+#, fuzzy
+msgid "KiB"
 msgstr "கிப் / கள்"
 
 #: src/client/game.cpp
-msgid "MiB/s"
+#, fuzzy
+msgid "MiB"
 msgstr "Mib/s"
 
 #: src/client/game.cpp
@@ -1844,6 +1860,11 @@ msgstr "மூடுவது ..."
 #: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "ஒற்றை வீரர்"
+
+#: src/client/game.cpp
+#, c-format
+msgid "Size: %.2f %s"
+msgstr ""
 
 #: src/client/game.cpp
 msgid "Sound muted"
@@ -2071,8 +2092,27 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "சுயவிவரக் காட்டப்பட்டுள்ளது ( %d இன் பக்கம் %d)"
 
 #: src/client/keycode.cpp
+#, fuzzy
+msgid "A (Gamepad)"
+msgstr "கேம்பேட்ச்"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "B (Gamepad)"
+msgstr "கேம்பேட்ச்"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Back (Gamepad)"
+msgstr "கேம்பேட்ச்"
+
+#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "பேக்ச்பேச்"
+
+#: src/client/keycode.cpp
+msgid "Bottom Face Button (Gamepad)"
+msgstr ""
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2084,12 +2124,38 @@ msgid "Caps Lock"
 msgstr "தொப்பிகள் பூட்டு"
 
 #: src/client/keycode.cpp
+msgid "Circle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Clear Key"
 msgstr "தெளிவான விசை"
 
 #: src/client/keycode.cpp
 msgid "Control Key"
 msgstr "கட்டுப்பாட்டு விசை"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Cross (Gamepad)"
+msgstr "கேம்பேட்ச்"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "D-Pad Down"
+msgstr "பக்கம் கீழே"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Up"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Delete Key"
@@ -2102,6 +2168,26 @@ msgstr "கீழ் அம்பு"
 #: src/client/keycode.cpp
 msgid "End Key"
 msgstr "இறுதி விசை"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d +"
+msgstr "கேம்பேட்ச்"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d -"
+msgstr "கேம்பேட்ச்"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Button %d"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Guide (Gamepad)"
+msgstr "கேம்பேட்ச்"
 
 #: src/client/keycode.cpp
 msgid "Help Key"
@@ -2128,12 +2214,51 @@ msgid "Left Control"
 msgstr "இடது கட்டுப்பாடு"
 
 #: src/client/keycode.cpp
+msgid "Left Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Button"
+msgstr "சாய்ச்டிக் வகை"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Down"
+msgstr "சாய்ச்டிக் ஐடி"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Left"
+msgstr "சாய்ச்டிக் வகை"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Right"
+msgstr "சாய்ச்டிக் வகை"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Up"
+msgstr "சாய்ச்டிக் வகை"
+
+#: src/client/keycode.cpp
 msgid "Left Menu"
 msgstr "இடது பட்டியல்"
 
 #: src/client/keycode.cpp
 msgid "Left Shift"
 msgstr "இடது மாற்றம்"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Shoulder"
+msgstr "இடது மாற்றம்"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Trigger"
+msgstr "இடது அம்பு"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2245,6 +2370,14 @@ msgstr "இடைநிறுத்த விசை"
 msgid "Play"
 msgstr "விளையாடுங்கள்"
 
+#: src/client/keycode.cpp
+msgid "Primary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Primary Right Paddle"
+msgstr ""
+
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
@@ -2267,12 +2400,50 @@ msgid "Right Control"
 msgstr "சரியான கட்டுப்பாடு"
 
 #: src/client/keycode.cpp
+msgid "Right Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Down"
+msgstr "சாய்ச்டிக் ஐடி"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Left"
+msgstr "சாய்ச்டிக் வகை"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Right"
+msgstr "சாய்ச்டிக் வகை"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Up"
+msgstr "சாய்ச்டிக் வகை"
+
+#: src/client/keycode.cpp
 msgid "Right Menu"
 msgstr "வலது பட்டியல்"
 
 #: src/client/keycode.cpp
 msgid "Right Shift"
 msgstr "சரியான மாற்றம்"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Shoulder"
+msgstr "சரியான மாற்றம்"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Trigger"
+msgstr "வலது அம்பு"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2289,6 +2460,14 @@ msgid "Scroll Lock"
 msgstr "உருள் பூட்டு"
 
 #: src/client/keycode.cpp
+msgid "Secondary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Secondary Right Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Select Key"
 msgstr "விசையைத் தேர்ந்தெடுக்கவும்"
 
@@ -2301,12 +2480,44 @@ msgid "Space"
 msgstr "இடைவெளி"
 
 #: src/client/keycode.cpp
+#, fuzzy
+msgid "Square (Gamepad)"
+msgstr "சேவையக விளையாட்டு"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Start (Gamepad)"
+msgstr "விளையாட்டைத் தொடங்கவும்"
+
+#: src/client/keycode.cpp
 msgid "Tab Key"
 msgstr "தாவல் விசை"
 
 #: src/client/keycode.cpp
+msgid "Top Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Touchpad Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Triangle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "அம்பு"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "X (Gamepad)"
+msgstr "கேம்பேட்ச்"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Y (Gamepad)"
+msgstr "கேம்பேட்ச்"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2623,6 +2834,10 @@ msgstr ""
 "உங்கள் வாடிக்கையாளரின் பதிப்பு ஆதரிக்கப்படவில்லை.\n"
 " சேவையக நிர்வாகியை தொடர்பு கொள்ளவும்."
 
+#: src/script/lua_api/l_mainmenu.cpp
+msgid "Copied to clipboard!"
+msgstr ""
+
 #: src/server.cpp
 #, c-format
 msgid "%s while shutting down: "
@@ -2806,6 +3021,11 @@ msgstr "காற்றில் முடுக்கம்"
 #: src/settings_translation_file.cpp
 msgid "Acceleration of gravity, in nodes per second per second."
 msgstr "ஈர்ப்பு முடுக்கம், நொடிக்கு முனைகளில்."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Actions and Keybindings"
+msgstr "விசை பிணைப்பைச் சேர்க்கவும்"
 
 #: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
@@ -3018,12 +3238,12 @@ msgstr ""
 " மேப் பிளாக்சில் (16 முனைகள்) கூறப்பட்டுள்ளது."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"At this distance the server will perform a simpler and cheaper occlusion "
-"check.\n"
-"Smaller values potentially improve performance, at the expense of "
-"temporarily visible\n"
-"rendering glitches (missing blocks).\n"
+"At this distance the server will consider blocks as \"far away\".\n"
+"It will perform simpler and cheaper occlusion checks, update\n"
+"low priority block updates lazily, and limit the blocks sent to the\n"
+"client in one roundtrip.\n"
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
@@ -3915,14 +4135,6 @@ msgid "Enable dynamic shadows"
 msgstr "மாறும் நிழல்களை இயக்கு"
 
 #: src/settings_translation_file.cpp
-msgid "Enable joysticks"
-msgstr "சாய்ச்டிக்சை இயக்கவும்"
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks. Requires a restart to take effect"
-msgstr "சாய்ச்டிக்சை இயக்கவும். நடைமுறைக்கு வர மறுதொடக்கம் தேவை"
-
-#: src/settings_translation_file.cpp
 msgid "Enable mod channels support."
 msgstr "மோட் சேனல்கள் ஆதரவை இயக்கவும்."
 
@@ -4350,8 +4562,12 @@ msgid "GUI scaling filter"
 msgstr "GUI அளவிடுதல் வடிகட்டி"
 
 #: src/settings_translation_file.cpp
-msgid "Gamepads"
-msgstr "கேம்பேட்ச்"
+msgid "Gamepads and Joysticks"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Gamma"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -4972,24 +5188,22 @@ msgstr ""
 " மறு செய்கைகளில் = 20 இந்த மேப்சென் வி 7 க்கு ஒத்த சுமை உள்ளது."
 
 #: src/settings_translation_file.cpp
-msgid "Joystick ID"
-msgstr "சாய்ச்டிக் ஐடி"
-
-#: src/settings_translation_file.cpp
 msgid "Joystick button repetition interval"
 msgstr "சாய்ச்டிக் பொத்தான் மறுபடியும் இடைவெளி"
-
-#: src/settings_translation_file.cpp
-msgid "Joystick dead zone"
-msgstr "சாய்ச்டிக் இறந்த மண்டலம்"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick frustum sensitivity"
 msgstr "சாய்ச்டிக் ஃப்ரச்டம் உணர்திறன்"
 
 #: src/settings_translation_file.cpp
-msgid "Joystick type"
-msgstr "சாய்ச்டிக் வகை"
+#, fuzzy
+msgid "Joystick inner dead zone"
+msgstr "சாய்ச்டிக் இறந்த மண்டலம்"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Joystick outer dead zone"
+msgstr "சாய்ச்டிக் இறந்த மண்டலம்"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5091,6 +5305,12 @@ msgstr "உள்ளக கட்டளைகளைத் தட்டச்ச�
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Key for opening the pause menu in-game.\n"
+"Pressing the escape key always opens the pause menu."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
@@ -5118,10 +5338,6 @@ msgstr "மேப் பிளாக் எல்லைகளின் காட
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
 msgstr "சுயவிவரத்தின் காட்சியை மாற்றுவதற்கான திறவுகோல். வளர்ச்சிக்கு பயன்படுத்தப்படுகிறது."
-
-#: src/settings_translation_file.cpp
-msgid "Keybindings"
-msgstr "விசைப்பலகைகள்"
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -5388,6 +5604,16 @@ msgid ""
 "Make fog and sky colors depend on daytime (dawn/sunset) and view direction."
 msgstr ""
 "மூடுபனி மற்றும் வான வண்ணங்கள் பகல்நேரத்தை (விடியல்/சூரிய அச்தமனம்) சார்ந்து திசையைக் காண்க."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Make volumetrics weaker against closer objects to emulate physical "
+"volumetrics."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Makes the color of light fog more saturated."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
@@ -6014,6 +6240,10 @@ msgid "Open inventory"
 msgstr "திறந்த சரக்கு"
 
 #: src/settings_translation_file.cpp
+msgid "Open pause menu"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Open the pause menu when the window's focus is lost. Does not pause if a "
 "formspec is\n"
@@ -6611,10 +6841,10 @@ msgstr ""
 " 0 இன் மதிப்பு என்பது சாய்வு / செங்குத்து சுற்றுப்பாதை இல்லை."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Set the exposure compensation in EV units.\n"
-"Value of 0.0 (default) means no exposure compensation.\n"
-"Range: from -1 to 1.0"
+"Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 "வெளிப்பாடு இழப்பீட்டை EV அலகுகளில் அமைக்கவும்.\n"
 " 0.0 (இயல்புநிலை) மதிப்பு என்பது வெளிப்பாடு இழப்பீடு இல்லை.\n"
@@ -6634,6 +6864,12 @@ msgid ""
 msgstr ""
 "வாடிக்கையாளர்களால் அனுப்பப்பட்ட அரட்டை செய்தியின் அதிகபட்ச நீளத்தை (எழுத்துக்களில்) "
 "அமைக்கவும்."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Set the post processing gamma value.\n"
+"Higher values give lower contrast and vice versa."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6779,7 +7015,10 @@ msgstr ""
 "மதிப்புகளிலிருந்து பயனடைகின்றன."
 
 #: src/settings_translation_file.cpp
-msgid "Simulate translucency when looking at foliage in the sunlight."
+#, fuzzy
+msgid ""
+"Simulate translucency when looking at foliage in the sunlight.\n"
+"It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
 msgstr "சூரிய ஒளியில் பசுமையாகப் பார்க்கும்போது ஒளிஊடுருவலை உருவகப்படுத்துங்கள்."
 
 #: src/settings_translation_file.cpp
@@ -7065,10 +7304,6 @@ msgid "The URL for the content repository"
 msgstr "உள்ளடக்க களஞ்சியத்திற்கான முகவரி"
 
 #: src/settings_translation_file.cpp
-msgid "The dead zone of the joystick"
-msgstr "சாய்ச்டிக்கின் இறந்த மண்டலம்"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The default format in which profiles are being saved,\n"
 "when calling `/profiler save [format]` without format."
@@ -7111,10 +7346,6 @@ msgstr ""
 "* நீண்ட குழாய் \n"
 "கிளாசிக் லுவாண்டி மொபைல் கட்டுப்பாடுகளிலிருந்து அறியப்படுகிறது. \n"
 "போர் அதிகமாகவோ அல்லது குறைவாகவோ சாத்தியமற்றது."
-
-#: src/settings_translation_file.cpp
-msgid "The identifier of the joystick to use"
-msgstr "பயன்படுத்த சாய்ச்டிக்கின் அடையாளங்காட்டி"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7266,10 +7497,6 @@ msgstr ""
 " இடப் பொத்தானை."
 
 #: src/settings_translation_file.cpp
-msgid "The type of joystick"
-msgstr "சாய்ச்டிக் வகை"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The vertical distance over which heat drops by 20 if 'altitude_chill' is\n"
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
@@ -7308,6 +7535,19 @@ msgid "Timeout for client to remove unused map data from memory, in seconds."
 msgstr ""
 "பயன்படுத்தப்படாத வரைபடத் தரவை நினைவகத்திலிருந்து நொடிகளில் அகற்ற கிளையன்ட் நேரம் "
 "முடிந்தது."
+
+#: src/settings_translation_file.cpp
+msgid "Tint sunlight during sunrise/sunset."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Tinted fog"
+msgstr "மூடுபனி மாற்று"
+
+#: src/settings_translation_file.cpp
+msgid "Tinted sunlight"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7702,7 +7942,13 @@ msgid "Volume when unfocused"
 msgstr "கவனம் செலுத்தாதபோது தொகுதி"
 
 #: src/settings_translation_file.cpp
-msgid "Volumetric lighting"
+#, fuzzy
+msgid "Volumetric Depth Attenuation"
+msgstr "அளவீட்டு விளக்குகள்"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Volumetric Lighting"
 msgstr "அளவீட்டு விளக்குகள்"
 
 #: src/settings_translation_file.cpp
@@ -7773,8 +8019,10 @@ msgid "Weblink color"
 msgstr "வெப்லிங்க் நிறம்"
 
 #: src/settings_translation_file.cpp
-msgid "When enabled, liquid reflections are simulated."
-msgstr "இயக்கப்பட்டால், திரவ பிரதிபலிப்புகள் உருவகப்படுத்தப்படுகின்றன."
+msgid ""
+"When enabled, crude liquid reflections are simulated.\n"
+"Wave height, length and speed will affect these reflections."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -8004,16 +8252,23 @@ msgstr ""
 msgid "Failed to save screenshot to \"%s\""
 msgstr "ச்கிரீன்சாட்டை \"%s\" இல் சேமிக்க முடியவில்லை"
 
-#~ msgid "Append item name"
-#~ msgstr "உருப்படி பெயரைச் சேர்க்கவும்"
+#~ msgid "Enable joysticks"
+#~ msgstr "சாய்ச்டிக்சை இயக்கவும்"
 
-#~ msgid ""
-#~ "Possible filters\n"
-#~ "game:<name>\n"
-#~ "mod:<name>\n"
-#~ "player:<name>"
-#~ msgstr ""
-#~ "சாத்தியமான வடிப்பான்கள் \n"
-#~ "game:<பெயர்> \n"
-#~ "mod:<பெயர்> \n"
-#~ "player:<பெயர்>"
+#~ msgid "Enable joysticks. Requires a restart to take effect"
+#~ msgstr "சாய்ச்டிக்சை இயக்கவும். நடைமுறைக்கு வர மறுதொடக்கம் தேவை"
+
+#~ msgid "Keybindings"
+#~ msgstr "விசைப்பலகைகள்"
+
+#~ msgid "The dead zone of the joystick"
+#~ msgstr "சாய்ச்டிக்கின் இறந்த மண்டலம்"
+
+#~ msgid "The identifier of the joystick to use"
+#~ msgstr "பயன்படுத்த சாய்ச்டிக்கின் அடையாளங்காட்டி"
+
+#~ msgid "The type of joystick"
+#~ msgstr "சாய்ச்டிக் வகை"
+
+#~ msgid "When enabled, liquid reflections are simulated."
+#~ msgstr "இயக்கப்பட்டால், திரவ பிரதிபலிப்புகள் உருவகப்படுத்தப்படுகின்றன."

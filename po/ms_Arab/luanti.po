@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 19:14+0200\n"
+"POT-Creation-Date: 2026-08-10 17:35+0200\n"
 "PO-Revision-Date: 2025-10-23 18:16+0000\n"
 "Last-Translator: bgo-eiu <huyaqoob+toolforge@gmail.com>\n"
 "Language-Team: Malay (Jawi) <https://hosted.weblate.org/projects/minetest/"
@@ -523,6 +523,10 @@ msgstr "برلاکوڽ رالت دالم سکريڤ Lua:"
 #: builtin/fstk/ui.lua
 msgid "An error occurred:"
 msgstr "تله برلاکوڽ رالت:"
+
+#: builtin/fstk/ui.lua
+msgid "Copy to clipboard"
+msgstr ""
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1575,6 +1579,11 @@ msgstr "ڤورت جارق جاٴوه"
 msgid "Server Description"
 msgstr "ڤريهل ڤلاين ڤرماٴينن"
 
+#: src/chat.cpp
+#, fuzzy
+msgid "Player names: "
+msgstr "مولا ماٴين"
+
 #: src/client/client.cpp
 #, fuzzy
 msgid "Connection aborted (protocol error?)."
@@ -1772,6 +1781,11 @@ msgid "Fast mode enabled (note: no 'fast' privilege)"
 msgstr "مود ڤرݢرقن ڤنتس دبوليهکن (نوت: تيادا کأيستيميواٴن 'ڤرݢرقن ڤنتس')"
 
 #: src/client/game.cpp
+#, c-format
+msgid "Files: %d / %d"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Fly mode disabled"
 msgstr "مود تربڠ دلومڤوهکن"
 
@@ -1801,11 +1815,13 @@ msgid "Item definitions..."
 msgstr "سدڠ منتعريفکن ايتم..."
 
 #: src/client/game.cpp
-msgid "KiB/s"
+#, fuzzy
+msgid "KiB"
 msgstr "KiB/s"
 
 #: src/client/game.cpp
-msgid "MiB/s"
+#, fuzzy
+msgid "MiB"
 msgstr "MiB/s"
 
 #: src/client/game.cpp
@@ -1856,6 +1872,11 @@ msgstr "سدڠ منوتوڤ..."
 #: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "ڤماٴين ڤرسأورڠن"
+
+#: src/client/game.cpp
+#, c-format
+msgid "Size: %.2f %s"
+msgstr ""
 
 #: src/client/game.cpp
 msgid "Sound muted"
@@ -2081,8 +2102,27 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "ڤمبوکه دتونجوقکن (هلامن %d دري %d)"
 
 #: src/client/keycode.cpp
+#, fuzzy
+msgid "A (Gamepad)"
+msgstr "ڤرماٴينن"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "B (Gamepad)"
+msgstr "ڤرماٴينن"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Back (Gamepad)"
+msgstr "ڤرماٴينن"
+
+#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
+
+#: src/client/keycode.cpp
+msgid "Bottom Face Button (Gamepad)"
+msgstr ""
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2095,6 +2135,10 @@ msgid "Caps Lock"
 msgstr "کونچي حروف بسر"
 
 #: src/client/keycode.cpp
+msgid "Circle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 #, fuzzy
 msgid "Clear Key"
 msgstr "ڤادم"
@@ -2103,6 +2147,28 @@ msgstr "ڤادم"
 #, fuzzy
 msgid "Control Key"
 msgstr "Ctrl"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Cross (Gamepad)"
+msgstr "ڤرماٴينن"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "D-Pad Down"
+msgstr "Page down"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Up"
+msgstr ""
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2117,6 +2183,26 @@ msgstr ""
 #, fuzzy
 msgid "End Key"
 msgstr "Menu"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d +"
+msgstr "ڤرماٴينن"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d -"
+msgstr "ڤرماٴينن"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Button %d"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Guide (Gamepad)"
+msgstr "ڤرماٴينن"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2147,12 +2233,51 @@ msgid "Left Control"
 msgstr "Ctrl کيري"
 
 #: src/client/keycode.cpp
+msgid "Left Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Button"
+msgstr "جنيس کايو بديق"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Down"
+msgstr "ID کايو بديق"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Left"
+msgstr "جنيس کايو بديق"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Right"
+msgstr "جنيس کايو بديق"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Up"
+msgstr "جنيس کايو بديق"
+
+#: src/client/keycode.cpp
 msgid "Left Menu"
 msgstr "مينو کيري"
 
 #: src/client/keycode.cpp
 msgid "Left Shift"
 msgstr "Shift کيري"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Shoulder"
+msgstr "Shift کيري"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Trigger"
+msgstr "Ctrl کيري"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2268,6 +2393,14 @@ msgstr "Pause"
 msgid "Play"
 msgstr "مولا ماٴين"
 
+#: src/client/keycode.cpp
+msgid "Primary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Primary Right Paddle"
+msgstr ""
+
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
@@ -2293,12 +2426,50 @@ msgid "Right Control"
 msgstr "Ctrl کانن"
 
 #: src/client/keycode.cpp
+msgid "Right Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Down"
+msgstr "ID کايو بديق"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Left"
+msgstr "جنيس کايو بديق"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Right"
+msgstr "جنيس کايو بديق"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Up"
+msgstr "جنيس کايو بديق"
+
+#: src/client/keycode.cpp
 msgid "Right Menu"
 msgstr "مينو کانن"
 
 #: src/client/keycode.cpp
 msgid "Right Shift"
 msgstr "Shift کانن"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Shoulder"
+msgstr "Shift کانن"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Trigger"
+msgstr "Ctrl کانن"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2313,6 +2484,14 @@ msgstr ""
 #: src/client/keycode.cpp
 msgid "Scroll Lock"
 msgstr "کونچي تاتل"
+
+#: src/client/keycode.cpp
+msgid "Secondary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Secondary Right Paddle"
+msgstr ""
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2330,12 +2509,44 @@ msgstr "سلاڠ"
 
 #: src/client/keycode.cpp
 #, fuzzy
+msgid "Square (Gamepad)"
+msgstr "نام ڤلاين ڤرماٴينن"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Start (Gamepad)"
+msgstr "مولاکن ڤرماٴينن"
+
+#: src/client/keycode.cpp
+#, fuzzy
 msgid "Tab Key"
 msgstr "ککونچي سلينڤ"
 
 #: src/client/keycode.cpp
+msgid "Top Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Touchpad Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Triangle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "X (Gamepad)"
+msgstr "ڤرماٴينن"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Y (Gamepad)"
+msgstr "ڤرماٴينن"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2652,6 +2863,10 @@ msgid ""
 "Please contact the server administrator."
 msgstr ""
 
+#: src/script/lua_api/l_mainmenu.cpp
+msgid "Copied to clipboard!"
+msgstr ""
+
 #: src/server.cpp
 #, fuzzy, c-format
 msgid "%s while shutting down: "
@@ -2823,6 +3038,11 @@ msgstr "ڤچوتن دأودارا"
 #: src/settings_translation_file.cpp
 msgid "Acceleration of gravity, in nodes per second per second."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Actions and Keybindings"
+msgstr "ميديا جارق جاٴوه"
 
 #: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
@@ -3015,11 +3235,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"At this distance the server will perform a simpler and cheaper occlusion "
-"check.\n"
-"Smaller values potentially improve performance, at the expense of "
-"temporarily visible\n"
-"rendering glitches (missing blocks).\n"
+"At this distance the server will consider blocks as \"far away\".\n"
+"It will perform simpler and cheaper occlusion checks, update\n"
+"low priority block updates lazily, and limit the blocks sent to the\n"
+"client in one roundtrip.\n"
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
@@ -3845,14 +4064,6 @@ msgid "Enable dynamic shadows"
 msgstr "بايڠ فون"
 
 #: src/settings_translation_file.cpp
-msgid "Enable joysticks"
-msgstr "ممبوليهکن کايو بديق"
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks. Requires a restart to take effect"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Enable mod channels support."
 msgstr "ممبوليهکن سوکوڠن سالوران مودس."
 
@@ -4266,9 +4477,12 @@ msgid "GUI scaling filter"
 msgstr "ڤناڤيس سکال GUI"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Gamepads"
-msgstr "ڤرماٴينن"
+msgid "Gamepads and Joysticks"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Gamma"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -4884,24 +5098,21 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Joystick ID"
-msgstr "ID کايو بديق"
-
-#: src/settings_translation_file.cpp
 msgid "Joystick button repetition interval"
 msgstr "سلڠ ماس ڤڠاولڠن بوتڠ کايو بديق"
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Joystick dead zone"
-msgstr "جنيس کايو بديق"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick frustum sensitivity"
 msgstr "کڤيکاٴن فروستوم کايو بديق"
 
 #: src/settings_translation_file.cpp
-msgid "Joystick type"
+#, fuzzy
+msgid "Joystick inner dead zone"
+msgstr "جنيس کايو بديق"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Joystick outer dead zone"
 msgstr "جنيس کايو بديق"
 
 #: src/settings_translation_file.cpp
@@ -4985,6 +5196,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Key for opening the pause menu in-game.\n"
+"Pressing the escape key always opens the pause menu."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
@@ -5007,10 +5224,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Keybindings"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5247,6 +5460,16 @@ msgid ""
 "Make fog and sky colors depend on daytime (dawn/sunset) and view direction."
 msgstr ""
 "بواتکن ورنا کابوت دان لاڠيت برݢنتوڠ کڤد وقتو (فجر\\ماتاهاري) دان اره ڤندڠ."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Make volumetrics weaker against closer objects to emulate physical "
+"volumetrics."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Makes the color of light fog more saturated."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
@@ -5825,6 +6048,10 @@ msgid "Open inventory"
 msgstr "اينۏينتوري"
 
 #: src/settings_translation_file.cpp
+msgid "Open pause menu"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Open the pause menu when the window's focus is lost. Does not pause if a "
 "formspec is\n"
@@ -6385,8 +6612,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Set the exposure compensation in EV units.\n"
-"Value of 0.0 (default) means no exposure compensation.\n"
-"Range: from -1 to 1.0"
+"Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6400,6 +6626,12 @@ msgstr ""
 msgid ""
 "Set the maximum length of a chat message (in characters) sent by clients."
 msgstr "تتڤکن ڤنجڠ اکسارا مکسيموم ميسيج سيمبڠ دهنتر اوليه کليئن."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Set the post processing gamma value.\n"
+"Higher values give lower contrast and vice versa."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6534,7 +6766,9 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Simulate translucency when looking at foliage in the sunlight."
+msgid ""
+"Simulate translucency when looking at foliage in the sunlight.\n"
+"It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6792,11 +7026,6 @@ msgid "The URL for the content repository"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-#, fuzzy
-msgid "The dead zone of the joystick"
-msgstr "ڤڠنل ڤستي کايو بديق يڠ دݢوناکن"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The default format in which profiles are being saved,\n"
 "when calling `/profiler save [format]` without format."
@@ -6825,10 +7054,6 @@ msgid ""
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
 msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "The identifier of the joystick to use"
-msgstr "ڤڠنل ڤستي کايو بديق يڠ دݢوناکن"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6969,10 +7194,6 @@ msgstr ""
 "ڤماٴين منکن بوتڠ تتيکوس کانن تنڤ ملڤسکنڽ."
 
 #: src/settings_translation_file.cpp
-msgid "The type of joystick"
-msgstr "جنيس کايو بديق"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The vertical distance over which heat drops by 20 if 'altitude_chill' is\n"
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
@@ -7007,6 +7228,19 @@ msgstr "کلاجوان ماس"
 #, fuzzy
 msgid "Timeout for client to remove unused map data from memory, in seconds."
 msgstr "حد ماس اونتوق کليئن ممبواڠ ڤتا يڠ تيدق دݢوناکن دري ميموري."
+
+#: src/settings_translation_file.cpp
+msgid "Tint sunlight during sunrise/sunset."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Tinted fog"
+msgstr "توݢول کابوت"
+
+#: src/settings_translation_file.cpp
+msgid "Tinted sunlight"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -7399,7 +7633,12 @@ msgstr "بيڠکاي ڤر ساٴت (FPS) مکسيما اڤابيلا ڤرماٴ�
 
 #: src/settings_translation_file.cpp
 #, fuzzy
-msgid "Volumetric lighting"
+msgid "Volumetric Depth Attenuation"
+msgstr "ڤنچهاياٴن لمبوت"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Volumetric Lighting"
 msgstr "ڤنچهاياٴن لمبوت"
 
 #: src/settings_translation_file.cpp
@@ -7465,7 +7704,9 @@ msgid "Weblink color"
 msgstr "ورنا کوتق ڤميليهن"
 
 #: src/settings_translation_file.cpp
-msgid "When enabled, liquid reflections are simulated."
+msgid ""
+"When enabled, crude liquid reflections are simulated.\n"
+"Wave height, length and speed will affect these reflections."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -7695,5 +7936,15 @@ msgstr ""
 msgid "Failed to save screenshot to \"%s\""
 msgstr ""
 
-#~ msgid "Append item name"
-#~ msgstr "تمبه نام ايتم"
+#~ msgid "Enable joysticks"
+#~ msgstr "ممبوليهکن کايو بديق"
+
+#, fuzzy
+#~ msgid "The dead zone of the joystick"
+#~ msgstr "ڤڠنل ڤستي کايو بديق يڠ دݢوناکن"
+
+#~ msgid "The identifier of the joystick to use"
+#~ msgstr "ڤڠنل ڤستي کايو بديق يڠ دݢوناکن"
+
+#~ msgid "The type of joystick"
+#~ msgstr "جنيس کايو بديق"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Esperanto (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 19:14+0200\n"
+"POT-Creation-Date: 2026-08-10 17:35+0200\n"
 "PO-Revision-Date: 2026-04-08 22:09+0000\n"
 "Last-Translator: Tirifto <tirifto@posteo.cz>\n"
 "Language-Team: Esperanto <https://hosted.weblate.org/projects/minetest/"
@@ -522,6 +522,10 @@ msgstr "Eraris Lua-skripto:"
 #: builtin/fstk/ui.lua
 msgid "An error occurred:"
 msgstr "Eraro okazis:"
+
+#: builtin/fstk/ui.lua
+msgid "Copy to clipboard"
+msgstr ""
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1563,6 +1567,11 @@ msgstr "Forigi el preferataj"
 msgid "Server Description"
 msgstr "Priskribo pri servilo"
 
+#: src/chat.cpp
+#, fuzzy
+msgid "Player names: "
+msgstr "Ludi"
+
 #: src/client/client.cpp
 msgid "Connection aborted (protocol error?)."
 msgstr "Konekta eraro (ĉu eltempiĝo?)."
@@ -1754,6 +1763,11 @@ msgid "Fast mode enabled (note: no 'fast' privilege)"
 msgstr "Rapidega reĝimo ŝaltita (mankas rajto «rapidegi»)"
 
 #: src/client/game.cpp
+#, c-format
+msgid "Files: %d / %d"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Fly mode disabled"
 msgstr "Fluga reĝimo malŝaltita"
 
@@ -1782,11 +1796,13 @@ msgid "Item definitions..."
 msgstr "Objektaj difinoj…"
 
 #: src/client/game.cpp
-msgid "KiB/s"
+#, fuzzy
+msgid "KiB"
 msgstr "KiB/s"
 
 #: src/client/game.cpp
-msgid "MiB/s"
+#, fuzzy
+msgid "MiB"
 msgstr "MiB/s"
 
 #: src/client/game.cpp
@@ -1836,6 +1852,11 @@ msgstr "Malŝaltiĝante…"
 #: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "Ludo por unu"
+
+#: src/client/game.cpp
+#, c-format
+msgid "Size: %.2f %s"
+msgstr ""
 
 #: src/client/game.cpp
 msgid "Sound muted"
@@ -2061,8 +2082,27 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profililo montrita (paĝo %d el %d)"
 
 #: src/client/keycode.cpp
+#, fuzzy
+msgid "A (Gamepad)"
+msgstr "Ludregiloj"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "B (Gamepad)"
+msgstr "Ludregiloj"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Back (Gamepad)"
+msgstr "Ludregiloj"
+
+#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Reenklavo"
+
+#: src/client/keycode.cpp
+msgid "Bottom Face Button (Gamepad)"
+msgstr ""
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2074,12 +2114,38 @@ msgid "Caps Lock"
 msgstr "Majuskla baskulo"
 
 #: src/client/keycode.cpp
+msgid "Circle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Clear Key"
 msgstr "Vakigo"
 
 #: src/client/keycode.cpp
 msgid "Control Key"
 msgstr "Stirklavo"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Cross (Gamepad)"
+msgstr "Ludregiloj"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "D-Pad Down"
+msgstr "Paĝon suben"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Up"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Delete Key"
@@ -2092,6 +2158,26 @@ msgstr "Malsupren"
 #: src/client/keycode.cpp
 msgid "End Key"
 msgstr "Fina klavo"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d +"
+msgstr "Ludregiloj"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d -"
+msgstr "Ludregiloj"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Button %d"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Guide (Gamepad)"
+msgstr "Ludregiloj"
 
 #: src/client/keycode.cpp
 msgid "Help Key"
@@ -2118,12 +2204,51 @@ msgid "Left Control"
 msgstr "Maldekstra Stiro"
 
 #: src/client/keycode.cpp
+msgid "Left Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Button"
+msgstr "Speco de stirstango"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Down"
+msgstr "Identigilo de stirstango"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Left"
+msgstr "Speco de stirstango"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Right"
+msgstr "Speco de stirstango"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Up"
+msgstr "Speco de stirstango"
+
+#: src/client/keycode.cpp
 msgid "Left Menu"
 msgstr "Maldekstra Menuo"
 
 #: src/client/keycode.cpp
 msgid "Left Shift"
 msgstr "Maldekstra Majuskligo"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Shoulder"
+msgstr "Maldekstra Majuskligo"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Trigger"
+msgstr "Maldekstren"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2235,6 +2360,14 @@ msgstr "Paŭzo"
 msgid "Play"
 msgstr "Ludi"
 
+#: src/client/keycode.cpp
+msgid "Primary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Primary Right Paddle"
+msgstr ""
+
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
@@ -2257,12 +2390,50 @@ msgid "Right Control"
 msgstr "Dekstra Stiro"
 
 #: src/client/keycode.cpp
+msgid "Right Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Down"
+msgstr "Identigilo de stirstango"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Left"
+msgstr "Speco de stirstango"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Right"
+msgstr "Speco de stirstango"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Up"
+msgstr "Speco de stirstango"
+
+#: src/client/keycode.cpp
 msgid "Right Menu"
 msgstr "Dekstra Menuo"
 
 #: src/client/keycode.cpp
 msgid "Right Shift"
 msgstr "Dekstra Majuskligo"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Shoulder"
+msgstr "Dekstra Majuskligo"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Trigger"
+msgstr "Dekstren"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2279,6 +2450,14 @@ msgid "Scroll Lock"
 msgstr "Ruluma Baskulo"
 
 #: src/client/keycode.cpp
+msgid "Secondary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Secondary Right Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Select Key"
 msgstr "Elekta klavo"
 
@@ -2291,12 +2470,44 @@ msgid "Space"
 msgstr "Spacetklavo"
 
 #: src/client/keycode.cpp
+#, fuzzy
+msgid "Square (Gamepad)"
+msgstr "Ludado sur servilo"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Start (Gamepad)"
+msgstr "Ekigi ludon"
+
+#: src/client/keycode.cpp
 msgid "Tab Key"
 msgstr "Taba klavo"
 
 #: src/client/keycode.cpp
+msgid "Top Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Touchpad Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Triangle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Supren"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "X (Gamepad)"
+msgstr "Ludregiloj"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Y (Gamepad)"
+msgstr "Ludregiloj"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2613,6 +2824,10 @@ msgstr ""
 "La versio de via kliento ne estas subtenata.\n"
 "Bonvolu kontakti administranton de la servilo."
 
+#: src/script/lua_api/l_mainmenu.cpp
+msgid "Copied to clipboard!"
+msgstr ""
+
 #: src/server.cpp
 #, c-format
 msgid "%s while shutting down: "
@@ -2796,6 +3011,11 @@ msgstr "Akcelo en aero"
 #: src/settings_translation_file.cpp
 msgid "Acceleration of gravity, in nodes per second per second."
 msgstr "Akcelo de pezforto, en monderoj sekunde sekunde."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Actions and Keybindings"
+msgstr "Aldoni klavagordon"
 
 #: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
@@ -3002,12 +3222,12 @@ msgstr ""
 "Donita en mondopecoj (16 monderoj)."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"At this distance the server will perform a simpler and cheaper occlusion "
-"check.\n"
-"Smaller values potentially improve performance, at the expense of "
-"temporarily visible\n"
-"rendering glitches (missing blocks).\n"
+"At this distance the server will consider blocks as \"far away\".\n"
+"It will perform simpler and cheaper occlusion checks, update\n"
+"low priority block updates lazily, and limit the blocks sent to the\n"
+"client in one roundtrip.\n"
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
@@ -3885,14 +4105,6 @@ msgid "Enable dynamic shadows"
 msgstr "Ŝalti dinamikajn ombrojn"
 
 #: src/settings_translation_file.cpp
-msgid "Enable joysticks"
-msgstr "Ŝalti stirstangojn"
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks. Requires a restart to take effect"
-msgstr "Ŝalti stirstangojn. Bezonas reekigon de ludo."
-
-#: src/settings_translation_file.cpp
 msgid "Enable mod channels support."
 msgstr "Ŝalti subtenon de modifaĵaj kanaloj."
 
@@ -4319,8 +4531,12 @@ msgid "GUI scaling filter"
 msgstr "Skala filtrilo de grafika interfaco"
 
 #: src/settings_translation_file.cpp
-msgid "Gamepads"
-msgstr "Ludregiloj"
+msgid "Gamepads and Joysticks"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Gamma"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -4942,24 +5158,22 @@ msgstr ""
 "la mondestigilo V7."
 
 #: src/settings_translation_file.cpp
-msgid "Joystick ID"
-msgstr "Identigilo de stirstango"
-
-#: src/settings_translation_file.cpp
 msgid "Joystick button repetition interval"
 msgstr "Ripeta periodo de stirstangaj klavoj"
-
-#: src/settings_translation_file.cpp
-msgid "Joystick dead zone"
-msgstr "Nerespondema zono de stirstango"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick frustum sensitivity"
 msgstr "Sentemo de stirstanga vidamplekso"
 
 #: src/settings_translation_file.cpp
-msgid "Joystick type"
-msgstr "Speco de stirstango"
+#, fuzzy
+msgid "Joystick inner dead zone"
+msgstr "Nerespondema zono de stirstango"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Joystick outer dead zone"
+msgstr "Nerespondema zono de stirstango"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5061,6 +5275,12 @@ msgstr "Klavo por malfermi babilejan fenestron por entajpi lokajn komandojn."
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Key for opening the pause menu in-game.\n"
+"Pressing the escape key always opens the pause menu."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
@@ -5086,10 +5306,6 @@ msgstr "Klavo por baskuligi aperon de mondopecaj limoj."
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
 msgstr "Klavo por baskuligi aperon de la profililo. Utila por programistoj."
-
-#: src/settings_translation_file.cpp
-msgid "Keybindings"
-msgstr "Klavagordoj"
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -5353,6 +5569,16 @@ msgid ""
 msgstr ""
 "Dependigi kolorojn de nebulo kaj ĉielo de tagtempo (sunleviĝo/sunsubiro)\n"
 "kaj direkto de rigardo."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Make volumetrics weaker against closer objects to emulate physical "
+"volumetrics."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Makes the color of light fog more saturated."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
@@ -5977,6 +6203,10 @@ msgid "Open inventory"
 msgstr "Malfermi portaĵujon"
 
 #: src/settings_translation_file.cpp
+msgid "Open pause menu"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Open the pause menu when the window's focus is lost. Does not pause if a "
 "formspec is\n"
@@ -6565,8 +6795,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Set the exposure compensation in EV units.\n"
-"Value of 0.0 (default) means no exposure compensation.\n"
-"Range: from -1 to 1.0"
+"Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6583,6 +6812,12 @@ msgid ""
 msgstr ""
 "Agordas maksimuman longon de babilaj mesaĝoj (en signoj) sendotaj de "
 "klientoj."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Set the post processing gamma value.\n"
+"Higher values give lower contrast and vice versa."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6725,7 +6960,10 @@ msgstr ""
 "valoroj."
 
 #: src/settings_translation_file.cpp
-msgid "Simulate translucency when looking at foliage in the sunlight."
+#, fuzzy
+msgid ""
+"Simulate translucency when looking at foliage in the sunlight.\n"
+"It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
 msgstr "Imiti tralumeblecon, kiam oni rigardas foliojn en sunlumo."
 
 #: src/settings_translation_file.cpp
@@ -7008,10 +7246,6 @@ msgid "The URL for the content repository"
 msgstr "URL al la deponejo de enhavo"
 
 #: src/settings_translation_file.cpp
-msgid "The dead zone of the joystick"
-msgstr "Nerespondema zono de la stirstango"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The default format in which profiles are being saved,\n"
 "when calling `/profiler save [format]` without format."
@@ -7054,10 +7288,6 @@ msgstr ""
 "* Longa tuŝeto \n"
 "Konata de la klasikaj telefonaj regiloj de Luanti. \n"
 "Batalado estas pli-malpli neebla."
-
-#: src/settings_translation_file.cpp
-msgid "The identifier of the joystick to use"
-msgstr "Identigilo de la uzota stirstango"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7212,10 +7442,6 @@ msgstr ""
 "la butono por meti."
 
 #: src/settings_translation_file.cpp
-msgid "The type of joystick"
-msgstr "La speco de stirstango"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The vertical distance over which heat drops by 20 if 'altitude_chill' is\n"
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
@@ -7254,6 +7480,19 @@ msgid "Timeout for client to remove unused map data from memory, in seconds."
 msgstr ""
 "Tempolimo por forigi neuzatajn mapajn datenojn de klienta memoro, en "
 "sekundoj."
+
+#: src/settings_translation_file.cpp
+msgid "Tint sunlight during sunrise/sunset."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Tinted fog"
+msgstr "Baskuligi nebulon"
+
+#: src/settings_translation_file.cpp
+msgid "Tinted sunlight"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7651,7 +7890,13 @@ msgid "Volume when unfocused"
 msgstr "Laŭteco sen fokuso sur fenestro"
 
 #: src/settings_translation_file.cpp
-msgid "Volumetric lighting"
+#, fuzzy
+msgid "Volumetric Depth Attenuation"
+msgstr "Lumradioj"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Volumetric Lighting"
 msgstr "Lumradioj"
 
 #: src/settings_translation_file.cpp
@@ -7722,7 +7967,9 @@ msgid "Weblink color"
 msgstr "Koloro de reta ligilo"
 
 #: src/settings_translation_file.cpp
-msgid "When enabled, liquid reflections are simulated."
+msgid ""
+"When enabled, crude liquid reflections are simulated.\n"
+"Wave height, length and speed will affect these reflections."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -7954,16 +8201,20 @@ msgstr ""
 msgid "Failed to save screenshot to \"%s\""
 msgstr "Malsukcesis konservi ekrankopion al «%s»"
 
-#~ msgid "Append item name"
-#~ msgstr "Almeti nomon de portaĵo"
+#~ msgid "Enable joysticks"
+#~ msgstr "Ŝalti stirstangojn"
 
-#~ msgid ""
-#~ "Possible filters\n"
-#~ "game:<name>\n"
-#~ "mod:<name>\n"
-#~ "player:<name>"
-#~ msgstr ""
-#~ "Uzeblaj filtriloj: \n"
-#~ "game:<ludo-nomo>\n"
-#~ "mod:<modifaĵo-nomo>\n"
-#~ "player:<ludanto-nomo>"
+#~ msgid "Enable joysticks. Requires a restart to take effect"
+#~ msgstr "Ŝalti stirstangojn. Bezonas reekigon de ludo."
+
+#~ msgid "Keybindings"
+#~ msgstr "Klavagordoj"
+
+#~ msgid "The dead zone of the joystick"
+#~ msgstr "Nerespondema zono de la stirstango"
+
+#~ msgid "The identifier of the joystick to use"
+#~ msgstr "Identigilo de la uzota stirstango"
+
+#~ msgid "The type of joystick"
+#~ msgstr "La speco de stirstango"

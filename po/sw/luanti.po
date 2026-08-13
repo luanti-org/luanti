@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Swahili (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 19:14+0200\n"
+"POT-Creation-Date: 2026-08-10 17:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Swahili <https://hosted.weblate.org/projects/minetest/"
@@ -529,6 +529,10 @@ msgstr "Kosa limetokea katika hati Lua, kama vile Moduli na:"
 #, fuzzy
 msgid "An error occurred:"
 msgstr "Kosa limetokea:"
+
+#: builtin/fstk/ui.lua
+msgid "Copy to clipboard"
+msgstr ""
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1627,6 +1631,11 @@ msgstr "Bandari ya mbali"
 msgid "Server Description"
 msgstr "Maelezo ya seva"
 
+#: src/chat.cpp
+#, fuzzy
+msgid "Player names: "
+msgstr "Jina la mchezaji"
+
 #: src/client/client.cpp
 #, fuzzy
 msgid "Connection aborted (protocol error?)."
@@ -1833,6 +1842,11 @@ msgid "Fast mode enabled (note: no 'fast' privilege)"
 msgstr ""
 
 #: src/client/game.cpp
+#, c-format
+msgid "Files: %d / %d"
+msgstr ""
+
+#: src/client/game.cpp
 #, fuzzy
 msgid "Fly mode disabled"
 msgstr "Kasi ya hali ya haraka"
@@ -1865,11 +1879,13 @@ msgid "Item definitions..."
 msgstr "Fasili ya kipengele..."
 
 #: src/client/game.cpp
-msgid "KiB/s"
+#, fuzzy
+msgid "KiB"
 msgstr "Kibu/s"
 
 #: src/client/game.cpp
-msgid "MiB/s"
+#, fuzzy
+msgid "MiB"
 msgstr "MiB/s"
 
 #: src/client/game.cpp
@@ -1921,6 +1937,11 @@ msgstr "Inazima..."
 #: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "Singleplayer"
+
+#: src/client/game.cpp
+#, c-format
+msgid "Size: %.2f %s"
+msgstr ""
 
 #: src/client/game.cpp
 #, fuzzy
@@ -2152,8 +2173,27 @@ msgstr ""
 
 #: src/client/keycode.cpp
 #, fuzzy
+msgid "A (Gamepad)"
+msgstr "Michezo"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "B (Gamepad)"
+msgstr "Michezo"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Back (Gamepad)"
+msgstr "Michezo"
+
+#: src/client/keycode.cpp
+#, fuzzy
 msgid "Backspace"
 msgstr "Nyuma"
+
+#: src/client/keycode.cpp
+msgid "Bottom Face Button (Gamepad)"
+msgstr ""
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2163,6 +2203,10 @@ msgstr "Zawadi muhimu"
 
 #: src/client/keycode.cpp
 msgid "Caps Lock"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Circle (Gamepad)"
 msgstr ""
 
 #: src/client/keycode.cpp
@@ -2177,6 +2221,28 @@ msgstr "Udhibiti"
 
 #: src/client/keycode.cpp
 #, fuzzy
+msgid "Cross (Gamepad)"
+msgstr "Michezo"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "D-Pad Down"
+msgstr "Chini"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Up"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
 msgid "Delete Key"
 msgstr "Futa"
 
@@ -2188,6 +2254,26 @@ msgstr ""
 #, fuzzy
 msgid "End Key"
 msgstr "Menyu"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d +"
+msgstr "Michezo"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d -"
+msgstr "Michezo"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Button %d"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Guide (Gamepad)"
+msgstr "Michezo"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2218,12 +2304,47 @@ msgid "Left Control"
 msgstr "Udhibiti wa kushoto"
 
 #: src/client/keycode.cpp
+msgid "Left Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Down"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Up"
+msgstr "Udhibiti wa kushoto"
+
+#: src/client/keycode.cpp
 msgid "Left Menu"
 msgstr "Menyu ya kushoto"
 
 #: src/client/keycode.cpp
 msgid "Left Shift"
 msgstr "Kisogezi kushoto"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Shoulder"
+msgstr "Kisogezi kushoto"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Trigger"
+msgstr "Udhibiti wa kushoto"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2339,6 +2460,14 @@ msgstr "Sitisha"
 msgid "Play"
 msgstr "Kucheza"
 
+#: src/client/keycode.cpp
+msgid "Primary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Primary Right Paddle"
+msgstr ""
+
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
@@ -2364,12 +2493,49 @@ msgid "Right Control"
 msgstr "Udhibiti sahihi"
 
 #: src/client/keycode.cpp
+msgid "Right Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Down"
+msgstr "Udhibiti sahihi"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Left"
+msgstr "Udhibiti sahihi"
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Up"
+msgstr "Udhibiti sahihi"
+
+#: src/client/keycode.cpp
 msgid "Right Menu"
 msgstr "Menyu kulia"
 
 #: src/client/keycode.cpp
 msgid "Right Shift"
 msgstr "Kisogezi kulia"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Shoulder"
+msgstr "Kisogezi kulia"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Trigger"
+msgstr "Udhibiti sahihi"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2384,6 +2550,14 @@ msgstr ""
 #: src/client/keycode.cpp
 msgid "Scroll Lock"
 msgstr "Scroll Lock"
+
+#: src/client/keycode.cpp
+msgid "Secondary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Secondary Right Paddle"
+msgstr ""
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2401,12 +2575,44 @@ msgstr "Nafasi"
 
 #: src/client/keycode.cpp
 #, fuzzy
+msgid "Square (Gamepad)"
+msgstr "Jina la seva"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Start (Gamepad)"
+msgstr "Ficha mchezo"
+
+#: src/client/keycode.cpp
+#, fuzzy
 msgid "Tab Key"
 msgstr "Zawadi muhimu"
 
 #: src/client/keycode.cpp
+msgid "Top Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Touchpad Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Triangle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "X (Gamepad)"
+msgstr "Michezo"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Y (Gamepad)"
+msgstr "Michezo"
 
 #: src/client/minimap.cpp
 #, fuzzy
@@ -2728,6 +2934,10 @@ msgid ""
 "Please contact the server administrator."
 msgstr ""
 
+#: src/script/lua_api/l_mainmenu.cpp
+msgid "Copied to clipboard!"
+msgstr ""
+
 #: src/server.cpp
 #, fuzzy, c-format
 msgid "%s while shutting down: "
@@ -2900,6 +3110,11 @@ msgstr "Kuongeza kasi katika hewa"
 #: src/settings_translation_file.cpp
 msgid "Acceleration of gravity, in nodes per second per second."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Actions and Keybindings"
+msgstr "Midia ya mbali"
 
 #: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
@@ -3086,11 +3301,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"At this distance the server will perform a simpler and cheaper occlusion "
-"check.\n"
-"Smaller values potentially improve performance, at the expense of "
-"temporarily visible\n"
-"rendering glitches (missing blocks).\n"
+"At this distance the server will consider blocks as \"far away\".\n"
+"It will perform simpler and cheaper occlusion checks, update\n"
+"low priority block updates lazily, and limit the blocks sent to the\n"
+"client in one roundtrip.\n"
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
@@ -3944,15 +4158,6 @@ msgstr "Kivuli cha fonti"
 
 #: src/settings_translation_file.cpp
 #, fuzzy
-msgid "Enable joysticks"
-msgstr "Wezesha vifimbocheza"
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks. Requires a restart to take effect"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable mod channels support."
 msgstr "Kuwezesha usalama Moduli"
 
@@ -4364,9 +4569,12 @@ msgid "GUI scaling filter"
 msgstr "GUI kipimo Kichujio"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Gamepads"
-msgstr "Michezo"
+msgid "Gamepads and Joysticks"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Gamma"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -4984,23 +5192,19 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Joystick ID"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Joystick button repetition interval"
 msgstr "Kifimbocheza kitufe marudio nafasi"
-
-#: src/settings_translation_file.cpp
-msgid "Joystick dead zone"
-msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Joystick frustum sensitivity"
 msgstr "Kifimbocheza frustum unyeti"
 
 #: src/settings_translation_file.cpp
-msgid "Joystick type"
+msgid "Joystick inner dead zone"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Joystick outer dead zone"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5097,6 +5301,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Key for opening the pause menu in-game.\n"
+"Pressing the escape key always opens the pause menu."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
@@ -5119,10 +5329,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Keybindings"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -5382,6 +5588,16 @@ msgid ""
 msgstr ""
 "Kufanya rangi wa ukungu na anga hutegemea mchana (alfajiri/machweo) na "
 "kuonyesha mwelekeo."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Make volumetrics weaker against closer objects to emulate physical "
+"volumetrics."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Makes the color of light fog more saturated."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
@@ -6016,6 +6232,10 @@ msgid "Open inventory"
 msgstr "Hesabu"
 
 #: src/settings_translation_file.cpp
+msgid "Open pause menu"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Open the pause menu when the window's focus is lost. Does not pause if a "
 "formspec is\n"
@@ -6582,8 +6802,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Set the exposure compensation in EV units.\n"
-"Value of 0.0 (default) means no exposure compensation.\n"
-"Range: from -1 to 1.0"
+"Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6598,6 +6817,12 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Set the maximum length of a chat message (in characters) sent by clients."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Set the post processing gamma value.\n"
+"Higher values give lower contrast and vice versa."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6736,7 +6961,9 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Simulate translucency when looking at foliage in the sunlight."
+msgid ""
+"Simulate translucency when looking at foliage in the sunlight.\n"
+"It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6994,10 +7221,6 @@ msgid "The URL for the content repository"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "The dead zone of the joystick"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The default format in which profiles are being saved,\n"
 "when calling `/profiler save [format]` without format."
@@ -7029,10 +7252,6 @@ msgid ""
 "* Long tap\n"
 "Known from the classic Luanti mobile controls.\n"
 "Combat is more or less impossible."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "The identifier of the joystick to use"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -7158,10 +7377,6 @@ msgstr ""
 "wakati wa kufanya kitufe cha kulia."
 
 #: src/settings_translation_file.cpp
-msgid "The type of joystick"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The vertical distance over which heat drops by 20 if 'altitude_chill' is\n"
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
@@ -7198,6 +7413,19 @@ msgid "Timeout for client to remove unused map data from memory, in seconds."
 msgstr ""
 "Muda wa kuisha kwa mteja kuondoa data ya ramani zisizotumika kutoka kwa "
 "kumbukumbu."
+
+#: src/settings_translation_file.cpp
+msgid "Tint sunlight during sunrise/sunset."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Tinted fog"
+msgstr "Togoa kuruka"
+
+#: src/settings_translation_file.cpp
+msgid "Tinted sunlight"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -7586,7 +7814,12 @@ msgstr "Ramprogrammen juu wakati mchezo umesitishwa."
 
 #: src/settings_translation_file.cpp
 #, fuzzy
-msgid "Volumetric lighting"
+msgid "Volumetric Depth Attenuation"
+msgstr "Taa laini"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Volumetric Lighting"
 msgstr "Taa laini"
 
 #: src/settings_translation_file.cpp
@@ -7661,7 +7894,9 @@ msgid "Weblink color"
 msgstr "Uteuzi kikasha rangi"
 
 #: src/settings_translation_file.cpp
-msgid "When enabled, liquid reflections are simulated."
+msgid ""
+"When enabled, crude liquid reflections are simulated.\n"
+"Wave height, length and speed will affect these reflections."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -7877,3 +8112,7 @@ msgstr ""
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
 msgstr ""
+
+#, fuzzy
+#~ msgid "Enable joysticks"
+#~ msgstr "Wezesha vifimbocheza"

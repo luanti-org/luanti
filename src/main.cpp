@@ -716,7 +716,9 @@ static bool use_debugger(int argc, char *argv[])
 			continue;
 		new_args.push_back(argv[i]);
 	}
+#if CHECK_CLIENT_BUILD()
 	new_args.push_back("--console");
+#endif
 	new_args.push_back(nullptr);
 
 #ifdef _WIN32

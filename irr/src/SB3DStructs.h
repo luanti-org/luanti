@@ -11,6 +11,10 @@
 #include "SMaterial.h"
 #include "irrMath.h"
 
+#include <optional>
+#include <string>
+#include <array>
+
 namespace scene
 {
 
@@ -54,15 +58,12 @@ struct SB3dMaterial
 			red(1.0f), green(1.0f),
 			blue(1.0f), alpha(1.0f), shininess(0.0f), blend(1),
 			fx(0)
-	{
-		for (u32 i = 0; i < video::MATERIAL_MAX_TEXTURES; ++i)
-			Textures[i] = 0;
-	}
+	{}
 	video::SMaterial Material;
 	f32 red, green, blue, alpha;
 	f32 shininess;
 	s32 blend, fx;
-	SB3dTexture *Textures[video::MATERIAL_MAX_TEXTURES];
+	std::array<std::optional<u16>, video::MATERIAL_MAX_TEXTURES> texture_ids;
 };
 
 } // end namespace scene

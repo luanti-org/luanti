@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Chinese (Traditional) (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 19:14+0200\n"
+"POT-Creation-Date: 2026-08-10 17:35+0200\n"
 "PO-Revision-Date: 2025-01-16 13:00+0000\n"
 "Last-Translator: reimu105 <peter112548@gmail.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
@@ -512,6 +512,10 @@ msgstr "Lua 指令稿發生錯誤："
 #: builtin/fstk/ui.lua
 msgid "An error occurred:"
 msgstr "發生錯誤："
+
+#: builtin/fstk/ui.lua
+msgid "Copy to clipboard"
+msgstr ""
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1546,6 +1550,11 @@ msgstr "移除收藏"
 msgid "Server Description"
 msgstr "伺服器描述"
 
+#: src/chat.cpp
+#, fuzzy
+msgid "Player names: "
+msgstr "遊玩遊戲"
+
 #: src/client/client.cpp
 msgid "Connection aborted (protocol error?)."
 msgstr "連線中止（協定錯誤？）。"
@@ -1738,6 +1747,11 @@ msgid "Fast mode enabled (note: no 'fast' privilege)"
 msgstr "快速模式已啟用（註：沒有「fast」權限）"
 
 #: src/client/game.cpp
+#, c-format
+msgid "Files: %d / %d"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Fly mode disabled"
 msgstr "飛行模式已停用"
 
@@ -1766,11 +1780,13 @@ msgid "Item definitions..."
 msgstr "定義物品..."
 
 #: src/client/game.cpp
-msgid "KiB/s"
+#, fuzzy
+msgid "KiB"
 msgstr "KiB/秒"
 
 #: src/client/game.cpp
-msgid "MiB/s"
+#, fuzzy
+msgid "MiB"
 msgstr "MiB/秒"
 
 #: src/client/game.cpp
@@ -1820,6 +1836,11 @@ msgstr "正在關閉..."
 #: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "單人遊戲"
+
+#: src/client/game.cpp
+#, c-format
+msgid "Size: %.2f %s"
+msgstr ""
 
 #: src/client/game.cpp
 msgid "Sound muted"
@@ -2042,8 +2063,27 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "已顯示分析器（第 %d 頁，共 %d 頁）"
 
 #: src/client/keycode.cpp
+#, fuzzy
+msgid "A (Gamepad)"
+msgstr "遊戲手把"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "B (Gamepad)"
+msgstr "遊戲手把"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Back (Gamepad)"
+msgstr "遊戲手把"
+
+#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "退格鍵"
+
+#: src/client/keycode.cpp
+msgid "Bottom Face Button (Gamepad)"
+msgstr ""
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2055,12 +2095,38 @@ msgid "Caps Lock"
 msgstr "大寫鎖定鍵"
 
 #: src/client/keycode.cpp
+msgid "Circle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Clear Key"
 msgstr "清除鍵"
 
 #: src/client/keycode.cpp
 msgid "Control Key"
 msgstr "控制鍵"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Cross (Gamepad)"
+msgstr "遊戲手把"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "D-Pad Down"
+msgstr "Page Down"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Up"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Delete Key"
@@ -2074,6 +2140,26 @@ msgstr "向下箭頭"
 #, fuzzy
 msgid "End Key"
 msgstr "選單鍵"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d +"
+msgstr "遊戲手把"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d -"
+msgstr "遊戲手把"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Button %d"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Guide (Gamepad)"
+msgstr "遊戲手把"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2103,12 +2189,51 @@ msgid "Left Control"
 msgstr "左 Control"
 
 #: src/client/keycode.cpp
+msgid "Left Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Button"
+msgstr "搖桿類型"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Down"
+msgstr "搖桿 ID"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Left"
+msgstr "搖桿類型"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Right"
+msgstr "搖桿類型"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Up"
+msgstr "搖桿類型"
+
+#: src/client/keycode.cpp
 msgid "Left Menu"
 msgstr "左選單鍵"
 
 #: src/client/keycode.cpp
 msgid "Left Shift"
 msgstr "左 Shift"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Shoulder"
+msgstr "左 Shift"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Trigger"
+msgstr "左箭頭"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2220,6 +2345,14 @@ msgstr "暫停鍵"
 msgid "Play"
 msgstr "遊玩"
 
+#: src/client/keycode.cpp
+msgid "Primary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Primary Right Paddle"
+msgstr ""
+
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
@@ -2243,12 +2376,50 @@ msgid "Right Control"
 msgstr "右 Control"
 
 #: src/client/keycode.cpp
+msgid "Right Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Down"
+msgstr "搖桿 ID"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Left"
+msgstr "搖桿類型"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Right"
+msgstr "搖桿類型"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Up"
+msgstr "搖桿類型"
+
+#: src/client/keycode.cpp
 msgid "Right Menu"
 msgstr "右選單鍵"
 
 #: src/client/keycode.cpp
 msgid "Right Shift"
 msgstr "右 Shift"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Shoulder"
+msgstr "右 Shift"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Trigger"
+msgstr "右箭頭"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2265,6 +2436,14 @@ msgid "Scroll Lock"
 msgstr "捲動鎖定鍵"
 
 #: src/client/keycode.cpp
+msgid "Secondary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Secondary Right Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
 #, fuzzy
 msgid "Select Key"
 msgstr "刪除鍵"
@@ -2279,12 +2458,44 @@ msgstr "空白鍵"
 
 #: src/client/keycode.cpp
 #, fuzzy
+msgid "Square (Gamepad)"
+msgstr "遊戲伺服器"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Start (Gamepad)"
+msgstr "開始遊戲"
+
+#: src/client/keycode.cpp
+#, fuzzy
 msgid "Tab Key"
 msgstr "取消鍵"
 
 #: src/client/keycode.cpp
+msgid "Top Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Touchpad Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Triangle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "向上箭頭"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "X (Gamepad)"
+msgstr "遊戲手把"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Y (Gamepad)"
+msgstr "遊戲手把"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2597,6 +2808,10 @@ msgstr ""
 "伺服器不支援這個客戶端版本。\n"
 "請聯絡管理員。"
 
+#: src/script/lua_api/l_mainmenu.cpp
+msgid "Copied to clipboard!"
+msgstr ""
+
 #: src/server.cpp
 #, c-format
 msgid "%s while shutting down: "
@@ -2780,6 +2995,11 @@ msgstr "空氣中的加速度"
 #: src/settings_translation_file.cpp
 msgid "Acceleration of gravity, in nodes per second per second."
 msgstr "每秒中每秒節點的重力加速度。"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Actions and Keybindings"
+msgstr "鍵綁定。"
 
 #: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
@@ -2985,12 +3205,12 @@ msgstr ""
 "在 MapBlocks (16 個節點) 中說明。"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"At this distance the server will perform a simpler and cheaper occlusion "
-"check.\n"
-"Smaller values potentially improve performance, at the expense of "
-"temporarily visible\n"
-"rendering glitches (missing blocks).\n"
+"At this distance the server will consider blocks as \"far away\".\n"
+"It will perform simpler and cheaper occlusion checks, update\n"
+"low priority block updates lazily, and limit the blocks sent to the\n"
+"client in one roundtrip.\n"
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
@@ -3851,14 +4071,6 @@ msgid "Enable dynamic shadows"
 msgstr "動態陰影"
 
 #: src/settings_translation_file.cpp
-msgid "Enable joysticks"
-msgstr "啟用搖桿"
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks. Requires a restart to take effect"
-msgstr "啟用操縱桿。 需要重新啟動才能生效"
-
-#: src/settings_translation_file.cpp
 msgid "Enable mod channels support."
 msgstr "啟用 mod 頻道支援。"
 
@@ -4273,8 +4485,12 @@ msgid "GUI scaling filter"
 msgstr "圖形使用者介面縮放過濾器"
 
 #: src/settings_translation_file.cpp
-msgid "Gamepads"
-msgstr "遊戲手把"
+msgid "Gamepads and Joysticks"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Gamma"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -4918,24 +5134,22 @@ msgstr ""
 "在迭代次數 = 20 時，此 mapgen 具有與 mapgen V7 類似的負載。"
 
 #: src/settings_translation_file.cpp
-msgid "Joystick ID"
-msgstr "搖桿 ID"
-
-#: src/settings_translation_file.cpp
 msgid "Joystick button repetition interval"
 msgstr "搖桿按鈕重覆間隔"
-
-#: src/settings_translation_file.cpp
-msgid "Joystick dead zone"
-msgstr "搖桿死區"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick frustum sensitivity"
 msgstr "搖桿靈敏度"
 
 #: src/settings_translation_file.cpp
-msgid "Joystick type"
-msgstr "搖桿類型"
+#, fuzzy
+msgid "Joystick inner dead zone"
+msgstr "搖桿死區"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Joystick outer dead zone"
+msgstr "搖桿死區"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5035,6 +5249,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Key for opening the pause menu in-game.\n"
+"Pressing the escape key always opens the pause menu."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
@@ -5058,11 +5278,6 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
 msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Keybindings"
-msgstr "鍵綁定。"
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -5321,6 +5536,16 @@ msgstr "主選單指令稿"
 msgid ""
 "Make fog and sky colors depend on daytime (dawn/sunset) and view direction."
 msgstr "讓霧與天空的顏色取決於時間（黎明／日落）與觀看方向。"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Make volumetrics weaker against closer objects to emulate physical "
+"volumetrics."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Makes the color of light fog more saturated."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
@@ -5936,6 +6161,10 @@ msgid "Open inventory"
 msgstr "物品欄"
 
 #: src/settings_translation_file.cpp
+msgid "Open pause menu"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Open the pause menu when the window's focus is lost. Does not pause if a "
 "formspec is\n"
@@ -6527,10 +6756,10 @@ msgstr ""
 "0 值表示無傾斜/垂直軌道。"
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Set the exposure compensation in EV units.\n"
-"Value of 0.0 (default) means no exposure compensation.\n"
-"Range: from -1 to 1.0"
+"Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 "以 EV 單位設定曝光補償。\n"
 "值 0.0（預設）表示無曝光補償。\n"
@@ -6548,6 +6777,12 @@ msgstr ""
 msgid ""
 "Set the maximum length of a chat message (in characters) sent by clients."
 msgstr "設定客戶端發送的聊天訊息的最大長度（以字元為單位）。"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Set the post processing gamma value.\n"
+"Higher values give lower contrast and vice versa."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6689,7 +6924,10 @@ msgstr ""
 "具有低端 GPU（或沒有 GPU）的系統將受益於較小的值。"
 
 #: src/settings_translation_file.cpp
-msgid "Simulate translucency when looking at foliage in the sunlight."
+#, fuzzy
+msgid ""
+"Simulate translucency when looking at foliage in the sunlight.\n"
+"It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
 msgstr "模擬在陽光下觀察樹葉時的半透明度。"
 
 #: src/settings_translation_file.cpp
@@ -6969,10 +7207,6 @@ msgid "The URL for the content repository"
 msgstr "內容儲存庫的 URL"
 
 #: src/settings_translation_file.cpp
-msgid "The dead zone of the joystick"
-msgstr "搖桿死區"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The default format in which profiles are being saved,\n"
 "when calling `/profiler save [format]` without format."
@@ -7013,10 +7247,6 @@ msgstr ""
 "*長按\n"
 "以經典的 Luanti 行動控製而聞名。\n"
 "戰鬥幾乎是不可能的。"
-
-#: src/settings_translation_file.cpp
-msgid "The identifier of the joystick to use"
-msgstr "要使用的搖桿的識別碼"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7154,10 +7384,6 @@ msgstr ""
 "地點按鈕。"
 
 #: src/settings_translation_file.cpp
-msgid "The type of joystick"
-msgstr "搖桿類型"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The vertical distance over which heat drops by 20 if 'altitude_chill' is\n"
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
@@ -7194,6 +7420,19 @@ msgstr "時間速度"
 #: src/settings_translation_file.cpp
 msgid "Timeout for client to remove unused map data from memory, in seconds."
 msgstr "客戶端從記憶體中刪除未使用的地圖資料的逾時時間（以秒為單位）。"
+
+#: src/settings_translation_file.cpp
+msgid "Tint sunlight during sunrise/sunset."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Tinted fog"
+msgstr "切換霧氣"
+
+#: src/settings_translation_file.cpp
+msgid "Tinted sunlight"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -7589,7 +7828,13 @@ msgid "Volume when unfocused"
 msgstr "不聚焦時的音量"
 
 #: src/settings_translation_file.cpp
-msgid "Volumetric lighting"
+#, fuzzy
+msgid "Volumetric Depth Attenuation"
+msgstr "體積照明"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Volumetric Lighting"
 msgstr "體積照明"
 
 #: src/settings_translation_file.cpp
@@ -7659,8 +7904,10 @@ msgid "Weblink color"
 msgstr "網路連結顏色"
 
 #: src/settings_translation_file.cpp
-msgid "When enabled, liquid reflections are simulated."
-msgstr "啟用後，將模擬液體反射。"
+msgid ""
+"When enabled, crude liquid reflections are simulated.\n"
+"Wave height, length and speed will affect these reflections."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7893,5 +8140,24 @@ msgstr ""
 msgid "Failed to save screenshot to \"%s\""
 msgstr ""
 
-#~ msgid "Append item name"
-#~ msgstr "將物品名稱加至末尾"
+#~ msgid "Enable joysticks"
+#~ msgstr "啟用搖桿"
+
+#~ msgid "Enable joysticks. Requires a restart to take effect"
+#~ msgstr "啟用操縱桿。 需要重新啟動才能生效"
+
+#, fuzzy
+#~ msgid "Keybindings"
+#~ msgstr "鍵綁定。"
+
+#~ msgid "The dead zone of the joystick"
+#~ msgstr "搖桿死區"
+
+#~ msgid "The identifier of the joystick to use"
+#~ msgstr "要使用的搖桿的識別碼"
+
+#~ msgid "The type of joystick"
+#~ msgstr "搖桿類型"
+
+#~ msgid "When enabled, liquid reflections are simulated."
+#~ msgstr "啟用後，將模擬液體反射。"

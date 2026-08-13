@@ -552,6 +552,10 @@ bool CXMeshFileLoader::parseDataObjectMesh(SXMesh &mesh)
 
 	// read faces
 	const u32 nFaces = readInt();
+	if (nFaces > (1U << 28 /* leave a couple bits of wiggle room */)) {
+		os::Printer::log("Too many faces", ELL_ERROR);
+		SET_ERR_AND_RETURN();
+	}
 
 	mesh.Indices.set_used(nFaces * 3);
 	mesh.IndexCountPerFace.set_used(nFaces);
@@ -572,7 +576,13 @@ bool CXMeshFileLoader::parseDataObjectMesh(SXMesh &mesh)
 			// read face indices
 			polygonfaces.set_used(fcnt);
 			u32 triangles = (fcnt - 2);
-			mesh.Indices.set_used(mesh.Indices.size() + ((triangles - 1) * 3));
+			// Compute in u64 to avoid overflows
+			u64 nIndices = mesh.Indices.size() + (u64)(triangles - 1) * 3;
+			if (nIndices > (1U << 28 /* leave a couple bits of wiggle room */)) {
+				os::Printer::log("Too many indices", ELL_ERROR);
+				SET_ERR_AND_RETURN();
+			}
+			mesh.Indices.set_used(nIndices);
 			mesh.IndexCountPerFace[k] = (u16)(triangles * 3);
 
 			for (u32 f = 0; f < fcnt; ++f)

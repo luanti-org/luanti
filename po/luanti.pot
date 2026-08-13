@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: luanti\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 19:14+0200\n"
+"POT-Creation-Date: 2026-08-10 17:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -496,6 +496,10 @@ msgstr ""
 
 #: builtin/fstk/ui.lua
 msgid "OK"
+msgstr ""
+
+#: builtin/fstk/ui.lua
+msgid "Copy to clipboard"
 msgstr ""
 
 #: builtin/fstk/ui.lua
@@ -1515,6 +1519,10 @@ msgstr ""
 msgid "Join Game"
 msgstr ""
 
+#: src/chat.cpp
+msgid "Player names: "
+msgstr ""
+
 #: src/client/client.cpp src/client/game.cpp
 msgid "Connection timed out."
 msgstr ""
@@ -1641,6 +1649,14 @@ msgid "Client disconnected"
 msgstr ""
 
 #: src/client/game.cpp
+msgid "KiB"
+msgstr ""
+
+#: src/client/game.cpp
+msgid "MiB"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Item definitions..."
 msgstr ""
 
@@ -1649,11 +1665,13 @@ msgid "Node definitions..."
 msgstr ""
 
 #: src/client/game.cpp
-msgid "KiB/s"
+#, c-format
+msgid "Files: %d / %d"
 msgstr ""
 
 #: src/client/game.cpp
-msgid "MiB/s"
+#, c-format
+msgid "Size: %.2f %s"
 msgstr ""
 
 #: src/client/game.cpp
@@ -2231,6 +2249,173 @@ msgstr ""
 msgid "Mouse Button %d"
 msgstr ""
 
+#: src/client/keycode.cpp
+msgid "A (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "B (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "X (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Y (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Cross (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Circle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Square (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Triangle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Bottom Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Top Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Back (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Guide (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Start (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Shoulder"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Shoulder"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Up"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Down"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Primary Right Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Primary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Secondary Right Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Secondary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Touchpad Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Button %d"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Down"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Down"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Trigger"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Trigger"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Axis %d +"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Up"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Up"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Axis %d -"
+msgstr ""
+
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
 msgstr ""
@@ -2532,6 +2717,10 @@ msgstr ""
 msgid "Unknown disconnect reason."
 msgstr ""
 
+#: src/script/lua_api/l_mainmenu.cpp
+msgid "Copied to clipboard!"
+msgstr ""
+
 #: src/server.cpp
 #, c-format
 msgid "%s while shutting down: "
@@ -2664,51 +2853,7 @@ msgid "Enable a confirmation dialog before closing."
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Keyboard and Mouse"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Invert mouse"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Invert vertical mouse movement."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Mouse sensitivity"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Mouse sensitivity multiplier."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Keyboard camera speed"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Keyboard-controlled camera rotation speed, in degrees per second."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Hotbar: Enable mouse wheel for selection"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Enable mouse wheel (scroll) for item selection in hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Hotbar: Invert mouse wheel direction"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Invert mouse wheel (scroll) direction for item selection in hotbar."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Keybindings"
+msgid "Actions and Keybindings"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -2751,6 +2896,16 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Open inventory"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Open pause menu"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Key for opening the pause menu in-game.\n"
+"Pressing the escape key always opens the pause menu."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3024,6 +3179,50 @@ msgid "Hotbar slot 32"
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Keyboard and Mouse"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Invert mouse"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Invert vertical mouse movement."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Mouse sensitivity"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Mouse sensitivity multiplier."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Keyboard camera speed"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Keyboard-controlled camera rotation speed, in degrees per second."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar: Enable mouse wheel for selection"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Enable mouse wheel (scroll) for item selection in hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Hotbar: Invert mouse wheel direction"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Invert mouse wheel (scroll) direction for item selection in hotbar."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Touchscreen"
 msgstr ""
 
@@ -3123,6 +3322,38 @@ msgid ""
 "Use virtual joystick to trigger \"Aux1\" button.\n"
 "If enabled, virtual joystick will also tap \"Aux1\" button when out of main "
 "circle."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Gamepads and Joysticks"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Joystick button repetition interval"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"The time in seconds it takes between repeated events\n"
+"when holding down a joystick button combination."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Joystick inner dead zone"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Joystick outer dead zone"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Joystick frustum sensitivity"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"The sensitivity of the joystick axes for moving the\n"
+"in-game view frustum around."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3805,6 +4036,24 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Tinted sunlight"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Tint sunlight during sunrise/sunset."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Liquid reflections"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"When enabled, crude liquid reflections are simulated.\n"
+"Wave height, length and speed will affect these reflections."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Post Processing"
 msgstr ""
 
@@ -3829,6 +4078,16 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Gamma"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Set the post processing gamma value.\n"
+"Higher values give lower contrast and vice versa."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Enable Automatic Exposure"
 msgstr ""
 
@@ -3847,8 +4106,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Set the exposure compensation in EV units.\n"
-"Value of 0.0 (default) means no exposure compensation.\n"
-"Range: from -1 to 1.0"
+"Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3877,7 +4135,7 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Volumetric lighting"
+msgid "Volumetric Lighting"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3885,7 +4143,25 @@ msgid "Set to true to enable volumetric lighting effect (a.k.a. \"Godrays\")."
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid "Volumetric Depth Attenuation"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Make volumetrics weaker against closer objects to emulate physical "
+"volumetrics."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Other Effects"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Tinted fog"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Makes the color of light fog more saturated."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3893,15 +4169,9 @@ msgid "Translucent foliage"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Simulate translucency when looking at foliage in the sunlight."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Liquid reflections"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "When enabled, liquid reflections are simulated."
+msgid ""
+"Simulate translucency when looking at foliage in the sunlight.\n"
+"It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6768,11 +7038,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"At this distance the server will perform a simpler and cheaper occlusion "
-"check.\n"
-"Smaller values potentially improve performance, at the expense of "
-"temporarily visible\n"
-"rendering glitches (missing blocks).\n"
+"At this distance the server will consider blocks as \"far away\".\n"
+"It will perform simpler and cheaper occlusion checks, update\n"
+"low priority block updates lazily, and limit the blocks sent to the\n"
+"client in one roundtrip.\n"
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
@@ -7038,62 +7307,6 @@ msgid ""
 "File in client/serverlist/ that contains your favorite servers displayed in "
 "the\n"
 "Multiplayer Tab."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Gamepads"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks. Requires a restart to take effect"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Joystick ID"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "The identifier of the joystick to use"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Joystick type"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "The type of joystick"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Joystick button repetition interval"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"The time in seconds it takes between repeated events\n"
-"when holding down a joystick button combination."
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Joystick dead zone"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "The dead zone of the joystick"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Joystick frustum sensitivity"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid ""
-"The sensitivity of the joystick axes for moving the\n"
-"in-game view frustum around."
 msgstr ""
 
 #: src/util/screenshot.cpp

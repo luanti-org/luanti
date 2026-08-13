@@ -1003,7 +1003,7 @@ int ScriptApiSecurity::sl_g_loadstring(lua_State *L)
 	const char *chunk_name = "=(load)";
 
 	luaL_checktype(L, 1, LUA_TSTRING);
-	if (!lua_isnone(L, 2)) {
+	if (!lua_isnoneornil(L, 2)) {
 		luaL_checktype(L, 2, LUA_TSTRING);
 		chunk_name = lua_tostring(L, 2);
 	}

@@ -7,11 +7,10 @@ See the [releases page](https://github.com/luanti-org/luanti/releases).
 
 ## Reporting a Vulnerability
 
-We ask that you report vulnerabilities privately, by contacting a core developer,
-to give us time to fix them. You can do that by emailing one of the following addresses:
+We ask that you report vulnerabilities privately first:
 
-* celeron55@gmail.com
-* rw@rubenwardy.com
+* [Report a vulnerability on GitHub](https://github.com/luanti-org/luanti/security/advisories/new)
+* or email [security@luanti.org](mailto:security@luanti.org)
 
 Depending on severity, we will either create a private issue for the vulnerability
 and release a patch version of Luanti, or give you permission to file the issue publicly.
