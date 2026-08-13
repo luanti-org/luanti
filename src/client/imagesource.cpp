@@ -292,24 +292,6 @@ static video::IImage *createInventoryCubeImage(
 	return result;
 }
 
-static std::string unescape_string(std::string_view str, const char esc = '\\')
-{
-	std::string out;
-	size_t pos = 0, cpos;
-	out.reserve(str.size());
-	while (1) {
-		cpos = str.find_first_of(esc, pos);
-		if (cpos == std::string::npos) {
-			out += str.substr(pos);
-			break;
-		}
-		out += str.substr(pos, cpos - pos);
-		out += str[cpos + 1];
-		pos = cpos + 2;
-	}
-	return out;
-}
-
 /*
 	Replaces the smaller of the two images with one upscaled to match the
 	dimensions of the other.

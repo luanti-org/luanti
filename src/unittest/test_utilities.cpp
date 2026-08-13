@@ -6,11 +6,14 @@
 
 #include <cmath>
 #include <limits>
+#include <string_view>
 #include "util/enriched_string.h"
 #include "util/numeric.h"
 #include "util/string.h"
 #include "util/base64.h"
 #include "util/colorize.h"
+
+using namespace std::string_view_literals;
 
 class TestUtilities : public TestBase {
 public:
@@ -30,6 +33,7 @@ public:
 	void testPadString();
 	void testStartsWith();
 	void testStrEqual();
+	void testStrSplit();
 	void testStrToIntConversion();
 	void testStringReplace();
 	void testStringAllowed();
@@ -69,6 +73,7 @@ void TestUtilities::runTests(IGameDef *gamedef)
 	TEST(testPadString);
 	TEST(testStartsWith);
 	TEST(testStrEqual);
+	TEST(testStrSplit);
 	TEST(testStrToIntConversion);
 	TEST(testStringReplace);
 	TEST(testStringAllowed);
@@ -265,11 +270,32 @@ void TestUtilities::testStrEqual()
 	UASSERT(str_equal(utf8_to_wide("ABC"), utf8_to_wide("abc"), true));
 }
 
+void TestUtilities::testStrSplit()
+{
+	auto ret = str_split(std::string("foo,bar,\\,,x"), ',');
+	const char *expect[] = {"foo", "bar", "\\", "", "x"};
+	UASSERTEQ(size_t, ret.size(), ARRLEN(expect));
+	for (size_t i = 0; i < ARRLEN(expect); i++)
+		UASSERTEQ(auto, ret[i], expect[i]);
+
+	// We have a second function called just 'split' that works differently...
+	ret = split("foo?bar?\\???x"sv, '?');
+	const char *expect2[] = {"foo", "bar", "\\?", "", "x"};
+	UASSERTEQ(size_t, ret.size(), ARRLEN(expect2));
+	for (size_t i = 0; i < ARRLEN(expect2); i++)
+		UASSERTEQ(auto, ret[i], expect2[i]);
+
+	auto retw = split(L"mine;test"sv, L';');
+	UASSERT(retw.size() == 2);
+	UASSERT(retw[0] == L"mine");
+	UASSERT(retw[1] == L"test");
+}
 
 void TestUtilities::testStrToIntConversion()
 {
 	UASSERT(mystoi("123", 0, 1000) == 123);
 	UASSERT(mystoi("123", 0, 10) == 10);
+	UASSERT(mystoi("-123", -5, 5) == -5);
 }
 
 
@@ -278,10 +304,10 @@ void TestUtilities::testStringReplace()
 	std::string test_str;
 	test_str = "Hello there";
 	str_replace(test_str, "there", "world");
-	UASSERT(test_str == "Hello world");
+	UASSERTEQ(auto, test_str, "Hello world");
 	test_str = "ThisAisAaAtest";
 	str_replace(test_str, 'A', ' ');
-	UASSERT(test_str == "This is a test");
+	UASSERTEQ(auto, test_str, "This is a test");
 }
 
 
@@ -333,6 +359,15 @@ void TestUtilities::testUTF8()
 
 void TestUtilities::testRemoveEscapes()
 {
+	UASSERTEQ(auto, unescape_string(""), "");
+	std::string big = std::string("big chungus string").append(420, '!');
+	UASSERTEQ(auto, unescape_string(big), big);
+	UASSERTEQ(auto, unescape_string("a\\b"), "ab");
+	UASSERTEQ(auto, unescape_string("c\\\\d"), "c\\d");
+	UASSERTEQ(auto, unescape_string("\\\\"), "\\");
+	UASSERTEQ(auto, unescape_string("what\\"), "what"); // unfinished
+	UASSERTEQ(auto, unescape_string("\\"), ""); // unfinished
+
 	UASSERT(unescape_enriched<wchar_t>(
 		L"abc\x1bXdef") == L"abcdef");
 	UASSERT(unescape_enriched<wchar_t>(

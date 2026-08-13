@@ -294,20 +294,20 @@ MAKE_VARIANT(str_ends_with, std::basic_string_view<T>, const T*)
  * Splits a string into its component parts separated by the character
  * \p delimiter.
  *
- * @return An std::vector<std::basic_string<T> > of the component parts
+ * @return A vector of the component parts
  */
 template <typename T>
 [[nodiscard]]
-inline std::vector<std::basic_string<T> > str_split(
+inline std::vector<std::basic_string<T>> str_split(
 		const std::basic_string<T> &str,
 		T delimiter)
 {
-	std::vector<std::basic_string<T> > parts;
+	std::vector<std::basic_string<T>> parts;
 	std::basic_stringstream<T> sstr(str);
 	std::basic_string<T> part;
 
 	while (std::getline(sstr, part, delimiter))
-		parts.push_back(part);
+		parts.push_back(std::move(part));
 
 	return parts;
 }
@@ -330,7 +330,7 @@ inline std::string lowercase(std::string_view str)
 
 inline bool my_isspace(const char c)
 {
-	return std::isspace(c);
+	return std::isspace(static_cast<unsigned char>(c));
 }
 
 inline bool my_isspace(const wchar_t c)
@@ -583,26 +583,41 @@ std::string wrap_rows(std::string_view from, unsigned row_len, bool has_color_co
 
 
 /**
- * Removes backslashes from an escaped string (FormSpec strings)
+ * @brief Unescapes a string
  */
 template <typename T>
 [[nodiscard]]
-inline std::basic_string<T> unescape_string(const std::basic_string<T> &s)
+std::basic_string<T> unescape_string(std::basic_string_view<T> str, const T esc = T('\\'))
 {
-	std::basic_string<T> res;
-	res.reserve(s.size());
-
-	for (size_t i = 0; i < s.length(); i++) {
-		if (s[i] == '\\') {
-			i++;
-			if (i >= s.length())
-				break;
+	std::basic_string<T> out;
+	size_t pos = 0;
+	out.reserve(str.size());
+	while (pos < str.size()) {
+		size_t cpos = str.find(esc, pos); // find next escape
+		if (cpos == std::string::npos) {
+			out += str.substr(pos);
+			break;
 		}
-		res += s[i];
+		out += str.substr(pos, cpos - pos); // preceding part
+		if (cpos + 1 != str.size())
+			out += str[cpos + 1]; // the char after
+		pos = cpos + 2;
 	}
-
-	return res;
+	return out;
 }
+
+// (same templating issue here)
+[[nodiscard]]
+inline std::string unescape_string(std::string_view s, const char esc = '\\')
+{
+	return unescape_string<char>(s, esc);
+}
+[[nodiscard]]
+inline std::wstring unescape_string(std::wstring_view s, const wchar_t esc = L'\\')
+{
+	return unescape_string<wchar_t>(s, esc);
+}
+
 
 /**
  * Remove all escape sequences in \p s.
@@ -651,26 +666,34 @@ inline std::wstring unescape_enriched(std::wstring_view s)
 	return unescape_enriched<wchar_t>(s);
 }
 
+/**
+ * Splits a string into its component parts separated by the character
+ * \p delimiter.
+ * \p escape is interpreted as an escape character, but *not* removed.
+ *
+ * @return A vector of the component parts
+ */
 template <typename T>
 [[nodiscard]]
-std::vector<std::basic_string<T> > split(const std::basic_string<T> &s, T delim)
+std::vector<std::basic_string<T>> split(std::basic_string_view<T> s,
+		T delim, T escape = static_cast<T>('\\'))
 {
-	std::vector<std::basic_string<T> > tokens;
+	std::vector<std::basic_string<T>> tokens;
 
 	std::basic_string<T> current;
 	bool last_was_escape = false;
 	for (size_t i = 0; i < s.length(); i++) {
 		T si = s[i];
 		if (last_was_escape) {
-			current += '\\';
+			current += escape;
 			current += si;
 			last_was_escape = false;
 		} else {
 			if (si == delim) {
-				tokens.push_back(current);
+				tokens.emplace_back(std::move(current));
 				current.clear();
 				last_was_escape = false;
-			} else if (si == '\\') {
+			} else if (si == escape) {
 				last_was_escape = true;
 			} else {
 				current += si;
@@ -678,10 +701,18 @@ std::vector<std::basic_string<T> > split(const std::basic_string<T> &s, T delim)
 			}
 		}
 	}
-	//push last element
-	tokens.push_back(current);
+	// push last element
+	tokens.emplace_back(std::move(current));
 
 	return tokens;
+}
+
+template <typename T>
+[[nodiscard]]
+std::vector<std::basic_string<T>> split(const std::basic_string<T> &s,
+	T delim, T escape = static_cast<T>('\\'))
+{
+	return split(std::basic_string_view<T>(s), delim, escape);
 }
 
 [[nodiscard]]
@@ -697,7 +728,7 @@ inline std::wstring unescape_translate(std::wstring_view s)
 }
 
 /**
- * Checks that all characters in \p to_check are a decimal digits.
+ * Checks that all characters in \p to_check are decimal digits.
  *
  * @param to_check
  * @return true if to_check is not empty and all characters in to_check are
@@ -705,8 +736,8 @@ inline std::wstring unescape_translate(std::wstring_view s)
  */
 inline bool is_number(std::string_view to_check)
 {
-	for (char i : to_check)
-		if (!std::isdigit(i))
+	for (char c : to_check)
+		if (!isdigit(static_cast<unsigned char>(c)))
 			return false;
 
 	return !to_check.empty();
@@ -780,15 +811,15 @@ inline const std::string duration_to_string(int sec)
 inline std::string str_join(const std::vector<std::string> &list,
 		std::string_view delimiter)
 {
-	std::ostringstream oss;
+	std::string ret;
 	bool first = true;
 	for (const auto &part : list) {
 		if (!first)
-			oss << delimiter;
-		oss << part;
+			ret.append(delimiter);
+		ret.append(part);
 		first = false;
 	}
-	return oss.str();
+	return ret;
 }
 
 #if IS_CLIENT_BUILD
@@ -809,7 +840,7 @@ inline std::string stringw_to_utf8(const core::stringw &input)
 inline core::stringw utf8_to_stringw(std::string_view input)
 {
 	std::wstring str = utf8_to_wide(input);
-	return core::stringw(str.c_str(), str.size());
+	return core::stringw(std::move(str));
 }
 #endif
 
@@ -823,11 +854,11 @@ inline core::stringw utf8_to_stringw(std::string_view input)
 std::string sanitizeDirName(std::string_view str, std::string_view optional_prefix);
 
 /**
- * Sanitize an untrusted string (e.g. from the network). This will get strip
- * control characters and (optionally) any MT-style escape sequences too.
+ * Sanitize an untrusted string (e.g. from the network). This will strip
+ * control characters and (optionally) any Luanti-style escape sequences too.
  * Note that they won't be removed cleanly but rather just broken, unlike with
  * unescape_enriched.
- * Line breaks and UTF-8 is permitted.
+ * Line breaks and UTF-8 are permitted.
  */
 [[nodiscard]]
 std::string sanitize_untrusted(std::string_view str, bool keep_escapes = true);

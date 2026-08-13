@@ -722,7 +722,7 @@ static void translate_string(std::wstring_view s, Translations *translations,
 			++i;
 			length = 1;
 		}
-		std::wstring escape_sequence(s, start_index, length);
+		std::wstring_view escape_sequence(&s[start_index], length);
 
 		// The escape sequence is now reconstructed.
 		std::vector<std::wstring> parts = split(escape_sequence, L'@');
@@ -815,6 +815,7 @@ static void translate_all(std::wstring_view s, size_t &i,
 		// We have an escape sequence: locate it and its data
 		// It is either a single character, or it begins with '('
 		// and extends up to the following ')', with '\' as an escape character.
+		// FIXME: de-duplicate this code
 		const size_t escape_start = i;
 		++i;
 		size_t start_index = i;
@@ -838,7 +839,7 @@ static void translate_all(std::wstring_view s, size_t &i,
 			++i;
 			length = 1;
 		}
-		std::wstring escape_sequence(s, start_index, length);
+		std::wstring_view escape_sequence(&s[start_index], length);
 
 		// The escape sequence is now reconstructed.
 		std::vector<std::wstring> parts = split(escape_sequence, L'@');
@@ -852,7 +853,7 @@ static void translate_all(std::wstring_view s, size_t &i,
 			unsigned long int number = 0;
 			if (parts.size() > 1)
 				textdomain = parts[1];
-			if (parts.size() > 2 && parts[2] != L"") {
+			if (parts.size() > 2 && !parts[2].empty()) {
 				// parts[2] should contain a number used for selecting
 				// the plural form.
 				// However, we can't blindly cast it to an unsigned long int,
