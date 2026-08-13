@@ -419,6 +419,24 @@ local function fetch_pkgs()
 	if not packages or #packages == 0 then
 		return
 	end
+
+	local i = 1
+	for j = 1, #packages do
+		local package = packages[j]
+		if package.author and
+				package.name and
+				package.author:match("^[%w _%-.]+$") and
+				package.name:match("^[%w_]+$") then
+			packages[i] = package
+			i = i + 1
+		else
+			core.log("warning", "ContentDB: Dropping invalid package: " .. dump(package))
+		end
+	end
+
+	for j = i, #packages do
+		packages[j] = nil
+	end
 	return packages
 end
 
