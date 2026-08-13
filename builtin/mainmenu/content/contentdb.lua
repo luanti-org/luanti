@@ -420,23 +420,17 @@ local function fetch_pkgs()
 		return
 	end
 
-	local i = 1
-	for j = 1, #packages do
-		local package = packages[j]
-		if package.author and
+	for i = #packages, 1, -1 do
+		local package = packages[i]
+		if not (package.author and
 				package.name and
 				package.author:match("^[%w _%-.]+$") and
-				package.name:match("^[a-z0-9_]+$") then
-			packages[i] = package
-			i = i + 1
-		else
+				package.name:match("^[a-z0-9_]+$")) then
 			core.log("warning", "ContentDB: Dropping invalid package: " .. dump(package))
+			table.remove(packages, i)
 		end
 	end
 
-	for j = i, #packages do
-		packages[j] = nil
-	end
 	return packages
 end
 
