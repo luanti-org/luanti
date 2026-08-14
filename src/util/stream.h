@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string_view>
 #include <functional>
+#include "util/string.h" // IS_UTF8_MULTB_START
 
 template<unsigned int BufferLength, typename Emitter = std::function<void(std::string_view)> >
 class StringStreamBuffer : public std::streambuf {
@@ -32,7 +33,7 @@ public:
 		if (free_before_write < 10 && std::isspace(c)) {
 			// Break line before space character.
 			sync();
-		} else if (free_before_write < 4 && ((unsigned char)c & 0b11000000) == 0b11000000) {
+		} else if (free_before_write < 4 && IS_UTF8_MULTB_START(c)) {
 			// Break line before starting a new UTF-8 character.
 			sync();
 			buffer[buffer_index++] = c;
