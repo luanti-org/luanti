@@ -67,12 +67,7 @@ static constexpr bool win32 = false;
 // -> absolute paths start with "C:\\" on windows
 static std::string p(std::string path)
 {
-	for (size_t i = 0; i < path.size(); ++i) {
-		if (path[i] == '/') {
-			path.replace(i, 1, DIR_DELIM);
-			i += strlen(DIR_DELIM) - 1; // generally a no-op
-		}
-	}
+	str_replace(path, '/', DIR_DELIM_CHAR);
 
 #ifdef _WIN32
 	if (path[0] == '\\')
@@ -85,6 +80,9 @@ static std::string p(std::string path)
 
 void TestFileSys::testIsDirDelimiter()
 {
+	UASSERT(strlen(DIR_DELIM) == 1);
+	UASSERT((DIR_DELIM)[0] == DIR_DELIM_CHAR);
+
 	UASSERT(fs::IsDirDelimiter('/') == true);
 	UASSERT(fs::IsDirDelimiter('A') == false);
 	UASSERT(fs::IsDirDelimiter(0) == false);
@@ -243,6 +241,7 @@ void TestFileSys::testMakePathRelativeTo()
 	UASSERTEQ(auto, rel("non_existent", ""), p("non_existent"));
 	UASSERTEQ(auto, rel("d22/non_existent", ""), p("d22/non_existent"));
 	UASSERTEQ(auto, rel("non_existent/non_existent", ""), p("non_existent/non_existent"));
+	UASSERTEQ(auto, rel("noexist/.///noexist", ""), p("noexist/noexist"));
 	UASSERTEQ(auto, rel("d1/f1", ""), p("d1/f1"));
 
 	UASSERTEQ(auto, rel("", "."), p("."));
@@ -353,25 +352,28 @@ void TestFileSys::testRemoveRelativePathComponent()
 
 	path = p("/home/user/minetest/bin");
 	result = fs::RemoveRelativePathComponents(path);
-	UASSERT(result == path);
+	UASSERTEQ(auto, result, path);
 	path = p("/home/user/minetest/bin/../worlds/world1");
 	result = fs::RemoveRelativePathComponents(path);
-	UASSERT(result == p("/home/user/minetest/worlds/world1"));
+	UASSERTEQ(auto, result, p("/home/user/minetest/worlds/world1"));
 	path = p("/home/user/minetest/bin/../worlds/world1/");
 	result = fs::RemoveRelativePathComponents(path);
-	UASSERT(result == p("/home/user/minetest/worlds/world1"));
+	UASSERTEQ(auto, result, p("/home/user/minetest/worlds/world1"));
 	path = p(".");
 	result = fs::RemoveRelativePathComponents(path);
-	UASSERT(result == "");
+	UASSERTEQ(auto, result, "");
 	path = p("../a");
 	result = fs::RemoveRelativePathComponents(path);
-	UASSERT(result == "");
+	UASSERTEQ(auto, result, "");
 	path = p("./subdir/../..");
 	result = fs::RemoveRelativePathComponents(path);
-	UASSERT(result == "");
+	UASSERTEQ(auto, result, "");
 	path = p("/a/b/c/.././../d/../e/f/g/../h/i/j/../../../..");
 	result = fs::RemoveRelativePathComponents(path);
-	UASSERT(result == p("/a/e"));
+	UASSERTEQ(auto, result, p("/a/e"));
+	path = p("somewhere//.//here");
+	result = fs::RemoveRelativePathComponents(path);
+	UASSERTEQ(auto, result, p("somewhere/here"));
 }
 
 

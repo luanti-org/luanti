@@ -747,14 +747,15 @@ std::string MakePathRelativeTo(const std::string &child, const std::string &pare
 	if (!fs::PathStartsWith(child_abs, parent_abs))
 		return ""; // not child
 
+	// Note: this only works because AbsolutePathPartial gets rid of duplicate
+	// dir delimiters, so that both paths are in the canonical shortest representation.
 	if (child_abs.size() == parent_abs.size()) {
-		assert(child_abs == parent_abs);
+		assert(fs::PathsEqual(child_abs, parent_abs));
 		return ".";
-	} else {
-		assert(child_abs.size() >= parent_abs.size() + 1);
-		assert(child_abs[parent_abs.size()] == DIR_DELIM_CHAR);
-		return std::move(child_abs).substr(parent_abs.size() + 1);
 	}
+	assert(child_abs.size() >= parent_abs.size() + 1);
+	assert(fs::IsDirDelimiter(child_abs[parent_abs.size()]));
+	return std::move(child_abs).substr(parent_abs.size() + 1);
 }
 
 std::string RemoveLastPathComponent(const std::string &path,
