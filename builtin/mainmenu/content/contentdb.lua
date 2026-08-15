@@ -422,8 +422,10 @@ local function fetch_pkgs()
 
 	for i = #packages, 1, -1 do
 		local package = packages[i]
-		if not (package.author and
-				package.name and
+		if not (type(package.author) == "string" and
+				type(package.name) == "string" and
+				type(package.type) == "string" and
+				type(package.release) == "number" and
 				package.author:match("^[%w _%-.]+$") and
 				package.name:match("^[a-z0-9_]+$")) then
 			core.log("warning", "ContentDB: Dropping invalid package: " .. dump(package))
