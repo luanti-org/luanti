@@ -760,14 +760,9 @@ void ServerEnvironment::clearObjects(ClearObjectsMode mode)
 		deleteStaticFromBlock(obj, id, MOD_REASON_CLEAR_ALL_OBJECTS, true);
 		obj->markForRemoval();
 
-		// If known by some client, don't delete immediately
-		if (obj->m_known_by_count > 0)
-			return false;
-
-		processActiveObjectRemove(obj);
-
-		// Delete active object
-		return true;
+		// Let the next server step delete it when it's safe to do so.
+		// (we might be here from inside a Lua callback)
+		return false;
 	};
 
 	m_ao_manager.clearIf(cb_removal);
