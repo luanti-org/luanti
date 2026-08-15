@@ -309,11 +309,22 @@ class DynamicLightUniformSetter : public IShaderUniformSetter
 {
 	Client *m_client;
 
-	CachedPixelShaderSetting<float, MAX_DYNAMIC_LIGHTS * 3> m_positions{"dynLightPos"};
-	CachedPixelShaderSetting<float, MAX_DYNAMIC_LIGHTS * 3> m_colors{"dynLightColor"};
-	CachedPixelShaderSetting<float, MAX_DYNAMIC_LIGHTS> m_radii{"dynLightRadius"};
-	CachedPixelShaderSetting<float, MAX_DYNAMIC_LIGHTS> m_falloffs{"dynLightFalloff"};
+	// Sent at runtime size via setPixelShaderConstant, with change-detection against m_last_* below.
+	std::vector<float> m_last_positions;
+	std::vector<float> m_last_colors;
+	std::vector<float> m_last_radii;
+	std::vector<float> m_last_falloffs;
 	CachedPixelShaderSetting<s32> m_count{"dynLightCount"};
+
+	static void sendIfChanged(video::IMaterialRendererServices *services, const char *name,
+			std::vector<float> &last, std::vector<float> &&next)
+	{
+		if (next == last)
+			return;
+		services->setPixelShaderConstant(
+				services->getPixelShaderConstantID(name), next.data(), (int)next.size());
+		last = std::move(next);
+	}
 
 public:
 	DynamicLightUniformSetter(Client *client) :
@@ -324,29 +335,34 @@ public:
 	{
 		v3f cam_offset = intToFloat(m_client->getCamera()->getOffset(), BS);
 
-		float positions[MAX_DYNAMIC_LIGHTS * 3] = {};
-		float colors[MAX_DYNAMIC_LIGHTS * 3] = {};
-		float radii[MAX_DYNAMIC_LIGHTS] = {};
-		float falloffs[MAX_DYNAMIC_LIGHTS] = {};
-		s32 count = 0;
+		const auto &lights = m_client->getDynamicLightManager()->getVisibleLights();
+		s32 count = (s32)lights.size();
 
-		for (const DynamicLight &light : m_client->getDynamicLightManager()->getVisibleLights()) {
+		std::vector<float> positions(count * 3);
+		std::vector<float> colors(count * 3);
+		std::vector<float> radii(count);
+		std::vector<float> falloffs(count);
+
+		for (s32 i = 0; i < count; i++) {
+			const DynamicLight &light = lights[i];
 			v3f rel_pos = light.pos - cam_offset;
-			positions[count * 3 + 0] = rel_pos.X;
-			positions[count * 3 + 1] = rel_pos.Y;
-			positions[count * 3 + 2] = rel_pos.Z;
-			colors[count * 3 + 0] = light.color.r;
-			colors[count * 3 + 1] = light.color.g;
-			colors[count * 3 + 2] = light.color.b;
-			radii[count] = light.radius;
-			falloffs[count] = light.falloff;
-			count++;
+			positions[i * 3 + 0] = rel_pos.X;
+			positions[i * 3 + 1] = rel_pos.Y;
+			positions[i * 3 + 2] = rel_pos.Z;
+			colors[i * 3 + 0] = light.color.r;
+			colors[i * 3 + 1] = light.color.g;
+			colors[i * 3 + 2] = light.color.b;
+			radii[i] = light.radius;
+			falloffs[i] = light.falloff;
 		}
 
-		m_positions.set(positions, services);
-		m_colors.set(colors, services);
-		m_radii.set(radii, services);
-		m_falloffs.set(falloffs, services);
+		if (count > 0) {
+			sendIfChanged(services, "dynLightPos", m_last_positions, std::move(positions));
+			sendIfChanged(services, "dynLightColor", m_last_colors, std::move(colors));
+			sendIfChanged(services, "dynLightRadius", m_last_radii, std::move(radii));
+			sendIfChanged(services, "dynLightFalloff", m_last_falloffs, std::move(falloffs));
+		}
+
 		m_count.set(&count, services);
 	}
 };

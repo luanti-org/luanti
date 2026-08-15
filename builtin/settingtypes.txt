@@ -860,8 +860,9 @@ enable_translucent_foliage (Translucent foliage) bool false
 enable_water_reflections (Liquid reflections) bool false
 
 #   Maximum number of dynamic point lights rendered at once.
-#   Higher values cost more to render. Hard-capped at 20.
-dynamic_lights_limit (Dynamic lights limit) int 8 0 20
+#   More lights result in lower FPS, and too many lights
+#   may exceed your GPU capabilities, especially on mobile
+dynamic_lights_limit (Dynamic lights limit) int 8 0 100
 
 [*Audio]
 

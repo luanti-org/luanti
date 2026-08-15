@@ -22,6 +22,21 @@ void DynamicLightManager::remove(u32 id)
 	m_lights.erase(id);
 }
 
+size_t getDynamicLightsLimitSetting()
+{
+	return std::clamp<size_t>(g_settings->getU16("dynamic_lights_limit"),
+			0, DYNAMIC_LIGHTS_CEILING);
+}
+
+size_t DynamicLightManager::getEffectiveLimit()
+{
+	if (!m_limit_resolved) {
+		m_limit = getDynamicLightsLimitSetting();
+		m_limit_resolved = true;
+	}
+	return m_limit;
+}
+
 void DynamicLightManager::cull(const Camera &camera)
 {
 	m_visible_lights.clear();
@@ -33,8 +48,7 @@ void DynamicLightManager::cull(const Camera &camera)
 			m_visible_lights.push_back(light);
 	}
 
-	size_t limit = std::min<size_t>(MAX_DYNAMIC_LIGHTS,
-			g_settings->getU16("dynamic_lights_limit"));
+	size_t limit = getEffectiveLimit();
 	if (m_visible_lights.size() > limit) {
 		v3f cam_pos = camera.getPosition();
 		std::nth_element(m_visible_lights.begin(),

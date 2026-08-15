@@ -19,8 +19,8 @@ uniform float crackAnimationLength;
 uniform float crackLevel;
 uniform float crackTextureScale;
 
-// Must match MAX_DYNAMIC_LIGHTS in src/client/dynamiclight.h.
-#define MAX_DYNAMIC_LIGHTS 20
+// MAX_DYNAMIC_LIGHTS is injected here by MainShaderConstantSetter::onGenerate()
+// in shader.cpp, derived from the dynamic_lights_limit setting.
 // Client-side movable point lights, purely additive, unoccluded.
 // dynLightPos is already relative to cameraOffset, see worldPosition below.
 uniform vec3 dynLightPos[MAX_DYNAMIC_LIGHTS];
@@ -438,6 +438,9 @@ float getShadow(sampler2D shadowsampler, vec2 smTexCoord, float realDistance)
 vec3 applyDynamicLights(vec3 worldPos, vec3 base_color)
 {
 	vec3 result = base_color;
+	// Hue is accumulated and applied once after the loop so the result doesn't depend on light order.
+	vec3 hueAccum = vec3(0.0);
+	float colorizeAccum = 0.0;
 	for (int i = 0; i < dynLightCount; i++) {
 		float dist = length(worldPos - dynLightPos[i]);
 		float t = clamp(1.0 - (dist * dist) / (dynLightRadius[i] * dynLightRadius[i]), 0.0, 1.0);
@@ -451,7 +454,12 @@ vec3 applyDynamicLights(vec3 worldPos, vec3 base_color)
 		result += (1.0 - result) * (luminance * brighten);
 		// Nudge hue toward the light's color, weighted down and only near it.
 		vec3 hue = dynLightColor[i] / max(luminance, 1e-4);
-		result = mix(result, result * hue, colorize * 0.35);
+		hueAccum += hue * colorize;
+		colorizeAccum += colorize;
+	}
+	if (colorizeAccum > 0.0) {
+		vec3 avgHue = hueAccum / colorizeAccum;
+		result = mix(result, result * avgHue, min(colorizeAccum, 1.0) * 0.35);
 	}
 	return clamp(result, 0.0, 1.0);
 }

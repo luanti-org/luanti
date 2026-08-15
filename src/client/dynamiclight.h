@@ -11,10 +11,11 @@
 
 class Camera;
 
-// Must match MAX_DYNAMIC_LIGHTS in nodes_shader/object_shader opengl_fragment.glsl.
-// This is a hard ceiling on the array size. The actual number of lights
-// rendered is further capped at runtime by the dynamic_lights_limit setting.
-constexpr size_t MAX_DYNAMIC_LIGHTS = 20;
+// Sanity ceiling on dynamic_lights_limit, shared by shader.cpp and cull() below.
+constexpr size_t DYNAMIC_LIGHTS_CEILING = 100;
+
+// dynamic_lights_limit clamped to [0, DYNAMIC_LIGHTS_CEILING], shared with shader.cpp.
+size_t getDynamicLightsLimitSetting();
 
 struct DynamicLight
 {
@@ -35,12 +36,17 @@ public:
 	void remove(u32 id);
 
 	// Selects the nearest lights intersecting the frustum out of the full pool,
-	// up to the dynamic_lights_limit setting.
+	// up to the effective limit, see getEffectiveLimit().
 	void cull(const Camera &camera);
 
 	const std::vector<DynamicLight> &getVisibleLights() const { return m_visible_lights; }
 
 private:
+	// Snapshotted once so it matches the shader array size
+	size_t getEffectiveLimit();
+
 	std::unordered_map<u32, DynamicLight> m_lights;
 	std::vector<DynamicLight> m_visible_lights;
+	size_t m_limit = 0;
+	bool m_limit_resolved = false;
 };
