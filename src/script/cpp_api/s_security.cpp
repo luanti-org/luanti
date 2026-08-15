@@ -989,7 +989,7 @@ int ScriptApiSecurity::sl_g_load(lua_State *L)
 			return 2;
 		}
 		buf = lua_tolstring(L, -1, &len);
-		code += std::string(buf, len);
+		code.append(buf, len);
 		lua_pop(L, 1); // Pop return value
 	}
 	if (!safeLoadString(L, code, chunk_name)) {
@@ -1088,28 +1088,30 @@ int ScriptApiSecurity::sl_g_collectgarbage(lua_State *L)
 
 int ScriptApiSecurity::sl_io_open(lua_State *L)
 {
-	bool with_mode = lua_gettop(L) > 1;
-
 	luaL_checktype(L, 1, LUA_TSTRING);
 	const char *path = lua_tostring(L, 1);
 
-	bool write_requested = false;
-	if (with_mode) {
+	bool write = false, plus = false, append = false, binary = false;
+	if (!lua_isnoneornil(L, 2)) {
 		luaL_checktype(L, 2, LUA_TSTRING);
-		const char *mode = lua_tostring(L, 2);
-		write_requested = strchr(mode, 'w') != NULL ||
-			strchr(mode, '+') != NULL ||
-			strchr(mode, 'a') != NULL;
+		// "Parse, don't validate."
+		std::string_view mode(lua_tostring(L, 2));
+		write  = mode.find('w') != mode.npos;
+		plus   = mode.find('+') != mode.npos;
+		append = mode.find('a') != mode.npos;
+		binary = mode.find('b') != mode.npos;
+		if (mode.find_first_not_of("rw+ab") != mode.npos)
+			throw LuaError("Invalid file mode");
 	}
-	CHECK_SECURE_PATH_INTERNAL(L, path, write_requested, NULL);
+	CHECK_SECURE_PATH_INTERNAL(L, path, write || plus || append, NULL);
+	std::string modestr = append ? "a" : (write ? "w" : "r");
+	modestr.append(plus ? "+" : "").append(binary ? "b" : "");
 
 	push_original(L, "io", "open");
 	lua_pushvalue(L, 1);
-	if (with_mode) {
-		lua_pushvalue(L, 2);
-	}
+	lua_pushstring(L, modestr.c_str());
 
-	lua_call(L, with_mode ? 2 : 1, 2);
+	lua_call(L, 2, 2);
 	return 2;
 }
 
@@ -1119,6 +1121,8 @@ int ScriptApiSecurity::sl_io_input(lua_State *L)
 	if (lua_isstring(L, 1)) {
 		const char *path = lua_tostring(L, 1);
 		CHECK_SECURE_PATH_INTERNAL(L, path, false, NULL);
+	} else if (lua_isnone(L, 1)) {
+		lua_pushnil(L);
 	}
 
 	push_original(L, "io", "input");
@@ -1133,6 +1137,8 @@ int ScriptApiSecurity::sl_io_output(lua_State *L)
 	if (lua_isstring(L, 1)) {
 		const char *path = lua_tostring(L, 1);
 		CHECK_SECURE_PATH_INTERNAL(L, path, true, NULL);
+	} else if (lua_isnone(L, 1)) {
+		lua_pushnil(L);
 	}
 
 	push_original(L, "io", "output");
@@ -1147,6 +1153,8 @@ int ScriptApiSecurity::sl_io_lines(lua_State *L)
 	if (lua_isstring(L, 1)) {
 		const char *path = lua_tostring(L, 1);
 		CHECK_SECURE_PATH_INTERNAL(L, path, false, NULL);
+	} else if (lua_isnone(L, 1)) {
+		lua_pushnil(L);
 	}
 
 	int top_precall = lua_gettop(L);

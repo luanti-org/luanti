@@ -10,7 +10,7 @@
 #define CHECK_SECURE_PATH_INTERNAL(L, path, write_required, ptr) \
 	if (!ScriptApiSecurity::checkPath(L, path, write_required, ptr)) { \
 		throw LuaError(std::string("Mod security: Blocked attempted ") + \
-				(write_required ? "write to " : "read from ") + path); \
+				((write_required) ? "write to " : "read from ") + path); \
 	}
 
 #define CHECK_SECURE_PATH(L, path, write_required) \
