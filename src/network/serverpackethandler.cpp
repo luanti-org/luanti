@@ -1224,19 +1224,21 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 
 		getClient(peer_id)->m_time_from_building = 0;
 
-		// If item has node placement prediction, always send the
-		// blocks to make sure the client knows what exactly happened
-		RemoteClient *client = getClient(peer_id);
-		v3s16 blockpos = getNodeBlockPos(pointed.node_abovesurface);
-		v3s16 blockpos2 = getNodeBlockPos(pointed.node_undersurface);
+		// If item has node placement prediction, always send a swap node event,
+		// since the client can never be sure that the prediction was right.
+		// It will trigger Client::addNode to fully revert the prediction if needed.
 		if (had_prediction) {
-			client->SetBlockNotSent(blockpos);
-			if (blockpos2 != blockpos)
-				client->SetBlockNotSent(blockpos2);
-		} else {
-			client->ResendBlockIfOnWire(blockpos);
-			if (blockpos2 != blockpos)
-				client->ResendBlockIfOnWire(blockpos2);
+			auto &map = m_env->getMap();
+			MapEditEvent event_above;
+			event_above.type = MEET_SWAPNODE;
+			event_above.p = pointed.node_abovesurface;
+			event_above.n = map.getNode(pointed.node_abovesurface);
+			map.dispatchEvent(event_above);
+			MapEditEvent event_under;
+			event_under.type = MEET_SWAPNODE;
+			event_under.p = pointed.node_undersurface;
+			event_under.n = map.getNode(pointed.node_undersurface);
+			map.dispatchEvent(event_under);
 		}
 
 		return;

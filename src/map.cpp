@@ -178,6 +178,9 @@ void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 		removeNodeMetadata(p);
 	}
 
+	if (n == oldnode)
+		return;
+
 	// Set the node on the map
 	ContentLightingFlags f = m_nodedef->getLightingFlags(n);
 	ContentLightingFlags oldf = m_nodedef->getLightingFlags(oldnode);
