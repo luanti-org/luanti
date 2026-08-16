@@ -155,6 +155,8 @@ public:
 	virtual const std::string &getAlias(const std::string &name) const=0;
 	// Get set of all defined item names and aliases
 	virtual void getAll(std::set<std::string> &result) const=0;
+	// Get all item definitions (aliases not resolved)
+	virtual void getDefinitions(std::vector<ItemDefinition> &result) const=0;
 	// Check if item is known
 	virtual bool isKnown(const std::string &name) const=0;
 

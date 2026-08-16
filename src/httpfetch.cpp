@@ -4,7 +4,7 @@
 
 #include "httpfetch.h"
 #include "porting.h" // for sleep_ms(), get_sysinfo(), secure_rand_fill_buf()
-#include <list>
+#include <deque>
 #include <unordered_map>
 #include <mutex>
 #include "threading/event.h"
@@ -153,6 +153,19 @@ static size_t httpfetch_discardfunction(
 	return size * nmemb;
 }
 
+static int httpfetch_debugfunction(
+		CURL *handle, curl_infotype type, char *data, size_t size, void *clientp)
+{
+	(void)handle;
+	(void)clientp;
+	if (type == CURLINFO_TEXT) {
+		std::string_view text(data, size); // it's not null-terminated
+		tracestream << text;
+	}
+	return 0;
+}
+
+
 static bool string_safe_for_curl(std::string_view s, const char *kind)
 {
 	// NUL isn't unsafe but will truncate the string, so warn too
@@ -247,6 +260,11 @@ HTTPFetchOngoing::HTTPFetchOngoing(const HTTPFetchRequest &request_,
 	bool enable_ipv6 = g_settings->getBool("enable_ipv6");
 	curl_easy_setopt(curl, CURLOPT_IPRESOLVE,
 		 enable_ipv6 ? CURL_IPRESOLVE_WHATEVER : CURL_IPRESOLVE_V4);
+
+	if (tracestream) {
+		curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, httpfetch_debugfunction);
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+	}
 
 	// Restrict protocols so that curl vulnerabilities in
 	// other protocols don't affect us.
@@ -478,7 +496,7 @@ protected:
 
 	// Variables exclusively used within thread
 	std::vector<std::unique_ptr<HTTPFetchOngoing>> m_all_ongoing;
-	std::list<HTTPFetchRequest> m_queued_fetches;
+	std::deque<HTTPFetchRequest> m_queued_fetches;
 
 public:
 	CurlFetchThread(int parallel_limit) :

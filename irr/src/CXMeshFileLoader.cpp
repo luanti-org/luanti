@@ -5,12 +5,16 @@
 #include "CXMeshFileLoader.h"
 #include "SSkinMeshBuffer.h"
 #include "SkinnedMesh.h"
+#include "Transform.h"
+#include "irrlichttypes.h"
 #include "os.h"
 
 #include "coreutil.h"
 #include "ISceneManager.h"
 #include "IVideoDriver.h"
 #include "IReadFile.h"
+
+#include <algorithm>
 
 #ifdef _DEBUG
 #define _XREADER_DEBUG
@@ -339,13 +343,8 @@ bool CXMeshFileLoader::parseDataObject()
 		return parseDataObjectFrame(0);
 	} else if (objectName == "Mesh") {
 		// some meshes have no frames at all
-		// CurFrame = AnimatedMesh->addJoint(0);
-
 		SXMesh *mesh = new SXMesh;
-
-		// mesh->Buffer=AnimatedMesh->addMeshBuffer();
 		Meshes.push_back(mesh);
-
 		return parseDataObjectMesh(*mesh);
 	} else if (objectName == "AnimationSet") {
 		return parseDataObjectAnimationSet();
@@ -433,9 +432,8 @@ bool CXMeshFileLoader::parseDataObjectFrame(SkinnedMesh::SJoint *Parent)
 #ifdef _XREADER_DEBUG
 		os::Printer::log("creating joint ", name.c_str(), ELL_DEBUG);
 #endif
-		joint = AnimatedMesh.addJoint(Parent);
-		joint->Name = name.c_str();
-		JointID = AnimatedMesh.getJoints().size() - 1;
+		joint = addJoint(Parent, name.c_str());
+		JointID = joint->JointID;
 	} else {
 #ifdef _XREADER_DEBUG
 		os::Printer::log("using joint ", name.c_str(), ELL_DEBUG);
@@ -554,6 +552,10 @@ bool CXMeshFileLoader::parseDataObjectMesh(SXMesh &mesh)
 
 	// read faces
 	const u32 nFaces = readInt();
+	if (nFaces > (1U << 28 /* leave a couple bits of wiggle room */)) {
+		os::Printer::log("Too many faces", ELL_ERROR);
+		SET_ERR_AND_RETURN();
+	}
 
 	mesh.Indices.set_used(nFaces * 3);
 	mesh.IndexCountPerFace.set_used(nFaces);
@@ -574,7 +576,13 @@ bool CXMeshFileLoader::parseDataObjectMesh(SXMesh &mesh)
 			// read face indices
 			polygonfaces.set_used(fcnt);
 			u32 triangles = (fcnt - 2);
-			mesh.Indices.set_used(mesh.Indices.size() + ((triangles - 1) * 3));
+			// Compute in u64 to avoid overflows
+			u64 nIndices = mesh.Indices.size() + (u64)(triangles - 1) * 3;
+			if (nIndices > (1U << 28 /* leave a couple bits of wiggle room */)) {
+				os::Printer::log("Too many indices", ELL_ERROR);
+				SET_ERR_AND_RETURN();
+			}
+			mesh.Indices.set_used(nIndices);
 			mesh.IndexCountPerFace[k] = (u16)(triangles * 3);
 
 			for (u32 f = 0; f < fcnt; ++f)
@@ -860,8 +868,7 @@ bool CXMeshFileLoader::parseDataObjectSkinWeights(SXMesh &mesh)
 #ifdef _XREADER_DEBUG
 		os::Printer::log("creating joint for skinning ", TransformNodeName.c_str(), ELL_DEBUG);
 #endif
-		joint = AnimatedMesh.addJoint(nullptr);
-		joint->Name = TransformNodeName.c_str();
+		joint = addJoint(nullptr, TransformNodeName.c_str());
 		joint_id = joint->JointID;
 	}
 
@@ -963,8 +970,8 @@ bool CXMeshFileLoader::parseDataObjectMeshNormals(SXMesh &mesh)
 
 	// read face normal indices
 	const u32 nFNormals = readInt();
-	// if (nFNormals >= mesh.IndexCountPerFace.size())
-	if (0) { // this condition doesn't work for some reason
+
+	if (nFNormals > mesh.IndexCountPerFace.size()) {
 		os::Printer::log("Too many face normals found in x file", ELL_WARNING);
 		os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 		SET_ERR_AND_RETURN();
@@ -983,11 +990,20 @@ bool CXMeshFileLoader::parseDataObjectMeshNormals(SXMesh &mesh)
 			SET_ERR_AND_RETURN();
 		}
 
+		const auto set_normal = [&](u32 normalnum) {
+			if (normalidx >= mesh.Indices.size())
+				return;
+			const auto idx = mesh.Indices[normalidx++];
+			if (normalnum >= normals.size())
+				return;
+			mesh.Vertices[idx].Normal.set(normals[normalnum]);
+		};
+
 		if (indexcount == 3) {
 			// default, only one triangle in this face
 			for (u32 h = 0; h < 3; ++h) {
 				const u32 normalnum = readInt();
-				mesh.Vertices[mesh.Indices[normalidx++]].Normal.set(normals[normalnum]);
+				set_normal(normalnum);
 			}
 		} else {
 			polygonfaces.set_used(fcnt);
@@ -996,9 +1012,9 @@ bool CXMeshFileLoader::parseDataObjectMeshNormals(SXMesh &mesh)
 				polygonfaces[h] = readInt();
 
 			for (u32 jk = 0; jk < triangles; ++jk) {
-				mesh.Vertices[mesh.Indices[normalidx++]].Normal.set(normals[polygonfaces[0]]);
-				mesh.Vertices[mesh.Indices[normalidx++]].Normal.set(normals[polygonfaces[jk + 1]]);
-				mesh.Vertices[mesh.Indices[normalidx++]].Normal.set(normals[polygonfaces[jk + 2]]);
+				set_normal(polygonfaces[0]);
+				set_normal(polygonfaces[jk + 1]);
+				set_normal(polygonfaces[jk + 2]);
 			}
 		}
 	}
@@ -1030,8 +1046,7 @@ bool CXMeshFileLoader::parseDataObjectMeshTextureCoords(SXMesh &mesh)
 	}
 
 	const u32 nCoords = readInt();
-	// if (nCoords >= mesh.Vertices.size())
-	if (0) { // this condition doesn't work for some reason
+	if (nCoords > mesh.Vertices.size()) {
 		os::Printer::log("Too many texture coords found in x file", ELL_WARNING);
 		os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 		SET_ERR_AND_RETURN();
@@ -1106,8 +1121,8 @@ bool CXMeshFileLoader::parseDataObjectMeshMaterialList(SXMesh &mesh)
 	}
 
 	// read material count
-	const u32 nMaterials = readInt();
-	mesh.Materials.reallocate(nMaterials);
+	const u32 nMaterials = std::clamp<u32>(readInt(), 1U, 30000U /* well below s16 max */);
+	mesh.Materials.set_used(nMaterials);
 
 	// read non triangulated face material index count
 	const u32 nFaceIndices = readInt();
@@ -1125,7 +1140,7 @@ bool CXMeshFileLoader::parseDataObjectMeshMaterialList(SXMesh &mesh)
 	for (u32 tfi = 0; tfi < mesh.IndexCountPerFace.size(); ++tfi) {
 		if (tfi < nFaceIndices)
 			ind = readInt();
-		if (ind >= core::max_(nMaterials, 1U)) {
+		if (ind >= nMaterials) {
 			os::Printer::log("Out of range index found in x file", ELL_WARNING);
 			os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 			SET_ERR_AND_RETURN();
@@ -1137,12 +1152,12 @@ bool CXMeshFileLoader::parseDataObjectMeshMaterialList(SXMesh &mesh)
 
 	// in version 03.02, the face indices end with two semicolons.
 	// commented out version check, as version 03.03 exported from blender also has 2 semicolons
-	if (!BinaryFormat) { // && MajorVersion == 3 && MinorVersion <= 2)
-		if (P[0] == ';')
+	if (!eof() && !BinaryFormat) { // && MajorVersion == 3 && MinorVersion <= 2)
+		if (*P == ';')
 			++P;
 	}
 
-	// read following data objects
+	// Skip following data objects (materials); no material properties are read here.
 
 	while (true) {
 		core::stringc objectName = getNextToken();
@@ -1156,7 +1171,6 @@ bool CXMeshFileLoader::parseDataObjectMeshMaterialList(SXMesh &mesh)
 		} else if (objectName == "{") {
 			// template materials now available thanks to joeWright
 			objectName = getNextToken();
-			mesh.Materials.push_back(video::SMaterial());
 			getNextToken(); // skip }
 		} else if (objectName == "Material") {
 			mesh.Materials.push_back(video::SMaterial());
@@ -1221,7 +1235,7 @@ bool CXMeshFileLoader::parseDataObjectAnimationTicksPerSecond()
 		SET_ERR_AND_RETURN();
 	}
 
-	static_cast<void>(readInt());
+	static_cast<void>(readInt()); // ticks, unused
 
 	if (!checkForOneFollowingSemicolons()) {
 		os::Printer::log("No closing semicolon in AnimationTicksPerSecond in x file", ELL_WARNING);
@@ -1252,7 +1266,7 @@ bool CXMeshFileLoader::parseDataObjectAnimation()
 
 	// anim.closed = true;
 	// anim.linearPositionQuality = true;
-	SkinnedMesh::SJoint animationDump;
+	SkinnedMesh::Keys keys;
 
 	core::stringc FrameName;
 
@@ -1266,7 +1280,7 @@ bool CXMeshFileLoader::parseDataObjectAnimation()
 		} else if (objectName == "}") {
 			break; // animation finished
 		} else if (objectName == "AnimationKey") {
-			if (!parseDataObjectAnimationKey(&animationDump))
+			if (!parseDataObjectAnimationKey(keys))
 				return false;
 		} else if (objectName == "AnimationOptions") {
 			// TODO: parse options.
@@ -1301,18 +1315,16 @@ bool CXMeshFileLoader::parseDataObjectAnimation()
 #ifdef _XREADER_DEBUG
 			os::Printer::log("creating joint for animation ", FrameName.c_str(), ELL_DEBUG);
 #endif
-			joint = AnimatedMesh.addJoint();
-			joint->Name = FrameName.c_str();
+			joint = addJoint(nullptr, FrameName.c_str());
 		}
-
-		joint->keys.append(animationDump.keys);
+		addKeys(joint->JointID, std::move(keys));
 	} else
 		os::Printer::log("joint name was never given", ELL_WARNING);
 
 	return true;
 }
 
-bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
+bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::Keys &keys)
 {
 #ifdef _XREADER_DEBUG
 	os::Printer::log("CXFileReader: reading animation key", ELL_DEBUG);
@@ -1371,7 +1383,7 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
 
 			core::quaternion rotation(X, Y, Z, W);
 			rotation.normalize();
-			AnimatedMesh.addRotationKey(joint, time, rotation);
+			keys.rotation.pushBack(time, rotation);
 		} break;
 		case 1: // scale
 		case 2: // position
@@ -1394,9 +1406,9 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
 			}
 
 			if (keyType == 2) {
-				AnimatedMesh.addPositionKey(joint, time, vector);
+				keys.position.pushBack(time, vector);
 			} else {
-				AnimatedMesh.addScaleKey(joint, time, vector);
+				keys.scale.pushBack(time, vector);
 			}
 		} break;
 		case 3:
@@ -1421,8 +1433,8 @@ bool CXMeshFileLoader::parseDataObjectAnimationKey(SkinnedMesh::SJoint *joint)
 				os::Printer::log("Line", core::stringc(Line).c_str(), ELL_WARNING);
 			}
 
-			AnimatedMesh.addRotationKey(joint, time, core::quaternion(mat.getTransposed()));
-			AnimatedMesh.addPositionKey(joint, time, mat.getTranslation());
+			keys.rotation.pushBack(time, core::quaternion(mat.getTransposed()));
+			keys.position.pushBack(time, mat.getTranslation());
 
 			/*
 							core::vector3df scale=mat.getScale();
@@ -1575,38 +1587,37 @@ core::stringc CXMeshFileLoader::getNextToken()
 		// in binary mode it will only return NAME and STRING token
 		// and (correctly) skip over other tokens.
 
-		s16 tok = readBinWord();
+		const auto tok = readBinNum<u16>();
 		u32 len;
+		if (eof())
+			return core::stringc();
 
 		// standalone tokens
 		switch (tok) {
 		case 1:
 			// name token
-			len = readBinDWord();
-			s = core::stringc(P, len);
-			P += len;
-			return s;
+			return readBinString();
 		case 2:
 			// string token
-			len = readBinDWord();
-			s = core::stringc(P, len);
-			P += (len + 2);
+			s = readBinString();
+			// unclear what is being skipped here, probably a null terminator in UTF-16
+			advance(2);
 			return s;
 		case 3:
 			// integer token
-			P += 4;
+			advance(4);
 			return "<integer>";
 		case 5:
 			// GUID token
-			P += 16;
+			advance(16);
 			return "<guid>";
 		case 6:
-			len = readBinDWord();
-			P += (len * 4);
+			len = readBinNum<u32>();
+			advance(len * 4);
 			return "<int_list>";
 		case 7:
-			len = readBinDWord();
-			P += (len * FloatSize);
+			len = readBinNum<u32>();
+			advance(len * FloatSize);
 			return "<flt_list>";
 		case 0x0a:
 			return "{";
@@ -1664,19 +1675,19 @@ core::stringc CXMeshFileLoader::getNextToken()
 	else {
 		findNextNoneWhiteSpace();
 
-		if (P >= End)
+		if (eof())
 			return s;
 
-		while ((P < End) && !core::isspace(P[0])) {
+		while (!eof() && !core::isspace(*P)) {
 			// either keep token delimiters when already holding a token, or return if first valid char
-			if (P[0] == ';' || P[0] == '}' || P[0] == '{' || P[0] == ',') {
+			if (*P == ';' || *P == '}' || *P == '{' || *P == ',') {
 				if (!s.size()) {
-					s.append(P[0]);
+					s.append(*P);
 					++P;
 				}
 				break; // stop for delimiter
 			}
-			s.append(P[0]);
+			s.append(*P);
 			++P;
 		}
 	}
@@ -1690,8 +1701,8 @@ void CXMeshFileLoader::findNextNoneWhiteSpaceNumber()
 	if (BinaryFormat)
 		return;
 
-	while ((P < End) && (P[0] != '-') && (P[0] != '.') &&
-			!(core::isdigit(P[0]))) {
+	while (!eof() && (*P != '-') && (*P != '.') &&
+			!(core::isdigit(*P))) {
 		// check if this is a comment
 		if ((P[0] == '/' && P[1] == '/') || P[0] == '#')
 			readUntilEndOfLine();
@@ -1707,18 +1718,17 @@ void CXMeshFileLoader::findNextNoneWhiteSpace()
 		return;
 
 	while (true) {
-		while ((P < End) && core::isspace(P[0])) {
+		while (!eof() && core::isspace(*P)) {
 			if (*P == '\n')
 				++Line;
 			++P;
 		}
 
-		if (P >= End)
+		if (eof())
 			return;
 
 		// check if this is a comment
-		if ((P[0] == '/' && P[1] == '/') ||
-				P[0] == '#')
+		if ((P[0] == '/' && (!eof() && P[1] == '/')) || P[0] == '#')
 			readUntilEndOfLine();
 		else
 			break;
@@ -1734,19 +1744,22 @@ bool CXMeshFileLoader::getNextTokenAsString(core::stringc &out)
 	}
 	findNextNoneWhiteSpace();
 
-	if (P >= End)
+	if (eof())
 		return false;
 
-	if (P[0] != '"')
+	if (*P != '"')
 		return false;
 	++P;
 
-	while (P < End && P[0] != '"') {
-		out.append(P[0]);
+	while (!eof() && *P != '"') {
+		out.append(*P);
 		++P;
 	}
 
-	if (P[1] != ';' || P[0] != '"')
+	if (remainingBytes() < 2)
+		return false;
+
+	if (P[0] != '"' || P[1] != ';')
 		return false;
 	P += 2;
 
@@ -1758,8 +1771,8 @@ void CXMeshFileLoader::readUntilEndOfLine()
 	if (BinaryFormat)
 		return;
 
-	while (P < End) {
-		if (P[0] == '\n' || P[0] == '\r') {
+	while (!eof()) {
+		if (*P == '\n' || *P == '\r') {
 			++P;
 			++Line;
 			return;
@@ -1769,44 +1782,18 @@ void CXMeshFileLoader::readUntilEndOfLine()
 	}
 }
 
-u16 CXMeshFileLoader::readBinWord()
-{
-	if (P >= End)
-		return 0;
-#ifdef __BIG_ENDIAN__
-	const u16 tmp = os::Byteswap::byteswap(*(u16 *)P);
-#else
-	const u16 tmp = *(u16 *)P;
-#endif
-	P += 2;
-	return tmp;
-}
-
-u32 CXMeshFileLoader::readBinDWord()
-{
-	if (P >= End)
-		return 0;
-#ifdef __BIG_ENDIAN__
-	const u32 tmp = os::Byteswap::byteswap(*(u32 *)P);
-#else
-	const u32 tmp = *(u32 *)P;
-#endif
-	P += 4;
-	return tmp;
-}
-
 u32 CXMeshFileLoader::readInt()
 {
 	if (BinaryFormat) {
 		if (!BinaryNumCount) {
-			const u16 tmp = readBinWord(); // 0x06 or 0x03
+			const auto tmp = readBinNum<u16>(); // 0x06 or 0x03
 			if (tmp == 0x06)
-				BinaryNumCount = readBinDWord();
+				BinaryNumCount = readBinNum<u32>();
 			else
 				BinaryNumCount = 1; // single int
 		}
 		--BinaryNumCount;
-		return readBinDWord();
+		return readBinNum<u32>();
 	} else {
 		findNextNoneWhiteSpaceNumber();
 		char *end = nullptr;
@@ -1820,40 +1807,31 @@ f32 CXMeshFileLoader::readFloat()
 {
 	if (BinaryFormat) {
 		if (!BinaryNumCount) {
-			const u16 tmp = readBinWord(); // 0x07 or 0x42
+			const auto tmp = readBinNum<u16>(); // 0x07 or 0x42
 			if (tmp == 0x07)
-				BinaryNumCount = readBinDWord();
+				BinaryNumCount = readBinNum<u32>();
 			else
 				BinaryNumCount = 1; // single int
 		}
 		--BinaryNumCount;
-		if (FloatSize == 8) {
-#ifdef __BIG_ENDIAN__
-			// TODO: Check if data is properly converted here
-			f32 ctmp[2];
-			ctmp[1] = os::Byteswap::byteswap(*(f32 *)P);
-			ctmp[0] = os::Byteswap::byteswap(*(f32 *)P + 4);
-			const f32 tmp = (f32)(*(f64 *)(void *)ctmp);
-#else
-			const f32 tmp = (f32)(*(f64 *)P);
-#endif
-			P += 8;
-			return tmp;
-		} else {
-#ifdef __BIG_ENDIAN__
-			const f32 tmp = os::Byteswap::byteswap(*(f32 *)P);
-#else
-			const f32 tmp = *(f32 *)P;
-#endif
-			P += 4;
-			return tmp;
-		}
+		return FloatSize == 8 ? static_cast<f32>(readBinNum<f64>()) : readBinNum<f32>();
 	}
 	findNextNoneWhiteSpaceNumber();
 	char *end = nullptr;
 	f32 ftmp = (f32)strtod(P, &end);
 	P = end;
 	return ftmp;
+}
+
+core::stringc CXMeshFileLoader::readBinString()
+{
+	auto len = readBinNum<u32>();
+	if (eof())
+		return core::stringc();
+	len = (u32) std::min<size_t>(len, End - P);
+	core::stringc res(P, len);
+	advance(len);
+	return res;
 }
 
 // read 2-dimensional vector. Stops at semicolon after second value for text file format
@@ -1902,6 +1880,27 @@ bool CXMeshFileLoader::readMatrix(core::matrix4 &mat)
 	for (u32 i = 0; i < 16; ++i)
 		mat[i] = readFloat();
 	return checkForOneFollowingSemicolons();
+}
+
+SkinnedMesh::SJoint *CXMeshFileLoader::addJoint(SkinnedMesh::SJoint *parent, std::string name)
+{
+	auto *joint = AnimatedMesh.addJoint(parent);
+	joint->Name = std::move(name);
+	JointKeysIdx.resize(joint->JointID + 1, std::nullopt);
+	return joint;
+}
+
+void CXMeshFileLoader::addKeys(u16 joint_id, SkinnedMesh::Keys &&keys)
+{
+	auto &animation = AnimatedMesh.getSingleAnimation();
+	auto &joint_keys_idx = JointKeysIdx.at(joint_id);
+	if (joint_keys_idx) {
+		animation.joint_keys.at(*joint_keys_idx).keys.append(keys);
+	} else {
+		animation.joint_keys.emplace_back(SkinnedMesh::Animation::JointKeys{
+				joint_id, std::move(keys) });
+		joint_keys_idx = animation.joint_keys.size() - 1;
+	}
 }
 
 } // end namespace scene

@@ -14,7 +14,7 @@
 static inline f32 my_atof(const char *p)
 {
 	// FIXME: should we check the endptr??
-	return (f32)strtod(p, nullptr);
+	return strtof(p, nullptr);
 }
 
 namespace scene

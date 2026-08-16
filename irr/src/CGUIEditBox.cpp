@@ -398,10 +398,10 @@ bool CGUIEditBox::processKey(const SEvent &event)
 
 				// This is a "good enough" approximation
 				u32 lineHeight = font->getDimension(L"A").Height + font->getKerning(L'A').Y;
-				f32 linesMax = WINDOW_SCROLL_FACTOR *
-					AbsoluteClippingRect.getHeight() / (f32)lineHeight;
+				u32 linesMax = (u32)std::roundf(WINDOW_SCROLL_FACTOR *
+					AbsoluteClippingRect.getHeight() / (f32)lineHeight);
 
-				if (!onKeyUpDown(event.KeyInput, newMarkBegin, newMarkEnd, linesMax + 0.5f)) {
+				if (!onKeyUpDown(event.KeyInput, newMarkBegin, newMarkEnd, linesMax)) {
 					return false;
 				}
 			}
@@ -553,7 +553,7 @@ bool CGUIEditBox::onKeyUpDown(const SEvent::SKeyInput &input, s32 &mark_begin,
 		}
 
 		s32 offset = new_pos - BrokenTextPositions[lineNo];
-		size_t next_len = BrokenText[lineNo + dir].size();
+		s32 next_len = (s32)BrokenText[lineNo + dir].size();
 		// Try to go to the same position in the next line, or clamp.
 		new_pos = BrokenTextPositions[lineNo + dir] +
 			std::max<s32>(0, std::min<s32>(offset, next_len));
@@ -1016,7 +1016,7 @@ bool CGUIEditBox::processMouse(const SEvent &event)
 				newMarkEnd = CursorPos;
 
 			const bool is_alnum = std::iswalnum(
-				Text[std::min<size_t>(CursorPos, Text.size() - 1)]
+				Text[std::min<s32>(CursorPos, (s32)Text.size() - 1)]
 			);
 			for (; newMarkEnd < (s32)Text.size(); ++newMarkEnd) {
 				if (!!std::iswalnum(Text[newMarkEnd]) != is_alnum)
@@ -1101,7 +1101,7 @@ bool CGUIEditBox::processMouse(const SEvent &event)
 		if (VScrollBar && VScrollBar->isVisible()) {
 			s32 pos = VScrollBar->getTargetPos();
 			s32 step = VScrollBar->getSmallStep();
-			VScrollBar->setPosInterpolated(pos - event.MouseInput.Wheel * step);
+			VScrollBar->setPosInterpolated(pos - s32(event.MouseInput.Wheel * step));
 			return true;
 		}
 		break;

@@ -123,9 +123,21 @@ int ModApiMainMenu::l_start(lua_State *L)
 
 	MainMenuData *data = engine->m_data;
 
-	data->selected_world = getIntegerData(L, "selected_world",valid) -1;
-	data->simple_singleplayer_mode = getBoolData(L,"singleplayer",valid);
 	data->do_reconnect = getBoolData(L, "do_reconnect", valid);
+
+	const std::string mode = getTextData(L, "mode");
+	if (mode == "singleplayer") {
+		data->mode = GameClientData::GM_SINGLEPLAYER;
+	} else if (mode == "host") {
+		data->mode = GameClientData::GM_HOST_AND_JOIN;
+	} else if (mode == "join") {
+		data->mode = GameClientData::GM_JOIN;
+	} else if (!data->do_reconnect) {
+		// If reconnect: Re-use value on C++ side
+		luaL_error(L, "unknown start mode");
+	}
+
+	data->selected_world = getIntegerData(L, "selected_world", valid) - 1;
 	if (!data->do_reconnect) {
 		// Get rid of trailing whitespace in name (may be added by autocompletion
 		// on Android, which would then cause SERVER_ACCESSDENIED_WRONG_CHARS_IN_NAME).
@@ -143,8 +155,6 @@ int ModApiMainMenu::l_start(lua_State *L)
 		else
 			data->allow_login_or_register = ELoginRegister::Any;
 	}
-	data->serverdescription = getTextData(L,"serverdescription");
-	data->servername        = getTextData(L,"servername");
 
 	//close menu next time
 	engine->m_startgame = true;
@@ -1109,6 +1119,25 @@ int ModApiMainMenu::l_do_async_callback(lua_State *L)
 }
 
 /******************************************************************************/
+int ModApiMainMenu::l_copy_to_clipboard(lua_State *L)
+{
+	GUIEngine *engine = getGuiEngine(L);
+	sanity_check(engine != nullptr);
+
+	const char *text = luaL_checkstring(L, 1);
+
+	auto *env = engine->m_rendering_engine->get_gui_env();
+	env->getOSOperator()->copyToClipboard(text);
+
+	if (engine->m_status_text) {
+		engine->m_status_text->setMainMenuStyle();
+		engine->m_status_text->showStatusText(wstrgettext("Copied to clipboard!"));
+	}
+
+	return 0;
+}
+
+/******************************************************************************/
 void ModApiMainMenu::Initialize(lua_State *L, int top)
 {
 	API_FCT(update_formspec);
@@ -1163,6 +1192,7 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(open_dir);
 	API_FCT(share_file);
 	API_FCT(do_async_callback);
+	API_FCT(copy_to_clipboard);
 
 	lua_pushboolean(L, g_first_run);
 	lua_setfield(L, top, "is_first_run");

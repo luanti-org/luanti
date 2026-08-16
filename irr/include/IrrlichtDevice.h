@@ -249,16 +249,6 @@ public:
 	//! Get the position of the frame on-screen
 	virtual core::position2di getWindowPosition() = 0;
 
-	//! Activate any joysticks, and generate events for them.
-	/** Irrlicht contains support for joysticks, but does not generate joystick events by default,
-	as this would consume joystick info that 3rd party libraries might rely on. Call this method to
-	activate joystick support in Irrlicht and to receive SJoystickEvent events.
-	\param joystickInfo On return, this will contain an array of each joystick that was found and activated.
-	\return true if joysticks are supported on this device, false if joysticks are not
-				 supported or support is compiled out.
-	*/
-	virtual bool activateJoysticks(core::array<SJoystickInfo> &joystickInfo) = 0;
-
 	//! Activate accelerometer.
 	virtual bool activateAccelerometer(float updateInterval = 0.016666f) = 0;
 
@@ -368,5 +358,15 @@ public:
 	virtual Keycode getKeyFromScancode(const u32 scancode) const {
 		(void)scancode;
 		return Keycode(KEY_UNKNOWN, (wchar_t)0xFFFF);
+	}
+
+	//! Get the label of a button on a gamepad.
+	/** This is a wrapper for SDL_GamepadButtonLabel.
+	\param button The gamepad button.
+	\return The corresponding label, or 0 if no sensible value can be determined.
+	*/
+	virtual GamepadButtonLabel getGamepadButtonLabel(const GamepadButton button) const {
+		// Dummy implementation
+		return GamepadButtonLabel::UNKNOWN;
 	}
 };

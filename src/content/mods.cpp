@@ -4,15 +4,20 @@
 
 #include <cctype>
 #include <fstream>
-#include <json/json.h>
 #include <algorithm>
 #include "content/mods.h"
 #include "database/database.h"
 #include "filesys.h"
 #include "log.h"
+#include "porting.h" // strcasecmp
 #include "settings.h"
 #include "script/common/c_internal.h"
 #include "exceptions.h"
+
+bool ModSpecCompare::operator()(const ModSpec &a, const ModSpec &b) const
+{
+	return strcasecmp(a.name.c_str(), b.name.c_str()) < 0;
+}
 
 void ModSpec::checkAndLog() const
 {
@@ -159,12 +164,12 @@ bool parseModContents(ModSpec &spec)
 	return true;
 }
 
-std::map<std::string, ModSpec> getModsInPath(
+ModSpecList getModsInPath(
 		const std::string &path, const std::string &virtual_path, int modpack_depth)
 {
 	// NOTE: this function works in mutual recursion with parseModContents
 
-	std::map<std::string, ModSpec> result;
+	ModSpecList result;
 	std::vector<fs::DirListNode> dirlist = fs::GetDirListing(path);
 	std::string mod_path;
 	std::string mod_virtual_path;
@@ -189,30 +194,33 @@ std::map<std::string, ModSpec> getModsInPath(
 
 		ModSpec spec(modname, mod_path, modpack_depth, mod_virtual_path);
 		if (parseModContents(spec)) {
-			result[modname] = std::move(spec);
+			result.emplace(std::move(spec));
 		}
 	}
 	return result;
 }
 
-std::vector<ModSpec> flattenMods(const std::map<std::string, ModSpec> &mods,
+static void flatten_recursive(std::vector<ModSpec> &result, const ModSpecList &mods,
 		bool discard_modpacks)
 {
-	std::vector<ModSpec> result;
-	for (const auto &it : mods) {
-		const ModSpec &mod = it.second;
-		if (!mod.is_modpack || !discard_modpacks) {
+	for (const ModSpec &mod : mods) {
+		if (!mod.is_modpack || !discard_modpacks)
 			result.push_back(mod);
-		}
-		if (mod.is_modpack) {
-			std::vector<ModSpec> content = flattenMods(mod.modpack_content, discard_modpacks);
-			result.reserve(result.size() + content.size());
-			result.insert(result.end(), content.begin(), content.end());
-		}
+
+		if (mod.is_modpack)
+			flatten_recursive(result, mod.modpack_content, discard_modpacks);
 	}
-	return result;
 }
 
+std::vector<ModSpec> flattenMods(const ModSpecList &mods, bool discard_modpacks)
+{
+	std::vector<ModSpec> result;
+	flatten_recursive(result, mods, discard_modpacks);
+
+	if (discard_modpacks)
+		std::sort(result.begin(), result.end(), ModSpecCompare());
+	return result;
+}
 
 ModStorage::ModStorage(const std::string &mod_name, ModStorageDatabase *database):
 	m_mod_name(mod_name), m_database(database)

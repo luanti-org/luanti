@@ -36,11 +36,11 @@ public:
 	Type getType() const override { return type; }
 };
 
-typedef void (*event_receive_func)(MtEvent *e, void *data);
-
 class MtEventManager
 {
 public:
+	typedef void (*event_receive_func)(MtEvent *e, void *data);
+
 	virtual ~MtEventManager() = default;
 	virtual void put(MtEvent *e) = 0;
 	virtual void reg(MtEvent::Type type, event_receive_func f, void *data) = 0;

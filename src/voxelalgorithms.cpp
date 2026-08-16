@@ -957,7 +957,7 @@ const static VoxelArea block_pad[] = {
  * night light. Contains all nodes on the borders that need to be unlit.
  * \param relight the first queue is for day light, the second is for
  * night light. Contains nodes that were not modified, but got sunlight
- * because the changes.
+ * because of the changes.
  * \param modified_blocks the procedure adds all modified blocks to
  * this map
  */

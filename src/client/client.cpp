@@ -68,6 +68,7 @@
 #include <IAnimatedMesh.h>
 #include <IFileSystem.h>
 #include <IReadFile.h>
+#include <IMeshCache.h>
 #include <json/json.h>
 
 #include <iostream>
@@ -197,40 +198,10 @@ Client::Client(
 		m_sscsm_controller->runEvent(this, std::move(event2));
 	}
 
-	{
-		//FIXME: network packets
-		//FIXME: check that *client_builtin* is not overridden
-
-		std::string enable_sscsm = g_settings->get("enable_sscsm");
-		if (enable_sscsm == "singleplayer") { //FIXME: enum
-			auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
-
-			// some simple test code
-			event1->files.emplace_back("sscsm_test0:init.lua",
-					R"=+=(
-print("sscsm_test0: loading")
-
---print(dump(_G))
---print(debug.traceback())
-
-do
-	local pos = vector.zero()
-	local function print_nodes()
-		print(string.format("node at %s: %s", pos, dump(core.get_node_or_nil(pos))))
-		pos = pos:offset(1, 0, 0)
-		core.after(1, print_nodes)
-	end
-	core.after(0, print_nodes)
-end
-					)=+=");
-
-			m_sscsm_controller->runEvent(this, std::move(event1));
-
-			auto event2 = std::make_unique<SSCSMEventLoadMods>();
-			event2->mods.emplace_back("sscsm_test0", "sscsm_test0:init.lua");
-			m_sscsm_controller->runEvent(this, std::move(event2));
-		}
-	}
+	//FIXME: network packets
+	//FIXME: check that *client_builtin* is not overridden
+	// The sscsm_test0 preview mod is loaded from loadSSCSM(),
+	// once itemdefs/nodedefs actually exist to populate core.registered_*.
 }
 
 void Client::migrateModStorage()
@@ -848,6 +819,8 @@ bool Client::loadMedia(const std::string &data, const std::string &filename,
 	bool from_media_push)
 {
 	std::string name;
+
+	// Consider updating LuantiDocumentsProvider.java if new file types are added
 
 	const char *image_ext[] = {
 		".png", ".jpg", ".tga",
@@ -1865,12 +1838,14 @@ const Address Client::getServerAddress()
 	return m_con ? m_con->GetPeerAddress(PEER_ID_SERVER) : Address();
 }
 
-float Client::mediaReceiveProgress()
+bool Client::mediaReceiveProgress(s32 &received, s32 &total, size_t &received_size) const
 {
-	if (m_media_downloader)
-		return m_media_downloader->getProgress();
+	if (m_media_downloader && m_media_downloader->isStarted()) {
+		m_media_downloader->getProgress(received, total, received_size);
+		return true;
+	}
 
-	return 1.0f; // downloader only exists when not yet done
+	return false;
 }
 
 void Client::drawLoadScreen(const std::wstring &text, float dtime, int percent)
@@ -1952,6 +1927,10 @@ void Client::afterContentReceived()
 	tu_args.text_base = wstrgettext("Initializing nodes");
 	NodeVisuals::fillNodeVisuals(m_nodedef, this, &tu_args);
 
+	// Runs after fillNodeVisuals(), which is where ContentFeatures::visuals and thus
+	// minimap_color, and palette - the two values we care for in SSCSM, get populated
+	m_sscsm_controller->runEvent(this, std::make_unique<SSCSMEventAfterContentReceived>());
+
 	// Start mesh update thread after setting up content definitions
 	infostream<<"- Starting mesh update thread"<<std::endl;
 	m_mesh_update_manager->start();
@@ -1964,6 +1943,48 @@ void Client::afterContentReceived()
 
 	m_rendering_engine->draw_load_screen(wstrgettext("Done!"), guienv, m_tsrc, 0, 100);
 	infostream<<"Client::afterContentReceived() done"<<std::endl;
+}
+
+void Client::loadSSCSM()
+{
+	std::string enable_sscsm = g_settings->get("enable_sscsm");
+	bool sscsm_enabled = enable_sscsm == "singleplayer"; //FIXME: enum
+	if (!sscsm_enabled)
+		return;
+
+	auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
+
+	// some simple test code
+	event1->files.emplace_back("sscsm_test0:init.lua",
+			R"=+=(
+print("sscsm_test0: loading")
+
+--print(dump(_G))
+--print(debug.traceback())
+
+do
+	local pos = vector.zero()
+	local function print_nodes()
+		print(string.format("node at %s: %s", pos, dump(core.get_node_or_nil(pos))))
+		pos = pos:offset(1, 0, 0)
+		core.after(1, print_nodes)
+	end
+	core.after(0, print_nodes)
+end
+
+do
+	local n = 0
+	for _ in pairs(core.registered_nodes) do n = n + 1 end
+	print("sscsm_test0: registered_nodes count: " .. n)
+end
+print("sscsm_test0: air def: " .. dump(core.registered_nodes["air"]))
+				)=+=");
+
+	m_sscsm_controller->runEvent(this, std::move(event1));
+
+	auto event2 = std::make_unique<SSCSMEventLoadMods>();
+	event2->mods.emplace_back("sscsm_test0", "sscsm_test0:init.lua");
+	m_sscsm_controller->runEvent(this, std::move(event2));
 }
 
 float Client::getRTT()
@@ -2041,29 +2062,34 @@ ParticleManager* Client::getParticleManager()
 	return m_particle_manager.get();
 }
 
-scene::IAnimatedMesh* Client::getMesh(const std::string &filename, bool cache)
+scene::IAnimatedMesh *Client::getMesh(const std::string &filename, bool *is_shared)
 {
-	StringMap::const_iterator it = m_mesh_data.find(filename);
-	if (it == m_mesh_data.end()) {
-		errorstream << "Client::getMesh(): Mesh not found: \"" << filename
-			<< "\"" << std::endl;
-		return NULL;
-	}
-	const std::string &data    = it->second;
+	auto it = m_mesh_data.find(filename);
+	if (it == m_mesh_data.end())
+		return nullptr;
 
-	// Create the mesh, remove it from cache and return it
-	// This allows unique vertex colors and other properties for each instance
+	if (is_shared)
+		*is_shared = true; // this is currently always the case
+
+	// Try getting it from cache explicitly
+	auto *sm = m_rendering_engine->get_scene_manager();
+	auto *mesh = sm->getMeshCache()->getMeshByName(filename.c_str());
+	if (mesh) {
+		mesh->grab();
+		return mesh;
+	}
+
+	// Load the mesh from file data
+	const std::string &data = it->second;
 	io::IReadFile *rfile = m_rendering_engine->get_filesystem()->createMemoryReadFile(
 			data.c_str(), data.size(), filename.c_str());
 	FATAL_ERROR_IF(!rfile, "Could not create/open RAM file");
 
-	scene::IAnimatedMesh *mesh = m_rendering_engine->get_scene_manager()->getMesh(rfile);
+	mesh = sm->getMesh(rfile);
 	rfile->drop();
 	if (!mesh)
 		return nullptr;
 	mesh->grab();
-	if (!cache)
-		m_rendering_engine->removeMesh(mesh);
 	return mesh;
 }
 

@@ -79,6 +79,8 @@
  *
  */
 
+#include "irrTypes.h"
+
 namespace sound {
 
 // constants
@@ -93,6 +95,8 @@ constexpr f32 MIN_STREAM_BUFFER_LENGTH = 1.0f;
 constexpr f32 STREAM_BIGSTEP_TIME = 0.3f;
 // step duration for the OpenALSoundManager thread, in seconds
 constexpr f32 SOUNDTHREAD_DTIME = 0.016f;
+// time (in seconds) till playing sounds may be printed again, if rate-limited
+constexpr u64 PLAYING_SOUNDS_PRINT_INTERVAL = 10;
 
 static_assert(SOUND_DURATION_MAX_SINGLE >= MIN_STREAM_BUFFER_LENGTH * 2.0f,
 		"There's no benefit in streaming if we can't queue more than 2 buffers.");

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Korean (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 19:14+0200\n"
-"PO-Revision-Date: 2026-04-20 07:09+0000\n"
+"POT-Creation-Date: 2026-08-10 17:35+0200\n"
+"PO-Revision-Date: 2026-08-10 15:18+0000\n"
 "Last-Translator: \"김현수 (khstony)\" <a34253492@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/minetest/minetest/"
 "ko/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17.1-dev\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -32,7 +32,7 @@ msgstr "유효하지 않은 명령어: "
 
 #: builtin/client/chatcommands.lua
 msgid "Issued command: "
-msgstr "명령어 발행됨: "
+msgstr "지시된 커맨드: "
 
 #: builtin/client/chatcommands.lua
 msgid "List online players"
@@ -48,7 +48,7 @@ msgstr "외부 채팅 대기열이 비어있습니다."
 
 #: builtin/client/chatcommands.lua
 msgid "This command is disabled by server."
-msgstr "서버에서 사용 할 수 없는 명령어입니다."
+msgstr "해당 명령어를 서버에서 비활성화했습니다."
 
 #: builtin/common/chatcommands.lua
 msgid "Available commands:"
@@ -71,7 +71,7 @@ msgstr "명령어 도움말 보기 (-t: 채팅에 출력)"
 msgid ""
 "Use '.help <cmd>' to get more information, or '.help all' to list everything."
 msgstr ""
-"자세한 정보를 얻으려면 '.help <cmd>'를 사용하고, 모든 것을 나열하려면 '.help "
+"개별 정보를 얻으려면 '.help <cmd>'를 사용하고, 모든 내용을 나열하려면 '.help "
 "all'을 사용하십시오."
 
 #. TRANSLATORS: Syntax of 'help' command. Don't translate anything except 'cmd' (=command)
@@ -165,6 +165,8 @@ msgid ""
 "Having lots of octaves is not recommended because it increases terrain "
 "generation time."
 msgstr ""
+"옥타브가 증가하면 지형을 생성하는 시간이 지연되므로 높게 설정하는 것을 추천하"
+"지 않습니다."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Lacunarity"
@@ -324,7 +326,7 @@ msgstr "(시스템 언어 사용)"
 #. TRANSLATORS: Shown when a default setting is the empty string
 #: builtin/common/settings/dlg_settings.lua
 msgid "<empty>"
-msgstr ""
+msgstr "<비어있음>"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Accessibility"
@@ -406,13 +408,12 @@ msgstr "기본값으로 복원"
 
 #. TRANSLATORS: $1 will be replaced with a default setting value
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Reset setting to default: $1"
-msgstr "기본 설정으로 재설정하기 ($1)"
+msgstr "기본 설정($1) 으로 재설정하기"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
-msgstr "찾기"
+msgstr "검색"
 
 #. TRANSLATORS: Touchscreen gesture
 #: builtin/common/settings/dlg_settings.lua
@@ -509,6 +510,10 @@ msgstr "Lua 스크립트에서 오류가 발생했습니다:"
 #: builtin/fstk/ui.lua
 msgid "An error occurred:"
 msgstr "오류가 발생했습니다:"
+
+#: builtin/fstk/ui.lua
+msgid "Copy to clipboard"
+msgstr ""
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1307,7 +1312,7 @@ msgstr "활성된 렌더러:"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Developers"
-msgstr "코어 개발자"
+msgstr "핵심 개발자"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Team"
@@ -1521,7 +1526,7 @@ msgstr ""
 #: builtin/mainmenu/tab_online.lua
 #, fuzzy
 msgid "Possible filters"
-msgstr "푸아송 필터링"
+msgstr "사용가능한 필터"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
@@ -1539,6 +1544,11 @@ msgstr "즐겨찾기에서 제거"
 #: builtin/mainmenu/tab_online.lua
 msgid "Server Description"
 msgstr "서버 설명"
+
+#: src/chat.cpp
+#, fuzzy
+msgid "Player names: "
+msgstr "게임하기"
 
 #: src/client/client.cpp
 msgid "Connection aborted (protocol error?)."
@@ -1607,9 +1617,8 @@ msgid "Media..."
 msgstr "미디어..."
 
 #: src/client/fontengine.cpp
-#, fuzzy
 msgid "Failed to find a valid font"
-msgstr "\"%s\"쉐이더 파일을 찾는데 실패했습니다."
+msgstr "유효한 폰트를 찾지 못했습니다"
 
 #: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
 #: src/server.cpp
@@ -1643,11 +1652,11 @@ msgstr "자동 전진 활성화"
 
 #: src/client/game.cpp
 msgid "Block bounds hidden"
-msgstr "숨겨진 범위 차단"
+msgstr "블록 바운드 숨기기"
 
 #: src/client/game.cpp
 msgid "Block bounds shown for current block"
-msgstr "현재 블록의 경계 표시"
+msgstr "현재 블록의 블록 바운드 표시"
 
 #: src/client/game.cpp
 msgid "Block bounds shown for nearby blocks"
@@ -1732,6 +1741,11 @@ msgid "Fast mode enabled (note: no 'fast' privilege)"
 msgstr "고속 모드 활성화(참고 : 'fast' 권한 없음)"
 
 #: src/client/game.cpp
+#, c-format
+msgid "Files: %d / %d"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Fly mode disabled"
 msgstr "비행 모드 비활성화"
 
@@ -1760,11 +1774,13 @@ msgid "Item definitions..."
 msgstr "아이템 정의중..."
 
 #: src/client/game.cpp
-msgid "KiB/s"
+#, fuzzy
+msgid "KiB"
 msgstr "KiB/s"
 
 #: src/client/game.cpp
-msgid "MiB/s"
+#, fuzzy
+msgid "MiB"
 msgstr "MiB/s"
 
 #: src/client/game.cpp
@@ -1814,6 +1830,11 @@ msgstr "셧다운 중..."
 #: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "싱글 플레이어"
+
+#: src/client/game.cpp
+#, c-format
+msgid "Size: %.2f %s"
+msgstr ""
 
 #: src/client/game.cpp
 msgid "Sound muted"
@@ -2039,8 +2060,27 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "프로파일러 보이기 (%d / %d 페이지)"
 
 #: src/client/keycode.cpp
+#, fuzzy
+msgid "A (Gamepad)"
+msgstr "게임패드"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "B (Gamepad)"
+msgstr "게임패드"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Back (Gamepad)"
+msgstr "게임패드"
+
+#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
+
+#: src/client/keycode.cpp
+msgid "Bottom Face Button (Gamepad)"
+msgstr ""
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2052,12 +2092,38 @@ msgid "Caps Lock"
 msgstr "Caps Lock"
 
 #: src/client/keycode.cpp
+msgid "Circle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Clear Key"
 msgstr "Clear 키"
 
 #: src/client/keycode.cpp
 msgid "Control Key"
 msgstr "Control 키"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Cross (Gamepad)"
+msgstr "게임패드"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "D-Pad Down"
+msgstr "Page Down"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Up"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Delete Key"
@@ -2070,6 +2136,26 @@ msgstr "아래쪽 방향키"
 #: src/client/keycode.cpp
 msgid "End Key"
 msgstr "End 키"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d +"
+msgstr "게임패드"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d -"
+msgstr "게임패드"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Button %d"
+msgstr "마우스 버튼 %d"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Guide (Gamepad)"
+msgstr "게임패드"
 
 #: src/client/keycode.cpp
 msgid "Help Key"
@@ -2096,12 +2182,51 @@ msgid "Left Control"
 msgstr "L Ctrl"
 
 #: src/client/keycode.cpp
+msgid "Left Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Button"
+msgstr "조이스틱 타입"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Down"
+msgstr "조이스틱 ID"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Left"
+msgstr "조이스틱 타입"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Right"
+msgstr "조이스틱 타입"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Up"
+msgstr "조이스틱 타입"
+
+#: src/client/keycode.cpp
 msgid "Left Menu"
 msgstr "L Alt"
 
 #: src/client/keycode.cpp
 msgid "Left Shift"
 msgstr "L Shift"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Shoulder"
+msgstr "L Shift"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Trigger"
+msgstr "왼쪽 방향키"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2120,7 +2245,7 @@ msgstr "가운데클릭"
 #: src/client/keycode.cpp
 #, c-format
 msgid "Mouse Button %d"
-msgstr ""
+msgstr "마우스 버튼 %d"
 
 #. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
@@ -2213,6 +2338,14 @@ msgstr "Pause 키"
 msgid "Play"
 msgstr "Play"
 
+#: src/client/keycode.cpp
+msgid "Primary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Primary Right Paddle"
+msgstr ""
+
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
@@ -2235,12 +2368,50 @@ msgid "Right Control"
 msgstr "R Ctrl"
 
 #: src/client/keycode.cpp
+msgid "Right Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Down"
+msgstr "조이스틱 ID"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Left"
+msgstr "조이스틱 타입"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Right"
+msgstr "조이스틱 타입"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Up"
+msgstr "조이스틱 타입"
+
+#: src/client/keycode.cpp
 msgid "Right Menu"
 msgstr "오른쪽 Menu"
 
 #: src/client/keycode.cpp
 msgid "Right Shift"
 msgstr "R Shift"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Shoulder"
+msgstr "R Shift"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Trigger"
+msgstr "오른쪽 방향키"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2257,6 +2428,14 @@ msgid "Scroll Lock"
 msgstr "ScrLk"
 
 #: src/client/keycode.cpp
+msgid "Secondary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Secondary Right Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Select Key"
 msgstr "Select 키"
 
@@ -2269,12 +2448,44 @@ msgid "Space"
 msgstr "스페이스바"
 
 #: src/client/keycode.cpp
+#, fuzzy
+msgid "Square (Gamepad)"
+msgstr "서버 게임플레이"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Start (Gamepad)"
+msgstr "게임 시작"
+
+#: src/client/keycode.cpp
 msgid "Tab Key"
 msgstr "Tab 키"
 
 #: src/client/keycode.cpp
+msgid "Top Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Touchpad Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Triangle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "위쪽 방향키"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "X (Gamepad)"
+msgstr "게임패드"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Y (Gamepad)"
+msgstr "게임패드"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2302,7 +2513,7 @@ msgstr ""
 #: src/client/renderingengine.cpp
 #, fuzzy
 msgid "Could not initialize any supported video driver!"
-msgstr "비디오 드라이버가 와이어프레임을 지원하지 않음"
+msgstr "지원되는 비디오 드라이버를 초기화할 수 없습니다!"
 
 #: src/client/shader.cpp
 #, c-format
@@ -2357,9 +2568,8 @@ msgid "Opening webpage"
 msgstr "웹페이지 열기"
 
 #: src/gui/guiEngine.cpp
-#, fuzzy
 msgid "Failed to load main menu script!"
-msgstr "메인 메뉴 스크립트"
+msgstr "메인 메뉴 스크립트 로드 실패"
 
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
@@ -2589,6 +2799,10 @@ msgstr ""
 "서버가 당신의 클라이언트 버전을 지원하지 않습니다.\n"
 "서버 관리자와 연락하시길 바랍니다."
 
+#: src/script/lua_api/l_mainmenu.cpp
+msgid "Copied to clipboard!"
+msgstr ""
+
 #: src/server.cpp
 #, c-format
 msgid "%s while shutting down: "
@@ -2773,6 +2987,11 @@ msgid "Acceleration of gravity, in nodes per second per second."
 msgstr "중력 가속도, 단위는 초당 노드/초입니다."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Actions and Keybindings"
+msgstr "키설정 추가"
+
+#: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
 msgstr "블록 수식어 활성"
 
@@ -2846,10 +3065,10 @@ msgid ""
 "light, it has very little effect on natural night light."
 msgstr ""
 "'감마 보정'을 적용하여 조명 곡선을 변경합니다.\n"
-"값이 높을수록 중간 및 낮은 조명 수준이 더 밝아집니다.\n"
+"값이 높을수록 중간 및 낮은 조명이 더 밝아집니다.\n"
 "'1.0' 입력 시 조명 곡선을 변경하지 않습니다.\n"
-"이것은 일광 및 인공 조명에만 중요한 영향을 미칩니다.\n"
-"빛은, 자연적인 야간 조명에 거의 영향을 미치지 않습니다."
+"이것은 일광 및 인공 조명에만 유의미한 영향을 미칩니다.\n"
+"자연적인 야간 조명는에 거의 영향을 미치지 않습니다."
 
 #: src/settings_translation_file.cpp
 msgid "Always fly fast"
@@ -2861,7 +3080,7 @@ msgstr "주변 occlusion 감마"
 
 #: src/settings_translation_file.cpp
 msgid "Amplifies the valleys."
-msgstr "계곡을 증폭합니다."
+msgstr "협곡을 증폭합니다."
 
 #: src/settings_translation_file.cpp
 msgid "Anisotropic filtering"
@@ -2899,7 +3118,7 @@ msgstr "툴팁에 아이템 이름 추가."
 #: src/settings_translation_file.cpp
 #, fuzzy
 msgid "Append the full item name to the tooltip of item stacks."
-msgstr "툴팁에 아이템 이름 추가."
+msgstr "아이템 스택의 툴팁에 전체 아이템 이름 추가."
 
 #: src/settings_translation_file.cpp
 msgid "Apple trees noise"
@@ -2912,6 +3131,9 @@ msgid ""
 "Provides balance between speed and image quality.\n"
 "fxaa can used in combination with the other anti-aliasing methods"
 msgstr ""
+"고대비 가장자리를 감지하고 부드럽게 처리하는 후처리 필터를 적용합니다.\n"
+"속도와 이미지 품질 간의 균형을 제공합니다.\n"
+"FXAA는 다른 안티앨리어싱 방식과 함께 사용할 수 있습니다."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -2974,12 +3196,12 @@ msgstr ""
 "맵 블록 (16 개 노드)단위."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"At this distance the server will perform a simpler and cheaper occlusion "
-"check.\n"
-"Smaller values potentially improve performance, at the expense of "
-"temporarily visible\n"
-"rendering glitches (missing blocks).\n"
+"At this distance the server will consider blocks as \"far away\".\n"
+"It will perform simpler and cheaper occlusion checks, update\n"
+"low priority block updates lazily, and limit the blocks sent to the\n"
+"client in one roundtrip.\n"
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
@@ -3466,9 +3688,8 @@ msgstr ""
 "또한 개체 십자선 색상을 제어합니다"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Damage flash"
-msgstr "세계 생성기 신호"
+msgstr "데미지 화면 효과"
 
 #: src/settings_translation_file.cpp
 msgid "Debug log file size threshold"
@@ -3809,9 +4030,8 @@ msgid "Enable Raytraced Culling"
 msgstr "레이 트레이싱 컬링 활성화"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable SSCSM"
-msgstr "모두 활성화"
+msgstr "SSCSM 활성화"
 
 #: src/settings_translation_file.cpp
 msgid "Enable a confirmation dialog before closing."
@@ -3826,7 +4046,7 @@ msgid ""
 msgstr ""
 "자동 노출 보정 활성화\n"
 "이 기능을 활성화하면 후처리 엔진이\n"
-"장면의 밝기에 자동으로 맞춰 조정되며,\n"
+"장면의 밝기에 자동으로 맞춰 조정됩니다.\n"
 "인간의 눈이 반응하는 방식을 모방합니다."
 
 #: src/settings_translation_file.cpp
@@ -3844,14 +4064,6 @@ msgstr "콘솔 창 활성화"
 #: src/settings_translation_file.cpp
 msgid "Enable dynamic shadows"
 msgstr "동적 그림자 활성화"
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks"
-msgstr "조이스틱 활성화"
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks. Requires a restart to take effect"
-msgstr "조이스틱 활성화, 재시작해야 적용됩니다"
 
 #: src/settings_translation_file.cpp
 msgid "Enable mod channels support."
@@ -3907,7 +4119,7 @@ msgid ""
 msgstr ""
 "원격 미디어 서버 사용 가능(서버 지원 시 적용).\n"
 "원격 서버들은 서버에 연결할 때 매우 빠르게 미디어를\n"
-"다운로드 할 수 있도록 제공합니다.(예: 텍스처)."
+"다운로드 할 수 있도록 제공합니다.(텍스처 등)."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3915,7 +4127,7 @@ msgid ""
 "For example: 0 for no view bobbing; 1.0 for normal; 2.0 for double."
 msgstr ""
 "화면 흔들림 멀티플라이어\n"
-"예 : 0은 화면 흔들림 없음; 1.0은 보통; 2.0은 두배로 적용됨."
+"예 : 0은 화면 흔들림 없음, 1.0은 보통, 2.0은 두배로 적용됨."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3924,7 +4136,7 @@ msgid ""
 "appearance of high dynamic range images. Mid-range contrast is slightly\n"
 "enhanced, highlights and shadows are gradually compressed."
 msgstr ""
-"Hable의 ‘언차티드 2’ 영화적 톤 매핑을 활성화합니다.\n"
+"Hable의 ‘언차티드 2’ 영화의 톤 매핑을 활성화합니다.\n"
 "사진 필름의 톤 커브를 시뮬레이션하며, 이를 통해\n"
 "동적 범위 이미지의 외관을 근사화합니다. 중간 범위의 대비가 약간\n"
 "강화되고, 하이라이트와 그림자 영역이 점진적으로 압축됩니다."
@@ -4039,7 +4251,7 @@ msgid ""
 "the\n"
 "Multiplayer Tab."
 msgstr ""
-"멀티 플레이어 탭에 표시되는 즐겨 찾는 서버가 포함 된 \n"
+"멀티 플레이어 탭에 표시되는 즐겨 찾는 서버가 포함된\n"
 "client / serverlist / 경로의 파일입니다."
 
 #: src/settings_translation_file.cpp
@@ -4084,7 +4296,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Flashing of the screen when taking damage."
-msgstr ""
+msgstr "데미지를 받을때 화면 플래시 효과."
 
 #: src/settings_translation_file.cpp
 msgid "Floatland density"
@@ -4271,8 +4483,12 @@ msgid "GUI scaling filter"
 msgstr "GUI 크기 조정 필터"
 
 #: src/settings_translation_file.cpp
-msgid "Gamepads"
-msgstr "게임패드"
+msgid "Gamepads and Joysticks"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Gamma"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -4884,24 +5100,22 @@ msgstr ""
 "반복 횟수 = 20일 때 이 mapgen의 부하 정도는 mapgen V7과 유사합니다."
 
 #: src/settings_translation_file.cpp
-msgid "Joystick ID"
-msgstr "조이스틱 ID"
-
-#: src/settings_translation_file.cpp
 msgid "Joystick button repetition interval"
 msgstr "조이스틱 버튼 반복 간격"
-
-#: src/settings_translation_file.cpp
-msgid "Joystick dead zone"
-msgstr "조이스틱 데드존"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick frustum sensitivity"
 msgstr "조이스틱 프러스텀 감도"
 
 #: src/settings_translation_file.cpp
-msgid "Joystick type"
-msgstr "조이스틱 타입"
+#, fuzzy
+msgid "Joystick inner dead zone"
+msgstr "조이스틱 데드존"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Joystick outer dead zone"
+msgstr "조이스틱 데드존"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5003,6 +5217,12 @@ msgstr "채팅창을 열어 로컬 명령어를 칠 수 있게 하는 키."
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Key for opening the pause menu in-game.\n"
+"Pressing the escape key always opens the pause menu."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
@@ -5030,26 +5250,21 @@ msgid "Key for toggling the display of the profiler. Used for development."
 msgstr "프로파일러 표시를 토글하는 키. 개발용 기능."
 
 #: src/settings_translation_file.cpp
-msgid "Keybindings"
-msgstr "키설정"
-
-#: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
 msgstr "키보드와 마우스"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keyboard camera speed"
-msgstr "키보드와 마우스"
+msgstr "키보드 카메라 속도"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keyboard-controlled camera rotation speed, in degrees per second."
-msgstr "수직 등반 속도, 단위는 초당 노드/초입니다."
+msgstr "키보드로 카메라 컨트롤 할 때의 회전 속도, 단위는 초당 노드/초입니다."
 
 #: src/settings_translation_file.cpp
 msgid "Kick players who sent more than X messages per 10 seconds."
-msgstr "10초 안에 해당 수치 보다 더 많은 메세지를 보낸 플레이어를 추방합니다."
+msgstr ""
+"10초 안에 해당 수치 보다 더 많은 메세지를 보낸 플레이어를 퇴장시킵니다."
 
 #: src/settings_translation_file.cpp
 msgid "Lake steepness"
@@ -5259,21 +5474,19 @@ msgstr "지역 명령어"
 
 #: src/settings_translation_file.cpp
 msgid "Look down"
-msgstr ""
+msgstr "아래 보기"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Look left"
-msgstr "왼쪽으로 움직이기"
+msgstr "왼쪽 보기"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Look right"
-msgstr "오른쪽 움직임"
+msgstr "오른쪽 보기"
 
 #: src/settings_translation_file.cpp
 msgid "Look up"
-msgstr ""
+msgstr "위쪽 보기"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -5291,6 +5504,16 @@ msgstr "메인 메뉴 스크립트"
 msgid ""
 "Make fog and sky colors depend on daytime (dawn/sunset) and view direction."
 msgstr "안개와 하늘 색을 시간과 보는 방향에 따라 생성합니다."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Make volumetrics weaker against closer objects to emulate physical "
+"volumetrics."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Makes the color of light fog more saturated."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
@@ -5647,9 +5870,8 @@ msgid "Measure time samples"
 msgstr "시간 샘플 측정"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Menu theme"
-msgstr "Menu 키"
+msgstr "Menu theme"
 
 #: src/settings_translation_file.cpp
 msgid "Message of the day"
@@ -5902,6 +6124,10 @@ msgstr "채팅 열기"
 #: src/settings_translation_file.cpp
 msgid "Open inventory"
 msgstr "인벤토리 열기"
+
+#: src/settings_translation_file.cpp
+msgid "Open pause menu"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6341,7 +6567,7 @@ msgstr ""
 "일명 다중 샘플 앤티앨리어싱(MSAA)\n"
 "블록 가장자리를 매끄럽게 만들지만 텍스처 내부에는 영향을 미치지 않습니다.\n"
 "\n"
-"후처리가 비활성화된 경우 FSAA를 변경하려면 다시 시작해야 합니다.\n"
+"후처리가 비활성화된 경우 FSAA를 변경하면 재시작해야 적용됩니다.\n"
 "또한, 후처리가 비활성화된 경우 FSAA는 언더샘플링 또는 기본이 아닌\n"
 "\"3d_mode\" 설정과 함께 작동하지 않습니다.\n"
 "\n"
@@ -6350,8 +6576,8 @@ msgstr ""
 "속도와 이미지 품질 간의 균형을 제공합니다.\n"
 "\n"
 "* SSAA - 슈퍼 샘플링 앤티앨리어싱\n"
-"장면의 고해상도 이미지를 렌더링한 다음 축소하여 줄입니다.\n"
-"앨리어싱 효과가 있습니다. 이 방법은 가장 느리지만 가장 정확합니다."
+"고해상도 이미지를 렌더링한 다음 축소하여 앨리어싱\n"
+"효과를 줄입니다. 이 방법은 가장 느리지만 가장 정확합니다."
 
 #: src/settings_translation_file.cpp
 msgid "Selection box border color (R,G,B)."
@@ -6499,10 +6725,10 @@ msgstr ""
 "0일땐 궤도 기울기가 없음을 의미."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Set the exposure compensation in EV units.\n"
-"Value of 0.0 (default) means no exposure compensation.\n"
-"Range: from -1 to 1.0"
+"Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 "노출 보정을 EV 단위로 설정합니다.\n"
 "값 0.0(기본값)은 노출 보정이 없음을 의미합니다.\n"
@@ -6520,6 +6746,12 @@ msgstr ""
 msgid ""
 "Set the maximum length of a chat message (in characters) sent by clients."
 msgstr "클라이언트가 보내는 채팅 메시지의 최대 길이(문자)를 설정합니다."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Set the post processing gamma value.\n"
+"Higher values give lower contrast and vice versa."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6659,7 +6891,10 @@ msgstr ""
 "더 작은 값을 사용하는 것이 좋습니다."
 
 #: src/settings_translation_file.cpp
-msgid "Simulate translucency when looking at foliage in the sunlight."
+#, fuzzy
+msgid ""
+"Simulate translucency when looking at foliage in the sunlight.\n"
+"It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
 msgstr "햇빛 아래에서 잎사귀를 볼 때 반투명한 느낌을 줍니다."
 
 #: src/settings_translation_file.cpp
@@ -6941,10 +7176,6 @@ msgid "The URL for the content repository"
 msgstr "콘텐츠 저장소의 URL"
 
 #: src/settings_translation_file.cpp
-msgid "The dead zone of the joystick"
-msgstr "조이스틱의 데드존"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The default format in which profiles are being saved,\n"
 "when calling `/profiler save [format]` without format."
@@ -6984,10 +7215,6 @@ msgstr ""
 "* 길게 누르기\n"
 "클래식한 Luanti 모바일 컨트롤.\n"
 "전투는 불가능에 가깝다."
-
-#: src/settings_translation_file.cpp
-msgid "The identifier of the joystick to use"
-msgstr "사용할 조이스틱의 식별자"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7075,14 +7302,13 @@ msgstr ""
 "이는 active_object_send_range_blocks와 함께 구성되어야 합니다."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "The rendering back-end.\n"
 "Note: A restart is required after changing this!\n"
 "By default OpenGL3 is preferred on desktop, or OGLES2 on Android."
 msgstr ""
 "렌더링 백엔드.\n"
-"이 설정을 변경한 후에는 다시 시작해야 합니다!\n"
+"이 설정을 변경한 후에는 다시 시작해야 적용됩니다!\n"
 "데스크톱에서는 OpenGL이 기본이고, Android에서는 OGLES2가 기본입니다."
 
 #: src/settings_translation_file.cpp
@@ -7140,10 +7366,6 @@ msgstr ""
 "노드를 배치할때까지 걸리는 시간(초)."
 
 #: src/settings_translation_file.cpp
-msgid "The type of joystick"
-msgstr "조이스틱의 타입"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The vertical distance over which heat drops by 20 if 'altitude_chill' is\n"
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
@@ -7182,6 +7404,19 @@ msgid "Timeout for client to remove unused map data from memory, in seconds."
 msgstr ""
 "클라이언트가 사용 하지 않는 맵 데이터를 메모리에서 제거하기 위한 시간 제한입"
 "니다. 초 단위."
+
+#: src/settings_translation_file.cpp
+msgid "Tint sunlight during sunrise/sunset."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Tinted fog"
+msgstr "안개 토글"
+
+#: src/settings_translation_file.cpp
+msgid "Tinted sunlight"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7367,11 +7602,11 @@ msgid ""
 "to a non-default value."
 msgstr ""
 "언더샘플링은 낮은 스크린 해상도를 사용하는 것과 유사하나,\n"
-"오직 게임 세상에만 적용되고 GUI는 영향받지 않는다.\n"
-"덜 디테일한 이미지를 사용하므로 알아차릴 만한 성능 향상이 있을것이다.\n"
-"더 높은 값은 더 덜 디테일한 이미지를 사용하게 한다.\n"
+"오직 게임 월드에만 적용되고 GUI는 영향받지 않습니다.\n"
+"이미지의 품질이 떨어지지만 유의미하게 성능이 향상됩니다..\n"
+"값이 높을 수록 이미지 품질이 감소합니다.\n"
 "참고: 언더샘플링은 \"3d_mode\"설정이 기본이 아닌 값일 경우\n"
-"작동하지 않는다."
+"작동하지 않습니다."
 
 #: src/settings_translation_file.cpp
 msgid "Unlimited player transfer distance"
@@ -7567,7 +7802,13 @@ msgid "Volume when unfocused"
 msgstr "게임이 포커싱 아닐 때 볼륨"
 
 #: src/settings_translation_file.cpp
-msgid "Volumetric lighting"
+#, fuzzy
+msgid "Volumetric Depth Attenuation"
+msgstr "볼류메트릭 라이트"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Volumetric Lighting"
 msgstr "볼류메트릭 라이트"
 
 #: src/settings_translation_file.cpp
@@ -7637,8 +7878,10 @@ msgid "Weblink color"
 msgstr "링크 색"
 
 #: src/settings_translation_file.cpp
-msgid "When enabled, liquid reflections are simulated."
-msgstr "활성화 시 액체의 반사가 시뮬레이션됨."
+msgid ""
+"When enabled, crude liquid reflections are simulated.\n"
+"Wave height, length and speed will affect these reflections."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7683,6 +7926,8 @@ msgid ""
 "Where to enable server-sent client-side modding (SSCSM).\n"
 "Warning: Experimental."
 msgstr ""
+"SSCSM(server-sent client-side modding)을 활성화합니다.\n"
+"주의 : 실험적인 기능."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7860,23 +8105,30 @@ msgstr "cURL 병렬 제한"
 
 #: src/settings_translation_file.cpp
 msgid "cURL proxy address"
-msgstr ""
+msgstr "cURL 프록시 주소"
 
 #: src/util/screenshot.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
 msgstr "\"%s\"에 스크린샷 저장 실패"
 
-#~ msgid "Append item name"
-#~ msgstr "아이템 이름 추가"
+#~ msgid "Enable joysticks"
+#~ msgstr "조이스틱 활성화"
 
-#~ msgid ""
-#~ "Possible filters\n"
-#~ "game:<name>\n"
-#~ "mod:<name>\n"
-#~ "player:<name>"
-#~ msgstr ""
-#~ "가능한 필터\n"
-#~ "game:<name>\n"
-#~ "mod:<name>\n"
-#~ "player:<name>"
+#~ msgid "Enable joysticks. Requires a restart to take effect"
+#~ msgstr "조이스틱 활성화. 재시작해야 적용됩니다"
+
+#~ msgid "Keybindings"
+#~ msgstr "키설정"
+
+#~ msgid "The dead zone of the joystick"
+#~ msgstr "조이스틱의 데드존"
+
+#~ msgid "The identifier of the joystick to use"
+#~ msgstr "사용할 조이스틱의 식별자"
+
+#~ msgid "The type of joystick"
+#~ msgstr "조이스틱의 타입"
+
+#~ msgid "When enabled, liquid reflections are simulated."
+#~ msgstr "활성화 시 액체의 반사가 시뮬레이션됨."

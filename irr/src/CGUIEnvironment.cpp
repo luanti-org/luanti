@@ -547,6 +547,8 @@ bool CGUIEnvironment::postEventFromUser(const SEvent &event)
 		}
 	} break;
 	case EET_STRING_INPUT_EVENT:
+	case EET_GAMEPAD_AXIS_EVENT:
+	case EET_GAMEPAD_BUTTON_EVENT:
 		if (Focus && Focus->OnEvent(event))
 			return true;
 		break;

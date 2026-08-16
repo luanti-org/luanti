@@ -55,6 +55,8 @@ public:
 	void stopSound(sound_handle_t sound) override;
 	void fadeSound(sound_handle_t soundid, f32 step, f32 target_gain) override;
 	void updateSoundPosVel(sound_handle_t sound, const v3f &pos_, const v3f &vel_) override;
+
+	void printPlayingSounds() override;
 };
 
 } // namespace sound

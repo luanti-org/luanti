@@ -265,7 +265,7 @@ void TerminalChatConsole::handleInput(int ch, bool &complete_redraw_needed)
 		case '\t':
 			// Tab pressed
 			// Nick completion
-			prompt.nickCompletion(m_nicks, false);
+			prompt.nickCompletion(m_nicks);
 			break;
 		default:
 			// Add character to the prompt,

@@ -14,19 +14,21 @@
 #include "matrix4.h"
 #include "path.h"
 #include "quaternion.h"
+#include "tiniergltf.hpp"
 #include "vector2d.h"
 #include "vector3d.h"
 #include "os.h"
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstring>
 #include <cassert>
 #include <limits>
 #include <memory>
+#include <numeric>
 #include <optional>
 #include <stdexcept>
-#include <tuple>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -83,14 +85,12 @@ template <class T>
 SelfType::Accessor<T>
 SelfType::Accessor<T>::sparseIndices(const tiniergltf::GlTF &model,
 		const tiniergltf::AccessorSparseIndices &indices,
-		const std::size_t count)
+		const std::size_t count,
+		const std::size_t byteStride)
 {
 	const auto &view = model.bufferViews->at(indices.bufferView);
-	const auto byteStride = view.byteStride.value_or(indices.elementSize());
-
 	const auto &buffer = model.buffers->at(view.buffer);
 	const auto source = buffer.data.data() + view.byteOffset + indices.byteOffset;
-
 	return SelfType::Accessor<T>(source, byteStride, count);
 }
 
@@ -99,14 +99,11 @@ SelfType::Accessor<T>
 SelfType::Accessor<T>::sparseValues(const tiniergltf::GlTF &model,
 		const tiniergltf::AccessorSparseValues &values,
 		const std::size_t count,
-		const std::size_t defaultByteStride)
+		const std::size_t byteStride)
 {
 	const auto &view = model.bufferViews->at(values.bufferView);
-	const auto byteStride = view.byteStride.value_or(defaultByteStride);
-
 	const auto &buffer = model.buffers->at(view.buffer);
 	const auto source = buffer.data.data() + view.byteOffset + values.byteOffset;
-
 	return SelfType::Accessor<T>(source, byteStride, count);
 }
 
@@ -148,20 +145,17 @@ SelfType::Accessor<T>::make(const tiniergltf::GlTF &model, std::size_t accessorI
 		const auto indicesAccessor = ([&]() -> AccessorVariant<u8, u16, u32> {
 			switch (accessor.sparse->indices.componentType) {
 			case tiniergltf::AccessorSparseIndices::ComponentType::UNSIGNED_BYTE:
-				return Accessor<u8>::sparseIndices(model, accessor.sparse->indices, overriddenCount);
+				return Accessor<u8>::sparseIndices(model, accessor.sparse->indices, overriddenCount, sizeof(u8));
 			case tiniergltf::AccessorSparseIndices::ComponentType::UNSIGNED_SHORT:
-				return Accessor<u16>::sparseIndices(model, accessor.sparse->indices, overriddenCount);
+				return Accessor<u16>::sparseIndices(model, accessor.sparse->indices, overriddenCount, sizeof(u16));
 			case tiniergltf::AccessorSparseIndices::ComponentType::UNSIGNED_INT:
-				return Accessor<u32>::sparseIndices(model, accessor.sparse->indices, overriddenCount);
+				return Accessor<u32>::sparseIndices(model, accessor.sparse->indices, overriddenCount, sizeof(u32));
 			}
 			throw std::logic_error("invalid enum value");
 		})();
 
 		const auto valuesAccessor = Accessor<T>::sparseValues(model,
-				accessor.sparse->values, overriddenCount,
-				accessor.bufferView.has_value()
-						? model.bufferViews->at(*accessor.bufferView).byteStride.value_or(accessor.elementSize())
-						: accessor.elementSize());
+				accessor.sparse->values, overriddenCount, accessor.elementSize());
 
 		for (std::size_t i = 0; i < overriddenCount; ++i) {
 			u32 index;
@@ -239,7 +233,7 @@ T SelfType::Accessor<T>::get(std::size_t i) const
 	// We differ slightly from glTF here in that
 	// we default-initialize quaternions and matrices properly,
 	// but this does not cause any discrepancies for valid glTF models.
-	std::get<std::tuple<>>(source);
+	assert(std::holds_alternative<std::tuple<>>(source));
 	return T();
 }
 
@@ -371,15 +365,13 @@ static void checkIndices(const std::vector<u16> &indices, const std::size_t nVer
 	}
 }
 
+// Generate descending indices nVerts - 1, ..., 0
 static std::vector<u16> generateIndices(const std::size_t nVerts)
 {
 	std::vector<u16> indices(nVerts);
-	for (std::size_t i = 0; i < nVerts; i += 3) {
-		// Reverse winding order per triangle
-		indices[i] = i + 2;
-		indices[i + 1] = i + 1;
-		indices[i + 2] = i;
-	}
+	std::iota(indices.begin(), indices.end(), 0);
+	// Reverses winding order (and "triangle order", but that doesn't matter)
+	std::reverse(indices.begin(), indices.end());
 	return indices;
 }
 
@@ -412,6 +404,14 @@ void SelfType::MeshExtractor::addPrimitive(
 	if (n_vertices >= std::numeric_limits<u16>::max())
 		throw std::runtime_error("too many vertices");
 
+	if (primitive.mode != tiniergltf::MeshPrimitive::Mode::TRIANGLES) {
+		// TODO support other primitive modes. Requires changes outside of this loader:
+		// recalculateNormals() and many other mesh helpers are written
+		// with an implicit assumption that mesh buffers only store triangles.
+		warn("ignoring primitive using a mode other than TRIANGLES");
+		return;
+	}
+
 	auto maybeIndices = getIndices(primitive);
 	std::vector<u16> indices;
 	if (maybeIndices.has_value()) {
@@ -421,6 +421,8 @@ void SelfType::MeshExtractor::addPrimitive(
 		// Non-indexed geometry
 		indices = generateIndices(vertices->size());
 	}
+	if (indices.size() % 3 != 0)
+		throw std::runtime_error("index count for triangles not divisible by 3");
 
 	auto *meshbuf = new SSkinMeshBuffer(std::move(*vertices), std::move(indices));
 	const auto meshbufNr = m_irr_model.addMeshBuffer(meshbuf);
@@ -431,7 +433,7 @@ void SelfType::MeshExtractor::addPrimitive(
 			const auto &texture = material.pbrMetallicRoughness->baseColorTexture;
 			if (texture.has_value()) {
 				m_irr_model.setTextureSlot(meshbufNr, static_cast<u32>(texture->index));
-				const auto samplerIdx = m_gltf_model.textures->at(texture->index).sampler;
+				const auto samplerIdx = m_gltf_model.textures.value().at(texture->index).sampler;
 				if (samplerIdx.has_value()) {
 					auto &sampler = m_gltf_model.samplers->at(*samplerIdx);
 					auto &layer = meshbuf->getMaterial().TextureLayers[0];
@@ -623,72 +625,110 @@ void SelfType::MeshExtractor::loadSkins()
 	}
 }
 
+void SelfType::MeshExtractor::loadChannel(SkinnedMesh::Keys &keys,
+		const tiniergltf::AnimationChannel &channel,
+		const tiniergltf::AnimationSampler &sampler)
+{
+	bool interpolate = ([&]() {
+		switch (sampler.interpolation) {
+			case tiniergltf::AnimationSampler::Interpolation::STEP:
+				return false;
+			case tiniergltf::AnimationSampler::Interpolation::LINEAR:
+				return true;
+			default:
+				throw std::runtime_error("Only STEP and LINEAR keyframe interpolation are supported");
+		}
+	})();
+
+	const auto inputAccessor = Accessor<f32>::make(m_gltf_model, sampler.input);
+	const auto n_frames = inputAccessor.getCount();
+
+	switch (channel.target.path) {
+	case tiniergltf::AnimationChannelTarget::Path::TRANSLATION: {
+		const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
+		auto &channel = keys.position;
+		if (!channel.frames.empty()) {
+			warn("multiple translation channels for one joint, ignoring all but the first");
+			return;
+		}
+		channel.interpolate = interpolate;
+		for (std::size_t i = 0; i < n_frames; ++i) {
+			f32 frame = inputAccessor.get(i);
+			core::vector3df position = outputAccessor.get(i);
+			channel.pushBack(frame, convertHandedness(position));
+		}
+		break;
+	}
+	case tiniergltf::AnimationChannelTarget::Path::ROTATION: {
+		const auto outputAccessor = Accessor<core::quaternion>::make(m_gltf_model, sampler.output);
+		auto &channel = keys.rotation;
+		if (!channel.frames.empty()) {
+			warn("multiple rotation channels for one joint, ignoring all but the first");
+			return;
+		}
+		channel.interpolate = interpolate;
+		for (std::size_t i = 0; i < n_frames; ++i) {
+			f32 frame = inputAccessor.get(i);
+			core::quaternion rotation = outputAccessor.get(i);
+			channel.pushBack(frame, convertHandedness(rotation));
+		}
+		break;
+	}
+	case tiniergltf::AnimationChannelTarget::Path::SCALE: {
+		const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
+		auto &channel = keys.scale;
+		if (!channel.frames.empty()) {
+			warn("multiple scale channels for one joint, ignoring all but the first");
+			return;
+		}
+		channel.interpolate = interpolate;
+		for (std::size_t i = 0; i < n_frames; ++i) {
+			f32 frame = inputAccessor.get(i);
+			core::vector3df scale = outputAccessor.get(i);
+			channel.pushBack(frame, scale);
+		}
+		break;
+	}
+	case tiniergltf::AnimationChannelTarget::Path::WEIGHTS:
+		throw std::runtime_error("no support for morph animations");
+	}
+}
+
 void SelfType::MeshExtractor::loadAnimation(const std::size_t animIdx)
 {
 	const auto &anim = m_gltf_model.animations->at(animIdx);
-	for (const auto &channel : anim.channels) {
-		const auto &sampler = anim.samplers.at(channel.sampler);
+	auto &irr_anim = m_irr_model.getAnimation(m_irr_model.addAnimation());
+	irr_anim.name = anim.name.value_or("");
 
-		bool interpolate = ([&]() {
-			switch (sampler.interpolation) {
-				case tiniergltf::AnimationSampler::Interpolation::STEP:
-					return false;
-				case tiniergltf::AnimationSampler::Interpolation::LINEAR:
-					return true;
-				default:
-					throw std::runtime_error("Only STEP and LINEAR keyframe interpolation are supported");
-			}
-		})();
+	std::vector<decltype(anim.channels)::const_iterator> chan_its(anim.channels.size());
+	std::iota(chan_its.begin(), chan_its.end(), anim.channels.cbegin());
+	// Group by target node
+	std::sort(chan_its.begin(), chan_its.end(),
+			[&](auto it1, auto it2) {
+				return it1->target.node < it2->target.node;
+			});
 
-		const auto inputAccessor = Accessor<f32>::make(m_gltf_model, sampler.input);
-		const auto n_frames = inputAccessor.getCount();
-
-		if (!channel.target.node.has_value())
-			throw std::runtime_error("no animated node");
-
-		auto *joint = m_loaded_nodes.at(*channel.target.node);
-		if (std::holds_alternative<core::matrix4>(joint->transform)) {
-			warn("nodes using matrix transforms must not be animated");
+	for (auto it = chan_its.begin(); it != chan_its.end();) {
+		if (!(*it)->target.node) {
+			warn("animation channel targets no node, ignoring");
+			++it;
 			continue;
 		}
 
-		switch (channel.target.path) {
-		case tiniergltf::AnimationChannelTarget::Path::TRANSLATION: {
-			const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
-			auto &channel = joint->keys.position;
-			channel.interpolate = interpolate;
-			for (std::size_t i = 0; i < n_frames; ++i) {
-				f32 frame = inputAccessor.get(i);
-				core::vector3df position = outputAccessor.get(i);
-				channel.pushBack(frame, convertHandedness(position));
-			}
-			break;
+		const std::size_t target_node = *((*it)->target.node);
+		const auto *joint = m_loaded_nodes.at(target_node);
+		if (std::holds_alternative<core::matrix4>(joint->transform)) {
+			warn("nodes using matrix transforms must not be animated");
+			++it;
+			continue;
 		}
-		case tiniergltf::AnimationChannelTarget::Path::ROTATION: {
-			const auto outputAccessor = Accessor<core::quaternion>::make(m_gltf_model, sampler.output);
-			auto &channel = joint->keys.rotation;
-			channel.interpolate = interpolate;
-			for (std::size_t i = 0; i < n_frames; ++i) {
-				f32 frame = inputAccessor.get(i);
-				core::quaternion rotation = outputAccessor.get(i);
-				channel.pushBack(frame, convertHandedness(rotation));
-			}
-			break;
+		SkinnedMesh::Keys keys;
+		for (; it != chan_its.end() && *((*it)->target.node) == target_node; ++it) {
+			const auto &sampler = anim.samplers.at((*it)->sampler);
+			loadChannel(keys, **it, sampler);
 		}
-		case tiniergltf::AnimationChannelTarget::Path::SCALE: {
-			const auto outputAccessor = Accessor<core::vector3df>::make(m_gltf_model, sampler.output);
-			auto &channel = joint->keys.scale;
-			channel.interpolate = interpolate;
-			for (std::size_t i = 0; i < n_frames; ++i) {
-				f32 frame = inputAccessor.get(i);
-				core::vector3df scale = outputAccessor.get(i);
-				channel.pushBack(frame, scale);
-			}
-			break;
-		}
-		case tiniergltf::AnimationChannelTarget::Path::WEIGHTS:
-			throw std::runtime_error("no support for morph animations");
-		}
+		irr_anim.joint_keys.emplace_back(SkinnedMesh::Animation::JointKeys{
+				joint->JointID, std::move(keys)});
 	}
 }
 
@@ -700,7 +740,6 @@ SkinnedMesh *SelfType::MeshExtractor::load()
 	if (!(m_gltf_model.buffers.has_value()
 			&& m_gltf_model.bufferViews.has_value()
 			&& m_gltf_model.accessors.has_value()
-			&& m_gltf_model.meshes.has_value()
 			&& m_gltf_model.nodes.has_value())) {
 		throw std::runtime_error("missing required fields");
 	}
@@ -714,12 +753,10 @@ SkinnedMesh *SelfType::MeshExtractor::load()
 			load_mesh();
 		}
 		loadSkins();
-		// Load the first animation, if there is one.
 		if (m_gltf_model.animations.has_value()) {
-			if (m_gltf_model.animations->size() > 1)
-				warn("multiple animations are not supported");
-
-			loadAnimation(0);
+			size_t n_anims = m_gltf_model.animations->size();
+			for (size_t i = 0; i < n_anims; ++i)
+				loadAnimation(i);
 		}
 		return std::move(m_irr_model).finalize();
 	} catch (const std::out_of_range &e) {

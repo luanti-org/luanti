@@ -16,6 +16,7 @@
 class InputHandler;
 class ChatBackend;
 class RenderingEngine;
+struct GameErrorData;
 struct GameStartData;
 
 struct Jitter {
@@ -40,6 +41,5 @@ void the_game(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
 		const GameStartData &start_data,
-		std::string &error_message,
-		ChatBackend &chat_backend,
-		bool *reconnect_requested);
+		GameErrorData &errordata,
+		ChatBackend &chat_backend);

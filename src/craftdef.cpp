@@ -303,7 +303,8 @@ std::string CraftInput::dump() const
 std::string CraftOutput::dump() const
 {
 	std::ostringstream os(std::ios::binary);
-	os << "(item=\"" << item << "\", time=" << time << ")";
+	os << "(item=\"" << item << "\", time=" << time
+			<< ", replacements=" << replacements.dump() << ")";
 	return os.str();
 }
 
@@ -416,7 +417,7 @@ bool CraftDefinitionShaped::check(const CraftInput &input, IGameDef *gamedef) co
 
 CraftOutput CraftDefinitionShaped::getOutput(const CraftInput &input, IGameDef *gamedef) const
 {
-	return CraftOutput(output, 0);
+	return CraftOutput(output, 0, replacements);
 }
 
 CraftInput CraftDefinitionShaped::getInput(const CraftOutput &output, IGameDef *gamedef) const
@@ -527,7 +528,7 @@ static bool hopcroft_karp_can_match_all(const std::vector<std::vector<u16>> &bip
 			queue.pop();
 
 			if (dist[u] < dist[nil]) { // if dummy not yet reached
-				for (u16 v : bip_graph[u]) { // for all adjanced of u
+				for (u16 v : bip_graph[u]) { // for all adjacent of u
 					u16 u_back = pair_v[v];
 					// if u_back unvisited, go there
 					if (dist[u_back] == inf) {
@@ -670,7 +671,7 @@ bool CraftDefinitionShapeless::check(const CraftInput &input, IGameDef *gamedef)
 
 CraftOutput CraftDefinitionShapeless::getOutput(const CraftInput &input, IGameDef *gamedef) const
 {
-	return CraftOutput(output, 0);
+	return CraftOutput(output, 0, replacements);
 }
 
 CraftInput CraftDefinitionShapeless::getInput(const CraftOutput &output, IGameDef *gamedef) const
@@ -799,7 +800,7 @@ CraftInput CraftDefinitionToolRepair::getInput(const CraftOutput &output, IGameD
 {
 	std::vector<ItemStack> stack;
 	stack.emplace_back();
-	return CraftInput(CRAFT_METHOD_COOKING, additional_wear, stack);
+	return CraftInput(CRAFT_METHOD_NORMAL, 0, stack);
 }
 
 void CraftDefinitionToolRepair::decrementInput(CraftInput &input, std::vector<ItemStack> &output_replacements,
@@ -865,14 +866,14 @@ bool CraftDefinitionCooking::check(const CraftInput &input, IGameDef *gamedef) c
 
 CraftOutput CraftDefinitionCooking::getOutput(const CraftInput &input, IGameDef *gamedef) const
 {
-	return CraftOutput(output, cooktime);
+	return CraftOutput(output, cooktime, replacements);
 }
 
 CraftInput CraftDefinitionCooking::getInput(const CraftOutput &output, IGameDef *gamedef) const
 {
 	std::vector<std::string> rec;
 	rec.push_back(recipe);
-	return CraftInput(CRAFT_METHOD_COOKING,cooktime,craftGetItems(rec,gamedef));
+	return CraftInput(CRAFT_METHOD_COOKING, 0, craftGetItems(rec, gamedef));
 }
 
 void CraftDefinitionCooking::decrementInput(CraftInput &input, std::vector<ItemStack> &output_replacements,
@@ -968,14 +969,14 @@ bool CraftDefinitionFuel::check(const CraftInput &input, IGameDef *gamedef) cons
 
 CraftOutput CraftDefinitionFuel::getOutput(const CraftInput &input, IGameDef *gamedef) const
 {
-	return CraftOutput("", burntime);
+	return CraftOutput("", burntime, replacements);
 }
 
 CraftInput CraftDefinitionFuel::getInput(const CraftOutput &output, IGameDef *gamedef) const
 {
 	std::vector<std::string> rec;
 	rec.push_back(recipe);
-	return CraftInput(CRAFT_METHOD_COOKING,(int)burntime,craftGetItems(rec,gamedef));
+	return CraftInput(CRAFT_METHOD_FUEL, 0, craftGetItems(rec,gamedef));
 }
 
 void CraftDefinitionFuel::decrementInput(CraftInput &input, std::vector<ItemStack> &output_replacements,

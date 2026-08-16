@@ -122,3 +122,48 @@ core.register_chatcommand("spider_army", {
 		end
 	end,
 })
+
+core.register_entity("gltf:multi_track", {
+	initial_properties = {
+		visual = "mesh",
+		mesh = "gltf_multi_track_1.glb",
+		textures = {"[fill:1x1:green"},
+		infotext = table.concat({
+			"Multi-track animation:",
+			"- Punch to (un)pause one track",
+			"- Right-click to (un)pause another track",
+			"- Sneak + punch to swap model",
+		}, "\n")
+	},
+	on_activate = function(self)
+		self.object:play_animation("bone1_spin")
+		self.object:play_animation("bone2_spin")
+		local animations = self.object:get_animations()
+		assert(animations.bone1_spin ~= nil)
+		assert(animations.bone2_spin ~= nil)
+		local anim1 = animations.bone1_spin
+		assert(anim1.min_frame == 0)
+		assert(anim1.max_frame == math.huge)
+		assert(anim1.speed == 1)
+		assert(anim1.blend == 0)
+		self._frame_speed = {1, 1}
+		self._mesh = 1
+		self.object:set_armor_groups({punch_operable = 1, immortal = 1})
+	end,
+	on_punch = function(self, puncher)
+		if puncher:get_player_control().sneak then
+			self._mesh = (self._mesh % 2) + 1
+			self.object:set_properties({
+				mesh = ("gltf_multi_track_%d.glb"):format(self._mesh),
+				visual_size = vector.new(self._mesh, self._mesh, self._mesh),
+			})
+		else
+			self._frame_speed[1] = 1 - self._frame_speed[1]
+			self.object:update_animation("bone1_spin", {speed = self._frame_speed[1]})
+		end
+	end,
+	on_rightclick = function(self)
+		self._frame_speed[2] = 1 - self._frame_speed[2]
+		self.object:update_animation("bone2_spin", {speed = self._frame_speed[2]})
+	end,
+})

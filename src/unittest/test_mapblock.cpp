@@ -64,7 +64,7 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 	block.expandNodesIfNeeded();
 	UASSERT(std::all_of(block.data, block.data + MapBlock::nodecount, [](MapNode &n) { return n == MapNode(CONTENT_IGNORE); }));
 
-	// covert to monoblock
+	// convert to monoblock
 	block.tryShrinkNodes();
 	UASSERT(block.m_is_mono_block);
 	UASSERT(block.data[0].param0 == CONTENT_IGNORE);
@@ -77,7 +77,7 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 	UASSERT(!block.m_is_mono_block);
 	UASSERT(std::all_of(block.data, block.data + MapBlock::nodecount, [](MapNode &n) { return n == MapNode(CONTENT_AIR); }));
 
-	// covert back to mono block
+	// convert back to mono block
 	block.tryShrinkNodes();
 	UASSERT(block.m_is_mono_block);
 
@@ -85,7 +85,7 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 	block.expandNodesIfNeeded();
 	UASSERT(!block.m_is_mono_block);
 
-	// covert back to mono block
+	// convert back to mono block
 	block.tryShrinkNodes();
 	UASSERT(block.m_is_mono_block);
 
@@ -94,7 +94,7 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 	block.setNode(5,5,5, MapNode(42));
 	UASSERT(!block.m_is_mono_block);
 
-	// cannot covert to mono block
+	// cannot convert to mono block
 	block.tryShrinkNodes();
 	UASSERT(!block.m_is_mono_block);
 
@@ -103,7 +103,7 @@ void TestMapBlock::testMonoblock(IGameDef *gamedef)
 		block.data[i] = MapNode(42);
 	}
 
-	// can covert to mono block
+	// can convert to mono block
 	block.tryShrinkNodes();
 	UASSERT(block.m_is_mono_block);
 	UASSERT(block.data[0].param0 == 42);

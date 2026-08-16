@@ -94,7 +94,7 @@ public:
 
 	Rotation rotation;
 	Schematic *schematic = nullptr;
-	bool was_cloned = false; // see FIXME inside DecoSchemtic::clone()
+	bool was_cloned = false; // see FIXME inside DecoSchematic::clone()
 };
 
 

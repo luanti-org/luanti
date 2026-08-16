@@ -357,9 +357,9 @@ int ModApiEnv::l_place_node(lua_State *L)
 	GET_ENV_PTR;
 
 	ScriptApiItem *scriptIfaceItem = getScriptApi<ScriptApiItem>(L);
-	Server *server = getServer(L);
-	const NodeDefManager *ndef = server->ndef();
-	IItemDefManager *idef = server->idef();
+	IGameDef *gamedef = getGameDef(L);
+	const NodeDefManager *ndef = gamedef->ndef();
+	IItemDefManager *idef = gamedef->idef();
 
 	v3s16 pos = read_v3s16(L, 1);
 	MapNode n = readnode(L, 2);
@@ -598,8 +598,8 @@ int ModApiEnv::l_add_item(lua_State *L)
 	// pos
 	//v3f pos = checkFloatPos(L, 1);
 	// item
-	ItemStack item = read_item(L, 2,getServer(L)->idef());
-	if(item.empty() || !item.isKnown(getServer(L)->idef()))
+	ItemStack item = read_item(L, 2, getGameDef(L)->idef());
+	if(item.empty() || !item.isKnown(getGameDef(L)->idef()))
 		return 0;
 
 	int error_handler = PUSH_ERROR_HANDLER(L);

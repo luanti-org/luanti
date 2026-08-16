@@ -10,10 +10,12 @@
 
 #include "IVideoDriver.h"
 #include "IFileSystem.h"
+#include "SB3DStructs.h"
 #include "SkinnedMesh.h"
 #include "SSkinMeshBuffer.h"
 #include "coreutil.h"
 #include "os.h"
+#include "vector3d.h"
 
 #include <algorithm>
 
@@ -60,6 +62,23 @@ IAnimatedMesh *CB3DMeshFileLoader::createMesh(io::IReadFile *file)
 	return std::move(AnimatedMesh).finalize();
 }
 
+static constexpr int HEADER_BYTES = 8; // 4 + 4 bytes type + size
+
+std::optional<SB3dChunkHeader> CB3DMeshFileLoader::readChunkHeader(size_t sizelim)
+{
+	SB3dChunkHeader header;
+	B3DFile->read(&header.name, sizeof(header.name));
+	B3DFile->read(&header.size, sizeof(header.size));
+#ifdef __BIG_ENDIAN__
+	header.size = os::Byteswap::byteswap(header.size);
+#endif
+	if (header.size < 0 || (size_t)header.size + HEADER_BYTES > sizelim) {
+		os::Printer::log("Invalid chunk size", B3DFile->getFileName(), ELL_ERROR);
+		return std::nullopt;
+	}
+	return header;
+}
+
 bool CB3DMeshFileLoader::load()
 {
 	B3dStack.clear();
@@ -67,21 +86,17 @@ bool CB3DMeshFileLoader::load()
 	NormalsInFile = false;
 	HasVertexColors = false;
 
-	//------ Get header ------
+	const auto header = readChunkHeader(B3DFile->getRemainingBytes());
+	if (!header)
+		return false;
 
-	SB3dChunkHeader header;
-	B3DFile->read(&header, sizeof(header));
-#ifdef __BIG_ENDIAN__
-	header.size = os::Byteswap::byteswap(header.size);
-#endif
-
-	if (strncmp(header.name, "BB3D", 4) != 0) {
+	if (strncmp(header->name, "BB3D", 4) != 0) {
 		os::Printer::log("File is not a b3d file. Loading failed (No header found)", B3DFile->getFileName(), ELL_ERROR);
 		return false;
 	}
 
 	// Add main chunk...
-	B3dStack.push_back(SB3dChunk(header, B3DFile->getPos() - 8));
+	B3dStack.push_back(SB3dChunk(*header, B3DFile->getPos() - HEADER_BYTES));
 
 	// Get file version, but ignore it, as it's not important with b3d files...
 	s32 fileVersion;
@@ -92,12 +107,11 @@ bool CB3DMeshFileLoader::load()
 
 	//------ Read main chunk ------
 
-	while ((B3dStack.getLast().startposition + B3dStack.getLast().length) > B3DFile->getPos()) {
-		B3DFile->read(&header, sizeof(header));
-#ifdef __BIG_ENDIAN__
-		header.size = os::Byteswap::byteswap(header.size);
-#endif
-		B3dStack.push_back(SB3dChunk(header, B3DFile->getPos() - 8));
+	while (const auto remaining_bytes = getRemainingBytesInChunk()) {
+		const auto header = readChunkHeader(remaining_bytes);
+		if (!header)
+			return false;
+		B3dStack.push_back(SB3dChunk(*header, B3DFile->getPos() - HEADER_BYTES));
 
 		if (strncmp(B3dStack.getLast().name, "TEXS", 4) == 0) {
 			if (!readChunkTEXS())
@@ -161,15 +175,11 @@ bool CB3DMeshFileLoader::readChunkNODE(SkinnedMesh::SJoint *inJoint)
 	else
 		joint->GlobalMatrix = transform.buildMatrix();
 
-	while (B3dStack.getLast().startposition + B3dStack.getLast().length > B3DFile->getPos()) // this chunk repeats
-	{
-		SB3dChunkHeader header;
-		B3DFile->read(&header, sizeof(header));
-#ifdef __BIG_ENDIAN__
-		header.size = os::Byteswap::byteswap(header.size);
-#endif
-
-		B3dStack.push_back(SB3dChunk(header, B3DFile->getPos() - 8));
+	while (const auto remaining_bytes = getRemainingBytesInChunk()) {
+		const auto header = readChunkHeader(remaining_bytes);
+		if (!header)
+			return false;
+		B3dStack.push_back(SB3dChunk(*header, B3DFile->getPos() - HEADER_BYTES));
 
 		if (strncmp(B3dStack.getLast().name, "NODE", 4) == 0) {
 			if (!readChunkNODE(joint))
@@ -219,15 +229,11 @@ bool CB3DMeshFileLoader::readChunkMESH(SkinnedMesh::SJoint *inJoint)
 	NormalsInFile = false;
 	HasVertexColors = false;
 
-	while ((B3dStack.getLast().startposition + B3dStack.getLast().length) > B3DFile->getPos()) // this chunk repeats
-	{
-		SB3dChunkHeader header;
-		B3DFile->read(&header, sizeof(header));
-#ifdef __BIG_ENDIAN__
-		header.size = os::Byteswap::byteswap(header.size);
-#endif
-
-		B3dStack.push_back(SB3dChunk(header, B3DFile->getPos() - 8));
+	while (const auto remaining_bytes = getRemainingBytesInChunk()) {
+		const auto header = readChunkHeader(remaining_bytes);
+		if (!header)
+			return false;
+		B3dStack.push_back(SB3dChunk(*header, B3DFile->getPos() - HEADER_BYTES));
 
 		if (strncmp(B3dStack.getLast().name, "VRTS", 4) == 0) {
 			if (!readChunkVRTS(inJoint))
@@ -262,7 +268,6 @@ bool CB3DMeshFileLoader::readChunkMESH(SkinnedMesh::SJoint *inJoint)
 
 				for (i = 0; i < (s32)meshBuffer->getVertexCount(); ++i) {
 					meshBuffer->getVertex(i)->Normal.normalize();
-					BaseVertices[VerticesStart + i].Normal = meshBuffer->getVertex(i)->Normal;
 				}
 			}
 		} else {
@@ -444,7 +449,7 @@ bool CB3DMeshFileLoader::readChunkTRIS(scene::SSkinMeshBuffer *meshBuffer, u32 m
 		vertex_id[2] += vertices_Start;
 
 		for (s32 i = 0; i < 3; ++i) {
-			if ((u32)vertex_id[i] >= AnimatedVertices_VertexID.size()) {
+			if (vertex_id[i] < vertices_Start || (u32)vertex_id[i] >= AnimatedVertices_VertexID.size()) {
 				os::Printer::log("Illegal vertex index found", B3DFile->getFileName(), ELL_ERROR);
 				return false;
 			}
@@ -482,17 +487,10 @@ bool CB3DMeshFileLoader::readChunkTRIS(scene::SSkinMeshBuffer *meshBuffer, u32 m
 						Vertex->Color.setAlpha((s32)(B3dMaterial->alpha * 255.0f));
 
 					// Use texture's scale
-					if (B3dMaterial->Textures[0]) {
-						Vertex->TCoords.X *= B3dMaterial->Textures[0]->Xscale;
-						Vertex->TCoords.Y *= B3dMaterial->Textures[0]->Yscale;
+					if (const auto tex_id = B3dMaterial->texture_ids[0]) {
+						Vertex->TCoords.X *= Textures[*tex_id].Xscale;
+						Vertex->TCoords.Y *= Textures[*tex_id].Yscale;
 					}
-					/*
-					if (B3dMaterial->Textures[1])
-					{
-						Vertex->TCoords2.X *=B3dMaterial->Textures[1]->Xscale;
-						Vertex->TCoords2.Y *=B3dMaterial->Textures[1]->Yscale;
-					}
-					*/
 				}
 			}
 		}
@@ -520,8 +518,8 @@ bool CB3DMeshFileLoader::readChunkBONE(SkinnedMesh::SJoint *inJoint)
 	os::Printer::log(logStr.c_str(), ELL_DEBUG);
 #endif
 
-	if (B3dStack.getLast().length > 8) {
-		while ((B3dStack.getLast().startposition + B3dStack.getLast().length) > B3DFile->getPos()) // this chunk repeats
+	if (B3dStack.getLast().length > HEADER_BYTES) {
+		while (getRemainingBytesInChunk() > 0) // this chunk repeats
 		{
 			u32 globalVertexID;
 			f32 strength;
@@ -555,9 +553,10 @@ bool CB3DMeshFileLoader::readChunkBONE(SkinnedMesh::SJoint *inJoint)
 
 bool CB3DMeshFileLoader::readChunkKEYS(SkinnedMesh::SJoint *inJoint)
 {
+	SkinnedMesh::Keys keys;
 #ifdef _B3D_READER_DEBUG
 	// Only print first, that's just too much output otherwise
-	if (!inJoint || inJoint->keys.empty()) {
+	if (!inJoint || keys.empty()) {
 		core::stringc logStr;
 		for (u32 i = 1; i < B3dStack.size(); ++i)
 			logStr += "-";
@@ -590,19 +589,22 @@ bool CB3DMeshFileLoader::readChunkKEYS(SkinnedMesh::SJoint *inJoint)
 		f32 data[4];
 		if (flags & 1) {
 			readFloats(data, 3);
-			AnimatedMesh.addPositionKey(inJoint, frame - 1, {data[0], data[1], data[2]});
+			keys.position.pushBack(frame - 1, {data[0], data[1], data[2]});
 		}
 		if (flags & 2) {
 			readFloats(data, 3);
-			AnimatedMesh.addScaleKey(inJoint, frame - 1, {data[0], data[1], data[2]});
+			keys.scale.pushBack(frame - 1, {data[0], data[1], data[2]});
 		}
 		if (flags & 4) {
 			readFloats(data, 4);
-			AnimatedMesh.addRotationKey(inJoint, frame - 1, core::quaternion(data[1], data[2], data[3], data[0]));
+			keys.rotation.pushBack(frame - 1, core::quaternion(data[1], data[2], data[3], data[0]));
 		}
 	}
 
 	B3dStack.erase(B3dStack.size() - 1);
+	auto &anim = AnimatedMesh.getSingleAnimation();
+	anim.joint_keys.emplace_back(SkinnedMesh::Animation::JointKeys{
+			inJoint->JointID, std::move(keys)});
 	return true;
 }
 
@@ -734,14 +736,14 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 			texture_id = os::Byteswap::byteswap(texture_id);
 #endif
 			//--- Get pointers to the texture, based on the IDs ---
-			if ((u32)texture_id < Textures.size()) {
-				B3dMaterial.Textures[i] = &Textures[texture_id];
+			if (texture_id >= 0 && (u16)texture_id < Textures.size()) {
+				B3dMaterial.texture_ids[i] = (u16) texture_id;
 #ifdef _B3D_READER_DEBUG
 				os::Printer::log("Layer", core::stringc(i).c_str(), ELL_DEBUG);
 				os::Printer::log("using texture", Textures[texture_id].TextureName.c_str(), ELL_DEBUG);
 #endif
 			} else
-				B3dMaterial.Textures[i] = 0;
+				B3dMaterial.texture_ids[i].reset();
 		}
 		// skip other texture ids
 		for (i = 0; i < n_texs_offset; ++i) {
@@ -757,21 +759,21 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 		}
 
 		// Fixes problems when the lightmap is on the first texture:
-		if (B3dMaterial.Textures[0] != 0) {
-			if (B3dMaterial.Textures[0]->Flags & 65536) { // 65536 = secondary UV
-				SB3dTexture *TmpTexture;
-				TmpTexture = B3dMaterial.Textures[1];
-				B3dMaterial.Textures[1] = B3dMaterial.Textures[0];
-				B3dMaterial.Textures[0] = TmpTexture;
+		if (const auto tex_id = B3dMaterial.texture_ids[0]) {
+			const auto &texture = Textures[*tex_id];
+			if (texture.Flags & 65536) { // 65536 = secondary UV
+				std::swap(B3dMaterial.texture_ids[0], B3dMaterial.texture_ids[1]);
 			}
 		}
 
 		// If a preceeding texture slot is empty move the others down:
 		for (i = num_textures; i > 0; --i) {
 			for (u32 j = i - 1; j < num_textures - 1; ++j) {
-				if (B3dMaterial.Textures[j + 1] != 0 && B3dMaterial.Textures[j] == 0) {
-					B3dMaterial.Textures[j] = B3dMaterial.Textures[j + 1];
-					B3dMaterial.Textures[j + 1] = 0;
+				auto &cur = B3dMaterial.texture_ids[j];
+				auto &next = B3dMaterial.texture_ids[j + 1];
+				if (!cur.has_value() && next.has_value()) {
+					cur = next;
+					next.reset();
 				}
 			}
 		}
@@ -779,15 +781,16 @@ bool CB3DMeshFileLoader::readChunkBRUS()
 		//------ Convert blitz flags/blend to irrlicht -------
 
 		// Two textures:
-		if (B3dMaterial.Textures[1]) {
+		if (B3dMaterial.texture_ids[1].has_value()) {
 			B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
 			B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
-		} else if (B3dMaterial.Textures[0]) { // One texture:
+		} else if (const auto tex_id = B3dMaterial.texture_ids[0]) { // One texture:
+			const auto &texture = Textures[*tex_id];
 			// Flags & 0x1 is usual SOLID, 0x8 is mipmap (handled before)
-			if (B3dMaterial.Textures[0]->Flags & 0x2) { // (Alpha mapped)
+			if (texture.Flags & 0x2) { // (Alpha mapped)
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 				B3dMaterial.Material.ZWriteEnable = video::EZW_OFF;
-			} else if (B3dMaterial.Textures[0]->Flags & 0x4)                                  //(Masked)
+			} else if (texture.Flags & 0x4) // (Masked)
 				B3dMaterial.Material.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF; // TODO: create color key texture
 			else if (B3dMaterial.alpha == 1.f)
 				B3dMaterial.Material.MaterialType = video::EMT_SOLID;
