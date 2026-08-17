@@ -156,12 +156,15 @@ local function file_exists(path)
 end
 
 local function get_world_screenshot(world)
-	local path = world.path .. DIR_DELIM .. "exit_screenshot.png"
+	local path = world.path .. DIR_DELIM .. "screenshot.png"
 	if file_exists(path) then
 		return path
-	else
-		return defaulttexturedir .. "no_screenshot.png"
 	end
+	path = world.path .. DIR_DELIM .. "exit_screenshot.png"
+	if file_exists(path) then
+		return path
+	end
+	return defaulttexturedir .. "no_screenshot.png"
 end
 
 local function get_formspec(tabview, name, tabdata)
@@ -280,7 +283,7 @@ local function get_formspec(tabview, name, tabdata)
 
 		retval = retval .. "container_end[]"
 	elseif world then
-		local screenshot = world.screenshot or defaulttexturedir .. "no_screenshot.png"
+		local screenshot = get_world_screenshot(world)
 		retval = retval ..
 				"image[10,2.09167;5.25,3.58333;" .. core.formspec_escape(screenshot) .. "]"
 
