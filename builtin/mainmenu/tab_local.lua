@@ -147,12 +147,11 @@ end
 
 local function file_exists(path)
 	local f = io.open(path, "r")
-	if f ~= nil then
-		io.close(f)
+	if f then
+		f:close()
 		return true
-	else
-		return false
 	end
+	return false
 end
 
 local function get_world_screenshot(world)
