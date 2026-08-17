@@ -17,7 +17,7 @@
 
 #define SCREENSHOT_MAX_SERIAL_TRIES 1000
 
-bool takeScreenshot(video::IVideoDriver *driver, std::string &filename_out)
+static bool saveScreenshot(video::IVideoDriver *driver, const std::string &filename)
 {
 	sanity_check(driver);
 
@@ -28,6 +28,37 @@ bool takeScreenshot(video::IVideoDriver *driver, std::string &filename_out)
 		return false;
 	}
 
+	video::IImage* const image =
+			driver->createImage(video::ECF_R8G8B8, raw_image->getDimension());
+
+	if (!image) {
+		errorstream << "Could not create image for screenshot" << std::endl;
+		raw_image->drop();
+		return false;
+	}
+
+	raw_image->copyTo(image);
+
+	u32 quality = (u32)g_settings->getS32("screenshot_quality");
+	quality = rangelim(quality, 0, 100) / 100.0f * 255;
+
+	bool success = driver->writeImageToFile(image, filename.c_str(), quality);
+
+	if (success) {
+		std::string msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
+		infostream << msg << std::endl;
+	} else {
+		std::string msg = fmtgettext("Failed to save screenshot to \"%s\"", filename.c_str());
+		errorstream << msg << std::endl;
+	}
+
+	image->drop();
+	raw_image->drop();
+	return success;
+}
+
+bool takeScreenshotAutoName(video::IVideoDriver *driver, std::string &filename_out)
+{
 	const struct tm tm = mt_localtime();
 
 	char timestamp_c[64];
@@ -47,9 +78,6 @@ bool takeScreenshot(video::IVideoDriver *driver, std::string &filename_out)
 	// Otherwise, saving the screenshot would fail.
 	fs::CreateAllDirs(screenshot_dir);
 
-	u32 quality = (u32)g_settings->getS32("screenshot_quality");
-	quality = rangelim(quality, 0, 100) / 100.0f * 255;
-
 	// Try to find a unique filename
 	std::string filename;
 	unsigned serial = 0;
@@ -63,34 +91,24 @@ bool takeScreenshot(video::IVideoDriver *driver, std::string &filename_out)
 
 	if (serial == SCREENSHOT_MAX_SERIAL_TRIES) {
 		errorstream << "Could not find suitable filename for screenshot" << std::endl;
-		raw_image->drop();
 		return false;
 	}
 
-	video::IImage* const image =
-			driver->createImage(video::ECF_R8G8B8, raw_image->getDimension());
-
-	if (!image) {
-		errorstream << "Could not create image for screenshot" << std::endl;
-		raw_image->drop();
-		return false;
-	}
-
-	raw_image->copyTo(image);
-
-	bool success = driver->writeImageToFile(image, filename.c_str(), quality);
-
-	if (success) {
+	if (saveScreenshot(driver, filename)) {
 		filename_out = filename;
-		std::string msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
-		infostream << msg << std::endl;
-	} else {
-		std::string msg = fmtgettext("Failed to save screenshot to \"%s\"", filename.c_str());
-		errorstream << msg << std::endl;
+		return true;
 	}
 
-	image->drop();
-	raw_image->drop();
-	return success;
+	return false;
 }
 
+bool takeScreenshotToPath(video::IVideoDriver *driver, const std::string &filepath)
+{
+	if (filepath.empty())
+		return false;
+
+	std::string parent = fs::RemoveLastPathComponent(filepath);
+	if (!parent.empty())
+		fs::CreateAllDirs(parent);
+	return saveScreenshot(driver, filepath);
+}
