@@ -2770,9 +2770,10 @@ void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_co
 		if (info.no_announce)
 			return false;
 		if (Translations::isTranslationFileType(name)) {
-			// Only send translations matching the client's language
+			// Only send translations matching the client's language and EN locale.
 			auto this_lang_code = Translations::getFileLanguage(name);
-			return !this_lang_code.empty() && this_lang_code == lang_code;
+			return !this_lang_code.empty() &&
+					(this_lang_code == lang_code || this_lang_code == "en");
 		}
 		return true;
 	};
