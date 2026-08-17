@@ -205,46 +205,45 @@ local function get_formspec(tabview, name, tabdata)
 		end
 	end
 
-	retval = retval .. "container[5.25,4.875]"
+	retval = retval .. "container[0.25,5.925]"
 	if world then
 		retval = retval ..
-				"button[0,0;3.225,0.8;world_delete;".. fgettext("Delete") .. "]" ..
-				"button[3.325,0;3.225,0.8;world_configure;".. fgettext("Select Mods") .. "]"
+				"button[0,0;2.916,0.8;world_delete;".. fgettext("Delete") .. "]" ..
+				"button[3.166,0;2.916,0.8;world_configure;".. fgettext("Select Mods") .. "]"
 	end
 	retval = retval ..
-			"button[6.65,0;3.225,0.8;world_create;".. fgettext("New") .. "]" ..
+			"button[6.332,0;2.916,0.8;world_create;".. fgettext("New") .. "]" ..
 			"container_end[]" ..
-			"container[0.375,0.375]" ..
+			"container[0.25,0.25]" ..
+			"label[0,0.2;".. fgettext("Select World:") .. "]"..
+			"textlist[0,0.5;9.25,4.925;sp_worlds;" ..
+			menu_render_worldlist() ..
+			";" .. index .. "]" ..
+			"container_end[]"..
+			"container[10,0.375]" ..
+			"box[-0.25,-0.375;5.75,7.1;#666666]" ..
 			creative ..
 			damage ..
 			host ..
-			"container_end[]" ..
-			"container[5.25,0.375]" ..
-			"label[0,0.2;".. fgettext("Select World:") .. "]"..
-			"textlist[0,0.5;9.875,3.9;sp_worlds;" ..
-			menu_render_worldlist() ..
-			";" .. index .. "]" ..
 			"container_end[]"
 
 	if core.settings:get_bool("enable_server") and disabled_settings["enable_server"] == nil then
 		retval = retval ..
-				"button[10.1875,5.925;4.9375,0.8;play;".. fgettext("Host Game") .. "]" ..
-				"container[0.375,0.375]" ..
+				"container[10,0.375]" ..
+				"button[0,5.55;5.25,0.8;play;".. fgettext("Host Game") .. "]" ..
 				"checkbox[0,"..y..";cb_server_announce;" .. fgettext("Announce Server") .. ";" ..
 				dump(core.settings:get_bool("server_announce")) .. "]"
 
 		-- Reset y so that the text fields always start at the same position,
 		-- regardless of whether some of the checkboxes are hidden.
-		y = 0.2 + 4 * yo + 0.35
+		y = 0.2 + 4 * yo + 0.1
 
-		retval = retval .. "field[0," .. y .. ";4.5,0.75;te_playername;" .. fgettext("Name") .. ";" ..
+		retval = retval .. "field[0," .. y .. ";2.625,0.75;te_playername;" .. fgettext("Name") .. ";" ..
 				core.formspec_escape(current_name) .. "]"
 
-		y = y + 1.15 + 0.25
+		retval = retval .. "pwdfield[2.625," .. y .. ";2.625,0.755;te_passwd;" .. fgettext("Password") .. "]"
 
-		retval = retval .. "pwdfield[0," .. y .. ";4.5,0.75;te_passwd;" .. fgettext("Password") .. "]"
-
-		y = y + 1.15 + 0.25
+		y = y + 1.15
 
 		local bind_addr = core.settings:get("bind_address")
 		if bind_addr ~= nil and bind_addr ~= "" then
@@ -256,14 +255,18 @@ local function get_formspec(tabview, name, tabdata)
 				core.formspec_escape(current_port) .. "]"
 		else
 			retval = retval ..
-				"field[0," .. y .. ";4.5,0.75;te_serverport;" .. fgettext("Server Port") .. ";" ..
+				"field[0," .. y .. ";5.25,0.75;te_serverport;" .. fgettext("Server Port") .. ";" ..
 				core.formspec_escape(current_port) .. "]"
 		end
 
 		retval = retval .. "container_end[]"
 	elseif world then
+		local screenshot = world.screenshot or defaulttexturedir .. "no_screenshot.png"
 		retval = retval ..
-				"button[10.1875,5.925;4.9375,0.8;play;" .. fgettext("Play Game") .. "]"
+				"image[10,2.09167;5.25,3.58333;" .. core.formspec_escape(screenshot) .. "]"
+
+		retval = retval ..
+				"button[10,5.925;5.25,0.8;play;" .. fgettext("Play Game") .. "]"
 	end
 
 	return retval
