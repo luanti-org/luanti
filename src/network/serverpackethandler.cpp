@@ -873,6 +873,55 @@ static inline void getWieldedItem(const PlayerSAO *playersao, std::optional<Item
 	playersao->getWieldedItem(&(*ret));
 }
 
+void Server::fixupNodePrediction(session_t peer_id, InteractAction action,
+		const PointedThing &pointed, bool prediction_success)
+{
+	if (pointed.type != POINTEDTHING_NODE)
+		return;  // Not node-related
+
+	if (action != INTERACT_PLACE && action != INTERACT_DIGGING_COMPLETED)
+		return;  // Client made no placement or dig prediction
+
+	auto doNodePredictionFixup = [&](v3s16 pos) {
+
+		// In case the prediction may be wrong, always re-send the affected node(s).
+		// Acts as a no-op if the prediction was correct, and if it was wrong reverts
+		// the prediction by swapping the node to it's current state.
+		// Also reverts wrongly predicted light that may have spread to bordering mapblocks.
+
+		// If an new mapblock was sent, before we received the interact,
+		// the prediction may have happened in the old block, so it needs to be sent again.
+		bool lost_prediction = getClient(peer_id)->blockOnWire(getNodeBlockPos(pos));
+
+		if (!prediction_success || lost_prediction) {
+			MapNode n = m_env->getMap().getNode(pos);
+			NetworkPacket pkt(TOCLIENT_ADDNODE, 6 + 2 + 1 + 1 + 1);
+			pkt << pos << n.param0 << n.param1 << n.param2
+					<< (u8) 1; // keep metadata
+			// Send immediately, even if the block was already marked as not sent or if the
+			// player is far away, since the client already made the prediction anyway.
+			Send(peer_id, &pkt);
+		}
+
+		// FIXME: In case of a lost prediction that was not successful the bordering
+		// mapblock light spread can still be wrong, so ether all bordering mapblocks
+		// need to sent again or we need interact/prediction acknowledgements to not make
+		// clients accept new mablocks before the predictions get resolved, such that no
+		// prediction get lost. This would also fix the bug of nodes suddenly disappearing
+		// for a spit second and make you fall when trying to build a bridge.
+		// However, note that lost predictions no longer happen as often as they used to,
+		// because interact place no longer sends the whole mapblock every time.
+	};
+
+	doNodePredictionFixup(pointed.node_undersurface);
+
+	// When placing the client may have predicted the above node
+	if (action != INTERACT_PLACE)
+		return;
+
+	doNodePredictionFixup(pointed.node_abovesurface);
+}
+
 void Server::handleCommand_Interact(NetworkPacket *pkt)
 {
 	InteractAction action;
@@ -904,7 +953,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 	if (playersao->isDead()) {
 		actionstream << "Server: " << player->getName()
 				<< " tried to interact while dead; ignoring." << std::endl;
-		getClient(peer_id)->fixupNodePrediction(action, pointed, false);
+		fixupNodePrediction(peer_id, action, pointed, false);
 		m_script->on_cheat(playersao, "interacted_while_dead");
 		return;
 	}
@@ -945,7 +994,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 	if (!checkPriv(player->getName(), "interact")) {
 		actionstream << player->getName() << " attempted to interact with " <<
 				pointed.dump() << " without 'interact' privilege" << std::endl;
-		getClient(peer_id)->fixupNodePrediction(action, pointed, false);
+		fixupNodePrediction(peer_id, action, pointed, false);
 		return;
 	}
 
@@ -973,7 +1022,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		float d = playersao->getEyePosition().getDistanceFrom(target_pos);
 
 		if (!checkInteractDistance(player, d, pointed.dump())) {
-			getClient(peer_id)->fixupNodePrediction(action, pointed, false);
+			fixupNodePrediction(peer_id, action, pointed, false);
 			return;
 		}
 	}
@@ -1130,7 +1179,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		// dug node is air irrespective of the node's node_dig_prediction
 		bool prediction_success =
 			m_env->getMap().getNode(p_under).getContent() == CONTENT_AIR;
-		getClient(peer_id)->fixupNodePrediction(action, pointed,
+		fixupNodePrediction(peer_id, action, pointed,
 			prediction_success);
 
 		return;
@@ -1181,8 +1230,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		// Since we do not known if the client has predicted the node at
 		// pointed.above or pointed.under,
 		// we assume that a prediction is always wrong.
-		getClient(peer_id)->fixupNodePrediction(action, pointed,
-			!had_prediction);
+		fixupNodePrediction(peer_id, action, pointed, !had_prediction);
 		return;
 	} // action == INTERACT_PLACE
 
