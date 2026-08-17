@@ -176,10 +176,9 @@ void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 	// Remove node metadata
 	if (remove_metadata) {
 		removeNodeMetadata(p);
+	} else if (n == oldnode) {
+		return; // Nothing changed
 	}
-
-	if (n == oldnode)
-		return;
 
 	// Set the node on the map
 	ContentLightingFlags f = m_nodedef->getLightingFlags(n);
