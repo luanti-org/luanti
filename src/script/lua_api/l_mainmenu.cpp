@@ -306,13 +306,6 @@ int ModApiMainMenu::l_get_worlds(lua_State *L)
 		lua_pushstring(L, world.gameid.c_str());
 		lua_settable(L, top_lvl2);
 
-		std::string screenshot_path = world.path + DIR_DELIM "exit_screenshot.png";
-		if (fs::PathExists(screenshot_path)) {
-			lua_pushstring(L,"screenshot");
-			lua_pushstring(L, screenshot_path.c_str());
-			lua_settable(L, top_lvl2);
-		}
-
 		lua_settable(L, top);
 		index++;
 	}

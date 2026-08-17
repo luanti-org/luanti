@@ -145,6 +145,25 @@ local function get_disabled_settings(game)
 	return disabled_settings
 end
 
+local function file_exists(path)
+	local f = io.open(path, "r")
+	if f ~= nil then
+		io.close(f)
+		return true
+	else
+		return false
+	end
+end
+
+local function get_world_screenshot(world)
+	local path = world.path .. DIR_DELIM .. "exit_screenshot.png"
+	if file_exists(path) then
+		return path
+	else
+		return defaulttexturedir .. "no_screenshot.png"
+	end
+end
+
 local function get_formspec(tabview, name, tabdata)
 
 	-- Point the player to ContentDB when no games are found
