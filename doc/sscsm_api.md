@@ -57,6 +57,30 @@ Functions that take or return paths always use virtual paths.
 * `core.get_node_or_nil(pos)`
 * `core.get_content_id(name)`
 * `core.get_name_from_content_id(id)`
+* `core.display_chat_message(message)`
+  * Shows a chat message to the player.
+* `core.send_chat_message_raw(message)`
+  * Directly sends `message` to the server, without any chatcommand handling or similar.
+* `core.handle_sending_chat_message(message)`
+  * Called for every chat message sent by the user (or by CPCSM).
+  * By default handles chatcommands and calls `core.send_chat_message_raw`.
+  * Can be overwritten.
+* `core.register_chatcommand(name, definition)`
+  * Almost the same as on server.
+  * Commands are issued with `/`.
+  * SSCSM chatcommands overshadow SSM chatcommands with the same name.
+    (It can make sense to have both, to also support clients without SSCSM.)
+  * The callback signature is `function(param)`.
+  * Privileges are merely checked client-side.
+* `core.override_chatcommand(name, redefinition)`
+  * Override a chatcommand that was defined in SSCSM.
+* `core.unregister_chatcommand(name)`
+  * Remove a chatcommand that was defined in SSCSM.
+* `core.get_local_player_privs()`
+  * Returns a list of privileges the current player has in the format `{priv1=true,...}`
+  * Note: These (as well as any authority check in SSCSM) can easily be manipulated.
+* `core.check_local_player_privs(privs)`
+  * Same as `core.check_player_privs` in SSM, but with client-side priv values.
 
 
 ### Global tables

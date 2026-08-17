@@ -5,6 +5,7 @@ set(BUILTIN_COMMON_SRCS
 	common/chatcommands.lua
 	common/filterlist.lua
 	common/information_formspecs.lua
+	common/internal_helpers.lua
 	common/item_s.lua
 	common/math.lua
 	common/menu.lua

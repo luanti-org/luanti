@@ -15,11 +15,15 @@ function core.get_name_from_content_id(id)
 	return tostring(id)
 end
 
+assert(loadfile(commonpath .. "internal_helpers.lua"))(builtin_shared)
 assert(loadfile(commonpath .. "item_s.lua"))(builtin_shared)
 assert(loadfile(commonpath .. "register.lua"))(builtin_shared)
 assert(loadfile(mypath .. "register.lua"))(builtin_shared)
 
 dofile(commonpath .. "after.lua")
+assert(loadfile(commonpath .. "chatcommands.lua"))(builtin_shared)
+assert(loadfile(mypath .. "chat.lua"))(builtin_shared)
+assert(loadfile(mypath .. "misc.lua"))(builtin_shared)
 
 -- unset, as promised in initializeSecuritySSCSM()
 debug.getinfo = nil

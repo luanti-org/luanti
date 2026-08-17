@@ -129,3 +129,19 @@ void ScriptApiSSCSM::environment_step(float dtime)
 	lua_pushnumber(L, dtime);
 	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
 }
+
+void ScriptApiSSCSM::handle_sending_chat_message(std::string_view message)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	int error_handler = PUSH_ERROR_HANDLER(L);
+
+	// Call core.handle_sending_chat_message
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "handle_sending_chat_message");
+	luaL_checktype(L, -1, LUA_TFUNCTION);
+	lua_pushlstring(L, message.data(), message.size());
+	PCALL_RES(lua_pcall(L, 1, 0, error_handler));
+
+	lua_pop(L, 1);  // error handler
+}

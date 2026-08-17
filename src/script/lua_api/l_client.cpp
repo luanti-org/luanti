@@ -98,7 +98,7 @@ int ModApiClient::l_send_chat_message(lua_State *L)
 		return 0;
 
 	std::string message = luaL_checkstring(L, 1);
-	getClient(L)->sendChatMessage(utf8_to_wide(message));
+	getClient(L)->enqueueChatMessage(utf8_to_wide(message));
 	return 0;
 }
 

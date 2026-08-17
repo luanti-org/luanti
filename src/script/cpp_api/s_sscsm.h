@@ -14,4 +14,6 @@ public:
 	void load_mods(const std::vector<std::pair<std::string, std::string>> &mods);
 
 	void environment_step(float dtime);
+
+	void handle_sending_chat_message(std::string_view message);
 };

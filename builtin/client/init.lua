@@ -4,14 +4,15 @@ local commonpath = scriptpath.."common"..DIR_DELIM
 
 local builtin_shared = {}
 
+assert(loadfile(commonpath .. "internal_helpers.lua"))(builtin_shared)
 assert(loadfile(commonpath .. "register.lua"))(builtin_shared)
 assert(loadfile(clientpath .. "register.lua"))(builtin_shared)
 dofile(commonpath .. "after.lua")
 dofile(commonpath .. "mod_storage.lua")
-dofile(commonpath .. "chatcommands.lua")
+assert(loadfile(commonpath .. "chatcommands.lua"))(builtin_shared)
 dofile(commonpath .. "information_formspecs.lua")
-dofile(clientpath .. "chatcommands.lua")
-dofile(clientpath .. "misc.lua")
+assert(loadfile(clientpath .. "chatcommands.lua"))(builtin_shared)
+assert(loadfile(clientpath .. "misc.lua"))(builtin_shared)
 assert(loadfile(commonpath .. "item_s.lua"))({}) -- Just for push/read node functions
 
 -- unset, as promised in initializeSecurityClient()

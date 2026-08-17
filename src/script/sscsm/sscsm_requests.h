@@ -8,6 +8,7 @@
 #include "sscsm_ievent.h"
 #include "mapnode.h"
 #include "map.h"
+#include "chatmessage.h"
 #include "client/client.h"
 #include "log_internal.h"
 #include "itemdef.h"
@@ -85,6 +86,23 @@ struct SSCSMRequestLog final : public ISSCSMRequest
 	}
 };
 
+// core.display_chat_message(message)
+struct SSCSMRequestDisplayChatMessage final : public ISSCSMRequest
+{
+	struct Answer final : public ISSCSMAnswer
+	{
+	};
+
+	std::string message;
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		client->pushToChatQueue(new ChatMessage(utf8_to_wide(message)));
+
+		return serializeSSCSMAnswer(Answer{});
+	}
+};
+
 // core.get_node(pos)
 struct SSCSMRequestGetNode final : public ISSCSMRequest
 {
@@ -132,6 +150,39 @@ struct SSCSMRequestGetItemDefs final : public ISSCSMRequest
 			answer.nodes.push_back(&ndef->get(c));
 		}
 
+		return serializeSSCSMAnswer(std::move(answer));
+	}
+};
+
+// core.send_chat_message_raw(message)
+struct SSCSMRequestSendChatMessageRaw final : public ISSCSMRequest
+{
+	struct Answer final : public ISSCSMAnswer
+	{
+	};
+
+	std::string message;
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		client->sendChatMessageRaw(utf8_to_wide(message));
+
+		return serializeSSCSMAnswer(Answer{});
+	}
+};
+
+// core.get_local_player_privs()
+struct SSCSMRequestGetPrivilegeList final : public ISSCSMRequest
+{
+	struct Answer final : public ISSCSMAnswer
+	{
+		std::unordered_set<std::string> privs;
+	};
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		Answer answer{};
+		answer.privs = client->getPrivilegeList();
 		return serializeSSCSMAnswer(std::move(answer));
 	}
 };

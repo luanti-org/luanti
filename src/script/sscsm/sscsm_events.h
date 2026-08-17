@@ -57,3 +57,13 @@ struct SSCSMEventOnStep : public ISSCSMEvent
 	}
 };
 
+struct SSCSMEventSendingChatMessage : public ISSCSMEvent
+{
+	std::string message;
+
+	void exec(SSCSMEnvironment *env) override
+	{
+		env->getScript()->handle_sending_chat_message(message);
+	}
+};
+
