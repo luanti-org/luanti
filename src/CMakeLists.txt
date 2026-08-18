@@ -951,6 +951,11 @@ else()
 		set(WARNING_FLAGS "${WARNING_FLAGS} -Werror=mismatched-tags")
 	endif()
 
+	check_cxx_compiler_flag("-Wnull-dereference" SUPPORTS_W_NULL_DEREFERENCE)
+	if(SUPPORTS_W_NULL_DEREFERENCE)
+		set(WARNING_FLAGS "${WARNING_FLAGS} -Wnull-dereference")
+	endif()
+
 	if(WARN_ALL)
 		set(RELEASE_WARNING_FLAGS "${WARNING_FLAGS}")
 	else()
