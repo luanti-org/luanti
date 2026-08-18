@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
+#include "common/c_internal.h"
+#include "common/c_types.h"
 #include "cpp_api/s_base.h"
 #include "cpp_api/s_internal.h"
 #include "cpp_api/s_security.h"
 #include "debug.h"
+#include "log.h"
 #include "lua_api/l_object.h"
 #include "common/c_converter.h"
 #include "server/player_sao.h"
@@ -246,38 +249,58 @@ std::string ScriptApiBase::getCurrentModNameInsecure(lua_State *L)
 	return ret;
 }
 
-void ScriptApiBase::loadMod(const std::string &script_path,
-		const std::string &mod_name)
-{
-	ModNameStorer mod_name_storer(getStack(), mod_name);
-
-	loadScript(script_path);
-}
-
-void ScriptApiBase::loadScript(const std::string &script_path)
+static void load_script(lua_State *L, const char *script_path, int nresults)
 {
 	verbosestream << "Loading and running script from " << script_path << std::endl;
-
-	lua_State *L = getStack();
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
 	bool ok;
 	if (ScriptApiSecurity::isSecure(L)) {
-		ok = ScriptApiSecurity::safeLoadFile(L, script_path.c_str());
+		ok = ScriptApiSecurity::safeLoadFile(L, script_path);
 	} else {
-		ok = !luaL_loadfile(L, script_path.c_str());
+		ok = !luaL_loadfile(L, script_path);
 	}
-	ok = ok && !lua_pcall(L, 0, 0, error_handler);
+	ok = ok && !lua_pcall(L, 0, nresults, error_handler);
 	if (!ok) {
 		const char *error_msg = lua_tostring(L, -1);
 		if (!error_msg)
 			error_msg = "(error object is not a string)";
 		lua_pop(L, 2); // Pop error message and error handler
-		throw ModError("Failed to load and run script from " +
+		throw ModError(std::string("Failed to load and run script from ") +
 				script_path + ":\n" + error_msg);
 	}
-	lua_pop(L, 1); // Pop error handler
+	lua_remove(L, error_handler);
+	// leave the return values from loading the file on the stack
+}
+
+void ScriptApiBase::loadMod(const std::string &script_path,
+		const std::string &mod_name, bool set_package_loaded)
+{
+	lua_State *L = getStack();
+	StackUnroller unroller(L);
+	ModNameStorer mod_name_storer(L, mod_name);
+
+	load_script(L, script_path.c_str(), 1);
+	if (set_package_loaded) {
+		int retval = lua_gettop(L); // script return value = module
+		// nil -> true to mark as loaded
+		if (lua_isnil(L, -1)) {
+			lua_pop(L, 1);
+			lua_pushboolean(L, true);
+		}
+		lua_getglobal(L, "package");
+		int package = lua_gettop(L);
+		lua_getfield(L, package, "loaded");
+		int package_loaded = lua_gettop(L);
+		lua_pushvalue(L, retval);
+		lua_setfield(L, package_loaded, mod_name.c_str());
+	}
+}
+
+void ScriptApiBase::loadScript(const std::string &script_path)
+{
+	load_script(getStack(), script_path.c_str(), 0);
 }
 
 #if CHECK_CLIENT_BUILD()
