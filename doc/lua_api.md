@@ -365,6 +365,70 @@ The main Lua script. Running this script should register everything it
 wants to register. Subsequent execution depends on Luanti calling the
 registered callbacks.
 
+#### Loading additional files
+
+The old way to load additional Lua files was to use `dofile` with manually constructed paths,
+making sure to run files in order of dependencies, e.g.
+
+* `mymod/init.lua`:
+  ```lua
+  mymod = {}
+  local modpath = core.get_modpath("mymod") -- could also use core.get_current_modname()
+  dofile(modpath .. "/utils.lua")
+  dofile(modpath .. "/content.lua")
+  ```
+* `mymod/utils.lua`:
+  ```lua
+  local utils = {}
+  mymod.utils = utils
+  function utils.frobnicate(...) ... end
+  ```
+* `mymod/content.lua`:
+  ```lua
+  local utils = mymod.utils -- "module" dependency
+  utils.frobnicate(...)
+  ```
+
+This has several drawbacks; Lua offers `require` as a better alternative,
+which used to not be available in Luanti for security reasons.
+As of version 5.18.0, Luanti provides its own version of `require`:
+
+* `require("mymod")` gives you whatever `init.lua` of `mymod` returns.
+* `require("mod.foo.bar")` tries to load `<mod_dir>/foo/bar/init.lua`, then `<mod_dir>/foo/bar.lua`.
+* You must declare a dependency on all mods from which you require modules in `mod.conf`
+  (excepting of course the mod itself).
+* `require("math")` looks for a mod named `math`; it does *not* give you Lua's built-in `math` library.
+* `require` also works in async and emerge environments.
+  Each thread gets its own, initially empty `package` table; loaded modules do not transfer.
+* For insecure environments, `ie.require` is Lua's `require` as-is.
+* If mod security is disabled, `require` falls back to Lua's built-in loaders,
+  but Luanti's loader still takes precedence.
+
+The behavior of `require` is customizable via the `package` table:
+`package.loaders` is a list of loaders which are tried in order.
+A loader is a `function(module_name)` which returns `nil` to fail silently,
+a string explaining why it couldn't load the module,
+or a function that when called returns the module.
+The default loader behaves as described above.
+
+Using `require`, the above example could now be written as
+
+* `mymod/init.lua`:
+  ```lua
+  require("mymod.content")
+  ```
+* `mymod/utils.lua`:
+  ```lua
+  local utils = {}
+  function utils.frobnicate(...) ... end
+  return utils
+  ```
+* `mymod/content.lua`:
+  ```lua
+  local utils = require("mymod.utils") -- "module" dependency
+  utils.frobnicate(...)
+  ```
+
 ### `textures`, `sounds`, `media`, `models`, `locale`, `fonts`
 
 Media files (textures, sounds, whatever) that will be transferred to the

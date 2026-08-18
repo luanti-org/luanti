@@ -75,7 +75,9 @@ public:
 	DISABLE_CLASS_COPY(ScriptApiBase);
 
 	// These throw a ModError on failure
-	void loadMod(const std::string &script_path, const std::string &mod_name);
+	/// @param set_package_loaded whether to store returned value in package.loaded
+	void loadMod(const std::string &script_path, const std::string &mod_name,
+			bool set_package_loaded = false);
 	void loadScript(const std::string &script_path);
 
 #if CHECK_CLIENT_BUILD()

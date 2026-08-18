@@ -12,6 +12,7 @@ local function do_tests()
 	assert(not core.set_node)
 	assert(not core.object_refs)
 	-- stuff that should be here
+	assert(require("unittests.require.foo") == "foo")
 	assert(ItemStack)
 	local meta = ItemStack():get_meta()
 	assert(type(meta) == "userdata")
