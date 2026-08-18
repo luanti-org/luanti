@@ -622,9 +622,18 @@ TextDrawer::TextDrawer(const wchar_t *text, Client *client,
 		gui::IGUIEnvironment *environment, ISimpleTextureSource *tsrc,
 		video::SColor default_background_color,
 		video::SColor default_color) :
-		m_text(text, default_color), m_client(client), m_tsrc(tsrc), m_guienv(environment),
+		m_client(client), m_tsrc(tsrc), m_guienv(environment),
 		m_default_background_color(default_background_color)
 {
+	setText(text, default_color);
+}
+
+void TextDrawer::setText(const wchar_t *text, video::SColor default_color)
+{
+	// Avoid move constructor (which we do not have).
+	m_text.~ParsedText();
+	new (&m_text) ParsedText(text, default_color);
+
 	// Size all elements
 	for (auto &p : m_text.m_paragraphs) {
 		for (auto &e : p.elements) {
@@ -991,7 +1000,7 @@ void TextDrawer::draw(const core::rect<s32> &clip_rect,
 				video::SColor color = el.color;
 
 				for (auto tag : el.tags)
-					if (&(*tag) == m_hovertag)
+					if (tag == m_hovertag)
 						color = el.hovercolor;
 
 				if (!el.font)
@@ -1075,7 +1084,6 @@ GUIHyperText::GUIHyperText(const wchar_t *text, IGUIEnvironment *environment,
 		m_default_background_color(default_background_color),
 		m_default_color(default_color)
 {
-
 	IGUISkin *skin = nullptr;
 	if (Environment)
 		skin = Environment->getSkin();
@@ -1131,10 +1139,10 @@ void GUIHyperText::checkHover(s32 X, s32 Y)
 void GUIHyperText::setStyles(const std::array<StyleSpec, StyleSpec::NUM_STATES> &styles)
 {
 	StyleSpec::State state = StyleSpec::STATE_DEFAULT;
-	StyleSpec style = StyleSpec::getStyleFromStatePropagation(styles, state);
+	m_style = StyleSpec::getStyleFromStatePropagation(styles, state);
 
-	setNotClipped(style.getBool(StyleSpec::NOCLIP, true));
-	m_drawer.applyStyleSpecToText(style);
+	setNotClipped(m_style.getBool(StyleSpec::NOCLIP, true));
+	m_drawer.applyStyleSpecToText(m_style);
 }
 
 bool GUIHyperText::OnEvent(const SEvent &event)
@@ -1251,4 +1259,10 @@ void GUIHyperText::draw()
 
 	// draw children
 	IGUIElement::draw();
+}
+
+void GUIHyperText::setText(const wchar_t *text)
+{
+	m_drawer.setText(text, m_default_color);
+	m_drawer.applyStyleSpecToText(m_style);
 }

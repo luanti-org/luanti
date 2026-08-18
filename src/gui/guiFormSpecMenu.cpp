@@ -1840,33 +1840,42 @@ void GUIFormSpecMenu::parseHyperTip(parserData *data, const std::string &element
 
 	// get staticPos argument
 	std::vector<std::string> v_stpos;
-	size_t static_pos_index = arg_cursor;
-	arg_cursor += 2;
+	const std::string &static_pos = parts[arg_cursor++];
 
-	if (parts[static_pos_index] != "") {
-		v_stpos = split(parts[static_pos_index], ',');
+	if (!static_pos.empty()) {
+		v_stpos = split(static_pos, ',');
 		if (v_stpos.size() != 2) {
 			errorstream << "Invalid staticPos in hypertip element(" << parts.size() <<
-				"): \"" << parts[static_pos_index] << "\"" << std::endl;
+				"): \"" << static_pos << "\"" << std::endl;
 			return;
 		}
 		floating = false;
 	}
 
-	std::string name = parts[arg_cursor++];
-	std::string text = parts[arg_cursor++];
 
-	if (m_form_src)
-		text = m_form_src->resolveText(text);
+	// Tooltip width is defined in em units of the default font
+	const s32 width = stof(parts[arg_cursor++]) * g_fontengine->getFontSize(FM_Standard);
 
-	FieldSpec spec(
-		name,
-		translate_string(utf8_to_wide(unescape_string(text))),
-		L"",
-		258 + m_fields.size()
+	const std::string &name = parts[arg_cursor++];
+	const std::string &text = parts[arg_cursor++];
+
+	HyperTipSpec spec(
+			name,
+			rect_mode ? "" : parts[0],
+			unescape_string(text),
+			core::recti(),
+			std::nullopt,
+			width
 	);
 
-	m_fields.push_back(spec);
+	if (!floating) {
+		if (data->real_coordinates)
+			spec.stpos = getRealCoordinateBasePos(v_stpos);
+		else
+			spec.stpos = getElementBasePos(&v_stpos);
+	}
+
+	core::recti rect;
 
 	if (rect_mode) {
 		std::vector<std::string> v_pos = split(parts[0], ',');
@@ -1875,74 +1884,54 @@ void GUIFormSpecMenu::parseHyperTip(parserData *data, const std::string &element
 		MY_CHECKPOS("hypertip", 0);
 		MY_CHECKGEOM("hypertip", 1);
 
-		// Tooltip width is defined in em units of the default font
-		s32 em = g_fontengine->getFontSize(FM_Standard);
-		s32 width = stof(parts[3]) * em;
-
 		v2s32 pos;
 		v2s32 geom;
-		v2s32 stpos;
 
 		if (data->real_coordinates) {
 			pos = getRealCoordinateBasePos(v_pos);
 			geom = getRealCoordinateGeometry(v_geom);
-
-			if (!floating)
-				stpos = getRealCoordinateBasePos(v_stpos);
 		} else {
 			pos = getElementBasePos(&v_pos);
 			geom.X = stof(v_geom[0]) * spacing.X;
 			geom.Y = stof(v_geom[1]) * spacing.Y;
-
-			if (!floating)
-				stpos = getElementBasePos(&v_stpos);
 		}
 
-		core::rect<s32> rect(pos, pos + geom);
+		rect = core::recti(pos, pos + geom);
+	} else {
+		for (const auto &f : m_fields) {
+			if (f.fname == spec.parent_name) {
+				auto *e = getElementFromId(f.fid, true);
+				rect = e->getAbsoluteClippingRect();
+				break;
+			}
+		}
 
-		GUIHyperText *e = new GUIHyperText(spec.flabel.c_str(), Environment,
-				data->current_parent, spec.fid, rect, m_client, m_tsrc,
-				m_default_tooltip_bgcolor,
-				m_default_tooltip_color,
-				true);
-
-		auto style = getStyleForElement("hypertip", spec.fname);
-		e->setStyles(style);
-
-		HyperTipSpec geospec(name, "", text, e->getAbsoluteClippingRect(), stpos, width, floating);
-
-		m_hypertips.emplace_back(e, geospec);
-
-		e->setVisible(false);
-		e->drop();
-		return;
-	}
-
-	std::string fieldname = parts[0];
-	core::rect<s32> rect;
-
-	for (const auto &f : m_fields) {
-		if (f.fname == fieldname) {
-			auto *e = getElementFromId(f.fid, true);
-			rect = e->getAbsoluteClippingRect();
-			break;
+		// Max. 1 HyperTip for each formspec element
+		for (auto it = m_hypertips.begin(); it != m_hypertips.end(); ) {
+			bool remove = (it->parent_name == spec.parent_name);
+			if (remove) {
+				it->element->remove();
+				it = m_hypertips.erase(it);
+			} else {
+				++it;
+			}
 		}
 	}
 
-	// Tooltip width is defined in em units of the default font
-	s32 em = g_fontengine->getFontSize(FM_Standard);
-	s32 width = stof(parts[2]) * em;
+	GUIHyperText *e = new GUIHyperText(L"", Environment,
+			data->current_parent, -1, rect, m_client, m_tsrc,
+			m_default_tooltip_bgcolor,
+			m_default_tooltip_color,
+			true);
+	auto style = getStyleForElement("hypertip", spec.name);
+	e->setStyles(style);
 
-	v2s32 stpos;
+	spec.element.reset(e);
+	assert(e->getReferenceCount() == 2);
+	e->setVisible(false);
 
-	if (!floating) {
-		if (data->real_coordinates)
-			stpos = getRealCoordinateBasePos(v_stpos);
-		else
-			stpos = getElementBasePos(&v_stpos);
-	}
-
-	m_hypertip_map[fieldname] = HyperTipSpec(name, fieldname, text, rect, stpos, width, floating);
+	spec.hover_rect = e->getAbsolutePosition(); // to include parent offset
+	m_hypertips.emplace_back(spec);
 }
 
 void GUIFormSpecMenu::parseLabel(parserData* data, const std::string &element)
@@ -3062,18 +3051,43 @@ void GUIFormSpecMenu::removeAll()
 
 	for (auto &table_it : m_tables)
 		table_it.second->drop();
+	m_tables.clear();
+
 	for (auto &inventorylist_it : m_inventorylists)
 		inventorylist_it->drop();
+	m_inventorylists.clear();
+
 	for (auto &checkbox_it : m_checkboxes)
 		checkbox_it.second->drop();
+	m_checkboxes.clear();
+
+	m_hypertips.clear();
+
 	for (auto &scrollbar_it : m_scrollbars)
 		scrollbar_it.second->drop();
+	m_scrollbars.clear();
+
 	for (auto &tooltip_rect_it : m_tooltip_rects)
 		tooltip_rect_it.first->drop();
+	m_tooltips.clear();
+	m_tooltip_rects.clear();
+
 	for (auto &clickthrough_it : m_clickthrough_elements)
 		clickthrough_it->drop();
+	m_clickthrough_elements.clear();
+
 	for (auto &scroll_container_it : m_scroll_containers)
 		scroll_container_it.second->drop();
+	m_scroll_containers.clear();
+
+	m_fields.clear();
+	m_inventory_rings.clear();
+	m_dropdowns.clear();
+	theme_by_name.clear();
+	theme_by_type.clear();
+	field_enter_after_edit.clear();
+	field_close_on_enter.clear();
+	m_dropdown_index_event.clear();
 }
 
 const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFormSpecMenu::parserData *data,
@@ -3216,25 +3230,6 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 
 	// the parent for the parsed elements
 	mydata.current_parent = this;
-
-	m_inventorylists.clear();
-	m_tables.clear();
-	m_checkboxes.clear();
-	m_scrollbars.clear();
-	m_fields.clear();
-	m_tooltips.clear();
-	m_hypertips.clear();
-	m_hypertip_map.clear();
-	m_tooltip_rects.clear();
-	m_inventory_rings.clear();
-	m_dropdowns.clear();
-	m_scroll_containers.clear();
-	theme_by_name.clear();
-	theme_by_type.clear();
-	m_clickthrough_elements.clear();
-	field_enter_after_edit.clear();
-	field_close_on_enter.clear();
-	m_dropdown_index_event.clear();
 
 	m_allowclose = m_default_allowclose;
 	m_bgnonfullscreen = true;
@@ -3753,13 +3748,14 @@ void GUIFormSpecMenu::drawMenu()
 	/*
 		Mark rect_mode hypertips visible
 	*/
-	for (const auto &pair : m_hypertips) {
-		if (m_hypertip_map.count(pair.second.parent_name) == 0) {
-			const auto &hover_rect = pair.second.hover_rect;
-			if (hover_rect.getArea() > 0 && hover_rect.isPointInside(m_pointer)) {
-				showHyperTip(pair.first, pair.second);
-				break;
-			}
+	for (HyperTipSpec &spec : m_hypertips) {
+		if (!spec.parent_name.empty())
+			continue;
+
+		const auto &hover_rect = spec.hover_rect;
+		if (hover_rect.getArea() > 0 && hover_rect.isPointInside(m_pointer)) {
+			showHyperTip(spec);
+			break;
 		}
 	}
 
@@ -3824,45 +3820,27 @@ void GUIFormSpecMenu::drawMenu()
 				if (field.fid != id)
 					continue;
 
-				if (delta >= m_tooltip_show_delay) {
+				do {
+					if (delta < m_tooltip_show_delay)
+						break;
+					if (field.fname.empty())
+						break;
+
 					const std::wstring &text = m_tooltips[field.fname].tooltip;
 					if (!text.empty()) {
 						/* Tooltips get the priority over hypertips */
 						showTooltip(text, m_tooltips[field.fname].color,
 							m_tooltips[field.fname].bgcolor);
-					} else if (m_hypertip_map.count(field.fname) != 0) {
-						auto &spec = m_hypertip_map[field.fname];
+						break;
+					}
 
-						if (!spec.bound) {
-							spec.bound = true;
-							auto *parent_element = getElementFromId(field.fid, true);
-							auto txt = translate_string(utf8_to_wide(unescape_string(spec.text)));
-
-							GUIHyperText *e = new GUIHyperText(
-									txt.c_str(), Environment,
-									parent_element->getParent(), field.fid,
-									spec.hover_rect, m_client, m_tsrc,
-									m_default_tooltip_bgcolor,
-									m_default_tooltip_color,
-									false);
-
-							auto style = getStyleForElement("hypertip", spec.name);
-							e->setStyles(style);
-
-							m_hypertips.emplace_back(e, spec);
-
-							e->setVisible(false);
-							e->drop();
-						} else {
-							for (const auto &pair : m_hypertips) {
-								if (field.fname == pair.second.parent_name) {
-									showHyperTip(pair.first, pair.second);
-									break;
-								}
-							}
+					for (HyperTipSpec &spec : m_hypertips) {
+						if (spec.parent_name == field.fname) {
+							showHyperTip(spec);
+							break;
 						}
 					}
-				}
+				} while (0);
 
 				if (cursor_control &&
 						field.ftype != f_HyperText && // Handled directly in guiHyperText
@@ -3903,10 +3881,11 @@ void GUIFormSpecMenu::drawMenu()
 				rect.LowerRightCorner.X, rect.LowerRightCorner.Y), nullptr);
 	}
 
-	for (const auto &pair : m_hypertips) {
-		if (pair.first->isVisible()) {
-			pair.first->draw();
-			pair.first->setVisible(false);
+	for (HyperTipSpec &spec : m_hypertips) {
+		if (spec.element->isVisible()) {
+			spec.element->draw();
+			// To re-enable where needed in the next frame
+			spec.element->setVisible(false);
 		}
 	}
 
@@ -4074,23 +4053,35 @@ void GUIFormSpecMenu::autoScroll()
 }
 
 
-void GUIFormSpecMenu::showHyperTip(GUIHyperText *e, const HyperTipSpec &spec)
+void GUIFormSpecMenu::showHyperTip(HyperTipSpec &spec)
 {
+	const s32 tooltip_width = spec.width;
+
+	// Create element if needed
+	GUIHyperText *e = spec.element.get();
+	if (!spec.initialized) {
+		core::recti rect;
+		rect.LowerRightCorner.X = tooltip_width;
+		e->setRelativePosition(rect);
+
+		e->setText(translate_string(utf8_to_wide(spec.text)).c_str());
+		spec.initialized = true;
+	}
+
 	// Hypertip size and offset
-	s32 tooltip_width = spec.width;
 	s32 tooltip_height = e->getTextHeight();
 	s32 tooltip_x, tooltip_y;
 
 	v2u32 screenSize = Environment->getVideoDriver()->getScreenSize();
 
 	// Calculate and set the tooltip position
-	if (spec.floating) {
+	if (!spec.stpos) {
 		/* Dynamic tooltip position, relative to cursor */
 		positionTooltip(tooltip_width, tooltip_height, tooltip_x, tooltip_y);
 	} else {
 		/* Static tooltip position, using formspec coordinates */
-		tooltip_x = spec.stpos[0];
-		tooltip_y = spec.stpos[1];
+		tooltip_x = (*spec.stpos)[0];
+		tooltip_y = (*spec.stpos)[1];
 	}
 
 	if (tooltip_x + tooltip_width  > (s32)screenSize.X)
@@ -4098,7 +4089,7 @@ void GUIFormSpecMenu::showHyperTip(GUIHyperText *e, const HyperTipSpec &spec)
 	if (tooltip_y + tooltip_height > (s32)screenSize.Y)
 		tooltip_y = (s32)screenSize.Y - tooltip_height;
 
-	if (spec.floating) {
+	if (!spec.stpos) {
 		v2s32 base_pos = e->getParent()->getAbsolutePosition().UpperLeftCorner;
 		tooltip_x -= base_pos.X;
 		tooltip_y -= base_pos.Y;
@@ -4113,7 +4104,7 @@ void GUIFormSpecMenu::showHyperTip(GUIHyperText *e, const HyperTipSpec &spec)
 
 	// Display the hypertip
 	e->setVisible(true);
-	bringToFront(e);
+	// Drawn manually, see drawMenu()
 }
 
 
