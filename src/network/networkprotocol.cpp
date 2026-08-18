@@ -72,13 +72,15 @@
 		Support for TOCLIENT_SPAWN_PARTICLE_BATCH
 		[scheduled bump for 5.14.0]
 	PROTOCOL VERSION 51
-		Only send first frame of animated item/wield images to older client
+		Only send first frame of animated item/wield images to older client,
 		[scheduled bump for 5.15.0]
 	PROTOCOL VERSION 52
 		Added "skip_wield_anim" to TOCLIENT_INVENTORY
 		Type of TOCLIENT_HUDADD `size` changed from v2s32 to v2f
 		[scheduled bump for 5.16.0]
 	PROTOCOL VERSION 53
+		Add artificial light color, scattering_coefficients,
+		vignette, specular intensity, foliage translucency and cdl parameters to Lighting packets
 		[scheduled bump for 5.17.0]
 */
 

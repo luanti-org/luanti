@@ -551,6 +551,21 @@ size_t getstringlistfield(lua_State *L, int table, const char *fieldname,
 	return num_strings_read;
 }
 
+bool get_v3f_field(lua_State *L, int table,
+		const char *fieldname, v3f &result)
+{
+	lua_getfield(L, table, fieldname);
+	bool got = false;
+
+	// Implicitly type chcked by Lua `read_vector`
+	if (!lua_isnil(L, -1)) {
+		result = check_v3f(L, -1);
+		got = true;
+	}
+	lua_pop(L, 1);
+	return got;
+}
+
 std::string getstringfield_default(lua_State *L, int table,
 		const char *fieldname, const std::string &default_)
 {
