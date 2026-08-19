@@ -3734,19 +3734,6 @@ void GUIFormSpecMenu::drawMenu()
 		}
 	}
 
-	/*
-		Draw rect_mode hypertip
-	*/
-	for (const auto &pair : m_hypertips) {
-		if (m_hypertip_map.count(pair.second.parent_name) == 0) {
-			const auto &hover_rect = pair.second.hover_rect;
-			if (hover_rect.getArea() > 0 && hover_rect.isPointInside(m_pointer)) {
-				showHyperTip(pair.first, pair.second);
-				break;
-			}
-		}
-	}
-
 	// Some elements are only visible while being drawn
 	for (gui::IGUIElement *e : m_clickthrough_elements)
 		e->setVisible(true);
@@ -3763,6 +3750,19 @@ void GUIFormSpecMenu::drawMenu()
 	for (gui::IGUIElement *e : m_clickthrough_elements)
 		e->setVisible(false);
 
+	/*
+		Mark rect_mode hypertips visible
+	*/
+	for (const auto &pair : m_hypertips) {
+		if (m_hypertip_map.count(pair.second.parent_name) == 0) {
+			const auto &hover_rect = pair.second.hover_rect;
+			if (hover_rect.getArea() > 0 && hover_rect.isPointInside(m_pointer)) {
+				showHyperTip(pair.first, pair.second);
+				break;
+			}
+		}
+	}
+
 	// Draw hovered item tooltips
 	for (const std::string &tooltip : m_hovered_item_tooltips) {
 		showTooltip(utf8_to_wide(tooltip), m_default_tooltip_color,
@@ -3775,10 +3775,6 @@ void GUIFormSpecMenu::drawMenu()
 			core::rect<s32>(v2s32(0, 0), v2s32(0, 0)),
 			NULL, m_client, IT_ROT_HOVERED);
 	}
-
-	for (const auto &pair : m_hypertips)
-		if (pair.first->isVisible())
-			pair.first->setVisible(false);
 
 	/*
 		Draw fields/buttons tooltips and update the mouse cursor
@@ -3905,6 +3901,13 @@ void GUIFormSpecMenu::drawMenu()
 		driver->draw2DRectangle(white,
 			core::rect<s32>(rect.LowerRightCorner.X - border, rect.UpperLeftCorner.Y,
 				rect.LowerRightCorner.X, rect.LowerRightCorner.Y), nullptr);
+	}
+
+	for (const auto &pair : m_hypertips) {
+		if (pair.first->isVisible()) {
+			pair.first->draw();
+			pair.first->setVisible(false);
+		}
 	}
 
 	m_tooltip_element->draw();
