@@ -1577,26 +1577,25 @@ void ServerEnvironment::activateObjects(MapBlock *block, u32 dtime_s)
 
 	std::vector<StaticObject> &stored = block->m_static_objects.getAllStored();
 	for (auto it = stored.rbegin(); it != stored.rend(); ) {
-		StaticObject s_obj = std::move(*it);
-
 		// Create an active object from the data
 		std::unique_ptr<ServerActiveObject> obj =
-				createSAO((ActiveObjectType)s_obj.type, s_obj.pos, s_obj.data);
+				createSAO((ActiveObjectType)it->type, it->pos, it->data);
 		if (!obj) {
 			errorstream << "ServerEnvironment::activateObjects(): "
 				<< "failed to create active object from static object "
 				<< "in block " << block->getPos()
-				<< " type=" << (int)s_obj.type << " data:" << std::endl;
-			print_hexdump(verbosestream, s_obj.data);
+				<< " type=" << (int)it->type << " data:" << std::endl;
+			print_hexdump(verbosestream, it->data);
 
 			// If couldn't create object, keep static data.
 			it++;
 			continue;
-		} else {
-			// Immediately remove static object to not create duplicates on crash
-			// failed objects get moved upwards
-			it = std::vector<StaticObject>::reverse_iterator(stored.erase(it.base() - 1));
 		}
+
+		// Immediately remove static object to not create duplicates on crash
+		// failed objects get moved upwards
+		StaticObject s_obj = std::move(*it);
+		it = std::vector<StaticObject>::reverse_iterator(stored.erase(it.base() - 1));
 
 		obj->m_static_exists = true;
 		obj->m_static_block = block->getPos();
