@@ -1575,13 +1575,13 @@ void ServerEnvironment::activateObjects(MapBlock *block, u32 dtime_s)
 	if (!block->onObjectsActivation())
 		return;
 
-	// Activate stored objects
-	std::vector<StaticObject> new_stored;
-	for (const StaticObject &s_obj : block->m_static_objects.getAllStored()) {
+	std::vector<StaticObject> &stored = block->m_static_objects.getAllStored();
+	for (auto it = stored.rbegin(); it != stored.rend(); ) {
+		StaticObject s_obj = std::move(*it);
+
 		// Create an active object from the data
 		std::unique_ptr<ServerActiveObject> obj =
 				createSAO((ActiveObjectType)s_obj.type, s_obj.pos, s_obj.data);
-		// If couldn't create object, store static data back.
 		if (!obj) {
 			errorstream << "ServerEnvironment::activateObjects(): "
 				<< "failed to create active object from static object "
@@ -1589,8 +1589,13 @@ void ServerEnvironment::activateObjects(MapBlock *block, u32 dtime_s)
 				<< " type=" << (int)s_obj.type << " data:" << std::endl;
 			print_hexdump(verbosestream, s_obj.data);
 
-			new_stored.push_back(s_obj);
+			// If couldn't create object, keep static data.
+			it++;
 			continue;
+		} else {
+			// Immediately remove static object to not create duplicates on crash
+			// failed objects get moved upwards
+			it = std::vector<StaticObject>::reverse_iterator(stored.erase(it.base() - 1));
 		}
 
 		obj->m_static_exists = true;
@@ -1607,13 +1612,6 @@ void ServerEnvironment::activateObjects(MapBlock *block, u32 dtime_s)
 		// callbacks could invalidate this block
 		if (block->isOrphan())
 			return;
-	}
-
-	// Clear stored list
-	block->m_static_objects.clearStored();
-	// Add leftover failed stuff to stored list
-	for (const StaticObject &s_obj : new_stored) {
-		block->m_static_objects.pushStored(s_obj);
 	}
 
 	/*
