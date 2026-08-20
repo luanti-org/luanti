@@ -92,7 +92,14 @@ local function check_node_list(list, field)
 end
 
 function core.register_abm(spec)
+	if core.is_mods_loaded then
+		core.log("error", "Function register_abm cannot be called after mods are loaded.")
+		return
+	end
 	-- Add to core.registered_abms
+	if spec.name then
+		check_modname_prefix(spec.name)
+	end
 	check_node_list(spec.nodenames, "nodenames")
 	check_node_list(spec.neighbors, "neighbors")
 	assert(type(spec.action) == "function", "Required field 'action' of type function")
@@ -101,7 +108,31 @@ function core.register_abm(spec)
 	spec.mod_origin = core.get_current_modname() or "??"
 end
 
+function core.override_abm(name, redefinition)
+	if core.is_mods_loaded then
+		core.log("error", "Function override_abm cannot be called after mods are loaded.")
+		return
+	end
+	-- Override abm in core.registered_abms
+	if redefinition.name ~= nil then
+		error("Attempt to redefine abm name of "..name.." to "..dump(redefinition.name), 2)
+	end
+	check_node_list(redefinition.nodenames, "nodenames")
+	for _, abm in pairs(core.registered_abms) do
+		if (abm.name == name) then
+			for k, v in pairs(redefinition) do
+				rawset(abm, k, v)
+			end
+			return
+		end
+	end
+end
+
 function core.register_lbm(spec)
+	if core.is_mods_loaded then
+		core.log("error", "Function register_lbm cannot be called after mods are loaded.")
+		return
+	end
 	-- Add to core.registered_lbms
 	check_modname_prefix(spec.name)
 	check_node_list(spec.nodenames, "nodenames")
@@ -115,7 +146,32 @@ function core.register_lbm(spec)
 	spec.mod_origin = core.get_current_modname() or "??"
 end
 
+function core.override_lbm(name, redefinition)
+	if core.is_mods_loaded then
+		core.log("error", "Function override_lbm cannot be called after mods are loaded.")
+		return
+	end
+	-- Override lbm in core.registered_lbms
+	if redefinition.name ~= nil then
+		error("Attempt to redefine lbm name of "..name.." to "..dump(redefinition.name), 2)
+	end
+	check_node_list(redefinition.nodenames, "nodenames")
+	assert(type(redefinition.action) == "function", "Required field 'action' of type function")
+	for _, lbm in pairs(core.registered_lbms) do
+		if (lbm.name == name) then
+			for k, v in pairs(redefinition) do
+				rawset(lbm, k, v)
+			end
+			return
+		end
+	end
+end
+
 function core.register_entity(name, prototype)
+	if core.is_mods_loaded then
+		core.log("error", "Function register_entity cannot be called after mods are loaded.")
+		return
+	end
 	-- Check name
 	if name == nil then
 		error("Unable to register entity: Name is nil")
@@ -128,6 +184,30 @@ function core.register_entity(name, prototype)
 	-- Add to core.registered_entities
 	core.registered_entities[name] = prototype
 	prototype.mod_origin = core.get_current_modname() or "??"
+end
+
+function core.override_entity(name, redefinition)
+	if core.is_mods_loaded then
+		core.log("error", "Function override_entity cannot be called after mods are loaded.")
+		return
+	end
+	if redefinition.name ~= nil then
+		error("Attempt to redefine entity name of "..name.." to "..dump(redefinition.name), 2)
+	end
+	local entity = core.registered_entities[name]
+	if not entity then
+		error("Attempt to override non-existent entity "..name, 2)
+	end
+	for k, v in pairs(redefinition) do
+		if k ~= "initial_properties" then
+			rawset(entity, k, v)
+		else
+			for k2, v2 in pairs(v) do
+				rawset(entity.initial_properties, k2, v2)
+			end
+		end
+	end
+	core.registered_entities[name] = entity
 end
 
 local function preprocess_node(nodedef)
@@ -162,6 +242,30 @@ local function preprocess_craft(itemdef)
 		itemdef.inventory_image = itemdef.image
 	end
 	-- END Legacy stuff
+end
+
+function core.unregister_item(name)
+	if core.is_mods_loaded then
+		core.log("error", "Function unregister_item cannot be called after mods are loaded.")
+		return
+	end
+	if not core.registered_items[name] then
+		core.log("warning", "Not unregistering item " ..name..
+			" because it doesn't exist.")
+		return
+	end
+	-- Erase from registered_* table
+	local type = core.registered_items[name].type
+	if type == "node" then
+		core.registered_nodes[name] = nil
+	elseif type == "craft" then
+		core.registered_craftitems[name] = nil
+	elseif type == "tool" then
+		core.registered_tools[name] = nil
+	end
+	core.registered_items[name] = nil
+
+	unregister_item_raw(name)
 end
 
 local function preprocess_tool(tooldef)
@@ -340,6 +444,10 @@ function core.unregister_item(name)
 end
 
 function core.register_alias(name, convert_to)
+	if core.is_mods_loaded then
+		core.log("error", "Function register_alias cannot be called after mods are loaded.")
+		return
+	end
 	if forbidden_item_names[name] then
 		error("Unable to register alias: Name is forbidden: " .. name)
 	end
@@ -353,6 +461,10 @@ function core.register_alias(name, convert_to)
 end
 
 function core.register_alias_force(name, convert_to)
+	if core.is_mods_loaded then
+		core.log("error", "Function register_alias_force cannot be called after mods are loaded.")
+		return
+	end
 	if forbidden_item_names[name] then
 		error("Unable to register alias: Name is forbidden: " .. name)
 	end

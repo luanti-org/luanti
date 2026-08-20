@@ -96,4 +96,3 @@ core.register_abm({
 			"ABM testabsm:required_missing_neighbor changed this node.")
 	end
 })
-
