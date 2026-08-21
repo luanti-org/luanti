@@ -138,11 +138,28 @@ local function get_formspec(data)
 			end
 			for i, dep_name in ipairs(soft_deps) do
 				local dep = enabled_mods_by_name[dep_name]
+
+				local is_installed = false
+				for _, m in pairs(all_mods) do
+                    if m.name == dep_name then
+                        is_installed = true
+                        break
+                    end
+                end
+
 				if dep and with_error[dep.virtual_path] then
-					soft_deps[i] = mt_color_orange .. dep_name .. " " .. fgettext("(Enabled, has error)")
+					soft_deps[i] = mt_color_orange .. "," .. dep_name .. " " .. fgettext("(Enabled, has error)")
 				elseif dep then
-					soft_deps[i] = mt_color_green .. dep_name
+					soft_deps[i] = mt_color_green .. "," .. dep_name
+				elseif is_installed then
+					soft_deps[i] = "," .. dep_name
+				else
+				    soft_deps[i] = mt_color_grey .. "," .. dep_name
 				end
+			end
+        else
+			for i, dep_name in ipairs(soft_deps) do
+			    soft_deps[i] = mt_color_grey .. "," .. dep_name
 			end
 		end
 
@@ -167,8 +184,8 @@ local function get_formspec(data)
 					-- TRANSLATORS: About mod dependencies
 					"label[0,1.75;" .. fgettext("Optional dependencies:") ..
 					"]" ..
-					"textlist[0,2.25;5,4;world_config_optdepends;" ..
-					soft_deps_str .. ";0]"
+	                "tablecolumns[color;text]" ..
+	                "table[0,4.375;5,1.8;world_config_optdepends;" .. soft_deps_str .. ";]"
 			end
 		else
 			if soft_deps_str == "" then
@@ -188,8 +205,8 @@ local function get_formspec(data)
 					-- TRANSLATORS: About mod dependencies
 					"label[0,3.9;" .. fgettext("Optional dependencies:") ..
 					"]" ..
-					"textlist[0,4.375;5,1.8;world_config_optdepends;" ..
-					soft_deps_str .. ";0]"
+	                "tablecolumns[color;text]" ..
+	                "table[0,4.375;5,1.8;world_config_optdepends;" .. soft_deps_str .. ";]"
 			end
 		end
 	end
@@ -248,6 +265,26 @@ local function handle_buttons(this, fields)
 
 		if event.type == "DCL" then
 			pkgmgr.enable_mod(this)
+		end
+
+		return true
+	end
+
+	if fields.world_config_optdepends then
+		local event = core.explode_table_event(fields.world_config_optdepends)
+
+		if event.type == "DCL" then
+		    local list = this.data.list:get_list()
+			local mod = list[this.data.selected_mod]
+            local _, soft_deps = pkgmgr.get_dependencies(mod.path)
+            local dep_name = soft_deps[event.row]
+
+            for i, dep in ipairs(list) do
+                if dep.name == dep_name then
+                    pkgmgr.enable_mod_by_id(this, i)
+                    break
+                end
+            end
 		end
 
 		return true
