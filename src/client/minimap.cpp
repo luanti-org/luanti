@@ -286,7 +286,7 @@ void Minimap::addMode(MinimapModeDef mode)
 			mode.scale = 1;
 	}
 
-	int zoom = -1;
+	float zoom = -1.0f;
 
 	// Build a default standard label
 	if (mode.label.empty()) {
@@ -295,14 +295,14 @@ void Minimap::addMode(MinimapModeDef mode)
 				mode.label = gettext("Minimap hidden");
 				break;
 			case MINIMAP_TYPE_SURFACE:
-				mode.label = gettext("Minimap in surface mode, Zoom x%d");
 				if (mode.map_size > 0)
-					zoom = 256 / mode.map_size;
+					zoom = 256.0f / ((float) mode.map_size);
+				mode.label = gettext("Minimap in surface mode, Zoom x%.*f");
 				break;
 			case MINIMAP_TYPE_RADAR:
-				mode.label = gettext("Minimap in radar mode, Zoom x%d");
 				if (mode.map_size > 0)
-					zoom = 512 / mode.map_size;
+					zoom = 512.0f / ((float) mode.map_size);
+				mode.label = gettext("Minimap in radar mode, Zoom x%.*f");
 				break;
 			case MINIMAP_TYPE_TEXTURE:
 				mode.label = gettext("Minimap in texture mode");
@@ -313,10 +313,15 @@ void Minimap::addMode(MinimapModeDef mode)
 	}
 	// else: Custom labels need mod-provided client-side translation
 
-	if (zoom >= 0) {
+	if (zoom >= 0.0f) {
 		char label_buf[1024];
+		int precision = 0;
+		if (zoom < 2.0f && std::floor(zoom) != zoom) {
+			precision = 1;
+		}
 		porting::mt_snprintf(label_buf, sizeof(label_buf),
-			mode.label.c_str(), zoom);
+			mode.label.c_str(), zoom, precision
+		);
 		mode.label = label_buf;
 	}
 
