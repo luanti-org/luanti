@@ -137,8 +137,7 @@ private:
 	template<typename T>
 	static int defaultToString(lua_State *L)
 	{
-		auto *t = checkObject<T>(L, 1);
-		lua_pushfstring(L, "%s: %p", T::className, t);
+		lua_pushfstring(L, "%s", T::className);
 		return 1;
 	}
 };
