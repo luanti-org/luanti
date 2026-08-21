@@ -185,7 +185,7 @@ local function get_formspec(data)
 					"label[0,1.75;" .. fgettext("Optional dependencies:") ..
 					"]" ..
 	                "tablecolumns[color;text]" ..
-	                "table[0,4.375;5,1.8;world_config_optdepends;" .. soft_deps_str .. ";]"
+	                "table[0,2.25;5,4;world_config_optdepends;" .. soft_deps_str .. ";]"
 			end
 		else
 			if soft_deps_str == "" then
