@@ -44,6 +44,10 @@ function vector2.copy(v)
 	return fast_new(v.x, v.y)
 end
 
+function vector2.unpack(v)
+	return v.x, v.y
+end
+
 function vector2.from_angle(angle)
 	assert(angle, "Invalid argument for vector2.from_angle()")
 	return fast_new(math.cos(angle), math.sin(angle))
