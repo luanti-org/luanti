@@ -526,6 +526,17 @@ public:
 		return Children;
 	}
 
+	/// Recursively visit all descendants.
+	/// @param visitor callable with an IGUIElement*, returns whether to recurse into a child.
+	template<class F>
+	void visitDescendants(const F &visitor)
+	{
+		for (auto *child : Children) {
+			if (visitor(child))
+				child->visitDescendants(visitor);
+		}
+	}
+
 	//! Finds the first element with the given id.
 	/** \param id: Id to search for.
 	\param recursive: Set this to true, if also children of this
