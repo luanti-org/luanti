@@ -25,6 +25,7 @@ set(gui_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/guiTable.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/guiHyperText.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/guiVolumeChange.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/gyrocontrols.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/modalMenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/profilergraph.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/touchcontrols.cpp

@@ -76,6 +76,7 @@
 	#define SDL_EVENT_GAMEPAD_BUTTON_DOWN SDL_CONTROLLERBUTTONDOWN
 	#define SDL_EVENT_GAMEPAD_BUTTON_UP SDL_CONTROLLERBUTTONUP
 	#define SDL_EVENT_GAMEPAD_AXIS_MOTION SDL_CONTROLLERAXISMOTION
+	#define SDL_EVENT_GAMEPAD_SENSOR_UPDATE SDL_CONTROLLERSENSORUPDATE
 
 	#define SDL_OpenGamepad SDL_GameControllerOpen
 	#define SDL_CloseGamepad SDL_GameControllerClose
@@ -83,6 +84,7 @@
 	#define SDL_GetGamepadMapping SDL_GameControllerMapping
 	#define SDL_GetGamepadType SDL_GameControllerGetType
 	#define SDL_GetGamepadStringForType(type) nullptr
+	#define SDL_GamepadHasSensor SDL_GameControllerHasSensor
 
 	#define SDL_GetWindowSizeInPixels SDL_GL_GetDrawableSize
 	#define SDL_DestroySurface SDL_FreeSurface
@@ -1158,6 +1160,14 @@ bool CIrrDeviceSDL::run()
 					os::Printer::log("Gamepad mapping", mapping, ELL_INFORMATION);
 					SDL_free(mapping);
 				}
+				if (SDL_GamepadHasSensor(gamepad, SDL_SENSOR_GYRO)) {
+#ifdef _IRR_USE_SDL3_
+					SDL_SetGamepadSensorEnabled(gamepad, SDL_SENSOR_GYRO, true);
+#else
+					SDL_GameControllerSetSensorEnabled(gamepad, SDL_SENSOR_GYRO, SDL_TRUE);
+#endif
+					os::Printer::log("Gyro enabled", ELL_INFORMATION);
+				}
 			} else {
 				os::Printer::log("Unable to open gamepad", SDL_GetError(), ELL_ERROR);
 			}
@@ -1207,6 +1217,27 @@ bool CIrrDeviceSDL::run()
 			irrevent.GamepadAxisEvent.Value = SDL_event.caxis.value;
 #endif
 			irrevent.GamepadAxisEvent.ID = id;
+			recentGamepadID = id;
+			postEventFromUser(irrevent);
+			break;
+		}
+
+		case SDL_EVENT_GAMEPAD_SENSOR_UPDATE: {
+			irrevent.EventType = EET_GAMEPAD_SENSOR_EVENT;
+#if _IRR_USE_SDL3_
+			auto id = SDL_event.gsensor.which;
+			irrevent.GamepadSensorEvent.Type = static_cast<ESENSOR_TYPE>(SDL_event.gsensor.sensor);
+			irrevent.GamepadSensorEvent.X = SDL_event.gsensor.data[0];
+			irrevent.GamepadSensorEvent.Y = SDL_event.gsensor.data[1];
+			irrevent.GamepadSensorEvent.Z = SDL_event.gsensor.data[2];
+#else
+			auto id = SDL_event.csensor.which;
+			irrevent.GamepadSensorEvent.Type = static_cast<ESENSOR_TYPE>(SDL_event.csensor.sensor);
+			irrevent.GamepadSensorEvent.X = SDL_event.csensor.data[0];
+			irrevent.GamepadSensorEvent.Y = SDL_event.csensor.data[1];
+			irrevent.GamepadSensorEvent.Z = SDL_event.csensor.data[2];
+#endif
+			irrevent.GamepadSensorEvent.ID = id;
 			recentGamepadID = id;
 			postEventFromUser(irrevent);
 			break;
