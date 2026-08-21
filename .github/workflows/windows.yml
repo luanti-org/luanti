@@ -128,6 +128,7 @@ jobs:
           git clone --filter=blob:none --no-checkout https://github.com/microsoft/vcpkg.git vcpkg
           git -C vcpkg checkout $baseline
           .\vcpkg\bootstrap-vcpkg.bat
+          Add-Content -Path "${{ github.workspace }}\vcpkg\triplets\${{ matrix.config.vcpkg_triplet }}.cmake" -Value "`nset(VCPKG_DISABLE_COMPILER_TRACKING ON)"
 
       - name: Restore vcpkg cache
         id: vcpkg-cache
@@ -144,6 +145,7 @@ jobs:
         id: cmake
         run: |
           cmake ${{matrix.config.generator}}  `
+          -DVCPKG_INSTALL_OPTIONS="--x-abi-tools-use-exact-versions"  `
           -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake"  `
           -DCMAKE_BUILD_TYPE=Release  `
           -DENABLE_POSTGRESQL=OFF  `
