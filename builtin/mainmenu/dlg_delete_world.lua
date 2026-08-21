@@ -6,8 +6,8 @@
 local function delete_world_formspec(dialogdata)
 	return confirmation_formspec(
 		fgettext("Delete World \"$1\"?", dialogdata.delete_name),
-		'world_delete_confirm', fgettext("Delete"),
-		'world_delete_cancel', fgettext("Cancel"))
+		'world_delete_cancel', fgettext("Cancel"),
+		'world_delete_confirm', fgettext("Delete"))
 end
 
 local function delete_world_buttonhandler(this, fields)
