@@ -94,11 +94,6 @@ public:
 		return s_singleton->_getWindowSize();
 	}
 
-	io::IFileSystem *get_filesystem()
-	{
-		return m_device->getFileSystem();
-	}
-
 	static video::IVideoDriver *get_video_driver()
 	{
 		sanity_check(s_singleton && s_singleton->m_device);

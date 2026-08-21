@@ -9,6 +9,7 @@
 #include "Driver.h"
 #include "CNullDriver.h"
 #include "IContextManager.h"
+#include "CReadFile.h"
 
 #include "COpenGLCoreTexture.h"
 #include "COpenGLCoreRenderTarget.h"
@@ -152,8 +153,8 @@ void COpenGL3DriverBase::debugCb(GLenum source, GLenum type, GLuint id, GLenum s
 	os::Printer::log("GL", buf, ll);
 }
 
-COpenGL3DriverBase::COpenGL3DriverBase(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager) :
-		CNullDriver(io, params.WindowSize), COpenGL3ExtensionHandler(), CacheHandler(0),
+COpenGL3DriverBase::COpenGL3DriverBase(const SIrrlichtCreationParameters &params, IContextManager *contextManager) :
+		CNullDriver(params.WindowSize), COpenGL3ExtensionHandler(), CacheHandler(0),
 		Params(params), ResetRenderStates(true), LockRenderStateMode(false), AntiAlias(params.AntiAlias),
 		MaterialRenderer2DActive(0), MaterialRenderer2DTexture(0), MaterialRenderer2DNoTexture(0),
 		CurrentRenderMode(ERM_NONE), Transformation3DChanged(true),
@@ -337,7 +338,7 @@ void COpenGL3DriverBase::loadShaderData(const io::path &vertexShaderName, const 
 	*vertexShaderData = 0;
 	*fragmentShaderData = 0;
 
-	io::IReadFile *vsFile = FileSystem->createAndOpenFile(vsPath);
+	io::IReadFile *vsFile = io::CReadFile::createReadFile(vsPath);
 	if (!vsFile) {
 		std::string warning("Warning: Missing shader files needed to simulate fixed function materials:\n");
 		warning.append(vsPath.c_str()).append("\n");
@@ -346,7 +347,7 @@ void COpenGL3DriverBase::loadShaderData(const io::path &vertexShaderName, const 
 		return;
 	}
 
-	io::IReadFile *fsFile = FileSystem->createAndOpenFile(fsPath);
+	io::IReadFile *fsFile = io::CReadFile::createReadFile(fsPath);
 	if (!fsFile) {
 		std::string warning("Warning: Missing shader files needed to simulate fixed function materials:\n");
 		warning.append(fsPath.c_str()).append("\n");

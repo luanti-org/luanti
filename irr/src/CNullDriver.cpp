@@ -9,6 +9,8 @@
 #include "SMaterial.h"
 #include "os.h"
 #include "CImage.h"
+#include "CReadFile.h"
+#include "CWriteFile.h"
 #include "IReadFile.h"
 #include "IWriteFile.h"
 #include "IImageLoader.h"
@@ -19,6 +21,7 @@
 #include "CColorConverter.h"
 #include "IReferenceCounted.h"
 #include "IRenderTarget.h"
+#include "coreutil.h"
 
 #include <cassert>
 
@@ -41,8 +44,8 @@ IImageWriter *createImageWriterJPG();
 IImageWriter *createImageWriterPNG();
 
 //! constructor
-CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &screenSize) :
-		SharedRenderTarget(0), CurrentRenderTarget(0), CurrentRenderTargetSize(0, 0), FileSystem(io), MeshManipulator(0),
+CNullDriver::CNullDriver(const core::dimension2d<u32> &screenSize) :
+		SharedRenderTarget(0), CurrentRenderTarget(0), CurrentRenderTargetSize(0, 0), MeshManipulator(0),
 		ViewPort(0, 0, 0, 0), ScreenSize(screenSize), MinVertexCountForVBO(500),
 		TextureCreationFlags(0), OverrideMaterial2DEnabled(false), AllowZWriteOnTransparent(false)
 {
@@ -56,9 +59,6 @@ CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &scre
 
 	// create manipulator
 	MeshManipulator = new scene::CMeshManipulator();
-
-	if (FileSystem)
-		FileSystem->grab();
 
 	// create surface loaders and writers
 	SurfaceLoader.push_back(video::createImageLoaderTGA());
@@ -98,9 +98,6 @@ CNullDriver::CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &scre
 //! destructor
 CNullDriver::~CNullDriver()
 {
-	if (FileSystem)
-		FileSystem->drop();
-
 	if (MeshManipulator)
 		MeshManipulator->drop();
 
@@ -381,98 +378,6 @@ ITexture *CNullDriver::addTextureCubemap(const u32 sideLen, const io::path &name
 		imageArray[i]->drop();
 
 	return t;
-}
-
-//! loads a Texture
-ITexture *CNullDriver::getTexture(const io::path &filename)
-{
-	// Identify textures by their absolute filenames if possible.
-	const io::path absolutePath = FileSystem->getAbsolutePath(filename);
-
-	ITexture *texture = findTexture(absolutePath);
-	if (texture)
-		return texture;
-
-	// Then try the raw filename, which might be in an Archive
-	texture = findTexture(filename);
-	if (texture)
-		return texture;
-
-	// Now try to open the file using the complete path.
-	io::IReadFile *file = FileSystem->createAndOpenFile(absolutePath);
-
-	if (!file) {
-		// Try to open it using the raw filename.
-		file = FileSystem->createAndOpenFile(filename);
-	}
-
-	if (file) {
-		// Re-check name for actual archive names
-		texture = findTexture(file->getFileName());
-		if (texture) {
-			file->drop();
-			return texture;
-		}
-
-		texture = loadTextureFromFile(file);
-		file->drop();
-
-		if (texture) {
-			addTexture(texture);
-			texture->drop(); // drop it because we created it, one grab too much
-		} else
-			os::Printer::log("Could not load texture", filename, ELL_ERROR);
-		return texture;
-	} else {
-		os::Printer::log("Could not open file of texture", filename, ELL_WARNING);
-		return 0;
-	}
-}
-
-//! loads a Texture
-ITexture *CNullDriver::getTexture(io::IReadFile *file)
-{
-	ITexture *texture = 0;
-
-	if (file) {
-		texture = findTexture(file->getFileName());
-
-		if (texture)
-			return texture;
-
-		texture = loadTextureFromFile(file);
-
-		if (texture) {
-			addTexture(texture);
-			texture->drop(); // drop it because we created it, one grab too much
-		}
-
-		if (!texture)
-			os::Printer::log("Could not load texture", file->getFileName(), ELL_WARNING);
-	}
-
-	return texture;
-}
-
-//! opens the file and loads it into the surface
-video::ITexture *CNullDriver::loadTextureFromFile(io::IReadFile *file, const io::path &hashName)
-{
-	ITexture *texture = nullptr;
-
-	IImage *image = createImageFromFile(file);
-	if (!image)
-		return nullptr;
-
-	if (checkImage(image)) {
-		std::vector tmp { image };
-		texture = createDeviceDependentTexture(hashName.size() ? hashName : file->getFileName(), ETT_2D, tmp);
-		if (texture)
-			os::Printer::log("Loaded texture", file->getFileName(), ELL_DEBUG);
-	}
-
-	image->drop();
-
-	return texture;
 }
 
 //! adds a surface, not loaded or created by the Irrlicht Engine
@@ -786,7 +691,7 @@ IImage *CNullDriver::createImageFromFile(const io::path &filename)
 	if (!filename.size())
 		return nullptr;
 
-	io::IReadFile *file = FileSystem->createAndOpenFile(filename);
+	io::IReadFile *file = io::CReadFile::createReadFile(filename);
 	if (!file) {
 		os::Printer::log("Could not open file of image", filename, ELL_WARNING);
 		return nullptr;
@@ -836,7 +741,7 @@ IImage *CNullDriver::createImageFromFile(io::IReadFile *file)
 //! Writes the provided image to disk file
 bool CNullDriver::writeImageToFile(IImage *image, const io::path &filename, u32 param)
 {
-	io::IWriteFile *file = FileSystem->createAndWriteFile(filename);
+	io::IWriteFile *file = io::CWriteFile::createWriteFile(filename, false);
 	if (!file)
 		return false;
 
@@ -1338,7 +1243,7 @@ s32 CNullDriver::addHighLevelShaderMaterialFromFiles(
 	io::IReadFile *gsfile = 0;
 
 	if (vertexShaderProgramFileName.size()) {
-		vsfile = FileSystem->createAndOpenFile(vertexShaderProgramFileName);
+		vsfile = io::CReadFile::createReadFile(vertexShaderProgramFileName);
 		if (!vsfile) {
 			os::Printer::log("Could not open vertex shader program file",
 					vertexShaderProgramFileName, ELL_WARNING);
@@ -1346,7 +1251,7 @@ s32 CNullDriver::addHighLevelShaderMaterialFromFiles(
 	}
 
 	if (pixelShaderProgramFileName.size()) {
-		psfile = FileSystem->createAndOpenFile(pixelShaderProgramFileName);
+		psfile = io::CReadFile::createReadFile(pixelShaderProgramFileName);
 		if (!psfile) {
 			os::Printer::log("Could not open pixel shader program file",
 					pixelShaderProgramFileName, ELL_WARNING);
@@ -1354,7 +1259,7 @@ s32 CNullDriver::addHighLevelShaderMaterialFromFiles(
 	}
 
 	if (geometryShaderProgramFileName.size()) {
-		gsfile = FileSystem->createAndOpenFile(geometryShaderProgramFileName);
+		gsfile = io::CReadFile::createReadFile(geometryShaderProgramFileName);
 		if (!gsfile) {
 			os::Printer::log("Could not open geometry shader program file",
 					geometryShaderProgramFileName, ELL_WARNING);
@@ -1504,9 +1409,9 @@ void CNullDriver::printVersion()
 }
 
 //! creates a video driver
-IVideoDriver *createNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &screenSize)
+IVideoDriver *createNullDriver(const core::dimension2d<u32> &screenSize)
 {
-	CNullDriver *nullDriver = new CNullDriver(io, screenSize);
+	CNullDriver *nullDriver = new CNullDriver(screenSize);
 
 	// create empty material renderers
 	for (u32 i = 0; sBuiltInMaterialTypeNames[i]; ++i) {

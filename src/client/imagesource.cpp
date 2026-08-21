@@ -5,7 +5,7 @@
 #include "imagesource.h"
 
 #include "exceptions.h"
-#include <IFileSystem.h>
+#include <IMemoryReadFile.h>
 #include <IReadFile.h>
 #include "imagefilters.h"
 #include "renderingengine.h"
@@ -1572,9 +1572,8 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			}
 
 			auto *device = RenderingEngine::get_raw_device();
-			auto *fs = device->getFileSystem();
 			auto *vd = device->getVideoDriver();
-			auto *memfile = fs->createMemoryReadFile(png.data(), png.size(), "[png_tmpfile");
+			auto *memfile = io::createMemoryReadFile(png.data(), png.size(), "[png_tmpfile");
 			video::IImage* pngimg = vd->createImageFromFile(memfile);
 			memfile->drop();
 

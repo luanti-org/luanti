@@ -8,7 +8,6 @@
 #include "IIndexBuffer.h"
 #include "IVertexBuffer.h"
 #include "IVideoDriver.h"
-#include "IFileSystem.h"
 #include "IGPUProgrammingServices.h"
 #include "irrArray.h"
 #include "irrString.h"
@@ -33,7 +32,7 @@ class CNullDriver : public IVideoDriver, public IGPUProgrammingServices
 {
 public:
 	//! constructor
-	CNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &screenSize);
+	CNullDriver(const core::dimension2d<u32> &screenSize);
 
 	//! destructor
 	virtual ~CNullDriver();
@@ -78,12 +77,6 @@ public:
 
 	//! sets a material
 	void setMaterial(const SMaterial &material) override;
-
-	//! loads a Texture
-	ITexture *getTexture(const io::path &filename) override;
-
-	//! loads a Texture
-	ITexture *getTexture(io::IReadFile *file) override;
 
 	//! Returns amount of textures currently loaded
 	u32 getTextureCount() const override;
@@ -500,9 +493,6 @@ protected:
 	//! deletes all textures
 	void deleteAllTextures();
 
-	//! opens the file and loads it into the surface
-	ITexture *loadTextureFromFile(io::IReadFile *file, const io::path &hashName = "");
-
 	//! adds a surface, not loaded or created by the Irrlicht Engine
 	void addTexture(ITexture *surface);
 
@@ -649,8 +639,6 @@ protected:
 	core::array<SMaterialRenderer> MaterialRenderers;
 
 	std::vector<SHWBufferLink *> HWBufferList;
-
-	io::IFileSystem *FileSystem;
 
 	//! mesh manipulator
 	scene::IMeshManipulator *MeshManipulator;

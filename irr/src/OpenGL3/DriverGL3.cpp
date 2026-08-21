@@ -95,10 +95,10 @@ void COpenGL3Driver::initFeatures()
 	DimAliasedPoint[1] = 1.0f;
 }
 
-IVideoDriver *createOpenGL3Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
+IVideoDriver *createOpenGL3Driver(const SIrrlichtCreationParameters &params, IContextManager *contextManager)
 {
 	os::Printer::log("Using COpenGL3Driver", ELL_INFORMATION);
-	COpenGL3Driver *driver = new COpenGL3Driver(params, io, contextManager);
+	COpenGL3Driver *driver = new COpenGL3Driver(params, contextManager);
 	// don't call in constructor, it uses virtual function calls of driver
 	if (!driver->genericDriverInit(params.WindowSize, params.Stencilbuffer)) {
 		delete driver;

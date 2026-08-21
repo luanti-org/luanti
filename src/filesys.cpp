@@ -17,10 +17,7 @@
 #include "porting.h"
 #if CHECK_CLIENT_BUILD()
 #include "irr_ptr.h"
-#include <IFileArchive.h>
-#include <IFileList.h>
-#include <IFileSystem.h>
-#include <IReadFile.h>
+#include <CZipReader.h>
 #endif
 
 #ifdef _WIN32
@@ -1018,24 +1015,13 @@ bool safeWriteToFile(const std::string &path, std::string_view content)
 }
 
 #if CHECK_CLIENT_BUILD()
-bool extractZipFile(io::IFileSystem *fs, const char *filename, const std::string &destination)
+bool extractZipFile(const char *filename, const std::string &destination)
 {
 	// Be careful here not to touch the global file hierarchy in Irrlicht
 	// since this function needs to be thread-safe!
 
-	io::IArchiveLoader *zip_loader = nullptr;
-	for (u32 i = 0; i < fs->getArchiveLoaderCount(); i++) {
-		if (fs->getArchiveLoader(i)->isALoadableFileFormat(io::EFAT_ZIP)) {
-			zip_loader = fs->getArchiveLoader(i);
-			break;
-		}
-	}
-	if (!zip_loader) {
-		warningstream << "fs::extractZipFile(): Irrlicht said it doesn't support ZIPs." << std::endl;
-		return false;
-	}
-
-	irr_ptr<io::IFileArchive> opened_zip(zip_loader->createArchive(filename, false, false));
+	io::CArchiveLoaderZIP zip_loader;
+	irr_ptr<io::IFileArchive> opened_zip(zip_loader.createArchive(filename, false, false));
 	if (!opened_zip)
 		return false;
 	const io::IFileList* files_in_zip = opened_zip->getFileList();

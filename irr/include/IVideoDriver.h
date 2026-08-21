@@ -182,30 +182,6 @@ public:
 	\param material: Material to be used from now on. */
 	virtual void setMaterial(const SMaterial &material) = 0;
 
-	//! Get access to a named texture.
-	/** Loads the texture from disk if it is not
-	already loaded and generates mipmap levels if desired.
-	Texture loading can be influenced using the
-	setTextureCreationFlag() method. The texture can be in several
-	imageformats, such as BMP, JPG, TGA, PCX, PNG, and PSD.
-	\param filename Filename of the texture to be loaded.
-	\return Pointer to the texture, or 0 if the texture
-	could not be loaded. This pointer should not be dropped. See
-	IReferenceCounted::drop() for more information. */
-	[[deprecated]] virtual ITexture *getTexture(const io::path &filename) = 0;
-
-	//! Get access to a named texture.
-	/** Loads the texture from disk if it is not
-	already loaded and generates mipmap levels if desired.
-	Texture loading can be influenced using the
-	setTextureCreationFlag() method. The texture can be in several
-	imageformats, such as BMP, JPG, TGA, PCX, PNG, and PSD.
-	\param file Pointer to an already opened file.
-	\return Pointer to the texture, or 0 if the texture
-	could not be loaded. This pointer should not be dropped. See
-	IReferenceCounted::drop() for more information. */
-	[[deprecated]] virtual ITexture *getTexture(io::IReadFile *file) = 0;
-
 	//! Returns amount of textures currently loaded
 	/** \return Amount of textures currently loaded */
 	virtual u32 getTextureCount() const = 0;

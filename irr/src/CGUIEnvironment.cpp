@@ -23,8 +23,10 @@
 #include "CGUIComboBox.h"
 
 #include "IWriteFile.h"
+#include "IMemoryReadFile.h"
 #include "BuiltInFont.h"
 #include "os.h"
+#include "CFileSystem.h"
 
 namespace gui
 {
@@ -32,16 +34,13 @@ namespace gui
 const io::path CGUIEnvironment::DefaultFontName = "#DefaultFont";
 
 //! constructor
-CGUIEnvironment::CGUIEnvironment(io::IFileSystem *fs, video::IVideoDriver *driver, IOSOperator *op) :
+CGUIEnvironment::CGUIEnvironment(video::IVideoDriver *driver, IOSOperator *op) :
 		IGUIElement(EGUIET_ROOT, 0, 0, 0, core::rect<s32>(driver ? core::dimension2d<s32>(driver->getScreenSize()) : core::dimension2d<s32>(0, 0))),
 		Driver(driver), Hovered(0), HoveredNoSubelement(0), Focus(0), LastHoveredMousePos(0, 0), CurrentSkin(0),
-		FileSystem(fs), UserReceiver(0), Operator(op), FocusFlags(EFF_SET_ON_LMOUSE_DOWN | EFF_SET_ON_TAB)
+		UserReceiver(0), Operator(op), FocusFlags(EFF_SET_ON_LMOUSE_DOWN | EFF_SET_ON_TAB)
 {
 	if (Driver)
 		Driver->grab();
-
-	if (FileSystem)
-		FileSystem->grab();
 
 	if (Operator)
 		Operator->grab();
@@ -111,11 +110,6 @@ CGUIEnvironment::~CGUIEnvironment()
 		Operator = 0;
 	}
 
-	if (FileSystem) {
-		FileSystem->drop();
-		FileSystem = 0;
-	}
-
 	if (Driver) {
 		Driver->drop();
 		Driver = 0;
@@ -124,7 +118,7 @@ CGUIEnvironment::~CGUIEnvironment()
 
 void CGUIEnvironment::loadBuiltInFont()
 {
-	io::IReadFile *file = FileSystem->createMemoryReadFile(BuiltInFontData,
+	io::IReadFile *file = io::createMemoryReadFile(BuiltInFontData,
 			BuiltInFontDataSize, DefaultFontName, false);
 
 	CGUIFont *font = new CGUIFont(this, DefaultFontName);
@@ -288,12 +282,6 @@ bool CGUIEnvironment::hasFocus(const IGUIElement *element, bool checkSubElements
 video::IVideoDriver *CGUIEnvironment::getVideoDriver() const
 {
 	return Driver;
-}
-
-//! returns the current file system
-io::IFileSystem *CGUIEnvironment::getFileSystem() const
-{
-	return FileSystem;
 }
 
 //! returns a pointer to the OS operator
@@ -698,16 +686,14 @@ IGUIListBox *CGUIEnvironment::addListBox(const core::rect<s32> &rectangle,
 
 //! adds a file open dialog. The returned pointer must not be dropped.
 IGUIFileOpenDialog *CGUIEnvironment::addFileOpenDialog(const wchar_t *title,
-		bool modal, IGUIElement *parent, s32 id,
-		bool restoreCWD, io::path::char_type *startDir)
+		bool modal, IGUIElement *parent, s32 id)
 {
 	parent = parent ? parent : this;
 
 	if (modal)
 		return nullptr;
 
-	IGUIFileOpenDialog *d = new CGUIFileOpenDialog(title, this, parent, id,
-			restoreCWD, startDir);
+	IGUIFileOpenDialog *d = new CGUIFileOpenDialog(title, this, parent, id);
 	d->drop();
 
 	return d;
@@ -786,7 +772,7 @@ IGUIFont *CGUIEnvironment::getFont(const io::path &filename)
 
 	// does the file exist?
 
-	if (!FileSystem->existFile(filename)) {
+	if (!io::CFileSystem::existFile(filename)) {
 		os::Printer::log("Could not load font because the file does not exist", f.NamedPath.getPath(), ELL_ERROR);
 		return 0;
 	}
@@ -878,7 +864,7 @@ IGUISpriteBank *CGUIEnvironment::getSpriteBank(const io::path &filename)
 		return Banks[index].Bank;
 
 	// we don't have this sprite bank, we should load it
-	if (!FileSystem->existFile(b.NamedPath.getPath())) {
+	if (!io::CFileSystem::existFile(b.NamedPath.getPath())) {
 		if (filename != DefaultFontName) {
 			os::Printer::log("Could not load sprite bank because the file does not exist", b.NamedPath.getPath(), ELL_DEBUG);
 		}
@@ -980,11 +966,11 @@ u32 CGUIEnvironment::getFocusBehavior() const
 }
 
 //! creates an GUI Environment
-IGUIEnvironment *createGUIEnvironment(io::IFileSystem *fs,
+IGUIEnvironment *createGUIEnvironment(
 		video::IVideoDriver *Driver,
 		IOSOperator *op)
 {
-	return new CGUIEnvironment(fs, Driver, op);
+	return new CGUIEnvironment(Driver, op);
 }
 
 } // end namespace gui

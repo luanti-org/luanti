@@ -15,7 +15,7 @@ class CLogger;
 namespace gui
 {
 class IGUIEnvironment;
-IGUIEnvironment *createGUIEnvironment(io::IFileSystem *fs,
+IGUIEnvironment *createGUIEnvironment(
 		video::IVideoDriver *Driver, IOSOperator *op);
 }
 
@@ -24,22 +24,17 @@ namespace scene
 ISceneManager *createSceneManager(video::IVideoDriver *driver, gui::ICursorControl *cc);
 }
 
-namespace io
-{
-IFileSystem *createFileSystem();
-}
-
 namespace video
 {
-	IVideoDriver *createNullDriver(io::IFileSystem *io, const core::dimension2d<u32> &screenSize);
+	IVideoDriver *createNullDriver(const core::dimension2d<u32> &screenSize);
 
-	IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
+	IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, IContextManager *contextManager);
 
-	IVideoDriver *createOpenGL3Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
+	IVideoDriver *createOpenGL3Driver(const SIrrlichtCreationParameters &params, IContextManager *contextManager);
 
-	IVideoDriver *createOGLES2Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
+	IVideoDriver *createOGLES2Driver(const SIrrlichtCreationParameters &params, IContextManager *contextManager);
 
-	IVideoDriver *createWebGL1Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
+	IVideoDriver *createWebGL1Driver(const SIrrlichtCreationParameters &params, IContextManager *contextManager);
 }
 
 //! Stub for an Irrlicht Device implementation
@@ -54,9 +49,6 @@ public:
 
 	//! returns the video driver
 	video::IVideoDriver *getVideoDriver() override;
-
-	//! return file system
-	io::IFileSystem *getFileSystem() override;
 
 	//! returns the gui environment
 	gui::IGUIEnvironment *getGUIEnvironment() override;
@@ -173,7 +165,6 @@ protected:
 	IEventReceiver *UserReceiver;
 	CLogger *Logger;
 	IOSOperator *Operator;
-	io::IFileSystem *FileSystem;
 	scene::ISceneManager *InputReceivingSceneManager;
 
 	struct SMouseMultiClicks

@@ -63,10 +63,6 @@ public:
 };
 
 //! Class which is able to create an archive from a file.
-/** If you want the Irrlicht Engine be able to load archives of
-currently unsupported file formats (e.g .wad), then implement
-this and add your new Archive loader with
-IFileSystem::addArchiveLoader() to the engine. */
 class IArchiveLoader : public virtual IReferenceCounted
 {
 public:

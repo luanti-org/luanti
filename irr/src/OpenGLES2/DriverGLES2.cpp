@@ -155,10 +155,10 @@ void COpenGLES2Driver::initFeatures()
 	GL.GetFloatv(GL_ALIASED_POINT_SIZE_RANGE, DimAliasedPoint);
 }
 
-IVideoDriver *createOGLES2Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
+IVideoDriver *createOGLES2Driver(const SIrrlichtCreationParameters &params, IContextManager *contextManager)
 {
 	os::Printer::log("Using COpenGLES2Driver", ELL_INFORMATION);
-	COpenGLES2Driver *driver = new COpenGLES2Driver(params, io, contextManager);
+	COpenGLES2Driver *driver = new COpenGLES2Driver(params, contextManager);
 	// don't call in constructor, it uses virtual function calls of driver
 	if (!driver->genericDriverInit(params.WindowSize, params.Stencilbuffer)) {
 		delete driver;

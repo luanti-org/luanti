@@ -8,7 +8,6 @@
 #include "IMeshCache.h"
 #include "IMeshBuffer.h"
 #include "IMaterialRenderer.h"
-#include "IFileSystem.h"
 
 namespace scene
 {
