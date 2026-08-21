@@ -2873,6 +2873,22 @@ int ObjectRef::l_set_lighting(lua_State *L)
 			lighting.bloom_radius          = getfloatfield_default(L, -1, "radius",          lighting.bloom_radius);
 		}
 		lua_pop(L, 1); // bloom
+
+		lua_getfield(L, 2, "motion_blur");
+		if (lua_istable(L, -1)) {
+			// Unlike the sections above, an absent (or explicitly nil)
+			// `strength` is meaningful here: it hands control back to the
+			// player's own settings rather than leaving the current value
+			// alone. Naming the section at all is the act of setting it.
+			lua_getfield(L, -1, "strength");
+			if (lua_isnil(L, -1))
+				lighting.motion_blur_strength = -1.0f;
+			else
+				lighting.motion_blur_strength =
+						rangelim((float)luaL_checknumber(L, -1), 0.0f, 4.0f);
+			lua_pop(L, 1); // strength
+		}
+		lua_pop(L, 1); // motion_blur
 }
 
 	getServer(L)->setLighting(player, lighting);
@@ -2927,6 +2943,14 @@ int ObjectRef::l_get_lighting(lua_State *L)
 	lua_pushnumber(L, lighting.bloom_radius);
 	lua_setfield(L, -2, "radius");
 	lua_setfield(L, -2, "bloom");
+	lua_newtable(L); // "motion_blur"
+	// Left absent when unset, so that a round trip through set_lighting keeps
+	// the "player decides" state rather than pinning it to a number.
+	if (lighting.motion_blur_strength >= 0.0f) {
+		lua_pushnumber(L, lighting.motion_blur_strength);
+		lua_setfield(L, -2, "strength");
+	}
+	lua_setfield(L, -2, "motion_blur");
 	return 1;
 }
 
