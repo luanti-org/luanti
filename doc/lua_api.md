@@ -6988,6 +6988,27 @@ Environment access
 * `core.add_item(pos, item)`: Spawn item
     * Returns `ObjectRef`, or `nil` if failed
     * Items can be added also to unloaded and non-generated blocks.
+* `core.add_light(def)`: Create a persistent client-rendered dynamic point light
+    * Returns `ObjectRef`, or `nil` if failed
+    * `def` is a table with the following fields:
+        * `pos`: initial position, required unless `object` is given
+        * `object`: optional `ObjectRef` to follow. If given, the light
+          tracks that object's position instead of `pos`, and keeps
+          following it across reload.
+          If the object is not found after a few seconds of trying,
+          the light removes itself.
+        * `color`: `ColorSpec` (default: white)
+        * `range`: radius in nodes the light reaches before fully fading out
+          (default: 8)
+        * `falloff`: exponent shaping how quickly the light dims with
+          distance - higher stays bright longer before dropping off
+          (default: 2)
+    * A light is tied to the map block containing its position.
+    * A free light is not removed when whatever spawned it goes away.
+      An attached one will remove it self after a few seconds though.
+      To get best results, store a light's `get_guid()` and look it up again later via
+      `core.objects_by_guid`, or use
+      `core.get_objects_in_area` / `core.get_objects_inside_radius`
 * `core.get_player_by_name(name)`: Get an `ObjectRef` to a player
     * Returns nothing in case of error (player offline, doesn't exist, ...).
 * `core.get_objects_inside_radius(center, radius)`
@@ -9217,6 +9238,23 @@ You **must not** mix names and track numbers to refer to the same animation.
 * `get_entity_name()`:
     * **Deprecated**: Will be removed in a future version,
       use `:get_luaentity().name` instead.
+
+#### Light only (no-op for other objects)
+
+Objects created via `core.add_light`. Lights have no callbacks and no
+persistent Lua table (`self`) - they only carry the small set of synced
+properties below, same as any other active object.
+
+* `get_light_state()`: returns `{pos = vector}` or `{object = ObjectRef}`,
+  in the same format as `def` in `core.add_light`.
+* `set_light_state(state)`: takes `{pos = vector}` to detach and move to a
+  free-floating position, or `{object = ObjectRef}` to attach/re-attach.
+* `get_light_properties()`: returns a table with `color`, `range`
+  and `falloff`.
+    * Named `get_light_properties`, not `get_properties`, to avoid colliding
+      with the generic `ObjectRef:get_properties()` for `ObjectProperties`,
+      which is a no-op for lights.
+* `set_light_properties(props)`: updates one or more of the properties above.
 
 #### Player only (no-op for other objects)
 

@@ -19,10 +19,14 @@
 #include "tool.h"
 #include "noise.h"
 #include "porting.h" // strlcpy
+#include "cpp_api/s_base.h"
+#include "server/light_sao.h"
 #include "server/player_sao.h"
+#include "serverenvironment.h"
 #include "util/pointedthing.h"
 #include "debug.h" // For FATAL_ERROR
 #include <SColor.h>
+#include <algorithm>
 #include <json/json.h>
 #include "mapgen/treegen.h"
 
@@ -648,6 +652,74 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 
 	// Remember to update object_property_keys above
 	// when adding a new property
+}
+
+/******************************************************************************/
+void read_light_state(lua_State *L, int index, v3f &pos, std::string &attached_guid)
+{
+	if (index < 0)
+		index = lua_gettop(L) + 1 + index;
+	luaL_checktype(L, index, LUA_TTABLE);
+
+	attached_guid.clear();
+	lua_getfield(L, index, "object");
+	if (!lua_isnil(L, -1)) {
+		ObjectRef *ref = ModApiBase::checkObject<ObjectRef>(L, -1);
+		ServerActiveObject *sao = ObjectRef::getobject(ref);
+		if (!sao)
+			throw LuaError("light state references an invalid object");
+		attached_guid = sao->getGUID();
+		pos = sao->getBasePosition();
+		lua_pop(L, 1); // object
+	} else {
+		lua_pop(L, 1); // object (nil)
+		lua_getfield(L, index, "pos");
+		pos = read_v3f(L, -1) * BS;
+		lua_pop(L, 1); // pos
+	}
+}
+
+void push_light_state(lua_State *L, v3f pos, u16 attached_id, ServerEnvironment *env)
+{
+	lua_createtable(L, 0, 1);
+
+	ServerActiveObject *target = attached_id != 0 ? env->getActiveObject(attached_id) : nullptr;
+	if (target) {
+		ModApiBase::getScriptApiBase(L)->objectrefGetOrCreate(L, target);
+		lua_setfield(L, -2, "object");
+	} else {
+		push_v3f(L, pos / BS);
+		lua_setfield(L, -2, "pos");
+	}
+}
+
+void read_light_properties(lua_State *L, int index, LightProperties &properties)
+{
+	if (index < 0)
+		index = lua_gettop(L) + 1 + index;
+	luaL_checktype(L, index, LUA_TTABLE);
+
+	lua_getfield(L, index, "color");
+	if (!lua_isnil(L, -1))
+		read_color(L, -1, &properties.color);
+	lua_pop(L, 1);
+
+	// Shader does pow()/division with these - undefined for values <= 0
+	float range = getfloatfield_default(L, index, "range", properties.range / BS) * BS;
+	properties.range = std::max(range, 0.01f * BS);
+	float falloff = getfloatfield_default(L, index, "falloff", properties.falloff);
+	properties.falloff = std::max(falloff, 0.01f);
+}
+
+void push_light_properties(lua_State *L, const LightProperties &properties)
+{
+	lua_newtable(L);
+	push_ARGB8(L, properties.color);
+	lua_setfield(L, -2, "color");
+	lua_pushnumber(L, properties.range / BS);
+	lua_setfield(L, -2, "range");
+	lua_pushnumber(L, properties.falloff);
+	lua_setfield(L, -2, "falloff");
 }
 
 /******************************************************************************/

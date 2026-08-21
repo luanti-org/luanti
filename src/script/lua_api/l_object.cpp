@@ -25,6 +25,7 @@
 #include "serverenvironment.h"
 #include "settings.h"
 #include "hud_element.h"
+#include "server/light_sao.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 #include "server/serverinventorymgr.h"
@@ -51,6 +52,16 @@ LuaEntitySAO* ObjectRef::getluaobject(ObjectRef *ref)
 	if (sao->getType() != ACTIVEOBJECT_TYPE_LUAENTITY)
 		return nullptr;
 	return (LuaEntitySAO*)sao;
+}
+
+LightSAO* ObjectRef::getlightobject(ObjectRef *ref)
+{
+	ServerActiveObject *sao = getobject(ref);
+	if (sao == nullptr)
+		return nullptr;
+	if (sao->getType() != ACTIVEOBJECT_TYPE_LIGHT)
+		return nullptr;
+	return (LightSAO*)sao;
 }
 
 PlayerSAO* ObjectRef::getplayersao(ObjectRef *ref)
@@ -1440,6 +1451,75 @@ int ObjectRef::l_get_luaentity(lua_State *L)
 
 	luaentity_get(L, entitysao->getId());
 	return 1;
+}
+
+/* Light-only */
+
+// get_light_state(self)
+int ObjectRef::l_get_light_state(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	LightSAO *light = getlightobject(ref);
+	if (light == nullptr)
+		return 0;
+
+	push_light_state(L, light->getBasePosition(), light->getAttachedId(), light->getEnv());
+	return 1;
+}
+
+// set_light_state(self, state)
+int ObjectRef::l_set_light_state(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+
+	v3f pos;
+	std::string attached_guid;
+	read_light_state(L, 2, pos, attached_guid);
+
+	LightSAO *light = getlightobject(ref);
+	if (light == nullptr)
+		return 0;
+
+	if (attached_guid.empty())
+		light->setPos(pos);
+	else
+		light->setAttachedGUID(std::move(attached_guid));
+	return 0;
+}
+
+// get_light_properties(self)
+int ObjectRef::l_get_light_properties(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	LightSAO *light = getlightobject(ref);
+	if (light == nullptr)
+		return 0;
+
+	push_light_properties(L, light->getProperties());
+	return 1;
+}
+
+// set_light_properties(self, properties)
+int ObjectRef::l_set_light_properties(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
+	LightSAO *light = getlightobject(ref);
+	if (light == nullptr)
+		return 0;
+
+	LightProperties properties = light->getProperties();
+	read_light_properties(L, 2, properties);
+
+	// The read above may have re-entered Lua, so light could be gone now.
+	light = getlightobject(ref);
+	if (light == nullptr)
+		return 0;
+	light->setProperties(properties);
+	return 0;
 }
 
 /* Player-only */
@@ -3077,6 +3157,12 @@ luaL_Reg ObjectRef::methods[] = {
 	luamethod_aliased(ObjectRef, set_sprite, setsprite),
 	luamethod(ObjectRef, get_entity_name),
 	luamethod(ObjectRef, get_luaentity),
+
+	// Light-only
+	luamethod(ObjectRef, get_light_state),
+	luamethod(ObjectRef, set_light_state),
+	luamethod(ObjectRef, get_light_properties),
+	luamethod(ObjectRef, set_light_properties),
 
 	// Player-only
 	luamethod(ObjectRef, is_player),
