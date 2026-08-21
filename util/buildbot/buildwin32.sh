@@ -44,6 +44,7 @@ download "$libhost/llvm/openal-soft-$openal_version-win32.zip"
 download "$libhost/llvm/libjpeg-$libjpeg_version-win32.zip"
 download "$libhost/llvm/libpng-$libpng_version-win32.zip"
 download "$libhost/llvm/sdl2-$sdl2_version-win32.zip"
+download "$libhost/llvm/libzip-$libzip_version-win32.zip"
 
 # Set source dir, downloading Minetest as needed
 get_sources
@@ -57,6 +58,7 @@ cmake_args=(
 	-DCMAKE_INSTALL_PREFIX=/tmp
 	-DBUILD_CLIENT=1 -DBUILD_SERVER=0
 	-DEXTRA_DLL="$runtime_dlls"
+	-DLIBZIP_DLL=$libdir/libzip/bin/libzip.dll
 
 	-DENABLE_SOUND=1
 	-DENABLE_CURL=1

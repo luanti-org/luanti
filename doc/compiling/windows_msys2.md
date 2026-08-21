@@ -21,7 +21,7 @@ The terminal will then ask you to close it when done, proceed with doing so. The
 Install all the necessary dependencies:
 
 ```bash
-pacman -S git mingw-w64-clang-x86_64-{clang,cmake,ninja,curl-winssl,libpng,libjpeg-turbo,freetype,libogg,libvorbis,sqlite3,openal,zstd,gettext,luajit,SDL2}
+pacman -S git mingw-w64-clang-x86_64-{clang,cmake,ninja,curl-winssl,libpng,libjpeg-turbo,freetype,libogg,libvorbis,sqlite3,openal,zstd,gettext,luajit,SDL2,libzip}
 ```
 
 Navigate to some folder where you want to clone the Luanti repository. To get out of MSYS2's home folder and into your regular users folder, you would want to enter something like this:
