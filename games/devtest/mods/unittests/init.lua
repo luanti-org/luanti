@@ -247,3 +247,10 @@ else
 		end,
 	})
 end
+
+local t = {}
+unittests.register("test_mod_require", function()
+	-- Requiring a mod should work and return the API table returned by init.lua
+	assert(require("unittests") == t)
+end)
+return t
