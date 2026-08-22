@@ -362,6 +362,12 @@ local tooltip_fs = [[
 	button[4,2;1,1;tt_btn;Button]
 	tooltip[tt_btn;Normal tooltip on a button]
 
+	item_image_button[5.5,2;1,1;testformspec:node;testformspec_item_tooltip;]
+	item_image_button[7,2;1,1;testformspec:node;testformspec_item_hypertip;;false]
+	style_type[hypertip;bgcolor=#0000ff99]
+	hypertip[7,2;1,1;;15;testformspec_item_hypertip_test;<global valign=center halign=center><b>Custom hypertip with item_image_button</b>]
+	style_type[hypertip;bgcolor=]
+
 	box[1,3.5;1,1;#ffff0080]
 	box[2.8,3.9;0.4,0.2;#ffffff80]
 	hypertip[1,3.5;1,1;3,4;20;hypertip_static;<big>Simple hypertip (<i>static</i>)</big>

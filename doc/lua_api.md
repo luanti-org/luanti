@@ -3495,6 +3495,7 @@ Elements
 * `name` is non-optional and must be unique, or else tooltips are broken.
 * The item description will be used as the tooltip. This can be overridden with
   a tooltip element.
+* `label` is the text on the button
 * `show_tooltip` (optional): if false, the tooltip will not be shown.
 
 ### `button_exit[<X>,<Y>;<W>,<H>;<name>;<label>]`
