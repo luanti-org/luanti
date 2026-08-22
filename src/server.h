@@ -591,6 +591,9 @@ private:
 	// Sends blocks to clients (locks env and con on its own)
 	void SendBlocks(float dtime);
 
+	// Re-sends a single node to a single client
+	void sendNodePredictionFixup(session_t peer_id, v3s16 pos);
+
 	bool addMediaFile(const std::string &filename, const std::string &filepath,
 			std::string *filedata = nullptr, std::string *digest = nullptr);
 	void fillMediaCache();

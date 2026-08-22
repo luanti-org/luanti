@@ -2464,6 +2464,15 @@ void Server::sendAddNode(v3s16 p, MapNode n, std::unordered_set<u16> *far_player
 	sendNodeChangePkt(pkt, block_pos, p_f, far_d_nodes, far_players);
 }
 
+void Server::sendNodePredictionFixup(session_t peer_id, v3s16 pos)
+{
+	MapNode n = m_env->getMap().getNode(pos);
+	NetworkPacket pkt(TOCLIENT_ADDNODE, 6 + 2 + 1 + 1 + 1);
+	pkt << pos << n.param0 << n.param1 << n.param2
+			<< (u8) 1; // keep metadata
+	Send(peer_id, &pkt);
+}
+
 void Server::sendNodeChangePkt(NetworkPacket &pkt, v3s16 block_pos,
 		v3f p, float far_d_nodes, std::unordered_set<u16> *far_players)
 {
