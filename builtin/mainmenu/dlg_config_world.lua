@@ -136,32 +136,28 @@ local function get_formspec(data)
 					hard_deps[i] = mt_color_green .. dep_name
 				end
 			end
-			for i, dep_name in ipairs(soft_deps) do
-				local dep = enabled_mods_by_name[dep_name]
-
-				local is_installed = false
-				for _, m in pairs(all_mods) do
-                    if m.name == dep_name then
-                        is_installed = true
-                        break
-                    end
-                end
-
-				if dep and with_error[dep.virtual_path] then
-					soft_deps[i] = mt_color_orange .. "," .. dep_name .. " " .. fgettext("(Enabled, has error)")
-				elseif dep then
-					soft_deps[i] = mt_color_green .. "," .. dep_name
-				elseif is_installed then
-					soft_deps[i] = "," .. dep_name
-				else
-				    soft_deps[i] = mt_color_grey .. "," .. dep_name
-				end
-			end
-        else
-			for i, dep_name in ipairs(soft_deps) do
-			    soft_deps[i] = mt_color_grey .. "," .. dep_name
-			end
 		end
+        for i, dep_name in ipairs(soft_deps) do
+            local dep = enabled_mods_by_name[dep_name]
+
+            local is_installed = false
+            for _, m in pairs(all_mods) do
+                if m.name == dep_name then
+                    is_installed = true
+                    break
+                end
+            end
+
+            if dep and with_error[dep.virtual_path] then
+                soft_deps[i] = mt_color_orange .. "," .. dep_name .. " " .. fgettext("(Enabled, has error)")
+            elseif dep then
+                soft_deps[i] = mt_color_green .. "," .. dep_name
+            elseif is_installed then
+                soft_deps[i] = "," .. dep_name
+            else
+                soft_deps[i] = mt_color_grey .. "," .. dep_name
+            end
+        end
 
 		local hard_deps_str = table.concat(hard_deps, ",")
 		local soft_deps_str = table.concat(soft_deps, ",")
