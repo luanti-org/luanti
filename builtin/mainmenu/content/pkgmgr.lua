@@ -402,9 +402,9 @@ function pkgmgr.enable_mod(this, toset)
 	pkgmgr.enable_mod_by_id(this, this.data.selected_mod, toset)
 end
 
-function pkgmgr.enable_mod_by_id(this, id, toset)
+function pkgmgr.enable_mod_by_id(this, mod_id, toset)
 	local list = this.data.list:get_list()
-	local mod = list[id]
+	local mod = list[mod_id]
 
 	if mod.always_on then
 		return
