@@ -775,16 +775,7 @@ static bool init_common(const Settings &cmd_args, int argc, char *argv[])
 
 	// Initialize random seed
 	u64 seed;
-	if (!porting::secure_rand_fill_buf(&seed, sizeof(seed))) {
-		infostream << "Secure randomness not available to seed global RNG!" << std::endl;
-		std::ostringstream oss;
-		// stuff that's somewhat unpredictable:
-		oss << time(nullptr) << porting::getTimeUs() << argc
-			<< g_settings_path << reinterpret_cast<intptr_t>(argv);
-		print_version(oss);
-		std::string data = oss.str();
-		seed = murmur_hash_64_ua(data.c_str(), data.size(), 0xc0ffee);
-	}
+	porting::secure_rand_fill_buf(&seed, sizeof(seed));
 	srand(seed);
 	mysrand(seed);
 
