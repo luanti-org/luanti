@@ -272,15 +272,15 @@ local function handle_buttons(this, fields)
 		if event.type == "DCL" then
 		    local list = this.data.list:get_list()
 			local mod = list[this.data.selected_mod]
-            local _, soft_deps = pkgmgr.get_dependencies(mod.path)
-            local dep_name = soft_deps[event.row]
+			local _, soft_deps = pkgmgr.get_dependencies(mod.path)
+			local dep_name = soft_deps[event.row]
 
-            for i, dep in ipairs(list) do
-                if dep.name == dep_name then
-                    pkgmgr.enable_mod_by_id(this, i)
-                    break
-                end
-            end
+			for i, dep in ipairs(list) do
+				if dep.name == dep_name then
+					pkgmgr.enable_mod_by_id(this, i)
+					break
+				end
+			end
 		end
 
 		return true
