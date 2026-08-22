@@ -64,6 +64,7 @@ public:
 	void setSunriseVisible(bool glow_visible) { m_sun_params.sunrise_visible = glow_visible; }
 	void setSunriseTexture(const std::string &sunglow_texture, ITextureSource* tsrc);
 	v3f getSunDirection();
+	video::ITexture *getSunTexture() const { return m_sun_texture ? m_sun_texture : m_sun_reflection_texture; }
 
 	void setMoonVisible(bool moon_visible) { m_moon_params.visible = moon_visible; }
 	bool getMoonVisible() const { return m_moon_params.visible; }
@@ -71,6 +72,7 @@ public:
 		const std::string &moon_tonemap, ITextureSource *tsrc);
 	void setMoonScale(f32 moon_scale) { m_moon_params.scale = moon_scale; }
 	v3f getMoonDirection();
+	video::ITexture *getMoonTexture() const { return m_moon_texture ? m_moon_texture : m_moon_reflection_texture; }
 
 	void setStarsVisible(bool stars_visible) { m_star_params.visible = stars_visible; }
 	void setStarCount(u16 star_count);
@@ -213,9 +215,12 @@ private:
 
 	video::ITexture *m_sun_texture = nullptr;
 	video::ITexture *m_moon_texture = nullptr;
+	video::ITexture *m_sun_reflection_texture = nullptr;
+	video::ITexture *m_moon_reflection_texture = nullptr;
 	video::IImage *m_sun_tonemap = nullptr;
 	video::IImage *m_moon_tonemap = nullptr;
 
+	void generateReflectionTextures(video::IVideoDriver *driver);
 	void updateStars();
 
 	void draw_sun(video::IVideoDriver *driver, const video::SColor &suncolor,

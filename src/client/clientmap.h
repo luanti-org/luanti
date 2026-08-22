@@ -71,6 +71,9 @@ public:
 
 	void updateCamera(v3f pos, v3f dir, f32 fov, v3s16 offset, video::SColor light_color);
 
+	static constexpr int TEXTURE_LAYER_SUN_REFLECTION = 2;
+	void setSunReflectionTexture(video::ITexture *tex) { m_sun_reflection_texture = tex; }
+
 	/*
 		Forcefully get a sector from somewhere
 	*/
@@ -167,6 +170,7 @@ private:
 	f32 m_camera_fov = M_PI;
 	v3s16 m_camera_offset;
 	video::SColor m_camera_light_color = video::SColor(0xFFFFFFFF);
+	video::ITexture *m_sun_reflection_texture = nullptr;
 	bool m_needs_update_transparent_meshes = true;
 
 	std::map<v3s16, MapBlock*, MapBlockComparer> m_drawlist;
