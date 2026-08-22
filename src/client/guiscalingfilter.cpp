@@ -187,53 +187,112 @@ void draw2DImage9Slice(video::IVideoDriver *driver, video::ITexture *texture,
 	if (middlerect.LowerRightCorner.Y < 0)
 		middle.LowerRightCorner.Y += srcrect.getHeight();
 
-	core::vector2di lower_right_offset = core::vector2di(srcrect.getWidth(),
+	if (colors) {
+		// Indices: Top Left, Top Right, Bottom Right, Bottom Left.
+		if (colors[0] != colors[1] || colors[0] != colors[2] || colors[0] != colors[3]) {
+			warningstream << "Yet unsupported: different colors" << std::endl;
+		}
+	}
+
+	const core::vector2di lower_right_offset = core::vector2di(srcrect.getWidth(),
 			srcrect.getHeight()) - middle.LowerRightCorner;
 
-	for (int y = 0; y < 3; ++y) {
-		for (int x = 0; x < 3; ++x) {
-			core::rect<s32> src = srcrect;
-			core::rect<s32> dest = destrect;
+	const auto &imgsize = texture->getOriginalSize();
+	texture = guiScalingImageButton(driver, texture, imgsize.Width * 2, imgsize.Height * 2);
+
+	/*
+	Winding order: GL_CW
+	Vertices:
+	.0--- 1--- 2--- 3
+	 |    |    |    |
+	.4--- 5--- 6--- 7
+	 |    |    |    |
+	.8--- 9---10---11
+	 |    |    |    |
+	12---13---14---15
+	*/
+	std::array<video::S3DVertex, 16> vertices;
+	std::array<u16,           9*2*3> indices; // 2 * 3 triangles per cell
+
+	for (int y = 0; y < 4; ++y) {
+		for (int x = 0; x < 4; ++x) {
+			video::S3DVertex &vert = vertices[y * 4 + x];
 
 			switch (x) {
 			case 0:
-				dest.LowerRightCorner.X = destrect.UpperLeftCorner.X + middle.UpperLeftCorner.X;
-				src.LowerRightCorner.X = srcrect.UpperLeftCorner.X + middle.UpperLeftCorner.X;
+				vert.Pos.X = destrect.UpperLeftCorner.X;
+				vert.TCoords.X = 0.0f;
 				break;
 
 			case 1:
-				dest.UpperLeftCorner.X += middle.UpperLeftCorner.X;
-				dest.LowerRightCorner.X -= lower_right_offset.X;
-				src.UpperLeftCorner.X += middle.UpperLeftCorner.X;
-				src.LowerRightCorner.X -= lower_right_offset.X;
+				vert.Pos.X = destrect.UpperLeftCorner.X + middle.UpperLeftCorner.X;
+				vert.TCoords.X = (float)middle.UpperLeftCorner.X / imgsize.Width;
 				break;
 
 			case 2:
-				dest.UpperLeftCorner.X = destrect.LowerRightCorner.X - lower_right_offset.X;
-				src.UpperLeftCorner.X = srcrect.LowerRightCorner.X - lower_right_offset.X;
+				vert.Pos.X = destrect.LowerRightCorner.X - lower_right_offset.X;
+				vert.TCoords.X = 1.0f - (float)lower_right_offset.X / imgsize.Width;
+				break;
+
+			case 3:
+				vert.Pos.X = destrect.LowerRightCorner.X;
+				vert.TCoords.X = 1.0f;
 				break;
 			}
 
 			switch (y) {
 			case 0:
-				dest.LowerRightCorner.Y = destrect.UpperLeftCorner.Y + middle.UpperLeftCorner.Y;
-				src.LowerRightCorner.Y = srcrect.UpperLeftCorner.Y + middle.UpperLeftCorner.Y;
+				vert.Pos.Y = destrect.UpperLeftCorner.Y;
+				vert.TCoords.Y = 0.0f;
 				break;
 
 			case 1:
-				dest.UpperLeftCorner.Y += middle.UpperLeftCorner.Y;
-				dest.LowerRightCorner.Y -= lower_right_offset.Y;
-				src.UpperLeftCorner.Y += middle.UpperLeftCorner.Y;
-				src.LowerRightCorner.Y -= lower_right_offset.Y;
+				vert.Pos.Y = destrect.UpperLeftCorner.Y + middle.UpperLeftCorner.Y;
+				vert.TCoords.Y = (float)middle.UpperLeftCorner.Y / imgsize.Height;
 				break;
 
 			case 2:
-				dest.UpperLeftCorner.Y = destrect.LowerRightCorner.Y - lower_right_offset.Y;
-				src.UpperLeftCorner.Y = srcrect.LowerRightCorner.Y - lower_right_offset.Y;
+				vert.Pos.Y = destrect.LowerRightCorner.Y - lower_right_offset.Y;
+				vert.TCoords.Y = 1.0f - (float)lower_right_offset.Y / imgsize.Height;
+				break;
+
+			case 3:
+				vert.Pos.Y = destrect.LowerRightCorner.Y;
+				vert.TCoords.Y = 1.0f;
 				break;
 			}
 
-			draw2DImageFilterScaled(driver, texture, dest, src, cliprect, colors, true);
+			if (colors) {
+				// SColor::getInterpolated() could be used here if ever needed.
+				vert.Color = colors[0];
+			}
 		}
 	}
+
+	for (int y = 0; y < 3; ++y) {
+		for (int x = 0; x < 3; ++x) {
+			const int i = (y * 3 + x) * 2*3;
+			// Upper right (e.g. 5,6,10)
+			indices[i + 0] = (y * 4 + x) + 0;
+			indices[i + 1] = (y * 4 + x) + 1;
+			indices[i + 2] = (y * 4 + x) + 5;
+
+			// Lower left (e.g. 10,9,5)
+			indices[i + 3] = (y * 4 + x) + 5;
+			indices[i + 4] = (y * 4 + x) + 4;
+			indices[i + 5] = (y * 4 + x) + 0;
+		}
+	}
+
+	video::SMaterial mat = driver->getMaterial2D();
+	mat.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
+	mat.setTexture(0, texture);
+
+	driver->setMaterial(mat);
+	driver->draw2DVertexPrimitiveList(
+		vertices.data(), vertices.size(),
+		indices.data(), indices.size() / 3,
+		video::EVT_STANDARD, scene::EPT_TRIANGLES, video::EIT_16BIT,
+		cliprect
+	);
 }
