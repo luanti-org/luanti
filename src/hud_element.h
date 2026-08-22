@@ -7,6 +7,9 @@
 
 #include "irrlichttypes_bloated.h"
 #include <string>
+#include <vector>
+#include <unordered_map>
+#include <optional>
 #include "util/enum_string.h"
 
 #define HUD_DIR_LEFT_RIGHT 0
@@ -72,6 +75,7 @@ enum HudElementStat : u8 {
 	HUD_STAT_TEXT2,
 	HUD_STAT_STYLE,
 	HUD_STAT_HIDEABLE,
+	HUD_STAT_OPACITY,
 	HudElementStat_END // Dummy for validity check
 };
 
@@ -80,6 +84,46 @@ enum HudCompassDir {
 	HUD_COMPASS_ROTATE_REVERSE,
 	HUD_COMPASS_TRANSLATE,
 	HUD_COMPASS_TRANSLATE_REVERSE,
+};
+
+enum HudAnimationStat : u8 {
+	HUD_ANIM_POS_X = 0,
+	HUD_ANIM_POS_Y,
+	HUD_ANIM_SCALE_X,
+	HUD_ANIM_SCALE_Y,
+	HUD_ANIM_OFFSET_X,
+	HUD_ANIM_OFFSET_Y,
+	HUD_ANIM_SIZE_X,
+	HUD_ANIM_SIZE_Y,
+	HUD_ANIM_OPACITY,
+	HUD_ANIM_STAT_COUNT,
+};
+
+enum HudAnimEasing : u8 {
+	HUD_ANIM_EASING_LINEAR = 0,
+	HUD_ANIM_EASING_EASE_IN,
+	HUD_ANIM_EASING_EASE_OUT,
+	HUD_ANIM_EASING_EASE_IN_OUT,
+};
+
+struct HudAnimKeyframe {
+	f32 value;
+	f32 duration;
+};
+
+struct HudAnimProperty {
+	std::vector<HudAnimKeyframe> keyframes;
+	HudAnimEasing easing = HUD_ANIM_EASING_LINEAR;
+	s32 loop = 0; // 0=once, -1=infinite, N=repeat N times
+
+	// client-side runtime state
+	f32 elapsed = 0.0f;
+	s32 loops_completed = 0;
+	bool finished = false;
+};
+
+struct HudElementAnimations {
+	std::unordered_map<u8, HudAnimProperty> properties;
 };
 
 struct HudElement {
@@ -99,6 +143,8 @@ struct HudElement {
 	std::string text2;
 	u32 style;
 	bool hideable = true;
+	f32 opacity = 1.0f;
+	std::optional<HudElementAnimations> animations;
 };
 
 extern const EnumString es_HudElementType[];
