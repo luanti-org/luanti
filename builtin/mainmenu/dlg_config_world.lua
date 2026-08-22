@@ -137,27 +137,27 @@ local function get_formspec(data)
 				end
 			end
 		end
-        for i, dep_name in ipairs(soft_deps) do
-            local dep = enabled_mods_by_name[dep_name]
+		for i, dep_name in ipairs(soft_deps) do
+			local dep = enabled_mods_by_name[dep_name]
 
-            local is_installed = false
-            for _, m in pairs(all_mods) do
-                if m.name == dep_name then
-                    is_installed = true
-                    break
-                end
-            end
+			local is_installed = false
+			for _, m in pairs(all_mods) do
+				if m.name == dep_name then
+					is_installed = true
+					break
+				end
+			end
 
-            if dep and with_error[dep.virtual_path] then
-                soft_deps[i] = mt_color_orange .. "," .. dep_name .. " " .. fgettext("(Enabled, has error)")
-            elseif dep then
-                soft_deps[i] = mt_color_green .. "," .. dep_name
-            elseif is_installed then
-                soft_deps[i] = "," .. dep_name
-            else
-                soft_deps[i] = mt_color_grey .. "," .. dep_name
-            end
-        end
+			if dep and with_error[dep.virtual_path] then
+				soft_deps[i] = mt_color_orange .. "," .. dep_name .. " " .. fgettext("(Enabled, has error)")
+			elseif dep then
+				soft_deps[i] = mt_color_green .. "," .. dep_name
+			elseif is_installed then
+				soft_deps[i] = "," .. dep_name
+			else
+				soft_deps[i] = mt_color_grey .. "," .. dep_name
+			end
+		end
 
 		local hard_deps_str = table.concat(hard_deps, ",")
 		local soft_deps_str = table.concat(soft_deps, ",")
@@ -180,8 +180,8 @@ local function get_formspec(data)
 					-- TRANSLATORS: About mod dependencies
 					"label[0,1.75;" .. fgettext("Optional dependencies:") ..
 					"]" ..
-	                "tablecolumns[color;text]" ..
-	                "table[0,2.25;5,4;world_config_optdepends;" .. soft_deps_str .. ";]"
+					"tablecolumns[color;text]" ..
+					"table[0,2.25;5,4;world_config_optdepends;" .. soft_deps_str .. ";]"
 			end
 		else
 			if soft_deps_str == "" then
@@ -201,8 +201,8 @@ local function get_formspec(data)
 					-- TRANSLATORS: About mod dependencies
 					"label[0,3.9;" .. fgettext("Optional dependencies:") ..
 					"]" ..
-	                "tablecolumns[color;text]" ..
-	                "table[0,4.375;5,1.8;world_config_optdepends;" .. soft_deps_str .. ";]"
+					"tablecolumns[color;text]" ..
+					"table[0,4.375;5,1.8;world_config_optdepends;" .. soft_deps_str .. ";]"
 			end
 		end
 	end
@@ -270,7 +270,7 @@ local function handle_buttons(this, fields)
 		local event = core.explode_table_event(fields.world_config_optdepends)
 
 		if event.type == "DCL" then
-		    local list = this.data.list:get_list()
+			local list = this.data.list:get_list()
 			local mod = list[this.data.selected_mod]
 			local _, soft_deps = pkgmgr.get_dependencies(mod.path)
 			local dep_name = soft_deps[event.row]
