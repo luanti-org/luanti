@@ -399,7 +399,7 @@ local function toggle_mod_or_modpack(list, toggled_mods, enabled_mods, toset, mo
 end
 
 function pkgmgr.enable_mod(this, toset)
-    pkgmgr.enable_mod_by_id(this, this.data.selected_mod, toset)
+	pkgmgr.enable_mod_by_id(this, this.data.selected_mod, toset)
 end
 
 function pkgmgr.enable_mod_by_id(this, id, toset)
