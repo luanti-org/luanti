@@ -229,6 +229,21 @@ bool step_rel_block_pos(direction dir, relative_v3 &rel_pos,
 	return false;
 }
 
+// Helper for templated functions
+void update_modified_blocks(ModifiedMapBlocks &modified_blocks,
+		mapblock_v3 bp, MapBlock *block, v3s16 rel_pos)
+{
+	modified_blocks[bp].update(rel_pos);
+
+}
+
+void update_modified_blocks(std::map<v3s16, MapBlock*> &modified_blocks, mapblock_v3 bp,
+		MapBlock *block, v3s16 rel_pos)
+{
+	modified_blocks[bp] = block;
+}
+
+
 /*
  * Removes all light that is potentially emitted by the specified
  * light sources. These nodes will have zero light.
@@ -239,9 +254,10 @@ bool step_rel_block_pos(direction dir, relative_v3 &rel_pos,
  * \param light_sources nodes that should be re-lighted
  * \param modified_blocks output, all modified map blocks are added to this
  */
+template <class MB>
 void unspread_light(Map *map, const NodeDefManager *nodemgr, LightBank bank,
 	UnlightQueue &from_nodes, ReLightQueue &light_sources,
-	std::map<v3s16, MapBlock*> &modified_blocks)
+	MB &modified_blocks)
 {
 	// Stores data popped from from_nodes
 	u8 current_light;
@@ -298,11 +314,8 @@ void unspread_light(Map *map, const NodeDefManager *nodemgr, LightBank bank,
 					neighbor_block->setNodeNoCheck(neighbor_rel_pos, neighbor);
 					from_nodes.push(neighbor_light, neighbor_rel_pos,
 						neighbor_block_pos, neighbor_block, i);
-					// The current node was modified earlier, so its block
-					// is in modified_blocks.
-					if (current.block != neighbor_block) {
-						modified_blocks[neighbor_block_pos] = neighbor_block;
-					}
+					update_modified_blocks(modified_blocks, neighbor_block_pos,
+							neighbor_block, neighbor_rel_pos);
 				}
 			} else {
 				// The neighbor can light up this node.
@@ -339,9 +352,10 @@ void unspread_light(Map *map, const NodeDefManager *nodemgr, LightBank bank,
  * \param light_sources starting nodes
  * \param modified_blocks output, all modified map blocks are added to this
  */
+template <class MB>
 void spread_light(Map *map, const NodeDefManager *nodemgr, LightBank bank,
 	LightQueue &light_sources,
-	std::map<v3s16, MapBlock*> &modified_blocks)
+	MB &modified_blocks)
 {
 	// The light the current node can provide to its neighbors.
 	u8 spreading_light;
@@ -381,11 +395,8 @@ void spread_light(Map *map, const NodeDefManager *nodemgr, LightBank bank,
 					neighbor_block->setNodeNoCheck(neighbor_rel_pos, neighbor);
 					light_sources.push(spreading_light, neighbor_rel_pos,
 						neighbor_block_pos, neighbor_block, i);
-					// The current node was modified earlier, so its block
-					// is in modified_blocks.
-					if (current.block != neighbor_block) {
-						modified_blocks[neighbor_block_pos] = neighbor_block;
-					}
+					update_modified_blocks(modified_blocks, neighbor_block_pos,
+							neighbor_block, neighbor_rel_pos);
 				}
 			}
 		}
@@ -451,9 +462,10 @@ bool is_sunlight_above(Map *map, v3s16 pos, const NodeDefManager *ndef)
 
 static constexpr LightBank banks[] = { LIGHTBANK_DAY, LIGHTBANK_NIGHT };
 
+template <class MB>
 void update_lighting_nodes(Map *map,
 	const std::vector<std::pair<v3s16, MapNode>> &oldnodes,
-	std::map<v3s16, MapBlock*> &modified_blocks)
+	MB &modified_blocks)
 {
 	const NodeDefManager *ndef = map->getNodeDefManager();
 	// For node getter functions
@@ -500,7 +512,7 @@ void update_lighting_nodes(Map *map,
 			u8 old_light = it->second.getLight(bank, ndef->getLightingFlags(it->second));
 
 			// Add the block of the added node to modified_blocks
-			modified_blocks[block_pos] = block;
+			update_modified_blocks(modified_blocks, block_pos, block, rel_pos);
 
 			// Get new light level of the node
 			u8 new_light = 0;
@@ -626,6 +638,12 @@ void update_lighting_nodes(Map *map,
 		spread_light(map, ndef, bank, light_sources, modified_blocks);
 	}
 }
+template void update_lighting_nodes(Map *map,
+		const std::vector<std::pair<v3s16, MapNode>> &oldnodes,
+		ModifiedMapBlocks &modified_blocks);
+template void update_lighting_nodes(Map *map,
+		const std::vector<std::pair<v3s16, MapNode>> &oldnodes,
+		std::map<v3s16, MapBlock*> &modified_blocks);
 
 /*!
  * Borders of a map block in relative node coordinates.
@@ -675,7 +693,7 @@ bool is_light_locally_correct(Map *map, const NodeDefManager *ndef,
 }
 
 void update_block_border_lighting(Map *map, MapBlock *block,
-	std::map<v3s16, MapBlock*> &modified_blocks)
+		ModifiedMapBlocks &modified_blocks)
 {
 	const NodeDefManager *ndef = map->getNodeDefManager();
 	// Since invalid light is not common, do not allocate
@@ -724,7 +742,8 @@ void update_block_border_lighting(Map *map, MapBlock *block,
 							// Initialize for unlighting
 							n.setLight(bank, 0, ndef->getLightingFlags(n));
 							b->setNodeNoCheck(x, y, z, n);
-							modified_blocks[b->getPos()]=b;
+							update_modified_blocks(modified_blocks, b->getPos(),
+									b, relative_v3(x, y, z));
 							disappearing_lights.push(light,
 								relative_v3(x, y, z), b->getPos(), b,
 								6);
