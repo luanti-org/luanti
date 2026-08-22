@@ -7,12 +7,11 @@
 #include <algorithm>
 #include <iterator>
 #include <limits>
-#include "guiFormSpecMenu.h"
 #include "EGUIElementTypes.h"
+#include "dimension2d.h"
 #include "itemdef.h"
 #include "gamedef.h"
 #include "client/keycode.h"
-#include "gui/guiTable.h"
 #include <IGUIButton.h>
 #include <IGUICheckBox.h>
 #include <IGUIComboBox.h>
@@ -48,6 +47,9 @@
 #include "guiItemImage.h"
 #include "guiScrollContainer.h"
 #include "guiScene.h"
+#include "guiFormSpecMenu.h"
+#include "gui/StyleSpec.h"
+#include "gui/guiTable.h"
 
 #define MY_CHECKPOS(a,b)													\
 	if (v_pos.size() != 2) {												\
@@ -100,7 +102,8 @@ static EGUI_ALIGNMENT get_valign(const StyleSpec &style)
 	return gui::EGUIA_UPPERLEFT; // default top
 }
 
-static unsigned int font_line_height(gui::IGUIFont *font)
+/// @warning legacy only, do not use in new code!
+static unsigned int legacy_font_line_height(gui::IGUIFont *font)
 {
 	return font->getDimension(L"Ay").Height + font->getKerning(L'A').Y;
 }
@@ -2063,8 +2066,16 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 
 	std::vector<std::string> v_pos = split(parts[0], ',');
 
+	MY_CHECKPOS("vertlabel", 1);
+
+	auto style = getDefaultStyleForElement("vertlabel", "", "label");
+	gui::IGUIFont *font = style.getFont();
+	if (!font)
+		font = m_font;
+
 	// Use EnrichedString so color escapes and formatting are preserved
-	EnrichedString etext(unescape_string(utf8_to_wide(parts[1])));
+	EnrichedString etext(unescape_string(utf8_to_wide(parts[1])),
+			style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
 
 	// Build vertical text (one character per line)
 	EnrichedString vlabel;
@@ -2074,13 +2085,7 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 		vlabel += etext.substr(i, 1);
 		vlabel.addCharNoColor(L'\n');
 	}
-
-	MY_CHECKPOS("vertlabel", 1);
-
-	auto style = getDefaultStyleForElement("vertlabel", "", "label");
-	gui::IGUIFont *font = style.getFont();
-	if (!font)
-		font = m_font;
+	const auto text_dim = font->getDimension(vlabel.c_str());
 
 	v2s32 pos;
 	core::rect<s32> rect;
@@ -2091,9 +2096,7 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 		// Vertlabels are positioned by center, not left.
 		pos.X -= imgsize.X / 2;
 
-		rect = core::rect<s32>(pos.X, pos.Y,
-			pos.X + imgsize.X,
-			pos.Y + font_line_height(font) * char_count);
+		rect = core::rect<s32>(pos, core::dimension2di(imgsize.X, text_dim.Height));
 
 	} else {
 		pos = getElementBasePos(&v_pos);
@@ -2103,7 +2106,7 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 		rect = core::rect<s32>(
 			pos.X, pos.Y + ((imgsize.Y / 2) - m_btn_height),
 			pos.X + 15, pos.Y +
-				font_line_height(font) * (char_count + 1) +
+				legacy_font_line_height(font) * (char_count + 1) +
 				((imgsize.Y / 2) - m_btn_height));
 	}
 
@@ -2118,6 +2121,7 @@ void GUIFormSpecMenu::parseVertLabel(parserData* data, const std::string &elemen
 	);
 
 	gui::IGUIStaticText *e = addLabel(vlabel, rect, data->current_parent, style, false, spec.fid);
+	// Note: For real coordinates, the text precisely fits the rect, so the vertical alignment does not matter.
 	e->setTextAlignment(gui::EGUIA_CENTER, gui::EGUIA_CENTER);
 
 	m_fields.push_back(spec);
@@ -3400,7 +3404,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		// implicit "Proceed" button.  Use default font, and
 		// temporary form size which will be recalculated below.
 		m_font = g_fontengine->getFont();
-		m_btn_height = font_line_height(m_font) * 0.875;
+		m_btn_height = legacy_font_line_height(m_font) * 0.875;
 		DesiredRect = core::rect<s32>(
 			(s32)((f32)mydata.screensize.X * mydata.offset.X) - (s32)(mydata.anchor.X * 580.0),
 			(s32)((f32)mydata.screensize.Y * mydata.offset.Y) - (s32)(mydata.anchor.Y * 300.0),
