@@ -5,7 +5,7 @@ android {
 	defaultConfig {
 		applicationId 'net.minetest.minetest'
 		minSdkVersion 21
-		compileSdk 34
+		compileSdk = 34
 		targetSdkVersion 35
 		versionName "${versionMajor}.${versionMinor}.${versionPatch}"
 		versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
@@ -55,12 +55,34 @@ android {
 	namespace 'net.minetest.minetest'
 }
 
-task prepareAssets() {
-	def assetsFolder = "build/assets"
-	def projRoot = rootDir.parent
+// Register one task for each locale file
+def localeFolder = layout.buildDirectory.dir("locale").get().asFile
+def projRoot = rootDir.parent
+def unsupportedLanguages = file("${projRoot}/src/unsupported_language_list.txt").readLines()
+def localeTasks = []
 
-	// See issue #4638
-	def unsupportedLanguages = new File("${projRoot}/src/unsupported_language_list.txt").text.readLines()
+fileTree("${projRoot}/po").include("**/*.po").grep {
+	it.parentFile.name !in unsupportedLanguages
+}.forEach { poFile ->
+	def lang = poFile.parentFile.name
+	def moPath = "${localeFolder}/${lang}/LC_MESSAGES/"
+
+	def task = tasks.register("compileTranslation[${lang}]", Exec) {
+		inputs.file(poFile)
+		outputs.file("${moPath}/luanti.mo")
+		doFirst { file(moPath).mkdirs() }
+		commandLine("msgfmt", "-o", "${moPath}/luanti.mo", poFile)
+	}
+	localeTasks << task
+}
+
+tasks.register("compileTranslations") {
+	dependsOn localeTasks
+}
+
+def assetsFolder = layout.buildDirectory.dir("assets").get().asFile
+tasks.register("prepareAssets") {
+	dependsOn tasks.named("compileTranslations")
 
 	doFirst {
 		logger.lifecycle('Preparing assets at {}', assetsFolder)
@@ -73,7 +95,7 @@ task prepareAssets() {
 			from "${projRoot}/doc/lgpl-2.1.txt" into assetsFolder
 		}
 		copy {
-			from "${projRoot}/builtin" into "${assetsFolder}/builtin"
+			from "${projRoot}/builtin" exclude "**/CMakeLists.txt" into "${assetsFolder}/builtin"
 		}
 		copy {
 			from "${projRoot}/client/shaders" into "${assetsFolder}/client/shaders"
@@ -87,33 +109,26 @@ task prepareAssets() {
 		copy {
 			from "${projRoot}/textures/base/pack" into "${assetsFolder}/textures/base/pack"
 		}
-
-		// compile translations
-		fileTree("${projRoot}/po").include("**/*.po").grep {
-			it.parentFile.name !in unsupportedLanguages
-		}.forEach { poFile ->
-			def moPath = "${assetsFolder}/locale/${poFile.parentFile.name}/LC_MESSAGES/"
-			file(moPath).mkdirs()
-			exec {
-				commandLine 'msgfmt', '-o', "${moPath}/luanti.mo", poFile
-			}
+		copy {
+			from "${localeFolder}" into "${assetsFolder}/locale"
 		}
 
 		file("${assetsFolder}/.nomedia").text = ""
 	}
-
-	task zipAssets(dependsOn: prepareAssets, type: Zip) {
-		archiveFileName = "assets.zip"
-		from assetsFolder
-		destinationDirectory = file("src/main/assets")
-	}
 }
 
-preBuild.dependsOn zipAssets
-prepareAssets.dependsOn ':native:getDeps'
+tasks.register("zipAssets", Zip) {
+	dependsOn tasks.named("prepareAssets")
+
+	archiveFileName = "assets.zip"
+	from assetsFolder
+	destinationDirectory = file("src/main/assets")
+}
+
+preBuild.dependsOn tasks.named("zipAssets")
 
 clean {
-	delete new File("src/main/assets", "assets.zip")
+	delete file("src/main/assets/assets.zip")
 }
 
 dependencies {

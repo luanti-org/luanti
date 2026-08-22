@@ -389,7 +389,6 @@ void set_default_settings()
 	settings->setDefault("joystick_outer_deadzone", "0");
 
 	// Main menu
-	settings->setDefault("main_menu_path", "");
 	settings->setDefault("serverlist_file", "favoriteservers.json");
 
 	// General font settings

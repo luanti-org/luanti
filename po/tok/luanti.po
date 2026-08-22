@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: minetest\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 19:14+0200\n"
-"PO-Revision-Date: 2026-04-17 16:09+0000\n"
+"POT-Creation-Date: 2026-08-10 17:35+0200\n"
+"PO-Revision-Date: 2026-07-24 07:01+0000\n"
 "Last-Translator: Johannes Palola "
 "<jopasuomi@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Toki Pona <https://hosted.weblate.org/projects/minetest/"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17.1-dev\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -518,8 +518,12 @@ msgid "An error occurred:"
 msgstr ""
 
 #: builtin/fstk/ui.lua
-msgid "Main menu"
+msgid "Copy to clipboard"
 msgstr ""
+
+#: builtin/fstk/ui.lua
+msgid "Main menu"
+msgstr "lipu open"
 
 #: builtin/fstk/ui.lua
 msgid "OK"
@@ -913,7 +917,7 @@ msgstr "o open e lipu ni lon tenpo ale."
 
 #: builtin/mainmenu/dlg_confirm_exit.lua
 msgid "Are you sure you want to quit?"
-msgstr "sina wile ala wile pini e ilo Luwanti?"
+msgstr "sina wile ala wile pini e ilo Luwansi?"
 
 #: builtin/mainmenu/dlg_confirm_exit.lua
 msgid "Quit"
@@ -1288,7 +1292,7 @@ msgstr ""
 
 #: builtin/mainmenu/tab_about.lua
 msgid "About"
-msgstr "ilo Luwanti la"
+msgstr "ilo Luwansi la"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Active Contributors"
@@ -1531,6 +1535,11 @@ msgstr "ma ni li pona nanpa wan ala tawa mi"
 msgid "Server Description"
 msgstr "ma ni li seme"
 
+#: src/chat.cpp
+#, fuzzy
+msgid "Player names: "
+msgstr "o musi"
+
 #: src/client/client.cpp
 msgid "Connection aborted (protocol error?)."
 msgstr ""
@@ -1570,7 +1579,7 @@ msgstr ""
 
 #: src/client/clientlauncher.cpp
 msgid "Main Menu"
-msgstr ""
+msgstr "lipu open"
 
 #: src/client/clientlauncher.cpp
 msgid "No world selected and no address provided. Nothing to do."
@@ -1719,6 +1728,11 @@ msgid "Fast mode enabled (note: no 'fast' privilege)"
 msgstr ""
 
 #: src/client/game.cpp
+#, c-format
+msgid "Files: %d / %d"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Fly mode disabled"
 msgstr ""
 
@@ -1747,11 +1761,11 @@ msgid "Item definitions..."
 msgstr ""
 
 #: src/client/game.cpp
-msgid "KiB/s"
+msgid "KiB"
 msgstr ""
 
 #: src/client/game.cpp
-msgid "MiB/s"
+msgid "MiB"
 msgstr ""
 
 #: src/client/game.cpp
@@ -1800,6 +1814,11 @@ msgstr ""
 
 #: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
+msgstr ""
+
+#: src/client/game.cpp
+#, c-format
+msgid "Size: %.2f %s"
 msgstr ""
 
 #: src/client/game.cpp
@@ -1936,12 +1955,12 @@ msgstr ""
 #. TRANSLATORS: Pause menu button, try to keep the translation short
 #: src/client/game_formspec.cpp
 msgid "Exit to Menu"
-msgstr "o tawa lipu open pi ilo Luwanti"
+msgstr "o tawa lipu open"
 
 #. TRANSLATORS: Pause menu button, try to keep the translation short (OS = Operating System)
 #: src/client/game_formspec.cpp
 msgid "Exit to OS"
-msgstr "o pini e ilo Luwanti"
+msgstr "o pini e ilo Luwansi"
 
 #: src/client/game_formspec.cpp
 msgid "Game info:"
@@ -2010,8 +2029,27 @@ msgid "Profiler shown (page %d of %d)"
 msgstr ""
 
 #: src/client/keycode.cpp
+#, fuzzy
+msgid "A (Gamepad)"
+msgstr "ilo lawa musi"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "B (Gamepad)"
+msgstr "ilo lawa musi"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Back (Gamepad)"
+msgstr "ilo lawa musi"
+
+#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "nena pi weka sitelen"
+
+#: src/client/keycode.cpp
+msgid "Bottom Face Button (Gamepad)"
+msgstr ""
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2023,12 +2061,38 @@ msgid "Caps Lock"
 msgstr "nena pi sitelen suli"
 
 #: src/client/keycode.cpp
+msgid "Circle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Clear Key"
 msgstr "nena pi weka pi toki ale"
 
 #: src/client/keycode.cpp
 msgid "Control Key"
 msgstr "nena lawa"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Cross (Gamepad)"
+msgstr "ilo lawa musi"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "D-Pad Down"
+msgstr "nena pi tawa anpa lipu"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Up"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Delete Key"
@@ -2041,6 +2105,26 @@ msgstr "sitelen nasin anpa"
 #: src/client/keycode.cpp
 msgid "End Key"
 msgstr "nena pini"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d +"
+msgstr "ilo lawa musi"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d -"
+msgstr "ilo lawa musi"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Button %d"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Guide (Gamepad)"
+msgstr "ilo lawa musi"
 
 #: src/client/keycode.cpp
 msgid "Help Key"
@@ -2067,12 +2151,47 @@ msgid "Left Control"
 msgstr "nena lawa pi poka pilin"
 
 #: src/client/keycode.cpp
+msgid "Left Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Down"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Up"
+msgstr "nena pi ilo luka pi poka pilin"
+
+#: src/client/keycode.cpp
 msgid "Left Menu"
 msgstr "nena pi open lipu pi poka pilin"
 
 #: src/client/keycode.cpp
 msgid "Left Shift"
 msgstr "nena ante pi poka pilin"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Shoulder"
+msgstr "nena ante pi poka pilin"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Trigger"
+msgstr "sitelen nasin pi poka pilin"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2184,6 +2303,14 @@ msgstr "nena awen ante"
 msgid "Play"
 msgstr ""
 
+#: src/client/keycode.cpp
+msgid "Primary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Primary Right Paddle"
+msgstr ""
+
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
@@ -2206,12 +2333,49 @@ msgid "Right Control"
 msgstr "nena lawa pi poka pi pilin ala"
 
 #: src/client/keycode.cpp
+msgid "Right Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Down"
+msgstr "nena pi ilo luka pi poka pi pilin ala"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Left"
+msgstr "nena pi ilo luka pi poka pi pilin ala"
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Up"
+msgstr "nena pi ilo luka pi poka pi pilin ala"
+
+#: src/client/keycode.cpp
 msgid "Right Menu"
 msgstr "nena pi open lipu pi poka pi pilin ala"
 
 #: src/client/keycode.cpp
 msgid "Right Shift"
 msgstr "nena ante pi poka pi pilin ala"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Shoulder"
+msgstr "nena ante pi poka pi pilin ala"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Trigger"
+msgstr "sitelen nasin pi poka pi pilin ala"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2228,6 +2392,14 @@ msgid "Scroll Lock"
 msgstr "nena pi tawa sewi anpa"
 
 #: src/client/keycode.cpp
+msgid "Secondary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Secondary Right Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Select Key"
 msgstr "nena anu"
 
@@ -2240,12 +2412,44 @@ msgid "Space"
 msgstr "nena suli"
 
 #: src/client/keycode.cpp
+#, fuzzy
+msgid "Square (Gamepad)"
+msgstr "lawa musi pi ilo wan"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Start (Gamepad)"
+msgstr "o open e musi"
+
+#: src/client/keycode.cpp
 msgid "Tab Key"
 msgstr "nena pi anu lipu"
 
 #: src/client/keycode.cpp
+msgid "Top Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Touchpad Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Triangle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "sitelen nasin sewi"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "X (Gamepad)"
+msgstr "ilo lawa musi"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Y (Gamepad)"
+msgstr "ilo lawa musi"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2550,6 +2754,10 @@ msgid ""
 "Please contact the server administrator."
 msgstr ""
 
+#: src/script/lua_api/l_mainmenu.cpp
+msgid "Copied to clipboard!"
+msgstr ""
+
 #: src/server.cpp
 #, c-format
 msgid "%s while shutting down: "
@@ -2700,6 +2908,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Acceleration of gravity, in nodes per second per second."
 msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Actions and Keybindings"
+msgstr "o pana e nena ante"
 
 #: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
@@ -2876,11 +3089,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"At this distance the server will perform a simpler and cheaper occlusion "
-"check.\n"
-"Smaller values potentially improve performance, at the expense of "
-"temporarily visible\n"
-"rendering glitches (missing blocks).\n"
+"At this distance the server will consider blocks as \"far away\".\n"
+"It will perform simpler and cheaper occlusion checks, update\n"
+"low priority block updates lazily, and limit the blocks sent to the\n"
+"client in one roundtrip.\n"
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
@@ -3233,7 +3445,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Confirmation dialog before closing"
-msgstr "pini pi ilo Luwanti la o wile sona e wile jan"
+msgstr "pini pi ilo Luwansi la o wile sona e wile jan"
 
 #: src/settings_translation_file.cpp
 msgid "Connect glass"
@@ -3641,8 +3853,8 @@ msgstr "o kepeken e kipisi ale"
 #: src/settings_translation_file.cpp
 msgid "Enable a confirmation dialog before closing."
 msgstr ""
-"jan li wile pini e ilo Luwanti la o toki e ni: \"sina wile ala wile pini e "
-"ilo Luwanti?\""
+"jan li wile pini e ilo Luwansi la o toki e ni: \"sina wile ala wile pini e "
+"ilo Luwansi?\""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -3664,14 +3876,6 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Enable dynamic shadows"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks. Requires a restart to take effect"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -3804,11 +4008,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "FPS"
-msgstr ""
+msgstr "suli tenpo pi pali sitelen"
 
 #: src/settings_translation_file.cpp
 msgid "FPS when unfocused"
 msgstr ""
+"jan li kepeken ala e lipu musi la sitelen pi mute ni li kama lon tenpo lili"
 
 #: src/settings_translation_file.cpp
 msgid "Factor noise"
@@ -4043,11 +4248,11 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Full screen"
-msgstr ""
+msgstr "o kepeken e supa sitelen ale"
 
 #: src/settings_translation_file.cpp
 msgid "Fullscreen mode."
-msgstr ""
+msgstr "lipu pi musi Luwansi li kepeken e supa sitelen ale."
 
 #: src/settings_translation_file.cpp
 msgid "GUI"
@@ -4062,8 +4267,12 @@ msgid "GUI scaling filter"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Gamepads"
-msgstr "ilo lawa musi"
+msgid "Gamepads and Joysticks"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Gamma"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -4147,7 +4356,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Height component of the initial window size."
-msgstr ""
+msgstr "suli sewi open pi lipu Luwansi."
 
 #: src/settings_translation_file.cpp
 msgid "Height noise"
@@ -4399,6 +4608,9 @@ msgid ""
 "If FPS would go higher than this, limit it by sleeping\n"
 "to not waste CPU power for no benefit."
 msgstr ""
+"ilo li ken pali e sitelen pi mute suli. taso musi o pali e sitelen pi mute "
+"ni taso lon tenpo lili wan\n"
+"tan ni: musi o kepeken ala e wawa ilo mute tan ala."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -4621,15 +4833,7 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Joystick ID"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Joystick button repetition interval"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Joystick dead zone"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4637,7 +4841,11 @@ msgid "Joystick frustum sensitivity"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Joystick type"
+msgid "Joystick inner dead zone"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Joystick outer dead zone"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4726,6 +4934,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Key for opening the pause menu in-game.\n"
+"Pressing the escape key always opens the pause menu."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
@@ -4753,10 +4967,6 @@ msgid "Key for toggling the display of the profiler. Used for development."
 msgstr ""
 "nena ni li open e lipu pi sona ilo. jan li pali e musi la ona li ken kepeken "
 "e ona."
-
-#: src/settings_translation_file.cpp
-msgid "Keybindings"
-msgstr "nena"
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -4988,6 +5198,16 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+msgid ""
+"Make volumetrics weaker against closer objects to emulate physical "
+"volumetrics."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Makes the color of light fog more saturated."
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
 msgstr ""
 
@@ -5162,11 +5382,13 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Maximum FPS"
-msgstr ""
+msgstr "sitelen pi mute ni li ken kama lon tenpo lili"
 
 #: src/settings_translation_file.cpp
 msgid "Maximum FPS when the window is not focused."
 msgstr ""
+"musi li ken pali e sitelen pi mute ni taso lon tenpo ni: jan li kepeken ala "
+"e lipu musi."
 
 #: src/settings_translation_file.cpp
 msgid "Maximum distance to render shadows."
@@ -5541,11 +5763,18 @@ msgid "Open inventory"
 msgstr "o lukin e insa poki"
 
 #: src/settings_translation_file.cpp
+msgid "Open pause menu"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Open the pause menu when the window's focus is lost. Does not pause if a "
 "formspec is\n"
 "open."
 msgstr ""
+"jan li kepeken e lipu ante e lipu musi ala la o open e lipu pi tawa ala. "
+"lipu musi insa li lon\n"
+"lipu musi la lipu pi tawa ala li open ala; musi li awen tawa."
 
 #: src/settings_translation_file.cpp
 msgid "OpenGL debug"
@@ -5596,7 +5825,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Pause on lost window focus"
-msgstr ""
+msgstr "jan li kepeken ala e lipu Luwansi la o tawa ala"
 
 #: src/settings_translation_file.cpp
 msgid "Per-player limit of queued blocks load from disk"
@@ -5732,7 +5961,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Remember screen size"
-msgstr ""
+msgstr "o awen sona e suli open lipu"
 
 #: src/settings_translation_file.cpp
 msgid "Remote media"
@@ -5768,7 +5997,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Return to Main Menu"
-msgstr "o tawa lipu open pi ilo Luwanti"
+msgstr "o tawa lipu open pi ilo Luwansi"
 
 #: src/settings_translation_file.cpp
 msgid "Ridge mountain spread noise"
@@ -5841,6 +6070,11 @@ msgid ""
 "window\n"
 "is maximized is stored in window_maximized."
 msgstr ""
+"jan li ante e suli pi lipu Luwansi la ilo li awen sona e ni.\n"
+"lawa ni li lon la ilo li pana e sona pi suli lipu tawa nimi \"screen_w\" "
+"tawa nimi \"screen_h\";\n"
+"nimi \"window_maximized\" la ilo li pana e sona ni: lipu o suli ala suli "
+"sama supa sitelen."
 
 #: src/settings_translation_file.cpp
 msgid "Saving map received from server"
@@ -5866,11 +6100,11 @@ msgstr "supa sitelen"
 
 #: src/settings_translation_file.cpp
 msgid "Screen height"
-msgstr "suli sewi pi supa sitelen"
+msgstr "suli sewi open lipu"
 
 #: src/settings_translation_file.cpp
 msgid "Screen width"
-msgstr "suli poka pi supa sitelen"
+msgstr "suli poka open lipu"
 
 #: src/settings_translation_file.cpp
 msgid "Screenshot"
@@ -6055,8 +6289,7 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Set the exposure compensation in EV units.\n"
-"Value of 0.0 (default) means no exposure compensation.\n"
-"Range: from -1 to 1.0"
+"Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6064,12 +6297,18 @@ msgid ""
 "Set the language. By default, the system language is used.\n"
 "A restart is required after changing this."
 msgstr ""
-"o anu e toki. open la ilo Luwanti li kepeken e toki pi ilo pi jan musi.\n"
-"sina ante e lawa ni la o open sin e ilo Luwanti."
+"o anu e toki. open la ilo Luwansi li kepeken e toki pi ilo pi jan musi.\n"
+"sina ante e lawa ni la o open sin e ilo Luwansi."
 
 #: src/settings_translation_file.cpp
 msgid ""
 "Set the maximum length of a chat message (in characters) sent by clients."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Set the post processing gamma value.\n"
+"Higher values give lower contrast and vice versa."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6188,7 +6427,9 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Simulate translucency when looking at foliage in the sunlight."
+msgid ""
+"Simulate translucency when looking at foliage in the sunlight.\n"
+"It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6424,10 +6665,6 @@ msgid "The URL for the content repository"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "The dead zone of the joystick"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The default format in which profiles are being saved,\n"
 "when calling `/profiler save [format]` without format."
@@ -6465,12 +6702,8 @@ msgstr ""
 "ni li wile ala e pali mute. musi ante mute li kepeken e nasin ni.\n"
 "\n"
 "* o luka kepeken tenpo suli\n"
-"tenpo pini la musi Luwanti li kepeken e nasin utala ni.\n"
+"tenpo pini la musi Luwansi li kepeken e nasin utala ni.\n"
 "nasin ni la jan li ken ala utala wawa e jan ante."
-
-#: src/settings_translation_file.cpp
-msgid "The identifier of the joystick to use"
-msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6593,10 +6826,6 @@ msgstr ""
 "ona li pana sin e leko."
 
 #: src/settings_translation_file.cpp
-msgid "The type of joystick"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The vertical distance over which heat drops by 20 if 'altitude_chill' is\n"
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
@@ -6627,6 +6856,19 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Timeout for client to remove unused map data from memory, in seconds."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Tint sunlight during sunrise/sunset."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Tinted fog"
+msgstr "o lon e / o weka e kon pi pini lukin"
+
+#: src/settings_translation_file.cpp
+msgid "Tinted sunlight"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6974,7 +7216,11 @@ msgid "Volume when unfocused"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Volumetric lighting"
+msgid "Volumetric Depth Attenuation"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Volumetric Lighting"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -7039,7 +7285,9 @@ msgid "Weblink color"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "When enabled, liquid reflections are simulated."
+msgid ""
+"When enabled, crude liquid reflections are simulated.\n"
+"Wave height, length and speed will affect these reflections."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -7090,7 +7338,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Whether the window is maximized."
-msgstr ""
+msgstr "lipu Luwansi li suli ala suli sama supa sitelen."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7116,7 +7364,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Width component of the initial window size."
-msgstr ""
+msgstr "suli poka open pi lipu Luwansi."
 
 #: src/settings_translation_file.cpp
 msgid "Width of the selection box lines around nodes."
@@ -7128,7 +7376,7 @@ msgstr "jan li luka e nena ni la ona li pini kin tawa sinpin."
 
 #: src/settings_translation_file.cpp
 msgid "Window maximized"
-msgstr ""
+msgstr "lipu Luwansi li suli sama supa sitelen"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7231,3 +7479,6 @@ msgstr ""
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
 msgstr ""
+
+#~ msgid "Keybindings"
+#~ msgstr "nena"

@@ -29,6 +29,11 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
 		add_compile_options("-Werror=mismatched-tags")
 	endif()
 
+	check_cxx_compiler_flag("-Wnull-dereference" SUPPORTS_W_NULL_DEREFERENCE)
+	if(SUPPORTS_W_NULL_DEREFERENCE)
+		add_compile_options(-Wnull-dereference)
+	endif()
+
 	# Enable SSE for floating point math on 32-bit x86 by default
 	# reasoning see minetest issue #11810 and https://gcc.gnu.org/wiki/FloatingPointMath
 	if(CMAKE_SIZEOF_VOID_P EQUAL 4)

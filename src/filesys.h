@@ -18,6 +18,9 @@
 #else
 #define DIR_DELIM "/"
 #define DIR_DELIM_CHAR '/'
+// FIXME: the idea that "all filesystem on an UNIX system are case-sensitive"
+// is very wrong. Different folders on the same filesystem can even have differing
+// case-sensitivity. This seems tough to handle correctly however.
 #define FILESYS_CASE_INSENSITIVE false
 #define PATH_DELIM ":"
 #endif
@@ -105,6 +108,10 @@ bool CopyDir(const std::string &source, const std::string &target);
 // Move directory and all subdirectories
 // Behavior with files/subdirs that start with a period is undefined
 bool MoveDir(const std::string &source, const std::string &target);
+
+// Check if two paths are the same
+// Ignores case differences and '/' vs. '\\' on Windows
+bool PathsEqual(const std::string &p1, const std::string &p2);
 
 // Check if one path is prefix of another
 // For example, "/tmp" is a prefix of "/tmp" and "/tmp/file" but not "/tmp2"

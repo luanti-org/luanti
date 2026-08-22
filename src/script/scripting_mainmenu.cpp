@@ -75,18 +75,22 @@ void MainMenuScripting::registerLuaClasses(lua_State *L, int top)
 	MainMenuSoundHandle::Register(L);
 }
 
+#define RET_IF_STARTS_WITH(expr, ret) do { \
+	if (std::string p = (expr); !p.empty() && fs::PathStartsWith(path, p)) \
+		return (ret); \
+	} while (0)
+#define REJECT_PATH(expr) RET_IF_STARTS_WITH(expr, false)
+#define ALLOW_PATH(expr) RET_IF_STARTS_WITH(expr, true)
+
 bool MainMenuScripting::mayModifyPath(const std::string &path)
 {
-	std::string path_temp = fs::AbsolutePathPartial(fs::TempPath());
-	if (fs::PathStartsWith(path, path_temp))
-		return true;
+	// Safeguard: user and share paths can be equal, so exclude these explicitly.
+	REJECT_PATH(fs::AbsolutePath(porting::path_share + DIR_DELIM "bin")); // binary folder (on windows)
+	REJECT_PATH(fs::AbsolutePath(porting::path_share + DIR_DELIM "builtin"));
 
-	std::string path_user = fs::AbsolutePathPartial(porting::path_user);
-	if (fs::PathStartsWith(path, path_user))
-		return true;
-
-	if (fs::PathStartsWith(path, fs::AbsolutePathPartial(porting::path_cache)))
-		return true;
+	ALLOW_PATH(fs::AbsolutePathPartial(fs::TempPath()));
+	ALLOW_PATH(fs::AbsolutePathPartial(porting::path_user));
+	ALLOW_PATH(fs::AbsolutePathPartial(porting::path_cache));
 
 	return false;
 }

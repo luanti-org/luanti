@@ -187,7 +187,7 @@ NodeMetadataList::~NodeMetadataList()
 	clear();
 }
 
-std::vector<v3s16> NodeMetadataList::getAllKeys()
+std::vector<v3s16> NodeMetadataList::getAllKeys() const
 {
 	std::vector<v3s16> keys;
 	keys.reserve(m_data.size());
@@ -197,16 +197,17 @@ std::vector<v3s16> NodeMetadataList::getAllKeys()
 	return keys;
 }
 
-NodeMetadata *NodeMetadataList::get(v3s16 p)
+NodeMetadata *NodeMetadataList::get(v3s16 p) const
 {
-	NodeMetadataMap::const_iterator n = m_data.find(p);
+	auto n = m_data.find(p);
 	if (n == m_data.end())
 		return nullptr;
 	return n->second;
 }
 
-void NodeMetadataList::remove(v3s16 p)
+std::unique_ptr<NodeMetadata> NodeMetadataList::remove(v3s16 p)
 {
+	std::unique_ptr<NodeMetadata> ret;
 	NodeMetadata *olddata = get(p);
 	if (olddata) {
 		if (m_is_metadata_owner) {
@@ -214,16 +215,18 @@ void NodeMetadataList::remove(v3s16 p)
 			// which we don't want to happen in the noexcept destructor
 			// => call clear before
 			olddata->clear();
-			delete olddata;
+			ret.reset(olddata);
 		}
 		m_data.erase(p);
 	}
+	return ret;
 }
 
-void NodeMetadataList::set(v3s16 p, NodeMetadata *d)
+std::unique_ptr<NodeMetadata> NodeMetadataList::set(v3s16 p, NodeMetadata *d)
 {
-	remove(p);
-	m_data.emplace(p, d);
+	auto ret = remove(p);
+	m_data[p] = d;
+	return ret;
 }
 
 void NodeMetadataList::clear()

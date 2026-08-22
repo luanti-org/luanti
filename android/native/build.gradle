@@ -5,7 +5,7 @@ android {
 	ndkVersion "$ndk_version"
 	defaultConfig {
 		minSdkVersion 21
-		compileSdk 34
+		compileSdk = 34
 		targetSdkVersion 34
 		externalNativeBuild {
 			cmake {
@@ -42,30 +42,34 @@ android {
 	namespace 'net.minetest'
 }
 
-// get precompiled deps
-def depsDir = new File(buildDir.parent, 'deps')
+def depsDir = layout.buildDirectory.dir("../deps").get().asFile
+// need to do the check here so we can properly skip both tasks
 if (new File(depsDir, 'armeabi-v7a').exists()) {
-	task getDeps {
+	tasks.register('getDeps') {
 		doLast { logger.lifecycle('Using existing deps from {}', depsDir) }
 	}
 } else {
-	task downloadDeps(type: Download) {
-		def depsZip = new File(buildDir, 'deps.zip')
-
+	// download and extract pre-compiled deps (libraries)
+	def depsZip = layout.buildDirectory.file("deps.zip")
+	tasks.register('downloadDeps', Download) {
 		src 'https://github.com/luanti-org/luanti_android_deps/releases/download/latest/deps-lite.zip'
 		dest depsZip
 		overwrite false
+	}
 
-		task getDeps(dependsOn: downloadDeps, type: Copy) {
+	tasks.register("getDeps", Copy) {
+		dependsOn tasks.named("downloadDeps")
+
+		from zipTree(depsZip)
+		into depsDir
+		doFirst {
+			logger.lifecycle('Extracting to {}', depsDir)
 			depsDir.mkdir()
-			from zipTree(depsZip)
-			into depsDir
-			doFirst { logger.lifecycle('Extracting to {}', depsDir) }
 		}
 	}
 }
 
-preBuild.dependsOn getDeps
+preBuild.dependsOn tasks.named("getDeps")
 
 clean {
 	delete depsDir

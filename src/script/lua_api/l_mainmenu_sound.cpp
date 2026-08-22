@@ -47,8 +47,8 @@ MainMenuSoundHandle *MainMenuSoundHandle::checkobject(lua_State *L, int narg)
 
 int MainMenuSoundHandle::gc_object(lua_State *L)
 {
-	MainMenuSoundHandle *o = *(MainMenuSoundHandle **)(lua_touserdata(L, 1));
-	if (getGuiEngine(L) && getGuiEngine(L)->m_sound_manager)
+	MainMenuSoundHandle *o = takeObjectForGC<MainMenuSoundHandle>(L);
+	if (o && getGuiEngine(L) && getGuiEngine(L)->m_sound_manager)
 		getGuiEngine(L)->m_sound_manager->freeId(o->m_handle);
 	delete o;
 	return 0;

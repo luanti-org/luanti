@@ -207,6 +207,8 @@ void ScriptApiSecurity::initializeSecurity()
 	lua_State *L = getStack();
 	const int sanity_check_top = lua_gettop(L);
 
+	replaceDefaultFiles(L); // do this first
+
 	/*
 		This function creates a secondary table, only accessible through
 		`core.request_insecure_environment` containing all insecure Lua functions.
@@ -345,7 +347,6 @@ void ScriptApiSecurity::initializeSecurityClient()
 	static const char *whitelist[] = {
 		"assert",
 		"core",
-		"collectgarbage",
 		"DIR_DELIM",
 		"error",
 		"ipairs",
@@ -429,6 +430,7 @@ void ScriptApiSecurity::initializeSecurityClient()
 	SECURE_API(g, loadfile);
 	SECURE_API(g, loadstring);
 	SECURE_API(g, require);
+	SECURE_API(g, collectgarbage);
 	lua_pop(L, 2);
 
 
@@ -473,7 +475,6 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 	static const char *whitelist[] = {
 		"assert",
 		"core",
-		"collectgarbage",
 		"DIR_DELIM",
 		"error",
 		"ipairs",
@@ -555,6 +556,7 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 	SECURE_API(g, loadfile);
 	SECURE_API(g, loadstring);
 	SECURE_API(g, require);
+	SECURE_API(g, collectgarbage);
 	lua_pop(L, 2);
 
 
@@ -633,6 +635,40 @@ void ScriptApiSecurity::setLuaEnv(lua_State *L, int thread)
 		"environment of the main Lua thread!");
 	lua_pop(L, 1);  // Pop thread
 #endif
+}
+
+void ScriptApiSecurity::replaceDefaultFiles(lua_State *L)
+{
+#ifdef _WIN32
+	const std::string null_file("NUL");
+	const bool should_unlink = false;
+#else
+	std::string null_file("/dev/null");
+	bool should_unlink = false;
+	// POSIX in fact guarantees /dev/null, but for the slim chance that it's
+	// not accessible use a (deleted) temporary file.
+	if (!fs::PathExists(null_file)) {
+		null_file = fs::CreateTempFile();
+		should_unlink = true;
+		FATAL_ERROR_IF(null_file.empty(), "Can't access /dev/null or a temporary file");
+	}
+#endif
+
+	// The "global state default files" Lua uses are quite flawed, but instead of
+	// trying to prevent their use by wrapping io.write, io.lines and more, we opt to
+	// simply replace them with dummy files.
+	// This ensures mods inside the sandbox can't mess with stdin or stdout.
+	lua_getglobal(L, "io");
+	lua_getfield(L, -1, "input");
+	lua_pushstring(L, null_file.c_str());
+	lua_call(L, 1, 0);
+	lua_getfield(L, -1, "output");
+	lua_pushstring(L, null_file.c_str());
+	lua_call(L, 1, 0);
+	lua_pop(L, 1); // 'io' table
+
+	if (should_unlink)
+		fs::DeleteSingleFileOrEmptyDirectory(null_file);
 }
 
 bool ScriptApiSecurity::isSecure(lua_State *L)
@@ -790,15 +826,13 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 	// since that wouldn't normalize subpaths that *do* exist.
 	// This is required so that comparisons with other normalized paths work correctly.
 	std::string abs_path = fs::AbsolutePathPartial(path);
-	// Make sure the delimiters are consistent, too
-	if (DIR_DELIM_CHAR != '/')
-		std::replace(abs_path.begin(), abs_path.end(), '/', DIR_DELIM_CHAR);
+	// Warning: abs_path may still be case-sensitive or contain mixed / and \\,
+	// so be careful handling it!
 
-	tracestream << "ScriptApiSecurity: path \"" << path << "\" resolved to \""
-		<< abs_path << "\"" << std::endl;
-
-	if (abs_path.empty())
+	if (abs_path.empty()) {
+		infostream << "ScriptApiSecurity: \"" << path << "\" -> ???" << std::endl;
 		return false;
+	}
 
 	// Note: abs_path can be a valid path while path isn't, e.g.
 	// abs_path = "/home/user/.luanti"
@@ -808,7 +842,15 @@ bool ScriptApiSecurity::checkPath(lua_State *L, const char *path,
 
 	// Ask the environment-specific implementation
 	auto *sec = ModApiBase::getScriptApi<ScriptApiSecurity>(L);
-	return sec->checkPathInternal(abs_path, write_required, write_allowed);
+	bool ret = sec->checkPathInternal(abs_path, write_required, write_allowed);
+
+	auto &log_to = ret ? tracestream : infostream;
+	log_to << "ScriptApiSecurity: \"" << path << "\"";
+	if (abs_path != path)
+		log_to << " -> \"" << abs_path << "\"";
+	log_to << " -> " << (ret ? "allow" : "BLOCK")
+		<< (write_required ? " (w)": "") << std::endl;
+	return ret;
 }
 
 // Path can be read, but may or may not be written to.
@@ -835,7 +877,7 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 	if (!g_settings_path.empty()) {
 		// Don't allow accessing the settings file
 		str = fs::AbsolutePathPartial(g_settings_path);
-		if (str == abs_path)
+		if (fs::PathsEqual(abs_path, str))
 			return false;
 	}
 
@@ -870,8 +912,13 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 	// that can easily lead to arbitrary code execution.
 	// This isn't technically Luanti's fault, but Git is very common so we block
 	// write access for safety.
-	bool is_git_path = abs_path.find(DIR_DELIM ".git" DIR_DELIM) != std::string::npos ||
-		str_ends_with(abs_path, DIR_DELIM ".git");
+	bool is_git_path;
+	{
+		std::string tmp = lowercase(abs_path) + DIR_DELIM;
+		if constexpr (DIR_DELIM_CHAR != '/')
+			str_replace(tmp, '/', DIR_DELIM_CHAR);
+		is_git_path = tmp.find(DIR_DELIM ".git" DIR_DELIM) != std::string::npos;
+	}
 
 	// Allow read/write access to global mod data path
 	str = fs::AbsolutePath(gamedef->getModDataPath());
@@ -942,7 +989,7 @@ int ScriptApiSecurity::sl_g_load(lua_State *L)
 			return 2;
 		}
 		buf = lua_tolstring(L, -1, &len);
-		code += std::string(buf, len);
+		code.append(buf, len);
 		lua_pop(L, 1); // Pop return value
 	}
 	if (!safeLoadString(L, code, chunk_name)) {
@@ -1003,7 +1050,7 @@ int ScriptApiSecurity::sl_g_loadstring(lua_State *L)
 	const char *chunk_name = "=(load)";
 
 	luaL_checktype(L, 1, LUA_TSTRING);
-	if (!lua_isnone(L, 2)) {
+	if (!lua_isnoneornil(L, 2)) {
 		luaL_checktype(L, 2, LUA_TSTRING);
 		chunk_name = lua_tostring(L, 2);
 	}
@@ -1027,31 +1074,44 @@ int ScriptApiSecurity::sl_g_require(lua_State *L)
 	return lua_error(L);
 }
 
+int ScriptApiSecurity::sl_g_collectgarbage(lua_State *L)
+{
+	if (!lua_isnoneornil(L, 1) && readParam<std::string_view>(L, 1) == "count") {
+		const int kb = lua_gc(L, LUA_GCCOUNT, 0);
+		lua_pushinteger(L, kb); // rounded (floor) to a kilobyte
+		return 1;
+	}
+	// do nothing instead of throwing so mods can more easily re-use code between server and client
+	return 0;
+}
+
 
 int ScriptApiSecurity::sl_io_open(lua_State *L)
 {
-	bool with_mode = lua_gettop(L) > 1;
-
 	luaL_checktype(L, 1, LUA_TSTRING);
 	const char *path = lua_tostring(L, 1);
 
-	bool write_requested = false;
-	if (with_mode) {
+	bool write = false, plus = false, append = false, binary = false;
+	if (!lua_isnoneornil(L, 2)) {
 		luaL_checktype(L, 2, LUA_TSTRING);
-		const char *mode = lua_tostring(L, 2);
-		write_requested = strchr(mode, 'w') != NULL ||
-			strchr(mode, '+') != NULL ||
-			strchr(mode, 'a') != NULL;
+		// "Parse, don't validate."
+		std::string_view mode(lua_tostring(L, 2));
+		write  = mode.find('w') != mode.npos;
+		plus   = mode.find('+') != mode.npos;
+		append = mode.find('a') != mode.npos;
+		binary = mode.find('b') != mode.npos;
+		if (mode.find_first_not_of("rw+ab") != mode.npos)
+			throw LuaError("Invalid file mode");
 	}
-	CHECK_SECURE_PATH_INTERNAL(L, path, write_requested, NULL);
+	CHECK_SECURE_PATH_INTERNAL(L, path, write || plus || append, NULL);
+	std::string modestr = append ? "a" : (write ? "w" : "r");
+	modestr.append(plus ? "+" : "").append(binary ? "b" : "");
 
 	push_original(L, "io", "open");
 	lua_pushvalue(L, 1);
-	if (with_mode) {
-		lua_pushvalue(L, 2);
-	}
+	lua_pushstring(L, modestr.c_str());
 
-	lua_call(L, with_mode ? 2 : 1, 2);
+	lua_call(L, 2, 2);
 	return 2;
 }
 
@@ -1061,6 +1121,8 @@ int ScriptApiSecurity::sl_io_input(lua_State *L)
 	if (lua_isstring(L, 1)) {
 		const char *path = lua_tostring(L, 1);
 		CHECK_SECURE_PATH_INTERNAL(L, path, false, NULL);
+	} else if (lua_isnone(L, 1)) {
+		lua_pushnil(L);
 	}
 
 	push_original(L, "io", "input");
@@ -1075,6 +1137,8 @@ int ScriptApiSecurity::sl_io_output(lua_State *L)
 	if (lua_isstring(L, 1)) {
 		const char *path = lua_tostring(L, 1);
 		CHECK_SECURE_PATH_INTERNAL(L, path, true, NULL);
+	} else if (lua_isnone(L, 1)) {
+		lua_pushnil(L);
 	}
 
 	push_original(L, "io", "output");
@@ -1089,6 +1153,8 @@ int ScriptApiSecurity::sl_io_lines(lua_State *L)
 	if (lua_isstring(L, 1)) {
 		const char *path = lua_tostring(L, 1);
 		CHECK_SECURE_PATH_INTERNAL(L, path, false, NULL);
+	} else if (lua_isnone(L, 1)) {
+		lua_pushnil(L);
 	}
 
 	int top_precall = lua_gettop(L);

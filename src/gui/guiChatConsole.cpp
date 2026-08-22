@@ -471,6 +471,9 @@ bool GUIChatConsole::OnEvent(const SEvent& event)
 		}
 		else if(event.KeyInput.Key == KEY_RETURN)
 		{
+			// Avoid triggering actions when releasing the key
+			m_menumgr->inhibitKeyEvent(event.KeyInput.Key);
+
 			prompt.addToHistory(prompt.getLine());
 			std::wstring text = prompt.replace(L"");
 			m_client->typeChatMessage(text);

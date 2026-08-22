@@ -12,6 +12,7 @@
 		android:icon="@mipmap/ic_launcher"
 		android:label="@string/label"
 		android:resizeableActivity="false"
+		android:appCategory="game"
 		tools:ignore="UnusedAttribute">
 
 		<meta-data
@@ -50,6 +51,7 @@
 			android:enabled="true"
 			android:exported="false" />
 
+		<!-- FIXME: we can probably drop this and use the documents provider to share files -->
 		<provider
 			android:name="androidx.core.content.FileProvider"
 			android:authorities="net.minetest.minetest.fileprovider"
@@ -59,6 +61,17 @@
 				android:name="android.support.FILE_PROVIDER_PATHS"
 				android:resource="@xml/filepaths" />
 		</provider>
+
+		<provider
+            android:name=".LuantiDocumentsProvider"
+            android:authorities="net.minetest.minetest.documents"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
 
 </application>
 

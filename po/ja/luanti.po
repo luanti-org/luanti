@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Japanese (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 19:14+0200\n"
-"PO-Revision-Date: 2026-04-11 14:09+0000\n"
+"POT-Creation-Date: 2026-08-10 17:35+0200\n"
+"PO-Revision-Date: 2026-08-13 17:23+0000\n"
 "Last-Translator: BreadW <toshiharu.uno@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/minetest/"
 "minetest/ja/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.17-dev\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -331,7 +331,7 @@ msgstr "(システム言語を使用)"
 #. TRANSLATORS: Shown when a default setting is the empty string
 #: builtin/common/settings/dlg_settings.lua
 msgid "<empty>"
-msgstr ""
+msgstr "<なし>"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Accessibility"
@@ -369,9 +369,8 @@ msgid "Controls"
 msgstr "キー割り当て"
 
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
-#, fuzzy
 msgid "Damage"
-msgstr "ダメージ / PvP"
+msgstr "ダメージ"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/common/settings/shadows_component.lua
@@ -413,9 +412,8 @@ msgstr "初期状態に戻す"
 
 #. TRANSLATORS: $1 will be replaced with a default setting value
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Reset setting to default: $1"
-msgstr "初期値に戻す ($1)"
+msgstr "初期設定に戻す: $1"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
@@ -516,6 +514,10 @@ msgstr "Luaスクリプトでエラーが発生しました:"
 #: builtin/fstk/ui.lua
 msgid "An error occurred:"
 msgstr "エラーが発生しました:"
+
+#: builtin/fstk/ui.lua
+msgid "Copy to clipboard"
+msgstr "クリップボードへのコピー"
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1532,9 +1534,8 @@ msgstr ""
 "$1"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Possible filters"
-msgstr "ポアソンフィルタリング"
+msgstr "可能なフィルタ"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
@@ -1552,6 +1553,10 @@ msgstr "お気に入りを削除"
 #: builtin/mainmenu/tab_online.lua
 msgid "Server Description"
 msgstr "サーバーの説明"
+
+#: src/chat.cpp
+msgid "Player names: "
+msgstr "プレイヤー名: "
 
 #: src/client/client.cpp
 msgid "Connection aborted (protocol error?)."
@@ -1620,9 +1625,8 @@ msgid "Media..."
 msgstr "メディアを受信中..."
 
 #: src/client/fontengine.cpp
-#, fuzzy
 msgid "Failed to find a valid font"
-msgstr "\"%s\"シェーダーファイルが見つかりません。"
+msgstr "有効なフォントが見つからない"
 
 #: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
 #: src/server.cpp
@@ -1745,6 +1749,11 @@ msgid "Fast mode enabled (note: no 'fast' privilege)"
 msgstr "高速移動モード有効化 (メモ: 'fast' 特権がありません)"
 
 #: src/client/game.cpp
+#, c-format
+msgid "Files: %d / %d"
+msgstr "ファイル: %d / %d"
+
+#: src/client/game.cpp
 msgid "Fly mode disabled"
 msgstr "飛行モード 無効"
 
@@ -1773,12 +1782,12 @@ msgid "Item definitions..."
 msgstr "アイテムを定義中..."
 
 #: src/client/game.cpp
-msgid "KiB/s"
-msgstr "KiB/秒"
+msgid "KiB"
+msgstr "KiB"
 
 #: src/client/game.cpp
-msgid "MiB/s"
-msgstr "MiB/秒"
+msgid "MiB"
+msgstr "MiB"
 
 #: src/client/game.cpp
 msgid "Minimap currently disabled by game or mod"
@@ -1827,6 +1836,11 @@ msgstr "終了中..."
 #: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "シングルプレイヤー"
+
+#: src/client/game.cpp
+#, c-format
+msgid "Size: %.2f %s"
+msgstr "サイズ: %.2f %s"
 
 #: src/client/game.cpp
 msgid "Sound muted"
@@ -2048,8 +2062,24 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "観測記録 表示 (ページ %d / %d)"
 
 #: src/client/keycode.cpp
+msgid "A (Gamepad)"
+msgstr "A (ゲームパッド)"
+
+#: src/client/keycode.cpp
+msgid "B (Gamepad)"
+msgstr "B (ゲームパッド)"
+
+#: src/client/keycode.cpp
+msgid "Back (Gamepad)"
+msgstr "バック (ゲームパッド)"
+
+#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Back Space"
+
+#: src/client/keycode.cpp
+msgid "Bottom Face Button (Gamepad)"
+msgstr "底面ボタン (ゲームパッド)"
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2061,12 +2091,36 @@ msgid "Caps Lock"
 msgstr "Caps Lock"
 
 #: src/client/keycode.cpp
+msgid "Circle (Gamepad)"
+msgstr "丸ボタン (ゲームパッド)"
+
+#: src/client/keycode.cpp
 msgid "Clear Key"
 msgstr "Clearキー"
 
 #: src/client/keycode.cpp
 msgid "Control Key"
 msgstr "Controlキー"
+
+#: src/client/keycode.cpp
+msgid "Cross (Gamepad)"
+msgstr "十字キー (ゲームパッド)"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Down"
+msgstr "十字キーの下"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Left"
+msgstr "十字キーの左"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Right"
+msgstr "十字キーの右"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Up"
+msgstr "十字キーの上"
 
 #: src/client/keycode.cpp
 msgid "Delete Key"
@@ -2079,6 +2133,25 @@ msgstr "下矢印"
 #: src/client/keycode.cpp
 msgid "End Key"
 msgstr "Endキー"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Axis %d +"
+msgstr "ゲームパッド軸 %d +"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Axis %d -"
+msgstr "ゲームパッド軸 %d -"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Button %d"
+msgstr "ゲームパッドボタン %d"
+
+#: src/client/keycode.cpp
+msgid "Guide (Gamepad)"
+msgstr "ガイド (ゲームパッド)"
 
 #: src/client/keycode.cpp
 msgid "Help Key"
@@ -2105,12 +2178,44 @@ msgid "Left Control"
 msgstr "左Ctrl"
 
 #: src/client/keycode.cpp
+msgid "Left Face Button (Gamepad)"
+msgstr "左側面ボタン (ゲームパッド)"
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Button"
+msgstr "左ジョイスティックボタン"
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Down"
+msgstr "左ジョイスティックを下に"
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Left"
+msgstr "左ジョイスティックを左に"
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Right"
+msgstr "左ジョイスティックを右に"
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Up"
+msgstr "左ジョイスティックを上に"
+
+#: src/client/keycode.cpp
 msgid "Left Menu"
 msgstr "左Alt"
 
 #: src/client/keycode.cpp
 msgid "Left Shift"
 msgstr "左Shift"
+
+#: src/client/keycode.cpp
+msgid "Left Shoulder"
+msgstr "左ショルダーボタン"
+
+#: src/client/keycode.cpp
+msgid "Left Trigger"
+msgstr "左トリガー"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2129,7 +2234,7 @@ msgstr "中クリック"
 #: src/client/keycode.cpp
 #, c-format
 msgid "Mouse Button %d"
-msgstr ""
+msgstr "マウスボタン %d"
 
 #. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
@@ -2222,6 +2327,14 @@ msgstr "Pauseキー"
 msgid "Play"
 msgstr "Play"
 
+#: src/client/keycode.cpp
+msgid "Primary Left Paddle"
+msgstr "第一次左パドル"
+
+#: src/client/keycode.cpp
+msgid "Primary Right Paddle"
+msgstr "第一次右パドル"
+
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
@@ -2244,12 +2357,44 @@ msgid "Right Control"
 msgstr "右Ctrl"
 
 #: src/client/keycode.cpp
+msgid "Right Face Button (Gamepad)"
+msgstr "右側面ボタン (ゲームパッド)"
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Button"
+msgstr "右ジョイスティックボタン"
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Down"
+msgstr "右ジョイスティックを下に"
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Left"
+msgstr "右ジョイスティックを左に"
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Right"
+msgstr "右ジョイスティックを右に"
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Up"
+msgstr "右ジョイスティックを上に"
+
+#: src/client/keycode.cpp
 msgid "Right Menu"
 msgstr "右メニュー"
 
 #: src/client/keycode.cpp
 msgid "Right Shift"
 msgstr "右Shift"
+
+#: src/client/keycode.cpp
+msgid "Right Shoulder"
+msgstr "右ショルダーボタン"
+
+#: src/client/keycode.cpp
+msgid "Right Trigger"
+msgstr "右トリガー"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2266,6 +2411,14 @@ msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
 #: src/client/keycode.cpp
+msgid "Secondary Left Paddle"
+msgstr "第二次左パドル"
+
+#: src/client/keycode.cpp
+msgid "Secondary Right Paddle"
+msgstr "第二次右パドル"
+
+#: src/client/keycode.cpp
 msgid "Select Key"
 msgstr "Selectキー"
 
@@ -2278,12 +2431,40 @@ msgid "Space"
 msgstr "Space"
 
 #: src/client/keycode.cpp
+msgid "Square (Gamepad)"
+msgstr "四角ボタン (ゲームパッド)"
+
+#: src/client/keycode.cpp
+msgid "Start (Gamepad)"
+msgstr "スタート (ゲームパッド)"
+
+#: src/client/keycode.cpp
 msgid "Tab Key"
 msgstr "Tabキー"
 
 #: src/client/keycode.cpp
+msgid "Top Face Button (Gamepad)"
+msgstr "表面ボタン (ゲームパッド)"
+
+#: src/client/keycode.cpp
+msgid "Touchpad Button (Gamepad)"
+msgstr "タッチパッドボタン (ゲームパッド)"
+
+#: src/client/keycode.cpp
+msgid "Triangle (Gamepad)"
+msgstr "三角ボタン (ゲームパッド)"
+
+#: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "上矢印"
+
+#: src/client/keycode.cpp
+msgid "X (Gamepad)"
+msgstr "X (ゲームパッド)"
+
+#: src/client/keycode.cpp
+msgid "Y (Gamepad)"
+msgstr "Y (ゲームパッド)"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2309,9 +2490,8 @@ msgid "Failed to create the texture \"%s\" for the rendering pipeline."
 msgstr "レンダリング パイプラインのテクスチャ \"%s\" の作成に失敗しました。"
 
 #: src/client/renderingengine.cpp
-#, fuzzy
 msgid "Could not initialize any supported video driver!"
-msgstr "ワイヤーフレームはビデオドライバーでサポートされていない"
+msgstr "サポートされているビデオドライバーを初期化できません！"
 
 #: src/client/shader.cpp
 #, c-format
@@ -2367,9 +2547,8 @@ msgid "Opening webpage"
 msgstr "ウェブページを開いています"
 
 #: src/gui/guiEngine.cpp
-#, fuzzy
 msgid "Failed to load main menu script!"
-msgstr "メインメニュースクリプト"
+msgstr "メインメニュースクリプトを読み込みできない！"
 
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
@@ -2601,6 +2780,10 @@ msgstr ""
 "クライアントのバージョンはサポートされていません。\n"
 "サーバーの管理者に問い合わせてください。"
 
+#: src/script/lua_api/l_mainmenu.cpp
+msgid "Copied to clipboard!"
+msgstr "クリップボードにコピー!"
+
 #: src/server.cpp
 #, c-format
 msgid "%s while shutting down: "
@@ -2782,6 +2965,10 @@ msgid "Acceleration of gravity, in nodes per second per second."
 msgstr "重力加速度、1秒あたりのノード数/秒です。"
 
 #: src/settings_translation_file.cpp
+msgid "Actions and Keybindings"
+msgstr "アクションとキー割り当て"
+
+#: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
 msgstr "アクティブブロックモディファイヤー"
 
@@ -2904,14 +3091,12 @@ msgid "Anticheat movement tolerance"
 msgstr "アンチチート動作耐性"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Append item name to tooltips"
-msgstr "ツールチップにアイテム名を付け加えます。"
+msgstr "ツールチップにアイテム名を付ける"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Append the full item name to the tooltip of item stacks."
-msgstr "ツールチップにアイテム名を付け加えます。"
+msgstr "アイテムのスタックのツールチップにアイテム名を付け加えます。"
 
 #: src/settings_translation_file.cpp
 msgid "Apple trees noise"
@@ -2994,19 +3179,19 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"At this distance the server will perform a simpler and cheaper occlusion "
-"check.\n"
-"Smaller values potentially improve performance, at the expense of "
-"temporarily visible\n"
-"rendering glitches (missing blocks).\n"
+"At this distance the server will consider blocks as \"far away\".\n"
+"It will perform simpler and cheaper occlusion checks, update\n"
+"low priority block updates lazily, and limit the blocks sent to the\n"
+"client in one roundtrip.\n"
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
-"この距離でサーバーはよりシンプルで安価なオクルージョンチェックを行います。\n"
-"小さい値に設定すると、描画の視覚的な不具合(不足するブロック)を一時的に\n"
-"犠牲にして、パフォーマンスが向上する可能性があります。\n"
-"これは特に非常に広い視野(500以上)に有用です。\n"
-"マップブロック(16ノード)で表記。"
+"この距離では、サーバーはブロックを「遠く離れている」とみなします。\n"
+"より単純でコストの低い遮蔽チェックを実行し、 優先度の低いブロックの\n"
+"更新を遅延させ、 1回の往復でクライアントに送信するブロック数を\n"
+"制限します。\n"
+"これは、非常に広い視野範囲（500以上）の場合に特に有効です。\n"
+"マップブロック（16ノード）で記述されています。"
 
 #: src/settings_translation_file.cpp
 msgid "Audio"
@@ -3491,9 +3676,8 @@ msgstr ""
 "オブジェクト十字カーソルの色も制御"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Damage flash"
-msgstr "マップジェネレータフラグ"
+msgstr "ダメージの点滅"
 
 #: src/settings_translation_file.cpp
 msgid "Debug log file size threshold"
@@ -3839,9 +4023,8 @@ msgid "Enable Raytraced Culling"
 msgstr "レイトレース カリングの有効化"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable SSCSM"
-msgstr "すべて有効化"
+msgstr "SSCSMを有効にする"
 
 #: src/settings_translation_file.cpp
 msgid "Enable a confirmation dialog before closing."
@@ -3873,14 +4056,6 @@ msgstr "コンソールウィンドウを有効化"
 #: src/settings_translation_file.cpp
 msgid "Enable dynamic shadows"
 msgstr "動的な影を有効にする"
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks"
-msgstr "ジョイスティック作動"
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks. Requires a restart to take effect"
-msgstr "ジョイスティックを有効にします。変更には再起動が必要"
 
 #: src/settings_translation_file.cpp
 msgid "Enable mod channels support."
@@ -4115,7 +4290,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Flashing of the screen when taking damage."
-msgstr ""
+msgstr "ダメージを受けたときに画面の点滅です。"
 
 #: src/settings_translation_file.cpp
 msgid "Floatland density"
@@ -4308,8 +4483,12 @@ msgid "GUI scaling filter"
 msgstr "GUI拡大縮小フィルタ"
 
 #: src/settings_translation_file.cpp
-msgid "Gamepads"
-msgstr "ゲームパッド"
+msgid "Gamepads and Joysticks"
+msgstr "ゲームパッドとジョイスティック"
+
+#: src/settings_translation_file.cpp
+msgid "Gamma"
+msgstr "ガンマ"
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -4932,24 +5111,20 @@ msgstr ""
 "同じように負荷をかけます。"
 
 #: src/settings_translation_file.cpp
-msgid "Joystick ID"
-msgstr "ジョイスティックID"
-
-#: src/settings_translation_file.cpp
 msgid "Joystick button repetition interval"
 msgstr "ジョイスティックボタンの繰り返し間隔"
-
-#: src/settings_translation_file.cpp
-msgid "Joystick dead zone"
-msgstr "ジョイスティックのデッドゾーン"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick frustum sensitivity"
 msgstr "ジョイスティック視錐台感度"
 
 #: src/settings_translation_file.cpp
-msgid "Joystick type"
-msgstr "ジョイスティックの種類"
+msgid "Joystick inner dead zone"
+msgstr "ジョイスティックの内部デッドゾーン"
+
+#: src/settings_translation_file.cpp
+msgid "Joystick outer dead zone"
+msgstr "ジョイスティックの外側デッドゾーン"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5051,6 +5226,14 @@ msgstr "ローカルコマンドを入力するチャットウィンドウを開
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Key for opening the pause menu in-game.\n"
+"Pressing the escape key always opens the pause menu."
+msgstr ""
+"ゲーム中にポーズメニューを開くためのキーです。\n"
+"エスケープキーを押すと、ポーズメニューが開きます。"
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
@@ -5079,22 +5262,16 @@ msgid "Key for toggling the display of the profiler. Used for development."
 msgstr "観測記録の表示を切り替えるためのキーです。開発のために使用されます。"
 
 #: src/settings_translation_file.cpp
-msgid "Keybindings"
-msgstr "キー割り当て"
-
-#: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
 msgstr "キーボードとマウス"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keyboard camera speed"
-msgstr "キーボードとマウス"
+msgstr "キーボードのカメラ速度"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keyboard-controlled camera rotation speed, in degrees per second."
-msgstr "垂直方向の上る速度、1秒あたりのノード数です。"
+msgstr "キーボード制御カメラの回転速度、毎秒度です。"
 
 #: src/settings_translation_file.cpp
 msgid "Kick players who sent more than X messages per 10 seconds."
@@ -5310,21 +5487,19 @@ msgstr "ローカルコマンド"
 
 #: src/settings_translation_file.cpp
 msgid "Look down"
-msgstr ""
+msgstr "下を見る"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Look left"
-msgstr "左へ移動"
+msgstr "左を見る"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Look right"
-msgstr "右へ移動"
+msgstr "右を見る"
 
 #: src/settings_translation_file.cpp
 msgid "Look up"
-msgstr ""
+msgstr "上を見る"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -5342,6 +5517,18 @@ msgstr "メインメニュースクリプト"
 msgid ""
 "Make fog and sky colors depend on daytime (dawn/sunset) and view direction."
 msgstr "霧と空の色を日中(夜明け/日没)と視線方向に依存させます。"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Make volumetrics weaker against closer objects to emulate physical "
+"volumetrics."
+msgstr ""
+"体積をエミュレートするために、より近いオブジェクトに対して、体積を弱くします"
+"。"
+
+#: src/settings_translation_file.cpp
+msgid "Makes the color of light fog more saturated."
+msgstr "淡い霧の色をより鮮やかにします。"
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
@@ -5961,6 +6148,10 @@ msgid "Open inventory"
 msgstr "インベントリを開く"
 
 #: src/settings_translation_file.cpp
+msgid "Open pause menu"
+msgstr "ポーズメニューを開く"
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Open the pause menu when the window's focus is lost. Does not pause if a "
 "formspec is\n"
@@ -6542,6 +6733,9 @@ msgid ""
 "variables.\n"
 "Note that this will not apply to Luanti's in-game protocol."
 msgstr ""
+"CURL で使用するプロキシを設定します。 これは、*_proxy 環境変数のようなURIで"
+"す。\n"
+"Luantiのゲーム内プロトコルには適用されません。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6556,12 +6750,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Set the exposure compensation in EV units.\n"
-"Value of 0.0 (default) means no exposure compensation.\n"
-"Range: from -1 to 1.0"
+"Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 "露出補正をEV単位で設定します。\n"
-"値 0.0 (既定値) は、露出補正なしを意味します。\n"
-"範囲: -1 から 1.0 まで"
+"値 0.0 (既定値) は、露出補正なしを意味します。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6576,6 +6768,14 @@ msgid ""
 "Set the maximum length of a chat message (in characters) sent by clients."
 msgstr ""
 "クライアントから送信されるチャットメッセージの最大長 (文字数) を設定します。"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Set the post processing gamma value.\n"
+"Higher values give lower contrast and vice versa."
+msgstr ""
+"投稿処理のガンマ値を設定します。\n"
+"値が高いと、より低いコントラストと、その逆になります。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6718,8 +6918,13 @@ msgstr ""
 "(または GPU を搭載していない) システムでは値を小さくすると効果的です。"
 
 #: src/settings_translation_file.cpp
-msgid "Simulate translucency when looking at foliage in the sunlight."
-msgstr "日光の下で葉を見るときの半透明感をシミュレートします。"
+msgid ""
+"Simulate translucency when looking at foliage in the sunlight.\n"
+"It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
+msgstr ""
+"日光の下で葉を見たときに、半透明感を再現します。\n"
+"この機能を使用する際は、\"leaves_style\" の設定を \"fancy\" にすることをお勧"
+"めします。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7002,10 +7207,6 @@ msgid "The URL for the content repository"
 msgstr "コンテンツリポジトリのURL"
 
 #: src/settings_translation_file.cpp
-msgid "The dead zone of the joystick"
-msgstr "ジョイスティックのデッドゾーン"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The default format in which profiles are being saved,\n"
 "when calling `/profiler save [format]` without format."
@@ -7045,10 +7246,6 @@ msgstr ""
 "* ロングタップ\n"
 "古典的な Luanti のモバイル版操作として知られています。\n"
 "戦闘はほぼ不可能です。"
-
-#: src/settings_translation_file.cpp
-msgid "The identifier of the joystick to use"
-msgstr "使用するジョイスティックの識別子"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7196,10 +7393,6 @@ msgid ""
 msgstr "設置ボタンを押したままノードの設置を繰り返す秒単位の間隔です。"
 
 #: src/settings_translation_file.cpp
-msgid "The type of joystick"
-msgstr "ジョイスティックの種類"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The vertical distance over which heat drops by 20 if 'altitude_chill' is\n"
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
@@ -7238,6 +7431,18 @@ msgid "Timeout for client to remove unused map data from memory, in seconds."
 msgstr ""
 "クライアントがメモリから未使用のマップデータを削除するためのタイムアウト (秒"
 "単位)。"
+
+#: src/settings_translation_file.cpp
+msgid "Tint sunlight during sunrise/sunset."
+msgstr "日の出/日没時の太陽光に色をつけます。"
+
+#: src/settings_translation_file.cpp
+msgid "Tinted fog"
+msgstr "色付きの霧"
+
+#: src/settings_translation_file.cpp
+msgid "Tinted sunlight"
+msgstr "色付きの太陽光"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7627,7 +7832,11 @@ msgid "Volume when unfocused"
 msgstr "フォーカスされていないときの音量"
 
 #: src/settings_translation_file.cpp
-msgid "Volumetric lighting"
+msgid "Volumetric Depth Attenuation"
+msgstr "体積深度減衰"
+
+#: src/settings_translation_file.cpp
+msgid "Volumetric Lighting"
 msgstr "ボリュームライティング"
 
 #: src/settings_translation_file.cpp
@@ -7697,8 +7906,12 @@ msgid "Weblink color"
 msgstr "ウェブリンクの色"
 
 #: src/settings_translation_file.cpp
-msgid "When enabled, liquid reflections are simulated."
-msgstr "有効にすると、液体の反射がシミュレートされます。"
+msgid ""
+"When enabled, crude liquid reflections are simulated.\n"
+"Wave height, length and speed will affect these reflections."
+msgstr ""
+"有効にすると、原液の反射がシミュレートされます。\n"
+"波の高さ、長さおよび速度はこれらの反射に影響を与えます。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7749,6 +7962,9 @@ msgid ""
 "Where to enable server-sent client-side modding (SSCSM).\n"
 "Warning: Experimental."
 msgstr ""
+"サーバー・セント・クライアント・サイド・モディング(SSCSM)を有効にする場所で"
+"す。\n"
+"警告: 実験的です。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7928,23 +8144,30 @@ msgstr "cURL並行処理制限"
 
 #: src/settings_translation_file.cpp
 msgid "cURL proxy address"
-msgstr ""
+msgstr "cURLプロキシアドレス"
 
 #: src/util/screenshot.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
 msgstr "スクリーンショットを%sに保存失敗"
 
-#~ msgid "Append item name"
-#~ msgstr "アイテム名を付け加える"
+#~ msgid "Enable joysticks"
+#~ msgstr "ジョイスティック作動"
 
-#~ msgid ""
-#~ "Possible filters\n"
-#~ "game:<name>\n"
-#~ "mod:<name>\n"
-#~ "player:<name>"
-#~ msgstr ""
-#~ "可能なフィルター\n"
-#~ "ゲーム:<name>\n"
-#~ "Mod:<name>\n"
-#~ "プレイヤー:<name>"
+#~ msgid "Enable joysticks. Requires a restart to take effect"
+#~ msgstr "ジョイスティックを有効にします。変更には再起動が必要"
+
+#~ msgid "Keybindings"
+#~ msgstr "キー割り当て"
+
+#~ msgid "The dead zone of the joystick"
+#~ msgstr "ジョイスティックのデッドゾーン"
+
+#~ msgid "The identifier of the joystick to use"
+#~ msgstr "使用するジョイスティックの識別子"
+
+#~ msgid "The type of joystick"
+#~ msgstr "ジョイスティックの種類"
+
+#~ msgid "When enabled, liquid reflections are simulated."
+#~ msgstr "有効にすると、液体の反射がシミュレートされます。"

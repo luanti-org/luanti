@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Czech (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 19:14+0200\n"
-"PO-Revision-Date: 2026-02-16 12:09+0000\n"
+"POT-Creation-Date: 2026-08-10 17:35+0200\n"
+"PO-Revision-Date: 2026-08-17 14:51+0000\n"
 "Last-Translator: Elviska <vonelviska@seznam.cz>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/minetest/minetest/"
 "cs/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -335,7 +335,7 @@ msgstr "(Použít jazyk systému)"
 #. TRANSLATORS: Shown when a default setting is the empty string
 #: builtin/common/settings/dlg_settings.lua
 msgid "<empty>"
-msgstr ""
+msgstr "<prázdné>"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Accessibility"
@@ -373,9 +373,8 @@ msgid "Controls"
 msgstr "Ovládání"
 
 #: builtin/common/settings/dlg_settings.lua src/settings_translation_file.cpp
-#, fuzzy
 msgid "Damage"
-msgstr "Zranění / PvP"
+msgstr "Zranění"
 
 #: builtin/common/settings/dlg_settings.lua
 #: builtin/common/settings/shadows_component.lua
@@ -417,9 +416,8 @@ msgstr "Obnovit výchozí nastavení"
 
 #. TRANSLATORS: $1 will be replaced with a default setting value
 #: builtin/common/settings/dlg_settings.lua
-#, fuzzy
 msgid "Reset setting to default: $1"
-msgstr "Vrátit nastavení do původního stavu ($1)"
+msgstr "Navrátit nastavení do původního stavu ($1)"
 
 #: builtin/common/settings/dlg_settings.lua builtin/mainmenu/tab_online.lua
 msgid "Search"
@@ -520,6 +518,10 @@ msgstr "Nastala chyba v Lua skriptu:"
 #: builtin/fstk/ui.lua
 msgid "An error occurred:"
 msgstr "Nastala chyba:"
+
+#: builtin/fstk/ui.lua
+msgid "Copy to clipboard"
+msgstr "Kopírovat do schránky"
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1157,7 +1159,7 @@ msgstr "Zavřít"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Keybindings changed"
-msgstr "Změněno přiřazení kláves"
+msgstr "Změněny klávesové zkratky"
 
 #: builtin/mainmenu/dlg_rebind_keys.lua
 msgid "Open settings"
@@ -1540,9 +1542,8 @@ msgstr ""
 "$1"
 
 #: builtin/mainmenu/tab_online.lua
-#, fuzzy
 msgid "Possible filters"
-msgstr "Poissonův filtr"
+msgstr "Možné filtry"
 
 #: builtin/mainmenu/tab_online.lua
 msgid "Public Servers"
@@ -1560,6 +1561,10 @@ msgstr "Odstranit oblíbeného"
 #: builtin/mainmenu/tab_online.lua
 msgid "Server Description"
 msgstr "Popis serveru"
+
+#: src/chat.cpp
+msgid "Player names: "
+msgstr "Jména hráčů: "
 
 #: src/client/client.cpp
 msgid "Connection aborted (protocol error?)."
@@ -1628,9 +1633,8 @@ msgid "Media..."
 msgstr "Média..."
 
 #: src/client/fontengine.cpp
-#, fuzzy
 msgid "Failed to find a valid font"
-msgstr "Nepodařilo se najít \"%s\" shadery."
+msgstr "Nepodařilo se najít správný font"
 
 #: src/client/game.cpp src/client/render/pipeline.cpp src/client/shader.cpp
 #: src/server.cpp
@@ -1753,6 +1757,11 @@ msgid "Fast mode enabled (note: no 'fast' privilege)"
 msgstr "Rychlý režim povolen (pozn.: nemáte oprávnění 'fast')"
 
 #: src/client/game.cpp
+#, c-format
+msgid "Files: %d / %d"
+msgstr "Soubory: %d / %d"
+
+#: src/client/game.cpp
 msgid "Fly mode disabled"
 msgstr "Režim létání zakázán"
 
@@ -1781,12 +1790,12 @@ msgid "Item definitions..."
 msgstr "Definice věcí..."
 
 #: src/client/game.cpp
-msgid "KiB/s"
-msgstr "KiB/s"
+msgid "KiB"
+msgstr "KiB"
 
 #: src/client/game.cpp
-msgid "MiB/s"
-msgstr "MiB/s"
+msgid "MiB"
+msgstr "MiB"
 
 #: src/client/game.cpp
 msgid "Minimap currently disabled by game or mod"
@@ -1835,6 +1844,11 @@ msgstr "Vypínání..."
 #: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "„Singleplayer“"
+
+#: src/client/game.cpp
+#, c-format
+msgid "Size: %.2f %s"
+msgstr "Velikost: %.2f %s"
 
 #: src/client/game.cpp
 msgid "Sound muted"
@@ -2056,8 +2070,24 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profilování zobrazeno (strana %d z %d)"
 
 #: src/client/keycode.cpp
+msgid "A (Gamepad)"
+msgstr "A (Gamepad)"
+
+#: src/client/keycode.cpp
+msgid "B (Gamepad)"
+msgstr "B (Gamepad)"
+
+#: src/client/keycode.cpp
+msgid "Back (Gamepad)"
+msgstr "Zpátky (Gamepad)"
+
+#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
+
+#: src/client/keycode.cpp
+msgid "Bottom Face Button (Gamepad)"
+msgstr "Spodní Tlačítko na Straně (Gamepad)"
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2069,12 +2099,36 @@ msgid "Caps Lock"
 msgstr "Caps Lock"
 
 #: src/client/keycode.cpp
+msgid "Circle (Gamepad)"
+msgstr "Kolo (Gamepad)"
+
+#: src/client/keycode.cpp
 msgid "Clear Key"
 msgstr "Klávesa Clear"
 
 #: src/client/keycode.cpp
 msgid "Control Key"
 msgstr "Ctrl"
+
+#: src/client/keycode.cpp
+msgid "Cross (Gamepad)"
+msgstr "Kříž (Gamepad)"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Down"
+msgstr "Dolů"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Left"
+msgstr "Vlevo"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Right"
+msgstr "Vpravo"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Up"
+msgstr "Nahoru"
 
 #: src/client/keycode.cpp
 msgid "Delete Key"
@@ -2087,6 +2141,25 @@ msgstr "Šipka Dolů"
 #: src/client/keycode.cpp
 msgid "End Key"
 msgstr "End"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Axis %d +"
+msgstr "Osa %d + Gamepadu"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Axis %d -"
+msgstr "Osa %d - Gamepadu"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Button %d"
+msgstr "Tlačítko %d Gamepedu"
+
+#: src/client/keycode.cpp
+msgid "Guide (Gamepad)"
+msgstr "Nápověda (Gamepad)"
 
 #: src/client/keycode.cpp
 msgid "Help Key"
@@ -2113,12 +2186,44 @@ msgid "Left Control"
 msgstr "Levý Control"
 
 #: src/client/keycode.cpp
+msgid "Left Face Button (Gamepad)"
+msgstr "Levé Tlačítko na Straně (Gamepad)"
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Button"
+msgstr "Tlačítko Levého Joysticku"
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Down"
+msgstr "Dolů Levého Joysticku"
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Left"
+msgstr "Vlevo Levého Joysticku"
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Right"
+msgstr "Vpravo Levého Joysticku"
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Up"
+msgstr "Nahoru Levého Joysticku"
+
+#: src/client/keycode.cpp
 msgid "Left Menu"
 msgstr "Levá klávesa Menu"
 
 #: src/client/keycode.cpp
 msgid "Left Shift"
 msgstr "Levý Shift"
+
+#: src/client/keycode.cpp
+msgid "Left Shoulder"
+msgstr "Levé Ramenní Tlačítko"
+
+#: src/client/keycode.cpp
+msgid "Left Trigger"
+msgstr "Levá Spoušť"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2137,7 +2242,7 @@ msgstr "Střední tlačítko myši"
 #: src/client/keycode.cpp
 #, c-format
 msgid "Mouse Button %d"
-msgstr ""
+msgstr "Tlačítko myši %d"
 
 #. TRANSLATORS: This is a mouse button.
 #: src/client/keycode.cpp
@@ -2230,6 +2335,14 @@ msgstr "Klávesa Pauza"
 msgid "Play"
 msgstr "Hrát"
 
+#: src/client/keycode.cpp
+msgid "Primary Left Paddle"
+msgstr "Primární Levá Páčka"
+
+#: src/client/keycode.cpp
+msgid "Primary Right Paddle"
+msgstr "Primární Pravá Páčka"
+
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
@@ -2252,12 +2365,44 @@ msgid "Right Control"
 msgstr "Pravý Control"
 
 #: src/client/keycode.cpp
+msgid "Right Face Button (Gamepad)"
+msgstr "Pravé Tlačítko na Straně (Gamepad)"
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Button"
+msgstr "Tlačítko Pravého Joysticku"
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Down"
+msgstr "Dolů Pravého Joysticku"
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Left"
+msgstr "Vlevo Pravého Joysticku"
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Right"
+msgstr "Vpravo Pravého Joysticku"
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Up"
+msgstr "Nahoru Pravého Joysticku"
+
+#: src/client/keycode.cpp
 msgid "Right Menu"
 msgstr "Pravá klávesa Menu"
 
 #: src/client/keycode.cpp
 msgid "Right Shift"
 msgstr "Pravý Shift"
+
+#: src/client/keycode.cpp
+msgid "Right Shoulder"
+msgstr "Pravé Ramenní Tlačítko"
+
+#: src/client/keycode.cpp
+msgid "Right Trigger"
+msgstr "Pravá Spouště"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2274,6 +2419,14 @@ msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
 #: src/client/keycode.cpp
+msgid "Secondary Left Paddle"
+msgstr "Sekundární Levá Páčka"
+
+#: src/client/keycode.cpp
+msgid "Secondary Right Paddle"
+msgstr "Sekundární Pravá Páčka"
+
+#: src/client/keycode.cpp
 msgid "Select Key"
 msgstr "Vybrat"
 
@@ -2286,12 +2439,40 @@ msgid "Space"
 msgstr "Mezerník"
 
 #: src/client/keycode.cpp
+msgid "Square (Gamepad)"
+msgstr "Čtverec (Gamepad)"
+
+#: src/client/keycode.cpp
+msgid "Start (Gamepad)"
+msgstr "Start (Gamepad)"
+
+#: src/client/keycode.cpp
 msgid "Tab Key"
 msgstr "Klávesa Tab"
 
 #: src/client/keycode.cpp
+msgid "Top Face Button (Gamepad)"
+msgstr "Vrchní Tlačítko na Straně (Gamepad)"
+
+#: src/client/keycode.cpp
+msgid "Touchpad Button (Gamepad)"
+msgstr "Dotykové Tlačítko (Gamepad)"
+
+#: src/client/keycode.cpp
+msgid "Triangle (Gamepad)"
+msgstr "Trojúhelník (Gamepad)"
+
+#: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Šipka Nahoru"
+
+#: src/client/keycode.cpp
+msgid "X (Gamepad)"
+msgstr "X (Gamepad)"
+
+#: src/client/keycode.cpp
+msgid "Y (Gamepad)"
+msgstr "Y (Gamepad)"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2317,9 +2498,8 @@ msgid "Failed to create the texture \"%s\" for the rendering pipeline."
 msgstr "Selhalo vytváření textury pro \"%s\" v daném rendrovacím kanále."
 
 #: src/client/renderingengine.cpp
-#, fuzzy
 msgid "Could not initialize any supported video driver!"
-msgstr "Vizuální návrh není podporován video kartou"
+msgstr "Nelze zavést jakýkoliv podporovaný video driver!"
 
 #: src/client/shader.cpp
 #, c-format
@@ -2374,9 +2554,8 @@ msgid "Opening webpage"
 msgstr "Otevírání webové stránky"
 
 #: src/gui/guiEngine.cpp
-#, fuzzy
 msgid "Failed to load main menu script!"
-msgstr "Skript hlavní nabídky"
+msgstr "Selhalo načtení kódu hlavního menu!"
 
 #: src/gui/guiFormSpecMenu.cpp
 msgid "Proceed"
@@ -2609,6 +2788,10 @@ msgstr ""
 "Verze klienta není podporována.\n"
 "Kontaktujte administrátora serveru."
 
+#: src/script/lua_api/l_mainmenu.cpp
+msgid "Copied to clipboard!"
+msgstr "Zkopírováno do schránky!"
+
 #: src/server.cpp
 #, c-format
 msgid "%s while shutting down: "
@@ -2793,6 +2976,10 @@ msgid "Acceleration of gravity, in nodes per second per second."
 msgstr "Gravitační zrychlení, v blocích za vteřinu za vteřinu."
 
 #: src/settings_translation_file.cpp
+msgid "Actions and Keybindings"
+msgstr "Akce a Klávesové zkratky"
+
+#: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
 msgstr "Active Block Modifiery"
 
@@ -2915,14 +3102,12 @@ msgid "Anticheat movement tolerance"
 msgstr "Tolerance Anticheatu pro pohyb"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Append item name to tooltips"
-msgstr "Dodatkový název položky v popisku."
+msgstr "Připojovat názvy předmětů do popisků věcí"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Append the full item name to the tooltip of item stacks."
-msgstr "Dodatkový název položky v popisku."
+msgstr "Připojit celý název předmětů do popisků hromad věcí."
 
 #: src/settings_translation_file.cpp
 msgid "Apple trees noise"
@@ -2995,23 +3180,23 @@ msgstr ""
 "ve vykreslování (některé bloky nebudou správně vykresleny v jeskynních).\n"
 "Nastavení této hodnoty vyšší než max_block_send_distance zakáže\n"
 "tuto optimalizaci.\n"
-"Jednotkou je mapblok (16 bloků)."
+"Udávané v mapblocích (16 bloků)."
 
 #: src/settings_translation_file.cpp
 msgid ""
-"At this distance the server will perform a simpler and cheaper occlusion "
-"check.\n"
-"Smaller values potentially improve performance, at the expense of "
-"temporarily visible\n"
-"rendering glitches (missing blocks).\n"
+"At this distance the server will consider blocks as \"far away\".\n"
+"It will perform simpler and cheaper occlusion checks, update\n"
+"low priority block updates lazily, and limit the blocks sent to the\n"
+"client in one roundtrip.\n"
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
-"V této vzdálenosti bude server razantně optimalizovat výběr bloků.\n"
-"Malé hodnoty mohou zlepšit výkon, za cenu dočasných chyb\n"
-"ve vykreslování (mizející bloky).\n"
-"Velice užitečné pro velké rozhledové vzdálenosti (od 500 nahoru)\n"
-"Jednotkou je mapblok (16 bloků)."
+"V této vzdálenosti bude server považovat bloky za \"vzdálené\".\n"
+"Bude provádět jen jednoduché testy na kolize, aktualizace\n"
+"bloků s nízkou prioritou se bude provádět líně a limituje\n"
+"se počet bloků posílaných na klienta.\n"
+"Velice užitečné pro velké rozhledové vzdálenosti (od 500 nahoru).\n"
+"Udávané v mapblocích (16 bloků)."
 
 #: src/settings_translation_file.cpp
 msgid "Audio"
@@ -3497,9 +3682,8 @@ msgstr ""
 "Také určuje barvu zaměřovače"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Damage flash"
-msgstr "Nastavení pro Generátor mapy"
+msgstr "Záblesky zranění"
 
 #: src/settings_translation_file.cpp
 msgid "Debug log file size threshold"
@@ -3844,9 +4028,8 @@ msgid "Enable Raytraced Culling"
 msgstr "Povolit „Raytraced Culling“"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Enable SSCSM"
-msgstr "Zapnout vše"
+msgstr "Zapnout SSCM"
 
 #: src/settings_translation_file.cpp
 msgid "Enable a confirmation dialog before closing."
@@ -3879,14 +4062,6 @@ msgstr "Povolit konzolové okno"
 #: src/settings_translation_file.cpp
 msgid "Enable dynamic shadows"
 msgstr "Povolit dynamické stíny"
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks"
-msgstr "Zapnout joysticky"
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks. Requires a restart to take effect"
-msgstr "Povolit joysticky. Vyžaduje restart"
 
 #: src/settings_translation_file.cpp
 msgid "Enable mod channels support."
@@ -4121,7 +4296,7 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Flashing of the screen when taking damage."
-msgstr ""
+msgstr "Záblesky na obrazovce při utrpění zranění."
 
 #: src/settings_translation_file.cpp
 msgid "Floatland density"
@@ -4315,8 +4490,12 @@ msgid "GUI scaling filter"
 msgstr "Filtrovat při škálování GUI"
 
 #: src/settings_translation_file.cpp
-msgid "Gamepads"
-msgstr "Gamepady"
+msgid "Gamepads and Joysticks"
+msgstr "Gamepady a Joysticky"
+
+#: src/settings_translation_file.cpp
+msgid "Gamma"
+msgstr "Gamma"
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -4938,24 +5117,20 @@ msgstr ""
 "Generátor mapy v7."
 
 #: src/settings_translation_file.cpp
-msgid "Joystick ID"
-msgstr "ID joysticku"
-
-#: src/settings_translation_file.cpp
 msgid "Joystick button repetition interval"
 msgstr "Interval opakování tlačítek joysticku"
-
-#: src/settings_translation_file.cpp
-msgid "Joystick dead zone"
-msgstr "Joystick - „dead zone“"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick frustum sensitivity"
 msgstr "Citlivost otáčení pohledu joystickem"
 
 #: src/settings_translation_file.cpp
-msgid "Joystick type"
-msgstr "Typ joysticku"
+msgid "Joystick inner dead zone"
+msgstr "Vnitřní mrtvá zóna joysticku"
+
+#: src/settings_translation_file.cpp
+msgid "Joystick outer dead zone"
+msgstr "Vnější mrtvá zóna joysticku"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5057,6 +5232,14 @@ msgstr "Klávesa na otevření chatu pro lokální příkazy."
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Key for opening the pause menu in-game.\n"
+"Pressing the escape key always opens the pause menu."
+msgstr ""
+"Klávesa pro otevření menu ve hře.\n"
+"Zmáčknutí tlačítka escape vždy otevře menu."
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
@@ -5085,22 +5268,16 @@ msgstr ""
 "Klávesa pro zapnutí/vypnutí zobrazení profileru. Využitelné při vývoji."
 
 #: src/settings_translation_file.cpp
-msgid "Keybindings"
-msgstr "Přiřazení kláves"
-
-#: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
 msgstr "Klávesnice a myš"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keyboard camera speed"
-msgstr "Klávesnice a myš"
+msgstr "Klávesnicová rychlost kamery"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Keyboard-controlled camera rotation speed, in degrees per second."
-msgstr "Rychlost ve svislém směru při šplhání, v blocích za vteřinu."
+msgstr "Rychlost otáčení kamery pomocí klávesnice, v stupních za sekundu."
 
 #: src/settings_translation_file.cpp
 msgid "Kick players who sent more than X messages per 10 seconds."
@@ -5316,21 +5493,19 @@ msgstr "Místní příkaz"
 
 #: src/settings_translation_file.cpp
 msgid "Look down"
-msgstr ""
+msgstr "Podívat se dolů"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Look left"
-msgstr "Pohyb doleva"
+msgstr "Podívat se doleva"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Look right"
-msgstr "Pohyb doprava"
+msgstr "Podívat se doprava"
 
 #: src/settings_translation_file.cpp
 msgid "Look up"
-msgstr ""
+msgstr "Podívat se nahoru"
 
 #: src/settings_translation_file.cpp
 msgid "Lower Y limit of dungeons."
@@ -5350,6 +5525,18 @@ msgid ""
 msgstr ""
 "Barva mlhy a oblohy záleží na denní době (svítání/soumrak) a na směru "
 "pohledu."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Make volumetrics weaker against closer objects to emulate physical "
+"volumetrics."
+msgstr ""
+"Objemová analýza proti bližším objektům bude slabší pro emulaci fyzických "
+"objemů."
+
+#: src/settings_translation_file.cpp
+msgid "Makes the color of light fog more saturated."
+msgstr "Barva mlhy bude více jasná."
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
@@ -5977,6 +6164,10 @@ msgid "Open inventory"
 msgstr "Otevřít Inventář"
 
 #: src/settings_translation_file.cpp
+msgid "Open pause menu"
+msgstr "Otevře menu"
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Open the pause menu when the window's focus is lost. Does not pause if a "
 "formspec is\n"
@@ -6568,6 +6759,9 @@ msgid ""
 "variables.\n"
 "Note that this will not apply to Luanti's in-game protocol."
 msgstr ""
+"Nastavení proxy serveru pro cURL. Toto je URI stejně jako *_proxy proměnné "
+"prostředí.\n"
+"Toto se nevztahuje na protokol ve hrách Luanti."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6582,12 +6776,10 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Set the exposure compensation in EV units.\n"
-"Value of 0.0 (default) means no exposure compensation.\n"
-"Range: from -1 to 1.0"
+"Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 "Nastavte kompenzaci expozice v jednotkách EV. \n"
-"Hodnota 0.0 (výchozí) vypne kompenzaci expozice. \n"
-"Rozsah: od -1 do 1.0"
+"Hodnota 0.0 (výchozí) vypne kompenzaci expozice."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6602,6 +6794,14 @@ msgid ""
 "Set the maximum length of a chat message (in characters) sent by clients."
 msgstr ""
 "Nastavte maximální délku chatové zprávy (ve znacích) odesílané klienty."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Set the post processing gamma value.\n"
+"Higher values give lower contrast and vice versa."
+msgstr ""
+"Nastaví post procesingovou hodnotu gammy.\n"
+"Vyšší hodnota znamená menší kontrast barev."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6745,8 +6945,13 @@ msgstr ""
 "Systémům s low-end GPU (nebo bez GPU) by prospěly menší hodnoty."
 
 #: src/settings_translation_file.cpp
-msgid "Simulate translucency when looking at foliage in the sunlight."
-msgstr "Simuluje průsvitnost když se díváme na listí v slunečním světle."
+msgid ""
+"Simulate translucency when looking at foliage in the sunlight.\n"
+"It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
+msgstr ""
+"Simuluje průsvitnost když se díváme na listí v slunečním světle.\n"
+"Je doporučeno toto zapnout když \"Styl listí\" je nastaveno na "
+"\"Vícevrstevné\"."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7031,10 +7236,6 @@ msgid "The URL for the content repository"
 msgstr "URL pro úložiště obsahu"
 
 #: src/settings_translation_file.cpp
-msgid "The dead zone of the joystick"
-msgstr "Mrtvá zóna joysticku"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The default format in which profiles are being saved,\n"
 "when calling `/profiler save [format]` without format."
@@ -7077,10 +7278,6 @@ msgstr ""
 "* Dlouhé zmáčknutí\n"
 "Známe z klasického ovládání mobilního Luanti.\n"
 "Boj je víceméně nemožný."
-
-#: src/settings_translation_file.cpp
-msgid "The identifier of the joystick to use"
-msgstr "Identifikátor joysticku, který se má použít"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7233,10 +7430,6 @@ msgstr ""
 "umisťovacího tlačítka."
 
 #: src/settings_translation_file.cpp
-msgid "The type of joystick"
-msgstr "Joystick - typ"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The vertical distance over which heat drops by 20 if 'altitude_chill' is\n"
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
@@ -7276,6 +7469,18 @@ msgid "Timeout for client to remove unused map data from memory, in seconds."
 msgstr ""
 "Časový limit pro klienta k odstranění nepoužívaných mapových dat z paměti ve "
 "vteřinách."
+
+#: src/settings_translation_file.cpp
+msgid "Tint sunlight during sunrise/sunset."
+msgstr "Tónování slunečního světla během svítání/západu."
+
+#: src/settings_translation_file.cpp
+msgid "Tinted fog"
+msgstr "Tónovaná mlha"
+
+#: src/settings_translation_file.cpp
+msgid "Tinted sunlight"
+msgstr "Tónované sluneční světlo"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7666,8 +7871,12 @@ msgid "Volume when unfocused"
 msgstr "Hlasitost když minimalizováno"
 
 #: src/settings_translation_file.cpp
-msgid "Volumetric lighting"
-msgstr "Škálovatelné osvětlení"
+msgid "Volumetric Depth Attenuation"
+msgstr "Tlumené Objemů v Hloubce"
+
+#: src/settings_translation_file.cpp
+msgid "Volumetric Lighting"
+msgstr "Objemové Osvětlení"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7737,8 +7946,12 @@ msgid "Weblink color"
 msgstr "Barva webových odkazů"
 
 #: src/settings_translation_file.cpp
-msgid "When enabled, liquid reflections are simulated."
-msgstr "Při zapnutí se simulují odrazy kapaliny."
+msgid ""
+"When enabled, crude liquid reflections are simulated.\n"
+"Wave height, length and speed will affect these reflections."
+msgstr ""
+"Když zapnuto tak odrazy kapalin jsou simulovány.\n"
+"Vlnová velikost, délka a rychlost ovlivňuje tyto odrazy."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7784,6 +7997,8 @@ msgid ""
 "Where to enable server-sent client-side modding (SSCSM).\n"
 "Warning: Experimental."
 msgstr ""
+"Kde zapnout posílání serverových módu rovnou na klienta (SSCSM).\n"
+"Varování: Experimentální."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7963,23 +8178,30 @@ msgstr "cURL limit paralelních stahování"
 
 #: src/settings_translation_file.cpp
 msgid "cURL proxy address"
-msgstr ""
+msgstr "adresa cURL proxy serveru"
 
 #: src/util/screenshot.cpp
 #, c-format
 msgid "Failed to save screenshot to \"%s\""
 msgstr "Nepodařilo se uložit snímek obrazovky do \"%s\""
 
-#~ msgid "Append item name"
-#~ msgstr "Dodatkový název položky"
+#~ msgid "Enable joysticks"
+#~ msgstr "Zapnout joysticky"
 
-#~ msgid ""
-#~ "Possible filters\n"
-#~ "game:<name>\n"
-#~ "mod:<name>\n"
-#~ "player:<name>"
-#~ msgstr ""
-#~ "Možné filtry\n"
-#~ "hra:<name>\n"
-#~ "mod:<name>\n"
-#~ "hráč:<name>"
+#~ msgid "Enable joysticks. Requires a restart to take effect"
+#~ msgstr "Povolit joysticky. Vyžaduje restart"
+
+#~ msgid "Keybindings"
+#~ msgstr "Přiřazení kláves"
+
+#~ msgid "The dead zone of the joystick"
+#~ msgstr "Mrtvá zóna joysticku"
+
+#~ msgid "The identifier of the joystick to use"
+#~ msgstr "Identifikátor joysticku, který se má použít"
+
+#~ msgid "The type of joystick"
+#~ msgstr "Joystick - typ"
+
+#~ msgid "When enabled, liquid reflections are simulated."
+#~ msgstr "Při zapnutí se simulují odrazy kapaliny."

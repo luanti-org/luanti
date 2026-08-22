@@ -38,8 +38,7 @@ void InvRef::reportInventoryChange(lua_State *L, InvRef *ref)
 
 // garbage collector
 int InvRef::gc_object(lua_State *L) {
-	InvRef *o = *(InvRef **)(lua_touserdata(L, 1));
-	delete o;
+	delete takeObjectForGC<InvRef>(L);
 	return 0;
 }
 

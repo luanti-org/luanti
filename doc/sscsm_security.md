@@ -38,7 +38,9 @@ setting to anything higher than `localhost`.
 * See also `initializeSecuritySSCSM()`.
 * We do not trust the Lua implementation to not have bugs. => Additional process
   isolation layer as fallback.
-
+ * Scripts cannot control GC (Garbage Collector), since this is a common primitive
+   used in Lua sandbox escapes in order to get a desired heap layout, this a defense
+   in depth measure to make escapes harder.
 
 ## Process isolation
 

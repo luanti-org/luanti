@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Malay (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 19:14+0200\n"
+"POT-Creation-Date: 2026-08-10 17:35+0200\n"
 "PO-Revision-Date: 2024-11-28 13:00+0000\n"
 "Last-Translator: Muhammad Nuruddin <nuruddin6106@gmail.com>\n"
 "Language-Team: Malay <https://hosted.weblate.org/projects/minetest/minetest/"
@@ -517,6 +517,10 @@ msgstr "Berlakunya ralat dalam skrip Lua:"
 #: builtin/fstk/ui.lua
 msgid "An error occurred:"
 msgstr "Telah berlakunya ralat:"
+
+#: builtin/fstk/ui.lua
+msgid "Copy to clipboard"
+msgstr ""
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1581,6 +1585,11 @@ msgstr "Buang kegemaran"
 msgid "Server Description"
 msgstr "Keterangan Pelayan"
 
+#: src/chat.cpp
+#, fuzzy
+msgid "Player names: "
+msgstr "Mula Main"
+
 #: src/client/client.cpp
 msgid "Connection aborted (protocol error?)."
 msgstr "Sambungan digugurkan (ralat protokol?)."
@@ -1776,6 +1785,11 @@ msgstr ""
 "pantas')"
 
 #: src/client/game.cpp
+#, c-format
+msgid "Files: %d / %d"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Fly mode disabled"
 msgstr "Mod terbang dilumpuhkan"
 
@@ -1804,11 +1818,13 @@ msgid "Item definitions..."
 msgstr "Sedang mentakrifkan item..."
 
 #: src/client/game.cpp
-msgid "KiB/s"
+#, fuzzy
+msgid "KiB"
 msgstr "KiB/s"
 
 #: src/client/game.cpp
-msgid "MiB/s"
+#, fuzzy
+msgid "MiB"
 msgstr "MiB/s"
 
 #: src/client/game.cpp
@@ -1858,6 +1874,11 @@ msgstr "Sedang menutup..."
 #: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "Ekapemain"
+
+#: src/client/game.cpp
+#, c-format
+msgid "Size: %.2f %s"
+msgstr ""
 
 #: src/client/game.cpp
 msgid "Sound muted"
@@ -2086,8 +2107,27 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Pembukah ditunjukkan (halaman %d / %d)"
 
 #: src/client/keycode.cpp
+#, fuzzy
+msgid "A (Gamepad)"
+msgstr "Pad permainan"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "B (Gamepad)"
+msgstr "Pad permainan"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Back (Gamepad)"
+msgstr "Pad permainan"
+
+#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Backspace"
+
+#: src/client/keycode.cpp
+msgid "Bottom Face Button (Gamepad)"
+msgstr ""
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2099,12 +2139,38 @@ msgid "Caps Lock"
 msgstr "Kunci Huruf Besar"
 
 #: src/client/keycode.cpp
+msgid "Circle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Clear Key"
 msgstr "Kekunci Bersih"
 
 #: src/client/keycode.cpp
 msgid "Control Key"
 msgstr "Kekunci Kawalan"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Cross (Gamepad)"
+msgstr "Pad permainan"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "D-Pad Down"
+msgstr "Page Down"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Up"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Delete Key"
@@ -2118,6 +2184,26 @@ msgstr "Anak Panah Bawah"
 #, fuzzy
 msgid "End Key"
 msgstr "Kekunci Menu"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d +"
+msgstr "Pad permainan"
+
+#: src/client/keycode.cpp
+#, fuzzy, c-format
+msgid "Gamepad Axis %d -"
+msgstr "Pad permainan"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Button %d"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Guide (Gamepad)"
+msgstr "Pad permainan"
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2147,12 +2233,51 @@ msgid "Left Control"
 msgstr "Ctrl Kiri"
 
 #: src/client/keycode.cpp
+msgid "Left Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Button"
+msgstr "Jenis kayu bedik"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Down"
+msgstr "ID Kayu Bedik"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Left"
+msgstr "Jenis kayu bedik"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Right"
+msgstr "Jenis kayu bedik"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Up"
+msgstr "Jenis kayu bedik"
+
+#: src/client/keycode.cpp
 msgid "Left Menu"
 msgstr "Menu Kiri"
 
 #: src/client/keycode.cpp
 msgid "Left Shift"
 msgstr "Shift Kiri"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Shoulder"
+msgstr "Shift Kiri"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Trigger"
+msgstr "Anak Panah Kiri"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2264,6 +2389,14 @@ msgstr "Kekunci Jeda"
 msgid "Play"
 msgstr "Mula Main"
 
+#: src/client/keycode.cpp
+msgid "Primary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Primary Right Paddle"
+msgstr ""
+
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
@@ -2287,12 +2420,50 @@ msgid "Right Control"
 msgstr "Ctrl Kanan"
 
 #: src/client/keycode.cpp
+msgid "Right Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Down"
+msgstr "ID Kayu Bedik"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Left"
+msgstr "Jenis kayu bedik"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Right"
+msgstr "Jenis kayu bedik"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Up"
+msgstr "Jenis kayu bedik"
+
+#: src/client/keycode.cpp
 msgid "Right Menu"
 msgstr "Menu Kanan"
 
 #: src/client/keycode.cpp
 msgid "Right Shift"
 msgstr "Shift Kanan"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Shoulder"
+msgstr "Shift Kanan"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Trigger"
+msgstr "Anak Panah Kanan"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2309,6 +2480,14 @@ msgid "Scroll Lock"
 msgstr "Scroll Lock"
 
 #: src/client/keycode.cpp
+msgid "Secondary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Secondary Right Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
 #, fuzzy
 msgid "Select Key"
 msgstr "Kekunci Hapus"
@@ -2323,12 +2502,44 @@ msgstr "Selang"
 
 #: src/client/keycode.cpp
 #, fuzzy
+msgid "Square (Gamepad)"
+msgstr "Gaya Main Pelayan"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Start (Gamepad)"
+msgstr "Mulakan Permainan"
+
+#: src/client/keycode.cpp
+#, fuzzy
 msgid "Tab Key"
 msgstr "Kekunci Putus"
 
 #: src/client/keycode.cpp
+msgid "Top Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Touchpad Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Triangle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Anak Panah Atas"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "X (Gamepad)"
+msgstr "Pad permainan"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Y (Gamepad)"
+msgstr "Pad permainan"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2659,6 +2870,10 @@ msgstr ""
 "Versi klien anda tidak disokong.\n"
 "Sila hubungi pentadbir pelayan."
 
+#: src/script/lua_api/l_mainmenu.cpp
+msgid "Copied to clipboard!"
+msgstr ""
+
 #: src/server.cpp
 #, c-format
 msgid "%s while shutting down: "
@@ -2844,6 +3059,11 @@ msgstr "Pecutan di udara"
 #: src/settings_translation_file.cpp
 msgid "Acceleration of gravity, in nodes per second per second."
 msgstr "Pecutan graviti, dalam unit nod per saat per saat."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Actions and Keybindings"
+msgstr "Ikatan kekunci."
 
 #: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
@@ -3059,12 +3279,12 @@ msgstr ""
 "Dinyatakan dalam unit BlokPeta (16 nod)."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
-"At this distance the server will perform a simpler and cheaper occlusion "
-"check.\n"
-"Smaller values potentially improve performance, at the expense of "
-"temporarily visible\n"
-"rendering glitches (missing blocks).\n"
+"At this distance the server will consider blocks as \"far away\".\n"
+"It will perform simpler and cheaper occlusion checks, update\n"
+"low priority block updates lazily, and limit the blocks sent to the\n"
+"client in one roundtrip.\n"
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
@@ -3955,14 +4175,6 @@ msgid "Enable dynamic shadows"
 msgstr "Bayang dinamik"
 
 #: src/settings_translation_file.cpp
-msgid "Enable joysticks"
-msgstr "Membolehkan kayu bedik"
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks. Requires a restart to take effect"
-msgstr "Membolehkan kayu bedik. Perlu dimulakan semula untuk mengambil kesan"
-
-#: src/settings_translation_file.cpp
 msgid "Enable mod channels support."
 msgstr "Membolehkan sokongan saluran mods."
 
@@ -4409,8 +4621,12 @@ msgid "GUI scaling filter"
 msgstr "Penapis penyesuaian GUI"
 
 #: src/settings_translation_file.cpp
-msgid "Gamepads"
-msgstr "Pad permainan"
+msgid "Gamepads and Joysticks"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Gamma"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -5078,24 +5294,22 @@ msgstr ""
 "Pada lelaran = 20 janapeta ini mempunyai muatan serupa dengan janapeta V7."
 
 #: src/settings_translation_file.cpp
-msgid "Joystick ID"
-msgstr "ID Kayu Bedik"
-
-#: src/settings_translation_file.cpp
 msgid "Joystick button repetition interval"
 msgstr "Selang masa pengulangan butang kayu bedik"
-
-#: src/settings_translation_file.cpp
-msgid "Joystick dead zone"
-msgstr "Zon mati kayu bedik"
 
 #: src/settings_translation_file.cpp
 msgid "Joystick frustum sensitivity"
 msgstr "Kepekaan frustum kayu bedik"
 
 #: src/settings_translation_file.cpp
-msgid "Joystick type"
-msgstr "Jenis kayu bedik"
+#, fuzzy
+msgid "Joystick inner dead zone"
+msgstr "Zon mati kayu bedik"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Joystick outer dead zone"
+msgstr "Zon mati kayu bedik"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5195,6 +5409,12 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Key for opening the pause menu in-game.\n"
+"Pressing the escape key always opens the pause menu."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
@@ -5218,11 +5438,6 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
 msgstr ""
-
-#: src/settings_translation_file.cpp
-#, fuzzy
-msgid "Keybindings"
-msgstr "Ikatan kekunci."
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -5490,6 +5705,16 @@ msgid ""
 msgstr ""
 "Buatkan warna kabut dan langit bergantung kepada waktu (fajar/matahari "
 "terbenam) dan arah pandang."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Make volumetrics weaker against closer objects to emulate physical "
+"volumetrics."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Makes the color of light fog more saturated."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
@@ -6123,6 +6348,10 @@ msgid "Open inventory"
 msgstr "Inventori"
 
 #: src/settings_translation_file.cpp
+msgid "Open pause menu"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Open the pause menu when the window's focus is lost. Does not pause if a "
 "formspec is\n"
@@ -6742,10 +6971,10 @@ msgstr ""
 "Nilai 0 untuk tidak condong / orbit menegak."
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Set the exposure compensation in EV units.\n"
-"Value of 0.0 (default) means no exposure compensation.\n"
-"Range: from -1 to 1.0"
+"Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 "Menetapkan pampasan dedahan dalam unit EV.\n"
 "Nilai 0.0 (lalai) untuk tiada pampasan dedahan.\n"
@@ -6765,6 +6994,12 @@ msgid ""
 msgstr ""
 "Menetapkan panjang maksimum mesej sembang (dalam jumlah aksara) yang "
 "dihantar oleh klien."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Set the post processing gamma value.\n"
+"Higher values give lower contrast and vice versa."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6915,7 +7150,10 @@ msgstr ""
 "lebih kecil."
 
 #: src/settings_translation_file.cpp
-msgid "Simulate translucency when looking at foliage in the sunlight."
+#, fuzzy
+msgid ""
+"Simulate translucency when looking at foliage in the sunlight.\n"
+"It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
 msgstr ""
 "Simulasikan lut sinar apabila melihat dedaunan di bawah cahaya matahari."
 
@@ -7214,10 +7452,6 @@ msgid "The URL for the content repository"
 msgstr "URL untuk repositori kandungan"
 
 #: src/settings_translation_file.cpp
-msgid "The dead zone of the joystick"
-msgstr "Zon mati bagi kayu bedik yang digunakan"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The default format in which profiles are being saved,\n"
 "when calling `/profiler save [format]` without format."
@@ -7263,10 +7497,6 @@ msgstr ""
 "* long_tap (ketik dan tahan)\n"
 "Terkenal daripada kawalan mudah alih Minetest yang lama.\n"
 "Pertempuran itu agak mustahil untuk dilakukan."
-
-#: src/settings_translation_file.cpp
-msgid "The identifier of the joystick to use"
-msgstr "Pengenal pasti kayu bedik yang digunakan"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7412,10 +7642,6 @@ msgstr ""
 "pemain menekan butang letak tanpa melepaskannya."
 
 #: src/settings_translation_file.cpp
-msgid "The type of joystick"
-msgstr "Jenis kayu bedik"
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The vertical distance over which heat drops by 20 if 'altitude_chill' is\n"
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
@@ -7457,6 +7683,19 @@ msgid "Timeout for client to remove unused map data from memory, in seconds."
 msgstr ""
 "Had masa untuk klien membuang data peta yang tidak digunakan dari ingatan, "
 "dalam saat."
+
+#: src/settings_translation_file.cpp
+msgid "Tint sunlight during sunrise/sunset."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Tinted fog"
+msgstr "Togol kabut"
+
+#: src/settings_translation_file.cpp
+msgid "Tinted sunlight"
+msgstr ""
 
 #: src/settings_translation_file.cpp
 #, fuzzy
@@ -7869,7 +8108,13 @@ msgid "Volume when unfocused"
 msgstr "Kekuatan bunyi apabila tidak difokuskan"
 
 #: src/settings_translation_file.cpp
-msgid "Volumetric lighting"
+#, fuzzy
+msgid "Volumetric Depth Attenuation"
+msgstr "Pencahayaan isi padu"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Volumetric Lighting"
 msgstr "Pencahayaan isi padu"
 
 #: src/settings_translation_file.cpp
@@ -7941,8 +8186,10 @@ msgid "Weblink color"
 msgstr "Warna pautan sesawang"
 
 #: src/settings_translation_file.cpp
-msgid "When enabled, liquid reflections are simulated."
-msgstr "Apabila didayakan, pantulan cecair disimulasikan."
+msgid ""
+"When enabled, crude liquid reflections are simulated.\n"
+"Wave height, length and speed will affect these reflections."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -8196,5 +8443,25 @@ msgstr ""
 msgid "Failed to save screenshot to \"%s\""
 msgstr ""
 
-#~ msgid "Append item name"
-#~ msgstr "Tambah nama item"
+#~ msgid "Enable joysticks"
+#~ msgstr "Membolehkan kayu bedik"
+
+#~ msgid "Enable joysticks. Requires a restart to take effect"
+#~ msgstr ""
+#~ "Membolehkan kayu bedik. Perlu dimulakan semula untuk mengambil kesan"
+
+#, fuzzy
+#~ msgid "Keybindings"
+#~ msgstr "Ikatan kekunci."
+
+#~ msgid "The dead zone of the joystick"
+#~ msgstr "Zon mati bagi kayu bedik yang digunakan"
+
+#~ msgid "The identifier of the joystick to use"
+#~ msgstr "Pengenal pasti kayu bedik yang digunakan"
+
+#~ msgid "The type of joystick"
+#~ msgstr "Jenis kayu bedik"
+
+#~ msgid "When enabled, liquid reflections are simulated."
+#~ msgstr "Apabila didayakan, pantulan cecair disimulasikan."

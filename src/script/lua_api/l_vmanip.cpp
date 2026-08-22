@@ -26,8 +26,7 @@ LuaVoxelManip *LuaVoxelManip::checkObjectValid(lua_State *L, int narg)
 // garbage collector
 int LuaVoxelManip::gc_object(lua_State *L)
 {
-	LuaVoxelManip *o = *(LuaVoxelManip **)(lua_touserdata(L, 1));
-	delete o;
+	delete takeObjectForGC<LuaVoxelManip>(L);
 
 	return 0;
 }

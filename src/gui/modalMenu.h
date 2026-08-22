@@ -28,6 +28,7 @@ public:
 	// A GUIModalMenu calls these when this class is passed as a parameter
 	virtual void createdMenu(gui::IGUIElement *menu) = 0;
 	virtual void deletingMenu(gui::IGUIElement *menu) = 0;
+	virtual void inhibitKeyEvent(EKEY_CODE key) = 0;
 };
 
 // Remember to drop() the menu after creating, so that it can

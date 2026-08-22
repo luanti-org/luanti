@@ -96,6 +96,8 @@ jobs:
     runs-on: windows-2025-vs2026
     env:
       VCPKG_DEFAULT_TRIPLET: ${{matrix.config.vcpkg_triplet}}
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\vcpkg_cache
+      VCPKG_DISABLE_METRICS: 1
     strategy:
       fail-fast: false
       matrix:
@@ -114,12 +116,32 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Restore from cache and run vcpkg
-        uses: lukka/run-vcpkg@v11
+      - name: Setup vcpkg
+        id: setup-vcpkg
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force C:\vcpkg -ErrorAction Continue
+          $baseline = (Get-Content -Raw vcpkg.json | ConvertFrom-Json).'builtin-baseline'
+          Write-Host "builtin-baseline: $baseline"
+          "VCPKG_BASELINE=$baseline" >> $env:GITHUB_OUTPUT
+          New-Item -ItemType Directory -Force vcpkg_cache | Out-Null
+          git clone --filter=blob:none --no-checkout https://github.com/microsoft/vcpkg.git vcpkg
+          git -C vcpkg checkout $baseline
+          .\vcpkg\bootstrap-vcpkg.bat
+
+      - name: Restore vcpkg cache
+        id: vcpkg-cache
+        uses: actions/cache/restore@v6
         with:
-          vcpkgDirectory: '${{ github.workspace }}\vcpkg'
+          path: &vcpkg_cache_paths |
+            ${{ github.workspace }}\vcpkg\downloads
+            ${{ github.workspace }}\vcpkg_cache
+          key: &vcpkg_cache_key ${{ runner.os }}-vcpkg-${{ matrix.config.vcpkg_triplet }}-${{ steps.setup-vcpkg.outputs.VCPKG_BASELINE }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-${{ matrix.config.vcpkg_triplet }}-${{ steps.setup-vcpkg.outputs.VCPKG_BASELINE }}-
 
       - name: CMake
+        id: cmake
         run: |
           cmake ${{matrix.config.generator}}  `
           -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake"  `
@@ -144,6 +166,13 @@ jobs:
           cpack -G ZIP -B "$env:GITHUB_WORKSPACE\Package"
           rm -r $env:GITHUB_WORKSPACE\Package\_CPack_Packages
           Get-ChildItem "$env:GITHUB_WORKSPACE\Package\*.zip" | Rename-Item -NewName { $_.Name -replace '\.zip$', '-msvc.zip' }
+
+      - name: Save vcpkg cache
+        uses: actions/cache/save@v6
+        if: always() && steps.cmake.outcome == 'success' && steps.vcpkg-cache.outputs.cache-hit != 'true'
+        with:
+          path: *vcpkg_cache_paths
+          key: *vcpkg_cache_key
 
       - uses: actions/upload-artifact@v7
         with:

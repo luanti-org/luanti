@@ -823,7 +823,6 @@ enable_auto_exposure (Enable Automatic Exposure) bool false
 
 #    Set the exposure compensation in EV units.
 #    Value of 0.0 (default) means no exposure compensation.
-#    Range: from -1 to 1.0
 #
 #    Requires: enable_post_processing, enable_auto_exposure
 exposure_compensation (Exposure compensation) float 0.0 -1.0 1.0
@@ -848,11 +847,12 @@ enable_bloom (Enable Bloom) bool false
 #    Set to true to enable volumetric lighting effect (a.k.a. "Godrays").
 #
 #    Requires: enable_post_processing, enable_bloom
-enable_volumetric_lighting (Volumetric lighting) bool false
+enable_volumetric_lighting (Volumetric Lighting) bool false
 
 [**Other Effects]
 
 #   Simulate translucency when looking at foliage in the sunlight.
+#   It is recommended to use this with setting "leaves_style" set to "fancy".
 #
 #   Requires: enable_dynamic_shadows
 enable_translucent_foliage (Translucent foliage) bool false

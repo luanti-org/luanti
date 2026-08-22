@@ -357,7 +357,7 @@ u32 TextureSource::generateArrayTexture(const std::vector<std::string> &images)
 	std::string name;
 	{ // automatically choose a name
 		char buf[64];
-		porting::mt_snprintf(buf, sizeof(buf), "array#%u %ux%ux%u", id,
+		porting::mt_snprintf(buf, sizeof(buf), "array#%u %ux%ux%zu", id,
 			imgs[0]->getDimension().Width, imgs[0]->getDimension().Height,
 			imgs.size());
 		name = buf;

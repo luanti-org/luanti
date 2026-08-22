@@ -90,8 +90,7 @@ void ModChannelRef::create(lua_State *L, const std::string &channel)
 
 int ModChannelRef::gc_object(lua_State *L)
 {
-	ModChannelRef *o = *(ModChannelRef **)(lua_touserdata(L, 1));
-	delete o;
+	delete takeObjectForGC<ModChannelRef>(L);
 	return 0;
 }
 

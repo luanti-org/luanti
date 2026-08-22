@@ -906,21 +906,6 @@ if(USE_LUAJIT)
 			"THIS APPLIES ESPECIALLY ON macOS OR Linux/aarch64!")
 		message(WARNING ${explanation_msg})
 	endif()
-elseif(NOT MSVC)
-	set(CMAKE_REQUIRED_LIBRARIES "")
-	unset(HAVE_ATCCALL CACHE)
-	# Note: we need to check the function without having the library
-	#       available for linking, so check_symbol_exists won't work.
-	# Incidentally this doesn't seem to work on MSVC...
-	check_c_source_compiles("#include <lua.h>\nint main(){return sizeof(lua_atccall);}" HAVE_ATCCALL)
-	if(NOT HAVE_ATCCALL)
-		string(CONCAT explanation_msg
-			"It looks like you're trying to build ${PROJECT_NAME_CAPITALIZED} using a system-wide "
-			"Lua installation. This is no longer supported because PUC Lua "
-			"cannot interoperate with C++ correctly. Read src/unittest/test_lua.cpp "
-			" for technical details.")
-		message(FATAL_ERROR ${explanation_msg})
-	endif()
 endif()
 
 if(MSVC)
@@ -964,6 +949,11 @@ else()
 	check_cxx_compiler_flag("-Werror=mismatched-tags" SUPPORTS_W_MISMATCHED_TAGS)
 	if(SUPPORTS_W_MISMATCHED_TAGS)
 		set(WARNING_FLAGS "${WARNING_FLAGS} -Werror=mismatched-tags")
+	endif()
+
+	check_cxx_compiler_flag("-Wnull-dereference" SUPPORTS_W_NULL_DEREFERENCE)
+	if(SUPPORTS_W_NULL_DEREFERENCE)
+		set(WARNING_FLAGS "${WARNING_FLAGS} -Wnull-dereference")
 	endif()
 
 	if(WARN_ALL)

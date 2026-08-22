@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
 		porting::attachOrCreateConsole();
 
 	// Run legacy and Catch2 unit tests
-	if (cmd_args.getFlag("run-unittests")) {
+	if (cmd_args.getFlag("run-unittests") || cmd_args.exists("test-module")) {
 		porting::attachOrCreateConsole();
 #if BUILD_UNITTESTS
 		if (cmd_args.exists("test-module"))
@@ -716,7 +716,9 @@ static bool use_debugger(int argc, char *argv[])
 			continue;
 		new_args.push_back(argv[i]);
 	}
+#if CHECK_CLIENT_BUILD()
 	new_args.push_back("--console");
+#endif
 	new_args.push_back(nullptr);
 
 #ifdef _WIN32

@@ -654,7 +654,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 		for (ofs.Y = 0; ofs.Y < mesh_grid.cell_size; ofs.Y++)
 		for (ofs.X = 0; ofs.X < mesh_grid.cell_size; ofs.X++) {
 			v3s16 p = (bp + ofs) * MAP_BLOCKSIZE;
-			if (data->m_vmanip.getNodeNoEx(p).getContent() != CONTENT_IGNORE) {
+			if (data->m_vmanip.getNodeNoExNoEmerge(p).getContent() != CONTENT_IGNORE) {
 				MinimapMapblock *block = new MinimapMapblock;
 				m_minimap_mapblocks[mesh_grid.getOffsetIndex(ofs)] = block;
 				block->getMinimapNodes(&data->m_vmanip, data->m_nodedef, p);

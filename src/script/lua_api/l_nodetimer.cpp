@@ -8,8 +8,7 @@
 #include "servermap.h"
 
 int NodeTimerRef::gc_object(lua_State *L) {
-	NodeTimerRef *o = *(NodeTimerRef **)(lua_touserdata(L, 1));
-	delete o;
+	delete takeObjectForGC<NodeTimerRef>(L);
 	return 0;
 }
 

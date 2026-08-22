@@ -94,8 +94,7 @@ int ObjectRef::mt_tostring(lua_State *L)
 // garbage collector
 int ObjectRef::gc_object(lua_State *L)
 {
-	ObjectRef *obj = *(ObjectRef **)(lua_touserdata(L, 1));
-	delete obj;
+	delete takeObjectForGC<ObjectRef>(L);
 	return 0;
 }
 

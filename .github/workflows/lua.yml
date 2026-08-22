@@ -19,7 +19,7 @@ jobs:
   # Note that the integration tests are also run in build.yml, but only when C++ code is changed.
   integration_tests:
     name: "Compile and run multiplayer tests"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
     - uses: actions/checkout@v7
     - name: Install deps

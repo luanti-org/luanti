@@ -419,6 +419,7 @@ to check whether a model is a valid glTF file.
 
 Many glTF features are not supported *yet*, including:
 
+* Primitive modes other than `TRIANGLES`
 * Animations
   * `CUBICSPLINE` interpolation is not supported
   * Morph animations
@@ -643,7 +644,7 @@ low-res textures not suddenly becoming filtered.
 
 ## Loading order
 
-Texture names are looked up in the following order. Top has the lowest priority.
+The priority order for textures is as follows: (in increasing order, lowest first)
 
 * Client: `$path_share/textures/base/pack`
 * Server: mod-provided textures, in their `textures` directory
@@ -2109,7 +2110,9 @@ Displays a horizontal bar made up of half-images with an optional background.
 * `text`: The name of the inventory list to be displayed.
 * `number`: Amount of item slots in the inventory to be displayed.
   Integer in range [u16].
-* `item`: Position of item that is selected. Integer in range [u16].
+* `item`: The slot at this index is rendered as if it were selected
+  using the texture set by `player:hud_set_hotbar_selected_image(texturename)`.
+  Integer in range [u16].
 * `direction`: Direction the list will be displayed in
 * `offset`: offset in pixels from position.
 * `alignment`: The alignment of the inventory. Aligned at the top left corner if not specified.
@@ -3048,35 +3051,39 @@ Examples
     list[current_player;craft;3,0;3,3;]
     list[current_player;craftpreview;7,1;1,1;]
 
-Version History
----------------
+Formspec Version History
+------------------------
 
-* Formspec version 1 (pre-5.1.0):
+* Version 1 (pre-5.1.0):
   * (too much)
-* Formspec version 2 (5.1.0):
+* Version 2 (5.1.0):
   * Forced real coordinates
   * background9[]: 9-slice scaling parameters
-* Formspec version 3 (5.2.0):
+* Version 3 (5.2.0):
   * Formspec elements are drawn in the order of definition
   * bgcolor[]: use 3 parameters (bgcolor, formspec (now an enum), fbgcolor)
   * box[] and image[] elements enable clipping by default
   * new element: scroll_container[]
-* Formspec version 4 (5.4.0):
+* Version 4 (5.4.0):
   * Allow dropdown indexing events
-* Formspec version 5 (5.5.0):
+* Version 5 (5.5.0):
   * Added padding[] element
-* Formspec version 6 (5.6.0):
+* Version 6 (5.6.0):
   * Add nine-slice images, animated_image, and fgimg_middle
-* Formspec version 7 (5.8.0):
+* Version 7 (5.8.0):
   * style[]: Add focused state for buttons
   * Add field_enter_after_edit[] (experimental)
-* Formspec version 8 (5.10.0)
+* Version 8 (5.10.0)
   * scroll_container[]: content padding parameter
-* Formspec version 9 (5.12.0)
+* Version 9 (5.12.0)
   * Add allow_close[]
   * label[]: Add "area label" variant
-* Formspec version 10 (5.13.0)
+* Version 10 (5.13.0)
   * model[]: Support floating-point frames
+* Version 11 (5.17.0)
+  * Added hypertip[] element
+  * label[], textarea[] and field[] alignment styles
+
 
 Elements
 --------
@@ -3939,6 +3946,7 @@ Some types may inherit styles from parent types.
     * font - Sets font type. See button `font` property for more information.
     * font_size - Sets font size. See button `font_size` property for more information.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+    * textcolor - color. Default white.
     * halign - Sets horizontal alignment of text. **Note**: Only applies for "area label"
     syntax (`label[x,y;w,h;text]`). Can either be `left`, `center`, or `right`. Default `left`.
     * valign - Sets vertical alignment of text. **Note**: Only applies for "area label"
@@ -8574,6 +8582,7 @@ An `InvRef` is a reference to an inventory.
     * If `match_meta` is `true` (available since feature `remove_item_match_meta`),
       item metadata is also considered when comparing items. Otherwise, only the
       items names are compared. Default: `false`
+    * Items are removed from the list in reverse order.
     * The method ignores wear.
 * `get_location()`: returns a location compatible to
   `core.get_inventory(location)`.

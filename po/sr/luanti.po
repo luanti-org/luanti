@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: luanti\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-06 19:14+0200\n"
-"PO-Revision-Date: 2026-01-16 15:01+0000\n"
-"Last-Translator: Wuzzy <Wuzzy@disroot.org>\n"
+"POT-Creation-Date: 2026-08-10 17:35+0200\n"
+"PO-Revision-Date: 2026-05-16 21:17+0000\n"
+"Last-Translator: Саша Петровић <salepetronije@gmail.com>\n"
 "Language-Team: Serbian <https://hosted.weblate.org/projects/minetest/"
 "minetest/sr/>\n"
 "Language: sr\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.15.2\n"
+"X-Generator: Weblate 2026.6.dev0\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -37,7 +37,6 @@ msgid "Invalid command: "
 msgstr "Неисправна наредба: "
 
 #: builtin/client/chatcommands.lua
-#, fuzzy
 msgid "Issued command: "
 msgstr "Проблематична наредба: "
 
@@ -87,9 +86,8 @@ msgid "[all | <cmd>] [-t]"
 msgstr "[all | <cmd>] [-t]"
 
 #: builtin/common/settings/components.lua
-#, fuzzy
 msgid "Add keybinding"
-msgstr "Пречице"
+msgstr "Додај пречицу"
 
 #: builtin/common/settings/components.lua
 msgid "Browse"
@@ -120,9 +118,8 @@ msgid "Set"
 msgstr "Постави"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
-#, fuzzy
 msgid "$1 spread"
-msgstr "прошири х"
+msgstr "прошири $1"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "(No description of setting given)"
@@ -141,7 +138,7 @@ msgstr ""
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Amplifies every octave by (amplitude of the previous octave * Persistence)."
-msgstr ""
+msgstr "Појачава сваку октаву пута (појачање претходне октаве * Сталност)."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 #: builtin/mainmenu/content/dlg_install.lua
@@ -157,23 +154,24 @@ msgstr "Поништи"
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Controls how many octaves (layers) the noise will have."
-msgstr ""
+msgstr "Одређује колико октава (слојева) ће шум имати."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Each octave is a simple noise generator. Each one also adds more detail to "
 "the noise."
 msgstr ""
+"Свака октава је једноставни творац шума. Свака додаје више подробности шуму."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Finally, all of the octaves will be combined to generate the noise."
-msgstr ""
+msgstr "Сконца, све октаве ће бити уопштене ради творбе шума."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Having lots of octaves is not recommended because it increases terrain "
 "generation time."
-msgstr ""
+msgstr "Имати много октава није препоручиво јер повећава време творбе тла."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "Lacunarity"
@@ -183,25 +181,31 @@ msgstr "Зјапљење"
 msgid ""
 "Lower values make the terrain simple and higher values make the terrain "
 "rough."
-msgstr ""
+msgstr "Ниже вредности чине тло једноставним а више вредности чине тло оштрим."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Lower values make the terrain smooth and higher values make the terrain have "
 "fine detail."
 msgstr ""
+"Ниже вредности чине тло глатким а више вредности чине тло са више "
+"појединости."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Lower values will result in smoother noise and higher values will result in "
 "rougher noise."
 msgstr ""
+"Ниже вредности исходуну глаткијим шумом а више вредности исходуну оштријим "
+"шумом."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
 "Making 3D noise eased is not recommended because it significantly increases "
 "the load."
 msgstr ""
+"Стварање просторног шума није препоручиво јер значајно повећава терет "
+"учитавања."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid ""
@@ -269,7 +273,7 @@ msgstr "Служитељ онемогућује ову наредбу."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "The multiplier for the noise before the offset is added."
-msgstr ""
+msgstr "Множилац шума пре додавања помераја."
 
 #: builtin/common/settings/dlg_change_mapgen_flags.lua
 msgid "The random seed for the noise. The same seed results in the same noise."
@@ -518,6 +522,10 @@ msgstr "Десила се грешка у скриптама Луе:"
 #: builtin/fstk/ui.lua
 msgid "An error occurred:"
 msgstr "Десила се грешка:"
+
+#: builtin/fstk/ui.lua
+msgid "Copy to clipboard"
+msgstr ""
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1562,6 +1570,11 @@ msgstr "Уклони омиљено"
 msgid "Server Description"
 msgstr "Опис служитеља"
 
+#: src/chat.cpp
+#, fuzzy
+msgid "Player names: "
+msgstr "Играј игру"
+
 #: src/client/client.cpp
 msgid "Connection aborted (protocol error?)."
 msgstr "Отказано је повезивање (грешка поступка)."
@@ -1753,6 +1766,11 @@ msgid "Fast mode enabled (note: no 'fast' privilege)"
 msgstr "Измена брзог кретања је омогућена (примедба: нема предности „брзине“)"
 
 #: src/client/game.cpp
+#, c-format
+msgid "Files: %d / %d"
+msgstr ""
+
+#: src/client/game.cpp
 msgid "Fly mode disabled"
 msgstr "Измена летења је онемогућена"
 
@@ -1781,11 +1799,13 @@ msgid "Item definitions..."
 msgstr "Опис ставки..."
 
 #: src/client/game.cpp
-msgid "KiB/s"
+#, fuzzy
+msgid "KiB"
 msgstr "КиБ/с"
 
 #: src/client/game.cpp
-msgid "MiB/s"
+#, fuzzy
+msgid "MiB"
 msgstr "МиБ/с"
 
 #: src/client/game.cpp
@@ -1835,6 +1855,11 @@ msgstr "Искључујем..."
 #: src/client/game.cpp src/client/game_formspec.cpp
 msgid "Singleplayer"
 msgstr "Самостална игра"
+
+#: src/client/game.cpp
+#, c-format
+msgid "Size: %.2f %s"
+msgstr ""
 
 #: src/client/game.cpp
 msgid "Sound muted"
@@ -2061,8 +2086,26 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Приказан је профилер (страна %d од %d)"
 
 #: src/client/keycode.cpp
+#, fuzzy
+msgid "A (Gamepad)"
+msgstr "Игра је заустављена"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "B (Gamepad)"
+msgstr "Игра је заустављена"
+
+#: src/client/keycode.cpp
+msgid "Back (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Backspace"
 msgstr "Пребриши"
+
+#: src/client/keycode.cpp
+msgid "Bottom Face Button (Gamepad)"
+msgstr ""
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2074,12 +2117,38 @@ msgid "Caps Lock"
 msgstr "Закључавање слова"
 
 #: src/client/keycode.cpp
+msgid "Circle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Clear Key"
 msgstr "Дугме очисти"
 
 #: src/client/keycode.cpp
 msgid "Control Key"
 msgstr "Дугме управе"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Cross (Gamepad)"
+msgstr "Прозирност нишана"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "D-Pad Down"
+msgstr "Страница доле"
+
+#: src/client/keycode.cpp
+msgid "D-Pad Left"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "D-Pad Up"
+msgstr ""
 
 #: src/client/keycode.cpp
 msgid "Delete Key"
@@ -2093,6 +2162,25 @@ msgstr "Стрелица доле"
 #, fuzzy
 msgid "End Key"
 msgstr "Дугме изборника"
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Axis %d +"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Axis %d -"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, c-format
+msgid "Gamepad Button %d"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Guide (Gamepad)"
+msgstr ""
 
 #: src/client/keycode.cpp
 #, fuzzy
@@ -2122,12 +2210,49 @@ msgid "Left Control"
 msgstr "Леви управљач"
 
 #: src/client/keycode.cpp
+msgid "Left Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Down"
+msgstr "Палица"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Left"
+msgstr "Палица"
+
+#: src/client/keycode.cpp
+msgid "Left Joystick Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Joystick Up"
+msgstr "Палица"
+
+#: src/client/keycode.cpp
 msgid "Left Menu"
 msgstr "Леви изборник"
 
 #: src/client/keycode.cpp
 msgid "Left Shift"
 msgstr "Леви помак"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Shoulder"
+msgstr "Леви помак"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Left Trigger"
+msgstr "Стрелица лево"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2239,6 +2364,14 @@ msgstr "Дугме застанка"
 msgid "Play"
 msgstr "Играј"
 
+#: src/client/keycode.cpp
+msgid "Primary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Primary Right Paddle"
+msgstr ""
+
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
 msgid "Print"
@@ -2262,12 +2395,49 @@ msgid "Right Control"
 msgstr "Десни управљач"
 
 #: src/client/keycode.cpp
+msgid "Right Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Button"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Down"
+msgstr "Десни управљач"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Left"
+msgstr "Десни управљач"
+
+#: src/client/keycode.cpp
+msgid "Right Joystick Right"
+msgstr ""
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Joystick Up"
+msgstr "Десни управљач"
+
+#: src/client/keycode.cpp
 msgid "Right Menu"
 msgstr "Десни изборник"
 
 #: src/client/keycode.cpp
 msgid "Right Shift"
 msgstr "Десни помак"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Shoulder"
+msgstr "Десни помак"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Right Trigger"
+msgstr "Стрелица десно"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2284,6 +2454,14 @@ msgid "Scroll Lock"
 msgstr "Закључавање клизања"
 
 #: src/client/keycode.cpp
+msgid "Secondary Left Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Secondary Right Paddle"
+msgstr ""
+
+#: src/client/keycode.cpp
 #, fuzzy
 msgid "Select Key"
 msgstr "Дугме бриши"
@@ -2298,12 +2476,44 @@ msgstr "Размак"
 
 #: src/client/keycode.cpp
 #, fuzzy
+msgid "Square (Gamepad)"
+msgstr "Почни игру"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Start (Gamepad)"
+msgstr "Почни игру"
+
+#: src/client/keycode.cpp
+#, fuzzy
 msgid "Tab Key"
 msgstr "Дугме прелома"
 
 #: src/client/keycode.cpp
+msgid "Top Face Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Touchpad Button (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
+msgid "Triangle (Gamepad)"
+msgstr ""
+
+#: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Стрелица навише"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "X (Gamepad)"
+msgstr "Игра је заустављена"
+
+#: src/client/keycode.cpp
+#, fuzzy
+msgid "Y (Gamepad)"
+msgstr "Игра је заустављена"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2620,6 +2830,10 @@ msgstr ""
 "Издање Ваше странке није подржано.\n"
 "Молим, обратите се руковаоцу служитеља."
 
+#: src/script/lua_api/l_mainmenu.cpp
+msgid "Copied to clipboard!"
+msgstr ""
+
 #: src/server.cpp
 #, c-format
 msgid "%s while shutting down: "
@@ -2780,6 +2994,11 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid "Acceleration of gravity, in nodes per second per second."
 msgstr "Убрзање теже, у чворовима по секунди за секунду."
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Actions and Keybindings"
+msgstr "Додај пречицу"
 
 #: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
@@ -2958,11 +3177,10 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
-"At this distance the server will perform a simpler and cheaper occlusion "
-"check.\n"
-"Smaller values potentially improve performance, at the expense of "
-"temporarily visible\n"
-"rendering glitches (missing blocks).\n"
+"At this distance the server will consider blocks as \"far away\".\n"
+"It will perform simpler and cheaper occlusion checks, update\n"
+"low priority block updates lazily, and limit the blocks sent to the\n"
+"client in one roundtrip.\n"
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
@@ -3774,14 +3992,6 @@ msgid "Enable dynamic shadows"
 msgstr "Покретне сене"
 
 #: src/settings_translation_file.cpp
-msgid "Enable joysticks"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Enable joysticks. Requires a restart to take effect"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Enable mod channels support."
 msgstr ""
 
@@ -4182,7 +4392,11 @@ msgid "GUI scaling filter"
 msgstr "Услови размеравања цртежног сучеља"
 
 #: src/settings_translation_file.cpp
-msgid "Gamepads"
+msgid "Gamepads and Joysticks"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Gamma"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4748,15 +4962,7 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Joystick ID"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid "Joystick button repetition interval"
-msgstr ""
-
-#: src/settings_translation_file.cpp
-msgid "Joystick dead zone"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4764,7 +4970,11 @@ msgid "Joystick frustum sensitivity"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Joystick type"
+msgid "Joystick inner dead zone"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Joystick outer dead zone"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -4850,6 +5060,12 @@ msgstr "Дугме за отварање прозора ћаскања ради 
 
 #: src/settings_translation_file.cpp
 msgid ""
+"Key for opening the pause menu in-game.\n"
+"Pressing the escape key always opens the pause menu."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
 "Key for placing an item/block or for using something.\n"
 "(Note: The actual meaning might vary on a per-game basis.)"
 msgstr ""
@@ -4875,10 +5091,6 @@ msgstr "Дугме прекидач приказа веза коцки карт�
 #: src/settings_translation_file.cpp
 msgid "Key for toggling the display of the profiler. Used for development."
 msgstr "Дугме прекидач приказа профилера. Коришћено за развој."
-
-#: src/settings_translation_file.cpp
-msgid "Keybindings"
-msgstr "Пречице"
 
 #: src/settings_translation_file.cpp
 msgid "Keyboard and Mouse"
@@ -5120,6 +5332,16 @@ msgid ""
 msgstr ""
 "Чини боју магле и небеса зависним од доба дана (зоре/заласка сунца) и правца "
 "погледа."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Make volumetrics weaker against closer objects to emulate physical "
+"volumetrics."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Makes the color of light fog more saturated."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
@@ -5687,6 +5909,10 @@ msgid "Open inventory"
 msgstr "Отвори иметак"
 
 #: src/settings_translation_file.cpp
+msgid "Open pause menu"
+msgstr ""
+
+#: src/settings_translation_file.cpp
 msgid ""
 "Open the pause menu when the window's focus is lost. Does not pause if a "
 "formspec is\n"
@@ -6214,10 +6440,10 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
+#, fuzzy
 msgid ""
 "Set the exposure compensation in EV units.\n"
-"Value of 0.0 (default) means no exposure compensation.\n"
-"Range: from -1 to 1.0"
+"Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 "Поставља накнаду изложености у јединицама ЕВ-а-\n"
 "Вредност 0.0 (подразумевано) значи нема накнаде изложености.\n"
@@ -6234,6 +6460,12 @@ msgstr ""
 #: src/settings_translation_file.cpp
 msgid ""
 "Set the maximum length of a chat message (in characters) sent by clients."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Set the post processing gamma value.\n"
+"Higher values give lower contrast and vice versa."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6362,7 +6594,9 @@ msgid ""
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "Simulate translucency when looking at foliage in the sunlight."
+msgid ""
+"Simulate translucency when looking at foliage in the sunlight.\n"
+"It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -6601,10 +6835,6 @@ msgid "The URL for the content repository"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "The dead zone of the joystick"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The default format in which profiles are being saved,\n"
 "when calling `/profiler save [format]` without format."
@@ -6643,10 +6873,6 @@ msgstr ""
 "Дугачки тап\n"
 "Познато из мобилног управљања Луантија.\n"
 "Борба је мање-више немогућа."
-
-#: src/settings_translation_file.cpp
-msgid "The identifier of the joystick to use"
-msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6775,10 +7001,6 @@ msgstr ""
 "држању дугмета смештања."
 
 #: src/settings_translation_file.cpp
-msgid "The type of joystick"
-msgstr ""
-
-#: src/settings_translation_file.cpp
 msgid ""
 "The vertical distance over which heat drops by 20 if 'altitude_chill' is\n"
 "enabled. Also, the vertical distance over which humidity drops by 10 if\n"
@@ -6809,6 +7031,19 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Timeout for client to remove unused map data from memory, in seconds."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Tint sunlight during sunrise/sunset."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Tinted fog"
+msgstr "Прекидач магле"
+
+#: src/settings_translation_file.cpp
+msgid "Tinted sunlight"
 msgstr ""
 
 #: src/settings_translation_file.cpp
@@ -7171,7 +7406,13 @@ msgid "Volume when unfocused"
 msgstr "Звук ван жиже"
 
 #: src/settings_translation_file.cpp
-msgid "Volumetric lighting"
+#, fuzzy
+msgid "Volumetric Depth Attenuation"
+msgstr "Просторно светло"
+
+#: src/settings_translation_file.cpp
+#, fuzzy
+msgid "Volumetric Lighting"
 msgstr "Просторно светло"
 
 #: src/settings_translation_file.cpp
@@ -7236,8 +7477,10 @@ msgid "Weblink color"
 msgstr ""
 
 #: src/settings_translation_file.cpp
-msgid "When enabled, liquid reflections are simulated."
-msgstr "Када је омогућено, одсјаји течности се опонашају."
+msgid ""
+"When enabled, crude liquid reflections are simulated.\n"
+"Wave height, length and speed will affect these reflections."
+msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7445,17 +7688,8 @@ msgstr ""
 msgid "Failed to save screenshot to \"%s\""
 msgstr ""
 
-#~ msgid "Append item name"
-#~ msgstr "Прикачи име ставке"
+#~ msgid "Keybindings"
+#~ msgstr "Пречице"
 
-#, fuzzy
-#~ msgid ""
-#~ "Possible filters\n"
-#~ "game:<name>\n"
-#~ "mod:<name>\n"
-#~ "player:<name>"
-#~ msgstr ""
-#~ "Могући услови\n"
-#~ "game:<name>\n"
-#~ "mod:<name>\n"
-#~ "player:<name>"
+#~ msgid "When enabled, liquid reflections are simulated."
+#~ msgstr "Када је омогућено, одсјаји течности се опонашају."

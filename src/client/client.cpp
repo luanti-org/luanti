@@ -820,6 +820,8 @@ bool Client::loadMedia(const std::string &data, const std::string &filename,
 {
 	std::string name;
 
+	// Consider updating LuantiDocumentsProvider.java if new file types are added
+
 	const char *image_ext[] = {
 		".png", ".jpg", ".tga",
 		NULL

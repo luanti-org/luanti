@@ -37,6 +37,17 @@ public:
 	/** \return Current position in the file in bytes on success or -1L on failure. */
 	virtual long getPos() const = 0;
 
+	/// Get the number of remaining bytes.
+	/// @return number of remaining bytes or -1 on failure
+	long getRemainingBytes() const
+	{
+		const auto pos = getPos();
+		const auto size = getSize();
+		if (pos < 0 || pos > size)
+			return -1;
+		return size - pos;
+	}
+
 	//! Get name of file.
 	/** \return File name as zero terminated character string. */
 	virtual const io::path &getFileName() const = 0;
