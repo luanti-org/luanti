@@ -3489,12 +3489,13 @@ Elements
 * `drawborder`: draw button border or not
 * `pressed texture name` is the filename of an image on pressed state
 
-### `item_image_button[<X>,<Y>;<W>,<H>;<item name>;<name>;<label>]`
+### `item_image_button[<X>,<Y>;<W>,<H>;<item name>;<name>;<label>;show_tooltip]`
 
 * `item name` is the registered name of an item/node
 * `name` is non-optional and must be unique, or else tooltips are broken.
 * The item description will be used as the tooltip. This can be overridden with
   a tooltip element.
+* `show_tooltip` (optional): if false, the tooltip will not be shown.
 
 ### `button_exit[<X>,<Y>;<W>,<H>;<name>;<label>]`
 

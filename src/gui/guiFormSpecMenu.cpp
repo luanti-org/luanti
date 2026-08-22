@@ -2337,7 +2337,7 @@ void GUIFormSpecMenu::parseItemImageButton(parserData* data, const std::string &
 	MY_CHECKCLIENT("item_image_button");
 
 	std::vector<std::string> parts;
-	if (!precheckElement("item_image_button", element, 5, 5, parts))
+	if (!precheckElement("item_image_button", element, 5, 6, parts))
 		return;
 
 	std::vector<std::string> v_pos = split(parts[0],',');
@@ -2345,6 +2345,10 @@ void GUIFormSpecMenu::parseItemImageButton(parserData* data, const std::string &
 	std::string item_name = parts[2];
 	std::string name = parts[3];
 	std::string label = parts[4];
+
+	bool show_tooltip = true;
+	if (parts.size() >= 6)
+		show_tooltip = is_yes(parts[5]);
 
 	label = unescape_string(label);
 	item_name = unescape_string(item_name);
@@ -2373,10 +2377,12 @@ void GUIFormSpecMenu::parseItemImageButton(parserData* data, const std::string &
 	ItemStack item;
 	item.deSerialize(item_name, idef);
 
-	m_tooltips[name] =
-		TooltipSpec(utf8_to_wide(item.getDefinition(idef).description),
-					m_default_tooltip_bgcolor,
-					m_default_tooltip_color);
+	if (show_tooltip) {
+		m_tooltips[name] =
+			TooltipSpec(utf8_to_wide(item.getDefinition(idef).description),
+						m_default_tooltip_bgcolor,
+						m_default_tooltip_color);
+	}
 
 	// the spec for the button
 	FieldSpec spec_btn(
