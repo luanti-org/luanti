@@ -961,6 +961,10 @@ chat_weblink_color (Weblink color) string #8888FF
 #    Value 0 will use the default font size.
 chat_font_size (Chat font size) int 0 0 72
 
+#    Append characters after autocompleting a player name.
+#    This is triggered by using the Tab key.
+#    The string must be surrounded with quotation marks (").
+chat_autocomplete_append (Autocomplete append string) string " "
 
 [**Content Repository]
 
