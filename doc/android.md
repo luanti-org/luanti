@@ -26,7 +26,7 @@ When a menu or inventory is displayed:
 * Tap on an empty slot: If a stack are selected already, that stack is placed here
 * Drag and drop: Touch stack and hold finger down, move the stack to another
   slot, tap another finger while keeping first finger on screen
-  --> places a single item from dragged stack into current (first touched) slot. If a stack is selected, the stack will be split as half and one of the splitted stack will be selected
+  --> places a single item from dragged stack into current (first touched) slot. If a stack is selected, the stack will be split as half and one of the split stack will be selected
 
 ### Limitations
 * Some old Android device only support 2 touch at a time, some game/mod contain button combination that need 3 touch (example: jump + Aux1 + hold)
