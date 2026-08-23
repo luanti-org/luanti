@@ -705,25 +705,6 @@ void Sky::place_sky_body(
 	}
 }
 
-// FIXME: stupid helper that does a pointless texture upload/download
-static void getTextureAsImage(video::IImage *&dst, const std::string &name, ITextureSource *tsrc)
-{
-	if (dst) {
-		dst->drop();
-		dst = nullptr;
-	}
-	if (tsrc->isKnownSourceImage(name)) {
-		infostream << "Sky: loading image " << name << std::endl;
-		auto *texture = tsrc->getTexture(name);
-		assert(texture);
-		auto *driver = RenderingEngine::get_video_driver();
-		dst = driver->createImageFromData(
-			texture->getColorFormat(), texture->getSize(),
-			texture->lock(video::ETLM_READ_ONLY));
-		texture->unlock();
-	}
-}
-
 void Sky::setSunTexture(const std::string &sun_texture,
 		const std::string &sun_tonemap, ITextureSource *tsrc)
 {
@@ -731,7 +712,7 @@ void Sky::setSunTexture(const std::string &sun_texture,
 	// but lets at least update the tonemap before hand.
 	if (m_sun_params.tonemap != sun_tonemap || m_first_update) {
 		m_sun_params.tonemap = sun_tonemap;
-		getTextureAsImage(m_sun_tonemap, sun_tonemap, tsrc);
+		m_sun_tonemap.reset(tsrc->getImage(sun_tonemap));
 	}
 
 	if (m_sun_params.texture == sun_texture && !m_first_update)
@@ -774,7 +755,7 @@ void Sky::setMoonTexture(const std::string &moon_texture,
 	// but lets at least update the tonemap before hand.
 	if (m_moon_params.tonemap != moon_tonemap || m_first_update) {
 		m_moon_params.tonemap = moon_tonemap;
-		getTextureAsImage(m_moon_tonemap, moon_tonemap, tsrc);
+		m_moon_tonemap.reset(tsrc->getImage(moon_tonemap));
 	}
 
 	if (m_moon_params.texture == moon_texture && !m_first_update)
