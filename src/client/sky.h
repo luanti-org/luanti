@@ -213,8 +213,8 @@ private:
 
 	video::ITexture *m_sun_texture = nullptr;
 	video::ITexture *m_moon_texture = nullptr;
-	video::IImage *m_sun_tonemap = nullptr;
-	video::IImage *m_moon_tonemap = nullptr;
+	irr_ptr<video::IImage> m_sun_tonemap;
+	irr_ptr<video::IImage> m_moon_tonemap;
 
 	void updateStars();
 

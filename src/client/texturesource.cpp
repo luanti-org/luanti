@@ -73,6 +73,8 @@ public:
 	TextureSource();
 	virtual ~TextureSource();
 
+	irr_ptr<video::IImage> getImageUncached(const std::string &name);
+
 	u32 getTextureId(const std::string &name);
 
 	std::string getTextureName(u32 id);
@@ -244,6 +246,15 @@ video::IImage *TextureSource::getOrGenerateImage(const std::string &name,
 		m_image_cache[name] = {img, tmp};
 	}
 	source_image_names.merge(tmp);
+	return img;
+}
+
+irr_ptr<video::IImage> TextureSource::getImageUncached(const std::string &name)
+{
+	if (name.empty())
+		return nullptr;
+	assert(std::this_thread::get_id() == m_main_thread);
+	irr_ptr<video::IImage> img(RenderingEngine::get_video_driver()->createImageFromFile(name));
 	return img;
 }
 
