@@ -14,6 +14,16 @@ UnitSAO::UnitSAO(ServerEnvironment *env, v3f pos) : ServerActiveObject(env, pos)
 	m_armor_groups["fleshy"] = 100;
 }
 
+core::quaternion UnitSAO::getTotalRotation() const
+{
+	// This replicates what happens clientside serverside, except for attachments
+	core::matrix4 rot;
+	setPitchYawRoll(rot, -m_rotation);
+	// First rotate by m_rotation, then rotate by the automatic rotate yaw
+	return core::quaternion(v3f(0, -m_rotation_add_yaw * core::DEGTORAD, 0))
+			* core::quaternion(rot.getRotationRadians());
+}
+
 ServerActiveObject *UnitSAO::getParent() const
 {
 	if (!m_attachment_parent_id)

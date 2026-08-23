@@ -459,7 +459,7 @@ void ClientEnvironment::getSelectedActiveObjects(
 		if (gcao != nullptr && gcao->getProperties().rotate_selectionbox) {
 			gcao->getSceneNode()->updateAbsolutePosition();
 			const v3f rad = obj->getSceneNode()->getAbsoluteTransformation().getRotationRadians();
-			collision = boxLineCollision(selection_box, rad,
+			collision = boxLineCollision(selection_box, core::quaternion(rad),
 				rel_pos, line_vector, &current_intersection, &current_normal, &current_raw_normal);
 		} else {
 			collision = boxLineCollision(selection_box, rel_pos, line_vector,
