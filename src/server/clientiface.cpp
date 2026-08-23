@@ -249,6 +249,11 @@ void RemoteClient::GetNextBlocks (
 
 	const v3s16 cam_pos_nodes = floatToInt(camera_pos, BS);
 
+	// Calculate FOV attributes here, once per call
+	// see numeric.h for details
+	const f32 target_cos = getFovCos(camera_fov);
+	const f32 adjdist = getFovAdj(camera_fov);
+
 	s16 d;
 	for (d = d_start; d <= d_max; d++) {
 		/*
@@ -291,7 +296,7 @@ void RemoteClient::GetNextBlocks (
 				(0.1 is about 5 degrees)
 			*/
 			f32 dist;
-			if (!(isBlockInSight(p, camera_pos, camera_dir, camera_fov,
+			if (!(isBlockInSight_ex(p, camera_pos, camera_dir, target_cos, adjdist,
 						d_blocks_in_sight, &dist) ||
 					(playerspeed.getLength() > 1.0f * BS &&
 					isBlockInSight(p, camera_pos, playerspeeddir, 0.1f,

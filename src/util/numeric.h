@@ -318,8 +318,29 @@ u64 murmur_hash_64_ua(const void *key, size_t len, unsigned int seed);
  */
 bool isBlockInSight(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 		f32 camera_fov, f32 range, f32 *distance_ptr=nullptr);
+bool isBlockInSight_ex(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
+		f32 target_cos, f32 adjdist, f32 range, f32 *distance_ptr);
 
 s16 adjustDist(s16 dist, float zoom_fov);
+
+
+inline f32 getFovAdj(f32 camera_fov)
+{
+	// Adjust camera position, for purposes of computing the angle,
+	// such that a block that has any portion visible with the
+	// current camera position will have the center visible at the
+	// adjusted position
+	return BLOCK_MAX_RADIUS / std::sin(camera_fov * 0.5f);
+}
+
+inline f32 getFovCos(f32 camera_fov)
+{
+	// If block is not in the field of view, skip it
+	// HOTFIX: use slightly increased angle (+10%) to fix too aggressive
+	// culling. Somebody has to find out what's wrong with the math here.
+	// Previous value: camera_fov / 2
+	return std::cos(camera_fov * 0.55f);
+}
 
 /*
 	Returns nearest 32-bit integer for given floating point number.
