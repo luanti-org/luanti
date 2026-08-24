@@ -478,6 +478,12 @@ public:
 		std::lock_guard<std::mutex> m_lock;
 	};
 
+	// Source language cache: textdomain -> source_language
+	std::unordered_map<std::string, std::string> m_translation_source_languages;
+
+	void cacheTranslationSourceLanguages();
+	const std::string getTranslationSourceLanguage(const std::string &filename);
+
 protected:
 	/* Do not add more members here, this is only required to make unit tests work. */
 

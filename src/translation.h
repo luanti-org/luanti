@@ -21,6 +21,8 @@ public:
 	void loadTranslation(const std::string &filename, const std::string &data);
 	void clear();
 
+	static const std::string parseSourceLanguage(const std::string &filename, const std::string &data);
+
 	const std::wstring &getTranslation(
 			const std::wstring &textdomain, const std::wstring &s) const;
 	const std::wstring &getPluralTranslation(const std::wstring &textdomain,
@@ -49,6 +51,10 @@ private:
 	std::unordered_map<std::wstring, std::wstring> m_translations;
 	std::unordered_map<std::wstring, std::pair<GettextPluralForm::Ptr, std::vector<std::wstring>>> m_plural_translations;
 
+	static const std::string parseSourceLanguageFromTr(const std::string &data);
+	static const std::string parseSourceLanguageFromPo(const std::string &data);
+	static const std::string parseSourceLanguageFromMo(const std::string &data);
+
 	void addTranslation(const std::wstring &textdomain, const std::wstring &original,
 		const std::wstring &translated, bool is_fallback);
 	void addPluralTranslation(const std::wstring &textdomain,
@@ -56,9 +62,9 @@ private:
 			const std::wstring &original,
 			std::vector<std::wstring> &translated,
 			bool is_fallback);
-	std::wstring unescapeC(const std::wstring &str);
-	std::optional<std::pair<std::wstring, std::wstring>> parsePoLine(const std::string &line);
-	bool inEscape(const std::wstring &str, size_t pos);
+	static std::wstring unescapeC(const std::wstring &str);
+	static std::optional<std::pair<std::wstring, std::wstring>> parsePoLine(const std::string &line);
+	static bool inEscape(const std::wstring &str, size_t pos);
 	void loadPoEntry(const std::wstring &basefilename, const GettextPluralForm::Ptr &plural_form,
 			const std::map<std::wstring, std::wstring> &entry, bool is_fallback);
 	void loadMoEntry(const std::wstring &basefilename, const GettextPluralForm::Ptr &plural_form,
