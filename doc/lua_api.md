@@ -6766,8 +6766,16 @@ Call these functions only at load time!
       mod calling this function before it prints a message, if it does, to
       allow for multiple protection mods.
 * `core.register_on_item_eat(function(hp_change, replace_with_item, itemstack, user, pointed_thing))`
-    * Called when an item is eaten, by `core.item_eat`
-    * Return `itemstack` to cancel the default item eat response (i.e.: hp increase).
+    * Called when an item is eaten, by `core.do_item_eat`
+    * `hp_change`: suggested amount of HP to change for the user (range: [-65535, 65535])
+    * `replace_with_item`: itemstring of suggested item replacement of `itemstack` (or nil if no replacement)
+    * `itemstack`: itemstack that was eaten
+    * `user`: ObjectRef of player who is eating
+    * `pointed_thing`: where the player was pointing at
+    * Return `itemstack` to cancel the default item eat response (i.e.: hp increase),
+      as well as all callbacks registered after this one
+    * Note: The function is allowed to ignore or re-interpret `hp_change` or `replace_with_item`
+      as it wishes
 * `core.register_on_item_pickup(function(itemstack, picker, pointed_thing, time_from_last_punch,  ...))`
     * Called by `core.item_pickup` before an item is picked up.
     * Function is added to `core.registered_on_item_pickups`.
@@ -7341,8 +7349,20 @@ Inventory
 * `core.remove_detached_inventory(name)`
     * Returns a `boolean` indicating whether the removal succeeded.
 * `core.do_item_eat(hp_change, replace_with_item, itemstack, user, pointed_thing)`:
-  returns leftover ItemStack or nil to indicate no inventory change
-    * See `core.item_eat` and `core.register_on_item_eat`
+    * calls any `core.register_on_item_eat` callbacks with the provided
+      arguments, in the order they've been registered
+    * see `core.register_on_item_eat` for the argument definition
+    * once a callback returns an itemstack, this function returns that itemstack
+    * if this function did not return by now, it does the default eat response:
+        * reduces count of `itemstack` by 1
+        * plays `eat` sound of the original `itemstack` (if any)
+        * adds `replace_with_item` to the player inventory (if any)
+        * if `replace_with_item` doesn't fit onto the eaten stack, then the remainings
+          go to a different spot, or are dropped.
+        * increases `user`'s HP by `hp_change`
+          (using a `set_hp` `custom_type` of `__builtin:item_eat`)
+        * returns nil
+    * See also: `core.item_eat`
 
 Formspec functions
 --------
@@ -7593,9 +7613,11 @@ Defaults for the `on_place` and `on_drop` item definition functions
     * Returns `function(itemstack, user, pointed_thing)` as a
       function wrapper for `core.do_item_eat`.
     * `hp_change`: amount of HP to change for the user (range: [-65535, 65535])
-    * `replace_with_item`: itemstring which is added to the inventory.
-      If the player is eating a stack and `replace_with_item` doesn't fit onto
-      the eaten stack, then the remainings go to a different spot, or are dropped.
+    * `replace_with_item`: itemstring which is added to the inventory
+      after eating
+    * Note: the interpretation of `hp_change` and `replace_with_item` may
+      may be overridden by the `core.register_on_eat` callbacks.
+      For the exact behavior, see `core.do_item_eat`
 
 Defaults for the `on_punch` and `on_dig` node definition callbacks
 ------------------------------------------------------------------
@@ -10614,7 +10636,11 @@ Used by `core.register_node`, `core.register_craftitem`, and
         -- When tool breaks due to wear. Ignored for non-tools
 
         eat = <SimpleSoundSpec>,
-        -- When item is eaten with `core.do_item_eat`
+        -- When item is eaten with `core.do_item_eat`.
+        -- Note: `core.do_item_eat` does *not* play the `eat` sound when
+        -- any `core.register_on_eat` callback has returned an itemstack;
+        -- but those callbacks are still free to play this sound on
+        -- their own
 
         punch_use = <SimpleSoundSpec>,
         -- When item is used with the 'punch/dig' key pointing at a node or entity
