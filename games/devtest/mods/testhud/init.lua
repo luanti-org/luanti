@@ -344,7 +344,7 @@ local hud_inventory_defs = {
 		text = "main",
 		text2 = "testhud_inventory_bg.png",
 		number = 1,
-		item = 2,
+		item = 0,
 	},
 }
 

@@ -253,12 +253,9 @@ void Hud::drawItems(v2s32 screen_pos, v2s32 screen_offset, s32 itemcount, v2f al
 
 	// Store the effective background image in a member variable, used by drawItem().
 	// An inventory HUD element can override the player's hotbar image with text2.
-	const std::string &effective_background = background_image.empty() ?
+	hotbar_image = background_image.empty() ?
 			player->hotbar_image : background_image;
-	if (hotbar_image != effective_background) {
-		hotbar_image = effective_background;
-		use_hotbar_image = !hotbar_image.empty();
-	}
+	use_hotbar_image = !hotbar_image.empty();
 
 	// Store hotbar_selected_image in member variable, used by drawItem()
 	if (hotbar_selected_image != player->hotbar_selected_image) {
