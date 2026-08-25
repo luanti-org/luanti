@@ -2059,7 +2059,7 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 	if (player->getPlayerSettings().continuous_forward &&
 			client->activeObjectsReceived() && !player->isDead()) {
 		// autoforward if set: move at maximum speed
-		forward_value = std::max(forward_value, 1.0f);
+		forward_value = 1.0f;
 	}
 
 	PlayerControl control(
