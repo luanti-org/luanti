@@ -2998,6 +2998,9 @@ void ObjectRef::set_null(lua_State *L, void *expect)
 {
 	ObjectRef *obj = checkObject<ObjectRef>(L, -1);
 	assert(obj);
+	// For every SAO, there is only one userdata object that holds its reference.
+	// We need to unset this one specific reference, because if we don't there will
+	// be an use-after-free.
 	FATAL_ERROR_IF(obj->m_object != expect, "ObjectRef table was messed with");
 	obj->m_object = nullptr;
 }

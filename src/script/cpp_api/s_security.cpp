@@ -337,7 +337,10 @@ void ScriptApiSecurity::initializeSecurity()
 
 	replace_string_metatable(L);
 
-	FATAL_ERROR_IF(sanity_check_top != lua_gettop(L), "unbalanced stack");
+	if (sanity_check_top != lua_gettop(L)) {
+		stackDump(errorstream);
+		FATAL_ERROR("unbalanced stack");
+	}
 }
 
 #if CHECK_CLIENT_BUILD()

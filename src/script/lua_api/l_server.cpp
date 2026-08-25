@@ -25,10 +25,10 @@
 int ModApiServer::l_request_shutdown(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	const char *msg = lua_tolstring(L, 1, NULL);
+	auto msg = readParam<std::string>(L, 1);
 	bool reconnect = readParam<bool>(L, 2);
 	float seconds_before_shutdown = lua_tonumber(L, 3);
-	getServer(L)->requestShutdown(msg ? msg : "", reconnect, seconds_before_shutdown);
+	getServer(L)->requestShutdown(msg, reconnect, seconds_before_shutdown);
 	return 0;
 }
 

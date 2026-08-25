@@ -33,7 +33,7 @@ extern "C" {
 }
 
 #include "script/common/c_content.h"
-#include <sstream>
+#include <limits>
 
 
 class ModNameStorer
@@ -56,6 +56,25 @@ public:
 	}
 };
 
+/// @brief like lua_getfield but bypasses metamethods
+static void rawgetfield(lua_State *L, int index, std::string_view k)
+{
+	if (index < 0 && index >= LUA_REGISTRYINDEX)
+		index = lua_gettop(L) + index + 1;
+	lua_pushlstring(L, k.data(), k.size());
+	lua_rawget(L, index);
+}
+
+/// @brief like lua_setfield but bypasses metamethods
+static void rawsetfield(lua_State *L, int index, std::string_view k)
+{
+	if (index < 0 && index >= LUA_REGISTRYINDEX)
+		index = lua_gettop(L) + index + 1;
+	assert(index != lua_gettop(L)); // that's where the value-to-set is
+	lua_pushlstring(L, k.data(), k.size());
+	lua_insert(L, -2);
+	lua_rawset(L, index);
+}
 
 /*
 	ScriptApiBase
@@ -176,10 +195,9 @@ ScriptApiBase::~ScriptApiBase()
 
 int ScriptApiBase::luaPanic(lua_State *L)
 {
-	std::ostringstream oss;
-	oss << "LUA PANIC: unprotected error in call to Lua API ("
-		<< readParam<std::string>(L, -1) << ")";
-	FATAL_ERROR(oss.str().c_str());
+	std::string s("LUA PANIC: unprotected error in call to Lua API (");
+	s.append(readParam<std::string_view>(L, -1)).append(")");
+	FATAL_ERROR(s.c_str());
 	// NOTREACHED
 	return 0;
 }
@@ -370,7 +388,6 @@ void ScriptApiBase::realityCheck()
 {
 	int top = lua_gettop(m_luastack);
 	if (top >= 30) {
-		dstream << "Stack is over 30:" << std::endl;
 		stackDump(dstream);
 		std::string traceback = script_get_backtrace(m_luastack);
 		throw LuaError("Stack is over 30 (reality check)\n" + traceback);
@@ -384,12 +401,13 @@ void ScriptApiBase::scriptError(int result, const char *fxn)
 
 void ScriptApiBase::stackDump(std::ostream &o)
 {
+	o << "stack: ";
 	int top = lua_gettop(m_luastack);
 	for (int i = 1; i <= top; i++) {  /* repeat for each level */
 		int t = lua_type(m_luastack, i);
 		switch (t) {
 			case LUA_TSTRING:  /* strings */
-				o << "\"" << readParam<std::string>(m_luastack, i) << "\"";
+				o << "\"" << readParam<std::string_view>(m_luastack, i) << "\"";
 				break;
 			case LUA_TBOOLEAN:  /* booleans */
 				o << (readParam<bool>(m_luastack, i) ? "true" : "false");
@@ -401,10 +419,10 @@ void ScriptApiBase::stackDump(std::ostream &o)
 				break;
 			}
 			default:  /* other values */
-				o << lua_typename(m_luastack, t);
+				o << '(' << lua_typename(m_luastack, t) << ')';
 				break;
 		}
-		o << " ";
+		o << ' ';
 	}
 	o << std::endl;
 }
@@ -442,18 +460,22 @@ void ScriptApiBase::addObjectReference(ServerActiveObject *cobj)
 
 	// Get core.object_refs table
 	lua_getglobal(L, "core");
+	int core = lua_gettop(L);
+
 	lua_getfield(L, -1, "object_refs");
 	luaL_checktype(L, -1, LUA_TTABLE);
 	int objectstable = lua_gettop(L);
 
 	// object_refs[id] = object
-	lua_pushinteger(L, cobj->getId()); // Push id
+	auto id = cobj->getId();
+	static_assert(std::numeric_limits<decltype(id)>::min() >= INT_MIN &&
+		std::numeric_limits<decltype(id)>::max() <= INT_MAX,
+		"ID type must fit into int argument of lua_rawseti");
 	lua_pushvalue(L, object);
-	lua_settable(L, objectstable);
+	lua_rawseti(L, objectstable, id);
 
 	// Get core.objects_by_guid table
-	lua_getglobal(L, "core");
-	lua_getfield(L, -1, "objects_by_guid");
+	lua_getfield(L, core, "objects_by_guid");
 	luaL_checktype(L, -1, LUA_TTABLE);
 	objectstable = lua_gettop(L);
 
@@ -461,7 +483,7 @@ void ScriptApiBase::addObjectReference(ServerActiveObject *cobj)
 	auto guid = cobj->getGUID();
 	assert(!guid.empty());
 	lua_pushvalue(L, object);
-	lua_setfield(L, objectstable, guid.c_str());
+	rawsetfield(L, objectstable, guid);
 }
 
 void ScriptApiBase::removeObjectReference(ServerActiveObject *cobj)
@@ -478,25 +500,23 @@ void ScriptApiBase::removeObjectReference(ServerActiveObject *cobj)
 	int objectstable = lua_gettop(L);
 
 	// Get object_refs[id]
-	lua_pushinteger(L, cobj->getId()); // Push id
-	lua_gettable(L, objectstable);
+	lua_rawgeti(L, objectstable, cobj->getId());
 	// Set object reference to NULL
 	ObjectRef::set_null(L, cobj);
 	lua_pop(L, 1); // pop object
 
 	// Set object_refs[id] = nil
-	lua_pushinteger(L, cobj->getId()); // Push id
 	lua_pushnil(L);
-	lua_settable(L, objectstable);
+	lua_rawseti(L, objectstable, cobj->getId());
 
-	// Get core.objects_by_guid
+	// Get core.objects_by_guid table
 	lua_getfield(L, core, "objects_by_guid");
 	luaL_checktype(L, -1, LUA_TTABLE);
 	objectstable = lua_gettop(L);
 
 	// Set objects_by_guid[guid] = nil
 	lua_pushnil(L);
-	lua_setfield(L, objectstable, cobj->getGUID().c_str());
+	rawsetfield(L, objectstable, cobj->getGUID());
 }
 
 void ScriptApiBase::objectrefGetOrCreate(lua_State *L, ServerActiveObject *cobj)

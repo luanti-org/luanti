@@ -1533,7 +1533,7 @@ ItemStack read_item(lua_State* L, int index, IItemDefManager *idef)
 				std::string key = lua_tostring(L, -2);
 				size_t value_len;
 				const char *value_cs = lua_tolstring(L, -1, &value_len);
-				std::string value(value_cs, value_len);
+				std::string_view value(value_cs, value_len);
 				istack.metadata.setString(key, value);
 				lua_pop(L, 1); // removes value, keeps key for next iteration
 			}
@@ -2120,12 +2120,11 @@ std::vector<ItemStack> read_items(lua_State *L, int index, IGameDef *gdef)
 /******************************************************************************/
 void luaentity_get(lua_State *L, u16 id)
 {
-	// Get luaentities[i]
+	// Get core.luaentities[i]
 	lua_getglobal(L, "core");
 	lua_getfield(L, -1, "luaentities");
 	luaL_checktype(L, -1, LUA_TTABLE);
-	lua_pushinteger(L, id);
-	lua_gettable(L, -2);
+	lua_rawgeti(L, -1, id);
 	lua_remove(L, -2); // Remove luaentities
 	lua_remove(L, -2); // Remove core
 }
@@ -2418,8 +2417,7 @@ void push_objectRef(lua_State *L, const u16 id)
 	lua_getglobal(L, "core");
 	lua_getfield(L, -1, "object_refs");
 	luaL_checktype(L, -1, LUA_TTABLE);
-	lua_pushinteger(L, id);
-	lua_gettable(L, -2);
+	lua_rawgeti(L, -1, id);
 	assert(!lua_isnoneornil(L, -1));
 	lua_remove(L, -2); // object_refs
 	lua_remove(L, -2); // core
