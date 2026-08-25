@@ -86,30 +86,30 @@ u64 murmur_hash_64_ua(const void *key, size_t len, unsigned int seed)
 	return h;
 }
 
-bool isBlockInSight(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
-		f32 camera_fov, f32 range, f32 *distance_ptr)
+bool isBlockInSight(const v3s16 blockpos_b, const v3f& camera_pos, const v3f& camera_dir,
+		const f32 camera_fov, const f32 range, f32 *distance_ptr)
 {
-	return isBlockInSight_ex(blockpos_b, camera_pos, camera_dir, getFovCos(camera_fov), getFovAdj(camera_fov), range, distance_ptr);
+	return isBlockInSight_ex(blockpos_b, camera_pos, camera_dir, getFovCosSq(camera_fov), getFovAdj(camera_fov), range, distance_ptr);
 }
 
-bool isBlockInSight_ex(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
-		f32 target_cos, f32 adjdist, f32 range, f32 *distance_ptr)
+bool isBlockInSight_ex(const v3s16 blockpos_b, const v3f& camera_pos, const v3f& camera_dir,
+		const f32 target_cos_sq, const f32 adjdist, f32 range, f32 *distance_ptr)
 {
-	// Block center position
-	v3f blockpos(
-			(f32) (blockpos_b.X * MAP_BLOCKSIZE + MAP_BLOCKSIZE / 2) * BS,
-			(f32) (blockpos_b.Y * MAP_BLOCKSIZE + MAP_BLOCKSIZE / 2) * BS,
-			(f32) (blockpos_b.Z * MAP_BLOCKSIZE + MAP_BLOCKSIZE / 2) * BS);
+	// Block center position relative to camera
+	const v3f blockpos_relative(
+			(f32) (blockpos_b.X * MAP_BLOCKSIZE + MAP_BLOCKSIZE / 2) * BS - camera_pos.X,
+			(f32) (blockpos_b.Y * MAP_BLOCKSIZE + MAP_BLOCKSIZE / 2) * BS - camera_pos.Y,
+			(f32) (blockpos_b.Z * MAP_BLOCKSIZE + MAP_BLOCKSIZE / 2) * BS - camera_pos.Z);
 
 	if (distance_ptr) {
 		*distance_ptr = 0.0f;
 	}
 
 	// Square distance
-	f32 len_sq = blockpos.getDistanceFromSQ(camera_pos);
+	const f32 len_sq = blockpos_relative.getLengthSQ();
 
 	// If block is far away, it's not in sight
-	f32 max_reach = range + BLOCK_MAX_RADIUS;
+	const f32 max_reach = range + BLOCK_MAX_RADIUS;
 	if (len_sq > max_reach * max_reach)
 		return false;
 
@@ -121,19 +121,19 @@ bool isBlockInSight_ex(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 	}
 
 	// Block position relative to adjusted camera
-	v3f blockpos_adj = blockpos - (camera_pos - camera_dir * adjdist);
+	const v3f blockpos_adj = blockpos_relative + camera_dir * adjdist;
 
 	// Distance in camera direction (+=front, -=back)
-	f32 dforward = blockpos_adj.dotProduct(camera_dir);
+	const f32 dforward = blockpos_adj.dotProduct(camera_dir);
 
 	// If the block is behind the adjusted camera position, cull it instantly
 	if (dforward <= 0.0f)
 		return false;
 
-	f32 len_adj_sq = blockpos_adj.getLengthSQ();
+	const f32 len_adj_sq = blockpos_adj.getLengthSQ();
 
 	// do check with squared values
-	if (dforward * dforward < target_cos * target_cos * len_adj_sq)
+	if (dforward * dforward < target_cos_sq * len_adj_sq)
 		return false;
 
 	// calculate the actual distance only if the block is visible

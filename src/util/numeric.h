@@ -316,10 +316,10 @@ u64 murmur_hash_64_ua(const void *key, size_t len, unsigned int seed);
  * @param range viewing range
  * @param distance_ptr return location for distance from the camera
  */
-bool isBlockInSight(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
-		f32 camera_fov, f32 range, f32 *distance_ptr=nullptr);
-bool isBlockInSight_ex(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
-		f32 target_cos, f32 adjdist, f32 range, f32 *distance_ptr);
+bool isBlockInSight(const v3s16 blockpos_b, const v3f& camera_pos, const v3f& camera_dir,
+		const f32 camera_fov, const f32 range, f32 *distance_ptr=nullptr);
+bool isBlockInSight_ex(const v3s16 blockpos_b, const v3f& camera_pos, const v3f& camera_dir,
+		const f32 target_cos_sq, const f32 adjdist, const f32 range, f32 *distance_ptr);
 
 s16 adjustDist(s16 dist, float zoom_fov);
 
@@ -333,13 +333,14 @@ inline f32 getFovAdj(f32 camera_fov)
 	return BLOCK_MAX_RADIUS / std::sin(camera_fov * 0.5f);
 }
 
-inline f32 getFovCos(f32 camera_fov)
+inline f32 getFovCosSq(f32 camera_fov)
 {
 	// If block is not in the field of view, skip it
 	// HOTFIX: use slightly increased angle (+10%) to fix too aggressive
 	// culling. Somebody has to find out what's wrong with the math here.
 	// Previous value: camera_fov / 2
-	return std::cos(camera_fov * 0.55f);
+	const f32 target_cos =  std::cos(camera_fov * 0.55f);
+	return target_cos * target_cos;
 }
 
 /*
