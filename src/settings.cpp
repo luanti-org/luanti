@@ -19,6 +19,9 @@
 #include <set>
 #include <algorithm>
 
+// multi-line settings begin and end with this string (on its own line)
+#define MULTILINE_MARKER "\"\"\""
+
 Settings *g_settings = nullptr;
 static SettingsHierarchy g_hierarchy;
 std::string g_settings_path;
@@ -154,9 +157,9 @@ bool Settings::checkNameValid(std::string_view name)
 
 bool Settings::checkValueValid(std::string_view value)
 {
-	if (value.substr(0, 3) == "\"\"\"" ||
-		value.find("\n\"\"\"") != std::string::npos) {
-		errorstream << "Invalid character sequence '\"\"\"' found in"
+	if (str_starts_with(value, MULTILINE_MARKER) ||
+		value.find("\n" MULTILINE_MARKER) != std::string::npos) {
+		errorstream << "Invalid character sequence '" MULTILINE_MARKER "' found in"
 			" setting value!" << std::endl;
 		return false;
 	}
@@ -166,25 +169,25 @@ bool Settings::checkValueValid(std::string_view value)
 std::string Settings::getMultiline(std::istream &is, size_t *num_lines)
 {
 	size_t lines = 1;
-	std::string value;
-	std::string line;
+	std::string value, line;
 
 	while (is.good()) {
 		lines++;
 		std::getline(is, line);
-		if (line == "\"\"\"")
-			break;
+		if (line == MULTILINE_MARKER) {
+			if (!value.empty())
+				value.pop_back(); // remove trailing \n
+			if (num_lines)
+				*num_lines = lines;
+			return value;
+		}
 		value += line;
 		value.push_back('\n');
 	}
 
-	size_t len = value.size();
-	if (len)
-		value.erase(len - 1);
-
+	// Stream ended before marker
 	if (num_lines)
-		*num_lines = lines;
-
+		*num_lines = 0;
 	return value;
 }
 
@@ -195,15 +198,17 @@ bool Settings::readConfigFile(const char *filename)
 	if (!is.good())
 		return false;
 
-	return parseConfigLines(is);
+	return parseConfigLines(is, filename);
 }
 
 
-bool Settings::parseConfigLines(std::istream &is)
+bool Settings::parseConfigLines(std::istream &is, std::string_view location)
 {
 	MutexAutoLock lock(m_mutex);
 
 	std::string line, name, value;
+
+	auto &log_to = infostream;
 
 	while (is.good()) {
 		std::getline(is, line);
@@ -211,31 +216,55 @@ bool Settings::parseConfigLines(std::istream &is)
 
 		switch (event) {
 		case SPE_NONE:
-		case SPE_INVALID:
 		case SPE_COMMENT:
 			break;
+		case SPE_INVALID:
+			log_to << "Ignoring invalid settings line: \"" << line << "\"";
+			if (!location.empty())
+				log_to << " in " << location;
+			log_to << std::endl;
+			break;
 		case SPE_KVPAIR:
-			m_settings[name] = SettingsEntry(value);
+			m_settings[name] = SettingsEntry(std::move(value));
 			break;
 		case SPE_END:
 			return true;
 		case SPE_GROUP: {
 			Settings *group = new Settings("}");
-			if (!group->parseConfigLines(is)) {
+			if (!group->parseConfigLines(is, location)) {
+				log_to << "Failed to parse settings group \"" << name << "\"";
+				if (!location.empty())
+					log_to << " in " << location;
+				log_to << std::endl;
 				delete group;
 				return false;
 			}
 			m_settings[name] = SettingsEntry(group);
 			break;
 		}
-		case SPE_MULTILINE:
-			m_settings[name] = SettingsEntry(getMultiline(is));
+		case SPE_MULTILINE: {
+			size_t lines = 0;
+			m_settings[name] = SettingsEntry(getMultiline(is, &lines));
+			if (!lines) {
+				log_to << "Unterminated multi-line setting \"" << name << "\"";
+				if (!location.empty())
+					log_to << " in " << location;
+				log_to << std::endl;
+				return false;
+			}
 			break;
+		}
 		}
 	}
 
-	// false (failure) if end tag not found
-	return m_end_tag.empty();
+	// failure if end tag not found
+	if (m_end_tag.empty())
+		return true;
+	log_to << "No end tag found for settings";
+	if (!location.empty())
+		log_to << " in " << location;
+	log_to << std::endl;
+	return false;
 }
 
 
@@ -314,7 +343,7 @@ bool Settings::updateConfigObject(std::istream &is, std::ostream &os, u32 tab_de
 			} else {
 				os << line << "\n";
 				if (event == SPE_MULTILINE)
-					os << value << "\n\"\"\"\n";
+					os << value << "\n" MULTILINE_MARKER "\n";
 			}
 			present_entries.insert(name);
 			break;
@@ -1002,7 +1031,7 @@ SettingsParseEvent Settings::parseConfigObject(const std::string &line,
 
 	if (value == "{")
 		return SPE_GROUP;
-	if (value == "\"\"\"")
+	if (value == MULTILINE_MARKER)
 		return SPE_MULTILINE;
 
 	return SPE_KVPAIR;

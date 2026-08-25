@@ -81,7 +81,7 @@ bool MapSettingsManager::loadMapMeta()
 	if (!is.good())
 		return false;
 
-	if (!m_map_settings->parseConfigLines(is)) {
+	if (!m_map_settings->parseConfigLines(is, m_map_meta_path)) {
 		errorstream << "loadMapMeta: Format error. '[end_of_params]' missing?" << std::endl;
 		return false;
 	}
