@@ -479,9 +479,22 @@ void ScriptApiBase::addObjectReference(ServerActiveObject *cobj)
 	luaL_checktype(L, -1, LUA_TTABLE);
 	objectstable = lua_gettop(L);
 
-	// objects_by_guid[guid] = object
+	// if objects_by_guid[guid] ~= nil
 	auto guid = cobj->getGUID();
 	assert(!guid.empty());
+	rawgetfield(L, objectstable, guid);
+	if (!lua_isnil(L, -1)) {
+		lua_getglobal(L, "tostring");
+		lua_insert(L, -2);
+		lua_call(L, 1, 1);
+		auto s = readParam<std::string_view>(L, -1);
+		errorstream << "ScriptApiBase::addObjectReference(): "
+			"Found duplicate GUID \"" << guid
+			<< "\" while creating object id=" << cobj->getId()
+			<< ". previous was \"" << s << "\"" << std::endl;
+	}
+	lua_pop(L, 1);
+	// objects_by_guid[guid] = object
 	lua_pushvalue(L, object);
 	rawsetfield(L, objectstable, guid);
 }
