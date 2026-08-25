@@ -366,7 +366,8 @@ void RenderingEngine::draw_load_screen(const std::wstring &text,
 	gui::IGUIStaticText *gui_bottom_text = nullptr;
 	if (!bottom_text.empty()) {
 		auto line_height = g_fontengine->getLineHeight();
-		v2s32 bottom_textsize(g_fontengine->getTextWidth(bottom_text), line_height * 2);
+		const v2s32 bottom_textsize = v2s32::from(v2u32(
+				g_fontengine->getFont()->getDimension(bottom_text.c_str())));
 		s32 padding = line_height * 0.5f;
 
 		v2s32 offset(
