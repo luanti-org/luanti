@@ -2055,8 +2055,16 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 
 	//TimeTaker tt("update player control", NULL, PRECISION_NANO);
 
+
+	// autoforward if set: move at maximum speed
+	float forward_value = getAxisValue(KeyType::FORWARD);
+	if (player->getPlayerSettings().continuous_forward &&
+			client->activeObjectsReceived() && !player->isDead()) {
+		forward_value = std::max(forward_value, 1.0f);
+	}
+
 	PlayerControl control(
-		getAxisValue(KeyType::FORWARD),
+		forward_value,
 		getAxisValue(KeyType::BACKWARD),
 		getAxisValue(KeyType::LEFT),
 		getAxisValue(KeyType::RIGHT),
@@ -2070,15 +2078,6 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 		cam.camera_yaw
 	);
 	control.setMovementFromKeys();
-
-	// autoforward if set: move at maximum speed
-	if (player->getPlayerSettings().continuous_forward &&
-			client->activeObjectsReceived() && !player->isDead()) {
-		control.movement_speed = 1.0f;
-		// sideways movement only
-		float dx = std::sin(control.movement_direction);
-		control.movement_direction = std::atan2(dx, 1.0f);
-	}
 
 	/* For touch, simulate holding down AUX1 (fast move) if the user has
 	 * the fast_move setting toggled on. If there is an aux1 key defined for
