@@ -7,6 +7,7 @@
 #include "exceptions.h"
 #include "threading/mutex_auto_lock.h"
 #include "util/numeric.h" // rangelim
+#include "util/string.h"
 #include "util/strfnd.h"
 #include <iostream>
 #include <fstream>

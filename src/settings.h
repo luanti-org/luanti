@@ -4,17 +4,22 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
-#include "util/string.h"
+#include "irrlichttypes.h"
+#include "irr_v2d.h"
+#include "irr_v3d.h"
 #include "util/basic_macros.h"
 #include <string>
+#include <string_view>
+#include <vector>
 #include <map>
 #include <unordered_map>
 #include <mutex>
-#include <utility>
+#include <optional>
+#include <utility> // std::move
 
 class Settings;
 struct NoiseParams;
+struct FlagDesc;
 
 // Global objects
 extern Settings *g_settings; // Same as Settings::getLayer(SL_GLOBAL);

@@ -103,7 +103,7 @@ void script_error(lua_State *L, int pcall_result, const char *mod, const char *f
 
 	if (pcall_result == LUA_ERRMEM) {
 		err_msg += "\nCurrent Lua memory usage: "
-			+ itos(lua_gc(L, LUA_GCCOUNT, 0) >> 10) + " MB";
+			+ std::to_string(lua_gc(L, LUA_GCCOUNT, 0) >> 10) + " MB";
 	}
 
 	throw LuaError(err_msg);
