@@ -181,6 +181,13 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 		{
 			// The real thing
 
+			if (name.empty() && !is.eof()) {
+				warningstream << "Empty name passed to ItemStack."
+					<< " In a future engine version, this will result in an error." << std::endl;
+				// TODO: enable this in 5.19.0
+				//throw SerializationError("Invalid stack size");
+			}
+
 			// Apply item aliases
 			if (itemdef)
 				name = itemdef->getAlias(name);
