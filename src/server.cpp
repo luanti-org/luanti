@@ -2774,16 +2774,19 @@ void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_co
 			return false;
 		if (Translations::isTranslationFileType(name)) {
 			auto this_lang_code = Translations::getFileLanguage(name);
-			std::string source_lang = getTranslationSourceLanguage(name);
-
-			// If the source language of the file and the client language match,
-			// then we don't send anything (the client will see the original strings)
-			if (!source_lang.empty() && source_lang == lang_code)
+			if (this_lang_code.empty())
 				return false;
 
-			// Only send translations matching the client's language and EN locale.
-			return !this_lang_code.empty() &&
-					(this_lang_code == lang_code || this_lang_code == "en");
+			std::string source_lang = getTranslationSourceLanguage(name);
+
+			// If the client's language matches the source file language,
+			// only files corresponding to that language are sent to the client.
+			// Else the client is sent files in their language and the English localization.
+			if (!source_lang.empty() && source_lang == lang_code) {
+				return this_lang_code == lang_code;
+			} else {
+				return this_lang_code == lang_code || this_lang_code == "en";
+			}
 		}
 		return true;
 	};
