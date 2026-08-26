@@ -2560,8 +2560,8 @@ void GUIFormSpecMenu::parseListImages(parserData* data, const std::string &eleme
 			? m_tsrc->getTexture(unescape_string(parts[1]))
 			: nullptr;
 
-	data->inventorylist_options.slotbgimg_n = normal_tex;
-	data->inventorylist_options.slotbgimg_h = hover_tex;
+	data->inventorylist_options.slotbgimg_n.grab(normal_tex);
+	data->inventorylist_options.slotbgimg_h.grab(hover_tex);
 }
 
 void GUIFormSpecMenu::parseTooltip(parserData* data, const std::string &element)

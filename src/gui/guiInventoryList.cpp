@@ -142,8 +142,8 @@ void GUIInventoryList::draw()
 
 		if (hovering && m_options.slotbgimg_h) {
 			// the hovered slot
-			video::ITexture *tex = m_options.slotbgimg_h;
-			core::rect<s32> src(0, 0, tex->getOriginalSize().Width, tex->getOriginalSize().Height);
+			video::ITexture *tex = m_options.slotbgimg_h.get();
+			core::rect<s32> src(v2s32(), tex->getOriginalSize());
 			driver->draw2DImage(tex, rect_clip, src, &AbsoluteClippingRect, nullptr, true);
 
 		} else if (m_options.slotbgimg_n) {
@@ -202,7 +202,7 @@ void GUIInventoryList::draw()
 
 	if (m_options.slotbgimg_n) {
 		mat.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
-		mat.setTexture(0, m_options.slotbgimg_n);
+		mat.setTexture(0, m_options.slotbgimg_n.get());
 	} else {
 		mat.MaterialType = video::EMT_TRANSPARENT_VERTEX_ALPHA;
 		mat.setTexture(0, nullptr);
