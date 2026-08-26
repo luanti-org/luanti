@@ -2552,16 +2552,13 @@ void GUIFormSpecMenu::parseListImages(parserData* data, const std::string &eleme
 	if (!precheckElement("listimages", element, 2, 2, parts))
 		return;
 
-	video::ITexture *normal_tex = !parts[0].empty()
+	data->inventorylist_options.slotbgimg_n.grab(!parts[0].empty()
 			? m_tsrc->getTexture(unescape_string(parts[0]))
-			: nullptr;
+			: nullptr);
 
-	video::ITexture *hover_tex = !parts[1].empty()
+	data->inventorylist_options.slotbgimg_h.grab(!parts[1].empty()
 			? m_tsrc->getTexture(unescape_string(parts[1]))
-			: nullptr;
-
-	data->inventorylist_options.slotbgimg_n.grab(normal_tex);
-	data->inventorylist_options.slotbgimg_h.grab(hover_tex);
+			: nullptr);
 }
 
 void GUIFormSpecMenu::parseTooltip(parserData* data, const std::string &element)

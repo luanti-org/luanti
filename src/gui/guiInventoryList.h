@@ -97,12 +97,6 @@ public:
 		m_options.slotbg_h = slotbg_h;
 	}
 
-	void setSlotBGImages(video::ITexture *normal, video::ITexture *hover)
-	{
-		m_options.slotbgimg_n.grab(normal);
-		m_options.slotbgimg_h.grab(hover);
-	}
-
 	void setSlotBorders(bool slotborder, const video::SColor &slotbordercolor)
 	{
 		m_options.slotborder = slotborder;
