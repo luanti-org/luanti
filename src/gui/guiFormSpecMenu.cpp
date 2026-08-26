@@ -1902,6 +1902,11 @@ void GUIFormSpecMenu::parseHyperTip(parserData *data, const std::string &element
 
 		rect = core::recti(pos, pos + geom);
 	} else {
+		if (spec.parent_name.empty()) {
+			// Invalid use. No formspec element name provided
+			return;
+		}
+
 		for (const auto &f : m_fields) {
 			if (f.fname == spec.parent_name) {
 				auto *e = getElementFromId(f.fid, true);
