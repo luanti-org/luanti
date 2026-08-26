@@ -3245,8 +3245,8 @@ Elements
 ### `listimages[<slot_bgimg_normal>;<slot_bgimg_hover>]`
 
 * Works like `listcolors[]`, but uses images rather than solid colors.
-* `slot_bgimg_normal` Sets background image of slots. May be empty.
-* `slot_bgimg_hover` Sets background image of slots when hovered. May be empty.
+* `slot_bgimg_normal`: Sets background image of slots. May be empty.
+* `slot_bgimg_hover`: Sets background image of slots when hovered. May be empty.
 * When a field is empty, that texture is not set (slots keep the color from `listcolors[]` for that state).
 * Examples:
     * `listimages[slot.png;slot_hover.png]`
