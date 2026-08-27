@@ -50,7 +50,7 @@ void TestInventory::testItemStack(IItemDefManager *idef)
 		UASSERT(stack.count == 1);
 		UASSERT(stack.wear == 0);
 
-		// Surplus spaces are NOT ignored.
+		// Surplus spaces are NOT ignored. Count defaults to 1. "10" goes nowhere.
 		is = std::istringstream("foo:bar_baz   10", std::ios::binary);
 		stack.deSerialize(is, idef);
 

@@ -2326,7 +2326,7 @@ The following items are predefined and have special properties.
     * It can be overridden to change those properties:
         * globally using `core.override_item`
         * per-player using the special `"hand"` inventory list
-    * It cannot be used as an ItemStack object, because `""` represents the empty stack.
+    * It cannot be used as an `ItemStack` object, because `""` represents the empty stack.
       Therefore, it can't be stored in an inventory.
 
 Amount and wear
@@ -2355,21 +2355,19 @@ Empty stacks (defined by name `""`) are always initialized with count = 0.
 
 ### Serialized
 
-This is called "stackstring" or "itemstring". It is a simple string with
-1-4 components:
+This is called "itemstring". It is a simple string with
+1-4 components separated by exactly one space character. Syntax:
+
+    <identifier>[ <amount>[ <wear>[ <metadata>]]]
 
 1. Full item identifier ("item name")
 2. Optional amount
 3. Optional wear value
 4. Optional item metadata
 
-Syntax:
-
-    <identifier> [<amount>[ <wear>[ <metadata>]]]
-
 Examples:
 
-* (no value, `nil` or `""`): empty stack
+* `""`: empty stack
 * `"default:apple"`: 1 apple
 * `"default:dirt 5"`: 5 dirt
 * `"default:pick_stone"`: a new stone pickaxe
@@ -2397,20 +2395,18 @@ item strings encoding color information in their metadata.
 
 ### Table format
 
-The field `name` is mandatory.
-
 Examples:
 
 5 dirt nodes:
 
 ```lua
-{name="default:dirt", count=5, wear=0, metadata=""}
+{name="default:dirt", count=5, wear=0, metadata={}}
 ```
 
 A wooden pick about 1/3 worn out:
 
 ```lua
-{name="default:pick_wood", count=1, wear=21323, metadata=""}
+{name="default:pick_wood", count=1, wear=21323, metadata={}}
 ```
 
 An apple:
@@ -2422,7 +2418,8 @@ An apple:
 ### `ItemStack` format
 
 A native C++ format with many helper methods. Useful for converting
-between formats. See the [Class Reference](#class-reference) section for details.
+between formats. See the [Class reference](#class-reference)
+-> [ItemStack](#itemstack) chapter for details.
 
 
 
@@ -8623,8 +8620,13 @@ This means that all callbacks will be called twice (once for each action).
 
 An `ItemStack` is a stack of items.
 
-It can be created via `ItemStack(x)`, where x is an `ItemStack`,
-an itemstring, a table or `nil`.
+* `ItemStack([x])`: returns an `ItemStack`
+    * `x`: (optional) Is one of the following:
+        * nil value: Empty stack
+        * string value: an "itemstring".
+        * table value: ItemStack [Table format](#table-format).
+            * The `name` field is mandatory.
+
 
 ### Methods
 

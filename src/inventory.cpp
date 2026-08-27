@@ -182,10 +182,10 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 			// The real thing
 
 			if (name.empty() && !is.eof()) {
-				warningstream << "Empty name passed to ItemStack."
+				warningstream << "Empty name with trailing characters passed to ItemStack."
 					<< " In a future engine version, this will result in an error." << std::endl;
 				// TODO: enable this in 5.19.0
-				//throw SerializationError("Invalid stack size");
+				//throw SerializationError("Empty stack name");
 			}
 
 			// Apply item aliases
@@ -207,12 +207,17 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 
 				if (endp && *endp == '\0') {
 					count = val;
+					if ((long)count != val) {
+						warningstream << "Out-of bounds stack count '" << count_str << "' (name='"
+							<< name << "')." << std::endl;
+					}
 				} else {
 					// Read failed. Do not clear the stack.
 					count = 1;
 
-					warningstream << "Failed to parse stack size '" << count_str
-						<< "'. In a future engine version, this will result in an error." << std::endl;
+					warningstream << "Failed to parse stack size '" << count_str << "' (name='"
+						<< name << "'). In a future engine version, this will result in an error."
+						<< std::endl;
 					// TODO: enable this in 5.19.0
 					//throw SerializationError("Invalid stack size");
 				}

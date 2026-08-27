@@ -1,10 +1,11 @@
 local function test_itemstack_ctor()
+	-- See also: test_inventory.cpp -> testItemStack
 	-- Valid uses (no warning must be shown)
 	assert(ItemStack(""):is_known() == true)
 	assert(ItemStack("air"):get_count() == 1)
 	assert(ItemStack("air 10"):get_count() == 10)
 	assert(ItemStack("air 10 1234"):get_wear() == 1234)
-	assert(ItemStack({name = "foo bar baz"}):get_name() == "foo bar baz")
+	assert(ItemStack({name = "foobar"}):get_name() == "foobar")
 
 	core.log("warning", "--- ItemStack warnings mandatory after this line ---")
 
@@ -12,6 +13,7 @@ local function test_itemstack_ctor()
 	assert(ItemStack("-- invalid!"):get_name() == "--")
 	assert(ItemStack("-- invalid!"):is_known() == false)
 	assert(ItemStack(" 3"):is_known() == true) -- empty item name but with count
+	assert(ItemStack({name = "foo bar"}):get_name() == "foo bar")
 
 	-- Should trigger a deprecation warning or error
 	assert(ItemStack({}):get_name() == "")

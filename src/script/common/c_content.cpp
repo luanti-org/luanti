@@ -1518,6 +1518,10 @@ ItemStack read_item(lua_State* L, int index, IItemDefManager *idef)
 			log_deprecated(L, "ItemStack({ ... }) constructed without a 'name' field. "
 				"In a future engine version, this will result in an error.");
 		}
+		if (name.find_first_of(' ') != std::string::npos) {
+			log_deprecated(L, "ItemStack({ ... }) constructed with 'name' containing space characters. "
+				"In a future engine version, this will result in an error.");
+		}
 		int count = getintfield_default(L, index, "count", 1);
 		int wear = getintfield_default(L, index, "wear", 0);
 
