@@ -11,20 +11,20 @@ local LIST_FORMSPEC = [[
 	]]
 
 local LIST_FORMSPEC_DESCRIPTION = [[
-		size[13,9.65]
+		size[13,7.5]
 		label[0,-0.1;%s]
 		tablecolumns[color;tree;text;text]
-		table[0,0.5;12.8,4.5;list;%s;%i]
-		box[0,5.05;12.8,1;]
-		textarea[0.35,5.1;12.9,1;;;%s]
+		table[0,0.5;12.8,4.8;list;%s;%i]
+		box[0,5.5;12.8,1.5;]
+		textarea[0.35,5.55;12.9,1.7;;;%s]
 		field_close_on_enter[search_text;false]
-		field[0.3,7.55;8.9,0.8;search_text;;%s]
+		field[7,0.05;4.95,0.8;search_text;;%s]
 		field_enter_after_edit[search_text;true]
-		image_button[9.3,7.27;0.85,0.85;search.png;btn_search;]
-		image_button[10.2,7.27;0.85,0.85;clear.png;btn_clear;]
+		image_button[11.5,-0.25;0.8,0.8;search.png;btn_search;]
+		image_button[12.15,-0.25;0.8,0.8;clear.png;btn_clear;]
 		tooltip[btn_search;%s]
 		tooltip[btn_clear;%s]
-		button_exit[5,8.6;3,1;quit;%s]
+		button_exit[5,7;3,1;quit;%s]
 	]]
 
 local F = core.formspec_escape
