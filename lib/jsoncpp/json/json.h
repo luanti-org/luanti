@@ -85,19 +85,19 @@ license you like.
 #ifndef JSON_VERSION_H_INCLUDED
 #define JSON_VERSION_H_INCLUDED
 
-// Note: version must be updated in three places when doing a release. This
+// Note: version must be updated in four places when doing a release. This
 // annoying process ensures that amalgamate, CMake, and meson all report the
 // correct version.
 // 1. /meson.build
 // 2. /include/json/version.h
 // 3. /CMakeLists.txt
+// 4. /MODULE.bazel
 // IMPORTANT: also update the SOVERSION!!
 
-#define JSONCPP_VERSION_STRING "1.9.7"
+#define JSONCPP_VERSION_STRING "1.9.8"
 #define JSONCPP_VERSION_MAJOR 1
 #define JSONCPP_VERSION_MINOR 9
-#define JSONCPP_VERSION_PATCH 7
-#define JSONCPP_VERSION_QUALIFIER
+#define JSONCPP_VERSION_PATCH 8
 #define JSONCPP_VERSION_HEXA                                                   \
   ((JSONCPP_VERSION_MAJOR << 24) | (JSONCPP_VERSION_MINOR << 16) |             \
    (JSONCPP_VERSION_PATCH << 8))
@@ -344,6 +344,7 @@ extern JSON_API int msvc_pre1900_c99_snprintf(char* outBuf, size_t size,
 #endif // if !defined(JSON_IS_AMALGAMATION)
 
 namespace Json {
+JSON_API const char* version();
 using Int = int;
 using UInt = unsigned int;
 #if defined(JSON_NO_INT64)
@@ -361,7 +362,9 @@ using UInt64 = uint64_t;
 #endif                // if defined(_MSC_VER)
 using LargestInt = Int64;
 using LargestUInt = UInt64;
+#ifndef JSON_HAS_INT64
 #define JSON_HAS_INT64
+#endif // ifndef JSON_HAS_INT64
 #endif // if defined(JSON_NO_INT64)
 
 template <typename T>
@@ -440,6 +443,8 @@ class Value;
 class ValueIteratorBase;
 class ValueIterator;
 class ValueConstIterator;
+class ValueMembersView;
+class ValueConstMembersView;
 
 } // namespace Json
 
@@ -575,12 +580,25 @@ public:
 #endif
 #endif
 
+#ifndef JSONCPP_HAS_STRING_VIEW
+#if __cplusplus >= 201703L
+#define JSONCPP_HAS_STRING_VIEW 1
+#endif
+#endif
+
 #include <array>
 #include <exception>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
+
+// Forward declaration for testing.
+struct ValueTest;
+
+#ifdef JSONCPP_HAS_STRING_VIEW
+#include <string_view>
+#endif
 
 // Disable warning C4251: <data member>: <type> needs to have dll-interface to
 // be used by...
@@ -729,6 +747,7 @@ private:
  */
 class JSON_API Value {
   friend class ValueIteratorBase;
+  friend struct ::ValueTest;
 
 public:
   using Members = std::vector<String>;
@@ -794,7 +813,7 @@ public:
 private:
 #endif
 #ifndef JSONCPP_DOC_EXCLUDE_IMPLEMENTATION
-  class CZString {
+  class JSON_API CZString {
   public:
     enum DuplicationPolicy { noDuplication = 0, duplicate, duplicateOnCopy };
     CZString(ArrayIndex index);
@@ -878,6 +897,10 @@ public:
    */
   Value(const StaticString& value);
   Value(const String& value);
+#ifdef JSONCPP_HAS_STRING_VIEW
+  inline Value(std::string_view value)
+      : Value(value.data(), value.data() + value.length()) {}
+#endif
   Value(bool value);
   Value(std::nullptr_t ptr) = delete;
   Value(const Value& other);
@@ -920,6 +943,19 @@ public:
    *  \return false if !string. (Seg-fault if str or end are NULL.)
    */
   bool getString(char const** begin, char const** end) const;
+#ifdef JSONCPP_HAS_STRING_VIEW
+  /** Get string_view of string-value.
+   *  \return false if !string. (Seg-fault if str is NULL.)
+   */
+  inline bool getString(std::string_view* str) const {
+    char const* begin;
+    char const* end;
+    if (!getString(&begin, &end))
+      return false;
+    *str = std::string_view(begin, static_cast<size_t>(end - begin));
+    return true;
+  }
+#endif
   Int asInt() const;
   UInt asUInt() const;
 #if defined(JSON_HAS_INT64)
@@ -1006,6 +1042,22 @@ public:
   bool insert(ArrayIndex index, const Value& newValue);
   bool insert(ArrayIndex index, Value&& newValue);
 
+#ifdef JSONCPP_HAS_STRING_VIEW
+  /// Access an object value by name, create a null member if it does not exist.
+  /// \param key may contain embedded nulls.
+  inline Value& operator[](std::string_view key) {
+    return resolveReference(key.data(), key.data() + key.length());
+  }
+  /// Access an object value by name, returns null if there is no member with
+  /// that name.
+  /// \param key may contain embedded nulls.
+  inline const Value& operator[](std::string_view key) const {
+    Value const* found = find(key.data(), key.data() + key.length());
+    if (!found)
+      return nullSingleton();
+    return *found;
+  }
+#endif
   /// Access an object value by name, create a null member if it does not exist.
   /// \note Because of our implementation, keys are limited to 2^30 -1 chars.
   /// Exceeding that will cause an exception.
@@ -1033,18 +1085,25 @@ public:
    *   \endcode
    */
   Value& operator[](const StaticString& key);
+#ifdef JSONCPP_HAS_STRING_VIEW
+  /// Return the member named key if it exist, defaultValue otherwise.
+  /// \note deep copy
+  inline Value get(std::string_view key, const Value& defaultValue) const {
+    return get(key.data(), key.data() + key.length(), defaultValue);
+  }
+#endif
   /// Return the member named key if it exist, defaultValue otherwise.
   /// \note deep copy
   Value get(const char* key, const Value& defaultValue) const;
   /// Return the member named key if it exist, defaultValue otherwise.
   /// \note deep copy
+  /// \param key may contain embedded nulls.
+  Value get(const String& key, const Value& defaultValue) const;
+  /// Return the member named key if it exist, defaultValue otherwise.
+  /// \note deep copy
   /// \note key may contain embedded nulls.
   Value get(const char* begin, const char* end,
             const Value& defaultValue) const;
-  /// Return the member named key if it exist, defaultValue otherwise.
-  /// \note deep copy
-  /// \param key may contain embedded nulls.
-  Value get(const String& key, const Value& defaultValue) const;
   /// Most general and efficient version of isMember()const, get()const,
   /// and operator[]const
   /// \note As stated elsewhere, behavior is undefined if (end-begin) >= 2^30
@@ -1052,6 +1111,29 @@ public:
   /// Most general and efficient version of isMember()const, get()const,
   /// and operator[]const
   Value const* find(const String& key) const;
+
+  /// Calls find and only returns a valid pointer if the type is found
+  template <typename T, bool (T::*TMemFn)() const>
+  Value const* findValue(const String& key) const {
+    Value const* found = find(key);
+    if (!found || !(found->*TMemFn)())
+      return nullptr;
+    return found;
+  }
+
+  Value const* findNull(const String& key) const;
+  Value const* findBool(const String& key) const;
+  Value const* findInt(const String& key) const;
+  Value const* findInt64(const String& key) const;
+  Value const* findUInt(const String& key) const;
+  Value const* findUInt64(const String& key) const;
+  Value const* findIntegral(const String& key) const;
+  Value const* findDouble(const String& key) const;
+  Value const* findNumeric(const String& key) const;
+  Value const* findString(const String& key) const;
+  Value const* findArray(const String& key) const;
+  Value const* findObject(const String& key) const;
+
   /// Most general and efficient version of object-mutators.
   /// \note As stated elsewhere, behavior is undefined if (end-begin) >= 2^30
   /// \return non-zero, but JSON_ASSERT if this is neither object nor nullValue.
@@ -1061,20 +1143,30 @@ public:
   /// Do nothing if it did not exist.
   /// \pre type() is objectValue or nullValue
   /// \post type() is unchanged
+#if JSONCPP_HAS_STRING_VIEW
+  inline void removeMember(std::string_view key) {
+    removeMember(key.data(), key.data() + key.length(), nullptr);
+  }
+#endif
   void removeMember(const char* key);
   /// Same as removeMember(const char*)
   /// \param key may contain embedded nulls.
   void removeMember(const String& key);
-  /// Same as removeMember(const char* begin, const char* end, Value* removed),
-  /// but 'key' is null-terminated.
-  bool removeMember(const char* key, Value* removed);
   /** \brief Remove the named map member.
    *
    *  Update 'removed' iff removed.
    *  \param key may contain embedded nulls.
    *  \return true iff removed (no exceptions)
    */
+#if JSONCPP_HAS_STRING_VIEW
+  inline bool removeMember(std::string_view key, Value* removed) {
+    return removeMember(key.data(), key.data() + key.length(), removed);
+  }
+#endif
   bool removeMember(String const& key, Value* removed);
+  /// Same as removeMember(const char* begin, const char* end, Value* removed),
+  /// but 'key' is null-terminated.
+  bool removeMember(const char* key, Value* removed);
   /// Same as removeMember(String const& key, Value* removed)
   bool removeMember(const char* begin, const char* end, Value* removed);
   /** \brief Remove the indexed array element.
@@ -1085,6 +1177,13 @@ public:
    */
   bool removeIndex(ArrayIndex index, Value* removed);
 
+#ifdef JSONCPP_HAS_STRING_VIEW
+  /// Return true if the object has a member named key.
+  /// \param key may contain embedded nulls.
+  inline bool isMember(std::string_view key) const {
+    return isMember(key.data(), key.data() + key.length());
+  }
+#endif
   /// Return true if the object has a member named key.
   /// \note 'key' must be null-terminated.
   bool isMember(const char* key) const;
@@ -1123,6 +1222,11 @@ public:
 
   iterator begin();
   iterator end();
+
+  // \brief Returns a view of member pairs for range-based for loops.
+  ValueMembersView members();
+  // \brief Returns a view of member pairs for range-based for loops.
+  ValueConstMembersView members() const;
 
   /// \brief Returns a reference to the first element in the `Value`.
   /// Requires that this value holds an array or json object, with at least one
@@ -1482,6 +1586,131 @@ public:
   pointer operator->() const { return const_cast<pointer>(&deref()); }
 };
 
+/** \brief Proxy struct to enable range-based for loops over object members.
+ */
+struct MemberProxy {
+  const String name;
+  Value& value;
+};
+
+/** \brief Proxy struct to enable range-based for loops over const object
+ * members.
+ */
+struct ConstMemberProxy {
+  const String name;
+  const Value& value;
+};
+
+/** \brief Iterator adapter for range-based for loops.
+ */
+class ValueMembersIterator {
+public:
+  using iterator_category = std::forward_iterator_tag;
+  using value_type = MemberProxy;
+  using difference_type = int;
+  using pointer = MemberProxy*;
+  using reference = MemberProxy;
+
+  ValueMembersIterator() = default;
+  explicit ValueMembersIterator(ValueIterator const& iter) : it_(iter) {}
+
+  ValueMembersIterator& operator++() {
+    ++it_;
+    return *this;
+  }
+  ValueMembersIterator operator++(int) {
+    ValueMembersIterator temp(*this);
+    ++*this;
+    return temp;
+  }
+  bool operator==(ValueMembersIterator const& other) const {
+    return it_ == other.it_;
+  }
+  bool operator!=(ValueMembersIterator const& other) const {
+    return it_ != other.it_;
+  }
+  MemberProxy operator*() const { return MemberProxy{it_.name(), *it_}; }
+
+private:
+  ValueIterator it_;
+};
+
+/** \brief Iterator adapter for range-based for loops.
+ */
+class ValueConstMembersIterator {
+public:
+  using iterator_category = std::forward_iterator_tag;
+  using value_type = ConstMemberProxy;
+  using difference_type = int;
+  using pointer = ConstMemberProxy*;
+  using reference = ConstMemberProxy;
+
+  ValueConstMembersIterator() = default;
+  explicit ValueConstMembersIterator(ValueConstIterator const& iter)
+      : it_(iter) {}
+
+  ValueConstMembersIterator& operator++() {
+    ++it_;
+    return *this;
+  }
+  ValueConstMembersIterator operator++(int) {
+    ValueConstMembersIterator temp(*this);
+    ++*this;
+    return temp;
+  }
+  bool operator==(ValueConstMembersIterator const& other) const {
+    return it_ == other.it_;
+  }
+  bool operator!=(ValueConstMembersIterator const& other) const {
+    return it_ != other.it_;
+  }
+  ConstMemberProxy operator*() const {
+    return ConstMemberProxy{it_.name(), *it_};
+  }
+
+private:
+  ValueConstIterator it_;
+};
+
+/** \brief Range-based for loop adapter for object members.
+ */
+class ValueMembersView {
+public:
+  ValueMembersView(ValueIterator begin, ValueIterator end)
+      : begin_(begin), end_(end) {}
+  ValueMembersIterator begin() const { return ValueMembersIterator(begin_); }
+  ValueMembersIterator end() const { return ValueMembersIterator(end_); }
+
+private:
+  ValueIterator begin_;
+  ValueIterator end_;
+};
+
+/** \brief Range-based for loop adapter for object members.
+ */
+class ValueConstMembersView {
+public:
+  ValueConstMembersView(ValueConstIterator begin, ValueConstIterator end)
+      : begin_(begin), end_(end) {}
+  ValueConstMembersIterator begin() const {
+    return ValueConstMembersIterator(begin_);
+  }
+  ValueConstMembersIterator end() const {
+    return ValueConstMembersIterator(end_);
+  }
+
+private:
+  ValueConstIterator begin_;
+  ValueConstIterator end_;
+};
+
+inline ValueMembersView Value::members() {
+  return ValueMembersView(begin(), end());
+}
+inline ValueConstMembersView Value::members() const {
+  return ValueConstMembersView(begin(), end());
+}
+
 inline void swap(Value& a, Value& b) { a.swap(b); }
 
 inline const Value& Value::front() const { return *begin(); }
@@ -1598,7 +1827,10 @@ public:
    * document.
    *
    * \param      beginDoc        Pointer on the beginning of the UTF-8 encoded
-   *                             string of the document to read.
+   *                             string of the document to read. The pointed-to
+   *                             buffer must outlive this Reader if error
+   *                             methods (e.g. getFormattedErrorMessages()) are
+   *                             called after parse() returns.
    * \param      endDoc          Pointer on the end of the UTF-8 encoded string
    *                             of the document to read.  Must be >= beginDoc.
    * \param[out] root            Contains the root value of the document if it

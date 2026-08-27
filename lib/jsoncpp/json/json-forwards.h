@@ -86,19 +86,19 @@ license you like.
 #ifndef JSON_VERSION_H_INCLUDED
 #define JSON_VERSION_H_INCLUDED
 
-// Note: version must be updated in three places when doing a release. This
+// Note: version must be updated in four places when doing a release. This
 // annoying process ensures that amalgamate, CMake, and meson all report the
 // correct version.
 // 1. /meson.build
 // 2. /include/json/version.h
 // 3. /CMakeLists.txt
+// 4. /MODULE.bazel
 // IMPORTANT: also update the SOVERSION!!
 
-#define JSONCPP_VERSION_STRING "1.9.7"
+#define JSONCPP_VERSION_STRING "1.9.8"
 #define JSONCPP_VERSION_MAJOR 1
 #define JSONCPP_VERSION_MINOR 9
-#define JSONCPP_VERSION_PATCH 7
-#define JSONCPP_VERSION_QUALIFIER
+#define JSONCPP_VERSION_PATCH 8
 #define JSONCPP_VERSION_HEXA                                                   \
   ((JSONCPP_VERSION_MAJOR << 24) | (JSONCPP_VERSION_MINOR << 16) |             \
    (JSONCPP_VERSION_PATCH << 8))
@@ -345,6 +345,7 @@ extern JSON_API int msvc_pre1900_c99_snprintf(char* outBuf, size_t size,
 #endif // if !defined(JSON_IS_AMALGAMATION)
 
 namespace Json {
+JSON_API const char* version();
 using Int = int;
 using UInt = unsigned int;
 #if defined(JSON_NO_INT64)
@@ -362,7 +363,9 @@ using UInt64 = uint64_t;
 #endif                // if defined(_MSC_VER)
 using LargestInt = Int64;
 using LargestUInt = UInt64;
+#ifndef JSON_HAS_INT64
 #define JSON_HAS_INT64
+#endif // ifndef JSON_HAS_INT64
 #endif // if defined(JSON_NO_INT64)
 
 template <typename T>
@@ -441,6 +444,8 @@ class Value;
 class ValueIteratorBase;
 class ValueIterator;
 class ValueConstIterator;
+class ValueMembersView;
+class ValueConstMembersView;
 
 } // namespace Json
 
