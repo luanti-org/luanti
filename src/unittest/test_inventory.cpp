@@ -85,8 +85,8 @@ void TestInventory::testItemStack(IItemDefManager *idef)
 		std::istringstream is("foo:negative -6 -4321", std::ios::binary);
 		stack.deSerialize(is, idef);
 
-		UASSERT(stack.count == UINT16_MAX -    6 + 1);
-		UASSERT(stack.wear  == UINT16_MAX - 4321 + 1);
+		UASSERTEQ(s32, stack.count, UINT16_MAX -    6 + 1);
+		UASSERTEQ(s32, stack.wear,  UINT16_MAX - 4321 + 1);
 
 		// Unsigned overflow
 		is = std::istringstream("foo:overflow 65537 65538", std::ios::binary);
