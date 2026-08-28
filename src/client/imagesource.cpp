@@ -1087,15 +1087,14 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			for (ImagePart &it : image_parts) {
 				// Shift insertion offset by the same factor as we scaled `baseimg`
 				const v2s32 pos_base = it.offset * scale / FX_FACTOR;
-				const std::string &filename = it.filename;
 
 				if (pos_base.X > (s32)basedim.Width || pos_base.Y > (s32)basedim.Height) {
 					warningstream << "generateImagePart(): Skipping \""
-						<< filename << "\" as it's out-of-bounds " << pos_base
+						<< it.filename << "\" as it's out-of-bounds " << pos_base
 						<< " for [combine" << std::endl;
 					continue;
 				}
-				tracestream << "Adding \"" << filename << "\" to combined "
+				tracestream << "Adding \"" << it.filename << "\" to combined "
 					<< pos_base << std::endl;
 
 				auto dim = it.img->getDimension();
@@ -1113,12 +1112,12 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 				}
 				if (pos_base.X + dim.Width <= 0 || pos_base.Y + dim.Height <= 0) {
 					warningstream << "generateImagePart(): Skipping \""
-						<< filename << "\" as it's out-of-bounds " << pos_base
+						<< it.filename << "\" as it's out-of-bounds " << pos_base
 						<< " for [combine" << std::endl;
 					continue;
 				}
 
-				blit_with_alpha(it.img, baseimg, pos_base, dim);;
+				blit_with_alpha(it.img, baseimg, pos_base, dim);
 			}
 		}
 		/*
