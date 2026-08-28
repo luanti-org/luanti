@@ -21,22 +21,7 @@ namespace scene
 constexpr std::array<u8, NodeDrawType_END> NDT_solidness = [] {
 	std::array<u8, NodeDrawType_END> solidness{};
 	solidness[NDT_NORMAL] = 2;
-	solidness[NDT_AIRLIKE] = 0;
 	solidness[NDT_LIQUID] = 1;
-	solidness[NDT_FLOWINGLIQUID] = 0;
-	solidness[NDT_GLASSLIKE] = 0;
-	solidness[NDT_ALLFACES] = 0;
-	solidness[NDT_ALLFACES_OPTIONAL] = 0;
-	solidness[NDT_TORCHLIKE] = 0;
-	solidness[NDT_SIGNLIKE] = 0;
-	solidness[NDT_PLANTLIKE] = 0;
-	solidness[NDT_FENCELIKE] = 0;
-	solidness[NDT_RAILLIKE] = 0;
-	solidness[NDT_NODEBOX] = 0;
-	solidness[NDT_GLASSLIKE_FRAMED] = 0;
-	solidness[NDT_FIRELIKE] = 0;
-	solidness[NDT_GLASSLIKE_FRAMED_OPTIONAL] = 0;
-	solidness[NDT_MESH] = 0;
 	solidness[NDT_PLANTLIKE_ROOTED] = 2;
 	return solidness;
 }();
@@ -44,24 +29,11 @@ constexpr std::array<u8, NodeDrawType_END> NDT_solidness = [] {
 // When solidness=0, this tells how it looks like
 constexpr std::array<u8, NodeDrawType_END> NDT_visual_solidness = [] {
 	std::array<u8, NodeDrawType_END> visual_solidness{};
-	visual_solidness[NDT_NORMAL] = 0;
-	visual_solidness[NDT_AIRLIKE] = 0;
-	visual_solidness[NDT_LIQUID] = 0;
-	visual_solidness[NDT_FLOWINGLIQUID] = 0;
 	visual_solidness[NDT_GLASSLIKE] = 1;
 	visual_solidness[NDT_ALLFACES] = 1;
 	visual_solidness[NDT_ALLFACES_OPTIONAL] = 1;
-	visual_solidness[NDT_TORCHLIKE] = 0;
-	visual_solidness[NDT_SIGNLIKE] = 0;
-	visual_solidness[NDT_PLANTLIKE] = 0;
-	visual_solidness[NDT_FENCELIKE] = 0;
-	visual_solidness[NDT_RAILLIKE] = 0;
-	visual_solidness[NDT_NODEBOX] = 0;
-	visual_solidness[NDT_GLASSLIKE_FRAMED] = 0;
-	visual_solidness[NDT_FIRELIKE] = 0;
+	visual_solidness[NDT_GLASSLIKE_FRAMED] = 1;
 	visual_solidness[NDT_GLASSLIKE_FRAMED_OPTIONAL] = 1;
-	visual_solidness[NDT_MESH] = 0;
-	visual_solidness[NDT_PLANTLIKE_ROOTED] = 0;
 	return visual_solidness;
 }();
 
