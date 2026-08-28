@@ -186,7 +186,7 @@ Client::Client(
 	// Load SSCSM client-builtin
 	{
 		auto event_add_files = std::make_unique<SSCSMEventUpdateVFSFiles>();
-		event_add_files->files.scanSSCSMClientBuiltin(getBuiltinLuaPath());
+		event_add_files->files.scanSSCSMClientBuiltin(getBuiltinLuaPath(), !m_internal_server);
 		m_sscsm_controller->runEvent(this, std::move(event_add_files));
 
 		// load client builtin immediately

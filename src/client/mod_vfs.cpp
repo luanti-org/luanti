@@ -61,8 +61,15 @@ const std::string *ModVFS::getModFile(std::string filename)
 	return &it->second;
 }
 
-void ModVFS::scanSSCSMClientBuiltin(const std::string &builtin_path)
+void ModVFS::scanSSCSMClientBuiltin(const std::string &builtin_path, bool force_integrity)
 {
+	auto handle_integrity_error = [force_integrity](auto &&err_msg) {
+		if (force_integrity)
+			throw BaseException(err_msg);
+		else
+			warningstream << err_msg << std::endl;
+	};
+
 	for (auto rel_path : g_builtin_sscsm_client_files) {
 		std::string rel_path_os{rel_path};
 		std::replace(rel_path_os.begin(), rel_path_os.end(), '/', DIR_DELIM_CHAR);
@@ -89,7 +96,7 @@ void ModVFS::scanSSCSMClientBuiltin(const std::string &builtin_path)
 				std::ostringstream err;
 				err << "No SHA256 known for SSCSM client-builtin file \""
 						<< rel_path << "\"";
-				throw BaseException(err.str());
+				handle_integrity_error(err.str());
 			}
 			if (it->second != digest) {
 				std::ostringstream err;
@@ -97,7 +104,7 @@ void ModVFS::scanSSCSMClientBuiltin(const std::string &builtin_path)
 						<< "\" does not match."
 						<< "\nExpected: " << it->second
 						<< "\nFound:    " << digest;
-				throw BaseException(err.str());
+				handle_integrity_error(err.str());
 			}
 		}
 
