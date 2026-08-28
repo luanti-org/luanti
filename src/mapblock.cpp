@@ -522,6 +522,7 @@ void MapBlock::deSerializeUncompressed(std::istream &is, u8 version, bool disk)
 {
 	m_is_air_expired = true;
 	expandNodesIfNeeded();
+	assert(version >= 29);
 
 	u8 flags = readU8(is);
 	is_underground = (flags & 0x01) != 0;
@@ -633,6 +634,7 @@ void MapBlock::deSerialize_pre29(std::istream &is, u8 version, bool disk)
 {
 	m_is_air_expired = true;
 	expandNodesIfNeeded();
+	assert(version < 29);
 
 	if(version <= 21)
 	{

@@ -711,16 +711,17 @@ std::pair<std::unique_ptr<std::istream>, u8> ServerMap::createBlockIStream(const
 	if (!from_db || from_db->empty()) {
 		return {nullptr, 0};
 	}
-	// attempt to uncompress the block data without holding the lock
+	// uncompress the block data early, if possible
 	auto iss = std::make_unique<std::istringstream>(*from_db, std::ios_base::binary);
 	u8 version = readU8(*iss);
-
+	if (iss->fail())
+		throw SerializationError("Failed to read MapBlock version");
 	if (!ser_ver_supported_read(version))
 		throw VersionMismatchException("ERROR: MapBlock format not supported");
 
-	if (iss->good() && version >= 29) {
+	if (version >= 29) {
 		// we can uncompress right here
-		ScopeProfiler sp(g_profiler, "EmergeThread: deCompress block", SPT_AVG, PRECISION_MICRO);
+		ScopeProfiler sp(g_profiler, "ServerMap: early decompress block", SPT_AVG, PRECISION_MICRO);
 		auto decomp = std::make_unique<std::stringstream>(std::ios_base::binary | std::ios_base::in | std::ios_base::out);
 		decompress(*iss, *decomp, version);
 		// use the decompressed stream
@@ -812,7 +813,6 @@ MapBlock* ServerMap::loadBlock(v3s16 blockpos)
 	if (!data.empty()) {
 		auto [is_ptr, version] = createBlockIStream(&data);
 		return loadBlock(*is_ptr.get(), blockpos, version);
-
 	}
 	return getBlockNoCreateNoEx(blockpos);
 }

@@ -118,12 +118,14 @@ public:
 	bool saveBlock(MapBlock *block) override;
 	static bool saveBlock(MapBlock *block, MapDatabase *db, int compression_level = -1);
 
-	std::pair<std::unique_ptr<std::istream>, u8> createBlockIStream(const std::string *from_db);
+	/// @brief Splits the version off a serialized block and decompresses it early (if possible)
+	/// @return block data stream, version byte
+	static std::pair<std::unique_ptr<std::istream>, u8> createBlockIStream(const std::string *from_db);
 
 	// Load block in a synchronous fashion
 	MapBlock *loadBlock(v3s16 p);
 	/// Load a block that was already read from disk. Used by EmergeManager.
-	/// Caller must pass the version if it read the version off the stream.
+	/// Caller must use the createBlockIStream() helper before calling this
 	/// @return non-null block (but can be blank)
 	MapBlock *loadBlock(std::istream &is, v3s16 p, u8 version);
 
