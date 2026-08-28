@@ -89,10 +89,10 @@ u64 murmur_hash_64_ua(const void *key, size_t len, unsigned int seed)
 bool isBlockInSight(const v3s16 blockpos_b, const v3f& camera_pos, const v3f& camera_dir,
 		const f32 camera_fov, const f32 range, f32 *distance_ptr)
 {
-	return isBlockInSight_ex(blockpos_b, camera_pos, camera_dir, getFovCosSq(camera_fov), getFovAdj(camera_fov), range, distance_ptr);
+	return isBlockInSightEx(blockpos_b, camera_pos, camera_dir, getFovCosSq(camera_fov), getFovAdj(camera_fov), range, distance_ptr);
 }
 
-bool isBlockInSight_ex(const v3s16 blockpos_b, const v3f& camera_pos, const v3f& camera_dir,
+bool isBlockInSightEx(const v3s16 blockpos_b, const v3f& camera_pos, const v3f& camera_dir,
 		const f32 target_cos_sq, const f32 adjdist, f32 range, f32 *distance_ptr)
 {
 	// Block center position relative to camera
@@ -132,7 +132,11 @@ bool isBlockInSight_ex(const v3s16 blockpos_b, const v3f& camera_pos, const v3f&
 
 	const f32 len_adj_sq = blockpos_adj.getLengthSQ();
 
-	// do check with squared values
+	// do angle check with squared values
+	// This is a transformation of the previous
+	//   dForward/blockpos_adj.getLength() < target_cos
+	// This is safe because of the (dforward <= 0.0f) check above
+	// (and the fact that fov <= 160 degrees)
 	if (dforward * dforward < target_cos_sq * len_adj_sq)
 		return false;
 

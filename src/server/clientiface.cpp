@@ -296,7 +296,7 @@ void RemoteClient::GetNextBlocks (
 				(0.1 is about 5 degrees)
 			*/
 			f32 dist;
-			if (!(isBlockInSight_ex(p, camera_pos, camera_dir, target_cos_sq, adjdist,
+			if (!(isBlockInSightEx(p, camera_pos, camera_dir, target_cos_sq, adjdist,
 						d_blocks_in_sight, &dist) ||
 					(playerspeed.getLength() > 1.0f * BS &&
 					isBlockInSight(p, camera_pos, playerspeeddir, 0.1f,
