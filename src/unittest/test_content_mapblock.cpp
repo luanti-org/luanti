@@ -71,7 +71,6 @@ public:
 		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_NORMAL;
-		f.visuals->solidness = 2;
 		f.alpha = ALPHAMODE_OPAQUE;
 		for (TileDef &tiledef : f.tiledef)
 			tiledef.name = name + ".png";
@@ -92,7 +91,6 @@ public:
 		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_LIQUID;
-		f.visuals->solidness = 1;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;
@@ -120,7 +118,6 @@ public:
 		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_FLOWINGLIQUID;
-		f.visuals->solidness = 0;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;

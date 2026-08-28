@@ -292,69 +292,40 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 		tdef_spec[j] = tiledef_special[j];
 	}
 
-	bool is_liquid = false;
-
 	MaterialType material_type = alpha_mode_to_material_type(alpha);
 
 	switch (drawtype) {
-	default:
-	case NDT_NORMAL:
-		solidness = 2;
-		break;
-	case NDT_AIRLIKE:
-		solidness = 0;
-		break;
 	case NDT_LIQUID:
-		if (!tsettings.translucent_liquids)
-			alpha = ALPHAMODE_OPAQUE;
-		solidness = 1;
-		is_liquid = true;
-		break;
 	case NDT_FLOWINGLIQUID:
-		solidness = 0;
 		if (!tsettings.translucent_liquids)
 			alpha = ALPHAMODE_OPAQUE;
-		is_liquid = true;
-		break;
-	case NDT_GLASSLIKE:
-		solidness = 0;
-		visual_solidness = 1;
-		break;
-	case NDT_GLASSLIKE_FRAMED:
-		solidness = 0;
-		visual_solidness = 1;
+		if (waving == 3) {
+			material_type = alpha == ALPHAMODE_OPAQUE ?
+				TILE_MATERIAL_WAVING_LIQUID_OPAQUE : (alpha == ALPHAMODE_CLIP ?
+				TILE_MATERIAL_WAVING_LIQUID_BASIC : TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT);
+		} else {
+			material_type = alpha == ALPHAMODE_OPAQUE ? TILE_MATERIAL_LIQUID_OPAQUE :
+				TILE_MATERIAL_LIQUID_TRANSPARENT;
+		}
 		break;
 	case NDT_GLASSLIKE_FRAMED_OPTIONAL:
-		solidness = 0;
-		visual_solidness = 1;
 		drawtype = tsettings.connected_glass ? NDT_GLASSLIKE_FRAMED : NDT_GLASSLIKE;
-		break;
-	case NDT_ALLFACES:
-		solidness = 0;
-		visual_solidness = 1;
 		break;
 	case NDT_ALLFACES_OPTIONAL:
 		if (tsettings.leaves_style == LEAVES_FANCY) {
 			drawtype = NDT_ALLFACES;
-			solidness = 0;
-			visual_solidness = 1;
 		} else if (tsettings.leaves_style == LEAVES_SIMPLE) {
 			for (u32 j = 0; j < 6; j++) {
 				if (!tdef_spec[j].name.empty())
 					tdef[j].name = tdef_spec[j].name;
 			}
 			drawtype = NDT_GLASSLIKE;
-			solidness = 0;
-			visual_solidness = 1;
 		} else {
 			if (waving >= 1) {
 				// waving nodes must make faces so there are no gaps
 				drawtype = NDT_ALLFACES;
-				solidness = 0;
-				visual_solidness = 1;
 			} else {
 				drawtype = NDT_NORMAL;
-				solidness = 2;
 			}
 			for (TileDef &td : tdef)
 				td.name += std::string("^[noalpha");
@@ -363,16 +334,11 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 			material_type = TILE_MATERIAL_WAVING_LEAVES;
 		break;
 	case NDT_PLANTLIKE:
-		solidness = 0;
 		if (waving >= 1)
 			material_type = TILE_MATERIAL_WAVING_PLANTS;
 		break;
-	case NDT_FIRELIKE:
-		solidness = 0;
-		break;
 	case NDT_MESH:
 	case NDT_NODEBOX:
-		solidness = 0;
 		if (waving == 1) {
 			material_type = TILE_MATERIAL_WAVING_PLANTS;
 		} else if (waving == 2) {
@@ -383,26 +349,18 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 				TILE_MATERIAL_WAVING_LIQUID_BASIC : TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT);
 		}
 		break;
+	case NDT_NORMAL:
+	case NDT_GLASSLIKE:
+	case NDT_GLASSLIKE_FRAMED:
+	case NDT_ALLFACES:
+	case NDT_FIRELIKE:
 	case NDT_TORCHLIKE:
 	case NDT_SIGNLIKE:
 	case NDT_FENCELIKE:
 	case NDT_RAILLIKE:
-		solidness = 0;
-		break;
 	case NDT_PLANTLIKE_ROOTED:
-		solidness = 2;
+	default:
 		break;
-	}
-
-	if (is_liquid) {
-		if (waving == 3) {
-			material_type = alpha == ALPHAMODE_OPAQUE ?
-				TILE_MATERIAL_WAVING_LIQUID_OPAQUE : (alpha == ALPHAMODE_CLIP ?
-				TILE_MATERIAL_WAVING_LIQUID_BASIC : TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT);
-		} else {
-			material_type = alpha == ALPHAMODE_OPAQUE ? TILE_MATERIAL_LIQUID_OPAQUE :
-				TILE_MATERIAL_LIQUID_TRANSPARENT;
-		}
 	}
 
 	GetShaderCallback tile_shader = [&] (bool array_texture) {

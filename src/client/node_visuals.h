@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include <array>
 #include <unordered_set>
-#include "nodedef.h" // CF_SPECIAL_COUNT
+#include "nodedef.h"
 #include "tile.h"
 
 class Client;
@@ -15,6 +16,62 @@ namespace scene
 	class IMeshManipulator;
 	struct SMesh;
 }
+
+// Used when choosing which face is drawn
+constexpr std::array<u8, NodeDrawType_END> NDT_solidness = [] {
+	std::array<u8, NodeDrawType_END> solidness{};
+	for (u8 drawtype = 0; drawtype < NodeDrawType_END; drawtype++) {
+		switch ((NodeDrawType) drawtype) {
+		default:
+		case NDT_NORMAL:
+		case NDT_PLANTLIKE_ROOTED:
+			solidness[drawtype] = 2;
+			break;
+		case NDT_LIQUID:
+			solidness[drawtype] = 1;
+			break;
+		case NDT_AIRLIKE:
+		case NDT_FLOWINGLIQUID:
+		case NDT_GLASSLIKE:
+		case NDT_GLASSLIKE_FRAMED:
+		case NDT_GLASSLIKE_FRAMED_OPTIONAL:
+		case NDT_PLANTLIKE:
+		case NDT_TORCHLIKE:
+		case NDT_SIGNLIKE:
+		case NDT_FENCELIKE:
+		case NDT_RAILLIKE:
+		case NDT_FIRELIKE:
+		case NDT_MESH:
+		case NDT_NODEBOX:
+		case NDT_ALLFACES:
+		case NDT_ALLFACES_OPTIONAL:
+			solidness[drawtype] = 0;
+			break;
+		}
+	}
+	return solidness;
+}();
+
+// When solidness=0, this tells how it looks like
+constexpr std::array<u8, NodeDrawType_END> NDT_visual_solidness = [] {
+	std::array<u8, NodeDrawType_END> visual_solidness{};
+	for (u8 drawtype = 0; drawtype < NodeDrawType_END; drawtype++) {
+		switch ((NodeDrawType) drawtype) {
+		case NDT_GLASSLIKE:
+		case NDT_GLASSLIKE_FRAMED:
+		case NDT_GLASSLIKE_FRAMED_OPTIONAL:
+		case NDT_ALLFACES:
+		case NDT_ALLFACES_OPTIONAL:
+			visual_solidness[drawtype] = 1;
+			break;
+		default:
+			visual_solidness[drawtype] = 0;
+			break;
+		}
+	}
+	return visual_solidness;
+}();
+
 
 // Stores client only data needed to draw nodes, like textures and meshes
 // Contained in ContentFeatures
@@ -26,9 +83,6 @@ struct NodeVisuals
 	TileSpec tiles[6];
 	// Special tiles
 	TileSpec special_tiles[CF_SPECIAL_COUNT];
-	u8 solidness = 2; // Used when choosing which face is drawn
-	u8 visual_solidness = 0; // When solidness=0, this tells how it looks like
-	bool backface_culling = true;
 	scene::SMesh *mesh_ptr = nullptr; // mesh in case of mesh node
 	video::SColor minimap_color;
 	std::vector<video::SColor> *palette = nullptr;

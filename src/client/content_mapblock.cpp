@@ -468,7 +468,8 @@ void MapblockMeshGenerator::drawSolidNode()
 				const ContentFeatures &f_side =
 						nodedef->get(data->m_vmanip.getNodeRefUnsafeCheckFlags(p2 + d));
 
-				bool side_is_translucent = !(f_side.visuals->solidness || f_side.visuals->visual_solidness);
+				bool side_is_translucent =
+					!(NDT_solidness[f_side.drawtype] || NDT_visual_solidness[f_side.drawtype]);
 				bool side_is_same_flowing_liquid =
 					f_side.drawtype == NDT_FLOWINGLIQUID && cur_node.f->sameLiquidRender(f_side);
 
@@ -482,13 +483,13 @@ void MapblockMeshGenerator::drawSolidNode()
 		}
 		if (n2 != CONTENT_AIR) {
 			const ContentFeatures &f2 = nodedef->get(n2);
-			if (f2.visuals->solidness == 2 && !liquid_needs_top_face)
+			if (NDT_solidness[f2.drawtype] == 2 && !liquid_needs_top_face)
 				continue;
 			if (cur_node.f->drawtype == NDT_LIQUID) {
 				if (cur_node.f->sameLiquidRender(f2))
 					continue;
-				backface_culling =
-					!liquid_needs_top_face && (f2.visuals->solidness || f2.visuals->visual_solidness);
+				backface_culling = !liquid_needs_top_face &&
+						(NDT_solidness[f2.drawtype] || NDT_visual_solidness[f2.drawtype]);
 			}
 		}
 		faces |= 1 << face;
@@ -599,7 +600,7 @@ void MapblockMeshGenerator::prepareLiquidNodeDrawing()
 			&& (nbottom.getContent() != cur_liquid.c_source);
 	if (cur_liquid.draw_bottom) {
 		const ContentFeatures &f2 = nodedef->get(nbottom.getContent());
-		if (f2.visuals->solidness > 1)
+		if (NDT_solidness[f2.drawtype] > 1)
 			cur_liquid.draw_bottom = false;
 	}
 
@@ -741,7 +742,7 @@ void MapblockMeshGenerator::drawLiquidSides()
 
 		const ContentFeatures &neighbor_features = nodedef->get(neighbor.content);
 		// Don't draw face if neighbor is blocking the view
-		if (neighbor_features.visuals->solidness == 2)
+		if (NDT_solidness[neighbor_features.drawtype] == 2)
 			continue;
 
 		video::S3DVertex vertices[4];
