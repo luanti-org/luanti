@@ -317,7 +317,7 @@ u64 murmur_hash_64_ua(const void *key, size_t len, unsigned int seed);
  * @param range viewing range
  * @param distance_ptr return location for distance from the camera
  */
-bool isBlockInSight(const v3s16 blockpos_b, const v3f& camera_pos, const v3f& camera_dir,
+bool isBlockInSight(const v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 		const f32 camera_fov, const f32 range, f32 *distance_ptr=nullptr);
 
 /**
@@ -329,7 +329,7 @@ bool isBlockInSight(const v3s16 blockpos_b, const v3f& camera_pos, const v3f& ca
  * @param range viewing range
  * @param distance_ptr return location for distance from the camera
  */
-bool isBlockInSightEx(const v3s16 blockpos_b, const v3f& camera_pos, const v3f& camera_dir,
+bool isBlockInSightEx(const v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 		const f32 target_cos_sq, const f32 adjdist, const f32 range, f32 *distance_ptr);
 
 s16 adjustDist(s16 dist, float zoom_fov);
