@@ -96,10 +96,9 @@ bool isBlockInSightEx(const v3s16 blockpos_b, const v3f& camera_pos, const v3f& 
 		const f32 target_cos_sq, const f32 adjdist, f32 range, f32 *distance_ptr)
 {
 	// Block center position relative to camera
-	const v3f blockpos_relative(
-			(f32) (blockpos_b.X * MAP_BLOCKSIZE + MAP_BLOCKSIZE / 2) * BS - camera_pos.X,
-			(f32) (blockpos_b.Y * MAP_BLOCKSIZE + MAP_BLOCKSIZE / 2) * BS - camera_pos.Y,
-			(f32) (blockpos_b.Z * MAP_BLOCKSIZE + MAP_BLOCKSIZE / 2) * BS - camera_pos.Z);
+	const v3f blockpos_relative =
+			intToFloat(blockpos_b * MAP_BLOCKSIZE + v3s16(MAP_BLOCKSIZE / 2), BS) -
+			camera_pos;
 
 	if (distance_ptr) {
 		*distance_ptr = 0.0f;
