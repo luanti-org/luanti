@@ -322,8 +322,11 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 	// This is worse than `LocalPlayer::getPosition()` but
 	// mods expect the player head to be at the parent's position
 	// plus eye height.
-	if (player->getParent())
-		player_position = player->getParent()->getPosition();
+	if (player->getParent()) {
+		v3f attachment_position;
+		player->getCAO()->getAttachment(nullptr, nullptr, &attachment_position, nullptr, nullptr);
+		player_position = player->getParent()->getPosition() + attachment_position;
+	}
 
 	// Smooth the camera movement after the player instantly moves upward due to stepheight.
 	// The smoothing usually continues until the camera position reaches the player position.

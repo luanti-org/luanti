@@ -489,11 +489,16 @@ void GenericCAO::setAttachment(object_t parent_id, const std::string &bone,
 void GenericCAO::getAttachment(object_t *parent_id, std::string *bone, v3f *position,
 	v3f *rotation, bool *force_visible) const
 {
-	*parent_id = m_attachment_parent_id;
-	*bone = m_attachment_bone;
-	*position = m_attachment_position;
-	*rotation = m_attachment_rotation;
-	*force_visible = m_force_visible;
+	if (parent_id)
+		*parent_id = m_attachment_parent_id;
+	if (bone)
+		*bone = m_attachment_bone;
+	if (position)
+		*position = m_attachment_position;
+	if (rotation)
+		*rotation = m_attachment_rotation;
+	if (force_visible)
+		*force_visible = m_force_visible;
 }
 
 void GenericCAO::clearChildAttachments()
