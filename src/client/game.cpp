@@ -1022,7 +1022,8 @@ bool Game::connectToServer(const GameStartData &start_data,
 				itemdef_manager, nodedef_manager, sound_manager.get(), eventmgr,
 				m_rendering_engine,
 				m_item_visuals_manager.get(),
-				start_data.allow_login_or_register);
+				start_data.allow_login_or_register,
+				simple_singleplayer_mode, !!server);
 	} catch (const BaseException &e) {
 		*error_message = fmtgettext("Error creating client: %s", e.what());
 		errorstream << *error_message << std::endl;
@@ -1030,8 +1031,6 @@ bool Game::connectToServer(const GameStartData &start_data,
 	}
 
 	client->migrateModStorage();
-	client->m_simple_singleplayer_mode = simple_singleplayer_mode;
-	client->m_internal_server = !!server;
 
 	/*
 		Wait for server to accept connection

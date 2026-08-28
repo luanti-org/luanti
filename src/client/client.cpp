@@ -137,8 +137,12 @@ Client::Client(
 		MtEventManager *event,
 		RenderingEngine *rendering_engine,
 		ItemVisualsManager *item_visuals_manager,
-		ELoginRegister allow_login_or_register
+		ELoginRegister allow_login_or_register,
+		bool simple_singleplayer_mode,
+		bool internal_server
 ):
+	m_simple_singleplayer_mode(simple_singleplayer_mode),
+	m_internal_server(internal_server),
 	m_tsrc(tsrc),
 	m_shsrc(shsrc),
 	m_itemdef(itemdef),
