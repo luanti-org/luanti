@@ -1144,10 +1144,17 @@ You can register one node/item, which can have up to 256 colors.
 
 When using palettes, you always provide a pixel index for the given
 node or `ItemStack`. The palette is read from left to right and from
-top to bottom. If the palette has fewer than 256 pixels, its pixels are
-repeated rather than interpolated after arranging them into one line.
-Use a power-of-two number of pixels so each color occupies an equal
-number of the 256 palette indices. Palette colors are indexed in range
+top to bottom. Use textures with power-of-two dimensions (4x8, 16x4,
+16x16, ...), with at most 256 pixels. Smaller palettes are expanded to
+256 entries by repeating each source pixel without interpolation. For a
+palette with `area` pixels, the source color is selected using integer
+division:
+
+    color = palette[index / (256 / area)]
+
+Where `index` is the palette index, `area` is the texture pixel count,
+and `palette` contains the source texture colors. A node's `paramtype2`
+may reduce the usable index range. Palette colors are indexed in range
 [0, 255].
 
 Examples:
@@ -1157,8 +1164,8 @@ Examples:
 * 16x16 palette, index = 16: the pixel below the top left corner
 * 16x16 palette, index = 255: the bottom right corner
 * 2 (width) x 4 (height) palette, index = 31: the top left corner.
-  The palette has 8 pixels, so each pixel is stretched to 32 pixels,
-  to ensure the total 256 pixels.
+  The palette has 8 pixels, so each pixel is repeated across 32 indices,
+  to ensure the total 256 entries.
 * 2x4 palette, index = 32: the top right corner
 * 2x4 palette, index = 63: the top right corner
 * 2x4 palette, index = 64: the pixel below the top left corner
