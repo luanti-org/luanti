@@ -426,7 +426,7 @@ void GenericCAO::setChildrenVisible(bool toset)
 }
 
 void GenericCAO::setAttachment(object_t parent_id, const std::string &bone,
-		v3f position, v3f rotation, bool force_visible)
+		v3f position, v3f rotation, bool force_visible, bool move_camera)
 {
 	// Do checks to avoid circular references
 	// See similar check in `UnitSAO::setAttachment` (but with different types).
@@ -460,6 +460,7 @@ void GenericCAO::setAttachment(object_t parent_id, const std::string &bone,
 	m_attachment_position = position;
 	m_attachment_rotation = rotation;
 	m_force_visible = force_visible;
+	m_move_camera = move_camera;
 
 	ClientActiveObject *parent = m_env->getActiveObject(parent_id);
 
@@ -487,7 +488,7 @@ void GenericCAO::setAttachment(object_t parent_id, const std::string &bone,
 }
 
 void GenericCAO::getAttachment(object_t *parent_id, std::string *bone, v3f *position,
-	v3f *rotation, bool *force_visible) const
+	v3f *rotation, bool *force_visible, bool *move_camera) const
 {
 	if (parent_id)
 		*parent_id = m_attachment_parent_id;
@@ -499,6 +500,8 @@ void GenericCAO::getAttachment(object_t *parent_id, std::string *bone, v3f *posi
 		*rotation = m_attachment_rotation;
 	if (force_visible)
 		*force_visible = m_force_visible;
+	if (move_camera)
+		*move_camera = m_move_camera;
 }
 
 void GenericCAO::clearChildAttachments()
@@ -1851,8 +1854,13 @@ void GenericCAO::processMessage(const std::string &data)
 			// >= 5.4.0-dev
 			force_visible = readU8(is);
 		}
+		bool move_camera = false;
+		if (canRead(is)) {
+			// >= 5.18.0-dev
+			move_camera = readU8(is);
+		}
 
-		setAttachment(parent_id, bone, position, rotation, force_visible);
+		setAttachment(parent_id, bone, position, rotation, force_visible, move_camera);
 	} else if (cmd == AO_CMD_PUNCHED) {
 		u16 result_hp = readU16(is);
 

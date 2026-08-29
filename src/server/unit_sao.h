@@ -73,9 +73,9 @@ public:
 	ServerActiveObject *getParent() const override;
 	inline bool isAttached() const { return m_attachment_parent_id != 0; }
 	void setAttachment(object_t parent_id, const std::string &bone, v3f position,
-			v3f rotation, bool force_visible) override;
+			v3f rotation, bool force_visible, bool move_camera) override;
 	void getAttachment(object_t *parent_id, std::string *bone, v3f *position,
-			v3f *rotation, bool *force_visible) const override;
+			v3f *rotation, bool *force_visible, bool *move_camera) const override;
 	void clearChildAttachments() override;
 	void addAttachmentChild(object_t child_id) override;
 	void removeAttachmentChild(object_t child_id) override;
@@ -156,4 +156,5 @@ private:
 	v3f m_attachment_rotation;
 	bool m_attachment_sent = false;
 	bool m_force_visible = false;
+	bool m_move_camera = false;
 };
