@@ -766,7 +766,7 @@ Examples:
 * `<xN>`: x position (integer [s32])
 * `<yN>`: y position (integer [s32])
 * `<sN>` (optional): Expected texture width (integer [s32])
-   * If the provided texture width is (e.g. 2 times) larger than `<wN>`, it will
+   * If the provided texture width is (e.g. 2 times) larger than `<sN>`, it will
      result in an output texture that is also (2 times) larger.
    * If the provided texture width is smaller, it will be upscaled proportionally
      to match the width `<sN>`.
