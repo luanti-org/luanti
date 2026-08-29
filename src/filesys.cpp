@@ -994,24 +994,6 @@ bool safeWriteToFile(const std::string &path, std::string_view content)
 
 #if CHECK_CLIENT_BUILD()
 
-struct ZipArchiveDiscard
-{
-	void operator()(zip_t *archive) const noexcept
-	{
-		if (archive) {
-			zip_discard(archive);
-		}
-	}
-};
-
-struct ZipEntryClose
-{
-	void operator()(zip_file_t *entry) const noexcept
-	{
-		zip_fclose(entry);
-	}
-};
-
 // Delete partially written files
 struct DestinationDeleter
 {
@@ -1039,7 +1021,7 @@ bool extractZipFile(const char *filename, const std::string &destination)
 	}
 
 	int error_num = 0;
-	std::unique_ptr<zip_t, ZipArchiveDiscard> archive(zip_open(filename, ZIP_RDONLY, &error_num));
+	std::unique_ptr<zip_t, decltype(&zip_discard)> archive(zip_open(filename, ZIP_RDONLY, &error_num), &zip_discard);
 	if (!archive) {
 		zip_error_t zip_error;
 		zip_error_init_with_code(&zip_error, error_num);
@@ -1048,8 +1030,11 @@ bool extractZipFile(const char *filename, const std::string &destination)
 		return false;
 	}
 
-	const auto zip_num_entries = static_cast<zip_uint64_t>(zip_get_num_entries(archive.get(), 0));
+	const auto num_entries = zip_get_num_entries(archive.get(), 0);
+	if (num_entries < 0)
+		return false;
 
+	const auto zip_num_entries = static_cast<zip_uint64_t>(num_entries);
 	for (zip_uint64_t i = 0; i < zip_num_entries; ++i) {
 		zip_stat_t entry;
 		zip_stat_init(&entry);
@@ -1063,6 +1048,12 @@ bool extractZipFile(const char *filename, const std::string &destination)
 			return false;
 		}
 
+		if (std::strchr(entry.name, '\\')) {
+			warningstream << "fs::extractZipFile(): entry contains invalid path separator: \""
+				<< entry.name << "\"" << std::endl;
+			return false;
+		}
+
 		size_t name_length = std::strlen(entry.name);
 		if (entry.name[name_length - 1] == '/') {
 			// Is a directory
@@ -1070,11 +1061,11 @@ bool extractZipFile(const char *filename, const std::string &destination)
 		}
 
 		if (!(entry.valid & ZIP_STAT_SIZE)) {
-			warningstream << "fs::extractZipFile(): entry size was invalid" << std::endl;
+			warningstream << "fs::extractZipFile(): entry size is invalid" << std::endl;
 			return false;
 		}
 		std::string fullpath = normalized_destination;
-		fullpath.append(DIR_DELIM).append(entry.name);
+		fullpath.append(DIR_DELIM).append(entry.name, name_length);
 
 		fullpath = fs::RemoveRelativePathComponents(fullpath);
 		if (!fs::PathStartsWith(fullpath, normalized_destination)) {
@@ -1088,7 +1079,7 @@ bool extractZipFile(const char *filename, const std::string &destination)
 			return false;
 		}
 
-		std::unique_ptr<zip_file_t, ZipEntryClose> zip_file (zip_fopen_index(archive.get(), i, 0));
+		std::unique_ptr<zip_file_t, decltype(&zip_fclose)> zip_file (zip_fopen_index(archive.get(), i, 0), &zip_fclose);
 
 		if (!zip_file) {
 			zip_error_t *file_error = zip_get_error(archive.get());
@@ -1099,9 +1090,8 @@ bool extractZipFile(const char *filename, const std::string &destination)
 		DestinationDeleter write_check(fullpath);
 
 		auto os = open_ofstream(fullpath.c_str(), true);
-		if (os.fail()) {
+		if (os.fail())
 			return false;
-		}
 		char buffer[4096];
 
 		for (zip_uint64_t total_read = 0; total_read < entry.size;) {

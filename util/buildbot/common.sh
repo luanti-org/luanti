@@ -86,8 +86,8 @@ add_cmake_libs () {
 		-DPNG_DLL="$(_dlls $libdir/libpng/bin/*)"
 
 		-DLIBZIP_INCLUDE_DIR=$libdir/libzip/include
-		-DLIBZIP_CONF_INCLUDE_DIR=$libdir/libzip/include
 		-DLIBZIP_LIBRARY=$libdir/libzip/lib/libzip.dll.a
+		-DLIBZIP_DLL=$libdir/libzip/bin/libzip.dll
 
 		-DJPEG_LIBRARY=$libdir/libjpeg/lib/libjpeg.dll.a
 		-DJPEG_INCLUDE_DIR=$libdir/libjpeg/include
