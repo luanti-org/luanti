@@ -1037,8 +1037,8 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 
 			// fixed point precision to allow textures smaller than the grid size
 			constexpr int FX_FACTOR = 1024;
-			// By how much to scale (w0, h0) for the resulting image
-			u32 scale = 0; // includes FX_FACTOR
+			// By how much to scale (w0, h0) for the resulting image (must include FX_FACTOR)
+			u32 scale = 1 * FX_FACTOR;
 
 			while (!sf.at_end()) {
 				// X,Y(,W)=image_esc(:X,Y...)
@@ -1072,7 +1072,7 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			}
 
 			if (!baseimg) {
-				if (scale > 0) {
+				if (scale > FX_FACTOR) {
 					w0 = w0 * scale / FX_FACTOR;
 					h0 = h0 * scale / FX_FACTOR;
 				}
@@ -1098,12 +1098,12 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 					<< pos_base << std::endl;
 
 				auto dim = it.img->getDimension();
-				u32 wanted_width = it.expected_width * scale / FX_FACTOR;
-				if (dim.Width != wanted_width) {
+				const u32 wanted_part_width = it.expected_width * scale / FX_FACTOR;
+				if (dim.Width != wanted_part_width) {
 					// needs resize
 					video::IImage *newimg = driver->createImage(
 						baseimg->getColorFormat(),
-						{ wanted_width, (dim.Height * wanted_width) / dim.Width }
+						{ wanted_part_width, (dim.Height * wanted_part_width) / dim.Width }
 					);
 					it.img->copyToScaling(newimg);
 					it.img->drop();
