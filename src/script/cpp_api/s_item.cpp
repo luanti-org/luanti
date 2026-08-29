@@ -145,6 +145,24 @@ bool ScriptApiItem::item_OnSecondaryUse(std::optional<ItemStack> &ret_item,
 	return true;
 }
 
+bool ScriptApiItem::item_OnDigBefore(v3s16 p, ServerActiveObject *digger, ItemStack &wielded_item)
+{
+	SCRIPTAPI_PRECHECKHEADER;
+
+	int error_handler = PUSH_ERROR_HANDLER(L);
+
+	if (!getItemCallback(wielded_item.name.c_str(), "on_dig_before"))
+		return false;
+
+	push_v3s16(L, p);
+	objectrefGetOrCreate(L, digger);
+	PCALL_RES(lua_pcall(L, 2, 1, error_handler));
+	bool result = lua_toboolean(L, -1);
+	lua_pop(L, 2);
+
+	return result;
+}
+
 bool ScriptApiItem::item_OnCraft(ItemStack &item, ServerActiveObject *user,
 		const InventoryList *old_craft_grid, const InventoryLocation &craft_inv)
 {

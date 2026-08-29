@@ -1096,6 +1096,11 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 				getNodeBlockPos(pointed.node_abovesurface), false);
 		}
 
+		// Get player's wielded item
+		// See also: Game::handleDigging
+		ItemStack selected_item, hand_item;
+		ItemStack &tool_item = player->getWieldedItem(&selected_item, &hand_item);
+
 		/* Cheat prevention */
 		bool is_valid_dig = true;
 		if ((anticheat_flags & AC_DIGGING) && !isSingleplayer()) {
@@ -1112,11 +1117,6 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 				// Call callbacks
 				m_script->on_cheat(playersao, "finished_unknown_dig");
 			}
-
-			// Get player's wielded item
-			// See also: Game::handleDigging
-			ItemStack selected_item, hand_item;
-			ItemStack &tool_item = player->getWieldedItem(&selected_item, &hand_item);
 
 			// Get diggability and expected digging time
 			DigParams params = getDigParams(m_nodedef->get(n).groups,
@@ -1166,8 +1166,11 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 
 		/* Actually dig node */
 
-		if (is_valid_dig && n.getContent() != CONTENT_IGNORE)
-			m_script->node_on_dig(p_under, n, playersao);
+		if (is_valid_dig && n.getContent() != CONTENT_IGNORE) {
+			bool no_dig = m_script->item_OnDigBefore(p_under, playersao, tool_item);
+			if (!no_dig)
+				m_script->node_on_dig(p_under, n, playersao);
+		}
 
 		v3s16 blockpos = getNodeBlockPos(p_under);
 		RemoteClient *client = getClient(peer_id);

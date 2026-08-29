@@ -10678,6 +10678,12 @@ Used by `core.register_node`, `core.register_craftitem`, and
     -- The user may be any ObjectRef or nil.
     -- default: nil
 
+    on_dig_before = function(pos, digger),
+    -- Called when the tool was used for digging a node (with the cracking
+    -- animation) but before the node was removed. The function shouldn't
+    -- modify the dug node.
+    -- Shall return true if the node shouldn't be removed, otherwise false
+
     _custom_field = whatever,
     -- Add your own custom fields. By convention, all custom field names
     -- should start with `_` to avoid naming collisions with future engine
