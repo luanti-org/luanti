@@ -26,6 +26,8 @@
 #include "scripting_emerge.h"
 #include "script/common/c_types.h" // LuaError
 #include "server.h"
+#include "serialization.h"
+#include "util/serialize.h"
 #include "settings.h"
 #include "voxel.h"
 
@@ -545,6 +547,9 @@ bool EmergeThread::popBlockEmerge(v3s16 *pos, BlockEmergeData *bedata)
 EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
 	 const std::string *from_db, MapBlock **block, BlockMakeData *bmdata)
 {
+	// create block stream without holding the lock
+	auto [is_ptr, version] = m_map->createBlockIStream(from_db);
+
 	//TimeTaker tt("", nullptr, PRECISION_MICRO);
 	Server::EnvAutoLock envlock(m_server);
 	//g_profiler->avg("EmergeThread: lock wait time [us]", tt.stop());
@@ -570,7 +575,7 @@ EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
 		}
 		// 2). Second invocation, we have the data
 		if (!from_db->empty()) {
-			*block = m_map->loadBlock(*from_db, pos);
+			*block = m_map->loadBlock(*is_ptr.get(), pos, version);
 			if (block_ok(*block))
 				return EMERGE_FROM_DISK;
 		}
