@@ -10681,7 +10681,7 @@ Used by `core.register_node`, `core.register_craftitem`, and
     on_dig_before = function(pos, digger),
     -- Called when the tool was used for digging a node (with the cracking
     -- animation) but before the node was removed. The function shouldn't
-    -- modify the dug node.
+    -- modify the dug node and return false at the same time.
     -- Shall return true if the node shouldn't be removed, otherwise false
 
     _custom_field = whatever,
