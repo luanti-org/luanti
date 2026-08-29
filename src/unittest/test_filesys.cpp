@@ -390,8 +390,12 @@ void TestFileSys::testAbsolutePath()
 		const auto dir_path2 = getTestTempFile();
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2), ""); // doesn't exist
 		fs::CreateDir(dir_path2);
+		const auto file_path = getTestTempFile();
+		open_ofstream(file_path.c_str(), false).close();
 		const auto absolute_dir_path = fs::AbsolutePath(dir_path2);
-		UASSERTCMP(auto, !=, absolute_dir_path, "");// now it does
+		UASSERTCMP(auto, !=, absolute_dir_path, ""); // now it does
+		const auto absolute_file_path = fs::AbsolutePath(file_path);
+		UASSERTCMP(auto, !=, absolute_file_path, ""); // absolute path works on actual files
 		const std::filesystem::path absolute_path(absolute_dir_path,
 				std::filesystem::path::format::native_format);
 		const std::string root_path = absolute_path.root_path().string();
@@ -402,6 +406,15 @@ void TestFileSys::testAbsolutePath()
 		// excess . and / are removed
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + p("//..")), fs::AbsolutePath(dir_path));
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + p("/./.././//")), fs::AbsolutePath(dir_path));
+		// test symlinks are actually resolved
+		std::error_code ec;
+		std::filesystem::path link = getTestTempFile();
+		std::filesystem::create_directory_symlink(absolute_dir_path, link, ec);
+		if (ec) {
+			warningstream << "Symlink test skipped: " << ec.message() << std::endl;
+		} else {
+			UASSERTEQ(auto, fs::AbsolutePath(link.string()), absolute_dir_path);
+		}
 	}
 
 	/* AbsolutePathPartial */
