@@ -935,16 +935,17 @@ int ObjectRef::l_set_attach(lua_State *L)
 		throw LuaError("ObjectRef::set_attach: attaching object to itself is not allowed.");
 
 	std::string bone;
-	v3f position;
-	v3f rotation;
-	bool force_visible;
+	v3f position, rotation;
+	bool force_visible, move_camera;
+	bool isPlayer = getplayersao(ref) != nullptr;
 
 	bone          = readParam<std::string>(L, 3, "");
 	position      = readParam<v3f>(L, 4, v3f(0, 0, 0));
 	rotation      = readParam<v3f>(L, 5, v3f(0, 0, 0));
 	force_visible = readParam<bool>(L, 6, false);
+	move_camera   = isPlayer && readParam<bool>(L, 7, false);
 
-	sao->setAttachment(parent->getId(), bone, position, rotation, force_visible);
+	sao->setAttachment(parent->getId(), bone, position, rotation, force_visible, move_camera);
 	return 0;
 }
 
@@ -962,8 +963,9 @@ int ObjectRef::l_get_attach(lua_State *L)
 	v3f position;
 	v3f rotation;
 	bool force_visible;
+	bool move_camera;
 
-	sao->getAttachment(&parent_id, &bone, &position, &rotation, &force_visible);
+	sao->getAttachment(&parent_id, &bone, &position, &rotation, &force_visible, &move_camera);
 	if (parent_id == 0)
 		return 0;
 
@@ -973,6 +975,7 @@ int ObjectRef::l_get_attach(lua_State *L)
 	push_v3f(L, position);
 	push_v3f(L, rotation);
 	lua_pushboolean(L, force_visible);
+	lua_pushboolean(L, move_camera);
 	return 5;
 }
 

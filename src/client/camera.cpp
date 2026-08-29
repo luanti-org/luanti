@@ -324,8 +324,13 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 	// plus eye height.
 	if (player->getParent()) {
 		v3f attachment_position;
-		player->getCAO()->getAttachment(nullptr, nullptr, &attachment_position, nullptr, nullptr);
-		player_position = player->getParent()->getPosition() + attachment_position;
+		bool move_camera;
+
+		player->getCAO()->getAttachment(nullptr, nullptr, &attachment_position, nullptr, nullptr, &move_camera);
+		player_position = player->getParent()->getPosition();
+
+		if (move_camera)
+			player_position += attachment_position;
 	}
 
 	// Smooth the camera movement after the player instantly moves upward due to stepheight.

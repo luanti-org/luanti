@@ -199,15 +199,15 @@ public:
 
 
 	virtual void setAttachment(object_t parent_id, const std::string &bone, v3f position,
-			v3f rotation, bool force_visible) {}
+			v3f rotation, bool force_visible, bool move_camera) {}
 	virtual void getAttachment(object_t *parent_id, std::string *bone, v3f *position,
-			v3f *rotation, bool *force_visible) const {}
+			v3f *rotation, bool *force_visible, bool *move_camera) const {}
 	// Detach all children
 	virtual void clearChildAttachments() {}
 	// Detach from parent
 	virtual void clearParentAttachment()
 	{
-		setAttachment(0, "", v3f(), v3f(), false);
+		setAttachment(0, "", v3f(), v3f(), false, false);
 	}
 
 	// To be called from setAttachment() and descendants, but not manually!

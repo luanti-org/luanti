@@ -160,7 +160,7 @@ void UnitSAO::sendOutdatedData()
 }
 
 void UnitSAO::setAttachment(const object_t new_parent, const std::string &bone, v3f position,
-		v3f rotation, bool force_visible)
+		v3f rotation, bool force_visible, bool move_camera)
 {
 	const auto call_count = ++m_attachment_call_counter;
 
@@ -231,6 +231,7 @@ void UnitSAO::setAttachment(const object_t new_parent, const std::string &bone, 
 	m_attachment_position = position;
 	m_attachment_rotation = rotation;
 	m_force_visible = force_visible;
+	m_move_camera = move_camera;
 
 	if (new_parent && old_parent != new_parent) {
 		auto *parent = m_env->getActiveObject(new_parent);
@@ -247,13 +248,14 @@ void UnitSAO::setAttachment(const object_t new_parent, const std::string &bone, 
 }
 
 void UnitSAO::getAttachment(object_t *parent_id, std::string *bone, v3f *position,
-		v3f *rotation, bool *force_visible) const
+		v3f *rotation, bool *force_visible, bool *move_camera) const
 {
 	*parent_id = m_attachment_parent_id;
 	*bone = m_attachment_bone;
 	*position = m_attachment_position;
 	*rotation = m_attachment_rotation;
 	*force_visible = m_force_visible;
+	*move_camera = m_move_camera;
 }
 
 void UnitSAO::clearAnyAttachments()
@@ -343,6 +345,7 @@ std::string UnitSAO::generateUpdateAttachmentCommand() const
 	writeV3F32(os, m_attachment_position);
 	writeV3F32(os, m_attachment_rotation);
 	writeU8(os, m_force_visible);
+	writeU8(os, m_move_camera);
 	return os.str();
 }
 
