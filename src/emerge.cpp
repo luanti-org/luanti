@@ -276,13 +276,16 @@ bool EmergeManager::enqueueBlockEmerge(
 	session_t peer_id,
 	v3s16 blockpos,
 	bool allow_generate,
-	bool ignore_queue_limits)
+	bool ignore_queue_limits,
+	bool low_priority)
 {
 	u16 flags = 0;
 	if (allow_generate)
 		flags |= BLOCK_EMERGE_ALLOW_GEN;
 	if (ignore_queue_limits)
 		flags |= BLOCK_EMERGE_FORCE_QUEUE;
+	if (low_priority)
+		flags |= BLOCK_EMERGE_LOW_PRIORITY;
 
 	return enqueueBlockEmergeEx(blockpos, peer_id, flags, NULL, NULL);
 }
@@ -767,6 +770,7 @@ void *EmergeThread::run()
 		if (!modified_blocks.empty()) {
 			MapEditEvent event;
 			event.type = MEET_OTHER;
+			event.low_priority = bedata.flags & BLOCK_EMERGE_LOW_PRIORITY;
 			event.setModifiedBlocks(modified_blocks);
 			Server::EnvAutoLock envlock(m_server);
 			m_map->dispatchEvent(event);
