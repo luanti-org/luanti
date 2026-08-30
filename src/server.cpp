@@ -1889,7 +1889,8 @@ void Server::SendHUDAdd(session_t peer_id, u32 id, HudElement *form)
 	/// Bits 1 ... 8: unused (set to 0)
 	u8 flags = form->hideable ? 1 : 0;
 
-	pkt << form->z_index << form->text2 << form->style << flags;
+	pkt << form->z_index << form->text2 << form->style << flags
+		<< form->opacity;
 
 	Send(&pkt);
 }
@@ -1932,9 +1933,28 @@ void Server::SendHUDChange(session_t peer_id, u32 id, HudElementStat stat, void 
 		case HUD_STAT_HIDEABLE:
 			pkt << u32{*(bool *) value};
 			break;
+		case HUD_STAT_OPACITY:
+			pkt << *(f32 *) value;
+			break;
 		default: // all other types
 			pkt << *(u32 *) value;
 			break;
+	}
+
+	Send(&pkt);
+}
+
+void Server::SendHUDAnimate(session_t peer_id, u32 id, const HudElementAnimations &anims)
+{
+	NetworkPacket pkt(TOCLIENT_HUDANIMATE, 0, peer_id);
+
+	pkt << id << (u8)anims.properties.size();
+
+	for (const auto &[stat, prop] : anims.properties) {
+		pkt << stat << (u8)prop.easing << prop.loop << (u16)prop.keyframes.size();
+		for (const auto &kf : prop.keyframes) {
+			pkt << kf.value << kf.duration;
+		}
 	}
 
 	Send(&pkt);
@@ -3566,6 +3586,15 @@ bool Server::hudChange(RemotePlayer *player, u32 id, HudElementStat stat, void *
 		return false;
 
 	SendHUDChange(player->getPeerId(), id, stat, data);
+	return true;
+}
+
+bool Server::hudAnimate(RemotePlayer *player, u32 id, const HudElementAnimations &anims)
+{
+	if (!player)
+		return false;
+
+	SendHUDAnimate(player->getPeerId(), id, anims);
 	return true;
 }
 
