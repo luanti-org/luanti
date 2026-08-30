@@ -233,27 +233,14 @@ ButtonLayout ButtonLayout::loadFromSettings()
 	return loadDefault();
 }
 
-std::unordered_map<touch_gui_button_id, irr_ptr<video::ITexture>> ButtonLayout::texture_cache;
-
 video::ITexture *ButtonLayout::getTexture(touch_gui_button_id btn, ISimpleTextureSource *tsrc)
 {
-	if (texture_cache.count(btn) > 0)
-		return texture_cache.at(btn).get();
-
 	video::ITexture *tex = tsrc->getTexture(button_image_names[btn]);
 	if (!tex)
 		// necessary in the mainmenu
 		tex = tsrc->getTexture(porting::path_share + "/textures/base/pack/" +
 				button_image_names[btn]);
-	irr_ptr<video::ITexture> ptr;
-	ptr.grab(tex);
-	texture_cache[btn] = ptr;
 	return tex;
-}
-
-void ButtonLayout::clearTextureCache()
-{
-	texture_cache.clear();
 }
 
 core::recti ButtonLayout::getRect(touch_gui_button_id btn,

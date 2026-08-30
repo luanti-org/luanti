@@ -42,11 +42,6 @@ GUITouchscreenLayout::GUITouchscreenLayout(gui::IGUIEnvironment* env,
 		core::recti(), this, -1, wstrgettext("Remove").c_str()));
 }
 
-GUITouchscreenLayout::~GUITouchscreenLayout()
-{
-	ButtonLayout::clearTextureCache();
-}
-
 void GUITouchscreenLayout::regenerateGui(v2u32 screensize)
 {
 	DesiredRect = core::recti(0, 0, screensize.X, screensize.Y);
