@@ -255,6 +255,8 @@ set(link_includes
 
 	${OPENGL_INCLUDE_DIR}
 	${EGL_INCLUDE_DIR}
+
+	"$<TARGET_PROPERTY:sha256,INTERFACE_INCLUDE_DIRECTORIES>"
 )
 
 # Source files
@@ -326,6 +328,7 @@ if(ENABLE_OPENGL3 OR ENABLE_GLES2)
 		OpenGL/ExtensionHandler.cpp
 		OpenGL/FixedPipelineRenderer.cpp
 		OpenGL/MaterialRenderer.cpp
+		OpenGL/ShaderCache.cpp
 		OpenGL/Renderer2D.cpp
 		OpenGL/BufferObject.cpp
 	)
@@ -519,6 +522,8 @@ target_link_libraries(IrrlichtMt PRIVATE
 
 	"$<$<BOOL:${OPENGL_DIRECT_LINK}>:${OPENGL_LIBRARIES}>"
 	${EGL_LIBRARY}
+
+	sha256
 
 	# incl. transitive SDL2 dependencies for static linking
 	"$<$<PLATFORM_ID:Android>:-landroid -llog -lGLESv2 -lGLESv1_CM -lOpenSLES>"

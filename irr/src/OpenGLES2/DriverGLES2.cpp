@@ -130,6 +130,9 @@ void COpenGLES2Driver::initFeatures()
 	}
 	RenderToFloatTextureSupported = isVersionAtLeast(3, 2)|| queryExtension("GL_EXT_color_buffer_float");
 
+	// https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glGetProgramBinary.xhtml
+	BinaryCacheSupported = Version.Major >= 3 || queryExtension("GL_OES_get_program_binary");
+
 	// COGLESCoreExtensionHandler::Feature
 	static_assert(MATERIAL_MAX_TEXTURES <= 8, "Only up to 8 textures are guaranteed");
 	Feature.BlendOperation = true;

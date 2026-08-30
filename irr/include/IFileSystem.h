@@ -153,6 +153,21 @@ public:
 	/** \param filename is the string identifying the file which should be tested for existence.
 	\return True if file exists, and false if it does not exist or an error occurred. */
 	virtual bool existFile(const path &filename) const = 0;
+
+	//! Deletes a file from the file system.
+	/** \param filename is the string identifying the file which should be deleted.
+	\return True if file was deleted, and false if it could not be deleted or an error occurred. */
+	virtual bool deleteFile(const path &filename) = 0;
+
+	//! Create a directory.
+	/** \param directory is the string identifying the directory which should be created.
+	\return True if directory was created, and false if it could not be created or an error occurred. */
+	virtual bool createDirectory(const path &directory) = 0;
+
+	//! Determines if a path exists and is specifically a directory.
+	/** \param filename is the string identifying the path which should be tested for existence.
+	\return True if path exists and is a directory, and false if it does not exist, is not a directory, or an error occurred. */
+	virtual bool existDirectory(const path &filename) const = 0;
 };
 
 } // end namespace io
