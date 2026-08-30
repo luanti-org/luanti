@@ -122,7 +122,9 @@ public:
 			MtEventManager *event,
 			RenderingEngine *rendering_engine,
 			ItemVisualsManager *item_visuals,
-			ELoginRegister allow_login_or_register
+			ELoginRegister allow_login_or_register,
+			bool simple_singleplayer_mode,
+			bool internal_server
 	);
 
 	~Client();
@@ -334,17 +336,6 @@ public:
 	u16 getProtoVersion() const
 	{ return m_proto_ver; }
 
-	// Whether the server is in "simple singleplayer mode".
-	// This implies "m_internal_server = true".
-	bool m_simple_singleplayer_mode;
-
-	// Whether the server is hosted by the same Luanti instance and singletons
-	// like g_settings are shared between client and server.
-	//
-	// This is intentionally *not* true if we're just connecting to a localhost
-	// server hosted by a different Luanti instance.
-	bool m_internal_server;
-
 	bool mediaReceiveProgress(s32 &received, s32 &total, size_t &received_size) const;
 
 	void drawLoadScreen(const std::wstring &text, float dtime, int percent);
@@ -446,6 +437,17 @@ public:
 	{
 		return m_mesh_grid;
 	}
+
+	// Whether the server is in "simple singleplayer mode".
+	// This implies "m_internal_server = true".
+	bool m_simple_singleplayer_mode;
+
+	// Whether the server is hosted by the same Luanti instance and singletons
+	// like g_settings are shared between client and server.
+	//
+	// This is intentionally *not* true if we're just connecting to a localhost
+	// server hosted by a different Luanti instance.
+	bool m_internal_server;
 
 	bool inhibit_inventory_revert = false;
 

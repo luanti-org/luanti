@@ -137,8 +137,12 @@ Client::Client(
 		MtEventManager *event,
 		RenderingEngine *rendering_engine,
 		ItemVisualsManager *item_visuals_manager,
-		ELoginRegister allow_login_or_register
+		ELoginRegister allow_login_or_register,
+		bool simple_singleplayer_mode,
+		bool internal_server
 ):
+	m_simple_singleplayer_mode(simple_singleplayer_mode),
+	m_internal_server(internal_server),
 	m_tsrc(tsrc),
 	m_shsrc(shsrc),
 	m_itemdef(itemdef),
@@ -179,27 +183,18 @@ Client::Client(
 
 	m_sscsm_controller = SSCSMController::create();
 
+	// Load SSCSM client-builtin
 	{
-		auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
-
-		ModVFS tmp_mod_vfs;
-		// FIXME: only read files that are relevant to sscsm, and compute sha2 digests
-		tmp_mod_vfs.scanModIntoMemory("*client_builtin*", getBuiltinLuaPath());
-
-		for (auto &p : tmp_mod_vfs.m_vfs) {
-			event1->files.emplace_back(p.first, std::move(p.second));
-		}
-
-		m_sscsm_controller->runEvent(this, std::move(event1));
+		auto event_add_files = std::make_unique<SSCSMEventUpdateVFSFiles>();
+		event_add_files->files.scanSSCSMClientBuiltin(getBuiltinLuaPath(), !m_internal_server);
+		m_sscsm_controller->runEvent(this, std::move(event_add_files));
 
 		// load client builtin immediately
-		auto event2 = std::make_unique<SSCSMEventLoadMods>();
-		event2->mods.emplace_back("*client_builtin*", "*client_builtin*:init.lua");
-		m_sscsm_controller->runEvent(this, std::move(event2));
+		auto event_execute = std::make_unique<SSCSMEventLoadMods>();
+		event_execute->mods.emplace_back("*client_builtin*", "*client_builtin*:init.lua");
+		m_sscsm_controller->runEvent(this, std::move(event_execute));
 	}
 
-	//FIXME: network packets
-	//FIXME: check that *client_builtin* is not overridden
 	// The sscsm_test0 preview mod is loaded from loadSSCSM(),
 	// once itemdefs/nodedefs actually exist to populate core.registered_*.
 }
@@ -1947,15 +1942,18 @@ void Client::afterContentReceived()
 
 void Client::loadSSCSM()
 {
+	//FIXME: network packets
+	//FIXME: check that *client_builtin* is not overridden by network packets
+
 	std::string enable_sscsm = g_settings->get("enable_sscsm");
 	bool sscsm_enabled = enable_sscsm == "singleplayer"; //FIXME: enum
 	if (!sscsm_enabled)
 		return;
 
-	auto event1 = std::make_unique<SSCSMEventUpdateVFSFiles>();
+	auto event_add_files = std::make_unique<SSCSMEventUpdateVFSFiles>();
 
 	// some simple test code
-	event1->files.emplace_back("sscsm_test0:init.lua",
+	event_add_files->files.m_vfs.emplace("sscsm_test0:init.lua",
 			R"=+=(
 print("sscsm_test0: loading")
 
@@ -1980,11 +1978,11 @@ end
 print("sscsm_test0: air def: " .. dump(core.registered_nodes["air"]))
 				)=+=");
 
-	m_sscsm_controller->runEvent(this, std::move(event1));
+	m_sscsm_controller->runEvent(this, std::move(event_add_files));
 
-	auto event2 = std::make_unique<SSCSMEventLoadMods>();
-	event2->mods.emplace_back("sscsm_test0", "sscsm_test0:init.lua");
-	m_sscsm_controller->runEvent(this, std::move(event2));
+	auto event_execute = std::make_unique<SSCSMEventLoadMods>();
+	event_execute->mods.emplace_back("sscsm_test0", "sscsm_test0:init.lua");
+	m_sscsm_controller->runEvent(this, std::move(event_execute));
 }
 
 float Client::getRTT()
