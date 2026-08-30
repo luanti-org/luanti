@@ -777,6 +777,7 @@ Examples:
 Creates a texture of size `<w>` times `<h>` (unless `<sN>` is provided) and blits the
 listed source images to their specified `<xN>,<yN>` coordinates of the target texture.
 The background is black and transparent (`#00000000`).
+Since 5.18.0, note `TEXMOD_UPSCALE` applies if a base image is present.
 
 Example:
 

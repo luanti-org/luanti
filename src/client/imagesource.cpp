@@ -1071,24 +1071,19 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 				scale = std::max<u32>(scale, FX_FACTOR * dim.Width / it.expected_width);
 			}
 
-			if (!baseimg) {
-				if (scale > FX_FACTOR) {
-					w0 = w0 * scale / FX_FACTOR;
-					h0 = h0 * scale / FX_FACTOR;
-				}
-				CHECK_DIM(w0, h0);
+			w0 = w0 * scale / FX_FACTOR;
+			h0 = h0 * scale / FX_FACTOR;
+			CHECK_DIM(w0, h0);
 
-				// create desired
-				baseimg = driver->createImage(video::ECF_A8R8G8B8, {w0, h0});
-				baseimg->fill(video::SColor(0,0,0,0));
-			}
+			irr_ptr<video::IImage> output;
+			output.reset(driver->createImage(video::ECF_A8R8G8B8, {w0, h0}));
+			output->fill(video::SColor(0,0,0,0));
 
-			const auto basedim = baseimg->getDimension();
 			for (ImagePart &it : image_parts) {
-				// Shift insertion offset by the same factor as we scaled `baseimg`
+				// Shift insertion offset by the same factor as we scaled `output`
 				const v2s32 pos_base = it.offset * scale / FX_FACTOR;
 
-				if (pos_base.X > (s32)basedim.Width || pos_base.Y > (s32)basedim.Height) {
+				if (pos_base.X > (s32)w0 || pos_base.Y > (s32)h0) {
 					warningstream << "generateImagePart(): Skipping \""
 						<< it.filename << "\" as it's out-of-bounds " << pos_base
 						<< " for [combine" << std::endl;
@@ -1102,7 +1097,7 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 				if (dim.Width != wanted_part_width) {
 					// needs resize
 					video::IImage *newimg = driver->createImage(
-						baseimg->getColorFormat(),
+						video::ECF_A8R8G8B8,
 						{ wanted_part_width, (dim.Height * wanted_part_width) / dim.Width }
 					);
 					it.img->copyToScaling(newimg);
@@ -1117,7 +1112,17 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 					continue;
 				}
 
-				blit_with_alpha(it.img, baseimg, pos_base, dim);
+				blit_with_alpha(it.img, output.get(), pos_base, dim);
+			}
+
+			if (baseimg) {
+				// Same as '^'. The code above could be extended to make this more
+				// performant at the cost of making it hardly readable.
+				video::IImage *out = output.release();
+				blitBaseImage(out, baseimg);
+				out->drop();
+			} else {
+				baseimg = output.release();
 			}
 		}
 		/*
