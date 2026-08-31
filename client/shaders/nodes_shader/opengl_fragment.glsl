@@ -19,6 +19,10 @@ uniform float crackAnimationLength;
 uniform float crackLevel;
 uniform float crackTextureScale;
 
+uniform vec3 sunLightDirection;
+uniform sampler2D sunReflectionSampler;
+uniform float sunReflectionScale;
+
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// shadow texture
 	uniform sampler2D ShadowMapSampler;
@@ -57,7 +61,6 @@ flat VARYING_ uint varTexLayer;
 CENTROID_ VARYING_ float nightRatio;
 VARYING_ highp vec3 eyeVec;
 
-#ifdef ENABLE_DYNAMIC_SHADOWS
 #if (defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS && ENABLE_WAVING_WATER)
 vec4 perm(vec4 x)
 {
@@ -105,6 +108,8 @@ vec2 wave_noise(vec3 p, float off) {
 		gnoise(4.0 * p + vec3(-off, off, 0.0)) * 0.2).xz;
 }
 #endif
+
+#ifdef ENABLE_DYNAMIC_SHADOWS
 
 // assuming near is always 1.0
 float getLinearDepth()
@@ -425,6 +430,38 @@ float getShadow(sampler2D shadowsampler, vec2 smTexCoord, float realDistance)
 #endif
 #endif
 
+float computeFresnelFactor(vec3 normal, vec3 viewVec)
+{
+	float f = dot(normal, viewVec);
+	// Trig hack: go from dot(viewVec, normal) to dot(viewVec, tangent) for fresnel effect
+	return clamp(pow(1.0 - f * f, 8.0), 0.0, 1.0) * 0.8 + 0.2;
+}
+
+#if defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS
+vec3 sampleSunMoonReflection(vec3 viewVec, vec3 fNormal, vec3 sunDir)
+{
+	vec3 reflectedView = reflect(viewVec, fNormal);
+	float cosAngle = dot(reflectedView, sunDir);
+
+	if (cosAngle > 0.0) {
+		vec3 toSun = reflectedView - sunDir * cosAngle;
+		vec3 uBasis = normalize(cross(sunDir, vec3(0.0, 1.0, 0.0)));
+		vec3 vBasis = normalize(cross(cross(sunDir, vec3(0.0, 1.0, 0.0)), sunDir));
+		float sideSign = sign(sunDir.x);
+		vec2 sunUV = vec2(
+			sideSign * dot(toSun, uBasis),
+			sideSign * dot(toSun, vBasis))
+			/ sunReflectionScale + 0.5;
+
+		if (sunUV.x > 0.0 && sunUV.x < 1.0 && sunUV.y > 0.0 && sunUV.y < 1.0) {
+			vec4 sunSample = texture2D(sunReflectionSampler, sunUV);
+			return sunSample.rgb * sunSample.a * 4.0;
+		}
+	}
+	return vec3(0.0);
+}
+#endif
+
 // maps [0, N] to [0, 1] like GL_REPEAT would
 vec2 uv_repeat(vec2 v)
 {
@@ -468,6 +505,12 @@ void main(void)
 	}
 
 	vec4 col = vec4(base.rgb * varColor.rgb, 1.0);
+
+#if defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS
+	float water_fresnel = 0.0;
+	float water_shadow = 0.0;
+	vec3 water_normal = vNormal;
+#endif
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	// Fragment normal, can differ from vNormal which is derived from vertex normals.
@@ -539,7 +582,8 @@ void main(void)
 		vec3 viewVec = normalize(worldPosition + cameraOffset - cameraPosition);
 
 		// Water reflections
-#if (defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS && ENABLE_WAVING_WATER)
+#if (defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS)
+#if ENABLE_WAVING_WATER
 		vec3 wavePos = worldPosition * vec3(2.0, 0.0, 2.0);
 		float off = animationTimer * WATER_WAVE_SPEED * 10.0;
 		wavePos.x /= WATER_WAVE_LENGTH * 3.0;
@@ -549,22 +593,10 @@ void main(void)
 		vec2 gradient = wave_noise(wavePos, off);
 		fNormal = normalize(normalize(fNormal) + vec3(gradient.x, 0., gradient.y) * WATER_WAVE_HEIGHT * abs(fNormal.y) * 0.25);
 		reflect_ray = -normalize(v_LightDirection - fNormal * dot(v_LightDirection, fNormal) * 2.0);
-		float fresnel_factor = dot(fNormal, viewVec);
-
-		float brightness_factor = 1.0 - adjusted_night_ratio;
-
-		// A little trig hack. We go from the dot product of viewVec and normal to the dot product of viewVec and tangent to apply a fresnel effect.
-		fresnel_factor = clamp(pow(1.0 - fresnel_factor * fresnel_factor, 8.0), 0.0, 1.0) * 0.8 + 0.2;
-		col.rgb *= 0.5;
-		vec3 reflection_color = mix(vec3(max(fogColor.r, max(fogColor.g, fogColor.b))), fogColor.rgb, f_shadow_strength);
-
-		// Sky reflection
-		col.rgb += reflection_color * pow(fresnel_factor, 2.0) * 0.5 * brightness_factor;
-		vec3 water_reflect_color = 12.0 * dayLight * fresnel_factor * mtsmoothstep(0.85, 0.9, pow(clamp(dot(reflect_ray, viewVec), 0.0, 1.0), 32.0)) * max(1.0 - shadow_uncorrected, 0.0);
-
-		// This line exists to prevent ridiculously bright reflection colors.
-		water_reflect_color /= clamp(max(water_reflect_color.r, max(water_reflect_color.g, water_reflect_color.b)) * 0.375, 1.0, 400.0);
-		col.rgb += water_reflect_color * f_adj_shadow_strength * brightness_factor;
+#endif
+		water_normal = fNormal;
+		water_fresnel = computeFresnelFactor(fNormal, viewVec);
+		water_shadow = shadow_uncorrected;
 #endif
 
 #if (defined(ENABLE_NODE_SPECULAR) && !MATERIAL_WATER_REFLECTIONS)
@@ -584,6 +616,45 @@ void main(void)
 		// Simulate translucent foliage.
 		col.rgb += 4.0 * dayLight * base.rgb * normalize(base.rgb * varColor.rgb * varColor.rgb) * f_adj_shadow_strength * pow(max(-dot(v_LightDirection, viewVec), 0.0), 4.0) * max(1.0 - shadow_uncorrected, 0.0);
 #endif
+	}
+#endif
+
+#if defined(ENABLE_WATER_REFLECTIONS) && MATERIAL_WATER_REFLECTIONS
+	{
+		vec3 viewVec = normalize(worldPosition + cameraOffset - cameraPosition);
+
+#if !defined(ENABLE_DYNAMIC_SHADOWS)
+#if ENABLE_WAVING_WATER
+		vec3 wavePos = worldPosition * vec3(2.0, 0.0, 2.0);
+		float off = animationTimer * WATER_WAVE_SPEED * 10.0;
+		wavePos.x /= WATER_WAVE_LENGTH * 3.0;
+		wavePos.z /= WATER_WAVE_LENGTH * 2.0;
+
+		vec2 gradient = wave_noise(wavePos, off);
+		water_normal = normalize(normalize(water_normal) + vec3(gradient.x, 0., gradient.y) * WATER_WAVE_HEIGHT * abs(water_normal.y) * 0.25);
+#endif
+		water_fresnel = computeFresnelFactor(water_normal, viewVec);
+#endif
+
+		float brightness_factor = 1.0 - nightRatio;
+
+		col.rgb *= 0.5;
+#ifdef ENABLE_DYNAMIC_SHADOWS
+		vec3 reflection_color = mix(vec3(max(fogColor.r, max(fogColor.g, fogColor.b))), fogColor.rgb, f_shadow_strength);
+#else
+		vec3 reflection_color = fogColor.rgb;
+#endif
+		col.rgb += reflection_color * pow(water_fresnel, 2.0) * 0.5 * brightness_factor;
+
+		if (sunReflectionScale > 0.0) {
+			vec3 bodyLight = mix(dayLight, vec3(0.5, 0.57, 0.65), nightRatio);
+			vec3 sunMoon = sampleSunMoonReflection(viewVec, water_normal, sunLightDirection);
+#ifdef ENABLE_DYNAMIC_SHADOWS
+			col.rgb += sunMoon * water_fresnel * bodyLight * max(1.0 - water_shadow, 0.0);
+#else
+			col.rgb += sunMoon * water_fresnel * bodyLight;
+#endif
+		}
 	}
 #endif
 
