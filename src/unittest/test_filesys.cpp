@@ -411,7 +411,17 @@ void TestFileSys::testAbsolutePath()
 		std::filesystem::path link = getTestTempFile();
 		std::filesystem::create_directory_symlink(absolute_dir_path, link, ec);
 		if (ec) {
-			warningstream << "Symlink test skipped: " << ec.message() << std::endl;
+		warningstream << "Symlink error: value=" << ec.value()
+			<< ", category=" << ec.category().name()
+			<< ", message=" << ec.message() << std::endl;
+
+		warningstream << "permission_denied: "
+			<< (ec == std::errc::permission_denied)
+			<< ", operation_not_permitted: "
+			<< (ec == std::errc::operation_not_permitted)
+			<< ", function_not_supported: "
+			<< (ec == std::errc::function_not_supported)
+			<< std::endl;
 		} else {
 			UASSERTEQ(auto, fs::AbsolutePath(link.string()), absolute_dir_path);
 		}

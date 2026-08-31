@@ -852,27 +852,14 @@ std::string RemoveRelativePathComponents(std::string path)
 
 std::string AbsolutePath(const std::string &path)
 {
-#ifdef _WIN32
-	// handle behavior differences on windows
 	if (path.empty())
 		return "";
-	else if (!PathExists(path))
-		return "";
-	char *abs_path = _fullpath(NULL, path.c_str(), MAX_PATH);
-#else
-	char *abs_path = realpath(path.c_str(), NULL);
-#endif
-	if (!abs_path)
-		return "";
-	std::filesystem::path absolute_path(abs_path, std::filesystem::path::format::native_format);
-	free(abs_path);
 
-	// remove any trailing delim before return
-	std::string abs_path_str = absolute_path.string();
-	std::string root_string = absolute_path.root_path().string();
-	while (abs_path_str.length() > root_string.length() && IsDirDelimiter(abs_path_str.back()))
-		abs_path_str.pop_back();
-	return abs_path_str;
+	std::error_code ec;
+	std::filesystem::path absolute_path = std::filesystem::canonical(path, ec);
+	if (ec)
+		return "";
+	return absolute_path.string();
 }
 
 std::string AbsolutePathPartial(const std::string &path)
