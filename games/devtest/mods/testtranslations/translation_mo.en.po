@@ -1,0 +1,7 @@
+msgid ""
+msgstr ""
+"Source-Language: pt\n"
+
+msgctxt "testtranslations"
+msgid "Testing .mo files: monolingual untranslated"
+msgstr "Testing .mo files: monolingual fallback"
