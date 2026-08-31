@@ -9712,6 +9712,25 @@ You **must not** mix names and track numbers to refer to the same animation.
             * Currently, bloom `intensity` and `strength_factor` affect volumetric
               lighting `strength` and vice versa. This behavior is to be changed
               in the future, do not rely on it.
+      * `motion_blur` is a table that controls camera motion blur.
+        * This has no effect on older clients, or on clients who have
+          post-processing disabled.
+        * `strength` sets the absolute strength of the effect, from 0 (off) to
+          4.0. Omit it (or set it to `nil`) to hand control back to the player.
+          * Unlike the other sections here, naming the `motion_blur` table is
+            itself the act of setting it: `{motion_blur = {}}` resets the
+            strength rather than leaving the current value untouched.
+          * A strength given here **overrides the player's own motion blur
+            settings entirely**. It may exceed the strength they configured, and
+            it enables the effect even for a player who has "Motion blur" turned
+            off.
+          * When unset, the player's own settings apply: their configured
+            strength if they have the effect enabled, otherwise no blur.
+          * Note that motion blur is a common motion sickness trigger. Prefer
+            leaving it unset, and forcing it on only where the effect is
+            important to your game.
+        * `get_lighting()` omits `strength` entirely while it is unset, rather
+          than reporting a number.
 
 * `get_lighting()`: returns the current state of lighting for the player.
     * Result is a table with the same fields as `light_definition` in `set_lighting`.

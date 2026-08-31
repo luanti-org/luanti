@@ -5,6 +5,9 @@
 
 #pragma once
 #include "pipeline.h"
+#include <vector>
+
+class GenericCAO;
 
 /**
  *  Step to apply post-processing filter to the rendered image
@@ -56,5 +59,59 @@ private:
 	TextureBufferOutput *target_fbo;
 };
 
+
+/**
+ * Render target that borrows the depth buffer of an earlier step.
+ *
+ * TextureBufferOutput clears every attachment on its first activation of a
+ * frame. That is wrong when the depth attachment is shared: it would wipe the
+ * scene depth that this target wants to test against, and that later steps still
+ * need to read. Suppress the blanket clear and clear only the colour attachment.
+ */
+class SharedDepthTextureOutput : public TextureBufferOutput
+{
+public:
+	using TextureBufferOutput::TextureBufferOutput;
+
+	void activate(PipelineContext &context) override;
+};
+
+/**
+ * Renders the objects that are rigidly attached to the camera into a mask.
+ *
+ * Camera motion blur reconstructs each pixel's world position and reprojects it
+ * through the previous frame's camera, which silently assumes every pixel is
+ * fixed in the world. That is wrong for anything carried along by the camera:
+ * the local player's own body, and whatever it is riding, are motionless on
+ * screen yet get the largest smear of anything in the frame, because they sit
+ * closest to the camera. This step marks those pixels so the blur can skip them.
+ *
+ * The set is the connected attachment component containing the local player:
+ * walk up the parent chain to its root, then render that whole subtree. Anything
+ * attached to the thing the player is riding rides along with it too.
+ *
+ * The scene depth buffer is shared rather than rebuilt, so parts of the player
+ * hidden behind terrain in third person simply fail the depth test and stay out
+ * of the mask, with no special casing.
+ */
+class CameraRigidMaskStep : public RenderStep
+{
+public:
+	CameraRigidMaskStep(Client *client);
+
+	void setRenderSource(RenderSource *source) override {}
+	void setRenderTarget(RenderTarget *target) override { m_target = target; }
+	void reset(PipelineContext &context) override {}
+	void run(PipelineContext &context) override;
+
+private:
+	void renderObject(video::IVideoDriver *driver, GenericCAO *cao);
+
+	Client *m_client;
+	RenderTarget *m_target = nullptr;
+	video::E_MATERIAL_TYPE m_mask_material = video::EMT_SOLID;
+	/// Scratch space for the material swap, kept to avoid reallocating per frame.
+	std::vector<video::E_MATERIAL_TYPE> m_saved_material_types;
+};
 
 RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep, v2f scale, Client *client);
