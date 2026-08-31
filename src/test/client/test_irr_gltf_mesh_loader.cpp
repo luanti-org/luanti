@@ -9,8 +9,7 @@
 #include "irr_ptr.h"
 
 #include "EDriverTypes.h"
-#include "IFileSystem.h"
-#include "IReadFile.h"
+#include <CReadFile.h>
 #include "ISceneManager.h"
 #include "SkinnedMesh.h"
 #include "SSkinMeshBuffer.h"
@@ -32,7 +31,7 @@ REQUIRE(driver);
 
 auto *smgr = driver->getSceneManager();
 const auto loadMesh = [&] (const io::path& filepath) {
-	irr_ptr<io::IReadFile> file(driver->getFileSystem()->createAndOpenFile(filepath));
+	irr_ptr<io::IReadFile> file(io::CReadFile::createReadFile(filepath));
 	REQUIRE(file);
 	return smgr->getMesh(file.get());
 };

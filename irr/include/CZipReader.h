@@ -8,7 +8,6 @@
 #include "IReadFile.h"
 #include "irrString.h"
 #include "IFileArchive.h"
-#include "IFileSystem.h"
 #include "CFileList.h"
 
 namespace io
@@ -102,7 +101,7 @@ class CArchiveLoaderZIP : public IArchiveLoader
 {
 public:
 	//! Constructor
-	CArchiveLoaderZIP(io::IFileSystem *fs);
+	CArchiveLoaderZIP();
 
 	//! returns true if the file maybe is able to be loaded by this class
 	//! based on the file extension (e.g. ".zip")
@@ -128,9 +127,6 @@ public:
 	//! creates/loads an archive from the file.
 	//! \return Pointer to the created archive. Returns 0 if loading failed.
 	io::IFileArchive *createArchive(io::IReadFile *file, bool ignoreCase, bool ignorePaths) const override;
-
-private:
-	io::IFileSystem *FileSystem;
 };
 
 /*!
@@ -140,7 +136,7 @@ class CZipReader : public virtual IFileArchive, virtual CFileList
 {
 public:
 	//! constructor
-	CZipReader(IFileSystem *fs, IReadFile *file, bool ignoreCase, bool ignorePaths);
+	CZipReader(IReadFile *file, bool ignoreCase, bool ignorePaths);
 
 	//! destructor
 	virtual ~CZipReader();
@@ -169,7 +165,6 @@ protected:
 
 	bool scanCentralDirectoryHeader();
 
-	io::IFileSystem *FileSystem;
 	IReadFile *File;
 
 	// holds extended info about files

@@ -9,7 +9,6 @@
 #include "CB3DMeshFileLoader.h"
 
 #include "IVideoDriver.h"
-#include "IFileSystem.h"
 #include "SB3DStructs.h"
 #include "SkinnedMesh.h"
 #include "SSkinMeshBuffer.h"

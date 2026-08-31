@@ -8,7 +8,11 @@
 #include "IGUIButton.h"
 #include "IGUIListBox.h"
 #include "IGUIEditBox.h"
-#include "IFileSystem.h"
+
+namespace io
+{
+class IFileList;
+}
 
 namespace gui
 {
@@ -18,8 +22,7 @@ class CGUIFileOpenDialog : public IGUIFileOpenDialog
 public:
 	//! constructor
 	CGUIFileOpenDialog(const wchar_t *title, IGUIEnvironment *environment,
-			IGUIElement *parent, s32 id, bool restoreCWD = false,
-			io::path::char_type *startDir = 0);
+			IGUIElement *parent, s32 id);
 
 	//! destructor
 	virtual ~CGUIFileOpenDialog();
@@ -64,8 +67,6 @@ protected:
 	io::path FileDirectory;
 	io::path FileDirectoryFlat;
 	core::stringw FileDirectoryFlatW;
-	io::path RestoreDirectory;
-	io::path StartDirectory;
 
 	IGUIButton *CloseButton;
 	IGUIButton *OKButton;
@@ -73,7 +74,6 @@ protected:
 	IGUIListBox *FileBox;
 	IGUIEditBox *FileNameText;
 	IGUIElement *EventParent;
-	io::IFileSystem *FileSystem;
 	io::IFileList *FileList;
 	bool Dragging;
 };

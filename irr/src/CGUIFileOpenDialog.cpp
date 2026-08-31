@@ -12,7 +12,7 @@
 #include "IGUIFont.h"
 #include "IGUIFontBitmap.h"
 #include "IFileList.h"
-#include "os.h"
+#include "CFileSystem.h"
 
 namespace gui
 {
@@ -22,8 +22,7 @@ const s32 FOD_HEIGHT = 250;
 
 //! constructor
 CGUIFileOpenDialog::CGUIFileOpenDialog(const wchar_t *title,
-		IGUIEnvironment *environment, IGUIElement *parent, s32 id,
-		bool restoreCWD, io::path::char_type *startDir) :
+		IGUIEnvironment *environment, IGUIElement *parent, s32 id) :
 		IGUIFileOpenDialog(environment, parent, id,
 				core::rect<s32>((parent->getAbsolutePosition().getWidth() - FOD_WIDTH) / 2,
 						(parent->getAbsolutePosition().getHeight() - FOD_HEIGHT) / 2,
@@ -32,20 +31,6 @@ CGUIFileOpenDialog::CGUIFileOpenDialog(const wchar_t *title,
 		FileNameText(0), FileList(0), Dragging(false)
 {
 	Text = title;
-
-	FileSystem = Environment ? Environment->getFileSystem() : 0;
-
-	if (FileSystem) {
-		FileSystem->grab();
-
-		if (restoreCWD)
-			RestoreDirectory = FileSystem->getWorkingDirectory();
-		if (startDir) {
-			StartDirectory = startDir;
-			FileSystem->changeWorkingDirectoryTo(startDir);
-		}
-	} else
-		return;
 
 	IGUISpriteBank *sprites = 0;
 	video::SColor color(255, 255, 255, 255);
@@ -117,13 +102,6 @@ CGUIFileOpenDialog::~CGUIFileOpenDialog()
 	if (FileNameText)
 		FileNameText->drop();
 
-	if (FileSystem) {
-		// revert to original CWD if path was set in constructor
-		if (RestoreDirectory.size())
-			FileSystem->changeWorkingDirectoryTo(RestoreDirectory);
-		FileSystem->drop();
-	}
-
 	if (FileList)
 		FileList->drop();
 }
@@ -160,7 +138,7 @@ void CGUIFileOpenDialog::setDirectoryName(const io::path &name)
 {
 	FileDirectory = name;
 	FileDirectoryFlat = name;
-	FileSystem->flattenFilename(FileDirectoryFlat);
+	io::CFileSystem::flattenFilename(FileDirectoryFlat);
 	pathToStringW(FileDirectoryFlatW, FileDirectoryFlat);
 }
 
@@ -194,7 +172,7 @@ bool CGUIFileOpenDialog::OnEvent(const SEvent &event)
 
 			case EGET_LISTBOX_CHANGED: {
 				s32 selected = FileBox->getSelected();
-				if (FileList && FileSystem) {
+				if (FileList) {
 					if (FileList->isDirectory(selected)) {
 						setFileName("");
 						setDirectoryName(FileList->getFullFileName(selected));
@@ -208,10 +186,10 @@ bool CGUIFileOpenDialog::OnEvent(const SEvent &event)
 
 			case EGET_LISTBOX_SELECTED_AGAIN: {
 				const s32 selected = FileBox->getSelected();
-				if (FileList && FileSystem) {
+				if (FileList) {
 					if (FileList->isDirectory(selected)) {
 						setDirectoryName(FileList->getFullFileName(selected));
-						FileSystem->changeWorkingDirectoryTo(FileDirectory);
+						io::CFileSystem::changeWorkingDirectoryTo(FileDirectory);
 						fillListBox();
 						setFileName("");
 					} else {
@@ -223,7 +201,7 @@ bool CGUIFileOpenDialog::OnEvent(const SEvent &event)
 			case EGET_EDITBOX_ENTER:
 				if (event.GUIEvent.Caller == FileNameText) {
 					io::path dir(FileNameText->getText());
-					if (FileSystem->changeWorkingDirectoryTo(dir)) {
+					if (io::CFileSystem::changeWorkingDirectoryTo(dir)) {
 						fillListBox();
 						setFileName("");
 					}
@@ -315,7 +293,7 @@ void CGUIFileOpenDialog::fillListBox()
 {
 	IGUISkin *skin = Environment->getSkin();
 
-	if (!FileSystem || !FileBox || !skin)
+	if (!FileBox || !skin)
 		return;
 
 	if (FileList)
@@ -323,7 +301,8 @@ void CGUIFileOpenDialog::fillListBox()
 
 	FileBox->clear();
 
-	FileList = FileSystem->createFileList();
+	const auto cwd = io::CFileSystem::getCurrentWorkingDirectory();
+	FileList = io::CFileSystem::createFileList(cwd);
 	core::stringw s;
 
 	if (FileList) {
@@ -334,7 +313,7 @@ void CGUIFileOpenDialog::fillListBox()
 	}
 
 	if (FileNameText) {
-		setDirectoryName(FileSystem->getWorkingDirectory());
+		setDirectoryName(cwd);
 		pathToStringW(s, FileDirectory);
 		FileNameText->setText(s.c_str());
 	}

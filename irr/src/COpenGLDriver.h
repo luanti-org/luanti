@@ -32,7 +32,7 @@ public:
 		EOFPS_DISABLE_TO_ENABLE  // switch from programmable to fixed pipeline.
 	};
 
-	COpenGLDriver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
+	COpenGLDriver(const SIrrlichtCreationParameters &params, IContextManager *contextManager);
 
 	bool initDriver();
 

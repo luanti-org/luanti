@@ -7,7 +7,6 @@
 #include "IGUIEnvironment.h"
 #include "IGUIElement.h"
 #include "irrArray.h"
-#include "IFileSystem.h"
 #include "IOSOperator.h"
 
 namespace gui
@@ -17,7 +16,7 @@ class CGUIEnvironment : public IGUIEnvironment, public IGUIElement
 {
 public:
 	//! constructor
-	CGUIEnvironment(io::IFileSystem *fs, video::IVideoDriver *driver, IOSOperator *op);
+	CGUIEnvironment(video::IVideoDriver *driver, IOSOperator *op);
 
 	//! destructor
 	virtual ~CGUIEnvironment();
@@ -27,9 +26,6 @@ public:
 
 	//! returns the current video driver
 	video::IVideoDriver *getVideoDriver() const override;
-
-	//! returns pointer to the filesystem
-	io::IFileSystem *getFileSystem() const override;
 
 	//! returns a pointer to the OS operator
 	IOSOperator *getOSOperator() const override;
@@ -106,8 +102,7 @@ public:
 
 	//! Adds a file open dialog.
 	virtual IGUIFileOpenDialog *addFileOpenDialog(const wchar_t *title = 0,
-			bool modal = true, IGUIElement *parent = 0, s32 id = -1,
-			bool restoreCWD = false, io::path::char_type *startDir = 0) override;
+			bool modal = true, IGUIElement *parent = 0, s32 id = -1) override;
 
 	//! adds a static text. The returned pointer must not be dropped.
 	virtual IGUIStaticText *addStaticText(const wchar_t *text, const core::rect<s32> &rectangle,
@@ -210,7 +205,6 @@ private:
 	IGUIElement *Focus;
 	core::position2d<s32> LastHoveredMousePos;
 	IGUISkin *CurrentSkin;
-	io::IFileSystem *FileSystem;
 	IEventReceiver *UserReceiver;
 	IOSOperator *Operator;
 	u32 FocusFlags;

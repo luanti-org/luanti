@@ -9,7 +9,6 @@
 #include "IGUIElement.h"
 #include "IGUIEnvironment.h"
 #include "IImageLoader.h"
-#include "IFileSystem.h"
 #include "IVideoDriver.h"
 #include "os.h"
 #include "CTimer.h"
@@ -782,7 +781,7 @@ bool CIrrDeviceSDL::createWindowWithContext()
 void CIrrDeviceSDL::createDriver()
 {
 	if (CreationParams.DriverType == video::EDT_NULL) {
-		VideoDriver = video::createNullDriver(FileSystem, CreationParams.WindowSize);
+		VideoDriver = video::createNullDriver(CreationParams.WindowSize);
 		return;
 	}
 
@@ -791,16 +790,16 @@ void CIrrDeviceSDL::createDriver()
 
 	switch (CreationParams.DriverType) {
 	case video::EDT_OPENGL:
-		VideoDriver = video::createOpenGLDriver(CreationParams, FileSystem, ContextManager);
+		VideoDriver = video::createOpenGLDriver(CreationParams, ContextManager);
 		break;
 	case video::EDT_OPENGL3:
-		VideoDriver = video::createOpenGL3Driver(CreationParams, FileSystem, ContextManager);
+		VideoDriver = video::createOpenGL3Driver(CreationParams, ContextManager);
 		break;
 	case video::EDT_OGLES2:
-		VideoDriver = video::createOGLES2Driver(CreationParams, FileSystem, ContextManager);
+		VideoDriver = video::createOGLES2Driver(CreationParams, ContextManager);
 		break;
 	case video::EDT_WEBGL1:
-		VideoDriver = video::createWebGL1Driver(CreationParams, FileSystem, ContextManager);
+		VideoDriver = video::createWebGL1Driver(CreationParams, ContextManager);
 		break;
 	default:;
 	}
