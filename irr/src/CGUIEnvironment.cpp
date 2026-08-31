@@ -546,6 +546,7 @@ bool CGUIEnvironment::postEventFromUser(const SEvent &event)
 			}
 		}
 	} break;
+	case EET_STRING_COMPOSITION_EVENT: [[fallthrough]];
 	case EET_STRING_INPUT_EVENT:
 	case EET_GAMEPAD_AXIS_EVENT:
 	case EET_GAMEPAD_BUTTON_EVENT:
