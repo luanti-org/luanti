@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'de.undercouch.download'
 
 android {
 	ndkVersion "$ndk_version"
@@ -80,9 +81,23 @@ tasks.register("compileTranslations") {
 	dependsOn localeTasks
 }
 
+def output_folder = layout.buildDirectory.get().asFile
+def ca_bundle_url = 'https://curl.se/ca/cacert.pem'
+
+tasks.register('fetchCABundle', Download) {
+	description = 'Grab up to date version of cacert.pem'
+
+	src ca_bundle_url
+	dest new File(output_folder, "cacert.pem")
+	overwrite true
+	onlyIfModified true
+	useETag true
+}
+
 def assetsFolder = layout.buildDirectory.dir("assets").get().asFile
 tasks.register("prepareAssets") {
 	dependsOn tasks.named("compileTranslations")
+	dependsOn tasks.named("fetchCABundle")
 
 	doFirst {
 		logger.lifecycle('Preparing assets at {}', assetsFolder)
@@ -96,6 +111,9 @@ tasks.register("prepareAssets") {
 		}
 		copy {
 			from "${projRoot}/builtin" exclude "**/CMakeLists.txt" into "${assetsFolder}/builtin"
+		}
+		copy {
+			from "${output_folder}/cacert.pem" into "${assetsFolder}/client"
 		}
 		copy {
 			from "${projRoot}/client/shaders" into "${assetsFolder}/client/shaders"
