@@ -1224,19 +1224,11 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 
 		getClient(peer_id)->m_time_from_building = 0;
 
-		// If item has node placement prediction, always send the
-		// blocks to make sure the client knows what exactly happened
-		RemoteClient *client = getClient(peer_id);
-		v3s16 blockpos = getNodeBlockPos(pointed.node_abovesurface);
-		v3s16 blockpos2 = getNodeBlockPos(pointed.node_undersurface);
+		// If item has node placement prediction, always re-send the two affected nodes,
+		// since we (the server) can never be sure that the prediction was right.
 		if (had_prediction) {
-			client->SetBlockNotSent(blockpos);
-			if (blockpos2 != blockpos)
-				client->SetBlockNotSent(blockpos2);
-		} else {
-			client->ResendBlockIfOnWire(blockpos);
-			if (blockpos2 != blockpos)
-				client->ResendBlockIfOnWire(blockpos2);
+			sendNodePredictionFixup(peer_id, pointed.node_abovesurface);
+			sendNodePredictionFixup(peer_id, pointed.node_undersurface);
 		}
 
 		return;
