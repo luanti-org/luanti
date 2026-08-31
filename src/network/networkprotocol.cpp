@@ -79,6 +79,7 @@
 		Type of TOCLIENT_HUDADD `size` changed from v2s32 to v2f
 		[scheduled bump for 5.16.0]
 	PROTOCOL VERSION 53
+		Added optional "do_interpolate_rotation" u8 to AO_CMD_UPDATE_POSITION
 		[scheduled bump for 5.17.0]
 */
 
