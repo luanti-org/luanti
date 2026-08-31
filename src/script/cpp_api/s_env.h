@@ -50,6 +50,8 @@ public:
 	void triggerLBM(int id, MapBlock *block,
 		const std::unordered_set<v3s16> &positions, float dtime_s);
 
+	bool digNode(v3s16 p, ServerActiveObject *digger);
+
 private:
 	void readABMs();
 

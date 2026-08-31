@@ -393,36 +393,6 @@ int ModApiEnv::l_place_node(lua_State *L)
 	return 1;
 }
 
-int ModApiEnv::l_dig_node(lua_State *L)
-{
-	GET_ENV_PTR;
-
-	ScriptApiNode *scriptIfaceNode = getScriptApi<ScriptApiNode>(L);
-
-	v3s16 pos = read_v3s16(L, 1);
-
-	// Don't attempt to load non-loaded area as of now
-	MapNode n = env->getMap().getNode(pos);
-	if(n.getContent() == CONTENT_IGNORE){
-		lua_pushboolean(L, false);
-		return 1;
-	}
-
-	ServerActiveObject *digger = nullptr;
-
-	if (!lua_isnoneornil(L, 2)) {
-		ObjectRef *ref = checkObject<ObjectRef>(L, 2);
-		digger = ObjectRef::getobject(ref);
-	}
-
-	// Dig it out with a nullptr digger
-	// (appears in Lua as a non-functional ObjectRef)
-	// or the given ObjectRef
-	bool success = scriptIfaceNode->node_on_dig(pos, n, digger);
-	lua_pushboolean(L, success);
-	return 1;
-}
-
 int ModApiEnv::l_punch_node(lua_State *L)
 {
 	GET_ENV_PTR;
@@ -1372,7 +1342,6 @@ void ModApiEnv::Initialize(lua_State *L, int top)
 	API_FCT(get_node_light);
 	API_FCT(get_natural_light);
 	API_FCT(place_node);
-	API_FCT(dig_node);
 	API_FCT(punch_node);
 	API_FCT(get_node_max_level);
 	API_FCT(get_node_level);

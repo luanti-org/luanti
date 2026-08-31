@@ -6263,6 +6263,8 @@ Utilities
       get_all_craft_recipes_fuel = true,
       -- Whether `core.get_all_craft_recipes` may return the `replacements` field (5.17.0)
       get_all_craft_recipes_replacements = true,
+      -- Whether `core.dig_node` can be overwritten (5.18.0)
+      dig_node_overwritable = true,
   }
   ```
 
@@ -6962,6 +6964,8 @@ Environment access
     * Dig node with the same effects that a player would cause
     * `digger`: The ObjectRef that digs the node (optional)
     * Returns `true` if successful, `false` on failure (e.g. protected location)
+    * When the `dig_node_overwritable` feature is available, the function can be
+      overridden by mods, and it is also called for player-originated digs.
 * `core.punch_node(pos[, puncher])`
     * Punch node with the same effects that a player would cause
     * `puncher`: The ObjectRef that punches the node (optional)
@@ -10677,12 +10681,6 @@ Used by `core.register_node`, `core.register_craftitem`, and
     -- Shall return the leftover itemstack or nil to not modify the item (tool).
     -- The user may be any ObjectRef or nil.
     -- default: nil
-
-    on_dig_before = function(pos, digger),
-    -- Called when the tool was used for digging a node (with the cracking
-    -- animation) but before the node was removed. The function shouldn't
-    -- modify the dug node and return false at the same time.
-    -- Shall return true if the node shouldn't be removed, otherwise false
 
     _custom_field = whatever,
     -- Add your own custom fields. By convention, all custom field names
