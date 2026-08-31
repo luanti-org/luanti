@@ -4394,26 +4394,19 @@ Translations *Server::getTranslationLanguage(const std::string &lang_code)
 	// [] will create an entry
 	auto *translations = &server_translations[lang_code];
 
-	// 1. Загружаем файлы целевого языка клиента
 	for (const auto &i : m_media) {
-		if (Translations::getFileLanguage(i.first) == lang_code) {
-			std::string data;
-			if (fs::ReadFile(i.second.path, data, true)) {
-				translations->loadTranslation(i.first, data);
+		auto file_lang = Translations::getFileLanguage(i.first);
+
+		if (file_lang == lang_code || file_lang == "en") {
+
+			if (file_lang == "en") {
+				std::string textdomain = str_split(i.first, '.')[0];
+				std::string source_lang = getTranslationSourceLanguage(i.first);
+
+				if (!source_lang.empty() && source_lang == lang_code) {
+					continue;
+				}
 			}
-		}
-	}
-
-	// 2. Загружаем английские файлы как fallback, но только если язык клиента
-	// НЕ совпадает с source language соответствующего мода
-	for (const auto &i : m_media) {
-		if (Translations::getFileLanguage(i.first) == "en") {
-			std::string textdomain = str_split(i.first, '.')[0];
-			std::string source_lang = getTranslationSourceLanguage(i.first);
-
-			// Пропускаем английский fallback, если язык клиента совпадает с source language
-			if (!source_lang.empty() && source_lang == lang_code)
-				continue;
 
 			std::string data;
 			if (fs::ReadFile(i.second.path, data, true)) {
