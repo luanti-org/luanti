@@ -6263,8 +6263,8 @@ Utilities
       get_all_craft_recipes_fuel = true,
       -- Whether `core.get_all_craft_recipes` may return the `replacements` field (5.17.0)
       get_all_craft_recipes_replacements = true,
-      -- Whether `core.dig_node` can be overwritten (5.18.0)
-      dig_node_overwritable = true,
+      -- Whether `core.dig_node` is called for user-originated digs (5.18.0)
+      call_dig_node_for_user_digs = true,
   }
   ```
 
@@ -6964,8 +6964,9 @@ Environment access
     * Dig node with the same effects that a player would cause
     * `digger`: The ObjectRef that digs the node (optional)
     * Returns `true` if successful, `false` on failure (e.g. protected location)
-    * When the `dig_node_overwritable` feature is available, the function can be
-      overridden by mods, and it is also called for player-originated digs.
+    * When the `call_dig_node_for_user_digs` feature is available, the function
+      is also called for player-originated digs, and can be overridden by mods
+      to intercept every digging operation.
 * `core.punch_node(pos[, puncher])`
     * Punch node with the same effects that a player would cause
     * `puncher`: The ObjectRef that punches the node (optional)
