@@ -9837,10 +9837,7 @@ In multiplayer mode, the error may be arbitrarily large.
 `SecureRandom`
 --------------
 
-Interface for the operating system's crypto-secure PRNG.
-
-It can be created via `SecureRandom()`.  The constructor throws an error if a
-secure random device cannot be found on the system.
+Interface for the operating system's crypto-secure PRNG. It can be created via `SecureRandom()`.
 
 ### Methods
 

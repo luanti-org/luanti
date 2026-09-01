@@ -32,6 +32,7 @@
 #cmakedefine01 USE_OPENSSL
 #cmakedefine01 HAVE_ENDIAN_H
 #cmakedefine01 HAVE_STRLCPY
+#cmakedefine01 HAVE_GETENTROPY
 #cmakedefine01 HAVE_MALLOC_TRIM
 #cmakedefine01 CURSES_HAVE_CURSES_H
 #cmakedefine01 CURSES_HAVE_NCURSES_H

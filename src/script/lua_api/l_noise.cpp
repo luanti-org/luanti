@@ -576,41 +576,21 @@ const luaL_Reg LuaPcgRandom::methods[] = {
 	LuaSecureRandom
 */
 
-bool LuaSecureRandom::fillRandBuf()
-{
-	return porting::secure_rand_fill_buf(m_rand_buf, RAND_BUF_SIZE);
-}
-
 int LuaSecureRandom::l_next_bytes(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	LuaSecureRandom *o = checkObject<LuaSecureRandom>(L, 1);
+	// argument 1 is ignored, only its type is checked
+	luaL_checkudata(L, 1, className);
 	u32 count = lua_isnumber(L, 2) ? lua_tointeger(L, 2) : 1;
+
+	constexpr size_t RAND_BUF_SIZE = 2048;
+	char output_buf[RAND_BUF_SIZE];
 
 	// Limit count
 	count = MYMIN(RAND_BUF_SIZE, count);
-
-	// Find out whether we can pass directly from our array, or have to do some gluing
-	size_t count_remaining = RAND_BUF_SIZE - o->m_rand_idx;
-	if (count_remaining >= count) {
-		lua_pushlstring(L, o->m_rand_buf + o->m_rand_idx, count);
-		o->m_rand_idx += count;
-	} else {
-		char output_buf[RAND_BUF_SIZE];
-
-		// Copy over with what we have left from our current buffer
-		memcpy(output_buf, o->m_rand_buf + o->m_rand_idx, count_remaining);
-
-		// Refill buffer and copy over the remainder of what was requested
-		o->fillRandBuf();
-		memcpy(output_buf + count_remaining, o->m_rand_buf, count - count_remaining);
-
-		// Update index
-		o->m_rand_idx = count - count_remaining;
-
-		lua_pushlstring(L, output_buf, count);
-	}
+	porting::secure_rand_fill_buf(output_buf, count);
+	lua_pushlstring(L, output_buf, count);
 
 	return 1;
 }
@@ -618,34 +598,20 @@ int LuaSecureRandom::l_next_bytes(lua_State *L)
 
 int LuaSecureRandom::create_object(lua_State *L)
 {
-	LuaSecureRandom *o = new LuaSecureRandom();
-
-	if (!o->fillRandBuf()) {
-		delete o;
-		throw LuaError("SecureRandom: Failed to find secure random device on system");
-	}
-
-	*(void **)(lua_newuserdata(L, sizeof(void *))) = o;
+	// empty, for backwards compat
+	lua_newuserdata(L, 0);
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);
 	return 1;
 }
 
-
-int LuaSecureRandom::gc_object(lua_State *L)
-{
-	delete takeObjectForGC<LuaSecureRandom>(L);
-	return 0;
-}
-
-
 void LuaSecureRandom::Register(lua_State *L)
 {
-	static const luaL_Reg metamethods[] = {
-		{"__gc", gc_object},
-		{0, 0}
-	};
-	registerClass<LuaSecureRandom>(L, methods, metamethods);
+	luaL_newmetatable(L, className);
+	lua_newtable(L);
+	luaL_register(L, NULL, methods);
+	lua_setfield(L, -2, "__index");
+	lua_pop(L, 1);
 
 	lua_register(L, className, create_object);
 }

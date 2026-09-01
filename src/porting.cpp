@@ -23,6 +23,7 @@
 	#include <mmsystem.h>
 #endif
 #if !defined(_WIN32)
+	#include <algorithm>
 	#include <unistd.h>
 	#include <sys/utsname.h>
 	#if !defined(__ANDROID__)
@@ -54,6 +55,17 @@
 #if HAVE_MALLOC_TRIM
 	// glibc-only pretty much
 	#include <malloc.h>
+#endif
+
+#if HAVE_GETENTROPY
+	#include <limits.h>
+	#include <unistd.h>
+	#if defined(__has_include) && __has_include(<sys/random.h>)
+		#include <sys/random.h>
+	#endif
+	#ifndef GETENTROPY_MAX
+		#define GETENTROPY_MAX 256
+	#endif
 #endif
 
 #include "debug.h"
@@ -792,35 +804,95 @@ void initializePaths()
 
 #ifdef WIN32
 
-bool secure_rand_fill_buf(void *buf, size_t len)
+void secure_rand_fill_buf(void *buf, size_t len)
 {
 	HCRYPTPROV wctx;
 
-	if (!CryptAcquireContext(&wctx, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
-		return false;
+	bool success = CryptAcquireContext(&wctx, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
+	FATAL_ERROR_IF(!success, "CryptAcquireContext failed, this should never happen");
 
-	bool success = CryptGenRandom(wctx, len, (BYTE *)buf);
+	success = CryptGenRandom(wctx, len, (BYTE *)buf);
 	CryptReleaseContext(wctx, 0);
-	return success;
+
+	FATAL_ERROR_IF(!success, "Unable to interface with system CSPRNG, this should never happen");
 }
 
 #else
 
-bool secure_rand_fill_buf(void *buf, size_t len)
+static void fill_secure_buffer_posix(char *buf, size_t len)
 {
-	// N.B.  This function checks *only* for /dev/urandom, because on most
-	// common OSes it is non-blocking, whereas /dev/random is blocking, and it
-	// is exceptionally uncommon for there to be a situation where /dev/random
-	// exists but /dev/urandom does not.  This guesswork is necessary since
-	// random devices are not covered by any POSIX standard...
+#if HAVE_GETENTROPY
+	// https://man7.org/linux/man-pages/man3/getentropy.3.html
+	// https://man7.org/linux/man-pages/man2/getrandom.2.html
+	// https://linux.die.net/man/4/urandom
+	// https://github.com/apple-oss-distributions/xnu/blob/f6217f891ac0bb64f3d375211650a4c1ff8ca1ea/bsd/dev/random/randomdev.c#L116
+
+	// Linux /dev/urandom can end up being seeded with low quality predictable RNG
+	// which allows guessing values it generates by predicting initial state
+	// this is mostly an IoT issue and not an issue for full desktop or server environments
+	//
+	// /dev/random on the other hand, depending on the platform can block even if it has sufficient
+	// seeding because the authors of it assumed a CSPRNG is broken if it's not re-seeded often
+	//
+	// getentropy with flags set to zero semantics match /dev/urandom at runtime,
+	// but it checks the system got enough entropy to make the initial state of
+	// the CSPRNG unguessable by using getrandom
+	// "getrandom() will block until the entropy pool has been initialized"
+	//
+
+	// read in blocks of at most GETENTROPY_MAX bytes per POSIX
+	int status;
+	do {
+		const size_t len_read = std::min(len, static_cast<size_t>(GETENTROPY_MAX));
+		status = getentropy(buf, len_read);
+		if (status == 0) {
+			len -= len_read;
+			buf += len_read;
+		}
+	} while (status == 0 && len > 0);
+
+	if (len == 0)
+		return;
+
+	// fall through if the failure is due to not supporting the syscall required
+	FATAL_ERROR_IF(errno != ENOSYS, "Unable to get entropy with getentropy");
+#endif
 	FILE *fp = fopen("/dev/urandom", "rb");
-	if (!fp)
-		return false;
+	FATAL_ERROR_IF(!fp, "Your unix-like system does not support /dev/urandom, unable to continue");
 
 	bool success = fread(buf, len, 1, fp) == 1;
-
 	fclose(fp);
-	return success;
+
+	FATAL_ERROR_IF(!success, "Unable to read from /dev/urandom, this should never happen");
+}
+
+void secure_rand_fill_buf(void *buf, size_t len)
+{
+	// small csprng reads are piped to this instead of doing a syscall
+	constexpr size_t SMALL_BUFF_SIZE = 512; // two buffers of getentropy
+	static thread_local size_t s_thread_rand_idx = SMALL_BUFF_SIZE;
+	static thread_local char s_thread_rand_buffer[SMALL_BUFF_SIZE];
+
+	char *out_buf = static_cast<char*>(buf);
+
+	if (len < SMALL_BUFF_SIZE) {
+		// small read optimized path
+		size_t len_remaining = SMALL_BUFF_SIZE - s_thread_rand_idx;
+		if (len_remaining >= len) {
+			memcpy(out_buf, &s_thread_rand_buffer[s_thread_rand_idx], len);
+			s_thread_rand_idx += len;
+		} else {
+			// Copy over with what we have left from our current buffer
+			memcpy(out_buf, &s_thread_rand_buffer[s_thread_rand_idx], len_remaining);
+
+			// grab new entropy from system
+			fill_secure_buffer_posix(s_thread_rand_buffer, SMALL_BUFF_SIZE);
+			memcpy(&out_buf[len_remaining], s_thread_rand_buffer, len - len_remaining);
+			s_thread_rand_idx = len - len_remaining;
+		}
+	} else {
+		fill_secure_buffer_posix(out_buf, len);
+	}
 }
 
 #endif
