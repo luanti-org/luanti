@@ -775,6 +775,10 @@ function core.get_node_or_nil(pos)
 			or nil
 end
 
+--
+-- dig_node implementation
+--
+
 function core.dig_node(pos, digger)
 	local node = core.get_node_or_nil(pos)
 	if not node then
