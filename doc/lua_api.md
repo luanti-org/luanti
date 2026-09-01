@@ -6964,8 +6964,8 @@ Environment access
     * Dig node with the same effects that a player would cause
     * `digger`: The ObjectRef that digs the node (optional)
     * Returns `true` if successful, `false` on failure (e.g. protected location)
-    * When the `call_dig_node_for_user_digs` feature is available, the function
-      is also called for player-originated digs, and can be overridden by mods
+    * When the `call_dig_node_for_player_digs` feature is available, the function
+      is also called for player-originated digs, and can be overridden
       to intercept every digging operation.
 * `core.punch_node(pos[, puncher])`
     * Punch node with the same effects that a player would cause
