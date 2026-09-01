@@ -480,11 +480,12 @@ void GameFormSpec::showPauseMenu()
 void GameFormSpec::showDeathFormspecLegacy()
 {
 	static std::string formspec_str =
-		std::string("formspec_version[1]") +
+		std::string("formspec_version[2]") +
 		SIZE_TAG
 		"bgcolor[#320000b4;true]"
-		"label[4.85,1.35;" + gettext("You died") + "]"
-		"button_exit[4,3;3,0.5;btn_respawn;" + gettext("Respawn") + "]"
+		"style_type[label;halign=center;valign=center]"
+		"label[5.375,1.85;3.5,0.8;" + gettext("You died") + "]"
+		"button_exit[5.375,3.725;3.5,0.8;btn_respawn;" + gettext("Respawn") + "]"
 		;
 
 	/* Create menu */
