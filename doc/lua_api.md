@@ -6263,8 +6263,8 @@ Utilities
       get_all_craft_recipes_fuel = true,
       -- Whether `core.get_all_craft_recipes` may return the `replacements` field (5.17.0)
       get_all_craft_recipes_replacements = true,
-      -- Whether `core.dig_node` is called for user-originated digs (5.18.0)
-      call_dig_node_for_user_digs = true,
+      -- Whether `core.dig_node` is called for player-originated digs (5.18.0)
+      call_dig_node_for_player_digs = true,
   }
   ```
 
