@@ -65,15 +65,14 @@ public:
 	void deSerialize(std::istream &is);
 
 	// Never permit to modify outside of here. Only this object is responsible of m_stored and m_active modifications
+	const std::vector<StaticObject>& getAllStored() const { return m_stored; }
 	const std::map<u16, StaticObject> &getAllActives() const { return m_active; }
-
-	// FIXME: ServerEnvironment::activateObjects needs to access m_stored
-	std::vector<StaticObject> &getAllStored() { return m_stored; }
 
 	inline void setActive(u16 id, const StaticObject &obj) { m_active[id] = obj; }
 	inline size_t getActiveSize() const { return m_active.size(); }
 	inline size_t getStoredSize() const { return m_stored.size(); }
 	inline void clearStored() { m_stored.clear(); }
+	void pushStored(const StaticObject &obj) { m_stored.push_back(obj); }
 
 	bool storeActiveObject(u16 id);
 

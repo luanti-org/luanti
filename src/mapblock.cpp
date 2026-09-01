@@ -132,12 +132,11 @@ static inline size_t get_max_objects_per_block()
 
 bool MapBlock::onObjectsActivation()
 {
-	const auto count = m_static_objects.getStoredSize();
-
 	// Ignore if no stored objects (to not set changed flag)
-	if (count == 0)
+	if (m_static_objects.getAllStored().empty())
 		return false;
 
+	const auto count = m_static_objects.getStoredSize();
 	verbosestream << "MapBlock::onObjectsActivation(): "
 			<< "activating " << count << " objects in block " << getPos()
 			<< std::endl;
