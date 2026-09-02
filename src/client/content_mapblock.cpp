@@ -605,6 +605,7 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box,
 	}
 }
 
+template <bool LIQUID>
 void MapblockMeshGenerator::drawSolidNode()
 {
 	u8 faces = 0; // k-th bit will be set if k-th face is to be drawn.
@@ -612,57 +613,8 @@ void MapblockMeshGenerator::drawSolidNode()
 	u16 lights[6];
 	content_t n1 = cur_node.n.getContent();
 	v3s16 p1 = blockpos_nodes + cur_node.p;
-	for (int face = 0; face < 6; face++) {
-		v3s16 p2 = p1 + tile_dirs[face];
-		MapNode neighbor = data->m_vmanip.getNodeRefUnsafeCheckFlags(p2);
-		content_t n2 = neighbor.getContent();
-		bool backface_culling = cur_node.f->drawtype == NDT_NORMAL;
-		if (n2 == n1)
-			continue;
-		if (n2 == CONTENT_IGNORE)
-			continue;
-		// For a waving liquid source, keep the top face even when a solid node
-		// is directly above: wave animation can pull the surface down and expose
-		// a gap where the face was culled. Also keep backface culling off so the
-		// face is visible from below e.g. looking up from underwater.
-		// Submerged solids surrounded by liquid or other solid nodes on all sides are excluded.
-		bool liquid_needs_top_face = face == 0
-			&& cur_node.f->drawtype == NDT_LIQUID
-			&& cur_node.f->waving == 3
-			&& data->m_enable_waving_water;
-		if (liquid_needs_top_face) {
-			liquid_needs_top_face = false;
-			static const v3s16 h_dirs[4] = {
-				v3s16(1,0,0), v3s16(-1,0,0), v3s16(0,0,1), v3s16(0,0,-1)
-			};
-			for (const v3s16 &d : h_dirs) {
-				const ContentFeatures &f_side =
-						nodedef->get(data->m_vmanip.getNodeRefUnsafeCheckFlags(p2 + d));
 
-				bool side_is_translucent =
-					!(NDT_solidness[f_side.drawtype] || NDT_visual_solidness[f_side.drawtype]);
-				bool side_is_same_flowing_liquid =
-					f_side.drawtype == NDT_FLOWINGLIQUID && cur_node.f->sameLiquidRender(f_side);
-
-				// Draw the top face as soon there's a translucent node diagonally above to
-				// avoid visual gaps in the liquid surface
-				if (side_is_translucent && !side_is_same_flowing_liquid) {
-					liquid_needs_top_face = true;
-					break;
-				}
-			}
-		}
-		if (n2 != CONTENT_AIR) {
-			const ContentFeatures &f2 = nodedef->get(n2);
-			if (NDT_solidness[f2.drawtype] == 2 && !liquid_needs_top_face)
-				continue;
-			if (cur_node.f->drawtype == NDT_LIQUID) {
-				if (cur_node.f->sameLiquidRender(f2))
-					continue;
-				backface_culling = !liquid_needs_top_face &&
-						(NDT_solidness[f2.drawtype] || NDT_visual_solidness[f2.drawtype]);
-			}
-		}
+	auto add_face = [&] (int face, const MapNode &neighbor, bool backface_culling) {
 		faces |= 1 << face;
 		getTile(tile_dirs[face], &tiles[face]);
 		for (auto &layer : tiles[face].layers) {
@@ -672,6 +624,67 @@ void MapblockMeshGenerator::drawSolidNode()
 		if (!data->m_smooth_lighting) {
 			lights[face] = getFaceLight(cur_node.n, neighbor, nodedef);
 		}
+	};
+
+	// For a waving liquid source, keep the top face even when a solid node
+	// is directly above: wave animation can pull the surface down and expose
+	// a gap where the face was culled. Also keep backface culling off so the
+	// face is visible from below e.g. looking up from underwater.
+	// Submerged solids surrounded by liquid or other solid nodes on all sides are excluded.
+	auto add_waving_liquid_top_face =
+				[&] (const v3s16 &p2, const MapNode &neighbor, content_t n2) -> bool {
+		const ContentFeatures &f2 = nodedef->get(n2);
+		if (cur_node.f->sameLiquidRender(f2))
+			return false;
+		static constexpr v3s16 h_dirs[4] = {
+			v3s16(1,0,0), v3s16(-1,0,0), v3s16(0,0,1), v3s16(0,0,-1)
+		};
+		for (const v3s16 &d : h_dirs) {
+			const ContentFeatures &f_side =
+					nodedef->get(data->m_vmanip.getNodeRefUnsafeCheckFlags(p2 + d));
+
+			bool side_is_translucent =
+				!(NDT_solidness[f_side.drawtype] || NDT_visual_solidness[f_side.drawtype]);
+			bool side_is_same_flowing_liquid =
+				f_side.drawtype == NDT_FLOWINGLIQUID && cur_node.f->sameLiquidRender(f_side);
+
+			// Draw the top face as soon there's a translucent node diagonally above to
+			// avoid visual gaps in the liquid surface
+			if (side_is_translucent && !side_is_same_flowing_liquid) {
+				add_face(0, neighbor, false);
+				return true;
+			}
+		}
+		return false; // May still draw the face and with backface culling
+	};
+
+	for (int face = 0; face < 6; face++) {
+		v3s16 p2 = p1 + tile_dirs[face];
+		MapNode neighbor = data->m_vmanip.getNodeRefUnsafeCheckFlags(p2);
+		content_t n2 = neighbor.getContent();
+		if (n2 == n1)
+			continue;
+		if (n2 == CONTENT_IGNORE)
+			continue;
+		if constexpr (LIQUID) {
+			if (face == 0 && cur_node.f->waving == 3 && data->m_enable_waving_water
+					&& add_waving_liquid_top_face(p2, neighbor, n2))
+				continue;
+		}
+
+		bool backface_culling = !LIQUID;
+		if (n2 != CONTENT_AIR) {
+			const ContentFeatures &f2 = nodedef->get(n2);
+			if (NDT_solidness[f2.drawtype] == 2)
+				continue;
+			if constexpr (LIQUID) {
+				if (cur_node.f->sameLiquidRender(f2))
+					continue;
+				backface_culling = NDT_solidness[f2.drawtype]
+						|| NDT_visual_solidness[f2.drawtype];
+			}
+		}
+		add_face(face, neighbor, backface_culling);
 	}
 	if (!faces)
 		return;
@@ -1500,7 +1513,7 @@ void MapblockMeshGenerator::drawPlantlikeNode()
 
 void MapblockMeshGenerator::drawPlantlikeRootedNode()
 {
-	drawSolidNode();
+	drawSolidNode<false>();
 
 	TileSpec tile;
 	useTile(&tile, 0, 0, 0, true);
@@ -1978,8 +1991,13 @@ void MapblockMeshGenerator::drawNode()
 		return; // Not drawn at all
 
 	cur_node.origin = intToFloat(cur_node.p, BS);
-	if (cur_node.f->drawtype == NDT_LIQUID || cur_node.f->drawtype == NDT_NORMAL) {
-		drawSolidNode(); // Solid nodes don't need the usual setup
+	// Solid nodes don't need the usual setup
+	if (cur_node.f->drawtype == NDT_NORMAL) {
+		drawSolidNode<false>();
+		return;
+	}
+	if (cur_node.f->drawtype == NDT_LIQUID) {
+		drawSolidNode<true>();
 		return;
 	}
 
