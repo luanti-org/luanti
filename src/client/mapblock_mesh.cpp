@@ -905,32 +905,39 @@ void MapBlockMesh::consolidateTransparentBuffers()
 	m_transparent_buffers_consolidated = true;
 }
 
-video::SColor encode_light(u16 light, u8 emissive_light)
+video::SColor encode_light(LightPair light, u8 emissive_light)
 {
 	// Get components
-	u32 day = (light & 0xff);
-	u32 night = (light >> 8);
-	// Add emissive light
-	night += emissive_light * 2.5f;
+	u32 day = light.lightDay;
+	u32 night = light.lightNight;
+	// Add emissive light, multiplied by the magical number 2.5
+	night += (emissive_light * 5) >> 1;
 	if (night > 255)
 		night = 255;
+
 	// Since we don't know if the day light is sunlight or
 	// artificial light, assume it is artificial when the night
 	// light bank is also lit.
-	if (day < night)
-		day = 0;
-	else
-		day = day - night;
-	u32 sum = day + night;
-	// Ratio of sunlight:
-	u32 r;
-	if (sum > 0)
-		r = day * 255 / sum;
-	else
+	u32 r; // Ratio of sunlight
+	u32 b; // Average light?
+	if (day < night) {
 		r = 0;
-	// Average light:
-	float b = (day + night) / 2;
+		b = night >> 1;
+	} else {
+		if (day == 0) // can't divide by 0
+			return video::SColor(0);
+		r = 255 - 255 * night / day;
+		b = day >> 1;
+	}
 	return video::SColor(r, b, b, b);
+}
+
+video::SColor encode_light(u16 light, u8 emissive_light)
+{
+	// Get components
+	u8 day = light & 0xff;
+	u8 night = light >> 8;
+	return encode_light({day, night}, emissive_light);
 }
 
 u8 get_solid_sides(MeshMakeData *data)

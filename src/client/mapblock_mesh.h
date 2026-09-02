@@ -22,6 +22,7 @@ class Client;
 class NodeDefManager;
 class IShaderSource;
 class ITextureSource;
+struct LightPair;
 
 /*
 	Mesh making stuff
@@ -323,6 +324,7 @@ private:
  * from 0 to LIGHT_SUN.
  */
 video::SColor encode_light(u16 light, u8 emissive_light);
+video::SColor encode_light(LightPair light, u8 emissive_light);
 
 // Compute light at node
 u16 getInteriorLight(MapNode n, s32 increment, const NodeDefManager *ndef);
