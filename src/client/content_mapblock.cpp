@@ -33,7 +33,7 @@
 #define FRAMED_NEIGHBOR_COUNT 18
 
 // Maps light index to corner direction
-static const v3s16 light_dirs[8] = {
+static constexpr v3s16 light_dirs[8] = {
 	v3s16(-1, -1, -1),
 	v3s16(-1, -1,  1),
 	v3s16(-1,  1, -1),
@@ -44,14 +44,46 @@ static const v3s16 light_dirs[8] = {
 	v3s16( 1,  1,  1),
 };
 
+// Direction of solid node tiles
+static constexpr v3s16 tile_dirs[6] = {
+	v3s16( 0,  1,  0),
+	v3s16( 0, -1,  0),
+	v3s16( 1,  0,  0),
+	v3s16(-1,  0,  0),
+	v3s16( 0,  0,  1),
+	v3s16( 0,  0, -1)
+};
+
+// we have this order for some reason...
+static constexpr v3s16 nodebox_connection_dirs[6] = {
+	v3s16( 0,  1,  0), // top
+	v3s16( 0, -1,  0), // bottom
+	v3s16( 0,  0, -1), // front
+	v3s16(-1,  0,  0), // left
+	v3s16( 0,  0,  1), // back
+	v3s16( 1,  0,  0), // right
+};
+
 // Maps cuboid face and vertex indices to the corresponding light index
-static const u8 light_indices[6][4] = {
+static constexpr u8 light_indices[6][4] = {
 	{3, 7, 6, 2},
 	{0, 4, 5, 1},
 	{6, 7, 5, 4},
 	{3, 2, 0, 1},
 	{7, 3, 1, 5},
 	{2, 6, 4, 0},
+};
+
+// Maps cuboid face and vertex indices to neighbor corner of solid node in light_dirs
+// Used by solid nodes to call getSmoothLightTransparent for face-dependent lighting,
+// equal to light_dirs[light_indices[face][k]] - 2 * tile_dirs[face]
+static constexpr u8 light_neighbor_corner_indices[6][4] = {
+	{1, 5, 4, 0},
+	{2, 6, 7, 3},
+	{2, 3, 1, 0},
+	{7, 6, 4, 5},
+	{6, 2, 0, 4},
+	{3, 7, 5, 1}
 };
 
 // Standard index set to make a quad on 4 vertices
@@ -434,19 +466,12 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box,
 void MapblockMeshGenerator::drawSolidNode()
 {
 	u8 faces = 0; // k-th bit will be set if k-th face is to be drawn.
-	static const v3s16 tile_dirs[6] = {
-		v3s16(0, 1, 0),
-		v3s16(0, -1, 0),
-		v3s16(1, 0, 0),
-		v3s16(-1, 0, 0),
-		v3s16(0, 0, 1),
-		v3s16(0, 0, -1)
-	};
 	TileSpec tiles[6];
 	u16 lights[6];
 	content_t n1 = cur_node.n.getContent();
+	v3s16 p1 = blockpos_nodes + cur_node.p;
 	for (int face = 0; face < 6; face++) {
-		v3s16 p2 = blockpos_nodes + cur_node.p + tile_dirs[face];
+		v3s16 p2 = p1 + tile_dirs[face];
 		MapNode neighbor = data->m_vmanip.getNodeRefUnsafeCheckFlags(p2);
 		content_t n2 = neighbor.getContent();
 		bool backface_culling = cur_node.f->drawtype == NDT_NORMAL;
@@ -517,10 +542,10 @@ void MapblockMeshGenerator::drawSolidNode()
 		for (int face = 0; face < 6; ++face) {
 			if (mask & (1 << face))
 				continue;
+			v3s16 p2 = p1 + tile_dirs[face];
 			for (int k = 0; k < 4; k++) {
-				v3s16 corner = light_dirs[light_indices[face][k]];
-				lights[face][k] = LightPair(getSmoothLightSolid(
-						blockpos_nodes + cur_node.p, tile_dirs[face], corner, data));
+				v3s16 corner = light_dirs[light_neighbor_corner_indices[face][k]];
+				lights[face][k] = LightPair(getSmoothLightTransparent(p2, corner, data));
 			}
 		}
 
@@ -1583,33 +1608,12 @@ void MapblockMeshGenerator::drawRaillikeNode()
 	drawQuad(tile, vertices);
 }
 
-namespace {
-	static const v3s16 nodebox_tile_dirs[6] = {
-		v3s16(0, 1, 0),
-		v3s16(0, -1, 0),
-		v3s16(1, 0, 0),
-		v3s16(-1, 0, 0),
-		v3s16(0, 0, 1),
-		v3s16(0, 0, -1)
-	};
-
-	// we have this order for some reason...
-	static const v3s16 nodebox_connection_dirs[6] = {
-		v3s16( 0,  1,  0), // top
-		v3s16( 0, -1,  0), // bottom
-		v3s16( 0,  0, -1), // front
-		v3s16(-1,  0,  0), // left
-		v3s16( 0,  0,  1), // back
-		v3s16( 1,  0,  0), // right
-	};
-}
-
 void MapblockMeshGenerator::drawAllfacesNode()
 {
 	static const aabb3f box(-BS / 2, -BS / 2, -BS / 2, BS / 2, BS / 2, BS / 2);
 	TileSpec tiles[6];
 	for (int face = 0; face < 6; face++)
-		getTile(nodebox_tile_dirs[face], &tiles[face]);
+		getTile(tile_dirs[face], &tiles[face]);
 	drawAutoLightedCuboid(box, tiles, 6);
 }
 
@@ -1618,7 +1622,7 @@ void MapblockMeshGenerator::drawNodeboxNode()
 	TileSpec tiles[6];
 	for (int face = 0; face < 6; face++) {
 		// Handles facedir rotation for textures
-		getTile(nodebox_tile_dirs[face], &tiles[face]);
+		getTile(tile_dirs[face], &tiles[face]);
 	}
 
 	bool param2_is_rotation =
@@ -1638,7 +1642,7 @@ void MapblockMeshGenerator::drawNodeboxNode()
 	u8 sametype_neighbors = 0;
 	for (int dir = 0; dir != 6; dir++) {
 		u8 flag = 1 << dir;
-		v3s16 p2 = blockpos_nodes + cur_node.p + nodebox_tile_dirs[dir];
+		v3s16 p2 = blockpos_nodes + cur_node.p + tile_dirs[dir];
 		MapNode n2 = data->m_vmanip.getNodeRefUnsafeCheckFlags(p2);
 
 		// mark neighbors that are the same node type

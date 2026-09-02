@@ -248,16 +248,6 @@ static u16 getSmoothLightCombined(const v3s16 &p,
 /*
 	Calculate smooth lighting at the given corner of p.
 	Both light banks.
-	Node at p is solid, and thus the lighting is face-dependent.
-*/
-u16 getSmoothLightSolid(const v3s16 &p, const v3s16 &face_dir, const v3s16 &corner, MeshMakeData *data)
-{
-	return getSmoothLightTransparent(p + face_dir, corner - 2 * face_dir, data);
-}
-
-/*
-	Calculate smooth lighting at the given corner of p.
-	Both light banks.
 	Node at p is not solid, and the lighting is not face-dependent.
 */
 u16 getSmoothLightTransparent(const v3s16 &p, const v3s16 &corner, MeshMakeData *data)
