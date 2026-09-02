@@ -1608,8 +1608,6 @@ void MapblockMeshGenerator::drawAllfacesNode()
 	TileSpec tiles[6];
 	for (int face = 0; face < 6; face++)
 		getTile(nodebox_tile_dirs[face], &tiles[face]);
-	if (data->m_smooth_lighting)
-		getSmoothLightFrame();
 	drawAutoLightedCuboid(box, tiles, 6);
 }
 
