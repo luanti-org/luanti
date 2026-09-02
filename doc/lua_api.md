@@ -11116,13 +11116,13 @@ Used by `core.register_node`.
     -- Note: pointed_thing can be nil, if a mod calls this function.
 
     on_dig = function(pos, node, digger),
-    -- default: core.node_dig
-    -- Called when digger (an ObjectRef) dug the node.
-    -- If the callback was not triggered by a real player, digger will contain
-    -- a dummy ObjectRef (not nil).
+    -- default: `core.node_dig`
+    -- Called when `digger` (an `ObjectRef`) dug the node.
+    -- If the callback was not triggered by a real player, `digger` will contain
+    -- an invalid `ObjectRef` (not `nil`).
     -- By default checks privileges, wears out item (if tool) and removes node.
-    -- return true if the node was dug successfully, false otherwise.
-    -- Deprecated: returning nil is the same as returning true.
+    -- return `true` if the node was dug successfully, `false` otherwise.
+    -- Deprecated: returning `nil` is the same as returning `true`.
 
     on_timer = function(pos, elapsed, node, timeout),
     -- default: nil
