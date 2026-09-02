@@ -11117,6 +11117,9 @@ Used by `core.register_node`.
 
     on_dig = function(pos, node, digger),
     -- default: core.node_dig
+    -- Called when digger (an ObjectRef) dug the node.
+    -- If the callback was not triggered by a real player, digger will contain
+    -- a dummy ObjectRef (not nil).
     -- By default checks privileges, wears out item (if tool) and removes node.
     -- return true if the node was dug successfully, false otherwise.
     -- Deprecated: returning nil is the same as returning true.
