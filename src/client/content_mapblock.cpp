@@ -363,9 +363,15 @@ void MapblockMeshGenerator::generateCuboidTextureCoords(const aabb3f &box, f32 *
 		coords[i] = txc[i];
 }
 
-static inline int lightDiff(LightPair a, LightPair b)
+static inline QuadDiagonal getSmoothLightingQuadDiagonal(const LightPair (&lights)[4])
 {
-	return abs(a.lightDay - b.lightDay) + abs(a.lightNight - b.lightNight);
+	auto lightDiff = [] (const LightPair a, const LightPair b) {
+		return abs(a.lightDay - b.lightDay) + abs(a.lightNight - b.lightNight);
+	};
+
+	if (lightDiff(lights[1], lights[3]) < lightDiff(lights[0], lights[2]))
+		return QuadDiagonal::Diag13;
+	return QuadDiagonal::Diag02;
 }
 
 void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box, const TileSpec &tile,
@@ -409,9 +415,7 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box,
 				if (!cur_node.f->light_source)
 					applyFacesShading(vertex.Color, vertex.Normal);
 			}
-			if (lightDiff(final_lights[1], final_lights[3]) < lightDiff(final_lights[0], final_lights[2]))
-				return QuadDiagonal::Diag13;
-			return QuadDiagonal::Diag02;
+			return getSmoothLightingQuadDiagonal(final_lights);
 		});
 	} else {
 		drawCuboid(box, tiles, tile_count, txc, mask, [&] (int face, video::S3DVertex vertices[4]) {
@@ -521,16 +525,14 @@ void MapblockMeshGenerator::drawSolidNode()
 		}
 
 		drawCuboid(box, tiles, 6, nullptr, mask, [&] (int face, video::S3DVertex vertices[4]) {
-			auto final_lights = lights[face];
+			auto const &face_lights = lights[face];
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
-				vertex.Color = encode_light(final_lights[j], cur_node.f->light_source);
+				vertex.Color = encode_light(face_lights[j], cur_node.f->light_source);
 				if (!cur_node.f->light_source)
 					applyFacesShading(vertex.Color, vertex.Normal);
 			}
-			if (lightDiff(final_lights[1], final_lights[3]) < lightDiff(final_lights[0], final_lights[2]))
-				return QuadDiagonal::Diag13;
-			return QuadDiagonal::Diag02;
+			return getSmoothLightingQuadDiagonal(face_lights);
 		});
 	} else {
 		drawCuboid(box, tiles, 6, nullptr, mask, [&] (int face, video::S3DVertex vertices[4]) {
