@@ -421,7 +421,7 @@ sha256_block_data_order(SHA256_CTX *ctx, const void *_in, size_t num)
 }
 
 int
-SHA256_Init(SHA256_CTX *c)
+my_SHA256_Init(SHA256_CTX *c)
 {
 	memset(c, 0, sizeof(*c));
 
@@ -438,10 +438,10 @@ SHA256_Init(SHA256_CTX *c)
 
 	return 1;
 }
-LCRYPTO_ALIAS(SHA256_Init);
+LCRYPTO_ALIAS(my_SHA256_Init);
 
 int
-SHA256_Update(SHA256_CTX *c, const void *data_, size_t len)
+my_SHA256_Update(SHA256_CTX *c, const void *data_, size_t len)
 {
 	const unsigned char *data = data_;
 	unsigned char *p;
@@ -493,17 +493,17 @@ SHA256_Update(SHA256_CTX *c, const void *data_, size_t len)
 	}
 	return 1;
 }
-LCRYPTO_ALIAS(SHA256_Update);
+LCRYPTO_ALIAS(my_SHA256_Update);
 
 void
-SHA256_Transform(SHA256_CTX *c, const unsigned char *data)
+my_SHA256_Transform(SHA256_CTX *c, const unsigned char *data)
 {
 	sha256_block_data_order(c, data, 1);
 }
-LCRYPTO_ALIAS(SHA256_Transform);
+LCRYPTO_ALIAS(my_SHA256_Transform);
 
 int
-SHA256_Final(unsigned char *md, SHA256_CTX *c)
+my_SHA256_Final(unsigned char *md, SHA256_CTX *c)
 {
 	unsigned char *p = (unsigned char *)c->data;
 	size_t n = c->num;
@@ -554,10 +554,10 @@ SHA256_Final(unsigned char *md, SHA256_CTX *c)
 
 	return 1;
 }
-LCRYPTO_ALIAS(SHA256_Final);
+LCRYPTO_ALIAS(my_SHA256_Final);
 
 unsigned char *
-SHA256(const unsigned char *d, size_t n, unsigned char *md)
+my_SHA256(const unsigned char *d, size_t n, unsigned char *md)
 {
 	SHA256_CTX c;
 	static unsigned char m[SHA256_DIGEST_LENGTH];
@@ -565,12 +565,12 @@ SHA256(const unsigned char *d, size_t n, unsigned char *md)
 	if (md == NULL)
 		md = m;
 
-	SHA256_Init(&c);
-	SHA256_Update(&c, d, n);
-	SHA256_Final(md, &c);
+	my_SHA256_Init(&c);
+	my_SHA256_Update(&c, d, n);
+	my_SHA256_Final(md, &c);
 
 	memset(&c, 0, sizeof(c));
 
 	return (md);
 }
-LCRYPTO_ALIAS(SHA256);
+LCRYPTO_ALIAS(my_SHA256);
