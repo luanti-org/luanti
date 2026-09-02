@@ -774,24 +774,3 @@ function core.get_node_or_nil(pos)
 			{name = get_name_from_content_id(content), param1 = param1, param2 = param2}
 			or nil
 end
-
---
--- dig_node implementation
---
-
-function core.dig_node(pos, digger)
-	local node = core.get_node_or_nil(pos)
-	if not node then
-		return false
-	end
-
-	local ndef = core.registered_nodes[node.name]
-	local on_dig = ndef and ndef.on_dig
-	if not on_dig then
-		return false
-	end
-
-	local res = on_dig(pos, node, digger)
-
-	return res ~= false
-end

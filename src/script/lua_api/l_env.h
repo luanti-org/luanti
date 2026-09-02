@@ -84,6 +84,10 @@ private:
 	// pos = {x=num, y=num, z=num}
 	static int l_place_node(lua_State *L);
 
+	// dig_node(pos, [digger])
+	// pos = {x=num, y=num, z=num}
+	static int l_dig_node(lua_State *L);
+
 	// punch_node(pos, [puncher])
 	// pos = {x=num, y=num, z=num}
 	static int l_punch_node(lua_State *L);

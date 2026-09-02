@@ -115,6 +115,33 @@ bool ScriptApiNode::node_on_punch(v3s16 p, MapNode node,
 	return true;
 }
 
+bool ScriptApiNode::node_on_dig(v3s16 p, MapNode node,
+		ServerActiveObject *digger)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	int error_handler = PUSH_ERROR_HANDLER(L);
+
+	const NodeDefManager *ndef = getGameDef()->ndef();
+
+	// Push callback function on stack
+	if (!getItemCallback(ndef->get(node).name.c_str(), "on_dig", &p))
+		return false;
+
+	// Call function
+	push_v3s16(L, p);
+	pushnode(L, node);
+	objectrefGetOrCreate(L, digger);
+	PCALL_RES(lua_pcall(L, 3, 1, error_handler));
+
+	// nil is treated as true for backwards compat
+	bool result = lua_isnil(L, -1) || lua_toboolean(L, -1);
+
+	lua_pop(L, 2);  // Pop error handler and result
+
+	return result;
+}
+
 void ScriptApiNode::node_on_construct(v3s16 p, MapNode node)
 {
 	SCRIPTAPI_PRECHECKHEADER

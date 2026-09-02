@@ -22,6 +22,8 @@ public:
 
 	bool node_on_punch(v3s16 p, MapNode node,
 			ServerActiveObject *puncher, const PointedThing &pointed);
+	bool node_on_dig(v3s16 p, MapNode node,
+			ServerActiveObject *digger);
 	void node_on_construct(v3s16 p, MapNode node);
 	void node_on_destruct(v3s16 p, MapNode node);
 	bool node_on_flood(v3s16 p, MapNode node, MapNode newnode);
