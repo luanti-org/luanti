@@ -16,15 +16,22 @@
 #include "content/mods.h" // ModSpec
 #include "settings.h"
 #include "constants.h"
+#include "porting.h"
 
 #include <cerrno>
 #include <string>
 #include <algorithm>
 #include <iostream>
+#include <cinttypes>
 
+#include "lua_puclibs.h"
 
 #define SECURE_API(lib, name) \
 	lua_pushcfunction(L, sl_##lib##_##name); \
+	lua_setfield(L, -2, #name);
+
+#define PUC_API(prefix, name) \
+	lua_pushcfunction(L, luaE##prefix##_##name); \
 	lua_setfield(L, -2, #name);
 
 
@@ -172,7 +179,6 @@ void ScriptApiSecurity::initializeSecurity()
 	};
 	static const char *os_whitelist[] = {
 		"clock",
-		"date",
 		"difftime",
 		"getenv",
 		"time",
@@ -203,6 +209,8 @@ void ScriptApiSecurity::initializeSecurity()
 	};
 
 	m_secure = true;
+	// not critical on server
+	std::ignore = porting::secure_rand_fill_buf(m_pointer_key, sizeof(m_pointer_key));
 
 	lua_State *L = getStack();
 	const int sanity_check_top = lua_gettop(L);
@@ -293,6 +301,8 @@ void ScriptApiSecurity::initializeSecurity()
 	SECURE_API(os, remove);
 	SECURE_API(os, rename);
 	SECURE_API(os, setlocale);
+	 // LuaJIT version doesn't valid format strings
+	PUC_API(os, date);
 
 	lua_setglobal(L, "os");
 	lua_pop(L, 1);  // Pop old OS
@@ -356,7 +366,6 @@ void ScriptApiSecurity::initializeSecurityClient()
 		"next",
 		"pairs",
 		"pcall",
-		"print",
 		"rawequal",
 		"rawget",
 		"rawset",
@@ -365,157 +374,30 @@ void ScriptApiSecurity::initializeSecurityClient()
 		"getmetatable",
 		"setmetatable",
 		"tonumber",
-		"tostring",
 		"type",
 		"unpack",
 		"_VERSION",
 		"xpcall",
 		// Completely safe libraries
 		"coroutine",
-		"string",
 		"table",
 		"math",
 		"bit",
+	};
+#if BUILD_WITH_TRACY
+	static const char *whitelist_cscsm_only[] = {
 		// Not sure if completely safe. But if someone enables tracy, they'll
 		// know what they do.
-#if BUILD_WITH_TRACY
 		"tracy",
+	};
 #endif
-	};
-	static const char *os_whitelist[] = {
-		"clock",
-		"date",
-		"difftime",
-		"time"
-	};
 	static const char *debug_whitelist[] = {
-		"traceback"
-	};
-
-#if USE_LUAJIT
-	static const char *jit_whitelist[] = {
-		"arch",
-		"flush",
-		"off",
-		"on",
-		"opt",
-		"os",
-		"status",
-		"version",
-		"version_num",
-	};
-#endif
-
-	m_secure = true;
-
-	lua_State *L = getStack();
-	const int thread = getThread(L);
-
-	// Back up selected globals to the registry (needed for push_original)
-	lua_newtable(L);
-	for (const char *name : {"debug"}) {
-		lua_getglobal(L, name);
-		lua_setfield(L, -2, name);
-	}
-	lua_rawseti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
-
-	// create an empty environment
-	createEmptyEnv(L);
-
-	// Copy safe base functions
-	lua_getglobal(L, "_G");
-	lua_getfield(L, -2, "_G");
-	copy_safe(L, whitelist, sizeof(whitelist));
-
-	// And replace unsafe ones
-	SECURE_API(g, dofile);
-	SECURE_API(g, load);
-	SECURE_API(g, loadfile);
-	SECURE_API(g, loadstring);
-	SECURE_API(g, require);
-	SECURE_API(g, collectgarbage);
-	lua_pop(L, 2);
-
-
-
-	// Copy safe OS functions
-	lua_getglobal(L, "os");
-	lua_newtable(L);
-	copy_safe(L, os_whitelist, sizeof(os_whitelist));
-	lua_setfield(L, -3, "os");
-	lua_pop(L, 1);  // Pop old OS
-
-
-	// Copy safe debug functions
-	lua_getglobal(L, "debug");
-	lua_newtable(L);
-	copy_safe(L, debug_whitelist, sizeof(debug_whitelist));
-
-	// And replace unsafe ones
-	SECURE_API(debug, getinfo); // (used by builtin and unset before mods load)
-
-	lua_setfield(L, -3, "debug");
-	lua_pop(L, 1);  // Pop old debug
-
-
-#if USE_LUAJIT
-	// Copy safe jit functions, if they exist
-	lua_getglobal(L, "jit");
-	lua_newtable(L);
-	copy_safe(L, jit_whitelist, sizeof(jit_whitelist));
-	lua_setfield(L, -3, "jit");
-	lua_pop(L, 1);  // Pop old jit
-#endif
-
-	// Set the environment to the one we created earlier
-	setLuaEnv(L, thread);
-
-	replace_string_metatable(L);
-}
-
-void ScriptApiSecurity::initializeSecuritySSCSM()
-{
-	static const char *whitelist[] = {
-		"assert",
-		"core",
-		"DIR_DELIM",
-		"error",
-		"ipairs",
-		"next",
-		"pairs",
-		"pcall",
-		"rawequal",
-		"rawget",
-		"rawset",
-		"select",
-		"setfenv",
-		"getmetatable",
-		"setmetatable",
-		"tonumber",
-		"tostring",
-		"type",
-		"unpack",
-		"_VERSION",
-		"xpcall",
-		// Completely safe libraries
-		"coroutine",
-		"table",
-		"math",
-		"bit",
-	};
-	static const char *os_whitelist[] = {
-		"difftime",
-		"time"
-	};
-	static const char *debug_whitelist[] = {
-		"getinfo", // used by client builtin and unset before mods load
 		"traceback"
 	};
 	static const char *string_whitelist[] = { // all but string.dump
 		"byte",
 		"char",
 		"find",
-		"format",
 		"gmatch",
 		"gsub",
 		"len",
@@ -541,9 +423,27 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 #endif
 
 	m_secure = true;
+	if (!porting::secure_rand_fill_buf(m_pointer_key, sizeof(m_pointer_key)))
+		throw LuaError("Unable to setup pointer key");
 
 	lua_State *L = getStack();
-	int thread = getThread(L);
+	const int thread = getThread(L);
+
+	// Back up debug.getinfo
+	{
+		lua_newtable(L);
+		lua_newtable(L); // copy of debug
+
+		// copy debug.getinfo
+		lua_getglobal(L, "debug");
+		lua_getfield(L, -1, "getinfo");
+		lua_setfield(L, -3, "getinfo");
+		lua_pop(L, 1);
+
+		lua_setfield(L, -2, "debug");
+		lua_rawseti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_GLOBALS_BACKUP);
+	}
+
 
 	// create an empty environment
 	createEmptyEnv(L);
@@ -552,7 +452,10 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 	lua_getglobal(L, "_G");
 	lua_getfield(L, -2, "_G");
 	copy_safe(L, whitelist, sizeof(whitelist));
-
+#if BUILD_WITH_TRACY
+	if (getType() == ScriptingType::Client)
+		copy_safe(L, whitelist_cscsm_only, sizeof(whitelist_cscsm_only));
+#endif
 	// And replace unsafe ones
 	SECURE_API(g, dofile);
 	SECURE_API(g, load);
@@ -560,26 +463,29 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 	SECURE_API(g, loadstring);
 	SECURE_API(g, require);
 	SECURE_API(g, collectgarbage);
+	SECURE_API(g, tostring);
 	lua_pop(L, 2);
 
 
 
-	// Copy safe OS functions
-	lua_getglobal(L, "os");
+	// load os functions
 	lua_newtable(L);
-	copy_safe(L, os_whitelist, sizeof(os_whitelist));
-
-	// And replace unsafe ones
+	PUC_API(os, date);
+	PUC_API(os, time);
+	PUC_API(os, difftime);
 	SECURE_API(os, clock);
-
-	lua_setfield(L, -3, "os");
-	lua_pop(L, 1);  // Pop old OS
+	lua_setfield(L, -2, "os");
 
 
 	// Copy safe debug functions
 	lua_getglobal(L, "debug");
 	lua_newtable(L);
 	copy_safe(L, debug_whitelist, sizeof(debug_whitelist));
+
+	// (used by builtin and unset before mods load)
+	// And replace unsafe ones
+	SECURE_API(debug, getinfo);
+
 	lua_setfield(L, -3, "debug");
 	lua_pop(L, 1);  // Pop old debug
 
@@ -588,19 +494,33 @@ void ScriptApiSecurity::initializeSecuritySSCSM()
 	lua_getglobal(L, "string");
 	lua_newtable(L);
 	copy_safe(L, string_whitelist, sizeof(string_whitelist));
+
+	// LuaJIT adds %p here
+	// so we use the PUC version instead
+	PUC_API(str, format);
+
 	lua_setfield(L, -3, "string");
 	lua_pop(L, 1);  // Pop old string
 
 
 #if USE_LUAJIT
-	// Copy safe jit functions, if they exist
-	lua_getglobal(L, "jit");
-	lua_newtable(L);
-	copy_safe(L, jit_whitelist, sizeof(jit_whitelist));
-	lua_setfield(L, -3, "jit");
-	lua_pop(L, 1);  // Pop old jit
+	// client scripts can have JIT
+	// but server supplied code is not allowed
+	// to inspect or modify jit compiler state
+	if (getType() == ScriptingType::Client) {
+		// Copy safe jit functions, if they exist
+		lua_getglobal(L, "jit");
+		lua_newtable(L);
+		copy_safe(L, jit_whitelist, sizeof(jit_whitelist));
+		lua_setfield(L, -3, "jit");
+		lua_pop(L, 1);  // Pop old jit
+	}
 #endif
 
+	// clear old globals
+	// if the globals leak somehow
+	// this mitigates that
+	clearGlobals(L);
 	// Set the environment to the one we created earlier
 	setLuaEnv(L, thread);
 
@@ -625,6 +545,26 @@ void ScriptApiSecurity::createEmptyEnv(lua_State *L)
 	lua_newtable(L);  // Create new environment
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "_G");  // Create the _G loop
+}
+
+void ScriptApiSecurity::clearGlobals(lua_State *L)
+{
+	// get global table
+	// and clear any metaindex on it
+	lua_pushliteral(L, "_G");
+	lua_rawget(L, LUA_GLOBALSINDEX);
+	lua_newtable(L);
+	lua_setmetatable(L, -2);
+
+	lua_pushnil(L);
+	while (lua_next(L, -2) != 0) {
+		lua_pop(L, 1); // don't care about the value
+		lua_pushvalue(L, -1);
+		lua_pushnil(L);
+		lua_rawset(L, -4); // clear value
+	}
+	// global table should be completely empty now
+	lua_pop(L, 1);
 }
 
 void ScriptApiSecurity::setLuaEnv(lua_State *L, int thread)
@@ -950,6 +890,63 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 
 #undef RETURN_WRITE_ALLOWED
 
+// TODO; replace these when switching to C++20
+static inline uint32_t SPECK_rotl(uint32_t v, int shift)
+{
+	return (v << shift) | (v >> (sizeof(v)*8 - shift));
+}
+
+static inline uint32_t SPECK_rotr(uint32_t v, int shift)
+{
+	return (v >> shift) | (v << (sizeof(v)*8 - shift));
+}
+
+static void SPECK_round(const uint32_t key, uint32_t &x, uint32_t &y)
+{
+	constexpr int a = 8;
+	constexpr int b = 3;
+
+	x = (SPECK_rotr(x, a) + y) ^ key;
+	y = SPECK_rotl(y, b) ^ x;
+}
+
+// uses SPECK as a light weight scrambling primitive
+// https://eprint.iacr.org/2013/404.pdf
+uint64_t ScriptApiSecurity::scramblePointer(unsigned char type, const void *ptr) const
+{
+	// round count: 27
+	// key size: 4*32 = 128
+	// SPECK 64/128
+
+	// we discard the upper byte of the pointer and use this for type
+	// upper byte isn't meaningful on any target platforms
+	// this hides from the sandbox if two objects of different types
+	// end up getting the same address
+	const uint64_t input = static_cast<uint64_t>(reinterpret_cast<size_t>(ptr));
+	const auto &key = m_pointer_key;
+
+	uint32_t x = (static_cast<uint32_t>(input >> 32) << 8) | type;
+	uint32_t y = static_cast<uint32_t>(input & ~uint32_t(0));
+
+	uint32_t b = key[0];
+	uint32_t a[3] = {key[1], key[2], key[3]};
+
+	for (int i = 0; i < 27; i++) {
+		SPECK_round(b, x, y);
+		SPECK_round(i, a[i%3], b);
+	}
+
+	return (uint64_t(x) << 32) | y;
+}
+
+uint64_t ScriptApiSecurity::toScrambledPointer(lua_State *L, int index)
+{
+	const void *ptr = lua_topointer(L, index);
+	unsigned char type = static_cast<unsigned char>(lua_type(L, index));
+	const auto *sec = ModApiBase::getScriptApi<ScriptApiSecurity>(L);
+	return sec->scramblePointer(type, ptr);
+}
+
 int ScriptApiSecurity::sl_g_dofile(lua_State *L)
 {
 	int nret = sl_g_loadfile(L);
@@ -1086,6 +1083,35 @@ int ScriptApiSecurity::sl_g_collectgarbage(lua_State *L)
 	}
 	// do nothing instead of throwing so mods can more easily re-use code between server and client
 	return 0;
+}
+
+// copied from bundled Lua
+int ScriptApiSecurity::sl_g_tostring(lua_State *L)
+{
+	luaL_checkany(L, 1);
+	if (luaL_callmeta(L, 1, "__tostring"))  // is there a metafield?
+		return 1;  // use its value
+	switch (lua_type(L, 1)) {
+	case LUA_TNUMBER:
+		lua_pushstring(L, lua_tostring(L, 1));
+		break;
+	case LUA_TSTRING:
+		lua_pushvalue(L, 1);
+		break;
+	case LUA_TBOOLEAN:
+		lua_pushstring(L, (lua_toboolean(L, 1) ? "true" : "false"));
+		break;
+	case LUA_TNIL:
+		lua_pushliteral(L, "nil");
+		break;
+	default:
+		// mod security, avoid leaking the raw object pointer here
+		char buf[0x200];
+		snprintf(buf, sizeof(buf), "%s: 0x%016" PRIx64, luaL_typename(L, 1), toScrambledPointer(L, 1));
+		lua_pushstring(L, buf);
+		break;
+	}
+	return 1;
 }
 
 
