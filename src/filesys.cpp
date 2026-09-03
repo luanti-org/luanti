@@ -4,7 +4,6 @@
 
 #include "filesys.h"
 #include "util/string.h"
-#include <iostream>
 #include <filesystem>
 #include <cstdio>
 #include <cstdlib>
@@ -33,7 +32,6 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
 #include <unistd.h>
 #include <fcntl.h>
 #endif
@@ -141,40 +139,6 @@ bool IsExecutable(const std::string &path)
 {
 	DWORD type;
 	return GetBinaryType(path.c_str(), &type) != 0;
-}
-
-bool RecursiveDelete(const std::string &path)
-{
-	assert(IsPathAbsolute(path));
-	if (!PathExists(path))
-		return true;
-
-	bool is_file = !IsDir(path);
-	infostream << "Recursively deleting " << (is_file ? "file" : "directory")
-		<< " \"" << path << "\"" << std::endl;
-	if (is_file) {
-		if (!DeleteFile(path.c_str())) {
-			errorstream << "RecursiveDelete: Failed to delete file \""
-					<< path << "\": " << LAST_OS_ERROR() << std::endl;
-			return false;
-		}
-		return true;
-	}
-	std::vector<DirListNode> content = GetDirListing(path);
-	for (const auto &n : content) {
-		std::string fullpath = path + DIR_DELIM + n.name;
-		if (!RecursiveDelete(fullpath)) {
-			errorstream << "RecursiveDelete: Failed to recurse to \""
-					<< fullpath << "\"" << std::endl;
-			return false;
-		}
-	}
-	if (!RemoveDirectory(path.c_str())) {
-		errorstream << "RecursiveDelete: Failed to delete directory \""
-					<< path << "\": " << LAST_OS_ERROR() << std::endl;
-		return false;
-	}
-	return true;
 }
 
 bool DeleteSingleFileOrEmptyDirectory(const std::string &path, bool log_error)
@@ -364,49 +328,6 @@ bool IsExecutable(const std::string &path)
 	return access(path.c_str(), X_OK) == 0;
 }
 
-bool RecursiveDelete(const std::string &path)
-{
-	assert(IsPathAbsolute(path));
-	if (!PathExists(path))
-		return true;
-
-	// Execute the 'rm' command directly, by fork() and execve()
-
-	infostream << "Removing \"" << path << "\"" << std::endl;
-
-	const pid_t child_pid = fork();
-	if (child_pid == -1) {
-		errorstream << "fork errno: " << errno << ": " << strerror(errno)
-			<< std::endl;
-		return false;
-	}
-
-	if (child_pid == 0) {
-		// Child
-		std::array<const char*, 4> argv = {
-			"rm",
-			"-rf",
-			path.c_str(),
-			nullptr
-		};
-
-		execvp(argv[0], const_cast<char**>(argv.data()));
-
-		// note: use cerr because our logging won't flush in forked process
-		std::cerr << "exec errno: " << errno << ": " << strerror(errno)
-			<< std::endl;
-		_exit(1);
-	} else {
-		// Parent
-		int status;
-		pid_t tpid;
-		do
-			tpid = waitpid(child_pid, &status, 0);
-		while (tpid != child_pid);
-		return WIFEXITED(status) && WEXITSTATUS(status) == 0;
-	}
-}
-
 bool DeleteSingleFileOrEmptyDirectory(const std::string &path, bool log_error)
 {
 	if (IsDir(path)) {
@@ -552,6 +473,49 @@ bool CopyFileContents(const std::string &source, const std::string &target)
 /****************************
  * portable implementations *
  ****************************/
+
+bool RecursiveDelete(const std::string &path)
+{
+	assert(IsPathAbsolute(path));
+
+	std::filesystem::path p;
+	try {
+		// On Windows, this throws if `path` is not valid UTF-8.
+		p = std::filesystem::path(path);
+	} catch (const std::exception &e) {
+		errorstream << "RecursiveDelete: Invalid path \"" << path << "\": "
+				<< e.what() << std::endl;
+		return false;
+	}
+
+	std::error_code ec;
+
+	// A dangling symlink still counts as existing and will be removed below.
+	auto status = std::filesystem::symlink_status(p, ec);
+
+	// Check for `not_found` first, since `ec` may also be set in this case.
+	if (status.type() == std::filesystem::file_type::not_found)
+		return true;
+
+	if (ec) {
+		errorstream << "RecursiveDelete: Failed to inspect \"" << path
+				<< "\": " << ec.message() << std::endl;
+		return false;
+	}
+
+	bool is_dir = status.type() == std::filesystem::file_type::directory;
+	infostream << "Recursively deleting " << (is_dir ? "directory" : "file")
+		<< " \"" << path << "\"" << std::endl;
+
+	// Deletes symlinks instead of following them.
+	std::filesystem::remove_all(p, ec);
+	if (ec) {
+		errorstream << "RecursiveDelete: Failed to delete \"" << path
+				<< "\": " << ec.message() << std::endl;
+		return false;
+	}
+	return true;
+}
 
 void GetRecursiveDirs(std::vector<std::string> &dirs, const std::string &dir)
 {
