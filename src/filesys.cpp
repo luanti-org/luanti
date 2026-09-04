@@ -147,6 +147,7 @@ bool DeleteSingleFileOrEmptyDirectory(const std::string &path, bool log_error)
 		bool ok = DeleteFile(path.c_str()) != 0;
 		if (!ok && log_error)
 			errorstream << "DeleteFile failed: " << LAST_OS_ERROR() << std::endl;
+		return ok;
 	}
 	bool ok = RemoveDirectory(path.c_str()) != 0;
 	if (!ok && log_error)
