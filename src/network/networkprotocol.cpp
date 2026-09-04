@@ -80,6 +80,9 @@
 		[scheduled bump for 5.16.0]
 	PROTOCOL VERSION 53
 		[scheduled bump for 5.17.0]
+	PROTOCOL VERSION 54
+		"[combine:WxH:x1,y1,w1=" 3rd parameter extension
+		<TODO for 5.18.0>
 */
 
 // Note: Also update core.protocol_versions in builtin when bumping
