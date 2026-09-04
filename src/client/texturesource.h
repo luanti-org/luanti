@@ -49,6 +49,9 @@ public:
 
 	using ISimpleTextureSource::getTexture;
 
+	/// @brief Returns an image from a texture string.
+	virtual video::IImage *getImage(const std::string &image)=0;
+
 	/// @brief Generates a texture string into a standard texture
 	/// @return its ID
 	virtual u32 getTextureId(const std::string &image)=0;
