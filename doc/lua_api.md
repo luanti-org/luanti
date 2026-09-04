@@ -6863,13 +6863,28 @@ Authentication
       engine as returned as part of a `get_auth()` call on the auth handler.
     * Only use this function for making it possible to log in via password from
       external protocols such as IRC, other uses are frowned upon.
-* `core.get_password_hash(name, raw_password)`
+* `core.get_password_hash(name, password)`
     * Convert a name-password pair to a password hash that Luanti can use.
-    * The returned value alone is not a good basis for password checks based
-      on comparing the password hash in the database with the password hash
-      from the function, with an externally provided password, as the hash
-      in the db might use the new SRP verifier format.
-    * For this purpose, use `core.check_password_entry` instead.
+    * Player name *cannot* be empty, and both arguments *must* be strings.
+    * The returned value may not be the same for multiple invocations with the same name and password.
+    * The returned value therefore *cannot* be used for password checks based
+      on a direct string comparison, use `core.check_password_entry` instead.
+    * If you used this function as a hash you can replace it with `core.sha1`:
+    ```lua
+        -- Lua equivalent of the legacy core.get_password_hash algorithm
+        local function legacy_get_password_hash(name, password)
+            -- convert to strings
+            name = tostring(name)
+            password = tostring(password)
+            -- remove anything after the first null character
+            name = name:match("^[^%z]*")
+            password = password:match("^[^%z]*")
+            if password == "" then
+                return ""
+            end
+            return core.encode_base64(core.sha1(name..password, true))
+        end
+    ```
 * `core.get_player_ip(name)`: returns an IP address string for the player
   `name`.
     * The player needs to be online for this to be successful.
