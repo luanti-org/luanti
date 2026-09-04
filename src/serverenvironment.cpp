@@ -6,6 +6,7 @@
 #include <stack>
 #include <utility>
 #include "serverenvironment.h"
+#include "exceptions.h"
 #include "irr_aabb3d.h"
 #include "settings.h"
 #include "log.h"
@@ -34,6 +35,7 @@
 #if USE_LEVELDB
 #include "database/database-leveldb.h"
 #endif
+#include "server/light_sao.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 
@@ -1558,6 +1560,8 @@ std::unique_ptr<ServerActiveObject> ServerEnvironment::createSAO(ActiveObjectTyp
 	switch (type) {
 		case ACTIVEOBJECT_TYPE_LUAENTITY:
 			return std::make_unique<LuaEntitySAO>(this, pos, data);
+		case ACTIVEOBJECT_TYPE_LIGHT:
+			return std::make_unique<LightSAO>(this, pos, data);
 		default:
 			warningstream << "ServerActiveObject: No factory for type=" << type << std::endl;
 	}
@@ -1578,9 +1582,17 @@ void ServerEnvironment::activateObjects(MapBlock *block, u32 dtime_s)
 	// Activate stored objects
 	std::vector<StaticObject> new_stored;
 	for (const StaticObject &s_obj : block->m_static_objects.getAllStored()) {
-		// Create an active object from the data
-		std::unique_ptr<ServerActiveObject> obj =
-				createSAO((ActiveObjectType)s_obj.type, s_obj.pos, s_obj.data);
+		// Just drop any corrupt or incompatible saved objects
+		std::unique_ptr<ServerActiveObject> obj;
+		try {
+			obj = createSAO((ActiveObjectType)s_obj.type, s_obj.pos, s_obj.data);
+		} catch (SerializationError &e) {
+			errorstream << "ServerEnvironment::activateObjects(): "
+				<< "failed to deserialize static object in block "
+				<< block->getPos() << " type=" << (int)s_obj.type
+				<< ": " << e.what() << std::endl;
+			continue;
+		}
 		// If couldn't create object, store static data back.
 		if (!obj) {
 			errorstream << "ServerEnvironment::activateObjects(): "

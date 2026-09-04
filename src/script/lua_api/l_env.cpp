@@ -26,6 +26,7 @@
 #include "face_position_cache.h"
 #include "remoteplayer.h"
 #include "servermap.h"
+#include "server/light_sao.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
 #include "util/string.h"
@@ -586,6 +587,35 @@ int ModApiEnv::l_add_entity(lua_State *L)
 	// If already deleted (can happen in on_activate), return nil
 	if (obj->isGone())
 		return 0;
+	getScriptApiBase(L)->objectrefGetOrCreate(L, obj);
+	return 1;
+}
+
+int ModApiEnv::l_add_light(lua_State *L)
+{
+	GET_ENV_PTR;
+
+	luaL_checktype(L, 1, LUA_TTABLE);
+
+	v3f pos;
+	std::string attached_guid;
+	read_light_state(L, 1, pos, attached_guid);
+
+	LightProperties properties;
+	read_light_properties(L, 1, properties);
+
+	std::unique_ptr<ServerActiveObject> obj_u = std::make_unique<LightSAO>(
+			env, pos, LightAttachment{std::move(attached_guid)}, properties);
+	auto obj = obj_u.get();
+	int objectid = env->addActiveObject(std::move(obj_u));
+	// If failed to add, return nothing
+	if (objectid == 0)
+		return 0;
+
+	// If already deleted somehow, return nil
+	if (obj->isGone())
+		return 0;
+
 	getScriptApiBase(L)->objectrefGetOrCreate(L, obj);
 	return 1;
 }
@@ -1379,6 +1409,7 @@ void ModApiEnv::Initialize(lua_State *L, int top)
 	API_FCT(add_node_level);
 	API_FCT(get_node_boxes);
 	API_FCT(add_entity);
+	API_FCT(add_light);
 	API_FCT(find_nodes_with_meta);
 	API_FCT(get_meta);
 	API_FCT(get_node_timer);
