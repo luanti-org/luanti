@@ -494,6 +494,8 @@ bool RecursiveDelete(const std::string &path)
 	auto status = std::filesystem::symlink_status(p, ec);
 
 	// Check for `not_found` first, since `ec` may also be set in this case.
+	// Note that std::filesystem::exists(status) would be wrong here, because
+	// it would return false if a real OS error occurred in symlink_status.
 	if (status.type() == std::filesystem::file_type::not_found)
 		return true;
 
@@ -503,7 +505,7 @@ bool RecursiveDelete(const std::string &path)
 		return false;
 	}
 
-	bool is_dir = status.type() == std::filesystem::file_type::directory;
+	bool is_dir = std::filesystem::is_directory(status);
 	infostream << "Recursively deleting " << (is_dir ? "directory" : "file")
 		<< " \"" << path << "\"" << std::endl;
 
