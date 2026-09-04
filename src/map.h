@@ -62,7 +62,8 @@ struct MapEditEvent
 		modified_blocks.push_back(getNodeBlockPos(pos));
 	}
 
-	void setModifiedBlocks(const std::map<v3s16, MapBlock *>& blocks)
+	template<class T>
+	void setModifiedBlocks(const std::map<v3s16, T>& blocks)
 	{
 		assert(modified_blocks.empty()); // only meant for initialization (once)
 		modified_blocks.reserve(blocks.size());
@@ -150,10 +151,10 @@ public:
 		These handle lighting but not faces.
 	*/
 	virtual void addNodeAndUpdate(v3s16 p, MapNode n,
-			std::map<v3s16, MapBlock*> &modified_blocks,
+			ModifiedMapBlocks &modified_blocks,
 			bool remove_metadata = true);
 	void removeNodeAndUpdate(v3s16 p,
-			std::map<v3s16, MapBlock*> &modified_blocks);
+			ModifiedMapBlocks &modified_blocks);
 
 	/*
 		Wrappers for the latter ones.
