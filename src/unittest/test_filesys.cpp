@@ -616,7 +616,7 @@ const CodepointRange ascii_ranges[] = {
 const CodepointRange unicode_ranges[] = {
 	// two bytes in utf8
 	{0x00A1, 0x00A9}, {0x00AB, 0x00AC}, {0x00AE, 0x00B4},
-	{0x00B6, 0x00B9}, // skips µ (U+00B5), which case folds to μ
+	{0x00B6, 0x00B9}, // skips U+00B5 which case folds
 	{0x00BB, 0x00BB}, {0x00BF, 0x00BF}, {0x00D7, 0x00D7}, {0x00F7, 0x00F7},
 	{0x05D0, 0x05EA}, // Hebrew letters
 	{0x0627, 0x063A}, // Arabic letters, skipping the ones that decompose
