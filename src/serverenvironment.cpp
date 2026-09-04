@@ -6,6 +6,7 @@
 #include <stack>
 #include <utility>
 #include "serverenvironment.h"
+#include "common/c_types.h"
 #include "irr_aabb3d.h"
 #include "settings.h"
 #include "log.h"
@@ -1410,11 +1411,28 @@ u16 ServerEnvironment::addActiveObjectRaw(std::unique_ptr<ServerActiveObject> ob
 		return 0;
 	}
 
+	// Don't add the object on a error to not duplicate static objects
+	auto handle_error = [this, &object] () {
+		// Need to remove the object again, since registerObject already added it
+		object->markForRemoval();
+		processActiveObjectRemove(object);
+		m_ao_manager.removeObject(object->getId());
+	};
+
 	// Register reference in scripting api (must be done before post-init)
 	m_script->addObjectReference(object);
+
 	// Post-initialize object
 	// Note that this can change the value of isStaticAllowed() in case of LuaEntitySAO
-	object->addedToEnvironment(dtime_s);
+	try {
+		object->addedToEnvironment(dtime_s);
+	} catch (const LuaError& e) {
+		errorstream << "ServerEnvironment::addActiveObjectRaw(): "
+			<< "Object with id="<< object->getId()
+			<< " did not get added because of Lua error" << std::endl;
+		handle_error();
+		throw;
+	}
 
 	// Activate object
 	if (object->m_static_exists)
@@ -1456,10 +1474,7 @@ u16 ServerEnvironment::addActiveObjectRaw(std::unique_ptr<ServerActiveObject> ob
 			errorstream << "ServerEnvironment::addActiveObjectRaw(): "
 				<< "could not emerge block " << p << " for storing id="
 				<< object->getId() << " statically" << std::endl;
-			// clean in case of error
-			object->markForRemoval();
-			processActiveObjectRemove(object);
-			m_ao_manager.removeObject(object->getId());
+			handle_error();
 			return 0;
 		}
 	}
