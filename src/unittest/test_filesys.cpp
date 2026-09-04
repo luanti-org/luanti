@@ -713,7 +713,7 @@ void TestFileSys::testUnicodePathsFuzz()
 	// This could be a pure ascii path.
 	const std::string base = getTestTempDirectory() + DIR_DELIM "unicodefuzz";
 
-	// Scratch subdirectories with unicode names.
+	rawstream << "-------- Creating scratch directories" << std::endl;
 	const std::string flat = base + DIR_DELIM + fresh(8);
 	const std::string pairs = base + DIR_DELIM + fresh(8);
 	const std::string deep = base + DIR_DELIM + fresh(8);
@@ -724,6 +724,7 @@ void TestFileSys::testUnicodePathsFuzz()
 
 	// Fill `flat` using the generated names.
 	// Even ones are files, odd ones are a directory holding a file.
+	rawstream << "-------- Populating 'flat' scratch directory" << std::endl;
 	std::map<std::string, bool> expect_dir;
 	for (int i = 0; i < NUM_PATHS; i++) {
 		const std::string path = flat + DIR_DELIM + names[i];
@@ -758,7 +759,7 @@ void TestFileSys::testUnicodePathsFuzz()
 	}
 	UASSERTEQ(size_t, expect_dir.size(), NUM_PATHS);
 
-	// Test ReadFile
+	rawstream << "-------- Test ReadFile" << std::endl;
 	for (int i = 0; i < NUM_PATHS; i++) {
 		std::string path = flat + DIR_DELIM + names[i];
 		if (i % 2 == 1)
@@ -768,7 +769,7 @@ void TestFileSys::testUnicodePathsFuzz()
 		UASSERTEQ(auto, actual, content_for(path));
 	}
 
-	// Test GetDirListing
+	rawstream << "-------- Testing GetDirListing" << std::endl;
 	{
 		const auto listing = fs::GetDirListing(flat);
 		UASSERTEQ(size_t, listing.size(), expect_dir.size());
@@ -781,7 +782,7 @@ void TestFileSys::testUnicodePathsFuzz()
 		}
 	}
 
-	// Test GetRecursiveSubPaths
+	rawstream << "-------- Testing GetRecursiveSubPaths" << std::endl;
 	{
 		std::vector<std::string> subpaths;
 		fs::GetRecursiveSubPaths(flat, subpaths, true);
@@ -797,8 +798,9 @@ void TestFileSys::testUnicodePathsFuzz()
 		}
 	}
 
-	// Use a new scratch directory `pairs`.
-	// Test renaming, copying, and deleting
+	// Uses a different scratch directory, `pairs`.
+	rawstream << "-------- Testing Rename, CopyFileContents, and "
+		<< "DeleteSingleFileOrEmptyDirectory" << std::endl;
 	for (int i = 0; i + 1 < NUM_PATHS; i += 2) {
 		const std::string src = pairs + DIR_DELIM + names[i];
 		const std::string dst = pairs + DIR_DELIM + names[i + 1];
@@ -828,7 +830,7 @@ void TestFileSys::testUnicodePathsFuzz()
 	}
 	UASSERT(fs::GetDirListing(pairs).empty());
 
-	// Nested directories where every component is unicode
+	rawstream << "-------- Testing nested unicode paths" << std::endl;
 	const std::string abs_deep = fs::AbsolutePath(deep);
 	UASSERT(!abs_deep.empty());
 	for (int i = 0; i < 20; i++) {
@@ -880,7 +882,7 @@ void TestFileSys::testUnicodePathsFuzz()
 		UASSERT(!fs::PathExists(moved));
 	}
 
-	// RecursiveDelete should leave it clean
+	rawstream << "-------- Final cleanup with RecursiveDelete" << std::endl;
 	UASSERT(fs::RecursiveDelete(base));
 	UASSERT(!fs::PathExists(base));
 }
