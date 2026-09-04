@@ -5,7 +5,7 @@
 
 #include "irrlichttypes.h"
 #include "networkprotocol.h" // session_t
-#include "socket.h" // Address
+#include "socket.h" // Address, UDPSocket
 
 class NetworkPacket;
 class PeerHandler;
@@ -48,7 +48,6 @@ class IConnection
 public:
 	virtual ~IConnection() = default;
 
-	virtual void Serve(Address bind_addr) = 0;
 	virtual void Connect(Address address) = 0;
 	virtual bool Connected() = 0;
 	virtual void Disconnect() = 0;
@@ -68,6 +67,6 @@ public:
 };
 
 // MTP = Minetest Protocol
-IConnection *createMTP(float timeout, bool ipv6, PeerHandler *handler);
+IConnection *createMTP(bool is_server, UDPSocket &&socket, PeerHandler *handler);
 
 } // namespace

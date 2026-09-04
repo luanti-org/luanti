@@ -7,7 +7,6 @@
 #include <iostream>
 #include <cstring>
 #include "util/numeric.h"
-#include "address.h"
 #include "constants.h"
 #include "log.h"
 #include "networkexceptions.h"
@@ -60,24 +59,14 @@ void sockets_cleanup()
 	UDPSocket
 */
 
-UDPSocket::UDPSocket(bool ipv6)
-{
-	init(ipv6, false);
-}
-
-bool UDPSocket::init(bool ipv6, bool noExceptions)
+void UDPSocket::Init(bool ipv6)
 {
 	if (!g_sockets_initialized) {
-		verbosestream << "Sockets not initialized" << std::endl;
-		return false;
+		throw SocketException("Sockets not initialized");
 	}
 
 	if (m_handle >= 0) {
-		auto msg = "Cannot initialize socket twice";
-		verbosestream << msg << std::endl;
-		if (noExceptions)
-			return false;
-		throw SocketException(msg);
+		throw SocketException("Cannot initialize socket twice");
 	}
 
 	// Use IPv6 if specified
@@ -88,17 +77,13 @@ bool UDPSocket::init(bool ipv6, bool noExceptions)
 		auto msg = std::string("Failed to create socket: ") +
 			SOCKET_ERR_STR(LAST_SOCKET_ERR());
 		verbosestream << msg << std::endl;
-		if (noExceptions)
-			return false;
 		throw SocketException(msg);
 	}
 
 	setTimeoutMs(0);
-
-	return true;
 }
 
-UDPSocket::~UDPSocket()
+void UDPSocket::Close()
 {
 	if (m_handle >= 0) {
 #ifdef _WIN32
@@ -107,10 +92,13 @@ UDPSocket::~UDPSocket()
 		close(m_handle);
 #endif
 	}
+	m_handle = -1;
 }
 
 void UDPSocket::Bind(Address addr)
 {
+	if (m_handle == -1)
+		Init(addr.isIPv6());
 	if (addr.getFamily() != m_addr_family) {
 		const char *errmsg =
 				"Socket and bind address families do not match";
@@ -160,6 +148,31 @@ void UDPSocket::Bind(Address addr)
 		tracestream << (int)m_handle << ": Bind failed: "
 			<< SOCKET_ERR_STR(LAST_SOCKET_ERR()) << std::endl;
 		throw SocketException("Failed to bind socket");
+	}
+}
+
+Address UDPSocket::GetLocalAddress()
+{
+	struct sockaddr_storage addr;
+	socklen_t addr_len = sizeof(addr);
+	assert(m_handle >= 0);
+
+	if (getsockname(m_handle, (struct sockaddr*)&addr, &addr_len) != 0)
+		throw SocketException(std::string("Failed to get socket port: ") +  SOCKET_ERR_STR(LAST_SOCKET_ERR()));
+
+	if (addr.ss_family == AF_INET6) {
+		 auto *addr_v6 = reinterpret_cast<struct sockaddr_in6*>(&addr);
+		u16 port = ntohs(addr_v6->sin6_port);
+		IPv6AddressBytes bytes;
+		memcpy(bytes.bytes, addr_v6->sin6_addr.s6_addr, sizeof(bytes.bytes));
+
+		return Address(&bytes, port);
+	} else {
+		struct sockaddr_in *addr_v4 = (struct sockaddr_in *)&addr;
+		u32 ip4 = ntohl(addr_v4->sin_addr.s_addr);
+		u16 port = ntohs(addr_v4->sin_port);
+
+		return Address(ip4, port);
 	}
 }
 

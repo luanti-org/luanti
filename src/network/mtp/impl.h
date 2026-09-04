@@ -52,8 +52,7 @@ enum ConnectionEventType {
 	CONNEVENT_NONE,
 	CONNEVENT_DATA_RECEIVED,
 	CONNEVENT_PEER_ADDED,
-	CONNEVENT_PEER_REMOVED,
-	CONNEVENT_BIND_FAILED,
+	CONNEVENT_PEER_REMOVED
 };
 
 struct ConnectionEvent;
@@ -75,7 +74,6 @@ struct ConnectionEvent
 	static ConnectionEventPtr dataReceived(session_t peer_id, const Buffer<u8> &data);
 	static ConnectionEventPtr peerAdded(session_t peer_id, Address address);
 	static ConnectionEventPtr peerRemoved(session_t peer_id, bool is_timeout, Address address);
-	static ConnectionEventPtr bindFailed();
 
 	const char *describe() const;
 
@@ -226,8 +224,8 @@ public:
 	friend class ConnectionSendThread;
 	friend class ConnectionReceiveThread;
 
-	Connection(u32 max_packet_size, float timeout, bool ipv6,
-			PeerHandler *peerhandler);
+	Connection(u32 max_packet_size, float timeout, UDPSocket &&socket,
+			bool is_server, PeerHandler *peerhandler);
 	~Connection();
 
 	/* Interface */
@@ -235,7 +233,6 @@ public:
 
 	void putCommand(ConnectionCommandPtr c);
 
-	void Serve(Address bind_addr);
 	void Connect(Address address);
 	bool Connected();
 	void Disconnect();
