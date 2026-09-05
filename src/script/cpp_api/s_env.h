@@ -50,6 +50,8 @@ public:
 	void triggerLBM(int id, MapBlock *block,
 		const std::unordered_set<v3s16> &positions, float dtime_s);
 
+	/// Calls `core.dig_node` (-> `::l_dig_node`) to allow customisation by mods
+	/// @return true on success
 	bool digNode(v3s16 p, ServerActiveObject *digger);
 
 private:
