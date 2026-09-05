@@ -342,8 +342,9 @@ local hud_inventory_defs = {
 		position = {x=0.7, y=0.5},
 		direction = 3,
 		text = "main",
-		number = 4,
-		item = 2,
+		text2 = "testhud_inventory_bg.png",
+		number = 1,
+		item = 0,
 	},
 }
 
