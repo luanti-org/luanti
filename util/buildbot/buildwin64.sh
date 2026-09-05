@@ -44,6 +44,7 @@ download "$libhost/llvm/openal-soft-$openal_version-win64.zip"
 download "$libhost/llvm/libjpeg-$libjpeg_version-win64.zip"
 download "$libhost/llvm/libpng-$libpng_version-win64.zip"
 download "$libhost/llvm/sdl2-$sdl2_version-win64.zip"
+download "$libhost/llvm/libzip-$libzip_version-win64.zip"
 
 # Set source dir, downloading Luanti as needed
 get_sources
