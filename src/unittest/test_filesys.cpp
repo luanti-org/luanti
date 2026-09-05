@@ -685,6 +685,20 @@ void TestFileSys::testUnicodePathsFuzz()
 {
 	constexpr int NUM_PATHS = 1000;
 
+	// On Windows, file open blocks until Defender clears its contents.
+	// This takes time:
+	//    ~ 0.03 ms - File has not been modified since last scanned.
+	//    ~ 0.8  ms - File modified, but content hash is cached.
+	//    ~ 8    ms - File modified and content is new.
+	//
+	// If the content of each file is unique, writing and re-opening 1000 files
+	// would take over 8 secs!
+	//
+	// So instead, we re-use 32 distinct content strings at random. This allows
+	// us to catch content mismatches 96% of the time, while reducing the total
+	// open time to ~ 256 ms.
+	constexpr int NUM_CONTENTS = 32;
+
 	// Fixed seed, so that a failure can be reproduced exactly.
 	PcgRandom rnd(0x9E3779B9, 0x5BF03635);
 
@@ -704,10 +718,19 @@ void TestFileSys::testUnicodePathsFuzz()
 	for (int i = 0; i < NUM_PATHS; i++)
 		names.push_back(fresh(20));
 
-	// The content contains the path it was written to, so an operation that
-	// ends up on the wrong path is caught when reading it back.
-	auto content_for = [] (const std::string &path) {
-		return "unicode fuzz\n" + path;
+
+	std::vector<std::string> contents;
+	contents.reserve(NUM_CONTENTS);
+	for (int i = 0; i < NUM_CONTENTS; i++)
+		contents.push_back(std::to_string(i));
+
+	std::map<std::string, size_t> cached_index;
+	auto content_for = [&] (const std::string &path) {
+		auto it = cached_index.find(path);
+		if (it == cached_index.end()) {
+			it = cached_index.emplace(path, rnd.range(0, NUM_CONTENTS - 1)).first;
+		}
+		return contents[it->second];
 	};
 
 	// This could be a pure ascii path.
