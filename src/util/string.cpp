@@ -158,7 +158,7 @@ std::string wide_to_utf8(std::wstring_view input)
 {
 	if (input.empty())
 		return "";
-	 // 1 wchar can expand to at most 4 utf-8 bytes
+	// 1 wchar can expand to at most 4 utf-8 bytes
 	std::string out(input.size() * 4, '\0');
 	int len = WideCharToMultiByte(CP_UTF8, 0, input.data(), input.size(),
 		out.data(), out.size(), NULL, NULL);
