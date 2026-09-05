@@ -2785,7 +2785,11 @@ void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_co
 			if (!source_lang.empty() && source_lang == lang_code) {
 				return this_lang_code == lang_code;
 			} else {
-				return this_lang_code == lang_code || this_lang_code == "en";
+				auto *client = m_clients.getClientNoEx(peer_id, CS_Created);
+				// Only clients 5.18 and older can correctly handle fallbacks with English language.
+				bool is_new_client = client && (client->net_proto_version >= 54);
+
+				return this_lang_code == lang_code || (this_lang_code == "en" && is_new_client);
 			}
 		}
 		return true;
