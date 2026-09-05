@@ -718,7 +718,6 @@ void TestFileSys::testUnicodePathsFuzz()
 	for (int i = 0; i < NUM_PATHS; i++)
 		names.push_back(fresh(20));
 
-
 	std::vector<std::string> contents;
 	contents.reserve(NUM_CONTENTS);
 	for (int i = 0; i < NUM_CONTENTS; i++)
