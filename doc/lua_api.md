@@ -9013,7 +9013,7 @@ child will follow movement and rotation of that bone.
     * sets the object's full list of armor groups
     * same table syntax as for `get_armor_groups`
     * note: all armor groups not in the table will be removed
-* `set_attach(parent[, bone, position, rotation, forced_visible])`
+* `set_attach(parent[, bone, position, rotation, forced_visible, move_camera])`
     * Attaches object to `parent`
     * See 'Attachments' section for details
     * `parent`: `ObjectRef` to attach to
@@ -9022,6 +9022,8 @@ child will follow movement and rotation of that bone.
     * `rotation`: relative rotation in degrees, default `{x=0, y=0, z=0}`
     * `forced_visible`: Boolean to control whether the attached entity
        should appear in first person, default `false`.
+    * `move_camera`: Boolean to control whether the camera of the attached player object
+       should move by `position`. This flag is valid only for players.
     * This command may fail silently (do nothing) when it would result
       in circular attachments.
 * `get_attach()`:
