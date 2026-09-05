@@ -224,6 +224,7 @@ protected:
 	// Misc
 	void showOverlayMessage(const char *msg, float dtime, int percent,
 			float *indef_pos = nullptr);
+	void takeWorldScreenshotOnExit();
 
 	inline bool fogEnabled()
 	{
