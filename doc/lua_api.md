@@ -6289,6 +6289,8 @@ Utilities
       get_all_craft_recipes_fuel = true,
       -- Whether `core.get_all_craft_recipes` may return the `replacements` field (5.17.0)
       get_all_craft_recipes_replacements = true,
+      -- Whether `core.dig_node` is called for player-originated digs (5.18.0)
+      call_dig_node_for_player_digs = true,
   }
   ```
 
@@ -6988,6 +6990,9 @@ Environment access
     * Dig node with the same effects that a player would cause
     * `digger`: The ObjectRef that digs the node (optional)
     * Returns `true` if successful, `false` on failure (e.g. protected location)
+    * When the `call_dig_node_for_player_digs` feature is available, the function
+      is also called for player-originated digs, and can be overridden
+      to intercept every digging operation.
 * `core.punch_node(pos[, puncher])`
     * Punch node with the same effects that a player would cause
     * `puncher`: The ObjectRef that punches the node (optional)
@@ -11144,10 +11149,13 @@ Used by `core.register_node`.
     -- Note: pointed_thing can be nil, if a mod calls this function.
 
     on_dig = function(pos, node, digger),
-    -- default: core.node_dig
+    -- default: `core.node_dig`
+    -- Called when `digger` (an `ObjectRef`) dug the node.
+    -- Note: `digger` can be `nil`, or in case of mod-initiated digs, an invalid
+    --       `ObjectRef` (not `nil`), i.e. `digger:is_valid() == false`.
     -- By default checks privileges, wears out item (if tool) and removes node.
-    -- return true if the node was dug successfully, false otherwise.
-    -- Deprecated: returning nil is the same as returning true.
+    -- return `true` if the node was dug successfully, `false` otherwise.
+    -- Deprecated: returning `nil` is the same as returning `true`.
 
     on_timer = function(pos, elapsed, node, timeout),
     -- default: nil
