@@ -507,7 +507,7 @@ bool ScriptApiEnv::digNode(v3s16 p, ServerActiveObject *digger)
 	PCALL_RES(lua_pcall(L, nargs, 1, error_handler));
 
 	bool result = lua_toboolean(L, -1);
-	lua_pop(L, 2);
+	lua_pop(L, 2); // return value and error handler
 
 	return result;
 }
