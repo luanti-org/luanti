@@ -538,6 +538,9 @@ void Server::init()
 	// Read Textures and calculate sha1 sums
 	fillMediaCache();
 
+	// Creating a source language cache for localization files
+	cacheTranslationSourceLanguages();
+
 	// Apply item aliases in the node definition manager
 	m_nodedef->updateAliases(m_itemdef);
 
@@ -2770,9 +2773,24 @@ void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_co
 		if (info.no_announce)
 			return false;
 		if (Translations::isTranslationFileType(name)) {
-			// Only send translations matching the client's language
 			auto this_lang_code = Translations::getFileLanguage(name);
-			return !this_lang_code.empty() && this_lang_code == lang_code;
+			if (this_lang_code.empty())
+				return false;
+
+			std::string source_lang = getTranslationSourceLanguage(name);
+
+			// If the client's language matches the source file language,
+			// only files corresponding to that language are sent to the client.
+			// Else the client is sent files in their language and the English localization.
+			if (!source_lang.empty() && source_lang == lang_code) {
+				return this_lang_code == lang_code;
+			} else {
+				auto *client = m_clients.getClientNoEx(peer_id, CS_Created);
+				// Only clients 5.18 and older can correctly handle fallbacks with English language.
+				bool is_new_client = client && (client->net_proto_version >= 54);
+
+				return this_lang_code == lang_code || (this_lang_code == "en" && is_new_client);
+			}
 		}
 		return true;
 	};
@@ -4381,7 +4399,19 @@ Translations *Server::getTranslationLanguage(const std::string &lang_code)
 	auto *translations = &server_translations[lang_code];
 
 	for (const auto &i : m_media) {
-		if (Translations::getFileLanguage(i.first) == lang_code) {
+		auto file_lang = Translations::getFileLanguage(i.first);
+
+		if (file_lang == lang_code || file_lang == "en") {
+
+			if (file_lang == "en") {
+				std::string textdomain = str_split(i.first, '.')[0];
+				std::string source_lang = getTranslationSourceLanguage(i.first);
+
+				if (!source_lang.empty() && source_lang == lang_code) {
+					continue;
+				}
+			}
+
 			std::string data;
 			if (fs::ReadFile(i.second.path, data, true)) {
 				translations->loadTranslation(i.first, data);
@@ -4542,4 +4572,41 @@ u16 Server::getProtocolVersionMin()
 u16 Server::getProtocolVersionMax()
 {
 	return LATEST_PROTOCOL_VERSION;
+}
+
+void Server::cacheTranslationSourceLanguages()
+{
+	for (const auto &media_pair : m_media) {
+		const std::string &filename = media_pair.first;
+
+		if (!Translations::isTranslationFileType(filename))
+			continue;
+
+		// Only English localization files define the source language
+		std::string lang = std::string(Translations::getFileLanguage(filename));
+		if (lang != "en")
+			continue;
+
+		std::string textdomain = str_split(filename, '.')[0];
+		if (textdomain.empty())
+			continue;
+
+		std::string data;
+		if (!fs::ReadFile(media_pair.second.path, data, true))
+			continue;
+
+		std::string source_lang = Translations::parseSourceLanguage(filename, data);
+		if (!source_lang.empty()) {
+			m_translation_source_languages[textdomain] = source_lang;
+		}
+	}
+}
+
+const std::string Server::getTranslationSourceLanguage(const std::string &filename)
+{
+	std::string basefilename = str_split(filename, '.')[0];
+	auto it = m_translation_source_languages.find(basefilename);
+	if (it != m_translation_source_languages.end())
+		return it->second;
+	return "";
 }

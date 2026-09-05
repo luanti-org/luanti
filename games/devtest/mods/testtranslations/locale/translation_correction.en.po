@@ -1,0 +1,9 @@
+msgid ""
+msgstr ""
+"Source-Language: fr\n"
+
+msgid "Testing .po files: incorrect source string"
+msgstr "Testing .po files: fallback string"
+
+msgid "Testing .po files: source string in target language"
+msgstr "Testing .po files: fallback string"
