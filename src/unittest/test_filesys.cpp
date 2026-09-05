@@ -724,7 +724,7 @@ void TestFileSys::testUnicodePathsFuzz()
 		contents.push_back(std::to_string(i));
 
 	std::map<std::string, size_t> cached_index;
-	auto content_for = [&] (const std::string &path) {
+	auto content_for = [&] (const std::string &path) -> const std::string & {
 		auto it = cached_index.find(path);
 		if (it == cached_index.end()) {
 			it = cached_index.emplace(path, rnd.range(0, NUM_CONTENTS - 1)).first;
@@ -826,7 +826,7 @@ void TestFileSys::testUnicodePathsFuzz()
 	for (int i = 0; i + 1 < NUM_PATHS; i += 2) {
 		const std::string src = pairs + DIR_DELIM + names[i];
 		const std::string dst = pairs + DIR_DELIM + names[i + 1];
-		const std::string content = content_for(src);
+		const std::string &content = content_for(src);
 
 		{
 			auto ofs = open_ofstream(src.c_str(), true);
@@ -862,7 +862,7 @@ void TestFileSys::testUnicodePathsFuzz()
 		const std::string top = deep + DIR_DELIM + fresh(6);
 		const std::string dir = top + DIR_DELIM + n1 + DIR_DELIM + n2;
 		const std::string file = dir + DIR_DELIM + n3;
-		const std::string content = content_for(file);
+		const std::string &content = content_for(file);
 		const std::string sub = n1 + DIR_DELIM + n2 + DIR_DELIM + n3;
 
 		UASSERT(fs::CreateAllDirs(dir));
