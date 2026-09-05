@@ -271,11 +271,11 @@ int ModApiEnv::l_get_node_raw(lua_State *L)
 	// mirrors the implementation of read_v3s16 (with the exact same rounding)
 	{
 		if (lua_isnoneornil(L, 1))
-			log_deprecated(L, "X position is nil", 1, true);
+			throw LuaError("X position is nil");
 		if (lua_isnoneornil(L, 2))
-			log_deprecated(L, "Y position is nil", 1, true);
+			throw LuaError("Y position is nil");
 		if (lua_isnoneornil(L, 3))
-			log_deprecated(L, "Z position is nil", 1, true);
+			throw LuaError("Z position is nil");
 		double x = lua_tonumber(L, 1);
 		double y = lua_tonumber(L, 2);
 		double z = lua_tonumber(L, 3);
