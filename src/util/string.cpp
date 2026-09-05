@@ -143,25 +143,27 @@ std::string wide_to_utf8(std::wstring_view input)
 
 std::wstring utf8_to_wide(std::string_view input)
 {
-	size_t outbuf_size = input.size() + 1;
-	wchar_t *outbuf = new wchar_t[outbuf_size];
-	memset(outbuf, 0, outbuf_size * sizeof(wchar_t));
-	MultiByteToWideChar(CP_UTF8, 0, input.data(), input.size(),
-		outbuf, outbuf_size);
-	std::wstring out(outbuf);
-	delete[] outbuf;
+	if (input.empty())
+		return L"";
+	std::wstring out(input.size(), L'\0');
+	int len = MultiByteToWideChar(CP_UTF8, 0, input.data(), input.size(),
+		out.data(), out.size());
+	if (len <= 0)
+		return L"";
+	out.resize(len);
 	return out;
 }
 
 std::string wide_to_utf8(std::wstring_view input)
 {
-	size_t outbuf_size = (input.size() + 1) * 6;
-	char *outbuf = new char[outbuf_size];
-	memset(outbuf, 0, outbuf_size);
-	WideCharToMultiByte(CP_UTF8, 0, input.data(), input.size(),
-		outbuf, outbuf_size, NULL, NULL);
-	std::string out(outbuf);
-	delete[] outbuf;
+	if (input.empty())
+		return "";
+	std::string out(input.size() * 4, '\0');
+	int len = WideCharToMultiByte(CP_UTF8, 0, input.data(), input.size(),
+		out.data(), out.size(), NULL, NULL);
+	if (len <= 0)
+		return "";
+	out.resize(len);
 	return out;
 }
 
