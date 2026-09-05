@@ -7,6 +7,8 @@
 #include <sstream>
 #include <algorithm>
 #include <filesystem>
+#include <map>
+#include <set>
 
 #include "log.h"
 #include "serialization.h"
@@ -34,6 +36,7 @@ public:
 	void testNonExist();
 	void testRecursiveDelete();
 	void testGetRecursiveSubPaths();
+	void testUnicodePathsFuzz();
 };
 
 static TestFileSys g_test_instance;
@@ -53,6 +56,7 @@ void TestFileSys::runTests(IGameDef *gamedef)
 	TEST(testNonExist);
 	TEST(testRecursiveDelete);
 	TEST(testGetRecursiveSubPaths);
+	TEST(testUnicodePathsFuzz);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -588,4 +592,319 @@ void TestFileSys::testGetRecursiveSubPaths()
 	UASSERT(CONTAINS(dst, files[0]));
 	UASSERT(CONTAINS(dst, files[1]));
 	UASSERTEQ(size_t, dst.size(), 2+2);
+}
+
+/* Unicode path fuzzing */
+
+namespace {
+
+struct CodepointRange { u32 first, last; };
+
+/*
+  To make exact comparison easy, code points are intentionally restricted
+  to characters that are assigned and printable, caseless, and canonically
+  stable (NFC and NFD are the same).
+*/
+
+// Lower case only, see above. Omit '.' so no name can be "." or ".."
+const CodepointRange ascii_ranges[] = {
+	{'a', 'z'}, {'0', '9'}, {'-', '-'}, {'_', '_'},
+};
+
+// Includes code points outside the BMP which turn into surrogate pairs when
+// Windows converts them to UTF-16.
+const CodepointRange unicode_ranges[] = {
+	// two bytes in utf8
+	{0x00A1, 0x00A9}, {0x00AB, 0x00AC}, {0x00AE, 0x00B4},
+	{0x00B6, 0x00B9}, // skips U+00B5 which case folds
+	{0x00BB, 0x00BB}, {0x00BF, 0x00BF}, {0x00D7, 0x00D7}, {0x00F7, 0x00F7},
+	{0x05D0, 0x05EA}, // Hebrew letters
+	{0x0627, 0x063A}, // Arabic letters, skipping the ones that decompose
+	{0x0641, 0x064A},
+	// three bytes in utf8
+	{0x0E01, 0x0E2E}, // Thai consonants
+	{0x2600, 0x26B0}, // miscellaneous symbols
+	{0x3400, 0x4DB5}, // CJK extension A
+	{0x4E00, 0x9FA5}, // CJK
+	// four bytes in utf8
+	{0x1F600, 0x1F64F}, // emoticons
+	{0x20000, 0x2A6D6}, // CJK extension B
+};
+
+void appendUtf8(std::string &out, u32 cp)
+{
+	if (cp < 0x80) {
+		out += static_cast<char>(cp);
+	} else if (cp < 0x800) {
+		out += static_cast<char>(0xC0 | (cp >> 6));
+		out += static_cast<char>(0x80 | (cp & 0x3F));
+	} else if (cp < 0x10000) {
+		out += static_cast<char>(0xE0 | (cp >> 12));
+		out += static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
+		out += static_cast<char>(0x80 | (cp & 0x3F));
+	} else {
+		out += static_cast<char>(0xF0 | (cp >> 18));
+		out += static_cast<char>(0x80 | ((cp >> 12) & 0x3F));
+		out += static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
+		out += static_cast<char>(0x80 | (cp & 0x3F));
+	}
+}
+
+template <size_t N>
+u32 randomCodepoint(PcgRandom &rnd, const CodepointRange (&ranges)[N])
+{
+	// Ranges are picked uniformly, not weighted by size, so that short
+	// ranges are well represented.
+	const auto &range = ranges[rnd.range(0, static_cast<s32>(N) - 1)];
+	return rnd.range(range.first, range.last);
+}
+
+// Random name of at most `max_cp` code points (so up to 4*max_cp bytes).
+// This must stay below the 255 byte limit for a single name, and entire
+// paths must stay below MAX_PATH.
+//
+// Forces at least one non-ASCII character to prevent accidental use of device
+// names (con, nul, com1, ...)
+std::string randomUnicodeName(PcgRandom &rnd, int max_cp)
+{
+	const int len = rnd.range(1, max_cp);
+	const int forced = rnd.range(0, len - 1);
+	std::string name;
+	for (int i = 0; i < len; i++) {
+		if (i == forced || rnd.range(0, 3) != 0)
+			appendUtf8(name, randomCodepoint(rnd, unicode_ranges));
+		else
+			appendUtf8(name, randomCodepoint(rnd, ascii_ranges));
+	}
+	return name;
+}
+
+}
+
+void TestFileSys::testUnicodePathsFuzz()
+{
+	constexpr int NUM_PATHS = 1000;
+
+	// On Windows, file open blocks until Defender clears its contents.
+	// This takes time:
+	//    ~ 0.03 ms - File has not been modified since last scanned.
+	//    ~ 0.8  ms - File modified, but content hash is cached.
+	//    ~ 8    ms - File modified and content is new.
+	//
+	// If the content of each file is unique, writing and re-opening 1000 files
+	// would take over 8 secs!
+	//
+	// So instead, we re-use 32 distinct content strings at random. This allows
+	// us to catch content mismatches 96% of the time, while reducing the total
+	// open time to ~ 256 ms.
+	constexpr int NUM_CONTENTS = 32;
+
+	// Fixed seed, so that a failure can be reproduced exactly.
+	PcgRandom rnd(0x9E3779B9, 0x5BF03635);
+
+	std::set<std::string> seen;
+
+	// Unique random name with up to `max_cp` codepoints
+	auto fresh = [&] (int max_cp) {
+		std::string name;
+		do {
+			name = randomUnicodeName(rnd, max_cp);
+		} while (!seen.insert(name).second);
+		return name;
+	};
+
+	std::vector<std::string> names;
+	names.reserve(NUM_PATHS);
+	for (int i = 0; i < NUM_PATHS; i++)
+		names.push_back(fresh(20));
+
+	std::vector<std::string> contents;
+	contents.reserve(NUM_CONTENTS);
+	for (int i = 0; i < NUM_CONTENTS; i++)
+		contents.push_back(std::to_string(i));
+
+	std::map<std::string, size_t> cached_index;
+	auto content_for = [&] (const std::string &path) -> const std::string & {
+		auto it = cached_index.find(path);
+		if (it == cached_index.end()) {
+			it = cached_index.emplace(path, rnd.range(0, NUM_CONTENTS - 1)).first;
+		}
+		return contents[it->second];
+	};
+
+	// This could be a pure ascii path.
+	const std::string base = getTestTempDirectory() + DIR_DELIM "unicodefuzz";
+
+	rawstream << "-------- Creating scratch directories" << std::endl;
+	const std::string flat = base + DIR_DELIM + fresh(8);
+	const std::string pairs = base + DIR_DELIM + fresh(8);
+	const std::string deep = base + DIR_DELIM + fresh(8);
+	for (auto &it : {flat, pairs, deep}) {
+		UASSERT(fs::CreateAllDirs(it));
+		UASSERT(fs::IsDir(it));
+	}
+
+	// Fill `flat` using the generated names.
+	// Even ones are files, odd ones are a directory holding a file.
+	rawstream << "-------- Populating 'flat' scratch directory" << std::endl;
+	std::map<std::string, bool> expect_dir;
+	for (int i = 0; i < NUM_PATHS; i++) {
+		const std::string path = flat + DIR_DELIM + names[i];
+		if (i % 2 == 0) {
+			expect_dir[names[i]] = false;
+			// alternate between two ways of writing the file
+			if (i % 4 == 0) {
+				UASSERT(fs::safeWriteToFile(path, content_for(path)));
+			} else {
+				auto ofs = open_ofstream(path.c_str(), true);
+				UASSERT(ofs.good());
+				ofs << content_for(path);
+				ofs.close();
+				UASSERT(!ofs.fail());
+			}
+			UASSERT(fs::IsFile(path));
+			UASSERT(!fs::IsDir(path));
+		} else {
+			expect_dir[names[i]] = true;
+			UASSERT(fs::CreateDir(path));
+			UASSERT(fs::IsDir(path));
+			UASSERT(!fs::IsFile(path));
+			// reuse the name of the file created in the previous iteration
+			const std::string inner = path + DIR_DELIM + names[i - 1];
+			auto ofs = open_ofstream(inner.c_str(), true);
+			UASSERT(ofs.good());
+			ofs << content_for(inner);
+			ofs.close();
+			UASSERT(!ofs.fail());
+		}
+		UASSERT(fs::PathExists(path));
+	}
+	UASSERTEQ(size_t, expect_dir.size(), NUM_PATHS);
+
+	rawstream << "-------- Test ReadFile" << std::endl;
+	for (int i = 0; i < NUM_PATHS; i++) {
+		std::string path = flat + DIR_DELIM + names[i];
+		if (i % 2 == 1)
+			path += DIR_DELIM + names[i - 1];
+		std::string actual;
+		UASSERT(fs::ReadFile(path, actual, true));
+		UASSERTEQ(auto, actual, content_for(path));
+	}
+
+	rawstream << "-------- Testing GetDirListing" << std::endl;
+	{
+		const auto listing = fs::GetDirListing(flat);
+		UASSERTEQ(size_t, listing.size(), expect_dir.size());
+		std::set<std::string> uniq;
+		for (const auto &node : listing) {
+			UTEST(expect_dir.count(node.name) == 1,
+				"unexpected name in listing: %s", node.name.c_str());
+			UASSERT(uniq.insert(node.name).second);
+			UASSERTEQ(bool, node.dir, expect_dir[node.name]);
+		}
+	}
+
+	rawstream << "-------- Testing GetRecursiveSubPaths" << std::endl;
+	{
+		std::vector<std::string> subpaths;
+		fs::GetRecursiveSubPaths(flat, subpaths, true);
+		// every entry, plus the file inside each of the directories
+		UASSERTEQ(size_t, subpaths.size(), NUM_PATHS + NUM_PATHS / 2);
+		const std::set<std::string> got(subpaths.begin(), subpaths.end());
+		UASSERTEQ(size_t, got.size(), subpaths.size());
+		for (int i = 0; i < NUM_PATHS; i++) {
+			const std::string path = flat + DIR_DELIM + names[i];
+			UASSERT(got.count(path) == 1);
+			if (i % 2 == 1)
+				UASSERT(got.count(path + DIR_DELIM + names[i - 1]) == 1);
+		}
+	}
+
+	// Uses a different scratch directory, `pairs`.
+	rawstream << "-------- Testing Rename, CopyFileContents, and "
+		<< "DeleteSingleFileOrEmptyDirectory" << std::endl;
+	for (int i = 0; i + 1 < NUM_PATHS; i += 2) {
+		const std::string src = pairs + DIR_DELIM + names[i];
+		const std::string dst = pairs + DIR_DELIM + names[i + 1];
+		const std::string &content = content_for(src);
+
+		{
+			auto ofs = open_ofstream(src.c_str(), true);
+			UASSERT(ofs.good());
+			ofs << content;
+		}
+		UASSERT(fs::IsFile(src));
+
+		UASSERT(fs::Rename(src, dst));
+		UASSERT(!fs::PathExists(src));
+		UASSERT(fs::IsFile(dst));
+		std::string actual;
+		UASSERT(fs::ReadFile(dst, actual, true));
+		UASSERTEQ(auto, actual, content);
+
+		UASSERT(fs::CopyFileContents(dst, src));
+		actual.clear();
+		UASSERT(fs::ReadFile(src, actual, true));
+		UASSERTEQ(auto, actual, content);
+
+		UASSERT(fs::DeleteSingleFileOrEmptyDirectory(src, true));
+		UASSERT(fs::DeleteSingleFileOrEmptyDirectory(dst, true));
+	}
+	UASSERT(fs::GetDirListing(pairs).empty());
+
+	rawstream << "-------- Testing nested unicode paths" << std::endl;
+	const std::string abs_deep = fs::AbsolutePath(deep);
+	UASSERT(!abs_deep.empty());
+	for (int i = 0; i < 20; i++) {
+		const std::string n1 = fresh(6);
+		const std::string n2 = fresh(6);
+		const std::string n3 = fresh(6);
+		const std::string top = deep + DIR_DELIM + fresh(6);
+		const std::string dir = top + DIR_DELIM + n1 + DIR_DELIM + n2;
+		const std::string file = dir + DIR_DELIM + n3;
+		const std::string &content = content_for(file);
+		const std::string sub = n1 + DIR_DELIM + n2 + DIR_DELIM + n3;
+
+		UASSERT(fs::CreateAllDirs(dir));
+		UASSERT(fs::IsDir(dir));
+		UASSERT(fs::safeWriteToFile(file, content));
+		UASSERT(fs::IsFile(file));
+
+		// Test PathStartsWith
+		UASSERT(fs::PathStartsWith(fs::AbsolutePath(dir), abs_deep));
+
+		// Test MakePathRelativeTo
+		UASSERTEQ(auto, fs::MakePathRelativeTo(file, top), sub);
+
+		// Test RemoveLastPathComponent
+		std::string removed;
+		UASSERTEQ(auto, fs::RemoveLastPathComponent(file, &removed), dir);
+		UASSERTEQ(auto, removed, n3);
+
+		// Test CopyDir
+		const std::string copy = deep + DIR_DELIM + fresh(6);
+		UASSERT(fs::CopyDir(top, copy));
+		std::string actual;
+		UASSERT(fs::ReadFile(copy + DIR_DELIM + sub, actual, true));
+		UASSERTEQ(auto, actual, content);
+		UASSERT(fs::IsFile(file)); // source untouched
+
+		// Test MoveDir
+		const std::string moved = deep + DIR_DELIM + fresh(6);
+		UASSERT(fs::MoveDir(copy, moved));
+		UASSERT(!fs::PathExists(copy));
+		actual.clear();
+		UASSERT(fs::ReadFile(moved + DIR_DELIM + sub, actual, true));
+		UASSERTEQ(auto, actual, content);
+
+		// Test RecursiveDelete, and clean up.
+		UASSERT(fs::RecursiveDelete(top));
+		UASSERT(!fs::PathExists(top));
+		UASSERT(fs::RecursiveDelete(moved));
+		UASSERT(!fs::PathExists(moved));
+	}
+
+	rawstream << "-------- Final cleanup with RecursiveDelete" << std::endl;
+	UASSERT(fs::RecursiveDelete(base));
+	UASSERT(!fs::PathExists(base));
 }
