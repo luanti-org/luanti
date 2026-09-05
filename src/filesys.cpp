@@ -506,9 +506,7 @@ bool RecursiveDelete(const std::string &path)
 		return false;
 	}
 
-	bool is_dir = std::filesystem::is_directory(status);
-	infostream << "Recursively deleting " << (is_dir ? "directory" : "file")
-		<< " \"" << path << "\"" << std::endl;
+	infostream << "Recursively deleting \"" << path << "\"" << std::endl;
 
 	// Deletes symlinks instead of following them.
 	std::filesystem::remove_all(p, ec);
