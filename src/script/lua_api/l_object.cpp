@@ -976,7 +976,7 @@ int ObjectRef::l_get_attach(lua_State *L)
 	push_v3f(L, rotation);
 	lua_pushboolean(L, force_visible);
 	lua_pushboolean(L, move_camera);
-	return 5;
+	return 6;
 }
 
 // get_children(self)
