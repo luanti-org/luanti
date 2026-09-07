@@ -680,6 +680,20 @@ local function register_pointable_test_node(name, description, pointable)
 	})
 end
 
+-- Placeability
+
+core.register_node("testnodes:can_place", {
+	tiles = {"default_jungletree_top.png", "default_jungletree_top.png", "default_jungletree.png"},
+	groups = {oddly_breakable_by_hand=1, dig_immediate=3},
+	description = S("This node can only be placed on basenodes:dirt_with_grass"),
+	node_placement_prediction = "",
+	can_place = function(pos, placer)
+		if core.get_node(vector.subtract(pos, vector.new(0,1,0))).name == "basenodes:dirt_with_grass" then
+			return true
+		end
+	end
+})
+
 register_pointable_test_node("pointable", "Pointable Node", true)
 register_pointable_test_node("not_pointable", "Not Pointable Node", false)
 register_pointable_test_node("blocking_pointable", "Blocking Pointable Node", "blocking")
