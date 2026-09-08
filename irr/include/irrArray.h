@@ -218,14 +218,14 @@ public:
 	/** \return Pointer to the array. */
 	T *pointer()
 	{
-		return m_data.data();
+		return m_data.empty() ? nullptr : &m_data[0];
 	}
 
 	//! Gets a const pointer to the array.
 	/** \return Pointer to the array. */
 	const T *const_pointer() const
 	{
-		return m_data.data();
+		return m_data.empty() ? nullptr : &m_data[0];
 	}
 
 	//! Get number of occupied elements of the array.

@@ -10,6 +10,7 @@
 #include "SkinnedMesh.h"
 #include "Transform.h"
 #include "AnimSpec.h"
+#include "irrArray.h"
 #include "irr_ptr.h"
 #include "matrix4.h"
 

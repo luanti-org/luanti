@@ -9,10 +9,10 @@
 #include "ECullingTypes.h"
 #include "EDebugSceneTypes.h"
 #include "SMaterial.h"
-#include "irrArray.h"
 #include "aabbox3d.h"
 #include "matrix4.h"
 
+#include <array>
 #include <list>
 #include <optional>
 #include <string>
@@ -143,10 +143,9 @@ public:
 	/** Note: The result is _not_ identical to getTransformedBoundingBox().getEdges(),
 	but getting an aabbox3d of these edges would then be identical.
 	\param edges Receives an array with the transformed edges */
-	virtual void getTransformedBoundingBoxEdges(core::array<core::vector3d<f32>> &edges) const
+	virtual void getTransformedBoundingBoxEdges(std::array<core::vector3d<f32>, 8> &edges) const
 	{
-		edges.set_used(8);
-		getBoundingBox().getEdges(edges.pointer());
+		getBoundingBox().getEdges(&edges[0]);
 		for (u32 i = 0; i < 8; ++i)
 			AbsoluteTransformation.transformVect(edges[i]);
 	}
