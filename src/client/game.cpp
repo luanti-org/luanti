@@ -44,6 +44,8 @@
 #include "util/basic_macros.h"
 #include "util/directiontables.h"
 #include "util/quicktune_shortcutter.h"
+#include "util/screenshot.h"
+#include "filesys.h"
 #include "version.h"
 #include "script/scripting_client.h"
 #include "hud.h"
@@ -600,6 +602,8 @@ void Game::run()
 
 	framemarker.end();
 
+	takeWorldScreenshotOnExit();
+
 #ifdef __ANDROID__
 	porting::setPlayingNowNotification(false);
 #endif
@@ -674,6 +678,36 @@ void Game::shutdown()
 	stop_thread->rethrow();
 
 	// to be continued in Game::~Game
+}
+
+void Game::takeWorldScreenshotOnExit()
+{
+	if (!server)
+		return;
+
+	const std::string world_path = server->getWorldPath();
+	if (world_path.empty())
+		return;
+
+	auto *gui_root = guienv ? guienv->getRootGUIElement() : nullptr;
+	const bool gui_was_visible = gui_root ? gui_root->isVisible() : false;
+	if (gui_root)
+		gui_root->setVisible(false);
+
+	const std::string screenshot_path = world_path + DIR_DELIM + "exit_screenshot.png";
+	m_game_ui->m_flags.show_hud = false;
+	m_game_ui->m_flags.show_profiler_graph = false;
+	runData.damage_flash = 0.0f;
+
+	ProfilerGraph graph;
+	RunStats stats = {};
+	// For some reason, this needs to draw twice to not get a stale frame
+	drawScene(&graph, &stats);
+	drawScene(&graph, &stats);
+	takeScreenshotToPath(driver, screenshot_path);
+
+	if (gui_root)
+		gui_root->setVisible(gui_was_visible);
 }
 
 
