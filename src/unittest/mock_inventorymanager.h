@@ -12,9 +12,9 @@
 class MockInventoryManager : public ServerInventoryManager
 {
 public:
-	MockInventoryManager(IGameDef *gamedef) :
-		p1(gamedef->getItemDefManager()),
-		p2(gamedef->getItemDefManager())
+	MockInventoryManager(IGameDef &gamedef) :
+		p1(gamedef.getItemDefManager()),
+		p2(gamedef.getItemDefManager())
 	{};
 
 	Inventory *getInventory(const InventoryLocation &loc) override

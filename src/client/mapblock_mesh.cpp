@@ -852,7 +852,7 @@ void MapBlockMesh::updateTransparentBuffers(v3f camera_pos, v3s16 block_pos,
 			current_buffer = t.buffer;
 			if (group_by_buffers) {
 				auto it = strain_idxs.find(current_buffer);
-				assert(it != strain_idxs.end());
+				sanity_check(it != strain_idxs.end());
 				current_strain = &ordered_strains[it->second].second;
 			} else {
 				ordered_strains.emplace_back(current_buffer, std::vector<u16>{});

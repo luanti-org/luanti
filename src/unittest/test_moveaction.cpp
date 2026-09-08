@@ -18,23 +18,23 @@ public:
 
 	void runTests(IGameDef *gamedef);
 
-	void testMove(ServerActiveObject *obj, IGameDef *gamedef);
-	void testMoveFillStack(ServerActiveObject *obj, IGameDef *gamedef);
-	void testMoveSomewhere(ServerActiveObject *obj, IGameDef *gamedef);
-	void testMoveSomewherePartial(ServerActiveObject *obj, IGameDef *gamedef);
-	void testMoveUnallowed(ServerActiveObject *obj, IGameDef *gamedef);
-	void testMovePartial(ServerActiveObject *obj, IGameDef *gamedef);
+	void testMove(ServerActiveObject *obj, IGameDef &gamedef);
+	void testMoveFillStack(ServerActiveObject *obj, IGameDef &gamedef);
+	void testMoveSomewhere(ServerActiveObject *obj, IGameDef &gamedef);
+	void testMoveSomewherePartial(ServerActiveObject *obj, IGameDef &gamedef);
+	void testMoveUnallowed(ServerActiveObject *obj, IGameDef &gamedef);
+	void testMovePartial(ServerActiveObject *obj, IGameDef &gamedef);
 
-	void testSwap(ServerActiveObject *obj, IGameDef *gamedef);
-	void testSwapFromUnallowed(ServerActiveObject *obj, IGameDef *gamedef);
-	void testSwapToUnallowed(ServerActiveObject *obj, IGameDef *gamedef);
+	void testSwap(ServerActiveObject *obj, IGameDef &gamedef);
+	void testSwapFromUnallowed(ServerActiveObject *obj, IGameDef &gamedef);
+	void testSwapToUnallowed(ServerActiveObject *obj, IGameDef &gamedef);
 
-	void testCallbacks(ServerActiveObject *obj, Server *server);
-	void testCallbacksSwap(ServerActiveObject *obj, Server *server);
+	void testCallbacks(ServerActiveObject *obj, Server &server);
+	void testCallbacksSwap(ServerActiveObject *obj, Server &server);
 
-	void testDrop(ServerActiveObject *obj, Server *server);
-	void testDropOne(ServerActiveObject *obj, Server *server);
-	void testDropUnallowed(ServerActiveObject *obj, Server *server);
+	void testDrop(ServerActiveObject *obj, Server &server);
+	void testDropOne(ServerActiveObject *obj, Server &server);
+	void testDropUnallowed(ServerActiveObject *obj, Server &server);
 };
 
 static TestMoveAction g_test_instance;
@@ -62,23 +62,23 @@ void TestMoveAction::runTests(IGameDef *gamedef)
 	obj.setId(1);
 	server.getScriptIface()->addObjectReference(&obj);
 
-	TEST(testMove, &obj, gamedef);
-	TEST(testMoveFillStack, &obj, gamedef);
-	TEST(testMoveSomewhere, &obj, gamedef);
-	TEST(testMoveSomewherePartial, &obj, gamedef);
-	TEST(testMoveUnallowed, &obj, gamedef);
-	TEST(testMovePartial, &obj, gamedef);
+	TEST(testMove, &obj, *gamedef);
+	TEST(testMoveFillStack, &obj, *gamedef);
+	TEST(testMoveSomewhere, &obj, *gamedef);
+	TEST(testMoveSomewherePartial, &obj, *gamedef);
+	TEST(testMoveUnallowed, &obj, *gamedef);
+	TEST(testMovePartial, &obj, *gamedef);
 
-	TEST(testSwap, &obj, gamedef);
-	TEST(testSwapFromUnallowed, &obj, gamedef);
-	TEST(testSwapToUnallowed, &obj, gamedef);
+	TEST(testSwap, &obj, *gamedef);
+	TEST(testSwapFromUnallowed, &obj, *gamedef);
+	TEST(testSwapToUnallowed, &obj, *gamedef);
 
-	TEST(testCallbacks, &obj, &server);
-	TEST(testCallbacksSwap, &obj, &server);
+	TEST(testCallbacks, &obj, server);
+	TEST(testCallbacksSwap, &obj, server);
 
-	TEST(testDrop, &obj, &server);
-	TEST(testDropOne, &obj, &server);
-	TEST(testDropUnallowed, &obj, &server);
+	TEST(testDrop, &obj, server);
+	TEST(testDropOne, &obj, server);
+	TEST(testDropUnallowed, &obj, server);
 
 	server.getScriptIface()->removeObjectReference(&obj);
 }
@@ -90,15 +90,15 @@ static ItemStack parse_itemstack(const char *s)
 	return item;
 }
 
-static void apply_action(const char *s, InventoryManager *inv, ServerActiveObject *obj, IGameDef *gamedef)
+static void apply_action(const char *s, InventoryManager *inv, ServerActiveObject *obj, IGameDef &gamedef)
 {
 	std::istringstream str(s);
 	InventoryAction *action = InventoryAction::deSerialize(str);
-	action->apply(inv, obj, gamedef);
+	action->apply(inv, obj, &gamedef);
 	delete action;
 }
 
-void TestMoveAction::testMove(ServerActiveObject *obj, IGameDef *gamedef)
+void TestMoveAction::testMove(ServerActiveObject *obj, IGameDef &gamedef)
 {
 	MockInventoryManager inv(gamedef);
 
@@ -111,7 +111,7 @@ void TestMoveAction::testMove(ServerActiveObject *obj, IGameDef *gamedef)
 	UASSERT(inv.p2.getList("main")->getItem(0).getItemString() == "default:stone 20");
 }
 
-void TestMoveAction::testMoveFillStack(ServerActiveObject *obj, IGameDef *gamedef)
+void TestMoveAction::testMoveFillStack(ServerActiveObject *obj, IGameDef &gamedef)
 {
 	MockInventoryManager inv(gamedef);
 
@@ -131,7 +131,7 @@ void TestMoveAction::testMoveFillStack(ServerActiveObject *obj, IGameDef *gamede
 	UASSERT(list->getItem(1).getItemString() == "default:stone 200");
 }
 
-void TestMoveAction::testMoveSomewhere(ServerActiveObject *obj, IGameDef *gamedef)
+void TestMoveAction::testMoveSomewhere(ServerActiveObject *obj, IGameDef &gamedef)
 {
 	MockInventoryManager inv(gamedef);
 
@@ -148,7 +148,7 @@ void TestMoveAction::testMoveSomewhere(ServerActiveObject *obj, IGameDef *gamede
 	UASSERT(inv.p2.getList("main")->getItem(2).getItemString() == "default:stone 99");
 }
 
-void TestMoveAction::testMoveSomewherePartial(ServerActiveObject *obj, IGameDef *gamedef)
+void TestMoveAction::testMoveSomewherePartial(ServerActiveObject *obj, IGameDef &gamedef)
 {
 	// "Fail" because the destination list is full.
 	MockInventoryManager inv(gamedef);
@@ -169,7 +169,7 @@ void TestMoveAction::testMoveSomewherePartial(ServerActiveObject *obj, IGameDef 
 	UASSERT(inv.p1.getList("main")->getItem(1).getItemString() == "default:stone 110");
 }
 
-void TestMoveAction::testMoveUnallowed(ServerActiveObject *obj, IGameDef *gamedef)
+void TestMoveAction::testMoveUnallowed(ServerActiveObject *obj, IGameDef &gamedef)
 {
 	MockInventoryManager inv(gamedef);
 
@@ -182,7 +182,7 @@ void TestMoveAction::testMoveUnallowed(ServerActiveObject *obj, IGameDef *gamede
 	UASSERT(inv.p2.getList("main")->getItem(0).empty())
 }
 
-void TestMoveAction::testMovePartial(ServerActiveObject *obj, IGameDef *gamedef)
+void TestMoveAction::testMovePartial(ServerActiveObject *obj, IGameDef &gamedef)
 {
 	MockInventoryManager inv(gamedef);
 
@@ -196,7 +196,7 @@ void TestMoveAction::testMovePartial(ServerActiveObject *obj, IGameDef *gamedef)
 	UASSERT(inv.p2.getList("main")->getItem(0).getItemString() == "default:takeput_max_5 5");
 }
 
-void TestMoveAction::testSwap(ServerActiveObject *obj, IGameDef *gamedef)
+void TestMoveAction::testSwap(ServerActiveObject *obj, IGameDef &gamedef)
 {
 	MockInventoryManager inv(gamedef);
 
@@ -209,7 +209,7 @@ void TestMoveAction::testSwap(ServerActiveObject *obj, IGameDef *gamedef)
 	UASSERT(inv.p2.getList("main")->getItem(0).getItemString() == "default:stone 50");
 }
 
-void TestMoveAction::testSwapFromUnallowed(ServerActiveObject *obj, IGameDef *gamedef)
+void TestMoveAction::testSwapFromUnallowed(ServerActiveObject *obj, IGameDef &gamedef)
 {
 	MockInventoryManager inv(gamedef);
 
@@ -222,7 +222,7 @@ void TestMoveAction::testSwapFromUnallowed(ServerActiveObject *obj, IGameDef *ga
 	UASSERT(inv.p2.getList("main")->getItem(0).getItemString() == "default:brick 60");
 }
 
-void TestMoveAction::testSwapToUnallowed(ServerActiveObject *obj, IGameDef *gamedef)
+void TestMoveAction::testSwapToUnallowed(ServerActiveObject *obj, IGameDef &gamedef)
 {
 	MockInventoryManager inv(gamedef);
 
@@ -253,10 +253,10 @@ static bool check_function(lua_State *L, int pattern_idx)
 	return ok;
 }
 
-void TestMoveAction::testCallbacks(ServerActiveObject *obj, Server *server)
+void TestMoveAction::testCallbacks(ServerActiveObject *obj, Server &server)
 {
-	server->m_inventory_mgr = std::make_unique<MockInventoryManager>(server);
-	MockInventoryManager &inv = *(MockInventoryManager *)server->getInventoryMgr();
+	server.m_inventory_mgr = std::make_unique<MockInventoryManager>(server);
+	MockInventoryManager &inv = *(MockInventoryManager *)server.getInventoryMgr();
 
 	inv.p1.addList("main", 10)->addItem(0, parse_itemstack("default:takeput_cb_1 10"));
 	inv.p2.addList("main", 10);
@@ -264,15 +264,15 @@ void TestMoveAction::testCallbacks(ServerActiveObject *obj, Server *server)
 	apply_action("Move 10 player:p1 main 0 player:p2 main 1", &inv, obj, server);
 
 	// Expecting no swap. 4 callback executions in total. See Lua file for details.
-	UASSERT(check_function(server->getScriptIface()->getStack(), 1));
+	UASSERT(check_function(server.getScriptIface()->getStack(), 1));
 
-	server->m_inventory_mgr.reset();
+	server.m_inventory_mgr.reset();
 }
 
-void TestMoveAction::testCallbacksSwap(ServerActiveObject *obj, Server *server)
+void TestMoveAction::testCallbacksSwap(ServerActiveObject *obj, Server &server)
 {
-	server->m_inventory_mgr = std::make_unique<MockInventoryManager>(server);
-	MockInventoryManager &inv = *(MockInventoryManager *)server->getInventoryMgr();
+	server.m_inventory_mgr = std::make_unique<MockInventoryManager>(server);
+	MockInventoryManager &inv = *(MockInventoryManager *)server.getInventoryMgr();
 
 	inv.p1.addList("main", 10)->addItem(0, parse_itemstack("default:takeput_cb_2 50"));
 	inv.p2.addList("main", 10)->addItem(1, parse_itemstack("default:takeput_cb_1 10"));
@@ -280,15 +280,15 @@ void TestMoveAction::testCallbacksSwap(ServerActiveObject *obj, Server *server)
 	apply_action("Move 10 player:p1 main 0 player:p2 main 1", &inv, obj, server);
 
 	// Expecting swap. 8 callback executions in total. See Lua file for details.
-	UASSERT(check_function(server->getScriptIface()->getStack(), 2));
+	UASSERT(check_function(server.getScriptIface()->getStack(), 2));
 
-	server->m_inventory_mgr.reset();
+	server.m_inventory_mgr.reset();
 }
 
-void TestMoveAction::testDrop(ServerActiveObject *obj, Server *server)
+void TestMoveAction::testDrop(ServerActiveObject *obj, Server &server)
 {
-	server->m_inventory_mgr = std::make_unique<MockInventoryManager>(server);
-	MockInventoryManager &inv = *(MockInventoryManager *)server->getInventoryMgr();
+	server.m_inventory_mgr = std::make_unique<MockInventoryManager>(server);
+	MockInventoryManager &inv = *(MockInventoryManager *)server.getInventoryMgr();
 
 	auto *list = inv.p1.addList("main", 10);
 	list->addItem(0, parse_itemstack("default:takeput_cb_1 10"));
@@ -296,17 +296,17 @@ void TestMoveAction::testDrop(ServerActiveObject *obj, Server *server)
 	apply_action("Drop 0 player:p1 main 0", &inv, obj, server);
 
 	// (See Lua file for details).
-	UASSERT(check_function(server->getScriptIface()->getStack(), 3));
+	UASSERT(check_function(server.getScriptIface()->getStack(), 3));
 
 	UASSERT(list->getItem(0).empty());
 
-	server->m_inventory_mgr.reset();
+	server.m_inventory_mgr.reset();
 }
 
-void TestMoveAction::testDropOne(ServerActiveObject *obj, Server *server)
+void TestMoveAction::testDropOne(ServerActiveObject *obj, Server &server)
 {
-	server->m_inventory_mgr = std::make_unique<MockInventoryManager>(server);
-	MockInventoryManager &inv = *(MockInventoryManager *)server->getInventoryMgr();
+	server.m_inventory_mgr = std::make_unique<MockInventoryManager>(server);
+	MockInventoryManager &inv = *(MockInventoryManager *)server.getInventoryMgr();
 
 	auto *list = inv.p1.addList("main", 10);
 	list->addItem(0, parse_itemstack("default:takeput_cb_1 6 7"));
@@ -314,17 +314,17 @@ void TestMoveAction::testDropOne(ServerActiveObject *obj, Server *server)
 	apply_action("Drop 1 player:p1 main 0", &inv, obj, server);
 
 	// (See Lua file for details).
-	UASSERT(check_function(server->getScriptIface()->getStack(), 3));
+	UASSERT(check_function(server.getScriptIface()->getStack(), 3));
 
 	UASSERTEQ(auto, list->getItem(0).count, 5);
 
-	server->m_inventory_mgr.reset();
+	server.m_inventory_mgr.reset();
 }
 
-void TestMoveAction::testDropUnallowed(ServerActiveObject *obj, Server *server)
+void TestMoveAction::testDropUnallowed(ServerActiveObject *obj, Server &server)
 {
-	server->m_inventory_mgr = std::make_unique<MockInventoryManager>(server);
-	MockInventoryManager &inv = *(MockInventoryManager *)server->getInventoryMgr();
+	server.m_inventory_mgr = std::make_unique<MockInventoryManager>(server);
+	MockInventoryManager &inv = *(MockInventoryManager *)server.getInventoryMgr();
 
 	auto *list = inv.p1.addList("main", 10);
 	list->addItem(4, parse_itemstack("default:takeput_deny 1"));
@@ -332,9 +332,9 @@ void TestMoveAction::testDropUnallowed(ServerActiveObject *obj, Server *server)
 	apply_action("Drop 0 player:p1 main 4", &inv, obj, server);
 
 	// (See Lua file for details).
-	UASSERT(check_function(server->getScriptIface()->getStack(), 4));
+	UASSERT(check_function(server.getScriptIface()->getStack(), 4));
 
 	UASSERTEQ(auto, list->getItem(4).count, 1);
 
-	server->m_inventory_mgr.reset();
+	server.m_inventory_mgr.reset();
 }

@@ -515,7 +515,8 @@ Buffer<u8> NetworkPacket::oldForgePacket()
 		return Buffer<u8>();
 	}
 
-	Buffer<u8> sb(m_datasize + 2);
+	// Cast prevents u32 wraparound.
+	Buffer<u8> sb(m_datasize + std::size_t{2});
 	writeU16(&sb[0], m_command);
 	if (m_datasize > 0)
 		memcpy(&sb[2], m_data.data(), m_datasize);

@@ -474,8 +474,10 @@ void ScriptApiBase::addObjectReference(ServerActiveObject *cobj)
 
 	// object_refs[id] = object
 	auto id = cobj->getId();
-	static_assert(std::numeric_limits<decltype(id)>::min() >= INT_MIN &&
-		std::numeric_limits<decltype(id)>::max() <= INT_MAX,
+	// Ensure ID can fit into int. This works because int is signed,
+	// and ::digits does not include the sign bit.
+	static_assert(std::numeric_limits<decltype(id)>::digits <=
+		std::numeric_limits<int>::digits,
 		"ID type must fit into int argument of lua_rawseti");
 	lua_pushvalue(L, object);
 	lua_rawseti(L, objectstable, id);

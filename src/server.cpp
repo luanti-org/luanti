@@ -2978,7 +2978,7 @@ void Server::stepPendingDynMediaCallbacks(float dtime)
 		const auto &name = state.filename;
 		if (!name.empty()) {
 			auto it = m_media.find(name);
-			assert(it != m_media.end());
+			sanity_check(it != m_media.end());
 			sanity_check(it->second.ephemeral);
 
 			fs::DeleteSingleFileOrEmptyDirectory(it->second.path, true);
