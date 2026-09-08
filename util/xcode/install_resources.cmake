@@ -61,3 +61,6 @@ execute_process(
 	"$ENV{SOURCE_ROOT}/textures/base/pack"
 	"${RESOURCES_DIR}/textures/base/pack"
 )
+
+file(GLOB_RECURSE _builtin_cmakelists "${RESOURCES_DIR}/builtin/CMakeLists.txt")
+file(REMOVE ${_builtin_cmakelists})
