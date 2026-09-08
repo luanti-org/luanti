@@ -183,6 +183,13 @@ void OpenALSoundManager::playSoundGeneric(sound_handle_t id, const std::string &
 {
 	assert(id != 0);
 
+	// Do not accumulate transient effects to play much later after an outage.
+	// Loops must retain their handles so the game can still stop/update them.
+	if (!m_device_ready && !loop) {
+		reportRemovedSound(id);
+		return;
+	}
+
 	if (group_name.empty()) {
 		reportRemovedSound(id);
 		return;
@@ -316,6 +323,7 @@ OpenALSoundManager::OpenALSoundManager(SoundManagerSingleton *smg,
 		std::unique_ptr<SoundFallbackPathProvider> fallback_path_provider) :
 	Thread("OpenALSoundManager"),
 	m_fallback_path_provider(std::move(fallback_path_provider)),
+	m_singleton(smg),
 	m_device(smg->m_device.get()),
 	m_context(smg->m_context.get()),
 	m_exts(m_device),
@@ -335,6 +343,10 @@ OpenALSoundManager::~OpenALSoundManager()
 
 void OpenALSoundManager::step(f32 dtime)
 {
+	m_device_ready = m_singleton->recoverDevice();
+	if (!m_device_ready)
+		return;
+
 	m_time_until_dead_removal -= dtime;
 	if (m_time_until_dead_removal <= 0.0f) {
 		if (!m_sounds_playing.empty()) {
