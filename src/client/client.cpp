@@ -66,7 +66,7 @@
 #include "database/database-sqlite3.h"
 
 #include <IAnimatedMesh.h>
-#include <IFileSystem.h>
+#include <IMemoryReadFile.h>
 #include <IReadFile.h>
 #include <IMeshCache.h>
 #include <json/json.h>
@@ -831,10 +831,9 @@ bool Client::loadMedia(const std::string &data, const std::string &filename,
 		TRACESTREAM(<< "Client: Attempting to load image "
 			<< "file \"" << filename << "\"" << std::endl);
 
-		io::IFileSystem *irrfs = m_rendering_engine->get_filesystem();
 		video::IVideoDriver *vdrv = m_rendering_engine->get_video_driver();
 
-		io::IReadFile *rfile = irrfs->createMemoryReadFile(
+		io::IReadFile *rfile = io::createMemoryReadFile(
 				data.c_str(), data.size(), filename.c_str());
 
 		FATAL_ERROR_IF(!rfile, "Could not create irrlicht memory file.");
@@ -2081,7 +2080,7 @@ scene::IAnimatedMesh *Client::getMesh(const std::string &filename, bool *is_shar
 
 	// Load the mesh from file data
 	const std::string &data = it->second;
-	io::IReadFile *rfile = m_rendering_engine->get_filesystem()->createMemoryReadFile(
+	io::IReadFile *rfile = io::createMemoryReadFile(
 			data.c_str(), data.size(), filename.c_str());
 	FATAL_ERROR_IF(!rfile, "Could not create/open RAM file");
 

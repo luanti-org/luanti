@@ -9,6 +9,9 @@
 namespace io
 {
 
+IReadFile *createMemoryReadFile(const void *memory, long size,
+		const io::path &fileName, bool deleteMemoryWhenDropped = false);
+
 //! Interface providing read access to a memory read file.
 class IMemoryReadFile : public IReadFile
 {

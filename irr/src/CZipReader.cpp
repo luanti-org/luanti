@@ -7,6 +7,7 @@
 #include "os.h"
 #include "CFileList.h"
 #include "CReadFile.h"
+#include "CMemoryFile.h"
 #include "coreutil.h"
 
 #include <string>
@@ -26,8 +27,7 @@ namespace io
 // -----------------------------------------------------------------------------
 
 //! Constructor
-CArchiveLoaderZIP::CArchiveLoaderZIP(io::IFileSystem *fs) :
-		FileSystem(fs)
+CArchiveLoaderZIP::CArchiveLoaderZIP()
 {}
 
 //! returns true if the file maybe is able to be loaded by this class
@@ -48,7 +48,7 @@ bool CArchiveLoaderZIP::isALoadableFileFormat(E_FILE_ARCHIVE_TYPE fileType) cons
 IFileArchive *CArchiveLoaderZIP::createArchive(const io::path &filename, bool ignoreCase, bool ignorePaths) const
 {
 	IFileArchive *archive = 0;
-	io::IReadFile *file = FileSystem->createAndOpenFile(filename);
+	io::IReadFile *file = filename.empty() ? 0 : CReadFile::createReadFile(filename);
 
 	if (file) {
 		archive = createArchive(file, ignoreCase, ignorePaths);
@@ -66,7 +66,7 @@ IFileArchive *CArchiveLoaderZIP::createArchive(io::IReadFile *file, bool ignoreC
 	if (file) {
 		file->seek(0);
 
-		archive = new CZipReader(FileSystem, file, ignoreCase, ignorePaths);
+		archive = new CZipReader(file, ignoreCase, ignorePaths);
 	}
 	return archive;
 }
@@ -92,8 +92,8 @@ bool CArchiveLoaderZIP::isALoadableFileFormat(io::IReadFile *file) const
 // zip archive
 // -----------------------------------------------------------------------------
 
-CZipReader::CZipReader(IFileSystem *fs, IReadFile *file, bool ignoreCase, bool ignorePaths) :
-		CFileList((file ? file->getFileName() : io::path("")), ignoreCase, ignorePaths), FileSystem(fs), File(file)
+CZipReader::CZipReader(IReadFile *file, bool ignoreCase, bool ignorePaths) :
+		CFileList((file ? file->getFileName() : io::path("")), ignoreCase, ignorePaths), File(file)
 {
 	if (File) {
 		File->grab();
@@ -386,7 +386,7 @@ IReadFile *CZipReader::createAndOpenFile(u32 index)
 			delete[] pBuf;
 			return 0;
 		} else
-			return FileSystem->createMemoryReadFile(pBuf, uncompressedSize, Files[index].FullName, true);
+			return io::createMemoryReadFile(pBuf, uncompressedSize, Files[index].FullName, true);
 	}
 	case 12: {
 		os::Printer::log("bzip2 decompression not supported. File cannot be read.", ELL_ERROR);

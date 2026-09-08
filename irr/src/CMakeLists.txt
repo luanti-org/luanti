@@ -371,13 +371,10 @@ add_library(IRRVIDEOOBJ OBJECT
 )
 
 add_library(IRRIOOBJ OBJECT
-	CFileList.h
 	CFileSystem.h
 	CLimitReadFile.h
 	CMemoryFile.h
-	CReadFile.h
 	CWriteFile.h
-	CZipReader.h
 
 	CFileList.cpp
 	CFileSystem.cpp

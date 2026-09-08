@@ -5,7 +5,6 @@
 #include "CIrrDeviceStub.h"
 #include "ISceneManager.h"
 #include "IEventReceiver.h"
-#include "IFileSystem.h"
 #include "IGUIElement.h"
 #include "IGUIEnvironment.h"
 #include "IVideoDriver.h"
@@ -17,7 +16,7 @@
 namespace video
 {
 #ifndef _IRR_COMPILE_WITH_OPENGL_
-IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
+IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, IContextManager *contextManager)
 {
 	os::Printer::log("No OpenGL support compiled in.", ELL_ERROR);
 	return nullptr;
@@ -25,7 +24,7 @@ IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::
 #endif
 
 #ifndef ENABLE_OPENGL3
-IVideoDriver *createOpenGL3Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
+IVideoDriver *createOpenGL3Driver(const SIrrlichtCreationParameters &params, IContextManager *contextManager)
 {
 	os::Printer::log("No OpenGL 3 support compiled in.", ELL_ERROR);
 	return nullptr;
@@ -33,7 +32,7 @@ IVideoDriver *createOpenGL3Driver(const SIrrlichtCreationParameters &params, io:
 #endif
 
 #ifndef _IRR_COMPILE_WITH_OGLES2_
-IVideoDriver *createOGLES2Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
+IVideoDriver *createOGLES2Driver(const SIrrlichtCreationParameters &params, IContextManager *contextManager)
 {
 	os::Printer::log("No OpenGL ES 2 support compiled in.", ELL_ERROR);
 	return nullptr;
@@ -41,7 +40,7 @@ IVideoDriver *createOGLES2Driver(const SIrrlichtCreationParameters &params, io::
 #endif
 
 #ifndef _IRR_COMPILE_WITH_WEBGL1_
-IVideoDriver *createWebGL1Driver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
+IVideoDriver *createWebGL1Driver(const SIrrlichtCreationParameters &params, IContextManager *contextManager)
 {
 	os::Printer::log("No WebGL 1 support compiled in.", ELL_ERROR);
 	return nullptr;
@@ -54,7 +53,7 @@ IVideoDriver *createWebGL1Driver(const SIrrlichtCreationParameters &params, io::
 CIrrDeviceStub::CIrrDeviceStub(const SIrrlichtCreationParameters &params) :
 		IrrlichtDevice(), VideoDriver(0), GUIEnvironment(0), SceneManager(0),
 		Timer(0), CursorControl(0), UserReceiver(params.EventReceiver),
-		Logger(0), Operator(0), FileSystem(0),
+		Logger(0), Operator(0),
 		InputReceivingSceneManager(0), ContextManager(0),
 		CreationParams(params), Close(false)
 {
@@ -70,8 +69,6 @@ CIrrDeviceStub::CIrrDeviceStub(const SIrrlichtCreationParameters &params) :
 	Logger->setLogLevel(CreationParams.LoggingLevel);
 
 	os::Printer::Logger = Logger;
-
-	FileSystem = io::createFileSystem();
 }
 
 CIrrDeviceStub::~CIrrDeviceStub()
@@ -87,9 +84,6 @@ CIrrDeviceStub::~CIrrDeviceStub()
 
 	if (ContextManager)
 		ContextManager->drop();
-
-	if (FileSystem)
-		FileSystem->drop();
 
 	if (InputReceivingSceneManager)
 		InputReceivingSceneManager->drop();
@@ -112,7 +106,7 @@ CIrrDeviceStub::~CIrrDeviceStub()
 void CIrrDeviceStub::createGUIAndScene()
 {
 	// create gui environment
-	GUIEnvironment = gui::createGUIEnvironment(FileSystem, VideoDriver, Operator);
+	GUIEnvironment = gui::createGUIEnvironment(VideoDriver, Operator);
 
 	// create Scene manager
 	SceneManager = scene::createSceneManager(VideoDriver, CursorControl);
@@ -124,12 +118,6 @@ void CIrrDeviceStub::createGUIAndScene()
 video::IVideoDriver *CIrrDeviceStub::getVideoDriver()
 {
 	return VideoDriver;
-}
-
-//! return file system
-io::IFileSystem *CIrrDeviceStub::getFileSystem()
-{
-	return FileSystem;
 }
 
 //! returns the gui environment

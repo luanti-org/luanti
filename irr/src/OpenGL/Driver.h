@@ -28,7 +28,7 @@ class COpenGL3DriverBase : public CNullDriver, public IMaterialRendererServices,
 
 protected:
 	//! constructor (use createOpenGL3Driver instead)
-	COpenGL3DriverBase(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager);
+	COpenGL3DriverBase(const SIrrlichtCreationParameters &params, IContextManager *contextManager);
 
 public:
 	//! destructor

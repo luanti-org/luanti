@@ -20,11 +20,6 @@
 class ILogger;
 class IEventReceiver;
 
-namespace io
-{
-class IFileSystem;
-} // end namespace io
-
 namespace gui
 {
 class IGUIEnvironment;
@@ -98,10 +93,6 @@ public:
 	//! Provides access to the video driver for drawing 3d and 2d geometry.
 	/** \return Pointer the video driver. */
 	virtual video::IVideoDriver *getVideoDriver() = 0;
-
-	//! Provides access to the virtual file system.
-	/** \return Pointer to the file system. */
-	virtual io::IFileSystem *getFileSystem() = 0;
 
 	//! Provides access to the 2d user interface environment.
 	/** \return Pointer to the gui environment. */

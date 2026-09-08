@@ -14,10 +14,6 @@
 class IOSOperator;
 class IEventReceiver;
 
-namespace io
-{
-class IFileSystem;
-} // end namespace io
 namespace video
 {
 class IVideoDriver;
@@ -94,10 +90,6 @@ public:
 	//! Returns the current video driver.
 	/** \return Pointer to the video driver. */
 	virtual video::IVideoDriver *getVideoDriver() const = 0;
-
-	//! Returns the file system.
-	/** \return Pointer to the file system. */
-	virtual io::IFileSystem *getFileSystem() const = 0;
 
 	//! returns a pointer to the OS operator
 	/** \return Pointer to the OS operator. */
@@ -279,16 +271,11 @@ public:
 	until this messagebox is removed.
 	\param parent Parent gui element of the dialog.
 	\param id Id to identify the gui element.
-	\param restoreCWD If set to true, the current working directory will be
-	restored after the dialog is closed in some way. Otherwise the working
-	directory will be the one that the file dialog was last showing.
-	\param startDir Optional path for which the file dialog will be opened.
 	\return Pointer to the created file open dialog. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
 	virtual IGUIFileOpenDialog *addFileOpenDialog(const wchar_t *title = 0,
-			bool modal = true, IGUIElement *parent = 0, s32 id = -1,
-			bool restoreCWD = false, io::path::char_type *startDir = 0) = 0;
+			bool modal = true, IGUIElement *parent = 0, s32 id = -1) = 0;
 
 	//! Adds a static text.
 	/** \param text Text to be displayed. Can be altered after creation by SetText().

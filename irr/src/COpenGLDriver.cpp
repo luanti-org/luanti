@@ -32,8 +32,8 @@ namespace video
 // Statics variables
 const u16 COpenGLDriver::Quad2DIndices[4] = {0, 1, 2, 3};
 
-COpenGLDriver::COpenGLDriver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager) :
-		CNullDriver(io, params.WindowSize), COpenGLExtensionHandler(), CacheHandler(0), CurrentRenderMode(ERM_NONE), ResetRenderStates(true),
+COpenGLDriver::COpenGLDriver(const SIrrlichtCreationParameters &params, IContextManager *contextManager) :
+		CNullDriver(params.WindowSize), COpenGLExtensionHandler(), CacheHandler(0), CurrentRenderMode(ERM_NONE), ResetRenderStates(true),
 		Transformation3DChanged(true), AntiAlias(params.AntiAlias), FixedPipelineState(EOFPS_ENABLE), Params(params),
 		ContextManager(contextManager)
 {}
@@ -2874,9 +2874,9 @@ COpenGLCacheHandler *COpenGLDriver::getCacheHandler() const
 }
 
 
-IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, io::IFileSystem *io, IContextManager *contextManager)
+IVideoDriver *createOpenGLDriver(const SIrrlichtCreationParameters &params, IContextManager *contextManager)
 {
-	COpenGLDriver *ogl = new COpenGLDriver(params, io, contextManager);
+	COpenGLDriver *ogl = new COpenGLDriver(params, contextManager);
 
 	if (!ogl->initDriver()) {
 		ogl->drop();
