@@ -418,8 +418,6 @@ public:
 
 	void remove(Id id)
 	{
-		// extract is more efficient than find + erase,
-		// because it only does the hash and lookup once.
 		{
 			auto node = del_entries.extract(id);
 			sanity_check(node);
