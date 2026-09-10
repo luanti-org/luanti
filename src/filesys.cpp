@@ -710,7 +710,7 @@ static std::pair<size_t, size_t> match_paths(std::string_view path, std::string_
 	}
 }
 
-bool PathsEqual(const std::string &p1, const std::string &p2)
+bool PathsEqual(const std::string_view p1, const std::string_view p2)
 {
 	// trivial cases
 	if (p1 == p2)
@@ -724,7 +724,7 @@ bool PathsEqual(const std::string &p1, const std::string &p2)
 	return ret.first == p1.size() + 1 && ret.second == p2.size() + 1;
 }
 
-bool PathStartsWith(const std::string &path, const std::string &prefix)
+bool PathStartsWith(const std::string_view path, const std::string_view prefix)
 {
 	// trivial cases
 	if (path == prefix)
@@ -850,7 +850,7 @@ std::string RemoveRelativePathComponents(std::string path)
 	return path.substr(0, pos);
 }
 
-std::string AbsolutePath(const std::string &path)
+std::string AbsolutePath(std::string_view path)
 {
 	if (path.empty())
 		return "";
@@ -862,33 +862,41 @@ std::string AbsolutePath(const std::string &path)
 	return absolute_path.string();
 }
 
-std::string AbsolutePathPartial(const std::string &path)
+std::string AbsolutePathPartial(std::string_view path)
 {
 	if (path.empty())
 		return "";
-	// Try to determine absolute path
-	std::string abs_path = fs::AbsolutePath(path);
-	if (!abs_path.empty())
-		return abs_path;
-	// Remove components until it works
-	std::string cur_path = path;
-	std::string removed;
-	while (abs_path.empty() && !cur_path.empty()) {
-		std::string component;
-		cur_path = RemoveLastPathComponent(cur_path, &component);
-		removed = component + (removed.empty() ? "" : DIR_DELIM + removed);
-		abs_path = AbsolutePath(cur_path);
-	}
-	// If we had a relative path that does not exist, it needs to be joined with cwd
-	if (cur_path.empty() && !IsPathAbsolute(path))
-		abs_path = AbsolutePath(".");
-	// or there's an error
-	if (abs_path.empty())
+	std::error_code ec;
+	const auto absolute_path = std::filesystem::absolute(path, ec);
+	if (ec)
 		return "";
-	// Put them back together and resolve the remaining relative components
-	if (!removed.empty())
-		abs_path.append(DIR_DELIM).append(removed);
-	return RemoveRelativePathComponents(abs_path);
+
+	auto canonical_path = AbsolutePath(absolute_path.string());
+	if (!canonical_path.empty())
+		return canonical_path;
+
+	auto test_path = absolute_path;
+	const auto path_root = test_path.root_path();
+
+	std::filesystem::path to_append;
+
+	while (test_path != path_root) {
+		const auto peeled = test_path.filename();
+		to_append = peeled / to_append;
+		test_path = test_path.parent_path();
+
+		canonical_path = AbsolutePath(test_path.string());
+		if (!canonical_path.empty())
+			break;
+	}
+
+	if (canonical_path.empty())
+		return "";
+
+	const auto final_path =
+			std::filesystem::path(canonical_path) / to_append;
+
+	return RemoveRelativePathComponents(final_path.string());
 }
 
 const char *GetFilenameFromPath(const char *path)

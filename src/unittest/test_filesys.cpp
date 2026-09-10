@@ -13,6 +13,10 @@
 #include "nodedef.h"
 #include "noise.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 class TestFileSys : public TestBase
 {
 public:
@@ -383,47 +387,58 @@ void TestFileSys::testAbsolutePath()
 	const auto dir_path = getTestTempDirectory();
 
 	/* AbsolutePath */
-	UASSERTEQ(auto, fs::AbsolutePath(""), ""); // empty is a not valid path
+	UASSERTEQ(auto, fs::AbsolutePath(""), ""); // empty is not a valid path
 	const auto cwd = fs::AbsolutePath(".");
 	UASSERTCMP(auto, !=, cwd, "");
 	{
 		const auto dir_path2 = getTestTempFile();
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2), ""); // doesn't exist
 		fs::CreateDir(dir_path2);
+
 		const auto file_path = getTestTempFile();
 		open_ofstream(file_path.c_str(), false).close();
+
 		const auto absolute_dir_path = fs::AbsolutePath(dir_path2);
 		UASSERTCMP(auto, !=, absolute_dir_path, ""); // now it does
+
 		const auto absolute_file_path = fs::AbsolutePath(file_path);
-		UASSERTCMP(auto, !=, absolute_file_path, ""); // absolute path works on actual files
+		UASSERTCMP(auto, !=, absolute_file_path, ""); // existing regular files work
+
 		const std::filesystem::path absolute_path(absolute_dir_path,
 				std::filesystem::path::format::native_format);
 		const std::string root_path = absolute_path.root_path().string();
+
 		UASSERTEQ(auto, fs::AbsolutePath(root_path), root_path);
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + DIR_DELIM), absolute_dir_path);
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + DIR_DELIM + DIR_DELIM), absolute_dir_path);
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + DIR_DELIM ".."), fs::AbsolutePath(dir_path));
+
 		// excess . and / are removed
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + p("//..")), fs::AbsolutePath(dir_path));
 		UASSERTEQ(auto, fs::AbsolutePath(dir_path2 + p("/./.././//")), fs::AbsolutePath(dir_path));
-		// test symlinks are actually resolved
-		std::error_code ec;
-		std::filesystem::path link = getTestTempFile();
-		std::filesystem::create_directory_symlink(absolute_dir_path, link, ec);
-		if (ec) {
-		warningstream << "Symlink error: value=" << ec.value()
-			<< ", category=" << ec.category().name()
-			<< ", message=" << ec.message() << std::endl;
 
-		warningstream << "permission_denied: "
-			<< (ec == std::errc::permission_denied)
-			<< ", operation_not_permitted: "
-			<< (ec == std::errc::operation_not_permitted)
-			<< ", function_not_supported: "
-			<< (ec == std::errc::function_not_supported)
-			<< std::endl;
-		} else {
+		// symlinks are resolved
+		std::error_code ec;
+		const std::filesystem::path link = getTestTempFile();
+		std::filesystem::create_directory_symlink(absolute_dir_path, link, ec);
+
+		bool symlink_unavailable =
+				ec == std::errc::permission_denied ||
+				ec == std::errc::operation_not_permitted ||
+				ec == std::errc::function_not_supported;
+
+#ifdef _WIN32
+		symlink_unavailable |=
+				ec.category() == std::system_category() &&
+				ec.value() == ERROR_PRIVILEGE_NOT_HELD;
+#endif
+
+		if (!ec) {
 			UASSERTEQ(auto, fs::AbsolutePath(link.string()), absolute_dir_path);
+		} else if (symlink_unavailable) {
+			warningstream << "Symlink test skipped: " << ec.message() << std::endl;
+		} else {
+			UASSERT(!ec);
 		}
 	}
 
@@ -431,10 +446,14 @@ void TestFileSys::testAbsolutePath()
 	// equivalent to AbsolutePath if it exists
 	UASSERTEQ(auto, fs::AbsolutePathPartial("."), cwd);
 	UASSERTEQ(auto, fs::AbsolutePathPartial(dir_path), fs::AbsolutePath(dir_path));
+
 	// usual usage of the function with a partially existing path
 	auto expect = cwd + DIR_DELIM + p("does/not/exist");
+	// ensure trailing delimiter handling
+	auto trailing = expect + DIR_DELIM;
 	UASSERTEQ(auto, fs::AbsolutePathPartial("does/not/exist"), expect);
 	UASSERTEQ(auto, fs::AbsolutePathPartial(expect), expect);
+	UASSERTEQ(auto, fs::AbsolutePathPartial(trailing), expect);
 
 	// a nonsense combination as you couldn't actually access it, but allowed by function
 	UASSERTEQ(auto, fs::AbsolutePathPartial("bla/blub/../.."), cwd);
@@ -446,9 +465,48 @@ void TestFileSys::testAbsolutePath()
 	UASSERTEQ(auto, fs::AbsolutePathPartial("/.."), "/");
 	UASSERTEQ(auto, fs::AbsolutePathPartial("/noexist/../.."), "");
 #endif
+
 	// or with an empty path
 	UASSERTEQ(auto, fs::AbsolutePathPartial(""), "");
+
+	{
+		// existing symlink prefixes are resolved while nonexistent components
+		// are retained and relative components in the remainder are normalized
+		const auto target_path = getTestTempFile();
+		fs::CreateDir(target_path);
+		const auto absolute_target_path = fs::AbsolutePath(target_path);
+		UASSERTCMP(auto, !=, absolute_target_path, "");
+
+		std::error_code ec;
+		const std::filesystem::path link = getTestTempFile();
+		std::filesystem::create_directory_symlink(absolute_target_path, link, ec);
+
+		bool symlink_unavailable =
+				ec == std::errc::permission_denied ||
+				ec == std::errc::operation_not_permitted ||
+				ec == std::errc::function_not_supported;
+
+#ifdef _WIN32
+		symlink_unavailable |=
+				ec.category() == std::system_category() &&
+				ec.value() == ERROR_PRIVILEGE_NOT_HELD;
+#endif
+
+		if (!ec) {
+			const std::string partial_path =
+					link.string() + DIR_DELIM + p("new/thing/../file");
+			const std::string expected_path =
+					absolute_target_path + DIR_DELIM + p("new/file");
+
+			UASSERTEQ(auto, fs::AbsolutePathPartial(partial_path), expected_path);
+		} else if (symlink_unavailable) {
+			warningstream << "Symlink test skipped: " << ec.message() << std::endl;
+		} else {
+			UASSERT(!ec);
+		}
+	}
 }
+
 
 
 void TestFileSys::testSafeWriteToFile()
