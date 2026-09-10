@@ -13,6 +13,8 @@ local function get_content_icons(packages_with_updates)
 end
 
 
+local SUBTAB_KEYS = { "games", "mods", "res" }
+
 local packages_raw, packages
 
 local function update_packages()
@@ -32,8 +34,25 @@ local function update_packages()
 				element.name == uid
 	end
 
-	packages = filterlist.create(get_data, pkgmgr.compare_package,
-			is_equal, nil, {})
+	local category_types = { game = "games", txp = "res", mod = "mods", modpack = "mods" }
+	local function filter_by_category(element, category)
+		return category_types[element.type] == category
+	end
+
+	packages = filterlist.create(get_data, pkgmgr.compare_package, is_equal, filter_by_category, {})
+end
+
+-- Enabled packs first ordered by priority, then disabled packs alphabetically
+local function sort_resources_list(list)
+	table.sort(list, function(a, b)
+		if a.enabled ~= b.enabled then
+			return a.enabled
+		end
+		if a.enabled then
+			return a.order < b.order
+		end
+		return a.title:lower() < b.title:lower()
+	end)
 end
 
 local function on_change(type)
@@ -51,6 +70,15 @@ local function get_formspec(tabview, name, tabdata)
 	if not tabdata.selected_pkg then
 		tabdata.selected_pkg = 1
 	end
+	if not tabdata.subtab then
+		tabdata.subtab = 1
+	end
+
+	local subtab_key = SUBTAB_KEYS[tabdata.subtab]
+	packages:set_filtercriteria(subtab_key)
+	if subtab_key == "res" then
+		sort_resources_list(packages:get_list())
+	end
 
 	local use_technical_names = core.settings:get_bool("show_technical_names")
 
@@ -66,13 +94,14 @@ local function get_formspec(tabview, name, tabdata)
 	end
 
 	local retval = {
-		"label[0.4,0.4;", fgettext("Installed Packages:"), "]",
+		string.format("tabheader[0.4,0.9;6.3,0.6;content_subtab;%s,%s,%s;%i;true;false]",
+			fgettext("Games"), fgettext("Mods"), fgettext("Resources"), tabdata.subtab),
 		"tablecolumns[color;tree;image,align=inline,width=1.5",
 			",tooltip=", fgettext("Update available?"),
 			",0=", core.formspec_escape(defaulttexturedir .. "blank.png"),
 			",4=", core.formspec_escape(defaulttexturedir .. "cdb_update_cropped.png"),
 			";text]",
-		"table[0.4,0.8;6.3,4.8;pkglist;",
+		"table[0.4,1.0;6.3,4.6;pkglist;",
 		pkgmgr.render_packagelist(packages, use_technical_names, update_icons),
 		";", tabdata.selected_pkg, "]",
 
@@ -157,13 +186,27 @@ local function get_formspec(tabview, name, tabdata)
 
 			if selected_pkg.enabled then
 				table.insert_all(retval, {
-					"button[7.1,4.7;8,0.9;btn_mod_mgr_disable_txp;",
+					"button[7.1,4.7;4,0.9;btn_mod_mgr_disable_txp;",
 					fgettext("Disable Texture Pack"), "]"
 				})
+
+				local enabled_count = #pkgmgr.get_enabled_texture_packs()
+				if selected_pkg.order > 1 then
+					table.insert_all(retval, {
+						"button[11.1,4.7;2,0.9;btn_mod_mgr_txp_move_up;",
+						fgettext("Move Up"), "]"
+					})
+				end
+				if selected_pkg.order < enabled_count then
+					table.insert_all(retval, {
+						"button[13.1,4.7;2,0.9;btn_mod_mgr_txp_move_down;",
+						fgettext("Move Down"), "]"
+					})
+				end
 			else
 				table.insert_all(retval, {
 					"button[7.1,4.7;8,0.9;btn_mod_mgr_use_txp;",
-					fgettext("Use Texture Pack"), "]"
+					fgettext("Enable Texture Pack"), "]"
 				})
 			end
 		end
@@ -195,11 +238,7 @@ end
 
 local function handle_doubleclick(pkg)
 	if pkg.type == "txp" then
-		if core.settings:get("texture_path") == pkg.path then
-			core.settings:set("texture_path", "")
-		else
-			core.settings:set("texture_path", pkg.path)
-		end
+		pkgmgr.set_texture_pack_enabled(pkg.path, not pkg.enabled)
 		packages = nil
 		pkgmgr.reload_texture_packs()
 
@@ -209,6 +248,12 @@ local function handle_doubleclick(pkg)
 end
 
 local function handle_buttons(tabview, fields, tabname, tabdata)
+
+	if fields.content_subtab then
+		tabdata.subtab = tonumber(fields.content_subtab)
+		tabdata.selected_pkg = 1
+		return true
+	end
 
 	if fields.pkglist then
 		local event = core.explode_table_event(fields.pkglist)
@@ -259,17 +304,23 @@ local function handle_buttons(tabview, fields, tabname, tabdata)
 	end
 
 	if fields.btn_mod_mgr_use_txp or fields.btn_mod_mgr_disable_txp then
-		local txp_path = ""
-		if fields.btn_mod_mgr_use_txp then
-			txp_path = packages:get_list()[tabdata.selected_pkg].path
-		end
-
-		core.settings:set("texture_path", txp_path)
+		local pkg = packages:get_list()[tabdata.selected_pkg]
+		pkgmgr.set_texture_pack_enabled(pkg.path, fields.btn_mod_mgr_use_txp ~= nil)
 		packages = nil
 		pkgmgr.reload_texture_packs()
 
 		mm_game_theme.init()
 		mm_game_theme.set_engine()
+		return true
+	end
+
+	if fields.btn_mod_mgr_txp_move_up or fields.btn_mod_mgr_txp_move_down then
+		local pkg = packages:get_list()[tabdata.selected_pkg]
+		local delta = fields.btn_mod_mgr_txp_move_up and -1 or 1
+		pkgmgr.move_texture_pack(pkg.path, delta)
+		packages = nil
+		pkgmgr.reload_texture_packs()
+		tabdata.selected_pkg = tabdata.selected_pkg + delta
 		return true
 	end
 
