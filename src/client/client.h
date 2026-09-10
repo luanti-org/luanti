@@ -442,7 +442,7 @@ public:
 
 	const std::string &getFormspecPrepend() const;
 
-	inline MeshGrid getMeshGrid()
+	inline MeshGrid getMeshGrid() const
 	{
 		return m_mesh_grid;
 	}

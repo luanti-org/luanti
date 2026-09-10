@@ -217,6 +217,27 @@ ClientMap::~ClientMap()
 		it.second.drop();
 }
 
+bool ClientMap::useLoopsCuller() const
+{
+	if (m_loops_occlusion_culler)
+		return true;
+
+	/*
+		The BFS culler becomes slow/unusable on high view ranges, so we automatically
+		switch back to loops for those cases.
+	*/
+	if (m_control.range_all)
+		return true;
+
+	// This value was empirically determined, see issue #13345.
+	// Note that it is "normalized" for a grid size of 1.
+	constexpr f32 VIEW_RANGE_PREFER_LOOPS = 500;
+
+	const MeshGrid mesh_grid = m_client->getMeshGrid();
+	assert(mesh_grid.cell_size > 0);
+	return m_control.wanted_range / mesh_grid.cell_size >= VIEW_RANGE_PREFER_LOOPS;
+}
+
 void ClientMap::updateCamera(v3f pos, v3f dir, f32 fov, v3s16 offset, video::SColor light_color)
 {
 	v3s16 previous_camera_offset = m_camera_offset;
@@ -427,11 +448,8 @@ void ClientMap::updateDrawList()
 	// Set of mesh holding blocks, will be transferred to m_drawlist
 	std::set<v3s16> shortlist;
 
-	/*
-	 When range_all is enabled, enumerate all blocks visible in the
-	 frustum and display them.
-	 */
-	if (m_control.range_all || m_loops_occlusion_culler) {
+	// Perform occlusion culling to determine visible blocks
+	if (useLoopsCuller()) {
 		// Number of blocks currently loaded by the client
 		u32 blocks_loaded = 0;
 		// Number of blocks in rendering range
@@ -736,7 +754,7 @@ void ClientMap::touchMapBlocks()
 	// This function is only needed when using the BFS culler, since it does not
 	// look at all blocks in range.
 	// compare to ClientMap::updateDrawList()
-	if (m_control.range_all || m_loops_occlusion_culler)
+	if (useLoopsCuller())
 		return;
 
 	ScopeProfiler sp(g_profiler, "CM::touchMapBlocks()", SPT_AVG);
