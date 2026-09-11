@@ -1312,7 +1312,7 @@ int ObjectRef::l_set_rotation(lua_State *L)
 
 	v3f rotation = check_v3f(L, 2) * core::RADTODEG;
 
-	bool interpolate = lua_isboolean(L, 3) ? lua_toboolean(L, 3) : true;
+	bool interpolate = readParam<bool>(L, 3, true);
 
 	// Note: These angles are inverted before being applied using setPitchYawRoll,
 	// hence we end up with a right-handed rotation
