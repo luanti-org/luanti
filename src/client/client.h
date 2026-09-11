@@ -52,6 +52,7 @@ struct ClientDynamicInfo;
 struct ClientEvent;
 struct MapDrawControl;
 struct MapNode;
+struct ModifiedMapBlock;
 struct PlayerControl;
 struct PointedThing;
 struct ItemVisualsManager;
@@ -300,7 +301,8 @@ public:
 
 	void addUpdateMeshTask(v3s16 blockpos, bool ack_to_server=false, bool urgent=false);
 	// Including blocks at appropriate edges
-	void addUpdateMeshTaskWithEdge(v3s16 blockpos, bool ack_to_server=false, bool urgent=false);
+	void addUpdateMeshTaskWithEdge(v3s16 blockpos, bool ack_to_server=false, bool urgent=false,
+			const ModifiedMapBlock *modified_block=nullptr);
 	void addUpdateMeshTaskForNode(v3s16 nodepos, bool ack_to_server=false, bool urgent=false);
 
 	bool hasClientEvents() const { return !m_client_event_queue.empty(); }

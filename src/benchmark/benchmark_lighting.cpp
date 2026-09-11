@@ -50,7 +50,7 @@ TEST_CASE("benchmark_lighting")
 	}
 
 	BENCHMARK_ADVANCED("voxalgo::update_lighting_nodes")(Catch::Benchmark::Chronometer meter) {
-		std::map<v3s16, MapBlock*> modified_blocks;
+		ModifiedMapBlocks modified_blocks;
 		meter.measure([&] {
 			map.addNodeAndUpdate(v3s16(0, 0, 0), MapNode(content_light), modified_blocks);
 			map.removeNodeAndUpdate(v3s16(0, 0, 0), modified_blocks);

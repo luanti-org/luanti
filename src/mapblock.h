@@ -259,12 +259,12 @@ public:
 	//// Non-checking variants of the above
 	////
 
-	inline MapNode getNodeNoCheck(s16 x, s16 y, s16 z)
+	inline MapNode getNodeNoCheck(s16 x, s16 y, s16 z) const
 	{
 		return data[m_is_mono_block ? 0 : z * zstride + y * ystride + x];
 	}
 
-	inline MapNode getNodeNoCheck(v3s16 p)
+	inline MapNode getNodeNoCheck(v3s16 p) const
 	{
 		return getNodeNoCheck(p.X, p.Y, p.Z);
 	}
@@ -563,6 +563,29 @@ private:
 };
 
 typedef std::vector<MapBlock*> MapBlockVect;
+
+// Stores information about what parts of a MapBlock got modified
+struct ModifiedMapBlock
+{
+	// Whether borders changed, bit field, order like in g_6dirs
+	u8 m_borders = 0;
+
+	// A single node changed
+	void update(v3s16 rel_pos)
+	{
+		m_borders |= rel_pos.Z == MAP_BLOCKSIZE - 1;
+		m_borders |= (rel_pos.Y == MAP_BLOCKSIZE - 1) << 1;
+		m_borders |= (rel_pos.X == MAP_BLOCKSIZE - 1) << 2;
+		m_borders |= (rel_pos.Z == 0) << 3;
+		m_borders |= (rel_pos.Y == 0) << 4;
+		m_borders |= (rel_pos.X == 0) << 5;
+	}
+
+	// Nothing or everything changed
+	ModifiedMapBlock(bool modified = false) : m_borders(modified ? 0xFF : 0) {}
+};
+
+typedef std::map<v3s16, ModifiedMapBlock> ModifiedMapBlocks;
 
 inline bool objectpos_over_limit(v3f p)
 {

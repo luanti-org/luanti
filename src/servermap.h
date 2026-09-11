@@ -96,7 +96,7 @@ public:
 	bool isBlockInQueue(v3s16 pos);
 
 	void addNodeAndUpdate(v3s16 p, MapNode n,
-			std::map<v3s16, MapBlock*> &modified_blocks,
+			ModifiedMapBlocks &modified_blocks,
 			bool remove_metadata) override;
 
 	/*
