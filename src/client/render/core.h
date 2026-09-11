@@ -41,6 +41,8 @@ public:
 	RenderingCore &operator=(const RenderingCore &) = delete;
 	RenderingCore &operator=(RenderingCore &&) = delete;
 
+	void step(float dtime);
+
 	void draw(video::SColor _skycolor, bool _show_hud,
 			bool _draw_wield_tool, bool _draw_crosshair);
 

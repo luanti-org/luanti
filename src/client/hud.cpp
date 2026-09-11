@@ -408,6 +408,7 @@ void Hud::drawLuaElements(const v3s16 &camera_offset, bool only_unhidable)
 				u8 alpha = (num >> 24) & 0xFF;
 				if (alpha == 0)
 					alpha = 0xFF; // Backwards compatibility
+				alpha = rangelim((u32)(alpha * e->opacity), 0, 255);
 
 				video::SColor color = video::SColor(alpha,
 						(num >> 16) & 0xFF,
@@ -440,7 +441,7 @@ void Hud::drawLuaElements(const v3s16 &camera_offset, bool only_unhidable)
 			case HUD_ELEM_STATBAR: {
 				v2s32 offs(e->offset.X, e->offset.Y);
 				drawStatbar(pos, HUD_CORNER_UPPER, e->dir, e->text, e->text2,
-					e->number, e->item, offs, e->size);
+					e->number, e->item, offs, e->size, e->opacity);
 				break; }
 			case HUD_ELEM_INVENTORY: {
 				InventoryList *inv = inventory->getList(e->text);
@@ -454,7 +455,8 @@ void Hud::drawLuaElements(const v3s16 &camera_offset, bool only_unhidable)
 					break;
 
 				pos += v2s32(e->offset.X, e->offset.Y);
-				video::SColor color(255, (e->number >> 16) & 0xFF,
+				u8 wp_alpha = rangelim((u32)(255 * e->opacity), 0, 255);
+				video::SColor color(wp_alpha, (e->number >> 16) & 0xFF,
 										 (e->number >> 8)  & 0xFF,
 										 (e->number >> 0)  & 0xFF);
 				std::wstring text = unescape_translate(utf8_to_wide(e->name));
@@ -490,7 +492,8 @@ void Hud::drawLuaElements(const v3s16 &camera_offset, bool only_unhidable)
 				if (!texture)
 					continue;
 
-				const video::SColor color(255, 255, 255, 255);
+				u8 img_alpha = rangelim((u32)(e->opacity * 255.0f), 0, 255);
+				const video::SColor color(img_alpha, 255, 255, 255);
 				const video::SColor colors[] = {color, color, color, color};
 				core::dimension2di imgsize(texture->getOriginalSize());
 				v2s32 dstsize(imgsize.Width * e->scale.X * m_scale_factor,
@@ -659,9 +662,11 @@ void Hud::drawCompassRotate(HudElement *e, video::ITexture *texture,
 
 void Hud::drawStatbar(v2s32 pos, u16 corner, u16 drawdir,
 		const std::string &texture, const std::string &bgtexture,
-		s32 count, s32 maxcount, v2s32 offset, v2f size)
+		s32 count, s32 maxcount, v2s32 offset, v2f size,
+		f32 opacity)
 {
-	const video::SColor color(255, 255, 255, 255);
+	u8 a = rangelim((u32)(255 * opacity), 0, 255);
+	const video::SColor color(a, 255, 255, 255);
 	const video::SColor colors[] = {color, color, color, color};
 
 	video::ITexture *stat_texture = tsrc->getTexture(texture);
