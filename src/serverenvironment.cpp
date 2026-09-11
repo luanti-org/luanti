@@ -588,6 +588,19 @@ void ServerEnvironment::addActiveBlockModifier(ActiveBlockModifier *abm)
 	m_abms.emplace_back(abm);
 }
 
+bool ServerEnvironment::replaceActiveBlockModifier(ActiveBlockModifier *abm)
+{
+	std::string name(abm->getName());
+	for (auto &&m_abm : m_abms) {
+		if (m_abm.abm->getName() == name) {
+			delete m_abm.abm;
+			m_abm = abm;
+			return true;
+		}
+	}
+	return false;
+}
+
 void ServerEnvironment::addLoadingBlockModifierDef(LoadingBlockModifierDef *lbm)
 {
 	m_lbm_mgr.addLBMDef(lbm);
