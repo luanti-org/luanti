@@ -227,7 +227,8 @@ public:
 	}
 
 	//! Calculates the cross product with another vector.
-	/** \param p Vector to multiply with.
+	/** \note cross product of +X and +Y is +Z, not -Z.
+	\param p Vector to multiply with.
 	\return Cross product of this vector with p. */
 	vector3d<T> crossProduct(const vector3d<T> &p) const
 	{
