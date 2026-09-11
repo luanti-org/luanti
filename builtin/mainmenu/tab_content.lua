@@ -108,6 +108,15 @@ local function get_formspec(tabview, name, tabdata)
 		"button[0.4,5.8;6.3,0.9;btn_contentdb;", contentdb_label, "]"
 	}
 
+	if subtab_key == "res" then
+		local priority_tooltip = fgettext("Enabled resource packs are applied in priority order.") ..
+			"\n" .. fgettext("If two packs provide the same texture, the one listed first wins.")
+		table.insert_all(retval, {
+			"image[6.2,0.4;0.5,0.5;", core.formspec_escape(defaulttexturedir .. "settings_info.png"), "]",
+			"tooltip[6.2,0.4;0.5,0.5;", priority_tooltip, "]",
+		})
+	end
+
 	local selected_pkg
 	if filterlist.size(packages) >= tabdata.selected_pkg then
 		selected_pkg = packages:get_list()[tabdata.selected_pkg]
