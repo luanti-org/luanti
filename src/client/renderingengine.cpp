@@ -205,6 +205,7 @@ RenderingEngine::RenderingEngine(MyEventReceiver *receiver)
 	std::string rel_path = std::string("client") + DIR_DELIM
 			+ "shaders" + DIR_DELIM + "Irrlicht";
 	params.OGLES2ShaderPath = (porting::path_share + DIR_DELIM + rel_path + DIR_DELIM).c_str();
+	params.ShaderCachePath = (porting::path_cache + DIR_DELIM + "shader" + DIR_DELIM).c_str();
 
 	m_device = createDevice(params, driverType);
 	driver = m_device->getVideoDriver();
