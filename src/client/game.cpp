@@ -956,6 +956,8 @@ bool Game::initGui()
 	if (shouldShowTouchControls())
 		g_touchcontrols = new TouchControls(device, texture_src);
 
+	g_gyrocontrols = new GyroControls(device);
+
 	return true;
 }
 
@@ -1536,6 +1538,9 @@ void Game::processKeyInput()
 		runData.jump_timer_up = 0.0f;
 	}
 
+	if (wasKeyPressed(KeyType::GYRO_TOGGLE) || wasKeyReleased(KeyType::GYRO_TOGGLE))
+		g_gyrocontrols->toggle();
+
 	if (quicktune->hasMessage()) {
 		m_game_ui->showStatusText(utf8_to_wide(quicktune->getMessage()));
 	}
@@ -2016,6 +2021,13 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 
 		if (dist.X != 0 || dist.Y != 0)
 			input->setMousePos(center.X, center.Y);
+	}
+
+	// Gyro look
+	if (g_gyrocontrols) {
+		v2f32 vec = g_gyrocontrols->getCameraOffset();
+		cam->camera_yaw += vec.X * dtime;
+		cam->camera_pitch -= vec.Y * dtime;
 	}
 
 	// Keyboard look

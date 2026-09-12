@@ -53,6 +53,9 @@ enum EEVENT_TYPE
 	//! A gamepad axis event.
 	EET_GAMEPAD_AXIS_EVENT,
 
+	//! A gamepad sensor event.
+	EET_GAMEPAD_SENSOR_EVENT,
+
 	//! A log event
 	/** Log events are only passed to the user receiver if there is one. If they are absorbed by the
 	user receiver then no text will be sent to the console. */
@@ -187,6 +190,19 @@ enum ETOUCH_INPUT_EVENT
 
 	//! No real event. Just for convenience to get number of events
 	ETIE_COUNT
+};
+
+// A SensorType represents different sensors either built into the device itself or a gamepad.
+// The values are taken from SDL_SensorType
+enum ESENSOR_TYPE {
+	ESENSOR_UNKNOWN,
+    ESENSOR_ACCEL,
+    ESENSOR_GYRO,
+    ESENSOR_ACCEL_L,
+    ESENSOR_GYRO_L,
+    ESENSOR_ACCEL_R,
+    ESENSOR_GYRO_R,
+    ESENSOR_COUNT
 };
 
 //! Enumeration for a commonly used application state events (it's useful mainly for mobile devices)
@@ -482,6 +498,29 @@ struct SEvent
 		s16 Value;
 	};
 
+	//! A gamepad sensor event.
+	struct SGamepadSensorEvent
+	{
+		//! The ID of the gamepad.
+		u32 ID;
+
+		//! the type of sensor
+		ESENSOR_TYPE Type;
+
+		// accel: left-right
+		// gyro: pitch
+		f64 X;
+
+		// accel: up-down
+		// gyro: yaw
+		f64 Y;
+
+		// accel: forward-backwards
+		// gyro: roll
+		f64 Z;
+
+	};
+
 	//! Any kind of log event.
 	struct SLogEvent
 	{
@@ -524,6 +563,7 @@ struct SEvent
 		struct SDeviceMotionEvent DeviceMotionEvent;
 		struct SGamepadButtonEvent GamepadButtonEvent;
 		struct SGamepadAxisEvent GamepadAxisEvent;
+		struct SGamepadSensorEvent GamepadSensorEvent;
 		struct SLogEvent LogEvent;
 		struct SUserEvent UserEvent;
 		struct SApplicationEvent ApplicationEvent;
@@ -532,7 +572,7 @@ struct SEvent
 	SEvent() {
 		EventType = static_cast<EEVENT_TYPE>(0);
 		// zero the biggest union member we have, which clears all others too
-		memset(&AccelerometerEvent, 0, sizeof(AccelerometerEvent));
+		memset(&GamepadSensorEvent, 0, sizeof(GamepadSensorEvent));
 	}
 };
 
