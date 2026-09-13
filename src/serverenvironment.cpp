@@ -1639,6 +1639,8 @@ void ServerEnvironment::activateObjects(MapBlock *block, u32 dtime_s)
 */
 void ServerEnvironment::deactivateFarObjects(const bool _force_delete)
 {
+	ScopeProfiler sp(g_profiler, "ServerEnvironment::deactivateFarObjects()", SPT_AVG);
+
 	auto cb_deactivate = [this, _force_delete](ServerActiveObject *obj, u16 id) {
 		// force_delete might be overridden per object
 		bool force_delete = _force_delete;

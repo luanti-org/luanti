@@ -570,8 +570,11 @@ void TextureSource::rebuildImagesAndTextures()
 	video::IVideoDriver *driver = RenderingEngine::get_video_driver();
 	sanity_check(driver);
 
-	infostream << "TextureSource: recreating " << m_textureinfo_cache.size()
-			<< " textures" << std::endl;
+	size_t n = 0;
+	for (TextureInfo &ti : m_textureinfo_cache)
+		n += ti.name.empty() ? 0 : 1;
+
+	infostream << "TextureSource: recreating " << n << " textures" << std::endl;
 
 	assert(!m_image_cache_enabled || m_image_cache.empty());
 

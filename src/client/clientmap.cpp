@@ -882,9 +882,8 @@ static u32 transformBuffersToDrawOrder(
 	 * CPU work quickly eats up the benefits (though alleviated by a cache).
 	 * In MTG landscape scenes this was found to save around 20-40% of drawcalls.
 	 *
-	 * NOTE: if you attempt to test this with quicktune, it won't give you valid
-	 * results since HW buffers stick around and Irrlicht handles large amounts
-	 * inefficiently.
+	 * NOTE: if you attempt to test this with quicktune, note that it will take
+	 * a few seconds until old HW buffers expire
 	 */
 	const u32 target_min_vertices = g_settings->getU32("mesh_buffer_min_vertices");
 

@@ -5,13 +5,13 @@
 #include "mod_vfs.h"
 #include "filesys.h"
 #include "log.h"
-#include <algorithm>
+#include "util/string.h"
 
 void ModVFS::scanModSubfolder(const std::string &mod_name, const std::string &mod_path,
 		std::string mod_subpath)
 {
 	std::string full_path = mod_path + DIR_DELIM + mod_subpath;
-	std::vector<fs::DirListNode> mod = fs::GetDirListing(full_path);
+	auto mod = fs::GetDirListing(full_path);
 	for (const fs::DirListNode &j : mod) {
 		if (j.name[0] == '.')
 			continue;
@@ -20,21 +20,21 @@ void ModVFS::scanModSubfolder(const std::string &mod_name, const std::string &mo
 			scanModSubfolder(mod_name, mod_path, mod_subpath + j.name + DIR_DELIM);
 			continue;
 		}
-		std::replace(mod_subpath.begin(), mod_subpath.end(), DIR_DELIM_CHAR, '/');
+		str_replace(mod_subpath, DIR_DELIM_CHAR, '/');
 
 		std::string real_path = full_path + j.name;
 		std::string vfs_path = mod_name + ":" + mod_subpath + j.name;
-		infostream << "ModVFS::scanModSubfolder(): Loading \"" << real_path
+		verbosestream << "ModVFS: Loading \"" << real_path
 				<< "\" as \"" << vfs_path << "\"." << std::endl;
 
 		std::string contents;
 		if (!fs::ReadFile(real_path, contents)) {
-			errorstream << "ModVFS::scanModSubfolder(): Can't read file \""
+			errorstream << "ModVFS: Can't read file \""
 					<< real_path << "\"." << std::endl;
 			continue;
 		}
 
-		m_vfs.emplace(vfs_path, contents);
+		m_vfs[vfs_path] = std::move(contents);
 	}
 }
 

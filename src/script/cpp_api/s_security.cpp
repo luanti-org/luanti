@@ -918,8 +918,7 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 	bool is_git_path;
 	{
 		std::string tmp = lowercase(abs_path) + DIR_DELIM;
-		if constexpr (DIR_DELIM_CHAR != '/')
-			str_replace(tmp, '/', DIR_DELIM_CHAR);
+		str_replace(tmp, '/', DIR_DELIM_CHAR);
 		is_git_path = tmp.find(DIR_DELIM ".git" DIR_DELIM) != std::string::npos;
 	}
 
