@@ -644,8 +644,6 @@ void MapBlock::deSerialize_pre29(std::istream &is, u8 version, bool disk)
 
 	u8 flags = readU8(is);
 	is_underground = (flags & 0x01) != 0;
-	// IMPORTANT: when the version is bumped to 30 we can read m_is_air from here
-	// m_is_air = (flags & 0x02) == 0;
 
 	if (version < 27)
 		m_lighting_complete = 0xFFFF;
