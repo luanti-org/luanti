@@ -158,10 +158,10 @@ Address UDPSocket::GetLocalAddress()
 	assert(m_handle >= 0);
 
 	if (getsockname(m_handle, (struct sockaddr*)&addr, &addr_len) != 0)
-		throw SocketException(std::string("Failed to get socket port: ") +  SOCKET_ERR_STR(LAST_SOCKET_ERR()));
+		throw SocketException(std::string("Failed to get socket port: ") + SOCKET_ERR_STR(LAST_SOCKET_ERR()));
 
 	if (addr.ss_family == AF_INET6) {
-		 auto *addr_v6 = reinterpret_cast<struct sockaddr_in6*>(&addr);
+		auto *addr_v6 = reinterpret_cast<struct sockaddr_in6*>(&addr);
 		u16 port = ntohs(addr_v6->sin6_port);
 		IPv6AddressBytes bytes;
 		memcpy(bytes.bytes, addr_v6->sin6_addr.s6_addr, sizeof(bytes.bytes));

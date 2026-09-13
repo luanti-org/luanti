@@ -35,6 +35,7 @@ public:
 		return *this;
 	}
 
+	/// @brief create and bind a socket to an address
 	static UDPSocket Create(Address addr)
 	{
 		UDPSocket socket;
