@@ -26,10 +26,10 @@ core::quaternion UnitSAO::getTotalRotation() const
 
 ServerActiveObject *UnitSAO::getParent() const
 {
-	if (!m_attachment_parent_id)
+	if (!m_attachment.parent_id)
 		return nullptr;
 	// Check if the parent still exists
-	ServerActiveObject *obj = m_env->getActiveObject(m_attachment_parent_id);
+	ServerActiveObject *obj = m_env->getActiveObject(m_attachment.parent_id);
 
 	return obj;
 }
@@ -159,8 +159,7 @@ void UnitSAO::sendOutdatedData()
 	}
 }
 
-void UnitSAO::setAttachment(const object_t new_parent, const std::string &bone, v3f position,
-		v3f rotation, bool force_visible, bool move_camera)
+void UnitSAO::setAttachment(const AttachmentData &attachment)
 {
 	const auto call_count = ++m_attachment_call_counter;
 
@@ -177,7 +176,7 @@ void UnitSAO::setAttachment(const object_t new_parent, const std::string &bone, 
 	// Do checks to avoid circular references
 	// See similar check in `GenericCAO::setAttachment` (but with different types).
 	{
-		auto *obj = m_env->getActiveObject(new_parent);
+		auto *obj = m_env->getActiveObject(attachment.parent_id);
 		if (obj == this) {
 			assert(false);
 			return;
@@ -195,18 +194,18 @@ void UnitSAO::setAttachment(const object_t new_parent, const std::string &bone, 
 		if (problem) {
 			warningstream << "Mod bug: "
 				<< "Attempted to attach object " << m_id << " to parent "
-				<< new_parent << " but former is an (in)direct parent of latter." << std::endl;
+				<< attachment.parent_id << " but former is an (in)direct parent of latter." << std::endl;
 			return;
 		}
 	}
 
 	// Detach first
 	// Note: make sure to apply data changes before running callbacks.
-	const auto old_parent = m_attachment_parent_id;
-	m_attachment_parent_id = 0;
+	const auto old_parent = m_attachment.parent_id;
+	m_attachment.parent_id = 0;
 	m_attachment_sent = false;
 
-	if (old_parent && old_parent != new_parent) {
+	if (old_parent && old_parent != attachment.parent_id) {
 		auto *parent = m_env->getActiveObject(old_parent);
 		if (parent) {
 			onDetach(parent);
@@ -226,36 +225,25 @@ void UnitSAO::setAttachment(const object_t new_parent, const std::string &bone, 
 		return;
 
 	// Now attach to new parent
-	m_attachment_parent_id = new_parent;
-	m_attachment_bone = bone;
-	m_attachment_position = position;
-	m_attachment_rotation = rotation;
-	m_force_visible = force_visible;
-	m_move_camera = move_camera;
+	m_attachment = attachment;
 
-	if (new_parent && old_parent != new_parent) {
-		auto *parent = m_env->getActiveObject(new_parent);
+	if (attachment.parent_id && old_parent != attachment.parent_id) {
+		auto *parent = m_env->getActiveObject(attachment.parent_id);
 		if (parent) {
 			onAttach(parent);
 		} else {
 			warningstream << "UnitSAO::setAttachment() id=" << m_id <<
 				" tried to attach to nonexistent parent. This is a bug." << std::endl;
-			m_attachment_parent_id = 0; // detach
+			m_attachment.parent_id = 0; // detach
 		}
 	}
 
 	check_nesting("onAttach");
 }
 
-void UnitSAO::getAttachment(object_t *parent_id, std::string *bone, v3f *position,
-		v3f *rotation, bool *force_visible, bool *move_camera) const
+void UnitSAO::getAttachment(AttachmentData &attachment) const
 {
-	*parent_id = m_attachment_parent_id;
-	*bone = m_attachment_bone;
-	*position = m_attachment_position;
-	*rotation = m_attachment_rotation;
-	*force_visible = m_force_visible;
-	*move_camera = m_move_camera;
+	attachment = m_attachment;
 }
 
 void UnitSAO::clearAnyAttachments()
@@ -337,15 +325,7 @@ void UnitSAO::notifyObjectPropertiesModified()
 std::string UnitSAO::generateUpdateAttachmentCommand() const
 {
 	std::ostringstream os(std::ios::binary);
-	// command
-	writeU8(os, AO_CMD_ATTACH_TO);
-	// parameters
-	writeS16(os, m_attachment_parent_id);
-	os << serializeString16(m_attachment_bone);
-	writeV3F32(os, m_attachment_position);
-	writeV3F32(os, m_attachment_rotation);
-	writeU8(os, m_force_visible);
-	writeU8(os, m_move_camera);
+	m_attachment.serialize(os);
 	return os.str();
 }
 

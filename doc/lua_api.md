@@ -9023,7 +9023,8 @@ child will follow movement and rotation of that bone.
     * `forced_visible`: Boolean to control whether the attached entity
        should appear in first person, default `false`.
     * `move_camera`: Boolean to control whether the camera of the attached player object
-       should move by `position`. This flag is valid only for players.
+       should move by `position`, default `false`.
+       Is only applied to players and clients >= 5.18.0.
     * This command may fail silently (do nothing) when it would result
       in circular attachments.
 * `get_attach()`:

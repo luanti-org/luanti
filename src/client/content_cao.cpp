@@ -420,18 +420,17 @@ void GenericCAO::setChildrenVisible(bool toset)
 		GenericCAO *obj = m_env->getGenericCAO(cao_id);
 		if (obj) {
 			// Check if the entity is forced to appear in first person.
-			obj->setVisible(obj->m_force_visible ? true : toset);
+			obj->setVisible(obj->m_attachment.flags & AttachmentData::FORCE_VISIBLE ? true : toset);
 		}
 	}
 }
 
-void GenericCAO::setAttachment(object_t parent_id, const std::string &bone,
-		v3f position, v3f rotation, bool force_visible, bool move_camera)
+void GenericCAO::setAttachment(const AttachmentData &attachment)
 {
 	// Do checks to avoid circular references
 	// See similar check in `UnitSAO::setAttachment` (but with different types).
 	{
-		auto *obj = m_env->getActiveObject(parent_id);
+		auto *obj = m_env->getActiveObject(attachment.parent_id);
 		if (obj == this) {
 			assert(false);
 			return;
@@ -449,22 +448,17 @@ void GenericCAO::setAttachment(object_t parent_id, const std::string &bone,
 		if (problem) {
 			warningstream << "Network or mod bug: "
 				<< "Attempted to attach object " << m_id << " to parent "
-				<< parent_id << " but former is an (in)direct parent of latter." << std::endl;
+				<< attachment.parent_id << " but former is an (in)direct parent of latter." << std::endl;
 			return;
 		}
 	}
 
-	const auto old_parent = m_attachment_parent_id;
-	m_attachment_parent_id = parent_id;
-	m_attachment_bone = bone;
-	m_attachment_position = position;
-	m_attachment_rotation = rotation;
-	m_force_visible = force_visible;
-	m_move_camera = move_camera;
+	const auto old_parent = m_attachment.parent_id;
+	m_attachment = attachment;
 
-	ClientActiveObject *parent = m_env->getActiveObject(parent_id);
+	ClientActiveObject *parent = m_env->getActiveObject(attachment.parent_id);
 
-	if (parent_id != old_parent) {
+	if (attachment.parent_id != old_parent) {
 		if (auto *o = m_env->getActiveObject(old_parent))
 			o->removeAttachmentChild(m_id);
 		if (parent)
@@ -473,13 +467,13 @@ void GenericCAO::setAttachment(object_t parent_id, const std::string &bone,
 	updateAttachments();
 
 	// Forcibly show attachments if required by set_attach
-	if (m_force_visible) {
+	if (m_attachment.flags & AttachmentData::FORCE_VISIBLE) {
 		m_is_visible = true;
 	} else if (!m_is_local_player) {
 		// Objects attached to the local player should be hidden in first person
 		m_is_visible = !m_attached_to_local ||
 			m_client->getCamera()->getCameraMode() != CAMERA_MODE_FIRST;
-		m_force_visible = false;
+		m_attachment.flags &= ~AttachmentData::FORCE_VISIBLE;
 	} else {
 		// Local players need to have this set,
 		// otherwise first person attachments fail.
@@ -487,21 +481,9 @@ void GenericCAO::setAttachment(object_t parent_id, const std::string &bone,
 	}
 }
 
-void GenericCAO::getAttachment(object_t *parent_id, std::string *bone, v3f *position,
-	v3f *rotation, bool *force_visible, bool *move_camera) const
+void GenericCAO::getAttachment(AttachmentData &attachment) const
 {
-	if (parent_id)
-		*parent_id = m_attachment_parent_id;
-	if (bone)
-		*bone = m_attachment_bone;
-	if (position)
-		*position = m_attachment_position;
-	if (rotation)
-		*rotation = m_attachment_rotation;
-	if (force_visible)
-		*force_visible = m_force_visible;
-	if (move_camera)
-		*move_camera = m_move_camera;
+	attachment = m_attachment;
 }
 
 void GenericCAO::clearChildAttachments()
@@ -529,7 +511,7 @@ void GenericCAO::removeAttachmentChild(object_t child_id)
 
 ClientActiveObject* GenericCAO::getParent() const
 {
-	return m_attachment_parent_id ? m_env->getActiveObject(m_attachment_parent_id) :
+	return m_attachment.parent_id ? m_env->getActiveObject(m_attachment.parent_id) :
 			nullptr;
 }
 
@@ -1485,17 +1467,17 @@ void GenericCAO::updateAttachments()
 		scene::ISceneNode *parent_node = parent->getSceneNode();
 		scene::AnimatedMeshSceneNode *parent_animated_mesh_node =
 				parent->getAnimatedMeshSceneNode();
-		if (parent_animated_mesh_node && !m_attachment_bone.empty()) {
-			parent_node = parent_animated_mesh_node->getJointNode(m_attachment_bone.c_str());
+		if (parent_animated_mesh_node && !m_attachment.bone.empty()) {
+			parent_node = parent_animated_mesh_node->getJointNode(m_attachment.bone.c_str());
 		}
 
 		if (m_matrixnode && parent_node) {
 			m_matrixnode->setParent(parent_node);
 			parent_node->updateAbsolutePosition();
-			getPosRotMatrix().setTranslation(m_attachment_position);
-			//setPitchYawRoll(getPosRotMatrix(), m_attachment_rotation);
+			getPosRotMatrix().setTranslation(m_attachment.position);
+			//setPitchYawRoll(getPosRotMatrix(), m_attachment.rotation);
 			// use Irrlicht eulers instead
-			getPosRotMatrix().setRotationDegrees(m_attachment_rotation);
+			getPosRotMatrix().setRotationDegrees(m_attachment.rotation);
 			m_matrixnode->updateAbsolutePosition();
 		}
 	}
@@ -1845,22 +1827,10 @@ void GenericCAO::processMessage(const std::string &data)
 		}
 		m_bone_override[bone] = props;
 	} else if (cmd == AO_CMD_ATTACH_TO) {
-		u16 parent_id = readS16(is);
-		std::string bone = deSerializeString16(is);
-		v3f position = readV3F32(is);
-		v3f rotation = readV3F32(is);
-		bool force_visible = false;
-		if (canRead(is)) {
-			// >= 5.4.0-dev
-			force_visible = readU8(is);
-		}
-		bool move_camera = false;
-		if (canRead(is)) {
-			// >= 5.18.0-dev
-			move_camera = readU8(is);
-		}
+		AttachmentData attachment;
+		attachment.deSerialize(is);
 
-		setAttachment(parent_id, bone, position, rotation, force_visible, move_camera);
+		setAttachment(attachment);
 	} else if (cmd == AO_CMD_PUNCHED) {
 		u16 result_hp = readU16(is);
 

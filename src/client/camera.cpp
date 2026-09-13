@@ -323,14 +323,17 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 	// mods expect the player head to be at the parent's position
 	// plus eye height.
 	if (player->getParent()) {
-		v3f attachment_position;
-		bool move_camera;
+		AttachmentData attachment;
+		player->getCAO()->getAttachment(attachment);
 
-		player->getCAO()->getAttachment(nullptr, nullptr, &attachment_position, nullptr, nullptr, &move_camera);
-		player_position = player->getParent()->getPosition();
+		v3f abs_position, rel_position;
+		auto parent_matrix = player->getParent()->getSceneNode()->getAbsoluteTransformation();
 
-		if (move_camera)
-			player_position += attachment_position;
+		if (attachment.flags & AttachmentData::MOVE_CAMERA)
+			rel_position = attachment.position;
+		parent_matrix.transformVect(abs_position, rel_position);
+
+		player_position = abs_position + intToFloat(m_camera_offset, BS);
 	}
 
 	// Smooth the camera movement after the player instantly moves upward due to stepheight.
