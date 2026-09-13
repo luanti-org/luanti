@@ -1267,9 +1267,19 @@ static bool run_dedicated_server(const GameParams &game_params, const Settings &
 	return true;
 }
 
+static inline std::string percent(size_t n, size_t total)
+{
+	if (!total)
+		return "0%";
+	float v = 100.0f * n / total;
+	char buf[10];
+	porting::mt_snprintf(buf, sizeof(buf), "%.2f%%", v);
+	return buf;
+}
+
 static bool migrate_map_database(const GameParams &game_params, const Settings &cmd_args)
 {
-	std::string migrate_to = cmd_args.get("migrate");
+	const std::string migrate_to = cmd_args.get("migrate");
 	Settings world_mt;
 	std::string world_mt_path = game_params.world_path + DIR_DELIM + "world.mt";
 	if (!world_mt.readConfigFile(world_mt_path.c_str())) {
@@ -1278,44 +1288,52 @@ static bool migrate_map_database(const GameParams &game_params, const Settings &
 	}
 
 	if (!world_mt.exists("backend")) {
-		errorstream << "Please specify your current backend in world.mt:"
-			<< std::endl
-			<< "	backend = {sqlite3|leveldb|redis|dummy|postgresql}"
-			<< std::endl;
+		errorstream << "Please specify the map 'backend' setting in world.mt"
+			" (usually this will be sqlite3)." << std::endl;
 		return false;
 	}
 
-	std::string backend = world_mt.get("backend");
+	const std::string backend = world_mt.get("backend");
 	if (backend == migrate_to) {
 		errorstream << "Cannot migrate: new backend is same"
 			<< " as the old one" << std::endl;
 		return false;
 	}
 
+	actionstream << "Migrating from \"" << backend << "\" to \"" << migrate_to
+		<< "\"" << std::endl;
+
 	MapDatabase *old_db = ServerMap::createDatabase(backend, game_params.world_path, world_mt),
 		*new_db = ServerMap::createDatabase(migrate_to, game_params.world_path, world_mt);
 
-	u32 count = 0;
-	u64 last_update_time = 0;
 	volatile auto &kill = *porting::signal_handler_killstatus();
 
 	std::vector<v3s16> blocks;
 	old_db->listAllLoadableBlocks(blocks);
-	new_db->beginSave();
-	for (auto it = blocks.begin(); it != blocks.end(); ++it) {
-		if (kill) return false;
 
-		std::string data;
-		old_db->loadBlock(*it, &data);
+	actionstream << "Will migrate " << blocks.size() << " blocks" << std::endl;
+
+	new_db->beginSave();
+	size_t count = 0, sum = 0;
+	u64 last_update_time = 0;
+	std::string data;
+	for (const v3s16 bpos : blocks) {
+		if (kill)
+			return false;
+
+		data.clear();
+		old_db->loadBlock(bpos, &data);
 		if (!data.empty()) {
-			new_db->saveBlock(*it, data);
+			new_db->saveBlock(bpos, data);
 			count++;
+			sum += data.size();
 		} else {
-			errorstream << "Failed to load block " << *it << ", skipping it." << std::endl;
+			errorstream << "Failed to load block " << bpos << ", skipping it." << std::endl;
 		}
-		if (porting::getTimeS() - last_update_time >= 1) {
-			std::cerr << " Migrated " << count << " blocks, "
-				<< (100.0 * count / blocks.size()) << "% completed.\r" << std::flush;
+
+		if (porting::getTimeS() - last_update_time >= 2) {
+			std::cerr << "\rMigrated " << count << " blocks, "
+				<< percent(count, blocks.size()) << " completed..." << std::flush;
 			new_db->endSave();
 			new_db->beginSave();
 			last_update_time = porting::getTimeS();
@@ -1326,7 +1344,8 @@ static bool migrate_map_database(const GameParams &game_params, const Settings &
 	delete old_db;
 	delete new_db;
 
-	actionstream << "Successfully migrated " << count << " blocks" << std::endl;
+	actionstream << "Successfully migrated " << count << " blocks ("
+		<< (sum / 1024 / 1024) << " MiB)" << std::endl;
 	world_mt.set("backend", migrate_to);
 	if (!world_mt.updateConfigFile(world_mt_path.c_str()))
 		errorstream << "Failed to update world.mt!" << std::endl;
@@ -1349,37 +1368,43 @@ static bool recompress_map_database(const GameParams &game_params, const Setting
 	Server server(game_params.world_path, game_params.game_spec, false, Address(), false);
 	MapDatabase *db = ServerMap::createDatabase(backend, game_params.world_path, world_mt);
 
-	u32 count = 0;
-	u64 last_update_time = 0;
 	volatile auto &kill = *porting::signal_handler_killstatus();
 	const u8 serialize_as_ver = SER_FMT_VER_HIGHEST_WRITE;
 	const s16 map_compression_level = rangelim(g_settings->getS16("map_compression_level_disk"), -1, 9);
 
-	// This is ok because the server doesn't actually run
+	// Direct DB manipulation is ok because the server doesn't actually run
 	std::vector<v3s16> blocks;
 	db->listAllLoadableBlocks(blocks);
-	db->beginSave();
+
+	actionstream << "Recompressing " << blocks.size() << " blocks with compression level " <<
+		map_compression_level << " (= map_compression_level_disk)" << std::endl;
+
+	size_t count = 0, bytes_before = 0, bytes_after = 0;
+	u64 last_update_time = 0;
 	std::istringstream iss(std::ios_base::binary);
 	std::ostringstream oss(std::ios_base::binary);
-	for (auto it = blocks.begin(); it != blocks.end(); ++it) {
-		if (kill) return false;
+	std::string data;
+	db->beginSave();
+	for (const v3s16 bpos : blocks) {
+		if (kill)
+			return false;
 
-		std::string data;
-		db->loadBlock(*it, &data);
+		data.clear();
+		db->loadBlock(bpos, &data);
 		if (data.empty()) {
-			errorstream << "Failed to load block " << *it << std::endl;
+			errorstream << "Failed to load block " << bpos << std::endl;
 			return false;
 		}
 
+		bytes_before += data.size();
 		iss.str(data);
 		iss.clear();
 
 		{
-			MapBlock mb(v3s16(0,0,0), &server);
+			MapBlock mb(bpos, &server);
 			u8 version = readU8(iss);
 			if (iss.fail())
 				throw SerializationError("Failed to read MapBlock version");
-
 			mb.deSerialize(iss, version, true);
 
 			oss.str("");
@@ -1388,12 +1413,16 @@ static bool recompress_map_database(const GameParams &game_params, const Setting
 			mb.serialize(oss, serialize_as_ver, true, map_compression_level);
 		}
 
-		db->saveBlock(*it, oss.str());
+		{
+			std::string data_new = oss.str();
+			db->saveBlock(bpos, data_new);
+			bytes_after += data_new.size();
+		}
 		count++;
 
-		if (porting::getTimeS() - last_update_time >= 1) {
-			std::cerr << " Recompressed " << count << " blocks, "
-				<< (100.0f * count / blocks.size()) << "% completed.\r" << std::flush;
+		if (porting::getTimeS() - last_update_time >= 2) {
+			std::cerr << "\rRecompressed " << count << " blocks, "
+				<< percent(count, blocks.size()) << " completed..." << std::flush;
 			db->endSave();
 			db->beginSave();
 			last_update_time = porting::getTimeS();
@@ -1402,6 +1431,11 @@ static bool recompress_map_database(const GameParams &game_params, const Setting
 	std::cerr << std::endl;
 	db->endSave();
 
-	actionstream << "Done, " << count << " blocks were recompressed." << std::endl;
+	actionstream << "Done!"
+		<< "\n  blocks recompressed: " << count
+		<< "\n  input size:  " << (bytes_before / 1024 / 1024) << " MiB"
+		<< "\n  output size: " << (bytes_after / 1024 / 1024) << " MiB ("
+		<< percent(bytes_after, bytes_before) << ")"
+		<< std::endl;
 	return true;
 }
