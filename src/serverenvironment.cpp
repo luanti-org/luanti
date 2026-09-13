@@ -1693,7 +1693,7 @@ void ServerEnvironment::deactivateFarObjects(const bool _force_delete)
 		/*
 			Update the static data
 		*/
-		if (obj->isStaticAllowed()) {
+		if (!obj->isGone() && obj->isStaticAllowed()) {
 			// Create new static object
 			StaticObject s_obj(obj, objectpos);
 
