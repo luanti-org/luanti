@@ -109,12 +109,13 @@ void Translations::addPluralTranslation(
 }
 
 
-void Translations::loadTrTranslation(const std::string &data, bool is_fallback)
+void Translations::loadTrTranslation(const std::string &data, bool is_fallback, const std::string &target_lang)
 {
 	std::istringstream is(data);
 	std::string textdomain_narrow;
 	std::wstring textdomain;
 	std::string line;
+	std::string source_lang;
 
 	while (is.good()) {
 		std::getline(is, line);
@@ -132,8 +133,22 @@ void Translations::loadTrTranslation(const std::string &data, bool is_fallback)
 			textdomain_narrow = trim(parts[1]);
 			textdomain = utf8_to_wide(textdomain_narrow);
 		}
+		else if (str_starts_with(line, "# Source-Language:")) {
+			auto parts = str_split(line, ':');
+			if (parts.size() < 2) {
+				errorstream << "Invalid source language translation line \"" << line
+						<< "\"" << std::endl;
+				continue;
+			}
+			source_lang = trim(parts[1]);
+		}
+
 		if (line.empty() || line[0] == '#')
 			continue;
+
+		if (is_fallback && !source_lang.empty() && source_lang == target_lang) {
+			return;
+		}
 
 		std::wstring wline = utf8_to_wide(line);
 		if (wline.empty())
@@ -433,7 +448,7 @@ std::optional<std::pair<std::wstring, std::wstring>> Translations::parsePoLine(c
 	return std::pair(prefix, s);
 }
 
-void Translations::loadPoTranslation(const std::string &basefilename, const std::string &data, bool is_fallback)
+void Translations::loadPoTranslation(const std::string &basefilename, const std::string &data, bool is_fallback, const std::string &target_lang)
 {
 	std::istringstream is(data);
 	std::string line;
@@ -443,6 +458,7 @@ void Translations::loadPoTranslation(const std::string &basefilename, const std:
 	GettextPluralForm::Ptr plural;
 	bool skip = false;
 	bool skip_last = false;
+	std::string source_lang;
 
 	while (is.good()) {
 		std::getline(is, line);
@@ -496,6 +512,16 @@ void Translations::loadPoTranslation(const std::string &basefilename, const std:
 										errorstream << "Invalid Plural-Forms line: " << wide_to_utf8(line) << std::endl;
 									}
 								}
+								else if (str_starts_with(line, L"Source-Language:")) {
+									std::wstring lang = line.substr(16);
+									lang.erase(0, lang.find_first_not_of(L" \t\""));
+									lang.erase(lang.find_last_not_of(L" \t\"\n\r") + 1);
+									source_lang = wide_to_utf8(lang);
+								}
+							}
+
+							if (is_fallback && !source_lang.empty() && source_lang == target_lang) {
+								return;
 							}
 						}
 					} else {
@@ -567,11 +593,12 @@ inline u32 readVarEndian(bool is_be, std::string_view data, size_t pos = 0)
 	}
 }
 
-void Translations::loadMoTranslation(const std::string &basefilename, const std::string &data, bool is_fallback)
+void Translations::loadMoTranslation(const std::string &basefilename, const std::string &data, bool is_fallback, const std::string &target_lang)
 {
 	size_t length = data.length();
 	std::wstring wbasefilename = utf8_to_wide(basefilename);
 	GettextPluralForm::Ptr plural_form;
+	std::string source_lang;
 
 	if (length < 20) {
 		errorstream << "Ignoring too short mo file" << std::endl;
@@ -634,6 +661,16 @@ void Translations::loadMoTranslation(const std::string &basefilename, const std:
 							errorstream << "Invalid Plural-Forms line: " << line << std::endl;
 						}
 					}
+					else if (str_starts_with(line, "Source-Language:")) {
+						std::string lang = line.substr(16);
+						lang.erase(0, lang.find_first_not_of(" \t\""));
+						lang.erase(lang.find_last_not_of(" \t\"\n\r") + 1);
+						source_lang = lang;
+					}
+				}
+
+				if (is_fallback && !source_lang.empty() && source_lang == target_lang) {
+					return;
 				}
 			}
 		} else {
@@ -644,7 +681,7 @@ void Translations::loadMoTranslation(const std::string &basefilename, const std:
 	return;
 }
 
-void Translations::loadTranslation(const std::string &filename, const std::string &data)
+void Translations::loadTranslation(const std::string &filename, const std::string &data, const std::string &target_lang)
 {
 	std::string lang(Translations::getFileLanguage(filename));
 
@@ -654,166 +691,14 @@ void Translations::loadTranslation(const std::string &filename, const std::strin
 	const char *poExtension[] = { ".po", NULL };
 	const char *moExtension[] = { ".mo", NULL };
 	if (!removeStringEnd(filename, trExtension).empty()) {
-		loadTrTranslation(data, is_fallback);
+		loadTrTranslation(data, is_fallback, target_lang);
 	} else if (!removeStringEnd(filename, poExtension).empty()) {
 		std::string basefilename = str_split(filename, '.')[0];
-		loadPoTranslation(basefilename, data, is_fallback);
+		loadPoTranslation(basefilename, data, is_fallback, target_lang);
 	} else if (!removeStringEnd(filename, moExtension).empty()) {
 		std::string basefilename = str_split(filename, '.')[0];
-		loadMoTranslation(basefilename, data, is_fallback);
+		loadMoTranslation(basefilename, data, is_fallback, target_lang);
 	} else {
 		errorstream << "loadTranslation called with invalid filename: \"" << filename << "\"" << std::endl;
 	}
-}
-
-const std::string Translations::parseSourceLanguageFromTr(const std::string &data)
-{
-	std::istringstream is(data);
-	std::string line;
-	std::string source_lang;
-
-	while (is.good()) {
-		std::getline(is, line);
-		if (str_starts_with(line, "# Source-Language:")) {
-			auto parts = str_split(line, ':');
-			if (parts.size() < 2) {
-				errorstream << "Invalid source language translation line \"" << line
-						<< "\"" << std::endl;
-				continue;
-			}
-			source_lang = trim(parts[1]);
-
-			return source_lang;
-		}
-	}
-
-	return "";
-}
-
-const std::string Translations::parseSourceLanguageFromPo(const std::string &data)
-{
-	std::istringstream is(data);
-	std::string line;
-	std::map<std::wstring, std::wstring> last_entry;
-	std::wstring last_key;
-
-	while (is.good()) {
-		std::getline(is, line);
-		if (line.length() > 0 && line[line.length() - 1] == '\r')
-			line.resize(line.length() - 1);
-
-		auto parsed = parsePoLine(line);
-		if (!parsed)
-			continue;
-
-		auto prefix = parsed->first;
-		auto s = parsed->second;
-
-		if (prefix.empty()) {
-			if (last_key == L"")
-				continue;
-			last_entry[last_key].append(s);
-			continue;
-		}
-
-		if (prefix == L"msgctxt" || (prefix == L"msgid" && last_entry.find(L"msgid") != last_entry.end())) {
-			if (last_entry.find(L"msgid") != last_entry.end()) {
-				if (last_entry[L"msgid"].empty()) {
-					if (last_entry.find(L"msgstr") != last_entry.end()) {
-						for (const auto &header_line : str_split(last_entry[L"msgstr"], L'\n')) {
-							if (str_starts_with(header_line, L"Source-Language:")) {
-								std::wstring lang = header_line.substr(16);
-								lang.erase(0, lang.find_first_not_of(L" \t\""));
-								lang.erase(lang.find_last_not_of(L" \t\"\n\r") + 1);
-								return wide_to_utf8(lang);
-							}
-						}
-					}
-				}
-				break;
-			}
-			last_entry.clear();
-		}
-
-		last_key = prefix;
-		last_entry[prefix] = s;
-	}
-
-	return "";
-}
-
-const std::string Translations::parseSourceLanguageFromMo(const std::string &data)
-{
-	size_t length = data.length();
-	if (length < 20)
-		return "";
-
-	u32 magic = readVarEndian(false, data);
-	bool is_be;
-	if (magic == 0x950412de) {
-		is_be = false;
-	} else if (magic == 0xde120495) {
-		is_be = true;
-	} else {
-		return "";
-	}
-
-	u32 revision = readVarEndian(is_be, data, 4);
-	if (revision != 0)
-		return "";
-
-	u32 nstring = readVarEndian(is_be, data, 8);
-	if (nstring == 0)
-		return "";
-
-	u32 original_offset = readVarEndian(is_be, data, 12);
-	u32 translated_offset = readVarEndian(is_be, data, 16);
-
-	if (length < original_offset + 8 || length < translated_offset + 8)
-		return "";
-
-	u32 original_len = readVarEndian(is_be, data, original_offset);
-	u32 original_off = readVarEndian(is_be, data, original_offset + 4);
-	u32 translated_len = readVarEndian(is_be, data, translated_offset);
-	u32 translated_off = readVarEndian(is_be, data, translated_offset + 4);
-
-	if (length < original_off + (u64)original_len + 1 || length < translated_off + (u64)translated_len + 1)
-		return "";
-
-	if (data[original_off + original_len] != '\0' || data[translated_off + translated_len] != '\0')
-		return "";
-
-	auto original = data.substr(original_off, original_len);
-	auto translated = data.substr(translated_off, translated_len);
-
-	if (original.empty()) {
-		for (const auto &line : str_split(translated, '\n')) {
-			if (str_starts_with(line, "Source-Language:")) {
-				std::string source_lang = line.substr(16);
-				source_lang.erase(0, source_lang.find_first_not_of(" \t\""));
-				source_lang.erase(source_lang.find_last_not_of(" \t\"\n\r") + 1);
-				return source_lang;
-			}
-		}
-	}
-
-	return "";
-}
-
-const std::string Translations::parseSourceLanguage(const std::string &filename, const std::string &data)
-{
-	const char *trExtension[] = { ".tr", NULL };
-	const char *poExtension[] = { ".po", NULL };
-	const char *moExtension[] = { ".mo", NULL };
-	if (!removeStringEnd(filename, trExtension).empty()) {
-		return parseSourceLanguageFromTr(data);
-	} else if (!removeStringEnd(filename, poExtension).empty()) {
-		return parseSourceLanguageFromPo(data);
-	} else if (!removeStringEnd(filename, moExtension).empty()) {
-		return parseSourceLanguageFromMo(data);
-	} else {
-		errorstream << "loadTranslation called with invalid filename: \"" << filename << "\"" << std::endl;
-	}
-
-	return "";
 }
