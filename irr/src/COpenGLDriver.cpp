@@ -2528,13 +2528,10 @@ void COpenGLDriver::clearBuffers(u16 flag, SColor color, f32 depth, u8 stencil)
 }
 
 //! Returns an image created from the last rendered frame.
-IImage *COpenGLDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RENDER_TARGET target)
+IImage *COpenGLDriver::createScreenShot(bool preferBackbuffer)
 {
-	if (target != video::ERT_FRAME_BUFFER)
-		return 0;
-
-	if (format == video::ECF_UNKNOWN)
-		format = video::ECF_R8G8B8;
+	const auto format = video::ECF_R8G8B8;
+	(void)preferBackbuffer;
 
 	// TODO: Maybe we could support more formats (floating point and some of those beyond ECF_R8), didn't really try yet
 	if (IImage::isCompressedFormat(format) || IImage::isDepthFormat(format) || IImage::isFloatingPointFormat(format) || format >= ECF_R8)

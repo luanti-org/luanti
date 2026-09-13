@@ -1490,7 +1490,7 @@ scene::IMeshManipulator *CNullDriver::getMeshManipulator()
 }
 
 //! Returns an image created from the last rendered frame.
-IImage *CNullDriver::createScreenShot(video::ECOLOR_FORMAT format, video::E_RENDER_TARGET target)
+IImage *CNullDriver::createScreenShot(bool preferBackbuffer = true)
 {
 	return 0;
 }

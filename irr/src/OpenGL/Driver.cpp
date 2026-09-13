@@ -664,6 +664,8 @@ void COpenGL3DriverBase::blitRenderTarget(IRenderTarget *from, IRenderTarget *to
 			0, 0, dst->getSize().Width, dst->getSize().Height,
 			GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT | GL.STENCIL_BUFFER_BIT, GL.NEAREST);
 
+	TEST_GL_ERROR(this);
+
 	// This resets both read and draw framebuffer. Note that we bypass CacheHandler here.
 	GL.BindFramebuffer(GL.FRAMEBUFFER, prev_fbo_id);
 }
@@ -1802,25 +1804,12 @@ void COpenGL3DriverBase::clearBuffers(u16 flag, SColor color, f32 depth, u8 sten
 }
 
 //! Returns an image created from the last rendered frame.
-// We want to read the front buffer to get the latest render finished.
-// This is not possible under ogl-es, though, so one has to call this method
-// outside of the render loop only.
-IImage *COpenGL3DriverBase::createScreenShot(video::ECOLOR_FORMAT format, video::E_RENDER_TARGET target)
+IImage *COpenGL3DriverBase::createScreenShot(bool preferBackbuffer)
 {
-	if (target == video::ERT_MULTI_RENDER_TEXTURES || target == video::ERT_RENDER_TEXTURE || target == video::ERT_STEREO_BOTH_BUFFERS)
-		return 0;
-
 	GLint internalformat = GL_RGBA;
 	GLint type = GL_UNSIGNED_BYTE;
-	{
-		//			GL.GetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &internalformat);
-		//			GL.GetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
-		// there's a format we don't support ATM
-		if (GL_UNSIGNED_SHORT_4_4_4_4 == type) {
-			internalformat = GL_RGBA;
-			type = GL_UNSIGNED_BYTE;
-		}
-	}
+	// We could check GL_IMPLEMENTATION_COLOR_READ_* to discover the preferred
+	// format, but seems complicated and not worth it to handle.
 
 	IImage *newImage = 0;
 	if (GL_RGBA == internalformat) {
@@ -1844,8 +1833,17 @@ IImage *COpenGL3DriverBase::createScreenShot(video::ECOLOR_FORMAT format, video:
 		return 0;
 	}
 
+	// On GLES 2 we will always read from the current frame buffer, which means
+	// creating a screenshot will only work if done at the end of the render loop.
+	if (Version.Spec != OpenGLSpec::ES || Version.Major >= 3) {
+		GL.ReadBuffer(preferBackbuffer ? GL_BACK : GL_COLOR_ATTACHMENT0);
+	}
+
 	GL.ReadPixels(0, 0, ScreenSize.Width, ScreenSize.Height, internalformat, type, pixels);
-	TEST_GL_ERROR(this);
+	if (TEST_GL_ERROR(this)) {
+		newImage->drop();
+		return 0;
+	}
 
 	// opengl images are horizontally flipped, so we have to fix that here.
 	const s32 pitch = newImage->getPitch();
@@ -1873,10 +1871,6 @@ IImage *COpenGL3DriverBase::createScreenShot(video::ECOLOR_FORMAT format, video:
 		}
 	}
 
-	if (TEST_GL_ERROR(this)) {
-		newImage->drop();
-		return 0;
-	}
 	return newImage;
 }
 
