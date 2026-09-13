@@ -212,7 +212,8 @@ void draw2DImage9Slice(video::IVideoDriver *driver, video::ITexture *texture,
 	12---13---14---15
 	*/
 	std::array<video::S3DVertex, 16> vertices;
-	std::array<u16,           9*2*3> indices; // 2 * 3 triangles per cell
+	static std::array<u16, 9*2*3> indices; // 2 * 3 triangles per cell
+	static bool indices_initialized = false;
 
 	for (int y = 0; y < 4; ++y) {
 		for (int x = 0; x < 4; ++x) {
@@ -269,7 +270,10 @@ void draw2DImage9Slice(video::IVideoDriver *driver, video::ITexture *texture,
 		}
 	}
 
-	for (int y = 0; y < 3; ++y) {
+	if (!indices_initialized) {
+		indices_initialized = true;
+
+		for (int y = 0; y < 3; ++y)
 		for (int x = 0; x < 3; ++x) {
 			const int i = (y * 3 + x) * 2*3;
 			// Upper right (e.g. 5,6,10)
