@@ -31,7 +31,7 @@ flat VARYING_ uint varTexLayer;
 VARYING_ highp vec3 eyeVec;
 VARYING_ float nightRatio;
 // Color of the light emitted by the light sources.
-const vec3 artificialLight = vec3(1.04, 1.04, 1.04);
+uniform vec3 artificialLight;
 VARYING_ float vIDiff;
 
 #ifdef USE_SKINNING

@@ -53,4 +53,13 @@ struct Lighting
 	float bloom_strength_factor {1.0f};
 	float bloom_radius {1.0f};
 	v3f shadow_direction;
+
+	// Overrides for the day/night sunlight gradient and artificial light tint.
+	// false means use the engine's built-in colors.
+	bool has_sunlight_color {false};
+	video::SColor sunlight_color {255, 255, 255, 255};
+	bool has_moonlight_color {false};
+	video::SColor moonlight_color {255, 255, 255, 255};
+	bool has_lightsource_color {false};
+	video::SColor lightsource_color {255, 255, 255, 255};
 };

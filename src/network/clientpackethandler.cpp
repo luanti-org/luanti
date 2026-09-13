@@ -1916,5 +1916,12 @@ void Client::handleCommand_SetLighting(NetworkPacket *pkt)
 			break;
 		// >= 5.16.0-dev
 		*pkt >> lighting.shadow_direction;
+
+		if (!pkt->hasRemainingBytes())
+			break;
+		// >= 5.17.0-dev
+		*pkt >> lighting.has_sunlight_color >> lighting.sunlight_color;
+		*pkt >> lighting.has_moonlight_color >> lighting.moonlight_color;
+		*pkt >> lighting.has_lightsource_color >> lighting.lightsource_color;
 	} while (0);
 }
