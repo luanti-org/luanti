@@ -147,7 +147,24 @@ struct BoneOverride
 };
 
 typedef std::unordered_map<std::string, BoneOverride> BoneOverrideMap;
+typedef u16 object_t;
 
+struct AttachmentData
+{
+	enum Flags : u8 {
+		FORCE_VISIBLE = 0x01,
+		MOVE_CAMERA = 0x02
+	};
+
+	object_t parent_id {0};
+	std::string bone {""};
+	v3f position {};
+	v3f rotation {};
+	u8 flags {0};
+
+	void serialize(std::ostream &os) const;
+	void deSerialize(std::istream &is);
+};
 
 /*
 	Parent class for ServerActiveObject and ClientActiveObject
@@ -155,8 +172,6 @@ typedef std::unordered_map<std::string, BoneOverride> BoneOverrideMap;
 class ActiveObject
 {
 public:
-	typedef u16 object_t;
-
 	ActiveObject(object_t id):
 		m_id(id)
 	{
@@ -198,16 +213,14 @@ public:
 	virtual bool collideWithObjects() const = 0;
 
 
-	virtual void setAttachment(object_t parent_id, const std::string &bone, v3f position,
-			v3f rotation, bool force_visible, bool move_camera) {}
-	virtual void getAttachment(object_t *parent_id, std::string *bone, v3f *position,
-			v3f *rotation, bool *force_visible, bool *move_camera) const {}
+	virtual void setAttachment(const AttachmentData &attachment) {}
+	virtual void getAttachment(AttachmentData &attachment) const {}
 	// Detach all children
 	virtual void clearChildAttachments() {}
 	// Detach from parent
 	virtual void clearParentAttachment()
 	{
-		setAttachment(0, "", v3f(), v3f(), false, false);
+		setAttachment({});
 	}
 
 	// To be called from setAttachment() and descendants, but not manually!
