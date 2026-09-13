@@ -13,8 +13,8 @@ class MockServer : public Server
 public:
 	/* Set `path_world` to a real existing folder if you plan to initialize scripting! */
 	MockServer(const std::string &path_world = "fakepath") :
-		Server(path_world, SubgameSpec("fakespec", "fakespec"), true,
-			Address(), true, nullptr
+		Server(path_world, SubgameSpec("fakespec", "fakespec"),
+			   true, UDPSocket::CreateEphemeral(false), true, nullptr
 		)
 	{}
 

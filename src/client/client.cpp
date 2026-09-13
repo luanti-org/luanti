@@ -414,7 +414,8 @@ void Client::connect(const Address &address, const std::string &address_name)
 	}
 
 	m_address_name = address_name;
-	m_con.reset(con::createMTP(CONNECTION_TIMEOUT, address.isIPv6(), this));
+	m_con.reset(con::createMTP(/*is_server=*/false,
+			UDPSocket::CreateEphemeral(address.isIPv6()), this));
 
 	infostream << "Connecting to server at ";
 	address.print(infostream);
