@@ -6,6 +6,7 @@
 
 #include "CGUISkin.h"
 
+#include "CBatchDraw2D.h"
 #include "IGUIFont.h"
 #include "IGUISpriteBank.h"
 #include "IGUIElement.h"
@@ -296,20 +297,22 @@ void CGUISkin::drawColored3DButtonPaneStandard(IGUIElement* element,
 
 	core::rect<s32> rect = r;
 
-	Driver->draw2DRectangle(colors[EGDC_3D_DARK_SHADOW], rect, clip);
+	video::CBatchDraw2D batch(0, 4);
+	batch.addRectangle(true, colors[EGDC_3D_DARK_SHADOW], rect);
 
 	rect.LowerRightCorner.X -= 1;
 	rect.LowerRightCorner.Y -= 1;
-	Driver->draw2DRectangle(colors[EGDC_3D_HIGH_LIGHT], rect, clip);
+	batch.addRectangle(true, colors[EGDC_3D_HIGH_LIGHT], rect);
 
 	rect.UpperLeftCorner.X += 1;
 	rect.UpperLeftCorner.Y += 1;
-	Driver->draw2DRectangle(colors[EGDC_3D_SHADOW], rect, clip);
+	batch.addRectangle(true, colors[EGDC_3D_SHADOW], rect);
 
 	rect.LowerRightCorner.X -= 1;
 	rect.LowerRightCorner.Y -= 1;
+	batch.addRectangle(true, colors[EGDC_3D_FACE], rect);
 
-	Driver->draw2DRectangle(colors[EGDC_3D_FACE], rect, clip);
+	batch.draw(Driver, true, clip, nullptr);
 }
 // END PATCH
 
