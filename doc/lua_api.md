@@ -4740,6 +4740,11 @@ Translations
 Texts can be translated client-side with the help of `core.translate` and
 translation files.
 
+Luanti is currently a monolingual translation system. All translations occur
+from English and into a target language other than English, so you can translate
+English to Spanish but not Spanish to English, for instance. This is filed as
+[issue #6503](https://github.com/luanti-org/luanti/issues/6503)
+
 Translating a string
 --------------------
 
