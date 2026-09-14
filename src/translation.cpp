@@ -115,7 +115,6 @@ void Translations::loadTrTranslation(const std::string &data, bool is_fallback, 
 	std::string textdomain_narrow;
 	std::wstring textdomain;
 	std::string line;
-	std::string source_lang;
 
 	while (is.good()) {
 		std::getline(is, line);
@@ -140,15 +139,15 @@ void Translations::loadTrTranslation(const std::string &data, bool is_fallback, 
 						<< "\"" << std::endl;
 				continue;
 			}
-			source_lang = trim(parts[1]);
+			auto source_lang = trim(parts[1]);
+
+			if (is_fallback && !source_lang.empty() && source_lang == target_lang) {
+				return;
+			}
 		}
 
 		if (line.empty() || line[0] == '#')
 			continue;
-
-		if (is_fallback && !source_lang.empty() && source_lang == target_lang) {
-			return;
-		}
 
 		std::wstring wline = utf8_to_wide(line);
 		if (wline.empty())
@@ -458,7 +457,6 @@ void Translations::loadPoTranslation(const std::string &basefilename, const std:
 	GettextPluralForm::Ptr plural;
 	bool skip = false;
 	bool skip_last = false;
-	std::string source_lang;
 
 	while (is.good()) {
 		std::getline(is, line);
@@ -513,15 +511,12 @@ void Translations::loadPoTranslation(const std::string &basefilename, const std:
 									}
 								}
 								else if (str_starts_with(line, L"Source-Language:")) {
-									std::wstring lang = line.substr(16);
-									lang.erase(0, lang.find_first_not_of(L" \t\""));
-									lang.erase(lang.find_last_not_of(L" \t\"\n\r") + 1);
-									source_lang = wide_to_utf8(lang);
-								}
-							}
+									auto source_lang = trim(wide_to_utf8(line.substr(16)));
 
-							if (is_fallback && !source_lang.empty() && source_lang == target_lang) {
-								return;
+									if (is_fallback && !source_lang.empty() && source_lang == target_lang) {
+										return;
+									}
+								}
 							}
 						}
 					} else {
@@ -598,7 +593,6 @@ void Translations::loadMoTranslation(const std::string &basefilename, const std:
 	size_t length = data.length();
 	std::wstring wbasefilename = utf8_to_wide(basefilename);
 	GettextPluralForm::Ptr plural_form;
-	std::string source_lang;
 
 	if (length < 20) {
 		errorstream << "Ignoring too short mo file" << std::endl;
@@ -662,15 +656,12 @@ void Translations::loadMoTranslation(const std::string &basefilename, const std:
 						}
 					}
 					else if (str_starts_with(line, "Source-Language:")) {
-						std::string lang = line.substr(16);
-						lang.erase(0, lang.find_first_not_of(" \t\""));
-						lang.erase(lang.find_last_not_of(" \t\"\n\r") + 1);
-						source_lang = lang;
-					}
-				}
+						auto source_lang = trim(line.substr(16));
 
-				if (is_fallback && !source_lang.empty() && source_lang == target_lang) {
-					return;
+						if (is_fallback && !source_lang.empty() && source_lang == target_lang) {
+							return;
+						}
+					}
 				}
 			}
 		} else {

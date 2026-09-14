@@ -4907,7 +4907,7 @@ By default, Luanti assumes that the source strings in mods are written in Englis
 
 To declare the source language, you must add a `Source-Language` field to the **English** translation file (specifying the source language in files for other locales will be ignored).
 
-For `.po` and `.mo` files, the source language is specified in the metadata header:
+For `.po` and `.mo` files, the source language is specified in the header entry:
 ```po
 msgid ""
 msgstr ""
