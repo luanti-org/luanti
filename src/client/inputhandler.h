@@ -58,6 +58,14 @@ public:
 		return a;
 	}
 
+	// Returns the mouse movement since the last call and resets it
+	v2s32 getMouseMovement()
+	{
+		v2s32 a = mouse_movement;
+		mouse_movement = v2s32(0, 0);
+		return a;
+	}
+
 	void clearInput()
 	{
 		physicalKeyDown.clear();
@@ -67,6 +75,7 @@ public:
 		keyWasReleased.reset();
 
 		mouse_wheel = 0;
+		mouse_movement = v2s32(0, 0);
 	}
 
 	void releaseAllKeys()
@@ -168,6 +177,9 @@ private:
 	bool esc_down = false;
 
 	PointerType last_pointer_type = PointerType::Mouse;
+
+	// Relative mouse movement accumulated from mouse events
+	v2s32 mouse_movement;
 };
 
 class InputHandler
@@ -209,6 +221,11 @@ public:
 
 	virtual v2s32 getMousePos() = 0;
 	virtual void setMousePos(s32 x, s32 y) = 0;
+
+	// Returns the mouse movement since the last call and resets it.
+	// Unlike getMousePos(), this is meaningful while the cursor is hidden
+	// or the pointer is locked and does not depend on warping the cursor.
+	virtual v2s32 getMouseMovement() = 0;
 
 	virtual s32 getMouseWheel() = 0;
 
@@ -274,6 +291,11 @@ public:
 	virtual v2s32 getMousePos();
 	virtual void setMousePos(s32 x, s32 y);
 
+	virtual v2s32 getMouseMovement()
+	{
+		return m_receiver->getMouseMovement();
+	}
+
 	virtual s32 getMouseWheel()
 	{
 		return m_receiver->getMouseWheel();
@@ -312,6 +334,13 @@ public:
 	virtual v2s32 getMousePos() { return mousepos; }
 	virtual void setMousePos(s32 x, s32 y) { mousepos = v2s32(x, y); }
 
+	virtual v2s32 getMouseMovement()
+	{
+		v2s32 a = mousemovement;
+		mousemovement = v2s32(0, 0);
+		return a;
+	}
+
 	virtual s32 getMouseWheel() { return 0; }
 
 	virtual void step(float dtime);
@@ -322,4 +351,5 @@ private:
 	std::bitset<GameKeyType::INTERNAL_ENUM_COUNT> keydown;
 	v2s32 mousepos;
 	v2s32 mousespeed;
+	v2s32 mousemovement;
 };

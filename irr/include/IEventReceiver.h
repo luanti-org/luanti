@@ -151,14 +151,6 @@ enum EMOUSE_INPUT_EVENT
 	//! This event is generated after the third EMIE_MMOUSE_PRESSED_DOWN event.
 	EMIE_MMOUSE_TRIPLE_CLICK,
 
-	//! Mouse enters canvas used for rendering.
-	//! Only generated on emscripten
-	EMIE_MOUSE_ENTER_CANVAS,
-
-	//! Mouse leaves canvas used for rendering.
-	//! Only generated on emscripten
-	EMIE_MOUSE_LEAVE_CANVAS,
-
 	//! No real event. Just for convenience to get number of events
 	EMIE_COUNT
 };
@@ -326,6 +318,14 @@ struct SEvent
 
 		//! Y position of mouse cursor
 		s32 Y;
+
+		//! X movement of the mouse since the previous event.
+		/** Only valid for EMIE_MOUSE_MOVED. */
+		s32 XRel;
+
+		//! Y movement of the mouse since the previous event.
+		/** Only valid for EMIE_MOUSE_MOVED. */
+		s32 YRel;
 
 		union {
 			//! mouse wheel delta, often 1.0 or -1.0, but can have other values < 0.f or > 0.f;

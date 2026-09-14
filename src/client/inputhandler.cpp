@@ -275,6 +275,9 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 		return true;
 	} else if (event.EventType == EET_MOUSE_INPUT_EVENT && event.MouseInput.Event == EMIE_MOUSE_WHEEL) {
 		mouse_wheel += event.MouseInput.Wheel;
+	} else if (event.EventType == EET_MOUSE_INPUT_EVENT && event.MouseInput.Event == EMIE_MOUSE_MOVED) {
+		mouse_movement.X += event.MouseInput.XRel;
+		mouse_movement.Y += event.MouseInput.YRel;
 	} else if (event.EventType == EET_USER_EVENT && event.UserEvent.type == EUET_GAME_KEY) {
 		KeyPress keyCode(static_cast<GameKeyType>(event.UserEvent.UserData1));
 		setKeyDown(keyCode, InputHandler::intToAnalog(event.UserEvent.UserData2));
@@ -355,4 +358,5 @@ void RandomInputHandler::step(float dtime)
 		}
 	}
 	mousepos += mousespeed;
+	mousemovement += mousespeed;
 }
