@@ -170,9 +170,8 @@ ModSpecList getModsInPath(
 	// NOTE: this function works in mutual recursion with parseModContents
 
 	ModSpecList result;
-	std::vector<fs::DirListNode> dirlist = fs::GetDirListing(path);
-	std::string mod_path;
-	std::string mod_virtual_path;
+	auto dirlist = fs::GetDirListing(path);
+	std::string mod_path, mod_virtual_path;
 
 	for (const fs::DirListNode &dln : dirlist) {
 		if (!dln.dir)

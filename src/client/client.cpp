@@ -376,9 +376,9 @@ Client::~Client()
 	m_mesh_update_manager->clearAllQueues(true);
 
 	// Delete detached inventories
-	for (auto &m_detached_inventorie : m_detached_inventories) {
-		delete m_detached_inventorie.second;
-	}
+	for (auto &it : m_detached_inventories)
+		delete it.second;
+	m_detached_inventories.clear();
 
 	// cleanup 3d model meshes on client shutdown
 	m_rendering_engine->cleanupMeshCache();
@@ -394,6 +394,7 @@ Client::~Client()
 	if (m_mod_storage_database)
 		m_mod_storage_database->endSave();
 	delete m_mod_storage_database;
+	m_mod_storage_database = nullptr;
 
 	// Free sound ids
 	for (auto &csp : m_sounds_client_to_server)
@@ -928,7 +929,7 @@ void Client::deletingPeer(con::IPeer *peer, bool timeout)
 		m_access_denied_reason = gettext("Connection aborted (protocol error?).");
 }
 
-void Client::request_media(const std::vector<std::string> &file_requests)
+void Client::requestMedia(const std::vector<std::string> &file_requests)
 {
 	std::ostringstream os(std::ios_base::binary);
 	writeU16(os, TOSERVER_REQUEST_MEDIA);
@@ -986,15 +987,16 @@ void Client::ReceiveAll()
 {
 	NetworkPacket pkt;
 	u64 start_ms = porting::getTimeMs();
-	const u64 budget = 10;
+	const u64 budget = m_state == LC_Ready ? 10 : 100;
 
 	FATAL_ERROR_IF(!m_con, "Networking not initialized");
-	for(;;) {
+	for (;;) {
 		// Limit time even if there would be huge amounts of data to
 		// process
-		if (porting::getTimeMs() > start_ms + budget) {
+		if (u64 d = porting::getTimeMs() - start_ms; d >= budget) {
 			infostream << "Client::ReceiveAll(): "
-					"Packet processing budget exceeded." << std::endl;
+				"Packet processing budget exceeded, took "
+				<< d << "ms" << std::endl;
 			break;
 		}
 

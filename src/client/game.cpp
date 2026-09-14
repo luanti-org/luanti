@@ -2628,8 +2628,7 @@ void Game::updateCameraOffset()
 			shadow->getDirectionalLight().updateCameraOffset(camera);
 			// FIXME: I bet we can be smarter about this and don't need to redraw
 			// the shadow map at all, but this is for someone else to figure out.
-			if (!g_settings->getFlag("performance_tradeoffs"))
-				shadow->setForceUpdateShadowMap();
+			shadow->setForceUpdateShadowMap();
 		}
 
 		env.getClientMap().updateCamera(camera->getPosition(),

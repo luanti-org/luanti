@@ -608,7 +608,8 @@ std::string encodeHexColorString(video::SColor color)
 
 void str_replace(std::string &str, char from, char to)
 {
-	std::replace(str.begin(), str.end(), from, to);
+	if (from != to)
+		std::replace(str.begin(), str.end(), from, to);
 }
 
 std::string wrap_rows(std::string_view from, unsigned row_len, bool has_color_codes)

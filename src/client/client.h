@@ -399,9 +399,9 @@ public:
 		bool from_media_push = false);
 
 	// Send a request for conventional media transfer
-	void request_media(const std::vector<std::string> &file_requests);
+	void requestMedia(const std::vector<std::string> &file_requests);
 
-	LocalClientState getState() { return m_state; }
+	LocalClientState getState() const { return m_state; }
 
 	void makeScreenshot();
 

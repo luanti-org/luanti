@@ -468,7 +468,7 @@ void ClientMediaDownloader::startConventionalTransfers(Client *client)
 		}
 		assert((s32) file_requests.size() ==
 				m_uncached_count - m_uncached_received_count);
-		client->request_media(file_requests);
+		client->requestMedia(file_requests);
 	}
 }
 
@@ -757,5 +757,5 @@ void SingleMediaDownloader::startConventionalTransfer(Client *client)
 {
 	std::vector<std::string> requests;
 	requests.emplace_back(m_file_name);
-	client->request_media(requests);
+	client->requestMedia(requests);
 }

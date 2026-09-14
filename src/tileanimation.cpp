@@ -50,6 +50,7 @@ void TileAnimationParams::deSerialize(std::istream &is, u16 protocol_ver)
 void TileAnimationParams::determineParams(v2u32 texture_size, int *frame_count,
 		int *frame_length_ms, v2u32 *frame_size) const
 {
+	assert(type != TAT_NONE); // caller should check
 	if (type == TAT_VERTICAL_FRAMES) {
 		int frame_height = (float)texture_size.X /
 				(float)vertical_frames.aspect_w *
@@ -69,7 +70,6 @@ void TileAnimationParams::determineParams(v2u32 texture_size, int *frame_count,
 		if (frame_size)
 			*frame_size = v2u32(texture_size.X / sheet_2d.frames_w, texture_size.Y / sheet_2d.frames_h);
 	}
-	// caller should check for TAT_NONE
 }
 
 void TileAnimationParams::getTextureModifer(std::ostream &os, v2u32 texture_size, int frame) const
@@ -121,6 +121,7 @@ void TileAnimationParams::extractFirstFrame(std::string &name) const
 v2f TileAnimationParams::getTextureCoords(v2u32 texture_size, int frame) const
 {
 	v2u32 ret(0, 0);
+	assert(type != TAT_NONE); // caller should check
 	if (type == TAT_VERTICAL_FRAMES) {
 		int frame_height = (float)texture_size.X /
 				(float)vertical_frames.aspect_w *

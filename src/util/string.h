@@ -481,6 +481,15 @@ std::string my_double_to_string(double number);
 std::optional<double> my_string_to_double(const std::string &s);
 
 /**
+ * Replace all occurrences of the character \p from in \p str with \p to.
+ *
+ * @param str The string to (potentially) modify.
+ * @param from The character in str to replace.
+ * @param to The replacement character.
+ */
+void str_replace(std::string &str, char from, char to);
+
+/**
  * Replace all occurrences of \p pattern in \p str with \p replacement.
  *
  * @param str String to replace pattern with replacement within.
@@ -490,6 +499,10 @@ std::optional<double> my_string_to_double(const std::string &s);
 inline void str_replace(std::string &str, std::string_view pattern,
 		std::string_view replacement)
 {
+	if (pattern == replacement)
+		return;
+	if (pattern.size() == 1 && pattern.size() == replacement.size())
+		return str_replace(str, pattern[0], replacement[0]);
 	std::string::size_type start = str.find(pattern, 0);
 	while (start != str.npos) {
 		str.replace(start, pattern.size(), replacement);
@@ -519,16 +532,6 @@ inline void str_texture_modifiers_escape(std::string &str)
 	str_replace(str, "^", "\\^");
 	str_replace(str, ":", "\\:");
 }
-
-/**
- * Replace all occurrences of the character \p from in \p str with \p to.
- *
- * @param str The string to (potentially) modify.
- * @param from The character in str to replace.
- * @param to The replacement character.
- */
-void str_replace(std::string &str, char from, char to);
-
 
 /**
  * Check that a string only contains whitelisted characters. This is the
