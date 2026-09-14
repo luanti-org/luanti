@@ -3558,8 +3558,6 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		event.MouseInput.Event = EMIE_MOUSE_MOVED;
 		event.MouseInput.X = m_pointer.X;
 		event.MouseInput.Y = m_pointer.Y;
-		event.MouseInput.XRel = 0;
-		event.MouseInput.YRel = 0;
 
 		Environment->postEventFromUser(event);
 
