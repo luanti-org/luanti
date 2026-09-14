@@ -141,7 +141,7 @@ void AreaStore::cacheMiss(void *data, const v3s16 &mpos, std::vector<Area *> *de
 		minedge.Y + r - 1,
 		minedge.Z + r - 1);
 
-	as->getAreasInArea(dest, minedge, maxedge, true);
+	as->getOverlappingAreas(dest, minedge, maxedge);
 
 	/* infostream << "Cache miss with " << dest->size() << " areas, between ("
 			<< minedge.X << ", " << minedge.Y << ", " << minedge.Z
@@ -214,15 +214,22 @@ void VectorAreaStore::getAreasForPosImpl(std::vector<Area *> *result, v3s16 pos)
 	}
 }
 
-void VectorAreaStore::getAreasInArea(std::vector<Area *> *result,
-		v3s16 minedge, v3s16 maxedge, bool accept_overlap)
+void VectorAreaStore::getOverlappingAreas(std::vector<Area *> *result,
+		const v3s16 minedge, const v3s16 maxedge)
 {
-	for (Area *area : m_areas) {
-		if (accept_overlap ? AST_AREAS_OVERLAP(minedge, maxedge, area) :
-				AST_CONTAINS_AREA(minedge, maxedge, area)) {
-			result->push_back(area);
-		}
-	}
+	std::copy_if(m_areas.begin(), m_areas.end(), std::back_inserter(*result),
+		[&](const Area *area) {
+			return AST_AREAS_OVERLAP(minedge, maxedge, area);
+		});
+}
+
+void VectorAreaStore::getContainingAreas(std::vector<Area *> *result,
+		const v3s16 minedge, const v3s16 maxedge)
+{
+	std::copy_if(m_areas.begin(), m_areas.end(), std::back_inserter(*result),
+		[&](const Area *area) {
+			return AST_CONTAINS_AREA(minedge, maxedge, area);
+		});
 }
 
 #if USE_SPATIAL
@@ -277,16 +284,18 @@ void SpatialAreaStore::getAreasForPosImpl(std::vector<Area *> *result, v3s16 pos
 	m_tree->pointLocationQuery(get_spatial_point(pos), visitor);
 }
 
-void SpatialAreaStore::getAreasInArea(std::vector<Area *> *result,
-		v3s16 minedge, v3s16 maxedge, bool accept_overlap)
+void SpatialAreaStore::getOverlappingAreas(std::vector<Area *> *result,
+		const v3s16 minedge, const v3s16 maxedge)
 {
 	VectorResultVisitor visitor(result, this);
-	if (accept_overlap) {
-		m_tree->intersectsWithQuery(get_spatial_region(minedge, maxedge),
-			visitor);
-	} else {
-		m_tree->containsWhatQuery(get_spatial_region(minedge, maxedge), visitor);
-	}
+	m_tree->intersectsWithQuery(get_spatial_region(minedge, maxedge), visitor);
+}
+
+void SpatialAreaStore::getContainingAreas(std::vector<Area *> *result,
+		const v3s16 minedge, const v3s16 maxedge)
+{
+	VectorResultVisitor visitor(result, this);
+	m_tree->containsWhatQuery(get_spatial_region(minedge, maxedge), visitor);
 }
 
 SpatialAreaStore::~SpatialAreaStore()

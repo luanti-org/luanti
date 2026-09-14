@@ -79,15 +79,15 @@ void TestAreaStore::genericStoreTest(AreaStore *store)
 	UASSERTEQ(size_t, res.size(), 1);
 	res.clear();
 
-	store->getAreasInArea(&res, v3s16(-10, -3, 5), v3s16(0, 29, 7), false);
+	store->getContainingAreas(&res, v3s16(-10, -3, 5), v3s16(0, 29, 7));
 	UASSERTEQ(size_t, res.size(), 3);
 	res.clear();
 
-	store->getAreasInArea(&res, v3s16(-100, 0, 6), v3s16(200, 0, 6), false);
+	store->getContainingAreas(&res, v3s16(-100, 0, 6), v3s16(200, 0, 6));
 	UASSERTEQ(size_t, res.size(), 0);
 	res.clear();
 
-	store->getAreasInArea(&res, v3s16(-100, 0, 6), v3s16(200, 0, 6), true);
+	store->getOverlappingAreas(&res, v3s16(-100, 0, 6), v3s16(200, 0, 6));
 	UASSERTEQ(size_t, res.size(), 3);
 	res.clear();
 
