@@ -1,0 +1,11 @@
+msgid ""
+msgstr "\n"
+"Source-Language: pt\n"
+
+msgctxt "testtranslations"
+msgid "Testing .po files: monolingual untranslated"
+msgstr "Testing .po files: monolingual fallback"
+
+msgctxt "testtranslations"
+msgid "Testing .po fallback: monolingual untranslated"
+msgstr "Testing .po fallback: monolingual fallback"

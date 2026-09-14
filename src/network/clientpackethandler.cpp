@@ -148,7 +148,7 @@ void Client::handleCommand_AuthAccept(NetworkPacket* pkt)
 	language code (e.g. "de" for German). */
 	std::string lang = gettext("LANG_CODE");
 	if (lang == "LANG_CODE")
-		lang.clear();
+		lang = "en";
 
 	NetworkPacket resp_pkt(TOSERVER_INIT2, sizeof(u16) + lang.size());
 	resp_pkt << lang;
