@@ -58,7 +58,9 @@ public:
 		return a;
 	}
 
-	// Returns the mouse movement since the last call and resets it
+	// Returns the mouse movement since the last call and resets it.
+	// Remains valid even when the cursor is hidden and locked to the
+	// center of the window.
 	v2s32 getMouseMovement()
 	{
 		v2s32 a = mouse_movement;
@@ -222,9 +224,6 @@ public:
 	virtual v2s32 getMousePos() = 0;
 	virtual void setMousePos(s32 x, s32 y) = 0;
 
-	// Returns the mouse movement since the last call and resets it.
-	// Unlike getMousePos(), this is meaningful while the cursor is hidden
-	// or the pointer is locked and does not depend on warping the cursor.
 	virtual v2s32 getMouseMovement() = 0;
 
 	virtual s32 getMouseWheel() = 0;

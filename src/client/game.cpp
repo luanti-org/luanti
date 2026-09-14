@@ -2015,8 +2015,8 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 		cam->camera_yaw   -= dist.X * m_cache_mouse_sensitivity * sens_scale;
 		cam->camera_pitch += dist.Y * m_cache_mouse_sensitivity * sens_scale;
 
-		// Keep the hidden cursor centered so that it doesn't reach the window
-		// border and reappears in the middle of the screen when a menu opens.
+		// Keep the cursor centered so that it appears in the middle of
+		// the screen when a menu opens.
 		if (dist.X != 0 || dist.Y != 0) {
 			v2s32 center(driver->getScreenSize().Width / 2, driver->getScreenSize().Height / 2);
 			input->setMousePos(center.X, center.Y);
