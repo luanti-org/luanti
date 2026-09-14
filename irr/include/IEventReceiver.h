@@ -8,6 +8,8 @@
 #include "Keycodes.h"
 #include "irrString.h"
 
+#include <type_traits>
+
 //! Enumeration for all event types there are.
 enum EEVENT_TYPE
 {
@@ -529,12 +531,14 @@ struct SEvent
 		struct SApplicationEvent ApplicationEvent;
 	};
 
+	//! Zeroes the whole structure, including the union and any padding.
 	SEvent() {
-		EventType = static_cast<EEVENT_TYPE>(0);
-		// zero the biggest union member we have, which clears all others too
-		memset(&AccelerometerEvent, 0, sizeof(AccelerometerEvent));
+		// Safe because of the static_assert below.
+		memset(static_cast<void*>(this), 0, sizeof(*this));
 	}
 };
+
+static_assert(std::is_trivially_copyable_v<SEvent>, "SEvent is not safe to memset()");
 
 //! Interface of an object which can receive events.
 /** Many of the engine's classes inherit IEventReceiver so they are able to
