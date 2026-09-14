@@ -59,6 +59,7 @@ core.features = {
 	compress_raw_deflate = true,
 	get_all_craft_recipes_fuel = true,
 	get_all_craft_recipes_replacements = true,
+	call_dig_node_for_player_digs = true,
 }
 
 function core.has_feature(arg)

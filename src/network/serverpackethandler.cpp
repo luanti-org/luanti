@@ -1132,7 +1132,7 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		/* Actually dig node */
 
 		if (is_valid_dig && n.getContent() != CONTENT_IGNORE)
-			m_script->node_on_dig(p_under, n, playersao);
+			m_script->digNode(p_under, playersao);
 
 		// For whatever reason we assume that the client always predicts that a
 		// dug node is air irrespective of the node's node_dig_prediction
