@@ -3550,7 +3550,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 
 	// Restore hover state
 	if (m_pointer.X != -1) {
-		SEvent event;
+		SEvent event{};
 		event.EventType = EET_MOUSE_INPUT_EVENT;
 		event.MouseInput.Event = EMIE_MOUSE_MOVED;
 		event.MouseInput.X = m_pointer.X;
