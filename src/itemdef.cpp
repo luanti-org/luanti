@@ -94,7 +94,7 @@ void ItemImageDef::deSerialize(std::istream &is, u16 protocol_version)
 	name = deSerializeString16(is);
 	if (protocol_version < 51)
 		return;
-	animation.deSerialize(is, protocol_version);
+	animation.deSerialize(is);
 }
 
 /*

@@ -1052,7 +1052,7 @@ void Client::handleCommand_AddParticleSpawner(NetworkPacket* pkt)
 
 	attached_id = readU16(is);
 
-	p.animation.deSerialize(is, m_proto_ver);
+	p.animation.deSerialize(is);
 	p.glow = readU8(is);
 	p.object_collision = readU8(is);
 
@@ -1090,7 +1090,7 @@ void Client::handleCommand_AddParticleSpawner(NetworkPacket* pkt)
 		// else: fields are already read by deSerialize() very early
 
 		// properties for legacy texture field
-		p.texture.deSerialize(is, m_proto_ver, true);
+		p.texture.deSerialize(is, true);
 
 		p.drag.deSerialize(is);
 		p.jitter.deSerialize(is);
@@ -1115,7 +1115,7 @@ void Client::handleCommand_AddParticleSpawner(NetworkPacket* pkt)
 		p.texpool.reserve(texpoolsz);
 		for (u16 i = 0; i < texpoolsz; ++i) {
 			ServerParticleTexture newtex;
-			newtex.deSerialize(is, m_proto_ver);
+			newtex.deSerialize(is);
 			p.texpool.push_back(newtex);
 		}
 

@@ -236,7 +236,7 @@ void TileDef::deSerialize(std::istream &is, NodeDrawType drawtype, u16 protocol_
 		throw SerializationError("unsupported TileDef version");
 
 	name = deSerializeString16(is);
-	animation.deSerialize(is, protocol_version);
+	animation.deSerialize(is);
 	u16 flags = readU16(is);
 	backface_culling = flags & TILE_FLAG_BACKFACE_CULLING;
 	tileable_horizontal = flags & TILE_FLAG_TILEABLE_HORIZONTAL;

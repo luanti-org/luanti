@@ -25,7 +25,7 @@ void TileAnimationParams::serialize(std::ostream &os, u16 protocol_ver) const
 	}
 }
 
-void TileAnimationParams::deSerialize(std::istream &is, u16 protocol_ver)
+void TileAnimationParams::deSerialize(std::istream &is)
 {
 	type = static_cast<TileAnimationType>(readU8(is));
 	switch(type) {

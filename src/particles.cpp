@@ -207,7 +207,7 @@ void ServerParticleTexture::serialize(std::ostream &os, u16 protocol_ver,
 		animation.serialize(os, protocol_ver);
 }
 
-void ServerParticleTexture::deSerialize(std::istream &is, u16 protocol_ver,
+void ServerParticleTexture::deSerialize(std::istream &is,
 		bool newPropertiesOnly, bool skipAnimation)
 {
 	FlagT flags = 0;
@@ -224,7 +224,7 @@ void ServerParticleTexture::deSerialize(std::istream &is, u16 protocol_ver,
 		string = deSerializeString32(is);
 
 	if (!skipAnimation && animated)
-		animation.deSerialize(is, protocol_ver);
+		animation.deSerialize(is);
 }
 
 void ParticleParameters::serialize(std::ostream &os, u16 protocol_ver) const
@@ -261,7 +261,7 @@ void ParticleParameters::deSerialize(std::istream &is, u16 protocol_ver)
 	texture.string     = deSerializeString32(is);
 	vertical           = readU8(is);
 	collision_removal  = readU8(is);
-	animation.deSerialize(is, protocol_ver);
+	animation.deSerialize(is);
 	glow               = readU8(is);
 	object_collision   = readU8(is);
 
@@ -285,5 +285,5 @@ void ParticleParameters::deSerialize(std::istream &is, u16 protocol_ver)
 		return;
 	// >= 5.9.0-dev
 
-	texture.deSerialize(is, protocol_ver, true, true);
+	texture.deSerialize(is, true, true);
 }
