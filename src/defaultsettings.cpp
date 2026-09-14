@@ -113,7 +113,7 @@ void set_default_settings()
 	settings->setDefault("screenshot_format", "png");
 	settings->setDefault("screenshot_quality", "0");
 	settings->setDefault("client_unload_unused_data_timeout", "600");
-	settings->setDefault("client_mapblock_limit", "7500"); // about 120 MB
+	settings->setDefault("client_mapblock_limit", "9300"); // about 145 MB
 	settings->setDefault("enable_build_where_you_stand", "false");
 	settings->setDefault("curl_timeout", "20000");
 	settings->setDefault("secure.curl_proxy", "");
@@ -252,8 +252,8 @@ void set_default_settings()
 	settings->setDefault("tooltip_append_itemname", "false");
 	settings->setDefault("fps_max", "60");
 	settings->setDefault("fps_max_unfocused", "10");
-	settings->setDefault("viewing_range", "190");
-	settings->setDefault("client_mesh_chunk", "1");
+	settings->setDefault("viewing_range", "200");
+	settings->setDefault("client_mesh_chunk", "2");
 	settings->setDefault("screen_w", "1024");
 	settings->setDefault("screen_h", "600");
 	settings->setDefault("window_maximized", "false");
@@ -449,7 +449,7 @@ void set_default_settings()
 	settings->setDefault("strict_protocol_version_checking", "false");
 	settings->setDefault("protocol_version_min", "1");
 	settings->setDefault("player_transfer_distance", "0");
-	settings->setDefault("max_simultaneous_block_sends_per_client", "40");
+	settings->setDefault("max_simultaneous_block_sends_per_client", "50");
 
 	settings->setDefault("motd", "");
 	settings->setDefault("max_users", "15");
@@ -474,9 +474,7 @@ void set_default_settings()
 	settings->setDefault("profiler_print_interval", "0");
 	settings->setDefault("active_object_send_range_blocks", "8");
 	settings->setDefault("active_block_range", "4");
-	//settings->setDefault("max_simultaneous_block_sends_per_client", "1");
-	// This causes frametime jitter on client side, or does it?
-	settings->setDefault("max_block_send_distance", "12");
+	settings->setDefault("max_block_send_distance", "13");
 	settings->setDefault("block_send_optimize_distance", "4");
 	settings->setDefault("block_cull_optimize_distance", "25");
 	settings->setDefault("server_side_occlusion_culling", "true");
@@ -505,9 +503,9 @@ void set_default_settings()
 	settings->setDefault("debug_log_level", "action");
 	settings->setDefault("debug_log_size_max", "50");
 	settings->setDefault("chat_log_level", "error");
-	settings->setDefault("emergequeue_limit_total", "1024");
-	settings->setDefault("emergequeue_limit_diskonly", "128");
-	settings->setDefault("emergequeue_limit_generate", "128");
+	settings->setDefault("emergequeue_limit_total", "1200");
+	settings->setDefault("emergequeue_limit_diskonly", "150");
+	settings->setDefault("emergequeue_limit_generate", "150");
 	settings->setDefault("num_emerge_threads", "0");
 	settings->setDefault("secure.enable_security", "true");
 	settings->setDefault("secure.trusted_mods", "");
@@ -552,7 +550,7 @@ void set_default_settings()
 
 	settings->setDefault("enable_console", "false");
 	settings->setDefault("display_density_factor", "1");
-	settings->setDefault("dpi_change_notifier", "0");
+	settings->setDefault("dpi_change_notifier", "0"); // (not a real setting)
 
 	settings->setDefault("touch_layout", "");
 	settings->setDefault("touchscreen_sensitivity", "0.2");
@@ -569,15 +567,15 @@ void set_default_settings()
 	settings->setDefault("screen_w", "0");
 	settings->setDefault("screen_h", "0");
 	settings->setDefault("performance_tradeoffs", "true");
-	settings->setDefault("max_simultaneous_block_sends_per_client", "10");
-	settings->setDefault("emergequeue_limit_diskonly", "16");
-	settings->setDefault("emergequeue_limit_generate", "16");
+	settings->setDefault("max_simultaneous_block_sends_per_client", "20");
+	settings->setDefault("emergequeue_limit_diskonly", "32");
+	settings->setDefault("emergequeue_limit_generate", "32");
 	settings->setDefault("max_block_generate_distance", "5");
 	settings->setDefault("sqlite_synchronous", "1");
 	settings->setDefault("server_map_save_interval", "15");
-	settings->setDefault("client_mapblock_limit", "1500");
-	settings->setDefault("active_block_range", "2");
-	settings->setDefault("viewing_range", "70");
+	settings->setDefault("client_mapblock_limit", "2200"); // about 35 MB
+	settings->setDefault("active_block_range", "3");
+	settings->setDefault("viewing_range", "80");
 	settings->setDefault("leaves_style", "simple");
 	// Note: OpenGL ES 2.0 is not guaranteed to provide depth textures,
 	// which we would need for PP.
