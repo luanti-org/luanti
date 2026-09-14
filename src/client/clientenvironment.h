@@ -136,6 +136,15 @@ public:
 	void updateFrameTime(bool is_paused);
 	u64 getFrameTime() const { return m_frame_time; }
 	u64 getFrameTimeDelta() const { return m_frame_dtime; }
+	/**
+	 * Monotonic count of frames drawn, incremented once per frame.
+	 *
+	 * Unlike getFrameTime() this is exact: it has no resolution limit (frame
+	 * time is in milliseconds, so above 1000 FPS consecutive frames share a
+	 * timestamp) and it keeps advancing while the game is paused. Use it to
+	 * detect frame boundaries.
+	 */
+	u64 getFrameCounter() const { return m_frame_counter; }
 
 private:
 	irr_ptr<ClientMap> m_map;
@@ -152,4 +161,5 @@ private:
 	u64 m_frame_time = 0;
 	u64 m_frame_dtime = 0;
 	u64 m_frame_time_pause_accumulator = 0;
+	u64 m_frame_counter = 0;
 };
