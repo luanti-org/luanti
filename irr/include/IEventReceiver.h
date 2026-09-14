@@ -8,6 +8,8 @@
 #include "Keycodes.h"
 #include "irrString.h"
 
+#include <type_traits>
+
 //! Enumeration for all event types there are.
 enum EEVENT_TYPE
 {
@@ -150,14 +152,6 @@ enum EMOUSE_INPUT_EVENT
 	//! Middle mouse button triple click.
 	//! This event is generated after the third EMIE_MMOUSE_PRESSED_DOWN event.
 	EMIE_MMOUSE_TRIPLE_CLICK,
-
-	//! Mouse enters canvas used for rendering.
-	//! Only generated on emscripten
-	EMIE_MOUSE_ENTER_CANVAS,
-
-	//! Mouse leaves canvas used for rendering.
-	//! Only generated on emscripten
-	EMIE_MOUSE_LEAVE_CANVAS,
 
 	//! No real event. Just for convenience to get number of events
 	EMIE_COUNT
@@ -326,6 +320,14 @@ struct SEvent
 
 		//! Y position of mouse cursor
 		s32 Y;
+
+		//! X movement of the mouse since the previous event.
+		/** Only valid for EMIE_MOUSE_MOVED. */
+		s32 XRel;
+
+		//! Y movement of the mouse since the previous event.
+		/** Only valid for EMIE_MOUSE_MOVED. */
+		s32 YRel;
 
 		union {
 			//! mouse wheel delta, often 1.0 or -1.0, but can have other values < 0.f or > 0.f;
@@ -529,12 +531,14 @@ struct SEvent
 		struct SApplicationEvent ApplicationEvent;
 	};
 
+	//! Zeroes the whole structure, including the union and any padding.
 	SEvent() {
-		EventType = static_cast<EEVENT_TYPE>(0);
-		// zero the biggest union member we have, which clears all others too
-		memset(&AccelerometerEvent, 0, sizeof(AccelerometerEvent));
+		// Safe because of the static_assert below.
+		memset(static_cast<void*>(this), 0, sizeof(*this));
 	}
 };
+
+static_assert(std::is_trivially_copyable_v<SEvent>, "SEvent is not safe to memset()");
 
 //! Interface of an object which can receive events.
 /** Many of the engine's classes inherit IEventReceiver so they are able to

@@ -1960,6 +1960,8 @@ void Game::updateCameraDirection(CameraOrientation *cam, float dtime)
 		if (m_first_loop_after_window_activation && !g_touchcontrols) {
 			m_first_loop_after_window_activation = false;
 
+			// Discard any movement that happened while the window was inactive
+			input->getMouseMovement();
 			input->setMousePos(driver->getScreenSize().Width / 2,
 				driver->getScreenSize().Height / 2);
 		} else {
@@ -2004,8 +2006,7 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 		cam->camera_yaw   += g_touchcontrols->getYawChange()   * sens_scale;
 		cam->camera_pitch += g_touchcontrols->getPitchChange() * sens_scale;
 	} else {
-		v2s32 center(driver->getScreenSize().Width / 2, driver->getScreenSize().Height / 2);
-		v2s32 dist = input->getMousePos() - center;
+		v2s32 dist = input->getMouseMovement();
 
 		if (m_invert_mouse || camera->getCameraMode() == CAMERA_MODE_THIRD_FRONT) {
 			dist.Y = -dist.Y;
@@ -2014,8 +2015,12 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 		cam->camera_yaw   -= dist.X * m_cache_mouse_sensitivity * sens_scale;
 		cam->camera_pitch += dist.Y * m_cache_mouse_sensitivity * sens_scale;
 
-		if (dist.X != 0 || dist.Y != 0)
+		// Keep the cursor centered so that it appears in the middle of
+		// the screen when a menu opens.
+		if (dist.X != 0 || dist.Y != 0) {
+			v2s32 center(driver->getScreenSize().Width / 2, driver->getScreenSize().Height / 2);
 			input->setMousePos(center.X, center.Y);
+		}
 	}
 
 	// Keyboard look
