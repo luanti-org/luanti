@@ -2567,7 +2567,7 @@ IImage *COpenGLDriver::createScreenShot()
 		type = GL_UNSIGNED_BYTE;
 		break;
 	}
-	const core::dimension2d<u32> &screenshotSize = getCurrentRenderTargetSize();
+	const core::dimension2du &screenshotSize = getCurrentRenderTargetSize();
 	IImage *newImage = createImage(format, screenshotSize);
 
 	u8 *pixels = 0;
