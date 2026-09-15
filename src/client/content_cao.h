@@ -142,13 +142,9 @@ private:
 	BoneOverrideMap m_bone_override;
 
 	// Attachments
-	object_t m_attachment_parent_id = 0;
+	AttachmentData m_attachment;
 	std::unordered_set<object_t> m_attachment_child_ids;
-	std::string m_attachment_bone = "";
-	v3f m_attachment_position;
-	v3f m_attachment_rotation;
 	bool m_attached_to_local = false;
-	bool m_force_visible = false;
 
 	ItemGroupList m_armor_groups;
 	float m_reset_textures_timer = -1.0f;
@@ -251,10 +247,8 @@ public:
 	}
 
 	void setChildrenVisible(bool toset);
-	void setAttachment(object_t parent_id, const std::string &bone, v3f position,
-			v3f rotation, bool force_visible) override;
-	void getAttachment(object_t *parent_id, std::string *bone, v3f *position,
-			v3f *rotation, bool *force_visible) const override;
+	void setAttachment(const AttachmentData &attachment) override;
+	void getAttachment(AttachmentData &attachment) const override;
 	void clearChildAttachments() override;
 	void addAttachmentChild(object_t child_id) override;
 	void removeAttachmentChild(object_t child_id) override;
