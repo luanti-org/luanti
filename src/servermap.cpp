@@ -5,8 +5,10 @@
 #include "servermap.h"
 
 #include "map.h"
+#include "mapnode.h"
 #include "mapsector.h"
 #include "filesys.h"
+#include "nodedef.h"
 #include "voxel.h"
 #include "voxelalgorithms.h"
 #include "porting.h"
@@ -954,7 +956,6 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 		/*
 			Collect information about current node
 		 */
-		s8 liquid_level = -1;
 		// The liquid node which will be placed there if
 		// the liquid flows into this node.
 		content_t liquid_kind = CONTENT_IGNORE;
@@ -963,13 +964,16 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 		content_t floodable_node = CONTENT_AIR;
 		const ContentFeatures &cf = m_nodedef->get(n0);
 		LiquidType liquid_type = cf.liquid_type;
+		s8 liquid_level = -1;
+		bool liquid_colored = cf.param_type_2 == CPT2_COLORED_LIQUID;
+		u8 liquid_color = liquid_colored ? (n0.param2 & LIQUID_COLOR_MASK) : 0;
 		switch (liquid_type) {
 			case LIQUID_SOURCE:
 				liquid_level = LIQUID_LEVEL_SOURCE;
 				liquid_kind = cf.liquid_alternative_flowing_id;
 				break;
 			case LIQUID_FLOWING:
-				liquid_level = (n0.param2 & LIQUID_LEVEL_MASK);
+				liquid_level = n0.param2 & LIQUID_LEVEL_MASK;
 				liquid_kind = n0.getContent();
 				break;
 			case LIQUID_NONE:
@@ -1042,8 +1046,9 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 					break;
 				case LIQUID_SOURCE:
 					// if this node is not (yet) of a liquid type, choose the first liquid type we encounter
-					if (liquid_kind == CONTENT_AIR)
+					if (liquid_kind == CONTENT_AIR) {
 						liquid_kind = cfnb.liquid_alternative_flowing_id;
+					}
 					if (cfnb.liquid_alternative_flowing_id != liquid_kind) {
 						neutrals[num_neutrals++] = nb;
 					} else {
@@ -1063,8 +1068,9 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 						u8 range = m_nodedef->get(cfnb.liquid_alternative_flowing_id).liquid_range;
 
 						if (liquid_kind == CONTENT_AIR &&
-								max_level_from_neighbor >= (LIQUID_LEVEL_MAX + 1 - range))
+								max_level_from_neighbor >= (LIQUID_LEVEL_MAX + 1 - range)) {
 							liquid_kind = cfnb.liquid_alternative_flowing_id;
+						}
 					}
 					if (cfnb.liquid_alternative_flowing_id != liquid_kind) {
 						neutrals[num_neutrals++] = nb;
@@ -1095,6 +1101,12 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 			// or the flowing alternative of the first of the surrounding sources (if it's air), so
 			// it's perfectly safe to use liquid_kind here to determine the new node content.
 			new_node_content = m_nodedef->get(liquid_kind).liquid_alternative_source_id;
+			if (liquid_colored) {
+				if (liquid_type == LIQUID_SOURCE)
+					liquid_color = n0.param2 & LIQUID_COLOR_MASK;
+				else
+					liquid_color = sources[0].n.param2 & LIQUID_COLOR_MASK;
+			}
 		} else if (num_sources >= 1 && sources[0].t != NEIGHBOR_LOWER) {
 			// liquid_kind is set properly, see above
 			max_node_level = new_node_level = LIQUID_LEVEL_MAX;
@@ -1102,6 +1114,8 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 				new_node_content = liquid_kind;
 			else
 				new_node_content = floodable_node;
+			if (liquid_colored)
+				liquid_color = sources[0].n.param2 & LIQUID_COLOR_MASK;
 		} else if (ignored_sources && liquid_level >= 0) {
 			// Maybe there are neighboring sources that aren't loaded yet
 			// so prevent flowing away.
@@ -1109,8 +1123,15 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 			new_node_content = liquid_kind;
 		} else {
 			// no surrounding sources, so get the maximum level that can flow into this node
+			s8 dominant_level = -1;
 			for (u16 i = 0; i < num_flows; i++) {
-				max_node_level = get_max_liquid_level(flows[i], max_node_level);
+				s8 candidate_level = get_max_liquid_level(flows[i], max_node_level);
+				if (liquid_colored && candidate_level > dominant_level) {
+					dominant_level = candidate_level;
+					liquid_color = flows[i].n.param2 & LIQUID_COLOR_MASK;
+				}
+				if (candidate_level > max_node_level)
+					max_node_level = candidate_level;
 			}
 
 			u8 viscosity = m_nodedef->get(liquid_kind).liquid_viscosity;
@@ -1144,7 +1165,8 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 				(m_nodedef->get(n0.getContent()).liquid_type != LIQUID_FLOWING ||
 				((n0.param2 & LIQUID_LEVEL_MASK) == (u8)new_node_level &&
 				((n0.param2 & LIQUID_FLOW_DOWN_MASK) == LIQUID_FLOW_DOWN_MASK)
-				== flowing_down)))
+				== flowing_down)) &&
+				(!liquid_colored || (n0.param2 & LIQUID_COLOR_MASK) == liquid_color))
 			continue;
 
 		/*
@@ -1160,10 +1182,16 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 		//bool flow_down_enabled = (flowing_down && ((n0.param2 & LIQUID_FLOW_DOWN_MASK) != LIQUID_FLOW_DOWN_MASK));
 		if (m_nodedef->get(new_node_content).liquid_type == LIQUID_FLOWING) {
 			// set level to last 3 bits, flowing down bit to 4th bit
-			n0.param2 = (flowing_down ? LIQUID_FLOW_DOWN_MASK : 0x00) | (new_node_level & LIQUID_LEVEL_MASK);
+			if (liquid_colored)
+				n0.param2 = liquid_color | (flowing_down ? LIQUID_FLOW_DOWN_MASK : 0x00) | (new_node_level & LIQUID_LEVEL_MASK);
+			else
+				n0.param2 = (flowing_down ? LIQUID_FLOW_DOWN_MASK : 0x00) | (new_node_level & LIQUID_LEVEL_MASK);
 		} else {
-			// set the liquid level and flow bits to 0
-			n0.param2 &= ~(LIQUID_LEVEL_MASK | LIQUID_FLOW_DOWN_MASK);
+			// set the liquid level and flow bits to 0, optionally adding color back in
+			if (liquid_colored)
+				n0.param2 = liquid_color;
+			else
+				n0.param2 = 0;
 		}
 
 		// change the node.
@@ -1222,6 +1250,9 @@ void ServerMap::transformLiquidsLocal(std::map<v3s16, MapBlock*> &modified_block
 				for (u16 i = 0; i < num_airs; i++)
 					if (airs[i].t != NEIGHBOR_UPPER)
 						liquid_queue.push_back(airs[i].p);
+				if (liquid_colored && (n00.param2 & LIQUID_COLOR_MASK) != liquid_color)
+					for (u16 i = 0; i < num_flows; i++)
+						liquid_queue.push_back(flows[i].p);
 				break;
 			case LIQUID_NONE:
 				// this flow has turned to air; neighboring flows might need to do the same

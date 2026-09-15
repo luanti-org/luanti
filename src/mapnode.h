@@ -90,6 +90,7 @@ enum Rotation {
 /*
 	Masks for MapNode.param2 of flowing liquids
  */
+#define LIQUID_COLOR_MASK 0xf0
 #define LIQUID_LEVEL_MASK 0x07
 #define LIQUID_FLOW_DOWN_MASK 0x08
 

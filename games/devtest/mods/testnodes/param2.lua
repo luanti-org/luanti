@@ -319,3 +319,46 @@ core.register_node("testnodes:colorwallmounted_nodebox", {
 	groups = { dig_immediate = 3 },
 })
 
+core.register_node("testnodes:colorliquid_source", {
+	description = S("Color Liquid Source Test Node").."\n"..
+		S("param2 = color + flowing liquid properties"),
+	paramtype2 = "colorliquid",
+	paramtype = "light",
+	liquidtype = "source",
+	liquid_alternative_source = "testnodes:colorliquid_source",
+	liquid_alternative_flowing = "testnodes:colorliquid_flowing",
+	liquid_renewable = true,
+	liquid_range = 8,
+	walkable = false,
+	buildable_to = true,
+	is_ground_content = false,
+	drawtype = "liquid",
+	palette = "testnodes_palette_liquid.png",
+	tiles = {"testnodes_node.png"},
+	special_tiles = {
+		{name = "testnodes_node.png", backface_culling = false},
+		{name = "testnodes_node.png", backface_culling = true},
+	}
+})
+
+core.register_node("testnodes:colorliquid_flowing", {
+	description = S("Color Liquid Flowing Test Node").."\n"..
+		S("param2 = color + flowing liquid properties"),
+	paramtype2 = "colorliquid",
+	paramtype = "light",
+	liquidtype = "flowing",
+	liquid_alternative_source = "testnodes:colorliquid_source",
+	liquid_alternative_flowing = "testnodes:colorliquid_flowing",
+	liquid_renewable = true,
+	liquid_range = 8,
+	walkable = false,
+	buildable_to = true,
+	is_ground_content = false,
+	drawtype = "flowingliquid",
+	palette = "testnodes_palette_liquid.png",
+	tiles = {"testnodes_node.png"},
+	special_tiles = {
+		{name = "testnodes_node.png", backface_culling = false},
+		{name = "testnodes_node.png", backface_culling = true},
+	}
+})
