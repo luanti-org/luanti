@@ -403,7 +403,11 @@ public:
 
 	LocalClientState getState() { return m_state; }
 
-	void makeScreenshot();
+	// Request a screenshot to be taken at the end of the frame.
+	void requestScreenshot() { m_take_screenshot = true; }
+
+	// Must be called right before endScene() to take requested screenshots.
+	void takeScreenshotIfRequested();
 
 	inline void pushToChatQueue(ChatMessage *cec)
 	{
@@ -608,6 +612,7 @@ private:
 	std::unique_ptr<SSCSMController> m_sscsm_controller;
 
 	bool m_shutdown = false;
+	bool m_take_screenshot = false;
 
 	// CSM restrictions byteflag
 	u64 m_csm_restriction_flags = CSMRestrictionFlags::CSM_RF_NONE;

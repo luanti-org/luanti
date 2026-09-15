@@ -1493,7 +1493,7 @@ void Game::processKeyInput()
 	} else if (wasKeyDown(KeyType::CINEMATIC)) {
 		toggleCinematic();
 	} else if (wasKeyPressed(KeyType::SCREENSHOT)) {
-		client->makeScreenshot();
+		client->requestScreenshot();
 	} else if (wasKeyPressed(KeyType::TOGGLE_BLOCK_BOUNDS)) {
 		toggleBlockBounds();
 	} else if (wasKeyPressed(KeyType::TOGGLE_HUD)) {
@@ -3711,6 +3711,9 @@ void Game::drawScene(ProfilerGraph *graph, RunStats *stats)
 					core::rect<s32>(0, 0, screensize.X, screensize.Y),
 					NULL);
 	}
+
+	// Must be called immediately before endScene() to capture the rendered frame
+	this->client->takeScreenshotIfRequested();
 
 	this->driver->endScene();
 

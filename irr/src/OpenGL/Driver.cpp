@@ -1803,25 +1803,26 @@ void COpenGL3DriverBase::clearBuffers(u16 flag, SColor color, f32 depth, u8 sten
 	CacheHandler->setDepthMask(depthMask);
 }
 
-//! Returns an image created from the last rendered frame.
-IImage *COpenGL3DriverBase::createScreenShot(bool preferBackbuffer)
+IImage *COpenGL3DriverBase::createScreenShot()
 {
 	GLint internalformat = GL_RGBA;
 	GLint type = GL_UNSIGNED_BYTE;
 	// We could check GL_IMPLEMENTATION_COLOR_READ_* to discover the preferred
 	// format, but seems complicated and not worth it to handle.
 
+	const core::dimension2du screenshotSize = getCurrentRenderTargetSize();
+
 	IImage *newImage = 0;
 	if (GL_RGBA == internalformat) {
 		if (GL_UNSIGNED_BYTE == type)
-			newImage = new CImage(ECF_A8R8G8B8, ScreenSize);
+			newImage = new CImage(ECF_A8R8G8B8, screenshotSize);
 		else
-			newImage = new CImage(ECF_A1R5G5B5, ScreenSize);
+			newImage = new CImage(ECF_A1R5G5B5, screenshotSize);
 	} else {
 		if (GL_UNSIGNED_BYTE == type)
-			newImage = new CImage(ECF_R8G8B8, ScreenSize);
+			newImage = new CImage(ECF_R8G8B8, screenshotSize);
 		else
-			newImage = new CImage(ECF_R5G6B5, ScreenSize);
+			newImage = new CImage(ECF_R5G6B5, screenshotSize);
 	}
 
 	if (!newImage)
@@ -1833,23 +1834,17 @@ IImage *COpenGL3DriverBase::createScreenShot(bool preferBackbuffer)
 		return 0;
 	}
 
-	// On GLES 2 we will always read from the current frame buffer, which means
-	// creating a screenshot will only work if done at the end of the render loop.
-	if (Version.Spec != OpenGLSpec::ES || Version.Major >= 3) {
-		GL.ReadBuffer(preferBackbuffer ? GL_BACK : GL_COLOR_ATTACHMENT0);
-	}
-
-	GL.ReadPixels(0, 0, ScreenSize.Width, ScreenSize.Height, internalformat, type, pixels);
+	GL.ReadPixels(0, 0, screenshotSize.Width, screenshotSize.Height, internalformat, type, pixels);
 	if (TEST_GL_ERROR(this)) {
 		newImage->drop();
 		return 0;
 	}
 
-	// opengl images are horizontally flipped, so we have to fix that here.
+	// opengl images are vertically flipped, so we have to fix that here.
 	const s32 pitch = newImage->getPitch();
-	u8 *p2 = pixels + (ScreenSize.Height - 1) * pitch;
+	u8 *p2 = pixels + (screenshotSize.Height - 1) * pitch;
 	u8 *tmpBuffer = new u8[pitch];
-	for (u32 i = 0; i < ScreenSize.Height; i += 2) {
+	for (u32 i = 0; i < screenshotSize.Height / 2; i++) {
 		memcpy(tmpBuffer, pixels, pitch);
 		memcpy(pixels, p2, pitch);
 		memcpy(p2, tmpBuffer, pitch);
@@ -1861,8 +1856,8 @@ IImage *COpenGL3DriverBase::createScreenShot(bool preferBackbuffer)
 	// also GL_RGBA doesn't match the internal encoding of the image (which is BGRA)
 	if (GL_RGBA == internalformat && GL_UNSIGNED_BYTE == type) {
 		pixels = static_cast<u8 *>(newImage->getData());
-		for (u32 i = 0; i < ScreenSize.Height; i++) {
-			for (u32 j = 0; j < ScreenSize.Width; j++) {
+		for (u32 i = 0; i < screenshotSize.Height; i++) {
+			for (u32 j = 0; j < screenshotSize.Width; j++) {
 				u32 c = *(u32 *)(pixels + 4 * j);
 				*(u32 *)(pixels + 4 * j) = (c & 0xFF00FF00) |
 										   ((c & 0x00FF0000) >> 16) | ((c & 0x000000FF) << 16);

@@ -1018,10 +1018,12 @@ public:
 		clearBuffers(ECBF_DEPTH, SColor(255, 0, 0, 0), 1.f, 0);
 	}
 
-	//! Make a screenshot of the last rendered frame.
-	/** \param preferBackbuffer read from backbuffer instead of current render target.
-	\return An image created from the last rendered frame. */
-	virtual IImage *createScreenShot(bool preferBackbuffer = true) = 0;
+	//! Make a screenshot of the current render target.
+	/** For capturing a rendered frame, this must be called after
+	drawing but before endScene(), as the back buffer contents are
+	undefined after the buffer swap.
+	\return An image created from the current render target. */
+	virtual IImage *createScreenShot() = 0;
 
 	//! Check if the image is already loaded.
 	/** Works similar to getTexture(), but does not load the texture
