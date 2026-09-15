@@ -1019,9 +1019,10 @@ public:
 	}
 
 	//! Make a screenshot of the last rendered frame.
-	/** \param preferBackbuffer read from backbuffer instead of current render target.
+	/** Must be called after drawing but before endScene(), as the
+	back buffer contents are undefined after the buffer swap.
 	\return An image created from the last rendered frame. */
-	virtual IImage *createScreenShot(bool preferBackbuffer = true) = 0;
+	virtual IImage *createScreenShot() = 0;
 
 	//! Check if the image is already loaded.
 	/** Works similar to getTexture(), but does not load the texture

@@ -1804,7 +1804,7 @@ void COpenGL3DriverBase::clearBuffers(u16 flag, SColor color, f32 depth, u8 sten
 }
 
 //! Returns an image created from the last rendered frame.
-IImage *COpenGL3DriverBase::createScreenShot(bool preferBackbuffer)
+IImage *COpenGL3DriverBase::createScreenShot()
 {
 	GLint internalformat = GL_RGBA;
 	GLint type = GL_UNSIGNED_BYTE;
@@ -1831,12 +1831,6 @@ IImage *COpenGL3DriverBase::createScreenShot(bool preferBackbuffer)
 	if (!pixels) {
 		newImage->drop();
 		return 0;
-	}
-
-	// On GLES 2 we will always read from the current frame buffer, which means
-	// creating a screenshot will only work if done at the end of the render loop.
-	if (Version.Spec != OpenGLSpec::ES || Version.Major >= 3) {
-		GL.ReadBuffer(preferBackbuffer ? GL_BACK : GL_COLOR_ATTACHMENT0);
 	}
 
 	GL.ReadPixels(0, 0, ScreenSize.Width, ScreenSize.Height, internalformat, type, pixels);
