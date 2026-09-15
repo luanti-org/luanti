@@ -10,6 +10,7 @@
 #include "util/container.h"
 #include "util/thread.h"
 #include "settings.h"
+#include "client/dynamiclight.h"
 #include <ICameraSceneNode.h>
 #include <IGPUProgrammingServices.h>
 #include <IMaterialRenderer.h>
@@ -21,6 +22,7 @@
 #include "client/tile.h"
 
 #include <mt_opengl.h>
+#include <algorithm>
 
 /*
 	A cache from shader name to shader path
@@ -210,6 +212,9 @@ public:
 
 	void onGenerate(const std::string &name, ShaderConstants &constants) override
 	{
+		// Min 1 cause a zero-size GLSL array is illegal but in practice can still be 0 when no lights are given
+		constants["MAX_DYNAMIC_LIGHTS"] = std::max<int>(1, (int)getDynamicLightsLimitSetting());
+
 		constants["ENABLE_TONE_MAPPING"] = g_settings->getBool("tone_mapping") ? 1 : 0;
 
 		if (g_settings->getBool("enable_dynamic_shadows")) {

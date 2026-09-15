@@ -223,12 +223,7 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 	if(!isAttached())
 	{
 		// TODO: force send when acceleration changes enough?
-		float minchange = 0.2*BS;
-		if(m_last_sent_position_timer > 1.0){
-			minchange = 0.01*BS;
-		} else if(m_last_sent_position_timer > 0.2){
-			minchange = 0.05*BS;
-		}
+		float minchange = getPositionResendMinChange(m_last_sent_position_timer);
 		float move_d = getBasePosition().getDistanceFrom(m_last_sent_position);
 		move_d += m_last_sent_move_precision;
 		float vel_d = m_velocity.getDistanceFrom(m_last_sent_velocity);

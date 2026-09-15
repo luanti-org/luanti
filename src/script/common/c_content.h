@@ -33,6 +33,8 @@ class Inventory;
 class InventoryList;
 class NodeDefManager;
 class ServerActiveObject;
+class ServerEnvironment;
+struct LightProperties;
 
 struct CollisionMoveResult;
 struct ContentFeatures;
@@ -111,6 +113,16 @@ void read_object_properties(lua_State *L, int index,
 		IItemDefManager *idef, bool fallback = false);
 
 void push_object_properties(lua_State *L, const ObjectProperties *prop);
+
+/// Reads either a `pos` or `object` field, matching core.add_light's def.
+/// @param attached_guid cleared, then filled in if `object` was given
+void read_light_state(lua_State *L, int index, v3f &pos, std::string &attached_guid);
+/// Pushes `pos` as-is if not attached, otherwise a live `ObjectRef` for the
+/// attached target if currently active.
+void push_light_state(lua_State *L, v3f pos, u16 attached_id, ServerEnvironment *env);
+/// @param index stack index of the def/properties table
+void read_light_properties(lua_State *L, int index, LightProperties &properties);
+void push_light_properties(lua_State *L, const LightProperties &properties);
 
 void push_inventory_list(lua_State *L, const InventoryList &invlist);
 void push_inventory_lists(lua_State *L, const Inventory &inv);
