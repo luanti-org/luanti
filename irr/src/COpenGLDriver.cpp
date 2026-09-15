@@ -2527,7 +2527,7 @@ void COpenGLDriver::clearBuffers(u16 flag, SColor color, f32 depth, u8 stencil)
 	CacheHandler->setDepthMask(depthMask);
 }
 
-//! Returns an image created from the last rendered frame.
+//! Returns an image created from the current render target.
 IImage *COpenGLDriver::createScreenShot()
 {
 	const auto format = video::ECF_R8G8B8;

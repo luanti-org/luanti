@@ -207,7 +207,7 @@ public:
 
 	void clearBuffers(u16 flag, SColor color = SColor(255, 0, 0, 0), f32 depth = 1.f, u8 stencil = 0) override;
 
-	//! Returns an image created from the last rendered frame.
+	//! Returns an image created from the current render target.
 	IImage *createScreenShot() override;
 
 	//! checks if an OpenGL error has happened and prints it, use via TEST_GL_ERROR().
