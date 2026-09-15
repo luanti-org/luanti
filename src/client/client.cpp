@@ -2000,8 +2000,12 @@ float Client::getCurRate()
 			m_con->getLocalStat(con::CUR_DL_RATE));
 }
 
-void Client::makeScreenshot()
+void Client::takeScreenshotIfRequested()
 {
+	if (!m_take_screenshot)
+		return;
+	m_take_screenshot = false;
+
 	video::IVideoDriver *driver = m_rendering_engine->get_video_driver();
 	std::string filename;
 	if (takeScreenshot(driver, filename)) {

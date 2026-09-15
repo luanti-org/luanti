@@ -4566,7 +4566,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 		if (event.KeyInput.PressedDown &&
 				(keySettingHasMatch("keymap_screenshot", kp))) {
 			if (m_client) {
-				m_client->makeScreenshot();
+				m_client->requestScreenshot();
 			} else if (m_text_dst) { // in main menu
 				m_text_dst->requestScreenshot();
 			}
