@@ -1301,6 +1301,18 @@ void Server::handleCommand_NodeMetaFields(NetworkPacket* pkt)
 
 	*pkt >> p >> formname;
 
+	if (!checkPriv(player->getName(), "interact")) {
+		actionstream << player->getName()
+				<< " attempted to submit node metadata fields without "
+				"the 'interact' privilege; ignoring." << std::endl;
+		return;
+	}
+
+	v3f node_pos = intToFloat(p, BS);
+	f32 d = playersao->getEyePosition().getDistanceFrom(node_pos);
+	if (!checkInteractDistance(player, d, "node metadata"))
+		return;
+
 	if (!pkt_read_formspec_fields(pkt, fields)) {
 		warningstream << "Too large formspec fields! Ignoring for pos="
 			<< p << ", player=" << player->getName() << std::endl;
