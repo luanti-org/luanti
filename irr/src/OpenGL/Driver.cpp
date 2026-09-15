@@ -1811,7 +1811,7 @@ IImage *COpenGL3DriverBase::createScreenShot()
 	// We could check GL_IMPLEMENTATION_COLOR_READ_* to discover the preferred
 	// format, but seems complicated and not worth it to handle.
 
-	const core::dimension2d<u32> screenshotSize = getCurrentRenderTargetSize();
+	const core::dimension2d<u32> &screenshotSize = getCurrentRenderTargetSize();
 
 	IImage *newImage = 0;
 	if (GL_RGBA == internalformat) {
