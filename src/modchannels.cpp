@@ -121,8 +121,15 @@ bool ModChannelMgr::leaveChannel(const std::string &channel, session_t peer_id)
 
 void ModChannelMgr::leaveAllChannels(session_t peer_id)
 {
-	for (auto &channel_it : m_registered_channels)
-		channel_it.second->removeConsumer(peer_id);
+	for (auto channel_it = m_registered_channels.begin();
+			channel_it != m_registered_channels.end();) {
+		channel_it->second->removeConsumer(peer_id);
+
+		if (channel_it->second->getChannelPeers().empty())
+			channel_it = m_registered_channels.erase(channel_it);
+		else
+			++channel_it;
+	}
 }
 
 static std::vector<u16> empty_channel_list;
