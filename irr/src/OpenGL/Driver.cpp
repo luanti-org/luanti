@@ -1803,7 +1803,6 @@ void COpenGL3DriverBase::clearBuffers(u16 flag, SColor color, f32 depth, u8 sten
 	CacheHandler->setDepthMask(depthMask);
 }
 
-//! Returns an image created from the current render target.
 IImage *COpenGL3DriverBase::createScreenShot()
 {
 	GLint internalformat = GL_RGBA;
