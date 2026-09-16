@@ -1938,9 +1938,6 @@ main_menu_script (Main menu script) [client] string
 
 [**Mod Security] [server]
 
-#    Prevent mods from doing insecure things like running shell commands.
-secure.enable_security (Enable mod security) bool true
-
 #    Comma-separated list of trusted mods that are allowed to access insecure
 #    functions even when mod security is on (via request_insecure_environment()).
 secure.trusted_mods (Trusted mods) string
