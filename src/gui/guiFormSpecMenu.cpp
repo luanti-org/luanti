@@ -614,10 +614,7 @@ void GUIFormSpecMenu::parseCheckbox(parserData* data, const std::string &element
 
 	MY_CHECKPOS("checkbox",0);
 
-	bool fselected = false;
-
-	if (selected == "true")
-		fselected = true;
+	bool fselected = is_yes(selected);
 
 	std::wstring wlabel = translate_string(utf8_to_wide(unescape_string(label)));
 	const core::dimension2d<u32> label_size = m_font->getDimension(wlabel.c_str());
@@ -660,11 +657,13 @@ void GUIFormSpecMenu::parseCheckbox(parserData* data, const std::string &element
 
 	auto style = getDefaultStyleForElement("checkbox", name);
 
-	spec.sound = style.get(StyleSpec::Property::SOUND, "");
+	spec.sound = style.get(StyleSpec::SOUND, "");
 
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 
-	if (spec.fname == m_focused_element) {
+	if (!style.getBool(StyleSpec::EDITABLE, true)) {
+		e->setEnabled(false);
+	} else if (spec.fname == m_focused_element) {
 		Environment->setFocus(e);
 	}
 
@@ -1423,11 +1422,14 @@ void GUIFormSpecMenu::parseDropDown(parserData* data, const std::string &element
 	spec.ftype = f_DropDown;
 	spec.send = true;
 
-	//now really show list
+	auto style = getDefaultStyleForElement("dropdown", name);
+
 	gui::IGUIComboBox *e = Environment->addComboBox(rect, data->current_parent,
 			spec.fid);
 
-	if (spec.fname == m_focused_element) {
+	if (!style.getBool(StyleSpec::EDITABLE, true)) {
+		e->setEnabled(false);
+	} else if (spec.fname == m_focused_element) {
 		Environment->setFocus(e);
 	}
 
@@ -1439,19 +1441,15 @@ void GUIFormSpecMenu::parseDropDown(parserData* data, const std::string &element
 	if (!str_initial_selection.empty())
 		e->setSelected(stoi(str_initial_selection)-1);
 
-	auto style = getDefaultStyleForElement("dropdown", name);
-
-	spec.sound = style.get(StyleSpec::Property::SOUND, "");
+	spec.sound = style.get(StyleSpec::SOUND, "");
 
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 
 	m_fields.push_back(spec);
 
-	m_dropdowns.emplace_back(spec, std::vector<std::string>());
-	std::vector<std::string> &values = m_dropdowns.back().second;
-	for (const std::string &item : items) {
-		values.push_back(unescape_string(item));
-	}
+	for (auto &item : items)
+		item = unescape_string(item);
+	m_dropdowns.emplace_back(spec, std::move(items));
 }
 
 void GUIFormSpecMenu::parseFieldEnterAfterEdit(parserData *data, const std::string &element)
@@ -1520,11 +1518,13 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 	gui::IGUIEditBox *e = Environment->addEditBox(0, rect, true,
 			data->current_parent, spec.fid);
 
-	if (spec.fname == m_focused_element) {
+	auto style = getDefaultStyleForElement("pwdfield", name, "field");
+
+	if (!style.getBool(StyleSpec::EDITABLE, true)) {
+		e->setWritable(false);
+	} else if (spec.fname == m_focused_element) {
 		Environment->setFocus(e);
 	}
-
-	auto style = getDefaultStyleForElement("pwdfield", name, "field");
 
 	if (label.length() >= 1) {
 		int font_height = g_fontengine->getTextHeight();
@@ -1558,10 +1558,11 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 	core::rect<s32> &rect, bool is_multiline)
 {
+	auto style = getDefaultStyleForElement(is_multiline ? "textarea" : "field", spec.fname);
+
 	bool is_editable = !spec.fname.empty();
 	if (!is_editable && !is_multiline) {
 		// spec field id to 0, this stops submit searching for a value that isn't there
-		auto style = getDefaultStyleForElement("field");
 		addLabel(EnrichedString(spec.flabel.c_str()), rect, data->current_parent, style);
 		return;
 	}
@@ -1574,19 +1575,21 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 		spec.flabel.swap(spec.fdefault);
 	}
 
+	// do this after the compat code above
+	is_editable &= style.getBool(StyleSpec::EDITABLE, true);
+
 	gui::IGUIEditBox *e = nullptr;
 	if (is_multiline) {
 		e = new GUIEditBoxWithScrollBar(spec.fdefault.c_str(), true, Environment,
 				data->current_parent, spec.fid, rect, m_tsrc, is_editable, true);
-	} else if (is_editable) {
+	} else {
 		e = Environment->addEditBox(spec.fdefault.c_str(), rect, true,
 				data->current_parent, spec.fid);
 		e->grab();
+		e->setWritable(is_editable);
 	}
 
-	auto style = getDefaultStyleForElement(is_multiline ? "textarea" : "field", spec.fname);
-
-	if (e) {
+	{
 		if (is_editable && spec.fname == m_focused_element)
 			Environment->setFocus(e);
 
@@ -1621,7 +1624,7 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 		e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 		e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
 		bool border = style.getBool(StyleSpec::BORDER, true);
-		e->setDrawBorder(border);
+		e->setDrawBorder(border && !spec.fname.empty());
 		e->setDrawBackground(border);
 		e->setOverrideFont(style.getFont());
 

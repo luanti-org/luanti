@@ -90,12 +90,10 @@ function make.note(text, text_color, lines)
 			if (lines or 1) <= 1 then
 				return ("label[0,0;%s]"):format(core.colorize(text_color, text)), 0.2
 			end
-			-- FIXME: the textarea is editable when it shouldn't be, but we need
-			-- to set the name to do the styling...
 			-- Note that core.colorize is broken with textareas so we need to use style[]
 			local id = g_note_id
 			g_note_id = g_note_id + 1
-			return ("style[settings_note%d;textcolor=%s;border=false]textarea[0,0;%f,%f;settings_note%d;;%s]"):
+			return ("style[settings_note%d;textcolor=%s;border=false;editable=false]textarea[0,0;%f,%f;settings_note%d;;%s]"):
 				format(id, text_color, avail_w, 0.5 * lines, id, text),
 				(0.5 * lines - 0.1)
 		end,

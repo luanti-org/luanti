@@ -3096,6 +3096,8 @@ Formspec Version History
 * Version 11 (5.17.0)
   * Added hypertip[] element
   * label[], textarea[] and field[] alignment styles
+* Version 12 (5.18.0)
+  * `editable` style
 
 
 Elements
@@ -3943,9 +3945,11 @@ Some types may inherit styles from parent types.
 * checkbox
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * sound - a sound to be played when triggered.
+    * editable - set to false to make the element read-only (default: true)
 * dropdown
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * sound - a sound to be played when the entry is changed.
+    * editable - set to false to make the element read-only (default: true)
 * field, pwdfield, textarea
     * border - set to false to hide the textbox background and border. Default true.
     * font - Sets font type. See button `font` property for more information.
@@ -3957,6 +3961,7 @@ Some types may inherit styles from parent types.
     **Note**: `valign` only has an effect when the text fits completely inside the element vertically.
     If the text is too long (and a scrollbar appears in `textarea[]`), it is forced to `top` alignment
     to prevent text being cut off. `valign` also does not work in `field[]`, however `halign` does.
+    * editable - set to false to make the field read-only (default: true)
 * model
     * bgcolor - color, sets background color.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
