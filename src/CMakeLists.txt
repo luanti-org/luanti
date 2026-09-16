@@ -72,7 +72,7 @@ option(ENABLE_CURL "Enable cURL support" TRUE)
 set(USE_CURL FALSE)
 
 if(ENABLE_CURL)
-	find_package(CURL 7.28.0)
+	find_package(CURL 7.66.0)
 	if (CURL_FOUND)
 		message(STATUS "cURL support enabled.")
 		set(USE_CURL TRUE)
