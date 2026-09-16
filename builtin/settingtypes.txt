@@ -1938,12 +1938,12 @@ main_menu_script (Main menu script) [client] string
 
 [**Mod Security] [server]
 
-#    Comma-separated list of trusted mods that are allowed to access insecure
-#    functions even when mod security is on (via request_insecure_environment()).
+#    Comma-separated list of trusted mods that are allowed to bypass the Lua
+#    sandbox. They will have full access to the host machine.
 secure.trusted_mods (Trusted mods) string
 
-#    Comma-separated list of mods that are allowed to access HTTP APIs, which
-#    allow them to upload and download data to/from the internet.
+#    Comma-separated list of mods that are allowed to use HTTP APIs, which
+#    allows them to connect to the Internet and devices on your network.
 secure.http_mods (HTTP mods) string
 
 [**Debugging]

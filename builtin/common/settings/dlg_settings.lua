@@ -142,6 +142,20 @@ local function load()
 	table.insert(page_by_id.controls_touchscreen.content, 2, touchscreen_layout)
 
 	do
+		local content = page_by_id.advanced_developer_options.content
+		local idx = table.indexof(content, "secure.trusted_mods")
+		local setting_info = get_setting_info("secure.trusted_mods")
+		local note = component_funcs.note(fgettext_ne(
+			"Any mods listed in \"Trusted Mods\" will have unrestricted access to "..
+			"user data and programs on your device. This is not normally needed. "..
+			"Make sure you can trust the mod's code and its author beforehand!"
+		), "#e42", 3) -- <- number of lines
+		note.requires = setting_info.requires
+		note.context = setting_info.context
+		table.insert(content, idx, note)
+	end
+
+	do
 		local content = page_by_id.graphics_and_audio_effects.content
 		local idx = table.indexof(content, "enable_dynamic_shadows")
 		table.insert(content, idx, shadows_component)
