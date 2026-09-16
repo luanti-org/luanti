@@ -34,7 +34,7 @@
  * actually available (in CSM) */
 #if CHECK_CLIENT_BUILD() && !defined(NDEBUG)
 #define DEBUG_ASSERT_NO_CLIENTAPI                    \
-	FATAL_ERROR_IF(getClient(L) != nullptr, "Tried " \
+	FATAL_ERROR_IF(isClient(L), "Tried " \
 		"to retrieve ServerEnvironment on client")
 #else
 #define DEBUG_ASSERT_NO_CLIENTAPI ((void)0)

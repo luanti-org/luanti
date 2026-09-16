@@ -595,13 +595,22 @@ Server* ScriptApiBase::getServer()
 	// e.g. the async environment, but this isn't meant to happen.
 	// TODO: still needs work
 	//assert(getType() == ScriptingType::Server);
-	return dynamic_cast<Server *>(m_gamedef);
+	Server *server = dynamic_cast<Server *>(m_gamedef);
+	sanity_check(server);
+	return server;
 }
 
 #if CHECK_CLIENT_BUILD()
 Client *ScriptApiBase::getClient()
 {
-	return dynamic_cast<Client *>(m_gamedef);
+	Client *client = dynamic_cast<Client *>(m_gamedef);
+	sanity_check(client);
+	return client;
+}
+
+bool ScriptApiBase::isClient()
+{
+	return dynamic_cast<Client *>(m_gamedef) != nullptr;
 }
 
 ModVFS *ScriptApiBase::getModVFS()
