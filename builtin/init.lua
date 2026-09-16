@@ -50,6 +50,7 @@ dofile(commonpath .. "serialize.lua")
 dofile(commonpath .. "misc_helpers.lua")
 
 if INIT == "game" then
+	dofile(commonpath .. "safe_require.lua")
 	dofile(scriptdir .. "game" .. DIR_DELIM .. "init.lua")
 	assert(not core.get_http_api)
 elseif INIT == "mainmenu" then
@@ -73,6 +74,7 @@ elseif INIT == "mainmenu" then
 elseif INIT == "async"  then
 	dofile(asyncpath .. "mainmenu.lua")
 elseif INIT == "async_game" then
+	dofile(commonpath .. "safe_require.lua")
 	dofile(commonpath .. "metatable.lua")
 	dofile(asyncpath .. "game.lua")
 elseif INIT == "client" then
@@ -82,6 +84,7 @@ elseif INIT == "sscsm" and core.get_current_modname() == "*client_builtin*" then
 elseif INIT == "sscsm" and core.get_current_modname() == "*server_builtin*" then
 	dofile(scriptdir .. "sscsm_server" .. DIR_DELIM .. "init.lua")
 elseif INIT == "emerge" then
+	dofile(commonpath .. "safe_require.lua")
 	dofile(scriptdir .. "emerge" .. DIR_DELIM .. "init.lua")
 elseif INIT == "pause_menu" then
 	dofile(scriptdir .. "pause_menu" .. DIR_DELIM .. "init.lua")

@@ -6,6 +6,7 @@ local function do_tests()
 	assert(not core.get_player_by_name)
 	assert(not core.object_refs)
 	-- stuff that should be here
+	assert(require("unittests.require.foo") == "foo")
 	assert(core.register_on_generated)
 	assert(core.get_node)
 	assert(core.spawn_tree)

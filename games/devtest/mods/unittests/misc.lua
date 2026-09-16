@@ -396,8 +396,6 @@ local function test_sandbox()
 		core.log("warning", "Lua sandbox disabled, skipping test")
 		return
 	end
-	-- this would point to _G but we have it unset
-	assert(package.loaded == nil)
 	-- string metatable must match global string table
 	assert(rawequal(getmetatable("").__index, string))
 	-- (some) entirely dangerous functions
@@ -419,3 +417,33 @@ local function test_str_pack_unpack()
 	assert(a == 42.3 and b == -384)
 end
 unittests.register("test_str_pack_unpack", test_str_pack_unpack)
+
+unittests.register("test_require", function()
+	-- Requiring modules within a mod should work as expected
+	assert(require("unittests.require.foo") == "foo")
+	assert(require("unittests.require.bar") == "bar")
+	assert(pcall(require, "unittests.require.baz") == false)
+	-- Shebangs should be skipped
+	assert(require("unittests.require.shebang") == "yay")
+	-- Modules should not be pre-populated with (unsanitized) builtins
+	assert(pcall(require, "os") == false)
+	-- Cyclic require should produce a useful error message
+	local _, err = pcall(require, "unittests.require.cyclic.a")
+	print(err)
+	assert(err:find"cyclic require%(%)")
+	-- Custom loader
+	table.insert(package.loaders, function(module_name)
+		if module_name ~= "the_answer_to_life_the_universe_and_all_the_rest" then
+			return
+		end
+		return function() -- module loader
+			return 42
+		end
+	end)
+	local _, answer = pcall(require, "the_answer_to_life_the_universe_and_all_the_rest")
+	local success = pcall(require, "nosuchthing")
+	table.remove(package.loaders)
+	assert(answer == 42)
+	assert(success == false)
+end)
+
