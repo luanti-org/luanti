@@ -71,6 +71,7 @@ protected:
 
 	bool createShader(GLenum shaderType, const char *shader);
 	bool linkProgram();
+	bool setupProgram();
 
 	COpenGL3DriverBase *Driver;
 	IShaderConstantSetCallBack *CallBack;
