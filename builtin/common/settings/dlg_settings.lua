@@ -15,6 +15,9 @@ local all_pages = {}
 local page_by_id = {}
 local filtered_pages = all_pages
 local filtered_page_by_id = page_by_id
+-- Extra components that will automatically appear alongside a specific setting
+-- [setting name] = { before = { <component>, ... }, after = { <component>, ... } }
+local extra_components = {}
 
 
 local function get_setting_info(name)
@@ -94,7 +97,7 @@ local function load()
 	core.full_settingtypes = settingtypes.parse_config_file(false, true)
 
 	local touchscreen_layout = {
-		query_text = "Touchscreen layout",
+		query_text = fgettext_ne("Touchscreen layout"),
 		requires = {
 			touchscreen = true,
 		},
@@ -141,48 +144,37 @@ local function load()
 	-- insert after "touch_controls"
 	table.insert(page_by_id.controls_touchscreen.content, 2, touchscreen_layout)
 
-	do
-		local content = page_by_id.advanced_developer_options.content
-		local idx = table.indexof(content, "secure.trusted_mods")
-		local setting_info = get_setting_info("secure.trusted_mods")
-		local note = component_funcs.note(fgettext_ne(
-			"Any mods listed in \"Trusted Mods\" will have unrestricted access to "..
-			"user data and programs on your device. This is not normally needed. "..
-			"Make sure you can trust the mod's code and its author beforehand!"
-		), "#e42", 3) -- <- number of lines
-		note.requires = setting_info.requires
-		note.context = setting_info.context
-		table.insert(content, idx, note)
-	end
+	extra_components["secure.trusted_mods"] = {
+		before = {
+			component_funcs.note(fgettext_ne(
+				"Any mods listed in \"Trusted Mods\" will have unrestricted access to "..
+				"user data and programs on your device. This is not normally needed. "..
+				"Make sure you can trust the mod's code and its author beforehand!"
+			), "#e42", 3)
+		}
+	}
 
-	do
-		local content = page_by_id.graphics_and_audio_effects.content
-		local idx = table.indexof(content, "enable_dynamic_shadows")
-		table.insert(content, idx, shadows_component)
+	extra_components["enable_dynamic_shadows"] = {
+		after = { shadows_component }
+	}
 
-		idx = table.indexof(content, "enable_auto_exposure") + 1
-		local setting_info = get_setting_info("enable_auto_exposure")
-		--[[ TRANSLATORS: "automatic exposure" refers to light. This note
-		will be displayed for the graphics setting 'enable_auto_exposure' ]]
-		local note = component_funcs.note(fgettext_ne("(The game will need to enable automatic exposure as well)"))
-		note.requires = setting_info.requires
-		note.context = setting_info.context
-		table.insert(content, idx, note)
-
-		idx = table.indexof(content, "enable_bloom") + 1
-		setting_info = get_setting_info("enable_bloom")
-		note = component_funcs.note(fgettext_ne("(The game will need to enable bloom as well)"))
-		note.requires = setting_info.requires
-		note.context = setting_info.context
-		table.insert(content, idx, note)
-
-		idx = table.indexof(content, "enable_volumetric_lighting") + 1
-		setting_info = get_setting_info("enable_volumetric_lighting")
-		note = component_funcs.note(fgettext_ne("(The game will need to enable volumetric lighting as well)"))
-		note.requires = setting_info.requires
-		note.context = setting_info.context
-		table.insert(content, idx, note)
-	end
+	extra_components["enable_auto_exposure"] = {
+		after = {
+			--[[ TRANSLATORS: "automatic exposure" refers to light. This note
+			will be displayed for the graphics setting 'enable_auto_exposure' ]]
+			component_funcs.note(fgettext_ne("(The game will need to enable automatic exposure as well)"))
+		}
+	}
+	extra_components["enable_bloom"] = {
+		after = {
+			component_funcs.note(fgettext_ne("(The game will need to enable bloom as well)"))
+		}
+	}
+	extra_components["enable_volumetric_lighting"] = {
+		after = {
+			component_funcs.note(fgettext_ne("(The game will need to enable volumetric lighting as well)"))
+		}
+	}
 
 	-- These must not be translated, as they need to show in the local
 	-- language no matter the user's current language.
@@ -319,7 +311,8 @@ local function filter_page_content(page, query_keywords)
 			end
 		elseif type(content) == "table" and content.query_text then
 			for _, keyword in ipairs(query_keywords) do
-				if string.find(fgettext(content.query_text), keyword, 1, true) then
+				local text = content.query_text:lower()
+				if string.find(text, keyword, 1, true) then
 					max_weight = math.max(max_weight, 1)
 					retval[i] = content
 					i = i + 1
@@ -473,7 +466,14 @@ local function build_page_components(page)
 					content[#content + 1] = last_heading
 					last_heading = nil
 				end
+				local ex = extra_components[name]
+				if ex and ex.before then
+					table.insert_all(content, ex.before)
+				end
 				content[#content + 1] = item
+				if ex and ex.after then
+					table.insert_all(content, ex.after)
+				end
 			elseif setting then
 				settings_off[#settings_off + 1] = setting
 			end
