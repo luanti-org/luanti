@@ -15,6 +15,7 @@ zlib_version=1.3.2
 zstd_version=1.5.7
 libjpeg_version=3.2.0
 libpng_version=1.6.58
+libzip_version=1.11.4
 sdl2_version=2.32.10
 
 download () {
@@ -83,6 +84,10 @@ add_cmake_libs () {
 		-DPNG_LIBRARY=$libdir/libpng/lib/libpng16.dll.a
 		-DPNG_PNG_INCLUDE_DIR=$libdir/libpng/include
 		-DPNG_DLL="$(_dlls $libdir/libpng/bin/*)"
+
+		-DLIBZIP_INCLUDE_DIR=$libdir/libzip/include
+		-DLIBZIP_LIBRARY=$libdir/libzip/lib/libzip.dll.a
+		-DLIBZIP_DLL=$libdir/libzip/bin/libzip.dll
 
 		-DJPEG_LIBRARY=$libdir/libjpeg/lib/libjpeg.dll.a
 		-DJPEG_INCLUDE_DIR=$libdir/libjpeg/include
