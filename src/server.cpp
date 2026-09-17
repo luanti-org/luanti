@@ -1599,7 +1599,10 @@ void Server::SendInventory(RemotePlayer *player, bool incremental, bool skip_wie
 	NetworkPacket pkt(TOCLIENT_INVENTORY, 0, player->getPeerId());
 
 	std::ostringstream os(std::ios::binary);
-	player->inventory.serialize(os, incremental);
+	if (incremental)
+		player->inventory.serializeIncremental(os);
+	else
+		player->inventory.serialize(os);
 	player->inventory.setModified(false);
 	player->setModified(true);
 	std::string content = os.str();

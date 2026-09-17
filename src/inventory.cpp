@@ -13,6 +13,8 @@
 #include "util/serialize.h"
 #include "util/string.h"
 
+#include <fstream>
+
 /*
 	ItemStack
 */
@@ -962,16 +964,33 @@ bool Inventory::operator == (const Inventory &other) const
 	return true;
 }
 
-void Inventory::serialize(std::ostream &os, bool incremental) const
+void Inventory::serializeList(std::ostream &os, const InventoryList *list) {
+	os << "List " << list->getName() << " " << list->getSize() << "\n";
+	list->serialize(os, false);
+}
+
+void Inventory::serializeIncremental(std::ostream &os) const
 {
-	//std::cout << "Serialize " << (int)incremental << ", n=" << m_lists.size() << std::endl;
+	assert(dynamic_cast<std::ofstream*>(&os) == nullptr &&
+		"Never ever serialize to disk using \"incremental\"!");
+
+	//std::cout << "Serialize 1, n=" << m_lists.size() << std::endl;
 	for (const InventoryList *list : m_lists) {
-		if (!incremental || list->checkModified()) {
-			os << "List " << list->getName() << " " << list->getSize() << "\n";
-			list->serialize(os, incremental);
+		if (list->checkModified()) {
+			serializeList(os, list);
 		} else {
 			os << "KeepList " << list->getName() << "\n";
 		}
+	}
+
+	os<<"EndInventory\n";
+}
+
+void Inventory::serialize(std::ostream &os) const
+{
+	//std::cout << "Serialize 0, n=" << m_lists.size() << std::endl;
+	for (const InventoryList *list : m_lists) {
+		serializeList(os, list);
 	}
 
 	os<<"EndInventory\n";
