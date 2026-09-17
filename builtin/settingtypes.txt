@@ -496,7 +496,7 @@ vsync (VSync) bool false
 fps_max_unfocused (FPS when unfocused) int 10 1 4294967295
 
 #    View distance in nodes.
-viewing_range (Viewing range) int 190 20 4000
+viewing_range (Viewing range) int 200 20 4000
 
 #    Undersampling is similar to using a lower screen resolution, but it applies
 #    to the game world only, keeping the GUI intact.
@@ -2120,7 +2120,7 @@ texture_min_size (Base texture size) int 192 192 16384
 #    Larger values increase the utilization of the GPU by reducing the number of
 #    draw calls, benefiting especially high-end GPUs.
 #    Systems with a low-end GPU (or no GPU) would benefit from smaller values.
-client_mesh_chunk (Client Mesh Chunksize) int 1 1 16
+client_mesh_chunk (Client Mesh Chunksize) int 2 1 16
 
 #    Decide the color depth of the texture used for the post-processing pipeline.
 #    Reducing this can improve performance, but some effects (e.g. debanding)
@@ -2253,12 +2253,12 @@ client_unload_unused_data_timeout (Mapblock unload timeout) [client] float 600.0
 #    Note that there is an internal dynamic minimum number of blocks that
 #    won't be deleted, depending on the current view range.
 #    Set to -1 for no limit.
-client_mapblock_limit (Mapblock limit) [client] int 7500 -1 2147483647
+client_mapblock_limit (Mapblock limit) [client] int 9300 -1 2147483647
 
 #    Maximum number of blocks that are simultaneously sent per client.
 #    The maximum total count is calculated dynamically:
 #    max_total = ceil((#clients + max_users) * per_client / 4)
-max_simultaneous_block_sends_per_client (Maximum simultaneous block sends per client) [server] int 40 1
+max_simultaneous_block_sends_per_client (Maximum simultaneous block sends per client) [server] int 50 1
 
 #    To save bandwidth, block transfers are slowed down when a player is building something.
 #    This determines how long the throttling lasts after placing a node.
@@ -2330,7 +2330,7 @@ active_object_send_range_blocks (Active object send range) int 8 1 65535
 active_block_range (Active block range) int 4 1 65535
 
 #    From how far blocks are sent to clients, stated in mapblocks (16 nodes).
-max_block_send_distance (Max block send distance) int 12 1 65535
+max_block_send_distance (Max block send distance) int 13 1 65535
 
 #    Default maximum number of forceloaded mapblocks.
 #    Set this to -1 to disable the limit.
@@ -2407,15 +2407,15 @@ chunksize (Chunk size) [world_creation] int 5 1 10
 enable_mapgen_debug_info (Mapgen debug) bool false
 
 #    Maximum number of blocks that can be queued for loading.
-emergequeue_limit_total (Absolute limit of queued blocks to emerge) int 1024 1 1000000
+emergequeue_limit_total (Absolute limit of queued blocks to emerge) int 1200 1 1000000
 
 #    Maximum number of blocks to be queued that are to be loaded from file.
 #    This limit is enforced per player.
-emergequeue_limit_diskonly (Per-player limit of queued blocks load from disk) int 128 1 1000000
+emergequeue_limit_diskonly (Per-player limit of queued blocks load from disk) int 150 1 1000000
 
 #    Maximum number of blocks to be queued that are to be generated.
 #    This limit is enforced per player.
-emergequeue_limit_generate (Per-player limit of queued blocks to generate) int 128 1 1000000
+emergequeue_limit_generate (Per-player limit of queued blocks to generate) int 150 1 1000000
 
 #    Number of emerge threads (responsible for map generation and loading) to use.
 #    If 0 then the engine will automatically choose a suitable value depending
