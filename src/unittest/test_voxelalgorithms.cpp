@@ -114,7 +114,7 @@ void TestVoxelAlgorithms::testLighting(IGameDef *gamedef)
 
 	// Place two holes on the edges a torch in the center.
 	{
-		std::map<v3s16, MapBlock*> modified_blocks;
+		ModifiedMapBlocks modified_blocks;
 		map.addNodeAndUpdate(v3s16(-10, 0, 0), MapNode(CONTENT_AIR), modified_blocks);
 		map.addNodeAndUpdate(v3s16(9, 10, -9), MapNode(t_CONTENT_WATER), modified_blocks);
 		map.addNodeAndUpdate(v3s16(0, 0, 0), MapNode(t_CONTENT_TORCH), modified_blocks);

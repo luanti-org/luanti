@@ -10,6 +10,7 @@
 class Map;
 class MapBlock;
 class MMVManip;
+struct ModifiedMapBlock;
 
 namespace voxalgo
 {
@@ -26,10 +27,11 @@ namespace voxalgo
  * \param modified_blocks output, contains all map blocks that
  * the function modified
  */
+template <class MB> // ServerMap::transformLiquidsLocal does not use ModifiedMapBlock yet
 void update_lighting_nodes(
 	Map *map,
 	const std::vector<std::pair<v3s16, MapNode>> &oldnodes,
-	std::map<v3s16, MapBlock*> &modified_blocks);
+	MB &modified_blocks);
 
 /*!
  * Updates borders of the given mapblock.
@@ -41,7 +43,7 @@ void update_lighting_nodes(
  * the function modified
  */
 void update_block_border_lighting(Map *map, MapBlock *block,
-	std::map<v3s16, MapBlock*> &modified_blocks);
+	std::map<v3s16, ModifiedMapBlock> &modified_blocks);
 
 /*!
  * Copies back nodes from a voxel manipulator
