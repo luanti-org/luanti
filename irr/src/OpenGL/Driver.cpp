@@ -339,19 +339,13 @@ void COpenGL3DriverBase::loadShaderData(const io::path &vertexShaderName, const 
 
 	io::IReadFile *vsFile = FileSystem->createAndOpenFile(vsPath);
 	if (!vsFile) {
-		std::string warning("Warning: Missing shader files needed to simulate fixed function materials:\n");
-		warning.append(vsPath.c_str()).append("\n");
-		warning += "Shaderpath can be changed in SIrrCreationParamters::OGLES2ShaderPath";
-		os::Printer::log(warning.c_str(), ELL_WARNING);
+		os::Printer::log("Missing vertex shader file", vsPath, ELL_ERROR);
 		return;
 	}
 
 	io::IReadFile *fsFile = FileSystem->createAndOpenFile(fsPath);
 	if (!fsFile) {
-		std::string warning("Warning: Missing shader files needed to simulate fixed function materials:\n");
-		warning.append(fsPath.c_str()).append("\n");
-		warning += "Shaderpath can be changed in SIrrCreationParamters::OGLES2ShaderPath";
-		os::Printer::log(warning.c_str(), ELL_WARNING);
+		os::Printer::log("Missing fragment shader file", fsPath, ELL_ERROR);
 		return;
 	}
 

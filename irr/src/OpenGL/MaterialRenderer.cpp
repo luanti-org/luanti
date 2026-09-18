@@ -76,7 +76,7 @@ COpenGL3MaterialRenderer::~COpenGL3MaterialRenderer()
 
 	if (Program) {
 		GLuint shaders[8];
-		GLint count;
+		GLint count = 0;
 		GL.GetAttachedShaders(Program, 8, &count, shaders);
 
 		count = core::min_(count, 8);

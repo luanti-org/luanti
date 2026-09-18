@@ -7,7 +7,6 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
-#include "irr_ptr.h"
 #include "irrlichttypes_bloated.h"
 #include "rect.h"
 #include "util/enum_string.h"
@@ -100,7 +99,6 @@ struct ButtonLayout {
 	static ButtonLayout loadFromSettings();
 
 	static video::ITexture *getTexture(touch_gui_button_id btn, ISimpleTextureSource *tsrc);
-	static void clearTextureCache();
 
 	ButtonMap layout;
 
@@ -124,8 +122,6 @@ private:
 	static const ButtonMap default_data;
 	static ButtonMap deserializeJson(std::istream &is);
 	static ButtonLayout postProcessLoaded(const ButtonMap &map);
-
-	static std::unordered_map<touch_gui_button_id, irr_ptr<video::ITexture>> texture_cache;
 };
 
 void layout_button_grid(v2u32 screensize, ISimpleTextureSource *tsrc,

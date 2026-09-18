@@ -599,7 +599,7 @@ const ShaderInfo &ShaderSource::getShaderInfo(u32 id)
 	MutexAutoLock lock(m_shaderinfo_cache_mutex);
 
 	if (id >= m_shaderinfo_cache.size()) {
-		static ShaderInfo empty;
+		const static ShaderInfo empty;
 		return empty;
 	}
 	return m_shaderinfo_cache[id];

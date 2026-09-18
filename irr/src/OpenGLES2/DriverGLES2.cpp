@@ -19,6 +19,7 @@ E_DRIVER_TYPE COpenGLES2Driver::getDriverType() const
 OpenGLVersion COpenGLES2Driver::getVersionFromOpenGL() const
 {
 	auto version_string = reinterpret_cast<const char *>(GL.GetString(GL_VERSION));
+	version_string = version_string ? version_string : "";
 	int major = 0, minor = 0;
 	if (sscanf(version_string, "OpenGL ES %d.%d", &major, &minor) != 2) {
 		os::Printer::log("Failed to parse OpenGL ES version string", version_string, ELL_ERROR);
