@@ -419,6 +419,8 @@ static void set_allowed_options(OptionList *allowed_options)
 			_("Enable ncurses interactive terminal" SERVER_ONLY))));
 	allowed_options->insert(std::make_pair("recompress", ValueSpec(VALUETYPE_FLAG,
 			_("Recompress the blocks of the given map database" SERVER_ONLY))));
+	allowed_options->emplace("insecure-no-sandbox", ValueSpec(VALUETYPE_FLAG,
+			_("Disable server Lua sandbox (INSECURE!)")));
 #if CHECK_CLIENT_BUILD()
 	allowed_options->insert(std::make_pair("address", ValueSpec(VALUETYPE_STRING,
 			_("Address to connect to ('' = local game)"))));
@@ -788,7 +790,8 @@ static bool init_common(const Settings &cmd_args, int argc, char *argv[])
 	srand(seed);
 	mysrand(seed);
 
-	// Initialize HTTP fetcher
+	g_disable_mod_security = cmd_args.getFlag("insecure-no-sandbox");
+
 	httpfetch_init(g_settings->getS32("curl_parallel_limit"));
 
 	init_gettext(porting::path_locale.c_str(),

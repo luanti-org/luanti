@@ -27,7 +27,7 @@
 class ScriptApiSecurity : virtual public ScriptApiBase
 {
 public:
-	// Sets up security on the ScriptApi's Lua state
+	// Sets up security/sandboxing on the ScriptApi's Lua state
 	void initializeSecurity();
 #if CHECK_CLIENT_BUILD()
 	void initializeSecurityClient();

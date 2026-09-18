@@ -49,12 +49,21 @@ ServerScripting::ServerScripting(Server* server):
 
 	SCRIPTAPI_PRECHECKHEADER
 
-	if (g_settings->getBool("secure.enable_security")) {
+	if (!g_disable_mod_security) {
 		initializeSecurity();
+
+		std::string old_name("secure.enable_security");
+		if (g_settings->exists(old_name) && !g_settings->getBool(old_name)) {
+			warningstream << "The setting '" << old_name << "' was removed "
+				"and is now ignored. Use the --insecure-no-sandbox flag if you "
+				"really want to continue disabling the Lua sandbox." << std::endl;
+		}
 	} else {
-		warningstream << "\\!/ Mod security should never be disabled, as it allows any mod to "
-				<< "access the host machine."
-				<< "Mods should use minetest.request_insecure_environment() instead \\!/" << std::endl;
+		errorstream << u8"\u26A0\uFE0E" << " The Lua sandbox is disabled completely. "
+			"All mods can run arbitrary programs and have full filesystem access. "
+			"This is a SECURITY RISK! " << u8"\u26A0\uFE0E"
+			<< "\nInstead consider core.request_insecure_environment() to allow "
+			"selectively bypassing the sandbox." << std::endl;
 	}
 
 	lua_getglobal(L, "core");

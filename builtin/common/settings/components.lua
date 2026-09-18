@@ -72,14 +72,30 @@ function make.unavail_list(settings)
 	}
 end
 
-function make.note(text)
+local g_note_id = 1 -- hello stupid solution!
+
+--- Make a static text note
+--- @param text the text
+--- @param text_color set a specific color (optional)
+--- @param lines number of lines of space to reserve. word-wrap will enable at > 1 (optional)
+function make.note(text, text_color, lines)
+	text = core.formspec_escape(text)
+	text_color = text_color or "#bbb"
 	return {
 		full_width = true,
 		get_formspec = function(self, avail_w)
 			-- Assuming label height 0.4:
 			-- Position at y=0 to eat 0.2 of the padding above, leave 0.05.
 			-- The returned used_height doesn't include padding.
-			return ("label[0,0;%s]"):format(core.colorize("#bbb", core.formspec_escape(text))), 0.2
+			if (lines or 1) <= 1 then
+				return ("label[0,0;%s]"):format(core.colorize(text_color, text)), 0.2
+			end
+			-- Note that core.colorize is broken with textareas so we need to use style[]
+			local id = g_note_id
+			g_note_id = g_note_id + 1
+			return ("style[settings_note%d;textcolor=%s;border=false;editable=false]textarea[0,0;%f,%f;settings_note%d;;%s]"):
+				format(id, text_color, avail_w, 0.5 * lines, id, text),
+				(0.5 * lines - 0.2)
 		end,
 	}
 end

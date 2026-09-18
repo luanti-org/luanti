@@ -26,6 +26,8 @@ extern Settings *g_settings; // Same as Settings::getLayer(SL_GLOBAL);
 extern std::string g_settings_path;
 /// Is set to true if the engine runs for the first time
 extern bool g_first_run;
+/// Set by main.cpp and intentionally kept out of the settings object.
+extern bool g_disable_mod_security;
 
 // Type for a settings changed callback function
 typedef void (*SettingsChangedCallback)(const std::string &name, void *data);

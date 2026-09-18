@@ -67,11 +67,7 @@ end
 
 
 return {
-	query_text = "Shadows",
-	requires = {
-		shadows_support = true,
-	},
-	context = "client",
+	-- no 'requires' or 'context' needed here because the component is not standalone
 	get_formspec = function(self, avail_w)
 		local labels = table.copy(shadow_levels_labels)
 		local idx = detect_mapping_idx()
