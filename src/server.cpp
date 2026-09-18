@@ -2770,9 +2770,19 @@ void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_co
 		if (info.no_announce)
 			return false;
 		if (Translations::isTranslationFileType(name)) {
-			// Only send translations matching the client's language
 			auto this_lang_code = Translations::getFileLanguage(name);
-			return !this_lang_code.empty() && this_lang_code == lang_code;
+			if (this_lang_code.empty())
+				return false;
+
+			if (this_lang_code == lang_code)
+				return true;
+
+			// Only clients 5.18 and older can correctly handle fallbacks with English language.
+			if (this_lang_code == "en") {
+				return m_clients.getProtocolVersion(peer_id) >= 54;
+			}
+
+			return false;
 		}
 		return true;
 	};
@@ -4381,10 +4391,12 @@ Translations *Server::getTranslationLanguage(const std::string &lang_code)
 	auto *translations = &server_translations[lang_code];
 
 	for (const auto &i : m_media) {
-		if (Translations::getFileLanguage(i.first) == lang_code) {
+		auto file_lang = Translations::getFileLanguage(i.first);
+
+		if (file_lang == lang_code || file_lang == "en") {
 			std::string data;
 			if (fs::ReadFile(i.second.path, data, true)) {
-				translations->loadTranslation(i.first, data);
+				translations->loadTranslation(i.first, data, lang_code);
 			}
 		}
 	}

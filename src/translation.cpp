@@ -69,16 +69,23 @@ const std::wstring &Translations::getPluralTranslation(
 
 
 void Translations::addTranslation(
-		const std::wstring &textdomain, const std::wstring &original, const std::wstring &translated)
+	const std::wstring &textdomain, const std::wstring &original,
+	const std::wstring &translated, bool is_fallback)
 {
 	std::wstring key = textdomain + L"|" + original;
 	if (!translated.empty()) {
-		m_translations.emplace(std::move(key), std::move(translated));
+		if (is_fallback) {
+			// Add the key only if it doesn't exist yet - this is a fallback translation (EN).
+			m_translations.emplace(std::move(key), std::move(translated));
+		} else {
+			// Add and overwrite if it already exists - this is a translation of the target language.
+			m_translations.insert_or_assign(std::move(key), std::move(translated));
+		}
 	}
 }
 
 void Translations::addPluralTranslation(
-		const std::wstring &textdomain, const GettextPluralForm::Ptr &plural, const std::wstring &original, std::vector<std::wstring> &translated)
+		const std::wstring &textdomain, const GettextPluralForm::Ptr &plural, const std::wstring &original, std::vector<std::wstring> &translated, bool is_fallback)
 {
 	static bool warned = false;
 	if (!plural) {
@@ -91,11 +98,18 @@ void Translations::addPluralTranslation(
 		return;
 	}
 	std::wstring key = textdomain + L"|" + original;
-	m_plural_translations.emplace(std::move(key), std::pair(plural, translated));
+
+	if (is_fallback) {
+		// Add the key only if it doesn't exist yet - this is a fallback translation (EN).
+		m_plural_translations.emplace(std::move(key), std::pair(plural, translated));
+	} else {
+		// Add and overwrite if it already exists - this is a translation of the target language.
+		m_plural_translations.insert_or_assign(std::move(key), std::pair(plural, translated));
+	}
 }
 
 
-void Translations::loadTrTranslation(const std::string &data)
+void Translations::loadTrTranslation(const std::string &data, bool is_fallback, const std::string &target_lang)
 {
 	std::istringstream is(data);
 	std::string textdomain_narrow;
@@ -118,6 +132,20 @@ void Translations::loadTrTranslation(const std::string &data)
 			textdomain_narrow = trim(parts[1]);
 			textdomain = utf8_to_wide(textdomain_narrow);
 		}
+		else if (str_starts_with(line, "# Source-Language:")) {
+			auto parts = str_split(line, ':');
+			if (parts.size() < 2) {
+				errorstream << "Invalid source language translation line \"" << line
+						<< "\"" << std::endl;
+				continue;
+			}
+			auto source_lang = trim(parts[1]);
+
+			if (is_fallback && !source_lang.empty() && source_lang == target_lang) {
+				return;
+			}
+		}
+
 		if (line.empty() || line[0] == '#')
 			continue;
 
@@ -195,7 +223,7 @@ void Translations::loadTrTranslation(const std::string &data)
 			}
 		}
 
-		addTranslation(textdomain, word1.str(), word2.str());
+		addTranslation(textdomain, word1.str(), word2.str(), is_fallback);
 	}
 }
 
@@ -322,7 +350,7 @@ std::wstring Translations::unescapeC(const std::wstring &str)
 	return result;
 }
 
-void Translations::loadPoEntry(const std::wstring &basefilename, const GettextPluralForm::Ptr &plural_form, const std::map<std::wstring, std::wstring> &entry)
+void Translations::loadPoEntry(const std::wstring &basefilename, const GettextPluralForm::Ptr &plural_form, const std::map<std::wstring, std::wstring> &entry, bool is_fallback)
 {
 	// Process an entry from a PO file and add it to the translation table
 	// Assumes that entry[L"msgid"] is always defined
@@ -342,7 +370,7 @@ void Translations::loadPoEntry(const std::wstring &basefilename, const GettextPl
 			errorstream << "Could not load translation: entry for msgid \"" << wide_to_utf8(original) << "\" does not contain a msgstr field" << std::endl;
 			return;
 		}
-		addTranslation(textdomain, original, translated->second);
+		addTranslation(textdomain, original, translated->second, is_fallback);
 	} else {
 		std::vector<std::wstring> translations;
 		for (int i = 0; ; i++) {
@@ -351,8 +379,8 @@ void Translations::loadPoEntry(const std::wstring &basefilename, const GettextPl
 				break;
 			translations.push_back(translated->second);
 		}
-		addPluralTranslation(textdomain, plural_form, original, translations);
-		addPluralTranslation(textdomain, plural_form, plural->second, translations);
+		addPluralTranslation(textdomain, plural_form, original, translations, is_fallback);
+		addPluralTranslation(textdomain, plural_form, plural->second, translations, is_fallback);
 	}
 }
 
@@ -419,7 +447,7 @@ std::optional<std::pair<std::wstring, std::wstring>> Translations::parsePoLine(c
 	return std::pair(prefix, s);
 }
 
-void Translations::loadPoTranslation(const std::string &basefilename, const std::string &data)
+void Translations::loadPoTranslation(const std::string &basefilename, const std::string &data, bool is_fallback, const std::string &target_lang)
 {
 	std::istringstream is(data);
 	std::string line;
@@ -482,10 +510,17 @@ void Translations::loadPoTranslation(const std::string &basefilename, const std:
 										errorstream << "Invalid Plural-Forms line: " << wide_to_utf8(line) << std::endl;
 									}
 								}
+								else if (str_starts_with(line, L"Source-Language:")) {
+									auto source_lang = trim(wide_to_utf8(line.substr(16)));
+
+									if (is_fallback && !source_lang.empty() && source_lang == target_lang) {
+										return;
+									}
+								}
 							}
 						}
 					} else {
-						loadPoEntry(wbasefilename, plural, last_entry);
+						loadPoEntry(wbasefilename, plural, last_entry, is_fallback);
 					}
 				}
 				last_entry.clear();
@@ -509,13 +544,13 @@ void Translations::loadPoTranslation(const std::string &basefilename, const std:
 
 	if (last_entry.find(L"msgid") != last_entry.end()) {
 		if (!skip_last && !last_entry[L"msgid"].empty())
-			loadPoEntry(wbasefilename, plural, last_entry);
+			loadPoEntry(wbasefilename, plural, last_entry, is_fallback);
 	} else if (!last_entry.empty()) {
 		errorstream << "Unable to parse po file: Last entry has no \"msgid\" field" << std::endl;
 	}
 }
 
-void Translations::loadMoEntry(const std::wstring &basefilename, const GettextPluralForm::Ptr &plural_form, const std::string &original, const std::string &translated)
+void Translations::loadMoEntry(const std::wstring &basefilename, const GettextPluralForm::Ptr &plural_form, const std::string &original, const std::string &translated, bool is_fallback)
 {
 	std::wstring textdomain = L"";
 	size_t found;
@@ -531,10 +566,10 @@ void Translations::loadMoEntry(const std::wstring &basefilename, const GettextPl
 	found = noriginal.find('\0');
 	if (found != std::string::npos) {
 		std::vector<std::wstring> translations = str_split(utf8_to_wide(translated), L'\0');
-		addPluralTranslation(textdomain, plural_form, utf8_to_wide(noriginal.substr(0, found)), translations);
-		addPluralTranslation(textdomain, plural_form, utf8_to_wide(noriginal.substr(found + 1)), translations);
+		addPluralTranslation(textdomain, plural_form, utf8_to_wide(noriginal.substr(0, found)), translations, is_fallback);
+		addPluralTranslation(textdomain, plural_form, utf8_to_wide(noriginal.substr(found + 1)), translations, is_fallback);
 	} else {
-		addTranslation(textdomain, utf8_to_wide(noriginal), utf8_to_wide(translated));
+		addTranslation(textdomain, utf8_to_wide(noriginal), utf8_to_wide(translated), is_fallback);
 	}
 }
 
@@ -553,7 +588,7 @@ inline u32 readVarEndian(bool is_be, std::string_view data, size_t pos = 0)
 	}
 }
 
-void Translations::loadMoTranslation(const std::string &basefilename, const std::string &data)
+void Translations::loadMoTranslation(const std::string &basefilename, const std::string &data, bool is_fallback, const std::string &target_lang)
 {
 	size_t length = data.length();
 	std::wstring wbasefilename = utf8_to_wide(basefilename);
@@ -620,29 +655,40 @@ void Translations::loadMoTranslation(const std::string &basefilename, const std:
 							errorstream << "Invalid Plural-Forms line: " << line << std::endl;
 						}
 					}
+					else if (str_starts_with(line, "Source-Language:")) {
+						auto source_lang = trim(line.substr(16));
+
+						if (is_fallback && !source_lang.empty() && source_lang == target_lang) {
+							return;
+						}
+					}
 				}
 			}
 		} else {
-			loadMoEntry(wbasefilename, plural_form, original, translated);
+			loadMoEntry(wbasefilename, plural_form, original, translated, is_fallback);
 		}
 	}
 
 	return;
 }
 
-void Translations::loadTranslation(const std::string &filename, const std::string &data)
+void Translations::loadTranslation(const std::string &filename, const std::string &data, const std::string &target_lang)
 {
+	std::string lang(Translations::getFileLanguage(filename));
+
+	bool is_fallback = (lang == "en");
+
 	const char *trExtension[] = { ".tr", NULL };
 	const char *poExtension[] = { ".po", NULL };
 	const char *moExtension[] = { ".mo", NULL };
 	if (!removeStringEnd(filename, trExtension).empty()) {
-		loadTrTranslation(data);
+		loadTrTranslation(data, is_fallback, target_lang);
 	} else if (!removeStringEnd(filename, poExtension).empty()) {
 		std::string basefilename = str_split(filename, '.')[0];
-		loadPoTranslation(basefilename, data);
+		loadPoTranslation(basefilename, data, is_fallback, target_lang);
 	} else if (!removeStringEnd(filename, moExtension).empty()) {
 		std::string basefilename = str_split(filename, '.')[0];
-		loadMoTranslation(basefilename, data);
+		loadMoTranslation(basefilename, data, is_fallback, target_lang);
 	} else {
 		errorstream << "loadTranslation called with invalid filename: \"" << filename << "\"" << std::endl;
 	}
