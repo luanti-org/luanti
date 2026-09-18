@@ -125,7 +125,7 @@ void ModChannelMgr::leaveAllChannels(session_t peer_id)
 		channel_it.second->removeConsumer(peer_id);
 }
 
-static std::vector<u16> empty_channel_list;
+const static std::vector<u16> empty_channel_list;
 const std::vector<u16> &ModChannelMgr::getChannelPeers(const std::string &channel) const
 {
 	const auto &channel_it = m_registered_channels.find(channel);

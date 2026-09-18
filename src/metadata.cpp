@@ -32,7 +32,7 @@ const std::string &IMetadata::getString(const std::string &name, std::string *pl
 {
 	const std::string *raw = getStringRaw(name, place);
 	if (!raw) {
-		static const std::string empty_string = std::string("");
+		static const std::string empty_string;
 		return empty_string;
 	}
 

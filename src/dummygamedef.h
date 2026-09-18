@@ -47,7 +47,7 @@ public:
 
 	const std::vector<ModSpec> &getMods() const override
 	{
-		static std::vector<ModSpec> emptymodspec;
+		const static std::vector<ModSpec> emptymodspec;
 		return emptymodspec;
 	}
 	const ModSpec* getModSpec(const std::string &modname) const override { return nullptr; }
