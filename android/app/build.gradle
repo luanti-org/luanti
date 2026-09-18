@@ -48,10 +48,6 @@ android {
 		}
 	}
 
-	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_8
-		targetCompatibility JavaVersion.VERSION_1_8
-	}
 	namespace 'net.minetest.minetest'
 }
 
@@ -133,5 +129,5 @@ clean {
 
 dependencies {
 	implementation project(':native')
-	implementation 'androidx.appcompat:appcompat:1.6.1'
+	implementation 'androidx.appcompat:appcompat:1.7.1'
 }
