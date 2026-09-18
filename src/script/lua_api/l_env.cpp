@@ -59,7 +59,7 @@ int LuaRaycast::l_next(lua_State *L)
 
 	bool csm = false;
 #if CHECK_CLIENT_BUILD()
-	csm = getClient(L) != nullptr;
+	csm = isClient(L);
 #endif
 
 	LuaRaycast *o = checkObject<LuaRaycast>(L, 1);
@@ -792,8 +792,8 @@ int ModApiEnv::l_find_node_near(lua_State *L)
 
 #if CHECK_CLIENT_BUILD()
 	// Client API limitations
-	if (Client *client = getClient(L))
-		radius = client->CSMClampRadius(pos, radius);
+	if (isClient(L))
+		radius = getClient(L)->CSMClampRadius(pos, radius);
 #endif
 
 	auto getNode = [&map] (v3s16 p) -> MapNode {
@@ -901,7 +901,8 @@ int ModApiEnv::l_find_nodes_in_area(lua_State *L)
 	Map &map = env->getMap();
 
 #if CHECK_CLIENT_BUILD()
-	if (Client *client = getClient(L)) {
+	if (isClient(L)) {
+		Client *client = getClient(L);
 		minp = client->CSMClampPos(minp);
 		maxp = client->CSMClampPos(maxp);
 	}
@@ -961,7 +962,8 @@ int ModApiEnv::l_find_nodes_in_area_under_air(lua_State *L)
 	Map &map = env->getMap();
 
 #if CHECK_CLIENT_BUILD()
-	if (Client *client = getClient(L)) {
+	if (isClient(L)) {
+		Client *client = getClient(L);
 		minp = client->CSMClampPos(minp);
 		maxp = client->CSMClampPos(maxp);
 	}

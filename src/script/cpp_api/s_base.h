@@ -92,9 +92,13 @@ public:
 	ScriptingType getType() { return m_type; }
 
 	IGameDef *getGameDef() { return m_gamedef; }
+	// Never returns null. Aborts if the gamedef is not a Server.
 	Server *getServer();
 #if CHECK_CLIENT_BUILD()
+	// Never returns null. Aborts if the gamedef is not a Client.
 	Client *getClient();
+	// If this is true, getClient() will not abort.
+	bool isClient();
 	ModVFS *getModVFS();
 #endif
 
