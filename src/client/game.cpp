@@ -3185,24 +3185,18 @@ bool Game::nodePlacement(const ItemDefinition &selected_def,
 			// Check if attempting to place a node that player stands inside,
 			// depending on the player's height
 			aabb3f collisionbox = player->getCollisionbox();
-			u16 player_height = ceilf((collisionbox.MaxEdge.Y - collisionbox.MinEdge.Y) / BS);
+			int player_height = ceilf((collisionbox.MaxEdge.Y - collisionbox.MinEdge.Y) / BS);
 			// Check 5 nodes at most so we don't check a huge number of nodes
 			// in case of faulty collisionboxes
-			player_height = MYMIN(player_height, 5);
-			// Always check at least 1 node
-			player_height = MYMAX(player_height, 1);
-			for (int y=1; y<=player_height; y++) {
-				if (neighborpos == player->getStandingNodePos() + v3s16(0, y, 0)) {
-					stands_inside = true;
-					break;
-				}
-			}
+			player_height = rangelim(player_height, 1, 5);
+			v3s16 diff = neighborpos - player->getStandingNodePos();
+			stands_inside = (diff.X == 0 && diff.Z == 0 && diff.Y >= 1 && diff.Y <= player_height);
 		}
 
 		// Don't place node when player would be inside new node
 		// NOTE: This is to be eventually implemented by a mod as client-side Lua
-		if ((!predicted_f.walkable ||
-				build_where_you_stand) ||
+		if (!predicted_f.walkable ||
+				build_where_you_stand ||
 				(client->checkPrivilege("noclip") && g_settings->getBool("noclip")) ||
 				(predicted_f.walkable && !stands_inside)) {
 			// This triggers the required mesh update too
