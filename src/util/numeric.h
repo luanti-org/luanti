@@ -313,13 +313,46 @@ u64 murmur_hash_64_ua(const void *key, size_t len, unsigned int seed);
  * @param blockpos_b position of block in block coordinates
  * @param camera_pos position of camera in nodes
  * @param camera_dir an unit vector pointing to camera direction
+ * @param camera_fov in rad
  * @param range viewing range
  * @param distance_ptr return location for distance from the camera
  */
-bool isBlockInSight(v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
-		f32 camera_fov, f32 range, f32 *distance_ptr=nullptr);
+bool isBlockInSight(const v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
+		const f32 camera_fov, const f32 range, f32 *distance_ptr=nullptr);
+
+/**
+ * @param blockpos_b position of block in block coordinates
+ * @param camera_pos position of camera in nodes
+ * @param camera_dir an unit vector pointing to camera direction
+ * @param target_cos_sq pre-computed adjusted cos^2(camera fov) (use getFovCosSq(...))
+ * @param adjdist pre-computed camera distance adjustment (use getFovAdj(...))
+ * @param range viewing range
+ * @param distance_ptr return location for distance from the camera
+ */
+bool isBlockInSightEx(const v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
+		const f32 target_cos_sq, const f32 adjdist, const f32 range, f32 *distance_ptr);
 
 s16 adjustDist(s16 dist, float zoom_fov);
+
+
+inline f32 getFovAdj(f32 camera_fov)
+{
+	// Adjust camera position, for purposes of computing the angle,
+	// such that a block that has any portion visible with the
+	// current camera position will have the center visible at the
+	// adjusted position
+	return BLOCK_MAX_RADIUS / std::sin(camera_fov * 0.5f);
+}
+
+inline f32 getFovCosSq(f32 camera_fov)
+{
+	// If block is not in the field of view, skip it
+	// HOTFIX: use slightly increased angle (+10%) to fix too aggressive
+	// culling. Somebody has to find out what's wrong with the math here.
+	// Previous value: camera_fov / 2
+	const f32 target_cos = std::cos(camera_fov * 0.55f);
+	return target_cos * target_cos;
+}
 
 /*
 	Returns nearest 32-bit integer for given floating point number.
