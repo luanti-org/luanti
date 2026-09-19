@@ -150,6 +150,8 @@ struct SRPUser *srp_user_new(SRP_HashAlgorithm alg, SRP_NGType ng_type,
 
 void srp_user_delete(struct SRPUser *usr);
 
+void srp_user_clear_sessiondata(struct SRPUser *usr);
+
 int srp_user_is_authenticated(struct SRPUser *usr);
 
 const char *srp_user_get_username(struct SRPUser *usr);

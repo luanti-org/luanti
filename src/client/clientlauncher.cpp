@@ -23,6 +23,7 @@
 #include "gettime.h"
 #include "util/numeric.h"
 #include "util/tracy_wrapper.h"
+#include "util/secure_string.h"
 #include <IGUISpriteBank.h>
 #include <ICameraSceneNode.h>
 #include <unordered_map>
@@ -97,10 +98,9 @@ ClientLauncher::~ClientLauncher()
 
 bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args)
 {
-	GameStartData start_data;
-	static_cast<GameParams &>(start_data) = game_params;
+	ClientGameStartData client_start_data(game_params);
 
-	init_args(start_data, cmd_args);
+	init_args(client_start_data, cmd_args);
 
 	try {
 		init_engine();
@@ -207,7 +207,7 @@ bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args
 			guiroot = guienv->addStaticText(L"",
 				core::rect<s32>(0, 0, 10000, 10000));
 
-			bool should_run_game = launch_game(errordata, start_data, cmd_args);
+			bool should_run_game = launch_game(errordata, client_start_data, cmd_args);
 
 			// Reset the reconnect_requested flag
 			errordata.reconnect_requested = false;
@@ -231,7 +231,7 @@ bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args
 				kill,
 				input,
 				m_rendering_engine,
-				start_data,
+				client_start_data,
 				errordata,
 				chat_backend
 			);
@@ -275,9 +275,11 @@ bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args
 	return retval;
 }
 
-void ClientLauncher::init_args(GameStartData &start_data, const Settings &cmd_args)
+void ClientLauncher::init_args(ClientGameStartData &client_start_data, const Settings &cmd_args)
 {
 	skip_main_menu = cmd_args.getFlag("go");
+
+	GameStartData &start_data = client_start_data.start_data;
 
 	start_data.address = g_settings->get("address");
 	if (cmd_args.exists("address")) {
@@ -398,19 +400,21 @@ void ClientLauncher::config_guienv()
 	}
 }
 
-bool ClientLauncher::launch_game(GameErrorData &errordata, GameStartData &start_data,
+bool ClientLauncher::launch_game(GameErrorData &errordata, ClientGameStartData &client_start_data,
 		const Settings &cmd_args)
 {
 	std::string &error_message = errordata.message;
+	SecureString password;
 
 	// Prepare and check the start data to launch a game
+
 	if (cmd_args.exists("password"))
-		start_data.password = cmd_args.get("password");
+		password = cmd_args.get("password");
 
 	if (cmd_args.exists("password-file")) {
 		std::ifstream passfile(cmd_args.get("password-file"));
 		if (passfile.good()) {
-			std::getline(passfile, start_data.password);
+			getline(passfile, password);
 		} else {
 			error_message = gettext("Provided password file "
 					"failed to open: ")
@@ -420,6 +424,8 @@ bool ClientLauncher::launch_game(GameErrorData &errordata, GameStartData &start_
 		}
 	}
 
+	GameStartData &start_data = client_start_data.start_data;
+
 	/*
 	 * Show the GUI menu
 	 */
@@ -428,6 +434,7 @@ bool ClientLauncher::launch_game(GameErrorData &errordata, GameStartData &start_
 		MainMenuData menudata(errordata);
 		(GameClientData &)menudata = start_data;
 		menudata.port = itos(start_data.socket_port);
+		menudata.password = password;
 
 		main_menu(&menudata);
 
@@ -457,22 +464,36 @@ bool ClientLauncher::launch_game(GameErrorData &errordata, GameStartData &start_
 		}
 
 		(GameClientData &)start_data = menudata;
+		password = menudata.password;
+
+		// make sure that password will not stay somewhere in memory
+		menudata.password.safeClear();
 	}
 
 	if (!start_data.isSinglePlayer() && start_data.name.empty()) {
 		error_message = gettext("Please choose a name!");
 		errorstream << error_message << std::endl;
+		// make sure that password will not stay somewhere in memory
+		password.safeClear();
 		return false;
 	}
 
 	// If using simple singleplayer mode, override
 	if (start_data.isSinglePlayer()) {
 		start_data.name = "singleplayer";
-		start_data.password = "";
+		password.safeClear();
+		password = "";
 		start_data.socket_port = myrand_range(49152, 65535);
 	} else {
 		g_settings->set("name", start_data.name);
 	}
+
+	if (!errordata.reconnect_requested) {
+		// This should not be call on reconnect request, because password has been erased.
+		client_start_data.auth.applyPassword(start_data.name, password);
+	}
+	// make sure that password will not stay somewhere in memory
+	password.safeClear();
 
 	if (start_data.name.length() > PLAYERNAME_SIZE - 1) {
 		error_message = gettext("Player name too long.");

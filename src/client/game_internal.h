@@ -110,7 +110,7 @@ public:
 	bool startup(volatile std::sig_atomic_t *kill,
 			InputHandler *input,
 			RenderingEngine *rendering_engine,
-			const GameStartData &game_params,
+			ClientGameStartData &game_params,
 			GameErrorData &errordata,
 			ChatBackend *chat_backend);
 
@@ -133,11 +133,11 @@ protected:
 	void copyServerClientCache();
 
 	// Client creation
-	bool createClient(const GameStartData &start_data);
+	bool createClient(ClientGameStartData &start_data);
 	bool initGui();
 
 	// Client connection
-	bool connectToServer(const GameStartData &start_data,
+	bool connectToServer(ClientGameStartData &start_data,
 			bool *connect_ok, bool *aborted);
 	bool getServerContent(bool *aborted);
 

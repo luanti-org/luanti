@@ -19,6 +19,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #pragma once
 
 #include "modalMenu.h"
+#include "util/secure_string.h"
 #include <string>
 
 class Client;
@@ -53,8 +54,8 @@ protected:
 
 private:
 	Client *m_client;
-	std::wstring m_oldpass = L"";
-	std::wstring m_newpass = L"";
-	std::wstring m_newpass_confirm = L"";
+	SecureWString m_oldpass = L"";
+	SecureWString m_newpass = L"";
+	SecureWString m_newpass_confirm = L"";
 	ISimpleTextureSource *m_tsrc;
 };
