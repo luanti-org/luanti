@@ -6616,7 +6616,6 @@ Call these functions only at load time!
       Possible values:
         * `"punch"` - player has punched a node or an entity, or started
           digging a node.
-        * `"dig_stop"` - player has interrupted digging before finishing.
         * `"dig"` - player has finished digging a node.
         * `"place"` - player has performed a "place" operation (right-click on PC).
         * `"use"` - player has "used" a tool (digging is not counted).

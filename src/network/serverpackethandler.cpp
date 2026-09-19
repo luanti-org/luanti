@@ -1044,8 +1044,12 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 			}
 
 			if (n.getContent() != CONTENT_IGNORE) {
-				if (!m_script->on_interact("punch", playersao, pointed))
+				if (!m_script->on_interact("punch", playersao, pointed)) {
+					// on_interact might have changed the node
+					n = m_env->getMap().getNode(p_under);
+
 					m_script->node_on_punch(p_under, n, playersao, pointed);
+				}
 			}
 
 			// Cheat prevention
@@ -1061,6 +1065,10 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		float time_from_last_punch = playersao->resetTimeFromLastPunch();
 
 		if (m_script->on_interact("punch", playersao, pointed))
+			return;
+
+		// on_interact might have removed the object
+		if (pointed_object->isGone())
 			return;
 
 		ItemStack selected_item, hand_item;
@@ -1084,8 +1092,6 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 	} // action == INTERACT_START_DIGGING
 
 	case INTERACT_STOP_DIGGING:
-		m_script->on_interact("dig_stop", playersao, pointed);
-
 		// Nothing to do
 		return;
 
@@ -1174,8 +1180,12 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		/* Actually dig node */
 
 		if (is_valid_dig && n.getContent() != CONTENT_IGNORE) {
-			if (!m_script->on_interact("dig", playersao, pointed))
+			if (!m_script->on_interact("dig", playersao, pointed)) {
+				// on_interact might have changed the node
+				n = m_env->getMap().getNode(p_under);
+
 				m_script->node_on_dig(p_under, n, playersao);
+			}
 		}
 
 		v3s16 blockpos = getNodeBlockPos(p_under);
@@ -1212,9 +1222,10 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 			if (m_script->on_interact("place", playersao, pointed))
 				return;
 
-			// on_interact might have removed the object
+			// on_interact might have removed the object and changed the wielded item
 			if (pointed_object->isGone())
 				return;
+			getWieldedItem(playersao, selected_item);
 
 			// Do stuff
 			if (m_script->item_OnSecondaryUse(selected_item, playersao, pointed)) {
@@ -1235,6 +1246,9 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 			return;
 
 		if (!m_script->on_interact("place", playersao, pointed)) {
+			// on_interact might have changed the wielded item
+			getWieldedItem(playersao, selected_item);
+
 			if (m_script->item_OnPlace(selected_item, playersao, pointed)) {
 				// Placement was handled in lua
 
@@ -1274,6 +1288,9 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		if (m_script->on_interact("use", playersao, pointed))
 			return;
 
+		// on_interact might have changed the wielded item
+		getWieldedItem(playersao, selected_item);
+
 		if (m_script->item_OnUse(selected_item, playersao, pointed)) {
 			// Apply returned ItemStack
 			if (selected_item.has_value() && playersao->setWieldedItem(*selected_item))
@@ -1295,6 +1312,9 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 
 		if (m_script->on_interact("place", playersao, pointed))
 			return;
+
+		// on_interact might have changed the wielded item
+		getWieldedItem(playersao, selected_item);
 
 		if (m_script->item_OnSecondaryUse(selected_item, playersao, pointed)) {
 			// Apply returned ItemStack
