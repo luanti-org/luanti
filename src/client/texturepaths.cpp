@@ -99,7 +99,8 @@ std::vector<std::string> getTextureDirs()
 {
 	std::vector<std::string> ret = g_texturedirs_cache.get();
 	if (ret.empty()) {
-		ret = fs::GetRecursiveDirs(g_settings->get("texture_path"));
+		for (const std::string &pack_path : str_split(g_settings->get("texture_path"), ','))
+			fs::GetRecursiveDirs(ret, pack_path);
 		g_texturedirs_cache.set(ret);
 	}
 	return ret;
