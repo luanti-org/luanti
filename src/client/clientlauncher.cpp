@@ -464,6 +464,7 @@ bool ClientLauncher::launch_game(GameErrorData &errordata, ClientGameStartData &
 		}
 
 		(GameClientData &)start_data = menudata;
+		password = menudata.password;
 
 		// make sure that password will not stay somewhere in memory
 		menudata.password.safeClear();
