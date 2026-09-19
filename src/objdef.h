@@ -65,6 +65,7 @@ public:
 	virtual const char *getObjectTitle() const { return "ObjDef"; }
 
 	virtual void clear();
+	virtual void clearByName(const std::string &name);
 	virtual ObjDef *getByName(const std::string &name) const;
 
 	//// Add new/get/set object definitions by handle
