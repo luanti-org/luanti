@@ -485,3 +485,18 @@ void ScriptApiEnv::triggerLBM(int id, MapBlock *block,
 
 	lua_pop(L, 1); // Pop error handler
 }
+
+bool ScriptApiEnv::on_interact(const char *type, ServerActiveObject *player, const PointedThing &pointed)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "registered_on_interact");
+	lua_pushstring(L, type);
+	objectrefGetOrCreate(L, player);
+	push_pointed_thing(L, pointed);
+
+	runCallbacks(3, RUN_CALLBACKS_MODE_OR);
+
+	return readParam<bool>(L, -1);
+}

@@ -6620,7 +6620,18 @@ Call these functions only at load time!
     * **Not recommended**; Use `on_destruct` or `after_dig_node` in node
       definition whenever possible.
 * `core.register_on_punchnode(function(pos, node, puncher, pointed_thing))`
-    * Called when a node is punched
+    * Called when a node is punched.
+* `core.register_on_interact(function(action, player, pointed_thing))`
+    * Called when a player is trying to interact with the environment.
+    * `action` contains a string that corresponds to the action being executed.
+      Possible values:
+        * `"punch"` - player has punched a node or an entity, or started
+          digging a node.
+        * `"dig"` - player has finished digging a node.
+        * `"place"` - player has performed a "place" operation (right-click on PC).
+        * `"use"` - player has "used" a tool (digging is not counted).
+    * If any of the callbacks returns `true`, the action is cancelled.
+    * The function is available since Luanti 5.18.0.
 * `core.register_on_generated(function(minp, maxp, blockseed))`
     * Called after a piece of world between `minp` and `maxp` has been
       generated and written into the map.
@@ -11173,10 +11184,13 @@ Used by `core.register_node`.
     -- Note: pointed_thing can be nil, if a mod calls this function.
 
     on_dig = function(pos, node, digger),
-    -- default: core.node_dig
+    -- default: `core.node_dig`
+    -- Called when `digger` (an `ObjectRef`) dug the node.
+    -- If the callback was not triggered by a real player, `digger` will contain
+    -- an invalid `ObjectRef` (not `nil`).
     -- By default checks privileges, wears out item (if tool) and removes node.
-    -- return true if the node was dug successfully, false otherwise.
-    -- Deprecated: returning nil is the same as returning true.
+    -- return `true` if the node was dug successfully, `false` otherwise.
+    -- Deprecated: returning `nil` is the same as returning `true`.
 
     on_timer = function(pos, elapsed, node, timeout),
     -- default: nil
