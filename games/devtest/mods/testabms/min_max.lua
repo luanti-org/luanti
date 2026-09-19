@@ -55,4 +55,3 @@ core.register_abm({
 		meta:set_string("infotext", "ABM testabsm:max_y changed this node.")
 	end
 })
-

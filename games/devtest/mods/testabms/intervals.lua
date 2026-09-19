@@ -53,4 +53,3 @@ core.register_abm({
 		meta:set_string("infotext", "ABM testabsm:interval_60 changed this node.")
 	end
 })
-
