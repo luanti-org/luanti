@@ -21,16 +21,18 @@ Currently, the authentication and ban data is stored on a per-world basis.
 It can be copied over from an old world to a newly created world.
 
     World
-    ├── auth.txt ───── Authentication data
-    ├── auth.sqlite ── Authentication data (SQLite alternative)
-    ├── env_meta.txt ─ Environment metadata
-    ├── ipban.txt ──── Banned IPs/users
-    ├── map_meta.txt ─ Map metadata
-    ├── map.sqlite ─── Map data
-    ├── players ────── Player directory
-    │   │── player1 ── Player file
-    │   └── Foo ────── Player file
-    └── world.mt ───── World metadata
+    ├── auth.txt ──────────── Authentication data
+    ├── auth.sqlite ───────── Authentication data (SQLite alternative)
+    ├── env_meta.txt ──────── Environment metadata
+    ├── ipban.txt ─────────── Banned IPs/users
+    ├── map_meta.txt ──────── Map metadata
+    ├── map.sqlite ────────── Map data
+    ├── screenshot.png ────── Manual world screenshot, takes priority
+    ├── exit_screenshot.png ─ Automatic screenshot
+    ├── players ───────────── Player directory
+    │   │── player1 ───────── Player file
+    │   └── Foo ───────────── Player file
+    └── world.mt ──────────── World metadata
 
 ## `auth.txt`
 
