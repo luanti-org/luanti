@@ -7,6 +7,8 @@
 #include "cpp_api/s_base.h"
 #include "irr_v3d.h"
 #include "mapnode.h"
+#include "util/pointedthing.h"
+
 #include <unordered_set>
 #include <vector>
 
@@ -50,7 +52,8 @@ public:
 	void triggerLBM(int id, MapBlock *block,
 		const std::unordered_set<v3s16> &positions, float dtime_s);
 
-	bool digNode(v3s16 p, ServerActiveObject *digger);
+	// Calls all the callbacks registered with core.register_on_interact
+	bool on_interact(const char *type, ServerActiveObject *player, const PointedThing &pointed);
 
 private:
 	void readABMs();

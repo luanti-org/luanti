@@ -486,28 +486,17 @@ void ScriptApiEnv::triggerLBM(int id, MapBlock *block,
 	lua_pop(L, 1); // Pop error handler
 }
 
-bool ScriptApiEnv::digNode(v3s16 p, ServerActiveObject *digger)
+bool ScriptApiEnv::on_interact(const char *type, ServerActiveObject *player, const PointedThing &pointed)
 {
 	SCRIPTAPI_PRECHECKHEADER
 
-	int error_handler = PUSH_ERROR_HANDLER(L);
-
 	lua_getglobal(L, "core");
-	lua_getfield(L, -1, "dig_node");
-	luaL_checktype(L, -1, LUA_TFUNCTION);
-	lua_remove(L, -2);
+	lua_getfield(L, -1, "registered_on_interact");
+	lua_pushstring(L, type);
+	objectrefGetOrCreate(L, player);
+	push_pointed_thing(L, pointed);
 
-	int nargs = 1;
-	push_v3s16(L, p);
-	if (digger) {
-		objectrefGetOrCreate(L, digger);
-		nargs++;
-	}
+	runCallbacks(3, RUN_CALLBACKS_MODE_OR);
 
-	PCALL_RES(lua_pcall(L, nargs, 1, error_handler));
-
-	bool result = lua_toboolean(L, -1);
-	lua_pop(L, 2);
-
-	return result;
+	return readParam<bool>(L, -1);
 }

@@ -6263,8 +6263,6 @@ Utilities
       get_all_craft_recipes_fuel = true,
       -- Whether `core.get_all_craft_recipes` may return the `replacements` field (5.17.0)
       get_all_craft_recipes_replacements = true,
-      -- Whether `core.dig_node` is called for player-originated digs (5.18.0)
-      call_dig_node_for_player_digs = true,
   }
   ```
 
@@ -6594,7 +6592,19 @@ Call these functions only at load time!
     * **Not recommended**; Use `on_destruct` or `after_dig_node` in node
       definition whenever possible.
 * `core.register_on_punchnode(function(pos, node, puncher, pointed_thing))`
-    * Called when a node is punched
+    * Called when a node is punched.
+* `core.register_on_interact(function(action, player, pointed_thing))`
+    * Called when a player is trying to interact with the environment.
+    * `action` contains a string that corresponds to the action being executed.
+      Possible values:
+        * `"punch"` - player has punched a node or an entity, or started
+          digging a node.
+        * `"dig_stop"` - player has interrupted digging before finishing.
+        * `"dig"` - player has finished digging a node.
+        * `"place"` - player has performed a "place" operation (right-click on PC).
+        * `"use"` - player has "used" a tool (digging is not counted).
+    * If any of the callbacks returns `true`, the action is cancelled.
+    * The function is available since Luanti 5.18.0.
 * `core.register_on_generated(function(minp, maxp, blockseed))`
     * Called after a piece of world between `minp` and `maxp` has been
       generated and written into the map.
@@ -6964,9 +6974,6 @@ Environment access
     * Dig node with the same effects that a player would cause
     * `digger`: The ObjectRef that digs the node (optional)
     * Returns `true` if successful, `false` on failure (e.g. protected location)
-    * When the `call_dig_node_for_player_digs` feature is available, the function
-      is also called for player-originated digs, and can be overridden
-      to intercept every digging operation.
 * `core.punch_node(pos[, puncher])`
     * Punch node with the same effects that a player would cause
     * `puncher`: The ObjectRef that punches the node (optional)
