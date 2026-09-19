@@ -547,13 +547,6 @@ ConnectionCommandPtr ConnectionCommand::create(ConnectionCommandType type)
 	return ConnectionCommandPtr(new ConnectionCommand(type));
 }
 
-ConnectionCommandPtr ConnectionCommand::serve(Address address)
-{
-	auto c = create(CONNCMD_SERVE);
-	c->address = address;
-	return c;
-}
-
 ConnectionCommandPtr ConnectionCommand::connect(Address address)
 {
 	auto c = create(CONNCMD_CONNECT);
@@ -1237,8 +1230,6 @@ const char *ConnectionEvent::describe() const
 		return "CONNEVENT_PEER_ADDED";
 	case CONNEVENT_PEER_REMOVED:
 		return "CONNEVENT_PEER_REMOVED";
-	case CONNEVENT_BIND_FAILED:
-		return "CONNEVENT_BIND_FAILED";
 	}
 	return "Invalid ConnectionEvent";
 }
@@ -1274,18 +1265,13 @@ ConnectionEventPtr ConnectionEvent::peerRemoved(session_t peer_id, bool is_timeo
 	return e;
 }
 
-ConnectionEventPtr ConnectionEvent::bindFailed()
-{
-	return create(CONNEVENT_BIND_FAILED);
-}
-
 /*
 	Connection
 */
 
 Connection::Connection(u32 max_packet_size, float timeout,
-		bool ipv6, PeerHandler *peerhandler) :
-	m_udpSocket(ipv6),
+		UDPSocket &&socket, bool is_server, PeerHandler *peerhandler) :
+	m_udpSocket(std::move(socket)),
 	m_protocol_id(PROTOCOL_ID),
 	m_sendThread(new ConnectionSendThread(max_packet_size, timeout)),
 	m_receiveThread(new ConnectionReceiveThread()),
@@ -1295,6 +1281,8 @@ Connection::Connection(u32 max_packet_size, float timeout,
 	/* Amount of time Receive() will wait for data, this is entirely different
 	 * from the connection timeout */
 	m_udpSocket.setTimeoutMs(500);
+	if (is_server)
+		SetPeerID(PEER_ID_SERVER);
 
 	m_sendThread->setParent(this);
 	m_receiveThread->setParent(this);
@@ -1421,11 +1409,6 @@ void Connection::putCommand(ConnectionCommandPtr c)
 	}
 }
 
-void Connection::Serve(Address bind_addr)
-{
-	putCommand(ConnectionCommand::serve(bind_addr));
-}
-
 void Connection::Connect(Address address)
 {
 	putCommand(ConnectionCommand::connect(address));
@@ -1492,9 +1475,6 @@ bool Connection::ReceiveTimeoutMs(NetworkPacket *pkt, u32 timeout_ms)
 				m_bc_peerhandler->deletingPeer(&tmp, e.timeout);
 			continue;
 		}
-		case CONNEVENT_BIND_FAILED:
-			throw ConnectionBindFailed("Failed to bind socket "
-					"(port already in use?)");
 		}
 	}
 	return false;
