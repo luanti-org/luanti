@@ -585,8 +585,6 @@ void set_default_settings()
 	// still set these two settings in case someone wants to enable it
 	settings->setDefault("debanding", "false");
 	settings->setDefault("post_processing_texture_bits", "8");
-	// We don't have working certificate verification...
-	settings->setDefault("curl_verify_cert", "false");
 
 	// Apply settings according to screen size
 	float x_inches = (float) porting::getDisplaySize().X /
