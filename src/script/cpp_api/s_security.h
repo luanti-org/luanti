@@ -10,7 +10,7 @@
 #define CHECK_SECURE_PATH_INTERNAL(L, path, write_required, ptr) \
 	if (!ScriptApiSecurity::checkPath(L, path, write_required, ptr)) { \
 		throw LuaError(std::string("Mod security: Blocked attempted ") + \
-				(write_required ? "write to " : "read from ") + path); \
+				((write_required) ? "write to " : "read from ") + path); \
 	}
 
 #define CHECK_SECURE_PATH(L, path, write_required) \
@@ -95,11 +95,13 @@ protected:
 		bool write_required, bool *write_allowed);
 
 private:
-	int getThread(lua_State *L);
+	static int getThread(lua_State *L);
 	// sets the environment to the table that's on top of the stack
-	void setLuaEnv(lua_State *L, int thread);
+	static void setLuaEnv(lua_State *L, int thread);
 	// creates an empty Lua environment
-	void createEmptyEnv(lua_State *L);
+	static void createEmptyEnv(lua_State *L);
+	// replace "default files" (io.input/io.output) with /dev/null
+	static void replaceDefaultFiles(lua_State *L);
 
 	bool m_secure = false;
 
@@ -111,6 +113,7 @@ private:
 	static int sl_g_loadfile(lua_State *L);
 	static int sl_g_loadstring(lua_State *L);
 	static int sl_g_require(lua_State *L);
+	static int sl_g_collectgarbage(lua_State *L);
 
 	static int sl_io_open(lua_State *L);
 	static int sl_io_input(lua_State *L);

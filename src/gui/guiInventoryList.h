@@ -8,6 +8,8 @@
 #include <IGUIElement.h>
 #include <IGUIEnvironment.h>
 #include "irr_v2d.h"
+#include "irr_ptr.h"
+#include "ITexture.h"
 
 
 class GUIFormSpecMenu;
@@ -52,6 +54,8 @@ public:
 		// colors for normal and highlighted slot background
 		video::SColor slotbg_n = video::SColor(255, 128, 128, 128);
 		video::SColor slotbg_h = video::SColor(255, 192, 192, 192);
+		irr_ptr<video::ITexture> slotbgimg_n;
+		irr_ptr<video::ITexture> slotbgimg_h;
 	};
 
 	GUIInventoryList(gui::IGUIEnvironment *env,

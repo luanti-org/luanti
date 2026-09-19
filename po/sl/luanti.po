@@ -3,8 +3,9 @@ msgstr ""
 "Project-Id-Version: Slovenian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-10 17:35+0200\n"
-"PO-Revision-Date: 2026-05-14 20:11+0000\n"
-"Last-Translator: Vesel Sem <veselsem@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2026-08-13 17:23+0000\n"
+"Last-Translator: Hosted Weblate user 115094 "
+"<veselsem@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Slovenian <https://hosted.weblate.org/projects/minetest/"
 "minetest/sl/>\n"
 "Language: sl\n"
@@ -13,7 +14,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3;\n"
-"X-Generator: Weblate 2026.5.dev0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -520,7 +521,7 @@ msgstr "Prišlo je do napake:"
 
 #: builtin/fstk/ui.lua
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "Kopiraj v odlozišče"
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1562,9 +1563,8 @@ msgid "Server Description"
 msgstr "Opis strežnika"
 
 #: src/chat.cpp
-#, fuzzy
 msgid "Player names: "
-msgstr "Zaženi igro"
+msgstr "Imena igralcev: "
 
 #: src/client/client.cpp
 msgid "Connection aborted (protocol error?)."
@@ -1760,7 +1760,7 @@ msgstr "Hitri način je omogočen (opozorilo: nimate 'fast' privilegija)"
 #: src/client/game.cpp
 #, c-format
 msgid "Files: %d / %d"
-msgstr ""
+msgstr "Datoteke: %d / %d"
 
 #: src/client/game.cpp
 msgid "Fly mode disabled"
@@ -1791,14 +1791,12 @@ msgid "Item definitions..."
 msgstr "Določanje predmetov ..."
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "KiB"
-msgstr "KiB/s"
+msgstr "KiB"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "MiB"
-msgstr "MiB/s"
+msgstr "MiB"
 
 #: src/client/game.cpp
 msgid "Minimap currently disabled by game or mod"
@@ -1854,7 +1852,7 @@ msgstr "samostojna igra"
 #: src/client/game.cpp
 #, c-format
 msgid "Size: %.2f %s"
-msgstr ""
+msgstr "Velikost: %.2f %s"
 
 #: src/client/game.cpp
 msgid "Sound muted"
@@ -2084,19 +2082,16 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Profiler je prikazan (stran %d od %d)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "A (Gamepad)"
-msgstr "Igralni ploščki"
+msgstr "A (igralni plošček)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "B (Gamepad)"
-msgstr "Igralni ploščki"
+msgstr "B (igralni plošček)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Back (Gamepad)"
-msgstr "Igralni ploščki"
+msgstr "Nazaj (igralni plošček)"
 
 #: src/client/keycode.cpp
 msgid "Backspace"
@@ -2104,7 +2099,7 @@ msgstr "Backspace"
 
 #: src/client/keycode.cpp
 msgid "Bottom Face Button (Gamepad)"
-msgstr ""
+msgstr "Spodnji gumb (igralni plošček)"
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2117,7 +2112,7 @@ msgstr "Velike črke"
 
 #: src/client/keycode.cpp
 msgid "Circle (Gamepad)"
-msgstr ""
+msgstr "Krog (igralni plošček)"
 
 #: src/client/keycode.cpp
 msgid "Clear Key"
@@ -2128,26 +2123,24 @@ msgid "Control Key"
 msgstr "Tipka Control"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Cross (Gamepad)"
-msgstr "Igralni ploščki"
+msgstr "Križ (igralni plošček)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "D-Pad Down"
-msgstr "Stran nižje"
+msgstr "Smerna ploščica navzdol"
 
 #: src/client/keycode.cpp
 msgid "D-Pad Left"
-msgstr ""
+msgstr "Smerna ploščica levo"
 
 #: src/client/keycode.cpp
 msgid "D-Pad Right"
-msgstr ""
+msgstr "Smerna ploščica desno"
 
 #: src/client/keycode.cpp
 msgid "D-Pad Up"
-msgstr ""
+msgstr "Smerna ploščica gor"
 
 #: src/client/keycode.cpp
 msgid "Delete Key"
@@ -2162,24 +2155,23 @@ msgid "End Key"
 msgstr "Končna tipka"
 
 #: src/client/keycode.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Gamepad Axis %d +"
-msgstr "Igralni ploščki"
+msgstr "Igralna plošča Axis %d +"
 
 #: src/client/keycode.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Gamepad Axis %d -"
-msgstr "Igralni ploščki"
+msgstr "Igralna plošča Axis %d -"
 
 #: src/client/keycode.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Gamepad Button %d"
-msgstr "Gumb miške %d"
+msgstr "Gumb igralnega ploščka %d"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Guide (Gamepad)"
-msgstr "Igralni ploščki"
+msgstr "Vodnik (igralni plošček)"
 
 #: src/client/keycode.cpp
 msgid "Help Key"
@@ -2207,32 +2199,27 @@ msgstr "Leva tipka Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Left Face Button (Gamepad)"
-msgstr ""
+msgstr "Levi gumb (igralni plošček)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Button"
-msgstr "Vrsta igralne palice"
+msgstr "Levi gumb igralne palice"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Down"
-msgstr "ID igralne palice (joystick)"
+msgstr "Leva igralna palica navzdol"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Left"
-msgstr "Vrsta igralne palice"
+msgstr "Leva igralna palica levo"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Right"
-msgstr "Vrsta igralne palice"
+msgstr "Leva igralna palica desno"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Up"
-msgstr "Vrsta igralne palice"
+msgstr "Leva igralna palica gor"
 
 #: src/client/keycode.cpp
 msgid "Left Menu"
@@ -2243,14 +2230,12 @@ msgid "Left Shift"
 msgstr "Leva tipka Shift"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Shoulder"
-msgstr "Leva tipka Shift"
+msgstr "Levi ramenski gumb"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Trigger"
-msgstr "Puščica levo"
+msgstr "Levi sprožilec"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2364,11 +2349,11 @@ msgstr "Igraj"
 
 #: src/client/keycode.cpp
 msgid "Primary Left Paddle"
-msgstr ""
+msgstr "Glavna leva lopatica"
 
 #: src/client/keycode.cpp
 msgid "Primary Right Paddle"
-msgstr ""
+msgstr "Glavna desna lopatica"
 
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
@@ -2393,31 +2378,27 @@ msgstr "Desna tipka Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Right Face Button (Gamepad)"
-msgstr ""
+msgstr "Desni gumb na obrazu (igralni plošček)"
 
 #: src/client/keycode.cpp
 msgid "Right Joystick Button"
-msgstr ""
+msgstr "Gumb desne igralne palice"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Joystick Down"
-msgstr "ID igralne palice (joystick)"
+msgstr "Desna igralna palica navzdol"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Joystick Left"
-msgstr "Vrsta igralne palice"
+msgstr "Desna igralna palica levo"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Joystick Right"
-msgstr "Vrsta igralne palice"
+msgstr "Desna igralna palica desno"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Joystick Up"
-msgstr "Vrsta igralne palice"
+msgstr "Desna igralna palica gor"
 
 #: src/client/keycode.cpp
 msgid "Right Menu"
@@ -2428,14 +2409,12 @@ msgid "Right Shift"
 msgstr "Desna tipka Shift"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Shoulder"
-msgstr "Desna tipka Shift"
+msgstr "Desni namenski gumb"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Trigger"
-msgstr "Desna puščica"
+msgstr "Desni sprožilec"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2453,11 +2432,11 @@ msgstr "Tipka zaklepa drsnika"
 
 #: src/client/keycode.cpp
 msgid "Secondary Left Paddle"
-msgstr ""
+msgstr "Sekundarna leva lopatica"
 
 #: src/client/keycode.cpp
 msgid "Secondary Right Paddle"
-msgstr ""
+msgstr "Sekundarna desna lopatica"
 
 #: src/client/keycode.cpp
 msgid "Select Key"
@@ -2472,14 +2451,12 @@ msgid "Space"
 msgstr "Preslednica"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Square (Gamepad)"
-msgstr "Nastavitve igranja na strežniku"
+msgstr "Kvadrat (igralni plošček)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Start (Gamepad)"
-msgstr "Začni igro"
+msgstr "Začetek (igralni plošček)"
 
 #: src/client/keycode.cpp
 msgid "Tab Key"
@@ -2487,29 +2464,27 @@ msgstr "Tabulatorska tipka"
 
 #: src/client/keycode.cpp
 msgid "Top Face Button (Gamepad)"
-msgstr ""
+msgstr "Zgornji gumb (igralna plošča)"
 
 #: src/client/keycode.cpp
 msgid "Touchpad Button (Gamepad)"
-msgstr ""
+msgstr "Gumb sledilne ploščice (igralni plošček)"
 
 #: src/client/keycode.cpp
 msgid "Triangle (Gamepad)"
-msgstr ""
+msgstr "Trikotnik (igralni plošček)"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Puščica gor"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "X (Gamepad)"
-msgstr "Igralni ploščki"
+msgstr "X (igralni plošček)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Y (Gamepad)"
-msgstr "Igralni ploščki"
+msgstr "Y (igralni plošček)"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2828,7 +2803,7 @@ msgstr ""
 
 #: src/script/lua_api/l_mainmenu.cpp
 msgid "Copied to clipboard!"
-msgstr ""
+msgstr "Kopirano v odlozišče!"
 
 #: src/server.cpp
 #, c-format
@@ -3019,9 +2994,8 @@ msgid "Acceleration of gravity, in nodes per second per second."
 msgstr "Pospešek gravitacije v kockah na kvadratno sekundo."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Actions and Keybindings"
-msgstr "Dodaj kombinacijo tipk"
+msgstr "Dejanja in tipkovniške povezave"
 
 #: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
@@ -3234,7 +3208,6 @@ msgstr ""
 "Navedena vrednost ima enoto 'mapchunk' (16 blokov)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "At this distance the server will consider blocks as \"far away\".\n"
 "It will perform simpler and cheaper occlusion checks, update\n"
@@ -3243,13 +3216,12 @@ msgid ""
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
-"Pri tej razdalji bo strežnik izvedel enostavnejši in cenejši preverjanje "
-"okluzije.\n"
-"Manjše vrednosti lahko potencialno izboljšajo zmogljivost, vendar na račun "
-"začasno vidnih napak\n"
-"pri upodabljanju (manjkajoči bloki).\n"
-"To je še posebej uporabno za zelo velike razdalje gledanja (nad 500).\n"
-"Navedeno v `MapBlocks` (16 vozlišč)."
+"Na tej razdalji bo strežnik bloke obravnaval kot \"daleč\".\n"
+"Izvajal bo enostavnejše in cenejše preglede okluzije, lenobno posodabljal\n"
+"posodobitve blokov z nizko prioriteto in omejil število\n"
+"blokov, poslanih odjemalcu v enem krožnem potovanju.\n"
+"To je še posebej uporabno za zelo velik obseg gledanja (nad 500).\n"
+"Navedeno v MapBlocks (16 vozlišč)."
 
 #: src/settings_translation_file.cpp
 msgid "Audio"
@@ -4564,11 +4536,11 @@ msgstr "Filter skaliranja uporabniškega vmesnika"
 
 #: src/settings_translation_file.cpp
 msgid "Gamepads and Joysticks"
-msgstr ""
+msgstr "Igralne ploščice in igralne palice"
 
 #: src/settings_translation_file.cpp
 msgid "Gamma"
-msgstr ""
+msgstr "Gama"
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -5209,14 +5181,12 @@ msgid "Joystick frustum sensitivity"
 msgstr "Občutljivost igralne palice"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Joystick inner dead zone"
-msgstr "Mrtvo območje igralne palice"
+msgstr "Notranje mrtvo območje igralne palice"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Joystick outer dead zone"
-msgstr "Mrtvo območje igralne palice"
+msgstr "Zunanje mrtvo območje igralne palice"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5321,6 +5291,8 @@ msgid ""
 "Key for opening the pause menu in-game.\n"
 "Pressing the escape key always opens the pause menu."
 msgstr ""
+"Tipka za odpiranje menija za premor v igri.\n"
+"S pritiskom tipke izhod (Escape) se vedno odpre meni za premor."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5621,10 +5593,12 @@ msgid ""
 "Make volumetrics weaker against closer objects to emulate physical "
 "volumetrics."
 msgstr ""
+"Volumetrične meritve oslabite glede na bližnje objekte, da posnemate fizične "
+"volumetrične meritve."
 
 #: src/settings_translation_file.cpp
 msgid "Makes the color of light fog more saturated."
-msgstr ""
+msgstr "Barva lahke megle je bolj nasičena."
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
@@ -6263,7 +6237,7 @@ msgstr "Odpri inventar"
 
 #: src/settings_translation_file.cpp
 msgid "Open pause menu"
-msgstr ""
+msgstr "Odpri meni za odmor"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6878,14 +6852,12 @@ msgstr ""
 "Vrednost 0 pomeni brez nagiba/navpično orbito."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Set the exposure compensation in EV units.\n"
 "Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 "Kompenzacijo osvetlitve nastavite v enotah EV.\n"
-"Vrednost 0,0 (privzeto) pomeni, da ni kompenzacije osvetlitve.\n"
-"Območje: od -1 do 1,0"
+"Vrednost 0,0 (privzeto) pomeni, da ni kompenzacije osvetlitve."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6907,6 +6879,8 @@ msgid ""
 "Set the post processing gamma value.\n"
 "Higher values give lower contrast and vice versa."
 msgstr ""
+"Nastavite vrednost gama za naknadno obdelavo.\n"
+"Višje vrednosti dajejo nižji kontrast in obratno."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7058,11 +7032,12 @@ msgstr ""
 "procesorja) bi imeli koristi od manjših vrednosti."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Simulate translucency when looking at foliage in the sunlight.\n"
 "It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
-msgstr "Simulirajte prosojnost pri opazovanju listja na sončni svetlobi."
+msgstr ""
+"Simulirajte prosojnost pri opazovanju listja na sončni svetlobi.\n"
+"Priporočljivo je, da to uporabite z nastavitvijo »leaves_style« na »fancy«."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7596,16 +7571,15 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Tint sunlight during sunrise/sunset."
-msgstr ""
+msgstr "Zatemnite sončno svetlobo med sončnim vzhodom/sončnim zahodom."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Tinted fog"
-msgstr "Preklopi meglo"
+msgstr "Obarvana megla"
 
 #: src/settings_translation_file.cpp
 msgid "Tinted sunlight"
-msgstr ""
+msgstr "Obarvana sončna svetloba"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -8003,14 +7977,12 @@ msgid "Volume when unfocused"
 msgstr "Glasnost, ko okno ni fokusirano"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Volumetric Depth Attenuation"
-msgstr "Volumetrična osvetlitev"
+msgstr "Volumetrično globinsko slabljenje"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Volumetric Lighting"
-msgstr "Volumetrična osvetlitev"
+msgstr "Volumetrična razsvetljava"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -8084,6 +8056,8 @@ msgid ""
 "When enabled, crude liquid reflections are simulated.\n"
 "Wave height, length and speed will affect these reflections."
 msgstr ""
+"Ko je omogočeno, se simulirajo odboji surove tekočine.\n"
+"Višina, dolžina in hitrost valov bodo vplivali na te odboje."
 
 #: src/settings_translation_file.cpp
 msgid ""

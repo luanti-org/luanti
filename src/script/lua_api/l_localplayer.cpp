@@ -448,8 +448,7 @@ LocalPlayer *LuaLocalPlayer::getobject(lua_State *L, int narg)
 
 int LuaLocalPlayer::gc_object(lua_State *L)
 {
-	LuaLocalPlayer *o = *(LuaLocalPlayer **)(lua_touserdata(L, 1));
-	delete o;
+	delete takeObjectForGC<LuaLocalPlayer>(L);
 	return 0;
 }
 

@@ -1513,7 +1513,15 @@ ItemStack read_item(lua_State* L, int index, IItemDefManager *idef)
 	else if(lua_istable(L, index))
 	{
 		// Convert from table
-		std::string name = getstringfield_default(L, index, "name", "");
+		std::string name;
+		if (!getstringfield(L, index, "name", name)) {
+			log_deprecated(L, "ItemStack({ ... }) constructed without a 'name' field. "
+				"In a future engine version, this will result in an error.");
+		}
+		if (name.find_first_of(' ') != std::string::npos) {
+			log_deprecated(L, "ItemStack({ ... }) constructed with 'name' containing space characters. "
+				"In a future engine version, this will result in an error.");
+		}
 		int count = getintfield_default(L, index, "count", 1);
 		int wear = getintfield_default(L, index, "wear", 0);
 
@@ -1533,7 +1541,7 @@ ItemStack read_item(lua_State* L, int index, IItemDefManager *idef)
 				std::string key = lua_tostring(L, -2);
 				size_t value_len;
 				const char *value_cs = lua_tolstring(L, -1, &value_len);
-				std::string value(value_cs, value_len);
+				std::string_view value(value_cs, value_len);
 				istack.metadata.setString(key, value);
 				lua_pop(L, 1); // removes value, keeps key for next iteration
 			}
@@ -2120,12 +2128,11 @@ std::vector<ItemStack> read_items(lua_State *L, int index, IGameDef *gdef)
 /******************************************************************************/
 void luaentity_get(lua_State *L, u16 id)
 {
-	// Get luaentities[i]
+	// Get core.luaentities[i]
 	lua_getglobal(L, "core");
 	lua_getfield(L, -1, "luaentities");
 	luaL_checktype(L, -1, LUA_TTABLE);
-	lua_pushinteger(L, id);
-	lua_gettable(L, -2);
+	lua_rawgeti(L, -1, id);
 	lua_remove(L, -2); // Remove luaentities
 	lua_remove(L, -2); // Remove core
 }
@@ -2235,6 +2242,7 @@ static int push_json_value_getdepth(const Json::Value &value)
 		maxdepth = std::max(push_json_value_getdepth(it), maxdepth);
 	return maxdepth + 1;
 }
+
 // Recursive function to convert JSON --> Lua table
 static bool push_json_value_helper(lua_State *L, const Json::Value &value,
 		int nullindex)
@@ -2321,10 +2329,10 @@ void read_json_value(lua_State *L, Json::Value &root, int index, u16 max_depth)
 			 * Compare against [-2^63, 2^63) interval instead of [-2^63, 2^63 - 1]
 			 */
 #ifdef JSON_HAS_INT64
-			using IntType = s64;
+			using IntType = Json::Int64;
 			constexpr lua_Number min_val = -0x1p63;
 #else
-			using IntType = s32;
+			using IntType = Json::Int;
 			constexpr lua_Number min_val = -0x1p31;
 #endif
 			// cast integers to an integer type so they show up as "1234" instead of "1234.0"
@@ -2336,7 +2344,11 @@ void read_json_value(lua_State *L, Json::Value &root, int index, u16 max_depth)
 	} else if (type == LUA_TSTRING) {
 		size_t len;
 		const char *str = lua_tolstring(L, index, &len);
+#ifdef JSONCPP_HAS_STRING_VIEW
+		root = std::string_view(str, len);
+#else
 		root = std::string(str, len);
+#endif
 	} else if (type == LUA_TTABLE) {
 		// Reserve two slots for key and value.
 		lua_checkstack(L, 2);
@@ -2354,17 +2366,23 @@ void read_json_value(lua_State *L, Json::Value &root, int index, u16 max_depth)
 					throw SerializationError("Can't mix array and object values in JSON");
 				} else if (key < 1) {
 					throw SerializationError("Can't use zero-based or negative indexes in JSON");
-				} else if (floor(key) != key) {
-					throw SerializationError("Can't use indexes with a fractional part in JSON");
+				} else if (std::floor(key) != key) {
+					throw SerializationError("Can't use indices with a fractional part in JSON");
 				}
-				root[(Json::ArrayIndex) key - 1] = value;
+				root[static_cast<Json::ArrayIndex>(key) - 1] = std::move(value);
 			} else if (keytype == LUA_TSTRING) {
 				if (roottype != Json::nullValue && roottype != Json::objectValue) {
 					throw SerializationError("Can't mix array and object values in JSON");
 				}
-				root[lua_tostring(L, -1)] = value;
+				size_t len;
+				const char *str = lua_tolstring(L, -1, &len);
+#ifdef JSONCPP_HAS_STRING_VIEW
+				root[std::string_view(str, len)] = std::move(value);
+#else
+				root[std::string(str, len)] = std::move(value);
+#endif
 			} else {
-				throw SerializationError("Lua key to convert to JSON is not a string or number");
+				throw SerializationError("Can't use non-string, non-integer indices in JSON");
 			}
 		}
 	} else if (type == LUA_TNIL) {
@@ -2418,8 +2436,7 @@ void push_objectRef(lua_State *L, const u16 id)
 	lua_getglobal(L, "core");
 	lua_getfield(L, -1, "object_refs");
 	luaL_checktype(L, -1, LUA_TTABLE);
-	lua_pushinteger(L, id);
-	lua_gettable(L, -2);
+	lua_rawgeti(L, -1, id);
 	assert(!lua_isnoneornil(L, -1));
 	lua_remove(L, -2); // object_refs
 	lua_remove(L, -2); // core

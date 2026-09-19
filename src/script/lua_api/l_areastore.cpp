@@ -74,8 +74,7 @@ static int deserialization_helper(lua_State *L, AreaStore *as,
 // garbage collector
 int LuaAreaStore::gc_object(lua_State *L)
 {
-	LuaAreaStore *o = *(LuaAreaStore **)(lua_touserdata(L, 1));
-	delete o;
+	delete takeObjectForGC<LuaAreaStore>(L);
 	return 0;
 }
 

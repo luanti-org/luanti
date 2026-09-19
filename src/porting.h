@@ -323,7 +323,10 @@ static inline void TriggerMemoryTrim() { (void)0; }
 [[nodiscard]] std::string ConvertError(DWORD error_code);
 #endif
 
-// snprintf wrapper
+#ifdef __GNUC__
+__attribute__((format(printf, 3, 4)))
+#endif
+/// snprintf wrapper but always providing support for positional arguments (%1)
 int mt_snprintf(char *buf, const size_t buf_size, const char *fmt, ...);
 
 /**

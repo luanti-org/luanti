@@ -5,27 +5,17 @@
 #include "lua_api/l_async.h"
 #include "cpp_api/s_async.h"
 
-static std::string get_serialized_function(lua_State *L, int index)
-{
-	luaL_checktype(L, index, LUA_TFUNCTION);
-	call_string_dump(L, index);
-	size_t func_length;
-	const char *serialized_func_raw = lua_tolstring(L, -1, &func_length);
-	std::string serialized_func(serialized_func_raw, func_length);
-	lua_pop(L, 1);
-	return serialized_func;
-}
-
 // do_async_callback(func, params, mod_origin)
 int ModApiAsync::l_do_async_callback(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 	ScriptApiAsync *script = getScriptApi<ScriptApiAsync>(L);
 
+	luaL_checktype(L, 1, LUA_TFUNCTION);
 	luaL_checktype(L, 2, LUA_TTABLE);
 	luaL_checktype(L, 3, LUA_TSTRING);
 
-	auto serialized_func = get_serialized_function(L, 1);
+	auto serialized_func = dump_function_to_string(L, 1);
 	PackedValue *param = script_pack(L, 2);
 	std::string mod_origin = readParam<std::string>(L, 3);
 

@@ -10,9 +10,11 @@
 #include "log.h"
 #include "settings.h"
 #include "util/serialize.h"
+#include "util/string.h"
 #include "util/pointedthing.h"
 #include <map>
 #include <set>
+#include <sstream>
 
 TouchInteraction::TouchInteraction()
 {

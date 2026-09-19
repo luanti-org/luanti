@@ -165,8 +165,7 @@ Camera *LuaCamera::getobject(lua_State *L, int narg)
 
 int LuaCamera::gc_object(lua_State *L)
 {
-	LuaCamera *o = *(LuaCamera **)(lua_touserdata(L, 1));
-	delete o;
+	delete takeObjectForGC<LuaCamera>(L);
 	return 0;
 }
 

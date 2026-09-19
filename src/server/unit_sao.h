@@ -40,17 +40,7 @@ public:
 	// Rotation
 	void setRotation(v3f rotation) { m_rotation = rotation; }
 	const v3f &getRotation() const { return m_rotation; }
-	const v3f getTotalRotation() const {
-		// This replicates what happens clientside serverside
-		core::matrix4 rot;
-		setPitchYawRoll(rot, -m_rotation);
-		v3f res;
-		// First rotate by m_rotation, then rotate by the automatic rotate yaw
-		(core::quaternion(v3f(0, -m_rotation_add_yaw * core::DEGTORAD, 0))
-				* core::quaternion(rot.getRotationRadians()))
-				.toEuler(res);
-		return res * core::RADTODEG;
-	}
+	core::quaternion getTotalRotation() const;
 	v3f getRadRotation() { return m_rotation * core::DEGTORAD; }
 
 	// Deprecated

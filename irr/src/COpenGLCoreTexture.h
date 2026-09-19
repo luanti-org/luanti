@@ -695,6 +695,7 @@ protected:
 			u32 curLayers = u32(tmpBuffer.size() / imageBytes);
 			assert(curLayers > 0);
 			GL.TexSubImage3D(TextureType, 0, 0, 0, layerOffset, width, height, curLayers, PixelFormat, PixelType, tmpBuffer.data());
+			TEST_GL_ERROR(Driver);
 			layerOffset += curLayers;
 			tmpBuffer.clear();
 		};

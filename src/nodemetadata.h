@@ -76,25 +76,29 @@ public:
 	void deSerialize(std::istream &is, IItemDefManager *item_def_mgr,
 		bool absolute_pos = false);
 
-	// Add all keys in this list to the vector keys
-	std::vector<v3s16> getAllKeys();
+	// Return all keys
+	std::vector<v3s16> getAllKeys() const;
 	// Get pointer to data
-	NodeMetadata *get(v3s16 p);
-	// Deletes data
-	void remove(v3s16 p);
-	// Deletes old data and sets a new one
-	void set(v3s16 p, NodeMetadata *d);
-	// Deletes all
+	NodeMetadata *get(v3s16 p) const;
+
+	/// @brief Deletes data
+	/// @return the old data (if it was owned)
+	std::unique_ptr<NodeMetadata> remove(v3s16 p);
+	/// @brief Deletes old data and sets a new one
+	/// @return the old data (if it was owned)
+	std::unique_ptr<NodeMetadata> set(v3s16 p, NodeMetadata *d);
+	/// @brief Deletes all entries
+	/// @warning Make sure no pointers are still in use!
 	void clear();
 
 	size_t size() const { return m_data.size(); }
 
-	NodeMetadataMap::const_iterator begin()
+	NodeMetadataMap::const_iterator begin() const
 	{
 		return m_data.begin();
 	}
 
-	NodeMetadataMap::const_iterator end()
+	NodeMetadataMap::const_iterator end() const
 	{
 		return m_data.end();
 	}
@@ -102,6 +106,8 @@ public:
 private:
 	int countNonEmpty() const;
 
-	bool m_is_metadata_owner;
+	// FIXME: having a single class own or not own pointers depending on a variable
+	// is not clean and prevents refactoring this to unique_ptr...
+	const bool m_is_metadata_owner;
 	NodeMetadataMap m_data;
 };

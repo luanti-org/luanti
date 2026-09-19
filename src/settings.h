@@ -4,15 +4,22 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
-#include "util/string.h"
+#include "irrlichttypes.h"
+#include "irr_v2d.h"
+#include "irr_v3d.h"
 #include "util/basic_macros.h"
 #include <string>
+#include <string_view>
+#include <vector>
 #include <map>
+#include <unordered_map>
 #include <mutex>
+#include <optional>
+#include <utility> // std::move
 
 class Settings;
 struct NoiseParams;
+struct FlagDesc;
 
 // Global objects
 extern Settings *g_settings; // Same as Settings::getLayer(SL_GLOBAL);
@@ -94,13 +101,15 @@ struct SettingsEntry {
 	SettingsEntry(const std::string &value_) :
 		value(value_)
 	{}
-
-	SettingsEntry(Settings *group_) :
-		group(group_),
-		is_group(true)
+	SettingsEntry(std::string &&value_) :
+		value(std::move(value_))
 	{}
 
-	std::string value = "";
+	SettingsEntry(Settings *group_) :
+		group(group_), is_group(true)
+	{}
+
+	std::string value;
 	Settings *group = nullptr;
 	bool is_group = false;
 };
@@ -128,12 +137,13 @@ public:
 
 	// Read configuration file.  Returns success.
 	bool readConfigFile(const char *filename);
-	//Updates configuration file.  Returns success.
+	// Updates configuration file.  Returns success.
 	bool updateConfigFile(const char *filename);
 	// NOTE: Types of allowed_options are ignored.  Returns success.
 	bool parseCommandLine(int argc, char *argv[],
 			const std::map<std::string, ValueSpec> &allowed_options);
-	bool parseConfigLines(std::istream &is);
+	// Parse configuraton from a stream. 'location' is for error logging.
+	bool parseConfigLines(std::istream &is, std::string_view location = {});
 	void writeLines(std::ostream &os, u32 tab_depth=0) const;
 
 	/***********
@@ -244,7 +254,11 @@ private:
 
 	static bool checkNameValid(std::string_view name);
 	static bool checkValueValid(std::string_view value);
-	static std::string getMultiline(std::istream &is, size_t *num_lines=NULL);
+
+	/// @brief consume a multi-line setting from a stream
+	/// @note will return *num_lines = 0 in case of error
+	static std::string getMultiline(std::istream &is, size_t *num_lines=nullptr);
+
 	static void printEntry(std::ostream &os, const std::string &name,
 		const SettingsEntry &entry, u32 tab_depth=0);
 

@@ -352,10 +352,18 @@ void ClientEnvironment::addActiveObject(u16 id, u8 type,
 
 void ClientEnvironment::removeActiveObject(u16 id)
 {
+	auto *obj = getActiveObject(id);
+	if (!obj)
+		return;
+	if (obj == m_local_player->getCAO()) {
+		// clearing at shutdown will use a different code path
+		errorstream << "ClientEnvironment::removeActiveObject(): can't delete"
+			" the local CAO!" << std::endl;
+		return;
+	}
+
 	// Get current attachment childs to detach them visually
-	std::unordered_set<ClientActiveObject::object_t> attachment_childs;
-	if (auto *obj = getActiveObject(id))
-		attachment_childs = obj->getAttachmentChildIds();
+	auto attachment_childs = obj->getAttachmentChildIds();
 
 	m_ao_manager.removeObject(id);
 
@@ -451,7 +459,7 @@ void ClientEnvironment::getSelectedActiveObjects(
 		if (gcao != nullptr && gcao->getProperties().rotate_selectionbox) {
 			gcao->getSceneNode()->updateAbsolutePosition();
 			const v3f rad = obj->getSceneNode()->getAbsoluteTransformation().getRotationRadians();
-			collision = boxLineCollision(selection_box, rad,
+			collision = boxLineCollision(selection_box, core::quaternion(rad),
 				rel_pos, line_vector, &current_intersection, &current_normal, &current_raw_normal);
 		} else {
 			collision = boxLineCollision(selection_box, rel_pos, line_vector,

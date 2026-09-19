@@ -2055,8 +2055,15 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 
 	//TimeTaker tt("update player control", NULL, PRECISION_NANO);
 
+	float forward_value = getAxisValue(KeyType::FORWARD);
+	if (player->getPlayerSettings().continuous_forward &&
+			client->activeObjectsReceived() && !player->isDead()) {
+		// autoforward if set: move at maximum speed
+		forward_value = 1.0f;
+	}
+
 	PlayerControl control(
-		getAxisValue(KeyType::FORWARD),
+		forward_value,
 		getAxisValue(KeyType::BACKWARD),
 		getAxisValue(KeyType::LEFT),
 		getAxisValue(KeyType::RIGHT),
@@ -2070,15 +2077,6 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 		cam.camera_yaw
 	);
 	control.setMovementFromKeys();
-
-	// autoforward if set: move at maximum speed
-	if (player->getPlayerSettings().continuous_forward &&
-			client->activeObjectsReceived() && !player->isDead()) {
-		control.movement_speed = 1.0f;
-		// sideways movement only
-		float dx = std::sin(control.movement_direction);
-		control.movement_direction = std::atan2(dx, 1.0f);
-	}
 
 	/* For touch, simulate holding down AUX1 (fast move) if the user has
 	 * the fast_move setting toggled on. If there is an aux1 key defined for
@@ -3288,8 +3286,9 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 		runData.dig_time_complete = 10000000.0;
 	} else {
 		runData.dig_time_complete = params.time;
-
-		client->getParticleManager()->addNodeParticle(player, nodepos, n);
+		if (g_settings->getBool("enable_dig_particles")) {
+			client->getParticleManager()->addNodeParticle(player, nodepos, n);
+		}
 	}
 
 	if (!runData.digging) {
@@ -3374,7 +3373,9 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 
 		client->interact(INTERACT_DIGGING_COMPLETED, pointed);
 
-		client->getParticleManager()->addDiggingParticles(player, nodepos, n);
+		if (g_settings->getBool("enable_dig_particles")) {
+			client->getParticleManager()->addDiggingParticles(player, nodepos, n);
+		}
 
 		// Send event to trigger sound
 		client->getEventManager()->put(new NodeDugEvent(nodepos, n));

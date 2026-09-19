@@ -124,23 +124,22 @@ bool boxLineCollision(const aabb3f &box, const v3f start,
 	return false;
 }
 
-bool boxLineCollision(const aabb3f &box, v3f rotation_radians,
+bool boxLineCollision(const aabb3f &box, core::quaternion rotation,
 	v3f start, v3f dir,
 	v3f *collision_point, v3f *collision_normal, v3f *raw_collision_normal)
 {
 	// Inversely transform the ray rather than rotating the box faces;
 	// this allows us to continue using a simple ray - AABB intersection
-	core::quaternion rot(rotation_radians);
-	rot.makeInverse();
+	rotation.makeInverse();
 
-	bool collision = boxLineCollision(box, rot * start, rot * dir, collision_point, collision_normal);
+	bool collision = boxLineCollision(box, rotation * start, rotation * dir, collision_point, collision_normal);
 	if (!collision)
 		return collision;
 
 	// Transform the results back
-	rot.makeInverse();
-	*collision_point = rot * *collision_point;
+	rotation.makeInverse();
+	*collision_point = rotation * *collision_point;
 	*raw_collision_normal = *collision_normal;
-	*collision_normal = rot * *collision_normal;
+	*collision_normal = rotation * *collision_normal;
 	return collision;
 }

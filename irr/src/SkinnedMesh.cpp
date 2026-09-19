@@ -407,6 +407,10 @@ void SkinnedMeshBuilder::topoSortJoints()
 
 	// Levelorder
 	for (u16 i = 0; i < n; ++i) {
+		if (new_to_old_id.size() <= i) {
+			// happens if and only if not all nodes are reachable from a root
+			throw std::runtime_error("joint hierarchy must be acyclic");
+		}
 		new_to_old_id.insert(new_to_old_id.end(),
 				children[new_to_old_id[i]].begin(),
 				children[new_to_old_id[i]].end());

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Norwegian Nynorsk (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-10 17:35+0200\n"
-"PO-Revision-Date: 2026-08-07 18:51+0000\n"
+"PO-Revision-Date: 2026-08-19 14:13+0000\n"
 "Last-Translator: Blood Axe <bloodaxenor@protonmail.com>\n"
 "Language-Team: Norwegian Nynorsk <https://hosted.weblate.org/projects/"
 "minetest/minetest/nn/>\n"
@@ -1324,11 +1324,11 @@ msgstr ""
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Developers"
-msgstr "Kjerne-utviklarar"
+msgstr "Kjerneutviklarar"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Core Team"
-msgstr "Kjerneteam"
+msgstr "Kjernelag"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Open User Data Directory"
@@ -1346,7 +1346,7 @@ msgstr "Tidlegare bidragsytarar"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Previous Core Developers"
-msgstr "Tidlegare kjerne-utviklarar"
+msgstr "Tidlegare kjerneutviklarar"
 
 #: builtin/mainmenu/tab_about.lua
 msgid "Share debug log"
@@ -1354,13 +1354,12 @@ msgstr ""
 
 #: builtin/mainmenu/tab_content.lua
 msgid "Browse online content"
-msgstr "Bla i nett-innhald"
+msgstr "Utforska nettbasert innhald"
 
 #. TRANSLATORS: $1 = number of available updates
 #: builtin/mainmenu/tab_content.lua
-#, fuzzy
 msgid "Browse online content [$1]"
-msgstr "Bla i nett-innhald"
+msgstr "Utforska nettbasert innhald [$1]"
 
 #: builtin/mainmenu/tab_content.lua
 msgid "Content"
@@ -1393,9 +1392,8 @@ msgid "Rename"
 msgstr "Omdøp"
 
 #: builtin/mainmenu/tab_content.lua
-#, fuzzy
 msgid "Update available?"
-msgstr "<ingen tilgjengeleg>"
+msgstr "Oppdatering tilgjengeleg?"
 
 #: builtin/mainmenu/tab_content.lua
 msgid "Use Texture Pack"
@@ -1449,7 +1447,7 @@ msgstr "Ny"
 
 #: builtin/mainmenu/tab_local.lua
 msgid "Play Game"
-msgstr "Ha i gang spel"
+msgstr "Byrja spel"
 
 #. TRANSLATORS: Network port
 #: builtin/mainmenu/tab_local.lua builtin/mainmenu/tab_online.lua

@@ -443,7 +443,7 @@ void MapblockMeshGenerator::drawSolidNode()
 	content_t n1 = cur_node.n.getContent();
 	for (int face = 0; face < 6; face++) {
 		v3s16 p2 = blockpos_nodes + cur_node.p + tile_dirs[face];
-		MapNode neighbor = data->m_vmanip.getNodeNoEx(p2);
+		MapNode neighbor = data->m_vmanip.getNodeRefUnsafeCheckFlags(p2);
 		content_t n2 = neighbor.getContent();
 		bool backface_culling = cur_node.f->drawtype == NDT_NORMAL;
 		if (n2 == n1)
@@ -465,9 +465,11 @@ void MapblockMeshGenerator::drawSolidNode()
 				v3s16(1,0,0), v3s16(-1,0,0), v3s16(0,0,1), v3s16(0,0,-1)
 			};
 			for (const v3s16 &d : h_dirs) {
-				const ContentFeatures &f_side = nodedef->get(data->m_vmanip.getNodeNoEx(p2 + d));
+				const ContentFeatures &f_side =
+						nodedef->get(data->m_vmanip.getNodeRefUnsafeCheckFlags(p2 + d));
 
-				bool side_is_translucent = !(f_side.visuals->solidness || f_side.visuals->visual_solidness);
+				bool side_is_translucent =
+					!(NDT_solidness[f_side.drawtype] || NDT_visual_solidness[f_side.drawtype]);
 				bool side_is_same_flowing_liquid =
 					f_side.drawtype == NDT_FLOWINGLIQUID && cur_node.f->sameLiquidRender(f_side);
 
@@ -481,13 +483,13 @@ void MapblockMeshGenerator::drawSolidNode()
 		}
 		if (n2 != CONTENT_AIR) {
 			const ContentFeatures &f2 = nodedef->get(n2);
-			if (f2.visuals->solidness == 2 && !liquid_needs_top_face)
+			if (NDT_solidness[f2.drawtype] == 2 && !liquid_needs_top_face)
 				continue;
 			if (cur_node.f->drawtype == NDT_LIQUID) {
 				if (cur_node.f->sameLiquidRender(f2))
 					continue;
-				backface_culling =
-					!liquid_needs_top_face && (f2.visuals->solidness || f2.visuals->visual_solidness);
+				backface_culling = !liquid_needs_top_face &&
+						(NDT_solidness[f2.drawtype] || NDT_visual_solidness[f2.drawtype]);
 			}
 		}
 		faces |= 1 << face;
@@ -586,8 +588,10 @@ void MapblockMeshGenerator::prepareLiquidNodeDrawing()
 	getSpecialTile(0, &cur_liquid.tile_top);
 	getSpecialTile(1, &cur_liquid.tile);
 
-	MapNode ntop    = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16(0,  1, 0));
-	MapNode nbottom = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + v3s16(0, -1, 0));
+	MapNode ntop    = data->m_vmanip.getNodeRefUnsafeCheckFlags(
+			blockpos_nodes + cur_node.p + v3s16(0,  1, 0));
+	MapNode nbottom = data->m_vmanip.getNodeRefUnsafeCheckFlags(
+			blockpos_nodes + cur_node.p + v3s16(0, -1, 0));
 	cur_liquid.c_flowing = cur_node.f->liquid_alternative_flowing_id;
 	cur_liquid.c_source = cur_node.f->liquid_alternative_source_id;
 	cur_liquid.top_is_same_liquid = (ntop.getContent() == cur_liquid.c_flowing)
@@ -596,7 +600,7 @@ void MapblockMeshGenerator::prepareLiquidNodeDrawing()
 			&& (nbottom.getContent() != cur_liquid.c_source);
 	if (cur_liquid.draw_bottom) {
 		const ContentFeatures &f2 = nodedef->get(nbottom.getContent());
-		if (f2.visuals->solidness > 1)
+		if (NDT_solidness[f2.drawtype] > 1)
 			cur_liquid.draw_bottom = false;
 	}
 
@@ -627,7 +631,7 @@ void MapblockMeshGenerator::getLiquidNeighborhood()
 	for (int u = -1; u <= 1; u++) {
 		LiquidData::NeighborData &neighbor = cur_liquid.neighbors[w + 1][u + 1];
 		v3s16 p2 = cur_node.p + v3s16(u, 0, w);
-		MapNode n2 = data->m_vmanip.getNodeNoEx(blockpos_nodes + p2);
+		MapNode n2 = data->m_vmanip.getNodeRefUnsafeCheckFlags(blockpos_nodes + p2);
 		neighbor.content = n2.getContent();
 		neighbor.level = -0.5f;
 		neighbor.is_same_liquid = false;
@@ -653,7 +657,7 @@ void MapblockMeshGenerator::getLiquidNeighborhood()
 		// NOTE: This doesn't get executed if neighbor
 		//       doesn't exist
 		p2.Y++;
-		n2 = data->m_vmanip.getNodeNoEx(blockpos_nodes + p2);
+		n2 = data->m_vmanip.getNodeRefUnsafeCheckFlags(blockpos_nodes + p2);
 		if (n2.getContent() == cur_liquid.c_source || n2.getContent() == cur_liquid.c_flowing)
 			neighbor.top_is_same_liquid = true;
 	}
@@ -738,7 +742,7 @@ void MapblockMeshGenerator::drawLiquidSides()
 
 		const ContentFeatures &neighbor_features = nodedef->get(neighbor.content);
 		// Don't draw face if neighbor is blocking the view
-		if (neighbor_features.visuals->solidness == 2)
+		if (NDT_solidness[neighbor_features.drawtype] == 2)
 			continue;
 
 		video::S3DVertex vertices[4];
@@ -895,7 +899,7 @@ void MapblockMeshGenerator::drawGlasslikeNode()
 		// Check this neighbor
 		v3s16 dir = g_6dirs[face];
 		v3s16 neighbor_pos = blockpos_nodes + cur_node.p + dir;
-		MapNode neighbor = data->m_vmanip.getNodeNoExNoEmerge(neighbor_pos);
+		MapNode neighbor = data->m_vmanip.getNodeRefUnsafeCheckFlags(neighbor_pos);
 		// Don't make face if neighbor is of same type
 		if (neighbor.getContent() == cur_node.n.getContent())
 			continue;
@@ -989,7 +993,7 @@ void MapblockMeshGenerator::drawGlasslikeFramedNode()
 			if (!check_nb[i])
 				continue;
 			v3s16 n2p = blockpos_nodes + cur_node.p + g_26dirs[i];
-			MapNode n2 = data->m_vmanip.getNodeNoEx(n2p);
+			MapNode n2 = data->m_vmanip.getNodeRefUnsafeCheckFlags(n2p);
 			content_t n2c = n2.getContent();
 			if (n2c == current)
 				nb[i] = 1;
@@ -1334,7 +1338,7 @@ void MapblockMeshGenerator::drawPlantlikeRootedNode()
 	if (data->m_smooth_lighting) {
 		getSmoothLightFrame();
 	} else {
-		MapNode ntop = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p);
+		MapNode ntop = data->m_vmanip.getNodeRefUnsafeCheckFlags(blockpos_nodes + cur_node.p);
 		auto light = LightPair(getInteriorLight(ntop, 0, nodedef));
 		cur_node.lcolor = encode_light(light, cur_node.f->light_source);
 	}
@@ -1373,7 +1377,7 @@ void MapblockMeshGenerator::drawFirelikeNode()
 	content_t current = cur_node.n.getContent();
 	for (int i = 0; i < 6; i++) {
 		v3s16 n2p = blockpos_nodes + cur_node.p + g_6dirs[i];
-		MapNode n2 = data->m_vmanip.getNodeNoEx(n2p);
+		MapNode n2 = data->m_vmanip.getNodeRefUnsafeCheckFlags(n2p);
 		content_t n2c = n2.getContent();
 		if (n2c != CONTENT_IGNORE && n2c != CONTENT_AIR && n2c != current) {
 			neighbor[i] = true;
@@ -1438,7 +1442,7 @@ void MapblockMeshGenerator::drawFencelikeNode()
 	// Now a section of fence, +X, if there's a post there
 	v3s16 p2 = cur_node.p;
 	p2.X++;
-	MapNode n2 = data->m_vmanip.getNodeNoEx(blockpos_nodes + p2);
+	MapNode n2 = data->m_vmanip.getNodeRefUnsafeCheckFlags(blockpos_nodes + p2);
 	const ContentFeatures *f2 = &nodedef->get(n2);
 	if (f2->drawtype == NDT_FENCELIKE) {
 		static const aabb3f bar_x1(BS / 2 - bar_len,  BS / 4 - bar_rad, -bar_rad,
@@ -1460,7 +1464,7 @@ void MapblockMeshGenerator::drawFencelikeNode()
 	// Now a section of fence, +Z, if there's a post there
 	p2 = cur_node.p;
 	p2.Z++;
-	n2 = data->m_vmanip.getNodeNoEx(blockpos_nodes + p2);
+	n2 = data->m_vmanip.getNodeRefUnsafeCheckFlags(blockpos_nodes + p2);
 	f2 = &nodedef->get(n2);
 	if (f2->drawtype == NDT_FENCELIKE) {
 		static const aabb3f bar_z1(-bar_rad,  BS / 4 - bar_rad, BS / 2 - bar_len,
@@ -1482,7 +1486,8 @@ void MapblockMeshGenerator::drawFencelikeNode()
 
 bool MapblockMeshGenerator::isSameRail(v3s16 dir)
 {
-	MapNode node2 = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p + dir);
+	MapNode node2 = data->m_vmanip.getNodeRefUnsafeCheckFlags(
+			blockpos_nodes + cur_node.p + dir);
 	if (node2.getContent() == cur_node.n.getContent())
 		return true;
 	const ContentFeatures &def2 = nodedef->get(node2);
@@ -1634,7 +1639,7 @@ void MapblockMeshGenerator::drawNodeboxNode()
 	for (int dir = 0; dir != 6; dir++) {
 		u8 flag = 1 << dir;
 		v3s16 p2 = blockpos_nodes + cur_node.p + nodebox_tile_dirs[dir];
-		MapNode n2 = data->m_vmanip.getNodeNoEx(p2);
+		MapNode n2 = data->m_vmanip.getNodeRefUnsafeCheckFlags(p2);
 
 		// mark neighbors that are the same node type
 		// and have the same rotation or higher level stored as param2
@@ -1649,7 +1654,7 @@ void MapblockMeshGenerator::drawNodeboxNode()
 
 		if (cur_node.f->node_box.type == NODEBOX_CONNECTED) {
 			p2 = blockpos_nodes + cur_node.p + nodebox_connection_dirs[dir];
-			n2 = data->m_vmanip.getNodeNoEx(p2);
+			n2 = data->m_vmanip.getNodeRefUnsafeCheckFlags(p2);
 			if (nodedef->nodeboxConnects(cur_node.n, n2, flag))
 				neighbors_set |= flag;
 		}
@@ -1821,17 +1826,15 @@ void MapblockMeshGenerator::errorUnknownDrawtype()
 
 void MapblockMeshGenerator::drawNode()
 {
+	if (cur_node.f->drawtype == NDT_AIRLIKE)
+		return; // Not drawn at all
+
 	cur_node.origin = intToFloat(cur_node.p, BS);
-	switch (cur_node.f->drawtype) {
-		case NDT_AIRLIKE:  // Not drawn at all
-			return;
-		case NDT_LIQUID:
-		case NDT_NORMAL: // solid nodes don’t need the usual setup
-			drawSolidNode();
-			return;
-		default:
-			break;
+	if (cur_node.f->drawtype == NDT_LIQUID || cur_node.f->drawtype == NDT_NORMAL) {
+		drawSolidNode(); // Solid nodes don't need the usual setup
+		return;
 	}
+
 	if (data->m_smooth_lighting) {
 		getSmoothLightFrame();
 	} else {
@@ -1860,10 +1863,20 @@ void MapblockMeshGenerator::generate()
 {
 	ZoneScoped;
 
+	// getNodeRefUnsafeCheckFlags can be used for nodes up to 3 away
+	// Also see MeshMakeData::fillBlockDataBegin and MeshMakeData::fillSingleNode
+	// Currently all drawtypes use at most nodes one away except for NDT_PLANTLIKE_ROOTED
+	// which reads nodes at y+2 for getSmoothLightFrame
+	assert(data->m_vmanip.m_area.contains(blockpos_nodes - 3));
+	assert(data->m_vmanip.m_area.contains(blockpos_nodes + v3s16(data->m_side_length + 2)));
+
 	for (cur_node.p.Z = 0; cur_node.p.Z < data->m_side_length; cur_node.p.Z++)
 	for (cur_node.p.Y = 0; cur_node.p.Y < data->m_side_length; cur_node.p.Y++)
 	for (cur_node.p.X = 0; cur_node.p.X < data->m_side_length; cur_node.p.X++) {
-		cur_node.n = data->m_vmanip.getNodeNoEx(blockpos_nodes + cur_node.p);
+		cur_node.n = data->m_vmanip.getNodeRefUnsafeCheckFlags(blockpos_nodes + cur_node.p);
+		content_t c = cur_node.n.getContent();
+		if (c == CONTENT_AIR)
+			continue;
 		cur_node.f = &nodedef->get(cur_node.n);
 		drawNode();
 	}

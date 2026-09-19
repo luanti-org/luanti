@@ -164,8 +164,8 @@ static u16 getSmoothLightCombined(const v3s16 &p,
 		const ContentFeatures &f = ndef->get(n);
 		if (f.light_source > light_source_max)
 			light_source_max = f.light_source;
-		// Check f.solidness because fast-style leaves look better this way
-		if (f.param_type == CPT_LIGHT && f.visuals->solidness != 2) {
+		// Check solidness because fast-style leaves look better this way
+		if (f.param_type == CPT_LIGHT && NDT_solidness[f.drawtype] != 2) {
 			u8 light_level_day = n.getLight(LIGHTBANK_DAY, f.getLightingFlags());
 			u8 light_level_night = n.getLight(LIGHTBANK_NIGHT, f.getLightingFlags());
 			if (light_level_day == LIGHT_SUN)
@@ -654,7 +654,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 		for (ofs.Y = 0; ofs.Y < mesh_grid.cell_size; ofs.Y++)
 		for (ofs.X = 0; ofs.X < mesh_grid.cell_size; ofs.X++) {
 			v3s16 p = (bp + ofs) * MAP_BLOCKSIZE;
-			if (data->m_vmanip.getNodeNoEx(p).getContent() != CONTENT_IGNORE) {
+			if (data->m_vmanip.getNodeNoExNoEmerge(p).getContent() != CONTENT_IGNORE) {
 				MinimapMapblock *block = new MinimapMapblock;
 				m_minimap_mapblocks[mesh_grid.getOffsetIndex(ofs)] = block;
 				block->getMinimapNodes(&data->m_vmanip, data->m_nodedef, p);
@@ -955,7 +955,7 @@ u8 get_solid_sides(MeshMakeData *data)
 
 		for (u8 k = 0; k < 6; k++) {
 			const MapNode &top = data->m_vmanip.getNodeRefUnsafe(blockpos_nodes + positions[k]);
-			if (ndef->get(top).visuals->solidness != 2)
+			if (NDT_solidness[ndef->get(top).drawtype] != 2)
 				result &= ~(1 << k);
 		}
 	}

@@ -718,8 +718,6 @@ local allfaces_newsize_tt = ""..
 	S("* 'opaque': opaque")
 
 scale("allfaces", S("Transparent node"))
-scale("allfaces_optional", allfaces_newsize_tt)
-scale("allfaces_optional_waving", allfaces_newsize_tt .. "\n" .. S("Waving if waving leaves are enabled by client"))
 scale("plantlike")
 scale("plantlike_wallmounted")
 scale("torchlike_wallmounted")

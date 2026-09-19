@@ -336,6 +336,11 @@ void GenericCAO::processInitData(const std::string &data)
 GenericCAO::~GenericCAO()
 {
 	removeFromScene(true);
+
+	if (m_is_local_player) {
+		if (auto *player = m_env->getLocalPlayer())
+			player->setCAO(nullptr);
+	}
 }
 
 bool GenericCAO::getSelectionBox(aabb3f *toset) const

@@ -200,7 +200,7 @@ void script_register_packer(lua_State *L, const char *regname,
 
 	// Save metatable so we can identify instances later
 	lua_rawgeti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_METATABLE_MAP);
-	if (lua_isnil(L, -1)) {
+	if (lua_islightuserdata(L, -1)) { // when uninitialized
 		lua_newtable(L);
 		lua_pushvalue(L, -1);
 		lua_rawseti(L, LUA_REGISTRYINDEX, CUSTOM_RIDX_METATABLE_MAP);
@@ -372,12 +372,7 @@ static VectorRef<PackedInstr> pack_inner(lua_State *L, int idx, int vidx, Packed
 			if (r)
 				return r;
 			r = emplace(pv, LUA_TFUNCTION);
-			call_string_dump(L, idx);
-			size_t len;
-			const char *str = lua_tolstring(L, -1, &len);
-			assert(str);
-			r->sdata.assign(str, len);
-			lua_pop(L, 1);
+			r->sdata = dump_function_to_string(L, idx);
 			return r;
 		}
 		case LUA_TUSERDATA: {

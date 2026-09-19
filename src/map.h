@@ -9,6 +9,7 @@
 #include <ostream>
 #include <set>
 #include <unordered_map>
+#include <memory>
 
 #include "irrlichttypes_bloated.h"
 #include "mapblock.h" // for forEachNodeInArea
@@ -287,6 +288,9 @@ protected:
 	// Be sure to set this to NULL when the cached sector is deleted
 	MapSector *m_sector_cache = nullptr;
 	v2s16 m_sector_cache_p;
+
+	// Delayed deletion of old metadata objects
+	std::vector<std::unique_ptr<NodeMetadata>> m_metadata_trash;
 
 	// This stores the properties of the nodes on the map.
 	const NodeDefManager *m_nodedef;

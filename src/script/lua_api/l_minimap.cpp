@@ -149,8 +149,7 @@ Minimap* LuaMinimap::getobject(LuaMinimap *ref)
 }
 
 int LuaMinimap::gc_object(lua_State *L) {
-	LuaMinimap *o = *(LuaMinimap **)(lua_touserdata(L, 1));
-	delete o;
+	delete takeObjectForGC<LuaMinimap>(L);
 	return 0;
 }
 

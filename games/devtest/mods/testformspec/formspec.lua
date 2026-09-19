@@ -762,6 +762,19 @@ mouse control = true]
 		]]..
 		tooltip_fs,
 
+	--listimages
+		[[
+			formspec_version[11]
+			size[12,13]
+			list[current_player;main;1,1;8,1;0]
+
+			listimages[testformspec_node.png;testformspec_hovered.png]
+			list[current_player;main;1,3;8,2;8]
+
+			listimages[;testformspec_hovered.png^\[brighten]
+			list[current_player;main;1,6;8,1;24]
+		]],
+
 	-- Text alignment
 		"size[12,13]real_coordinates[true]" ..
 		"container[0.5,0.5]" .. text_alignment_fs .. "container_end[]",
@@ -774,7 +787,7 @@ local function show_test_formspec(pname)
 		page = page()
 	end
 
-	local fs = page .. "tabheader[0,0;11,0.65;maintabs;Real Coord,Styles,Noclip,Table,Hypertext,Tabs,Invs,Window,Anim,Model,ScrollC,Autoscroll,Sound,Background,Unsized,Tooltip,Tooltip+Listcolors,Text Alignment;" .. page_id .. ";false;false]"
+	local fs = page .. "tabheader[0,0;11,0.65;maintabs;Real Coord,Styles,Noclip,Table,Hypertext,Tabs,Invs,Window,Anim,Model,ScrollC,Autoscroll,Sound,Background,Unsized,Tooltip,Tooltip+Listcolors,Listimages,Text Alignment;" .. page_id .. ";false;false]"
 
 	core.show_formspec(pname, "testformspec:formspec", fs)
 end

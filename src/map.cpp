@@ -406,6 +406,10 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 	// Finally delete the empty sectors
 	deleteSectors(sector_deletion_queue);
 
+	// Clear orphan metadata
+	// TODO: this should actually run more often -> create a Map::step()
+	m_metadata_trash.clear();
+
 	if(deleted_blocks_count != 0)
 	{
 		PrintInfo(infostream); // ServerMap/ClientMap:
@@ -508,6 +512,7 @@ NodeMetadata *Map::getNodeMetadata(v3s16 p)
 
 bool Map::setNodeMetadata(v3s16 p, NodeMetadata *meta)
 {
+	assert(meta);
 	v3s16 blockpos = getNodeBlockPos(p);
 	v3s16 p_rel = p - blockpos*MAP_BLOCKSIZE;
 	MapBlock *block = getBlockNoCreateNoEx(blockpos);
@@ -521,7 +526,11 @@ bool Map::setNodeMetadata(v3s16 p, NodeMetadata *meta)
 				<<std::endl;
 		return false;
 	}
-	block->m_node_metadata.set(p_rel, meta);
+	if (auto old = block->m_node_metadata.set(p_rel, meta)) {
+		// Delete it later since we can't guarantee that the instance is not
+		// in use anymore at this point. (FIXME: seems like a hack?)
+		m_metadata_trash.emplace_back(std::move(old));
+	}
 	return true;
 }
 
@@ -536,7 +545,8 @@ void Map::removeNodeMetadata(v3s16 p)
 				<<std::endl;
 		return;
 	}
-	block->m_node_metadata.remove(p_rel);
+	if (auto old = block->m_node_metadata.remove(p_rel)) // same here
+		m_metadata_trash.emplace_back(std::move(old));
 }
 
 NodeTimer Map::getNodeTimer(v3s16 p)

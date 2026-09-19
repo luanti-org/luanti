@@ -94,8 +94,7 @@ int ObjectRef::mt_tostring(lua_State *L)
 // garbage collector
 int ObjectRef::gc_object(lua_State *L)
 {
-	ObjectRef *obj = *(ObjectRef **)(lua_touserdata(L, 1));
-	delete obj;
+	delete takeObjectForGC<ObjectRef>(L);
 	return 0;
 }
 
@@ -2999,6 +2998,9 @@ void ObjectRef::set_null(lua_State *L, void *expect)
 {
 	ObjectRef *obj = checkObject<ObjectRef>(L, -1);
 	assert(obj);
+	// For every SAO, there is only one userdata object that holds its reference.
+	// We need to unset this one specific reference, because if we don't there will
+	// be an use-after-free.
 	FATAL_ERROR_IF(obj->m_object != expect, "ObjectRef table was messed with");
 	obj->m_object = nullptr;
 }

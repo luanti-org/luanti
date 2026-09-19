@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
 		porting::attachOrCreateConsole();
 
 	// Run legacy and Catch2 unit tests
-	if (cmd_args.getFlag("run-unittests")) {
+	if (cmd_args.getFlag("run-unittests") || cmd_args.exists("test-module")) {
 		porting::attachOrCreateConsole();
 #if BUILD_UNITTESTS
 		if (cmd_args.exists("test-module"))

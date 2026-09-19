@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Japanese (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-10 17:35+0200\n"
-"PO-Revision-Date: 2026-05-26 01:11+0000\n"
+"PO-Revision-Date: 2026-08-13 17:23+0000\n"
 "Last-Translator: BreadW <toshiharu.uno@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/minetest/"
 "minetest/ja/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6.dev0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -517,7 +517,7 @@ msgstr "エラーが発生しました:"
 
 #: builtin/fstk/ui.lua
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "クリップボードへのコピー"
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1555,9 +1555,8 @@ msgid "Server Description"
 msgstr "サーバーの説明"
 
 #: src/chat.cpp
-#, fuzzy
 msgid "Player names: "
-msgstr "ゲームプレイ"
+msgstr "プレイヤー名: "
 
 #: src/client/client.cpp
 msgid "Connection aborted (protocol error?)."
@@ -1752,7 +1751,7 @@ msgstr "高速移動モード有効化 (メモ: 'fast' 特権がありません)
 #: src/client/game.cpp
 #, c-format
 msgid "Files: %d / %d"
-msgstr ""
+msgstr "ファイル: %d / %d"
 
 #: src/client/game.cpp
 msgid "Fly mode disabled"
@@ -1783,14 +1782,12 @@ msgid "Item definitions..."
 msgstr "アイテムを定義中..."
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "KiB"
-msgstr "KiB/秒"
+msgstr "KiB"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "MiB"
-msgstr "MiB/秒"
+msgstr "MiB"
 
 #: src/client/game.cpp
 msgid "Minimap currently disabled by game or mod"
@@ -1843,7 +1840,7 @@ msgstr "シングルプレイヤー"
 #: src/client/game.cpp
 #, c-format
 msgid "Size: %.2f %s"
-msgstr ""
+msgstr "サイズ: %.2f %s"
 
 #: src/client/game.cpp
 msgid "Sound muted"
@@ -2065,19 +2062,16 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "観測記録 表示 (ページ %d / %d)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "A (Gamepad)"
-msgstr "ゲームパッド"
+msgstr "A (ゲームパッド)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "B (Gamepad)"
-msgstr "ゲームパッド"
+msgstr "B (ゲームパッド)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Back (Gamepad)"
-msgstr "ゲームパッド"
+msgstr "バック (ゲームパッド)"
 
 #: src/client/keycode.cpp
 msgid "Backspace"
@@ -2085,7 +2079,7 @@ msgstr "Back Space"
 
 #: src/client/keycode.cpp
 msgid "Bottom Face Button (Gamepad)"
-msgstr ""
+msgstr "底面ボタン (ゲームパッド)"
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2098,7 +2092,7 @@ msgstr "Caps Lock"
 
 #: src/client/keycode.cpp
 msgid "Circle (Gamepad)"
-msgstr ""
+msgstr "丸ボタン (ゲームパッド)"
 
 #: src/client/keycode.cpp
 msgid "Clear Key"
@@ -2109,26 +2103,24 @@ msgid "Control Key"
 msgstr "Controlキー"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Cross (Gamepad)"
-msgstr "ゲームパッド"
+msgstr "十字キー (ゲームパッド)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "D-Pad Down"
-msgstr "Page Down"
+msgstr "十字キーの下"
 
 #: src/client/keycode.cpp
 msgid "D-Pad Left"
-msgstr ""
+msgstr "十字キーの左"
 
 #: src/client/keycode.cpp
 msgid "D-Pad Right"
-msgstr ""
+msgstr "十字キーの右"
 
 #: src/client/keycode.cpp
 msgid "D-Pad Up"
-msgstr ""
+msgstr "十字キーの上"
 
 #: src/client/keycode.cpp
 msgid "Delete Key"
@@ -2143,24 +2135,23 @@ msgid "End Key"
 msgstr "Endキー"
 
 #: src/client/keycode.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Gamepad Axis %d +"
-msgstr "ゲームパッド"
+msgstr "ゲームパッド軸 %d +"
 
 #: src/client/keycode.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Gamepad Axis %d -"
-msgstr "ゲームパッド"
+msgstr "ゲームパッド軸 %d -"
 
 #: src/client/keycode.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Gamepad Button %d"
-msgstr "マウスボタン %d"
+msgstr "ゲームパッドボタン %d"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Guide (Gamepad)"
-msgstr "ゲームパッド"
+msgstr "ガイド (ゲームパッド)"
 
 #: src/client/keycode.cpp
 msgid "Help Key"
@@ -2188,32 +2179,27 @@ msgstr "左Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Left Face Button (Gamepad)"
-msgstr ""
+msgstr "左側面ボタン (ゲームパッド)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Button"
-msgstr "ジョイスティックの種類"
+msgstr "左ジョイスティックボタン"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Down"
-msgstr "ジョイスティックID"
+msgstr "左ジョイスティックを下に"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Left"
-msgstr "ジョイスティックの種類"
+msgstr "左ジョイスティックを左に"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Right"
-msgstr "ジョイスティックの種類"
+msgstr "左ジョイスティックを右に"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Up"
-msgstr "ジョイスティックの種類"
+msgstr "左ジョイスティックを上に"
 
 #: src/client/keycode.cpp
 msgid "Left Menu"
@@ -2224,14 +2210,12 @@ msgid "Left Shift"
 msgstr "左Shift"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Shoulder"
-msgstr "左Shift"
+msgstr "左ショルダーボタン"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Trigger"
-msgstr "左矢印"
+msgstr "左トリガー"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2345,11 +2329,11 @@ msgstr "Play"
 
 #: src/client/keycode.cpp
 msgid "Primary Left Paddle"
-msgstr ""
+msgstr "第一次左パドル"
 
 #: src/client/keycode.cpp
 msgid "Primary Right Paddle"
-msgstr ""
+msgstr "第一次右パドル"
 
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
@@ -2374,31 +2358,27 @@ msgstr "右Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Right Face Button (Gamepad)"
-msgstr ""
+msgstr "右側面ボタン (ゲームパッド)"
 
 #: src/client/keycode.cpp
 msgid "Right Joystick Button"
-msgstr ""
+msgstr "右ジョイスティックボタン"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Joystick Down"
-msgstr "ジョイスティックID"
+msgstr "右ジョイスティックを下に"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Joystick Left"
-msgstr "ジョイスティックの種類"
+msgstr "右ジョイスティックを左に"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Joystick Right"
-msgstr "ジョイスティックの種類"
+msgstr "右ジョイスティックを右に"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Joystick Up"
-msgstr "ジョイスティックの種類"
+msgstr "右ジョイスティックを上に"
 
 #: src/client/keycode.cpp
 msgid "Right Menu"
@@ -2409,14 +2389,12 @@ msgid "Right Shift"
 msgstr "右Shift"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Shoulder"
-msgstr "右Shift"
+msgstr "右ショルダーボタン"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Trigger"
-msgstr "右矢印"
+msgstr "右トリガー"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2434,11 +2412,11 @@ msgstr "Scroll Lock"
 
 #: src/client/keycode.cpp
 msgid "Secondary Left Paddle"
-msgstr ""
+msgstr "第二次左パドル"
 
 #: src/client/keycode.cpp
 msgid "Secondary Right Paddle"
-msgstr ""
+msgstr "第二次右パドル"
 
 #: src/client/keycode.cpp
 msgid "Select Key"
@@ -2453,14 +2431,12 @@ msgid "Space"
 msgstr "Space"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Square (Gamepad)"
-msgstr "サーバーのゲームプレイ"
+msgstr "四角ボタン (ゲームパッド)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Start (Gamepad)"
-msgstr "ゲームスタート"
+msgstr "スタート (ゲームパッド)"
 
 #: src/client/keycode.cpp
 msgid "Tab Key"
@@ -2468,29 +2444,27 @@ msgstr "Tabキー"
 
 #: src/client/keycode.cpp
 msgid "Top Face Button (Gamepad)"
-msgstr ""
+msgstr "表面ボタン (ゲームパッド)"
 
 #: src/client/keycode.cpp
 msgid "Touchpad Button (Gamepad)"
-msgstr ""
+msgstr "タッチパッドボタン (ゲームパッド)"
 
 #: src/client/keycode.cpp
 msgid "Triangle (Gamepad)"
-msgstr ""
+msgstr "三角ボタン (ゲームパッド)"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "上矢印"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "X (Gamepad)"
-msgstr "ゲームパッド"
+msgstr "X (ゲームパッド)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Y (Gamepad)"
-msgstr "ゲームパッド"
+msgstr "Y (ゲームパッド)"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2808,7 +2782,7 @@ msgstr ""
 
 #: src/script/lua_api/l_mainmenu.cpp
 msgid "Copied to clipboard!"
-msgstr ""
+msgstr "クリップボードにコピー!"
 
 #: src/server.cpp
 #, c-format
@@ -2991,9 +2965,8 @@ msgid "Acceleration of gravity, in nodes per second per second."
 msgstr "重力加速度、1秒あたりのノード数/秒です。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Actions and Keybindings"
-msgstr "キー割り当ての追加"
+msgstr "アクションとキー割り当て"
 
 #: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
@@ -3205,7 +3178,6 @@ msgstr ""
 "マップブロック(16ノード)で表記します。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "At this distance the server will consider blocks as \"far away\".\n"
 "It will perform simpler and cheaper occlusion checks, update\n"
@@ -3214,11 +3186,12 @@ msgid ""
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
-"この距離でサーバーはよりシンプルで安価なオクルージョンチェックを行います。\n"
-"小さい値に設定すると、描画の視覚的な不具合(不足するブロック)を一時的に\n"
-"犠牲にして、パフォーマンスが向上する可能性があります。\n"
-"これは特に非常に広い視野(500以上)に有用です。\n"
-"マップブロック(16ノード)で表記。"
+"この距離では、サーバーはブロックを「遠く離れている」とみなします。\n"
+"より単純でコストの低い遮蔽チェックを実行し、 優先度の低いブロックの\n"
+"更新を遅延させ、 1回の往復でクライアントに送信するブロック数を\n"
+"制限します。\n"
+"これは、非常に広い視野範囲（500以上）の場合に特に有効です。\n"
+"マップブロック（16ノード）で記述されています。"
 
 #: src/settings_translation_file.cpp
 msgid "Audio"
@@ -4511,11 +4484,11 @@ msgstr "GUI拡大縮小フィルタ"
 
 #: src/settings_translation_file.cpp
 msgid "Gamepads and Joysticks"
-msgstr ""
+msgstr "ゲームパッドとジョイスティック"
 
 #: src/settings_translation_file.cpp
 msgid "Gamma"
-msgstr ""
+msgstr "ガンマ"
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -5146,14 +5119,12 @@ msgid "Joystick frustum sensitivity"
 msgstr "ジョイスティック視錐台感度"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Joystick inner dead zone"
-msgstr "ジョイスティックのデッドゾーン"
+msgstr "ジョイスティックの内部デッドゾーン"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Joystick outer dead zone"
-msgstr "ジョイスティックのデッドゾーン"
+msgstr "ジョイスティックの外側デッドゾーン"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5258,6 +5229,8 @@ msgid ""
 "Key for opening the pause menu in-game.\n"
 "Pressing the escape key always opens the pause menu."
 msgstr ""
+"ゲーム中にポーズメニューを開くためのキーです。\n"
+"エスケープキーを押すと、ポーズメニューが開きます。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5550,10 +5523,12 @@ msgid ""
 "Make volumetrics weaker against closer objects to emulate physical "
 "volumetrics."
 msgstr ""
+"体積をエミュレートするために、より近いオブジェクトに対して、体積を弱くします"
+"。"
 
 #: src/settings_translation_file.cpp
 msgid "Makes the color of light fog more saturated."
-msgstr ""
+msgstr "淡い霧の色をより鮮やかにします。"
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
@@ -6174,7 +6149,7 @@ msgstr "インベントリを開く"
 
 #: src/settings_translation_file.cpp
 msgid "Open pause menu"
-msgstr ""
+msgstr "ポーズメニューを開く"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6773,14 +6748,12 @@ msgstr ""
 "値 0 は傾きなし / 垂直軌道を意味します。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Set the exposure compensation in EV units.\n"
 "Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 "露出補正をEV単位で設定します。\n"
-"値 0.0 (既定値) は、露出補正なしを意味します。\n"
-"範囲: -1 から 1.0 まで"
+"値 0.0 (既定値) は、露出補正なしを意味します。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6801,6 +6774,8 @@ msgid ""
 "Set the post processing gamma value.\n"
 "Higher values give lower contrast and vice versa."
 msgstr ""
+"投稿処理のガンマ値を設定します。\n"
+"値が高いと、より低いコントラストと、その逆になります。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6943,11 +6918,13 @@ msgstr ""
 "(または GPU を搭載していない) システムでは値を小さくすると効果的です。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Simulate translucency when looking at foliage in the sunlight.\n"
 "It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
-msgstr "日光の下で葉を見るときの半透明感をシミュレートします。"
+msgstr ""
+"日光の下で葉を見たときに、半透明感を再現します。\n"
+"この機能を使用する際は、\"leaves_style\" の設定を \"fancy\" にすることをお勧"
+"めします。"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7457,16 +7434,15 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Tint sunlight during sunrise/sunset."
-msgstr ""
+msgstr "日の出/日没時の太陽光に色をつけます。"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Tinted fog"
-msgstr "霧表示切替"
+msgstr "色付きの霧"
 
 #: src/settings_translation_file.cpp
 msgid "Tinted sunlight"
-msgstr ""
+msgstr "色付きの太陽光"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7856,12 +7832,10 @@ msgid "Volume when unfocused"
 msgstr "フォーカスされていないときの音量"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Volumetric Depth Attenuation"
-msgstr "ボリュームライティング"
+msgstr "体積深度減衰"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Volumetric Lighting"
 msgstr "ボリュームライティング"
 
@@ -7936,6 +7910,8 @@ msgid ""
 "When enabled, crude liquid reflections are simulated.\n"
 "Wave height, length and speed will affect these reflections."
 msgstr ""
+"有効にすると、原液の反射がシミュレートされます。\n"
+"波の高さ、長さおよび速度はこれらの反射に影響を与えます。"
 
 #: src/settings_translation_file.cpp
 msgid ""

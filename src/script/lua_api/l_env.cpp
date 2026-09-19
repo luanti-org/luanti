@@ -114,8 +114,7 @@ int LuaRaycast::create_object(lua_State *L)
 
 int LuaRaycast::gc_object(lua_State *L)
 {
-	LuaRaycast *o = *(LuaRaycast **) (lua_touserdata(L, 1));
-	delete o;
+	delete takeObjectForGC<LuaRaycast>(L);
 	return 0;
 }
 

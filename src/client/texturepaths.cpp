@@ -6,6 +6,7 @@
 
 #include "util/container.h"
 #include "util/thread.h"
+#include "util/string.h"
 #include "settings.h"
 #include "filesys.h"
 #include "porting.h"

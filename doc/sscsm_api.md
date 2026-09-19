@@ -160,7 +160,8 @@ Functions that take or return paths always use virtual paths.
 ### Lua standard library
 
 * `assert`
-* `collectgarbage`
+* `collectgarbage("count")`
+  * Rounded, other modes are unsupported and will do nothing and return nothing.
 * `error`
 * `ipairs`
 * `next`

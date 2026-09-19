@@ -419,6 +419,7 @@ to check whether a model is a valid glTF file.
 
 Many glTF features are not supported *yet*, including:
 
+* Primitive modes other than `TRIANGLES`
 * Animations
   * `CUBICSPLINE` interpolation is not supported
   * Morph animations
@@ -643,7 +644,7 @@ low-res textures not suddenly becoming filtered.
 
 ## Loading order
 
-Texture names are looked up in the following order. Top has the lowest priority.
+The priority order for textures is as follows: (in increasing order, lowest first)
 
 * Client: `$path_share/textures/base/pack`
 * Server: mod-provided textures, in their `textures` directory
@@ -2109,7 +2110,9 @@ Displays a horizontal bar made up of half-images with an optional background.
 * `text`: The name of the inventory list to be displayed.
 * `number`: Amount of item slots in the inventory to be displayed.
   Integer in range [u16].
-* `item`: Position of item that is selected. Integer in range [u16].
+* `item`: The slot at this index is rendered as if it were selected
+  using the texture set by `player:hud_set_hotbar_selected_image(texturename)`.
+  Integer in range [u16].
 * `direction`: Direction the list will be displayed in
 * `offset`: offset in pixels from position.
 * `alignment`: The alignment of the inventory. Aligned at the top left corner if not specified.
@@ -2323,7 +2326,7 @@ The following items are predefined and have special properties.
     * It can be overridden to change those properties:
         * globally using `core.override_item`
         * per-player using the special `"hand"` inventory list
-    * It cannot be used as an ItemStack object, because `""` represents the empty stack.
+    * It cannot be used as an `ItemStack` object, because `""` represents the empty stack.
       Therefore, it can't be stored in an inventory.
 
 Amount and wear
@@ -2348,22 +2351,23 @@ and `ItemStack`.
 When an item must be passed to a function, it can usually be in any of
 these formats.
 
+Empty stacks (defined by name `""`) are always initialized with count = 0.
+
 ### Serialized
 
-This is called "stackstring" or "itemstring". It is a simple string with
-1-4 components:
+This is called "itemstring". It is a simple string with
+1-4 components separated by exactly one space character. Syntax:
+
+    <identifier>[ <amount>[ <wear>[ <metadata>]]]
 
 1. Full item identifier ("item name")
 2. Optional amount
 3. Optional wear value
 4. Optional item metadata
 
-Syntax:
-
-    <identifier> [<amount>[ <wear>[ <metadata>]]]
-
 Examples:
 
+* `""`: empty stack
 * `"default:apple"`: 1 apple
 * `"default:dirt 5"`: 5 dirt
 * `"default:pick_stone"`: a new stone pickaxe
@@ -2396,13 +2400,13 @@ Examples:
 5 dirt nodes:
 
 ```lua
-{name="default:dirt", count=5, wear=0, metadata=""}
+{name="default:dirt", count=5, wear=0, metadata={}}
 ```
 
 A wooden pick about 1/3 worn out:
 
 ```lua
-{name="default:pick_wood", count=1, wear=21323, metadata=""}
+{name="default:pick_wood", count=1, wear=21323, metadata={}}
 ```
 
 An apple:
@@ -2414,7 +2418,8 @@ An apple:
 ### `ItemStack` format
 
 A native C++ format with many helper methods. Useful for converting
-between formats. See the [Class Reference](#class-reference) section for details.
+between formats. See the [Class reference](#class-reference)
+-> [ItemStack](#itemstack) chapter for details.
 
 
 
@@ -3246,6 +3251,17 @@ Elements
 * Sets default background color of tooltips
 * Sets default font color of tooltips
 
+### `listimages[<slot_bgimg_normal>;<slot_bgimg_hover>]`
+
+* Works like `listcolors[]`, but uses images rather than solid colors.
+* `slot_bgimg_normal`: Sets background image of slots. May be empty.
+* `slot_bgimg_hover`: Sets background image of slots when hovered. May be empty.
+* When a field is empty, that texture is not set (slots keep the color from `listcolors[]` for that state).
+* Examples:
+    * `listimages[slot.png;slot_hover.png]`
+    * `listimages[slot.png;]`
+    * `listimages[;slot_hover.png]`
+
 ### `tooltip[<gui_element_name>;<tooltip_text>;<bgcolor>;<fontcolor>]`
 
 * Adds tooltip for an element
@@ -3943,6 +3959,7 @@ Some types may inherit styles from parent types.
     * font - Sets font type. See button `font` property for more information.
     * font_size - Sets font size. See button `font_size` property for more information.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+    * textcolor - color. Default white.
     * halign - Sets horizontal alignment of text. **Note**: Only applies for "area label"
     syntax (`label[x,y;w,h;text]`). Can either be `left`, `center`, or `right`. Default `left`.
     * valign - Sets vertical alignment of text. **Note**: Only applies for "area label"
@@ -8590,6 +8607,7 @@ An `InvRef` is a reference to an inventory.
     * If `match_meta` is `true` (available since feature `remove_item_match_meta`),
       item metadata is also considered when comparing items. Otherwise, only the
       items names are compared. Default: `false`
+    * Items are removed from the list in reverse order.
     * The method ignores wear.
 * `get_location()`: returns a location compatible to
   `core.get_inventory(location)`.
@@ -8625,8 +8643,13 @@ This means that all callbacks will be called twice (once for each action).
 
 An `ItemStack` is a stack of items.
 
-It can be created via `ItemStack(x)`, where x is an `ItemStack`,
-an itemstring, a table or `nil`.
+* `ItemStack([x])`: returns an `ItemStack`
+    * `x`: (optional) Is one of the following:
+        * nil value: Empty stack
+        * string value: an "itemstring".
+        * table value: ItemStack [Table format](#table-format).
+            * The `name` field is mandatory.
+
 
 ### Methods
 

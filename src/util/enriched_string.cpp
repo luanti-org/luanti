@@ -96,7 +96,7 @@ void EnrichedString::addAtEnd(std::wstring_view s, SColor initial_color)
 			++i;
 			length = 1;
 		}
-		std::wstring escape_sequence(s, start_index, length);
+		std::wstring_view escape_sequence(&s[start_index], length);
 		std::vector<std::wstring> parts = split(escape_sequence, L'@');
 		if (parts[0] == L"c") {
 			if (parts.size() < 2) {

@@ -329,6 +329,9 @@ private:
 
 	/*
 		Remove all objects that satisfy (isGone() && m_known_by_count==0)
+
+		WARNING: only safe to call if you can ensure that no code is left holding
+		pointers to any SAO.
 	*/
 	void removeRemovedObjects();
 
@@ -345,6 +348,9 @@ private:
 
 		If force_delete is set, active object is deleted nevertheless. It
 		shall only be set so in the destructor of the environment.
+
+		WARNING: only safe to call if you can ensure that no code is left holding
+		pointers to any SAO.
 	*/
 	void deactivateFarObjects(bool force_delete);
 

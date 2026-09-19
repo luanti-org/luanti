@@ -13,7 +13,7 @@
 | SQLite3    | 3+      |            |
 | Zlib       | -       |            |
 | Zstd       | 1.0+    |            |
-| LuaJIT     | 2.0+    | Bundled Lua 5.1 is used if not present |
+| LuaJIT     | from 2021+ | Bundled Lua 5.1 is used if not present |
 | GMP        | 5.0.0+  | Bundled mini-GMP is used if not present |
 | JsonCPP    | 1.0.0+  | Bundled JsonCPP is used if not present |
 | Curl       | 7.56.0+ | Optional   |

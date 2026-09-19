@@ -5,6 +5,7 @@
 #include "filesys.h"
 #include "util/string.h"
 #include <iostream>
+#include <filesystem>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -655,65 +656,86 @@ bool MoveDir(const std::string &source, const std::string &target)
 	return retval;
 }
 
-bool PathStartsWith(const std::string &path, const std::string &prefix)
+/// @brief try to match two paths together and see up to which point they match
+/// @return position of first mismatch (each)
+static std::pair<size_t, size_t> match_paths(std::string_view path, std::string_view prefix)
 {
-	if (prefix.empty())
-		return path.empty();
-	size_t pathsize = path.size();
-	size_t pathpos = 0;
-	size_t prefixsize = prefix.size();
-	size_t prefixpos = 0;
-	for(;;){
-		// Test if current characters at path and prefix are delimiter OR EOS
-		bool delim1 = pathpos == pathsize
-			|| IsDirDelimiter(path[pathpos]);
-		bool delim2 = prefixpos == prefixsize
-			|| IsDirDelimiter(prefix[prefixpos]);
+	const size_t pathsize = path.size(), prefixsize = prefix.size();
+	size_t pathpos = 0, prefixpos = 0;
+	for (;;) {
+		// Test if current characters at path and prefix are delimiter or EOS
+		bool delim1 = pathpos == pathsize || IsDirDelimiter(path[pathpos]);
+		bool delim2 = prefixpos == prefixsize || IsDirDelimiter(prefix[prefixpos]);
 
-		// Return false if it's delimiter/EOS in one path but not in the other
-		if(delim1 != delim2)
-			return false;
+		// Return if it's delimiter/EOS in one path but not in the other
+		if (delim1 != delim2)
+			return {pathpos, prefixpos};
 
-		if(delim1){
+		if (delim1) {
 			// Skip consequent delimiters in path, in prefix
-			while(pathpos < pathsize &&
-					IsDirDelimiter(path[pathpos]))
+			while (pathpos < pathsize && IsDirDelimiter(path[pathpos]))
 				++pathpos;
-			while(prefixpos < prefixsize &&
-					IsDirDelimiter(prefix[prefixpos]))
+			while (prefixpos < prefixsize && IsDirDelimiter(prefix[prefixpos]))
 				++prefixpos;
-			// Return true if prefix has ended (at delimiter/EOS)
-			if(prefixpos == prefixsize)
-				return true;
-			// Return false if path has ended (at delimiter/EOS)
-			// while prefix did not.
-			if(pathpos == pathsize)
-				return false;
-		}
-		else{
+			// Return if prefix or path has ended (at delimiter/EOS)
+			if (prefixpos == prefixsize || pathpos == pathsize) {
+				return {
+					pathpos   + (pathpos   == pathsize   ? 1 : 0),
+					prefixpos + (prefixpos == prefixsize ? 1 : 0)
+				};
+			}
+		} else {
 			// Skip pairwise-equal characters in path and prefix until
 			// delimiter/EOS in path or prefix.
-			// Return false if differing characters are met.
+			// Return if differing characters are met.
 			size_t len = 0;
-			do{
+			do {
 				char pathchar = path[pathpos+len];
 				char prefixchar = prefix[prefixpos+len];
-				if(FILESYS_CASE_INSENSITIVE){
+				if constexpr (FILESYS_CASE_INSENSITIVE) {
 					pathchar = my_tolower(pathchar);
 					prefixchar = my_tolower(prefixchar);
 				}
-				if(pathchar != prefixchar)
-					return false;
+				if (pathchar != prefixchar)
+					return {pathpos+len, prefixpos+len};
 				++len;
-			} while(pathpos+len < pathsize
+			} while (pathpos+len < pathsize
 					&& !IsDirDelimiter(path[pathpos+len])
 					&& prefixpos+len < prefixsize
-					&& !IsDirDelimiter(
-						prefix[prefixpos+len]));
+					&& !IsDirDelimiter(prefix[prefixpos+len]));
 			pathpos += len;
 			prefixpos += len;
+			// Note: if we have reached EOS here we will exit on the next iteration
 		}
 	}
+}
+
+bool PathsEqual(const std::string &p1, const std::string &p2)
+{
+	// trivial cases
+	if (p1 == p2)
+		return true;
+	if (p1.empty() != p2.empty())
+		return false;
+
+	auto ret = match_paths(p1, p2);
+
+	// Return true ONLY if we matched both paths to their end, meaning they are equal
+	return ret.first == p1.size() + 1 && ret.second == p2.size() + 1;
+}
+
+bool PathStartsWith(const std::string &path, const std::string &prefix)
+{
+	// trivial cases
+	if (path == prefix)
+		return true;
+	if (prefix.empty())
+		return path.empty();
+
+	auto ret = match_paths(path, prefix);
+
+	// Return true ONLY IF we matched the prefix to its end
+	return ret.second == prefix.size() + 1;
 }
 
 std::string MakePathRelativeTo(const std::string &child, const std::string &parent)
@@ -726,14 +748,15 @@ std::string MakePathRelativeTo(const std::string &child, const std::string &pare
 	if (!fs::PathStartsWith(child_abs, parent_abs))
 		return ""; // not child
 
+	// Note: this only works because AbsolutePathPartial gets rid of duplicate
+	// dir delimiters, so that both paths are in the canonical shortest representation.
 	if (child_abs.size() == parent_abs.size()) {
-		assert(child_abs == parent_abs);
+		assert(fs::PathsEqual(child_abs, parent_abs));
 		return ".";
-	} else {
-		assert(child_abs.size() >= parent_abs.size() + 1);
-		assert(child_abs[parent_abs.size()] == DIR_DELIM_CHAR);
-		return std::move(child_abs).substr(parent_abs.size() + 1);
 	}
+	assert(child_abs.size() >= parent_abs.size() + 1);
+	assert(fs::IsDirDelimiter(child_abs[parent_abs.size()]));
+	return std::move(child_abs).substr(parent_abs.size() + 1);
 }
 
 std::string RemoveLastPathComponent(const std::string &path,
@@ -841,8 +864,14 @@ std::string AbsolutePath(const std::string &path)
 #endif
 	if (!abs_path)
 		return "";
-	std::string abs_path_str(abs_path);
+	std::filesystem::path absolute_path(abs_path, std::filesystem::path::format::native_format);
 	free(abs_path);
+
+	// remove any trailing delim before return
+	std::string abs_path_str = absolute_path.string();
+	std::string root_string = absolute_path.root_path().string();
+	while (abs_path_str.length() > root_string.length() && IsDirDelimiter(abs_path_str.back()))
+		abs_path_str.pop_back();
 	return abs_path_str;
 }
 

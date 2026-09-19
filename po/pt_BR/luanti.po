@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Portuguese (Brazil) (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-10 17:35+0200\n"
-"PO-Revision-Date: 2026-07-13 21:01+0000\n"
-"Last-Translator: Fábio Rodrigues Ribeiro <farribeiro@gmail.com>\n"
+"PO-Revision-Date: 2026-08-19 14:13+0000\n"
+"Last-Translator: Adriano Garcia <adrianogtl.dev@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
 "minetest/minetest/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 2026.8.dev0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -340,7 +340,7 @@ msgstr "(Use a linguagem do sistema)"
 #. TRANSLATORS: Shown when a default setting is the empty string
 #: builtin/common/settings/dlg_settings.lua
 msgid "<empty>"
-msgstr ""
+msgstr "<vazio>"
 
 #: builtin/common/settings/dlg_settings.lua
 msgid "Accessibility"
@@ -527,7 +527,7 @@ msgstr "Ocorreu um erro:"
 
 #: builtin/fstk/ui.lua
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "Copiar para a área de transferência"
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1571,9 +1571,8 @@ msgid "Server Description"
 msgstr "Descrição do servidor"
 
 #: src/chat.cpp
-#, fuzzy
 msgid "Player names: "
-msgstr "Jogar"
+msgstr "Nomes dos jogadores: "
 
 #: src/client/client.cpp
 msgid "Connection aborted (protocol error?)."
@@ -1769,7 +1768,7 @@ msgstr "Modo rápido ativado (nota: sem o privilégio 'fast')"
 #: src/client/game.cpp
 #, c-format
 msgid "Files: %d / %d"
-msgstr ""
+msgstr "Arquivos: %d / %d"
 
 #: src/client/game.cpp
 msgid "Fly mode disabled"
@@ -1800,14 +1799,12 @@ msgid "Item definitions..."
 msgstr "Carregando itens..."
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "KiB"
-msgstr "KiB/s"
+msgstr "KiB"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "MiB"
-msgstr "MiB/s"
+msgstr "MiB"
 
 #: src/client/game.cpp
 msgid "Minimap currently disabled by game or mod"
@@ -1860,7 +1857,7 @@ msgstr "Um jogador"
 #: src/client/game.cpp
 #, c-format
 msgid "Size: %.2f %s"
-msgstr ""
+msgstr "Tamanho: %.2f %s"
 
 #: src/client/game.cpp
 msgid "Sound muted"
@@ -2087,23 +2084,20 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Analisador mostrado(página %d de %d)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "A (Gamepad)"
-msgstr "Controles de Videogame"
+msgstr "A (Controle)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "B (Gamepad)"
-msgstr "Controles de Videogame"
+msgstr "B (Controle)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Back (Gamepad)"
-msgstr "Controles de Videogame"
+msgstr "Voltar (Controle)"
 
 #: src/client/keycode.cpp
 msgid "Backspace"
-msgstr "Tecla voltar"
+msgstr "Backspace"
 
 #: src/client/keycode.cpp
 msgid "Bottom Face Button (Gamepad)"

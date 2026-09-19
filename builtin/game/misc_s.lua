@@ -134,6 +134,7 @@ core.protocol_versions = {
 	["5.14.0"] = 50,
 	["5.15.0"] = 51,
 	["5.16.0"] = 52,
+	["5.17.0"] = 53,
 }
 
 setmetatable(core.protocol_versions, {__newindex = function()

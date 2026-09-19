@@ -5,6 +5,7 @@
 #pragma once
 
 #include <queue>
+#include <quaternion.h>
 #include "voxelalgorithms.h"
 #include "util/pointedthing.h"
 
@@ -63,6 +64,6 @@ public:
 bool boxLineCollision(const aabb3f &box, v3f start, v3f dir,
 	v3f *collision_point, v3f *collision_normal);
 
-bool boxLineCollision(const aabb3f &box, v3f box_rotation,
+bool boxLineCollision(const aabb3f &box, core::quaternion box_rotation,
 	v3f start, v3f dir,
 	v3f *collision_point, v3f *collision_normal, v3f *raw_collision_normal);

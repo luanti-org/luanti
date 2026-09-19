@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include <array>
 #include <unordered_set>
-#include "nodedef.h" // CF_SPECIAL_COUNT
+#include "nodedef.h"
 #include "tile.h"
 
 class Client;
@@ -15,6 +16,27 @@ namespace scene
 	class IMeshManipulator;
 	struct SMesh;
 }
+
+// Used when choosing which face is drawn
+constexpr std::array<u8, NodeDrawType_END> NDT_solidness = [] {
+	std::array<u8, NodeDrawType_END> solidness{};
+	solidness[NDT_NORMAL] = 2;
+	solidness[NDT_LIQUID] = 1;
+	solidness[NDT_PLANTLIKE_ROOTED] = 2;
+	return solidness;
+}();
+
+// When solidness=0, this tells how it looks like
+constexpr std::array<u8, NodeDrawType_END> NDT_visual_solidness = [] {
+	std::array<u8, NodeDrawType_END> visual_solidness{};
+	visual_solidness[NDT_GLASSLIKE] = 1;
+	visual_solidness[NDT_ALLFACES] = 1;
+	visual_solidness[NDT_ALLFACES_OPTIONAL] = 1;
+	visual_solidness[NDT_GLASSLIKE_FRAMED] = 1;
+	visual_solidness[NDT_GLASSLIKE_FRAMED_OPTIONAL] = 1;
+	return visual_solidness;
+}();
+
 
 // Stores client only data needed to draw nodes, like textures and meshes
 // Contained in ContentFeatures
@@ -26,9 +48,6 @@ struct NodeVisuals
 	TileSpec tiles[6];
 	// Special tiles
 	TileSpec special_tiles[CF_SPECIAL_COUNT];
-	u8 solidness = 2; // Used when choosing which face is drawn
-	u8 visual_solidness = 0; // When solidness=0, this tells how it looks like
-	bool backface_culling = true;
 	scene::SMesh *mesh_ptr = nullptr; // mesh in case of mesh node
 	video::SColor minimap_color;
 	std::vector<video::SColor> *palette = nullptr;

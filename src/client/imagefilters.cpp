@@ -344,3 +344,87 @@ void imageApplyMask(video::IImage *dest, const video::IImage *mask)
 	for (size_t i = 0; i < nbytes; i++)
 		dest_data[i] &= mask_data[i];
 }
+
+/**********************************/
+
+core::dimension2du imageTransformDimension(u32 transform, core::dimension2du dim)
+{
+	if (transform % 2 == 0)
+		return dim;
+
+	return core::dimension2du(dim.Height, dim.Width);
+}
+
+template<typename T /* pixel type */>
+static void imageTransformInlined(u8 sxn, u8 syn, const video::IImage *src, video::IImage *dst)
+{
+	// alignment
+	assert(((intptr_t)src->getData()) % sizeof(T) == 0);
+	assert(((intptr_t)dst->getData()) % sizeof(T) == 0);
+
+	const T *const src_data = reinterpret_cast<T*>(src->getData());
+	T *dst_data = reinterpret_cast<T*>(dst->getData());
+	const u32 src_stride = src->getDimension().Width;
+	const core::dimension2du dst_dim = dst->getDimension();
+
+	u32 pos[4]; // [x+, x-, y+, y-]
+	for (pos[2] = 0, pos[3] = dst_dim.Height-1; pos[2] < dst_dim.Height; pos[2]++, pos[3]--)
+	for (pos[0] = 0, pos[1] = dst_dim.Width-1; pos[0] < dst_dim.Width; pos[0]++, pos[1]--)
+	{
+		u32 sx = pos[sxn], sy = pos[syn];
+		*dst_data = src_data[src_stride*sy + sx];
+		dst_data++;
+	}
+}
+
+void imageTransform(u32 transform, const video::IImage *src, video::IImage *dst)
+{
+	if (!src || !dst)
+		return;
+
+	if (src->getColorFormat() != dst->getColorFormat())
+		throw BaseException("imageTransform: color formats do not match");
+
+	// Pre-conditions
+	assert(transform <= 7);
+	assert(dst->getDimension() == imageTransformDimension(transform, src->getDimension()));
+
+	/*
+		Compute the transformation from source coordinates (sx,sy)
+		to destination coordinates (dx,dy).
+	*/
+	u8 sxn = 0, syn = 2;
+	if (transform == 0)         // identity
+		sxn = 0, syn = 2;  //   sx = dx, sy = dy
+	else if (transform == 1)    // rotate by 90 degrees ccw
+		sxn = 3, syn = 0;  //   sx = (H-1) - dy, sy = dx
+	else if (transform == 2)    // rotate by 180 degrees
+		sxn = 1, syn = 3;  //   sx = (W-1) - dx, sy = (H-1) - dy
+	else if (transform == 3)    // rotate by 270 degrees ccw
+		sxn = 2, syn = 1;  //   sx = dy, sy = (W-1) - dx
+	else if (transform == 4)    // flip x
+		sxn = 1, syn = 2;  //   sx = (W-1) - dx, sy = dy
+	else if (transform == 5)    // flip x then rotate by 90 degrees ccw
+		sxn = 2, syn = 0;  //   sx = dy, sy = dx
+	else if (transform == 6)    // flip y
+		sxn = 0, syn = 3;  //   sx = dx, sy = (H-1) - dy
+	else if (transform == 7)    // flip y then rotate by 90 degrees ccw
+		sxn = 3, syn = 1;  //   sx = (H-1) - dy, sy = (W-1) - dx
+
+	// This expands to one inlined implementation per BPP, which is reasonably
+	// efficient without blowing up code size too much.
+	switch (dst->getBytesPerPixel()) {
+		case 1:
+			imageTransformInlined<u8>(sxn, syn, src, dst);
+			break;
+		case 2:
+			imageTransformInlined<u16>(sxn, syn, src, dst);
+			break;
+		// 3 is unaligned so we can't support it this way
+		case 4:
+			imageTransformInlined<u32>(sxn, syn, src, dst);
+			break;
+		default:
+			throw BaseException("imageTransform: unsupported BPP");
+	}
+}

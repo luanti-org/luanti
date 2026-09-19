@@ -8,6 +8,7 @@
 
 #include "gamedef.h"
 #include "inventory.h"
+#include "itemdef.h"
 
 class TestInventory : public TestBase {
 public:
@@ -16,6 +17,7 @@ public:
 
 	void runTests(IGameDef *gamedef);
 
+	void testItemStack(IItemDefManager *idef);
 	void testSerializeDeserialize(IItemDefManager *idef);
 
 	static const char *serialized_inventory_in;
@@ -27,10 +29,73 @@ static TestInventory g_test_instance;
 
 void TestInventory::runTests(IGameDef *gamedef)
 {
+	TEST(testItemStack, gamedef->getItemDefManager());
 	TEST(testSerializeDeserialize, gamedef->getItemDefManager());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void TestInventory::testItemStack(IItemDefManager *idef)
+{
+	auto *widef = dynamic_cast<IWritableItemDefManager *>(idef);
+	UASSERT(widef);
+
+	// Craftitem / Node
+	{
+		ItemStack stack;
+		std::istringstream is("foo:bar_baz", std::ios::binary);
+		stack.deSerialize(is, idef);
+
+		UASSERT(stack.name == "foo:bar_baz");
+		UASSERT(stack.count == 1);
+		UASSERT(stack.wear == 0);
+
+		// Surplus spaces are NOT ignored. Count defaults to 1. "10" goes nowhere.
+		is = std::istringstream("foo:bar_baz   10", std::ios::binary);
+		stack.deSerialize(is, idef);
+
+		UASSERT(stack.name == "foo:bar_baz");
+		UASSERT(stack.count == 1);
+		UASSERT(stack.wear == 0);
+
+	}
+
+	// Tool
+	{
+		ItemDefinition def;
+		def.name = "foo:bar_tool";
+		def.type = ItemType::ITEM_TOOL;
+		widef->registerItem(def);
+
+		ItemStack stack;
+		std::istringstream is("foo:bar_tool 10 4321", std::ios::binary);
+		stack.deSerialize(is, idef);
+
+		UASSERT(stack.name == "foo:bar_tool");
+		UASSERT(stack.count == 1); // tools cannot stack
+		UASSERT(stack.wear == 4321);
+
+		widef->unregisterItem(def.name);
+	}
+
+	// Obscurities
+	{
+		// Unsigned underflow
+		ItemStack stack;
+		std::istringstream is("foo:negative -6 -4321", std::ios::binary);
+		stack.deSerialize(is, idef);
+
+		UASSERTEQ(s32, stack.count, UINT16_MAX -    6 + 1);
+		UASSERTEQ(s32, stack.wear,  UINT16_MAX - 4321 + 1);
+
+		// Unsigned overflow
+		is = std::istringstream("foo:overflow 65537 65538", std::ios::binary);
+		stack.deSerialize(is, idef);
+
+		UASSERT(stack.count == 1);
+		UASSERT(stack.wear == 2);
+	}
+}
 
 void TestInventory::testSerializeDeserialize(IItemDefManager *idef)
 {

@@ -165,9 +165,20 @@ end
 unittests.register("test_parse_json", test_parse_json)
 
 local function test_write_json()
+	-- null bytes should be preserved
+	local data = { ["mine\000test"] = "luan\000ti" }
+	local encoded = core.write_json(data)
+	assert(encoded:find("mine.u0000test") ~= nil)
+	assert(encoded:find("luan.u0000ti") ~= nil)
+
+	-- normal integers should not be cast to float
+	data = { 40048008 }
+	encoded = core.write_json(data)
+	assert(encoded:find("%[%s*40048008%s*%]") ~= nil)
+
 	-- deeply nested structures should be preserved
 	local leaf = 42
-	local data = leaf
+	data = leaf
 	for i = 1, 1000 do
 		data = {data}
 	end

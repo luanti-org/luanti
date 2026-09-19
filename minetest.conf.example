@@ -940,15 +940,6 @@
 #    type: float min: -60 max: 60
 # shadow_sky_body_orbit_tilt = 0.0
 
-#    Tint sunlight during sunrise/sunset.
-#    type: bool
-# enable_sun_tint = false
-
-#    When enabled, crude liquid reflections are simulated.
-#    Wave height, length and speed will affect these reflections.
-#    type: bool
-# enable_water_reflections = false
-
 ### Post Processing
 
 #    Enables the post processing pipeline.
@@ -961,11 +952,6 @@
 #    enhanced, highlights and shadows are gradually compressed.
 #    type: bool
 # tone_mapping = false
-
-#    Set the post processing gamma value.
-#    Higher values give lower contrast and vice versa.
-#    type: float min: 1 max: 5
-# secondstage_gamma = 1.6
 
 #    Enable automatic exposure correction
 #    When enabled, the post-processing engine will
@@ -998,20 +984,16 @@
 #    type: bool
 # enable_volumetric_lighting = false
 
-#    Make volumetrics weaker against closer objects to emulate physical volumetrics.
-#    type: bool
-# enable_volumetric_depth_attenuation = false
-
 ### Other Effects
-
-#    Makes the color of light fog more saturated.
-#    type: bool
-# enable_tinted_fog = false
 
 #    Simulate translucency when looking at foliage in the sunlight.
 #    It is recommended to use this with setting "leaves_style" set to "fancy".
 #    type: bool
 # enable_translucent_foliage = false
+
+#    When enabled, liquid reflections are simulated.
+#    type: bool
+# enable_water_reflections = false
 
 ## Audio
 

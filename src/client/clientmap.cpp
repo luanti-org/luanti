@@ -402,7 +402,7 @@ void ClientMap::updateDrawList()
 	bool occlusion_culling_enabled = mesh_grid.cell_size < 4;
 	if (m_control.allow_noclip) {
 		MapNode n = getNode(cam_pos_nodes);
-		if (n.getContent() == CONTENT_IGNORE || m_nodedef->get(n).visuals->solidness == 2)
+		if (n.getContent() == CONTENT_IGNORE || NDT_solidness[m_nodedef->get(n).drawtype] == 2)
 			occlusion_culling_enabled = false;
 	}
 
@@ -1396,7 +1396,7 @@ void ClientMap::renderPostFx(CameraMode cam_mode)
 
 	// If the camera is in a solid node, make everything black.
 	// (first person mode only)
-	if (features.visuals->solidness == 2 && cam_mode == CAMERA_MODE_FIRST &&
+	if (NDT_solidness[features.drawtype] == 2 && cam_mode == CAMERA_MODE_FIRST &&
 			!m_control.allow_noclip) {
 		post_color = video::SColor(255, 0, 0, 0);
 	}

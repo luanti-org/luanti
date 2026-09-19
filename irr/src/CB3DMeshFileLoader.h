@@ -37,6 +37,7 @@ public:
 
 private:
 	bool load();
+	std::optional<SB3dChunkHeader> readChunkHeader(size_t sizelim);
 	bool readChunkNODE(SkinnedMesh::SJoint *InJoint);
 	bool readChunkMESH(SkinnedMesh::SJoint *InJoint);
 	bool readChunkVRTS(SkinnedMesh::SJoint *InJoint);
@@ -49,6 +50,12 @@ private:
 
 	std::string readString();
 	void readFloats(f32 *vec, u32 count);
+
+	size_t getRemainingBytesInChunk() const
+	{
+		return std::max<long>(0, B3dStack.getLast().startposition +
+				B3dStack.getLast().length - B3DFile->getPos());
+	}
 
 	core::array<SB3dChunk> B3dStack;
 

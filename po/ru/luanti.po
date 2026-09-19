@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Russian (Minetest)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-10 17:35+0200\n"
-"PO-Revision-Date: 2026-05-21 20:11+0000\n"
+"PO-Revision-Date: 2026-08-15 12:51+0000\n"
 "Last-Translator: BlackImpostor <SkyBuilderOFFICAL@yandex.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/minetest/"
 "minetest/ru/>\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 2026.6.dev0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: builtin/client/chatcommands.lua
 msgid "Clear the out chat queue"
@@ -527,7 +527,7 @@ msgstr "Произошла ошибка:"
 
 #: builtin/fstk/ui.lua
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "Скопировать в буфер обмена"
 
 #: builtin/fstk/ui.lua
 msgid "Main menu"
@@ -1570,9 +1570,8 @@ msgid "Server Description"
 msgstr "Описание сервера"
 
 #: src/chat.cpp
-#, fuzzy
 msgid "Player names: "
-msgstr "Играть"
+msgstr "Имена игроков: "
 
 #: src/client/client.cpp
 msgid "Connection aborted (protocol error?)."
@@ -1766,7 +1765,7 @@ msgstr "Режим быстрого перемещения включён (но 
 #: src/client/game.cpp
 #, c-format
 msgid "Files: %d / %d"
-msgstr ""
+msgstr "Файлы: %d из %d"
 
 #: src/client/game.cpp
 msgid "Fly mode disabled"
@@ -1797,14 +1796,12 @@ msgid "Item definitions..."
 msgstr "Определения предметов..."
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "KiB"
-msgstr "КиБ/с"
+msgstr "КиБ"
 
 #: src/client/game.cpp
-#, fuzzy
 msgid "MiB"
-msgstr "МиБ/с"
+msgstr "МиБ"
 
 #: src/client/game.cpp
 msgid "Minimap currently disabled by game or mod"
@@ -1857,7 +1854,7 @@ msgstr "Одиночная игра"
 #: src/client/game.cpp
 #, c-format
 msgid "Size: %.2f %s"
-msgstr ""
+msgstr "Размер: %.2f%s"
 
 #: src/client/game.cpp
 msgid "Sound muted"
@@ -2084,19 +2081,16 @@ msgid "Profiler shown (page %d of %d)"
 msgstr "Профилировщик (страница %d из %d)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "A (Gamepad)"
-msgstr "Контроллеры"
+msgstr "A (Геймпад)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "B (Gamepad)"
-msgstr "Контроллеры"
+msgstr "B (Геймпад)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Back (Gamepad)"
-msgstr "Контроллеры"
+msgstr "Назад (Геймпад)"
 
 #: src/client/keycode.cpp
 msgid "Backspace"
@@ -2104,7 +2098,7 @@ msgstr "Backspace"
 
 #: src/client/keycode.cpp
 msgid "Bottom Face Button (Gamepad)"
-msgstr ""
+msgstr "Кнопка на Нижней Грани (Геймпад)"
 
 #. TRANSLATORS: Usually paired with the Pause key
 #: src/client/keycode.cpp
@@ -2117,7 +2111,7 @@ msgstr "Caps Lock"
 
 #: src/client/keycode.cpp
 msgid "Circle (Gamepad)"
-msgstr ""
+msgstr "Круг (Геймпад)"
 
 #: src/client/keycode.cpp
 msgid "Clear Key"
@@ -2128,26 +2122,24 @@ msgid "Control Key"
 msgstr "Ctrl"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Cross (Gamepad)"
-msgstr "Контроллеры"
+msgstr "Крест (Геймпад)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "D-Pad Down"
-msgstr "Page Down"
+msgstr "Вниз По Крестовине"
 
 #: src/client/keycode.cpp
 msgid "D-Pad Left"
-msgstr ""
+msgstr "Влево По Крестовине"
 
 #: src/client/keycode.cpp
 msgid "D-Pad Right"
-msgstr ""
+msgstr "Вправо По Крестовине"
 
 #: src/client/keycode.cpp
 msgid "D-Pad Up"
-msgstr ""
+msgstr "Вверх По Крестовине"
 
 #: src/client/keycode.cpp
 msgid "Delete Key"
@@ -2162,24 +2154,23 @@ msgid "End Key"
 msgstr "Клавиша End"
 
 #: src/client/keycode.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Gamepad Axis %d +"
-msgstr "Контроллеры"
+msgstr "Ось Геймпада %d +"
 
 #: src/client/keycode.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Gamepad Axis %d -"
-msgstr "Контроллеры"
+msgstr "Ось Геймпада %d -"
 
 #: src/client/keycode.cpp
-#, fuzzy, c-format
+#, c-format
 msgid "Gamepad Button %d"
-msgstr "Кнопка Мыши %d"
+msgstr "Кнопка Геймпада %d"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Guide (Gamepad)"
-msgstr "Контроллеры"
+msgstr "Гид (Геймпад)"
 
 #: src/client/keycode.cpp
 msgid "Help Key"
@@ -2207,32 +2198,27 @@ msgstr "Левый Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Left Face Button (Gamepad)"
-msgstr ""
+msgstr "Левая Кнопка на Крестовине (Геймпад)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Button"
-msgstr "Тип джойстика"
+msgstr "Кнопка Левого Джойстика"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Down"
-msgstr "ID контроллера"
+msgstr "Вниз Левого Джойстика"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Left"
-msgstr "Тип джойстика"
+msgstr "Влево Левого Джойстика"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Right"
-msgstr "Тип джойстика"
+msgstr "Вправо Левого Джойстика"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Joystick Up"
-msgstr "Тип джойстика"
+msgstr "Вверх Левого Джойстика"
 
 #: src/client/keycode.cpp
 msgid "Left Menu"
@@ -2243,14 +2229,12 @@ msgid "Left Shift"
 msgstr "Левый Shift"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Shoulder"
-msgstr "Левый Shift"
+msgstr "Левое Плечо"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Left Trigger"
-msgstr "Влево"
+msgstr "Левый Триггер"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2364,11 +2348,11 @@ msgstr "Воспроизвести"
 
 #: src/client/keycode.cpp
 msgid "Primary Left Paddle"
-msgstr ""
+msgstr "Основная Левая Лопасть"
 
 #: src/client/keycode.cpp
 msgid "Primary Right Paddle"
-msgstr ""
+msgstr "Основная Правая Лопасть"
 
 #. TRANSLATORS: "Print screen" key
 #: src/client/keycode.cpp
@@ -2393,31 +2377,27 @@ msgstr "Правый Ctrl"
 
 #: src/client/keycode.cpp
 msgid "Right Face Button (Gamepad)"
-msgstr ""
+msgstr "Правая Кнопка Управления (Геймпад)"
 
 #: src/client/keycode.cpp
 msgid "Right Joystick Button"
-msgstr ""
+msgstr "Кнопка Правого Джойстика"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Joystick Down"
-msgstr "ID контроллера"
+msgstr "Вниз Правого Джойстика"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Joystick Left"
-msgstr "Тип джойстика"
+msgstr "Лево Правого Джойстика"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Joystick Right"
-msgstr "Тип джойстика"
+msgstr "Вправо Правого Джойстика"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Joystick Up"
-msgstr "Тип джойстика"
+msgstr "Вверх Правого Джойстика"
 
 #: src/client/keycode.cpp
 msgid "Right Menu"
@@ -2428,14 +2408,12 @@ msgid "Right Shift"
 msgstr "Правый Shift"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Shoulder"
-msgstr "Правый Shift"
+msgstr "Правое Плечо"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Right Trigger"
-msgstr "Вправо"
+msgstr "Правый Триггер"
 
 #. TRANSLATORS: Name of key
 #: src/client/keycode.cpp
@@ -2453,11 +2431,11 @@ msgstr "Scroll Lock"
 
 #: src/client/keycode.cpp
 msgid "Secondary Left Paddle"
-msgstr ""
+msgstr "Вторичная Левая Лопасть"
 
 #: src/client/keycode.cpp
 msgid "Secondary Right Paddle"
-msgstr ""
+msgstr "Вторичная Правая Лопасть"
 
 #: src/client/keycode.cpp
 msgid "Select Key"
@@ -2472,14 +2450,12 @@ msgid "Space"
 msgstr "Пробел"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Square (Gamepad)"
-msgstr "Геймплей сервера"
+msgstr "Квадрат (Геймпад)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Start (Gamepad)"
-msgstr "Начать игру"
+msgstr "Старт (Геймпад)"
 
 #: src/client/keycode.cpp
 msgid "Tab Key"
@@ -2487,29 +2463,27 @@ msgstr "Клавиша Tab"
 
 #: src/client/keycode.cpp
 msgid "Top Face Button (Gamepad)"
-msgstr ""
+msgstr "Кнопка на Верхней Грани (Геймпад)"
 
 #: src/client/keycode.cpp
 msgid "Touchpad Button (Gamepad)"
-msgstr ""
+msgstr "Кнопка Сенсорной панели (Геймпад)"
 
 #: src/client/keycode.cpp
 msgid "Triangle (Gamepad)"
-msgstr ""
+msgstr "Треугольник (Геймпад)"
 
 #: src/client/keycode.cpp
 msgid "Up Arrow"
 msgstr "Вверх"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "X (Gamepad)"
-msgstr "Контроллеры"
+msgstr "X (Геймпад)"
 
 #: src/client/keycode.cpp
-#, fuzzy
 msgid "Y (Gamepad)"
-msgstr "Контроллеры"
+msgstr "Y (Геймпад)"
 
 #: src/client/minimap.cpp
 msgid "Minimap hidden"
@@ -2828,7 +2802,7 @@ msgstr ""
 
 #: src/script/lua_api/l_mainmenu.cpp
 msgid "Copied to clipboard!"
-msgstr ""
+msgstr "Скопировано в буфер обмена!"
 
 #: src/server.cpp
 #, c-format
@@ -3017,9 +2991,8 @@ msgid "Acceleration of gravity, in nodes per second per second."
 msgstr "Ускорение свободного падения в нодах/секунду²."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Actions and Keybindings"
-msgstr "Добавить привязку клавиши"
+msgstr "Действия и Сочетания клавиш"
 
 #: src/settings_translation_file.cpp
 msgid "Active Block Modifiers"
@@ -3235,7 +3208,6 @@ msgstr ""
 "Указано в MapBlocks (16 нод)."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "At this distance the server will consider blocks as \"far away\".\n"
 "It will perform simpler and cheaper occlusion checks, update\n"
@@ -3244,13 +3216,13 @@ msgid ""
 "This is especially useful for very large viewing range (upwards of 500).\n"
 "Stated in MapBlocks (16 nodes)."
 msgstr ""
-"На таком расстоянии сервер выполнит более простую и дешевую проверку "
-"окклюзии.\n"
-"Меньшие значения потенциально повышают производительность за счет временно "
-"заметных\n"
-"сбоев в рендеринге (пропущенных блоков).\n"
-"Это особенно полезно при очень большой дальности обзора (более 500).\n"
-"Указано в MapBlocks (16 узлов)."
+"На таком расстоянии сервер будет считать блоки \"далёкими\". Он\n"
+"будет выполнять более простые и менее затратные проверки на окклюзию,\n"
+"лениво обновлять блоки с низким приоритетом и ограничивать количество "
+"блоков,\n"
+"отправляемых клиенту за один цикл обмена данными.\n"
+"Это особенно полезно при очень большом радиусе обзора (более 500).\n"
+"Заявлено в MapBlocks (16 блоков)."
 
 #: src/settings_translation_file.cpp
 msgid "Audio"
@@ -4564,11 +4536,11 @@ msgstr "Фильтр масштабирования интерфейса"
 
 #: src/settings_translation_file.cpp
 msgid "Gamepads and Joysticks"
-msgstr ""
+msgstr "Геймпады и Джойстики"
 
 #: src/settings_translation_file.cpp
 msgid "Gamma"
-msgstr ""
+msgstr "Гамма"
 
 #: src/settings_translation_file.cpp
 msgid "Global callbacks"
@@ -5196,14 +5168,12 @@ msgid "Joystick frustum sensitivity"
 msgstr "Чувствительность джойстика"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Joystick inner dead zone"
-msgstr "Мёртвая зона джойстика"
+msgstr "Внутренняя мёртвая зона Джойстика"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Joystick outer dead zone"
-msgstr "Мёртвая зона джойстика"
+msgstr "Внешняя мёртвая зона джойстика"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5308,6 +5278,8 @@ msgid ""
 "Key for opening the pause menu in-game.\n"
 "Pressing the escape key always opens the pause menu."
 msgstr ""
+"Клавиша для открытия меню паузы в игре.\n"
+"Нажатие клавиши escape всегда открывает меню паузы."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -5610,10 +5582,12 @@ msgid ""
 "Make volumetrics weaker against closer objects to emulate physical "
 "volumetrics."
 msgstr ""
+"Делает объёмные эффекты слабее при приближении к объектам, чтобы имитировать "
+"физические объёмные эффекты."
 
 #: src/settings_translation_file.cpp
 msgid "Makes the color of light fog more saturated."
-msgstr ""
+msgstr "Делает цвет светлого тумана более насыщенным."
 
 #: src/settings_translation_file.cpp
 msgid "Map Compression Level for Disk Storage"
@@ -6241,7 +6215,7 @@ msgstr "Открыть инвентарь"
 
 #: src/settings_translation_file.cpp
 msgid "Open pause menu"
-msgstr ""
+msgstr "Открыть меню паузы"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6850,14 +6824,12 @@ msgstr ""
 "Значение 0 означает отсутствие наклона / вертикальную орбиту."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Set the exposure compensation in EV units.\n"
 "Value of 0.0 (default) means no exposure compensation."
 msgstr ""
 "Устанавливает компенсацию эспозиции в электронвольтах.\n"
-"Значение 0.0 (по умолчанию) означает отсутствие компенсации экспозиции.\n"
-"Диапазон: от -1 до 1.0"
+"Значение 0.0 (по умолчанию) означает отсутствие компенсации экспозиции."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -6877,6 +6849,8 @@ msgid ""
 "Set the post processing gamma value.\n"
 "Higher values give lower contrast and vice versa."
 msgstr ""
+"Задаёт значение гаммы для постобработки.\n"
+"Чем выше значение, тем ниже контрастность, и наоборот."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7022,11 +6996,13 @@ msgstr ""
 "Системы со слабым GPU (или без GPU) получат прибавку от меньших значений."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid ""
 "Simulate translucency when looking at foliage in the sunlight.\n"
 "It is recommended to use this with setting \"leaves_style\" set to \"fancy\"."
-msgstr "Имитировать прозрачность при взгляде на листву в солнечном свете."
+msgstr ""
+"Имитирует прозрачность при просмотре на листву в солнечном цвете.\n"
+"Рекомендуется использовать это с настройкой \"leaves_style\" заданной на "
+"\"fancy\"."
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7561,16 +7537,15 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Tint sunlight during sunrise/sunset."
-msgstr ""
+msgstr "Оттенок солнечного света во время восхода/захода."
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Tinted fog"
-msgstr "Вкл/откл туман"
+msgstr "Оттенок тумана"
 
 #: src/settings_translation_file.cpp
 msgid "Tinted sunlight"
-msgstr ""
+msgstr "Окрашенный солнечный свет"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -7968,14 +7943,12 @@ msgid "Volume when unfocused"
 msgstr "Громкость при расфокусировке"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Volumetric Depth Attenuation"
-msgstr "Объёмное освещение"
+msgstr "Объемное Затухание по Глубине"
 
 #: src/settings_translation_file.cpp
-#, fuzzy
 msgid "Volumetric Lighting"
-msgstr "Объёмное освещение"
+msgstr "Объёмное Освещение"
 
 #: src/settings_translation_file.cpp
 msgid ""
@@ -8050,6 +8023,8 @@ msgid ""
 "When enabled, crude liquid reflections are simulated.\n"
 "Wave height, length and speed will affect these reflections."
 msgstr ""
+"Если включен, имитирует грубые отражения от поверхности жидкости.\n"
+"Высота, длина и скорость волн влияют на эти отражения."
 
 #: src/settings_translation_file.cpp
 msgid ""

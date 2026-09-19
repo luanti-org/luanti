@@ -6,11 +6,14 @@
 
 #include <cmath>
 #include <limits>
+#include <string_view>
 #include "util/enriched_string.h"
 #include "util/numeric.h"
 #include "util/string.h"
 #include "util/base64.h"
 #include "util/colorize.h"
+
+using namespace std::string_view_literals;
 
 class TestUtilities : public TestBase {
 public:
@@ -30,6 +33,7 @@ public:
 	void testPadString();
 	void testStartsWith();
 	void testStrEqual();
+	void testStrSplit();
 	void testStrToIntConversion();
 	void testStringReplace();
 	void testStringAllowed();
@@ -51,6 +55,7 @@ public:
 	void testReadSeed();
 	void testMyDoubleStringConversions();
 	void testGetMemorySize();
+	void testUTF8Truncate();
 };
 
 static TestUtilities g_test_instance;
@@ -68,6 +73,7 @@ void TestUtilities::runTests(IGameDef *gamedef)
 	TEST(testPadString);
 	TEST(testStartsWith);
 	TEST(testStrEqual);
+	TEST(testStrSplit);
 	TEST(testStrToIntConversion);
 	TEST(testStringReplace);
 	TEST(testStringAllowed);
@@ -89,6 +95,7 @@ void TestUtilities::runTests(IGameDef *gamedef)
 	TEST(testReadSeed);
 	TEST(testMyDoubleStringConversions);
 	TEST(testGetMemorySize);
+	TEST(testUTF8Truncate);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -263,11 +270,32 @@ void TestUtilities::testStrEqual()
 	UASSERT(str_equal(utf8_to_wide("ABC"), utf8_to_wide("abc"), true));
 }
 
+void TestUtilities::testStrSplit()
+{
+	auto ret = str_split(std::string("foo,bar,\\,,x"), ',');
+	const char *expect[] = {"foo", "bar", "\\", "", "x"};
+	UASSERTEQ(size_t, ret.size(), ARRLEN(expect));
+	for (size_t i = 0; i < ARRLEN(expect); i++)
+		UASSERTEQ(auto, ret[i], expect[i]);
+
+	// We have a second function called just 'split' that works differently...
+	ret = split("foo?bar?\\???x"sv, '?');
+	const char *expect2[] = {"foo", "bar", "\\?", "", "x"};
+	UASSERTEQ(size_t, ret.size(), ARRLEN(expect2));
+	for (size_t i = 0; i < ARRLEN(expect2); i++)
+		UASSERTEQ(auto, ret[i], expect2[i]);
+
+	auto retw = split(L"mine;test"sv, L';');
+	UASSERT(retw.size() == 2);
+	UASSERT(retw[0] == L"mine");
+	UASSERT(retw[1] == L"test");
+}
 
 void TestUtilities::testStrToIntConversion()
 {
 	UASSERT(mystoi("123", 0, 1000) == 123);
 	UASSERT(mystoi("123", 0, 10) == 10);
+	UASSERT(mystoi("-123", -5, 5) == -5);
 }
 
 
@@ -276,10 +304,10 @@ void TestUtilities::testStringReplace()
 	std::string test_str;
 	test_str = "Hello there";
 	str_replace(test_str, "there", "world");
-	UASSERT(test_str == "Hello world");
+	UASSERTEQ(auto, test_str, "Hello world");
 	test_str = "ThisAisAaAtest";
 	str_replace(test_str, 'A', ' ');
-	UASSERT(test_str == "This is a test");
+	UASSERTEQ(auto, test_str, "This is a test");
 }
 
 
@@ -331,6 +359,15 @@ void TestUtilities::testUTF8()
 
 void TestUtilities::testRemoveEscapes()
 {
+	UASSERTEQ(auto, unescape_string(""), "");
+	std::string big = std::string("big chungus string").append(420, '!');
+	UASSERTEQ(auto, unescape_string(big), big);
+	UASSERTEQ(auto, unescape_string("a\\b"), "ab");
+	UASSERTEQ(auto, unescape_string("c\\\\d"), "c\\d");
+	UASSERTEQ(auto, unescape_string("\\\\"), "\\");
+	UASSERTEQ(auto, unescape_string("what\\"), "what"); // unfinished
+	UASSERTEQ(auto, unescape_string("\\"), ""); // unfinished
+
 	UASSERT(unescape_enriched<wchar_t>(
 		L"abc\x1bXdef") == L"abcdef");
 	UASSERT(unescape_enriched<wchar_t>(
@@ -826,4 +863,26 @@ void TestUtilities::testGetMemorySize()
 	} else {
 		warningstream << "testGetMemorySize: retrieving failed" << std::endl;
 	}
+}
+
+void TestUtilities::testUTF8Truncate()
+{
+	UASSERTEQ(size_t, utf8_truncate_count(""), 0);
+	UASSERTEQ(size_t, utf8_truncate_count("hello\n"), 0);
+	UASSERTEQ(size_t, utf8_truncate_count(u8"ööö"), 0);
+	UASSERTEQ(size_t, utf8_truncate_count(u8"\u20a0\u20a0"), 0);
+	UASSERTEQ(size_t, utf8_truncate_count(u8"\U00010300"), 0);
+
+	UASSERTEQ(size_t, utf8_truncate_count("foo\xce"), 1);         // 2-byte seq
+	UASSERTEQ(size_t, utf8_truncate_count("foo\xe2"), 1);         // 3-byte seq
+	UASSERTEQ(size_t, utf8_truncate_count("foo\xe2\x82"), 2);     // 3-byte seq
+	UASSERTEQ(size_t, utf8_truncate_count("foo\xf0"), 1);         // 4-byte seq
+	UASSERTEQ(size_t, utf8_truncate_count("foo\xf0\xa0"), 2);     // 4-byte seq
+	UASSERTEQ(size_t, utf8_truncate_count("foo\xf0\xa0\x91"), 3); // 4-byte seq
+
+	// these make no sense, but the function does not validate
+	UASSERT(utf8_truncate_count("\xe1\xe2\xe3\xe4") <= 4);
+	UASSERT(utf8_truncate_count("\x88\x88\x88\xc4") <= 4);
+	UASSERT(utf8_truncate_count("\xc2\x88\x88\x88") <= 4);
+	UASSERT(utf8_truncate_count("\xf1xx") <= 3);
 }

@@ -2,6 +2,8 @@
 -- Otherwise, use core.gettext
 local S = core.get_translator("__builtin")
 
+local builtin_shared = ...
+
 core.registered_chatcommands = {}
 
 -- Interpret the parameters of a command, separating options and arguments.
@@ -67,7 +69,7 @@ function core.override_chatcommand(name, redefinition)
 	core.registered_chatcommands[name] = chatcommand
 end
 
-local function format_help_line(cmd, def)
+function builtin_shared.chatcommand_help_line(cmd, def)
 	local cmd_marker = INIT == "client" and "." or "/"
 	local msg = core.colorize("#00ffff", cmd_marker .. cmd)
 	if def.params and def.params ~= "" then
@@ -121,7 +123,7 @@ local function do_help_cmd(name, param)
 		local cmds = {}
 		for cmd, def in pairs(core.registered_chatcommands) do
 			if INIT == "client" or core.check_player_privs(name, def.privs) then
-				cmds[#cmds + 1] = format_help_line(cmd, def)
+				cmds[#cmds + 1] = builtin_shared.chatcommand_help_line(cmd, def)
 			end
 		end
 		table.sort(cmds)
@@ -155,7 +157,7 @@ local function do_help_cmd(name, param)
 			end
 			return false, msg
 		else
-			return true, format_help_line(cmd, def)
+			return true, builtin_shared.chatcommand_help_line(cmd, def)
 		end
 	end
 end

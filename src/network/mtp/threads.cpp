@@ -10,6 +10,7 @@
 #include "network/networkexceptions.h"
 #include "network/networkpacket.h"
 #include "util/serialize.h"
+#include <sstream>
 
 namespace con
 {
@@ -1166,7 +1167,7 @@ SharedBuffer<u8> ConnectionReceiveThread::processPacket(Channel *channel,
 	u8 type = readU8(&(packetdata[0]));
 
 	if (MAX_UDP_PEERS <= 65535 && peer_id >= MAX_UDP_PEERS) {
-		std::string errmsg = "Invalid peer_id=" + itos(peer_id);
+		std::string errmsg = "Invalid peer_id=" + std::to_string(peer_id);
 		errorstream << errmsg << std::endl;
 		throw InvalidIncomingDataException(errmsg.c_str());
 	}

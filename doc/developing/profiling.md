@@ -72,7 +72,7 @@ Install the server, e.g. using your package manager.
 
 ### Building
 
-Build Luanti with `-DDBUILD_WITH_TRACY=1`, this will fetch Tracy for building
+Build Luanti with `-DBUILD_WITH_TRACY=1`, this will fetch Tracy for building
 the Tracy client. And use `FETCH_TRACY_GIT_TAG` to get a version matching your
 Tracy server, e.g. `-DFETCH_TRACY_GIT_TAG=v0.11.0` if it's `0.11.0`.
 
@@ -83,7 +83,7 @@ See Tracy's documentation for more build options.
 
 TL;DR:
 ```
--DDBUILD_WITH_TRACY=1 -DFETCH_TRACY_GIT_TAG=<your_version> -DTRACY_ENABLE=1 -DTRACY_ONLY_LOCALHOST=1
+-DBUILD_WITH_TRACY=1 -DFETCH_TRACY_GIT_TAG=<your_version> -DTRACY_ENABLE=1 -DTRACY_ONLY_LOCALHOST=1
 ```
 
 ### Using in C++

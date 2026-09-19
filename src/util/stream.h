@@ -4,9 +4,13 @@
 
 #pragma once
 
+#include <cstring>
 #include <iostream>
 #include <string_view>
 #include <functional>
+
+// this is declared in util/string.h, which we don't want to pull in entirely.
+extern size_t utf8_truncate_count(std::string_view input);
 
 template<unsigned int BufferLength, typename Emitter = std::function<void(std::string_view)> >
 class StringStreamBuffer : public std::streambuf {
@@ -40,9 +44,19 @@ public:
 	}
 
 	int sync() override {
-		if (buffer_index)
-			m_emitter(std::string_view(buffer, buffer_index));
-		buffer_index = 0;
+		unsigned int tail = 0;
+		if (buffer_index) {
+			tail = utf8_truncate_count(std::string_view(buffer, buffer_index));
+			if (tail != buffer_index)
+				m_emitter(std::string_view(buffer, buffer_index - tail));
+		}
+		if (tail != buffer_index)
+			memmove(buffer, buffer + buffer_index - tail, tail);
+		// Note: because utf8_truncate_count will never return a tail larger
+		// than 4, we will always be able to flush enough bytes so that push_back
+		// doesn't need to worry about overflow (unless our buffer is tiny).
+		static_assert(BufferLength >= 10);
+		buffer_index = tail;
 		return 0;
 	}
 

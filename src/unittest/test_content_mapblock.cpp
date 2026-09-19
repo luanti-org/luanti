@@ -52,9 +52,10 @@ public:
 		data.m_smooth_lighting = smooth_lighting;
 		data.m_enable_water_reflections = false;
 		data.m_blockpos = {0, 0, 0};
-		for (s16 x = -1; x <= 1; x++)
-		for (s16 y = -1; y <= 1; y++)
-		for (s16 z = -1; z <= 1; z++)
+		// MapblockMeshGenerator needs a margin of at least 3
+		for (s16 x = -3; x <= 3; x++)
+		for (s16 y = -3; y <= 3; y++)
+		for (s16 z = -3; z <= 3; z++)
 			data.m_vmanip.setNode({x, y, z}, {CONTENT_AIR, 0, 0});
 		return data;
 	}
@@ -70,7 +71,6 @@ public:
 		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_NORMAL;
-		f.visuals->solidness = 2;
 		f.alpha = ALPHAMODE_OPAQUE;
 		for (TileDef &tiledef : f.tiledef)
 			tiledef.name = name + ".png";
@@ -91,7 +91,6 @@ public:
 		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_LIQUID;
-		f.visuals->solidness = 1;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;
@@ -119,7 +118,6 @@ public:
 		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_FLOWINGLIQUID;
-		f.visuals->solidness = 0;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;

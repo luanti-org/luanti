@@ -279,6 +279,7 @@ void set_default_settings()
 	settings->setDefault("camera_smoothing", "0.0");
 	settings->setDefault("cinematic_camera_smoothing", "0.05");
 	settings->setDefault("view_bobbing_amount", "1.0");
+	settings->setDefault("enable_dig_particles", "true");
 	settings->setDefault("enable_3d_clouds", "true");
 	settings->setDefault("soft_clouds", "false");
 	settings->setDefault("cloud_radius", "12");
@@ -388,7 +389,6 @@ void set_default_settings()
 	settings->setDefault("joystick_outer_deadzone", "0");
 
 	// Main menu
-	settings->setDefault("main_menu_path", "");
 	settings->setDefault("serverlist_file", "favoriteservers.json");
 
 	// General font settings

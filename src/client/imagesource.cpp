@@ -170,12 +170,9 @@ static void draw_crack(video::IImage *crack, video::IImage *dst,
 
 // Brighten image
 static void brighten(video::IImage *image);
+
 // Parse a transform name
 static u32 parseImageTransform(std::string_view s);
-// Apply transform to image dimension
-static core::dimension2du imageTransformDimension(u32 transform, core::dimension2du dim);
-// Apply transform to image data
-static void imageTransform(u32 transform, video::IImage *src, video::IImage *dst);
 
 inline static void applyShadeFactor(video::SColor &color, u32 factor)
 {
@@ -290,24 +287,6 @@ static video::IImage *createInventoryCubeImage(
 			});
 
 	return result;
-}
-
-static std::string unescape_string(std::string_view str, const char esc = '\\')
-{
-	std::string out;
-	size_t pos = 0, cpos;
-	out.reserve(str.size());
-	while (1) {
-		cpos = str.find_first_of(esc, pos);
-		if (cpos == std::string::npos) {
-			out += str.substr(pos);
-			break;
-		}
-		out += str.substr(pos, cpos - pos);
-		out += str[cpos + 1];
-		pos = cpos + 2;
-	}
-	return out;
 }
 
 /*
@@ -857,39 +836,30 @@ static void brighten(video::IImage *image)
 
 static u32 parseImageTransform(std::string_view s)
 {
+	constexpr std::string_view transform_names[8] = {
+		"i", "r90", "r180", "r270", "fx", "", "fy", ""
+	};
+
 	int total_transform = 0;
-
-	std::string transform_names[8];
-	transform_names[0] = "i";
-	transform_names[1] = "r90";
-	transform_names[2] = "r180";
-	transform_names[3] = "r270";
-	transform_names[4] = "fx";
-	transform_names[6] = "fy";
-
-	std::size_t pos = 0;
-	while(pos < s.size())
-	{
+	for (size_t pos = 0; pos < s.size(); ) {
 		int transform = -1;
-		for (int i = 0; i <= 7; ++i)
-		{
-			const std::string &name_i = transform_names[i];
+		for (int i = 0; i <= 7; ++i) {
+			const auto &name_i = transform_names[i];
 
-			if (s[pos] == ('0' + i))
-			{
+			if (s[pos] == '0' + i) {
 				transform = i;
 				pos++;
 				break;
 			}
 
-			if (!(name_i.empty()) && lowercase(s.substr(pos, name_i.size())) == name_i) {
+			if (!name_i.empty() && str_equal(s.substr(pos, name_i.size()), name_i, true)) {
 				transform = i;
 				pos += name_i.size();
 				break;
 			}
 		}
 		if (transform < 0)
-			break;
+			break; // invalid, abort
 
 		// Multiply total_transform and transform in the group D4
 		int new_total = 0;
@@ -903,59 +873,6 @@ static u32 parseImageTransform(std::string_view s)
 		total_transform = new_total;
 	}
 	return total_transform;
-}
-
-static core::dimension2du imageTransformDimension(u32 transform, core::dimension2du dim)
-{
-	if (transform % 2 == 0)
-		return dim;
-
-	return core::dimension2du(dim.Height, dim.Width);
-}
-
-static void imageTransform(u32 transform, video::IImage *src, video::IImage *dst)
-{
-	if (!src || !dst)
-		return;
-
-	core::dimension2d<u32> dstdim = dst->getDimension();
-
-	// Pre-conditions
-	assert(dstdim == imageTransformDimension(transform, src->getDimension()));
-	assert(transform <= 7);
-
-	/*
-		Compute the transformation from source coordinates (sx,sy)
-		to destination coordinates (dx,dy).
-	*/
-	int sxn = 0;
-	int syn = 2;
-	if (transform == 0)         // identity
-		sxn = 0, syn = 2;  //   sx = dx, sy = dy
-	else if (transform == 1)    // rotate by 90 degrees ccw
-		sxn = 3, syn = 0;  //   sx = (H-1) - dy, sy = dx
-	else if (transform == 2)    // rotate by 180 degrees
-		sxn = 1, syn = 3;  //   sx = (W-1) - dx, sy = (H-1) - dy
-	else if (transform == 3)    // rotate by 270 degrees ccw
-		sxn = 2, syn = 1;  //   sx = dy, sy = (W-1) - dx
-	else if (transform == 4)    // flip x
-		sxn = 1, syn = 2;  //   sx = (W-1) - dx, sy = dy
-	else if (transform == 5)    // flip x then rotate by 90 degrees ccw
-		sxn = 2, syn = 0;  //   sx = dy, sy = dx
-	else if (transform == 6)    // flip y
-		sxn = 0, syn = 3;  //   sx = dx, sy = (H-1) - dy
-	else if (transform == 7)    // flip y then rotate by 90 degrees ccw
-		sxn = 3, syn = 1;  //   sx = (H-1) - dy, sy = (W-1) - dx
-
-	for (u32 dy=0; dy<dstdim.Height; dy++)
-	for (u32 dx=0; dx<dstdim.Width; dx++)
-	{
-		u32 entries[4] = {dx, dstdim.Width-1-dx, dy, dstdim.Height-1-dy};
-		u32 sx = entries[sxn];
-		u32 sy = entries[syn];
-		video::SColor c = src->getPixel(sx,sy);
-		dst->setPixel(dx,dy,c);
-	}
 }
 
 

@@ -47,12 +47,13 @@ private:
 		static Accessor sparseIndices(
 				const tiniergltf::GlTF &model,
 				const tiniergltf::AccessorSparseIndices &indices,
-				const std::size_t count);
+				const std::size_t count,
+				const std::size_t byteStride);
 		static Accessor sparseValues(
 				const tiniergltf::GlTF &model,
 				const tiniergltf::AccessorSparseValues &values,
 				const std::size_t count,
-				const std::size_t defaultByteStride);
+				const std::size_t byteStride);
 		static Accessor base(
 				const tiniergltf::GlTF &model,
 				std::size_t accessorIdx);

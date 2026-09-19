@@ -65,21 +65,21 @@ jobs:
           ./util/test_error_cases.sh
 
   # Current gcc version
-  gcc_14:
-    runs-on: ubuntu-24.04
+  gcc_16:
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
       - name: Install deps
         run: |
           source ./util/ci/common.sh
-          install_linux_deps g++-14 libluajit-5.1-dev
+          install_linux_deps g++-16 libluajit-5.1-dev
 
       - name: Build
         run: |
           ./util/ci/build.sh
         env:
-          CC: gcc-14
-          CXX: g++-14
+          CC: gcc-16
+          CXX: g++-16
           # just to check that they compile correctly
           CMAKE_FLAGS: '-DBUILD_BENCHMARKS=1'
 
@@ -118,21 +118,21 @@ jobs:
           clientconf="video_driver=ogles2" xvfb-run ./util/test_singleplayer.sh
 
   # Current clang version
-  clang_20:
-    runs-on: ubuntu-24.04
+  clang_22:
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
       - name: Install deps
         run: |
           source ./util/ci/common.sh
-          install_linux_deps clang-20 lldb xvfb
+          install_linux_deps clang-22 lldb xvfb
 
       - name: Build
         run: |
           ./util/ci/build.sh
         env:
-          CC: clang-20
-          CXX: clang++-20
+          CC: clang-22
+          CXX: clang++-22
 
       - name: Test
         run: |

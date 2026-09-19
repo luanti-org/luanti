@@ -26,8 +26,7 @@ MetaDataRef *MetaDataRef::checkAnyMetadata(lua_State *L, int narg)
 
 int MetaDataRef::gc_object(lua_State *L)
 {
-	MetaDataRef *o = *(MetaDataRef **)lua_touserdata(L, 1);
-	delete o;
+	delete takeObjectForGC<MetaDataRef>(L);
 	return 0;
 }
 
