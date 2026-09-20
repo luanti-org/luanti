@@ -305,6 +305,85 @@ public:
 	}
 };
 
+class DynamicLightUniformSetter : public IShaderUniformSetter
+{
+	Client *m_client;
+
+	// Sent at runtime size via setPixelShaderConstant, with change-detection against m_last_* below.
+	std::vector<float> m_last_positions;
+	std::vector<float> m_last_colors;
+	std::vector<float> m_last_radii;
+	std::vector<float> m_last_falloffs;
+	CachedPixelShaderSetting<s32> m_count{"dynLightCount"};
+
+	static void sendIfChanged(video::IMaterialRendererServices *services, const char *name,
+			std::vector<float> &last, std::vector<float> &&next)
+	{
+		if (next == last)
+			return;
+		services->setPixelShaderConstant(
+				services->getPixelShaderConstantID(name), next.data(), (int)next.size());
+		last = std::move(next);
+	}
+
+public:
+	DynamicLightUniformSetter(Client *client) :
+		m_client(client)
+	{}
+
+	void onSetUniforms(video::IMaterialRendererServices *services) override
+	{
+		v3f cam_offset = intToFloat(m_client->getCamera()->getOffset(), BS);
+
+		const auto &lights = m_client->getDynamicLightManager()->getVisibleLights();
+		s32 count = (s32)lights.size();
+
+		std::vector<float> positions(count * 3);
+		std::vector<float> colors(count * 3);
+		std::vector<float> radii(count);
+		std::vector<float> falloffs(count);
+
+		for (s32 i = 0; i < count; i++) {
+			const DynamicLight &light = lights[i];
+			v3f rel_pos = light.pos - cam_offset;
+			positions[i * 3 + 0] = rel_pos.X;
+			positions[i * 3 + 1] = rel_pos.Y;
+			positions[i * 3 + 2] = rel_pos.Z;
+			colors[i * 3 + 0] = light.color.r;
+			colors[i * 3 + 1] = light.color.g;
+			colors[i * 3 + 2] = light.color.b;
+			radii[i] = light.radius;
+			falloffs[i] = light.falloff;
+		}
+
+		if (count > 0) {
+			sendIfChanged(services, "dynLightPos", m_last_positions, std::move(positions));
+			sendIfChanged(services, "dynLightColor", m_last_colors, std::move(colors));
+			sendIfChanged(services, "dynLightRadius", m_last_radii, std::move(radii));
+			sendIfChanged(services, "dynLightFalloff", m_last_falloffs, std::move(falloffs));
+		}
+
+		m_count.set(&count, services);
+	}
+};
+
+class DynamicLightUniformSetterFactory : public IShaderUniformSetterFactory
+{
+	Game *m_game;
+
+public:
+	DynamicLightUniformSetterFactory(Game *game) :
+		m_game(game)
+	{}
+
+	virtual IShaderUniformSetter *create(const std::string &name)
+	{
+		if (str_starts_with(name, "shadow/"))
+			return nullptr;
+		return new DynamicLightUniformSetter(m_game->getClient());
+	}
+};
+
 class NodeShaderConstantSetter : public IShaderConstantSetter
 {
 public:
@@ -874,6 +953,9 @@ bool Game::createClient(const GameStartData &start_data)
 
 	shader_src->addShaderUniformSetterFactory(
 		std::make_unique<FogShaderUniformSetterFactory>());
+
+	shader_src->addShaderUniformSetterFactory(
+		std::make_unique<DynamicLightUniformSetterFactory>(this));
 
 	ShadowRenderer::preInit(shader_src);
 
@@ -3473,6 +3555,11 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 		Update particles
 	*/
 	client->getParticleManager()->step(dtime);
+
+	/*
+		Update dynamic lights
+	*/
+	client->getDynamicLightManager()->cull(*camera);
 
 	/*
 		Damage camera tilt

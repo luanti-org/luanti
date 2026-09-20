@@ -32,6 +32,15 @@ float ServerActiveObject::getMinimumSavedMovement()
 	return 2.0*BS;
 }
 
+float getPositionResendMinChange(float last_sent_position_timer)
+{
+	if (last_sent_position_timer > 1.0f)
+		return 0.01f * BS;
+	if (last_sent_position_timer > 0.2f)
+		return 0.05f * BS;
+	return 0.2f * BS;
+}
+
 ItemStack ServerActiveObject::getWieldedItem(ItemStack *selected, ItemStack *hand) const
 {
 	*selected = ItemStack();
