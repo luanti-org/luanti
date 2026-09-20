@@ -9,6 +9,7 @@
 #include "gameparams.h" // ELoginRegister
 #include "inventorymanager.h"
 #include "irrlichttypes.h"
+#include "lighting.h"
 #include "network/address.h"
 #include "network/networkprotocol.h" // multiple enums
 #include "network/peerhandler.h"
@@ -451,6 +452,11 @@ public:
 		return m_mesh_grid;
 	}
 
+	inline const StaticLighting &getCommittedStaticLighting() const
+	{
+		return m_committed_static_light;
+	}
+
 	bool inhibit_inventory_revert = false;
 
 private:
@@ -478,8 +484,6 @@ private:
 
 	void ReceiveAll();
 
-	void sendPlayerPos();
-
 	void deleteAuthData();
 	// helper method shared with clientpackethandler
 	static AuthMechanism choseAuthMech(const u32 mechs);
@@ -489,6 +493,9 @@ private:
 	void sendDeletedBlocks(std::vector<v3s16> &blocks);
 	void sendGotBlocks(const std::vector<v3s16> &blocks);
 	void sendRemovedSounds(const std::vector<s32> &soundList);
+	void sendPlayerPos();
+
+	bool updateStaticLighting(const StaticLighting &future);
 
 	bool canSendChatMessage() const;
 
@@ -507,7 +514,6 @@ private:
 	MtEventManager *m_event;
 	RenderingEngine *m_rendering_engine;
 	ItemVisualsManager *m_item_visuals_manager;
-
 
 	std::unique_ptr<MeshUpdateManager> m_mesh_update_manager;
 	ClientEnvironment m_env;
@@ -545,6 +551,12 @@ private:
 
 	// The seed returned by the server in TOCLIENT_AUTH_ACCEPT is stored here
 	u64 m_map_seed = 0;
+
+	// The number of blocks the client will combine for mesh generation.
+	MeshGrid m_mesh_grid;
+
+	// The static lighting currently in use
+	StaticLighting m_committed_static_light;
 
 	// Auth data
 	std::string m_playername;
@@ -619,7 +631,4 @@ private:
 	u32 m_csm_restriction_noderange = 8;
 
 	std::unique_ptr<ModChannelMgr> m_modchannel_mgr;
-
-	// The number of blocks the client will combine for mesh generation.
-	MeshGrid m_mesh_grid;
 };
