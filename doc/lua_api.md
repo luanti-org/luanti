@@ -8158,7 +8158,10 @@ Misc.
 * `core.hash_node_position(pos)`: returns an integer in range [0, 2^48-1]
     * `pos`: table {x=integer [s16], y=integer [s16], z=integer [s16]},
     * Gives a unique numeric encoding for a node position (16+16+16=48bit)
-    * Despite the name, this is not a hash function (so it doesn't mix or produce collisions).
+    * This function is better described as an encoding rather than a "true" hash function
+    * Output values follow a particular order, they're not mixed
+    * This operation is fully reversible (see below)
+    * It's probably a bad idea to seed random number generators with this
 * `core.get_position_from_hash(hash)`: returns a position
     * Inverse transform of `core.hash_node_position`
 * `core.get_item_group(name, group)`: returns a rating
