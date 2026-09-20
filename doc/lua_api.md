@@ -6988,8 +6988,16 @@ Environment access
     * Currently it's the same as `math.floor(param1 / 16)`, except that it
       ensures compatibility.
 * `core.place_node(pos, node[, placer])`
-    * Place node with the same effects that a player would cause
+    * Calls the `on_place` function of a node definition
+    * Not recommended, use other placement functions
+    * Bypasses `on_secondary_use` or node formspec
+    * `pos`: Specifies placement position for `on_place` (see below)
+    * `node`: Node table of the node to place (`param1`/`param2` are ignored)
     * `placer`: The ObjectRef that places the node (optional)
+    * These arguments will be passed to `on_place`:
+        * `itemstack = ItemStack(node.name)`
+        * `placer = placer`
+        * `pointed_thing = { type = "node", above = pos, under = vector.offset(pos, 0, -1, 0) }`
 * `core.dig_node(pos[, digger])`
     * Dig node with the same effects that a player would cause
     * `digger`: The ObjectRef that digs the node (optional)
