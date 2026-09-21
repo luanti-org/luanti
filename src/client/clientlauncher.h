@@ -12,6 +12,7 @@ class MyEventReceiver;
 class InputHandler;
 struct GameParams;
 struct GameStartData;
+struct ClientGameStartData;
 struct MainMenuData;
 
 class ClientLauncher
@@ -24,7 +25,7 @@ public:
 	bool run(const GameParams &game_params, const Settings &cmd_args);
 
 private:
-	void init_args(GameStartData &start_data, const Settings &cmd_args);
+	void init_args(ClientGameStartData &client_start_data, const Settings &cmd_args);
 	void init_engine();
 	void init_input();
 
@@ -32,7 +33,7 @@ private:
 	void config_guienv();
 
 	bool launch_game(GameErrorData &errordata,
-		GameStartData &start_data, const Settings &cmd_args);
+		ClientGameStartData &client_start_data, const Settings &cmd_args);
 
 	void main_menu(MainMenuData *menudata);
 
