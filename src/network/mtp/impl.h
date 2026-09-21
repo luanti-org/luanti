@@ -287,7 +287,7 @@ private:
 	// Event queue: ReceiveThread -> user
 	MutexedQueue<ConnectionEventPtr> m_event_queue;
 
-	session_t m_peer_id = 0;
+	std::atomic<session_t> m_peer_id = 0;
 	u32 m_protocol_id;
 
 	std::map<session_t, Peer *> m_peers;
@@ -296,8 +296,6 @@ private:
 
 	std::unique_ptr<ConnectionSendThread> m_sendThread;
 	std::unique_ptr<ConnectionReceiveThread> m_receiveThread;
-
-	mutable std::mutex m_info_mutex;
 
 	// Backwards compatibility
 	PeerHandler *m_bc_peerhandler;
