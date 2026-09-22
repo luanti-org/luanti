@@ -5,6 +5,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <cstddef>
 #include <string>
 #include <vector>
 #include <memory>
@@ -56,7 +57,8 @@ public:
 
 	void registerChannel(const std::string &channel);
 	bool setChannelState(const std::string &channel, ModChannelState state);
-	bool joinChannel(const std::string &channel, session_t peer_id);
+	bool joinChannel(const std::string &channel, session_t peer_id,
+			std::size_t max_channels = 0);
 	bool leaveChannel(const std::string &channel, session_t peer_id);
 	bool channelRegistered(const std::string &channel) const;
 	ModChannel *getModChannel(const std::string &channel);
@@ -75,4 +77,5 @@ private:
 
 	std::unordered_map<std::string, std::unique_ptr<ModChannel>>
 			m_registered_channels;
+	std::unordered_map<session_t, std::size_t> m_consumer_channel_counts;
 };
