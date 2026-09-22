@@ -160,7 +160,7 @@ void Map::setNode(v3s16 p, MapNode n)
 }
 
 void Map::addNodeAndUpdate(v3s16 p, MapNode n,
-		std::map<v3s16, MapBlock*> &modified_blocks,
+		ModifiedMapBlocks &modified_blocks,
 		bool remove_metadata)
 {
 	// Collect old node for rollback
@@ -187,7 +187,7 @@ void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 		n.setLight(LIGHTBANK_NIGHT, oldnode.getLightRaw(LIGHTBANK_NIGHT, oldf), f);
 		set_node_in_block(m_gamedef->ndef(), block, relpos, n);
 
-		modified_blocks[blockpos] = block;
+		modified_blocks[blockpos].update(relpos);
 	} else {
 		// Ignore light (because calling voxalgo::update_lighting_nodes)
 		n.setLight(LIGHTBANK_DAY, 0, f);
@@ -215,7 +215,7 @@ void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 }
 
 void Map::removeNodeAndUpdate(v3s16 p,
-		std::map<v3s16, MapBlock*> &modified_blocks)
+		ModifiedMapBlocks &modified_blocks)
 {
 	addNodeAndUpdate(p, MapNode(CONTENT_AIR), modified_blocks, true);
 }
@@ -229,7 +229,7 @@ bool Map::addNodeWithEvent(v3s16 p, MapNode n, bool remove_metadata)
 
 	bool succeeded = true;
 	try{
-		std::map<v3s16, MapBlock*> modified_blocks;
+		ModifiedMapBlocks modified_blocks;
 		addNodeAndUpdate(p, n, modified_blocks, remove_metadata);
 
 		event.setModifiedBlocks(modified_blocks);
@@ -251,7 +251,7 @@ bool Map::removeNodeWithEvent(v3s16 p)
 
 	bool succeeded = true;
 	try{
-		std::map<v3s16, MapBlock*> modified_blocks;
+		ModifiedMapBlocks modified_blocks;
 		removeNodeAndUpdate(p, modified_blocks);
 
 		event.setModifiedBlocks(modified_blocks);
