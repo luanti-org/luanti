@@ -213,3 +213,48 @@ local function test_player_guid(player)
 	assert(core.objects_by_guid[player:get_guid()] == player)
 end
 unittests.register("test_player_guid", test_player_guid, {player=true})
+
+--
+-- Motion blur lighting parameter
+--
+local function test_motion_blur_lighting(player)
+	local old_lighting = player:get_lighting()
+
+	-- Unset by default: the player's own settings decide.
+	player:set_lighting(nil)
+	assert(player:get_lighting().motion_blur.strength == nil)
+
+	-- An absolute strength, which may exceed what the player configured.
+	player:set_lighting({motion_blur = {strength = 2.5}})
+	assert(player:get_lighting().motion_blur.strength == 2.5)
+
+	-- Setting an unrelated section must leave it alone.
+	player:set_lighting({saturation = 1})
+	assert(player:get_lighting().motion_blur.strength == 2.5)
+
+	-- Naming the section with no strength hands control back to the player.
+	player:set_lighting({motion_blur = {}})
+	assert(player:get_lighting().motion_blur.strength == nil)
+
+	-- Explicit nil does the same.
+	player:set_lighting({motion_blur = {strength = 4}})
+	assert(player:get_lighting().motion_blur.strength == 4)
+	player:set_lighting({motion_blur = {strength = nil}})
+	assert(player:get_lighting().motion_blur.strength == nil)
+
+	-- Clamped to [0,4].
+	player:set_lighting({motion_blur = {strength = 99}})
+	assert(player:get_lighting().motion_blur.strength == 4)
+	player:set_lighting({motion_blur = {strength = -1}})
+	assert(player:get_lighting().motion_blur.strength == 0)
+
+	-- 0 is a real value meaning "off", distinct from unset.
+	assert(player:get_lighting().motion_blur.strength ~= nil)
+
+	-- A full reset clears it.
+	player:set_lighting(nil)
+	assert(player:get_lighting().motion_blur.strength == nil)
+
+	player:set_lighting(old_lighting)
+end
+unittests.register("test_motion_blur_lighting", test_motion_blur_lighting, {player=true})
