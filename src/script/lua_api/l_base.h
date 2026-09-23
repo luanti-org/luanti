@@ -33,7 +33,7 @@ public:
 	static ServerInventoryManager *getServerInventoryMgr(lua_State *L);
 	#if CHECK_CLIENT_BUILD()
 	static Client*          getClient(lua_State *L);
-	static bool             isClient(lua_State *L);
+	static Client*          getClientOrNull(lua_State *L);
 	static GUIEngine*       getGuiEngine(lua_State *L);
 	static SSCSMEnvironment *getSSCSMEnv(lua_State *L);
 	#endif // !SERVER
