@@ -41,9 +41,9 @@ Client *ModApiBase::getClient(lua_State *L)
 	return getScriptApiBase(L)->getClient();
 }
 
-bool ModApiBase::isClient(lua_State *L)
+Client *ModApiBase::getClientOrNull(lua_State *L)
 {
-	return getScriptApiBase(L)->isClient();
+	return getScriptApiBase(L)->getClientOrNull();
 }
 #endif
 
