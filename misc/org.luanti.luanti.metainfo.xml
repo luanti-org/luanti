@@ -25,6 +25,7 @@
         <control>pointing</control>
         <control>keyboard</control>
         <control>touch</control>
+        <control>gamepad</control>
         <internet>offline-only</internet>
     </supports>
 
