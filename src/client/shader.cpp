@@ -910,6 +910,8 @@ void ShaderFeatures::setConstants(ShaderConstants &consts) const
 			consts["MAX_JOINTS"] = (int)max_joints;
 		}
 	}
+	if (is_textureless)
+		consts["TEXTURELESS"] = 1;
 }
 
 void dumpShaderProgram(std::ostream &os,
