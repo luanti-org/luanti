@@ -10,6 +10,7 @@
 
 class ServerActiveObject;
 class LuaEntitySAO;
+class LineSAO;
 class PlayerSAO;
 class RemotePlayer;
 
@@ -42,6 +43,8 @@ private:
 
 
 	static LuaEntitySAO* getluaobject(ObjectRef *ref);
+
+	static LineSAO* getlineobject(ObjectRef *ref);
 
 	static PlayerSAO* getplayersao(ObjectRef *ref);
 
@@ -224,6 +227,20 @@ private:
 
 	// get_luaentity(self)
 	static int l_get_luaentity(lua_State *L);
+
+	/* Line-only */
+
+	// get_points(self)
+	static int l_get_points(lua_State *L);
+
+	// set_points(self, points)
+	static int l_set_points(lua_State *L);
+
+	// get_line_properties(self)
+	static int l_get_line_properties(lua_State *L);
+
+	// set_line_properties(self, properties)
+	static int l_set_line_properties(lua_State *L);
 
 	/* Player-only */
 

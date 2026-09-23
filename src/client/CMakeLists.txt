@@ -60,6 +60,7 @@ set(client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/inputhandler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/item_visuals_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/keycode.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/line_cao.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/localplayer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/mapblock_mesh.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/mesh.cpp

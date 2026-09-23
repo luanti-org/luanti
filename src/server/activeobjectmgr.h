@@ -41,6 +41,9 @@ public:
 			const std::set<u16> &current_objects,
 			std::vector<u16> &added_objects);
 
+	// Linear scan - active objects are not indexed by GUID.
+	ServerActiveObject *getActiveObjectByGUID(const std::string &guid);
+
 private:
 	k_d_tree::DynamicKdTrees<3, f32, u16> m_spatial_index;
 };
