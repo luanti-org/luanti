@@ -5,6 +5,7 @@
 #include "gui/mainmenumanager.h"
 #include "clouds.h"
 #include "gui/touchcontrols.h"
+#include "gui/gyrocontrols.h"
 #include "filesys.h"
 #include "gui/guiMainMenu.h"
 #include "game.h"
@@ -246,6 +247,9 @@ bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args
 
 		delete g_touchcontrols;
 		g_touchcontrols = nullptr;
+
+		delete g_gyrocontrols;
+		g_gyrocontrols = nullptr;
 
 		/* Save the settings when leaving the game.
 		 * This makes sure that setting changes made in-game are persisted even

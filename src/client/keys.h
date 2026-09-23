@@ -29,6 +29,9 @@ public:
 		CAMERA_PITCH_UP,
 		CAMERA_PITCH_DOWN,
 
+		// Gyro
+		GYRO_TOGGLE,
+
 		// Other
 		DROP,
 		INVENTORY,
