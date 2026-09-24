@@ -1502,7 +1502,7 @@ void Connection::Send(session_t peer_id, u8 channelnum,
 
 	// approximate check similar to UDPPeer::processReliableSendCommand()
 	// to get nicer errors / backtraces if this happens.
-	if (reliable && pkt->getSize() > MAX_RELIABLE_WINDOW_SIZE*512) {
+	if (reliable && pkt->getSize() > MAX_RELIABLE_PACKET_DATA_SIZE) {
 		std::ostringstream oss;
 		oss << "Packet too big for window, peer_id=" << peer_id
 			<< " command=" << pkt->getCommand() << " size=" << pkt->getSize();

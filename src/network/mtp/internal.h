@@ -381,7 +381,9 @@ private:
 
 // Limits for an individual reassembled split payload.
 #define MAX_SPLIT_PACKET_CHUNK_COUNT MAX_RELIABLE_WINDOW_SIZE
-#define MAX_SPLIT_PACKET_PAYLOAD_SIZE (MAX_RELIABLE_WINDOW_SIZE * 512 + 2)
+constexpr u32 MAX_RELIABLE_PACKET_DATA_SIZE = MAX_RELIABLE_WINDOW_SIZE * 512;
+constexpr u32 MAX_SPLIT_PACKET_PAYLOAD_SIZE = MAX_RELIABLE_PACKET_DATA_SIZE +
+		sizeof(u16); // Include the command field in the reassembled payload.
 
 class Channel
 {
