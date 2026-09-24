@@ -16,3 +16,7 @@ msgid "@1: .mo singular"
 msgid_plural "@1: .mo plural"
 msgstr[0] "@1: .mo 0 and 1 (French singular)"
 msgstr[1] "@1: .mo >1 (French plural)"
+
+msgctxt "testtranslations"
+msgid "Testing .mo files: monolingual untranslated"
+msgstr "Testing .mo files: monolingual translated"
