@@ -18,8 +18,7 @@ endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
-	set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-	set(CMAKE_CXX_FLAGS_DEBUG "-g")
+	# don't set CMAKE_CXX_FLAGS_* here, it would override what Luanti already sets
 
 	add_compile_options(-Wall -pipe)
 

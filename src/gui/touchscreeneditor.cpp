@@ -44,7 +44,6 @@ GUITouchscreenLayout::GUITouchscreenLayout(gui::IGUIEnvironment* env,
 
 GUITouchscreenLayout::~GUITouchscreenLayout()
 {
-	ButtonLayout::clearTextureCache();
 }
 
 void GUITouchscreenLayout::regenerateGui(v2u32 screensize)

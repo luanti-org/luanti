@@ -116,13 +116,14 @@ private:
 
 class VectorAreaStore : public AreaStore {
 public:
-	virtual void reserve(size_t count) { m_areas.reserve(count); }
-	virtual bool insertArea(Area *a);
-	virtual bool removeArea(u32 id);
+	void reserve(size_t count) override { m_areas.reserve(count); }
+	bool insertArea(Area *a) override;
+	bool removeArea(u32 id) override;
 	void getOverlappingAreas(std::vector<Area *> *result, v3s16 minedge, v3s16 maxedge) override;
 	void getContainingAreas(std::vector<Area *> *result, v3s16 minedge, v3s16 maxedge) override;
+
 protected:
-	virtual void getAreasForPosImpl(std::vector<Area *> *result, v3s16 pos);
+	void getAreasForPosImpl(std::vector<Area *> *result, v3s16 pos) override;
 
 private:
 	std::vector<Area *> m_areas;
@@ -136,13 +137,13 @@ public:
 	SpatialAreaStore();
 	virtual ~SpatialAreaStore();
 
-	virtual bool insertArea(Area *a);
-	virtual bool removeArea(u32 id);
+	bool insertArea(Area *a) override;
+	bool removeArea(u32 id) override;
 	void getOverlappingAreas(std::vector<Area *> *result, v3s16 minedge, v3s16 maxedge) override;
 	void getContainingAreas(std::vector<Area *> *result, v3s16 minedge, v3s16 maxedge) override;
 
 protected:
-	virtual void getAreasForPosImpl(std::vector<Area *> *result, v3s16 pos);
+	void getAreasForPosImpl(std::vector<Area *> *result, v3s16 pos) override;
 
 private:
 	SpatialIndex::ISpatialIndex *m_tree = nullptr;

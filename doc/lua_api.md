@@ -3747,7 +3747,7 @@ Elements
 * `state` is a list of states separated by the `+` character.
     * If a state is provided, the style will only take effect when the element is in that state.
     * All provided states must be active for the style to apply.
-* Note: this **must** be before the element is defined.
+* Styles are evaluated in-order during parsing, so this definition will only apply to **following** elements.
 * See [Styling Formspecs](#styling-formspecs).
 
 
@@ -3760,6 +3760,7 @@ Elements
 * `state` is a list of states separated by the `+` character.
     * If a state is provided, the style will only take effect when the element is in that state.
     * All provided states must be active for the style to apply.
+* Styles are evaluated in-order during parsing, so this definition will only apply to **following** elements.
 * See [Styling Formspecs](#styling-formspecs).
 
 ### `set_focus[<name>;<force>]`

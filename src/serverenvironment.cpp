@@ -296,14 +296,14 @@ ServerEnvironment::~ServerEnvironment()
 	m_map.reset();
 
 	// Delete ActiveBlockModifiers
-	for (ABMWithState &m_abm : m_abms) {
-		delete m_abm.abm;
+	for (ABMWithState &it : m_abms) {
+		delete it.abm;
+		it.abm = nullptr;
 	}
 
 	// Deallocate players
-	for (RemotePlayer *m_player : m_players) {
+	for (RemotePlayer *m_player : m_players)
 		delete m_player;
-	}
 	m_players.clear();
 
 	delete m_player_database;
