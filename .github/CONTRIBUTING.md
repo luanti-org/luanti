@@ -76,7 +76,6 @@ Contributions are welcome! Here's how you can help:
    might need more work in the future.
 6. It uses protocols and formats which include the required compatibility.
 
-
 ## Issues
 
 If you experience an issue, we would like to know the details - especially when
