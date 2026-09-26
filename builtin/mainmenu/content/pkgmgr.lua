@@ -67,13 +67,9 @@ local function load_texture_packs(txtpath, retval)
 		if item ~= "base" then
 			local path = txtpath .. DIR_DELIM .. item .. DIR_DELIM
 			local conf = Settings(path .. "texture_pack.conf")
-
-			local order
-			for i, enabled_path in ipairs(enabled_packs) do
-				if enabled_path == path then
-					order = i
-					break
-				end
+			local order = table.indexof(enabled_packs, path)
+			if order == - 1 then
+				order = nil
 			end
 			local enabled = order ~= nil
 
