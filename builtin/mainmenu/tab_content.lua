@@ -80,6 +80,16 @@ local function get_formspec(tabview, name, tabdata)
 		sort_resources_list(packages:get_list())
 	end
 
+	if tabdata.selected_path then
+		for i, pkg in ipairs(packages:get_list()) do
+			if pkg.path == tabdata.selected_path then
+				tabdata.selected_pkg = i
+				break
+			end
+		end
+		tabdata.selected_path = nil
+	end
+
 	local use_technical_names = core.settings:get_bool("show_technical_names")
 
 	local packages_with_updates = update_detector.get_all()
@@ -245,9 +255,10 @@ local function get_formspec(tabview, name, tabdata)
 	return table.concat(retval)
 end
 
-local function handle_doubleclick(pkg)
+local function handle_doubleclick(pkg, tabdata)
 	if pkg.type == "txp" then
 		pkgmgr.set_texture_pack_enabled(pkg.path, not pkg.enabled)
+		tabdata.selected_path = pkg.path
 		packages = nil
 		pkgmgr.reload_texture_packs()
 
@@ -268,7 +279,7 @@ local function handle_buttons(tabview, fields, tabname, tabdata)
 		local event = core.explode_table_event(fields.pkglist)
 		tabdata.selected_pkg = event.row
 		if event.type == "DCL" then
-			handle_doubleclick(packages:get_list()[tabdata.selected_pkg])
+			handle_doubleclick(packages:get_list()[tabdata.selected_pkg], tabdata)
 		end
 		return true
 	end
@@ -315,6 +326,7 @@ local function handle_buttons(tabview, fields, tabname, tabdata)
 	if fields.btn_mod_mgr_use_txp or fields.btn_mod_mgr_disable_txp then
 		local pkg = packages:get_list()[tabdata.selected_pkg]
 		pkgmgr.set_texture_pack_enabled(pkg.path, fields.btn_mod_mgr_use_txp ~= nil)
+		tabdata.selected_path = pkg.path
 		packages = nil
 		pkgmgr.reload_texture_packs()
 
@@ -327,9 +339,9 @@ local function handle_buttons(tabview, fields, tabname, tabdata)
 		local pkg = packages:get_list()[tabdata.selected_pkg]
 		local delta = fields.btn_mod_mgr_txp_move_up and -1 or 1
 		pkgmgr.move_texture_pack(pkg.path, delta)
+		tabdata.selected_path = pkg.path
 		packages = nil
 		pkgmgr.reload_texture_packs()
-		tabdata.selected_pkg = tabdata.selected_pkg + delta
 		return true
 	end
 
