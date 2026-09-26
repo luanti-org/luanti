@@ -433,6 +433,15 @@ void ScriptApiBase::stackDump(std::ostream &o)
 	o << std::endl;
 }
 
+void ScriptApiBase::setGameDef(IGameDef* gamedef)
+{
+	m_gamedef = gamedef;
+	m_gamedef_as_server = dynamic_cast<Server*>(gamedef);
+#if CHECK_CLIENT_BUILD()
+	m_gamedef_as_client = dynamic_cast<Client*>(gamedef);
+#endif
+}
+
 void ScriptApiBase::setOriginDirect(const char *origin)
 {
 	m_last_run_mod = origin ? origin : "??";
@@ -589,21 +598,7 @@ void ScriptApiBase::pushPlayerHPChangeReason(lua_State *L, const PlayerHPChangeR
 	}
 }
 
-Server* ScriptApiBase::getServer()
-{
-	// Since the gamedef is the server it's still possible to retrieve it in
-	// e.g. the async environment, but this isn't meant to happen.
-	// TODO: still needs work
-	//assert(getType() == ScriptingType::Server);
-	return dynamic_cast<Server *>(m_gamedef);
-}
-
 #if CHECK_CLIENT_BUILD()
-Client *ScriptApiBase::getClient()
-{
-	return dynamic_cast<Client *>(m_gamedef);
-}
-
 ModVFS *ScriptApiBase::getModVFS()
 {
 	if (m_type == ScriptingType::Client)
