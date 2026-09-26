@@ -37,9 +37,12 @@ Contributions are welcome! Here's how you can help:
     - Follow the [C/C++](https://docs.luanti.org/for-engine-devs/code-style-guidelines/) and
       [Lua](https://docs.luanti.org/for-engine-devs/lua-code-style-guidelines/) code style guidelines.
     - Check your code works as expected and document any changes to the Lua API.
-    - To avoid conflicting changes between contributions, do not do the following manually. They will be done before each release.
-      - Run `updatepo.sh` or update `luanti.po{,t}` even if your code adds new translatable strings.
-      - Update `minetest.conf.example` and `settings_translation_file.cpp` even if your code adds new core settings.
+    - In general, *do not modify the following files* to avoid conflicts between contributions. These will be updated during the release process.
+      - `luanti.po{,t}` (translation files)
+      - `minetest.conf.example` (human-readable settings). Modify `settingtypes.txt` instead.
+      - `settings_translation_file.cpp` (dummy source for the translation update)
+    - When correcting typing mistakes, consider running a spell checker. One-liner "typo fix" pull requests
+      without functional changes will be rejected for efficiency reasons.
 
 4. Commit & [push](https://help.github.com/articles/pushing-to-a-remote/) your changes to a new branch (not `master`, one change per branch)
     - Commit messages should:
@@ -72,6 +75,7 @@ Contributions are welcome! Here's how you can help:
 5. The code's interfaces are well designed, regardless of other aspects that
    might need more work in the future.
 6. It uses protocols and formats which include the required compatibility.
+
 
 ## Issues
 
