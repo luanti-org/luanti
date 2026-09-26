@@ -37,9 +37,30 @@ bool SoundManagerSingleton::init()
 	// doppler effect turned off for now, for best backwards compatibility
 	alDopplerFactor(0.0f);
 
-	if (alGetError() != AL_NO_ERROR) {
-		errorstream << "Audio: Global Initialization: OpenAL Error " << alGetError() << std::endl;
+	if (ALenum err = alGetError(); err != AL_NO_ERROR) {
+		errorstream << "Audio: Global Initialization: OpenAL Error " << err << std::endl;
 		return false;
+	}
+
+	// Resolve extensions at runtime so older OpenAL headers still work.
+	// Holding sources prevents a transient disconnect from making live sounds
+	// look finished, and preserves stream queues and playback offsets on reopen.
+	if (alcIsExtensionPresent(m_device.get(), "ALC_EXT_disconnect") &&
+			alcIsExtensionPresent(m_device.get(), "ALC_SOFT_reopen_device") &&
+			(alIsExtensionPresent("AL_SOFT_hold_on_disconnect") ||
+			 alIsExtensionPresent("AL_SOFTX_hold_on_disconnect"))) {
+		auto reopen = reinterpret_cast<ReopenDevice>(
+				alcGetProcAddress(m_device.get(), "alcReopenDeviceSOFT"));
+		ALCenum connected = alcGetEnumValue(m_device.get(), "ALC_CONNECTED");
+		ALenum stop_sources = alGetEnumValue("AL_STOP_SOURCES_ON_DISCONNECT_SOFT");
+		if (reopen && connected && stop_sources) {
+			alDisable(stop_sources);
+			if (alGetError() == AL_NO_ERROR) {
+				m_reopen_device = reopen;
+				m_connected_enum = connected;
+				infostream << "Audio: Automatic device recovery enabled" << std::endl;
+			}
+		}
 	}
 
 	infostream << "Audio: Global Initialized: OpenAL " << alGetString(AL_VERSION)
@@ -47,6 +68,33 @@ bool SoundManagerSingleton::init()
 		<< std::endl;
 
 	return true;
+}
+
+bool SoundManagerSingleton::recoverDevice()
+{
+	if (!m_reopen_device)
+		return true; // Keep the existing behavior on other OpenAL implementations.
+
+	// The menu and game sound managers share this device and context.
+	std::lock_guard<std::mutex> lock(m_reconnect_mutex);
+	ALCint connected = ALC_TRUE;
+	alcGetIntegerv(m_device.get(), m_connected_enum, 1, &connected);
+	auto result = m_reconnect.poll(DeviceReconnect::Clock::now(),
+			connected == ALC_TRUE, [&] {
+				if (m_reopen_device(m_device.get(), nullptr, nullptr))
+					return true;
+				// A missing endpoint is expected during a display reconnect.
+				alcGetError(m_device.get());
+				return false;
+			});
+	using Result = DeviceReconnect::Result;
+	if (result == Result::Lost)
+		warningstream << "Audio: Output device disconnected; waiting to reconnect"
+				<< std::endl;
+	else if (result == Result::Recovered)
+		actionstream << "Audio: Output device reconnected" << std::endl;
+
+	return result == Result::Connected || result == Result::Recovered;
 }
 
 SoundManagerSingleton::~SoundManagerSingleton()
