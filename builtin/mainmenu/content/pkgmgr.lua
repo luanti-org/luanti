@@ -79,8 +79,8 @@ local function load_texture_packs(txtpath, retval)
 			retval[#retval + 1] = {
 				name = item,
 				title = title,
-				list_name = enabled and fgettext("($2) $1", item, order) or nil,
-				list_title = enabled and fgettext("($2) $1", title, order) or nil,
+				list_name = enabled and ("(" .. order .. ") " .. item) or nil,
+				list_title = enabled and ("(" .. order .. ") " .. title) or nil,
 				author = conf:get("author"),
 				release = tonumber(conf:get("release")) or 0,
 				type = "txp",

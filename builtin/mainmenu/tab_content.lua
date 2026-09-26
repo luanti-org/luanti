@@ -105,7 +105,7 @@ local function get_formspec(tabview, name, tabdata)
 
 	local retval = {
 		string.format("tabheader[0.4,0.9;6.3,0.6;content_subtab;%s,%s,%s;%i;true;false]",
-			fgettext("Games"), fgettext("Mods"), fgettext("Resources"), tabdata.subtab),
+			fgettext("Games"), fgettext("Mods"), fgettext("Texture packs"), tabdata.subtab),
 		"tablecolumns[color;tree;image,align=inline,width=1.5",
 			",tooltip=", fgettext("Update available?"),
 			",0=", core.formspec_escape(defaulttexturedir .. "blank.png"),
@@ -119,7 +119,7 @@ local function get_formspec(tabview, name, tabdata)
 	}
 
 	if subtab_key == "res" then
-		local priority_tooltip = fgettext("Enabled resource packs are applied in priority order.") ..
+		local priority_tooltip = fgettext("Enabled texture packs are applied in priority order.") ..
 			"\n" .. fgettext("If two packs provide the same texture, the one listed first wins.")
 		table.insert_all(retval, {
 			"image[6.2,0.4;0.5,0.5;", core.formspec_escape(defaulttexturedir .. "settings_info.png"), "]",
