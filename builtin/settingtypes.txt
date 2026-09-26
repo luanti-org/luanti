@@ -2503,8 +2503,10 @@ serverlist_file (Serverlist file) [client] string favoriteservers.json
 
 [*Hide: Temporary Settings] [common]
 
-#    Path to texture directory. All textures are first searched from here.
-texture_path (Texture path) path
+#    Ordered, comma-separated list of texture pack paths.
+#    Earlier entries take priority: if multiple packs provide the same
+#    texture, the first one wins.
+texture_path (Texture path) string
 
 #    Enables minimap.
 enable_minimap (Minimap) bool true

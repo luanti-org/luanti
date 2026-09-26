@@ -61,13 +61,17 @@ end
 
 local function load_texture_packs(txtpath, retval)
 	local list = core.get_dir_list(txtpath, true)
-	local current_texture_path = core.settings:get("texture_path")
+	local enabled_packs = pkgmgr.get_enabled_texture_packs()
 
 	for _, item in ipairs(list) do
 		if item ~= "base" then
 			local path = txtpath .. DIR_DELIM .. item .. DIR_DELIM
 			local conf = Settings(path .. "texture_pack.conf")
-			local enabled = path == current_texture_path
+			local order = table.indexof(enabled_packs, path)
+			if order == - 1 then
+				order = nil
+			end
+			local enabled = order ~= nil
 
 			local title = conf:get("title") or item
 
@@ -75,13 +79,14 @@ local function load_texture_packs(txtpath, retval)
 			retval[#retval + 1] = {
 				name = item,
 				title = title,
-				list_name = enabled and fgettext("$1 (Enabled)", item) or nil,
-				list_title = enabled and fgettext("$1 (Enabled)", title) or nil,
+				list_name = enabled and ("(" .. order .. ") " .. item) or nil,
+				list_title = enabled and ("(" .. order .. ") " .. title) or nil,
 				author = conf:get("author"),
 				release = tonumber(conf:get("release")) or 0,
 				type = "txp",
 				path = path,
 				enabled = enabled,
+				order = order,
 			}
 		end
 	end
@@ -114,6 +119,62 @@ function pkgmgr.get_mods(path, virtual_path, listing)
 	end
 
 	pkgmgr.update_translations(mods)
+end
+
+--------------------------------------------------------------------------------
+-- Returns the ordered list of enabled texture pack paths, highest priority first.
+function pkgmgr.get_enabled_texture_packs()
+	local raw = core.settings:get("texture_path") or ""
+	return raw:split(",")
+end
+
+--------------------------------------------------------------------------------
+function pkgmgr.set_enabled_texture_packs(list)
+	core.settings:set("texture_path", table.concat(list, ","))
+end
+
+--------------------------------------------------------------------------------
+-- Newly enabled packs are appended at the end, lowest priority.
+function pkgmgr.set_texture_pack_enabled(path, enabled)
+	local list = pkgmgr.get_enabled_texture_packs()
+
+	for i, enabled_path in ipairs(list) do
+		if enabled_path == path then
+			table.remove(list, i)
+			break
+		end
+	end
+
+	if enabled then
+		list[#list + 1] = path
+	end
+
+	pkgmgr.set_enabled_texture_packs(list)
+end
+
+--------------------------------------------------------------------------------
+-- Moves an enabled texture pack by `delta` places in the priority list.
+function pkgmgr.move_texture_pack(path, delta)
+	local list = pkgmgr.get_enabled_texture_packs()
+
+	local index
+	for i, enabled_path in ipairs(list) do
+		if enabled_path == path then
+			index = i
+			break
+		end
+	end
+	if not index then
+		return
+	end
+
+	local new_index = index + delta
+	if new_index < 1 or new_index > #list then
+		return
+	end
+
+	list[index], list[new_index] = list[new_index], list[index]
+	pkgmgr.set_enabled_texture_packs(list)
 end
 
 --------------------------------------------------------------------------------
@@ -307,7 +368,14 @@ function pkgmgr.render_packagelist(render_list, use_technical_names, with_icon)
 					end
 				end
 			end
-		elseif v.enabled or v.type == "txp" then
+		elseif v.type == "txp" then
+			if v.enabled then
+				icon = 1
+				color = mt_color_green
+			else
+				color = mt_color_grey
+			end
+		elseif v.enabled then
 			icon = 1
 			color = mt_color_green
 		end
