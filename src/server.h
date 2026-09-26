@@ -406,7 +406,8 @@ public:
 		std::string_view custom_reason = "", bool reconnect = false);
 	void kickAllPlayers(AccessDeniedCode reason,
 		const std::string &str_reason, bool reconnect);
-	void acceptAuth(session_t peer_id, bool forSudoMode);
+	void acceptSudoAuth(session_t peer_id);
+	void acceptAuth(session_t peer_id);
 	void DisconnectPeer(session_t peer_id);
 	bool getClientConInfo(session_t peer_id, con::rtt_stat_type type, float *retval);
 	bool getClientInfo(session_t peer_id, ClientInfo &ret);
@@ -626,6 +627,8 @@ private:
 	*/
 
 	void HandlePlayerDeath(PlayerSAO* sao, const PlayerHPChangeReason &reason);
+	void sendAuthResponse(session_t peer_id, u8 command, ClientStateEvent event,
+		const std::function<void(NetworkPacket &)> &fill_packet);
 	void DeleteClient(session_t peer_id, ClientDeletionReason reason);
 	void UpdateCrafting(RemotePlayer *player);
 	bool checkInteractDistance(RemotePlayer *player, const f32 d, const std::string &what);
