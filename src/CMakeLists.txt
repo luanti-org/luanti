@@ -374,6 +374,20 @@ endif()
 include(CheckSymbolExists)
 check_symbol_exists(strlcpy "string.h" HAVE_STRLCPY)
 
+# getentropy() is specified by POSIX in <unistd.h>,
+# some systems also provide it in <sys/random.h>.
+if(WIN32)
+	set(HAVE_GETENTROPY FALSE)
+else()
+	check_symbol_exists(getentropy "unistd.h;sys/random.h" HAVE_GETENTROPY)
+endif()
+# Apple requires either reading from /dev/urandom
+# or using some Swift API on non MacOS systems
+# https://github.com/LuaJIT/LuaJIT/blob/1ee778a4e37122d8ca7d5733c590a47dafd6b15c/src/lj_prng.c#L118
+if (APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+	set(HAVE_GETENTROPY FALSE)
+endif()
+
 if(UNIX)
 	check_symbol_exists(malloc_trim "malloc.h" HAVE_MALLOC_TRIM)
 else()

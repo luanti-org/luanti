@@ -504,8 +504,7 @@ static SRP_Result calculate_H_AMK(SRP_HashAlgorithm alg, unsigned char *dest,
 static SRP_Result mpz_fill_random(mpz_t num)
 {
 	unsigned char random_buf[32];
-	if (!porting::secure_rand_fill_buf(random_buf, sizeof(random_buf)))
-		return SRP_ERR;
+	porting::secure_rand_fill_buf(random_buf, sizeof(random_buf));
 	mpz_from_bin(random_buf, sizeof(random_buf), num);
 	return SRP_OK;
 }
@@ -548,8 +547,7 @@ SRP_Result srp_create_salted_verification_key( SRP_HashAlgorithm alg,
 		*len_s = size_to_fill;
 		*bytes_s = (unsigned char *)malloc(size_to_fill);
 		if (!*bytes_s) goto error_and_exit;
-		if (!porting::secure_rand_fill_buf(*bytes_s, size_to_fill))
-			goto error_and_exit;
+		porting::secure_rand_fill_buf(*bytes_s, size_to_fill);
 	}
 
 	if (!calculate_x(
