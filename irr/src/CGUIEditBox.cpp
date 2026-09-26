@@ -1470,7 +1470,7 @@ void CGUIEditBox::calculateScrollPos()
 
 		if (txtWidth < FrameRect.getWidth()) {
 			// TODO: Needs a clean left and right gap removal depending on HAlign, similar to vertical scrolling tests for top/bottom.
-			// This check just fixes the case where it was most noticable (text smaller than clipping area).
+			// This check just fixes the case where it was most noticeable (text smaller than clipping area).
 
 			HScrollPos = 0;
 			setTextRect(cursLine);
