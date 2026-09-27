@@ -1426,9 +1426,9 @@ u16 ServerEnvironment::addActiveObjectRaw(std::unique_ptr<ServerActiveObject> ob
 	// Note that this can change the value of isStaticAllowed() in case of LuaEntitySAO
 	try {
 		object->addedToEnvironment(dtime_s);
-	} catch (const LuaError& e) {
+	} catch (const LuaError &e) {
 		errorstream << "ServerEnvironment::addActiveObjectRaw(): "
-			<< "Object with id="<< object->getId()
+			<< "Object with id=" << object->getId()
 			<< " did not get added because of Lua error" << std::endl;
 		handle_error();
 		throw;
