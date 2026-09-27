@@ -697,12 +697,20 @@ void MapblockMeshGenerator::drawSolidNode()
 		for (int face = 0; face < 6; ++face) {
 			if (mask & (1 << face))
 				continue;
-			const v3s16 &face_dir = tile_dirs[face];
-			v3s16 p2 = p1 + face_dir;
-			for (int k = 0; k < 4; k++) {
-				// Solid nodes obstruct light, so take the light from the (non-solid) neighbor node.
-				const v3s16 corner = light_dirs[light_indices[face][k]] - 2 * face_dir;
-				lights[face][k] = getSmoothLightCorner(p2, corner, data);
+			if constexpr (LIQUID) {
+				for (int k = 0; k < 4; k++) {
+					const v3s16 corner = light_dirs[light_indices[face][k]];
+					lights[face][k] = getSmoothLightCorner(p1, corner, data);
+				}
+			} else {
+				// Solid nodes (usually) obstruct light, so take the light from
+				// the (non-solid) neighbor node.
+				const v3s16 &face_dir = tile_dirs[face];
+				v3s16 p2 = p1 + face_dir;
+				for (int k = 0; k < 4; k++) {
+					const v3s16 corner = light_dirs[light_indices[face][k]] - 2 * face_dir;
+					lights[face][k] = getSmoothLightCorner(p2, corner, data);
+				}
 			}
 		}
 
