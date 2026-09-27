@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <vector>
 #include "irrlichttypes_bloated.h"
 
 namespace scene {

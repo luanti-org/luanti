@@ -17,6 +17,7 @@
 #include <atomic>
 #include <mutex>
 #include <optional>
+#include <vector>
 #include "irr_v3d.h"
 #include "util/basic_macros.h"
 #include "line3d.h"

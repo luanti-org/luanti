@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <stack>
 #include <utility>
+#include <iterator>
 #include "serverenvironment.h"
 #include "irr_aabb3d.h"
 #include "settings.h"

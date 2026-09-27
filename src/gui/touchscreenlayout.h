@@ -4,12 +4,13 @@
 
 #pragma once
 
+#include <iostream>
+#include <unordered_map>
+#include <vector>
 #include "irr_ptr.h"
 #include "irrlichttypes_bloated.h"
 #include "rect.h"
 #include "util/enum_string.h"
-#include <iostream>
-#include <unordered_map>
 
 class ISimpleTextureSource;
 namespace gui

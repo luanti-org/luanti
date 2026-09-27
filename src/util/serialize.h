@@ -13,6 +13,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
+#include <vector>
 #include <string_view>
 
 /* make sure BYTE_ORDER macros are available */
