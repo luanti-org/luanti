@@ -51,7 +51,7 @@ public:
 	// - May add files to media cache
 	// - May start remote transfers by calling httpfetch_async
 	// - May check for completion of current remote transfers
-	// - May start conventional transfers by calling client->request_media()
+	// - May start conventional transfers by calling client->requestMedia()
 	// - May inform server that all media has been loaded
 	//   by calling client->received_media()
 	// After step has been called once, don't call addFile/addRemoteServer.

@@ -105,10 +105,12 @@ void DirectionalLight::updateFrustum(const Camera *cam, Client *client)
 	if (dirty)
 		return;
 
+	auto &client_map = client->getEnv().getClientMap();
+
 	float zNear = cam->getCameraNode()->getNearValue();
 	float zFar = getMaxFarValue();
-	if (!client->getEnv().getClientMap().getControl().range_all)
-		zFar = MYMIN(zFar, client->getEnv().getClientMap().getControl().wanted_range * BS);
+	if (!client_map.getControl().range_all)
+		zFar = std::min(zFar, client_map.getControl().wanted_range * BS);
 
 	///////////////////////////////////
 	// update splits near and fars
@@ -118,8 +120,8 @@ void DirectionalLight::updateFrustum(const Camera *cam, Client *client)
 	// update shadow frustum
 	createSplitMatrices(cam);
 	// get the draw list for shadows
-	client->getEnv().getClientMap().updateDrawListShadow(
-			getPosition(), getDirection(), future_frustum.radius, future_frustum.length);
+	client_map.updateDrawListShadow(getPosition(), getDirection(),
+		future_frustum.radius, future_frustum.length);
 	should_update_map_shadow = true;
 	dirty = true;
 }

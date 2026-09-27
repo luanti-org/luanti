@@ -469,7 +469,8 @@ bool ClientLauncher::launch_game(GameErrorData &errordata, GameStartData &start_
 	if (start_data.isSinglePlayer()) {
 		start_data.name = "singleplayer";
 		start_data.password = "";
-		start_data.socket_port = myrand_range(49152, 65535);
+		// let the OS pick one for us
+		start_data.socket_port = 0;
 	} else {
 		g_settings->set("name", start_data.name);
 	}

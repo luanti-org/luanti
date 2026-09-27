@@ -46,6 +46,8 @@ public:
 		SOUND,
 		SPACING,
 		SIZE,
+		EDITABLE,
+		// always keep these two at the end:
 		NUM_PROPERTIES,
 		NONE
 	};
@@ -123,9 +125,10 @@ public:
 			return SPACING;
 		} else if (name == "size") {
 			return SIZE;
-		} else {
-			return NONE;
+		} else if (name == "editable") {
+			return EDITABLE;
 		}
+		return NONE;
 	}
 
 	std::string get(Property prop, std::string def) const
@@ -389,7 +392,7 @@ public:
 		for (size_t i = 0; i < NUM_PROPERTIES; i++) {
 			auto prop = (Property)i;
 			if (other.hasProperty(prop)) {
-				set(prop, other.get(prop, ""));
+				set(prop, other.properties[prop]);
 			}
 		}
 

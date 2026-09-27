@@ -16,7 +16,11 @@
 
 bool ModSpecCompare::operator()(const ModSpec &a, const ModSpec &b) const
 {
-	return strcasecmp(a.name.c_str(), b.name.c_str()) < 0;
+	int cmp = strcasecmp(a.name.c_str(), b.name.c_str());
+	if (cmp == 0)
+		return strcmp(a.path.c_str(), b.path.c_str()) < 0;
+
+	return cmp < 0;
 }
 
 void ModSpec::checkAndLog() const
@@ -170,9 +174,8 @@ ModSpecList getModsInPath(
 	// NOTE: this function works in mutual recursion with parseModContents
 
 	ModSpecList result;
-	std::vector<fs::DirListNode> dirlist = fs::GetDirListing(path);
-	std::string mod_path;
-	std::string mod_virtual_path;
+	auto dirlist = fs::GetDirListing(path);
+	std::string mod_path, mod_virtual_path;
 
 	for (const fs::DirListNode &dln : dirlist) {
 		if (!dln.dir)

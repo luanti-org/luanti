@@ -72,7 +72,7 @@ jobs:
       - name: Install deps
         run: |
           source ./util/ci/common.sh
-          install_linux_deps g++-16 libluajit-5.1-dev
+          install_linux_deps --sdl3 g++-16 libluajit-5.1-dev
 
       - name: Build
         run: |
@@ -80,8 +80,8 @@ jobs:
         env:
           CC: gcc-16
           CXX: g++-16
-          # just to check that they compile correctly
-          CMAKE_FLAGS: '-DBUILD_BENCHMARKS=1'
+          # just to check that this compiles correctly
+          CMAKE_FLAGS: '-DBUILD_BENCHMARKS=1 -DUSE_SDL3=1'
 
       - name: Test
         run: |

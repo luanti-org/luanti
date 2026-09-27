@@ -22,6 +22,7 @@ class Client;
 class NodeDefManager;
 class IShaderSource;
 class ITextureSource;
+struct LightPair;
 
 /*
 	Mesh making stuff
@@ -323,12 +324,10 @@ private:
  * from 0 to LIGHT_SUN.
  */
 video::SColor encode_light(u16 light, u8 emissive_light);
+video::SColor encode_light(LightPair light, u8 emissive_light);
 
 // Compute light at node
 u16 getInteriorLight(MapNode n, s32 increment, const NodeDefManager *ndef);
-u16 getFaceLight(MapNode n, MapNode n2, const NodeDefManager *ndef);
-u16 getSmoothLightSolid(const v3s16 &p, const v3s16 &face_dir, const v3s16 &corner, MeshMakeData *data);
-u16 getSmoothLightTransparent(const v3s16 &p, const v3s16 &corner, MeshMakeData *data);
 
 /*!
  * Returns the sunlight's color from the current

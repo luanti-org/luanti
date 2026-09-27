@@ -146,7 +146,10 @@ int LuaAreaStore::l_get_areas_in_area(lua_State *L)
 	}
 	std::vector<Area *> res;
 
-	ast->getAreasInArea(&res, minp, maxp, accept_overlap);
+	if (accept_overlap)
+		ast->getOverlappingAreas(&res, minp, maxp);
+	else
+		ast->getContainingAreas(&res, minp, maxp);
 	push_areas(L, res, include_corners, include_data);
 
 	return 1;

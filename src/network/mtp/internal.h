@@ -317,7 +317,6 @@ private:
 
 enum ConnectionCommandType{
 	CONNCMD_NONE,
-	CONNCMD_SERVE,
 	CONNCMD_CONNECT,
 	CONNCMD_DISCONNECT,
 	CONNCMD_DISCONNECT_PEER,
@@ -342,7 +341,6 @@ struct ConnectionCommand
 
 	DISABLE_CLASS_COPY(ConnectionCommand);
 
-	static ConnectionCommandPtr serve(Address address);
 	static ConnectionCommandPtr connect(Address address);
 	static ConnectionCommandPtr disconnect();
 	static ConnectionCommandPtr disconnect_peer(session_t peer_id);

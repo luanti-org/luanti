@@ -24,12 +24,6 @@ public:
 	ConnectionException(const char *s) : BaseException(s) {}
 };
 
-class ConnectionBindFailed : public BaseException
-{
-public:
-	ConnectionBindFailed(const char *s) : BaseException(s) {}
-};
-
 class InvalidIncomingDataException : public BaseException
 {
 public:

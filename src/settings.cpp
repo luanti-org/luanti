@@ -27,6 +27,7 @@ Settings *g_settings = nullptr;
 static SettingsHierarchy g_hierarchy;
 std::string g_settings_path;
 bool g_first_run = false;
+bool g_disable_mod_security = false;
 
 std::unordered_map<std::string, const FlagDesc *> Settings::s_flags;
 

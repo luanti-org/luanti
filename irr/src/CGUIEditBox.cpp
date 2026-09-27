@@ -737,7 +737,7 @@ void CGUIEditBox::draw()
 		skin->draw2DRectangle(this, bgColor, AbsoluteRect, &AbsoluteClippingRect);
 	}
 
-	if (Border && IsWritable) {
+	if (Border) {
 		// draw the border
 		skin->draw3DSunkenPane(this, bgColor, false, Background, AbsoluteRect, &AbsoluteClippingRect);
 	}
@@ -1185,7 +1185,7 @@ s32 CGUIEditBox::getCursorPos(s32 x, s32 y)
 //! Breaks the single text line.
 void CGUIEditBox::breakText()
 {
-	if ((!WordWrap && !MultiLine))
+	if ((!WordWrap && !MultiLine) || PasswordBox)
 		return;
 
 	BrokenText.clear(); // need to reallocate :/

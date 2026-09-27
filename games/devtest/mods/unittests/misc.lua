@@ -392,14 +392,12 @@ end
 unittests.register("test_ipc_poll", test_ipc_poll)
 
 local function test_sandbox()
-	if not core.settings:get_bool("secure.enable_security") then
-		core.log("warning", "Lua sandbox disabled, skipping test")
-		return
-	end
 	-- this would point to _G but we have it unset
 	assert(package.loaded == nil)
 	-- string metatable must match global string table
 	assert(rawequal(getmetatable("").__index, string))
+	-- same for function env
+	assert(rawequal(getfenv(string.len), _G))
 	-- (some) entirely dangerous functions
 	assert(debug.getupvalue == nil)
 	assert(debug.setlocal == nil)

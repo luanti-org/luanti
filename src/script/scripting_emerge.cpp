@@ -34,7 +34,7 @@ EmergeScripting::EmergeScripting(EmergeThread *parent):
 
 	SCRIPTAPI_PRECHECKHEADER
 
-	if (g_settings->getBool("secure.enable_security"))
+	if (!g_disable_mod_security)
 		initializeSecurity();
 
 	lua_getglobal(L, "core");

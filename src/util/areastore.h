@@ -59,11 +59,15 @@ public:
 	/// Stores output in passed vector.
 	void getAreasForPos(std::vector<Area *> *result, v3s16 pos);
 
+	/// Finds areas that are overlapping the area defined by the passed edges.
+	/// This finds any areas that intersect with the passed area at any point.
+	virtual void getOverlappingAreas(std::vector<Area *> *result,
+		v3s16 minedge, v3s16 maxedge) = 0;
+
 	/// Finds areas that are completely contained inside the area defined
-	/// by the passed edges.  If @p accept_overlap is true this finds any
-	/// areas that intersect with the passed area at any point.
-	virtual void getAreasInArea(std::vector<Area *> *result,
-		v3s16 minedge, v3s16 maxedge, bool accept_overlap) = 0;
+	/// by the passed edges.
+	virtual void getContainingAreas(std::vector<Area *> *result,
+		v3s16 minedge, v3s16 maxedge) = 0;
 
 	/// Sets cache parameters.
 	void setCacheParams(bool enabled, u8 block_radius, size_t limit);
@@ -115,9 +119,8 @@ public:
 	virtual void reserve(size_t count) { m_areas.reserve(count); }
 	virtual bool insertArea(Area *a);
 	virtual bool removeArea(u32 id);
-	virtual void getAreasInArea(std::vector<Area *> *result,
-		v3s16 minedge, v3s16 maxedge, bool accept_overlap);
-
+	void getOverlappingAreas(std::vector<Area *> *result, v3s16 minedge, v3s16 maxedge) override;
+	void getContainingAreas(std::vector<Area *> *result, v3s16 minedge, v3s16 maxedge) override;
 protected:
 	virtual void getAreasForPosImpl(std::vector<Area *> *result, v3s16 pos);
 
@@ -135,8 +138,8 @@ public:
 
 	virtual bool insertArea(Area *a);
 	virtual bool removeArea(u32 id);
-	virtual void getAreasInArea(std::vector<Area *> *result,
-		v3s16 minedge, v3s16 maxedge, bool accept_overlap);
+	void getOverlappingAreas(std::vector<Area *> *result, v3s16 minedge, v3s16 maxedge) override;
+	void getContainingAreas(std::vector<Area *> *result, v3s16 minedge, v3s16 maxedge) override;
 
 protected:
 	virtual void getAreasForPosImpl(std::vector<Area *> *result, v3s16 pos);

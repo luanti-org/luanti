@@ -453,8 +453,7 @@ public:
 
 	void clearBuffers(u16 flag, SColor color = SColor(255, 0, 0, 0), f32 depth = 1.f, u8 stencil = 0) override;
 
-	//! Returns an image created from the last rendered frame.
-	IImage *createScreenShot(video::ECOLOR_FORMAT format = video::ECF_UNKNOWN, video::E_RENDER_TARGET target = video::ERT_FRAME_BUFFER) override;
+	IImage *createScreenShot() override;
 
 	//! Writes the provided image to disk file
 	bool writeImageToFile(IImage *image, const io::path &filename, u32 param = 0) override;

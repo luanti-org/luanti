@@ -307,9 +307,10 @@ AsyncWorkerThread::AsyncWorkerThread(AsyncEngine* jobDispatcher,
 	if (jobDispatcher->server) {
 		setGameDef(jobDispatcher->server);
 
-		if (g_settings->getBool("secure.enable_security"))
+		if (!g_disable_mod_security)
 			initializeSecurity();
 	} else {
+		// Security is mandatory in the main menu context
 		initializeSecurity();
 	}
 

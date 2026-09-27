@@ -1143,8 +1143,7 @@ void NodeDefManager::deSerialize(std::istream &is, u16 protocol_version)
 		u16 i = readU16(is2);
 
 		// Read it from the string wrapper
-		std::string wrapper = deSerializeString16(is2);
-		std::istringstream wrapper_is(wrapper, std::ios::binary);
+		std::istringstream wrapper_is(deSerializeString16(is2), std::ios::binary);
 		ContentFeatures *f = &new_f;
 		f->deSerialize(wrapper_is, protocol_version);
 
@@ -1164,7 +1163,8 @@ void NodeDefManager::deSerialize(std::istream &is, u16 protocol_version)
 		u16 existing_id;
 		if (m_name_id_mapping.getId(f->name, existing_id) && i != existing_id) {
 			warningstream << "NodeDefManager::deSerialize(): "
-				"already defined with different ID: " << f->name << std::endl;
+				"already defined with different ID: " << f->name << " existing: "
+				<< existing_id << " this: " << i << std::endl;
 			continue;
 		}
 

@@ -260,11 +260,12 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 	else if (event.EventType == EET_TOUCH_INPUT_EVENT)
 		last_pointer_type = PointerType::Touch;
 
-	// Let the menu handle events, if one is active.
+	bool ret = g_menumgr.runPreprocessEvent(event);
 	if (isMenuActive()) {
 		if (g_touchcontrols)
 			g_touchcontrols->setVisible(false);
-		return g_menumgr.preprocessEvent(event);
+		// Let the menu handle events, if one is active.
+		return ret;
 	}
 
 	// Remember whether each key is down or up

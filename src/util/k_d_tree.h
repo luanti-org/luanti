@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <vector>
 #include <memory>
+#include "debug.h"
 
 /*
 This implements a dynamic forest of static k-d-trees.
@@ -417,10 +418,12 @@ public:
 
 	void remove(Id id)
 	{
-		const auto it = del_entries.find(id);
-		assert(it != del_entries.end());
-		trees.at(it->second.tree_idx).remove(it->second.in_tree);
-		del_entries.erase(it);
+		{
+			auto node = del_entries.extract(id);
+			sanity_check(node);
+			const auto &entry = node.mapped();
+			trees.at(entry.tree_idx).remove(entry.in_tree);
+		}
 		++deleted;
 		if (deleted >= (n_entries+1)/2) // "shift out" the last tree
 			shrink_to_half();

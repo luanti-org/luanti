@@ -134,6 +134,8 @@ protected:
 private:
 	bool isMeshOccluded(MapBlock *mesh_block, u16 mesh_size, v3s16 cam_pos_nodes);
 
+	bool useLoopsCuller() const;
+
 	// update the vertex order in transparent mesh buffers
 	void updateTransparentMeshBuffers();
 

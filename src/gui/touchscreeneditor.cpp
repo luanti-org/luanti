@@ -168,6 +168,7 @@ static void layout_menu_row(v2u32 screensize,
 	s32 btn_h = 0;
 	for (const auto &btn : full_row) {
 		IGUIFont *font = btn->getActiveFont();
+		sanity_check(font);
 		core::dimension2du dim = font->getDimension(btn->getText());
 		btn_w = std::max(btn_w, (s32)(dim.Width * 1.5f));
 		btn_h = std::max(btn_h, (s32)(dim.Height * 2.5f));
@@ -196,6 +197,7 @@ void GUITouchscreenLayout::regenerateMenu(v2u32 screensize)
 		m_gui_help_text->setText(wstrgettext("Tap outside to deselect.").c_str());
 
 	IGUIFont *font = m_gui_help_text->getActiveFont();
+	sanity_check(font);
 	core::dimension2du dim = font->getDimension(m_gui_help_text->getText());
 	s32 height = dim.Height * 2.5f;
 	s32 pos_y = (m_mode == Mode::Add || have_selection) ? 0 : screensize.Y - height;

@@ -399,11 +399,15 @@ public:
 		bool from_media_push = false);
 
 	// Send a request for conventional media transfer
-	void request_media(const std::vector<std::string> &file_requests);
+	void requestMedia(const std::vector<std::string> &file_requests);
 
-	LocalClientState getState() { return m_state; }
+	LocalClientState getState() const { return m_state; }
 
-	void makeScreenshot();
+	// Request a screenshot to be taken at the end of the frame.
+	void requestScreenshot() { m_take_screenshot = true; }
+
+	// Must be called right before endScene() to take requested screenshots.
+	void takeScreenshotIfRequested();
 
 	inline void pushToChatQueue(ChatMessage *cec)
 	{
@@ -442,7 +446,7 @@ public:
 
 	const std::string &getFormspecPrepend() const;
 
-	inline MeshGrid getMeshGrid()
+	inline MeshGrid getMeshGrid() const
 	{
 		return m_mesh_grid;
 	}
@@ -608,6 +612,7 @@ private:
 	std::unique_ptr<SSCSMController> m_sscsm_controller;
 
 	bool m_shutdown = false;
+	bool m_take_screenshot = false;
 
 	// CSM restrictions byteflag
 	u64 m_csm_restriction_flags = CSMRestrictionFlags::CSM_RF_NONE;

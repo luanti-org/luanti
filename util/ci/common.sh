@@ -3,17 +3,21 @@
 # Linux build only
 install_linux_deps() {
 	local graphics=1
-	if [[ "$1" == "--headless" ]]; then
-		graphics=
-		shift
-	fi
+	local sdl=libsdl2-dev
+	while [ $# -ge 1 ]; do
+		case "$1" in
+			--headless) graphics=; shift ;;
+			--sdl3) sdl=libsdl3-dev; shift ;;
+			*) break ;;
+		esac
+	done
 	local pkgs=(
 		cmake gettext postgresql
 		libsqlite3-dev libhiredis-dev libogg-dev libgmp-dev libpq-dev
 		libleveldb-dev libcurl4-openssl-dev libzstd-dev libssl-dev
 	)
 	[ -n "$graphics" ] && pkgs+=(
-		libpng-dev libjpeg-dev libgl1-mesa-dev libsdl2-dev libfreetype-dev
+		libpng-dev libjpeg-dev libgl1-mesa-dev "$sdl" libfreetype-dev
 		libogg-dev libvorbis-dev libopenal-dev libzip-dev
 	)
 

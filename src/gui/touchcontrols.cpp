@@ -540,7 +540,7 @@ void TouchControls::translateEvent(const SEvent &event)
 		}
 	}
 	else if (event.TouchInput.Event == ETIE_LEFT_UP) {
-		verbosestream << "Up event for pointerid: " << event.TouchInput.ID << std::endl;
+		tracestream << "Up event for pointerid: " << event.TouchInput.ID << std::endl;
 		handleReleaseEvent(event.TouchInput.ID);
 	} else {
 		assert(event.TouchInput.Event == ETIE_MOVED);

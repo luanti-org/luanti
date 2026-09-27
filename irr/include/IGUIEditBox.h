@@ -118,6 +118,9 @@ public:
 	//! Returns true if the edit box is currently a password box.
 	virtual bool isPasswordBox() const = 0;
 
+	//! Sets whether the edit box is writable
+	virtual void setWritable(bool writable) = 0;
+
 	//! Gets the size area of the text in the edit box
 	/** \return The size in pixels of the text */
 	virtual core::dimension2du getTextDimension() = 0;

@@ -60,8 +60,7 @@ void TestSocket::testIPv4Socket()
 	} catch (ResolveError &e) {
 	}
 
-	UDPSocket socket(false);
-	socket.Bind(address);
+	UDPSocket socket = UDPSocket::Create(address);
 
 	const char sendbuffer[] = "hello world!";
 	/*
@@ -98,15 +97,17 @@ void TestSocket::testIPv6Socket()
 	Address address6((IPv6AddressBytes *)NULL, port);
 	UDPSocket socket6;
 
-	if (!socket6.init(true, true)) {
+	try {
+		socket6.Init(true);
+	} catch (SocketException &e) {
 		/* Note: Failing to create an IPv6 socket is not technically an
 		   error because the OS may not support IPv6 or it may
 		   have been disabled. IPv6 is not /required/ by
-		   minetest and therefore this should not cause the unit
+		   Luanti and therefore this should not cause the unit
 		   test to fail
 		*/
-		dstream << "WARNING: IPv6 socket creation failed (unit test)"
-			<< std::endl;
+		dstream << "WARNING: IPv6 socket creation failed (unit test): "
+				<< e.what() << std::endl;
 		return;
 	}
 

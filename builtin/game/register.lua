@@ -256,12 +256,11 @@ function core.register_item(name, itemdef)
 		error("Unable to register item: Type is invalid: " .. dump(itemdef))
 	end
 	local old_mt = getmetatable(itemdef)
-	-- TODO most of these checks should become an error after a while (maybe in 2026?)
 	if old_mt ~= nil and next(old_mt) ~= nil then
 		-- Note that even registering multiple identical items with the same table
-		-- is not allowed, due to the 'name' property.
+		-- is not possible, due to the 'name' property.
 		if old_mt.__index == defaults then
-			core.log("warning", "Item definition table was reused between registrations. "..
+			error("Item definition table was reused between registrations. "..
 				"This is unsupported and broken: " .. name)
 		else
 			core.log("warning", "Item definition has a metatable, this is "..

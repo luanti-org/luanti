@@ -1307,6 +1307,18 @@ void Server::handleCommand_NodeMetaFields(NetworkPacket* pkt)
 		return;
 	}
 
+	if (!checkPriv(player->getName(), "interact")) {
+		actionstream << player->getName() << " attempted to interact with "
+				<< "node metadata at " << p << " without 'interact' privilege"
+				<< std::endl;
+		return;
+	}
+
+	v3f node_pos = intToFloat(p, BS);
+	f32 d = playersao->getEyePosition().getDistanceFrom(node_pos);
+	if (!checkInteractDistance(player, d, "node metadata"))
+		return;
+
 	// If something goes wrong, this player is to blame
 	RollbackScopeActor rollback_scope(m_rollback,
 			"player:" + player->getName());
