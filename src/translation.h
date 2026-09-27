@@ -28,6 +28,11 @@ public:
 
 	static const std::string_view getFileBaseName(std::string_view filename);
 	static const std::string_view getFileLanguage(std::string_view filename);
+	// Returns the script-based language code that the given language code
+	// unambiguously implies (e.g. "zh_Hans" for "zh_CN"), or the input
+	// unchanged otherwise. Used so that translation files named with
+	// script-based codes are also matched for region-based ones.
+	static std::string getScriptLanguage(std::string_view lang);
 	// Checks just the file extension
 	static inline bool isTranslationFileType(std::string_view filename)
 	{

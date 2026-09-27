@@ -2759,13 +2759,16 @@ void Server::fillMediaCache()
 
 void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_code)
 {
+	const std::string lang_code_script =
+			Translations::getScriptLanguage(lang_code);
 	auto include = [&] (const std::string &name, const MediaInfo &info) -> bool {
 		if (info.no_announce)
 			return false;
 		if (Translations::isTranslationFileType(name)) {
 			// Only send translations matching the client's language
-			auto this_lang_code = Translations::getFileLanguage(name);
-			return !this_lang_code.empty() && this_lang_code == lang_code;
+			auto this_lang_code = Translations::getScriptLanguage(
+					Translations::getFileLanguage(name));
+			return !this_lang_code.empty() && this_lang_code == lang_code_script;
 		}
 		return true;
 	};
@@ -4373,8 +4376,11 @@ Translations *Server::getTranslationLanguage(const std::string &lang_code)
 	// [] will create an entry
 	auto *translations = &server_translations[lang_code];
 
+	const std::string lang_code_script =
+			Translations::getScriptLanguage(lang_code);
 	for (const auto &i : m_media) {
-		if (Translations::getFileLanguage(i.first) == lang_code) {
+		if (Translations::getScriptLanguage(
+				Translations::getFileLanguage(i.first)) == lang_code_script) {
 			std::string data;
 			if (fs::ReadFile(i.second.path, data, true)) {
 				translations->loadTranslation(i.first, data);

@@ -34,6 +34,16 @@ const std::string_view Translations::getFileLanguage(std::string_view filename)
 	return basename.substr(pos+1);
 }
 
+std::string Translations::getScriptLanguage(std::string_view lang)
+{
+	static const std::unordered_map<std::string_view, std::string_view> script_fallbacks = {
+		{"zh_CN", "zh_Hans"},
+		{"zh_TW", "zh_Hant"},
+	};
+	auto it = script_fallbacks.find(lang);
+	return it == script_fallbacks.end() ? std::string(lang) : std::string(it->second);
+}
+
 void Translations::clear()
 {
 	m_translations.clear();

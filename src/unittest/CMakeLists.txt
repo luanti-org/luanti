@@ -42,6 +42,7 @@ set(unittest_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_socket.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_servermodmanager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_threading.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_translation.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_utilities.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_voxelarea.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_voxelalgorithms.cpp
