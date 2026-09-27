@@ -70,7 +70,10 @@
  * endian.h compatibility shim
  */
 
-#if defined(_WIN32)
+#if defined(HAVE_ENDIAN_H)
+#include <endian.h>
+
+#elif defined(_WIN32)
 
 #define LITTLE_ENDIAN 1234
 #define BIG_ENDIAN 4321
@@ -84,9 +87,6 @@
 #else
 #define BYTE_ORDER BIG_ENDIAN
 #endif
-
-#elif defined(HAVE_ENDIAN_H)
-#include <endian.h>
 
 #elif defined(__MACH__) && defined(__APPLE__)
 #include <machine/endian.h>
