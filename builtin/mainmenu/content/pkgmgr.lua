@@ -73,7 +73,7 @@ local function load_texture_packs(txtpath, retval)
 
 			-- list_* is only used if non-nil, else the regular versions are used.
 			retval[#retval + 1] = {
-				name = item,
+				name = conf:get("name") or item,
 				title = title,
 				list_name = enabled and fgettext("$1 (Enabled)", item) or nil,
 				list_title = enabled and fgettext("$1 (Enabled)", title) or nil,
