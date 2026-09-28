@@ -326,14 +326,10 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 		AttachmentData attachment;
 		player->getCAO()->getAttachment(attachment);
 
-		v3f abs_position, rel_position;
-		auto parent_matrix = player->getParent()->getSceneNode()->getAbsoluteTransformation();
-
 		if (attachment.flags & AttachmentData::MOVE_CAMERA)
-			rel_position = attachment.position;
-		parent_matrix.transformVect(abs_position, rel_position);
-
-		player_position = abs_position + intToFloat(m_camera_offset, BS);
+			player_position = player->getCAO()->getPosition();
+		else
+			player_position = player->getParent()->getPosition();
 	}
 
 	// Smooth the camera movement after the player instantly moves upward due to stepheight.
