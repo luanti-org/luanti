@@ -8,6 +8,7 @@
 #include "util/numeric.h"
 #include "exceptions.h"
 #include "noise.h"
+#include "porting.h"
 
 class TestRandom : public TestBase {
 public:
@@ -16,6 +17,7 @@ public:
 
 	void runTests(IGameDef *gamedef);
 
+	void testSystemRandom();
 	void testPseudoRandom();
 	void testPseudoRandomRange();
 	void testPcgRandom();
@@ -33,6 +35,7 @@ static TestRandom g_test_instance;
 
 void TestRandom::runTests(IGameDef *gamedef)
 {
+	TEST(testSystemRandom);
 	TEST(testPseudoRandom);
 	TEST(testPseudoRandomRange);
 	TEST(testPcgRandom);
@@ -42,6 +45,47 @@ void TestRandom::runTests(IGameDef *gamedef)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void TestRandom::testSystemRandom()
+{
+	char buf[1024] = {};
+	porting::secure_rand_fill_buf(buf + 1, sizeof(buf) - 2);
+	UASSERT(buf[0] == 0);
+	UASSERT(buf[sizeof(buf) - 1] == 0);
+
+	// number of set bits follows Binomial(8176, 0.5), normal approximation:
+	// int(4088 -/+ 4.89164 * sqrt(8176 * 0.25)) -> [3866, 4309]
+	// two-sided bounds for a 1 in 1 million runs failure rate
+	const int min_set_bits = 3866;
+	const int max_set_bits = 4309;
+	int set_bits = 0;
+	for (size_t i = 1; i < sizeof(buf) - 1; ++i) {
+		u8 byte = static_cast<u8>(buf[i]);
+		while (byte) {
+			set_bits += byte & 1;
+			byte >>= 1;
+		}
+	}
+	UASSERT(set_bits >= min_set_bits);
+	UASSERT(set_bits <= max_set_bits);
+
+	// when the SRP version was broken
+	// it had a buffer overflow that made it
+	// return random static data
+	// instead of system entropy
+	// this checks for that failure mode
+	// this may fail once a few million years by chance
+	// (collision for a 128-bit value)
+	// if you see this fail the CSPRNG is broken
+	constexpr int samples_to_check = 512;
+	constexpr size_t sample_size = 16;
+	char samples[samples_to_check][sample_size] = {};
+	for (int s = 0; s < samples_to_check; s++) {
+		porting::secure_rand_fill_buf(&samples[s], sample_size);
+		for (int i = 0; i < s; i++)
+			UASSERT(memcmp(samples[s], samples[i], sample_size) != 0);
+	}
+}
 
 void TestRandom::testPseudoRandom()
 {
