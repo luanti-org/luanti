@@ -27,14 +27,6 @@ struct SFileListEntry
 	//! The size of the file in bytes
 	u32 Size;
 
-	//! The ID of the file in an archive
-	/** This is used to link the FileList entry to extra info held about this
-	file in an archive, which can hold things like data offset and CRC. */
-	u32 ID;
-
-	//! FileOffset inside an archive
-	u32 Offset;
-
 	//! True if this is a folder, false if not.
 	bool IsDirectory;
 
@@ -73,10 +65,8 @@ public:
 	//! Add as a file or folder to the list
 	/** \param fullPath The file name including path, up to the root of the file list.
 	\param isDirectory True if this is a directory rather than a file.
-	\param offset The offset where the file is stored in an archive
-	\param size The size of the file in bytes.
-	\param id The ID of the file in the archive which owns it */
-	u32 addItem(const io::path &fullPath, u32 offset, u32 size, bool isDirectory, u32 id = 0) override;
+	\param size The size of the file in bytes. */
+	u32 addItem(const io::path &fullPath, u32 size, bool isDirectory) override;
 
 	//! Sorts the file list. You should call this after adding any items to the file list
 	void sort() override;
@@ -90,17 +80,11 @@ public:
 	//! Gets the full name of a file in the list, path included, based on an index.
 	const io::path &getFullFileName(u32 index) const override;
 
-	//! Returns the ID of a file in the file list, based on an index.
-	u32 getID(u32 index) const override;
-
 	//! Returns true if the file is a directory
 	bool isDirectory(u32 index) const override;
 
 	//! Returns the size of a file
 	u32 getFileSize(u32 index) const override;
-
-	//! Returns the offset of a file
-	u32 getFileOffset(u32 index) const override;
 
 	//! Searches for a file or folder within the list, returns the index
 	s32 findFile(const io::path &filename, bool isFolder) const override;

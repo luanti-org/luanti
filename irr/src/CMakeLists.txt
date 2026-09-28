@@ -377,7 +377,6 @@ add_library(IRRIOOBJ OBJECT
 	CMemoryFile.h
 	CReadFile.h
 	CWriteFile.h
-	CZipReader.h
 
 	CFileList.cpp
 	CFileSystem.cpp
@@ -385,7 +384,6 @@ add_library(IRRIOOBJ OBJECT
 	CMemoryFile.cpp
 	CReadFile.cpp
 	CWriteFile.cpp
-	CZipReader.cpp
 )
 
 add_library(IRROTHEROBJ OBJECT

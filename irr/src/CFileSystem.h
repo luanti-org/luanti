@@ -38,16 +38,6 @@ public:
 	//! Opens a file for write access.
 	IWriteFile *createAndWriteFile(const io::path &filename, bool append = false) override;
 
-
-	//! Adds an external archive loader to the engine.
-	void addArchiveLoader(IArchiveLoader *loader) override;
-
-	//! Returns the total number of archive loaders added.
-	u32 getArchiveLoaderCount() const override;
-
-	//! Gets the archive loader by index.
-	IArchiveLoader *getArchiveLoader(u32 index) const override;
-
 	//! Returns the string of the current working directory
 	const io::path &getWorkingDirectory() override;
 
@@ -91,8 +81,6 @@ private:
 	EFileSystemType FileSystemType = FILESYSTEM_NATIVE;
 	//! WorkingDirectory for Native and Virtual filesystems
 	io::path WorkingDirectory[2];
-	//! currently attached ArchiveLoaders
-	std::vector<IArchiveLoader *> ArchiveLoader;
 };
 
 } // end namespace io

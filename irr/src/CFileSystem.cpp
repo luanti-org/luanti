@@ -5,7 +5,6 @@
 #include "CFileSystem.h"
 #include "IReadFile.h"
 #include "IWriteFile.h"
-#include "CZipReader.h"
 #include "CFileList.h"
 #include "CReadFile.h"
 #include "CMemoryFile.h"
@@ -44,16 +43,11 @@ CFileSystem::CFileSystem()
 	setFileListSystem(FILESYSTEM_NATIVE);
 	//! reset current working directory
 	getWorkingDirectory();
-
-	ArchiveLoader.push_back(new CArchiveLoaderZIP(this));
 }
 
 //! destructor
 CFileSystem::~CFileSystem()
 {
-	for (auto *it : ArchiveLoader) {
-		it->drop();
-	}
 }
 
 //! opens a file for read access
@@ -101,31 +95,6 @@ IWriteFile *CFileSystem::createMemoryWriteFile(void *memory, s32 len,
 IWriteFile *CFileSystem::createAndWriteFile(const io::path &filename, bool append)
 {
 	return CWriteFile::createWriteFile(filename, append);
-}
-
-//! Adds an external archive loader to the engine.
-void CFileSystem::addArchiveLoader(IArchiveLoader *loader)
-{
-	if (!loader)
-		return;
-
-	loader->grab();
-	ArchiveLoader.push_back(loader);
-}
-
-//! Returns the total number of archive loaders added.
-u32 CFileSystem::getArchiveLoaderCount() const
-{
-	return (u32)ArchiveLoader.size();
-}
-
-//! Gets the archive loader by index.
-IArchiveLoader *CFileSystem::getArchiveLoader(u32 index) const
-{
-	if (index < ArchiveLoader.size())
-		return ArchiveLoader[index];
-	else
-		return 0;
 }
 
 //! Returns the string of the current working directory
@@ -396,7 +365,7 @@ IFileList *CFileSystem::createFileList()
 		struct _tfinddata_t c_file;
 		if ((hFile = _tfindfirst(_T("*"), &c_file)) != (intptr_t)(-1L)) {
 			do {
-				r->addItem(Path + c_file.name, 0, c_file.size, (_A_SUBDIR & c_file.attrib) != 0, 0);
+				r->addItem(Path + c_file.name, c_file.size, (_A_SUBDIR & c_file.attrib) != 0);
 			} while (_tfindnext(hFile, &c_file) == 0);
 
 			_findclose(hFile);
@@ -410,7 +379,7 @@ IFileList *CFileSystem::createFileList()
 
 		r = new CFileList(Path, false, false);
 
-		r->addItem(Path + _IRR_TEXT(".."), 0, 0, true, 0);
+		r->addItem(Path + _IRR_TEXT(".."), 0, true);
 
 		//! We use the POSIX compliant methods instead of scandir
 		DIR *dirHandle = opendir(Path.c_str());
@@ -436,7 +405,7 @@ IFileList *CFileSystem::createFileList()
 				}
 #endif
 
-				r->addItem(Path + dirEntry->d_name, 0, size, isDirectory, 0);
+				r->addItem(Path + dirEntry->d_name, size, isDirectory);
 			}
 			closedir(dirHandle);
 		}
@@ -450,10 +419,10 @@ IFileList *CFileSystem::createFileList()
 		SFileListEntry e3;
 
 		//! PWD
-		r->addItem(Path + _IRR_TEXT("."), 0, 0, true, 0);
+		r->addItem(Path + _IRR_TEXT("."), 0, true);
 
 		//! parent
-		r->addItem(Path + _IRR_TEXT(".."), 0, 0, true, 0);
+		r->addItem(Path + _IRR_TEXT(".."), 0, true);
 	}
 
 	if (r)

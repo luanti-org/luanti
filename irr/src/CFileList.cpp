@@ -52,11 +52,9 @@ const io::path &CFileList::getFullFileName(u32 index) const
 }
 
 //! adds a file or folder
-u32 CFileList::addItem(const io::path &fullPath, u32 offset, u32 size, bool isDirectory, u32 id)
+u32 CFileList::addItem(const io::path &fullPath, u32 size, bool isDirectory)
 {
 	SFileListEntry entry;
-	entry.ID = id ? id : Files.size();
-	entry.Offset = offset;
 	entry.Size = size;
 	entry.Name = fullPath;
 	entry.Name.replace('\\', '/');
@@ -86,12 +84,6 @@ u32 CFileList::addItem(const io::path &fullPath, u32 offset, u32 size, bool isDi
 	return Files.size() - 1;
 }
 
-//! Returns the ID of a file in the file list, based on an index.
-u32 CFileList::getID(u32 index) const
-{
-	return index < Files.size() ? Files[index].ID : 0;
-}
-
 bool CFileList::isDirectory(u32 index) const
 {
 	bool ret = false;
@@ -105,11 +97,6 @@ bool CFileList::isDirectory(u32 index) const
 u32 CFileList::getFileSize(u32 index) const
 {
 	return index < Files.size() ? Files[index].Size : 0;
-}
-
-u32 CFileList::getFileOffset(u32 index) const
-{
-	return index < Files.size() ? Files[index].Offset : 0;
 }
 
 //! Searches for a file or folder within the list, returns the index

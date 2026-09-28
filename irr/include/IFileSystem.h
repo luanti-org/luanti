@@ -10,7 +10,6 @@
 namespace io
 {
 
-class IArchiveLoader;
 class IReadFile;
 class IWriteFile;
 class IFileList;
@@ -22,10 +21,7 @@ enum EFileSystemType
 	FILESYSTEM_VIRTUAL     // Virtual FileSystem
 };
 
-//! The FileSystem manages files and archives and provides access to them.
-/** It manages where files are, so that modules which use the the IO do not
-need to know where every file is located. A file could be in a .zip-Archive or
-as file on disk, using the IFileSystem makes no difference to this. */
+//! The FileSystem manages files and provides access to them.
 class IFileSystem : public virtual IReferenceCounted
 {
 public:
@@ -85,20 +81,6 @@ public:
 	The returned pointer should be dropped when no longer needed.
 	See IReferenceCounted::drop() for more information. */
 	virtual IWriteFile *createAndWriteFile(const path &filename, bool append = false) = 0;
-
-	//! Adds an external archive loader to the engine.
-	/** Use this function to add support for new archive types to the
-	engine, for example proprietary or encrypted file storage. */
-	virtual void addArchiveLoader(IArchiveLoader *loader) = 0;
-
-	//! Gets the number of archive loaders currently added
-	virtual u32 getArchiveLoaderCount() const = 0;
-
-	//! Retrieve the given archive loader
-	/** \param index The index of the loader to retrieve. This parameter is an 0-based
-	array index.
-	\return A pointer to the specified loader, 0 if the index is incorrect. */
-	virtual IArchiveLoader *getArchiveLoader(u32 index) const = 0;
 
 	//! Get the current working directory.
 	/** \return Current working directory as a string. */
