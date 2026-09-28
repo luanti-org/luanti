@@ -113,13 +113,13 @@ void TestInventory::testSerializeDeserialize(IItemDefManager *idef)
 
 	inv.getList("main")->setWidth(5);
 	std::ostringstream inv_os(std::ios::binary);
-	inv.serialize(inv_os, false);
+	inv.serialize(inv_os);
 	UASSERTEQ(std::string, inv_os.str(), serialized_inventory_out);
 
 	inv.setModified(false);
 	inv_os.str("");
 	inv_os.clear();
-	inv.serialize(inv_os, true);
+	inv.serializeIncremental(inv_os);
 	UASSERTEQ(std::string, inv_os.str(), serialized_inventory_inc);
 
 	ItemStack leftover = inv.getList("main")->takeItem(7, 99 - 12);
