@@ -92,9 +92,28 @@ public:
 	ScriptingType getType() { return m_type; }
 
 	IGameDef *getGameDef() { return m_gamedef; }
-	Server *getServer();
+
+	// Never returns null. Aborts if the gamedef is not a Server.
+	Server *getServer() {
+		// Since the gamedef is the server it's still possible to retrieve it in
+		// e.g. the async environment, but this isn't meant to happen.
+		// TODO: still needs work
+		//assert(getType() == ScriptingType::Server);
+		sanity_check(m_gamedef_as_server);
+		return m_gamedef_as_server;
+	}
+
 #if CHECK_CLIENT_BUILD()
-	Client *getClient();
+	// Never returns null. Aborts if the gamedef is not a Client.
+	Client *getClient() {
+		sanity_check(m_gamedef_as_client);
+		return m_gamedef_as_client;
+	}
+
+	// Returns null if the gamedef is not a Client.
+	Client *getClientOrNull() {
+		return m_gamedef_as_client;
+	}
 	ModVFS *getModVFS();
 #endif
 
@@ -153,7 +172,7 @@ protected:
 	// Dumps stack contents for debugging
 	void stackDump(std::ostream &o);
 
-	void setGameDef(IGameDef* gamedef) { m_gamedef = gamedef; }
+	void setGameDef(IGameDef* gamedef);
 
 	Environment* getEnv() { return m_environment; }
 	void setEnv(Environment* env) { m_environment = env; }
@@ -187,6 +206,11 @@ private:
 	lua_State        *m_luastack = nullptr;
 
 	IGameDef         *m_gamedef = nullptr;
+	Server           *m_gamedef_as_server = nullptr;
+#if CHECK_CLIENT_BUILD()
+	Client           *m_gamedef_as_client = nullptr;
+#endif
+
 	Environment      *m_environment = nullptr;
 #if CHECK_CLIENT_BUILD()
 	GUIEngine        *m_guiengine = nullptr;
