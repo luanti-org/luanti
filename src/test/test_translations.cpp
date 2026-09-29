@@ -31,6 +31,7 @@ TEST_CASE("test translations")
 		CHECK(Translations::getFileBaseName("blank.png") == "");
 
 		CHECK(Translations::getFileLanguage(TEST_PO_NAME) == "de");
+		CHECK(Translations::getFileLanguage("island.zh_Hant.tr") == "zh_TW");
 		CHECK(Translations::getFileLanguage("de.po") == "");
 		CHECK(Translations::getFileLanguage("blank.png") == "");
 

@@ -8,6 +8,7 @@
 #include "util/string.h"
 #include <unordered_map>
 
+using namespace std::string_view_literals;
 
 #if CHECK_CLIENT_BUILD()
 // Client translations
@@ -30,8 +31,18 @@ const std::string_view Translations::getFileLanguage(std::string_view filename)
 	auto basename = getFileBaseName(filename);
 	auto pos = basename.rfind('.');
 	if (pos == basename.npos)
-		return "";
-	return basename.substr(pos+1);
+		return ""sv;
+	auto ret = basename.substr(pos+1);
+	// Mods using Weblate might inherit their convention, which has minor differences
+	// to the Unix locale convention used by us. Handle them here.
+	// see <https://github.com/orgs/WeblateOrg/discussions/21343>
+	if (ret == "nb_NO"sv)
+		return "nb"sv;
+	else if (ret == "zh_Hant"sv)
+		return "zh_TW"sv;
+	else if (ret == "zh_Hans"sv)
+		return "zh_CN"sv;
+	return ret;
 }
 
 void Translations::clear()
