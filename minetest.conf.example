@@ -1056,6 +1056,14 @@
 #    type: bool
 # gui_scaling_filter = false
 
+#    Automatically move the keyboard focus to the first input/text field
+#    when a menu (formspec) is opened. When disabled, text fields are never
+#    focused automatically; focus instead goes to other elements such as
+#    tables or buttons (or the first focusable element).
+#    Prevents SteamOS on-screen-keyboard to pop up constantly on Steam Deck.
+#    type: bool
+# gui_autofocus_input = true
+
 #    Delay showing tooltips, stated in milliseconds.
 #    type: int min: 0
 # tooltip_show_delay = 400

@@ -912,6 +912,13 @@ formspec_fullscreen_bg_color (Formspec Full-Screen Background Color) string (0,0
 #    to hardware (e.g. render-to-texture for nodes in inventory).
 gui_scaling_filter (GUI scaling filter) bool false
 
+#    Automatically move the keyboard focus to the first input/text field
+#    when a menu (formspec) is opened. When disabled, text fields are never
+#    focused automatically; focus instead goes to other elements such as
+#    tables or buttons (or the first focusable element).
+#    Prevents SteamOS on-screen-keyboard to pop up constantly on Steam Deck.
+gui_autofocus_input (Auto-focus input fields) bool true
+
 #    Delay showing tooltips, stated in milliseconds.
 tooltip_show_delay (Tooltip delay) int 400 0
 
