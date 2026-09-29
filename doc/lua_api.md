@@ -8138,6 +8138,14 @@ Misc.
   (regardless of online status)
 * `core.is_valid_player_name(name)`: boolean, whether the given name
   could be used as a player name (regardless of whether said player exists).
+* `core.get_player_appearance(player, properties)`
+    * Inter-mod compatibility function for `ObjectRef:set_properties()` calls.
+    * This function should be overridden by skin-, armor- and any other mods
+      which change the player appearance (e.g. model name, texture, scale).
+    * `player`: a `PlayerRef`.
+    * `properties` (a table) containing [Object properties](#object-properties).
+      This table is initially empty (`{}`) and is to be manipulated/extended
+      depending on the purpose of the current mod.
 * `core.hud_replace_builtin(name, hud_definition)`
     * Replaces definition of a builtin hud element
     * `name`: `"breath"`, `"health"`, `"minimap"` or `"hotbar"`
