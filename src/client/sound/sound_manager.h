@@ -35,6 +35,7 @@ class OpenALSoundManager final : public Thread
 {
 private:
 	std::unique_ptr<SoundFallbackPathProvider> m_fallback_path_provider;
+	SoundManagerSingleton *const m_singleton;
 
 	ALCdevice *const m_device;
 	ALCcontext *const m_context;
@@ -63,6 +64,7 @@ private:
 
 	// if true, all sounds will be directly paused after creation
 	bool m_is_paused = false;
+	bool m_device_ready = true;
 
 	// stuff for only-once / rate-limited warnings
 	std::unordered_set<std::string> m_warned_positional_stereo_sounds;
