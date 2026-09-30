@@ -4020,8 +4020,8 @@ Some types may inherit styles from parent types.
 
 * *all elements*
     * default - Equivalent to providing no states
-* all focuasble elements
-    * focused_visible - Active when tab was pressed
+* all focusable elements
+    * focused_visible - Active when focus changed by keyboard and the focus outline is visible
 * button, button_exit, image_button, item_image_button
     * focused - Active when button has focus
     * hovered - Active when the mouse is hovering over the element
