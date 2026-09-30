@@ -139,6 +139,7 @@ public:
 			return OUTLINE_OFFSET;
 		} else {
 			return NONE;
+		}
 	}
 
 	std::string get(Property prop, std::string def) const
