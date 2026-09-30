@@ -13,7 +13,7 @@ end
 
 core.register_entity("unittests:callbacks", {
 	initial_properties = {
-		hp_max = 5,
+		hp_max = 1,
 		visual = "upright_sprite",
 		textures = { "unittests_callback.png" },
 		static_save = false,
@@ -75,6 +75,13 @@ core.register_entity("unittests:callbacks", {
 		assert(false)
 	end,
 })
+
+core.override_entity("unittests:callbacks", {
+		initial_properties = {
+			hp_max = 5,
+		},
+		_lua_hp_max = 6,
+	})
 
 --
 
@@ -269,3 +276,23 @@ local function test_entity_guid(_, pos)
 	obj1:remove()
 end
 unittests.register("test_entity_guid", test_entity_guid, {map=true})
+
+local function test_entity_override(_, pos)
+	log = {}
+
+	local obj = core.add_entity(pos, "unittests:callbacks")
+	check_log({"on_activate(0)"})
+
+	-- check properties
+	local props = obj:get_properties()
+	assert(props.hp_max == 5)
+	assert(props.visual == "upright_sprite")
+
+	-- check entity
+	local lua = obj:get_luaentity()
+	assert(lua._lua_hp_max == 6)
+
+	obj:remove()
+end
+unittests.register("test_entity_override", test_entity_override, {map=true})
+

@@ -147,6 +147,10 @@ void ScriptApiServer::on_mods_loaded()
 	lua_getfield(L, -1, "registered_on_mods_loaded");
 	// Call callbacks
 	runCallbacks(0, RUN_CALLBACKS_MODE_FIRST);
+	// set is_mods_loaded
+	lua_getglobal(L, "core");
+	lua_pushboolean(L, true);
+	lua_setfield(L, -2, "is_mods_loaded");
 }
 
 void ScriptApiServer::on_shutdown()
