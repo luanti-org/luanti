@@ -16,33 +16,23 @@
 class MainMenuScripting
 		: virtual public ScriptApiBase,
 		  public ScriptApiMainMenu,
-		  public ScriptApiSecurity
+		  public ScriptApiSecurity,
+		  public ScriptApiAsync
 {
 public:
 	MainMenuScripting(GUIEngine* guiengine);
 
-	// Global step handler to pass back async events
-	void step();
-
-	// Pass async events from engine to async threads
-	u32 queueAsync(std::string &&serialized_func, PackedValue *param);
-
-	// Is the main menu allowed writeable access to this path?
+	// Is the main menu allowed write access to this path?
 	static bool mayModifyPath(const std::string &path);
 
-	// (public implementation so it can be used from AsyncEngine)
-	static bool checkPathAccess(const std::string &abs_path, bool write_required,
-		bool *write_allowed);
-
 protected:
+	// from ScriptApiSecurity:
 	bool checkPathInternal(const std::string &abs_path, bool write_required,
-		bool *write_allowed) override {
-		return checkPathAccess(abs_path, write_required, write_allowed);
-	}
+		bool *write_allowed) override;
+	// from ScriptApiAsync:
+	void reportAsyncError(const std::string &msg) override;
 
 private:
 	void initializeModApi(lua_State *L, int top);
 	static void registerLuaClasses(lua_State *L, int top);
-
-	AsyncEngine asyncEngine;
 };

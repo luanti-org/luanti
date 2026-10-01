@@ -395,7 +395,7 @@ void GUIEngine::run()
 			driver->endScene();
 		}
 
-		m_script->step();
+		m_script->stepAsync();
 
 		sound_volume_control(m_sound_manager.get(), device->isWindowActive());
 		m_sound_manager->step(dtime);

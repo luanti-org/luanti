@@ -16,11 +16,8 @@
 #include "cpp_api/s_base.h"
 #include "cpp_api/s_security.h"
 
-// Forward declarations
 class AsyncEngine;
-
-
-// Declarations
+class ScriptApiAsync;
 
 // Data required to queue a job
 struct LuaJobInfo
@@ -68,8 +65,7 @@ class AsyncEngine {
 	friend class AsyncWorkerThread;
 	typedef void (*StateInitializer)(lua_State *L, int top);
 public:
-	AsyncEngine() = default;
-	AsyncEngine(Server *server) : server(server) {};
+	AsyncEngine(ScriptApiAsync *parent) : parent(parent) {};
 	~AsyncEngine();
 
 	/**
@@ -79,10 +75,12 @@ public:
 	void registerStateInitializer(StateInitializer func);
 
 	/**
-	 * Create async engine tasks and lock function registration
-	 * @param numEngines Number of worker threads, 0 for automatic scaling
+	 * Create async engine tasks
+	 * @param num_engines Number of worker threads, 0 for automatic scaling
+	 * @param init_type String to set as 'INIT'
+	 * @param enable_security Enable mod security in workers?
 	 */
-	void initialize(unsigned int numEngines);
+	void initialize(unsigned int num_engines, const char *init_type, bool enable_security);
 
 	/**
 	 * Queue an async job
@@ -181,8 +179,9 @@ private:
 		return overlap;
 	}
 
-	// Variable locking the engine against further modification
 	bool initDone = false;
+	const char *initType = nullptr;
+	bool enableSecurity = false;
 
 	// Maximum number of worker threads for automatic scaling
 	// 0 if disabled
@@ -193,8 +192,8 @@ private:
 	u64 stuckTimer = 0;
 	std::unordered_set<u32> stuckSeenJobs;
 
-	// Only set for the server async environment (duh)
-	Server *server = nullptr;
+	// Owning class
+	ScriptApiAsync *parent = nullptr;
 
 	// Internal store for registered state initializers
 	std::vector<StateInitializer> stateInitializers;
@@ -219,13 +218,16 @@ private:
 	Semaphore jobQueueCounter;
 };
 
+// The script context that owns the async engine derives from this class
 class ScriptApiAsync :
 	virtual public ScriptApiBase
 {
+	friend class AsyncEngine;
+	friend class AsyncWorkerThread;
 public:
-	ScriptApiAsync(Server *server): asyncEngine(server) {}
+	ScriptApiAsync() : asyncEngine(this) {}
 
-	virtual void initAsync() = 0;
+	// Step handler that processes async results
 	void stepAsync();
 
 	u32 queueAsync(std::string &&serialized_func,
@@ -236,5 +238,19 @@ public:
 	}
 
 protected:
+	/// @brief called when an error during async execution occurs
+	/// (needs to be thread-safe!)
+	virtual void reportAsyncError(const std::string &msg) = 0;
+
+	/// @brief called after builtin has been loaded
+	/// (needs to be thread-safe!)
+	/// @return true if ok, false on error
+	virtual bool onAsyncEnvSetup(ScriptApiBase *inner) { return true; };
+
+	/// @brief filesystem sandbox callback
+	/// (needs to be thread-safe!)
+	virtual bool checkPathInternal(const std::string &abs_path,
+		bool write_required, bool *write_allowed) = 0;
+
 	AsyncEngine asyncEngine;
 };

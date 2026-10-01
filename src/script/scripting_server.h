@@ -42,7 +42,7 @@ public:
 	void saveGlobals();
 
 	// Initialize async engine, call this AFTER loading all mods
-	void initAsync() override;
+	void initAsync();
 
 protected:
 	// from ScriptApiSecurity:
@@ -52,6 +52,10 @@ protected:
 			abs_path, write_required, write_allowed);
 	}
 	bool modNamesAreTrusted() override { return true; }
+
+	// from ScriptApiAsync:
+	void reportAsyncError(const std::string &msg) override;
+	bool onAsyncEnvSetup(ScriptApiBase *inner) override;
 
 private:
 	void InitializeModApi(lua_State *L, int top);
