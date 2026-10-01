@@ -26,8 +26,6 @@ class AsyncEngine;
 struct LuaJobInfo
 {
 	LuaJobInfo() = default;
-	LuaJobInfo(std::string &&func, std::string &&params, const std::string &mod_origin = "") :
-		function(func), params(params), mod_origin(mod_origin) {}
 	LuaJobInfo(std::string &&func, PackedValue *params, const std::string &mod_origin = "") :
 		function(func), mod_origin(mod_origin) {
 		params_ext.reset(params);
@@ -35,13 +33,9 @@ struct LuaJobInfo
 
 	// Function to be called in async environment (from string.dump)
 	std::string function;
-	// Parameter to be passed to function (serialized)
-	std::string params;
-	// Alternative parameters
+	// Parameter to be passed to function
 	std::unique_ptr<PackedValue> params_ext;
-	// Result of function call (serialized)
-	std::string result;
-	// Alternative result
+	// Result of function call
 	std::unique_ptr<PackedValue> result_ext;
 	// Name of the mod who invoked this call
 	std::string mod_origin;
@@ -89,15 +83,6 @@ public:
 	 * @param numEngines Number of worker threads, 0 for automatic scaling
 	 */
 	void initialize(unsigned int numEngines);
-
-	/**
-	 * Queue an async job
-	 * @param func Serialized lua function
-	 * @param params Serialized parameters
-	 * @return jobid The job is queued
-	 */
-	u32 queueAsyncJob(std::string &&func, std::string &&params,
-			const std::string &mod_origin = "");
 
 	/**
 	 * Queue an async job
@@ -234,7 +219,7 @@ private:
 	Semaphore jobQueueCounter;
 };
 
-class ScriptApiAsync:
+class ScriptApiAsync :
 	virtual public ScriptApiBase
 {
 public:

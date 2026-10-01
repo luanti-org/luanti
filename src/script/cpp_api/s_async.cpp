@@ -111,13 +111,6 @@ u32 AsyncEngine::queueAsyncJob(LuaJobInfo &&job)
 	return jobId;
 }
 
-u32 AsyncEngine::queueAsyncJob(std::string &&func, std::string &&params,
-		const std::string &mod_origin)
-{
-	LuaJobInfo to_add(std::move(func), std::move(params), mod_origin);
-	return queueAsyncJob(std::move(to_add));
-}
-
 u32 AsyncEngine::queueAsyncJob(std::string &&func, PackedValue *params,
 		const std::string &mod_origin)
 {
@@ -189,10 +182,7 @@ void AsyncEngine::stepJobResults(lua_State *L)
 		luaL_checktype(L, -1, LUA_TFUNCTION);
 
 		lua_pushinteger(L, j.id);
-		if (j.result_ext)
-			script_unpack(L, j.result_ext.get());
-		else
-			lua_pushlstring(L, j.result.data(), j.result.size());
+		script_unpack(L, j.result_ext.get());
 
 		// Call handler
 		const char *origin = j.mod_origin.empty() ? nullptr : j.mod_origin.c_str();
@@ -378,8 +368,6 @@ void* AsyncWorkerThread::run()
 		if (!jobDispatcher->getJob(&j) || stopRequested())
 			continue;
 
-		const bool use_ext = !!j.params_ext;
-
 		lua_getfield(L, -1, "job_processor");
 		if (lua_isnil(L, -1))
 			FATAL_ERROR("Unable to get async job processor!");
@@ -389,10 +377,7 @@ void* AsyncWorkerThread::run()
 			errorstream << "ASYNC WORKER: Unable to deserialize function" << std::endl;
 			lua_pushnil(L);
 		}
-		if (use_ext)
-			script_unpack(L, j.params_ext.get());
-		else
-			lua_pushlstring(L, j.params.data(), j.params.size());
+		script_unpack(L, j.params_ext.get());
 
 		// Call it
 		setOriginDirect(j.mod_origin.empty() ? nullptr : j.mod_origin.c_str());
@@ -405,17 +390,11 @@ void* AsyncWorkerThread::run()
 			}
 		} else {
 			// Fetch result
-			if (use_ext) {
-				try {
-					j.result_ext.reset(script_pack(L, -1));
-				} catch (const ModError &e) {
-					report_error(e);
-					result = LUA_ERRERR;
-				}
-			} else {
-				size_t length;
-				const char *retval = lua_tolstring(L, -1, &length);
-				j.result.assign(retval, length);
+			try {
+				j.result_ext.reset(script_pack(L, -1));
+			} catch (const ModError &e) {
+				report_error(e);
+				result = LUA_ERRERR;
 			}
 		}
 

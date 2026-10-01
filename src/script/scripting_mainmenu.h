@@ -25,8 +25,7 @@ public:
 	void step();
 
 	// Pass async events from engine to async threads
-	u32 queueAsync(std::string &&serialized_func,
-		std::string &&serialized_param);
+	u32 queueAsync(std::string &&serialized_func, PackedValue *param);
 
 	// Is the main menu allowed writeable access to this path?
 	static bool mayModifyPath(const std::string &path);
