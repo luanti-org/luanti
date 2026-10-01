@@ -1,7 +1,7 @@
 add_subdirectory(content)
 
 set(BUILTIN_MAINMENU_SRCS
-	mainmenu/async_event.lua
+	mainmenu/async.lua
 	mainmenu/common.lua
 	mainmenu/credits.json
 	mainmenu/dlg_clients_list.lua
