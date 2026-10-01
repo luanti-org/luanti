@@ -44,13 +44,14 @@ extern "C" {
 	setOriginFromTableRaw(index, __FUNCTION__)
 
 enum class ScriptingType: u8 {
-	Async, // either mainmenu (client) or ingame (server)
+	Async, // either mainmenu/cli (client) or ingame (server)
 	Client, // CPCSM
 	MainMenu,
 	Server,
 	Emerge,
 	PauseMenu,
 	SSCSM,
+	CLI
 };
 
 class Server;

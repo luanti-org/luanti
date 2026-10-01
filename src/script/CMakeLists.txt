@@ -10,6 +10,7 @@ set(common_SCRIPT_SRCS
 	${common_SCRIPT_HDRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/scripting_server.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/scripting_emerge.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/scripting_cli.cpp
 
 	${common_SCRIPT_COMMON_SRCS}
 	${common_SCRIPT_CPP_API_SRCS}

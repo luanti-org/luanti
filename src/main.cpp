@@ -30,6 +30,7 @@
 #include "network/socket.h"
 #include "network/networkexceptions.h"
 #include "mapblock.h"
+#include "script/scripting_cli.h"
 #if USE_CURSES
 	#include "terminal_chat_console.h"
 #endif
@@ -262,6 +263,13 @@ int main(int argc, char *argv[])
 #endif
 	}
 
+	// Run Lua code
+	if (cmd_args.exists("x-lua")) {
+		CLIScripting script;
+		script.loadBuiltin();
+		return script.run(cmd_args.get("x-lua").c_str());
+	}
+
 	GameParams game_params;
 #if !CHECK_CLIENT_BUILD()
 	porting::attachOrCreateConsole();
@@ -421,6 +429,8 @@ static void set_allowed_options(OptionList *allowed_options)
 			_("Recompress the blocks of the given map database" SERVER_ONLY))));
 	allowed_options->emplace("insecure-no-sandbox", ValueSpec(VALUETYPE_FLAG,
 			_("Disable server Lua sandbox (INSECURE!)")));
+	allowed_options->emplace("x-lua", ValueSpec(VALUETYPE_STRING,
+			_("Run provided Lua code (experimental feature)")));
 #if CHECK_CLIENT_BUILD()
 	allowed_options->insert(std::make_pair("address", ValueSpec(VALUETYPE_STRING,
 			_("Address to connect to ('' = local game)"))));
