@@ -20,8 +20,13 @@ class GUIScrollBar;
 class ParsedText
 {
 public:
+	ParsedText() {}
 	ParsedText(const wchar_t *text, video::SColor default_color);
 	~ParsedText();
+
+	DISABLE_CLASS_COPY(ParsedText);
+
+	void setText(const wchar_t *text, video::SColor default_color);
 
 	enum ElementType
 	{
@@ -150,10 +155,10 @@ protected:
 
 	// Current values
 	StyleList m_style;
-	Element *m_element;
-	Paragraph *m_paragraph;
-	bool m_empty_paragraph;
-	EndReason m_end_paragraph_reason;
+	Element *m_element = nullptr;
+	Paragraph *m_paragraph = nullptr;
+	bool m_empty_paragraph = true;
+	EndReason m_end_paragraph_reason = ER_NONE;
 };
 
 class TextDrawer
@@ -164,6 +169,10 @@ public:
 			video::SColor default_background_color,
 			video::SColor default_color);
 
+	DISABLE_CLASS_COPY(TextDrawer);
+
+	void setText(const wchar_t *text, video::SColor default_color);
+
 	void place(const core::rect<s32> &dest_rect);
 	inline s32 getHeight() { return m_height; };
 	void draw(const core::rect<s32> &clip_rect,
@@ -171,7 +180,7 @@ public:
 	void drawBackgroundImage(video::IVideoDriver *driver, const core::rect<s32> &clip_rect);
 	void applyStyleSpecToText(const StyleSpec &style);
 	ParsedText::Element *getElementAt(core::position2d<s32> pos);
-	ParsedText::Tag *m_hovertag;
+	ParsedText::Tag *m_hovertag = nullptr;
 
 protected:
 	struct RectWithMargin
@@ -206,12 +215,14 @@ public:
 	virtual ~GUIHyperText();
 
 	//! draws the element and its children
-	virtual void draw();
+	void draw() override;
+
+	void setText(const wchar_t *text) override;
 
 	//! Returns the height of the text in pixels when it is drawn.
 	s32 getTextHeight() { return m_drawer.getHeight(); }
 
-	bool OnEvent(const SEvent &event);
+	bool OnEvent(const SEvent &event) override;
 
 	void setStyles(const std::array<StyleSpec, StyleSpec::NUM_STATES> &styles);
 
@@ -220,6 +231,7 @@ protected:
 	ISimpleTextureSource *m_tsrc;
 	GUIScrollBar *m_vscrollbar;
 	TextDrawer m_drawer;
+	StyleSpec m_style; /// to reapply to 'm_drawer'
 
 	// Positioning
 	u32 m_scrollbar_width;
