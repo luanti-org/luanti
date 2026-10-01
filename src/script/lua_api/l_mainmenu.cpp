@@ -1101,7 +1101,7 @@ int ModApiMainMenu::l_do_async_callback(lua_State *L)
 	auto serialized_func = dump_function_to_string(L, 1);
 	PackedValue *param = script_pack(L, 2);
 
-	u32 jobId = script->queueAsync(std::move(serialized_func), param);
+	u32 jobId = script->queueAsync(std::move(serialized_func), param, "");
 
 	lua_pushinteger(L, jobId);
 	return 1;

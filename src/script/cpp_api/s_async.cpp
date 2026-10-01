@@ -11,18 +11,15 @@ extern "C" {
 #include <lualib.h>
 }
 
-#include "server.h"
 #include "s_async.h"
 #include "log.h"
-#include "config.h"
-#include "filesys.h"
 #include "settings.h"
 #include "porting.h"
+#include "server.h"
+#include "filesys.h"
+#include "util/thread.h"
 #include "common/c_internal.h"
 #include "common/c_packer.h"
-#if CHECK_CLIENT_BUILD()
-#include "script/scripting_mainmenu.h"
-#endif
 #include "lua_api/l_base.h"
 
 // if a job is waiting for this duration, an additional thread will be spawned
@@ -69,11 +66,16 @@ void AsyncEngine::registerStateInitializer(StateInitializer func)
 }
 
 /******************************************************************************/
-void AsyncEngine::initialize(unsigned int numEngines)
+void AsyncEngine::initialize(unsigned int num_engines, const char *init_type, bool enable_security)
 {
+	FATAL_ERROR_IF(initDone, "Already initialized");
 	initDone = true;
 
-	if (numEngines == 0) {
+	assert(parent && init_type);
+	this->initType = init_type;
+	this->enableSecurity = enable_security;
+
+	if (num_engines == 0) {
 		// Leave one core for the main thread and one for whatever else
 		autoscaleMaxWorkers = Thread::getNumberOfProcessors();
 		if (autoscaleMaxWorkers >= 2)
@@ -83,7 +85,7 @@ void AsyncEngine::initialize(unsigned int numEngines)
 
 		addWorkerThread();
 	} else {
-		for (unsigned int i = 0; i < numEngines; i++)
+		for (unsigned int i = 0; i < num_engines; i++)
 			addWorkerThread();
 	}
 }
@@ -91,7 +93,7 @@ void AsyncEngine::initialize(unsigned int numEngines)
 void AsyncEngine::addWorkerThread()
 {
 	AsyncWorkerThread *toAdd = new AsyncWorkerThread(this,
-		std::string("AsyncWorker-") + itos(workerThreads.size()));
+		std::string("AsyncWorker-") + std::to_string(workerThreads.size()));
 	workerThreads.push_back(toAdd);
 	toAdd->start();
 }
@@ -255,6 +257,9 @@ bool AsyncEngine::prepareEnvironment(lua_State* L, int top)
 		init(L, top);
 	}
 
+	lua_pushstring(L, initType);
+	lua_setglobal(L, "INIT");
+
 	auto *script = ModApiBase::getScriptApiBase(L);
 	try {
 		script->loadMod(Server::getBuiltinLuaPath() + DIR_DELIM + "init.lua",
@@ -263,27 +268,11 @@ bool AsyncEngine::prepareEnvironment(lua_State* L, int top)
 	} catch (const ModError &e) {
 		errorstream << "Execution of async base environment failed: "
 			<< e.what() << std::endl;
-		if (server)
-			server->setAsyncFatalError(e.what());
-		// FIXME: there's no general way to report such fatal errors to our "owner"
-		// (e.g. GUIEngine)
+		parent->reportAsyncError(e.what());
 		return false;
 	}
 
-	// Load per mod stuff
-	if (server) {
-		const auto &list = server->m_async_init_files;
-		try {
-			for (auto &it : list)
-				script->loadMod(it.second, it.first);
-		} catch (const ModError &e) {
-			errorstream << "Failed to load mod script inside async environment." << std::endl;
-			server->setAsyncFatalError(e.what());
-			return false;
-		}
-	}
-
-	return true;
+	return parent->onAsyncEnvSetup(script);
 }
 
 AsyncWorkerThread::AsyncWorkerThread(AsyncEngine* jobDispatcher,
@@ -294,23 +283,18 @@ AsyncWorkerThread::AsyncWorkerThread(AsyncEngine* jobDispatcher,
 {
 	lua_State *L = getStack();
 
-	if (jobDispatcher->server) {
-		setGameDef(jobDispatcher->server);
+	// Inherit gamedef from parent
+	if (jobDispatcher->parent->getGameDef())
+		setGameDef(jobDispatcher->parent->getGameDef());
 
-		if (!g_disable_mod_security)
-			initializeSecurity();
-	} else {
-		// Security is mandatory in the main menu context
+	if (jobDispatcher->enableSecurity)
 		initializeSecurity();
-	}
+	else
+		infostream << "AsyncWorkerThread: mod security is disabled!" << std::endl;
 
 	// Prepare job lua environment
 	lua_getglobal(L, "core");
 	int top = lua_gettop(L);
-
-	// Push builtin initialization type
-	lua_pushstring(L, jobDispatcher->server ? "async_game" : "async");
-	lua_setglobal(L, "INIT");
 
 	if (!jobDispatcher->prepareEnvironment(L, top)) {
 		// can't throw from here so we're stuck with this
@@ -327,17 +311,7 @@ AsyncWorkerThread::~AsyncWorkerThread()
 bool AsyncWorkerThread::checkPathInternal(const std::string &abs_path,
 	bool write_required, bool *write_allowed)
 {
-	auto *L = getStack();
-	// dispatch to the right implementation. this should be refactored some day...
-	if (jobDispatcher->server) {
-		return ScriptApiSecurity::checkPathWithGamedef(L, abs_path, write_required, write_allowed);
-	} else {
-#if CHECK_CLIENT_BUILD()
-		return MainMenuScripting::checkPathAccess(abs_path, write_required, write_allowed);
-#else
-		FATAL_ERROR("should never get here");
-#endif
-	}
+	return jobDispatcher->parent->checkPathInternal(abs_path, write_required, write_allowed);
 }
 
 void* AsyncWorkerThread::run()
@@ -350,10 +324,7 @@ void* AsyncWorkerThread::run()
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
 	auto report_error = [this] (const ModError &e) {
-		if (jobDispatcher->server)
-			jobDispatcher->server->setAsyncFatalError(e.what());
-		else
-			errorstream << e.what() << std::endl;
+		jobDispatcher->parent->reportAsyncError(e.what());
 	};
 
 	lua_getglobal(L, "core");
