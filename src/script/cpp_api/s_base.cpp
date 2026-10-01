@@ -87,6 +87,9 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 	m_lock_recursion_count = 0;
 #endif
 
+	// Make sure Lua uses the right locale
+	setlocale(LC_NUMERIC, "C");
+
 	m_luastack = luaL_newstate();
 	FATAL_ERROR_IF(!m_luastack, "luaL_newstate() failed");
 
@@ -189,14 +192,16 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 
 	lua_pushstring(m_luastack, porting::getPlatformName());
 	lua_setglobal(m_luastack, "PLATFORM");
-
-	// Make sure Lua uses the right locale
-	setlocale(LC_NUMERIC, "C");
 }
 
 ScriptApiBase::~ScriptApiBase()
 {
 	lua_close(m_luastack);
+}
+
+std::string ScriptApiBase::getBuiltinLuaPath()
+{
+	return porting::path_share + DIR_DELIM "builtin";
 }
 
 int ScriptApiBase::luaPanic(lua_State *L)
