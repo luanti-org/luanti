@@ -415,7 +415,6 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	if (*speed_f == v3f() && accel_f == v3f())
 		return result;
 
-	bool is_server = gamedef->getGameSpec() != nullptr;
 	/*
 		Calculate new velocity
 	*/
@@ -446,8 +445,6 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 					pos_f, speed_f, accel_f, self, collide_with_objects, step_up_mode);
 			// run with remaining dtime
 			dtime -= dtime_peak;
-			if (is_server)
-				printf("TWO STEP t1=%g, t2=%gf\n", dtime_peak, dtime);
 		}
 	}
 
@@ -506,9 +503,6 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		movingbox.MinEdge += *pos_f;
 		movingbox.MaxEdge += *pos_f;
 
-		if (is_server)
-			printf("pos=%.1f, aspeed=%.1f\n", pos_f->Y, aspeed_f.Y);
-
 		CollisionAxis nearest_collided = COLLISION_AXIS_NONE;
 		f32 nearest_dtime = dtime;
 		int nearest_boxindex = -1;
@@ -539,8 +533,6 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 			*speed_f += accel_f * dtime;
 			// Limit speed for avoiding hangs
 			*speed_f = truncate(rangelimv(*speed_f, -5000.0f, 5000.0f), 10000.0f);
-			if (is_server)
-				printf("\tno collision pos=%.1f\n", pos_f->Y);
 			break;
 		}
 		// Otherwise, a collision occurred.
@@ -597,16 +589,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		} else if (nearest_collided == COLLISION_AXIS_X) {
 			collide_with<&v3f::X>(box_0, cbox, pos_f, speed_f, &accel_f, aspeed_f, bounce);
 		} else if (nearest_collided == COLLISION_AXIS_Y) {
-			if (is_server) {
-				printf("Y pos=%.1f, vel=%.1f acc=%.1f, t=%g aspeed=%.1f\n", pos_f->Y, speed_f->Y, accel_f.Y, nearest_dtime, aspeed_f.Y);
-				printf("\t box (%.1f,%.1f,%.1f, %.1f,%.1f,%.1f)\n",
-					cbox.MinEdge.X, cbox.MinEdge.Y, cbox.MinEdge.Z,
-					cbox.MaxEdge.X, cbox.MaxEdge.Y, cbox.MaxEdge.Z
-				);
-			}
 			collide_with<&v3f::Y>(box_0, cbox, pos_f, speed_f, &accel_f, aspeed_f, bounce);
-			if (is_server)
-				printf("\t after pos=%.1f\n", pos_f->Y);
 
 			if (accel_f.Y == 0 && aspeed_f.Y < 0.0f) {
 				// Collided with ground. Update relevant variables.
