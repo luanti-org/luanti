@@ -375,7 +375,8 @@ template <float v3f::*AX>
 inline void collide_with(const aabb3f &box_mov, const aabb3f &box_stat,
 	v3f *pos_f, v3f *speed_f, v3f *accel_f, const v3f &aspeed_f, float bounce)
 {
-	const float speed = aspeed_f.*AX;
+	// Rare case: `speed_f->*AX` may be 0 when spawning an object (inside a collision box)
+	const float speed = speed_f->*AX ? speed_f->*AX : aspeed_f.*AX;
 
 	if (speed) {
 		// Set the position along the axis of collision to exactly where the box collided.
