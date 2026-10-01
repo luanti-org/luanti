@@ -15,7 +15,6 @@ extern "C" {
 #include "log.h"
 #include "settings.h"
 #include "porting.h"
-#include "server.h"
 #include "filesys.h"
 #include "util/thread.h"
 #include "common/c_internal.h"
@@ -262,7 +261,7 @@ bool AsyncEngine::prepareEnvironment(lua_State* L, int top)
 
 	auto *script = ModApiBase::getScriptApiBase(L);
 	try {
-		script->loadMod(Server::getBuiltinLuaPath() + DIR_DELIM + "init.lua",
+		script->loadMod(ScriptApiBase::getBuiltinLuaPath() + DIR_DELIM "init.lua",
 			BUILTIN_MOD_NAME);
 		script->checkSetByBuiltin();
 	} catch (const ModError &e) {

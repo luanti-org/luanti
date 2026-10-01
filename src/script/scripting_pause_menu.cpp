@@ -49,7 +49,7 @@ void PauseMenuScripting::initializeModApi(lua_State *L, int top)
 
 void PauseMenuScripting::loadBuiltin()
 {
-	loadScript(Client::getBuiltinLuaPath() + DIR_DELIM "init.lua");
+	loadScript(getBuiltinLuaPath() + DIR_DELIM "init.lua");
 	checkSetByBuiltin();
 }
 
@@ -64,6 +64,6 @@ bool PauseMenuScripting::checkPathInternal(const std::string &abs_path, bool wri
 	if (write_required)
 		return false;
 
-	std::string path_builtin = fs::AbsolutePath(Client::getBuiltinLuaPath());
+	std::string path_builtin = fs::AbsolutePath(getBuiltinLuaPath());
 	return !path_builtin.empty() && fs::PathStartsWith(abs_path, path_builtin);
 }

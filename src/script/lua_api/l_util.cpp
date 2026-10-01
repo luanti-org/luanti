@@ -292,7 +292,8 @@ int ModApiUtil::l_get_builtin_path(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	std::string path = porting::path_share + DIR_DELIM + "builtin" + DIR_DELIM;
+	auto path = ScriptApiBase::getBuiltinLuaPath();
+	path.append(DIR_DELIM);
 	lua_pushstring(L, path.c_str());
 
 	return 1;
@@ -303,8 +304,7 @@ int ModApiUtil::l_get_user_path(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
 
-	std::string path = porting::path_user;
-	lua_pushstring(L, path.c_str());
+	lua_pushstring(L, porting::path_user.c_str());
 
 	return 1;
 }

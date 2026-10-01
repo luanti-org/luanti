@@ -77,6 +77,8 @@ public:
 	virtual ~ScriptApiBase();
 	DISABLE_CLASS_COPY(ScriptApiBase);
 
+	static std::string getBuiltinLuaPath();
+
 	// These throw a ModError on failure
 	void loadMod(const std::string &script_path, const std::string &mod_name);
 	void loadScript(const std::string &script_path);

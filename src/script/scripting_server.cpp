@@ -91,7 +91,7 @@ ServerScripting::ServerScripting(Server* server):
 
 void ServerScripting::loadBuiltin()
 {
-	loadMod(Server::getBuiltinLuaPath() + DIR_DELIM "init.lua", BUILTIN_MOD_NAME);
+	loadMod(getBuiltinLuaPath() + DIR_DELIM "init.lua", BUILTIN_MOD_NAME);
 	checkSetByBuiltin();
 }
 
