@@ -11,14 +11,13 @@
 
 #pragma once
 
-#include <thread>
-#include "common/c_internal.h"
+#include <cassert>
 #include "cpp_api/s_base.h"
 #include "threading/mutex_auto_lock.h"
 #include "common/c_types.h"
 
 #ifdef SCRIPTAPI_LOCK_DEBUG
-#include <cassert>
+#include <thread>
 
 class LockChecker {
 public:
@@ -59,7 +58,7 @@ private:
 		&this->m_owning_thread)
 
 #else
-	#define SCRIPTAPI_LOCK_CHECK while(0)
+	#define SCRIPTAPI_LOCK_CHECK (void)0
 #endif
 
 #define SCRIPTAPI_PRECHECKHEADER                                               \

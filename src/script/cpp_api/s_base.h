@@ -6,7 +6,6 @@
 
 #include <iostream>
 #include <string>
-#include <thread>
 #include <mutex>
 #include "common/helper.h"
 #include "util/basic_macros.h"
@@ -21,7 +20,11 @@ extern "C" {
 #include "debug.h"
 #include "config.h"
 
+#ifndef NDEBUG
+#include <thread>
+
 #define SCRIPTAPI_LOCK_DEBUG
+#endif
 
 // MUST be an invalid mod name so that mods can't
 // use that name to bypass security!
@@ -136,12 +139,10 @@ protected:
 
 	/*
 		Subtle edge case with coroutines: If for whatever reason you have a
-		method in a subclass that's called from existing lua_CFunction
+		method in a subclass that's called from an existing lua_CFunction
 		(any of the l_*.cpp files) then make it static and take the lua_State*
 		as an argument. This is REQUIRED because getStack() will not return the
 		correct state if called inside coroutines.
-
-		Also note that src/script/common/ is the better place for such helpers.
 	*/
 	lua_State* getStack()
 		{ return m_luastack; }
