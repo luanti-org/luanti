@@ -165,7 +165,7 @@ Schematic *load_schematic(lua_State *L, int index, const NodeDefManager *ndef,
 		if (!fs::IsPathAbsolute(filepath))
 			filepath = ModApiBase::getCurrentModPath(L) + DIR_DELIM + filepath;
 
-      CHECK_SECURE_PATH(L, filepath.c_str(), false);
+		CHECK_SECURE_PATH(L, filepath.c_str(), false);
 
 		if (!schem->loadSchematicFromFile(filepath, ndef,
 				replace_names)) {
