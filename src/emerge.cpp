@@ -648,7 +648,7 @@ bool EmergeThread::initScripting()
 	m_script = std::make_unique<EmergeScripting>(this);
 
 	try {
-		m_script->loadMod(Server::getBuiltinLuaPath() + DIR_DELIM + "init.lua",
+		m_script->loadMod(ScriptApiBase::getBuiltinLuaPath() + DIR_DELIM "init.lua",
 			BUILTIN_MOD_NAME);
 		m_script->checkSetByBuiltin();
 	} catch (const ModError &e) {

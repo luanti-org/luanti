@@ -30,6 +30,7 @@
 #include "network/socket.h"
 #include "network/networkexceptions.h"
 #include "mapblock.h"
+#include "script/scripting_cli.h"
 #if USE_CURSES
 	#include "terminal_chat_console.h"
 #endif
@@ -262,6 +263,13 @@ int main(int argc, char *argv[])
 #endif
 	}
 
+	// Run Lua code from CLI (for testing)
+	if (cmd_args.exists("x-lua")) {
+		CLIScripting script;
+		script.loadBuiltin();
+		return script.run(cmd_args.get("x-lua").c_str());
+	}
+
 	GameParams game_params;
 #if !CHECK_CLIENT_BUILD()
 	porting::attachOrCreateConsole();
@@ -421,6 +429,7 @@ static void set_allowed_options(OptionList *allowed_options)
 			_("Recompress the blocks of the given map database" SERVER_ONLY))));
 	allowed_options->emplace("insecure-no-sandbox", ValueSpec(VALUETYPE_FLAG,
 			_("Disable server Lua sandbox (INSECURE!)")));
+	allowed_options->emplace("x-lua", ValueSpec(VALUETYPE_STRING, nullptr));
 #if CHECK_CLIENT_BUILD()
 	allowed_options->insert(std::make_pair("address", ValueSpec(VALUETYPE_STRING,
 			_("Address to connect to ('' = local game)"))));
@@ -469,6 +478,9 @@ static void print_help(const OptionList &allowed_options)
 static void print_allowed_options(const OptionList &allowed_options)
 {
 	for (const auto &allowed_option : allowed_options) {
+		if (!allowed_option.second.help) // help is null => hidden
+			continue;
+
 		std::string opt = "  --" + allowed_option.first;
 		if (allowed_option.second.type != VALUETYPE_FLAG)
 			opt += _(" <value>");

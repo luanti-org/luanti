@@ -1,14 +1,11 @@
 core.log("info", "Initializing asynchronous environment")
 
+-- Entrypoint to run async jobs, called by C++
+function core.job_processor(func, param)
+	local retval = func(param)
 
-function core.job_processor(func, serialized_param)
-	local param = core.deserialize(serialized_param)
-
-	local retval = core.serialize(func(param))
-
-	return retval or core.serialize(nil)
+	return retval
 end
-
 
 function core.get_http_accept_languages()
 	local languages

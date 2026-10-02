@@ -296,12 +296,12 @@ Translations *GUIEngine::getContentTranslations(const std::string &path,
 bool GUIEngine::loadMainMenuScript()
 {
 	// Set main menu path (for core.get_mainmenu_path())
-	m_scriptdir = porting::path_share + DIR_DELIM + "builtin" + DIR_DELIM + "mainmenu";
+	m_scriptdir = ScriptApiBase::getBuiltinLuaPath() + DIR_DELIM "mainmenu";
 
 	// Load builtin (which will load the main menu script)
-	std::string script = porting::path_share + DIR_DELIM "builtin" + DIR_DELIM "init.lua";
+	auto script = ScriptApiBase::getBuiltinLuaPath() + DIR_DELIM "init.lua";
 	try {
-		m_script->loadScript(script);
+		m_script->loadMod(script, BUILTIN_MOD_NAME);
 		m_script->checkSetByBuiltin();
 		// Menu script loaded
 		return true;
@@ -394,7 +394,7 @@ void GUIEngine::run()
 			driver->endScene();
 		}
 
-		m_script->step();
+		m_script->stepAsync();
 
 		sound_volume_control(m_sound_manager.get(), device->isWindowActive());
 		m_sound_manager->step(dtime);

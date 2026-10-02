@@ -8,12 +8,12 @@
 #include "util/hashing.h"
 #include "util/hex.h"
 #include "builtin_files.h"
-#include "server.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
 #include "client/mod_vfs.h"
 #endif
 #include "content/mods.h" // ModSpec
+#include "content/subgames.h" // SubgameSpec
 #include "settings.h"
 #include "constants.h"
 
@@ -739,7 +739,7 @@ bool ScriptApiSecurity::safeLoadFile(lua_State *L, const char *path, const char 
 	// Check sha256 if it's a builtin file
 	do {
 		assert(path != nullptr);
-		auto path_local = fs::MakePathRelativeTo(path, Server::getBuiltinLuaPath());
+		auto path_local = fs::MakePathRelativeTo(path, ScriptApiBase::getBuiltinLuaPath());
 		if (path_local.empty())
 			break; // not in builtin
 
@@ -886,7 +886,7 @@ bool ScriptApiSecurity::checkPathWithGamedef(lua_State *L,
 
 	// Allow read-only access to builtin
 	if (!write_required) {
-		str = fs::AbsolutePath(Server::getBuiltinLuaPath());
+		str = fs::AbsolutePath(ScriptApiBase::getBuiltinLuaPath());
 		if (!str.empty() && fs::PathStartsWith(abs_path, str))
 			return true;
 	}
@@ -1030,7 +1030,7 @@ int ScriptApiSecurity::sl_g_loadfile(lua_State *L)
 	}
 #endif
 
-	// Server implementation
+	// Normal implementation
 	const char *path = NULL;
 	if (lua_isstring(L, 1)) {
 		path = lua_tostring(L, 1);

@@ -45,10 +45,10 @@ void TestMoveAction::runTests(IGameDef *gamedef)
 
 	server.createScripting();
 	try {
-		std::string builtin = Server::getBuiltinLuaPath() + DIR_DELIM;
+		auto builtin = ScriptApiBase::getBuiltinLuaPath() + DIR_DELIM;
 		auto script = server.getScriptIface();
 		script->loadBuiltin();
-		script->loadMod(builtin + "game" DIR_DELIM "tests" DIR_DELIM "test_moveaction.lua", BUILTIN_MOD_NAME);
+		script->loadScript(builtin + "game" DIR_DELIM "tests" DIR_DELIM "test_moveaction.lua");
 	} catch (ModError &e) {
 		rawstream << e.what() << std::endl;
 		num_tests_failed = 1;

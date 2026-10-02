@@ -4,35 +4,37 @@
 
 #pragma once
 
+#include <atomic>
 #include "cpp_api/s_base.h"
-#include "cpp_api/s_mainmenu.h"
 #include "cpp_api/s_security.h"
 #include "cpp_api/s_async.h"
 
-/*****************************************************************************/
-/* Scripting <-> Main Menu Interface                                         */
-/*****************************************************************************/
-
-class MainMenuScripting
+class CLIScripting
 		: virtual public ScriptApiBase,
-		  public ScriptApiMainMenu,
 		  public ScriptApiSecurity,
 		  public ScriptApiAsync
 {
 public:
-	MainMenuScripting(GUIEngine* guiengine);
+	CLIScripting();
 
-	// Is the main menu allowed write access to this path?
-	static bool mayModifyPath(const std::string &path);
+	void loadBuiltin();
+
+	int run(const char *code);
 
 protected:
 	// from ScriptApiSecurity:
 	bool checkPathInternal(const std::string &abs_path, bool write_required,
-		bool *write_allowed) override;
+		bool *write_allowed) override {
+		if (write_allowed)
+			*write_allowed = true;
+		return true;
+	}
 	// from ScriptApiAsync:
 	void reportAsyncError(const std::string &msg) override;
 
 private:
 	void initializeModApi(lua_State *L, int top);
 	static void registerLuaClasses(lua_State *L, int top);
+
+	std::atomic<bool> m_error_caught;
 };

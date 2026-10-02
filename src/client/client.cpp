@@ -184,7 +184,7 @@ Client::Client(
 
 		ModVFS tmp_mod_vfs;
 		// FIXME: only read files that are relevant to sscsm, and compute sha2 digests
-		tmp_mod_vfs.scanModIntoMemory("*client_builtin*", getBuiltinLuaPath());
+		tmp_mod_vfs.scanModIntoMemory("*client_builtin*", ScriptApiBase::getBuiltinLuaPath());
 
 		for (auto &p : tmp_mod_vfs.m_vfs) {
 			event1->files.emplace_back(p.first, std::move(p.second));
@@ -256,7 +256,7 @@ void Client::loadMods()
 	m_script->setEnv(&m_env);
 
 	// Load builtin
-	m_mod_vfs->scanModIntoMemory(BUILTIN_MOD_NAME, getBuiltinLuaPath());
+	m_mod_vfs->scanModIntoMemory(BUILTIN_MOD_NAME, ScriptApiBase::getBuiltinLuaPath());
 	m_script->loadModFromMemory(BUILTIN_MOD_NAME);
 	m_script->checkSetByBuiltin();
 
@@ -317,12 +317,6 @@ void Client::loadMods()
 		m_script->on_minimap_ready(m_minimap.get());
 }
 
-const std::string &Client::getBuiltinLuaPath()
-{
-	static const std::string builtin_dir = porting::path_share + DIR_DELIM + "builtin";
-	return builtin_dir;
-}
-
 const std::string &Client::getClientModsLuaPath()
 {
 	static const std::string clientmods_dir = porting::path_share + DIR_DELIM + "clientmods";
@@ -331,8 +325,8 @@ const std::string &Client::getClientModsLuaPath()
 
 const std::vector<ModSpec>& Client::getMods() const
 {
-	static std::vector<ModSpec> client_modspec_temp;
-	return client_modspec_temp;
+	const static std::vector<ModSpec> empty;
+	return empty;
 }
 
 const ModSpec* Client::getModSpec(const std::string &modname) const

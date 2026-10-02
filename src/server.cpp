@@ -2730,7 +2730,7 @@ void Server::fillMediaCache()
 	std::vector<std::string> paths;
 
 	// ordered in descending priority
-	paths.push_back(getBuiltinLuaPath() + DIR_DELIM "locale");
+	paths.push_back(ScriptApiBase::getBuiltinLuaPath() + DIR_DELIM "locale");
 	fs::GetRecursiveDirs(paths,
 		porting::path_user + DIR_DELIM "textures" DIR_DELIM "server");
 	fs::GetRecursiveDirs(paths,
@@ -4034,11 +4034,6 @@ const std::vector<ModSpec> & Server::getMods() const
 const ModSpec *Server::getModSpec(const std::string &modname) const
 {
 	return m_modmgr->getModSpec(modname);
-}
-
-std::string Server::getBuiltinLuaPath()
-{
-	return porting::path_share + DIR_DELIM + "builtin";
 }
 
 void Server::setAsyncFatalError(const std::string &error)

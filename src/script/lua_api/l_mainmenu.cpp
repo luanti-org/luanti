@@ -1101,9 +1101,11 @@ int ModApiMainMenu::l_do_async_callback(lua_State *L)
 	MainMenuScripting *script = getScriptApi<MainMenuScripting>(L);
 
 	luaL_checktype(L, 1, LUA_TFUNCTION);
-	u32 jobId = script->queueAsync(
-		dump_function_to_string(L, 1),
-		readParam<std::string>(L, 2));
+
+	auto serialized_func = dump_function_to_string(L, 1);
+	PackedValue *param = script_pack(L, 2);
+
+	u32 jobId = script->queueAsync(std::move(serialized_func), param, "");
 
 	lua_pushinteger(L, jobId);
 	return 1;
