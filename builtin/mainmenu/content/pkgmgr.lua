@@ -399,8 +399,12 @@ local function toggle_mod_or_modpack(list, toggled_mods, enabled_mods, toset, mo
 end
 
 function pkgmgr.enable_mod(this, toset)
+	pkgmgr.enable_mod_by_id(this, this.data.selected_mod, toset)
+end
+
+function pkgmgr.enable_mod_by_id(this, mod_id, toset)
 	local list = this.data.list:get_list()
-	local mod = list[this.data.selected_mod]
+	local mod = list[mod_id]
 
 	if mod.always_on then
 		return
