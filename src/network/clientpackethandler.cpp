@@ -1177,6 +1177,7 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 	std::string text2;
 	u32 style = 0;
 	u8 flags = 1;
+	f32 opacity = 1.0f;
 
 	*pkt >> server_id >> type >> pos >> name >> scale >> text >> number >> item
 		>> dir >> align >> offset;
@@ -1211,6 +1212,10 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 		// >= 5.17.0-dev
 		*pkt >> flags;
 
+		if (!pkt->hasRemainingBytes())
+			break;
+		*pkt >> opacity;
+
 	} while (0);
 
 	ClientEvent *event = new ClientEvent();
@@ -1233,6 +1238,7 @@ void Client::handleCommand_HudAdd(NetworkPacket* pkt)
 	event->hudadd->text2     = text2;
 	event->hudadd->style     = style;
 	event->hudadd->hideable  = flags % 2;
+	event->hudadd->opacity   = opacity;
 	m_client_event_queue.push(event);
 }
 
@@ -1289,6 +1295,12 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 				v2fdata = v2f::from(old_format);
 			}
 			break;
+		case HUD_STAT_OPACITY: {
+			f32 fdata;
+			*pkt >> fdata;
+			v2fdata.X = fdata;
+			break;
+		}
 		default:
 			*pkt >> intdata;
 			break;
@@ -1303,6 +1315,43 @@ void Client::handleCommand_HudChange(NetworkPacket* pkt)
 	event->hudchange->v3fdata   = v3fdata;
 	event->hudchange->sdata     = sdata;
 	event->hudchange->data      = intdata;
+	m_client_event_queue.push(event);
+}
+
+void Client::handleCommand_HudAnimate(NetworkPacket* pkt)
+{
+	u32 server_id;
+	u8 num_properties;
+
+	*pkt >> server_id >> num_properties;
+
+	auto *event_data = new ClientEventHudAnimate();
+	event_data->server_id = server_id;
+
+	for (u8 i = 0; i < num_properties; i++) {
+		u8 stat;
+		u8 easing;
+		s32 loop;
+		u16 num_keyframes;
+
+		*pkt >> stat >> easing >> loop >> num_keyframes;
+
+		HudAnimProperty prop;
+		prop.easing = (easing <= HUD_ANIM_EASING_EASE_IN_OUT)
+			? static_cast<HudAnimEasing>(easing) : HUD_ANIM_EASING_LINEAR;
+		prop.loop = loop;
+		prop.keyframes.resize(num_keyframes);
+
+		for (u16 k = 0; k < num_keyframes; k++) {
+			*pkt >> prop.keyframes[k].value >> prop.keyframes[k].duration;
+		}
+
+		event_data->animations.properties[stat] = std::move(prop);
+	}
+
+	ClientEvent *event = new ClientEvent();
+	event->type = CE_HUDANIMATE;
+	event->hudanimate = event_data;
 	m_client_event_queue.push(event);
 }
 

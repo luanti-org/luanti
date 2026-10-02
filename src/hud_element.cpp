@@ -37,6 +37,7 @@ const struct EnumString es_HudElementStat[] =
 	{HUD_STAT_TEXT2,   "text2"},
 	{HUD_STAT_STYLE,   "style"},
 	{HUD_STAT_HIDEABLE, "hideable"},
+	{HUD_STAT_OPACITY, "opacity"},
 	{0, NULL},
 };
 
