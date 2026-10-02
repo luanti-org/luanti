@@ -1520,7 +1520,7 @@ void Client::sendUpdateClientInfo(const ClientDynamicInfo& info)
 
 void Client::removeNode(v3s16 p)
 {
-	std::map<v3s16, MapBlock*> modified_blocks;
+	ModifiedMapBlocks modified_blocks;
 
 	try {
 		m_env.getMap().removeNodeAndUpdate(p, modified_blocks);
@@ -1529,7 +1529,8 @@ void Client::removeNode(v3s16 p)
 	}
 
 	for (const auto &modified_block : modified_blocks) {
-		addUpdateMeshTaskWithEdge(modified_block.first, false, true);
+		addUpdateMeshTaskWithEdge(modified_block.first, false, true,
+				&modified_block.second);
 	}
 }
 
@@ -1581,7 +1582,7 @@ void Client::addNode(v3s16 p, MapNode n, bool remove_metadata)
 {
 	//TimeTaker timer1("Client::addNode()");
 
-	std::map<v3s16, MapBlock*> modified_blocks;
+	ModifiedMapBlocks modified_blocks;
 
 	try {
 		//TimeTaker timer3("Client::addNode(): addNodeAndUpdate");
@@ -1591,7 +1592,8 @@ void Client::addNode(v3s16 p, MapNode n, bool remove_metadata)
 	}
 
 	for (const auto &modified_block : modified_blocks) {
-		addUpdateMeshTaskWithEdge(modified_block.first, false, true);
+		addUpdateMeshTaskWithEdge(modified_block.first, false, true,
+				&modified_block.second);
 	}
 }
 
@@ -1800,9 +1802,11 @@ void Client::addUpdateMeshTask(v3s16 p, bool ack_to_server, bool urgent)
 	m_mesh_update_manager->updateBlock(&m_env.getMap(), p, ack_to_server, urgent);
 }
 
-void Client::addUpdateMeshTaskWithEdge(v3s16 blockpos, bool ack_to_server, bool urgent)
+void Client::addUpdateMeshTaskWithEdge(v3s16 blockpos, bool ack_to_server, bool urgent,
+		const ModifiedMapBlock *modified_block)
 {
-	m_mesh_update_manager->updateBlock(&m_env.getMap(), blockpos, ack_to_server, urgent, true);
+	m_mesh_update_manager->updateBlock(&m_env.getMap(), blockpos, ack_to_server, urgent,
+			modified_block);
 }
 
 void Client::addUpdateMeshTaskForNode(v3s16 nodepos, bool ack_to_server, bool urgent)
@@ -1811,7 +1815,7 @@ void Client::addUpdateMeshTaskForNode(v3s16 nodepos, bool ack_to_server, bool ur
 
 	v3s16 blockpos = getNodeBlockPos(nodepos);
 	v3s16 blockpos_relative = blockpos * MAP_BLOCKSIZE;
-	m_mesh_update_manager->updateBlock(&m_env.getMap(), blockpos, ack_to_server, urgent, false);
+	m_mesh_update_manager->updateBlock(&m_env.getMap(), blockpos, ack_to_server, urgent);
 	// Leading edge
 	if (nodepos.X == blockpos_relative.X)
 		addUpdateMeshTask(blockpos + v3s16(-1, 0, 0), false, urgent);
