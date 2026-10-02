@@ -3085,29 +3085,30 @@ void Server::DisconnectPeer(session_t peer_id)
 	m_con->DisconnectPeer(peer_id);
 }
 
-void Server::acceptAuth(session_t peer_id, bool forSudoMode)
+void Server::sendAuthResponse(NetworkPacket &pkt, const session_t peer_id, const ClientStateEvent event)
 {
-	if (!forSudoMode) {
-		RemoteClient* client = getClient(peer_id, CS_Invalid);
+	Send(&pkt);
+	m_clients.event(peer_id, event);
+}
 
-		NetworkPacket resp_pkt(TOCLIENT_AUTH_ACCEPT, 1 + 6 + 8 + 4, peer_id);
+void Server::acceptSudoAuth(const session_t peer_id)
+{
+	NetworkPacket pkt(static_cast<u16>(AuthCommand::AcceptSudo), 19, peer_id);
+	pkt << AUTH_MECHANISM_FIRST_SRP; // We only support SRP right now
 
-		resp_pkt << v3f() << (u64) m_env->getServerMap().getSeed()
-				<< g_settings->getFloat("dedicated_server_step")
-				<< client->allowed_auth_mechs;
+	sendAuthResponse(pkt, peer_id, CSE_SudoSuccess);
+}
 
-		Send(&resp_pkt);
-		m_clients.event(peer_id, CSE_AuthAccept);
-	} else {
-		NetworkPacket resp_pkt(TOCLIENT_ACCEPT_SUDO_MODE, 1 + 6 + 8 + 4, peer_id);
+void Server::acceptAuth(const session_t peer_id)
+{
+	const RemoteClient *client = getClient(peer_id, CS_Invalid);
+	NetworkPacket pkt(static_cast<u16>(AuthCommand::AcceptAuth), 19, peer_id);
 
-		// We only support SRP right now
-		u32 sudo_auth_mechs = AUTH_MECHANISM_FIRST_SRP;
+	pkt << v3f() << m_env->getServerMap().getSeed()
+		<< g_settings->getFloat("dedicated_server_step")
+		<< client->allowed_auth_mechs;
 
-		resp_pkt << sudo_auth_mechs;
-		Send(&resp_pkt);
-		m_clients.event(peer_id, CSE_SudoSuccess);
-	}
+	sendAuthResponse(pkt, peer_id, CSE_AuthAccept);
 }
 
 void Server::DeleteClient(session_t peer_id, ClientDeletionReason reason)
