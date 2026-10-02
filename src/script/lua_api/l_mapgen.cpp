@@ -159,14 +159,13 @@ Schematic *load_schematic(lua_State *L, int index, const NodeDefManager *ndef,
 	} else if (lua_isnumber(L, index)) {
 		return NULL;
 	} else if (lua_isstring(L, index)) {
-		schem = SchematicManager::create(SCHEMATIC_NORMAL);
-
 		std::string filepath = lua_tostring(L, index);
 		if (!fs::IsPathAbsolute(filepath))
 			filepath = ModApiBase::getCurrentModPath(L) + DIR_DELIM + filepath;
 
 		CHECK_SECURE_PATH(L, filepath.c_str(), false);
 
+		schem = SchematicManager::create(SCHEMATIC_NORMAL);
 		if (!schem->loadSchematicFromFile(filepath, ndef,
 				replace_names)) {
 			delete schem;
