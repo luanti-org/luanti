@@ -432,6 +432,8 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 
 	{
 		// Run two steps when encountering parabolas
+		// NOTE: There might be multiple turning points. This is a simplification to
+		//       cover 99% of the cases, generally +Y speed and -Y acceleration.
 		float dtime_peak = 1E99;
 		if (accel_f.X * speed_f->X < -0.01f)
 			dtime_peak = std::min(dtime_peak, -speed_f->X / accel_f.X);
