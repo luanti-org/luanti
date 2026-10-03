@@ -398,6 +398,11 @@ std::vector<ConstSharedPtr<BufferedPacket>>
 	IncomingSplitPacket
 */
 
+bool IncomingSplitPacket::hasChunk(u32 chunk_num) const
+{
+	return chunks.find(chunk_num) != chunks.end();
+}
+
 bool IncomingSplitPacket::insert(u32 chunk_num, SharedBuffer<u8> &chunkdata)
 {
 	sanity_check(chunk_num < chunk_count);
@@ -405,11 +410,12 @@ bool IncomingSplitPacket::insert(u32 chunk_num, SharedBuffer<u8> &chunkdata)
 	// If chunk already exists, ignore it.
 	// Sometimes two identical packets may arrive when there is network
 	// lag and the server re-sends stuff.
-	if (chunks.find(chunk_num) != chunks.end())
+	if (hasChunk(chunk_num))
 		return false;
 
 	// Set chunk data in buffer
 	chunks[chunk_num] = chunkdata;
+	total_size += chunkdata.getSize();
 
 	return true;
 }
@@ -418,12 +424,7 @@ SharedBuffer<u8> IncomingSplitPacket::reassemble()
 {
 	sanity_check(allReceived());
 
-	// Calculate total size
-	u32 totalsize = 0;
-	for (const auto &chunk : chunks)
-		totalsize += chunk.second.getSize();
-
-	SharedBuffer<u8> fulldata(totalsize);
+	SharedBuffer<u8> fulldata(total_size);
 
 	// Copy chunks to data buffer
 	u32 start = 0;
@@ -473,6 +474,11 @@ SharedBuffer<u8> IncomingSplitBuffer::insert(BufferedPacketPtr &p_ptr, bool reli
 				<< " >= chunk_count=" << chunk_count << std::endl;
 		return SharedBuffer<u8>();
 	}
+	if (chunk_count > MAX_SPLIT_PACKET_CHUNK_COUNT) {
+		errorstream << "IncomingSplitBuffer::insert(): chunk_count="
+				<< chunk_count << " exceeds the limit" << std::endl;
+		return SharedBuffer<u8>();
+	}
 
 	// Add if doesn't exist
 	IncomingSplitPacket *sp;
@@ -496,6 +502,15 @@ SharedBuffer<u8> IncomingSplitBuffer::insert(BufferedPacketPtr &p_ptr, bool reli
 
 	// Cut chunk data out of packet
 	u32 chunkdatasize = p.size() - headersize;
+	if (!sp->hasChunk(chunk_num) &&
+			chunkdatasize > MAX_SPLIT_PACKET_PAYLOAD_SIZE - sp->getTotalSize()) {
+		errorstream << "IncomingSplitBuffer::insert(): split payload exceeds "
+				"the limit" << std::endl;
+		m_buf.erase(seqnum);
+		delete sp;
+		return SharedBuffer<u8>();
+	}
+
 	SharedBuffer<u8> chunkdata(chunkdatasize);
 	memcpy(*chunkdata, &(p.data[headersize]), chunkdatasize);
 
@@ -1487,7 +1502,7 @@ void Connection::Send(session_t peer_id, u8 channelnum,
 
 	// approximate check similar to UDPPeer::processReliableSendCommand()
 	// to get nicer errors / backtraces if this happens.
-	if (reliable && pkt->getSize() > MAX_RELIABLE_WINDOW_SIZE*512) {
+	if (reliable && pkt->getSize() > MAX_RELIABLE_PACKET_DATA_SIZE) {
 		std::ostringstream oss;
 		oss << "Packet too big for window, peer_id=" << peer_id
 			<< " command=" << pkt->getCommand() << " size=" << pkt->getSize();
