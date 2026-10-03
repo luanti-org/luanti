@@ -539,7 +539,10 @@ void Server::init()
 
 	// Apply texture overrides from texturepack/override.txt
 	std::vector<std::string> paths;
-	fs::GetRecursiveDirs(paths, g_settings->get("texture_path"));
+	// reversed: applyTextureOverrides() so highest priority gets applied last, aka overrides others
+	std::vector<std::string> pack_paths = str_split(g_settings->get("texture_path"), ',');
+	for (auto it = pack_paths.rbegin(); it != pack_paths.rend(); ++it)
+		fs::GetRecursiveDirs(paths, *it);
 	fs::GetRecursiveDirs(paths, m_gamespec.path + DIR_DELIM + "textures");
 	for (const std::string &path : paths) {
 		TextureOverrideSource override_source(path + DIR_DELIM + "override.txt");
