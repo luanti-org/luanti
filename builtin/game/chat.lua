@@ -1233,7 +1233,7 @@ core.register_chatcommand("kick", {
 })
 
 core.register_chatcommand("clearobjects", {
-	params = S("[full | quick]"),
+	params = S("full | quick"),
 	description = S("Clear all objects in world"),
 	privs = {server=true},
 	func = function(name, param)
