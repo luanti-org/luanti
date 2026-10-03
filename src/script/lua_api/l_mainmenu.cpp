@@ -600,7 +600,7 @@ int ModApiMainMenu::l_get_content_translation(lua_State *L)
 	std::string string = luaL_checkstring(L, 3);
 	std::string lang = gettext("LANG_CODE");
 	if (lang == "LANG_CODE")
-		lang = "";
+		lang = "en";
 
 	auto *translations = engine->getContentTranslations(path, domain, lang);
 	string = wide_to_utf8(translate_string(utf8_to_wide(string), translations));
@@ -950,7 +950,7 @@ int ModApiMainMenu::l_get_language(lua_State *L)
 {
 	std::string lang = gettext("LANG_CODE");
 	if (lang == "LANG_CODE")
-		lang = "";
+		lang = "en";
 
 	lua_pushstring(L, lang.c_str());
 	return 1;
