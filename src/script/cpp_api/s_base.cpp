@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
+#include "common/c_internal.h"
+#include "common/c_types.h"
 #include "cpp_api/s_base.h"
 #include "cpp_api/s_internal.h"
 #include "cpp_api/s_security.h"
 #include "debug.h"
+#include "log.h"
 #include "lua_api/l_object.h"
 #include "common/c_converter.h"
 #include "server/player_sao.h"
@@ -75,6 +78,11 @@ static void rawsetfield(lua_State *L, int index, std::string_view k)
 	lua_insert(L, -2);
 	lua_rawset(L, index);
 }
+
+// Unique constant, pushed as light userdata. Must be small enough to fit in a pointer.
+// By using light userdata, we avoid the need to use the registry,
+// and we can be sure that the later table copy preserves reference equality.
+static void *const REQUIRE_SENTINEL = reinterpret_cast<void *>(0x10aded);
 
 /*
 	ScriptApiBase
@@ -177,6 +185,8 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 		return 0;
 	});
 	lua_setfield(m_luastack, -2, "set_push_moveresult1");
+	lua_pushlightuserdata(m_luastack, REQUIRE_SENTINEL);
+	lua_setfield(m_luastack, -2, "require_sentinel");
 	// Finally, put the table into the global environment:
 	lua_setglobal(m_luastack, "core");
 
@@ -270,38 +280,64 @@ std::string ScriptApiBase::getCurrentModNameInsecure(lua_State *L)
 	return ret;
 }
 
-void ScriptApiBase::loadMod(const std::string &script_path,
-		const std::string &mod_name)
-{
-	ModNameStorer mod_name_storer(getStack(), mod_name);
-
-	loadScript(script_path);
-}
-
-void ScriptApiBase::loadScript(const std::string &script_path)
+static void load_script(lua_State *L, const char *script_path, int nresults)
 {
 	verbosestream << "Loading and running script from " << script_path << std::endl;
-
-	lua_State *L = getStack();
 
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
 	bool ok;
 	if (ScriptApiSecurity::isSecure(L)) {
-		ok = ScriptApiSecurity::safeLoadFile(L, script_path.c_str());
+		ok = ScriptApiSecurity::safeLoadFile(L, script_path);
 	} else {
-		ok = !luaL_loadfile(L, script_path.c_str());
+		ok = !luaL_loadfile(L, script_path);
 	}
-	ok = ok && !lua_pcall(L, 0, 0, error_handler);
+	ok = ok && !lua_pcall(L, 0, nresults, error_handler);
 	if (!ok) {
 		const char *error_msg = lua_tostring(L, -1);
 		if (!error_msg)
 			error_msg = "(error object is not a string)";
 		lua_pop(L, 2); // Pop error message and error handler
-		throw ModError("Failed to load and run script from " +
+		throw ModError(std::string("Failed to load and run script from ") +
 				script_path + ":\n" + error_msg);
 	}
-	lua_pop(L, 1); // Pop error handler
+	lua_remove(L, error_handler);
+	// leave the return values from loading the file on the stack
+}
+
+void ScriptApiBase::loadMod(const std::string &script_path,
+		const std::string &mod_name, bool set_package_loaded)
+{
+	lua_State *L = getStack();
+	StackUnroller unroller(L);
+	ModNameStorer mod_name_storer(L, mod_name);
+
+	if (set_package_loaded) {
+		lua_getglobal(L, "package");
+		lua_getfield(L, -1, "loaded");
+		lua_pushlightuserdata(L, REQUIRE_SENTINEL);
+		lua_setfield(L, -2, mod_name.c_str());
+		lua_pop(L, 2);
+	}
+	load_script(L, script_path.c_str(), 1);
+	if (set_package_loaded) {
+		int retval = lua_gettop(L); // script return value = module
+		// nil -> true to mark as loaded
+		if (lua_isnil(L, -1)) {
+			lua_pop(L, 1);
+			lua_pushboolean(L, true);
+		}
+		lua_getglobal(L, "package");
+		lua_getfield(L, -1, "loaded");
+		lua_pushvalue(L, retval);
+		lua_setfield(L, -2, mod_name.c_str());
+		lua_pop(L, 2);
+	}
+}
+
+void ScriptApiBase::loadScript(const std::string &script_path)
+{
+	load_script(getStack(), script_path.c_str(), 0);
 }
 
 #if CHECK_CLIENT_BUILD()

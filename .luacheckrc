@@ -54,6 +54,13 @@ files["builtin/sscsm_client/init.lua"] = {
 	}
 }
 
+files["builtin/common/safe_require.lua"] = {
+	globals = {
+		"require",
+		"package",
+	},
+}
+
 files["builtin/common/math.lua"] = {
 	globals = {
 		"math",
