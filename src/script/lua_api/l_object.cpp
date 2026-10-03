@@ -83,10 +83,10 @@ int ObjectRef::mt_tostring(lua_State *L)
 			lua_pushfstring(L, "ObjectRef (entity): %s (id: %d)",
 					entitysao->getName().c_str(), entitysao->getId());
 		} else {
-			lua_pushfstring(L, "ObjectRef (?): %p", ref);
+			lua_pushstring(L, "ObjectRef (?)");
 		}
 	} else {
-		lua_pushfstring(L, "ObjectRef (invalid): %p", ref);
+		lua_pushstring(L, "ObjectRef (invalid)");
 	}
 	return 1;
 }

@@ -211,10 +211,10 @@ int ScriptApiBase::luaPanic(lua_State *L)
 #if CHECK_CLIENT_BUILD()
 void ScriptApiBase::clientOpenLibs(lua_State *L)
 {
+	// TODO: should the JIT compiler be disabled for SSCSM?
 	static const std::vector<std::pair<std::string, lua_CFunction>> m_libs = {
 		{ "", luaopen_base },
 		{ LUA_TABLIBNAME,  luaopen_table   },
-		{ LUA_OSLIBNAME,   luaopen_os      },
 		{ LUA_STRLIBNAME,  luaopen_string  },
 		{ LUA_MATHLIBNAME, luaopen_math    },
 		{ LUA_DBLIBNAME,   luaopen_debug   },

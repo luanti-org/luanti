@@ -31,10 +31,8 @@ public:
 	void initializeSecurity();
 #if CHECK_CLIENT_BUILD()
 	void initializeSecurityClient();
-	void initializeSecuritySSCSM();
 #else
 	void initializeSecurityClient() { assert(0); }
-	void initializeSecuritySSCSM() { assert(0); }
 #endif
 
 	// Checks if the Lua state has been secured
@@ -67,6 +65,11 @@ public:
 	/// @note invalid to call in non-secured Lua state
 	static bool checkPath(lua_State *L, const char *path, bool write_required,
 			bool *write_allowed = nullptr);
+
+	/// Scrambles a pointer returning a unique value, type is lua_type
+	uint64_t scramblePointer(unsigned char type, const void *ptr) const;
+	/// like lua_topointer but returns a scrambled value
+	static uint64_t toScrambledPointer(lua_State *L, int index);
 
 protected:
 	// To be implemented by descendants:
@@ -102,8 +105,12 @@ private:
 	static void createEmptyEnv(lua_State *L);
 	// replace "default files" (io.input/io.output) with /dev/null
 	static void replaceDefaultFiles(lua_State *L);
+	// delete all globals
+	void clearGlobals(lua_State *L);
 
 	bool m_secure = false;
+	// scrambling key for the pointers
+	uint32_t m_pointer_key[4];
 
 	// Syntax: "sl_" <Library name or 'g' (global)> '_' <Function name>
 	// (sl stands for Secure Lua)
@@ -114,6 +121,7 @@ private:
 	static int sl_g_loadstring(lua_State *L);
 	static int sl_g_require(lua_State *L);
 	static int sl_g_collectgarbage(lua_State *L);
+	static int sl_g_tostring(lua_State *L);
 
 	static int sl_io_open(lua_State *L);
 	static int sl_io_input(lua_State *L);

@@ -237,3 +237,16 @@ core.register_chatcommand("test_hud", {
 		return false, "Unknown command?"
 	end
 })
+
+core.register_chatcommand("test_sandbox", {
+	func = function(param)
+		core.display_chat_message("tostring(core) = "..tostring(core))
+		core.display_chat_message("tostring({}) = "..tostring({}))
+		core.display_chat_message("tostring(core.localplayer) = "..tostring(core.localplayer))
+		core.display_chat_message("os.time() = "..dump(os.time()))
+		core.display_chat_message("os.date() = "..dump(os.date()))
+		core.display_chat_message("os = "..dump(os))
+		print("test")
+		return true, string.format("%s -> %s", "core", tostring(core))
+	end,
+})
