@@ -25,11 +25,13 @@
 #include "version.h"
 #include "util/hex.h"
 #include "util/hashing.h"
+#include "util/locale.h"
 #include "util/png.h"
 #include "player.h"
 #include "daynightratio.h"
 #include "constants.h"
 #include <cstdio>
+#include <unicode/uloc.h>
 
 // only available in zstd 1.3.5+
 #ifndef ZSTD_CLEVEL_DEFAULT
@@ -734,6 +736,16 @@ int ModApiUtil::l_strip_escapes(lua_State *L)
 	return 1;
 }
 
+// get_locale_description(name)
+int ModApiUtil::l_get_locale_description(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	const char *name = luaL_checkstring(L, 1);
+	lua_pushstring(L, Locale(name).getDisplayName().c_str());
+	return 1;
+}
+
 void ModApiUtil::Initialize(lua_State *L, int top)
 {
 	API_FCT(log);
@@ -788,6 +800,8 @@ void ModApiUtil::Initialize(lua_State *L, int top)
 	API_FCT(urlencode);
 	API_FCT(is_valid_player_name);
 	API_FCT(strip_escapes);
+
+	API_FCT(get_locale_description);
 
 	LuaSettings::create(L, g_settings, g_settings_path);
 	lua_setfield(L, top, "settings");
