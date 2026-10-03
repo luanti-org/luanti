@@ -10,6 +10,7 @@
 
 class ServerActiveObject;
 class LuaEntitySAO;
+class LightSAO;
 class PlayerSAO;
 class RemotePlayer;
 
@@ -42,6 +43,8 @@ private:
 
 
 	static LuaEntitySAO* getluaobject(ObjectRef *ref);
+
+	static LightSAO* getlightobject(ObjectRef *ref);
 
 	static PlayerSAO* getplayersao(ObjectRef *ref);
 
@@ -224,6 +227,20 @@ private:
 
 	// get_luaentity(self)
 	static int l_get_luaentity(lua_State *L);
+
+	/* Light-only */
+
+	// get_light_state(self)
+	static int l_get_light_state(lua_State *L);
+
+	// set_light_state(self, state)
+	static int l_set_light_state(lua_State *L);
+
+	// get_light_properties(self)
+	static int l_get_light_properties(lua_State *L);
+
+	// set_light_properties(self, properties)
+	static int l_set_light_properties(lua_State *L);
 
 	/* Player-only */
 

@@ -49,6 +49,7 @@ set(client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/content_cao.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/content_cso.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/content_mapblock.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/dynamiclight.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/filecache.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/fontengine.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/game.cpp
@@ -60,6 +61,7 @@ set(client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/inputhandler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/item_visuals_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/keycode.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/light_cao.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/localplayer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/mapblock_mesh.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/mesh.cpp

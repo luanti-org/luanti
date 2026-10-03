@@ -38,6 +38,10 @@ struct PlayerHPChangeReason;
 class Inventory;
 struct InventoryLocation;
 
+// Minimum position change worth an unreliable resend, given time since the
+// last one - the longer the gap, the smaller a change is still worth sending.
+float getPositionResendMinChange(float last_sent_position_timer);
+
 class ServerActiveObject : public ActiveObject
 {
 public:
