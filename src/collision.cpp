@@ -375,7 +375,8 @@ template <float v3f::*AX>
 inline void collide_with(const aabb3f &box_mov, const aabb3f &box_stat,
 	v3f *pos_f, v3f *speed_f, v3f *accel_f, const v3f &aspeed_f, float bounce)
 {
-	const float speed = aspeed_f.*AX;
+	// Rare case: `speed_f->*AX` may be 0 when spawning an object (inside a collision box)
+	const float speed = speed_f->*AX ? speed_f->*AX : aspeed_f.*AX;
 
 	if (speed) {
 		// Set the position along the axis of collision to exactly where the box collided.
@@ -427,6 +428,26 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		dtime = DTIME_LIMIT;
 	} else {
 		time_notification_done = false;
+	}
+
+	{
+		// Run two steps when encountering parabolas
+		// NOTE: There might be multiple turning points. This is a simplification to
+		//       cover 99% of the cases, generally +Y speed and -Y acceleration.
+		float dtime_peak = 1E99;
+		if (accel_f.X * speed_f->X < -0.01f)
+			dtime_peak = std::min(dtime_peak, -speed_f->X / accel_f.X);
+		if (accel_f.Y * speed_f->Y < -0.01f)
+			dtime_peak = std::min(dtime_peak, -speed_f->Y / accel_f.Y);
+		if (accel_f.Z * speed_f->Z < -0.01f)
+			dtime_peak = std::min(dtime_peak, -speed_f->Z / accel_f.Z);
+
+		if (dtime_peak < dtime) {
+			result = collisionMoveSimple(env, gamedef, box_0, stepheight, dtime_peak,
+					pos_f, speed_f, accel_f, self, collide_with_objects, step_up_mode);
+			// run with remaining dtime
+			dtime -= dtime_peak;
+		}
 	}
 
 	// Average speed
