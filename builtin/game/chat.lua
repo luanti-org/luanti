@@ -1241,7 +1241,7 @@ core.register_chatcommand("clearobjects", {
 		if param == "quick" or param == "full" then
 			options.mode = param
 		else
-			return false, S("Invalid usage, see /help clearobjects.")
+			return false
 		end
 
 		core.log("action", name .. " clears objects ("
