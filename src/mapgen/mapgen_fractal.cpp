@@ -268,6 +268,21 @@ void MapgenFractal::makeChunk(BlockMakeData *data)
 }
 
 
+double MapgenFractal::squared(const float value)
+{
+	return pow(value, 2);
+}
+
+float MapgenFractal::hypotenuse(const float a, const float b)
+{
+	return sqrt(squared(a) + squared(b));
+}
+
+bool MapgenFractal::isZero(const float value)
+{
+	return std::fabs(value) < 0.000000001f;
+}
+
 bool MapgenFractal::getFractalAtPoint(s16 x, s16 y, s16 z)
 {
 	float cx, cy, cz, cw, ox, oy, oz, ow;
@@ -301,83 +316,83 @@ bool MapgenFractal::getFractalAtPoint(s16 x, s16 y, s16 z)
 		switch (formula) {
 		default:
 		case 1: // 4D "Roundy"
-			nx = ox * ox - oy * oy - oz * oz - ow * ow + cx;
+			nx = squared(ox) - squared(oy) - squared(oz) - squared(ow) + cx;
 			ny = 2.0f * (ox * oy + oz * ow) + cy;
 			nz = 2.0f * (ox * oz + oy * ow) + cz;
 			nw = 2.0f * (ox * ow + oy * oz) + cw;
 			break;
 		case 2: // 4D "Squarry"
-			nx = ox * ox - oy * oy - oz * oz - ow * ow + cx;
+			nx = squared(ox) - squared(oy) - squared(oz) - squared(ow) + cx;
 			ny = 2.0f * (ox * oy + oz * ow) + cy;
 			nz = 2.0f * (ox * oz + oy * ow) + cz;
 			nw = 2.0f * (ox * ow - oy * oz) + cw;
 			break;
 		case 3: // 4D "Mandy Cousin"
-			nx = ox * ox - oy * oy - oz * oz + ow * ow + cx;
+			nx = squared(ox) - squared(oy) - squared(oz) + squared(ow) + cx;
 			ny = 2.0f * (ox * oy + oz * ow) + cy;
 			nz = 2.0f * (ox * oz + oy * ow) + cz;
 			nw = 2.0f * (ox * ow + oy * oz) + cw;
 			break;
 		case 4: // 4D "Variation"
-			nx = ox * ox - oy * oy - oz * oz - ow * ow + cx;
+			nx = squared(ox) - squared(oy) - squared(oz) - squared(ow) + cx;
 			ny = 2.0f * (ox * oy + oz * ow) + cy;
 			nz = 2.0f * (ox * oz - oy * ow) + cz;
 			nw = 2.0f * (ox * ow + oy * oz) + cw;
 			break;
 		case 5: // 3D "Mandelbrot/Mandelbar"
-			nx = ox * ox - oy * oy - oz * oz + cx;
+			nx = squared(ox) - squared(oy) - squared(oz) + cx;
 			ny = 2.0f * ox * oy + cy;
 			nz = -2.0f * ox * oz + cz;
 			break;
 		case 6: // 3D "Christmas Tree"
 			// Altering the formula here is necessary to avoid division by zero
-			if (std::fabs(oz) < 0.000000001f) {
-				nx = ox * ox - oy * oy - oz * oz + cx;
+			if (isZero(oz)) {
+				nx = squared(ox) - squared(oy) - squared(oz) + cx;
 				ny = 2.0f * oy * ox + cy;
 				nz = 4.0f * oz * ox + cz;
 			} else {
-				float a = (2.0f * ox) / (std::sqrt(oy * oy + oz * oz));
-				nx = ox * ox - oy * oy - oz * oz + cx;
+				float a = (2.0f * ox) / hypotenuse(ox, oy);
+				nx = squared(ox) - squared(oy) - squared(oz) - squared(ow) + cx;
 				ny = a * (oy * oy - oz * oz) + cy;
 				nz = a * 2.0f * oy * oz + cz;
 			}
 			break;
 		case 7: // 3D "Mandelbulb"
-			if (std::fabs(oy) < 0.000000001f) {
-				nx = ox * ox - oz * oz + cx;
+			if (isZero(oy)) {
+				nx = squared(ox) - squared(oz) + cx;
 				ny = cy;
-				nz = -2.0f * oz * std::sqrt(ox * ox) + cz;
+				nz = -2.0f * oz * std::abs(ox) + cz;
 			} else {
-				float a = 1.0f - (oz * oz) / (ox * ox + oy * oy);
-				nx = (ox * ox - oy * oy) * a + cx;
+				float a = 1.0f - squared(oz) / (squared(ox) + squared(oy));
+				nx = (squared(ox) - squared(oy)) * a + cx;
 				ny = 2.0f * ox * oy * a + cy;
-				nz = -2.0f * oz * std::sqrt(ox * ox + oy * oy) + cz;
+				nz = -2.0f * oz * hypotenuse(ox, oy) + cz;
 			}
 			break;
 		case 8: // 3D "Cosine Mandelbulb"
-			if (std::fabs(oy) < 0.000000001f) {
+			if (isZero(oy)) {
 				nx = 2.0f * ox * oz + cx;
 				ny = 4.0f * oy * oz + cy;
-				nz = oz * oz - ox * ox - oy * oy + cz;
+				nz = squared(oz) - squared(ox) - squared(oy) + cz;
 			} else {
-				float a = (2.0f * oz) / std::sqrt(ox * ox + oy * oy);
-				nx = (ox * ox - oy * oy) * a + cx;
+				float a = 2.0f * oz / hypotenuse(ox, oy);
+				nx = (squared(ox) - squared(oy)) * a + cx;
 				ny = 2.0f * ox * oy * a + cy;
-				nz = oz * oz - ox * ox - oy * oy + cz;
+				nz = squared(oz) - squared(ox) - squared(oy) + cz;
 			}
 			break;
 		case 9: // 4D "Mandelbulb"
-			float rxy = std::sqrt(ox * ox + oy * oy);
-			float rxyz = std::sqrt(ox * ox + oy * oy + oz * oz);
-			if (std::fabs(ow) < 0.000000001f && std::fabs(oz) < 0.000000001f) {
-				nx = (ox * ox - oy * oy) + cx;
+			float rxy = hypotenuse(ox, oy);
+			float rxyz = std::sqrt(squared(ox) + squared(oy) + squared(oz));
+			if (isZero(ow) && isZero(oz)) {
+				nx = squared(ox) - squared(oy) + cx;
 				ny = 2.0f * ox * oy + cy;
 				nz = -2.0f * rxy * oz + cz;
 				nw = 2.0f * rxyz * ow + cw;
 			} else {
-				float a = 1.0f - (ow * ow) / (rxyz * rxyz);
-				float b = a * (1.0f - (oz * oz) / (rxy * rxy));
-				nx = (ox * ox - oy * oy) * b + cx;
+				float a = 1.0f - squared(ow) / squared(rxyz);
+				float b = a * (1.0f - squared(oz) / squared(rxy));
+				nx = (squared(ox) - squared(oy)) * b + cx;
 				ny = 2.0f * ox * oy * b + cy;
 				nz = -2.0f * rxy * oz * a + cz;
 				nw = 2.0f * rxyz * ow + cw;
@@ -385,7 +400,7 @@ bool MapgenFractal::getFractalAtPoint(s16 x, s16 y, s16 z)
 			break;
 		}
 
-		if (nx * nx + ny * ny + nz * nz + nw * nw > 4.0f)
+		if (squared(nx) + squared(ny) + squared(nz) + squared(nw) > 4.0f)
 			return false;
 
 		ox = nx;
