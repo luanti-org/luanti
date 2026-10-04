@@ -148,6 +148,14 @@ public:
 		return val.empty() ? def : val;
 	}
 
+	s32 getInt(Property prop, s32 def) const
+	{
+		const auto &val = properties[prop];
+		if (val.empty())
+			return def;
+		return stoi(val);
+	}
+
 	void set(Property prop, const std::string &value)
 	{
 		properties[prop] = value;

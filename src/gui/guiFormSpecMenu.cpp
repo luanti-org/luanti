@@ -3923,14 +3923,11 @@ void GUIFormSpecMenu::drawMenu()
 
 		std::string element_name;
 		for (const gui::IGUIElement *el = focused; el != nullptr; el = el->getParent()) {
-			for (const FieldSpec &field : m_fields) {
-				if (field.fid == el->getID()) {
-					element_name = field.fname;
-					break;
-				}
-			}
-			if (!element_name.empty())
+			const FieldSpec *field = getSpecByID(el->getID());
+			if (field) {
+				element_name = field->fname;
 				break;
+			}
 		}
 
 		if (!element_name.empty()) {
@@ -3938,40 +3935,25 @@ void GUIFormSpecMenu::drawMenu()
 			const StyleSpec &focused_visible_style = styles[StyleSpec::STATE_FOCUSED_VISIBLE];
 			const StyleSpec &focused_style = styles[StyleSpec::STATE_FOCUSED];
 
-			auto get_property = [&](StyleSpec::Property prop) -> std::string {
+			auto get_style = [&](StyleSpec::Property prop) -> const StyleSpec * {
 				if (focused_visible_style.hasProperty(prop))
-					return focused_visible_style.get(prop, "");
+					return &focused_visible_style;
 				if (focused_style.hasProperty(prop))
-					return focused_style.get(prop, "");
-				return "";
+					return &focused_style;
+				return nullptr;
 			};
 
-			std::string color_str = get_property(StyleSpec::OUTLINE_COLOR);
-			if (!color_str.empty()) {
-				outline_color = focused_visible_style.hasProperty(StyleSpec::OUTLINE_COLOR) ?
-					focused_visible_style.getColor(StyleSpec::OUTLINE_COLOR) :
-					focused_style.getColor(StyleSpec::OUTLINE_COLOR);
-			}
+			if (const StyleSpec *style = get_style(StyleSpec::OUTLINE_COLOR))
+				outline_color = style->getColor(StyleSpec::OUTLINE_COLOR,
+						outline_color);
 
-			std::string width_str = get_property(StyleSpec::OUTLINE_WIDTH);
-			if (!width_str.empty()) {
-				try {
-					outline_width = stoi(width_str);
-					outline_width = std::max(1, std::min(outline_width, 20));
-				} catch (...) {
-					outline_width = 2;
-				}
-			}
+			if (const StyleSpec *style = get_style(StyleSpec::OUTLINE_WIDTH))
+				outline_width = std::max(1, std::min(style->getInt(
+						StyleSpec::OUTLINE_WIDTH, 2), 20));
 
-			std::string offset_str = get_property(StyleSpec::OUTLINE_OFFSET);
-			if (!offset_str.empty()) {
-				try {
-					outline_offset = stoi(offset_str);
-					outline_offset = std::max(-10, std::min(outline_offset, 10));
-				} catch (...) {
-					outline_offset = 0;
-				}
-			}
+			if (const StyleSpec *style = get_style(StyleSpec::OUTLINE_OFFSET))
+				outline_offset = std::max(-10, std::min(style->getInt(
+						StyleSpec::OUTLINE_OFFSET, 0), 10));
 		}
 
 		driver->draw2DRectangle(outline_color,
@@ -4075,7 +4057,7 @@ void GUIFormSpecMenu::autoScroll()
 		return;
 
 	// Only process if focus changed or this is the first focus
-	if (focus == m_last_focused && m_last_focused != nullptr)
+	if (focus == m_last_focused)
 		return;
 
 	bool first_focus = (m_last_focused == nullptr);
