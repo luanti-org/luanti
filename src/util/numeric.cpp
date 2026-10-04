@@ -119,17 +119,16 @@ bool isBlockInSightEx(const v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 		return true;
 	}
 
-	// Block position relative to adjusted camera
-	const v3f blockpos_adj = blockpos_relative + camera_dir * adjdist;
-
+	const f32 dot = blockpos_relative.dotProduct(camera_dir);
 	// Distance in camera direction (+=front, -=back)
-	const f32 dforward = blockpos_adj.dotProduct(camera_dir);
+	const f32 dforward = dot + adjdist;
 
 	// If the block is behind the adjusted camera position, cull it instantly
 	if (dforward <= 0.0f)
 		return false;
 
-	const f32 len_adj_sq = blockpos_adj.getLengthSQ();
+	// |A+B|^2 = |A| + 2(A dot B) + |B|
+	const f32 len_adj_sq = len_sq + 2.0f * adjdist * dot + adjdist * adjdist;
 
 	// do angle check with squared values
 	// This is a transformation of the previous
@@ -144,6 +143,7 @@ bool isBlockInSightEx(const v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 		*distance_ptr = std::max(0.0f, std::sqrt(len_sq) - BLOCK_MAX_RADIUS);
 	}
 	return true;
+
 }
 
 
