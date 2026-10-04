@@ -137,9 +137,8 @@ public:
 			return OUTLINE_WIDTH;
 		} else if (name == "outline_offset") {
 			return OUTLINE_OFFSET;
-		} else {
-			return NONE;
 		}
+		return NONE;
 	}
 
 	std::string get(Property prop, std::string def) const

@@ -3949,11 +3949,11 @@ void GUIFormSpecMenu::drawMenu()
 
 			if (const StyleSpec *style = get_style(StyleSpec::OUTLINE_WIDTH))
 				outline_width = std::max(1, std::min(style->getInt(
-						StyleSpec::OUTLINE_WIDTH, 2), 20));
+						StyleSpec::OUTLINE_WIDTH, outline_width), 20));
 
 			if (const StyleSpec *style = get_style(StyleSpec::OUTLINE_OFFSET))
 				outline_offset = std::max(-10, std::min(style->getInt(
-						StyleSpec::OUTLINE_OFFSET, 0), 10));
+						StyleSpec::OUTLINE_OFFSET, outline_offset), 10));
 		}
 
 		driver->draw2DRectangle(outline_color,
