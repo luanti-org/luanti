@@ -3914,7 +3914,7 @@ void GUIFormSpecMenu::drawMenu()
 
 	// Draw outline around keyboard-focused form elements with styleable color and width.
 	const gui::IGUIElement *focused = Environment->getFocus();
-	if (focused && m_show_focus && focused->isTabStop() ) {
+	if (focused && m_show_focus && focused->isTabStop()) {
 		core::rect<s32> rect = focused->getAbsoluteClippingRect();
 
 		video::SColor outline_color(255, 255, 255, 255);
