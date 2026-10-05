@@ -1411,14 +1411,6 @@ u16 ServerEnvironment::addActiveObjectRaw(std::unique_ptr<ServerActiveObject> ob
 		return 0;
 	}
 
-	// Don't add the object on a error to not duplicate static objects
-	auto handle_error = [this, &object] () {
-		// Need to remove the object again, since registerObject already added it
-		object->markForRemoval();
-		processActiveObjectRemove(object);
-		m_ao_manager.removeObject(object->getId());
-	};
-
 	// Register reference in scripting api (must be done before post-init)
 	m_script->addObjectReference(object);
 
@@ -1428,8 +1420,10 @@ u16 ServerEnvironment::addActiveObjectRaw(std::unique_ptr<ServerActiveObject> ob
 		object->addedToEnvironment(dtime_s);
 	} catch (const LuaError &e) {
 		errorstream << "ServerEnvironment::addActiveObjectRaw(): "
-			<< "object could not be added due to a Lua error" << std::endl;
-		handle_error();
+				<< "object could not be added due to a Lua error" << std::endl;
+		// Don't add the object on a error to not duplicate static objects
+		// Need to remove the object again, since registerObject already added it
+		object->markForRemoval();
 		throw;
 	}
 
@@ -1473,7 +1467,10 @@ u16 ServerEnvironment::addActiveObjectRaw(std::unique_ptr<ServerActiveObject> ob
 			errorstream << "ServerEnvironment::addActiveObjectRaw(): "
 				<< "could not emerge block " << p << " for storing id="
 				<< object->getId() << " statically" << std::endl;
-			handle_error();
+			// clean in case of error
+			object->markForRemoval();
+			processActiveObjectRemove(object);
+			m_ao_manager.removeObject(object->getId());
 			return 0;
 		}
 	}
