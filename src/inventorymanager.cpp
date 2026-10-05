@@ -910,7 +910,9 @@ void ICraftAction::apply(InventoryManager *mgr,
 
 	auto list_craft_lock       = list_craft->resizeLock();
 	auto list_craftresult_lock = list_craftresult->resizeLock();
-	auto list_main_lock        = list_main->resizeLock();
+	InventoryList::ResizeLocked list_main_lock = nullptr;
+	if (list_main)
+		list_main_lock = list_main->resizeLock();
 
 	ItemStack crafted;
 	ItemStack craftresultitem;
