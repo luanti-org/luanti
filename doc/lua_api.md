@@ -2440,7 +2440,7 @@ Groups
 
 In a number of places, there is a group table. Groups define the
 properties of a thing (item, node, armor of entity, tool capabilities)
-in such a way that the engine and other mods can can interact with
+in such a way that the engine and other mods can interact with
 the thing without actually knowing what the thing is.
 
 Usage
@@ -2597,7 +2597,8 @@ to games.
       - (14)                                           -- constant tolerance
     ```
   Negative damage values are discarded as no damage.
-* `falling_node`: if there is no walkable block under the node it will fall
+* `falling_node`: if there is no walkable node under the node it will fall.
+  It also falls if the node below is `buildable_to`.
 * `float`: the node will not fall through liquids (`liquidtype ~= "none"`)
      * A liquid source with `groups = {falling_node = 1, float = 1}`
        will fall through flowing liquids.
@@ -2677,7 +2678,7 @@ faster digging time.
 The `level` group is used to limit the toughness of nodes an item capable
 of digging can dig and to scale the digging times / damage to a greater extent.
 
-**Please do understand this**, otherwise you cannot use the system to it's
+**Please do understand this**, otherwise you cannot use the system to its
 full potential.
 
 Items define their properties by a list of parameters for groups. They
@@ -2820,7 +2821,7 @@ Table of resulting tool uses:
 * At `crumbly==0`, the node is not diggable.
 * At `crumbly==3`, the level difference digging time divider kicks in and makes
   easy nodes to be quickly breakable.
-* At `level > 2`, the node is not diggable, because it's `level > maxlevel`
+* At `level > 2`, the node is not diggable, because its `level > maxlevel`
 
 
 
@@ -3116,7 +3117,8 @@ Elements
 ### `size[<W>,<H>,<fixed_size>]`
 
 * Define the size of the menu in inventory slots
-* `fixed_size`: `true`/`false` (optional)
+* `fixed_size`: `true`/`false` (optional). If `true`, the menu is not
+  scaled to fit the window. Ignored if the `touch_gui` setting is enabled.
 * deprecated: `invsize[<W>,<H>;]`
 
 ### `position[<X>,<Y>]`
@@ -3281,12 +3283,14 @@ Elements
 * It has to be declared *after* the element that is bound to
 * `bgcolor` tooltip background color as `ColorString` (optional)
 * `fontcolor` tooltip font color as `ColorString` (optional)
+* `bgcolor` and `fontcolor` must be given together.
 
 ### `tooltip[<X>,<Y>;<W>,<H>;<tooltip_text>;<bgcolor>;<fontcolor>]`
 
 * Adds tooltip for an area. Other tooltips will take priority when present.
 * `bgcolor` tooltip background color as `ColorString` (optional)
 * `fontcolor` tooltip font color as `ColorString` (optional)
+* `bgcolor` and `fontcolor` must be given together.
 
 ### `hypertip[<gui_element_name>;<staticPos>;<width>;<name>;<text>]`
 
@@ -3406,6 +3410,7 @@ Elements
 * With the old coordinate system, fields are a set height, but will be vertically
   centered on `H`. With the new coordinate system, `H` will modify the height.
 * `name` is the name of the field as returned in fields to `on_receive_fields`
+    * If the name is empty, only `label` is shown, in place of the field.
 * `label`, if not blank, will be text printed on the top left above the field
 * `default` is the default value of the field
     * `default` may contain variable references such as `${text}` which
@@ -3513,7 +3518,7 @@ Elements
 * `noclip=true` means the image button doesn't need to be within specified
   formsize.
 * `drawborder`: draw button border or not
-* `pressed texture name` is the filename of an image on pressed state
+* `pressed texture name` (optional) is the filename of an image on pressed state
 
 ### `item_image_button[<X>,<Y>;<W>,<H>;<item name>;<name>;<label>]`
 
@@ -3540,8 +3545,8 @@ Elements
 ### `textlist[<X>,<Y>;<W>,<H>;<name>;<listelem 1>,<listelem 2>,...,<listelem n>]`
 
 * Scrollable item list showing arbitrary text elements
-* `name` fieldname sent to server on double-click value is current selected
-  element.
+* `name` fieldname sent to server on row select or double-click, value is
+  current selected element.
 * `listelements` can be prepended by #color in hexadecimal format RRGGBB
   (only).
     * if you want a listelement to start with "#" write "##".
@@ -3549,8 +3554,8 @@ Elements
 ### `textlist[<X>,<Y>;<W>,<H>;<name>;<listelem 1>,<listelem 2>,...,<listelem n>;<selected idx>;<transparent>]`
 
 * Scrollable itemlist showing arbitrary text elements
-* `name` fieldname sent to server on double-click value is current selected
-  element.
+* `name` fieldname sent to server on row select or double-click, value is
+  current selected element.
 * `listelements` can be prepended by #RRGGBB (only) in hexadecimal format
     * if you want a listelement to start with "#" write "##"
 * Index to be selected within textlist
@@ -3567,6 +3572,7 @@ Elements
 * `current_tab`: index of selected tab 1...
 * `transparent` (optional): if true, tabs are semi-transparent
 * `draw_border` (optional): if true, draw a thin line at tab base
+* `transparent` and `draw_border` must be given together.
 
 ### `tabheader[<X>,<Y>;<H>;<name>;<caption 1>,<caption 2>,...,<caption n>;<current_tab>;<transparent>;<draw_border>]`
 
@@ -3640,7 +3646,7 @@ Elements
 
 * Show a checkbox
 * `name` fieldname data is transferred to Lua
-* `label` to be shown left of checkbox
+* `label` to be shown right of checkbox
 * `selected` (optional): `true`/`false`
 * **Note**: If the new coordinate system is enabled, checkboxes are
   positioned from the center of the checkbox, not the top.
@@ -3873,6 +3879,7 @@ Some types may inherit styles from parent types.
 * checkbox
 * dropdown
 * field
+* hypertext
 * image
 * image_button
 * item_image_button
@@ -3904,8 +3911,8 @@ Some types may inherit styles from parent types.
           top and bottom,left and right.
         * Four values (e.g. `blue,#A0F,green,#FFFA`): top-left/top and rotates clockwise.
         * These work similarly to CSS borders.
-    * colors - `ColorString`. Sets the color(s) of the box corners. Default `black`.
-    * bordercolors - `ColorString`. Sets the color(s) of the borders. Default `black`.
+    * colors - `ColorString`. Sets the color(s) of the box corners. Default transparent.
+    * bordercolors - `ColorString`. Sets the color(s) of the borders. Default transparent.
     * borderwidths - Integer. Sets the width(s) of the borders in pixels. If the width is
       negative, the border will extend inside the box, whereas positive extends outside
       the box. A width of zero results in no border; this is default.
@@ -3985,6 +3992,8 @@ Some types may inherit styles from parent types.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * size - 2d vector, sets the size of inventory slots in coordinates.
     * spacing - 2d vector, sets the space between inventory slots in coordinates.
+* hypertext
+    * sound - a sound to be played when an action is triggered.
 * image_button (additional properties)
     * fgimg - standard image. Defaults to none.
     * fgimg_hovered - image when hovered. Defaults to fgimg when not provided.
@@ -4004,7 +4013,9 @@ Some types may inherit styles from parent types.
     * bgimg_middle - Makes the bgimg textures render in 9-sliced mode and defines the middle rect.
                      See background9[] documentation for more details.
 * tabheader
+    * bgcolor - color, sets the background color of the tabs.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+      Default true.
     * sound - a sound to be played when a different tab is selected.
     * textcolor - color. Default white.
 * table, textlist
@@ -4770,8 +4781,8 @@ translation files.
 Translating a string
 --------------------
 
-Two functions are provided to translate strings: `core.translate` and
-`core.get_translator`.
+Three functions are provided to translate strings: `core.translate`,
+`core.translate_n` and `core.get_translator`.
 
 * `core.get_translator(textdomain)` is a simple wrapper around
   `core.translate` and `core.translate_n`.
@@ -4800,7 +4811,7 @@ Two functions are provided to translate strings: `core.translate` and
   Arguments are literal strings -- they will not be translated.
 
 * `core.translate_n(textdomain, str, str_plural, n, ...)` translates the
-  string `str` with the given `textdomain` for disambiguaion. The value of
+  string `str` with the given `textdomain` for disambiguation. The value of
   `n`, which must be a nonnegative integer, is used to decide whether to use
   the singular or the plural version of the string. Depending on the locale of
   the client, the choice between singular and plural might be more complicated,
@@ -4824,7 +4835,7 @@ end)
 core.register_chatcommand("playtime", {
     func = function(name)
         local last_login = core.get_auth_handler().get_auth(name).last_login
-        local playtime = math.floor((last_login-os.time())/60)
+        local playtime = math.floor((os.time()-last_login)/60)
         return true, PS(
             "You have been playing for @1 minute.",
             "You have been playing for @1 minutes.",
@@ -5068,6 +5079,10 @@ Noise Parameters
 ----------------
 
 Noise Parameters are commonly called `NoiseParams`.
+
+`spread` is required. The other fields are optional and default to
+`offset = 0`, `scale = 1`, `seed = 12345`, `octaves = 3`,
+`persistence = 0.6` and `lacunarity = 2.0`.
 
 ### `offset`
 
@@ -9266,7 +9281,7 @@ You **must not** mix names and track numbers to refer to the same animation.
          clamped on the client to first and last frame in the corresponding track.
       * `start_frame`, where to start playing the animation, defaults to `min_frame` if `speed >= 0`, `max_frame` otherwise.
       * `speed = 1.0`, animation speed in frames per second.
-        (Recall that glTF frames are typically just timetamps in seconds.)
+        (Recall that glTF frames are typically just timestamps in seconds.)
         A negative speed plays the animation backwards.
         A speed of `0.0` can be used to pause an animation.
       * `loop = true`, boolean, whether the animation repeats after completion.
@@ -10145,6 +10160,8 @@ Player properties need to be saved manually.
     -- For Lua entities, the maximum is not enforced.
     -- For players, this defaults to `core.PLAYER_MAX_HP_DEFAULT` (20).
     -- For Lua entities, the default is 10.
+    -- Must not be 0 for Lua entities.
+    -- If set below the current HP, the HP is reduced to it.
     -- Integer [u16].
 
     breath_max = 0,
@@ -10188,6 +10205,7 @@ Player properties need to be saved manually.
     -- Can be overridden by the `pointabilities` of the held item.
 
     visual = "",
+    -- Defaults to "sprite" for entities, "upright_sprite" for players.
     -- "cube" is a node-sized cube.
     -- "sprite" is a flat texture always facing the player.
     -- "upright_sprite" is a vertical flat texture.
@@ -10388,7 +10406,7 @@ ABM (ActiveBlockModifier) definition
 
 Used by `core.register_abm`.
 
-An active block modifier (ABM) is used to define a function that is continously
+An active block modifier (ABM) is used to define a function that is continuously
 and randomly called for specific nodes (defined by `nodenames` and other conditions)
 in active mapblocks.
 
@@ -10414,11 +10432,11 @@ in active mapblocks.
     -- `group:groupname` can also be used here.
 
     interval = 10.0,
-    -- Operation interval in seconds
+    -- Operation interval in seconds (default: 10.0)
 
     chance = 50,
     -- Probability of triggering `action` per-node per-interval is 1.0 / chance
-    -- integer [u32] (value 0 is treated as 1)
+    -- integer [u32] (value 0 is treated as 1, default: 50)
 
     min_y = -32768,
     max_y = 32767,
@@ -10431,6 +10449,7 @@ in active mapblocks.
     -- temporarily reduced when returning to an area to simulate time lost
     -- by the area being unattended. Note that the `chance` value can often
     -- be reduced to 1.
+    -- Default: true
 
     action = function(pos, node, active_object_count, active_object_count_wider),
     -- Function triggered for each qualifying node.
@@ -10752,7 +10771,7 @@ Used by `core.register_node`, `core.register_craftitem`, and
 
         eat = <SimpleSoundSpec>,
         -- Played when item is eaten with `core.do_item_eat` - unless
-        -- prevented by a `core.register_on_eat` callback.
+        -- prevented by a `core.register_on_item_eat` callback.
 
         punch_use = <SimpleSoundSpec>,
         -- When item is used with the 'punch/dig' key pointing at a node or entity
@@ -11432,7 +11451,7 @@ A typical shaped recipe:
 {
     output = "example:stone_pickaxe",
     -- A 3x3 recipe which needs 3 stone in the 1st row,
-    -- and 1 stick in the horizontal middle in each of the 2nd and 3nd row.
+    -- and 1 stick in the horizontal middle in each of the 2nd and 3rd row.
     -- The 4 remaining slots have to be empty.
     recipe = {
         {"example:stone", "example:stone", "example:stone"}, -- row 1
@@ -11566,7 +11585,7 @@ you want `additional_wear` to be negative.
 
 The formula used to calculate the resulting wear is:
 
-    65536 * (1 - ( (1 - tool_1_wear) + (1 - tool_2_wear) + additional_wear))
+    65536 * (1 - ( (1 - tool_1_wear) + (1 - tool_2_wear) - additional_wear))
 
 The result is rounded and can't be lower than 0. If the result is 65536 or higher,
 no crafting is possible.
@@ -11685,11 +11704,11 @@ See [Ores] section above for essential information.
     -- Ore has a 1 out of clust_scarcity chance of spawning in a node.
     -- If the desired average distance between ores is 'd', set this to
     -- d * d * d.
-    -- Integer in range [u32]
+    -- Integer in range [u32], must be greater than 0
 
     clust_num_ores = 8,
     -- Amount of ores in a cluster.
-    -- Integer in range: [0, 32767]
+    -- Integer in range: [1, 32767]
 
     clust_size = 3,
     -- Size of the bounding box of the cluster.
@@ -11884,6 +11903,10 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
 
 ```lua
 {
+    name = "",
+    -- If set, core.registered_decorations[that_name] will return this
+    -- definition, and core.get_decoration_id(that_name) its ID.
+
     deco_type = "simple",
     -- Type. "simple", "schematic" or "lsystem" supported
 
