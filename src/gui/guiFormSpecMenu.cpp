@@ -3912,25 +3912,62 @@ void GUIFormSpecMenu::drawMenu()
 			cursor_control->setActiveIcon(ECI_NORMAL);
 	}
 
-	// Draw white outline around keyboard-focused form elements.
+	// Draw outline around keyboard-focused form elements with styleable color and width.
 	const gui::IGUIElement *focused = Environment->getFocus();
-	if (focused && m_show_focus && focused->isTabStop() ) {
+	if (focused && m_show_focus && focused->isTabStop()) {
 		core::rect<s32> rect = focused->getAbsoluteClippingRect();
-		const video::SColor white(255, 255, 255, 255);
-		const s32 border = 2;
 
-		driver->draw2DRectangle(white,
-			core::rect<s32>(rect.UpperLeftCorner.X, rect.UpperLeftCorner.Y,
-				rect.LowerRightCorner.X, rect.UpperLeftCorner.Y + border), nullptr);
-		driver->draw2DRectangle(white,
-			core::rect<s32>(rect.UpperLeftCorner.X, rect.LowerRightCorner.Y - border,
-				rect.LowerRightCorner.X, rect.LowerRightCorner.Y), nullptr);
-		driver->draw2DRectangle(white,
-			core::rect<s32>(rect.UpperLeftCorner.X, rect.UpperLeftCorner.Y,
-				rect.UpperLeftCorner.X + border, rect.LowerRightCorner.Y), nullptr);
-		driver->draw2DRectangle(white,
-			core::rect<s32>(rect.LowerRightCorner.X - border, rect.UpperLeftCorner.Y,
-				rect.LowerRightCorner.X, rect.LowerRightCorner.Y), nullptr);
+		video::SColor outline_color(255, 255, 255, 255);
+		s32 outline_width = 2;
+		s32 outline_offset = 0;
+
+		std::string element_name;
+		for (const gui::IGUIElement *el = focused; el != nullptr; el = el->getParent()) {
+			const FieldSpec *field = getSpecByID(el->getID());
+			if (field) {
+				element_name = field->fname;
+				break;
+			}
+		}
+
+		if (!element_name.empty()) {
+			auto styles = getStyleForElement("", element_name);
+			const StyleSpec &focused_visible_style = styles[StyleSpec::STATE_FOCUSED_VISIBLE];
+			const StyleSpec &focused_style = styles[StyleSpec::STATE_FOCUSED];
+
+			auto get_style = [&](StyleSpec::Property prop) -> const StyleSpec * {
+				if (focused_visible_style.hasProperty(prop))
+					return &focused_visible_style;
+				if (focused_style.hasProperty(prop))
+					return &focused_style;
+				return nullptr;
+			};
+
+			if (const StyleSpec *style = get_style(StyleSpec::OUTLINE_COLOR))
+				outline_color = style->getColor(StyleSpec::OUTLINE_COLOR,
+						outline_color);
+
+			if (const StyleSpec *style = get_style(StyleSpec::OUTLINE_WIDTH))
+				outline_width = std::max(1, std::min(style->getInt(
+						StyleSpec::OUTLINE_WIDTH, outline_width), 20));
+
+			if (const StyleSpec *style = get_style(StyleSpec::OUTLINE_OFFSET))
+				outline_offset = std::max(-10, std::min(style->getInt(
+						StyleSpec::OUTLINE_OFFSET, outline_offset), 10));
+		}
+
+		driver->draw2DRectangle(outline_color,
+			core::rect<s32>(rect.UpperLeftCorner.X - outline_offset - outline_width, rect.UpperLeftCorner.Y - outline_offset - outline_width,
+				rect.LowerRightCorner.X + outline_offset + outline_width, rect.UpperLeftCorner.Y - outline_offset), nullptr);
+		driver->draw2DRectangle(outline_color,
+			core::rect<s32>(rect.UpperLeftCorner.X - outline_offset - outline_width, rect.LowerRightCorner.Y + outline_offset,
+				rect.LowerRightCorner.X + outline_offset + outline_width, rect.LowerRightCorner.Y + outline_offset + outline_width), nullptr);
+		driver->draw2DRectangle(outline_color,
+			core::rect<s32>(rect.UpperLeftCorner.X - outline_offset - outline_width, rect.UpperLeftCorner.Y - outline_offset,
+				rect.UpperLeftCorner.X - outline_offset, rect.LowerRightCorner.Y + outline_offset), nullptr);
+		driver->draw2DRectangle(outline_color,
+			core::rect<s32>(rect.LowerRightCorner.X + outline_offset, rect.UpperLeftCorner.Y - outline_offset,
+				rect.LowerRightCorner.X + outline_offset + outline_width, rect.LowerRightCorner.Y + outline_offset), nullptr);
 	}
 
 	m_tooltip_element->draw();
@@ -4020,7 +4057,7 @@ void GUIFormSpecMenu::autoScroll()
 		return;
 
 	// Only process if focus changed or this is the first focus
-	if (focus == m_last_focused && m_last_focused != nullptr)
+	if (focus == m_last_focused)
 		return;
 
 	bool first_focus = (m_last_focused == nullptr);
