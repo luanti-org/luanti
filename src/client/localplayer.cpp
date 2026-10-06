@@ -71,6 +71,18 @@ LocalPlayer::~LocalPlayer()
 	m_player_settings.deregisterSettingsCallback();
 }
 
+CollisionParams LocalPlayer::getCollisionParams() const
+{
+	CollisionParams ret;
+	ret.self = m_cao;
+	ret.collision_group = COLLISION_BIT_PLAYER;
+	// Note that collision_mask is currently not set, so we always collide with
+	// all kinds of objects.
+	if (m_cao)
+		ret.step_up_mode = m_cao->getProperties().step_up_mode;
+	return ret;
+}
+
 static aabb3f getNodeBoundingBox(const std::vector<aabb3f> &nodeboxes)
 {
 	if (nodeboxes.empty())
@@ -85,7 +97,6 @@ static aabb3f getNodeBoundingBox(const std::vector<aabb3f> &nodeboxes)
 
 	return b_max;
 }
-
 
 bool LocalPlayer::updateSneakNode(Map *map, const v3f &position,
 	const v3f &sneak_max)
@@ -331,15 +342,11 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 	const v3f initial_position = position;
 	const v3f initial_speed = m_speed;
 
-
-	StepUpMode step_up_mode = StepUpMode::LEGACY;
-	if (m_cao != nullptr) {
-		step_up_mode = m_cao->getProperties().step_up_mode;
-	}
+	const auto cp = getCollisionParams();
 
 	CollisionMoveResult result = collisionMoveSimple(env, m_client,
 		m_collisionbox, player_stepheight, dtime,
-		&position, &m_speed, accel_f, m_cao, true, step_up_mode);
+		&position, &m_speed, accel_f, cp);
 
 	bool could_sneak = control.sneak && !free_move && !in_liquid &&
 		!is_climbing && physics_override.sneak;
@@ -422,7 +429,7 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 			v3f check_pos = position;
 			check_pos.Y += y_diff * dtime * 22.0f + BS * 0.01f;
 			if (y_diff < sneak_stepheight || (physics_override.sneak_glitch
-					&& !collision_check_intersection(env, m_client, m_collisionbox, check_pos, m_cao))) {
+					&& !collision_check_intersection(env, m_client, m_collisionbox, check_pos, cp))) {
 				// Smoothen the movement (based on 'position.Y = bmax.Y')
 				position.Y = std::min(check_pos.Y, bmax.Y);
 				m_speed.Y = 0.0f;
@@ -957,14 +964,9 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 	const v3f initial_position = position;
 	const v3f initial_speed = m_speed;
 
-	StepUpMode step_up_mode = StepUpMode::LEGACY;
-	if (m_cao != nullptr) {
-		step_up_mode = m_cao->getProperties().step_up_mode;
-	}
-
 	CollisionMoveResult result = collisionMoveSimple(env, m_client,
 		m_collisionbox, player_stepheight, dtime,
-		&position, &m_speed, accel_f, m_cao, true, step_up_mode);
+		&position, &m_speed, accel_f, getCollisionParams());
 
 	// Position was slightly changed; update standing node pos
 	if (touching_ground)
@@ -1225,15 +1227,10 @@ void LocalPlayer::handleAutojump(f32 dtime, Environment *env,
 	v3f jump_pos = initial_position + v3f(0.0f, jump_height, 0.0f);
 	v3f jump_speed = initial_speed;
 
-	StepUpMode step_up_mode = StepUpMode::LEGACY;
-	if (m_cao != nullptr) {
-		step_up_mode = m_cao->getProperties().step_up_mode;
-	}
-
 	// try at peak of jump, zero step height
 	CollisionMoveResult jump_result = collisionMoveSimple(env, m_client,
-		m_collisionbox, 0.0f, dtime, &jump_pos, &jump_speed, v3f(0.0f), m_cao, true,
-		step_up_mode);
+		m_collisionbox, 0.0f, dtime, &jump_pos, &jump_speed, v3f(0.0f),
+		getCollisionParams());
 
 	// see if we can get a little bit farther horizontally if we had
 	// jumped

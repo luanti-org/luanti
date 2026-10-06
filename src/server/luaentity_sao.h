@@ -6,6 +6,7 @@
 #pragma once
 
 #include "unit_sao.h"
+#include "collision.h"
 #include "util/guid.h"
 
 class LuaEntitySAO : public UnitSAO
@@ -58,9 +59,16 @@ public:
 	void setSprite(v2s16 p, int num_frames, float framelength,
 			bool select_horiz_by_yawpitch);
 	std::string getName();
+
+	u32 getCollisionGroup() const {
+		return COLLISION_BIT_OBJECT;
+	}
+	u32 getCollisionMask() const {
+		return (m_prop.getCollideWithPlayers() ? COLLISION_BIT_PLAYER : 0) |
+			(m_prop.collideWithObjects ? COLLISION_BIT_OBJECT : 0);
+	}
 	bool getCollisionBox(aabb3f *toset) const;
 	bool getSelectionBox(aabb3f *toset) const;
-	bool collideWithObjects() const;
 
 protected:
 	void dispatchScriptDeactivate(bool removal);

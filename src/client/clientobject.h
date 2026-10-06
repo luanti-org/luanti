@@ -34,9 +34,11 @@ public:
 
 	virtual void updateLight(u32 day_night_ratio) {}
 
+	virtual u32 getCollisionGroup() const { return 0; }
+	virtual u32 getCollisionMask() const { return 0; }
 	virtual bool getCollisionBox(aabb3f *toset) const { return false; }
 	virtual bool getSelectionBox(aabb3f *toset) const { return false; }
-	virtual bool collideWithObjects() const { return false; }
+
 	virtual const v3f getPosition() const { return v3f(0.0f); } // in BS-space
 	virtual const v3f getVelocity() const { return v3f(0.0f); } // in BS-space
 	virtual scene::ISceneNode *getSceneNode() const

@@ -175,7 +175,21 @@ public:
 	virtual ActiveObjectType getType() const = 0;
 
 
-	/*!
+	/**
+	 * Returns the collision groups this object is part of.
+	 * Will be used to decide which other objects collide *with this one*.
+	 * @return bitmask
+	 */
+	virtual u32 getCollisionGroup() const = 0;
+
+	/**
+	 * Returns the collision groups this object should collide with.
+	 * Will be used to decide which *other objects* this one will collide with.
+	 * @return bit mask
+	 */
+	virtual u32 getCollisionMask() const = 0;
+
+	/**
 	 * Returns the collision box of the object.
 	 * This box is translated by the object's
 	 * location.
@@ -185,7 +199,7 @@ public:
 	virtual bool getCollisionBox(aabb3f *toset) const = 0;
 
 
-	/*!
+	/**
 	 * Returns the selection box of the object.
 	 * This box is not translated when the
 	 * object moves.
@@ -193,9 +207,6 @@ public:
 	 * @returns true if the object has a selection box.
 	 */
 	virtual bool getSelectionBox(aabb3f *toset) const = 0;
-
-
-	virtual bool collideWithObjects() const = 0;
 
 
 	virtual void setAttachment(object_t parent_id, const std::string &bone, v3f position,

@@ -26,13 +26,30 @@ enum CollisionAxis : s8
 	COLLISION_AXIS_Z,
 };
 
+enum CollisionBits : u32 {
+	COLLISION_BIT_PLAYER = 1 << 0,
+	COLLISION_BIT_OBJECT = 1 << 1,
+};
+
+struct CollisionParams
+{
+	/// (optional) ActiveObject to ignore in the collision detection
+	ActiveObject *self = nullptr;
+	/// collision groups, see ActiveObject::getCollisionGroup()
+	u32 collision_group = 0;
+	/// collision mask, see ActiveObject::getCollisionMask()
+	u32 collision_mask = U32_MAX;
+	/// step up mode
+	StepUpMode step_up_mode = StepUpMode::LEGACY;
+};
+
 struct CollisionInfo
 {
 	CollisionInfo() = default;
 
 	CollisionType type = COLLISION_NODE;
 	CollisionAxis axis = COLLISION_AXIS_NONE;
-	v3s16 node_p = v3s16(-32768,-32768,-32768); // COLLISION_NODE
+	v3s16 node_p = v3s16(S16_MIN); // COLLISION_NODE
 	ActiveObject *object = nullptr; // COLLISION_OBJECT
 	v3f new_pos;
 	v3f old_speed;
@@ -53,23 +70,18 @@ struct CollisionMoveResult
 /// @warning For unit test use only.
 extern bool g_collision_problems_encountered;
 
-/// @param self (optional) ActiveObject to ignore in the collision detection.
 CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		const aabb3f &box_0,
 		f32 stepheight, f32 dtime,
-		v3f *pos_f, v3f *speed_f,
-		v3f accel_f, ActiveObject *self,
-		bool collide_with_objects,
-		StepUpMode step_up_mode);
+		v3f *pos_f, v3f *speed_f, v3f accel_f,
+		const CollisionParams &cp);
 
 /// @brief A simpler version of "collisionMoveSimple" that only checks whether
 ///        a collision occurs at the given position.
-/// @param self (optional) ActiveObject to ignore in the collision detection.
 /// @returns `true` when `box_0` truly intersects with a node or object.
 ///          Touching faces are not counted as intersection.
 bool collision_check_intersection(Environment *env, IGameDef *gamedef,
-		const aabb3f &box_0, const v3f &pos_f, ActiveObject *self = nullptr,
-		bool collide_with_objects = true);
+		const aabb3f &box_0, const v3f &pos_f, const CollisionParams &cp);
 
 // Helper function:
 // Checks for collision of a moving aabbox with a static aabbox

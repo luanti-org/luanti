@@ -282,11 +282,6 @@ bool GenericCAO::getCollisionBox(aabb3f *toset) const
 	return false;
 }
 
-bool GenericCAO::collideWithObjects() const
-{
-	return m_prop.collideWithObjects;
-}
-
 void GenericCAO::initialize(const std::string &data)
 {
 	processInitData(data);
@@ -1119,13 +1114,16 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 			aabb3f box = m_prop.collisionbox;
 			box.MinEdge *= BS;
 			box.MaxEdge *= BS;
-			CollisionMoveResult moveresult;
-			v3f p_pos = m_position;
-			v3f p_velocity = m_velocity;
-			moveresult = collisionMoveSimple(env,env->getGameDef(),
+			v3f p_pos = m_position, p_velocity = m_velocity;
+			CollisionParams cp;
+			cp.self = this;
+			cp.collision_group = getCollisionGroup();
+			cp.collision_mask = getCollisionMask();
+			cp.step_up_mode = m_prop.step_up_mode;
+
+			auto moveresult = collisionMoveSimple(env,env->getGameDef(),
 					box, m_prop.stepheight, dtime,
-					&p_pos, &p_velocity, m_acceleration,
-					this, m_prop.collideWithObjects, m_prop.step_up_mode);
+					&p_pos, &p_velocity, m_acceleration, cp);
 			// Apply results
 			m_position = p_pos;
 			m_velocity = p_velocity;
@@ -1133,7 +1131,7 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 			bool is_end_position = moveresult.collides;
 			pos_translator.update(m_position, is_end_position, dtime);
 		} else {
-			m_position += dtime * m_velocity + 0.5 * dtime * dtime * m_acceleration;
+			m_position += dtime * m_velocity + 0.5f * dtime * dtime * m_acceleration;
 			m_velocity += dtime * m_acceleration;
 			pos_translator.update(m_position, pos_translator.aim_is_end,
 					pos_translator.anim_time);
