@@ -4013,7 +4013,6 @@ Some types may inherit styles from parent types.
     * bgimg_middle - Makes the bgimg textures render in 9-sliced mode and defines the middle rect.
                      See background9[] documentation for more details.
 * tabheader
-    * bgcolor - color, sets the background color of the tabs.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
       Default true.
     * sound - a sound to be played when a different tab is selected.
