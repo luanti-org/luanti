@@ -53,6 +53,9 @@ float decode_light_f(float light_f);
 // Update light value table using the specified gamma
 void set_light_curve(float gamma);
 
+// Update light value table with a custom LUT
+void set_light_table(u8 data[LIGHT_SUN+1], float gamma);
+
 #endif
 
 // 0 <= daylight_factor <= 1000

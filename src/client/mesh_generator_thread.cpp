@@ -89,6 +89,7 @@ namespace {
 MeshUpdateQueue::MeshUpdateQueue(Client *client):
 	m_client(client)
 {
+	assert(m_client);
 	m_cache_smooth_lighting = g_settings->getBool("smooth_lighting");
 	m_cache_enable_water_reflections = g_settings->getBool("enable_water_reflections");
 	m_cache_enable_waving_water = g_settings->getBool("enable_waving_water");
@@ -166,6 +167,41 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	return true;
 }
 
+void MeshUpdateQueue::reAddBlock(MeshUpdateResult &r)
+{
+	const MeshGrid mesh_grid = m_client->getMeshGrid();
+
+	const v3s16 mesh_position = mesh_grid.getMeshPos(r.p);
+
+	MutexAutoLock lock(m_mutex);
+
+	if (r.urgent)
+		m_urgents.insert(mesh_position);
+
+	// Update if exists in queue
+	for (QueuedMeshUpdate *q : m_queue) {
+		if (q->p == mesh_position) {
+			for (auto p : r.ack_list)
+				q->ack_list.push_back(p);
+			q->urgent |= r.urgent;
+			// Do not retrieve blocks again, but make sure to drop our old ones
+			r.dropBlocks();
+			return;
+		}
+	}
+
+	// Queue a new update
+	UnqueuedMeshUpdate q{new QueuedMeshUpdate()};
+	q->p = mesh_position;
+	q->ack_list = std::move(r.ack_list);
+	q->crack_level = m_client->getCrackLevel();
+	q->crack_pos = m_client->getCrackPos();
+	q->urgent = r.urgent;
+	q->map_blocks = std::move(r.map_blocks);
+
+	m_queue.push_back(q.release());
+}
+
 // Returned pointer must be deleted
 // Returns NULL if queue is empty
 QueuedMeshUpdate *MeshUpdateQueue::pop()
@@ -188,6 +224,11 @@ QueuedMeshUpdate *MeshUpdateQueue::pop()
 			result = q;
 			break;
 		}
+
+		// When it leaves the queue, it becomes too late to update it, so the
+		// epoch counts at this point.
+		if (result)
+			result->epoch = m_epoch;
 	}
 
 	if (result)
@@ -237,10 +278,27 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 	}
 
 	data->setCrack(q->crack_level, q->crack_pos);
+
+	float ao_gamma = m_client->getCommittedStaticLighting().ao_gamma;
+	data->m_ao_gamma_inv = ao_gamma == 0.0f ? 0.0f : (1.0f / ao_gamma);
+
 	data->m_generate_minimap = !!m_client->getMinimap();
 	data->m_smooth_lighting = m_cache_smooth_lighting;
 	data->m_enable_water_reflections = m_cache_enable_water_reflections;
 	data->m_enable_waving_water = m_cache_enable_waving_water;
+}
+
+/*
+	MeshUpdateResult
+*/
+
+void MeshUpdateResult::dropBlocks()
+{
+	for (auto *block : map_blocks) {
+		if (block)
+			block->refDrop();
+	}
+	map_blocks.clear();
 }
 
 /*
@@ -268,8 +326,9 @@ void MeshUpdateWorkerThread::doUpdate()
 		r.mesh = std::unique_ptr<MapBlockMesh>(mesh_new);
 		r.solid_sides = get_solid_sides(q->data);
 		r.ack_list = std::move(q->ack_list);
-		r.urgent = q->urgent;
 		r.map_blocks = std::move(q->map_blocks);
+		r.epoch = q->epoch;
+		r.urgent = q->urgent;
 
 		m_manager->putResult(std::move(r));
 		m_queue_in->done(q->p);
@@ -339,35 +398,49 @@ void MeshUpdateManager::putResult(MeshUpdateResult &&result)
 
 bool MeshUpdateManager::getNextResult(MeshUpdateResult &r)
 {
-	if (!m_queue_out_urgent.empty()) {
+	if (!m_queue_out_urgent.empty())
 		r = m_queue_out_urgent.pop_frontNoEx();
-		return true;
-	}
-
-	if (!m_queue_out.empty()) {
+	else if (!m_queue_out.empty())
 		r = m_queue_out.pop_frontNoEx();
-		return true;
-	}
+	else
+		return false;
 
-	return false;
+	if (r.epoch != m_epoch) {
+		// just kidding, we can't return this result. put it back into the queue.
+		verbosestream << "MeshUpdateManager: have to regenerate " << r.p
+			<< " due to epoch difference (" << r.epoch << ")" << std::endl;
+		m_queue_in.reAddBlock(r);
+		r = MeshUpdateResult(); // don't leave stale data to caller
+		return getNextResult(r);
+	}
+	return true;
+}
+
+void MeshUpdateManager::forceRegenerate(Map *map, const std::vector<v3s16> &pp)
+{
+	// This invalidates all previously produced results (if still pending)
+	m_queue_in.setEpoch(++m_epoch);
+
+	verbosestream << "MeshUpdateManager: m_epoch=" << m_epoch << "; will queue "
+		<< pp.size() << " blocks to be updated" << std::endl;
+
+	for (v3s16 p : pp) {
+		m_queue_in.addBlock(map, p, false, false, false);
+	}
+	deferUpdate();
 }
 
 void MeshUpdateManager::clearAllQueues(bool finish)
 {
 	m_queue_in.clear(finish);
 
-	const auto &drop_result = [] (MeshUpdateResult &r) {
-		for (auto *block : r.map_blocks)
-			if (block)
-				block->refDrop();
-	};
 	// Same problem as in MeshUpdateQueue::clear() here: we can't just blindly
 	// throw away results that the server expects to receive an ack for.
-	const auto &do_it = [&finish, &drop_result] (ResultQueue &queue) {
+	const auto &do_it = [finish] (ResultQueue &queue) {
 		auto helper = queue.iterLocked();
 		for (auto it = helper.begin(); it != helper.end(); ) {
 			if (it->ack_list.empty() || finish) {
-				drop_result(*it);
+				it->dropBlocks();
 				it = helper.erase(it);
 			} else {
 				++it;

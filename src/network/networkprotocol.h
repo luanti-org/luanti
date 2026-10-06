@@ -701,6 +701,9 @@ enum ToClientCommand : u16
 			f32 bloom_strength_factor
 			f32 bloom_radius
 		v3f shadow_direction ({0,0,0} = unset)
+		bool light_curve_set
+		u8 light_curve[16] (ONLY if previous bool is true)
+		f32 ambient_occlusion_gamma
 	*/
 
 	TOCLIENT_SPAWN_PARTICLE_BATCH = 0x64,

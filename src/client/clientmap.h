@@ -99,6 +99,9 @@ public:
 	/// @brief Calculate statistics about the map and keep the blocks alive
 	void touchMapBlocks();
 
+	/// @brief returns a distance-sorted list of all block mesh positions
+	void getBlocksWithMeshes(std::vector<v3s16> &out);
+
 	void updateDrawListShadow(v3f shadow_light_pos, v3f shadow_light_dir, float radius, float length);
 	void clearDrawListShadow();
 
