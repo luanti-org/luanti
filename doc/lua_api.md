@@ -3116,8 +3116,8 @@ Elements
 
 ### `size[<W>,<H>,<fixed_size>]`
 
-* Define the size of the menu in inventory slots
-* `fixed_size`: `true`/`false` (optional). If `true`, the menu is not
+* Define the size of the formspec in inventory slots
+* `fixed_size`: `true`/`false` (optional). If `true`, the formspec is not
   scaled to fit the window. Ignored if the `touch_gui` setting is enabled.
 * deprecated: `invsize[<W>,<H>;]`
 
@@ -4695,9 +4695,6 @@ Helper functions
       * `"~<number>"`: Relative coordinate plus `<number>`
     * Example: `core.string_to_area("(1,2,3) (~5,~-5,~)", {x=10,y=10,z=10})`
       returns `{x=1,y=2,z=3}, {x=15,y=5,z=10}`
-* `core.formspec_escape(string)`: returns a string
-    * escapes the characters "[", "]", "\", ",", ";" and "$", which cannot be
-      used in formspecs.
 * `core.is_yes(arg)`
     * returns true if passed 'y', 'yes', 'true' or a number that isn't zero.
     * `arg` is converted to a string first, case and surrounding whitespace
@@ -7514,7 +7511,8 @@ Item handling
     * Returns a string for making an image of a cube (useful as an item image)
     * `img1`, `img2`, `img3`: textures for the top, left and right side
     * If not present, `img2` and `img3` default to `img1`
-    * See the `[inventorycube` texture modifier.
+    * The returned string is an `[inventorycube` texture modifier with the
+      `^` in the given texture names replaced by `&`.
 * `core.get_pointed_thing_position(pointed_thing, above)`
     * Returns the position of a `pointed_thing` or `nil` if the `pointed_thing`
       does not refer to a node or entity.
@@ -8027,10 +8025,10 @@ core.ipc_get("test:foo") -- returns an empty table
 Bans
 ----
 
-* `core.get_ban_list()`: returns a list of all bans formatted as string
+* `core.get_ban_list()`: returns all bans as a single string
     * Format: `"<ip>|<name>, <ip>|<name>, ..."`
-* `core.get_ban_description(ip_or_name)`: returns list of bans matching
-  IP address or name formatted as string
+* `core.get_ban_description(ip_or_name)`: returns the bans matching
+  IP address or name as a single string
     * Same format as `core.get_ban_list`.
 * `core.ban_player(name)`: ban the IP of a currently connected player
     * Returns boolean indicating success
@@ -11906,6 +11904,8 @@ See [Decoration types](#decoration-types). Used by `core.register_decoration`.
     name = "",
     -- If set, core.registered_decorations[that_name] will return this
     -- definition, and core.get_decoration_id(that_name) its ID.
+    -- If the name is already used by another decoration, the registration
+    -- is ignored and core.register_decoration returns nil.
 
     deco_type = "simple",
     -- Type. "simple", "schematic" or "lsystem" supported
