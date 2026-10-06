@@ -78,10 +78,10 @@ void ModChannelMgr::registerChannel(const std::string &channel)
 
 bool ModChannelMgr::setChannelState(const std::string &channel, ModChannelState state)
 {
-	if (!channelRegistered(channel))
+	auto channel_it = m_registered_channels.find(channel);
+	if (channel_it == m_registered_channels.end())
 		return false;
 
-	auto channel_it = m_registered_channels.find(channel);
 	channel_it->second->setState(state);
 
 	return true;

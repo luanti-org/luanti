@@ -392,6 +392,7 @@ SECTION("simple skin")
 	const auto mesh = loadMesh(model_stem + "simple_skin.gltf");
 	REQUIRE(mesh != nullptr);
 	auto csm = dynamic_cast<const SkinnedMesh*>(mesh);
+	REQUIRE(csm);
 	const auto joints = csm->getAllJoints();
 	REQUIRE(joints.size() == 3);
 

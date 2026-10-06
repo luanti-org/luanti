@@ -13,6 +13,7 @@
 #include <IGUIFont.h>
 #include "client/renderingengine.h"
 #include "irrlicht_changes/CGUITTFont.h"
+#include "debug.h"
 #include "log.h"
 #include "client/texturesource.h"
 #include "util/string.h"
@@ -985,10 +986,16 @@ void GUITable::allocationComplete()
 
 const GUITable::Row* GUITable::getRow(s32 i) const
 {
-	if (i >= 0 && i < (s32) m_visible_rows.size())
+	if (i >= 0 && (size_t)i < m_visible_rows.size())
 		return &m_rows[m_visible_rows[i]];
 
 	return NULL;
+}
+
+const GUITable::Row* GUITable::getRowChecked(s32 i) const
+{
+	sanity_check(i >= 0 && (size_t)i < m_visible_rows.size());
+	return &m_rows[m_visible_rows[i]];
 }
 
 bool GUITable::doesRowStartWith(const Row *row, const core::stringw &str) const
@@ -1231,7 +1238,7 @@ void GUITable::toggleVisibleTree(s32 row_i, int dir, bool move_selection)
 		else if (!was_open && !do_open) {
 			// Move selection to parent
 			assert(getRow(sel) != NULL);
-			while (sel > 0 && getRow(sel - 1)->indent >= row->indent)
+			while (sel > 0 && getRowChecked(sel - 1)->indent >= row->indent)
 				sel--;
 			sel--;
 			if (sel < 0)  // was root already selected?

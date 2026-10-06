@@ -333,7 +333,7 @@ void SkinnedMesh::calculateStaticBoundingBox()
 			if (animated[v])
 				continue;
 
-			auto pos = getMeshBuffer(mb)->getVertexBuffer()->getPosition(v);
+			auto pos = buf->getVertexBuffer()->getPosition(v);
 			if (!first) {
 				StaticPartsBox.addInternalPoint(pos);
 			} else {

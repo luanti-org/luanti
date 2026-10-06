@@ -216,6 +216,9 @@ protected:
 	// Returns the i-th visible row (NULL if i is invalid)
 	const Row *getRow(s32 i) const;
 
+	// Returns the i-th visible row (i must be valid)
+	const Row *getRowChecked(s32 i) const;
+
 	// Key navigation helper
 	bool doesRowStartWith(const Row *row, const core::stringw &str) const;
 
