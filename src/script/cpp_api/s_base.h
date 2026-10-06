@@ -96,7 +96,7 @@ public:
 
 	IGameDef *getGameDef() { return m_gamedef; }
 
-	// Never returns null. Aborts if the gamedef is not a Server.
+	/// Never returns null. Aborts if the gamedef is not a Server.
 	Server *getServer() {
 		// Since the gamedef is the server it's still possible to retrieve it in
 		// e.g. the async environment, but this isn't meant to happen.
@@ -107,13 +107,13 @@ public:
 	}
 
 #if CHECK_CLIENT_BUILD()
-	// Never returns null. Aborts if the gamedef is not a Client.
+	/// Never returns null. Aborts if the gamedef is not a Client.
 	Client *getClient() {
 		sanity_check(m_gamedef_as_client);
 		return m_gamedef_as_client;
 	}
 
-	// Returns null if the gamedef is not a Client.
+	/// Returns null if the gamedef is not a Client.
 	Client *getClientOrNull() {
 		return m_gamedef_as_client;
 	}
