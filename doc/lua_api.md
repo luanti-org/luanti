@@ -4611,6 +4611,7 @@ Helper functions
 
 * `dump2(obj, name, dumped)`: returns a string which makes `obj`
   human-readable, handles reference loops.
+    * Writes one `name[key] = value` line per value.
     * `obj`: arbitrary variable
     * `name`: string, default: `"_"`
     * `dumped`: table, default: `{}`
@@ -4705,7 +4706,7 @@ Helper functions
 * `table.indexof(list, val)`: returns the smallest numerical index containing
       the value `val` in the table `list`. Non-numerical indices are ignored.
       If `val` could not be found, `-1` is returned. `list` must not have
-      negative indices.
+      negative indices. The search stops at the first `nil` value.
 * `table.keyof(table, val)`: returns the key containing
       the value `val` in the table `table`. If multiple keys contain `val`,
       it is unspecified which key will be returned.
@@ -4734,6 +4735,7 @@ Helper functions
       such that, if only this function is used to calculate wear,
       the tool will break exactly after `uses` times of uses
     * `uses`: Amount of times the tool can be used
+        * If `0`, the tool has infinite uses and `0` is returned.
     * `initial_wear`: The initial wear the tool starts with (default: 0)
 * `core.get_dig_params(groups, tool_capabilities, wear)`:
     Simulates an item that digs a node.
@@ -4754,7 +4756,8 @@ Helper functions
     Parameters:
     * `groups`: Damage groups of the object
     * `tool_capabilities`: Tool capabilities table of the item
-    * `time_from_last_punch`: time in seconds since last punch action (can be `nil`)
+    * `time_from_last_punch`: time in seconds since last punch action.
+      If `nil`, full damage is assumed.
     * `wear`: Amount of wear the item starts with (default: 0)
 
 
