@@ -51,11 +51,13 @@ public:
 
 	void reloadKeybindings();
 
+	// Returns whole mouse wheel revolutions since the last call and resets it.
+	// Incomplete cycles are kept to not break high resolution mouse wheels.
 	s32 getMouseWheel()
 	{
-		s32 a = mouse_wheel;
-		mouse_wheel = 0;
-		return a;
+		s32 r = static_cast<s32>(mouse_wheel);
+		mouse_wheel -= r;
+		return r;
 	}
 
 	// Returns the mouse movement since the last call and resets it.
@@ -76,7 +78,7 @@ public:
 		keyWasPressed.reset();
 		keyWasReleased.reset();
 
-		mouse_wheel = 0;
+		mouse_wheel = 0.f;
 		mouse_movement = v2s32(0, 0);
 	}
 
@@ -152,7 +154,7 @@ private:
 	// Repetition interval for joystick input
 	float repeat_joystick_button_time = 0.0f;
 
-	s32 mouse_wheel = 0;
+	f32 mouse_wheel = 0.f;
 
 	// The current state of physical keys.
 	std::map<KeyPress, PhysicalKeyState> physicalKeyDown;
