@@ -1102,7 +1102,7 @@ int ScriptApiSecurity::sl_io_open(lua_State *L)
 		plus   = mode.find('+') != mode.npos;
 		append = mode.find('a') != mode.npos;
 		binary = mode.find('b') != mode.npos;
-		if (mode.find_first_not_of("rw+ab") != mode.npos)
+		if (mode.find_first_not_of("rw+abt") != mode.npos)
 			throw LuaError("Invalid file mode");
 	}
 	CHECK_SECURE_PATH_INTERNAL(L, path, write || plus || append, NULL);
