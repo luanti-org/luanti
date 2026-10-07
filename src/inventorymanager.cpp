@@ -910,7 +910,9 @@ void ICraftAction::apply(InventoryManager *mgr,
 
 	auto list_craft_lock       = list_craft->resizeLock();
 	auto list_craftresult_lock = list_craftresult->resizeLock();
-	auto list_main_lock        = list_main->resizeLock();
+	InventoryList::ResizeLocked list_main_lock = nullptr;
+	if (list_main)
+		list_main_lock = list_main->resizeLock();
 
 	ItemStack crafted;
 	ItemStack craftresultitem;
@@ -968,10 +970,10 @@ void ICraftAction::apply(InventoryManager *mgr,
 			output_replacement = list_main->addItem(output_replacement);
 		if (output_replacement.empty())
 			continue;
-		u16 count = output_replacement.count;
 		do {
-			PLAYER_TO_SA(player)->item_OnDrop(output_replacement, player,
-				player->getBasePosition());
+			u16 count = output_replacement.count;
+			output_replacement.count = PLAYER_TO_SA(player)->item_OnDrop(
+					output_replacement, player, player->getBasePosition());
 			if (count <= output_replacement.count) {
 				errorstream << "Couldn't drop replacement stack " <<
 					output_replacement.getItemString() << " because drop loop didn't "
