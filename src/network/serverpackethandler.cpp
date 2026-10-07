@@ -33,6 +33,8 @@
 
 #include <algorithm>
 
+static constexpr std::size_t MAX_CLIENT_MOD_CHANNELS = 128;
+
 void Server::handleCommand_Deprecated(NetworkPacket* pkt)
 {
 	auto &h = toServerCommandTable[pkt->getCommand()];
@@ -1687,15 +1689,16 @@ void Server::handleCommand_ModChannelJoin(NetworkPacket *pkt)
 
 	// Send signal to client to notify join succeed or not
 	if (g_settings->getBool("enable_mod_channels") &&
-			m_modchannel_mgr->joinChannel(channel_name, peer_id)) {
+			m_modchannel_mgr->joinChannel(channel_name, peer_id,
+					MAX_CLIENT_MOD_CHANNELS)) {
 		resp_pkt << (u8) MODCHANNEL_SIGNAL_JOIN_OK;
 		infostream << "Peer " << peer_id << " joined channel " <<
 			channel_name << std::endl;
 	}
 	else {
 		resp_pkt << (u8)MODCHANNEL_SIGNAL_JOIN_FAILURE;
-		infostream << "Peer " << peer_id << " tried to join channel " <<
-			channel_name << ", but was already registered." << std::endl;
+		infostream << "Peer " << peer_id << " could not join channel " <<
+			channel_name << std::endl;
 	}
 	resp_pkt << channel_name;
 	Send(&resp_pkt);
