@@ -20,3 +20,7 @@ msgstr "Testing fuzzy .po entry: translated (wrong)"
 
 msgid "Testing .po without context: untranslated"
 msgstr "Testing .po without context: translated"
+
+msgctxt "testtranslations"
+msgid "Testing .po files: monolingual untranslated"
+msgstr "Testing .po files: monolingual translated"
