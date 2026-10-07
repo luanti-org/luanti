@@ -159,6 +159,7 @@ message(STATUS "OpenGL ES 2: ${ENABLE_GLES2}")
 find_package(ZLIB REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(PNG REQUIRED)
+find_package(ICU REQUIRED uc data i18n)
 
 if(OPENGL_DIRECT_LINK)
 	find_package(OpenGL REQUIRED)
@@ -250,6 +251,7 @@ set(link_includes
 	"${ZLIB_INCLUDE_DIR}"
 	"${JPEG_INCLUDE_DIR}"
 	"${PNG_INCLUDE_DIR}"
+	"${ICU_INCLUDE_DIRS}"
 	"$<$<NOT:$<BOOL:${USE_SDL3}>>:${SDL2_INCLUDE_DIRS}>"
 
 	${OPENGL_INCLUDE_DIR}
@@ -509,6 +511,7 @@ target_link_libraries(IrrlichtMt PRIVATE
 	${ZLIB_LIBRARY}
 	${JPEG_LIBRARY}
 	${PNG_LIBRARY}
+	${ICU_LIBRARIES}
 	"$<$<BOOL:${USE_SDL2_SHARED}>:SDL2::SDL2>"
 	"$<$<BOOL:${USE_SDL2_STATIC}>:SDL2::SDL2-static>"
 

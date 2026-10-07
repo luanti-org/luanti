@@ -17,6 +17,7 @@
 #include <sstream>
 #include <iomanip>
 #include <unordered_map>
+#include <unicode/ustring.h>
 
 #ifndef _WIN32
 	#include <iconv.h>
@@ -169,6 +170,21 @@ std::string wide_to_utf8(std::wstring_view input)
 }
 
 #endif // _WIN32
+
+std::string ustr_to_utf8(std::u16string_view input)
+{
+	UErrorCode err = U_ZERO_ERROR;
+	int32_t outbuf_size;
+	u_strToUTF8WithSub(NULL, 0, &outbuf_size, input.data(), input.size(), 0xFFFD, NULL, &err);
+	if (U_FAILURE(err) && err != U_BUFFER_OVERFLOW_ERROR)
+		return "";
+	char *outbuf = new char[outbuf_size];
+	err = U_ZERO_ERROR;
+	u_strToUTF8WithSub(outbuf, outbuf_size, NULL, input.data(), input.size(), 0xFFFD, NULL, &err);
+	std::string out(outbuf, outbuf_size);
+	delete[] outbuf;
+	return out;
+}
 
 void wide_add_codepoint(std::wstring &result, char32_t codepoint)
 {
