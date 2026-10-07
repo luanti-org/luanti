@@ -1,0 +1,61 @@
+name: iOS
+
+# build on c/cpp changes or workflow changes
+on:
+  push:
+    paths:
+      - 'lib/**.[ch]'
+      - 'lib/**.cpp'
+      - 'src/**.[ch]'
+      - 'src/**.cpp'
+      - 'irr/**.[ch]'
+      - 'irr/**.cpp'
+      - '**/CMakeLists.txt'
+      - 'cmake/Modules/**'
+      - 'po/**.po'
+      - '.github/workflows/ios.yml'
+  pull_request:
+    paths:
+      - 'lib/**.[ch]'
+      - 'lib/**.cpp'
+      - 'src/**.[ch]'
+      - 'src/**.cpp'
+      - 'irr/**.[ch]'
+      - 'irr/**.cpp'
+      - '**/CMakeLists.txt'
+      - 'cmake/Modules/**'
+      - 'po/**.po'
+      - '.github/workflows/ios.yml'
+
+jobs:
+  build-ios:
+    strategy:
+      matrix:
+        osver: [18.2]
+        xcodever: [16.2]
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare environment
+        run: |
+          echo "REPDIR=$(pwd)" >> $GITHUB_ENV
+          echo "osver=${{matrix.osver}}" >> $GITHUB_ENV
+          echo "xcodever=${{matrix.xcodever}}" >> $GITHUB_ENV
+
+      - name: Install deps
+        run: |
+          source ./util/ci/common.sh
+          install_ios_deps $osver
+
+      - name: Build and Archive with Xcode
+        run: |
+          mkdir build
+          cd build
+          export DEPS_DIR=/Users/Shared/ios${osver}_deps/iPhoneSimulator
+          ../util/ci/build_ios.sh
+
+      - name: Run in iPhoneSimulator 
+        run: |
+          ./util/ci/run_ios.sh "iPad Air 13-inch (M2)" 150
+          cat log.txt
