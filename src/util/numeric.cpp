@@ -127,7 +127,7 @@ bool isBlockInSightEx(const v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 	if (dforward <= 0.0f)
 		return false;
 
-	// |A+B|^2 = |A| + 2(A dot B) + |B|
+	// |A+B|^2 = |A|^2 + 2(A dot B) + |B|^2
 	const f32 len_adj_sq = len_sq + 2.0f * adjdist * dot + adjdist * adjdist;
 
 	// do angle check with squared values
