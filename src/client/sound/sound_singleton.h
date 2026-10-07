@@ -9,7 +9,9 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 #include "al_helpers.h"
+#include "device_reconnect.h"
 
 namespace sound {
 
@@ -42,8 +44,18 @@ public:
 
 public:
 	bool init();
+	// Called by sound threads before maintaining streams and removing dead sounds.
+	bool recoverDevice();
 
 	~SoundManagerSingleton();
+
+private:
+	using ReopenDevice = ALCboolean (ALC_APIENTRY *)(ALCdevice *,
+			const ALCchar *, const ALCint *);
+	ReopenDevice m_reopen_device = nullptr;
+	ALCenum m_connected_enum = 0;
+	std::mutex m_reconnect_mutex;
+	DeviceReconnect m_reconnect;
 };
 
 } // namespace sound
