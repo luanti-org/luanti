@@ -29,6 +29,14 @@ local lighting_sections = {
 			{n = "strength", d = "Strength", min = 0, max = 1},
 		},
 	},
+	{
+		-- Absolute strength, overriding the player's own setting. Unset until
+		-- the slider is touched, in which case the player's setting applies.
+		n = "motion_blur", d = "Motion Blur",
+		entries = {
+			{n = "strength", d = "Strength", min = 0, max = 4},
+		},
+	},
 }
 
 local function dump_lighting(lighting)
@@ -45,7 +53,11 @@ local function dump_lighting(lighting)
 		local count = 0
 		for _,v in ipairs(parameters) do
 			count = count + 1
-			result = result.."    "..v.n.." = "..(math.floor(state[v.n] * 1000)/1000)
+			local value = state[v.n]
+			-- Some parameters are optional and absent until explicitly set,
+			-- in which case the client falls back to its own settings.
+			value = value and (math.floor(value * 1000)/1000) or "<unset>"
+			result = result.."    "..v.n.." = "..value
 			if count < #parameters then
 				result = result..","
 			end

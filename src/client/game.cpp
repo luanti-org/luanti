@@ -63,6 +63,10 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 {
 	Sky *m_sky;
 	Client *m_client;
+	/// Only the motion blur shader consumes the motion blur uniforms, and this
+	/// setter is instantiated per shader program, so everything else can skip
+	/// the work (which includes a 4x4 matrix inverse) entirely.
+	bool m_is_motion_blur_shader;
 
 	CachedVertexShaderSetting<float> m_animation_timer_vertex{"animationTimer"};
 	CachedPixelShaderSetting<float> m_animation_timer_pixel{"animationTimer"};
@@ -109,15 +113,61 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	CachedPixelShaderSetting<float>
 		m_volumetric_light_strength_pixel{"volumetricLightStrength"};
 
-	static constexpr std::array<const char*, 1> SETTING_CALLBACKS = {
-		"exposure_compensation",
+	bool m_motion_blur_enabled;
+	float m_motion_blur_strength;
+	CachedPixelShaderSetting<float, 16> m_motion_blur_inv_view_proj{"mInvViewProj"};
+	CachedPixelShaderSetting<float, 16> m_motion_blur_prev_view_proj{"mPrevViewProj"};
+	CachedPixelShaderSetting<float> m_motion_blur_strength_pixel{"motionBlurStrength"};
+	/*
+		Motion blur reprojects each pixel through the previous frame's camera,
+		so it needs that camera's view-projection matrix and camera offset.
+
+		This has to be tracked per *view*, not just per frame. The stereo modes
+		(anaglyph, sidebyside, topbottom, crossview) run the whole 3D stage —
+		including this post-processing pipeline — once per eye, with
+		OffsetCameraStep moving the camera node in between. A single history
+		slot would hand the right eye the left eye's matrix, which differs by
+		the eye separation and would show up as a constant sideways smear in
+		one eye.
+
+		Views are rendered in a fixed order within a frame, so indexing the
+		history by "how many times we have been called this frame" reliably
+		gives each eye its own slot. A hypothetical mode with more views than
+		this would share the last slot rather than misbehave.
+	*/
+	static constexpr u32 MOTION_BLUR_MAX_VIEWS = 2;
+	struct MotionBlurView {
+		core::matrix4 view_proj;
+		v3s16 camera_offset;
+		bool valid = false;
 	};
+	std::array<MotionBlurView, MOTION_BLUR_MAX_VIEWS> m_motion_blur_views;
+	u64 m_motion_blur_frame = 0;
+	bool m_motion_blur_seen_frame = false;
+	u32 m_motion_blur_view = 0;
+
+	static constexpr std::array<const char*, 2> SETTING_CALLBACKS = {
+		"exposure_compensation",
+		"motion_blur_strength",
+	};
+
+	void readMotionBlurStrength()
+	{
+		m_motion_blur_strength = g_settings->getFloat("motion_blur_strength", 0.0f, 4.0f);
+	}
 
 public:
 	void onSettingsChange(const std::string &name)
 	{
 		if (name == "exposure_compensation")
 			m_user_exposure_compensation = g_settings->getFloat("exposure_compensation", -1.0f, 1.0f);
+		// Strength is a plain uniform, so it can take effect immediately.
+		// `enable_motion_blur` and `motion_blur_quality` are deliberately
+		// absent: the former decides whether the render pipeline gets a motion
+		// blur step at all, the latter is compiled into the shader as a
+		// constant, and both are only applied when the world is loaded.
+		else if (name == "motion_blur_strength")
+			readMotionBlurStrength();
 	}
 
 	static void settingsCallback(const std::string &name, void *userdata)
@@ -127,9 +177,10 @@ public:
 
 	void setSky(Sky *sky) { m_sky = sky; }
 
-	GameGlobalShaderUniformSetter(Sky *sky, Game *game) :
+	GameGlobalShaderUniformSetter(Sky *sky, Game *game, bool is_motion_blur_shader) :
 		m_sky(sky),
-		m_client(game->getClient())
+		m_client(game->getClient()),
+		m_is_motion_blur_shader(is_motion_blur_shader)
 	{
 		for (auto &name : SETTING_CALLBACKS)
 			g_settings->registerChangedCallback(name, settingsCallback, this);
@@ -137,6 +188,8 @@ public:
 		m_user_exposure_compensation = g_settings->getFloat("exposure_compensation", -1.0f, 1.0f);
 		m_bloom_enabled = g_settings->getBool("enable_bloom");
 		m_volumetric_light_enabled = g_settings->getBool("enable_volumetric_lighting") && m_bloom_enabled;
+		m_motion_blur_enabled = g_settings->getBool("enable_motion_blur");
+		readMotionBlurStrength();
 		m_crack_animation_length_i = game->crack_animation_length;
 	}
 
@@ -177,6 +230,67 @@ public:
 		m_texel_size0_vertex.set(m_texel_size0, services);
 		m_texel_size0_pixel.set(m_texel_size0, services);
 
+		const auto &lighting = m_client->getEnv().getLocalPlayer()->getLighting();
+
+		if (m_is_motion_blur_shader) {
+			auto *camera = m_client->getCamera();
+			auto *camera_node = camera->getCameraNode();
+
+			// Read the camera fresh every call rather than caching it per
+			// frame: in stereo modes this runs once per eye against a
+			// different camera transform, so a cached matrix would reconstruct
+			// the second eye's world positions with the first eye's camera.
+			core::matrix4 view_proj = camera_node->getProjectionMatrix();
+			view_proj *= camera_node->getViewMatrix();
+			v3s16 camera_offset = camera->getOffset();
+
+			// Pick this view's history slot: back to the first on a new frame,
+			// otherwise the next eye of the frame we are already in.
+			u64 frame = m_client->getEnv().getFrameCounter();
+			if (!m_motion_blur_seen_frame || frame != m_motion_blur_frame) {
+				m_motion_blur_frame = frame;
+				m_motion_blur_seen_frame = true;
+				m_motion_blur_view = 0;
+			} else if (m_motion_blur_view + 1 < MOTION_BLUR_MAX_VIEWS) {
+				m_motion_blur_view++;
+			}
+			MotionBlurView &history = m_motion_blur_views[m_motion_blur_view];
+
+			core::matrix4 inv_view_proj;
+			view_proj.getInverse(inv_view_proj);
+
+			core::matrix4 prev_view_proj;
+			if (history.valid) {
+				// The world is rendered relative to the camera offset, which can
+				// change between frames. Bake the offset delta into the previous
+				// view-projection matrix so reprojection stays continuous.
+				v3f offset_delta = intToFloat(camera_offset - history.camera_offset, BS);
+				core::matrix4 offset_translation;
+				offset_translation.setTranslation(offset_delta);
+				prev_view_proj = history.view_proj * offset_translation;
+			} else {
+				// No history for this view yet (first frame, or first frame
+				// after the view count grew): reproject onto itself so the
+				// velocity is zero and nothing blurs.
+				prev_view_proj = view_proj;
+			}
+
+			history.view_proj = view_proj;
+			history.camera_offset = camera_offset;
+			history.valid = true;
+
+			m_motion_blur_inv_view_proj.set(inv_view_proj, services);
+			m_motion_blur_prev_view_proj.set(prev_view_proj, services);
+
+			// A strength pushed by the server wins outright: it may exceed the
+			// player's configured strength and switches the effect on even if
+			// the player has it disabled. Their settings apply only when the
+			// server has left it unset.
+			float strength = resolveMotionBlurStrength(lighting,
+					m_motion_blur_enabled, m_motion_blur_strength);
+			m_motion_blur_strength_pixel.set(&strength, services);
+		}
+
 		{
 			float tmp = m_crack_animation_length_i;
 			m_crack_animation_length.set(&tmp, services);
@@ -185,8 +299,6 @@ public:
 			tmp = m_crack_texture_scale_i;
 			m_crack_texture_scale.set(&tmp, services);
 		}
-
-		const auto &lighting = m_client->getEnv().getLocalPlayer()->getLighting();
 
 		const AutoExposure &exposure_params = lighting.exposure;
 		std::array<float, 7> exposure_buffer = {
@@ -298,7 +410,8 @@ public:
 	{
 		if (str_starts_with(name, "shadow/"))
 			return nullptr;
-		auto *scs = new GameGlobalShaderUniformSetter(m_sky, m_game);
+		auto *scs = new GameGlobalShaderUniformSetter(m_sky, m_game,
+				name == "motion_blur");
 		if (!m_sky)
 			created_nosky.push_back(scs);
 		return scs;

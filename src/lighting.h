@@ -52,5 +52,28 @@ struct Lighting
 	float bloom_intensity {0.05f};
 	float bloom_strength_factor {1.0f};
 	float bloom_radius {1.0f};
+	/**
+	 * Absolute motion blur strength, or negative to leave it to the player.
+	 *
+	 * A non-negative value overrides the player's own motion blur settings
+	 * outright: it may exceed their configured strength, and it switches the
+	 * effect on even for a player who has it disabled. Negative means unset,
+	 * in which case the player's own settings apply.
+	 */
+	float motion_blur_strength {-1.0f};
 	v3f shadow_direction;
 };
+
+/**
+ * Resolve the motion blur strength to actually render with.
+ *
+ * A server-provided strength wins outright; the player's settings are only
+ * consulted when the server has left it unset.
+ */
+inline float resolveMotionBlurStrength(const Lighting &lighting,
+		bool player_enabled, float player_strength)
+{
+	if (lighting.motion_blur_strength >= 0.0f)
+		return lighting.motion_blur_strength;
+	return player_enabled ? player_strength : 0.0f;
+}
