@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string_view>
 #include <functional>
+#include "util/string.h" // IS_UTF8_MULTB_START
 
 // this is declared in util/string.h, which we don't want to pull in entirely.
 extern size_t utf8_truncate_count(std::string_view input);
@@ -16,6 +17,7 @@ template<unsigned int BufferLength, typename Emitter = std::function<void(std::s
 class StringStreamBuffer : public std::streambuf {
 public:
 	StringStreamBuffer(Emitter emitter) : m_emitter(emitter) {
+		static_assert(BufferLength > 10, "Line splitting requires larger buffer");
 		buffer_index = 0;
 	}
 
@@ -29,12 +31,23 @@ public:
 		// emit only complete lines, or if the buffer is full
 		if (c == '\n') {
 			sync();
-		} else {
-			buffer[buffer_index++] = c;
-			if (buffer_index >= BufferLength) {
-				sync();
-			}
+			return;
 		}
+		const size_t free_before_write = BufferLength - buffer_index;
+		if (free_before_write < 10 && std::isspace(c)) {
+			// Break line before space character.
+			sync();
+		} else if (free_before_write < 4 && IS_UTF8_MULTB_START(c)) {
+			// Break line before starting a new UTF-8 character.
+			sync();
+			buffer[buffer_index++] = c;
+			return;
+		}
+
+		// Normal case: append character, flush if necessary
+		buffer[buffer_index++] = c;
+		if (free_before_write == 1)
+			sync();
 	}
 
 	std::streamsize xsputn(const char *s, std::streamsize n) override {

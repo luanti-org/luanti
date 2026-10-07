@@ -2,6 +2,7 @@
 
 #include "test.h"
 #include "log_internal.h"
+#include <vector>
 
 using std::ostream;
 
@@ -15,6 +16,7 @@ public:
 
 	void testNullChecks();
 	void testBitCheck();
+	void testLineBreak();
 };
 
 static TestLogging g_test_instance;
@@ -23,6 +25,7 @@ void TestLogging::runTests(IGameDef *gamedef)
 {
 	TEST(testNullChecks);
 	TEST(testBitCheck);
+	TEST(testLineBreak);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,4 +90,42 @@ void TestLogging::testBitCheck()
 	UASSERTEQ(std::string, logs[0].text, "EOF is (ostream:eofbit)");
 	UASSERTEQ(std::string, logs[1].text, "Fail is (ostream:failbit)");
 	UASSERTEQ(std::string, logs[2].text, "Bad is (ostream:badbit)");
+}
+
+void TestLogging::testLineBreak()
+{
+	std::vector<std::string> lines;
+	StringStreamBuffer<40> buffer([&lines](std::string_view str) {
+		//std::cout << "LOG: " << str << std::endl;
+		lines.emplace_back(str);
+	});
+
+	UASSERT(lines.empty());
+	{
+		// Test UTF-8 multibyte splitting
+		std::string_view what("\xe2\x97\x8b");
+		for (unsigned i = 0; i < 20; ++i) {
+			// (20 * 3 bytes) / 40 bytes --> 2 lines.
+			buffer.xsputn(what.data(), what.size());
+		}
+		buffer.sync();
+		UASSERT(lines.size() == 2);
+		UASSERT(*lines[0].rbegin() == '\x8b'); // last before multibyte start
+		UASSERT(IS_UTF8_MULTB_START(lines[1].at(0)));
+	}
+
+	lines.clear();
+
+	{
+		// Test split by space
+		std::string_view what("helloworld ");
+		for (unsigned i = 0; i < 20; ++i) {
+			// (20 * 11 bytes) / 40 bytes --> min. 6 lines.
+			buffer.xsputn(what.data(), what.size());
+		}
+		buffer.sync();
+		UASSERT(lines.size() >= 6);
+		UASSERT(*lines[0].rbegin() == 'd');
+		UASSERT(lines[1].at(0) == ' ');
+	}
 }
