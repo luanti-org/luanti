@@ -76,4 +76,8 @@ private:
 	float julia_z;
 	float julia_w;
 	Noise *noise_seabed = nullptr;
+
+	static double squared(float value);
+	static float hypotenuse(float a, float b);
+	static bool isZero(float value);
 };
