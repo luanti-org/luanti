@@ -307,7 +307,7 @@ MeshUpdateManager::MeshUpdateManager(Client *client):
 }
 
 void MeshUpdateManager::updateBlock(Map *map, v3s16 p, bool ack_block_to_server,
-		bool urgent, bool update_neighbors)
+		bool urgent, const ModifiedMapBlock *modified_block)
 {
 	static thread_local const bool many_neighbors =
 			g_settings->getBool("smooth_lighting")
@@ -317,13 +317,30 @@ void MeshUpdateManager::updateBlock(Map *map, v3s16 p, bool ack_block_to_server,
 				<< p << std::endl;
 		return;
 	}
-	if (update_neighbors) {
+	if (modified_block) {
 		if (many_neighbors) {
-			for (v3s16 dp : g_26dirs)
+			for (v3s16 dp : g_26dirs) {
+				if (dp.X ==  1 && !((modified_block->m_borders >> 2) & 1))
+					continue;
+				if (dp.X == -1 && !((modified_block->m_borders >> 5) & 1))
+					continue;
+				if (dp.Y ==  1 && !((modified_block->m_borders >> 1) & 1))
+					continue;
+				if (dp.Y == -1 && !((modified_block->m_borders >> 4) & 1))
+					continue;
+				if (dp.Z ==  1 && !((modified_block->m_borders >> 0) & 1))
+					continue;
+				if (dp.Z == -1 && !((modified_block->m_borders >> 3) & 1))
+					continue;
+
 				m_queue_in.addBlock(map, p + dp, false, urgent, true);
+			}
 		} else {
-			for (v3s16 dp : g_6dirs)
-				m_queue_in.addBlock(map, p + dp, false, urgent, true);
+			for (int i = 0; i < 6; i++) {
+				if ((modified_block->m_borders >> i) & 1) {
+					m_queue_in.addBlock(map, p + g_6dirs[i], false, urgent, true);
+				}
+			}
 		}
 	}
 	deferUpdate();
