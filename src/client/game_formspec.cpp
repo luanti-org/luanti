@@ -343,6 +343,10 @@ void GameFormSpec::showPlayerInventory(const std::string *fs_override)
 	if (fs_src->getForm().empty())
 		return;
 
+	// Tell the server we are about to open the inventory.
+	// Do this *before* showing so the round-trip can start immediately.
+	m_client->sendInventoryOpen();
+
 	TextDest *txt_dst = new TextDestPlayerInventory(m_client);
 
 	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),

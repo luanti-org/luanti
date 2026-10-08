@@ -759,6 +759,21 @@ void Server::handleCommand_InventoryAction(NetworkPacket* pkt)
 	a->apply(m_inventory_mgr.get(), playersao, this);
 }
 
+void Server::handleCommand_InventoryOpen(NetworkPacket *pkt)
+{
+	session_t peer_id = pkt->getPeerId();
+	RemotePlayer *player = m_env->getPlayer(peer_id);
+	if (!player)
+		return;
+
+	PlayerSAO *sao = player->getPlayerSAO();
+	if (!sao)
+		return;
+
+	// Run the new Lua callbacks
+	m_script->on_inventory_open(sao);
+}
+
 void Server::handleCommand_ChatMessage(NetworkPacket* pkt)
 {
 	std::wstring message;
