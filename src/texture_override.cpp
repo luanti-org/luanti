@@ -6,6 +6,7 @@
 
 #include "log.h"
 #include "filesys.h"
+#include "settings.h"
 #include "util/string.h"
 #include <map>
 
@@ -132,4 +133,14 @@ std::vector<TextureOverride> TextureOverrideSource::getNodeTileOverrides() const
 	}
 
 	return found_overrides;
+}
+
+std::vector<std::string> getTexturePathsReversed()
+{
+	std::vector<std::string> paths;
+	// reversed: applyTextureOverrides() so highest priority gets applied last, aka overrides others
+	std::vector<std::string> pack_paths = str_split(g_settings->get("texture_path"), ',');
+	for (auto it = pack_paths.rbegin(); it != pack_paths.rend(); ++it)
+		fs::GetRecursiveDirs(paths, *it);
+	return paths;
 }

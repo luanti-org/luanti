@@ -15,7 +15,6 @@
 #include "client/particles.h"
 #include "client/renderingengine.h"
 #include "client/sound.h"
-#include "client/texturepaths.h"
 #include "client/texturesource.h"
 #include "camera.h"
 #include "filesys.h"
@@ -1912,7 +1911,8 @@ void Client::afterContentReceived()
 	m_rendering_engine->draw_load_screen(wstrgettext("Initializing nodes..."),
 			guienv, m_tsrc, 0, 70);
 	m_nodedef->updateAliases(m_itemdef);
-	for (const auto &path : getTextureDirs()) {
+	// Apply texture overrides from texturepack/override.txt
+	for (const std::string &path : getTexturePathsReversed()) {
 		TextureOverrideSource override_source(path + DIR_DELIM + "override.txt");
 		m_nodedef->applyTextureOverrides(override_source.getNodeTileOverrides());
 		m_itemdef->applyTextureOverrides(override_source.getItemTextureOverrides());
