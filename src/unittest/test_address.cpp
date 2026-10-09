@@ -88,6 +88,8 @@ void TestAddress::testResolve()
 		UASSERT(tmp.isAny());
 	}
 
+// On emscripten running under nodejs, there's no entry for localhost.
+#ifndef __EMSCRIPTEN__
 	// Localhost test
 	Address result, fallback;
 	result.Resolve("localhost", &fallback);
@@ -105,6 +107,7 @@ void TestAddress::testResolve()
 		warningstream << "Couldn't verify Address::Resolve fallback (no IPv6?)"
 			<< std::endl;
 	}
+#endif
 }
 
 void TestAddress::testSerializeString()
