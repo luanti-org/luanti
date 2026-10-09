@@ -122,7 +122,7 @@ camera_smoothing (Camera smoothing) float 0.0 0.0 100.0
 #    Requires: keyboard_mouse
 cinematic_camera_smoothing (Camera smoothing in cinematic mode) float 0.05 0.0 100.0
 
-#    If enabled, you can place nodes at the position (feet + eye level) where you stand.
+#    If enabled, you can place nodes at the position(s) your body occupies.
 #    This is helpful when working with nodeboxes in small areas.
 enable_build_where_you_stand (Build inside player) bool false
 
