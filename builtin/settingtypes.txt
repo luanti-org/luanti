@@ -2506,7 +2506,8 @@ serverlist_file (Serverlist file) [client] string favoriteservers.json
 
 [*Hide: Temporary Settings] [common]
 
-#    Ordered, comma-separated list of texture pack paths.
+#    Ordered list of texture pack paths, separated by ";" on Windows
+#    and ":" on other platforms.
 #    Earlier entries take priority: if multiple packs provide the same
 #    texture, the first one wins.
 texture_path (Texture path) string

@@ -121,13 +121,16 @@ function pkgmgr.get_mods(path, virtual_path, listing)
 	pkgmgr.update_translations(mods)
 end
 
+-- Must match PATH_DELIM in filesys.h
+local PATH_DELIM = PLATFORM == "Windows" and ";" or ":"
+
 --- Returns the ordered list of enabled texture pack paths, highest priority first.
 function pkgmgr.get_enabled_texture_packs()
-	return (core.settings:get("texture_path") or ""):split(",")
+	return (core.settings:get("texture_path") or ""):split(PATH_DELIM)
 end
 
 function pkgmgr.set_enabled_texture_packs(list)
-	core.settings:set("texture_path", table.concat(list, ","))
+	core.settings:set("texture_path", table.concat(list, PATH_DELIM))
 end
 
 --- Newly enabled packs are appended at the end, lowest priority.

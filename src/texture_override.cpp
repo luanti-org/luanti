@@ -139,7 +139,7 @@ std::vector<std::string> getTexturePathsReversed()
 {
 	std::vector<std::string> paths;
 	// reversed: applyTextureOverrides() so highest priority gets applied last, aka overrides others
-	std::vector<std::string> pack_paths = str_split(g_settings->get("texture_path"), ',');
+	std::vector<std::string> pack_paths = str_split(g_settings->get("texture_path"), PATH_DELIM[0]);
 	for (auto it = pack_paths.rbegin(); it != pack_paths.rend(); ++it)
 		fs::GetRecursiveDirs(paths, *it);
 	return paths;
