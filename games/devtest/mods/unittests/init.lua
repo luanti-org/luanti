@@ -247,3 +247,15 @@ else
 		end,
 	})
 end
+
+do
+	-- Trying to require the mod while it is still loading must fail
+	local _, err = pcall(require, "unittests")
+	assert(err:find"cyclic require%(%)")
+	-- Requiring a mod should work and return the API table returned by init.lua
+	local t = {}
+	unittests.register("test_mod_require", function()
+		assert(require("unittests") == t)
+	end)
+	return t
+end

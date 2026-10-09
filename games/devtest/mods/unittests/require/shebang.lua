@@ -1,0 +1,2 @@
+#! skip me!
+return "yay"
