@@ -68,7 +68,7 @@ local function load_texture_packs(txtpath, retval)
 			local path = txtpath .. DIR_DELIM .. item .. DIR_DELIM
 			local conf = Settings(path .. "texture_pack.conf")
 			local order = table.indexof(enabled_packs, path)
-			if order == - 1 then
+			if order == -1 then
 				order = nil
 			end
 			local enabled = order ~= nil
