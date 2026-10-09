@@ -121,28 +121,22 @@ function pkgmgr.get_mods(path, virtual_path, listing)
 	pkgmgr.update_translations(mods)
 end
 
---------------------------------------------------------------------------------
--- Returns the ordered list of enabled texture pack paths, highest priority first.
+--- Returns the ordered list of enabled texture pack paths, highest priority first.
 function pkgmgr.get_enabled_texture_packs()
-	local raw = core.settings:get("texture_path") or ""
-	return raw:split(",")
+	return (core.settings:get("texture_path") or ""):split(",")
 end
 
---------------------------------------------------------------------------------
 function pkgmgr.set_enabled_texture_packs(list)
 	core.settings:set("texture_path", table.concat(list, ","))
 end
 
---------------------------------------------------------------------------------
--- Newly enabled packs are appended at the end, lowest priority.
+--- Newly enabled packs are appended at the end, lowest priority.
 function pkgmgr.set_texture_pack_enabled(path, enabled)
 	local list = pkgmgr.get_enabled_texture_packs()
 
-	for i, enabled_path in ipairs(list) do
-		if enabled_path == path then
-			table.remove(list, i)
-			break
-		end
+	local index = table.indexof(list, path)
+	if index ~= -1 then
+		table.remove(list, index)
 	end
 
 	if enabled then
@@ -152,28 +146,17 @@ function pkgmgr.set_texture_pack_enabled(path, enabled)
 	pkgmgr.set_enabled_texture_packs(list)
 end
 
---------------------------------------------------------------------------------
--- Moves an enabled texture pack by `delta` places in the priority list.
+--- Moves an enabled texture pack by `delta` places in the priority list.
 function pkgmgr.move_texture_pack(path, delta)
 	local list = pkgmgr.get_enabled_texture_packs()
 
-	local index
-	for i, enabled_path in ipairs(list) do
-		if enabled_path == path then
-			index = i
-			break
-		end
-	end
-	if not index then
+	local index = table.indexof(list, path)
+	if index == -1 then
 		return
 	end
 
-	local new_index = index + delta
-	if new_index < 1 or new_index > #list then
-		return
-	end
-
-	list[index], list[new_index] = list[new_index], list[index]
+	local new_index = math.max(1, math.min(#list, index + delta))
+	table.insert(list, new_index, table.remove(list, index))
 	pkgmgr.set_enabled_texture_packs(list)
 end
 

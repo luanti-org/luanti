@@ -13,7 +13,7 @@ local function get_content_icons(packages_with_updates)
 end
 
 
-local SUBTAB_KEYS = { "games", "mods", "res" }
+local SUBTAB_KEYS = { "games", "mods", "txps" }
 
 local packages_raw, packages
 
@@ -34,7 +34,7 @@ local function update_packages()
 				element.name == uid
 	end
 
-	local category_types = { game = "games", txp = "res", mod = "mods", modpack = "mods" }
+	local category_types = { game = "games", txp = "txps", mod = "mods", modpack = "mods" }
 	local function filter_by_category(element, category)
 		return category_types[element.type] == category
 	end
@@ -67,16 +67,12 @@ local function get_formspec(tabview, name, tabdata)
 		update_packages()
 	end
 
-	if not tabdata.selected_pkg then
-		tabdata.selected_pkg = 1
-	end
-	if not tabdata.subtab then
-		tabdata.subtab = 1
-	end
+	tabdata.selected_pkg = tabdata.selected_pkg or 1
+	tabdata.subtab = tabdata.subtab or 1
 
 	local subtab_key = SUBTAB_KEYS[tabdata.subtab]
 	packages:set_filtercriteria(subtab_key)
-	if subtab_key == "res" then
+	if subtab_key == "txps" then
 		sort_resources_list(packages:get_list())
 	end
 
@@ -118,7 +114,7 @@ local function get_formspec(tabview, name, tabdata)
 		"button[0.4,5.8;6.3,0.9;btn_contentdb;", contentdb_label, "]"
 	}
 
-	if subtab_key == "res" then
+	if subtab_key == "txps" then
 		local priority_tooltip = fgettext("Enabled texture packs are applied in priority order.") ..
 			"\n" .. fgettext("If two packs provide the same texture, the one listed first wins.")
 		table.insert_all(retval, {
