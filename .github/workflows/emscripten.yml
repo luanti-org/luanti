@@ -39,13 +39,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends cmake gettext
 
+      - name: Setup emsdk
+        uses: emscripten-core/setup-emsdk@v16
+        with:
+          # Keep version same in build_emscripten.sh
+          version: 6.0.11
+          actions-cache-folder: build/emsdk-cache
+
       - name: Build
         run: |
           ./util/ci/build_emscripten.sh
 
       - name: Unittest
         run: |
-          source build/downloads/emsdk/emsdk_env.sh
           timeout_secs=60
           status=0
           timeout --foreground --kill-after=10 $timeout_secs \

@@ -1,6 +1,7 @@
 #!/bin/bash -eu
 
 EMSDK_GIT="https://github.com/emscripten-core/emsdk.git"
+# Keep version same in emscripten.yml
 EMSDK_VER=6.0.11
 
 LIBZIP_URL="https://github.com/nih-at/libzip/releases/download/v1.11.4/libzip-1.11.4.tar.xz"
@@ -50,24 +51,35 @@ cd "${BUILD_DIR}"
 
 ###############################################################################
 header "DOWNLOAD AND INSTALL EMSDK"
-EMSDK_DIR="${DOWNLOAD_DIR}/emsdk"
-if [ ! -d "${EMSDK_DIR}" ]; then
-  pushd "${DOWNLOAD_DIR}"
-  git clone "${EMSDK_GIT}"
-  pushd emsdk
-  ./emsdk install "${EMSDK_VER}"
-  ./emsdk activate "${EMSDK_VER}"
+# In the workflow, emsdk is installed by the setup-emsdk action
+EMSDK_NEEDS_PATCH=false
+if [ "${GITHUB_ACTIONS:-}" = "true" ] && [ -n "${EMSDK:-}" ]; then
+  echo "USING EMSDK ALREADY INSTALLED BY WORKFLOW"
+  EMSDK_DIR="${EMSDK}"
+  # setup-emsdk caches emsdk before we patch it.
+  EMSDK_NEEDS_PATCH=true
+else
+  EMSDK_DIR="${DOWNLOAD_DIR}/emsdk"
+  if [ ! -d "${EMSDK_DIR}" ]; then
+    EMSDK_NEEDS_PATCH=true
+    pushd "${DOWNLOAD_DIR}"
+    git clone "${EMSDK_GIT}"
+    pushd emsdk
+    ./emsdk install "${EMSDK_VER}"
+    ./emsdk activate "${EMSDK_VER}"
+    popd
+    popd
+  fi
+fi
 
+if [ "$EMSDK_NEEDS_PATCH" = "true" ]; then
   # Temporary workaround for https://github.com/emscripten-core/emscripten/issues/27932
-  CHECK_TYPE_SIZE_CMAKE="upstream/emscripten/cmake/Modules/CheckTypeSize.cmake"
+  CHECK_TYPE_SIZE_CMAKE="${EMSDK_DIR}/upstream/emscripten/cmake/Modules/CheckTypeSize.cmake"
   if ! grep -q 'oformat=wasm' "${CHECK_TYPE_SIZE_CMAKE}"; then
     echo "CheckTypeSize workaround no longer applies, remove it from build script"
     exit 1
   fi
   sed -i 's/oformat=wasm/oformat=bare/g' "${CHECK_TYPE_SIZE_CMAKE}"
-
-  popd
-  popd
 fi
 
 ###############################################################################
