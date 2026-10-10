@@ -230,6 +230,7 @@ public:
 	void handleCommand_PlayerPos(NetworkPacket* pkt);
 	void handleCommand_DeletedBlocks(NetworkPacket* pkt);
 	void handleCommand_InventoryAction(NetworkPacket* pkt);
+	void handleCommand_InventoryOpen(NetworkPacket *pkt);
 	void handleCommand_ChatMessage(NetworkPacket* pkt);
 	void handleCommand_Damage(NetworkPacket* pkt);
 	void handleCommand_PlayerItem(NetworkPacket* pkt);

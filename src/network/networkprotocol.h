@@ -920,7 +920,12 @@ enum ToServerCommand : u16
 		v2f32 max_fs_info
 	*/
 
-	TOSERVER_NUM_MSG_TYPES = 0x54,
+	TOSERVER_INVENTORY_OPEN = 0x54,
+	/*
+		Sent by the client when the inventory key opens the player inventory formspec.
+	*/
+
+	TOSERVER_NUM_MSG_TYPES = 0x55,
 };
 
 enum AuthMechanism
