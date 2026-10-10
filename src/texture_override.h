@@ -74,3 +74,6 @@ public:
 private:
 	std::vector<TextureOverride> m_overrides;
 };
+
+//! Texture pack dirs from the texture_path setting, lowest priority pack first
+std::vector<std::string> getTexturePathsReversed();

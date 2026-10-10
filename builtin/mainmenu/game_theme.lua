@@ -11,7 +11,8 @@ local COLORS = {
 
 --------------------------------------------------------------------------------
 function mm_game_theme.init()
-	mm_game_theme.texturepack = core.settings:get("texture_path")
+	-- TODO: scan texture packs in order to get game theme images
+	mm_game_theme.texturepack = pkgmgr.get_enabled_texture_packs()[1]
 
 	mm_game_theme.gameid = nil
 

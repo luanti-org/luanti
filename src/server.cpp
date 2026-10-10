@@ -538,8 +538,7 @@ void Server::init()
 	m_nodedef->updateAliases(m_itemdef);
 
 	// Apply texture overrides from texturepack/override.txt
-	std::vector<std::string> paths;
-	fs::GetRecursiveDirs(paths, g_settings->get("texture_path"));
+	std::vector<std::string> paths = getTexturePathsReversed();
 	fs::GetRecursiveDirs(paths, m_gamespec.path + DIR_DELIM + "textures");
 	for (const std::string &path : paths) {
 		TextureOverrideSource override_source(path + DIR_DELIM + "override.txt");
