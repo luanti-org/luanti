@@ -83,6 +83,12 @@ describe("vector2", function()
 		assert.is_true(vector2.check(vector2.copy(v)))
 	end)
 
+	it("unpack()", function()
+		local x, y = vector2.new(1, 2):unpack()
+		assert.equal(1, x)
+		assert.equal(2, y)
+	end)
+
 	it("indexes", function()
 		local some_vector = vector2.new(24, 42)
 		assert.equal(24, some_vector[1])
