@@ -1008,8 +1008,14 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 					getNodeBlockPos(pointed.node_abovesurface), false);
 			}
 
-			if (n.getContent() != CONTENT_IGNORE)
-				m_script->node_on_punch(p_under, n, playersao, pointed);
+			if (n.getContent() != CONTENT_IGNORE) {
+				if (!m_script->on_interact("punch", playersao, pointed)) {
+					// on_interact might have changed the node
+					n = m_env->getMap().getNode(p_under);
+
+					m_script->node_on_punch(p_under, n, playersao, pointed);
+				}
+			}
 
 			// Cheat prevention
 			playersao->noCheatDigStart(p_under);
@@ -1021,6 +1027,15 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		if (pointed.type != POINTEDTHING_OBJECT || pointed_object->isGone())
 			return;
 
+		float time_from_last_punch = playersao->resetTimeFromLastPunch();
+
+		if (m_script->on_interact("punch", playersao, pointed))
+			return;
+
+		// on_interact might have removed the object
+		if (pointed_object->isGone())
+			return;
+
 		ItemStack selected_item, hand_item;
 		ItemStack tool_item = playersao->getWieldedItem(&selected_item, &hand_item);
 		const ToolCapabilities &toolcap =
@@ -1028,8 +1043,6 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		v3f dir = (pointed_object->getBasePosition() -
 				(playersao->getBasePosition() + playersao->getEyeOffset())
 					).normalize();
-		float time_from_last_punch =
-			playersao->resetTimeFromLastPunch();
 
 		u32 wear = pointed_object->punch(dir, toolcap, playersao,
 				time_from_last_punch, tool_item.wear);
@@ -1131,8 +1144,14 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 
 		/* Actually dig node */
 
-		if (is_valid_dig && n.getContent() != CONTENT_IGNORE)
-			m_script->node_on_dig(p_under, n, playersao);
+		if (is_valid_dig && n.getContent() != CONTENT_IGNORE) {
+			if (!m_script->on_interact("dig", playersao, pointed)) {
+				// on_interact might have changed the node
+				n = m_env->getMap().getNode(p_under);
+
+				m_script->node_on_dig(p_under, n, playersao);
+			}
+		}
 
 		// For whatever reason we assume that the client always predicts that a
 		// dug node is air irrespective of the node's node_dig_prediction
@@ -1163,6 +1182,14 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 					<< pointed.object_id << ": "
 					<< pointed_object->getDescription() << std::endl;
 
+			if (m_script->on_interact("place", playersao, pointed))
+				return;
+
+			// on_interact might have removed the object and changed the wielded item
+			if (pointed_object->isGone())
+				return;
+			getWieldedItem(playersao, selected_item);
+
 			// Do stuff
 			if (m_script->item_OnSecondaryUse(selected_item, playersao, pointed)) {
 				if (selected_item.has_value() && playersao->setWieldedItem(*selected_item))
@@ -1174,16 +1201,25 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 				return;
 
 			pointed_object->rightClick(playersao);
-		} else if (m_script->item_OnPlace(selected_item, playersao, pointed)) {
-			// Placement was handled in lua
 
-			// Apply returned ItemStack
-			if (selected_item.has_value() && playersao->setWieldedItem(*selected_item))
-				SendInventory(player, true);
+			return;
 		}
 
 		if (pointed.type != POINTEDTHING_NODE)
 			return;
+
+		if (!m_script->on_interact("place", playersao, pointed)) {
+			// on_interact might have changed the wielded item
+			getWieldedItem(playersao, selected_item);
+
+			if (m_script->item_OnPlace(selected_item, playersao, pointed)) {
+				// Placement was handled in lua
+
+				// Apply returned ItemStack
+				if (selected_item.has_value() && playersao->setWieldedItem(*selected_item))
+					SendInventory(player, true);
+			}
+		}
 
 		getClient(peer_id)->m_time_from_building = 0;
 		// Since we do not known if the client has predicted the node at
@@ -1200,6 +1236,12 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 
 		actionstream << player->getName() << " uses " << selected_item->name
 				<< ", pointing at " << pointed.dump() << std::endl;
+
+		if (m_script->on_interact("use", playersao, pointed))
+			return;
+
+		// on_interact might have changed the wielded item
+		getWieldedItem(playersao, selected_item);
 
 		if (m_script->item_OnUse(selected_item, playersao, pointed)) {
 			// Apply returned ItemStack
@@ -1219,6 +1261,12 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 				<< selected_item->name << std::endl;
 
 		pointed.type = POINTEDTHING_NOTHING; // can only ever be NOTHING
+
+		if (m_script->on_interact("place", playersao, pointed))
+			return;
+
+		// on_interact might have changed the wielded item
+		getWieldedItem(playersao, selected_item);
 
 		if (m_script->item_OnSecondaryUse(selected_item, playersao, pointed)) {
 			// Apply returned ItemStack
