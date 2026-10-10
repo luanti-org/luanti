@@ -245,12 +245,15 @@ struct IncomingSplitPacket
 	{
 		return (chunks.size() == chunk_count);
 	}
+	bool hasChunk(u32 chunk_num) const;
 	bool insert(u32 chunk_num, SharedBuffer<u8> &chunkdata);
 	SharedBuffer<u8> reassemble();
+	u32 getTotalSize() const { return total_size; }
 
 private:
 	// Key is chunk number, value is data without headers
 	std::map<u16, SharedBuffer<u8>> chunks;
+	u32 total_size = 0;
 };
 
 /*
@@ -375,6 +378,12 @@ private:
 #define START_RELIABLE_WINDOW_SIZE 64
 /* minimum value for window size */
 #define MIN_RELIABLE_WINDOW_SIZE 32
+
+// Limits for an individual reassembled split payload.
+#define MAX_SPLIT_PACKET_CHUNK_COUNT MAX_RELIABLE_WINDOW_SIZE
+constexpr u32 MAX_RELIABLE_PACKET_DATA_SIZE = MAX_RELIABLE_WINDOW_SIZE * 512;
+constexpr u32 MAX_SPLIT_PACKET_PAYLOAD_SIZE = MAX_RELIABLE_PACKET_DATA_SIZE +
+		sizeof(u16); // Include the command field in the reassembled payload.
 
 class Channel
 {
