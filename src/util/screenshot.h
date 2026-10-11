@@ -16,5 +16,12 @@ namespace video {
  * @param filename_out Output parameter that receives the path to the saved screenshot
  * @return true if the screenshot was saved successfully, false otherwise
  */
-bool takeScreenshot(video::IVideoDriver *driver, std::string &filename_out);
+bool takeScreenshotAutoName(video::IVideoDriver *driver, std::string &filename_out);
 
+/**
+ * Take a screenshot and save it to an explicit path.
+ * @param driver Video driver to use for the screenshot
+ * @param filepath Output path, including extension
+ * @return true if the screenshot was saved successfully, false otherwise
+ */
+bool takeScreenshotToPath(video::IVideoDriver *driver, const std::string &filepath);

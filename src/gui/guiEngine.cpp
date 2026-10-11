@@ -380,7 +380,7 @@ void GUIEngine::run()
 			if (m_take_screenshot) {
 				m_take_screenshot = false;
 				std::string filename;
-				if (takeScreenshot(driver, filename)) {
+				if (takeScreenshotAutoName(driver, filename)) {
 					std::string msg = fmtgettext("Saved screenshot to \"%s\"", filename.c_str());
 					m_status_text->showStatusText(utf8_to_wide(msg));
 				}
