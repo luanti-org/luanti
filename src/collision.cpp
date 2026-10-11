@@ -302,15 +302,22 @@ static bool add_area_node_boxes(const v3s16 min, const v3s16 max, IGameDef *game
 
 static void add_object_boxes(Environment *env,
 		const aabb3f &box_0, f32 dtime,
-		const v3f pos_f, const v3f speed_f, ActiveObject *self,
+		const v3f pos_f, const v3f speed_f, const CollisionParams &cp,
 		std::vector<NearbyCollisionInfo> &cinfo)
 {
-	auto process_object = [&cinfo] (ActiveObject *object) {
-		if (object && object->collideWithObjects()) {
-			aabb3f box{{0.0f, 0.0f, 0.0f}};
-			if (object->getCollisionBox(&box))
-				cinfo.emplace_back(object, 0, box);
-		}
+	if (cp.collision_group == 0 || cp.collision_mask == 0)
+		return;
+
+	auto process_object = [&cinfo, &cp] (ActiveObject *object) {
+		if (!object)
+			return;
+		auto object_group = object->getCollisionGroup(), object_mask = object->getCollisionMask();
+		// AND relation, both objects must agree to collide with each other
+		if ((cp.collision_group & object_mask) == 0 || (object_group & cp.collision_mask) == 0)
+			return;
+		aabb3f box{{0.0f, 0.0f, 0.0f}};
+		if (object->getCollisionBox(&box))
+			cinfo.emplace_back(object, 0, box);
 	};
 
 	constexpr f32 tolerance = 1.5f * BS;
@@ -324,11 +331,11 @@ static void add_object_boxes(Environment *env,
 		std::vector<DistanceSortedActiveObject> clientobjects;
 		c_env->getActiveObjects(pos_f, distance, clientobjects);
 
-		for (auto &clientobject : clientobjects) {
+		auto *self = cp.self;
+		for (auto &it : clientobjects) {
 			// Do collide with everything but itself and children
-			if (!self || (self != clientobject.obj &&
-					self != clientobject.obj->getParent())) {
-				process_object(clientobject.obj);
+			if (!self || (self != it.obj && self != it.obj->getParent())) {
+				process_object(it.obj);
 			}
 		}
 
@@ -336,11 +343,7 @@ static void add_object_boxes(Environment *env,
 		LocalPlayer *lplayer = c_env->getLocalPlayer();
 		auto *obj = (ClientActiveObject*) lplayer->getCAO();
 		if (!self || (self != obj && self != obj->getParent())) {
-			aabb3f lplayer_collisionbox = lplayer->getCollisionbox();
-			v3f lplayer_pos = lplayer->getPosition();
-			lplayer_collisionbox.MinEdge += lplayer_pos;
-			lplayer_collisionbox.MaxEdge += lplayer_pos;
-			cinfo.emplace_back(obj, 0, lplayer_collisionbox);
+			process_object(obj);
 		}
 	}
 	else
@@ -351,6 +354,7 @@ static void add_object_boxes(Environment *env,
 			// search for objects which are not us and not our children.
 			// we directly process the object in this callback to avoid useless
 			// looping afterwards.
+			auto *self = cp.self;
 			auto include_obj_cb = [self, &process_object] (ServerActiveObject *obj) {
 				if (!obj->isGone() &&
 					(!self || (self != obj && self != obj->getParent()))) {
@@ -400,10 +404,8 @@ inline void collide_with(const aabb3f &box_mov, const aabb3f &box_stat,
 CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		const aabb3f &box_0,
 		f32 stepheight, f32 dtime,
-		v3f *pos_f, v3f *speed_f,
-		v3f accel_f, ActiveObject *self,
-		bool collide_with_objects,
-		StepUpMode step_up_mode)
+		v3f *pos_f, v3f *speed_f, v3f accel_f,
+		const CollisionParams &cp)
 {
 	static bool time_notification_done = false;
 
@@ -489,9 +491,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 	}
 
 	// Collect object boxes in movement range
-	if (collide_with_objects) {
-		add_object_boxes(env, box_0, dtime, *pos_f, aspeed_f, self, cinfo);
-	}
+	add_object_boxes(env, box_0, dtime, *pos_f, aspeed_f, cp, cinfo);
 
 	// Collision detection
 	for (int loopcount = 0;; loopcount++) {
@@ -581,6 +581,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		}
 
 		const v3f old_speed_f = *speed_f;
+		const auto step_up_mode = cp.step_up_mode;
 
 		// Set the speed component that caused the collision to zero
 		if (step_up && (step_up_mode == StepUpMode::LEGACY ||
@@ -666,8 +667,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 }
 
 bool collision_check_intersection(Environment *env, IGameDef *gamedef,
-		const aabb3f &box_0, const v3f &pos_f, ActiveObject *self,
-		bool collide_with_objects)
+		const aabb3f &box_0, const v3f &pos_f, const CollisionParams &cp)
 {
 	ScopeProfiler sp(g_profiler, PROFILER_NAME("collision_check_intersection()"), SPT_AVG, PRECISION_MICRO);
 
@@ -683,10 +683,7 @@ bool collision_check_intersection(Environment *env, IGameDef *gamedef,
 		}
 	}
 
-	if (collide_with_objects) {
-		v3f speed;
-		add_object_boxes(env, box_0, 0, pos_f, speed, self, cinfo);
-	}
+	add_object_boxes(env, box_0, 0, pos_f, v3f(), cp, cinfo);
 
 	/*
 		Collision detection
@@ -707,3 +704,4 @@ bool collision_check_intersection(Environment *env, IGameDef *gamedef,
 
 	return false;
 }
+

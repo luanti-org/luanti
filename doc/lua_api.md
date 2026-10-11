@@ -10077,12 +10077,12 @@ Player properties need to be saved manually.
     -- Integer [u16].
 
     breath_max = 0,
-    -- For players only. Defines the maximum amount of "breath" for the player.
+    -- For players only: Defines the maximum amount of "breath" for the player.
     -- Defaults to `core.PLAYER_MAX_BREATH_DEFAULT` (10).
     -- Integer [u16].
 
     zoom_fov = 0.0,
-    -- For players only. Zoom FOV in degrees.
+    -- For players only: Zoom FOV in degrees.
     -- Note that zoom loads and/or generates world beyond the server's
     -- maximum send and generate distances, so acts like a telescope.
     -- Smaller zoom_fov values increase the distance loaded/generated.
@@ -10090,13 +10090,16 @@ Player properties need to be saved manually.
     -- zoom_fov = 0 disables zooming for the player.
 
     eye_height = 1.625,
-    -- For players only. Camera height above feet position in nodes.
+    -- For players only: Camera height above feet position in nodes.
 
     physical = false,
-    -- Collide with `walkable` nodes.
+    -- Enables collision detection in general. By default objects will collide
+    -- with the map (nodes) and other objects (including players).
+    -- NOTE: Client-side physics always behaves as if the local player has `physical = true`.
 
     collide_with_objects = true,
-    -- Collide with other objects if physical = true
+    -- Collide with other objects
+    -- NOTE: This is ignored for player physics. This may change in the future.
 
     collisionbox = { -0.5, -0.5, -0.5, 0.5, 0.5, 0.5 },  -- default
     selectionbox = { -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, rotate = false },
@@ -10109,9 +10112,8 @@ Player properties need to be saved manually.
     -- For server-side raycasts to work correctly,
     -- the selection box should extend at most 5 units in each direction.
 
-
     pointable = true,
-    -- Can be `true` if it is pointable, `false` if it can be pointed through,
+    -- `true` if the object is pointable, `false` if it can be pointed through,
     -- or `"blocking"` if it is pointable but not selectable.
     -- Clients older than 5.9.0 interpret `pointable = "blocking"` as `pointable = true`.
     -- Can be overridden by the `pointabilities` of the held item.

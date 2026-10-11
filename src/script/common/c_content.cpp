@@ -293,11 +293,12 @@ void push_item_definition_full(lua_State *L, const ItemDefinition &i)
 }
 
 /******************************************************************************/
-const std::array<const char *, 36> object_property_keys = {
+const std::array<const char *, 37> object_property_keys = {
 	"hp_max",
 	"breath_max",
 	"physical",
 	"collide_with_objects",
+	"collide_with_players",
 	"collisionbox",
 	"selectionbox",
 	"pointable",
@@ -367,6 +368,11 @@ void read_object_properties(lua_State *L, int index,
 	}
 	getboolfield(L, -1, "physical", prop->physical);
 	getboolfield(L, -1, "collide_with_objects", prop->collideWithObjects);
+
+	bool tmp_bool;
+	if (getboolfield(L, -1, "collide_with_players", tmp_bool)) {
+		prop->collide_with_players = tmp_bool;
+	}
 
 	lua_getfield(L, -1, "collisionbox");
 	bool collisionbox_defined = lua_istable(L, -1);
@@ -551,8 +557,13 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 	lua_setfield(L, -2, "breath_max");
 	lua_pushboolean(L, prop->physical);
 	lua_setfield(L, -2, "physical");
-	lua_pushboolean(L, prop->collideWithObjects);
-	lua_setfield(L, -2, "collide_with_objects");
+	setboolfield(L, -1, "collide_with_objects", prop->collideWithObjects);
+	// We can't explicitly represent the "unset" state of collide_with_players here.
+	// If we used the effective value then that would mean
+	// `obj:set_properties(obj:get_properties())` is no longer a no-op. So just
+	// leaving it as nil is the safest way.
+	if (prop->collide_with_players.has_value())
+		setboolfield(L, -1, "collide_with_players", *prop->collide_with_players);
 	push_aabb3f(L, prop->collisionbox);
 	lua_setfield(L, -2, "collisionbox");
 	push_aabb3f(L, prop->selectionbox);
