@@ -182,6 +182,11 @@ function core.item_place_node(itemstack, placer, pointed_thing, param2,
 		place_to = vector.copy(under)
 	end
 
+	-- If defined, allow node defined can_place to do an early escape.
+	if type(def.can_place) == "function" and not def.can_place(place_to, placer) then
+		return itemstack, nil
+	end
+
 	if core.is_protected(place_to, playername) then
 		log("action", playername
 				.. " tried to place " .. def.name
