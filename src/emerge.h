@@ -12,8 +12,9 @@
 #include "mapgen/mapgen.h" // for MapgenParams
 #include "map.h"
 
-#define BLOCK_EMERGE_ALLOW_GEN   (1 << 0)
-#define BLOCK_EMERGE_FORCE_QUEUE (1 << 1)
+#define BLOCK_EMERGE_ALLOW_GEN    (1 << 0)
+#define BLOCK_EMERGE_FORCE_QUEUE  (1 << 1)
+#define BLOCK_EMERGE_LOW_PRIORITY (1 << 2)
 
 #define EMERGE_DBG_OUT(x) {                            \
 	if (enable_mapgen_debug_info)                      \
@@ -170,7 +171,8 @@ public:
 		session_t peer_id,
 		v3s16 blockpos,
 		bool allow_generate,
-		bool ignore_queue_limits=false);
+		bool ignore_queue_limits=false,
+		bool low_priority=false);
 
 	bool enqueueBlockEmergeEx(
 		v3s16 blockpos,
