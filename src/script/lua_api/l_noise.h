@@ -47,6 +47,7 @@ public:
 */
 class LuaValueNoiseMap : public ModApiBase
 {
+	friend class ModApiMapgen;
 	Noise *noise;
 
 	static luaL_Reg methods[];
