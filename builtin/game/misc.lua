@@ -321,3 +321,30 @@ function core.run_lbm(id, pos_list, dtime_s)
 		end
 	end
 end
+
+--
+-- Tool wear inside craftrecipe using {craft_uses = [uses]} group
+--
+
+core.register_on_craft(function (crafted, player, old_craft_grid, craft_inv)
+	for index, item in ipairs(old_craft_grid) do
+		local item_name = item:get_name()
+		local wear = core.get_item_group(item_name, "craft_uses")
+		local tool = wear > 0 and core.registered_tools[item_name]
+
+		if tool then
+			local item_replacement = craft_inv:get_stack("craft", index):get_name()
+			if item_replacement == item_name then
+				item:add_wear_by_uses(wear)
+				if item:is_empty() then
+					local name = player:get_player_name()
+					if name then
+						core.sound_play(tool.sound and tool.sound.breaks,
+								{to_player = name, gain = 0.5}, true)
+					end
+				end
+				craft_inv:set_stack("craft", index, item)
+			end
+		end
+	end
+end)
