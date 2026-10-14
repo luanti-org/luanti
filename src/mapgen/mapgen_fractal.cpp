@@ -262,6 +262,8 @@ void MapgenFractal::makeChunk(BlockMakeData *data)
 		calcLighting(node_min - v3s16(0, 1, 0), node_max + v3s16(0, 1, 0),
 			full_node_min, full_node_max);
 
+	removeOvergeneratedCStone();
+
 	this->generating = false;
 
 	//printf("makeChunk: %lums\n", t.stop());
