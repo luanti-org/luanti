@@ -155,7 +155,8 @@ inline u64 getTimeNs() { return os_get_time(1000*1000*1000); }
 
 inline void os_get_clock(struct timespec *ts)
 {
-#if defined(CLOCK_MONOTONIC_RAW)
+// On emscripten, CLOCK_MONOTONIC_RAW is defined but always yields EINVAL.
+#if defined(CLOCK_MONOTONIC_RAW) && !defined(__EMSCRIPTEN__)
 	clock_gettime(CLOCK_MONOTONIC_RAW, ts);
 #elif defined(_POSIX_MONOTONIC_CLOCK) && _POSIX_MONOTONIC_CLOCK > 0
 	clock_gettime(CLOCK_MONOTONIC, ts);

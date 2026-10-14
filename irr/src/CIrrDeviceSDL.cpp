@@ -604,37 +604,15 @@ bool CIrrDeviceSDL::createWindowWithContext()
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 	if (Width != 0 || Height != 0)
-		emscripten_set_canvas_size(Width, Height);
+		emscripten_set_canvas_element_size("#canvas", Width, Height);
 	else {
-		int w, h, fs;
-		emscripten_get_canvas_size(&w, &h, &fs);
+		int w, h;
+		emscripten_get_canvas_element_size("#canvas", &w, &h);
 		Width = w;
 		Height = h;
 	}
+#endif
 
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, CreationParams.WithAlphaChannel ? 8 : 0);
-
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, CreationParams.ZBufferBits);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, CreationParams.Stencilbuffer ? 8 : 0);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, CreationParams.Doublebuffer ? 1 : 0);
-
-	if (CreationParams.AntiAlias > 1) {
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, CreationParams.AntiAlias);
-	} else {
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
-	}
-
-	SDL_CreateWindowAndRenderer(0, 0, SDL_Flags, &Window, &Renderer); // 0,0 will use the canvas size
-
-	logAttributes();
-
-	return true;
-#else // !_IRR_EMSCRIPTEN_PLATFORM_
 	switch (CreationParams.DriverType) {
 	case video::EDT_OPENGL:
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -718,7 +696,6 @@ bool CIrrDeviceSDL::createWindowWithContext()
 	}
 
 	return true;
-#endif // !_IRR_EMSCRIPTEN_PLATFORM_
 }
 
 //! create the driver
