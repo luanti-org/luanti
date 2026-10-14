@@ -710,7 +710,21 @@ enum ToClientCommand : u16
 			u8[len] serialized ParticleParameters
 	*/
 
-	TOCLIENT_NUM_MSG_TYPES = 0x65,
+	TOCLIENT_HUDANIMATE = 0x65,
+	/*
+		u32 id
+		u8 num_properties (0 = cancel)
+		for each property:
+			u8 stat (HudAnimationStat)
+			u8 easing (HudAnimEasing)
+			s32 loop
+			u16 num_keyframes
+			for each keyframe:
+				f32 value
+				f32 duration
+	*/
+
+	TOCLIENT_NUM_MSG_TYPES = 0x66,
 };
 
 enum ToServerCommand : u16

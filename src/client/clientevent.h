@@ -37,6 +37,7 @@ enum ClientEventType : u8
 	CE_OVERRIDE_DAY_NIGHT_RATIO,
 	CE_CLOUD_PARAMS,
 	CE_UPDATE_CAMERA,
+	CE_HUDANIMATE,
 	CLIENTEVENT_MAX,
 };
 
@@ -53,6 +54,7 @@ struct ClientEventHudAdd
 	v2f size;
 	s16 z_index;
 	bool hideable;
+	f32 opacity;
 };
 
 struct ClientEventHudChange
@@ -64,6 +66,12 @@ struct ClientEventHudChange
 	u32 data;
 	v3f v3fdata;
 	v2s32 v2s32data;
+};
+
+struct ClientEventHudAnimate
+{
+	u32 server_id;
+	HudElementAnimations animations;
 };
 
 struct ClientEvent
@@ -108,6 +116,7 @@ struct ClientEvent
 			u32 id;
 		} hudrm;
 		ClientEventHudChange *hudchange;
+		ClientEventHudAnimate *hudanimate;
 		SkyboxParams *set_sky;
 		struct
 		{
