@@ -13,6 +13,7 @@ set(unittest_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_connection.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_craft.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_datastructures.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_device_reconnect.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_filesys.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_inventory.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_irrptr.cpp
