@@ -81,10 +81,13 @@
 	PROTOCOL VERSION 53
 		Added optional "do_interpolate_rotation" u8 to AO_CMD_UPDATE_POSITION
 		[scheduled bump for 5.17.0]
+	PROTOCOL VERSION 54
+		Added "move_camera" flag to TOCLIENT_ACTIVE_OBJECT_MESSAGES
+		[scheduled bump for 5.18.0]
 */
 
 // Note: Also update core.protocol_versions in builtin when bumping
-const u16 LATEST_PROTOCOL_VERSION = 53;
+const u16 LATEST_PROTOCOL_VERSION = 54;
 
 // See also formspec [Version History] in doc/lua_api.md
 const u16 FORMSPEC_API_VERSION = 12;

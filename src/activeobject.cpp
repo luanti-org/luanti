@@ -12,3 +12,34 @@ void ActiveObjectMessage::appendTo(std::string &data) const
 	data.append(idbuf, sizeof(idbuf));
 	data.append(serializeString16(datastring));
 }
+
+void AttachmentData::serialize(std::ostream &os) const
+{
+	// command
+	writeU8(os, AO_CMD_ATTACH_TO);
+	// parameters
+	writeS16(os, parent_id);
+	os << serializeString16(bone);
+	writeV3F32(os, position);
+	writeV3F32(os, rotation);
+	writeU8(os, flags & FORCE_VISIBLE ? 1 : 0);
+	writeU8(os, flags & MOVE_CAMERA ? 1 : 0);
+}
+
+void AttachmentData::deSerialize(std::istream &is)
+{
+	parent_id = readS16(is);
+	bone = deSerializeString16(is);
+	position = readV3F32(is);
+	rotation = readV3F32(is);
+	flags = 0;
+
+	if (canRead(is)) {
+		// >= 5.4.0-dev
+		flags |= readU8(is) ? FORCE_VISIBLE : 0;
+	}
+	if (canRead(is)) {
+		// >= 5.18.0-dev
+		flags |= readU8(is) ? MOVE_CAMERA : 0;
+	}
+}

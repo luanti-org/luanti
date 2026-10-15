@@ -75,11 +75,9 @@ public:
 
 	// Attachments
 	ServerActiveObject *getParent() const override;
-	inline bool isAttached() const { return m_attachment_parent_id != 0; }
-	void setAttachment(object_t parent_id, const std::string &bone, v3f position,
-			v3f rotation, bool force_visible) override;
-	void getAttachment(object_t *parent_id, std::string *bone, v3f *position,
-			v3f *rotation, bool *force_visible) const override;
+	inline bool isAttached() const { return m_attachment.parent_id != 0; }
+	void setAttachment(const AttachmentData &attachment) override;
+	void getAttachment(AttachmentData &attachment) const override;
 	void clearChildAttachments() override;
 	void addAttachmentChild(object_t child_id) override;
 	void removeAttachmentChild(object_t child_id) override;
@@ -124,7 +122,7 @@ protected:
 	// Stores position and rotation for each bone name
 	std::unordered_map<std::string, BoneOverride> m_bone_override;
 
-	object_t m_attachment_parent_id = 0;
+	AttachmentData m_attachment;
 
 	void clearAnyAttachments();
 	virtual void onMarkedForDeactivation() override {
@@ -157,9 +155,5 @@ private:
 
 	// Attachments
 	std::unordered_set<object_t> m_attachment_child_ids;
-	std::string m_attachment_bone = "";
-	v3f m_attachment_position;
-	v3f m_attachment_rotation;
 	bool m_attachment_sent = false;
-	bool m_force_visible = false;
 };
