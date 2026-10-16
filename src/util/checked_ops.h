@@ -64,7 +64,7 @@ namespace checked {
 		return true; // did overflow
 	}
 
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__clang__)
 
 // We have some builtins!
 	template<typename T>
