@@ -5,6 +5,9 @@
 
 // declarations
 namespace checked {
+	// These functions return true on overflow, and false otherwise
+	// It is unspecifified whether *result is modified on overflow
+
 	template<typename T>
 	bool add(T a, T b, T* result);
 
@@ -56,9 +59,9 @@ namespace checked {
 		Wider w_result = Operator<Wider>()(Wider(a), Wider(b));
 		if (w_result == Wider(T(w_result))) {
 			*result = T(w_result);
-			return false;
+			return false; // didn't overflow
 		}
-		return true;
+		return true; // did overflow
 	}
 
 #ifdef __GNUC__
@@ -74,6 +77,7 @@ namespace checked {
 			} else if constexpr (std::is_same_v<T, long long>) {
 				return __builtin_saddll_overflow(a, b, result);
 			}
+			// fallthrough
 		} else {
 			if constexpr (std::is_same_v<T, unsigned>) {
 				return __builtin_uadd_overflow(a, b, result);
@@ -82,7 +86,9 @@ namespace checked {
 			} else if constexpr (std::is_same_v<T, unsigned long long>) {
 				return __builtin_uaddll_overflow(a, b, result);
 			}
+			// fallthrough
 		}
+		// otherwise
 		if constexpr (sizeof(T) < 4) {
 			return check_widening<T, std::plus>(a, b, result);
 		}
