@@ -44,6 +44,7 @@
 	#define SDL_KMOD_SHIFT KMOD_SHIFT
 	#define SDL_KMOD_CTRL  KMOD_CTRL
 	#define SDL_KMOD_NUM   KMOD_NUM
+    #define SDL_KMOD_GUI   KMOD_GUI
 
 	#define SDL_TextInputActive(unused) SDL_IsTextInputActive()
 	#define SDL_GL_DestroyContext SDL_GL_DeleteContext
@@ -941,6 +942,13 @@ bool CIrrDeviceSDL::run()
 			auto keysym = SDL_event.key.keysym.sym;
 			auto scancode = SDL_event.key.keysym.scancode;
 			auto keymod = SDL_event.key.keysym.mod;
+#endif
+
+#ifdef __APPLE__
+			// On macOS, Command is the primary shortcut modifier (Cmd+C/V/X/A).
+			// Report it as Control so the existing shortcut handling works.
+			if (keymod & SDL_KMOD_GUI)
+				keymod = (keymod & ~SDL_KMOD_GUI) | SDL_KMOD_CTRL;
 #endif
 
 			// Treat AC_BACK as the Escape key
