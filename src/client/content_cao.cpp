@@ -211,7 +211,7 @@ static scene::SMesh *generateNodeMesh(Client *client, MapNode n,
 
 	MeshCollector collector(v3f(0), v3f());
 	{
-		MeshMakeData mmd(ndef, 1, MeshGrid{1});
+		MeshMakeData mmd(ndef, 1, MeshGrid{1}, client->getNodeModifierManager());
 		n.setParam1(0xff);
 		mmd.fillSingleNode(n);
 		MapblockMeshGenerator(&mmd, &collector).generate();
@@ -863,7 +863,8 @@ void GenericCAO::updateLight(u32 day_night_ratio)
 		MapNode n = m_env->getMap().getNode(pos[i], &this_ok);
 		if (this_ok) {
 			// Get light level at the position plus the entity glow
-			u16 this_light = getInteriorLight(n, m_prop.glow, m_client->ndef());
+			u16 this_light = getInteriorLight(n, m_prop.glow,
+					m_env->getMap().getLightingFlags(pos[i], n));
 			u8 this_light_intensity = MYMAX(this_light & 0xFF, this_light >> 8);
 			if (this_light_intensity > light_at_pos_intensity) {
 				light_at_pos = this_light;

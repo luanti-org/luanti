@@ -180,7 +180,7 @@ public:
 	inline SimpleMetadata &getMeta() { return m_meta; }
 
 private:
-	std::string getPropertyPacket();
+	std::string getPropertyPacket(u16 protocol_version);
 	void unlinkPlayerSessionAndSave();
 	std::string generateUpdatePhysicsOverrideCommand() const;
 

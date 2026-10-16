@@ -159,6 +159,115 @@ void Map::setNode(v3s16 p, MapNode n)
 	set_node_in_block(m_gamedef->ndef(), block, relpos, n);
 }
 
+ContentLightingFlags Map::getLightingFlags(v3s16 p, const MapNode &node)
+{
+	MapBlock *block = getBlockNoCreateNoEx(getNodeBlockPos(p));
+	if (block)
+		return block->getLightingFlags(p - block->getPosRelative(), node);
+	else
+		return m_nodedef->getLightingFlags(node);
+}
+
+AppliedNodeModifiersList::ConstRange Map::getNodeModifiers(v3s16 p)
+{
+	MapBlock *block = getBlockNoCreateNoEx(getNodeBlockPos(p));
+	if (block)
+		return block->getNodeModifiers().findRange(p - block->getPosRelative());
+
+	static const AppliedNodeModifiersList empty;
+	return empty.findRange(v3s16());
+}
+
+bool Map::setNodeModifiers(v3s16 p, const std::vector<u16> &ids)
+{
+	MapBlock *block = getBlockNoCreateNoEx(getNodeBlockPos(p));
+	if (!block)
+		return false;
+
+	v3s16 rel = p - block->getPosRelative();
+	MapNode node = block->getNodeNoCheck(rel);
+	if (node.getContent() == CONTENT_IGNORE)
+		return false;
+
+	ContentLightingFlags old_flags = block->getLightingFlags(rel, node);
+
+	if (!block->setNodeModifiers(rel, ids))
+		return false;
+
+	updateNodeModifierLighting(block, rel, node, old_flags);
+
+	return true;
+}
+
+bool Map::addNodeModifier(v3s16 p, u16 id, bool prune_overridden)
+{
+	MapBlock *block = getBlockNoCreateNoEx(getNodeBlockPos(p));
+	if (!block)
+		return false;
+
+	v3s16 rel = p - block->getPosRelative();
+	MapNode node = block->getNodeNoCheck(rel);
+	if (node.getContent() == CONTENT_IGNORE)
+		return false;
+
+	ContentLightingFlags old_flags = block->getLightingFlags(rel, node);
+
+	if (!block->addNodeModifier(rel, id, prune_overridden))
+		return false;
+
+	updateNodeModifierLighting(block, rel, node, old_flags);
+
+	return true;
+}
+
+void Map::removeNodeModifier(v3s16 p, u16 id)
+{
+	MapBlock *block = getBlockNoCreateNoEx(getNodeBlockPos(p));
+	if (!block)
+		return;
+
+	v3s16 rel = p - block->getPosRelative();
+	MapNode node = block->getNodeNoCheck(rel);
+	if (node.getContent() == CONTENT_IGNORE)
+		return;
+
+	ContentLightingFlags old_flags = block->getLightingFlags(rel, node);
+
+	if (!block->removeNodeModifier(rel, id))
+		return;
+
+	updateNodeModifierLighting(block, rel, node, old_flags);
+}
+
+void Map::updateNodeModifierLighting(MapBlock *block, v3s16 rel,
+		MapNode oldnode, ContentLightingFlags old_flags)
+{
+	ContentLightingFlags flags = block->getLightingFlags(rel, oldnode);
+
+	std::map<v3s16, MapBlock*> modified_blocks;
+	modified_blocks[block->getPos()] = block;
+
+	if (flags != old_flags) {
+		MapNode node = oldnode;
+		node.setLight(LIGHTBANK_DAY, 0, flags);
+		node.setLight(LIGHTBANK_NIGHT, 0, flags);
+
+		block->setNodeNoCheck(rel, node);
+
+		v3s16 pos_abs = block->getPosRelative() + rel;
+		std::vector<voxalgo::LightingUpdate> oldnodes{{pos_abs, oldnode, old_flags}};
+		voxalgo::update_lighting_nodes(this, oldnodes, modified_blocks);
+	}
+
+	for (const auto &entry : modified_blocks)
+		entry.second->raiseModified(MOD_STATE_WRITE_NEEDED);
+
+	MapEditEvent event;
+	event.type = MEET_OTHER;
+	event.setModifiedBlocks(modified_blocks);
+	dispatchEvent(event);
+}
+
 void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 		std::map<v3s16, MapBlock*> &modified_blocks,
 		bool remove_metadata)
@@ -172,15 +281,16 @@ void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 
 	// This is needed for updating the lighting
 	MapNode oldnode = block->getNodeNoCheck(relpos);
+	ContentLightingFlags oldf = block->getLightingFlags(relpos, oldnode);
 
 	// Remove node metadata
 	if (remove_metadata) {
 		removeNodeMetadata(p);
+		block->clearNodeModifiers(relpos);
 	}
 
 	// Set the node on the map
-	ContentLightingFlags f = m_nodedef->getLightingFlags(n);
-	ContentLightingFlags oldf = m_nodedef->getLightingFlags(oldnode);
+	ContentLightingFlags f = block->getLightingFlags(relpos, n);
 	if (f == oldf) {
 		// No light update needed, just copy over the old light.
 		n.setLight(LIGHTBANK_DAY, oldnode.getLightRaw(LIGHTBANK_DAY, oldf), f);
@@ -195,8 +305,7 @@ void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 		set_node_in_block(m_gamedef->ndef(), block, relpos, n);
 
 		// Update lighting
-		std::vector<std::pair<v3s16, MapNode> > oldnodes;
-		oldnodes.emplace_back(p, oldnode);
+		std::vector<voxalgo::LightingUpdate> oldnodes{{p, oldnode, oldf}};
 		voxalgo::update_lighting_nodes(this, oldnodes, modified_blocks);
 	}
 

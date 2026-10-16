@@ -19,6 +19,7 @@
 #include "lua_api/l_itemstackmeta.h"
 #include "lua_api/l_mapgen.h"
 #include "lua_api/l_modchannels.h"
+#include "lua_api/l_node_modifier.h"
 #include "lua_api/l_nodemeta.h"
 #include "lua_api/l_nodetimer.h"
 #include "lua_api/l_noise.h"
@@ -158,6 +159,7 @@ void ServerScripting::InitializeModApi(lua_State *L, int top)
 	ModApiInventory::Initialize(L, top);
 	ModApiItem::Initialize(L, top);
 	ModApiMapgen::Initialize(L, top);
+	ModApiNodeModifier::Initialize(L, top);
 	ModApiParticles::Initialize(L, top);
 	ModApiRollback::Initialize(L, top);
 	ModApiServer::Initialize(L, top);

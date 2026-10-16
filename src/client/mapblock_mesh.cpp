@@ -29,10 +29,11 @@
 */
 
 MeshMakeData::MeshMakeData(const NodeDefManager *ndef,
-		u16 side_length, MeshGrid mesh_grid) :
+		u16 side_length, MeshGrid mesh_grid, const NodeModifierManager *nmod) :
 	m_side_length(side_length),
 	m_mesh_grid(mesh_grid),
-	m_nodedef(ndef)
+	m_nodedef(ndef),
+	m_nodemod(nmod)
 {
 	assert(m_side_length > 0);
 }
@@ -74,6 +75,14 @@ void MeshMakeData::setCrack(int crack_level, v3s16 crack_pos)
 		m_crack_pos_relative = crack_pos - m_blockpos*MAP_BLOCKSIZE;
 }
 
+ContentLightingFlags MeshMakeData::getLightingFlags(v3s16 p, const MapNode &node) const
+{
+	ContentLightingFlags base = m_nodedef->getLightingFlags(node);
+	if (m_node_modifiers.empty())
+		return base;
+	return m_node_modifiers.resolveLighting(p - m_blockpos * MAP_BLOCKSIZE, *m_nodemod, base);
+}
+
 /*
 	Light and vertex color functions
 */
@@ -83,9 +92,9 @@ void MeshMakeData::setCrack(int crack_level, v3s16 crack_pos)
 	Single light bank.
 */
 static u8 getInteriorLight(enum LightBank bank, MapNode n, s32 increment,
-	const NodeDefManager *ndef)
+	ContentLightingFlags flags)
 {
-	u8 light = n.getLight(bank, ndef->getLightingFlags(n));
+	u8 light = n.getLight(bank, flags);
 	light = rangelim(light + increment, 0, LIGHT_SUN);
 	return decode_light(light);
 }
@@ -94,10 +103,10 @@ static u8 getInteriorLight(enum LightBank bank, MapNode n, s32 increment,
 	Calculate non-smooth lighting at interior of node.
 	Both light banks.
 */
-u16 getInteriorLight(MapNode n, s32 increment, const NodeDefManager *ndef)
+u16 getInteriorLight(MapNode n, s32 increment, ContentLightingFlags flags)
 {
-	u16 day = getInteriorLight(LIGHTBANK_DAY, n, increment, ndef);
-	u16 night = getInteriorLight(LIGHTBANK_NIGHT, n, increment, ndef);
+	u16 day = getInteriorLight(LIGHTBANK_DAY, n, increment, flags);
+	u16 night = getInteriorLight(LIGHTBANK_NIGHT, n, increment, flags);
 	return day | (night << 8);
 }
 
@@ -157,8 +166,8 @@ void getNodeTileN(MapNode mn, const v3s16 &p, u8 tileindex, MeshMakeData *data, 
 {
 	const NodeDefManager *ndef = data->m_nodedef;
 	const ContentFeatures &f = ndef->get(mn);
-	tile = f.visuals->tiles[tileindex];
 	bool has_crack = p == data->m_crack_pos_relative;
+	tile = f.visuals->tiles[tileindex];
 	for (TileLayer &layer : tile.layers) {
 		if (layer.empty())
 			continue;

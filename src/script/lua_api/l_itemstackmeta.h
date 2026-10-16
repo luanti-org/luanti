@@ -20,6 +20,8 @@ private:
 	virtual IMetadata* getmeta(bool auto_create);
 
 	virtual void clearMeta();
+	void handleToTable(lua_State *L, IMetadata *meta) override;
+	bool handleFromTable(lua_State *L, int table, IMetadata *meta) override;
 
 	virtual void reportMetadataChange(const std::string *name = nullptr);
 
@@ -44,6 +46,10 @@ private:
 	}
 
 	// Exported functions
+	static int l_set_modifiers(lua_State *L);
+	static int l_add_modifier(lua_State *L);
+	static int l_remove_modifier(lua_State *L);
+	static int l_get_modifiers_list(lua_State *L);
 	static int l_set_tool_capabilities(lua_State *L);
 	static int l_set_wear_bar_params(lua_State *L);
 public:

@@ -24,7 +24,8 @@ bool IMetadata::operator==(const IMetadata &other) const
 			return false;
 	}
 
-	return true;
+	// To do: maybe try to avoid two comparisons
+	return equalsExtra(other) && other.equalsExtra(*this);
 }
 
 const std::string &IMetadata::getString(const std::string &name, std::string *place,

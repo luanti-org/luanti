@@ -132,6 +132,7 @@ Client::Client(
 		IWritableShaderSource *shsrc,
 		IWritableItemDefManager *itemdef,
 		NodeDefManager *nodedef,
+		NodeModifierManager *nodemod,
 		ISoundManager *sound,
 		MtEventManager *event,
 		RenderingEngine *rendering_engine,
@@ -142,6 +143,7 @@ Client::Client(
 	m_shsrc(shsrc),
 	m_itemdef(itemdef),
 	m_nodedef(nodedef),
+	m_nodemod(nodemod),
 	m_sound(sound),
 	m_event(event),
 	m_rendering_engine(rendering_engine),
@@ -2055,6 +2057,13 @@ u16 Client::allocateUnknownNodeId(const std::string &name)
 
 	return CONTENT_IGNORE;
 }
+u16 Client::allocateUnknownNodeModifierId(const std::string &name)
+{
+	FATAL_ERROR("Client cannot allocate node modifier IDs");
+
+	return MODIFIER_IGNORE;
+}
+
 ISoundManager* Client::getSoundManager()
 {
 	return m_sound;

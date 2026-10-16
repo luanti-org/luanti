@@ -51,6 +51,9 @@ public:
 			u16 recursion = 0, bool deprecated = false) const;
 
 protected:
+	// Compare state that is not represented by ordinary fields.
+	virtual bool equalsExtra(const IMetadata &other) const { return true; }
+
 	// Returns nullptr to indicate absence of value. Uses place like getString.
 	virtual const std::string *getStringRaw(const std::string &name,
 			std::string *place) const = 0;

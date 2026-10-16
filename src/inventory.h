@@ -27,13 +27,13 @@ struct ItemStack
 	~ItemStack() = default;
 
 	// Serialization
-	void serialize(std::ostream &os, bool serialize_meta = true) const;
+	void serialize(std::ostream &os, bool serialize_meta = true, bool with_modifiers = true) const;
 	// Deserialization. Pass itemdef unless you don't want aliases resolved.
 	void deSerialize(std::istream &is, IItemDefManager *itemdef = NULL);
 	void deSerialize(const std::string &s, IItemDefManager *itemdef = NULL);
 
 	// Returns the string used for inventory
-	std::string getItemString(bool include_meta = true) const;
+	std::string getItemString(bool include_meta = true, bool with_modifiers = true) const;
 	// Returns the tooltip
 	std::string getDescription(const IItemDefManager *itemdef) const;
 	std::string getShortDescription(const IItemDefManager *itemdef) const;
@@ -162,7 +162,7 @@ public:
 	void setSize(u32 newsize);
 	void setWidth(u32 newWidth);
 	void setName(const std::string &name);
-	void serialize(std::ostream &os, bool incremental) const;
+	void serialize(std::ostream &os, bool incremental, bool with_modifiers = true) const;
 	void deSerialize(std::istream &is);
 
 	InventoryList(const InventoryList &other) { *this = other; }
@@ -290,7 +290,7 @@ public:
 	}
 
 	// Never ever serialize to disk using "incremental"!
-	void serialize(std::ostream &os, bool incremental = false) const;
+	void serialize(std::ostream &os, bool incremental = false, bool with_modifiers = true) const;
 	void deSerialize(std::istream &is);
 
 	// Creates a new list if none exists or truncates existing lists

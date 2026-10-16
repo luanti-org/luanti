@@ -70,6 +70,7 @@ function core.get_node_drops(node, toolname)
 
 	-- Extended drop table
 	local got_items = {}
+	local inherit_modifiers = {}
 	local got_count = 0
 	for _, item in ipairs(drop.items) do
 		local good_rarity = true
@@ -123,13 +124,14 @@ function core.get_node_drops(node, toolname)
 					add_item = stack:to_string()
 				end
 				got_items[#got_items+1] = add_item
+				inherit_modifiers[#got_items] = item.inherit_node_modifiers == true
 			end
 			if drop.max_items ~= nil and got_count == drop.max_items then
 				break
 			end
 		end
 	end
-	return got_items
+	return got_items, inherit_modifiers
 end
 
 local function user_name(user)
@@ -283,7 +285,11 @@ function core.item_place_node(itemstack, placer, pointed_thing, param2,
 		.. def.name .. " at " .. core.pos_to_string(place_to))
 
 	-- Add node and update
-	core.add_node(place_to, newnode)
+	-- To do: check if it might return false here
+	if core.add_node(place_to, newnode) then
+		assert(core.get_meta(place_to):set_modifiers(
+			itemstack:get_meta():get_modifiers_list()))
+	end
 
 	-- Play sound if it was done by a player
 	if playername ~= "" and def.sounds and def.sounds.place then
@@ -487,6 +493,31 @@ function core.handle_node_drops(pos, drops, digger)
 	end
 end
 
+-- Shared by digging and attached-node drops. Callbacks receive independent copies.
+function builtin_shared.preserve_node_modifiers(pos, node, drops, inherit_modifiers, saved_modifiers)
+	local def = core.registered_nodes[node.name]
+	local modifiers = saved_modifiers and table.copy(saved_modifiers) or
+		core.get_meta(pos):get_modifiers_list()
+	if not (def and def.preserve_node_modifiers) and #modifiers == 0 then
+		return drops
+	end
+	local stacks = {}
+	for k, drop in pairs(drops) do
+		stacks[k] = ItemStack(drop)
+	end
+	if def and def.preserve_node_modifiers then
+		def.preserve_node_modifiers(vector.copy(pos), table.copy(node), modifiers, stacks)
+	else
+		for k, stack in pairs(stacks) do
+			if (def and def.drop == nil) or
+					(inherit_modifiers and inherit_modifiers[k]) then
+				assert(stack:get_meta():set_modifiers(modifiers))
+			end
+		end
+	end
+	return stacks
+end
+
 function core.node_dig(pos, node, digger)
 	local diggername = user_name(digger)
 	local log = make_log(diggername)
@@ -513,7 +544,7 @@ function core.node_dig(pos, node, digger)
 		.. node.name .. " at " .. core.pos_to_string(pos))
 
 	local wielded = digger and digger:get_wielded_item()
-	local drops = core.get_node_drops(node, wielded and wielded:get_name(),
+	local drops, inherit_modifiers = core.get_node_drops(node, wielded and wielded:get_name(),
 				wielded and ItemStack(wielded), digger, vector.copy(pos))
 
 	if wielded then
@@ -536,6 +567,8 @@ function core.node_dig(pos, node, digger)
 		end
 		digger:set_wielded_item(wielded)
 	end
+
+	drops = builtin_shared.preserve_node_modifiers(pos, node, drops, inherit_modifiers)
 
 	-- Check to see if metadata should be preserved.
 	if def and def.preserve_metadata then

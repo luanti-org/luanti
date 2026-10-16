@@ -4,6 +4,7 @@
 // Copyright (C) 2013-2020 Minetest core developers & community
 
 #include "player_sao.h"
+#include "network/networkprotocol.h"
 #include "nodedef.h"
 #include "remoteplayer.h"
 #include "scripting_server.h"
@@ -114,7 +115,7 @@ std::string PlayerSAO::getClientInitializationData(u16 protocol_version)
 		msg_os << serializeString32(message);
 		++message_count;
 	};
-	append_message(getPropertyPacket());
+	append_message(getPropertyPacket(protocol_version));
 	append_message(generateUpdateArmorGroupsCommand());
 	for (const auto &[track, anim] : getAnimation().tracks) {
 		if (anim.state != TrackAnimation::State::STOPPED)
@@ -225,7 +226,8 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 
 	if (!m_properties_sent) {
 		m_properties_sent = true;
-		std::string str = getPropertyPacket();
+		// Queue the full format; the server downgrades it per recipient.
+		std::string str = getPropertyPacket(LATEST_PROTOCOL_VERSION);
 		// create message and add to list
 		m_messages_out.emplace(getId(), true, str);
 		m_env->getScriptIface()->player_event(this, "properties_changed");
@@ -616,10 +618,10 @@ void PlayerSAO::unlinkPlayerSessionAndSave()
 	m_env->removePlayer(m_player);
 }
 
-std::string PlayerSAO::getPropertyPacket()
+std::string PlayerSAO::getPropertyPacket(u16 protocol_version)
 {
 	m_prop.is_visible = (true);
-	return generateSetPropertiesCommand(m_prop);
+	return generateSetPropertiesCommand(m_prop, protocol_version);
 }
 
 void PlayerSAO::setMaxSpeedOverride(const v3f &vel)

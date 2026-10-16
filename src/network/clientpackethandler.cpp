@@ -764,6 +764,25 @@ void Client::handleCommand_NodeDef(NetworkPacket* pkt)
 	m_nodedef_received = true;
 }
 
+void Client::handleCommand_NodeMod(NetworkPacket* pkt)
+{
+	infostream << "Client: Received node modifiers: packet size: "
+			<< pkt->getSize() << std::endl;
+
+	// To do: check if needed
+	// Mesh update thread must be stopped while
+	// updating content definitions
+	sanity_check(!m_mesh_update_manager->isRunning());
+
+	std::istringstream tmp_is(pkt->readLongString(), std::ios::binary);
+	std::stringstream tmp_os(std::ios::binary | std::ios::in | std::ios::out);
+
+	decompressZstd(tmp_is, tmp_os);
+
+	m_nodemod->deSerialize(tmp_os, m_proto_ver);
+	m_nodemod_received = true;
+}
+
 void Client::handleCommand_ItemDef(NetworkPacket* pkt)
 {
 	infostream << "Client: Received item definitions: packet size: "

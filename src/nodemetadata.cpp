@@ -22,7 +22,7 @@ NodeMetadata::NodeMetadata(IItemDefManager *item_def_mgr):
 
 NodeMetadata::~NodeMetadata() = default;
 
-void NodeMetadata::serialize(std::ostream &os, u8 version, bool disk) const
+void NodeMetadata::serialize(std::ostream &os, u8 version, bool disk, bool with_modifiers) const
 {
 	int num_vars = disk ? m_stringvars.size() : countNonPrivate();
 	writeU32(os, num_vars);
@@ -37,7 +37,7 @@ void NodeMetadata::serialize(std::ostream &os, u8 version, bool disk) const
 			writeU8(os, (priv) ? 1 : 0);
 	}
 
-	m_inventory->serialize(os);
+	m_inventory->serialize(os, false, with_modifiers);
 }
 
 void NodeMetadata::deSerialize(std::istream &is, u8 version)
@@ -130,7 +130,7 @@ void NodeMetadataList::serialize(std::ostream &os, u8 blockver, bool disk,
 			u16 p16 = (p.Z * MAP_BLOCKSIZE + p.Y) * MAP_BLOCKSIZE + p.X;
 			writeU16(os, p16);
 		}
-		data->serialize(os, version, disk);
+		data->serialize(os, version, disk, blockver >= 30);
 	}
 }
 

@@ -225,16 +225,22 @@ void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 {
 	auto mesh_grid = m_client->getMeshGrid();
 	MeshMakeData *data = new MeshMakeData(m_client->ndef(),
-			MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid);
+			MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid,
+			m_client->getNodeModifierManager());
 	q->data = data;
 
 	data->fillBlockDataBegin(q->p);
 
 	// NOTE: the "data race" mentioned by MapBlock::tryShrinkNodes() is right here
 	for (auto *block : q->map_blocks) {
-		if (block)
+		if (block) {
 			block->copyTo(data->m_vmanip);
+			// To do: maybe store modifiers in the format relative to blocks
+			block->copyNodeModifiersTo(data->m_node_modifiers,
+					data->m_blockpos * MAP_BLOCKSIZE);
+		}
 	}
+	data->m_node_modifiers.shrink_to_fit();
 
 	data->setCrack(q->crack_level, q->crack_pos);
 	data->m_generate_minimap = !!m_client->getMinimap();

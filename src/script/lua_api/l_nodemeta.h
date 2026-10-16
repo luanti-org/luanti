@@ -40,6 +40,8 @@ private:
 	 */
 	virtual IMetadata* getmeta(bool auto_create);
 	virtual void clearMeta();
+	void clearMetaFields();
+	bool setModifiers(const std::vector<std::string> &names);
 
 	virtual void reportMetadataChange(const std::string *name = nullptr);
 
@@ -47,6 +49,10 @@ private:
 	virtual bool handleFromTable(lua_State *L, int table, IMetadata *_meta);
 
 	// Exported functions
+	static int l_set_modifiers(lua_State *L);
+	static int l_add_modifier(lua_State *L);
+	static int l_remove_modifier(lua_State *L);
+	static int l_get_modifiers_list(lua_State *L);
 
 	// get_inventory(self)
 	static int l_get_inventory(lua_State *L);

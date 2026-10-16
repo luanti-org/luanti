@@ -169,6 +169,19 @@ core.register_entity(":__builtin:falling_node", {
 		-- Add levels if dropped on same leveled node
 		if bcd and bcd.paramtype2 == "leveled" and
 				bcn.name == self.node.name then
+			-- To do: investigate the whole functionality
+			-- Merging consumes the entity without restoring its metadata.
+			-- Different modifier lists must remain separate, including their order.
+			local modifiers = self.meta and self.meta.modifiers or {}
+			local target_modifiers = core.get_meta(bcp):get_modifiers_list()
+			if #modifiers ~= #target_modifiers then
+				return false
+			end
+			for i, name in ipairs(modifiers) do
+				if name ~= target_modifiers[i] then
+					return false
+				end
+			end
 			local addlevel = self.node.level
 			if (addlevel or 0) <= 0 then
 				addlevel = bcd.leveled
@@ -321,7 +334,9 @@ core.register_entity(":__builtin:falling_node", {
 		end
 
 		if failure then
-			local drops = core.get_node_drops(self.node, "")
+			local drops, inherit_modifiers = core.get_node_drops(self.node, "")
+			drops = builtin_shared.preserve_node_modifiers(pos, self.node, drops,
+				inherit_modifiers, self.meta and self.meta.modifiers or {})
 			for _, item in pairs(drops) do
 				core.add_item(pos, item)
 			end
@@ -360,8 +375,9 @@ end
 
 local function drop_attached_node(p)
 	local n = core.get_node(p)
-	local drops = core.get_node_drops(n, "")
+	local drops, inherit_modifiers = core.get_node_drops(n, "")
 	local def = core.registered_items[n.name]
+	drops = builtin_shared.preserve_node_modifiers(p, n, drops, inherit_modifiers)
 	if def and def.preserve_metadata then
 		local oldmeta = core.get_meta(p):to_table().fields
 		-- Copy pos and node because the callback can modify them.

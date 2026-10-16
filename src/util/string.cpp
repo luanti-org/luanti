@@ -1116,3 +1116,17 @@ std::optional<double> my_string_to_double(const std::string &s)
 		return std::nullopt;
 	return number;
 }
+
+bool isValidModScopedName(std::string_view name)
+{
+	if (name.size() > 65535)
+		return false;
+	const size_t colon = name.find(':');
+	if (colon == std::string_view::npos || colon == 0 || colon + 1 == name.size())
+		return false;
+	return name.substr(0, colon).find_first_not_of(
+			"abcdefghijklmnopqrstuvwxyz0123456789_") == std::string_view::npos &&
+			name.substr(colon + 1).find_first_not_of(
+					"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_") ==
+					std::string_view::npos;
+}

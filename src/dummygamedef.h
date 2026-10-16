@@ -9,6 +9,7 @@
 #include "itemdef.h"
 #include <memory>
 #include "nodedef.h"
+#include "node_modifier.h"
 #include "craftdef.h"
 #include "content/mods.h"
 #include "database/database-dummy.h"
@@ -21,6 +22,7 @@ public:
 	DummyGameDef():
 		m_itemdef(createItemDefManager()),
 		m_nodedef(createNodeDefManager()),
+		m_nodemod(createNodeModifierManager()),
 		m_craftdef(createCraftDefManager()),
 		m_mod_storage_database(new Database_Dummy())
 	{
@@ -31,6 +33,7 @@ public:
 		delete m_mod_storage_database;
 		delete m_craftdef;
 		delete m_nodedef;
+		delete m_nodemod;
 		delete m_itemdef;
 	}
 
@@ -38,6 +41,12 @@ public:
 	IItemDefManager *getItemDefManager() override { return m_itemdef; }
 	const NodeDefManager *getNodeDefManager() override { return m_nodedef; }
 	NodeDefManager* getWritableNodeDefManager() { return m_nodedef; }
+	const NodeModifierManager *getNodeModifierManager() override { return m_nodemod; }
+	NodeModifierManager *getWritableNodeModifierManager() { return m_nodemod; }
+	u16 allocateUnknownNodeModifierId(const std::string &name) override
+	{
+		return m_nodemod->add(NodeModifier(name, true));
+	}
 	ICraftDefManager *getCraftDefManager() override { return m_craftdef; }
 
 	u16 allocateUnknownNodeId(const std::string &name) override
@@ -64,6 +73,7 @@ public:
 protected:
 	IItemDefManager *m_itemdef = nullptr;
 	NodeDefManager *m_nodedef = nullptr;
+	NodeModifierManager* m_nodemod = nullptr;
 	ICraftDefManager *m_craftdef = nullptr;
 	ModStorageDatabase *m_mod_storage_database = nullptr;
 };

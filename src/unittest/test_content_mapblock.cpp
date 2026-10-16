@@ -47,7 +47,7 @@ public:
 
 	MeshMakeData makeSingleNodeMMD(bool smooth_lighting = true)
 	{
-		MeshMakeData data{ndef(), 1, MeshGrid{1}};
+		MeshMakeData data{ndef(), 1, MeshGrid{1}, getNodeModifierManager()};
 		data.m_generate_minimap = false;
 		data.m_smooth_lighting = smooth_lighting;
 		data.m_enable_water_reflections = false;
@@ -60,7 +60,8 @@ public:
 		return data;
 	}
 
-	content_t addSimpleNode(std::string name, u32 texture)
+	content_t addSimpleNode(std::string name, u32 texture, u8 light = 0,
+			NodeDrawType drawtype = NDT_NORMAL)
 	{
 		ItemDefinition itemdef;
 		itemdef.type = ITEM_NODE;
@@ -70,7 +71,8 @@ public:
 		ContentFeatures f;
 		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
-		f.drawtype = NDT_NORMAL;
+		f.drawtype = drawtype;
+		f.light_source = light;
 		f.alpha = ALPHAMODE_OPAQUE;
 		for (TileDef &tiledef : f.tiledef)
 			tiledef.name = name + ".png";
@@ -80,7 +82,7 @@ public:
 		return registerNode(itemdef, std::move(f));
 	}
 
-	content_t addLiquidSource(std::string name, u32 texture)
+	content_t addLiquidSource(std::string name, u32 texture, u8 light = 0)
 	{
 		ItemDefinition itemdef;
 		itemdef.type = ITEM_NODE;
@@ -91,6 +93,7 @@ public:
 		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_LIQUID;
+		f.light_source = light;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;
@@ -107,7 +110,7 @@ public:
 		return registerNode(itemdef, std::move(f));
 	}
 
-	content_t addLiquidFlowing(std::string name, u32 texture_top, u32 texture_side)
+	content_t addLiquidFlowing(std::string name, u32 texture_top, u32 texture_side, u8 light = 0)
 	{
 		ItemDefinition itemdef;
 		itemdef.type = ITEM_NODE;
@@ -118,6 +121,7 @@ public:
 		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_FLOWINGLIQUID;
+		f.light_source = light;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;
@@ -151,6 +155,7 @@ public:
 
 	void runTests(IGameDef *gamedef) override;
 	void testSimpleNode();
+	void testModifierLighting();
 	void testSurroundedNode();
 	void testInterliquidSame();
 	void testInterliquidDifferent();
@@ -162,6 +167,7 @@ void TestMapblockMeshGenerator::runTests(IGameDef *gamedef)
 {
 	set_light_decode_table();
 	TEST(testSimpleNode);
+	TEST(testModifierLighting);
 	TEST(testSurroundedNode);
 	TEST(testInterliquidSame);
 	TEST(testInterliquidDifferent);
@@ -262,4 +268,72 @@ void TestMapblockMeshGenerator::testInterliquidDifferent()
 	UASSERT(checkMeshEqual(buf.vertices, buf.indices, {quad::xn, quad::xp, quad::yn, quad::yp, quad::zn, quad::zp}));
 }
 
+}
+
+void TestMapblockMeshGenerator::testModifierLighting()
+{
+	for (NodeDrawType drawtype : {NDT_NORMAL, NDT_GLASSLIKE, NDT_PLANTLIKE,
+			NDT_LIQUID, NDT_FLOWINGLIQUID}) {
+		MockGameDef gamedef;
+		content_t dark, bright;
+		if (drawtype == NDT_LIQUID || drawtype == NDT_FLOWINGLIQUID) {
+			content_t dark_source = gamedef.addLiquidSource("dark", 42);
+			content_t bright_source = gamedef.addLiquidSource("bright", 42, 14);
+			content_t dark_flow = gamedef.addLiquidFlowing("dark", 42, 42);
+			content_t bright_flow = gamedef.addLiquidFlowing("bright", 42, 42, 14);
+			dark = drawtype == NDT_LIQUID ? dark_source : dark_flow;
+			bright = drawtype == NDT_LIQUID ? bright_source : bright_flow;
+		} else {
+			dark = gamedef.addSimpleNode("dark", 42, 0, drawtype);
+			bright = gamedef.addSimpleNode("bright", 42, 14, drawtype);
+		}
+		gamedef.finalize();
+		NodeModifier on("test:on");
+		on.m_modified_props_mask = MP_LightSource;
+		on.m_light_source = 14;
+		u16 on_id = gamedef.getWritableNodeModifierManager()->add(std::move(on));
+		NodeModifier off("test:off");
+		off.m_modified_props_mask = MP_LightSource;
+		u16 off_id = gamedef.getWritableNodeModifierManager()->add(std::move(off));
+		auto compare = [&](const MeshCollector &a, const MeshCollector &b) {
+			UASSERT(!a.prebuffers[0].empty());
+			for (size_t layer = 0; layer < a.prebuffers.size(); ++layer) {
+				UASSERT(a.prebuffers[layer].size() == b.prebuffers[layer].size());
+				for (size_t i = 0; i < a.prebuffers[layer].size(); ++i) {
+					UASSERT(a.prebuffers[layer][i].vertices == b.prebuffers[layer][i].vertices);
+					UASSERT(a.prebuffers[layer][i].indices == b.prebuffers[layer][i].indices);
+				}
+			}
+		};
+		for (bool smooth : {false, true}) {
+			// Nonzero mesh origin exercises world-to-mesh-relative conversion.
+			auto render = [&](content_t node, u16 modifier, bool neighbor = false) {
+				MeshMakeData data{gamedef.ndef(), 1, MeshGrid{1}, gamedef.getNodeModifierManager()};
+				data.m_smooth_lighting = smooth;
+				data.fillBlockDataBegin(v3s16(-2, 1, 3));
+				v3s16 origin = data.m_blockpos * MAP_BLOCKSIZE;
+				for (s16 x = -1; x <= 1; ++x)
+				for (s16 y = -1; y <= 1; ++y)
+				for (s16 z = -1; z <= 1; ++z)
+					data.m_vmanip.setNode(origin + v3s16(x, y, z), MapNode(CONTENT_AIR));
+				v3s16 modified_pos = neighbor ? v3s16(-1, 0, 0) : v3s16();
+				data.m_vmanip.setNode(origin, MapNode(neighbor ? dark : node));
+				if (neighbor)
+					data.m_vmanip.setNode(origin + modified_pos, MapNode(node));
+				if (modifier != MODIFIER_IGNORE) {
+					AppliedNodeModifiersList modifiers;
+					UASSERT(modifiers.add({}, modifier));
+					data.m_node_modifiers.append(modifiers, modified_pos);
+				}
+				MeshCollector collector{{}};
+				MapblockMeshGenerator generator(&data, &collector);
+				generator.generate();
+				return collector;
+			};
+			compare(render(dark, on_id), render(bright, MODIFIER_IGNORE));
+			compare(render(bright, off_id), render(dark, MODIFIER_IGNORE));
+			if (drawtype == NDT_NORMAL)
+				compare(render(dark, on_id, true), render(bright, MODIFIER_IGNORE, true));
+		}
+	}
 }

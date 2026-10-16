@@ -291,8 +291,8 @@ bool MetaDataRef::handleFromTable(lua_State *L, int table, IMetadata *meta)
 			meta->setString(name, readParam<std::string_view>(L, -1));
 			lua_pop(L, 1); // Remove value, keep key for next iteration
 		}
-		lua_pop(L, 1);
 	}
+	lua_pop(L, 1);
 
 	return true;
 }
@@ -309,4 +309,39 @@ int MetaDataRef::l_equals(lua_State *L)
 	else
 		lua_pushboolean(L, *data1 == *data2);
 	return 1;
+}
+
+bool MetaDataRef::readModifiers(lua_State *L, int table, std::vector<std::string> &modifiers)
+{
+	assert(modifiers.empty());
+	lua_pushvalue(L, table);
+
+	if (!lua_istable(L, -1)) {
+		lua_pop(L, 1);
+		return false;
+	}
+
+	bool res = true;
+	const size_t count = lua_objlen(L, -1);
+	modifiers.reserve(count);
+	for (size_t i = 1; i <= count; ++i) {
+		lua_rawgeti(L, -1, i);
+
+		if (lua_type(L, -1) != LUA_TSTRING) {
+			lua_pop(L, 1);
+			res = false;
+			break;
+		}
+
+		std::string name = readParam<std::string>(L, -1);
+		if (!isValidModScopedName(name)) {
+			lua_pop(L, 1);
+			res = false;
+			break;
+		}
+		modifiers.push_back(std::move(name));
+		lua_pop(L, 1);
+	}
+	lua_pop(L, 1);
+	return res;
 }

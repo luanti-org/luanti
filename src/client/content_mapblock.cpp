@@ -141,7 +141,7 @@ void MapblockMeshGenerator::drawQuad(const TileSpec &tile, v3f *coords, const v3
 	const v2f tcoords[4] = {v2f(0.0, 0.0), v2f(1.0, 0.0),
 		v2f(1.0, vertical_tiling), v2f(0.0, vertical_tiling)};
 	video::S3DVertex vertices[4];
-	bool shade_face = !cur_node.f->light_source && (normal != v3s16(0, 0, 0));
+	bool shade_face = !cur_node.lighting.light_source && (normal != v3s16(0, 0, 0));
 	v3f normal2 = v3f::from(normal);
 	for (int j = 0; j < 4; j++) {
 		vertices[j].Pos = coords[j] + cur_node.origin;
@@ -303,11 +303,9 @@ void MapblockMeshGenerator::drawCuboid(const aabb3f &box,
 	Calculate non-smooth lighting at face of node.
 	Single light bank.
 */
-static u8 getFaceLight(enum LightBank bank, MapNode n, MapNode n2, const NodeDefManager *ndef)
+static u8 getFaceLight(enum LightBank bank, MapNode n, MapNode n2,
+		ContentLightingFlags f1, ContentLightingFlags f2)
 {
-	ContentLightingFlags f1 = ndef->getLightingFlags(n);
-	ContentLightingFlags f2 = ndef->getLightingFlags(n2);
-
 	u8 light;
 	u8 l1 = n.getLight(bank, f1);
 	u8 l2 = n2.getLight(bank, f2);
@@ -324,10 +322,11 @@ static u8 getFaceLight(enum LightBank bank, MapNode n, MapNode n2, const NodeDef
 	Calculate non-smooth lighting at face of node.
 	Both light banks.
 */
-static LightPair getFaceLight(MapNode n, MapNode n2, const NodeDefManager *ndef)
+static LightPair getFaceLight(MapNode n, MapNode n2,
+		ContentLightingFlags f1, ContentLightingFlags f2)
 {
-	u8 day = getFaceLight(LIGHTBANK_DAY, n, n2, ndef);
-	u8 night = getFaceLight(LIGHTBANK_NIGHT, n, n2, ndef);
+	u8 day = getFaceLight(LIGHTBANK_DAY, n, n2, f1, f2);
+	u8 night = getFaceLight(LIGHTBANK_NIGHT, n, n2, f1, f2);
 	return LightPair(day, night);
 }
 
@@ -370,12 +369,13 @@ static LightPair getSmoothLightCorner(const v3s16 &p,
 		if (n.getContent() == CONTENT_IGNORE)
 			return true;
 		const ContentFeatures &f = ndef->get(n);
-		if (f.light_source > light_source_max)
-			light_source_max = f.light_source;
+		ContentLightingFlags flags = data->getLightingFlags(p + dirs[i], n);
+		if (flags.light_source > light_source_max)
+			light_source_max = flags.light_source;
 		// Check f.solidness because fast-style leaves look better this way
-		if (f.param_type == CPT_LIGHT && NDT_solidness[f.drawtype] != 2) {
-			u8 light_level_day = n.getLight(LIGHTBANK_DAY, f.getLightingFlags());
-			u8 light_level_night = n.getLight(LIGHTBANK_NIGHT, f.getLightingFlags());
+		if (flags.has_light && NDT_solidness[f.drawtype] != 2) {
+			u8 light_level_day = n.getLight(LIGHTBANK_DAY, flags);
+			u8 light_level_night = n.getLight(LIGHTBANK_NIGHT, flags);
 			if (light_level_day == LIGHT_SUN)
 				direct_sunlight = true;
 			light_day += decode_light(light_level_day);
@@ -384,7 +384,7 @@ static LightPair getSmoothLightCorner(const v3s16 &p,
 		} else {
 			ambient_occlusion++;
 		}
-		return f.light_propagates;
+		return flags.light_propagates;
 	};
 
 	bool obstructed[4] = { true, true, true, true };
@@ -502,7 +502,7 @@ LightInfo MapblockMeshGenerator::blendLight(const v3f &vertex_pos)
 video::SColor MapblockMeshGenerator::blendLightColor(const v3f &vertex_pos)
 {
 	LightInfo light = blendLight(vertex_pos);
-	return encode_light(light.getPair(), cur_node.f->light_source);
+	return encode_light(light.getPair(), cur_node.lighting.light_source);
 }
 
 video::SColor MapblockMeshGenerator::blendLightColor(const v3f &vertex_pos,
@@ -510,8 +510,8 @@ video::SColor MapblockMeshGenerator::blendLightColor(const v3f &vertex_pos,
 {
 	LightInfo light = blendLight(vertex_pos);
 	video::SColor color = encode_light(light.getPair(MYMAX(0.0f, vertex_normal.Y)),
-			cur_node.f->light_source);
-	if (!cur_node.f->light_source)
+			cur_node.lighting.light_source);
+	if (!cur_node.lighting.light_source)
 		applyFacesShading(color, vertex_normal);
 	return color;
 }
@@ -585,8 +585,8 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box,
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
 				final_lights[j] = lights[light_indices[face][j]].getPair(MYMAX(0.0f, vertex.Normal.Y));
-				vertex.Color = encode_light(final_lights[j], cur_node.f->light_source);
-				if (!cur_node.f->light_source)
+				vertex.Color = encode_light(final_lights[j], cur_node.lighting.light_source);
+				if (!cur_node.lighting.light_source)
 					applyFacesShading(vertex.Color, vertex.Normal);
 			}
 			return getSmoothLightingQuadDiagonal(final_lights);
@@ -594,7 +594,7 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box,
 	} else {
 		drawCuboid(box, tiles, tile_count, txc, mask, [&] (int face, video::S3DVertex vertices[4]) {
 			video::SColor color = cur_node.lcolor;
-			if (!cur_node.f->light_source)
+			if (!cur_node.lighting.light_source)
 				applyFacesShading(color, vertices[0].Normal);
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
@@ -622,7 +622,8 @@ void MapblockMeshGenerator::drawSolidNode()
 				layer.material_flags |= MATERIAL_FLAG_BACKFACE_CULLING;
 		}
 		if (!data->m_smooth_lighting) {
-			lights[face] = getFaceLight(cur_node.n, neighbor, nodedef);
+			lights[face] = getFaceLight(cur_node.n, neighbor, cur_node.lighting,
+					data->getLightingFlags(p1 + tile_dirs[face], neighbor));
 		}
 	};
 
@@ -718,16 +719,16 @@ void MapblockMeshGenerator::drawSolidNode()
 			const auto &face_lights = lights[face];
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
-				vertex.Color = encode_light(face_lights[j], cur_node.f->light_source);
-				if (!cur_node.f->light_source)
+				vertex.Color = encode_light(face_lights[j], cur_node.lighting.light_source);
+				if (!cur_node.lighting.light_source)
 					applyFacesShading(vertex.Color, vertex.Normal);
 			}
 			return getSmoothLightingQuadDiagonal(face_lights);
 		});
 	} else {
 		drawCuboid(box, tiles, 6, nullptr, mask, [&] (int face, video::S3DVertex vertices[4]) {
-			video::SColor color = encode_light(lights[face], cur_node.f->light_source);
-			if (!cur_node.f->light_source)
+			video::SColor color = encode_light(lights[face], cur_node.lighting.light_source);
+			if (!cur_node.lighting.light_source)
 				applyFacesShading(color, vertices[0].Normal);
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
@@ -780,10 +781,10 @@ void MapblockMeshGenerator::prepareLiquidNodeDrawing()
 	getSpecialTile(0, &cur_liquid.tile_top);
 	getSpecialTile(1, &cur_liquid.tile);
 
-	MapNode ntop    = data->m_vmanip.getNodeRefUnsafeCheckFlags(
-			blockpos_nodes + cur_node.p + v3s16(0,  1, 0));
-	MapNode nbottom = data->m_vmanip.getNodeRefUnsafeCheckFlags(
-			blockpos_nodes + cur_node.p + v3s16(0, -1, 0));
+	v3s16 ntop_pos    = blockpos_nodes + cur_node.p + v3s16(0,  1, 0);
+	v3s16 nbottom_pos = blockpos_nodes + cur_node.p + v3s16(0, -1, 0);
+	MapNode ntop    = data->m_vmanip.getNodeRefUnsafeCheckFlags(ntop_pos);
+	MapNode nbottom = data->m_vmanip.getNodeRefUnsafeCheckFlags(nbottom_pos);
 	cur_liquid.c_flowing = cur_node.f->liquid_alternative_flowing_id;
 	cur_liquid.c_source = cur_node.f->liquid_alternative_source_id;
 	cur_liquid.top_is_same_liquid = (ntop.getContent() == cur_liquid.c_flowing)
@@ -799,20 +800,22 @@ void MapblockMeshGenerator::prepareLiquidNodeDrawing()
 	if (data->m_smooth_lighting)
 		return; // don't need to pre-compute anything in this case
 
-	auto light = LightPair(getInteriorLight(cur_node.n, 0, nodedef));
-	if (cur_node.f->light_source != 0) {
+	auto light = LightPair(getInteriorLight(cur_node.n, 0, cur_node.lighting));
+	if (cur_node.lighting.light_source != 0) {
 		// If this liquid emits light and doesn't contain light, draw
 		// it at what it emits, for an increased effect
-		u8 e = decode_light(cur_node.f->light_source);
+		u8 e = decode_light(cur_node.lighting.light_source);
 		light = LightPair(std::max(e, light.lightDay),
 				std::max(e, light.lightNight));
-	} else if (nodedef->getLightingFlags(ntop).has_light) {
-		// Otherwise, use the light of the node on top if possible
-		light = LightPair(getInteriorLight(ntop, 0, nodedef));
+	} else {
+		// Otherwise, use the light of the node on top if possible.
+		ContentLightingFlags top_flags = data->getLightingFlags(ntop_pos, ntop);
+		if (top_flags.has_light)
+			light = LightPair(getInteriorLight(ntop, 0, top_flags));
 	}
 
-	cur_liquid.color_top = encode_light(light, cur_node.f->light_source);
-	cur_node.lcolor = encode_light(light, cur_node.f->light_source);
+	cur_liquid.color_top = encode_light(light, cur_node.lighting.light_source);
+	cur_node.lcolor = encode_light(light, cur_node.lighting.light_source);
 }
 
 void MapblockMeshGenerator::getLiquidNeighborhood()
@@ -1530,9 +1533,10 @@ void MapblockMeshGenerator::drawPlantlikeRootedNode()
 	if (data->m_smooth_lighting) {
 		getSmoothLightFrame();
 	} else {
-		MapNode ntop = data->m_vmanip.getNodeRefUnsafeCheckFlags(blockpos_nodes + cur_node.p);
-		auto light = LightPair(getInteriorLight(ntop, 0, nodedef));
-		cur_node.lcolor = encode_light(light, cur_node.f->light_source);
+		v3s16 ntop_pos = blockpos_nodes + cur_node.p;
+		MapNode ntop = data->m_vmanip.getNodeRefUnsafeCheckFlags(ntop_pos);
+		auto light = LightPair(getInteriorLight(ntop, 0, data->getLightingFlags(ntop_pos, ntop)));
+		cur_node.lcolor = encode_light(light, cur_node.lighting.light_source);
 	}
 	drawPlantlike(tile, true);
 	cur_node.p.Y--;
@@ -1970,7 +1974,7 @@ void MapblockMeshGenerator::drawMeshNode()
 				vertex.Pos += cur_node.origin;
 			}
 		} else {
-			bool is_light_source = cur_node.f->light_source != 0;
+			bool is_light_source = cur_node.lighting.light_source != 0;
 			for (u32 k = 0; k < vertex_count; k++) {
 				video::S3DVertex &vertex = vertices[k];
 				video::SColor color = cur_node.lcolor;
@@ -2012,8 +2016,8 @@ void MapblockMeshGenerator::drawNode()
 	if (data->m_smooth_lighting) {
 		getSmoothLightFrame();
 	} else {
-		auto light = LightPair(getInteriorLight(cur_node.n, 0, nodedef));
-		cur_node.lcolor = encode_light(light, cur_node.f->light_source);
+		auto light = LightPair(getInteriorLight(cur_node.n, 0, cur_node.lighting));
+		cur_node.lcolor = encode_light(light, cur_node.lighting.light_source);
 	}
 	switch (cur_node.f->drawtype) {
 		case NDT_FLOWINGLIQUID:     drawLiquidNode(); break;
@@ -2052,6 +2056,7 @@ void MapblockMeshGenerator::generate()
 		if (c == CONTENT_AIR)
 			continue;
 		cur_node.f = &nodedef->get(cur_node.n);
+		cur_node.lighting = data->getLightingFlags(blockpos_nodes + cur_node.p, cur_node.n);
 		drawNode();
 	}
 }

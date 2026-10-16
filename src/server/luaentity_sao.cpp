@@ -4,6 +4,7 @@
 // Copyright (C) 2013-2020 Minetest core developers & community
 
 #include "luaentity_sao.h"
+#include "network/networkprotocol.h"
 #include "AnimSpec.h"
 #include "collision.h"
 #include "constants.h"
@@ -145,7 +146,8 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 {
 	if (!m_properties_sent) {
 		m_properties_sent = true;
-		std::string str = getPropertyPacket();
+		// Queue the full format; the server downgrades it per recipient.
+		std::string str = getPropertyPacket(LATEST_PROTOCOL_VERSION);
 		// create message and add to list
 		m_messages_out.emplace(getId(), true, std::move(str));
 	}
@@ -271,7 +273,7 @@ std::string LuaEntitySAO::getClientInitializationData(u16 protocol_version)
 		++message_count;
 	};
 
-	append_message(getPropertyPacket());
+	append_message(getPropertyPacket(protocol_version));
 	append_message(generateUpdateArmorGroupsCommand());
 	for (const auto &[track, anim] : getAnimation().tracks) {
 		if (anim.state != TrackAnimation::State::STOPPED)
@@ -526,9 +528,9 @@ std::string LuaEntitySAO::getName()
 	return m_init_name;
 }
 
-std::string LuaEntitySAO::getPropertyPacket()
+std::string LuaEntitySAO::getPropertyPacket(u16 protocol_version)
 {
-	return generateSetPropertiesCommand(m_prop);
+	return generateSetPropertiesCommand(m_prop, protocol_version);
 }
 
 void LuaEntitySAO::sendPosition(bool do_interpolate, bool is_movement_end)

@@ -11,6 +11,7 @@
 
 #include "util/numeric.h"
 #include "client/tile.h"
+#include "node_modifier.h"
 #include "voxel.h"
 #include <map>
 
@@ -53,7 +54,12 @@ struct MeshMakeData
 
 	const NodeDefManager *m_nodedef;
 
-	MeshMakeData(const NodeDefManager *ndef, u16 side_lingth, MeshGrid mesh_grid);
+	// Node positions are relative to m_blockpos * MAP_BLOCKSIZE.
+	AppliedNodeModifiersSnapshot m_node_modifiers;
+	const NodeModifierManager *m_nodemod;
+
+	MeshMakeData(const NodeDefManager *ndef, u16 side_lingth, MeshGrid mesh_grid,
+			const NodeModifierManager *nmod);
 
 	/*
 		Copy block data manually (to allow optimizations by the caller)
@@ -69,6 +75,9 @@ struct MeshMakeData
 		Set the (node) position of a crack
 	*/
 	void setCrack(int crack_level, v3s16 crack_pos);
+
+	// Position is in world node coordinates, as in m_vmanip.
+	ContentLightingFlags getLightingFlags(v3s16 p, const MapNode &node) const;
 };
 
 // represents a triangle as indexes into the vertex buffer in SMeshBuffer
@@ -327,7 +336,7 @@ video::SColor encode_light(u16 light, u8 emissive_light);
 video::SColor encode_light(LightPair light, u8 emissive_light);
 
 // Compute light at node
-u16 getInteriorLight(MapNode n, s32 increment, const NodeDefManager *ndef);
+u16 getInteriorLight(MapNode n, s32 increment, ContentLightingFlags flags);
 
 /*!
  * Returns the sunlight's color from the current

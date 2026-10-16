@@ -26,6 +26,8 @@ protected:
 	virtual IMetadata *getmeta(bool auto_create) = 0;
 	virtual void clearMeta() = 0;
 
+	static bool readModifiers(lua_State *L, int table, std::vector<std::string> &modifiers);
+
 	virtual void handleToTable(lua_State *L, IMetadata *meta);
 	virtual bool handleFromTable(lua_State *L, int table, IMetadata *meta);
 

@@ -4,6 +4,9 @@
 
 #include "lua_api/l_nodemeta.h"
 #include "lua_api/l_internal.h"
+#include "gamedef.h"
+#include "node_modifier.h"
+#include "itemstackmetadata.h"
 #include "lua_api/l_inventory.h"
 #include "common/c_content.h"
 #include "common/helper.h"
@@ -31,10 +34,17 @@ IMetadata* NodeMetaRef::getmeta(bool auto_create)
 	return meta;
 }
 
-void NodeMetaRef::clearMeta()
+void NodeMetaRef::clearMetaFields()
 {
 	SANITY_CHECK(!m_is_local);
 	m_env->getMap().removeNodeMetadata(m_p);
+}
+
+void NodeMetaRef::clearMeta()
+{
+	clearMetaFields();
+
+	m_env->getMap().setNodeModifiers(m_p, {});
 }
 
 void NodeMetaRef::reportMetadataChange(const std::string *name)
@@ -47,7 +57,7 @@ void NodeMetaRef::reportMetadataChange(const std::string *name)
 
 	// If the metadata is now empty, get rid of it
 	if (meta && meta->empty()) {
-		clearMeta();
+		clearMetaFields();
 		meta = nullptr;
 	}
 
@@ -56,6 +66,98 @@ void NodeMetaRef::reportMetadataChange(const std::string *name)
 	event.setPositionModified(m_p);
 	event.is_private_change = is_private_change;
 	m_env->getMap().dispatchEvent(event);
+}
+
+bool NodeMetaRef::setModifiers(const std::vector<std::string> &names)
+{
+	Map &map = m_env->getMap();
+	MapBlock *block = map.getBlockNoCreateNoEx(getNodeBlockPos(m_p));
+	if (!block)
+		return false;
+	IGameDef *gamedef = m_env->getGameDef();
+	const NodeModifierManager *manager = gamedef->getNodeModifierManager();
+	std::vector<u16> ids;
+	ids.reserve(names.size());
+	for (const std::string &name : names) {
+		u16 id = manager->getId(name);
+		if (id == MODIFIER_IGNORE)
+			id = gamedef->allocateUnknownNodeModifierId(name);
+		if (id == MODIFIER_IGNORE)
+			return false;
+		ids.push_back(id);
+	}
+	return map.setNodeModifiers(m_p, ids);
+}
+
+int NodeMetaRef::l_set_modifiers(lua_State *L)
+{
+	MAP_LOCK_REQUIRED;
+	NodeMetaRef *ref = checkObject<NodeMetaRef>(L, 1);
+	std::vector<std::string> names;
+	bool result = readModifiers(L, 2, names) &&
+			ref->setModifiers(names);
+	lua_pushboolean(L, result);
+	return 1;
+}
+
+int NodeMetaRef::l_add_modifier(lua_State *L)
+{
+	MAP_LOCK_REQUIRED;
+
+	NodeMetaRef *ref = checkObject<NodeMetaRef>(L, 1);
+	luaL_checktype(L, 2, LUA_TSTRING);
+
+	const NodeModifierManager *manager = ref->m_env->getGameDef()->getNodeModifierManager();
+	u16 id = manager->getId(readParam<std::string>(L, 2));
+	if (id == MODIFIER_IGNORE || manager->get(id).m_is_dummy) {
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	bool result = ref->m_env->getMap().addNodeModifier(ref->m_p, id,
+			lua_toboolean(L, 3));
+	lua_pushboolean(L, result);
+
+	return 1;
+}
+
+int NodeMetaRef::l_remove_modifier(lua_State *L)
+{
+	MAP_LOCK_REQUIRED;
+
+	NodeMetaRef *ref = checkObject<NodeMetaRef>(L, 1);
+	luaL_checktype(L, 2, LUA_TSTRING);
+
+	const NodeModifierManager *manager = ref->m_env->getGameDef()->getNodeModifierManager();
+	u16 id = manager->getId(readParam<std::string>(L, 2));
+	if (id == MODIFIER_IGNORE)
+		return 0;
+
+	ref->m_env->getMap().removeNodeModifier(ref->m_p, id);
+
+	return 0;
+}
+
+int NodeMetaRef::l_get_modifiers_list(lua_State *L)
+{
+	MAP_LOCK_REQUIRED;
+
+	NodeMetaRef *ref = checkObject<NodeMetaRef>(L, 1);
+	lua_newtable(L);
+
+	const NodeModifierManager *manager = ref->m_env->getGameDef()->getNodeModifierManager();
+	auto [first, last] = ref->m_env->getMap().getNodeModifiers(ref->m_p);
+	int i = 0;
+	for (auto it = first; it != last; ++it) {
+		if (it->id >= manager->size())
+			continue;
+
+		const std::string &name = manager->get(it->id).m_name;
+		lua_pushlstring(L, name.data(), name.size());
+		lua_rawseti(L, -2, ++i);
+	}
+
+	return 1;
 }
 
 // Exported functions
@@ -115,6 +217,11 @@ void NodeMetaRef::handleToTable(lua_State *L, IMetadata *_meta)
 		lua_newtable(L);
 	}
 	lua_setfield(L, -2, "inventory");
+
+	if (!m_is_local) {
+		l_get_modifiers_list(L);
+		lua_setfield(L, -2, "modifiers");
+	}
 }
 
 // from_table(self, table)
@@ -122,6 +229,13 @@ bool NodeMetaRef::handleFromTable(lua_State *L, int table, IMetadata *_meta)
 {
 	// fields
 	if (!MetaDataRef::handleFromTable(L, table, _meta))
+		return false;
+
+	std::vector<std::string> modifiers;
+	lua_getfield(L, table, "modifiers");
+	bool result = lua_isnil(L, -1) || readModifiers(L, -1, modifiers);
+	lua_pop(L, 1);
+	if (!result)
 		return false;
 
 	NodeMetadata *meta = dynamic_cast<NodeMetadata*>(_meta);
@@ -140,10 +254,10 @@ bool NodeMetaRef::handleFromTable(lua_State *L, int table, IMetadata *_meta)
 			read_inventory_list(L, -1, inv, name, gamedef);
 			lua_pop(L, 1); // Remove value, keep key for next iteration
 		}
-		lua_pop(L, 1);
 	}
+	lua_pop(L, 1);
 
-	return true;
+	return setModifiers(modifiers);
 }
 
 
@@ -198,6 +312,10 @@ const luaL_Reg NodeMetaRef::methodsServer[] = {
 	luamethod(MetaDataRef, get_keys),
 	luamethod(MetaDataRef, to_table),
 	luamethod(MetaDataRef, from_table),
+	luamethod(NodeMetaRef, set_modifiers),
+	luamethod(NodeMetaRef, add_modifier),
+	luamethod(NodeMetaRef, remove_modifier),
+	luamethod(NodeMetaRef, get_modifiers_list),
 	luamethod(NodeMetaRef, get_inventory),
 	luamethod(NodeMetaRef, mark_as_private),
 	luamethod(MetaDataRef, equals),

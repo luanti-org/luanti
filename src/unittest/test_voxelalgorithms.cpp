@@ -5,6 +5,7 @@
 #include "test.h"
 
 #include "gamedef.h"
+#include "dummygamedef.h"
 #include "voxelalgorithms.h"
 #include "util/numeric.h"
 #include "dummymap.h"
@@ -19,6 +20,7 @@ public:
 
 	void testVoxelLineIterator();
 	void testLighting(IGameDef *gamedef);
+	void testModifierLighting();
 };
 
 static TestVoxelAlgorithms g_test_instance;
@@ -27,6 +29,7 @@ void TestVoxelAlgorithms::runTests(IGameDef *gamedef)
 {
 	TEST(testVoxelLineIterator);
 	TEST(testLighting, gamedef);
+	TEST(testModifierLighting);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -152,4 +155,84 @@ void TestVoxelAlgorithms::testLighting(IGameDef *gamedef)
 		MapNode n = map.getNode(v3s16(-10, 1, 0));
 		UASSERTEQ(int, n.getParam1(), 153);
 	}
+}
+
+void TestVoxelAlgorithms::testModifierLighting()
+{
+	DummyGameDef gamedef;
+	NodeDefManager *ndef = gamedef.getWritableNodeDefManager();
+	ContentFeatures stone;
+	stone.name = "test:stone";
+	content_t stone_id = ndef->set(stone.name, std::move(stone));
+	ContentFeatures lamp;
+	lamp.name = "test:lamp";
+	lamp.light_source = 10;
+	content_t lamp_id = ndef->set(lamp.name, std::move(lamp));
+	auto modifier = [&](const char *name, u8 light) {
+		NodeModifier def(name);
+		def.m_modified_props_mask = MP_LightSource;
+		def.m_light_source = light;
+		return gamedef.getWritableNodeModifierManager()->add(std::move(def));
+	};
+	u16 bright = modifier("test:bright", 14);
+	u16 dim = modifier("test:dim", 5);
+	u16 off = modifier("test:off", 0);
+	DummyMap map(&gamedef, v3s16(0, 0, 0), v3s16(1, 0, 0));
+	map.fill(v3s16(0, 0, 0), v3s16(1, 0, 0), MapNode(CONTENT_AIR));
+	const v3s16 source(15, 8, 8), neighbor(16, 8, 8), other(18, 8, 8);
+	std::map<v3s16, MapBlock*> modified;
+	map.addNodeAndUpdate(source, MapNode(stone_id), modified);
+	auto light = [&](v3s16 pos) {
+		MapNode node = map.getNode(pos);
+		return node.getLight(LIGHTBANK_NIGHT, map.getLightingFlags(pos, node));
+	};
+	UASSERT(map.addNodeModifier(source, bright));
+	UASSERTEQ(int, light(source), 14);
+	UASSERTEQ(int, light(neighbor), 13);
+	UASSERTEQ(int, light(other), 11);
+	UASSERT(map.addNodeModifier(source, dim));
+	UASSERTEQ(int, light(source), 5);
+	UASSERTEQ(int, light(neighbor), 4);
+	UASSERTEQ(int, light(other), 2);
+	map.removeNodeModifier(source, dim);
+	UASSERTEQ(int, light(neighbor), 13);
+	UASSERT(!map.setNodeModifiers(source, {MODIFIER_IGNORE}));
+	UASSERTEQ(int, light(neighbor), 13);
+	UASSERT(map.setNodeModifiers(source, {off}));
+	UASSERTEQ(int, light(neighbor), 0);
+	UASSERT(map.setNodeModifiers(source, {}));
+	UASSERTEQ(int, light(neighbor), 0);
+
+	// Explicit zero overrides a light-emitting base definition too.
+	map.addNodeAndUpdate(source, MapNode(lamp_id), modified);
+	UASSERTEQ(int, light(neighbor), 9);
+	UASSERT(map.addNodeModifier(source, off));
+	UASSERTEQ(int, light(source), 0);
+	UASSERTEQ(int, light(neighbor), 0);
+	map.removeNodeModifier(source, off);
+	UASSERTEQ(int, light(neighbor), 9);
+
+	// A competing modified emitter must survive unlighting and repair.
+	map.addNodeAndUpdate(other, MapNode(stone_id), modified);
+	UASSERT(map.addNodeModifier(other, dim));
+	map.removeNodeAndUpdate(source, modified);
+	UASSERTEQ(int, light(neighbor), 3);
+	voxalgo::repair_block_light(&map, map.getBlockNoCreateNoEx(v3s16(1, 0, 0)), &modified);
+	UASSERTEQ(int, light(neighbor), 3);
+
+	// Swapping keeps modifiers; replacement clears them and their old light.
+	map.addNodeAndUpdate(other, MapNode(CONTENT_AIR), modified, false);
+	UASSERTEQ(int, light(neighbor), 3);
+	map.addNodeAndUpdate(other, MapNode(stone_id), modified);
+	UASSERTEQ(int, light(neighbor), 0);
+	UASSERT(map.addNodeModifier(source, bright));
+	map.removeNodeAndUpdate(source, modified);
+	UASSERTEQ(int, light(neighbor), 0);
+
+	// Bulk relighting must seed modified opaque sources.
+	UASSERT(map.addNodeModifier(other, dim));
+	MMVManip vm(&map);
+	vm.initialEmerge(v3s16(0, 0, 0), v3s16(1, 0, 0), false);
+	voxalgo::blit_back_with_light(&map, &vm, &modified);
+	UASSERTEQ(int, light(neighbor), 3);
 }

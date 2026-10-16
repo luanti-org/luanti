@@ -27,7 +27,8 @@ public:
 	NodeMetadata(IItemDefManager *item_def_mgr);
 	~NodeMetadata();
 
-	void serialize(std::ostream &os, u8 version, bool disk=true) const;
+	void serialize(std::ostream &os, u8 version, bool disk=true,
+			bool with_modifiers=true) const;
 	void deSerialize(std::istream &is, u8 version);
 
 	void clear();

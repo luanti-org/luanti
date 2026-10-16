@@ -39,14 +39,14 @@ ItemStack::ItemStack(const std::string &name_, u16 count_,
 		count = 1;
 }
 
-void ItemStack::serialize(std::ostream &os, bool serialize_meta) const
+void ItemStack::serialize(std::ostream &os, bool serialize_meta, bool with_modifiers) const
 {
 	if (empty())
 		return;
 
 	// Check how many parts of the itemstring are needed
 	int parts = 1;
-	if (!metadata.empty())
+	if (with_modifiers ? !metadata.empty() : !metadata.SimpleMetadata::empty())
 		parts = 4;
 	else if (wear != 0)
 		parts = 3;
@@ -61,7 +61,7 @@ void ItemStack::serialize(std::ostream &os, bool serialize_meta) const
 	if (parts >= 4) {
 		os << " ";
 		if (serialize_meta)
-			metadata.serialize(os);
+			metadata.serialize(os, with_modifiers);
 		else
 			os << "<metadata size=" << metadata.size() << ">";
 	}
@@ -254,10 +254,10 @@ void ItemStack::deSerialize(const std::string &str, IItemDefManager *itemdef)
 	deSerialize(is, itemdef);
 }
 
-std::string ItemStack::getItemString(bool include_meta) const
+std::string ItemStack::getItemString(bool include_meta, bool with_modifiers) const
 {
 	std::ostringstream os(std::ios::binary);
-	serialize(os, include_meta);
+	serialize(os, include_meta, with_modifiers);
 	return os.str();
 }
 
@@ -560,7 +560,7 @@ void InventoryList::setName(const std::string &name)
 	setModified();
 }
 
-void InventoryList::serialize(std::ostream &os, bool incremental) const
+void InventoryList::serialize(std::ostream &os, bool incremental, bool with_modifiers) const
 {
 	//os.imbue(std::locale("C"));
 
@@ -571,7 +571,7 @@ void InventoryList::serialize(std::ostream &os, bool incremental) const
 			os<<"Empty";
 		} else {
 			os<<"Item ";
-			item.serialize(os);
+			item.serialize(os, true, with_modifiers);
 		}
 		// TODO: Implement this:
 		// if (!incremental || item.checkModified())
@@ -962,13 +962,15 @@ bool Inventory::operator == (const Inventory &other) const
 	return true;
 }
 
-void Inventory::serialize(std::ostream &os, bool incremental) const
+void Inventory::serialize(std::ostream &os, bool incremental, bool with_modifiers) const
 {
+	if (with_modifiers)
+		os << "InventoryVersion 1\n";
 	//std::cout << "Serialize " << (int)incremental << ", n=" << m_lists.size() << std::endl;
 	for (const InventoryList *list : m_lists) {
 		if (!incremental || list->checkModified()) {
 			os << "List " << list->getName() << " " << list->getSize() << "\n";
-			list->serialize(os, incremental);
+			list->serialize(os, incremental, with_modifiers);
 		} else {
 			os << "KeepList " << list->getName() << "\n";
 		}
@@ -1004,6 +1006,14 @@ void Inventory::deSerialize(std::istream &is)
 			m_lists.erase(std::remove(m_lists.begin(), m_lists.end(),
 					nullptr), m_lists.end());
 			return;
+		}
+
+		// To do: check whether old version can receive this
+		if (name == "InventoryVersion") {
+			unsigned version;
+			if (!(iss >> version) || version != 1)
+				throw SerializationError("Unsupported inventory version");
+			continue;
 		}
 
 		if (name == "List") {
