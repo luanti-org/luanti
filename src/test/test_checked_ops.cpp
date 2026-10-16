@@ -380,6 +380,9 @@ struct Int128 {
 		os << '_' << (std::is_signed_v<T64>? 's': 'u') << "128";
 		return os;
 	}
+	explicit operator T64() const {
+		return this->low;
+	}
 };
 
 namespace std {
