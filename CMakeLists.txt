@@ -288,6 +288,7 @@ find_package(Lua REQUIRED)
 if(NOT USE_LUAJIT)
 	add_subdirectory(lib/bitop)
 endif()
+add_subdirectory(lib/lua_puclibs)
 add_subdirectory(lib/lstrpack)
 add_subdirectory(lib/sha256)
 
