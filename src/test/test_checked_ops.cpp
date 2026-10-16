@@ -588,17 +588,25 @@ static T max(T a, T b) {
 	return a >= b? a: b;
 }
 
+// generate int for char types, and T otherwise
+template<typename T>
+static constexpr auto gentype_fn() {
+	if constexpr (std::is_same_v<char, T>
+	           || std::is_same_v<unsigned char, T>
+	           || std::is_same_v<  signed char, T>) {
+		return int();
+	} else {
+		return T();
+	}
+}
+
 TEMPLATE_TEST_CASE("random checked operation tests", "", \
 					char, int8_t, uint8_t, int16_t, uint16_t, \
 					int32_t, uint32_t, int64_t, uint64_t) {
 	using T = TestType;
 	using Higher = decltype(higher_val<T>());
 
-	using GenType = std::conditional_t<
-			std::is_same_v<unsigned char, std::make_unsigned<T>>,
-			/* it's a char   */ int,
-			/* integral type */ T
-		>;
+	using GenType = decltype(gentype_fn<T>());
 
 	auto rng = get_rng();
 
