@@ -95,7 +95,7 @@ std::ostream& operator <<(std::ostream& os, std::optional<T> const& value) {
 	} else {
 		os << "Some(" << *value << ")";
 	}
-    return os;
+	return os;
 }
 
 template<typename T, bool is_signed = std::is_signed_v<T>, size_t size = sizeof(T)>
@@ -543,7 +543,7 @@ TEMPLATE_TEST_CASE("__int128 vs Int128 tests", "", \
 
 		std::uniform_int_distribution<u64> full_u64(
 				std::numeric_limits<u64>::min(),
-		        std::numeric_limits<u64>::max()
+				std::numeric_limits<u64>::max()
 			);
 		// in Rust this'd need rng as a parameter,
 		//		because of the mutable borrow
@@ -552,7 +552,7 @@ TEMPLATE_TEST_CASE("__int128 vs Int128 tests", "", \
 			N128 high = full_u64(rng);
 			high = high << 64;
 			// cast to unsigned first to be sure not to sign-extend
-		    return high | N128((unsigned __int128) full_u64(rng));
+			return high | N128((unsigned __int128) full_u64(rng));
 		};
 		auto my128_from_n128 = [](N128 n128) {
 			return My128( (N64) uint64_t(n128 >> 64), (N64) uint64_t(n128) );
