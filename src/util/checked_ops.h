@@ -229,7 +229,7 @@ namespace checked {
 		} else {
 			// T is 64-bit, so use the complicated version because we don't have a 128-bit type (afaik)
 			return checked_op<T, addsub_overflows<T, true>,
-			                         std::plus>(a, b, result);
+			                         std::plus<T>>(a, b, result);
 		}
 	}
 
@@ -240,7 +240,7 @@ namespace checked {
 		} else {
 			// T is 64-bit, so use the complicated version because we don't have a 128-bit type (afaik)
 			return checked_op<T, addsub_overflows<T, false>,
-			                         std::minus>(a, b, result);
+			                         std::minus<T>>(a, b, result);
 		}
 	}
 
@@ -249,7 +249,7 @@ namespace checked {
 		if constexpr (sizeof(T) <= 4) {
 			return check_widening<T, std::multiplies>(a, b, result);
 		} else {
-			return checked_op<T, mul_overflows<T>, std::multiplies>(
+			return checked_op<T, mul_overflows<T>, std::multiplies<T>>(
 					a, b, result
 				);
 		}
