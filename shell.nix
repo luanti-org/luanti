@@ -10,6 +10,7 @@ pkgs.mkShell {
     pkgs.cmake
     pkgs.zlib
     pkgs.zstd
+    pkgs.icu
     pkgs.libjpeg
     pkgs.libpng
     pkgs.libGL
