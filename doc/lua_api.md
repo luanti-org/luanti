@@ -6788,6 +6788,8 @@ Call these functions only at load time!
         * `put`:  `{listname=string, index=integer, stack=ItemStack}`
         * `take`: Same as `put`
     * Does not accept or handle any return value.
+* `core.register_on_inventory_open(function(player))`
+    * Called when a player opens the inventory.
 * `core.register_on_protection_violation(function(pos, name))`
     * Called by `builtin` and mods when a player violates protection at a
       position (eg, digs a node or punches a protected entity).

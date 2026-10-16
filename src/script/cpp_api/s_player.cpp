@@ -220,6 +220,20 @@ void ScriptApiPlayer::on_playerReceiveFields(ServerActiveObject *player,
 	runCallbacks(3, RUN_CALLBACKS_MODE_OR_SC);
 }
 
+void ScriptApiPlayer::on_inventory_open(ServerActiveObject *player)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	// Get core.registered_on_inventory_open
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "registered_on_inventory_open");
+
+	// Push player ObjectRef
+	objectrefGetOrCreate(L, player);
+
+	runCallbacks(1, RUN_CALLBACKS_MODE_FIRST);
+}
+
 void ScriptApiPlayer::on_authplayer(const std::string &name, const std::string &ip, bool is_success)
 {
 	SCRIPTAPI_PRECHECKHEADER

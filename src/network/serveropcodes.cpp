@@ -95,6 +95,7 @@ const ToServerCommandHandler toServerCommandTable[TOSERVER_NUM_MSG_TYPES] =
 	{ "TOSERVER_SRP_BYTES_A",              TOSERVER_STATE_NOT_CONNECTED, &Server::handleCommand_SrpBytesA }, // 0x51
 	{ "TOSERVER_SRP_BYTES_M",              TOSERVER_STATE_NOT_CONNECTED, &Server::handleCommand_SrpBytesM }, // 0x52
 	{ "TOSERVER_UPDATE_CLIENT_INFO",       TOSERVER_STATE_INGAME, &Server::handleCommand_UpdateClientInfo }, // 0x53
+	{ "TOSERVER_INVENTORY_OPEN",           TOSERVER_STATE_INGAME, &Server::handleCommand_InventoryOpen }, // 0x54
 };
 
 const static ClientCommandFactory null_command_factory = { nullptr, 0, false };
