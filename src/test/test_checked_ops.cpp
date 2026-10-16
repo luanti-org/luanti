@@ -32,11 +32,13 @@ static auto get_rng() {
 // not constexpr: the comparison involves casting to a function pointer
 template<typename T, bool operation(T, T, T*)>
 static const char* op_str = [](){
-		if (operation == checked::add<T>) {
+		// Use explicit casts to function pointers to satisfy GCC 9
+		using OpType = bool (*)(T, T, T*);
+		if (OpType(operation) == OpType(checked::add<T>)) {
 			return "+";
-		} else if (operation == checked::sub<T>) {
+		} else if (OpType(operation) == OpType(checked::sub<T>)) {
 			return "-";
-		} else if (operation == checked::mul<T>) {
+		} else if (OpType(operation) == OpType(checked::mul<T>)) {
 			return "*";
 		} else {
 			return "<?>";
