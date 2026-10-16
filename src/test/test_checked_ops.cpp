@@ -29,18 +29,14 @@ static auto get_rng() {
 	return engine;
 }
 
-template<typename T>
-struct Wrap {
-	T value;
-};
-
+// not constexpr: the comparison involves casting to a function pointer
 template<typename T, bool operation(T, T, T*)>
-static constexpr const char* op_str = [](){
-		if constexpr(operation == checked::add<T>) {
+static const char* op_str = [](){
+		if (operation == checked::add<T>) {
 			return "+";
-		} else if constexpr (operation == checked::sub<T>) {
+		} else if (operation == checked::sub<T>) {
 			return "-";
-		} else if constexpr (operation == checked::mul<T>) {
+		} else if (operation == checked::mul<T>) {
 			return "*";
 		} else {
 			return "<?>";
@@ -598,24 +594,22 @@ TEMPLATE_TEST_CASE("random checked operation tests", "", \
 	using T = TestType;
 	using Higher = decltype(higher_val<T>());
 
+	using GenType = std::conditional_t<
+			std::is_same_v<unsigned char, std::make_unsigned<T>>,
+			/* it's a char   */ int,
+			/* integral type */ T
+		>;
+
 	auto rng = get_rng();
 
 	// full range
-	std::uniform_int_distribution<T> full(std::numeric_limits<T>::min(),
-	                                      std::numeric_limits<T>::max());
-	/*
-	// safe sub
-	std::uniform_int_distribution<T> safe_sub(std::numeric_limits<T>::min() >> 1,
-	                                          std::numeric_limits<T>::max() >> 1);
-
-	// safe mul
-	std::uniform_int_distribution<T> safe_mul(std::numeric_limits<T>::min() >> (sizeof(T) * 4),
-	                                          std::numeric_limits<T>::max() >> (sizeof(T) * 4));*/
+	std::uniform_int_distribution<GenType> full(std::numeric_limits<T>::min(),
+	                                            std::numeric_limits<T>::max());
 
 	SECTION( "random, in half range (can't overflow)" ) {
 		for (unsigned i = 0; i < 1000; ++i) {
-			T add_a = full(rng) >> 1;
-			T add_b = full(rng) >> 1;
+			T add_a = T(full(rng)) >> 1;
+			T add_b = T(full(rng)) >> 1;
 
 			T expected_result = add_a + add_b;
 			bool expected_overflow = false;
@@ -636,8 +630,8 @@ TEMPLATE_TEST_CASE("random checked operation tests", "", \
 
 	SECTION( "random, in full range" ) {
 		for (unsigned i = 0; i < 16384; ++i) {
-			T a = full(rng);
-			T b = full(rng);
+			T a = T(full(rng));
+			T b = T(full(rng));
 
 			T expected_result = T(0);
 
