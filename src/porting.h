@@ -7,6 +7,7 @@
 */
 
 #pragma once
+#include "cast.h"
 
 #if (defined(__linux__) || defined(__GNU__)) && !defined(_GNU_SOURCE)
 	#define _GNU_SOURCE
@@ -182,21 +183,21 @@ inline u64 getTimeMs()
 {
 	struct timespec ts;
 	os_get_clock(&ts);
-	return ((u64) ts.tv_sec) * 1000LL + ((u64) ts.tv_nsec) / 1000000LL;
+	return (icast<u64>(ts.tv_sec)) * 1000LL + (icast<u64>(ts.tv_nsec)) / 1000000LL;
 }
 
 inline u64 getTimeUs()
 {
 	struct timespec ts;
 	os_get_clock(&ts);
-	return ((u64) ts.tv_sec) * 1000000LL + ((u64) ts.tv_nsec) / 1000LL;
+	return (icast<u64>(ts.tv_sec)) * 1000000LL + (icast<u64>(ts.tv_nsec)) / 1000LL;
 }
 
 inline u64 getTimeNs()
 {
 	struct timespec ts;
 	os_get_clock(&ts);
-	return ((u64) ts.tv_sec) * 1000000000LL + ((u64) ts.tv_nsec);
+	return (icast<u64>(ts.tv_sec)) * 1000000000LL + (icast<u64>(ts.tv_nsec));
 }
 
 #endif
@@ -238,7 +239,7 @@ inline void preciseSleepUs(u64 sleep_time)
 		// Busy-wait the remaining time to adjust for sleep inaccuracies
 		// The target - now > 0 construct will handle overflow gracefully (even though it should
 		// never happen)
-		while ((s64)(target_time - porting::getTimeUs()) > 0) {}
+		while (icast<s64>(target_time - porting::getTimeUs()) > 0) {}
 	}
 }
 

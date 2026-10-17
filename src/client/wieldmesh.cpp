@@ -66,8 +66,8 @@ static scene::IMesh *createExtrusionMesh(int resolution_x, int resolution_y)
 		buf->append(vertices, 8, indices, 12);
 	}
 
-	f32 pixelsize_x = 1 / (f32) resolution_x;
-	f32 pixelsize_y = 1 / (f32) resolution_y;
+	f32 pixelsize_x = 1 / icast<f32>(resolution_x);
+	f32 pixelsize_y = 1 / icast<f32>(resolution_y);
 
 	for (int i = 0; i < resolution_x; ++i) {
 		f32 pixelpos_x = i * pixelsize_x - 0.5;

@@ -3,6 +3,8 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "database.h"
+
+#include "cast.h"
 #include "irrlichttypes.h"
 
 
@@ -14,7 +16,7 @@
  */
 s64 MapDatabase::getBlockAsInteger(const v3s16 &pos)
 {
-	return ((s64) pos.Z << 24) + ((s64) pos.Y << 12) + pos.X;
+	return (icast<s64>(pos.Z) << 24) + (icast<s64>(pos.Y) << 12) + pos.X;
 }
 
 
@@ -23,7 +25,7 @@ v3s16 MapDatabase::getIntegerAsBlock(s64 i)
 	// Offset so that all negative coordinates become non-negative
 	i = i + 0x800800800;
 	// Which is now easier to decode using simple bit masks:
-	return { (s16)( (i        & 0xFFF) - 0x800),
-	         (s16)(((i >> 12) & 0xFFF) - 0x800),
-	         (s16)(((i >> 24) & 0xFFF) - 0x800) };
+	return { icast<s16>( (i        & 0xFFF) - 0x800),
+	         icast<s16>( ((i >> 12) & 0xFFF) - 0x800),
+	         icast<s16>( ((i >> 24) & 0xFFF) - 0x800) };
 }

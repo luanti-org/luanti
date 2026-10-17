@@ -17,14 +17,16 @@
 #include "gui/guiEngine.h"
 #include "fontengine.h"
 #include "clientlauncher.h"
-#include "version.h"
+
+#include "cast.h"
+#include "gettime.h"
 #include "renderingengine.h"
 #include "settings.h"
-#include "gettime.h"
 #include "util/numeric.h"
 #include "util/tracy_wrapper.h"
-#include <IGUISpriteBank.h>
+#include "version.h"
 #include <ICameraSceneNode.h>
+#include <IGUISpriteBank.h>
 #include <unordered_map>
 
 #if USE_SOUND
@@ -361,9 +363,9 @@ void ClientLauncher::config_guienv()
 	float density = rangelim(g_settings->getFloat("gui_scaling"), 0.5f, 20) *
 		RenderingEngine::getDisplayDensity();
 	skin->setScale(density);
-	skin->setSize(gui::EGDS_CHECK_BOX_WIDTH, (s32)(17.0f * density));
-	skin->setSize(gui::EGDS_SCROLLBAR_SIZE, (s32)(21.0f * density));
-	skin->setSize(gui::EGDS_WINDOW_BUTTON_WIDTH, (s32)(15.0f * density));
+	skin->setSize(gui::EGDS_CHECK_BOX_WIDTH, icast<s32>(17.0f * density));
+	skin->setSize(gui::EGDS_SCROLLBAR_SIZE, icast<s32>(21.0f * density));
+	skin->setSize(gui::EGDS_WINDOW_BUTTON_WIDTH, icast<s32>(15.0f * density));
 
 	skin->setBehavior(gui::EGDB_SMOOTH_SCROLL, g_settings->getBool("smooth_scrolling"));
 	skin->setBehavior(gui::EGDB_SCOLLBAR_JUMP_TO_CLICKED, true);
@@ -426,7 +428,7 @@ bool ClientLauncher::launch_game(GameErrorData &errordata, GameStartData &start_
 	if (!skip_main_menu) {
 		// Initialize menu data
 		MainMenuData menudata(errordata);
-		(GameClientData &)menudata = start_data;
+		icast<GameClientData &>(menudata) = start_data;
 		menudata.port = itos(start_data.socket_port);
 
 		main_menu(&menudata);
@@ -451,12 +453,12 @@ bool ClientLauncher::launch_game(GameErrorData &errordata, GameStartData &start_
 		std::vector<WorldSpec> worldspecs = getAvailableWorlds();
 
 		int world_index = menudata.selected_world;
-		if (world_index >= 0 && world_index < (int)worldspecs.size()) {
+		if (world_index >= 0 && world_index < icast<int>(worldspecs.size())) {
 			start_data.world_spec = worldspecs[world_index];
 			start_data.world_path = start_data.world_spec.path;
 		}
 
-		(GameClientData &)start_data = menudata;
+		icast<GameClientData &>(start_data) = menudata;
 	}
 
 	if (!start_data.isSinglePlayer() && start_data.name.empty()) {

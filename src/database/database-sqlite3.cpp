@@ -4,15 +4,16 @@
 
 #include "database-sqlite3.h"
 
-#include "log.h"
-#include "filesys.h"
+#include "cast.h"
 #include "exceptions.h"
-#include "settings.h"
-#include "porting.h"
-#include "util/string.h"
-#include "remoteplayer.h"
+#include "filesys.h"
 #include "irrlicht_changes/printing.h"
+#include "log.h"
+#include "porting.h"
+#include "remoteplayer.h"
 #include "server/player_sao.h"
+#include "settings.h"
+#include "util/string.h"
 
 #include <cassert>
 
@@ -579,8 +580,8 @@ bool PlayerDatabaseSQLite3::loadPlayer(RemotePlayer *player, PlayerSAO *sao)
 	sao->setLookPitch(sqlite_to_float(m_stmt_player_load, 0));
 	sao->setPlayerYaw(sqlite_to_float(m_stmt_player_load, 1));
 	sao->setBasePosition(sqlite_to_v3f(m_stmt_player_load, 2));
-	sao->setHPRaw((u16) MYMIN(sqlite_to_int(m_stmt_player_load, 5), U16_MAX));
-	sao->setBreath((u16) MYMIN(sqlite_to_int(m_stmt_player_load, 6), U16_MAX), false);
+	sao->setHPRaw(icast<u16>(MYMIN(sqlite_to_int(m_stmt_player_load, 5), U16_MAX)));
+	sao->setBreath(icast<u16>(MYMIN(sqlite_to_int(m_stmt_player_load, 6), U16_MAX)), false);
 	sqlite3_reset(m_stmt_player_load);
 
 	// Load inventory

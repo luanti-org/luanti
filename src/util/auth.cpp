@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2015, 2016 est31 <MTest31@outlook.com>
 
-#include <string>
 #include "auth.h"
 #include "base64.h"
-#include "util/hashing.h"
-#include "srp.h"
-#include "util/string.h"
+#include "cast.h"
 #include "debug.h"
+#include "srp.h"
+#include "util/hashing.h"
+#include "util/string.h"
 
 // Get an sha-1 hash of the player's name combined with
 // the password entered. That's what the server uses as
@@ -36,10 +36,10 @@ static inline void gen_srp_v(const std::string &name,
 	char **bytes_v, size_t *len_v)
 {
 	std::string n_name = lowercase(name);
-	SRP_Result res = srp_create_salted_verification_key(SRP_SHA256, SRP_NG_2048,
-		n_name.c_str(), (const unsigned char *)password.c_str(),
-		password.size(), (unsigned char **)salt, salt_len,
-		(unsigned char **)bytes_v, len_v, NULL, NULL);
+	SRP_Result res = srp_create_salted_verification_key(
+		SRP_SHA256, SRP_NG_2048, n_name.c_str(),
+		reinterpret_cast<unsigned char *>(const_cast<char *>(password.c_str())), password.size(),
+		reinterpret_cast<unsigned char **>(salt), salt_len, reinterpret_cast<unsigned char **>(bytes_v), len_v, NULL, NULL);
 	FATAL_ERROR_IF(res != SRP_OK, "Couldn't create salted SRP verifier");
 }
 
@@ -50,7 +50,7 @@ std::string generate_srp_verifier(const std::string &name,
 	size_t salt_len = salt.size();
 	// The API promises us that the salt doesn't
 	// get modified if &salt_ptr isn't NULL.
-	char *salt_ptr = (char *)salt.c_str();
+	char *salt_ptr = const_cast<char *>(salt.c_str());
 
 	char *bytes_v = nullptr;
 	size_t verifier_len = 0;

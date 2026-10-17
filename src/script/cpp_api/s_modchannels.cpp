@@ -3,8 +3,10 @@
 // Copyright (C) 2017 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
 
 #include "s_modchannels.h"
-#include "s_internal.h"
+
+#include "cast.h"
 #include "modchannels.h"
+#include "s_internal.h"
 
 void ScriptApiModChannels::on_modchannel_message(const std::string &channel,
 		const std::string &sender, const std::string &message)
@@ -31,6 +33,6 @@ void ScriptApiModChannels::on_modchannel_signal(
 	lua_getfield(L, -1, "registered_on_modchannel_signal");
 	// Call callbacks
 	lua_pushstring(L, channel.c_str());
-	lua_pushinteger(L, (int)signal);
+	lua_pushinteger(L, icast<int>(signal));
 	runCallbacks(2, RUN_CALLBACKS_MODE_AND);
 }

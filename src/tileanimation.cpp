@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2016 sfan5 <sfan5@live.de>
 #include "tileanimation.h"
+
+#include "cast.h"
 #include "util/serialize.h"
 #include "util/string.h"
 
@@ -52,9 +54,9 @@ void TileAnimationParams::determineParams(v2u32 texture_size, int *frame_count,
 {
 	assert(type != TAT_NONE); // caller should check
 	if (type == TAT_VERTICAL_FRAMES) {
-		int frame_height = (float)texture_size.X /
-				(float)vertical_frames.aspect_w *
-				(float)vertical_frames.aspect_h;
+		int frame_height = icast<float>(texture_size.X) /
+				icast<float>(vertical_frames.aspect_w) *
+				icast<float>(vertical_frames.aspect_h);
 		int _frame_count = texture_size.Y / frame_height;
 		if (frame_count)
 			*frame_count = _frame_count;

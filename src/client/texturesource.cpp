@@ -319,7 +319,7 @@ u32 TextureSource::processRequest(const TextureRequest &req)
 	}
 
 	errorstream << "TextureSource::processRequest(): unknown type "
-			<< (int)req.type << std::endl;
+			<< icast<int>(req.type) << std::endl;
 	return 0;
 }
 

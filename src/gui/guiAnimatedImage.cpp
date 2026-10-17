@@ -1,5 +1,6 @@
 #include "guiAnimatedImage.h"
 
+#include "cast.h"
 #include "client/guiscalingfilter.h"
 #include "porting.h"
 #include <ITexture.h>
@@ -19,7 +20,7 @@ void GUIAnimatedImage::draw()
 
 	core::dimension2d<u32> size = m_texture->getOriginalSize();
 
-	if ((u32)m_frame_count > size.Height)
+	if (icast<u32>(m_frame_count) > size.Height)
 		m_frame_count = size.Height;
 	if (m_frame_idx >= m_frame_count)
 		m_frame_idx = m_frame_count - 1;
@@ -48,7 +49,7 @@ void GUIAnimatedImage::draw()
 		m_global_time = new_global_time;
 
 		// Advance by the number of elapsed frames, looping if necessary
-		m_frame_idx += (u32)(m_frame_time / m_frame_duration);
+		m_frame_idx += icast<u32>(m_frame_time / m_frame_duration);
 		m_frame_idx %= m_frame_count;
 
 		// If 1 or more frames have elapsed, reset the frame time counter with

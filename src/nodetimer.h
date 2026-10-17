@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "cast.h"
 #include "irr_v3d.h"
 #include <iostream>
 #include <map>
@@ -78,7 +79,7 @@ public:
 	// Undefined behavior if there already is a timer
 	void insert(const NodeTimer &timer) {
 		v3s16 p = timer.position;
-		double trigger_time = m_time + (double)(timer.timeout - timer.elapsed);
+		double trigger_time = m_time + icast<double>(timer.timeout - timer.elapsed);
 		auto it = m_timers.emplace(trigger_time, timer);
 		m_iterators.emplace(p, it);
 		if (m_next_trigger_time == -1. || trigger_time < m_next_trigger_time)

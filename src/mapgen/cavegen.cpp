@@ -11,6 +11,8 @@
 #include "mg_biome.h"
 #include "cavegen.h"
 
+#include "cast.h"
+
 // TODO Remove this. Cave liquids are now defined and located using biome definitions
 static NoiseParams nparams_caveliquids(0, 1, v3f(150.0, 150.0, 150.0), 776, 3, 0.6, 2.0);
 
@@ -75,7 +77,7 @@ void CavesNoiseIntersection::generateCaves(MMVManip *vm,
 		u32 index3d = (z - nmin.Z) * m_zstride_1d + m_csize.Y * m_ystride +
 			(x - nmin.X);  // 3D noise index
 		// Biome of column
-		Biome *biome = (Biome *)m_bmgr->getRaw(biomemap[index2d]);
+		Biome *biome = static_cast<Biome *>(m_bmgr->getRaw(biomemap[index2d]));
 		u16 depth_top = biome->depth_top;
 		u16 base_filler = depth_top + biome->depth_filler;
 		u16 depth_riverbed = biome->depth_riverbed;
@@ -327,7 +329,7 @@ void CavesRandomWalk::makeCave(MMVManip *vm, v3s16 nmin, v3s16 nmax,
 	use_biome_liquid = false;
 	if (flooded && bmgn) {
 		v3s16 midp = node_min + (node_max - node_min) / v3s16(2, 2, 2);
-		Biome *biome = (Biome *)bmgn->getBiomeAtPoint(midp);
+		Biome *biome = icast<Biome *>(bmgn->getBiomeAtPoint(midp));
 		if (biome->c_cave_liquid[0] != CONTENT_IGNORE) {
 			use_biome_liquid = true;
 			c_biome_liquid =
@@ -393,9 +395,9 @@ void CavesRandomWalk::makeCave(MMVManip *vm, v3s16 nmin, v3s16 nmax,
 	route_start_y_max = rangelim(route_start_y_max, route_start_y_min, ar.Y - 1);
 
 	// Randomize starting position
-	orp.Z = (float)(ps->next() % ar.Z) + 0.5f;
-	orp.Y = (float)(ps->range(route_start_y_min, route_start_y_max)) + 0.5f;
-	orp.X = (float)(ps->next() % ar.X) + 0.5f;
+	orp.Z = icast<float>(ps->next() % ar.Z) + 0.5f;
+	orp.Y = icast<float>(ps->range(route_start_y_min, route_start_y_max)) + 0.5f;
+	orp.X = icast<float>(ps->next() % ar.X) + 0.5f;
 
 	// Add generation notify begin event
 	if (gennotify) {
@@ -422,11 +424,11 @@ void CavesRandomWalk::makeCave(MMVManip *vm, v3s16 nmin, v3s16 nmax,
 void CavesRandomWalk::makeTunnel(bool dirswitch)
 {
 	if (dirswitch && !large_cave) {
-		main_direction.Z = ((float)(ps->next() % 20) - (float)10) / 10;
-		main_direction.Y = ((float)(ps->next() % 20) - (float)10) / 30;
-		main_direction.X = ((float)(ps->next() % 20) - (float)10) / 10;
+		main_direction.Z = (icast<float>(ps->next() % 20) - icast<float>(10)) / 10;
+		main_direction.Y = (icast<float>(ps->next() % 20) - icast<float>(10)) / 30;
+		main_direction.X = (icast<float>(ps->next() % 20) - icast<float>(10)) / 10;
 
-		main_direction *= (float)ps->range(0, 10) / 10;
+		main_direction *= (icast<float>(ps->range(0, 10)) / 10);
 	}
 
 	// Randomize size
@@ -453,13 +455,18 @@ void CavesRandomWalk::makeTunnel(bool dirswitch)
 	v3f vec;
 	// Jump downward sometimes
 	if (!large_cave && ps->range(0, 12) == 0) {
-		vec.Z = (float)(ps->next() % (maxlen.Z * 1)) - (float)maxlen.Z / 2;
-		vec.Y = (float)(ps->next() % (maxlen.Y * 2)) - (float)maxlen.Y;
-		vec.X = (float)(ps->next() % (maxlen.X * 1)) - (float)maxlen.X / 2;
+		vec.Z =
+			icast<float>(ps->next() % (maxlen.Z * 1)) - icast<float>(maxlen.Z) / 2;
+		vec.Y = icast<float>(ps->next() % (maxlen.Y * 2)) - icast<float>(maxlen.Y);
+		vec.X =
+			icast<float>(ps->next() % (maxlen.X * 1)) - icast<float>(maxlen.X) / 2;
 	} else {
-		vec.Z = (float)(ps->next() % (maxlen.Z * 1)) - (float)maxlen.Z / 2;
-		vec.Y = (float)(ps->next() % (maxlen.Y * 1)) - (float)maxlen.Y / 2;
-		vec.X = (float)(ps->next() % (maxlen.X * 1)) - (float)maxlen.X / 2;
+		vec.Z =
+			icast<float>(ps->next() % (maxlen.Z * 1)) - icast<float>(maxlen.Z) / 2;
+		vec.Y =
+			icast<float>(ps->next() % (maxlen.Y * 1)) - icast<float>(maxlen.Y) / 2;
+		vec.X =
+			icast<float>(ps->next() % (maxlen.X * 1)) - icast<float>(maxlen.X) / 2;
 	}
 
 	// Do not make caves that are above ground.
@@ -708,9 +715,9 @@ void CavesV6::makeCave(MMVManip *vm, v3s16 nmin, v3s16 nmax,
 	route_start_y_max = rangelim(route_start_y_max, route_start_y_min, ar.Y - 1);
 
 	// Randomize starting position
-	orp.Z = (float)(ps->next() % ar.Z) + 0.5f;
-	orp.Y = (float)(ps->range(route_start_y_min, route_start_y_max)) + 0.5f;
-	orp.X = (float)(ps->next() % ar.X) + 0.5f;
+	orp.Z = icast<float>(ps->next() % ar.Z) + 0.5f;
+	orp.Y = icast<float>(ps->range(route_start_y_min, route_start_y_max)) + 0.5f;
+	orp.X = icast<float>(ps->next() % ar.X) + 0.5f;
 
 	// Add generation notify begin event
 	if (gennotify != NULL) {
@@ -766,15 +773,15 @@ void CavesV6::makeTunnel(bool dirswitch)
 	}
 
 	v3f vec;
-	vec.Z = (float)(ps->next() % maxlen.Z) - (float)maxlen.Z / 2;
-	vec.Y = (float)(ps->next() % maxlen.Y) - (float)maxlen.Y / 2;
-	vec.X = (float)(ps->next() % maxlen.X) - (float)maxlen.X / 2;
+	vec.Z = icast<float>(ps->next() % maxlen.Z) - icast<float>(maxlen.Z) / 2;
+	vec.Y = icast<float>(ps->next() % maxlen.Y) - icast<float>(maxlen.Y) / 2;
+	vec.X = icast<float>(ps->next() % maxlen.X) - icast<float>(maxlen.X) / 2;
 
 	// Jump downward sometimes
 	if (!large_cave && ps->range(0, 12) == 0) {
-		vec.Z = (float)(ps->next() % maxlen.Z) - (float)maxlen.Z / 2;
-		vec.Y = (float)(ps->next() % (maxlen.Y * 2)) - (float)maxlen.Y;
-		vec.X = (float)(ps->next() % maxlen.X) - (float)maxlen.X / 2;
+		vec.Z = icast<float>(ps->next() % maxlen.Z) - icast<float>(maxlen.Z) / 2;
+		vec.Y = icast<float>(ps->next() % (maxlen.Y * 2)) - icast<float>(maxlen.Y);
+		vec.X = icast<float>(ps->next() % maxlen.X) - icast<float>(maxlen.X) / 2;
 	}
 
 	// Do not make caves that are entirely above ground, to fix shadow bugs

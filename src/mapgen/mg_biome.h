@@ -5,11 +5,12 @@
 
 #pragma once
 
+#include "cast.h"
 #include "constants.h"
-#include "objdef.h"
+#include "debug.h" // FATAL_ERROR_IF
 #include "nodedef.h"
 #include "noise.h"
-#include "debug.h" // FATAL_ERROR_IF
+#include "objdef.h"
 
 class Server;
 class Settings;
@@ -231,7 +232,7 @@ public:
 		switch (type) {
 		case BIOMEGEN_ORIGINAL:
 			return new BiomeGenOriginal(this,
-				(BiomeParamsOriginal *)params, chunksize);
+				static_cast<BiomeParamsOriginal *>(params), chunksize);
 		default:
 			return NULL;
 		}

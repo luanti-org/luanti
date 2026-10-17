@@ -498,7 +498,7 @@ void Client::step(float dtime)
 			// We use a sphere volume to approximate this. In practice far less
 			// blocks will be needed due to occlusion/culling.
 			float blocks_range = ceilf(std::min(mapblock_limit_enforce_distance, view_range)
-				/ (float) MAP_BLOCKSIZE);
+				/ icast<f32>(MAP_BLOCKSIZE));
 			mapblock_limit = (4.f/3.f) * M_PI * powf(blocks_range, 3);
 			assert(mapblock_limit > 0);
 			mapblock_limit = std::max(mapblock_limit, configured_limit);
@@ -968,7 +968,7 @@ void Client::requestMedia(const std::vector<std::string> &file_requests)
 
 	NetworkPacket pkt(TOSERVER_REQUEST_MEDIA, 2 + 0);
 
-	pkt << (u16) (file_requests_size & 0xFFFF);
+	pkt << icast<u16>(file_requests_size & 0xFFFF);
 
 	for (const std::string &file_request : file_requests) {
 		pkt << file_request;
@@ -1061,9 +1061,9 @@ inline void Client::handleCommand(NetworkPacket* pkt)
 */
 void Client::ProcessData(NetworkPacket *pkt)
 {
-	ToClientCommand command = (ToClientCommand) pkt->getCommand();
+	ToClientCommand command = static_cast<ToClientCommand>(pkt->getCommand());
 
-	m_packetcounter.add(static_cast<u16>(command));
+	m_packetcounter.add(icast<u16>(command));
 	g_profiler->graphAdd("client_received_packets", 1);
 
 	/*
@@ -1072,15 +1072,15 @@ void Client::ProcessData(NetworkPacket *pkt)
 	*/
 	if (pkt->getPeerId() != PEER_ID_SERVER) {
 		infostream << "Client::ProcessData(): Discarding data not "
-			"coming from server: peer_id=" << static_cast<int>(pkt->getPeerId())
-			<< " command=" << static_cast<unsigned>(command) << std::endl;
+			"coming from server: peer_id=" << icast<int>(pkt->getPeerId())
+			<< " command=" << icast<unsigned>(command) << std::endl;
 		return;
 	}
 
 	// Command must be handled into ToClientCommandHandler
 	if (command >= TOCLIENT_NUM_MSG_TYPES) {
 		infostream << "Client: Ignoring unknown command "
-			<< static_cast<unsigned>(command) << std::endl;
+			<< icast<unsigned>(command) << std::endl;
 		return;
 	}
 
@@ -1169,7 +1169,7 @@ void Client::interact(InteractAction action, const PointedThing& pointed)
 
 	NetworkPacket pkt(TOSERVER_INTERACT, 1 + 2 + 0);
 
-	pkt << (u8)action;
+	pkt << icast<u8>(action);
 	pkt << myplayer->getWieldIndex();
 
 	std::ostringstream tmp_os(std::ios::binary);
@@ -1192,7 +1192,7 @@ void Client::deleteAuthData()
 			break;
 		case AUTH_MECHANISM_SRP:
 		case AUTH_MECHANISM_LEGACY_PASSWORD:
-			srp_user_delete((SRPUser *) m_auth_data);
+			srp_user_delete(static_cast<SRPUser *>(m_auth_data));
 			m_auth_data = NULL;
 			break;
 		case AUTH_MECHANISM_NONE:
@@ -1220,7 +1220,7 @@ void Client::sendInit(const std::string &playerName)
 {
 	NetworkPacket pkt(TOSERVER_INIT, 1 + 2 + 2 + (1 + playerName.size()));
 
-	pkt << SER_FMT_VER_HIGHEST_READ << (u16) 0 /* unused */;
+	pkt << SER_FMT_VER_HIGHEST_READ << icast<u16>(0 /* unused */);
 	pkt << CLIENT_PROTOCOL_VERSION_MIN << LATEST_PROTOCOL_VERSION;
 	pkt << playerName;
 
@@ -1242,7 +1242,7 @@ void Client::startAuth(AuthMechanism chosen_auth_mechanism)
 				&verifier, &salt);
 
 			NetworkPacket resp_pkt(TOSERVER_FIRST_SRP, 0);
-			resp_pkt << salt << verifier << (u8)((m_password.empty()) ? 1 : 0);
+			resp_pkt << salt << verifier << icast<u8>(m_password.empty());
 
 			Send(&resp_pkt);
 			break;
@@ -1259,13 +1259,13 @@ void Client::startAuth(AuthMechanism chosen_auth_mechanism)
 			std::string playername_u = lowercase(playername);
 			m_auth_data = srp_user_new(SRP_SHA256, SRP_NG_2048,
 				playername.c_str(), playername_u.c_str(),
-				(const unsigned char *) m_password.c_str(),
+				reinterpret_cast<const unsigned char *>(m_password.c_str()),
 				m_password.length(), NULL, NULL);
 			char *bytes_A = 0;
 			size_t len_A = 0;
 			SRP_Result res = srp_user_start_authentication(
-				(struct SRPUser *) m_auth_data, NULL, NULL, 0,
-				(unsigned char **) &bytes_A, &len_A);
+				static_cast<struct SRPUser *>(m_auth_data), NULL, NULL, 0,
+				reinterpret_cast<unsigned char **>(&bytes_A), &len_A);
 			FATAL_ERROR_IF(res != SRP_OK, "Creating local SRP user failed.");
 
 			NetworkPacket resp_pkt(TOSERVER_SRP_BYTES_A, 0);
@@ -1282,7 +1282,7 @@ void Client::sendDeletedBlocks(std::vector<v3s16> &blocks)
 {
 	NetworkPacket pkt(TOSERVER_DELETEDBLOCKS, 1 + sizeof(v3s16) * blocks.size());
 
-	pkt << (u8) blocks.size();
+	pkt << icast<u8>(blocks.size());
 
 	for (const v3s16 &block : blocks) {
 		pkt << block;
@@ -1294,7 +1294,7 @@ void Client::sendDeletedBlocks(std::vector<v3s16> &blocks)
 void Client::sendGotBlocks(const std::vector<v3s16> &blocks)
 {
 	NetworkPacket pkt(TOSERVER_GOTBLOCKS, 1 + 6 * blocks.size());
-	pkt << (u8) blocks.size();
+	pkt << icast<u8>(blocks.size());
 	for (const v3s16 &block : blocks)
 		pkt << block;
 
@@ -1308,7 +1308,7 @@ void Client::sendRemovedSounds(const std::vector<s32> &soundList)
 
 	NetworkPacket pkt(TOSERVER_REMOVED_SOUNDS, 2 + server_ids * 4);
 
-	pkt << (u16) (server_ids & 0xFFFF);
+	pkt << icast<u16>(server_ids & 0xFFFF);
 
 	for (s32 sound_id : soundList)
 		pkt << sound_id;
@@ -1325,7 +1325,7 @@ void Client::sendNodemetaFields(v3s16 p, const std::string &formname,
 
 	NetworkPacket pkt(TOSERVER_NODEMETA_FIELDS, 0);
 
-	pkt << p << formname << (u16) (fields_size & 0xFFFF);
+	pkt << p << formname << icast<u16>(fields_size & 0xFFFF);
 
 	StringMap::const_iterator it;
 	for (it = fields.begin(); it != fields.end(); ++it) {
@@ -1345,7 +1345,7 @@ void Client::sendInventoryFields(const std::string &formname,
 	FATAL_ERROR_IF(fields_size > 0xFFFF, "Unsupported number of inventory fields");
 
 	NetworkPacket pkt(TOSERVER_INVENTORY_FIELDS, 0);
-	pkt << formname << (u16) (fields_size & 0xFFFF);
+	pkt << formname << icast<u16>(fields_size & 0xFFFF);
 
 	StringMap::const_iterator it;
 	for (it = fields.begin(); it != fields.end(); ++it) {
@@ -1404,7 +1404,7 @@ void Client::sendChatMessage(const std::wstring &message)
 		NetworkPacket pkt(TOSERVER_CHAT_MESSAGE, 2 + message.size() * sizeof(u16));
 		pkt << message;
 		Send(&pkt);
-	} else if (m_out_chat_queue.size() < (u16) max_queue_size || max_queue_size < 0) {
+	} else if (m_out_chat_queue.size() < icast<u16>(max_queue_size) || max_queue_size < 0) {
 		m_out_chat_queue.push(message);
 	} else {
 		infostream << "Could not queue chat message because maximum out chat queue size ("
@@ -1449,11 +1449,12 @@ void Client::sendReady()
 	NetworkPacket pkt(TOSERVER_CLIENT_READY,
 			1 + 1 + 1 + 1 + 2 + sizeof(char) * strlen(g_version_hash) + 2);
 
-	pkt << (u8) VERSION_MAJOR << (u8) VERSION_MINOR << (u8) VERSION_PATCH
-		<< (u8) 0 << (u16) strlen(g_version_hash);
+	pkt << icast<u8>(VERSION_MAJOR) << icast<u8>(VERSION_MINOR)
+		<< icast<u8>(VERSION_PATCH) << icast<u8>(0)
+		<< icast<u16>(strlen(g_version_hash));
 
-	pkt.putRawString(g_version_hash, (u16) strlen(g_version_hash));
-	pkt << (u16)FORMSPEC_API_VERSION;
+	pkt.putRawString(g_version_hash, icast<u16>(strlen(g_version_hash)));
+	pkt << icast<u16>(FORMSPEC_API_VERSION);
 	Send(&pkt);
 }
 
@@ -1598,11 +1599,9 @@ v3s16 Client::CSMClampPos(v3s16 pos)
 		return pos;
 	v3s16 ppos = floatToInt(m_env.getLocalPlayer()->getPosition(), BS);
 	const int range = m_csm_restriction_noderange;
-	return v3s16(
-		core::clamp<int>(pos.X, (int)ppos.X - range, (int)ppos.X + range),
-		core::clamp<int>(pos.Y, (int)ppos.Y - range, (int)ppos.Y + range),
-		core::clamp<int>(pos.Z, (int)ppos.Z - range, (int)ppos.Z + range)
-	);
+	return v3s16(core::clamp<int>(pos.X, icast<int>(ppos.X) - range, icast<int>(ppos.X) + range),
+		core::clamp<int>(pos.Y, icast<int>(ppos.Y) - range, icast<int>(ppos.Y) + range),
+		core::clamp<int>(pos.Z, icast<int>(ppos.Z) - range, icast<int>(ppos.Z) + range));
 }
 
 void Client::addNode(v3s16 p, MapNode n, bool remove_metadata)

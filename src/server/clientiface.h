@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "cast.h"
 #include "irr_v3d.h"                   // for irrlicht datatypes
 
 #include "network/address.h"
@@ -284,8 +285,8 @@ public:
 		o << "RemoteClient " << peer_id << ": "
 			<<"blocks_sent=" << m_blocks_sent.size()
 			<<", blocks_sending=" << m_blocks_sending.size()
-			<<", nearest_unsent_d=" << m_nearest_unsent_d
-			<<", map_send_completion_timer=" << (int)(m_map_send_completion_timer + 0.5f)
+			<<", nearest_unsent_d=" << m_nearest_unsent_d << ", map_send_completion_timer="
+			<< icast<float>(m_map_send_completion_timer) + 0.5f
 			<<", excess_gotblocks=" << m_excess_gotblocks;
 		m_excess_gotblocks = 0;
 	}

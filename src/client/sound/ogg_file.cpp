@@ -8,6 +8,8 @@
 
 #include "ogg_file.h"
 
+#include "cast.h"
+
 #include <cassert>
 #include <cstring> // memcpy
 #include <memory>
@@ -21,7 +23,7 @@ namespace sound {
 size_t OggVorbisBufferSource::read_func(void *ptr, size_t size, size_t nmemb,
 		void *datasource) noexcept
 {
-	OggVorbisBufferSource *s = (OggVorbisBufferSource *)datasource;
+	OggVorbisBufferSource *s = static_cast<OggVorbisBufferSource *>(datasource);
 	size_t copied_size = MYMIN(s->buf.size() - s->cur_offset, size);
 	memcpy(ptr, s->buf.data() + s->cur_offset, copied_size);
 	s->cur_offset += copied_size;
@@ -30,7 +32,7 @@ size_t OggVorbisBufferSource::read_func(void *ptr, size_t size, size_t nmemb,
 
 int OggVorbisBufferSource::seek_func(void *datasource, ogg_int64_t offset, int whence) noexcept
 {
-	OggVorbisBufferSource *s = (OggVorbisBufferSource *)datasource;
+	OggVorbisBufferSource *s = static_cast<OggVorbisBufferSource *>(datasource);
 	if (whence == SEEK_SET) {
 		if (offset < 0 || (size_t)offset > s->buf.size()) {
 			// offset out of bounds
@@ -59,14 +61,14 @@ int OggVorbisBufferSource::seek_func(void *datasource, ogg_int64_t offset, int w
 
 int OggVorbisBufferSource::close_func(void *datasource) noexcept
 {
-	auto s = reinterpret_cast<OggVorbisBufferSource *>(datasource);
+	auto s = static_cast<OggVorbisBufferSource *>(datasource);
 	delete s;
 	return 0;
 }
 
 long OggVorbisBufferSource::tell_func(void *datasource) noexcept
 {
-	OggVorbisBufferSource *s = (OggVorbisBufferSource *)datasource;
+	OggVorbisBufferSource *s = static_cast<OggVorbisBufferSource *>(datasource);
 	return s->cur_offset;
 }
 

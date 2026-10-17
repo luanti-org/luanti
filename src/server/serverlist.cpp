@@ -44,9 +44,9 @@ void sendAnnounce(AnnounceAction action,
 		server["damage"]       = g_settings->getBool("enable_damage");
 		server["password"]     = g_settings->getBool("disallow_empty_password");
 		server["pvp"]          = g_settings->getBool("enable_pvp");
-		server["uptime"]       = (int) uptime;
+		server["uptime"]       = icast<int>(uptime);
 		server["game_time"]    = game_time;
-		server["clients"]      = (int) clients_names.size();
+		server["clients"]      = icast<int>(clients_names.size());
 		server["clients_max"]  = g_settings->getU16("max_users");
 		if (g_settings->getBool("server_announce_send_players")) {
 			server["clients_list"] = Json::Value(Json::arrayValue);

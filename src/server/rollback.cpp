@@ -3,16 +3,18 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "rollback.h"
+
+#include "cast.h"
 #include "exceptions.h"
-#include <list>
-#include "log.h"
-#include "gamedef.h"
-#include "nodedef.h"
-#include "util/string.h"
-#include "util/numeric.h"
-#include "inventorymanager.h" // deserializing InventoryLocations
-#include "sqlite3.h"
 #include "filesys.h"
+#include "gamedef.h"
+#include "inventorymanager.h" // deserializing InventoryLocations
+#include "log.h"
+#include "nodedef.h"
+#include "sqlite3.h"
+#include "util/numeric.h"
+#include "util/string.h"
+#include <list>
 
 #define POINTS_PER_NODE (16.0f)
 
@@ -378,7 +380,7 @@ bool RollbackManager::registerRow(const ActionRow & row)
 		SQLOK(sqlite3_bind_int (stmt_do, 6, row.add));
 		SQLOK(sqlite3_bind_int (stmt_do, 7, row.stack.id));
 		SQLOK(sqlite3_bind_int (stmt_do, 8, row.stack.count));
-		SQLOK(sqlite3_bind_int (stmt_do, 9, (int) nodeMeta));
+		SQLOK(sqlite3_bind_int (stmt_do, 9, icast<int>(nodeMeta)));
 
 		if (nodeMeta) {
 			std::string::size_type p1, p2;

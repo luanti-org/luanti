@@ -3,15 +3,16 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "tool.h"
+
+#include "cast.h"
+#include "convert_json.h"
+#include "exceptions.h"
+#include "inventory.h"
 #include "itemdef.h"
 #include "itemgroup.h"
-#include "inventory.h"
-#include "exceptions.h"
-#include "convert_json.h"
-#include "util/serialize.h"
 #include "util/numeric.h"
+#include "util/serialize.h"
 #include <json/json.h>
-
 
 void ToolGroupCap::toJson(Json::Value &object) const
 {
@@ -441,7 +442,7 @@ HitParams getHitParams(const ItemGroupList &armor_groups,
 	// Keep damage in sane bounds for simplicity
 	damage = rangelim(damage, -U16_MAX, U16_MAX);
 
-	u32 wear_i = (u32) result_wear;
+	u32 wear_i = icast<u32>(result_wear);
 	return {damage, wear_i};
 }
 

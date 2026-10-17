@@ -4,10 +4,11 @@
 
 #pragma once
 
+#include "cast.h"
 #include "irrlichttypes.h"
 #include <ITexture.h>
-#include <vector>
 #include <SMaterial.h>
+#include <vector>
 
 enum MaterialType : u8 {
 	TILE_MATERIAL_BASIC,
@@ -175,7 +176,7 @@ struct std::hash<TileLayer>
 	std::size_t operator()(const TileLayer &l) const noexcept
 	{
 		std::size_t ret = 0;
-		for (auto h : { l.texture_id, l.shader_id, (u32)l.material_flags }) {
+		for (auto h : { l.texture_id, l.shader_id, icast<u32>(l.material_flags) }) {
 			ret += h;
 			ret ^= (ret << 6) + (ret >> 2); // distribute bits
 		}

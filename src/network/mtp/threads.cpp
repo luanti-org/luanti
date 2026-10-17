@@ -4,11 +4,13 @@
 // Copyright (C) 2017 celeron55, Loic Blot <loic.blot@unix-experience.fr>
 
 #include "network/mtp/threads.h"
+
+#include "cast.h"
 #include "log.h"
-#include "profiler.h"
-#include "settings.h"
 #include "network/networkexceptions.h"
 #include "network/networkpacket.h"
+#include "profiler.h"
+#include "settings.h"
 #include "util/serialize.h"
 #include <sstream>
 
@@ -291,7 +293,7 @@ void ConnectionSendThread::resendReliable(Channel &channel, const BufferedPacket
 		derr_con << "(force): ";
 	derr_con
 		<< "count=" << k->resend_count
-		<< ", channel=" << ((int) channelnum & 0xff)
+		<< ", channel=" << icast<int>(channelnum & 0xff)
 		<< ", seqnum=" << seqnum
 		<< std::endl;
 
@@ -366,7 +368,7 @@ bool ConnectionSendThread::rawSendAsPacket(session_t peer_id, u8 channelnum,
 		if (channel->outgoing_reliables_sent.size() < channel->getWindowSize()) {
 			LOG(dout_con << m_connection->getDesc()
 				<< " INFO: sending a reliable packet to peer_id " << peer_id
-				<< " channel: " << (u32)channelnum
+				<< " channel: " << icast<u32>(channelnum)
 				<< " seqnum: " << seqnum << std::endl);
 			sendAsPacketReliable(p, channel);
 			return true;
@@ -374,7 +376,7 @@ bool ConnectionSendThread::rawSendAsPacket(session_t peer_id, u8 channelnum,
 
 		LOG(dout_con << m_connection->getDesc()
 			<< " INFO: queueing reliable packet for peer_id: " << peer_id
-			<< " channel: " << (u32)channelnum
+			<< " channel: " << icast<u32>(channelnum)
 			<< " seqnum: " << seqnum << std::endl);
 		channel->queued_reliables.push(p);
 		return false;
@@ -956,7 +958,7 @@ void ConnectionReceiveThread::receive(SharedBuffer<u8> &packetdata,
 
 		if (channelnum >= CHANNEL_COUNT) {
 			LOG(derr_con << m_connection->getDesc()
-				<< "Receive(): Invalid channel " << (int)channelnum << std::endl);
+				<< "Receive(): Invalid channel " << icast<int>(channelnum) << std::endl);
 			return;
 		}
 
@@ -1047,7 +1049,7 @@ void ConnectionReceiveThread::receive(SharedBuffer<u8> &packetdata,
 
 			LOG(dout_con << m_connection->getDesc()
 				<< " ProcessPacket from peer_id: " << peer_id
-				<< ", channel: " << (u32)channelnum << ", returned "
+				<< ", channel: " << icast<u32>(channelnum) << ", returned "
 				<< resultdata.getSize() << " bytes" << std::endl);
 
 			m_connection->putEvent(ConnectionEvent::dataReceived(peer_id, resultdata));
@@ -1108,7 +1110,7 @@ bool ConnectionReceiveThread::checkIncomingBuffers(Channel *channel,
 		<< "UNBUFFERING TYPE_RELIABLE"
 		<< " seqnum=" << seqnum
 		<< " peer_id=" << peer_id
-		<< " channel=" << ((int) channelnum & 0xff)
+		<< " channel=" << icast<int>(channelnum & 0xff)
 		<< std::endl);
 
 	channel->incNextIncomingSeqNum();
@@ -1144,8 +1146,8 @@ SharedBuffer<u8> ConnectionReceiveThread::processPacket(Channel *channel,
 	}
 
 	if (type >= PACKET_TYPE_MAX) {
-		derr_con << m_connection->getDesc() << "Got invalid type=" << ((int) type & 0xff)
-			<< std::endl;
+		derr_con << m_connection->getDesc()
+				 << "Got invalid type=" << icast<int>(type & 0xff) << std::endl;
 		throw InvalidIncomingDataException("Invalid packet type");
 	}
 
@@ -1167,7 +1169,7 @@ SharedBuffer<u8> ConnectionReceiveThread::handlePacketType_Control(Channel *chan
 	if (packetdata.getSize() < 2)
 		throw InvalidIncomingDataException("packetdata.getSize() < 2");
 
-	ControlType controltype = (ControlType)readU8(&(packetdata[1]));
+	ControlType controltype = static_cast<ControlType>(readU8(&(packetdata[1])));
 
 	if (controltype == CONTROLTYPE_ACK) {
 		assert(channel != NULL);
@@ -1179,7 +1181,7 @@ SharedBuffer<u8> ConnectionReceiveThread::handlePacketType_Control(Channel *chan
 
 		u16 seqnum = readU16(&packetdata[2]);
 		LOG(dout_con << m_connection->getDesc() << " [ CONTROLTYPE_ACK: channelnum="
-			<< ((int) channelnum & 0xff) << ", peer_id=" << peer->id << ", seqnum="
+			<< (icast<int>(channelnum) & 0xff) << ", peer_id=" << peer->id << ", seqnum="
 			<< seqnum << " ]" << std::endl);
 
 		try {
@@ -1257,7 +1259,7 @@ SharedBuffer<u8> ConnectionReceiveThread::handlePacketType_Control(Channel *chan
 	} else {
 		LOG(derr_con << m_connection->getDesc()
 			<< "INVALID controltype="
-			<< ((int) controltype & 0xff) << std::endl);
+			<< (static_cast<int>(controltype) & 0xff) << std::endl);
 		throw InvalidIncomingDataException("Invalid control type");
 	}
 }

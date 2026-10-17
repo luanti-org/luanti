@@ -4,13 +4,15 @@
 
 #pragma once
 
+#include "cast.h"
+
 inline u32 time_to_daynight_ratio(float time_of_day, bool smooth)
 {
 	float t = time_of_day;
 	if (t < 0.0f)
-		t += ((int)(-t) / 24000) * 24000.0f;
+		t += (icast<int>(-t) / 24000) * 24000.0f;
 	if (t >= 24000.0f)
-		t -= ((int)(t) / 24000) * 24000.0f;
+		t -= (icast<int>(t) / 24000) * 24000.0f;
 	if (t > 12000.0f)
 		t = 24000.0f - t;
 

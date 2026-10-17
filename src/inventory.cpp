@@ -3,15 +3,18 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "inventory.h"
+
+#include "cast.h"
+
+#include "content_mapnode.h" // For loading legacy MaterialItems
+#include "itemdef.h"
+#include "log.h"
+#include "nameidmapping.h" // For loading legacy MaterialItems
+#include "util/serialize.h"
+#include "util/strfnd.h"
+#include "util/string.h"
 #include <algorithm>
 #include <sstream>
-#include "log.h"
-#include "util/strfnd.h"
-#include "content_mapnode.h" // For loading legacy MaterialItems
-#include "nameidmapping.h" // For loading legacy MaterialItems
-#include "itemdef.h"
-#include "util/serialize.h"
-#include "util/string.h"
 
 /*
 	ItemStack
@@ -207,7 +210,7 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 
 				if (endp && *endp == '\0') {
 					count = val;
-					if ((long)count != val) {
+					if (icast<long>(count) != val) {
 						warningstream << "Out-of bounds stack count '" << count_str << "' (name='"
 							<< name << "')." << std::endl;
 					}

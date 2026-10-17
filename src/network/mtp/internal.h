@@ -451,7 +451,8 @@ public:
 
 	void setWindowSize(long size)
 	{
-		m_window_size = (u16)rangelim(size, MIN_RELIABLE_WINDOW_SIZE, MAX_RELIABLE_WINDOW_SIZE_SEND);
+		m_window_size = static_cast<u16>(
+			rangelim(size, MIN_RELIABLE_WINDOW_SIZE, MAX_RELIABLE_WINDOW_SIZE_SEND));
 	}
 
 private:

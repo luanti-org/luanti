@@ -2,19 +2,20 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2021 Liso <anlismon@gmail.com>
 
-#include <cstring>
-#include <cmath>
 #include "client/shadows/dynamicshadowsrender.h"
+#include "IGPUProgrammingServices.h"
+#include "IVideoDriver.h"
 #include "SMaterial.h"
+#include "cast.h"
+#include "client/client.h"
+#include "client/clientmap.h"
+#include "client/shader.h"
 #include "client/shadows/shadowsScreenQuad.h"
 #include "client/shadows/shadowsshadercallbacks.h"
 #include "settings.h"
 #include "util/string.h"
-#include "client/shader.h"
-#include "client/client.h"
-#include "client/clientmap.h"
-#include "IGPUProgrammingServices.h"
-#include "IVideoDriver.h"
+#include <cmath>
+#include <cstring>
 
 ShadowRenderer::ShadowRenderer(IrrlichtDevice *device, Client *client) :
 		m_smgr(device->getSceneManager()), m_driver(device->getVideoDriver()),
@@ -294,8 +295,8 @@ void ShadowRenderer::updateSMTextures()
 			// Static shader values.
 			for (auto *cb : m_shadow_depth_cb) {
 				if (cb) {
-					cb->MapRes = (u32)m_shadow_map_texture_size;
-					cb->MaxFar = (f32)m_shadow_map_max_distance * BS;
+					cb->MapRes = icast<u32>(m_shadow_map_texture_size);
+					cb->MaxFar = icast<f32>(m_shadow_map_max_distance) * BS;
 					cb->PerspectiveBiasXY = getPerspectiveBiasXY();
 					cb->PerspectiveBiasZ = getPerspectiveBiasZ();
 					cb->CameraPos = light.getFuturePlayerPos();

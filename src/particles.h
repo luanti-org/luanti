@@ -4,13 +4,15 @@
 
 #pragma once
 
-#include <string>
-#include <sstream>
-#include <vector>
-#include <type_traits>
+#include "cast.h"
 #include "irrlichttypes_bloated.h"
-#include "tileanimation.h"
 #include "mapnode.h"
+#include "tileanimation.h"
+
+#include <sstream>
+#include <string>
+#include <type_traits>
+#include <vector>
 
 // This file defines the particle-related structures that both the server and
 // client need. The ParticleManager and rendering is in client/particles.h
@@ -50,14 +52,14 @@ namespace ParticleParamTypes
 
 	template <typename E, std::enable_if_t<std::is_enum_v<E>, bool> = true>
 	void serializeParameterValue(std::ostream& os, E k) {
-		serializeParameterValue(os, (std::underlying_type_t<E>)k);
+		serializeParameterValue(os, static_cast<std::underlying_type_t<E>>(k));
 	}
 
 	template <typename E, std::enable_if_t<std::is_enum_v<E>, bool> = true>
 	void deSerializeParameterValue(std::istream& is, E& k) {
 		std::underlying_type_t<E> v;
 		deSerializeParameterValue(is, v);
-		k = (E)v;
+		k = static_cast<E>(v);
 	}
 
 	// Describes a single value

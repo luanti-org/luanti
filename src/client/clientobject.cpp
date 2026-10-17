@@ -3,6 +3,8 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "clientobject.h"
+
+#include "cast.h"
 #include "debug.h"
 
 /*
@@ -30,7 +32,7 @@ std::unique_ptr<ClientActiveObject> ClientActiveObject::create(ActiveObjectType 
 	if (n == m_types.end()) {
 		// If factory is not found, just return.
 		warningstream << "ClientActiveObject: No factory for type="
-				<< (int)type << std::endl;
+				<< icast<int>(type) << std::endl;
 		return nullptr;
 	}
 

@@ -3,8 +3,10 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "cpp_api/s_server.h"
-#include "cpp_api/s_internal.h"
+
+#include "cast.h"
 #include "common/c_converter.h"
+#include "cpp_api/s_internal.h"
 #include "util/numeric.h" // myrand
 
 bool ScriptApiServer::getAuth(const std::string &playername,
@@ -46,7 +48,7 @@ bool ScriptApiServer::getAuth(const std::string &playername,
 	if(!getintfield(L, -1, "last_login", last_login))
 		throw LuaError("Authentication handler didn't return last_login");
 	if (dst_last_login)
-		*dst_last_login = (s64)last_login;
+		*dst_last_login = icast<s64>(last_login);
 
 	return true;
 }

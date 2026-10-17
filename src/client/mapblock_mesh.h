@@ -267,7 +267,7 @@ public:
 	{
 		// +1 so that the default MaterialTypeParam = 0 is a no-op,
 		// since the shader needs to know when to actually apply the crack.
-		u32 n = (layer_scale << 16) | (u16) (crack + 1);
+		u32 n = (layer_scale << 16) | icast<u16>(crack + 1);
 		return n;
 	}
 	static std::pair<int, u8> unpackCrackMaterialParam(float param)

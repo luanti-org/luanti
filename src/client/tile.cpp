@@ -11,7 +11,7 @@ video::ITexture *AnimationInfo::getTexture(float animation_time) const
 		return nullptr;
 
 	// Figure out current frame
-	u16 frame = (u32)(animation_time * 1000.0f / std::max<u16>(1, m_frame_length_ms))
+	u16 frame = icast<u32>(animation_time * 1000.0f / std::max<u16>(1, m_frame_length_ms))
 			% m_frame_count;
 
 	assert(frame < m_frames->size());

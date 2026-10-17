@@ -11,9 +11,11 @@
 /******************************************************************************/
 #pragma once
 
-#include <vector>
+#include "cast.h"
+
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include "irrlichttypes_bloated.h"
 
@@ -128,7 +130,7 @@ size_t write_array_slice_float(lua_State *L, int table_index, float *data,
 // Note that this returns a floating point result as Lua integers are 32-bit
 inline lua_Number hash_node_position(v3s16 pos)
 {
-	return (((s64)pos.Z + 0x8000L) << 32)
-			| (((s64)pos.Y + 0x8000L) << 16)
-			| ((s64)pos.X + 0x8000L);
+	return ((icast<s64>(pos.Z) + 0x8000L) << 32)
+			| ((icast<s64>(pos.Y) + 0x8000L) << 16)
+			| (icast<s64>(pos.X) + 0x8000L);
 }

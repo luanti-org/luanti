@@ -4,25 +4,27 @@
 
 #pragma once
 
+#include "SColor.h"
+#include "cast.h"
 #include "constants.h"
-#include "irrlichttypes.h"
+#include "irr_aabb3d.h"
 #include "irr_v2d.h"
 #include "irr_v3d.h"
-#include "irr_aabb3d.h"
-#include "SColor.h"
-#include <matrix4.h>
-#include <cmath>
+#include "irrlichttypes.h"
+
 #include <algorithm>
+#include <cmath>
+#include <matrix4.h>
 
 // Like std::clamp but allows mismatched types
 template <typename T, typename T2, typename T3>
 [[nodiscard]]
 inline constexpr T rangelim(const T &d, const T2 &min, const T3 &max)
 {
-	if (d < (T)min)
-		return (T)min;
-	if (d > (T)max)
-		return (T)max;
+	if (d < icast<T>(min))
+		return icast<T>(min);
+	if (d > icast<T>(max))
+		return icast<T>(max);
 	return d;
 }
 
@@ -361,7 +363,7 @@ inline f32 getFovCosSq(f32 camera_fov)
 [[nodiscard]]
 inline s32 myround(f32 f)
 {
-	return (s32)(f < 0.f ? (f - 0.5f) : (f + 0.5f));
+	return icast<s32>(f < 0.f ? (f - 0.5f) : (f + 0.5f));
 }
 
 template <typename T>

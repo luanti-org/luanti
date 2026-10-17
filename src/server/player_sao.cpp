@@ -217,7 +217,7 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 		}
 
 		if (damage_per_second != 0 && m_hp > 0) {
-			s32 newhp = (s32)m_hp - (s32)damage_per_second;
+			s32 newhp = icast<s32>(m_hp) - icast<s32>(damage_per_second);
 			PlayerHPChangeReason reason(PlayerHPChangeReason::NODE_DAMAGE, nodename, node_pos);
 			setHP(newhp, reason);
 		}
@@ -481,7 +481,7 @@ u32 PlayerSAO::punch(v3f dir,
 				hitparams.hp);
 
 	if (!damage_handled) {
-		setHP((s32)getHP() - (s32)hitparams.hp,
+		setHP(icast<s32>(getHP()) - icast<s32>(hitparams.hp),
 				PlayerHPChangeReason(PlayerHPChangeReason::PLAYER_PUNCH, puncher));
 	} else { // override client prediction
 		if (puncher_is_player)
@@ -496,7 +496,7 @@ u32 PlayerSAO::punch(v3f dir,
 	}
 	actionstream << " punched " <<
 			getDescription() << " (id=" << m_id << ", hp=" << m_hp <<
-			"), damage=" << (old_hp - (s32)getHP()) <<
+			"), damage=" << (old_hp - icast<s32>(getHP())) <<
 			(damage_handled ? " (handled by Lua)" : "") << std::endl;
 
 	return hitparams.wear;
@@ -513,12 +513,13 @@ void PlayerSAO::setHP(s32 target_hp, const PlayerHPChangeReason &reason, bool fr
 		return; // Nothing to do
 
 	// Protect against overflow.
-	s32 hp_change = std::max<s64>((s64)target_hp - (s64)m_hp, S32_MIN);
+	s32 hp_change =
+		std::max<s64>(icast<s64>(target_hp) - icast<s64>(m_hp), S32_MIN);
 
 	hp_change = m_env->getScriptIface()->on_player_hpchange(this, hp_change, reason);
 	hp_change = std::min<s32>(hp_change, U16_MAX); // Protect against overflow
 
-	s32 hp = (s32)m_hp + hp_change;
+	s32 hp = icast<s32>(m_hp) + hp_change;
 	hp = rangelim(hp, 0, U16_MAX);
 
 	if (hp > m_prop.hp_max)

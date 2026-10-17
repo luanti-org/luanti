@@ -8,11 +8,12 @@
 
 #include "sound_manager.h"
 
+#include "cast.h"
+#include "filesys.h"
+#include "porting.h"
 #include "sound_singleton.h"
 #include "util/numeric.h" // myrand()
 #include "util/tracy_wrapper.h"
-#include "filesys.h"
-#include "porting.h"
 
 namespace sound {
 
@@ -21,8 +22,8 @@ void OpenALSoundManager::stepStreams(f32 dtime)
 	// spread work across steps
 	const size_t num_issued_sounds = std::min(
 			m_sounds_streaming_current_bigstep.size(),
-			(size_t)std::ceil(m_sounds_streaming_current_bigstep.size()
-				* dtime / m_stream_timer)
+			icast<size_t>(std::ceil(m_sounds_streaming_current_bigstep.size()
+				* dtime / m_stream_timer))
 		);
 
 	for (size_t i = 0; i < num_issued_sounds; ++i) {
@@ -552,10 +553,10 @@ void *OpenALSoundManager::run()
 		auto framemarker = FrameMarker("OpenALSoundManager::run()-frame").started();
 
 		auto get_time_since_last_step = [&] {
-			return (f32)(porting::getTimeMs() - t_step_start);
+			return icast<f32>(porting::getTimeMs() - t_step_start);
 		};
 		auto get_remaining_timeout = [&] {
-			return (s32)((1.0e3f * SOUNDTHREAD_DTIME) - get_time_since_last_step());
+			return icast<s32>((1.0e3f * SOUNDTHREAD_DTIME) - get_time_since_last_step());
 		};
 
 		bool stop_requested = false;

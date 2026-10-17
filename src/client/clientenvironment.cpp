@@ -6,21 +6,23 @@
 #include "util/pointedthing.h"
 #include "client.h"
 #include "clientenvironment.h"
-#include "clientsimpleobject.h"
+
+#include "cast.h"
+#include "client/renderingengine.h"
 #include "clientmap.h"
+#include "clientsimpleobject.h"
+#include "collision.h"
+#include "content_cao.h"
 #include "localplayer.h"
-#include "scripting_client.h"
 #include "mapblock_mesh.h"
 #include "mtevent.h"
-#include "collision.h"
 #include "nodedef.h"
+#include "porting.h"
 #include "profiler.h"
 #include "raycast.h"
-#include "voxelalgorithms.h"
+#include "scripting_client.h"
 #include "settings.h"
-#include "content_cao.h"
-#include "porting.h"
-#include "client/renderingengine.h"
+#include "voxelalgorithms.h"
 
 /*
 	ClientEnvironment
@@ -188,7 +190,7 @@ void ClientEnvironment::step(float dtime)
 		int addp_p = itemgroup_get(playercao->getGroups(),
 			"fall_damage_add_percent");
 		// convert armor group into an usable fall damage factor
-		player_fall_factor = 1.0f + (float)addp_p / 100.0f;
+		player_fall_factor = 1.0f + icast<float>(addp_p) / 100.0f;
 	}
 
 	for (const CollisionInfo &info : player_collisions) {
@@ -208,7 +210,7 @@ void ClientEnvironment::step(float dtime)
 			// Determine fall damage modifier
 			int addp_n = itemgroup_get(f.groups, "fall_damage_add_percent");
 			// convert node group to an usable fall damage factor
-			f32 node_fall_factor = 1.0f + (float)addp_n / 100.0f;
+			f32 node_fall_factor = 1.0f + icast<float>(addp_n) / 100.0f;
 			// combine both player fall damage modifiers
 			pre_factor = node_fall_factor * player_fall_factor;
 		}
@@ -216,7 +218,7 @@ void ClientEnvironment::step(float dtime)
 
 		if (speed > tolerance && !player_immortal && pre_factor > 0.0f) {
 			f32 damage_f = (speed - tolerance) / BS;
-			u16 damage = (u16)MYMIN(damage_f + 0.5, U16_MAX);
+			u16 damage = icast<u16>(MYMIN(damage_f + 0.5f, U16_MAX));
 			if (damage != 0) {
 				damageLocalPlayer(damage, true);
 				m_client->getEventManager()->put(
@@ -286,7 +288,7 @@ GenericCAO* ClientEnvironment::getGenericCAO(u16 id)
 {
 	ClientActiveObject *obj = getActiveObject(id);
 	if (obj && obj->getType() == ACTIVEOBJECT_TYPE_GENERIC)
-		return (GenericCAO*) obj;
+		return static_cast<GenericCAO*>(obj);
 
 	return NULL;
 }
@@ -309,7 +311,7 @@ void ClientEnvironment::addActiveObject(u16 id, u8 type,
 	const std::string &init_data)
 {
 	std::unique_ptr<ClientActiveObject> obj =
-		ClientActiveObject::create((ActiveObjectType) type, m_client, this);
+		ClientActiveObject::create(static_cast<ActiveObjectType>(type), m_client, this);
 	if (!obj) {
 		infostream<<"ClientEnvironment::addActiveObject(): "
 			<<"id="<<id<<" type="<<type<<": Couldn't create object"

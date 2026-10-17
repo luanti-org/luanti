@@ -30,7 +30,7 @@ static TestSchematic g_test_instance;
 void TestSchematic::runTests(IGameDef *gamedef)
 {
 	NodeDefManager *ndef =
-		(NodeDefManager *)gamedef->getNodeDefManager();
+		const_cast<NodeDefManager *>(gamedef->getNodeDefManager());
 
 	ndef->setNodeRegistrationStatus(true);
 

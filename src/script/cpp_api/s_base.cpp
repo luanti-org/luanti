@@ -3,15 +3,17 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "cpp_api/s_base.h"
+
+#include "cast.h"
+#include "common/c_converter.h"
 #include "cpp_api/s_internal.h"
 #include "cpp_api/s_security.h"
 #include "debug.h"
-#include "lua_api/l_object.h"
-#include "common/c_converter.h"
-#include "server/player_sao.h"
 #include "filesys.h"
+#include "lua_api/l_object.h"
 #include "porting.h"
 #include "server.h"
+#include "server/player_sao.h"
 #if CHECK_CLIENT_BUILD()
 #include "client/client.h"
 #include "client/mod_vfs.h"
@@ -377,7 +379,7 @@ void ScriptApiBase::runCallbacksRaw(int nargs,
 	lua_insert(L, error_handler + 1);
 
 	// Insert mode after table
-	lua_pushnumber(L, (int)mode);
+	lua_pushnumber(L, icast<int>(mode));
 	lua_insert(L, error_handler + 3);
 
 	// Stack now looks like this:
@@ -566,7 +568,7 @@ void ScriptApiBase::pushPlayerHPChangeReason(lua_State *L, const PlayerHPChangeR
 		lua_newtable(L);
 
 	lua_getfield(L, -1, "type");
-	bool has_type = (bool)lua_isstring(L, -1);
+	bool has_type = icast<bool>(lua_isstring(L, -1));
 	lua_pop(L, 1);
 	if (!has_type) {
 		lua_pushstring(L, reason.getTypeAsString().c_str());

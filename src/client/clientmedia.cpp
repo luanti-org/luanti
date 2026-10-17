@@ -3,17 +3,19 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "clientmedia.h"
-#include "gettext.h"
-#include "httpfetch.h"
+
+#include "cast.h"
 #include "client.h"
 #include "filecache.h"
 #include "filesys.h"
+#include "gettext.h"
+#include "httpfetch.h"
 #include "log.h"
 #include "porting.h"
 #include "settings.h"
+#include "util/hashing.h"
 #include "util/hex.h"
 #include "util/serialize.h"
-#include "util/hashing.h"
 #include "util/string.h"
 #include <sstream>
 
@@ -425,7 +427,7 @@ void ClientMediaDownloader::startRemoteMediaTransfers()
 				fetch_request.caller = m_httpfetch_caller;
 				fetch_request.request_id = m_httpfetch_next_id;
 				fetch_request.timeout = std::max(MIN_HTTPFETCH_TIMEOUT,
-					(long)g_settings->getS32("curl_file_download_timeout"));
+				 	icast<long>(g_settings->getS32("curl_file_download_timeout")));
 				httpfetch_async(fetch_request);
 
 				m_remote_file_transfers.emplace(
@@ -466,7 +468,7 @@ void ClientMediaDownloader::startConventionalTransfers(Client *client)
 			if (!file.second->received)
 				file_requests.push_back(file.first);
 		}
-		assert((s32) file_requests.size() ==
+		assert(icast<s32>(file_requests.size()) ==
 				m_uncached_count - m_uncached_received_count);
 		client->requestMedia(file_requests);
 	}
@@ -599,7 +601,7 @@ void ClientMediaDownloader::deSerializeHashSet(const std::string &data,
 				"invalid hash set file size");
 	}
 
-	const u8 *data_cstr = (const u8*) data.c_str();
+	const u8 *data_cstr = reinterpret_cast<const u8*>(data.c_str());
 
 	u32 signature = readU32(&data_cstr[0]);
 	if (signature != MTHASHSET_FILE_SIGNATURE) {
@@ -727,7 +729,7 @@ void SingleMediaDownloader::remoteMediaReceived(
 
 	// Otherwise try the next remote server or fall back to conventional transfer
 	m_current_remote++;
-	if (m_current_remote >= (int)m_remotes.size()) {
+	if (m_current_remote >= icast<int>(m_remotes.size())) {
 		infostream << "Client: Failed to remote-fetch \"" << m_file_name
 				<< "\". Requesting it the usual way." << std::endl;
 		m_current_remote = -1;

@@ -47,7 +47,7 @@ namespace LuaParticleParams
 			auto n = lua_tonumber(L, -1);
 			ret = v3fParameter(n,n,n);
 		} else {
-			ret = (v3fParameter)check_v3f(L, -1);
+			ret = icast<v3fParameter>(check_v3f(L, -1));
 		}
 	}
 
@@ -60,7 +60,7 @@ namespace LuaParticleParams
 			auto n = lua_tonumber(L, -1);
 			ret = v2fParameter(n,n);
 		} else {
-			ret = (v2fParameter)check_v2f(L, -1);
+			ret = icast<v2fParameter>(check_v2f(L, -1));
 		}
 	}
 
@@ -70,19 +70,19 @@ namespace LuaParticleParams
 			return;
 
 		static const EnumString opts[] = {
-			{(int)TweenStyle::fwd,     "fwd"},
-			{(int)TweenStyle::rev,     "rev"},
-			{(int)TweenStyle::pulse,   "pulse"},
-			{(int)TweenStyle::flicker, "flicker"},
+			{static_cast<int>(TweenStyle::fwd),     "fwd"},
+			{static_cast<int>(TweenStyle::rev),     "rev"},
+			{static_cast<int>(TweenStyle::pulse),   "pulse"},
+			{static_cast<int>(TweenStyle::flicker), "flicker"},
 			{0, nullptr},
 		};
 
 		luaL_checktype(L, -1, LUA_TSTRING);
-		int v = (int)TweenStyle::fwd;
+		int v = static_cast<int>(TweenStyle::fwd);
 		if (!string_to_enum(opts, v, lua_tostring(L, -1))) {
 			throw LuaError("tween style must be one of ('fwd', 'rev', 'pulse', 'flicker')");
 		}
-		ret = (TweenStyle)v;
+		ret = static_cast<TweenStyle>(v);
 	}
 
 	inline void readLuaValue(lua_State* L, AttractorKind& ret)
@@ -91,19 +91,19 @@ namespace LuaParticleParams
 			return;
 
 		static const EnumString opts[] = {
-			{(int)AttractorKind::none,  "none"},
-			{(int)AttractorKind::point, "point"},
-			{(int)AttractorKind::line,  "line"},
-			{(int)AttractorKind::plane, "plane"},
+			{static_cast<int>(AttractorKind::none),  "none"},
+			{static_cast<int>(AttractorKind::point), "point"},
+			{static_cast<int>(AttractorKind::line),  "line"},
+			{static_cast<int>(AttractorKind::plane), "plane"},
 			{0, nullptr},
 		};
 
 		luaL_checktype(L, -1, LUA_TSTRING);
-		int v = (int)AttractorKind::none;
+		int v = static_cast<int>(AttractorKind::none);
 		if (!string_to_enum(opts, v, lua_tostring(L, -1))) {
 			throw LuaError("attractor kind must be one of ('none', 'point', 'line', 'plane')");
 		}
-		ret = (AttractorKind)v;
+		ret = static_cast<AttractorKind>(v);
 	}
 
 	inline void readLuaValue(lua_State* L, BlendMode& ret)
@@ -112,20 +112,20 @@ namespace LuaParticleParams
 			return;
 
 		static const EnumString opts[] = {
-			{(int)BlendMode::alpha,  "alpha"},
-			{(int)BlendMode::add,    "add"},
-			{(int)BlendMode::sub,    "sub"},
-			{(int)BlendMode::screen, "screen"},
-			{(int)BlendMode::clip,   "clip"},
+			{static_cast<int>(BlendMode::alpha),  "alpha"},
+			{static_cast<int>(BlendMode::add),    "add"},
+			{static_cast<int>(BlendMode::sub),    "sub"},
+			{static_cast<int>(BlendMode::screen), "screen"},
+			{static_cast<int>(BlendMode::clip),   "clip"},
 			{0, nullptr},
 		};
 
 		luaL_checktype(L, -1, LUA_TSTRING);
-		int v = (int)BlendMode::alpha;
+		int v = static_cast<int>(BlendMode::alpha);
 		if (!string_to_enum(opts, v, lua_tostring(L, -1))) {
 			throw LuaError("blend mode must be one of ('alpha', 'clip', 'add', 'sub', 'screen')");
 		}
-		ret = (BlendMode)v;
+		ret = static_cast<BlendMode>(v);
 	}
 
 	template <typename T> void

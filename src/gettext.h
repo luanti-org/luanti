@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "cast.h"
 #include "config.h" // for USE_GETTEXT
 #include "porting.h"
 #include "util/string.h"
@@ -95,7 +96,7 @@ inline std::string fmtgettext(const char *format, Args&&... args)
 	int len = porting::mt_snprintf(&buf[0], buf.size(), format, std::forward<Args>(args)...);
 	if (len <= 0)
 		throw std::runtime_error("gettext format error: " + std::string(format));
-	if ((size_t)len >= buf.size()) {
+	if (icast<size_t>(len) >= buf.size()) {
 		buf.resize(len+1); // extra null byte
 		porting::mt_snprintf(&buf[0], buf.size(), format, std::forward<Args>(args)...);
 	}

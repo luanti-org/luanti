@@ -174,7 +174,8 @@ void RemoteClient::GetNextBlocks (
 	s16 wanted_range = sao->getWantedRange() + 1;
 	if (fog_distance >= 0) {
 		// enforce if limited by mod
-		wanted_range = std::min<unsigned>(wanted_range, std::ceil((float)fog_distance / MAP_BLOCKSIZE));
+		wanted_range = std::min<unsigned>(
+			wanted_range, std::ceil(icast<float>(fog_distance) / MAP_BLOCKSIZE));
 	}
 	float camera_fov = sao->getFov();
 
@@ -376,7 +377,7 @@ void RemoteClient::GetNextBlocks (
 			/*
 				Add block to send queue
 			*/
-			dest.emplace_back((float)dist, p, peer_id);
+			dest.emplace_back(icast<float>(dist), p, peer_id);
 
 			num_blocks_selected += 1;
 		}
@@ -640,7 +641,7 @@ void RemoteClient::notifyEvent(ClientStateEvent event)
 void RemoteClient::resetChosenMech()
 {
 	if (auth_data) {
-		srp_verifier_delete((SRPVerifier *) auth_data);
+		srp_verifier_delete(static_cast<SRPVerifier *>(auth_data));
 		auth_data = nullptr;
 	}
 	chosen_mech = AUTH_MECHANISM_NONE;

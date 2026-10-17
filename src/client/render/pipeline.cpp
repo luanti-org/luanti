@@ -3,15 +3,15 @@
 // Copyright (C) 2022 x2048, Dmitry Kostenko <codeforsmile@gmail.com>
 
 #include "pipeline.h"
+#include "IRenderTarget.h"
+#include "SColor.h"
+#include "cast.h"
 #include "client/client.h"
 #include "client/hud.h"
 #include "gettext.h"
-#include "IRenderTarget.h"
-#include "SColor.h"
 
-#include <vector>
 #include <memory>
-
+#include <vector>
 
 TextureBuffer::~TextureBuffer()
 {
@@ -117,8 +117,8 @@ bool TextureBuffer::ensureTexture(video::ITexture **texture, const TextureDefini
 			size = definition.size;
 		else
 			size = core::dimension2du(
-					(u32)(context.target_size.X * definition.scale_factor.X),
-					(u32)(context.target_size.Y * definition.scale_factor.Y));
+					icast<u32>(context.target_size.X * definition.scale_factor.X),
+					icast<u32>(context.target_size.Y * definition.scale_factor.Y));
 
 		modify = definition.dirty || (*texture == nullptr) || (*texture)->getSize() != size;
 	}

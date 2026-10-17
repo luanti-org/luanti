@@ -41,6 +41,7 @@
 #include "IGUIEnvironment.h"
 #include "IImage.h"
 #include "IVideoDriver.h"
+#include "cast.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -65,7 +66,7 @@ FT_Library SGUITTFace::getFreeTypeLibrary()
 
 SGUITTFace::SGUITTFace(std::string &&buffer) : face_buffer(std::move(buffer))
 {
-	memset((void*)&face, 0, sizeof(FT_Face));
+	memset(icast<void*>(&face), 0, sizeof(FT_Face));
 	n_faces++;
 }
 
@@ -261,13 +262,13 @@ video::IImage* SGUITTGlyph::createGlyphImage(const FT_Bitmap& bits, video::IVide
 
 			// Load the monochrome data in.
 			const u32 image_pitch = image->getPitch() / sizeof(u16);
-			u16* image_data = (u16*)image->getData();
+			u16* image_data = static_cast<u16*>(image->getData());
 			u8* glyph_data = bits.buffer;
 
-			for (s32 y = 0; y < (s32)bits.rows; ++y)
+			for (s32 y = 0; y < icast<s32>(bits.rows); ++y)
 			{
 				u16* row = image_data;
-				for (s32 x = 0; x < (s32)bits.width; ++x)
+				for (s32 x = 0; x < icast<s32>(bits.width); ++x)
 				{
 					// Monochrome bitmaps store 8 pixels per byte.  The left-most pixel is the bit 0x80.
 					// So, we go through the data each bit at a time.
@@ -288,16 +289,18 @@ video::IImage* SGUITTGlyph::createGlyphImage(const FT_Bitmap& bits, video::IVide
 			image->fill(video::SColor(0, 255, 255, 255));
 
 			// Load the grayscale data in.
-			const float gray_count = static_cast<float>(bits.num_grays);
+			const float gray_count = icast<float>(bits.num_grays);
 			const u32 image_pitch = image->getPitch() / sizeof(u32);
-			u32* image_data = (u32*)image->getData();
+			u32* image_data = static_cast<u32*>(image->getData());
 			u8* glyph_data = bits.buffer;
-			for (s32 y = 0; y < (s32)bits.rows; ++y)
+			for (s32 y = 0; y < icast<s32>(bits.rows); ++y)
 			{
 				u8* row = glyph_data;
-				for (s32 x = 0; x < (s32)bits.width; ++x)
+				for (s32 x = 0; x < icast<s32>(bits.width); ++x)
 				{
-					image_data[y * image_pitch + x] |= static_cast<u32>(255.0f * (static_cast<float>(*row++) / gray_count)) << 24;
+					image_data[y * image_pitch + x] |=
+						icast<u32>(255.0f * (icast<float>(*row++) / gray_count))
+						<< 24;
 				}
 				glyph_data += bits.pitch;
 			}

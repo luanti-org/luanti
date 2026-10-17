@@ -5,6 +5,7 @@
 
 #include "luaentity_sao.h"
 #include "AnimSpec.h"
+#include "cast.h"
 #include "collision.h"
 #include "constants.h"
 #include "inventory.h"
@@ -364,7 +365,7 @@ u32 LuaEntitySAO::punch(v3f dir,
 
 	if (!damage_handled) {
 		if (result.did_punch) {
-			setHP((s32)getHP() - result.damage,
+			setHP(icast<s32>(getHP()) - result.damage,
 				PlayerHPChangeReason(PlayerHPChangeReason::PLAYER_PUNCH, puncher));
 		}
 	}
@@ -377,7 +378,7 @@ u32 LuaEntitySAO::punch(v3f dir,
 	}
 	actionstream << " punched " <<
 		  getDescription() << " (id=" << m_id << ", hp=" << m_hp <<
-		  "), damage=" << (old_hp - (s32)getHP()) <<
+		  "), damage=" << (old_hp - icast<s32>(getHP())) <<
 		  (damage_handled ? " (handled by Lua)" : "") << std::endl;
 	// TODO: give Lua control over wear
 	return result.wear;

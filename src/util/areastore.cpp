@@ -131,7 +131,7 @@ void AreaStore::setCacheParams(bool enabled, u8 block_radius, size_t limit)
 
 void AreaStore::cacheMiss(void *data, const v3s16 &mpos, std::vector<Area *> *dest)
 {
-	AreaStore *as = (AreaStore *)data;
+	AreaStore *as = static_cast<AreaStore *>(data);
 	u8 r = as->m_cacheblock_radius;
 
 	// get the points at the edges of the mapblock

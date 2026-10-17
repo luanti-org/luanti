@@ -3,23 +3,25 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "camera.h"
+
+#include "cast.h"
 #include "client.h"
-#include "clientmap.h"     // MapDrawControl
-#include "localplayer.h"
-#include "player.h"
-#include <cmath>
-#include "client/renderingengine.h"
 #include "client/content_cao.h"
-#include "settings.h"
-#include "wieldmesh.h"
-#include "noise.h"         // easeCurve
-#include "mtevent.h"
-#include "nodedef.h"
-#include "util/numeric.h"
+#include "client/renderingengine.h"
+#include "clientmap.h" // MapDrawControl
 #include "constants.h"
 #include "fontengine.h"
-#include "script/scripting_client.h"
 #include "gettext.h"
+#include "localplayer.h"
+#include "mtevent.h"
+#include "nodedef.h"
+#include "noise.h" // easeCurve
+#include "player.h"
+#include "script/scripting_client.h"
+#include "settings.h"
+#include "util/numeric.h"
+#include "wieldmesh.h"
+#include <cmath>
 
 #include <ICameraSceneNode.h>
 #include <IGUIFont.h>
@@ -491,7 +493,7 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 
 	// FOV and aspect ratio
 	const v2u32 &window_size = RenderingEngine::getWindowSize();
-	m_aspect = (f32) window_size.X / (f32) window_size.Y;
+	m_aspect =  icast<f32>(window_size.X) / icast<f32>(window_size.Y);
 	m_fov_y = m_curr_fov_degrees * M_PI / 180.0;
 	// Increase vertical FOV on lower aspect ratios (<16:10)
 	m_fov_y *= core::clamp(sqrt(16./10. / m_aspect), 1.0, 1.4);
@@ -663,7 +665,8 @@ void Camera::drawNametags()
 	// the user's font size preference...
 	const u32 default_font_size = 16;
 	// ...by multiplying this in.
-	const f32 font_size_mult = g_fontengine->getFontSize(FM_Unspecified) / (float)default_font_size;
+	const f32 font_size_mult =
+		g_fontengine->getFontSize(FM_Unspecified) / icast<float>(default_font_size);
 
 	// Minimum distance until z-scaled nametags actually become smaller
 	const f32 minimum_d = 3.0f * BS;

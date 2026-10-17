@@ -192,18 +192,18 @@ void read_item_definition(lua_State *L, int index,
 	TouchInteraction &inter = def.touch_interaction;
 	lua_getfield(L, index, "touch_interaction");
 	if (lua_istable(L, -1)) {
-		inter.pointed_nothing = (TouchInteractionMode)getenumfield(L, -1, "pointed_nothing",
-				es_TouchInteractionMode, inter.pointed_nothing);
-		inter.pointed_node = (TouchInteractionMode)getenumfield(L, -1, "pointed_node",
-				es_TouchInteractionMode, inter.pointed_node);
-		inter.pointed_object = (TouchInteractionMode)getenumfield(L, -1, "pointed_object",
-				es_TouchInteractionMode, inter.pointed_object);
+		inter.pointed_nothing = static_cast<TouchInteractionMode>(getenumfield(L, -1, "pointed_nothing",
+				es_TouchInteractionMode, inter.pointed_nothing));
+		inter.pointed_node = static_cast<TouchInteractionMode>(getenumfield(L, -1, "pointed_node",
+				es_TouchInteractionMode, inter.pointed_node));
+		inter.pointed_object = static_cast<TouchInteractionMode>(getenumfield(L, -1, "pointed_object",
+				es_TouchInteractionMode, inter.pointed_object));
 	} else if (lua_isstring(L, -1)) {
 		int value;
 		if (string_to_enum(es_TouchInteractionMode, value, lua_tostring(L, -1))) {
-			inter.pointed_nothing = (TouchInteractionMode)value;
-			inter.pointed_node    = (TouchInteractionMode)value;
-			inter.pointed_object  = (TouchInteractionMode)value;
+			inter.pointed_nothing = static_cast<TouchInteractionMode>(value);
+			inter.pointed_node    = static_cast<TouchInteractionMode>(value);
+			inter.pointed_object  = static_cast<TouchInteractionMode>(value);
 		}
 	} else if (!lua_isnil(L, -1)) {
 		throw LuaError("invalid type for 'touch_interaction'");
@@ -347,7 +347,7 @@ void read_object_properties(lua_State *L, int index,
 
 	int hp_max = 0;
 	if (getintfield(L, -1, "hp_max", hp_max)) {
-		prop->hp_max = (u16)rangelim(hp_max, 0, U16_MAX);
+		prop->hp_max = icast<u16>(rangelim(hp_max, 0, U16_MAX));
 		// hp_max = 0 is sometimes used as a hack to keep players dead, only validate for entities
 		if (prop->hp_max == 0 && sao->getType() != ACTIVEOBJECT_TYPE_PLAYER)
 			throw LuaError("The hp_max property may not be 0 for entities!");
@@ -360,7 +360,7 @@ void read_object_properties(lua_State *L, int index,
 
 	if (getintfield(L, -1, "breath_max", prop->breath_max)) {
 		if (sao->getType() == ACTIVEOBJECT_TYPE_PLAYER) {
-			PlayerSAO *player = (PlayerSAO *)sao;
+			PlayerSAO *player = static_cast<PlayerSAO *>(sao);
 			if (prop->breath_max < player->getBreath())
 				player->setBreath(prop->breath_max);
 		}
@@ -1402,8 +1402,8 @@ NodeBox read_nodebox(lua_State *L, int index)
 
 	luaL_checktype(L, -1, LUA_TTABLE);
 
-	nodebox.type = (NodeBoxType)getenumfield(L, index, "type",
-			ScriptApiNode::es_NodeBoxType, NODEBOX_REGULAR);
+	nodebox.type = static_cast<NodeBoxType>(getenumfield(L, index, "type",
+			ScriptApiNode::es_NodeBoxType, NODEBOX_REGULAR));
 
 #define NODEBOXREAD(n, s){ \
 		lua_getfield(L, index, (s)); \
@@ -1708,9 +1708,9 @@ struct TileAnimationParams read_animation_definition(lua_State *L, int index)
 	if (!lua_istable(L, index))
 		return anim;
 
-	anim.type = (TileAnimationType)
+	anim.type = static_cast<TileAnimationType>(
 		getenumfield(L, index, "type", es_TileAnimationType,
-		TAT_NONE);
+		TAT_NONE));
 	if (anim.type == TAT_VERTICAL_FRAMES) {
 		// {type="vertical_frames", aspect_w=16, aspect_h=16, length=2.0}
 		anim.vertical_frames.aspect_w =
@@ -2116,7 +2116,7 @@ std::vector<ItemStack> read_items(lua_State *L, int index, IGameDef *gdef)
 		if (key < 1) {
 			throw LuaError("Invalid inventory list index");
 		}
-		if (items.size() < (u32) key) {
+		if (items.size() < icast<u32>(key)) {
 			items.resize(key);
 		}
 		items[key - 1] = read_item(L, -1, gdef->idef());
@@ -2316,7 +2316,7 @@ void read_json_value(lua_State *L, Json::Value &root, int index, u16 max_depth)
 
 	int type = lua_type(L, index);
 	if (type == LUA_TBOOLEAN) {
-		root = (bool) lua_toboolean(L, index);
+		root = icast<bool>(lua_toboolean(L, index));
 	} else if (type == LUA_TNUMBER) {
 		lua_Number dbl_val = lua_tonumber(L, index);
 		if (!std::isfinite(dbl_val)) {

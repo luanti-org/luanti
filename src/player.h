@@ -4,13 +4,14 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
+#include "cast.h"
 #include "inventory.h"
+#include "irrlichttypes_bloated.h"
 #include "util/basic_macros.h"
+#include <array>
 #include <memory>
 #include <string>
 #include <string_view>
-#include <array>
 
 #define PLAYERNAME_SIZE 20
 
@@ -211,7 +212,7 @@ public:
 	/// Animation frame ranges for different local player animation "states".
 	/// @note Frames are into the first animation track of a model.
 	/// @note A range of [0, 0] is used to denote an absent local animation.
-	std::array<v2f, (size_t) LocalPlayerAnimation::COUNT> local_animations;
+	std::array<v2f, static_cast<size_t>(LocalPlayerAnimation::COUNT)> local_animations;
 	float local_animation_speed;
 
 	std::string inventory_formspec;

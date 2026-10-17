@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
+#include "cast.h"
 #include "exceptions.h" // for SerializationError
 #include "ieee_float.h"
+#include "irrlichttypes_bloated.h"
 
 #include "config.h"
 #include <cstring> // for memcpy
@@ -49,8 +50,10 @@
 // not represent the full range, but rather the largest safe range, of values on
 // all supported architectures.  Note: This definition makes assumptions on
 // platform float-to-int conversion behavior.
-static constexpr float F1000_MIN = (s32)((float)(S32_MIN) / FIXEDPOINT_FACTOR);
-static constexpr float F1000_MAX = (s32)((float)(S32_MAX) / FIXEDPOINT_FACTOR);
+static constexpr float F1000_MIN =
+	static_cast<s32>(static_cast<float>(S32_MIN) / FIXEDPOINT_FACTOR);
+static constexpr float F1000_MAX =
+	static_cast<s32>(static_cast<float>(S32_MAX) / FIXEDPOINT_FACTOR);
 
 #define STRING_MAX_LEN 0xFFFF
 #define WIDE_STRING_MAX_LEN 0xFFFF
@@ -165,27 +168,27 @@ inline u8 readU8(const u8 *data)
 
 inline s8 readS8(const u8 *data)
 {
-	return (s8)readU8(data);
+	return icast<s8>(readU8(data));
 }
 
 inline s16 readS16(const u8 *data)
 {
-	return (s16)readU16(data);
+	return icast<s16>(readU16(data));
 }
 
 inline s32 readS32(const u8 *data)
 {
-	return (s32)readU32(data);
+	return icast<s32>(readU32(data));
 }
 
 inline s64 readS64(const u8 *data)
 {
-	return (s64)readU64(data);
+	return icast<s64>(readU64(data));
 }
 
 inline f32 readF1000(const u8 *data)
 {
-	return (f32)readS32(data) / FIXEDPOINT_FACTOR;
+	return icast<f32>(readS32(data)) / FIXEDPOINT_FACTOR;
 }
 
 inline f32 readF32(const u8 *data)
@@ -282,22 +285,22 @@ inline void writeU8(u8 *data, u8 i)
 
 inline void writeS8(u8 *data, s8 i)
 {
-	writeU8(data, (u8)i);
+	writeU8(data, icast<u8>(i));
 }
 
 inline void writeS16(u8 *data, s16 i)
 {
-	writeU16(data, (u16)i);
+	writeU16(data, icast<u16>(i));
 }
 
 inline void writeS32(u8 *data, s32 i)
 {
-	writeU32(data, (u32)i);
+	writeU32(data, icast<u32>(i));
 }
 
 inline void writeS64(u8 *data, s64 i)
 {
-	writeU64(data, (u64)i);
+	writeU64(data, icast<u64>(i));
 }
 
 inline void writeF1000(u8 *data, f32 i)

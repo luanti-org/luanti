@@ -3,24 +3,25 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "clientmap.h"
+#include "camera.h"
+#include "cast.h"
 #include "client.h"
 #include "client/mesh.h"
-#include "mapblock_mesh.h"
-#include <IMaterialRenderer.h>
-#include <ISceneManager.h>
-#include <IVideoDriver.h>
-#include <matrix4.h>
-#include "mapsector.h"
+#include "client/renderingengine.h"
 #include "mapblock.h"
+#include "mapblock_mesh.h"
+#include "mapsector.h"
 #include "node_visuals.h"
 #include "nodedef.h"
 #include "player.h" // CameraMode
 #include "profiler.h"
 #include "settings.h"
-#include "camera.h"
 #include "util/basic_macros.h"
 #include "util/tracy_wrapper.h"
-#include "client/renderingengine.h"
+#include <IMaterialRenderer.h>
+#include <ISceneManager.h>
+#include <IVideoDriver.h>
+#include <matrix4.h>
 
 #include <queue>
 
@@ -881,7 +882,7 @@ namespace {
 		{
 			if (total == 0)
 				return;
-			float rate = (total - cache_miss) / (float)total;
+			float rate = (total - cache_miss) / icast<float>(total);
 			profiler->avg("CM::transformBuffers...: cache hit rate [%]", 100 * rate);
 			*this = {0, 0};
 		}

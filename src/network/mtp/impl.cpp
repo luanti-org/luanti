@@ -678,14 +678,14 @@ u16 Channel::getOutgoingSequenceNumber(bool& successful)
 			// ugly cast but this one is required in order to tell compiler we
 			// know about difference of two unsigned may be negative in general
 			// but we already made sure it won't happen in this case
-			if (((u16)(next_outgoing_seqnum - lowest_unacked_seqnumber)) > m_window_size) {
+			if (static_cast<u16>(next_outgoing_seqnum - lowest_unacked_seqnumber) > m_window_size) {
 				return 0;
 			}
 		} else {
 			// ugly cast but this one is required in order to tell compiler we
 			// know about difference of two unsigned may be negative in general
 			// but we already made sure it won't happen in this case
-			if ((next_outgoing_seqnum + (u16)(SEQNUM_MAX - lowest_unacked_seqnumber)) >
+			if ((next_outgoing_seqnum + static_cast<u16>((SEQNUM_MAX - lowest_unacked_seqnumber))) >
 					m_window_size) {
 				return 0;
 			}
@@ -765,7 +765,7 @@ void Channel::UpdateTimers(float dtime)
 			packets_successful = current_packet_successful;
 
 			// has half the window even been used?
-			if (current_bytes_transfered > (unsigned int) (m_window_size*512/2)) {
+			if (current_bytes_transfered > static_cast<unsigned int>(m_window_size * 512 / 2)) {
 				reasonable_amount_of_data_transmitted = true;
 			}
 			current_packet_loss = 0;
@@ -812,13 +812,13 @@ void Channel::UpdateTimers(float dtime)
 		{
 			MutexAutoLock internal(m_internal_mutex);
 			cur_kbps                 =
-					(((float) current_bytes_transfered)/bpm_counter)/1024.0f;
+					(static_cast<float>(current_bytes_transfered) /bpm_counter)/1024.0f;
 			current_bytes_transfered = 0;
 			cur_kbps_lost            =
-					(((float) current_bytes_lost)/bpm_counter)/1024.0f;
+					(static_cast<float>(current_bytes_lost) /bpm_counter)/1024.0f;
 			current_bytes_lost       = 0;
 			cur_incoming_kbps        =
-					(((float) current_bytes_received)/bpm_counter)/1024.0f;
+					(static_cast<float>(current_bytes_received) /bpm_counter)/1024.0f;
 			current_bytes_received   = 0;
 			bpm_counter              = 0.0f;
 		}
@@ -836,7 +836,7 @@ void Channel::UpdateTimers(float dtime)
 		}
 
 		rate_samples       = MYMIN(rate_samples+1,10);
-		float old_fraction = ((float) (rate_samples-1) )/( (float) rate_samples);
+		float old_fraction = static_cast<float>(rate_samples - 1) / static_cast<float>(rate_samples);
 		avg_kbps           = avg_kbps * old_fraction +
 				cur_kbps * (1.0 - old_fraction);
 		avg_kbps_lost      = avg_kbps_lost * old_fraction +

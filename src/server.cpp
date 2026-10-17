@@ -62,8 +62,9 @@
 #include "serialization.h" // SER_FMT_VER_INVALID
 
 // Database
-#include "database/database.h"
+#include "cast.h"
 #include "database/database-sqlite3.h"
+#include "database/database.h"
 #if USE_POSTGRESQL
 #include "database/database-postgresql.h"
 #endif
@@ -1333,7 +1334,7 @@ void Server::ProcessData(NetworkPacket *pkt)
 		// Command must be handled into ToServerCommandHandler
 		if (command >= TOSERVER_NUM_MSG_TYPES) {
 			infostream << "Server: Ignoring unknown command "
-					 << static_cast<unsigned>(command) << std::endl;
+					 << icast<unsigned>(command) << std::endl;
 			return;
 		}
 
@@ -1347,7 +1348,7 @@ void Server::ProcessData(NetworkPacket *pkt)
 		if(peer_ser_ver == SER_FMT_VER_INVALID) {
 			errorstream << "Server: Peer serialization format invalid. "
 					"Skipping incoming command "
-					<< static_cast<unsigned>(command) << std::endl;
+					<< icast<unsigned>(command) << std::endl;
 			return;
 		}
 
@@ -1359,7 +1360,7 @@ void Server::ProcessData(NetworkPacket *pkt)
 
 		if (m_clients.getClientState(peer_id) < CS_Active) {
 			warningstream << "Server: Got packet command "
-					<< static_cast<unsigned>(command)
+					<< icast<unsigned>(command)
 					<< " for peer id " << peer_id
 					<< " but client isn't active yet. Dropping packet." << std::endl;
 			return;
@@ -1617,7 +1618,7 @@ void Server::SendChatMessage(session_t peer_id, const ChatMessage &message)
 	u8 version = 1;
 	u8 type = message.type;
 	pkt << version << type << message.sender << message.message
-		<< static_cast<u64>(message.timestamp);
+		<< icast<u64>(message.timestamp);
 
 	if (peer_id != PEER_ID_INEXISTENT) {
 		Send(&pkt);
@@ -2069,7 +2070,7 @@ void Server::SendCamera(session_t peer_id, Player *player)
 {
 	NetworkPacket pkt(TOCLIENT_CAMERA, 1, peer_id);
 
-	pkt << static_cast<u8>(player->allowed_camera_mode);
+	pkt << icast<u8>(player->allowed_camera_mode);
 
 	Send(&pkt);
 }
@@ -2244,7 +2245,7 @@ void Server::SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersa
 		2 * removed_objects.size() + 32 * added_objects.size(), client->peer_id);
 
 	// Removed objects
-	pkt << static_cast<u16>(removed_objects.size());
+	pkt << icast<u16>(removed_objects.size());
 
 	for (auto &it : removed_objects) {
 		const auto [gone, id] = it;
@@ -2264,13 +2265,13 @@ void Server::SendActiveObjectRemoveAdd(RemoteClient *client, PlayerSAO *playersa
 	// "Server::handleCommand_RemovedSounds".
 
 	// Added objects
-	pkt << static_cast<u16>(added_objects.size());
+	pkt << icast<u16>(added_objects.size());
 
 	for (u16 id : added_objects) {
 		ServerActiveObject *obj = m_env->getActiveObject(id);
 		if (!obj) {
 			warningstream << FUNCTION_NAME << ": found NULL object id="
-				<< (int)id << std::endl;
+				<< icast<int>(id) << std::endl;
 			continue;
 		}
 
@@ -2790,7 +2791,7 @@ void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_co
 				media_sent++;
 		}
 		assert(media_sent < U16_MAX);
-		pkt << static_cast<u16>(media_sent);
+		pkt << icast<u16>(media_sent);
 		for (const auto &i : m_media) {
 			if (include(i.first, i.second))
 				pkt << i.first << base64_encode(i.second.sha1_digest);
@@ -2944,8 +2945,8 @@ void Server::sendRequestedMedia(session_t peer_id,
 	}
 
 	if (compress && bytes_uncompressed != 0) {
-		int percent = bytes_compressed / (float)bytes_uncompressed * 100;
-		int diff = (int)bytes_compressed - (int)bytes_uncompressed;
+		int percent = bytes_compressed / icast<float>(bytes_uncompressed) * 100;
+		int diff = icast<int>(bytes_compressed) - icast<int>(bytes_uncompressed);
 		infostream << "Server::sendRequestedMedia(): size after compression "
 			<< percent << "% (" << (diff > 0 ? '+' : '-') << std::abs(diff)
 			<< " byte)" << std::endl;
@@ -3022,7 +3023,7 @@ void Server::sendDetachedInventory(Inventory *inventory, const std::string &name
 		inventory->setModified(false);
 
 		const std::string &os_str = os.str();
-		pkt << static_cast<u16>(os_str.size()); // HACK: to keep compatibility with 5.0.0 clients
+		pkt << icast<u16>(os_str.size()); // HACK: to keep compatibility with 5.0.0 clients
 		pkt.putRawString(os_str);
 	}
 
@@ -3401,7 +3402,7 @@ std::string Server::getStatusString()
 	// Game
 	os << " | game: " << (m_gamespec.title.empty() ? m_gamespec.id : m_gamespec.title);
 	// Uptime
-	os << " | uptime: " << duration_to_string((int) m_uptime_counter->get());
+	os << " | uptime: " << duration_to_string(icast<int>(m_uptime_counter->get()));
 	// Max lag estimate
 	os << " | max lag: " << std::setprecision(3);
 	os << (m_env ? m_env->getMaxLagEstimate() : 0) << "s";
@@ -3907,7 +3908,7 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a)
 		// NOTE: the meaning of this bit was accidentally inverted between proto 39 and 40,
 		// when dynamic_add_media v2 was added. As of 5.12.0 the server sends it correctly again.
 		// Compatibility code on the client-side was not added.
-		pkt << static_cast<bool>(a.client_cache);
+		pkt << icast<bool>(a.client_cache);
 
 		NetworkPacket legacy_pkt = pkt;
 
@@ -4295,7 +4296,7 @@ void dedicated_server_loop(Server &server, volatile std::sig_atomic_t &kill)
 	for(;;) {
 		// This is kind of a hack but can be done like this
 		// because server.step() is very light
-		sleep_ms((int)(steplen*1000.0f));
+		sleep_ms(icast<int>(steplen*1000.0f));
 		server.step();
 
 		if (server.isShutdownRequested() || kill)

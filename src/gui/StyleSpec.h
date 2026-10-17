@@ -4,11 +4,13 @@
 
 #pragma once
 
-#include "client/texturesource.h"
+#include "cast.h"
 #include "client/fontengine.h"
+#include "client/texturesource.h"
 #include "debug.h"
 #include "irrlichttypes_bloated.h"
 #include "util/string.h"
+
 #include <algorithm>
 #include <array>
 #include <vector>
@@ -341,7 +343,7 @@ public:
 				calc_size = stoi(size);
 			}
 
-			spec.size = (unsigned)std::min(std::max(calc_size, 1), 999);
+			spec.size = icast<unsigned>(std::min(std::max(calc_size, 1), 999));
 		}
 
 		return g_fontengine->getFont(spec);
@@ -390,7 +392,7 @@ public:
 	StyleSpec &operator|=(const StyleSpec &other)
 	{
 		for (size_t i = 0; i < NUM_PROPERTIES; i++) {
-			auto prop = (Property)i;
+			auto prop = static_cast<Property>(i);
 			if (other.hasProperty(prop)) {
 				set(prop, other.properties[prop]);
 			}

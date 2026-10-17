@@ -4,13 +4,14 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
-#include "irr_v3d.h"
-#include <iostream>
-#include <cassert>
+#include "cast.h"
 #include "exceptions.h"
-#include "mapnode.h"
+#include "irr_v3d.h"
 #include "irrlicht_changes/printing.h"
+#include "irrlichttypes.h"
+#include "mapnode.h"
+#include <cassert>
+#include <iostream>
 
 class NodeDefManager;
 
@@ -120,7 +121,8 @@ public:
 	u32 getVolume() const
 	{
 		// FIXME: possible integer overflow here
-		return (u32)m_cache_extent.X * (u32)m_cache_extent.Y * (u32)m_cache_extent.Z;
+		return icast<u32>(m_cache_extent.X) * icast<u32>(m_cache_extent.Y) *
+			   icast<u32>(m_cache_extent.Z);
 	}
 
 	bool contains(const VoxelArea &a) const
@@ -266,7 +268,7 @@ public:
 	*/
 	s32 index(s16 x, s16 y, s16 z) const
 	{
-		s32 i = (s32)(z - MinEdge.Z) * m_cache_extent.Y * m_cache_extent.X
+		s32 i = icast<s32>(z - MinEdge.Z) * m_cache_extent.Y * m_cache_extent.X
 			+ (y - MinEdge.Y) * m_cache_extent.X
 			+ (x - MinEdge.X);
 		return i;

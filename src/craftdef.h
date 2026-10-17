@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "cast.h"
 #include "gamedef.h"
 
 #include <string>
@@ -47,7 +48,7 @@ enum CraftHashType
 	CRAFT_HASH_TYPE_UNHASHED
 
 };
-constexpr int craft_hash_type_max = (int) CRAFT_HASH_TYPE_UNHASHED;
+constexpr int craft_hash_type_max = static_cast<int>(CRAFT_HASH_TYPE_UNHASHED);
 
 /*
 	Input: The contents of the crafting slots, arranged in matrix form

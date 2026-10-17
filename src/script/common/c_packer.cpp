@@ -2,17 +2,18 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2022 sfan5 <sfan5@live.de>
 
-#include <cstdio>
-#include <cstring>
-#include <cmath>
-#include <cassert>
-#include <unordered_map>
 #include "c_packer.h"
 #include "c_internal.h"
-#include "log.h"
-#include "debug.h"
-#include "threading/mutex_auto_lock.h"
+#include "cast.h"
 #include "common/c_types.h" // LuaError
+#include "debug.h"
+#include "log.h"
+#include "threading/mutex_auto_lock.h"
+#include <cassert>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <unordered_map>
 
 extern "C" {
 #include <lauxlib.h>
@@ -312,7 +313,7 @@ static VectorRef<PackedInstr> record_object(lua_State *L, int idx, PackedValue &
 	}
 
 	s32 ref = found->second;
-	assert(ref < (s32)pv.i.size());
+	assert(ref < icast<s32>(pv.i.size()));
 	// reuse the value from first time
 	auto r = emplace(pv, INSTR_PUSHREF);
 	r->sidata1 = ref;
@@ -657,7 +658,7 @@ void script_dump_packed(const PackedValue *val)
 				printf("table(%d, %d)", i.uidata1, i.uidata2);
 				break;
 			case LUA_TFUNCTION:
-				printf("function(%d bytes)", (int)i.sdata.size());
+				printf("function(%d bytes)", icast<int>(i.sdata.size()));
 				break;
 			case LUA_TUSERDATA:
 				printf("userdata %s %p", i.sdata.c_str(), i.ptrdata);

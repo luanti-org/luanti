@@ -4,17 +4,18 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
+#include "cast.h"
 #include "irr_v2d.h"
+#include "irrlichttypes.h"
+#include "keycode.h"
+#include "settings.h"
+#include "util/string.h"
 #include <array>
 #include <bitset>
 #include <map>
 #include <set>
 #include <unordered_map>
 #include <utility>
-#include "keycode.h"
-#include "settings.h"
-#include "util/string.h"
 
 class InputHandler;
 
@@ -205,7 +206,7 @@ public:
 
 	static inline float intToAnalog(s16 value)
 	{
-		return value > 0 ? value / (f32)INT16_MAX : 0.0f;
+		return value > 0 ? value / icast<f32>(INT16_MAX) : 0.0f;
 	}
 
 	virtual float getAxisValue(GameKeyType k) = 0;

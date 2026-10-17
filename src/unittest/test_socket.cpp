@@ -94,7 +94,7 @@ void TestSocket::testIPv4Socket()
 
 void TestSocket::testIPv6Socket()
 {
-	Address address6((IPv6AddressBytes *)NULL, port);
+	Address address6(icast<IPv6AddressBytes *>(NULL), port);
 	UDPSocket socket6;
 
 	try {

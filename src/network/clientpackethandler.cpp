@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2015 nerzhul, Loic Blot <loic.blot@unix-experience.fr>
 
+#include "cast.h"
 #include "client/client.h"
 
 #include "exceptions.h"
@@ -77,14 +78,14 @@ void Client::handleCommand_Hello(NetworkPacket* pkt)
 	AuthMechanism chosen_auth_mechanism = choseAuthMech(auth_mechs);
 
 	infostream << "Client: TOCLIENT_HELLO received with "
-			<< "serialization_ver=" << (u32)serialization_ver
+			<< "serialization_ver=" << icast<u32>(serialization_ver)
 			<< ", auth_mechs=" << auth_mechs
 			<< ", proto_ver=" << proto_ver
 			<< ". Doing auth with mech " << chosen_auth_mechanism << std::endl;
 
 	if (!ser_ver_supported_read(serialization_ver)) {
 		warningstream << "Client: TOCLIENT_HELLO: Server sent "
-				<< "unsupported serialization_ver=" << (u32)serialization_ver
+				<< "unsupported serialization_ver=" << icast<u32>(serialization_ver)
 				<< std::endl;
 		return;
 	}
@@ -98,7 +99,7 @@ void Client::handleCommand_Hello(NetworkPacket* pkt)
 			<< "(chosen_mech=" << m_chosen_auth_mech << ")." << std::endl;
 		if (m_chosen_auth_mech == AUTH_MECHANISM_SRP ||
 				m_chosen_auth_mech == AUTH_MECHANISM_LEGACY_PASSWORD) {
-			srp_user_delete((SRPUser *) m_auth_data);
+			srp_user_delete(static_cast<SRPUser *>(m_auth_data));
 			m_auth_data = 0;
 		}
 	}
@@ -259,7 +260,7 @@ void Client::handleCommand_AddNode(NetworkPacket* pkt)
 	pkt->skip(MapNode::serializedLength(m_server_ser_ver)); // performs length check
 
 	MapNode n;
-	n.deSerialize((const u8 *)str.data(), m_server_ser_ver);
+	n.deSerialize(reinterpret_cast<const u8 *>(str.data()), m_server_ser_ver);
 
 	bool keep_metadata;
 	*pkt >> keep_metadata;

@@ -4,11 +4,13 @@
 
 #include "address.h"
 
-#include <iostream>
-#include <cstring>
-#include <cerrno>
+#include "cast.h"
+
 #include "network/networkexceptions.h"
 #include "settings.h"
+#include <cerrno>
+#include <cstring>
+#include <iostream>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -91,11 +93,11 @@ void Address::Resolve(const char *name, Address *fallback)
 
 	const auto &copy_from_ai = [] (const struct addrinfo *ai, Address *to) {
 		if (ai->ai_family == AF_INET) {
-			struct sockaddr_in *t = (struct sockaddr_in *)ai->ai_addr;
+			struct sockaddr_in *t = reinterpret_cast<struct sockaddr_in *>(ai->ai_addr);
 			to->m_addr_family = AF_INET;
 			to->m_address.ipv4 = t->sin_addr;
 		} else if (ai->ai_family == AF_INET6) {
-			struct sockaddr_in6 *t = (struct sockaddr_in6 *)ai->ai_addr;
+			struct sockaddr_in6 *t = reinterpret_cast<struct sockaddr_in6 *>(ai->ai_addr);
 			to->m_addr_family = AF_INET6;
 			to->m_address.ipv6 = t->sin6_addr;
 		} else {
