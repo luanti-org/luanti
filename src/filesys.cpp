@@ -4,7 +4,6 @@
 
 #include "filesys.h"
 #include "util/string.h"
-#include <filesystem>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -472,10 +471,8 @@ bool CopyFileContents(const std::string &source, const std::string &target)
  * portable implementations *
  ****************************/
 
-bool RecursiveDelete(const std::string &path)
+bool RecursiveDelete(const AbsPath &path)
 {
-	assert(IsPathAbsolute(path));
-
 	std::filesystem::path p;
 	try {
 		// On Windows, this throws if `path` is not valid UTF-8.

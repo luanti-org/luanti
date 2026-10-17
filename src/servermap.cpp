@@ -197,9 +197,8 @@ bool ServerMap::blockpos_over_mapgen_limit(v3s16 p)
 		p.Z >  mapgen_limit_bp;
 }
 
-bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
+bool ServerMap::initBlockMake(v3s16 blockpos, RealBlockMakeData data)
 {
-	assert(data);
 	const v3s16 csize = getMapgenParams()->chunksize;
 	const v3s16 bpmin = EmergeManager::getContainingChunk(blockpos, csize);
 	const v3s16 bpmax = bpmin + csize - v3s16(1);
@@ -257,10 +256,8 @@ bool ServerMap::initBlockMake(v3s16 blockpos, BlockMakeData *data)
 	return true;
 }
 
-void ServerMap::cancelBlockMake(BlockMakeData *data)
+void ServerMap::cancelBlockMake(RealBlockMakeData data)
 {
-	assert(data->vmanip); // no vmanip = initBlockMake did not complete (caller mistake)
-
 	const v3s16 full_bpmin = data->blockpos_min - EMERGE_EXTRA_BORDER;
 	const v3s16 full_bpmax = data->blockpos_max + EMERGE_EXTRA_BORDER;
 	for (s16 x = full_bpmin.X; x <= full_bpmax.X; x++)
@@ -272,10 +269,9 @@ void ServerMap::cancelBlockMake(BlockMakeData *data)
 	}
 }
 
-void ServerMap::finishBlockMake(BlockMakeData *data,
+void ServerMap::finishBlockMake(RealBlockMakeData data,
 	std::map<v3s16, MapBlock*> *changed_blocks, ServerEnvironment *env)
 {
-	assert(data);
 	assert(changed_blocks);
 	u32 now = env->getGameTime();
 	const v3s16 bpmin = data->blockpos_min;

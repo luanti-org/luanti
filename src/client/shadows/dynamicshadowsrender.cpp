@@ -216,35 +216,24 @@ void ShadowRenderer::updateSMTextures()
 
 	if (!shadowMapTextureDynamicObjects) {
 
-		shadowMapTextureDynamicObjects = getSMTexture(
-			std::string("shadow_dynamic_") + itos(m_shadow_map_texture_size),
-			m_texture_format, true);
-		assert(shadowMapTextureDynamicObjects != nullptr);
+		shadowMapTextureDynamicObjects = createSMTexture(
+			std::string("shadow_dynamic_") + itos(m_shadow_map_texture_size), m_texture_format);
 	}
 
 	if (!shadowMapClientMap) {
 
-		shadowMapClientMap = getSMTexture(
-			std::string("shadow_clientmap_") + itos(m_shadow_map_texture_size),
-			m_shadow_map_colored ? m_texture_format_color : m_texture_format,
-			true);
-		assert(shadowMapClientMap != nullptr);
+		shadowMapClientMap = createSMTexture(std::string("shadow_clientmap_") + itos(m_shadow_map_texture_size),
+			m_shadow_map_colored ? m_texture_format_color : m_texture_format);
 	}
 
 	if (!shadowMapClientMapFuture && m_map_shadow_update_frames > 1) {
-		shadowMapClientMapFuture = getSMTexture(
-			std::string("shadow_clientmap_bb_") + itos(m_shadow_map_texture_size),
-			m_shadow_map_colored ? m_texture_format_color : m_texture_format,
-			true);
-		assert(shadowMapClientMapFuture != nullptr);
+		shadowMapClientMapFuture = createSMTexture(std::string("shadow_clientmap_bb_") + itos(m_shadow_map_texture_size),
+			m_shadow_map_colored ? m_texture_format_color : m_texture_format);
 	}
 
 	if (m_shadow_map_colored && !shadowMapTextureColors) {
-		shadowMapTextureColors = getSMTexture(
-			std::string("shadow_colored_") + itos(m_shadow_map_texture_size),
-			m_shadow_map_colored ? m_texture_format_color : m_texture_format,
-			true);
-		assert(shadowMapTextureColors != nullptr);
+		shadowMapTextureColors = createSMTexture(std::string("shadow_colored_") + itos(m_shadow_map_texture_size),
+			m_shadow_map_colored ? m_texture_format_color : m_texture_format);
 	}
 
 	// Then merge all shadowmap textures
@@ -261,10 +250,7 @@ void ShadowRenderer::updateSMTextures()
 			else
 				frt = video::ECF_R16F;
 		}
-		shadowMapTextureFinal = getSMTexture(
-			std::string("shadowmap_final_") + itos(m_shadow_map_texture_size),
-			frt, true);
-		assert(shadowMapTextureFinal != nullptr);
+		shadowMapTextureFinal = createSMTexture(std::string("shadowmap_final_") + itos(m_shadow_map_texture_size), frt);
 
 		for (auto &node : m_shadow_node_array) {
 			node.node->forEachMaterial([this] (auto &mat) {
@@ -421,18 +407,12 @@ void ShadowRenderer::drawDebug()
 #endif
 }
 
-
-video::ITexture *ShadowRenderer::getSMTexture(const std::string &shadow_map_name,
-		video::ECOLOR_FORMAT texture_format, bool force_creation)
+video::ITexture *ShadowRenderer::createSMTexture(const std::string &shadow_map_name,
+		video::ECOLOR_FORMAT texture_format)
 {
-	if (force_creation) {
-		return m_driver->addRenderTargetTexture(
-				core::dimension2du(m_shadow_map_texture_size,
-						m_shadow_map_texture_size),
-				shadow_map_name.c_str(), texture_format);
-	}
-
-	return m_driver->findTexture(shadow_map_name.c_str());
+	return m_driver->addRenderTargetTexture(
+		core::dimension2du(m_shadow_map_texture_size, m_shadow_map_texture_size),
+		shadow_map_name.c_str(), texture_format);
 }
 
 void ShadowRenderer::renderShadowMap(video::ITexture *target,

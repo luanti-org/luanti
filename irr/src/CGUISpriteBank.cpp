@@ -47,10 +47,7 @@ u32 CGUISpriteBank::getTextureCount() const
 
 video::ITexture *CGUISpriteBank::getTexture(u32 index) const
 {
-	if (index < Textures.size())
-		return Textures[index];
-	else
-		return 0;
+	return index < Textures.size() ? Textures[index] : 0;
 }
 
 void CGUISpriteBank::addTexture(video::ITexture *texture)

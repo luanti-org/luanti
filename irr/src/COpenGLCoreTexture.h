@@ -19,6 +19,19 @@
 namespace video
 {
 
+struct Dimension2D_nz
+{
+	u32 Width;
+	u32 Height;
+
+	Dimension2D_nz(core::dimension2d<u32> size) : Width(size.Width), Height(size.Height)
+	{
+		assert(Width > 0 && Height > 0);
+	}
+
+	operator core::dimension2d<u32>() const { return {Width, Height}; }
+};
+
 template <class TOpenGLDriver>
 class COpenGLCoreTexture : public ITexture
 {
@@ -260,8 +273,7 @@ public:
 		}
 
 		if (!LockImage) {
-			core::dimension2d<u32> lockImageSize(IImage::getMipMapsSize(Size, MipLevelStored));
-			assert(lockImageSize.Width > 0 && lockImageSize.Height > 0);
+			Dimension2D_nz lockImageSize(IImage::getMipMapsSize(Size, MipLevelStored));
 
 			LockImage = Driver->createImage(ColorFormat, lockImageSize);
 

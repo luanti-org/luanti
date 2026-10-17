@@ -18,14 +18,23 @@ extern "C" {
 #include <lauxlib.h>
 }
 
+struct int_neg
+{
+private:
+	int index;
+
+public:
+	int_neg(int idx) : index(idx) { assert(idx < 0); }
+	constexpr operator int() const { return index; }
+};
+
 //
 // Helpers
 //
 
 // convert negative index to absolute position on Lua stack
-static inline int absidx(lua_State *L, int idx)
+static inline int absidx(lua_State *L, int_neg idx)
 {
-	assert(idx < 0);
 	return lua_gettop(L) + idx + 1;
 }
 

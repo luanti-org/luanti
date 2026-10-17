@@ -796,8 +796,7 @@ void ServerEnvironment::clearObjects(ClearObjectsMode mode)
 
 	// Grab a reference on each loaded block to avoid unloading it
 	for (v3s16 p : loaded_blocks) {
-		MapBlock *block = m_map->getBlockNoCreateNoEx(p);
-		assert(block);
+		RealMapBlock block = m_map->getBlockNoCreateNoEx(p);
 		block->refGrab();
 	}
 
@@ -840,8 +839,7 @@ void ServerEnvironment::clearObjects(ClearObjectsMode mode)
 
 	// Drop references that were added above
 	for (v3s16 p : loaded_blocks) {
-		MapBlock *block = m_map->getBlockNoCreateNoEx(p);
-		assert(block);
+		RealMapBlock block = m_map->getBlockNoCreateNoEx(p);
 		block->refDrop();
 	}
 
@@ -892,8 +890,7 @@ void ServerEnvironment::step(float dtime)
 			if (player->getPeerId() == PEER_ID_INEXISTENT)
 				continue;
 
-			PlayerSAO *playersao = player->getPlayerSAO();
-			assert(playersao);
+			RealPlayerSAO playersao = player->getPlayerSAO();
 
 			players.push_back(playersao);
 		}

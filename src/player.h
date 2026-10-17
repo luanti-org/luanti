@@ -167,6 +167,17 @@ enum class LocalPlayerAnimation : u8
 	COUNT
 };
 
+struct RealItemStack
+{
+private:
+	ItemStack *stack_;
+
+public:
+	constexpr RealItemStack(ItemStack *stack) : stack_(stack) { assert(stack); }
+	constexpr ItemStack *operator->() const { return stack_; }
+	constexpr operator ItemStack *() const { return stack_; }
+};
+
 class Player
 {
 public:
@@ -223,7 +234,7 @@ public:
 	PlayerPhysicsOverride physics_override;
 
 	// Returns non-empty `selected` ItemStack. `hand` is a fallback, if specified
-	ItemStack &getWieldedItem(ItemStack *selected, ItemStack *hand) const;
+	ItemStack &getWieldedItem(RealItemStack selected, ItemStack *hand) const;
 	void setWieldIndex(u16 index);
 	u16 getWieldIndex();
 

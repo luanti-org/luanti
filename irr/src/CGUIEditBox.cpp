@@ -241,10 +241,8 @@ bool CGUIEditBox::OnEvent(const SEvent &event)
 	return IGUIElement::OnEvent(event);
 }
 
-s32 CGUIEditBox::getCtrlKeyWord(s32 startpos, s8 dir)
+s32 CGUIEditBox::getCtrlKeyWord(s32 startpos, Select dir)
 {
-	assert(dir == 1 || dir == -1);
-
 	s32 endpos = startpos;
 	wchar_t prev_c = L'\0';
 	for (s32 i = startpos; i >= 0 && i <= (s32)Text.size(); i += dir) {
@@ -491,19 +489,18 @@ bool CGUIEditBox::processKey(const SEvent &event)
 	return true;
 }
 
+s32 CGUIEditBox::getNewPos(const SEvent::SKeyInput &input)
+{
+	const Select dir = input.Key == KEY_RIGHT ? Select::NEXT : Select::PREV;
+
+	s32 new_pos = input.Control ? getCtrlKeyWord(CursorPos, dir) : // Move by word
+					  CursorPos + dir;							   // Move by character
+	return new_pos;
+}
 void CGUIEditBox::processKeyLR(const SEvent::SKeyInput &input, s32 &new_mark_begin,
 		s32 &new_mark_end)
 {
-	const s8 dir = input.Key == KEY_RIGHT ? 1 : -1;
-
-	s32 new_pos;
-	if (input.Control) {
-		// Advance to next/previous word
-		new_pos = getCtrlKeyWord(CursorPos, dir);
-	} else {
-		// Advance by +1/-1 character
-		new_pos = CursorPos + dir;
-	}
+	s32 new_pos = getNewPos(input);
 
 	if (!input.Shift) {
 		// Reset selection
@@ -511,17 +508,19 @@ void CGUIEditBox::processKeyLR(const SEvent::SKeyInput &input, s32 &new_mark_beg
 		new_mark_end = 0;
 	}
 
-	if (new_pos >= 0 && new_pos <= (s32)Text.size()) {
-		// Update cursor (and selection)
-		if (input.Shift) {
-			if (MarkBegin == MarkEnd)
-				new_mark_begin = CursorPos;
+	if (new_pos < 0 || new_pos > (s32)Text.size())
+		return;
 
-			new_mark_end = new_pos;
-		}
+	// Update cursor (and selection)
+	if (input.Shift)
+	{
+		if (MarkBegin == MarkEnd)
+			new_mark_begin = CursorPos;
 
-		CursorPos = new_pos;
+		new_mark_end = new_pos;
 	}
+
+	CursorPos = new_pos;
 }
 
 bool CGUIEditBox::onKeyUpDown(const SEvent::SKeyInput &input, s32 &mark_begin,
@@ -530,13 +529,13 @@ bool CGUIEditBox::onKeyUpDown(const SEvent::SKeyInput &input, s32 &mark_begin,
 	if (!MultiLine && !(WordWrap && BrokenText.size() > 1))
 		return false;
 
-	const s8 dir = (input.Key == KEY_DOWN || input.Key == KEY_NEXT) ? 1 : -1;
+	const Select dir = (input.Key == KEY_DOWN || input.Key == KEY_NEXT) ? NEXT : PREV;
 	s32 new_pos = CursorPos;
 
 	for (u32 i = 0; i < lines_max; ++i) {
 		s32 lineNo = getLineFromPos(new_pos);
 
-		if (dir > 0) {
+		if (dir == NEXT) {
 			// Down
 			if (lineNo >= (s32)BrokenText.size() - 1) {
 				if (i == 0)
@@ -608,21 +607,20 @@ bool CGUIEditBox::onKeyControlX(const SEvent &event, s32 &mark_begin, s32 &mark_
 	const s32 realmbgn = MarkBegin < MarkEnd ? MarkBegin : MarkEnd;
 	const s32 realmend = MarkBegin < MarkEnd ? MarkEnd : MarkBegin;
 
+	if (!isEnabled())
+		return false;
+
 	// Now remove from box if enabled
-	if (isEnabled()) {
-		// delete
-		core::stringw s;
-		s = Text.subString(0, realmbgn);
-		s.append(Text.subString(realmend, Text.size() - realmend));
-		Text = s;
+	// delete
+	core::stringw s;
+	s = Text.subString(0, realmbgn);
+	s.append(Text.subString(realmend, Text.size() - realmend));
+	Text = s;
 
-		CursorPos = realmbgn;
-		mark_begin = 0;
-		mark_end = 0;
-		return true;
-	}
-
-	return false;
+	CursorPos = realmbgn;
+	mark_begin = 0;
+	mark_end = 0;
+	return true;
 }
 
 bool CGUIEditBox::onKeyControlV(const SEvent &event, s32 &mark_begin, s32 &mark_end)
@@ -689,14 +687,7 @@ bool CGUIEditBox::onKeyBackDelete(const SEvent::SKeyInput &input)
 
 		CursorPos = realmbgn;
 	} else {
-		// Direction where the text shall be deleted
-		s8 dir = input.Key == KEY_DELETE ? 1 : -1;
-
-		s32 endpos;
-		if (input.Control)
-			endpos = getCtrlKeyWord(CursorPos, dir);
-		else
-			endpos = CursorPos + dir;
+		s32 endpos = getNewPos(input);
 
 		endpos = std::max<s32>(0, endpos);
 		if (endpos < CursorPos)

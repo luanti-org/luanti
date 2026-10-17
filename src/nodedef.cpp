@@ -960,12 +960,9 @@ void NodeDefManager::eraseIdFromGroups(content_t id)
 
 
 // IWritableNodeDefManager
-content_t NodeDefManager::set(const std::string &name, ContentFeatures &&def)
+content_t NodeDefManager::set(const std::string &name_, ContentFeatures &&def)
 {
-	// Pre-conditions
-	assert(!name.empty());
-	assert(name != "ignore");
-	assert(name == def.name);
+	auto name = NodeName(name_, def.name);
 
 	content_t id = CONTENT_IGNORE;
 	if (!m_name_id_mapping.getId(name, id)) { // ignore aliases
@@ -1004,20 +1001,16 @@ content_t NodeDefManager::set(const std::string &name, ContentFeatures &&def)
 }
 
 
-content_t NodeDefManager::allocateDummy(const std::string &name)
+content_t NodeDefManager::allocateDummy(const RealName &name)
 {
-	assert(!name.empty());	// Pre-condition
 	ContentFeatures f;
 	f.name = name;
 	return set(name, std::move(f));
 }
 
 
-void NodeDefManager::removeNode(const std::string &name)
+void NodeDefManager::removeNode(const RealName &name)
 {
-	// Pre-condition
-	assert(!name.empty());
-
 	// Erase name from name ID mapping
 	content_t id = CONTENT_IGNORE;
 	if (m_name_id_mapping.getId(name, id)) {

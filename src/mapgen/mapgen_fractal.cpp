@@ -200,12 +200,8 @@ int MapgenFractal::getSpawnLevelAtPoint(v2s16 p)
 }
 
 
-void MapgenFractal::makeChunk(BlockMakeData *data)
+void MapgenFractal::makeChunk(RealBlockMakeData data)
 {
-	// Pre-conditions
-	assert(data->vmanip);
-	assert(data->nodedef);
-
 	//TimeTaker t("makeChunk");
 
 	this->generating = true;

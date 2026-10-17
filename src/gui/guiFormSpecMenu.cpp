@@ -5271,7 +5271,7 @@ bool GUIFormSpecMenu::OnEvent(const SEvent& event)
 
 			// Check how many items can be dropped
 			drop_amount = stack_from.count = MYMIN(drop_amount, stack_from.count);
-			assert(drop_amount > 0 && drop_amount <= m_selected_amount);
+			assert_between_inc_max(drop_amount, 0, m_selected_amount);
 			m_selected_amount -= drop_amount;
 
 			infostream << "Handing IAction::Drop to manager" << std::endl;

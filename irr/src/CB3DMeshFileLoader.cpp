@@ -179,7 +179,7 @@ bool B3DMeshReader::load()
 			os::Printer::log("Unknown chunk found in mesh base - skipping");
 			if (!B3DFile->seek(B3dStack.getLast().startposition + B3dStack.getLast().length))
 				return false;
-			B3dStack.erase(B3dStack.size() - 1);
+			B3dStack.erase(B3dStack.makeIndex(B3dStack.size() - 1));
 		}
 	}
 
@@ -245,11 +245,11 @@ bool B3DMeshReader::readChunkNODE(SkinnedMesh::SJoint *inJoint)
 			os::Printer::log("Unknown chunk found in node chunk - skipping");
 			if (!B3DFile->seek(B3dStack.getLast().startposition + B3dStack.getLast().length))
 				return false;
-			B3dStack.erase(B3dStack.size() - 1);
+			B3dStack.erase(B3dStack.makeIndex(B3dStack.size() - 1));
 		}
 	}
 
-	B3dStack.erase(B3dStack.size() - 1);
+	B3dStack.erase(B3dStack.makeIndex(B3dStack.size() - 1));
 
 	return true;
 }
@@ -318,11 +318,11 @@ bool B3DMeshReader::readChunkMESH(SkinnedMesh::SJoint *inJoint)
 			os::Printer::log("Unknown chunk found in mesh - skipping");
 			if (!B3DFile->seek(B3dStack.getLast().startposition + B3dStack.getLast().length))
 				return false;
-			B3dStack.erase(B3dStack.size() - 1);
+			B3dStack.erase(B3dStack.makeIndex(B3dStack.size() - 1));
 		}
 	}
 
-	B3dStack.erase(B3dStack.size() - 1);
+	B3dStack.erase(B3dStack.makeIndex(B3dStack.size() - 1));
 
 	return true;
 }
@@ -438,7 +438,7 @@ bool B3DMeshReader::readChunkVRTS(SkinnedMesh::SJoint *inJoint)
 		AnimatedVertices_BufferID.push_back(-1);
 	}
 
-	B3dStack.erase(B3dStack.size() - 1);
+	B3dStack.erase(B3dStack.makeIndex(B3dStack.size() - 1));
 
 	return true;
 }
@@ -544,7 +544,7 @@ bool B3DMeshReader::readChunkTRIS(scene::SSkinMeshBuffer *meshBuffer, u32 meshBu
 		meshBuffer->Indices->Data.push_back(AnimatedVertices_VertexID[vertex_id[2]]);
 	}
 
-	B3dStack.erase(B3dStack.size() - 1);
+	B3dStack.erase(B3dStack.makeIndex(B3dStack.size() - 1));
 
 	if (showVertexWarning)
 		os::Printer::log("B3dMeshReader: Warning, different meshbuffers linking to the same vertex, this will cause problems with animated meshes");
@@ -591,7 +591,7 @@ bool B3DMeshReader::readChunkBONE(SkinnedMesh::SJoint *inJoint)
 		}
 	}
 
-	B3dStack.erase(B3dStack.size() - 1);
+	B3dStack.erase(B3dStack.makeIndex(B3dStack.size() - 1));
 	return true;
 }
 
@@ -645,7 +645,7 @@ bool B3DMeshReader::readChunkKEYS(SkinnedMesh::SJoint *inJoint)
 		}
 	}
 
-	B3dStack.erase(B3dStack.size() - 1);
+	B3dStack.erase(B3dStack.makeIndex(B3dStack.size() - 1));
 	auto &anim = AnimatedMesh.getSingleAnimation();
 	anim.joint_keys.emplace_back(SkinnedMesh::Animation::JointKeys{
 			inJoint->JointID, std::move(keys)});
@@ -676,7 +676,7 @@ bool B3DMeshReader::readChunkANIM()
 	animFrames = os::Byteswap::byteswap(animFrames);
 #endif
 
-	B3dStack.erase(B3dStack.size() - 1);
+	B3dStack.erase(B3dStack.makeIndex(B3dStack.size() - 1));
 	return true;
 }
 
@@ -718,7 +718,7 @@ bool B3DMeshReader::readChunkTEXS()
 		readFloats(&B3dTexture.Angle, 1);
 	}
 
-	B3dStack.erase(B3dStack.size() - 1);
+	B3dStack.erase(B3dStack.makeIndex(B3dStack.size() - 1));
 
 	return true;
 }
@@ -863,7 +863,7 @@ bool B3DMeshReader::readChunkBRUS()
 		}
 	}
 
-	B3dStack.erase(B3dStack.size() - 1);
+	B3dStack.erase(B3dStack.makeIndex(B3dStack.size() - 1));
 
 	return true;
 }

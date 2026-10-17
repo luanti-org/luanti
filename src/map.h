@@ -94,6 +94,28 @@ struct MapEditEvent
 	}
 };
 
+struct RealMap
+{
+private:
+	Map *map_;
+
+public:
+	constexpr RealMap(Map *map) : map_(map) { assert(map); }
+	constexpr Map *operator->() const { return map_; }
+	constexpr operator Map *() const { return map_; }
+};
+
+struct RealNodeMetadata
+{
+private:
+	NodeMetadata *data_;
+
+public:
+	constexpr RealNodeMetadata(NodeMetadata *data) : data_(data) { assert(data); }
+	constexpr NodeMetadata *operator->() const { return data_; }
+	constexpr operator NodeMetadata *() const { return data_; }
+};
+
 class MapEventReceiver
 {
 public:
@@ -222,7 +244,7 @@ public:
 	 * @param meta pointer to @c NodeMetadata object
 	 * @return @c true on success, false on failure
 	 */
-	bool setNodeMetadata(v3s16 p, NodeMetadata *meta);
+	bool setNodeMetadata(v3s16 p, RealNodeMetadata meta);
 	void removeNodeMetadata(v3s16 p);
 
 	/*
@@ -307,7 +329,7 @@ protected:
 class MMVManip : public VoxelManipulator
 {
 public:
-	MMVManip(Map *map);
+	MMVManip(RealMap map);
 	~MMVManip() override;
 	DISABLE_CLASS_COPY(MMVManip)
 
@@ -364,4 +386,15 @@ protected:
 private:
 	// references to this that need to be cleared on destruction
 	std::list<MMVManip **> m_tracked_refs;
+};
+
+struct RealMMVManip
+{
+private:
+	MMVManip *vm;
+
+public:
+	RealMMVManip(MMVManip *vm) : vm(vm) { assert(vm); }
+	constexpr MMVManip *operator->() const { return vm; }
+	operator MMVManip*() const { return vm; }
 };

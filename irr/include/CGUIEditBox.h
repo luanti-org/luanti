@@ -145,6 +145,12 @@ public:
 	void setWritable(bool writable) override { IsWritable = writable; setTabStop(writable); }
 
 protected:
+	enum Select
+	{
+		PREV = -1,
+		NEXT = 1
+	};
+
 	//! Breaks the single text line.
 	void breakText();
 	//! sets the area of the given line
@@ -167,7 +173,7 @@ protected:
 	void updateVScrollBar();
 
 	//! Ctrl+Left, Ctrl+Del uses entire words. This gets the indices.
-	s32 getCtrlKeyWord(s32 startpos, s8 dir);
+	s32 getCtrlKeyWord(s32 startpos, Select dir);
 	bool processKey(const SEvent &event);
 	//! KEY_LEFT / KEY_RIGHT inputs
 	void processKeyLR(const SEvent::SKeyInput &input, s32 &new_mark_begin,
@@ -220,6 +226,8 @@ protected:
 	core::array<s32> BrokenTextPositions;
 
 	core::rect<s32> CurrentTextRect, FrameRect; // temporary values
+private:
+	s32 getNewPos(const SEvent::SKeyInput &input);
 };
 
 } // end namespace gui

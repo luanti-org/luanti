@@ -533,7 +533,7 @@ s32 GUITable::getSelected() const
 	if (m_selected < 0)
 		return 0;
 
-	assert(m_selected >= 0 && m_selected < (s32) m_visible_rows.size());
+	assert_between_inc_min(m_selected, 0, (s32) m_visible_rows.size());
 	return m_visible_rows[m_selected] + 1;
 }
 
@@ -573,7 +573,7 @@ void GUITable::setSelected(s32 index)
 
 	if (index >= 0) {
 		m_selected = m_rows[index].visible_index;
-		assert(m_selected >= 0 && m_selected < (s32) m_visible_rows.size());
+		assert_between_inc_min(m_selected, 0, (s32) m_visible_rows.size());
 	}
 
 	if (m_selected != old_selected || selection_invisible) {

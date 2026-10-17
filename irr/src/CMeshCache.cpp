@@ -35,7 +35,7 @@ void CMeshCache::removeMesh(const IMesh *const mesh)
 	for (u32 i = 0; i < Meshes.size(); ++i) {
 		if (Meshes[i].Mesh == mesh) {
 			Meshes[i].Mesh->drop();
-			Meshes.erase(i);
+			Meshes.erase(Meshes.makeIndex(i));
 			return;
 		}
 	}
@@ -144,7 +144,7 @@ void CMeshCache::clearUnusedMeshes()
 	for (u32 i = 0; i < Meshes.size(); ++i) {
 		if (Meshes[i].Mesh->getReferenceCount() == 1) {
 			Meshes[i].Mesh->drop();
-			Meshes.erase(i);
+			Meshes.erase(Meshes.makeIndex(i));
 			--i;
 		}
 	}

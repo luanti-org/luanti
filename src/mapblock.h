@@ -4,16 +4,17 @@
 
 #pragma once
 
-#include <vector>
+#include "client/localplayer.h"
+#include "constants.h"
+#include "exceptions.h"
 #include "irr_v3d.h"
 #include "mapnode.h"
-#include "exceptions.h"
-#include "constants.h"
-#include "staticobject.h"
+#include "modifiedstate.h"
 #include "nodemetadata.h" // NodeMetadataList
 #include "nodetimer.h"
-#include "modifiedstate.h"
+#include "staticobject.h"
 #include "util/numeric.h" // getContainerPos
+#include <vector>
 
 class Map;
 class IGameDef;
@@ -23,6 +24,25 @@ class NameIdMapping;
 class TestMapBlock;
 
 #define BLOCK_TIMESTAMP_UNDEFINED 0xffffffff
+#define DIRECTION_LIMIT 6
+#define DIRECTION_MAX (DIRECTION_LIMIT - 1)
+
+struct Direction
+{
+private:
+	u8 direction_;
+
+public:
+	constexpr Direction(const u8 direction) : direction_(direction) {
+		assert(direction < DIRECTION_LIMIT);
+	}
+	constexpr operator u8() const { return direction_; }
+	Direction &operator+=(int i) {
+		direction_ += i;
+		return *this;
+	}
+};
+
 
 ////
 //// MapBlock modified reason flags
@@ -137,12 +157,11 @@ public:
 		return m_lighting_complete;
 	}
 
-	inline void setLightingComplete(LightBank bank, u8 direction,
+	inline void setLightingComplete(LightBank bank, Direction direction,
 		bool is_complete)
 	{
-		assert(direction <= 5);
 		if (bank == LIGHTBANK_NIGHT) {
-			direction += 6;
+			direction += DIRECTION_LIMIT;
 		}
 		u16 newflags = m_lighting_complete;
 		if (is_complete) {
@@ -153,11 +172,10 @@ public:
 		setLightingComplete(newflags);
 	}
 
-	inline bool isLightingComplete(LightBank bank, u8 direction)
+	inline bool isLightingComplete(LightBank bank, Direction direction)
 	{
-		assert(direction <= 5);
 		if (bank == LIGHTBANK_NIGHT) {
-			direction += 6;
+			direction += DIRECTION_LIMIT;
 		}
 		return (m_lighting_complete & (1 << direction)) != 0;
 	}

@@ -24,6 +24,17 @@ public:
 	static_assert(!std::is_same<T, bool>::value,
 			"core::array<T> with T = bool not supported. Use std::vector instead.");
 
+	struct Index
+	{
+	private:
+		u32 id_;
+		constexpr Index(u32 id, u32 max_size) : id_(id) { assert(id <= max_size); }
+		friend class array;
+
+	public:
+		constexpr operator u32() const { return id_; }
+	};
+
 	//! Default constructor for empty array.
 	array() :
 			m_data(), is_sorted(true)
@@ -101,13 +112,17 @@ public:
 		is_sorted = false;
 	}
 
+	//! Factory method to create a validated Index
+	constexpr Index makeIndex(u32 id) const {
+		return Index(id, m_data.size());
+	}
+
 	//! Insert item into array at specified position.
 	/**
 	\param element: Element to be inserted
 	\param index: Where position to insert the new element. */
-	void insert(const T &element, u32 index = 0)
+	void insert(const T &element, Index index = 0)
 	{
-		assert(index <= m_data.size());
 		auto pos = std::next(m_data.begin(), index);
 		m_data.insert(pos, element);
 		is_sorted = false;
@@ -358,9 +373,8 @@ public:
 	/** May be slow, because all elements following after the erased
 	element have to be copied.
 	\param index: Index of element to be erased. */
-	void erase(u32 index)
+	void erase(Index index)
 	{
-		assert(index < m_data.size());
 		auto it = std::next(m_data.begin(), index);
 		m_data.erase(it);
 	}
@@ -370,9 +384,9 @@ public:
 	element have to be copied.
 	\param index: Index of the first element to be erased.
 	\param count: Amount of elements to be erased. */
-	void erase(u32 index, s32 count)
+	void erase(Index index, s32 count)
 	{
-		if (index >= m_data.size() || count < 1)
+		if (count < 1)
 			return;
 		count = core::min_(count, (s32)m_data.size() - (s32)index);
 		auto first = std::next(m_data.begin(), index);

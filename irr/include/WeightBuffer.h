@@ -17,6 +17,16 @@
 namespace scene
 {
 
+struct Weight
+{
+private:
+	f32 weight_;
+
+public:
+	constexpr Weight(const f32 weight) : weight_(weight) { assert(weight >= 0.0f); }
+	constexpr operator f32() const { return weight_; }
+};
+
 struct WeightBuffer final : public HWBuffer
 {
 	constexpr static u16 MAX_WEIGHTS_PER_VERTEX = 4;
@@ -24,7 +34,7 @@ struct WeightBuffer final : public HWBuffer
 	struct VertexWeights {
 		std::array<u16, MAX_WEIGHTS_PER_VERTEX> joint_ids = {};
 		std::array<f32, MAX_WEIGHTS_PER_VERTEX> weights = {};
-		void addWeight(u16 joint_id, f32 weight);
+		void addWeight(u16 joint_id, Weight weight);
 		/// Transform given position and normal with these weights
 		void skinVertex(core::vector3df &pos, core::vector3df &normal,
 				const std::vector<core::matrix4> &joint_transforms) const;
@@ -62,7 +72,7 @@ struct WeightBuffer final : public HWBuffer
 	const void *getData() const override
 	{ return weights.data(); }
 
-	void addWeight(u32 vertex_id, u16 joint_id, f32 weight);
+	void addWeight(u32 vertex_id, u16 joint_id, Weight weight);
 
 	/// Transform position and normal using the weights of the given vertex
 	void skinVertex(u32 vertex_id, core::vector3df &pos, core::vector3df &normal,

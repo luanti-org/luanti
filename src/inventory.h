@@ -17,6 +17,16 @@ struct ItemDefinition;
 struct ItemImageDef;
 struct ToolCapabilities;
 
+struct Amount
+{
+private:
+	u16 amount_;
+
+public:
+	Amount(u16 n, size_t max) : amount_(n) { assert(amount_ <= max); }
+	constexpr operator u16() const { return amount_; }
+};
+
 struct ItemStack
 {
 	ItemStack() = default;
@@ -68,8 +78,7 @@ struct ItemStack
 
 	void remove(u16 n)
 	{
-		assert(count >= n); // Pre-condition
-		count -= n;
+		count -= Amount(n, count);
 		if(count == 0)
 			clear(); // reset name, wear and metadata too
 	}
@@ -153,6 +162,15 @@ struct ItemStack
 	ItemStackMetadata metadata;
 };
 
+struct ItemIndex
+{
+private:
+	u32 index_;
+public:
+	ItemIndex(u32 index, size_t inventory_size) : index_(index) { assert(index < inventory_size); }
+	constexpr operator u32() const { return index_; }
+};
+
 class InventoryList
 {
 public:
@@ -182,20 +200,18 @@ public:
 	// Get reference to item
 	const ItemStack &getItem(u32 i) const
 	{
-		assert(i < m_size); // Pre-condition
-		return m_items[i];
+		return m_items[ItemIndex(i, m_size)];
 	}
 	ItemStack &getItem(u32 i)
 	{
-		assert(i < m_size); // Pre-condition
-		return m_items[i];
+		return m_items[ItemIndex(i, m_size)];
 	}
 	// Get reference to all items
 	const std::vector<ItemStack> &getItems() const { return m_items; }
 	// Returns old item. Parameter can be an empty item.
 	ItemStack changeItem(u32 i, const ItemStack &newitem);
 	// Delete item
-	void deleteItem(u32 i);
+	void deleteItem(ItemIndex i);
 
 	// Adds an item to a suitable place. Returns leftover item (possibly empty).
 	ItemStack addItem(const ItemStack &newitem);

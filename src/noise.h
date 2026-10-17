@@ -86,6 +86,17 @@ private:
 	s32 m_next;
 };
 
+struct RealPseudoRandom
+{
+private:
+	PseudoRandom *ps;
+
+public:
+	RealPseudoRandom(PseudoRandom *ps) : ps(ps) { assert(ps); }
+	constexpr PseudoRandom *operator->() const { return ps; }
+	operator PseudoRandom*() const { return ps; }
+};
+
 class PcgRandom {
 public:
 	const static s32 RANDOM_MIN   = -0x7fffffff - 1;

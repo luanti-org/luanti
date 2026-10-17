@@ -210,7 +210,7 @@ const char *Logger::getLevelLabel(LogLevel lev)
 	};
 	static_assert(ARRLEN(names) == LL_MAX,
 		"mismatch between loglevel names and enum");
-	assert(lev < LL_MAX && lev >= 0);
+	assert(lev < LL_MAX);
 	return names[lev];
 }
 

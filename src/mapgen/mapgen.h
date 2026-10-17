@@ -7,12 +7,12 @@
 #pragma once
 
 #include "constants.h"
-#include "noise.h"
 #include "nodedef.h"
-#include "util/string.h"
+#include "noise.h"
 #include "util/container.h"
-#include <utility>
+#include "util/string.h"
 #include <set>
+#include <utility>
 
 #define MAPGEN_DEFAULT MAPGEN_V7
 #define MAPGEN_DEFAULT_NAME "v7"
@@ -38,7 +38,7 @@ class BiomeGen;
 struct BiomeParams;
 class BiomeManager;
 class EmergeParams;
-struct BlockMakeData;
+struct RealBlockMakeData;
 class VoxelArea;
 
 enum MapgenObject {
@@ -221,7 +221,7 @@ public:
 	 */
 	void spreadLight(const v3s16 &nmin, const v3s16 &nmax);
 
-	virtual void makeChunk(BlockMakeData *data) {}
+	virtual void makeChunk(const RealBlockMakeData &data) {}
 	virtual int getGroundLevelAtPoint(v2s16 p) { return 0; }
 
 	// getSpawnLevelAtPoint() is a function within each mapgen that returns a

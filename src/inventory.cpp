@@ -690,9 +690,8 @@ ItemStack InventoryList::changeItem(u32 i, const ItemStack &newitem)
 	return olditem;
 }
 
-void InventoryList::deleteItem(u32 i)
+void InventoryList::deleteItem(ItemIndex i)
 {
-	assert(i < m_items.size()); // Pre-condition
 	m_items[i].clear();
 	setModified();
 }

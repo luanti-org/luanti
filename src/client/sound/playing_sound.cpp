@@ -197,8 +197,7 @@ bool PlayingSound::doFade(f32 dtime) noexcept
 	if (getState() == AL_PAUSED)
 		return true;
 
-	FadeState &fade = *m_fade_state;
-	assert(fade.step != 0.0f);
+	RealFadeState fade(m_fade_state.value());
 
 	f32 current_gain = getGain();
 	current_gain += fade.step * dtime;

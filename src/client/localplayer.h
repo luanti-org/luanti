@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "player.h"
 #include "constants.h"
 #include "lighting.h"
+#include "player.h"
 #include <string>
 
 class Client;
@@ -214,3 +214,15 @@ private:
 	PlayerSettings m_player_settings;
 	Lighting m_lighting;
 };
+
+struct RealLocalPlayer
+{
+private:
+	LocalPlayer *player_;
+
+public:
+	constexpr RealLocalPlayer(LocalPlayer *player) : player_(player) { assert(player); }
+	constexpr LocalPlayer* operator->() const { return player_; }
+	constexpr operator LocalPlayer*() const { return player_; }
+};
+u16 operator<<(int lhs, const RealLocalPlayer & rhs);

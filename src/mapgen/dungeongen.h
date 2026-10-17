@@ -14,7 +14,7 @@
 #define VMANIP_FLAG_DUNGEON_UNTOUCHABLE (\
 		VMANIP_FLAG_DUNGEON_INSIDE|VMANIP_FLAG_DUNGEON_PRESERVE)
 
-class MMVManip;
+struct RealMMVManip;
 class NodeDefManager;
 
 v3s16 rand_ortho_dir(PseudoRandom &random, bool diagonal_dirs);
@@ -84,10 +84,10 @@ public:
 	v3s16 m_pos;
 	v3s16 m_dir;
 
-	DungeonGen(const NodeDefManager *ndef,
+	DungeonGen(const RealNodeDefManager ndef,
 		GenerateNotifier *gennotify, DungeonParams *dparams);
 
-	void generate(MMVManip *vm, u32 bseed, v3s16 full_node_min, v3s16 full_node_max);
+	void generate(RealMMVManip vm, u32 bseed, v3s16 full_node_min, v3s16 full_node_max);
 
 	void makeDungeon(v3s16 start_padding);
 	void makeRoom(v3s16 roomsize, v3s16 roomplace);

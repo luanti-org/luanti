@@ -105,8 +105,8 @@ private:
 			bool loop, f32 volume, f32 pitch, f32 start_time,
 			const std::optional<std::pair<v3f, v3f>> &pos_vel_opt);
 
-	void playSoundGeneric(sound_handle_t id, const std::string &group_name, bool loop,
-			f32 volume, f32 fade, f32 pitch, bool use_local_fallback, f32 start_time,
+	void playSoundGeneric(RealSoundHandle id, const std::string &group_name, bool loop, f32 volume,
+			f32 fade, f32 pitch, bool use_local_fallback, f32 start_time,
 			const std::optional<std::pair<v3f, v3f>> &pos_vel_opt);
 
 	/**

@@ -201,16 +201,6 @@ u32 SkinnedMesh::getJointCount() const
 	return AllJoints.size();
 }
 
-//! Gets the name of a joint.
-const std::optional<std::string> &SkinnedMesh::getJointName(u32 number) const
-{
-	if (number >= getJointCount()) {
-		static const std::optional<std::string> nullopt;
-		return nullopt;
-	}
-	return AllJoints[number]->Name;
-}
-
 //! Gets a joint number from its name
 std::optional<u32> SkinnedMesh::getJointNumber(const std::string &name) const
 {
@@ -545,92 +535,6 @@ void SkinnedMeshBuilder::addWeight(SJoint *joint, u16 buf_id, u32 vert_id, f32 s
 	if (strength <= 0.0f)
 		return;
 	weights.emplace_back(Weight{joint->JointID, buf_id, vert_id, strength});
-}
-
-void SkinnedMesh::convertMeshToTangents()
-{
-	// now calculate tangents
-	for (u32 b = 0; b < LocalBuffers.size(); ++b) {
-		if (LocalBuffers[b]) {
-			LocalBuffers[b]->convertToTangents();
-
-			const s32 idxCnt = LocalBuffers[b]->getIndexCount();
-
-			u16 *idx = LocalBuffers[b]->getIndices();
-			video::S3DVertexTangents *v =
-					(video::S3DVertexTangents *)LocalBuffers[b]->getVertices();
-
-			for (s32 i = 0; i < idxCnt; i += 3) {
-				calculateTangents(
-						v[idx[i + 0]].Normal,
-						v[idx[i + 0]].Tangent,
-						v[idx[i + 0]].Binormal,
-						v[idx[i + 0]].Pos,
-						v[idx[i + 1]].Pos,
-						v[idx[i + 2]].Pos,
-						v[idx[i + 0]].TCoords,
-						v[idx[i + 1]].TCoords,
-						v[idx[i + 2]].TCoords);
-
-				calculateTangents(
-						v[idx[i + 1]].Normal,
-						v[idx[i + 1]].Tangent,
-						v[idx[i + 1]].Binormal,
-						v[idx[i + 1]].Pos,
-						v[idx[i + 2]].Pos,
-						v[idx[i + 0]].Pos,
-						v[idx[i + 1]].TCoords,
-						v[idx[i + 2]].TCoords,
-						v[idx[i + 0]].TCoords);
-
-				calculateTangents(
-						v[idx[i + 2]].Normal,
-						v[idx[i + 2]].Tangent,
-						v[idx[i + 2]].Binormal,
-						v[idx[i + 2]].Pos,
-						v[idx[i + 0]].Pos,
-						v[idx[i + 1]].Pos,
-						v[idx[i + 2]].TCoords,
-						v[idx[i + 0]].TCoords,
-						v[idx[i + 1]].TCoords);
-			}
-		}
-	}
-}
-
-void SkinnedMesh::calculateTangents(
-		core::vector3df &normal,
-		core::vector3df &tangent,
-		core::vector3df &binormal,
-		const core::vector3df &vt1, const core::vector3df &vt2, const core::vector3df &vt3, // vertices
-		const core::vector2df &tc1, const core::vector2df &tc2, const core::vector2df &tc3) // texture coords
-{
-	core::vector3df v1 = vt1 - vt2;
-	core::vector3df v2 = vt3 - vt1;
-	normal = v2.crossProduct(v1);
-	normal.normalize();
-
-	// binormal
-
-	f32 deltaX1 = tc1.X - tc2.X;
-	f32 deltaX2 = tc3.X - tc1.X;
-	binormal = (v1 * deltaX2) - (v2 * deltaX1);
-	binormal.normalize();
-
-	// tangent
-
-	f32 deltaY1 = tc1.Y - tc2.Y;
-	f32 deltaY2 = tc3.Y - tc1.Y;
-	tangent = (v1 * deltaY2) - (v2 * deltaY1);
-	tangent.normalize();
-
-	// adjust
-
-	core::vector3df txb = tangent.crossProduct(binormal);
-	if (txb.dotProduct(normal) < 0.0f) {
-		tangent *= -1.0f;
-		binormal *= -1.0f;
-	}
 }
 
 } // end namespace scene

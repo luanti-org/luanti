@@ -109,6 +109,17 @@ enum ClearObjectsMode {
 		CLEAR_OBJECTS_MODE_QUICK,
 };
 
+struct RealMapBlock
+{
+private:
+	MapBlock *map_block_;
+
+public:
+	constexpr RealMapBlock(MapBlock *map_block) : map_block_(map_block) { assert(map_block); }
+	constexpr MapBlock *operator->() const { return map_block_; }
+	constexpr operator MapBlock *() const { return map_block_; }
+};
+
 class ServerEnvironment final : public Environment
 {
 public:

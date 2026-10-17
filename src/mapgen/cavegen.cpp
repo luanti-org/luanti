@@ -20,13 +20,9 @@ static NoiseParams nparams_caveliquids(0, 1, v3f(150.0, 150.0, 150.0), 776, 3, 0
 ////
 
 CavesNoiseIntersection::CavesNoiseIntersection(
-	const NodeDefManager *nodedef, BiomeManager *biomemgr, BiomeGen *biomegen, v3s16 chunksize,
+	const RealNodeDefManager nodedef, RealBiomeManager biomemgr, RealBiomeGen biomegen, v3s16 chunksize,
 	NoiseParams *np_cave1, NoiseParams *np_cave2, s32 seed, float cave_width)
 {
-	assert(nodedef);
-	assert(biomemgr);
-	assert(biomegen);
-
 	m_ndef = nodedef;
 	m_bmgr = biomemgr;
 	m_bmgn = biomegen;
@@ -52,10 +48,9 @@ CavesNoiseIntersection::~CavesNoiseIntersection()
 }
 
 
-void CavesNoiseIntersection::generateCaves(MMVManip *vm,
+void CavesNoiseIntersection::generateCaves(RealMMVManip vm,
 	v3s16 nmin, v3s16 nmax, biome_t *biomemap)
 {
-	assert(vm);
 	assert(biomemap);
 
 	noise_cave1->noiseMap3D(nmin.X, nmin.Y - 1, nmin.Z);
@@ -174,11 +169,9 @@ void CavesNoiseIntersection::generateCaves(MMVManip *vm,
 ////
 
 CavernsNoise::CavernsNoise(
-	const NodeDefManager *nodedef, v3s16 chunksize, NoiseParams *np_cavern,
+	const RealNodeDefManager nodedef, v3s16 chunksize, NoiseParams *np_cavern,
 	s32 seed, float cavern_limit, float cavern_taper, float cavern_threshold)
 {
-	assert(nodedef);
-
 	m_ndef  = nodedef;
 
 	m_csize            = chunksize;
@@ -210,10 +203,8 @@ CavernsNoise::~CavernsNoise()
 }
 
 
-bool CavernsNoise::generateCaverns(MMVManip *vm, v3s16 nmin, v3s16 nmax)
+bool CavernsNoise::generateCaverns(RealMMVManip vm, v3s16 nmin, v3s16 nmax)
 {
-	assert(vm);
-
 	// Calculate noise
 	noise_cavern->noiseMap3D(nmin.X, nmin.Y - 1, nmin.Z);
 
@@ -271,7 +262,7 @@ bool CavernsNoise::generateCaverns(MMVManip *vm, v3s16 nmin, v3s16 nmax)
 ////
 
 CavesRandomWalk::CavesRandomWalk(
-	const NodeDefManager *ndef,
+	const RealNodeDefManager ndef,
 	GenerateNotifier *gennotify,
 	s32 seed,
 	int water_level,
@@ -280,8 +271,6 @@ CavesRandomWalk::CavesRandomWalk(
 	float large_cave_flooded,
 	BiomeGen *biomegen)
 {
-	assert(ndef);
-
 	this->ndef               = ndef;
 	this->gennotify          = gennotify;
 	this->seed               = seed;
@@ -304,12 +293,9 @@ CavesRandomWalk::CavesRandomWalk(
 }
 
 
-void CavesRandomWalk::makeCave(MMVManip *vm, v3s16 nmin, v3s16 nmax,
-	PseudoRandom *ps, bool is_large_cave, int max_stone_height, s16 *heightmap)
+void CavesRandomWalk::makeCave(RealMMVManip vm, v3s16 nmin, v3s16 nmax,
+	RealPseudoRandom ps, bool is_large_cave, int max_stone_height, s16 *heightmap)
 {
-	assert(vm);
-	assert(ps);
-
 	this->vm         = vm;
 	this->ps         = ps;
 	this->node_min   = nmin;
@@ -613,11 +599,9 @@ inline bool CavesRandomWalk::isPosAboveSurface(v3s16 p)
 //// CavesV6
 ////
 
-CavesV6::CavesV6(const NodeDefManager *ndef, GenerateNotifier *gennotify,
+CavesV6::CavesV6(const RealNodeDefManager ndef, GenerateNotifier *gennotify,
 	int water_level, content_t water_source, content_t lava_source)
 {
-	assert(ndef);
-
 	this->ndef        = ndef;
 	this->gennotify   = gennotify;
 	this->water_level = water_level;
@@ -636,14 +620,10 @@ CavesV6::CavesV6(const NodeDefManager *ndef, GenerateNotifier *gennotify,
 }
 
 
-void CavesV6::makeCave(MMVManip *vm, v3s16 nmin, v3s16 nmax,
-	PseudoRandom *ps, PseudoRandom *ps2,
+void CavesV6::makeCave(RealMMVManip vm, v3s16 nmin, v3s16 nmax,
+	RealPseudoRandom ps, RealPseudoRandom ps2,
 	bool is_large_cave, int max_stone_height, s16 *heightmap)
 {
-	assert(vm);
-	assert(ps);
-	assert(ps2);
-
 	this->vm         = vm;
 	this->ps         = ps;
 	this->ps2        = ps2;

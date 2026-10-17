@@ -25,6 +25,12 @@ class PlayingSound final
 		f32 target_gain;
 	};
 
+	struct RealFadeState : public FadeState {
+		RealFadeState(FadeState fade) : FadeState(fade) {
+			assert(step != 0.0f);
+		}
+	};
+
 	ALuint m_source_id;
 	std::shared_ptr<ISoundDataOpen> m_data;
 	ALuint m_next_sample_pos = 0;

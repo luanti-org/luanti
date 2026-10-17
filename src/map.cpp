@@ -510,9 +510,8 @@ NodeMetadata *Map::getNodeMetadata(v3s16 p)
 	return meta;
 }
 
-bool Map::setNodeMetadata(v3s16 p, NodeMetadata *meta)
+bool Map::setNodeMetadata(v3s16 p, RealNodeMetadata meta)
 {
-	assert(meta);
 	v3s16 blockpos = getNodeBlockPos(p);
 	v3s16 p_rel = p - blockpos*MAP_BLOCKSIZE;
 	MapBlock *block = getBlockNoCreateNoEx(blockpos);
@@ -787,12 +786,7 @@ bool Map::isBlockOccluded(v3s16 pos_relative, v3s16 cam_pos_nodes, bool dense)
 	return true;
 }
 
-MMVManip::MMVManip(Map *map):
-		VoxelManipulator(),
-		m_map(map)
-{
-	assert(map);
-}
+MMVManip::MMVManip(RealMap map) : VoxelManipulator(), m_map(map) {}
 
 MMVManip::~MMVManip()
 {

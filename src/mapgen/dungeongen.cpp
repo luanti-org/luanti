@@ -19,11 +19,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-DungeonGen::DungeonGen(const NodeDefManager *ndef,
+DungeonGen::DungeonGen(const RealNodeDefManager ndef,
 	GenerateNotifier *gennotify, DungeonParams *dparams)
 {
-	assert(ndef);
-
 	this->ndef      = ndef;
 	this->gennotify = gennotify;
 
@@ -61,12 +59,10 @@ DungeonGen::DungeonGen(const NodeDefManager *ndef,
 }
 
 
-void DungeonGen::generate(MMVManip *vm, u32 bseed, v3s16 nmin, v3s16 nmax)
+void DungeonGen::generate(RealMMVManip vm, u32 bseed, v3s16 nmin, v3s16 nmax)
 {
 	if (dp.num_dungeons == 0)
 		return;
-
-	assert(vm);
 
 	//TimeTaker t("gen dungeons");
 

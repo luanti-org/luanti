@@ -3,11 +3,13 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "serialize.h"
-#include "porting.h"
-#include "util/string.h"
-#include "util/hex.h"
+
+#include "between.h"
 #include "exceptions.h"
 #include "irrlichttypes.h"
+#include "porting.h"
+#include "util/hex.h"
+#include "util/string.h"
 
 #include <iostream>
 #include <cassert>
@@ -218,18 +220,35 @@ std::string serializeJsonString(std::string_view plain)
 	return tmp;
 }
 
-static void deSerializeJsonString(std::string &s)
+struct JSONString : std::string
 {
-	assert(s.size() >= 2);
-	assert(s.front() == '"' && s.back() == '"');
+public:
+	using std::string::string;
 
+	JSONString(const std::string s) : std::string(s) {
+		assert(s.size() >= 2);
+		assert(s.front() == '"' && s.back() == '"');
+	}
+};
+
+struct JSONChar
+{
+private:
+	char c_;
+
+public:
+	constexpr JSONChar(const char c) : c_(c) { assert(c != '"'); }
+	constexpr operator char() const { return c_; }
+};
+
+static void deSerializeJsonString(JSONString &s)
+{
 	size_t w = 0; // write index
 	size_t i = 1; // read index
 	const size_t len = s.size() - 1; // string length with trailing quote removed
 
 	while (i < len) {
-		char c = s[i++];
-		assert(c != '"');
+		JSONChar c = s[i++];
 
 		if (c != '\\') {
 			s[w++] = c;
@@ -274,7 +293,7 @@ static void deSerializeJsonString(std::string &s)
 		}
 	}
 
-	assert(w <= i && i <= len);
+	assert_between_inclusive(i, w, len);
 	// Truncate string to current write index
 	s.resize(w);
 }
@@ -306,7 +325,8 @@ std::string deSerializeJsonString(std::istream &is)
 			break; // found end of string
 	}
 
-	deSerializeJsonString(tmp);
+	JSONString json_tmp(tmp);
+	deSerializeJsonString(json_tmp);
 	return tmp;
 }
 

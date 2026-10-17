@@ -188,12 +188,8 @@ int MapgenFlat::getSpawnLevelAtPoint(v2s16 p)
 }
 
 
-void MapgenFlat::makeChunk(BlockMakeData *data)
+void MapgenFlat::makeChunk(RealBlockMakeData data)
 {
-	// Pre-conditions
-	assert(data->vmanip);
-	assert(data->nodedef);
-
 	this->generating = true;
 	this->vm   = data->vmanip;
 	this->ndef = data->nodedef;

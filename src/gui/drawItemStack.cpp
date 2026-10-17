@@ -88,11 +88,9 @@ void drawItemStack(
 		ProjMatrix.buildProjectionMatrixOrthoLH(2.0f, 2.0f, -1.0f, 100.0f);
 
 		core::matrix4 ViewMatrix;
-		ViewMatrix.buildProjectionMatrixOrthoLH(
-			2.0f * viewrect.getWidth() / rect.getWidth(),
-			2.0f * viewrect.getHeight() / rect.getHeight(),
-			-1.0f,
-			100.0f);
+		ViewMatrix.buildProjectionMatrixOrthoLH(2.0f * viewrect.getWidth() / rect.getWidth(),
+												2.0f * viewrect.getHeight() / rect.getHeight(),
+												-1.0f, 100.0f);
 		ViewMatrix.setTranslation(core::vector3df(
 			1.0f * (rect.LowerRightCorner.X + rect.UpperLeftCorner.X -
 					viewrect.LowerRightCorner.X - viewrect.UpperLeftCorner.X) /

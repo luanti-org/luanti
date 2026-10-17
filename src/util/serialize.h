@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "irrlichttypes_bloated.h"
+#include "between.h"
 #include "exceptions.h" // for SerializationError
 #include "ieee_float.h"
+#include "irrlichttypes_bloated.h"
 
 #include "config.h"
 #include <cstring> // for memcpy
@@ -302,7 +303,7 @@ inline void writeS64(u8 *data, s64 i)
 
 inline void writeF1000(u8 *data, f32 i)
 {
-	assert(i >= F1000_MIN && i <= F1000_MAX);
+	assert_between_inclusive(i, F1000_MIN , F1000_MAX);
 	writeS32(data, i * FIXEDPOINT_FACTOR);
 }
 

@@ -1010,59 +1010,62 @@ bool Pathfinder::updateAllCosts(v3s16 ipos,
 	};
 
 	for (v3s16 direction : directions) {
-		if (direction != srcdir) {
-			PathCost cost = g_pos.getCost(direction);
+		if (direction == srcdir)
+			continue;
 
-			if (cost.valid) {
-				direction.Y = cost.y_change;
+		PathCost cost = g_pos.getCost(direction);
 
-				v3s16 ipos2 = ipos + direction;
+		if (!cost.valid)
+		{
+			DEBUG_OUT(LVL "Pathfinder:"
+						  " not moving to invalid direction: "
+					  << directions[i] << std::endl);
+			continue;
+		}
 
-				if (!isValidIndex(ipos2)) {
-					DEBUG_OUT(LVL " Pathfinder: " << ipos2 <<
-						" out of range, max=" << m_limits.MaxEdge << std::endl);
-					continue;
-				}
+		direction.Y = cost.y_change;
 
-				PathGridnode &g_pos2 = getIndexElement(ipos2);
+		v3s16 ipos2 = ipos + direction;
 
-				if (!g_pos2.valid) {
-					VERBOSE_TARGET << LVL "Pathfinder: no data for new position: "
-												<< ipos2 << std::endl;
-					continue;
-				}
+		if (!isValidIndex(ipos2))
+		{
+			DEBUG_OUT(LVL " Pathfinder: " << ipos2 << " out of range, max=" << m_limits.MaxEdge
+					<< std::endl);
+			continue;
+		}
 
-				assert(cost.value > 0);
+		PathGridnode &g_pos2 = getIndexElement(ipos2);
 
-				int new_cost = current_cost + cost.value;
+		if (!g_pos2.valid)
+		{
+			VERBOSE_TARGET << LVL "Pathfinder: no data for new position: " << ipos2 << std::endl;
+			continue;
+		}
 
-				// check if there already is a smaller path
-				if ((m_min_target_distance > 0) &&
-						(m_min_target_distance < new_cost)) {
-					return false;
-				}
+		assert(cost.value > 0);
 
-				if ((g_pos2.totalcost < 0) ||
-						(g_pos2.totalcost > new_cost)) {
-					DEBUG_OUT(LVL "Pathfinder: updating path at: "<<
-							ipos2 << " from: " << g_pos2.totalcost << " to "<<
-							new_cost << std::endl);
-					if (updateAllCosts(ipos2, invert(direction),
-											new_cost, level)) {
-						retval = true;
-						}
-					}
-				else {
-					DEBUG_OUT(LVL "Pathfinder:"
-							" already found shorter path to: "
-							<< ipos2 << std::endl);
-				}
+		int new_cost = current_cost + cost.value;
+
+		// check if there already is a smaller path
+		if ((m_min_target_distance > 0) && (m_min_target_distance < new_cost))
+		{
+			return false;
+		}
+
+		if ((g_pos2.totalcost < 0) || (g_pos2.totalcost > new_cost))
+		{
+			DEBUG_OUT(LVL "Pathfinder: updating path at: " << ipos2 << " from: " << g_pos2.totalcost
+														   << " to " << new_cost << std::endl);
+			if (updateAllCosts(ipos2, invert(direction), new_cost, level))
+			{
+				retval = true;
 			}
-			else {
-				DEBUG_OUT(LVL "Pathfinder:"
-						" not moving to invalid direction: "
-						<< directions[i] << std::endl);
-			}
+		}
+		else
+		{
+			DEBUG_OUT(LVL "Pathfinder:"
+					" already found shorter path to: "
+					<< ipos2 << std::endl);
 		}
 	}
 	return retval;

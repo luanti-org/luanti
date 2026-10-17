@@ -7,6 +7,17 @@
 #include <algorithm>
 #include <cassert>
 
+struct BitMapBound {
+private:
+	u32 value_;
+
+public:
+	constexpr BitMapBound(const u32 value) : value_(value) {
+		assert(value <= 65534); // index would overflow
+	}
+	constexpr operator u32() const { return value_; }
+};
+
 /**
  * Rudimentary header-only 2D bitmap class.
  * @warning not thread-safe
@@ -49,9 +60,8 @@ public:
 	inline u32 width() const { return linesize; }
 	inline u32 height() const { return lines; }
 
-	inline void resize(u32 width, u32 height, bool initial_value=false)
+	inline void resize(BitMapBound width, BitMapBound height, bool initial_value=false)
 	{
-		assert(width <= 65534 && height <= 65534); // index would overflow
 		linesize = width;
 		lines = height;
 		data.clear(); // make sure to discard all data
