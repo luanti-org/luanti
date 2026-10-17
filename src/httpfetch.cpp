@@ -18,6 +18,7 @@
 #include "util/numeric.h"
 #include "version.h"
 #include "settings.h"
+#include "filesys.h"
 
 static std::mutex g_httpfetch_mutex;
 static std::unordered_map<u64, std::queue<HTTPFetchResult>>
@@ -250,6 +251,16 @@ HTTPFetchOngoing::HTTPFetchOngoing(const HTTPFetchRequest &request_,
 	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 3L);
 	curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, ""); // = all supported ones
 
+	// on android we need to setup our own CA
+#if defined(__ANDROID__)
+	const std::string cainfo_path = porting::getDataPath("client" DIR_DELIM "cacert.pem");
+	const CURLcode ca_error = curl_easy_setopt(curl, CURLOPT_CAINFO, cainfo_path.c_str());
+	if (ca_error != CURLE_OK) {
+		errorstream << "Failed to configure CA, HTTPS will not work, error=" <<
+				curl_easy_strerror(ca_error) <<
+				" please report this issue." <<std::endl;
+	}
+#endif
 	std::string bind_address = g_settings->get("bind_address");
 	curl_easy_setopt(curl, CURLOPT_INTERFACE,
 		bind_address.empty() ? nullptr : bind_address.c_str());
