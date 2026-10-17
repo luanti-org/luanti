@@ -71,6 +71,10 @@ bool collision_check_intersection(Environment *env, IGameDef *gamedef,
 		const aabb3f &box_0, const v3f &pos_f, ActiveObject *self = nullptr,
 		bool collide_with_objects = true);
 
+/// Finds appropriate height for player to stand on while sneaking
+f32 getNodeBoxSupportHeight(const std::vector<aabb3f> &nodeboxes,
+		const aabb3f &player_box, const v3f &node_pos, const v3f &player_pos);
+
 // Helper function:
 // Checks for collision of a moving aabbox with a static aabbox
 // Returns -1 if no collision, 0 if X collision, 1 if Y collision, 2 if Z collision
