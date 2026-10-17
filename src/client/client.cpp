@@ -372,7 +372,7 @@ Client::~Client()
 
 	m_mesh_update_manager->stop();
 	m_mesh_update_manager->wait();
-	m_mesh_update_manager->clearAllQueues(true);
+	m_mesh_update_manager->clearAllQueues();
 
 	// Delete detached inventories
 	for (auto &it : m_detached_inventories)
@@ -515,33 +515,22 @@ void Client::step(float dtime)
 			mapblock_limit, &deleted_blocks);
 
 		// Send info to server
-
-		auto i = deleted_blocks.begin();
-		std::vector<v3s16> sendlist;
-		for(;;) {
-			if(sendlist.size() == 255 || i == deleted_blocks.end()) {
-				if(sendlist.empty())
-					break;
-				/*
-					[0] u16 command
-					[2] u8 count
-					[3] v3s16 pos_0
-					[3+6] v3s16 pos_1
-					...
-				*/
-
-				sendDeletedBlocks(sendlist);
-
-				if(i == deleted_blocks.end())
-					break;
-
-				sendlist.clear();
+		while (!deleted_blocks.empty()) {
+			std::vector<v3s16> sendlist;
+			while (!deleted_blocks.empty() && sendlist.size() < 255) {
+				sendlist.push_back(deleted_blocks.back());
+				sendlist.pop_back();
 			}
-
-			sendlist.push_back(*i);
-			++i;
+			sendDeletedBlocks(sendlist);
 		}
 	}
+
+	/*
+		Notify server about received blocks
+	*/
+	if (!m_got_blocks.empty())
+		sendGotBlocks(m_got_blocks);
+	m_got_blocks.clear();
 
 	/*
 		Send pending messages on out chat queue
@@ -676,22 +665,7 @@ void Client::step(float dtime)
 				}
 			}
 
-			// TODO?: it's really weird and complicates things how we only ack
-			// blocks after they've been through the meshgen queue...
-			for (auto p : r.ack_list) {
-				if (blocks_to_ack.size() == 255) {
-					sendGotBlocks(blocks_to_ack);
-					blocks_to_ack.clear();
-				}
-
-				blocks_to_ack.emplace_back(p);
-			}
-
 			r.dropBlocks();
-		}
-		if (blocks_to_ack.size() > 0) {
-				// Acknowledge block(s)
-				sendGotBlocks(blocks_to_ack);
 		}
 
 		if (num_processed_meshes > 0)
@@ -701,7 +675,7 @@ void Client::step(float dtime)
 			auto shadow = RenderingEngine::get_shadow_renderer();
 			if (shadow)
 				shadow->setForceUpdateShadowMap();
-		};
+		}
 	}
 
 	/*
@@ -1278,15 +1252,14 @@ void Client::startAuth(AuthMechanism chosen_auth_mechanism)
 	}
 }
 
-void Client::sendDeletedBlocks(std::vector<v3s16> &blocks)
+void Client::sendDeletedBlocks(const std::vector<v3s16> &blocks)
 {
 	NetworkPacket pkt(TOSERVER_DELETEDBLOCKS, 1 + sizeof(v3s16) * blocks.size());
 
-	pkt << (u8) blocks.size();
-
-	for (const v3s16 &block : blocks) {
+	assert(blocks.size() <= U8_MAX);
+	pkt << static_cast<u8>(blocks.size());
+	for (const v3s16 &block : blocks)
 		pkt << block;
-	}
 
 	Send(&pkt);
 }
@@ -1294,7 +1267,9 @@ void Client::sendDeletedBlocks(std::vector<v3s16> &blocks)
 void Client::sendGotBlocks(const std::vector<v3s16> &blocks)
 {
 	NetworkPacket pkt(TOSERVER_GOTBLOCKS, 1 + 6 * blocks.size());
-	pkt << (u8) blocks.size();
+
+	assert(blocks.size() <= U8_MAX);
+	pkt << static_cast<u8>(blocks.size());
 	for (const v3s16 &block : blocks)
 		pkt << block;
 
@@ -1556,8 +1531,8 @@ void Client::removeNode(v3s16 p)
 	catch(InvalidPositionException &e) {
 	}
 
-	for (const auto &modified_block : modified_blocks) {
-		addUpdateMeshTaskWithEdge(modified_block.first, false, true);
+	for (const auto &it : modified_blocks) {
+		addUpdateMeshTaskWithEdge(it.first, true);
 	}
 }
 
@@ -1618,8 +1593,8 @@ void Client::addNode(v3s16 p, MapNode n, bool remove_metadata)
 	catch(InvalidPositionException &e) {
 	}
 
-	for (const auto &modified_block : modified_blocks) {
-		addUpdateMeshTaskWithEdge(modified_block.first, false, true);
+	for (const auto &it : modified_blocks) {
+		addUpdateMeshTaskWithEdge(it.first, true);
 	}
 }
 
@@ -1752,12 +1727,12 @@ void Client::setCrack(int level, v3s16 pos)
 	if(old_crack_level >= 0 && (level < 0 || pos != old_crack_pos))
 	{
 		// remove old crack
-		addUpdateMeshTaskForNode(old_crack_pos, false, true);
+		addUpdateMeshTaskForNode(old_crack_pos, true);
 	}
 	if(level >= 0 && (old_crack_level < 0 || pos != old_crack_pos))
 	{
 		// add new crack
-		addUpdateMeshTaskForNode(pos, false, true);
+		addUpdateMeshTaskForNode(pos, true);
 	}
 }
 
@@ -1816,7 +1791,7 @@ void Client::typeChatMessage(const std::wstring &message)
 	sendChatMessage(message);
 }
 
-void Client::addUpdateMeshTask(v3s16 p, bool ack_to_server, bool urgent)
+void Client::addUpdateMeshTask(v3s16 p, bool urgent)
 {
 	// Check if the block exists to begin with. In the case when a non-existing
 	// neighbor is automatically added, it may not. In that case we don't want
@@ -1825,28 +1800,28 @@ void Client::addUpdateMeshTask(v3s16 p, bool ack_to_server, bool urgent)
 	if (b == NULL)
 		return;
 
-	m_mesh_update_manager->updateBlock(&m_env.getMap(), p, ack_to_server, urgent);
+	m_mesh_update_manager->updateBlock(&m_env.getMap(), p, urgent);
 }
 
-void Client::addUpdateMeshTaskWithEdge(v3s16 blockpos, bool ack_to_server, bool urgent)
+void Client::addUpdateMeshTaskWithEdge(v3s16 blockpos, bool urgent)
 {
-	m_mesh_update_manager->updateBlock(&m_env.getMap(), blockpos, ack_to_server, urgent, true);
+	m_mesh_update_manager->updateBlock(&m_env.getMap(), blockpos, urgent, true);
 }
 
-void Client::addUpdateMeshTaskForNode(v3s16 nodepos, bool ack_to_server, bool urgent)
+void Client::addUpdateMeshTaskForNode(v3s16 nodepos, bool urgent)
 {
 	infostream << "Client::addUpdateMeshTaskForNode(): " << nodepos << std::endl;
 
 	v3s16 blockpos = getNodeBlockPos(nodepos);
 	v3s16 blockpos_relative = blockpos * MAP_BLOCKSIZE;
-	m_mesh_update_manager->updateBlock(&m_env.getMap(), blockpos, ack_to_server, urgent, false);
+	m_mesh_update_manager->updateBlock(&m_env.getMap(), blockpos, urgent, false);
 	// Leading edge
 	if (nodepos.X == blockpos_relative.X)
-		addUpdateMeshTask(blockpos + v3s16(-1, 0, 0), false, urgent);
+		addUpdateMeshTask(blockpos + v3s16(-1, 0, 0), urgent);
 	if (nodepos.Y == blockpos_relative.Y)
-		addUpdateMeshTask(blockpos + v3s16(0, -1, 0), false, urgent);
+		addUpdateMeshTask(blockpos + v3s16(0, -1, 0), urgent);
 	if (nodepos.Z == blockpos_relative.Z)
-		addUpdateMeshTask(blockpos + v3s16(0, 0, -1), false, urgent);
+		addUpdateMeshTask(blockpos + v3s16(0, 0, -1), urgent);
 }
 
 ClientEvent *Client::getClientEvent()

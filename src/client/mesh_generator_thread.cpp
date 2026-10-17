@@ -97,11 +97,10 @@ MeshUpdateQueue::MeshUpdateQueue(Client *client):
 
 MeshUpdateQueue::~MeshUpdateQueue()
 {
-	clear(true);
+	clear();
 }
 
-bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
-	bool urgent, bool from_neighbor)
+bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool urgent, bool from_neighbor)
 {
 	// If block that causes update does not exist, skip.
 	if (!map->getBlockNoCreateNoEx(p))
@@ -127,8 +126,6 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	*/
 	for (QueuedMeshUpdate *q : m_queue) {
 		if (q->p == mesh_position) {
-			if (ack_block_to_server)
-				q->ack_list.push_back(p);
 			q->crack_level = m_client->getCrackLevel();
 			q->crack_pos = m_client->getCrackPos();
 			q->urgent |= urgent;
@@ -142,8 +139,6 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	*/
 	UnqueuedMeshUpdate q{new QueuedMeshUpdate()};
 	q->p = mesh_position;
-	if (ack_block_to_server)
-		q->ack_list.push_back(p);
 	q->crack_level = m_client->getCrackLevel();
 	q->crack_pos = m_client->getCrackPos();
 	q->urgent = urgent;
@@ -155,7 +150,6 @@ bool MeshUpdateQueue::addBlock(Map *map, v3s16 p, bool ack_block_to_server,
 		Note: this can be extended with more precise checks in the future
 	*/
 	if (from_neighbor && q->checkSkip(mesh_grid.cell_size)) {
-		assert(!ack_block_to_server);
 		m_urgents.erase(mesh_position);
 		g_profiler->add("MeshUpdateQueue: updates skipped", 1);
 		return true;
@@ -181,8 +175,6 @@ void MeshUpdateQueue::reAddBlock(MeshUpdateResult &r)
 	// Update if exists in queue
 	for (QueuedMeshUpdate *q : m_queue) {
 		if (q->p == mesh_position) {
-			for (auto p : r.ack_list)
-				q->ack_list.push_back(p);
 			q->urgent |= r.urgent;
 			// Do not retrieve blocks again, but make sure to drop our old ones
 			r.dropBlocks();
@@ -193,7 +185,6 @@ void MeshUpdateQueue::reAddBlock(MeshUpdateResult &r)
 	// Queue a new update
 	UnqueuedMeshUpdate q{new QueuedMeshUpdate()};
 	q->p = mesh_position;
-	q->ack_list = std::move(r.ack_list);
 	q->crack_level = m_client->getCrackLevel();
 	q->crack_pos = m_client->getCrackPos();
 	q->urgent = r.urgent;
@@ -215,7 +206,7 @@ QueuedMeshUpdate *MeshUpdateQueue::pop()
 			QueuedMeshUpdate *q = *i;
 			if (must_be_urgent && m_urgents.count(q->p) == 0)
 				continue;
-			// Make sure no two threads are processing the same mapblock, as that causes racing conditions
+			// Make sure no two threads are processing the same mapblock, as that causes race conditions
 			if (m_inflight_blocks.find(q->p) != m_inflight_blocks.end())
 				continue;
 			m_queue.erase(i);
@@ -243,23 +234,16 @@ void MeshUpdateQueue::done(v3s16 pos)
 	m_inflight_blocks.erase(pos);
 }
 
-void MeshUpdateQueue::clear(bool finish)
+void MeshUpdateQueue::clear()
 {
 	MutexAutoLock lock(m_mutex);
-	decltype(m_queue) new_queue;
 	for (auto *it : m_queue) {
-		// If we're in an active game session clearing updates that the
-		// server expects us to ack will cause problems.
-		if (it->ack_list.empty() || finish) {
-			m_urgents.erase(it->p);
-			m_inflight_blocks.erase(it->p);
-			it->dropBlocks();
-			delete it;
-		} else {
-			new_queue.push_back(it);
-		}
+		m_urgents.erase(it->p);
+		m_inflight_blocks.erase(it->p);
+		it->dropBlocks();
+		delete it;
 	}
-	m_queue = std::move(new_queue);
+	m_queue.clear();
 }
 
 void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
@@ -325,7 +309,6 @@ void MeshUpdateWorkerThread::doUpdate()
 		r.p = q->p;
 		r.mesh = std::unique_ptr<MapBlockMesh>(mesh_new);
 		r.solid_sides = get_solid_sides(q->data);
-		r.ack_list = std::move(q->ack_list);
 		r.map_blocks = std::move(q->map_blocks);
 		r.epoch = q->epoch;
 		r.urgent = q->urgent;
@@ -365,13 +348,12 @@ MeshUpdateManager::MeshUpdateManager(Client *client):
 		m_workers.push_back(std::make_unique<MeshUpdateWorkerThread>(client, &m_queue_in, this));
 }
 
-void MeshUpdateManager::updateBlock(Map *map, v3s16 p, bool ack_block_to_server,
-		bool urgent, bool update_neighbors)
+void MeshUpdateManager::updateBlock(Map *map, v3s16 p, bool urgent, bool update_neighbors)
 {
 	static thread_local const bool many_neighbors =
 			g_settings->getBool("smooth_lighting")
 			&& !g_settings->getFlag("performance_tradeoffs");
-	if (!m_queue_in.addBlock(map, p, ack_block_to_server, urgent, false)) {
+	if (!m_queue_in.addBlock(map, p, urgent, false)) {
 		warningstream << "Update requested for non-existent block at "
 				<< p << std::endl;
 		return;
@@ -379,10 +361,10 @@ void MeshUpdateManager::updateBlock(Map *map, v3s16 p, bool ack_block_to_server,
 	if (update_neighbors) {
 		if (many_neighbors) {
 			for (v3s16 dp : g_26dirs)
-				m_queue_in.addBlock(map, p + dp, false, urgent, true);
+				m_queue_in.addBlock(map, p + dp, urgent, true);
 		} else {
 			for (v3s16 dp : g_6dirs)
-				m_queue_in.addBlock(map, p + dp, false, urgent, true);
+				m_queue_in.addBlock(map, p + dp, urgent, true);
 		}
 	}
 	deferUpdate();
@@ -425,26 +407,20 @@ void MeshUpdateManager::forceRegenerate(Map *map, const std::vector<v3s16> &pp)
 		<< pp.size() << " blocks to be updated" << std::endl;
 
 	for (v3s16 p : pp) {
-		m_queue_in.addBlock(map, p, false, false, false);
+		m_queue_in.addBlock(map, p, false, false);
 	}
 	deferUpdate();
 }
 
-void MeshUpdateManager::clearAllQueues(bool finish)
+void MeshUpdateManager::clearAllQueues()
 {
-	m_queue_in.clear(finish);
+	m_queue_in.clear();
 
-	// Same problem as in MeshUpdateQueue::clear() here: we can't just blindly
-	// throw away results that the server expects to receive an ack for.
-	const auto &do_it = [finish] (ResultQueue &queue) {
+	const auto &do_it = [] (ResultQueue &queue) {
 		auto helper = queue.iterLocked();
 		for (auto it = helper.begin(); it != helper.end(); ) {
-			if (it->ack_list.empty() || finish) {
-				it->dropBlocks();
-				it = helper.erase(it);
-			} else {
-				++it;
-			}
+			it->dropBlocks();
+			it = helper.erase(it);
 		}
 	};
 	do_it(m_queue_out_urgent);

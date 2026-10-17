@@ -138,15 +138,19 @@ public:
 
 	void push_back(const T &t)
 	{
-		MutexAutoLock lock(m_mutex);
-		m_queue.push_back(t);
+		{
+			MutexAutoLock lock(m_mutex);
+			m_queue.push_back(t);
+		}
 		m_signal.post();
 	}
 
 	void push_back(T &&t)
 	{
-		MutexAutoLock lock(m_mutex);
-		m_queue.push_back(std::move(t));
+		{
+			MutexAutoLock lock(m_mutex);
+			m_queue.push_back(std::move(t));
+		}
 		m_signal.post();
 	}
 
@@ -240,8 +244,10 @@ protected:
 	struct IterationHelper {
 		friend class MutexedQueue<T>;
 		~IterationHelper() {
+			bool empty = q->getQueue().empty();
 			q->getMutex().unlock();
-			q->getSignal().post(); // assume modified
+			if (!empty)
+				q->getSignal().post(); // assume modified
 		}
 
 		auto begin() { return q->getQueue().begin(); }

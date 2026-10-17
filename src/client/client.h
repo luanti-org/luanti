@@ -299,10 +299,10 @@ public:
 
 	u64 getMapSeed() const { return m_map_seed; }
 
-	void addUpdateMeshTask(v3s16 blockpos, bool ack_to_server=false, bool urgent=false);
+	void addUpdateMeshTask(v3s16 blockpos, bool urgent=false);
 	// Including blocks at appropriate edges
-	void addUpdateMeshTaskWithEdge(v3s16 blockpos, bool ack_to_server=false, bool urgent=false);
-	void addUpdateMeshTaskForNode(v3s16 nodepos, bool ack_to_server=false, bool urgent=false);
+	void addUpdateMeshTaskWithEdge(v3s16 blockpos, bool urgent=false);
+	void addUpdateMeshTaskForNode(v3s16 nodepos, bool urgent=false);
 
 	bool hasClientEvents() const { return !m_client_event_queue.empty(); }
 	// Get event from queue. If queue is empty, it triggers an assertion failure.
@@ -490,7 +490,7 @@ private:
 
 	void sendInit(const std::string &playerName);
 	void startAuth(AuthMechanism chosen_auth_mechanism);
-	void sendDeletedBlocks(std::vector<v3s16> &blocks);
+	void sendDeletedBlocks(const std::vector<v3s16> &blocks);
 	void sendGotBlocks(const std::vector<v3s16> &blocks);
 	void sendRemovedSounds(const std::vector<s32> &soundList);
 	void sendPlayerPos();
@@ -545,6 +545,9 @@ private:
 	u32 m_last_chat_message_sent;
 	float m_chat_message_allowance = 5.0f;
 	std::queue<ChatMessage *> m_chat_queue;
+	/// received blocks that we still want to ack to the server
+	/// @note don't append blindly. this must be sent when it reaches 255 entries.
+	std::vector<v3s16> m_got_blocks;
 
 	// The authentication methods we can use to enter sudo mode (=change password)
 	u32 m_sudo_auth_methods;
