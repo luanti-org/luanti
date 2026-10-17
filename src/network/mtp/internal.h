@@ -30,7 +30,6 @@ channel:
 	Channel numbers have no intrinsic meaning. Currently only 0, 1, 2 exist.
 */
 #define BASE_HEADER_SIZE 7
-#define CHANNEL_COUNT 3
 
 /*
 Packet types:
@@ -220,7 +219,7 @@ private:
 
 // This adds the base headers to the data and makes a packet out of it
 BufferedPacketPtr makePacket(const Address &address, const SharedBuffer<u8> &data,
-		u32 protocol_id, session_t sender_peer_id, u8 channel);
+		u32 protocol_id, session_t sender_peer_id, ChannelNumber channel);
 
 // Depending on size, make a TYPE_ORIGINAL or TYPE_SPLIT packet
 // Increments split_seqnum if a split packet is made
@@ -337,7 +336,7 @@ struct ConnectionCommand
 	const ConnectionCommandType type;
 	Address address;
 	session_t peer_id = PEER_ID_INEXISTENT;
-	u8 channelnum = 0;
+	ChannelNumber channelnum = 0;
 	Buffer<u8> data;
 	bool reliable = false;
 	bool raw = false;
@@ -349,8 +348,10 @@ struct ConnectionCommand
 	static ConnectionCommandPtr disconnect_peer(session_t peer_id);
 	static ConnectionCommandPtr resend_one(session_t peer_id);
 	static ConnectionCommandPtr peer_id_set(session_t own_peer_id);
-	static ConnectionCommandPtr send(session_t peer_id, u8 channelnum, NetworkPacket *pkt, bool reliable);
-	static ConnectionCommandPtr ack(session_t peer_id, u8 channelnum, const Buffer<u8> &data);
+	static ConnectionCommandPtr send(session_t peer_id, ChannelNumber channelnum,
+		NetworkPacket *pkt, bool reliable);
+	static ConnectionCommandPtr ack(session_t peer_id, ChannelNumber channelnum,
+		const Buffer<u8> &data);
 	static ConnectionCommandPtr createPeer(session_t peer_id, const Buffer<u8> &data);
 
 private:
@@ -505,10 +506,10 @@ public:
 		return address;
 	}
 
-	u16 getNextSplitSequenceNumber(u8 channel) override;
-	void setNextSplitSequenceNumber(u8 channel, u16 seqnum) override;
+	u16 getNextSplitSequenceNumber(ChannelNumber channel) override;
+	void setNextSplitSequenceNumber(ChannelNumber channel, u16 seqnum) override;
 
-	SharedBuffer<u8> addSplitPacket(u8 channel, BufferedPacketPtr &toadd,
+	SharedBuffer<u8> addSplitPacket(ChannelNumber channel, BufferedPacketPtr &toadd,
 		bool reliable) override;
 
 	bool isTimedOut(float timeout, std::string &reason) override;

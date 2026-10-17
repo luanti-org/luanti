@@ -4,19 +4,22 @@
 
 #pragma once
 
-#include "network/connection.h"
-#include "network/socket.h"
 #include "constants.h"
-#include "util/pointer.h"
-#include "util/container.h"
-#include "porting.h"
 #include "network/address.h"
+#include "network/connection.h"
 #include "network/networkprotocol.h"
+#include "network/socket.h"
+#include "porting.h"
+#include "util/container.h"
+#include "util/pointer.h"
 #include <atomic>
 #include <cfloat>
-#include <vector>
-#include <memory>
 #include <map>
+#include <memory>
+#include <optional>
+#include <vector>
+
+#define CHANNEL_COUNT 3
 
 namespace con
 {
@@ -88,6 +91,17 @@ typedef std::shared_ptr<ConnectionCommand> ConnectionCommandPtr;
 struct BufferedPacket;
 typedef std::shared_ptr<BufferedPacket> BufferedPacketPtr;
 
+struct ChannelNumber
+{
+private:
+	u8 value_;
+public:
+	constexpr ChannelNumber(const u8 value) : value_(value) {
+		assert(value < CHANNEL_COUNT && "Channel out of range");
+	}
+	constexpr operator u8() const { return value_; }
+};
+
 class Connection;
 class PeerHandler;
 
@@ -127,9 +141,9 @@ class Peer : public IPeer {
 
 		unsigned int m_increment_packets_remaining = 0;
 
-		virtual u16 getNextSplitSequenceNumber(u8 channel) { return 0; };
-		virtual void setNextSplitSequenceNumber(u8 channel, u16 seqnum) {};
-		virtual SharedBuffer<u8> addSplitPacket(u8 channel, BufferedPacketPtr &toadd,
+		virtual u16 getNextSplitSequenceNumber(ChannelNumber channel) { return 0; };
+		virtual void setNextSplitSequenceNumber(ChannelNumber channel, u16 seqnum) {};
+		virtual SharedBuffer<u8> addSplitPacket(ChannelNumber channel, BufferedPacketPtr &toadd,
 				bool reliable)
 		{
 			FATAL_ERROR("unimplemented in abstract class");
@@ -237,7 +251,7 @@ public:
 	bool Connected();
 	void Disconnect();
 	bool ReceiveTimeoutMs(NetworkPacket *pkt, u32 timeout_ms);
-	void Send(session_t peer_id, u8 channelnum, NetworkPacket *pkt, bool reliable);
+	void Send(session_t peer_id, ChannelNumber channelnum, NetworkPacket *pkt, bool reliable);
 	session_t GetPeerID() const { return m_peer_id; }
 	Address GetPeerAddress(session_t peer_id);
 	float getPeerStat(session_t peer_id, rtt_stat_type type);
@@ -258,7 +272,7 @@ protected:
 
 	void doResendOne(session_t peer_id);
 
-	void sendAck(session_t peer_id, u8 channelnum, u16 seqnum);
+	void sendAck(session_t peer_id, ChannelNumber channelnum, u16 seqnum);
 
 	std::vector<session_t> getPeerIDs()
 	{

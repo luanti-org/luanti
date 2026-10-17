@@ -2296,7 +2296,8 @@ void Server::SendActiveObjectMessages(session_t peer_id, const std::string &data
 	pkt.putRawString(datas);
 
 	auto &ccf = clientCommandFactoryTable[pkt.getCommand()];
-	m_clients.sendCustom(pkt.getPeerId(), reliable ? ccf.channel : 1, &pkt, reliable);
+	auto channel_number = reliable ? ccf.channel : con::ChannelNumber(1);
+	m_clients.sendCustom(pkt.getPeerId(), channel_number, &pkt, reliable);
 }
 
 void Server::SendCSMRestrictionFlags(session_t peer_id)

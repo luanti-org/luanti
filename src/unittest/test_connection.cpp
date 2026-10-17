@@ -111,7 +111,7 @@ void TestConnection::testHelpers()
 	// Some constants for testing
 	u32 proto_id = 0x12345678;
 	session_t peer_id = 123;
-	u8 channel = 2;
+	con::ChannelNumber channel = 2;
 	SharedBuffer<u8> data1(1);
 	data1[0] = 100;
 	Address a(127,0,0,1, 10);

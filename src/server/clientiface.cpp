@@ -2,28 +2,29 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2010-2014 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include <sstream>
 #include "clientiface.h"
 #include "debug.h"
+#include "emerge.h"
+#include "face_position_cache.h"
+#include "log.h"
+#include "map.h"
+#include "mapblock.h"
 #include "network/connection.h"
+#include "network/mtp/impl.h"
 #include "network/networkexceptions.h"
 #include "network/networkpacket.h"
 #include "network/serveropcodes.h"
 #include "porting.h" // porting::getTimeS
 #include "remoteplayer.h"
 #include "serialization.h" // SER_FMT_VER_INVALID
-#include "settings.h"
-#include "mapblock.h"
-#include "serverenvironment.h"
-#include "map.h"
-#include "emerge.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
-#include "log.h"
+#include "serverenvironment.h"
+#include "settings.h"
 #include "util/pointedthing.h"
 #include "util/srp.h"
 #include "util/string.h"
-#include "face_position_cache.h"
+#include <sstream>
 
 static std::string string_sanitize_ascii(const std::string &s, u32 max_length)
 {
@@ -795,7 +796,8 @@ void ClientInterface::send(session_t peer_id, NetworkPacket *pkt)
 	m_con->Send(peer_id, ccf.channel, pkt, ccf.reliable);
 }
 
-void ClientInterface::sendCustom(session_t peer_id, u8 channel, NetworkPacket *pkt, bool reliable)
+void ClientInterface::sendCustom(session_t peer_id, con::ChannelNumber channel, NetworkPacket *pkt,
+								 bool reliable)
 {
 	// check table anyway to prevent mistakes
 	FATAL_ERROR_IF(!clientCommandFactoryTable[pkt->getCommand()].name,
