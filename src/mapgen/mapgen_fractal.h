@@ -13,6 +13,11 @@
 
 extern const FlagDesc flagdesc_mapgen_fractal[];
 
+/// Squared
+template <typename T>
+constexpr T sq(T v) { return v * v; }
+
+static bool isZero(float value) {return std::fabs(value) < 0.000000001f;}
 
 struct MapgenFractalParams : public MapgenParams
 {
