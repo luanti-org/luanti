@@ -114,6 +114,32 @@ local function test_hashing()
 end
 unittests.register("test_hashing", test_hashing)
 
+local function test_password_hash()
+	local password = "hunter2"
+	local user = "Cthon98"
+
+	local hash = core.get_password_hash(user, password)
+	local hash_no_pass = core.get_password_hash(user, "")
+	assert(hash)
+	assert(type(hash_no_pass) == "string" and hash_no_pass ~= "")
+	assert(hash_no_pass ~= hash)
+
+	assert(core.check_password_entry(user, hash, password) == true)
+	assert(core.check_password_entry(user, hash, "") == false)
+	assert(core.check_password_entry(user, hash_no_pass, password) == false)
+	assert(core.check_password_entry(user, hash_no_pass, "") == true)
+
+	assert(pcall(core.get_password_hash, "", password) == false)
+	assert(pcall(core.get_password_hash, "", 2) == false)
+	assert(pcall(core.get_password_hash, user, 2) == false)
+	assert(pcall(core.get_password_hash, 98, 2) == false)
+	assert(pcall(core.get_password_hash, 98, password) == false)
+	assert(pcall(core.get_password_hash, user) == false)
+	assert(pcall(core.get_password_hash) == false)
+end
+
+unittests.register("test_password_hash", test_password_hash)
+
 local function test_compress()
 	-- This text should be compressible, to make sure the results are... normal
 	local text = "The\000 icey canoe couldn't move very well on the\128 lake. The\000 ice was too stiff and the icey canoe's paddles simply wouldn't punch through."
