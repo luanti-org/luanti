@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <limits>
 #include <functional>
+#include <optional>
 
 // declarations
 namespace checked {
@@ -9,13 +10,36 @@ namespace checked {
 	// It is unspecifified whether *result is modified on overflow
 
 	template<typename T>
-	bool add(T a, T b, T* result);
+	constexpr bool add(T a, T b, T* result);
 
 	template<typename T>
-	bool sub(T a, T b, T* result);
+	constexpr bool sub(T a, T b, T* result);
 
 	template<typename T>
-	bool mul(T a, T b, T* result);
+	constexpr bool mul(T a, T b, T* result);
+
+	// Potentially clearer, std::optional interface
+	template<typename T, bool op(T, T, T* result)>
+	static std::optional<T> wrap_in_optional(T a, T b) {
+		T out {};
+		if (op(a, b, &out)) {
+			return std::nullopt;
+		} else {
+			return out;
+		}
+	}
+	template<typename T>
+	std::optional<T> add(T a, T b) {
+		return wrap_in_optional<T, add>(a, b);
+	}
+	template<typename T>
+	std::optional<T> sub(T a, T b) {
+		return wrap_in_optional<T, sub>(a, b);
+	}
+	template<typename T>
+	std::optional<T> mul(T a, T b) {
+		return wrap_in_optional<T, mul>(a, b);
+	}
 
 
 	template<typename T>
@@ -54,8 +78,9 @@ namespace checked {
 	using NextSize = typename NextSize_<T>::Type;
 
 	// Operator is a templated callable struct
+	// This function implements checked arithmetic using a wider type
 	template<typename T, template<typename> typename Operator, typename Wider = NextSize<T>>
-	bool check_widening(T a, T b, T* result) {
+	constexpr bool check_widening(T a, T b, T* result) {
 		Wider w_result = Operator<Wider>()(Wider(a), Wider(b));
 		if (w_result == Wider(T(w_result))) {
 			*result = T(w_result);
@@ -64,11 +89,38 @@ namespace checked {
 		return true; // did overflow
 	}
 
+	// Check whether the operation would overflow,
+	//		using bit-operations
+	template<typename T>
+	constexpr bool add_overflows(T a, T b);
+	template<typename T>
+	constexpr bool sub_overflows(T a, T b);
+	template<typename T>
+	constexpr bool mul_overflows(T a, T b);
+
+	template<typename T, bool op_overflows(T, T), typename Operator>
+	static constexpr bool checked_op(T a, T b, T* result) {
+		if (op_overflows(a, b)) {
+			return true; // overflowed
+		}
+		// didn't overflow!
+		*result = Operator()(a, b);
+		return false;
+	}
+	template<typename T, bool do_add>
+	static constexpr bool addsub_overflows(T x, T y);
+
 #if defined(__GNUC__) || defined(__clang__)
 
 // We have some builtins!
 	template<typename T>
-	bool add(T a, T b, T* result) {
+	constexpr bool add(T a, T b, T* result) {
+		// these two branches can work at compile time
+		if constexpr (sizeof(T) < 4) {
+			return check_widening<T, std::plus>(a, b, result);
+		} else if (__builtin_is_constant_evaluated()) {
+			return checked_op<T, add_overflows<T>, std::plus<T>>(a, b, result);
+		}
 		if constexpr (std::is_signed_v<T>) {
 			if constexpr (std::is_same_v<T, int>) {
 				return __builtin_sadd_overflow(a, b, result);
@@ -77,7 +129,6 @@ namespace checked {
 			} else if constexpr (std::is_same_v<T, long long>) {
 				return __builtin_saddll_overflow(a, b, result);
 			}
-			// fallthrough
 		} else {
 			if constexpr (std::is_same_v<T, unsigned>) {
 				return __builtin_uadd_overflow(a, b, result);
@@ -86,15 +137,15 @@ namespace checked {
 			} else if constexpr (std::is_same_v<T, unsigned long long>) {
 				return __builtin_uaddll_overflow(a, b, result);
 			}
-			// fallthrough
-		}
-		// otherwise
-		if constexpr (sizeof(T) < 4) {
-			return check_widening<T, std::plus>(a, b, result);
 		}
 	}
 	template<typename T>
-	bool sub(T a, T b, T* result) {
+	constexpr bool sub(T a, T b, T* result) {
+		if constexpr (sizeof(T) < 4) {
+			return check_widening<T, std::minus>(a, b, result);
+		} else if (__builtin_is_constant_evaluated()) {
+			return checked_op<T, sub_overflows<T>, std::minus<T>>(a, b, result);
+		}
 		if constexpr (std::is_signed_v<T>) {
 			if constexpr (std::is_same_v<T, int>) {
 				return __builtin_ssub_overflow(a, b, result);
@@ -112,13 +163,15 @@ namespace checked {
 				return __builtin_usubll_overflow(a, b, result);
 			}
 		}
-		if constexpr (sizeof(T) < 4) {
-			return check_widening<T, std::minus>(a, b, result);
-		}
 	}
 
 	template<typename T>
-	bool mul(T a, T b, T* result) {
+	constexpr bool mul(T a, T b, T* result) {
+		if constexpr (sizeof(T) < 4) {
+			return check_widening<T, std::multiplies>(a, b, result);
+		} else if (__builtin_is_constant_evaluated()) {
+			return checked_op<T, mul_overflows<T>, std::multiplies<T>>(a, b, result);
+		}
 		if constexpr (std::is_signed_v<T>) {
 			if constexpr (std::is_same_v<T, int>) {
 				return __builtin_smul_overflow(a, b, result);
@@ -136,15 +189,46 @@ namespace checked {
 				return __builtin_umulll_overflow(a, b, result);
 			}
 		}
-		if constexpr (sizeof(T) < 4) {
-			return check_widening<T, std::multiplies>(a, b, result);
-		}
 	}
 
 #else
-// MSVC, or something else, so we don't have builtins (it seems?)
+// MSVC, or something else, so we don't have nice builtins
 // We could theoretically use arch-specific intrinsics,
 //		but that sounds more annoying
+
+	template<typename T>
+	constexpr bool add(T a, T b, T* result) {
+		if constexpr (sizeof(T) <= 4) {
+			return check_widening<T, std::plus>(a, b, result);
+		} else {
+			// T is 64-bit, so use the complicated version because we don't have a 128-bit type
+			return checked_op<T, add_overflows<T>,
+			                         std::plus<T>>(a, b, result);
+		}
+	}
+
+	template<typename T>
+	constexpr bool sub(T a, T b, T* result) {
+		if constexpr (sizeof(T) <= 4) {
+			return check_widening<T, std::minus>(a, b, result);
+		} else {
+			// T is 64-bit, so use the complicated version because we don't have a 128-bit type
+			return checked_op<T, sub_overflows<T>,
+			                         std::minus<T>>(a, b, result);
+		}
+	}
+
+	template<typename T>
+	constexpr bool mul(T a, T b, T* result) {
+		if constexpr (sizeof(T) <= 4) {
+			return check_widening<T, std::multiplies>(a, b, result);
+		} else {
+			return checked_op<T, mul_overflows<T>, std::multiplies<T>>(
+					a, b, result
+				);
+		}
+	}
+#endif
 
 	template<typename T>
 	static constexpr const T full_mask() {
@@ -183,6 +267,16 @@ namespace checked {
 			}
 		}
 	}
+
+	template<typename T>
+	constexpr bool add_overflows(T a, T b) {
+		return addsub_overflows<T, true>(a, b);
+	}
+	template<typename T>
+	constexpr bool sub_overflows(T a, T b) {
+		return addsub_overflows<T, false>(a, b);
+	}
+
 	// because std::abs is not constexpr until C++23
 	template<typename T>
 	static constexpr T abs(T t) {
@@ -193,7 +287,7 @@ namespace checked {
 		}
 	}
 	template<typename T>
-	static constexpr bool mul_overflows(T x, T y) {
+	constexpr bool mul_overflows(T x, T y) {
 		// Formulas from Hacker's Delight Second Edition
 		if constexpr (!std::is_signed_v<T>) {
 			// unsigned
@@ -212,47 +306,4 @@ namespace checked {
 			return y != 0 && (U(x) > (c / U(y)));
 		}
 	}
-	template<typename T, bool op_overflows(T, T), typename Operator>
-	static constexpr bool checked_op(T a, T b, T* result) {
-		if (op_overflows(a, b)) {
-			return true; // overflowed
-		}
-		// didn't overflow!
-		*result = Operator()(a, b);
-		return false;
-	}
-
-	template<typename T>
-	bool add(T a, T b, T* result) {
-		if constexpr (sizeof(T) <= 4) {
-			return check_widening<T, std::plus>(a, b, result);
-		} else {
-			// T is 64-bit, so use the complicated version because we don't have a 128-bit type (afaik)
-			return checked_op<T, addsub_overflows<T, true>,
-			                         std::plus<T>>(a, b, result);
-		}
-	}
-
-	template<typename T>
-	bool sub(T a, T b, T* result) {
-		if constexpr (sizeof(T) <= 4) {
-			return check_widening<T, std::minus>(a, b, result);
-		} else {
-			// T is 64-bit, so use the complicated version because we don't have a 128-bit type (afaik)
-			return checked_op<T, addsub_overflows<T, false>,
-			                         std::minus<T>>(a, b, result);
-		}
-	}
-
-	template<typename T>
-	bool mul(T a, T b, T* result) {
-		if constexpr (sizeof(T) <= 4) {
-			return check_widening<T, std::multiplies>(a, b, result);
-		} else {
-			return checked_op<T, mul_overflows<T>, std::multiplies<T>>(
-					a, b, result
-				);
-		}
-	}
-#endif
 } // namespace checked
