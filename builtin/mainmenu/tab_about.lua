@@ -82,28 +82,33 @@ return {
 
 		hypertext = table.concat(hypertext):sub(1, -2)
 
-		local fs = "image[1.5,0.6;2.5,2.5;" .. core.formspec_escape(logofile) .. "]" ..
-			"style_type[label;valign=center;halign=center]" ..
-			"label[0.1,3.4;5.3,0.5;" ..
-			core.formspec_escape(version.project .. " " .. version.string) .. "]" ..
-			"button_url[1.5,4.1;2.5,0.8;homepage;luanti.org;https://www.luanti.org/]"
+		local fs = {
+			"image[1,0.5;3.4,3.4;", core.formspec_escape(logofile), "]",
+			"style_type[label;valign=center;halign=center;font=mono,bold;font_size=*1.1]",
+			"label[0.1,4;5.4,0.6;",
+			core.formspec_escape(version.project .. " " .. version.string), "]",
+			"style_type[button_url;border=false;textcolor=#4cd9f9]",
+			"button_url[1.5,4.6;2.5,0.5;homepage;luanti.org;https://www.luanti.org/]"
+		}
 
 		if PLATFORM == "Android" then
-			fs = fs .. "button[0.5,5.1;4.5,0.8;share_debug;" .. fgettext("Share debug log") .. "]"
+			fs[#fs+1] = "button[0.5,5.1;4.5,0.8;share_debug;" .. fgettext("Share debug log") .. "]"
 		else
-			fs = fs .. "tooltip[userdata;" ..
+			fs[#fs+1] = "tooltip[userdata;" ..
 					fgettext("Opens the directory that contains user-provided worlds, games, mods,\n" ..
 							"and texture packs in a file manager / explorer.") .. "]"
-			fs = fs .. "button[0.5,5.1;4.5,0.8;userdata;" .. fgettext("Open User Data Directory") .. "]"
+			fs[#fs+1] = "button[0.5,5.1;4.5,0.8;userdata;" .. fgettext("Open User Data Directory") .. "]"
 		end
 
 		local active_renderer_info = fgettext("Active renderer:") .. "\n" ..
 			core.formspec_escape(get_renderer_info())
-		fs = fs .. "style_type[textarea;valign=center]" ..
-			"textarea[0.1,6;5.7,1;;" .. active_renderer_info .. ";]" ..
-			"hypertext[5.5,0.25;9.75,6.6;credits;" .. core.formspec_escape(hypertext) .. "]"
+		table.insert_all(fs, {
+			"style_type[textarea;valign=center;halign=center;font_size=*0.9]",
+			"textarea[0.1,6;5.4,1;;", active_renderer_info, ";]",
+			"hypertext[5.5,0.25;9.75,6.6;credits;", core.formspec_escape(hypertext), "]"
+		})
 
-		return fs
+		return table.concat(fs, "")
 	end,
 
 	cbf_button_handler = function(this, fields, name, tabdata)
