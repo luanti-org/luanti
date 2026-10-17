@@ -590,7 +590,8 @@ bool CIrrDeviceSDL::createWindow()
 bool CIrrDeviceSDL::createWindowWithContext()
 {
 	u32 SDL_Flags = 0;
-	SDL_Flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
+	if (CreationParams.HighPixelDensity)
+		SDL_Flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
 #ifndef _IRR_USE_SDL3_
 	SDL_Flags |= getFullscreenFlag(CreationParams.Fullscreen);
