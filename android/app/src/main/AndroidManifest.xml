@@ -13,6 +13,7 @@
 		android:label="@string/label"
 		android:resizeableActivity="false"
 		android:appCategory="game"
+		android:enableOnBackInvokedCallback="false"
 		tools:ignore="UnusedAttribute">
 
 		<meta-data
