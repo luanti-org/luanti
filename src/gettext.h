@@ -103,3 +103,6 @@ inline std::string fmtgettext(const char *format, Args&&... args)
 
 	return buf;
 }
+
+/// Returns the current language code from gettext, falling back to "en" if not translated.
+std::string gettext_get_lang_code();

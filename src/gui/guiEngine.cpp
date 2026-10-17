@@ -283,6 +283,7 @@ Translations *GUIEngine::getContentTranslations(const std::string &path,
 
 	m_last_translations_key = key;
 	m_last_translations = {};
+	m_last_translations.setTargetLanguage(lang_code);
 
 	std::string data;
 	if (fs::ReadFile(trans_path, data)) {

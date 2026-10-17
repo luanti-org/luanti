@@ -1,0 +1,2 @@
+msgid "Testing .po files: incorrect source string"
+msgstr "Testing .po files: amended string in source language"

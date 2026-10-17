@@ -18,6 +18,7 @@ extern Translations *g_client_translations;
 class Translations
 {
 public:
+	void setTargetLanguage(const std::string &lang);
 	void loadTranslation(const std::string &filename, const std::string &data);
 	void clear();
 
@@ -46,21 +47,34 @@ public:
 	}
 
 private:
+	std::string m_target_lang;
 	std::unordered_map<std::wstring, std::wstring> m_translations;
-	std::unordered_map<std::wstring, std::pair<GettextPluralForm::Ptr, std::vector<std::wstring>>> m_plural_translations;
+	std::unordered_map<std::wstring,
+		std::pair<GettextPluralForm::Ptr, std::vector<std::wstring>>> m_plural_translations;
 
 	void addTranslation(const std::wstring &textdomain, const std::wstring &original,
-			const std::wstring &translated);
+			const std::wstring &translated, bool is_fallback);
 	void addPluralTranslation(const std::wstring &textdomain,
 			const GettextPluralForm::Ptr &plural,
 			const std::wstring &original,
-			std::vector<std::wstring> &translated);
-	std::wstring unescapeC(const std::wstring &str);
-	std::optional<std::pair<std::wstring, std::wstring>> parsePoLine(const std::string &line);
-	bool inEscape(const std::wstring &str, size_t pos);
-	void loadPoEntry(const std::wstring &basefilename, const GettextPluralForm::Ptr &plural_form, const std::map<std::wstring, std::wstring> &entry);
-	void loadMoEntry(const std::wstring &basefilename, const GettextPluralForm::Ptr &plural_form, const std::string &original, const std::string &translated);
-	void loadTrTranslation(const std::string &data);
-	void loadPoTranslation(const std::string &basefilename, const std::string &data);
-	void loadMoTranslation(const std::string &basefilename, const std::string &data);
+			std::vector<std::wstring> &translated,
+			bool is_fallback);
+	static std::wstring unescapeC(const std::wstring &str);
+	static std::optional<std::pair<std::wstring, std::wstring>> parsePoLine(
+			const std::string &line);
+	static bool inEscape(const std::wstring &str, size_t pos);
+	void loadPoEntry(const std::wstring &basefilename,
+			const GettextPluralForm::Ptr &plural_form,
+			const std::map<std::wstring, std::wstring> &entry,
+			bool is_fallback);
+	void loadMoEntry(const std::wstring &basefilename,
+			const GettextPluralForm::Ptr &plural_form,
+			const std::string &original,
+			const std::string &translated,
+			bool is_fallback);
+	void loadTrTranslation(const std::string &data, bool is_fallback);
+	void loadPoTranslation(const std::string &basefilename,
+			const std::string &data, bool is_fallback);
+	void loadMoTranslation(const std::string &basefilename,
+			const std::string &data, bool is_fallback);
 };
