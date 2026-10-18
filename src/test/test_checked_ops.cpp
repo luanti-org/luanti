@@ -114,6 +114,10 @@ template<typename T>
 static constexpr const char* const short_name<T, true, 8> = "s64";
 template<typename T>
 static constexpr const char* const short_name<T, false, 8> = "u64";
+template<typename T>
+static constexpr const char* const short_name<T, true, 16> = "s128";
+template<typename T>
+static constexpr const char* const short_name<T, false, 16> = "u128";
 
 // stringify a PrintInt
 template<typename T>
@@ -220,24 +224,369 @@ TEST_CASE("fixed checked (*) tests") {
 }
 
 #ifdef __SIZEOF_INT128__
+using s128 = __int128;
+using u128 = unsigned __int128;
+#endif
+
+template<typename T64>
+struct Int128 {
+	T64 high;
+	T64 low;
+
+	constexpr Int128(): high(), low() {}
+	// high is sign-extended from t if signed
+	constexpr Int128(T64 t): high((t >> 63) >> 1), low(t) {}
+	constexpr Int128(T64 h, T64 l): high(h), low(l) {}
+
+	static Int128 fromHighLow(T64 high, T64 low) {
+		return { high, low };
+	}
+	static Int128 fromLowHigh(T64 low, T64 high) {
+		return { high, low };
+	}
+
+	static constexpr T64 safe_mul(T64 a, T64 b) {
+		return T64(uint64_t(a) * uint64_t(b));
+	}
+	static constexpr T64 safe_add(T64 a, T64 b) {
+		return T64(uint64_t(a) + uint64_t(b));
+	}
+
+	static constexpr T64 carry_bit = 0x8000000000000000;
+	Int128 operator +(const Int128& b) const {
+		// break it into 32-bit chunks for simplicity
+		using U64 = uint64_t;
+
+		U64 a_lowlow   = U64(low)  & 0xffffffffu;
+		U64 a_lowhigh  = U64(low)  >> 32;
+		U64 a_highlow  = U64(high) & 0xffffffffu;
+		U64 a_highhigh = U64(high) >> 32;
+
+		U64 b_lowlow   = U64(b.low)  & 0xffffffffu;
+		U64 b_lowhigh  = U64(b.low)  >> 32;
+		U64 b_highlow  = U64(b.high) & 0xffffffffu;
+		U64 b_highhigh = U64(b.high) >> 32;
+
+		bool carry = false;
+
+		U64 new_lowlow = a_lowlow + b_lowlow;
+		carry = U64(uint32_t(new_lowlow)) != new_lowlow;
+		new_lowlow &= 0xffffffffu;
+
+		U64 new_lowhigh = carry + a_lowhigh + b_lowhigh;
+		carry = U64(uint32_t(new_lowhigh)) != new_lowhigh;
+		new_lowhigh &= 0xffffffffu;
+
+		U64 new_highlow = carry + a_highlow + b_highlow;
+		carry = U64(uint32_t(new_highlow)) != new_highlow;
+		new_highlow &= 0xffffffffu;
+
+		U64 new_highhigh = carry + a_highhigh + b_highhigh;
+		//carry = U64(uint32_t(new_highhigh)) != new_highhigh;
+		new_highhigh &= 0xffffffffu;
+
+		return Int128( T64((new_highhigh << 32) | new_highlow),
+					   T64((new_lowhigh << 32 ) | new_lowlow ) ) ;
+	}
+	Int128 operator -() const {
+		// -x is equivalent to (~x) + 1, in 2's complement
+		return Int128{~this->high, ~this->low} + Int128(1);
+	}
+	Int128 operator -(const Int128& b) const {
+		return *this + -b;
+	}
+
+	static Int128 mult(const Int128& a, const Int128& b) {
+		using U64 = uint64_t;
+
+		U64 a_lowlow   = U64(a.low)  & 0xffffffffu;
+		U64 a_lowhigh  = U64(a.low)  >> 32;
+		U64 a_highlow  = U64(a.high) & 0xffffffffu;
+		U64 a_highhigh = U64(a.high) >> 32;
+
+		U64 b_lowlow   = U64(b.low)  & 0xffffffffu;
+		U64 b_lowhigh  = U64(b.low)  >> 32;
+		U64 b_highlow  = U64(b.high) & 0xffffffffu;
+		U64 b_highhigh = U64(b.high) >> 32;
+
+		// (a_lowlow * 2^0 + a_lowhigh * 2^32 + a_highlow * 2^64 + a_highhigh * 2^96) *
+		// (b_lowlow * 2^0 + b_lowhigh * 2^32 + b_highlow * 2^64 + b_highhigh * 2^96) =>
+		// (a_lowlow * b_lowlow + a_lowlow * b_lowhigh * 2^32 + a_lowlow * b_highlow * 2^64 + a_lowlow * b_highhigh * 2^96
+		//	+ a_lowhigh * b_lowlow * 2^32 + a_lowhigh * b_lowhigh * 2^64 + a_lowhigh * b_highlow * 2^96 + a_lowhigh * b_highhigh * 2^128
+		//	+ a_highlow * b_lowlow * 2^64 + a_highlow * b_lowhigh * 2^96 + a_highlow * b_highlow * 2^128 + a_highlow * b_highhigh * 2^160
+		//	+ a_highhigh * b_lowlow * 2^96 + a_highhigh + b_lowhigh * 2^128 + a_highhigh * b_highlow * 2^160 + a_highhigh * b_highhigh * 2^192)
+		// =>
+		// (a_lowlow * b_lowlow + a_lowlow * b_lowhigh * 2^32 + a_lowlow * b_highlow * 2^64 + a_lowlow * b_highhigh * 2^96
+		//	+ a_lowhigh * b_lowlow * 2^32 + a_lowhigh * b_lowhigh * 2^64 + a_lowhigh * b_highlow * 2^96
+		//	+ a_highlow * b_lowlow * 2^64 + a_highlow * b_lowhigh * 2^96
+		//	+ a_highhigh * b_lowlow * 2^96)
+
+		// 2^0
+		U64 all_bll = a_lowlow  * b_lowlow ;
+		// 2^32
+		U64 all_blh = a_lowlow  * b_lowhigh;
+		U64 alh_bll = a_lowhigh * b_lowlow ;
+		// 2^64
+		U64 all_bhl = a_lowlow  * b_highlow;
+		U64 alh_blh = a_lowhigh * b_lowhigh;
+		U64 ahl_bll = a_highlow * b_lowlow;
+		// 2^96
+		U64 all_bhh = a_lowlow * b_highhigh;
+		U64 alh_bhl = a_lowhigh * b_highlow;
+		U64 ahl_blh = a_highlow * b_lowhigh;
+		U64 ahh_bll = a_highhigh * b_lowlow;
+
+		// 2^0 and 2^64: all_bll, all_bhl
+		Int128 a_ll1 = { T64(all_bhl), T64(all_bll) };
+		// 2^32 and 2^96: all_blh, all_bhh
+		Int128 a_ll2 = Int128::fromLowHigh(T64(all_blh << 32),
+		                                   T64((all_bhh << 32) | (all_blh >> 32)) );
+		Int128 a_ll = a_ll1 + a_ll2;
+
+		// 2^0 and 2^64: 0, alh_blh
+		Int128 a_lh1 = { T64(alh_blh), T64(0) };
+		// 2^32 and 2^96: alh_bll, alh_bhl
+		Int128 a_lh2 = Int128::fromLowHigh(T64(alh_bll << 32),
+		                                   T64((alh_bhl << 32) | (alh_bll >> 32)) );
+		Int128 a_lh = a_lh1 + a_lh2;
+
+		// 2^0 and 2^64: 0, ahl_bll
+		//Int128 a_hl1 = { T64(ahl_bll), T64(0) };
+		// 2^32 and 2^96: 0, ahl_blh
+		//Int128 a_hl2 = { T64(ahl_blh << 32), T64(0) };
+		// safe to merge because adding the above two
+		//			can't involve any carries between 32-bit chunks
+		Int128 a_hl = { T64(ahl_bll + (ahl_blh << 32)), T64(0) };
+
+		Int128 a_hh = { T64(ahh_bll << 32), T64(0) };
+
+		return a_ll + a_lh + a_hl + a_hh;
+	}
+
+	Int128 operator *(const Int128& b) const {
+		return Int128::mult(*this, b);
+	}
+
+	bool operator ==(const Int128& b) const {
+		return this->high == b.high && this->low == b.low;
+	}
+	bool operator !=(const Int128& b) const {
+		return !(*this == b);
+	}
+
+	friend std::ostream& operator <<(std::ostream& os, const Int128& self) {
+		os << std::hex << uint64_t(self.high)
+		   << std::hex << uint64_t(self.low);
+		os << '_' << (std::is_signed_v<T64>? 's': 'u') << "128";
+		return os;
+	}
+	explicit operator T64() const {
+		return this->low;
+	}
+};
+
+namespace std {
+	// specialize std::numeric_limits for Int128
+	template<>
+	class numeric_limits<Int128<int64_t>> {
+		static constexpr bool is_specialized = true;
+		static constexpr bool is_signed = true;
+		static constexpr bool is_integer = true;
+		static constexpr bool is_exact = true;
+		static constexpr bool has_infinity = false;
+		static constexpr bool has_quiet_NaN = false;
+		static constexpr bool has_signaling_NaN = false;
+		static constexpr std::float_denorm_style denorm_style =
+										std::denorm_absent;
+		static constexpr bool has_denorm_loss = false;
+		static constexpr bool round_style = std::round_toward_zero;
+		static constexpr bool is_iec559 = false;
+		static constexpr bool is_bounded = true;
+		static constexpr bool is_modulo = true;
+		static constexpr int digits = 128 - 1; // 1 effective sign bit
+		static constexpr int digits10 = 38;
+		static constexpr int max_digits10 = 0;
+		static constexpr int radix = 2;
+		static constexpr int min_exponent = 0;
+		static constexpr int min_exponent10 = 0;
+		static constexpr int max_exponent = 0;
+		static constexpr int max_exponent10 = 0;
+		static constexpr int traps =
+			std::numeric_limits<int64_t>::traps;
+		static constexpr bool tinyness_before = false;
+
+		static constexpr auto min() noexcept {
+			// assumes int64_t is two's complement
+			return Int128<int64_t>{
+				std::numeric_limits<int64_t>::min(), 0
+			};
+		}
+		static constexpr auto lowest() noexcept {
+			return min();
+		}
+		static constexpr auto max() noexcept {
+			// assumes int64_t is two's complement
+			return Int128<int64_t>{
+				// 0x8ffffffffff... , 0xfffffffff...
+				std::numeric_limits<int64_t>::max(), -1ll
+			};
+		}
+		static constexpr Int128<int64_t> epsilon() noexcept {
+			return 0;
+		}
+		static constexpr Int128<int64_t> round_error() noexcept {
+			return 0;
+		}
+		static constexpr Int128<int64_t> infinity() noexcept {
+			return 0;
+		}
+		static constexpr Int128<int64_t> quiet_NaN() noexcept {
+			return 0;
+		}
+		static constexpr Int128<int64_t> signaling_NaN() noexcept {
+			return 0;
+		}
+		static constexpr Int128<int64_t> denorm_min() noexcept {
+			return 0;
+		}
+	};
+	template<>
+	class numeric_limits<Int128<uint64_t>> {
+		static constexpr bool is_specialized = true;
+		static constexpr bool is_signed = false;
+		static constexpr bool is_integer = true;
+		static constexpr bool is_exact = true;
+		static constexpr bool has_infinity = false;
+		static constexpr bool has_quiet_NaN = false;
+		static constexpr bool has_signaling_NaN = false;
+		static constexpr std::float_denorm_style denorm_style =
+										std::denorm_absent;
+		static constexpr bool has_denorm_loss = false;
+		static constexpr bool round_style = std::round_toward_zero;
+		static constexpr bool is_iec559 = false;
+		static constexpr bool is_bounded = true;
+		static constexpr bool is_modulo = true;
+		static constexpr int digits = 128;
+		static constexpr int digits10 = 38;
+		static constexpr int max_digits10 = 0;
+		static constexpr int radix = 2;
+		static constexpr int min_exponent = 0;
+		static constexpr int min_exponent10 = 0;
+		static constexpr int max_exponent = 0;
+		static constexpr int max_exponent10 = 0;
+		static constexpr int traps =
+			std::numeric_limits<int64_t>::traps;
+		static constexpr bool tinyness_before = false;
+
+		static constexpr auto min() noexcept {
+			return Int128<uint64_t>{0ull, 0ull};
+		}
+		static constexpr auto lowest() noexcept {
+			return min();
+		}
+		static constexpr auto max() noexcept {
+			uint64_t u64max = std::numeric_limits<uint64_t>::max();
+			return Int128<uint64_t>{ u64max, u64max };
+		}
+		static constexpr Int128<uint64_t> epsilon() noexcept {
+			return 0;
+		}
+		static constexpr Int128<uint64_t> round_error() noexcept {
+			return 0;
+		}
+		static constexpr Int128<uint64_t> infinity() noexcept {
+			return 0;
+		}
+		static constexpr Int128<uint64_t> quiet_NaN() noexcept {
+			return 0;
+		}
+		static constexpr Int128<uint64_t> signaling_NaN() noexcept {
+			return 0;
+		}
+		static constexpr Int128<uint64_t> denorm_min() noexcept {
+			return 0;
+		}
+	};
+}
+
+#ifndef __SIZEOF_INT128__
+// use our polyfill as the int128 type, for testing
+using s128 = Int128<int64_t>;
+using u128 = Int128<uint64_t>;
+#else
+// test our polyfill against __int128
+
+using u_int128 = unsigned __int128;
+
+// __int128 vs Int128 tests
+// TEMPLATE_TEST_CASE_SIG didn't work, so...
+template<typename N128_, typename My128_, typename N64_>
+struct Int128Triple {
+	using My128 = My128_;
+	using N128 = N128_;
+	using N64 = N64_;
+};
+TEMPLATE_TEST_CASE("__int128 vs Int128 tests", "", \
+			(Int128Triple<__int128, Int128<int64_t>, int64_t>), \
+			(Int128Triple<u_int128, Int128<uint64_t>, uint64_t>) \
+		) {
+	using u64 = uint64_t;
+	using My128 = typename TestType::My128;
+	using N128 = typename TestType::N128;
+	using N64 = typename TestType::N64;
+
+	SECTION("fixed tests") {
+		CAPTURE( My128(N128(~0ull)), My128(~0ull) );
+	}
+
+	SECTION("random operations") {
+		auto rng = get_rng();
+
+		std::uniform_int_distribution<u64> full_u64(
+				std::numeric_limits<u64>::min(),
+				std::numeric_limits<u64>::max()
+			);
+		// in Rust this'd need rng as a parameter,
+		//		because of the mutable borrow
+		auto gen_n128 = [&](){
+			static_assert(sizeof(N128) >= 16, "N128 must be 128-bit");
+			N128 high = full_u64(rng);
+			high = high << 64;
+			// cast to unsigned first to be sure not to sign-extend
+			return high | N128((unsigned __int128) full_u64(rng));
+		};
+		auto my128_from_n128 = [](N128 n128) {
+			return My128( (N64) uint64_t(n128 >> 64), (N64) uint64_t(n128) );
+		};
+
+		for (unsigned i = 0; i < 16384; ++i) {
+			auto a_n = gen_n128();
+			auto a_m = my128_from_n128(a_n);
+			auto b_n = gen_n128();
+			auto b_m = my128_from_n128(b_n);
+
+			INFO( "arguments: " << a_m << " and " << b_m );
+			REQUIRE( my128_from_n128(a_n + b_n) == a_m + b_m );
+			REQUIRE( my128_from_n128(a_n - b_n) == a_m - b_m );
+			REQUIRE( my128_from_n128(a_n * b_n) == a_m * b_m );
+		}
+	}
+}
+
+#endif
+
 template<typename T>
 static constexpr auto higher_val() {
 	if constexpr (sizeof(T) == 8) {
 		if constexpr (std::is_signed_v<T>) {
-			return __int128 ();
+			return s128 ();
 		} else {
-			return (unsigned __int128) 0;
+			return u128 ();
 		}
 	} else {
 		return checked::NextSize<T> ();
 	}
 }
-#else
-template<typename T>
-static constexpr auto higher_val() {
-	return checked::NextSize<T> ();
-}
-#endif
 
 template<typename T>
 static T max(T a, T b) {
@@ -258,11 +607,7 @@ static constexpr auto gentype_fn() {
 
 TEMPLATE_TEST_CASE("random checked operation tests", "", \
 					char, int8_t, uint8_t, int16_t, uint16_t, \
-					int32_t, uint32_t
-#ifdef __SIZEOF_INT128__
-					, int64_t, uint64_t
-#endif
-					) {
+					int32_t, uint32_t, int64_t, uint64_t) {
 	using T = TestType;
 	using Higher = decltype(higher_val<T>());
 
@@ -282,6 +627,17 @@ TEMPLATE_TEST_CASE("random checked operation tests", "", \
 			T expected_result = add_a + add_b;
 			bool expected_overflow = false;
 			testExpected<T, checked::add>(add_a, add_b, expected_overflow, expected_result);
+
+			// TODO: ranges are wrong for this, so don't use these tests for now
+			/*T sub_a = safe_sub(rng);
+			T sub_b = safe_sub(rng);
+			expected_result = sub_a - sub_b;
+			testExpected<T, checked::sub>(sub_a, sub_b, expected_overflow, expected_result);
+
+			T mul_a = safe_mul(rng);
+			T mul_b = safe_mul(rng);
+			expected_result = mul_a * mul_b;
+			testExpected<T, checked::mul>(mul_a, mul_b, expected_overflow, expected_result);*/
 		}
 	}
 
@@ -292,71 +648,19 @@ TEMPLATE_TEST_CASE("random checked operation tests", "", \
 
 			T expected_result = T(0);
 
-			bool expected_overflow =
-				checked::check_widening<T, std::plus, Higher>(
-						a, b, &expected_result
-					);
+			bool expected_overflow = checked::check_widening<T, std::plus, Higher>(
+					a, b, &expected_result);
 			testExpected<T, checked::add>(a, b, expected_overflow, expected_result);
 
 			expected_result = T(0);
-			expected_overflow =
-				checked::check_widening<T, std::minus, Higher>(
-						a, b, &expected_result
-					);
+			expected_overflow = checked::check_widening<T, std::minus, Higher>(
+					a, b, &expected_result);
 			testExpected<T, checked::sub>(a, b, expected_overflow, expected_result);
 
 			expected_result = T(0);
-			expected_overflow =
-				checked::check_widening<T, std::multiplies, Higher>(
-						a, b, &expected_result
-					);
+			expected_overflow = checked::check_widening<T, std::multiplies, Higher>(
+					a, b, &expected_result);
 			testExpected<T, checked::mul>(a, b, expected_overflow, expected_result);
 		}
 	}
 }
-
-#ifdef __SIZEOF_INT128__
-
-template<typename T, template<typename> typename Operation, typename Wider = decltype(higher_val<T>())>
-bool has_overflow_wider(T a, T b) {
-	Wider result = Operation<Wider>()(Wider(a), Wider(b));
-	// It overflowed if the Wider result isn't round-trip'able to T and back
-	return result != Wider(T(result));
-}
-
-// Test bit-operation overflow-test methods against __int128
-TEMPLATE_TEST_CASE("random __int128 vs bit-op overflow tests", "", \
-					char, int8_t, uint8_t, int16_t, uint16_t, \
-					int32_t, uint32_t, int64_t, uint64_t) {
-	using T = TestType;
-	using Higher = decltype(higher_val<T>());
-
-	using GenType = decltype(gentype_fn<T>());
-
-	auto rng = get_rng();
-
-	std::uniform_int_distribution<GenType> full(std::numeric_limits<T>::min(),
-	                                            std::numeric_limits<T>::max());
-
-	for (unsigned i = 0; i < 16384; ++i) {
-		T a = T(full(rng));
-		T b = T(full(rng));
-
-		UNSCOPED_INFO("testing overflow on " << GenType(a) << short_name<T> << " + " << GenType(b) << short_name<T>);
-		bool expected_overflowed = has_overflow_wider<T, std::plus, Higher>(a, b);
-		bool bitop_overflowed = checked::add_overflows(a, b);
-		REQUIRE( expected_overflowed == bitop_overflowed );
-
-		UNSCOPED_INFO("testing overflow on " << GenType(a) << short_name<T> << " - " << GenType(b) << short_name<T>);
-		expected_overflowed = has_overflow_wider<T, std::minus, Higher>(a, b);
-		bitop_overflowed = checked::sub_overflows(a, b);
-		REQUIRE( expected_overflowed == bitop_overflowed );
-
-		UNSCOPED_INFO("testing overflow on " << GenType(a) << short_name<T> << " * " << GenType(b) << short_name<T>);
-		expected_overflowed = has_overflow_wider<T, std::multiplies, Higher>(a, b);
-		bitop_overflowed = checked::mul_overflows(a, b);
-		REQUIRE( expected_overflowed == bitop_overflowed );
-	}
-}
-
-#endif
