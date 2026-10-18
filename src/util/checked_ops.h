@@ -51,38 +51,54 @@ namespace checked {
 	template<typename T>
 	using RemoveAllOptionals = typename RemoveAllOptionals_<T>::Type;
 
+	template<typename T>
+	static constexpr auto flatten_optionals(T t) {
+		using ROT = RemoveOneOptional<T>;
+		if constexpr (std::is_same_v<T, ROT>) {
+			return std::optional<T>(t);
+		} else if (!t.has_value()) {
+			return std::optional<RemoveAllOptionals<T>>();
+		} else {
+			return flatten_optionals<ROT>(t.value());
+		}
+	}
+
 	template<typename A, typename B, typename T, bool op(T, T, T* result)>
 	static constexpr std::optional<T> do_optless_op(A a, B b) {
-		using ROnA = RemoveOneOptional<A>;
-		using ROnB = RemoveOneOptional<B>;
+		using ROA = RemoveAllOptionals<A>;
+		using ROB = RemoveAllOptionals<B>;
 
-		if constexpr (std::is_same_v<ROnA, A>) {
-			if constexpr (std::is_same_v<ROnB, B>) {
+		if constexpr (std::is_same_v<ROA, A>) {
+			if constexpr (std::is_same_v<ROB, B>) {
 				static_assert(std::is_same_v<A, B>,
 							"both arguments need to have the same underlying integer type");
 				return wrap_in_optional<T, op>(a, b);
 			} else {
 				// B needs unwrapping
-				if (!b.has_value()) {
+				auto b_flat = flatten_optionals(b);
+				if (!b_flat.has_value()) {
 					return std::nullopt;
 				} else {
-					return do_optless_op<A, ROnB, T, op>(a, b.value());
+					return wrap_in_optional<T, op>(a, b_flat.value());
 				}
 			}
 		} else {
-			if constexpr (std::is_same_v<ROnB, B>) {
+			if constexpr (std::is_same_v<ROB, B>) {
 				// A needs unwrapping
-				if (!a.has_value()) {
+				auto a_flat = flatten_optionals(a);
+				if (!a_flat.has_value()) {
 					return std::nullopt;
 				} else {
-					return do_optless_op<ROnA, B, T, op>(a.value(), b);
+					return wrap_in_optional<T, op>(a_flat.value(), b);
 				}
 			} else {
 				// both need unwrapping
-				if (!a.has_value() || !b.has_value()) {
+				auto a_flat = flatten_optionals(a);
+				auto b_flat = flatten_optionals(b);
+				if (!a_flat.has_value() || !b_flat.has_value()) {
 					return std::nullopt;
 				} else {
-					return do_optless_op<ROnA, ROnB, T, op>(a.value(), b.value());
+					return wrap_in_optional<T, op>(a_flat.value(), b_flat.value());
 				}
 			}
 		}
