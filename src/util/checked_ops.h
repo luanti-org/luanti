@@ -250,10 +250,11 @@ namespace checked {
 		if constexpr (std::is_signed_v<T>) {
 			// Page 30,
 			// "as the formulas that do not even use the carry bit"
+			using U = std::make_unsigned_t<T>;
 			if constexpr (do_add) {
-				return get_sign_bit(~(x ^ y) & ((x + y) ^ x)) != 0;
+				return get_sign_bit(~(x ^ y) & (T(U(x) + U(y)) ^ x)) != 0;
 			} else {
-				return get_sign_bit((x ^ y) & ((x - y) ^ x)) != 0;
+				return get_sign_bit((x ^ y) & (T(U(x) - U(y)) ^ x)) != 0;
 			}
 		} else {
 			// page 31
@@ -261,7 +262,7 @@ namespace checked {
 			//		the sum is less (by unsigned comparison)
 			//		than either of the operands."
 			if constexpr (do_add) {
-				return (~x) < y;
+				return T(~x) < y;
 			} else {
 				return x < y;
 			}
