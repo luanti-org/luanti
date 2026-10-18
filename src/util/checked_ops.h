@@ -244,16 +244,27 @@ namespace checked {
 		return t & sign_bit<T>();
 	}
 
+	// This is safer because signed overflow is UB in C/C++
+	template<typename T, template<typename> typename Operation>
+	static constexpr T safe_op(T a, T b) {
+		using U = std::make_unsigned_t<T>;
+		return Operation()(U(a), U(b));
+	}
+
 	template<typename T, bool do_add>
 	static constexpr bool addsub_overflows(T x, T y) {
 		// Formulas from Hacker's Delight Second Edition
 		if constexpr (std::is_signed_v<T>) {
-			// Page 30,
-			// "as the formulas that do not even use the carry bit"
 			if constexpr (do_add) {
-				return get_sign_bit(~(x ^ y) & ((x + y) ^ x)) != 0;
+				// page 28
+				// "Signed integer overflow of addition occurs if any old if..."
+				return ((x < 0) == (y < 0))
+						& ((x < 0) != safe_op<T, std::plus>(x, y));
 			} else {
-				return get_sign_bit((x ^ y) & ((x - y) ^ x)) != 0;
+				// page 29
+				// "...that overflow in the final value of x - y - c occurrs if and only if..."
+				return ((x < 0) != (y < 0))
+						& ((x < 0) != safe_op<T, std::minus>(x, y));
 			}
 		} else {
 			// page 31
@@ -261,7 +272,7 @@ namespace checked {
 			//		the sum is less (by unsigned comparison)
 			//		than either of the operands."
 			if constexpr (do_add) {
-				return (~x) < y;
+				return T(~x) < y;
 			} else {
 				return x < y;
 			}
