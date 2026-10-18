@@ -28,19 +28,86 @@ namespace checked {
 			return out;
 		}
 	}
+
 	template<typename T>
-	std::optional<T> add(T a, T b) {
-		return wrap_in_optional<T, add>(a, b);
-	}
+	struct RemoveOneOptional_ {
+		using Type = T;
+	};
 	template<typename T>
-	std::optional<T> sub(T a, T b) {
-		return wrap_in_optional<T, sub>(a, b);
-	}
+	struct RemoveOneOptional_<std::optional<T>> {
+		using Type = T;
+	};
 	template<typename T>
-	std::optional<T> mul(T a, T b) {
-		return wrap_in_optional<T, mul>(a, b);
+	using RemoveOneOptional = typename RemoveOneOptional_<T>::Type;
+
+	template<typename T>
+	struct RemoveAllOptionals_ {
+		using Type = T;
+	};
+	template<typename T>
+	struct RemoveAllOptionals_<std::optional<T>> {
+		using Type = typename RemoveAllOptionals_<T>::Type;
+	};
+	template<typename T>
+	using RemoveAllOptionals = typename RemoveAllOptionals_<T>::Type;
+
+	template<typename A, typename B, typename T, bool op(T, T, T* result)>
+	static constexpr std::optional<T> do_optless_op(A a, B b) {
+		using ROnA = RemoveOneOptional<A>;
+		using ROnB = RemoveOneOptional<B>;
+
+		if constexpr (std::is_same_v<ROnA, A>) {
+			if constexpr (std::is_same_v<ROnB, B>) {
+				static_assert(std::is_same_v<A, B>,
+							"both arguments need to have the same underlying integer type");
+				return wrap_in_optional<T, op>(a, b);
+			} else {
+				// B needs unwrapping
+				if (!b.has_value()) {
+					return std::nullopt;
+				} else {
+					return do_optless_op<A, ROnB, T, op>(a, b.value());
+				}
+			}
+		} else {
+			if constexpr (std::is_same_v<ROnB, B>) {
+				// A needs unwrapping
+				if (!a.has_value()) {
+					return std::nullopt;
+				} else {
+					return do_optless_op<ROnA, B, T, op>(a.value(), b);
+				}
+			} else {
+				// both need unwrapping
+				if (!a.has_value() || !b.has_value()) {
+					return std::nullopt;
+				} else {
+					return do_optless_op<ROnA, ROnB, T, op>(a.value(), b.value());
+				}
+			}
+		}
 	}
 
+	// optional interface (accepts std::optional<T> arguments too, for easy chaining)
+	// Returns a std::optional() with a value when the operation does not overflow
+	template<typename A, typename B>
+	auto add(A a, B b) {
+		using TA = RemoveAllOptionals<A>;
+		std::optional<TA> result = do_optless_op<A, B, TA, add<TA>>(a, b);
+		return result;
+	}
+	template<typename A, typename B>
+	auto sub(A a, B b) {
+		using TA = RemoveAllOptionals<A>;
+		std::optional<TA> result = do_optless_op<A, B, TA, sub<TA>>(a, b);
+		return result;
+	}
+	template<typename A, typename B>
+	auto mul(A a, B b) {
+		using TA = RemoveAllOptionals<A>;
+		std::optional<TA> result = do_optless_op<A, B, TA, mul<TA>>(a, b);
+		return result;
+	}
 
 	template<typename T>
 	struct NextSize_;

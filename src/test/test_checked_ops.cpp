@@ -131,7 +131,18 @@ std::ostream& operator <<(std::ostream& os, const PrintInt<T>& value) {
 }
 
 TEST_CASE("fixed checked (+)/(-) tests") {
-	// These feel kind of weak?
+	SECTION( "std::optional interface" ) {
+		using OI = std::optional<int>;
+		// check for support of optional arguments and return values
+		REQUIRE( checked::add(OI(), OI()) == OI() );
+		REQUIRE( checked::add(OI(1), OI()) == OI() );
+		REQUIRE( checked::add(OI(1), OI(1)) == OI(2) );
+		REQUIRE( checked::add(OI(), OI(1)) == OI() );
+
+		// check nested optional support
+		REQUIRE( checked::add(std::optional<OI>(), OI()) == OI() );
+	}
+
 	SECTION( "~0 + ~0 overflows for unsigned" ) {
 		testExpected<int, checked::add>(-1, -1, false, -2);
 		testExpected<long long, checked::add>(-1ll, -1ll, false, -2ll);
@@ -535,9 +546,7 @@ TEMPLATE_TEST_CASE("__int128 vs Int128 tests", "", \
 	using N128 = typename TestType::N128;
 	using N64 = typename TestType::N64;
 
-	SECTION("fixed tests") {
-		CAPTURE( My128(N128(~0ull)), My128(~0ull) );
-	}
+	SECTION("fixed tests") {}
 
 	SECTION("random operations") {
 		auto rng = get_rng();
