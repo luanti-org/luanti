@@ -53,8 +53,17 @@ RemotePlayer::RemotePlayer(const std::string &name, IItemDefManager *idef):
 
 RemotePlayer::~RemotePlayer()
 {
-	if (m_sao)
-		m_sao->setPlayer(nullptr);
+	if (m_sao) {
+		assert(m_sao->getPlayer() == this);
+		m_sao->unsetPlayer();
+	}
+}
+
+void RemotePlayer::setPlayerSAO(PlayerSAO *sao)
+{
+	assert(!m_sao && sao);
+	m_sao = sao;
+	assert(m_sao->getPlayer() == this);
 }
 
 RemotePlayerChatResult RemotePlayer::canSendChatMessage()
