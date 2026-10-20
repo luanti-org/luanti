@@ -9093,7 +9093,7 @@ child will follow movement and rotation of that bone.
       in circular attachments.
 * `get_attach()`:
     * returns current attachment parameters or nil if it isn't attached
-    * If attached, returns `parent`, `bone`, `position`, `rotation`, `forced_visible`
+    * If attached, returns `parent`, `bone`, `position`, `rotation`, `forced_visible`, `move_camera`
 * `get_children()`: returns a list of ObjectRefs that are attached to the
     object.
 * `set_detach()`: Detaches object. No-op if object was not attached.

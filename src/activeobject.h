@@ -157,9 +157,9 @@ struct AttachmentData
 	};
 
 	object_t parent_id = 0;
-	std::string bone;
-	v3f position;
-	v3f rotation;
+	std::string bone = "";
+	v3f position = v3f();
+	v3f rotation = v3f();
 	u8 flags = 0;
 
 	void serialize(std::ostream &os) const;
