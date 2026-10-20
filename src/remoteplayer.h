@@ -33,7 +33,7 @@ public:
 	virtual ~RemotePlayer();
 
 	PlayerSAO *getPlayerSAO() { return m_sao; }
-	void setPlayerSAO(PlayerSAO *sao) { m_sao = sao; }
+	void setPlayerSAO(PlayerSAO *sao);
 
 	RemotePlayerChatResult canSendChatMessage();
 
