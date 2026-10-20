@@ -319,9 +319,6 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 	f32 yaw = player->getYaw();
 	f32 pitch = player->getPitch();
 
-	// This is worse than `LocalPlayer::getPosition()` but
-	// mods expect the player head to be at the parent's position
-	// plus eye height.
 	if (player->getParent()) {
 		AttachmentData attachment;
 		player->getCAO()->getAttachment(attachment);

@@ -22,8 +22,7 @@ void AttachmentData::serialize(std::ostream &os) const
 	os << serializeString16(bone);
 	writeV3F32(os, position);
 	writeV3F32(os, rotation);
-	writeU8(os, flags & FORCE_VISIBLE ? 1 : 0);
-	writeU8(os, flags & MOVE_CAMERA ? 1 : 0);
+	writeU8(os, flags);
 }
 
 void AttachmentData::deSerialize(std::istream &is)
@@ -32,14 +31,5 @@ void AttachmentData::deSerialize(std::istream &is)
 	bone = deSerializeString16(is);
 	position = readV3F32(is);
 	rotation = readV3F32(is);
-	flags = 0;
-
-	if (canRead(is)) {
-		// >= 5.4.0-dev
-		flags |= readU8(is) ? FORCE_VISIBLE : 0;
-	}
-	if (canRead(is)) {
-		// >= 5.18.0-dev
-		flags |= readU8(is) ? MOVE_CAMERA : 0;
-	}
+	flags = readU8(is);
 }

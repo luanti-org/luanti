@@ -156,11 +156,11 @@ struct AttachmentData
 		MOVE_CAMERA = 0x02
 	};
 
-	object_t parent_id {0};
-	std::string bone {""};
-	v3f position {};
-	v3f rotation {};
-	u8 flags {0};
+	object_t parent_id = 0;
+	std::string bone;
+	v3f position;
+	v3f rotation;
+	u8 flags = 0;
 
 	void serialize(std::ostream &os) const;
 	void deSerialize(std::istream &is);
