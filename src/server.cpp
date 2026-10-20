@@ -76,10 +76,17 @@
 #include <sstream>
 #include <csignal>
 
+// Make the exceptions we swallow more visible in debug builds
+#ifdef NDEBUG
+#define EXCEPTIONSTREAM infostream
+#else
+#define EXCEPTIONSTREAM warningstream
+#endif
+
 class ClientNotFoundException : public BaseException
 {
 public:
-	ClientNotFoundException(const char *s):
+	ClientNotFoundException(const std::string &s):
 		BaseException(s)
 	{}
 };
@@ -154,9 +161,10 @@ void *ServerThread::run()
 			m_server->Receive(remaining_time);
 
 		} catch (con::PeerNotFoundException &e) {
-			infostream<<"Server: PeerNotFoundException"<<std::endl;
+			EXCEPTIONSTREAM << "ServerThread: PeerNotFoundException" << std::endl;
 		} catch (ClientNotFoundException &e) {
-			infostream<<"Server: ClientNotFoundException"<<std::endl;
+			EXCEPTIONSTREAM << "ServerThread: ClientNotFoundException: "
+				<< e.what() << std::endl;
 		} catch (LuaError &e) {
 			m_server->setAsyncFatalError(e);
 		} catch (ModError &e) {
@@ -840,7 +848,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		Check added and deleted active objects
 	*/
 	{
-		//infostream<<"Server: Checking added and deleted active objects"<<std::endl;
 		EnvAutoLock envlock(this);
 
 		// This guarantees that each object recomputes its cache only once per server step,
@@ -1154,24 +1161,26 @@ void Server::Receive(float min_time)
 			ProcessData(&pkt);
 			m_packet_recv_processed_counter->increment();
 		} catch (const con::InvalidIncomingDataException &e) {
-			infostream << "Server::Receive(): InvalidIncomingDataException: what()="
+			EXCEPTIONSTREAM << "Server::Receive(): InvalidIncomingDataException: "
 					<< e.what() << std::endl;
 		} catch (SerializationError &e) {
 			enrich_exception(e, pkt, true);
-			infostream << "Server::Receive(): SerializationError: what()="
+			EXCEPTIONSTREAM << "Server::Receive(): SerializationError: "
 					<< e.what() << std::endl;
 		} catch (PacketError &e) {
 			enrich_exception(e, pkt, false);
-			actionstream << "Server::Receive(): PacketError: what()="
+			actionstream << "Server::Receive(): PacketError: "
 					<< e.what() << std::endl;
 		} catch (const ClientStateError &e) {
 			errorstream << "ClientStateError: peer=" << peer_id << " what()="
 					 << e.what() << std::endl;
 			DenyAccess(peer_id, SERVER_ACCESSDENIED_UNEXPECTED_DATA);
 		} catch (con::PeerNotFoundException &e) {
-			infostream << "Server: PeerNotFoundException" << std::endl;
+			EXCEPTIONSTREAM << "Server::Receive(): PeerNotFoundException" << std::endl;
 		} catch (ClientNotFoundException &e) {
-			infostream << "Server: ClientNotFoundException" << std::endl;
+			enrich_exception(e, pkt, false);
+			EXCEPTIONSTREAM << "Server::Receive(): ClientNotFoundException: "
+				<< e.what() << std::endl;
 		}
 	}
 }
@@ -3376,8 +3385,9 @@ void Server::handleAdminChat(const ChatEventChat *evt)
 RemoteClient *Server::getClient(session_t peer_id, ClientState state_min)
 {
 	RemoteClient *client = getClientNoEx(peer_id,state_min);
-	if(!client)
-		throw ClientNotFoundException("Client not found");
+	if(!client) {
+		throw ClientNotFoundException("peer_id=" + itos(peer_id));
+	}
 
 	return client;
 }
