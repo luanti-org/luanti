@@ -31,5 +31,7 @@ void AttachmentData::deSerialize(std::istream &is)
 	bone = deSerializeString16(is);
 	position = readV3F32(is);
 	rotation = readV3F32(is);
-	flags = readU8(is);
+
+	// can read if the client version >= 5.4.0-dev
+	flags = canRead(is) ? readU8(is) : false;
 }

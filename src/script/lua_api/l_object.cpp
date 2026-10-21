@@ -919,7 +919,7 @@ int ObjectRef::l_get_bone_overrides(lua_State *L)
 	return 1;
 }
 
-// set_attach(self, parent, bone, position, rotation, force_visible, move_camera) or
+// set_attach(self, parent, bone, position, rotation, force_visible) or
 // set_attach(attachment_table)
 int ObjectRef::l_set_attach(lua_State *L)
 {
@@ -927,12 +927,14 @@ int ObjectRef::l_set_attach(lua_State *L)
 	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
 
 	int start_idx = 2;
-	if (lua_istable(L, 2)) {
+	bool table_form = lua_istable(L, 2);
+
+	if (table_form) {
 		lua_getfield(L, 2, "parent");
 		lua_getfield(L, 2, "bone");
 		lua_getfield(L, 2, "position");
 		lua_getfield(L, 2, "rotation");
-		lua_getfield(L, 2, "forced_visible");
+		lua_getfield(L, 2, "force_visible");
 		lua_getfield(L, 2, "move_camera");
 
 		start_idx = 3;
@@ -955,14 +957,15 @@ int ObjectRef::l_set_attach(lua_State *L)
 
 	if (readParam<bool>(L, start_idx+4, false))
 		attachment.flags |= AttachmentData::FORCE_VISIBLE;
-	if (readParam<bool>(L, start_idx+5, false) && is_player)
+	// "move_camera" is supported only in the table form
+	if (table_form && readParam<bool>(L, start_idx+5, false) && is_player)
 		attachment.flags |= AttachmentData::MOVE_CAMERA;
 
 	sao->setAttachment(attachment);
 	return 0;
 }
 
-// get_attach(self)
+// get_attach(self, table_form)
 int ObjectRef::l_get_attach(lua_State *L)
 {
 	GET_ENV_PTR_NO_MAP_LOCK;
@@ -978,12 +981,28 @@ int ObjectRef::l_get_attach(lua_State *L)
 
 	ServerActiveObject *parent = env->getActiveObject(attachment.parent_id);
 	getScriptApiBase(L)->objectrefGetOrCreate(L, parent);
+
+	bool table_form = readParam<bool>(L, 2, false);
+
+	if (table_form)
+		lua_newtable(L);
+
 	lua_pushlstring(L, attachment.bone.c_str(), attachment.bone.size());
 	push_v3f(L, attachment.position);
 	push_v3f(L, attachment.rotation);
 	lua_pushboolean(L, attachment.flags & AttachmentData::FORCE_VISIBLE);
 	lua_pushboolean(L, attachment.flags & AttachmentData::MOVE_CAMERA);
-	return 6;
+
+	if (table_form) {
+		lua_setfield(L, 3, "move_camera");
+		lua_setfield(L, 3, "force_visible");
+		lua_setfield(L, 3, "rotation");
+		lua_setfield(L, 3, "position");
+		lua_setfield(L, 3, "bone");
+		lua_setfield(L, 3, "parent");
+	}
+
+	return table_form ? 1 : 6;
 }
 
 // get_children(self)
