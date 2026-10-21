@@ -9088,9 +9088,21 @@ child will follow movement and rotation of that bone.
        should appear in first person, default `false`.
     * `move_camera`: Boolean to control whether the camera of the attached player object
        should move by `position`, default `false`.
-       Is only applied to players and clients >= 5.18.0.
+       Is only applied to players and clients >= 5.19.0.
     * This command may fail silently (do nothing) when it would result
       in circular attachments.
+* `set_attach(attachment_params)`
+    * The overload of the method above available since 5.19.0, takes the params in the following table form:
+      ```lua
+      {
+          parent = ObjectRef,
+          bone = "...",
+          position = {x=...,y=...,z=...},
+          rotation = {x=...,y=...,z=...},
+          forced_visible = false/true,
+          move_camera = false/true
+      }
+      ```
 * `get_attach()`:
     * returns current attachment parameters or nil if it isn't attached
     * If attached, returns `parent`, `bone`, `position`, `rotation`, `forced_visible`, `move_camera`
