@@ -12,7 +12,7 @@
 #include "util/numeric.h"
 #include "client/tile.h"
 #include "voxel.h"
-#include <map>
+#include <vector>
 
 namespace video {
 	class IVideoDriver;
@@ -300,7 +300,7 @@ private:
 
 	// Animation info: texture animation
 	// Maps mesh and mesh buffer indices to TileSpecs
-	std::map<MeshIndex, AnimationInfo> m_animation_info;
+	std::vector<std::pair<MeshIndex, AnimationInfo>> m_animation_info;
 
 	// list of all semitransparent triangles in the mapblock
 	std::vector<MeshTriangle> m_transparent_triangles;

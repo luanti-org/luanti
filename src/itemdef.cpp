@@ -12,7 +12,7 @@
 #include "util/serialize.h"
 #include "util/string.h"
 #include "util/pointedthing.h"
-#include <map>
+#include <unordered_map>
 #include <algorithm>
 #include <sstream>
 
@@ -512,10 +512,11 @@ public:
 		if (def.name.empty())
 			FATAL_ERROR_IF(!def.tool_capabilities, "Hand does not have ToolCapabilities");
 
-		if(m_item_definitions.count(def.name) == 0)
-			m_item_definitions[def.name] = new ItemDefinition(def);
+		auto *&it = m_item_definitions[def.name];
+		if (!it)
+			it = new ItemDefinition(def);
 		else
-			*(m_item_definitions[def.name]) = def;
+			*it = def;
 
 		// Remove conflicting alias if it exists
 		bool alias_removed = (m_aliases.erase(def.name) != 0);
@@ -593,7 +594,7 @@ public:
 
 private:
 	// Key is name
-	std::map<std::string, ItemDefinition*> m_item_definitions;
+	std::unordered_map<std::string, ItemDefinition*> m_item_definitions;
 	// Aliases
 	StringMap m_aliases;
 };
