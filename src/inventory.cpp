@@ -28,7 +28,7 @@ static content_t content_translate_from_19_to_internal(content_t c_from)
 }
 
 ItemStack::ItemStack(const std::string &name_, u16 count_,
-		u16 wear_, IItemDefManager *itemdef) :
+		u16 wear_, const IItemDefManager *itemdef) :
 	name(itemdef->getAlias(name_)),
 	count(count_),
 	wear(wear_)
@@ -67,7 +67,7 @@ void ItemStack::serialize(std::ostream &os, bool serialize_meta) const
 	}
 }
 
-void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
+void ItemStack::deSerialize(std::istream &is, const IItemDefManager *itemdef)
 {
 	clear();
 
@@ -248,7 +248,7 @@ void ItemStack::deSerialize(std::istream &is, IItemDefManager *itemdef)
 		count = 1;
 }
 
-void ItemStack::deSerialize(const std::string &str, IItemDefManager *itemdef)
+void ItemStack::deSerialize(const std::string &str, const IItemDefManager *itemdef)
 {
 	std::istringstream is(str, std::ios::binary);
 	deSerialize(is, itemdef);
@@ -398,7 +398,7 @@ bool ItemStack::addWear(s32 amount, const IItemDefManager *itemdef)
 	return false;
 }
 
-ItemStack ItemStack::addItem(ItemStack newitem, IItemDefManager *itemdef)
+ItemStack ItemStack::addItem(ItemStack newitem, const IItemDefManager *itemdef)
 {
 	// If the item is empty or the position invalid, bail out
 	if(newitem.empty())
@@ -437,7 +437,7 @@ ItemStack ItemStack::addItem(ItemStack newitem, IItemDefManager *itemdef)
 
 bool ItemStack::itemFits(ItemStack newitem,
 		ItemStack *restitem,
-		IItemDefManager *itemdef) const
+		const IItemDefManager *itemdef) const
 {
 
 	// If the item is empty or the position invalid, bail out
@@ -516,7 +516,7 @@ ItemStack ItemStack::peekItem(u32 peekcount) const
 	Inventory
 */
 
-InventoryList::InventoryList(const std::string &name, u32 size, IItemDefManager *itemdef):
+InventoryList::InventoryList(const std::string &name, u32 size, const IItemDefManager *itemdef):
 	m_name(name),
 	m_size(size),
 	m_itemdef(itemdef)
@@ -923,7 +923,7 @@ void Inventory::clear()
 	setModified();
 }
 
-Inventory::Inventory(IItemDefManager *itemdef)
+Inventory::Inventory(const IItemDefManager *itemdef)
 {
 	m_itemdef = itemdef;
 	setModified();

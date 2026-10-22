@@ -2379,7 +2379,7 @@ void GUIFormSpecMenu::parseItemImageButton(parserData* data, const std::string &
 	if(!data->explicit_size)
 		warningstream << "invalid use of item_image_button without a size[] element" << std::endl;
 
-	IItemDefManager *idef = m_client->idef();
+	auto *idef = m_client->idef();
 	ItemStack item;
 	item.deSerialize(item_name, idef);
 

@@ -752,7 +752,7 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 			if (!m_prop.textures.empty()) {
 				infostream << "textures[0]: " << m_prop.textures[0]
 					<< std::endl;
-				IItemDefManager *idef = m_client->idef();
+				auto *idef = m_client->idef();
 				item = ItemStack(m_prop.textures[0], 1, 0, idef);
 			}
 		} else {

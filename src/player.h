@@ -171,7 +171,7 @@ class Player
 {
 public:
 
-	Player(const std::string &name, IItemDefManager *idef);
+	Player(const std::string &name, const IItemDefManager *idef);
 	virtual ~Player() = 0;
 
 	DISABLE_CLASS_COPY(Player);
