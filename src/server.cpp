@@ -4041,8 +4041,7 @@ bool Server::rollbackRevertActions(const std::list<RollbackAction> &actions,
 }
 
 // IGameDef interface
-// Under envlock
-IItemDefManager *Server::getItemDefManager()
+const IItemDefManager *Server::getItemDefManager() const
 {
 	return m_itemdef;
 }

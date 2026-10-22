@@ -427,7 +427,7 @@ std::vector<FrameSpec> createAnimationFrames(ITextureSource *tsrc,
 void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool check_wield_image)
 {
 	ITextureSource *tsrc = client->getTextureSource();
-	IItemDefManager *idef = client->getItemDefManager();
+	auto *idef = client->idef();
 	ItemVisualsManager *item_visuals = client->getItemVisualsManager();
 	IShaderSource *shdsrc = client->getShaderSource();
 	const NodeDefManager *ndef = client->getNodeDefManager();

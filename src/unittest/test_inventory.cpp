@@ -8,6 +8,7 @@
 
 #include "gamedef.h"
 #include "inventory.h"
+#include "dummygamedef.h"
 #include "itemdef.h"
 
 class TestInventory : public TestBase {
@@ -17,8 +18,8 @@ public:
 
 	void runTests(IGameDef *gamedef);
 
-	void testItemStack(IItemDefManager *idef);
-	void testSerializeDeserialize(IItemDefManager *idef);
+	void testItemStack(IWritableItemDefManager *widef);
+	void testSerializeDeserialize(const IItemDefManager *idef);
 
 	static const char *serialized_inventory_in;
 	static const char *serialized_inventory_out;
@@ -29,16 +30,18 @@ static TestInventory g_test_instance;
 
 void TestInventory::runTests(IGameDef *gamedef)
 {
-	TEST(testItemStack, gamedef->getItemDefManager());
+	DummyGameDef *g = dynamic_cast<DummyGameDef*>(gamedef); // this is kinda stupid
+	sanity_check(g);
+
+	TEST(testItemStack, g->getWritableItemDefManager());
 	TEST(testSerializeDeserialize, gamedef->getItemDefManager());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void TestInventory::testItemStack(IItemDefManager *idef)
+void TestInventory::testItemStack(IWritableItemDefManager *widef)
 {
-	auto *widef = dynamic_cast<IWritableItemDefManager *>(idef);
-	UASSERT(widef);
+	const IItemDefManager *idef = widef;
 
 	// Craftitem / Node
 	{
@@ -97,7 +100,7 @@ void TestInventory::testItemStack(IItemDefManager *idef)
 	}
 }
 
-void TestInventory::testSerializeDeserialize(IItemDefManager *idef)
+void TestInventory::testSerializeDeserialize(const IItemDefManager *idef)
 {
 	Inventory inv(idef);
 	std::istringstream is(serialized_inventory_in, std::ios::binary);

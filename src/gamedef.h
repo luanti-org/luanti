@@ -27,7 +27,7 @@ class IGameDef
 public:
 	// These are thread-safe IF they are not edited while running threads.
 	// Thus, first they are set up and then they are only read.
-	virtual IItemDefManager* getItemDefManager()=0;
+	virtual const IItemDefManager* getItemDefManager() const=0;
 	virtual ICraftDefManager* getCraftDefManager()=0;
 
 	// The node definition manager is NOT thread-safe
@@ -45,7 +45,7 @@ public:
 	virtual ModIPCStore *getModIPCStore() { return nullptr; }
 
 	// Shorthands
-	const IItemDefManager *idef() { return getItemDefManager(); }
+	const IItemDefManager *idef() const { return getItemDefManager(); }
 	const NodeDefManager *ndef()  { return getNodeDefManager(); }
 	ICraftDefManager *cdef()      { return getCraftDefManager(); }
 
