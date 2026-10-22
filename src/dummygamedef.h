@@ -39,7 +39,7 @@ public:
 	IWritableItemDefManager* getWritableItemDefManager() { return m_itemdef; }
 	const NodeDefManager *getNodeDefManager() override { return m_nodedef; }
 	NodeDefManager* getWritableNodeDefManager() { return m_nodedef; }
-	ICraftDefManager *getCraftDefManager() override { return m_craftdef; }
+	const ICraftDefManager *getCraftDefManager() const override { return m_craftdef; }
 
 	u16 allocateUnknownNodeId(const std::string &name) override
 	{
