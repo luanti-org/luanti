@@ -335,7 +335,7 @@ const std::array<const char *, 36> object_property_keys = {
 
 /******************************************************************************/
 void read_object_properties(lua_State *L, int index,
-		ServerActiveObject *sao, ObjectProperties *prop, IItemDefManager *idef,
+		ServerActiveObject *sao, ObjectProperties *prop, const IItemDefManager *idef,
 		bool fallback)
 {
 	if (index < 0)
@@ -1479,7 +1479,7 @@ int getenumfield(lua_State *L, int table,
 }
 
 /******************************************************************************/
-ItemStack read_item(lua_State* L, int index, IItemDefManager *idef)
+ItemStack read_item(lua_State* L, int index, const IItemDefManager *idef)
 {
 	if(index < 0)
 		index = lua_gettop(L) + 1 + index;

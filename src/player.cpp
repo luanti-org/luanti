@@ -25,7 +25,7 @@ bool is_valid_player_name(std::string_view name)
 	return !name.empty() && name.size() <= PLAYERNAME_SIZE && string_allowed(name, PLAYERNAME_ALLOWED_CHARS);
 }
 
-Player::Player(const std::string &name, IItemDefManager *idef):
+Player::Player(const std::string &name, const IItemDefManager *idef):
 	inventory(idef)
 {
 	m_name = name;

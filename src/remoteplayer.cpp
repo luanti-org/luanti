@@ -19,7 +19,7 @@ bool RemotePlayer::m_setting_cache_loaded = false;
 float RemotePlayer::m_setting_chat_message_limit_per_10sec = 0.0f;
 u16 RemotePlayer::m_setting_chat_message_limit_trigger_kick = 0;
 
-RemotePlayer::RemotePlayer(const std::string &name, IItemDefManager *idef):
+RemotePlayer::RemotePlayer(const std::string &name, const IItemDefManager *idef):
 	Player(name, idef)
 {
 	if (!RemotePlayer::m_setting_cache_loaded) {

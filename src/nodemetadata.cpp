@@ -16,7 +16,7 @@
 	NodeMetadata
 */
 
-NodeMetadata::NodeMetadata(IItemDefManager *item_def_mgr):
+NodeMetadata::NodeMetadata(const IItemDefManager *item_def_mgr):
 	m_inventory(std::make_unique<Inventory>(item_def_mgr))
 {}
 
@@ -135,7 +135,7 @@ void NodeMetadataList::serialize(std::ostream &os, u8 blockver, bool disk,
 }
 
 void NodeMetadataList::deSerialize(std::istream &is,
-	IItemDefManager *item_def_mgr, bool absolute_pos)
+	const IItemDefManager *item_def_mgr, bool absolute_pos)
 {
 	clear();
 

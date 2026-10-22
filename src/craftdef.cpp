@@ -70,7 +70,7 @@ static u64 getHashForGrid(CraftHashType type, const std::vector<std::string> &gr
 // Check if input matches recipe
 // Takes recipe groups into account
 static bool inputItemMatchesRecipe(const std::string &inp_name,
-		const std::string &rec_name, IItemDefManager *idef)
+		const std::string &rec_name, const IItemDefManager *idef)
 {
 	// Exact name
 	if (inp_name == rec_name)
@@ -736,7 +736,7 @@ static ItemStack craftToolRepair(
 		float additional_wear,
 		IGameDef *gamedef)
 {
-	IItemDefManager *idef = gamedef->idef();
+	auto *idef = gamedef->idef();
 	if (item1.count != 1 || item2.count != 1 || item1.name != item2.name
 			|| idef->get(item1.name).type != ITEM_TOOL
 			|| itemgroup_get(idef->get(item1.name).groups, "disable_repair") == 1) {
