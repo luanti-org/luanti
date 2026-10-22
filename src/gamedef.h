@@ -28,7 +28,7 @@ public:
 	// These are thread-safe IF they are not edited while running threads.
 	// Thus, first they are set up and then they are only read.
 	virtual const IItemDefManager* getItemDefManager() const=0;
-	virtual ICraftDefManager* getCraftDefManager()=0;
+	virtual const ICraftDefManager* getCraftDefManager() const=0;
 
 	// The node definition manager is NOT thread-safe
 	// (due to allocation of new unknown ids)
@@ -46,8 +46,8 @@ public:
 
 	// Shorthands
 	const IItemDefManager *idef() const { return getItemDefManager(); }
-	const NodeDefManager *ndef()  { return getNodeDefManager(); }
-	ICraftDefManager *cdef()      { return getCraftDefManager(); }
+	const NodeDefManager *ndef() { return getNodeDefManager(); }
+	const ICraftDefManager *cdef() const { return getCraftDefManager(); }
 
 	virtual const std::vector<ModSpec> &getMods() const = 0;
 	virtual const ModSpec* getModSpec(const std::string &modname) const = 0;

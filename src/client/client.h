@@ -370,7 +370,7 @@ public:
 	bool isClient() override { return true; }
 	const IItemDefManager* getItemDefManager() const override;
 	const NodeDefManager* getNodeDefManager() override;
-	ICraftDefManager* getCraftDefManager() override;
+	const ICraftDefManager* getCraftDefManager() const override;
 	ITextureSource* getTextureSource();
 	virtual IWritableShaderSource* getShaderSource();
 	u16 allocateUnknownNodeId(const std::string &name) override;

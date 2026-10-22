@@ -2036,7 +2036,7 @@ const NodeDefManager* Client::getNodeDefManager()
 {
 	return m_nodedef;
 }
-ICraftDefManager* Client::getCraftDefManager()
+const ICraftDefManager* Client::getCraftDefManager() const
 {
 	return nullptr;
 }

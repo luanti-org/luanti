@@ -4051,7 +4051,7 @@ const NodeDefManager *Server::getNodeDefManager()
 	return m_nodedef;
 }
 
-ICraftDefManager *Server::getCraftDefManager()
+const ICraftDefManager *Server::getCraftDefManager() const
 {
 	return m_craftdef;
 }

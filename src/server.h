@@ -330,7 +330,7 @@ public:
 	// Under envlock
 	const IItemDefManager* getItemDefManager() const override;
 	const NodeDefManager* getNodeDefManager() override;
-	ICraftDefManager* getCraftDefManager() override;
+	const ICraftDefManager* getCraftDefManager() const override;
 	u16 allocateUnknownNodeId(const std::string &name) override;
 	IRollbackManager *getRollbackManager() override { return m_rollback; }
 	EmergeManager *getEmergeManager() { return m_emerge.get(); }
