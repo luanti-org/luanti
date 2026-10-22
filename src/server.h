@@ -328,7 +328,7 @@ public:
 	// IGameDef interface
 	bool isClient() override { return false; }
 	// Under envlock
-	IItemDefManager* getItemDefManager() override;
+	const IItemDefManager* getItemDefManager() const override;
 	const NodeDefManager* getNodeDefManager() override;
 	ICraftDefManager* getCraftDefManager() override;
 	u16 allocateUnknownNodeId(const std::string &name) override;

@@ -368,7 +368,7 @@ public:
 
 	// IGameDef interface
 	bool isClient() override { return true; }
-	IItemDefManager* getItemDefManager() override;
+	const IItemDefManager* getItemDefManager() const override;
 	const NodeDefManager* getNodeDefManager() override;
 	ICraftDefManager* getCraftDefManager() override;
 	ITextureSource* getTextureSource();
