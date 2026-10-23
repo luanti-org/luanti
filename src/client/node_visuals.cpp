@@ -22,8 +22,6 @@ struct TileAttribContext {
 	const TextureSettings &tsettings;
 };
 
-using GetShaderCallback = std::function<u32 /* shader id */ (bool /* array_texture */)>;
-
 /*
 	Texture pool and related
 */
@@ -72,9 +70,9 @@ void PreLoadedTextures::printStats(std::ostream &to) const
 }
 
 
+// Load tile resources independently of the node's drawtype and material.
 static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
-		const TileSpec &tile, const TileDef &tiledef,
-		MaterialType material_type, GetShaderCallback get_shader)
+		const TileDef &tiledef)
 {
 	auto *tsrc = context.tsrc;
 	const auto &tsettings = context.tsettings;
@@ -108,11 +106,8 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 	} else {
 		layer->scale = 1;
 	}
-	if (!tile.world_aligned)
-		layer->scale = 1;
 
-	// Material
-	layer->material_type = material_type;
+	// Tile flags
 	layer->material_flags = 0;
 	if (tiledef.backface_culling)
 		layer->material_flags |= MATERIAL_FLAG_BACKFACE_CULLING;
@@ -160,11 +155,22 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 			layer->texture_layer_idx = tex.texture_layer_idx;
 		}
 	}
+}
 
-	// Decide on shader to use
-	if (layer->texture) {
-		layer->shader_id = get_shader(layer->texture->getType() == video::ETT_2D_ARRAY);
-	}
+// Apply rendering decisions after the texture (including its texture type) is known.
+static void setTileMaterial(TileLayer &layer, const TileSpec &tile,
+		MaterialType material_type, NodeDrawType drawtype, IShaderSource *shdsrc)
+{
+	if (!layer.texture)
+		return;
+
+	if (!tile.world_aligned)
+		layer.scale = 1;
+
+	layer.material_type = material_type;
+	ShaderFeatures features;
+	features.array_texture = layer.texture->getType() == video::ETT_2D_ARRAY;
+	layer.shader_id = shdsrc->getShader("nodes_shader", material_type, drawtype, features);
 }
 
 static bool isWorldAligned(AlignStyle style, WorldAlignMode mode, NodeDrawType drawtype)
@@ -363,19 +369,7 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 		break;
 	}
 
-	GetShaderCallback tile_shader = [&] (bool array_texture) {
-		ShaderFeatures features;
-		features.array_texture = array_texture;
-		return shdsrc->getShader("nodes_shader", material_type, drawtype, features);
-	};
-
 	MaterialType overlay_material = material_type_with_alpha(material_type);
-
-	GetShaderCallback overlay_shader = [&] (bool array_texture) {
-		ShaderFeatures features;
-		features.array_texture = array_texture;
-		return shdsrc->getShader("nodes_shader", overlay_material, drawtype, features);
-	};
 
 	// minimap pixel color = average color of top tile
 	if (tsettings.enable_minimap && drawtype != NDT_AIRLIKE && !tdef[0].name.empty())
@@ -396,12 +390,12 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 	for (u16 j = 0; j < 6; j++) {
 		tiles[j].world_aligned = isWorldAligned(tdef[j].align_style,
 				tsettings.world_aligned_mode, drawtype);
-		fillTileAttribs(&tiles[j].layers[0], tac, tiles[j], tdef[j],
-				material_type, tile_shader);
+		fillTileAttribs(&tiles[j].layers[0], tac, tdef[j]);
+		setTileMaterial(tiles[j].layers[0], tiles[j], material_type, drawtype, shdsrc);
 		if (!tdef_overlay[j].name.empty()) {
 			tdef_overlay[j].backface_culling = tdef[j].backface_culling;
-			fillTileAttribs(&tiles[j].layers[1], tac, tiles[j], tdef_overlay[j],
-					overlay_material, overlay_shader);
+			fillTileAttribs(&tiles[j].layers[1], tac, tdef_overlay[j]);
+			setTileMaterial(tiles[j].layers[1], tiles[j], overlay_material, drawtype, shdsrc);
 		}
 
 		tiles[j].layers[0].need_polygon_offset = !tiles[j].layers[1].empty();
@@ -426,16 +420,11 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 			special_material = TILE_MATERIAL_WAVING_LEAVES;
 	}
 
-	GetShaderCallback special_shader = [&] (bool array_texture) {
-		ShaderFeatures features;
-		features.array_texture = array_texture;
-		return shdsrc->getShader("nodes_shader", special_material, drawtype, features);
-	};
-
 	// Special tiles (fill in f->special_tiles[])
 	for (u16 j = 0; j < CF_SPECIAL_COUNT; j++) {
-		fillTileAttribs(&special_tiles[j].layers[0], tac,
-				special_tiles[j], tdef_spec[j], special_material, special_shader);
+		fillTileAttribs(&special_tiles[j].layers[0], tac, tdef_spec[j]);
+		setTileMaterial(special_tiles[j].layers[0], special_tiles[j],
+				special_material, drawtype, shdsrc);
 	}
 
 	if (param_type_2 == CPT2_COLOR ||
