@@ -722,9 +722,9 @@ void Client::handleCommand_Media(NetworkPacket* pkt)
 		data = pkt->readLongString();
 		if (m_proto_ver >= 48) {
 			std::istringstream iss(data, std::ios::binary);
-			std::ostringstream oss(std::ios::binary);
+			my_ostringstream oss;
 			decompressZstd(iss, oss);
-			data = oss.str();
+			data = oss.take();
 		}
 
 		bool ok = false;

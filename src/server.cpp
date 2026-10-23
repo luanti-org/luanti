@@ -1604,11 +1604,11 @@ void Server::SendInventory(RemotePlayer *player, bool incremental, bool skip_wie
 
 	NetworkPacket pkt(TOCLIENT_INVENTORY, 0, player->getPeerId());
 
-	std::ostringstream os(std::ios::binary);
+	my_ostringstream os;
 	player->inventory.serialize(os, incremental);
 	player->inventory.setModified(false);
 	player->setModified(true);
-	std::string content = os.str();
+	auto content = os.view();
 
 	if (player->protocol_version >= 52) {
 		pkt.putLongString(content);
@@ -2569,10 +2569,10 @@ void Server::SendBlockNoLock(session_t peer_id, MapBlock *block, u8 ver,
 
 	// Serialize the block in the right format
 	if (!sptr) {
-		std::ostringstream os(std::ios_base::binary);
+		my_ostringstream os;
 		block->serialize(os, ver, false, net_compression_level);
 		block->serializeNetworkSpecific(os);
-		s = os.str();
+		s = os.take();
 		sptr = &s;
 	}
 
@@ -2922,9 +2922,9 @@ void Server::sendRequestedMedia(session_t peer_id,
 			// Zstd is very fast and can handle non-compressible data efficiently
 			// so we can just throw it at every file. Still we don't want to
 			// spend too much here, so we use the lowest compression level.
-			std::ostringstream oss(std::ios::binary);
+			my_ostringstream oss;
 			compressZstd(data, oss, 1);
-			data = oss.str();
+			data = oss.take();
 		}
 		bytes_compressed += data.size();
 
@@ -3036,13 +3036,13 @@ void Server::sendDetachedInventory(Inventory *inventory, const std::string &name
 		pkt << true; // Update inventory
 
 		// Serialization & NetworkPacket isn't a love story
-		std::ostringstream os(std::ios_base::binary);
+		my_ostringstream os;
 		inventory->serialize(os);
 		inventory->setModified(false);
 
-		const std::string &os_str = os.str();
-		pkt << static_cast<u16>(os_str.size()); // HACK: to keep compatibility with 5.0.0 clients
-		pkt.putRawString(os_str);
+		auto data = os.view();
+		pkt << static_cast<u16>(data.size()); // HACK: to keep compatibility with 5.0.0 clients
+		pkt.putRawString(data);
 	}
 
 	if (peer_id == PEER_ID_INEXISTENT)
