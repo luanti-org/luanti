@@ -1,19 +1,40 @@
-#include "node_modifier.h"
-#include "constants.h"
-#include "ididmapping.h"
-
-#include "util/numeric.h"
-#include "util/serialize.h"
 #include <algorithm>
 #include <cassert>
 
+#include "constants.h"
+#include "ididmapping.h"
+#include "node_modifier.h"
+#include "util/numeric.h"
+#include "util/serialize.h"
+
 static_assert(MAP_BLOCKSIZE == 16, "Packed modifier positions require 16-node blocks");
+
+void NodeModifier::setTiles(NodeModifierTiles tiles)
+{
+	m_modified_props_mask &= ~u64(MP_Tiles);
+	for (size_t i = 0; i < tiles.tiles.size(); ++i) {
+		if (!tiles.tiles[i].name.empty())
+			m_modified_props_mask |= u64{MP_TileFirst} << i;
+	}
+
+	m_tiles = (m_modified_props_mask & MP_Tiles) ?
+			std::make_unique<const NodeModifierTiles>(std::move(tiles)) : nullptr;
+}
 
 void NodeModifier::serialize(std::ostream &os, u16 protocol_version) const {
 	writeU64(os, m_modified_props_mask);
 	writeS8(os, m_is_dummy);
 	if (m_modified_props_mask & MP_LightSource) {
 		writeU8(os, m_light_source);
+	}
+
+	if (m_modified_props_mask & MP_Tiles) {
+		assert(m_tiles);
+		writeU8(os, m_tiles->alpha.has_value() ? (m_tiles->alpha.value() + 1) : 0);
+		for (size_t i = 0; i < m_tiles->tiles.size(); ++i) {
+			if (m_modified_props_mask & (u64{MP_TileFirst} << i))
+				m_tiles->tiles[i].serialize(os, protocol_version);
+		}
 	}
 }
 
@@ -23,6 +44,30 @@ void NodeModifier::deSerialize(std::istream &is, u16 protocol_version) {
 
 	if (m_modified_props_mask & MP_LightSource) {
 		m_light_source = readU8(is);
+	}
+
+	m_tiles.reset();
+	if (m_modified_props_mask & MP_Tiles) {
+		NodeModifierTiles tiles;
+		u8 alpha = readU8(is);
+		if (alpha != 0 && alpha - 1 < AlphaMode_END) {
+			tiles.alpha = static_cast<AlphaMode>(alpha - 1);
+			if (tiles.alpha == ALPHAMODE_LEGACY_COMPAT) {
+				throw SerializationError("NodeModifier::deSerialize(): "
+					"ALPHAMODE_LEGACY_COMPAT in modifier's alpha");
+			}
+		}
+
+		for (size_t i = 0; i < tiles.tiles.size(); ++i) {
+			if (m_modified_props_mask & (u64{MP_TileFirst} << i)) {
+				tiles.tiles[i].deSerialize(is, protocol_version);
+				if (tiles.tiles[i].name.empty()) {
+					throw SerializationError("NodeModifier::deSerialize(): "
+						"Empty overridden node modifier tile");
+				}
+			}
+		}
+		setTiles(std::move(tiles));
 	}
 }
 

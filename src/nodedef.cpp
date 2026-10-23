@@ -230,7 +230,7 @@ void TileDef::serialize(std::ostream &os, u16 protocol_version) const
 		writeU8(os, align_style);
 }
 
-void TileDef::deSerialize(std::istream &is, NodeDrawType drawtype, u16 protocol_version)
+void TileDef::deSerialize(std::istream &is, u16 protocol_version)
 {
 	if (readU8(is) < 6)
 		throw SerializationError("unsupported TileDef version");
@@ -545,13 +545,13 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 	if (readU8(is) != 6)
 		throw SerializationError("unsupported tile count");
 	for (TileDef &td : tiledef)
-		td.deSerialize(is, drawtype, protocol_version);
+		td.deSerialize(is, protocol_version);
 	for (TileDef &td : tiledef_overlay)
-		td.deSerialize(is, drawtype, protocol_version);
+		td.deSerialize(is, protocol_version);
 	if (readU8(is) != CF_SPECIAL_COUNT)
 		throw SerializationError("unsupported CF_SPECIAL_COUNT");
 	for (TileDef &td : tiledef_special)
-		td.deSerialize(is, drawtype, protocol_version);
+		td.deSerialize(is, protocol_version);
 	setAlphaFromLegacy(readU8(is));
 	color.setRed(readU8(is));
 	color.setGreen(readU8(is));

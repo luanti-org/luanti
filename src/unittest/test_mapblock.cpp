@@ -30,6 +30,7 @@ public:
 	}
 
 	void testSave29(IGameDef *gamedef);
+	void testModifierTiles();
 	void testNodeModifiers();
 	void testSetNodeModifiers();
 	void testPruneNodeModifiers();
@@ -60,6 +61,7 @@ void TestMapBlock::runTests(IGameDef *gamedef)
 	TEST(testSaveLoad, gamedef, SER_FMT_VER_HIGHEST_WRITE);
 	TEST(testSaveLoadLowest, gamedef);
 	TEST(testSave29, gamedef);
+	TEST(testModifierTiles);
 	TEST(testNodeModifiers);
 	TEST(testSetNodeModifiers);
 	TEST(testPruneNodeModifiers);
@@ -115,6 +117,69 @@ void TestMapBlock::testCollectNodeModifiers()
 	central.removeNodeModifier(pos, first);
 	UASSERTEQ(size_t, collected.findRange(pos).second - collected.findRange(pos).first, 3);
 
+}
+
+void TestMapBlock::testModifierTiles()
+{
+	NodeModifier source("test:tiles");
+	source.m_modified_props_mask = MP_LightSource;
+	source.m_light_source = 7;
+	NodeModifierTiles tiles;
+	tiles.tiles[0].name = "top.png";
+	tiles.tiles[5].name = "front.png";
+	tiles.tiles[5].scale = 4;
+	tiles.tiles[5].align_style = ALIGN_STYLE_WORLD;
+
+	for (bool explicit_alpha : {false, true}) {
+		if (explicit_alpha)
+			tiles.alpha = ALPHAMODE_BLEND;
+		source.setTiles(tiles);
+		UASSERTEQ(u64, source.m_modified_props_mask, MP_LightSource | MP_TileFirst | (u64{MP_TileFirst} << 5));
+
+		std::stringstream stream;
+		source.serialize(stream, 54);
+		NodeModifier loaded("test:tiles");
+		loaded.deSerialize(stream, 54);
+		UASSERTEQ(u8, loaded.m_light_source, 7);
+		UASSERTEQ(u64, loaded.m_modified_props_mask, source.m_modified_props_mask);
+		UASSERT(loaded.getTiles());
+		UASSERT(loaded.getTiles()->alpha == tiles.alpha);
+		UASSERTEQ(std::string, loaded.getTiles()->tiles[0].name, "top.png");
+		UASSERT(loaded.getTiles()->tiles[1].name.empty());
+		UASSERTEQ(std::string, loaded.getTiles()->tiles[5].name, "front.png");
+		UASSERTEQ(u8, loaded.getTiles()->tiles[5].scale, 4);
+		UASSERT(loaded.getTiles()->tiles[5].align_style == ALIGN_STYLE_WORLD);
+	}
+
+	// Replacing a definition drops stale face bits without losing other properties.
+	tiles.tiles[0].name.clear();
+	source.setTiles(tiles);
+	UASSERTEQ(u64, source.m_modified_props_mask, MP_LightSource | (u64{MP_TileFirst} << 5));
+	source.setTiles({});
+	UASSERT(!source.getTiles());
+	UASSERTEQ(u64, source.m_modified_props_mask, MP_LightSource);
+
+	NodeModifierManager manager;
+	NodeModifier both("test:both"), top("test:top"), front("test:front");
+	tiles.tiles[0].name = "top.png";
+	both.setTiles(tiles);
+	tiles.tiles[5].name.clear();
+	top.setTiles(tiles);
+	tiles.tiles[0].name.clear();
+	tiles.tiles[5].name = "front.png";
+	front.setTiles(tiles);
+	u16 both_id = manager.add(std::move(both));
+	u16 top_id = manager.add(std::move(top));
+	u16 front_id = manager.add(std::move(front));
+
+	AppliedNodeModifiersVector entries;
+	UASSERT(entries.add({}, both_id, &manager));
+	UASSERT(entries.add({}, top_id, &manager));
+	UASSERTEQ(size_t, entries.size(), 2); // The first modifier still supplies the front.
+	UASSERT(entries.add({}, front_id, &manager));
+	UASSERTEQ(size_t, entries.size(), 2); // Both faces of the first modifier are covered.
+	UASSERTEQ(u16, entries.begin()->id, top_id);
+	UASSERTEQ(u16, (entries.begin() + 1)->id, front_id);
 }
 
 void TestMapBlock::testNodeModifiers()

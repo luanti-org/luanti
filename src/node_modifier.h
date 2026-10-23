@@ -1,17 +1,19 @@
 #pragma once
 
-#include <functional>
 #include <array>
+#include <functional>
 #include <memory>
-#include <variant>
+#include <optional>
 #include <string>
-#include <vector>
 #include <utility>
+#include <variant>
+#include <vector>
 
 #include "constants.h"
 #include "irrlichttypes.h"
-#include "nameidmapping.h"
 #include "mapnode.h"
+#include "nameidmapping.h"
+#include "tiledef.h"
 
 class IdIdMapping;
 
@@ -21,6 +23,15 @@ static constexpr u16 MAX_REGISTERED_NODE_MODIFIERS = UINT16_MAX - UINT16_MAX / 1
 
 enum ModifiedProperty : u64 {
 	MP_LightSource = u64{1} << 0,
+	// Six independent face properties, in the same order as ContentFeatures::tiledef.
+	MP_TileFirst = u64{1} << 1,
+	MP_Tiles = MP_TileFirst * 0x3f,
+};
+
+struct NodeModifierTiles {
+	std::array<TileDef, 6> tiles;
+	// Unspecified alpha uses the target drawtype default, not the original texture.
+	std::optional<AlphaMode> alpha;
 };
 
 struct NodeModifier {
@@ -32,10 +43,16 @@ struct NodeModifier {
 
 	u8 m_light_source = 0;
 
+	const NodeModifierTiles *getTiles() const { return m_tiles.get(); }
+	void setTiles(NodeModifierTiles tiles);
+
 	u64 m_modified_props_mask = 0;
 
 	void serialize(std::ostream &os, u16 protocol_version) const;
 	void deSerialize(std::istream &is, u16 protocol_version);
+
+private:
+	std::unique_ptr<const NodeModifierTiles> m_tiles;
 };
 
 class NodeModifierManager {
