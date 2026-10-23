@@ -6,6 +6,7 @@
 #include "itemstackmetadata.h"
 #include "util/serialize.h"
 #include "util/strfnd.h"
+#include "util/stream.h"
 
 #include <algorithm>
 #include <optional>
@@ -51,14 +52,14 @@ bool ItemStackMetadata::setString(const std::string &name, std::string_view var)
 
 void ItemStackMetadata::serialize(std::ostream &os) const
 {
-	std::ostringstream os2(std::ios_base::binary);
+	my_ostringstream os2;
 	os2 << DESERIALIZE_START;
 	for (const auto &stringvar : m_stringvars) {
 		if (!stringvar.first.empty() || !stringvar.second.empty())
 			os2 << stringvar.first << DESERIALIZE_KV_DELIM
 				<< stringvar.second << DESERIALIZE_PAIR_DELIM;
 	}
-	os << serializeJsonStringIfNeeded(os2.str());
+	os << serializeJsonStringIfNeeded(os2.view());
 }
 
 void ItemStackMetadata::deSerialize(std::istream &is)

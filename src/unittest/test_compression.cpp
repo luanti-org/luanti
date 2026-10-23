@@ -98,7 +98,7 @@ void TestCompression::testZlibCompression()
 	fromdata[2]=5;
 	fromdata[3]=1;
 
-	std::ostringstream os(std::ios_base::binary);
+	my_ostringstream os;
 	compressZlib(*fromdata, fromdata.getSize(), os);
 
 	std::string str_out = os.str();
@@ -110,7 +110,7 @@ void TestCompression::testZlibCompression()
 	infostream << std::endl;
 
 	std::istringstream is(str_out, std::ios_base::binary);
-	std::ostringstream os2(std::ios_base::binary);
+	my_ostringstream os2;
 
 	decompressZlib(is, os2);
 	std::string str_out2 = os2.str();
