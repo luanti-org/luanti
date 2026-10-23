@@ -156,6 +156,7 @@ void TestMapBlock::testModifierTiles()
 	source.setTiles(tiles);
 	UASSERTEQ(u64, source.m_modified_props_mask, MP_LightSource | (u64{MP_TileFirst} << 5));
 	source.setTiles({});
+	UASSERT(!source.hasTiles());
 	UASSERT(!source.getTiles());
 	UASSERTEQ(u64, source.m_modified_props_mask, MP_LightSource);
 
@@ -163,6 +164,7 @@ void TestMapBlock::testModifierTiles()
 	NodeModifier both("test:both"), top("test:top"), front("test:front");
 	tiles.tiles[0].name = "top.png";
 	both.setTiles(tiles);
+	UASSERT(both.hasTiles());
 	tiles.tiles[5].name.clear();
 	top.setTiles(tiles);
 	tiles.tiles[0].name.clear();

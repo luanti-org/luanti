@@ -9,6 +9,7 @@
 #include <variant>
 #include <vector>
 
+#include "config.h"
 #include "constants.h"
 #include "irrlichttypes.h"
 #include "mapnode.h"
@@ -16,6 +17,9 @@
 #include "tiledef.h"
 
 class IdIdMapping;
+#if CHECK_CLIENT_BUILD()
+class NodeModifierVisuals;
+#endif
 
 static constexpr u16 MODIFIER_IGNORE = UINT16_MAX;
 
@@ -35,14 +39,17 @@ struct NodeModifierTiles {
 };
 
 struct NodeModifier {
-	NodeModifier(const std::string &name, bool is_dummy=false)
-			: m_name(name), m_is_dummy(is_dummy) {};
+	NodeModifier(const std::string &name, bool is_dummy = false);
+	~NodeModifier();
+	NodeModifier(NodeModifier &&) noexcept;
+	NodeModifier &operator=(NodeModifier &&) noexcept;
 
 	std::string m_name;
 	bool m_is_dummy;
 
 	u8 m_light_source = 0;
 
+	bool hasTiles() const { return (m_modified_props_mask & MP_Tiles) != 0; }
 	const NodeModifierTiles *getTiles() const { return m_tiles.get(); }
 	void setTiles(NodeModifierTiles tiles);
 
@@ -50,6 +57,10 @@ struct NodeModifier {
 
 	void serialize(std::ostream &os, u16 protocol_version) const;
 	void deSerialize(std::istream &is, u16 protocol_version);
+
+#if CHECK_CLIENT_BUILD()
+	std::unique_ptr<NodeModifierVisuals> visuals;
+#endif
 
 private:
 	std::unique_ptr<const NodeModifierTiles> m_tiles;
@@ -63,13 +74,14 @@ public:
 	u16 getId(const std::string &name) const;
 	const NodeModifier& get(u16 id) const;
 
-	void serialize(std::ostream &os, u16 protocol_version) const;
-	void deSerialize(std::istream &is, u16 protocol_version);
-
 	inline u16 size() const {
 		return m_modifiers.size();
 	}
 
+	void serialize(std::ostream &os, u16 protocol_version) const;
+	void deSerialize(std::istream &is, u16 protocol_version);
+
+	void applyFunction(const std::function<void(NodeModifier &)> &function);
 
 private:
 	NameIdMapping m_name_id_mapping;

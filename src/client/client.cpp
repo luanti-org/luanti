@@ -1957,7 +1957,7 @@ void Client::afterContentReceived()
 	TextureUpdateArgs tu_args;
 	tu_args.last_time_ms = porting::getTimeMs();
 	tu_args.text_base = wstrgettext("Initializing nodes");
-	NodeVisuals::fillNodeVisuals(m_nodedef, this, &tu_args);
+	NodeVisuals::fillNodeVisuals(m_nodedef, m_nodemod, this, &tu_args);
 
 	// Runs after fillNodeVisuals(), which is where ContentFeatures::visuals and thus
 	// minimap_color, and palette - the two values we care for in SSCSM, get populated

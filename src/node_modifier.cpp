@@ -7,6 +7,19 @@
 #include "util/numeric.h"
 #include "util/serialize.h"
 
+#if CHECK_CLIENT_BUILD()
+#include "client/node_visuals.h"
+#endif
+
+NodeModifier::NodeModifier(const std::string &name, bool is_dummy) :
+	m_name(name), m_is_dummy(is_dummy)
+{
+}
+
+NodeModifier::~NodeModifier() = default;
+NodeModifier::NodeModifier(NodeModifier &&) noexcept = default;
+NodeModifier &NodeModifier::operator=(NodeModifier &&) noexcept = default;
+
 static_assert(MAP_BLOCKSIZE == 16, "Packed modifier positions require 16-node blocks");
 
 void NodeModifier::setTiles(NodeModifierTiles tiles)
@@ -140,6 +153,12 @@ void NodeModifierManager::deSerialize(std::istream &is, u16 protocol_version) {
 		m_modifiers.emplace_back(name);
 		m_modifiers[i].deSerialize(is, protocol_version);
 	}
+}
+
+void NodeModifierManager::applyFunction(const std::function<void(NodeModifier &)> &function)
+{
+	for (NodeModifier &modifier : m_modifiers)
+		function(modifier);
 }
 
 NodeModifierManager *createNodeModifierManager() {

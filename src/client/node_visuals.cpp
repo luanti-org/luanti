@@ -145,7 +145,7 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 
 	if (!(layer->material_flags & MATERIAL_FLAG_ANIMATION)) {
 		// Grab texture
-		auto tex = context.texture_pool->find(texture_image);
+		PreLoadedTexture tex = context.texture_pool->find(texture_image);
 		if (!tex.texture) {
 			// wasn't pre-loaded: create standard texture on the fly
 			layer->texture = tsrc->getTexture(texture_image, &layer->texture_id);
@@ -155,6 +155,21 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 			layer->texture_layer_idx = tex.texture_layer_idx;
 		}
 	}
+}
+
+NodeModifierVisuals::NodeModifierVisuals(const NodeModifierTiles &definition,
+		ITextureSource *tsrc, PreLoadedTextures *texture_pool, const TextureSettings &settings)
+{
+	TileAttribContext context{tsrc, texture_pool, video::SColor(0xffffffff), settings};
+	for (size_t i = 0; i < m_tiles.size(); ++i) {
+		fillTileAttribs(&m_tiles[i], context, definition.tiles[i]);
+	}
+}
+
+NodeModifierVisuals::~NodeModifierVisuals()
+{
+	for (TileLayer &tile : m_tiles)
+		delete tile.frames;
 }
 
 // Apply rendering decisions after the texture (including its texture type) is known.
@@ -223,6 +238,14 @@ NodeVisuals::~NodeVisuals()
 		mesh_ptr->drop();
 }
 
+static void collectTileTexture(const TileDef &def, const std::string &suffix,
+		std::unordered_set<std::string> &pool)
+{
+	// Animated tiles load their frames separately instead of the source texture.
+	if (!def.name.empty() && def.animation.type == TAT_NONE)
+		pool.insert(def.name + suffix);
+}
+
 void NodeVisuals::preUpdateTextures(const ContentFeatures &f, ITextureSource *tsrc,
 		std::unordered_set<std::string> &pool, const TextureSettings &tsettings)
 {
@@ -242,25 +265,18 @@ void NodeVisuals::preUpdateTextures(const ContentFeatures &f, ITextureSource *ts
 			append.insert(0, "^[noalpha");
 	}
 
-	const auto &consider_tile = [&] (const TileDef &def, const std::string &append) {
-		// Animations are chopped into frames later, so we won't actually need
-		// the source texture
-		if (!def.name.empty() && def.animation.type == TAT_NONE) {
-			pool.insert(def.name + append);
-		}
-	};
 
 	for (u32 j = 0; j < 6; j++) {
 		if (use)
-			consider_tile(f.tiledef[j], append);
+			collectTileTexture(f.tiledef[j], append, pool);
 	}
 	for (u32 j = 0; j < 6; j++) {
 		if (use_overlay)
-			consider_tile(f.tiledef_overlay[j], append_overlay);
+			collectTileTexture(f.tiledef_overlay[j], append_overlay, pool);
 	}
 	for (u32 j = 0; j < CF_SPECIAL_COUNT; j++) {
 		if (use_special)
-			consider_tile(f.tiledef_special[j], append_special);
+			collectTileTexture(f.tiledef_special[j], append_special, pool);
 	}
 }
 
@@ -505,7 +521,8 @@ video::SColor NodeVisuals::getColor(const ContentFeatures &f, u8 param2) const
 	return f.color;
 }
 
-void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, Client *client, void *progress_callback_args)
+void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, NodeModifierManager *modifiers,
+		Client *client, void *progress_callback_args)
 {
 	infostream << "fillNodeVisuals: Updating "
 			"textures in node definitions" << std::endl;
@@ -522,6 +539,16 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, Client *client, void *pr
 	ndef->applyFunction([&](ContentFeatures &f) {
 		f.visuals = std::make_unique<NodeVisuals>();
 		f.visuals->preUpdateTextures(f, tsrc, pool, tsettings);
+	});
+
+	const std::string modifier_suffix = tsrc->needFilterForMesh() ?
+			ITextureSource::FILTER_FOR_MESH : "";
+	modifiers->applyFunction([&](NodeModifier &modifier) {
+		if (modifier.m_is_dummy || !modifier.hasTiles())
+			return;
+
+		for (const TileDef &tile : modifier.getTiles()->tiles)
+			collectTileTexture(tile, modifier_suffix, pool);
 	});
 
 	/* texture pre-loading stage */
@@ -599,6 +626,15 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, Client *client, void *pr
 	SORT_AND_UNIQUE(ndef->m_leaves_materials);
 	verbosestream << "m_leaves_materials.size() = " << ndef->m_leaves_materials.size()
 		<< std::endl;
+
+	// Prepare modifier textures while source images are still cached.
+	modifiers->applyFunction([&](NodeModifier &modifier) {
+		modifier.visuals.reset();
+		if (!modifier.m_is_dummy && modifier.hasTiles()) {
+			modifier.visuals = std::make_unique<NodeModifierVisuals>(
+					*modifier.getTiles(), tsrc, &plt, tsettings);
+		}
+	});
 
 	plt.printStats(infostream);
 	tsrc->setImageCaching(false);

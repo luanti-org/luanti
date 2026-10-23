@@ -457,14 +457,12 @@ set(independent_SRCS
 	httpfetch.cpp
 	hud_element.cpp
 	inventory.cpp
-	itemstackmetadata.cpp
 	lighting.cpp
 	log.cpp
 	metadata.cpp
 	modchannels.cpp
 	nameidmapping.cpp
 	nodemetadata.cpp
-	node_modifier.cpp
 	nodetimer.cpp
 	noise.cpp
 	objdef.cpp
@@ -502,6 +500,7 @@ set(common_SRCS
 	gettext.cpp
 	inventorymanager.cpp
 	itemdef.cpp
+	itemstackmetadata.cpp
 	light.cpp
 	main.cpp
 	map_settings_manager.cpp
@@ -510,6 +509,7 @@ set(common_SRCS
 	mapnode.cpp
 	mapsector.cpp
 	nodedef.cpp
+	node_modifier.cpp
 	pathfinder.cpp
 	player.cpp
 	porting.cpp

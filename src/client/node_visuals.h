@@ -10,6 +10,7 @@
 #include "tile.h"
 
 class Client;
+class NodeModifierManager;
 struct PreLoadedTextures;
 namespace scene
 {
@@ -38,6 +39,25 @@ constexpr std::array<u8, NodeDrawType_END> NDT_visual_solidness = [] {
 }();
 
 
+struct NodeModifierTiles;
+
+// Prepared once on the main thread. Mesh workers borrow these texture resources;
+// material, shader, node color and polygon offset are supplied when applying them.
+class NodeModifierVisuals
+{
+public:
+	NodeModifierVisuals(const NodeModifierTiles &definition, ITextureSource *tsrc,
+			PreLoadedTextures *texture_pool, const TextureSettings &settings);
+	~NodeModifierVisuals();
+
+	const TileLayer &getTile(size_t face) const { return m_tiles.at(face); }
+
+	DISABLE_CLASS_COPY(NodeModifierVisuals);
+
+private:
+	std::array<TileLayer, 6> m_tiles;
+};
+
 // Stores client only data needed to draw nodes, like textures and meshes
 // Contained in ContentFeatures
 
@@ -64,14 +84,15 @@ struct NodeVisuals
 	/*!
 	 * Creates NodeVisuals for every content feature in the passed NodeDefManager.
 	 * @param ndef the NodeDefManager.
+	 * @param modifiers the node modifier definitions to prepare.
 	 * @param client the Client.
 	 * @param progress_cbk called each time a node is loaded. Arguments:
 	 * `progress_cbk_args`, number of loaded ContentFeatures, number of
 	 * total ContentFeatures.
 	 * @param progress_cbk_args passed to the callback function
 	 */
-	static void fillNodeVisuals(NodeDefManager *ndef, Client *client,
-			void *progress_callback_args);
+	static void fillNodeVisuals(NodeDefManager *ndef, NodeModifierManager *modifiers,
+			Client *client, void *progress_callback_args);
 
 	DISABLE_CLASS_COPY(NodeVisuals);
 
