@@ -3,6 +3,7 @@
 // Copyright (C) 2010-2024 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "servermap.h"
+#include <algorithm>
 
 #include "map.h"
 #include "mapsector.h"
@@ -22,6 +23,8 @@
 #include "emerge.h"
 #include "mapgen/mg_biome.h"
 #include "config.h"
+#include "debug.h"
+#include "threading/thread.h"
 #include "server.h"
 #include "serverenvironment.h"
 #include "database/database.h"
@@ -42,12 +45,278 @@
 	Helpers
 */
 
+// Limits memory use when the database can't keep up
+static constexpr size_t MAX_PENDING_BYTES = 64 * 1024 * 1024;
+// Uncompressed data above this is compressed before writing continues
+static constexpr size_t MAX_PENDING_RAW_BYTES = 8 * 1024 * 1024;
+
+static std::string compressBlock(std::string_view raw, int compression_level)
+{
+	const u8 version = SER_FMT_VER_HIGHEST_WRITE;
+
+	/*
+		[0] u8 serialization version
+		[1] data
+	*/
+	std::ostringstream os(std::ios_base::binary);
+	writeU8(os, version);
+	compress(raw, os, version, compression_level);
+	return os.str();
+}
+
 void MapDatabaseAccessor::loadBlock(v3s16 blockpos, std::string &ret)
 {
 	ret.clear();
+
+	PendingData pending;
+	{
+		MutexAutoLock lock(m_pending_mutex);
+		auto it = m_pending.find(blockpos);
+		if (it != m_pending.end())
+			pending = it->second;
+	}
+	if (pending) {
+		// Callers expect the database format
+		if (pending->compressed)
+			ret = pending->data;
+		else
+			ret = compressBlock(pending->data, compression_level);
+		return;
+	}
+
+	std::lock_guard dblock(mutex);
 	dbase->loadBlock(blockpos, &ret);
 	if (ret.empty() && dbase_ro)
 		dbase_ro->loadBlock(blockpos, &ret);
+}
+
+bool MapDatabaseAccessor::queueBlock(v3s16 blockpos, std::string &&raw)
+{
+	auto data = std::make_shared<PendingBlock>();
+	data->data = std::move(raw);
+
+	bool compress_now;
+	{
+		MutexAutoLock lock(m_pending_mutex);
+		compress_now = m_pending_raw_bytes > MAX_PENDING_BYTES / 2;
+	}
+	// The save thread is not keeping up, so help out instead of waiting later
+	if (compress_now) {
+		data->data = compressBlock(data->data, compression_level);
+		data->compressed = true;
+	}
+
+	std::unique_lock lock(m_pending_mutex);
+	m_drain_cv.wait(lock, [this] {
+		return m_pending_bytes < MAX_PENDING_BYTES || m_write_failing;
+	});
+	// Waiting could take forever, the caller keeps the block loaded instead
+	if (m_pending_bytes >= MAX_PENDING_BYTES)
+		return false;
+
+	replacePending(m_pending[blockpos], std::move(data));
+	m_work_cv.notify_one();
+	return true;
+}
+
+void MapDatabaseAccessor::replacePending(PendingData &slot, PendingData data)
+{
+	if (slot) {
+		m_pending_bytes -= slot->data.size();
+		if (!slot->compressed)
+			m_pending_raw_bytes -= slot->data.size();
+	}
+	if (data) {
+		m_pending_bytes += data->data.size();
+		if (!data->compressed)
+			m_pending_raw_bytes += data->data.size();
+	}
+	slot = std::move(data);
+}
+
+bool MapDatabaseAccessor::deleteBlock(v3s16 blockpos)
+{
+	std::lock_guard dblock(mutex);
+	bool was_pending = false;
+	{
+		MutexAutoLock lock(m_pending_mutex);
+		auto it = m_pending.find(blockpos);
+		if (it != m_pending.end()) {
+			replacePending(it->second, nullptr);
+			m_pending.erase(it);
+			m_drain_cv.notify_all();
+			was_pending = true;
+		}
+	}
+	// A block that was never written may be unknown to the database
+	return dbase->deleteBlock(blockpos) || was_pending;
+}
+
+void MapDatabaseAccessor::listAllLoadableBlocks(std::vector<v3s16> &dst)
+{
+	std::lock_guard dblock(mutex);
+	{
+		MutexAutoLock lock(m_pending_mutex);
+		for (const auto &it : m_pending)
+			dst.push_back(it.first);
+	}
+	dbase->listAllLoadableBlocks(dst);
+	if (dbase_ro)
+		dbase_ro->listAllLoadableBlocks(dst);
+
+	// Pending blocks may already be in the database
+	std::sort(dst.begin(), dst.end());
+	dst.erase(std::unique(dst.begin(), dst.end()), dst.end());
+}
+
+bool MapDatabaseAccessor::waitForPending()
+{
+	std::unique_lock lock(m_pending_mutex);
+	m_work_cv.wait(lock, [this] {
+		return m_stop_requested || !m_pending.empty();
+	});
+	return !m_stop_requested;
+}
+
+void MapDatabaseAccessor::compressPending()
+{
+	std::vector<std::pair<v3s16, PendingData>> batch;
+	{
+		MutexAutoLock lock(m_pending_mutex);
+		for (const auto &it : m_pending) {
+			if (!it.second->compressed)
+				batch.emplace_back(it.first, it.second);
+		}
+	}
+
+	for (const auto &[pos, raw] : batch) {
+		auto data = std::make_shared<PendingBlock>();
+		data->data = compressBlock(raw->data, compression_level);
+		data->compressed = true;
+
+		MutexAutoLock lock(m_pending_mutex);
+		auto it = m_pending.find(pos);
+		// It may have been replaced or deleted in the meantime
+		if (it != m_pending.end() && it->second == raw) {
+			replacePending(it->second, std::move(data));
+			m_drain_cv.notify_all();
+		}
+	}
+}
+
+bool MapDatabaseAccessor::writePending()
+{
+	compressPending();
+
+	std::vector<std::pair<v3s16, PendingData>> batch;
+	{
+		MutexAutoLock lock(m_pending_mutex);
+		batch.assign(m_pending.begin(), m_pending.end());
+	}
+	if (batch.empty())
+		return true;
+
+	ScopeProfiler sp(g_profiler, "ServerMap: write pending blocks (sum)");
+	size_t failed = 0;
+
+	{
+		std::lock_guard dblock(mutex);
+		dbase->beginSave();
+	}
+
+	for (const auto &[pos, block] : batch) {
+		bool too_much_raw;
+		{
+			MutexAutoLock lock(m_pending_mutex);
+			too_much_raw = m_pending_raw_bytes > MAX_PENDING_RAW_BYTES;
+		}
+		if (too_much_raw)
+			compressPending();
+
+		std::string compressed;
+		if (!block->compressed)
+			compressed = compressBlock(block->data, compression_level);
+		const std::string &data = block->compressed ? block->data : compressed;
+
+		std::lock_guard dblock(mutex);
+		{
+			// It may have been replaced or deleted in the meantime
+			MutexAutoLock lock(m_pending_mutex);
+			auto it = m_pending.find(pos);
+			if (it == m_pending.end() || it->second != block)
+				continue;
+		}
+
+		if (!dbase->saveBlock(pos, data)) {
+			failed++;
+			MutexAutoLock lock(m_pending_mutex);
+			m_write_failing = true;
+			m_drain_cv.notify_all();
+			continue;
+		}
+
+		MutexAutoLock lock(m_pending_mutex);
+		m_write_failing = false;
+		auto it = m_pending.find(pos);
+		if (it != m_pending.end() && it->second == block) {
+			replacePending(it->second, nullptr);
+			m_pending.erase(it);
+			m_drain_cv.notify_all();
+		}
+	}
+
+	{
+		std::lock_guard dblock(mutex);
+		dbase->endSave();
+	}
+
+	if (failed > 0) {
+		errorstream << "ServerMap: Failed to save " << failed
+			<< " blocks, will retry" << std::endl;
+	}
+	return failed == 0;
+}
+
+void MapDatabaseAccessor::requestStop()
+{
+	MutexAutoLock lock(m_pending_mutex);
+	m_stop_requested = true;
+	m_work_cv.notify_all();
+}
+
+/*
+	MapSaveThread
+*/
+
+class MapSaveThread : public Thread
+{
+public:
+	MapSaveThread(MapDatabaseAccessor *db):
+		Thread("MapSave"),
+		m_db(db)
+	{}
+
+	void *run();
+
+private:
+	MapDatabaseAccessor *m_db;
+};
+
+void *MapSaveThread::run()
+{
+	BEGIN_DEBUG_EXCEPTION_HANDLER
+
+	bool running = true;
+	while (running) {
+		// Pending blocks are still written after a stop request
+		running = m_db->waitForPending();
+		if (!m_db->writePending() && running)
+			sleep_ms(1000);
+	}
+
+	END_DEBUG_EXCEPTION_HANDLER
+
+	return nullptr;
 }
 
 /*
@@ -97,7 +366,10 @@ ServerMap::ServerMap(const std::string &savedir, IGameDef *gamedef,
 	m_loaded_blocks_gauge = mb->addGauge(
 		"minetest_map_loaded_blocks", "Number of loaded blocks");
 
-	m_map_compression_level = rangelim(g_settings->getS16("map_compression_level_disk"), -1, 9);
+	m_db.compression_level = rangelim(g_settings->getS16("map_compression_level_disk"), -1, 9);
+
+	m_save_thread = std::make_unique<MapSaveThread>(&m_db);
+	m_save_thread->start();
 
 	try {
 		// If directory exists, check contents and load if possible
@@ -161,8 +433,11 @@ ServerMap::~ServerMap()
 
 	m_emerge->resetMap();
 
+	m_db.requestStop();
+	m_save_thread->wait();
+
 	{
-		MutexAutoLock dblock(m_db.mutex);
+		std::lock_guard dblock(m_db.mutex);
 		delete m_db.dbase;
 		m_db.dbase = nullptr;
 		delete m_db.dbase_ro;
@@ -530,9 +805,6 @@ void ServerMap::save(ModifiedState save_level)
 	u32 block_count = 0;
 	u32 block_count_all = 0; // Number of blocks in memory
 
-	// Don't do anything with sqlite unless something is really saved
-	bool save_started = false;
-
 	for (auto &sector_it : m_sectors) {
 		MapSector *sector = sector_it.second;
 
@@ -543,12 +815,6 @@ void ServerMap::save(ModifiedState save_level)
 			block_count_all++;
 
 			if(block->getModified() >= (u32)save_level) {
-				// Lazy beginSave()
-				if(!save_started) {
-					beginSave();
-					save_started = true;
-				}
-
 				modprofiler.add(block->getModifiedReasonString(), 1);
 
 				saveBlock(block);
@@ -556,9 +822,6 @@ void ServerMap::save(ModifiedState save_level)
 			}
 		}
 	}
-
-	if(save_started)
-		endSave();
 
 	/*
 		Only print if something happened or saved whole map
@@ -580,10 +843,7 @@ void ServerMap::save(ModifiedState save_level)
 
 void ServerMap::listAllLoadableBlocks(std::vector<v3s16> &dst)
 {
-	MutexAutoLock dblock(m_db.mutex);
-	m_db.dbase->listAllLoadableBlocks(dst);
-	if (m_db.dbase_ro)
-		m_db.dbase_ro->listAllLoadableBlocks(dst);
+	m_db.listAllLoadableBlocks(dst);
 }
 
 void ServerMap::listAllLoadedBlocks(std::vector<v3s16> &dst)
@@ -663,23 +923,16 @@ MapDatabase *ServerMap::createDatabase(
 	return db;
 }
 
-void ServerMap::beginSave()
-{
-	MutexAutoLock dblock(m_db.mutex);
-	m_db.dbase->beginSave();
-}
-
-void ServerMap::endSave()
-{
-	MutexAutoLock dblock(m_db.mutex);
-	m_db.dbase->endSave();
-}
-
 bool ServerMap::saveBlock(MapBlock *block)
 {
-	// FIXME: serialization happens under mutex
-	MutexAutoLock dblock(m_db.mutex);
-	return saveBlock(block, m_db.dbase, m_map_compression_level);
+	std::ostringstream o(std::ios_base::binary);
+	block->serializeUncompressed(o, SER_FMT_VER_HIGHEST_WRITE, true);
+	if (!m_db.queueBlock(block->getPos(), o.str()))
+		return false;
+
+	// It can be loaded back from the queue so clear modified flag
+	block->resetModified();
+	return true;
 }
 
 bool ServerMap::saveBlock(MapBlock *block, MapDatabase *db, int compression_level)
@@ -807,7 +1060,6 @@ MapBlock* ServerMap::loadBlock(v3s16 blockpos)
 	std::string data;
 	{
 		ScopeProfiler sp(g_profiler, "ServerMap: load block - sync (sum)");
-		MutexAutoLock dblock(m_db.mutex);
 		m_db.loadBlock(blockpos, data);
 	}
 
@@ -820,8 +1072,7 @@ MapBlock* ServerMap::loadBlock(v3s16 blockpos)
 
 bool ServerMap::deleteBlock(v3s16 blockpos)
 {
-	MutexAutoLock dblock(m_db.mutex);
-	if (!m_db.dbase->deleteBlock(blockpos))
+	if (!m_db.deleteBlock(blockpos))
 		return false;
 
 	MapBlock *block = getBlockNoCreateNoEx(blockpos);

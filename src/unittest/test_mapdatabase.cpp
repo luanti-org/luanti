@@ -9,6 +9,9 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <sstream>
+#include "servermap.h"
+#include "noise.h"
 #include "database/database-dummy.h"
 #include "database/database-sqlite3.h"
 #if USE_LEVELDB
@@ -223,4 +226,205 @@ void TestMapDatabase::testPositionEncoding()
 	UASSERT(db->getIntegerAsBlock(0x7FF7FF7FF) == v3s16(2047, 2047, 2047))
 	UASSERT(db->getIntegerAsBlock(-0x800800800) == v3s16(-2048, -2048, -2048))
 	UASSERT(db->getIntegerAsBlock(-0x314e3807b) == v3s16(-123, 456, -789))
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+class TestMapDatabaseAccessor : public TestBase
+{
+public:
+	TestMapDatabaseAccessor() { TestManager::registerTestModule(this); }
+	const char *getName() { return "TestMapDatabaseAccessor"; }
+
+	void runTests(IGameDef *gamedef);
+
+	void testLoadPending();
+	void testWritePending();
+	void testReplacePending();
+	void testDeletePending();
+	void testFailedWrite();
+	void testFullQueue();
+
+private:
+	class FailingDatabase : public Database_Dummy
+	{
+	public:
+		bool fail = false;
+
+		bool saveBlock(const v3s16 &pos, std::string_view data) override
+		{
+			return !fail && Database_Dummy::saveBlock(pos, data);
+		}
+	};
+
+	// Used to compare what a load returns to what was queued
+	static std::string unpack(const std::string &from_db);
+
+	const v3s16 pos{1, 2, 3};
+	const v3s16 pos2{4, 5, 6};
+	const std::string raw_a = std::string(1000, 'a');
+	const std::string raw_b = std::string(2000, 'b');
+};
+
+static TestMapDatabaseAccessor g_test_instance_accessor;
+
+void TestMapDatabaseAccessor::runTests(IGameDef *gamedef)
+{
+	TEST(testLoadPending);
+	TEST(testWritePending);
+	TEST(testReplacePending);
+	TEST(testDeletePending);
+	TEST(testFailedWrite);
+	TEST(testFullQueue);
+}
+
+std::string TestMapDatabaseAccessor::unpack(const std::string &from_db)
+{
+	auto [is, version] = ServerMap::createBlockIStream(&from_db);
+	std::ostringstream os(std::ios_base::binary);
+	os << is->rdbuf();
+	return os.str();
+}
+
+void TestMapDatabaseAccessor::testLoadPending()
+{
+	Database_Dummy db;
+	MapDatabaseAccessor accessor;
+	accessor.dbase = &db;
+	std::string dest;
+
+	accessor.queueBlock(pos, std::string(raw_a));
+	accessor.loadBlock(pos, dest);
+	UASSERT(unpack(dest) == raw_a);
+
+	accessor.compressPending();
+	accessor.loadBlock(pos, dest);
+	UASSERT(unpack(dest) == raw_a);
+
+	// nothing was written yet
+	db.loadBlock(pos, &dest);
+	UASSERT(dest.empty());
+}
+
+void TestMapDatabaseAccessor::testWritePending()
+{
+	Database_Dummy db;
+	MapDatabaseAccessor accessor;
+	accessor.dbase = &db;
+	std::string dest;
+
+	accessor.queueBlock(pos, std::string(raw_a));
+	UASSERT(accessor.writePending());
+
+	db.loadBlock(pos, &dest);
+	UASSERT(unpack(dest) == raw_a);
+	accessor.loadBlock(pos, dest);
+	UASSERT(unpack(dest) == raw_a);
+
+	std::vector<v3s16> list;
+	accessor.listAllLoadableBlocks(list);
+	UASSERTEQ(size_t, list.size(), 1);
+	UASSERT(list.front() == pos);
+}
+
+void TestMapDatabaseAccessor::testReplacePending()
+{
+	Database_Dummy db;
+	MapDatabaseAccessor accessor;
+	accessor.dbase = &db;
+	std::string dest;
+
+	accessor.queueBlock(pos, std::string(raw_a));
+	accessor.queueBlock(pos, std::string(raw_b));
+	accessor.loadBlock(pos, dest);
+	UASSERT(unpack(dest) == raw_b);
+
+	UASSERT(accessor.writePending());
+	db.loadBlock(pos, &dest);
+	UASSERT(unpack(dest) == raw_b);
+
+	// a newer version takes priority over the database
+	accessor.queueBlock(pos, std::string(raw_a));
+	accessor.loadBlock(pos, dest);
+	UASSERT(unpack(dest) == raw_a);
+}
+
+void TestMapDatabaseAccessor::testDeletePending()
+{
+	Database_Dummy db;
+	MapDatabaseAccessor accessor;
+	accessor.dbase = &db;
+	std::string dest;
+
+	// never written
+	accessor.queueBlock(pos, std::string(raw_a));
+	UASSERT(accessor.deleteBlock(pos));
+	UASSERT(accessor.writePending());
+	accessor.loadBlock(pos, dest);
+	UASSERT(dest.empty());
+	db.loadBlock(pos, &dest);
+	UASSERT(dest.empty());
+
+	// written, with a newer version pending
+	accessor.queueBlock(pos, std::string(raw_a));
+	UASSERT(accessor.writePending());
+	accessor.queueBlock(pos, std::string(raw_b));
+	UASSERT(accessor.deleteBlock(pos));
+	UASSERT(accessor.writePending());
+	accessor.loadBlock(pos, dest);
+	UASSERT(dest.empty());
+}
+
+void TestMapDatabaseAccessor::testFailedWrite()
+{
+	FailingDatabase db;
+	MapDatabaseAccessor accessor;
+	accessor.dbase = &db;
+	std::string dest;
+
+	// written, then a newer version that can't be written
+	accessor.queueBlock(pos, std::string(raw_a));
+	UASSERT(accessor.writePending());
+	db.fail = true;
+	accessor.queueBlock(pos, std::string(raw_b));
+	accessor.queueBlock(pos2, std::string(raw_a));
+	UASSERT(!accessor.writePending());
+
+	accessor.loadBlock(pos, dest);
+	UASSERT(unpack(dest) == raw_b);
+
+	// must not wait for the queue, and lists each block once
+	std::vector<v3s16> list;
+	accessor.listAllLoadableBlocks(list);
+	UASSERTEQ(size_t, list.size(), 2);
+
+	db.fail = false;
+	UASSERT(accessor.writePending());
+	db.loadBlock(pos, &dest);
+	UASSERT(unpack(dest) == raw_b);
+	db.loadBlock(pos2, &dest);
+	UASSERT(unpack(dest) == raw_a);
+}
+
+void TestMapDatabaseAccessor::testFullQueue()
+{
+	FailingDatabase db;
+	MapDatabaseAccessor accessor;
+	accessor.dbase = &db;
+
+	db.fail = true;
+	accessor.queueBlock(pos, std::string(raw_a));
+	UASSERT(!accessor.writePending());
+
+	// Random data does not compress, so the queue fills up
+	std::string noise(1024 * 1024, '\0');
+	PcgRandom(42).bytes(noise.data(), noise.size());
+	int queued = 0;
+	while (queued < 200 && accessor.queueBlock(v3s16(queued, 0, 0), std::string(noise)))
+		queued++;
+	UASSERT(queued < 200);
+
+	db.fail = false;
+	UASSERT(accessor.writePending());
+	UASSERT(accessor.queueBlock(pos, std::string(raw_b)));
 }

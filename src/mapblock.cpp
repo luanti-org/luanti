@@ -390,9 +390,28 @@ void MapBlock::serialize(std::ostream &os_compressed, u8 version, bool disk, int
 	if (!ser_ver_supported_write(version))
 		throw VersionMismatchException("ERROR: MapBlock format not supported");
 
-	std::ostringstream os_raw(std::ios_base::binary);
-	std::ostream &os = version >= 29 ? os_raw : os_compressed;
+	if (version < 29) {
+		serializeInternal(os_compressed, version, disk, compression_level);
+		return;
+	}
 
+	std::ostringstream os_raw(std::ios_base::binary);
+	serializeInternal(os_raw, version, disk, compression_level);
+	// now compress the whole thing
+	compress(os_raw.str(), os_compressed, version, compression_level);
+}
+
+void MapBlock::serializeUncompressed(std::ostream &os, u8 version, bool disk)
+{
+	if (!ser_ver_supported_write(version))
+		throw VersionMismatchException("ERROR: MapBlock format not supported");
+	assert(version >= 29);
+
+	serializeInternal(os, version, disk, 0);
+}
+
+void MapBlock::serializeInternal(std::ostream &os, u8 version, bool disk, int compression_level)
+{
 	// First byte
 	u8 flags = 0;
 	if(is_underground)
@@ -456,10 +475,10 @@ void MapBlock::serialize(std::ostream &os_compressed, u8 version, bool disk, int
 	if (version >= 29) {
 		m_node_metadata.serialize(os, version, disk);
 	} else {
-		// use os_raw from above to avoid allocating another stream object
-		m_node_metadata.serialize(os_raw, version, disk);
+		std::ostringstream os_meta(std::ios_base::binary);
+		m_node_metadata.serialize(os_meta, version, disk);
 		// prior to 29 node data was compressed individually
-		compress(os_raw.str(), os, version, compression_level);
+		compress(os_meta.str(), os, version, compression_level);
 	}
 
 	/*
@@ -486,11 +505,6 @@ void MapBlock::serialize(std::ostream &os_compressed, u8 version, bool disk, int
 			// Node timers
 			m_node_timers.serialize(os, version);
 		}
-	}
-
-	if (version >= 29) {
-		// now compress the whole thing
-		compress(os_raw.str(), os_compressed, version, compression_level);
 	}
 }
 
