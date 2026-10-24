@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
 	ndkVersion "$ndk_version"
 	defaultConfig {
-		applicationId 'net.minetest.minetest'
+		applicationId 'net.exa.exa'
 		minSdkVersion 21
 		compileSdk = 36
 		targetSdkVersion 36
