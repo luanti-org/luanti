@@ -324,16 +324,18 @@ public:
 		PROVIDE(TILE_MATERIAL_ALPHA);
 		PROVIDE(TILE_MATERIAL_LIQUID_TRANSPARENT);
 		PROVIDE(TILE_MATERIAL_LIQUID_OPAQUE);
-		PROVIDE(TILE_MATERIAL_WAVING_LEAVES);
-		PROVIDE(TILE_MATERIAL_WAVING_PLANTS);
 		PROVIDE(TILE_MATERIAL_OPAQUE);
-		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_BASIC);
-		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT);
-		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_OPAQUE);
 		PROVIDE(TILE_MATERIAL_PLAIN);
 		PROVIDE(TILE_MATERIAL_PLAIN_ALPHA);
 
 #undef PROVIDE
+
+		constants["WAVING_NONE"] = static_cast<int>(WavingType::NONE);
+		constants["WAVING_PLANTS"] = static_cast<int>(WavingType::PLANTS);
+		constants["WAVING_LEAVES"] = static_cast<int>(WavingType::LEAVES);
+		constants["WAVING_LIQUID"] = static_cast<int>(WavingType::LIQUID);
+		const WavingType waving = static_cast<WavingType>(
+				std::get<int>(constants.at("WAVING_TYPE")));
 
 		bool enable_waving_water = g_settings->getBool("enable_waving_water");
 		constants["ENABLE_WAVING_WATER"] = enable_waving_water ? 1 : 0;
@@ -342,27 +344,9 @@ public:
 			constants["WATER_WAVE_LENGTH"] = g_settings->getFloat("water_wave_length");
 			constants["WATER_WAVE_SPEED"] = g_settings->getFloat("water_wave_speed");
 		}
-		switch (material_type) {
-			case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
-			case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
-			case TILE_MATERIAL_WAVING_LIQUID_BASIC:
-				constants["MATERIAL_WAVING_LIQUID"] = 1;
-				break;
-			default:
-				constants["MATERIAL_WAVING_LIQUID"] = 0;
-				break;
-		}
-		switch (material_type) {
-			case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
-			case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
-			case TILE_MATERIAL_WAVING_LIQUID_BASIC:
-			case TILE_MATERIAL_LIQUID_TRANSPARENT:
-				constants["MATERIAL_WATER_REFLECTIONS"] = 1;
-				break;
-			default:
-				constants["MATERIAL_WATER_REFLECTIONS"] = 0;
-				break;
-		}
+		constants["MATERIAL_WAVING_LIQUID"] = waving == WavingType::LIQUID ? 1 : 0;
+		constants["MATERIAL_WATER_REFLECTIONS"] = (waving == WavingType::LIQUID
+				|| material_type == TILE_MATERIAL_LIQUID_TRANSPARENT) ? 1 : 0;
 
 		constants["ENABLE_WAVING_LEAVES"] = g_settings->getBool("enable_waving_leaves") ? 1 : 0;
 		constants["ENABLE_WAVING_PLANTS"] = g_settings->getBool("enable_waving_plants") ? 1 : 0;

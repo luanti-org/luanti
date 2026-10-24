@@ -882,14 +882,10 @@ u32 IShaderSource::getShader(const std::string &name,
 		case TILE_MATERIAL_ALPHA:
 		case TILE_MATERIAL_PLAIN_ALPHA:
 		case TILE_MATERIAL_LIQUID_TRANSPARENT:
-		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
 			base_mat = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 			break;
 		case TILE_MATERIAL_BASIC:
 		case TILE_MATERIAL_PLAIN:
-		case TILE_MATERIAL_WAVING_LEAVES:
-		case TILE_MATERIAL_WAVING_PLANTS:
-		case TILE_MATERIAL_WAVING_LIQUID_BASIC:
 			base_mat = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
 			break;
 		default:
@@ -901,6 +897,7 @@ u32 IShaderSource::getShader(const std::string &name,
 
 void ShaderFeatures::setConstants(ShaderConstants &consts) const
 {
+	consts["WAVING_TYPE"] = static_cast<int>(waving);
 	if (array_texture)
 		consts["USE_ARRAY_TEXTURE"] = 1;
 	if (skinning) {

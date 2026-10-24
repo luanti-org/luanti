@@ -11,6 +11,7 @@
 #include "client/mapblock_mesh.h"
 #include "client/meshgen/collector.h"
 #include "client/node_visuals.h"
+#include "client/shader.h"
 #include <memory>
 #include "mesh_compare.h"
 
@@ -154,6 +155,7 @@ public:
 	const char *getName() override { return "TestMapblockMeshGenerator"; }
 
 	void runTests(IGameDef *gamedef) override;
+	void testShaderWaving();
 	void testSimpleNode();
 	void testModifierLighting();
 	void testSurroundedNode();
@@ -163,9 +165,57 @@ public:
 
 static TestMapblockMeshGenerator g_test_instance;
 
+void TestMapblockMeshGenerator::testShaderWaving()
+{
+	class RecordingShaderSource : public IShaderSource {
+	public:
+		using IShaderSource::getShader;
+		ShaderInfo info;
+		const ShaderInfo &getShaderInfo(u32) override { return info; }
+		bool supportsSampler2DArray() const override { return true; }
+		u32 getShader(const std::string &, const ShaderConstants &constants,
+				video::E_MATERIAL_TYPE material, IShaderUniformSetterRC *) override
+		{
+			info.input_constants = constants;
+			info.base_material = material;
+			return 1;
+		}
+	} source;
+
+	for (WavingType waving : {WavingType::NONE, WavingType::PLANTS,
+			WavingType::LEAVES, WavingType::LIQUID}) {
+		for (bool array : {false, true}) {
+			for (MaterialType material : {TILE_MATERIAL_OPAQUE,
+					TILE_MATERIAL_BASIC, TILE_MATERIAL_ALPHA}) {
+				ShaderFeatures features;
+				features.waving = waving;
+				features.array_texture = array;
+				source.getShader("nodes_shader", material, NDT_NORMAL, features);
+
+				const ShaderInfo &info = source.getShaderInfo(1);
+				UASSERTEQ(int, std::get<int>(info.input_constants.at("WAVING_TYPE")),
+						static_cast<int>(waving));
+				UASSERTEQ(int, std::get<int>(info.input_constants.at("MATERIAL_TYPE")),
+						static_cast<int>(material));
+				UASSERT((info.input_constants.count("USE_ARRAY_TEXTURE") != 0) == array);
+				video::E_MATERIAL_TYPE expected = material == TILE_MATERIAL_OPAQUE ?
+						video::EMT_SOLID : (material == TILE_MATERIAL_ALPHA ?
+						video::EMT_TRANSPARENT_ALPHA_CHANNEL : video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF);
+				UASSERT(info.base_material == expected);
+
+				TileLayer layer;
+				layer.material_type = material;
+				layer.waving = waving;
+				UASSERT(layer.isTransparent() == (material == TILE_MATERIAL_ALPHA));
+			}
+		}
+	}
+}
+
 void TestMapblockMeshGenerator::runTests(IGameDef *gamedef)
 {
 	set_light_decode_table();
+	TEST(testShaderWaving);
 	TEST(testSimpleNode);
 	TEST(testModifierLighting);
 	TEST(testSurroundedNode);

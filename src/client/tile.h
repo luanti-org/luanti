@@ -14,15 +14,18 @@ enum MaterialType : u8 {
 	TILE_MATERIAL_ALPHA,
 	TILE_MATERIAL_LIQUID_TRANSPARENT,
 	TILE_MATERIAL_LIQUID_OPAQUE,
-	TILE_MATERIAL_WAVING_LEAVES,
-	TILE_MATERIAL_WAVING_PLANTS,
 	TILE_MATERIAL_OPAQUE,
-	TILE_MATERIAL_WAVING_LIQUID_BASIC,
-	TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT,
-	TILE_MATERIAL_WAVING_LIQUID_OPAQUE,
 	// Note: PLAIN isn't a material actually used by tiles, rather just entities.
 	TILE_MATERIAL_PLAIN,
 	TILE_MATERIAL_PLAIN_ALPHA
+};
+
+// Vertex animation is independent of the material's alpha behavior.
+enum class WavingType : u8 {
+	NONE,
+	PLANTS,
+	LEAVES,
+	LIQUID,
 };
 
 /**
@@ -33,8 +36,6 @@ static inline MaterialType material_type_with_alpha(MaterialType type)
 	switch (type) {
 		case TILE_MATERIAL_OPAQUE:
 			return TILE_MATERIAL_BASIC;
-		case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
-			return TILE_MATERIAL_WAVING_LIQUID_BASIC;
 		default:
 			return type;
 	}
@@ -83,6 +84,7 @@ struct TileLayer
 		return
 			texture_id == other.texture_id &&
 			shader_id == other.shader_id &&
+			waving == other.waving &&
 			material_flags == other.material_flags &&
 			has_color == other.has_color &&
 			color == other.color &&
@@ -120,7 +122,6 @@ struct TileLayer
 		case TILE_MATERIAL_ALPHA:
 		case TILE_MATERIAL_PLAIN_ALPHA:
 		case TILE_MATERIAL_LIQUID_TRANSPARENT:
-		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
 			return true;
 		default:
 			return false;
@@ -142,6 +143,7 @@ struct TileLayer
 	u16 texture_layer_idx = 0;
 
 	MaterialType material_type = TILE_MATERIAL_BASIC;
+	WavingType waving = WavingType::NONE;
 	u8 material_flags =
 		MATERIAL_FLAG_BACKFACE_CULLING |
 		MATERIAL_FLAG_TILEABLE_HORIZONTAL|
@@ -175,7 +177,7 @@ struct std::hash<TileLayer>
 	std::size_t operator()(const TileLayer &l) const noexcept
 	{
 		std::size_t ret = 0;
-		for (auto h : { l.texture_id, l.shader_id, (u32)l.material_flags }) {
+		for (auto h : { l.texture_id, l.shader_id, (u32)l.material_flags, (u32)l.waving }) {
 			ret += h;
 			ret ^= (ret << 6) + (ret >> 2); // distribute bits
 		}

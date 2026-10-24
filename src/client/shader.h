@@ -228,6 +228,7 @@ using CachedStructPixelShaderSetting = CachedStructShaderSetting<T, count, cache
 */
 
 struct ShaderFeatures {
+	WavingType waving = WavingType::NONE;
 	/// Enable support for array textures,
 	/// texture indices are expected in the Aux vertex attribute.
 	bool array_texture = false;
