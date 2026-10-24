@@ -167,6 +167,10 @@ static TestMapblockMeshGenerator g_test_instance;
 
 void TestMapblockMeshGenerator::testShaderWaving()
 {
+	UASSERT(alpha_mode_with_transparency(ALPHAMODE_OPAQUE) == ALPHAMODE_CLIP);
+	UASSERT(alpha_mode_with_transparency(ALPHAMODE_CLIP) == ALPHAMODE_CLIP);
+	UASSERT(alpha_mode_with_transparency(ALPHAMODE_BLEND) == ALPHAMODE_BLEND);
+
 	class RecordingShaderSource : public IShaderSource {
 	public:
 		using IShaderSource::getShader;
@@ -182,31 +186,34 @@ void TestMapblockMeshGenerator::testShaderWaving()
 		}
 	} source;
 
-	for (WavingType waving : {WavingType::NONE, WavingType::PLANTS,
-			WavingType::LEAVES, WavingType::LIQUID}) {
+	for (WavingType waving : {WAVING_NONE, WAVING_PLANTS,
+			WAVING_LEAVES, WAVING_LIQUID}) {
 		for (bool array : {false, true}) {
-			for (MaterialType material : {TILE_MATERIAL_OPAQUE,
-					TILE_MATERIAL_BASIC, TILE_MATERIAL_ALPHA}) {
-				ShaderFeatures features;
-				features.waving = waving;
-				features.array_texture = array;
-				source.getShader("nodes_shader", material, NDT_NORMAL, features);
+			for (MaterialType material : {TILE_MATERIAL_NORMAL, TILE_MATERIAL_LIQUID, TILE_MATERIAL_PLAIN}) {
+				for (AlphaMode alpha : {ALPHAMODE_OPAQUE, ALPHAMODE_CLIP, ALPHAMODE_BLEND}) {
+					ShaderFeatures features;
+					features.waving = waving;
+					features.array_texture = array;
+					source.getShader("nodes_shader", material, alpha, features);
 
-				const ShaderInfo &info = source.getShaderInfo(1);
-				UASSERTEQ(int, std::get<int>(info.input_constants.at("WAVING_TYPE")),
-						static_cast<int>(waving));
-				UASSERTEQ(int, std::get<int>(info.input_constants.at("MATERIAL_TYPE")),
-						static_cast<int>(material));
-				UASSERT((info.input_constants.count("USE_ARRAY_TEXTURE") != 0) == array);
-				video::E_MATERIAL_TYPE expected = material == TILE_MATERIAL_OPAQUE ?
-						video::EMT_SOLID : (material == TILE_MATERIAL_ALPHA ?
-						video::EMT_TRANSPARENT_ALPHA_CHANNEL : video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF);
-				UASSERT(info.base_material == expected);
+					const ShaderInfo &info = source.getShaderInfo(1);
+					UASSERTEQ(int, std::get<int>(info.input_constants.at("WAVING_TYPE")),
+							static_cast<int>(waving));
+					UASSERTEQ(int, std::get<int>(info.input_constants.at("MATERIAL_TYPE")),
+							static_cast<int>(material));
+					UASSERT((info.input_constants.count("USE_ARRAY_TEXTURE") != 0) == array);
+					video::E_MATERIAL_TYPE expected = alpha == ALPHAMODE_OPAQUE ?
+							video::EMT_SOLID : (alpha == ALPHAMODE_BLEND ?
+							video::EMT_TRANSPARENT_ALPHA_CHANNEL : video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF);
+					UASSERT(info.base_material == expected);
 
-				TileLayer layer;
-				layer.material_type = material;
-				layer.waving = waving;
-				UASSERT(layer.isTransparent() == (material == TILE_MATERIAL_ALPHA));
+					TileLayer layer;
+					layer.material_type = material;
+					layer.waving = waving;
+					layer.alpha = alpha;
+					UASSERT(layer.isTransparent() == (alpha == ALPHAMODE_BLEND));
+					UASSERTEQ(int, std::get<int>(info.input_constants.at("ALPHA_MODE")), static_cast<int>(alpha));
+				}
 			}
 		}
 	}

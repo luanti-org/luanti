@@ -228,7 +228,7 @@ using CachedStructPixelShaderSetting = CachedStructShaderSetting<T, count, cache
 */
 
 struct ShaderFeatures {
-	WavingType waving = WavingType::NONE;
+	WavingType waving = WAVING_NONE;
 	/// Enable support for array textures,
 	/// texture indices are expected in the Aux vertex attribute.
 	bool array_texture = false;
@@ -282,7 +282,7 @@ public:
 
 	/// Helper: Generates or gets a shader suitable for nodes and entities.
 	u32 getShader(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL,
+		MaterialType material_type, AlphaMode alpha,
 		const ShaderFeatures &features = {});
 
 	/**

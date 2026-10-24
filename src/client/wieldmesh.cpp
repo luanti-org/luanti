@@ -140,9 +140,8 @@ void getAdHocNodeShader(video::SMaterial &mat, IShaderSource *shdsrc,
 		const char *shader, AlphaMode mode, int layer)
 {
 	assert(shdsrc);
-	MaterialType type = alpha_mode_to_material_type(mode);
 	if (layer == 1)
-		type = material_type_with_alpha(type);
+		mode = alpha_mode_with_transparency(mode);
 
 	// Note: logic wise this duplicates what `ContentFeatures::updateTextures`
 	// and related functions do.
@@ -153,7 +152,7 @@ void getAdHocNodeShader(video::SMaterial &mat, IShaderSource *shdsrc,
 
 	ShaderFeatures features;
 	features.array_texture = array_texture;
-	u32 shader_id = shdsrc->getShader(shader, type, NDT_NORMAL, features);
+	u32 shader_id = shdsrc->getShader(shader, TILE_MATERIAL_NORMAL, mode, features);
 	mat.MaterialType = shdsrc->getShaderInfo(shader_id).material;
 }
 
@@ -437,7 +436,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 
 	{
 		// Initialize material type used by setExtruded
-		u32 shader_id = shdsrc->getShader("object_shader", TILE_MATERIAL_BASIC, NDT_NORMAL);
+		u32 shader_id = shdsrc->getShader("object_shader", TILE_MATERIAL_NORMAL, ALPHAMODE_CLIP);
 		m_material_type = shdsrc->getShaderInfo(shader_id).material;
 	}
 

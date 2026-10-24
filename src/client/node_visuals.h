@@ -111,19 +111,3 @@ private:
 			const TextureSettings &tsettings);
 	void collectMaterials(std::vector<u32> &leaves_materials);
 };
-
-/**
- * @brief get fitting material type for an alpha mode
- */
-static inline MaterialType alpha_mode_to_material_type(AlphaMode mode)
-{
-	switch (mode) {
-	case ALPHAMODE_BLEND:
-		return TILE_MATERIAL_ALPHA;
-	case ALPHAMODE_OPAQUE:
-		return TILE_MATERIAL_OPAQUE;
-	case ALPHAMODE_CLIP:
-	default:
-		return TILE_MATERIAL_BASIC;
-	}
-}

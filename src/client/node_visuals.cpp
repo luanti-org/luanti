@@ -174,7 +174,7 @@ NodeModifierVisuals::~NodeModifierVisuals()
 
 // Apply rendering decisions after the texture (including its texture type) is known.
 static void setTileMaterial(TileLayer &layer, const TileSpec &tile,
-		MaterialType material_type, WavingType waving, NodeDrawType drawtype, IShaderSource *shdsrc)
+		MaterialType material_type, AlphaMode alpha, WavingType waving, IShaderSource *shdsrc)
 {
 	if (!layer.texture)
 		return;
@@ -183,11 +183,12 @@ static void setTileMaterial(TileLayer &layer, const TileSpec &tile,
 		layer.scale = 1;
 
 	layer.material_type = material_type;
+	layer.alpha = alpha;
 	layer.waving = waving;
 	ShaderFeatures features;
 	features.waving = waving;
 	features.array_texture = layer.texture->getType() == video::ETT_2D_ARRAY;
-	layer.shader_id = shdsrc->getShader("nodes_shader", material_type, drawtype, features);
+	layer.shader_id = shdsrc->getShader("nodes_shader", material_type, alpha, features);
 }
 
 static bool isWorldAligned(AlignStyle style, WorldAlignMode mode, NodeDrawType drawtype)
@@ -316,21 +317,21 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 		tdef_spec[j] = tiledef_special[j];
 	}
 
-	MaterialType material_type = alpha_mode_to_material_type(alpha);
-	WavingType waving_type = WavingType::NONE;
+	MaterialType material_type = TILE_MATERIAL_NORMAL;
+	AlphaMode material_alpha = alpha;
+	WavingType waving_type = WAVING_NONE;
 
 	switch (drawtype) {
 	case NDT_LIQUID:
 	case NDT_FLOWINGLIQUID:
+		material_type = TILE_MATERIAL_LIQUID;
 		if (!tsettings.translucent_liquids)
 			alpha = ALPHAMODE_OPAQUE;
 		if (waving == 3) {
-			waving_type = WavingType::LIQUID;
-			material_type = alpha_mode_to_material_type(alpha);
-		} else {
-			material_type = alpha == ALPHAMODE_OPAQUE ? TILE_MATERIAL_LIQUID_OPAQUE :
-				TILE_MATERIAL_LIQUID_TRANSPARENT;
-		}
+			waving_type = WAVING_LIQUID;
+			material_alpha = alpha;
+		} else if (alpha != ALPHAMODE_OPAQUE)
+			material_alpha = ALPHAMODE_BLEND;
 		break;
 	case NDT_GLASSLIKE_FRAMED_OPTIONAL:
 		drawtype = tsettings.connected_glass ? NDT_GLASSLIKE_FRAMED : NDT_GLASSLIKE;
@@ -355,27 +356,27 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 				td.name += std::string("^[noalpha");
 		}
 		if (waving >= 1) {
-			waving_type = WavingType::LEAVES;
-			material_type = TILE_MATERIAL_BASIC;
+			waving_type = WAVING_LEAVES;
+			material_alpha = ALPHAMODE_CLIP;
 		}
 		break;
 	case NDT_PLANTLIKE:
 		if (waving >= 1) {
-			waving_type = WavingType::PLANTS;
-			material_type = TILE_MATERIAL_BASIC;
+			waving_type = WAVING_PLANTS;
+			material_alpha = ALPHAMODE_CLIP;
 		}
 		break;
 	case NDT_MESH:
 	case NDT_NODEBOX:
 		if (waving == 1) {
-			waving_type = WavingType::PLANTS;
-			material_type = TILE_MATERIAL_BASIC;
+			waving_type = WAVING_PLANTS;
+			material_alpha = ALPHAMODE_CLIP;
 		} else if (waving == 2) {
-			waving_type = WavingType::LEAVES;
-			material_type = TILE_MATERIAL_BASIC;
+			waving_type = WAVING_LEAVES;
+			material_alpha = ALPHAMODE_CLIP;
 		} else if (waving == 3) {
-			waving_type = WavingType::LIQUID;
-			material_type = alpha_mode_to_material_type(alpha);
+			waving_type = WAVING_LIQUID;
+			material_alpha = alpha;
 		}
 		break;
 	case NDT_NORMAL:
@@ -392,7 +393,7 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 		break;
 	}
 
-	MaterialType overlay_material = material_type_with_alpha(material_type);
+	AlphaMode overlay_alpha = alpha_mode_with_transparency(material_alpha);
 
 	// minimap pixel color = average color of top tile
 	if (tsettings.enable_minimap && drawtype != NDT_AIRLIKE && !tdef[0].name.empty())
@@ -414,13 +415,14 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 		tiles[j].world_aligned = isWorldAligned(tdef[j].align_style,
 				tsettings.world_aligned_mode, drawtype);
 		fillTileAttribs(&tiles[j].layers[0], tac, tdef[j]);
-		setTileMaterial(tiles[j].layers[0], tiles[j], material_type, waving_type, drawtype, shdsrc);
+		setTileMaterial(tiles[j].layers[0], tiles[j], material_type, material_alpha, waving_type,
+				shdsrc);
 
 		if (!tdef_overlay[j].name.empty()) {
 			tdef_overlay[j].backface_culling = tdef[j].backface_culling;
 			fillTileAttribs(&tiles[j].layers[1], tac, tdef_overlay[j]);
-			setTileMaterial(tiles[j].layers[1], tiles[j], overlay_material, waving_type, drawtype,
-					shdsrc);
+			setTileMaterial(tiles[j].layers[1], tiles[j], material_type, overlay_alpha,
+					waving_type, shdsrc);
 		}
 
 		tiles[j].layers[0].need_polygon_offset = !tiles[j].layers[1].empty();
@@ -437,15 +439,15 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 			tiles[j].layers[0].need_polygon_offset = true;
 	}
 
-	MaterialType special_material = material_type;
+	AlphaMode special_alpha = material_alpha;
 	WavingType special_waving = waving_type;
 	if (drawtype == NDT_PLANTLIKE_ROOTED) {
 		if (waving == 1) {
-			special_waving = WavingType::PLANTS;
-			special_material = TILE_MATERIAL_BASIC;
+			special_waving = WAVING_PLANTS;
+			special_alpha = ALPHAMODE_CLIP;
 		} else if (waving == 2) {
-			special_waving = WavingType::LEAVES;
-			special_material = TILE_MATERIAL_BASIC;
+			special_waving = WAVING_LEAVES;
+			special_alpha = ALPHAMODE_CLIP;
 		}
 	}
 
@@ -453,7 +455,7 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 	for (u16 j = 0; j < CF_SPECIAL_COUNT; j++) {
 		fillTileAttribs(&special_tiles[j].layers[0], tac, tdef_spec[j]);
 		setTileMaterial(special_tiles[j].layers[0], special_tiles[j],
-				special_material, special_waving, drawtype, shdsrc);
+				material_type, special_alpha, special_waving, shdsrc);
 	}
 
 	if (param_type_2 == CPT2_COLOR ||
@@ -519,9 +521,9 @@ void NodeVisuals::collectMaterials(std::vector<u32> &leaves_materials)
 {
 	for (u16 j = 0; j < 6; j++) {
 		auto &l = tiles[j].layers;
-		if (!l[0].empty() && l[0].waving == WavingType::LEAVES)
+		if (!l[0].empty() && l[0].waving == WAVING_LEAVES)
 			leaves_materials.push_back(l[0].shader_id);
-		if (!l[1].empty() && l[1].waving == WavingType::LEAVES)
+		if (!l[1].empty() && l[1].waving == WAVING_LEAVES)
 			leaves_materials.push_back(l[1].shader_id);
 	}
 }

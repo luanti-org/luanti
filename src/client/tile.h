@@ -5,40 +5,35 @@
 #pragma once
 
 #include "irrlichttypes.h"
+#include "tiledef.h"
 #include <ITexture.h>
 #include <vector>
 #include <SMaterial.h>
 
 enum MaterialType : u8 {
-	TILE_MATERIAL_BASIC,
-	TILE_MATERIAL_ALPHA,
-	TILE_MATERIAL_LIQUID_TRANSPARENT,
-	TILE_MATERIAL_LIQUID_OPAQUE,
-	TILE_MATERIAL_OPAQUE,
-	// Note: PLAIN isn't a material actually used by tiles, rather just entities.
+	TILE_MATERIAL_NORMAL,
+	TILE_MATERIAL_LIQUID,
+	// Unshaded entities.
 	TILE_MATERIAL_PLAIN,
-	TILE_MATERIAL_PLAIN_ALPHA
 };
 
 // Vertex animation is independent of the material's alpha behavior.
-enum class WavingType : u8 {
-	NONE,
-	PLANTS,
-	LEAVES,
-	LIQUID,
+enum WavingType : u8 {
+	WAVING_NONE,
+	WAVING_PLANTS,
+	WAVING_LEAVES,
+	WAVING_LIQUID,
 };
 
 /**
- * @brief change type so it has at least simple transparency
+ * @brief change mode so it has at least simple transparency
  */
-static inline MaterialType material_type_with_alpha(MaterialType type)
+inline AlphaMode alpha_mode_with_transparency(AlphaMode alpha)
 {
-	switch (type) {
-		case TILE_MATERIAL_OPAQUE:
-			return TILE_MATERIAL_BASIC;
-		default:
-			return type;
-	}
+	if (alpha == ALPHAMODE_OPAQUE)
+		return ALPHAMODE_CLIP;
+	else
+		return alpha;
 }
 
 // Material flags
@@ -85,6 +80,7 @@ struct TileLayer
 			texture_id == other.texture_id &&
 			shader_id == other.shader_id &&
 			waving == other.waving &&
+			alpha == other.alpha &&
 			material_flags == other.material_flags &&
 			has_color == other.has_color &&
 			color == other.color &&
@@ -117,15 +113,7 @@ struct TileLayer
 	/// @return is this layer semi-transparent?
 	bool isTransparent() const
 	{
-		// see also: the mapping in ShaderSource::generateShader()
-		switch (material_type) {
-		case TILE_MATERIAL_ALPHA:
-		case TILE_MATERIAL_PLAIN_ALPHA:
-		case TILE_MATERIAL_LIQUID_TRANSPARENT:
-			return true;
-		default:
-			return false;
-		}
+		return alpha == ALPHAMODE_BLEND;
 	}
 
 	// Ordered for size, please do not reorder
@@ -142,8 +130,9 @@ struct TileLayer
 	/// Layer index to use, if the texture is an array texture
 	u16 texture_layer_idx = 0;
 
-	MaterialType material_type = TILE_MATERIAL_BASIC;
-	WavingType waving = WavingType::NONE;
+	MaterialType material_type = TILE_MATERIAL_NORMAL;
+	AlphaMode alpha = ALPHAMODE_CLIP;
+	WavingType waving = WAVING_NONE;
 	u8 material_flags =
 		MATERIAL_FLAG_BACKFACE_CULLING |
 		MATERIAL_FLAG_TILEABLE_HORIZONTAL|
@@ -177,7 +166,8 @@ struct std::hash<TileLayer>
 	std::size_t operator()(const TileLayer &l) const noexcept
 	{
 		std::size_t ret = 0;
-		for (auto h : { l.texture_id, l.shader_id, (u32)l.material_flags, (u32)l.waving }) {
+		for (auto h : { l.texture_id, l.shader_id, (u32)l.material_flags, (u32)l.waving,
+				(u32)l.alpha }) {
 			ret += h;
 			ret ^= (ret << 6) + (ret >> 2); // distribute bits
 		}

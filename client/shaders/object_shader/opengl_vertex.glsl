@@ -128,7 +128,7 @@ void main(void)
 	worldPosition = (mWorld * skinPos).xyz;
 	eyeVec = -(mWorldView * skinPos).xyz;
 
-#if (MATERIAL_TYPE == TILE_MATERIAL_PLAIN) || (MATERIAL_TYPE == TILE_MATERIAL_PLAIN_ALPHA)
+#if MATERIAL_TYPE == TILE_MATERIAL_PLAIN
 	vIDiff = 1.0;
 #else
 	// This is intentional comparison with zero without any margin.

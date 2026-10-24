@@ -868,28 +868,26 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 	Other functions and helpers
 */
 
-u32 IShaderSource::getShader(const std::string &name,
-	MaterialType material_type, NodeDrawType drawtype,
-	const ShaderFeatures &features)
+u32 IShaderSource::getShader(const std::string &name, MaterialType material_type,
+	AlphaMode alpha, const ShaderFeatures &features)
 {
 	ShaderConstants input_const;
 	input_const["MATERIAL_TYPE"] = (int)material_type;
-	(void) drawtype; // unused
+	input_const["ALPHA_MODE"] = static_cast<int>(alpha);
 	features.setConstants(input_const);
 
 	video::E_MATERIAL_TYPE base_mat = video::EMT_SOLID;
-	switch (material_type) {
-		case TILE_MATERIAL_ALPHA:
-		case TILE_MATERIAL_PLAIN_ALPHA:
-		case TILE_MATERIAL_LIQUID_TRANSPARENT:
+	switch (alpha) {
+		case ALPHAMODE_BLEND:
 			base_mat = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 			break;
-		case TILE_MATERIAL_BASIC:
-		case TILE_MATERIAL_PLAIN:
+		case ALPHAMODE_CLIP:
 			base_mat = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
 			break;
-		default:
+		case ALPHAMODE_OPAQUE:
 			break;
+		default:
+			FATAL_ERROR("Invalid shader alpha mode");
 	}
 
 	return getShader(name, input_const, base_mat);
