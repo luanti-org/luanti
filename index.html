@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10251b">
+<meta name="description" content="Discover ExA-Client, an open-source voxel world for exploration, building and creativity.">
+<title>ExA-Client — Explore Beyond</title>
+<style>
+:root {
+  color-scheme: dark;
+  --green: #a9ed9d;
+  --panel: #172b20;
+  --muted: #c0d0c1;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: #0c1912;
+  color: #f3f8f0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.65;
+}
+a { color: inherit; }
+nav {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 18px; padding: 20px 7%;
+  background: #10251b; border-bottom: 1px solid #ffffff15;
+}
+.logo { font-weight: 850; font-size: 1.3rem; letter-spacing: .5px; }
+.logo span { color: var(--green); }
+nav a { text-decoration: none; color: var(--muted); margin-left: 18px; }
+.hero {
+  position: relative; overflow: hidden; isolation: isolate;
+  min-height: 570px; display: grid; place-items: center;
+  text-align: center; padding: 95px 7% 115px;
+  background:
+    radial-gradient(ellipse at 50% 100%, #477b45 0, #244b31 27%, transparent 65%),
+    linear-gradient(#142e2c, #254a35 62%, #10251b);
+}
+.hero::before, .hero::after {
+  content: ""; position: absolute; z-index: -1;
+  bottom: -20px; width: 0; height: 0;
+  border-left: 130px solid transparent;
+  border-right: 130px solid transparent;
+  border-bottom: 390px solid #102b20;
+  filter: drop-shadow(35px 80px 0 #183a27);
+}
+.hero::before { left: -35px; transform: scale(1.25); }
+.hero::after { right: -35px; transform: scale(1.5); border-bottom-color:#183525; }
+.hero-content { max-width: 800px; }
+.eyebrow { color: var(--green); text-transform: uppercase; letter-spacing: 3px; font-size: .8rem; font-weight: 750; }
+h1 { font-size: clamp(3rem, 8vw, 6rem); line-height: 1.04; margin: 16px 0; letter-spacing: -3px; }
+h1 span { color: var(--green); }
+.hero p { max-width: 600px; margin: 20px auto 30px; color: #e0eade; font-size: 1.1rem; }
+.button {
+  display: inline-block; padding: 13px 23px; border-radius: 9px;
+  background: var(--green); color: #10251b; font-weight: 800;
+  border: 0; text-decoration: none; cursor: pointer; font-size: 1rem;
+}
+.button.secondary { background: #ffffff13; border: 1px solid #ffffff35; color: white; }
+section { padding: 76px 7%; }
+section h2 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.2; margin: 0 0 15px; }
+.intro { color: var(--muted); max-width: 680px; }
+.features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 32px; }
+.card { padding: 25px; background: var(--panel); border: 1px solid #ffffff12; border-radius: 15px; }
+.card .emoji { font-size: 2rem; }
+.card p { color: var(--muted); margin-bottom: 0; }
+.download { background: #14271c; }
+.download-box { max-width: 680px; margin-top: 28px; padding: 28px; background: #0c1912; border: 1px solid #ffffff20; border-radius: 18px; }
+label { display: block; margin: 16px 0 8px; font-weight: 650; }
+select { width: 100%; padding: 14px; border-radius: 9px; color: white; background: #20382a; border: 1px solid #55735b; font: inherit; }
+#status { color: var(--muted); min-height: 48px; font-size: .95rem; }
+#downloadBtn { width: 100%; margin-top: 12px; }
+.links { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 25px; }
+footer { padding: 30px 7%; color: var(--muted); border-top: 1px solid #ffffff15; font-size: .9rem; }
+@media(max-width:700px) {
+ nav { padding: 17px 5%; } nav a { margin-left: 10px; font-size: .9rem; }
+ .hero { min-height: 520px; padding: 75px 6%; }
+ .features { grid-template-columns: 1fr; }
+ section { padding: 58px 6%; }
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">ExA<span>-Client</span></div>
+  <div><a href="#about">About</a><a href="#features">Features</a><a href="#download">Download</a></div>
+</nav>
+
+<header class="hero">
+  <div class="hero-content">
+    <div class="eyebrow">Open-source voxel adventures</div>
+    <h1>Explore <span>Beyond.</span></h1>
+    <p>Discover new worlds, build your own creations, and make every adventure yours with ExA-Client.</p>
+    <a class="button" href="#download">↓ Get ExA-Client</a>
+    <a class="button secondary" href="https://github.com/arafatqhassan-glitch/ExA-Client">Explore the source</a>
+  </div>
+</header>
+
+<section id="about">
+  <div class="eyebrow">Your world, your rules</div>
+  <h2>Adventure starts here.</h2>
+  <p class="intro">ExA-Client is an open-source voxel game engine designed for exploring, building, modding and creating. Enter a world of blocks and possibilities, and shape your experience your way.</p>
+</section>
+
+<section id="features">
+  <div class="eyebrow">Made for creativity</div>
+  <h2>Make it your world.</h2>
+  <div class="features">
+    <article class="card"><div class="emoji">🌲</div><h3>Explore worlds</h3><p>Discover voxel environments and create your own places to explore.</p></article>
+    <article class="card"><div class="emoji">🧱</div><h3>Build anything</h3><p>Turn your ideas into structures and shape the world around you.</p></article>
+    <article class="card"><div class="emoji">🛠️</div><h3>Open-source freedom</h3><p>Explore the code and discover modding and game-creation possibilities.</p></article>
+  </div>
+</section>
+
+<section class="download" id="download">
+  <div class="eyebrow">Join the adventure</div>
+  <h2>Get ExA-Client</h2>
+  <p class="intro">Choose your device architecture to find the matching Android APK from the latest published release.</p>
+  <div class="download-box">
+    <label for="arch">Choose your architecture</label>
+    <select id="arch">
+      <option value="arm64-v8a">ARM64 (most modern Android phones)</option>
+      <option value="armeabi-v7a">ARM32 (32-bit ARM devices)</option>
+      <option value="x86_64">x86_64</option>
+      <option value="x86">x86</option>
+    </select>
+    <button class="button" id="downloadBtn">Find &amp; Download APK</button>
+    <p id="status" role="status" aria-live="polite">Ready to check the latest release.</p>
+  </div>
+  <div class="links">
+    <a href="https://github.com/arafatqhassan-glitch/ExA-Client">GitHub repository ↗</a>
+    <a href="https://github.com/arafatqhassan-glitch/ExA-Client/releases">All releases ↗</a>
+  </div>
+</section>
+
+<footer>
+  <strong>ExA-Client</strong> · Open-source voxel adventures.
+  <p>Built for creativity and community. See the repository for source code and licensing.</p>
+</footer>
+
+<script>
+const owner = "arafatqhassan-glitch";
+const repo = "ExA-Client";
+const statusText = document.getElementById("status");
+const button = document.getElementById("downloadBtn");
+
+button.addEventListener("click", async () => {
+  const arch = document.getElementById("arch").value;
+  button.disabled = true;
+  statusText.textContent = "Checking the latest published release…";
+
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/releases/latest`,
+      { headers: { Accept: "application/vnd.github+json" } }
+    );
+
+    if (response.status === 404) {
+      throw new Error("No published release found yet. Please check back later.");
+    }
+    if (!response.ok) {
+      throw new Error("GitHub could not be reached right now. Please try again.");
+    }
+
+    const release = await response.json();
+    const assets = (release.assets || []).filter(a =>
+      a.name.toLowerCase().endsWith(".apk")
+    );
+
+    const matches = assets.filter(a => {
+      const name = a.name.toLowerCase();
+      if (arch === "x86") {
+        return /(^|[^a-z0-9])x86([^_a-z0-9]|$)/.test(name) &&
+          !name.includes("x86_64");
+      }
+      return name.includes(arch);
+    });
+
+    if (!matches.length) {
+      throw new Error(
+        "No APK for this architecture was found in the latest release. " +
+        "The release must include an APK asset with the architecture name: " + arch
+      );
+    }
+
+    if (matches.length > 1) {
+      throw new Error(
+        "Multiple APKs match this architecture. Keep one clearly named APK per architecture in each release."
+      );
+    }
+
+    statusText.textContent = "Your APK is ready. Starting download…";
+    window.location.href = matches[0].browser_download_url;
+  } catch (error) {
+    statusText.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+</script>
+</body>
+  </html>
+                                                                   
