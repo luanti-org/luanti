@@ -208,10 +208,12 @@ bool MapDatabaseAccessor::writePending()
 {
 	compressPending();
 
-	std::vector<std::pair<v3s16, PendingData>> batch;
+	std::vector<v3s16> batch;
 	{
 		MutexAutoLock lock(m_pending_mutex);
-		batch.assign(m_pending.begin(), m_pending.end());
+		batch.reserve(m_pending.size());
+		for (const auto &it : m_pending)
+			batch.push_back(it.first);
 	}
 	if (batch.empty())
 		return true;
@@ -224,14 +226,25 @@ bool MapDatabaseAccessor::writePending()
 		dbase->beginSave();
 	}
 
-	for (const auto &[pos, block] : batch) {
+	for (v3s16 pos : batch) {
 		bool too_much_raw;
 		{
 			MutexAutoLock lock(m_pending_mutex);
 			too_much_raw = m_pending_raw_bytes > MAX_PENDING_RAW_BYTES;
 		}
+		// Mostly compresses blocks queued while this loop runs
 		if (too_much_raw)
 			compressPending();
+
+		// Take the newest version, it may have been compressed by now
+		PendingData block;
+		{
+			MutexAutoLock lock(m_pending_mutex);
+			auto it = m_pending.find(pos);
+			if (it == m_pending.end())
+				continue;
+			block = it->second;
+		}
 
 		std::string compressed;
 		if (!block->compressed)
