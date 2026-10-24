@@ -1,71 +1,72 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="net.exa.exa"
     android:installLocation="auto">
 
-	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-	<uses-feature android:glEsVersion="0x00020000" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-feature android:glEsVersion="0x00020000" />
 
-	<application
-		android:allowBackup="false"
-		android:icon="@mipmap/ic_launcher"
-		android:label="@string/label"
-		android:resizeableActivity="false"
-		android:appCategory="game"
-		android:enableOnBackInvokedCallback="false"
-		tools:ignore="UnusedAttribute">
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/label"
+        android:resizeableActivity="false"
+        android:appCategory="game"
+        android:enableOnBackInvokedCallback="false"
+        tools:ignore="UnusedAttribute">
 
-		<meta-data
-			android:name="android.max_aspect"
-			android:value="3.0" />
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="3.0" />
 
-		<activity
-			android:name=".MainActivity"
-			android:configChanges="orientation|keyboardHidden|navigation|screenSize"
-			android:maxAspectRatio="3.0"
-			android:screenOrientation="sensorLandscape"
-			android:theme="@style/AppTheme"
-			android:exported="true">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
-		</activity>
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize"
+            android:maxAspectRatio="3.0"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-		<activity
-			android:name=".GameActivity"
-			android:configChanges="orientation|keyboard|keyboardHidden|navigation|screenSize|smallestScreenSize"
-			android:hardwareAccelerated="true"
-			android:launchMode="singleTask"
-			android:maxAspectRatio="3.0"
-			android:screenOrientation="sensorLandscape"
-			android:theme="@style/AppTheme"
-			android:exported="true">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-			</intent-filter>
-		</activity>
+        <activity
+            android:name=".GameActivity"
+            android:configChanges="orientation|keyboard|keyboardHidden|navigation|screenSize|smallestScreenSize"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleTask"
+            android:maxAspectRatio="3.0"
+            android:screenOrientation="sensorLandscape"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
 
-		<service
-			android:name=".UnzipService"
-			android:enabled="true"
-			android:exported="false" />
+        <service
+            android:name=".UnzipService"
+            android:enabled="true"
+            android:exported="false" />
 
-		<!-- FIXME: we can probably drop this and use the documents provider to share files -->
-		<provider
-			android:name="androidx.core.content.FileProvider"
-			android:authorities="net.minetest.minetest.fileprovider"
-			android:grantUriPermissions="true"
-			android:exported="false">
-			<meta-data
-				android:name="android.support.FILE_PROVIDER_PATHS"
-				android:resource="@xml/filepaths" />
-		</provider>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="net.exa.exa.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
 
-		<provider
+        <provider
             android:name=".LuantiDocumentsProvider"
-            android:authorities="net.minetest.minetest.documents"
+            android:authorities="net.exa.exa.documents"
             android:exported="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS">
@@ -74,6 +75,6 @@
             </intent-filter>
         </provider>
 
-</application>
-
+    </application>
 </manifest>
+				
