@@ -85,7 +85,7 @@ struct TileLayer
 			has_color == other.has_color &&
 			color == other.color &&
 			need_polygon_offset == other.need_polygon_offset;
-		// texture_layer_idx and scale are notably part of the vertex data
+		// texture_layer_idx, scale and world_aligned are baked into vertex data
 	}
 
 	/*!
@@ -156,6 +156,9 @@ struct TileLayer
 
 	//! If true, the tile has its own color.
 	bool has_color = false;
+
+	//! If true, the tile rotation is ignored.
+	bool world_aligned = false;
 };
 
 template<>
@@ -225,8 +228,6 @@ struct TileSpec
 {
 	TileSpec() = default;
 
-	//! If true, the tile rotation is ignored.
-	bool world_aligned = false;
 	//! Tile rotation.
 	TileRotation rotation = TileRotation::None;
 	//! The first is base texture, the second is overlay.

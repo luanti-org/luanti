@@ -5,6 +5,7 @@
 #include "test.h"
 
 #include "gamedef.h"
+#include "network/networkprotocol.h"
 #include "inventory.h" // ItemStack
 #include "dummygamedef.h"
 #include "client/content_mapblock.h"
@@ -13,6 +14,7 @@
 #include "client/node_visuals.h"
 #include "client/shader.h"
 #include <memory>
+#include <sstream>
 #include "mesh_compare.h"
 
 namespace {
@@ -157,6 +159,7 @@ public:
 	void runTests(IGameDef *gamedef) override;
 	void testShaderWaving();
 	void testSimpleNode();
+	void testOverlayAlignment();
 	void testModifierLighting();
 	void testSurroundedNode();
 	void testInterliquidSame();
@@ -224,6 +227,7 @@ void TestMapblockMeshGenerator::runTests(IGameDef *gamedef)
 	set_light_decode_table();
 	TEST(testShaderWaving);
 	TEST(testSimpleNode);
+	TEST(testOverlayAlignment);
 	TEST(testModifierLighting);
 	TEST(testSurroundedNode);
 	TEST(testInterliquidSame);
@@ -258,6 +262,63 @@ void TestMapblockMeshGenerator::testSimpleNode()
 	auto &&buf = col.prebuffers[0][0];
 	UASSERTEQ(u32, buf.layer.texture_id, 42);
 	UASSERT(checkMeshEqual(buf.vertices, buf.indices, {quad::xn, quad::xp, quad::yn, quad::yp, quad::zn, quad::zp}));
+}
+
+void TestMapblockMeshGenerator::testOverlayAlignment()
+{
+	for (AlignStyle alignment : {ALIGN_STYLE_NODE, ALIGN_STYLE_WORLD, ALIGN_STYLE_USER_DEFINED}) {
+		TileDef original;
+		original.align_style = alignment;
+		std::stringstream stream;
+		original.serialize(stream, LATEST_PROTOCOL_VERSION);
+		TileDef restored;
+		restored.deSerialize(stream, LATEST_PROTOCOL_VERSION);
+		UASSERT(restored.align_style == alignment);
+	}
+
+	for (NodeDrawType drawtype : {NDT_NORMAL, NDT_NODEBOX}) {
+		for (bool overlay_world : {false, true}) {
+			for (u8 facedir : {0, 1, 4}) {
+				std::vector<v2f> overlay_coords;
+				for (bool base_world : {false, true}) {
+					MockGameDef gamedef;
+					content_t node = gamedef.addSimpleNode("aligned", 42, 0, drawtype);
+					gamedef.node_mgr()->applyFunction([&](ContentFeatures &f) {
+						if (f.name != "test:aligned")
+							return;
+						f.param_type_2 = CPT2_FACEDIR;
+						if (drawtype == NDT_NODEBOX) {
+							f.node_box.type = NODEBOX_FIXED;
+							f.node_box.fixed = {aabb3f(-BS/2, -BS/2, -BS/2, BS/2, BS/2, BS/2)};
+						}
+						for (TileSpec &tile : f.visuals->tiles) {
+							tile.layers[0].world_aligned = base_world;
+							tile.layers[0].scale = base_world ? 4 : 1;
+							tile.layers[1].texture_id = 43;
+							tile.layers[1].world_aligned = overlay_world;
+							tile.layers[1].scale = overlay_world ? 2 : 1;
+						}
+					});
+					gamedef.finalize();
+					MeshMakeData data = gamedef.makeSingleNodeMMD();
+					data.m_vmanip.setNode({0, 0, 0}, {node, 0, facedir});
+					MeshCollector collector{{}};
+					MapblockMeshGenerator generator{&data, &collector};
+					generator.generate();
+					UASSERTEQ(size_t, collector.prebuffers[1].size(), 1);
+					UASSERTEQ(size_t, collector.prebuffers[0][0].vertices.size(), 24);
+					UASSERTEQ(size_t, collector.prebuffers[1][0].vertices.size(), 24);
+					std::vector<v2f> coords;
+					for (const auto &vertex : collector.prebuffers[1][0].vertices)
+						coords.push_back(vertex.TCoords);
+					if (!base_world)
+						overlay_coords = coords;
+					else
+						UASSERT(coords == overlay_coords);
+				}
+			}
+		}
+	}
 }
 
 void TestMapblockMeshGenerator::testSurroundedNode()

@@ -173,13 +173,13 @@ NodeModifierVisuals::~NodeModifierVisuals()
 }
 
 // Apply rendering decisions after the texture (including its texture type) is known.
-static void setTileMaterial(TileLayer &layer, const TileSpec &tile,
-		MaterialType material_type, AlphaMode alpha, WavingType waving, IShaderSource *shdsrc)
+static void setTileMaterial(TileLayer &layer, MaterialType material_type, AlphaMode alpha,
+		WavingType waving, IShaderSource *shdsrc)
 {
 	if (!layer.texture)
 		return;
 
-	if (!tile.world_aligned)
+	if (!layer.world_aligned)
 		layer.scale = 1;
 
 	layer.material_type = material_type;
@@ -412,17 +412,17 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 	TileAttribContext tac{tsrc, texture_pool, color, tsettings};
 
 	for (u16 j = 0; j < 6; j++) {
-		tiles[j].world_aligned = isWorldAligned(tdef[j].align_style,
+		tiles[j].layers[0].world_aligned = isWorldAligned(tdef[j].align_style,
 				tsettings.world_aligned_mode, drawtype);
 		fillTileAttribs(&tiles[j].layers[0], tac, tdef[j]);
-		setTileMaterial(tiles[j].layers[0], tiles[j], material_type, material_alpha, waving_type,
-				shdsrc);
+		setTileMaterial(tiles[j].layers[0], material_type, material_alpha, waving_type, shdsrc);
 
 		if (!tdef_overlay[j].name.empty()) {
 			tdef_overlay[j].backface_culling = tdef[j].backface_culling;
 			fillTileAttribs(&tiles[j].layers[1], tac, tdef_overlay[j]);
-			setTileMaterial(tiles[j].layers[1], tiles[j], material_type, overlay_alpha,
-					waving_type, shdsrc);
+			tiles[j].layers[1].world_aligned = isWorldAligned(tdef_overlay[j].align_style,
+					tsettings.world_aligned_mode, drawtype);
+			setTileMaterial(tiles[j].layers[1], material_type, overlay_alpha, waving_type, shdsrc);
 		}
 
 		tiles[j].layers[0].need_polygon_offset = !tiles[j].layers[1].empty();
@@ -454,8 +454,8 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 	// Special tiles (fill in f->special_tiles[])
 	for (u16 j = 0; j < CF_SPECIAL_COUNT; j++) {
 		fillTileAttribs(&special_tiles[j].layers[0], tac, tdef_spec[j]);
-		setTileMaterial(special_tiles[j].layers[0], special_tiles[j],
-				material_type, special_alpha, special_waving, shdsrc);
+		setTileMaterial(special_tiles[j].layers[0], material_type,
+				special_alpha, special_waving, shdsrc);
 	}
 
 	if (param_type_2 == CPT2_COLOR ||
