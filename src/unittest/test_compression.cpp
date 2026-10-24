@@ -134,7 +134,7 @@ void TestCompression::testRawDeflateCompression()
 	compressZlib(data_in, os_compressed, -1, true);
 	std::string compressed = os_compressed.str();
 
-	std::istringstream is_compressed(compressed, std::ios::binary);
+	my_istringstream is_compressed(compressed);
 	std::ostringstream os_decompressed(std::ios::binary);
 	decompressZlib(is_compressed, os_decompressed, 0, true);
 

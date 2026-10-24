@@ -713,8 +713,9 @@ std::pair<std::unique_ptr<std::istream>, u8> ServerMap::createBlockIStream(const
 		return {nullptr, 0};
 	}
 
+	// TODO: could use my_istringstream here, but need a bit refactoring
+
 	// uncompress the block data early, if possible
-	// TODO: we could do zero-copy here
 	auto iss = std::make_unique<std::istringstream>(*from_db, std::ios_base::binary);
 	u8 version = readU8(*iss);
 	if (iss->fail())
