@@ -268,10 +268,9 @@ int LuaAreaStore::l_from_string(lua_State *L)
 
 	LuaAreaStore *o = checkObject<LuaAreaStore>(L, 1);
 
-	size_t len;
-	const char *str = luaL_checklstring(L, 2, &len);
+	auto str = readParam<std::string_view>(L, 2);
 
-	std::istringstream is(std::string(str, len), std::ios::binary);
+	my_istringstream is(str);
 	return deserialization_helper(L, o->as, is);
 }
 

@@ -379,9 +379,7 @@ int ModApiUtil::l_decompress(lua_State *L)
 
 	LuaCompressMethod method = get_compress_method(L, 2);
 
-	// FIXME: zero copy possible in c++26 or with custom streambuf
-	std::istringstream is(std::string(data), std::ios_base::binary);
-
+	my_istringstream is(data);
 	my_ostringstream os;
 
 	if (method == LUA_COMPRESS_METHOD_DEFLATE ||

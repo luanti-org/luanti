@@ -51,7 +51,7 @@ std::string_view NetworkPacket::getRemainingNoCopy() const
 {
 	size_t len = getRemainingBytes();
 	if (len == 0)
-		return "";
+		return std::string_view();
 
 	return std::string_view(reinterpret_cast<const char*>(&m_data[m_read_offset]), len);
 }

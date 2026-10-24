@@ -93,6 +93,7 @@ public:
 		return ret;
 	}
 
+	/// @warning The view will be invalidated when writing to the stream!
 	std::string_view view() const { return std::string_view(buf.buffer); }
 
 private:
@@ -116,4 +117,28 @@ private:
 	};
 
 	my_ostringbuf buf;
+};
+
+/// Can be used in place of std::istringstream and allows operating on a buffer without copying.
+/// @note C++26 adds string_view support to istringstream, however it will still copy...
+class my_istringstream : public std::istream {
+public:
+	/// @warning Caller must ensure string view remains valid!
+	my_istringstream(std::string_view s) : std::istream(&buf), buf(s) {}
+
+private:
+	class myistring_buf : public std::streambuf {
+	public:
+		myistring_buf(std::string_view sv) {
+			if (sv.empty()) {
+				setg(nullptr, nullptr, nullptr);
+			} else {
+				// only takes a non-const pointer
+				auto *p = const_cast<char*>(sv.data());
+				setg(p, p, p + sv.size());
+			}
+		}
+	};
+
+	myistring_buf buf;
 };
