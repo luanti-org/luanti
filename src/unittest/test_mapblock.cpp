@@ -101,21 +101,27 @@ void TestMapBlock::testCollectNodeModifiers()
 	central.copyNodeModifiersToSnapshot(collected, origin);
 	neighbor.copyNodeModifiersToSnapshot(collected, origin);
 	UASSERTEQ(size_t, collected.size(), 5);
-	auto [begin, end] = collected.findRange(pos);
+	const auto begin_range = collected.getViewAtPos(pos);
+	auto begin = begin_range.begin();
+	auto end = begin_range.end();
 	UASSERTEQ(size_t, end - begin, 3);
 	UASSERTEQ(u16, begin[0].id, second);
 	UASSERTEQ(u16, begin[1].id, first);
 	UASSERT(manager->get(begin[2].id).m_is_dummy);
-	auto [neighbor_begin, neighbor_end] = collected.findRange(pos - v3s16(MAP_BLOCKSIZE, 0, 0));
+	const auto neighbor_begin_range = collected.getViewAtPos(pos - v3s16(MAP_BLOCKSIZE, 0, 0));
+	auto neighbor_begin = neighbor_begin_range.begin();
+	auto neighbor_end = neighbor_begin_range.end();
 	UASSERTEQ(size_t, neighbor_end - neighbor_begin, 1);
 	UASSERTEQ(u16, neighbor_begin->id, second);
-	auto [unknown, unknown_end] = collected.findRange({0, 0, 0});
+	const auto unknown_range = collected.getViewAtPos({0, 0, 0});
+	auto unknown = unknown_range.begin();
+	auto unknown_end = unknown_range.end();
 	UASSERTEQ(size_t, unknown_end - unknown, 1);
 	UASSERT(manager->get(unknown->id).m_is_dummy);
-	auto [missing, missing_end] = collected.findRange({2, 0, 0});
-	UASSERT(missing == missing_end);
+	const auto missing_range = collected.getViewAtPos({2, 0, 0});
+	UASSERT(missing_range.empty());
 	central.removeNodeModifier(pos, first);
-	UASSERTEQ(size_t, collected.findRange(pos).second - collected.findRange(pos).first, 3);
+	UASSERTEQ(size_t, collected.getViewAtPos(pos).size(), 3);
 
 }
 
@@ -215,7 +221,9 @@ void TestMapBlock::testNodeModifiers()
 		AppliedNodeModifiersSnapshot entries;
 		loaded.copyNodeModifiersToSnapshot(entries, loaded.getPos());
 		UASSERTEQ(size_t, entries.size(), 2);
-		auto [begin, end] = entries.findRange(pos);
+		const auto begin_range = entries.getViewAtPos(pos);
+		auto begin = begin_range.begin();
+		auto end = begin_range.end();
 		UASSERTEQ(size_t, end - begin, 2);
 		u16 expected_second = disk ? target_manager->getId("test:second") : second;
 		UASSERTEQ(u16, begin->id, expected_second);
@@ -671,9 +679,11 @@ void TestMapBlock::testSetNodeModifiers()
 	UASSERT(list.add(after, 20));
 	auto check = [&](const std::vector<u16> &expected) {
 		UASSERT(list.size() == expected.size() + 2);
-		UASSERTEQ(u16, list.findRange(before).first->id, 10);
-		UASSERTEQ(u16, list.findRange(after).first->id, 20);
-		auto [first, last] = list.findRange(pos);
+		UASSERTEQ(u16, list.getViewAtPos(before).begin()->id, 10);
+		UASSERTEQ(u16, list.getViewAtPos(after).begin()->id, 20);
+		const auto first_range = list.getViewAtPos(pos);
+		auto first = first_range.begin();
+		auto last = first_range.end();
 		std::vector<u16> actual;
 		for (auto it = first; it != last; ++it)
 			actual.push_back(it->id);
@@ -723,22 +733,26 @@ void TestMapBlock::testResolveNodeModifiers()
 
 	AppliedNodeModifiersStorage list;
 	const v3s16 p(0, 0, 0);
-	UASSERT(list.resolveLighting(p, manager).light_source == 0);
-	UASSERT(list.resolveLighting(p, manager, base) == base);
+	UASSERT(list.getViewAtPos(p).resolveLighting(manager).light_source == 0);
+	UASSERT(list.getViewAtPos(p).empty());
+	UASSERT(list.getViewAtPos(p).resolveLighting(manager, base) == base);
 	UASSERT(list.set(p, {bright, unrelated, dim, dummy}));
-	ContentLightingFlags value = list.resolveLighting(p, manager, base);
+	const auto modifiers = list.getViewAtPos(p);
+	UASSERTEQ(size_t, modifiers.size(), 4);
+	UASSERT(!modifiers.empty());
+	ContentLightingFlags value = modifiers.resolveLighting(manager, base);
 	UASSERT(value.light_source == 3);
 	ContentLightingFlags expected = base;
 	expected.light_source = 3;
 	UASSERT(value == expected);
 	UASSERT(base.light_source == 7);
 	UASSERT(list.add(p, bright)); // Reapplying changes precedence.
-	UASSERT(list.resolveLighting(p, manager).light_source == 12);
+	UASSERT(list.getViewAtPos(p).resolveLighting(manager).light_source == 12);
 	UASSERT(list.add(p, off));
 	expected.light_source = 0;
-	UASSERT(list.resolveLighting(p, manager, base) == expected);
+	UASSERT(list.getViewAtPos(p).resolveLighting(manager, base) == expected);
 	UASSERT(list.set(v3s16(0, 0, 2), {dummy, unrelated, 60000}));
-	UASSERT(list.resolveLighting(v3s16(0, 0, 2), manager).light_source == 0);
+	UASSERT(list.getViewAtPos(v3s16(0, 0, 2)).resolveLighting(manager).light_source == 0);
 	UASSERT(list.set(v3s16(0, 1, 2), {bright}));
 	UASSERT(list.set(v3s16(1, 2, 2), {dim}));
 }
@@ -765,8 +779,8 @@ void TestMapBlock::testPackedNodeModifiers()
 		AppliedNodeModifiersStorage loaded;
 		loaded.deSerialize(stream, 30, disk, names);
 		UASSERTEQ(size_t, loaded.size(), 16);
-		UASSERTEQ(u16, loaded.findRange({15, 15, 15}).first->id, 1);
-		UASSERTEQ(u16, (loaded.findRange({15, 15, 15}).second - 1)->id, 0);
+		UASSERTEQ(u16, loaded.getViewAtPos({15, 15, 15}).begin()->id, 1);
+		UASSERTEQ(u16, (loaded.getViewAtPos({15, 15, 15}).end() - 1)->id, 0);
 	}
 	// Nonzero first position, consecutive groups, and coordinate-boundary crossings.
 	AppliedNodeModifiersStorage deltas;
@@ -784,9 +798,9 @@ void TestMapBlock::testPackedNodeModifiers()
 	AppliedNodeModifiersStorage delta_loaded;
 	delta_loaded.deSerialize(delta_stream, 30, false, names);
 	deltas.forEach([&](const AppliedNodeModifier &entry) {
-		auto range = delta_loaded.findRange(entry.pos);
-		UASSERTEQ(size_t, range.second - range.first, 1);
-		UASSERTEQ(u16, range.first->id, entry.id);
+		auto range = delta_loaded.getViewAtPos(entry.pos);
+		UASSERTEQ(size_t, range.size(), 1);
+		UASSERTEQ(u16, range.begin()->id, entry.id);
 	});
 	std::stringstream overflow;
 	writeU32(overflow, 2);
@@ -936,12 +950,14 @@ void TestMapBlock::testModifierSnapshot()
 	snapshot.append(second, {-16, 0, 0});
 	snapshot.append(second, {16, 0, 0});
 	UASSERTEQ(size_t, snapshot.size(), 5);
-	auto [begin, end] = snapshot.findRange({1, 0, 0});
+	const auto begin_range = snapshot.getViewAtPos({1, 0, 0});
+	auto begin = begin_range.begin();
+	auto end = begin_range.end();
 	UASSERTEQ(size_t, end - begin, 3);
 	UASSERT(begin[0].id == a && begin[1].id == b && begin[2].id == a);
 	first.remove({1, 0, 0});
 	second.set({1, 0, 0}, {b});
-	UASSERTEQ(u8, snapshot.resolveLighting({1, 0, 0}, manager).light_source, 14);
+	UASSERTEQ(u8, snapshot.getViewAtPos({1, 0, 0}).resolveLighting(manager).light_source, 14);
 }
 
 void TestMapBlock::testAdaptiveModifiers()
@@ -1029,7 +1045,9 @@ void TestMapBlock::testAdaptiveModifiers()
 	AppliedNodeModifiersSnapshot snapshot;
 	snapshot.append(loaded, {-16, 16, 0});
 	for (const auto &[pos, ids] : model) {
-		auto [first, last] = snapshot.findRange(pos + v3s16(-16, 16, 0));
+		const auto first_range = snapshot.getViewAtPos(pos + v3s16(-16, 16, 0));
+		auto first = first_range.begin();
+		auto last = first_range.end();
 		UASSERTEQ(size_t, last - first, ids.size());
 		for (u16 id : ids)
 			UASSERTEQ(u16, (first++)->id, id);
@@ -1104,7 +1122,9 @@ void TestMapBlock::testPruneNodeModifiers()
 	MapBlock block({}, &game);
 	const v3s16 pos(7, 9, 1);
 	auto check = [&](std::initializer_list<u16> expected) {
-		auto [begin, end] = block.getNodeModifiers(pos);
+		const auto begin_range = block.getNodeModifiers(pos);
+		auto begin = begin_range.begin();
+		auto end = begin_range.end();
 		UASSERTEQ(size_t, end - begin, expected.size());
 		for (u16 id : expected)
 			UASSERTEQ(u16, (begin++)->id, id);
@@ -1141,11 +1161,13 @@ void TestMapBlock::testPruneNodeModifiers()
 	}
 	UASSERT(block.setNodeModifiers(pos, full));
 	UASSERT(!block.addNodeModifier(pos, first, true));
-	auto [begin, end] = block.getNodeModifiers(pos);
+	const auto begin_range = block.getNodeModifiers(pos);
+	auto begin = begin_range.begin();
+	auto end = begin_range.end();
 	UASSERTEQ(size_t, end - begin, full.size());
 	for (u16 id : full)
 		UASSERTEQ(u16, (begin++)->id, id);
 	UASSERT(!block.addNodeModifier(pos, MODIFIER_IGNORE, true));
 	auto unchanged = block.getNodeModifiers(pos);
-	UASSERTEQ(size_t, unchanged.second - unchanged.first, full.size());
+	UASSERTEQ(size_t, unchanged.end() - unchanged.begin(), full.size());
 }

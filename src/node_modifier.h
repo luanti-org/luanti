@@ -92,6 +92,28 @@ struct AppliedNodeModifier {
 	u16 id;
 };
 
+// Non-owning view of the modifiers at one position. Invalidated when the
+// underlying storage is modified; it must not outlive that storage.
+class AppliedNodeModifiersView {
+public:
+	using ConstIterator = std::vector<AppliedNodeModifier>::const_iterator;
+
+	AppliedNodeModifiersView(ConstIterator first, ConstIterator last) :
+			m_begin(first), m_end(last) {}
+
+	ConstIterator begin() const { return m_begin; }
+	ConstIterator end() const { return m_end; }
+	bool empty() const { return m_begin == m_end; }
+	size_t size() const { return m_end - m_begin; }
+
+	ContentLightingFlags resolveLighting(const NodeModifierManager &manager,
+			ContentLightingFlags base = {}) const;
+
+private:
+	ConstIterator m_begin;
+	ConstIterator m_end;
+};
+
 class AppliedNodeModifiersStorage;
 
 // Sorted storage shared by block leaves and mesh snapshots. Coordinates are not
@@ -99,7 +121,6 @@ class AppliedNodeModifiersStorage;
 class AppliedNodeModifiersVector {
 public:
 	using ConstIterator = std::vector<AppliedNodeModifier>::const_iterator;
-	using ConstRange = std::pair<ConstIterator, ConstIterator>;
 
 	AppliedNodeModifiersVector() = default;
 	explicit AppliedNodeModifiersVector(std::vector<AppliedNodeModifier> entries) :
@@ -108,12 +129,10 @@ public:
 
 	bool empty() const { return m_entries.empty(); }
 	void shrink_to_fit() { m_entries.shrink_to_fit(); }
-	static ContentLightingFlags resolveLighting(ConstRange range,
-			const NodeModifierManager &manager, ContentLightingFlags base);
 	size_t size() const { return m_entries.size(); }
 	ConstIterator begin() const { return m_entries.begin(); }
 	ConstIterator end() const { return m_entries.end(); }
-	ConstRange findRange(v3s16 pos) const;
+	AppliedNodeModifiersView getViewAtPos(v3s16 pos) const;
 
 	// Snapshot-specific
 	void append(const AppliedNodeModifiersStorage &other, v3s16 offset);
@@ -208,12 +227,7 @@ public:
 	}
 
 	using ConstIterator = Leaf::ConstIterator;
-	using ConstRange = std::pair<ConstIterator, ConstIterator>;
-	ConstRange findRange(v3s16 pos) const;
-
-	// At most three coordinate lookups, then search one sorted leaf.
-	ContentLightingFlags resolveLighting(v3s16 pos, const NodeModifierManager &manager,
-			ContentLightingFlags base = {}) const;
+	AppliedNodeModifiersView getViewAtPos(v3s16 pos) const;
 
 	size_t size() const { return m_size; }
 	bool empty() const { return m_size == 0; }
@@ -254,15 +268,12 @@ private:
 class AppliedNodeModifiersSnapshot {
 public:
 	using ConstIterator = AppliedNodeModifiersVector::ConstIterator;
-	using ConstRange = std::pair<ConstIterator, ConstIterator>;
 
 	void append(const AppliedNodeModifiersStorage &other, v3s16 offset);
 	size_t size() const { return m_modifiers.size(); }
 	bool empty() const { return m_modifiers.empty(); }
 	void shrink_to_fit() { m_modifiers.shrink_to_fit(); }
-	ConstRange findRange(v3s16 pos) const;
-	ContentLightingFlags resolveLighting(v3s16 pos, const NodeModifierManager &manager,
-			ContentLightingFlags base = {}) const;
+	AppliedNodeModifiersView getViewAtPos(v3s16 pos) const;
 
 private:
 	AppliedNodeModifiersVector m_modifiers;

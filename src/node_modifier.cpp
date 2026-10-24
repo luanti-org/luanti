@@ -172,12 +172,11 @@ NodeModifierManager *createNodeModifierManager() {
 	return new NodeModifierManager();
 }
 
-ContentLightingFlags AppliedNodeModifiersVector::resolveLighting(
-		ConstRange range, const NodeModifierManager &manager,
-		ContentLightingFlags base)
+ContentLightingFlags AppliedNodeModifiersView::resolveLighting(
+		const NodeModifierManager &manager, ContentLightingFlags base) const
 {
-	auto it = range.second;
-	while (it != range.first) {
+	ConstIterator it = end();
+	while (it != begin()) {
 		const auto &modifier = manager.get((--it)->id);
 		if (!modifier.m_is_dummy && (modifier.m_modified_props_mask & MP_LightSource)) {
 			base.light_source = modifier.m_light_source;
@@ -186,12 +185,6 @@ ContentLightingFlags AppliedNodeModifiersVector::resolveLighting(
 	}
 
 	return base;
-}
-
-ContentLightingFlags AppliedNodeModifiersStorage::resolveLighting(v3s16 pos,
-		const NodeModifierManager &manager, ContentLightingFlags base) const
-{
-	return AppliedNodeModifiersVector::resolveLighting(findRange(pos), manager, base);
 }
 
 template <typename Entries>
@@ -253,9 +246,10 @@ const AppliedNodeModifiersStorage::Bucket &AppliedNodeModifiersStorage::Bucket::
 	return *bucket;
 }
 
-AppliedNodeModifiersVector::ConstRange AppliedNodeModifiersVector::findRange(v3s16 pos) const
+AppliedNodeModifiersView AppliedNodeModifiersVector::getViewAtPos(v3s16 pos) const
 {
-	return findRangeInEntries(m_entries, pos);
+	auto [first, last] = findRangeInEntries(m_entries, pos);
+	return {first, last};
 }
 
 void AppliedNodeModifiersVector::remapIds(const std::function<u16(u16)> &map_id)
@@ -593,13 +587,13 @@ void AppliedNodeModifiersStorage::remapIds(const std::function<u16(u16)> &map_id
 	});
 }
 
-AppliedNodeModifiersStorage::ConstRange AppliedNodeModifiersStorage::findRange(v3s16 pos) const
+AppliedNodeModifiersView AppliedNodeModifiersStorage::getViewAtPos(v3s16 pos) const
 {
 	assert(isInArea(pos, MAP_BLOCKSIZE));
 
 	u8 depth = 0;
 	const auto &leaf = m_root.findLeaf(pos, depth).get_leaf();
-	return leaf.findRange(pos);
+	return leaf.getViewAtPos(pos);
 }
 
 // Used for merging several block-specific lists into one mesh-specific list
@@ -630,13 +624,7 @@ void AppliedNodeModifiersSnapshot::append(const AppliedNodeModifiersStorage &oth
 	m_modifiers.append(other, offset);
 }
 
-AppliedNodeModifiersSnapshot::ConstRange AppliedNodeModifiersSnapshot::findRange(v3s16 pos) const
+AppliedNodeModifiersView AppliedNodeModifiersSnapshot::getViewAtPos(v3s16 pos) const
 {
-	return m_modifiers.findRange(pos);
-}
-
-ContentLightingFlags AppliedNodeModifiersSnapshot::resolveLighting(v3s16 pos,
-		const NodeModifierManager &manager, ContentLightingFlags base) const
-{
-	return AppliedNodeModifiersVector::resolveLighting(findRange(pos), manager, base);
+	return m_modifiers.getViewAtPos(pos);
 }

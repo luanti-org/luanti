@@ -30,7 +30,7 @@ TEST_CASE("benchmark_node_modifier_lookup")
 		BENCHMARK("mesh-order lookup, modifiers=" + std::to_string(count)) {
 			u32 sum = 0;
 			for (v3s16 pos : positions)
-				sum += list.resolveLighting(pos, manager).light_source;
+				sum += list.getViewAtPos(pos).resolveLighting(manager).light_source;
 			return sum;
 		};
 
@@ -43,7 +43,7 @@ TEST_CASE("benchmark_node_modifier_lookup")
 					v3s16 sample((pos.X + (offset & 1)) % MAP_BLOCKSIZE,
 						(pos.Y + ((offset >> 1) & 1)) % MAP_BLOCKSIZE,
 						(pos.Z + ((offset >> 2) & 1)) % MAP_BLOCKSIZE);
-					sum += list.resolveLighting(sample, manager).light_source;
+					sum += list.getViewAtPos(sample).resolveLighting(manager).light_source;
 				}
 			}
 			return sum;

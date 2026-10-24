@@ -298,9 +298,9 @@ public:
 	bool removeNodeModifier(v3s16 pos, u16 id);
 	bool clearNodeModifiers(v3s16 pos);
 	// Modifiers at a block-relative node position.
-	AppliedNodeModifiersStorage::ConstRange getNodeModifiers(v3s16 pos) const
+	AppliedNodeModifiersView getNodeModifiers(v3s16 pos) const
 	{
-		return m_node_modifiers.findRange(pos);
+		return m_node_modifiers.getViewAtPos(pos);
 	}
 
 	ContentLightingFlags getLightingFlags(v3s16 pos, const MapNode &node) const;

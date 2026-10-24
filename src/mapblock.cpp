@@ -225,7 +225,8 @@ bool MapBlock::clearNodeModifiers(v3s16 pos)
 	return true;
 }
 
-void MapBlock::copyNodeModifiersToSnapshot(AppliedNodeModifiersSnapshot &dst, v3s16 origin_block) const
+void MapBlock::copyNodeModifiersToSnapshot(AppliedNodeModifiersSnapshot &dst,
+		v3s16 origin_block) const
 {
 	dst.append(m_node_modifiers, m_pos_relative - origin_block * MAP_BLOCKSIZE);
 }
@@ -236,7 +237,8 @@ ContentLightingFlags MapBlock::getLightingFlags(v3s16 pos, const MapNode &node) 
 	if (m_node_modifiers.empty())
 		return base;
 
-	return m_node_modifiers.resolveLighting(pos, *m_gamedef->getNodeModifierManager(), base);
+	return m_node_modifiers.getViewAtPos(pos)
+			.resolveLighting(*m_gamedef->getNodeModifierManager(), base);
 }
 
 void MapBlock::reallocate(u32 count, MapNode n)

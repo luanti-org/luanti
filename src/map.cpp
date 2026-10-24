@@ -174,11 +174,11 @@ std::vector<u16> Map::getNodeModifiers(v3s16 p)
 	if (!block)
 		return {};
 
-	auto [first, last] = block->getNodeModifiers(p - block->getPosRelative());
+	const AppliedNodeModifiersView modifiers = block->getNodeModifiers(p - block->getPosRelative());
 	std::vector<u16> ids;
-	ids.reserve(last - first);
-	for (auto it = first; it != last; ++it)
-		ids.push_back(it->id);
+	ids.reserve(modifiers.size());
+	for (const AppliedNodeModifier &modifier : modifiers)
+		ids.push_back(modifier.id);
 	return ids;
 }
 
