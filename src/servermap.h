@@ -6,11 +6,16 @@
 
 #include <vector>
 #include <memory>
+#include <mutex>
+#include <condition_variable>
+#include <string>
+#include <unordered_map>
 
 #include "map.h"
 #include "util/container.h" // UniqueQueue
 #include "util/metricsbackend.h" // ptr typedefs
 #include "map_settings_manager.h"
+#include "threading/ordered_mutex.h"
 
 class Settings;
 class MapDatabase;
@@ -18,19 +23,71 @@ class EmergeManager;
 class ServerEnvironment;
 struct BlockMakeData;
 class MetricsBackend;
+class Thread;
 
-// TODO: this could wrap all calls to MapDatabase, including locking
 struct MapDatabaseAccessor {
-	/// Lock, to be taken for any operation
-	std::mutex mutex;
+	/// Lock, to be taken for any direct use of the databases.
+	/// Fair, so that loads are not starved by the save thread.
+	ordered_mutex mutex;
 	/// Main database
 	MapDatabase *dbase = nullptr;
 	/// Fallback database for read operations
 	MapDatabase *dbase_ro = nullptr;
+	/// Used for blocks written by the save thread
+	int compression_level = -1;
 
-	/// Load a block, taking dbase_ro into account.
-	/// @note call locked
+	/// Load a block, taking pending writes and dbase_ro into account.
 	void loadBlock(v3s16 blockpos, std::string &ret);
+
+	/// Hands uncompressed block data over to the save thread.
+	/// Waits if too much data is pending.
+	/// @return false if too much is pending and writes are failing
+	bool queueBlock(v3s16 blockpos, std::string &&raw);
+
+	/// Delete a block from the database and discard its pending write.
+	bool deleteBlock(v3s16 blockpos);
+
+	/// List blocks of both databases and pending writes.
+	void listAllLoadableBlocks(std::vector<v3s16> &dst);
+
+	/// Used by the save thread to sleep until there is something to write.
+	/// @return false if the thread was asked to stop
+	bool waitForPending();
+
+	/// Compress and write everything that is pending.
+	/// @return false if a write failed and has to be retried
+	bool writePending();
+
+	/// Shrinks the pending data, so more of it fits in memory.
+	void compressPending();
+
+	/// Number of blocks not written yet.
+	size_t pendingCount();
+
+	/// Makes waitForPending() return false.
+	void requestStop();
+
+private:
+	struct PendingBlock {
+		std::string data;
+		/// If true `data` is in the database format
+		bool compressed = false;
+	};
+	using PendingData = std::shared_ptr<const PendingBlock>;
+
+	/// Sets or clears an entry of m_pending, keeping the byte counts right.
+	/// @note call with m_pending_mutex locked
+	void replacePending(PendingData &slot, PendingData data);
+
+	// May be taken while holding `mutex`, never the other way around
+	std::mutex m_pending_mutex;
+	std::condition_variable m_work_cv;
+	std::condition_variable m_drain_cv;
+	std::unordered_map<v3s16, PendingData> m_pending;
+	size_t m_pending_bytes = 0;
+	size_t m_pending_raw_bytes = 0;
+	bool m_stop_requested = false;
+	bool m_write_failing = false;
 };
 
 /*
@@ -105,10 +162,6 @@ public:
 	static std::vector<std::string> getDatabaseBackends();
 	static MapDatabase *createDatabase(const std::string &name, const std::string &savedir, Settings &conf);
 
-	// Call these before and after saving of blocks
-	void beginSave() override;
-	void endSave() override;
-
 	void save(ModifiedState save_level) override;
 	void listAllLoadableBlocks(std::vector<v3s16> &dst);
 	void listAllLoadedBlocks(std::vector<v3s16> &dst);
@@ -181,8 +234,6 @@ private:
 	std::string m_savedir;
 	bool m_map_saving_enabled;
 
-	int m_map_compression_level;
-
 	std::set<v3s16> m_chunks_in_progress;
 
 	// used by deleteBlock() and deleteDetachedBlocks()
@@ -202,6 +253,7 @@ private:
 	bool m_map_metadata_changed = true;
 
 	MapDatabaseAccessor m_db;
+	std::unique_ptr<Thread> m_save_thread;
 
 	// Map metrics
 	MetricGaugePtr m_loaded_blocks_gauge;
