@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <optional>
+
 extern "C" {
 #include <lua.h>
 }
@@ -71,10 +73,12 @@ void push_content_features(lua_State *L, const ContentFeatures &c);
 void push_nodebox(lua_State *L, const NodeBox &box);
 void push_palette(lua_State *L, const std::vector<video::SColor> *palette);
 
-TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special);
+TileDef read_tiledef(lua_State *L, int index, std::optional<u8> drawtype, bool special);
 void push_tiledef(lua_State *L, const TileDef &def);
 
-void read_tiles(lua_State *L, int index, u8 drawtype, const char *name, TileDef *tiledefs);
+// With no drawtype, uses TileDef defaults instead of node-specific defaults.
+void read_tiles(lua_State *L, int index, std::optional<u8> drawtype,
+		const char *name, TileDef *tiledefs);
 
 void read_simplesoundspec(lua_State *L, int index, SoundSpec &spec);
 NodeBox read_nodebox(lua_State *L, int index);

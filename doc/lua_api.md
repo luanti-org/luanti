@@ -11436,6 +11436,8 @@ or item definition which need to be overridden by the modifier.
     -- of the original node sets `align_style`, and the tile is overridden with
     -- a modifier which does not set `align_style` for the tile, then the
     -- default value is used for the overridden tile.
+    -- `backface_culling`, `tileable_horizontal`, and `tileable_vertical`
+    -- default to true, independently of the node's drawtype.
     tiles = nil,
 
     use_texture_alpha = nil,

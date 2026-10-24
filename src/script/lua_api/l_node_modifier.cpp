@@ -5,7 +5,6 @@
 #include "common/c_content.h"
 #include "common/c_converter.h"
 #include "node_modifier.h"
-#include "nodedef.h"
 #include "server.h"
 #include "lua_api/l_item.h"
 #include "serverenvironment.h"
@@ -34,8 +33,8 @@ static void read_node_modifier(lua_State *L, NodeModifier &nmod, int index)
 
 		std::array<TileDef, 6> tiles;
 
-		// To do: handle it correctly for different drawtypes
-		read_tiles(L, index, NDT_NORMAL, "tiles", tiles.data());
+		// Modifiers use drawtype-independent defaults.
+		read_tiles(L, index, std::nullopt, "tiles", tiles.data());
 
 		nmod.setTiles(std::move(tiles));
 	}

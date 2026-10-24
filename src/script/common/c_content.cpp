@@ -651,30 +651,33 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 }
 
 /******************************************************************************/
-TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
+TileDef read_tiledef(lua_State *L, int index, std::optional<u8> drawtype, bool special)
 {
-	if(index < 0)
+	if (index < 0)
 		index = lua_gettop(L) + 1 + index;
 
 	TileDef tiledef;
 
 	bool default_tiling = true;
 	bool default_culling = true;
-	switch (drawtype) {
-		case NDT_PLANTLIKE:
-		case NDT_FIRELIKE:
-			default_tiling = false;
-			[[fallthrough]];
-		case NDT_MESH:
-		case NDT_LIQUID:
-			default_culling = false;
-			break;
-		case NDT_PLANTLIKE_ROOTED:
-			default_tiling = !special;
-			default_culling = !special;
-			break;
-		default:
-			break;
+
+	if (drawtype) {
+		switch (*drawtype) {
+			case NDT_PLANTLIKE:
+			case NDT_FIRELIKE:
+				default_tiling = false;
+				[[fallthrough]];
+			case NDT_MESH:
+			case NDT_LIQUID:
+				default_culling = false;
+				break;
+			case NDT_PLANTLIKE_ROOTED:
+				default_tiling = !special;
+				default_culling = !special;
+				break;
+			default:
+				break;
+		}
 	}
 
 	if(lua_isstring(L, index)){
@@ -726,7 +729,9 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 	return tiledef;
 }
 
-void read_tiles(lua_State *L, int index, u8 drawtype, const char *name, TileDef *tiledefs) {
+void read_tiles(lua_State *L, int index, std::optional<u8> drawtype,
+		const char *name, TileDef *tiledefs)
+{
 	lua_getfield(L, index, name);
 	if (!lua_istable(L, -1)) {
 		lua_pop(L, 1);
