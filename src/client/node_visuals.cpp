@@ -157,12 +157,12 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 	}
 }
 
-NodeModifierVisuals::NodeModifierVisuals(const NodeModifierTiles &definition,
+NodeModifierVisuals::NodeModifierVisuals(const std::array<TileDef, 6> &definition,
 		ITextureSource *tsrc, PreLoadedTextures *texture_pool, const TextureSettings &settings)
 {
 	TileAttribContext context{tsrc, texture_pool, video::SColor(0xffffffff), settings};
 	for (size_t i = 0; i < m_tiles.size(); ++i) {
-		fillTileAttribs(&m_tiles[i], context, definition.tiles[i]);
+		fillTileAttribs(&m_tiles[i], context, definition[i]);
 	}
 }
 
@@ -562,7 +562,7 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, NodeModifierManager *mod
 		if (modifier.m_is_dummy || !modifier.hasTiles())
 			return;
 
-		for (const TileDef &tile : modifier.getTiles()->tiles)
+		for (const TileDef &tile : *modifier.getTiles())
 			collectTileTexture(tile, modifier_suffix, pool);
 	});
 

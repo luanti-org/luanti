@@ -124,17 +124,20 @@ void TestMapBlock::testModifierTiles()
 	NodeModifier source("test:tiles");
 	source.m_modified_props_mask = MP_LightSource;
 	source.m_light_source = 7;
-	NodeModifierTiles tiles;
-	tiles.tiles[0].name = "top.png";
-	tiles.tiles[5].name = "front.png";
-	tiles.tiles[5].scale = 4;
-	tiles.tiles[5].align_style = ALIGN_STYLE_WORLD;
+	std::array<TileDef, 6> tiles;
+	tiles[0].name = "top.png";
+	tiles[5].name = "front.png";
+	tiles[5].scale = 4;
+	tiles[5].align_style = ALIGN_STYLE_WORLD;
 
 	for (bool explicit_alpha : {false, true}) {
 		if (explicit_alpha)
-			tiles.alpha = ALPHAMODE_BLEND;
+			source.m_alpha = ALPHAMODE_BLEND;
+		if (explicit_alpha)
+			source.m_modified_props_mask |= MP_Alpha;
 		source.setTiles(tiles);
-		UASSERTEQ(u64, source.m_modified_props_mask, MP_LightSource | MP_TileFirst | (u64{MP_TileFirst} << 5));
+		UASSERTEQ(u64, source.m_modified_props_mask, MP_LightSource | MP_TileFirst | (u64{MP_TileFirst} << 5) |
+				(explicit_alpha ? u64(MP_Alpha) : 0));
 
 		std::stringstream stream;
 		source.serialize(stream, 54);
@@ -143,32 +146,32 @@ void TestMapBlock::testModifierTiles()
 		UASSERTEQ(u8, loaded.m_light_source, 7);
 		UASSERTEQ(u64, loaded.m_modified_props_mask, source.m_modified_props_mask);
 		UASSERT(loaded.getTiles());
-		UASSERT(loaded.getTiles()->alpha == tiles.alpha);
-		UASSERTEQ(std::string, loaded.getTiles()->tiles[0].name, "top.png");
-		UASSERT(loaded.getTiles()->tiles[1].name.empty());
-		UASSERTEQ(std::string, loaded.getTiles()->tiles[5].name, "front.png");
-		UASSERTEQ(u8, loaded.getTiles()->tiles[5].scale, 4);
-		UASSERT(loaded.getTiles()->tiles[5].align_style == ALIGN_STYLE_WORLD);
+		UASSERT(!(loaded.m_modified_props_mask & MP_Alpha) || loaded.m_alpha == source.m_alpha);
+		UASSERTEQ(std::string, (*loaded.getTiles())[0].name, "top.png");
+		UASSERT((*loaded.getTiles())[1].name.empty());
+		UASSERTEQ(std::string, (*loaded.getTiles())[5].name, "front.png");
+		UASSERTEQ(u8, (*loaded.getTiles())[5].scale, 4);
+		UASSERT((*loaded.getTiles())[5].align_style == ALIGN_STYLE_WORLD);
 	}
 
 	// Replacing a definition drops stale face bits without losing other properties.
-	tiles.tiles[0].name.clear();
+	tiles[0].name.clear();
 	source.setTiles(tiles);
-	UASSERTEQ(u64, source.m_modified_props_mask, MP_LightSource | (u64{MP_TileFirst} << 5));
+	UASSERTEQ(u64, source.m_modified_props_mask, MP_LightSource | MP_Alpha | (u64{MP_TileFirst} << 5));
 	source.setTiles({});
 	UASSERT(!source.hasTiles());
 	UASSERT(!source.getTiles());
-	UASSERTEQ(u64, source.m_modified_props_mask, MP_LightSource);
+	UASSERTEQ(u64, source.m_modified_props_mask, MP_LightSource | MP_Alpha);
 
 	NodeModifierManager manager;
 	NodeModifier both("test:both"), top("test:top"), front("test:front");
-	tiles.tiles[0].name = "top.png";
+	tiles[0].name = "top.png";
 	both.setTiles(tiles);
 	UASSERT(both.hasTiles());
-	tiles.tiles[5].name.clear();
+	tiles[5].name.clear();
 	top.setTiles(tiles);
-	tiles.tiles[0].name.clear();
-	tiles.tiles[5].name = "front.png";
+	tiles[0].name.clear();
+	tiles[5].name = "front.png";
 	front.setTiles(tiles);
 	u16 both_id = manager.add(std::move(both));
 	u16 top_id = manager.add(std::move(top));

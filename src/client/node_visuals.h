@@ -38,15 +38,12 @@ constexpr std::array<u8, NodeDrawType_END> NDT_visual_solidness = [] {
 	return visual_solidness;
 }();
 
-
-struct NodeModifierTiles;
-
 // Prepared once on the main thread. Mesh workers borrow these texture resources;
 // material, shader, node color and polygon offset are supplied when applying them.
 class NodeModifierVisuals
 {
 public:
-	NodeModifierVisuals(const NodeModifierTiles &definition, ITextureSource *tsrc,
+	NodeModifierVisuals(const std::array<TileDef, 6> &definition, ITextureSource *tsrc,
 			PreLoadedTextures *texture_pool, const TextureSettings &settings);
 	~NodeModifierVisuals();
 

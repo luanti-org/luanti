@@ -30,12 +30,7 @@ enum ModifiedProperty : u64 {
 	// Six independent face properties, in the same order as ContentFeatures::tiledef.
 	MP_TileFirst = u64{1} << 1,
 	MP_Tiles = MP_TileFirst * 0x3f,
-};
-
-struct NodeModifierTiles {
-	std::array<TileDef, 6> tiles;
-	// Unspecified alpha uses the target drawtype default, not the original texture.
-	std::optional<AlphaMode> alpha;
+	MP_Alpha = MP_TileFirst << 6,
 };
 
 struct NodeModifier {
@@ -48,10 +43,11 @@ struct NodeModifier {
 	bool m_is_dummy;
 
 	u8 m_light_source = 0;
+	AlphaMode m_alpha = ALPHAMODE_OPAQUE;
 
 	bool hasTiles() const { return (m_modified_props_mask & MP_Tiles) != 0; }
-	const NodeModifierTiles *getTiles() const { return m_tiles.get(); }
-	void setTiles(NodeModifierTiles tiles);
+	const std::array<TileDef, 6> *getTiles() const { return m_tiles.get(); }
+	void setTiles(std::array<TileDef, 6> tiles);
 
 	u64 m_modified_props_mask = 0;
 
@@ -63,7 +59,7 @@ struct NodeModifier {
 #endif
 
 private:
-	std::unique_ptr<const NodeModifierTiles> m_tiles;
+	std::unique_ptr<const std::array<TileDef, 6>> m_tiles;
 };
 
 class NodeModifierManager {

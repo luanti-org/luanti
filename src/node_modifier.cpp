@@ -22,16 +22,16 @@ NodeModifier &NodeModifier::operator=(NodeModifier &&) noexcept = default;
 
 static_assert(MAP_BLOCKSIZE == 16, "Packed modifier positions require 16-node blocks");
 
-void NodeModifier::setTiles(NodeModifierTiles tiles)
+void NodeModifier::setTiles(std::array<TileDef, 6> tiles)
 {
 	m_modified_props_mask &= ~u64(MP_Tiles);
-	for (size_t i = 0; i < tiles.tiles.size(); ++i) {
-		if (!tiles.tiles[i].name.empty())
+	for (size_t i = 0; i < tiles.size(); ++i) {
+		if (!tiles[i].name.empty())
 			m_modified_props_mask |= u64{MP_TileFirst} << i;
 	}
 
 	m_tiles = (m_modified_props_mask & MP_Tiles) ?
-			std::make_unique<const NodeModifierTiles>(std::move(tiles)) : nullptr;
+			std::make_unique<const std::array<TileDef, 6>>(std::move(tiles)) : nullptr;
 }
 
 void NodeModifier::serialize(std::ostream &os, u16 protocol_version) const {
@@ -43,12 +43,13 @@ void NodeModifier::serialize(std::ostream &os, u16 protocol_version) const {
 
 	if (m_modified_props_mask & MP_Tiles) {
 		assert(m_tiles);
-		writeU8(os, m_tiles->alpha.has_value() ? (m_tiles->alpha.value() + 1) : 0);
-		for (size_t i = 0; i < m_tiles->tiles.size(); ++i) {
+		for (size_t i = 0; i < m_tiles->size(); ++i) {
 			if (m_modified_props_mask & (u64{MP_TileFirst} << i))
-				m_tiles->tiles[i].serialize(os, protocol_version);
+				(*m_tiles)[i].serialize(os, protocol_version);
 		}
 	}
+	if (m_modified_props_mask & MP_Alpha)
+		writeU8(os, m_alpha + 1);
 }
 
 void NodeModifier::deSerialize(std::istream &is, u16 protocol_version) {
@@ -61,27 +62,33 @@ void NodeModifier::deSerialize(std::istream &is, u16 protocol_version) {
 
 	m_tiles.reset();
 	if (m_modified_props_mask & MP_Tiles) {
-		NodeModifierTiles tiles;
-		u8 alpha = readU8(is);
-		if (alpha != 0 && alpha - 1 < AlphaMode_END) {
-			tiles.alpha = static_cast<AlphaMode>(alpha - 1);
-			if (tiles.alpha == ALPHAMODE_LEGACY_COMPAT) {
-				throw SerializationError("NodeModifier::deSerialize(): "
-					"ALPHAMODE_LEGACY_COMPAT in modifier's alpha");
-			}
-		}
+		std::array<TileDef, 6> tiles;
 
-		for (size_t i = 0; i < tiles.tiles.size(); ++i) {
+		for (size_t i = 0; i < tiles.size(); ++i) {
 			if (m_modified_props_mask & (u64{MP_TileFirst} << i)) {
-				tiles.tiles[i].deSerialize(is, protocol_version);
-				if (tiles.tiles[i].name.empty()) {
+				tiles[i].deSerialize(is, protocol_version);
+				if (tiles[i].name.empty()) {
 					throw SerializationError("NodeModifier::deSerialize(): "
 						"Empty overridden node modifier tile");
 				}
 			}
 		}
+
 		setTiles(std::move(tiles));
 	}
+
+	if (m_modified_props_mask & MP_Alpha) {
+		u8 alpha = readU8(is);
+		if (alpha != 0 && alpha - 1 < AlphaMode_END) {
+			m_alpha = static_cast<AlphaMode>(alpha - 1);
+			if (m_alpha == ALPHAMODE_LEGACY_COMPAT)
+				throw SerializationError("Invalid legacy alpha mode in node modifier");
+		} else {
+			// Older clients ignore alpha modes added by newer servers.
+			m_modified_props_mask &= ~u64(MP_Alpha);
+		}
+	}
+
 }
 
 u16 NodeModifierManager::add(NodeModifier &&nodeModifier) {

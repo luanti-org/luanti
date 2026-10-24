@@ -1,9 +1,11 @@
 #include "lua_api/l_node_modifier.h"
 #include "lua_api/l_internal.h"
 #include "cpp_api/s_base.h"
+#include "cpp_api/s_node.h"
 #include "common/c_content.h"
 #include "common/c_converter.h"
 #include "node_modifier.h"
+#include "nodedef.h"
 #include "server.h"
 #include "lua_api/l_item.h"
 #include "serverenvironment.h"
@@ -25,6 +27,29 @@ static void read_node_modifier(lua_State *L, NodeModifier &nmod, int index)
 			nmod.m_light_source = LIGHT_MAX;
 		}
 	}
+
+	lua_getfield(L, index, "tiles");
+	if (!lua_isnil(L, -1)) {
+		luaL_checktype(L, -1, LUA_TTABLE);
+
+		std::array<TileDef, 6> tiles;
+
+		// To do: handle it correctly for different drawtypes
+		read_tiles(L, index, NDT_NORMAL, "tiles", tiles.data());
+
+		nmod.setTiles(std::move(tiles));
+	}
+	lua_pop(L, 1);
+
+	lua_getfield(L, index, "use_texture_alpha");
+	if (!lua_isnil(L, -1)) {
+		luaL_checktype(L, -1, LUA_TSTRING);
+
+		string_to_enum(ScriptApiNode::es_TextureAlphaMode, nmod.m_alpha, lua_tostring(L, -1));
+
+		nmod.m_modified_props_mask |= MP_Alpha;
+	}
+	lua_pop(L, 1);
 }
 
 int ModApiNodeModifier::l_register_node_modifier_raw(lua_State *L)

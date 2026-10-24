@@ -579,3 +579,36 @@ unittests.register("test_modifier_metadata_equality", function(_, pos)
 	assert(not node:equals(item) and not item:equals(node))
 	core.set_node(pos, {name = "air"})
 end, {map = true})
+
+-- Independent visual properties and partial-face masks.
+core.register_node_modifier("unittests:tiles_all", {tiles = {"testnodes_allfaces.png"}})
+core.register_node_modifier("unittests:tiles_top", {tiles = {"testnodes_allfaces.png", ""}})
+core.register_node_modifier("unittests:tiles_sides", {
+	tiles = {"", {name = "testnodes_allfaces.png", scale = 2, align_style = "world"}},
+})
+core.register_node_modifier("unittests:alpha_blend", {use_texture_alpha = "blend"})
+core.register_node_modifier("unittests:alpha_clip", {use_texture_alpha = "clip"})
+core.register_node_modifier("unittests:alpha_opaque", {use_texture_alpha = "opaque"})
+
+for i, definition in ipairs({
+	{tiles = "invalid"}, {tiles = {42}},
+	{tiles = {"", "", "", "", "", "", ""}},
+	{use_texture_alpha = true}, {use_texture_alpha = "invalid"},
+}) do
+	assert(not pcall(core.register_node_modifier, "unittests:invalid_visual_" .. i, definition))
+end
+
+unittests.register("test_modifier_visual_properties", function()
+	local modifiers = ItemStack("unittests:iron_lump"):get_meta():get_modifiers()
+	assert(modifiers:add("unittests:tiles_all"))
+	assert(modifiers:add("unittests:alpha_blend", true))
+	assert(#modifiers:get_list() == 2)
+	assert(modifiers:add("unittests:tiles_top", true))
+	assert(#modifiers:get_list() == 3)
+	assert(modifiers:add("unittests:tiles_sides", true))
+	assert(table.concat(modifiers:get_list(), ",") ==
+		"unittests:alpha_blend,unittests:tiles_top,unittests:tiles_sides")
+	assert(modifiers:add("unittests:alpha_clip", true))
+	assert(table.concat(modifiers:get_list(), ",") ==
+		"unittests:tiles_top,unittests:tiles_sides,unittests:alpha_clip")
+end)

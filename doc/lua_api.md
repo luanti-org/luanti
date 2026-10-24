@@ -4208,7 +4208,7 @@ local modifiers_ref = stack:get_meta(pos):get_modifiers()
 modifiers_ref:add("example:glowing")
 ```
 
-The definition currently supports overriding the `light_source` property only.
+Definitions currently support `light_source`, `tiles`, and `use_texture_alpha`.
 
 Modifiers are applied in list order. If multiple modifiers override the same
 property, the value in the latter modifier takes precedence. Node modifier names
@@ -11430,6 +11430,15 @@ or item definition which need to be overridden by the modifier.
 ```lua
 {
     light_source = nil,
+
+    -- It is possible to override separate tiles, but not possible to override
+    -- different properties of the same tile separately. For example, if a tile
+    -- of the original node sets `align_style`, and the tile is overridden with
+    -- a modifier which does not set `align_style` for the tile, then the
+    -- default value is used for the overridden tile.
+    tiles = nil,
+
+    use_texture_alpha = nil,
 }
 ```
 
