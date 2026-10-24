@@ -47,6 +47,8 @@
 
 // Limits memory use when the database can't keep up
 static constexpr size_t MAX_PENDING_BYTES = 64 * 1024 * 1024;
+// Uncompressed data above this is compressed by the server thread itself
+static constexpr size_t MAX_PENDING_INLINE_RAW_BYTES = MAX_PENDING_BYTES / 2;
 // Uncompressed data above this is compressed before writing continues
 static constexpr size_t MAX_PENDING_RAW_BYTES = 8 * 1024 * 1024;
 
@@ -98,7 +100,7 @@ bool MapDatabaseAccessor::queueBlock(v3s16 blockpos, std::string &&raw)
 	bool compress_now;
 	{
 		MutexAutoLock lock(m_pending_mutex);
-		compress_now = m_pending_raw_bytes > MAX_PENDING_BYTES / 2;
+		compress_now = m_pending_raw_bytes > MAX_PENDING_INLINE_RAW_BYTES;
 	}
 	// The save thread is not keeping up, so help out instead of waiting later
 	if (compress_now) {
