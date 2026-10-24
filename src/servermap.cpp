@@ -277,6 +277,12 @@ bool MapDatabaseAccessor::writePending()
 	return failed == 0;
 }
 
+size_t MapDatabaseAccessor::pendingCount()
+{
+	MutexAutoLock lock(m_pending_mutex);
+	return m_pending.size();
+}
+
 void MapDatabaseAccessor::requestStop()
 {
 	MutexAutoLock lock(m_pending_mutex);
@@ -306,12 +312,20 @@ void *MapSaveThread::run()
 {
 	BEGIN_DEBUG_EXCEPTION_HANDLER
 
-	bool running = true;
-	while (running) {
-		// Pending blocks are still written after a stop request
-		running = m_db->waitForPending();
-		if (!m_db->writePending() && running)
+	while (m_db->waitForPending()) {
+		if (!m_db->writePending())
 			sleep_ms(1000);
+	}
+
+	// Pending blocks are still written after a stop request
+	bool ok = m_db->writePending();
+	for (int i = 0; i < 3 && !ok; i++) {
+		sleep_ms(1000);
+		ok = m_db->writePending();
+	}
+	if (!ok) {
+		errorstream << "ServerMap: Could not save " << m_db->pendingCount()
+			<< " blocks, they are lost" << std::endl;
 	}
 
 	END_DEBUG_EXCEPTION_HANDLER
@@ -804,6 +818,7 @@ void ServerMap::save(ModifiedState save_level)
 
 	u32 block_count = 0;
 	u32 block_count_all = 0; // Number of blocks in memory
+	u32 failed_count = 0;
 
 	for (auto &sector_it : m_sectors) {
 		MapSector *sector = sector_it.second;
@@ -817,10 +832,16 @@ void ServerMap::save(ModifiedState save_level)
 			if(block->getModified() >= (u32)save_level) {
 				modprofiler.add(block->getModifiedReasonString(), 1);
 
-				saveBlock(block);
+				if (!saveBlock(block))
+					failed_count++;
 				block_count++;
 			}
 		}
+	}
+
+	if (failed_count > 0) {
+		errorstream << "ServerMap: Could not save " << failed_count
+			<< " blocks" << std::endl;
 	}
 
 	/*

@@ -61,6 +61,9 @@ struct MapDatabaseAccessor {
 	/// Shrinks the pending data, so more of it fits in memory.
 	void compressPending();
 
+	/// Number of blocks not written yet.
+	size_t pendingCount();
+
 	/// Makes waitForPending() return false.
 	void requestStop();
 

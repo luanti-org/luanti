@@ -389,6 +389,7 @@ void TestMapDatabaseAccessor::testFailedWrite()
 	accessor.queueBlock(pos, std::string(raw_b));
 	accessor.queueBlock(pos2, std::string(raw_a));
 	UASSERT(!accessor.writePending());
+	UASSERTEQ(size_t, accessor.pendingCount(), 2);
 
 	accessor.loadBlock(pos, dest);
 	UASSERT(unpack(dest) == raw_b);
@@ -400,6 +401,7 @@ void TestMapDatabaseAccessor::testFailedWrite()
 
 	db.fail = false;
 	UASSERT(accessor.writePending());
+	UASSERTEQ(size_t, accessor.pendingCount(), 0);
 	db.loadBlock(pos, &dest);
 	UASSERT(unpack(dest) == raw_b);
 	db.loadBlock(pos2, &dest);
