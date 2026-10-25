@@ -14,7 +14,7 @@ install_linux_deps() {
 	local pkgs=(
 		cmake gettext postgresql
 		libsqlite3-dev libhiredis-dev libogg-dev libgmp-dev libpq-dev
-		libleveldb-dev libcurl4-openssl-dev libzstd-dev libssl-dev
+		libleveldb-dev libcurl4-openssl-dev libzstd-dev libssl-dev libicu-dev
 	)
 	[ -n "$graphics" ] && pkgs+=(
 		libpng-dev libjpeg-dev libgl1-mesa-dev "$sdl" libfreetype-dev
@@ -54,7 +54,7 @@ install_macos_brew_deps() {
 	# Uninstall the bundled cmake, it is outdated, and brew does not want to install the newest version with this one present since they are from different taps.
 	brew uninstall cmake || :
 	local pkgs=(
-		cmake gettext freetype gmp jpeg-turbo jsoncpp leveldb
+		cmake gettext freetype gmp icu4c jpeg-turbo jsoncpp leveldb
 		libogg libpng libvorbis luajit zstd sdl2
 	)
 	export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
