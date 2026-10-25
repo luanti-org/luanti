@@ -519,7 +519,7 @@ void Client::step(float dtime)
 			std::vector<v3s16> sendlist;
 			while (!deleted_blocks.empty() && sendlist.size() < 255) {
 				sendlist.push_back(deleted_blocks.back());
-				sendlist.pop_back();
+				deleted_blocks.pop_back();
 			}
 			sendDeletedBlocks(sendlist);
 		}
@@ -609,7 +609,6 @@ void Client::step(float dtime)
 		updateStaticLighting(player->getLighting().static_);
 
 		int num_processed_meshes = 0;
-		std::vector<v3s16> blocks_to_ack;
 		bool force_update_shadows = false;
 		MeshUpdateResult r;
 		while (m_mesh_update_manager->getNextResult(r))
