@@ -267,6 +267,9 @@ public:
 			WavingType waving, bool array_texture) const;
 
 private:
+	// Only caches variants prepared by prepareNodeShader(): "nodes_shader",
+	// no skinning or custom uniform setter, and base material derived from alpha.
+	// Any additional varying shader constants must become part of this key.
 	// Use `AlphaMode_END - 1` to exclude `ALPHAMODE_LEGACY_COMPAT`
 	std::array<std::array<std::array<std::array<std::optional<u32>, 2>,
 			WavingType_END>, AlphaMode_END - 1>, MaterialType_END>
