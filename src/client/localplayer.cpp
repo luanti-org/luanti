@@ -86,7 +86,6 @@ static aabb3f getNodeBoundingBox(const std::vector<aabb3f> &nodeboxes)
 	return b_max;
 }
 
-
 bool LocalPlayer::updateSneakNode(Map *map, const v3f &position,
 	const v3f &sneak_max)
 {
@@ -396,7 +395,13 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 	if (could_sneak && m_sneak_node_exists) {
 		const v3f sn_f = intToFloat(m_sneak_node, BS);
 		const v3f bmin = sn_f + m_sneak_node_bb_top.MinEdge;
-		const v3f bmax = sn_f + m_sneak_node_bb_top.MaxEdge;
+		v3f bmax = sn_f + m_sneak_node_bb_top.MaxEdge;
+		if (!physics_override.sneak_glitch) {
+			std::vector<aabb3f> nodeboxes;
+			map->getNode(m_sneak_node).getCollisionBoxes(m_client->ndef(), &nodeboxes);
+			bmax.Y = getNodeBoxSupportHeight(nodeboxes, m_collisionbox, sn_f, position) -
+				m_collisionbox.MinEdge.Y;
+		}
 		const v3f old_pos = position;
 		const v3f old_speed = m_speed;
 		f32 y_diff = bmax.Y - position.Y;
