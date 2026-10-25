@@ -200,8 +200,9 @@ public class UnzipService extends IntentService {
 	public void onDestroy() {
 		super.onDestroy();
 		mNotifyManager.cancel(MainActivity.NOTIFICATION_ID_UNZIP);
-		// Fallback for the case where the service is torn down before
-		// onHandleIntent() can report its result.
+		// Only sends anything if onHandleIntent() hasn't reported yet
+		// e.g. service destroyed mid-extraction. isSuccess then still holds
+		// the default and may not reflect the actual outcome.
 		sendResult(isSuccess);
 	}
 }
