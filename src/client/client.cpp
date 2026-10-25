@@ -1609,7 +1609,8 @@ v3s16 Client::CSMClampPos(v3s16 pos)
 	);
 }
 
-void Client::addNode(v3s16 p, MapNode n, bool remove_metadata)
+void Client::addNode(v3s16 p, MapNode n, bool remove_metadata,
+		const std::vector<u16> &modifiers)
 {
 	//TimeTaker timer1("Client::addNode()");
 
@@ -1617,7 +1618,7 @@ void Client::addNode(v3s16 p, MapNode n, bool remove_metadata)
 
 	try {
 		//TimeTaker timer3("Client::addNode(): addNodeAndUpdate");
-		m_env.getMap().addNodeAndUpdate(p, n, modified_blocks, remove_metadata);
+		m_env.getMap().addNodeAndUpdate(p, n, modified_blocks, remove_metadata, modifiers);
 	}
 	catch(InvalidPositionException &e) {
 	}

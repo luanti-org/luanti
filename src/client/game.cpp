@@ -3183,8 +3183,17 @@ bool Game::nodePlacement(const ItemDefinition &selected_def,
 				build_where_you_stand ||
 				(client->checkPrivilege("noclip") && g_settings->getBool("noclip")) ||
 				(predicted_f.walkable && !stands_inside)) {
-			// This triggers the required mesh update too
-			client->addNode(p, predicted_node);
+			std::vector<u16> modifiers;
+			const auto &names = selected_item.metadata.getModifiersList();
+			modifiers.reserve(names.size());
+			for (const std::string &name : names) {
+				u16 id = nodemod_manager->getId(name);
+				if (id != MODIFIER_IGNORE)
+					modifiers.push_back(id);
+			}
+
+			// This triggers the required mesh update too.
+			client->addNode(p, predicted_node, true, modifiers);
 			// Report to server
 			client->interact(INTERACT_PLACE, pointed);
 			// A node is predicted, also play a sound

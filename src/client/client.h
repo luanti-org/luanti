@@ -257,7 +257,8 @@ public:
 	int CSMClampRadius(v3s16 pos, int radius);
 	v3s16 CSMClampPos(v3s16 pos);
 
-	void addNode(v3s16 p, MapNode n, bool remove_metadata = true);
+	void addNode(v3s16 p, MapNode n, bool remove_metadata = true,
+			const std::vector<u16> &modifiers = {});
 
 	void setPlayerControl(PlayerControl &control);
 

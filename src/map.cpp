@@ -284,7 +284,7 @@ void Map::updateNode(MapBlock *block, v3s16 rel, MapNode oldnode, MapNode node,
 
 void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 		std::map<v3s16, MapBlock*> &modified_blocks,
-		bool remove_metadata)
+		bool remove_metadata, const std::vector<u16> &modifiers)
 {
 	// Collect old node for rollback
 	RollbackNode rollback_oldnode(this, p, m_gamedef);
@@ -301,6 +301,12 @@ void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 	if (remove_metadata) {
 		removeNodeMetadata(p);
 		block->clearNodeModifiers(relpos);
+	}
+
+	// Install modifiers before resolving the new node lighting.
+	if (!modifiers.empty()) {
+		bool success = block->setNodeModifiers(relpos, modifiers);
+		SANITY_CHECK(success);
 	}
 
 	updateNode(block, relpos, oldnode, n, oldf, modified_blocks);

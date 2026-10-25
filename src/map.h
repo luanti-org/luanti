@@ -160,7 +160,7 @@ public:
 	*/
 	virtual void addNodeAndUpdate(v3s16 p, MapNode n,
 			std::map<v3s16, MapBlock*> &modified_blocks,
-			bool remove_metadata = true);
+			bool remove_metadata = true, const std::vector<u16> &modifiers = {});
 	void removeNodeAndUpdate(v3s16 p,
 			std::map<v3s16, MapBlock*> &modified_blocks);
 
