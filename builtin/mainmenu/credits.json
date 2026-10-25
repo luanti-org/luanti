@@ -16,7 +16,8 @@
 		"Lars Müller (luatic)",
 		"cx384",
 		"sfence",
-		"y5nw"
+		"y5nw",
+		"ZenonSeth"
 	],
 	"previous_core_developers": [
 		"BlockMen",
@@ -47,20 +48,19 @@
 	],
 	"#": "For updating active/previous contributors, see the script in ./util/gather_git_credits.py",
 	"contributors": [
+		"paradust7",
 		"Wuzzy (Wuzzy2)",
 		"CrazyladMT",
-		"siliconsniffer",
-		"kromka-chleba",
-		"ZenonSeth",
+		"red-001 <red-001@outlook.ie>",
+		"Acts1631",
+		"user333dev",
+		"DeltachangeOG",
 		"OgelGames",
-		"0-v-0",
-		"jordan4ibanez",
-		"Elias Åström"
+		"0-v-0"
 	],
 	"previous_contributors": [
 		"Ælla Chiana Moskopp (erle) <erle@dieweltistgarnichtso.net> [Logo]",
 		"numzero",
-		"red-001 <red-001@outlook.ie>",
 		"Giuseppe Bilotta",
 		"HybridDog",
 		"ClobberXD",
@@ -76,8 +76,8 @@
 		"stujones11",
 		"Rogier <rogier777@gmail.com>",
 		"Gregory Currie (gregorycu)",
-		"paradust7",
 		"JacobF",
-		"Jeija <jeija@mesecons.net>"
+		"Jeija <jeija@mesecons.net>",
+		"siliconsniffer"
 	]
 }
