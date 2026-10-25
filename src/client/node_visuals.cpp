@@ -287,6 +287,9 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 		IShaderSource *shdsrc, Client *client, PreLoadedTextures *texture_pool,
 		const TextureSettings &tsettings)
 {
+	m_force_opaque = (f.isLiquidRender() && !tsettings.translucent_liquids) ||
+			(f.drawtype == NDT_ALLFACES_OPTIONAL && tsettings.leaves_style == LEAVES_OPAQUE);
+
 	// Things needed form ContentFeatures
 	auto &alpha = f.alpha;
 	auto &drawtype = f.drawtype;
@@ -392,6 +395,8 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 	default:
 		break;
 	}
+
+	m_drawtype = drawtype;
 
 	AlphaMode overlay_alpha = alpha_mode_with_transparency(material_alpha);
 
@@ -528,6 +533,95 @@ void NodeVisuals::collectMaterials(std::vector<u32> &leaves_materials)
 	}
 }
 
+void NodeVisuals::prepareOverrides(IShaderSource *shdsrc, u8 alpha_modes,
+		u8 texture_types, std::vector<u32> &leaves_materials)
+{
+	// Texture replacements retain the node's alpha unless another modifier overrides it.
+	// Alpha-only modifiers retain the texture type already used by the node.
+	std::array<bool, 3> needed_alpha{};
+	std::array<bool, 2> needed_texture{bool(texture_types & 1), bool(texture_types & 2)};
+	bool has_overlay = false;
+	for (const TileSpec &tile : tiles) {
+		has_overlay |= tile.layers[1].texture != nullptr;
+		for (const TileLayer &layer : tile.layers) {
+			if (!layer.texture)
+				continue;
+			needed_alpha.at(layer.alpha) = true;
+			needed_texture[layer.texture->getType() == video::ETT_2D_ARRAY] = true;
+		}
+	}
+
+	for (size_t alpha = 0; alpha < needed_alpha.size(); ++alpha) {
+		if (!(alpha_modes & (u8{1} << alpha)))
+			continue;
+		AlphaMode effective = m_force_opaque ? ALPHAMODE_OPAQUE :
+				static_cast<AlphaMode>(alpha);
+		needed_alpha[effective] = true;
+		// Overlays use clipping when the base is opaque.
+		if (has_overlay)
+			needed_alpha[alpha_mode_with_transparency(effective)] = true;
+	}
+
+	const TileLayer &base = tiles[0].layers[0];
+	for (size_t alpha = 0; alpha < needed_alpha.size(); ++alpha) {
+		if (!needed_alpha[alpha])
+			continue;
+		for (size_t array = 0; array < needed_texture.size(); ++array) {
+			if (!needed_texture[array])
+				continue;
+			u32 shader = shdsrc->prepareNodeShader(base.material_type,
+					static_cast<AlphaMode>(alpha), base.waving, array != 0);
+			if (shader && base.waving == WAVING_LEAVES)
+				leaves_materials.push_back(shader);
+		}
+	}
+}
+
+void NodeVisuals::applyOverrides(TileSpec &tile, u8 face, const NodeModifier *texture,
+	const NodeModifier *alpha, WorldAlignMode world_align_mode, const IShaderSource *shaders) const
+{
+	TileLayer &base = tile.layers[0];
+	if (texture) {
+		const TileLayer &resource = texture->visuals->getTile(face);
+		if (resource.texture) {
+			base.texture = resource.texture;
+			base.texture_id = resource.texture_id;
+			base.texture_layer_idx = resource.texture_layer_idx;
+
+			// Also clears the old animation when the replacement is static.
+			base.frames = resource.frames;
+			base.animation_frame_count = resource.animation_frame_count;
+			base.animation_frame_length_ms = resource.animation_frame_length_ms;
+
+			base.material_flags = resource.material_flags;
+			base.has_color = resource.has_color;
+			base.color = resource.color;
+			base.scale = resource.scale;
+
+			const std::array<TileDef, 6> *tile_defs = texture->getTiles();
+			base.world_aligned = isWorldAligned((*tile_defs)[face].align_style,
+					world_align_mode, m_drawtype);
+			if (!base.world_aligned)
+				base.scale = 1;
+		}
+	}
+
+	if (alpha) {
+		base.alpha = m_force_opaque ? ALPHAMODE_OPAQUE : alpha->m_alpha;
+		tile.layers[1].alpha = alpha_mode_with_transparency(base.alpha);
+	}
+
+	for (TileLayer &layer : tile.layers) {
+		if (!layer.texture)
+			continue;
+
+		bool array = layer.texture->getType() == video::ETT_2D_ARRAY;
+		assert(shaders);
+		layer.shader_id = shaders->getNodeShader(
+				layer.material_type, layer.alpha, layer.waving, array);
+	}
+}
+
 video::SColor NodeVisuals::getColor(const ContentFeatures &f, u8 param2) const
 {
 	if (palette) {
@@ -543,8 +637,8 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, NodeModifierManager *mod
 			"textures in node definitions" << std::endl;
 	ITextureSource *tsrc = client->tsrc();
 	IShaderSource *shdsrc = client->getShaderSource();
-	TextureSettings tsettings;
-	tsettings.readSettings();
+	ndef->readTextureSettings();
+	const TextureSettings &tsettings = ndef->getTextureSettings();
 
 	tsrc->setImageCaching(true);
 	const u32 size = ndef->size();
@@ -621,11 +715,39 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, NodeModifierManager *mod
 	}
 	// note that standard textures aren't preloaded
 
+	// Prepare modifier textures and collect the variants they can require.
+	u8 override_alpha_modes = 0;
+	u8 override_texture_types = 0;
+	modifiers->applyFunction([&](NodeModifier &modifier) {
+		assert(!modifier.visuals);
+
+		if (modifier.m_is_dummy)
+			return;
+
+		if (modifier.hasTiles()) {
+			modifier.visuals = std::make_unique<NodeModifierVisuals>(
+					*modifier.getTiles(), tsrc, &plt, tsettings);
+
+			for (size_t face = 0; face < 6; ++face) {
+				const TileLayer &tile = modifier.visuals->getTile(face);
+				if (tile.texture) {
+					bool array = tile.texture->getType() == video::ETT_2D_ARRAY;
+					override_texture_types |= u8{1} << array;
+				}
+			}
+		}
+		if (modifier.m_modified_props_mask & MP_Alpha)
+			override_alpha_modes |= u8{1} << modifier.m_alpha;
+	});
+
 	/* final step */
 	u32 progress = 0;
 	ndef->applyFunction([&](ContentFeatures &f) {
 		auto &v = f.visuals;
 		v->updateTextures(f, tsrc, shdsrc, client, &plt, tsettings);
+		if ((override_texture_types || override_alpha_modes) && f.drawtype != NDT_AIRLIKE)
+			v->prepareOverrides(shdsrc, override_alpha_modes, override_texture_types,
+					ndef->m_leaves_materials);
 
 		if (f.drawtype == NDT_MESH)
 			v->updateMesh(f.mesh, f.visual_scale, client, tsettings);
@@ -641,15 +763,6 @@ void NodeVisuals::fillNodeVisuals(NodeDefManager *ndef, NodeModifierManager *mod
 	SORT_AND_UNIQUE(ndef->m_leaves_materials);
 	verbosestream << "m_leaves_materials.size() = " << ndef->m_leaves_materials.size()
 		<< std::endl;
-
-	// Prepare modifier textures while source images are still cached.
-	modifiers->applyFunction([&](NodeModifier &modifier) {
-		modifier.visuals.reset();
-		if (!modifier.m_is_dummy && modifier.hasTiles()) {
-			modifier.visuals = std::make_unique<NodeModifierVisuals>(
-					*modifier.getTiles(), tsrc, &plt, tsettings);
-		}
-	});
 
 	plt.printStats(infostream);
 	tsrc->setImageCaching(false);

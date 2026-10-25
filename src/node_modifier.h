@@ -17,8 +17,13 @@
 #include "tiledef.h"
 
 class IdIdMapping;
+
 #if CHECK_CLIENT_BUILD()
 class NodeModifierVisuals;
+struct NodeVisuals;
+class IShaderSource;
+struct TileSpec;
+enum WorldAlignMode : u8;
 #endif
 
 static constexpr u16 MODIFIER_IGNORE = UINT16_MAX;
@@ -108,6 +113,14 @@ public:
 
 	ContentLightingFlags resolveLighting(const NodeModifierManager &manager,
 			ContentLightingFlags base = {}) const;
+
+#if CHECK_CLIENT_BUILD()
+	// Applies the last texture override for this face and the last alpha override
+	// independently, preserving properties supplied by the original node visuals.
+	void resolveTile(const NodeModifierManager &manager, const NodeVisuals &visuals,
+			u8 face, TileSpec &tile, WorldAlignMode world_align,
+			const IShaderSource *shaders) const;
+#endif
 
 private:
 	ConstIterator m_begin;

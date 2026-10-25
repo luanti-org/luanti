@@ -54,13 +54,14 @@ struct MeshMakeData
 	bool m_enable_waving_water = false;
 
 	const NodeDefManager *m_nodedef;
+	const IShaderSource *const m_shader_source;
 
 	// Node positions are relative to m_blockpos * MAP_BLOCKSIZE.
 	AppliedNodeModifiersSnapshot m_node_modifiers;
 	const NodeModifierManager *m_nodemod;
 
 	MeshMakeData(const NodeDefManager *ndef, u16 side_lingth, MeshGrid mesh_grid,
-			const NodeModifierManager *nmod);
+			const NodeModifierManager *nmod, const IShaderSource *shaders);
 
 	/*
 		Copy block data manually (to allow optimizations by the caller)

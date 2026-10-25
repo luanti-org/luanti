@@ -211,7 +211,8 @@ static scene::SMesh *generateNodeMesh(Client *client, MapNode n,
 
 	MeshCollector collector(v3f(0), v3f());
 	{
-		MeshMakeData mmd(ndef, 1, MeshGrid{1}, client->getNodeModifierManager());
+		MeshMakeData mmd(ndef, 1, MeshGrid{1}, client->getNodeModifierManager(),
+				client->getShaderSource());
 		n.setParam1(0xff);
 		mmd.fillSingleNode(n);
 		MapblockMeshGenerator(&mmd, &collector).generate();

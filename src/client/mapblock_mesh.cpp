@@ -28,11 +28,12 @@
 	MeshMakeData
 */
 
-MeshMakeData::MeshMakeData(const NodeDefManager *ndef,
-		u16 side_length, MeshGrid mesh_grid, const NodeModifierManager *nmod) :
+MeshMakeData::MeshMakeData(const NodeDefManager *ndef, u16 side_length, MeshGrid mesh_grid,
+		const NodeModifierManager *nmod, const IShaderSource *shaders) :
 	m_side_length(side_length),
 	m_mesh_grid(mesh_grid),
 	m_nodedef(ndef),
+	m_shader_source(shaders),
 	m_nodemod(nmod)
 {
 	assert(m_side_length > 0);
@@ -168,6 +169,10 @@ void getNodeTileN(MapNode mn, const v3s16 &p, u8 tileindex, MeshMakeData *data, 
 	const NodeDefManager *ndef = data->m_nodedef;
 	const ContentFeatures &f = ndef->get(mn);
 	tile = f.visuals->tiles[tileindex];
+	data->m_node_modifiers.getViewAtPos(p)
+			.resolveTile(*data->m_nodemod, *f.visuals, tileindex, tile,
+					ndef->getTextureSettings().world_aligned_mode, data->m_shader_source);
+
 	bool has_crack = p == data->m_crack_pos_relative;
 	for (TileLayer &layer : tile.layers) {
 		if (layer.empty())

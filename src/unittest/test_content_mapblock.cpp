@@ -50,7 +50,7 @@ public:
 
 	MeshMakeData makeSingleNodeMMD(bool smooth_lighting = true)
 	{
-		MeshMakeData data{ndef(), 1, MeshGrid{1}, getNodeModifierManager()};
+		MeshMakeData data{ndef(), 1, MeshGrid{1}, getNodeModifierManager(), nullptr};
 		data.m_generate_minimap = false;
 		data.m_smooth_lighting = smooth_lighting;
 		data.m_enable_water_reflections = false;
@@ -158,6 +158,7 @@ public:
 
 	void runTests(IGameDef *gamedef) override;
 	void testShaderWaving();
+	void testModifierTileResolution();
 	void testSimpleNode();
 	void testOverlayAlignment();
 	void testModifierLighting();
@@ -178,6 +179,8 @@ void TestMapblockMeshGenerator::testShaderWaving()
 	public:
 		using IShaderSource::getShader;
 		ShaderInfo info;
+		u32 requests = 0;
+		bool fail = false;
 		const ShaderInfo &getShaderInfo(u32) override { return info; }
 		bool supportsSampler2DArray() const override { return true; }
 		u32 getShader(const std::string &, const ShaderConstants &constants,
@@ -185,7 +188,8 @@ void TestMapblockMeshGenerator::testShaderWaving()
 		{
 			info.input_constants = constants;
 			info.base_material = material;
-			return 1;
+			++requests;
+			return fail ? 0 : requests;
 		}
 	} source;
 
@@ -194,10 +198,12 @@ void TestMapblockMeshGenerator::testShaderWaving()
 		for (bool array : {false, true}) {
 			for (MaterialType material : {TILE_MATERIAL_NORMAL, TILE_MATERIAL_LIQUID, TILE_MATERIAL_PLAIN}) {
 				for (AlphaMode alpha : {ALPHAMODE_OPAQUE, ALPHAMODE_CLIP, ALPHAMODE_BLEND}) {
-					ShaderFeatures features;
-					features.waving = waving;
-					features.array_texture = array;
-					source.getShader("nodes_shader", material, alpha, features);
+					u32 previous_requests = source.requests;
+					u32 shader = source.prepareNodeShader(material, alpha, waving, array);
+					UASSERTEQ(u32, source.requests, previous_requests + 1);
+					UASSERTEQ(u32, source.prepareNodeShader(material, alpha, waving, array), shader);
+					UASSERTEQ(u32, source.getNodeShader(material, alpha, waving, array), shader);
+					UASSERTEQ(u32, source.requests, previous_requests + 1);
 
 					const ShaderInfo &info = source.getShaderInfo(1);
 					UASSERTEQ(int, std::get<int>(info.input_constants.at("WAVING_TYPE")),
@@ -220,12 +226,67 @@ void TestMapblockMeshGenerator::testShaderWaving()
 			}
 		}
 	}
+	// Earlier entries survive preparation of other combinations.
+	u32 expected_id = 0;
+	for (WavingType waving : {WAVING_NONE, WAVING_PLANTS, WAVING_LEAVES, WAVING_LIQUID})
+		for (bool array : {false, true})
+			for (MaterialType material : {TILE_MATERIAL_NORMAL, TILE_MATERIAL_LIQUID, TILE_MATERIAL_PLAIN})
+				for (AlphaMode alpha : {ALPHAMODE_OPAQUE, ALPHAMODE_CLIP, ALPHAMODE_BLEND})
+					UASSERTEQ(u32, source.getNodeShader(material, alpha, waving, array), ++expected_id);
+	UASSERTEQ(u32, source.requests, expected_id);
+
+	RecordingShaderSource failing_source;
+	failing_source.fail = true;
+	for (int i = 0; i < 2; ++i) {
+		UASSERTEQ(u32, failing_source.prepareNodeShader(
+				TILE_MATERIAL_NORMAL, ALPHAMODE_OPAQUE, WAVING_NONE, false), 0);
+		UASSERTEQ(u32, failing_source.getNodeShader(
+				TILE_MATERIAL_NORMAL, ALPHAMODE_OPAQUE, WAVING_NONE, false), 0);
+	}
+	UASSERTEQ(u32, failing_source.requests, 1);
+}
+
+void TestMapblockMeshGenerator::testModifierTileResolution()
+{
+	NodeModifierManager manager;
+	auto add = [&](const char *name, AlphaMode alpha, bool dummy = false) {
+		NodeModifier modifier(name, dummy);
+		modifier.m_modified_props_mask = MP_Alpha;
+		modifier.m_alpha = alpha;
+		return manager.add(std::move(modifier));
+	};
+	u16 blend = add("test:blend", ALPHAMODE_BLEND);
+	u16 opaque = add("test:opaque", ALPHAMODE_OPAQUE);
+	u16 dummy = add("test:dummy", ALPHAMODE_CLIP, true);
+
+	AppliedNodeModifiersStorage storage;
+	NodeVisuals visuals;
+	TileSpec tile;
+	tile.layers[0].alpha = ALPHAMODE_CLIP;
+	tile.layers[0].waving = WAVING_LEAVES;
+	tile.layers[0].material_type = TILE_MATERIAL_LIQUID;
+
+	storage.getViewAtPos({0, 0, 0}).resolveTile(manager, visuals, 0, tile, WORLDALIGN_DISABLE, nullptr);
+	UASSERT(tile.layers[0].alpha == ALPHAMODE_CLIP);
+
+	UASSERT(storage.set({0, 0, 0}, {opaque, blend, dummy}));
+	storage.getViewAtPos({0, 0, 0}).resolveTile(manager, visuals, 0, tile, WORLDALIGN_DISABLE, nullptr);
+	UASSERT(tile.layers[0].alpha == ALPHAMODE_BLEND);
+	UASSERT(tile.layers[1].alpha == ALPHAMODE_BLEND);
+	UASSERT(tile.layers[0].waving == WAVING_LEAVES);
+	UASSERT(tile.layers[0].material_type == TILE_MATERIAL_LIQUID);
+
+	UASSERT(storage.add({0, 0, 0}, opaque));
+	storage.getViewAtPos({0, 0, 0}).resolveTile(manager, visuals, 0, tile, WORLDALIGN_DISABLE, nullptr);
+	UASSERT(tile.layers[0].alpha == ALPHAMODE_OPAQUE);
+	UASSERT(tile.layers[1].alpha == ALPHAMODE_CLIP);
 }
 
 void TestMapblockMeshGenerator::runTests(IGameDef *gamedef)
 {
 	set_light_decode_table();
 	TEST(testShaderWaving);
+	TEST(testModifierTileResolution);
 	TEST(testSimpleNode);
 	TEST(testOverlayAlignment);
 	TEST(testModifierLighting);
@@ -426,7 +487,7 @@ void TestMapblockMeshGenerator::testModifierLighting()
 		for (bool smooth : {false, true}) {
 			// Nonzero mesh origin exercises world-to-mesh-relative conversion.
 			auto render = [&](content_t node, u16 modifier, bool neighbor = false) {
-				MeshMakeData data{gamedef.ndef(), 1, MeshGrid{1}, gamedef.getNodeModifierManager()};
+				MeshMakeData data{gamedef.ndef(), 1, MeshGrid{1}, gamedef.getNodeModifierManager(), nullptr};
 				data.m_smooth_lighting = smooth;
 				data.fillBlockDataBegin(v3s16(-2, 1, 3));
 				v3s16 origin = data.m_blockpos * MAP_BLOCKSIZE;

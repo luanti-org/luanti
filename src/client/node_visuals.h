@@ -38,6 +38,7 @@ constexpr std::array<u8, NodeDrawType_END> NDT_visual_solidness = [] {
 	return visual_solidness;
 }();
 
+struct NodeModifier;
 // Prepared once on the main thread. Mesh workers borrow these texture resources;
 // material, shader, node color and polygon offset are supplied when applying them.
 class NodeModifierVisuals
@@ -75,6 +76,10 @@ struct NodeVisuals
 	NodeVisuals() = default;
 	~NodeVisuals();
 
+	void applyOverrides(TileSpec &tile, u8 face, const NodeModifier *texture,
+			const NodeModifier *alpha, WorldAlignMode world_align,
+			const IShaderSource *shaders) const;
+
 	// Get color from palette or content features
 	video::SColor getColor(const ContentFeatures &f, u8 param2) const;
 
@@ -94,6 +99,11 @@ struct NodeVisuals
 	DISABLE_CLASS_COPY(NodeVisuals);
 
 private:
+	NodeDrawType m_drawtype = NDT_NORMAL;
+	bool m_force_opaque = false;
+
+	void prepareOverrides(IShaderSource *shdsrc, u8 alpha_modes, u8 texture_types,
+			std::vector<u32> &leaves_materials);
 
 	// Functions needed for initialisation
 	void preUpdateTextures(const ContentFeatures &f, ITextureSource *tsrc,

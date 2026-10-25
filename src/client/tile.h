@@ -15,6 +15,7 @@ enum MaterialType : u8 {
 	TILE_MATERIAL_LIQUID,
 	// Unshaded entities.
 	TILE_MATERIAL_PLAIN,
+	MaterialType_END,
 };
 
 // Vertex animation is independent of the material's alpha behavior.
@@ -23,6 +24,7 @@ enum WavingType : u8 {
 	WAVING_PLANTS,
 	WAVING_LEAVES,
 	WAVING_LIQUID,
+	WavingType_END,
 };
 
 /**

@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 #include <memory> // shared_ptr
+#include "constants.h"
 #include "mapnode.h"
 #include "nameidmapping.h"
 #include "itemgroup.h"
@@ -165,13 +166,13 @@ enum WorldAlignMode : u8 {
 
 class TextureSettings {
 public:
-	LeavesStyle leaves_style;
-	WorldAlignMode world_aligned_mode;
-	AutoScale autoscale_mode;
-	int node_texture_size;
-	bool translucent_liquids;
-	bool connected_glass;
-	bool enable_minimap;
+	LeavesStyle leaves_style = LEAVES_FANCY;
+	WorldAlignMode world_aligned_mode = WORLDALIGN_DISABLE;
+	AutoScale autoscale_mode = AUTOSCALE_DISABLE;
+	int node_texture_size = TEXTURE_FILTER_MIN_SIZE;
+	bool translucent_liquids = true;
+	bool connected_glass = false;
+	bool enable_minimap = true;
 
 	TextureSettings() = default;
 
@@ -674,12 +675,20 @@ public:
 	void resolveCrossrefs();
 
 #if CHECK_CLIENT_BUILD()
+	// Refresh only during texture preparation, before mesh workers use the definitions.
+	void readTextureSettings() { m_texture_settings.readSettings(); }
+	const TextureSettings &getTextureSettings() const { return m_texture_settings; }
+
 	// Set of all shader IDs used by leaves-like nodes
 	// (kind of a hack but is needed for dynamic shadows)
 	std::vector<u32> m_leaves_materials;
 #endif
 
 private:
+#if CHECK_CLIENT_BUILD()
+	TextureSettings m_texture_settings;
+#endif
+
 	/*!
 	 * Resets the manager to its initial state.
 	 * See the documentation of the constructor.

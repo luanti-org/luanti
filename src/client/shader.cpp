@@ -363,9 +363,8 @@ public:
 		If shader specified by the name pointed by the id doesn't
 		exist, create it, then return id.
 
-		Can be called from any thread. If called from some other thread
-		and not found in cache, the call is queued to the main thread
-		for processing.
+		Main-thread only. Mesh workers use getNodeShader() for variants
+		prepared before their jobs start.
 	*/
 	u32 getShader(const std::string &name, const ShaderConstants &input_const,
 		video::E_MATERIAL_TYPE base_mat,
@@ -867,6 +866,27 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 /*
 	Other functions and helpers
 */
+
+u32 IShaderSource::prepareNodeShader(MaterialType material, AlphaMode alpha,
+		WavingType waving, bool array_texture)
+{
+	auto &entry = m_node_shaders.at(material).at(alpha).at(waving)[array_texture];
+	if (!entry) {
+		ShaderFeatures features;
+		features.waving = waving;
+		features.array_texture = array_texture;
+		entry = getShader("nodes_shader", material, alpha, features);
+	}
+	return *entry;
+}
+
+u32 IShaderSource::getNodeShader(MaterialType material, AlphaMode alpha,
+		WavingType waving, bool array_texture) const
+{
+	const auto &entry = m_node_shaders.at(material).at(alpha).at(waving)[array_texture];
+	assert(entry.has_value());
+	return entry.value();
+}
 
 u32 IShaderSource::getShader(const std::string &name, MaterialType material_type,
 	AlphaMode alpha, const ShaderFeatures &features)

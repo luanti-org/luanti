@@ -10,6 +10,8 @@
 #include "irr_ptr.h"
 #include <string>
 #include <map>
+#include <array>
+#include <optional>
 #include <variant>
 #include "nodedef.h"
 #include "tile.h" // MaterialType
@@ -256,6 +258,21 @@ class IShaderSource {
 public:
 	IShaderSource() = default;
 	virtual ~IShaderSource() = default;
+
+	// Prepare on the main thread before mesh jobs start. Uses the general shader cache.
+	u32 prepareNodeShader(MaterialType material, AlphaMode alpha,
+			WavingType waving, bool array_texture);
+	// Read-only lookup for mesh workers; never generates shaders.
+	u32 getNodeShader(MaterialType material, AlphaMode alpha,
+			WavingType waving, bool array_texture) const;
+
+private:
+	// Use `AlphaMode_END - 1` to exclude `ALPHAMODE_LEGACY_COMPAT`
+	std::array<std::array<std::array<std::array<std::optional<u32>, 2>,
+			WavingType_END>, AlphaMode_END - 1>, MaterialType_END>
+			m_node_shaders{};
+
+public:
 
 	/**
 	 * @brief returns information about an existing shader

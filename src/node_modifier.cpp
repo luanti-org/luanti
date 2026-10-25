@@ -187,6 +187,32 @@ ContentLightingFlags AppliedNodeModifiersView::resolveLighting(
 	return base;
 }
 
+#if CHECK_CLIENT_BUILD()
+void AppliedNodeModifiersView::resolveTile(const NodeModifierManager &manager,
+		const NodeVisuals &visuals, u8 face, TileSpec &tile, WorldAlignMode world_align,
+		const IShaderSource *shaders) const
+{
+	assert(face < 6);
+
+	const NodeModifier *texture = nullptr;
+	const NodeModifier *alpha = nullptr;
+	for (ConstIterator it = end(); it != begin() && (!texture || !alpha);) {
+		const NodeModifier &modifier = manager.get((--it)->id);
+		if (modifier.m_is_dummy)
+			continue;
+
+		if (!texture && modifier.visuals &&
+				(modifier.m_modified_props_mask & (u64{MP_TileFirst} << face)))
+			texture = &modifier;
+		if (!alpha && (modifier.m_modified_props_mask & MP_Alpha))
+			alpha = &modifier;
+	}
+
+	if (texture || alpha)
+		visuals.applyOverrides(tile, face, texture, alpha, world_align, shaders);
+}
+#endif
+
 template <typename Entries>
 auto AppliedNodeModifiersVector::findRangeInEntries(Entries &entries, v3s16 pos)
 {
