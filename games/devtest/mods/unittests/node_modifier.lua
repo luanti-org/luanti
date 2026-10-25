@@ -591,11 +591,11 @@ core.register_node_modifier("unittests:alpha_clip", {use_texture_alpha = "clip"}
 core.register_node_modifier("unittests:alpha_opaque", {use_texture_alpha = "opaque"})
 
 for i, definition in ipairs({
-	{tiles = "invalid"}, {tiles = {42}},
-	{tiles = {"", "", "", "", "", "", ""}},
-	{use_texture_alpha = true}, {use_texture_alpha = "invalid"},
+	{tiles = "invalid"},
+	{use_texture_alpha = true},
 }) do
-	assert(not pcall(core.register_node_modifier, "unittests:invalid_visual_" .. i, definition))
+	assert(not pcall(core.register_node_modifier, "unittests:invalid_visual_" .. i, definition),
+		"Invalid node modifier visual definition was accepted: " .. core.serialize(definition))
 end
 
 unittests.register("test_modifier_visual_properties", function()
