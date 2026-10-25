@@ -175,14 +175,11 @@ NodeModifierManager *createNodeModifierManager() {
 ContentLightingFlags AppliedNodeModifiersView::resolveLighting(
 		const NodeModifierManager &manager, ContentLightingFlags base) const
 {
-	ConstIterator it = end();
-	while (it != begin()) {
-		const auto &modifier = manager.get((--it)->id);
-		if (!modifier.m_is_dummy && (modifier.m_modified_props_mask & MP_LightSource)) {
-			base.light_source = modifier.m_light_source;
-			break;
-		}
-	}
+	manager.resolveOverrides(*this, MP_LightSource,
+			[&](const NodeModifier &modifier, u64 matched) {
+		base.light_source = modifier.m_light_source;
+		return matched;
+	});
 
 	return base;
 }
@@ -196,17 +193,22 @@ void AppliedNodeModifiersView::resolveTile(const NodeModifierManager &manager,
 
 	const NodeModifier *texture = nullptr;
 	const NodeModifier *alpha = nullptr;
-	for (ConstIterator it = end(); it != begin() && (!texture || !alpha);) {
-		const NodeModifier &modifier = manager.get((--it)->id);
-		if (modifier.m_is_dummy)
-			continue;
+	const u64 tile_mask = u64{MP_TileFirst} << face;
 
-		if (!texture && modifier.visuals &&
-				(modifier.m_modified_props_mask & (u64{MP_TileFirst} << face)))
-			texture = &modifier;
-		if (!alpha && (modifier.m_modified_props_mask & MP_Alpha))
+	manager.resolveOverrides(*this, tile_mask | MP_Alpha,
+			[&](const NodeModifier &modifier, u64 matched) {
+		if (matched & tile_mask) {
+			if (modifier.visuals)
+				texture = &modifier;
+			else
+				matched &= ~tile_mask;
+		}
+
+		if (matched & MP_Alpha)
 			alpha = &modifier;
-	}
+
+		return matched;
+	});
 
 	if (texture || alpha)
 		visuals.applyOverrides(tile, face, texture, alpha, world_align, shaders);

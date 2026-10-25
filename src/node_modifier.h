@@ -67,6 +67,11 @@ private:
 	std::unique_ptr<const std::array<TileDef, 6>> m_tiles;
 };
 
+struct AppliedNodeModifier {
+	v3s16 pos;
+	u16 id;
+};
+
 class NodeModifierManager {
 public:
 	NodeModifierManager() {};
@@ -87,12 +92,12 @@ public:
 	// Visits modifiers in reverse order, resolving each requested property once.
 	// The callback returns the subset of matched properties it actually applied;
 	// rejected properties remain available for earlier modifiers to resolve.
-	template <typename F>
-	void resolveOverrides(const std::vector<u16> &ids, u64 requested_mask,
+	template <typename Entries, typename F>
+	void resolveOverrides(const Entries &entries, u64 requested_mask,
 			F &&callback) const
 	{
-		for (auto it = ids.rbegin(); it != ids.rend() && requested_mask; ++it) {
-			const NodeModifier &modifier = get(*it);
+		for (auto it = entries.end(); it != entries.begin() && requested_mask;) {
+			const NodeModifier &modifier = get(getOverrideId(*--it));
 			if (modifier.m_is_dummy)
 				continue;
 
@@ -107,17 +112,15 @@ public:
 	}
 
 private:
+	static u16 getOverrideId(u16 id) { return id; }
+	static u16 getOverrideId(const AppliedNodeModifier &entry) { return entry.id; }
+
 	NameIdMapping m_name_id_mapping;
 	std::vector<NodeModifier> m_modifiers;
 	const inline static NodeModifier dummy{"<unknown>", true};
 };
 
 NodeModifierManager *createNodeModifierManager();
-
-struct AppliedNodeModifier {
-	v3s16 pos;
-	u16 id;
-};
 
 // Non-owning view of the modifiers at one position. Invalidated when the
 // underlying storage is modified; it must not outlive that storage.

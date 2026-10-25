@@ -354,14 +354,14 @@ static AppliedNodeModifiersSnapshot collectItemModifiers(const ItemStack &item,
 static AlphaMode getItemNodeAlpha(const NodeModifierManager &manager,
 		AppliedNodeModifiersView modifiers, const ContentFeatures &f)
 {
-	for (auto it = modifiers.end(); it != modifiers.begin();) {
-		const NodeModifier &modifier = manager.get((--it)->id);
-		if (modifier.m_is_dummy || !(modifier.m_modified_props_mask & MP_Alpha))
-			continue;
+	AlphaMode alpha = f.alpha;
+	manager.resolveOverrides(modifiers, MP_Alpha,
+			[&](const NodeModifier &modifier, u64 matched) {
+		alpha = modifier.m_alpha;
+		return matched;
+	});
 
-		return modifier.m_alpha;
-	}
-	return f.alpha;
+	return alpha;
 }
 
 static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
@@ -728,12 +728,15 @@ void createItemMesh(Client *client, const ItemStack &item,
 					ndef->getTextureSettings().world_aligned_mode, shdsrc);
 
 			const TileDef *definition = &f.tiledef[0];
-			for (const AppliedNodeModifier &entry : modifier_view) {
-				const NodeModifier &modifier = nmod_manager.get(entry.id);
-				if (!modifier.m_is_dummy && modifier.visuals &&
-						(modifier.m_modified_props_mask & MP_TileFirst))
-					definition = &(*modifier.getTiles())[0];
-			}
+			nmod_manager.resolveOverrides(modifier_view, MP_TileFirst,
+					[&](const NodeModifier &modifier, u64 matched) -> u64 {
+				if (!modifier.visuals)
+					return 0;
+
+				definition = &(*modifier.getTiles())[0];
+				return matched;
+			});
+
 			const TileLayer &l0 = tile.layers[0];
 			const TileLayer &l1 = tile.layers[1];
 			mesh = getExtrudedMesh(
