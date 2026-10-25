@@ -7,6 +7,7 @@
 
 #include "irrlichttypes_bloated.h"
 #include <string>
+#include <variant>
 #include "util/enum_string.h"
 
 #define HUD_DIR_LEFT_RIGHT 0
@@ -104,6 +105,12 @@ struct HudElement {
 extern const EnumString es_HudElementType[];
 extern const EnumString es_HudElementStat[];
 extern const EnumString es_HudBuiltinElement[];
+
+// Holds the value of a single HudElement field, as picked out by a HudElementStat.
+using HudElementStatValue = std::variant<v2f, std::string, u32, v3f, s16, bool>;
+
+// Applies a single stat value (as read via read_hud_stat_value) onto a HUD element.
+void apply_hud_stat(HudElementStat stat, const HudElementStatValue &value, HudElement *elem);
 
 // Minimap stuff
 
