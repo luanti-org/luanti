@@ -3359,6 +3359,10 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 			return;
 		}
 
+		if (g_settings->getBool("enable_dig_particles")) {
+			client->getParticleManager()->addDiggingParticles(player, nodepos, n);
+		}
+
 		if (features.node_dig_prediction == "air") {
 			client->removeNode(nodepos);
 		} else if (!features.node_dig_prediction.empty()) {
@@ -3370,10 +3374,6 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 		// implicit else: no prediction
 
 		client->interact(INTERACT_DIGGING_COMPLETED, pointed);
-
-		if (g_settings->getBool("enable_dig_particles")) {
-			client->getParticleManager()->addDiggingParticles(player, nodepos, n);
-		}
 
 		// Send event to trigger sound
 		client->getEventManager()->put(new NodeDugEvent(nodepos, n));

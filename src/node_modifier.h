@@ -84,6 +84,28 @@ public:
 
 	void applyFunction(const std::function<void(NodeModifier &)> &function);
 
+	// Visits modifiers in reverse order, resolving each requested property once.
+	// The callback returns the subset of matched properties it actually applied;
+	// rejected properties remain available for earlier modifiers to resolve.
+	template <typename F>
+	void resolveOverrides(const std::vector<u16> &ids, u64 requested_mask,
+			F &&callback) const
+	{
+		for (auto it = ids.rbegin(); it != ids.rend() && requested_mask; ++it) {
+			const NodeModifier &modifier = get(*it);
+			if (modifier.m_is_dummy)
+				continue;
+
+			u64 matched = modifier.m_modified_props_mask & requested_mask;
+			if (!matched)
+				continue;
+
+			u64 applied = callback(modifier, matched);
+			assert((applied & ~matched) == 0);
+			requested_mask &= ~applied;
+		}
+	}
+
 private:
 	NameIdMapping m_name_id_mapping;
 	std::vector<NodeModifier> m_modifiers;
