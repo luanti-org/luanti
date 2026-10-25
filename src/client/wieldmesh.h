@@ -201,7 +201,7 @@ void getAdHocNodeShader(video::SMaterial &mat, IShaderSource *shdsrc,
  */
 // This is only used to initially generate an ItemMesh
 // To get the mesh, use ItemVisualsManager::getItemMesh(item, client) instead
-void createItemMesh(Client *client, const ItemDefinition &def,
+void createItemMesh(Client *client, const ItemStack &item,
 		const AnimationInfo &animation_normal,
 		const AnimationInfo &animation_overlay,
 		ItemMesh *result);

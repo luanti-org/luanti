@@ -940,6 +940,16 @@ void TestMapBlock::testModifierSnapshot()
 	dim.m_light_source = 3;
 	const u16 a = manager.add(std::move(bright));
 	const u16 b = manager.add(std::move(dim));
+	const v3s16 item_pos(-16, 0, 0);
+	AppliedNodeModifiersSnapshot item_snapshot(item_pos, {a, b});
+	UASSERTEQ(size_t, item_snapshot.size(), 2);
+	const auto item_view = item_snapshot.getViewAtPos(item_pos);
+	UASSERTEQ(u16, item_view.begin()->id, a);
+	UASSERTEQ(u16, (item_view.begin() + 1)->id, b);
+	UASSERTEQ(u8, item_view.resolveLighting(manager).light_source, 3);
+	UASSERT(item_snapshot.getViewAtPos({0, 0, 0}).empty());
+	UASSERT(AppliedNodeModifiersSnapshot(item_pos, {}).empty());
+
 	AppliedNodeModifiersStorage first, second;
 	UASSERT(first.set({1, 0, 0}, {a, b}));
 	UASSERT(second.add({1, 0, 0}, a));

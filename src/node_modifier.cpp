@@ -645,6 +645,16 @@ void AppliedNodeModifiersVector::append(const AppliedNodeModifiersStorage &other
 		std::inplace_merge(m_entries.begin(), m_entries.begin() + split, m_entries.end(), cmp_func);
 }
 
+AppliedNodeModifiersSnapshot::AppliedNodeModifiersSnapshot(v3s16 pos,
+		const std::vector<u16> &ids)
+{
+	std::vector<AppliedNodeModifier> entries;
+	entries.reserve(ids.size());
+	for (u16 id : ids)
+		entries.push_back({pos, id});
+	m_modifiers = AppliedNodeModifiersVector(std::move(entries));
+}
+
 void AppliedNodeModifiersSnapshot::append(const AppliedNodeModifiersStorage &other, v3s16 offset)
 {
 	m_modifiers.append(other, offset);

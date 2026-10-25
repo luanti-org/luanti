@@ -280,6 +280,10 @@ private:
 // appending invalidates ranges obtained from this snapshot.
 class AppliedNodeModifiersSnapshot {
 public:
+	AppliedNodeModifiersSnapshot() = default;
+	// Build a single-position snapshot.
+	AppliedNodeModifiersSnapshot(v3s16 pos, const std::vector<u16> &ids);
+
 	using ConstIterator = AppliedNodeModifiersVector::ConstIterator;
 
 	void append(const AppliedNodeModifiersStorage &other, v3s16 offset);
