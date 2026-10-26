@@ -181,6 +181,7 @@ public:
 	bool Texture2DArraySupported = false;
 	bool KHRDebugSupported = false;
 	bool RenderToFloatTextureSupported = false;
+	bool BinaryCacheSupported = false;
 	u32 MaxLabelLength = 0;
 };
 

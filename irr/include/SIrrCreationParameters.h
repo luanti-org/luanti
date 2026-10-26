@@ -43,6 +43,7 @@ struct SIrrlichtCreationParameters
 #endif
 			PrivateData(0),
 			OGLES2ShaderPath("SHADER_PATH_WAS_NOT_SET"),
+			ShaderCachePath(""),
 			DriverDebug(false)
 	{
 	}
@@ -219,6 +220,9 @@ struct SIrrlichtCreationParameters
 	/** This is about the shaders which can be found in media/Shaders by default. It's only necessary
 	to set when using OGL-ES 2.0 */
 	io::path OGLES2ShaderPath;
+
+	//! Path to shader cache. If empty, shader cache is disabled.
+	io::path ShaderCachePath;
 
 	//! Enable debug and error checks in video driver.
 	bool DriverDebug;
