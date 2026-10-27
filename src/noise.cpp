@@ -27,9 +27,11 @@
 #include "noise.h"
 #include <iostream>
 #include <cstring> // memset
+#include <optional>
 #include "debug.h"
 #include "util/numeric.h"
 #include "util/string.h"
+#include "util/checked_ops.h"
 #include "exceptions.h"
 
 #define NOISE_MAGIC_X    1619
@@ -402,10 +404,12 @@ void Noise::allocBuffers()
 	delete[] result;
 
 	try {
-		size_t bufsize = sx * sy * sz;
+		size_t bufsize = checked::mul(sx, sy, sz).value();
 		this->persist_buf = NULL;
 		this->value_buf = new float[bufsize];
 		this->result = new float[bufsize];
+	} catch (std::bad_optional_access& b) {
+		throw InvalidNoiseParamsException();
 	} catch (std::bad_alloc &e) {
 		throw InvalidNoiseParamsException();
 	}

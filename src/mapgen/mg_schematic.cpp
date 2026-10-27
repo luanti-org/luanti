@@ -529,7 +529,6 @@ bool Schematic::saveSchematicToFile(const std::string &filename,
 	return fs::safeWriteToFile(filename, os.str());
 }
 
-
 bool Schematic::getSchematicFromMap(Map *map, v3s16 p1, v3s16 p2)
 {
 	assert(p2 >= p1);
@@ -548,8 +547,14 @@ bool Schematic::getSchematicFromMap(Map *map, v3s16 p1, v3s16 p2)
 	for (s16 y = 0; y != size.Y; y++)
 		slice_probs[y] = MTSCHEM_PROB_ALWAYS;
 
-	// FIXME: can overflow
-	schemdata = new MapNode[size.X * size.Y * size.Z];
+	const std::optional<s16> volume =
+				checked::mul(size.X, size.Y, size.Z);
+	if (!volume || *volume <= 0) {
+		// TODO: is this the correct cleanup and error signaling?
+		delete vm;
+		return false;
+	}
+	schemdata = new MapNode[*volume];
 
 	u32 i = 0;
 	for (s16 z = p1.Z; z <= p2.Z; z++)
