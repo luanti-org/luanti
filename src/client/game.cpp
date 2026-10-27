@@ -15,6 +15,10 @@
 #include "clientmap.h"
 #include "clientmedia.h" // For clientMediaUpdateCacheCopy
 #include "config.h"
+#include "client/gyro_android.h"
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
 #include "content_cao.h"
 #include "content/subgames.h"
 #include "client/event_manager.h"
@@ -401,6 +405,7 @@ Game::~Game()
 	delete server;
 
 	delete hud;
+	gyro_deinit();
 	delete camera;
 	delete quicktune;
 	delete eventmgr;
@@ -557,6 +562,18 @@ void Game::run()
 		processUserInput(dtime);
 		// Update camera before player movement to avoid camera lag of one frame
 		updateCameraDirection(&cam_view_target, dtime);
+		if (g_settings->getBool("gyro_enabled")) {
+			gyro_poll(g_settings->getFloat("gyro_sensitivity"));
+			f32 dy = camera->getGyroYawDelta();
+			f32 dp = camera->getGyroPitchDelta();
+			if (dy != 0.0f || dp != 0.0f) {
+				const f32 rad_to_deg = 180.0f / M_PI;
+				cam_view_target.camera_yaw   += dy * rad_to_deg;
+				cam_view_target.camera_pitch += dp * rad_to_deg;
+				cam_view_target.camera_pitch = rangelim(cam_view_target.camera_pitch, -90.0f, 90.0f);
+				camera->resetGyroOffset();
+			}
+		}
 		if (m_cache_cam_smoothing <= 0.0f) {
 			cam_view.camera_yaw = cam_view_target.camera_yaw;
 			cam_view.camera_pitch = cam_view_target.camera_pitch;
@@ -573,6 +590,7 @@ void Game::run()
 					cam_damp_lambda
 			);
 		}
+
 		updatePlayerControl(cam_view);
 
 		updatePauseState();
@@ -882,6 +900,11 @@ bool Game::createClient(const GameStartData &start_data)
 	/* Camera
 	 */
 	camera = new Camera(*draw_control, client, m_rendering_engine);
+
+	if (g_settings->getBool("gyro_enabled")) {
+		gyro_init(camera);
+		camera->setGyroEnabled(true);
+	}
 	if (client->modsLoaded())
 		client->getScript()->on_camera_ready(camera);
 	client->setCamera(camera);
@@ -2585,7 +2608,6 @@ void Game::updateCamera(f32 dtime)
 
 	tool_reload_ratio = std::min(tool_reload_ratio, 1.0f);
 	camera->update(player, dtime, tool_reload_ratio);
-	camera->step(dtime);
 
 	if (!m_flags.disable_camera_update) {
 		client->getEnv().getClientMap().updateCamera(camera->getPosition(),
@@ -3287,10 +3309,6 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 			tool_item.wear);
 
 	// If can't dig, try hand
-	if (!params.diggable) {
-		params = getDigParams(features.groups,
-				&hand_item.getToolCapabilities(itemdef_manager));
-	}
 
 	if (!params.diggable) {
 		// I guess nobody will wait for this long

@@ -181,6 +181,29 @@ public:
 
 	inline void addArmInertia(f32 player_yaw);
 
+
+	// --- Control por giroscopio ---
+	void setGyroEnabled(bool enabled) { m_gyro_enabled = enabled; }
+	bool isGyroEnabled() const { return m_gyro_enabled; }
+
+	void addGyroDelta(f32 yaw_delta, f32 pitch_delta)
+	{
+		if (!m_gyro_enabled)
+			return;
+		m_gyro_yaw_offset += yaw_delta;
+		m_gyro_pitch_offset += pitch_delta;
+		// Limitar el pitch para que la cámara no se voltee
+		m_gyro_pitch_offset = rangelim(m_gyro_pitch_offset, -1.5f, 1.5f);
+	}
+
+	void resetGyroOffset()
+	{
+		m_gyro_yaw_offset = 0.0f;
+		m_gyro_pitch_offset = 0.0f;
+	}
+
+	f32 getGyroYawDelta() const { return m_gyro_yaw_offset; }
+	f32 getGyroPitchDelta() const { return m_gyro_pitch_offset; }
 private:
 	// Use getFrustumCuller().
 	// This helper just exists to decrease the header's number of includes.
@@ -256,6 +279,12 @@ private:
 
 	f32 m_cache_view_bobbing_amount;
 	bool m_arm_inertia;
+
+
+	// --- Estado del giroscopio ---
+	bool m_gyro_enabled = true;
+	f32 m_gyro_yaw_offset = 0.0f;
+	f32 m_gyro_pitch_offset = 0.0f;
 
 	std::vector<Nametag*> m_nametags;
 	bool m_show_nametag_backgrounds;

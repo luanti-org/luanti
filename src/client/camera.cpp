@@ -3,6 +3,9 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "camera.h"
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
 #include "client.h"
 #include "clientmap.h"     // MapDrawControl
 #include "localplayer.h"
