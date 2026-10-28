@@ -38,7 +38,7 @@ static inline session_t readPeerId(const u8 *packetdata)
 {
 	return readU16(&packetdata[4]);
 }
-static inline u8 readChannel(const u8 *packetdata)
+static ChannelNumber readChannel(const u8 *packetdata)
 {
 	return readU8(&packetdata[6]);
 }
@@ -277,7 +277,7 @@ void ConnectionSendThread::runTimeouts(float dtime, u32 peer_packet_quota)
 void ConnectionSendThread::resendReliable(Channel &channel, const BufferedPacket *k, float resend_timeout)
 {
 	assert(k);
-	u8 channelnum = readChannel(k->data);
+	const ChannelNumber channelnum = readChannel(k->data);
 	u16 seqnum = k->getSeqnum();
 
 	channel.UpdateBytesLost(k->size());
@@ -291,7 +291,7 @@ void ConnectionSendThread::resendReliable(Channel &channel, const BufferedPacket
 		derr_con << "(force): ";
 	derr_con
 		<< "count=" << k->resend_count
-		<< ", channel=" << ((int) channelnum & 0xff)
+		<< ", channel=" << (static_cast<int>(channelnum) & 0xff)
 		<< ", seqnum=" << seqnum
 		<< std::endl;
 
@@ -336,7 +336,7 @@ void ConnectionSendThread::sendAsPacketReliable(BufferedPacketPtr &p, Channel *c
 	rawSend(p.get());
 }
 
-bool ConnectionSendThread::rawSendAsPacket(session_t peer_id, u8 channelnum,
+bool ConnectionSendThread::rawSendAsPacket(session_t peer_id, const ChannelNumber channelnum,
 	const SharedBuffer<u8> &data, bool reliable)
 {
 	PeerHelper peer = m_connection->getPeerNoEx(peer_id);
@@ -346,7 +346,7 @@ bool ConnectionSendThread::rawSendAsPacket(session_t peer_id, u8 channelnum,
 			<< "packet for non existent peer_id: " << peer_id << std::endl);
 		return false;
 	}
-	Channel *channel = &(dynamic_cast<UDPPeer *>(&peer)->channels[channelnum]);
+	Channel *channel = &dynamic_cast<UDPPeer *>(&peer)->channels[channelnum];
 
 	if (reliable) {
 		bool have_seqnum = false;
@@ -366,7 +366,7 @@ bool ConnectionSendThread::rawSendAsPacket(session_t peer_id, u8 channelnum,
 		if (channel->outgoing_reliables_sent.size() < channel->getWindowSize()) {
 			LOG(dout_con << m_connection->getDesc()
 				<< " INFO: sending a reliable packet to peer_id " << peer_id
-				<< " channel: " << (u32)channelnum
+				<< " channel: " << static_cast<u32>(channelnum)
 				<< " seqnum: " << seqnum << std::endl);
 			sendAsPacketReliable(p, channel);
 			return true;
@@ -374,7 +374,7 @@ bool ConnectionSendThread::rawSendAsPacket(session_t peer_id, u8 channelnum,
 
 		LOG(dout_con << m_connection->getDesc()
 			<< " INFO: queueing reliable packet for peer_id: " << peer_id
-			<< " channel: " << (u32)channelnum
+			<< " channel: " << static_cast<u32>(channelnum)
 			<< " seqnum: " << seqnum << std::endl);
 		channel->queued_reliables.push(p);
 		return false;
@@ -589,11 +589,9 @@ void ConnectionSendThread::fix_peer_id(session_t own_peer_id)
 	}
 }
 
-void ConnectionSendThread::send(session_t peer_id, u8 channelnum,
+void ConnectionSendThread::send(session_t peer_id, const ChannelNumber channelnum,
 	const SharedBuffer<u8> &data)
 {
-	assert(channelnum < CHANNEL_COUNT); // Pre-condition
-
 	PeerHelper peer = m_connection->getPeerNoEx(peer_id);
 	if (!peer) {
 		LOG(dout_con << m_connection->getDesc() << " peer: peer_id=" << peer_id
@@ -630,7 +628,7 @@ void ConnectionSendThread::sendReliable(ConnectionCommandPtr &c)
 	peer->PutReliableSendCommand(c, m_max_packet_size);
 }
 
-void ConnectionSendThread::sendToAll(u8 channelnum, const SharedBuffer<u8> &data)
+void ConnectionSendThread::sendToAll(const ChannelNumber channelnum, const SharedBuffer<u8> &data)
 {
 	std::vector<session_t> peerids = m_connection->getPeerIDs();
 
@@ -772,8 +770,7 @@ void ConnectionSendThread::sendPackets(float dtime, u32 peer_packet_quota)
 
 		/* send acks immediately */
 		if (packet.ack || peer->m_increment_packets_remaining > 0 || stopRequested()) {
-			rawSendAsPacket(packet.peer_id, packet.channelnum,
-				packet.data, packet.reliable);
+			rawSendAsPacket(packet.peer_id, packet.channelnum, packet.data, packet.reliable);
 			if (peer->m_increment_packets_remaining > 0)
 				peer->m_increment_packets_remaining--;
 		} else {
@@ -802,7 +799,7 @@ void ConnectionSendThread::sendPackets(float dtime, u32 peer_packet_quota)
 	}
 }
 
-void ConnectionSendThread::sendAsPacket(session_t peer_id, u8 channelnum,
+void ConnectionSendThread::sendAsPacket(session_t peer_id, const ChannelNumber channelnum,
 	const SharedBuffer<u8> &data, bool ack)
 {
 	OutgoingPacket packet(peer_id, channelnum, data, false, ack);
@@ -1047,7 +1044,7 @@ void ConnectionReceiveThread::receive(SharedBuffer<u8> &packetdata,
 
 			LOG(dout_con << m_connection->getDesc()
 				<< " ProcessPacket from peer_id: " << peer_id
-				<< ", channel: " << (u32)channelnum << ", returned "
+				<< ", channel: " << static_cast<u32>(channelnum) << ", returned "
 				<< resultdata.getSize() << " bytes" << std::endl);
 
 			m_connection->putEvent(ConnectionEvent::dataReceived(peer_id, resultdata));
@@ -1101,14 +1098,14 @@ bool ConnectionReceiveThread::checkIncomingBuffers(Channel *channel,
 	BufferedPacketPtr p = channel->incoming_reliables.popFirst();
 
 	peer_id = readPeerId(p->data); // Carried over to caller function
-	u8 channelnum = readChannel(p->data);
+	const ChannelNumber channelnum = readChannel(p->data);
 	u16 seqnum = p->getSeqnum();
 
 	LOG(dout_con << m_connection->getDesc()
 		<< "UNBUFFERING TYPE_RELIABLE"
 		<< " seqnum=" << seqnum
 		<< " peer_id=" << peer_id
-		<< " channel=" << ((int) channelnum & 0xff)
+		<< " channel=" << (static_cast<int>(channelnum) & 0xff)
 		<< std::endl);
 
 	channel->incNextIncomingSeqNum();
@@ -1123,7 +1120,8 @@ bool ConnectionReceiveThread::checkIncomingBuffers(Channel *channel,
 }
 
 SharedBuffer<u8> ConnectionReceiveThread::processPacket(Channel *channel,
-	const SharedBuffer<u8> &packetdata, session_t peer_id, u8 channelnum, bool reliable)
+const SharedBuffer<u8> &packetdata, session_t peer_id, const ChannelNumber channelnum,
+	bool reliable)
 {
 	PeerHelper peer = m_connection->getPeerNoEx(peer_id);
 
