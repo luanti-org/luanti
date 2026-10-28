@@ -6,5 +6,5 @@ void luaxtea_encipher(unsigned int num_rounds, uint32_t v[2], uint32_t const key
 
 void luaxtea_decipher(unsigned int num_rounds, uint32_t v[2], uint32_t const key[4]);
 
-uint64_t luaxtea_cipher_pointer(void* ptr);
+uint64_t luaxtea_cipher_pointer(const void* ptr);
 

@@ -48,7 +48,7 @@ static std::array<uint32_t, 4> getKey() {
 }
 
 static constexpr const unsigned NUM_ROUNDS = 32;
-uint64_t cipher_pointer(void* ptr) {
+uint64_t cipher_pointer(const void* ptr) {
 	// "The recommended value for the "num_rounds" parameter is 32, not 64, as each iteration of the loop does two Feistel-cipher rounds"
 	auto key = getKey();
 
