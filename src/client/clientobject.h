@@ -82,8 +82,8 @@ protected:
 	Client *m_client;
 	ClientEnvironment *m_env;
 private:
-	// Used for creating objects based on type
-	static std::unordered_map<u16, Factory> m_types;
+	// Construct-on-first-use, to avoid depending on static init order across translation units
+	static std::unordered_map<u16, Factory> &getTypes();
 };
 
 class DistanceSortedActiveObject
