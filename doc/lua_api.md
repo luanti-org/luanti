@@ -9806,6 +9806,7 @@ You **must not** mix names and track numbers to refer to the same animation.
       * `moonlight_color`: overrides the color of moonlight (`ColorSpec` or `false`).
       * `lightsource_color`: overrides the color of light emitted by light
         sources, e.g. torches (`ColorSpec` or `false`).
+        * (all three added in 5.18.0)
         * All three default to the engine's built-in colors. Omitting any leaves the value unchanged.
           Passing `false` resets an individual color to its engine default.
         * `sunlight_color` and `moonlight_color` are still blended by time of

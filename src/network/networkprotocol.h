@@ -704,6 +704,12 @@ enum ToClientCommand : u16
 		bool light_curve_set
 		u8 light_curve[16] (ONLY if previous bool is true)
 		f32 ambient_occlusion_gamma
+		bool has_sunlight_color
+		SColor sunlight_color
+		bool has_moonlight_color
+		SColor moonlight_color
+		bool has_lightsource_color
+		SColor lightsource_color
 	*/
 
 	TOCLIENT_SPAWN_PARTICLE_BATCH = 0x64,
