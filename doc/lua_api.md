@@ -3546,7 +3546,7 @@ Elements
 
 * Scrollable item list showing arbitrary text elements
 * `name` fieldname sent to server on row select or double-click, value is
-  current selected element.
+  the current selected element.
 * `listelements` can be prepended by #color in hexadecimal format RRGGBB
   (only).
     * if you want a listelement to start with "#" write "##".
@@ -3555,7 +3555,7 @@ Elements
 
 * Scrollable itemlist showing arbitrary text elements
 * `name` fieldname sent to server on row select or double-click, value is
-  current selected element.
+  the current selected element.
 * `listelements` can be prepended by #RRGGBB (only) in hexadecimal format
     * if you want a listelement to start with "#" write "##"
 * Index to be selected within textlist
@@ -3646,7 +3646,7 @@ Elements
 
 * Show a checkbox
 * `name` fieldname data is transferred to Lua
-* `label` to be shown right of checkbox
+* `label` to be shown right of the checkbox
 * `selected` (optional): `true`/`false`
 * **Note**: If the new coordinate system is enabled, checkboxes are
   positioned from the center of the checkbox, not the top.
@@ -4500,7 +4500,7 @@ vectors are written like this: `(x, y, z)`:
 * `vector.random_in_area(min, max)`:
     * Returns a random integer position in area formed by `min` and `max`
     * `min` and `max` are inclusive.
-    * Raises an error if `min` is bigger than `max` on some axis.
+    * Raises an error if `min > max` on any axis.
     * You can use `vector.sort` if you have two vectors and don't know which are the minimum and the maximum.
 
 Operators
