@@ -5785,6 +5785,7 @@ All numbers used in these methods must be integers.
       `[z [y [x]]]`.
     * errors if the arguments are not integers
     * errors if (`minx`, `miny`, `minz`) to (`maxx`, `maxy`, `maxz`) is not completely inside the VoxelArea.
+    * errors if any `min` is more than its corresponding `max` (so the area would be empty)
 * `iterp(minp, maxp)`: same as above, except takes a vector
 
 ### Y stride and z stride of a flat array

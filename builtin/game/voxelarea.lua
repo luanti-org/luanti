@@ -100,8 +100,12 @@ local function assert_integral(num, var, which)
 end
 
 local function check_range(query_min, query_max, target_min, target_max, var)
-	assert_integral(query_min, var, "min")
-	assert_integral(query_max, var, "max")
+	if math.floor(query_min) ~= query_min then
+		error(("min" .. var .. " %.17g is not an integer"):format(num))
+	end
+	if math.floor(query_max) ~= query_max then
+		error(("max" .. var .. " %.17g is not an integer"):format(num))
+	end
 
 	if query_min > query_max then
 		error("Requested VoxelArea iteration axis '"
@@ -110,7 +114,7 @@ local function check_range(query_min, query_max, target_min, target_max, var)
 		error("Requested VoxelArea iteration axis '"
 				.. var .. "' range is fully outside the VoxelArea.")
 	elseif query_min < target_min or query_max > target_max then
-		error("Requested Voxelarea iteration axis '"
+		error("Requested VoxelArea iteration axis '"
 				.. var .. "' range is partly outside the VoxelArea.")
 	end
 end
