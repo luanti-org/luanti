@@ -65,14 +65,14 @@ void luaxtea_decipher(unsigned int num_rounds, uint32_t v[2], uint32_t const key
 	v[0]=v0; v[1]=v1;
 }
 
-static thread_local uint32_t xtea_key[4] = 0;
+static thread_local uint32_t xtea_key[4] = {};
 static thread_local bool xtea_key_initialized = false;
 static uint32_t* getKey() {
 	if (!xtea_key_initialized) {
 		fill_with_random((uint8_t*) xtea_key, sizeof(uint32_t) * 4);
 		xtea_key_initialized = true;
 	}
-	return luaxtea_key;
+	return xtea_key;
 }
 
 static constexpr const unsigned NUM_ROUNDS = 32;
@@ -85,7 +85,7 @@ uint64_t luaxtea_cipher_pointer(const void* ptr) {
 	// split the 64-bit value into 2 32-bit values
 	uint32_t v[2] = {uint32_t(extended >> 32), uint32_t(extended & 0xFFFFFFFFu)};
 
-	luaxtea_encipher(NUM_ROUNDS, v, key.data());
+	luaxtea_encipher(NUM_ROUNDS, v, key);
 	// reassemble "extended", and return
 	extended = (uint64_t(v[0]) << 32) | uint64_t(v[1]);
 	return extended;
