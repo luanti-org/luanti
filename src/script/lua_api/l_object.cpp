@@ -83,7 +83,7 @@ int ObjectRef::mt_tostring(lua_State *L)
 			lua_pushfstring(L, "ObjectRef (entity): %s (id: %d)",
 					entitysao->getName().c_str(), entitysao->getId());
 		} else {
-			lua_pushliteral(L, "ObjectRef (?): (deleted)");
+			lua_pushliteral(L, "ObjectRef (not player or entity)");
 		}
 	} else {
 		lua_pushliteral(L, "ObjectRef (invalid)");
