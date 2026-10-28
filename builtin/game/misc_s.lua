@@ -8,18 +8,38 @@
 --
 
 -- This must match the implementation in src/script/common/c_converter.h
-function core.hash_node_position(pos)
-	return (pos.z + 0x8000) * 0x100000000 + (pos.y + 0x8000) * 0x10000 + (pos.x + 0x8000)
+local function compatibility_hash_node_position(x, y, z)
+	return (z + 0x8000) * 0x100000000 + (y + 0x8000) * 0x10000 + (x + 0x8000)
 end
 
+function core.hash_node_position(pos)
+	local x, y, z = pos.x, pos.y, pos.z
+	if x < 0x8000 and x >= -0x8000 and
+			y < 0x8000 and y >= -0x8000 and
+			z < 0x8000 and z >= -0x8000 then
+		return compatibility_hash_node_position(x, y, z)
+	end
+	return string.format("%08x%08x%08x", x + 0x80000000, y + 0x80000000, z + 0x80000000)
+end
 
-function core.get_position_from_hash(hash)
+local function compatibility_get_position_from_hash(hash)
 	local x = (hash % 65536) - 32768
 	hash  = math.floor(hash / 65536)
 	local y = (hash % 65536) - 32768
 	hash  = math.floor(hash / 65536)
 	local z = (hash % 65536) - 32768
 	return vector.new(x, y, z)
+end
+
+function core.get_position_from_hash(hash)
+	if type(hash) == "number" then
+		return compatibility_get_position_from_hash(hash)
+	end
+	return vector.new(
+		tonumber(hash:sub(1, 8), 16) - 0x80000000,
+		tonumber(hash:sub(9, 16), 16) - 0x80000000,
+		tonumber(hash:sub(17, 24), 16) - 0x80000000
+	)
 end
 
 
