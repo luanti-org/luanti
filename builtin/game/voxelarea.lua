@@ -93,18 +93,12 @@ function VoxelArea:containsi(i)
 	return (i >= 1) and (i <= self:getVolume())
 end
 
-local function assert_integral(num, var, which)
-	if math.floor(num) ~= num then
-		error((which .. var .. " %f is not an integer"):format(num))
-	end
-end
-
 local function check_range(query_min, query_max, target_min, target_max, var)
 	if math.floor(query_min) ~= query_min then
-		error(("min" .. var .. " %.17g is not an integer"):format(num))
+		error(("min" .. var .. " %.17g is not an integer"):format(query_min))
 	end
 	if math.floor(query_max) ~= query_max then
-		error(("max" .. var .. " %.17g is not an integer"):format(num))
+		error(("max" .. var .. " %.17g is not an integer"):format(query_max))
 	end
 
 	if query_min > query_max then
