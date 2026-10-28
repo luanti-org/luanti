@@ -1623,8 +1623,9 @@ The function of `param2` is determined by `paramtype2` in node definition.
       points in the desired direction. For the y- direction, it's rotated 180
       degrees around the Z axis.
     * facedir modulo 4 = left-handed rotation around the specified axis, in 90° steps.
-    * By default, on placement the param2 is automatically set to the
-      horizontal direction the player was looking at (values 0-3)
+    * By default, on placement, the param2 is set based on the horizontal
+      direction from the placer's position to the destination node's position
+      (values 0-3). This may differ from the direction the placer is looking at.
     * Special case: If the node is a connected nodebox, the nodebox
       will NOT rotate, only the textures will.
 * `paramtype2 = "4dir"`
