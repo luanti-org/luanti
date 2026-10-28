@@ -12291,7 +12291,9 @@ Used by `ObjectRef:hud_add`. Returned by `ObjectRef:hud_get`.
     -- In case both are specified `type` will be used.
 
     position = {x=0.5, y=0.5}, -- two numbers
-    -- Top left corner position of element
+    -- Screen position, as a fraction of the screen size.
+    -- Where the element is drawn relative to it depends
+    -- on `alignment` and `offset`
 
     name = "<name>", -- string
 
