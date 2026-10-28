@@ -25,7 +25,6 @@ static void fill_with_random(uint8_t buf[], size_t size) {
 // POSIX platforms
 #include <stdio.h>
 
-#include <stdassert.h>
 static void fill_with_random(uint8_t buf[], size_t size) {
 	FILE* random = fopen("/dev/urandom", "rb");
 	if (random == NULL) {
