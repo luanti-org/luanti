@@ -274,7 +274,9 @@ private:
 	inheriting MapgenBasic.
 */
 class MapgenBasic : public Mapgen {
+	friend class ModApiMapgen;
 public:
+	MapgenBasic() = default;
 	MapgenBasic(int mapgenid, MapgenParams *params, EmergeParams *emerge);
 	virtual ~MapgenBasic();
 
