@@ -15,7 +15,7 @@ end
 
 assert(core.create_dir(core.get_cache_path() .. DIR_DELIM .. "cdb"))
 local cache_file_path = core.get_cache_path() .. DIR_DELIM .. "cdb" .. DIR_DELIM .. "updates.json"
-local has_fetched = false
+local fetched_url
 local latest_releases
 do
 	-- reuse cached data if available and valid
@@ -29,7 +29,6 @@ do
 		data = data ~= "" and core.parse_json(data) or nil
 		if type(data) == "table" then
 			latest_releases = data
-			has_fetched = true
 		end
 	end
 end
@@ -81,15 +80,16 @@ end
 
 
 local function fetch()
-	if has_fetched or not has_packages_from_cdb() then
+	local url = core.settings:get("contentdb_url")
+	if fetched_url == url or not has_packages_from_cdb() then
 		return
 	end
 
-	has_fetched = true
+	fetched_url = url
 
 	get_latest_releases(function(releases)
 		if not releases then
-			-- do not retry so we don't spam the backend.
+			-- do not retry the same url so we don't spam the backend.
 			-- note that relaunching the menu will try again anyway.
 			return
 		end
