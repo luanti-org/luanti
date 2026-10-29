@@ -408,6 +408,9 @@ public:
 	// Set disk to true for on-disk format, false for over-the-network format
 	// Precondition: version >= SER_FMT_VER_LOWEST_WRITE
 	void serialize(std::ostream &result, u8 version, bool disk, int compression_level);
+	// Used to defer compression, the result must be passed to compress()
+	// Precondition: version >= 29
+	void serializeUncompressed(std::ostream &os, u8 version, bool disk);
 	// If disk == true: In addition to doing other things, will add
 	// unknown blocks from id-name mapping to wndef
 	void deSerialize(std::istream &is, u8 version, bool disk);
@@ -436,6 +439,7 @@ private:
 		Private methods
 	*/
 
+	void serializeInternal(std::ostream &os, u8 version, bool disk, int compression_level);
 	void deSerialize_pre22(std::istream &is, u8 version, bool disk);
 	void deSerialize_pre29(std::istream &is, u8 version, bool disk);
 	// check if all nodes are identical, if so convert to monoblock
