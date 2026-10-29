@@ -470,6 +470,14 @@ window_maximized (Window maximized) bool false
 #    Requires: desktop
 autosave_screensize (Remember screen size) bool true
 
+#    Render at the display's native high pixel density ("Retina"/HiDPI),
+#    if it has one. Disabling renders at the window's logical size, which is
+#    faster on weak GPUs driving high-resolution scaled displays, at the
+#    cost of a slightly blurry image.
+#
+#    Requires: desktop
+hidpi (High pixel density rendering) bool true
+
 #    Fullscreen mode.
 #
 #    Requires: desktop

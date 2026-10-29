@@ -28,6 +28,7 @@ struct SIrrlichtCreationParameters
 			Fullscreen(false),
 			WindowMaximized(false),
 			WindowResizable(2),
+			HighPixelDensity(true),
 			Stencilbuffer(true),
 			Vsync(false),
 			AntiAlias(0),
@@ -85,6 +86,12 @@ struct SIrrlichtCreationParameters
 	Values: 0 = not resizable, 1 = resizable, 2 = system decides default itself
 	Default: 2*/
 	u8 WindowResizable;
+
+	//! Request a high pixel density (Retina/HiDPI) drawable. (Only supported on SDL.)
+	/** When enabled on a scaled display, the drawable size is a multiple of the
+	window size. Disabling it keeps the drawable at window size, greatly reducing
+	fill-rate and compositing load on weak GPUs. Default: true */
+	bool HighPixelDensity;
 
 	//! Specifies if the stencil buffer should be enabled.
 	/** Set this to true, if you want the engine be able to draw
