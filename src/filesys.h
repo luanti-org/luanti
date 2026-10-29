@@ -111,12 +111,12 @@ bool MoveDir(const std::string &source, const std::string &target);
 
 // Check if two paths are the same
 // Ignores case differences and '/' vs. '\\' on Windows
-bool PathsEqual(const std::string &p1, const std::string &p2);
+bool PathsEqual(const std::string_view p1, const std::string_view p2);
 
 // Check if one path is prefix of another
 // For example, "/tmp" is a prefix of "/tmp" and "/tmp/file" but not "/tmp2"
 // Ignores case differences and '/' vs. '\\' on Windows
-bool PathStartsWith(const std::string &path, const std::string &prefix);
+bool PathStartsWith(const std::string_view path, const std::string_view prefix);
 
 // If child is (as absolute path) inside parent (also as absolute path), returns
 // the part of child that is relative to parent.
@@ -142,14 +142,14 @@ std::string RemoveRelativePathComponents(std::string path);
 // Returns the absolute path for the passed path, with "." and ".." path
 // components and symlinks removed.  Returns "" on error.
 [[nodiscard]]
-std::string AbsolutePath(const std::string &path);
+std::string AbsolutePath(std::string_view path);
 
 // This is a combination of RemoveRelativePathComponents() and AbsolutePath()
 // It will resolve symlinks for the leading path components that exist and
 // still remove "." and ".." in the rest of the path.
 // Returns "" on error.
 [[nodiscard]]
-std::string AbsolutePathPartial(const std::string &path);
+std::string AbsolutePathPartial(std::string_view path);
 
 // Returns the filename from a path or the entire path if no directory
 // delimiter is found.
