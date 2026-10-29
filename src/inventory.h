@@ -292,7 +292,6 @@ public:
 		return !(*this == other);
 	}
 
-	// Never ever serialize to disk using "incremental"!
 	void serialize(std::ostream &os, bool incremental = false) const;
 	void deSerialize(std::istream &is);
 

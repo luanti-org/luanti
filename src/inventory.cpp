@@ -13,6 +13,8 @@
 #include "util/serialize.h"
 #include "util/string.h"
 
+#include <fstream>
+
 /*
 	ItemStack
 */
@@ -964,6 +966,10 @@ bool Inventory::operator == (const Inventory &other) const
 
 void Inventory::serialize(std::ostream &os, bool incremental) const
 {
+	if (incremental)
+		assert(dynamic_cast<std::ofstream *>(&os) == nullptr &&
+			   "Never ever serialize to disk using \"incremental\"!");
+
 	//std::cout << "Serialize " << (int)incremental << ", n=" << m_lists.size() << std::endl;
 	for (const InventoryList *list : m_lists) {
 		if (!incremental || list->checkModified()) {
