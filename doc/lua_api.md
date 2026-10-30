@@ -2937,7 +2937,8 @@ Item Metadata
 -------------
 
 Item stacks can store metadata too. See [`ItemStackMetaRef`](#itemstackmetaref)
-Note: They are not able to store the character `"\1"`, be very careful when storing binary data in them
+**Note:** The following characters cannot be stored and are stripped from
+the input: `\1`, `\2`, `\3`. Consider encoding binary data, e.g. using base64.
 
 Item metadata only contains a key-value store.
 
