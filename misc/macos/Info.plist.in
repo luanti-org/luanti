@@ -18,6 +18,8 @@
 	<string>org.luanti.luanti</string>
 	<key>CFBundleVersion</key>
 	<string>@VERSION_STRING@</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.games</string>
 	<key>NSHighResolutionCapable</key>
