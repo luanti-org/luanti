@@ -463,11 +463,11 @@ std::string UnitSAO::generateUpdatePositionCommand(const v3f &position,
 	return os.str();
 }
 
-std::string UnitSAO::generateSetPropertiesCommand(const ObjectProperties &prop) const
+std::string UnitSAO::generateSetPropertiesCommand(const ObjectProperties &prop, u16 protocol_version) const
 {
 	std::ostringstream os(std::ios::binary);
 	writeU8(os, AO_CMD_SET_PROPERTIES);
-	prop.serialize(os);
+	prop.serialize(os, protocol_version);
 	return os.str();
 }
 

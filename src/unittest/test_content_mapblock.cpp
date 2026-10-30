@@ -5,13 +5,16 @@
 #include "test.h"
 
 #include "gamedef.h"
+#include "network/networkprotocol.h"
 #include "inventory.h" // ItemStack
 #include "dummygamedef.h"
 #include "client/content_mapblock.h"
 #include "client/mapblock_mesh.h"
 #include "client/meshgen/collector.h"
 #include "client/node_visuals.h"
+#include "client/shader.h"
 #include <memory>
+#include <sstream>
 #include "mesh_compare.h"
 
 namespace {
@@ -47,7 +50,7 @@ public:
 
 	MeshMakeData makeSingleNodeMMD(bool smooth_lighting = true)
 	{
-		MeshMakeData data{ndef(), 1, MeshGrid{1}};
+		MeshMakeData data{ndef(), 1, MeshGrid{1}, getNodeModifierManager(), nullptr};
 		data.m_generate_minimap = false;
 		data.m_smooth_lighting = smooth_lighting;
 		data.m_enable_water_reflections = false;
@@ -60,7 +63,8 @@ public:
 		return data;
 	}
 
-	content_t addSimpleNode(std::string name, u32 texture)
+	content_t addSimpleNode(std::string name, u32 texture, u8 light = 0,
+			NodeDrawType drawtype = NDT_NORMAL)
 	{
 		ItemDefinition itemdef;
 		itemdef.type = ITEM_NODE;
@@ -70,7 +74,8 @@ public:
 		ContentFeatures f;
 		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
-		f.drawtype = NDT_NORMAL;
+		f.drawtype = drawtype;
+		f.light_source = light;
 		f.alpha = ALPHAMODE_OPAQUE;
 		for (TileDef &tiledef : f.tiledef)
 			tiledef.name = name + ".png";
@@ -80,7 +85,7 @@ public:
 		return registerNode(itemdef, std::move(f));
 	}
 
-	content_t addLiquidSource(std::string name, u32 texture)
+	content_t addLiquidSource(std::string name, u32 texture, u8 light = 0)
 	{
 		ItemDefinition itemdef;
 		itemdef.type = ITEM_NODE;
@@ -91,6 +96,7 @@ public:
 		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_LIQUID;
+		f.light_source = light;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;
@@ -107,7 +113,7 @@ public:
 		return registerNode(itemdef, std::move(f));
 	}
 
-	content_t addLiquidFlowing(std::string name, u32 texture_top, u32 texture_side)
+	content_t addLiquidFlowing(std::string name, u32 texture_top, u32 texture_side, u8 light = 0)
 	{
 		ItemDefinition itemdef;
 		itemdef.type = ITEM_NODE;
@@ -118,6 +124,7 @@ public:
 		f.visuals = std::make_unique<NodeVisuals>();
 		f.name = itemdef.name;
 		f.drawtype = NDT_FLOWINGLIQUID;
+		f.light_source = light;
 		f.alpha = ALPHAMODE_BLEND;
 		f.light_propagates = true;
 		f.param_type = CPT_LIGHT;
@@ -150,7 +157,11 @@ public:
 	const char *getName() override { return "TestMapblockMeshGenerator"; }
 
 	void runTests(IGameDef *gamedef) override;
+	void testShaderWaving();
+	void testModifierTileResolution();
 	void testSimpleNode();
+	void testOverlayAlignment();
+	void testModifierLighting();
 	void testSurroundedNode();
 	void testInterliquidSame();
 	void testInterliquidDifferent();
@@ -158,10 +169,127 @@ public:
 
 static TestMapblockMeshGenerator g_test_instance;
 
+void TestMapblockMeshGenerator::testShaderWaving()
+{
+	UASSERT(alpha_mode_with_transparency(ALPHAMODE_OPAQUE) == ALPHAMODE_CLIP);
+	UASSERT(alpha_mode_with_transparency(ALPHAMODE_CLIP) == ALPHAMODE_CLIP);
+	UASSERT(alpha_mode_with_transparency(ALPHAMODE_BLEND) == ALPHAMODE_BLEND);
+
+	class RecordingShaderSource : public IShaderSource {
+	public:
+		using IShaderSource::getShader;
+		ShaderInfo info;
+		u32 requests = 0;
+		bool fail = false;
+		const ShaderInfo &getShaderInfo(u32) override { return info; }
+		bool supportsSampler2DArray() const override { return true; }
+		u32 getShader(const std::string &, const ShaderConstants &constants,
+				video::E_MATERIAL_TYPE material, IShaderUniformSetterRC *) override
+		{
+			info.input_constants = constants;
+			info.base_material = material;
+			++requests;
+			return fail ? 0 : requests;
+		}
+	} source;
+
+	for (WavingType waving : {WAVING_NONE, WAVING_PLANTS,
+			WAVING_LEAVES, WAVING_LIQUID}) {
+		for (bool array : {false, true}) {
+			for (MaterialType material : {TILE_MATERIAL_NORMAL, TILE_MATERIAL_LIQUID, TILE_MATERIAL_PLAIN}) {
+				for (AlphaMode alpha : {ALPHAMODE_OPAQUE, ALPHAMODE_CLIP, ALPHAMODE_BLEND}) {
+					u32 previous_requests = source.requests;
+					u32 shader = source.prepareNodeShader(material, alpha, waving, array);
+					UASSERTEQ(u32, source.requests, previous_requests + 1);
+					UASSERTEQ(u32, source.prepareNodeShader(material, alpha, waving, array), shader);
+					UASSERTEQ(u32, source.getNodeShader(material, alpha, waving, array), shader);
+					UASSERTEQ(u32, source.requests, previous_requests + 1);
+
+					const ShaderInfo &info = source.getShaderInfo(1);
+					UASSERTEQ(int, std::get<int>(info.input_constants.at("WAVING_TYPE")),
+							static_cast<int>(waving));
+					UASSERTEQ(int, std::get<int>(info.input_constants.at("MATERIAL_TYPE")),
+							static_cast<int>(material));
+					UASSERT((info.input_constants.count("USE_ARRAY_TEXTURE") != 0) == array);
+					video::E_MATERIAL_TYPE expected = alpha == ALPHAMODE_OPAQUE ?
+							video::EMT_SOLID : (alpha == ALPHAMODE_BLEND ?
+							video::EMT_TRANSPARENT_ALPHA_CHANNEL : video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF);
+					UASSERT(info.base_material == expected);
+
+					TileLayer layer;
+					layer.material_type = material;
+					layer.waving = waving;
+					layer.alpha = alpha;
+					UASSERT(layer.isTransparent() == (alpha == ALPHAMODE_BLEND));
+					UASSERTEQ(int, std::get<int>(info.input_constants.at("ALPHA_MODE")), static_cast<int>(alpha));
+				}
+			}
+		}
+	}
+	// Earlier entries survive preparation of other combinations.
+	u32 expected_id = 0;
+	for (WavingType waving : {WAVING_NONE, WAVING_PLANTS, WAVING_LEAVES, WAVING_LIQUID})
+		for (bool array : {false, true})
+			for (MaterialType material : {TILE_MATERIAL_NORMAL, TILE_MATERIAL_LIQUID, TILE_MATERIAL_PLAIN})
+				for (AlphaMode alpha : {ALPHAMODE_OPAQUE, ALPHAMODE_CLIP, ALPHAMODE_BLEND})
+					UASSERTEQ(u32, source.getNodeShader(material, alpha, waving, array), ++expected_id);
+	UASSERTEQ(u32, source.requests, expected_id);
+
+	RecordingShaderSource failing_source;
+	failing_source.fail = true;
+	for (int i = 0; i < 2; ++i) {
+		UASSERTEQ(u32, failing_source.prepareNodeShader(
+				TILE_MATERIAL_NORMAL, ALPHAMODE_OPAQUE, WAVING_NONE, false), 0);
+		UASSERTEQ(u32, failing_source.getNodeShader(
+				TILE_MATERIAL_NORMAL, ALPHAMODE_OPAQUE, WAVING_NONE, false), 0);
+	}
+	UASSERTEQ(u32, failing_source.requests, 1);
+}
+
+void TestMapblockMeshGenerator::testModifierTileResolution()
+{
+	NodeModifierManager manager;
+	auto add = [&](const char *name, AlphaMode alpha, bool dummy = false) {
+		NodeModifier modifier(name, dummy);
+		modifier.m_modified_props_mask = MP_Alpha;
+		modifier.m_alpha = alpha;
+		return manager.add(std::move(modifier));
+	};
+	u16 blend = add("test:blend", ALPHAMODE_BLEND);
+	u16 opaque = add("test:opaque", ALPHAMODE_OPAQUE);
+	u16 dummy = add("test:dummy", ALPHAMODE_CLIP, true);
+
+	AppliedNodeModifiersStorage storage;
+	NodeVisuals visuals;
+	TileSpec tile;
+	tile.layers[0].alpha = ALPHAMODE_CLIP;
+	tile.layers[0].waving = WAVING_LEAVES;
+	tile.layers[0].material_type = TILE_MATERIAL_LIQUID;
+
+	storage.getViewAtPos({0, 0, 0}).resolveTile(manager, visuals, 0, tile, WORLDALIGN_DISABLE, nullptr);
+	UASSERT(tile.layers[0].alpha == ALPHAMODE_CLIP);
+
+	UASSERT(storage.set({0, 0, 0}, {opaque, blend, dummy}));
+	storage.getViewAtPos({0, 0, 0}).resolveTile(manager, visuals, 0, tile, WORLDALIGN_DISABLE, nullptr);
+	UASSERT(tile.layers[0].alpha == ALPHAMODE_BLEND);
+	UASSERT(tile.layers[1].alpha == ALPHAMODE_BLEND);
+	UASSERT(tile.layers[0].waving == WAVING_LEAVES);
+	UASSERT(tile.layers[0].material_type == TILE_MATERIAL_LIQUID);
+
+	UASSERT(storage.add({0, 0, 0}, opaque));
+	storage.getViewAtPos({0, 0, 0}).resolveTile(manager, visuals, 0, tile, WORLDALIGN_DISABLE, nullptr);
+	UASSERT(tile.layers[0].alpha == ALPHAMODE_OPAQUE);
+	UASSERT(tile.layers[1].alpha == ALPHAMODE_CLIP);
+}
+
 void TestMapblockMeshGenerator::runTests(IGameDef *gamedef)
 {
 	set_light_decode_table();
+	TEST(testShaderWaving);
+	TEST(testModifierTileResolution);
 	TEST(testSimpleNode);
+	TEST(testOverlayAlignment);
+	TEST(testModifierLighting);
 	TEST(testSurroundedNode);
 	TEST(testInterliquidSame);
 	TEST(testInterliquidDifferent);
@@ -195,6 +323,63 @@ void TestMapblockMeshGenerator::testSimpleNode()
 	auto &&buf = col.prebuffers[0][0];
 	UASSERTEQ(u32, buf.layer.texture_id, 42);
 	UASSERT(checkMeshEqual(buf.vertices, buf.indices, {quad::xn, quad::xp, quad::yn, quad::yp, quad::zn, quad::zp}));
+}
+
+void TestMapblockMeshGenerator::testOverlayAlignment()
+{
+	for (AlignStyle alignment : {ALIGN_STYLE_NODE, ALIGN_STYLE_WORLD, ALIGN_STYLE_USER_DEFINED}) {
+		TileDef original;
+		original.align_style = alignment;
+		std::stringstream stream;
+		original.serialize(stream, LATEST_PROTOCOL_VERSION);
+		TileDef restored;
+		restored.deSerialize(stream, LATEST_PROTOCOL_VERSION);
+		UASSERT(restored.align_style == alignment);
+	}
+
+	for (NodeDrawType drawtype : {NDT_NORMAL, NDT_NODEBOX}) {
+		for (bool overlay_world : {false, true}) {
+			for (u8 facedir : {0, 1, 4}) {
+				std::vector<v2f> overlay_coords;
+				for (bool base_world : {false, true}) {
+					MockGameDef gamedef;
+					content_t node = gamedef.addSimpleNode("aligned", 42, 0, drawtype);
+					gamedef.node_mgr()->applyFunction([&](ContentFeatures &f) {
+						if (f.name != "test:aligned")
+							return;
+						f.param_type_2 = CPT2_FACEDIR;
+						if (drawtype == NDT_NODEBOX) {
+							f.node_box.type = NODEBOX_FIXED;
+							f.node_box.fixed = {aabb3f(-BS/2, -BS/2, -BS/2, BS/2, BS/2, BS/2)};
+						}
+						for (TileSpec &tile : f.visuals->tiles) {
+							tile.layers[0].world_aligned = base_world;
+							tile.layers[0].scale = base_world ? 4 : 1;
+							tile.layers[1].texture_id = 43;
+							tile.layers[1].world_aligned = overlay_world;
+							tile.layers[1].scale = overlay_world ? 2 : 1;
+						}
+					});
+					gamedef.finalize();
+					MeshMakeData data = gamedef.makeSingleNodeMMD();
+					data.m_vmanip.setNode({0, 0, 0}, {node, 0, facedir});
+					MeshCollector collector{{}};
+					MapblockMeshGenerator generator{&data, &collector};
+					generator.generate();
+					UASSERTEQ(size_t, collector.prebuffers[1].size(), 1);
+					UASSERTEQ(size_t, collector.prebuffers[0][0].vertices.size(), 24);
+					UASSERTEQ(size_t, collector.prebuffers[1][0].vertices.size(), 24);
+					std::vector<v2f> coords;
+					for (const auto &vertex : collector.prebuffers[1][0].vertices)
+						coords.push_back(vertex.TCoords);
+					if (!base_world)
+						overlay_coords = coords;
+					else
+						UASSERT(coords == overlay_coords);
+				}
+			}
+		}
+	}
 }
 
 void TestMapblockMeshGenerator::testSurroundedNode()
@@ -262,4 +447,72 @@ void TestMapblockMeshGenerator::testInterliquidDifferent()
 	UASSERT(checkMeshEqual(buf.vertices, buf.indices, {quad::xn, quad::xp, quad::yn, quad::yp, quad::zn, quad::zp}));
 }
 
+}
+
+void TestMapblockMeshGenerator::testModifierLighting()
+{
+	for (NodeDrawType drawtype : {NDT_NORMAL, NDT_GLASSLIKE, NDT_PLANTLIKE,
+			NDT_LIQUID, NDT_FLOWINGLIQUID}) {
+		MockGameDef gamedef;
+		content_t dark, bright;
+		if (drawtype == NDT_LIQUID || drawtype == NDT_FLOWINGLIQUID) {
+			content_t dark_source = gamedef.addLiquidSource("dark", 42);
+			content_t bright_source = gamedef.addLiquidSource("bright", 42, 14);
+			content_t dark_flow = gamedef.addLiquidFlowing("dark", 42, 42);
+			content_t bright_flow = gamedef.addLiquidFlowing("bright", 42, 42, 14);
+			dark = drawtype == NDT_LIQUID ? dark_source : dark_flow;
+			bright = drawtype == NDT_LIQUID ? bright_source : bright_flow;
+		} else {
+			dark = gamedef.addSimpleNode("dark", 42, 0, drawtype);
+			bright = gamedef.addSimpleNode("bright", 42, 14, drawtype);
+		}
+		gamedef.finalize();
+		NodeModifier on("test:on");
+		on.m_modified_props_mask = MP_LightSource;
+		on.m_light_source = 14;
+		u16 on_id = gamedef.getWritableNodeModifierManager()->add(std::move(on));
+		NodeModifier off("test:off");
+		off.m_modified_props_mask = MP_LightSource;
+		u16 off_id = gamedef.getWritableNodeModifierManager()->add(std::move(off));
+		auto compare = [&](const MeshCollector &a, const MeshCollector &b) {
+			UASSERT(!a.prebuffers[0].empty());
+			for (size_t layer = 0; layer < a.prebuffers.size(); ++layer) {
+				UASSERT(a.prebuffers[layer].size() == b.prebuffers[layer].size());
+				for (size_t i = 0; i < a.prebuffers[layer].size(); ++i) {
+					UASSERT(a.prebuffers[layer][i].vertices == b.prebuffers[layer][i].vertices);
+					UASSERT(a.prebuffers[layer][i].indices == b.prebuffers[layer][i].indices);
+				}
+			}
+		};
+		for (bool smooth : {false, true}) {
+			// Nonzero mesh origin exercises world-to-mesh-relative conversion.
+			auto render = [&](content_t node, u16 modifier, bool neighbor = false) {
+				MeshMakeData data{gamedef.ndef(), 1, MeshGrid{1}, gamedef.getNodeModifierManager(), nullptr};
+				data.m_smooth_lighting = smooth;
+				data.fillBlockDataBegin(v3s16(-2, 1, 3));
+				v3s16 origin = data.m_blockpos * MAP_BLOCKSIZE;
+				for (s16 x = -1; x <= 1; ++x)
+				for (s16 y = -1; y <= 1; ++y)
+				for (s16 z = -1; z <= 1; ++z)
+					data.m_vmanip.setNode(origin + v3s16(x, y, z), MapNode(CONTENT_AIR));
+				v3s16 modified_pos = neighbor ? v3s16(-1, 0, 0) : v3s16();
+				data.m_vmanip.setNode(origin, MapNode(neighbor ? dark : node));
+				if (neighbor)
+					data.m_vmanip.setNode(origin + modified_pos, MapNode(node));
+				if (modifier != MODIFIER_IGNORE) {
+					AppliedNodeModifiersStorage modifiers;
+					UASSERT(modifiers.add({}, modifier));
+					data.m_node_modifiers.append(modifiers, modified_pos);
+				}
+				MeshCollector collector{{}};
+				MapblockMeshGenerator generator(&data, &collector);
+				generator.generate();
+				return collector;
+			};
+			compare(render(dark, on_id), render(bright, MODIFIER_IGNORE));
+			compare(render(bright, off_id), render(dark, MODIFIER_IGNORE));
+			if (drawtype == NDT_NORMAL)
+				compare(render(dark, on_id, true), render(bright, MODIFIER_IGNORE, true));
+		}
+	}
 }

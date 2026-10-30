@@ -211,7 +211,8 @@ static scene::SMesh *generateNodeMesh(Client *client, MapNode n,
 
 	MeshCollector collector(v3f(0), v3f());
 	{
-		MeshMakeData mmd(ndef, 1, MeshGrid{1});
+		MeshMakeData mmd(ndef, 1, MeshGrid{1}, client->getNodeModifierManager(),
+				client->getShaderSource());
 		n.setParam1(0xff);
 		mmd.fillSingleNode(n);
 		MapblockMeshGenerator(&mmd, &collector).generate();
@@ -600,16 +601,15 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 			MaterialType material_type;
 
 			if (m_prop.shaded && m_prop.glow == 0)
-				material_type = (m_prop.use_texture_alpha) ?
-					TILE_MATERIAL_ALPHA : TILE_MATERIAL_BASIC;
+				material_type = TILE_MATERIAL_NORMAL;
 			else
-				material_type = (m_prop.use_texture_alpha) ?
-					TILE_MATERIAL_PLAIN_ALPHA : TILE_MATERIAL_PLAIN;
+				material_type = TILE_MATERIAL_PLAIN;
 
+			AlphaMode alpha = m_prop.use_texture_alpha ? ALPHAMODE_BLEND : ALPHAMODE_CLIP;
 			ShaderFeatures features;
 			features.skinning = hw_skin;
 			u32 shader_id = shader_source->getShader(
-					"object_shader", material_type, NDT_NORMAL, features);
+					"object_shader", material_type, alpha, features);
 			m_material_type = shader_source->getShaderInfo(shader_id).material;
 		} else {
 			// Not used, so make sure it's not valid
@@ -863,7 +863,8 @@ void GenericCAO::updateLight(u32 day_night_ratio)
 		MapNode n = m_env->getMap().getNode(pos[i], &this_ok);
 		if (this_ok) {
 			// Get light level at the position plus the entity glow
-			u16 this_light = getInteriorLight(n, m_prop.glow, m_client->ndef());
+			u16 this_light = getInteriorLight(n, m_prop.glow,
+					m_env->getMap().getLightingFlags(pos[i], n));
 			u8 this_light_intensity = MYMAX(this_light & 0xFF, this_light >> 8);
 			if (this_light_intensity > light_at_pos_intensity) {
 				light_at_pos = this_light;

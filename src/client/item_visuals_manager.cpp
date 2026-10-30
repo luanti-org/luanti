@@ -9,6 +9,7 @@
 #include "texturesource.h"
 #include "itemdef.h"
 #include "inventory.h"
+#include "util/serialize.h"
 #include <IMesh.h>
 
 struct ItemVisualsManager::ItemVisuals
@@ -48,13 +49,13 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	ItemImageDef inventory_image = item.getInventoryImage(idef);
 	ItemImageDef inventory_overlay = item.getInventoryOverlay(idef);
 
-	// Key only consists of item name + image name,
-	// because animation currently cannot be overridden by meta
-	std::string cache_key = def.name;
-	if (!inventory_image.name.empty())
-		cache_key.append("/").append(inventory_image.name);
-	if (!inventory_overlay.name.empty())
-		cache_key.append(":").append(inventory_overlay.name);
+	// Length prefixes keep arbitrary image names and ordered modifier lists distinct.
+	std::string cache_key = serializeString32(def.name) +
+			serializeString32(inventory_image.name) + serializeString32(inventory_overlay.name);
+	if (def.type == ITEM_NODE && inventory_image.name.empty()) {
+		for (const std::string &name : item.metadata.getModifiersList())
+			cache_key += serializeString32(name);
+	}
 
 
 	// Skip if already in cache
@@ -63,7 +64,7 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 		return it->second.get();
 
 	infostream << "Lazily creating item texture and mesh for \""
-			<< cache_key << "\"" << std::endl;
+			<< def.name << "\"" << std::endl;
 
 	ITextureSource *tsrc = client->getTextureSource();
 
@@ -80,7 +81,7 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 			inventory_overlay.animation, frame_length);
 	iv->inventory_overlay = AnimationInfo(&iv->frames_overlay, frame_length);
 
-	createItemMesh(client, def,
+	createItemMesh(client, item,
 			iv->inventory_normal,
 			iv->inventory_overlay,
 			&(iv->item_mesh));

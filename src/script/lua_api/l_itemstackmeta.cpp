@@ -6,6 +6,9 @@
 
 #include "lua_api/l_itemstackmeta.h"
 #include "lua_api/l_internal.h"
+#include "gamedef.h"
+#include "node_modifier.h"
+#include "lua_api/l_node_modifier.h"
 #include "common/c_content.h"
 #include "tool.h"
 
@@ -23,9 +26,42 @@ void ItemStackMetaRef::clearMeta()
 	istack->getItem().metadata.clear();
 }
 
+void ItemStackMetaRef::handleToTable(lua_State *L, IMetadata *meta)
+{
+	MetaDataRef::handleToTable(L, meta);
+	NodeModifiersRef(istack).pushList(L);
+	lua_setfield(L, -2, "modifiers");
+}
+
+bool ItemStackMetaRef::handleFromTable(lua_State *L, int table)
+{
+	ItemStackMetadata replacement;
+	readFields(L, table, &replacement);
+
+	std::vector<std::string> modifiers;
+	lua_getfield(L, table, "modifiers");
+	if (!lua_isnil(L, -1))
+		NodeModifiersRef::readList(L, -1, modifiers);
+	lua_pop(L, 1);
+
+	if (!replacement.setModifiers(std::move(modifiers)))
+		return false;
+
+	istack->getItem().metadata = std::move(replacement);
+
+	return true;
+}
+
 void ItemStackMetaRef::reportMetadataChange(const std::string *name)
 {
 	// nothing to do
+}
+
+int ItemStackMetaRef::l_get_modifiers(lua_State *L)
+{
+	auto *ref = checkObject<ItemStackMetaRef>(L, 1);
+	NodeModifiersRef::create(L, ref->istack);
+	return 1;
 }
 
 // Exported functions
@@ -97,6 +133,7 @@ const luaL_Reg ItemStackMetaRef::methods[] = {
 	luamethod(MetaDataRef, to_table),
 	luamethod(MetaDataRef, from_table),
 	luamethod(MetaDataRef, equals),
+	luamethod(ItemStackMetaRef, get_modifiers),
 	luamethod(ItemStackMetaRef, set_tool_capabilities),
 	luamethod(ItemStackMetaRef, set_wear_bar_params),
 	{0,0}

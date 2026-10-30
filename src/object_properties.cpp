@@ -3,6 +3,7 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "object_properties.h"
+#include "inventory.h"
 #include "irrlicht_changes/printing.h"
 #include "irrlichttypes_bloated.h"
 #include "exceptions.h"
@@ -157,7 +158,7 @@ bool ObjectProperties::validate()
 	return ret;
 }
 
-void ObjectProperties::serialize(std::ostream &os) const
+void ObjectProperties::serialize(std::ostream &os, u16 protocol_version) const
 {
 	writeU8(os, 4); // PROTOCOL_VERSION >= 37
 	writeU16(os, hp_max);
@@ -196,7 +197,15 @@ void ObjectProperties::serialize(std::ostream &os) const
 	writeARGB8(os, nametag_color);
 	writeF32(os, automatic_face_movement_max_rotation_per_sec);
 	os << serializeString16(infotext);
-	os << serializeString16(wield_item);
+
+	if (!nodeModifiersSupportForProtocol(protocol_version) && !wield_item.empty()) {
+		ItemStack stack;
+		stack.deSerialize(wield_item);
+		os << serializeString16(stack.getItemString(true, false));
+	} else {
+		os << serializeString16(wield_item);
+	}
+
 	writeS8(os, glow);
 	writeU16(os, breath_max);
 	writeF32(os, eye_height);

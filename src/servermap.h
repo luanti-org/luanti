@@ -97,7 +97,7 @@ public:
 
 	void addNodeAndUpdate(v3s16 p, MapNode n,
 			std::map<v3s16, MapBlock*> &modified_blocks,
-			bool remove_metadata) override;
+			bool remove_metadata, const std::vector<u16> &modifiers = {}) override;
 
 	/*
 		Database functions

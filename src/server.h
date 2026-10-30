@@ -18,6 +18,7 @@
 #include "threading/ordered_mutex.h"
 #include "translation.h"
 #include "sound_spec.h"
+#include "node_modifier.h"
 #include <atomic>
 #include <csignal>
 #include <string>
@@ -331,13 +332,16 @@ public:
 	IItemDefManager* getItemDefManager() override;
 	const NodeDefManager* getNodeDefManager() override;
 	ICraftDefManager* getCraftDefManager() override;
+	const NodeModifierManager* getNodeModifierManager() override;
 	u16 allocateUnknownNodeId(const std::string &name) override;
+	u16 allocateUnknownNodeModifierId(const std::string &name) override;
 	IRollbackManager *getRollbackManager() override { return m_rollback; }
 	EmergeManager *getEmergeManager() { return m_emerge.get(); }
 	ModStorageDatabase *getModStorageDatabase() override { return m_mod_storage_database; }
 
 	IWritableItemDefManager* getWritableItemDefManager();
 	NodeDefManager* getWritableNodeDefManager();
+	NodeModifierManager *getWritableNodeModifierManager();
 	IWritableCraftDefManager* getWritableCraftDefManager();
 
 	// Not under envlock
@@ -541,6 +545,8 @@ private:
 	void SendItemDef(session_t peer_id, IItemDefManager *itemdef, u16 protocol_version);
 	void SendNodeDef(session_t peer_id, const NodeDefManager *nodedef,
 		u16 protocol_version);
+	void SendNodeModifiers(session_t peer_id, const NodeModifierManager *nodemod_mgr,
+		u16 protocol_version);
 
 
 	virtual void SendChatMessage(session_t peer_id, const ChatMessage &message);
@@ -717,6 +723,8 @@ private:
 
 	// Node definition manager
 	NodeDefManager *m_nodedef;
+
+	NodeModifierManager *m_nodemod;
 
 	// Craft definition manager
 	IWritableCraftDefManager *m_craftdef;

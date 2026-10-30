@@ -18,6 +18,7 @@
 #include "mapnode.h"
 #include "node_visuals.h"
 #include "nodedef.h"
+#include "node_modifier.h"
 #include "client.h"
 #include "settings.h"
 #include "profiler.h"
@@ -878,7 +879,7 @@ void ParticleManager::handleParticleEvent(ClientEvent *event, Client *client,
 
 bool ParticleManager::getNodeParticleParams(Client *client, const MapNode &n,
 	ParticleParameters &p, video::ITexture **texture,
-	v2f &texpos, v2f &texsize, video::SColor *color, u8 tilenum)
+	v2f &texpos, v2f &texsize, video::SColor *color, u8 tilenum, const std::vector<u16> &modifiers)
 {
 	const ContentFeatures &f = client->ndef()->get(n);
 
@@ -894,9 +895,31 @@ bool ParticleManager::getNodeParticleParams(Client *client, const MapNode &n,
 	else
 		texid = myrand_range(0,5);
 
-	const TileLayer &tile = f.visuals->tiles[texid].layers[0];
-	*texture = extractTexture(f.tiledef[texid], tile, client->tsrc());
-	p.texture.blendmode = f.alpha == ALPHAMODE_BLEND
+	const TileDef *definition = &f.tiledef[texid];
+	const TileLayer *layer = &f.visuals->tiles[texid].layers[0];
+	AlphaMode alpha = f.alpha;
+	const NodeModifierManager &manager = *client->getNodeModifierManager();
+	const u64 tile_mask = u64{MP_TileFirst} << texid;
+
+	manager.resolveOverrides(modifiers, tile_mask | MP_Alpha,
+			[&](const NodeModifier &modifier, u64 matched) {
+		if (matched & tile_mask) {
+			if (modifier.visuals) {
+				definition = &(*modifier.getTiles())[texid];
+				layer = &modifier.visuals->getTile(texid);
+			} else
+				matched &= ~tile_mask;
+		}
+
+		if (matched & MP_Alpha)
+			alpha = modifier.m_alpha;
+
+		return matched;
+	});
+
+	const TileLayer &tile = *layer;
+	*texture = extractTexture(*definition, tile, client->tsrc());
+	p.texture.blendmode = alpha == ALPHAMODE_BLEND
 			? BlendMode::alpha : BlendMode::clip;
 	p.animation.type = TAT_NONE;
 
@@ -921,8 +944,9 @@ bool ParticleManager::getNodeParticleParams(Client *client, const MapNode &n,
 
 void ParticleManager::addDiggingParticles(LocalPlayer *player, v3s16 pos, const MapNode &n)
 {
+	const std::vector<u16> modifiers = m_env->getMap().getNodeModifiers(pos);
 	for (u16 j = 0; j < 16; j++) {
-		addNodeParticle(player, pos, n);
+		addNodeParticle(player, pos, n, modifiers);
 	}
 }
 
@@ -931,12 +955,19 @@ void ParticleManager::addDiggingParticles(LocalPlayer *player, v3s16 pos, const 
 
 void ParticleManager::addNodeParticle(LocalPlayer *player, v3s16 pos, const MapNode &n)
 {
+	addNodeParticle(player, pos, n, m_env->getMap().getNodeModifiers(pos));
+}
+
+void ParticleManager::addNodeParticle(LocalPlayer *player, v3s16 pos, const MapNode &n,
+		const std::vector<u16> &modifiers)
+{
 	ParticleParameters p;
 	video::ITexture *ref = nullptr;
 	v2f texpos, texsize;
 	video::SColor color;
 
-	if (!getNodeParticleParams(m_env->getGameDef(), n, p, &ref, texpos, texsize, &color))
+	if (!getNodeParticleParams(m_env->getGameDef(), n, p, &ref, texpos, texsize, &color,
+			0, modifiers))
 		return;
 
 	p.expirationtime = myrand_range(0, 100) / 100.0f;

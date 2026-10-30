@@ -2879,10 +2879,11 @@ The instance of a node in the world normally only contains the three values
 mentioned in [Nodes](#nodes). However, it is possible to insert extra data into a node.
 It is called "node metadata"; See `NodeMetaRef`.
 
-Node metadata contains two things:
+Node metadata contains:
 
 * A key-value store
 * An inventory
+* An ordered set of [node modifiers](#node-modifiers)
 
 Some of the values in the key-value store are handled specially:
 
@@ -2939,7 +2940,10 @@ Item Metadata
 Item stacks can store metadata too. See [`ItemStackMetaRef`](#itemstackmetaref)
 Note: They are not able to store the character `"\1"`, be very careful when storing binary data in them
 
-Item metadata only contains a key-value store.
+Item metadata contains:
+
+* A key-value store
+* An ordered set of [node modifiers](#node-modifiers)
 
 Some of the values in the key-value store are handled specially:
 
@@ -4174,6 +4178,62 @@ Put/take callbacks on empty ItemStack are not executed.
 2. The allowed ItemStacks are exchanged.
 3. The "on take" callbacks are run for the source and destination inventories
 4. The "on put" callbacks are run for the source and destination inventories
+
+Node modifiers
+==============
+
+This is currently an experimental feature.
+
+Node modifiers allow to override some properties of individual nodes
+without registering separate nodes.
+
+Example of registering a node modifier:
+
+```lua
+core.register_node_modifier("example:glowing", {
+    light_source = 14,
+})
+```
+
+Node modifiers can be applied to individual nodes and itemstacks via metadata.
+Example:
+
+```lua
+-- Apply to an existing node:
+local modifiers_ref = core.get_meta(pos):get_modifiers()
+modifiers_ref:add("example:glowing")
+
+-- Or store on a node item for placement:
+local modifiers_ref = stack:get_meta(pos):get_modifiers()
+modifiers_ref:add("example:glowing")
+```
+
+Definitions currently support `light_source`, `tiles`, and `use_texture_alpha`.
+
+Modifiers are applied in list order. If multiple modifiers override the same
+property, the value in the latter modifier takes precedence. Node modifier names
+use the `modname:name` convention. Nodes and ItemStacks support at most 16
+distinct modifiers.
+
+Modifier transfer
+-----------------
+
+The builtin digging and drop handling preserves modifiers to the stack when
+`drop` is not specified for the node. If the node's `drop` is a string,
+modifiers are not preserved. If it's a table, modifiers are inherited for
+drops with `inherit_node_modifiers = true`. The node definition's
+`preserve_node_modifiers` callback allows to define custom behavior for
+transfering modifiers from the node to the corresponding itemstack. Custom
+digging/drop code must handle transfer itself.
+
+`core.item_place_node` replaces the placed node's modifier list with the
+ItemStack's list after `on_construct` and before placement callbacks. Replacing
+or removing a node clears its modifiers; `core.swap_node` preserves them.
+
+Falling nodes retain modifiers. A leveled node falls to merge with the same
+node below only if their modifier lists match, including order. If, after
+falling, the modifiers of leveled nodes don't match anymore, the falling
+node produces drops according to the rules above.
 
 Colors
 ======
@@ -6529,6 +6589,9 @@ Call these functions only at load time!
     * register a node with its definition
     * Note: you must pass a clean table that hasn't already been used for
       another registration to this function, as it will be modified.
+* `core.register_node_modifier(name, node modifier definition)`
+    * Registers a [node modifier](#node-modifiers) with its definition
+    * Note: (as above)
 * `core.register_craftitem(name, itemdef)`
     * register an item with its definition
     * Note: (as above)
@@ -7534,6 +7597,8 @@ Item handling
       item `toolname` (not limited to tools). The default implementation doesn't
       use `tool`, `digger`, and `pos`, but these are provided by `core.node_dig`
       since 5.12.0 for games/mods implementing customized drops.
+    * For table drops, the second return value is an array of `inherit_node_modifiers`
+      booleans for the corresponding drops. See [Modifier transfer](#modifier-transfer).
     * `node`: node as table or node name
     * `toolname`: name of the item used to dig (can be `nil`)
     * `tool`: `ItemStack` used to dig (can be `nil`)
@@ -7765,6 +7830,8 @@ Classes:
 
 * `AreaStore`
 * `ItemStack`
+    * Modifier operations are supported, but `prune_overridden = true` raises
+      an error.
 * `ValueNoise`
 * `ValueNoiseMap`
 * `PseudoRandom`
@@ -7847,6 +7914,7 @@ Classes:
 
 * `AreaStore`
 * `ItemStack`
+    * Modifier operations have the same restrictions as in the async environment.
 * `ValueNoise`
 * `ValueNoiseMap`
 * `PseudoRandom`
@@ -8458,6 +8526,8 @@ Global tables
     * Map of registered items, indexed by name
 * `core.registered_nodes`
     * Map of registered node definitions, indexed by name
+* `core.registered_node_modifiers`
+    * Array of node modifier definitions in registration order, indexed by name
 * `core.registered_craftitems`
     * Map of registered craft item definitions, indexed by name
 * `core.registered_tools`
@@ -8814,6 +8884,7 @@ Can be obtained via `item:get_meta()`.
     * Overrides the item's wear bar parameters (see "Wear Bar Color" section)
     * A nil value will clear the override data and restore the original
       behavior.
+* `get_modifiers()`: returns a live [`NodeModifiersRef`](#nodemodifiersref).
 
 `MetaDataRef`
 -------------
@@ -8860,9 +8931,11 @@ of the `${k}` syntax in formspecs is not deprecated.
       will replace all metadata of this MetaDataRef object
     * Any non-table value for `data` will clear all metadata
     * Item table values the `inventory` field may also be itemstrings
-    * Returns `true` on success
+    * Returns `true` on success. If it returns `false`, the old metadata is unchanged.
 * `equals(other)`
     * returns `true` if this metadata has the same key-value pairs as `other`
+    * Metadata of different types can be compared. Inventories and node modifiers
+      are ignored; ItemStack equality still includes node modifiers.
 
 ### Metadata tables
 
@@ -8878,6 +8951,12 @@ A metadata table is a table that has the following keys:
     * inventory table values are item tables
     * item table keys are slot IDs (starting with 1)
     * item table values are ItemStacks
+* `modifiers` (for NodeMetaRef and ItemStackMetaRef only): An array of
+  [node modifier](#node-modifiers) names in application order
+    * `from_table()` raises an error for invalid names, non-string entries, or
+      a non-table list. It returns `false` if more than 16 distinct names are
+      supplied. In either case, the old metadata is unchanged.
+      Earlier occurrences of duplicated node modifiers are removed.
 
 Example:
 
@@ -8904,6 +8983,9 @@ metadata_table = {
             [1] = ItemStack("example:diamond"),
         },
     },
+
+    -- ordered node modifiers (for nodes and item stacks)
+    modifiers = {"example:glowing"},
 }
 ```
 
@@ -8941,6 +9023,42 @@ Can be obtained via `core.get_meta(pos)`.
   status will only be remembered if an associated key-value pair exists,
   meaning it's best to call this when initializing all other meta (e.g.
   `on_construct`).
+* `get_modifiers()`: returns a live [`NodeModifiersRef`](#nodemodifiersref).
+
+`NodeModifiersRef`
+------------------
+
+Obtained through `NodeMetaRef:get_modifiers()` or `ItemStackMetaRef:get_modifiers()`.
+Obtaining a reference does not create metadata or change the modifier list.
+
+### Methods
+
+* `add(name, [prune_overridden])`
+    * Appends a [node modifier](#node-modifiers), or moves it to the end
+      if already present
+    * Valid unknown names are accepted and preserved, but have no effect until
+      their definitions are available.
+    * Returns `true` on success, `false` for an unavailable node, insufficient
+      capacity, or failure to allocate a modifier ID (for nodes).
+    * Raises an error for a malformed name. Failure leaves the modifier list unchanged.
+    * In async and mapgen environments, requesting `prune_overridden = true`
+      raises an error.
+    * `prune_overridden` defaults to `false`. If `true`, removes earlier modifiers
+      whose properties are all overridden by later modifiers. Unknown modifiers and
+      modifiers with no overridden properties are preserved. Pruned modifiers are
+      not restored when later ones are removed.
+* `remove(name)`
+    * Removes the modifier; does nothing if absent
+    * Raises an error for a malformed name.
+* `get_list()`
+    * Returns a copy of the modifier names as an array in application order
+* `set_list(list)`
+    * Replaces the current list of node modifiers
+    * An empty array clears it; duplicates keep their last occurrence. Valid unknown
+      names are preserved.
+    * Raises an error for malformed input. Returns `false` for an unavailable node
+      or more than 16 distinct names, leaving the list unchanged; otherwise returns
+      `true`.
 
 `NodeTimerRef`
 --------------
@@ -11125,6 +11243,11 @@ Used by `core.register_node`.
                 -- hardware coloring palette color from the dug node.
                 -- Default is 'false'.
                 inherit_color = true,
+                -- Whether all items in the dropped item inherit node modifiers.
+                -- Default is false, even if an item has the node's name.
+                -- Does not have any effect if the preserve_node_modifiers
+                -- callback is defined for the node.
+                inherit_node_modifiers = true,
             },
             {
                 -- Only drop if using an item whose name contains
@@ -11188,6 +11311,20 @@ Used by `core.register_node`.
     --   be added directly to one or more of the dropped items. See
     --   "ItemStackMetaRef".
     -- default: `nil`
+
+    preserve_node_modifiers = function(pos, oldnode, modifiers, drops),
+    -- Same as above, but for node modifiers
+    -- For falling nodes, modifiers come from the entity's saved metadata and
+    -- pos is its current position; there may be no matching node in the map.
+    -- * `pos`: node position
+    -- * `oldnode`: node table of node before it was deleted
+    -- * `modifiers`: array of modifier names in application order, including
+    --   unknown names
+    -- * `drops`: a table of `ItemStack`s, so any node modifiers to be
+    --   preserved can be added directly to one or more of the dropped
+    --   items. See "ItemStackMetaRef".
+    -- See "Modifier transfer" for the default behavior when this is nil.
+    -- default: nil
 
     after_place_node = function(pos, placer, itemstack, pointed_thing),
     -- Called after constructing node when node was placed using
@@ -11279,6 +11416,31 @@ Used by `core.register_node`.
     -- Useful for getting which mod truly registered something
     -- example: if a node is registered as ":othermodname:nodename",
     -- nodename will show "othermodname", but mod_origin will say "modname"
+}
+```
+
+Node Modifier Definition
+------------------------
+
+Used by `core.register_node_modifier`.
+
+Fields in this table correspond to the fields in node definition
+or item definition which need to be overridden by the modifier.
+
+```lua
+{
+    light_source = nil,
+
+    -- It is possible to override separate tiles, but not possible to override
+    -- different properties of the same tile separately. For example, if a tile
+    -- of the original node sets `align_style`, and the tile is overridden with
+    -- a modifier which does not set `align_style` for the tile, then the
+    -- default value is used for the overridden tile.
+    -- `backface_culling`, `tileable_horizontal`, and `tileable_vertical`
+    -- default to true, independently of the node's drawtype.
+    tiles = nil,
+
+    use_texture_alpha = nil,
 }
 ```
 

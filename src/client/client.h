@@ -13,6 +13,7 @@
 #include "network/address.h"
 #include "network/networkprotocol.h" // multiple enums
 #include "network/peerhandler.h"
+#include "node_modifier.h"
 #include "util/numeric.h"
 #include "util/string.h" // StringMap
 
@@ -119,6 +120,7 @@ public:
 			IWritableShaderSource *shsrc,
 			IWritableItemDefManager *itemdef,
 			NodeDefManager *nodedef,
+			NodeModifierManager *nodemod,
 			ISoundManager *sound,
 			MtEventManager *event,
 			RenderingEngine *rendering_engine,
@@ -179,6 +181,7 @@ public:
 	void handleCommand_AnnounceMedia(NetworkPacket* pkt);
 	void handleCommand_Media(NetworkPacket* pkt);
 	void handleCommand_NodeDef(NetworkPacket* pkt);
+	void handleCommand_NodeMod(NetworkPacket* pkt);
 	void handleCommand_ItemDef(NetworkPacket* pkt);
 	void handleCommand_PlaySound(NetworkPacket* pkt);
 	void handleCommand_StopSound(NetworkPacket* pkt);
@@ -254,7 +257,8 @@ public:
 	int CSMClampRadius(v3s16 pos, int radius);
 	v3s16 CSMClampPos(v3s16 pos);
 
-	void addNode(v3s16 p, MapNode n, bool remove_metadata = true);
+	void addNode(v3s16 p, MapNode n, bool remove_metadata = true,
+			const std::vector<u16> &modifiers = {});
 
 	void setPlayerControl(PlayerControl &control);
 
@@ -327,6 +331,8 @@ public:
 	{ return m_itemdef_received; }
 	bool nodedefReceived() const
 	{ return m_nodedef_received; }
+	bool nodeModReceived() const
+	{ return m_nodemod_received; }
 	bool mediaReceived() const
 	{ return !m_media_downloader; }
 	bool activeObjectsReceived() const
@@ -370,10 +376,12 @@ public:
 	bool isClient() override { return true; }
 	IItemDefManager* getItemDefManager() override;
 	const NodeDefManager* getNodeDefManager() override;
+	const NodeModifierManager *getNodeModifierManager() override { return m_nodemod; }
 	ICraftDefManager* getCraftDefManager() override;
 	ITextureSource* getTextureSource();
 	virtual IWritableShaderSource* getShaderSource();
 	u16 allocateUnknownNodeId(const std::string &name) override;
+	u16 allocateUnknownNodeModifierId(const std::string &name) override;
 	virtual ISoundManager* getSoundManager();
 	MtEventManager* getEventManager();
 	virtual ParticleManager* getParticleManager();
@@ -510,6 +518,7 @@ private:
 	IWritableShaderSource *m_shsrc;
 	IWritableItemDefManager *m_itemdef;
 	NodeDefManager *m_nodedef;
+	NodeModifierManager *m_nodemod;
 	ISoundManager *m_sound;
 	MtEventManager *m_event;
 	RenderingEngine *m_rendering_engine;
@@ -576,6 +585,7 @@ private:
 	std::queue<ClientEvent *> m_client_event_queue;
 	bool m_itemdef_received = false;
 	bool m_nodedef_received = false;
+	bool m_nodemod_received = false;
 	bool m_activeobjects_received = false;
 	bool m_mods_loaded = false;
 

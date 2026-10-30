@@ -140,9 +140,8 @@ void getAdHocNodeShader(video::SMaterial &mat, IShaderSource *shdsrc,
 		const char *shader, AlphaMode mode, int layer)
 {
 	assert(shdsrc);
-	MaterialType type = alpha_mode_to_material_type(mode);
 	if (layer == 1)
-		type = material_type_with_alpha(type);
+		mode = alpha_mode_with_transparency(mode);
 
 	// Note: logic wise this duplicates what `ContentFeatures::updateTextures`
 	// and related functions do.
@@ -153,7 +152,7 @@ void getAdHocNodeShader(video::SMaterial &mat, IShaderSource *shdsrc,
 
 	ShaderFeatures features;
 	features.array_texture = array_texture;
-	u32 shader_id = shdsrc->getShader(shader, type, NDT_NORMAL, features);
+	u32 shader_id = shdsrc->getShader(shader, TILE_MATERIAL_NORMAL, mode, features);
 	mat.MaterialType = shdsrc->getShaderInfo(shader_id).material;
 }
 
@@ -338,8 +337,36 @@ void WieldMeshSceneNode::setExtruded(video::ITexture *texture,
 	}
 }
 
+// Item metadata stores names; the preview mesh contains one node at the origin.
+static AppliedNodeModifiersSnapshot collectItemModifiers(const ItemStack &item,
+		const NodeModifierManager &manager)
+{
+	std::vector<u16> ids;
+	ids.reserve(item.metadata.getModifiersList().size());
+	for (const std::string &name : item.metadata.getModifiersList()) {
+		u16 id = manager.getId(name);
+		if (id != MODIFIER_IGNORE)
+			ids.push_back(id);
+	}
+	return AppliedNodeModifiersSnapshot({0, 0, 0}, ids);
+}
+
+static AlphaMode getItemNodeAlpha(const NodeModifierManager &manager,
+		AppliedNodeModifiersView modifiers, const ContentFeatures &f)
+{
+	AlphaMode alpha = f.alpha;
+	manager.resolveOverrides(modifiers, MP_Alpha,
+			[&](const NodeModifier &modifier, u64 matched) {
+		alpha = modifier.m_alpha;
+		return matched;
+	});
+
+	return alpha;
+}
+
 static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
-	std::vector<ItemMeshBufferInfo> *buffer_info, const ContentFeatures &f)
+	std::vector<ItemMeshBufferInfo> *buffer_info, const ContentFeatures &f,
+		AppliedNodeModifiersSnapshot &&modifiers)
 {
 	n.setParam1(0xff);
 	if (n.getParam2()) {
@@ -358,8 +385,10 @@ static scene::SMesh *createGenericNodeMesh(Client *client, MapNode n,
 
 	MeshCollector collector(v3f(0), v3f());
 	{
-		MeshMakeData mmd(client->ndef(), 1, MeshGrid{1});
+		MeshMakeData mmd(client->ndef(), 1, MeshGrid{1}, client->getNodeModifierManager(),
+				client->getShaderSource());
 		mmd.fillSingleNode(n);
+		mmd.m_node_modifiers = std::move(modifiers);
 		MapblockMeshGenerator(&mmd, &collector).generate();
 	}
 
@@ -437,7 +466,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 
 	{
 		// Initialize material type used by setExtruded
-		u32 shader_id = shdsrc->getShader("object_shader", TILE_MATERIAL_BASIC, NDT_NORMAL);
+		u32 shader_id = shdsrc->getShader("object_shader", TILE_MATERIAL_NORMAL, ALPHAMODE_CLIP);
 		m_material_type = shdsrc->getShaderInfo(shader_id).material;
 	}
 
@@ -494,6 +523,11 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 
 	// Handle nodes
 	if (def.type == ITEM_NODE) {
+		const NodeModifierManager &nmod_manager = *client->getNodeModifierManager();
+		AppliedNodeModifiersSnapshot modifiers = collectItemModifiers(item, nmod_manager);
+		const AppliedNodeModifiersView modifier_view = modifiers.getViewAtPos({0, 0, 0});
+		AlphaMode alpha = getItemNodeAlpha(nmod_manager, modifier_view, f);
+
 		switch (f.drawtype) {
 		case NDT_AIRLIKE:
 			setExtruded(tsrc->getTexture("no_texture_airlike.png"), nullptr, v3f(1));
@@ -524,7 +558,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 			if (def.place_param2)
 				n.setParam2(*def.place_param2);
 
-			mesh = createGenericNodeMesh(client, n, &m_buffer_info, f);
+			mesh = createGenericNodeMesh(client, n, &m_buffer_info, f, std::move(modifiers));
 			changeToMesh(mesh);
 			mesh->drop();
 			m_meshnode->setScale(
@@ -538,7 +572,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		for (u32 i = 0; i < material_count; ++i) {
 			video::SMaterial &material = m_meshnode->getMaterial(i);
 			// apply node's alpha mode
-			getAdHocNodeShader(material, shdsrc, "object_shader", f.alpha,
+			getAdHocNodeShader(material, shdsrc, "object_shader", alpha,
 				m_buffer_info[i].layer == 1);
 			material.forEachTexture([this] (auto &tex) {
 				setMaterialFilters(tex, m_bilinear_filter, m_trilinear_filter,
@@ -641,11 +675,12 @@ void WieldMeshSceneNode::changeToMesh(scene::IMesh *mesh)
 	m_meshnode->setVisible(true);
 }
 
-void createItemMesh(Client *client, const ItemDefinition &def,
+void createItemMesh(Client *client, const ItemStack &item,
 		const AnimationInfo &animation_normal,
 		const AnimationInfo &animation_overlay,
 		ItemMesh *result)
 {
+	const ItemDefinition &def = item.getDefinition(client->idef());
 	ITextureSource *tsrc = client->getTextureSource();
 	IShaderSource *shdsrc = client->getShaderSource();
 	const NodeDefManager *ndef = client->getNodeDefManager();
@@ -681,13 +716,32 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 		// overlay is white, if present
 		result->buffer_info.emplace_back(1, true, video::SColor(0xFFFFFFFF));
 	} else if (def.type == ITEM_NODE) {
+		const NodeModifierManager &nmod_manager = *client->getNodeModifierManager();
+		AppliedNodeModifiersSnapshot modifiers = collectItemModifiers(item, nmod_manager);
+		const AppliedNodeModifiersView modifier_view = modifiers.getViewAtPos({0, 0, 0});
+		AlphaMode alpha = getItemNodeAlpha(nmod_manager, modifier_view, f);
+
 		switch (f.drawtype) {
 		case NDT_PLANTLIKE: {
-			const TileLayer &l0 = v.tiles[0].layers[0];
-			const TileLayer &l1 = v.tiles[0].layers[1];
+			TileSpec tile = v.tiles[0];
+			modifier_view.resolveTile(nmod_manager, v, 0, tile,
+					ndef->getTextureSettings().world_aligned_mode, shdsrc);
+
+			const TileDef *definition = &f.tiledef[0];
+			nmod_manager.resolveOverrides(modifier_view, MP_TileFirst,
+					[&](const NodeModifier &modifier, u64 matched) -> u64 {
+				if (!modifier.visuals)
+					return 0;
+
+				definition = &(*modifier.getTiles())[0];
+				return matched;
+			});
+
+			const TileLayer &l0 = tile.layers[0];
+			const TileLayer &l1 = tile.layers[1];
 			mesh = getExtrudedMesh(
-				extractTexture(f.tiledef[0], l0, tsrc),
-				extractTexture(f.tiledef[1], l1, tsrc, false));
+				extractTexture(*definition, l0, tsrc),
+				extractTexture(f.tiledef_overlay[0], l1, tsrc, false));
 			// Add color
 			result->buffer_info.emplace_back(0, l0);
 			result->buffer_info.emplace_back(1, l1);
@@ -708,7 +762,7 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 			if (def.place_param2)
 				n.setParam2(*def.place_param2);
 
-			mesh = createGenericNodeMesh(client, n, &result->buffer_info, f);
+			mesh = createGenericNodeMesh(client, n, &result->buffer_info, f, std::move(modifiers));
 			scaleMesh(mesh, v3f(0.12f));
 			result->needs_shading = true;
 			break;
@@ -720,7 +774,7 @@ void createItemMesh(Client *client, const ItemDefinition &def,
 			scene::IMeshBuffer *buf = mesh->getMeshBuffer(i);
 			video::SMaterial &material = buf->getMaterial();
 			// apply node's alpha mode
-			getAdHocNodeShader(material, shdsrc, "inventory_shader", f.alpha,
+			getAdHocNodeShader(material, shdsrc, "inventory_shader", alpha,
 				result->buffer_info[i].layer == 1);
 			material.forEachTexture([] (auto &tex) {
 				tex.MinFilter = video::ETMINF_NEAREST_MIPMAP_NEAREST;

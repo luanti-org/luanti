@@ -846,6 +846,8 @@ Can be obtained via `core.get_meta(pos)`.
 * `to_table()`: returns `nil` or a table with keys:
     * `fields`: key-value storage
     * `inventory`: `{list1 = {}, ...}}`
+    * `modifiers`: array of node modifier names in application order; unknown IDs
+      whose names are unavailable on the client are omitted
 
 ### `Raycast`
 

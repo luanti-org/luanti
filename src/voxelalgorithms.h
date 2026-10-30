@@ -14,6 +14,17 @@ class MMVManip;
 namespace voxalgo
 {
 
+// Capture before replacing a node or changing its modifiers.
+struct LightingUpdate {
+	v3s16 pos;
+	MapNode node;
+	ContentLightingFlags flags;
+};
+
+void update_lighting_nodes(Map *map, const std::vector<LightingUpdate> &oldnodes,
+	std::map<v3s16, MapBlock*> &modified_blocks);
+
+
 /*!
  * Updates the lighting on the map.
  * The result will be correct only if
@@ -22,7 +33,8 @@ namespace voxalgo
  * the map have zero light level!
  *
  * \param oldnodes contains the MapNodes that were replaced by the new
- * MapNodes and their positions
+ * MapNodes and their positions. This overload assumes modifiers are unchanged;
+ * use LightingUpdate snapshots when modifiers change
  * \param modified_blocks output, contains all map blocks that
  * the function modified
  */

@@ -11,10 +11,12 @@
 #include "constants.h"
 #include "staticobject.h"
 #include "nodemetadata.h" // NodeMetadataList
+#include "node_modifier.h"
 #include "nodetimer.h"
 #include "modifiedstate.h"
 #include "util/numeric.h" // getContainerPos
 
+class IdIdMapping;
 class Map;
 class IGameDef;
 class MapBlockMesh;
@@ -287,6 +289,22 @@ public:
 	// Copies data from VoxelManipulator to getPosRelative()
 	void copyFrom(const VoxelManipulator &src);
 
+	// Keys are node offsets from origin (a world node position).
+	void copyNodeModifiersToSnapshot(AppliedNodeModifiersSnapshot &dst, v3s16 origin_block) const;
+
+	// Low-level modifier changes; use Map methods to update live map lighting.
+	bool addNodeModifier(v3s16 pos, u16 id, bool prune_overridden = false);
+	bool setNodeModifiers(v3s16 pos, const std::vector<u16> &ids);
+	bool removeNodeModifier(v3s16 pos, u16 id);
+	bool clearNodeModifiers(v3s16 pos);
+	// Modifiers at a block-relative node position.
+	AppliedNodeModifiersView getNodeModifiers(v3s16 pos) const
+	{
+		return m_node_modifiers.getViewAtPos(pos);
+	}
+
+	ContentLightingFlags getLightingFlags(v3s16 pos, const MapNode &node) const;
+
 	// Update is air flag.
 	// Sets m_is_air to appropriate value.
 	void actuallyUpdateIsAir();
@@ -449,6 +467,10 @@ private:
 	static void correctBlockNodeIds(const NameIdMapping *nimap, MapNode *nodes,
 			IGameDef *gamedef);
 
+	void getNodeModifierIdMapping(NameIdMapping &nimap,
+			IdIdMapping &mapping) const;
+	void correctNodeModifierIds(const NameIdMapping &nimap);
+
 	/*
 	 * PLEASE NOTE: When adding something here be mindful of position and size
 	 * of member variables! This is also the reason for the weird public-private
@@ -562,6 +584,7 @@ public:
 
 private:
 	NodeTimerList m_node_timers;
+	AppliedNodeModifiersStorage m_node_modifiers;
 };
 
 typedef std::vector<MapBlock*> MapBlockVect;

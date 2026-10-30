@@ -15,6 +15,7 @@
 #include "lua_api/l_item.h"
 #include "lua_api/l_itemstackmeta.h"
 #include "lua_api/l_mapgen.h"
+#include "lua_api/l_node_modifier.h"
 #include "lua_api/l_noise.h"
 #include "lua_api/l_server.h"
 #include "lua_api/l_util.h"
@@ -58,6 +59,7 @@ void EmergeScripting::InitializeModApi(lua_State *L, int top)
 {
 	// Register reference classes (userdata)
 	ItemStackMetaRef::Register(L);
+	NodeModifiersRef::Register(L);
 	LuaAreaStore::Register(L);
 	LuaItemStack::Register(L);
 	LuaValueNoise::Register(L);

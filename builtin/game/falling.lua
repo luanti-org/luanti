@@ -1,5 +1,17 @@
 local builtin_shared = ...
 
+local function same_modifiers(a, b)
+	if #a ~= #b then
+		return false
+	end
+	for i, name in ipairs(a) do
+		if name ~= b[i] then
+			return false
+		end
+	end
+	return true
+end
+
 local facedir_to_euler = {
 	{y = 0, x = 0, z = 0},
 	{y = -math.pi/2, x = 0, z = 0},
@@ -169,6 +181,14 @@ core.register_entity(":__builtin:falling_node", {
 		-- Add levels if dropped on same leveled node
 		if bcd and bcd.paramtype2 == "leveled" and
 				bcn.name == self.node.name then
+			-- Merging consumes the entity without restoring its metadata.
+			-- Different modifier lists must remain separate, including their order.
+			local modifiers = self.meta and self.meta.modifiers or {}
+			local target_modifiers = core.get_meta(bcp):get_modifiers():get_list()
+			-- Recheck at landing: the supporting node may have changed in flight.
+			if not same_modifiers(modifiers, target_modifiers) then
+				return false
+			end
 			local addlevel = self.node.level
 			if (addlevel or 0) <= 0 then
 				addlevel = bcd.leveled
@@ -321,7 +341,9 @@ core.register_entity(":__builtin:falling_node", {
 		end
 
 		if failure then
-			local drops = core.get_node_drops(self.node, "")
+			local drops, inherit_modifiers = core.get_node_drops(self.node, "")
+			drops = builtin_shared.preserve_node_modifiers(pos, self.node, drops,
+				inherit_modifiers, self.meta and self.meta.modifiers or {})
 			for _, item in pairs(drops) do
 				core.add_item(pos, item)
 			end
@@ -360,8 +382,9 @@ end
 
 local function drop_attached_node(p)
 	local n = core.get_node(p)
-	local drops = core.get_node_drops(n, "")
+	local drops, inherit_modifiers = core.get_node_drops(n, "")
 	local def = core.registered_items[n.name]
+	drops = builtin_shared.preserve_node_modifiers(p, n, drops, inherit_modifiers)
 	if def and def.preserve_metadata then
 		local oldmeta = core.get_meta(p):to_table().fields
 		-- Copy pos and node because the callback can modify them.
@@ -450,7 +473,9 @@ function core.check_single_for_falling(p)
 			-- Let leveled nodes fall if it can merge with the bottom node
 			if same and d_bottom.paramtype2 == "leveled" and
 					core.get_node_level(p_bottom) <
-					core.get_node_max_level(p_bottom) then
+					core.get_node_max_level(p_bottom) and
+					same_modifiers(core.get_meta(p):get_modifiers():get_list(),
+						core.get_meta(p_bottom):get_modifiers():get_list()) then
 				local success, _ = convert_to_falling_node(p, n)
 				return success
 			end

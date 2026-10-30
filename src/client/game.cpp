@@ -320,20 +320,22 @@ public:
 
 #define PROVIDE(constant) constants[ #constant ] = (int)constant
 
-		PROVIDE(TILE_MATERIAL_BASIC);
-		PROVIDE(TILE_MATERIAL_ALPHA);
-		PROVIDE(TILE_MATERIAL_LIQUID_TRANSPARENT);
-		PROVIDE(TILE_MATERIAL_LIQUID_OPAQUE);
-		PROVIDE(TILE_MATERIAL_WAVING_LEAVES);
-		PROVIDE(TILE_MATERIAL_WAVING_PLANTS);
-		PROVIDE(TILE_MATERIAL_OPAQUE);
-		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_BASIC);
-		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT);
-		PROVIDE(TILE_MATERIAL_WAVING_LIQUID_OPAQUE);
+		PROVIDE(TILE_MATERIAL_NORMAL);
+		PROVIDE(TILE_MATERIAL_LIQUID);
 		PROVIDE(TILE_MATERIAL_PLAIN);
-		PROVIDE(TILE_MATERIAL_PLAIN_ALPHA);
+
+		PROVIDE(WAVING_NONE);
+		PROVIDE(WAVING_PLANTS);
+		PROVIDE(WAVING_LEAVES);
+		PROVIDE(WAVING_LIQUID);
 
 #undef PROVIDE
+
+		const WavingType waving = static_cast<WavingType>(
+				std::get<int>(constants.at("WAVING_TYPE")));
+
+		const AlphaMode alpha = static_cast<AlphaMode>(
+				std::get<int>(constants.at("ALPHA_MODE")));
 
 		bool enable_waving_water = g_settings->getBool("enable_waving_water");
 		constants["ENABLE_WAVING_WATER"] = enable_waving_water ? 1 : 0;
@@ -342,27 +344,9 @@ public:
 			constants["WATER_WAVE_LENGTH"] = g_settings->getFloat("water_wave_length");
 			constants["WATER_WAVE_SPEED"] = g_settings->getFloat("water_wave_speed");
 		}
-		switch (material_type) {
-			case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
-			case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
-			case TILE_MATERIAL_WAVING_LIQUID_BASIC:
-				constants["MATERIAL_WAVING_LIQUID"] = 1;
-				break;
-			default:
-				constants["MATERIAL_WAVING_LIQUID"] = 0;
-				break;
-		}
-		switch (material_type) {
-			case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
-			case TILE_MATERIAL_WAVING_LIQUID_OPAQUE:
-			case TILE_MATERIAL_WAVING_LIQUID_BASIC:
-			case TILE_MATERIAL_LIQUID_TRANSPARENT:
-				constants["MATERIAL_WATER_REFLECTIONS"] = 1;
-				break;
-			default:
-				constants["MATERIAL_WATER_REFLECTIONS"] = 0;
-				break;
-		}
+		constants["MATERIAL_WAVING_LIQUID"] = waving == WAVING_LIQUID ? 1 : 0;
+		constants["MATERIAL_WATER_REFLECTIONS"] = (waving == WAVING_LIQUID
+				|| (material_type == TILE_MATERIAL_LIQUID && alpha == ALPHAMODE_BLEND)) ? 1 : 0;
 
 		constants["ENABLE_WAVING_LEAVES"] = g_settings->getBool("enable_waving_leaves") ? 1 : 0;
 		constants["ENABLE_WAVING_PLANTS"] = g_settings->getBool("enable_waving_plants") ? 1 : 0;
@@ -406,6 +390,7 @@ Game::~Game()
 	delete eventmgr;
 	delete texture_src;
 	delete shader_src;
+	delete nodemod_manager;
 	delete nodedef_manager;
 	delete itemdef_manager;
 	delete draw_control;
@@ -690,6 +675,7 @@ bool Game::init(GameStartData &start_data)
 
 	itemdef_manager = createItemDefManager();
 	nodedef_manager = createNodeDefManager();
+	nodemod_manager = createNodeModifierManager();
 
 	m_item_visuals_manager = std::make_unique<ItemVisualsManager>();
 
@@ -697,7 +683,7 @@ bool Game::init(GameStartData &start_data)
 	quicktune = new QuicktuneShortcutter();
 
 	if (!(texture_src && shader_src && itemdef_manager && nodedef_manager
-			&& eventmgr && quicktune))
+			&& nodemod_manager && eventmgr && quicktune))
 		return false;
 
 	if (!initSound())
@@ -1016,8 +1002,9 @@ bool Game::connectToServer(const GameStartData &start_data,
 		client = new Client(start_data.name.c_str(),
 				start_data.password,
 				*draw_control, texture_src, shader_src,
-				itemdef_manager, nodedef_manager, sound_manager.get(), eventmgr,
-				m_rendering_engine,
+				itemdef_manager, nodedef_manager,
+				nodemod_manager, sound_manager.get(),
+				eventmgr, m_rendering_engine,
 				m_item_visuals_manager.get(),
 				start_data.allow_login_or_register);
 	} catch (const BaseException &e) {
@@ -2890,12 +2877,12 @@ PointedThing Game::updatePointedThing(
 
 		// Get selection mesh light level
 		MapNode n = map.getNode(p);
-		u16 node_light = getInteriorLight(n, -1, nodedef);
+		u16 node_light = getInteriorLight(n, -1, map.getLightingFlags(p, n));
 		u16 light_level = node_light;
 
 		for (const v3s16 &dir : g_6dirs) {
 			n = map.getNode(p + dir);
-			node_light = getInteriorLight(n, -1, nodedef);
+			node_light = getInteriorLight(n, -1, map.getLightingFlags(p + dir, n));
 			if (node_light > light_level)
 				light_level = node_light;
 		}
@@ -3196,8 +3183,17 @@ bool Game::nodePlacement(const ItemDefinition &selected_def,
 				build_where_you_stand ||
 				(client->checkPrivilege("noclip") && g_settings->getBool("noclip")) ||
 				(predicted_f.walkable && !stands_inside)) {
-			// This triggers the required mesh update too
-			client->addNode(p, predicted_node);
+			std::vector<u16> modifiers;
+			const auto &names = selected_item.metadata.getModifiersList();
+			modifiers.reserve(names.size());
+			for (const std::string &name : names) {
+				u16 id = nodemod_manager->getId(name);
+				if (id != MODIFIER_IGNORE)
+					modifiers.push_back(id);
+			}
+
+			// This triggers the required mesh update too.
+			client->addNode(p, predicted_node, true, modifiers);
 			// Report to server
 			client->interact(INTERACT_PLACE, pointed);
 			// A node is predicted, also play a sound
@@ -3372,6 +3368,10 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 			return;
 		}
 
+		if (g_settings->getBool("enable_dig_particles")) {
+			client->getParticleManager()->addDiggingParticles(player, nodepos, n);
+		}
+
 		if (features.node_dig_prediction == "air") {
 			client->removeNode(nodepos);
 		} else if (!features.node_dig_prediction.empty()) {
@@ -3383,10 +3383,6 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 		// implicit else: no prediction
 
 		client->interact(INTERACT_DIGGING_COMPLETED, pointed);
-
-		if (g_settings->getBool("enable_dig_particles")) {
-			client->getParticleManager()->addDiggingParticles(player, nodepos, n);
-		}
 
 		// Send event to trigger sound
 		client->getEventManager()->put(new NodeDugEvent(nodepos, n));

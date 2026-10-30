@@ -6,6 +6,7 @@
 #include "settings.h"
 #include "profiler.h"
 #include "client.h"
+#include "shader.h"
 #include "mapblock.h"
 #include "mapblock_mesh.h"
 #include "map.h"
@@ -249,17 +250,20 @@ void MeshUpdateQueue::clear()
 void MeshUpdateQueue::fillDataFromMapBlocks(QueuedMeshUpdate *q)
 {
 	auto mesh_grid = m_client->getMeshGrid();
-	MeshMakeData *data = new MeshMakeData(m_client->ndef(),
-			MAP_BLOCKSIZE * mesh_grid.cell_size, mesh_grid);
+	MeshMakeData *data = new MeshMakeData(m_client->ndef(), MAP_BLOCKSIZE * mesh_grid.cell_size,
+			mesh_grid, m_client->getNodeModifierManager(), m_client->getShaderSource());
 	q->data = data;
 
 	data->fillBlockDataBegin(q->p);
 
 	// NOTE: the "data race" mentioned by MapBlock::tryShrinkNodes() is right here
 	for (auto *block : q->map_blocks) {
-		if (block)
+		if (block) {
 			block->copyTo(data->m_vmanip);
+			block->copyNodeModifiersToSnapshot(data->m_node_modifiers, data->m_blockpos);
+		}
 	}
+	data->m_node_modifiers.shrink_to_fit();
 
 	data->setCrack(q->crack_level, q->crack_pos);
 

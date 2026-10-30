@@ -159,9 +159,132 @@ void Map::setNode(v3s16 p, MapNode n)
 	set_node_in_block(m_gamedef->ndef(), block, relpos, n);
 }
 
+ContentLightingFlags Map::getLightingFlags(v3s16 p, const MapNode &node)
+{
+	MapBlock *block = getBlockNoCreateNoEx(getNodeBlockPos(p));
+	if (block)
+		return block->getLightingFlags(p - block->getPosRelative(), node);
+	else
+		return m_nodedef->getLightingFlags(node);
+}
+
+std::vector<u16> Map::getNodeModifiers(v3s16 p)
+{
+	MapBlock *block = getBlockNoCreateNoEx(getNodeBlockPos(p));
+	if (!block)
+		return {};
+
+	const AppliedNodeModifiersView modifiers = block->getNodeModifiers(p - block->getPosRelative());
+	std::vector<u16> ids;
+	ids.reserve(modifiers.size());
+	for (const AppliedNodeModifier &modifier : modifiers)
+		ids.push_back(modifier.id);
+	return ids;
+}
+
+bool Map::setNodeModifiers(v3s16 p, const std::vector<u16> &ids)
+{
+	MapBlock *block = emergeBlock(getNodeBlockPos(p), false);
+	if (!block)
+		return false;
+
+	v3s16 rel = p - block->getPosRelative();
+	MapNode node = block->getNodeNoCheck(rel);
+	if (node.getContent() == CONTENT_IGNORE)
+		return false;
+
+	ContentLightingFlags old_flags = block->getLightingFlags(rel, node);
+
+	if (!block->setNodeModifiers(rel, ids))
+		return false;
+
+	onNodeModifiersChanged(block, rel, node, old_flags);
+
+	return true;
+}
+
+bool Map::addNodeModifier(v3s16 p, u16 id, bool prune_overridden)
+{
+	MapBlock *block = emergeBlock(getNodeBlockPos(p), false);
+	if (!block)
+		return false;
+
+	v3s16 rel = p - block->getPosRelative();
+	MapNode node = block->getNodeNoCheck(rel);
+	if (node.getContent() == CONTENT_IGNORE)
+		return false;
+
+	ContentLightingFlags old_flags = block->getLightingFlags(rel, node);
+
+	if (!block->addNodeModifier(rel, id, prune_overridden))
+		return false;
+
+	onNodeModifiersChanged(block, rel, node, old_flags);
+
+	return true;
+}
+
+void Map::removeNodeModifier(v3s16 p, u16 id)
+{
+	MapBlock *block = emergeBlock(getNodeBlockPos(p), false);
+	if (!block)
+		return;
+
+	v3s16 rel = p - block->getPosRelative();
+	MapNode node = block->getNodeNoCheck(rel);
+	if (node.getContent() == CONTENT_IGNORE)
+		return;
+
+	ContentLightingFlags old_flags = block->getLightingFlags(rel, node);
+
+	if (!block->removeNodeModifier(rel, id))
+		return;
+
+	onNodeModifiersChanged(block, rel, node, old_flags);
+}
+
+void Map::onNodeModifiersChanged(MapBlock *block, v3s16 rel,
+		MapNode oldnode, ContentLightingFlags old_flags)
+{
+	std::map<v3s16, MapBlock*> modified_blocks;
+	updateNode(block, rel, oldnode, oldnode, old_flags, modified_blocks);
+
+	for (const auto &entry : modified_blocks)
+		entry.second->raiseModified(MOD_STATE_WRITE_NEEDED);
+
+	MapEditEvent event;
+	event.type = MEET_OTHER;
+	event.setModifiedBlocks(modified_blocks);
+	dispatchEvent(event);
+}
+
+void Map::updateNode(MapBlock *block, v3s16 rel, MapNode oldnode, MapNode node,
+		ContentLightingFlags old_flags, std::map<v3s16, MapBlock*> &modified_blocks)
+{
+	const ContentLightingFlags flags = block->getLightingFlags(rel, node);
+	const bool lighting_changed = flags != old_flags;
+	// Preserve existing light when possible; otherwise propagation rebuilds it.
+	node.setLight(LIGHTBANK_DAY,
+			lighting_changed ? 0 : oldnode.getLightRaw(LIGHTBANK_DAY, old_flags), flags);
+	node.setLight(LIGHTBANK_NIGHT,
+			lighting_changed ? 0 : oldnode.getLightRaw(LIGHTBANK_NIGHT, old_flags), flags);
+	set_node_in_block(m_nodedef, block, rel, node);
+	modified_blocks[block->getPos()] = block;
+
+	if (lighting_changed) {
+		const v3s16 pos = block->getPosRelative() + rel;
+		std::vector<voxalgo::LightingUpdate> oldnodes{{pos, oldnode, old_flags}};
+		voxalgo::update_lighting_nodes(this, oldnodes, modified_blocks);
+	}
+
+	if (node.getContent() != oldnode.getContent() &&
+			(oldnode.getContent() == CONTENT_AIR || node.getContent() == CONTENT_AIR))
+		block->expireIsAirCache();
+}
+
 void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 		std::map<v3s16, MapBlock*> &modified_blocks,
-		bool remove_metadata)
+		bool remove_metadata, const std::vector<u16> &modifiers)
 {
 	// Collect old node for rollback
 	RollbackNode rollback_oldnode(this, p, m_gamedef);
@@ -172,37 +295,21 @@ void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 
 	// This is needed for updating the lighting
 	MapNode oldnode = block->getNodeNoCheck(relpos);
+	ContentLightingFlags oldf = block->getLightingFlags(relpos, oldnode);
 
 	// Remove node metadata
 	if (remove_metadata) {
 		removeNodeMetadata(p);
+		block->clearNodeModifiers(relpos);
 	}
 
-	// Set the node on the map
-	ContentLightingFlags f = m_nodedef->getLightingFlags(n);
-	ContentLightingFlags oldf = m_nodedef->getLightingFlags(oldnode);
-	if (f == oldf) {
-		// No light update needed, just copy over the old light.
-		n.setLight(LIGHTBANK_DAY, oldnode.getLightRaw(LIGHTBANK_DAY, oldf), f);
-		n.setLight(LIGHTBANK_NIGHT, oldnode.getLightRaw(LIGHTBANK_NIGHT, oldf), f);
-		set_node_in_block(m_gamedef->ndef(), block, relpos, n);
-
-		modified_blocks[blockpos] = block;
-	} else {
-		// Ignore light (because calling voxalgo::update_lighting_nodes)
-		n.setLight(LIGHTBANK_DAY, 0, f);
-		n.setLight(LIGHTBANK_NIGHT, 0, f);
-		set_node_in_block(m_gamedef->ndef(), block, relpos, n);
-
-		// Update lighting
-		std::vector<std::pair<v3s16, MapNode> > oldnodes;
-		oldnodes.emplace_back(p, oldnode);
-		voxalgo::update_lighting_nodes(this, oldnodes, modified_blocks);
+	// Install modifiers before resolving the new node lighting.
+	if (!modifiers.empty()) {
+		bool success = block->setNodeModifiers(relpos, modifiers);
+		SANITY_CHECK(success);
 	}
 
-	if (n.getContent() != oldnode.getContent() &&
-			(oldnode.getContent() == CONTENT_AIR || n.getContent() == CONTENT_AIR))
-		block->expireIsAirCache();
+	updateNode(block, relpos, oldnode, n, oldf, modified_blocks);
 
 	// Report for rollback
 	if(m_gamedef->rollback())

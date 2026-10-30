@@ -10,6 +10,8 @@
 #include "irr_ptr.h"
 #include <string>
 #include <map>
+#include <array>
+#include <optional>
 #include <variant>
 #include "nodedef.h"
 #include "tile.h" // MaterialType
@@ -228,6 +230,7 @@ using CachedStructPixelShaderSetting = CachedStructShaderSetting<T, count, cache
 */
 
 struct ShaderFeatures {
+	WavingType waving = WAVING_NONE;
 	/// Enable support for array textures,
 	/// texture indices are expected in the Aux vertex attribute.
 	bool array_texture = false;
@@ -256,6 +259,21 @@ public:
 	IShaderSource() = default;
 	virtual ~IShaderSource() = default;
 
+	// Prepare on the main thread before mesh jobs start. Uses the general shader cache.
+	u32 prepareNodeShader(MaterialType material, AlphaMode alpha,
+			WavingType waving, bool array_texture);
+	// Read-only lookup for mesh workers; never generates shaders.
+	u32 getNodeShader(MaterialType material, AlphaMode alpha,
+			WavingType waving, bool array_texture) const;
+
+private:
+	// Use `AlphaMode_END - 1` to exclude `ALPHAMODE_LEGACY_COMPAT`
+	std::array<std::array<std::array<std::array<std::optional<u32>, 2>,
+			WavingType_END>, AlphaMode_END - 1>, MaterialType_END>
+			m_node_shaders{};
+
+public:
+
 	/**
 	 * @brief returns information about an existing shader
 	 *
@@ -281,7 +299,7 @@ public:
 
 	/// Helper: Generates or gets a shader suitable for nodes and entities.
 	u32 getShader(const std::string &name,
-		MaterialType material_type, NodeDrawType drawtype = NDT_NORMAL,
+		MaterialType material_type, AlphaMode alpha,
 		const ShaderFeatures &features = {});
 
 	/**

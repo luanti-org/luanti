@@ -881,3 +881,6 @@ void safe_print_string(std::ostream &os, std::string_view str);
  * @return float vector
  */
 std::optional<v3f> str_to_v3f(std::string_view str);
+
+// Canonical modname:name (at most 65535 bytes), without a registration escape colon.
+bool isValidModScopedName(std::string_view name);

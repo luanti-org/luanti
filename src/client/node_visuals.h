@@ -10,6 +10,7 @@
 #include "tile.h"
 
 class Client;
+class NodeModifierManager;
 struct PreLoadedTextures;
 namespace scene
 {
@@ -37,6 +38,23 @@ constexpr std::array<u8, NodeDrawType_END> NDT_visual_solidness = [] {
 	return visual_solidness;
 }();
 
+struct NodeModifier;
+// Prepared once on the main thread. Mesh workers borrow these texture resources;
+// material, shader, node color and polygon offset are supplied when applying them.
+class NodeModifierVisuals
+{
+public:
+	NodeModifierVisuals(const std::array<TileDef, 6> &definition, ITextureSource *tsrc,
+			PreLoadedTextures *texture_pool, const TextureSettings &settings);
+	~NodeModifierVisuals();
+
+	const TileLayer &getTile(size_t face) const { return m_tiles.at(face); }
+
+	DISABLE_CLASS_COPY(NodeModifierVisuals);
+
+private:
+	std::array<TileLayer, 6> m_tiles;
+};
 
 // Stores client only data needed to draw nodes, like textures and meshes
 // Contained in ContentFeatures
@@ -58,24 +76,34 @@ struct NodeVisuals
 	NodeVisuals() = default;
 	~NodeVisuals();
 
+	void applyOverrides(TileSpec &tile, u8 face, const NodeModifier *texture,
+			const NodeModifier *alpha, WorldAlignMode world_align,
+			const IShaderSource *shaders) const;
+
 	// Get color from palette or content features
 	video::SColor getColor(const ContentFeatures &f, u8 param2) const;
 
 	/*!
 	 * Creates NodeVisuals for every content feature in the passed NodeDefManager.
 	 * @param ndef the NodeDefManager.
+	 * @param modifiers the node modifier definitions to prepare.
 	 * @param client the Client.
 	 * @param progress_cbk called each time a node is loaded. Arguments:
 	 * `progress_cbk_args`, number of loaded ContentFeatures, number of
 	 * total ContentFeatures.
 	 * @param progress_cbk_args passed to the callback function
 	 */
-	static void fillNodeVisuals(NodeDefManager *ndef, Client *client,
-			void *progress_callback_args);
+	static void fillNodeVisuals(NodeDefManager *ndef, NodeModifierManager *modifiers,
+			Client *client, void *progress_callback_args);
 
 	DISABLE_CLASS_COPY(NodeVisuals);
 
 private:
+	NodeDrawType m_drawtype = NDT_NORMAL;
+	bool m_force_opaque = false;
+
+	void prepareOverrides(IShaderSource *shdsrc, u8 alpha_modes, u8 texture_types,
+			std::vector<u32> &leaves_materials);
 
 	// Functions needed for initialisation
 	void preUpdateTextures(const ContentFeatures &f, ITextureSource *tsrc,
@@ -90,19 +118,3 @@ private:
 			const TextureSettings &tsettings);
 	void collectMaterials(std::vector<u32> &leaves_materials);
 };
-
-/**
- * @brief get fitting material type for an alpha mode
- */
-static inline MaterialType alpha_mode_to_material_type(AlphaMode mode)
-{
-	switch (mode) {
-	case ALPHAMODE_BLEND:
-		return TILE_MATERIAL_ALPHA;
-	case ALPHAMODE_OPAQUE:
-		return TILE_MATERIAL_OPAQUE;
-	case ALPHAMODE_CLIP:
-	default:
-		return TILE_MATERIAL_BASIC;
-	}
-}
