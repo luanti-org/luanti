@@ -542,8 +542,13 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 			v3f wscale = wield_scale;
 			if (f.drawtype == NDT_FLOWINGLIQUID)
 				wscale.Z *= 0.1f;
-			setExtruded(f.tiledef[0], v.tiles[0].layers[0],
-				f.tiledef_overlay[0], v.tiles[0].layers[1], wscale, tsrc);
+			TileSpec tile = v.tiles[0];
+			const TileDef *definition = &f.tiledef[0];
+			modifier_view.resolveTile(nmod_manager, v, 0, tile,
+					ndef->getTextureSettings().world_aligned_mode, shdsrc, &definition);
+
+			setExtruded(*definition, tile.layers[0],
+				f.tiledef_overlay[0], tile.layers[1], wscale, tsrc);
 			break;
 		}
 		case NDT_PLANTLIKE_ROOTED: {
@@ -724,18 +729,9 @@ void createItemMesh(Client *client, const ItemStack &item,
 		switch (f.drawtype) {
 		case NDT_PLANTLIKE: {
 			TileSpec tile = v.tiles[0];
-			modifier_view.resolveTile(nmod_manager, v, 0, tile,
-					ndef->getTextureSettings().world_aligned_mode, shdsrc);
-
 			const TileDef *definition = &f.tiledef[0];
-			nmod_manager.resolveOverrides(modifier_view, MP_TileFirst,
-					[&](const NodeModifier &modifier, u64 matched) -> u64 {
-				if (!modifier.visuals)
-					return 0;
-
-				definition = &(*modifier.getTiles())[0];
-				return matched;
-			});
+			modifier_view.resolveTile(nmod_manager, v, 0, tile,
+					ndef->getTextureSettings().world_aligned_mode, shdsrc, &definition);
 
 			const TileLayer &l0 = tile.layers[0];
 			const TileLayer &l1 = tile.layers[1];

@@ -144,7 +144,7 @@ public:
 	// independently, preserving properties supplied by the original node visuals.
 	void resolveTile(const NodeModifierManager &manager, const NodeVisuals &visuals,
 			u8 face, TileSpec &tile, WorldAlignMode world_align,
-			const IShaderSource *shaders) const;
+			const IShaderSource *shaders, const TileDef **definition = nullptr) const;
 #endif
 
 private:

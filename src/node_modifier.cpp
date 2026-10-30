@@ -187,7 +187,7 @@ ContentLightingFlags AppliedNodeModifiersView::resolveLighting(
 #if CHECK_CLIENT_BUILD()
 void AppliedNodeModifiersView::resolveTile(const NodeModifierManager &manager,
 		const NodeVisuals &visuals, u8 face, TileSpec &tile, WorldAlignMode world_align,
-		const IShaderSource *shaders) const
+		const IShaderSource *shaders, const TileDef **definition) const
 {
 	assert(face < 6);
 
@@ -212,6 +212,9 @@ void AppliedNodeModifiersView::resolveTile(const NodeModifierManager &manager,
 
 	if (texture || alpha)
 		visuals.applyOverrides(tile, face, texture, alpha, world_align, shaders);
+
+	if (texture && definition)
+		*definition = &(*texture->getTiles())[face];
 }
 #endif
 
