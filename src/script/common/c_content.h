@@ -83,7 +83,7 @@ void read_server_sound_params(lua_State *L, int index,
 void push_dig_params(lua_State *L, const DigParams &params);
 void push_hit_params(lua_State *L, const HitParams &params);
 
-ItemStack read_item(lua_State *L, int index, IItemDefManager *idef);
+ItemStack read_item(lua_State *L, int index, const IItemDefManager *idef);
 
 struct TileAnimationParams read_animation_definition(lua_State *L, int index);
 
@@ -108,7 +108,7 @@ void push_item_definition_full(lua_State *L, const ItemDefinition &i);
 /// @param fallback set to true if reading from bare entity table (not initial_properties)
 void read_object_properties(lua_State *L, int index,
 		ServerActiveObject *sao, ObjectProperties *prop,
-		IItemDefManager *idef, bool fallback = false);
+		const IItemDefManager *idef, bool fallback = false);
 
 void push_object_properties(lua_State *L, const ObjectProperties *prop);
 

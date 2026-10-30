@@ -22,15 +22,15 @@ struct ItemStack
 	ItemStack() = default;
 
 	ItemStack(const std::string &name_, u16 count_,
-			u16 wear, IItemDefManager *itemdef);
+			u16 wear, const IItemDefManager *itemdef);
 
 	~ItemStack() = default;
 
 	// Serialization
 	void serialize(std::ostream &os, bool serialize_meta = true) const;
 	// Deserialization. Pass itemdef unless you don't want aliases resolved.
-	void deSerialize(std::istream &is, IItemDefManager *itemdef = NULL);
-	void deSerialize(const std::string &s, IItemDefManager *itemdef = NULL);
+	void deSerialize(std::istream &is, const IItemDefManager *itemdef = NULL);
+	void deSerialize(const std::string &s, const IItemDefManager *itemdef = NULL);
 
 	// Returns the string used for inventory
 	std::string getItemString(bool include_meta = true) const;
@@ -110,14 +110,14 @@ struct ItemStack
 	// If cannot be added at all, returns the item back.
 	// If can be added partly, decremented item is returned back.
 	// If can be added fully, empty item is returned.
-	ItemStack addItem(ItemStack newitem, IItemDefManager *itemdef);
+	ItemStack addItem(ItemStack newitem, const IItemDefManager *itemdef);
 
 	// Checks whether newitem could be added.
 	// If restitem is non-NULL, it receives the part of newitem that
 	// would be left over after adding.
 	bool itemFits(ItemStack newitem,
 			ItemStack *restitem,  // may be NULL
-			IItemDefManager *itemdef) const;
+			const IItemDefManager *itemdef) const;
 
 	// Checks if another itemstack would stack with this one.
 	// Does not check if the item actually fits in the stack.
@@ -156,7 +156,7 @@ struct ItemStack
 class InventoryList
 {
 public:
-	InventoryList(const std::string &name, u32 size, IItemDefManager *itemdef);
+	InventoryList(const std::string &name, u32 size, const IItemDefManager *itemdef);
 	~InventoryList() = default;
 	void clearItems();
 	void setSize(u32 newsize);
@@ -271,7 +271,7 @@ private:
 	std::string m_name;
 	u32 m_size; // always the same as m_items.size()
 	u32 m_width = 0;
-	IItemDefManager *m_itemdef;
+	const IItemDefManager *m_itemdef;
 	bool m_dirty = true;
 	int m_resize_locks = 0; // Lua callback sanity
 };
@@ -283,7 +283,7 @@ public:
 
 	void clear();
 
-	Inventory(IItemDefManager *itemdef);
+	Inventory(const IItemDefManager *itemdef);
 	Inventory(const Inventory &other);
 	Inventory & operator = (const Inventory &other);
 	bool operator == (const Inventory &other) const;
@@ -337,6 +337,6 @@ private:
 	s32 getListIndex(const std::string &name) const;
 
 	std::vector<InventoryList*> m_lists;
-	IItemDefManager *m_itemdef;
+	const IItemDefManager *m_itemdef;
 	bool m_dirty = true;
 };

@@ -933,7 +933,7 @@ void ICraftAction::apply(InventoryManager *mgr,
 		mgr->setInventoryModified(craft_inv);
 
 		// Add the new replacements to the list
-		IItemDefManager *itemdef = gamedef->getItemDefManager();
+		auto *itemdef = gamedef->idef();
 		for (auto &itemstack : temp) {
 			for (auto &output_replacement : output_replacements) {
 				if (itemstack.name == output_replacement.name) {

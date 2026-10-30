@@ -130,7 +130,7 @@ static bool content_nodemeta_deserialize_legacy_meta(
 
 void content_nodemeta_deserialize_legacy(std::istream &is,
 		NodeMetadataList *meta, NodeTimerList *timers,
-		IItemDefManager *item_def_mgr)
+		const IItemDefManager *item_def_mgr)
 {
 	meta->clear();
 	timers->clear();

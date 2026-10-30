@@ -42,20 +42,16 @@ local function test_dynamic_media(cb, player)
 		return cb()
 	end
 
-	-- Check that the client acknowledges media transfers
-	local path = core.get_worldpath() .. "/test_media.obj"
-	local f = io.open(path, "w")
-	f:write("# contents don't matter\n")
-	f:close()
-
+	-- Check that the client acknowledges media transfers correctly
 	local call_ok = false
 	local ok = core.dynamic_add_media({
-		filepath = path,
+		filename = "test_media.obj",
+		filedata = "# dummy data " .. tostring(math.random()) .. "\n",
 		to_player = player:get_player_name(),
 		client_cache = false,
 	}, function(name)
 		if not call_ok then
-			return cb("impossible condition")
+			return cb("called too early")
 		end
 		cb()
 	end)

@@ -26,7 +26,7 @@ void GUIItemImage::draw()
 		return;
 	}
 
-	IItemDefManager *idef = m_client->idef();
+	auto *idef = m_client->idef();
 	ItemStack item;
 	item.deSerialize(m_item_name, idef);
 	// Viewport rectangle on screen

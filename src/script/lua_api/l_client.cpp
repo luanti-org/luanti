@@ -223,7 +223,7 @@ int ModApiClient::l_get_item_def(lua_State *L)
 	IGameDef *gdef = getGameDef(L);
 	assert(gdef);
 
-	IItemDefManager *idef = gdef->idef();
+	auto *idef = gdef->idef();
 	assert(idef);
 
 	if (checkCSMRestrictionFlag(CSM_RF_READ_ITEMDEFS))

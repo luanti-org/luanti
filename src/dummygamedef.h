@@ -35,10 +35,11 @@ public:
 	}
 
 	bool isClient() override { return false; }
-	IItemDefManager *getItemDefManager() override { return m_itemdef; }
+	const IItemDefManager *getItemDefManager() const override { return m_itemdef; }
+	IWritableItemDefManager* getWritableItemDefManager() { return m_itemdef; }
 	const NodeDefManager *getNodeDefManager() override { return m_nodedef; }
 	NodeDefManager* getWritableNodeDefManager() { return m_nodedef; }
-	ICraftDefManager *getCraftDefManager() override { return m_craftdef; }
+	const ICraftDefManager *getCraftDefManager() const override { return m_craftdef; }
 
 	u16 allocateUnknownNodeId(const std::string &name) override
 	{
@@ -62,7 +63,7 @@ public:
 	ModChannel *getModChannel(const std::string &channel) override { return nullptr; }
 
 protected:
-	IItemDefManager *m_itemdef = nullptr;
+	IWritableItemDefManager *m_itemdef = nullptr;
 	NodeDefManager *m_nodedef = nullptr;
 	ICraftDefManager *m_craftdef = nullptr;
 	ModStorageDatabase *m_mod_storage_database = nullptr;

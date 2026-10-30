@@ -423,7 +423,7 @@ int ModApiCraft::l_get_craft_result(lua_State *L)
 	std::vector<ItemStack> items = read_items(L, -1, gdef);
 	lua_pop(L, 1); // items
 
-	ICraftDefManager *cdef = gdef->cdef();
+	auto *cdef = gdef->cdef();
 	CraftInput input(method, width, items);
 	CraftOutput output;
 	std::vector<ItemStack> output_replacements;

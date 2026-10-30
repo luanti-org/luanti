@@ -517,7 +517,7 @@ bool Schematic::saveSchematicToFile(const std::string &filename,
 		schem->condenseContentIds();
 	}
 
-	std::ostringstream os(std::ios_base::binary);
+	my_ostringstream os;
 	bool status = schem->serializeToMts(&os);
 
 	if (needs_condense)
@@ -526,7 +526,7 @@ bool Schematic::saveSchematicToFile(const std::string &filename,
 	if (!status)
 		return false;
 
-	return fs::safeWriteToFile(filename, os.str());
+	return fs::safeWriteToFile(filename, os.view());
 }
 
 

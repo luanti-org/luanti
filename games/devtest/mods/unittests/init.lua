@@ -201,7 +201,6 @@ dofile(modpath .. "/inventory.lua")
 dofile(modpath .. "/load_time.lua")
 dofile(modpath .. "/on_shutdown.lua")
 dofile(modpath .. "/color.lua")
-dofile(modpath .. "/vector2.lua")
 
 --------------
 

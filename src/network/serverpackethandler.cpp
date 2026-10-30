@@ -575,7 +575,7 @@ void Server::handleCommand_InventoryAction(NetworkPacket* pkt)
 	}
 
 	// Strip command and create a stream
-	std::istringstream is(std::string(pkt->getRemainingNoCopy()), std::ios_base::binary);
+	my_istringstream is(pkt->getRemainingNoCopy());
 	// Create an action
 	std::unique_ptr<InventoryAction> a(InventoryAction::deSerialize(is));
 	if (!a) {

@@ -24,7 +24,7 @@ class IItemDefManager;
 class NodeMetadata : public SimpleMetadata
 {
 public:
-	NodeMetadata(IItemDefManager *item_def_mgr);
+	NodeMetadata(const IItemDefManager *item_def_mgr);
 	~NodeMetadata();
 
 	void serialize(std::ostream &os, u8 version, bool disk=true) const;
@@ -73,7 +73,7 @@ public:
 
 	void serialize(std::ostream &os, u8 blockver, bool disk = true,
 		bool absolute_pos = false, bool include_empty = false) const;
-	void deSerialize(std::istream &is, IItemDefManager *item_def_mgr,
+	void deSerialize(std::istream &is, const IItemDefManager *item_def_mgr,
 		bool absolute_pos = false);
 
 	// Return all keys

@@ -153,6 +153,20 @@ void TestScriptApi::testVectorRead(MyScriptApi *script)
 		UASSERTEQ(auto, v, it.second);
 		lua_pop(L, 1);
 	}
+
+	// for vector2
+	const std::pair<const char*, v2s16> pairs2[] = {
+		{"return {x=1, y=-2}",       {1, -2}},
+		{"return {x=1.1, y=0}",      {1, 0}},
+		{"return {x=1.99, y=0}",     {1, 0}}, // floor, not round
+		{"return vector2.new(6, 7)", {6, 7}},
+	};
+	for (auto &it : pairs2) {
+		run(L, it.first, 1);
+		v2s16 v = read_v2s16(L, -1);
+		UASSERTEQ(auto, v, it.second);
+		lua_pop(L, 1);
+	}
 }
 
 void TestScriptApi::testVectorReadErr(MyScriptApi *script)

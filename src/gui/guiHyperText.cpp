@@ -1030,7 +1030,7 @@ void TextDrawer::draw(const core::rect<s32> &clip_rect,
 
 			case ParsedText::ELEMENT_ITEM: {
 				if (m_client) {
-					IItemDefManager *idef = m_client->idef();
+					auto *idef = m_client->idef();
 					ItemStack item;
 					item.deSerialize(stringw_to_utf8(el.text), idef);
 

@@ -98,7 +98,7 @@ void TestCompression::testZlibCompression()
 	fromdata[2]=5;
 	fromdata[3]=1;
 
-	std::ostringstream os(std::ios_base::binary);
+	my_ostringstream os;
 	compressZlib(*fromdata, fromdata.getSize(), os);
 
 	std::string str_out = os.str();
@@ -110,7 +110,7 @@ void TestCompression::testZlibCompression()
 	infostream << std::endl;
 
 	std::istringstream is(str_out, std::ios_base::binary);
-	std::ostringstream os2(std::ios_base::binary);
+	my_ostringstream os2;
 
 	decompressZlib(is, os2);
 	std::string str_out2 = os2.str();
@@ -134,7 +134,7 @@ void TestCompression::testRawDeflateCompression()
 	compressZlib(data_in, os_compressed, -1, true);
 	std::string compressed = os_compressed.str();
 
-	std::istringstream is_compressed(compressed, std::ios::binary);
+	my_istringstream is_compressed(compressed);
 	std::ostringstream os_decompressed(std::ios::binary);
 	decompressZlib(is_compressed, os_decompressed, 0, true);
 

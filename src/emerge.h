@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <mutex>
 #include "network/networkprotocol.h"
 #include "irr_v3d.h"
@@ -204,8 +204,8 @@ private:
 	MapDatabaseAccessor *m_db = nullptr;
 
 	std::mutex m_queue_mutex;
-	std::map<v3s16, BlockEmergeData> m_blocks_enqueued;
-	std::unordered_map<u16, u32> m_peer_queue_count;
+	std::unordered_map<v3s16, BlockEmergeData> m_blocks_enqueued;
+	std::unordered_map<session_t, u32> m_peer_queue_count;
 
 	u32 m_qlimit_total;
 	u32 m_qlimit_diskonly;

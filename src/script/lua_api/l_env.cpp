@@ -358,7 +358,7 @@ int ModApiEnv::l_place_node(lua_State *L)
 	ScriptApiItem *scriptIfaceItem = getScriptApi<ScriptApiItem>(L);
 	IGameDef *gamedef = getGameDef(L);
 	const NodeDefManager *ndef = gamedef->ndef();
-	IItemDefManager *idef = gamedef->idef();
+	auto *idef = gamedef->idef();
 
 	v3s16 pos = read_v3s16(L, 1);
 	MapNode n = readnode(L, 2);

@@ -12,8 +12,8 @@
 #include "util/serialize.h"
 #include "util/string.h"
 #include "util/pointedthing.h"
-#include <map>
-#include <set>
+#include <unordered_map>
+#include <algorithm>
 #include <sstream>
 
 TouchInteraction::TouchInteraction()
@@ -419,16 +419,15 @@ public:
 		return name;
 	}
 
-	virtual void getAll(std::set<std::string> &result) const
+	virtual void getAll(std::vector<std::string> &result) const
 	{
 		result.clear();
-		for (const auto &item_definition : m_item_definitions) {
-			result.insert(item_definition.first);
-		}
-
-		for (const auto &alias : m_aliases) {
-			result.insert(alias.first);
-		}
+		result.reserve(m_item_definitions.size() + m_aliases.size());
+		for (const auto &item_definition : m_item_definitions)
+			result.push_back(item_definition.first);
+		for (const auto &alias : m_aliases)
+			result.push_back(alias.first);
+		SORT_AND_UNIQUE(result);
 	}
 
 	virtual void getDefinitions(std::vector<ItemDefinition> &result) const
@@ -513,10 +512,11 @@ public:
 		if (def.name.empty())
 			FATAL_ERROR_IF(!def.tool_capabilities, "Hand does not have ToolCapabilities");
 
-		if(m_item_definitions.count(def.name) == 0)
-			m_item_definitions[def.name] = new ItemDefinition(def);
+		auto *&it = m_item_definitions[def.name];
+		if (!it)
+			it = new ItemDefinition(def);
 		else
-			*(m_item_definitions[def.name]) = def;
+			*it = def;
 
 		// Remove conflicting alias if it exists
 		bool alias_removed = (m_aliases.erase(def.name) != 0);
@@ -594,7 +594,7 @@ public:
 
 private:
 	// Key is name
-	std::map<std::string, ItemDefinition*> m_item_definitions;
+	std::unordered_map<std::string, ItemDefinition*> m_item_definitions;
 	// Aliases
 	StringMap m_aliases;
 };

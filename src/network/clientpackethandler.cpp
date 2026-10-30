@@ -303,7 +303,7 @@ void Client::handleCommand_BlockData(NetworkPacket* pkt)
 		return;
 	}
 
-	std::istringstream istr(std::string(pkt->getRemainingNoCopy()), std::ios_base::binary);
+	my_istringstream istr(pkt->getRemainingNoCopy());
 
 	MapSector *sector;
 	MapBlock *block;
@@ -359,7 +359,7 @@ void Client::handleCommand_Inventory(NetworkPacket* pkt)
 		datastring = pkt->getRemainingNoCopy();
 	}
 
-	std::istringstream is(datastring, std::ios_base::binary);
+	my_istringstream is(datastring);
 
 	LocalPlayer *player = m_env.getLocalPlayer();
 	assert(player != NULL);
@@ -482,7 +482,7 @@ void Client::handleCommand_ActiveObjectMessages(NetworkPacket* pkt)
 			string message
 		}
 	*/
-	std::istringstream is(std::string(pkt->getRemainingNoCopy()), std::ios_base::binary);
+	my_istringstream is(pkt->getRemainingNoCopy());
 
 	while (canRead(is)) {
 		u16 id = readU16(is);
@@ -721,10 +721,10 @@ void Client::handleCommand_Media(NetworkPacket* pkt)
 		*pkt >> name;
 		data = pkt->readLongString();
 		if (m_proto_ver >= 48) {
-			std::istringstream iss(data, std::ios::binary);
-			std::ostringstream oss(std::ios::binary);
+			my_istringstream iss(data);
+			my_ostringstream oss;
 			decompressZstd(iss, oss);
-			data = oss.str();
+			data = oss.take();
 		}
 
 		bool ok = false;
@@ -962,7 +962,7 @@ void Client::handleCommand_DetachedInventory(NetworkPacket* pkt)
 	// this used to be the length of the following string, ignore it
 	pkt->skip(2);
 
-	std::istringstream is(std::string(pkt->getRemainingNoCopy()), std::ios::binary);
+	my_istringstream is(pkt->getRemainingNoCopy());
 	inv->deSerialize(is);
 }
 
@@ -1021,7 +1021,7 @@ void Client::handleCommand_SpawnParticleBatch(NetworkPacket *pkt)
 
 void Client::handleCommand_AddParticleSpawner(NetworkPacket* pkt)
 {
-	std::istringstream is(std::string(pkt->getRemainingNoCopy()), std::ios_base::binary);
+	my_istringstream is(pkt->getRemainingNoCopy());
 
 	ParticleSpawnerParameters p;
 	u32 server_id;
@@ -1368,7 +1368,7 @@ void Client::handleCommand_HudSetSky(NetworkPacket* pkt)
 	if (m_proto_ver < 39) {
 		// Handle Protocol 38 and below servers with old set_sky,
 		// ensuring the classic look is kept.
-		std::istringstream is(std::string(pkt->getRemainingNoCopy()), std::ios_base::binary);
+		my_istringstream is(pkt->getRemainingNoCopy());
 
 		SkyboxParams skybox;
 		skybox.bgcolor = video::SColor(readARGB8(is));

@@ -85,7 +85,7 @@ void ServerInventoryManager::setInventoryModified(const InventoryLocation &loc)
 }
 
 Inventory *ServerInventoryManager::createDetachedInventory(
-		const std::string &name, IItemDefManager *idef, const std::string &player)
+		const std::string &name, const IItemDefManager *idef, const std::string &player)
 {
 	if (m_detached_inventories.count(name) > 0) {
 		infostream << "Server clearing detached inventory \"" << name << "\""

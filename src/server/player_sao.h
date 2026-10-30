@@ -131,7 +131,7 @@ public:
 
 	void disconnected();
 
-	void setPlayer(RemotePlayer *player) { m_player = player; }
+	void unsetPlayer() { m_player = nullptr; }
 	RemotePlayer *getPlayer() { return m_player; }
 	session_t getPeerID() const;
 

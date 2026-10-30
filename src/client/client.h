@@ -368,9 +368,9 @@ public:
 
 	// IGameDef interface
 	bool isClient() override { return true; }
-	IItemDefManager* getItemDefManager() override;
+	const IItemDefManager* getItemDefManager() const override;
 	const NodeDefManager* getNodeDefManager() override;
-	ICraftDefManager* getCraftDefManager() override;
+	const ICraftDefManager* getCraftDefManager() const override;
 	ITextureSource* getTextureSource();
 	virtual IWritableShaderSource* getShaderSource();
 	u16 allocateUnknownNodeId(const std::string &name) override;

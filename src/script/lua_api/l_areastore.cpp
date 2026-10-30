@@ -235,11 +235,11 @@ int LuaAreaStore::l_to_string(lua_State *L)
 
 	LuaAreaStore *o = checkObject<LuaAreaStore>(L, 1);
 
-	std::ostringstream os(std::ios_base::binary);
+	my_ostringstream os;
 	o->as->serialize(os);
-	std::string str = os.str();
 
-	lua_pushlstring(L, str.c_str(), str.length());
+	auto str = os.view();
+	lua_pushlstring(L, str.data(), str.length());
 	return 1;
 }
 
@@ -254,10 +254,10 @@ int LuaAreaStore::l_to_file(lua_State *L)
 	const char *filename = luaL_checkstring(L, 2);
 	CHECK_SECURE_PATH(L, filename, true);
 
-	std::ostringstream os(std::ios_base::binary);
+	my_ostringstream os;
 	ast->serialize(os);
 
-	lua_pushboolean(L, fs::safeWriteToFile(filename, os.str()));
+	lua_pushboolean(L, fs::safeWriteToFile(filename, os.view()));
 	return 1;
 }
 
@@ -268,10 +268,9 @@ int LuaAreaStore::l_from_string(lua_State *L)
 
 	LuaAreaStore *o = checkObject<LuaAreaStore>(L, 1);
 
-	size_t len;
-	const char *str = luaL_checklstring(L, 2, &len);
+	auto str = readParam<std::string_view>(L, 2);
 
-	std::istringstream is(std::string(str, len), std::ios::binary);
+	my_istringstream is(str);
 	return deserialization_helper(L, o->as, is);
 }
 

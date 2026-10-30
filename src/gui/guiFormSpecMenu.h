@@ -31,7 +31,7 @@ class GUIHyperText;
 class GUIScrollContainer;
 class ISoundManager;
 
-enum FormspecFieldType {
+enum FormspecFieldType : u8 {
 	f_Button,
 	f_Table,
 	f_TabHeader,
@@ -45,7 +45,7 @@ enum FormspecFieldType {
 	f_Unknown
 };
 
-enum FormspecQuitMode {
+enum FormspecQuitMode : u8 {
 	quit_mode_no,
 	quit_mode_accept,
 	quit_mode_cancel,
@@ -112,9 +112,6 @@ class GUIFormSpecMenu : public GUIModalMenu
 			flabel(label),
 			fdefault(unescape_enriched(translate_string(default_text))),
 			fid(id),
-			send(false),
-			ftype(f_Unknown),
-			is_exit(false),
 			priority(priority),
 			fcursor_icon(cursor_icon)
 		{
@@ -125,9 +122,9 @@ class GUIFormSpecMenu : public GUIModalMenu
 		std::wstring fdefault;
 		std::string url;
 		s32 fid;
-		bool send;
-		FormspecFieldType ftype;
-		bool is_exit;
+		bool send = false;
+		FormspecFieldType ftype = f_Unknown;
+		bool is_exit = false;
 		// Draw priority for formspec version < 3
 		int priority;
 		gui::ECURSOR_ICON fcursor_icon;
@@ -498,8 +495,7 @@ private:
 	void createTextField(parserData *data, FieldSpec &spec,
 		core::rect<s32> &rect, bool is_multiline);
 	void parseSimpleField(parserData* data,std::vector<std::string> &parts);
-	void parseTextArea(parserData* data,std::vector<std::string>& parts,
-			const std::string &type);
+	void parseTextArea(parserData* data,std::vector<std::string> &parts);
 	void parseHyperText(parserData *data, const std::string &element);
 	void parseHyperTip(parserData *data, const std::string &element);
 	void parseLabel(parserData* data, const std::string &element);

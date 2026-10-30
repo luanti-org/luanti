@@ -17,6 +17,7 @@
 #include "gamedef.h"
 #include "util/directiontables.h"
 #include "util/serialize.h"
+#include "util/stream.h"
 #include "rollback_interface.h"
 #include "reflowscan.h"
 #include "emerge.h"
@@ -687,18 +688,18 @@ bool ServerMap::saveBlock(MapBlock *block, MapDatabase *db, int compression_leve
 	v3s16 p3d = block->getPos();
 
 	// Format used for writing
-	u8 version = SER_FMT_VER_HIGHEST_WRITE;
+	const u8 version = SER_FMT_VER_HIGHEST_WRITE;
+
+	my_ostringstream oss;
 
 	/*
 		[0] u8 serialization version
 		[1] data
 	*/
-	std::ostringstream o(std::ios_base::binary);
-	o.write((char*) &version, 1);
-	block->serialize(o, version, true, compression_level);
+	oss.write((char*) &version, 1);
+	block->serialize(oss, version, true, compression_level);
 
-	// FIXME: zero copy possible in c++20 or with custom rdbuf
-	bool ret = db->saveBlock(p3d, o.str());
+	bool ret = db->saveBlock(p3d, oss.view());
 	if (ret) {
 		// We just wrote it to the disk so clear modified flag
 		block->resetModified();
@@ -711,6 +712,9 @@ std::pair<std::unique_ptr<std::istream>, u8> ServerMap::createBlockIStream(const
 	if (!from_db || from_db->empty()) {
 		return {nullptr, 0};
 	}
+
+	// TODO: could use my_istringstream here, but need a bit refactoring
+
 	// uncompress the block data early, if possible
 	auto iss = std::make_unique<std::istringstream>(*from_db, std::ios_base::binary);
 	u8 version = readU8(*iss);

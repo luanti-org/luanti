@@ -65,7 +65,7 @@ public:
 	bool exception_thrown = false;        \
 	try {                                 \
 		code;                             \
-	} catch (EType &e) {                  \
+	} catch (EType &) {                   \
 		exception_thrown = true;          \
 	}                                     \
 	UTEST(exception_thrown, "Exception %s not thrown", #EType); \

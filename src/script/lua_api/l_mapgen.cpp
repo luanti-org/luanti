@@ -1885,7 +1885,7 @@ int ModApiMapgen::l_serialize_schematic(lua_State *L)
 		string_to_enum(es_SchematicFormatType, schem_format, enumstr);
 
 	//// Serialize to binary string
-	std::ostringstream os(std::ios_base::binary);
+	my_ostringstream os;
 	switch (schem_format) {
 	case SCHEM_FMT_MTS:
 		schem->serializeToMts(&os);
@@ -1900,8 +1900,8 @@ int ModApiMapgen::l_serialize_schematic(lua_State *L)
 	if (was_loaded)
 		delete schem;
 
-	std::string ser = os.str();
-	lua_pushlstring(L, ser.c_str(), ser.length());
+	auto ret = os.view();
+	lua_pushlstring(L, ret.data(), ret.length());
 	return 1;
 }
 

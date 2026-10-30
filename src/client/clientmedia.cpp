@@ -523,7 +523,7 @@ IClientMediaDownloader::IClientMediaDownloader():
 bool IClientMediaDownloader::tryLoadFromCache(const std::string &name,
 	const std::string &sha1, Client *client)
 {
-	std::ostringstream tmp_os(std::ios_base::binary);
+	my_ostringstream tmp_os;
 	bool found_in_cache = m_media_cache.load(hex_encode(sha1), tmp_os);
 
 	// If found in cache, try to load it from there

@@ -1031,15 +1031,14 @@ void NodeDefManager::removeNode(const std::string &name)
 
 void NodeDefManager::updateAliases(IItemDefManager *idef)
 {
-	std::set<std::string> all;
+	std::vector<std::string> all;
 	idef->getAll(all);
 	m_name_id_mapping_with_aliases.clear();
 	for (const std::string &name : all) {
 		const std::string &convert_to = idef->getAlias(name);
 		content_t id;
 		if (m_name_id_mapping.getId(convert_to, id)) {
-			m_name_id_mapping_with_aliases.insert(
-				std::make_pair(name, id));
+			m_name_id_mapping_with_aliases.emplace(name, id);
 		}
 	}
 }
