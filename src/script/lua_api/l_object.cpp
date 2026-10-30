@@ -29,8 +29,6 @@
 #include "server/player_sao.h"
 #include "server/serverinventorymgr.h"
 
-using object_t = ServerActiveObject::object_t;
-
 /*
 	ObjectRef
 */
@@ -921,12 +919,28 @@ int ObjectRef::l_get_bone_overrides(lua_State *L)
 	return 1;
 }
 
-// set_attach(self, parent, bone, position, rotation, force_visible)
+// set_attach(self, parent, bone, position, rotation, force_visible) or
+// set_attach(attachment_table)
 int ObjectRef::l_set_attach(lua_State *L)
 {
 	GET_ENV_PTR_NO_MAP_LOCK;
 	ObjectRef *ref = checkObject<ObjectRef>(L, 1);
-	ObjectRef *parent_ref = checkObject<ObjectRef>(L, 2);
+
+	int start_idx = 2;
+	bool table_form = lua_istable(L, 2);
+
+	if (table_form) {
+		lua_getfield(L, 2, "parent");
+		lua_getfield(L, 2, "bone");
+		lua_getfield(L, 2, "position");
+		lua_getfield(L, 2, "rotation");
+		lua_getfield(L, 2, "force_visible");
+		lua_getfield(L, 2, "move_camera");
+
+		start_idx = 3;
+	}
+
+	ObjectRef *parent_ref = checkObject<ObjectRef>(L, start_idx);
 	ServerActiveObject *sao = getobject(ref);
 	ServerActiveObject *parent = getobject(parent_ref);
 	if (sao == nullptr || parent == nullptr)
@@ -934,21 +948,24 @@ int ObjectRef::l_set_attach(lua_State *L)
 	if (sao == parent)
 		throw LuaError("ObjectRef::set_attach: attaching object to itself is not allowed.");
 
-	std::string bone;
-	v3f position;
-	v3f rotation;
-	bool force_visible;
+	AttachmentData attachment = {parent->getId()};
+	bool is_player = getplayersao(ref) != nullptr;
 
-	bone          = readParam<std::string>(L, 3, "");
-	position      = readParam<v3f>(L, 4, v3f(0, 0, 0));
-	rotation      = readParam<v3f>(L, 5, v3f(0, 0, 0));
-	force_visible = readParam<bool>(L, 6, false);
+	attachment.bone          = readParam<std::string>(L, start_idx+1, "");
+	attachment.position      = readParam<v3f>(L, start_idx+2, v3f(0, 0, 0));
+	attachment.rotation      = readParam<v3f>(L, start_idx+3, v3f(0, 0, 0));
 
-	sao->setAttachment(parent->getId(), bone, position, rotation, force_visible);
+	if (readParam<bool>(L, start_idx+4, false))
+		attachment.flags |= AttachmentData::FORCE_VISIBLE;
+	// "move_camera" is supported only in the table form
+	if (table_form && readParam<bool>(L, start_idx+5, false) && is_player)
+		attachment.flags |= AttachmentData::MOVE_CAMERA;
+
+	sao->setAttachment(attachment);
 	return 0;
 }
 
-// get_attach(self)
+// get_attach(self, table_form)
 int ObjectRef::l_get_attach(lua_State *L)
 {
 	GET_ENV_PTR_NO_MAP_LOCK;
@@ -957,23 +974,35 @@ int ObjectRef::l_get_attach(lua_State *L)
 	if (sao == nullptr)
 		return 0;
 
-	object_t parent_id;
-	std::string bone;
-	v3f position;
-	v3f rotation;
-	bool force_visible;
-
-	sao->getAttachment(&parent_id, &bone, &position, &rotation, &force_visible);
-	if (parent_id == 0)
+	AttachmentData attachment;
+	sao->getAttachment(attachment);
+	if (attachment.parent_id == 0)
 		return 0;
 
-	ServerActiveObject *parent = env->getActiveObject(parent_id);
+	ServerActiveObject *parent = env->getActiveObject(attachment.parent_id);
 	getScriptApiBase(L)->objectrefGetOrCreate(L, parent);
-	lua_pushlstring(L, bone.c_str(), bone.size());
-	push_v3f(L, position);
-	push_v3f(L, rotation);
-	lua_pushboolean(L, force_visible);
-	return 5;
+
+	bool table_form = readParam<bool>(L, 2, false);
+
+	if (table_form)
+		lua_newtable(L);
+
+	lua_pushlstring(L, attachment.bone.c_str(), attachment.bone.size());
+	push_v3f(L, attachment.position);
+	push_v3f(L, attachment.rotation);
+	lua_pushboolean(L, attachment.flags & AttachmentData::FORCE_VISIBLE);
+	lua_pushboolean(L, attachment.flags & AttachmentData::MOVE_CAMERA);
+
+	if (table_form) {
+		lua_setfield(L, 3, "move_camera");
+		lua_setfield(L, 3, "force_visible");
+		lua_setfield(L, 3, "rotation");
+		lua_setfield(L, 3, "position");
+		lua_setfield(L, 3, "bone");
+		lua_setfield(L, 3, "parent");
+	}
+
+	return table_form ? 1 : 6;
 }
 
 // get_children(self)
