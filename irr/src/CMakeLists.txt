@@ -462,7 +462,6 @@ add_library(IrrlichtMt STATIC
 	CMeshManipulator.h
 	CSceneCollisionManager.h
 	CSceneManager.h
-	CMeshCache.h
 
 	CBillboardSceneNode.cpp
 	CCameraSceneNode.cpp
@@ -471,7 +470,6 @@ add_library(IrrlichtMt STATIC
 	CMeshManipulator.cpp
 	CSceneCollisionManager.cpp
 	CSceneManager.cpp
-	CMeshCache.cpp
 )
 foreach(object_lib
 	IRRMESHOBJ IRRVIDEOOBJ

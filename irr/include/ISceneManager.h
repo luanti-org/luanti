@@ -10,6 +10,10 @@
 #include "dimension2d.h"
 #include "SColor.h"
 #include "ESceneNodeTypes.h"
+#include "irr_ptr.h"
+
+#include <string>
+#include <unordered_map>
 
 struct SEvent;
 
@@ -77,7 +81,6 @@ class ICameraSceneNode;
 class IDummyTransformationSceneNode;
 class IMesh;
 class SkinnedMesh;
-class IMeshCache;
 class ISceneCollisionManager;
 class IMeshLoader;
 class IMeshManipulator;
@@ -100,9 +103,12 @@ addExternalMeshLoader() to add new formats to the engine.
 class ISceneManager : public virtual IReferenceCounted
 {
 public:
+	//! Already loaded meshes, keyed by the file name they were loaded from.
+	using MeshCache = std::unordered_map<std::string, irr_ptr<IAnimatedMesh>>;
+
 	//! Get pointer to an animatable mesh. Loads the file if not loaded already.
 	/**
-	 * If you want to remove a loaded mesh from the cache again, use removeMesh().
+	 * If you want to remove a loaded mesh from the cache again, use getMeshCache().
 	 * If you would like to implement and add your own file format loader to Irrlicht,
 	 * see addExternalMeshLoader().
 	 * \param file File handle of the mesh to load.
@@ -111,11 +117,11 @@ public:
 	 **/
 	virtual IAnimatedMesh *getMesh(io::IReadFile *file) = 0;
 
-	//! Get interface to the mesh cache which is shared between all existing scene managers.
-	/** With this interface, it is possible to manually add new loaded
-	meshes (if ISceneManager::getMesh() is not sufficient), to remove them and to iterate
+	//! Get the mesh cache which is shared between all existing scene managers.
+	/** With this, it is possible to manually add new loaded meshes
+	(if ISceneManager::getMesh() is not sufficient), to remove them and to iterate
 	through already loaded meshes. */
-	virtual IMeshCache *getMeshCache() = 0;
+	virtual MeshCache &getMeshCache() = 0;
 
 	//! Get the video driver.
 	/** \return Pointer to the video Driver.

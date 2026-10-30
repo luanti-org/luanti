@@ -8,7 +8,6 @@
 #include "CSceneManager.h"
 #include "IVideoDriver.h"
 #include "IFileSystem.h"
-#include "CMeshCache.h"
 #include "IGUIEnvironment.h"
 #include "IMaterialRenderer.h"
 #include "IReadFile.h"
@@ -35,13 +34,16 @@ namespace scene
 
 //! constructor
 CSceneManager::CSceneManager(video::IVideoDriver *driver,
-		gui::ICursorControl *cursorControl, IMeshCache *cache) :
+		gui::ICursorControl *cursorControl, std::shared_ptr<MeshCache> cache) :
 		ISceneNode(0, 0),
 		Driver(driver),
 		CursorControl(cursorControl),
 		ActiveCamera(0),
-		MeshCache(cache), CurrentRenderPass(ESNRP_NONE)
+		Meshes(std::move(cache)),
+		CurrentRenderPass(ESNRP_NONE)
 {
+	assert(Meshes);
+
 	// root node's scene manager
 	SceneManager = this;
 
@@ -50,12 +52,6 @@ CSceneManager::CSceneManager(video::IVideoDriver *driver,
 
 	if (CursorControl)
 		CursorControl->grab();
-
-	// create mesh cache if not there already
-	if (!MeshCache)
-		MeshCache = new CMeshCache();
-	else
-		MeshCache->grab();
 
 	// create collision manager
 	CollisionManager = new CSceneCollisionManager(this, Driver);
@@ -96,9 +92,6 @@ CSceneManager::~CSceneManager()
 		ActiveCamera->drop();
 	ActiveCamera = 0;
 
-	if (MeshCache)
-		MeshCache->drop();
-
 	// remove all nodes before dropping the driver
 	// as render targets may be destroyed twice
 
@@ -114,18 +107,16 @@ IAnimatedMesh *CSceneManager::getMesh(io::IReadFile *file)
 	if (!file)
 		return 0;
 
-	io::path name = file->getFileName();
-	IAnimatedMesh *msh = MeshCache->getMeshByName(name);
-	if (msh)
-		return msh;
+	const io::path &name = file->getFileName();
+	auto it = Meshes->find(name.c_str());
+	if (it != Meshes->end())
+		return it->second.get();
 
-	msh = getUncachedMesh(file, name, name);
-
-	return msh;
+	return getUncachedMesh(file, name);
 }
 
 // load and create a mesh which we know already isn't in the cache and put it in there
-IAnimatedMesh *CSceneManager::getUncachedMesh(io::IReadFile *file, const io::path &filename, const io::path &cachename)
+IAnimatedMesh *CSceneManager::getUncachedMesh(io::IReadFile *file, const io::path &filename)
 {
 	// iterate the list in reverse order so user-added loaders can override the built-in ones
 
@@ -138,8 +129,8 @@ IAnimatedMesh *CSceneManager::getUncachedMesh(io::IReadFile *file, const io::pat
 			IAnimatedMesh *msh = (*it)->createMesh(file);
 			if (msh) {
 				msh->prepareForAnimation(Driver->getMaxJointTransforms());
-				MeshCache->addMesh(cachename, msh);
-				msh->drop();
+				// the cache takes over the loader's reference
+				(*Meshes)[filename.c_str()] = irr_ptr<IAnimatedMesh>(msh);
 				os::Printer::log("Loaded mesh", filename, ELL_DEBUG);
 				return msh;
 			}
@@ -740,16 +731,16 @@ E_SCENE_NODE_RENDER_PASS CSceneManager::getSceneNodeRenderPass() const
 	return CurrentRenderPass;
 }
 
-//! Returns an interface to the mesh cache which is shared between all existing scene managers.
-IMeshCache *CSceneManager::getMeshCache()
+//! Returns the mesh cache which is shared between all existing scene managers.
+ISceneManager::MeshCache &CSceneManager::getMeshCache()
 {
-	return MeshCache;
+	return *Meshes;
 }
 
 //! Creates a new scene manager.
 ISceneManager *CSceneManager::createNewSceneManager(bool cloneContent)
 {
-	CSceneManager *manager = new CSceneManager(Driver, CursorControl, MeshCache);
+	CSceneManager *manager = new CSceneManager(Driver, CursorControl, Meshes);
 
 	if (cloneContent)
 		manager->cloneMembers(this, manager);
@@ -766,7 +757,7 @@ SkinnedMesh *CSceneManager::createSkinnedMesh()
 // creates a scenemanager
 ISceneManager *createSceneManager(video::IVideoDriver *driver, gui::ICursorControl *cursorcontrol)
 {
-	return new CSceneManager(driver, cursorcontrol, nullptr);
+	return new CSceneManager(driver, cursorcontrol, std::make_shared<ISceneManager::MeshCache>());
 }
 
 } // end namespace scene
