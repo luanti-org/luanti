@@ -59,6 +59,10 @@ DEALINGS IN THE SOFTWARE.
 	#include <mach/thread_act.h>
 #endif
 
+#ifdef __EMSCRIPTEN__
+	#include <emscripten/threading.h>
+#endif
+
 // See https://msdn.microsoft.com/en-us/library/hh920601.aspx#thread__native_handle_method
 #define win32_native_handle() ((HANDLE) getThreadHandle())
 
@@ -249,6 +253,9 @@ void Thread::setName(const std::string &name)
 			sizeof(info) / sizeof(DWORD), (ULONG_PTR *)&info);
 	} __except (EXCEPTION_CONTINUE_EXECUTION) {
 	}
+#elif defined(__EMSCRIPTEN__)
+
+	emscripten_set_thread_name(pthread_self(), name.c_str());
 
 #elif defined(_WIN32) || defined(__GNU__)
 

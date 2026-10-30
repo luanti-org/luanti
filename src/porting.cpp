@@ -78,6 +78,10 @@ extern "C" {
 }
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #if !defined(PATH_MAX) && defined(_WIN32)
 #define PATH_MAX MAX_PATH
 #endif
@@ -459,6 +463,31 @@ bool getCurrentExecPath(char *buf, size_t len)
 	return true;
 }
 
+#elif defined(__EMSCRIPTEN__)
+
+bool getCurrentExecPath(char *buf, size_t len)
+{
+	// In nodejs, we have access to the real filesystem.
+	char *script_path = (char*)MAIN_THREAD_EM_ASM_PTR({
+		if (ENVIRONMENT_IS_NODE && process.argv[1]) {
+			return stringToNewUTF8(process.argv[1]);
+		}
+		return 0;
+	});
+	if (script_path) {
+		auto abs_path = fs::AbsolutePath(script_path);
+		snprintf(buf, len, "%s", abs_path.c_str());
+		free(script_path);
+		return true;
+	}
+
+	// In the browser, there is no path since the .wasm is
+	// loaded from JavaScript. But the process has its own
+	// virtual filesystem, so hardcode a path.
+	const char *browser_path = "/luanti/bin/luanti.js";
+	snprintf(buf, len, "%s", browser_path);
+	return true;
+}
 
 #else
 
@@ -946,6 +975,13 @@ static bool open_uri(const std::string &uri)
 	const char *argv[] = {"open", uri.c_str(), NULL};
 	return posix_spawnp(NULL, "open", NULL, NULL, (char**)argv,
 		(*_NSGetEnviron())) == 0;
+#elif defined(__EMSCRIPTEN__)
+	MAIN_THREAD_EM_ASM({
+		if (ENVIRONMENT_IS_WEB) {
+			window.open(UTF8ToString($0), "_blank");
+		}
+	}, uri.c_str());
+	return true;
 #else
 	const char *argv[] = {"xdg-open", uri.c_str(), NULL};
 	return posix_spawnp(NULL, "xdg-open", NULL, NULL, (char**)argv, environ) == 0;
