@@ -386,15 +386,6 @@ void Client::handleCommand_TimeOfDay(NetworkPacket* pkt)
 
 void Client::handleCommand_ChatMessage(NetworkPacket *pkt)
 {
-	/*
-		u8 version
-		u8 message_type
-		u16 sendername length
-		wstring sendername
-		u16 length
-		wstring message
-	 */
-
 	ChatMessage *chatMessage = new ChatMessage();
 	u8 version, message_type;
 	*pkt >> version >> message_type;
