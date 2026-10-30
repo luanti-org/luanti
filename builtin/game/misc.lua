@@ -119,6 +119,14 @@ function core.get_player_radius_area(player_name, radius)
 end
 
 
+-- To be overridden by skin/armor/decorative mods
+
+function core.get_player_appearance(player, props)
+	-- no-op
+	return
+end
+
+
 -- To be overridden by protection mods
 
 function core.is_protected(pos, name)
