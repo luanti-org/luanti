@@ -4701,8 +4701,9 @@ Helper functions
 * `core.is_nan(arg)`
     * returns true when the passed number represents NaN.
 * `core.get_us_time()`
-    * returns time in microseconds since an unspecified starting point.
-    * only useful for measuring elapsed time, usually not wall time.
+    * returns time in microseconds since an unspecified starting point
+      (usually not wall time)
+    * only useful for measuring elapsed time
 * `table.copy(table)`: returns a table
     * returns a deep copy of `table`
     * strips metatables, but this may change in the future
@@ -8790,16 +8791,14 @@ An `ItemStack` is a stack of items.
 * `get_name()`: returns item name (e.g. `"default:stone"`).
 * `set_name(item_name)`: sets the item name
     * returns `false` if the stack was cleared, `true` otherwise
-    * the stack is cleared if `item_name` is `""` or the stack is empty
 * `get_count()`: Returns amount of items on the stack.
 * `set_count(count)`: Sets amount of items in the stack.
     * returns `false` if the stack was cleared, `true` otherwise
-    * the stack is cleared if `count` is `0` or out of range
+    * the stack is cleared if `count` is `0`
     * `count`: integer [u16]
 * `get_wear()`: returns tool wear (integer in range [0, 65535]), `0` for non-tools.
 * `set_wear(wear)`: set tool wear
     * returns `false` if the stack was cleared, `true` otherwise
-    * the stack is cleared if `wear` is out of range
     * `wear`: integer [u16]
 * `get_meta()`: returns ItemStackMetaRef. See section for more details
 * `get_metadata()`: **Deprecated.** Returns metadata (a string attached to an item stack).
