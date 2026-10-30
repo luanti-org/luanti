@@ -575,6 +575,46 @@ void NodeVisuals::prepareOverrides(IShaderSource *shdsrc, u8 alpha_modes,
 				leaves_materials.push_back(shader);
 		}
 	}
+
+	// Like the node's use_texture_alpha, alpha overrides affect special tiles too.
+	for (const TileSpec &tile : special_tiles) {
+		// Special tiles have no overlay layer.
+		const TileLayer &layer = tile.layers[0];
+		if (!layer.texture)
+			continue;
+
+		if (m_drawtype == NDT_PLANTLIKE_ROOTED &&
+				(layer.waving == WAVING_PLANTS || layer.waving == WAVING_LEAVES))
+			continue;
+
+		for (size_t alpha = 0; alpha < needed_alpha.size(); ++alpha) {
+			if (!(alpha_modes & (u8{1} << alpha)))
+				continue;
+
+			AlphaMode effective = m_force_opaque ? ALPHAMODE_OPAQUE :
+					static_cast<AlphaMode>(alpha);
+			u32 shader = shdsrc->prepareNodeShader(layer.material_type, effective,
+					layer.waving, layer.texture->getType() == video::ETT_2D_ARRAY);
+			if (shader && layer.waving == WAVING_LEAVES)
+				leaves_materials.push_back(shader);
+		}
+	}
+}
+
+void NodeVisuals::applySpecialTileAlpha(TileSpec &tile, AlphaMode alpha,
+		const IShaderSource *shaders) const
+{
+	TileLayer &layer = tile.layers[0];
+	if (m_drawtype == NDT_PLANTLIKE_ROOTED &&
+			(layer.waving == WAVING_PLANTS || layer.waving == WAVING_LEAVES))
+		return;
+
+	layer.alpha = m_force_opaque ? ALPHAMODE_OPAQUE : alpha;
+	if (layer.texture) {
+		assert(shaders);
+		layer.shader_id = shaders->getNodeShader(layer.material_type, layer.alpha,
+				layer.waving, layer.texture->getType() == video::ETT_2D_ARRAY);
+	}
 }
 
 void NodeVisuals::applyOverrides(TileSpec &tile, u8 face, const NodeModifier *texture,

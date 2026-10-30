@@ -159,6 +159,7 @@ public:
 	void runTests(IGameDef *gamedef) override;
 	void testShaderWaving();
 	void testModifierTileResolution();
+	void testSpecialTileAlpha();
 	void testSimpleNode();
 	void testOverlayAlignment();
 	void testModifierLighting();
@@ -287,6 +288,7 @@ void TestMapblockMeshGenerator::runTests(IGameDef *gamedef)
 	set_light_decode_table();
 	TEST(testShaderWaving);
 	TEST(testModifierTileResolution);
+	TEST(testSpecialTileAlpha);
 	TEST(testSimpleNode);
 	TEST(testOverlayAlignment);
 	TEST(testModifierLighting);
@@ -514,5 +516,30 @@ void TestMapblockMeshGenerator::testModifierLighting()
 			if (drawtype == NDT_NORMAL)
 				compare(render(dark, on_id, true), render(bright, MODIFIER_IGNORE, true));
 		}
+	}
+}
+
+void TestMapblockMeshGenerator::testSpecialTileAlpha()
+{
+	MockGameDef gamedef;
+	gamedef.addLiquidSource("water", 40);
+	content_t flowing = gamedef.addLiquidFlowing("water", 41, 42);
+	NodeModifier modifier("test:clip");
+	modifier.m_modified_props_mask = MP_Alpha;
+	modifier.m_alpha = ALPHAMODE_CLIP;
+	u16 id = gamedef.getWritableNodeModifierManager()->add(std::move(modifier));
+	gamedef.finalize();
+
+	MeshMakeData data = gamedef.makeSingleNodeMMD();
+	data.m_vmanip.setNode({0, 0, 0}, {flowing, 0, 7});
+	data.m_node_modifiers = AppliedNodeModifiersSnapshot({0, 0, 0}, {id});
+	MeshCollector collector{{}};
+	MapblockMeshGenerator generator{&data, &collector};
+	generator.generate();
+
+	UASSERT(!collector.prebuffers[0].empty());
+	for (const PreMeshBuffer &buffer : collector.prebuffers[0]) {
+		UASSERT(buffer.layer.texture_id == 41 || buffer.layer.texture_id == 42);
+		UASSERTEQ(AlphaMode, buffer.layer.alpha, ALPHAMODE_CLIP);
 	}
 }

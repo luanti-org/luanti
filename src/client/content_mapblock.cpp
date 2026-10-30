@@ -120,6 +120,13 @@ void MapblockMeshGenerator::getSpecialTile(int index, TileSpec *tile_ret, bool a
 {
 	const ContentFeatures &f = *cur_node.f;
 	*tile_ret = f.visuals->special_tiles[index];
+	data->m_nodemod->resolveOverrides(data->m_node_modifiers.getViewAtPos(cur_node.p),
+			MP_Alpha, [&](const NodeModifier &modifier, u64 matched) {
+		f.visuals->applySpecialTileAlpha(*tile_ret, modifier.m_alpha, data->m_shader_source);
+		return matched;
+	});
+
+
 	TileLayer *top_layer = nullptr;
 
 	for (auto &layernum : tile_ret->layers) {

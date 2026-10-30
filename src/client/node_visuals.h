@@ -80,6 +80,9 @@ struct NodeVisuals
 			const NodeModifier *alpha, WorldAlignMode world_align,
 			const IShaderSource *shaders) const;
 
+	void applySpecialTileAlpha(TileSpec &tile, AlphaMode alpha,
+			const IShaderSource *shaders) const;
+
 	// Get color from palette or content features
 	video::SColor getColor(const ContentFeatures &f, u8 param2) const;
 
