@@ -12,6 +12,7 @@
 #include "util/numeric.h"
 #include "client/tile.h"
 #include "voxel.h"
+#include "lighting.h"
 #include <map>
 
 namespace video {
@@ -330,11 +331,18 @@ video::SColor encode_light(LightPair light, u8 emissive_light);
 // Compute light at node
 u16 getInteriorLight(MapNode n, s32 increment, const NodeDefManager *ndef);
 
+extern const video::SColorf DEFAULT_SUNLIGHT_COLOR;
+extern const video::SColorf DEFAULT_MOONLIGHT_COLOR;
+extern const video::SColorf DEFAULT_LIGHTSOURCE_COLOR;
+
 /*!
  * Returns the sunlight's color from the current
  * day-night ratio.
  */
 void get_sunlight_color(video::SColorf *sunlight, u32 daynight_ratio);
+
+void get_sunlight_color(video::SColorf *sunlight, u32 daynight_ratio,
+		const video::SColorf &moonlight, const video::SColorf &sunlightColor);
 
 /*!
  * Gives the final  SColor shown on screen.
@@ -355,6 +363,18 @@ void final_color_blend(video::SColor *result,
  */
 void final_color_blend(video::SColor *result,
 		const video::SColor &data, const video::SColorf &dayLight);
+
+/*!
+ * Gives the final  SColor shown on screen.
+ *
+ * \param result output color
+ * \param data the half-baked vertex color
+ * \param dayLight color of the sunlight
+ * \param lightsourceColor color of artificial light
+ */
+void final_color_blend(video::SColor *result,
+		const video::SColor &data, const video::SColorf &dayLight,
+		const video::SColorf &lightsourceColor);
 
 // Retrieves the TileSpec of a face of a node
 // Adds MATERIAL_FLAG_CRACK if the node is cracked

@@ -3,6 +3,8 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "localplayer.h"
+#include "client/mapblock_mesh.h"
+#include "util/numeric.h"
 #include <cmath>
 #include "mtevent.h"
 #include "collision.h"
@@ -54,6 +56,13 @@ void PlayerSettings::settingsChangedCallback(const std::string &name, void *data
 	((PlayerSettings *)data)->readGlobalSettings();
 }
 
+static void damp_color(video::SColorf &current, const video::SColorf &target, float lambda)
+{
+	current.r = damp(current.r, target.r, lambda);
+	current.g = damp(current.g, target.g, lambda);
+	current.b = damp(current.b, target.b, lambda);
+}
+
 /*
 	LocalPlayer
 */
@@ -64,6 +73,9 @@ LocalPlayer::LocalPlayer(Client *client, const std::string &name):
 {
 	m_player_settings.readGlobalSettings();
 	m_player_settings.registerSettingsCallback();
+	m_sunlight_color    = DEFAULT_SUNLIGHT_COLOR;
+	m_moonlight_color   = DEFAULT_MOONLIGHT_COLOR;
+	m_lightsource_color = DEFAULT_LIGHTSOURCE_COLOR;
 }
 
 LocalPlayer::~LocalPlayer()
@@ -1245,4 +1257,21 @@ void LocalPlayer::handleAutojump(f32 dtime, Environment *env,
 		m_autojump = true;
 		m_autojump_time = 0.1f;
 	}
+}
+
+void LocalPlayer::updateCustomLighting(float dtime)
+{
+	float DECAY_RATE = 10.0f;
+
+	video::SColorf target_sun = m_lighting.has_sunlight_color ?
+			video::SColorf(m_lighting.sunlight_color) : DEFAULT_SUNLIGHT_COLOR;
+	video::SColorf target_moon = m_lighting.has_moonlight_color ?
+			video::SColorf(m_lighting.moonlight_color) : DEFAULT_MOONLIGHT_COLOR;
+	video::SColorf target_src = m_lighting.has_lightsource_color ?
+			video::SColorf(m_lighting.lightsource_color) : DEFAULT_LIGHTSOURCE_COLOR;
+
+	float lambda = DECAY_RATE * dtime;
+	damp_color(m_sunlight_color,    target_sun,  lambda);
+	damp_color(m_moonlight_color,   target_moon, lambda);
+	damp_color(m_lightsource_color, target_src,  lambda);
 }
