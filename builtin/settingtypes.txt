@@ -228,6 +228,10 @@ keymap_decrease_volume (Decrease volume) key
 
 keymap_autoforward (Toggle automatic forward) key
 
+keymap_autoup (Toggle automatic up) key
+
+keymap_autodown (Toggle automatic down) key
+
 keymap_cinematic (Toggle cinematic mode) key
 
 keymap_minimap (Toggle minimap) key SYSTEM_SCANCODE_25|GAMEPAD_BUTTON_4

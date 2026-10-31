@@ -18,6 +18,8 @@ public:
 		AUX1,
 		SNEAK,
 		AUTOFORWARD,
+		AUTOUP,
+		AUTODOWN,
 		DIG,
 		PLACE,
 

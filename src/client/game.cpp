@@ -1431,6 +1431,14 @@ void Game::processKeyInput()
 		dropSelectedItem(isKeyDown(KeyType::SNEAK));
 	} else if (wasKeyDown(KeyType::AUTOFORWARD)) {
 		toggleAutoforward();
+	} else if (wasKeyDown(KeyType::AUTOUP)) {
+		toggleAutoup();
+	} else if (wasKeyDown(KeyType::AUTODOWN)) {
+		toggleAutodown();
+	} else if (wasKeyDown(KeyType::AUX1)) {
+		disableAutoupdown();
+	} else if (wasKeyDown(KeyType::SNEAK)) {
+		disableAutoupdown();
 	} else if (wasKeyDown(KeyType::BACKWARD)) {
 		if (g_settings->getBool("continuous_forward"))
 			toggleAutoforward();
@@ -1458,6 +1466,7 @@ void Game::processKeyInput()
 		toggleFreeMove();
 	} else if (wasKeyDown(KeyType::JUMP)) {
 		toggleFreeMoveAlt();
+		disableAutoupdown();
 	} else if (wasKeyDown(KeyType::PITCHMOVE)) {
 		togglePitchMove();
 	} else if (wasKeyDown(KeyType::FASTMOVE)) {
@@ -1765,6 +1774,55 @@ void Game::toggleAutoforward()
 		m_game_ui->showTranslatedStatusText("Automatic forward disabled");
 }
 
+void Game::toggleAutoup()
+{
+	bool up_enabled = g_settings->getBool("continuous_up");
+	bool down_enabled = g_settings->getBool("continuous_down");
+
+	if (down_enabled) {
+		m_game_ui->showTranslatedStatusText("Automatic down disabled");
+		g_settings->set("continuous_down", bool_to_cstr(false));
+	}
+
+	g_settings->set("continuous_up", bool_to_cstr(!up_enabled));
+	if (up_enabled)
+		m_game_ui->showTranslatedStatusText("Automatic up disabled");
+	else
+		m_game_ui->showTranslatedStatusText("Automatic up enabled");
+}
+
+void Game::toggleAutodown()
+{
+	bool up_enabled = g_settings->getBool("continuous_up");
+	bool down_enabled = g_settings->getBool("continuous_down");
+
+	if (up_enabled) {
+		m_game_ui->showTranslatedStatusText("Automatic up disabled");
+		g_settings->set("continuous_up", bool_to_cstr(false));
+	}
+
+	g_settings->set("continuous_down", bool_to_cstr(!down_enabled));
+	if (down_enabled)
+		m_game_ui->showTranslatedStatusText("Automatic down disabled");
+	else
+		m_game_ui->showTranslatedStatusText("Automatic down enabled");
+}
+
+void Game::disableAutoupdown()
+{
+	bool up_enabled = g_settings->getBool("continuous_up");
+	bool down_enabled = g_settings->getBool("continuous_down");
+
+	if (up_enabled) {
+		m_game_ui->showTranslatedStatusText("Automatic up disabled");
+		g_settings->set("continuous_up", bool_to_cstr(false));
+	}
+	if (down_enabled) {
+		m_game_ui->showTranslatedStatusText("Automatic down disabled");
+		g_settings->set("continuous_down", bool_to_cstr(false));
+	}
+}
+
 void Game::toggleMinimap(bool shift_pressed)
 {
 	if (!mapper || !m_game_ui->m_flags.show_hud || !g_settings->getBool("enable_minimap"))
@@ -2064,14 +2122,24 @@ void Game::updatePlayerControl(const CameraOrientation &cam)
 		forward_value = 1.0f;
 	}
 
+	bool auto_up = false;
+	bool auto_down = false;
+
+	if (client->activeObjectsReceived() && !player->isDead()) {
+		if (player->getPlayerSettings().continuous_up)
+			auto_up = true;
+		if (player->getPlayerSettings().continuous_down)
+			auto_down = true;
+	}
+
 	PlayerControl control(
 		forward_value,
 		getAxisValue(KeyType::BACKWARD),
 		getAxisValue(KeyType::LEFT),
 		getAxisValue(KeyType::RIGHT),
-		isKeyDown(KeyType::JUMP) || player->getAutojump(),
+		isKeyDown(KeyType::JUMP) || player->getAutojump() || auto_up,
 		getTogglableKeyState(KeyType::AUX1,  m_cache_toggle_aux1_key, player->control.aux1),
-		getTogglableKeyState(KeyType::SNEAK, allow_sneak_toggle,      player->control.sneak),
+		getTogglableKeyState(KeyType::SNEAK, allow_sneak_toggle,      player->control.sneak) || auto_down,
 		isKeyDown(KeyType::ZOOM),
 		isKeyDown(KeyType::DIG),
 		isKeyDown(KeyType::PLACE),
