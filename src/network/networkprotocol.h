@@ -117,12 +117,11 @@ enum ToClientCommand : u16
 
 	TOCLIENT_CHAT_MESSAGE = 0x2F,
 	/*
-		u8 version
+		u8 version (=1)
 		u8 message_type
-		u16 sendername length
-		wstring sendername
-		u16 length
-		wstring message
+		u16 + wstring sendername (empty, unused)
+		u16 + wstring message (includes the player name)
+		u64 unix timestamp
 	*/
 
 	TOCLIENT_ACTIVE_OBJECT_REMOVE_ADD = 0x31,
@@ -152,7 +151,7 @@ enum ToClientCommand : u16
 
 	TOCLIENT_HP = 0x33,
 	/*
-		u8 hp
+		u16 hp
 	*/
 
 	TOCLIENT_MOVE_PLAYER = 0x34,
@@ -812,6 +811,9 @@ enum ToServerCommand : u16
 	*/
 
 	TOSERVER_RESPAWN_LEGACY = 0x38,
+	/*
+		Deprecated since client version 5.10.0
+	*/
 
 	TOSERVER_INTERACT = 0x39,
 	/*
