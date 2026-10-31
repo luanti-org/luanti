@@ -198,30 +198,38 @@ void GUIFormSpecMenu::setInitialFocus()
 		return;
 	}
 
+	// With "Auto-focus input fields" disabled, edit boxes are never focused
+	// automatically; focus falls through to tables/buttons/other elements.
+	const bool autofocus_input = g_settings->getBool("gui_autofocus_input");
+
 	// Set initial focus according to following order of precedence:
 	// 1. first empty editbox
 	// 2. first editbox
 	// 3. first table
 	// 4. last button
-	// 5. first focusable (not statictext, not tabheader)
+	// 5. first focusable (not statictext, not tabheader, and no editbox when disabled)
 	// 6. first child element
 
 	const auto& children = getChildren();
 
 	// 1. first empty editbox
-	for (gui::IGUIElement *it : children) {
-		if (it->getType() == gui::EGUIET_EDIT_BOX
-				&& it->getText()[0] == 0) {
-			Environment->setFocus(it);
-			return;
+	if (autofocus_input) {
+		for (gui::IGUIElement *it : children) {
+			if (it->getType() == gui::EGUIET_EDIT_BOX
+					&& it->getText()[0] == 0) {
+				Environment->setFocus(it);
+				return;
+			}
 		}
 	}
 
 	// 2. first editbox
-	for (gui::IGUIElement *it : children) {
-		if (it->getType() == gui::EGUIET_EDIT_BOX) {
-			Environment->setFocus(it);
-			return;
+	if (autofocus_input) {
+		for (gui::IGUIElement *it : children) {
+			if (it->getType() == gui::EGUIET_EDIT_BOX) {
+				Environment->setFocus(it);
+				return;
+			}
 		}
 	}
 
@@ -243,15 +251,17 @@ void GUIFormSpecMenu::setInitialFocus()
 
 	// 5. first focusable (not statictext, not tabheader)
 	for (gui::IGUIElement *it : children) {
-		if (it->getType() != gui::EGUIET_STATIC_TEXT &&
-			it->getType() != gui::EGUIET_TAB_CONTROL) {
-			Environment->setFocus(it);
-			return;
-		}
+		if (it->getType() == gui::EGUIET_STATIC_TEXT ||
+			it->getType() == gui::EGUIET_TAB_CONTROL ||
+			(!autofocus_input && it->getType() == gui::EGUIET_EDIT_BOX))
+			continue;
+		Environment->setFocus(it);
+		return;
 	}
 
-	// 6. first child element
-	if (children.empty())
+	// 6. first child element (never an edit box when disabled -> focus menu)
+	if (children.empty() ||
+			(!autofocus_input && children.front()->getType() == gui::EGUIET_EDIT_BOX))
 		Environment->setFocus(this);
 	else
 		Environment->setFocus(children.front());

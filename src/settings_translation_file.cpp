@@ -341,6 +341,8 @@ fake_function() {
 	gettext("Formspec full-screen background color (R,G,B).");
 	gettext("GUI scaling filter");
 	gettext("When gui_scaling_filter is true, all GUI images need to be\nfiltered in software, but some images are generated directly\nto hardware (e.g. render-to-texture for nodes in inventory).");
+	gettext("Auto-focus input fields");
+	gettext("Automatically move the keyboard focus to the first input/text field\nwhen a menu (formspec) is opened. When disabled, text fields are never\nfocused automatically; focus instead goes to other elements such as\ntables or buttons (or the first focusable element).\nPrevents SteamOS on-screen-keyboard to pop up constantly on Steam Deck.");
 	gettext("Tooltip delay");
 	gettext("Delay showing tooltips, stated in milliseconds.");
 	gettext("Append item name to tooltips");
