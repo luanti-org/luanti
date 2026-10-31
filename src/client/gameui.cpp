@@ -143,7 +143,21 @@ void GameUI::update(const RunStats &stats, Client *client, MapDrawControl *draw_
 				} else {
 					os << ", pointed: " << nodedef->get(n).name;
 				}
+
 				os << ", param2: " << (u64) n.getParam2();
+
+				const auto modifiers = map.getNodeModifiers(pointed_old.node_undersurface);
+				if (!modifiers.empty()) {
+					const NodeModifierManager *nodemod = client->getNodeModifierManager();
+
+					os << ", modifiers: [";
+					for (size_t i = 0; i < modifiers.size(); ++i) {
+						if (i != 0)
+							os << ", ";
+						os << nodemod->get(modifiers[i]).m_name;
+					}
+					os << "]";
+				}
 			}
 		}
 

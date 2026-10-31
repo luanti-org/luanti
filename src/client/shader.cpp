@@ -363,9 +363,8 @@ public:
 		If shader specified by the name pointed by the id doesn't
 		exist, create it, then return id.
 
-		Can be called from any thread. If called from some other thread
-		and not found in cache, the call is queued to the main thread
-		for processing.
+		Main-thread only. Mesh workers use getNodeShader() for variants
+		prepared before their jobs start.
 	*/
 	u32 getShader(const std::string &name, const ShaderConstants &input_const,
 		video::E_MATERIAL_TYPE base_mat,
@@ -868,32 +867,47 @@ void ShaderSource::generateShader(ShaderInfo &shaderinfo)
 	Other functions and helpers
 */
 
-u32 IShaderSource::getShader(const std::string &name,
-	MaterialType material_type, NodeDrawType drawtype,
-	const ShaderFeatures &features)
+u32 IShaderSource::prepareNodeShader(MaterialType material, AlphaMode alpha,
+		WavingType waving, bool array_texture)
+{
+	auto &entry = m_node_shaders.at(material).at(alpha).at(waving)[array_texture];
+	if (!entry) {
+		ShaderFeatures features;
+		features.waving = waving;
+		features.array_texture = array_texture;
+		entry = getShader("nodes_shader", material, alpha, features);
+	}
+	return *entry;
+}
+
+u32 IShaderSource::getNodeShader(MaterialType material, AlphaMode alpha,
+		WavingType waving, bool array_texture) const
+{
+	const auto &entry = m_node_shaders.at(material).at(alpha).at(waving)[array_texture];
+	assert(entry.has_value());
+	return entry.value();
+}
+
+u32 IShaderSource::getShader(const std::string &name, MaterialType material_type,
+	AlphaMode alpha, const ShaderFeatures &features)
 {
 	ShaderConstants input_const;
 	input_const["MATERIAL_TYPE"] = (int)material_type;
-	(void) drawtype; // unused
+	input_const["ALPHA_MODE"] = static_cast<int>(alpha);
 	features.setConstants(input_const);
 
 	video::E_MATERIAL_TYPE base_mat = video::EMT_SOLID;
-	switch (material_type) {
-		case TILE_MATERIAL_ALPHA:
-		case TILE_MATERIAL_PLAIN_ALPHA:
-		case TILE_MATERIAL_LIQUID_TRANSPARENT:
-		case TILE_MATERIAL_WAVING_LIQUID_TRANSPARENT:
+	switch (alpha) {
+		case ALPHAMODE_BLEND:
 			base_mat = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 			break;
-		case TILE_MATERIAL_BASIC:
-		case TILE_MATERIAL_PLAIN:
-		case TILE_MATERIAL_WAVING_LEAVES:
-		case TILE_MATERIAL_WAVING_PLANTS:
-		case TILE_MATERIAL_WAVING_LIQUID_BASIC:
+		case ALPHAMODE_CLIP:
 			base_mat = video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF;
 			break;
-		default:
+		case ALPHAMODE_OPAQUE:
 			break;
+		default:
+			FATAL_ERROR("Invalid shader alpha mode");
 	}
 
 	return getShader(name, input_const, base_mat);
@@ -901,6 +915,7 @@ u32 IShaderSource::getShader(const std::string &name,
 
 void ShaderFeatures::setConstants(ShaderConstants &consts) const
 {
+	consts["WAVING_TYPE"] = static_cast<int>(waving);
 	if (array_texture)
 		consts["USE_ARRAY_TEXTURE"] = 1;
 	if (skinning) {

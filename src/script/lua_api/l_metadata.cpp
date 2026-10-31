@@ -236,23 +236,18 @@ int MetaDataRef::l_from_table(lua_State *L)
 	MetaDataRef *ref = checkAnyMetadata(L, 1);
 	int base = 2;
 
-	ref->clearMeta();
-
 	if (!lua_istable(L, base)) {
 		// No metadata
+		ref->clearMeta();
+		ref->reportMetadataChange();
 		lua_pushboolean(L, true);
 		return 1;
 	}
 
-	// Create new metadata
-	IMetadata *meta = ref->getmeta(true);
-	if (meta == NULL) {
-		lua_pushboolean(L, false);
-		return 1;
-	}
+	bool was_successful = ref->handleFromTable(L, base);
+	if (was_successful)
+		ref->reportMetadataChange();
 
-	bool was_successful = ref->handleFromTable(L, base, meta);
-	ref->reportMetadataChange();
 	lua_pushboolean(L, was_successful);
 	return 1;
 }
@@ -274,7 +269,19 @@ void MetaDataRef::handleToTable(lua_State *L, IMetadata *meta)
 	lua_setfield(L, -2, "fields");
 }
 
-bool MetaDataRef::handleFromTable(lua_State *L, int table, IMetadata *meta)
+bool MetaDataRef::handleFromTable(lua_State *L, int table)
+{
+	auto *meta = getmeta(true);
+	if (!meta)
+		return false;
+
+	meta->clear();
+	readFields(L, table, meta);
+
+	return true;
+}
+
+void MetaDataRef::readFields(lua_State *L, int table, IMetadata *meta)
 {
 	// Set fields
 	lua_getfield(L, table, "fields");
@@ -291,10 +298,9 @@ bool MetaDataRef::handleFromTable(lua_State *L, int table, IMetadata *meta)
 			meta->setString(name, readParam<std::string_view>(L, -1));
 			lua_pop(L, 1); // Remove value, keep key for next iteration
 		}
-		lua_pop(L, 1);
 	}
+	lua_pop(L, 1);
 
-	return true;
 }
 
 // equals(self, other)

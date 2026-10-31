@@ -128,7 +128,7 @@ float mtsmoothstep(in float edge0, in float edge1, in float x)
 #endif
 
 float shadowCutoff(float x) {
-	#if defined(ENABLE_TRANSLUCENT_FOLIAGE) && MATERIAL_TYPE == TILE_MATERIAL_WAVING_LEAVES
+	#if defined(ENABLE_TRANSLUCENT_FOLIAGE) && WAVING_TYPE == WAVING_LEAVES
 		return mtsmoothstep(0.0, 0.002, x);
 	#else
 		return step(0.0, x);
@@ -518,7 +518,7 @@ void main(void)
 			shadow_int = max(shadow_int, 1.0 - clamp(cosLight, 0.0, self_shadow_cutoff_cosine)/self_shadow_cutoff_cosine);
 			shadow_color = mix(vec3(0.0), shadow_color, min(cosLight, self_shadow_cutoff_cosine)/self_shadow_cutoff_cosine);
 
-#if (MATERIAL_TYPE == TILE_MATERIAL_WAVING_LEAVES || MATERIAL_TYPE == TILE_MATERIAL_WAVING_PLANTS)
+#if (WAVING_TYPE == WAVING_LEAVES || WAVING_TYPE == WAVING_PLANTS)
 			// Prevents foliage from becoming insanely bright outside the shadow map.
 			shadow_uncorrected = mix(shadow_int, shadow_uncorrected, clamp(distance_rate * 4.0 - 3.0, 0.0, 1.0));
 #endif
@@ -580,7 +580,7 @@ void main(void)
 		}
 #endif
 
-#if (MATERIAL_TYPE == TILE_MATERIAL_WAVING_PLANTS || MATERIAL_TYPE == TILE_MATERIAL_WAVING_LEAVES) && defined(ENABLE_TRANSLUCENT_FOLIAGE)
+#if (WAVING_TYPE == WAVING_PLANTS || WAVING_TYPE == WAVING_LEAVES) && defined(ENABLE_TRANSLUCENT_FOLIAGE)
 		// Simulate translucent foliage.
 		col.rgb += 4.0 * dayLight * base.rgb * normalize(base.rgb * varColor.rgb * varColor.rgb) * f_adj_shadow_strength * pow(max(-dot(v_LightDirection, viewVec), 0.0), 4.0) * max(1.0 - shadow_uncorrected, 0.0);
 #endif

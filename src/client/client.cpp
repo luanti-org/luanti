@@ -132,6 +132,7 @@ Client::Client(
 		IWritableShaderSource *shsrc,
 		IWritableItemDefManager *itemdef,
 		NodeDefManager *nodedef,
+		NodeModifierManager *nodemod,
 		ISoundManager *sound,
 		MtEventManager *event,
 		RenderingEngine *rendering_engine,
@@ -142,6 +143,7 @@ Client::Client(
 	m_shsrc(shsrc),
 	m_itemdef(itemdef),
 	m_nodedef(nodedef),
+	m_nodemod(nodemod),
 	m_sound(sound),
 	m_event(event),
 	m_rendering_engine(rendering_engine),
@@ -1581,7 +1583,8 @@ v3s16 Client::CSMClampPos(v3s16 pos)
 	);
 }
 
-void Client::addNode(v3s16 p, MapNode n, bool remove_metadata)
+void Client::addNode(v3s16 p, MapNode n, bool remove_metadata,
+		const std::vector<u16> &modifiers)
 {
 	//TimeTaker timer1("Client::addNode()");
 
@@ -1589,7 +1592,7 @@ void Client::addNode(v3s16 p, MapNode n, bool remove_metadata)
 
 	try {
 		//TimeTaker timer3("Client::addNode(): addNodeAndUpdate");
-		m_env.getMap().addNodeAndUpdate(p, n, modified_blocks, remove_metadata);
+		m_env.getMap().addNodeAndUpdate(p, n, modified_blocks, remove_metadata, modifiers);
 	}
 	catch(InvalidPositionException &e) {
 	}
@@ -1929,7 +1932,7 @@ void Client::afterContentReceived()
 	TextureUpdateArgs tu_args;
 	tu_args.last_time_ms = porting::getTimeMs();
 	tu_args.text_base = wstrgettext("Initializing nodes");
-	NodeVisuals::fillNodeVisuals(m_nodedef, this, &tu_args);
+	NodeVisuals::fillNodeVisuals(m_nodedef, m_nodemod, this, &tu_args);
 
 	// Runs after fillNodeVisuals(), which is where ContentFeatures::visuals and thus
 	// minimap_color, and palette - the two values we care for in SSCSM, get populated
@@ -2058,6 +2061,13 @@ u16 Client::allocateUnknownNodeId(const std::string &name)
 
 	return CONTENT_IGNORE;
 }
+u16 Client::allocateUnknownNodeModifierId(const std::string &name)
+{
+	FATAL_ERROR("Client cannot allocate node modifier IDs");
+
+	return MODIFIER_IGNORE;
+}
+
 ISoundManager* Client::getSoundManager()
 {
 	return m_sound;

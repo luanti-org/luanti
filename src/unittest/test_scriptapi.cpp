@@ -8,6 +8,9 @@
 #include "script/cpp_api/s_base.h"
 #include "script/lua_api/l_util.h"
 #include "script/lua_api/l_settings.h"
+#include "script/lua_api/l_item.h"
+#include "script/lua_api/l_itemstackmeta.h"
+#include "script/lua_api/l_node_modifier.h"
 #include "script/common/c_converter.h"
 #include "script/common/helper.h"
 #include "irrlicht_changes/printing.h"
@@ -16,7 +19,7 @@
 namespace {
 	class MyScriptApi : virtual public ScriptApiBase {
 	public:
-		MyScriptApi() : ScriptApiBase(ScriptingType::Async) {};
+		MyScriptApi(ScriptingType type = ScriptingType::Async) : ScriptApiBase(type) {};
 		void init();
 		using ScriptApiBase::getStack; // make public
 	};
@@ -30,6 +33,7 @@ public:
 
 	void runTests(IGameDef *gamedef);
 
+	void testAsyncItemModifiers(MyScriptApi *script);
 	void testVectorMetatable(MyScriptApi *script);
 	void testVectorRead(MyScriptApi *script);
 	void testVectorReadErr(MyScriptApi *script);
@@ -72,6 +76,7 @@ void TestScriptApi::runTests(IGameDef *gamedef)
 		return;
 	}
 
+	TEST(testAsyncItemModifiers, &script);
 	TEST(testVectorMetatable, &script);
 	TEST(testVectorRead, &script);
 	TEST(testVectorReadErr, &script);
@@ -263,5 +268,38 @@ void TestScriptApi::testReadParamFloat(MyScriptApi *script)
 		run(L, it, 1);
 		EXCEPTION_CHECK(LuaError, readParam<float>(L, -1));
 		lua_pop(L, 1);
+	}
+}
+
+void TestScriptApi::testAsyncItemModifiers(MyScriptApi *)
+{
+	for (ScriptingType type : {ScriptingType::Async, ScriptingType::Emerge}) {
+		// No game definition or modifier manager: operations must use only the stack.
+		MyScriptApi script(type);
+		lua_State *L = script.getStack();
+		LuaItemStack::Register(L);
+		ItemStackMetaRef::Register(L);
+		NodeModifiersRef::Register(L);
+
+		LuaItemStack::create(L, ItemStack());
+		lua_setglobal(L, "worker_stack");
+
+		run(L, R"(
+			local meta = worker_stack:get_meta()
+			local modifiers = meta:get_modifiers()
+			assert(modifiers:add("test:unknown"))
+			assert(modifiers:get_list()[1] == "test:unknown")
+			assert(not pcall(modifiers.add, modifiers, "test:other", true))
+			assert(#modifiers:get_list() == 1)
+			assert(not pcall(modifiers.add, modifiers, "invalid"))
+			assert(modifiers:set_list({"test:first", "test:second"}))
+			modifiers:remove("test:first")
+			assert(meta:to_table().modifiers[1] == "test:second")
+			local full = {}
+			for i = 1, 16 do full[i] = "test:modifier_" .. i end
+			assert(modifiers:set_list(full))
+			assert(not modifiers:add("test:overflow"))
+			assert(#modifiers:get_list() == 16)
+		)", 0);
 	}
 }

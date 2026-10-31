@@ -22,6 +22,7 @@ with this program; if not, see <https://www.gnu.org/licenses/>.
 #include <unordered_map>
 #include "mapblock.h"
 #include "dummymap.h"
+#include "dummygamedef.h"
 
 class TestMap : public TestBase
 {
@@ -32,6 +33,8 @@ public:
 	void runTests(IGameDef *gamedef);
 
 	void testMaxMapgenLimit();
+	void testGetNodeModifiers(IGameDef *gamedef);
+	void testPlaceNodeWithModifiers();
 	void testForEachNodeInArea(IGameDef *gamedef);
 	void testForEachNodeInAreaBlank(IGameDef *gamedef);
 	void testForEachNodeInAreaEmpty(IGameDef *gamedef);
@@ -42,6 +45,8 @@ static TestMap g_test_instance;
 void TestMap::runTests(IGameDef *gamedef)
 {
 	TEST(testMaxMapgenLimit);
+	TEST(testGetNodeModifiers, gamedef);
+	TEST(testPlaceNodeWithModifiers);
 	TEST(testForEachNodeInArea, gamedef);
 	TEST(testForEachNodeInAreaBlank, gamedef);
 	TEST(testForEachNodeInAreaEmpty, gamedef);
@@ -167,4 +172,49 @@ void TestMap::testForEachNodeInAreaEmpty(IGameDef *gamedef)
 		UASSERT(false); // Should be unreachable
 		return true;
 	});
+}
+
+void TestMap::testGetNodeModifiers(IGameDef *gamedef)
+{
+	DummyMap map(gamedef, v3s16(-1, 0, 0), v3s16(0, 0, 0));
+	MapBlock *negative = map.getBlockNoCreateNoEx(v3s16(-1, 0, 0));
+	MapBlock *zero = map.getBlockNoCreateNoEx(v3s16(0, 0, 0));
+	const v3s16 local(MAP_BLOCKSIZE - 1, 2, 3);
+	UASSERT(negative->setNodeModifiers(local, {5, 2}));
+	UASSERT(zero->setNodeModifiers(local, {7}));
+	const auto ids = map.getNodeModifiers(v3s16(-1, 2, 3));
+	UASSERT(ids == std::vector<u16>({5, 2}));
+	UASSERT(map.getNodeModifiers(local) == std::vector<u16>({7}));
+	UASSERT(map.getNodeModifiers(v3s16(0, 0, 0)).empty());
+	UASSERT(map.getNodeModifiers(v3s16(MAP_BLOCKSIZE, 2, 3)).empty());
+	UASSERT(negative->setNodeModifiers(local, {9}));
+	UASSERT(ids == std::vector<u16>({5, 2}));
+	UASSERT(map.getNodeModifiers(v3s16(-1, 2, 3)) == std::vector<u16>({9}));
+	UASSERT(map.getBlockNoCreateNoEx(v3s16(1, 0, 0)) == nullptr);
+}
+
+void TestMap::testPlaceNodeWithModifiers()
+{
+	DummyGameDef game;
+	NodeModifier modifier("test:light");
+	modifier.m_modified_props_mask = MP_LightSource;
+	modifier.m_light_source = 10;
+	u16 id = game.getWritableNodeModifierManager()->add(std::move(modifier));
+
+	DummyMap map(&game, {0, 0, 0}, {0, 0, 0});
+	map.fill({0, 0, 0}, {0, 0, 0}, MapNode(CONTENT_AIR));
+	const v3s16 pos(8, 8, 8);
+	const v3s16 neighbor = pos + v3s16(1, 0, 0);
+	std::map<v3s16, MapBlock *> modified_blocks;
+	map.addNodeAndUpdate(pos, MapNode(CONTENT_AIR), modified_blocks, true, {id});
+	UASSERT(map.getNodeModifiers(pos) == std::vector<u16>{id});
+	UASSERT(modified_blocks.count({0, 0, 0}) != 0);
+	UASSERTEQ(u8, map.getNode(neighbor).getLight(LIGHTBANK_NIGHT,
+			game.ndef()->getLightingFlags(map.getNode(neighbor))), 9);
+
+	// Replacing the predicted node without modifiers removes their light too.
+	map.addNodeAndUpdate(pos, MapNode(CONTENT_AIR), modified_blocks, true);
+	UASSERT(map.getNodeModifiers(pos).empty());
+	UASSERTEQ(u8, map.getNode(neighbor).getLight(LIGHTBANK_NIGHT,
+			game.ndef()->getLightingFlags(map.getNode(neighbor))), 0);
 }

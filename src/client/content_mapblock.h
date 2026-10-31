@@ -63,6 +63,7 @@ private:
 		v3f origin; // p in BS space
 		MapNode n;
 		const ContentFeatures *f;
+		ContentLightingFlags lighting;
 		LightFrame lframe; // smooth lighting
 		video::SColor lcolor; // unsmooth lighting
 	} cur_node;

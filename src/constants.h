@@ -70,6 +70,9 @@
 // needs to safely fit in the VoxelArea class; used by e.g. VManips
 #define MAX_WORKING_VOLUME 150000000UL
 
+// Maximum number of distinct modifiers on a node or ItemStack.
+#define MAX_NODE_MODIFIERS 16
+
 /*
     Old stuff that shouldn't be hardcoded
 */

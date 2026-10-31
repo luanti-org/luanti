@@ -241,9 +241,13 @@ public:
 	}
 
 protected:
+	void addNodeParticle(LocalPlayer *player, v3s16 pos, const MapNode &n,
+		const std::vector<u16> &modifiers);
+
 	static bool getNodeParticleParams(Client *client, const MapNode &n,
 		ParticleParameters &p, video::ITexture **texture, v2f &texpos,
-		v2f &texsize, video::SColor *color, u8 tilenum = 0);
+		v2f &texsize, video::SColor *color, u8 tilenum = 0,
+		const std::vector<u16> &modifiers = {});
 
 	static video::SMaterial getMaterialForParticle(const Particle *texture);
 

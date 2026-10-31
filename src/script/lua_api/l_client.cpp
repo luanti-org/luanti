@@ -195,8 +195,7 @@ int ModApiClient::l_get_meta(lua_State *L)
 	if (!pos_ok)
 		return 0;
 
-	NodeMetadata *meta = getEnv(L)->getMap().getNodeMetadata(p);
-	NodeMetaRef::createClient(L, meta);
+	NodeMetaRef::createClient(L, p, getClient(L));
 	return 1;
 }
 

@@ -10,6 +10,7 @@
 
 class IItemDefManager;
 class NodeDefManager;
+class NodeModifierManager;
 class ICraftDefManager;
 class IRollbackManager;
 class ModChannel;
@@ -29,10 +30,12 @@ public:
 	// Thus, first they are set up and then they are only read.
 	virtual IItemDefManager* getItemDefManager()=0;
 	virtual const NodeDefManager* getNodeDefManager()=0;
+	virtual const NodeModifierManager* getNodeModifierManager()=0;
 	virtual ICraftDefManager* getCraftDefManager()=0;
 
 	// Used for keeping track of names/ids of unknown nodes
 	virtual u16 allocateUnknownNodeId(const std::string &name)=0;
+	virtual u16 allocateUnknownNodeModifierId(const std::string &name)=0;
 
 	// Only usable on the server, and NOT thread-safe. It is usable from the
 	// environment thread.

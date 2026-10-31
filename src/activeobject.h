@@ -8,6 +8,7 @@
 #include "irr_v3d.h"
 #include <quaternion.h>
 #include <string>
+#include <optional>
 #include <string_view>
 #include <unordered_map>
 
@@ -32,17 +33,23 @@ enum ActiveObjectType {
 
 struct ActiveObjectMessage
 {
-	ActiveObjectMessage(u16 id_, bool reliable_=true, std::string_view data_ = "") :
+	ActiveObjectMessage(u16 id_, bool reliable_=true, std::string_view data_ = "",
+			std::optional<std::string> legacy_data = std::nullopt) :
 		id(id_),
 		reliable(reliable_),
-		datastring(data_)
+		datastring(data_),
+		m_legacy_datastring(std::move(legacy_data))
 	{}
 
 	void appendTo(std::string &data) const;
+	void appendTo(std::string &data, bool with_node_modifiers) const;
 
 	u16 id;
 	bool reliable;
 	std::string datastring;
+
+private:
+	std::optional<std::string> m_legacy_datastring;
 };
 
 enum ActiveObjectCommand : u8 {

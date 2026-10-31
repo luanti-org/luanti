@@ -103,7 +103,7 @@ public:
 			const v3f &velocity, const v3f &acceleration, const v3f &rotation,
 			bool do_interpolate, bool is_movement_end, f32 update_interval,
 			bool do_interpolate_rotation = true);
-	std::string generateSetPropertiesCommand(const ObjectProperties &prop) const;
+	std::string generateSetPropertiesCommand(const ObjectProperties &prop, u16 protocol_version) const;
 	static std::string generateUpdateBoneOverrideCommand(
 			const std::string &bone, const BoneOverride &props);
 	void sendPunchCommand();

@@ -71,6 +71,7 @@
 #include "database/database-dummy.h"
 
 #include <iostream>
+#include <optional>
 #include <queue>
 #include <algorithm>
 #include <sstream>
@@ -294,6 +295,7 @@ Server::Server(
 	m_con(con::createMTP(/*is_server=*/true, std::move(socket), this)),
 	m_itemdef(createItemDefManager()),
 	m_nodedef(createNodeDefManager()),
+	m_nodemod(createNodeModifierManager()),
 	m_craftdef(createCraftDefManager()),
 	m_thread(new ServerThread(this)),
 	m_clients(m_con),
@@ -453,6 +455,7 @@ Server::~Server()
 	delete m_rollback;
 	delete m_itemdef;
 	delete m_nodedef;
+	delete m_nodemod;
 	delete m_craftdef;
 	delete m_thread;
 
@@ -960,7 +963,8 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 
 						// Add full new data to appropriate buffer
 						std::string &buffer = aom.reliable ? reliable_data : unreliable_data;
-						aom.appendTo(buffer);
+						aom.appendTo(buffer,
+								nodeModifiersSupportForProtocol(client->net_proto_version));
 					}
 				}
 				/*
@@ -1578,6 +1582,25 @@ void Server::SendNodeDef(session_t peer_id,
 	Send(&pkt);
 }
 
+void Server::SendNodeModifiers(session_t peer_id,
+	const NodeModifierManager *nodemod_mgr, u16 protocol_version)
+{
+	NetworkPacket pkt(TOCLIENT_NODEMOD, 0, peer_id);
+
+	std::ostringstream tmp_os2(std::ios::binary);
+	{
+		std::ostringstream tmp_os(std::ios::binary);
+		nodemod_mgr->serialize(tmp_os, protocol_version);
+		compressZstd(tmp_os.str(), tmp_os2);
+	}
+	pkt.putLongString(tmp_os2.str());
+
+	verbosestream << "Server: Sending node modifier definitions to id(" << peer_id
+			<< "): size=" << pkt.getSize() << std::endl;
+
+	Send(&pkt);
+}
+
 /*
 	Non-static send methods
 */
@@ -1596,7 +1619,8 @@ void Server::SendInventory(RemotePlayer *player, bool incremental, bool skip_wie
 	NetworkPacket pkt(TOCLIENT_INVENTORY, 0, player->getPeerId());
 
 	std::ostringstream os(std::ios::binary);
-	player->inventory.serialize(os, incremental);
+	player->inventory.serialize(os, incremental,
+			nodeModifiersSupportForProtocol(player->protocol_version));
 	player->inventory.setModified(false);
 	player->setModified(true);
 	std::string content = os.str();
@@ -3018,28 +3042,42 @@ void Server::SendMinimapModes(session_t peer_id,
 
 void Server::sendDetachedInventory(Inventory *inventory, const std::string &name, session_t peer_id)
 {
-	NetworkPacket pkt(TOCLIENT_DETACHED_INVENTORY, 0, peer_id);
-	pkt << name;
+	std::optional<NetworkPacket> packets[2];
+	const auto send = [&](session_t peer) {
+		bool with_modifiers = inventory &&
+				nodeModifiersSupportForProtocol(m_clients.getProtocolVersion(peer));
+		std::optional<NetworkPacket> &packet = packets[with_modifiers ? 1 : 0];
+		if (!packet) {
+			packet.emplace(TOCLIENT_DETACHED_INVENTORY, 0);
+			NetworkPacket &pkt = *packet;
+			pkt << name;
 
-	if (!inventory) {
-		pkt << false; // Remove inventory
+			if (!inventory) {
+				pkt << false; // Remove inventory
+			} else {
+				pkt << true; // Update inventory
+
+				// Serialization & NetworkPacket isn't a love story
+				std::ostringstream os(std::ios_base::binary);
+				inventory->serialize(os, false, with_modifiers);
+				inventory->setModified(false);
+
+				const std::string &os_str = os.str();
+				// HACK: to keep compatibility with 5.0.0 clients
+				pkt << static_cast<u16>(os_str.size());
+				pkt.putRawString(os_str);
+			}
+		}
+
+		Send(peer, &*packet);
+	};
+
+	if (peer_id == PEER_ID_INEXISTENT) {
+		for (session_t peer : m_clients.getClientIDs())
+			send(peer);
 	} else {
-		pkt << true; // Update inventory
-
-		// Serialization & NetworkPacket isn't a love story
-		std::ostringstream os(std::ios_base::binary);
-		inventory->serialize(os);
-		inventory->setModified(false);
-
-		const std::string &os_str = os.str();
-		pkt << static_cast<u16>(os_str.size()); // HACK: to keep compatibility with 5.0.0 clients
-		pkt.putRawString(os_str);
+		send(peer_id);
 	}
-
-	if (peer_id == PEER_ID_INEXISTENT)
-		m_clients.sendToAll(&pkt);
-	else
-		Send(&pkt);
 }
 
 void Server::sendDetachedInventories(session_t peer_id)
@@ -4047,9 +4085,19 @@ ICraftDefManager *Server::getCraftDefManager()
 	return m_craftdef;
 }
 
+const NodeModifierManager* Server::getNodeModifierManager()
+{
+	return m_nodemod;
+}
+
 u16 Server::allocateUnknownNodeId(const std::string &name)
 {
 	return m_nodedef->allocateDummy(name);
+}
+
+u16 Server::allocateUnknownNodeModifierId(const std::string &name)
+{
+	return m_nodemod->add(NodeModifier(name, true));
 }
 
 IWritableItemDefManager *Server::getWritableItemDefManager()
@@ -4060,6 +4108,11 @@ IWritableItemDefManager *Server::getWritableItemDefManager()
 NodeDefManager *Server::getWritableNodeDefManager()
 {
 	return m_nodedef;
+}
+
+NodeModifierManager *Server::getWritableNodeModifierManager()
+{
+	return m_nodemod;
 }
 
 IWritableCraftDefManager *Server::getWritableCraftDefManager()

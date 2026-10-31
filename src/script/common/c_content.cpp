@@ -651,30 +651,33 @@ void push_object_properties(lua_State *L, const ObjectProperties *prop)
 }
 
 /******************************************************************************/
-TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
+TileDef read_tiledef(lua_State *L, int index, std::optional<u8> drawtype, bool special)
 {
-	if(index < 0)
+	if (index < 0)
 		index = lua_gettop(L) + 1 + index;
 
 	TileDef tiledef;
 
 	bool default_tiling = true;
 	bool default_culling = true;
-	switch (drawtype) {
-		case NDT_PLANTLIKE:
-		case NDT_FIRELIKE:
-			default_tiling = false;
-			[[fallthrough]];
-		case NDT_MESH:
-		case NDT_LIQUID:
-			default_culling = false;
-			break;
-		case NDT_PLANTLIKE_ROOTED:
-			default_tiling = !special;
-			default_culling = !special;
-			break;
-		default:
-			break;
+
+	if (drawtype) {
+		switch (*drawtype) {
+			case NDT_PLANTLIKE:
+			case NDT_FIRELIKE:
+				default_tiling = false;
+				[[fallthrough]];
+			case NDT_MESH:
+			case NDT_LIQUID:
+				default_culling = false;
+				break;
+			case NDT_PLANTLIKE_ROOTED:
+				default_tiling = !special;
+				default_culling = !special;
+				break;
+			default:
+				break;
+		}
 	}
 
 	if(lua_isstring(L, index)){
@@ -724,6 +727,33 @@ TileDef read_tiledef(lua_State *L, int index, u8 drawtype, bool special)
 	}
 
 	return tiledef;
+}
+
+void read_tiles(lua_State *L, int index, std::optional<u8> drawtype,
+		const char *name, TileDef *tiledefs)
+{
+	lua_getfield(L, index, name);
+	if (!lua_istable(L, -1)) {
+		lua_pop(L, 1);
+		return;
+	}
+	int i = 0;
+	for (; LuaHelper::geti(L, -1, i); ++i, lua_pop(L, 1)) {
+		if (i >= 6) {
+			script_log_unique(L, std::string("Ignoring extraneous ") + name, warningstream);
+			lua_pop(L, 1);
+			break;
+		}
+		tiledefs[i] = read_tiledef(L, -1, drawtype, false);
+	}
+	// Copy last value to all remaining textures
+	if (i > 0 && i < 6) {
+		TileDef lasttile = tiledefs[i - 1];
+		for (int j = i; j < 6; ++j) {
+			tiledefs[j] = lasttile;
+		}
+	}
+	lua_pop(L, 1);
 }
 
 /******************************************************************************/
@@ -837,33 +867,8 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	/* Meshnode model filename */
 	getstringfield(L, index, "mesh", f.mesh);
 
-	const auto read_tiles = [&](const char *name, TileDef *tiledefs) {
-		lua_getfield(L, index, name);
-		if (!lua_istable(L, -1)) {
-			lua_pop(L, 1);
-			return;
-		}
-		int i = 0;
-		for (; LuaHelper::geti(L, -1, i); ++i, lua_pop(L, 1)) {
-			if (i >= 6) {
-				script_log_unique(L, std::string("Ignoring extraneous ") + name, warningstream);
-				lua_pop(L, 1);
-				break;
-			}
-			tiledefs[i] = read_tiledef(L, -1, f.drawtype, false);
-		}
-		// Copy last value to all remaining textures
-		if (i > 0 && i < 6) {
-			TileDef lasttile = tiledefs[i - 1];
-			for (int j = i; j < 6; ++j) {
-				tiledefs[j] = lasttile;
-			}
-		}
-		lua_pop(L, 1);
-	};
-
-	read_tiles("tiles", f.tiledef);
-	read_tiles("overlay_tiles", f.tiledef_overlay);
+	read_tiles(L, index, f.drawtype, "tiles", f.tiledef);
+	read_tiles(L, index, f.drawtype, "overlay_tiles", f.tiledef_overlay);
 
 	// special_tiles = {}
 	lua_getfield(L, index, "special_tiles");

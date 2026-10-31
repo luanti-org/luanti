@@ -26,8 +26,10 @@ protected:
 	virtual IMetadata *getmeta(bool auto_create) = 0;
 	virtual void clearMeta() = 0;
 
+	static void readFields(lua_State *L, int table, IMetadata *meta);
+
 	virtual void handleToTable(lua_State *L, IMetadata *meta);
-	virtual bool handleFromTable(lua_State *L, int table, IMetadata *meta);
+	virtual bool handleFromTable(lua_State *L, int table);
 
 	template<class T>
 	static void registerMetadataClass(lua_State *L, const luaL_Reg *methods)

@@ -456,9 +456,9 @@ bool ServerMap::isBlockInQueue(v3s16 pos)
 
 void ServerMap::addNodeAndUpdate(v3s16 p, MapNode n,
 		std::map<v3s16, MapBlock*> &modified_blocks,
-		bool remove_metadata)
+		bool remove_metadata, const std::vector<u16> &modifiers)
 {
-	Map::addNodeAndUpdate(p, n, modified_blocks, remove_metadata);
+	Map::addNodeAndUpdate(p, n, modified_blocks, remove_metadata, modifiers);
 
 	/*
 		Add neighboring liquid nodes and this node to transform queue.

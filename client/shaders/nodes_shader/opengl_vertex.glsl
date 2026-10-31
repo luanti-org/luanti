@@ -155,7 +155,7 @@ void main(void)
 
 	vec4 wpos = mWorld * inVertexPosition;
 // OpenGL < 4.3 does not support continued preprocessor lines
-#if (MATERIAL_TYPE == TILE_MATERIAL_WAVING_LEAVES && ENABLE_WAVING_LEAVES) || (MATERIAL_TYPE == TILE_MATERIAL_WAVING_PLANTS && ENABLE_WAVING_PLANTS)
+#if (WAVING_TYPE == WAVING_LEAVES && ENABLE_WAVING_LEAVES) || (WAVING_TYPE == WAVING_PLANTS && ENABLE_WAVING_PLANTS)
 	float disp_x;
 	float disp_z;
 
@@ -179,18 +179,18 @@ void main(void)
 	wavePos.z /= WATER_WAVE_LENGTH * 2.0;
 	wavePos.z += animationTimer * WATER_WAVE_SPEED * 10.0;
 	pos.y += (snoise(wavePos) - 1.0) * WATER_WAVE_HEIGHT * 5.0;
-#elif MATERIAL_TYPE == TILE_MATERIAL_WAVING_LEAVES && ENABLE_WAVING_LEAVES
+#elif WAVING_TYPE == WAVING_LEAVES && ENABLE_WAVING_LEAVES
 	pos.x += disp_x;
 	pos.y += disp_z * 0.1;
 	pos.z += disp_z;
-#elif MATERIAL_TYPE == TILE_MATERIAL_WAVING_PLANTS && ENABLE_WAVING_PLANTS
+#elif WAVING_TYPE == WAVING_PLANTS && ENABLE_WAVING_PLANTS
 	// bottom of plant doesn't wave
 	if (varTexCoord.y < 0.05) {
 		pos.x += disp_x;
 		pos.z += disp_z;
 	}
 #endif
-#if MATERIAL_TYPE == TILE_MATERIAL_WAVING_LEAVES || MATERIAL_TYPE == TILE_MATERIAL_WAVING_PLANTS
+#if WAVING_TYPE == WAVING_LEAVES || WAVING_TYPE == WAVING_PLANTS
 	// Prevent z-fighting of oversized plants
 	pos.z += fract(wpos.y * 0.1) * 0.1;
 #endif
@@ -226,7 +226,7 @@ void main(void)
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	if (f_shadow_strength > 0.0) {
-#if MATERIAL_TYPE == TILE_MATERIAL_WAVING_PLANTS && ENABLE_WAVING_PLANTS
+#if WAVING_TYPE == WAVING_PLANTS && ENABLE_WAVING_PLANTS
 		// The shadow shaders don't apply waving when creating the shadow-map.
 		// We are using the not waved inVertexPosition to avoid ugly self-shadowing.
 		vec4 shadow_pos = inVertexPosition;
@@ -258,7 +258,7 @@ void main(void)
 		z_bias *= pFactor * pFactor / f_textureresolution / f_shadowfar;
 
 		shadow_position = applyPerspectiveDistortion(m_ShadowViewProj * mWorld * (shadow_pos + vec4(normalOffsetScale * nNormal, 0.0))).xyz;
-#if !defined(ENABLE_TRANSLUCENT_FOLIAGE) || MATERIAL_TYPE != TILE_MATERIAL_WAVING_LEAVES
+#if !defined(ENABLE_TRANSLUCENT_FOLIAGE) || WAVING_TYPE != WAVING_LEAVES
 		shadow_position.z -= z_bias;
 #endif
 		perspective_factor = pFactor;

@@ -314,6 +314,7 @@ private:
 	// When created, these will be filled with data received from the server
 	IWritableItemDefManager *itemdef_manager = nullptr;
 	NodeDefManager *nodedef_manager = nullptr;
+	NodeModifierManager *nodemod_manager = nullptr;
 	std::unique_ptr<ItemVisualsManager> m_item_visuals_manager;
 
 	std::unique_ptr<ISoundManager> sound_manager;

@@ -13,6 +13,7 @@
 #include "lua_api/l_itemstackmeta.h"
 #include "lua_api/l_minimap.h"
 #include "lua_api/l_modchannels.h"
+#include "lua_api/l_node_modifier.h"
 #include "lua_api/l_particles_local.h"
 #include "lua_api/l_storage.h"
 #include "lua_api/l_util.h"
@@ -53,6 +54,7 @@ void ClientScripting::InitializeModApi(lua_State *L, int top)
 {
 	LuaItemStack::Register(L);
 	ItemStackMetaRef::Register(L);
+	NodeModifiersRef::Register(L);
 	LuaRaycast::Register(L);
 	StorageRef::Register(L);
 	LuaMinimap::Register(L);

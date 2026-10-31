@@ -15,6 +15,9 @@ core.unregister_item_raw = nil
 local register_alias_raw = core.register_alias_raw
 core.register_alias_raw = nil
 
+local register_node_modifier_raw = core.register_node_modifier_raw
+core.register_node_modifier_raw = nil
+
 --
 -- Item / entity / ABM / LBM registration functions
 --
@@ -27,6 +30,7 @@ core.registered_nodes = {}
 core.registered_craftitems = {}
 core.registered_tools = {}
 core.registered_aliases = {}
+core.registered_node_modifiers = {}
 
 -- For tables that are indexed by item name:
 -- If table[X] does not exist, default to table[core.registered_aliases[X]]
@@ -490,6 +494,22 @@ function core.run_priv_callbacks(name, priv, caller, method)
 	end
 end
 
+function core.register_node_modifier(name, def)
+	if type(name) ~= "string" then
+		error("Unable to register node modifier: name is not a string")
+	end
+	name = check_modname_prefix(name)
+	if type(def) ~= "table" then
+		error("Unable to register node modifier: def is not a table")
+	end
+
+	def.name = name
+
+	table.insert(core.registered_node_modifiers, def)
+
+	register_node_modifier_raw(def)
+end
+
 --
 -- Callback registration
 --
@@ -659,6 +679,7 @@ core.register_on_mods_loaded(function()
 		freeze_table(core.registered_craftitems)
 		freeze_table(core.registered_tools)
 		freeze_table(core.registered_aliases)
+		freeze_table(core.registered_node_modifiers)
 		freeze_table(core.registered_on_mapblocks_changed)
 
 		-- neutralize registration functions

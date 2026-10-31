@@ -4,12 +4,21 @@
 
 #include "lua_api/l_nodemeta.h"
 #include "lua_api/l_internal.h"
+#include "gamedef.h"
+#include "node_modifier.h"
+#include "lua_api/l_node_modifier.h"
+#include "itemstackmetadata.h"
 #include "lua_api/l_inventory.h"
 #include "common/c_content.h"
 #include "common/helper.h"
 #include "serverenvironment.h"
 #include "map.h"
 #include "mapblock.h"
+#if CHECK_CLIENT_BUILD()
+#include "client/client.h"
+#include "client/clientenvironment.h"
+#include "client/clientmap.h"
+#endif
 
 /*
 	NodeMetaRef
@@ -17,8 +26,10 @@
 
 IMetadata* NodeMetaRef::getmeta(bool auto_create)
 {
+#if CHECK_CLIENT_BUILD()
 	if (m_is_local)
-		return m_local_meta;
+		return m_client->getEnv().getMap().getNodeMetadata(m_p);
+#endif
 
 	NodeMetadata *meta = m_env->getMap().getNodeMetadata(m_p);
 	if (meta == NULL && auto_create) {
@@ -31,10 +42,17 @@ IMetadata* NodeMetaRef::getmeta(bool auto_create)
 	return meta;
 }
 
-void NodeMetaRef::clearMeta()
+void NodeMetaRef::removeNodeMetadata()
 {
 	SANITY_CHECK(!m_is_local);
 	m_env->getMap().removeNodeMetadata(m_p);
+}
+
+void NodeMetaRef::clearMeta()
+{
+	removeNodeMetadata();
+
+	m_env->getMap().setNodeModifiers(m_p, {});
 }
 
 void NodeMetaRef::reportMetadataChange(const std::string *name)
@@ -47,7 +65,7 @@ void NodeMetaRef::reportMetadataChange(const std::string *name)
 
 	// If the metadata is now empty, get rid of it
 	if (meta && meta->empty()) {
-		clearMeta();
+		removeNodeMetadata();
 		meta = nullptr;
 	}
 
@@ -59,6 +77,16 @@ void NodeMetaRef::reportMetadataChange(const std::string *name)
 }
 
 // Exported functions
+
+// get_modifiers()
+int NodeMetaRef::l_get_modifiers(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+
+	auto *ref = checkObject<NodeMetaRef>(L, 1);
+	NodeModifiersRef::create(L, ref->m_p, ref->m_env);
+	return 1;
+}
 
 // get_inventory(self)
 int NodeMetaRef::l_get_inventory(lua_State *L)
@@ -115,17 +143,32 @@ void NodeMetaRef::handleToTable(lua_State *L, IMetadata *_meta)
 		lua_newtable(L);
 	}
 	lua_setfield(L, -2, "inventory");
+
+#if CHECK_CLIENT_BUILD()
+	if (m_is_local) {
+		const auto ids = m_client->getEnv().getMap().getNodeModifiers(m_p);
+		const auto *manager = m_client->getNodeModifierManager();
+		lua_createtable(L, ids.size(), 0);
+		int i = 0;
+		for (u16 id : ids) {
+			if (id >= manager->size())
+				continue;
+			const auto &name = manager->get(id).m_name;
+			lua_pushlstring(L, name.data(), name.size());
+			lua_rawseti(L, -2, ++i);
+		}
+	} else
+#endif
+		NodeModifiersRef(m_p, m_env).pushList(L);
+	lua_setfield(L, -2, "modifiers");
 }
 
 // from_table(self, table)
-bool NodeMetaRef::handleFromTable(lua_State *L, int table, IMetadata *_meta)
+bool NodeMetaRef::handleFromTable(lua_State *L, int table)
 {
-	// fields
-	if (!MetaDataRef::handleFromTable(L, table, _meta))
-		return false;
-
-	NodeMetadata *meta = dynamic_cast<NodeMetadata*>(_meta);
-	sanity_check(meta);
+	SANITY_CHECK(!m_is_local);
+	auto meta = std::make_unique<NodeMetadata>(m_env->getGameDef()->idef());
+	readFields(L, table, meta.get());
 
 	// inventory
 	Inventory *inv = meta->getInventory();
@@ -140,9 +183,24 @@ bool NodeMetaRef::handleFromTable(lua_State *L, int table, IMetadata *_meta)
 			read_inventory_list(L, -1, inv, name, gamedef);
 			lua_pop(L, 1); // Remove value, keep key for next iteration
 		}
-		lua_pop(L, 1);
 	}
+	lua_pop(L, 1);
 
+	std::vector<std::string> modifiers;
+	lua_getfield(L, table, "modifiers");
+	if (!lua_isnil(L, -1))
+		NodeModifiersRef::readList(L, -1, modifiers);
+	lua_pop(L, 1);
+
+	Map &map = m_env->getMap();
+	if (!NodeModifiersRef(m_p, m_env).set(modifiers))
+		return false;
+
+	bool installed = map.setNodeMetadata(m_p, meta.get());
+	// The block should exist, otherwise setting modifiers would fail
+	SANITY_CHECK(installed);
+
+	meta.release();
 	return true;
 }
 
@@ -153,11 +211,12 @@ NodeMetaRef::NodeMetaRef(v3s16 p, ServerEnvironment *env):
 {
 }
 
-NodeMetaRef::NodeMetaRef(IMetadata *meta):
-	m_is_local(true),
-	m_local_meta(meta)
+#if CHECK_CLIENT_BUILD()
+NodeMetaRef::NodeMetaRef(v3s16 p, Client *client):
+	m_is_local(true), m_p(p), m_client(client)
 {
 }
+#endif
 
 // Creates an NodeMetaRef and leaves it on top of stack
 // Not callable from Lua; all references are created on the C side.
@@ -170,13 +229,15 @@ void NodeMetaRef::create(lua_State *L, v3s16 p, ServerEnvironment *env)
 }
 
 // Client-sided version of the above
-void NodeMetaRef::createClient(lua_State *L, IMetadata *meta)
+#if CHECK_CLIENT_BUILD()
+void NodeMetaRef::createClient(lua_State *L, v3s16 p, Client *client)
 {
-	NodeMetaRef *o = new NodeMetaRef(meta);
+	NodeMetaRef *o = new NodeMetaRef(p, client);
 	*(void **)(lua_newuserdata(L, sizeof(void *))) = o;
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);
 }
+#endif
 
 const char NodeMetaRef::className[] = "NodeMetaRef";
 
@@ -187,6 +248,7 @@ void NodeMetaRef::Register(lua_State *L)
 
 
 const luaL_Reg NodeMetaRef::methodsServer[] = {
+	luamethod(NodeMetaRef, get_modifiers),
 	luamethod(MetaDataRef, contains),
 	luamethod(MetaDataRef, get),
 	luamethod(MetaDataRef, get_string),
