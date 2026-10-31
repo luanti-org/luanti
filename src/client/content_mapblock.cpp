@@ -157,8 +157,7 @@ void MapblockMeshGenerator::drawQuad(const TileSpec &tile, v3f *coords, const v3
 	collector->append(tile, vertices, 4, quad_indices, 6);
 }
 
-static std::array<video::S3DVertex, 24> setupCuboidVertices(const aabb3f &box,
-		const f32 *txc, const TileSpec *tiles, int tilecount, v3s16 alignment)
+static std::array<video::S3DVertex, 24> setupCuboidVertices(const aabb3f &box, const f32 *txc)
 {
 	v3f min = box.MinEdge;
 	v3f max = box.MaxEdge;
@@ -205,61 +204,57 @@ static std::array<video::S3DVertex, 24> setupCuboidVertices(const aabb3f &box,
 		video::S3DVertex(min.X, min.Y, min.Z, 0, 0, -1, {}, txc[20], txc[23]),
 	}};
 
-	for (int face = 0; face < 6; face++) {
-		int tileindex = MYMIN(face, tilecount - 1);
-		const TileSpec &tile = tiles[tileindex];
-		for (int j = 0; j < 4; j++) {
-			video::S3DVertex &vertex = vertices[face * 4 + j];
-			v2f &tcoords = vertex.TCoords;
-			switch (tile.rotation) {
-			case TileRotation::None:
-				break;
-			case TileRotation::R90:
-				tcoords.set(1 - tcoords.Y, tcoords.X);
-				break;
-			case TileRotation::R180:
-				tcoords.set(1 - tcoords.X, 1 - tcoords.Y);
-				break;
-			case TileRotation::R270:
-				tcoords.set(tcoords.Y, 1 - tcoords.X);
-				break;
-			}
+	return vertices;
+}
 
-			if (tile.world_aligned) {
-				// Maps uv dimension of every face to world dimension xyz
-				constexpr int coord_dim[12] = {
-					0, 2, // up
-					0, 2, // down
-					2, 1, // right
-					2, 1, // left
-					0, 1, // back
-					0, 1, // front
-				};
+static void applyTileUV(v2f &tcoords, int face, const TileLayer &layer,
+		TileRotation rotation, v3s16 alignment)
+{
+	if (layer.world_aligned) {
+		// Maps uv dimension of every face to world dimension xyz
+		constexpr int coord_dim[12] = {
+			0, 2, // up
+			0, 2, // down
+			2, 1, // right
+			2, 1, // left
+			0, 1, // back
+			0, 1, // front
+		};
 
-				auto scale = tile.layers[0].scale;
-				f32 scale_factor = 1.0f / scale;
+		u8 scale = layer.scale;
+		f32 scale_factor = 1.0f / scale;
 
-				float x = alignment[coord_dim[face*2]] % scale;
-				float y = alignment[coord_dim[face*2 + 1]] % scale;
+		float x = alignment[coord_dim[face*2]] % scale;
+		float y = alignment[coord_dim[face*2 + 1]] % scale;
 
-				// Faces grow in different directions
-				if (face != 1) {
-					y = tcoords.Y + ((scale-1)-y);
-				} else {
-					y = tcoords.Y + y;
-				}
-				if (face == 3 || face == 4) {
-					x = tcoords.X + ((scale-1)-x);
-				} else {
-					x = tcoords.X + x;
-				}
+		// Faces grow in different directions
+		if (face != 1) {
+			y = tcoords.Y + ((scale-1)-y);
+		} else {
+			y = tcoords.Y + y;
+		}
+		if (face == 3 || face == 4) {
+			x = tcoords.X + ((scale-1)-x);
+		} else {
+			x = tcoords.X + x;
+		}
 
-				tcoords.set(x * scale_factor, y * scale_factor);
-			}
+		tcoords.set(x * scale_factor, y * scale_factor);
+	} else {
+		switch (rotation) {
+		case TileRotation::None:
+			break;
+		case TileRotation::R90:
+			tcoords.set(1 - tcoords.Y, tcoords.X);
+			break;
+		case TileRotation::R180:
+			tcoords.set(1 - tcoords.X, 1 - tcoords.Y);
+			break;
+		case TileRotation::R270:
+			tcoords.set(tcoords.Y, 1 - tcoords.X);
+			break;
 		}
 	}
-
-	return vertices;
 }
 
 enum class QuadDiagonal {
@@ -287,15 +282,33 @@ void MapblockMeshGenerator::drawCuboid(const aabb3f &box,
 {
 	assert(tilecount >= 1 && tilecount <= 6); // pre-condition
 
-	auto vertices = setupCuboidVertices(box, txc, tiles, tilecount, cur_node.p);
+	auto vertices = setupCuboidVertices(box, txc);
 
-	for (int k = 0; k < 6; ++k) {
-		if (mask & (1 << k))
+	for (int face = 0; face < 6; ++face) {
+		if (mask & (u8{1} << face))
 			continue;
-		QuadDiagonal diagonal = face_lighter(k, &vertices[4 * k]);
-		const u16 *indices = diagonal == QuadDiagonal::Diag13 ? quad_indices_13 : quad_indices_02;
-		int tileindex = MYMIN(k, tilecount - 1);
-		collector->append(tiles[tileindex], &vertices[4 * k], 4, indices, 6);
+
+		const TileSpec &tile = tiles[MYMIN(face, tilecount - 1)];
+		video::S3DVertex *face_vertices = &vertices[4 * face];
+		QuadDiagonal diagonal = face_lighter(face, face_vertices);
+		const u16 *indices = diagonal == QuadDiagonal::Diag13 ?
+				quad_indices_13 : quad_indices_02;
+		std::array<v2f, 4> original_uv;
+		for (int j = 0; j < 4; ++j)
+			original_uv[j] = face_vertices[j].TCoords;
+
+		for (u8 layernum = 0; layernum < MAX_TILE_LAYERS; ++layernum) {
+			const TileLayer &layer = tile.layers[layernum];
+			if (layer.empty())
+				continue;
+
+			for (int j = 0; j < 4; ++j) {
+				face_vertices[j].TCoords = original_uv[j];
+				applyTileUV(face_vertices[j].TCoords, face, layer,
+						tile.rotation, cur_node.p);
+			}
+			collector->append(layer, face_vertices, 4, indices, 6, layernum);
+		}
 	}
 }
 
