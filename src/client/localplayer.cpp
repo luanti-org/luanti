@@ -273,8 +273,12 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 			const ContentFeatures &cf = nodemgr->get(node.getContent());
 			in_liquid = cf.liquid_move_physics;
 			move_resistance = cf.move_resistance;
+			horizontal_move_resistance = cf.horizontal_move_resistance;
+			vertical_move_resistance = cf.vertical_move_resistance;
 		} else {
 			in_liquid = false;
+			horizontal_move_resistance = 0;
+			vertical_move_resistance = 0;
 		}
 	} else {
 		// If not in liquid, the threshold of going in is at lower y
@@ -285,8 +289,12 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 			const ContentFeatures &cf = nodemgr->get(node.getContent());
 			in_liquid = cf.liquid_move_physics;
 			move_resistance = cf.move_resistance;
+			horizontal_move_resistance = cf.horizontal_move_resistance;
+			vertical_move_resistance = cf.vertical_move_resistance;
 		} else {
 			in_liquid = false;
+			horizontal_move_resistance = 0;
+			vertical_move_resistance = 0;
 		}
 	}
 
@@ -879,8 +887,12 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 			const ContentFeatures &cf = nodemgr->get(node.getContent());
 			in_liquid = cf.liquid_move_physics;
 			move_resistance = cf.move_resistance;
+			horizontal_move_resistance = cf.horizontal_move_resistance;
+			vertical_move_resistance = cf.vertical_move_resistance;
 		} else {
 			in_liquid = false;
+			horizontal_move_resistance = 0;
+			vertical_move_resistance = 0;
 		}
 	} else {
 		// If not in liquid, the threshold of going in is at lower y
@@ -890,8 +902,12 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 			const ContentFeatures &cf = nodemgr->get(node.getContent());
 			in_liquid = cf.liquid_move_physics;
 			move_resistance = cf.move_resistance;
+			horizontal_move_resistance = cf.horizontal_move_resistance;
+			vertical_move_resistance = cf.vertical_move_resistance;
 		} else {
 			in_liquid = false;
+			horizontal_move_resistance = 0;
+			vertical_move_resistance = 0;
 		}
 	}
 

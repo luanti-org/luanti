@@ -53,6 +53,10 @@ public:
 	bool in_liquid_stable = false;
 	// Slows down the player when moving through
 	u8 move_resistance = 0;
+	//slows down the player when moving horizontally through
+	u8 horizontal_move_resistance = 0;
+	// Slows down the player when moving vertically through
+	u8 vertical_move_resistance = 0;
 	bool is_climbing = false;
 	bool swimming_vertical = false;
 	bool swimming_pitch = false;

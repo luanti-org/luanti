@@ -382,6 +382,8 @@ void ContentFeatures::reset()
 	palette_name.clear();
 	node_dig_prediction = "air";
 	move_resistance = 0;
+	horizontal_move_resistance = 0;
+	vertical_move_resistance = 0;
 	liquid_move_physics = false;
 	post_effect_color_shaded = false;
 }
@@ -511,6 +513,8 @@ void ContentFeatures::serialize(std::ostream &os, u16 protocol_version) const
 	writeU8(os, move_resistance);
 	writeU8(os, liquid_move_physics);
 	writeU8(os, post_effect_color_shaded);
+	writeU8(os, horizontal_move_resistance);
+	writeU8(os, vertical_move_resistance);
 }
 
 void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
@@ -643,6 +647,13 @@ void ContentFeatures::deSerialize(std::istream &is, u16 protocol_version)
 		// >= 5.8.0-dev
 
 		post_effect_color_shaded = readU8(is);
+
+		if (!canRead(is))
+			break;
+		// >= <next version>
+
+		horizontal_move_resistance = readU8(is);
+		vertical_move_resistance = readU8(is);
 
 		//if (!canRead(is))
 		//	break;
