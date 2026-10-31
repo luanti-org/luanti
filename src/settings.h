@@ -4,18 +4,20 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
+#include "between.h"
 #include "irr_v2d.h"
 #include "irr_v3d.h"
+#include "irrlichttypes.h"
 #include "util/basic_macros.h"
-#include <string>
-#include <string_view>
-#include <vector>
+
 #include <map>
-#include <unordered_map>
 #include <mutex>
 #include <optional>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 #include <utility> // std::move
+#include <vector>
 
 class Settings;
 struct NoiseParams;
@@ -64,6 +66,19 @@ enum SettingsLayer {
 	SL_TOTAL_COUNT
 };
 
+struct Layer
+{
+private:
+	int value_;
+
+public:
+	constexpr Layer(const int layer, int layers = std::numeric_limits<int>::max()) : value_(layer)
+	{
+		assert_between_inc_min(layer, 0, layers);
+	}
+	constexpr operator int() const { return value_; }
+};
+
 // Implements the hierarchy a settings object may be part of
 class SettingsHierarchy {
 public:
@@ -79,7 +94,7 @@ public:
 
 private:
 	friend class Settings;
-	Settings *getParent(int layer) const;
+	Settings *getParent(Layer layer) const;
 	void onLayerCreated(int layer, Settings *obj);
 	void onLayerRemoved(int layer);
 

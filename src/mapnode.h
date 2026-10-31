@@ -300,3 +300,14 @@ private:
 	// Deprecated serialization methods
 	void deSerialize_pre22(const u8 *source, u8 version);
 };
+
+struct RealMapNode
+{
+private:
+	MapNode *map_node_;
+
+public:
+	constexpr RealMapNode(MapNode *map_node) : map_node_(map_node) { assert(map_node); }
+	constexpr MapNode *operator->() const { return map_node_; }
+	constexpr operator MapNode *() const { return map_node_; }
+};

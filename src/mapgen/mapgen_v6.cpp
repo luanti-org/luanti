@@ -489,12 +489,8 @@ u32 MapgenV6::get_blockseed(u64 seed, v3s16 p)
 
 //////////////////////// Map generator
 
-void MapgenV6::makeChunk(BlockMakeData *data)
+void MapgenV6::makeChunk(RealBlockMakeData data)
 {
-	// Pre-conditions
-	assert(data->vmanip);
-	assert(data->nodedef);
-
 	this->generating = true;
 	this->vm   = data->vmanip;
 	this->ndef = data->nodedef;
@@ -1107,7 +1103,6 @@ void MapgenV6::generateCaves(int max_stone_y)
 		CavesV6 cave(ndef, &gennotify, water_level, c_water_source, c_lava_source);
 
 		bool large_cave = (i >= caves_count);
-		cave.makeCave(vm, node_min, node_max, &ps, &ps2,
-			large_cave, max_stone_y, heightmap);
+		cave.makeCave(vm, node_min, node_max, &ps, &ps2, large_cave, max_stone_y, heightmap);
 	}
 }

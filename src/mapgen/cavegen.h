@@ -11,7 +11,8 @@ typedef u16 biome_t;  // copy from mg_biome.h to avoid an unnecessary include
 
 class GenerateNotifier;
 
-class BiomeGen;
+struct RealBiomeGen;
+struct RealBiomeManager;
 
 /*
 	CavesNoiseIntersection is a cave digging algorithm that carves smooth,
@@ -28,12 +29,12 @@ class BiomeGen;
 class CavesNoiseIntersection
 {
 public:
-	CavesNoiseIntersection(const NodeDefManager *nodedef,
-		BiomeManager *biomemgr, BiomeGen *biomegen, v3s16 chunksize, NoiseParams *np_cave1,
-		NoiseParams *np_cave2, s32 seed, float cave_width);
+	CavesNoiseIntersection(RealNodeDefManager nodedef, RealBiomeManager biomemgr,
+		RealBiomeGen biomegen, v3s16 chunksize, NoiseParams *np_cave1, NoiseParams *np_cave2,
+		s32 seed, float cave_width);
 	~CavesNoiseIntersection();
 
-	void generateCaves(MMVManip *vm, v3s16 nmin, v3s16 nmax, biome_t *biomemap);
+	void generateCaves(RealMMVManip vm, v3s16 nmin, v3s16 nmax, biome_t *biomemap);
 
 private:
 	const NodeDefManager *m_ndef;
@@ -59,12 +60,12 @@ private:
 class CavernsNoise
 {
 public:
-	CavernsNoise(const NodeDefManager *nodedef, v3s16 chunksize,
+	CavernsNoise(const RealNodeDefManager nodedef, v3s16 chunksize,
 		NoiseParams *np_cavern, s32 seed, float cavern_limit,
 		float cavern_taper, float cavern_threshold);
 	~CavernsNoise();
 
-	bool generateCaverns(MMVManip *vm, v3s16 nmin, v3s16 nmax);
+	bool generateCaverns(RealMMVManip vm, v3s16 nmin, v3s16 nmax);
 
 private:
 	const NodeDefManager *m_ndef;
@@ -147,7 +148,7 @@ public:
 	// ndef is a mandatory parameter.
 	// If gennotify is NULL, generation events are not logged.
 	// If biomegen is NULL, cave liquids have classic behavior.
-	CavesRandomWalk(const NodeDefManager *ndef, GenerateNotifier *gennotify =
+	CavesRandomWalk(const RealNodeDefManager ndef, GenerateNotifier *gennotify =
 		NULL, s32 seed = 0, int water_level = 1, content_t water_source =
 		CONTENT_IGNORE, content_t lava_source = CONTENT_IGNORE,
 		float large_cave_flooded = 0.5f, BiomeGen *biomegen = NULL);
@@ -155,8 +156,8 @@ public:
 	// vm and ps are mandatory parameters.
 	// If heightmap is NULL, the surface level at all points is assumed to
 	// be water_level.
-	void makeCave(MMVManip *vm, v3s16 nmin, v3s16 nmax, PseudoRandom *ps,
-			bool is_large_cave, int max_stone_height, s16 *heightmap);
+	void makeCave(RealMMVManip vm, v3s16 nmin, v3s16 nmax, RealPseudoRandom ps, bool is_large_cave,
+			int max_stone_height, s16 *heightmap);
 
 private:
 	void makeTunnel(bool dirswitch);
@@ -218,15 +219,15 @@ public:
 
 	// ndef is a mandatory parameter.
 	// If gennotify is NULL, generation events are not logged.
-	CavesV6(const NodeDefManager *ndef, GenerateNotifier *gennotify = NULL,
+	CavesV6(RealNodeDefManager ndef, GenerateNotifier *gennotify = NULL,
 			int water_level = 1, content_t water_source = CONTENT_IGNORE,
 			content_t lava_source = CONTENT_IGNORE);
 
 	// vm, ps, and ps2 are mandatory parameters.
 	// If heightmap is NULL, the surface level at all points is assumed to
 	// be water_level.
-	void makeCave(MMVManip *vm, v3s16 nmin, v3s16 nmax, PseudoRandom *ps,
-			PseudoRandom *ps2, bool is_large_cave, int max_stone_height,
+	void makeCave(RealMMVManip vm, v3s16 nmin, v3s16 nmax, RealPseudoRandom ps,
+			RealPseudoRandom ps2, bool is_large_cave, int max_stone_height,
 			s16 *heightmap = NULL);
 
 private:

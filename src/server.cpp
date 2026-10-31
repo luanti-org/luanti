@@ -1529,8 +1529,7 @@ void Server::SendAccessDenied(session_t peer_id, AccessDeniedCode reason,
 void Server::SendItemDef(session_t peer_id,
 		IItemDefManager *itemdef, u16 protocol_version)
 {
-	auto *client = m_clients.getClientNoEx(peer_id, CS_Created);
-	assert(client);
+	RealRemoteClient client = m_clients.getClientNoEx(peer_id, CS_Created);
 
 	NetworkPacket pkt(TOCLIENT_ITEMDEF, 0, peer_id);
 
@@ -1555,8 +1554,7 @@ void Server::SendItemDef(session_t peer_id,
 void Server::SendNodeDef(session_t peer_id,
 	const NodeDefManager *nodedef, u16 protocol_version)
 {
-	auto *client = m_clients.getClientNoEx(peer_id, CS_Created);
-	assert(client);
+	RealRemoteClient client = m_clients.getClientNoEx(peer_id, CS_Created);
 
 	NetworkPacket pkt(TOCLIENT_NODEDEF, 0, peer_id);
 
@@ -1744,8 +1742,7 @@ void Server::SendAddParticleSpawner(const std::string &to_player,
 				return;
 		}
 
-		SendAddParticleSpawner(player->getPeerId(), player->protocol_version,
-			p, attached_id, id);
+		SendAddParticleSpawner(player->getPeerId(), player->protocol_version, p, attached_id, id);
 	};
 
 	// Send to one -or- all (except one)
@@ -1766,12 +1763,9 @@ void Server::SendAddParticleSpawner(const std::string &to_player,
 	}
 }
 
-void Server::SendAddParticleSpawner(session_t peer_id, u16 protocol_version,
+void Server::SendAddParticleSpawner(PeerID peer_id, RealProtocolVersion protocol_version,
 	const ParticleSpawnerParameters &p, u16 attached_id, u32 id)
 {
-	assert(peer_id != PEER_ID_INEXISTENT);
-	assert(protocol_version != 0);
-
 	NetworkPacket pkt(TOCLIENT_ADD_PARTICLESPAWNER, 100, peer_id);
 
 	pkt << p.amount << p.time;
@@ -2087,10 +2081,8 @@ void Server::SendTimeOfDay(session_t peer_id, u16 time, f32 time_speed)
 	}
 }
 
-void Server::SendPlayerBreath(PlayerSAO *sao)
+void Server::SendPlayerBreath(RealPlayerSAO sao)
 {
-	assert(sao);
-
 	m_script->player_event(sao, "breath_changed");
 	SendBreath(sao->getPeerID(), sao->getBreath());
 }
@@ -2789,8 +2781,7 @@ void Server::sendMediaAnnouncement(session_t peer_id, const std::string &lang_co
 	};
 
 	// Make packet
-	auto *client = m_clients.getClientNoEx(peer_id, CS_Created);
-	assert(client);
+	RealRemoteClient client = m_clients.getClientNoEx(peer_id, CS_Created);
 	NetworkPacket pkt(TOCLIENT_ANNOUNCE_MEDIA, 0, peer_id);
 
 	size_t media_sent = 0;
@@ -2857,8 +2848,7 @@ struct SendableMedia
 void Server::sendRequestedMedia(session_t peer_id,
 		const std::unordered_set<std::string> &tosend)
 {
-	auto *client = getClient(peer_id, CS_DefinitionsSent);
-	assert(client);
+	RealRemoteClient client = getClient(peer_id, CS_DefinitionsSent);
 
 	const bool compress = client->net_proto_version >= 48;
 
@@ -3176,8 +3166,7 @@ void Server::DeleteClient(session_t peer_id, ClientDeletionReason reason)
 
 		/* Run scripts and remove from environment */
 		if (player) {
-			PlayerSAO *playersao = player->getPlayerSAO();
-			assert(playersao);
+			RealPlayerSAO playersao = player->getPlayerSAO();
 
 			// inform connected clients
 			const std::string &player_name = player->getName();

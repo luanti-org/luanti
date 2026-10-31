@@ -28,12 +28,8 @@ MapgenSinglenode::MapgenSinglenode(MapgenParams *params, EmergeParams *emerge)
 
 //////////////////////// Map generator
 
-void MapgenSinglenode::makeChunk(BlockMakeData *data)
+void MapgenSinglenode::makeChunk(RealBlockMakeData data)
 {
-	// Pre-conditions
-	assert(data->vmanip);
-	assert(data->nodedef);
-
 	this->generating = true;
 	this->vm   = data->vmanip;
 	this->ndef = data->nodedef;

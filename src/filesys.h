@@ -5,10 +5,13 @@
 #pragma once
 
 #include "config.h"
+
+#include <cassert>
+#include <fstream>
+#include <filesystem>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <fstream>
 
 #ifdef _WIN32
 #define DIR_DELIM "\\"
@@ -59,8 +62,27 @@ bool CreateDir(const std::string &path);
 	return c == '/' || c == DIR_DELIM_CHAR;
 }
 
+struct AbsPath : public std::string
+{
+public:
+	using std::string::string;
+
+	AbsPath(const std::string &path) : std::string(path) { assert(IsPathAbsolute(*this)); }
+
+	AbsPath(const char *path) : std::string(path) { assert(IsPathAbsolute(*this)); }
+
+	operator std::filesystem::path() const
+	{
+		return std::filesystem::path(static_cast<const std::string &>(*this));
+	}
+};
+inline std::ostream &operator<<(std::ostream &os, const AbsPath &path)
+{
+	return os << static_cast<std::string>(path);
+}
+
 // Only pass full paths to this one. returns true on success.
-bool RecursiveDelete(const std::string &path);
+bool RecursiveDelete(const AbsPath &path);
 
 bool DeleteSingleFileOrEmptyDirectory(const std::string &path, bool log_error = false);
 

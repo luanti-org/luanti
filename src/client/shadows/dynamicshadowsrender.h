@@ -96,9 +96,8 @@ public:
 	static bool isSupported(video::IVideoDriver *driver);
 
 private:
-	video::ITexture *getSMTexture(const std::string &shadow_map_name,
-			video::ECOLOR_FORMAT texture_format,
-			bool force_creation = false);
+	video::ITexture *createSMTexture(const std::string &shadow_map_name,
+			video::ECOLOR_FORMAT texture_format);
 
 	void renderShadowMap(video::ITexture *target, DirectionalLight &light,
 			scene::E_SCENE_NODE_RENDER_PASS pass =

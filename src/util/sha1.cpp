@@ -133,7 +133,6 @@ void SHA1::addBytes( const char* data, Uint32 num )
 	{
 		// number of bytes required to complete block
 		Uint32 needed = 64 - unprocessedBytes;
-		assert( needed <= 64 );
 		// number of bytes to copy (use smaller of two)
 		Uint32 toCopy = (num < needed) ? num : needed;
 		// Copy the bytes

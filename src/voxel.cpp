@@ -142,8 +142,7 @@ void VoxelManipulator::addArea(const VoxelArea &area)
 	u32 new_size = new_area.getVolume();
 
 	// Allocate new data and clear flags
-	MapNode *new_data = new MapNode[new_size];
-	assert(new_data);
+	RealMapNode new_data = new MapNode[new_size];
 	u8 *new_flags = new u8[new_size];
 	assert(new_flags);
 	memset(new_flags, VOXELFLAG_NO_DATA, new_size);

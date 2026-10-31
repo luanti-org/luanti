@@ -239,12 +239,8 @@ float MapgenCarpathian::getSteps(float noise)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MapgenCarpathian::makeChunk(BlockMakeData *data)
+void MapgenCarpathian::makeChunk(RealBlockMakeData data)
 {
-	// Pre-conditions
-	assert(data->vmanip);
-	assert(data->nodedef);
-
 	this->generating = true;
 	this->vm = data->vmanip;
 	this->ndef = data->nodedef;

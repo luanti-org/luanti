@@ -49,9 +49,8 @@ public:
 
 	void Trigger();
 
-	void setParent(Connection *parent)
+	void setParent(RealConnection parent)
 	{
-		assert(parent != NULL); // Pre-condition
 		m_connection = parent;
 	}
 

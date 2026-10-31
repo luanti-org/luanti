@@ -85,19 +85,13 @@ u32 CGUIComboBox::getItemCount() const
 //! returns string of an item. the idx may be a value from 0 to itemCount-1
 const wchar_t *CGUIComboBox::getItem(u32 idx) const
 {
-	if (idx >= Items.size())
-		return 0;
-
-	return Items[idx].Name.c_str();
+	return Items[Items.makeIndex(idx)].Name.c_str();
 }
 
 //! returns string of an item. the idx may be a value from 0 to itemCount-1
 u32 CGUIComboBox::getItemData(u32 idx) const
 {
-	if (idx >= Items.size())
-		return 0;
-
-	return Items[idx].Data;
+	return Items[Items.makeIndex(idx)].Data;
 }
 
 //! Returns index based on item data
@@ -119,7 +113,7 @@ void CGUIComboBox::removeItem(u32 idx)
 	if (Selected == (s32)idx)
 		setSelected(-1);
 
-	Items.erase(idx);
+	Items.erase(Items.makeIndex(idx));
 }
 
 //! Returns caption of this element.

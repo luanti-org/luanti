@@ -2053,7 +2053,8 @@ void COpenGLDriver::setRenderStates2DMode(bool alpha, bool texture, bool alphaCh
 
 			const core::dimension2d<u32> &renderTargetSize = getCurrentRenderTargetSize();
 			core::matrix4 m(core::matrix4::EM4CONST_NOTHING);
-			m.buildProjectionMatrixOrthoLH(f32(renderTargetSize.Width), f32(-(s32)(renderTargetSize.Height)), -1.0f, 1.0f);
+			m.buildProjectionMatrixOrthoLH(f32(renderTargetSize.Width),
+										   f32(-(s32)(renderTargetSize.Height)), -1.0f, 1.0f);
 			m.setTranslation(core::vector3df(-1, 1, 0));
 			glLoadMatrixf(m.pointer());
 

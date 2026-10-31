@@ -197,11 +197,9 @@ CollisionAxis axisAlignedCollision(
 bool wouldCollideWithCeiling(
 		const std::vector<NearbyCollisionInfo> &cinfo,
 		const aabb3f &movingbox,
-		f32 y_increase, f32 d)
+		MoveMagnitude y_increase, f32 d)
 {
 	//TimeTaker tt("wouldCollideWithCeiling");
-
-	assert(y_increase >= 0);	// pre-condition
 
 	for (const auto &it : cinfo) {
 		const aabb3f &staticbox = it.box;
@@ -556,8 +554,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 			stepbox.MaxEdge.X += aspeed_f.X * extra_dtime;
 			stepbox.MaxEdge.Z += aspeed_f.Z * extra_dtime;
 			// Check for stairs.
-			step_up = (movingbox.MinEdge.Y < cbox.MaxEdge.Y) &&
-				(movingbox.MinEdge.Y + stepheight > cbox.MaxEdge.Y) &&
+			step_up = (movingbox.MinEdge.Y + stepheight > cbox.MaxEdge.Y) &&
 				(!wouldCollideWithCeiling(cinfo, stepbox,
 						cbox.MaxEdge.Y - movingbox.MinEdge.Y,
 						0));

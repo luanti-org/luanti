@@ -431,6 +431,20 @@ private:
 	const u64 m_connection_time;
 };
 
+struct RealRemoteClient
+{
+private:
+	RemoteClient *client_;
+
+public:
+	constexpr RealRemoteClient(RemoteClient *remoteClient) : client_(remoteClient)
+	{
+		assert(remoteClient);
+	}
+	constexpr RemoteClient *operator->() const { return client_; }
+	constexpr operator RemoteClient *() const { return client_; }
+};
+
 typedef std::unordered_map<u16, RemoteClient*> RemoteClientMap;
 
 class ClientInterface {

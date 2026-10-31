@@ -3,14 +3,17 @@
 // Copyright (C) 2021 hecks
 
 #include "png.h"
-#include <string>
+
+#include "between.h"
+
+#include "irrlichttypes.h"
+#include "serialization.h"
+#include "util/serialize.h"
+#include <cassert>
 #include <optional>
 #include <sstream>
+#include <string>
 #include <zlib.h>
-#include <cassert>
-#include "util/serialize.h"
-#include "serialization.h"
-#include "irrlichttypes.h"
 
 enum {
 	COLOR_GRAY = 0,
@@ -18,10 +21,18 @@ enum {
 	COLOR_RGBA = 6,
 };
 
-static void writeChunk(std::string &target, const std::string &chunk_str)
+struct ChunkString : public std::string
 {
-	assert(chunk_str.size() >= 4);
-	assert(chunk_str.size() - 4 < U32_MAX);
+public:
+	using std::string::string;
+
+	ChunkString(std::string value) : std::string(std::move(value)) {
+		assert_between_inc_min(this->size(), 4, U32_MAX + 4);
+	}
+};
+
+static void writeChunk(std::string &target, const ChunkString &chunk_str)
+{
 	u8 tmp[4];
 	target.reserve(target.size() + 4 + chunk_str.size() + 4);
 

@@ -86,10 +86,8 @@ u16 Player::getWieldIndex()
 	return std::min(m_wield_index, getMaxHotbarItemcount());
 }
 
-ItemStack &Player::getWieldedItem(ItemStack *selected, ItemStack *hand) const
+ItemStack &Player::getWieldedItem(RealItemStack selected, ItemStack *hand) const
 {
-	assert(selected);
-
 	const InventoryList *mlist = inventory.getList("main"); // TODO: Make this generic
 	const InventoryList *hlist = inventory.getList("hand");
 

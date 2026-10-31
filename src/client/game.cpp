@@ -1600,10 +1600,8 @@ void Game::dropSelectedItem(bool single_item)
 	client->inventoryAction(a);
 }
 
-void Game::openConsole(float scale, const wchar_t *line)
+void Game::openConsole(NormalizedFloat scale, const wchar_t *line)
 {
-	assert(scale > 0.0f && scale <= 1.0f);
-
 #ifdef __ANDROID__
 	if (!porting::hasPhysicalKeyboardAndroid()) {
 		porting::showTextInputDialog("", "", 2);

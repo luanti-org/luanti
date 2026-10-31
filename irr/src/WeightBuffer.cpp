@@ -8,9 +8,8 @@
 
 namespace scene {
 
-void WeightBuffer::VertexWeights::addWeight(u16 joint_id, f32 weight)
+void WeightBuffer::VertexWeights::addWeight(u16 joint_id, Weight weight)
 {
-	assert(weight >= 0.0f);
 	auto min_weight = std::min_element(weights.begin(), weights.end());
 	if (*min_weight > weight)
 		return;
@@ -19,7 +18,7 @@ void WeightBuffer::VertexWeights::addWeight(u16 joint_id, f32 weight)
 	joint_ids[std::distance(weights.begin(), min_weight)] = joint_id;
 }
 
-void WeightBuffer::addWeight(u32 vertex_id, u16 joint_id, f32 weight)
+void WeightBuffer::addWeight(u32 vertex_id, u16 joint_id, Weight weight)
 {
 	weights.at(vertex_id).addWeight(joint_id, weight);
 }

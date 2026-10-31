@@ -205,7 +205,8 @@ IGUITab *CGUITabControl::insertTab(s32 idx, const wchar_t *caption, s32 id)
 	tab->setText(caption);
 	tab->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
 	tab->setVisible(false);
-	Tabs.insert(tab, (u32)idx);
+	auto index = Tabs.makeIndex(idx);
+	Tabs.insert(tab, index);
 
 	if (ActiveTabIndex == -1) {
 		ActiveTabIndex = (u32)idx;
@@ -251,7 +252,8 @@ s32 CGUITabControl::insertTab(s32 idx, IGUITab *tab, bool serializationMode)
 			tab->setVisible(true);
 		}
 	} else {
-		Tabs.insert(tab, (u32)idx);
+		auto index = Tabs.makeIndex(idx);
+		Tabs.insert(tab, index);
 
 		if (ActiveTabIndex == -1) {
 			ActiveTabIndex = idx;
@@ -295,7 +297,7 @@ void CGUITabControl::removeTabButNotChild(s32 idx)
 		return;
 
 	Tabs[(u32)idx]->drop();
-	Tabs.erase((u32)idx);
+	Tabs.erase(Tabs.makeIndex(idx));
 
 	if (idx < ActiveTabIndex) {
 		--ActiveTabIndex;

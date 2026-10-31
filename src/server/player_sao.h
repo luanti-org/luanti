@@ -9,6 +9,7 @@
 #include "inventorymanager.h" // InventoryLocation
 #include "metadata.h"
 #include "network/networkprotocol.h"
+#include "remoteplayer.h"
 #include "unit_sao.h"
 #include "util/numeric.h"
 #include <set>
@@ -171,7 +172,7 @@ public:
 	bool getSelectionBox(aabb3f *toset) const override;
 	bool collideWithObjects() const override { return true; }
 
-	void finalize(RemotePlayer *player, const std::set<std::string> &privs);
+	void finalize(RealRemotePlayer player, const std::set<std::string> &privs);
 
 	v3f getEyePosition() const { return getBasePosition() + getEyeOffset(); }
 	v3f getEyeOffset() const;

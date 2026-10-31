@@ -104,7 +104,7 @@ void GUIChatConsole::openConsole(f32 scale)
 	if (m_open)
 		return;
 
-	assert(scale > 0.0f && scale <= 1.0f);
+	assert_between_inc_max(scale, 0.0f, 1.0f);
 
 	m_open = true;
 

@@ -1826,8 +1826,7 @@ int ModApiMapgen::l_place_schematic_on_vmanip(lua_State *L)
 	u32 flags = 0;
 	read_flags(L, 7, flagdesc_deco, &flags, NULL);
 
-	bool schematic_did_fit = schem->placeOnVManip(
-		vm, p, flags, (Rotation)rot, force_placement);
+	bool schematic_did_fit = schem->placeOnVManip(vm, p, flags, (Rotation)rot, force_placement);
 
 	lua_pushboolean(L, schematic_did_fit);
 	return 1;

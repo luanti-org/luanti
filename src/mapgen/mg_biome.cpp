@@ -66,8 +66,7 @@ void BiomeManager::clear()
 
 BiomeManager *BiomeManager::clone() const
 {
-	auto mgr = new BiomeManager();
-	assert(mgr);
+	RealBiomeManager mgr = new BiomeManager();
 	ObjDefManager::cloneTo(mgr);
 	mgr->m_server = m_server;
 	return mgr;

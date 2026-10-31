@@ -192,12 +192,8 @@ void MapgenValleysParams::setDefaultSettings(Settings *settings)
 /////////////////////////////////////////////////////////////////
 
 
-void MapgenValleys::makeChunk(BlockMakeData *data)
+void MapgenValleys::makeChunk(RealBlockMakeData data)
 {
-	// Pre-conditions
-	assert(data->vmanip);
-	assert(data->nodedef);
-
 	//TimeTaker t("makeChunk");
 
 	this->generating = true;

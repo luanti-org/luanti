@@ -4,13 +4,15 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
-#include "irr_v3d.h"
-#include <iostream>
-#include <cassert>
+#include "between.h"
 #include "exceptions.h"
-#include "mapnode.h"
+#include "irr_v3d.h"
 #include "irrlicht_changes/printing.h"
+#include "irrlichttypes.h"
+#include "mapnode.h"
+
+#include <cassert>
+#include <iostream>
 
 class NodeDefManager;
 
@@ -336,9 +338,9 @@ private:
 		};
 		// If positions were sorted correctly this must always hold.
 		// Note that this still permits empty areas (where MinEdge = MaxEdge + 1).
-		assert(m_cache_extent.X >= 0 && m_cache_extent.X <= MAX_EXTENT);
-		assert(m_cache_extent.Y >= 0 && m_cache_extent.Y <= MAX_EXTENT);
-		assert(m_cache_extent.Z >= 0 && m_cache_extent.Z <= MAX_EXTENT);
+		assert_between_inclusive(m_cache_extent.X, 0, MAX_EXTENT);
+		assert_between_inclusive(m_cache_extent.Y, 0, MAX_EXTENT);
+		assert_between_inclusive(m_cache_extent.Z, 0, MAX_EXTENT);
 	}
 
 	static constexpr s32 MAX_EXTENT = S16_MAX - S16_MIN + 1;

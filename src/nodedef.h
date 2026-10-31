@@ -499,6 +499,28 @@ private:
 	u8 getAlphaForLegacy() const;
 };
 
+struct RealName : public std::string
+{
+public:
+	using std::string::string;
+
+	RealName(const std::string name) : std::string(name) {
+		assert(!this->empty());
+	}
+};
+
+struct NodeName : public std::string
+{
+public:
+	using std::string::string;
+
+	NodeName(const RealName name, const std::string defName) : std::string(name) {
+		assert(*this != "ignore");
+		assert(*this == defName);
+	}
+};
+
+
 /*!
  * @brief This class is for getting the actual properties of nodes from their
  * content ID.
@@ -622,12 +644,12 @@ public:
 	 * Registers a new node type with the given name and allocates a new
 	 * content ID.
 	 * Should not be called with an already existing name.
-	 * @param name name of the node, must match with `def.name`.
+	 * @param name_ name of the node, must match with `def.name`.
 	 * @param def definition of the registered node type.
 	 * @return ID of the registered node or @ref CONTENT_IGNORE if
 	 * the function could not allocate an ID.
 	 */
-	content_t set(const std::string &name, ContentFeatures &&def);
+	content_t set(const std::string &name_, ContentFeatures &&def);
 
 	/*!
 	 * Allocates a blank node ID for the given name.
@@ -635,14 +657,14 @@ public:
 	 * @return allocated ID or @ref CONTENT_IGNORE if could not allocate
 	 * an ID.
 	 */
-	content_t allocateDummy(const std::string &name);
+	content_t allocateDummy(const RealName &name);
 
 	/*!
 	 * Removes the given node name from the manager.
 	 * The node ID will remain in the manager, but won't be linked to any name.
 	 * @param name name to be removed
 	 */
-	void removeNode(const std::string &name);
+	void removeNode(const RealName &name);
 
 	/*!
 	 * Regenerates the alias list (a map from names to node IDs).
@@ -812,6 +834,17 @@ private:
 	 * Fast cache of content lighting flags.
 	 */
 	ContentLightingFlags m_content_lighting_flag_cache[CONTENT_MAX + 1L];
+};
+
+struct RealNodeDefManager
+{
+private:
+	const NodeDefManager *ndef;
+
+public:
+	RealNodeDefManager(const NodeDefManager *ndef) : ndef(ndef) { assert(ndef); }
+	constexpr const NodeDefManager *operator->() const { return ndef; }
+	operator const NodeDefManager*() const { return ndef; }
 };
 
 NodeDefManager *createNodeDefManager();

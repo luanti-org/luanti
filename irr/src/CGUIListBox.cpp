@@ -104,7 +104,7 @@ void CGUIListBox::removeItem(u32 id)
 		selectTime = os::Timer::getTime();
 	}
 
-	Items.erase(id);
+	Items.erase(Items.makeIndex(id));
 
 	recalculateItemHeight();
 }
@@ -630,7 +630,8 @@ s32 CGUIListBox::insertItem(u32 index, const wchar_t *text, s32 icon)
 	i.Text = text;
 	i.Icon = icon;
 
-	Items.insert(i, index);
+	auto idx = Items.makeIndex(index);
+	Items.insert(i, idx);
 	recalculateItemHeight();
 	recalculateItemWidth(icon);
 

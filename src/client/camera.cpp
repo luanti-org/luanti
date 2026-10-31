@@ -101,8 +101,7 @@ v3f Camera::getHeadPosition() const
 
 void Camera::notifyFovChange()
 {
-	LocalPlayer *player = m_client->getEnv().getLocalPlayer();
-	assert(player);
+	RealLocalPlayer player = m_client->getEnv().getLocalPlayer();
 
 	PlayerFovSpec spec = player->getFov();
 
@@ -710,8 +709,7 @@ void Camera::drawNametags()
 			else if (font_size > 32)
 				font_size &= ~1;
 		}
-		auto *font = g_fontengine->getFont(font_size);
-		assert(font);
+		RealFont font = g_fontengine->getFont(font_size);
 
 		const auto wtext = utf8_to_wide(nametag->text);
 		// Measure dimensions with escapes removed

@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include <ctime>
 #include "constants.h" // PEER_ID_INEXISTENT
-#include "player.h"
-#include "skyparams.h"
 #include "lighting.h"
 #include "network/networkprotocol.h" // session_t
+#include "player.h"
+#include "skyparams.h"
+#include <ctime>
 
 class PlayerSAO;
 
@@ -160,4 +160,15 @@ private:
 	Lighting m_lighting;
 
 	session_t m_peer_id = PEER_ID_INEXISTENT;
+};
+
+struct RealRemotePlayer
+{
+private:
+	RemotePlayer *player_;
+
+public:
+	constexpr RealRemotePlayer(RemotePlayer *player) : player_(player) { assert(player); }
+	constexpr RemotePlayer *operator->() const { return player_; }
+	constexpr operator RemotePlayer *() const { return player_; }
 };

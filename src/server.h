@@ -174,6 +174,39 @@ struct ModIPCStore {
 	inline void signal() { condvar.notify_all(); }
 };
 
+struct PeerID {
+private:
+	session_t id;
+
+public:
+	constexpr PeerID(const session_t id) : id(id) { assert(id != PEER_ID_INEXISTENT); }
+	constexpr operator session_t() const { return id; }
+};
+
+struct RealPlayerSAO
+{
+private:
+	PlayerSAO *sao_;
+
+public:
+	constexpr RealPlayerSAO(PlayerSAO *sao) : sao_(sao) { assert(sao); }
+	constexpr PlayerSAO *operator->() const { return sao_; }
+	constexpr operator PlayerSAO *() const { return sao_; }
+};
+
+struct RealProtocolVersion
+{
+private:
+	u16 protocol_version;
+
+public:
+	constexpr RealProtocolVersion(const u16 protocol_version) : protocol_version(protocol_version)
+	{
+		assert(protocol_version != 0);
+	}
+	constexpr operator u16() const { return protocol_version; }
+};
+
 class Server : public con::PeerHandler, public MapEventReceiver,
 		public IGameDef
 {
@@ -416,7 +449,7 @@ public:
 
 	void HandlePlayerHPChange(PlayerSAO *sao, const PlayerHPChangeReason &reason);
 	void SendPlayerHP(PlayerSAO *sao, bool effect);
-	void SendPlayerBreath(PlayerSAO *sao);
+	void SendPlayerBreath(RealPlayerSAO sao);
 	void SendInventory(RemotePlayer *player, bool incremental, bool skip_wield_anim = false);
 	void SendMovePlayer(PlayerSAO *sao);
 	void SendMovePlayerRel(session_t peer_id, const v3f &added_pos);
@@ -608,7 +641,7 @@ private:
 		const std::string &exclude_player,
 		const ParticleSpawnerParameters &p, u16 attached_id, u32 id);
 	/// @brief send particle spawner to one client (internal)
-	void SendAddParticleSpawner(session_t peer_id, u16 protocol_version,
+	void SendAddParticleSpawner(PeerID peer_id, RealProtocolVersion protocol_version,
 		const ParticleSpawnerParameters &p, u16 attached_id, u32 id);
 
 	void SendDeleteParticleSpawner(session_t peer_id, u32 id);

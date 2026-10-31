@@ -296,12 +296,8 @@ int MapgenV7::getSpawnLevelAtPoint(v2s16 p)
 }
 
 
-void MapgenV7::makeChunk(BlockMakeData *data)
+void MapgenV7::makeChunk(RealBlockMakeData data)
 {
-	// Pre-conditions
-	assert(data->vmanip);
-	assert(data->nodedef);
-
 	//TimeTaker t("makeChunk");
 
 	this->generating = true;

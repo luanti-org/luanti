@@ -192,10 +192,9 @@ void Schematic::blitToVManip(MMVManip *vm, v3s16 p, Rotation rot, bool force_pla
 }
 
 
-bool Schematic::placeOnVManip(MMVManip *vm, v3s16 p, u32 flags,
+bool Schematic::placeOnVManip(RealMMVManip vm, v3s16 p, u32 flags,
 	Rotation rot, bool force_place)
 {
-	assert(vm != NULL);
 	assert(schemdata && slice_probs);
 	sanity_check(m_ndef != NULL);
 

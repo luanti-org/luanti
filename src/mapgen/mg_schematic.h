@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "map.h"
 #include "mg_decoration.h"
 #include "util/string.h"
 
@@ -93,7 +94,7 @@ public:
 	bool serializeToLua(std::ostream *os, bool use_comments, u32 indent_spaces) const;
 
 	void blitToVManip(MMVManip *vm, v3s16 p, Rotation rot, bool force_place);
-	bool placeOnVManip(MMVManip *vm, v3s16 p, u32 flags, Rotation rot, bool force_place);
+	bool placeOnVManip(RealMMVManip vm, v3s16 p, u32 flags, Rotation rot, bool force_place);
 	void placeOnMap(ServerMap *map, v3s16 p, u32 flags, Rotation rot, bool force_place);
 
 	void applyProbabilities(v3s16 p0,

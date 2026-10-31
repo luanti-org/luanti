@@ -97,6 +97,19 @@ struct PausedNode {
 
 using PausedNodesList = std::vector<PausedNode>;
 
+struct NormalizedFloat
+{
+private:
+	float value_;
+
+public:
+	constexpr NormalizedFloat(const float value) : value_(value)
+	{
+		assert_between_inc_max(value, 0.0f, 1.0f);
+	}
+	constexpr operator float() const { return value_; }
+};
+
 /* This is not intended to be a public class. If a public class becomes
  * desirable then it may be better to create another 'wrapper' class that
  * hides most of the stuff in this class (nothing in this class is required
@@ -156,7 +169,7 @@ protected:
 	bool shouldShowTouchControls();
 
 	void dropSelectedItem(bool single_item = false);
-	void openConsole(float scale, const wchar_t *line=NULL);
+	void openConsole(NormalizedFloat scale, const wchar_t *line=NULL);
 	void toggleFreeMove();
 	void toggleFreeMoveAlt();
 	void togglePitchMove();

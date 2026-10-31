@@ -137,6 +137,16 @@ protected:
 	v3s16 m_csize;
 };
 
+struct RealBiomeGen
+{
+private:
+	BiomeGen *biomegen_;
+
+public:
+	constexpr RealBiomeGen(BiomeGen *biomegen) : biomegen_(biomegen) { assert(biomegen); }
+	constexpr BiomeGen *operator->() const { return biomegen_; }
+	constexpr operator BiomeGen *() const { return biomegen_; }
+};
 
 ////
 //// BiomeGen implementations
@@ -204,6 +214,16 @@ private:
 	std::vector<s16> m_transitions_y;
 };
 
+struct RealBiomeManager
+{
+private:
+	BiomeManager *biomemgr_;
+
+public:
+	constexpr RealBiomeManager(BiomeManager *biomemgr) : biomemgr_(biomemgr) { assert(biomemgr); }
+	constexpr BiomeManager *operator->() const { return biomemgr_; }
+	constexpr operator BiomeManager *() const { return biomemgr_; }
+};
 
 ////
 //// BiomeManager

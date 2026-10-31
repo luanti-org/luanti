@@ -49,6 +49,19 @@ struct CollisionMoveResult
 	std::vector<CollisionInfo> collisions;
 };
 
+struct MoveMagnitude
+{
+private:
+	f32 count_;
+
+public:
+	constexpr MoveMagnitude(const f32 magnitude) : count_(magnitude)
+	{
+		assert(magnitude >= 0.0f);
+	}
+	constexpr operator f32() const { return count_; }
+};
+
 /// Status if any problems were ever encountered during collision detection.
 /// @warning For unit test use only.
 extern bool g_collision_problems_encountered;

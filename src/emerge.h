@@ -47,6 +47,21 @@ struct BlockMakeData {
 	~BlockMakeData() { delete vmanip; }
 };
 
+struct RealBlockMakeData
+{
+private:
+	BlockMakeData *data_;
+
+public:
+	constexpr RealBlockMakeData(BlockMakeData *data) : data_(data) {
+		assert(data);
+		assert(data->vmanip);
+		assert(data->nodedef);
+	}
+	constexpr BlockMakeData *operator->() const { return data_; }
+	constexpr operator BlockMakeData *() const { return data_; }
+};
+
 // Result from processing an item on the emerge queue
 enum EmergeAction {
 	EMERGE_CANCELLED,

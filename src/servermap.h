@@ -4,8 +4,10 @@
 
 #pragma once
 
-#include <vector>
+#include "emerge.h"
+
 #include <memory>
+#include <vector>
 
 #include "map.h"
 #include "util/container.h" // UniqueQueue
@@ -16,7 +18,7 @@ class Settings;
 class MapDatabase;
 class EmergeManager;
 class ServerEnvironment;
-struct BlockMakeData;
+struct RealBlockMakeData;
 class MetricsBackend;
 
 // TODO: this could wrap all calls to MapDatabase, including locking
@@ -62,12 +64,12 @@ public:
 	bool blockpos_over_mapgen_limit(v3s16 p);
 	/// @brief copy data from map to prepare for mapgen
 	/// @return true if mapgen should actually happen
-	bool initBlockMake(v3s16 blockpos, BlockMakeData *data);
+	bool initBlockMake(v3s16 blockpos, RealBlockMakeData data);
 	/// @brief write data back to map after mapgen
 	/// @param now current game time
-	void finishBlockMake(BlockMakeData *data,
-		std::map<v3s16, MapBlock*> *changed_blocks, ServerEnvironment *env);
-	void cancelBlockMake(BlockMakeData *data);
+	void finishBlockMake(RealBlockMakeData data, std::map<v3s16, MapBlock *> *changed_blocks,
+						 ServerEnvironment *env);
+	void cancelBlockMake(RealBlockMakeData data);
 
 	/*
 		Get a block from somewhere.

@@ -447,6 +447,7 @@ endif()
 # a compiler error and you need to instead add it to client_SRCS or common_SRCS.
 set(independent_SRCS
 	activeobject.cpp
+	between.h
 	chat.cpp
 	content_nodemeta.cpp
 	convert_json.cpp

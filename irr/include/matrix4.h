@@ -13,6 +13,16 @@
 #include "rect.h"
 #include <cassert>
 
+/// Non-zero f32. Avoids division by zero.
+struct f32_nz {
+private:
+	f32 value_;
+
+public:
+	constexpr f32_nz(const f32 value) : value_(value) { assert(value != 0.f); }
+	constexpr operator f32() const { return value_; }
+};
+
 namespace core
 {
 
@@ -282,26 +292,33 @@ public:
 
 	//! Builds a right-handed perspective projection matrix based on a field of view
 	//\param zClipFromZero: Clipping of z can be projected from 0 to w when true (D3D style) and from -w to w when false (OGL style).
-	CMatrix4<T> &buildProjectionMatrixPerspectiveFovRH(f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar, bool zClipFromZero = true);
+	CMatrix4<T> &buildProjectionMatrixPerspectiveFovRH(f32 fieldOfViewRadians, f32_nz aspectRatio,
+			f32 zNear, f32 zFar, bool zClipFromZero = true);
 
 	//! Builds a left-handed perspective projection matrix based on a field of view
-	CMatrix4<T> &buildProjectionMatrixPerspectiveFovLH(f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar, bool zClipFromZero = true);
+	CMatrix4<T> &buildProjectionMatrixPerspectiveFovLH(f32 fieldOfViewRadians, f32_nz aspectRatio,
+			f32 zNear, f32 zFar, bool zClipFromZero = true);
 
 	//! Builds a left-handed perspective projection matrix based on a field of view, with far plane at infinity
-	CMatrix4<T> &buildProjectionMatrixPerspectiveFovInfinityLH(f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 epsilon = 0);
+	CMatrix4<T> &buildProjectionMatrixPerspectiveFovInfinityLH(f32 fieldOfViewRadians,
+			f32_nz aspectRatio, f32 zNear, f32 epsilon = 0);
 
 	//! Builds a right-handed perspective projection matrix.
-	CMatrix4<T> &buildProjectionMatrixPerspectiveRH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero = true);
+	CMatrix4<T> &buildProjectionMatrixPerspectiveRH(f32_nz widthOfViewVolume,
+			f32_nz heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero = true);
 
 	//! Builds a left-handed perspective projection matrix.
-	CMatrix4<T> &buildProjectionMatrixPerspectiveLH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero = true);
+	CMatrix4<T> &buildProjectionMatrixPerspectiveLH(f32_nz widthOfViewVolume,
+			f32_nz heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero = true);
 
 	//! Builds a left-handed orthogonal projection matrix.
 	//\param zClipFromZero: Clipping of z can be projected from 0 to 1 when true (D3D style) and from -1 to 1 when false (OGL style).
-	CMatrix4<T> &buildProjectionMatrixOrthoLH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero = true);
+	CMatrix4<T> &buildProjectionMatrixOrthoLH(f32_nz widthOfViewVolume, f32_nz heightOfViewVolume,
+			f32 zNear, f32 zFar, bool zClipFromZero = true);
 
 	//! Builds a right-handed orthogonal projection matrix.
-	CMatrix4<T> &buildProjectionMatrixOrthoRH(f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero = true);
+	CMatrix4<T> &buildProjectionMatrixOrthoRH(f32_nz widthOfViewVolume, f32_nz heightOfViewVolume,
+			f32 zNear, f32 zFar, bool zClipFromZero = true);
 
 	//! Builds a left-handed look-at matrix.
 	//! NOTE: upVector must not be collinear to the postion-to-target vector
@@ -1196,13 +1213,12 @@ inline CMatrix4<T> &CMatrix4<T>::operator=(const T &scalar)
 // Builds a right-handed perspective projection matrix based on a field of view
 template <class T>
 inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveFovRH(
-		f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar, bool zClipFromZero)
+		f32 fieldOfViewRadians, f32_nz aspectRatio, f32 zNear, f32 zFar, bool zClipFromZero)
 {
 	const f64 h = reciprocal(tan(fieldOfViewRadians * 0.5));
-	assert(aspectRatio != 0.f); // divide by zero
 	const T w = static_cast<T>(h / aspectRatio);
 
-	assert(zNear != zFar); // divide by zero
+	auto diff = f32_nz(zNear - zFar);
 	M[0] = w;
 	M[1] = 0;
 	M[2] = 0;
@@ -1224,12 +1240,12 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveFovRH(
 	M[15] = 0;
 
 	if (zClipFromZero) { // DirectX version
-		M[10] = (T)(zFar / (zNear - zFar));
-		M[14] = (T)(zNear * zFar / (zNear - zFar));
+		M[10] = (T)(zFar / diff);
+		M[14] = (T)(zNear * zFar / diff);
 	} else // OpenGL version
 	{
-		M[10] = (T)((zFar + zNear) / (zNear - zFar));
-		M[14] = (T)(2.0f * zNear * zFar / (zNear - zFar));
+		M[10] = (T)((zFar + zNear) / diff);
+		M[14] = (T)(2.0f * zNear * zFar / diff);
 	}
 
 	return *this;
@@ -1238,13 +1254,13 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveFovRH(
 // Builds a left-handed perspective projection matrix based on a field of view
 template <class T>
 inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveFovLH(
-		f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 zFar, bool zClipFromZero)
+		f32 fieldOfViewRadians, f32_nz aspectRatio, f32 zNear, f32 zFar, bool zClipFromZero)
 {
 	const f64 h = reciprocal(tan(fieldOfViewRadians * 0.5));
-	assert(aspectRatio != 0.f); // divide by zero
 	const T w = static_cast<T>(h / aspectRatio);
 
-	assert(zNear != zFar); // divide by zero
+	auto diff = f32_nz(zNear - zFar);
+	auto diff2 = -diff;
 	M[0] = w;
 	M[1] = 0;
 	M[2] = 0;
@@ -1266,12 +1282,12 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveFovLH(
 	M[15] = 0;
 
 	if (zClipFromZero) { // DirectX version
-		M[10] = (T)(zFar / (zFar - zNear));
-		M[14] = (T)(-zNear * zFar / (zFar - zNear));
+		M[10] = (T)(zFar / diff2);
+		M[14] = (T)(-zNear * zFar / diff2);
 	} else // OpenGL version
 	{
-		M[10] = (T)((zFar + zNear) / (zFar - zNear));
-		M[14] = (T)(2.0f * zNear * zFar / (zNear - zFar));
+		M[10] = (T)((zFar + zNear) / diff2);
+		M[14] = (T)(2.0f * zNear * zFar / diff);
 	}
 
 	return *this;
@@ -1280,10 +1296,9 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveFovLH(
 // Builds a left-handed perspective projection matrix based on a field of view, with far plane culling at infinity
 template <class T>
 inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveFovInfinityLH(
-		f32 fieldOfViewRadians, f32 aspectRatio, f32 zNear, f32 epsilon)
+		f32 fieldOfViewRadians, f32_nz aspectRatio, f32 zNear, f32 epsilon)
 {
 	const f64 h = reciprocal(tan(fieldOfViewRadians * 0.5));
-	assert(aspectRatio != 0.f); // divide by zero
 	const T w = static_cast<T>(h / aspectRatio);
 
 	M[0] = w;
@@ -1312,11 +1327,10 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveFovInfinityLH(
 // Builds a left-handed orthogonal projection matrix.
 template <class T>
 inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixOrthoLH(
-		f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
+		f32_nz widthOfViewVolume, f32_nz heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
 {
-	assert(widthOfViewVolume != 0.f);  // divide by zero
-	assert(heightOfViewVolume != 0.f); // divide by zero
-	assert(zNear != zFar);             // divide by zero
+	auto diff = f32_nz(zNear - zFar);
+	auto diff2 = -diff;
 	M[0] = (T)(2 / widthOfViewVolume);
 	M[1] = 0;
 	M[2] = 0;
@@ -1338,11 +1352,11 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixOrthoLH(
 	M[15] = 1;
 
 	if (zClipFromZero) {
-		M[10] = (T)(1 / (zFar - zNear));
-		M[14] = (T)(zNear / (zNear - zFar));
+		M[10] = (T)(1 / diff2);
+		M[14] = (T)(zNear / diff);
 	} else {
-		M[10] = (T)(2 / (zFar - zNear));
-		M[14] = (T) - (zFar + zNear) / (zFar - zNear);
+		M[10] = (T)(2 / diff2);
+		M[14] = (T) - (zFar + zNear) / diff2;
 	}
 
 	return *this;
@@ -1351,11 +1365,10 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixOrthoLH(
 // Builds a right-handed orthogonal projection matrix.
 template <class T>
 inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixOrthoRH(
-		f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
+		f32_nz widthOfViewVolume, f32_nz heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
 {
-	assert(widthOfViewVolume != 0.f);  // divide by zero
-	assert(heightOfViewVolume != 0.f); // divide by zero
-	assert(zNear != zFar);             // divide by zero
+	auto diff = f32_nz(zNear - zFar);
+	auto diff2 = -diff;
 	M[0] = (T)(2 / widthOfViewVolume);
 	M[1] = 0;
 	M[2] = 0;
@@ -1377,11 +1390,11 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixOrthoRH(
 	M[15] = 1;
 
 	if (zClipFromZero) {
-		M[10] = (T)(1 / (zNear - zFar));
-		M[14] = (T)(zNear / (zNear - zFar));
+		M[10] = (T)(1 / diff);
+		M[14] = (T)(zNear / diff);
 	} else {
-		M[10] = (T)(2 / (zNear - zFar));
-		M[14] = (T) - (zFar + zNear) / (zFar - zNear);
+		M[10] = (T)(2 / diff);
+		M[14] = (T) - (zFar + zNear) / diff2;
 	}
 
 	return *this;
@@ -1390,11 +1403,9 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixOrthoRH(
 // Builds a right-handed perspective projection matrix.
 template <class T>
 inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveRH(
-		f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
+				f32_nz widthOfViewVolume, f32_nz heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
 {
-	assert(widthOfViewVolume != 0.f);  // divide by zero
-	assert(heightOfViewVolume != 0.f); // divide by zero
-	assert(zNear != zFar);             // divide by zero
+	auto diff = f32_nz(zNear - zFar);
 	M[0] = (T)(2 * zNear / widthOfViewVolume);
 	M[1] = 0;
 	M[2] = 0;
@@ -1416,12 +1427,12 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveRH(
 	M[15] = 0;
 
 	if (zClipFromZero) { // DirectX version
-		M[10] = (T)(zFar / (zNear - zFar));
-		M[14] = (T)(zNear * zFar / (zNear - zFar));
+		M[10] = (T)(zFar / diff);
+		M[14] = (T)(zNear * zFar / diff);
 	} else // OpenGL version
 	{
-		M[10] = (T)((zFar + zNear) / (zNear - zFar));
-		M[14] = (T)(2.0f * zNear * zFar / (zNear - zFar));
+		M[10] = (T)((zFar + zNear) / diff);
+		M[14] = (T)(2.0f * zNear * zFar / diff);
 	}
 
 	return *this;
@@ -1430,11 +1441,10 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveRH(
 // Builds a left-handed perspective projection matrix.
 template <class T>
 inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveLH(
-		f32 widthOfViewVolume, f32 heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
+		f32_nz widthOfViewVolume, f32_nz heightOfViewVolume, f32 zNear, f32 zFar, bool zClipFromZero)
 {
-	assert(widthOfViewVolume != 0.f);  // divide by zero
-	assert(heightOfViewVolume != 0.f); // divide by zero
-	assert(zNear != zFar);             // divide by zero
+	auto diff = f32_nz(zNear - zFar);
+	auto diff2 = -diff;
 	M[0] = (T)(2 * zNear / widthOfViewVolume);
 	M[1] = 0;
 	M[2] = 0;
@@ -1456,12 +1466,12 @@ inline CMatrix4<T> &CMatrix4<T>::buildProjectionMatrixPerspectiveLH(
 	M[15] = 0;
 
 	if (zClipFromZero) { // DirectX version
-		M[10] = (T)(zFar / (zFar - zNear));
-		M[14] = (T)(zNear * zFar / (zNear - zFar));
+		M[10] = (T)(zFar / diff2);
+		M[14] = (T)(zNear * zFar / diff);
 	} else // OpenGL version
 	{
-		M[10] = (T)((zFar + zNear) / (zFar - zNear));
-		M[14] = (T)(2.0f * zNear * zFar / (zNear - zFar));
+		M[10] = (T)((zFar + zNear) / diff2);
+		M[14] = (T)(2.0f * zNear * zFar / diff);
 	}
 
 	return *this;

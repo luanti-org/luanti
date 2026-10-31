@@ -4,15 +4,20 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
+#include "IGUIFont.h"
 #include "inventory.h" // ItemStack
+#include "irrlichttypes.h"
 #include "util/basic_macros.h"
 #include "util/numeric.h"
-#include <plane3d.h>
 #include <array>
-#include <vector>
 #include <optional>
+#include <plane3d.h>
+#include <vector>
 
+namespace gui
+{
+class IGUIFont;
+}
 class LocalPlayer;
 struct MapDrawControl;
 class Client;
@@ -262,4 +267,14 @@ private:
 
 	// Last known light color of the player
 	video::SColor m_player_light_color;
+};
+
+struct RealFont
+{
+private:
+	gui::IGUIFont *value_;
+
+public:
+	constexpr RealFont(gui::IGUIFont *value) : value_(value) { assert(value); }
+	constexpr gui::IGUIFont *operator->() const { return value_; }
 };

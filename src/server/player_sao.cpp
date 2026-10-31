@@ -54,9 +54,8 @@ PlayerSAO::PlayerSAO(ServerEnvironment *env_, RemotePlayer *player_, session_t p
 
 // PlayerSAO::~PlayerSAO(): eventually deleted by `ActiveObjectMgr::removeObject`
 
-void PlayerSAO::finalize(RemotePlayer *player, const std::set<std::string> &privs)
+void PlayerSAO::finalize(RealRemotePlayer player, const std::set<std::string> &privs)
 {
-	assert(player);
 	m_player = player;
 	m_privs = privs;
 }

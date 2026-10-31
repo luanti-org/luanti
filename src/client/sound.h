@@ -40,6 +40,15 @@ private:
  */
 using sound_handle_t = int;
 
+struct RealSoundHandle {
+private:
+	sound_handle_t id;
+
+public:
+	constexpr RealSoundHandle(const sound_handle_t id) : id(id) { assert(id != 0); }
+	constexpr operator sound_handle_t() const { return id; }
+};
+
 constexpr sound_handle_t SOUND_HANDLE_T_MAX = std::numeric_limits<sound_handle_t>::max();
 
 class ISoundManager

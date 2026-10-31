@@ -285,7 +285,7 @@ template <typename Fn>
 void MapblockMeshGenerator::drawCuboid(const aabb3f &box,
 		const TileSpec *tiles, int tilecount, const f32 *txc, u8 mask, Fn &&face_lighter)
 {
-	assert(tilecount >= 1 && tilecount <= 6); // pre-condition
+	assert_between_inclusive(tilecount, 1, 6); // pre-condition
 
 	auto vertices = setupCuboidVertices(box, txc, tiles, tilecount, cur_node.p);
 

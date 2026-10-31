@@ -249,7 +249,7 @@ void CNullDriver::removeTexture(ITexture *texture)
 	for (u32 i = first; i <= (u32)last; i++) {
 		if (Textures[i].Surface == texture) {
 			texture->drop();
-			Textures.erase(i);
+			Textures.erase(Textures.makeIndex(i));
 			return;
 		}
 	}
@@ -1096,7 +1096,7 @@ void CNullDriver::removeOcclusionQuery(scene::ISceneNode *node)
 	s32 index = OcclusionQueries.linear_search(SOccQuery(node));
 	if (index != -1) {
 		node->setAutomaticCulling(node->getAutomaticCulling() & ~scene::EAC_OCC_QUERY);
-		OcclusionQueries.erase(index);
+		OcclusionQueries.erase(OcclusionQueries.makeIndex(index));
 	}
 }
 
@@ -1190,7 +1190,7 @@ void CNullDriver::removeRenderTarget(IRenderTarget *renderTarget)
 	for (u32 i = 0; i < RenderTargets.size(); ++i) {
 		if (RenderTargets[i] == renderTarget) {
 			RenderTargets[i]->drop();
-			RenderTargets.erase(i);
+			RenderTargets.erase(RenderTargets.makeIndex(i));
 
 			return;
 		}
@@ -1449,7 +1449,7 @@ void CNullDriver::deleteShaderMaterial(s32 material)
 	if (idx == MaterialRenderers.size() - 1) {
 		if (MaterialRenderers[idx].Renderer)
 			MaterialRenderers[idx].Renderer->drop();
-		MaterialRenderers.erase(idx);
+		MaterialRenderers.erase(MaterialRenderers.makeIndex(idx));
 		return;
 	}
 	// otherwise replace with a dummy renderer, we have to preserve the IDs
