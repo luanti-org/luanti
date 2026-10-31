@@ -12,6 +12,7 @@
 #include "constants.h"
 #include "hud_element.h"
 #include "mapnode.h"
+#include "node_modifier.h"
 #include "util/thread.h"
 #include <map>
 #include <string>
@@ -61,12 +62,15 @@ struct MinimapMarker {
 struct MinimapPixel {
 	//! The topmost node that the minimap displays.
 	MapNode n;
+	u16 tile_modifier = MODIFIER_IGNORE;
 	u16 height;
 	u16 air_count;
 };
 
 struct MinimapMapblock {
-	void getMinimapNodes(VoxelManipulator *vmanip, const NodeDefManager *nodedef, const v3s16 &pos);
+	void getMinimapNodes(VoxelManipulator *vmanip, const NodeDefManager *nodedef, const v3s16 &pos,
+			const AppliedNodeModifiersSnapshot &modifiers,
+			const NodeModifierManager &manager, v3s16 mesh_origin);
 
 	MinimapPixel data[MAP_BLOCKSIZE * MAP_BLOCKSIZE];
 };
@@ -164,6 +168,8 @@ public:
 	std::unique_ptr<MinimapData> data;
 
 private:
+	// Main-thread cache for modifier textures combined with node overlays.
+	std::map<std::pair<content_t, u16>, video::SColor> m_modifier_colors;
 	ITextureSource *m_tsrc = nullptr;
 	IShaderSource *m_shdrsrc = nullptr;
 	const NodeDefManager *m_ndef = nullptr;

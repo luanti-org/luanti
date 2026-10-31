@@ -117,6 +117,7 @@ void MinimapUpdateThread::getMap(v3s16 pos, s16 size, s16 height)
 		mmpixel.air_count = 0;
 		mmpixel.height = 0;
 		mmpixel.n = MapNode(CONTENT_AIR);
+		mmpixel.tile_modifier = MODIFIER_IGNORE;
 	}
 
 // draw the map
@@ -150,6 +151,7 @@ void MinimapUpdateThread::getMap(v3s16 pos, s16 size, s16 height)
 			out_pixel.air_count += in_pixel.air_count;
 			if (in_pixel.n.param0 != CONTENT_AIR) {
 				out_pixel.n = in_pixel.n;
+				out_pixel.tile_modifier = in_pixel.tile_modifier;
 				out_pixel.height = inmap_pos.Y + in_pixel.height;
 			}
 		}
@@ -410,20 +412,44 @@ void Minimap::blitMinimapPixelsToImageSurface(
 		MinimapPixel *mmpixel = &data->minimap_scan[x + z * data->mode.map_size];
 
 		const ContentFeatures &f = m_ndef->get(mmpixel->n);
-		const auto &tile = f.tiledef[0], &overlay = f.tiledef_overlay[0];
+		const TileDef *tile = &f.tiledef[0];
+		const TileDef &overlay = f.tiledef_overlay[0];
+		video::SColor minimap_color = f.visuals->minimap_color;
+
+		if (mmpixel->tile_modifier != MODIFIER_IGNORE) {
+			const NodeModifier &modifier
+					= client->getNodeModifierManager()->get(mmpixel->tile_modifier);
+
+			assert(!modifier.m_is_dummy && modifier.visuals && modifier.getTiles());
+
+			tile = &(*modifier.getTiles())[0];
+
+			if (overlay.name.empty()) {
+				minimap_color = modifier.visuals->getMinimapColor();
+			} else {
+				const auto key = std::make_pair(mmpixel->n.getContent(), mmpixel->tile_modifier);
+				auto found = m_modifier_colors.find(key);
+				if (found == m_modifier_colors.end()) {
+					std::string texture = tile->name + "^(" + overlay.name + ")";
+					found = m_modifier_colors.emplace(key,
+							m_tsrc->getTextureAverageColor(texture)).first;
+				}
+
+				minimap_color = found->second;
+			}
+		}
 
 		// Figure out the color of the top of the node
 		// Note that this is very simplified. The overlay and normal tile can be
 		// colored independently and the overlay might only cover half or less.
 		if (!overlay.name.empty() && overlay.has_color) {
 			tilecolor = overlay.color;
-		} else if (overlay.name.empty() && tile.has_color) {
-			tilecolor = tile.color;
+		} else if (overlay.name.empty() && tile->has_color) {
+			tilecolor = tile->color;
 		} else {
 			tilecolor = f.visuals->getColor(f, mmpixel->n.param2);
 		}
 		// Multiply with pre-generated "color of texture"
-		video::SColor &minimap_color = f.visuals->minimap_color;
 		tilecolor.setRed(tilecolor.getRed() * minimap_color.getRed() / 255);
 		tilecolor.setGreen(tilecolor.getGreen() * minimap_color.getGreen() / 255);
 		tilecolor.setBlue(tilecolor.getBlue() * minimap_color.getBlue() / 255);
@@ -730,7 +756,10 @@ void Minimap::updateActiveMarkers()
 //// MinimapMapblock
 ////
 
-void MinimapMapblock::getMinimapNodes(VoxelManipulator *vmanip, const NodeDefManager *nodedef, const v3s16 &pos)
+void MinimapMapblock::getMinimapNodes(VoxelManipulator *vmanip,
+		const NodeDefManager *nodedef, const v3s16 &pos,
+		const AppliedNodeModifiersSnapshot &modifiers,
+		const NodeModifierManager &manager, v3s16 mesh_origin)
 {
 	// Uses getNodeRefUnsafeCheckFlags
 	assert(vmanip->m_area.contains(pos));
@@ -741,6 +770,7 @@ void MinimapMapblock::getMinimapNodes(VoxelManipulator *vmanip, const NodeDefMan
 		s16 air_count = 0;
 		bool surface_found = false;
 		MinimapPixel *mmpixel = &data[z * MAP_BLOCKSIZE + x];
+		mmpixel->tile_modifier = MODIFIER_IGNORE;
 
 		for (s16 y = MAP_BLOCKSIZE -1; y >= 0; y--) {
 			v3s16 p(x, y, z);
@@ -749,6 +779,14 @@ void MinimapMapblock::getMinimapNodes(VoxelManipulator *vmanip, const NodeDefMan
 			if (!surface_found && f.drawtype != NDT_AIRLIKE) {
 				mmpixel->height = y;
 				mmpixel->n = n;
+				manager.resolveOverrides(modifiers.getViewAtPos(pos + p - mesh_origin),
+						MP_TileFirst, [&](u16 id, const NodeModifier &modifier, u64 matched) -> u64 {
+					if (!modifier.visuals)
+						return 0;
+
+					mmpixel->tile_modifier = id;
+					return matched;
+				});
 				surface_found = true;
 			} else if (f.drawtype == NDT_AIRLIKE) {
 				air_count++;

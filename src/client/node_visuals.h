@@ -49,11 +49,13 @@ public:
 	~NodeModifierVisuals();
 
 	const TileLayer &getTile(size_t face) const { return m_tiles.at(face); }
+	video::SColor getMinimapColor() const { return m_minimap_color; }
 
 	DISABLE_CLASS_COPY(NodeModifierVisuals);
 
 private:
 	std::array<TileLayer, 6> m_tiles;
+	video::SColor m_minimap_color{0, 0, 0, 0};
 };
 
 // Stores client only data needed to draw nodes, like textures and meshes

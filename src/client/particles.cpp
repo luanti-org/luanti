@@ -902,7 +902,7 @@ bool ParticleManager::getNodeParticleParams(Client *client, const MapNode &n,
 	const u64 tile_mask = u64{MP_TileFirst} << texid;
 
 	manager.resolveOverrides(modifiers, tile_mask | MP_Alpha,
-			[&](const NodeModifier &modifier, u64 matched) {
+			[&](u16, const NodeModifier &modifier, u64 matched) {
 		if (matched & tile_mask) {
 			if (modifier.visuals) {
 				definition = &(*modifier.getTiles())[texid];

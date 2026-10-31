@@ -176,7 +176,7 @@ ContentLightingFlags AppliedNodeModifiersView::resolveLighting(
 		const NodeModifierManager &manager, ContentLightingFlags base) const
 {
 	manager.resolveOverrides(*this, MP_LightSource,
-			[&](const NodeModifier &modifier, u64 matched) {
+			[&](u16, const NodeModifier &modifier, u64 matched) {
 		base.light_source = modifier.m_light_source;
 		return matched;
 	});
@@ -196,7 +196,7 @@ void AppliedNodeModifiersView::resolveTile(const NodeModifierManager &manager,
 	const u64 tile_mask = u64{MP_TileFirst} << face;
 
 	manager.resolveOverrides(*this, tile_mask | MP_Alpha,
-			[&](const NodeModifier &modifier, u64 matched) {
+			[&](u16, const NodeModifier &modifier, u64 matched) {
 		if (matched & tile_mask) {
 			if (modifier.visuals)
 				texture = &modifier;

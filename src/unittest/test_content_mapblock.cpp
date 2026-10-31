@@ -13,6 +13,7 @@
 #include "client/meshgen/collector.h"
 #include "client/node_visuals.h"
 #include "client/shader.h"
+#include "client/minimap.h"
 #include <memory>
 #include <sstream>
 #include "mesh_compare.h"
@@ -159,6 +160,7 @@ public:
 	void runTests(IGameDef *gamedef) override;
 	void testShaderWaving();
 	void testModifierTileResolution();
+	void testMinimapModifiers();
 	void testSpecialTileAlpha();
 	void testSimpleNode();
 	void testOverlayAlignment();
@@ -288,6 +290,7 @@ void TestMapblockMeshGenerator::runTests(IGameDef *gamedef)
 	set_light_decode_table();
 	TEST(testShaderWaving);
 	TEST(testModifierTileResolution);
+	TEST(testMinimapModifiers);
 	TEST(testSpecialTileAlpha);
 	TEST(testSimpleNode);
 	TEST(testOverlayAlignment);
@@ -542,4 +545,49 @@ void TestMapblockMeshGenerator::testSpecialTileAlpha()
 		UASSERT(buffer.layer.texture_id == 41 || buffer.layer.texture_id == 42);
 		UASSERTEQ(AlphaMode, buffer.layer.alpha, ALPHAMODE_CLIP);
 	}
+}
+
+void TestMapblockMeshGenerator::testMinimapModifiers()
+{
+	MockGameDef gamedef;
+	content_t stone = gamedef.addSimpleNode("stone", 42);
+	NodeModifierManager &manager = *gamedef.getWritableNodeModifierManager();
+	auto add = [&](const char *name) {
+		NodeModifier modifier(name);
+		std::array<TileDef, 6> tiles;
+		// No GPU resources are needed to test surface selection.
+		modifier.visuals = std::make_unique<NodeModifierVisuals>(
+				tiles, nullptr, nullptr, TextureSettings{});
+		tiles[0].name = "test.png";
+		modifier.setTiles(std::move(tiles));
+		return manager.add(std::move(modifier));
+	};
+	u16 first = add("test:first");
+	u16 last = add("test:last");
+	gamedef.finalize();
+
+	MeshMakeData data = gamedef.makeSingleNodeMMD();
+	const v3s16 origin(16, 0, 0);
+	for (s16 z = 0; z < MAP_BLOCKSIZE; ++z)
+	for (s16 y = 0; y < MAP_BLOCKSIZE; ++y)
+	for (s16 x = 0; x < MAP_BLOCKSIZE; ++x)
+		data.m_vmanip.setNode(origin + v3s16(x, y, z), {CONTENT_AIR});
+
+	const v3s16 surface = origin + v3s16(2, 5, 3);
+	data.m_vmanip.setNode(surface, {stone});
+	AppliedNodeModifiersStorage storage;
+	UASSERT(storage.set({2, 5, 3}, {first, last}));
+	data.m_node_modifiers.append(storage, origin);
+
+	MinimapMapblock block;
+	block.getMinimapNodes(&data.m_vmanip, gamedef.ndef(), origin,
+			data.m_node_modifiers, manager, {0, 0, 0});
+	UASSERTEQ(u16, block.data[3 * MAP_BLOCKSIZE + 2].tile_modifier, last);
+	UASSERTEQ(u16, block.data[0].tile_modifier, MODIFIER_IGNORE);
+
+	// A higher, unmodified node must hide the modified surface below it.
+	data.m_vmanip.setNode(surface + v3s16(0, 1, 0), {stone});
+	block.getMinimapNodes(&data.m_vmanip, gamedef.ndef(), origin,
+			data.m_node_modifiers, manager, {0, 0, 0});
+	UASSERTEQ(u16, block.data[3 * MAP_BLOCKSIZE + 2].tile_modifier, MODIFIER_IGNORE);
 }

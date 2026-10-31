@@ -495,7 +495,8 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 			if (data->m_vmanip.getNodeNoExNoEmerge(p).getContent() != CONTENT_IGNORE) {
 				MinimapMapblock *block = new MinimapMapblock;
 				m_minimap_mapblocks[mesh_grid.getOffsetIndex(ofs)] = block;
-				block->getMinimapNodes(&data->m_vmanip, data->m_nodedef, p);
+				block->getMinimapNodes(&data->m_vmanip, data->m_nodedef, p, data->m_node_modifiers,
+						*data->m_nodemod, bp * MAP_BLOCKSIZE);
 			}
 		}
 	}

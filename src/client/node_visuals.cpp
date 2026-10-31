@@ -164,6 +164,9 @@ NodeModifierVisuals::NodeModifierVisuals(const std::array<TileDef, 6> &definitio
 	for (size_t i = 0; i < m_tiles.size(); ++i) {
 		fillTileAttribs(&m_tiles[i], context, definition[i]);
 	}
+
+	if (settings.enable_minimap && !definition[0].name.empty())
+		m_minimap_color = tsrc->getTextureAverageColor(definition[0].name);
 }
 
 NodeModifierVisuals::~NodeModifierVisuals()

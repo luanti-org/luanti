@@ -356,7 +356,7 @@ static AlphaMode getItemNodeAlpha(const NodeModifierManager &manager,
 {
 	AlphaMode alpha = f.alpha;
 	manager.resolveOverrides(modifiers, MP_Alpha,
-			[&](const NodeModifier &modifier, u64 matched) {
+			[&](u16, const NodeModifier &modifier, u64 matched) {
 		alpha = modifier.m_alpha;
 		return matched;
 	});
