@@ -152,7 +152,7 @@ static int io_tostring (lua_State *L) {
   if (f == NULL)
     lua_pushliteral(L, "file (closed)");
   else
-    lua_pushfstring(L, "file (%p)", f);
+    lua_pushliteral(L, "file (open)");
   return 1;
 }
 

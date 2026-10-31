@@ -31,6 +31,7 @@ set(LUA_CORE_SRCS
 	lundump.c
 	lvm.c
 	lzio.c
+	xtea.c
 )
 
 # Lua library
