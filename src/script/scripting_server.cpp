@@ -40,7 +40,7 @@ extern "C" {
 
 ServerScripting::ServerScripting(Server* server):
 		ScriptApiBase(ScriptingType::Server),
-		ScriptApiAsync(server)
+		ScriptApiAsync()
 {
 	setGameDef(server);
 
@@ -91,7 +91,7 @@ ServerScripting::ServerScripting(Server* server):
 
 void ServerScripting::loadBuiltin()
 {
-	loadMod(Server::getBuiltinLuaPath() + DIR_DELIM "init.lua", BUILTIN_MOD_NAME);
+	loadMod(getBuiltinLuaPath() + DIR_DELIM "init.lua", BUILTIN_MOD_NAME);
 	checkSetByBuiltin();
 }
 
@@ -125,7 +125,28 @@ void ServerScripting::initAsync()
 	// not added: ModApiHttp async api can't really work together with our jobs
 	// not added: ModApiStorage is probably not thread safe(?)
 
-	asyncEngine.initialize(0);
+	asyncEngine.initialize(0, "async_game", !g_disable_mod_security);
+}
+
+void ServerScripting::reportAsyncError(const std::string &msg)
+{
+	getServer()->setAsyncFatalError(msg);
+}
+
+bool ServerScripting::onAsyncEnvSetup(ScriptApiBase *inner)
+{
+	auto *server = getServer();
+	assert(server);
+	const auto &list = server->m_async_init_files;
+	try {
+		for (auto &it : list)
+			inner->loadMod(it.second, it.first);
+	} catch (const ModError &e) {
+		errorstream << "Failed to load mod script inside async environment" << std::endl;
+		server->setAsyncFatalError(e.what());
+		return false;
+	}
+	return true;
 }
 
 void ServerScripting::InitializeModApi(lua_State *L, int top)

@@ -23,7 +23,8 @@ extern "C" {
 
 
 MainMenuScripting::MainMenuScripting(GUIEngine* guiengine):
-		ScriptApiBase(ScriptingType::MainMenu)
+		ScriptApiBase(ScriptingType::MainMenu),
+		ScriptApiAsync()
 {
 	setGuiEngine(guiengine);
 
@@ -46,6 +47,9 @@ MainMenuScripting::MainMenuScripting(GUIEngine* guiengine):
 	lua_setglobal(L, "INIT");
 
 	infostream << "SCRIPTAPI: Initialized main menu modules" << std::endl;
+
+	// Initialize async environment
+	asyncEngine.initialize(MAINMENU_NUM_ASYNC_THREADS, "async", true);
 }
 
 void MainMenuScripting::initializeModApi(lua_State *L, int top)
@@ -64,9 +68,6 @@ void MainMenuScripting::initializeModApi(lua_State *L, int top)
 	asyncEngine.registerStateInitializer(ModApiMainMenu::InitializeAsync);
 	asyncEngine.registerStateInitializer(ModApiUtil::InitializeAsync);
 	asyncEngine.registerStateInitializer(ModApiHttp::InitializeAsync);
-
-	// Initialize async environment
-	asyncEngine.initialize(MAINMENU_NUM_ASYNC_THREADS);
 }
 
 void MainMenuScripting::registerLuaClasses(lua_State *L, int top)
@@ -95,7 +96,7 @@ bool MainMenuScripting::mayModifyPath(const std::string &path)
 	return false;
 }
 
-bool MainMenuScripting::checkPathAccess(const std::string &abs_path, bool write_required,
+bool MainMenuScripting::checkPathInternal(const std::string &abs_path, bool write_required,
 	bool *write_allowed)
 {
 	if (mayModifyPath(abs_path)) {
@@ -107,14 +108,8 @@ bool MainMenuScripting::checkPathAccess(const std::string &abs_path, bool write_
 	return !write_required;
 }
 
-void MainMenuScripting::step()
+void MainMenuScripting::reportAsyncError(const std::string &msg)
 {
-	asyncEngine.step(getStack());
+	// TODO: display error in GUIEngine or exit?
+	errorstream << msg << std::endl;
 }
-
-u32 MainMenuScripting::queueAsync(std::string &&serialized_func,
-		std::string &&serialized_param)
-{
-	return asyncEngine.queueAsyncJob(std::move(serialized_func), std::move(serialized_param));
-}
-

@@ -11,18 +11,14 @@ extern "C" {
 #include <lualib.h>
 }
 
-#include "server.h"
 #include "s_async.h"
 #include "log.h"
-#include "config.h"
-#include "filesys.h"
 #include "settings.h"
 #include "porting.h"
+#include "filesys.h"
+#include "util/thread.h"
 #include "common/c_internal.h"
 #include "common/c_packer.h"
-#if CHECK_CLIENT_BUILD()
-#include "script/scripting_mainmenu.h"
-#endif
 #include "lua_api/l_base.h"
 
 // if a job is waiting for this duration, an additional thread will be spawned
@@ -69,9 +65,14 @@ void AsyncEngine::registerStateInitializer(StateInitializer func)
 }
 
 /******************************************************************************/
-void AsyncEngine::initialize(unsigned int numEngines)
+void AsyncEngine::initialize(unsigned int numEngines, const char *initType, bool enableSecurity)
 {
+	FATAL_ERROR_IF(initDone, "Already initialized");
 	initDone = true;
+
+	assert(parent && initType);
+	this->initType = initType;
+	this->enableSecurity = enableSecurity;
 
 	if (numEngines == 0) {
 		// Leave one core for the main thread and one for whatever else
@@ -91,7 +92,7 @@ void AsyncEngine::initialize(unsigned int numEngines)
 void AsyncEngine::addWorkerThread()
 {
 	AsyncWorkerThread *toAdd = new AsyncWorkerThread(this,
-		std::string("AsyncWorker-") + itos(workerThreads.size()));
+		std::string("AsyncWorker-") + std::to_string(workerThreads.size()));
 	workerThreads.push_back(toAdd);
 	toAdd->start();
 }
@@ -109,13 +110,6 @@ u32 AsyncEngine::queueAsyncJob(LuaJobInfo &&job)
 
 	jobQueueCounter.post();
 	return jobId;
-}
-
-u32 AsyncEngine::queueAsyncJob(std::string &&func, std::string &&params,
-		const std::string &mod_origin)
-{
-	LuaJobInfo to_add(std::move(func), std::move(params), mod_origin);
-	return queueAsyncJob(std::move(to_add));
 }
 
 u32 AsyncEngine::queueAsyncJob(std::string &&func, PackedValue *params,
@@ -189,10 +183,7 @@ void AsyncEngine::stepJobResults(lua_State *L)
 		luaL_checktype(L, -1, LUA_TFUNCTION);
 
 		lua_pushinteger(L, j.id);
-		if (j.result_ext)
-			script_unpack(L, j.result_ext.get());
-		else
-			lua_pushlstring(L, j.result.data(), j.result.size());
+		script_unpack(L, j.result_ext.get());
 
 		// Call handler
 		const char *origin = j.mod_origin.empty() ? nullptr : j.mod_origin.c_str();
@@ -265,35 +256,22 @@ bool AsyncEngine::prepareEnvironment(lua_State* L, int top)
 		init(L, top);
 	}
 
+	lua_pushstring(L, initType);
+	lua_setglobal(L, "INIT");
+
 	auto *script = ModApiBase::getScriptApiBase(L);
 	try {
-		script->loadMod(Server::getBuiltinLuaPath() + DIR_DELIM + "init.lua",
+		script->loadMod(ScriptApiBase::getBuiltinLuaPath() + DIR_DELIM "init.lua",
 			BUILTIN_MOD_NAME);
 		script->checkSetByBuiltin();
 	} catch (const ModError &e) {
 		errorstream << "Execution of async base environment failed: "
 			<< e.what() << std::endl;
-		if (server)
-			server->setAsyncFatalError(e.what());
-		// FIXME: there's no general way to report such fatal errors to our "owner"
-		// (e.g. GUIEngine)
+		parent->reportAsyncError(e.what());
 		return false;
 	}
 
-	// Load per mod stuff
-	if (server) {
-		const auto &list = server->m_async_init_files;
-		try {
-			for (auto &it : list)
-				script->loadMod(it.second, it.first);
-		} catch (const ModError &e) {
-			errorstream << "Failed to load mod script inside async environment." << std::endl;
-			server->setAsyncFatalError(e.what());
-			return false;
-		}
-	}
-
-	return true;
+	return parent->onAsyncEnvSetup(script);
 }
 
 AsyncWorkerThread::AsyncWorkerThread(AsyncEngine* jobDispatcher,
@@ -304,23 +282,18 @@ AsyncWorkerThread::AsyncWorkerThread(AsyncEngine* jobDispatcher,
 {
 	lua_State *L = getStack();
 
-	if (jobDispatcher->server) {
-		setGameDef(jobDispatcher->server);
+	// Inherit gamedef from parent
+	if (jobDispatcher->parent->getGameDef())
+		setGameDef(jobDispatcher->parent->getGameDef());
 
-		if (!g_disable_mod_security)
-			initializeSecurity();
-	} else {
-		// Security is mandatory in the main menu context
+	if (jobDispatcher->enableSecurity)
 		initializeSecurity();
-	}
+	else
+		infostream << "AsyncWorkerThread: mod security is disabled!" << std::endl;
 
 	// Prepare job lua environment
 	lua_getglobal(L, "core");
 	int top = lua_gettop(L);
-
-	// Push builtin initialization type
-	lua_pushstring(L, jobDispatcher->server ? "async_game" : "async");
-	lua_setglobal(L, "INIT");
 
 	if (!jobDispatcher->prepareEnvironment(L, top)) {
 		// can't throw from here so we're stuck with this
@@ -337,17 +310,7 @@ AsyncWorkerThread::~AsyncWorkerThread()
 bool AsyncWorkerThread::checkPathInternal(const std::string &abs_path,
 	bool write_required, bool *write_allowed)
 {
-	auto *L = getStack();
-	// dispatch to the right implementation. this should be refactored some day...
-	if (jobDispatcher->server) {
-		return ScriptApiSecurity::checkPathWithGamedef(L, abs_path, write_required, write_allowed);
-	} else {
-#if CHECK_CLIENT_BUILD()
-		return MainMenuScripting::checkPathAccess(abs_path, write_required, write_allowed);
-#else
-		FATAL_ERROR("should never get here");
-#endif
-	}
+	return jobDispatcher->parent->checkPathInternal(abs_path, write_required, write_allowed);
 }
 
 void* AsyncWorkerThread::run()
@@ -360,10 +323,7 @@ void* AsyncWorkerThread::run()
 	int error_handler = PUSH_ERROR_HANDLER(L);
 
 	auto report_error = [this] (const ModError &e) {
-		if (jobDispatcher->server)
-			jobDispatcher->server->setAsyncFatalError(e.what());
-		else
-			errorstream << e.what() << std::endl;
+		jobDispatcher->parent->reportAsyncError(e.what());
 	};
 
 	lua_getglobal(L, "core");
@@ -378,8 +338,6 @@ void* AsyncWorkerThread::run()
 		if (!jobDispatcher->getJob(&j) || stopRequested())
 			continue;
 
-		const bool use_ext = !!j.params_ext;
-
 		lua_getfield(L, -1, "job_processor");
 		if (lua_isnil(L, -1))
 			FATAL_ERROR("Unable to get async job processor!");
@@ -389,10 +347,7 @@ void* AsyncWorkerThread::run()
 			errorstream << "ASYNC WORKER: Unable to deserialize function" << std::endl;
 			lua_pushnil(L);
 		}
-		if (use_ext)
-			script_unpack(L, j.params_ext.get());
-		else
-			lua_pushlstring(L, j.params.data(), j.params.size());
+		script_unpack(L, j.params_ext.get());
 
 		// Call it
 		setOriginDirect(j.mod_origin.empty() ? nullptr : j.mod_origin.c_str());
@@ -405,17 +360,11 @@ void* AsyncWorkerThread::run()
 			}
 		} else {
 			// Fetch result
-			if (use_ext) {
-				try {
-					j.result_ext.reset(script_pack(L, -1));
-				} catch (const ModError &e) {
-					report_error(e);
-					result = LUA_ERRERR;
-				}
-			} else {
-				size_t length;
-				const char *retval = lua_tolstring(L, -1, &length);
-				j.result.assign(retval, length);
+			try {
+				j.result_ext.reset(script_pack(L, -1));
+			} catch (const ModError &e) {
+				report_error(e);
+				result = LUA_ERRERR;
 			}
 		}
 

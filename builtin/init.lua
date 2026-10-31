@@ -70,6 +70,8 @@ elseif INIT == "mainmenu" then
 	if not custom_loaded then
 		dofile(core.get_mainmenu_path() .. DIR_DELIM .. "init.lua")
 	end
+elseif INIT == "cli" then
+	dofile(scriptdir .. "mainmenu" .. DIR_DELIM .. "async.lua")
 elseif INIT == "async"  then
 	dofile(asyncpath .. "mainmenu.lua")
 elseif INIT == "async_game" then

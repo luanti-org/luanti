@@ -11,7 +11,6 @@
 #include "script/common/c_converter.h"
 #include "script/common/helper.h"
 #include "irrlicht_changes/printing.h"
-#include "server.h"
 
 namespace {
 	class MyScriptApi : virtual public ScriptApiBase {
@@ -57,7 +56,7 @@ void MyScriptApi::init()
 
 	lua_pop(L, 1);
 
-	loadMod(Server::getBuiltinLuaPath() + DIR_DELIM + "init.lua", BUILTIN_MOD_NAME);
+	loadMod(getBuiltinLuaPath() + DIR_DELIM "init.lua", BUILTIN_MOD_NAME);
 	checkSetByBuiltin();
 }
 
