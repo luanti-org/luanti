@@ -335,6 +335,8 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 			material_alpha = alpha;
 		} else if (alpha != ALPHAMODE_OPAQUE)
 			material_alpha = ALPHAMODE_BLEND;
+		else
+			material_alpha = alpha;
 		break;
 	case NDT_GLASSLIKE_FRAMED_OPTIONAL:
 		drawtype = tsettings.connected_glass ? NDT_GLASSLIKE_FRAMED : NDT_GLASSLIKE;
