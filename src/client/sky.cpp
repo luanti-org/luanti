@@ -84,6 +84,8 @@ Sky::Sky(s32 id, RenderingEngine *rendering_engine, ITextureSource *tsrc, IShade
 	m_sky_params.body_orbit_tilt = g_settings->getFloat("shadow_sky_body_orbit_tilt", -60., 60.);
 	m_sky_params.fog_start = rangelim(g_settings->getFloat("fog_start"), 0.0f, 0.99f);
 
+	generateReflectionTextures(rendering_engine->get_video_driver());
+
 	setStarCount(1000);
 }
 
@@ -721,6 +723,53 @@ static void getTextureAsImage(video::IImage *&dst, const std::string &name, ITex
 			texture->getColorFormat(), texture->getSize(),
 			texture->lock(video::ETLM_READ_ONLY));
 		texture->unlock();
+	}
+}
+
+void Sky::generateReflectionTextures(video::IVideoDriver *driver)
+{
+	const u32 size = 64;
+	const float center = (size - 1) * 0.5f;
+
+	auto generate = [&](const float sizes[], int nlayers, const float alphas[],
+			const char *name) -> video::ITexture * {
+		video::IImage *img = driver->createImage(video::ECF_A8R8G8B8,
+			core::dimension2du(size, size));
+		img->fill(video::SColor(0, 255, 255, 255));
+
+		for (u32 y = 0; y < size; y++) {
+			for (u32 x = 0; x < size; x++) {
+				float fx = (x - center) / center;
+				float fy = (y - center) / center;
+				float dist = std::max(std::fabs(fx), std::fabs(fy));
+
+				float a = 0.0f;
+				for (int i = 0; i < nlayers; i++) {
+					if (dist <= sizes[i]) {
+						a = alphas[i] + a * (1.0f - alphas[i]);
+					}
+				}
+				a = std::min(a, 1.0f);
+				img->setPixel(x, y, video::SColor(
+					(u32)(a * 255), 255, 255, 255));
+			}
+		}
+
+		video::ITexture *tex = driver->addTexture(name, img);
+		img->drop();
+		return tex;
+	};
+
+	{
+		const float sizes[] = {1.0f, 1.0f/1.7f*1.2f, 1.0f/1.7f, 1.0f/1.7f*0.7f};
+		const float alphas[] = {0.05f, 0.15f, 1.0f, 1.0f};
+		m_sun_reflection_texture = generate(sizes, 4, alphas, "__sun_reflection");
+	}
+
+	{
+		const float sizes[] = {1.0f, 1.0f/1.9f*1.3f, 1.0f/1.9f, 1.0f/1.9f*0.6f};
+		const float alphas[] = {0.05f, 0.15f, 1.0f, 1.0f};
+		m_moon_reflection_texture = generate(sizes, 4, alphas, "__moon_reflection");
 	}
 }
 
