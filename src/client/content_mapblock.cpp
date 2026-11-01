@@ -207,7 +207,7 @@ static std::array<video::S3DVertex, 24> setupCuboidVertices(const aabb3f &box, c
 	return vertices;
 }
 
-static void applyTileUV(v2f &tcoords, int face, const TileLayer &layer,
+static v2f applyTileUV(v2f tcoords, int face, const TileLayer &layer,
 		TileRotation rotation, v3s16 alignment)
 {
 	if (layer.world_aligned) {
@@ -255,6 +255,8 @@ static void applyTileUV(v2f &tcoords, int face, const TileLayer &layer,
 			break;
 		}
 	}
+
+	return tcoords;
 }
 
 enum class QuadDiagonal {
@@ -303,8 +305,7 @@ void MapblockMeshGenerator::drawCuboid(const aabb3f &box,
 				continue;
 
 			for (int j = 0; j < 4; ++j) {
-				face_vertices[j].TCoords = original_uv[j];
-				applyTileUV(face_vertices[j].TCoords, face, layer,
+				face_vertices[j].TCoords = applyTileUV(original_uv[j], face, layer,
 						tile.rotation, cur_node.p);
 			}
 			collector->append(layer, face_vertices, 4, indices, 6, layernum);
