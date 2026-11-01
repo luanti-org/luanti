@@ -104,7 +104,8 @@ public:
 	//! draws a vertex primitive list in 2d
 	virtual void draw2DVertexPrimitiveList(const void *vertices, u32 vertexCount,
 			const void *indexList, u32 primitiveCount,
-			E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType) override;
+			E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType,
+			const core::rect<s32> *clipRect = nullptr) override;
 
 	//! queries the features of the driver, returns true if feature is available
 	bool queryFeature(E_VIDEO_DRIVER_FEATURE feature) const override
