@@ -11,6 +11,8 @@
 #include <unordered_set>
 #include "metadata.h"
 
+#include <map>
+
 class ModStorageDatabase;
 struct ModSpec;
 
@@ -73,6 +75,8 @@ struct ModSpec
 
 	void checkAndLog() const;
 
+	static bool mod_load_errors_logged;
+	static std::map<std::string, std::set<std::string>> mod_load_error_msgs;
 	static void logModLoadErrors();
 };
 

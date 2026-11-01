@@ -19,24 +19,26 @@ bool ModSpec::mod_load_errors_logged = false;
 std::map<std::string, std::set<std::string>> ModSpec::mod_load_error_msgs;
 
 void ModSpec::logModLoadErrors() {
-	if (!ModSpec::mod_load_errors_logged) {
-		// Log error messages
-		auto error_handling_mode = get_mod_error_handling_mode();
-		if(!ModSpec::mod_load_error_msgs.empty() && error_handling_mode != ModErrorHandlingMode::IgnoreModError) {
-			std::ostringstream os;
-			for(const auto& pair: ModSpec::mod_load_error_msgs) {
-				const auto& path = pair.first;
-				for (const auto& msg : pair.second) {
-					os << "Mod at " << path << ":" << std::endl;
-					os << "\t" << msg << std::endl;
-				}
-			}
-			if (error_handling_mode == ModErrorHandlingMode::ThrowModError)
-				throw ModError(os.str());
-			else
-				warningstream << os.str();
-		}
+	if (ModSpec::mod_load_errors_logged)
+		return;
+
+	// Log error messages
+	auto error_handling_mode = get_mod_error_handling_mode();
+	if (ModSpec::mod_load_error_msgs.empty() ||
+		error_handling_mode == ModErrorHandlingMode::IgnoreModError)
+	{
+		ModSpec::mod_load_errors_logged = true;
+		return;
 	}
+
+	std::ostringstream os;
+	for (const auto &[path, msgs] : ModSpec::mod_load_error_msgs)
+		for (const auto &msg : msgs)
+			os << "Mod at " << path << ":" << std::endl << "\t" << msg << std::endl;
+	if (error_handling_mode == ModErrorHandlingMode::ThrowModError)
+		throw ModError(os.str());
+	else
+		warningstream << os.str();
 
 	ModSpec::mod_load_errors_logged = true;
 }

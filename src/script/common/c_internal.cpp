@@ -208,15 +208,16 @@ ModErrorHandlingMode get_mod_error_handling_mode()
 	static thread_local ModErrorHandlingMode ret = ModErrorHandlingMode::IgnoreModError;
 
 	// Only read settings on first call
-	if (!configured) {
-		std::string value = g_settings->get("mod_error_handling");
-		if (value == "log") {
-			ret = ModErrorHandlingMode::LogModError;
-		} else if (value == "error") {
-			ret = ModErrorHandlingMode::ThrowModError;
-		}
-		configured = true;
+	if (configured)
+		return ret;
+
+	std::string value = g_settings->get("mod_error_handling");
+	if (value == "log") {
+		ret = ModErrorHandlingMode::LogModError;
+	} else if (value == "error") {
+		ret = ModErrorHandlingMode::ThrowModError;
 	}
+	configured = true;
 
 	return ret;
 }

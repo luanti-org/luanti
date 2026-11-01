@@ -23,22 +23,19 @@ void ModErrors::logErrors() {
 		return;
 	}
 
-	for (auto &pair : mod_errors) {
-		const auto path = pair.first;
-		SingleModErrors& err = pair.second;
+	for (auto &[path, err] : mod_errors) {
+		if (err.was_handled || err.messages.empty())
+			continue;
 
-		if (!err.was_handled && !err.messages.empty()) {
-			err.was_handled = true;
-			std::ostringstream os;
-			os << "Mod at " << path << ":" << std::endl;
-			for (const auto& msg : err.messages) {
-				os << "\t" << msg << std::endl;
-			}
-			if (error_handling_mode == ModErrorHandlingMode::ThrowModError)
-				throw ModError(os.str());
-			else
-				warningstream << os.str();
-		}
+		err.was_handled = true;
+		std::ostringstream os;
+		os << "Mod at " << path << ":" << std::endl;
+		for (const auto &msg : err.messages)
+			os << "\t" << msg << std::endl;
+		if (error_handling_mode == ModErrorHandlingMode::ThrowModError)
+			throw ModError(os.str());
+		else
+			warningstream << os.str();
 	}
 }
 
