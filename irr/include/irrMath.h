@@ -170,6 +170,19 @@ inline bool equals(const T a, const T b)
 	return a == b;
 }
 
+/// Similar to a cast from a float to the numeric type,
+/// but rounds instead of truncating if the target type is integral.
+/// @note x must be f32 or f64
+template <class T, class U>
+inline T rounding_cast(U x)
+{
+	static_assert(std::is_same_v<U, f32> || std::is_same_v<U, f64>);
+	if constexpr (std::is_integral<T>::value)
+		return (T)std::round(x);
+	else
+		return (T)x;
+}
+
 //! returns if a equals b, taking possible rounding errors into account
 template <class T, std::enable_if_t<std::is_floating_point<T>::value, bool> = true>
 inline bool equals(const T a, const T b, const T tolerance = roundingError<T>())

@@ -265,7 +265,7 @@ public:
 		X -= center.X;
 		Y -= center.Y;
 
-		set((T)(X * cs - Y * sn), (T)(X * sn + Y * cs));
+		set(rounding_cast<T>(X * cs - Y * sn), rounding_cast<T>(X * sn + Y * cs));
 
 		X += center.X;
 		Y += center.Y;
