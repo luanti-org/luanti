@@ -5,6 +5,7 @@
 #include "catch_amalgamated.hpp"
 #include "irrMath.h"
 #include "matrix4.h"
+#include "irr_v2d.h"
 #include "irr_v3d.h"
 #include "quaternion.h"
 #include <functional>
@@ -104,4 +105,55 @@ SECTION("matrix-euler roundtrip") {
 	});
 }
 
+}
+
+TEST_CASE("integer vectors are rotated with rounding instead of truncation", "[irr]")
+{
+	// Rotating integer vectors must not rely on sin()/cos() returning exactly
+	// 1 or 0 at multiples of 90 degrees: a result just below 1 would truncate
+	// to 0. Use 45 degrees, where truncation and rounding differ for sure.
+	SECTION("vector3d")
+	{
+		v3s16 v(1, 0, 0);
+		v.rotateXZBy(45);
+		CHECK(v == v3s16(1, 0, 1));
+		v = v3s16(-1, 0, 0);
+		v.rotateXZBy(45);
+		CHECK(v == v3s16(-1, 0, -1));
+
+		v = v3s16(1, 0, 0);
+		v.rotateXYBy(45);
+		CHECK(v == v3s16(1, 1, 0));
+
+		v = v3s16(0, 1, 0);
+		v.rotateYZBy(45);
+		CHECK(v == v3s16(0, 1, 1));
+
+		for (int deg = -360; deg <= 360; deg += 90) {
+			v = v3s16(3, 5, 7);
+			v.rotateYZBy(deg);
+			CHECK(v.getLengthSQ() == 9 + 25 + 49);
+			CHECK(v.X == 3);
+
+			v = v3s16(3, 5, 7);
+			v.rotateXZBy(deg);
+			CHECK(v.getLengthSQ() == 9 + 25 + 49);
+			CHECK(v.Y == 5);
+
+			v = v3s16(3, 5, 7);
+			v.rotateXYBy(deg);
+			CHECK(v.getLengthSQ() == 9 + 25 + 49);
+			CHECK(v.Z == 7);
+		}
+	}
+
+	SECTION("vector2d")
+	{
+		v2s32 v(1, 0);
+		v.rotateBy(45);
+		CHECK(v == v2s32(1, 1));
+		v = v2s32(-1, 0);
+		v.rotateBy(45);
+		CHECK(v == v2s32(-1, -1));
+	}
 }

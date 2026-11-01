@@ -292,7 +292,7 @@ public:
 		f64 sn = sin(degrees);
 		X -= center.X;
 		Z -= center.Z;
-		set((T)(X * cs - Z * sn), Y, (T)(X * sn + Z * cs));
+		set(rounding_cast<T>(X * cs - Z * sn), Y, rounding_cast<T>(X * sn + Z * cs));
 		X += center.X;
 		Z += center.Z;
 	}
@@ -307,7 +307,7 @@ public:
 		f64 sn = sin(degrees);
 		X -= center.X;
 		Y -= center.Y;
-		set((T)(X * cs - Y * sn), (T)(X * sn + Y * cs), Z);
+		set(rounding_cast<T>(X * cs - Y * sn), rounding_cast<T>(X * sn + Y * cs), Z);
 		X += center.X;
 		Y += center.Y;
 	}
@@ -322,7 +322,7 @@ public:
 		f64 sn = sin(degrees);
 		Z -= center.Z;
 		Y -= center.Y;
-		set(X, (T)(Y * cs - Z * sn), (T)(Y * sn + Z * cs));
+		set(X, rounding_cast<T>(Y * cs - Z * sn), rounding_cast<T>(Y * sn + Z * cs));
 		Z += center.Z;
 		Y += center.Y;
 	}
