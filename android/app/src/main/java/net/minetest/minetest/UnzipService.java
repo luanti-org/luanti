@@ -155,10 +155,9 @@ public class UnzipService extends IntentService {
 					continue;
 				}
 				int progress = 100 * ++per / size;
-				// On some vendor ROMs the app's broadcasts are cut off after a
-				// burst of messages, so keep the number of progress broadcasts
-				// low enough for the completion broadcast to be delivered.
-				if (progress - lastProgress >= 2) {
+				// The system might throttle broadcasts so don't spam them,
+				// or the final completion broadcast might be missed.
+				if (progress != lastProgress) {
 					publishProgress(notificationBuilder, R.string.loading, progress);
 					lastProgress = progress;
 				}
