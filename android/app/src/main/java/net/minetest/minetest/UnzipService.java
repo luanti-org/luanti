@@ -144,6 +144,7 @@ public class UnzipService extends IntentService {
 
 		int readLen;
 		byte[] readBuffer = new byte[16384];
+		int lastProgress = -1;
 		try (FileInputStream fileInputStream = new FileInputStream(zipFile);
 		     ZipInputStream zipInputStream = new ZipInputStream(fileInputStream)) {
 			ZipEntry ze;
@@ -153,7 +154,14 @@ public class UnzipService extends IntentService {
 					Utils.createDirs(userDataDirectory, ze.getName());
 					continue;
 				}
-				publishProgress(notificationBuilder, R.string.loading, 100 * ++per / size);
+				int progress = 100 * ++per / size;
+				// On some vendor ROMs the app's broadcasts are cut off after a
+				// burst of messages, so keep the number of progress broadcasts
+				// low enough for the completion broadcast to be delivered.
+				if (progress - lastProgress >= 2) {
+					publishProgress(notificationBuilder, R.string.loading, progress);
+					lastProgress = progress;
+				}
 				File destFile = new File(userDataDirectory, ze.getName());
 				try (OutputStream outputStream = new FileOutputStream(destFile)) {
 					while ((readLen = zipInputStream.read(readBuffer)) != -1) {
