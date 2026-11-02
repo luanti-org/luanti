@@ -510,8 +510,139 @@ video::SColor MapblockMeshGenerator::blendLightColor(const v3f &vertex_pos,
 	video::SColor color = encode_light(light.getPair(MYMAX(0.0f, vertex_normal.Y)),
 			cur_node.f->light_source);
 	if (!cur_node.f->light_source)
-		applyFacesShading(color, vertex_normal);
+		applyShadingAndGlow(color, vertex_pos, vertex_normal);
 	return color;
+}
+
+static constexpr f32 GLOW_RADIUS = 3.0f; // nodes
+static constexpr s16 GLOW_NODE_RANGE = 3; // ceil(GLOW_RADIUS)
+static constexpr f32 GLOW_STRENGTH = 400.0f; // light added (0-255 scale) per 1.0 of glow weight
+static constexpr u8 GLOW_MIN_LEVEL = 8;
+
+void MapblockMeshGenerator::collectGlowEmitters()
+{
+	block_emitters.clear();
+	if (!data->m_smooth_lighting || !data->m_light_glow)
+		return;
+	const s16 lo = -GLOW_NODE_RANGE;
+	const s16 hi = data->m_side_length + GLOW_NODE_RANGE - 1;
+	for (s16 z = lo; z <= hi; z++)
+	for (s16 y = lo; y <= hi; y++)
+	for (s16 x = lo; x <= hi; x++) {
+		v3s16 p(x, y, z);
+		const MapNode &n = data->m_vmanip.getNodeRefUnsafeCheckFlags(blockpos_nodes + p);
+		u8 level = nodedef->get(n).light_source;
+		if (level > GLOW_MIN_LEVEL)
+			block_emitters.push_back({p, level});
+	}
+}
+
+void MapblockMeshGenerator::prepareNodeGlow()
+{
+	node_emitters.clear();
+	node_emitters_pending = !block_emitters.empty() && !cur_node.f->light_source;
+}
+
+// Deferred to the first vertex, so nodes that draw nothing skip the scan
+void MapblockMeshGenerator::collectNodeEmitters()
+{
+	node_emitters_pending = false;
+	for (const GlowEmitter &e : block_emitters) {
+		v3s16 d = e.p - cur_node.p;
+		if (std::abs(d.X) <= GLOW_NODE_RANGE && std::abs(d.Y) <= GLOW_NODE_RANGE
+				&& std::abs(d.Z) <= GLOW_NODE_RANGE)
+			node_emitters.push_back(e);
+	}
+}
+
+// Walks from the vertex to the emitter in half-node steps
+bool MapblockMeshGenerator::isGlowOccluded(const v3f &local_pos, const v3f &normal,
+		const GlowEmitter &e)
+{
+	v3f start = local_pos + normal * 0.02f;
+	v3s16 off = e.p - cur_node.p;
+	v3f delta = v3f(off.X, off.Y, off.Z) - start;
+	f32 dist = delta.getLength();
+	int steps = (int)std::ceil(dist / 0.5f);
+	for (int i = 1; i < steps; i++) {
+		v3f q = start + delta * ((f32)i / steps);
+		v3s16 c = cur_node.p + v3s16(floorf(q.X + 0.5f), floorf(q.Y + 0.5f),
+				floorf(q.Z + 0.5f));
+		if (c == cur_node.p)
+			continue;
+		if (c == e.p)
+			return false;
+		const MapNode &n = data->m_vmanip.getNodeRefUnsafeCheckFlags(blockpos_nodes + c);
+		if (n.getContent() == CONTENT_IGNORE)
+			continue;
+		if (!nodedef->get(n).light_propagates)
+			return true;
+	}
+	return false;
+}
+
+//  local_pos - vertex position relative to the node centre, in BS space
+f32 MapblockMeshGenerator::applyShadingAndGlow(video::SColor &color,
+		const v3f &local_pos, const v3f &normal, bool shade)
+{
+	video::SColor shaded = color;
+	if (shade)
+		applyFacesShading(shaded, normal);
+	f32 normal_len = normal.getLength();
+	// No artificial light at this vertex, so no emitter can see it
+	if (color.getAlpha() == 255 || color.color == 0) {
+		color = shaded;
+		return 0.0f;
+	}
+	if (node_emitters_pending)
+		collectNodeEmitters();
+	if (node_emitters.empty() || normal_len < 1e-3f) {
+		color = shaded;
+		return 0.0f;
+	}
+
+	const v3f n = normal / normal_len;
+	const v3f v = local_pos / BS;
+	f32 w = 0.0f;
+	for (const GlowEmitter &e : node_emitters) {
+		v3s16 off = e.p - cur_node.p;
+		v3f d = v3f(off.X, off.Y, off.Z) - v;
+		f32 r = d.getLength();
+		if (r >= GLOW_RADIUS || r < 1e-4f)
+			continue;
+		f32 facing = d.dotProduct(n) / r;
+		if (facing <= 0.0f)
+			continue;
+		if (isGlowOccluded(v, n, e))
+			continue;
+		f32 level = (e.level - GLOW_MIN_LEVEL) / (f32)(LIGHT_MAX - GLOW_MIN_LEVEL);
+		f32 t = 1.0f - r / GLOW_RADIUS;
+		w += level * level * t * std::sqrt(t) * facing;
+	}
+	if (w <= 0.0f) {
+		color = shaded;
+		return 0.0f;
+	}
+
+	// Pull the axis shade toward 1.0, then add (overbright allowed up to channel max)
+	f32 k = MYMIN(w, 1.0f);
+	f32 artificial = 1.0f - color.getAlpha() / 255.0f;
+	// 0.5: encode_light stores the channel as brightness / 2
+	f32 add = GLOW_STRENGTH * 0.5f * w * artificial;
+	auto mix = [&] (u32 base, u32 sh) {
+		return (u32)core::clamp(core::round32(sh + ((f32)base - sh) * k + add), 0, 255);
+	};
+	color.setRed(mix(color.getRed(), shaded.getRed()));
+	color.setGreen(mix(color.getGreen(), shaded.getGreen()));
+	color.setBlue(mix(color.getBlue(), shaded.getBlue()));
+	return w;
+}
+
+// Only used to pick the quad diagonal
+static inline LightPair addGlowToLight(LightPair light, f32 glow)
+{
+	light.lightNight = core::clamp(core::round32(light.lightNight + glow * GLOW_STRENGTH), 0, 255);
+	return light;
 }
 
 void MapblockMeshGenerator::generateCuboidTextureCoords(const aabb3f &box, f32 *coords)
@@ -584,8 +715,11 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box,
 				video::S3DVertex &vertex = vertices[j];
 				final_lights[j] = lights[light_indices[face][j]].getPair(MYMAX(0.0f, vertex.Normal.Y));
 				vertex.Color = encode_light(final_lights[j], cur_node.f->light_source);
-				if (!cur_node.f->light_source)
-					applyFacesShading(vertex.Color, vertex.Normal);
+				if (!cur_node.f->light_source) {
+					f32 glow = applyShadingAndGlow(vertex.Color,
+							vertex.Pos - cur_node.origin, vertex.Normal);
+					final_lights[j] = addGlowToLight(final_lights[j], glow);
+				}
 			}
 			return getSmoothLightingQuadDiagonal(final_lights);
 		});
@@ -713,12 +847,16 @@ void MapblockMeshGenerator::drawSolidNode()
 		}
 
 		drawCuboid(box, tiles, 6, nullptr, mask, [&] (int face, video::S3DVertex vertices[4]) {
-			const auto &face_lights = lights[face];
+			LightPair face_lights[4];
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
+				face_lights[j] = lights[face][j];
 				vertex.Color = encode_light(face_lights[j], cur_node.f->light_source);
-				if (!cur_node.f->light_source)
-					applyFacesShading(vertex.Color, vertex.Normal);
+				if (!cur_node.f->light_source) {
+					f32 glow = applyShadingAndGlow(vertex.Color,
+							vertex.Pos - cur_node.origin, vertex.Normal);
+					face_lights[j] = addGlowToLight(face_lights[j], glow);
+				}
 			}
 			return getSmoothLightingQuadDiagonal(face_lights);
 		});
@@ -954,10 +1092,12 @@ void MapblockMeshGenerator::drawLiquidSides()
 			}
 
 			video::SColor color;
-			if (data->m_smooth_lighting)
+			if (data->m_smooth_lighting) {
 				color = blendLightColor(pos);
-			else
+				applyShadingAndGlow(color, pos, v3f(face.dir.X, 0, face.dir.Z), false);
+			} else {
 				color = cur_node.lcolor;
+			}
 
 			pos += cur_node.origin;
 
@@ -1001,8 +1141,10 @@ void MapblockMeshGenerator::drawLiquidTop()
 		}
 
 		vertices[i].Pos.Y += cur_liquid.corner_levels[w][u] * BS;
-		if (data->m_smooth_lighting)
+		if (data->m_smooth_lighting) {
 			vertices[i].Color = blendLightColor(vertices[i].Pos);
+			applyShadingAndGlow(vertices[i].Color, vertices[i].Pos, v3f(0, 1, 0), false);
+		}
 		vertices[i].Pos += cur_node.origin;
 	}
 
@@ -1060,8 +1202,10 @@ void MapblockMeshGenerator::drawLiquidBottom()
 	};
 
 	for (int i = 0; i < 4; i++) {
-		if (data->m_smooth_lighting)
+		if (data->m_smooth_lighting) {
 			vertices[i].Color = blendLightColor(vertices[i].Pos);
+			applyShadingAndGlow(vertices[i].Color, vertices[i].Pos, v3f(0, -1, 0), false);
+		}
 		vertices[i].Pos += cur_node.origin;
 	}
 
@@ -1997,6 +2141,7 @@ void MapblockMeshGenerator::drawNode()
 		return; // Not drawn at all
 
 	cur_node.origin = intToFloat(cur_node.p, BS);
+	prepareNodeGlow();
 	// Solid nodes don't need the usual setup
 	if (cur_node.f->drawtype == NDT_NORMAL) {
 		drawSolidNode<false>();
@@ -2041,6 +2186,8 @@ void MapblockMeshGenerator::generate()
 	// which reads nodes at y+2 for getSmoothLightFrame
 	assert(data->m_vmanip.m_area.contains(blockpos_nodes - 3));
 	assert(data->m_vmanip.m_area.contains(blockpos_nodes + v3s16(data->m_side_length + 2)));
+
+	collectGlowEmitters();
 
 	for (cur_node.p.Z = 0; cur_node.p.Z < data->m_side_length; cur_node.p.Z++)
 	for (cur_node.p.Y = 0; cur_node.p.Y < data->m_side_length; cur_node.p.Y++)
