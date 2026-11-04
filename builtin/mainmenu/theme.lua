@@ -97,9 +97,12 @@ function theme.formspec_styles()
 	}
 
 	-- Primary actions are visually distinct while preserving their field names.
-	styles[#styles + 1] = ("style[play,world_create,world_create_confirm,world_create_open_cdb,btn_config_world_save,btn_contentdb,btn_mp_login,install,install_all;bgcolor=%s;textcolor=%s]"):
-		format(c.blue, c.base)
-	styles[#styles + 1] = ("style[play:hovered,world_create:hovered,world_create_confirm:hovered,world_create_open_cdb:hovered,btn_config_world_save:hovered,btn_contentdb:hovered,btn_mp_login:hovered,install:hovered,install_all:hovered;bgcolor=%s;textcolor=%s]"):
+	styles[#styles + 1] = ("style[play,world_create,world_create_confirm,world_create_open_cdb," ..
+		"btn_config_world_save,btn_contentdb,btn_mp_login,install,install_all;" ..
+		"bgcolor=%s;textcolor=%s]"):format(c.blue, c.base)
+	styles[#styles + 1] = ("style[play:hovered,world_create:hovered,world_create_confirm:hovered," ..
+		"world_create_open_cdb:hovered,btn_config_world_save:hovered,btn_contentdb:hovered," ..
+		"btn_mp_login:hovered,install:hovered,install_all:hovered;bgcolor=%s;textcolor=%s]"):
 		format(c.lavender, c.base)
 	styles[#styles + 1] = ("tableoptions[color=%s;background=%s;border=false;highlight=%s;highlight_text=%s]"):
 		format(c.text, c.surface, c.blue, c.base)
