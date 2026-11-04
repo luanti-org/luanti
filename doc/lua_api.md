@@ -2938,7 +2938,8 @@ Item Metadata
 -------------
 
 Item stacks can store metadata too. See [`ItemStackMetaRef`](#itemstackmetaref)
-Note: They are not able to store the character `"\1"`, be very careful when storing binary data in them
+**Note:** The following characters cannot be stored and are stripped from
+the input: `\1`, `\2`, `\3`. Consider encoding binary data, e.g. using base64.
 
 Item metadata only contains a key-value store.
 
@@ -9348,9 +9349,11 @@ You **must not** mix names and track numbers to refer to the same animation.
     * Sets the acceleration
     * `acc` is a vector
 * `get_acceleration()`: returns the acceleration, a vector
-* `set_rotation(rot)`
+* `set_rotation(rot[, interpolate])`
     * `rot` is a vector (radians). X is pitch (elevation), Y is yaw (heading)
       and Z is roll (bank).
+    * `interpolate` (optional boolean) controls whether this rotation change is interpolated
+      by the client. `false` applies the rotation immediately. Default `true`.
     * Sets the **right-handed Z-X-Y** rotation:
       First roll (Z) is applied, then pitch (X); yaw (Y) is applied last.
     * Does not reset rotation incurred through `automatic_rotate`.
