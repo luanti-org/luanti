@@ -33,6 +33,7 @@ set(unittest_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/test_objdef.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_profiler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_random.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_rollback_backend_base.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_sao.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_schematic.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_scriptapi.cpp
