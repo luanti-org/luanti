@@ -69,6 +69,21 @@ void ClientEnvironment::setLocalPlayer(LocalPlayer *player)
 	m_local_player = player;
 }
 
+void ClientEnvironment::updateCameraOffset(const v3s16 &camera_offset)
+{
+	m_camera_offset = camera_offset;
+
+	// The scene node positions of all objects are relative to the camera
+	// offset. Update them right away so that positions which are derived
+	// from the scene graph (see GenericCAO::getPosition()) are always in
+	// sync with the new offset. Otherwise they would be off until each
+	// object is stepped, which e.g. results in a wrong position of an
+	// attached local player around camera offset boundaries.
+	m_ao_manager.forEach([] (ClientActiveObject *obj) {
+		obj->updateCameraOffset();
+	});
+}
+
 void ClientEnvironment::step(float dtime)
 {
 	/* Step time of day */

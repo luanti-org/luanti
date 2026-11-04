@@ -979,6 +979,11 @@ void GenericCAO::updateNodePos()
 	}
 }
 
+void GenericCAO::updateCameraOffset()
+{
+	updateNodePos();
+}
+
 void GenericCAO::step(float dtime, ClientEnvironment *env)
 {
 	// Handle model animations and update positions instantly to prevent lags

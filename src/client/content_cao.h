@@ -249,6 +249,7 @@ public:
 	void setChildrenVisible(bool toset);
 	void setAttachment(const AttachmentData &attachment) override;
 	void getAttachment(AttachmentData &attachment) const override;
+	void updateCameraOffset() override;
 	void clearChildAttachments() override;
 	void addAttachmentChild(object_t child_id) override;
 	void removeAttachmentChild(object_t child_id) override;

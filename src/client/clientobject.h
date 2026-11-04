@@ -58,6 +58,10 @@ public:
 	// Process a message sent by the server side object
 	virtual void processMessage(const std::string &data) {}
 
+	// Called when the camera offset changed, so that the object can update
+	// its position in the scene graph, which is relative to the camera offset
+	virtual void updateCameraOffset() {}
+
 	virtual std::string infoText() { return ""; }
 	virtual std::string debugInfoText() { return ""; }
 
