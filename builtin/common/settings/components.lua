@@ -4,6 +4,10 @@
 
 local make = {}
 
+local function theme_color(name, fallback)
+	return mm_theme and mm_theme.colors[name] or fallback
+end
+
 
 -- This file defines various component constructors, of the form:
 --
@@ -50,7 +54,8 @@ function make.heading(text, info_text)
 		full_width = true,
 		info_text = info_text,
 		get_formspec = function(self, avail_w)
-			return ("label[0,0.6;%s]box[0,0.9;%f,0.05;#ccc6]"):format(core.formspec_escape(text), avail_w), 1.2
+			return ("label[0,0.6;%s]box[0,0.9;%f,0.05;%s]"):format(
+				core.formspec_escape(text), avail_w, theme_color("elevated", "#ccc6")), 1.2
 		end,
 	}
 end
@@ -64,7 +69,7 @@ function make.unavail_list(settings)
 			local fs = {}
 			for _, setting in ipairs(settings) do
 				fs[#fs + 1] = ("label[0.3,%f;%s]"):format(h,
-					core.colorize("#bbb", core.formspec_escape(get_label(setting))))
+					core.colorize(theme_color("subtext", "#bbb"), core.formspec_escape(get_label(setting))))
 				h = h + 0.4
 			end
 			return table.concat(fs, ""), h
@@ -80,7 +85,7 @@ local g_note_id = 1 -- hello stupid solution!
 --- @param lines number of lines of space to reserve. word-wrap will enable at > 1 (optional)
 function make.note(text, text_color, lines)
 	text = core.formspec_escape(text)
-	text_color = text_color or "#bbb"
+	text_color = text_color or theme_color("subtext", "#bbb")
 	return {
 		full_width = true,
 		get_formspec = function(self, avail_w)

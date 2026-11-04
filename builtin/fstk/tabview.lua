@@ -82,8 +82,12 @@ local function get_formspec(self)
 	end
 
 	local formspec = (prepend or "")
-	formspec = formspec .. ("bgcolor[;neither]container[0,%f]box[0,0;%f,%f;#0000008C]"):format(
-			TABHEADER_H, orig_tsize.width, orig_tsize.height)
+	formspec = formspec .. ("bgcolor[%s;neither]container[0,%f]"):format(
+		mm_theme.colors.mantle, TABHEADER_H)
+	if core.settings:get("mainmenu_tab_background") == "surface" then
+		formspec = formspec .. mm_theme.panel(0, -TABHEADER_H, tsize.width, TABHEADER_H, "surface")
+	end
+	formspec = formspec .. mm_theme.panel(0, 0, orig_tsize.width, orig_tsize.height, "base")
 	formspec = formspec .. self:tab_header(tab_header_size) .. content
 
 	if self.end_button then

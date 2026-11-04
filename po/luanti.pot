@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: luanti\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-17 19:12+0200\n"
+"POT-Creation-Date: 2026-11-04 01:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,6 +81,7 @@ msgid "Get help for commands (-t: output in chat)"
 msgstr ""
 
 #: builtin/common/settings/components.lua
+#: builtin/common/settings/dlg_settings.lua
 msgid "Set"
 msgstr ""
 
@@ -398,6 +399,60 @@ msgid "Long tap"
 msgstr ""
 
 #: builtin/common/settings/dlg_settings.lua
+msgid "Blue"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Lavender"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Cyan"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Green"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Peach"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Rose"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/common/settings/shadows_component.lua
+msgid "Custom"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Transparent"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Surface"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Standard"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+#: builtin/common/settings/shadows_component.lua
+msgid "High"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Custom accent color"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Enter a color in #RRGGBB format."
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
 msgid "Unavailable"
 msgstr ""
 
@@ -482,15 +537,7 @@ msgid "Medium"
 msgstr ""
 
 #: builtin/common/settings/shadows_component.lua
-msgid "High"
-msgstr ""
-
-#: builtin/common/settings/shadows_component.lua
 msgid "Very High"
-msgstr ""
-
-#: builtin/common/settings/shadows_component.lua
-msgid "Custom"
 msgstr ""
 
 #: builtin/common/settings/shadows_component.lua
@@ -2499,6 +2546,13 @@ msgid ""
 "the mods."
 msgstr ""
 
+#. TRANSLATORS: DO NOT TRANSLATE THIS LITERALLY!
+#. This is a special string which needs to contain the translation's
+#. language code (e.g. "de" for German).
+#: src/gettext.cpp
+msgid "LANG_CODE"
+msgstr ""
+
 #: src/gui/guiButtonKey.h
 msgid "Press Button"
 msgstr ""
@@ -2722,14 +2776,6 @@ msgstr ""
 
 #: src/network/clientpackethandler.cpp
 msgid "Name is taken. Please choose another name"
-msgstr ""
-
-#. TRANSLATORS: DO NOT TRANSLATE THIS LITERALLY!
-#. This is a special string which needs to contain the translation's
-#. language code (e.g. "de" for German).
-#: src/network/clientpackethandler.cpp src/script/lua_api/l_client.cpp
-#: src/script/lua_api/l_mainmenu.cpp
-msgid "LANG_CODE"
 msgstr ""
 
 #: src/network/clientpackethandler.cpp
@@ -3377,6 +3423,45 @@ msgstr ""
 
 #: src/settings_translation_file.cpp
 msgid "Graphics and Audio"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Appearance"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Main menu accent color"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Main menu accent colors, including selected tabs, primary actions and "
+"highlights."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Custom main menu accent color"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Custom main menu accent in #RRGGBB format. Select Custom above to use it."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Main menu tab background"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Background behind the main menu tab buttons."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Main menu surface contrast"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Increase contrast on menu surfaces and lists."
 msgstr ""
 
 #: src/settings_translation_file.cpp

@@ -7,6 +7,8 @@
 #include "IGUIElement.h"
 #include "SColor.h"
 
+namespace video { class ITexture; }
+
 namespace gui
 {
 class IGUITab;
@@ -134,6 +136,28 @@ public:
 
 	//! returns the color of the background
 	virtual video::SColor getBackgroundColor() const = 0;
+
+	//! sets the color of this tab's button in the tab bar
+	virtual void setHeaderBackgroundColor(video::SColor c) = 0;
+
+	//! sets whether this tab's button draws its custom background color
+	virtual void setDrawHeaderBackground(bool draw = true) = 0;
+
+	//! returns whether the tab button draws a custom background
+	virtual bool isDrawingHeaderBackground() const = 0;
+
+	//! returns the custom background color of the tab button
+	virtual video::SColor getHeaderBackgroundColor() const = 0;
+
+	//! sets a 9-slice image for this tab's button background
+	virtual void setHeaderBackgroundImage(video::ITexture *texture,
+			const core::rect<s32> &middle) = 0;
+
+	//! returns the 9-slice image for this tab's button background
+	virtual video::ITexture *getHeaderBackgroundImage() const = 0;
+
+	//! returns the 9-slice center rectangle for the button background image
+	virtual const core::rect<s32> &getHeaderBackgroundMiddle() const = 0;
 
 	//! sets the color of it's text in  the tab-bar
 	virtual void setTextColor(video::SColor c) = 0;

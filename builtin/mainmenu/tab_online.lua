@@ -117,7 +117,7 @@ local function get_formspec(tabview, name, tabdata)
 		"container_end[]" ..
 
 		"container[9.75,0]" ..
-		"box[0,0;5.75,7.1;#666666]" ..
+		mm_theme.panel(0, 0, 5.75, 7.1, "surface") ..
 
 		-- TRANSLATORS: Network address
 		"label[0.25,0.35;" .. fgettext("Address") .. "]" ..
@@ -130,7 +130,7 @@ local function get_formspec(tabview, name, tabdata)
 
 		-- Description Background
 		"label[0.25,1.6;" .. fgettext("Server Description") .. "]" ..
-		"box[0.25,1.85;5.25,2.7;#999999]"..
+		mm_theme.panel(0.25, 1.85, 5.25, 2.7, "elevated") ..
 
 		-- Name / Password
 		"container[0,4.8]" ..
@@ -259,8 +259,8 @@ local function get_formspec(tabview, name, tabdata)
 	local servers = get_sorted_servers()
 
 	local dividers = {
-		fav = "5,#ffff00," .. fgettext("Favorites") .. ",,,0,0,,",
-		public = "6,#4bdd42," .. fgettext("Public Servers") .. ",,,0,0,,",
+		fav = "5," .. mm_theme.colors.lavender .. "," .. fgettext("Favorites") .. ",,,0,0,,",
+		public = "6," .. mm_theme.colors.success .. "," .. fgettext("Public Servers") .. ",,,0,0,,",
 		incompatible = "7,"..mt_color_grey.."," .. fgettext("Incompatible Servers") .. ",,,0,0,,"
 	}
 	local order = {"fav", "public", "incompatible"}

@@ -38,6 +38,9 @@ public:
 	//! Sets another color for the text.
 	void setOverrideColor(video::SColor color) override;
 
+	//! Sets another background color.
+	void setOverrideBgColor(video::SColor color) override;
+
 	//! Gets the override color
 	video::SColor getOverrideColor() const override;
 

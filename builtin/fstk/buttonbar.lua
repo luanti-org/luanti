@@ -15,8 +15,7 @@ local function buttonbar_formspec(self)
 	end
 
 	local formspec = {
-		string.format("box[%f,%f;%f,%f;%s]", self.pos.x, self.pos.y, self.size.x,
-				self.size.y, self.bgcolor),
+		mm_theme.panel(self.pos.x, self.pos.y, self.size.x, self.size.y, "base"),
 	}
 
 	local btn_size = self.size.y - 2*BASE_SPACING

@@ -25,7 +25,7 @@ local function register_formspec(dialogdata)
 
 	if dialogdata.error then
 		table.insert_all(retval, {
-			"box[0.375,", tostring(buttons_y - 0.9), ";7.25,0.6;darkred]",
+			"box[0.375,", tostring(buttons_y - 0.9), ";7.25,0.6;", mm_theme.colors.error, "]",
 			"label[0.625,", tostring(buttons_y - 0.6), ";", core.formspec_escape(dialogdata.error), "]",
 		})
 	end

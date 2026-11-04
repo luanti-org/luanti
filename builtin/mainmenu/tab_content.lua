@@ -164,7 +164,7 @@ local function get_formspec(tabview, name, tabdata)
 			title_and_name = selected_pkg.title or selected_pkg.name
 		else
 			title_and_name = (selected_pkg.title or selected_pkg.name) .. "\n" ..
-				core.colorize("#BFBFBF", selected_pkg.name)
+			core.colorize(mm_theme.colors.subtext, selected_pkg.name)
 		end
 
 		local desc_height = 3.2
@@ -229,7 +229,7 @@ local function get_formspec(tabview, name, tabdata)
 		table.insert_all(retval, {
 			"image[7.1,0.2;3,2;", core.formspec_escape(modscreenshot), "]",
 			"label[10.5,1;", core.formspec_escape(title_and_name), "]",
-			"box[7.1,2.4;8,", tostring(desc_height), ";#000]",
+			mm_theme.panel(7.1, 2.4, 8, desc_height, "elevated"),
 			"textarea[7.1,2.4;8,", tostring(desc_height), ";;;", desc, "]",
 		})
 

@@ -107,6 +107,11 @@ void CGUIEditBox::setOverrideColor(video::SColor color)
 	OverrideColorEnabled = true;
 }
 
+void CGUIEditBox::setOverrideBgColor(video::SColor color)
+{
+	OverrideBgColor = color;
+}
+
 video::SColor CGUIEditBox::getOverrideColor() const
 {
 	return OverrideColor;

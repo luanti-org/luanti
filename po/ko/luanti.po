@@ -8180,3 +8180,86 @@ msgstr "\"%s\"에 스크린샷 저장 실패"
 #~ msgstr ""
 #~ "이 기능을 활성화하면 액체 반사 효과가 시뮬레이션됩니다.\n"
 #~ "파도의 높이, 길이, 속도가 이러한 반사 효과에 영향을 미칩니다."
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Blue"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Lavender"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Cyan"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Green"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Peach"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Rose"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Transparent"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Surface"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Standard"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Custom accent color"
+msgstr ""
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Enter a color in #RRGGBB format."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Appearance"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Main menu accent color"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Main menu accent colors, including selected tabs, primary actions and "
+"highlights."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Custom main menu accent color"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Custom main menu accent in #RRGGBB format. Select Custom above to use it."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Main menu tab background"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Background behind the main menu tab buttons."
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Main menu surface contrast"
+msgstr ""
+
+#: src/settings_translation_file.cpp
+msgid "Increase contrast on menu surfaces and lists."
+msgstr ""

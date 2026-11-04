@@ -856,6 +856,20 @@ enable_translucent_foliage (Translucent foliage) bool false
 #   Requires: enable_waving_water, enable_dynamic_shadows
 enable_water_reflections (Liquid reflections) bool false
 
+[*Appearance]
+
+#    Main menu accent colors, including selected tabs, primary actions and highlights.
+mainmenu_accent_color (Main menu accent color) enum blue blue,lavender,cyan,green,peach,rose,custom
+
+#    Custom main menu accent in #RRGGBB format. Select Custom above to use it.
+mainmenu_custom_accent_color (Custom main menu accent color) string #89B4FA
+
+#    Background behind the main menu tab buttons.
+mainmenu_tab_background (Main menu tab background) enum transparent transparent,surface
+
+#    Increase contrast on menu surfaces and lists.
+mainmenu_surface_contrast (Main menu surface contrast) enum normal normal,high
+
 [*Audio]
 
 #    Volume of all sounds.

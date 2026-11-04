@@ -49,8 +49,8 @@ return {
 		local version = core.get_version()
 
 		local hypertext = {
-			"<tag name=heading color=#ff0>",
-			"<tag name=gray color=#aaa>",
+			"<tag name=heading color=" .. mm_theme.colors.blue .. ">",
+			"<tag name=gray color=" .. mm_theme.colors.subtext .. ">",
 		}
 
 		local credits = get_credits()
@@ -87,7 +87,7 @@ return {
 			"style_type[label;valign=center;halign=center;font=mono,bold;font_size=*1.1]",
 			"label[0.1,4;5.4,0.6;",
 			core.formspec_escape(version.project .. " " .. version.string), "]",
-			"style_type[button_url;border=false;textcolor=#4cd9f9]",
+			"style_type[button_url;border=false;textcolor=" .. mm_theme.colors.info .. "]",
 			"button_url[1.5,4.6;2.5,0.5;homepage;luanti.org;https://www.luanti.org/]"
 		}
 

@@ -8305,3 +8305,86 @@ msgstr "Не удалось сохранить снимок экрана в \"%s
 #~ msgstr ""
 #~ "Если включен, имитирует грубые отражения от поверхности жидкости.\n"
 #~ "Высота, длина и скорость волн влияют на эти отражения."
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Blue"
+msgstr "Синий"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Lavender"
+msgstr "Лавандовый"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Cyan"
+msgstr "Циан"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Green"
+msgstr "Зелёный"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Peach"
+msgstr "Персиковый"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Rose"
+msgstr "Розовый"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Transparent"
+msgstr "Прозрачный"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Surface"
+msgstr "Поверхность"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Standard"
+msgstr "Стандартный"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Custom accent color"
+msgstr "Пользовательский акцентный цвет"
+
+#: builtin/common/settings/dlg_settings.lua
+msgid "Enter a color in #RRGGBB format."
+msgstr "Введите цвет в формате #RRGGBB."
+
+#: src/settings_translation_file.cpp
+msgid "Appearance"
+msgstr "Внешний вид"
+
+#: src/settings_translation_file.cpp
+msgid "Main menu accent color"
+msgstr "Акцентный цвет главного меню"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Main menu accent colors, including selected tabs, primary actions and "
+"highlights."
+msgstr "Акцентные цвета главного меню, включая выбранные вкладки, основные действия и подсветку."
+
+#: src/settings_translation_file.cpp
+msgid "Custom main menu accent color"
+msgstr "Пользовательский акцентный цвет главного меню"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Custom main menu accent in #RRGGBB format. Select Custom above to use it."
+msgstr "Пользовательский акцент главного меню в формате #RRGGBB. Выберите выше «Пользовательский», чтобы использовать его."
+
+#: src/settings_translation_file.cpp
+msgid "Main menu tab background"
+msgstr "Фон вкладок главного меню"
+
+#: src/settings_translation_file.cpp
+msgid "Background behind the main menu tab buttons."
+msgstr "Фон под кнопками вкладок главного меню."
+
+#: src/settings_translation_file.cpp
+msgid "Main menu surface contrast"
+msgstr "Контраст поверхностей главного меню"
+
+#: src/settings_translation_file.cpp
+msgid "Increase contrast on menu surfaces and lists."
+msgstr "Повысить контраст поверхностей и списков меню."

@@ -82,7 +82,9 @@ local function load_settingtypes()
 			end
 		else
 			ensure_page_started()
-			page.content[#page.content + 1] = entry.name
+			if entry.name ~= "mainmenu_custom_accent_color" then
+				page.content[#page.content + 1] = entry.name
+			end
 		end
 	end
 end
@@ -150,7 +152,7 @@ local function load()
 				"Any mods listed in \"Trusted Mods\" will have unrestricted access to "..
 				"user data and programs on your device. This is not normally needed. "..
 				"Make sure you can trust the mod's code and its author beforehand!"
-			), "#e42", 3)
+			), mm_theme and mm_theme.colors.error or "#e42", 3)
 		}
 	}
 
@@ -263,6 +265,77 @@ local function load()
 		["short_tap"] = fgettext_ne("Short tap"),
 		-- TRANSLATORS: Touchscreen gesture
 		["long_tap"] = fgettext_ne("Long tap"),
+	}
+
+	get_setting_info("mainmenu_accent_color").option_labels = {
+		blue = fgettext_ne("Blue"),
+		lavender = fgettext_ne("Lavender"),
+		cyan = fgettext_ne("Cyan"),
+		green = fgettext_ne("Green"),
+		peach = fgettext_ne("Peach"),
+		rose = fgettext_ne("Rose"),
+		custom = fgettext_ne("Custom"),
+	}
+
+	get_setting_info("mainmenu_tab_background").option_labels = {
+		transparent = fgettext_ne("Transparent"),
+		surface = fgettext_ne("Surface"),
+	}
+
+	get_setting_info("mainmenu_surface_contrast").option_labels = {
+		normal = fgettext_ne("Standard"),
+		high = fgettext_ne("High"),
+	}
+
+	local custom_accent_setting = get_setting_info("mainmenu_custom_accent_color")
+	local custom_accent_error
+	extra_components.mainmenu_accent_color = {
+		after = {{
+			id = "mainmenu_custom_accent_color_input",
+			query_text = fgettext_ne("Custom accent color"),
+			setting = custom_accent_setting,
+			get_formspec = function(self, avail_w)
+				if core.settings:get("mainmenu_accent_color") ~= "custom" then
+					self.setting = nil
+					self.info_text = nil
+					self.resettable = false
+					return "", 0
+				end
+
+				self.setting = custom_accent_setting
+				self.info_text = custom_accent_setting.comment
+				self.resettable = core.settings:has(custom_accent_setting.name)
+				local value = core.settings:get(custom_accent_setting.name) or
+					custom_accent_setting.default
+				local fs = ("label[0,0.1;%s]"):format(fgettext(custom_accent_setting.readable_name))
+				fs = fs .. ("field[0,0.3;%f,0.8;%s;;%s]"):format(
+					avail_w - 1.5, custom_accent_setting.name, core.formspec_escape(value))
+				fs = fs .. ("field_enter_after_edit[%s;true]"):format(custom_accent_setting.name)
+				fs = fs .. ("field_close_on_enter[%s;false]"):format(custom_accent_setting.name)
+				fs = fs .. ("button[%f,0.3;1.5,0.8;set_%s;%s]"):format(
+					avail_w - 1.5, custom_accent_setting.name, fgettext("Set"))
+				if custom_accent_error then
+					fs = fs .. ("label[0,1.15;%s]"):format(core.colorize(
+						mm_theme.colors.error, core.formspec_escape(custom_accent_error)))
+					return fs, 1.55
+				end
+				return fs, 1.1
+			end,
+			on_submit = function(self, fields)
+				local name = custom_accent_setting.name
+				if not fields["set_" .. name] and fields.key_enter_field ~= name then
+					return false
+				end
+				local value = fields[name] or core.settings:get(name) or custom_accent_setting.default
+				if not value:match("^#%x%x%x%x%x%x$") then
+					custom_accent_error = fgettext("Enter a color in #RRGGBB format.")
+					return true
+				end
+				core.settings:set(name, value:upper())
+				custom_accent_error = nil
+				return true
+			end,
+		}},
 	}
 end
 
@@ -541,22 +614,25 @@ local function get_formspec(dialogdata)
 		-- HACK: this is needed to allow resubmitting the same formspec
 		formspec_show_hack and " " or "",
 
-		"box[0,0;", tostring(tabsize.width), ",", tostring(tabsize.height), ";#0000008C]",
+		mm_theme and mm_theme.panel(0, 0, tabsize.width, tabsize.height, "base") or
+			("box[0,0;%s,%s;#0000008C]"):format(tabsize.width, tabsize.height),
 
 		("button[0,%f;%f,0.8;back;%s]"):format(
 				tabsize.height + 0.2, back_w,
 				-- TRANSLATORS: Button text to go back
 				fgettext("Back")),
 
-		("box[%f,%f;%f,0.8;#0000008C]"):format(
-			back_w + 0.2, tabsize.height + 0.2, checkbox_w),
+		(mm_theme and mm_theme.panel(back_w + 0.2, tabsize.height + 0.2, checkbox_w, 0.8, "surface") or
+			("box[%f,%f;%f,0.8;#0000008C]"):format(back_w + 0.2, tabsize.height + 0.2, checkbox_w)),
 		("checkbox[%f,%f;show_technical_names;%s;%s]"):format(
 			back_w + 2*0.2, tabsize.height + 0.6,
 			-- TRANSLATORS: Checkbox that toggles displaying the technical setting names
 			fgettext("Show technical names"), tostring(show_technical_names)),
 
-		("box[%f,%f;%f,0.8;#0000008C]"):format(
-			back_w + 2*0.2 + checkbox_w, tabsize.height + 0.2, checkbox_w),
+		(mm_theme and mm_theme.panel(back_w + 2*0.2 + checkbox_w, tabsize.height + 0.2,
+			checkbox_w, 0.8, "surface") or
+			("box[%f,%f;%f,0.8;#0000008C]"):format(
+				back_w + 2*0.2 + checkbox_w, tabsize.height + 0.2, checkbox_w)),
 		("checkbox[%f,%f;show_advanced;%s;%s]"):format(
 			back_w + 3*0.2 + checkbox_w, tabsize.height + 0.6,
 			fgettext("Show advanced settings"), tostring(show_advanced)),
@@ -574,21 +650,28 @@ local function get_formspec(dialogdata)
 		"container_end[]",
 		("scroll_container[0.25,1.25;%f,%f;leftscroll;vertical;0.1;0]"):format(
 			left_pane_width, tabsize.height - 1.5),
-		"style_type[button;border=false;bgcolor=#3333]",
-		"style_type[button:hover;border=false;bgcolor=#6663]",
 	}
 
 	local y = 0
 	local last_section = nil
 	for _, other_page in ipairs(filtered_pages) do
 		if other_page.section ~= last_section then
+			local warning = mm_theme and mm_theme.colors.white or "#fff"
 			fs[#fs + 1] = ("label[0.1,%f;%s]"):format(
-				y + 0.41, core.colorize("#ff0", fgettext(other_page.section)))
+				y + 0.41, core.colorize(warning, fgettext(other_page.section)))
 			last_section = other_page.section
 			y = y + 0.82
 		end
-		fs[#fs + 1] = ("box[0,%f;%f,0.8;%s]"):format(
-			y, left_pane_width-left_pane_padding, other_page.id == page_id and "#467832FF" or "#3339")
+		local selected = other_page.id == page_id
+		if mm_theme then
+			local bgcolor = selected and mm_theme.colors.blue or mm_theme.colors.surface
+			local textcolor = selected and mm_theme.colors.base or mm_theme.colors.text
+			fs[#fs + 1] = ("style[page_%s;bgcolor=%s;textcolor=%s]"):
+				format(other_page.id, bgcolor, textcolor)
+		else
+			fs[#fs + 1] = ("box[0,%f;%f,0.8;%s]"):format(
+				y, left_pane_width-left_pane_padding, selected and "#467832FF" or "#3339")
+		end
 		fs[#fs + 1] = ("button[0,%f;%f,0.8;page_%s;%s]")
 			:format(y, left_pane_width-left_pane_padding, other_page.id, fgettext(other_page.title))
 		y = y + 0.82
@@ -607,8 +690,6 @@ local function get_formspec(dialogdata)
 		fs[#fs + 1] = ("scrollbar[%f,1.25;%f,%f;vertical;leftscroll;%f]"):format(
 				left_pane_width + 0.25, scrollbar_w, tabsize.height - 1.5, dialogdata.leftscroll or 0)
 	end
-
-	fs[#fs + 1] = "style_type[button;border=;bgcolor=]"
 
 	if not dialogdata.components then
 		dialogdata.components = page and build_page_components(page) or {}
@@ -677,6 +758,7 @@ local function get_formspec(dialogdata)
 					-- TRANSLATORS: $1 will be replaced with a default setting value
 					fgettext("Reset setting to default: $1", tostring(default)) or
 					fgettext("Reset setting to default")
+			fs[#fs + 1] = ("style[reset_%d;bgimg=;bgimg_middle=;bgcolor=;padding=;border=false]"):format(i)
 			fs[#fs + 1] = ("image_button[%f,%f;0.5,0.5;%s;%s;]"):format(
 					right_pane_width - 1.4, info_reset_y, reset_icon_path, "reset_" .. i)
 			fs[#fs + 1] = ("tooltip[%s;%s]"):format("reset_" .. i, reset_tooltip)
@@ -795,6 +877,9 @@ local function buttonhandler(this, fields)
 
 	local function after_setting_change(comp)
 		write_settings_early()
+		if mm_theme then
+			mm_theme.refresh()
+		end
 		if comp.setting and comp.setting.name == "touch_controls" then
 			-- Changing the "touch_controls" setting may result in a different
 			-- page list.

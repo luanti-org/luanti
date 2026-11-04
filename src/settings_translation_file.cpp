@@ -157,6 +157,15 @@ fake_function() {
 	gettext("Joystick frustum sensitivity");
 	gettext("The sensitivity of the joystick axes for moving the\nin-game view frustum around.");
 	gettext("Graphics and Audio");
+	gettext("Appearance");
+	gettext("Main menu accent color");
+	gettext("Main menu accent colors, including selected tabs, primary actions and highlights.");
+	gettext("Custom main menu accent color");
+	gettext("Custom main menu accent in #RRGGBB format. Select Custom above to use it.");
+	gettext("Main menu tab background");
+	gettext("Background behind the main menu tab buttons.");
+	gettext("Main menu surface contrast");
+	gettext("Increase contrast on menu surfaces and lists.");
 	gettext("Graphics");
 	gettext("Screen");
 	gettext("Screen width");

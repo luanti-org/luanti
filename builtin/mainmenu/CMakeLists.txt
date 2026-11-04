@@ -19,6 +19,7 @@ set(BUILTIN_MAINMENU_SRCS
 	mainmenu/game_theme.lua
 	mainmenu/init.lua
 	mainmenu/serverlistmgr.lua
+	mainmenu/theme.lua
 	mainmenu/tab_about.lua
 	mainmenu/tab_content.lua
 	mainmenu/tab_local.lua

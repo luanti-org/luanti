@@ -114,19 +114,20 @@ function render_serverlist_row(spec)
 
 	table.insert(details, ",")
 
-	local color = (grey_out and "#aaaaaa") or ((spec.is_favorite and "#ddddaa") or "#ffffff")
+	local color = (grey_out and mm_theme.colors.subtext) or
+		((spec.is_favorite and mm_theme.colors.lavender) or mm_theme.colors.text)
 	if spec.clients and (spec.clients_max or 0) > 0 then
 		local clients_percent = 100 * spec.clients / spec.clients_max
 
 		-- Choose a color depending on how many clients are connected
 		-- (relatively to clients_max)
 		local clients_color
-		if     grey_out		      then clients_color = '#aaaaaa'
+		if     grey_out		      then clients_color = mm_theme.colors.subtext
 		elseif spec.clients == 0      then clients_color = ''        -- 0 players: default/white
-		elseif clients_percent <= 60  then clients_color = '#a1e587' -- 0-60%: green
-		elseif clients_percent <= 90  then clients_color = '#ffdc97' -- 60-90%: yellow
-		elseif clients_percent == 100 then clients_color = '#dd5b5b' -- full server: red (darker)
-		else                               clients_color = '#ffba97' -- 90-100%: orange
+		elseif clients_percent <= 60  then clients_color = mm_theme.colors.success
+		elseif clients_percent <= 90  then clients_color = mm_theme.colors.warning
+		elseif clients_percent == 100 then clients_color = mm_theme.colors.error
+		else                               clients_color = mm_theme.colors.warning
 		end
 
 		table.insert(details, clients_color)
@@ -162,7 +163,7 @@ function menu_render_worldlist()
 	local current_worldlist = menudata.worldlist:get_list()
 
 	for i, v in ipairs(current_worldlist) do
-		retval[#retval+1] = core.formspec_escape(v.name)
+		retval[#retval+1] = mm_theme.colors.text .. core.formspec_escape(v.name)
 	end
 
 	return table.concat(retval, ",")
@@ -191,7 +192,7 @@ function text2textlist(xpos, ypos, width, height, tl_name, textlen, text, transp
 
 	for i = 1, #textlines do
 		textlines[i] = textlines[i]:gsub("\r", "")
-		retval = retval .. core.formspec_escape(textlines[i]) .. ","
+		retval = retval .. mm_theme.colors.text .. core.formspec_escape(textlines[i]) .. ","
 	end
 
 	retval = retval .. ";0;"
@@ -272,7 +273,7 @@ end
 function confirmation_formspec(message, cancel_id, cancel_label, confirm_id, confirm_label)
 	return "size[10,2.5,true]" ..
 			"label[0.5,0.5;" .. message .. "]" ..
-			"style[" .. confirm_id .. ";bgcolor=red]" ..
+			"style[" .. confirm_id .. ";bgcolor=" .. mm_theme.colors.error .. "]" ..
 			"button[0.5,1.5;2.5,0.5;" .. cancel_id .. ";" .. cancel_label .. "]" ..
 			"button[7.0,1.5;2.5,0.5;" .. confirm_id .. ";" .. confirm_label .. "]"
 end

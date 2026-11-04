@@ -1537,6 +1537,8 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 	e->setDrawBorder(style.getBool(StyleSpec::BORDER, true));
+	if (style.hasProperty(StyleSpec::BGCOLOR))
+		e->setOverrideBgColor(style.getColor(StyleSpec::BGCOLOR));
 	e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
 	e->setOverrideFont(style.getFont());
 
@@ -1622,6 +1624,13 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 
 		e->setTextAlignment(halign, valign);
 		e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+		if (style.hasProperty(StyleSpec::BGCOLOR)) {
+			if (is_multiline)
+				static_cast<GUIEditBoxWithScrollBar *>(e)->setBackgroundColor(
+						style.getColor(StyleSpec::BGCOLOR));
+			else
+				e->setOverrideBgColor(style.getColor(StyleSpec::BGCOLOR));
+		}
 		e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
 		bool border = style.getBool(StyleSpec::BORDER, true);
 		e->setDrawBorder(border && !spec.fname.empty());
@@ -2264,7 +2273,7 @@ void GUIFormSpecMenu::parseTabHeader(parserData* data, const std::string &elemen
 	std::string str_index = parts[i+3];
 	bool show_background = true;
 	bool show_border = true;
-	int tab_index = stoi(str_index) - 1;
+	int selected_tab_index = stoi(str_index) - 1;
 
 	MY_CHECKPOS("tabheader", 0);
 
@@ -2318,25 +2327,43 @@ void GUIFormSpecMenu::parseTabHeader(parserData* data, const std::string &elemen
 			gui::EGUIA_UPPERLEFT, gui::EGUIA_LOWERRIGHT);
 	e->setTabHeight(geom.Y);
 
-	auto style = getDefaultStyleForElement("tabheader", name);
+	auto default_style = getDefaultStyleForElement("tabheader", name);
+	video::ITexture *header_background = default_style.getTexture(
+			StyleSpec::BGIMG, m_tsrc, nullptr);
+	const auto header_middle = default_style.getRect(
+			StyleSpec::BGIMG_MIDDLE, core::rect<s32>());
 
-	spec.sound = style.get(StyleSpec::Property::SOUND, "");
+	spec.sound = default_style.get(StyleSpec::Property::SOUND, "");
 
-	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, true));
+	e->setNotClipped(default_style.getBool(StyleSpec::NOCLIP, true));
 
-	for (const std::string &button : buttons) {
+	for (size_t i = 0; i < buttons.size(); i++) {
+		const std::string &button = buttons[i];
 		auto tab = e->addTab(unescape_translate(unescape_string(
 			utf8_to_wide(button))).c_str(), -1);
-		if (style.isNotDefault(StyleSpec::BGCOLOR))
-			tab->setBackgroundColor(style.getColor(StyleSpec::BGCOLOR));
 
-		tab->setTextColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
+		// Tab button colors are separate from the tab page background.
+		const bool selected = static_cast<int>(i) == selected_tab_index;
+		const auto bg_property = selected && default_style.hasProperty(StyleSpec::BGCOLOR_SELECTED) ?
+				StyleSpec::BGCOLOR_SELECTED : StyleSpec::BGCOLOR;
+		if (default_style.isNotDefault(bg_property)) {
+			tab->setHeaderBackgroundColor(default_style.getColor(bg_property));
+			tab->setDrawHeaderBackground(true);
+		}
+		if (header_background) {
+			tab->setHeaderBackgroundImage(header_background, header_middle);
+			tab->setDrawHeaderBackground(true);
+		}
+		const auto text_property = selected && default_style.hasProperty(StyleSpec::TEXTCOLOR_SELECTED) ?
+				StyleSpec::TEXTCOLOR_SELECTED : StyleSpec::TEXTCOLOR;
+		tab->setTextColor(default_style.getColor(text_property,
+				video::SColor(0xFFFFFFFF)));
 	}
 
-	if ((tab_index >= 0) &&
+	if ((selected_tab_index >= 0) &&
 			(buttons.size() < INT_MAX) &&
-			(tab_index < (int) buttons.size()))
-		e->setActiveTab(tab_index);
+			(selected_tab_index < (int) buttons.size()))
+		e->setActiveTab(selected_tab_index);
 
 	m_fields.push_back(spec);
 	m_tabheader_upper_edge = MYMIN(m_tabheader_upper_edge, rect.UpperLeftCorner.Y);
@@ -3935,6 +3962,31 @@ void GUIFormSpecMenu::drawMenu()
 				rect.LowerRightCorner.X, rect.LowerRightCorner.Y), nullptr);
 	}
 
+	if (m_tooltip_element->isVisible()) {
+		auto style = getDefaultStyleForElement("tooltip", "");
+		auto texture = style.getTexture(StyleSpec::BGIMG, m_tsrc, nullptr);
+		if (texture) {
+			const auto rect = m_tooltip_element->getAbsolutePosition();
+			const auto size = texture->getOriginalSize();
+			const auto middle = style.getRect(StyleSpec::BGIMG_MIDDLE, core::rect<s32>());
+			const video::SColor tint = style.getColor(StyleSpec::BGCOLOR,
+					video::SColor(255, 255, 255, 255));
+			const video::SColor colors[] = {tint, tint, tint, tint};
+			draw2DImage9Slice(driver, texture, rect,
+					core::rect<s32>(0, 0, size.Width, size.Height), middle, nullptr, colors);
+			m_tooltip_element->setDrawBackground(false);
+			m_tooltip_element->setDrawBorder(false);
+			m_tooltip_element->enableOverrideColor(true);
+			m_tooltip_element->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR,
+					m_default_tooltip_color));
+		} else {
+			m_tooltip_element->setDrawBackground(true);
+			m_tooltip_element->setDrawBorder(true);
+			m_tooltip_element->setBackgroundColor(m_default_tooltip_bgcolor);
+			m_tooltip_element->enableOverrideColor(true);
+			m_tooltip_element->setOverrideColor(m_default_tooltip_color);
+		}
+	}
 	m_tooltip_element->draw();
 
 	/*

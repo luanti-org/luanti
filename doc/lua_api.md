@@ -3960,6 +3960,7 @@ Some types may inherit styles from parent types.
     * editable - set to false to make the element read-only (default: true)
 * field, pwdfield, textarea
     * border - set to false to hide the textbox background and border. Default true.
+    * bgcolor - background color of the input field.
     * font - Sets font type. See button `font` property for more information.
     * font_size - Sets font size. See button `font_size` property for more information.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
@@ -4017,6 +4018,11 @@ Some types may inherit styles from parent types.
       Default true.
     * sound - a sound to be played when a different tab is selected.
     * textcolor - color. Default white.
+    * bgcolor - background color for tab buttons. Defaults to the GUI skin.
+    * bgimg - background image for tab buttons.
+    * bgimg_middle - enables nine-slice scaling for `bgimg` and defines its middle rectangle.
+    * textcolor_selected - text color for the selected tab. Defaults to `textcolor`.
+    * bgcolor_selected - background color for the selected tab. Defaults to `bgcolor`.
 * table, textlist
     * font - Sets font type. See button `font` property for more information.
     * font_size - Sets font size. See button `font_size` property for more information.

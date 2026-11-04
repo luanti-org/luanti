@@ -148,7 +148,7 @@ local function get_formspec(data)
 		-- TRANSLATORS: $1 = download size
 		local label = info and fgettext("Install [$1]", info.download_size) or
 			fgettext("Install")
-		formspec[#formspec + 1] = "style[install;bgcolor=green]"
+		formspec[#formspec + 1] = "style[install;bgcolor=" .. mm_theme.colors.success .. "]"
 		formspec[#formspec + 1] = "button["
 		formspec[#formspec + 1] = right_button_rect
 		formspec[#formspec + 1] =";install;"
@@ -157,7 +157,7 @@ local function get_formspec(data)
 	else
 		if package.installed_release < package.release then
 			-- The install_ action also handles updating
-			formspec[#formspec + 1] = "style[install;bgcolor=#28ccdf]"
+			formspec[#formspec + 1] = "style[install;bgcolor=" .. mm_theme.colors.info .. "]"
 			formspec[#formspec + 1] = "button["
 			formspec[#formspec + 1] = left_button_rect
 			formspec[#formspec + 1] = ";install;"
@@ -165,7 +165,7 @@ local function get_formspec(data)
 			formspec[#formspec + 1] = "]"
 		end
 
-		formspec[#formspec + 1] = "style[uninstall;bgcolor=#a93b3b]"
+		formspec[#formspec + 1] = "style[uninstall;bgcolor=" .. mm_theme.colors.error .. "]"
 		formspec[#formspec + 1] = "button["
 		formspec[#formspec + 1] = right_button_rect
 		formspec[#formspec + 1] = ";uninstall;"
@@ -188,7 +188,7 @@ local function get_formspec(data)
 	table.insert_all(formspec, {
 		"container_end[]",
 
-		"box[0,2.55;", W, ",", tab_body_height, ";#ffffff11]",
+		mm_theme.panel(0, 2.55, W, tab_body_height, "surface"),
 
 		"tabheader[0,2.55;", W, ",0.8;tabs;",
 		table.concat(tab_titles, ","), ";", current_tab, ";true;true]",

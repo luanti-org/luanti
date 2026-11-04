@@ -8,12 +8,59 @@
 #include "IGUISkin.h"
 #include "IGUIEnvironment.h"
 #include "IGUIFont.h"
+#include "ITexture.h"
 #include "IVideoDriver.h"
 #include "rect.h"
 #include "os.h"
 
 namespace gui
 {
+
+static void drawTabHeaderBackground(video::IVideoDriver *driver,
+		video::ITexture *texture, const core::rect<s32> &dest,
+		const core::rect<s32> &middle_rect, const core::rect<s32> *clip,
+		video::SColor color)
+{
+	if (!texture)
+		return;
+
+	const core::dimension2d<u32> texture_size = texture->getOriginalSize();
+	const s32 source_width = texture_size.Width;
+	const s32 source_height = texture_size.Height;
+	const s32 left = middle_rect.UpperLeftCorner.X;
+	const s32 top = middle_rect.UpperLeftCorner.Y;
+	const s32 right = middle_rect.LowerRightCorner.X < 0 ?
+			source_width + middle_rect.LowerRightCorner.X : middle_rect.LowerRightCorner.X;
+	const s32 bottom = middle_rect.LowerRightCorner.Y < 0 ?
+			source_height + middle_rect.LowerRightCorner.Y : middle_rect.LowerRightCorner.Y;
+
+	const s32 right_margin = source_width - right;
+	const s32 bottom_margin = source_height - bottom;
+	const s32 dest_right_margin = core::min_(right_margin, dest.getWidth() / 2);
+	const s32 dest_bottom_margin = core::min_(bottom_margin, dest.getHeight() / 2);
+	const s32 dest_left = core::min_(left, dest.getWidth() - dest_right_margin);
+	const s32 dest_top = core::min_(top, dest.getHeight() - dest_bottom_margin);
+
+	const s32 sx[] = {0, left, right, source_width};
+	const s32 sy[] = {0, top, bottom, source_height};
+	const s32 dx[] = {dest.UpperLeftCorner.X, dest.UpperLeftCorner.X + dest_left,
+		dest.LowerRightCorner.X - dest_right_margin, dest.LowerRightCorner.X};
+	const s32 dy[] = {dest.UpperLeftCorner.Y, dest.UpperLeftCorner.Y + dest_top,
+		dest.LowerRightCorner.Y - dest_bottom_margin, dest.LowerRightCorner.Y};
+	const video::SColor colors[] = {color, color, color, color};
+
+	for (s32 y = 0; y < 3; y++) {
+		for (s32 x = 0; x < 3; x++) {
+			if (sx[x] == sx[x + 1] || sy[y] == sy[y + 1] ||
+					dx[x] == dx[x + 1] || dy[y] == dy[y + 1])
+				continue;
+			driver->draw2DImage(texture,
+					core::rect<s32>(dx[x], dy[y], dx[x + 1], dy[y + 1]),
+					core::rect<s32>(sx[x], sy[y], sx[x + 1], sy[y + 1]),
+					clip, colors, true);
+		}
+	}
+}
 
 // ------------------------------------------------------------------
 // Tab
@@ -25,7 +72,8 @@ CGUITab::CGUITab(IGUIEnvironment *environment,
 		s32 id) :
 		IGUITab(environment, parent, id, rectangle),
 		BackColor(0, 0, 0, 0), OverrideTextColorEnabled(false), TextColor(255, 0, 0, 0),
-		DrawBackground(false)
+		DrawBackground(false), HeaderBackColor(0, 0, 0, 0), DrawHeaderBackground(false),
+		HeaderBackgroundImage(nullptr), HeaderBackgroundMiddle()
 {
 	const IGUISkin *const skin = environment->getSkin();
 	if (skin)
@@ -83,6 +131,43 @@ bool CGUITab::isDrawingBackground() const
 video::SColor CGUITab::getBackgroundColor() const
 {
 	return BackColor;
+}
+
+void CGUITab::setHeaderBackgroundColor(video::SColor c)
+{
+	HeaderBackColor = c;
+}
+
+void CGUITab::setDrawHeaderBackground(bool draw)
+{
+	DrawHeaderBackground = draw;
+}
+
+bool CGUITab::isDrawingHeaderBackground() const
+{
+	return DrawHeaderBackground;
+}
+
+video::SColor CGUITab::getHeaderBackgroundColor() const
+{
+	return HeaderBackColor;
+}
+
+void CGUITab::setHeaderBackgroundImage(video::ITexture *texture,
+		const core::rect<s32> &middle)
+{
+	HeaderBackgroundImage = texture;
+	HeaderBackgroundMiddle = middle;
+}
+
+video::ITexture *CGUITab::getHeaderBackgroundImage() const
+{
+	return HeaderBackgroundImage;
+}
+
+const core::rect<s32> &CGUITab::getHeaderBackgroundMiddle() const
+{
+	return HeaderBackgroundMiddle;
 }
 
 // ------------------------------------------------------------------
@@ -602,7 +687,17 @@ void CGUITabControl::draw()
 			// activetext = text;
 			activeTab = Tabs[i];
 		} else {
-			skin->draw3DTabButton(this, false, frameRect, &AbsoluteClippingRect, VerticalAlignment);
+			if (Tabs[i]->isDrawingHeaderBackground()) {
+				if (Tabs[i]->getHeaderBackgroundImage())
+					drawTabHeaderBackground(driver, Tabs[i]->getHeaderBackgroundImage(),
+							frameRect, Tabs[i]->getHeaderBackgroundMiddle(),
+							&AbsoluteClippingRect, Tabs[i]->getHeaderBackgroundColor());
+				else
+					driver->draw2DRectangle(Tabs[i]->getHeaderBackgroundColor(), frameRect,
+							&AbsoluteClippingRect);
+			}
+			else
+				skin->draw3DTabButton(this, false, frameRect, &AbsoluteClippingRect, VerticalAlignment);
 
 			// draw text
 			core::rect<s32> textClipRect(frameRect); // TODO: exact size depends on borders in draw3DTabButton which we don't get with current interface
@@ -621,7 +716,17 @@ void CGUITabControl::draw()
 			frameRect.LowerRightCorner.X = right + 2;
 			frameRect.UpperLeftCorner.Y -= 2;
 
-			skin->draw3DTabButton(this, true, frameRect, &AbsoluteClippingRect, VerticalAlignment);
+			if (activeTab->isDrawingHeaderBackground()) {
+				if (activeTab->getHeaderBackgroundImage())
+					drawTabHeaderBackground(driver, activeTab->getHeaderBackgroundImage(),
+							frameRect, activeTab->getHeaderBackgroundMiddle(),
+							&AbsoluteClippingRect, activeTab->getHeaderBackgroundColor());
+				else
+					driver->draw2DRectangle(activeTab->getHeaderBackgroundColor(), frameRect,
+							&AbsoluteClippingRect);
+			}
+			else
+				skin->draw3DTabButton(this, true, frameRect, &AbsoluteClippingRect, VerticalAlignment);
 
 			// draw text
 			core::rect<s32> textClipRect(frameRect); // TODO: exact size depends on borders in draw3DTabButton which we don't get with current interface
@@ -643,7 +748,17 @@ void CGUITabControl::draw()
 			frameRect.LowerRightCorner.X = right + 2;
 			frameRect.LowerRightCorner.Y += 2;
 
-			skin->draw3DTabButton(this, true, frameRect, &AbsoluteClippingRect, VerticalAlignment);
+			if (activeTab->isDrawingHeaderBackground()) {
+				if (activeTab->getHeaderBackgroundImage())
+					drawTabHeaderBackground(driver, activeTab->getHeaderBackgroundImage(),
+							frameRect, activeTab->getHeaderBackgroundMiddle(),
+							&AbsoluteClippingRect, activeTab->getHeaderBackgroundColor());
+				else
+					driver->draw2DRectangle(activeTab->getHeaderBackgroundColor(), frameRect,
+							&AbsoluteClippingRect);
+			}
+			else
+				skin->draw3DTabButton(this, true, frameRect, &AbsoluteClippingRect, VerticalAlignment);
 
 			// draw text
 			font->draw(activeTab->getText(), frameRect, activeTab->getTextColor(),

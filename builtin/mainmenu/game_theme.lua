@@ -5,7 +5,7 @@
 mm_game_theme = {}
 
 local COLORS = {
-	dark = { clouds = "#1c2a47", sky = "#090b1a" },
+	dark = { clouds = mm_theme.colors.surface, sky = mm_theme.colors.base },
 	light = { clouds = "#f0f0ff", sky = "#8cbafa" },
 	halloween = { clouds = "#d2691e", sky = "#1a0b2e" },
 }

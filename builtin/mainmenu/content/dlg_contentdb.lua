@@ -205,7 +205,7 @@ local function get_formspec(dlgdata)
 	local category_button_w = math.min(max_button_w, 3)
 	local function make_category_button(name, label, selected)
 		category_x = category_x + 1
-		local color = selected and mt_color_green or ""
+		local color = selected and mm_theme.colors.blue or mm_theme.colors.elevated
 		return ("style[%s;bgcolor=%s]button[%f,0;%f,0.8;%s;%s]"):format(name, color,
 				(category_x - 1) * category_button_w, category_button_w, name, label)
 	end
@@ -299,7 +299,7 @@ local function get_formspec(dlgdata)
 	end
 
 	-- download/queued tooltips always have the same message
-	local tooltip_colors = ";#dff6f5;#302c2e]"
+	local tooltip_colors = ";" .. mm_theme.colors.info .. ";" .. mm_theme.colors.base .. "]"
 	formspec[#formspec + 1] = "tooltip[downloading;" .. fgettext("Downloading...") .. tooltip_colors
 	-- TRANSLATORS: A download is queued
 	formspec[#formspec + 1] = "tooltip[queued;" .. fgettext("Queued") .. tooltip_colors
@@ -320,8 +320,8 @@ local function get_formspec(dlgdata)
 	local start_idx = (cur_page - 1) * num_per_page + 1
 	for i=start_idx, math.min(#contentdb.packages, start_idx+num_per_page-1) do
 		local package = contentdb.packages[i]
-		local text = core.colorize(mt_color_green, package.title) ..
-			core.colorize("#BFBFBF", " by " .. package.author) .. "\n" ..
+		local text = core.colorize(mm_theme.colors.blue, package.title) ..
+			core.colorize(mm_theme.colors.subtext, " by " .. package.author) .. "\n" ..
 			package.short_description
 
 		table.insert_all(formspec, {
@@ -331,7 +331,14 @@ local function get_formspec(dlgdata)
 			(cell_h + cell_spacing) * math.floor((i - start_idx) / columns),
 			"]",
 
-			"box[0,0;", cell_w, ",", cell_h, ";#ffffff11]",
+			-- Keep the clickable hit area behind the card content so its styled
+			-- background doesn't cover the package thumbnail and text.
+			"style[view_", i, ";border=false]",
+			"style[view_", i, ":hovered;bgcolor=", mm_theme.colors.blue, "]",
+			"style[view_", i, ":pressed;bgcolor=", mm_theme.colors.lavender, "]",
+			"button[0,0;", cell_w, ",", cell_h, ";view_", i, ";]",
+
+			mm_theme.panel(0, 0, cell_w, cell_h, "surface"),
 
 			-- image,
 			"image[0,0;", img_w, ",", cell_h, ";",
@@ -346,10 +353,6 @@ local function get_formspec(dlgdata)
 				-- avoid everything being one long line.
 				core.formspec_escape(core.wrap_text(package.short_description, 80)), "]",
 
-			"style[view_", i, ";border=false]",
-			"style[view_", i, ":hovered;bgimg=", core.formspec_escape(defaulttexturedir .. "button_hover_semitrans.png"), "]",
-			"style[view_", i, ":pressed;bgimg=", core.formspec_escape(defaulttexturedir .. "button_press_semitrans.png"), "]",
-			"button[0,0;", cell_w, ",", cell_h, ";view_", i, ";]",
 		})
 
 		if package.featured then

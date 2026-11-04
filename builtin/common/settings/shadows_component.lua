@@ -86,7 +86,9 @@ return {
 		local fs =
 			"label[0,0.2;" .. fgettext("Quality preset") .. "]" ..
 			"dropdown[0,0.4;3,0.8;dd_shadows;" .. table.concat(labels, ",") .. ";" .. idx .. ";true]" ..
-			"label[0,1.5;" .. core.colorize("#bbb", fgettext("(The game will need to enable shadows as well)")) .. "]"
+			"label[0,1.5;" .. core.colorize(
+				mm_theme and mm_theme.colors.subtext or "#bbb",
+				fgettext("(The game will need to enable shadows as well)")) .. "]"
 		return fs, 1.8
 	end,
 	on_submit = function(self, fields)

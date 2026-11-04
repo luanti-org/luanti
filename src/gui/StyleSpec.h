@@ -21,6 +21,8 @@ public:
 	{
 		TEXTCOLOR,
 		BGCOLOR,
+		TEXTCOLOR_SELECTED,
+		BGCOLOR_SELECTED,
 		BGCOLOR_HOVERED, // Note: Deprecated property
 		BGCOLOR_PRESSED, // Note: Deprecated property
 		NOCLIP,
@@ -75,6 +77,10 @@ public:
 			return TEXTCOLOR;
 		} else if (name == "bgcolor") {
 			return BGCOLOR;
+		} else if (name == "textcolor_selected") {
+			return TEXTCOLOR_SELECTED;
+		} else if (name == "bgcolor_selected") {
+			return BGCOLOR_SELECTED;
 		} else if (name == "bgcolor_hovered") {
 			return BGCOLOR_HOVERED;
 		} else if (name == "bgcolor_pressed") {

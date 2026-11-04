@@ -152,7 +152,8 @@ local function get_formspec(dialogdata)
 			h = size.h * 1.16 + 0.12
 		}
 		return ("box[%f,%f;%f,%f;%s]textarea[%f,%f;%f,%f;;%s;%s]"):format(
-			size.x, size.y, size.w, size.h, bg_color or "#000",
+			size.x, size.y, size.w, size.h, bg_color or
+				(mm_theme and mm_theme.colors.surface or "#000"),
 			textarea.x, textarea.y, textarea.w, textarea.h,
 			core.formspec_escape(label), core.formspec_escape(text)
 		)
@@ -168,7 +169,8 @@ local function get_formspec(dialogdata)
 			h = 0.5
 		}
 		formspec = formspec ..
-			create_textfield(error_box, "", dialogdata.error_message, "#600")
+			create_textfield(error_box, "", dialogdata.error_message,
+				mm_theme and mm_theme.colors.error or "#600")
 		description_height = description_height - 0.75
 	end
 

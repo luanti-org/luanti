@@ -48,6 +48,9 @@ public:
 	\param color: New color of the text. */
 	virtual void setOverrideColor(video::SColor color) = 0;
 
+	//! Sets the background color used when drawing the edit box.
+	virtual void setOverrideBgColor(video::SColor color) = 0;
+
 	//! Gets the override color
 	virtual video::SColor getOverrideColor() const = 0;
 

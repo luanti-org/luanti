@@ -89,7 +89,7 @@ function singleplayer_refresh_gamebar()
 			"game_button_bar",
 			{x = 0, y = gamebar_pos_y},
 			{x = MAIN_TAB_W, y = GAMEBAR_H},
-			"#000000",
+			mm_theme.colors.mantle,
 			game_buttonbar_button_handler)
 
 	for _, game in ipairs(pkgmgr.games) do
@@ -221,9 +221,10 @@ local function get_formspec(tabview, name, tabdata)
 			"container_end[]" ..
 			"container[5.25,0.375]" ..
 			"label[0,0.2;".. fgettext("Select World:") .. "]"..
-			"textlist[0,0.5;9.875,3.9;sp_worlds;" ..
+			mm_theme.panel(0, 0.5, 9.875, 3.9, "surface") ..
+			"textlist[0,0.5;9.875,3.775;sp_worlds;" ..
 			menu_render_worldlist() ..
-			";" .. index .. "]" ..
+			";" .. index .. ";true]" ..
 			"container_end[]"
 
 	if core.settings:get_bool("enable_server") and disabled_settings["enable_server"] == nil then

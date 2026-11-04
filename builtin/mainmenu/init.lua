@@ -13,8 +13,17 @@ local menupath = core.get_mainmenu_path()
 local basepath = core.get_builtin_path()
 defaulttexturedir = core.get_texturepath_share() .. DIR_DELIM .. "base" ..
 					DIR_DELIM .. "pack" .. DIR_DELIM
+mm_theme = dofile(menupath .. DIR_DELIM .. "theme.lua")
 
 dofile(basepath .. "common" .. DIR_DELIM .. "menu.lua")
+mm_theme.refresh()
+mt_color_grey = mm_theme.colors.subtext
+mt_color_blue = mm_theme.colors.blue
+mt_color_lightblue = mm_theme.colors.lavender
+mt_color_green = mm_theme.colors.success
+mt_color_dark_green = mm_theme.colors.success
+mt_color_orange = mm_theme.colors.warning
+mt_color_red = mm_theme.colors.error
 dofile(basepath .. "common" .. DIR_DELIM .. "filterlist.lua")
 dofile(basepath .. "fstk" .. DIR_DELIM .. "buttonbar.lua")
 dofile(basepath .. "fstk" .. DIR_DELIM .. "dialog.lua")
@@ -69,7 +78,7 @@ local function init_globals()
 		local set_topleft_text = core.set_topleft_text
 		core.set_topleft_text = function(s)
 			s = (s or "") .. "\n"
-			s = s .. core.colorize("#f22", core.gettext("Debug build, expect worse performance"))
+			s = s .. core.colorize(mm_theme.colors.error, core.gettext("Debug build, expect worse performance"))
 			set_topleft_text(s)
 		end
 	end

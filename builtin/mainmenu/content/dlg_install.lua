@@ -67,24 +67,24 @@ local function get_formspec(data)
 	data.deps_chosen = data.deps_ready[selected_game_idx]
 	local formatted_deps = {}
 	for _, dep in pairs(data.deps_chosen) do
-		formatted_deps[#formatted_deps + 1] = "#fff"
+			formatted_deps[#formatted_deps + 1] = mm_theme.colors.text
 		formatted_deps[#formatted_deps + 1] = core.formspec_escape(dep.name)
 		if dep.installed then
-			formatted_deps[#formatted_deps + 1] = "#ccf"
+			formatted_deps[#formatted_deps + 1] = mm_theme.colors.subtext
 			formatted_deps[#formatted_deps + 1] = fgettext("Already installed")
 		elseif dep.package then
-			formatted_deps[#formatted_deps + 1] = "#cfc"
+			formatted_deps[#formatted_deps + 1] = mm_theme.colors.success
 			-- TRANSLATORS: Package (mod, texture pack, etc.) info: $1 = package name, $2 = package author
 			formatted_deps[#formatted_deps + 1] = fgettext("$1 by $2", dep.package.title, dep.package.author)
 			deps_to_install = deps_to_install + 1
 		else
-			formatted_deps[#formatted_deps + 1] = "#f00"
+			formatted_deps[#formatted_deps + 1] = mm_theme.colors.error
 			formatted_deps[#formatted_deps + 1] = fgettext("Not found")
 			deps_not_found = deps_not_found + 1
 		end
 	end
 
-	local message_bg = "#3333"
+	local message_bg = mm_theme.colors.surface
 	local message
 	if will_install_deps then
 		-- TRANSLATORS: $1 is the name of a package and $2 is a number of depencencies
@@ -97,7 +97,7 @@ local function get_formspec(data)
 		message = fgettext("$1 required dependencies could not be found.", deps_not_found) ..
 				" " .. fgettext("Please check that the base game is correct.", deps_not_found) ..
 				"\n" .. message
-		message_bg = mt_color_orange
+		message_bg = mm_theme.colors.warning
 	end
 
 	local TOUCH_GUI = core.settings:get_bool("touch_gui")
@@ -113,7 +113,7 @@ local function get_formspec(data)
 		"size[", w, ",9.05]",
 		TOUCH_GUI and "padding[0.01,0.01]" or "position[0.5,0.55]",
 		"style[title;border=false]",
-		"box[0,0;", w, ",0.8;#3333]",
+		"box[0,0;", w, ",0.8;", mm_theme.colors.surface, "]",
 		"button[0,0;", w, ",0.8;title;", fgettext("Install $1", package.title) , "]",
 
 		"container[0.375,1]",

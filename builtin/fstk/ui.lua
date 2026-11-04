@@ -41,11 +41,12 @@ end
 -- "title" and "message" must already be formspec-escaped, e.g. via fgettext or
 -- core.formspec_escape.
 function ui.get_message_formspec(title, message, btn_id)
+	local surface = mm_theme and mm_theme.colors.surface or "#000"
 	return table.concat({
 		"size[14,8]",
 		"real_coordinates[true]",
 		"set_focus[", btn_id, ";true]",
-		"box[0.5,1.2;13,5;#000]",
+		"box[0.5,1.2;13,5;", surface, "]",
 		("textarea[0.5,1.2;13,5;;%s;%s]"):format(title, message),
 		"button[2,6.6;4,1;btn_error_copy;" .. fgettext("Copy to clipboard") .. "]",
 		"button[8,6.6;4,1;", btn_id, ";" .. fgettext("OK") .. "]"
@@ -64,13 +65,14 @@ function ui.update()
 
 	-- handle errors
 	if gamedata ~= nil and gamedata.reconnect_requested then
+		local surface = mm_theme and mm_theme.colors.surface or "#000"
 		local error_message = core.formspec_escape(gamedata.errormessage)
 				or fgettext("<none available>")
 		formspec = {
 			"size[14,8]",
 			"real_coordinates[true]",
 			"set_focus[btn_reconnect_yes;true]",
-			"box[0.5,1.2;13,5;#000]",
+			"box[0.5,1.2;13,5;", surface, "]",
 			("textarea[0.5,1.2;13,5;;%s;%s]"):format(
 				fgettext("The server has requested a reconnect:"), error_message),
 			"button[2,6.6;4,1;btn_reconnect_yes;" .. fgettext("Reconnect") .. "]",
@@ -129,7 +131,11 @@ function ui.update()
 			formspec = {ui.childlist[ui.default]:get_formspec()}
 		end
 	end
-	core.update_formspec(table.concat(formspec))
+	local combined_formspec = table.concat(formspec)
+	if mm_theme then
+		combined_formspec = mm_theme.inject_formspec(combined_formspec)
+	end
+	core.update_formspec(combined_formspec)
 end
 
 --------------------------------------------------------------------------------
