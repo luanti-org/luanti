@@ -162,6 +162,12 @@ public:
 		return m_ao_manager.getActiveObject(id);
 	}
 
+	// Linear scan - only finds objects that are currently active.
+	ServerActiveObject* getActiveObjectByGUID(const std::string &guid)
+	{
+		return m_ao_manager.getActiveObjectByGUID(guid);
+	}
+
 	/*
 		Add an active object to the environment.
 		Environment handles deletion of object.

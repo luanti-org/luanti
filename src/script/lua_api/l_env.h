@@ -131,6 +131,9 @@ private:
 	// pos = {x=num, y=num, z=num}
 	static int l_add_item(lua_State *L);
 
+	// add_line(def) -> ObjectRef or nil
+	static int l_add_line(lua_State *L);
+
 	// get_connected_players()
 	static int l_get_connected_players(lua_State *L);
 

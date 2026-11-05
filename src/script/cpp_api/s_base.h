@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <mutex>
+#include <vector>
 #include "common/helper.h"
 #include "util/basic_macros.h"
 
@@ -63,8 +64,13 @@ class Environment;
 class GUIEngine;
 class SSCSMEnvironment;
 class ServerActiveObject;
+class ServerEnvironment;
 struct PlayerHPChangeReason;
 struct ModVFS;
+struct LinePoint;
+
+void push_line_points(lua_State *L, const std::vector<LinePoint> &points,
+		ServerEnvironment *env);
 
 class ScriptApiBase : protected LuaHelper {
 public:
@@ -136,6 +142,8 @@ protected:
 	friend class ModApiEnv;
 	friend class LuaVoxelManip;
 	friend class TestMoveAction; // needs getStack()
+	friend void push_line_points(lua_State *L, const std::vector<LinePoint> &points,
+			ServerEnvironment *env);
 
 	/*
 		Subtle edge case with coroutines: If for whatever reason you have a
