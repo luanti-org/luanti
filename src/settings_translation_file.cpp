@@ -240,6 +240,8 @@ fake_function() {
 	gettext("Use trilinear filtering when scaling textures.\nIf both bilinear and trilinear filtering are enabled, trilinear filtering\nis applied.");
 	gettext("Anisotropic filtering");
 	gettext("Use anisotropic filtering when looking at textures from an angle.\nThis provides a significant improvement when used together with mipmapping.");
+	gettext("Minimum size for texture filtering");
+	gettext("When using bilinear/trilinear filtering, low-resolution textures\nare upscaled (nearest-neighbor) to at least this size before filtering,\nso pixel art stays crisp. Higher values look sharper, but use more memory.\nSet to 1 to filter textures at their native size, which gives the soft,\nblurry look of older versions. The default of 192 keeps textures crisp.\nThis setting is ONLY applied if any of the mentioned filters are enabled.\nThis is also used as the base node texture size for world-aligned\ntexture autoscaling.");
 	gettext("Antialiasing method");
 	gettext("Select the antialiasing method to apply.\n\n* None - No antialiasing (default)\n\n* FSAA - Hardware-provided full-screen antialiasing\nA.K.A multi-sample antialiasing (MSAA)\nSmoothens out block edges but does not affect the insides of textures.\n\nIf Post Processing is disabled, changing FSAA requires a restart.\nAlso, if Post Processing is disabled, FSAA will not work together with\nundersampling or a non-default \"3d_mode\" setting.\n\n* SSAA - Super-sampling antialiasing\nRenders higher-resolution image of the scene, then scales down to reduce\nthe aliasing effects. This is the slowest and the most accurate method.");
 	gettext("Anti-aliasing scale");
@@ -790,8 +792,6 @@ fake_function() {
 	gettext("World-aligned textures may be scaled to span several nodes. However,\nthe server may not send the scale you want, especially if you use\na specially-designed texture pack; with this option, the client tries\nto determine the scale automatically based on the texture size.\nSee also texture_min_size.\nWarning: This option is EXPERIMENTAL!");
 	gettext("Array texture max layers");
 	gettext("Caps the maximum number of layers used with array textures (if supported).\nThis is only useful for debugging.");
-	gettext("Base texture size");
-	gettext("When using bilinear/trilinear filtering, low-resolution textures\ncan be blurred, so this option automatically upscales them to preserve\ncrisp pixels. This defines the minimum texture size for the upscaled textures;\nhigher values look sharper, but require more memory.\nThis setting is ONLY applied if any of the mentioned filters are enabled.\nThis is also used as the base node texture size for world-aligned\ntexture autoscaling.");
 	gettext("Client Mesh Chunksize");
 	gettext("Side length of a cube of map blocks that the client will consider together\nwhen generating meshes.\nLarger values increase the utilization of the GPU by reducing the number of\ndraw calls, benefiting especially high-end GPUs.\nSystems with a low-end GPU (or no GPU) would benefit from smaller values.");
 	gettext("Color depth for post-processing texture");

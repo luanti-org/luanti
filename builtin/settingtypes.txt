@@ -634,6 +634,16 @@ trilinear_filter (Trilinear filtering) bool false
 #    This provides a significant improvement when used together with mipmapping.
 anisotropic_filter (Anisotropic filtering) bool false
 
+#    When using bilinear/trilinear filtering, low-resolution textures
+#    are upscaled (nearest-neighbor) to at least this size before filtering,
+#    so pixel art stays crisp. Higher values look sharper, but use more memory.
+#    Set to 1 to filter textures at their native size, which gives the soft,
+#    blurry look of older versions. The default of 192 keeps textures crisp.
+#    This setting is ONLY applied if any of the mentioned filters are enabled.
+#    This is also used as the base node texture size for world-aligned
+#    texture autoscaling.
+texture_min_size (Minimum size for texture filtering) int 192 1 16384
+
 #    Select the antialiasing method to apply.
 #
 #    * None - No antialiasing (default)
@@ -2096,15 +2106,6 @@ autoscale_mode (Autoscaling mode) enum disable disable,enable,force
 #    Caps the maximum number of layers used with array textures (if supported).
 #    This is only useful for debugging.
 array_texture_max (Array texture max layers) int 65535 0 65535
-
-#    When using bilinear/trilinear filtering, low-resolution textures
-#    can be blurred, so this option automatically upscales them to preserve
-#    crisp pixels. This defines the minimum texture size for the upscaled textures;
-#    higher values look sharper, but require more memory.
-#    This setting is ONLY applied if any of the mentioned filters are enabled.
-#    This is also used as the base node texture size for world-aligned
-#    texture autoscaling.
-texture_min_size (Base texture size) int 192 192 16384
 
 #    Side length of a cube of map blocks that the client will consider together
 #    when generating meshes.

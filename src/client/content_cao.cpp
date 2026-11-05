@@ -164,7 +164,9 @@ static bool setMaterialTextureAndFilters(video::SMaterial &material,
 
 	// don't filter low-res textures, makes them look blurry
 	const core::dimension2d<u32> &size = texture->getOriginalSize();
-	if (std::min(size.Width, size.Height) < TEXTURE_FILTER_MIN_SIZE)
+	const u32 min_size = rangelim(g_settings->getU16("texture_min_size"),
+			TEXTURE_FILTER_MIN_SIZE_LIMIT, 16384);
+	if (std::min(size.Width, size.Height) < min_size)
 		use_trilinear_filter = use_bilinear_filter = false;
 
 	material.forEachTexture([=] (auto &tex) {

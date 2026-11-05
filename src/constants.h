@@ -100,11 +100,13 @@
 
 #define TTF_DEFAULT_FONT_SIZE (16)
 
-// Minimum texture size enforced/checked for enabling linear filtering
-// This serves as the minimum for `texture_min_size`.
+// Default minimum texture size for enabling linear filtering
+// (default value of `texture_min_size`).
 // The intent is to ensure that the rendering doesn't turn terribly blurry
-// when filtering is enabled.
+// when filtering is enabled. Users may lower this via `texture_min_size`
+// down to TEXTURE_FILTER_MIN_SIZE_LIMIT to get soft filtering of low-res textures.
 #define TEXTURE_FILTER_MIN_SIZE 192U
+#define TEXTURE_FILTER_MIN_SIZE_LIMIT 1U
 
 // Resolution of clocks that SSCSM has access to, in us.
 // Used as countermeasure against side-channel attacks.

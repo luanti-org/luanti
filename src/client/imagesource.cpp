@@ -1420,7 +1420,7 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 			const bool filter = m_setting_trilinear_filter || m_setting_bilinear_filter;
 			if (filter) {
 				const f32 scaleto = rangelim(g_settings->getU16("texture_min_size"),
-					TEXTURE_FILTER_MIN_SIZE, 16384);
+					TEXTURE_FILTER_MIN_SIZE_LIMIT, 16384);
 
 				/* Calculate integer-scaling needed to make the shortest texture
 				 * dimension equal to the target minimum. If this is e.g. a
