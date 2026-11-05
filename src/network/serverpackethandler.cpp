@@ -1437,7 +1437,7 @@ void Server::handleCommand_FirstSrp(NetworkPacket* pkt)
 		client->setEncryptedPassword(encpwd);
 
 		m_script->on_authplayer(playername, addr_s, true);
-		acceptAuth(peer_id, false);
+		acceptAuth(peer_id, AuthCommand::NormalAuth);
 	} else {
 		if (cstate < CS_SudoMode) {
 			infostream << "Server: Ignoring TOSERVER_FIRST_SRP from "
@@ -1661,7 +1661,7 @@ void Server::handleCommand_SrpBytesM(NetworkPacket* pkt)
 	}
 
 	m_script->on_authplayer(playername, addr_s, true);
-	acceptAuth(peer_id, wantSudo);
+	acceptAuth(peer_id, wantSudo ? AuthCommand::AcceptSudo : AuthCommand::NormalAuth);
 }
 
 /*
