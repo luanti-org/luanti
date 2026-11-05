@@ -232,8 +232,12 @@ void Timer::initTimer()
 
 u32 Timer::getRealTime()
 {
+	// With pthreads enabled, emscripten_get_now() returns milliseconds
+	// since January 1, 1970. This is > 1.7e12, well over 32-bits.
+	// Casting it to u32 would be undefined behavior. Casting it to
+	// u64 first makes this well-defined.
 	double time = emscripten_get_now();
-	return (u32)(time);
+	return (u32)((u64)time);
 }
 } // end namespace os
 
