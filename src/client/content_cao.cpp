@@ -371,11 +371,39 @@ const v3f GenericCAO::getPosition() const
 
 	// Calculate real position in world based on MatrixNode
 	if (m_matrixnode) {
-		// FIXME work around #16221 which is caused by the camera position and thus
-		// offset not being in sync with the player (parent) CAO position.
-		// A better solution might restrict this update to the local player only
-		// or keep player and camera position in sync.
 		GenericCAO::updateParentChain();
+
+		// Prefer reconstructing the position from the exact position of
+		// the attachment chain's root plus the relative transformations.
+		// The scene node positions are relative to the camera offset, so
+		// reading the absolute position back (and adding the camera
+		// offset again) depends on the camera offset itself. If the
+		// position is exactly on a camera offset boundary, the rounding
+		// error then makes the camera offset flip back and forth every
+		// frame (#17523).
+		ClientActiveObject *root = getParent();
+		while (auto *parent = root->getParent())
+			root = parent;
+		GenericCAO *root_cao = m_env->getGenericCAO(root->getId());
+		scene::ISceneNode *root_node =
+				root_cao ? root_cao->m_matrixnode : nullptr;
+		if (root_node) {
+			v3f pos = root->getPosition();
+			scene::ISceneNode *node = m_matrixnode;
+			while (node && node != root_node && node->getParent()) {
+				scene::ISceneNode *parent = node->getParent();
+				pos += parent->getAbsoluteTransformation()
+						.rotateAndScaleVect(node->getRelativeTransformation()
+						.getTranslation());
+				node = parent;
+			}
+			if (node == root_node)
+				return pos;
+		}
+
+		// Fallback for objects whose scene node chain is broken:
+		// calculate the position from the absolute scene node position.
+		// Note that this may be off around camera offset boundaries.
 		v3s16 camera_offset = m_env->getCameraOffset();
 		return m_matrixnode->getAbsolutePosition() +
 				intToFloat(camera_offset, BS);
