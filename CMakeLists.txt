@@ -283,6 +283,7 @@ endif()
 
 # Library pack
 find_package(GMP REQUIRED)
+find_package(ICU REQUIRED uc data i18n)
 find_package(Json 1.0.0 REQUIRED)
 find_package(Lua REQUIRED)
 if(NOT USE_LUAJIT)
