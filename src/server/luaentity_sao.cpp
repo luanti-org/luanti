@@ -175,17 +175,20 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 		m_velocity = v3f(0,0,0);
 		m_acceleration = v3f(0,0,0);
 	} else {
-		if(m_prop.physical){
+		if (m_prop.physical) {
 			aabb3f box = m_prop.collisionbox;
 			box.MinEdge *= BS;
 			box.MaxEdge *= BS;
-			v3f p_pos = getBasePosition();
-			v3f p_velocity = m_velocity;
-			v3f p_acceleration = m_acceleration;
+			v3f p_pos = getBasePosition(), p_velocity = m_velocity, p_acceleration = m_acceleration;
+			CollisionParams cp;
+			cp.self = this;
+			cp.collision_group = getCollisionGroup();
+			cp.collision_mask = getCollisionMask();
+			cp.step_up_mode = m_prop.step_up_mode;
+
 			moveresult = collisionMoveSimple(m_env, m_env->getGameDef(),
 					box, m_prop.stepheight, dtime,
-					&p_pos, &p_velocity, p_acceleration,
-					this, m_prop.collideWithObjects, m_prop.step_up_mode);
+					&p_pos, &p_velocity, p_acceleration, cp);
 			moveresult_p = &moveresult;
 
 			// Apply results
@@ -593,9 +596,4 @@ bool LuaEntitySAO::getSelectionBox(aabb3f *toset) const
 	toset->MaxEdge = m_prop.selectionbox.MaxEdge * BS;
 
 	return true;
-}
-
-bool LuaEntitySAO::collideWithObjects() const
-{
-	return m_prop.collideWithObjects;
 }
