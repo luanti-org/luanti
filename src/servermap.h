@@ -6,6 +6,11 @@
 
 #include <vector>
 #include <memory>
+#include <mutex>
+#include <condition_variable>
+#include <functional>
+#include <string>
+#include <unordered_map>
 
 #include "map.h"
 #include "util/container.h" // UniqueQueue
@@ -18,19 +23,70 @@ class EmergeManager;
 class ServerEnvironment;
 struct BlockMakeData;
 class MetricsBackend;
+class Thread;
 
-// TODO: this could wrap all calls to MapDatabase, including locking
 struct MapDatabaseAccessor {
-	/// Lock, to be taken for any operation
+	/// Lock, to be taken for any direct use of the databases
 	std::mutex mutex;
 	/// Main database
 	MapDatabase *dbase = nullptr;
 	/// Fallback database for read operations
 	MapDatabase *dbase_ro = nullptr;
+	unsigned int retry_delay_ms = 1000;
 
-	/// Load a block, taking dbase_ro into account.
-	/// @note call locked
+	MapDatabaseAccessor();
+	~MapDatabaseAccessor();
+
+	/// on_fatal_error is called from the save thread
+	void start(std::function<void(const std::string &)> on_fatal_error);
+
+	/// Writes what is still queued
+	void stop();
+
+	/// Also sees pending writes and dbase_ro
 	void loadBlock(v3s16 blockpos, std::string &ret);
+
+	/// Blocks while the queue is full. Does nothing once writing has failed for good
+	void queueBlock(v3s16 blockpos, std::string &&data);
+
+	/// Also discards its pending write
+	bool deleteBlock(v3s16 blockpos);
+
+	/// Includes pending writes
+	void listAllLoadableBlocks(std::vector<v3s16> &dst);
+
+private:
+	friend class MapSaveThread;
+	friend class TestMapDatabaseAccessor;
+
+	using PendingData = std::shared_ptr<const std::string>;
+
+	// Needs m_pending_mutex
+	void setPending(v3s16 blockpos, PendingData data);
+
+	// false if asked to stop
+	bool waitForPending();
+
+	// false if the database rejected a block
+	bool writePending();
+
+	// Reports a fatal error when out of attempts
+	bool writePendingWithRetries();
+
+	void saveThreadMain();
+
+	// May be taken while holding `mutex`, never the other way around
+	std::mutex m_pending_mutex;
+	std::condition_variable m_work_cv;
+	std::condition_variable m_drain_cv;
+	std::unordered_map<v3s16, PendingData> m_pending;
+	size_t m_pending_bytes = 0;
+	bool m_stop_requested = false;
+	// Writing failed for good, nothing will be written anymore
+	bool m_failed = false;
+
+	std::function<void(const std::string &)> m_on_fatal_error;
+	std::unique_ptr<Thread> m_thread;
 };
 
 /*
@@ -104,10 +160,6 @@ public:
 	*/
 	static std::vector<std::string> getDatabaseBackends();
 	static MapDatabase *createDatabase(const std::string &name, const std::string &savedir, Settings &conf);
-
-	// Call these before and after saving of blocks
-	void beginSave() override;
-	void endSave() override;
 
 	void save(ModifiedState save_level) override;
 	void listAllLoadableBlocks(std::vector<v3s16> &dst);
