@@ -47,7 +47,11 @@ struct MapDatabaseAccessor {
 	void loadBlock(v3s16 blockpos, std::string &ret);
 
 	/// Blocks while the queue is full. Does nothing once writing has failed for good
+	/// data is the complete database value
 	void queueBlock(v3s16 blockpos, std::string &&data);
+
+	/// Like queueBlock, but raw is uncompressed and gets compressed by the save thread
+	void queueRawBlock(v3s16 blockpos, std::string &&raw, u8 version, int compression_level);
 
 	/// Also discards its pending write
 	bool deleteBlock(v3s16 blockpos);
@@ -59,7 +63,23 @@ private:
 	friend class MapSaveThread;
 	friend class TestMapDatabaseAccessor;
 
-	using PendingData = std::shared_ptr<const std::string>;
+	struct PendingBlock {
+		std::string data;
+		// data still needs compressBlock()
+		bool raw = false;
+		u8 version = 0;
+		int compression_level = -1;
+
+		// The complete database value
+		std::string toDbValue() const;
+	};
+	using PendingData = std::shared_ptr<const PendingBlock>;
+
+	void queuePending(v3s16 blockpos, PendingData block);
+
+	// Compresses the raw entries of batch[start, end), dropping those that changed
+	void compressBatch(std::vector<std::pair<v3s16, PendingData>> &batch,
+			size_t start, size_t end);
 
 	// Needs m_pending_mutex
 	void setPending(v3s16 blockpos, PendingData data);

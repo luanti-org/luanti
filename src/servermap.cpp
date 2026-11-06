@@ -57,6 +57,19 @@ static constexpr size_t MAX_BLOCKS_PER_LOCK = 128;
 // Lets more blocks gather so that they share a transaction
 static constexpr unsigned int BATCH_DELAY_MS = 30;
 
+static std::string compressBlock(const std::string &raw, u8 version, int level)
+{
+	my_ostringstream oss;
+	oss.write(reinterpret_cast<const char*>(&version), 1);
+	compress(raw, oss, version, level);
+	return oss.take();
+}
+
+std::string MapDatabaseAccessor::PendingBlock::toDbValue() const
+{
+	return raw ? compressBlock(data, version, compression_level) : data;
+}
+
 class MapSaveThread : public Thread
 {
 public:
@@ -108,13 +121,16 @@ void MapDatabaseAccessor::stop()
 void MapDatabaseAccessor::loadBlock(v3s16 blockpos, std::string &ret)
 {
 	ret.clear();
+	PendingData pending;
 	{
 		MutexAutoLock lock(m_pending_mutex);
 		auto it = m_pending.find(blockpos);
-		if (it != m_pending.end()) {
-			ret = *it->second;
-			return;
-		}
+		if (it != m_pending.end())
+			pending = it->second;
+	}
+	if (pending) {
+		ret = pending->toDbValue();
+		return;
 	}
 
 	MutexAutoLock dblock(mutex);
@@ -123,16 +139,36 @@ void MapDatabaseAccessor::loadBlock(v3s16 blockpos, std::string &ret)
 		dbase_ro->loadBlock(blockpos, &ret);
 
 	// A newer version may have been queued meanwhile
-	MutexAutoLock lock(m_pending_mutex);
-	auto it = m_pending.find(blockpos);
-	if (it != m_pending.end())
-		ret = *it->second;
+	{
+		MutexAutoLock lock(m_pending_mutex);
+		auto it = m_pending.find(blockpos);
+		if (it != m_pending.end())
+			pending = it->second;
+	}
+	if (pending)
+		ret = pending->toDbValue();
 }
 
 void MapDatabaseAccessor::queueBlock(v3s16 blockpos, std::string &&data)
 {
-	auto block = std::make_shared<const std::string>(std::move(data));
+	auto block = std::make_shared<PendingBlock>();
+	block->data = std::move(data);
+	queuePending(blockpos, std::move(block));
+}
 
+void MapDatabaseAccessor::queueRawBlock(v3s16 blockpos, std::string &&raw,
+		u8 version, int compression_level)
+{
+	auto block = std::make_shared<PendingBlock>();
+	block->data = std::move(raw);
+	block->raw = true;
+	block->version = version;
+	block->compression_level = compression_level;
+	queuePending(blockpos, std::move(block));
+}
+
+void MapDatabaseAccessor::queuePending(v3s16 blockpos, PendingData block)
+{
 	std::unique_lock lock(m_pending_mutex);
 	if (m_pending_bytes >= MAX_PENDING_BYTES && !m_failed) {
 		warningstream << "ServerMap: Waiting for the database to write queued blocks"
@@ -153,11 +189,11 @@ void MapDatabaseAccessor::setPending(v3s16 blockpos, PendingData data)
 {
 	auto it = m_pending.find(blockpos);
 	if (it != m_pending.end()) {
-		m_pending_bytes -= it->second->size();
+		m_pending_bytes -= it->second->data.size();
 		m_pending.erase(it);
 	}
 	if (data) {
-		m_pending_bytes += data->size();
+		m_pending_bytes += data->data.size();
 		m_pending.emplace(blockpos, std::move(data));
 	}
 	m_drain_cv.notify_all();
@@ -209,6 +245,29 @@ bool MapDatabaseAccessor::waitForPending()
 	return !m_stop_requested;
 }
 
+void MapDatabaseAccessor::compressBatch(
+		std::vector<std::pair<v3s16, PendingData>> &batch, size_t start, size_t end)
+{
+	for (size_t i = start; i < end; i++) {
+		auto &[pos, old] = batch[i];
+		if (!old->raw)
+			continue;
+		auto block = std::make_shared<PendingBlock>();
+		block->data = compressBlock(old->data, old->version, old->compression_level);
+
+		MutexAutoLock lock(m_pending_mutex);
+		auto it = m_pending.find(pos);
+		if (it != m_pending.end() && it->second == old) {
+			// setPending() does the byte accounting
+			setPending(pos, block);
+			old = std::move(block);
+		} else {
+			// Replaced or deleted meanwhile
+			old = nullptr;
+		}
+	}
+}
+
 bool MapDatabaseAccessor::writePending()
 {
 	std::vector<std::pair<v3s16, PendingData>> batch;
@@ -225,6 +284,9 @@ bool MapDatabaseAccessor::writePending()
 
 	for (size_t start = 0; start < batch.size(); start += MAX_BLOCKS_PER_LOCK) {
 		const size_t end = std::min(start + MAX_BLOCKS_PER_LOCK, batch.size());
+
+		// Before taking the lock, so loads and deletes don't wait for it
+		compressBatch(batch, start, end);
 
 		// Nobody else can touch the database or delete blocks while this is held
 		MutexAutoLock dblock(mutex);
@@ -248,7 +310,7 @@ bool MapDatabaseAccessor::writePending()
 		dbase->beginSave();
 		try {
 			for (const auto &[pos, data] : chunk) {
-				if (!dbase->saveBlock(pos, *data)) {
+				if (!dbase->saveBlock(pos, data->data)) {
 					ok = false;
 					break;
 				}
@@ -947,8 +1009,12 @@ static std::string serializeBlockForDatabase(MapBlock *block, int compression_le
 
 bool ServerMap::saveBlock(MapBlock *block)
 {
-	m_db.queueBlock(block->getPos(),
-			serializeBlockForDatabase(block, m_map_compression_level));
+	static_assert(SER_FMT_VER_HIGHEST_WRITE >= 29);
+	const u8 version = SER_FMT_VER_HIGHEST_WRITE;
+	my_ostringstream oss;
+	block->serializeUncompressed(oss, version, true);
+	m_db.queueRawBlock(block->getPos(), oss.take(), version,
+			m_map_compression_level);
 	// It can be loaded back from the queue so clear modified flag
 	block->resetModified();
 	return true;

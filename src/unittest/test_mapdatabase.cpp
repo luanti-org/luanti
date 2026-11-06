@@ -13,6 +13,7 @@
 #include <thread>
 #include "exceptions.h"
 #include "porting.h"
+#include "serialization.h"
 #include "servermap.h"
 #include "database/database-dummy.h"
 #include "database/database-sqlite3.h"
@@ -241,6 +242,7 @@ public:
 	void runTests(IGameDef *gamedef);
 
 	void testLoadPending();
+	void testRawBlock();
 	void testWritePending();
 	void testManyBlocks();
 	void testReplaceWhileWriting();
@@ -294,6 +296,7 @@ static TestMapDatabaseAccessor g_test_instance_accessor;
 void TestMapDatabaseAccessor::runTests(IGameDef *gamedef)
 {
 	TEST(testLoadPending);
+	TEST(testRawBlock);
 	TEST(testWritePending);
 	TEST(testManyBlocks);
 	TEST(testReplaceWhileWriting);
@@ -328,6 +331,41 @@ void TestMapDatabaseAccessor::testLoadPending()
 	// nothing was written yet
 	db.loadBlock(pos, &dest);
 	UASSERT(dest.empty());
+}
+
+void TestMapDatabaseAccessor::testRawBlock()
+{
+	Database_Dummy db;
+	MapDatabaseAccessor accessor;
+	accessor.dbase = &db;
+	const u8 version = SER_FMT_VER_HIGHEST_WRITE;
+	std::string loaded, written;
+
+	auto check = [&] (const std::string &value, const std::string &raw) {
+		UASSERT(!value.empty());
+		UASSERTEQ(int, (u8)value[0], version);
+		std::istringstream is(value.substr(1));
+		std::ostringstream os;
+		decompress(is, os, version);
+		UASSERT(os.str() == raw);
+	};
+
+	// loading compresses on demand
+	accessor.queueRawBlock(pos, std::string(data_a), version, -1);
+	accessor.loadBlock(pos, loaded);
+	check(loaded, data_a);
+
+	// a newer raw block wins
+	accessor.queueRawBlock(pos, std::string(data_b), version, -1);
+	UASSERT(accessor.writePending());
+	db.loadBlock(pos, &written);
+	check(written, data_b);
+
+	// the queue was emptied
+	accessor.loadBlock(pos, loaded);
+	UASSERT(loaded == written);
+	UASSERT(accessor.m_pending.empty());
+	UASSERTEQ(size_t, accessor.m_pending_bytes, 0);
 }
 
 void TestMapDatabaseAccessor::testWritePending()
