@@ -65,7 +65,7 @@ local function get_formspec(dialogdata)
 		"size[12.8,7]",
 		"hypertext[0.375,0.375;12.05,5.2;text;", core.formspec_escape(markup), "]",
 		"container[0.375,5.825]",
-		"style[dismiss;bgcolor=red]",
+		"style[dismiss;bgcolor=" .. mm_theme.colors.error .. "]",
 		-- TRANSLATORS: Dismiss a dialog window/message
 		"button[0,0;4,0.8;dismiss;", fgettext("Dismiss"), "]",
 		"button[4.25,0;8,0.8;reinstall;", fgettext("Reinstall Minetest Game"), "]",

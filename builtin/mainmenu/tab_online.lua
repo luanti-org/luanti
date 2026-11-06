@@ -91,6 +91,9 @@ local function get_formspec(tabview, name, tabdata)
 	-- it may have changed after a change by the settings menu.
 	common_update_cached_supp_proto()
 
+	local button_gap = mm_theme and mm_theme.button_gap() or 0
+	local tool_step = 0.75 + math.min(button_gap, 0.125)
+
 	if not tabdata.search_for then
 		tabdata.search_for = ""
 	end
@@ -108,8 +111,8 @@ local function get_formspec(tabview, name, tabdata)
 		"field_enter_after_edit[te_search;true]" ..
 		"container[7.25,0.25]" ..
 		"image_button[0,0;0.75,0.75;" .. core.formspec_escape(defaulttexturedir .. "search.png") .. ";btn_mp_search;]" ..
-		"image_button[0.75,0;0.75,0.75;" .. core.formspec_escape(defaulttexturedir .. "clear.png") .. ";btn_mp_clear;]" ..
-		"image_button[1.5,0;0.75,0.75;" .. core.formspec_escape(defaulttexturedir .. "refresh.png") .. ";btn_mp_refresh;]" ..
+		"image_button[" .. tool_step .. ",0;0.75,0.75;" .. core.formspec_escape(defaulttexturedir .. "clear.png") .. ";btn_mp_clear;]" ..
+		"image_button[" .. (2 * tool_step) .. ",0;0.75,0.75;" .. core.formspec_escape(defaulttexturedir .. "refresh.png") .. ";btn_mp_refresh;]" ..
 		"tooltip[btn_mp_clear;" .. fgettext("Clear") .. "]" ..
 		"tooltip[btn_mp_search;" .. fgettext("Search") .. "]" ..
 		-- TRANSLATORS: As in 'reload'/'check again'
@@ -117,7 +120,7 @@ local function get_formspec(tabview, name, tabdata)
 		"container_end[]" ..
 
 		"container[9.75,0]" ..
-		"box[0,0;5.75,7.1;#666666]" ..
+		"box[0,0;5.75,7.1;" .. mm_theme.colors.surface .. "]" ..
 
 		-- TRANSLATORS: Network address
 		"label[0.25,0.35;" .. fgettext("Address") .. "]" ..
@@ -130,7 +133,7 @@ local function get_formspec(tabview, name, tabdata)
 
 		-- Description Background
 		"label[0.25,1.6;" .. fgettext("Server Description") .. "]" ..
-		"box[0.25,1.85;5.25,2.7;#999999]"..
+		"box[0.25,1.85;5.25,2.7;" .. mm_theme.colors.elevated .. "]"..
 
 		-- Name / Password
 		"container[0,4.8]" ..
@@ -144,9 +147,13 @@ local function get_formspec(tabview, name, tabdata)
 	if core.settings:get_bool("enable_split_login_register") then
 		-- TRANSLATORS: Register an account on a server
 		retval = retval .. "button[0.25,6;2.5,0.75;btn_mp_register;" .. fgettext("Register") .. "]"
+		-- TRANSLATORS: Login to server
+		retval = retval .. "button[" .. (3 + math.min(button_gap, 0.25)) ..
+			",6;2.5,0.75;btn_mp_login;" .. fgettext("Login") .. "]"
+	else
+		-- TRANSLATORS: Login to server
+		retval = retval .. "button[3,6;2.5,0.75;btn_mp_login;" .. fgettext("Login") .. "]"
 	end
-	-- TRANSLATORS: Login to server
-	retval = retval .. "button[3,6;2.5,0.75;btn_mp_login;" .. fgettext("Login") .. "]"
 
 	local selected_server = find_selected_server()
 
@@ -259,8 +266,8 @@ local function get_formspec(tabview, name, tabdata)
 	local servers = get_sorted_servers()
 
 	local dividers = {
-		fav = "5,#ffff00," .. fgettext("Favorites") .. ",,,0,0,,",
-		public = "6,#4bdd42," .. fgettext("Public Servers") .. ",,,0,0,,",
+		fav = "5," .. mm_theme.colors.lavender .. "," .. fgettext("Favorites") .. ",,,0,0,,",
+		public = "6," .. mm_theme.colors.success .. "," .. fgettext("Public Servers") .. ",,,0,0,,",
 		incompatible = "7,"..mt_color_grey.."," .. fgettext("Incompatible Servers") .. ",,,0,0,,"
 	}
 	local order = {"fav", "public", "incompatible"}

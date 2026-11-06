@@ -9,9 +9,12 @@
 #include "IGUIFont.h"
 #include "IGUIScrollBar.h"
 #include "IVideoDriver.h"
+#include "irrRoundedRect.h"
 #include "rect.h"
 #include "os.h"
 #include "Keycodes.h"
+#include <algorithm>
+#include <array>
 #include <cwctype> // std::iswspace, std::iswpunct, std::iswalnum
 
 /*
@@ -134,6 +137,24 @@ void CGUIEditBox::setDrawBackground(bool draw)
 bool CGUIEditBox::isDrawBackgroundEnabled() const
 {
 	return Background;
+}
+
+//! Sets the background color used instead of the skin color.
+void CGUIEditBox::setBackgroundColor(video::SColor color)
+{
+	OverrideBgColor = color;
+}
+
+//! Sets the corner radius of the edit box background and border.
+void CGUIEditBox::setBackgroundCornerRadius(s32 radius)
+{
+	BackgroundCornerRadius = std::max(0, radius);
+}
+
+//! Gets the corner radius of the edit box background.
+s32 CGUIEditBox::getBackgroundCornerRadius() const
+{
+	return BackgroundCornerRadius;
 }
 
 //! Sets if the text should use the override color or the color in the gui skin.
@@ -733,13 +754,39 @@ void CGUIEditBox::draw()
 		bgColor = skin->getColor(bgCol);
 	}
 
-	if (!Border && Background) {
-		skin->draw2DRectangle(this, bgColor, AbsoluteRect, &AbsoluteClippingRect);
-	}
+	if (BackgroundCornerRadius > 0) {
+		video::IVideoDriver *driver = Environment->getVideoDriver();
+		std::array<video::SColor, 4> fill = {bgColor, bgColor, bgColor, bgColor};
 
-	if (Border) {
-		// draw the border
-		skin->draw3DSunkenPane(this, bgColor, false, Background, AbsoluteRect, &AbsoluteClippingRect);
+		if (Background)
+			drawRoundedRect(driver, AbsoluteRect, BackgroundCornerRadius, fill,
+					&AbsoluteClippingRect);
+
+		if (Border) {
+			core::rect<s32> inner = AbsoluteRect;
+			inner.UpperLeftCorner.X += 1;
+			inner.UpperLeftCorner.Y += 1;
+			inner.LowerRightCorner.X -= 1;
+			inner.LowerRightCorner.Y -= 1;
+			std::array<video::SColor, 4> border_colors = {
+				skin->getColor(EGDC_3D_SHADOW),
+				skin->getColor(EGDC_3D_HIGH_LIGHT),
+				skin->getColor(EGDC_3D_HIGH_LIGHT),
+				skin->getColor(EGDC_3D_SHADOW),
+			};
+			drawRoundedRectBorder(driver, AbsoluteRect, inner,
+					BackgroundCornerRadius, BackgroundCornerRadius - 1,
+					border_colors, &AbsoluteClippingRect);
+		}
+	} else {
+		if (!Border && Background) {
+			skin->draw2DRectangle(this, bgColor, AbsoluteRect, &AbsoluteClippingRect);
+		}
+
+		if (Border) {
+			// draw the border
+			skin->draw3DSunkenPane(this, bgColor, false, Background, AbsoluteRect, &AbsoluteClippingRect);
+		}
 	}
 
 	calculateFrameRect();

@@ -660,6 +660,7 @@ void GUIFormSpecMenu::parseCheckbox(parserData* data, const std::string &element
 	spec.sound = style.get(StyleSpec::SOUND, "");
 
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+	e->setCornerRadius(style.getInt(StyleSpec::BORDER_RADIUS, 0));
 
 	if (!style.getBool(StyleSpec::EDITABLE, true)) {
 		e->setEnabled(false);
@@ -725,6 +726,11 @@ void GUIFormSpecMenu::parseScrollBar(parserData* data, const std::string &elemen
 
 	auto style = getDefaultStyleForElement("scrollbar", name);
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
+	if (style.hasProperty(StyleSpec::BGCOLOR))
+		e->setTrackColor(style.getColor(StyleSpec::BGCOLOR));
+	if (style.hasProperty(StyleSpec::FGCOLOR))
+		e->setSliderColor(style.getColor(StyleSpec::FGCOLOR));
+	e->setCornerRadius(style.getInt(StyleSpec::BORDER_RADIUS, 0));
 	e->setArrowsVisible(data->scrollbar_options.arrow_visiblity);
 
 	s32 max = data->scrollbar_options.max;
@@ -1278,6 +1284,7 @@ void GUIFormSpecMenu::parseTable(parserData* data, const std::string &element)
 	auto style = getDefaultStyleForElement("table", name);
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 	e->setOverrideFont(style.getFont());
+	e->setCornerRadius(style.getInt(StyleSpec::BORDER_RADIUS, 0));
 
 	if (spec.fname == m_focused_element) {
 		Environment->setFocus(e);
@@ -1367,6 +1374,7 @@ void GUIFormSpecMenu::parseTextList(parserData* data, const std::string &element
 	auto style = getDefaultStyleForElement("textlist", name);
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 	e->setOverrideFont(style.getFont());
+	e->setCornerRadius(style.getInt(StyleSpec::BORDER_RADIUS, 0));
 
 	m_tables.emplace_back(spec, e);
 	m_fields.push_back(spec);
@@ -1426,6 +1434,8 @@ void GUIFormSpecMenu::parseDropDown(parserData* data, const std::string &element
 
 	gui::IGUIComboBox *e = Environment->addComboBox(rect, data->current_parent,
 			spec.fid);
+
+	e->setCornerRadius(style.getInt(StyleSpec::BORDER_RADIUS, 0));
 
 	if (!style.getBool(StyleSpec::EDITABLE, true)) {
 		e->setEnabled(false);
@@ -1539,6 +1549,9 @@ void GUIFormSpecMenu::parsePwdField(parserData* data, const std::string &element
 	e->setDrawBorder(style.getBool(StyleSpec::BORDER, true));
 	e->setOverrideColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
 	e->setOverrideFont(style.getFont());
+	e->setBackgroundCornerRadius(style.getInt(StyleSpec::BORDER_RADIUS, 0));
+	if (style.hasProperty(StyleSpec::BGCOLOR))
+		e->setBackgroundColor(style.getColor(StyleSpec::BGCOLOR));
 
 	SEvent evt;
 	evt.EventType            = EET_KEY_INPUT_EVENT;
@@ -1627,6 +1640,9 @@ void GUIFormSpecMenu::createTextField(parserData *data, FieldSpec &spec,
 		e->setDrawBorder(border && !spec.fname.empty());
 		e->setDrawBackground(border);
 		e->setOverrideFont(style.getFont());
+		e->setBackgroundCornerRadius(style.getInt(StyleSpec::BORDER_RADIUS, 0));
+		if (is_editable && style.hasProperty(StyleSpec::BGCOLOR))
+			e->setBackgroundColor(style.getColor(StyleSpec::BGCOLOR));
 
 		e->drop();
 	}
@@ -2324,13 +2340,32 @@ void GUIFormSpecMenu::parseTabHeader(parserData* data, const std::string &elemen
 
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, true));
 
-	for (const std::string &button : buttons) {
+	const s32 header_radius = style.getInt(StyleSpec::BORDER_RADIUS, 0);
+	const s32 header_padding = style.getInt(StyleSpec::PADDING, 0);
+
+	for (size_t i = 0; i < buttons.size(); i++) {
+		const std::string &button = buttons[i];
 		auto tab = e->addTab(unescape_translate(unescape_string(
 			utf8_to_wide(button))).c_str(), -1);
-		if (style.isNotDefault(StyleSpec::BGCOLOR))
-			tab->setBackgroundColor(style.getColor(StyleSpec::BGCOLOR));
+		tab->setHeaderCornerRadius(header_radius);
+		tab->setHeaderPadding(header_padding);
 
-		tab->setTextColor(style.getColor(StyleSpec::TEXTCOLOR, video::SColor(0xFFFFFFFF)));
+		const bool selected = static_cast<int>(i) == tab_index;
+		const auto bg_property = selected && style.hasProperty(StyleSpec::BGCOLOR_SELECTED) ?
+				StyleSpec::BGCOLOR_SELECTED : StyleSpec::BGCOLOR;
+		if (style.hasProperty(bg_property)) {
+			tab->setHeaderBackgroundColor(style.getColor(bg_property));
+			tab->setDrawHeaderBackground();
+		}
+
+		if (style.hasProperty(StyleSpec::BGCOLOR_HOVERED)) {
+			tab->setHeaderHoverBackgroundColor(
+					style.getColor(StyleSpec::BGCOLOR_HOVERED));
+		}
+
+		const auto text_property = selected && style.hasProperty(StyleSpec::TEXTCOLOR_SELECTED) ?
+				StyleSpec::TEXTCOLOR_SELECTED : StyleSpec::TEXTCOLOR;
+		tab->setTextColor(style.getColor(text_property, video::SColor(0xFFFFFFFF)));
 	}
 
 	if ((tab_index >= 0) &&
@@ -2467,8 +2502,10 @@ void GUIFormSpecMenu::parseBox(parserData* data, const std::string &element)
 
 	core::rect<s32> rect(pos, pos + geom);
 
+	const s32 borderradius = style.getInt(StyleSpec::BORDER_RADIUS, 0);
+
 	GUIBox *e = new GUIBox(Environment, data->current_parent, spec.fid, rect,
-		colors, bordercolors, borderwidths);
+		colors, bordercolors, borderwidths, borderradius);
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, m_formspec_version < 3));
 	e->drop();
 
@@ -3282,8 +3319,9 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 		);
 	}
 
-	m_default_tooltip_bgcolor = video::SColor(255,110,130,60);
-	m_default_tooltip_color = video::SColor(255,255,255,255);
+	// Catppuccin Mocha surface/text, used until formspec colors override them.
+	m_default_tooltip_bgcolor = video::SColor(255, 49, 50, 68);
+	m_default_tooltip_color = video::SColor(255, 205, 214, 244);
 
 	// Add tooltip
 	{
@@ -3972,6 +4010,10 @@ void GUIFormSpecMenu::showTooltip(const std::wstring &text,
 		ntext.setBackground(bgcolor);
 
 	setStaticText(m_tooltip_element, ntext);
+
+	auto style = getDefaultStyleForElement("tooltip", "");
+	m_tooltip_element->setBackgroundCornerRadius(
+			style.getInt(StyleSpec::BORDER_RADIUS, 0));
 
 	// Tooltip size
 	s32 tooltip_width = m_tooltip_element->getTextWidth() + m_btn_height;

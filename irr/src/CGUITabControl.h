@@ -40,6 +40,18 @@ public:
 	//! returns the color of the background
 	video::SColor getBackgroundColor() const override;
 
+	void setHeaderBackgroundColor(video::SColor c) override;
+	void setDrawHeaderBackground(bool draw = true) override;
+	bool isDrawingHeaderBackground() const override;
+	video::SColor getHeaderBackgroundColor() const override;
+	void setHeaderHoverBackgroundColor(video::SColor c) override;
+	bool hasHeaderHoverBackgroundColor() const override;
+	video::SColor getHeaderHoverBackgroundColor() const override;
+	void setHeaderCornerRadius(s32 radius) override;
+	s32 getHeaderCornerRadius() const override;
+	void setHeaderPadding(s32 padding) override;
+	s32 getHeaderPadding() const override;
+
 	video::SColor getTextColor() const override;
 
 private:
@@ -47,6 +59,12 @@ private:
 	bool OverrideTextColorEnabled;
 	video::SColor TextColor;
 	bool DrawBackground;
+	video::SColor HeaderBackgroundColor;
+	video::SColor HeaderHoverBackgroundColor;
+	bool HeaderHoverBackgroundColorSet = false;
+	bool DrawHeaderBackground;
+	s32 HeaderCornerRadius = 0;
+	s32 HeaderPadding = 0;
 };
 
 //! A standard tab control

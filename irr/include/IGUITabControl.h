@@ -135,6 +135,39 @@ public:
 	//! returns the color of the background
 	virtual video::SColor getBackgroundColor() const = 0;
 
+	//! sets the background color in the tab header
+	virtual void setHeaderBackgroundColor(video::SColor c) = 0;
+
+	//! sets whether the tab header should draw its own background
+	virtual void setDrawHeaderBackground(bool draw = true) = 0;
+
+	//! returns whether the tab header draws its own background
+	virtual bool isDrawingHeaderBackground() const = 0;
+
+	//! returns the tab header background color
+	virtual video::SColor getHeaderBackgroundColor() const = 0;
+
+	//! sets the background color used when the tab header is hovered
+	virtual void setHeaderHoverBackgroundColor(video::SColor c) = 0;
+
+	//! returns whether a hover background color was explicitly set
+	virtual bool hasHeaderHoverBackgroundColor() const = 0;
+
+	//! returns the tab header background color used on hover
+	virtual video::SColor getHeaderHoverBackgroundColor() const = 0;
+
+	//! sets the corner radius of the tab header background
+	virtual void setHeaderCornerRadius(s32 radius) = 0;
+
+	//! returns the corner radius of the tab header background
+	virtual s32 getHeaderCornerRadius() const = 0;
+
+	//! sets the spacing between the tab header and adjacent elements
+	virtual void setHeaderPadding(s32 padding) = 0;
+
+	//! returns the spacing between the tab header and adjacent elements
+	virtual s32 getHeaderPadding() const = 0;
+
 	//! sets the color of it's text in  the tab-bar
 	virtual void setTextColor(video::SColor c) = 0;
 

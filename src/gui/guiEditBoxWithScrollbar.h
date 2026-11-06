@@ -25,7 +25,7 @@ public:
 	void draw() override;
 
 	//! Change the background color
-	void setBackgroundColor(const video::SColor &bg_color);
+	void setBackgroundColor(video::SColor bg_color) override;
 
 protected:
 	//! create a Vertical ScrollBar

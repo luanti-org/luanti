@@ -298,7 +298,7 @@ local function create_world_formspec(dialogdata)
 	if game.id == "devtest" then
 		retval = retval ..
 			"container[0,3.5]" ..
-			"box[0,0;5.8,1.7;#ff8800]" ..
+			"box[0,0;5.8,1.7;" .. mm_theme.colors.warning .. "]" ..
 			"textarea[0.4,0.1;6,1.8;;;"..
 			fgettext("Development Test is meant for developers.") .. "]" ..
 			"button[1,1;4,0.5;world_create_open_cdb;" .. fgettext("Install another game") .. "]" ..

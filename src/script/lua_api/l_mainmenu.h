@@ -88,6 +88,10 @@ private:
 
 	static int l_set_formspec_prepend(lua_State *L);
 
+	static int l_set_gui_skin_colors(lua_State *L);
+
+	static int l_set_gui_skin_rounding(lua_State *L);
+
 	static int l_get_window_info(lua_State *L);
 
 	static int l_get_active_renderer(lua_State *L);

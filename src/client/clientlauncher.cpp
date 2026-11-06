@@ -353,10 +353,16 @@ void ClientLauncher::config_guienv()
 	skin->setColor(gui::EGDC_3D_LIGHT, video::SColor(0, 0, 0, 0));
 	skin->setColor(gui::EGDC_3D_HIGH_LIGHT, video::SColor(255, 30, 30, 30));
 	skin->setColor(gui::EGDC_3D_SHADOW, video::SColor(255, 0, 0, 0));
-	skin->setColor(gui::EGDC_HIGH_LIGHT, video::SColor(255, 70, 120, 50));
-	skin->setColor(gui::EGDC_HIGH_LIGHT_TEXT, video::SColor(255, 255, 255, 255));
-	skin->setColor(gui::EGDC_EDITABLE, video::SColor(255, 128, 128, 128));
-	skin->setColor(gui::EGDC_FOCUSED_EDITABLE, video::SColor(255, 96, 134, 49));
+	// Catppuccin Mocha: accent highlight, dark-on-accent selection text,
+	// and dark surfaces for edit boxes and pressed checkboxes.
+	skin->setColor(gui::EGDC_WINDOW, video::SColor(255, 30, 30, 46));
+	skin->setColor(gui::EGDC_3D_FACE, video::SColor(255, 49, 50, 68));
+	skin->setColor(gui::EGDC_HIGH_LIGHT, video::SColor(255, 137, 180, 250));
+	skin->setColor(gui::EGDC_HIGH_LIGHT_TEXT, video::SColor(255, 30, 30, 46));
+	skin->setColor(gui::EGDC_EDITABLE, video::SColor(255, 49, 50, 68));
+	skin->setColor(gui::EGDC_GRAY_EDITABLE, video::SColor(255, 24, 24, 37));
+	skin->setColor(gui::EGDC_FOCUSED_EDITABLE, video::SColor(255, 69, 71, 90));
+	skin->setColor(gui::EGDC_SCROLLBAR, video::SColor(255, 49, 50, 68));
 
 	float density = rangelim(g_settings->getFloat("gui_scaling"), 0.5f, 20) *
 		RenderingEngine::getDisplayDensity();

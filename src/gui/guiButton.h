@@ -131,6 +131,10 @@ public:
 	//! Checks if the button face and border are being drawn
 	virtual bool isDrawingBorder() const override;
 
+	//! Sets the corner radius used when drawing the button pane.
+	//! A radius of 0 disables rounded corners.
+	virtual void setCornerRadius(s32 radius) override;
+
 	//! Sets if the alpha channel should be used for drawing images on the button (default is false)
 	virtual void setUseAlphaChannel(bool useAlphaChannel=true) override;
 
@@ -258,6 +262,8 @@ private:
 	bool Pressed = false;
 	bool UseAlphaChannel = false;
 	bool DrawBorder = true;
+	s32 CornerRadius = 0;
+	s32 ForcedCornerRadius = -1;
 	bool ScaleImage = false;
 
 	video::SColor Colors[4];

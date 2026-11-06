@@ -235,6 +235,10 @@ public:
 	//! Returns if the border and button face are being drawn using the skin
 	virtual bool isDrawingBorder() const = 0;
 
+	//! Sets the corner radius used when drawing the button pane.
+	//! A radius of 0 disables rounded corners.
+	virtual void setCornerRadius(s32 radius) = 0;
+
 	//! Sets if the button should scale the button images to fit
 	virtual void setScaleImage(bool scaleImage = true) = 0;
 

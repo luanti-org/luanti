@@ -8223,6 +8223,76 @@ msgstr "Прокси адрес для cURL"
 msgid "Failed to save screenshot to \"%s\""
 msgstr "Не удалось сохранить снимок экрана в \"%s\""
 
+#: src/settings_translation_file.cpp
+msgid "Accent used for main menu buttons, selection highlights and lists."
+msgstr "Акцентный цвет кнопок, выделения и списков главного меню."
+
+#: src/settings_translation_file.cpp
+msgid "Appearance"
+msgstr "Внешний вид"
+
+#: src/settings_translation_file.cpp
+msgid "Color theme used by the main menu."
+msgstr "Цветовая тема главного меню."
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Corner radius used for main menu panels and buttons, in pixels.\n"
+"Set to 0 to disable rounded corners."
+msgstr ""
+"Радиус скругления панелей и кнопок главного меню в пикселях.\n"
+"Установите 0, чтобы отключить скругление."
+
+#: src/settings_translation_file.cpp
+msgid "Corner Radius"
+msgstr "Радиус скругления"
+
+#: src/settings_translation_file.cpp
+msgid "Custom main menu accent in #RRGGBB format. Used when the accent is Custom."
+msgstr ""
+"Пользовательский акцентный цвет главного меню в формате #RRGGBB. "
+"Используется, когда выбран вариант «Другой»."
+
+#: src/settings_translation_file.cpp
+msgid "Custom main menu accent color"
+msgstr "Пользовательский акцентный цвет главного меню"
+
+#: src/settings_translation_file.cpp
+msgid "Increase contrast between main menu surfaces and controls."
+msgstr "Увеличить контраст между поверхностями и элементами управления главного меню."
+
+#: src/settings_translation_file.cpp
+msgid "Main menu accent color"
+msgstr "Акцентный цвет главного меню"
+
+#: src/settings_translation_file.cpp
+msgid "Main menu surface contrast"
+msgstr "Контраст поверхностей главного меню"
+
+#: src/settings_translation_file.cpp
+msgid "Main menu theme"
+msgstr "Тема главного меню"
+
+#: src/settings_translation_file.cpp
+msgid ""
+"Overrides the main menu text color. Use the #RRGGBB format.\n"
+"Leave empty to use the color defined by the theme."
+msgstr ""
+"Переопределяет цвет текста главного меню. Используйте формат #RRGGBB.\n"
+"Оставьте пустым, чтобы использовать цвет темы."
+
+#: src/settings_translation_file.cpp
+msgid "Padding"
+msgstr "Отступ"
+
+#: src/settings_translation_file.cpp
+msgid "Spacing used between main menu controls, and between tab headers and the tab body."
+msgstr "Отступ между элементами главного меню, а также между заголовками вкладок и содержимым вкладки."
+
+#: src/settings_translation_file.cpp
+msgid "Text color"
+msgstr "Цвет текста"
+
 #~ msgid "$1 (Enabled)"
 #~ msgstr "$1 (включено)"
 

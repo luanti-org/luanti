@@ -41,12 +41,16 @@ public:
 	//! draws the element and its children
 	void draw() override;
 
+	//! Sets the corner radius used when drawing the check box.
+	void setCornerRadius(s32 radius) override;
+
 private:
 	u32 CheckTime;
 	bool Pressed;
 	bool Checked;
 	bool Border;
 	bool Background;
+	s32 CornerRadius = 0;
 };
 
 } // end namespace gui

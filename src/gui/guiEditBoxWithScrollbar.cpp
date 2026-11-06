@@ -88,7 +88,7 @@ void GUIEditBoxWithScrollBar::createVScrollBar()
 }
 
 //! Change the background color
-void GUIEditBoxWithScrollBar::setBackgroundColor(const video::SColor &bg_color)
+void GUIEditBoxWithScrollBar::setBackgroundColor(video::SColor bg_color)
 {
 	m_bg_color = bg_color;
 	m_bg_color_used = true;

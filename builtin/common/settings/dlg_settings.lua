@@ -264,6 +264,33 @@ local function load()
 		-- TRANSLATORS: Touchscreen gesture
 		["long_tap"] = fgettext_ne("Long tap"),
 	}
+
+	get_setting_info("mainmenu_theme").option_labels = {
+		catppuccin_mocha = fgettext_ne("Catppuccin Mocha"),
+		catppuccin_macchiato = fgettext_ne("Catppuccin Macchiato"),
+		catppuccin_frappe = fgettext_ne("Catppuccin Frappé"),
+		catppuccin_latte = fgettext_ne("Catppuccin Latte"),
+		dracula = fgettext_ne("Dracula"),
+		nord = fgettext_ne("Nord"),
+		gruvbox_dark = fgettext_ne("Gruvbox Dark"),
+		tokyo_night = fgettext_ne("Tokyo Night"),
+		one_dark = fgettext_ne("One Dark"),
+	}
+
+	get_setting_info("mainmenu_accent_color").option_labels = {
+		blue = fgettext_ne("Blue"),
+		lavender = fgettext_ne("Lavender"),
+		cyan = fgettext_ne("Cyan"),
+		green = fgettext_ne("Green"),
+		peach = fgettext_ne("Peach"),
+		rose = fgettext_ne("Rose"),
+		custom = fgettext_ne("Custom"),
+	}
+
+	get_setting_info("mainmenu_surface_contrast").option_labels = {
+		normal = fgettext_ne("Standard"),
+		high = fgettext_ne("High"),
+	}
 end
 
 
@@ -575,23 +602,34 @@ local function get_formspec(dialogdata)
 		("scroll_container[0.25,1.25;%f,%f;leftscroll;vertical;0.1;0]"):format(
 			left_pane_width, tabsize.height - 1.5),
 		"style_type[button;border=false;bgcolor=#3333]",
-		"style_type[button:hover;border=false;bgcolor=#6663]",
+		("style_type[button:hovered;border=true;bgcolor=%s]"):
+			format((mt_color_blue or "#6389FF") .. "99"),
 	}
+
+	-- Use the shared theme colors: Catppuccin in the main menu, the stock
+	-- palette in-game. Avoids the old hardcoded green/yellow.
+	local page_colors = {
+		section = mt_color_grey or "#AAAAAA",
+		selected = (mt_color_blue or "#6389FF") .. "88",
+		normal = "#3339",
+	}
+	local button_gap = mm_theme and mm_theme.button_gap() or 0
 
 	local y = 0
 	local last_section = nil
 	for _, other_page in ipairs(filtered_pages) do
 		if other_page.section ~= last_section then
 			fs[#fs + 1] = ("label[0.1,%f;%s]"):format(
-				y + 0.41, core.colorize("#ff0", fgettext(other_page.section)))
+				y + 0.41, core.colorize(page_colors.section, fgettext(other_page.section)))
 			last_section = other_page.section
 			y = y + 0.82
 		end
 		fs[#fs + 1] = ("box[0,%f;%f,0.8;%s]"):format(
-			y, left_pane_width-left_pane_padding, other_page.id == page_id and "#467832FF" or "#3339")
+			y, left_pane_width-left_pane_padding,
+			other_page.id == page_id and page_colors.selected or page_colors.normal)
 		fs[#fs + 1] = ("button[0,%f;%f,0.8;page_%s;%s]")
 			:format(y, left_pane_width-left_pane_padding, other_page.id, fgettext(other_page.title))
-		y = y + 0.82
+		y = y + 0.82 + button_gap
 	end
 
 	if #filtered_pages == 0 then

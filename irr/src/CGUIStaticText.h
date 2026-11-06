@@ -47,6 +47,12 @@ public:
 	//! Checks if background drawing is enabled
 	bool isDrawBackgroundEnabled() const override;
 
+	//! Sets the corner radius of the background and border.
+	void setBackgroundCornerRadius(s32 radius) override;
+
+	//! Gets the corner radius of the background and border.
+	s32 getBackgroundCornerRadius() const override;
+
 	//! Sets whether to draw the border
 	void setDrawBorder(bool draw) override;
 
@@ -117,6 +123,7 @@ private:
 	bool Background;
 	bool RestrainTextInside;
 	bool RightToLeft;
+	s32 BackgroundCornerRadius = 0;
 
 	video::SColor OverrideColor, BGColor;
 	gui::IGUIFont *OverrideFont;

@@ -36,7 +36,7 @@ local function version_info_formspec(data)
 	local fs = {
 		"formspec_version[3]",
 		"size[12.8,7]",
-		"style_type[label;textcolor=#0E0]",
+		"style_type[label;textcolor=" .. mm_theme.colors.info .. "]",
 		"label[0.5,0.8;", title, "]",
 		"textarea[0.4,1.6;12,3.4;;;", message, "]",
 		"container[0.4,5.8]",

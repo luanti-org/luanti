@@ -67,6 +67,24 @@ local function get_formspec(tabview, name, tabdata)
 		update_packages()
 	end
 
+	local button_gap = mm_theme and mm_theme.button_gap() or 0
+	local function add_button_row(retval, y, start_x, buttons)
+		local gap = math.min(button_gap, 0.4)
+		local total_w = 0
+		for _, button in ipairs(buttons) do
+			total_w = total_w + button.width
+		end
+		local scale = #buttons > 1 and
+			(total_w - gap * (#buttons - 1)) / total_w or 1
+		local x = start_x
+		for _, button in ipairs(buttons) do
+			local width = button.width * scale
+			retval[#retval + 1] = ("button[%f,%f;%f,0.9;%s;"):format(
+				x, y, width, button.id) .. button.label .. "]"
+			x = x + width + gap
+		end
+	end
+
 	tabdata.selected_pkg = tabdata.selected_pkg or 1
 	tabdata.subtab = tabdata.subtab or 1
 
@@ -164,7 +182,7 @@ local function get_formspec(tabview, name, tabdata)
 			title_and_name = selected_pkg.title or selected_pkg.name
 		else
 			title_and_name = (selected_pkg.title or selected_pkg.name) .. "\n" ..
-				core.colorize("#BFBFBF", selected_pkg.name)
+				core.colorize(mm_theme.colors.subtext, selected_pkg.name)
 		end
 
 		local desc_height = 3.2
@@ -200,24 +218,22 @@ local function get_formspec(tabview, name, tabdata)
 			desc_height = 2.1
 
 			if selected_pkg.enabled then
-				table.insert_all(retval, {
-					"button[7.1,4.7;4,0.9;btn_mod_mgr_disable_txp;",
-					fgettext("Disable Texture Pack"), "]"
-				})
+				local buttons = {
+					{id = "btn_mod_mgr_disable_txp",
+						label = fgettext("Disable Texture Pack"), width = 4},
+				}
 
 				local enabled_count = #pkgmgr.get_enabled_texture_packs()
 				if selected_pkg.order > 1 then
-					table.insert_all(retval, {
-						"button[11.1,4.7;2,0.9;btn_mod_mgr_txp_move_up;",
-						fgettext("Move Up"), "]"
-					})
+					buttons[#buttons + 1] = {id = "btn_mod_mgr_txp_move_up",
+						label = fgettext("Move Up"), width = 2}
 				end
 				if selected_pkg.order < enabled_count then
-					table.insert_all(retval, {
-						"button[13.1,4.7;2,0.9;btn_mod_mgr_txp_move_down;",
-						fgettext("Move Down"), "]"
-					})
+					buttons[#buttons + 1] = {id = "btn_mod_mgr_txp_move_down",
+						label = fgettext("Move Down"), width = 2}
 				end
+
+				add_button_row(retval, 4.7, 7.1, buttons)
 			else
 				table.insert_all(retval, {
 					"button[7.1,4.7;4,0.9;btn_mod_mgr_use_txp;",
@@ -229,22 +245,28 @@ local function get_formspec(tabview, name, tabdata)
 		table.insert_all(retval, {
 			"image[7.1,0.2;3,2;", core.formspec_escape(modscreenshot), "]",
 			"label[10.5,1;", core.formspec_escape(title_and_name), "]",
-			"box[7.1,2.4;8,", tostring(desc_height), ";#000]",
+			"box[7.1,2.4;8,", tostring(desc_height), ";", mm_theme.colors.surface, "]",
 			"textarea[7.1,2.4;8,", tostring(desc_height), ";;;", desc, "]",
 		})
 
+		local bottom_buttons = {}
+
 		if core.may_modify_path(selected_pkg.path) then
-			table.insert_all(retval, {
-				"button[7.1,5.8;4,0.9;btn_mod_mgr_delete_mod;",
-				fgettext("Uninstall"), "]"
-			})
+			bottom_buttons[#bottom_buttons + 1] = {
+				id = "btn_mod_mgr_delete_mod",
+				label = fgettext("Uninstall"), width = 4,
+			}
 		end
 
 		if update_icons[selected_pkg.virtual_path or selected_pkg.path] then
-			table.insert_all(retval, {
-				"button[11.1,5.8;4,0.9;btn_mod_mgr_update;",
-				fgettext("Update"), "]"
-			})
+			bottom_buttons[#bottom_buttons + 1] = {
+				id = "btn_mod_mgr_update",
+				label = fgettext("Update"), width = 4,
+			}
+		end
+
+		if #bottom_buttons > 0 then
+			add_button_row(retval, 5.8, 7.1, bottom_buttons)
 		end
 	end
 

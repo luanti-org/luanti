@@ -146,6 +146,7 @@ local function get_disabled_settings(game)
 end
 
 local function get_formspec(tabview, name, tabdata)
+	local button_gap = mm_theme and mm_theme.button_gap() or 0
 
 	-- Point the player to ContentDB when no games are found
 	if #pkgmgr.games == 0 then
@@ -205,14 +206,21 @@ local function get_formspec(tabview, name, tabdata)
 		end
 	end
 
+	local world_gap = 0.1 + math.min(button_gap, 0.4)
+	local world_w = (9.875 - 2 * world_gap) / 3
+
 	retval = retval .. "container[5.25,4.875]"
 	if world then
 		retval = retval ..
-				"button[0,0;3.225,0.8;world_delete;".. fgettext("Delete") .. "]" ..
-				"button[3.325,0;3.225,0.8;world_configure;".. fgettext("Select Mods") .. "]"
+				("button[0,0;%f,0.8;world_delete;%s]"):format(
+						world_w, fgettext("Delete")) ..
+				("button[%f,0;%f,0.8;world_configure;%s]"):format(
+						world_w + world_gap, world_w, fgettext("Select Mods"))
 	end
 	retval = retval ..
-			"button[6.65,0;3.225,0.8;world_create;".. fgettext("New") .. "]" ..
+			("button[%f,0;%f,0.8;world_create;%s]"):format(
+					world and 2 * (world_w + world_gap) or 6.65,
+					world and world_w or 3.225, fgettext("New")) ..
 			"container_end[]" ..
 			"container[0.375,0.375]" ..
 			creative ..

@@ -9,6 +9,8 @@
 #include "scripting_mainmenu.h"
 #include "gui/guiEngine.h"
 #include "gui/guiMainMenu.h"
+#include "IGUISkin.h"
+#include "CGUIScrollBar.h"
 #include "gui/guiPathSelectMenu.h"
 #include "gui/touchscreeneditor.h"
 #include "porting.h"
@@ -29,7 +31,9 @@
 #include "log.h"
 #include "util/string.h"
 
+#include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <iostream>
 
 /******************************************************************************/
@@ -108,6 +112,54 @@ int ModApiMainMenu::l_set_formspec_prepend(lua_State *L)
 	std::string formspec(luaL_checkstring(L, 1));
 	engine->setFormspecPrepend(formspec);
 
+	return 0;
+}
+
+/******************************************************************************/
+int ModApiMainMenu::l_set_gui_skin_colors(lua_State *L)
+{
+	GUIEngine *engine = getGuiEngine(L);
+	sanity_check(engine != NULL);
+
+	if (!lua_istable(L, 1))
+		return 0;
+
+	gui::IGUISkin *skin = engine->m_rendering_engine->get_gui_env()->getSkin();
+	if (!skin)
+		return 0;
+
+	lua_pushnil(L);
+	while (lua_next(L, 1) != 0) {
+		if (lua_isstring(L, -2) && lua_isstring(L, -1)) {
+			std::string name = lua_tostring(L, -2);
+			std::string value = lua_tostring(L, -1);
+			std::transform(name.begin(), name.end(), name.begin(),
+					[] (unsigned char c) { return std::tolower(c); });
+
+			for (u32 i = 0; i < (u32)gui::EGDC_COUNT; i++) {
+				std::string candidate = gui::GUISkinColorNames[i];
+				std::transform(candidate.begin(), candidate.end(), candidate.begin(),
+						[] (unsigned char c) { return std::tolower(c); });
+				if (candidate != name)
+					continue;
+
+				video::SColor color;
+				if (parseColorString(value, color, true))
+					skin->setColor((gui::EGUI_DEFAULT_COLOR)i, color);
+				break;
+			}
+		}
+		lua_pop(L, 1);
+	}
+
+	return 0;
+}
+
+/******************************************************************************/
+int ModApiMainMenu::l_set_gui_skin_rounding(lua_State *L)
+{
+	s32 radius = luaL_checkinteger(L, 1);
+	gui::CGUIScrollBar::setDefaultCornerRadius(radius);
 	return 0;
 }
 
@@ -1129,6 +1181,8 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 {
 	API_FCT(update_formspec);
 	API_FCT(set_formspec_prepend);
+	API_FCT(set_gui_skin_colors);
+	API_FCT(set_gui_skin_rounding);
 	API_FCT(set_clouds);
 	API_FCT(set_sky_color);
 	API_FCT(set_clouds_color);

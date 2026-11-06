@@ -14,6 +14,7 @@
 #include "irrlicht_changes/static_text.h"
 #include "porting.h"
 #include "StyleSpec.h"
+#include "guiRoundedRect.h"
 #include "util/numeric.h"
 
 
@@ -76,6 +77,12 @@ bool GUIButton::isScalingImage() const
 void GUIButton::setDrawBorder(bool border)
 {
 	DrawBorder = border;
+}
+
+void GUIButton::setCornerRadius(s32 radius)
+{
+	ForcedCornerRadius = std::max(0, radius);
+	CornerRadius = ForcedCornerRadius;
 }
 
 
@@ -260,20 +267,24 @@ void GUIButton::draw()
 
 	if (DrawBorder)
 	{
-		if (!Pressed)
-		{
-			// PATCH
+		// PATCH
+		if (CornerRadius > 0) {
+			std::array<video::SColor, 4> colors = {
+				Colors[gui::EGDC_3D_DARK_SHADOW],
+				Colors[gui::EGDC_3D_SHADOW],
+				Colors[gui::EGDC_3D_FACE],
+				Colors[gui::EGDC_3D_HIGH_LIGHT],
+			};
+			gui::drawRoundedButtonPane(driver, AbsoluteRect, CornerRadius,
+					colors, Pressed, &AbsoluteClippingRect);
+		} else if (!Pressed) {
 			skin->drawColored3DButtonPaneStandard(this, AbsoluteRect,
 					&AbsoluteClippingRect, Colors);
-			// END PATCH
-		}
-		else
-		{
-			// PATCH
+		} else {
 			skin->drawColored3DButtonPanePressed(this, AbsoluteRect,
 					&AbsoluteClippingRect, Colors);
-			// END PATCH
 		}
+		// END PATCH
 	}
 
 	const core::position2di buttonCenter(AbsoluteRect.getCenter());
@@ -717,6 +728,8 @@ void GUIButton::setFromStyle(const StyleSpec& style)
 	setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 	setDrawBorder(style.getBool(StyleSpec::BORDER, true));
 	setUseAlphaChannel(style.getBool(StyleSpec::ALPHA, true));
+	CornerRadius = ForcedCornerRadius >= 0 ? ForcedCornerRadius :
+			std::max(0, style.getInt(StyleSpec::BORDER_RADIUS, 0));
 	setOverrideFont(style.getFont());
 
 	BgMiddle = style.getRect(StyleSpec::BGIMG_MIDDLE, BgMiddle);

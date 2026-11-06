@@ -68,6 +68,17 @@ public:
 	/** \return true if background drawing is enabled, false otherwise */
 	virtual bool isDrawBackgroundEnabled() const = 0;
 
+	//! Sets the background color used instead of the skin color.
+	/** Pass a color with alpha 0 to use the skin color again. */
+	virtual void setBackgroundColor(video::SColor color) = 0;
+
+	//! Sets the corner radius of the edit box background and border.
+	/** \param radius: Radius in pixels. 0 disables rounded corners. */
+	virtual void setBackgroundCornerRadius(s32 radius) = 0;
+
+	//! Gets the corner radius of the edit box background.
+	virtual s32 getBackgroundCornerRadius() const = 0;
+
 	//! Turns the border on or off
 	/** \param border: true if you want the border to be drawn, false if not */
 	virtual void setDrawBorder(bool border) = 0;

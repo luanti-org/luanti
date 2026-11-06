@@ -60,6 +60,9 @@ end
 
 function ui.update()
 	ui.overridden = false
+	if mm_theme then
+		mm_theme.refresh()
+	end
 	local formspec = {}
 
 	-- handle errors
@@ -129,7 +132,11 @@ function ui.update()
 			formspec = {ui.childlist[ui.default]:get_formspec()}
 		end
 	end
-	core.update_formspec(table.concat(formspec))
+	local combined_formspec = table.concat(formspec)
+	if mm_theme then
+		combined_formspec = mm_theme.inject_formspec(combined_formspec)
+	end
+	core.update_formspec(combined_formspec)
 end
 
 --------------------------------------------------------------------------------

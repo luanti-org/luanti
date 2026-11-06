@@ -209,6 +209,19 @@ Formspec
   * `type`: "INV" (no row selected), "CHG" (selected) or "DCL" (double-click)
 * `core.set_formspec_prepend(formspec)`
   * `formspec`: string to be added to every mainmenu formspec, to be used for theming.
+* `core.set_gui_skin_colors(colors)`
+  * `colors`: table of GUI skin color names to `"#RRGGBB"` color strings.
+  * Supported names are the Irrlicht skin color names: `3DDarkShadow`,
+    `3DShadow`, `3DFace`, `3DHighlight`, `3DLight`, `ActiveBorder`,
+    `ActiveCaption`, `AppWorkspace`, `ButtonText`, `GrayText`, `Highlight`,
+    `HighlightText`, `InactiveBorder`, `InactiveCaption`, `ToolTip`,
+    `ToolTipBackground`, `ScrollBar`, `Window`, `WindowSymbol`, `Icon`,
+    `IconHighlight`, `GrayWindowSymbol`, `Editable`, `GrayEditable`,
+    `FocusedEditable`.
+  * Names are case-insensitive. Unknown names and invalid colors are ignored.
+* `core.set_gui_skin_rounding(radius)`
+  * `radius`: integer corner radius in pixels for native GUI elements such as
+    list box scrollbars. `0` disables rounded corners.
 
 
 GUI

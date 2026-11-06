@@ -21,6 +21,9 @@ public:
 	{
 		TEXTCOLOR,
 		BGCOLOR,
+		FGCOLOR,
+		TEXTCOLOR_SELECTED,
+		BGCOLOR_SELECTED,
 		BGCOLOR_HOVERED, // Note: Deprecated property
 		BGCOLOR_PRESSED, // Note: Deprecated property
 		NOCLIP,
@@ -43,6 +46,7 @@ public:
 		COLORS,
 		BORDERCOLORS,
 		BORDERWIDTHS,
+		BORDER_RADIUS,
 		SOUND,
 		SPACING,
 		SIZE,
@@ -75,6 +79,12 @@ public:
 			return TEXTCOLOR;
 		} else if (name == "bgcolor") {
 			return BGCOLOR;
+		} else if (name == "fgcolor") {
+			return FGCOLOR;
+		} else if (name == "textcolor_selected") {
+			return TEXTCOLOR_SELECTED;
+		} else if (name == "bgcolor_selected") {
+			return BGCOLOR_SELECTED;
 		} else if (name == "bgcolor_hovered") {
 			return BGCOLOR_HOVERED;
 		} else if (name == "bgcolor_pressed") {
@@ -119,6 +129,8 @@ public:
 			return BORDERCOLORS;
 		} else if (name == "borderwidths") {
 			return BORDERWIDTHS;
+		} else if (name == "borderradius") {
+			return BORDER_RADIUS;
 		} else if (name == "sound") {
 			return SOUND;
 		} else if (name == "spacing") {
@@ -378,6 +390,15 @@ public:
 		}
 
 		return is_yes(val);
+	}
+
+	s32 getInt(Property prop, s32 def) const
+	{
+		const auto &val = properties[prop];
+		if (val.empty())
+			return def;
+
+		return stoi(val);
 	}
 
 	inline bool isNotDefault(Property prop) const

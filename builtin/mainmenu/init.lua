@@ -13,6 +13,7 @@ local menupath = core.get_mainmenu_path()
 local basepath = core.get_builtin_path()
 defaulttexturedir = core.get_texturepath_share() .. DIR_DELIM .. "base" ..
 					DIR_DELIM .. "pack" .. DIR_DELIM
+mm_theme = dofile(menupath .. DIR_DELIM .. "theme.lua")
 
 dofile(basepath .. "common" .. DIR_DELIM .. "menu.lua")
 dofile(basepath .. "common" .. DIR_DELIM .. "filterlist.lua")

@@ -128,6 +128,9 @@ public:
 	/* Set selection, scroll position and opened (sub)trees */
 	void setDynamicData(const DynamicData &dyndata);
 
+	/* Set the corner radius used when drawing the table frame */
+	void setCornerRadius(s32 radius);
+
 	/* Must be called when position or size changes */
 	virtual void updateAbsolutePosition();
 
@@ -190,10 +193,11 @@ protected:
 
 	// Drawing and geometry information
 	bool m_border = true;
+	s32 m_corner_radius = 0;
 	video::SColor m_color = video::SColor(255, 255, 255, 255);
 	video::SColor m_background = video::SColor(255, 0, 0, 0);
-	video::SColor m_highlight = video::SColor(255, 70, 100, 50);
-	video::SColor m_highlight_text = video::SColor(255, 255, 255, 255);
+	video::SColor m_highlight = video::SColor(255, 137, 180, 250);
+	video::SColor m_highlight_text = video::SColor(255, 205, 214, 244);
 	s32 m_rowheight = 1;
 	gui::IGUIFont *m_font = nullptr;
 	GUIScrollBar *m_scrollbar = nullptr;
