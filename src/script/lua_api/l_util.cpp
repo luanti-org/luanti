@@ -245,14 +245,27 @@ int ModApiUtil::l_check_password_entry(lua_State *L)
 	return 1;
 }
 
-// get_password_hash(name, raw_password)
+// get_password_hash(name, password)
 int ModApiUtil::l_get_password_hash(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	std::string name = luaL_checkstring(L, 1);
-	std::string raw_password = luaL_checkstring(L, 2);
-	std::string hash = translate_password(name, raw_password);
-	lua_pushstring(L, hash.c_str());
+	luaL_checktype(L, 1, LUA_TSTRING);
+	luaL_checktype(L, 2, LUA_TSTRING);
+
+	std::string_view name = readParam<std::string_view>(L, 1);
+
+	luaL_argcheck(L, !name.empty(), 1,
+		"User name must be non-empty, use core.sha1 or core.sha256 if you need a generic hash function.\n"
+		"See documentation for more details on how to migrate legacy code.");
+
+	std::string_view password = readParam<std::string_view>(L, 2);
+
+	std::string verifier;
+	std::string salt;
+	generate_srp_verifier_and_salt(name, password, &verifier, &salt);
+
+	std::string hash = encode_srp_verifier(verifier, salt);
+	lua_pushlstring(L, hash.c_str(), hash.length());
 	return 1;
 }
 
