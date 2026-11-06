@@ -5,6 +5,7 @@
 #include "player.h"
 
 #include <cmath>
+#include <cassert>
 #include "hud_element.h"
 #include "constants.h"
 #include "gamedef.h"
@@ -24,10 +25,11 @@ bool is_valid_player_name(std::string_view name)
 	return !name.empty() && name.size() <= PLAYERNAME_SIZE && string_allowed(name, PLAYERNAME_ALLOWED_CHARS);
 }
 
-Player::Player(const std::string &name, IItemDefManager *idef):
+Player::Player(const std::string &name, const IItemDefManager *idef):
 	inventory(idef)
 {
 	m_name = name;
+	assert(!m_name.empty());
 
 	inventory.clear();
 	inventory.addList("main", PLAYER_INVENTORY_SIZE);
@@ -39,7 +41,6 @@ Player::Player(const std::string &name, IItemDefManager *idef):
 
 	// Can be redefined via Lua
 	inventory_formspec = "size[8,7.5]"
-		//"image[1,0.6;1,2;player.png]"
 		"list[current_player;main;0,3.5;8,4;]"
 		"list[current_player;craft;3,0;3,3;]"
 		"listring[]"

@@ -348,7 +348,7 @@ int ModApiUtil::l_compress(lua_State *L)
 
 	LuaCompressMethod method = get_compress_method(L, 2);
 
-	std::ostringstream os(std::ios_base::binary);
+	my_ostringstream os;
 
 	if (method == LUA_COMPRESS_METHOD_DEFLATE ||
 			method == LUA_COMPRESS_METHOD_RAW_DEFLATE) {
@@ -365,8 +365,7 @@ int ModApiUtil::l_compress(lua_State *L)
 		compressZstd(data, os, level);
 	}
 
-	std::string out = os.str();
-
+	auto out = os.view();
 	lua_pushlstring(L, out.data(), out.size());
 	return 1;
 }
@@ -380,9 +379,8 @@ int ModApiUtil::l_decompress(lua_State *L)
 
 	LuaCompressMethod method = get_compress_method(L, 2);
 
-	// FIXME: zero copy possible in c++26 or with custom rdbuf
-	std::istringstream is(std::string(data), std::ios_base::binary);
-	std::ostringstream os(std::ios_base::binary);
+	my_istringstream is(data);
+	my_ostringstream os;
 
 	if (method == LUA_COMPRESS_METHOD_DEFLATE ||
 			method == LUA_COMPRESS_METHOD_RAW_DEFLATE) {
@@ -391,8 +389,7 @@ int ModApiUtil::l_decompress(lua_State *L)
 		decompressZstd(is, os);
 	}
 
-	std::string out = os.str();
-
+	auto out = os.view();
 	lua_pushlstring(L, out.data(), out.size());
 	return 1;
 }

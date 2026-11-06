@@ -76,10 +76,17 @@
 #include <sstream>
 #include <csignal>
 
+// Make the exceptions we swallow more visible in debug builds
+#ifdef NDEBUG
+#define EXCEPTIONSTREAM infostream
+#else
+#define EXCEPTIONSTREAM warningstream
+#endif
+
 class ClientNotFoundException : public BaseException
 {
 public:
-	ClientNotFoundException(const char *s):
+	ClientNotFoundException(const std::string &s):
 		BaseException(s)
 	{}
 };
@@ -154,9 +161,10 @@ void *ServerThread::run()
 			m_server->Receive(remaining_time);
 
 		} catch (con::PeerNotFoundException &e) {
-			infostream<<"Server: PeerNotFoundException"<<std::endl;
+			EXCEPTIONSTREAM << "ServerThread: PeerNotFoundException" << std::endl;
 		} catch (ClientNotFoundException &e) {
-			infostream<<"Server: ClientNotFoundException"<<std::endl;
+			EXCEPTIONSTREAM << "ServerThread: ClientNotFoundException: "
+				<< e.what() << std::endl;
 		} catch (LuaError &e) {
 			m_server->setAsyncFatalError(e);
 		} catch (ModError &e) {
@@ -840,7 +848,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		Check added and deleted active objects
 	*/
 	{
-		//infostream<<"Server: Checking added and deleted active objects"<<std::endl;
 		EnvAutoLock envlock(this);
 
 		// This guarantees that each object recomputes its cache only once per server step,
@@ -1154,24 +1161,26 @@ void Server::Receive(float min_time)
 			ProcessData(&pkt);
 			m_packet_recv_processed_counter->increment();
 		} catch (const con::InvalidIncomingDataException &e) {
-			infostream << "Server::Receive(): InvalidIncomingDataException: what()="
+			EXCEPTIONSTREAM << "Server::Receive(): InvalidIncomingDataException: "
 					<< e.what() << std::endl;
 		} catch (SerializationError &e) {
 			enrich_exception(e, pkt, true);
-			infostream << "Server::Receive(): SerializationError: what()="
+			EXCEPTIONSTREAM << "Server::Receive(): SerializationError: "
 					<< e.what() << std::endl;
 		} catch (PacketError &e) {
 			enrich_exception(e, pkt, false);
-			actionstream << "Server::Receive(): PacketError: what()="
+			actionstream << "Server::Receive(): PacketError: "
 					<< e.what() << std::endl;
 		} catch (const ClientStateError &e) {
 			errorstream << "ClientStateError: peer=" << peer_id << " what()="
 					 << e.what() << std::endl;
 			DenyAccess(peer_id, SERVER_ACCESSDENIED_UNEXPECTED_DATA);
 		} catch (con::PeerNotFoundException &e) {
-			infostream << "Server: PeerNotFoundException" << std::endl;
+			EXCEPTIONSTREAM << "Server::Receive(): PeerNotFoundException" << std::endl;
 		} catch (ClientNotFoundException &e) {
-			infostream << "Server: ClientNotFoundException" << std::endl;
+			enrich_exception(e, pkt, false);
+			EXCEPTIONSTREAM << "Server::Receive(): ClientNotFoundException: "
+				<< e.what() << std::endl;
 		}
 	}
 }
@@ -1595,11 +1604,11 @@ void Server::SendInventory(RemotePlayer *player, bool incremental, bool skip_wie
 
 	NetworkPacket pkt(TOCLIENT_INVENTORY, 0, player->getPeerId());
 
-	std::ostringstream os(std::ios::binary);
+	my_ostringstream os;
 	player->inventory.serialize(os, incremental);
 	player->inventory.setModified(false);
 	player->setModified(true);
-	std::string content = os.str();
+	auto content = os.view();
 
 	if (player->protocol_version >= 52) {
 		pkt.putLongString(content);
@@ -2560,10 +2569,10 @@ void Server::SendBlockNoLock(session_t peer_id, MapBlock *block, u8 ver,
 
 	// Serialize the block in the right format
 	if (!sptr) {
-		std::ostringstream os(std::ios_base::binary);
+		my_ostringstream os;
 		block->serialize(os, ver, false, net_compression_level);
 		block->serializeNetworkSpecific(os);
-		s = os.str();
+		s = os.take();
 		sptr = &s;
 	}
 
@@ -2913,9 +2922,9 @@ void Server::sendRequestedMedia(session_t peer_id,
 			// Zstd is very fast and can handle non-compressible data efficiently
 			// so we can just throw it at every file. Still we don't want to
 			// spend too much here, so we use the lowest compression level.
-			std::ostringstream oss(std::ios::binary);
+			my_ostringstream oss;
 			compressZstd(data, oss, 1);
-			data = oss.str();
+			data = oss.take();
 		}
 		bytes_compressed += data.size();
 
@@ -3027,13 +3036,13 @@ void Server::sendDetachedInventory(Inventory *inventory, const std::string &name
 		pkt << true; // Update inventory
 
 		// Serialization & NetworkPacket isn't a love story
-		std::ostringstream os(std::ios_base::binary);
+		my_ostringstream os;
 		inventory->serialize(os);
 		inventory->setModified(false);
 
-		const std::string &os_str = os.str();
-		pkt << static_cast<u16>(os_str.size()); // HACK: to keep compatibility with 5.0.0 clients
-		pkt.putRawString(os_str);
+		auto data = os.view();
+		pkt << static_cast<u16>(data.size()); // HACK: to keep compatibility with 5.0.0 clients
+		pkt.putRawString(data);
 	}
 
 	if (peer_id == PEER_ID_INEXISTENT)
@@ -3376,8 +3385,9 @@ void Server::handleAdminChat(const ChatEventChat *evt)
 RemoteClient *Server::getClient(session_t peer_id, ClientState state_min)
 {
 	RemoteClient *client = getClientNoEx(peer_id,state_min);
-	if(!client)
-		throw ClientNotFoundException("Client not found");
+	if(!client) {
+		throw ClientNotFoundException("peer_id=" + itos(peer_id));
+	}
 
 	return client;
 }
@@ -4031,8 +4041,7 @@ bool Server::rollbackRevertActions(const std::list<RollbackAction> &actions,
 }
 
 // IGameDef interface
-// Under envlock
-IItemDefManager *Server::getItemDefManager()
+const IItemDefManager *Server::getItemDefManager() const
 {
 	return m_itemdef;
 }
@@ -4042,7 +4051,7 @@ const NodeDefManager *Server::getNodeDefManager()
 	return m_nodedef;
 }
 
-ICraftDefManager *Server::getCraftDefManager()
+const ICraftDefManager *Server::getCraftDefManager() const
 {
 	return m_craftdef;
 }

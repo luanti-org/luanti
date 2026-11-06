@@ -19,6 +19,7 @@ public:
 		buffer_index = 0;
 	}
 
+protected:
 	int overflow(int c) override {
 		if (c != traits_type::eof())
 			push_back(c);
@@ -67,10 +68,77 @@ private:
 };
 
 class DummyStreamBuffer : public std::streambuf {
+protected:
 	int overflow(int c) override {
 		return 0;
 	}
 	std::streamsize xsputn(const char *s, std::streamsize n) override {
 		return n;
 	}
+};
+
+/******/
+
+/// Can be used in place of std::ostringstream and allows operating on the result zero-copy.
+/// @note will be obsolete with C++20
+class my_ostringstream : public std::ostream {
+public:
+	my_ostringstream() : std::ostream(&buf) {}
+
+	const std::string &str() const { return buf.buffer; }
+
+	std::string take() {
+		std::string ret;
+		buf.buffer.swap(ret);
+		return ret;
+	}
+
+	/// @warning The view will be invalidated when writing to the stream!
+	std::string_view view() const { return std::string_view(buf.buffer); }
+
+private:
+	class my_ostringbuf : public std::streambuf {
+	public:
+		my_ostringbuf() {}
+
+		std::string buffer;
+
+	protected:
+		int_type overflow(int_type ch) override {
+			if (ch != traits_type::eof())
+				buffer.push_back(ch);
+			return 0;
+		}
+
+		std::streamsize xsputn(const char* s, std::streamsize n) override {
+			buffer.append(s, static_cast<size_t>(n));
+			return n;
+		}
+	};
+
+	my_ostringbuf buf;
+};
+
+/// Can be used in place of std::istringstream and allows operating on a buffer without copying.
+/// @note C++26 adds string_view support to istringstream, however it will still copy...
+class my_istringstream : public std::istream {
+public:
+	/// @warning Caller must ensure string view remains valid!
+	my_istringstream(std::string_view s) : std::istream(&buf), buf(s) {}
+
+private:
+	class myistring_buf : public std::streambuf {
+	public:
+		myistring_buf(std::string_view sv) {
+			if (sv.empty()) {
+				setg(nullptr, nullptr, nullptr);
+			} else {
+				// only takes a non-const pointer
+				auto *p = const_cast<char*>(sv.data());
+				setg(p, p, p + sv.size());
+			}
+		}
+	};
+
+	myistring_buf buf;
 };

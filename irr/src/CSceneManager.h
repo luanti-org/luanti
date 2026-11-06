@@ -12,10 +12,10 @@
 #include "irrArray.h"
 #include "IMeshLoader.h"
 
+#include <memory>
+
 namespace scene
 {
-class IMeshCache;
-
 class SkinnedMesh;
 
 /*!
@@ -25,7 +25,9 @@ class CSceneManager final : public ISceneManager, public ISceneNode
 {
 public:
 	//! constructor
-	CSceneManager(video::IVideoDriver *driver, gui::ICursorControl *cursorControl, IMeshCache *cache = 0);
+	/** \param cache The mesh cache, shared between all scene managers. Must not be null. */
+	CSceneManager(video::IVideoDriver *driver, gui::ICursorControl *cursorControl,
+			std::shared_ptr<MeshCache> cache);
 
 	//! destructor
 	virtual ~CSceneManager();
@@ -33,8 +35,8 @@ public:
 	//! gets an animateable mesh. loads it if needed. returned pointer must not be dropped.
 	IAnimatedMesh *getMesh(io::IReadFile *file) override;
 
-	//! Returns an interface to the mesh cache which is shared between all existing scene managers.
-	IMeshCache *getMeshCache() override;
+	//! Returns the mesh cache which is shared between all existing scene managers.
+	MeshCache &getMeshCache() override;
 
 	//! returns the video driver
 	video::IVideoDriver *getVideoDriver() override;
@@ -179,7 +181,7 @@ public:
 
 private:
 	// load and create a mesh which we know already isn't in the cache and put it in there
-	IAnimatedMesh *getUncachedMesh(io::IReadFile *file, const io::path &filename, const io::path &cachename);
+	IAnimatedMesh *getUncachedMesh(io::IReadFile *file, const io::path &filename);
 
 	//! clears the deletion list
 	void clearDeletionList();
@@ -256,8 +258,8 @@ private:
 	ICameraSceneNode *ActiveCamera;
 	core::vector3df camWorldPos; // Position of camera for transparent nodes.
 
-	//! Mesh cache
-	IMeshCache *MeshCache;
+	//! Mesh cache, shared between all scene managers
+	std::shared_ptr<MeshCache> Meshes;
 
 	//! Global debug render state
 	u16 DebugDataMask = 0, DebugDataBits = 0;

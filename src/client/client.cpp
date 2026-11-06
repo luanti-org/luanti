@@ -67,7 +67,6 @@
 #include <IAnimatedMesh.h>
 #include <IFileSystem.h>
 #include <IReadFile.h>
-#include <IMeshCache.h>
 #include <json/json.h>
 
 #include <iostream>
@@ -2027,8 +2026,8 @@ void Client::pushToEventQueue(ClientEvent *event)
 }
 
 // IGameDef interface
-// Under envlock
-IItemDefManager* Client::getItemDefManager()
+
+const IItemDefManager* Client::getItemDefManager() const
 {
 	return m_itemdef;
 }
@@ -2036,10 +2035,9 @@ const NodeDefManager* Client::getNodeDefManager()
 {
 	return m_nodedef;
 }
-ICraftDefManager* Client::getCraftDefManager()
+const ICraftDefManager* Client::getCraftDefManager() const
 {
-	return NULL;
-	//return m_craftdef;
+	return nullptr;
 }
 ITextureSource* Client::getTextureSource()
 {
@@ -2083,8 +2081,10 @@ scene::IAnimatedMesh *Client::getMesh(const std::string &filename, bool *is_shar
 
 	// Try getting it from cache explicitly
 	auto *sm = m_rendering_engine->get_scene_manager();
-	auto *mesh = sm->getMeshCache()->getMeshByName(filename.c_str());
-	if (mesh) {
+	const auto &mesh_cache = sm->getMeshCache();
+	auto cache_it = mesh_cache.find(filename);
+	if (cache_it != mesh_cache.end()) {
+		auto *mesh = cache_it->second.get();
 		mesh->grab();
 		return mesh;
 	}
@@ -2095,7 +2095,7 @@ scene::IAnimatedMesh *Client::getMesh(const std::string &filename, bool *is_shar
 			data.c_str(), data.size(), filename.c_str());
 	FATAL_ERROR_IF(!rfile, "Could not create/open RAM file");
 
-	mesh = sm->getMesh(rfile);
+	auto *mesh = sm->getMesh(rfile);
 	rfile->drop();
 	if (!mesh)
 		return nullptr;

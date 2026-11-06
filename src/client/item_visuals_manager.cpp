@@ -42,7 +42,7 @@ ItemVisualsManager::ItemVisuals *ItemVisualsManager::createItemVisuals( const It
 	// This is not thread-safe
 	sanity_check(std::this_thread::get_id() == m_main_thread);
 
-	IItemDefManager *idef = client->idef();
+	auto *idef = client->idef();
 
 	const ItemDefinition &def = item.getDefinition(idef);
 	ItemImageDef inventory_image = item.getInventoryImage(idef);

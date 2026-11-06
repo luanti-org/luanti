@@ -31,7 +31,7 @@ class GUIHyperText;
 class GUIScrollContainer;
 class ISoundManager;
 
-enum FormspecFieldType {
+enum FormspecFieldType : u8 {
 	f_Button,
 	f_Table,
 	f_TabHeader,
@@ -45,7 +45,7 @@ enum FormspecFieldType {
 	f_Unknown
 };
 
-enum FormspecQuitMode {
+enum FormspecQuitMode : u8 {
 	quit_mode_no,
 	quit_mode_accept,
 	quit_mode_cancel,
@@ -112,9 +112,6 @@ class GUIFormSpecMenu : public GUIModalMenu
 			flabel(label),
 			fdefault(unescape_enriched(translate_string(default_text))),
 			fid(id),
-			send(false),
-			ftype(f_Unknown),
-			is_exit(false),
 			priority(priority),
 			fcursor_icon(cursor_icon)
 		{
@@ -125,9 +122,9 @@ class GUIFormSpecMenu : public GUIModalMenu
 		std::wstring fdefault;
 		std::string url;
 		s32 fid;
-		bool send;
-		FormspecFieldType ftype;
-		bool is_exit;
+		bool send = false;
+		FormspecFieldType ftype = f_Unknown;
+		bool is_exit = false;
 		// Draw priority for formspec version < 3
 		int priority;
 		gui::ECURSOR_ICON fcursor_icon;
@@ -473,35 +470,34 @@ private:
 
 	void removeAll();
 
-	void parseElement(parserData* data, const std::string &element);
+	void parseElement(parserData *data, const std::string &element);
 
-	void parseSize(parserData* data, const std::string &element);
-	void parseContainer(parserData* data, const std::string &element);
-	void parseContainerEnd(parserData* data, const std::string &element);
+	void parseSize(parserData *data, const std::string &element);
+	void parseContainer(parserData *data, const std::string &element);
+	void parseContainerEnd(parserData *data, const std::string &element);
 	void parseScrollContainer(parserData *data, const std::string &element);
 	void parseScrollContainerEnd(parserData *data, const std::string &element);
-	void parseList(parserData* data, const std::string &element);
-	void parseListRing(parserData* data, const std::string &element);
-	void parseCheckbox(parserData* data, const std::string &element);
-	void parseImage(parserData* data, const std::string &element);
+	void parseList(parserData *data, const std::string &element);
+	void parseListRing(parserData *data, const std::string &element);
+	void parseCheckbox(parserData *data, const std::string &element);
+	void parseImage(parserData *data, const std::string &element);
 	void parseAnimatedImage(parserData *data, const std::string &element);
-	void parseItemImage(parserData* data, const std::string &element);
-	void parseButton(parserData* data, const std::string &element);
-	void parseBackground(parserData* data, const std::string &element);
-	void parseTableOptions(parserData* data, const std::string &element);
-	void parseTableColumns(parserData* data, const std::string &element);
-	void parseTable(parserData* data, const std::string &element);
-	void parseTextList(parserData* data, const std::string &element);
-	void parseDropDown(parserData* data, const std::string &element);
+	void parseItemImage(parserData *data, const std::string &element);
+	void parseButton(parserData *data, const std::string &element);
+	void parseBackground(parserData *data, const std::string &element);
+	void parseTableOptions(parserData *data, const std::string &element);
+	void parseTableColumns(parserData *data, const std::string &element);
+	void parseTable(parserData *data, const std::string &element);
+	void parseTextList(parserData *data, const std::string &element);
+	void parseDropDown(parserData *data, const std::string &element);
 	void parseFieldEnterAfterEdit(parserData *data, const std::string &element);
 	void parseFieldCloseOnEnter(parserData *data, const std::string &element);
-	void parsePwdField(parserData* data, const std::string &element);
-	void parseField(parserData* data, const std::string &element);
+	void parsePwdField(parserData *data, const std::string &element);
+	void parseField(parserData *data, const std::string &element);
 	void createTextField(parserData *data, FieldSpec &spec,
 		core::rect<s32> &rect, bool is_multiline);
-	void parseSimpleField(parserData* data,std::vector<std::string> &parts);
-	void parseTextArea(parserData* data,std::vector<std::string>& parts,
-			const std::string &type);
+	void parseSimpleField(parserData *data,std::vector<std::string> &parts);
+	void parseTextArea(parserData *data,std::vector<std::string> &parts);
 	void parseHyperText(parserData *data, const std::string &element);
 	void parseHyperTip(parserData *data, const std::string &element);
 	void parseLabel(parserData* data, const std::string &element);
@@ -516,9 +512,9 @@ private:
 	void parseListImages(parserData* data, const std::string &element);
 	void parseTooltip(parserData* data, const std::string &element);
 	bool parseVersionDirect(const std::string &data);
-	bool parseSizeDirect(parserData* data, const std::string &element);
-	void parseRealCoordinates(parserData* data, const std::string &element);
-	void parseScrollBar(parserData* data, const std::string &element);
+	bool parseSizeDirect(parserData *data, const std::string &element);
+	void parseRealCoordinates(parserData *data, const std::string &element);
+	void parseScrollBar(parserData *data, const std::string &element);
 	void parseScrollBarOptions(parserData *data, const std::string &element);
 	bool parsePositionDirect(parserData *data, const std::string &element);
 	void parsePosition(parserData *data, const std::string &element);

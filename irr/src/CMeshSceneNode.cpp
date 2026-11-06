@@ -5,7 +5,6 @@
 #include "CMeshSceneNode.h"
 #include "IVideoDriver.h"
 #include "ISceneManager.h"
-#include "IMeshCache.h"
 #include "IMeshBuffer.h"
 #include "IMaterialRenderer.h"
 #include "IFileSystem.h"

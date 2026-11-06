@@ -9,7 +9,7 @@
 #include <string>
 #include <iostream>
 #include <optional>
-#include <set>
+#include <vector>
 #include "itemgroup.h"
 #include "sound_spec.h"
 #include "texture_override.h" // TextureOverride
@@ -154,7 +154,7 @@ public:
 	// Get alias definition
 	virtual const std::string &getAlias(const std::string &name) const=0;
 	// Get set of all defined item names and aliases
-	virtual void getAll(std::set<std::string> &result) const=0;
+	virtual void getAll(std::vector<std::string> &result) const=0;
 	// Get all item definitions (aliases not resolved)
 	virtual void getDefinitions(std::vector<ItemDefinition> &result) const=0;
 	// Check if item is known

@@ -29,11 +29,11 @@ class RemotePlayer : public Player
 	friend class PlayerDatabaseFiles;
 
 public:
-	RemotePlayer(const std::string &name, IItemDefManager *idef);
+	RemotePlayer(const std::string &name, const IItemDefManager *idef);
 	virtual ~RemotePlayer();
 
 	PlayerSAO *getPlayerSAO() { return m_sao; }
-	void setPlayerSAO(PlayerSAO *sao) { m_sao = sao; }
+	void setPlayerSAO(PlayerSAO *sao);
 
 	RemotePlayerChatResult canSendChatMessage();
 

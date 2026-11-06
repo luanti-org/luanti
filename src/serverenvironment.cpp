@@ -330,7 +330,7 @@ RemotePlayer *ServerEnvironment::getPlayer(const session_t peer_id)
 		if (player->getPeerId() == peer_id)
 			return player;
 	}
-	return NULL;
+	return nullptr;
 }
 
 RemotePlayer *ServerEnvironment::getPlayer(const std::string &name, bool match_invalid_peer)
@@ -348,22 +348,20 @@ RemotePlayer *ServerEnvironment::getPlayer(const std::string &name, bool match_i
 
 void ServerEnvironment::addPlayer(RemotePlayer *player)
 {
-	/*
-		Check that peer_ids are unique.
-		Also check that names are unique.
-		Exception: there can be multiple players with peer_id=0
-	*/
-	// If peer id is non-zero, it has to be unique.
+	assert(player);
+	// If peer id is valid, it has to be unique
 	if (player->getPeerId() != PEER_ID_INEXISTENT)
-		FATAL_ERROR_IF(getPlayer(player->getPeerId()) != NULL, "Peer id not unique");
-	// Name has to be unique.
-	FATAL_ERROR_IF(getPlayer(player->getName()) != NULL, "Player name not unique");
-	// Add.
+		FATAL_ERROR_IF(getPlayer(player->getPeerId()), "Peer ID not unique");
+	// Name has to be valid and unique
+	assert(!player->getName().empty());
+	FATAL_ERROR_IF(getPlayer(player->getName(), true), "Player name not unique");
+
 	m_players.push_back(player);
 }
 
 void ServerEnvironment::removePlayer(RemotePlayer *player)
 {
+	assert(player);
 	for (auto it = m_players.begin(); it != m_players.end(); ++it) {
 		if ((*it) == player) {
 			delete *it;
@@ -371,6 +369,7 @@ void ServerEnvironment::removePlayer(RemotePlayer *player)
 			return;
 		}
 	}
+	assert(false);
 }
 
 bool ServerEnvironment::removePlayerFromDatabase(const std::string &name)

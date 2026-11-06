@@ -30,7 +30,7 @@ public:
 	virtual void setInventoryModified(const InventoryLocation &loc);
 
 	// Creates or resets inventory
-	Inventory *createDetachedInventory(const std::string &name, IItemDefManager *idef,
+	Inventory *createDetachedInventory(const std::string &name, const IItemDefManager *idef,
 			const std::string &player = "");
 	bool removeDetachedInventory(const std::string &name);
 	bool checkDetachedInventoryAccess(const InventoryLocation &loc, const std::string &player) const;

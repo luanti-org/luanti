@@ -3,7 +3,7 @@
 #pragma once
 
 #include <atomic>
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <string_view>
 #include <fstream>
@@ -84,7 +84,7 @@ private:
 	std::vector<ILogOutput *> m_outputs[LL_MAX];
 	std::atomic<bool> m_has_outputs[LL_MAX];
 	std::atomic<bool> m_silenced_levels[LL_MAX];
-	std::map<std::thread::id, std::string> m_thread_names;
+	std::unordered_map<std::thread::id, std::string> m_thread_names;
 };
 
 class ILogOutput {

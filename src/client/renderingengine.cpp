@@ -5,7 +5,6 @@
 
 #include <optional>
 #include <irrlicht.h>
-#include "IMeshCache.h"
 #include "fontengine.h"
 #include "client.h"
 #include "clouds.h"
@@ -25,6 +24,7 @@
 #include "filesys.h"
 #include "irrlicht_changes/static_text.h"
 #include "irr_ptr.h"
+#include "IAnimatedMesh.h"
 
 RenderingEngine *RenderingEngine::s_singleton = nullptr;
 
@@ -263,8 +263,7 @@ void RenderingEngine::setResizable(bool resize)
 
 void RenderingEngine::cleanupMeshCache()
 {
-	auto mesh_cache = m_device->getSceneManager()->getMeshCache();
-	mesh_cache->clear();
+	m_device->getSceneManager()->getMeshCache().clear();
 }
 
 bool RenderingEngine::setupTopLevelWindow()
