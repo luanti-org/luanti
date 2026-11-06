@@ -43,6 +43,9 @@ private:
 	// get_language()
 	static int l_get_language(lua_State *L);
 
+	// get_window_info()
+	static int l_get_window_info(lua_State *L);
+
 	// get_wielded_item()
 	static int l_get_wielded_item(lua_State *L);
 
