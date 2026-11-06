@@ -111,8 +111,10 @@ local function get_formspec(tabview, name, tabdata)
 		"field_enter_after_edit[te_search;true]" ..
 		"container[7.25,0.25]" ..
 		"image_button[0,0;0.75,0.75;" .. core.formspec_escape(defaulttexturedir .. "search.png") .. ";btn_mp_search;]" ..
-		"image_button[" .. tool_step .. ",0;0.75,0.75;" .. core.formspec_escape(defaulttexturedir .. "clear.png") .. ";btn_mp_clear;]" ..
-		"image_button[" .. (2 * tool_step) .. ",0;0.75,0.75;" .. core.formspec_escape(defaulttexturedir .. "refresh.png") .. ";btn_mp_refresh;]" ..
+		"image_button[" .. tool_step .. ",0;0.75,0.75;" ..
+			core.formspec_escape(defaulttexturedir .. "clear.png") .. ";btn_mp_clear;]" ..
+		"image_button[" .. (2 * tool_step) .. ",0;0.75,0.75;" ..
+			core.formspec_escape(defaulttexturedir .. "refresh.png") .. ";btn_mp_refresh;]" ..
 		"tooltip[btn_mp_clear;" .. fgettext("Clear") .. "]" ..
 		"tooltip[btn_mp_search;" .. fgettext("Search") .. "]" ..
 		-- TRANSLATORS: As in 'reload'/'check again'

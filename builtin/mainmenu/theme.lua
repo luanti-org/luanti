@@ -313,7 +313,8 @@ function theme.formspec_styles()
 		("style_type[image_button;bgcolor=%s;borderradius=%d]"):format(c.surface, r),
 		("style_type[image_button:hovered;border=true;bgcolor=%s]"):format(c.blue),
 		("style_type[image_button:pressed;border=true;bgcolor=%s]"):format(c.lavender),
-		("style_type[tabheader;bgcolor=%s;textcolor=%s;bgcolor_selected=%s;textcolor_selected=%s;bgcolor_hovered=%s;borderradius=%d;padding=%d]"):
+		("style_type[tabheader;bgcolor=%s;textcolor=%s;bgcolor_selected=%s;" ..
+			"textcolor_selected=%s;bgcolor_hovered=%s;borderradius=%d;padding=%d]"):
 			format(c.surface, c.text, c.blue, c.base, c.elevated, r, p),
 		("style_type[scrollbar;bgcolor=%s;fgcolor=%s;borderradius=%d]"):
 			format(c.surface, c.blue, r),
