@@ -51,11 +51,7 @@ std::string colorize_url(const std::string &url)
 	auto path = url_get(CURLUPART_PATH);
 	auto query = url_get(CURLUPART_QUERY);
 	auto fragment = url_get(CURLUPART_FRAGMENT);
-#if LIBCURL_VERSION_NUM >= 0x074100
 	auto zoneid = url_get(CURLUPART_ZONEID);
-#else
-	std::string zoneid;
-#endif
 
 	std::ostringstream os;
 
