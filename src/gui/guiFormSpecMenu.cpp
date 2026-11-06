@@ -37,6 +37,7 @@
 #include "util/string.h" // for parseColorString()
 #include "irrlicht_changes/static_text.h"
 #include "guiAnimatedImage.h"
+#include "guiAnimation.h"
 #include "guiBackgroundImage.h"
 #include "guiBox.h"
 #include "guiButton.h"
@@ -2373,6 +2374,14 @@ void GUIFormSpecMenu::parseTabHeader(parserData* data, const std::string &elemen
 			(tab_index < (int) buttons.size()))
 		e->setActiveTab(tab_index);
 
+	auto previous = m_tabheader_last_selection.find(name);
+	if (previous != m_tabheader_last_selection.end()) {
+		const float speed = getUIAnimationSpeed();
+		e->setSelectionAnimation(previous->second,
+				static_cast<u32>(240.0f / speed));
+	}
+	m_tabheader_last_selection[name] = tab_index;
+
 	m_fields.push_back(spec);
 	m_tabheader_upper_edge = MYMIN(m_tabheader_upper_edge, rect.UpperLeftCorner.Y);
 }
@@ -2454,7 +2463,9 @@ void GUIFormSpecMenu::parseItemImageButton(parserData* data, const std::string &
 void GUIFormSpecMenu::parseBox(parserData* data, const std::string &element)
 {
 	std::vector<std::string> parts;
-	if (!precheckElement("box", element, 3, 3, parts))
+	const bool animated = data->type == "animated_box";
+	if (!precheckElement(animated ? "animated_box" : "box", element,
+			animated ? 4 : 3, animated ? 4 : 3, parts))
 		return;
 
 	std::vector<std::string> v_pos = split(parts[0], ',');
@@ -2503,9 +2514,16 @@ void GUIFormSpecMenu::parseBox(parserData* data, const std::string &element)
 	core::rect<s32> rect(pos, pos + geom);
 
 	const s32 borderradius = style.getInt(StyleSpec::BORDER_RADIUS, 0);
+	s32 animation_start_y = -1;
+	u32 animation_duration = 0;
+	if (animated) {
+		animation_start_y = pos.Y + core::round32(stof(parts[3]) * spacing.Y);
+		animation_duration = static_cast<u32>(240.0f / getUIAnimationSpeed());
+	}
 
 	GUIBox *e = new GUIBox(Environment, data->current_parent, spec.fid, rect,
-		colors, bordercolors, borderwidths, borderradius);
+		colors, bordercolors, borderwidths, borderradius, animation_start_y,
+		animation_duration);
 	e->setNotClipped(style.getBool(StyleSpec::NOCLIP, m_formspec_version < 3));
 	e->drop();
 
@@ -3157,6 +3175,7 @@ const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFo
 		{"button_key",             &GUIFormSpecMenu::parseButton},
 		{"background",             &GUIFormSpecMenu::parseBackground},
 		{"background9",            &GUIFormSpecMenu::parseBackground},
+		{"animated_box",           &GUIFormSpecMenu::parseBox},
 		{"tableoptions",           &GUIFormSpecMenu::parseTableOptions},
 		{"tablecolumns",           &GUIFormSpecMenu::parseTableColumns},
 		{"table",                  &GUIFormSpecMenu::parseTable},
@@ -3753,12 +3772,27 @@ void GUIFormSpecMenu::drawMenu()
 	if (m_form_src) {
 		const std::string &newform = m_form_src->getForm();
 		if (newform != m_formspec_string) {
+			const v2s32 previous_size = DesiredRect.getSize();
 			m_formspec_string = newform;
 			m_is_form_regenerated = false;
 			regenerateGui(m_screensize_old);
+			startPanelTransition(previous_size);
 		}
 	}
 
+	if (m_panel_transition_duration > 0) {
+		const u32 elapsed = porting::getTimeMs() - m_panel_transition_start;
+		if (elapsed < m_panel_transition_duration) {
+			const float progress = static_cast<float>(elapsed) / m_panel_transition_duration;
+			const s32 offset_y = core::round32(12.0f * (1.0f - progress));
+			core::rect<s32> animated_rect = m_panel_transition_base;
+			animated_rect += v2s32(0, offset_y);
+			setRelativePosition(animated_rect);
+		} else {
+			setRelativePosition(m_panel_transition_base);
+			m_panel_transition_duration = 0;
+		}
+	}
 	gui::IGUISkin* skin = Environment->getSkin();
 	sanity_check(skin != NULL);
 	gui::IGUIFont *old_font = skin->getFont();
@@ -3981,6 +4015,18 @@ void GUIFormSpecMenu::drawMenu()
 	drawSelectedItem();
 
 	skin->setFont(old_font);
+}
+
+void GUIFormSpecMenu::startPanelTransition(const v2s32 &previous_size)
+{
+	if (previous_size == DesiredRect.getSize()) {
+		m_panel_transition_duration = 0;
+		return;
+	}
+	const float speed = getUIAnimationSpeed();
+	m_panel_transition_duration = static_cast<u32>(180.0f / speed);
+	m_panel_transition_start = porting::getTimeMs();
+	m_panel_transition_base = DesiredRect;
 }
 
 void GUIFormSpecMenu::positionTooltip(s32 tooltip_width, s32 tooltip_height, s32 &tooltip_x, s32 &tooltip_y)

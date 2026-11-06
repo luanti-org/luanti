@@ -13,6 +13,8 @@
 #include "os.h"
 #include "irrRoundedRect.h"
 
+#include <vector>
+
 namespace gui
 {
 
@@ -651,6 +653,7 @@ void CGUITabControl::draw()
 	// left and right pos of the active tab
 	s32 left = 0;
 	s32 right = 0;
+	std::vector<core::rect<s32>> tabRects(Tabs.size());
 
 	// const wchar_t* activetext = 0;
 	IGUITab *activeTab = 0;
@@ -677,6 +680,7 @@ void CGUITabControl::draw()
 		frameRect.LowerRightCorner.X = frameRect.UpperLeftCorner.X + len;
 
 		pos += len;
+		tabRects[i] = frameRect;
 
 		if ((s32)i == ActiveTabIndex) {
 			// for active button just remember values
@@ -708,8 +712,27 @@ void CGUITabControl::draw()
 			frameRect.LowerRightCorner.X = right;
 			frameRect.UpperLeftCorner.Y -= 2;
 
-			if (activeTab->isDrawingHeaderBackground())
-				draw_header_bg(activeTab, frameRect, false);
+			if (activeTab->isDrawingHeaderBackground()) {
+				if (AnimationFromTab >= 0 && AnimationFromTab < (s32)tabRects.size() &&
+						AnimationDuration > 0) {
+					const u32 elapsed = os::Timer::getTime() - AnimationStartTime;
+					const f32 t = core::min_((f32)elapsed / AnimationDuration, 1.f);
+					if (t < 1.f) {
+						const auto &from = tabRects[AnimationFromTab];
+						core::rect<s32> moving = frameRect;
+						moving.UpperLeftCorner.X = core::round32(from.UpperLeftCorner.X +
+								(frameRect.UpperLeftCorner.X - from.UpperLeftCorner.X) * t);
+						moving.LowerRightCorner.X = core::round32(from.LowerRightCorner.X +
+								(frameRect.LowerRightCorner.X - from.LowerRightCorner.X) * t);
+						draw_header_bg(activeTab, moving, false);
+					} else {
+						AnimationFromTab = -1;
+						draw_header_bg(activeTab, frameRect, false);
+					}
+				} else {
+					draw_header_bg(activeTab, frameRect, false);
+				}
+			}
 			else
 				skin->draw3DTabButton(this, true, frameRect, &AbsoluteClippingRect, VerticalAlignment);
 
@@ -958,6 +981,16 @@ s32 CGUITabControl::getTabAt(s32 xpos, s32 ypos) const
 s32 CGUITabControl::getActiveTab() const
 {
 	return ActiveTabIndex;
+}
+
+void CGUITabControl::setSelectionAnimation(s32 previousTab, u32 durationMs)
+{
+	if (previousTab < 0 || previousTab >= (s32)Tabs.size() ||
+			previousTab == ActiveTabIndex || durationMs == 0)
+		return;
+	AnimationFromTab = previousTab;
+	AnimationStartTime = os::Timer::getTime();
+	AnimationDuration = durationMs;
 }
 
 //! Brings a tab to front.

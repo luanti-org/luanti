@@ -81,6 +81,9 @@ public:
 	//! Returns which tab is currently active
 	virtual s32 getActiveTab() const = 0;
 
+	//! Animate the selected header background from a previous tab index
+	virtual void setSelectionAnimation(s32 previousTab, u32 durationMs) = 0;
+
 	//! get the the id of the tab at the given absolute coordinates
 	/** \return The id of the tab or -1 when no tab is at those coordinates*/
 	virtual s32 getTabAt(s32 xpos, s32 ypos) const = 0;

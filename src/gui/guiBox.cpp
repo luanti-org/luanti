@@ -8,18 +8,22 @@
 #include <IVideoDriver.h>
 #include "irr_v2d.h"
 #include "guiRoundedRect.h"
+#include "porting.h"
 
 GUIBox::GUIBox(gui::IGUIEnvironment *env, gui::IGUIElement *parent, s32 id,
 	const core::rect<s32> &rectangle,
 	const std::array<video::SColor, 4> &colors,
 	const std::array<video::SColor, 4> &bordercolors,
 	const std::array<s32, 4> &borderwidths,
-	s32 borderradius) :
+	s32 borderradius, s32 animation_start_y, u32 animation_duration) :
 	gui::IGUIElement(gui::EGUIET_ELEMENT, env, parent, id, rectangle),
 	m_colors(colors),
 	m_bordercolors(bordercolors),
 	m_borderwidths(borderwidths),
-	m_borderradius(borderradius)
+	m_borderradius(borderradius),
+	m_animation_start_y(animation_start_y),
+	m_animation_start_time(porting::getTimeMs()),
+	m_animation_duration(animation_duration)
 {
 }
 
@@ -40,6 +44,17 @@ void GUIBox::draw()
 
 	v2s32 upperleft = AbsoluteRect.UpperLeftCorner;
 	v2s32 lowerright = AbsoluteRect.LowerRightCorner;
+	if (m_animation_duration > 0 && m_animation_start_y >= 0) {
+		const u32 elapsed = porting::getTimeMs() - m_animation_start_time;
+		const float progress = std::min(1.0f,
+				static_cast<float>(elapsed) / m_animation_duration);
+		const s32 offset_y = core::round32((m_animation_start_y -
+				RelativeRect.UpperLeftCorner.Y) * (1.0f - progress));
+		upperleft.Y += offset_y;
+		lowerright.Y += offset_y;
+		if (progress >= 1.0f)
+			m_animation_duration = 0;
+	}
 
 	v2s32 topleft_border = {
 		upperleft.X - positive_borders[3],

@@ -614,6 +614,18 @@ local function get_formspec(dialogdata)
 		normal = "#3339",
 	}
 	local button_gap = mm_theme and mm_theme.button_gap() or 0
+	local page_positions = {}
+	local scan_y = 0
+	local scan_section = nil
+	for _, other_page in ipairs(filtered_pages) do
+		if other_page.section ~= scan_section then
+			scan_y = scan_y + 0.82
+			scan_section = other_page.section
+		end
+		page_positions[other_page.id] = scan_y
+		scan_y = scan_y + 0.82 + button_gap
+	end
+	local animation_from_y = page_positions[dialogdata.animation_from_page]
 
 	local y = 0
 	local last_section = nil
@@ -624,9 +636,19 @@ local function get_formspec(dialogdata)
 			last_section = other_page.section
 			y = y + 0.82
 		end
-		fs[#fs + 1] = ("box[0,%f;%f,0.8;%s]"):format(
-			y, left_pane_width-left_pane_padding,
-			other_page.id == page_id and page_colors.selected or page_colors.normal)
+		local row_width = left_pane_width - left_pane_padding
+		if other_page.id == page_id then
+			if animation_from_y and animation_from_y ~= y then
+				fs[#fs + 1] = ("animated_box[0,%f;%f,0.8;%s;%f]"):format(
+					y, row_width, page_colors.selected, animation_from_y - y)
+			else
+				fs[#fs + 1] = ("box[0,%f;%f,0.8;%s]"):format(
+					y, row_width, page_colors.selected)
+			end
+		else
+			fs[#fs + 1] = ("box[0,%f;%f,0.8;%s]"):format(
+				y, row_width, page_colors.normal)
+		end
 		fs[#fs + 1] = ("button[0,%f;%f,0.8;page_%s;%s]")
 			:format(y, left_pane_width-left_pane_padding, other_page.id, fgettext(other_page.title))
 		y = y + 0.82 + button_gap
@@ -747,6 +769,7 @@ local function get_formspec(dialogdata)
 		fs[#fs + 1] = ("scrollbar[%f,0;%f,%f;vertical;rightscroll;%f]"):format(
 				tabsize.width - scrollbar_w, scrollbar_w, tabsize.height, dialogdata.rightscroll or 0)
 	end
+	dialogdata.animation_from_page = nil
 
 	return table.concat(fs, "")
 end
@@ -824,6 +847,7 @@ local function buttonhandler(this, fields)
 
 	for _, page in ipairs(all_pages) do
 		if fields["page_" .. page.id] then
+			dialogdata.animation_from_page = dialogdata.page_id
 			dialogdata.page_id = page.id
 			dialogdata.components = nil
 			dialogdata.rightscroll = 0

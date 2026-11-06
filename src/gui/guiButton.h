@@ -278,5 +278,14 @@ private:
 	core::rect<s32> Padding;
 	core::vector2d<s32> ContentOffset;
 	video::SColor BgColor = video::SColor(0xFF,0xFF,0xFF,0xFF);
+	std::array<video::SColor, 4> StyleAnimationStartColors;
+	std::array<video::SColor, 4> StyleAnimationTargetColors;
+	video::SColor StyleAnimationStartBg = video::SColor(0xFFFFFFFF);
+	video::SColor StyleAnimationTargetBg = video::SColor(0xFFFFFFFF);
+	u32 StyleAnimationStartTime = 0;
+	u32 StyleAnimationDuration = 0;
+	bool StyleAnimationInitialized = false;
+	bool SuppressStyleAnimation = false;
+	void updateStyleAnimation();
 	// END PATCH
 };

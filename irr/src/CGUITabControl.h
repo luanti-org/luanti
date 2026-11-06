@@ -116,6 +116,7 @@ public:
 
 	//! Returns which tab is currently active
 	s32 getActiveTab() const override;
+	void setSelectionAnimation(s32 previousTab, u32 durationMs) override;
 
 	//! get the the id of the tab at the given absolute coordinates
 	s32 getTabAt(s32 xpos, s32 ypos) const override;
@@ -185,6 +186,9 @@ private:
 	s32 TabMaxWidth;
 	s32 CurrentScrollTabIndex;
 	s32 TabExtraWidth;
+	s32 AnimationFromTab = -1;
+	u32 AnimationStartTime = 0;
+	u32 AnimationDuration = 0;
 };
 
 } // end namespace gui
