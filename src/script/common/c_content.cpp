@@ -1087,6 +1087,15 @@ void read_content_features(lua_State *L, ContentFeatures &f, int index)
 	f.move_resistance = getintfield_default(L, index,
 			"move_resistance", f.move_resistance);
 
+	// Additional slowdown applied only to horizontal (X/Z)movement,
+	// ranging from 0 to 7. Stacks with move_resistance.
+	f.horizontal_move_resistance = rangelim(getintfield_default(L, index,
+		"horizontal_move_resistance", f.horizontal_move_resistance), 0, 7);
+	// Additional slowdown applied only to vertical (Y) movement, ranging from 0 to 7.
+	// Stacks with move_resistance.
+	f.vertical_move_resistance = rangelim(getintfield_default(L, index,
+		"vertical_move_resistance", f.vertical_move_resistance), 0, 7);
+
 	// Whether e.g. players in this node will have liquid movement physics
 	lua_getfield(L, index, "liquid_move_physics");
 	if(lua_isboolean(L, -1)) {
@@ -1248,6 +1257,10 @@ void push_content_features(lua_State *L, const ContentFeatures &c)
 	lua_setfield(L, -2, "node_dig_prediction");
 	lua_pushnumber(L, c.move_resistance);
 	lua_setfield(L, -2, "move_resistance");
+	lua_pushnumber(L, c.horizontal_move_resistance);
+	lua_setfield(L, -2, "horizontal_move_resistance");
+	lua_pushnumber(L, c.vertical_move_resistance);
+	lua_setfield(L, -2, "vertical_move_resistance");
 	lua_pushboolean(L, c.liquid_move_physics);
 	lua_setfield(L, -2, "liquid_move_physics");
 }

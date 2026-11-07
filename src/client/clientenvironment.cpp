@@ -139,14 +139,16 @@ void ClientEnvironment::step(float dtime)
 				// HACK the factor 2 for gravity is arbitrary and should be removed eventually
 				lplayer->gravity = 2 * lplayer->movement_liquid_sink * lplayer->physics_override.liquid_sink;
 
+			// How much the node's move_resistance blocks movement, ranges
+			// between 0 and 1. Should match the scale at which liquid_viscosity
+			// increase affects other liquid attributes.
+			static const f32 resistance_factor = 0.3f;
+
 			// Movement resistance
 			if (lplayer->move_resistance > 0) {
 				v3f speed = lplayer->getSpeed();
 
-				// How much the node's move_resistance blocks movement, ranges
-				// between 0 and 1. Should match the scale at which liquid_viscosity
-				// increase affects other liquid attributes.
-				static const f32 resistance_factor = 0.3f;
+				
 				float fluidity = lplayer->movement_liquid_fluidity;
 				fluidity *= MYMAX(1.0f, lplayer->physics_override.liquid_fluidity);
 				fluidity = MYMAX(0.001f, fluidity); // prevent division by 0
@@ -167,6 +169,33 @@ void ClientEnvironment::step(float dtime)
 					(1 - resistance_factor);
 				v3f d = d_wanted.normalize() * (dl * dtime_part * 100.0f);
 				speed += d;
+
+				lplayer->setSpeed(speed);
+			}
+
+			// Axis-specific movement resistance. Stacks with move_resistance:
+			// horizontal_move_resistance only affects X/Z,
+			// vertical_move_resistance only affects Y.
+			if (lplayer->horizontal_move_resistance > 0 ||
+				lplayer->vertical_move_resistance > 0) {
+				v3f speed = lplayer->getSpeed();
+
+				// The constant part of the factor is already applied by the
+				// move_resistance block, so don't count it twice.
+				const f32 base = lplayer->move_resistance > 0 ?
+					0.0f : (1.0f - resistance_factor);
+
+				// Same damping as the non-liquid case above, per axis
+				auto damp = [&](f32 v, u8 res) -> f32 {
+					if (res == 0)
+						return v;
+					f32 k = (res * resistance_factor + base) * dtime_part * 100.0f / BS;
+					return v * (1.0f - MYMIN(k, 1.0f)); // never reverse direction
+					};
+
+				speed.X = damp(speed.X, lplayer->horizontal_move_resistance);
+				speed.Z = damp(speed.Z, lplayer->horizontal_move_resistance);
+				speed.Y = damp(speed.Y, lplayer->vertical_move_resistance);
 
 				lplayer->setSpeed(speed);
 			}

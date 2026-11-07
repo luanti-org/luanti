@@ -384,6 +384,10 @@ struct ContentFeatures
 	std::string node_dig_prediction;
 	// how slow players move through
 	u8 move_resistance = 0;
+	//slowdown of horizontal movement, like move_resistance, but only slows (x,z) movement
+	u8 horizontal_move_resistance = 0;
+	//slowdown of vertical movement, like move_resistance, but only slows (y) movement
+	u8 vertical_move_resistance = 0;
 
 	// --- LIQUID PROPERTIES ---
 
