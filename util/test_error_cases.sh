@@ -32,8 +32,8 @@ ln -s "$dir/helper_mod" "$worldpath/worldmods/"
 args=(--server --config "$conf_server" --world "$worldpath" --gameid $gameid)
 
 # make sure we can tell apart sanitizer and luanti errors
-export ASAN_OPTIONS="exitcode=42"
-export MSAN_OPTIONS="exitcode=42"
+export ASAN_OPTIONS="exitcode=42:$ASAN_OPTIONS"
+export MSAN_OPTIONS="exitcode=42:$MSAN_OPTIONS"
 
 # see helper_mod/init.lua for the different types
 for n in $(seq 1 6); do
