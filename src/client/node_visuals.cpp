@@ -72,8 +72,7 @@ void PreLoadedTextures::printStats(std::ostream &to) const
 }
 
 
-static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
-		const TileSpec &tile, const TileDef &tiledef,
+static void fillTileAttribs(TileLayer *layer, TileAttribContext context, const TileDef &tiledef,
 		MaterialType material_type, GetShaderCallback get_shader)
 {
 	auto *tsrc = context.tsrc;
@@ -108,7 +107,7 @@ static void fillTileAttribs(TileLayer *layer, TileAttribContext context,
 	} else {
 		layer->scale = 1;
 	}
-	if (!tile.world_aligned)
+	if (!layer->world_aligned)
 		layer->scale = 1;
 
 	// Material
@@ -394,14 +393,16 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 	TileAttribContext tac{tsrc, texture_pool, color, tsettings};
 
 	for (u16 j = 0; j < 6; j++) {
-		tiles[j].world_aligned = isWorldAligned(tdef[j].align_style,
+		tiles[j].layers[0].world_aligned = isWorldAligned(tdef[j].align_style,
 				tsettings.world_aligned_mode, drawtype);
-		fillTileAttribs(&tiles[j].layers[0], tac, tiles[j], tdef[j],
-				material_type, tile_shader);
+		fillTileAttribs(&tiles[j].layers[0], tac, tdef[j], material_type, tile_shader);
+
 		if (!tdef_overlay[j].name.empty()) {
 			tdef_overlay[j].backface_culling = tdef[j].backface_culling;
-			fillTileAttribs(&tiles[j].layers[1], tac, tiles[j], tdef_overlay[j],
-					overlay_material, overlay_shader);
+			tiles[j].layers[1].world_aligned = isWorldAligned(tdef_overlay[j].align_style,
+					tsettings.world_aligned_mode, drawtype);
+			fillTileAttribs(&tiles[j].layers[1], tac, tdef_overlay[j], overlay_material,
+					overlay_shader);
 		}
 
 		tiles[j].layers[0].need_polygon_offset = !tiles[j].layers[1].empty();
@@ -434,8 +435,8 @@ void NodeVisuals::updateTextures(ContentFeatures &f, ITextureSource *tsrc,
 
 	// Special tiles (fill in f->special_tiles[])
 	for (u16 j = 0; j < CF_SPECIAL_COUNT; j++) {
-		fillTileAttribs(&special_tiles[j].layers[0], tac,
-				special_tiles[j], tdef_spec[j], special_material, special_shader);
+		fillTileAttribs(&special_tiles[j].layers[0], tac, tdef_spec[j], special_material,
+				special_shader);
 	}
 
 	if (param_type_2 == CPT2_COLOR ||

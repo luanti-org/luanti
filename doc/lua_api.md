@@ -10587,6 +10587,8 @@ Tile definition
       or kept aligned with its surroundings. "user" means that client
       setting will be used, similar to `glasslike_framed_optional`.
       Note: supported by solid nodes and nodeboxes only.
+      Before version 5.19.0, overlay tiles inherited align style from main tiles
+      and their own `align_style` was ignored.
     * scale is used to make texture span several (exactly `scale`) nodes,
       instead of just one, in each direction. Works for world-aligned
       textures only.
