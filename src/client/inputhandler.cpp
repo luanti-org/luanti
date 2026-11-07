@@ -46,6 +46,8 @@ void MyEventReceiver::reloadKeybindings()
 	keybindings[KeyType::ESC].keys.emplace_back(EscapeKey);
 
 	keybindings[KeyType::AUTOFORWARD] = getKeySetting("keymap_autoforward");
+	keybindings[KeyType::AUTOUP] = getKeySetting("keymap_autoup");
+	keybindings[KeyType::AUTODOWN] = getKeySetting("keymap_autodown");
 
 	keybindings[KeyType::DROP] = getKeySetting("keymap_drop");
 	keybindings[KeyType::INVENTORY] = getKeySetting("keymap_inventory");
