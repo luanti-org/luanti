@@ -39,6 +39,10 @@ public:
 	//! Checks if border drawing is enabled
 	/** \return true if border drawing is enabled, false otherwise */
 	virtual bool isDrawBorderEnabled() const = 0;
+
+	//! Sets the corner radius used when drawing the check box.
+	//! A radius of 0 disables rounded corners.
+	virtual void setCornerRadius(s32 radius) = 0;
 };
 
 } // end namespace gui

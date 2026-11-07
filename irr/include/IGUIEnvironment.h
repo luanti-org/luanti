@@ -78,6 +78,10 @@ public:
 	\return Pointer to the element under the mouse. */
 	virtual IGUIElement *getHovered() const = 0;
 
+	//! Returns the last known mouse position in screen pixels.
+	/** This is updated whenever a mouse event is processed. */
+	virtual core::position2d<s32> getLastMousePosition() const = 0;
+
 	//! Removes the focus from an element.
 	/** Causes a EGET_ELEMENT_FOCUS_LOST event. If the event is absorbed
 	then the focus will not be changed.

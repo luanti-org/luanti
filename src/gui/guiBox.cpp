@@ -3,18 +3,27 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "guiBox.h"
+#include <algorithm>
+#include <cstdlib>
 #include <IVideoDriver.h>
 #include "irr_v2d.h"
+#include "guiRoundedRect.h"
+#include "porting.h"
 
 GUIBox::GUIBox(gui::IGUIEnvironment *env, gui::IGUIElement *parent, s32 id,
 	const core::rect<s32> &rectangle,
 	const std::array<video::SColor, 4> &colors,
 	const std::array<video::SColor, 4> &bordercolors,
-	const std::array<s32, 4> &borderwidths) :
+	const std::array<s32, 4> &borderwidths,
+	s32 borderradius, s32 animation_start_y, u32 animation_duration) :
 	gui::IGUIElement(gui::EGUIET_ELEMENT, env, parent, id, rectangle),
 	m_colors(colors),
 	m_bordercolors(bordercolors),
-	m_borderwidths(borderwidths)
+	m_borderwidths(borderwidths),
+	m_borderradius(borderradius),
+	m_animation_start_y(animation_start_y),
+	m_animation_start_time(porting::getTimeMs()),
+	m_animation_duration(animation_duration)
 {
 }
 
@@ -35,6 +44,17 @@ void GUIBox::draw()
 
 	v2s32 upperleft = AbsoluteRect.UpperLeftCorner;
 	v2s32 lowerright = AbsoluteRect.LowerRightCorner;
+	if (m_animation_duration > 0 && m_animation_start_y >= 0) {
+		const u32 elapsed = porting::getTimeMs() - m_animation_start_time;
+		const float progress = std::min(1.0f,
+				static_cast<float>(elapsed) / m_animation_duration);
+		const s32 offset_y = core::round32((m_animation_start_y -
+				RelativeRect.UpperLeftCorner.Y) * (1.0f - progress));
+		upperleft.Y += offset_y;
+		lowerright.Y += offset_y;
+		if (progress >= 1.0f)
+			m_animation_duration = 0;
+	}
 
 	v2s32 topleft_border = {
 		upperleft.X - positive_borders[3],
@@ -93,9 +113,6 @@ void GUIBox::draw()
 
 	video::IVideoDriver *driver = Environment->getVideoDriver();
 
-	driver->draw2DRectangle(main_rect, m_colors[0], m_colors[1], m_colors[3],
-		m_colors[2], &AbsoluteClippingRect);
-
 	// The border rectangle can be larger than 'AbsoluteClippingRect',
 	// hence clip against the (generally larger) parent.
 	core::rect<s32> border_rect = core::rect<s32>(
@@ -104,13 +121,40 @@ void GUIBox::draw()
 		lowerright_border.X,
 		lowerright_border.Y
 	);
-	if(!isNotClipped()) {
+	if (!isNotClipped()) {
 		border_rect.clipAgainst(Parent->getAbsoluteClippingRect());
 	}
 
-	for (size_t i = 0; i <= 3; i++)
-		driver->draw2DRectangle(m_bordercolors[i], border_rects[i],
-				&border_rect);
+	if (m_borderradius > 0) {
+		const core::rect<s32> inner_rect = main_rect;
+		const s32 max_radius = std::min(main_rect.getWidth(), main_rect.getHeight()) / 2;
+		const s32 radius = core::clamp(m_borderradius, 0, max_radius);
+
+		s32 max_border = 0;
+		bool has_border = false;
+		for (size_t i = 0; i <= 3; i++) {
+			if (m_borderwidths[i] != 0)
+				has_border = true;
+			max_border = std::max(max_border, std::abs(m_borderwidths[i]));
+		}
+
+		if (has_border && border_rect.getArea() > 0) {
+			const s32 inner_radius = std::max(0, radius - max_border);
+			gui::drawRoundedRectBorder(driver, border_rect, inner_rect,
+					radius, inner_radius, m_bordercolors, &border_rect);
+		}
+
+		gui::drawRoundedRect(driver, inner_rect, core::clamp(radius - max_border,
+				0, std::min(inner_rect.getWidth(), inner_rect.getHeight()) / 2),
+				m_colors, &AbsoluteClippingRect);
+	} else {
+		driver->draw2DRectangle(main_rect, m_colors[0], m_colors[1], m_colors[3],
+			m_colors[2], &AbsoluteClippingRect);
+
+		for (size_t i = 0; i <= 3; i++)
+			driver->draw2DRectangle(m_bordercolors[i], border_rects[i],
+					&border_rect);
+	}
 
 	IGUIElement::draw();
 }

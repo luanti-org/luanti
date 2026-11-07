@@ -121,6 +121,10 @@ public:
 	//! Checks if the button face and border are being drawn
 	bool isDrawingBorder() const override;
 
+	//! Sets the corner radius used when drawing the button pane.
+	//! A radius of 0 disables rounded corners.
+	void setCornerRadius(s32 radius) override;
+
 	//! Sets if the alpha channel should be used for drawing images on the button (default is false)
 	void setUseAlphaChannel(bool useAlphaChannel = true) override;
 
@@ -229,6 +233,7 @@ private:
 	bool UseAlphaChannel;
 	bool DrawBorder;
 	bool ScaleImage;
+	s32 CornerRadius = 0;
 };
 
 } // end namespace gui

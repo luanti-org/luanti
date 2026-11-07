@@ -8,7 +8,11 @@
 #include "IGUIEnvironment.h"
 #include "IVideoDriver.h"
 #include "IGUIFont.h"
+#include "irrRoundedRect.h"
 #include "os.h"
+
+#include <algorithm>
+#include <array>
 
 namespace gui
 {
@@ -128,8 +132,34 @@ void CGUICheckBox::draw()
 		EGUI_DEFAULT_COLOR col = EGDC_GRAY_EDITABLE;
 		if (isEnabled())
 			col = Pressed ? EGDC_FOCUSED_EDITABLE : EGDC_EDITABLE;
-		skin->draw3DSunkenPane(this, skin->getColor(col),
-				false, true, checkRect, &AbsoluteClippingRect);
+
+		if (CornerRadius > 0) {
+			const video::SColor fillColor = skin->getColor(col);
+			const std::array<video::SColor, 4> fill = {
+				fillColor, fillColor, fillColor, fillColor};
+			drawRoundedRect(driver, checkRect, CornerRadius, fill,
+					&AbsoluteClippingRect);
+
+			core::rect<s32> innerRect(checkRect);
+			innerRect.UpperLeftCorner.X += 1;
+			innerRect.UpperLeftCorner.Y += 1;
+			innerRect.LowerRightCorner.X -= 1;
+			innerRect.LowerRightCorner.Y -= 1;
+			if (innerRect.getWidth() > 0 && innerRect.getHeight() > 0) {
+				const std::array<video::SColor, 4> borderColors = {
+					skin->getColor(EGDC_3D_DARK_SHADOW),
+					skin->getColor(EGDC_3D_HIGH_LIGHT),
+					skin->getColor(EGDC_3D_HIGH_LIGHT),
+					skin->getColor(EGDC_3D_DARK_SHADOW),
+				};
+				drawRoundedRectBorder(driver, checkRect, innerRect,
+						CornerRadius, CornerRadius - 1, borderColors,
+						&AbsoluteClippingRect);
+			}
+		} else {
+			skin->draw3DSunkenPane(this, skin->getColor(col),
+					false, true, checkRect, &AbsoluteClippingRect);
+		}
 
 		// the checked icon
 		if (Checked) {
@@ -186,6 +216,11 @@ void CGUICheckBox::setDrawBorder(bool draw)
 bool CGUICheckBox::isDrawBorderEnabled() const
 {
 	return Border;
+}
+
+void CGUICheckBox::setCornerRadius(s32 radius)
+{
+	CornerRadius = std::max(0, radius);
 }
 
 } // end namespace gui

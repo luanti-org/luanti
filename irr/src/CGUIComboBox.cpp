@@ -11,7 +11,11 @@
 #include "IGUIFont.h"
 #include "IGUIButton.h"
 #include "CGUIListBox.h"
+#include "irrRoundedRect.h"
 #include "os.h"
+
+#include <algorithm>
+#include <array>
 
 namespace gui
 {
@@ -358,6 +362,7 @@ void CGUIComboBox::draw()
 		return;
 
 	IGUISkin *skin = Environment->getSkin();
+	video::IVideoDriver *driver = Environment->getVideoDriver();
 
 	updateListButtonWidth(skin->getSize(EGDS_SCROLLBAR_SIZE));
 
@@ -385,13 +390,39 @@ void CGUIComboBox::draw()
 	}
 	ListButton->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL));
 	ListButton->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL));
+	ListButton->setCornerRadius(CornerRadius);
+	SelectedText->setBackgroundCornerRadius(CornerRadius);
 
 	core::rect<s32> frameRect(AbsoluteRect);
 
 	// draw the border
+	if (CornerRadius > 0) {
+		const video::SColor bgColor = skin->getColor(EGDC_3D_HIGH_LIGHT);
+		const std::array<video::SColor, 4> fill = {
+			bgColor, bgColor, bgColor, bgColor};
+		drawRoundedRect(driver, frameRect, CornerRadius, fill,
+				&AbsoluteClippingRect);
 
-	skin->draw3DSunkenPane(this, skin->getColor(EGDC_3D_HIGH_LIGHT),
-			true, true, frameRect, &AbsoluteClippingRect);
+		core::rect<s32> innerRect(frameRect);
+		innerRect.UpperLeftCorner.X += 1;
+		innerRect.UpperLeftCorner.Y += 1;
+		innerRect.LowerRightCorner.X -= 1;
+		innerRect.LowerRightCorner.Y -= 1;
+		if (innerRect.getWidth() > 0 && innerRect.getHeight() > 0) {
+			const std::array<video::SColor, 4> borderColors = {
+				skin->getColor(EGDC_3D_DARK_SHADOW),
+				skin->getColor(EGDC_3D_HIGH_LIGHT),
+				skin->getColor(EGDC_3D_HIGH_LIGHT),
+				skin->getColor(EGDC_3D_DARK_SHADOW),
+			};
+			drawRoundedRectBorder(driver, frameRect, innerRect,
+					CornerRadius, CornerRadius - 1, borderColors,
+					&AbsoluteClippingRect);
+		}
+	} else {
+		skin->draw3DSunkenPane(this, skin->getColor(EGDC_3D_HIGH_LIGHT),
+				true, true, frameRect, &AbsoluteClippingRect);
+	}
 
 	// draw children
 	IGUIElement::draw();
@@ -436,6 +467,7 @@ void CGUIComboBox::openCloseMenu()
 				AbsoluteRect.getWidth(), AbsoluteRect.getHeight() + h);
 
 		ListBox = new CGUIListBox(Environment, this, -1, r, false, true, true);
+		static_cast<CGUIListBox *>(ListBox)->setCornerRadius(CornerRadius);
 		ListBox->setSubElement(true);
 		ListBox->setNotClipped(true);
 		ListBox->drop();
@@ -452,6 +484,13 @@ void CGUIComboBox::openCloseMenu()
 		// set focus
 		Environment->setFocus(ListBox);
 	}
+}
+
+void CGUIComboBox::setCornerRadius(s32 radius)
+{
+	CornerRadius = std::max(0, radius);
+	if (ListBox)
+		static_cast<CGUIListBox *>(ListBox)->setCornerRadius(CornerRadius);
 }
 
 } // end namespace gui

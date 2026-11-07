@@ -7,6 +7,7 @@
 #include <sstream>
 #include <utility>
 #include <cstring>
+#include "guiRoundedRect.h"
 #include "guiScrollBar.h"
 #include <IGUIEnvironment.h>
 #include <IGUISkin.h>
@@ -633,6 +634,12 @@ void GUITable::setDynamicData(const DynamicData &dyndata)
 	m_scrollbar->setPos(dyndata.scrollpos);
 }
 
+void GUITable::setCornerRadius(s32 radius)
+{
+	m_corner_radius = std::max(0, radius);
+	m_scrollbar->setCornerRadius(m_corner_radius);
+}
+
 void GUITable::updateAbsolutePosition()
 {
 	IGUIElement::updateAbsolutePosition();
@@ -645,17 +652,49 @@ void GUITable::draw()
 		return;
 
 	gui::IGUISkin *skin = Environment->getSkin();
+	video::IVideoDriver *driver = Environment->getVideoDriver();
+
+	const s32 corner_radius = m_corner_radius > 0 ?
+			std::min(m_corner_radius, std::min(AbsoluteRect.getWidth(),
+					AbsoluteRect.getHeight()) / 2) : 0;
 
 	// draw background
 
 	bool draw_background = m_background.getAlpha() > 0;
-	if (m_border)
+	if (corner_radius > 0) {
+		if (draw_background) {
+			const std::array<video::SColor, 4> fill = {
+				m_background, m_background, m_background, m_background};
+			gui::drawRoundedRect(driver, AbsoluteRect, corner_radius, fill,
+					&AbsoluteClippingRect);
+		}
+
+		if (m_border) {
+			core::rect<s32> inner_rect(AbsoluteRect);
+			inner_rect.UpperLeftCorner.X += 1;
+			inner_rect.UpperLeftCorner.Y += 1;
+			inner_rect.LowerRightCorner.X -= 1;
+			inner_rect.LowerRightCorner.Y -= 1;
+			if (inner_rect.getWidth() > 0 && inner_rect.getHeight() > 0) {
+				const std::array<video::SColor, 4> border_colors = {
+					skin->getColor(gui::EGDC_3D_DARK_SHADOW),
+					skin->getColor(gui::EGDC_3D_HIGH_LIGHT),
+					skin->getColor(gui::EGDC_3D_HIGH_LIGHT),
+					skin->getColor(gui::EGDC_3D_DARK_SHADOW),
+				};
+				gui::drawRoundedRectBorder(driver, AbsoluteRect, inner_rect,
+						corner_radius, corner_radius - 1, border_colors,
+						&AbsoluteClippingRect);
+			}
+		}
+	} else if (m_border) {
 		skin->draw3DSunkenPane(this, m_background,
 				true, draw_background,
 				AbsoluteRect, &AbsoluteClippingRect);
-	else if (draw_background)
+	} else if (draw_background) {
 		skin->draw2DRectangle(this, m_background,
 				AbsoluteRect, &AbsoluteClippingRect);
+	}
 
 	// get clipping rect
 
@@ -690,13 +729,30 @@ void GUITable::draw()
 		bool is_sel = i == m_selected;
 		video::SColor color = m_color;
 
+		core::rect<s32> row_clip = client_clip;
+		if (corner_radius > 0) {
+			const s32 top_inset = gui::roundedRectRowInset(corner_radius,
+					row_rect.UpperLeftCorner.Y,
+					AbsoluteRect.UpperLeftCorner.Y,
+					AbsoluteRect.LowerRightCorner.Y);
+			const s32 bottom_inset = gui::roundedRectRowInset(corner_radius,
+					row_rect.LowerRightCorner.Y - 1,
+					AbsoluteRect.UpperLeftCorner.Y,
+					AbsoluteRect.LowerRightCorner.Y);
+			const s32 inset = std::max(top_inset, bottom_inset);
+			row_clip.UpperLeftCorner.X = std::max(row_clip.UpperLeftCorner.X,
+					AbsoluteRect.UpperLeftCorner.X + inset);
+			row_clip.LowerRightCorner.X = std::min(row_clip.LowerRightCorner.X,
+					AbsoluteRect.LowerRightCorner.X - inset);
+		}
+
 		if (is_sel) {
-			skin->draw2DRectangle(this, m_highlight, row_rect, &client_clip);
+			skin->draw2DRectangle(this, m_highlight, row_rect, &row_clip);
 			color = m_highlight_text;
 		}
 
 		for (s32 j = 0; j < row->cellcount; ++j)
-			drawCell(&row->cells[j], color, row_rect, client_clip);
+			drawCell(&row->cells[j], color, row_rect, row_clip);
 
 		row_rect.UpperLeftCorner.Y += m_rowheight;
 		row_rect.LowerRightCorner.Y += m_rowheight;

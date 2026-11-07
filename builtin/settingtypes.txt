@@ -870,6 +870,12 @@ sound_volume_unfocused (Volume when unfocused) float 0.3 0.0 1.0
 #    pause menu.
 mute_sound (Mute sound) bool false
 
+[*Appearance]
+
+#    Speed multiplier for UI transitions and button animations.
+#    Values above 1 are faster.
+ui_animation_speed (UI animation speed) float 1.0 0.25 3.0
+
 [*User Interfaces]
 
 #    Set the language. By default, the system language is used.

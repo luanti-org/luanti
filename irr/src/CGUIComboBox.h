@@ -71,6 +71,9 @@ public:
 	//! draws the element and its children
 	void draw() override;
 
+	//! Sets the corner radius used when drawing the combo box and its list.
+	void setCornerRadius(s32 radius) override;
+
 private:
 	void openCloseMenu();
 	void sendSelectionChangedEvent();
@@ -92,6 +95,7 @@ private:
 	core::array<SComboData> Items;
 
 	s32 Selected;
+	s32 CornerRadius = 0;
 	EGUI_ALIGNMENT HAlign, VAlign;
 	u32 MaxSelectionRows;
 	bool HasFocus;

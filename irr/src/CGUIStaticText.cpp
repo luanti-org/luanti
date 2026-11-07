@@ -8,7 +8,11 @@
 #include "IGUIEnvironment.h"
 #include "IGUIFont.h"
 #include "IVideoDriver.h"
+#include "irrRoundedRect.h"
 #include "rect.h"
+
+#include <algorithm>
+#include <array>
 
 namespace gui
 {
@@ -57,13 +61,36 @@ void CGUIStaticText::draw()
 		if (!OverrideBGColorEnabled) // skin-colors can change
 			BGColor = skin->getColor(gui::EGDC_3D_FACE);
 
-		driver->draw2DRectangle(BGColor, frameRect, &AbsoluteClippingRect);
+		if (BackgroundCornerRadius > 0) {
+			std::array<video::SColor, 4> colors = {BGColor, BGColor, BGColor, BGColor};
+			drawRoundedRect(driver, frameRect, BackgroundCornerRadius, colors,
+					&AbsoluteClippingRect);
+		} else {
+			driver->draw2DRectangle(BGColor, frameRect, &AbsoluteClippingRect);
+		}
 	}
 
 	// draw the border
 
 	if (Border) {
-		skin->draw3DSunkenPane(this, 0, true, false, frameRect, &AbsoluteClippingRect);
+		if (BackgroundCornerRadius > 0) {
+			core::rect<s32> inner = frameRect;
+			inner.UpperLeftCorner.X += 1;
+			inner.UpperLeftCorner.Y += 1;
+			inner.LowerRightCorner.X -= 1;
+			inner.LowerRightCorner.Y -= 1;
+			std::array<video::SColor, 4> border_colors = {
+				skin->getColor(EGDC_3D_SHADOW),
+				skin->getColor(EGDC_3D_HIGH_LIGHT),
+				skin->getColor(EGDC_3D_HIGH_LIGHT),
+				skin->getColor(EGDC_3D_SHADOW),
+			};
+			drawRoundedRectBorder(driver, frameRect, inner,
+					BackgroundCornerRadius, BackgroundCornerRadius - 1,
+					border_colors, &AbsoluteClippingRect);
+		} else {
+			skin->draw3DSunkenPane(this, 0, true, false, frameRect, &AbsoluteClippingRect);
+		}
 		frameRect.UpperLeftCorner.X += skin->getSize(EGDS_TEXT_DISTANCE_X);
 	}
 
@@ -185,6 +212,18 @@ video::SColor CGUIStaticText::getBackgroundColor() const
 bool CGUIStaticText::isDrawBackgroundEnabled() const
 {
 	return Background;
+}
+
+//! Sets the corner radius of the background and border.
+void CGUIStaticText::setBackgroundCornerRadius(s32 radius)
+{
+	BackgroundCornerRadius = std::max(0, radius);
+}
+
+//! Gets the corner radius of the background and border.
+s32 CGUIStaticText::getBackgroundCornerRadius() const
+{
+	return BackgroundCornerRadius;
 }
 
 //! Sets whether to draw the border

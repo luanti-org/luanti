@@ -122,6 +122,9 @@ public:
 	//! Access the vertical scrollbar
 	IGUIScrollBar *getVerticalScrollBar() const override;
 
+	//! Sets the corner radius used when drawing the list box.
+	void setCornerRadius(s32 radius);
+
 private:
 	struct ListItem
 	{
@@ -165,6 +168,7 @@ private:
 	bool MoveOverSelect;
 	bool AutoScroll;
 	bool HighlightWhenNotFocused;
+	s32 CornerRadius = 0;
 };
 
 } // end namespace gui

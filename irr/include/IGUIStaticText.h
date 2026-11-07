@@ -75,6 +75,13 @@ public:
 	/** \return: The background color */
 	virtual video::SColor getBackgroundColor() const = 0;
 
+	//! Sets the corner radius of the background and border.
+	/** \param radius: Radius in pixels. 0 disables rounded corners. */
+	virtual void setBackgroundCornerRadius(s32 radius) = 0;
+
+	//! Gets the corner radius of the background and border.
+	virtual s32 getBackgroundCornerRadius() const = 0;
+
 	//! Sets whether to draw the border
 	virtual void setDrawBorder(bool draw) = 0;
 

@@ -11,6 +11,9 @@
 #include "IVideoDriver.h"
 #include "rect.h"
 #include "os.h"
+#include "irrRoundedRect.h"
+
+#include <vector>
 
 namespace gui
 {
@@ -25,7 +28,8 @@ CGUITab::CGUITab(IGUIEnvironment *environment,
 		s32 id) :
 		IGUITab(environment, parent, id, rectangle),
 		BackColor(0, 0, 0, 0), OverrideTextColorEnabled(false), TextColor(255, 0, 0, 0),
-		DrawBackground(false)
+		DrawBackground(false), HeaderBackgroundColor(0, 0, 0, 0),
+		HeaderHoverBackgroundColor(0, 0, 0, 0), DrawHeaderBackground(false)
 {
 	const IGUISkin *const skin = environment->getSkin();
 	if (skin)
@@ -83,6 +87,62 @@ bool CGUITab::isDrawingBackground() const
 video::SColor CGUITab::getBackgroundColor() const
 {
 	return BackColor;
+}
+
+void CGUITab::setHeaderBackgroundColor(video::SColor c)
+{
+	HeaderBackgroundColor = c;
+}
+
+void CGUITab::setDrawHeaderBackground(bool draw)
+{
+	DrawHeaderBackground = draw;
+}
+
+bool CGUITab::isDrawingHeaderBackground() const
+{
+	return DrawHeaderBackground;
+}
+
+video::SColor CGUITab::getHeaderBackgroundColor() const
+{
+	return HeaderBackgroundColor;
+}
+
+void CGUITab::setHeaderHoverBackgroundColor(video::SColor c)
+{
+	HeaderHoverBackgroundColor = c;
+	HeaderHoverBackgroundColorSet = true;
+}
+
+bool CGUITab::hasHeaderHoverBackgroundColor() const
+{
+	return HeaderHoverBackgroundColorSet;
+}
+
+video::SColor CGUITab::getHeaderHoverBackgroundColor() const
+{
+	return HeaderHoverBackgroundColor;
+}
+
+void CGUITab::setHeaderCornerRadius(s32 radius)
+{
+	HeaderCornerRadius = std::max(0, radius);
+}
+
+s32 CGUITab::getHeaderCornerRadius() const
+{
+	return HeaderCornerRadius;
+}
+
+void CGUITab::setHeaderPadding(s32 padding)
+{
+	HeaderPadding = std::max(0, padding);
+}
+
+s32 CGUITab::getHeaderPadding() const
+{
+	return HeaderPadding;
 }
 
 // ------------------------------------------------------------------
@@ -541,6 +601,31 @@ void CGUITabControl::draw()
 	IGUIFont *font = skin->getFont();
 	video::IVideoDriver *driver = Environment->getVideoDriver();
 
+	// Tab headers use the same fully rounded shape as other controls.
+	// "padding" keeps the header away from adjacent headers and from the body.
+	auto draw_header_bg = [&] (IGUITab *tab, core::rect<s32> r, bool hovered) {
+		const s32 padding = tab->getHeaderPadding();
+		r.UpperLeftCorner.X += (padding + 1) / 2;
+		r.LowerRightCorner.X -= padding / 2;
+		if (VerticalAlignment == EGUIA_UPPERLEFT)
+			r.LowerRightCorner.Y -= padding;
+		else
+			r.UpperLeftCorner.Y += padding;
+		video::SColor c = tab->getHeaderBackgroundColor();
+		if (hovered) {
+			if (tab->hasHeaderHoverBackgroundColor())
+				c = tab->getHeaderHoverBackgroundColor();
+			else
+				c = c.getInterpolated(video::SColor(255, 255, 255, 255),
+						0.15f);
+		}
+		const std::array<video::SColor, 4> colors = {c, c, c, c};
+		drawRoundedRect(driver, r, tab->getHeaderCornerRadius(), colors,
+				&AbsoluteClippingRect);
+	};
+
+	core::position2di mouse = Environment->getLastMousePosition();
+
 	core::rect<s32> frameRect(AbsoluteRect);
 
 	// some empty background as placeholder when there are no tabs
@@ -568,6 +653,7 @@ void CGUITabControl::draw()
 	// left and right pos of the active tab
 	s32 left = 0;
 	s32 right = 0;
+	std::vector<core::rect<s32>> tabRects(Tabs.size());
 
 	// const wchar_t* activetext = 0;
 	IGUITab *activeTab = 0;
@@ -594,6 +680,7 @@ void CGUITabControl::draw()
 		frameRect.LowerRightCorner.X = frameRect.UpperLeftCorner.X + len;
 
 		pos += len;
+		tabRects[i] = frameRect;
 
 		if ((s32)i == ActiveTabIndex) {
 			// for active button just remember values
@@ -602,7 +689,11 @@ void CGUITabControl::draw()
 			// activetext = text;
 			activeTab = Tabs[i];
 		} else {
-			skin->draw3DTabButton(this, false, frameRect, &AbsoluteClippingRect, VerticalAlignment);
+			if (Tabs[i]->isDrawingHeaderBackground())
+				draw_header_bg(Tabs[i], frameRect,
+						mouse.X >= 0 && frameRect.isPointInside(mouse));
+			else
+				skin->draw3DTabButton(this, false, frameRect, &AbsoluteClippingRect, VerticalAlignment);
 
 			// draw text
 			core::rect<s32> textClipRect(frameRect); // TODO: exact size depends on borders in draw3DTabButton which we don't get with current interface
@@ -617,11 +708,33 @@ void CGUITabControl::draw()
 	if (left != 0 && right != 0 && activeTab != 0) {
 		// draw upper highlight frame
 		if (VerticalAlignment == EGUIA_UPPERLEFT) {
-			frameRect.UpperLeftCorner.X = left - 2;
-			frameRect.LowerRightCorner.X = right + 2;
+			frameRect.UpperLeftCorner.X = left;
+			frameRect.LowerRightCorner.X = right;
 			frameRect.UpperLeftCorner.Y -= 2;
 
-			skin->draw3DTabButton(this, true, frameRect, &AbsoluteClippingRect, VerticalAlignment);
+			if (activeTab->isDrawingHeaderBackground()) {
+				if (AnimationFromTab >= 0 && AnimationFromTab < (s32)tabRects.size() &&
+						AnimationDuration > 0) {
+					const u32 elapsed = os::Timer::getTime() - AnimationStartTime;
+					const f32 t = core::min_((f32)elapsed / AnimationDuration, 1.f);
+					if (t < 1.f) {
+						const auto &from = tabRects[AnimationFromTab];
+						core::rect<s32> moving = frameRect;
+						moving.UpperLeftCorner.X = core::round32(from.UpperLeftCorner.X +
+								(frameRect.UpperLeftCorner.X - from.UpperLeftCorner.X) * t);
+						moving.LowerRightCorner.X = core::round32(from.LowerRightCorner.X +
+								(frameRect.LowerRightCorner.X - from.LowerRightCorner.X) * t);
+						draw_header_bg(activeTab, moving, false);
+					} else {
+						AnimationFromTab = -1;
+						draw_header_bg(activeTab, frameRect, false);
+					}
+				} else {
+					draw_header_bg(activeTab, frameRect, false);
+				}
+			}
+			else
+				skin->draw3DTabButton(this, true, frameRect, &AbsoluteClippingRect, VerticalAlignment);
 
 			// draw text
 			core::rect<s32> textClipRect(frameRect); // TODO: exact size depends on borders in draw3DTabButton which we don't get with current interface
@@ -629,35 +742,42 @@ void CGUITabControl::draw()
 			font->draw(activeTab->getText(), frameRect, activeTab->getTextColor(),
 					true, true, &textClipRect);
 
-			tr.UpperLeftCorner.X = AbsoluteRect.UpperLeftCorner.X;
-			tr.LowerRightCorner.X = left - 1;
-			tr.UpperLeftCorner.Y = frameRect.LowerRightCorner.Y - 1;
-			tr.LowerRightCorner.Y = frameRect.LowerRightCorner.Y;
-			driver->draw2DRectangle(skin->getColor(EGDC_3D_HIGH_LIGHT), tr, &AbsoluteClippingRect);
+			if (!activeTab->isDrawingHeaderBackground()) {
+				tr.UpperLeftCorner.X = AbsoluteRect.UpperLeftCorner.X;
+				tr.LowerRightCorner.X = left - 1;
+				tr.UpperLeftCorner.Y = frameRect.LowerRightCorner.Y - 1;
+				tr.LowerRightCorner.Y = frameRect.LowerRightCorner.Y;
+				driver->draw2DRectangle(skin->getColor(EGDC_3D_HIGH_LIGHT), tr, &AbsoluteClippingRect);
 
-			tr.UpperLeftCorner.X = right;
-			tr.LowerRightCorner.X = AbsoluteRect.LowerRightCorner.X;
-			driver->draw2DRectangle(skin->getColor(EGDC_3D_HIGH_LIGHT), tr, &AbsoluteClippingRect);
+				tr.UpperLeftCorner.X = right;
+				tr.LowerRightCorner.X = AbsoluteRect.LowerRightCorner.X;
+				driver->draw2DRectangle(skin->getColor(EGDC_3D_HIGH_LIGHT), tr, &AbsoluteClippingRect);
+			}
 		} else {
-			frameRect.UpperLeftCorner.X = left - 2;
-			frameRect.LowerRightCorner.X = right + 2;
+			frameRect.UpperLeftCorner.X = left;
+			frameRect.LowerRightCorner.X = right;
 			frameRect.LowerRightCorner.Y += 2;
 
-			skin->draw3DTabButton(this, true, frameRect, &AbsoluteClippingRect, VerticalAlignment);
+			if (activeTab->isDrawingHeaderBackground())
+				draw_header_bg(activeTab, frameRect, false);
+			else
+				skin->draw3DTabButton(this, true, frameRect, &AbsoluteClippingRect, VerticalAlignment);
 
 			// draw text
 			font->draw(activeTab->getText(), frameRect, activeTab->getTextColor(),
 					true, true, &frameRect);
 
-			tr.UpperLeftCorner.X = AbsoluteRect.UpperLeftCorner.X;
-			tr.LowerRightCorner.X = left - 1;
-			tr.UpperLeftCorner.Y = frameRect.UpperLeftCorner.Y - 1;
-			tr.LowerRightCorner.Y = frameRect.UpperLeftCorner.Y;
-			driver->draw2DRectangle(skin->getColor(EGDC_3D_DARK_SHADOW), tr, &AbsoluteClippingRect);
+			if (!activeTab->isDrawingHeaderBackground()) {
+				tr.UpperLeftCorner.X = AbsoluteRect.UpperLeftCorner.X;
+				tr.LowerRightCorner.X = left - 1;
+				tr.UpperLeftCorner.Y = frameRect.UpperLeftCorner.Y - 1;
+				tr.LowerRightCorner.Y = frameRect.UpperLeftCorner.Y;
+				driver->draw2DRectangle(skin->getColor(EGDC_3D_DARK_SHADOW), tr, &AbsoluteClippingRect);
 
-			tr.UpperLeftCorner.X = right;
-			tr.LowerRightCorner.X = AbsoluteRect.LowerRightCorner.X;
-			driver->draw2DRectangle(skin->getColor(EGDC_3D_DARK_SHADOW), tr, &AbsoluteClippingRect);
+				tr.UpperLeftCorner.X = right;
+				tr.LowerRightCorner.X = AbsoluteRect.LowerRightCorner.X;
+				driver->draw2DRectangle(skin->getColor(EGDC_3D_DARK_SHADOW), tr, &AbsoluteClippingRect);
+			}
 		}
 	} else {
 		// No active tab
@@ -861,6 +981,16 @@ s32 CGUITabControl::getTabAt(s32 xpos, s32 ypos) const
 s32 CGUITabControl::getActiveTab() const
 {
 	return ActiveTabIndex;
+}
+
+void CGUITabControl::setSelectionAnimation(s32 previousTab, u32 durationMs)
+{
+	if (previousTab < 0 || previousTab >= (s32)Tabs.size() ||
+			previousTab == ActiveTabIndex || durationMs == 0)
+		return;
+	AnimationFromTab = previousTab;
+	AnimationStartTime = os::Timer::getTime();
+	AnimationDuration = durationMs;
 }
 
 //! Brings a tab to front.

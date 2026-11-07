@@ -64,6 +64,10 @@ public:
 
 	//! Get the maximal number of rows for the selection listbox
 	virtual u32 getMaxSelectionRows() const = 0;
+
+	//! Sets the corner radius used when drawing the combo box and its list.
+	//! A radius of 0 disables rounded corners.
+	virtual void setCornerRadius(s32 radius) = 0;
 };
 
 } // end namespace gui

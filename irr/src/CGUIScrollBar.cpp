@@ -7,11 +7,18 @@
 
 #include "IGUISkin.h"
 #include "IGUIEnvironment.h"
+#include "IVideoDriver.h"
+#include "irrRoundedRect.h"
 #include "CGUIButton.h"
 #include "IGUIFontBitmap.h"
 
+#include <algorithm>
+#include <array>
+
 namespace gui
 {
+
+s32 CGUIScrollBar::DefaultCornerRadius = 0;
 
 //! constructor
 CGUIScrollBar::CGUIScrollBar(IGUIEnvironment *environment,
@@ -19,7 +26,8 @@ CGUIScrollBar::CGUIScrollBar(IGUIEnvironment *environment,
 		bool horizontal, bool noclip) :
 		IGUIScrollBar(environment, parent, id, rectangle),
 		UpButton(0),
-		DownButton(0), Dragging(false), Horizontal(horizontal),
+		DownButton(0), TrackColor(0, 0, 0, 0), SliderColor(0, 0, 0, 0),
+		Dragging(false), Horizontal(horizontal),
 		DraggedBySlider(false), Pos(0), DrawPos(0),
 		DrawHeight(0), Min(0), Max(100), SmallStep(10), LargeStep(50), DesiredPos(0),
 		LastChange(0)
@@ -199,8 +207,17 @@ void CGUIScrollBar::draw()
 
 	SliderRect = AbsoluteRect;
 
+	video::IVideoDriver *driver = Environment->getVideoDriver();
+	const s32 radius = CornerRadius >= 0 ? CornerRadius : DefaultCornerRadius;
+
 	// draws the background
-	skin->draw2DRectangle(this, skin->getColor(EGDC_SCROLLBAR), SliderRect, &AbsoluteClippingRect);
+	const video::SColor trackColor = OverrideTrackColor ? TrackColor : skin->getColor(EGDC_SCROLLBAR);
+	if (radius > 0) {
+		std::array<video::SColor, 4> fill = {trackColor, trackColor, trackColor, trackColor};
+		drawRoundedRect(driver, SliderRect, radius, fill, &AbsoluteClippingRect);
+	} else {
+		skin->draw2DRectangle(this, trackColor, SliderRect, &AbsoluteClippingRect);
+	}
 
 	if (core::isnotzero(range())) {
 		// recalculate slider rectangle
@@ -212,7 +229,17 @@ void CGUIScrollBar::draw()
 			SliderRect.LowerRightCorner.Y = SliderRect.UpperLeftCorner.Y + DrawHeight;
 		}
 
-		skin->draw3DButtonPaneStandard(this, SliderRect, &AbsoluteClippingRect);
+		// Use the highlight color for the slider so native list boxes and
+		// combo boxes match the formspec scrollbar styling.
+		const video::SColor sliderColor = OverrideSliderColor ?
+				SliderColor : skin->getColor(EGDC_HIGH_LIGHT);
+		if (radius > 0) {
+			std::array<video::SColor, 4> fill = {
+				sliderColor, sliderColor, sliderColor, sliderColor};
+			drawRoundedRect(driver, SliderRect, radius, fill, &AbsoluteClippingRect);
+		} else {
+			driver->draw2DRectangle(sliderColor, SliderRect, &AbsoluteClippingRect);
+		}
 	}
 
 	// draw buttons
@@ -238,6 +265,29 @@ void CGUIScrollBar::setArrowsVisible(ArrowVisibility visible)
 {
 	UpDownVisible = visible;
 	refreshControls();
+}
+
+void CGUIScrollBar::setTrackColor(video::SColor color)
+{
+	TrackColor = color;
+	OverrideTrackColor = true;
+}
+
+void CGUIScrollBar::setSliderColor(video::SColor color)
+{
+	SliderColor = color;
+	OverrideSliderColor = true;
+}
+
+void CGUIScrollBar::setCornerRadius(s32 radius)
+{
+	CornerRadius = std::max(0, radius);
+	refreshControls();
+}
+
+void CGUIScrollBar::setDefaultCornerRadius(s32 radius)
+{
+	DefaultCornerRadius = std::max(0, radius);
 }
 
 //!
@@ -497,6 +547,10 @@ void CGUIScrollBar::refreshControls()
 				BorderSize = RelativeRect.getWidth();
 			break;
 	}
+
+	const s32 radius = CornerRadius >= 0 ? CornerRadius : DefaultCornerRadius;
+	UpButton->setCornerRadius(radius);
+	DownButton->setCornerRadius(radius);
 
 	UpButton->setVisible(visible);
 	DownButton->setVisible(visible);

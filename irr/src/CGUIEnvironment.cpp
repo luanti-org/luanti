@@ -245,6 +245,11 @@ IGUIElement *CGUIEnvironment::getHovered() const
 	return Hovered;
 }
 
+core::position2d<s32> CGUIEnvironment::getLastMousePosition() const
+{
+	return LastHoveredMousePos;
+}
+
 //! removes the focus from an element
 bool CGUIEnvironment::removeFocus(IGUIElement *element)
 {

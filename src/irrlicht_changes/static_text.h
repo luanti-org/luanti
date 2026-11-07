@@ -86,6 +86,12 @@ namespace gui
 		//! Gets the background color
 		virtual video::SColor getBackgroundColor() const;
 
+		//! Sets the corner radius of the background and border.
+		virtual void setBackgroundCornerRadius(s32 radius);
+
+		//! Gets the corner radius of the background and border.
+		virtual s32 getBackgroundCornerRadius() const;
+
 		//! Checks if background drawing is enabled
 		virtual bool isDrawBackgroundEnabled() const;
 
@@ -169,6 +175,7 @@ namespace gui
 		bool Background;
 		bool RestrainTextInside;
 		bool RightToLeft;
+		s32 BackgroundCornerRadius = 0;
 
 		gui::IGUIFont* OverrideFont;
 		gui::IGUIFont* LastBreakFont; // stored because: if skin changes, line break must be recalculated.
