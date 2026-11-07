@@ -153,6 +153,7 @@ class ServerEnvironment;
 
 */
 namespace con {
+	struct ChannelNumber;
 	class IConnection;
 }
 
@@ -460,7 +461,8 @@ public:
 	void send(session_t peer_id, NetworkPacket *pkt);
 
 	/* send to one client, deviating from the standard params */
-	void sendCustom(session_t peer_id, u8 channel, NetworkPacket *pkt, bool reliable);
+	void sendCustom(session_t peer_id, con::ChannelNumber channel, NetworkPacket *pkt,
+					bool reliable);
 
 	/* send to all clients */
 	void sendToAll(NetworkPacket *pkt, ClientState state_min = CS_Active);
