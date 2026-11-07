@@ -213,23 +213,23 @@ std::string MapBlock::getModifiedReasonString()
 
 void MapBlock::copyTo(VoxelManipulator &dst)
 {
-	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
-	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
+	v3s16 data_size(MAP_BLOCKSIZE);
+	VoxelArea data_area(v3s16(0), data_size - 1);
+	VoxelArea dst_area(v3s16(0), getPosRelative());
 
 	// Copy from data to VoxelManipulator
-	dst.copyFrom(data, m_is_mono_block, data_area, v3s16(0,0,0),
-			getPosRelative(), data_size);
+	dst.copyFrom(data, m_is_mono_block, data_area, dst_area, data_size);
 }
 
 void MapBlock::copyFrom(const VoxelManipulator &src)
 {
-	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
-	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
+	v3s16 data_size(MAP_BLOCKSIZE);
+	VoxelArea data_area(v3s16(0), data_size - 1);
+	VoxelArea src_area(v3s16(0), getPosRelative());
 
 	expandNodesIfNeeded();
 	// Copy from VoxelManipulator to data
-	src.copyTo(data, data_area, v3s16(0,0,0),
-			getPosRelative(), data_size);
+	src.copyTo(data, src_area, data_area, data_size);
 	tryShrinkNodes();
 }
 
