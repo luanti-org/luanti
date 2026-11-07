@@ -281,7 +281,7 @@ public:
 		setNodeNoCheck(p.X, p.Y, p.Z, n);
 	}
 
-	// Copies data to VoxelManipulator to getPosRelative()
+	// Copies data from getPosRelative() to VoxelManipulator
 	void copyTo(VoxelManipulator &dst);
 
 	// Copies data from VoxelManipulator to getPosRelative()
