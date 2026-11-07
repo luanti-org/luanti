@@ -40,6 +40,18 @@ public:
 	//! returns the color of the background
 	video::SColor getBackgroundColor() const override;
 
+	void setHeaderBackgroundColor(video::SColor c) override;
+	void setDrawHeaderBackground(bool draw = true) override;
+	bool isDrawingHeaderBackground() const override;
+	video::SColor getHeaderBackgroundColor() const override;
+	void setHeaderHoverBackgroundColor(video::SColor c) override;
+	bool hasHeaderHoverBackgroundColor() const override;
+	video::SColor getHeaderHoverBackgroundColor() const override;
+	void setHeaderCornerRadius(s32 radius) override;
+	s32 getHeaderCornerRadius() const override;
+	void setHeaderPadding(s32 padding) override;
+	s32 getHeaderPadding() const override;
+
 	video::SColor getTextColor() const override;
 
 private:
@@ -47,6 +59,12 @@ private:
 	bool OverrideTextColorEnabled;
 	video::SColor TextColor;
 	bool DrawBackground;
+	video::SColor HeaderBackgroundColor;
+	video::SColor HeaderHoverBackgroundColor;
+	bool HeaderHoverBackgroundColorSet = false;
+	bool DrawHeaderBackground;
+	s32 HeaderCornerRadius = 0;
+	s32 HeaderPadding = 0;
 };
 
 //! A standard tab control
@@ -98,6 +116,7 @@ public:
 
 	//! Returns which tab is currently active
 	s32 getActiveTab() const override;
+	void setSelectionAnimation(s32 previousTab, u32 durationMs) override;
 
 	//! get the the id of the tab at the given absolute coordinates
 	s32 getTabAt(s32 xpos, s32 ypos) const override;
@@ -167,6 +186,9 @@ private:
 	s32 TabMaxWidth;
 	s32 CurrentScrollTabIndex;
 	s32 TabExtraWidth;
+	s32 AnimationFromTab = -1;
+	u32 AnimationStartTime = 0;
+	u32 AnimationDuration = 0;
 };
 
 } // end namespace gui

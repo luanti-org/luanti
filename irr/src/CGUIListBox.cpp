@@ -11,7 +11,11 @@
 #include "IGUIFont.h"
 #include "IGUISpriteBank.h"
 #include "CGUIScrollBar.h"
+#include "irrRoundedRect.h"
 #include "os.h"
+
+#include <algorithm>
+#include <array>
 
 namespace gui
 {
@@ -429,7 +433,12 @@ void CGUIListBox::draw()
 	recalculateItemHeight(); // if the font changed
 
 	IGUISkin *skin = Environment->getSkin();
+	video::IVideoDriver *driver = Environment->getVideoDriver();
 	updateScrollBarSize(skin->getSize(EGDS_SCROLLBAR_SIZE));
+
+	const s32 cornerRadius = CornerRadius > 0 ?
+			std::min(CornerRadius, std::min(AbsoluteRect.getWidth(),
+					AbsoluteRect.getHeight()) / 2) : 0;
 
 	core::rect<s32> *clipRect = 0;
 
@@ -446,8 +455,34 @@ void CGUIListBox::draw()
 	clientClip.LowerRightCorner.Y -= 1;
 	clientClip.clipAgainst(AbsoluteClippingRect);
 
-	skin->draw3DSunkenPane(this, skin->getColor(EGDC_3D_HIGH_LIGHT), true,
-			DrawBack, frameRect, &AbsoluteClippingRect);
+	if (cornerRadius > 0) {
+		if (DrawBack) {
+			const video::SColor bgColor = skin->getColor(EGDC_3D_HIGH_LIGHT);
+			const std::array<video::SColor, 4> fill = {
+				bgColor, bgColor, bgColor, bgColor};
+			drawRoundedRect(driver, frameRect, cornerRadius, fill,
+					&AbsoluteClippingRect);
+		}
+
+		core::rect<s32> innerRect(frameRect);
+		innerRect.UpperLeftCorner.X += 1;
+		innerRect.UpperLeftCorner.Y += 1;
+		innerRect.LowerRightCorner.X -= 1;
+		innerRect.LowerRightCorner.Y -= 1;
+		if (innerRect.getWidth() > 0 && innerRect.getHeight() > 0) {
+			const std::array<video::SColor, 4> borderColors = {
+				skin->getColor(EGDC_3D_DARK_SHADOW),
+				skin->getColor(EGDC_3D_HIGH_LIGHT),
+				skin->getColor(EGDC_3D_HIGH_LIGHT),
+				skin->getColor(EGDC_3D_DARK_SHADOW),
+			};
+			drawRoundedRectBorder(driver, frameRect, innerRect, cornerRadius,
+					cornerRadius - 1, borderColors, &AbsoluteClippingRect);
+		}
+	} else {
+		skin->draw3DSunkenPane(this, skin->getColor(EGDC_3D_HIGH_LIGHT), true,
+				DrawBack, frameRect, &AbsoluteClippingRect);
+	}
 
 	if (clipRect)
 		clientClip.clipAgainst(*clipRect);
@@ -467,8 +502,25 @@ void CGUIListBox::draw()
 	for (s32 i = 0; i < (s32)Items.size(); ++i) {
 		if (frameRect.LowerRightCorner.Y >= AbsoluteRect.UpperLeftCorner.Y &&
 				frameRect.UpperLeftCorner.Y <= AbsoluteRect.LowerRightCorner.Y) {
+			core::rect<s32> rowClip = clientClip;
+			if (cornerRadius > 0) {
+				const s32 topInset = roundedRectRowInset(cornerRadius,
+						frameRect.UpperLeftCorner.Y,
+						AbsoluteRect.UpperLeftCorner.Y,
+						AbsoluteRect.LowerRightCorner.Y);
+				const s32 bottomInset = roundedRectRowInset(cornerRadius,
+						frameRect.LowerRightCorner.Y - 1,
+						AbsoluteRect.UpperLeftCorner.Y,
+						AbsoluteRect.LowerRightCorner.Y);
+				const s32 inset = std::max(topInset, bottomInset);
+				rowClip.UpperLeftCorner.X = std::max(rowClip.UpperLeftCorner.X,
+						AbsoluteRect.UpperLeftCorner.X + inset);
+				rowClip.LowerRightCorner.X = std::min(rowClip.LowerRightCorner.X,
+						AbsoluteRect.LowerRightCorner.X - inset);
+			}
+
 			if (i == Selected && hl)
-				skin->draw2DRectangle(this, skin->getColor(EGDC_HIGH_LIGHT), frameRect, &clientClip);
+				skin->draw2DRectangle(this, skin->getColor(EGDC_HIGH_LIGHT), frameRect, &rowClip);
 
 			core::rect<s32> textRect = frameRect;
 			textRect.UpperLeftCorner.X += 3;
@@ -480,11 +532,11 @@ void CGUIListBox::draw()
 					iconPos.X += ItemsIconWidth / 2;
 
 					if (i == Selected && hl) {
-						IconBank->draw2DSprite((u32)Items[i].Icon, iconPos, &clientClip,
+						IconBank->draw2DSprite((u32)Items[i].Icon, iconPos, &rowClip,
 								hasItemOverrideColor(i, EGUI_LBC_ICON_HIGHLIGHT) ? getItemOverrideColor(i, EGUI_LBC_ICON_HIGHLIGHT) : getItemDefaultColor(EGUI_LBC_ICON_HIGHLIGHT),
 								selectTime, os::Timer::getTime(), false, true);
 					} else {
-						IconBank->draw2DSprite((u32)Items[i].Icon, iconPos, &clientClip,
+						IconBank->draw2DSprite((u32)Items[i].Icon, iconPos, &rowClip,
 								hasItemOverrideColor(i, EGUI_LBC_ICON) ? getItemOverrideColor(i, EGUI_LBC_ICON) : getItemDefaultColor(EGUI_LBC_ICON),
 								0, (i == Selected) ? os::Timer::getTime() : 0, false, true);
 					}
@@ -495,11 +547,11 @@ void CGUIListBox::draw()
 				if (i == Selected && hl) {
 					Font->draw(Items[i].Text.c_str(), textRect,
 							hasItemOverrideColor(i, EGUI_LBC_TEXT_HIGHLIGHT) ? getItemOverrideColor(i, EGUI_LBC_TEXT_HIGHLIGHT) : getItemDefaultColor(EGUI_LBC_TEXT_HIGHLIGHT),
-							false, true, &clientClip);
+							false, true, &rowClip);
 				} else {
 					Font->draw(Items[i].Text.c_str(), textRect,
 							hasItemOverrideColor(i, EGUI_LBC_TEXT) ? getItemOverrideColor(i, EGUI_LBC_TEXT) : getItemDefaultColor(EGUI_LBC_TEXT),
-							false, true, &clientClip);
+							false, true, &rowClip);
 				}
 
 				textRect.UpperLeftCorner.X -= ItemsIconWidth + 3;
@@ -732,6 +784,13 @@ void CGUIListBox::setDrawBackground(bool draw)
 IGUIScrollBar *CGUIListBox::getVerticalScrollBar() const
 {
 	return ScrollBar;
+}
+
+void CGUIListBox::setCornerRadius(s32 radius)
+{
+	CornerRadius = std::max(0, radius);
+	if (CornerRadius > 0)
+		static_cast<CGUIScrollBar *>(ScrollBar)->setCornerRadius(CornerRadius);
 }
 
 } // end namespace gui

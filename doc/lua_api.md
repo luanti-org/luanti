@@ -3609,6 +3609,16 @@ Elements
   If the color is not specified, the box will use the options specified by
   its style. If the color is specified, all styling options will be ignored.
 
+### `animated_box[<X>,<Y>;<W>,<H>;<color>;<start offset>]`
+
+* Colored box that slides vertically into place when the formspec is shown.
+* `color` is color specified as a `ColorString`, with the same behavior as
+  `box`.
+* `start offset` is the initial vertical offset in formspec units. The box
+  animates from `Y + start offset` to `Y`. A negative value makes it slide up
+  into place, a positive value makes it slide down.
+* The animation duration is controlled by the `ui_animation_speed` setting.
+
 ### `dropdown[<X>,<Y>;<W>;<name>;<item 1>,<item 2>, ...,<item n>;<selected idx>;<index event>]`
 
 * Show a dropdown field
@@ -3874,6 +3884,7 @@ Setting a property to nothing will reset it to the default value. For example:
 Some types may inherit styles from parent types.
 
 * animated_image, inherits from image
+* animated_box
 * box
 * button
 * button_exit, inherits from button
@@ -3901,9 +3912,14 @@ Some types may inherit styles from parent types.
 
 * animated_image
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+* animated_box
+    * Supports the same styling properties as `box`.
 * box
-    * **Note**: In order for any of the styling options to take effect,
+    * **Note**: In order for the color styling options to take effect,
                 the `color` field in the box element must be left unspecified.
+                `borderradius` applies in both cases.
+    * borderradius - Integer. Corner radius in pixels. `0` disables rounded
+      corners. The radius is clamped to half of the box's shorter side.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
         * Defaults to false in formspec_version version 3 or higher
     * **Note**: `colors`, `bordercolors`, and `borderwidths` accept multiple input types:
@@ -3945,6 +3961,8 @@ Some types may inherit styles from parent types.
       * `+<number>`/`-<number>`: Offsets default font size by `number` points.
       * `*<number>`: Multiplies default font size by `number`, similar to CSS `em`.
     * border - boolean, draw border. Set to false to hide the bevelled button pane. Default true.
+    * borderradius - Integer. Corner radius in pixels. `0` disables rounded
+      corners. The radius is clamped to half of the button's shorter side.
     * content_offset - 2d vector, shifts the position of the button's content without resizing it.
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
     * padding - rect, adds space between the edges of the button and the content. This value is
@@ -4007,6 +4025,8 @@ Some types may inherit styles from parent types.
     * sound - a sound to be played when triggered.
 * scrollbar
     * noclip - boolean, set to true to allow the element to exceed formspec bounds.
+    * bgcolor - track color.
+    * fgcolor - slider color.
 * hypertip
     * bgcolor - color, sets background color.
     * border - boolean, draw border. Set to false to hide the bevelled tooltip pane. Default true.
@@ -4018,6 +4038,13 @@ Some types may inherit styles from parent types.
       Default true.
     * sound - a sound to be played when a different tab is selected.
     * textcolor - color. Default white.
+    * textcolor_selected - text color for the selected tab. Defaults to `textcolor`.
+    * bgcolor - background color for unselected tab headers.
+    * bgcolor_selected - background color for the selected tab header. Defaults to `bgcolor`.
+    * borderradius - Integer. Corner radius in pixels for the tab headers. `0`
+      disables rounded corners.
+    * padding - Integer. Space in pixels between the tab header and adjacent
+      tab headers and the tab body. Default `0`.
 * table, textlist
     * font - Sets font type. See button `font` property for more information.
     * font_size - Sets font size. See button `font_size` property for more information.

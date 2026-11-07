@@ -143,6 +143,7 @@ public:
 
 	//! Returns the element last known to be under the mouse
 	IGUIElement *getHovered() const override;
+	core::position2d<s32> getLastMousePosition() const override;
 
 	//! Returns the root gui element.
 	IGUIElement *getRootGUIElement() override;

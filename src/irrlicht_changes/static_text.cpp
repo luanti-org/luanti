@@ -10,8 +10,12 @@
 #include <EGUIAlignment.h>
 #include <IGUIFont.h>
 #include <IVideoDriver.h>
+#include <irrRoundedRect.h>
 #include <rect.h>
 #include <SColor.h>
+
+#include <algorithm>
+#include <array>
 
 #include "CGUITTFont.h"
 #include "util/enriched_string.h"
@@ -56,14 +60,39 @@ void StaticText::draw()
 
 	// draw background
 
-	if (Background)
-		driver->draw2DRectangle(getBackgroundColor(), frameRect, &AbsoluteClippingRect);
+	if (Background) {
+		if (BackgroundCornerRadius > 0) {
+			const video::SColor bg = getBackgroundColor();
+			std::array<video::SColor, 4> colors = {bg, bg, bg, bg};
+			drawRoundedRect(driver, frameRect, BackgroundCornerRadius, colors,
+					&AbsoluteClippingRect);
+		} else {
+			driver->draw2DRectangle(getBackgroundColor(), frameRect, &AbsoluteClippingRect);
+		}
+	}
 
 	// draw the border
 
 	if (Border)
 	{
-		skin->draw3DSunkenPane(this, 0, true, false, frameRect, &AbsoluteClippingRect);
+		if (BackgroundCornerRadius > 0) {
+			core::rect<s32> inner = frameRect;
+			inner.UpperLeftCorner.X += 1;
+			inner.UpperLeftCorner.Y += 1;
+			inner.LowerRightCorner.X -= 1;
+			inner.LowerRightCorner.Y -= 1;
+			std::array<video::SColor, 4> border_colors = {
+				skin->getColor(EGDC_3D_SHADOW),
+				skin->getColor(EGDC_3D_HIGH_LIGHT),
+				skin->getColor(EGDC_3D_HIGH_LIGHT),
+				skin->getColor(EGDC_3D_SHADOW),
+			};
+			drawRoundedRectBorder(driver, frameRect, inner,
+					BackgroundCornerRadius, BackgroundCornerRadius - 1,
+					border_colors, &AbsoluteClippingRect);
+		} else {
+			skin->draw3DSunkenPane(this, 0, true, false, frameRect, &AbsoluteClippingRect);
+		}
 		frameRect.UpperLeftCorner.X += skin->getSize(EGDS_TEXT_DISTANCE_X);
 	}
 
@@ -160,6 +189,20 @@ video::SColor StaticText::getBackgroundColor() const
 
 	return (ColoredText.hasBackground() || !skin) ?
 		ColoredText.getBackground() : skin->getColor(gui::EGDC_3D_FACE);
+}
+
+
+//! Sets the corner radius of the background and border.
+void StaticText::setBackgroundCornerRadius(s32 radius)
+{
+	BackgroundCornerRadius = std::max(0, radius);
+}
+
+
+//! Gets the corner radius of the background and border.
+s32 StaticText::getBackgroundCornerRadius() const
+{
+	return BackgroundCornerRadius;
 }
 
 

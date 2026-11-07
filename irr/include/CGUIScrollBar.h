@@ -82,6 +82,10 @@ public:
 		DEFAULT
 	};
 	void setArrowsVisible(ArrowVisibility visible);
+	void setTrackColor(video::SColor color);
+	void setSliderColor(video::SColor color);
+	void setCornerRadius(s32 radius);
+	static void setDefaultCornerRadius(s32 radius);
 
 protected:
 	void refreshControls();
@@ -95,6 +99,12 @@ protected:
 	ArrowVisibility UpDownVisible = DEFAULT;
 
 	core::rect<s32> SliderRect;
+	video::SColor TrackColor;
+	video::SColor SliderColor;
+	bool OverrideTrackColor = false;
+	bool OverrideSliderColor = false;
+	s32 CornerRadius = -1;
+	static s32 DefaultCornerRadius;
 
 	bool Dragging; //< mouse down in tray area (anywhere)
 	bool Horizontal;

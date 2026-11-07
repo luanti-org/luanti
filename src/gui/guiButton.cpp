@@ -14,7 +14,13 @@
 #include "irrlicht_changes/static_text.h"
 #include "porting.h"
 #include "StyleSpec.h"
+#include "guiRoundedRect.h"
+#include "guiAnimation.h"
+#include "settings.h"
 #include "util/numeric.h"
+
+#include <algorithm>
+#include <iterator>
 
 
 using namespace gui;
@@ -76,6 +82,12 @@ bool GUIButton::isScalingImage() const
 void GUIButton::setDrawBorder(bool border)
 {
 	DrawBorder = border;
+}
+
+void GUIButton::setCornerRadius(s32 radius)
+{
+	ForcedCornerRadius = std::max(0, radius);
+	CornerRadius = ForcedCornerRadius;
 }
 
 
@@ -249,10 +261,14 @@ void GUIButton::draw()
 	bool hovered = isHovered();
 	bool focused = isFocused();
 	if (hovered != WasHovered || focused != WasFocused) {
+		const bool hover_changed = hovered != WasHovered;
 		WasHovered = hovered;
 		WasFocused = focused;
+		SuppressStyleAnimation = hover_changed;
 		setFromState();
+		SuppressStyleAnimation = false;
 	}
+	updateStyleAnimation();
 
 	video::IVideoDriver* driver = Environment->getVideoDriver();
 	IGUISkin *skin = Environment->getSkin();
@@ -260,20 +276,24 @@ void GUIButton::draw()
 
 	if (DrawBorder)
 	{
-		if (!Pressed)
-		{
-			// PATCH
+		// PATCH
+		if (CornerRadius > 0) {
+			std::array<video::SColor, 4> colors = {
+				Colors[gui::EGDC_3D_DARK_SHADOW],
+				Colors[gui::EGDC_3D_SHADOW],
+				Colors[gui::EGDC_3D_FACE],
+				Colors[gui::EGDC_3D_HIGH_LIGHT],
+			};
+			gui::drawRoundedButtonPane(driver, AbsoluteRect, CornerRadius,
+					colors, Pressed, &AbsoluteClippingRect);
+		} else if (!Pressed) {
 			skin->drawColored3DButtonPaneStandard(this, AbsoluteRect,
 					&AbsoluteClippingRect, Colors);
-			// END PATCH
-		}
-		else
-		{
-			// PATCH
+		} else {
 			skin->drawColored3DButtonPanePressed(this, AbsoluteRect,
 					&AbsoluteClippingRect, Colors);
-			// END PATCH
 		}
+		// END PATCH
 	}
 
 	const core::position2di buttonCenter(AbsoluteRect.getCenter());
@@ -654,6 +674,10 @@ void GUIButton::setColor(video::SColor color)
 //! Set element properties from a StyleSpec corresponding to the button state
 void GUIButton::setFromState()
 {
+	const video::SColor start_bg = BgColor;
+	std::array<video::SColor, 4> start_colors;
+	std::copy(std::begin(Colors), std::end(Colors), start_colors.begin());
+
 	StyleSpec::State state = StyleSpec::STATE_DEFAULT;
 
 	if (isPressed())
@@ -666,6 +690,38 @@ void GUIButton::setFromState()
 		state = static_cast<StyleSpec::State>(state | StyleSpec::STATE_FOCUSED);
 
 	setFromStyle(StyleSpec::getStyleFromStatePropagation(Styles, state));
+
+	if (!StyleAnimationInitialized || SuppressStyleAnimation) {
+		StyleAnimationInitialized = true;
+		StyleAnimationDuration = 0;
+		return;
+	}
+
+	StyleAnimationStartBg = start_bg;
+	StyleAnimationTargetBg = BgColor;
+	std::copy(std::begin(Colors), std::end(Colors), StyleAnimationTargetColors.begin());
+	StyleAnimationStartTime = porting::getTimeMs();
+	const float speed = getUIAnimationSpeed();
+	StyleAnimationDuration = static_cast<u32>(140.0f / speed);
+
+	BgColor = start_bg;
+	std::copy(start_colors.begin(), start_colors.end(), std::begin(Colors));
+}
+
+void GUIButton::updateStyleAnimation()
+{
+	if (StyleAnimationDuration == 0)
+		return;
+
+	const u32 elapsed = porting::getTimeMs() - StyleAnimationStartTime;
+	const float progress = std::min(1.0f,
+			static_cast<float>(elapsed) / StyleAnimationDuration);
+	BgColor = StyleAnimationStartBg.getInterpolated(StyleAnimationTargetBg, progress);
+	for (size_t i = 0; i < 4; i++)
+		Colors[i] = StyleAnimationStartColors[i].getInterpolated(
+				StyleAnimationTargetColors[i], progress);
+	if (progress >= 1.0f)
+		StyleAnimationDuration = 0;
 }
 
 //! Set element properties from a StyleSpec
@@ -717,6 +773,8 @@ void GUIButton::setFromStyle(const StyleSpec& style)
 	setNotClipped(style.getBool(StyleSpec::NOCLIP, false));
 	setDrawBorder(style.getBool(StyleSpec::BORDER, true));
 	setUseAlphaChannel(style.getBool(StyleSpec::ALPHA, true));
+	CornerRadius = ForcedCornerRadius >= 0 ? ForcedCornerRadius :
+			std::max(0, style.getInt(StyleSpec::BORDER_RADIUS, 0));
 	setOverrideFont(style.getFont());
 
 	BgMiddle = style.getRect(StyleSpec::BGIMG_MIDDLE, BgMiddle);

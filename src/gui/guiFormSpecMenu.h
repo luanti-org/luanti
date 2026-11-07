@@ -200,10 +200,12 @@ public:
 	void setFormSpec(const std::string &formspec_string,
 			const InventoryLocation &current_inventory_location)
 	{
+		const v2s32 previous_size = DesiredRect.getSize();
 		m_formspec_string = formspec_string;
 		m_current_inventory_location = current_inventory_location;
 		m_is_form_regenerated = false;
 		regenerateGui(m_screensize_old);
+		startPanelTransition(previous_size);
 	}
 
 	const InventoryLocation &getFormspecLocation()
@@ -503,6 +505,7 @@ private:
 	void parseImageButton(parserData *data, const std::string &element);
 	void parseItemImageButton(parserData *data, const std::string &element);
 	void parseTabHeader(parserData *data, const std::string &element);
+	void startPanelTransition(const v2s32 &previous_size);
 	void parseBox(parserData *data, const std::string &element);
 	void parseBackgroundColor(parserData *data, const std::string &element);
 	void parseListColors(parserData *data, const std::string &element);
@@ -556,6 +559,10 @@ private:
 
 	// used by getAbsoluteRect
 	s32 m_tabheader_upper_edge = 0;
+	std::unordered_map<std::string, s32> m_tabheader_last_selection;
+	core::rect<s32> m_panel_transition_base;
+	u32 m_panel_transition_start = 0;
+	u32 m_panel_transition_duration = 0;
 
 	// Determines the size (in pixels) of formspec coordinate units.
 	double calculateImgsize(const parserData &data);

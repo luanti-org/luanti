@@ -323,6 +323,9 @@ fake_function() {
 	gettext("Volume multiplier when the window is unfocused.");
 	gettext("Mute sound");
 	gettext("Whether to mute sounds. You can unmute sounds at any time.\nIn-game, you can toggle the mute state with the mute key or by using the\npause menu.");
+	gettext("Appearance");
+	gettext("UI animation speed");
+	gettext("Speed multiplier for UI transitions and button animations.\nValues above 1 are faster.");
 	gettext("User Interfaces");
 	gettext("Language");
 	gettext("Set the language. By default, the system language is used.\nA restart is required after changing this.");

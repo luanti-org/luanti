@@ -55,6 +55,15 @@ public:
 	//! Checks if background drawing is enabled
 	bool isDrawBackgroundEnabled() const override;
 
+	//! Sets the background color used instead of the skin color.
+	void setBackgroundColor(video::SColor color) override;
+
+	//! Sets the corner radius of the edit box background and border.
+	void setBackgroundCornerRadius(s32 radius) override;
+
+	//! Gets the corner radius of the edit box background.
+	s32 getBackgroundCornerRadius() const override;
+
 	//! Turns the border on or off
 	void setDrawBorder(bool border) override;
 
@@ -194,6 +203,7 @@ protected:
 
 	video::SColor OverrideBgColor = 0;
 	video::SColor OverrideColor;
+	s32 BackgroundCornerRadius = 0;
 	gui::IGUIFont *OverrideFont, *LastBreakFont;
 	IOSOperator *Operator;
 
