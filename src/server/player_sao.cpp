@@ -232,7 +232,7 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	}
 
 	// If attached, check that our parent is still there. If it isn't, detach.
-	if (m_attachment_parent_id && !getParent()) {
+	if (m_attachment.parent_id && !getParent()) {
 		// This is handled when objects are removed from the map
 		warningstream << "PlayerSAO::step() id=" << m_id <<
 			" is attached to nonexistent parent. This is a bug." << std::endl;
@@ -264,6 +264,20 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	// the last known origin.
 	if (auto *parent = getParent()) {
 		v3f pos = parent->getBasePosition();
+
+		// With "move_camera" the camera of the player is moved by the
+		// attachment offset on the clients, so the server has to take
+		// it into account as well to keep the positions in sync.
+		// This affects e.g. the range the player may interact from
+		// and the position the player re-appears at after detaching.
+		if (m_attachment.flags & AttachmentData::MOVE_CAMERA) {
+			if (auto *unit_parent = dynamic_cast<UnitSAO *>(parent)) {
+				// Rotate the offset like the clients do for attachments
+				pos += unit_parent->getTotalRotation() * m_attachment.position;
+			} else {
+				pos += m_attachment.position;
+			}
+		}
 		m_last_good_position = pos;
 		setBasePosition(pos);
 
