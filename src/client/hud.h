@@ -110,8 +110,8 @@ private:
 
 	v2s32 getInventoryPosOffset(u16 direction, s32 before, s32 remainder) const;
 	void getInventoryDimensions(v2s32 screen_pos, v2s32 screen_offset, s32 inv_length,
-			v2f alignment, u16 direction, v2s32 &pos, s32 &width, s32 &height) const;
-	void drawInventoryBackground(v2s32 pos, s32 width, s32 height,
+			v2f alignment, u16 direction, v2s32 &pos, v2s32 &dim) const;
+	void drawInventoryBackground(v2s32 pos, v2s32 dim,
 			const std::string &background_image = "");
 	void drawInventory(v2s32 screen_pos, v2f offset, s32 itemcount,
 			v2f alignment, InventoryList *mainlist, u16 selectitem, u16 direction,

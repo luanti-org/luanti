@@ -257,22 +257,21 @@ void Hud::drawItems(v2s32 pos, s32 inv_size, s32 inv_offset, InventoryList *main
 
 // Returns the total width, height and pos to draw a HUD inventory
 void Hud::getInventoryDimensions(v2s32 screen_pos, v2s32 screen_offset, s32 inv_length,
-		v2f alignment, u16 direction, v2s32 &pos, s32 &width, s32 &height) const
+		v2f alignment, u16 direction, v2s32 &pos, v2s32 &dim) const
 {
-	height  = m_hotbar_imagesize + m_padding * 2;
-	width   = inv_length * (m_hotbar_imagesize + m_padding * 2);
+	dim.Y = m_hotbar_imagesize + m_padding * 2;
+	dim.X = inv_length * (m_hotbar_imagesize + m_padding * 2);
 
 	if (direction == HUD_DIR_TOP_BOTTOM || direction == HUD_DIR_BOTTOM_TOP) {
-		s32 tmp = height;
-		height = width;
-		width = tmp;
+		s32 tmp = dim.Y;
+		dim.Y = dim.X;
+		dim.X = tmp;
 	}
 
 	// Position: screen_pos + screen_offset + alignment
-	pos.X = screen_pos.X + screen_offset.X * m_scale_factor +
-			(alignment.X - 1.0f) * (width * 0.5f);
-	pos.Y = screen_pos.Y + screen_offset.Y * m_scale_factor +
-			(alignment.Y - 1.0f) * (height * 0.5f);
+	pos = screen_pos + screen_offset * m_scale_factor;
+	pos.X += (alignment.X - 1.0f) * (dim.X * 0.5f);
+	pos.Y += (alignment.Y - 1.0f) * (dim.Y * 0.5f);
 }
 
 // Returns an inventory position offset depending on the direction
@@ -281,26 +280,24 @@ v2s32 Hud::getInventoryPosOffset(u16 direction, s32 before, s32 remainder) const
 {
 	s32 fullimglen = m_hotbar_imagesize + m_padding * 2;
 
-	v2s32 steppos;
 	switch (direction) {
 	case HUD_DIR_RIGHT_LEFT:
-		steppos = v2s32((remainder - before) * fullimglen, 0);
+		return v2s32((remainder - before) * fullimglen, 0);
 		break;
 	case HUD_DIR_TOP_BOTTOM:
-		steppos = v2s32(0, before * fullimglen);
+		return v2s32(0, before * fullimglen);
 		break;
 	case HUD_DIR_BOTTOM_TOP:
-		steppos = v2s32(0, (remainder - before) * fullimglen);
+		return v2s32(0, (remainder - before) * fullimglen);
 		break;
+	case HUD_DIR_LEFT_RIGHT:
 	default:
-		steppos = v2s32(before * fullimglen, 0);
+		return v2s32(before * fullimglen, 0);
 		break;
 	}
-
-	return steppos;
 }
 
-void Hud::drawInventoryBackground(v2s32 pos, s32 width, s32 height,
+void Hud::drawInventoryBackground(v2s32 pos, v2s32 dim,
 		const std::string &background_image)
 {
 	// Store the effective background image in a member variable, used by drawItem().
@@ -313,7 +310,8 @@ void Hud::drawInventoryBackground(v2s32 pos, s32 width, s32 height,
 		return;
 	}
 
-	core::rect<s32> imgrect2(-m_padding/2, -m_padding/2, width+m_padding/2, height+m_padding/2);
+	v2s32 padding{m_padding/2, m_padding/2};
+	core::rect<s32> imgrect2{-padding, dim + padding};
 	core::rect<s32> rect2 = imgrect2 + pos;
 	video::ITexture *texture = tsrc->getTexture(hotbar_image);
 	core::dimension2di imgsize(texture->getOriginalSize());
@@ -329,12 +327,12 @@ void Hud::drawInventory(v2s32 screen_pos, v2f offset, s32 itemcount, v2f alignme
 		const std::string &background_image)
 {
 	v2s32 screen_offset(offset.X, offset.Y);
-	s32 height, width;
+	v2s32 dim;
 	v2s32 pos;
 	getInventoryDimensions(screen_pos, screen_offset, itemcount, alignment,
-			direction, pos, width, height);
+			direction, pos, dim);
 
-	drawInventoryBackground(pos, width, height, background_image);
+	drawInventoryBackground(pos, dim, background_image);
 	drawItems(pos, itemcount, 0, mainlist, selectitem, direction);
 }
 
@@ -352,11 +350,11 @@ void Hud::drawHotbar(v2s32 screen_pos, v2f offset, u16 direction,
 	max_inv_length = max_inv_length ? max_inv_length :
 			player->hotbar_source.getMaxLength() - inv_offset;
 
-	s32 height, width;
+	v2s32 dim;
 	v2s32 pos;
 	getInventoryDimensions(screen_pos, screen_offset, max_inv_length, alignment,
-			direction, pos, width, height);
-	drawInventoryBackground(pos, width, height);
+			direction, pos, dim);
+	drawInventoryBackground(pos, dim);
 
 	// Handle offset
 	std::size_t source_index = 0;
