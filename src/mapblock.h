@@ -283,6 +283,8 @@ public:
 
 	// Copies data to VoxelManipulator to getPosRelative()
 	void copyTo(VoxelManipulator &dst);
+	// Copy only nodes inside the destination area.
+	void copyToClipped(VoxelManipulator &dst);
 
 	// Copies data from VoxelManipulator to getPosRelative()
 	void copyFrom(const VoxelManipulator &src);

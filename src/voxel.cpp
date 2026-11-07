@@ -177,10 +177,10 @@ void VoxelManipulator::addArea(const VoxelArea &area)
 }
 
 void VoxelManipulator::copyFrom(MapNode *src, bool is_mono_block, const VoxelArea& src_area,
-		v3s16 from_pos, v3s16 to_pos, const v3s16 &size)
+		v3s16 from_pos, v3s16 to_pos, const v3s16 size)
 {
 	/* The reason for this optimised code is that we're a member function
-	 * and the data type/layout of m_data is know to us: it's stored as
+	 * and the data type/layout of m_data is known to us: it's stored as
 	 * [z*h*w + y*h + x]. Therefore we can take the calls to m_area index
 	 * (which performs the preceding mapping/indexing of m_data) out of the
 	 * inner loop and calculate the next index as we're iterating to gain
@@ -205,6 +205,7 @@ void VoxelManipulator::copyFrom(MapNode *src, bool is_mono_block, const VoxelAre
 	 */
 
 	s32 src_step = src_area.getExtent().X;
+	s32 src_mod = src_step * (src_area.getExtent().Y - size.Y);
 	s32 dest_step = m_area.getExtent().X;
 	s32 dest_mod = m_area.index(to_pos.X, to_pos.Y, to_pos.Z + 1)
 			- m_area.index(to_pos.X, to_pos.Y, to_pos.Z)
@@ -224,12 +225,13 @@ void VoxelManipulator::copyFrom(MapNode *src, bool is_mono_block, const VoxelAre
 			i_src += src_step;
 			i_local += dest_step;
 		}
+		i_src += src_mod;
 		i_local += dest_mod;
 	}
 }
 
 void VoxelManipulator::copyTo(MapNode *dst, const VoxelArea& dst_area,
-		v3s16 dst_pos, v3s16 from_pos, const v3s16 &size) const
+		v3s16 dst_pos, v3s16 from_pos, const v3s16 size) const
 {
 	for(s16 z=0; z<size.Z; z++)
 	for(s16 y=0; y<size.Y; y++)

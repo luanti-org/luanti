@@ -10,6 +10,7 @@
 #include "log.h"
 #include "voxel.h"
 #include "dummymap.h"
+#include "mapblock.h"
 #include "irrlicht_changes/printing.h"
 
 class TestVoxelManipulator : public TestBase {
@@ -23,6 +24,7 @@ public:
 	void testEmerge(IGameDef *gamedef);
 	void testBlitBack(IGameDef *gamedef);
 	void testBlitBack2(IGameDef *gamedef);
+	void testClippedCopy(IGameDef *gamedef);
 };
 
 static TestVoxelManipulator g_test_instance;
@@ -33,6 +35,7 @@ void TestVoxelManipulator::runTests(IGameDef *gamedef)
 	TEST(testEmerge, gamedef);
 	TEST(testBlitBack, gamedef);
 	TEST(testBlitBack2, gamedef);
+	TEST(testClippedCopy, gamedef);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -178,4 +181,36 @@ void TestVoxelManipulator::testBlitBack2(IGameDef *gamedef)
 	UASSERTEQ(auto, map.getNode({0,1,0}).getContent(), t_CONTENT_TORCH);
 	// The upper one should not!
 	UASSERTEQ(auto, map.getNode({0,bs,0}).getContent(), CONTENT_AIR);
+}
+
+void TestVoxelManipulator::testClippedCopy(IGameDef *gamedef)
+{
+	MapBlock block(v3s16(-2, 1, -1), gamedef);
+	const v3s16 origin = block.getPosRelative();
+	for (s16 z = 0; z < MAP_BLOCKSIZE; ++z)
+	for (s16 y = 0; y < MAP_BLOCKSIZE; ++y)
+	for (s16 x = 0; x < MAP_BLOCKSIZE; ++x)
+		block.setNode({x, y, z}, MapNode(t_CONTENT_STONE, z, 16 * y + x));
+
+	// Exercise all faces, edges and corners, and destinations outside the block.
+	const s16 step = 8;
+	for (s16 z = -2; z <= 2; ++z)
+	for (s16 y = -2; y <= 2; ++y)
+	for (s16 x = -2; x <= 2; ++x) {
+		const v3s16 offset(x * step + 4, y * step + 4, z * step + 4);
+		VoxelManipulator vm;
+		vm.addArea({origin + offset, origin + offset + v3s16(step - 1)});
+		block.copyToClipped(vm);
+		for (s16 dz = 0; dz < step; ++dz)
+		for (s16 dy = 0; dy < step; ++dy)
+		for (s16 dx = 0; dx < step; ++dx) {
+			const v3s16 local = offset + v3s16(dx, dy, dz);
+			const MapNode actual = vm.getNodeNoExNoEmerge(origin + local);
+			if (block.isValidPosition(local)) {
+				UASSERT(actual == block.getNodeNoCheck(local));
+			} else {
+				UASSERTEQ(content_t, actual.getContent(), CONTENT_IGNORE);
+			}
+		}
+	}
 }
