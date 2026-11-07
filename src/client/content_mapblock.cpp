@@ -210,7 +210,22 @@ static std::array<video::S3DVertex, 24> setupCuboidVertices(const aabb3f &box, c
 static v2f applyTileUV(v2f tcoords, int face, const TileLayer &layer,
 		TileRotation rotation, v3s16 alignment)
 {
-	if (layer.world_aligned) {
+	if (!layer.world_aligned) {
+		// World-aligned layers ignore node rotation
+		switch (rotation) {
+		case TileRotation::None:
+			break;
+		case TileRotation::R90:
+			tcoords.set(1 - tcoords.Y, tcoords.X);
+			break;
+		case TileRotation::R180:
+			tcoords.set(1 - tcoords.X, 1 - tcoords.Y);
+			break;
+		case TileRotation::R270:
+			tcoords.set(tcoords.Y, 1 - tcoords.X);
+			break;
+		}
+	} else {
 		// Maps uv dimension of every face to world dimension xyz
 		constexpr u8 coord_dim[12] = {
 			0, 2, // up
@@ -241,20 +256,6 @@ static v2f applyTileUV(v2f tcoords, int face, const TileLayer &layer,
 		}
 
 		tcoords.set(x * scale_factor, y * scale_factor);
-	} else {
-		switch (rotation) {
-		case TileRotation::None:
-			break;
-		case TileRotation::R90:
-			tcoords.set(1 - tcoords.Y, tcoords.X);
-			break;
-		case TileRotation::R180:
-			tcoords.set(1 - tcoords.X, 1 - tcoords.Y);
-			break;
-		case TileRotation::R270:
-			tcoords.set(tcoords.Y, 1 - tcoords.X);
-			break;
-		}
 	}
 
 	return tcoords;
