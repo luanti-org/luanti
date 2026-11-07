@@ -107,6 +107,10 @@ local function start_install(package, reason)
 
 				if conf_path then
 					local conf = Settings(conf_path)
+					if package.type == "mod" and not pkgmgr.is_valid_modname(conf:get("name")) then
+						gamedata.errormessage = fgettext_ne("Invalid mod name in configuration: $1", conf:get("name"))
+						return
+					end
 					if not conf:get("title") then
 						conf:set("title", package.title)
 					end
