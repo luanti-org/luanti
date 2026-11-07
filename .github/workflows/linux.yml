@@ -58,11 +58,15 @@ jobs:
       - name: Unittest
         run: |
           ./bin/luanti --run-unittests
+        env:
+          ASAN_OPTIONS: "intercept_tls_get_addr=0" # workaround for LSan segfault
 
       # Do this here because we have ASan and error paths are sensitive to dangling pointers
       - name: Test error cases
         run: |
           ./util/test_error_cases.sh
+        env:
+          ASAN_OPTIONS: "intercept_tls_get_addr=0"
 
   # Current gcc version
   gcc_16:
