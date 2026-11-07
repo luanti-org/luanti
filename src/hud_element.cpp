@@ -40,6 +40,29 @@ const struct EnumString es_HudElementStat[] =
 	{0, NULL},
 };
 
+void apply_hud_stat(HudElementStat stat, const HudElementStatValue &value, HudElement *elem)
+{
+	switch (stat) {
+		case HUD_STAT_POS:      elem->pos      = std::get<v2f>(value);         break;
+		case HUD_STAT_NAME:     elem->name     = std::get<std::string>(value); break;
+		case HUD_STAT_SCALE:    elem->scale    = std::get<v2f>(value);         break;
+		case HUD_STAT_TEXT:     elem->text     = std::get<std::string>(value); break;
+		case HUD_STAT_NUMBER:   elem->number   = std::get<u32>(value);         break;
+		case HUD_STAT_ITEM:     elem->item     = std::get<u32>(value);         break;
+		case HUD_STAT_DIR:      elem->dir      = std::get<u32>(value);         break;
+		case HUD_STAT_ALIGN:    elem->align    = std::get<v2f>(value);         break;
+		case HUD_STAT_OFFSET:   elem->offset   = std::get<v2f>(value);         break;
+		case HUD_STAT_WORLD_POS: elem->world_pos = std::get<v3f>(value);       break;
+		case HUD_STAT_SIZE:     elem->size     = std::get<v2f>(value);         break;
+		case HUD_STAT_Z_INDEX:  elem->z_index  = std::get<s16>(value);         break;
+		case HUD_STAT_TEXT2:    elem->text2    = std::get<std::string>(value); break;
+		case HUD_STAT_STYLE:    elem->style    = std::get<u32>(value);         break;
+		case HUD_STAT_HIDEABLE: elem->hideable = std::get<bool>(value);        break;
+		case HudElementStat_END:
+			break;
+	}
+}
+
 const struct EnumString es_HudBuiltinElement[] =
 {
 	{HUD_FLAG_HOTBAR_VISIBLE,        "hotbar"},
