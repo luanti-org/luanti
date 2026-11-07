@@ -17,6 +17,7 @@ public:
 	void runTests(IGameDef *gamedef);
 
 	void testAxisAlignedCollision();
+	void testNodeBoxSupportHeight();
 	void testCollisionMoveSimple(IGameDef *gamedef);
 };
 
@@ -25,6 +26,7 @@ static TestCollision g_test_instance;
 void TestCollision::runTests(IGameDef *gamedef)
 {
 	TEST(testAxisAlignedCollision);
+	TEST(testNodeBoxSupportHeight);
 	TEST(testCollisionMoveSimple, gamedef);
 }
 
@@ -203,6 +205,27 @@ void TestCollision::testAxisAlignedCollision()
 }
 
 #define fpos(x,y,z) (BS * v3f(x, y, z))
+
+void TestCollision::testNodeBoxSupportHeight()
+{
+	const std::vector<aabb3f> stair_boxes = {
+        // bottom slab
+		aabb3f(-BS * 0.5f, -BS * 0.5f, -BS * 0.5f,
+			BS * 0.5f, 0.0f, BS * 0.5f),
+	    // top quarter
+		aabb3f(-BS * 0.5f, 0.0f, 0.0f,
+			BS * 0.5f, BS * 0.5f, BS * 0.5f),
+	};
+	const aabb3f player_box(-BS * 0.3f, 0.0f, -BS * 0.3f,
+		BS * 0.3f, BS * 1.75f, BS * 0.3f);
+
+    // on lower step of stairs
+	UASSERTEQ_F(getNodeBoxSupportHeight(stair_boxes, player_box,
+		v3f(0.0f), v3f(0.0f, 0.0f, -BS * 0.5f)), 0.0f);
+	// on upper step of stairs
+	UASSERTEQ_F(getNodeBoxSupportHeight(stair_boxes, player_box,
+		v3f(0.0f), v3f(0.0f, BS * 0.5f, BS * 0.25f)), BS * 0.5f);
+}
 
 void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 {
