@@ -212,7 +212,7 @@ static v2f applyTileUV(v2f tcoords, int face, const TileLayer &layer,
 {
 	if (layer.world_aligned) {
 		// Maps uv dimension of every face to world dimension xyz
-		constexpr int coord_dim[12] = {
+		constexpr u8 coord_dim[12] = {
 			0, 2, // up
 			0, 2, // down
 			2, 1, // right
@@ -222,6 +222,7 @@ static v2f applyTileUV(v2f tcoords, int face, const TileLayer &layer,
 		};
 
 		u8 scale = layer.scale;
+		assert(scale != 0);
 		f32 scale_factor = 1.0f / scale;
 
 		float x = alignment[coord_dim[face*2]] % scale;
