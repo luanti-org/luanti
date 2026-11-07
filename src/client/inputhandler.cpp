@@ -9,9 +9,9 @@
 #include "inputhandler.h"
 #include "gui/mainmenumanager.h"
 #include "gui/touchcontrols.h"
-#include "hud_element.h"
 #include "log_internal.h"
 #include "client/renderingengine.h"
+#include "util/hotbar_source.h" // HOTBAR_ITEMCOUNT_MAX
 
 static const std::array input_settings = {
 	"keyboard_camera_speed",
@@ -90,7 +90,7 @@ void MyEventReceiver::reloadKeybindings()
 	keybindings[KeyType::QUICKTUNE_INC] = getKeySetting("keymap_quicktune_inc");
 	keybindings[KeyType::QUICKTUNE_DEC] = getKeySetting("keymap_quicktune_dec");
 
-	for (int i = 0; i < HUD_HOTBAR_ITEMCOUNT_MAX; i++) {
+	for (int i = 0; i < HOTBAR_ITEMCOUNT_MAX; i++) {
 		std::string slot_key_name = "keymap_slot" + std::to_string(i + 1);
 		keybindings[KeyType::SLOT_1 + i] = getKeySetting(slot_key_name.c_str());
 	}
