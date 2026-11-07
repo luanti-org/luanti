@@ -28,40 +28,14 @@ video::ITexture *TextureBuffer::getTexture(u8 index)
 }
 
 
-void TextureBuffer::setTexture(u8 index, core::dimension2du size, const std::string &name, video::ECOLOR_FORMAT format, bool clear, u8 msaa)
+void TextureBuffer::setTexture(u8 index, TextureDefinition definition)
 {
 	assert(index != NO_DEPTH_TEXTURE);
 
 	if (m_definitions.size() <= index)
 		m_definitions.resize(index + 1);
 
-	auto &definition = m_definitions[index];
-	definition.valid = true;
-	definition.dirty = true;
-	definition.fixed_size = true;
-	definition.size = size;
-	definition.name = name;
-	definition.format = format;
-	definition.clear = clear;
-	definition.msaa = msaa;
-}
-
-void TextureBuffer::setTexture(u8 index, v2f scale_factor, const std::string &name, video::ECOLOR_FORMAT format, bool clear, u8 msaa)
-{
-	assert(index != NO_DEPTH_TEXTURE);
-
-	if (m_definitions.size() <= index)
-		m_definitions.resize(index + 1);
-
-	auto &definition = m_definitions[index];
-	definition.valid = true;
-	definition.dirty = true;
-	definition.fixed_size = false;
-	definition.scale_factor = scale_factor;
-	definition.name = name;
-	definition.format = format;
-	definition.clear = clear;
-	definition.msaa = msaa;
+	m_definitions[index] = definition;
 }
 
 void TextureBuffer::reset(PipelineContext &context)

@@ -128,8 +128,10 @@ RenderStep* addUpscaling(RenderPipeline *pipeline, RenderStep *previousStep, v2f
 
 	// Initialize buffer
 	TextureBuffer *buffer = pipeline->createOwned<TextureBuffer>();
-	buffer->setTexture(TEXTURE_LOWRES_COLOR, downscale_factor, "lowres_color", color_format);
-	buffer->setTexture(TEXTURE_LOWRES_DEPTH, downscale_factor, "lowres_depth", depth_format);
+	buffer->setTexture(TEXTURE_LOWRES_COLOR,
+		TextureBuffer::TextureDefinition(downscale_factor, "lowres_color", color_format));
+	buffer->setTexture(TEXTURE_LOWRES_DEPTH,
+		TextureBuffer::TextureDefinition(downscale_factor, "lowres_depth", depth_format));
 
 	// Attach previous step to the buffer
 	TextureBufferOutput *buffer_output = pipeline->createOwned<TextureBufferOutput>(
