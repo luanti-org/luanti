@@ -321,10 +321,10 @@ public:
 
 	/// Minimum edge of the area (inclusive)
 	/// @warning read-only!
-	v3s16 MinEdge = v3s16(1,1,1);
+	v3s16 MinEdge = v3s16(1);
 	/// Maximum edge of the area (inclusive)
 	/// @warning read-only!
-	v3s16 MaxEdge;
+	v3s16 MaxEdge = v3s16(0);
 
 private:
 	void cacheExtent()
@@ -342,7 +342,7 @@ private:
 	}
 
 	static constexpr s32 MAX_EXTENT = S16_MAX - S16_MIN + 1;
-	v3s32 m_cache_extent;
+	v3s32 m_cache_extent = v3s32(0);
 };
 
 enum : u8 {
@@ -480,12 +480,11 @@ public:
 		Copy data and set flags to 0
 		dst_area.getExtent() <= src_area.getExtent()
 	*/
-	void copyFrom(MapNode *src, bool is_mono_block, const VoxelArea& src_area,
-			v3s16 from_pos, v3s16 to_pos, const v3s16 &size);
+	void copyFrom(MapNode *src, bool is_mono_block, const VoxelArea &src_area, const VoxelArea &dst_area,
+			const v3s16 &size);
 
 	// Copy data
-	void copyTo(MapNode *dst, const VoxelArea& dst_area,
-			v3s16 dst_pos, v3s16 from_pos, const v3s16 &size) const;
+	void copyTo(MapNode *dst, const VoxelArea &src_area, const VoxelArea &dst_area, const v3s16 &size) const;
 
 	/*
 		Member variables
