@@ -254,18 +254,11 @@ public:
 	void SetBlockNotSent(v3s16 p, bool low_priority = false);
 	void SetBlocksNotSent(const std::vector<v3s16> &blocks, bool low_priority = false);
 
-	/**
-	 * Trigger block sending to undo client-side predicted node changes
-	 *
-	 * \param action The interact action to determine which predictions the
-	 *   client could have made
-	 * \param pointed The pointed thing
-	 * \param prediction_success If true, assume that the client has made a
-	 *   correct prediction and send the mapblock only if an outdated mapblock
-	 *   is currently "on wire", which can erroneously override the prediction
-	 */
-	void fixupNodePrediction(InteractAction action,
-		const PointedThing &pointed, bool prediction_success);
+	// Returns true if the block was sent and we not yet received an acknowledgement
+	bool blockOnWire(v3s16 blockpos)
+	{
+		return m_blocks_sending.find(blockpos) != m_blocks_sending.end();
+	}
 
 	u32 getSendingCount() const { return m_blocks_sending.size(); }
 

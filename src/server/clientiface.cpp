@@ -460,34 +460,6 @@ void RemoteClient::SetBlocksNotSent(const std::vector<v3s16> &blocks, bool low_p
 	}
 }
 
-void RemoteClient::fixupNodePrediction(InteractAction action,
-	const PointedThing &pointed, bool prediction_success)
-{
-	if (pointed.type != POINTEDTHING_NODE)
-		return;  // Not node-related
-
-	if (action != INTERACT_PLACE && action != INTERACT_DIGGING_COMPLETED)
-		return;  // Client made no placement or dig prediction
-
-	// The client may have an outdated mapblock if the placement or dig
-	// prediction was wrong or if an old mapblock is still being sent to it.
-	v3s16 blockpos = getNodeBlockPos(pointed.node_undersurface);
-	if (!prediction_success
-			|| m_blocks_sending.find(blockpos) != m_blocks_sending.end()) {
-		SetBlockNotSent(blockpos);
-	}
-
-	// When placing the client may have predicted the above node instead
-	if (action != INTERACT_PLACE)
-		return;
-
-	v3s16 blockpos2 = getNodeBlockPos(pointed.node_abovesurface);
-	if (blockpos2 != blockpos && (!prediction_success
-			|| m_blocks_sending.find(blockpos2) != m_blocks_sending.end())) {
-		SetBlockNotSent(blockpos2);
-	}
-}
-
 void RemoteClient::notifyEvent(ClientStateEvent event)
 {
 	std::ostringstream myerror;
