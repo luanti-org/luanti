@@ -91,3 +91,29 @@ core.register_node("testnodes:overlay_global_color_overlayed", {
 
 	groups = { dig_immediate = 2 },
 })
+core.register_node("testnodes:overlay_node_align_tile_world_align", {
+	description = S("Texture Overlay Test Node") .. "\n" ..
+			S("Node-Aligned Overlay") .. "\n" ..
+			S("World-Aligned Main Tile"),
+	tiles = {{
+		name = "testnodes_128x128_rgb.png",
+		align_style = "world",
+		scale = 4,
+	}},
+	overlay_tiles = {{name = "testnodes_overlay.png"}},
+	paramtype2 = "facedir",
+	groups = { dig_immediate = 2 },
+})
+core.register_node("testnodes:overlay_world_align_tile_node_align", {
+	description = S("Texture Overlay Test Node") .. "\n" ..
+			S("World-Aligned Overlay") .. "\n" ..
+			S("Node-Aligned Main Tile"),
+	tiles = {{name = "testnodes_128x128_rgb.png"}},
+	overlay_tiles = {{
+		name = "testnodes_overlay.png",
+		align_style = "world",
+		scale = 4,
+	}},
+	paramtype2 = "facedir",
+	groups = { dig_immediate = 2 },
+})
