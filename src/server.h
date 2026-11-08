@@ -598,10 +598,6 @@ private:
 	/**
 	 * Sends node changes to undo client-side predicted node changes
 	 *
-	 * \param peer_id The clients session id
-	 * \param action The interact action to determine which predictions the
-	 *   client could have made
-	 * \param pointed The pointed thing
 	 * \param prediction_success If true, assume that the client has made a
 	 *   correct prediction and send the fixup only if an outdated mapblock
 	 *   is currently "on wire", which can erroneously override the prediction
