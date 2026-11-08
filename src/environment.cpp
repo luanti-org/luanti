@@ -190,6 +190,7 @@ void Environment::continueRaycast(RaycastState *state, PointedThing *result_p)
 			// If a node is found, this is the center of the
 			// first nodebox the shootline meets.
 			v3f found_boxcenter(0, 0, 0);
+			v3f found_local_intersection;
 
 			// Do calculations relative to the node center
 			// to translate the ray rather than the boxes
@@ -205,13 +206,12 @@ void Environment::continueRaycast(RaycastState *state, PointedThing *result_p)
 					continue;
 				}
 
-				intersection_point += npf; // translate back to world coords
-				f32 distanceSq = (intersection_point
-					- state->m_shootline.start).getLengthSQ();
+				f32 distanceSq = (intersection_point - rel_start).getLengthSQ();
 				// If this is the nearest collision, save it
 				if (min_distance_sq > distanceSq) {
 					min_distance_sq = distanceSq;
-					result.intersection_point = intersection_point;
+					result.intersection_point = intersection_point + npf;
+					found_local_intersection = intersection_point;
 					result.intersection_normal = intersection_normal;
 					result.box_id = id;
 					found_boxcenter = box.getCenter();
@@ -229,8 +229,8 @@ void Environment::continueRaycast(RaycastState *state, PointedThing *result_p)
 			result.distanceSq = min_distance_sq;
 			// Set undersurface and abovesurface nodes
 			const f32 d = 0.002 * BS;
-			v3f fake_intersection = result.intersection_point;
-			found_boxcenter += npf; // translate back to world coords
+			// Apply the small inset before translating to world coordinates.
+			v3f fake_intersection = found_local_intersection;
 			// Move intersection towards its source block.
 			if (fake_intersection.X < found_boxcenter.X) {
 				fake_intersection.X += d;
@@ -247,7 +247,7 @@ void Environment::continueRaycast(RaycastState *state, PointedThing *result_p)
 			} else {
 				fake_intersection.Z -= d;
 			}
-			result.node_real_undersurface = floatToInt(
+			result.node_real_undersurface = np + floatToInt(
 				fake_intersection, BS);
 			result.node_abovesurface = result.node_real_undersurface
 				+ floatToInt(result.intersection_normal, 1.0f);
