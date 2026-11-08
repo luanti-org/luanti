@@ -109,3 +109,7 @@ files["builtin/common/tests"] = {
 		"assert",
 	},
 }
+
+files["builtin/game/tests/*_spec.lua"] = {
+	read_globals = { "describe", "it", "assert" },
+}

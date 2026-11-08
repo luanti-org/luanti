@@ -34,15 +34,11 @@ local function get_relevant_tables(transient)
 end
 
 function core.forceload_block(pos, transient, limit)
-	-- set changed flag
-	forceload_blocks_changed = true
-
 	local blockpos = get_blockpos(pos)
 	local hash = core.hash_node_position(blockpos)
 	local relevant_table, other_table = get_relevant_tables(transient)
 	if relevant_table[hash] ~= nil then
 		relevant_table[hash] = relevant_table[hash] + 1
-		return true
 	elseif other_table[hash] ~= nil then
 		relevant_table[hash] = 1
 	else
@@ -53,14 +49,14 @@ function core.forceload_block(pos, transient, limit)
 		total_forceloaded = total_forceloaded+1
 		relevant_table[hash] = 1
 		forceload_block(blockpos)
-		return true
 	end
+	if not transient then
+		forceload_blocks_changed = true
+	end
+	return true
 end
 
 function core.forceload_free_block(pos, transient)
-	-- set changed flag
-	forceload_blocks_changed = true
-
 	local blockpos = get_blockpos(pos)
 	local hash = core.hash_node_position(blockpos)
 	local relevant_table, other_table = get_relevant_tables(transient)
@@ -73,6 +69,9 @@ function core.forceload_free_block(pos, transient)
 		total_forceloaded = total_forceloaded-1
 		relevant_table[hash] = nil
 		forceload_free_block(blockpos)
+	end
+	if not transient then
+		forceload_blocks_changed = true
 	end
 end
 
@@ -102,16 +101,14 @@ end)
 -- persists the currently forceloaded blocks to disk
 local function persist_forceloaded_blocks()
 	local data = core.serialize(blocks_forceloaded)
-	core.safe_file_write(wpath.."/force_loaded.txt", data)
+	return core.safe_file_write(wpath.."/force_loaded.txt", data)
 end
 
 -- periodical forceload persistence
 local function periodically_persist_forceloaded_blocks()
 
 	-- only persist if the blocks actually changed
-	if forceload_blocks_changed then
-		persist_forceloaded_blocks()
-
+	if forceload_blocks_changed and persist_forceloaded_blocks() then
 		-- reset changed flag
 		forceload_blocks_changed = false
 	end
