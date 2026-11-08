@@ -891,7 +891,7 @@ void Server::fixupNodePrediction(session_t peer_id, InteractAction action,
 
 		// If the prediction is about to be overwritten by a (freshly) outdated
 		// mapblock (`TOCLIENT_BLOCKDATA`)
-		bool lost_prediction = getClient(peer_id)->blockOnWire(getNodeBlockPos(pos));
+		bool lost_prediction = getClient(peer_id)->isBlockOnWire(getNodeBlockPos(pos));
 
 		if (!prediction_success || lost_prediction) {
 			MapNode n = m_env->getMap().getNode(pos);
@@ -903,9 +903,9 @@ void Server::fixupNodePrediction(session_t peer_id, InteractAction action,
 			Send(peer_id, &pkt);
 		}
 
-		// FIXME: Failed predictions can still cause:
+		// FIXME: Lost predictions (overwritten by `TOCLIENT_BLOCKDATA`) can still cause:
 		//   A) incorrect light spread of bordering mapblocks and
-		//   B) nodes suddenly disappearing for a spit second.
+		//   B) nodes suddenly dis/re-appearing for a spit second.
 		// Fixing this may require acknowledging each interaction/prediction before
 		// new mapblock data is accepted by the client.
 		// This [fixup] function reduces such issues by *not* sending the entire mapblock.

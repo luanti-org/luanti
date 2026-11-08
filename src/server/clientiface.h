@@ -255,7 +255,7 @@ public:
 	void SetBlocksNotSent(const std::vector<v3s16> &blocks, bool low_priority = false);
 
 	// Returns true if the block was sent and we not yet received an acknowledgement
-	bool blockOnWire(v3s16 blockpos)
+	bool isBlockOnWire(v3s16 blockpos)
 	{
 		return m_blocks_sending.find(blockpos) != m_blocks_sending.end();
 	}
