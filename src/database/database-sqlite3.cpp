@@ -14,6 +14,7 @@
 #include "irrlicht_changes/printing.h"
 #include "server/player_sao.h"
 
+#include <algorithm>
 #include <cassert>
 
 // When to print messages when the database is being held locked by another process
@@ -81,7 +82,13 @@ int Database_SQLite3::busyHandler(void *data, int count)
 	prev_time = cur_time;
 
 	// Make sqlite transaction fail if delay exceeds BUSY_FATAL_TRESHOLD
-	return total_diff < BUSY_FATAL_TRESHOLD;
+	if (total_diff >= BUSY_FATAL_TRESHOLD)
+		return 0;
+
+	// Yield while the other connection holds the lock, without extending the deadline.
+	const int remaining = BUSY_FATAL_TRESHOLD - total_diff;
+	sqlite3_sleep(std::min(remaining, 1 + std::min(count, 24)));
+	return 1;
 }
 
 
