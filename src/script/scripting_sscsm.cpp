@@ -15,7 +15,7 @@ SSCSMScripting::SSCSMScripting(SSCSMEnvironment *env) :
 
 	SCRIPTAPI_PRECHECKHEADER
 
-	initializeSecuritySSCSM();
+	initializeSecurityClient();
 
 	lua_getglobal(L, "core");
 	int top = lua_gettop(L);

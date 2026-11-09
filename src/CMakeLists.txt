@@ -728,6 +728,7 @@ if(BUILD_CLIENT)
 		${GMP_LIBRARY}
 		${JSON_LIBRARY}
 		${LUA_BIT_LIBRARY}
+		lua_puclibs
 		lstrpack
 		sha256
 		${FREETYPE_LIBRARY}
@@ -819,6 +820,7 @@ if(BUILD_SERVER)
 		${JSON_LIBRARY}
 		${LUA_LIBRARY}
 		${LUA_BIT_LIBRARY}
+		lua_puclibs
 		lstrpack
 		sha256
 		${GMP_LIBRARY}
