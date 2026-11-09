@@ -124,7 +124,7 @@ std::string PlayerSAO::getClientInitializationData(u16 protocol_version)
 		append_message(generateUpdateBoneOverrideCommand(
 			it.first, it.second));
 	}
-	append_message(generateUpdateAttachmentCommand());
+	append_message(generateUpdateAttachmentCommand(protocol_version));
 	append_message(generateUpdatePhysicsOverrideCommand());
 
 	for (const auto &id : getAttachmentChildIds()) {
@@ -264,6 +264,18 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	// the last known origin.
 	if (auto *parent = getParent()) {
 		v3f pos = parent->getBasePosition();
+
+		// Stay in sync with `GenericCAO::getPosition()` to ensure correct shootline
+		// calculations. This is relevant for the Lua API and interaction range checks.
+		// Note: This does not take bones into consideration.
+		if (m_attachment.flags & AttachmentData::MOVE_CAMERA) {
+			if (auto *unit_parent = dynamic_cast<UnitSAO *>(parent)) {
+				// Rotate the offset like the clients do for attachments
+				pos += unit_parent->getTotalRotation() * m_attachment.position;
+			} else {
+				pos += m_attachment.position;
+			}
+		}
 		m_last_good_position = pos;
 		setBasePosition(pos);
 
