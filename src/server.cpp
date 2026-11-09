@@ -962,11 +962,28 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 								continue;
 						}
 
+						// Add full new data to appropriate buffer
+						std::string &buffer = aom.reliable ? reliable_data : unreliable_data;
+
+						if (cmd == AO_CMD_ATTACH_TO && client->net_proto_version < 55) {
+							// Older clients (< 5.19.0-dev) interpret any
+							// non-zero value of the flags byte as
+							// "force visible", so the message has to be sent
+							// with masked flags
+							// (see AttachmentData::serialize).
+							auto *usao = dynamic_cast<UnitSAO *>(sao);
+							if (usao) {
+								ActiveObjectMessage masked(aom.id, aom.reliable,
+										usao->generateUpdateAttachmentCommand(
+										client->net_proto_version));
+								masked.appendTo(buffer);
+								continue;
+							}
+						}
+
 						if (cmd >= AO_CMD_STOP_ANIMATION && client->net_proto_version < 52)
 							continue; // AO_CMD_STOP_ANIMATION added in protocol version 52
 
-						// Add full new data to appropriate buffer
-						std::string &buffer = aom.reliable ? reliable_data : unreliable_data;
 						aom.appendTo(buffer);
 					}
 				}
@@ -2108,9 +2125,15 @@ void Server::SendMovePlayer(PlayerSAO *sao)
 {
 	// Send attachment updates instantly to the client prior updating position.
 	if (sao->isAttachmentOutdated() && !sao->isAttached()) {
+		// Note: the client may not be active (CS_Active) yet when this is
+		// called during the connection handshake
+		RemoteClient *client = getClientNoEx(sao->getPeerID(), CS_Created);
+		u16 proto_version = client ?
+				client->net_proto_version : LATEST_PROTOCOL_VERSION;
 		std::string data;
 		ActiveObjectMessage aom(
-				sao->getId(), true, sao->generateUpdateAttachmentCommand());
+				sao->getId(), true, sao->generateUpdateAttachmentCommand(
+				proto_version));
 		aom.appendTo(data);
 		SendActiveObjectMessages(sao->getPeerID(), data);
 	}
