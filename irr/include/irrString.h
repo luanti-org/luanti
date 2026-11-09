@@ -9,6 +9,7 @@
 #include <string_view>
 #include <algorithm>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <cwchar>
 #include <cassert>
