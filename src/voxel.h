@@ -8,9 +8,12 @@
 #include "irr_v3d.h"
 #include <iostream>
 #include <cassert>
+#include <optional>
+#include "porting.h"
 #include "exceptions.h"
 #include "mapnode.h"
 #include "irrlicht_changes/printing.h"
+#include "util/checked_ops.h"
 
 class NodeDefManager;
 
@@ -117,10 +120,22 @@ public:
 		return !m_cache_extent.X || !m_cache_extent.Y || !m_cache_extent.Z;
 	}
 
+	// throws std::bad_optional_access on overflow
 	u32 getVolume() const
 	{
-		// FIXME: possible integer overflow here
-		return (u32)m_cache_extent.X * (u32)m_cache_extent.Y * (u32)m_cache_extent.Z;
+		std::optional<u32> vol = checked::mul(
+				(u32) m_cache_extent.X,
+				(u32) m_cache_extent.Y,
+				(u32) m_cache_extent.Z
+			);
+		if (vol) {
+			return *vol;
+		}
+
+		static thread_local char err_buf[128];
+		porting::mt_snprintf(err_buf, 128, "overflow when multiplying %ld * %ld * %ld",
+				(long) m_cache_extent.X, (long) m_cache_extent.Y, (long) m_cache_extent.Z);
+		throw std::out_of_range(err_buf);
 	}
 
 	bool contains(const VoxelArea &a) const
