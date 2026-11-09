@@ -7,6 +7,7 @@
 #include "scripting_server.h"
 #include "serverenvironment.h"
 #include "util/serialize.h"
+#include "network/networkprotocol.h"
 
 UnitSAO::UnitSAO(ServerEnvironment *env, v3f pos) : ServerActiveObject(env, pos)
 {
@@ -155,7 +156,10 @@ void UnitSAO::sendOutdatedData()
 
 	if (!m_attachment_sent) {
 		m_attachment_sent = true;
-		m_messages_out.emplace(getId(), true, generateUpdateAttachmentCommand());
+		// The message is broadcast to all clients; older clients get the
+		// flags masked for their version in Server::AsyncRunStep().
+		m_messages_out.emplace(getId(), true,
+				generateUpdateAttachmentCommand(LATEST_PROTOCOL_VERSION));
 	}
 }
 
@@ -322,10 +326,10 @@ void UnitSAO::notifyObjectPropertiesModified()
 	m_properties_sent = false;
 }
 
-std::string UnitSAO::generateUpdateAttachmentCommand() const
+std::string UnitSAO::generateUpdateAttachmentCommand(u16 protocol_version) const
 {
 	std::ostringstream os(std::ios::binary);
-	m_attachment.serialize(os);
+	m_attachment.serialize(os, protocol_version);
 	return os.str();
 }
 

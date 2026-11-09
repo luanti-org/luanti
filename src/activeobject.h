@@ -152,7 +152,8 @@ typedef u16 object_t;
 struct AttachmentData
 {
 	enum Flags : u8 {
-		FORCE_VISIBLE = 0x01
+		FORCE_VISIBLE = 0x01,
+		MOVE_CAMERA = 0x02
 	};
 
 	object_t parent_id = 0;
@@ -161,7 +162,7 @@ struct AttachmentData
 	v3f rotation;
 	u8 flags = 0;
 
-	void serialize(std::ostream &os) const;
+	void serialize(std::ostream &os, u16 protocol_version) const;
 	void deSerialize(std::istream &is);
 };
 
