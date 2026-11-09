@@ -92,7 +92,7 @@ public:
 	void sendOutdatedData();
 
 	// Update packets
-	std::string generateUpdateAttachmentCommand() const;
+	std::string generateUpdateAttachmentCommand(u16 protocol_version) const;
 	std::string generateUpdateAnimationSpeedCommand(const scene::TrackId &track) const;
 	std::string generateUpdateAnimationCommand(const scene::TrackId &track) const;
 	std::string generateStopAnimationCommand(const scene::TrackId &track) const;

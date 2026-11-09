@@ -281,7 +281,7 @@ std::string LuaEntitySAO::getClientInitializationData(u16 protocol_version)
 		append_message(generateUpdateBoneOverrideCommand(
 			bone_override.first, bone_override.second));
 	}
-	append_message(generateUpdateAttachmentCommand());
+	append_message(generateUpdateAttachmentCommand(protocol_version));
 
 	for (const auto &id : getAttachmentChildIds()) {
 		if (ServerActiveObject *obj = m_env->getActiveObject(id)) {
