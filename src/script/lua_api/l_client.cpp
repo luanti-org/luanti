@@ -8,6 +8,7 @@
 #include "client/client.h"
 #include "client/sound.h"
 #include "client/clientenvironment.h"
+#include "clientdynamicinfo.h"
 #include "common/c_content.h"
 #include "common/c_converter.h"
 #include "cpp_api/s_base.h"
@@ -184,6 +185,37 @@ int ModApiClient::l_get_language(lua_State *L)
 	return 2;
 }
 
+// get_window_info()
+int ModApiClient::l_get_window_info(lua_State *L)
+{
+	lua_newtable(L);
+	int top = lua_gettop(L);
+
+	auto info = ClientDynamicInfo::getCurrent();
+
+	lua_pushstring(L, "size");
+	push_v2u32(L, info.render_target_size);
+	lua_settable(L, top);
+
+	lua_pushstring(L, "max_formspec_size");
+	push_v2f(L, info.max_fs_size);
+	lua_settable(L, top);
+
+	lua_pushstring(L, "real_gui_scaling");
+	lua_pushnumber(L, info.real_gui_scaling);
+	lua_settable(L, top);
+
+	lua_pushstring(L, "real_hud_scaling");
+	lua_pushnumber(L, info.real_hud_scaling);
+	lua_settable(L, top);
+
+	lua_pushstring(L, "touch_controls");
+	lua_pushboolean(L, info.touch_controls);
+	lua_settable(L, top);
+
+	return 1;
+}
+
 // get_meta(pos)
 int ModApiClient::l_get_meta(lua_State *L)
 {
@@ -331,6 +363,7 @@ void ModApiClient::Initialize(lua_State *L, int top)
 	API_FCT(get_privilege_list);
 	API_FCT(get_builtin_path);
 	API_FCT(get_language);
+	API_FCT(get_window_info);
 	API_FCT(get_csm_restrictions);
 }
 
