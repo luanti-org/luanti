@@ -8,4 +8,5 @@ set(benchmark_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_map.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_mapmodify.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_sha.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/benchmark_voxelmanipulator.cpp
 	PARENT_SCOPE)
