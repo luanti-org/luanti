@@ -594,6 +594,16 @@ private:
 	// Sends blocks to clients (locks env and con on its own)
 	void SendBlocks(float dtime);
 
+	/**
+	 * Sends node changes to undo client-side predicted node changes
+	 *
+	 * \param prediction_success If true, assume that the client has made a
+	 *   correct prediction and send the fixup only if an outdated mapblock
+	 *   is currently "on wire", which can erroneously override the prediction
+	 */
+	void fixupNodePrediction(session_t peer_id, InteractAction action,
+			const PointedThing &pointed, bool prediction_success);
+
 	bool addMediaFile(const std::string &filename, const std::string &filepath,
 			std::string *filedata = nullptr, std::string *digest = nullptr);
 	void fillMediaCache();
