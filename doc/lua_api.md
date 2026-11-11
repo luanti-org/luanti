@@ -6357,6 +6357,8 @@ Utilities
       get_all_craft_recipes_fuel = true,
       -- Whether `core.get_all_craft_recipes` may return the `replacements` field (5.17.0)
       get_all_craft_recipes_replacements = true,
+      -- `ObjectRef:set_camera()` supports `locked` field (5.19.0)
+      set_camera_locked = true,
   }
   ```
 
@@ -9819,7 +9821,7 @@ You **must not** mix names and track numbers to refer to the same animation.
       Same limits as for `thirdperson_back` apply.
       Defaults to `thirdperson_back` if unspecified.
 * `get_eye_offset()`: Returns camera offset vectors as set via `set_eye_offset`.
-* `set_camera(params)`: Sets camera parameters.
+* `set_camera(params)`: Sets camera parameters (requires >= 5.12.0).
     * `params` must be a table to update the parameters or `nil` (requires >= 5.16.0)
       to reset all parameters to defaults.
     * `mode`: Defines the camera mode used
@@ -9827,7 +9829,7 @@ You **must not** mix names and track numbers to refer to the same animation.
       - `first`: first-person camera
       - `third`: third-person camera
       - `third_front`: third-person camera, looking opposite of movement direction
-    * Supported by clients since 5.12.0.
+    * `locked`: Boolean defining if camera orientation ignores input (default: `false`, requires >= 5.19.0)
 * `get_camera()`: Returns the camera parameters as a table as above.
 * `send_mapblock(blockpos)`:
     * Sends an already loaded mapblock to the player.
