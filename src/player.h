@@ -188,6 +188,7 @@ public:
 	const std::string& getName() const { return m_name; }
 
 	CameraMode allowed_camera_mode = CAMERA_MODE_ANY;
+	bool camera_locked = false;
 
 	v3f eye_offset_first;
 	v3f eye_offset_third;

@@ -59,6 +59,7 @@ core.features = {
 	compress_raw_deflate = true,
 	get_all_craft_recipes_fuel = true,
 	get_all_craft_recipes_replacements = true,
+	set_camera_locked = true,
 }
 
 function core.has_feature(arg)

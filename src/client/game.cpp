@@ -1996,12 +1996,18 @@ bool Game::isTouchShootlineUsed() const
 
 void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 {
+	LocalPlayer *player = client->getEnv().getLocalPlayer();
 	f32 sens_scale = getSensitivityScaleFactor();
 
 	if (g_touchcontrols) {
 		// User setting is already applied by TouchControls.
-		cam->camera_yaw   += g_touchcontrols->getYawChange()   * sens_scale;
-		cam->camera_pitch += g_touchcontrols->getPitchChange() * sens_scale;
+		double yaw_change   = g_touchcontrols->getYawChange();
+		double pitch_change = g_touchcontrols->getPitchChange();
+
+		if (!player->camera_locked) {
+			cam->camera_yaw   += yaw_change   * sens_scale;
+			cam->camera_pitch += pitch_change * sens_scale;
+		}
 	} else {
 		v2s32 dist = input->getMouseMovement();
 
@@ -2009,8 +2015,10 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 			dist.Y = -dist.Y;
 		}
 
-		cam->camera_yaw   -= dist.X * m_cache_mouse_sensitivity * sens_scale;
-		cam->camera_pitch += dist.Y * m_cache_mouse_sensitivity * sens_scale;
+		if (!player->camera_locked) {
+			cam->camera_yaw   -= dist.X * m_cache_mouse_sensitivity * sens_scale;
+			cam->camera_pitch += dist.Y * m_cache_mouse_sensitivity * sens_scale;
+		}
 
 		// Keep the cursor centered so that it appears in the middle of
 		// the screen when a menu opens.
@@ -2019,6 +2027,9 @@ void Game::updateCameraOrientation(CameraOrientation *cam, float dtime)
 			input->setMousePos(center.X, center.Y);
 		}
 	}
+
+	if (player->camera_locked)
+		return;
 
 	// Keyboard look
 	const f32 rate = dtime * sens_scale;

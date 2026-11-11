@@ -2076,9 +2076,10 @@ void Server::SendSetLighting(session_t peer_id, const Lighting &lighting)
 
 void Server::SendCamera(session_t peer_id, Player *player)
 {
-	NetworkPacket pkt(TOCLIENT_CAMERA, 1, peer_id);
+	NetworkPacket pkt(TOCLIENT_CAMERA, 2, peer_id);
 
 	pkt << static_cast<u8>(player->allowed_camera_mode);
+	pkt << player->camera_locked;
 
 	Send(&pkt);
 }

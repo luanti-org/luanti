@@ -388,3 +388,21 @@ core.register_chatcommand("set_saturation", {
 		core.get_player_by_name(player_name):set_lighting({saturation = saturation })
 	end
 })
+
+core.register_chatcommand("cameralock", {
+	params = "[lock|unlock|reset]",
+	description = "Toggle or set camera lock",
+	func = function(name, param)
+		local player = core.get_player_by_name(name)
+		if not player then
+			return false, "No player."
+		end
+		if param == "reset" then
+			player:set_camera()
+			return true, "Camera reset"
+		end
+		local locked = param == "lock" or (param == "" and not player:get_camera().locked)
+		player:set_camera({locked = locked})
+		return true, locked and "Camera locked" or "Camera unlocked"
+	end,
+})
