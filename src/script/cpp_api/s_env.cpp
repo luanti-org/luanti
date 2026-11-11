@@ -396,7 +396,7 @@ void ScriptApiEnv::on_mapblocks_changed(const std::unordered_set<v3s16> &set)
 	// Convert the set to a set of position hashes
 	lua_createtable(L, 0, set.size());
 	for(const v3s16 &p : set) {
-		lua_pushnumber(L, hash_node_position(p));
+		push_v3s16_hash(L, p);
 		lua_pushboolean(L, true);
 		lua_rawset(L, -3);
 	}
