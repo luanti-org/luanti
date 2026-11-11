@@ -631,9 +631,7 @@ TextDrawer::TextDrawer(const wchar_t *text, Client *client,
 
 void TextDrawer::setText(const wchar_t *text, video::SColor default_color)
 {
-	// Avoid move constructor (which we do not have).
-	m_text.~ParsedText();
-	new (&m_text) ParsedText(text, default_color);
+	m_text.reset(text, default_color);
 
 	// Size all elements
 	for (auto &p : m_text.m_paragraphs) {

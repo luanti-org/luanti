@@ -20,13 +20,19 @@ class GUIScrollBar;
 class ParsedText
 {
 public:
-	ParsedText() {}
+	ParsedText() = default;
 	ParsedText(const wchar_t *text, video::SColor default_color);
 	~ParsedText();
 
 	DISABLE_CLASS_COPY(ParsedText);
 
-	void setText(const wchar_t *text, video::SColor default_color);
+	/// In-place reconstruct without move
+	template <typename ... Args>
+	void reset(Args &&... args)
+	{
+		(*this).~ParsedText();
+		new (this) ParsedText(std::forward<Args>(args)...);
+	}
 
 	enum ElementType
 	{
