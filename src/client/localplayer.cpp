@@ -20,7 +20,7 @@
 
 const static std::string PlayerSettings_names[] = {
 	"free_move", "pitch_move", "fast_move", "continuous_forward", "always_fly_fast",
-	"aux1_descends", "noclip", "autojump"
+	"aux1_descends", "noclip", "autojump", "continuous_up", "continuous_down"
 };
 
 void PlayerSettings::readGlobalSettings()
@@ -29,6 +29,8 @@ void PlayerSettings::readGlobalSettings()
 	pitch_move = g_settings->getBool("pitch_move");
 	fast_move = g_settings->getBool("fast_move");
 	continuous_forward = g_settings->getBool("continuous_forward");
+	continuous_up = g_settings->getBool("continuous_up");
+	continuous_down = g_settings->getBool("continuous_down");
 	always_fly_fast = g_settings->getBool("always_fly_fast");
 	aux1_descends = g_settings->getBool("aux1_descends");
 	noclip = g_settings->getBool("noclip");

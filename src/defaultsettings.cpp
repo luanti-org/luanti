@@ -133,6 +133,8 @@ void set_default_settings()
 	// Keymap
 	settings->setDefault("keymap_forward", "SYSTEM_SCANCODE_26|GAMEPAD_AXIS_MINUS_1"); // KEY_KEY_W|Left Joystick
 	settings->setDefault("keymap_autoforward", "");
+	settings->setDefault("keymap_autoup", "");
+	settings->setDefault("keymap_autodown", "");
 	settings->setDefault("keymap_backward", "SYSTEM_SCANCODE_22|GAMEPAD_AXIS_PLUS_1"); // KEY_KEY_S|Left Joystick
 	settings->setDefault("keymap_left", "SYSTEM_SCANCODE_4|GAMEPAD_AXIS_MINUS_0"); // KEY_KEY_A|Left Joystick
 	settings->setDefault("keymap_right", "SYSTEM_SCANCODE_7|GAMEPAD_AXIS_PLUS_0"); // KEY_KEY_D|Left Joystick
@@ -382,6 +384,8 @@ void set_default_settings()
 	settings->setDefault("autojump", bool_to_cstr(has_touch));
 	settings->setDefault("enable_esc_dialog", "true");
 	settings->setDefault("continuous_forward", "false");
+	settings->setDefault("continuous_up", "false");
+	settings->setDefault("continuous_down", "false");
 	settings->setDefault("repeat_joystick_button_time", "0.17");
 	settings->setDefault("joystick_frustum_sensitivity", "170");
 	settings->setDefault("joystick_inner_deadzone", "0.25");
