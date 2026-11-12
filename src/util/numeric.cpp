@@ -97,7 +97,7 @@ bool isBlockInSightEx(const v3s16 blockpos_b, v3f camera_pos, v3f camera_dir,
 {
 	// Block center position relative to camera
 	const v3f blockpos_relative =
-			intToFloat(blockpos_b * MAP_BLOCKSIZE + v3s16(MAP_BLOCKSIZE / 2), BS) -
+			intToFloat(blockpos_b * MAP_BLOCKSIZE + MAP_BLOCKSIZE / 2, BS) -
 			camera_pos;
 
 	if (distance_ptr) {

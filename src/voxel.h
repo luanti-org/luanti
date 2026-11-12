@@ -321,7 +321,7 @@ public:
 
 	/// Minimum edge of the area (inclusive)
 	/// @warning read-only!
-	v3s16 MinEdge = v3s16(1,1,1);
+	v3s16 MinEdge = v3s16(1);
 	/// Maximum edge of the area (inclusive)
 	/// @warning read-only!
 	v3s16 MaxEdge;

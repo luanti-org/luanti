@@ -122,10 +122,10 @@ void TestMapSettingsManager::testMapSettingsManager()
 	UASSERT(mgr.setMapSetting("mg_flags", "nolight", true));
 
 	NoiseParams script_np_filler_depth(0, 100, v3f(200, 100, 200), 261, 4, 0.7, 2.0);
-	NoiseParams script_np_factor(0, 100, v3f(50, 50, 50), 920381, 3, 0.45, 2.0);
-	NoiseParams script_np_height(0, 100, v3f(450, 450, 450), 84174, 4, 0.5, 2.0);
-	NoiseParams meta_np_height(20, 10, v3f(250, 250, 250), 84174,  4, 0.5,  1.0);
-	NoiseParams user_np_ground(-43, 40, v3f(80,  80,  80),  983240, 4, 0.55, 2.0, NOISE_FLAG_EASED);
+	NoiseParams script_np_factor(0, 100, v3f(50), 920381, 3, 0.45, 2.0);
+	NoiseParams script_np_height(0, 100, v3f(450), 84174, 4, 0.5, 2.0);
+	NoiseParams meta_np_height(20, 10, v3f(250), 84174,  4, 0.5,  1.0);
+	NoiseParams user_np_ground(-43, 40, v3f(80),  983240, 4, 0.55, 2.0, NOISE_FLAG_EASED);
 
 	mgr.setMapSettingNoiseParams("mgv5_np_filler_depth", &script_np_filler_depth, true);
 	mgr.setMapSettingNoiseParams("mgv5_np_height", &script_np_height);
@@ -259,17 +259,17 @@ void TestMapSettingsManager::testChunks()
 
 #define GET(x) EmergeManager::getContainingChunk(x, csize)
 	// origin chunk goes from (-2, -2, -2) -> (3, 3, 3) excl
-	UASSERTEQ(auto, GET(v3s16(-2, -2, -2)), v3s16(-2, -2, -2));
-	UASSERTEQ(auto, GET(v3s16(0, 0, 0)), v3s16(-2, -2, -2));
-	UASSERTEQ(auto, GET(v3s16(1, 1, 1)), v3s16(-2, -2, -2));
-	UASSERTEQ(auto, GET(v3s16(2, 2, 2)), v3s16(-2, -2, -2));
+	UASSERTEQ(auto, GET(v3s16(-2)), v3s16(-2));
+	UASSERTEQ(auto, GET(v3s16()), v3s16(-2));
+	UASSERTEQ(auto, GET(v3s16(1)), v3s16(-2));
+	UASSERTEQ(auto, GET(v3s16(2)), v3s16(-2));
 	UASSERTEQ(auto, GET(v3s16(2, 3, 2)), v3s16(-2, 3, -2));
 	UASSERTEQ(auto, GET(v3s16(0, -3, 0)), v3s16(-2, -7, -2));
 
 	csize = v3s16(5, 2, 5);
-	UASSERTEQ(auto, GET(v3s16(0, 0, 0)), v3s16(-2, -1, -2));
+	UASSERTEQ(auto, GET(v3s16()), v3s16(-2, -1, -2));
 	UASSERTEQ(auto, GET(v3s16(0, 1, 0)), v3s16(-2, 1, -2));
-	UASSERTEQ(auto, GET(v3s16(3, 3, 3)), v3s16(3, 3, 3));
+	UASSERTEQ(auto, GET(v3s16(3)), v3s16(3));
 
 	csize = v3s16(1);
 	UASSERTEQ(auto, GET(v3s16(1, 2, 3)), v3s16(1, 2, 3));

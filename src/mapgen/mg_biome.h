@@ -148,10 +148,10 @@ protected:
 
 struct BiomeParamsOriginal : public BiomeParams {
 	BiomeParamsOriginal() :
-		np_heat(50, 50, v3f(1000.0, 1000.0, 1000.0), 5349, 3, 0.5, 2.0),
-		np_humidity(50, 50, v3f(1000.0, 1000.0, 1000.0), 842, 3, 0.5, 2.0),
-		np_heat_blend(0, 1.5, v3f(8.0, 8.0, 8.0), 13, 2, 1.0, 2.0),
-		np_humidity_blend(0, 1.5, v3f(8.0, 8.0, 8.0), 90003, 2, 1.0, 2.0)
+		np_heat(50, 50, v3f(1000), 5349, 3, 0.5, 2.0),
+		np_humidity(50, 50, v3f(1000), 842, 3, 0.5, 2.0),
+		np_heat_blend(0, 1.5, v3f(8), 13, 2, 1.0, 2.0),
+		np_humidity_blend(0, 1.5, v3f(8), 90003, 2, 1.0, 2.0)
 	{
 	}
 

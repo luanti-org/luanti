@@ -990,7 +990,7 @@ int ModApiEnv::l_get_value_noise(lua_State *L)
 		params.seed    = luaL_checkint(L, 1);
 		params.octaves = luaL_checkint(L, 2);
 		params.persist = readParam<float>(L, 3);
-		params.spread  = v3f(1, 1, 1) * readParam<float>(L, 4);
+		params.spread  = v3f(readParam<float>(L, 4));
 	}
 
 	params.seed += (int)env->getServerMap().getSeed();

@@ -80,7 +80,7 @@ private:
 	void getSpecialTile(int index, TileSpec *tile_ret, bool apply_crack = false);
 
 // face drawing
-	void drawQuad(const TileSpec &tile, v3f *vertices, const v3s16 &normal = v3s16(0, 0, 0),
+	void drawQuad(const TileSpec &tile, v3f *vertices, const v3s16 &normal = v3s16(),
 		float vertical_tiling = 1.0);
 
 // cuboid drawing!

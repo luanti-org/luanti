@@ -180,7 +180,7 @@ public:
 			m_extrusion_meshes[resolution] =
 				createExtrusionMesh(resolution, resolution);
 		}
-		m_cube = createCubeMesh(v3f(1.0, 1.0, 1.0));
+		m_cube = createCubeMesh(v3f(1));
 	}
 	// Destructor
 	virtual ~ExtrusionMeshCache()

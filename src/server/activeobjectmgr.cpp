@@ -130,7 +130,7 @@ void ActiveObjectMgr::getObjectsInsideRadius(v3f pos, float radius,
 		std::function<bool(ServerActiveObject *obj)> include_obj_cb)
 {
 	float r_squared = radius * radius;
-	m_spatial_index.rangeQuery((pos - v3f(radius)).toArray(), (pos + v3f(radius)).toArray(), [&](auto objPos, u16 id) {
+	m_spatial_index.rangeQuery((pos - radius).toArray(), (pos + radius).toArray(), [&](auto objPos, u16 id) {
 		if (v3f(objPos).getDistanceFromSQ(pos) > r_squared)
 			return;
 

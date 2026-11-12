@@ -15,9 +15,9 @@ static bool matrix_equals(const matrix4 &a, const matrix4 &b, f32 tolerance = 0.
 	return a.equals(b, tolerance);
 }
 
-constexpr v3f x{1, 0, 0};
-constexpr v3f y{0, 1, 0};
-constexpr v3f z{0, 0, 1};
+constexpr v3f x = v3f(1, 0, 0);
+constexpr v3f y = v3f(0, 1, 0);
+constexpr v3f z = v3f(0, 0, 1);
 
 constexpr f32 QUARTER_TURN = core::PI / 2;
 
@@ -54,7 +54,7 @@ TEST_CASE("matrix4") {
 // This is in numeric.h rather than matrix4.h, but is conceptually a matrix4 method as well
 SECTION("setPitchYawRollRad") {
 	SECTION("rotation order is Y*X*Z (matrix notation)") {
-		v3f rot{1, 2, 3};
+		v3f rot = v3f(1, 2, 3);
 		matrix4 X, Y, Z, YXZ;
 		setPitchYawRollRad(X, {rot.X, 0, 0});
 		setPitchYawRollRad(Y, {0, rot.Y, 0});
@@ -73,7 +73,7 @@ SECTION("setPitchYawRollRad") {
 
 SECTION("setRotationRadians") {
 	SECTION("rotation order is Z*Y*X (matrix notation)") {
-		v3f rot{1, 2, 3};
+		v3f rot = v3f(1, 2, 3);
 		matrix4 X, Y, Z, ZYX;
 		X.setRotationRadians({rot.X, 0, 0});
 		Y.setRotationRadians({0, rot.Y, 0});
@@ -137,9 +137,9 @@ SECTION("getRotationRadians") {
 		test_rotation_radians({1.0f, 2.0f, 3.0f}, v3f(1));
 		// Test cases at or near gimbal lock. These cases fail when using a
 		// smaller tolerance.
-		test_rotation_radians({1.0f, QUARTER_TURN, 3.0f}, v3f(10.f));
-		test_rotation_radians({1.0f, QUARTER_TURN + 0.01001f, 3.0f}, v3f(10.f));
-		test_rotation_radians({1.0f, QUARTER_TURN + 0.00999f, 3.0f}, v3f(10.f));
+		test_rotation_radians({1.0f, QUARTER_TURN, 3.0f}, v3f(10));
+		test_rotation_radians({1.0f, QUARTER_TURN + 0.01001f, 3.0f}, v3f(10));
+		test_rotation_radians({1.0f, QUARTER_TURN + 0.00999f, 3.0f}, v3f(10));
 		Catch::Generators::RandomFloatingGenerator<f32> gen_angle(0.0f, 2 * core::PI, Catch::getSeed());
 		Catch::Generators::RandomFloatingGenerator<f32> gen_scale(0.1f, 10, Catch::getSeed());
 		auto draw = [](auto &gen) {

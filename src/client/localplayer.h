@@ -173,7 +173,7 @@ private:
 	v3f m_position;
 	v3s16 m_standing_node;
 
-	v3s16 m_sneak_node = v3s16(32767, 32767, 32767);
+	v3s16 m_sneak_node = v3s16(32767);
 	// Stores the top bounding box of m_sneak_node
 	aabb3f m_sneak_node_bb_top = aabb3f(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	// Whether the player is allowed to sneak
@@ -189,7 +189,7 @@ private:
 	bool m_need_to_get_new_sneak_node = true;
 	// Node below player, used to determine whether it has been removed,
 	// and its old type
-	v3s16 m_old_node_below = v3s16(32767, 32767, 32767);
+	v3s16 m_old_node_below = v3s16(32767);
 	std::string m_old_node_below_type = "air";
 	// ***** End of variables for temporary option *****
 
@@ -206,7 +206,7 @@ private:
 	bool m_autojump = false;
 	float m_autojump_time = 0.0f;
 
-	v3f m_added_velocity = v3f(0.0f); // in BS-space; cleared on each move()
+	v3f m_added_velocity; // in BS-space; cleared on each move()
 
 	GenericCAO *m_cao = nullptr;
 	Client *m_client;
