@@ -2,7 +2,6 @@
 name = "luanti-base64"
 version = "0.1.0"
 edition = "2021"
-license-file = "../../src/util/base64.cpp"
 description = "Base64 utilities for the Luanti engine migration"
 
 [lib]
