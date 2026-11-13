@@ -32,7 +32,7 @@
 #include "dimension2d.h"
 #include "EDriverTypes.h"
 #include "IEventReceiver.h"
-#include "irrTypes.h"
+#include "irr_types.h"
 #include "SIrrCreationParameters.h"
 
 //! Creates an Irrlicht device with the option to specify advanced parameters.

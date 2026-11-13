@@ -3,7 +3,7 @@
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "database.h"
-#include "irrlichttypes.h"
+#include <irr_types.h>
 
 
 /****************

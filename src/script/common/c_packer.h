@@ -6,7 +6,7 @@
 
 #include <string>
 #include <vector>
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "util/basic_macros.h"
 
 extern "C" {

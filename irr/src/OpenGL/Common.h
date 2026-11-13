@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "irrTypes.h"
+#include "irr_types.h"
 // even though we have mt_opengl.h our driver code still uses GL_* constants
 #if defined(_IRR_COMPILE_WITH_SDL_DEVICE_)
 #ifdef _IRR_USE_SDL3_

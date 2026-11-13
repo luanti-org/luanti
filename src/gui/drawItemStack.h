@@ -6,7 +6,7 @@
 
 #include <IGUIFont.h>
 #include <IVideoDriver.h>
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "irr_v3d.h"
 
 struct ItemStack;

@@ -273,6 +273,7 @@ set(IRRMESHLOADER
 add_library(IRRMESHOBJ OBJECT
 	CMeshSceneNode.h
 
+	IndexBuffer.cpp
 	WeightBuffer.cpp
 	SkinnedMesh.cpp
 	CMeshSceneNode.cpp

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "irrTypes.h"
+#include "irr_types.h"
 #include "irrString.h"
 #include "path.h"
 #include "ILogger.h"

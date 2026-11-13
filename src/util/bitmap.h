@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2021-2025 sfan5
 
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include <vector>
 #include <algorithm>
 #include <cassert>

@@ -20,18 +20,10 @@ CBillboardSceneNode::CBillboardSceneNode(ISceneNode *parent, ISceneManager *mgr,
 {
 	setSize(size);
 
+	Buffer->Indices->data = std::vector<u16>{0, 2, 1, 0, 3, 2};
+
 	auto &Vertices = Buffer->Vertices->Data;
-	auto &Indices = Buffer->Indices->Data;
-
 	Vertices.resize(4);
-	Indices.resize(6);
-
-	Indices[0] = 0;
-	Indices[1] = 2;
-	Indices[2] = 1;
-	Indices[3] = 0;
-	Indices[4] = 3;
-	Indices[5] = 2;
 
 	Vertices[0].TCoords.set(1.0f, 1.0f);
 	Vertices[0].Color = colorBottom;

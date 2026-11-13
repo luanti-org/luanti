@@ -6,11 +6,12 @@
 
 #include "IMeshBuffer.h"
 #include "CVertexBuffer.h"
-#include "CIndexBuffer.h"
+#include "IndexBuffer.h"
 #include "WeightBuffer.h"
 #include "IVertexBuffer.h"
 #include "S3DVertex.h"
 #include "vector3d.h"
+#include "irr_ptr.h"
 #include <cassert>
 
 namespace scene
@@ -27,15 +28,15 @@ struct SSkinMeshBuffer final : public IMeshBuffer
 		Vertices_Tangents = new SVertexBufferTangents();
 		Vertices_2TCoords = new SVertexBufferLightMap();
 		Vertices_Standard = new SVertexBuffer();
-		Indices = new SIndexBuffer();
+		Indices = new IndexBuffer();
 	}
 
 	//! Constructor for standard vertices
-	SSkinMeshBuffer(std::vector<video::S3DVertex> &&vertices, std::vector<u16> &&indices) :
+	SSkinMeshBuffer(std::vector<video::S3DVertex> &&vertices, irr_ptr<IndexBuffer> &&indices) :
 			SSkinMeshBuffer()
 	{
 		Vertices_Standard->Data = std::move(vertices);
-		Indices->Data = std::move(indices);
+		Indices->data = std::move(indices->data);
 	}
 
 	~SSkinMeshBuffer()
@@ -82,12 +83,12 @@ struct SSkinMeshBuffer final : public IMeshBuffer
 		}
 	}
 
-	const scene::IIndexBuffer *getIndexBuffer() const override
+	const scene::IndexBuffer *getIndexBuffer() const override
 	{
 		return Indices;
 	}
 
-	scene::IIndexBuffer *getIndexBuffer() override
+	scene::IndexBuffer *getIndexBuffer() override
 	{
 		return Indices;
 	}
@@ -259,7 +260,7 @@ public:
 	SVertexBufferTangents *Vertices_Tangents;
 	SVertexBufferLightMap *Vertices_2TCoords;
 	SVertexBuffer *Vertices_Standard;
-	SIndexBuffer *Indices;
+	IndexBuffer *Indices;
 
 	core::matrix4 Transformation;
 

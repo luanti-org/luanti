@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include "irr_ptr.h"
 #include "util/basic_macros.h"
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "irrString.h" // utf8_to_wide
 #include "threading/mutex_auto_lock.h"
 

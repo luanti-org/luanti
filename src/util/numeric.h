@@ -5,7 +5,7 @@
 #pragma once
 
 #include "constants.h"
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "irr_v2d.h"
 #include "irr_v3d.h"
 #include "irr_aabb3d.h"

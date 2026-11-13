@@ -2,7 +2,7 @@
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
-// This belongs in irrTypes.h next to IRR_DOWN_CAST,
+// This belongs in irr_types.h next to IRR_DOWN_CAST,
 // but that would pollute all include chains with <cstring> and <type_traits> which is no bueno
 
 #pragma once

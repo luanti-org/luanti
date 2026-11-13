@@ -6,9 +6,11 @@
 #include "SkinnedMesh.h"
 #include "IMeshLoader.h"
 #include "IReadFile.h"
-#include "irrTypes.h"
+#include "irr_types.h"
+#include "irr_ptr.h"
 #include "path.h"
 #include "S3DVertex.h"
+#include "IndexBuffer.h"
 
 #include "tiniergltf.hpp"
 
@@ -102,12 +104,9 @@ private:
 			, m_irr_model(SkinnedMesh::SourceFormat::GLTF)
 		{}
 
-		/* Gets indices for the given mesh/primitive.
-		 *
-		 * Values are return in Irrlicht winding order.
-		 */
-		std::optional<std::vector<u16>> getIndices(
-				const tiniergltf::MeshPrimitive &primitive) const;
+		irr_ptr<IndexBuffer> getIndices(
+				const tiniergltf::MeshPrimitive &primitive,
+				u32 n_verts) const;
 
 		std::optional<std::vector<video::S3DVertex>> getVertices(
 				const tiniergltf::MeshPrimitive &primitive) const;

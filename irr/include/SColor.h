@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "irrTypes.h"
+#include "irr_types.h"
 #include "irrMath.h"
 
 namespace video
