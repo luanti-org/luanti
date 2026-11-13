@@ -4558,7 +4558,7 @@ Rotations
 
 Luanti provides a proper helper class for working with 3D rotations.
 Using vectors of Euler angles instead is discouraged as it is error-prone.
-This class was added in Luanti 5.17.0.
+This class was added in Luanti 5.19.0.
 
 The arithmetic precision of rotation computations may change (improve) in the future.
 In the current implementation, rotations are internally represented as quaternions
@@ -4658,7 +4658,7 @@ Luanti uses 4x4 matrices to represent linear transformations of 3D vectors.
 For this, 3D vectors are embedded into 4D space, typically using
 [homogenous coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates)
 (for positions) or by adding a fourth component of zero (for directions).
-This class was added in Luanti 5.17.0.
+This class was added in Luanti 5.19.0.
 
 The matrices use column-major conventions.
 Vectors are treated as column vectors.
