@@ -154,7 +154,7 @@ void TestCollision::testAxisAlignedCollision()
 		{
 			aabb3f s(bx, by, bz, bx+2, by+2, bz+2);
 			aabb3f m(bx+2.3, by+2.29, bz+2.29, bx+4.2, by+4.2, bz+4.2);
-			v3f v(-1./3, -1./3, -1./3);
+			v3f v(-1./3);
 			f32 dtime = 1.0f;
 			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 0);
 			UASSERT(fabs(dtime - 0.9) < 0.001);
@@ -162,7 +162,7 @@ void TestCollision::testAxisAlignedCollision()
 		{
 			aabb3f s(bx, by, bz, bx+2, by+2, bz+2);
 			aabb3f m(bx+2.29, by+2.3, bz+2.29, bx+4.2, by+4.2, bz+4.2);
-			v3f v(-1./3, -1./3, -1./3);
+			v3f v(-1./3);
 			f32 dtime = 1.0f;
 			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 1);
 			UASSERT(fabs(dtime - 0.9) < 0.001);
@@ -170,7 +170,7 @@ void TestCollision::testAxisAlignedCollision()
 		{
 			aabb3f s(bx, by, bz, bx+2, by+2, bz+2);
 			aabb3f m(bx+2.29, by+2.29, bz+2.3, bx+4.2, by+4.2, bz+4.2);
-			v3f v(-1./3, -1./3, -1./3);
+			v3f v(-1./3);
 			f32 dtime = 1.0f;
 			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 2);
 			UASSERT(fabs(dtime - 0.9) < 0.001);
@@ -178,7 +178,7 @@ void TestCollision::testAxisAlignedCollision()
 		{
 			aabb3f s(bx, by, bz, bx+2, by+2, bz+2);
 			aabb3f m(bx-4.2, by-4.2, bz-4.2, bx-2.3, by-2.29, bz-2.29);
-			v3f v(1./7, 1./7, 1./7);
+			v3f v(1./7);
 			f32 dtime = 17.1f;
 			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 0);
 			UASSERT(fabs(dtime - 16.1) < 0.001);
@@ -186,7 +186,7 @@ void TestCollision::testAxisAlignedCollision()
 		{
 			aabb3f s(bx, by, bz, bx+2, by+2, bz+2);
 			aabb3f m(bx-4.2, by-4.2, bz-4.2, bx-2.29, by-2.3, bz-2.29);
-			v3f v(1./7, 1./7, 1./7);
+			v3f v(1./7);
 			f32 dtime = 17.0f;
 			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 1);
 			UASSERT(fabs(dtime - 16.1) < 0.001);
@@ -194,7 +194,7 @@ void TestCollision::testAxisAlignedCollision()
 		{
 			aabb3f s(bx, by, bz, bx+2, by+2, bz+2);
 			aabb3f m(bx-4.2, by-4.2, bz-4.2, bx-2.29, by-2.29, bz-2.3);
-			v3f v(1./7, 1./7, 1./7);
+			v3f v(1./7);
 			f32 dtime = 17.0f;
 			UASSERT(axisAlignedCollision(s, m, v, &dtime) == 2);
 			UASSERT(fabs(dtime - 16.1) < 0.001);
@@ -249,7 +249,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 		auto &ci = res.collisions.front();
 		UASSERTEQ(int, ci.type, COLLISION_NODE);
 		UASSERTEQ(int, ci.axis, COLLISION_AXIS_Y);
-		UASSERTEQ(v3s16, ci.node_p, v3s16(0, 0, 0));
+		UASSERTEQ(v3s16, ci.node_p, v3s16());
 	}
 
 	/* glitched into ground */
@@ -268,7 +268,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 		auto &ci = res.collisions.front();
 		UASSERTEQ(int, ci.type, COLLISION_NODE);
 		UASSERTEQ(int, ci.axis, COLLISION_AXIS_Y);
-		UASSERTEQ(v3s16, ci.node_p, v3s16(0, 0, 0));
+		UASSERTEQ(v3s16, ci.node_p, v3s16());
 	}
 
 	/* falling on ground */
@@ -290,7 +290,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 		auto &ci = res.collisions.front();
 		UASSERTEQ(int, ci.type, COLLISION_NODE);
 		UASSERTEQ(int, ci.axis, COLLISION_AXIS_Y);
-		UASSERTEQ(v3s16, ci.node_p, v3s16(0, 0, 0));
+		UASSERTEQ(v3s16, ci.node_p, v3s16());
 	}
 
 	/* jumping on ground */
@@ -315,7 +315,7 @@ void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 		auto &ci = res.collisions.front();
 		UASSERTEQ(int, ci.type, COLLISION_NODE);
 		UASSERTEQ(int, ci.axis, COLLISION_AXIS_Y);
-		UASSERTEQ(v3s16, ci.node_p, v3s16(0, 0, 0));
+		UASSERTEQ(v3s16, ci.node_p, v3s16());
 	}
 
 	/* moving over ground, no gravity */

@@ -45,14 +45,14 @@ void MeshMakeData::fillBlockDataBegin(const v3s16 &blockpos)
 
 	m_vmanip.clear();
 	// extra 1 block thick layer around the mesh
-	VoxelArea voxel_area(blockpos_nodes - v3s16(1,1,1) * MAP_BLOCKSIZE,
-			blockpos_nodes + v3s16(1,1,1) * (m_side_length + MAP_BLOCKSIZE) - v3s16(1,1,1));
+	VoxelArea voxel_area(blockpos_nodes - MAP_BLOCKSIZE,
+			blockpos_nodes + m_side_length + MAP_BLOCKSIZE - 1);
 	m_vmanip.addArea(voxel_area);
 }
 
 void MeshMakeData::fillSingleNode(MapNode data, MapNode padding)
 {
-	m_blockpos = {0, 0, 0};
+	m_blockpos = v3s16();
 
 	m_vmanip.clear();
 	// area around 0,0,0 so that this positon has neighbors
@@ -65,7 +65,7 @@ void MeshMakeData::fillSingleNode(MapNode data, MapNode padding)
 		m_vmanip.m_flags[i] &= ~VOXELFLAG_NO_DATA;
 	}
 
-	m_vmanip.setNodeNoEmerge({0, 0, 0}, data);
+	m_vmanip.setNodeNoEmerge(v3s16(), data);
 }
 
 void MeshMakeData::setCrack(int crack_level, v3s16 crack_pos)
@@ -276,7 +276,7 @@ void MapBlockBspTree::buildTree(const std::vector<MeshTriangle> *triangles, u16 
 static const MeshTriangle *findSplitCandidate(const std::vector<s32> &list, const std::vector<MeshTriangle> &triangles)
 {
 	// find the center of the cluster.
-	v3f center(0, 0, 0);
+	v3f center;
 	size_t n = list.size();
 	for (s32 i : list) {
 		center += triangles[i].centroid / n;
@@ -766,7 +766,7 @@ u8 get_solid_sides(MeshMakeData *data)
 	const NodeDefManager *ndef = data->m_nodedef;
 
 	const u16 side = data->m_side_length;
-	assert(data->m_vmanip.m_area.contains(blockpos_nodes + v3s16(side - 1)));
+	assert(data->m_vmanip.m_area.contains(blockpos_nodes + side - 1));
 
 	u8 result = 0x3F; // all sides solid
 	for (s16 i = 0; i < side && result != 0; i++)

@@ -52,7 +52,7 @@ struct ObjectProperties
 	std::string infotext;
 	// For dropped items, this contains the serialized item.
 	std::string wield_item;
-	v3f visual_size = v3f(1, 1, 1);
+	v3f visual_size = v3f(1);
 	video::SColor nametag_color = video::SColor(255, 255, 255, 255);
 	std::optional<video::SColor> nametag_bgcolor;
 	v2s16 spritediv = v2s16(1, 1);

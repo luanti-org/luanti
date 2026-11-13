@@ -151,7 +151,7 @@ bool ShadowRenderer::initialize()
 size_t ShadowRenderer::addDirectionalLight()
 {
 	m_light_list.emplace_back(m_shadow_map_texture_size,
-			v3f(0.f, 0.f, 0.f),
+			v3f(),
 			video::SColor(255, 255, 255, 255), m_shadow_map_max_distance);
 	return m_light_list.size() - 1;
 }

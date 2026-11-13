@@ -213,7 +213,7 @@ int ObjectRef::l_punch(lua_State *L)
 		dir = readParam<v3f>(L, 5, sao->getBasePosition() - puncher->getBasePosition());
 		dir.normalize();
 	} else {
-		dir = readParam<v3f>(L, 5, v3f(0));
+		dir = readParam<v3f>(L, 5, v3f());
 	}
 
 	u32 wear = sao->punch(dir, toolcap, puncher, time_from_last_punch);
@@ -417,7 +417,7 @@ int ObjectRef::l_set_animation(lua_State *L)
 	if (sao == nullptr)
 		return 0;
 
-	v2f frame_range   = readParam<v2f>(L,  2, v2f(1, 1));
+	v2f frame_range   = readParam<v2f>(L,  2, v2f(1));
 	float frame_speed = readParam<float>(L, 3, 15.0f);
 	float frame_blend = readParam<float>(L, 4, 0.0f);
 	bool frame_loop   = readParam<bool>(L, 5, true);
@@ -661,8 +661,8 @@ int ObjectRef::l_set_eye_offset(lua_State *L)
 	if (player == nullptr)
 		return 0;
 
-	v3f offset_first = readParam<v3f>(L, 2, v3f(0, 0, 0));
-	v3f offset_third = readParam<v3f>(L, 3, v3f(0, 0, 0));
+	v3f offset_first = readParam<v3f>(L, 2, v3f());
+	v3f offset_third = readParam<v3f>(L, 3, v3f());
 	v3f offset_third_front = readParam<v3f>(L, 4, offset_third);
 
 	// Prevent abuse of offset values (keep player always visible)
@@ -940,8 +940,8 @@ int ObjectRef::l_set_attach(lua_State *L)
 	bool force_visible;
 
 	bone          = readParam<std::string>(L, 3, "");
-	position      = readParam<v3f>(L, 4, v3f(0, 0, 0));
-	rotation      = readParam<v3f>(L, 5, v3f(0, 0, 0));
+	position      = readParam<v3f>(L, 4, v3f());
+	rotation      = readParam<v3f>(L, 5, v3f());
 	force_visible = readParam<bool>(L, 6, false);
 
 	sao->setAttachment(parent->getId(), bone, position, rotation, force_visible);

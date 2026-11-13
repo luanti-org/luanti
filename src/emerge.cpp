@@ -611,8 +611,7 @@ MapBlock *EmergeThread::finishGen(v3s16 pos, BlockMakeData *bmdata,
 	}
 
 	v3s16 minp = bmdata->blockpos_min * MAP_BLOCKSIZE;
-	v3s16 maxp = bmdata->blockpos_max * MAP_BLOCKSIZE +
-				 v3s16(1,1,1) * (MAP_BLOCKSIZE - 1);
+	v3s16 maxp = bmdata->blockpos_max * MAP_BLOCKSIZE + MAP_BLOCKSIZE - 1;
 
 	// Ignore map edit events, they will not need to be sent
 	// to anyone because the block hasn't been sent yet.

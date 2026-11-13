@@ -81,12 +81,12 @@ public:
 	 * which multiplying the line's vector gives a vector that ends
 	 * on the intersection of two nodes.
 	 */
-	v3f m_next_intersection_multi { 10000.0f, 10000.0f, 10000.0f };
+	v3f m_next_intersection_multi = v3f(10000);
 	/*!
 	 * Each component stores the smallest positive number, by which
 	 * m_next_intersection_multi's components can be increased.
 	 */
-	v3f m_intersection_multi_inc { 10000.0f, 10000.0f, 10000.0f };
+	v3f m_intersection_multi_inc = v3f(10000);
 	/*!
 	 * Direction of the line. Each component can be -1 or 1 (if a
 	 * component of the line's vector is 0, then there will be 1).

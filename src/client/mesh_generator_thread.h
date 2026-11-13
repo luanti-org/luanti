@@ -22,7 +22,7 @@ class Client;
 
 struct QueuedMeshUpdate
 {
-	v3s16 p = v3s16(-1337, -1337, -1337);
+	v3s16 p = v3s16(-1337);
 	int crack_level = -1;
 	v3s16 crack_pos;
 	MeshMakeData *data = nullptr; // This is generated in MeshUpdateQueue::pop()
@@ -118,7 +118,7 @@ private:
 
 struct MeshUpdateResult
 {
-	v3s16 p = v3s16(-1338, -1338, -1338);
+	v3s16 p = v3s16(-1338);
 	std::unique_ptr<MapBlockMesh> mesh;
 	u8 solid_sides;
 	std::vector<MapBlock*> map_blocks;

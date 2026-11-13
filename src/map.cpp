@@ -632,32 +632,32 @@ bool Map::determineAdditionalOcclusionCheck(const v3s16 pos_camera,
 
 	// straight
 	if (x_inside && y_inside) {
-		check = v3s16(pos_camera.X, pos_camera.Y, 0);
+		check = pos_camera * v3s16(1,1,0);
 		check.Z = CLOSEST_EDGE(pos_camera, block_bounds, Z);
 		return true;
 	} else if (y_inside && z_inside) {
-		check = v3s16(0, pos_camera.Y, pos_camera.Z);
+		check = pos_camera * v3s16(0,1,1);
 		check.X = CLOSEST_EDGE(pos_camera, block_bounds, X);
 		return true;
 	} else if (x_inside && z_inside) {
-		check = v3s16(pos_camera.X, 0, pos_camera.Z);
+		check = pos_camera * v3s16(1,0,1);
 		check.Y = CLOSEST_EDGE(pos_camera, block_bounds, Y);
 		return true;
 	}
 
 	// diagonal
 	if (x_inside) {
-		check = v3s16(pos_camera.X, 0, 0);
+		check = pos_camera * v3s16(1,0,0);
 		check.Y = CLOSEST_EDGE(pos_camera, block_bounds, Y);
 		check.Z = CLOSEST_EDGE(pos_camera, block_bounds, Z);
 		return true;
 	} else if (y_inside) {
-		check = v3s16(0, pos_camera.Y, 0);
+		check = pos_camera * v3s16(0,1,0);
 		check.X = CLOSEST_EDGE(pos_camera, block_bounds, X);
 		check.Z = CLOSEST_EDGE(pos_camera, block_bounds, Z);
 		return true;
 	} else if (z_inside) {
-		check = v3s16(0, 0, pos_camera.Z);
+		check = pos_camera * v3s16(0,0,1);
 		check.X = CLOSEST_EDGE(pos_camera, block_bounds, X);
 		check.Y = CLOSEST_EDGE(pos_camera, block_bounds, Y);
 		return true;
@@ -809,7 +809,7 @@ void MMVManip::initialEmerge(v3s16 p_min, v3s16 p_max, bool load_if_inexistent)
 	assert(m_map);
 
 	VoxelArea block_area_nodes
-			(p_min*MAP_BLOCKSIZE, (p_max+1)*MAP_BLOCKSIZE-v3s16(1,1,1));
+			(p_min*MAP_BLOCKSIZE, (p_max+1)*MAP_BLOCKSIZE-1);
 
 	u32 size_MB = block_area_nodes.getVolume() * sizeof(MapNode) / 1000000U;
 	if (size_MB >= 4) {
@@ -845,7 +845,7 @@ void MMVManip::initialEmerge(v3s16 p_min, v3s16 p_max, bool load_if_inexistent)
 				block->copyTo(*this);
 			} else {
 				// Mark area inexistent
-				VoxelArea a(p*MAP_BLOCKSIZE, (p+1)*MAP_BLOCKSIZE-v3s16(1,1,1));
+				VoxelArea a(p*MAP_BLOCKSIZE, (p+1)*MAP_BLOCKSIZE-1);
 				setFlags(a, VOXELFLAG_NO_DATA);
 			}
 		}
@@ -864,7 +864,7 @@ std::map<v3s16, bool> MMVManip::getCoveredBlocks() const
 	// Figure out if *any* node in this block has data according to m_flags
 	const auto &check_block = [this] (v3s16 bp) -> bool {
 		v3s16 pmin = bp * MAP_BLOCKSIZE;
-		v3s16 pmax = pmin + v3s16(MAP_BLOCKSIZE-1);
+		v3s16 pmax = pmin + MAP_BLOCKSIZE - 1;
 		for(s16 z=pmin.Z; z<=pmax.Z; z++)
 		for(s16 y=pmin.Y; y<=pmax.Y; y++)
 		for(s16 x=pmin.X; x<=pmax.X; x++) {
@@ -879,7 +879,7 @@ std::map<v3s16, bool> MMVManip::getCoveredBlocks() const
 
 	if (bpmin * MAP_BLOCKSIZE != m_area.MinEdge)
 		throw BaseException("MMVManip not block-aligned");
-	if ((bpmax+1) * MAP_BLOCKSIZE - v3s16(1) != m_area.MaxEdge)
+	if ((bpmax+1) * MAP_BLOCKSIZE - 1 != m_area.MaxEdge)
 		throw BaseException("MMVManip not block-aligned");
 
 	for(s16 z=bpmin.Z; z<=bpmax.Z; z++)

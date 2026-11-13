@@ -37,8 +37,8 @@ public:
 	virtual bool getCollisionBox(aabb3f *toset) const { return false; }
 	virtual bool getSelectionBox(aabb3f *toset) const { return false; }
 	virtual bool collideWithObjects() const { return false; }
-	virtual const v3f getPosition() const { return v3f(0.0f); } // in BS-space
-	virtual const v3f getVelocity() const { return v3f(0.0f); } // in BS-space
+	virtual const v3f getPosition() const { return v3f(); } // in BS-space
+	virtual const v3f getVelocity() const { return v3f(); } // in BS-space
 	virtual scene::ISceneNode *getSceneNode() const
 	{ return NULL; }
 	virtual scene::AnimatedMeshSceneNode *getAnimatedMeshSceneNode() const

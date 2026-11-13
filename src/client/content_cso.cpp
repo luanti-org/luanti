@@ -20,8 +20,7 @@ public:
 			ClientEnvironment *env, const v3f &pos, const v2f &size)
 	{
 		infostream<<"SmokePuffCSO: constructing"<<std::endl;
-		m_spritenode = smgr->addBillboardSceneNode(
-				NULL, v2f(1,1), pos, -1);
+		m_spritenode = smgr->addBillboardSceneNode(NULL, v2f(1), pos, -1);
 		video::ITexture *tex = env->getGameDef()->tsrc()->getTextureForMesh("smoke_puff.png");
 		m_spritenode->forEachMaterial([tex] (auto &mat) {
 			mat.TextureLayers[0].Texture = tex;

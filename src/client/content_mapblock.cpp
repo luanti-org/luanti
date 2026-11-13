@@ -141,7 +141,7 @@ void MapblockMeshGenerator::drawQuad(const TileSpec &tile, v3f *coords, const v3
 	const v2f tcoords[4] = {v2f(0.0, 0.0), v2f(1.0, 0.0),
 		v2f(1.0, vertical_tiling), v2f(0.0, vertical_tiling)};
 	video::S3DVertex vertices[4];
-	bool shade_face = !cur_node.f->light_source && (normal != v3s16(0, 0, 0));
+	bool shade_face = !cur_node.f->light_source && (normal != v3s16());
 	v3f normal2 = v3f::from(normal);
 	for (int j = 0; j < 4; j++) {
 		vertices[j].Pos = coords[j] + cur_node.origin;
@@ -1013,7 +1013,7 @@ void MapblockMeshGenerator::drawLiquidTop()
 			f32 dz = 0.5f * (cur_liquid.neighbors[z][x].level - cur_liquid.neighbors[z + 1][x].level +
 				cur_liquid.neighbors[z][x + 1].level - cur_liquid.neighbors[z + 1][x + 1].level);
 
-			vertices[i].Normal = v3f(dx, 1., dz).normalize();
+			vertices[i].Normal = v3f(dx, 1, dz).normalize();
 		}
 
 		vertices[i].Pos.Y += cur_liquid.corner_levels[w][u] * BS;
@@ -1057,7 +1057,7 @@ void MapblockMeshGenerator::drawLiquidTop()
 		vertex.TCoords += tcoord_translate;
 
 		if (!data->m_enable_water_reflections) {
-			vertex.Normal = v3f(dx, 1., dz).normalize();
+			vertex.Normal = v3f(dx, 1, dz).normalize();
 		}
 	}
 
@@ -1111,10 +1111,10 @@ void MapblockMeshGenerator::drawGlasslikeNode()
 			continue;
 		// Face at Z-
 		v3f vertices[4] = {
-			v3f(-BS / 2,  BS / 2, -BS / 2),
-			v3f( BS / 2,  BS / 2, -BS / 2),
-			v3f( BS / 2, -BS / 2, -BS / 2),
-			v3f(-BS / 2, -BS / 2, -BS / 2),
+			(BS / 2) * v3f(-1,  1, -1),
+			(BS / 2) * v3f( 1,  1, -1),
+			(BS / 2) * v3f( 1, -1, -1),
+			(BS / 2) * v3f(-1, -1, -1),
 		};
 
 		for (v3f &vertex : vertices) {
@@ -1300,10 +1300,10 @@ void MapblockMeshGenerator::drawTorchlikeNode()
 
 	float size = BS / 2 * cur_node.f->visual_scale;
 	v3f vertices[4] = {
-		v3f(-size,  size, 0),
-		v3f( size,  size, 0),
-		v3f( size, -size, 0),
-		v3f(-size, -size, 0),
+		size * v3f(-1,  1, 0),
+		size * v3f( 1,  1, 0),
+		size * v3f( 1, -1, 0),
+		size * v3f(-1, -1, 0),
 	};
 
 	for (v3f &vertex : vertices) {
@@ -1437,13 +1437,13 @@ void MapblockMeshGenerator::drawPlantlikeQuad(const TileSpec &tile,
 		}
 	}
 
-	drawQuad(tile, vertices, v3s16(0, 0, 0), cur_plant.plant_height);
+	drawQuad(tile, vertices, v3s16(), cur_plant.plant_height);
 }
 
 void MapblockMeshGenerator::drawPlantlike(const TileSpec &tile, bool is_rooted)
 {
 	cur_plant.draw_style = PLANT_STYLE_CROSS;
-	cur_plant.offset = v3f(0, 0, 0);
+	cur_plant.offset = v3f();
 	cur_plant.scale = BS / 2 * cur_node.f->visual_scale;
 	cur_plant.rotate_degree = 0.0f;
 	cur_plant.random_offset_Y = false;

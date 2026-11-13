@@ -135,20 +135,20 @@ MapgenV7::~MapgenV7()
 
 
 MapgenV7Params::MapgenV7Params():
-	np_terrain_base      (4.0,   70.0,  v3f(600,  600,  600),  82341, 5, 0.6,  2.0),
-	np_terrain_alt       (4.0,   25.0,  v3f(600,  600,  600),  5934,  5, 0.6,  2.0),
-	np_terrain_persist   (0.6,   0.1,   v3f(2000, 2000, 2000), 539,   3, 0.6,  2.0),
-	np_height_select     (-8.0,  16.0,  v3f(500,  500,  500),  4213,  6, 0.7,  2.0),
-	np_filler_depth      (0.0,   1.2,   v3f(150,  150,  150),  261,   3, 0.7,  2.0),
-	np_mount_height      (256.0, 112.0, v3f(1000, 1000, 1000), 72449, 3, 0.6,  2.0),
-	np_ridge_uwater      (0.0,   1.0,   v3f(1000, 1000, 1000), 85039, 5, 0.6,  2.0),
-	np_mountain          (-0.6,  1.0,   v3f(250,  350,  250),  5333,  5, 0.63, 2.0),
-	np_ridge             (0.0,   1.0,   v3f(100,  100,  100),  6467,  4, 0.75, 2.0),
+	np_terrain_base      (4.0,   70.0,  v3f(600),  82341, 5, 0.6,  2.0),
+	np_terrain_alt       (4.0,   25.0,  v3f(600),  5934,  5, 0.6,  2.0),
+	np_terrain_persist   (0.6,   0.1,   v3f(2000), 539,   3, 0.6,  2.0),
+	np_height_select     (-8.0,  16.0,  v3f(500),  4213,  6, 0.7,  2.0),
+	np_filler_depth      (0.0,   1.2,   v3f(150),  261,   3, 0.7,  2.0),
+	np_mount_height      (256.0, 112.0, v3f(1000), 72449, 3, 0.6,  2.0),
+	np_ridge_uwater      (0.0,   1.0,   v3f(1000), 85039, 5, 0.6,  2.0),
+	np_mountain          (-0.6,  1.0,   v3f(250),  5333,  5, 0.63, 2.0),
+	np_ridge             (0.0,   1.0,   v3f(100),  6467,  4, 0.75, 2.0),
 	np_floatland         (0.0,   0.7,   v3f(384,  96,   384),  1009,  4, 0.75, 1.618),
 	np_cavern            (0.0,   1.0,   v3f(384,  128,  384),  723,   5, 0.63, 2.0),
-	np_cave1             (0.0,   12.0,  v3f(61,   61,   61),   52534, 3, 0.5,  2.0),
-	np_cave2             (0.0,   12.0,  v3f(67,   67,   67),   10325, 3, 0.5,  2.0),
-	np_dungeons          (0.9,   0.5,   v3f(500,  500,  500),  0,     2, 0.8,  2.0)
+	np_cave1             (0.0,   12.0,  v3f(61),   52534, 3, 0.5,  2.0),
+	np_cave2             (0.0,   12.0,  v3f(67),   10325, 3, 0.5,  2.0),
+	np_dungeons          (0.9,   0.5,   v3f(500),  0,     2, 0.8,  2.0)
 {
 }
 
@@ -311,9 +311,9 @@ void MapgenV7::makeChunk(BlockMakeData *data)
 	v3s16 blockpos_min = data->blockpos_min;
 	v3s16 blockpos_max = data->blockpos_max;
 	node_min = blockpos_min * MAP_BLOCKSIZE;
-	node_max = (blockpos_max + v3s16(1, 1, 1)) * MAP_BLOCKSIZE - v3s16(1, 1, 1);
-	full_node_min = (blockpos_min - 1) * MAP_BLOCKSIZE;
-	full_node_max = (blockpos_max + 2) * MAP_BLOCKSIZE - v3s16(1, 1, 1);
+	node_max = (blockpos_max + 1) * MAP_BLOCKSIZE - 1;
+	full_node_min = node_min - MAP_BLOCKSIZE;
+	full_node_max = node_max + MAP_BLOCKSIZE;
 
 	blockseed = getBlockSeed2(full_node_min, seed);
 

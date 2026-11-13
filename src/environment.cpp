@@ -189,7 +189,7 @@ void Environment::continueRaycast(RaycastState *state, PointedThing *result_p)
 			u16 id = 0;
 			// If a node is found, this is the center of the
 			// first nodebox the shootline meets.
-			v3f found_boxcenter(0, 0, 0);
+			v3f found_boxcenter;
 
 			// Do calculations relative to the node center
 			// to translate the ray rather than the boxes

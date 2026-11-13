@@ -362,11 +362,11 @@ void Hud::drawLuaElements(const v3s16 &camera_offset, bool only_unhidable)
 	HudElement hotbar;
 	if (client->getProtoVersion() < 44 && (player->hud_flags & HUD_FLAG_MINIMAP_VISIBLE)) {
 		minimap = {HUD_ELEM_MINIMAP, v2f(1, 0), "", v2f(), "", 0 , 0, 0, v2f(-1, 1),
-				v2f(-10, 10), v3f(), v2f(256.0f, 256.0f), 0, "", 0};
+				v2f(-10, 10), v3f(), v2f(256), 0, "", 0};
 		elems.push_back(&minimap);
 	}
 	if (client->getProtoVersion() < 46 && player->hud_flags & HUD_FLAG_HOTBAR_VISIBLE) {
-		hotbar = {HUD_ELEM_HOTBAR, v2f(0.5, 1), "", v2f(), "", 0 , 0, 0, v2f(0, -1),
+		hotbar = {HUD_ELEM_HOTBAR, v2f(0.5, 1), "", v2f(), "", 0, 0, 0, v2f(0, -1),
 				v2f(0, -4), v3f(), v2f(), 0, "", 0};
 		elems.push_back(&hotbar);
 	}
@@ -952,7 +952,7 @@ void Hud::drawBlockBounds()
 
 	v3f cam_offset = intToFloat(client->getCamera()->getOffset(), BS);
 
-	v3f half_node = v3f(BS, BS, BS) / 2.0f;
+	v3f half_node = v3f(BS) / 2.0f;
 	v3f base_corner = intToFloat(block_pos * MAP_BLOCKSIZE, BS) - cam_offset - half_node;
 
 	s16 radius = m_block_bounds_mode == BLOCK_BOUNDS_NEAR ?

@@ -43,7 +43,7 @@ void MapgenSinglenode::makeChunk(BlockMakeData *data)
 
 	// Area of central chunk
 	v3s16 node_min = blockpos_min * MAP_BLOCKSIZE;
-	v3s16 node_max = (blockpos_max + v3s16(1, 1, 1)) * MAP_BLOCKSIZE - v3s16(1, 1, 1);
+	v3s16 node_max = (blockpos_max + 1) * MAP_BLOCKSIZE - 1;
 
 	blockseed = getBlockSeed2(node_min, data->seed);
 

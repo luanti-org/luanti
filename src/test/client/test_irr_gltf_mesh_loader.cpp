@@ -77,9 +77,9 @@ SECTION("minimal triangle") {
 		REQUIRE(mesh->getMeshBuffer(0)->getVertexCount() == 3);
 		auto vertices = static_cast<const video::S3DVertex *>(
 				mesh->getMeshBuffer(0)->getVertices());
-		CHECK(vertices[0].Pos == v3f {0.0f, 0.0f, 0.0f});
-		CHECK(vertices[1].Pos == v3f {1.0f, 0.0f, 0.0f});
-		CHECK(vertices[2].Pos == v3f {0.0f, 1.0f, 0.0f});
+		CHECK(vertices[0].Pos == v3f(0, 0, 0));
+		CHECK(vertices[1].Pos == v3f(1, 0, 0));
+		CHECK(vertices[2].Pos == v3f(0, 1, 0));
 	}
 
 	SECTION("vertex indices are correct") {
@@ -96,14 +96,14 @@ auto check_cube_vertices = [](auto *meshbuf) {
 	REQUIRE(meshbuf->getVertexCount() == 24);
 	auto vertices = static_cast<const video::S3DVertex *>(
 			meshbuf->getVertices());
-	CHECK(vertices[0].Pos == v3f{-1.0f, -1.0f, -1.0f});
-	CHECK(vertices[3].Pos == v3f{-1.0f, 1.0f, -1.0f});
-	CHECK(vertices[6].Pos == v3f{-1.0f, -1.0f, 1.0f});
-	CHECK(vertices[9].Pos == v3f{-1.0f, 1.0f, 1.0f});
-	CHECK(vertices[12].Pos == v3f{1.0f, -1.0f, -1.0f});
-	CHECK(vertices[15].Pos == v3f{1.0f, 1.0f, -1.0f});
-	CHECK(vertices[18].Pos == v3f{1.0f, -1.0f, 1.0f});
-	CHECK(vertices[21].Pos == v3f{1.0f, 1.0f, 1.0f});
+	CHECK(vertices[0].Pos == v3f(-1, -1, -1));
+	CHECK(vertices[3].Pos == v3f(-1,  1, -1));
+	CHECK(vertices[6].Pos == v3f(-1, -1,  1));
+	CHECK(vertices[9].Pos == v3f(-1,  1,  1));
+	CHECK(vertices[12].Pos == v3f(1, -1, -1));
+	CHECK(vertices[15].Pos == v3f(1,  1, -1));
+	CHECK(vertices[18].Pos == v3f(1, -1,  1));
+	CHECK(vertices[21].Pos == v3f(1,  1,  1));
 };
 
 SECTION("blender cube") {
@@ -118,7 +118,7 @@ SECTION("blender cube") {
 	REQUIRE(meshbuf);
 	SECTION("vertex coordinates are correct") {
 		core::matrix4 scale;
-		scale.setScale(v3f(10.0f));
+		scale.setScale(v3f(10));
 		REQUIRE(meshbuf->Transformation == scale);
 		check_cube_vertices(meshbuf);
 	}
@@ -137,12 +137,12 @@ SECTION("blender cube") {
 		REQUIRE(meshbuf->getVertexCount() == 24);
 		auto vertices = static_cast<const video::S3DVertex *>(
 				meshbuf->getVertices());
-		CHECK(vertices[0].Normal == v3f{-1.0f, 0.0f, 0.0f});
-		CHECK(vertices[1].Normal == v3f{0.0f, -1.0f, 0.0f});
-		CHECK(vertices[2].Normal == v3f{0.0f, 0.0f, -1.0f});
-		CHECK(vertices[3].Normal == v3f{-1.0f, 0.0f, 0.0f});
-		CHECK(vertices[6].Normal == v3f{-1.0f, 0.0f, 0.0f});
-		CHECK(vertices[23].Normal == v3f{1.0f, 0.0f, 0.0f});
+		CHECK(vertices[0].Normal == v3f{-1, 0, 0});
+		CHECK(vertices[1].Normal == v3f{0, -1, 0});
+		CHECK(vertices[2].Normal == v3f{0, 0, -1});
+		CHECK(vertices[3].Normal == v3f{-1, 0, 0});
+		CHECK(vertices[6].Normal == v3f{-1, 0, 0});
+		CHECK(vertices[23].Normal == v3f{1, 0, 0});
 
 	}
 
@@ -150,10 +150,10 @@ SECTION("blender cube") {
 		REQUIRE(meshbuf->getVertexCount() == 24);
 		auto vertices = static_cast<const video::S3DVertex *>(
 				meshbuf->getVertices());
-		CHECK(vertices[0].TCoords == v2f{0.375f, 1.0f});
+		CHECK(vertices[0].TCoords == v2f{0.375f, 1});
 		CHECK(vertices[1].TCoords == v2f{0.125f, 0.25f});
-		CHECK(vertices[2].TCoords == v2f{0.375f, 0.0f});
-		CHECK(vertices[3].TCoords == v2f{0.6250f, 1.0f});
+		CHECK(vertices[2].TCoords == v2f{0.375f, 0});
+		CHECK(vertices[3].TCoords == v2f{0.6250f, 1});
 		CHECK(vertices[6].TCoords == v2f{0.375f, 0.75f});
 	}
 }
@@ -168,7 +168,7 @@ SECTION("blender cube scaled") {
 
 	SECTION("Scaling is correct") {
 		core::matrix4 scale;
-		scale.setScale(v3f{150.0f, 1.0f, 21.5f});
+		scale.setScale(v3f{150, 1, 21.5f});
 		REQUIRE(meshbuf->Transformation == scale);
 		check_cube_vertices(meshbuf);
 	}
@@ -213,40 +213,40 @@ SECTION("snow man") {
 		{
 			auto vertices = static_cast<const video::S3DVertex *>(
 					mesh->getMeshBuffer(0)->getVertices());
-			CHECK(vertices[0].Pos == v3f{3.0f, 24.0f, -3.0f});
-			CHECK(vertices[3].Pos == v3f{3.0f, 18.0f, 3.0f});
-			CHECK(vertices[6].Pos == v3f{-3.0f, 18.0f, -3.0f});
-			CHECK(vertices[9].Pos == v3f{3.0f, 24.0f, 3.0f});
-			CHECK(vertices[12].Pos == v3f{3.0f, 18.0f, -3.0f});
-			CHECK(vertices[15].Pos == v3f{-3.0f, 18.0f, 3.0f});
-			CHECK(vertices[18].Pos == v3f{3.0f, 18.0f, -3.0f});
-			CHECK(vertices[21].Pos == v3f{3.0f, 18.0f, 3.0f});
+			CHECK(vertices[0].Pos ==   v3f(3,  24, -3));
+			CHECK(vertices[3].Pos ==   v3f(3,  18,  3));
+			CHECK(vertices[6].Pos ==  v3f(-3,  18, -3));
+			CHECK(vertices[9].Pos ==   v3f(3,  24,  3));
+			CHECK(vertices[12].Pos ==  v3f(3,  18, -3));
+			CHECK(vertices[15].Pos == v3f(-3,  18,  3));
+			CHECK(vertices[18].Pos ==  v3f(3,  18, -3));
+			CHECK(vertices[21].Pos ==  v3f(3,  18,  3));
 		}
 		{
 			REQUIRE(mesh->getMeshBuffer(1)->getVertexCount() == 24);
 			auto vertices = static_cast<const video::S3DVertex *>(
 					mesh->getMeshBuffer(1)->getVertices());
-			CHECK(vertices[2].Pos == v3f{5.0f, 10.0f, 5.0f});
-			CHECK(vertices[3].Pos == v3f{5.0f, 0.0f, 5.0f});
-			CHECK(vertices[7].Pos == v3f{-5.0f, 0.0f, 5.0f});
-			CHECK(vertices[8].Pos == v3f{5.0f, 10.0f, -5.0f});
-			CHECK(vertices[14].Pos == v3f{5.0f, 0.0f, 5.0f});
-			CHECK(vertices[16].Pos == v3f{5.0f, 10.0f, -5.0f});
-			CHECK(vertices[22].Pos == v3f{-5.0f, 10.0f, 5.0f});
-			CHECK(vertices[23].Pos == v3f{-5.0f, 0.0f, 5.0f});
+			CHECK(vertices[2].Pos ==   v3f(5, 10,  5));
+			CHECK(vertices[3].Pos ==   v3f(5,  0,  5));
+			CHECK(vertices[7].Pos ==  v3f(-5,  0,  5));
+			CHECK(vertices[8].Pos ==   v3f(5, 10, -5));
+			CHECK(vertices[14].Pos ==  v3f(5,  0,  5));
+			CHECK(vertices[16].Pos ==  v3f(5, 10, -5));
+			CHECK(vertices[22].Pos == v3f(-5, 10,  5));
+			CHECK(vertices[23].Pos == v3f(-5,  0,  5));
 		}
 		{
 			REQUIRE(mesh->getMeshBuffer(2)->getVertexCount() == 24);
 			auto vertices = static_cast<const video::S3DVertex *>(
 					mesh->getMeshBuffer(2)->getVertices());
-			CHECK(vertices[1].Pos == v3f{4.0f, 10.0f, -4.0f});
-			CHECK(vertices[2].Pos == v3f{4.0f, 18.0f, 4.0f});
-			CHECK(vertices[3].Pos == v3f{4.0f, 10.0f, 4.0f});
-			CHECK(vertices[10].Pos == v3f{-4.0f, 18.0f, -4.0f});
-			CHECK(vertices[11].Pos == v3f{-4.0f, 18.0f, 4.0f});
-			CHECK(vertices[12].Pos == v3f{4.0f, 10.0f, -4.0f});
-			CHECK(vertices[17].Pos == v3f{-4.0f, 18.0f, -4.0f});
-			CHECK(vertices[18].Pos == v3f{4.0f, 10.0f, -4.0f});
+			CHECK(vertices[1].Pos ==   v3f(4, 10, -4));
+			CHECK(vertices[2].Pos ==   v3f(4, 18,  4));
+			CHECK(vertices[3].Pos ==   v3f(4, 10,  4));
+			CHECK(vertices[10].Pos == v3f(-4, 18, -4));
+			CHECK(vertices[11].Pos == v3f(-4, 18,  4));
+			CHECK(vertices[12].Pos ==  v3f(4, 10, -4));
+			CHECK(vertices[17].Pos == v3f(-4, 18, -4));
+			CHECK(vertices[18].Pos ==  v3f(4, 10, -4));
 		}
 	}
 
@@ -286,34 +286,34 @@ SECTION("snow man") {
 			REQUIRE(mesh->getMeshBuffer(0)->getVertexCount() == 24);
 			auto vertices = static_cast<const video::S3DVertex *>(
 					mesh->getMeshBuffer(0)->getVertices());
-			CHECK(vertices[0].Normal == v3f{1.0f, 0.0f, -0.0f});
-			CHECK(vertices[1].Normal == v3f{1.0f, 0.0f, -0.0f});
-			CHECK(vertices[2].Normal == v3f{1.0f, 0.0f, -0.0f});
-			CHECK(vertices[3].Normal == v3f{1.0f, 0.0f, -0.0f});
-			CHECK(vertices[6].Normal == v3f{-1.0f, 0.0f, -0.0f});
-			CHECK(vertices[23].Normal == v3f{0.0f, 0.0f, 1.0f});
+			CHECK(vertices[0].Normal == v3f{1, 0, -0});
+			CHECK(vertices[1].Normal == v3f{1, 0, -0});
+			CHECK(vertices[2].Normal == v3f{1, 0, -0});
+			CHECK(vertices[3].Normal == v3f{1, 0, -0});
+			CHECK(vertices[6].Normal == v3f{-1, 0, -0});
+			CHECK(vertices[23].Normal == v3f{0, 0, 1});
 		}
 		{
 			REQUIRE(mesh->getMeshBuffer(1)->getVertexCount() == 24);
 			auto vertices = static_cast<const video::S3DVertex *>(
 					mesh->getMeshBuffer(1)->getVertices());
-			CHECK(vertices[0].Normal == v3f{1.0f, 0.0f, -0.0f});
-			CHECK(vertices[1].Normal == v3f{1.0f, 0.0f, -0.0f});
-			CHECK(vertices[3].Normal == v3f{1.0f, 0.0f, -0.0f});
-			CHECK(vertices[6].Normal == v3f{-1.0f, 0.0f, -0.0f});
-			CHECK(vertices[7].Normal == v3f{-1.0f, 0.0f, -0.0f});
-			CHECK(vertices[22].Normal == v3f{0.0f, 0.0f, 1.0f});
+			CHECK(vertices[0].Normal == v3f{1, 0, -0});
+			CHECK(vertices[1].Normal == v3f{1, 0, -0});
+			CHECK(vertices[3].Normal == v3f{1, 0, -0});
+			CHECK(vertices[6].Normal == v3f{-1, 0, -0});
+			CHECK(vertices[7].Normal == v3f{-1, 0, -0});
+			CHECK(vertices[22].Normal == v3f{0, 0, 1});
 		}
 		{
 			REQUIRE(mesh->getMeshBuffer(2)->getVertexCount() == 24);
 			auto vertices = static_cast<const video::S3DVertex *>(
 				mesh->getMeshBuffer(2)->getVertices());
-			CHECK(vertices[3].Normal == v3f{1.0f, 0.0f, -0.0f});
-			CHECK(vertices[4].Normal == v3f{-1.0f, 0.0f, -0.0f});
-			CHECK(vertices[5].Normal == v3f{-1.0f, 0.0f, -0.0f});
-			CHECK(vertices[10].Normal == v3f{0.0f, 1.0f, -0.0f});
-			CHECK(vertices[11].Normal == v3f{0.0f, 1.0f, -0.0f});
-			CHECK(vertices[19].Normal == v3f{0.0f, 0.0f, -1.0f});
+			CHECK(vertices[3].Normal == v3f{1, 0, -0});
+			CHECK(vertices[4].Normal == v3f{-1, 0, -0});
+			CHECK(vertices[5].Normal == v3f{-1, 0, -0});
+			CHECK(vertices[10].Normal == v3f{0, 1, -0});
+			CHECK(vertices[11].Normal == v3f{0, 1, -0});
+			CHECK(vertices[19].Normal == v3f{0, 0, -1});
 		}
 	}
 
@@ -335,9 +335,9 @@ SECTION("snow man") {
 			auto vertices = static_cast<const video::S3DVertex *>(
 					mesh->getMeshBuffer(1)->getVertices());
 
-			CHECK(vertices[1].TCoords == v2f{0.0f, 0.791666686f});
+			CHECK(vertices[1].TCoords == v2f{0, 0.791666686f});
 			CHECK(vertices[4].TCoords == v2f{0.208333328f, 0.791666686f});
-			CHECK(vertices[5].TCoords == v2f{0.0f, 0.791666686f});
+			CHECK(vertices[5].TCoords == v2f{0, 0.791666686f});
 			CHECK(vertices[6].TCoords == v2f{0.208333328f, 0.583333313f});
 			CHECK(vertices[12].TCoords == v2f{0.416666657f, 0.791666686f});
 			CHECK(vertices[15].TCoords == v2f{0.208333328f, 0.583333313f});
@@ -415,9 +415,9 @@ SECTION("simple skin")
 	{
 		{
 			const auto &transform = std::get<core::Transform>(parent->transform);
-			CHECK(transform.translation == v3f(0, 0, 0));
+			CHECK(transform.translation == v3f());
 			CHECK(transform.rotation == core::quaternion());
-			CHECK(transform.scale == v3f(1, 1, 1));
+			CHECK(transform.scale == v3f(1));
 			CHECK(parent->GlobalInversedMatrix == core::matrix4());
 		}
 		{
@@ -425,7 +425,7 @@ SECTION("simple skin")
 			const v3f translation(0, 1, 0);
 			CHECK(transform.translation == translation);
 			CHECK(transform.rotation == core::quaternion());
-			CHECK(transform.scale == v3f(1, 1, 1));
+			CHECK(transform.scale == v3f(1));
 			core::matrix4 inverseBindMatrix;
 			inverseBindMatrix.setTranslation(-translation);
 			CHECK(child->GlobalInversedMatrix == inverseBindMatrix);
@@ -438,7 +438,7 @@ SECTION("simple skin")
 		REQUIRE(buf);
 		const auto *buf_weights = buf->getWeights();
 		REQUIRE(buf_weights != nullptr);
-		std::vector<f32> weights(buf->getVertexCount(), 0.0f);
+		std::vector<f32> weights(buf->getVertexCount(), 0);
 		for (size_t i = 0; i < buf->getVertexCount(); ++i) {
 			const auto &joint_ids = buf_weights->getJointIds(i);
 			const auto it = std::find(joint_ids.begin(), joint_ids.end(), joint->JointID);
@@ -477,7 +477,7 @@ SECTION("simple skin")
 		});
 		const auto other_weights = weights(other);
 		CHECK(std::all_of(other_weights.begin(), other_weights.end(),
-				[](f32 weight) { return weight == 0.0f; }));
+				[](f32 weight) { return weight == 0; }));
 	}
 }
 

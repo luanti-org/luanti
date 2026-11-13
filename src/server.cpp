@@ -187,7 +187,7 @@ v3f ServerPlayingSound::getPos(ServerEnvironment *env, bool *pos_exists) const
 
 	switch (type ){
 	case SoundLocation::Local:
-		return v3f(0,0,0);
+		return v3f();
 	case SoundLocation::Position:
 		if (pos_exists)
 			*pos_exists = true;
@@ -195,17 +195,17 @@ v3f ServerPlayingSound::getPos(ServerEnvironment *env, bool *pos_exists) const
 	case SoundLocation::Object:
 		{
 			if (object == 0)
-				return v3f(0,0,0);
+				return v3f();
 			ServerActiveObject *sao = env->getActiveObject(object);
 			if (!sao)
-				return v3f(0,0,0);
+				return v3f();
 			if (pos_exists)
 				*pos_exists = true;
 			return sao->getBasePosition();
 		}
 	}
 
-	return v3f(0,0,0);
+	return v3f();
 }
 
 void Server::ShutdownState::reset()

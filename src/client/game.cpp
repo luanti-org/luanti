@@ -229,7 +229,7 @@ public:
 				float sun_brightness = core::clamp(107.143f * m_sky->getSunDirection().Y, 0.f, 1.f);
 				m_sun_brightness_pixel.set(&sun_brightness, services);
 			} else {
-				m_sun_position_pixel.set(v3f(0.f, 0.f, -1.f), services);
+				m_sun_position_pixel.set(v3f(0, 0, -1), services);
 
 				float sun_brightness = 0.f;
 				m_sun_brightness_pixel.set(&sun_brightness, services);
@@ -246,7 +246,7 @@ public:
 				float moon_brightness = core::clamp(107.143f * m_sky->getMoonDirection().Y, 0.f, 1.f);
 				m_moon_brightness_pixel.set(&moon_brightness, services);
 			} else {
-				m_moon_position_pixel.set(v3f(0.f, 0.f, -1.f), services);
+				m_moon_position_pixel.set(v3f(0, 0, -1), services);
 
 				float moon_brightness = 0.f;
 				m_moon_brightness_pixel.set(&moon_brightness, services);
@@ -2765,7 +2765,7 @@ void Game::processPlayerInteraction(f32 dtime, bool show_hud)
 
 		if (!runData.digging) {
 			client->interact(INTERACT_STOP_DIGGING, runData.pointed_old);
-			client->setCrack(-1, v3s16(0, 0, 0));
+			client->setCrack(-1, v3s16());
 			runData.dig_time = 0.0;
 		}
 	} else if (runData.dig_instantly && wasKeyReleased(KeyType::DIG)) {
@@ -2873,8 +2873,8 @@ PointedThing Game::updatePointedThing(
 
 		f32 d = 0.002f * BS;
 		for (aabb3f box : boxes) {
-			box.MinEdge -= v3f(d, d, d);
-			box.MaxEdge += v3f(d, d, d);
+			box.MinEdge -= d;
+			box.MaxEdge += d;
 			selectionboxes->push_back(box);
 		}
 		hud->setSelectionPos(intToFloat(result.node_undersurface, BS),
@@ -3343,7 +3343,7 @@ void Game::handleDigging(const PointedThing &pointed, const v3s16 &nodepos,
 		client->setCrack(runData.dig_index, nodepos);
 	} else {
 		infostream << "Digging completed" << std::endl;
-		client->setCrack(-1, v3s16(0, 0, 0));
+		client->setCrack(-1, v3s16());
 
 		runData.dig_time = 0;
 		runData.digging = false;
