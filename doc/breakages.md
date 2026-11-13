@@ -34,3 +34,4 @@ This list is largely advisory and items may be reevaluated once the time comes.
    * should take `itemstack, dropper, count` and return the new itemstack
    * https://github.com/luanti-org/luanti/pull/17024 for context
 * use consistent fields for `get_all_craft_recipes` and `get_craft_result`
+* `physical = false` should disable local player physics (it's currently ignored)

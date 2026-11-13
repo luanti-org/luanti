@@ -16,6 +16,7 @@ class GenericCAO;
 class Map;
 struct CollisionInfo;
 struct CollisionMoveResult;
+struct CollisionParams;
 
 struct PlayerSettings
 {
@@ -160,6 +161,7 @@ public:
 	inline PlayerSettings &getPlayerSettings() { return m_player_settings; }
 
 private:
+	CollisionParams getCollisionParams() const;
 	void accelerate(const v3f &target_speed, const f32 max_increase_H,
 		const f32 max_increase_V, const bool use_pitch);
 	bool updateSneakNode(Map *map, const v3f &position, const v3f &sneak_max);

@@ -10,6 +10,7 @@
 #include "metadata.h"
 #include "network/networkprotocol.h"
 #include "unit_sao.h"
+#include "collision.h"
 #include "util/numeric.h"
 #include <set>
 
@@ -167,9 +168,10 @@ public:
 	inline void setNewPlayer() { m_is_new_player = true; }
 	inline bool isNewPlayer()  { return m_is_new_player; }
 
+	u32 getCollisionGroup() const override { return COLLISION_BIT_PLAYER; }
+	u32 getCollisionMask() const override { return U32_MAX; }
 	bool getCollisionBox(aabb3f *toset) const override;
 	bool getSelectionBox(aabb3f *toset) const override;
-	bool collideWithObjects() const override { return true; }
 
 	void finalize(RemotePlayer *player, const std::set<std::string> &privs);
 
