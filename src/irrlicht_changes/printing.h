@@ -25,7 +25,7 @@ namespace core {
 
 	inline std::ostream& operator<<(std::ostream& os, const quaternion& q)
 	{
-		os << "(" << q.X << "\t" << q.Y << "\t" << q.Z << "\t" << q.W << ")";
+		os << "(" << q.X << ", " << q.Y << ", " << q.Z << ", " << q.W << ")";
 		return os;
 	}
 

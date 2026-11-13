@@ -8,14 +8,17 @@
 #include "irrMath.h"
 #include "matrix4.h"
 #include "vector3d.h"
+
 #include <cmath>
+#include <algorithm>
 
 namespace core
 {
 
 //! Quaternion class for representing rotations.
-/** It provides cheap combinations and avoids gimbal locks.
-Also useful for interpolations. */
+/** It provides cheap composition and avoids gimbal locks.
+Also useful for interpolations.
+See https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation. */
 class quaternion
 {
 public:
@@ -60,8 +63,11 @@ public:
 	//! Matrix assignment operator
 	inline quaternion &operator=(const matrix4 &other);
 
-	//! Add operator
+	//! Component-wise addition
 	quaternion operator+(const quaternion &other) const;
+
+	//! Component-wise subtraction
+	quaternion operator-(const quaternion &other) const;
 
 	//! Quaternion multiplication (composition of rotations).
 	//! @note The returned quaternion applies `this` first, `other` second.
@@ -85,10 +91,20 @@ public:
 	//! Calculates the dot product
 	inline f32 dotProduct(const quaternion &other) const;
 
-	//! Calculates the (unsigned) angle between two quaternions
+	//! Euclidean norm of the 4d vector
+	inline f32 norm() const
+	{
+		return sqrtf(dotProduct(*this));
+	}
+
+	//! Calculates the (unsigned) angle between two normalized quaternions
 	inline f32 angleTo(const quaternion &other) const
 	{
-		return acosf(std::abs(dotProduct(other)));
+		// Kahan's method
+		const f32 a = (*this - other).norm();
+		const f32 b = (*this + other).norm();
+		// Take the smaller of the two possible angles (unsigned angle)
+		return 4.0f * atan2f(std::min(a, b), std::max(a, b));
 	}
 
 	//! Sets new quaternion
@@ -125,7 +141,7 @@ public:
 		Rotate about a center point
 		shortcut for
 		core::quaternion q;
-		q.rotationFromTo ( vin[i].Normal, forward );
+		q.mapsTo ( vin[i].Normal, forward );
 		q.getMatrixCenter ( lookat, center, newPos );
 
 		core::matrix4 m2;
@@ -284,7 +300,7 @@ inline quaternion quaternion::mapsTo(
 	vector3df axis = dir_from.crossProduct(dir_to);
 	f32 dot = dir_from.dotProduct(dir_to);
 	f32 angle = 0;
-	if (core::iszero(axis.getLength())) { // dirs are (almost) parallel
+	if (axis.getLength() < ROUNDING_ERROR_f32 * (dir_from.getLength() * dir_to.getLength())) { // dirs are (almost) parallel
 		// Choose any nonzero orthogonal vector as axis.
 		const vector3df &v = dir_from;
 		axis = std::abs(v.X) > std::abs(v.Y)
@@ -337,10 +353,14 @@ inline quaternion &quaternion::operator*=(const quaternion &other)
 	return (*this = other * (*this));
 }
 
-// add operator
 inline quaternion quaternion::operator+(const quaternion &b) const
 {
 	return quaternion(X + b.X, Y + b.Y, Z + b.Z, W + b.W);
+}
+
+inline quaternion quaternion::operator-(const quaternion &b) const
+{
+	return quaternion(X - b.X, Y - b.Y, Z - b.Z, W - b.W);
 }
 
 // Creates a matrix from this quaternion
@@ -420,7 +440,7 @@ inline void quaternion::getMatrix(matrix4 &dest,
 	Rotate about a center point
 	shortcut for
 	core::quaternion q;
-	q.rotationFromTo(vin[i].Normal, forward);
+	q.mapsTo(vin[i].Normal, forward);
 	q.getMatrix(lookat, center);
 
 	core::matrix4 m2;

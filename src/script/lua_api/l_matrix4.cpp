@@ -114,7 +114,8 @@ int LuaMatrix4::l_trs(lua_State *L)
 		else
 			scale = readParamRaw<v3f>(L, 3);
 	}
-	// FIXME core::Transform should use left-handed rotation conventions
+	// FIXME core::Transform should use left-handed rotation conventions.
+	// When that happens, we can get rid of the makeInverse() here.
 	core::Transform trs{translation, rotation.makeInverse(), scale};
 	core::matrix4 &matrix = create(L);
 	matrix = trs.buildMatrix();

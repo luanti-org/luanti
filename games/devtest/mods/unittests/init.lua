@@ -100,7 +100,7 @@ function unittests.run_one(idx, counters, out_callback, player, pos)
 		core.log("info", "[unittest] running " .. def.name)
 		local err
 		xpcall(function() return def.func(player, pos) end, function(e)
-			err = e .. "\n" .. debug.traceback()
+			err = debug.traceback(tostring(e))
 		end)
 		done(err)
 		out_callback(true)

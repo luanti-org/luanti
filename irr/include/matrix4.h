@@ -72,7 +72,7 @@ public:
 	CMatrix4(const CMatrix4<T> &other, eConstructor constructor = EM4CONST_COPY);
 
 	//! Constructs a matrix that reflects vectors
-    //! at the plane with the given plane normal vector (which need not be normalized).
+	//! at the plane with the given plane normal vector (which need not be normalized).
 	[[nodiscard]] static CMatrix4<T> reflection(const vector3d<T> &normal);
 
 	//! Simple operator for directly accessing every element of the matrix.

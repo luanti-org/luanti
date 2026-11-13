@@ -57,9 +57,9 @@ int LuaRotation::l_axis_angle(lua_State *L)
 	v3f axis = readParam<v3f>(L, 1);
 	f32 angle = readParam<f32>(L, 2);
 	core::quaternion quaternion;
-	axis.normalize();
-	if (!std::isfinite(axis.X))
+	if (axis.getLengthSQ() == 0)
 		throw LuaError("axis must be nonzero");
+	axis.normalize();
 	quaternion.fromAngleAxis(angle, axis);
 	create(L, quaternion);
 	return 1;
@@ -179,7 +179,9 @@ int LuaRotation::l_compose(lua_State *L)
 
 int LuaRotation::l_invert(lua_State *L)
 {
-	create(L, check(L, 1).makeInverse());
+	core::quaternion inv = check(L, 1);
+	inv.makeInverse();
+	create(L, inv);
 	return 1;
 }
 

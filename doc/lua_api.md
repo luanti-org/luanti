@@ -4493,14 +4493,12 @@ vectors are written like this: `(x, y, z)`:
     * Returns `v.x, v.y, v.z`.
 * `vector.sort(v1, v2)`:
     * Returns in order minp, maxp vectors of the cuboid defined by `v1`, `v2`.
-* `vector.angle(v1, v2)`:
-    * Returns the angle between `v1` and `v2` in radians.
-    * The result is in the range `[0, pi]`.
 * `vector.cross(v1, v2)`:
     * Returns the cross product `v1` x `v2`.
     * Signedness: `+X` x `+Y` is `+Z`, **not** `-Z`.
 * `vector.angle(v1, v2)`:
     * Returns the unsigned angle between `v1` and `v2` in radians.
+    * The result is in the range `[0, pi]`.
     * See also `Rotation.axis_angle`.
 * `vector.offset(v, x, y, z)`:
     * Returns the sum of the vectors `v` and `(x, y, z)`.
@@ -4644,7 +4642,7 @@ Methods
 * `from:slerp(to, time)`: Returns an interpolated rotation.
   * Uses shortest path spherical linear interpolation.
   * `time = 0` is all `from`, `time = 1` is all `to`.
-* `rot:angle_to(other)`: Returns the absolute angle between two quaternions.
+* `rot:angle_to(other)`: Returns the absolute angle between two rotations.
   * Useful to measure similarity.
 
 Rotations implement `__tostring`. The format is only intended for human-readability,
@@ -4698,9 +4696,9 @@ Constructors
 * `Matrix4.compose(...)`: Returns the composition of the given matrices.
   * `Matrix4.compose()` is an alias for `Matrix4.identity()`.
   * `Matrix4.compose(mat)` copies the matrix.
-  * `Matrix4.compose(...)` for at least two rotations composes the given matrices
-    in right-to-left order. This means that `Matrix4.compose(second, first):apply(v)`
-    is equivalent to `second:apply(first:apply(v))`:
+  * `Matrix4.compose(...)` for at least two matrices composes the given matrices
+    in right-to-left order. This means that `Matrix4.compose(second, first):transform_4d(x, y, z, w)`
+    is equivalent to `second:transform_4d(first:transform_4d(x, y, z, w))`:
     The composed matrix first applies `first`, then `second` to a vector.
 
 Container utilities:
