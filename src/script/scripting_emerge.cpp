@@ -21,6 +21,8 @@
 #include "lua_api/l_vmanip.h"
 #include "lua_api/l_settings.h"
 #include "lua_api/l_ipc.h"
+#include "lua_api/l_rotation.h"
+#include "lua_api/l_matrix4.h"
 
 extern "C" {
 #include <lualib.h>
@@ -65,6 +67,8 @@ void EmergeScripting::InitializeModApi(lua_State *L, int top)
 	LuaPseudoRandom::Register(L);
 	LuaPcgRandom::Register(L);
 	LuaSecureRandom::Register(L);
+	LuaRotation::Register(L);
+	LuaMatrix4::Register(L);
 	LuaVoxelManip::Register(L);
 	LuaSettings::Register(L);
 
