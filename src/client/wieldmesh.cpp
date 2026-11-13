@@ -442,10 +442,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 	}
 
 	scene::SMesh *mesh = nullptr;
-
-	// Color-related
 	m_buffer_info.clear();
-	m_base_color = item_visuals->getItemstackColor(item, client);
 
 	const ItemImageDef wield_image = item.getWieldImage(idef);
 	const ItemImageDef wield_overlay = item.getWieldOverlay(idef);
@@ -453,7 +450,7 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 
 	// If wield_image needs to be checked and is defined, it overrides everything else
 	if (!wield_image.name.empty() && check_wield_image) {
-		video::ITexture *wield_texture;
+		video::ITexture *wield_texture = nullptr;
 		video::ITexture *wield_overlay_texture = nullptr;
 
 		int frame_length_ms;
@@ -461,10 +458,10 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 				wield_image.name, wield_image.animation, frame_length_ms);
 
 		auto &l0 = m_buffer_info.emplace_back(0);
-		if (m_wield_image_frames.empty()) {
-			wield_texture = tsrc->getTexture(wield_image.name);
-		} else {
+		if (m_wield_image_frames.size() > 0) {
 			wield_texture = m_wield_image_frames[0].texture;
+		}
+		if (m_wield_image_frames.size() > 1) {
 			l0.animation_info = std::make_unique<AnimationInfo>(
 				&m_wield_image_frames, frame_length_ms);
 		}
@@ -477,29 +474,23 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 
 			// overlay is white, if present
 			auto &l1 = m_buffer_info.emplace_back(1, true, video::SColor(0xFFFFFFFF));
-			if (m_wield_overlay_frames.empty()) {
-				wield_overlay_texture = tsrc->getTexture(wield_overlay.name);
-			} else {
+			if (m_wield_overlay_frames.size() > 0) {
 				wield_overlay_texture = m_wield_overlay_frames[0].texture;
+			}
+			if (m_wield_overlay_frames.size() > 1) {
 				l1.animation_info = std::make_unique<AnimationInfo>(
 					&m_wield_overlay_frames, overlay_frame_length_ms);
 			}
 		}
 
 		setExtruded(wield_texture, wield_overlay_texture, wield_scale);
-		// initialize the color
-		setColor(video::SColor(0xFFFFFFFF));
-		return;
-	}
 
-	// Handle nodes
-	if (def.type == ITEM_NODE) {
+	} else if (def.type == ITEM_NODE) { // Handle nodes
 		switch (f.drawtype) {
 		case NDT_AIRLIKE:
 			setExtruded(tsrc->getTexture("no_texture_airlike.png"), nullptr, v3f(1));
 			m_buffer_info.emplace_back(0);
-			setColor(video::SColor(0xFFFFFFFF));
-			return;
+			break;
 		case NDT_SIGNLIKE:
 		case NDT_TORCHLIKE:
 		case NDT_RAILLIKE:
@@ -528,27 +519,24 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 			changeToMesh(mesh);
 			mesh->drop();
 			m_meshnode->setScale(
-				wield_scale * WIELD_SCALE_FACTOR
-				/ (BS * f.visual_scale));
+					wield_scale * WIELD_SCALE_FACTOR / (BS * f.visual_scale));
 			break;
 		}
 		}
 
-		u32 material_count = m_meshnode->getMaterialCount();
-		for (u32 i = 0; i < material_count; ++i) {
-			video::SMaterial &material = m_meshnode->getMaterial(i);
-			// apply node's alpha mode
-			getAdHocNodeShader(material, shdsrc, "object_shader", f.alpha,
-				m_buffer_info[i].layer == 1);
-			material.forEachTexture([this] (auto &tex) {
-				setMaterialFilters(tex, m_bilinear_filter, m_trilinear_filter,
-						m_anisotropic_filter);
-			});
+		if (f.drawtype != NDT_AIRLIKE) {
+			u32 material_count = m_meshnode->getMaterialCount();
+			for (u32 i = 0; i < material_count; ++i) {
+				video::SMaterial &material = m_meshnode->getMaterial(i);
+				// apply node's alpha mode
+				getAdHocNodeShader(material, shdsrc, "object_shader", f.alpha,
+					m_buffer_info[i].layer == 1);
+				material.forEachTexture([this] (auto &tex) {
+					setMaterialFilters(tex, m_bilinear_filter, m_trilinear_filter,
+							m_anisotropic_filter);
+				});
+			}
 		}
-
-		// initialize the color
-		setColor(video::SColor(0xFFFFFFFF));
-		return;
 	} else {
 		video::ITexture* inventory_texture = item_visuals->getInventoryTexture(item, client);
 		if (inventory_texture) {
@@ -563,14 +551,10 @@ void WieldMeshSceneNode::setItem(const ItemStack &item, Client *client, bool che
 		// overlay is white, if present
 		m_buffer_info.emplace_back(1, item_visuals->getInventoryOverlayAnimation(item, client),
 				true, video::SColor(0xFFFFFFFF));
-
-		// initialize the color
-		setColor(video::SColor(0xFFFFFFFF));
-		return;
 	}
 
-	// no wield mesh found
-	changeToMesh(nullptr);
+	m_base_color = item_visuals->getItemstackColor(item, client);
+	setColor(video::SColor(0xFFFFFFFF));
 }
 
 void WieldMeshSceneNode::setColor(video::SColor c)
