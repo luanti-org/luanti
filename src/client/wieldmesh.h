@@ -162,7 +162,7 @@ private:
 	 */
 	video::SColor m_base_color;
 
-	// Empty if wield image is empty or not animated
+	// Empty if wield image is empty
 	// Owned by this class to get AnimationInfo for the mesh buffer info
 	std::vector<FrameSpec> m_wield_image_frames;
 	std::vector<FrameSpec> m_wield_overlay_frames;

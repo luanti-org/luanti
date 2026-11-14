@@ -1303,6 +1303,9 @@ void GenericCAO::updateTextureAnim()
 				buf->getMaterial().setTexture(0, frame.texture);
 			}
 		}
+	} else if (m_wield_meshnode) {
+		m_wield_meshnode->setLightColorAndAnimation(
+				m_last_light, m_client->getAnimationTime());
 	}
 }
 
