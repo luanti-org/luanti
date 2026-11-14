@@ -12932,6 +12932,10 @@ Passed to `HTTPApiTable.fetch` callback. Returned by
 
     data = "",
     -- Response body
+
+    error = "",
+    -- Error message. This field is only present if `not succeeded`.
+    -- (since Luanti 5.19.0)
 }
 ```
 

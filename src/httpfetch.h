@@ -89,7 +89,10 @@ struct HTTPFetchResult
 	bool succeeded = false;
 	bool timeout = false;
 	long response_code = 0;
+	/// Response data
 	std::string data;
+	/// Error message (only if succeeded == false)
+	std::string error;
 	// The caller and request_id from the corresponding HTTPFetchRequest.
 	u64 caller = HTTPFETCH_DISCARD;
 	u64 request_id = 0;

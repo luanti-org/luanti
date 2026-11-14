@@ -421,12 +421,17 @@ const HTTPFetchResult * HTTPFetchOngoing::complete(CURLcode res)
 		result.response_code = 0;
 	}
 
+	if (res != CURLE_OK) {
+		const char *s = curl_easy_strerror(res);
+		result.error = (s && s[0]) ? s : "(null)"; // ensure not empty (API promise)
+	}
+
 	if (!request.quiet) {
 		if (res != CURLE_OK) {
 			errorstream << "HTTPFetch for " << request.url << " failed: "
-				<< curl_easy_strerror(res);
+				<< result.error;
 			if (result.timeout)
-				errorstream << " (timeout = " << request.timeout << "ms)" << std::endl;
+				errorstream << " (timeout = " << request.timeout << "ms)";
 			errorstream << std::endl;
 		} else if (result.response_code >= 400) {
 			errorstream << "HTTPFetch for " << request.url
