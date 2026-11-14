@@ -4577,8 +4577,9 @@ Constructors
   * `angle` is in radians
   * Example: `Rotation.axis_angle(vector.new(1, 0, 1), math.pi/2)`
     is a quarter-turn around the bisector between the X and Z axes.
-  * Let `v1`, `v2` be nonzero direction vectors.
-    It holds that `Rotation.axis_angle(v1:cross(v2), v1:angle(v2)):apply(v1)` is (approximately) `v2`.
+  * Let `v1`, `v2` be nonzero vectors. Then it holds that
+    `Rotation.axis_angle(v1:cross(v2), v1:angle(v2)):apply(v1):normalize()`
+    is (approximately) `v2:normalize()`.
     A shorthand for this is provided as `Rotation.maps_to(v1, v2)`.
   * There are shorthands for rotations around the cardinal axes:
     * `Rotation.x(pitch)`
@@ -4597,11 +4598,12 @@ Constructors
 * `Rotation.maps_to(dir_from, dir_to)`:
   Construct a rotation that maps `dir_from` to `dir_to`.
   * `dir_from` and `dir_to` are nonzero direction vectors.
-  * The given rotation only rotates in the plane spanned by the two vectors.
-    If `dir_from` and `dir_to` are parallel, any plane containing the spanned line may be chosen.
+  * The given rotation only rotates in the plane spanned by the two vectors,
+    taking a shortest path. If `dir_from` and `dir_to` are parallel,
+    any plane containing the spanned line may be chosen.
     Otherwise, the returned rotation is uniquely defined.
 * `Rotation.compose(...)`: Returns the composition of the given rotations.
-  * `Rotation.compose()` is an alias for `Rotation.identity()`.
+  * `Rotation.compose()` is equivalent to `Rotation.identity()`.
   * `Rotation.compose(rot)` copies the rotation.
   * `Rotation.compose(...)` for at least two rotations composes the given rotations
     in right-to-left order. This means that `Rotation.compose(second, first):apply(v)`
@@ -4694,7 +4696,7 @@ Constructors
 * `Matrix4.reflection(normal)`: Constructs a matrix that reflects vectors
   at the plane with the given plane normal vector (which need not be normalized).
 * `Matrix4.compose(...)`: Returns the composition of the given matrices.
-  * `Matrix4.compose()` is an alias for `Matrix4.identity()`.
+  * `Matrix4.compose()` is equivalent to `Matrix4.identity()`.
   * `Matrix4.compose(mat)` copies the matrix.
   * `Matrix4.compose(...)` for at least two matrices composes the given matrices
     in right-to-left order. This means that `Matrix4.compose(second, first):transform_4d(x, y, z, w)`

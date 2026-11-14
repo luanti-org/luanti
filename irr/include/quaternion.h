@@ -40,7 +40,7 @@ public:
 	quaternion(const matrix4 &mat);
 
 	//! Constructor which maps dir_from to dir_to by rotating
-	//! in the plane spanned by the two vectors.
+	//! in the plane spanned by the two vectors, along a shortest path.
 	//! @note if the vectors lie in a common line, any plane containing the line may be chosen.
 	static quaternion mapsTo(
 		const vector3df &dir_from, const vector3df &dir_to);
