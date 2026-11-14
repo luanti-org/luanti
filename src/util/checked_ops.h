@@ -292,12 +292,9 @@ constexpr bool sub_overflows(T x, T y) {
 
 // because std::abs is not constexpr until C++23
 template<typename T>
-static constexpr T abs(T t) {
-	if constexpr (std::is_unsigned_v<T>) {
-		return t;
-	} else {
-		return t >= 0? t: -t;
-	}
+static constexpr std::make_unsigned_t<T> abs(T t) {
+	using U = std::make_unsigned_t<T>;
+	return t >= 0? U(t): U(-t);
 }
 template<typename T>
 constexpr bool mul_overflows(T x, T y) {
@@ -312,10 +309,12 @@ constexpr bool mul_overflows(T x, T y) {
 		// page 33, top
 		using U = std::make_unsigned_t<T>;
 
-		U c = U(~(x ^ y) >> (sizeof(T) * 8 - 1)) + sign_bit<U>();
-		x = abs(x);
-		y = abs(y);
-		return y != 0 && (U(x) > (c / U(y)));
+		// subtract 1 from the sign bit if the result would be positive
+		U c = sign_bit<U>() - ((x > 0) == (y > 0));
+		U ux = abs(x);
+		U uy = abs(y);
+		return uy != 0 && (ux > (c / uy));
 	}
 }
+
 } // namespace checked
