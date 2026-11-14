@@ -10,7 +10,7 @@ end
 contentdb = {
 	loading = false,
 	load_ok = false,
-	load_error = false,
+	load_error = false, -- false or error (string)
 
 	-- Unordered preserves the original order of the ContentDB API,
 	-- before the package list is ordered based on installed state.
@@ -412,12 +412,13 @@ local function fetch_pkgs()
 		},
 	})
 	if not response.succeeded or response.code >= 400 then
-		return
+		return response.timeout and core.gettext("Timeout") or
+			fgettext_ne("HTTP error $1", tostring(response.code))
 	end
 
 	local packages = core.parse_json(response.data)
-	if not packages or #packages == 0 then
-		return
+	if type(packages) ~= "table" or #packages == 0 then
+		return core.gettext("Invalid or empty response")
 	end
 
 	for i = #packages, 1, -1 do
@@ -468,14 +469,15 @@ end
 function contentdb.fetch_pkgs(callback)
 	contentdb.loading = true
 	core.handle_async(fetch_pkgs, nil, function(result)
-		if result then
+		if type(result) == "table" then
 			contentdb.set_packages_from_api(result)
 		else
-			contentdb.load_error = true
+			contentdb.load_ok = false
+			contentdb.load_error = result or "?"
 		end
 
 		contentdb.loading = false
-		callback(result)
+		callback(contentdb.load_ok)
 	end)
 end
 

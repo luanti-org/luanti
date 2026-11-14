@@ -184,7 +184,8 @@ local function get_formspec(dlgdata)
 		return get_info_formspec(size, window_padding, fgettext("Loading..."))
 	end
 	if contentdb.load_error then
-		return get_info_formspec(size, window_padding, fgettext("No packages could be retrieved"))
+		local text = fgettext("No packages could be retrieved:\n$1", contentdb.load_error)
+		return get_info_formspec(size, window_padding, text)
 	end
 	assert(contentdb.load_ok)
 
