@@ -412,7 +412,7 @@ local function fetch_pkgs()
 		},
 	})
 	if not response.succeeded or response.code >= 400 then
-		return response.timeout and core.gettext("Timeout") or
+		return response.error or
 			fgettext_ne("HTTP error $1", tostring(response.code))
 	end
 

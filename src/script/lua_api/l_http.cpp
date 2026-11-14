@@ -84,6 +84,10 @@ void ModApiHttp::push_http_fetch_result(lua_State *L, HTTPFetchResult &res, bool
 	setboolfield(L, -1, "completed", completed);
 	setintfield(L, -1, "code", res.response_code);
 	setstringfield(L, -1, "data", res.data);
+	if (!res.error.empty())
+		setstringfield(L, -1, "error", res.error);
+
+	assert(res.succeeded == res.error.empty());
 }
 
 // http_api.fetch_sync(HTTPRequest definition)
