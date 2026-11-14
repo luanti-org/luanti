@@ -1288,7 +1288,9 @@ void Server::handleCommand_Interact(NetworkPacket *pkt)
 		if (m_script->on_interact("use", playersao, pointed))
 			return;
 
-		// on_interact might have changed the wielded item
+		// on_interact might have changed the wielded item or removed the pointed object
+		if (pointed.type == POINTEDTHING_OBJECT && pointed_object->isGone())
+			return;
 		getWieldedItem(playersao, selected_item);
 
 		if (m_script->item_OnUse(selected_item, playersao, pointed)) {
