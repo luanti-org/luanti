@@ -11,16 +11,16 @@ namespace checked {
 // It is unspecifified whether *result is modified on overflow
 
 template<typename T>
-constexpr bool add(T a, T b, T* result);
+constexpr bool add(T a, T b, T *result);
 
 template<typename T>
-constexpr bool sub(T a, T b, T* result);
+constexpr bool sub(T a, T b, T *result);
 
 template<typename T>
-constexpr bool mul(T a, T b, T* result);
+constexpr bool mul(T a, T b, T *result);
 
 // Potentially clearer, std::optional interface
-template<typename T, bool op(T, T, T* result)>
+template<typename T, bool op(T, T, T *result)>
 static std::optional<T> wrap_in_optional(T a, T b) {
 	T out {};
 	if (op(a, b, &out)) {
@@ -30,101 +30,21 @@ static std::optional<T> wrap_in_optional(T a, T b) {
 	}
 }
 
-template<typename T>
-struct RemoveOneOptional_ {
-	using Type = T;
-};
-template<typename T>
-struct RemoveOneOptional_<std::optional<T>> {
-	using Type = T;
-};
-template<typename T>
-using RemoveOneOptional = typename RemoveOneOptional_<T>::Type;
-
-template<typename T>
-struct RemoveAllOptionals_ {
-	using Type = T;
-};
-template<typename T>
-struct RemoveAllOptionals_<std::optional<T>> {
-	using Type = typename RemoveAllOptionals_<T>::Type;
-};
-template<typename T>
-using RemoveAllOptionals = typename RemoveAllOptionals_<T>::Type;
-
-template<typename T>
-static constexpr auto flatten_optionals(T t) {
-	using ROT = RemoveOneOptional<T>;
-	if constexpr (std::is_same_v<T, ROT>) {
-		return std::optional<T>(t);
-	} else if (!t.has_value()) {
-		return std::optional<RemoveAllOptionals<T>>();
-	} else {
-		return flatten_optionals<ROT>(t.value());
-	}
-}
-
-template<typename A, typename B, typename T, bool op(T, T, T* result)>
-static constexpr std::optional<T> do_optless_op(A a, B b) {
-	using ROA = RemoveAllOptionals<A>;
-	using ROB = RemoveAllOptionals<B>;
-
-	if constexpr (std::is_same_v<ROA, A>) {
-		if constexpr (std::is_same_v<ROB, B>) {
-			static_assert(std::is_same_v<A, B>,
-						"both arguments need to have the same underlying integer type");
-			return wrap_in_optional<T, op>(a, b);
-		} else {
-			// B needs unwrapping
-			auto b_flat = flatten_optionals(b);
-			if (!b_flat.has_value()) {
-				return std::nullopt;
-			} else {
-				return wrap_in_optional<T, op>(a, b_flat.value());
-			}
-		}
-	} else {
-		if constexpr (std::is_same_v<ROB, B>) {
-			// A needs unwrapping
-			auto a_flat = flatten_optionals(a);
-			if (!a_flat.has_value()) {
-				return std::nullopt;
-			} else {
-				return wrap_in_optional<T, op>(a_flat.value(), b);
-			}
-		} else {
-			// both need unwrapping
-			auto a_flat = flatten_optionals(a);
-			auto b_flat = flatten_optionals(b);
-			if (!a_flat.has_value() || !b_flat.has_value()) {
-				return std::nullopt;
-			} else {
-				return wrap_in_optional<T, op>(a_flat.value(), b_flat.value());
-			}
-		}
-	}
-}
-
 // optional interface (accepts std::optional<T> arguments too, for easy chaining)
 // Returns a std::optional() with a value when the operation does not overflow
-template<typename A, typename B>
-auto add(A a, B b) {
-	using TA = RemoveAllOptionals<A>;
-	std::optional<TA> result = do_optless_op<A, B, TA, add<TA>>(a, b);
-	return result;
+template<typename T>
+std::optional<T> add(T a, T b) {
+	return wrap_in_optional<T, add<T>>(a, b);
 }
-template<typename A, typename B>
-auto sub(A a, B b) {
-	using TA = RemoveAllOptionals<A>;
-	std::optional<TA> result = do_optless_op<A, B, TA, sub<TA>>(a, b);
-	return result;
+template<typename T>
+std::optional<T> sub(T a, T b) {
+	return wrap_in_optional<T, sub<T>>(a, b);
 }
-template<typename A, typename B>
-auto mul(A a, B b) {
-	using TA = RemoveAllOptionals<A>;
-	std::optional<TA> result = do_optless_op<A, B, TA, mul<TA>>(a, b);
-	return result;
+template<typename T>
+std::optional<T> mul(T a, T b) {
+	return wrap_in_optional<T, mul<T>>(a, b);
 }
+
 
 template<typename T>
 struct NextSize_;
@@ -134,37 +54,26 @@ template<>
 struct NextSize_<char> {
 	using Type = std::conditional_t<std::is_signed_v<char>, int_fast16_t, uint_fast16_t>;
 };
-template<>
-struct NextSize_<int8_t> {
-	using Type = int_fast16_t;
-};
-template<>
-struct NextSize_<uint8_t> {
-	using Type = uint_fast16_t;
-};
-template<>
-struct NextSize_<int16_t> {
-	using Type = int_fast32_t;
-};
-template<>
-struct NextSize_<uint16_t> {
-	using Type = uint_fast32_t;
-};
-template<>
-struct NextSize_<int32_t> {
-	using Type = int_fast64_t;
-};
-template<>
-struct NextSize_<uint32_t> {
-	using Type = uint_fast64_t;
-};
+// Make the macro normal instead of having `Larger` be __VA_ARGS__ to incorporate the above,
+//		so it's more understandable
+#define MakeNextSize(TypeName, Larger) \
+	template<> \
+	struct NextSize_<TypeName> { \
+		using Type = Larger; \
+	};
+MakeNextSize(int8_t, int_fast16_t);
+MakeNextSize(uint8_t, uint_fast16_t);
+MakeNextSize(int16_t, int_fast32_t);
+MakeNextSize(uint16_t, uint_fast32_t);
+MakeNextSize(int32_t, int_fast64_t);
+MakeNextSize(uint32_t, uint_fast64_t);
 template<typename T>
 using NextSize = typename NextSize_<T>::Type;
 
 // Operator is a templated callable struct
 // This function implements checked arithmetic using a wider type
 template<typename T, template<typename> typename Operator, typename Wider = NextSize<T>>
-constexpr bool check_widening(T a, T b, T* result) {
+constexpr bool check_widening(T a, T b, T *result) {
 	Wider w_result = Operator<Wider>()(Wider(a), Wider(b));
 	if (w_result == Wider(T(w_result))) {
 		*result = T(w_result);
@@ -183,7 +92,7 @@ template<typename T>
 constexpr bool mul_overflows(T a, T b);
 
 template<typename T, bool op_overflows(T, T), typename Operator>
-static constexpr bool checked_op(T a, T b, T* result) {
+static constexpr bool checked_op(T a, T b, T *result) {
 	if (op_overflows(a, b)) {
 		return true; // overflowed
 	}
@@ -198,8 +107,14 @@ static constexpr bool addsub_overflows(T x, T y);
 
 // We have some builtins!
 template<typename T>
-constexpr bool add(T a, T b, T* result) {
-	// these two branches can work at compile time
+constexpr bool add(T a, T b, T *result) {
+	// These two branches allow checked add to be constant-evaluated
+	//		(run at compile time)
+	// The `__builtin_is_constant_evaluated` branch
+	//		can't be `if constexpr` because then the condition would
+	//		always be evaluated at compile time (returning true),
+	//		instead of detecting whether it's this call is at runtime
+	//		and using builtins if so.
 	if constexpr (sizeof(T) < 4) {
 		// Builtins only go down to int-size,
 		//	so for anything smaller we need to either
@@ -230,8 +145,13 @@ constexpr bool add(T a, T b, T* result) {
 	}
 }
 template<typename T>
-constexpr bool sub(T a, T b, T* result) {
+constexpr bool sub(T a, T b, T *result) {
+	// These two branches allow constant-evaluation
+	//		see add(T, T, T *) for details
 	if constexpr (sizeof(T) < 4) {
+		// This takes care of types smaller than an int,
+		//		because that's the size of the smallest builtin
+		// See add(T, T, T *) for rationale
 		return check_widening<T, std::minus>(a, b, result);
 	} else if (__builtin_is_constant_evaluated()) {
 		return checked_op<T, sub_overflows<T>, std::minus<T>>(a, b, result);
@@ -256,8 +176,13 @@ constexpr bool sub(T a, T b, T* result) {
 }
 
 template<typename T>
-constexpr bool mul(T a, T b, T* result) {
+constexpr bool mul(T a, T b, T *result) {
+	// These two branches allow constant-evaluation
+	//		see add(T, T, T *) for details
 	if constexpr (sizeof(T) < 4) {
+		// This takes care of types smaller than an int,
+		//		because that's the size of the smallest builtin
+		// See add(T, T, T *) for rationale
 		return check_widening<T, std::multiplies>(a, b, result);
 	} else if (__builtin_is_constant_evaluated()) {
 		return checked_op<T, mul_overflows<T>, std::multiplies<T>>(a, b, result);
@@ -287,38 +212,37 @@ constexpr bool mul(T a, T b, T* result) {
 //		but that sounds more annoying
 
 template<typename T>
-constexpr bool add(T a, T b, T* result) {
+constexpr bool add(T a, T b, T *result) {
 	if constexpr (sizeof(T) <= 4) {
 		return check_widening<T, std::plus>(a, b, result);
 	} else {
-		// T is 64-bit, so use the complicated version because we don't have a 128-bit type
-		return checked_op<T, add_overflows<T>,
-		                         std::plus<T>>(a, b, result);
+		// T is 64-bit, so use the complicated version
+		//		because we don't have a 128-bit type
+		return checked_op<T, add_overflows<T>, std::plus<T>>(a, b, result);
 	}
 }
 
 template<typename T>
-constexpr bool sub(T a, T b, T* result) {
+constexpr bool sub(T a, T b, T *result) {
 	if constexpr (sizeof(T) <= 4) {
 		return check_widening<T, std::minus>(a, b, result);
 	} else {
-		// T is 64-bit, so use the complicated version because we don't have a 128-bit type
-		return checked_op<T, sub_overflows<T>,
-		                         std::minus<T>>(a, b, result);
+		// T is 64-bit, so use the complicated version
+		//		because we don't have a 128-bit type
+		return checked_op<T, sub_overflows<T>, std::minus<T>>(a, b, result);
 	}
 }
 
 template<typename T>
-constexpr bool mul(T a, T b, T* result) {
+constexpr bool mul(T a, T b, T *result) {
 	if constexpr (sizeof(T) <= 4) {
 		return check_widening<T, std::multiplies>(a, b, result);
 	} else {
-		return checked_op<T, mul_overflows<T>, std::multiplies<T>>(
-				a, b, result
-			);
+		// T is 64-bit, so use the complicated version
+		//		because we don't have a 128-bit type
+		return checked_op<T, mul_overflows<T>, std::multiplies<T>>(a, b, result);
 	}
 }
-if
 
 template<typename T>
 static constexpr const T full_mask() {
@@ -334,38 +258,36 @@ static constexpr T get_sign_bit(T t) {
 	return t & sign_bit<T>();
 }
 
-template<typename T, bool do_add>
-static constexpr bool addsub_overflows(T x, T y) {
+template<typename T>
+constexpr bool add_overflows(T x, T y) {
 	// Formulas from Hacker's Delight Second Edition
 	if constexpr (std::is_signed_v<T>) {
 		// Page 30,
 		// "as the formulas that do not even use the carry bit"
 		using U = std::make_unsigned_t<T>;
-		if constexpr (do_add) {
-			return get_sign_bit(~(x ^ y) & (T(U(x) + U(y)) ^ x)) != 0;
-		} else {
-			return get_sign_bit((x ^ y) & (T(U(x) - U(y)) ^ x)) != 0;
-		}
+		return get_sign_bit(~(x ^ y) & (T(U(x) + U(y)) ^ x)) != 0;
 	} else {
 		// page 31
-		// "For unsigned addition, overflow (carry) occurs if
-		//		the sum is less (by unsigned comparison)
-		//		than either of the operands."
-		if constexpr (do_add) {
-			return T(~x) < y;
-		} else {
-			return x < y;
-		}
+		// ~x + x == max<T>, thus x + y <= max<T> iff y <= ~x
+		// Therefor there's an overflow if y > ~x
+		return y > T(~x);
 	}
 }
 
 template<typename T>
-constexpr bool add_overflows(T a, T b) {
-	return addsub_overflows<T, true>(a, b);
-}
-template<typename T>
-constexpr bool sub_overflows(T a, T b) {
-	return addsub_overflows<T, false>(a, b);
+constexpr bool sub_overflows(T x, T y) {
+	// Formulas from Hacker's Delight Second Edition
+	if constexpr (std::is_signed_v<T>) {
+		// Page 30,
+		// "as the formulas that do not even use the carry bit"
+		using U = std::make_unsigned_t<T>;
+		return get_sign_bit((x ^ y) & (T(U(x) - U(y)) ^ x)) != 0;
+	} else {
+		// page 31
+		// very straightforward: x - y >= 0 iff x >= y,
+		//		so it overflows if x < y
+		return x < y;
+	}
 }
 
 // because std::abs is not constexpr until C++23
@@ -383,12 +305,11 @@ constexpr bool mul_overflows(T x, T y) {
 	if constexpr (!std::is_signed_v<T>) {
 		// unsigned
 		// Page 32, center
-		return y != 0 && (x > full_mask<T>() / y);
+		// x * y <= max<T> => x <= max<T> / y && y != 0
+		return y != 0 && (x > (full_mask<T>() / y));
 	} else {
 		// signed
 		// page 33, top
-		// unsigned type version of T,
-		//		to ensure some unsigned operations
 		using U = std::make_unsigned_t<T>;
 
 		U c = U(~(x ^ y) >> (sizeof(T) * 8 - 1)) + sign_bit<U>();
