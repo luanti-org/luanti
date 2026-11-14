@@ -6620,7 +6620,7 @@ Call these functions only at load time!
         * `"place"` - player has performed a "place" operation (right-click on PC).
         * `"use"` - player has "used" a tool (digging is not counted).
     * If any of the callbacks returns `true`, the action is cancelled.
-    * The function is available since Luanti 5.18.0.
+    * The function is available since Luanti 5.19.0.
 * `core.register_on_generated(function(minp, maxp, blockseed))`
     * Called after a piece of world between `minp` and `maxp` has been
       generated and written into the map.
