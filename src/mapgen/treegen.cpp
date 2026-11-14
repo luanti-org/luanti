@@ -33,7 +33,10 @@ void TreeDef::resolveNodeNames()
 	as by-value instead of by-reference. But don't change this now to keep
 	the old behaviour.
 */
+static void tree_trunk_placement(MMVManip &vmanip, v3f p0, std::vector<v3f> points, const TreeDef &def);
 static void tree_trunk_placement(MMVManip &vmanip, v3f p0, const TreeDef &def);
+static void tree_leaves_placement(MMVManip &vmanip, v3f p0, std::vector<v3f> points,
+	PseudoRandom ps, const TreeDef &tree_definition);
 static void tree_leaves_placement(MMVManip &vmanip, v3f p0,
 	PseudoRandom ps, const TreeDef &def);
 static void tree_single_leaves_placement(MMVManip &vmanip, v3f p0,
@@ -234,42 +237,11 @@ treegen::error make_ltree(MMVManip &vmanip, v3s16 p0,
 
 	// Add trunk nodes below a wide trunk to avoid gaps when tree is on sloping ground
 	if (tree_definition.trunk_type == "double") {
-		tree_trunk_placement(
-			vmanip,
-			v3f(position.X + 1, position.Y - 1, position.Z),
-			tree_definition
-		);
-		tree_trunk_placement(
-			vmanip,
-			v3f(position.X, position.Y - 1, position.Z + 1),
-			tree_definition
-		);
-		tree_trunk_placement(
-			vmanip,
-			v3f(position.X + 1, position.Y - 1, position.Z + 1),
-			tree_definition
-		);
+		std::vector<v3f> points{ v3f(1, -1, 0),  v3f(0, -1, 1),  v3f(1, -1, 1)};
+		tree_trunk_placement(vmanip, position, points, tree_definition);
 	} else if (tree_definition.trunk_type == "crossed") {
-		tree_trunk_placement(
-			vmanip,
-			v3f(position.X + 1, position.Y - 1, position.Z),
-			tree_definition
-		);
-		tree_trunk_placement(
-			vmanip,
-			v3f(position.X - 1, position.Y - 1, position.Z),
-			tree_definition
-		);
-		tree_trunk_placement(
-			vmanip,
-			v3f(position.X, position.Y - 1, position.Z + 1),
-			tree_definition
-		);
-		tree_trunk_placement(
-			vmanip,
-			v3f(position.X, position.Y - 1, position.Z - 1),
-			tree_definition
-		);
+		std::vector<v3f> points{v3f(1, -1, 0), v3f(-1, -1, 0), v3f(0, -1, 1), v3f(0, -1, -1)};
+		tree_trunk_placement(vmanip, position, points, tree_definition);
 	}
 
 	/* build tree out of generated axiom
@@ -313,142 +285,39 @@ treegen::error make_ltree(MMVManip &vmanip, v3s16 p0,
 			position += dir;
 			break;
 		case 'T':
-			tree_trunk_placement(
-				vmanip,
-				v3f(position.X, position.Y, position.Z),
-				tree_definition
-			);
-			if (tree_definition.trunk_type == "double" &&
-					!tree_definition.thin_branches) {
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X + 1, position.Y, position.Z),
-					tree_definition
-				);
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X, position.Y, position.Z + 1),
-					tree_definition
-				);
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X + 1, position.Y, position.Z + 1),
-					tree_definition
-				);
-			} else if (tree_definition.trunk_type == "crossed" &&
-					!tree_definition.thin_branches) {
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X + 1, position.Y, position.Z),
-					tree_definition
-				);
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X - 1, position.Y, position.Z),
-					tree_definition
-				);
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X, position.Y, position.Z + 1),
-					tree_definition
-				);
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X, position.Y, position.Z - 1),
-					tree_definition
-				);
+			tree_trunk_placement(vmanip, position, tree_definition);
+			if (tree_definition.trunk_type == "double" && !tree_definition.thin_branches) {
+				std::vector<v3f> points{v3f(1, 0, 0), v3f(0, 0, 1), v3f(1, 0, 1)};
+				tree_trunk_placement(vmanip, position, points, tree_definition);
+			}
+			else if (tree_definition.trunk_type == "crossed" && !tree_definition.thin_branches) {
+				std::vector<v3f> points{v3f(1, 0, 0), v3f(-1, 0, 0), v3f(0, 0, 1), v3f(0, 0, -1)};
+				tree_trunk_placement(vmanip, position, points, tree_definition);
 			}
 			dir = v3f(1, 0, 0);
 			dir = transposeMatrix(rotation, dir);
 			position += dir;
 			break;
 		case 'F':
-			tree_trunk_placement(
-				vmanip,
-				v3f(position.X, position.Y, position.Z),
-				tree_definition
-			);
-			if ((stack_orientation.empty() &&
-					tree_definition.trunk_type == "double") ||
-					(!stack_orientation.empty() &&
-					tree_definition.trunk_type == "double" &&
-					!tree_definition.thin_branches)) {
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X + 1, position.Y, position.Z),
-					tree_definition
-				);
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X, position.Y, position.Z + 1),
-					tree_definition
-				);
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X + 1, position.Y, position.Z + 1),
-					tree_definition
-				);
-			} else if ((stack_orientation.empty() &&
-					tree_definition.trunk_type == "crossed") ||
-					(!stack_orientation.empty() &&
-					tree_definition.trunk_type == "crossed" &&
-					!tree_definition.thin_branches)) {
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X + 1, position.Y, position.Z),
-					tree_definition
-				);
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X - 1, position.Y, position.Z),
-					tree_definition
-				);
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X, position.Y, position.Z + 1),
-					tree_definition
-				);
-				tree_trunk_placement(
-					vmanip,
-					v3f(position.X, position.Y, position.Z - 1),
-					tree_definition
-				);
+			tree_trunk_placement(vmanip, position, tree_definition);
+			if (tree_definition.trunk_type == "double" &&
+				(stack_orientation.empty() || (!stack_orientation.empty() && !tree_definition.thin_branches))) {
+				std::vector<v3f> points{v3f(1, 0, 0), v3f(0, 0, 1), v3f(1, 0, 1)};
+				tree_trunk_placement(vmanip, position, points, tree_definition);
+			} else if (tree_definition.trunk_type == "crossed" &&
+				(stack_orientation.empty() || (!stack_orientation.empty() && !tree_definition.thin_branches))) {
+				std::vector<v3f> points{v3f(1, 0, 0), v3f(-1, 0, 0), v3f(0, 0, 1), v3f(0, 0, -1)};
+				tree_trunk_placement(vmanip, position, points, tree_definition);
 			}
 			if (!stack_orientation.empty()) {
 				s16 size = 1;
 				for (x = -size; x <= size; x++)
 				for (y = -size; y <= size; y++)
 				for (z = -size; z <= size; z++) {
-					if (abs(x) == size &&
-							abs(y) == size &&
-							abs(z) == size) {
-						tree_leaves_placement(
-							vmanip,
-							v3f(position.X + x + 1, position.Y + y,
-									position.Z + z),
-							ps.next(),
-							tree_definition
-						);
-						tree_leaves_placement(
-							vmanip,
-							v3f(position.X + x - 1, position.Y + y,
-									position.Z + z),
-							ps.next(),
-							tree_definition
-						);
-						tree_leaves_placement(
-							vmanip,v3f(position.X + x, position.Y + y,
-									position.Z + z + 1),
-							ps.next(),
-							tree_definition
-						);
-						tree_leaves_placement(
-							vmanip,v3f(position.X + x, position.Y + y,
-									position.Z + z - 1),
-							ps.next(),
-							tree_definition
-						);
-					}
+					if (abs(x) != size || abs(y) != size || abs(z) != size)
+						continue;
+					std::vector<v3f> points{v3f(1, 0, 0), v3f(-1, 0, 0), v3f(0, 0, 1), v3f(0, 0, -1)};
+					tree_leaves_placement(vmanip, position + v3f(x, y, z), points, ps, tree_definition);
 				}
 			}
 			dir = v3f(1, 0, 0);
@@ -456,22 +325,13 @@ treegen::error make_ltree(MMVManip &vmanip, v3s16 p0,
 			position += dir;
 			break;
 		case 'f':
-			tree_single_leaves_placement(
-				vmanip,
-				v3f(position.X, position.Y, position.Z),
-				ps.next(),
-				tree_definition
-			);
+			tree_single_leaves_placement(vmanip, position, ps.next(), tree_definition);
 			dir = v3f(1, 0, 0);
 			dir = transposeMatrix(rotation, dir);
 			position += dir;
 			break;
 		case 'R':
-			tree_fruit_placement(
-				vmanip,
-				v3f(position.X, position.Y, position.Z),
-				tree_definition
-			);
+			tree_fruit_placement(vmanip, position, tree_definition);
 			dir = v3f(1, 0, 0);
 			dir = transposeMatrix(rotation, dir);
 			position += dir;
@@ -534,6 +394,11 @@ treegen::error make_ltree(MMVManip &vmanip, v3s16 p0,
 	return SUCCESS;
 }
 
+void tree_trunk_placement(MMVManip &vmanip, v3f p0, std::vector<v3f> points, const TreeDef &tree_definition)
+{
+	for (auto& point : points)
+		tree_trunk_placement(vmanip, p0 + point, tree_definition);
+}
 
 void tree_trunk_placement(MMVManip &vmanip, v3f p0, const TreeDef &tree_definition)
 {
@@ -550,9 +415,13 @@ void tree_trunk_placement(MMVManip &vmanip, v3f p0, const TreeDef &tree_definiti
 	vmanip.m_data[vi] = tree_definition.trunknode;
 }
 
+void tree_leaves_placement(MMVManip &vmanip, v3f p0, std::vector<v3f> points, PseudoRandom ps, const TreeDef &tree_definition)
+{
+	for (auto &point : points)
+		tree_leaves_placement(vmanip, p0 + point, ps.next(), tree_definition);
+}
 
-void tree_leaves_placement(MMVManip &vmanip, v3f p0,
-		PseudoRandom ps, const TreeDef &tree_definition)
+void tree_leaves_placement(MMVManip &vmanip, v3f p0, PseudoRandom ps, const TreeDef &tree_definition)
 {
 	MapNode leavesnode = tree_definition.leavesnode;
 	if (ps.range(1, 100) > 100 - tree_definition.leaves2_chance)
