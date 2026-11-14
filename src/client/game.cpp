@@ -152,12 +152,11 @@ public:
 		get_sunlight_color(&sunlight, daynight_ratio);
 		m_day_light.set(sunlight, services);
 
-		u32 animation_timer = m_client->getEnv().getFrameTime() % 1000000;
-		float animation_timer_f = (float)animation_timer / 100000.f;
+		// for some reason these are in hectoseconds?!
+		float animation_timer_f = m_client->getAnimationTime() / 100.f;
 		m_animation_timer_vertex.set(&animation_timer_f, services);
 		m_animation_timer_pixel.set(&animation_timer_f, services);
-
-		float animation_timer_delta_f = (float)m_client->getEnv().getFrameTimeDelta() / 100000.f;
+		float animation_timer_delta_f = m_client->getAnimationDelta() / 100.f;
 		m_animation_timer_delta_vertex.set(&animation_timer_delta_f, services);
 		m_animation_timer_delta_pixel.set(&animation_timer_delta_f, services);
 
@@ -2904,16 +2903,6 @@ PointedThing Game::updatePointedThing(
 		video::SColor c;
 		final_color_blend(&c, light_level, daynight_ratio);
 
-		// Modify final color a bit with time
-		u32 timer = client->getEnv().getFrameTime() % 5000;
-		float timerf = (float) (core::PI * ((timer / 2500.0) - 0.5));
-		float sin_r = 0.08f * std::sin(timerf);
-		float sin_g = 0.08f * std::sin(timerf + core::PI * 0.5f);
-		float sin_b = 0.08f * std::sin(timerf + core::PI);
-		c.setRed(core::clamp(core::round32(c.getRed() * (0.8 + sin_r)), 0, 255));
-		c.setGreen(core::clamp(core::round32(c.getGreen() * (0.8 + sin_g)), 0, 255));
-		c.setBlue(core::clamp(core::round32(c.getBlue() * (0.8 + sin_b)), 0, 255));
-
 		// Set mesh final color
 		hud->setSelectionMeshColor(c);
 	}
@@ -3408,12 +3397,6 @@ void Game::updateFrame(ProfilerGraph *graph, RunStats *stats, f32 dtime,
 	ZoneScoped;
 	TimeTaker tt_update("Game::updateFrame()");
 	LocalPlayer *player = client->getEnv().getLocalPlayer();
-
-	/*
-		Frame time
-	*/
-
-	client->getEnv().updateFrameTime(m_is_paused);
 
 	/*
 		Fog range

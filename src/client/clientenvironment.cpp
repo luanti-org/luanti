@@ -488,17 +488,3 @@ void ClientEnvironment::getSelectedActiveObjects(
 	}
 }
 
-void ClientEnvironment::updateFrameTime(bool is_paused)
-{
-	// if paused, m_frame_time_pause_accumulator increases by dtime,
-	// otherwise, m_frame_time increases by dtime
-	if (is_paused) {
-		m_frame_dtime = 0;
-		m_frame_time_pause_accumulator = porting::getTimeMs() - m_frame_time;
-	}
-	else {
-		auto new_frame_time = porting::getTimeMs() - m_frame_time_pause_accumulator;
-		m_frame_dtime = new_frame_time - MYMAX(m_frame_time, m_frame_time_pause_accumulator);
-		m_frame_time = new_frame_time;
-	}
-}

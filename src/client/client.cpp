@@ -425,7 +425,11 @@ void Client::step(float dtime)
 	if (dtime > DTIME_LIMIT)
 		dtime = DTIME_LIMIT;
 
-	m_animation_time = fmodf(m_animation_time + dtime, 60.0f);
+	{
+		constexpr float ANIMATION_TIME_CYCLE = 16 * 60;
+		m_animation_time = fmodf(m_animation_time + dtime, ANIMATION_TIME_CYCLE);
+		m_animation_dtime = dtime;
+	}
 
 	ReceiveAll();
 

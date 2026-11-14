@@ -275,11 +275,6 @@ public:
 		return m_env.getPlayerNames();
 	}
 
-	float getAnimationTime() const
-	{
-		return m_animation_time;
-	}
-
 	/// @return integer ∊ [0, crack_animation_length] or -1 for invalid
 	int getCrackLevel();
 	v3s16 getCrackPos();
@@ -384,6 +379,11 @@ public:
 	// If you want to modify it, you may need to clone it first (-> `is_shared`)
 	// (the returned pointer must be dropped)
 	scene::IAnimatedMesh *getMesh(const std::string &filename, bool *is_shared = nullptr);
+
+	/// @brief returns animation timer (seconds), will wrap eventually
+	inline float getAnimationTime() const { return m_animation_time; }
+	/// @brief returns current animation delta
+	inline float getAnimationDelta() const { return m_animation_dtime; }
 
 	ModVFS *getModVFS() { return m_mod_vfs.get(); }
 	ModStorageDatabase *getModStorageDatabase() override { return m_mod_storage_database; }
@@ -536,8 +536,6 @@ private:
 	float m_inventory_from_server_age = 0.0f;
 	s32 m_mapblock_limit_logged = 0;
 	PacketCounter m_packetcounter;
-	// Block mesh animation parameters
-	float m_animation_time = 0.0f;
 	int m_crack_level = -1;
 	v3s16 m_crack_pos;
 	std::queue<std::wstring> m_out_chat_queue;
@@ -547,6 +545,9 @@ private:
 	/// received blocks that we still want to ack to the server
 	/// @note don't append blindly. this must be sent when it reaches 255 entries.
 	std::vector<v3s16> m_got_blocks;
+
+	float m_animation_time = 0;
+	float m_animation_dtime = 0;
 
 	// The authentication methods we can use to enter sudo mode (=change password)
 	u32 m_sudo_auth_methods;
