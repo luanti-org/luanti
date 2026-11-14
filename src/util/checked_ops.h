@@ -244,6 +244,7 @@ constexpr bool mul(T a, T b, T *result) {
 		return checked_op<T, mul_overflows<T>, std::multiplies<T>>(a, b, result);
 	}
 }
+#endif
 
 template<typename T>
 static constexpr const T full_mask() {
