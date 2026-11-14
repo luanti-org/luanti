@@ -101,8 +101,6 @@ static constexpr bool checked_op(T a, T b, T *result) {
 	*result = Operator()(a, b);
 	return false;
 }
-template<typename T, bool do_add>
-static constexpr bool addsub_overflows(T x, T y);
 
 #if defined(__GNUC__) || defined(__clang__)
 

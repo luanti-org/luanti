@@ -236,16 +236,16 @@ TEST_CASE("fixed checked (*) tests") {
 	}
 	SECTION( "min<T> * 1 never overflows" ) {
 		testExpected<int, checked::mul, checked::mul_overflows>(
-				MIN<int>, ~0, false, MIN<int>
+				MIN<int>, 1, false, MIN<int>
 			);
 		testExpected<long long, checked::mul, checked::mul_overflows>(
-				MIN<long long>, ~0ll, false, MIN<long long>
+				MIN<long long>, 1ll, false, MIN<long long>
 			);
 		testExpected<unsigned, checked::mul, checked::mul_overflows>(
-				MIN<unsigned>, ~0u, false, 0u
+				MIN<unsigned>, 1u, false, 0u
 			);
 		testExpected<unsigned long long, checked::mul, checked::mul_overflows>(
-				MIN<unsigned long long>, ~0ull, false, 0ull
+				MIN<unsigned long long>, 1ull, false, 0ull
 			);
 	}
 
