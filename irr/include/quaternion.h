@@ -127,6 +127,13 @@ public:
 	//! @note quaternion must not be zero
 	inline quaternion &normalize();
 
+	//! Whether the quaternion is normalized.
+	//! @note can be false even after normalize() due to a zero length or significant arithmetic errors.
+	inline bool is_normalized(f32 tol = 1e-4) const
+	{
+		return std::abs(norm() - 1.0f) < tol;
+	}
+
 	//! Creates a matrix from this quaternion
 	matrix4 getMatrix() const;
 

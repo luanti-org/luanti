@@ -126,6 +126,8 @@ int LuaMatrix4::l_reflection(lua_State *L)
 {
 	v3f normal = readParamRaw<v3f>(L, 1);
 	normal.normalize();
+	if (!normal.is_normalized())
+		throw LuaError("failed to normalize normal");
 	core::matrix4 &matrix = create(L);
 	matrix = core::matrix4::reflection(normal);
 	return 1;

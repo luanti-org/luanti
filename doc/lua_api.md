@@ -4573,8 +4573,8 @@ Constructors
   Constructs a rotation from a quaternion (which need not be normalized).
 * `Rotation.axis_angle(axis, angle)`:
   Constructs a rotation around the given axis by the given angle.
-  * `axis` is a nonzero vector, which need not be normalized
-  * `angle` is in radians
+  * `axis` is a nonzero vector, which need not be normalized.
+  * `angle` is in radians.
   * Example: `Rotation.axis_angle(vector.new(1, 0, 1), math.pi/2)`
     is a quarter-turn around the bisector between the X and Z axes.
   * Let `v1`, `v2` be nonzero vectors. Then it holds that

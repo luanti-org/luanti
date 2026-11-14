@@ -9,6 +9,7 @@
 #include <functional>
 #include <array>
 #include <cassert>
+#include <optional>
 
 namespace core
 {
@@ -199,7 +200,7 @@ public:
 	std::array<T, 3> toArray() const { return {X, Y, Z}; }
 
 	//! Get length of the vector.
-	T getLength() const { return core::squareroot(X * X + Y * Y + Z * Z); }
+	T getLength() const { return core::squareroot(getLengthSQ()); }
 
 	//! Get squared length of the vector.
 	/** This is useful because it is much faster than getLength().
@@ -262,6 +263,13 @@ public:
 		Y = (T)(Y * length);
 		Z = (T)(Z * length);
 		return *this;
+	}
+
+	//! Whether the vector is normalized.
+	//! @note can be false even after normalize() due to a zero length or significant arithmetic errors.
+	inline bool is_normalized(T tol = 1e-4) const
+	{
+		return std::abs(getLength() - 1) < tol;
 	}
 
 	//! Sets the length of the vector to a new value

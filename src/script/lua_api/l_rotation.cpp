@@ -46,8 +46,8 @@ int LuaRotation::l_quaternion(lua_State *L)
 	f32 w = readParam<f32>(L, 4);
 	core::quaternion q(x, y, z, w);
 	q.normalize();
-	if (!std::isfinite(q.W))
-		throw LuaError("quaternion can not be normalized (length zero)");
+	if (!q.is_normalized())
+		throw LuaError("failed to normalize quaternion");
 	create(L, q);
 	return 1;
 }
@@ -57,9 +57,9 @@ int LuaRotation::l_axis_angle(lua_State *L)
 	v3f axis = readParam<v3f>(L, 1);
 	f32 angle = readParam<f32>(L, 2);
 	core::quaternion quaternion;
-	if (axis.getLengthSQ() == 0)
-		throw LuaError("axis must be nonzero");
 	axis.normalize();
+	if (!axis.is_normalized())
+		throw LuaError("failed to normalize axis");
 	quaternion.fromAngleAxis(angle, axis);
 	create(L, quaternion);
 	return 1;
