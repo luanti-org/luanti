@@ -105,7 +105,7 @@ template<typename T, bool is_signed = std::is_signed_v<T>, size_t size = sizeof(
 extern const char *const short_name;
 #define MakeShortName(is_signed, bytes, namestr) \
 	template<typename T> \
-    static constexpr const char *const short_name<T, is_signed, bytes> = namestr;
+	static constexpr const char *const short_name<T, is_signed, bytes> = namestr;
 
 MakeShortName(false, 1, "u8")
 MakeShortName(false, 2, "u16")
