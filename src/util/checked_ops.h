@@ -69,6 +69,7 @@ MakeNextSize(int32_t, int_fast64_t);
 MakeNextSize(uint32_t, uint_fast64_t);
 template<typename T>
 using NextSize = typename NextSize_<T>::Type;
+#undef MakeNextSize
 
 // Operator is a templated callable struct
 // This function implements checked arithmetic using a wider type
