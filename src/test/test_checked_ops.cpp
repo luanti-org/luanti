@@ -1,7 +1,6 @@
 #include <cstdint>
 #include <functional>
 #include <type_traits>
-#include <random>
 #include <limits>
 #include <optional>
 #include <ostream>
@@ -19,12 +18,6 @@ std::ostream &operator <<(std::ostream &os, const std::optional<T> &value);
 
 template<typename T>
 static constexpr const T high_bit = T(1) << (sizeof(T) * 8 - 1);
-
-static auto get_rng() {
-	static const std::default_random_engine engine {std::random_device()()};
-	// Copy the seeded engine
-	return engine;
-}
 
 // not constexpr: the comparison involves casting to a function pointer
 template<typename T, bool operation(T, T, T*)>
@@ -296,68 +289,69 @@ static T max(T a, T b) {
 	return a >= b? a: b;
 }
 
-// generate int for char types, and T otherwise
-template<typename T>
-static constexpr auto gentype_fn() {
-	if constexpr (std::is_same_v<char, T>
-	           || std::is_same_v<unsigned char, T>
-	           || std::is_same_v<  signed char, T>) {
-		return int();
-	} else {
-		return T();
-	}
-}
+#ifdef __SIZE_INT128__
+#define MAYBE_KEEP_INT64(...) __VA_ARGS__
+#else
+#define MAYBE_KEEP_INT64(...) /**/
+#endif
 
 TEMPLATE_TEST_CASE("random checked operation tests", "", \
 					char, int8_t, uint8_t, int16_t, uint16_t, \
 					int32_t, uint32_t
-#ifdef __SIZE_INT128__
-					// test it on 64-bit integers too
-					, int64_t, uint64_t
-#endif
+					/* test it on 64-bit integers too, when __int128 is available */
+					MAYBE_KEEP_INT64(, int64_t, uint64_t)
 					) {
 	using T = TestType;
 	using Higher = decltype(higher_val<T>());
 
-	using GenType = decltype(gentype_fn<T>());
-
-	auto rng = get_rng();
-
-	// full range
-	std::uniform_int_distribution<GenType> full(std::numeric_limits<T>::min(),
-	                                            std::numeric_limits<T>::max());
-
 	SECTION( "random, in half range (can't overflow)" ) {
-		for (unsigned i = 0; i < 1000; ++i) {
-			T add_a = T(full(rng)) >> 1;
-			T add_b = T(full(rng)) >> 1;
+		std::vector<T> pair = GENERATE( \
+				take(1000, chunk(2, random( \
+						std::numeric_limits<T>::min(), \
+						std::numeric_limits<T>::max() \
+				))) \
+			);
+		T add_a = pair[0] >> 1;
+		T add_b = pair[1] >> 1;
 
-			T expected_result = add_a + add_b;
-			bool expected_overflow = false;
-			testExpected<T, checked::add, checked::add_overflows>(add_a, add_b, expected_overflow, expected_result);
-		}
+		T expected_result = add_a + add_b;
+		bool expected_overflow = false;
+		testExpected<T, checked::add, checked::add_overflows>(add_a, add_b, expected_overflow, expected_result);
 	}
 
 	SECTION( "random, in full range" ) {
-		for (unsigned i = 0; i < 16384; ++i) {
-			T a = T(full(rng));
-			T b = T(full(rng));
+		std::vector<T> pair = GENERATE( \
+				take(16384, chunk(2, random( \
+						std::numeric_limits<T>::min(), \
+						std::numeric_limits<T>::max() \
+				))) \
+			);
+		T a = pair[0];
+		T b = pair[1];
 
-			T expected_result = T(0);
+		T expected_result = T(0);
 
-			bool expected_overflow = checked::check_widening<T, std::plus, Higher>(
-					a, b, &expected_result);
-			testExpected<T, checked::add, checked::add_overflows>(a, b, expected_overflow, expected_result);
+		bool expected_overflow = checked::check_widening<T, std::plus, Higher>(
+				a, b, &expected_result
+			);
+		testExpected<T, checked::add, checked::add_overflows>(
+				a, b, expected_overflow, expected_result
+			);
 
-			expected_result = T(0);
-			expected_overflow = checked::check_widening<T, std::minus, Higher>(
-					a, b, &expected_result);
-			testExpected<T, checked::sub, checked::sub_overflows>(a, b, expected_overflow, expected_result);
+		expected_result = T(0);
+		expected_overflow = checked::check_widening<T, std::minus, Higher>(
+				a, b, &expected_result
+			);
+		testExpected<T, checked::sub, checked::sub_overflows>(
+				a, b, expected_overflow, expected_result
+			);
 
-			expected_result = T(0);
-			expected_overflow = checked::check_widening<T, std::multiplies, Higher>(
-					a, b, &expected_result);
-			testExpected<T, checked::mul, checked::mul_overflows>(a, b, expected_overflow, expected_result);
-		}
+		expected_result = T(0);
+		expected_overflow = checked::check_widening<T, std::multiplies, Higher>(
+				a, b, &expected_result
+			);
+		testExpected<T, checked::mul, checked::mul_overflows>(
+				a, b, expected_overflow, expected_result
+			);
 	}
 }
