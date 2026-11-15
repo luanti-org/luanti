@@ -901,6 +901,24 @@ void Server::fixupNodePrediction(session_t peer_id, InteractAction action,
 			// Send immediately, even if the block was already marked as not sent or if the
 			// player is far away, since the client already made the prediction anyway.
 			Send(peer_id, &pkt);
+
+			// Prediction may also have cleared the meta
+			NodeMetadata *meta = m_env->getMap().getNodeMetadata(pos);
+			if (meta && !meta->empty()) {
+				NodeMetadataList meta_updates_list(false);
+				meta_updates_list.set(pos, meta);
+
+				std::ostringstream os(std::ios::binary);
+				meta_updates_list.serialize(os, getClient(peer_id)->serialization_version,
+						false, true, false);
+				std::string raw = os.str();
+				os.str("");
+				compressZlib(raw, os);
+
+				NetworkPacket pkt(TOCLIENT_NODEMETA_CHANGED, 0);
+				pkt.putLongString(os.str());
+				Send(peer_id, &pkt);
+			}
 		}
 
 		// FIXME: Lost predictions (overwritten by `TOCLIENT_BLOCKDATA`) can still cause:
