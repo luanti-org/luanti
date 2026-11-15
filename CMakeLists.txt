@@ -133,6 +133,25 @@ if(TRUE)
 		if(NOT TARGET IrrlichtMt)
 			message(FATAL_ERROR "IrrlichtMt project is missing a CMake target?!")
 		endif()
+		if(EMSCRIPTEN)
+			# Which thread owns the WebGL context by default; the page can
+			# override it with ?render= (see "Render thread" in wasm_porting.md).
+			set(WASM_RENDER_THREAD "proxy" CACHE STRING
+				"Default WebGL owner: proxy (browser main thread), offscreen (engine worker, no fallback) or auto (offscreen, else proxy)")
+			set_property(CACHE WASM_RENDER_THREAD PROPERTY STRINGS proxy offscreen auto)
+			if(WASM_RENDER_THREAD STREQUAL "proxy")
+				set(WASM_RENDER_THREAD_ID 0)
+			elseif(WASM_RENDER_THREAD STREQUAL "offscreen")
+				set(WASM_RENDER_THREAD_ID 1)
+			elseif(WASM_RENDER_THREAD STREQUAL "auto")
+				set(WASM_RENDER_THREAD_ID 2)
+			else()
+				message(FATAL_ERROR "WASM_RENDER_THREAD must be proxy, offscreen or auto")
+			endif()
+			# CIrrDeviceSDL.cpp is compiled in this object library.
+			target_compile_definitions(IRROTHEROBJ PRIVATE
+				LUANTI_WASM_RENDER_THREAD_DEFAULT=${WASM_RENDER_THREAD_ID})
+		endif()
 	else()
 		add_library(IrrlichtMt::IrrlichtMt INTERFACE IMPORTED)
 		set_target_properties(IrrlichtMt::IrrlichtMt PROPERTIES

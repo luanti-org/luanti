@@ -70,10 +70,21 @@
 		updateReload: element("luanti-update-reload")
 	};
 
-	// ?webgl=1|2 forces a single WebGL version (read by CIrrDeviceSDL.cpp).
+	// Render overrides read by CIrrDeviceSDL.cpp, for tests and benchmarks:
+	// ?render=proxy|offscreen|auto picks the thread that owns WebGL (default:
+	// the build's WASM_RENDER_THREAD), ?webgl=1|2 forces a single WebGL
+	// version, ?swapsleep=N sleeps N ms after each proxied frame.
+	var webglOptions = Module["luantiWebGL"] || {};
+	var renderMode = query.get("render");
+	if (renderMode === "proxy" || renderMode === "offscreen" || renderMode === "auto")
+		webglOptions["render"] = renderMode;
 	var forcedWebGL = Number(query.get("webgl"));
 	if (forcedWebGL === 1 || forcedWebGL === 2)
-		Module["luantiWebGL"] = {"major": forcedWebGL};
+		webglOptions["major"] = forcedWebGL;
+	var swapSleep = Number(query.get("swapsleep"));
+	if (swapSleep > 0 && swapSleep <= 100)
+		webglOptions["swapSleepMs"] = swapSleep;
+	Module["luantiWebGL"] = webglOptions;
 
 	function safeStorageGet(key) {
 		try {
@@ -193,6 +204,26 @@
 		},
 		"getGLState": function() {
 			return {"lost": glLostCount, "restored": glRestoredCount};
+		},
+		// Offscreen render mode: the engine's context lives on its worker, so
+		// the DOM event below never fires and the engine reports the loss.
+		"notifyContextLost": function() {
+			handleContextLost();
+		},
+		// Tests: lose the engine's context in whichever thread owns it.
+		"debugLoseContext": function() {
+			var info = Module["luantiWebGLInfo"];
+			if (info && info["render"] === "offscreen") {
+				Module["_luanti_debug_lose_webgl_context"]();
+				return true;
+			}
+			var gl = Module.canvas.getContext("webgl2") || Module.canvas.getContext("webgl");
+			var ext = gl && gl.getExtension("WEBGL_lose_context");
+			if (!ext)
+				return false;
+			ext.loseContext();
+			window["luantiLoseContextExt"] = ext;
+			return true;
 		},
 		"getState": function() {
 			return {
@@ -635,6 +666,9 @@
 	Module.canvas.addEventListener("webglcontextlost", function(event) {
 		// preventDefault lets the browser restore the context later.
 		event.preventDefault();
+		handleContextLost();
+	});
+	function handleContextLost() {
 		glLostCount++;
 		appendLog("error", ["Luanti: WebGL context lost"]);
 		if (!started)
@@ -655,7 +689,7 @@
 		}, function() {
 			enableGlReload("Reload anyway");
 		});
-	});
+	}
 	Module.canvas.addEventListener("webglcontextrestored", function() {
 		glRestoredCount++;
 		appendLog("info", ["Luanti: WebGL context restored"]);

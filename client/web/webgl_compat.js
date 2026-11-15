@@ -11,18 +11,63 @@
 // back that view with a resizable/growable buffer, which WebGL2 rejects:
 //   TypeError: The provided ArrayBuffer value must not be resizable
 // WEBGL_USE_GARBAGE_FREE_APIS is an internal emcc setting and cannot be
-// disabled from the command line, so copy the uniform data out of such heaps
-// before it reaches WebGL.
+// disabled from the command line, so copy the data out of such heaps before
+// it reaches WebGL.
+//
+// Only views of a resizable or growable buffer are copied; everything else
+// goes straight through. Copies go into a scratch buffer per entry point that
+// grows to the largest upload seen, instead of a fresh .slice() per call:
+// every WebGL entry point patched here consumes its data before returning,
+// so the scratch is free again as soon as the call is. Counters are exposed
+// as Module.luantiWebGLCompat.stats() for the frame-time benchmark.
 
 (function() {
 	"use strict";
-	// WebGL calls run on the browser main thread under PROXY_TO_PTHREAD; the
-	// application workers have no WebGL2RenderingContext.
+	// Proxied render mode: WebGL runs on the browser main thread. Offscreen
+	// mode: it runs on the engine worker, where the same heap restriction
+	// applies, so this also patches workers that expose WebGL2 (Chrome and
+	// Firefox do; the counters are then per thread).
 	if (typeof WebGL2RenderingContext === "undefined")
 		return;
 
+	var stats = {"calls": 0, "copies": 0, "bytes": 0, "scratchBytes": 0};
+	if (typeof Module !== "undefined") {
+		Module["luantiWebGLCompat"] = {
+			"stats": function() {
+				return {
+					"calls": stats["calls"],
+					"copies": stats["copies"],
+					"bytes": stats["bytes"],
+					"scratchBytes": stats["scratchBytes"]
+				};
+			}
+		};
+	}
+
 	function isResizable(buffer) {
 		return buffer && (buffer.resizable === true || buffer.growable === true);
+	}
+
+	// One scratch ArrayBuffer per (entry point, argument) so two arguments of
+	// one call never share storage. Grown in powers of two.
+	var scratch = {};
+	function copyOf(key, view, start, end) {
+		var ctor = view.constructor;
+		var count = end - start;
+		var bytes = count * ctor.BYTES_PER_ELEMENT;
+		var buffer = scratch[key];
+		if (!buffer || buffer.byteLength < bytes) {
+			var size = 64;
+			while (size < bytes)
+				size *= 2;
+			stats["scratchBytes"] += size - (buffer ? buffer.byteLength : 0);
+			buffer = scratch[key] = new ArrayBuffer(size);
+		}
+		var copy = new ctor(buffer, 0, count);
+		copy.set(start === 0 && end === view.length ? view : view.subarray(start, end));
+		stats["copies"]++;
+		stats["bytes"] += bytes;
+		return copy;
 	}
 
 	// Index of the data argument and whether it is followed by srcOffset and
@@ -33,6 +78,7 @@
 		if (typeof original !== "function")
 			return;
 		proto[name] = function() {
+			stats["calls"]++;
 			/** @type {any} */
 			var data = arguments[dataIndex];
 			if (!data || !ArrayBuffer.isView(data) || !isResizable(data.buffer))
@@ -41,7 +87,7 @@
 			var length = arguments[dataIndex + 2];
 			var end = length ? offset + length : /** @type {any} */ (data).length;
 			var args = Array.prototype.slice.call(arguments, 0, dataIndex);
-			args.push(/** @type {any} */ (data).slice(offset, end));
+			args.push(copyOf(name, data, offset, end));
 			return original.apply(this, args);
 		};
 	}
@@ -69,22 +115,24 @@
 		if (typeof original !== "function")
 			return;
 		proto[name] = function() {
+			stats["calls"]++;
 			var copied = null;
+			var back = null;
 			for (var k = 0; k < arguments.length; k++) {
 				/** @type {any} */
 				var arg = arguments[k];
 				if (arg && ArrayBuffer.isView(arg) && isResizable(arg.buffer)) {
 					copied = copied || Array.prototype.slice.call(arguments);
-					copied[k] = /** @type {any} */ (arg).slice();
+					copied[k] = copyOf(name + k, arg, 0, /** @type {any} */ (arg).length);
 					if (outputs[name])
-						copied.back = [k, arg];
+						back = [k, arg];
 				}
 			}
 			if (!copied)
 				return original.apply(this, arguments);
 			var result = original.apply(this, copied);
-			if (copied.back)
-				copied.back[1].set(copied[copied.back[0]]);
+			if (back)
+				back[1].set(copied[back[0]]);
 			return result;
 		};
 	}

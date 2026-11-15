@@ -73,6 +73,16 @@ bool emscripten_persistence_pending();
 bool emscripten_persistence_error();
 void emscripten_wait_for_persistence();
 
+// Frame statistics for Module.luantiPerf (client/web/perf.js). Called once per
+// game loop iteration on the application worker; the frame time is the wall
+// time since the previous call. The record goes into a ring in shared memory
+// that the page reads directly, so this never waits on the browser main thread.
+// draw_ms covers the whole scene draw including present, swap_ms the present
+// (endScene/SwapWindow) alone.
+void emscripten_record_frame(float draw_ms, float swap_ms,
+		std::uint32_t drawcalls, std::uint32_t primitives,
+		std::uint32_t mesh_queue);
+
 #else
 
 inline void emscripten_validate_main_loop()
@@ -138,6 +148,11 @@ inline bool emscripten_persistence_error()
 }
 
 inline void emscripten_wait_for_persistence()
+{
+}
+
+inline void emscripten_record_frame(float, float, std::uint32_t, std::uint32_t,
+		std::uint32_t)
 {
 }
 

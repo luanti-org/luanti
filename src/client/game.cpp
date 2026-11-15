@@ -519,11 +519,7 @@ void Game::run()
 		// Calculate dtime =
 		//    m_rendering_engine->run() from this iteration
 		//  + Sleep time until the wanted FPS are reached
-#ifdef __EMSCRIPTEN__
-		dtime = 0.016f;
-#else
 		draw_times.limit(device, &dtime);
-#endif
 
 		framemarker.start();
 
@@ -3801,10 +3797,22 @@ void Game::drawScene(ProfilerGraph *graph, RunStats *stats)
 	// Must be called immediately before endScene() to capture the rendered frame
 	this->client->takeScreenshotIfRequested();
 
+#ifdef __EMSCRIPTEN__
+	const u64 swap_start_us = porting::getTimeUs();
+#endif
 	this->driver->endScene();
 
 	stats->drawtime = tt_draw.stop(true);
 	g_profiler->graphAdd("Draw scene [us]", stats->drawtime);
+#ifdef __EMSCRIPTEN__
+	{
+		const u64 swap_us = porting::getTimeUs() - swap_start_us;
+		const video::SFrameStats &fs = this->driver->getFrameStats();
+		porting::emscripten_record_frame(stats->drawtime / 1000.0f,
+			swap_us / 1000.0f, fs.Drawcalls, fs.PrimitivesDrawn,
+			static_cast<u32>(client->getQueuedMeshCount()));
+	}
+#endif
 
 }
 

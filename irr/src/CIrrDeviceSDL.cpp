@@ -112,6 +112,9 @@
 static int SDLDeviceInstances = 0;
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
+// Defined with the rest of the browser WebGL context code below.
+static void destroyBrowserWebGLContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE handle);
+
 EM_BOOL CIrrDeviceSDL::MouseUpDownCallback(int eventType, const EmscriptenMouseEvent *event, void *userData)
 {
 	// We need this callback so far only because otherwise "emscripten_request_pointerlock" calls will
@@ -503,8 +506,7 @@ CIrrDeviceSDL::~CIrrDeviceSDL()
 	}
 
 	if (Context) {
-		emscripten_webgl_make_context_current(0);
-		emscripten_webgl_destroy_context(
+		destroyBrowserWebGLContext(
 			reinterpret_cast<EMSCRIPTEN_WEBGL_CONTEXT_HANDLE>(Context));
 		Context = nullptr;
 	}
@@ -631,19 +633,98 @@ bool CIrrDeviceSDL::createWindow()
 }
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
-// CSS box and backing store of #canvas in one main-thread hop so width/height
-// cannot tear, and so we never assign canvas.width unless it actually changed
-// (that assignment resets the WebGL drawing buffer).
+// Page state the browser main thread publishes into shared memory from its own
+// event listeners (see installBrowserPageState). The frame loop used to ask
+// for these with synchronous main-thread calls (canvas layout every frame,
+// visibility every frame, pointer lock on every mouse move), each of which
+// blocks the application worker until the main thread gets to it. Field order
+// is read by the JS in installBrowserPageState.
+struct BrowserPageState
+{
+	std::atomic<s32> published; // publish count; 0 = not installed yet
+	std::atomic<s32> css_w;
+	std::atomic<s32> css_h;
+	std::atomic<s32> canvas_w;
+	std::atomic<s32> canvas_h;
+	std::atomic<s32> hidden;
+	std::atomic<s32> pointer_locked;
+};
+static_assert(sizeof(std::atomic<s32>) == 4, "page state is read as Int32Array");
+alignas(4) static BrowserPageState g_pageState;
+
+static bool browserPageStateReady()
+{
+	return g_pageState.published.load(std::memory_order_acquire) > 0;
+}
+
+// One synchronous hop, once per device: install listeners that republish on
+// resize, layout and attribute changes of #canvas, visibility and pointer lock.
+static void installBrowserPageState()
+{
+	if (browserPageStateReady())
+		return;
+	MAIN_THREAD_EM_ASM({
+		var base = $0 >> 2;
+		var c = Module['canvas'] || document.getElementById('canvas');
+		var publish = function() {
+			Atomics.store(HEAP32, base + 1, c ? (c.clientWidth | 0) : 0);
+			Atomics.store(HEAP32, base + 2, c ? (c.clientHeight | 0) : 0);
+			Atomics.store(HEAP32, base + 3, c ? (c.width | 0) : 0);
+			Atomics.store(HEAP32, base + 4, c ? (c.height | 0) : 0);
+			Atomics.store(HEAP32, base + 5, document.hidden ? 1 : 0);
+			Atomics.store(HEAP32, base + 6,
+				c && document.pointerLockElement === c ? 1 : 0);
+			Atomics.add(HEAP32, base, 1);
+		};
+		window.addEventListener('resize', publish);
+		document.addEventListener('visibilitychange', publish);
+		document.addEventListener('pointerlockchange', publish);
+		document.addEventListener('fullscreenchange', publish);
+		if (c && typeof ResizeObserver !== 'undefined')
+			new ResizeObserver(publish).observe(c);
+		// canvas.width/height assignments reflect to the attributes.
+		if (c && typeof MutationObserver !== 'undefined')
+			new MutationObserver(publish).observe(c,
+				{attributes: true, attributeFilter: ['width', 'height']});
+		Module['luantiPublishPageState'] = publish;
+		publish();
+	}, &g_pageState);
+}
+
+// After the worker changed the canvas size itself: the observer that would
+// republish runs only after the proxied resize call has already returned, so
+// publish synchronously once instead of resizing twice. Resizes are rare.
+static void republishBrowserPageState()
+{
+	if (!browserPageStateReady())
+		return;
+	MAIN_THREAD_EM_ASM({
+		var publish = Module['luantiPublishPageState'];
+		if (publish)
+			publish();
+	});
+}
+
+// CSS box and backing store of #canvas, so we never assign canvas.width unless
+// it actually changed (that assignment resets the WebGL drawing buffer).
 static bool queryCanvasLayoutSize(int *css_w, int *css_h, int *canvas_w, int *canvas_h)
 {
 	int cw = 0, ch = 0, bw = 0, bh = 0;
-	MAIN_THREAD_EM_ASM({
-		var c = Module['canvas'] || document.getElementById('canvas');
-		HEAP32[$0 >> 2] = c ? (c.clientWidth | 0) : 0;
-		HEAP32[$1 >> 2] = c ? (c.clientHeight | 0) : 0;
-		HEAP32[$2 >> 2] = c ? (c.width | 0) : 0;
-		HEAP32[$3 >> 2] = c ? (c.height | 0) : 0;
-	}, &cw, &ch, &bw, &bh);
+	if (browserPageStateReady()) {
+		cw = g_pageState.css_w.load(std::memory_order_relaxed);
+		ch = g_pageState.css_h.load(std::memory_order_relaxed);
+		bw = g_pageState.canvas_w.load(std::memory_order_relaxed);
+		bh = g_pageState.canvas_h.load(std::memory_order_relaxed);
+	} else {
+		// One main-thread hop so width/height cannot tear.
+		MAIN_THREAD_EM_ASM({
+			var c = Module['canvas'] || document.getElementById('canvas');
+			HEAP32[$0 >> 2] = c ? (c.clientWidth | 0) : 0;
+			HEAP32[$1 >> 2] = c ? (c.clientHeight | 0) : 0;
+			HEAP32[$2 >> 2] = c ? (c.width | 0) : 0;
+			HEAP32[$3 >> 2] = c ? (c.height | 0) : 0;
+		}, &cw, &ch, &bw, &bh);
+	}
 	if (cw < 2 || ch < 2)
 		return false;
 	*css_w = cw;
@@ -651,6 +732,24 @@ static bool queryCanvasLayoutSize(int *css_w, int *css_h, int *canvas_w, int *ca
 	*canvas_w = bw;
 	*canvas_h = bh;
 	return true;
+}
+
+static bool browserPointerLocked()
+{
+	if (browserPageStateReady())
+		return g_pageState.pointer_locked.load(std::memory_order_relaxed) != 0;
+	EmscriptenPointerlockChangeEvent pointerlock{};
+	return emscripten_get_pointerlock_status(&pointerlock) ==
+			EMSCRIPTEN_RESULT_SUCCESS && pointerlock.isActive;
+}
+
+static bool browserPageHidden()
+{
+	if (browserPageStateReady())
+		return g_pageState.hidden.load(std::memory_order_relaxed) != 0;
+	EmscriptenVisibilityChangeEvent visibility;
+	return emscripten_get_visibility_status(&visibility) ==
+			EMSCRIPTEN_RESULT_SUCCESS && visibility.hidden;
 }
 
 static void logBrowserWebGLFailure()
@@ -687,8 +786,10 @@ static void ensureBrowserCanvasSize(u32 *width, u32 *height)
 	if (queryCanvasLayoutSize(&css_w, &css_h, &canvas_w, &canvas_h)) {
 		*width = static_cast<u32>(css_w);
 		*height = static_cast<u32>(css_h);
-		if (canvas_w != css_w || canvas_h != css_h)
+		if (canvas_w != css_w || canvas_h != css_h) {
 			emscripten_set_canvas_element_size("#canvas", css_w, css_h);
+			republishBrowserPageState();
+		}
 		return;
 	}
 	int fallback_w = 0, fallback_h = 0;
@@ -703,6 +804,7 @@ static void ensureBrowserCanvasSize(u32 *width, u32 *height)
 	*width = static_cast<u32>(fallback_w);
 	*height = static_cast<u32>(fallback_h);
 	emscripten_set_canvas_element_size("#canvas", fallback_w, fallback_h);
+	republishBrowserPageState();
 }
 
 // Optional overrides from the page: Module.luantiWebGL = { major: 1|2 }.
@@ -717,26 +819,208 @@ static int browserWebGLForcedMajor()
 	});
 }
 
+// Which thread owns the WebGL context. Module.luantiWebGL.render (?render=):
+//   "proxy"     - the browser main thread; every GL call is proxied to it and
+//                 frames are presented with emscripten_webgl_commit_frame().
+//   "offscreen" - this application worker, on an OffscreenCanvas of its own;
+//                 GL calls are direct and frames are handed to the page as
+//                 ImageBitmaps (client/web/present.js). No fallback.
+//   "auto"      - offscreen if the browser can, otherwise proxy.
+// Absent: the build default, WASM_RENDER_THREAD in CMake.
+#ifndef LUANTI_WASM_RENDER_THREAD_DEFAULT
+#define LUANTI_WASM_RENDER_THREAD_DEFAULT 0
+#endif
+enum BrowserRenderMode
+{
+	BROWSER_RENDER_PROXY = 0,
+	BROWSER_RENDER_OFFSCREEN = 1,
+	BROWSER_RENDER_AUTO = 2,
+};
+
+static int browserRenderMode()
+{
+	return MAIN_THREAD_EM_ASM_INT({
+		var o = Module['luantiWebGL'];
+		var r = o && o['render'];
+		if (r === 'proxy')
+			return 0;
+		if (r === 'offscreen')
+			return 1;
+		if (r === 'auto')
+			return 2;
+		return $0;
+	}, LUANTI_WASM_RENDER_THREAD_DEFAULT);
+}
+
+// Offscreen render mode. Why not transferControlToOffscreen() on #canvas: a
+// transferred canvas only presents when its owning thread returns to the event
+// loop, and Luanti's loop on this worker never does, so the game stayed blank.
+// A worker-created OffscreenCanvas presents explicitly instead, through
+// transferToImageBitmap(), and #canvas stays a normal DOM canvas for input,
+// pointer lock, fullscreen and layout.
+static bool g_offscreenRender = false; // application worker only
+// Frames handed to the page and frames it has shown or dropped. The page
+// increments the second (present.js), so it is read as an Int32Array there.
+static s32 g_offscreenFramesSent = 0;
+static std::atomic<s32> g_offscreenFramesAcked{0};
+// One frame waiting for the display while the next is rendered. Running
+// further ahead only renders frames the page then drops, and the extra GPU
+// work starves the compositor (measured on SwiftShader: requestAnimationFrame
+// fell from 13 Hz to 2 Hz with the worker unthrottled).
+static constexpr s32 OFFSCREEN_MAX_FRAMES_IN_FLIGHT = 1;
+// Safety net only: a hidden page acknowledges immediately (present.js).
+static constexpr double OFFSCREEN_MAX_PRESENT_WAIT_MS = 1000.0;
+// Set by luanti_debug_lose_webgl_context() from the page (tests).
+static std::atomic<bool> g_debugLoseContext{false};
+
+// Creates a WebGL context on a new OffscreenCanvas owned by the calling thread
+// and registers it with Emscripten's GL library, which then dispatches GL
+// calls from this thread directly instead of proxying them. Returns the
+// context handle or 0.
+EM_JS(int, luanti_offscreen_create_context, (int major, int width, int height,
+		int alpha, int depth, int stencil), {
+	if (typeof OffscreenCanvas === 'undefined' ||
+			typeof OffscreenCanvas.prototype.transferToImageBitmap !== 'function' ||
+			typeof self.postMessage !== 'function')
+		return 0;
+	var attrs = {
+		'alpha': !!alpha,
+		'depth': !!depth,
+		'stencil': !!stencil,
+		'antialias': false,
+		'premultipliedAlpha': true,
+		'preserveDrawingBuffer': false,
+		'powerPreference': 'high-performance',
+		'failIfMajorPerformanceCaveat': false
+	};
+	var ctx = null;
+	try {
+		var canvas = new OffscreenCanvas(Math.max(1, width), Math.max(1, height));
+		ctx = canvas.getContext(major == 2 ? 'webgl2' : 'webgl', attrs);
+	} catch (e) {
+		console.warn('Luanti: OffscreenCanvas WebGL' + major + ' failed', e);
+	}
+	if (!ctx)
+		return 0;
+	// The attributes Emscripten's GL library reads back from a context.
+	attrs['majorVersion'] = major;
+	attrs['minorVersion'] = 0;
+	attrs['enableExtensionsByDefault'] = 1;
+	attrs['explicitSwapControl'] = 0;
+	attrs['renderViaOffscreenBackBuffer'] = 0;
+	attrs['proxyContextToMainThread'] = 0;
+	return GL.registerContext(ctx, attrs);
+});
+
+// Hands the finished frame to the page. 1: posted, 0: no context, -1: lost.
+EM_JS(int, luanti_offscreen_present, (void *ack_counter), {
+	var ctx = GLctx;
+	if (!ctx || !ctx.canvas)
+		return 0;
+	if (ctx.isContextLost())
+		return -1;
+	var bitmap = ctx.canvas.transferToImageBitmap();
+	// No 'cmd' field: Emscripten's own handler for this worker ignores the
+	// message, and the listener present.js adds to every worker takes it.
+	// (Emscripten's "callHandler" command changed shape between releases.)
+	self.postMessage({'luantiFrame': bitmap, 'luantiAck': ack_counter}, [bitmap]);
+	return 1;
+});
+
+EM_JS(void, luanti_offscreen_context_attributes, (int handle, int *major,
+		EM_BOOL *alpha, EM_BOOL *depth, EM_BOOL *stencil, EM_BOOL *antialias), {
+	var context = GL.contexts[handle];
+	var ctx = context ? context.GLctx : null;
+	var a = ctx ? ctx.getContextAttributes() : null;
+	HEAP32[major >> 2] = (typeof WebGL2RenderingContext !== 'undefined' &&
+		ctx instanceof WebGL2RenderingContext) ? 2 : 1;
+	HEAP32[alpha >> 2] = a && a.alpha ? 1 : 0;
+	HEAP32[depth >> 2] = a && a.depth ? 1 : 0;
+	HEAP32[stencil >> 2] = a && a.stencil ? 1 : 0;
+	HEAP32[antialias >> 2] = a && a.antialias ? 1 : 0;
+});
+
+// Resizing resets the drawing buffer, so only between frames.
+EM_JS(void, luanti_offscreen_resize, (int width, int height), {
+	var canvas = GLctx && GLctx.canvas;
+	if (!canvas)
+		return;
+	width = Math.max(1, width);
+	height = Math.max(1, height);
+	if (canvas.width !== width || canvas.height !== height) {
+		canvas.width = width;
+		canvas.height = height;
+	}
+});
+
+// Emscripten proxies emscripten_webgl_destroy_context() to the main thread
+// unless it is built with OFFSCREENCANVAS_SUPPORT, and the main thread has no
+// such context; delete the worker-owned one here, on its own thread.
+EM_JS(void, luanti_offscreen_destroy_context, (int handle), {
+	if (!GL.contexts[handle])
+		return;
+	if (GL.currentContext === GL.contexts[handle])
+		GL.makeContextCurrent(0);
+	GL.deleteContext(handle);
+});
+
+static void destroyBrowserWebGLContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE handle)
+{
+	emscripten_webgl_make_context_current(0);
+	if (g_offscreenRender)
+		luanti_offscreen_destroy_context(static_cast<int>(handle));
+	else
+		emscripten_webgl_destroy_context(handle);
+}
+
+EM_JS(void, luanti_offscreen_lose_context, (), {
+	var ext = GLctx && GLctx.getExtension('WEBGL_lose_context');
+	if (ext)
+		ext.loseContext();
+});
+
+// Module.luantiWebGL.swapSleepMs: milliseconds to sleep after presenting a
+// frame (0 or absent: none, only drain this thread's proxied calls).
+static int browserSwapSleepMs()
+{
+	return MAIN_THREAD_EM_ASM_INT({
+		var o = Module['luantiWebGL'];
+		var ms = o && o['swapSleepMs'] | 0;
+		return ms > 0 && ms <= 100 ? ms : 0;
+	});
+}
+
 static void reportBrowserWebGLContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx,
 		int attempt, bool explicit_swap)
 {
+	const char *render = g_offscreenRender ? "offscreen" : "proxy";
 	EmscriptenWebGLContextAttributes got;
-	if (emscripten_webgl_get_context_attributes(ctx, &got) != EMSCRIPTEN_RESULT_SUCCESS)
+	if (g_offscreenRender) {
+		// Our own context on this thread: ask WebGL directly.
+		emscripten_webgl_init_context_attributes(&got);
+		luanti_offscreen_context_attributes(static_cast<int>(ctx),
+			&got.majorVersion, &got.alpha,
+			&got.depth, &got.stencil, &got.antialias);
+		got.powerPreference = EM_WEBGL_POWER_PREFERENCE_HIGH_PERFORMANCE;
+	} else if (emscripten_webgl_get_context_attributes(ctx, &got) != EMSCRIPTEN_RESULT_SUCCESS) {
+		os::Printer::log("Could not query the WebGL context attributes", ELL_WARNING);
 		return;
+	}
 	char msg[200];
 	snprintf(msg, sizeof(msg),
-		"WebGL%d context (attempt %d, explicitSwap=%d, alpha=%d depth=%d stencil=%d "
-		"antialias=%d powerPreference=%d)", got.majorVersion, attempt,
-		explicit_swap ? 1 : 0, got.alpha, got.depth, got.stencil, got.antialias,
-		got.powerPreference);
+		"WebGL%d context (%s, attempt %d, explicitSwap=%d, alpha=%d depth=%d "
+		"stencil=%d antialias=%d powerPreference=%d)", got.majorVersion, render,
+		attempt, explicit_swap ? 1 : 0, got.alpha, got.depth, got.stencil,
+		got.antialias, got.powerPreference);
 	os::Printer::log(msg, ELL_INFORMATION);
 	// Visible to the launcher console and to tests without a GL query. Built as
 	// a string because commas in a JS object literal would split the macro args.
 	char json[256];
 	snprintf(json, sizeof(json),
-		"{\"version\":%d,\"attempt\":%d,\"explicitSwap\":%s,\"alpha\":%s,"
-		"\"depth\":%s,\"stencil\":%s,\"antialias\":%s,\"powerPreference\":%d}",
-		got.majorVersion, attempt, explicit_swap ? "true" : "false",
+		"{\"version\":%d,\"render\":\"%s\",\"attempt\":%d,\"explicitSwap\":%s,"
+		"\"alpha\":%s,\"depth\":%s,\"stencil\":%s,\"antialias\":%s,"
+		"\"powerPreference\":%d}",
+		got.majorVersion, render, attempt, explicit_swap ? "true" : "false",
 		got.alpha ? "true" : "false", got.depth ? "true" : "false",
 		got.stencil ? "true" : "false", got.antialias ? "true" : "false",
 		static_cast<int>(got.powerPreference));
@@ -747,7 +1031,7 @@ static void reportBrowserWebGLContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx,
 }
 
 static EMSCRIPTEN_WEBGL_CONTEXT_HANDLE createBrowserWebGLContext(
-		const SIrrlichtCreationParameters &params)
+		const SIrrlichtCreationParameters &params, u32 width, u32 height)
 {
 	auto try_create = [&](int major_version, bool explicit_swap) {
 		EmscriptenWebGLContextAttributes attributes;
@@ -771,14 +1055,43 @@ static EMSCRIPTEN_WEBGL_CONTEXT_HANDLE createBrowserWebGLContext(
 		return emscripten_webgl_create_context("#canvas", &attributes);
 	};
 
-	// Newest first. Some drivers/blocklists reject WebGL2 or refuse explicit
-	// swap control; WebGL1 (with the ES2 shaders) is the last resort.
+	// Newest first: offscreen WebGL2 and WebGL1 on this worker (unless the
+	// render mode is "proxy"), then the proxied ladder. Some drivers or
+	// blocklists reject WebGL2 or refuse explicit swap control; WebGL1 (with
+	// the ES2 shaders) is the last resort.
 	const int forced = browserWebGLForcedMajor();
+	const int mode = browserRenderMode();
+	int n = 0;
+	if (mode != BROWSER_RENDER_PROXY) {
+		for (int major : {2, 1}) {
+			n++;
+			if (forced && major != forced)
+				continue;
+			const EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx = luanti_offscreen_create_context(
+				major, width, height,
+				params.WithAlphaChannel, params.ZBufferBits > 0, params.Stencilbuffer);
+			if (ctx) {
+				g_offscreenRender = true;
+				g_offscreenFramesSent = 0;
+				g_offscreenFramesAcked = 0;
+				reportBrowserWebGLContext(ctx, n, false);
+				return ctx;
+			}
+			char msg[80];
+			snprintf(msg, sizeof(msg), "Offscreen WebGL%d context creation failed", major);
+			os::Printer::log(msg, ELL_WARNING);
+		}
+		if (mode == BROWSER_RENDER_OFFSCREEN) {
+			os::Printer::log("Render mode \"offscreen\" was requested; not falling "
+				"back to the proxied context", ELL_ERROR);
+			return 0;
+		}
+	}
+	g_offscreenRender = false;
 	struct Attempt { int major; bool explicit_swap; };
 	static const Attempt attempts[] = {
 		{2, true}, {2, false}, {1, true}, {1, false},
 	};
-	int n = 0;
 	for (const Attempt &a : attempts) {
 		n++;
 		if (forced && a.major != forced)
@@ -822,6 +1135,28 @@ static EM_BOOL webglContextEventCallback(int eventType, const void *, void *)
 	}
 	return EM_FALSE;
 }
+
+// Offscreen mode: the worker never runs its event loop, so the context-lost
+// event is never delivered; SwapWindow polls isContextLost() and tells the page
+// with this instead (the launcher shows the same overlay as for the DOM event).
+static void notifyPageContextLost()
+{
+	MAIN_THREAD_ASYNC_EM_ASM({
+		var launcher = Module['luantiLauncher'];
+		if (launcher && typeof launcher['notifyContextLost'] === 'function')
+			launcher['notifyContextLost']();
+	});
+}
+
+extern "C" {
+// For tests: lose the engine's WebGL context from the page in either render
+// mode (in offscreen mode the page cannot reach the context itself). Takes
+// effect at the next presented frame.
+EMSCRIPTEN_KEEPALIVE void luanti_debug_lose_webgl_context()
+{
+	g_debugLoseContext = true;
+}
+}
 #endif
 
 bool CIrrDeviceSDL::createWindowWithContext()
@@ -847,6 +1182,7 @@ bool CIrrDeviceSDL::createWindowWithContext()
 	SDL_GL_ResetAttributes();
 
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
+	installBrowserPageState();
 	updateSizeAndScale();
 	ensureBrowserCanvasSize(&Width, &Height);
 
@@ -877,7 +1213,7 @@ bool CIrrDeviceSDL::createWindowWithContext()
 	ensureBrowserCanvasSize(&Width, &Height);
 
 	const EMSCRIPTEN_WEBGL_CONTEXT_HANDLE webgl_context =
-		createBrowserWebGLContext(CreationParams);
+		createBrowserWebGLContext(CreationParams, Width, Height);
 	if (!webgl_context) {
 		os::Printer::log("Could not create browser WebGL context", ELL_WARNING);
 		logBrowserWebGLFailure();
@@ -888,7 +1224,7 @@ bool CIrrDeviceSDL::createWindowWithContext()
 	Context = reinterpret_cast<SDL_GLContext>(webgl_context);
 	if (emscripten_webgl_make_context_current(webgl_context) != EMSCRIPTEN_RESULT_SUCCESS) {
 		os::Printer::log("Could not activate browser WebGL context", ELL_WARNING);
-		emscripten_webgl_destroy_context(webgl_context);
+		destroyBrowserWebGLContext(webgl_context);
 		Context = nullptr;
 		SDL_DestroyWindow(Window);
 		Window = nullptr;
@@ -1066,6 +1402,8 @@ bool CIrrDeviceSDL::run()
 	const u32 old_w = Width;
 	const u32 old_h = Height;
 	updateSizeAndScale();
+	if (g_offscreenRender)
+		luanti_offscreen_resize(Width, Height);
 	if (VideoDriver && (old_w != Width || old_h != Height))
 		VideoDriver->OnResize(core::dimension2d<u32>(Width, Height));
 #endif
@@ -1083,6 +1421,10 @@ bool CIrrDeviceSDL::run()
 		u32 old_w = Width, old_h = Height;
 		f32 old_scale_x = ScaleX, old_scale_y = ScaleY;
 		updateSizeAndScale();
+#ifdef _IRR_EMSCRIPTEN_PLATFORM_
+		if (g_offscreenRender)
+			luanti_offscreen_resize(Width, Height);
+#endif
 		if (old_w != Width || old_h != Height) {
 			if (VideoDriver)
 				VideoDriver->OnResize(core::dimension2d<u32>(Width, Height));
@@ -1112,11 +1454,7 @@ bool CIrrDeviceSDL::run()
 			// full viewport, which multiplied yaw/pitch by ~2×.
 			MouseXRel = SDL_event.motion.xrel;
 			MouseYRel = SDL_event.motion.yrel;
-			EmscriptenPointerlockChangeEvent pointerlock{};
-			const bool pointer_locked =
-					emscripten_get_pointerlock_status(&pointerlock) ==
-							EMSCRIPTEN_RESULT_SUCCESS &&
-					pointerlock.isActive;
+			const bool pointer_locked = browserPointerLocked();
 			if (pointer_locked || SDL_GetRelativeMouseMode()) {
 				MouseX += MouseXRel;
 				MouseY += MouseYRel;
@@ -1519,6 +1857,7 @@ void CIrrDeviceSDL::updateSizeAndScale()
 		} else {
 			emscripten_set_canvas_element_size("#canvas", css_w, css_h);
 		}
+		republishBrowserPageState();
 		return;
 	}
 #endif
@@ -1587,10 +1926,34 @@ void CIrrDeviceSDL::SwapWindow()
 	if (webgl)
 		emscripten_webgl_make_context_current(webgl);
 
-	// Render pipeline steps may leave an intermediate FBO bound. Commit only
-	// presents the default canvas framebuffer.
+	// Render pipeline steps may leave an intermediate FBO bound. Both commit
+	// and transferToImageBitmap present the default framebuffer.
 	if (VideoDriver)
 		VideoDriver->setRenderTargetEx(nullptr, video::ECBF_NONE);
+
+	if (g_offscreenRender) {
+		if (g_debugLoseContext.exchange(false))
+			luanti_offscreen_lose_context();
+		// Paced by the display; bounded so that a page that stops
+		// acknowledging cannot stall the engine.
+		const double wait_start = emscripten_get_now();
+		while (g_offscreenFramesSent - g_offscreenFramesAcked.load(std::memory_order_acquire) >=
+					OFFSCREEN_MAX_FRAMES_IN_FLIGHT &&
+				emscripten_get_now() - wait_start < OFFSCREEN_MAX_PRESENT_WAIT_MS)
+			emscripten_thread_sleep(0.25);
+		const int presented = luanti_offscreen_present(&g_offscreenFramesAcked);
+		if (presented > 0) {
+			g_offscreenFramesSent++;
+		} else if (presented < 0) {
+			g_webglContextLost = true;
+			os::Printer::log("WebGL context lost; rendering paused", ELL_ERROR);
+			notifyPageContextLost();
+		}
+		// Deliver DOM input and resize callbacks queued for this thread.
+		// present.js dismisses the loading shell, so no hop for that either.
+		emscripten_current_thread_process_queued_calls();
+		return;
+	}
 
 	const EMSCRIPTEN_RESULT rc = emscripten_webgl_commit_frame();
 	if (rc != EMSCRIPTEN_RESULT_SUCCESS) {
@@ -1601,10 +1964,17 @@ void CIrrDeviceSDL::SwapWindow()
 		}
 	}
 
-	// Yield so the browser main thread can composite OFFSCREEN_FRAMEBUFFER
-	// and run launcher status hooks. Keep this short — the game loop already
-	// runs on the application worker.
-	emscripten_thread_sleep(1);
+	// commit_frame is synchronous, so the frame has already been composited
+	// when it returns. What the worker still owes is its own proxied-call
+	// queue: DOM input and resize callbacks registered for this thread are
+	// delivered through it. Drain it without the fixed 1 ms sleep this used to
+	// be (Module.luantiWebGL.swapSleepMs / ?swapsleep=N restores a sleep for
+	// comparison).
+	static const int swap_sleep_ms = browserSwapSleepMs();
+	if (swap_sleep_ms > 0)
+		emscripten_thread_sleep(swap_sleep_ms);
+	else
+		emscripten_current_thread_process_queued_calls();
 
 	// Only the launcher decides when to hide the loading shell (after the
 	// first gameplay frame). Do not force opacity here — that hid load
@@ -1801,10 +2171,7 @@ bool CIrrDeviceSDL::isWindowVisible() const
 	// SDL's background events are unreliable in browsers and can leave
 	// IsInBackground set while the tab is still visible. Game::run() skips
 	// all drawing when this returns false, which leaves a blank canvas.
-	EmscriptenVisibilityChangeEvent emVisibility;
-	if (emscripten_get_visibility_status(&emVisibility) == EMSCRIPTEN_RESULT_SUCCESS)
-		return !emVisibility.hidden;
-	return true;
+	return !browserPageHidden();
 #else
 	return !IsInBackground;
 #endif
@@ -1822,11 +2189,8 @@ bool CIrrDeviceSDL::isWindowActive() const
 #ifdef _IRR_EMSCRIPTEN_PLATFORM_
 	// Hidden test only does something in some browsers (when tab in background or window is minimized)
 	// In other browsers code automatically doesn't seem to be called anymore.
-	EmscriptenVisibilityChangeEvent emVisibility;
-	if (emscripten_get_visibility_status(&emVisibility) == EMSCRIPTEN_RESULT_SUCCESS) {
-		if (emVisibility.hidden)
-			return false;
-	}
+	if (browserPageHidden())
+		return false;
 #endif
 	const u64 windowFlags = SDL_GetWindowFlags(Window);
 #ifdef _IRR_USE_SDL3_

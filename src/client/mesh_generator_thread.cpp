@@ -452,9 +452,8 @@ int MeshUpdateManager::processOnThisThread(int max_items)
 	return processed;
 }
 
-size_t MeshUpdateManager::queuedCount() const
+size_t MeshUpdateManager::queuedCount()
 {
-	// MeshUpdateQueue has no public size; approximate via try-pop is unsafe.
-	// Expose 0 here; diagnostics use process/result counters instead.
-	return 0;
+	// Blocks waiting for a mesh worker; takes the queue lock once.
+	return m_queue_in.size();
 }

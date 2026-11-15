@@ -2063,6 +2063,11 @@ ITextureSource* Client::getTextureSource()
 }
 
 #ifdef __EMSCRIPTEN__
+size_t Client::getQueuedMeshCount()
+{
+	return m_mesh_update_manager ? m_mesh_update_manager->queuedCount() : 0;
+}
+
 void Client::serviceVideoTextureSpike()
 {
 	std::string texture_name;

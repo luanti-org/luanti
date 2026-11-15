@@ -86,9 +86,49 @@ std::atomic<int> video_frame_height{0};
 // both of which run on the application worker; read on that same thread.
 std::string video_texture_name;
 
+// Frame statistics ring (Module.luantiPerf). Layout is read by
+// client/web/perf.js; bump PERF_RING_VERSION when it changes. The application
+// worker is the only writer: it fills frames[written % capacity] and then
+// publishes it by storing written + 1 with release order. Readers on the
+// browser main thread load `written` with Atomics.load and copy what they
+// need; at one record per frame the ring holds a little over two minutes at
+// 60 fps, far longer than any reader needs between reads.
+constexpr std::uint32_t PERF_RING_VERSION = 1;
+constexpr std::uint32_t PERF_RING_CAPACITY = 8192;
+
+struct PerfFrame {
+	float frame_ms;
+	float draw_ms;
+	float swap_ms;
+	std::uint32_t drawcalls;
+	std::uint32_t primitives;
+	std::uint32_t mesh_queue;
+};
+static_assert(sizeof(PerfFrame) == 24, "perf.js reads 6 words per frame");
+
+struct PerfRing {
+	std::uint32_t version;
+	std::uint32_t capacity;
+	std::uint32_t words_per_frame;
+	std::atomic<std::uint32_t> written;
+	PerfFrame frames[PERF_RING_CAPACITY];
+};
+static_assert(sizeof(std::atomic<std::uint32_t>) == 4, "lock-free 32-bit atomic");
+
+alignas(16) PerfRing perf_ring = {PERF_RING_VERSION, PERF_RING_CAPACITY,
+	sizeof(PerfFrame) / 4, {0}, {}};
+double perf_last_frame_ms = 0.0; // application worker only
+
 } // namespace
 
 extern "C" {
+
+// Address of the frame statistics ring, for client/web/perf.js. The ring is a
+// static in shared memory, so the address is the same on every thread.
+EMSCRIPTEN_KEEPALIVE std::uintptr_t luanti_perf_ring()
+{
+	return reinterpret_cast<std::uintptr_t>(&perf_ring);
+}
 
 // Called by client/web/videotexture.js after it has written a decoded frame
 // into video_frame_buffer[buffer_index]. Runs on the browser main thread's
@@ -247,6 +287,27 @@ void emscripten_wait_for_persistence()
 		// main thread free to complete syncfs callbacks and display errors.
 		emscripten_thread_sleep(16);
 	}
+}
+
+void emscripten_record_frame(float draw_ms, float swap_ms,
+		std::uint32_t drawcalls, std::uint32_t primitives,
+		std::uint32_t mesh_queue)
+{
+	const double now = emscripten_get_now();
+	const double last = perf_last_frame_ms;
+	perf_last_frame_ms = now;
+	// The first call only starts the clock; a frame time needs two ends.
+	if (last == 0.0)
+		return;
+	const std::uint32_t n = perf_ring.written.load(std::memory_order_relaxed);
+	PerfFrame &f = perf_ring.frames[n % PERF_RING_CAPACITY];
+	f.frame_ms = static_cast<float>(now - last);
+	f.draw_ms = draw_ms;
+	f.swap_ms = swap_ms;
+	f.drawcalls = drawcalls;
+	f.primitives = primitives;
+	f.mesh_queue = mesh_queue;
+	perf_ring.written.store(n + 1, std::memory_order_release);
 }
 
 bool emscripten_show_video_overlay(const std::string &clip,

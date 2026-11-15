@@ -237,6 +237,10 @@ public:
 	void sendUpdateClientInfo(const ClientDynamicInfo &info);
 
 	ClientEnvironment& getEnv() { return m_env; }
+#ifdef __EMSCRIPTEN__
+	// Blocks waiting for a mesh worker (Module.luantiPerf).
+	size_t getQueuedMeshCount();
+#endif
 	ITextureSource *tsrc() { return getTextureSource(); }
 	ISoundManager *sound() { return getSoundManager(); }
 	static const std::string &getBuiltinLuaPath();

@@ -64,6 +64,28 @@ average ~9 from unrelated jobs, server "max lag" 7-20 s.
   default game can pass.
 - Re-run on an idle host before drawing conclusions about #32 / #33.
 
+## Re-run notes, 2026-11-11 (local, 8-core host, SwiftShader)
+
+Observations only, from the render-thread work (`wasm_porting.md`, "Render
+thread" and "Frame-time baseline").
+
+| Render mode | Result |
+|---|---|
+| `?render=offscreen` | **pass**, 2 of 2 runs: 8 placed, 5 dug, world and config byte-identical after the reload |
+| `?render=proxy` (the build default) | fail, `dug 0 of 5` in every run |
+
+The proxied failure, like the "server-side input is processed many seconds
+late" note above, matches a measured server stall. In proxy mode the server
+managed 0.13 globalsteps per second while the client rendered. Its SQLite I/O
+goes through Emscripten's JS filesystem, which runs every file operation
+synchronously on the browser main thread, and that thread is busy draining
+GL. With the context on the engine worker, the main thread is free and the
+server keeps 41-42 steps/s.
+
+These runs do not change the status of #32 and #33, which need the manual
+browser pass. They do suggest the automated gate depends on the render mode
+on slow GPUs.
+
 ## Not yet run
 
 - **Chrome stable and Firefox stable, driven by a human.** Everything above

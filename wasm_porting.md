@@ -822,12 +822,155 @@ On `webglcontextlost` the engine pauses presenting and the launcher shows an
 overlay, flushes IndexedDB, and offers a reload. The engine has no GL resource
 recreation path, so `webglcontextrestored` does not resume rendering in place.
 
+### Render thread
+
+`WASM_RENDER_THREAD` (CMake, default `proxy`) picks which thread owns the
+WebGL context; `?render=proxy|offscreen|auto` overrides it per page load, and
+`Module.luantiWebGLInfo.render` reports what was actually created.
+
+| Mode | WebGL owner | GL calls | Presenting a frame |
+|------|-------------|----------|--------------------|
+| `proxy` | browser main thread | proxied from the engine worker (draw calls synchronously under `-sFULL_ES2`) | `emscripten_webgl_commit_frame()` blits the `OFFSCREEN_FRAMEBUFFER` FBO |
+| `offscreen` | engine worker, on an `OffscreenCanvas` it creates | direct | `transferToImageBitmap()` posted to `client/web/present.js`, shown through a `bitmaprenderer` context on `requestAnimationFrame` |
+| `auto` | `offscreen` if the browser can create the worker context, otherwise `proxy` | | |
+
+The context ladder in `CIrrDeviceSDL::createBrowserWebGLContext()` tries
+offscreen WebGL2 and WebGL1 first (not in `proxy` mode), then the four proxied
+attempts. A forced `offscreen` never falls back, so tests can tell the modes
+apart.
+
+Why not `-sOFFSCREENCANVAS_SUPPORT` and `transferControlToOffscreen()`, as
+first planned:
+
+- A canvas transferred to a worker presents only when that worker returns to
+  its event loop (`commit()` is gone from browsers). The engine loop never
+  returns, which is why the earlier attempt left the game blank.
+- With `OFFSCREENCANVAS_SUPPORT`, Emscripten transfers `#canvas` on the main
+  thread as soon as a context with `explicitSwapControl` is created, which is
+  the first attempt of the proxied ladder; the fallback path would no longer
+  be the path that ships today.
+- A transferred canvas can no longer be resized from the main thread, and the
+  DOM event targets SDL registers on would need rerouting.
+
+The worker-created `OffscreenCanvas` avoids all three: `#canvas` stays an
+ordinary DOM canvas (input, pointer lock, fullscreen and layout are
+unchanged), the fallback is still possible after a failed worker context
+because `#canvas` is untouched until the first frame, and no link flags
+change. The context is registered with `GL.registerContext()`, after which
+Emscripten's GL trampolines call WebGL directly because the calling thread
+owns the context.
+
+Transport: the worker posts `{luantiFrame: ImageBitmap, luantiAck: ptr}` with
+the bitmap transferred, not through Emscripten's worker command channel,
+whose message format changed between releases (string commands in 3.1.x,
+numeric ones in 6.x). `present.js` wraps `window.Worker` before the pthread
+pool exists and listens for that field on every worker; Emscripten's own
+handler ignores messages without a `cmd`. The context is torn down on the
+worker too (`luanti_offscreen_destroy_context()`): without
+`OFFSCREENCANVAS_SUPPORT`, `emscripten_webgl_destroy_context()` always runs
+on the main thread, which has no such context.
+
+Post-processing stays off by default in both modes. Forced on, it crashes
+the proxied mode (`RuntimeError: null function` on the engine worker); in
+offscreen mode the first frames look right, but within seconds of flying the
+`bench_frame_time.py` path the terrain fades into sky colour until only the
+sky, a stray sky-coloured triangle and the HUD remain (SwiftShader,
+2026-11-11). `test_webgl_context.py`'s colour check does not catch that, as
+the sky gradient and HUD alone pass it; any change that turns post-processing
+on needs a screenshot along the benchmark path.
+
+Pacing: one frame waits for the display while the worker renders the next.
+`present.js` acknowledges frames on `requestAnimationFrame` through a counter
+in shared memory, so the worker runs no faster than the display. Letting it
+run ahead (two in flight and a 100 ms cap on the wait) rendered frames the
+page then dropped, and on SwiftShader the extra GPU work starved the
+compositor: `requestAnimationFrame` fell from 13 Hz to 2 Hz. A hidden page
+acknowledges immediately; the 1 s cap on the wait is only a safety net.
+
+Context loss in offscreen mode: the worker never runs the `webglcontextlost`
+event, so `SwapWindow()` polls `isContextLost()` and calls
+`Module.luantiLauncher.notifyContextLost()`, which shows the same overlay as
+the DOM event. The context is never restored in this mode (nothing calls
+`preventDefault()` on the event); reloading is the recovery either way.
+`Module.luantiLauncher.debugLoseContext()` triggers a loss in either mode.
+
+Per-frame main-thread queries are gone in both modes: canvas layout,
+visibility and pointer-lock state are published into shared memory by
+main-thread listeners (`installBrowserPageState()`), instead of synchronous
+`MAIN_THREAD_EM_ASM` / `emscripten_get_*_status` calls from the frame loop.
+OpenAL calls from the sound thread are still proxied synchronously.
+
+### Frame-time baseline
+
+Measured with `util/wasm/bench_frame_time.py` (fresh `luanti_web` world, view
+distance 100, 1280x720, 30 s path). `present` is `endScene()`, which under the
+proxied design is where the browser main thread drains the queued GL calls
+and runs `emscripten_webgl_commit_frame()`.
+
+| Date | Revision | Render path | GPU | Map I/O | fps | frame p50 / p95 / p99 ms | present p95 ms | draw calls p50 | server steps/s |
+|------|----------|-------------|-----|---------|-----|--------------------------|----------------|----------------|----------------|
+| 2026-11-11 | `perf/wasm-frame-stats` | proxy | SwiftShader, headless, 8 cores | SQLite | 9.2 | 108 / 231 / 308 | 217 | 133 | not measured |
+| 2026-11-11 | render-thread work | proxy | same | SQLite | 8.3-8.7 | 111-119 / 234-267 / 327-383 | 228-254 | 132-185 | 0.13 |
+| 2026-11-11 | render-thread work | offscreen | same | SQLite | 4.0-4.2 | 216-237 / 440-527 / 491-663 | 138-187 | 327-330 | 41-42 |
+| 2026-11-11 | render-thread work | proxy | same | dummy | 2.9-3.2 | 289-345 / 430-501 / 520-605 | 151-200 | 329-331 | 46-49 |
+| 2026-11-11 | render-thread work | offscreen | same | dummy | 4.3-4.4 | 207-213 / 439-452 / 537-574 | 129-178 | 330-334 | 48 |
+
+Ranges are over two to four runs, all with post-processing off.
+
+The first two proxy rows did not measure the scene the offscreen rows did.
+The server was starved: 0.13 globalsteps per second, with gaps of up to 19 s.
+The rig that carries the camera barely moved, so the camera stayed at its
+start with only nearby blocks loaded (a third of the primitives and half the
+draw calls). The cause is file I/O. This build uses Emscripten's JS
+filesystem, not WASMFS, so every SQLite read and write from the server and
+emerge threads is a synchronous call run on the browser main thread, which in
+proxy mode is also draining GL. Evidence:
+
+- With map, player and mod storage in the `dummy` backends (`--no-map-io`),
+  the proxied server runs at 46-49 steps/s.
+- Sleeping 20 ms after each commit (`?swapsleep=20`), which gives the main
+  thread idle time, only raises it to 0.97 steps/s.
+- The offscreen mode, whose main thread is idle apart from showing frames,
+  keeps the server at 41-42 steps/s with SQLite.
+
+Like for like (`dummy` rows), the worker-owned context is about 40% faster
+at the median frame and no worse at p95 on SwiftShader. SwiftShader
+rasterises on the CPU and contends with the page for it, so neither number
+predicts a real GPU. The rows show that the proxy costs main-thread time
+that other threads need, not only frame time.
+
+No real-GPU numbers have been recorded yet. Record them before changing the
+default render mode, for example:
+
+	python3 util/wasm/bench_frame_time.py --headed --gpu --query '&render=proxy'
+	python3 util/wasm/bench_frame_time.py --headed --gpu --query '&render=offscreen'
+
+Compare the `server` entries as well as the frame times.
+
+Changes measured in these rows besides the render mode:
+
+- The engine uses its real frame time; the fixed 16 ms `dtime` is removed,
+  so `fps_max` limiting works.
+- `sleep_us` no longer rounds up to whole milliseconds.
+- The per-frame canvas size, visibility and pointer-lock queries are gone.
+- The `webgl_compat.js` copies reuse scratch buffers. Chrome hands WebGL a
+  non-growable heap here, so the shim copied nothing in any run.
+
+`test_first_playable.py` passes with `--render offscreen` (2 of 2 runs). With
+`--render proxy` it fails with "dug 0 of 5", as it did before this work: the
+dig waits for the stalled server (see
+`docs/wasm-issues/06-first-playable-gate-results.md`).
+
+The `wasm_mesh_*` knobs have not been re-benchmarked. On SwiftShader, mesh
+generation is not what limits a frame; measure them on a real GPU.
+
 ### Not yet done
 
 Tracked in the originating issue: SIMD second flavour + launcher feature
 detection, `mimalloc` evaluation, Brotli/`wasm-opt` in `package_demo.py`, a
 smaller-heap fallback build with `WebAssembly.Memory` probing, re-enabling
-`enable_post_processing`, and dynamic resolution scaling / perf overlay.
+`enable_post_processing` (see "Render thread"), and dynamic resolution
+scaling / perf overlay.
 
 ---
 

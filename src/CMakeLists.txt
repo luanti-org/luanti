@@ -874,6 +874,8 @@ if(BUILD_CLIENT)
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/packages.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/webgl_compat.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/audio_unlock.js"
+			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/perf.js"
+			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/present.js"
 			"SHELL:--shell-file ${CMAKE_SOURCE_DIR}/client/web/shell.html"
 			# Assets are NOT preloaded. util/wasm/packages.json lists the
 			# packages (core engine data, one per game, optional songs);
@@ -919,6 +921,8 @@ if(BUILD_CLIENT)
 			${CMAKE_SOURCE_DIR}/client/web/packages.js
 			${CMAKE_SOURCE_DIR}/client/web/webgl_compat.js
 			${CMAKE_SOURCE_DIR}/client/web/audio_unlock.js
+			${CMAKE_SOURCE_DIR}/client/web/perf.js
+			${CMAKE_SOURCE_DIR}/client/web/present.js
 			${CMAKE_SOURCE_DIR}/client/web/shell.html
 			${CMAKE_SOURCE_DIR}/client/web/launcher.js
 			${CMAKE_SOURCE_DIR}/client/web/launcher.css

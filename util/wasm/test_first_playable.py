@@ -303,7 +303,8 @@ def run(page: Page, url: str, console: list[str], screenshots: Path | None,
 	# works is visible, and pass --require-place once it is fixed.
 	if require_place:
 		assert placed >= PLACE_TARGET, f"placed {placed} of {PLACE_TARGET} nodes"
-	return {"ticks": ticks, "placed": placed, "dug": dug, "world": before}
+	return {"ticks": ticks, "placed": placed, "dug": dug, "world": before,
+		"render": (page.evaluate("Module.luantiWebGLInfo") or {}).get("render")}
 
 
 def main() -> int:
@@ -316,6 +317,8 @@ def main() -> int:
 	parser.add_argument("--build", default="build-wasm")
 	parser.add_argument("--game", default=DEFAULT_GAME,
 		help="game id to create the world in (default: %(default)s)")
+	parser.add_argument("--render", choices=("proxy", "offscreen", "auto"),
+		help="render mode (?render=); default: the build default")
 	parser.add_argument("--screenshot-dir")
 	parser.add_argument("--headed", action="store_true")
 	parser.add_argument("--require-place", action="store_true",
@@ -356,7 +359,8 @@ def main() -> int:
 				page.on("pageerror", lambda error: page_errors.append(
 					format_page_error(error)))
 				url = (f"http://127.0.0.1:{server.server_address[1]}/luanti.html"
-					f"?game={args.game}&view=60")
+					f"?game={args.game}&view=60"
+					+ (f"&render={args.render}" if args.render else ""))
 				try:
 					result = run(page, url, console, screenshots,
 						args.require_place, args.game)
@@ -372,7 +376,7 @@ def main() -> int:
 
 	assert not page_errors, {"pageErrors": page_errors, "console": console[-30:]}
 	print(f"first playable smoke passed on {args.engine} "
-		f"in {args.game}: {result}")
+		f"in {args.game} ({result.get('render', '?')} render): {result}")
 	if not result["placed"]:
 		print("note: no node could be placed; see issue #32 and "
 			"docs/wasm-issues/06-first-playable-gate-results.md")

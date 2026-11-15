@@ -91,6 +91,10 @@ interface LuantiLauncher {
 	notifyFramePresented(): void;
 	/** WebGL context-loss counters since page load. */
 	getGLState(): { lost: number; restored: number };
+	/** Called by the engine when its offscreen (worker-owned) context is lost. */
+	notifyContextLost(): void;
+	/** Test hook: lose the engine's context; false if the browser cannot. */
+	debugLoseContext(): boolean;
 	getState(): {
 		runtimeReady: boolean;
 		started: boolean;
@@ -155,11 +159,17 @@ interface LuantiModule {
 	luantiResumeAudio?: (reason?: string) => number;
 	/** audio_unlock.js: comma-separated AudioContext states, or "none". */
 	luantiAudioState?: () => string;
-	/** Set from `?webgl=1|2`; read by CIrrDeviceSDL.cpp to force a WebGL version. */
-	luantiWebGL?: { major: 1 | 2 };
+	/** Render overrides read by CIrrDeviceSDL.cpp (`?webgl=`, `?render=`, `?swapsleep=`). */
+	luantiWebGL?: {
+		major?: 1 | 2;
+		render?: "proxy" | "offscreen" | "auto";
+		swapSleepMs?: number;
+	};
 	/** Written by CIrrDeviceSDL.cpp: the attributes of the context actually created. */
 	luantiWebGLInfo?: {
 		version: number;
+		/** Thread that owns the context: the browser main thread or the engine worker. */
+		render: "proxy" | "offscreen";
 		attempt: number;
 		explicitSwap: boolean;
 		alpha: boolean;
@@ -168,6 +178,18 @@ interface LuantiModule {
 		antialias: boolean;
 		powerPreference: number;
 	};
+	/** perf.js: frame statistics the engine records in shared memory. */
+	luantiPerf?: {
+		available(): boolean;
+		cursor(): number;
+		samples(since?: number): { first: number; next: number; frames: Array<Record<string, number>> };
+		summary(opts?: { seconds?: number; since?: number }): Record<string, any>;
+	};
+	/** webgl_compat.js: copies made for resizable-heap views (this thread only). */
+	luantiWebGLCompat?: { stats(): Record<string, number> };
+	/** present.js: shows a frame posted by the engine worker (offscreen mode). */
+	luantiPresentFrame?: (bitmap: ImageBitmap, ackPtr: number) => void;
+	luantiPresentStats?: () => { shown: number; dropped: number };
 	/** Optional `?proxy=` override read by network.js before the launcher runs. */
 	luantiProxyUrl?: string;
 	/** Test hook: tweaks persistence timing (util/wasm/test_persistence_browser.py). */

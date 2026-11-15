@@ -52,7 +52,7 @@
 #undef sleep_ms
 #undef sleep_us
 #define sleep_ms(x) emscripten_thread_sleep(x)
-#define sleep_us(x) emscripten_thread_sleep(((x) + 999) / 1000)
+#define sleep_us(x) emscripten_thread_sleep((x) / 1000.0)
 #endif
 
 #ifdef _MSC_VER

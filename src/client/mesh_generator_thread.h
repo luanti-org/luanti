@@ -170,8 +170,8 @@ public:
 	// Emscripten when worker mesh threads stall under PROXY_TO_PTHREAD.
 	int processOnThisThread(int max_items);
 
-	// Queue depth for diagnostics (approximate, lock-free best effort).
-	size_t queuedCount() const;
+	// Blocks waiting to be meshed, for diagnostics (Module.luantiPerf).
+	size_t queuedCount();
 
 private:
 	typedef MutexedQueue<MeshUpdateResult> ResultQueue;
