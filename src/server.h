@@ -586,6 +586,8 @@ private:
 
 	void sendMetadataChanged(const std::unordered_set<v3s16> &positions,
 			float far_d_nodes = 100);
+	void sendMetadataChanged(const RemoteClient *client,
+			const NodeMetadataList &meta_updates_list);
 
 	// Environment and Connection must be locked when called
 	// `cache` may only be very short lived! (invalidation not handled)

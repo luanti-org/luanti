@@ -897,7 +897,7 @@ void Server::fixupNodePrediction(session_t peer_id, InteractAction action,
 			MapNode n = m_env->getMap().getNode(pos);
 			NetworkPacket pkt(TOCLIENT_ADDNODE, 6 + 2 + 1 + 1 + 1);
 			pkt << pos << n.param0 << n.param1 << n.param2
-					<< (u8) 1; // keep metadata
+					<< (u8) 0; // clear metadata
 			// Send immediately, even if the block was already marked as not sent or if the
 			// player is far away, since the client already made the prediction anyway.
 			Send(peer_id, &pkt);
@@ -908,16 +908,7 @@ void Server::fixupNodePrediction(session_t peer_id, InteractAction action,
 				NodeMetadataList meta_updates_list(false);
 				meta_updates_list.set(pos, meta);
 
-				std::ostringstream os(std::ios::binary);
-				meta_updates_list.serialize(os, getClient(peer_id)->serialization_version,
-						false, true, false);
-				std::string raw = os.str();
-				os.str("");
-				compressZlib(raw, os);
-
-				NetworkPacket pkt(TOCLIENT_NODEMETA_CHANGED, 0);
-				pkt.putLongString(os.str());
-				Send(peer_id, &pkt);
+				sendMetadataChanged(getClient(peer_id), meta_updates_list);
 			}
 		}
 

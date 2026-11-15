@@ -173,11 +173,19 @@ void Map::addNodeAndUpdate(v3s16 p, MapNode n,
 	// This is needed for updating the lighting
 	MapNode oldnode = block->getNodeNoCheck(relpos);
 
+	// Check whether anything changed
+	if (n == oldnode) {
+		if (!remove_metadata)
+			return;
+
+		NodeMetadata *meta = block->m_node_metadata.get(relpos);
+		if (!meta || meta->empty())
+			return;
+	}
+
 	// Remove node metadata
 	if (remove_metadata) {
 		removeNodeMetadata(p);
-	} else if (n == oldnode) {
-		return; // Nothing changed
 	}
 
 	// Set the node on the map
