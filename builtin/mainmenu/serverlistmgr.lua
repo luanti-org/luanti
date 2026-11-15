@@ -148,26 +148,27 @@ local function fetch_serverlist()
 
 	local response = http.fetch_sync({ url = url })
 	if not response.succeeded or response.code >= 400 then
-		return {}
+		return
 	end
 
 	local retval = core.parse_json(response.data)
-	return type(retval) == "table" and retval.list or {}
+	if type(retval) ~= "table" or type(retval.list) ~= "table" then
+		return
+	end
+	return retval.list
 end
 
 function serverlistmgr.sync()
 	if not serverlistmgr.servers then
 		serverlistmgr.servers = {{
-			name = fgettext("Loading..."),
-			description = fgettext_ne("Try reenabling public serverlist and check your internet connection.")
+			name = fgettext_ne("Loading..."),
 		}}
 	end
 
 	local serverlist_url = core.settings:get("serverlist_url") or ""
 	if not core.get_http_api or serverlist_url == "" then
 		serverlistmgr.servers = {{
-			name = fgettext("Public server list is disabled"),
-			description = ""
+			name = fgettext_ne("Public server list is disabled"),
 		}}
 		return
 	end
@@ -199,9 +200,12 @@ function serverlistmgr.sync()
 	-- note: this isn't cached because it's way too dynamic
 	core.handle_async(fetch_serverlist, nil, function(result)
 			public_downloading = false
-			local favs = order_server_list(result)
-			if favs[1] then
-				serverlistmgr.servers = favs
+			if type(result) == "table" then
+				serverlistmgr.servers = order_server_list(result)
+			else
+				serverlistmgr.servers = {{
+					name = fgettext_ne("Failed to retrieve public server list")
+				}}
 			end
 			core.event_handler("Refresh")
 		end
