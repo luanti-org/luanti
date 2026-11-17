@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "lighting.h"
 #include <string>
+#include <unordered_map>
 
 class Client;
 class ClientActiveObject;
@@ -98,6 +99,9 @@ public:
 	float hurt_tilt_strength = 0.0f;
 
 	PlayerHud csm_hud;
+
+	// Map server hud ids to client hud ids (for `hud` HUD elements)
+	std::unordered_map<u32, u32> hud_server_to_client;
 
 	GenericCAO *getCAO() const { return m_cao; }
 

@@ -9,9 +9,12 @@
 #include "mapnode.h"
 #include "map.h"
 #include "client/client.h"
+#include "client/localplayer.h"
+#include "hud_element.h"
 #include "log_internal.h"
 #include "itemdef.h"
 #include "nodedef.h"
+#include "script/common/c_content.h"
 
 // Poll the next event (e.g. on_globalstep)
 struct SSCSMRequestPollNextEvent final : public ISSCSMRequest
@@ -132,6 +135,118 @@ struct SSCSMRequestGetItemDefs final : public ISSCSMRequest
 			answer.nodes.push_back(&ndef->get(c));
 		}
 
+		return serializeSSCSMAnswer(std::move(answer));
+	}
+};
+
+// core.hud_add(form)
+struct SSCSMRequestHudAdd final : public ISSCSMRequest
+{
+	struct Answer final : public ISSCSMAnswer
+	{
+		u32 id = 0;
+	};
+
+	HudElement elem;
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		LocalPlayer *player = client->getEnv().getLocalPlayer();
+		u32 id = player->hud.add(std::make_unique<HudElement>(std::move(elem)));
+
+		Answer answer;
+		answer.id = id;
+		return serializeSSCSMAnswer(std::move(answer));
+	}
+};
+
+// core.hud_remove(id)
+struct SSCSMRequestHudRemove final : public ISSCSMRequest
+{
+	struct Answer final : public ISSCSMAnswer
+	{
+		bool ok = false;
+	};
+
+	u32 id;
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		LocalPlayer *player = client->getEnv().getLocalPlayer();
+
+		Answer answer;
+		answer.ok = player->hud.remove(id);
+		return serializeSSCSMAnswer(std::move(answer));
+	}
+};
+
+// core.hud_get(id), and step 1 of core.hud_change(id, stat, data)
+struct SSCSMRequestHudGet final : public ISSCSMRequest
+{
+	struct Answer final : public ISSCSMAnswer
+	{
+		bool found = false;
+		HudElement elem;
+	};
+
+	u32 id;
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		LocalPlayer *player = client->getEnv().getLocalPlayer();
+		HudElement *e = player->hud.get(id);
+
+		Answer answer;
+		answer.found = (e != nullptr);
+		if (e)
+			answer.elem = *e;
+		return serializeSSCSMAnswer(std::move(answer));
+	}
+};
+
+// core.hud_get_all()
+struct SSCSMRequestHudGetAll final : public ISSCSMRequest
+{
+	struct Answer final : public ISSCSMAnswer
+	{
+		std::vector<std::pair<u32, HudElement>> elems;
+	};
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		LocalPlayer *player = client->getEnv().getLocalPlayer();
+
+		Answer answer;
+		const auto &elements = player->hud.getElements();
+		for (u32 id = 0; id < elements.size(); id++) {
+			if (elements[id])
+				answer.elems.emplace_back(id, *elements[id]);
+		}
+		return serializeSSCSMAnswer(std::move(answer));
+	}
+};
+
+// Step 2 of core.hud_change: apply a stat value read on the SSCSM thread onto the main-thread element.
+struct SSCSMRequestHudChange final : public ISSCSMRequest
+{
+	struct Answer final : public ISSCSMAnswer
+	{
+		bool ok = false;
+	};
+
+	u32 id;
+	HudElementStat stat;
+	HudElementStatValue value;
+
+	SerializedSSCSMAnswer exec(Client *client) override
+	{
+		LocalPlayer *player = client->getEnv().getLocalPlayer();
+		HudElement *elem = player->hud.get(id);
+
+		Answer answer;
+		answer.ok = (elem != nullptr);
+		if (elem)
+			apply_hud_stat(stat, value, elem);
 		return serializeSSCSMAnswer(std::move(answer));
 	}
 };
