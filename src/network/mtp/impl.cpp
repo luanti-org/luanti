@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include <algorithm>
-#include <cmath>
-#include "network/mtp/internal.h"
 #include "log.h"
-#include "porting.h"
+#include "network/mtp/internal.h"
 #include "network/mtp/threads.h"
-#include "network/peerhandler.h"
 #include "network/networkexceptions.h"
 #include "network/networkpacket.h"
-#include "util/serialize.h"
-#include "util/numeric.h"
-#include "util/string.h"
+#include "network/peerhandler.h"
+#include "porting.h"
 #include "profiler.h"
+#include "util/numeric.h"
+#include "util/serialize.h"
+#include "util/string.h"
+#include <algorithm>
+#include <cmath>
 
 namespace con
 {
@@ -60,7 +60,7 @@ void BufferedPacket::setSenderPeerId(session_t id)
 }
 
 BufferedPacketPtr makePacket(const Address &address, const SharedBuffer<u8> &data,
-		u32 protocol_id, session_t sender_peer_id, u8 channel)
+		u32 protocol_id, session_t sender_peer_id, ChannelNumber channel)
 {
 	u32 packet_size = data.getSize() + BASE_HEADER_SIZE;
 
@@ -597,7 +597,7 @@ ConnectionCommandPtr ConnectionCommand::peer_id_set(session_t own_peer_id)
 	return c;
 }
 
-ConnectionCommandPtr ConnectionCommand::send(session_t peer_id, u8 channelnum,
+ConnectionCommandPtr ConnectionCommand::send(session_t peer_id, ChannelNumber channelnum,
 	NetworkPacket *pkt, bool reliable)
 {
 	auto c = create(CONNCMD_SEND);
@@ -608,7 +608,8 @@ ConnectionCommandPtr ConnectionCommand::send(session_t peer_id, u8 channelnum,
 	return c;
 }
 
-ConnectionCommandPtr ConnectionCommand::ack(session_t peer_id, u8 channelnum, const Buffer<u8> &data)
+ConnectionCommandPtr ConnectionCommand::ack(session_t peer_id, ChannelNumber channelnum,
+	const Buffer<u8> &data)
 {
 	auto c = create(CONCMD_ACK);
 	c->peer_id = peer_id;
@@ -1211,22 +1212,19 @@ void UDPPeer::RunCommandQueues(
 	}
 }
 
-u16 UDPPeer::getNextSplitSequenceNumber(u8 channel)
+u16 UDPPeer::getNextSplitSequenceNumber(ChannelNumber channel)
 {
-	assert(channel < CHANNEL_COUNT); // Pre-condition
 	return channels[channel].readNextSplitSeqNum();
 }
 
-void UDPPeer::setNextSplitSequenceNumber(u8 channel, u16 seqnum)
+void UDPPeer::setNextSplitSequenceNumber(ChannelNumber channel, u16 seqnum)
 {
-	assert(channel < CHANNEL_COUNT); // Pre-condition
 	channels[channel].setNextSplitSeqNum(seqnum);
 }
 
-SharedBuffer<u8> UDPPeer::addSplitPacket(u8 channel, BufferedPacketPtr &toadd,
+SharedBuffer<u8> UDPPeer::addSplitPacket(ChannelNumber channel, BufferedPacketPtr &toadd,
 	bool reliable)
 {
-	assert(channel < CHANNEL_COUNT); // Pre-condition
 	return channels[channel].incoming_splits.insert(toadd, reliable);
 }
 
@@ -1495,11 +1493,9 @@ bool Connection::ReceiveTimeoutMs(NetworkPacket *pkt, u32 timeout_ms)
 	return false;
 }
 
-void Connection::Send(session_t peer_id, u8 channelnum,
+void Connection::Send(session_t peer_id, ChannelNumber channelnum,
 		NetworkPacket *pkt, bool reliable)
 {
-	assert(channelnum < CHANNEL_COUNT); // Pre-condition
-
 	// approximate check similar to UDPPeer::processReliableSendCommand()
 	// to get nicer errors / backtraces if this happens.
 	if (reliable && pkt->getSize() > MAX_RELIABLE_PACKET_DATA_SIZE) {
@@ -1638,10 +1634,8 @@ void Connection::doResendOne(session_t peer_id)
 	putCommand(ConnectionCommand::resend_one(peer_id));
 }
 
-void Connection::sendAck(session_t peer_id, u8 channelnum, u16 seqnum)
+void Connection::sendAck(session_t peer_id, ChannelNumber channelnum, u16 seqnum)
 {
-	assert(channelnum < CHANNEL_COUNT); // Pre-condition
-
 	LOG(dout_con<<getDesc()
 			<<" Queuing ACK command to peer_id: " << peer_id <<
 			" channel: " << (channelnum & 0xFF) <<

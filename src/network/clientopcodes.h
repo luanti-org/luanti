@@ -6,6 +6,7 @@
 #pragma once
 
 #include "client/client.h"
+#include "mtp/impl.h"
 #include "networkprotocol.h"
 
 class NetworkPacket;
@@ -27,7 +28,7 @@ struct ToClientCommandHandler
 struct ServerCommandFactory
 {
 	const char* name;
-	u8 channel;
+	con::ChannelNumber channel;
 	bool reliable;
 };
 
