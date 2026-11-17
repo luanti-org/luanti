@@ -19,7 +19,7 @@ function core.hash_node_position(pos)
 			z < 0x8000 and z >= -0x8000 then
 		return compatibility_hash_node_position(x, y, z)
 	end
-	return string.format("%08x%08x%08x", x + 0x80000000, y + 0x80000000, z + 0x80000000)
+	return string.format("P%08x%08x%08x", x + 0x80000000, y + 0x80000000, z + 0x80000000)
 end
 
 local function compatibility_get_position_from_hash(hash)
@@ -31,15 +31,16 @@ local function compatibility_get_position_from_hash(hash)
 	return vector.new(x, y, z)
 end
 
+local position_hash_prefix_letter_code = string.byte("P")
 function core.get_position_from_hash(hash)
-	if type(hash) == "number" then
-		return compatibility_get_position_from_hash(hash)
+	if type(hash) == "string" and hash:byte(1) == position_hash_prefix_letter_code then
+		return vector.new(
+			tonumber(hash:sub(2, 9), 16) - 0x80000000,
+			tonumber(hash:sub(10, 17), 16) - 0x80000000,
+			tonumber(hash:sub(18, 25), 16) - 0x80000000
+		)
 	end
-	return vector.new(
-		tonumber(hash:sub(1, 8), 16) - 0x80000000,
-		tonumber(hash:sub(9, 16), 16) - 0x80000000,
-		tonumber(hash:sub(17, 24), 16) - 0x80000000
-	)
+	return compatibility_get_position_from_hash(hash)
 end
 
 
