@@ -137,14 +137,14 @@ void set_default_settings()
 	settings->setDefault("keymap_left", "SYSTEM_SCANCODE_4|GAMEPAD_AXIS_MINUS_0"); // KEY_KEY_A|Left Joystick
 	settings->setDefault("keymap_right", "SYSTEM_SCANCODE_7|GAMEPAD_AXIS_PLUS_0"); // KEY_KEY_D|Left Joystick
 	settings->setDefault("keymap_jump", "SYSTEM_SCANCODE_44|GAMEPAD_BUTTON_0"); // KEY_SPACE|Gamepad South
-	settings->setDefault("keymap_sneak", "SYSTEM_SCANCODE_225|GAMEPAD_BUTTON_1"); // KEY_LSHIFT|Gamepad East
+	settings->setDefault("keymap_sneak", "SYSTEM_SCANCODE_225|GAMEPAD_BUTTON_1"); // KEY_LSHIFT|Gamepad B
 	settings->setDefault("keymap_dig", "MOUSE_BUTTON_1|GAMEPAD_AXIS_PLUS_5"); // LMB|Gamepad RT
 	settings->setDefault("keymap_place", "MOUSE_BUTTON_3|GAMEPAD_AXIS_PLUS_4"); // RMB|Gamepad LT
-	settings->setDefault("keymap_drop", "SYSTEM_SCANCODE_20|GAMEPAD_BUTTON_12"); // KEY_KEY_Q|D-Pad Down
+	settings->setDefault("keymap_drop", "SYSTEM_SCANCODE_20|GAMEPAD_BUTTON_2"); // KEY_KEY_Q|Gamepad X
 	settings->setDefault("keymap_zoom", "SYSTEM_SCANCODE_29|GAMEPAD_BUTTON_11"); // KEY_KEY_Z|D-Pad Up
-	settings->setDefault("keymap_inventory", "SYSTEM_SCANCODE_12|GAMEPAD_BUTTON_3"); // KEY_KEY_I|Gamepad North
+	settings->setDefault("keymap_inventory", "SYSTEM_SCANCODE_12|GAMEPAD_BUTTON_3|GAMEPAD_BUTTON_1"); // KEY_KEY_I|Gamepad Y or B (close/back)
 	settings->setDefault("keymap_pause", "GAMEPAD_BUTTON_6"); // Gamepad Start
-	settings->setDefault("keymap_aux1", "SYSTEM_SCANCODE_8|GAMEPAD_BUTTON_2"); // KEY_KEY_E|Gamepad West
+	settings->setDefault("keymap_aux1", "SYSTEM_SCANCODE_8|GAMEPAD_BUTTON_7"); // KEY_KEY_E|Left Stick Click
 	settings->setDefault("keymap_chat", "SYSTEM_SCANCODE_23"); // KEY_KEY_T
 	settings->setDefault("keymap_cmd", "SYSTEM_SCANCODE_56"); // /
 	settings->setDefault("keymap_cmd_local", "SYSTEM_SCANCODE_55"); // .
@@ -175,7 +175,7 @@ void set_default_settings()
 #endif
 	settings->setDefault("keymap_toggle_debug", "SYSTEM_SCANCODE_62"); // KEY_F5
 	settings->setDefault("keymap_toggle_profiler", "SYSTEM_SCANCODE_63"); // KEY_F6
-	settings->setDefault("keymap_camera_mode", "SYSTEM_SCANCODE_6"); // KEY_KEY_C
+	settings->setDefault("keymap_camera_mode", "SYSTEM_SCANCODE_6|GAMEPAD_BUTTON_8"); // KEY_KEY_C|Right Stick Click
 	settings->setDefault("keymap_camera_yaw_left", "GAMEPAD_AXIS_MINUS_2"); // Right Joystick
 	settings->setDefault("keymap_camera_yaw_right", "GAMEPAD_AXIS_PLUS_2"); // Right Joystick
 	settings->setDefault("keymap_camera_pitch_up", "GAMEPAD_AXIS_MINUS_3"); // Right Joystick
