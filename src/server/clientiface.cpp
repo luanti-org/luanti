@@ -122,9 +122,10 @@ void RemoteClient::GetNextBlocks (
 	// if the player is attached, get the velocity from the attached object
 	LuaEntitySAO *lsao = getAttachedObject(sao, env);
 	const v3f &playerspeed = lsao? lsao->getVelocity() : player->getSpeed();
+	const f32 playerspeed_len = playerspeed.getLength();
 	v3f playerspeeddir(0,0,0);
-	if (playerspeed.getLength() > 1.0f * BS)
-		playerspeeddir = playerspeed / playerspeed.getLength();
+	if (playerspeed_len > 1.0f * BS)
+		playerspeeddir = playerspeed / playerspeed_len;
 	// Predict to next block
 	v3f playerpos_predicted = playerpos + playerspeeddir * (MAP_BLOCKSIZE * BS);
 
@@ -291,7 +292,7 @@ void RemoteClient::GetNextBlocks (
 			f32 dist;
 			if (!(isBlockInSightEx(p, camera_pos, camera_dir, target_cos_sq, adjdist,
 						d_blocks_in_sight, &dist) ||
-					(playerspeed.getLength() > 1.0f * BS &&
+					(playerspeed_len > 1.0f * BS &&
 					isBlockInSight(p, camera_pos, playerspeeddir, 0.1f,
 						d_blocks_in_sight)))) {
 				continue;
