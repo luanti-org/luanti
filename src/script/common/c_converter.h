@@ -126,7 +126,7 @@ size_t write_array_slice_float(lua_State *L, int table_index, float *data,
 
 // This must match the implementation in builtin/game/misc_s.lua for 16-bit input
 // Note that this pushes a floating point result as Lua integers are 32-bit
-inline void push_v3s16_hash(lua_State *L, v3s16 pos)
+inline void push_v3s16_packed(lua_State *L, v3s16 pos)
 {
 	lua_pushnumber(L, (((s64)pos.Z + 0x8000L) << 32)
 			| (((s64)pos.Y + 0x8000L) << 16)
