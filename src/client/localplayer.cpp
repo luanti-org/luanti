@@ -14,6 +14,8 @@
 #include "content_cao.h"
 #include "hud_element.h"
 
+constexpr f32 SNEAK_NODE_SUPPORT_TOLERANCE = 0.02f * BS;
+
 /*
 	PlayerSettings
 */
@@ -111,7 +113,7 @@ bool LocalPlayer::updateSneakNode(Map *map, const v3f &position,
 	bool new_sneak_node_exists = m_sneak_node_exists;
 
 	// We want the top of the sneak node to be below the players feet
-	f32 position_y_mod = 0.02f * BS;
+	f32 position_y_mod = SNEAK_NODE_SUPPORT_TOLERANCE;
 	if (m_sneak_node_exists)
 		position_y_mod = m_sneak_node_bb_top.MaxEdge.Y - position_y_mod;
 
@@ -399,8 +401,10 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 		if (!physics_override.sneak_glitch) {
 			std::vector<aabb3f> nodeboxes;
 			map->getNode(m_sneak_node).getCollisionBoxes(m_client->ndef(), &nodeboxes);
-			bmax.Y = getNodeBoxSupportHeight(nodeboxes, m_collisionbox, sn_f, position) -
-				m_collisionbox.MinEdge.Y;
+			const auto support_y = getNodeBoxSupportHeight(nodeboxes, m_collisionbox,
+				sn_f, position, SNEAK_NODE_SUPPORT_TOLERANCE);
+			if (support_y)
+				bmax.Y = *support_y - m_collisionbox.MinEdge.Y;
 		}
 		const v3f old_pos = position;
 		const v3f old_speed = m_speed;
