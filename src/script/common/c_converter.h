@@ -124,7 +124,7 @@ void push_aabb3f_vector(lua_State *L, const std::vector<aabb3f> &boxes,
 size_t write_array_slice_float(lua_State *L, int table_index, float *data,
 		v3u16 data_size, v3u16 slice_offset, v3u16 slice_size);
 
-// This must match the implementation in builtin/game/misc_s.lua
+// This must match the implementation in builtin/game/misc_s.lua for 16-bit input
 // Note that this pushes a floating point result as Lua integers are 32-bit
 inline void push_v3s16_hash(lua_State *L, v3s16 pos)
 {
