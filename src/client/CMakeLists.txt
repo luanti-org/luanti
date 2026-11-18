@@ -68,6 +68,7 @@ set(client_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/node_visuals.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/particles.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/renderingengine.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/secondaryscreen.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/shader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sky.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sound_maker.cpp

@@ -670,6 +670,15 @@ protected:
 	SColor FogColor;
 	SExposedVideoData ExposedData;
 
+	//! Secondary surface support (see ISecondaryWindow).
+	//! Call enterSurface() after the context manager made the surface
+	//! current, and leaveSurface() after it was presented.
+	void enterSurface(const SExposedVideoData &videoData);
+	void leaveSurface();
+	bool InSecondarySurface = false;
+	core::dimension2d<u32> SavedScreenSize;
+	core::rect<s32> SavedViewPort;
+
 	SOverrideMaterial OverrideMaterial;
 	SMaterial OverrideMaterial2D;
 	SMaterial InitMaterial2D;

@@ -3710,6 +3710,7 @@ void Game::drawScene(ProfilerGraph *graph, RunStats *stats)
 	this->client->takeScreenshotIfRequested();
 
 	this->driver->endScene();
+	this->m_rendering_engine->draw_secondary_screen();
 
 	stats->drawtime = tt_draw.stop(true);
 	g_profiler->graphAdd("Draw scene [us]", stats->drawtime);

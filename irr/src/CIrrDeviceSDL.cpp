@@ -467,6 +467,8 @@ CIrrDeviceSDL::~CIrrDeviceSDL()
 	for (const auto &p: gamepads)
 		SDL_CloseGamepad(p.second);
 #endif
+	destroySecondaryWindow();
+
 	if (Window && Context) {
 		SDL_GL_MakeCurrent(Window, NULL);
 		SDL_GL_DestroyContext(Context);
@@ -798,6 +800,16 @@ bool CIrrDeviceSDL::run()
 		// os::Printer::log("event: ", core::stringc((int)SDL_event.type).c_str(),   ELL_INFORMATION);	// just for debugging
 		irrevent = {};
 
+		// Pointer and window events of the secondary window go to its own receiver
+		if (Secondary && handleSecondaryWindowEvent(SDL_event)) {
+			resetReceiveTextInputEvents();
+			continue;
+		}
+		// Keyboard events that happen while the secondary window has focus
+		// are offered to its receiver first
+		const bool for_secondary = Secondary &&
+				getEventWindowID(SDL_event) == Secondary->WindowID;
+
 		switch (SDL_event.type) {
 		case SDL_EVENT_MOUSE_MOTION: {
 			SDL_Keymod keymod = SDL_GetModState();
@@ -927,7 +939,8 @@ bool CIrrDeviceSDL::run()
 			irrevent.EventType = EET_STRING_INPUT_EVENT;
 			irrevent.StringInput.Str = new core::stringw();
 			core::utf8ToWString(*irrevent.StringInput.Str, SDL_event.text.text);
-			postEventFromUser(irrevent);
+			if (!(for_secondary && Secondary->post(irrevent)))
+				postEventFromUser(irrevent);
 			delete irrevent.StringInput.Str;
 			irrevent.StringInput.Str = NULL;
 		} break;
@@ -978,7 +991,8 @@ bool CIrrDeviceSDL::run()
 #endif
 			irrevent.KeyInput.SystemKeyCode = scancode;
 
-			postEventFromUser(irrevent);
+			if (!(for_secondary && Secondary->post(irrevent)))
+				postEventFromUser(irrevent);
 		} break;
 
 		case SDL_EVENT_QUIT:
@@ -990,6 +1004,11 @@ bool CIrrDeviceSDL::run()
 		case SDL_EVENT_WINDOW_DISPLAY_CHANGED:
 			handle_window_resize_event();
 			break;
+		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+			// With a secondary window open, SDL only sends QUIT once all
+			// windows are closed
+			Close = true;
+			break;
 #else
 		case SDL_WINDOWEVENT:
 			switch (SDL_event.window.event) {
@@ -999,6 +1018,11 @@ bool CIrrDeviceSDL::run()
 			case SDL_WINDOWEVENT_DISPLAY_CHANGED:
 #endif
 				handle_window_resize_event();
+				break;
+			case SDL_WINDOWEVENT_CLOSE:
+				// With a secondary window open, SDL only sends QUIT once
+				// all windows are closed
+				Close = true;
 				break;
 			}
 			break;
@@ -1198,9 +1222,9 @@ float CIrrDeviceSDL::getDisplayDensity() const
 	return std::max(ScaleX * 96.0f, ScaleY * 96.0f);
 }
 
-void CIrrDeviceSDL::SwapWindow()
+void CIrrDeviceSDL::SwapWindow(void *window)
 {
-	SDL_GL_SwapWindow(Window);
+	SDL_GL_SwapWindow(window ? static_cast<SDL_Window *>(window) : Window);
 }
 
 //! pause execution temporarily
@@ -1396,16 +1420,21 @@ bool CIrrDeviceSDL::isWindowActive() const
 	}
 #endif
 	const u64 windowFlags = SDL_GetWindowFlags(Window);
+	// Focus on the secondary window counts: it is part of the same game
+	const bool focused = (windowFlags & SDL_WINDOW_INPUT_FOCUS) ||
+			(Secondary && Secondary->isFocused());
 #ifdef _IRR_USE_SDL3_
-	return !(windowFlags & SDL_WINDOW_HIDDEN) && (windowFlags & SDL_WINDOW_INPUT_FOCUS);
+	return !(windowFlags & SDL_WINDOW_HIDDEN) && focused;
 #else
-	return  (windowFlags & SDL_WINDOW_SHOWN)  && (windowFlags & SDL_WINDOW_INPUT_FOCUS);
+	return  (windowFlags & SDL_WINDOW_SHOWN)  && focused;
 #endif
 }
 
 //! returns if window has focus.
 bool CIrrDeviceSDL::isWindowFocused() const
 {
+	if (Secondary && Secondary->isFocused())
+		return true; // part of the same game
 	return Window && (SDL_GetWindowFlags(Window) & SDL_WINDOW_INPUT_FOCUS) != 0;
 }
 
@@ -1560,6 +1589,405 @@ void CIrrDeviceSDL::CCursorControl::initCursors()
 	Cursors.emplace_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NS_RESIZE));   // ECI_SIZENS
 	Cursors.emplace_back(SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_EW_RESIZE));   // ECI_SIZEWE
 	Cursors.emplace_back(nullptr);                                               // ECI_UP
+}
+
+/* Secondary window (dual-screen support) */
+
+CIrrDeviceSDL::CSecondaryWindow::CSecondaryWindow(SDL_Window *window) :
+		Window(window), WindowID(SDL_GetWindowID(window))
+{
+	Data.Window = window;
+	updateSizeAndScale();
+}
+
+CIrrDeviceSDL::CSecondaryWindow::~CSecondaryWindow()
+{
+	SDL_DestroyWindow(Window);
+}
+
+bool CIrrDeviceSDL::CSecondaryWindow::isFocused() const
+{
+	return (SDL_GetWindowFlags(Window) & SDL_WINDOW_INPUT_FOCUS) != 0;
+}
+
+void CIrrDeviceSDL::CSecondaryWindow::setCaption(const wchar_t *text)
+{
+	core::stringc textc;
+	core::wStringToUTF8(textc, text);
+	SDL_SetWindowTitle(Window, textc.c_str());
+}
+
+void CIrrDeviceSDL::CSecondaryWindow::updateSizeAndScale()
+{
+	int window_w, window_h, drawable_w, drawable_h;
+	SDL_GetWindowSize(Window, &window_w, &window_h);
+	SDL_GetWindowSizeInPixels(Window, &drawable_w, &drawable_h);
+	ScaleX = window_w > 0 ? (f32)drawable_w / (f32)window_w : 1.0f;
+	ScaleY = window_h > 0 ? (f32)drawable_h / (f32)window_h : 1.0f;
+	Data.Size = core::dimension2du(std::max(drawable_w, 1), std::max(drawable_h, 1));
+}
+
+// Picks a spot for the secondary window that doesn't cover the main window.
+// With several monitors it goes to another monitor (the real dual-screen
+// case). On a single monitor the two windows are arranged as a pair, stacked
+// like a DS if that fits, otherwise side by side; the main window is moved
+// for this unless it is maximized or fullscreen.
+static void placeSecondaryWindow(SDL_Window *main_window, int w, int h, int &x, int &y)
+{
+	x = y = SDL_WINDOWPOS_UNDEFINED;
+	SDL_Rect usable;
+
+#ifdef _IRR_USE_SDL3_
+	SDL_DisplayID main_display = SDL_GetDisplayForWindow(main_window);
+	int count = 0;
+	if (SDL_DisplayID *displays = SDL_GetDisplays(&count)) {
+		for (int i = 0; i < count; i++) {
+			if (displays[i] != main_display) {
+				x = y = SDL_WINDOWPOS_CENTERED_DISPLAY(displays[i]);
+				SDL_free(displays);
+				return;
+			}
+		}
+		SDL_free(displays);
+	}
+	if (!SDL_GetDisplayUsableBounds(main_display, &usable))
+		return;
+#else
+	int main_display = SDL_GetWindowDisplayIndex(main_window);
+	int count = SDL_GetNumVideoDisplays();
+	for (int i = 0; i < count; i++) {
+		if (i != main_display) {
+			x = y = SDL_WINDOWPOS_CENTERED_DISPLAY(i);
+			return;
+		}
+	}
+	if (main_display < 0 || SDL_GetDisplayUsableBounds(main_display, &usable) != 0)
+		return;
+#endif
+
+	int mx, my, mw, mh;
+	SDL_GetWindowPosition(main_window, &mx, &my);
+	SDL_GetWindowSize(main_window, &mw, &mh);
+	const int gap = 40; // room for window decorations
+
+	const u64 flags = SDL_GetWindowFlags(main_window);
+	const bool can_move_main = !(flags & (SDL_WINDOW_MAXIMIZED | SDL_WINDOW_FULLSCREEN));
+
+	if (can_move_main && mh + gap + h <= usable.h && std::max(mw, w) <= usable.w) {
+		// Stacked: main on top, secondary below, both centered
+		int top = usable.y + (usable.h - (mh + gap + h)) / 2;
+		SDL_SetWindowPosition(main_window, usable.x + (usable.w - mw) / 2, top);
+		x = usable.x + (usable.w - w) / 2;
+		y = top + mh + gap;
+	} else if (can_move_main && mw + gap + w <= usable.w && std::max(mh, h) <= usable.h) {
+		// Side by side: main left, secondary right, both centered
+		int left = usable.x + (usable.w - (mw + gap + w)) / 2;
+		SDL_SetWindowPosition(main_window, left, usable.y + (usable.h - mh) / 2);
+		x = left + mw + gap;
+		y = usable.y + (usable.h - h) / 2;
+	} else {
+		// No room for both: bottom-right corner, overlapping
+		x = usable.x + std::max(0, usable.w - w);
+		y = usable.y + std::max(0, usable.h - h);
+	}
+}
+
+ISecondaryWindow *CIrrDeviceSDL::createSecondaryWindow(const core::dimension2du &size,
+		const wchar_t *caption)
+{
+	if (Secondary)
+		return Secondary.get();
+	if (!Window || !Context)
+		return nullptr;
+
+	// The GL attributes set for the main window are still in effect, so the
+	// new window gets a pixel format compatible with the existing context.
+	u32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+	// Requested size is in pixels; SDL wants screen coordinates
+	int w = std::max<int>(1, size.Width / ScaleX);
+	int h = std::max<int>(1, size.Height / ScaleY);
+	int x, y;
+	placeSecondaryWindow(Window, w, h, x, y);
+
+	core::stringc title;
+	core::wStringToUTF8(title, caption ? caption : L"");
+
+#ifdef _IRR_USE_SDL3_
+	SDL_PropertiesID props = SDL_CreateProperties();
+	SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, title.c_str());
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, x);
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, y);
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, w);
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, h);
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_FLAGS_NUMBER, flags);
+	SDL_Window *window = SDL_CreateWindowWithProperties(props);
+	SDL_DestroyProperties(props);
+#else
+	SDL_Window *window = SDL_CreateWindow(title.c_str(), x, y, w, h, flags);
+#endif
+	if (!window) {
+		os::Printer::log("Could not create secondary window", SDL_GetError(), ELL_ERROR);
+		return nullptr;
+	}
+
+	// Check that the shared context can actually render to it
+	if (!makeWindowCurrent(window)) {
+		os::Printer::log("Could not use GL context with secondary window", SDL_GetError(), ELL_ERROR);
+		makeWindowCurrent(nullptr);
+		SDL_DestroyWindow(window);
+		return nullptr;
+	}
+	makeWindowCurrent(nullptr);
+
+	// Keyboard focus stays with the main (game) window
+	SDL_RaiseWindow(Window);
+
+	Secondary = std::make_unique<CSecondaryWindow>(window);
+	os::Printer::log("Created secondary window", ELL_INFORMATION);
+	return Secondary.get();
+}
+
+ISecondaryWindow *CIrrDeviceSDL::getSecondaryWindow()
+{
+	return Secondary.get();
+}
+
+void CIrrDeviceSDL::destroySecondaryWindow()
+{
+	if (!Secondary)
+		return;
+	makeWindowCurrent(nullptr);
+	Secondary.reset();
+}
+
+bool CIrrDeviceSDL::makeWindowCurrent(void *window)
+{
+	SDL_Window *target = window ? static_cast<SDL_Window *>(window) : Window;
+#ifdef _IRR_USE_SDL3_
+	return SDL_GL_MakeCurrent(target, Context);
+#else
+	return SDL_GL_MakeCurrent(target, Context) == 0;
+#endif
+}
+
+bool CIrrDeviceSDL::setSwapInterval(int interval)
+{
+#ifdef _IRR_USE_SDL3_
+	return SDL_GL_SetSwapInterval(interval);
+#else
+	return SDL_GL_SetSwapInterval(interval) == 0;
+#endif
+}
+
+u32 CIrrDeviceSDL::getEventWindowID(const SDL_Event &ev)
+{
+	switch (ev.type) {
+	case SDL_EVENT_MOUSE_MOTION:
+		return ev.motion.windowID;
+	case SDL_EVENT_MOUSE_BUTTON_DOWN:
+	case SDL_EVENT_MOUSE_BUTTON_UP:
+		return ev.button.windowID;
+	case SDL_EVENT_MOUSE_WHEEL:
+		return ev.wheel.windowID;
+	case SDL_EVENT_FINGER_DOWN:
+	case SDL_EVENT_FINGER_MOTION:
+	case SDL_EVENT_FINGER_UP:
+		return ev.tfinger.windowID;
+	case SDL_EVENT_KEY_DOWN:
+	case SDL_EVENT_KEY_UP:
+		return ev.key.windowID;
+	case SDL_EVENT_TEXT_INPUT:
+		return ev.text.windowID;
+#ifndef _IRR_USE_SDL3_
+	case SDL_WINDOWEVENT:
+		return ev.window.windowID;
+#endif
+	default:
+#ifdef _IRR_USE_SDL3_
+		if (ev.type >= SDL_EVENT_WINDOW_FIRST && ev.type <= SDL_EVENT_WINDOW_LAST)
+			return ev.window.windowID;
+#endif
+		return 0;
+	}
+}
+
+bool CIrrDeviceSDL::handleSecondaryWindowEvent(const SDL_Event &ev)
+{
+	CSecondaryWindow &sec = *Secondary;
+	if (getEventWindowID(ev) != sec.WindowID)
+		return false;
+
+	// While the main window captures the mouse (relative mode, e.g. in-game
+	// mouselook), mouse events belong to it and carry its coordinates.
+	if (ev.type == SDL_EVENT_MOUSE_MOTION || ev.type == SDL_EVENT_MOUSE_WHEEL ||
+			ev.type == SDL_EVENT_MOUSE_BUTTON_DOWN || ev.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+#ifdef _IRR_USE_SDL3_
+		if (SDL_GetWindowRelativeMouseMode(Window))
+#else
+		if (SDL_GetRelativeMouseMode())
+#endif
+			return false;
+	}
+
+	SEvent irrevent{};
+
+	switch (ev.type) {
+	case SDL_EVENT_MOUSE_MOTION: {
+		SDL_Keymod keymod = SDL_GetModState();
+		sec.MouseX = static_cast<s32>(ev.motion.x * sec.ScaleX);
+		sec.MouseY = static_cast<s32>(ev.motion.y * sec.ScaleY);
+		irrevent.EventType = EET_MOUSE_INPUT_EVENT;
+		irrevent.MouseInput.Event = EMIE_MOUSE_MOVED;
+		irrevent.MouseInput.X = sec.MouseX;
+		irrevent.MouseInput.Y = sec.MouseY;
+		irrevent.MouseInput.XRel = static_cast<s32>(ev.motion.xrel * sec.ScaleX);
+		irrevent.MouseInput.YRel = static_cast<s32>(ev.motion.yrel * sec.ScaleY);
+		irrevent.MouseInput.ButtonStates = sec.MouseButtonStates;
+		irrevent.MouseInput.Shift = (keymod & SDL_KMOD_SHIFT) != 0;
+		irrevent.MouseInput.Control = (keymod & SDL_KMOD_CTRL) != 0;
+		sec.post(irrevent);
+		return true;
+	}
+
+	case SDL_EVENT_MOUSE_WHEEL: {
+		SDL_Keymod keymod = SDL_GetModState();
+		irrevent.EventType = EET_MOUSE_INPUT_EVENT;
+		irrevent.MouseInput.Event = EMIE_MOUSE_WHEEL;
+#if defined(_IRR_USE_SDL3_)
+		irrevent.MouseInput.Wheel = ev.wheel.y;
+#elif SDL_VERSION_ATLEAST(2, 0, 18)
+		irrevent.MouseInput.Wheel = ev.wheel.preciseY;
+#else
+		irrevent.MouseInput.Wheel = ev.wheel.y;
+#endif
+		if (irrevent.MouseInput.Wheel == 0.0f)
+			return true;
+		irrevent.MouseInput.X = sec.MouseX;
+		irrevent.MouseInput.Y = sec.MouseY;
+		irrevent.MouseInput.ButtonStates = sec.MouseButtonStates;
+		irrevent.MouseInput.Shift = (keymod & SDL_KMOD_SHIFT) != 0;
+		irrevent.MouseInput.Control = (keymod & SDL_KMOD_CTRL) != 0;
+		sec.post(irrevent);
+		return true;
+	}
+
+	case SDL_EVENT_MOUSE_BUTTON_DOWN:
+	case SDL_EVENT_MOUSE_BUTTON_UP: {
+		SDL_Keymod keymod = SDL_GetModState();
+		auto button = ev.button.button;
+#ifdef __ANDROID__
+		if (button == SDL_BUTTON_X2)
+			button = SDL_BUTTON_RIGHT;
+#endif
+		const bool is_down = ev.type == SDL_EVENT_MOUSE_BUTTON_DOWN;
+		if (is_down)
+			sec.MouseButtonStates |= SDL_BUTTON_MASK(button);
+		else
+			sec.MouseButtonStates &= ~SDL_BUTTON_MASK(button);
+
+		irrevent.EventType = EET_MOUSE_INPUT_EVENT;
+		irrevent.MouseInput.Button = button;
+		switch (button) {
+		case SDL_BUTTON_LEFT:
+			irrevent.MouseInput.Event = is_down ? EMIE_LMOUSE_PRESSED_DOWN : EMIE_LMOUSE_LEFT_UP;
+			break;
+		case SDL_BUTTON_RIGHT:
+			irrevent.MouseInput.Event = is_down ? EMIE_RMOUSE_PRESSED_DOWN : EMIE_RMOUSE_LEFT_UP;
+			break;
+		case SDL_BUTTON_MIDDLE:
+			irrevent.MouseInput.Event = is_down ? EMIE_MMOUSE_PRESSED_DOWN : EMIE_MMOUSE_LEFT_UP;
+			break;
+		default:
+			irrevent.MouseInput.Event = is_down ? EMIE_XMOUSE_PRESSED_DOWN : EMIE_XMOUSE_LEFT_UP;
+			break;
+		}
+		sec.MouseX = static_cast<s32>(ev.button.x * sec.ScaleX);
+		sec.MouseY = static_cast<s32>(ev.button.y * sec.ScaleY);
+		irrevent.MouseInput.X = sec.MouseX;
+		irrevent.MouseInput.Y = sec.MouseY;
+		irrevent.MouseInput.ButtonStates = sec.MouseButtonStates;
+		irrevent.MouseInput.Shift = (keymod & SDL_KMOD_SHIFT) != 0;
+		irrevent.MouseInput.Control = (keymod & SDL_KMOD_CTRL) != 0;
+		sec.post(irrevent);
+
+		if (irrevent.MouseInput.Event >= EMIE_LMOUSE_PRESSED_DOWN &&
+				irrevent.MouseInput.Event <= EMIE_MMOUSE_PRESSED_DOWN) {
+			u32 clicks = checkSuccessiveClicks(irrevent.MouseInput.X,
+					irrevent.MouseInput.Y, irrevent.MouseInput.Event);
+			if (clicks == 2 || clicks == 3) {
+				auto first = clicks == 2 ? EMIE_LMOUSE_DOUBLE_CLICK : EMIE_LMOUSE_TRIPLE_CLICK;
+				irrevent.MouseInput.Event = (EMOUSE_INPUT_EVENT)(first +
+						irrevent.MouseInput.Event - EMIE_LMOUSE_PRESSED_DOWN);
+				sec.post(irrevent);
+			}
+		}
+		return true;
+	}
+
+	case SDL_EVENT_FINGER_DOWN:
+	case SDL_EVENT_FINGER_MOTION:
+	case SDL_EVENT_FINGER_UP: {
+		irrevent.EventType = EET_TOUCH_INPUT_EVENT;
+		irrevent.TouchInput.ID = SDL_FINGER_ID(ev);
+		// Finger coordinates are normalized to the window
+		irrevent.TouchInput.X = static_cast<s32>(ev.tfinger.x * sec.Data.Size.Width);
+		irrevent.TouchInput.Y = static_cast<s32>(ev.tfinger.y * sec.Data.Size.Height);
+		if (ev.type == SDL_EVENT_FINGER_DOWN) {
+			irrevent.TouchInput.Event = ETIE_PRESSED_DOWN;
+			sec.TouchCount++;
+			irrevent.TouchInput.touchedCount = sec.TouchCount;
+		} else if (ev.type == SDL_EVENT_FINGER_MOTION) {
+			irrevent.TouchInput.Event = ETIE_MOVED;
+			irrevent.TouchInput.touchedCount = sec.TouchCount;
+		} else {
+			irrevent.TouchInput.Event = ETIE_LEFT_UP;
+			// Same convention as the main window: count the released pointer
+			irrevent.TouchInput.touchedCount = sec.TouchCount;
+			if (sec.TouchCount > 0)
+				sec.TouchCount--;
+		}
+		sec.post(irrevent);
+		return true;
+	}
+
+	case SDL_EVENT_KEY_DOWN:
+	case SDL_EVENT_KEY_UP:
+	case SDL_EVENT_TEXT_INPUT:
+		// Built by the main loop, which offers them to this window first
+		return false;
+
+#ifdef _IRR_USE_SDL3_
+	case SDL_EVENT_WINDOW_RESIZED:
+	case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+	case SDL_EVENT_WINDOW_DISPLAY_CHANGED:
+		sec.updateSizeAndScale();
+		return true;
+	case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+		// Both screens belong to one game: closing either one quits
+		Close = true;
+		return true;
+#else
+	case SDL_WINDOWEVENT:
+		switch (ev.window.event) {
+		case SDL_WINDOWEVENT_RESIZED:
+		case SDL_WINDOWEVENT_SIZE_CHANGED:
+#if SDL_VERSION_ATLEAST(2, 0, 18)
+		case SDL_WINDOWEVENT_DISPLAY_CHANGED:
+#endif
+			sec.updateSizeAndScale();
+			break;
+		case SDL_WINDOWEVENT_CLOSE:
+			// Both screens belong to one game: closing either one quits
+			Close = true;
+			break;
+		}
+		return true;
+#endif
+
+	default:
+		// Other window events (focus, expose, ...) need no handling
+		return true;
+	}
 }
 
 #endif // _IRR_COMPILE_WITH_SDL_DEVICE_

@@ -109,7 +109,19 @@ public:
 	//! Get the display density in dots per inch.
 	float getDisplayDensity() const override;
 
-	void SwapWindow();
+	//! Present a window. nullptr means the main window.
+	void SwapWindow(void *window = nullptr);
+
+	//! Make the GL context current on a window. nullptr means the main window.
+	bool makeWindowCurrent(void *window);
+
+	//! Set the swap interval for the window the context is current on
+	bool setSwapInterval(int interval);
+
+	ISecondaryWindow *createSecondaryWindow(const core::dimension2du &size,
+			const wchar_t *caption) override;
+	ISecondaryWindow *getSecondaryWindow() override;
+	void destroySecondaryWindow() override;
 
 	// We need this twice to handle showing an error *with* or *without*
 	// the SDL device even being initialized.
@@ -335,6 +347,40 @@ private:
 
 	s32 CurrentTouchCount;
 	bool IsInBackground;
+
+	class CSecondaryWindow : public ISecondaryWindow
+	{
+	public:
+		CSecondaryWindow(SDL_Window *window);
+		~CSecondaryWindow() override;
+
+		core::dimension2du getSize() const override { return Data.Size; }
+		bool isFocused() const override;
+		void setCaption(const wchar_t *text) override;
+		void setEventReceiver(IEventReceiver *receiver) override { Receiver = receiver; }
+		IEventReceiver *getEventReceiver() const override { return Receiver; }
+		const video::SExposedVideoData &getVideoData() const override { return Data; }
+
+		void updateSizeAndScale();
+		bool post(const SEvent &event) { return Receiver && Receiver->OnEvent(event); }
+
+		SDL_Window *Window;
+		u32 WindowID;
+		video::SExposedVideoData Data;
+		IEventReceiver *Receiver = nullptr;
+		f32 ScaleX = 1.0f, ScaleY = 1.0f;
+		s32 MouseX = 0, MouseY = 0;
+		u32 MouseButtonStates = 0;
+		s32 TouchCount = 0;
+	};
+	std::unique_ptr<CSecondaryWindow> Secondary;
+
+	//! Returns the window ID an event belongs to, or 0 if it has none
+	static u32 getEventWindowID(const SDL_Event &ev);
+
+	//! Handles pointer and window events for the secondary window.
+	//! Returns true if the event was consumed.
+	bool handleSecondaryWindowEvent(const SDL_Event &ev);
 };
 
 #endif // _IRR_COMPILE_WITH_SDL_DEVICE_

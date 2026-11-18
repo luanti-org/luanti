@@ -40,6 +40,9 @@ public:
 private:
 	SExposedVideoData Data;
 	CIrrDeviceSDL *SDLDevice;
+	int SwapInterval = 0;
+	//! Secondary window currently made current, or nullptr
+	void *ActiveSurface = nullptr;
 };
 }
 

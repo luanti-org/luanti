@@ -393,6 +393,7 @@ void GUIEngine::run()
 			}
 
 			driver->endScene();
+			m_rendering_engine->draw_secondary_screen();
 		}
 
 		m_script->stepAsync();

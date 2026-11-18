@@ -194,15 +194,46 @@ void CNullDriver::deleteAllTextures()
 
 bool CNullDriver::beginScene(u16 clearFlag, SColor clearColor, f32 clearDepth, u8 clearStencil, const SExposedVideoData &videoData, core::rect<s32> *sourceRect)
 {
-	FrameStats = {};
+	// Frame statistics describe the main window's frame only
+	if (!videoData.Window)
+		FrameStats = {};
 	return true;
 }
 
 bool CNullDriver::endScene()
 {
-	expireHardwareBuffers();
-	updateAllOcclusionQueries();
+	// Once per frame is enough; the secondary surface is drawn in addition
+	if (!InSecondarySurface) {
+		expireHardwareBuffers();
+		updateAllOcclusionQueries();
+	}
 	return true;
+}
+
+void CNullDriver::enterSurface(const SExposedVideoData &videoData)
+{
+	if (!videoData.Window || InSecondarySurface)
+		return;
+
+	InSecondarySurface = true;
+	SavedScreenSize = ScreenSize;
+	SavedViewPort = ViewPort;
+
+	// Make OnResize() reset the viewport to cover the whole new surface
+	ViewPort = core::rect<s32>(core::position2d<s32>(0, 0), core::dimension2di(ScreenSize));
+	OnResize(videoData.Size);
+}
+
+void CNullDriver::leaveSurface()
+{
+	if (!InSecondarySurface)
+		return;
+
+	InSecondarySurface = false;
+	ViewPort = core::rect<s32>(core::position2d<s32>(0, 0), core::dimension2di(ScreenSize));
+	OnResize(SavedScreenSize);
+	if (SavedViewPort != ViewPort)
+		setViewPort(SavedViewPort);
 }
 
 //! Disable a feature of the driver.

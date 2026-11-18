@@ -31,6 +31,7 @@ class Client;
 class Hud;
 
 class RenderingCore;
+class SecondaryScreen;
 
 // Instead of a mechanism to disable fog we just set it to be really far away
 #define FOG_RANGE_ALL (100000 * BS)
@@ -131,6 +132,12 @@ public:
 	void draw_scene(video::SColor skycolor, bool show_hud,
 			bool draw_wield_tool, bool draw_crosshair);
 
+	// Dual screen: draws the secondary window, if one is open.
+	// Call right after the main window's endScene().
+	void draw_secondary_screen();
+
+	SecondaryScreen *get_secondary_screen() { return m_secondary_screen.get(); }
+
 	void initialize(Client *client, Hud *hud);
 	void finalize();
 
@@ -166,6 +173,7 @@ private:
 	v2u32 _getWindowSize() const;
 
 	std::unique_ptr<RenderingCore> core;
+	std::unique_ptr<SecondaryScreen> m_secondary_screen;
 	IrrlichtDevice *m_device = nullptr;
 	video::IVideoDriver *driver;
 	MyEventReceiver *m_receiver = nullptr;

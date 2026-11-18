@@ -19,6 +19,7 @@
 #include "porting.h"
 #include "clientmap.h"
 #include "renderingengine.h"
+#include "secondaryscreen.h"
 #include "render/core.h"
 #include "render/factory.h"
 #include "filesys.h"
@@ -219,6 +220,12 @@ RenderingEngine::RenderingEngine(MyEventReceiver *receiver)
 
 	g_settings->registerChangedCallback("fullscreen", settingChangedCallback, this);
 	g_settings->registerChangedCallback("window_maximized", settingChangedCallback, this);
+
+#ifndef __ANDROID__
+	// Android needs its own secondary display path (Presentation API)
+	if (g_settings->getBool("dual_screen"))
+		m_secondary_screen.reset(SecondaryScreen::create(m_device));
+#endif
 }
 
 RenderingEngine::~RenderingEngine()
@@ -228,6 +235,7 @@ RenderingEngine::~RenderingEngine()
 	g_settings->deregisterAllChangedCallbacks(this);
 
 	core.reset();
+	m_secondary_screen.reset();
 	m_device->closeDevice();
 	m_device->drop();
 	s_singleton = nullptr;
@@ -284,9 +292,9 @@ bool RenderingEngine::setWindowIcon()
 }
 
 /*
-	Draws a screen with a single text on it.
-	Text will be removed when the screen is drawn the next time.
-	Additionally, a progressbar can be drawn when percent is set between 0 and 100.
+Draws a screen with a single text on it.
+Text will be removed when the screen is drawn the next time.
+Additionally, a progressbar can be drawn when percent is set between 0 and 100.
 */
 void RenderingEngine::draw_load_screen(const std::wstring &text,
 		gui::IGUIEnvironment *guienv, ITextureSource *tsrc, float dtime,
@@ -381,6 +389,7 @@ void RenderingEngine::draw_load_screen(const std::wstring &text,
 
 	guienv->drawAll();
 	driver->endScene();
+	draw_secondary_screen();
 	guitext->remove();
 	if (gui_bottom_text)
 		gui_bottom_text->remove();
@@ -415,6 +424,12 @@ void RenderingEngine::initialize(Client *client, Hud *hud)
 void RenderingEngine::finalize()
 {
 	core.reset();
+}
+
+void RenderingEngine::draw_secondary_screen()
+{
+	if (m_secondary_screen)
+		m_secondary_screen->draw(driver);
 }
 
 void RenderingEngine::draw_scene(video::SColor skycolor, bool show_hud,

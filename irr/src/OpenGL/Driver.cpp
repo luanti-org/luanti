@@ -456,6 +456,7 @@ bool COpenGL3DriverBase::beginScene(u16 clearFlag, SColor clearColor, f32 clearD
 
 	if (ContextManager)
 		ContextManager->activateContext(videoData, true);
+	enterSurface(videoData);
 
 	clearBuffers(clearFlag, clearColor, clearDepth, clearStencil);
 
@@ -468,10 +469,14 @@ bool COpenGL3DriverBase::endScene()
 
 	GL.Flush();
 
+	bool status = false;
 	if (ContextManager)
-		return ContextManager->swapBuffers();
+		status = ContextManager->swapBuffers();
 
-	return false;
+	// No-op unless this frame went to a secondary surface
+	leaveSurface();
+
+	return status;
 }
 
 //! Returns the transformation set by setTransform

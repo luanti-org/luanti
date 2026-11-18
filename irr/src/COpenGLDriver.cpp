@@ -172,6 +172,7 @@ bool COpenGLDriver::beginScene(u16 clearFlag, SColor clearColor, f32 clearDepth,
 
 	if (ContextManager)
 		ContextManager->activateContext(videoData, true);
+	enterSurface(videoData);
 
 	clearBuffers(clearFlag, clearColor, clearDepth, clearStencil);
 
@@ -189,7 +190,8 @@ bool COpenGLDriver::endScene()
 	if (ContextManager)
 		status = ContextManager->swapBuffers();
 
-	// todo: console device present
+	// No-op unless this frame went to a secondary surface
+	leaveSurface();
 
 	return status;
 }

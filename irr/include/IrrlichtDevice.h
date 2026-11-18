@@ -15,6 +15,7 @@
 #include "irrArray.h"
 #include "position2d.h"
 #include "SColor.h" // video::ECOLOR_FORMAT
+#include "ISecondaryWindow.h"
 #include <string>
 
 class ILogger;
@@ -194,6 +195,20 @@ public:
 	/** Intentionally doesn't check whether a touch input device is available
 	or similar. */
 	virtual bool supportsTouchEvents() const { return false; }
+
+	//! Opens a second window that shares this device's rendering context.
+	/** Only one secondary window is supported. Returns the existing one if
+	already open, or nullptr if the device cannot do this.
+	\param size Initial drawable size in pixels.
+	\param caption Window title. */
+	virtual ISecondaryWindow *createSecondaryWindow(const core::dimension2du &size,
+			const wchar_t *caption = L"") { return nullptr; }
+
+	//! Returns the secondary window, or nullptr if none is open.
+	virtual ISecondaryWindow *getSecondaryWindow() { return nullptr; }
+
+	//! Closes the secondary window, if one is open.
+	virtual void destroySecondaryWindow() {}
 
 	//! Notifies the device that it should close itself.
 	/** IrrlichtDevice::run() will always return false after closeDevice() was called. */

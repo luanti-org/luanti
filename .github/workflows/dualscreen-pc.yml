@@ -1,0 +1,123 @@
+name: dualscreen-pc
+
+# Downloadable PC test builds of the Luanti DS (dual-screen) fork.
+# Each run uploads:
+#   luantids-windows-x64     portable Windows build (unzip, run bin/luanti.exe)
+#   luantids-linux-x64       Linux build (extract, run bin/luanti)
+#   luantids-smoke-test      screenshot + log of the Linux build running both windows
+on:
+  push:
+    branches:
+      - 'claude/dual-screen-**'
+      - 'dual-screen/**'
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: dualscreen-pc-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: Windows x64 (MinGW cross-compile)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install compiler
+        run: |
+          source ./util/ci/common.sh
+          install_mingw_deps 64 false
+          sudo ./util/buildbot/download_toolchain.sh /usr
+
+      - name: Build
+        run: |
+          EXISTING_MINETEST_DIR=$PWD \
+          ./util/buildbot/buildwin64.sh B -DINSTALL_DEVTEST=1
+          mkdir -p artifact
+          unzip -q -d artifact B/build/*.zip
+
+      # Check that the resulting binary can run (DLLs etc.)
+      - name: Runtime test
+        run: |
+          cd artifact/luanti-*-win*
+          wine bin/luanti.exe --version
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: luantids-windows-x64
+          path: artifact/
+          if-no-files-found: error
+
+  linux:
+    name: Linux x64
+    # Older distro for a lower glibc requirement
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install deps
+        run: |
+          source ./util/ci/common.sh
+          install_linux_deps libluajit-5.1-dev xvfb imagemagick libgl1-mesa-dri
+
+      - name: Build
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DRUN_IN_PLACE=1 \
+            -DBUILD_SERVER=0 -DBUILD_UNITTESTS=0 -DINSTALL_DEVTEST=1 \
+            -DENABLE_LUAJIT=1 -DREQUIRE_LUAJIT=1
+          cmake --build build -j$(nproc)
+          cmake --build build --target package
+          mkdir -p artifact
+          tar -xzf build/*.tar.gz -C artifact
+
+      - name: Write run notes
+        run: |
+          cat > artifact/README-luantids.txt <<'EOF'
+          Luanti DS - Linux test build
+
+          Run: bin/luanti
+          Needs these system libraries (Debian/Ubuntu package names):
+            libsdl2-2.0-0 libluajit-5.1-2 libfreetype6 libopenal1 libvorbisfile3
+            libcurl4 libsqlite3-0 libzstd1 libpng16-16 libjpeg-turbo8 libzip4
+
+          The bottom-screen window opens automatically. Settings (minetest.conf):
+            dual_screen = true|false
+            dual_screen_w = 800
+            dual_screen_h = 600
+          EOF
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: luantids-linux-x64
+          path: artifact/
+          if-no-files-found: error
+
+      # Start a singleplayer world in Development Test under a virtual display
+      # and screenshot both windows.
+      - name: Smoke test
+        run: |
+          set -x
+          cd artifact/luanti-*
+          mkdir -p worlds/smoke
+          printf 'gameid = devtest\nbackend = sqlite3\n' > worlds/smoke/world.mt
+          printf 'enable_sound = false\nautosave_screensize = false\n' > smoke.conf
+          Xvfb :99 -screen 0 1920x1080x24 &
+          sleep 2
+          export DISPLAY=:99
+          timeout 60 bin/luanti --config smoke.conf --go --world worlds/smoke \
+            --name tester --verbose > $GITHUB_WORKSPACE/smoke.log 2>&1 &
+          luanti_pid=$!
+          sleep 40
+          import -window root $GITHUB_WORKSPACE/smoke.png
+          wait $luanti_pid || true
+          grep "Created secondary window" $GITHUB_WORKSPACE/smoke.log
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: luantids-smoke-test
+          path: |
+            smoke.png
+            smoke.log
+          if-no-files-found: warn

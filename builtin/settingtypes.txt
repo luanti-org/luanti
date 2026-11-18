@@ -463,6 +463,22 @@ screen_h (Screen height) int 600 1 65535
 #    Requires: desktop
 window_maximized (Window maximized) bool false
 
+#    Luanti DS: open a second window for the bottom (utility) screen.
+#    The main window keeps the 3D world.
+#
+#    Requires: desktop
+dual_screen (Dual screen) bool true
+
+#    Width of the secondary (bottom) screen window, in pixels.
+#
+#    Requires: desktop
+dual_screen_w (Secondary screen width) int 800 1 65535
+
+#    Height of the secondary (bottom) screen window, in pixels.
+#
+#    Requires: desktop
+dual_screen_h (Secondary screen height) int 600 1 65535
+
 #    Save window size automatically when modified.
 #    If true, screen size is saved in screen_w and screen_h, and whether the window
 #    is maximized is stored in window_maximized.

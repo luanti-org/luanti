@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "dimension2d.h"
+
 namespace video
 {
 
@@ -15,7 +17,12 @@ you are using the software or the null device.
 */
 struct SExposedVideoData
 {
-	char dummy = 0;
+	//! Native handle of a secondary window to render into (an SDL_Window*
+	//! for the SDL device). nullptr means the device's main window.
+	void *Window = nullptr;
+
+	//! Drawable size of Window in pixels. Ignored if Window is nullptr.
+	core::dimension2du Size;
 };
 
 } // end namespace video
