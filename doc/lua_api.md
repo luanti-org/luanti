@@ -8167,9 +8167,13 @@ Misc.
     * This function can be overridden by mods to change the join message.
 * `core.send_leave_message(player_name, timed_out)`
     * This function can be overridden by mods to change the leave message.
-* `core.hash_node_position(pos)`: returns an integer in range [0, 2^48-1]
-    * `pos`: table {x=integer [s16], y=integer [s16], z=integer [s16]},
-    * Gives a unique numeric encoding for a node position (16+16+16=48bit)
+* `core.hash_node_position(pos)`:
+    * `pos`: table {x=integer [s32], y=integer [s32], z=integer [s32]},
+    * returns an integer in range [0, 2^48-1] for vectors where all components
+      fit in [-2^15, 2^15-1].
+    * returns a string of length 25 otherwise.
+    * Gives a unique encoding for a node position (16+16+16=48bit for numeric output)
+      (32+32+32=96bit=24hexdigit + prefix for string output)
     * This function is better described as an encoding rather than a "true" hash function
     * Output values follow a particular order, they're not mixed
     * This operation is fully reversible (see below)
