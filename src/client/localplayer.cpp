@@ -127,6 +127,8 @@ bool LocalPlayer::updateSneakNode(Map *map, const v3f &position,
 		if (!is_valid_position || !nodemgr->get(node).walkable)
 			new_sneak_node_exists = false;
 		else if (!physics_override.sneak_glitch) {
+			// Use highest box on this node that's directly under player,
+			// not just top of node.
 			std::vector<aabb3f> nodeboxes;
 			node.getCollisionBoxes(nodemgr, &nodeboxes);
 			const v3f node_pos = intToFloat(current_node, BS);
