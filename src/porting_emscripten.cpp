@@ -191,6 +191,8 @@ EMSCRIPTEN_KEEPALIVE double luanti_frame_clock_count()
 EMSCRIPTEN_KEEPALIVE double luanti_frame_clock_last_dtime_ms()
 {
 	return g_frame_clock_last_dtime.load(std::memory_order_relaxed) * 1000.0;
+}
+
 // Engine version for client/web/worlds.js, recorded in exported worlds so an
 // import can warn about a world written by a different engine.
 EMSCRIPTEN_KEEPALIVE const char *luanti_engine_version()
