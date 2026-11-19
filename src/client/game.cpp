@@ -1088,8 +1088,9 @@ bool Game::connectToServer(const GameStartData &start_data,
 			// RenderingEngine::run() first — proxied WebGL can stall and leave
 			// those events unprocessed (server already sent TOCLIENT_HELLO).
 			porting::emscripten_service_browser_frame();
-			dtime = 0.05f;
-			sleep_ms(50);
+			framemarker.end();
+			fps_control.limit(device, &dtime);
+			framemarker.start();
 #else
 			if (!m_rendering_engine->run())
 				break;
@@ -1170,19 +1171,13 @@ bool Game::getServerContent(bool *aborted)
 
 	auto framemarker = FrameMarker("Game::getServerContent()-frame").started();
 	while (true) {
-#ifdef __EMSCRIPTEN__
-		// Handshake is done; pump the real frame loop so the canvas resizes
+		// On the web this also pumps the real frame loop so the canvas resizes
 		// and load-screen / first world frames are actually presented.
-		if (!m_rendering_engine->run())
-			return false;
-		dtime = 0.05f;
-#else
 		if (!m_rendering_engine->run())
 			return false;
 		framemarker.end();
 		fps_control.limit(device, &dtime);
 		framemarker.start();
-#endif
 
 		// Update client and server
 		step(dtime);

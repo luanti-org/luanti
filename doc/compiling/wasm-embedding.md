@@ -87,6 +87,18 @@ proxy rather than failing later in the engine.
   multiplayer and the live public server list still require a network.
 - Worlds and settings remain origin-scoped in IndexedDB. Embedding the same
   deployment URL preserves that storage; moving to another origin does not.
+- The engine runs on its measured frame time, capped by `fps_max`. While the
+  page is hidden (`document.hidden`) it runs at `fps_max_unfocused` (default
+  10) instead, and the browser main thread stays free for the launcher.
+- An embedder can stand the frame loop still with
+  `Module.luantiLauncher.setPaused(true)` and resume it with
+  `setPaused(false)`. The call is safe at any point of the page lifetime,
+  including before the launcher has called `callMain`: it only writes a flag
+  in shared memory, and a request made before the runtime exists is applied as
+  soon as it does. Paused time is never passed to the simulation as
+  one step. A singleplayer server thread keeps running; the client world,
+  input and presents wait. `Module.luantiLauncher.getFrameClock()` returns
+  `{frames, lastDtimeMs, paused}`.
   Players can export a world as a `.luantiworld` file and import it elsewhere.
   After the first save the launcher asks the browser for persistent storage
   (`navigator.storage.persist()`); browsers may grant it silently or not at all.

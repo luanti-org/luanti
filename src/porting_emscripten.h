@@ -22,6 +22,13 @@ enum class EmscriptenPersistenceReason : std::uint8_t {
 // application worker. Fail early if the browser build contract regresses.
 void emscripten_validate_main_loop();
 void emscripten_service_browser_frame();
+
+// Frame clock (application worker; the page reads it through the exports in
+// porting_emscripten.cpp). FpsControl::limit() reports every measured frame.
+void emscripten_frame_clock_record(float dtime);
+// True while the embedder asked for the frame loop to stand still
+// (Module.luantiLauncher.setPaused). FpsControl::limit() then blocks.
+bool emscripten_engine_paused();
 // Send human-readable engine loading state to the browser launcher. Phase is a
 // stable machine-readable value such as "engine", "loading", or "playing".
 void emscripten_report_status(const std::string &message, int percent = -1,
@@ -91,6 +98,15 @@ inline void emscripten_validate_main_loop()
 
 inline void emscripten_service_browser_frame()
 {
+}
+
+inline void emscripten_frame_clock_record(float)
+{
+}
+
+inline bool emscripten_engine_paused()
+{
+	return false;
 }
 
 inline void emscripten_report_status(const std::string &, int = -1,

@@ -162,6 +162,16 @@ interface LuantiLauncher {
 	reportEngineStatus(message: string, percent: number | null, phase: string | null): void;
 	prepareCompositor(percent: number): void;
 	notifyFramePresented(): void;
+	/**
+	 * Stand the engine's frame loop still (true) or resume it (false). Safe at
+	 * any time, including before `callMain`: a request made before the runtime
+	 * exists is applied once it does. An integrated server thread keeps running.
+	 * Returns the requested state.
+	 */
+	setPaused(paused: boolean): boolean;
+	isPaused(): boolean;
+	/** Measured frame clock of the engine loop; null until the runtime exists. */
+	getFrameClock(): { frames: number; lastDtimeMs: number; paused: boolean } | null;
 	/** WebGL context-loss counters since page load. */
 	getGLState(): { lost: number; restored: number };
 	/** Called by the engine when its offscreen (worker-owned) context is lost. */

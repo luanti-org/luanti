@@ -9,6 +9,9 @@
 	var config = window.LUANTI_WEB_CONFIG || {};
 	var query = new URLSearchParams(location.search);
 	var runtimeReady = false;
+	// Embedder pause request (luantiLauncher.setPaused). Kept here so a request
+	// made before the runtime exists is applied the moment it does.
+	var enginePaused = false;
 	var coreReady = false;
 	var backgroundStarted = false;
 	var started = false;
@@ -218,6 +221,28 @@
 				captureThumbnail();
 			}
 		},
+		// Stand the engine's frame loop still (or resume it). The flag is an
+		// atomic in the engine's shared memory, so this is safe at any point of
+		// the page lifetime: before callMain it is remembered and applied once
+		// the runtime exists, afterwards it takes effect on the next frame. The
+		// world, input and presents wait; an integrated server thread does not.
+		"setPaused": function(paused) {
+			enginePaused = !!paused;
+			applyPaused();
+			return enginePaused;
+		},
+		"isPaused": function() {
+			return enginePaused;
+		},
+		// Measured frame clock of the engine loop: frames counted so far and
+		// the latest dtime in milliseconds (null until the runtime exists).
+		"getFrameClock": function() {
+			var count = Module["_luanti_frame_clock_count"];
+			var last = Module["_luanti_frame_clock_last_dtime_ms"];
+			if (!runtimeReady || typeof count !== "function" || typeof last !== "function")
+				return null;
+			return {"frames": count(), "lastDtimeMs": last(), "paused": enginePaused};
+		},
 		"getGLState": function() {
 			return {"lost": glLostCount, "restored": glRestoredCount};
 		},
@@ -302,8 +327,15 @@
 			ui.form.requestSubmit();
 	}
 
+	function applyPaused() {
+		var setPaused = Module["_luanti_set_paused"];
+		if (runtimeReady && typeof setPaused === "function")
+			setPaused(enginePaused ? 1 : 0);
+	}
+
 	Module["onRuntimeInitialized"] = function() {
 		runtimeReady = true;
+		applyPaused();
 		var packages = Module["luantiPackages"];
 		if (!packages) {
 			showError("This build is missing its asset loader (packages.js).");
