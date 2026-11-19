@@ -151,6 +151,7 @@ private:
 	bool m_anisotropic_filter;
 	bool m_bilinear_filter;
 	bool m_trilinear_filter;
+	bool m_texel_antialiasing;
 	/*!
 	 * Stores the colors and animation data of the mesh's mesh buffers.
 	 * This does not include lighting.
