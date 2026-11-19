@@ -49,6 +49,79 @@ interface LuantiPersistence {
 	};
 	/** Called from C++ (emscripten_sync_filesystem) with the dirty generation. */
 	_requestGeneration(options: { generation: number; reason: string; urgent: boolean }): void;
+	/** World library (client/web/worlds.js); also Module.luantiWorlds. */
+	library?: LuantiWorldLibrary;
+}
+
+interface LuantiWorld {
+	name: string;
+	path: string;
+	game: string;
+	creative: boolean;
+	damage: boolean;
+	size: number;
+	files: number;
+	created: number | null;
+	lastPlayed: number | null;
+	modified: number | null;
+	hasThumbnail: boolean;
+}
+
+/** What importing an archive would do; nothing is written until importArchive. */
+interface LuantiWorldArchivePlan {
+	name: string;
+	game: string;
+	gameTitle: string;
+	gameAvailable: boolean;
+	engine: string | null;
+	exported: string | null;
+	content: Array<{ type: string; name: string; bundled?: boolean }>;
+	archiveBytes: number;
+	uncompressedBytes: number;
+	files: number;
+	warnings: string[];
+}
+
+/**
+ * Errors are Error objects with name "LuantiWorldError" and a `code`:
+ * name, exists, missing, game, invalid, unsafe-path, too-large, missing-game,
+ * quota, unsupported, invalid-url, download, storage.
+ */
+interface LuantiWorldLibrary {
+	ready(): Promise<void>;
+	limits(): { archiveBytes: number; uncompressedBytes: number; entries: number; pathDepth: number; nameBytes: number };
+	list(): Promise<LuantiWorld[]>;
+	get(name: string): Promise<LuantiWorld>;
+	games(): Promise<Array<{ id: string; title: string; source: "bundled" | "installed" }>>;
+	validateName(name: string): string;
+	suggestName(base: string): Promise<string>;
+	pathFor(name: string): string;
+	create(options: { name: string; game: string; seed?: string; creative?: boolean; damage?: boolean }): Promise<LuantiWorld>;
+	rename(from: string, to: string): Promise<LuantiWorld>;
+	duplicate(from: string, to?: string): Promise<LuantiWorld>;
+	remove(name: string): Promise<unknown>;
+	markPlayed(name: string): Promise<void>;
+	thumbnail(name: string): Promise<Blob | null>;
+	saveThumbnail(name: string, image: Blob): Promise<unknown>;
+	/** Resolves to a Blob, or to null after writing to options.writable. */
+	exportWorld(name: string, options?: {
+		writable?: WritableStream | FileSystemWritableFileStream;
+		onProgress?: (done: number, total: number) => void;
+		store?: boolean;
+	}): Promise<Blob | null>;
+	inspectArchive(archive: Blob, options?: { fileName?: string }): Promise<LuantiWorldArchivePlan>;
+	importArchive(archive: Blob, options?: {
+		name?: string;
+		fileName?: string;
+		source?: string;
+		onProgress?: (done: number, total: number) => void;
+	}): Promise<LuantiWorld>;
+	/** Downloads (HTTPS or same-origin only) and inspects; never imports. */
+	fetchShared(url: string, options?: { signal?: AbortSignal; onProgress?: (done: number, total: number) => void }):
+		Promise<{ blob: Blob; url: string; host: string; fileName: string; plan: LuantiWorldArchivePlan }>;
+	storage(): Promise<{ usage: number | null; quota: number | null; persisted: boolean | null }>;
+	requestPersistence(): Promise<boolean>;
+	[key: string]: any;
 }
 
 /** One entry of asset-manifest.json (written by util/wasm/build_packages.py). */
@@ -101,6 +174,10 @@ interface LuantiLauncher {
 		phase: string;
 		mode: string;
 		loadingDismissed: boolean;
+		/** Ask the engine to keep calling notifyFramePresented (thumbnail capture). */
+		frameHookWanted: boolean;
+		/** The singleplayer world being played, if any. */
+		world: string | null;
 		coreReady: boolean;
 		packages: Record<string, { state: string; loaded: number; total: number }>;
 	};
@@ -149,6 +226,11 @@ interface LuantiModule {
 	// Luanti services; each is installed by the script named above it.
 	luantiNetwork?: LuantiNetwork;
 	luantiPersistence?: LuantiPersistence;
+	/** worlds.js: the same object as luantiPersistence.library. */
+	luantiWorlds?: LuantiWorldLibrary;
+	/** worlds.js: lower the import caps (tests, embedders). */
+	luantiWorldLimits?: Partial<Record<"archiveBytes" | "uncompressedBytes" | "entries" | "pathDepth" | "nameBytes", number>>;
+	_luanti_engine_version?: () => number;
 	luantiLauncher?: LuantiLauncher;
 	luantiPackages?: LuantiPackages;
 	/** Override for the asset manifest location (default: asset-manifest.json). */
@@ -212,6 +294,7 @@ declare var HEAPU8: Uint8Array;
 declare function _malloc(size: number): number;
 declare function _free(pointer: number): void;
 declare function addRunDependency(id: string): void;
+declare function UTF8ToString(pointer: number): string;
 declare function removeRunDependency(id: string): void;
 
 interface Window {

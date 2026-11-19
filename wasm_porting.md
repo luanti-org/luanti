@@ -695,6 +695,63 @@ The implementation is `client/web/persistence.js`, linked through `--pre-js` and
 save paths record committed work; they do not call asynchronous JavaScript from
 worker threads. See `docs/wasm-issues/01-persistence-mvp.md`.
 
+#### World library
+
+`client/web/worlds.js` (a `--pre-js` after `persistence.js`) installs
+`Module.luantiPersistence.library` (also `Module.luantiWorlds`): list, create,
+rename, duplicate, delete, export and import worlds, thumbnails, and
+`navigator.storage` usage/persistence. Every operation runs on the browser main
+thread against `FS` before `callMain`, so no world is open in SQLite while it is
+copied or replaced, and every change goes through the ordinary
+`requestSync` queue. Metadata the launcher needs lives beside the world:
+`web_library.json` (created / last played) and `web_thumbnail.jpg` (320×180,
+taken from the first save a few seconds after entering the world).
+
+The launcher creates worlds by writing `world.mt` (and `map_meta.txt` when a
+seed is given) before `callMain` and starts them with `--world`. Because
+`--go` skips the main menu, `ClientLauncher::launch_game` copies the world's
+`creative_mode`/`enable_damage` from `world.mt` into the settings under
+`__EMSCRIPTEN__`, as `builtin/mainmenu/common.lua` does natively. The New world
+dialog leaves both out unless chosen, so a game's own `minetest.conf` still
+decides by default.
+
+**Archive format (`.luantiworld`, format 1).** A zip with `luanti-world.json`
+(format, engine version from `luanti_engine_version()`, game id, enabled mods,
+file count and size) and the world under `world/`. Import also takes a zip of a
+bare world folder (`world.mt` at the root or inside one top-level directory).
+
+**Zip in JavaScript, not libzip.** The tracking issue suggested libzip through
+an exported C function. Before `callMain` there is no application thread to run
+it on, so it would block the browser UI thread for the whole archive, and it
+would have to write the archive into MEMFS before handing it out (the world
+twice in memory). `CompressionStream`/`DecompressionStream("deflate-raw")`
+stream entry by entry to the File System Access API or a Blob, keep the page
+responsive, and need no relink. The reader accepts stored and deflated entries
+only (no zip64, encryption or split archives), which covers mainstream tools.
+
+**Import validation** happens before anything is written: archive size, entry
+count and declared uncompressed size caps (512 MiB / 50,000 / 1 GiB by default,
+`Module.luantiWorldLimits` lowers them); every entry name is rejected if it is
+absolute, has a drive letter, backslash, control character, empty, `.` or `..`
+component, or is a symlink; duplicates are rejected; `world.mt` must name a game
+that is bundled or installed. While extracting, an entry that inflates past its
+declared size is cut off and every CRC is checked. Files go to a hidden
+`worlds/.import-*` directory that is renamed into place only when complete, so
+a failed import leaves nothing behind and never overwrites a world.
+`util/wasm/test_worlds.mjs` covers each rejection; `test_worlds_browser.py`
+covers the launcher end to end.
+
+**Share links.** `?world=<url>` downloads the archive (HTTPS or same-origin,
+no credentials, the archive cap enforced while streaming whatever
+`Content-Length` says, redirects re-checked), shows its manifest, and imports
+only after the player confirms. `autostart=1` is ignored with `world=`. The
+host must send CORS headers; under `COEP: require-corp` that is what makes the
+cross-origin fetch allowed.
+
+**Still IDBFS.** The OPFS backend (tracking issue Part A) is not done: every
+sync still rewrites whole changed files and the world stays in memory.
+Export/import is the safety net for that migration.
+
 ---
 
 ## Rendering & Shaders

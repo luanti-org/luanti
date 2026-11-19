@@ -31,6 +31,7 @@ export default [
 				_malloc: "readonly",
 				_free: "readonly",
 				addRunDependency: "readonly",
+				UTF8ToString: "readonly",
 				removeRunDependency: "readonly",
 				LUANTI_WEB_CONFIG: "readonly",
 			},

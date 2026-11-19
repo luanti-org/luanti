@@ -34,7 +34,7 @@ Copyright (C) 2026 The Luanti Contributors
 		<section class="launch-card" aria-label="Launch Luanti">
 			<div class="tabs" role="tablist" aria-label="Play mode">
 				<button id="luanti-local-tab" class="tab is-active" type="button" role="tab"
-					aria-selected="true" aria-controls="luanti-local-panel">New world</button>
+					aria-selected="true" aria-controls="luanti-local-panel">Worlds</button>
 				<button id="luanti-remote-tab" class="tab" type="button" role="tab"
 					aria-selected="false" aria-controls="luanti-remote-panel">Join server</button>
 			</div>
@@ -50,7 +50,18 @@ Copyright (C) 2026 The Luanti Contributors
 						<option value="spire_tunnel">Spire Tunnel</option>
 						<option value="devtest">Development Test</option>
 					</select>
-					<p class="field-note">Your world is saved in this browser.</p>
+					<div class="world-heading">
+						<span id="luanti-world-heading" class="field-label">World</span>
+						<span class="world-heading-actions">
+							<button id="luanti-new-world" class="text-button" type="button">New world</button>
+							<button id="luanti-import-world" class="text-button" type="button">Import…</button>
+						</span>
+					</div>
+					<div id="luanti-world-list" class="world-list" role="radiogroup"
+						aria-labelledby="luanti-world-heading" aria-busy="true"></div>
+					<input id="luanti-import-file" type="file" accept=".luantiworld,.zip,application/zip" hidden>
+					<div id="luanti-library-status" class="inline-status" role="status" aria-live="polite" hidden></div>
+					<p id="luanti-storage-note" class="field-note">Worlds are saved in this browser. Export one to keep a copy.</p>
 				</div>
 
 				<div id="luanti-remote-panel" role="tabpanel" aria-labelledby="luanti-remote-tab" hidden>
@@ -121,6 +132,18 @@ Copyright (C) 2026 The Luanti Contributors
 			</p>
 		</section>
 	</main>
+
+	<dialog id="luanti-dialog" class="dialog" aria-labelledby="luanti-dialog-title">
+		<form id="luanti-dialog-form" method="dialog" novalidate>
+			<h2 id="luanti-dialog-title"></h2>
+			<div id="luanti-dialog-body"></div>
+			<div id="luanti-dialog-error" class="form-error" role="alert" hidden></div>
+			<div class="dialog-actions">
+				<button id="luanti-dialog-cancel" class="secondary-button" type="button">Cancel</button>
+				<button id="luanti-dialog-confirm" class="primary-button" type="submit">OK</button>
+			</div>
+		</form>
+	</dialog>
 
 	<section id="luanti-game-shell" class="game-shell" hidden aria-label="Luanti game">
 		<canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>

@@ -96,6 +96,9 @@ jobs:
       - name: Test deployment tools
         run: python3 util/wasm/test_demo_tools.py
 
+      - name: Test the world library and archive validation
+        run: node --test util/wasm/test_worlds.mjs
+
       - name: Build libzip for Emscripten
         shell: bash
         run: |
@@ -124,6 +127,18 @@ jobs:
 
       - name: Streamed asset packages and offline start in Chrome
         run: python3 util/wasm/test_packages_browser.py --browser "$(command -v google-chrome)"
+
+      - name: World library (create, export, delete, import, share link) in Chrome
+        run: python3 util/wasm/test_worlds_browser.py --browser "$(command -v google-chrome)"
+
+      # Firefox covers the library flow without entering a world (headless
+      # Firefox on the runner has no WebGL). Not a gate until it has run
+      # green here.
+      - name: World library in Firefox (non-gating)
+        continue-on-error: true
+        run: |
+          python3 -m playwright install firefox
+          python3 util/wasm/test_worlds_browser.py --engine firefox --no-play
 
       - name: Run the first playable gate in Chrome
         run: |

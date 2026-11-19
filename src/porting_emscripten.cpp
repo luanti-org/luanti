@@ -9,6 +9,7 @@
 #include "porting.h"
 #include "log.h"
 #include "util/numeric.h"
+#include "version.h"
 
 #include <string>
 
@@ -147,6 +148,13 @@ EMSCRIPTEN_KEEPALIVE void luanti_video_texture_frame(int buffer_index, int width
 	video_frame_height.store(height, std::memory_order_relaxed);
 	video_frame_ready_index.store(buffer_index, std::memory_order_release);
 	video_frame_generation.fetch_add(1, std::memory_order_release);
+}
+
+// Engine version for client/web/worlds.js, recorded in exported worlds so an
+// import can warn about a world written by a different engine.
+EMSCRIPTEN_KEEPALIVE const char *luanti_engine_version()
+{
+	return g_version_string;
 }
 
 EMSCRIPTEN_KEEPALIVE void luanti_persistence_sync_completed(double generation)

@@ -48,7 +48,9 @@ The launcher accepts these query parameters:
 | `view` | View-distance preset: `60`, `100`, or `160`. |
 | `language` | Engine locale code when the deployment includes locale packs. |
 | `proxy` | Custom `ws://` or `wss://` UDP proxy URL. HTTPS pages require WSS. |
-| `autostart=1` | Start after assets and storage are ready if all fields validate. |
+| `autostart=1` | Start after assets and storage are ready if all fields validate. Ignored with `world`. |
+| `worldname` | Preselect a saved world by name (it must belong to `game`). |
+| `world` | HTTPS (or same-origin) URL of a `.luantiworld` to offer. The launcher downloads it, shows its game, size and mods, and imports a copy only if the player confirms. The host must allow CORS. |
 
 An ordinary shared server link should omit `name`, `proxy`, and `autostart` so
 the recipient chooses their identity and uses the deployment's nearest proxy.
@@ -85,6 +87,38 @@ proxy rather than failing later in the engine.
   multiplayer and the live public server list still require a network.
 - Worlds and settings remain origin-scoped in IndexedDB. Embedding the same
   deployment URL preserves that storage; moving to another origin does not.
+  Players can export a world as a `.luantiworld` file and import it elsewhere.
+  After the first save the launcher asks the browser for persistent storage
+  (`navigator.storage.persist()`); browsers may grant it silently or not at all.
+
+## World library API
+
+`Module.luantiPersistence.library` (the same object as `Module.luantiWorlds`)
+lets an embedder drive the world library the launcher uses. Every method
+returns a promise, waits for storage to hydrate, and saves through the normal
+persistence queue. Use it before the engine starts; once `callMain` has run the
+engine owns the open world.
+
+| Method | Result |
+| --- | --- |
+| `list()` | `[{name, game, size, files, created, lastPlayed, modified, creative, damage, hasThumbnail, path}]` |
+| `create({name, game, seed?, creative?, damage?})` | The new world. `creative`/`damage` are left to the game when omitted. |
+| `rename(from, to)`, `duplicate(from, to?)`, `remove(name)` | The changed world (`remove`: nothing). |
+| `exportWorld(name, {writable?, onProgress?})` | A `Blob` (`application/zip`), or `null` after writing to a `FileSystemWritableFileStream`/`WritableStream`. |
+| `inspectArchive(blob, {fileName?})` | What an import would do: `{name, game, gameAvailable, files, archiveBytes, uncompressedBytes, content, warnings, …}`. Writes nothing. |
+| `importArchive(blob, {name?, fileName?, onProgress?})` | The imported world. Never overwrites; without `name` it picks a free one. |
+| `fetchShared(url)` | `{blob, plan, host, …}` for a share link; does not import. |
+| `games()`, `storage()`, `thumbnail(name)`, `limits()` | Available games, `{usage, quota, persisted}`, a JPEG `Blob` or `null`, the import caps. |
+
+Failures reject with an `Error` whose `name` is `LuantiWorldError` and whose
+`code` is one of `name`, `exists`, `missing`, `invalid`, `unsafe-path`,
+`too-large`, `missing-game`, `quota`, `invalid-url`, `download`, `storage`.
+The `message` is written for players.
+
+Each completed change is announced with the existing `luanti:persistence`
+window event: `event.detail` is the usual persistence state plus
+`library: {operation, world, from?}`, where `operation` is `create`,
+`rename`, `duplicate`, `delete`, `import`, `export` or `thumbnail`.
 - Touch-only devices receive a warning. Browser touch controls remain roadmap
   work; use a keyboard and mouse for this MVP.
 

@@ -111,7 +111,10 @@ def main() -> int:
 	assert prelaunch["view"] == "60", prelaunch
 	assert prelaunch["name"] == "Smoke_Player", prelaunch
 	assert state["crossOriginIsolated"], state
-	assert state["persistence"]["state"] == "ready", state
+	# Starting a new world saves it (the launcher writes world.mt first), so a
+	# healthy store may already report saving/saved.
+	assert state["persistence"]["state"] in ("ready", "saving", "saved"), state
+	assert not state["persistence"]["fatal"] and not state["persistence"]["error"], state
 	assert state["network"]["state"] == "disabled", state
 	assert state["launcher"]["started"], state
 	assert state["launcher"]["phase"] in ("loading", "playing"), state
