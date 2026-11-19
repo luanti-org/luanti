@@ -13,6 +13,8 @@
 #include "client/node_visuals.h"
 #include <memory>
 #include "mesh_compare.h"
+#include "util/numeric.h"
+#include "util/serialize.h"
 
 namespace {
 
@@ -288,6 +290,8 @@ void TestMapblockMeshGenerator::testInterliquidDifferent()
 void TestMapblockMeshGenerator::testRootedPlantCompactInput()
 {
 	MockGameDef gamedef;
+	const content_t stone = gamedef.addSimpleNode("stone", 42);
+	const content_t water = gamedef.addLiquidSource("water", 43);
 	const content_t plant = gamedef.addRootedPlant("rooted", 44, 45);
 	gamedef.finalize();
 
@@ -310,6 +314,18 @@ void TestMapblockMeshGenerator::testRootedPlantCompactInput()
 		for (s16 x = -MAP_BLOCKSIZE; x < 2 * MAP_BLOCKSIZE; ++x) {
 			const v3s16 p = origin + v3s16(x, y, z);
 			MapNode node(CONTENT_AIR, (x + y + z) & 0xff);
+
+			// Encode explicitly so the input does not depend on native byte order.
+			u8 coords[6];
+			writeV3S16(coords, p);
+			u32 rand = murmur_hash_64_ua(coords, sizeof(coords), 0) & u32(127);
+
+			// Approximately 1/64 non-air nodes, split equally between the two types.
+			if (rand == 0)
+				node = MapNode(stone);
+			else if (rand == 1)
+				node = MapNode(water);
+
 			full.m_vmanip.setNodeNoEmerge(p, node);
 			if (compact.m_vmanip.m_area.contains(p))
 				compact.m_vmanip.setNodeNoEmerge(p, node);
