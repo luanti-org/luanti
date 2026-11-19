@@ -984,8 +984,10 @@ bool Game::initGui()
 	gui_chat_console = make_irr<GUIChatConsole>(guienv, guienv->getRootGUIElement(),
 			-1, chat_backend, client, &g_menumgr);
 
-	if (shouldShowTouchControls())
+	if (shouldShowTouchControls()) {
 		g_touchcontrols = new TouchControls(device, texture_src);
+		actionstream << "Touch controls enabled" << std::endl;
+	}
 
 	return true;
 }
@@ -1432,6 +1434,7 @@ void Game::processUserInput(f32 dtime)
 	bool desired = shouldShowTouchControls();
 	if (desired && !g_touchcontrols) {
 		g_touchcontrols = new TouchControls(device, texture_src);
+		actionstream << "Touch controls enabled" << std::endl;
 
 	} else if (!desired && g_touchcontrols) {
 		delete g_touchcontrols;

@@ -67,6 +67,15 @@ void emscripten_stop_video_texture();
 bool emscripten_poll_video_texture_frame(std::string *out_texture_name,
 		const std::uint8_t **out_pixels, int *out_width, int *out_height);
 
+// Page input probe (Module.luantiInput, set by the launcher before callMain).
+// Read once and cached. coarse_pointer mirrors matchMedia('(pointer: coarse)'),
+// i.e. the primary input is a finger. Both are false/0 if the page gave no probe.
+struct EmscriptenInputProbe {
+	int max_touch_points = 0;
+	bool coarse_pointer = false;
+};
+const EmscriptenInputProbe &emscripten_input_probe();
+
 // Save paths on any engine thread only record committed work. The application
 // worker calls emscripten_service_persistence() while pumping frames and the
 // service forwards eligible generations to the browser main thread.

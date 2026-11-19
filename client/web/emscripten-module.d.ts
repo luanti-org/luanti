@@ -242,6 +242,8 @@ interface LuantiModule {
 	luantiWorldLimits?: Partial<Record<"archiveBytes" | "uncompressedBytes" | "entries" | "pathDepth" | "nameBytes", number>>;
 	_luanti_engine_version?: () => number;
 	luantiLauncher?: LuantiLauncher;
+	/** Pointer probe set by the launcher before callMain; read once by the engine. */
+	luantiInput?: { maxTouchPoints: number; coarsePointer: boolean };
 	luantiPackages?: LuantiPackages;
 	/** Override for the asset manifest location (default: asset-manifest.json). */
 	luantiAssetManifestUrl?: string;

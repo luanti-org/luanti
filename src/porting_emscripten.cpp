@@ -484,6 +484,27 @@ bool emscripten_poll_video_texture_frame(std::string *out_texture_name,
 	return true;
 }
 
+const EmscriptenInputProbe &emscripten_input_probe()
+{
+	// Function-local static: thread-safe one-time initialisation. The probe is
+	// fixed by the launcher before callMain, so it never needs refreshing.
+	static const EmscriptenInputProbe probe = [] {
+		EmscriptenInputProbe p;
+		// bit 0: coarse pointer; remaining bits: maxTouchPoints (clamped)
+		int packed = MAIN_THREAD_EM_ASM_INT({
+			var input = Module["luantiInput"];
+			if (!input)
+				return 0;
+			var points = Math.max(0, Math.min(255, input["maxTouchPoints"] | 0));
+			return (points << 1) | (input["coarsePointer"] ? 1 : 0);
+		});
+		p.coarse_pointer = (packed & 1) != 0;
+		p.max_touch_points = packed >> 1;
+		return p;
+	}();
+	return probe;
+}
+
 } // namespace porting
 
 #endif // __EMSCRIPTEN__

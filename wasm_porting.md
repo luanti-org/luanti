@@ -1272,6 +1272,7 @@ mimalloc trial on the pinned 6.0.3 SDK, re-enabling `enable_post_processing`
 - [ ] Phase 4: Public-server browser play acceptance completed
 - [x] Phase 5: (Optional) Sound enabled via OpenAL + Vorbis
 - [x] Phase 6: Input functional (keyboard, mouse look & pointer-lock, text input, touch/gamepad)
+  - Touch defaults: the launcher sets `Module.luantiInput = {maxTouchPoints, coarsePointer}` before `callMain`; `defaultsettings.cpp` reads it once (`porting::emscripten_input_probe`). Coarse pointer → `touch_controls=true`, `touch_gui=true`; otherwise `touch_controls=auto`. Pinned on (not `auto`) because browsers synthesize mouse events after a tap, which made `auto` drop the HUD again. Checked by `util/wasm/test_touch_input.py`. Gamepad delivery is not yet verified.
 - [ ] Phase 7: Optimized release build; CI workflow added
 - [x] **Shaders**: Added integer precision qualifiers (`int`, `uint`, `sampler2DArray`) in `src/client/shader.cpp` to ensure WebGL 2 / GLES 3 compilation passes for advanced features like FXAA and 3D UI nodes.
 
