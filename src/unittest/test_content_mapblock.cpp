@@ -177,7 +177,7 @@ public:
 	void testSurroundedNode();
 	void testInterliquidSame();
 	void testInterliquidDifferent();
-	void testRootedPlantCompactInput();
+	void testCompactInput();
 };
 
 static TestMapblockMeshGenerator g_test_instance;
@@ -189,7 +189,7 @@ void TestMapblockMeshGenerator::runTests(IGameDef *gamedef)
 	TEST(testSurroundedNode);
 	TEST(testInterliquidSame);
 	TEST(testInterliquidDifferent);
-	TEST(testRootedPlantCompactInput);
+	TEST(testCompactInput);
 }
 
 namespace quad {
@@ -287,7 +287,7 @@ void TestMapblockMeshGenerator::testInterliquidDifferent()
 	UASSERT(checkMeshEqual(buf.vertices, buf.indices, {quad::xn, quad::xp, quad::yn, quad::yp, quad::zn, quad::zp}));
 }
 
-void TestMapblockMeshGenerator::testRootedPlantCompactInput()
+void TestMapblockMeshGenerator::testCompactInput()
 {
 	MockGameDef gamedef;
 	const content_t stone = gamedef.addSimpleNode("stone", 42);
