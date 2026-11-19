@@ -59,6 +59,7 @@ env:
   EMSDK_DIR: ${{ github.workspace }}/.cache/emsdk-sdk-6.0.3
   EM_CACHE: ${{ github.workspace }}/.cache/emscripten-6.0.3
   PLAYWRIGHT_VERSION: '1.59.0'
+  BROTLI_VERSION: '1.1.0'
 
 jobs:
   release:
@@ -90,14 +91,19 @@ jobs:
           source "$EMSDK_DIR/emsdk_env.sh"
           emcc --version
 
+      # brotli is only used by util/wasm/size_report.py for the Brotli column
+      # of the size log; without it the log says so and carries on.
       - name: Install browser smoke dependency
-        run: python3 -m pip install --user "playwright==$PLAYWRIGHT_VERSION"
+        run: python3 -m pip install --user "playwright==$PLAYWRIGHT_VERSION" "brotli==$BROTLI_VERSION"
 
       - name: Test deployment tools
         run: python3 util/wasm/test_demo_tools.py
 
       - name: Test the world library and archive validation
         run: node --test util/wasm/test_worlds.mjs
+
+      - name: Test the startup checks (SIMD, shared-memory ceiling)
+        run: node --test util/wasm/test_startup.mjs
 
       - name: Build libzip for Emscripten
         shell: bash
@@ -127,6 +133,12 @@ jobs:
 
       - name: Streamed asset packages and offline start in Chrome
         run: python3 util/wasm/test_packages_browser.py --browser "$(command -v google-chrome)"
+
+      # A browser that refuses the 2 GiB shared-memory ceiling must still
+      # reach the launcher (and a world) on the same luanti.wasm, and one that
+      # grants nothing must say why. wasm_porting.md, "Heap ceiling probe".
+      - name: Shared-memory ceiling fallback in Chrome
+        run: python3 util/wasm/test_memory_probe_browser.py --browser "$(command -v google-chrome)"
 
       - name: World library (create, export, delete, import, share link) in Chrome
         run: python3 util/wasm/test_worlds_browser.py --browser "$(command -v google-chrome)"
@@ -193,8 +205,23 @@ jobs:
           if-no-files-found: ignore
           retention-days: 30
 
+      # Prints raw / gzip / Brotli bytes for luanti.wasm, luanti.js and the core
+      # package, plus a wasm-opt re-run on a copy of luanti.wasm (the release is
+      # not changed), into this log and wasm-size/. The failing budget check is
+      # a separate gate; this produces the bytes it compares.
       - name: Package versioned demo
-        run: python3 util/wasm/package_demo.py --version "$GITHUB_SHA" --output wasm-demo
+        shell: bash
+        run: |
+          mkdir -p wasm-size
+          python3 util/wasm/package_demo.py --version "$GITHUB_SHA" --output wasm-demo \
+            --size-report wasm-size/size-report.json --wasm-opt-trial \
+            | tee wasm-size/package-demo.log
+          {
+            echo '### Download sizes'
+            echo '```'
+            python3 util/wasm/size_report.py --from-json wasm-size/size-report.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload deployable demo
         uses: actions/upload-artifact@v7
@@ -202,6 +229,67 @@ jobs:
           name: luanti-wasm-${{ github.sha }}
           path: wasm-demo/
           if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload size log
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: luanti-wasm-size-${{ github.sha }}
+          path: wasm-size/
+          if-no-files-found: ignore
+          retention-days: 30
+
+      # mimalloc trial (wasm_porting.md, "Allocator trial"). -sMALLOC is a link
+      # option, so this relinks the objects built above instead of compiling
+      # again. It is a separate artifact and never the deployed build. The
+      # default build is measured first, on this runner, so the comparison is
+      # like for like. None of it gates the job.
+      - name: Startup time and heap, default allocator (non-gating)
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        run: |
+          python3 util/wasm/bench_startup.py --browser "$(command -v google-chrome)" \
+            --label default --runs 3 --output wasm-size/startup-default.json
+
+      - name: Relink with mimalloc (non-gating)
+        id: mimalloc
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        shell: bash
+        run: |
+          source "$EMSDK_DIR/emsdk_env.sh"
+          cmake -S . -B build-wasm -DWASM_MALLOC=mimalloc
+          cmake --build build-wasm --parallel 2
+          python3 util/wasm/package_demo.py --version "$GITHUB_SHA-mimalloc" \
+            --output wasm-demo-mimalloc --size-report wasm-size/size-report-mimalloc.json \
+            | tee wasm-size/package-demo-mimalloc.log
+
+      - name: Startup time and heap, mimalloc (non-gating)
+        if: steps.mimalloc.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          python3 util/wasm/bench_startup.py --browser "$(command -v google-chrome)" \
+            --label mimalloc --runs 3 --output wasm-size/startup-mimalloc.json
+          {
+            echo '### mimalloc trial'
+            echo '```'
+            python3 util/wasm/bench_startup.py --compare \
+              wasm-size/startup-default.json wasm-size/startup-mimalloc.json
+            echo '```'
+          } | tee wasm-size/mimalloc-verdict.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload mimalloc trial build and numbers
+        if: steps.mimalloc.outcome == 'success'
+        uses: actions/upload-artifact@v7
+        with:
+          name: luanti-wasm-mimalloc-${{ github.sha }}
+          path: |
+            wasm-demo-mimalloc/
+            wasm-size/*mimalloc*
+            wasm-size/startup-default.json
+          if-no-files-found: ignore
           retention-days: 14
 
   deploy:

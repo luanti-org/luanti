@@ -21,6 +21,7 @@
 	var currentSession = null;
 	var hadPointerLock = false;
 	var loadingShellDismissed = false;
+	var startupFailure = null;
 	var logs = [];
 
 	/**
@@ -351,6 +352,35 @@
 		});
 	};
 
+	// startup.js ends luanti.js before the engine exists when the browser
+	// cannot run this build (no SIMD, no shared memory at any ceiling), so
+	// onRuntimeInitialized never fires. Say why, in the panel the player is
+	// already looking at.
+	function showStartupError(failure) {
+		startupFailure = failure || {};
+		var message = String(startupFailure.message || "This browser cannot start the engine.");
+		ui.playLabel.textContent = "Can't start on this browser";
+		ui.play.disabled = true;
+		if (ui.loading) {
+			ui.loading.hidden = false;
+			ui.loadingPhase.textContent = "Cannot start";
+			ui.loadingStatus.textContent = message;
+		}
+		setProgress(0);
+		showError(message);
+		appendLog("error", [message]);
+		// On a phone the launcher form is taller than the screen, and a phone
+		// is the likeliest browser to land here: bring the reason into view.
+		if (ui.error.scrollIntoView)
+			ui.error.scrollIntoView({block: "center"});
+	}
+
+	window.addEventListener("luanti:startup-error", function(event) {
+		showStartupError(/** @type {CustomEvent} */ (event).detail);
+	});
+	if (Module["luantiStartup"] && Module["luantiStartup"]["fatal"])
+		showStartupError(Module["luantiStartup"]["fatal"]);
+
 	window.addEventListener("luanti:persistence", function(event) {
 		var state = event.detail || {};
 		if (!started && state.state === "loading")
@@ -388,6 +418,8 @@
 		ui.remotePanel.hidden = !remote;
 		ui.playLabel.textContent = runtimeReady ? (remote ? "Join server" : "Start world") : "Preparing engine…";
 		showError("");
+		if (startupFailure)
+			showStartupError(startupFailure);
 	}
 
 	ui.localTab.addEventListener("click", function() { setMode("local"); });

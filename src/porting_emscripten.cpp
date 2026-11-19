@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <mutex>
 #include <emscripten.h>
+#include <emscripten/heap.h>
 #include <emscripten/threading.h>
 
 namespace {
@@ -134,6 +135,17 @@ extern "C" {
 EMSCRIPTEN_KEEPALIVE std::uintptr_t luanti_perf_ring()
 {
 	return reinterpret_cast<std::uintptr_t>(&perf_ring);
+}
+
+// How far the allocator has carved up the heap so far: the sbrk break, in
+// bytes from address 0. dlmalloc takes its memory from sbrk and mimalloc sits
+// on emmalloc, which does too, so this is the number to compare when judging
+// an allocator. The committed WebAssembly.Memory is not: it only grows in
+// steps from the 256 MiB initial size, so it reads the same for any engine
+// that stays below it. Read from client/web/startup.js (heapBreakBytes).
+EMSCRIPTEN_KEEPALIVE std::uintptr_t luanti_heap_break()
+{
+	return *emscripten_get_sbrk_ptr();
 }
 
 // Called by client/web/videotexture.js after it has written a decoded frame

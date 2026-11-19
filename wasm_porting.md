@@ -582,8 +582,8 @@ pays before the first frame, and what one game costs when it is chosen.
 | First frame of the default game: `core` + `luanti_web` | follows from the two rows | 10.1 MB, down from the 39.1 MB `luanti.data` it replaced (about 4.7 MB gzipped) |
 | **Per game**: one game's package | small demo games under ~100 KB; `luanti_web` under ~1 MB; `devtest` is the exception at 1.5 MB | `luanti_web` 0.77 MB, `devtest` 1.50 MB, the four demos 14–38 KB each |
 | **Streamed optional content**: the showcase songs | under 30 MiB in total (`test_luanti_web_amps.py`) | 27.5 MB, in two packages that never delay the first frame |
-| Engine: `luanti.wasm` + `luanti.js` | not budgeted yet | 10.2 MB + 0.4 MB |
-| Heap | 256 MB initial, 2 GiB maximum | `-sINITIAL_MEMORY` / `-sMAXIMUM_MEMORY` |
+| Engine: `luanti.wasm` + `luanti.js` | not budgeted yet (the failing check belongs to #86) | 10,641,925 + 467,558 bytes; 2,690,745 + 88,105 as Brotli 11 ("Download sizes") |
+| Heap | 256 MiB initial; 2 GiB + 64 KiB maximum, or 1 GiB / 512 MiB on a browser that refuses it | `-sINITIAL_MEMORY` / `-sMAXIMUM_MEMORY`, then the probe ("Heap ceiling probe"). The showcase world stays within the initial 256 MiB |
 | Texture size | 16 or 32 px tiles; no single texture over 2048 px | GLES2 limits and atlas pressure |
 | Runtime media | unbounded, but fetched on demand | `client/web/media/`, never packaged |
 
@@ -853,11 +853,226 @@ base plus a per-`CMAKE_BUILD_TYPE` profile. Presets: `Emscripten` (Release,
 | `--profiling-funcs`, `-gsource-map` | off | on | on |
 | `-O3` at link (runs `wasm-opt`) | on | via CMake flags | n/a (`-O0`/`-g`) |
 | `-flto` | opt-in: `-DWASM_ENABLE_LTO=ON` (experimental) | off | off |
-| `-msimd128` | opt-in: `-DWASM_ENABLE_SIMD=ON` | same | same |
-| `-sMALLOC` | opt-in: `-DWASM_MALLOC=mimalloc` | same | same |
+| `-msimd128` | opt-in: `-DWASM_ENABLE_SIMD=ON`, every target; a SIMD build refuses to start on a browser that cannot validate SIMD (see "SIMD") | same | same |
+| `-sMALLOC` | default (dlmalloc). `-DWASM_MALLOC=mimalloc` was trialled and **rejected** (larger binary, about twice the heap, startup no different; see "Allocator trial") | same | same |
+| `-sINITIAL_MEMORY` / `-sMAXIMUM_MEMORY` | 256 MiB / 2 GiB + 64 KiB, from `WASM_INITIAL_MEMORY` / `WASM_MAXIMUM_MEMORY` in `src/CMakeLists.txt`, also written into `Module.luantiBuild` | same | same |
+| Memory ceiling actually granted | 2 GiB + 64 KiB, else 1 GiB, else 512 MiB: `client/web/startup.js`. **Measured:** reserved in 0.7-3.1 ms; with 2 GiB refused the same `luanti.wasm` reached the launcher and a world on 1 GiB and on 512 MiB (committed heap 256 MiB); with everything refused the launcher says why and the engine does not start ("Heap ceiling probe") | same | same |
+| Packed size, Brotli 11 (raw) | **Measured:** `luanti.wasm` 2,690,745 B (10,641,925), `luanti.js` 88,105 B (467,558), `core` 3,140,060 B (9,334,893); a second `wasm-opt -O3` pass would save 5.0% of the Brotli size and is not shipped ("Download sizes") | not measured | not measured |
 | `-sPTHREAD_POOL_SIZE` | `-DWASM_PTHREAD_POOL_SIZE=10` (integer or JS expression) | same | same |
 
 `-sDISABLE_EXCEPTION_CATCHING=0` was dropped: `-fexceptions` already implies it.
+
+**Which `-O` applies where.** Read from `build-wasm/src/CMakeFiles/*/flags.make`
+and `luanti.dir/link.txt` of a Release configure (the same strings
+`cmake --build build-wasm --verbose` prints), 2026-11-19: every compile step,
+for Luanti, IrrlichtMt and the bundled libraries, already uses `-O3`
+(`src/CMakeLists.txt` sets `CMAKE_CXX_FLAGS_RELEASE` to
+`... -funroll-loops -O3 -fomit-frame-pointer ...`; the Emscripten toolchain
+supplies `-O3 -DNDEBUG` for the C targets and the libraries). The link line
+carries `-O3` **twice**: once from `CMAKE_CXX_FLAGS_RELEASE`, which CMake
+repeats on the link command, and once from the explicit
+`target_link_options(... -O3)` in the Release branch. The explicit one
+duplicates the first; neither is a missing compile flag. What the link's `-O3`
+buys is Binaryen: emcc runs
+`wasm-opt --strip-target-features --post-emscripten -O3 --low-memory-unused
+--zero-filled-memory ... --mvp-features --enable-threads --enable-bulk-memory
+--enable-multivalue --enable-mutable-globals --enable-sign-ext` on the linked
+binary. Compile and link agree, so there is nothing to "fix" in either; a
+later edit that changes one `-O` level should change `CMAKE_CXX_FLAGS_RELEASE`
+and the link option together.
+
+### Heap ceiling probe
+
+`luanti.wasm` imports one shared memory declared as 4096 pages (256 MiB) to
+32769 pages (2 GiB + 64 KiB); read it from the binary, not from the flags:
+
+	$ python3 util/wasm/memory_import.py build-wasm/bin/luanti.wasm
+	a.a: shared memory, minimum 268435456 bytes (256 MiB, 4096 pages), maximum 2147549184 bytes (2048 MiB, 32769 pages)
+
+A shared memory reserves address space for its *maximum* when it is created,
+so a phone or a 32-bit browser can refuse the shipping 2 GiB + 64 KiB before
+any game code runs. WebAssembly only requires an imported memory to have
+`initial >= declared initial` and `maximum <= declared maximum`, and
+Emscripten's glue uses `Module["wasmMemory"]` instead of creating a memory when
+one is supplied (and posts it to the pthread workers). Both hold on the
+3.1.61 SDK used locally and on the pinned 6.0.3
+(`src/runtime_init_memory.js`, behind `expectToReceiveOnModule('wasmMemory')`,
+which the default `INCOMING_MODULE_JS_API` includes). So the fallback is **not
+a second build**: `client/web/startup.js`, the first `--pre-js`, creates the
+memory itself with a ceiling the browser accepts and hands it to the same
+`luanti.wasm`. Consequences:
+
+- One binary, one `luanti.js`, one set of service-worker hashes; nothing to
+  select, precache or keep in step. The planned second link with a smaller
+  `-sMAXIMUM_MEMORY` is not needed.
+- The memory that was probed is the memory that is used, so a reservation
+  that succeeded cannot fail a moment later in the engine.
+- The glue is the one linked for 2 GiB + 64 KiB: `WEBGL_USE_GARBAGE_FREE_APIS`
+  stays off and `client/web/webgl_compat.js` stays in every case. A build
+  linked for a maximum of 2 GiB or less would turn the garbage-free WebGL entry
+  points on, which hand WebGL whole-heap views and throw on a growable shared
+  heap; nothing here depends on that being safe.
+- The start size cannot go below 256 MiB (it is in the binary's import). A
+  device that cannot reserve that cannot run this build.
+
+Ceilings, tried largest first (exact byte counts):
+
+| Order | Ceiling | Bytes | Pages |
+|-------|---------|-------|-------|
+| 1 | the build's own maximum (2 GiB + 64 KiB) | 2147549184 | 32769 |
+| 2 | 1 GiB | 1073741824 | 16384 |
+| 3 | 512 MiB | 536870912 | 8192 |
+
+`?maxmem=<MiB>` makes that the largest ceiling tried (it never exceeds the
+build's own), to reproduce a small device or to test one. If every ceiling is
+refused, `luanti:startup-error` is dispatched and `startup.js` throws: the
+launcher shows why ("This browser would not reserve shared WebAssembly memory
+... refused every ceiling from 2048 MiB down to 512 MiB"), Play stays
+disabled and the engine never starts. A page that is not cross-origin
+isolated gets its own message (missing COOP/COEP) before any probing.
+`Module.luantiStartup.memory` records the attempts, the granted ceiling, and
+whether it was reduced; the launcher also logs a reduction.
+
+One limit of supplying the memory from outside: Emscripten's own
+`emscripten_resize_heap` still believes the maximum is the 2 GiB it was linked
+with, so near a smaller ceiling its growth attempts (20%, 10%, then 5% over
+what was asked for) fail with a logged "growMemory: Attempted to grow heap"
+before the allocation fails. That only shortens the last few percent of a
+heap that was going to be exhausted anyway.
+
+**Measured** (`util/wasm/test_memory_probe_browser.py`, headless Chrome on
+Linux x86-64 against the Release build; the browser's refusal is simulated by
+wrapping `WebAssembly.Memory`, which throws the same
+`RangeError: WebAssembly.Memory(): could not allocate memory` Chrome does):
+
+| Granted by the browser | Result |
+|------------------------|--------|
+| everything (default) | 2 GiB + 64 KiB reserved in 0.7-2.0 ms (address space only); no retry |
+| at most 1 GiB | 2 GiB refused, 1 GiB reserved; launcher reaches Play; a `luanti_web` world is entered; committed heap 256 MiB of 1 GiB |
+| at most 512 MiB | 2 GiB and 1 GiB refused, 512 MiB reserved; launcher reaches Play; a `luanti_web` world is entered; committed heap 256 MiB of 512 MiB |
+| less than 256 MiB | all three refused; readable error in the launcher; engine not started; the only uncaught error is `startup.js` ending `luanti.js` on purpose |
+
+The showcase does not outgrow the 256 MiB start size, so 512 MiB leaves it
+twice the heap it uses; a larger world or view distance has not been measured
+against the smaller ceilings. No real phone has been tried: whether Safari on
+iOS grants 1 GiB or 512 MiB shared memory is the open question, and the
+ceilings above are a guess until someone runs `?maxmem=` and the probe there.
+
+### SIMD
+
+`-DWASM_ENABLE_SIMD=ON` reaches every target (IrrlichtMt, `EngineCommon`, Lua,
+zstd, the client) and is recorded as `Module.luantiBuild.simd`. A SIMD build
+has v128 instructions that a browser without SIMD rejects with an opaque
+`CompileError`, so `startup.js` first validates a 31-byte module containing
+`i8x16.popcnt` with `WebAssembly.validate()` and, if that fails, refuses with
+"This build of Luanti needs WebAssembly SIMD ..." before anything is reserved
+or downloaded. SIMD arrived in Chrome and Edge 91, Firefox 89 and Safari 16.4.
+The default build is not a SIMD build, so no second non-SIMD artifact is
+produced: that is only in scope once SIMD is the build that ships.
+
+**Measured** (2026-11-19, Emscripten 3.1.61, separate `build-wasm-simd`
+configured with `-DWASM_ENABLE_SIMD=ON`): `-msimd128` is in the compile flags
+of all 15 compiled targets (the "every target" fix: the client, `EngineCommon`,
+the five Irrlicht object libraries and `IrrlichtMt`, Lua and its extensions,
+zstd, jsoncpp, gmp, sha256; none without), the link
+succeeds, `luanti.wasm` is 10,716,715 bytes (+74,790, +0.7% over the default)
+and its disassembly has 25,913 lines with SIMD instructions against 0 in the
+default binary. `Module.luantiBuild.simd` is `true`. In headless Chrome it
+starts, reaches the launcher, and enters a `luanti_web` world on the 1 GiB and
+512 MiB ceilings. With `WebAssembly.validate` forced to `false` (a browser
+without SIMD) the page shows "This build of Luanti needs WebAssembly SIMD ..."
+and asks for no memory at all. `util/wasm/test_memory_probe_browser.py` runs
+that last check whenever it is served a SIMD build, and `test_startup.mjs` runs
+the same logic against fakes on every build. Frame time of the SIMD build has
+not been compared with the default.
+
+### Allocator trial
+
+`-DWASM_MALLOC=mimalloc` (`-sMALLOC=mimalloc`) against the default dlmalloc,
+Release preset, Emscripten 3.1.61, one set of objects relinked (the allocator
+is a link option, so nothing was recompiled and the two binaries differ only
+by it). Measured with `util/wasm/bench_startup.py`: a fresh browser profile per
+run, headless Chrome on SwiftShader, `luanti_web`, view distance 100, five
+runs, heap read 10 s after the game loop starts. The shared host was running
+other builds, so the run-to-run spread is wide; a second default run is
+included as the noise floor. Run order: default, mimalloc, default again.
+
+| | default #1 | default #2 | mimalloc |
+|---|---|---|---|
+| `luanti.wasm` | 10,641,925 B | 10,641,925 B | 10,802,763 B (**+160,838, +1.5%**) |
+| `luanti.js` | 467,558 B | 467,558 B | 469,982 B |
+| Menu (navigation to Play enabled), median (range) | 1296 ms (766-1461) | 972 ms (743-1612) | 1045 ms (933-3106) |
+| World ready (Play to game loop), median (range) | 12054 ms (9744-14580) | 11207 ms (10467-13245) | 10799 ms (9855-12405) |
+| Total, median | 13075 ms | 12179 ms | 11735 ms |
+| Committed heap (`memory.buffer.byteLength`) | 256 MiB | 256 MiB | 368.8 MiB in 4 of 5 runs, 307.2 in one |
+| Allocator break (`sbrk`), median (range) | 187 MiB (186-190) | 139 MiB (136-187) | 366 MiB (262-366) |
+
+Reading it:
+
+- **Size:** the binary got larger, not smaller.
+- **Startup:** mimalloc's median total is 10.2% below default #1, but default
+  #2 is 6.9% below default #1 with the same binary, and the spread of a single
+  build (about 4.3 s) is several times the difference. Indistinguishable.
+- **Heap:** the only unambiguous difference, and the wrong way. The lowest
+  mimalloc run (262 MiB) is above the highest default run (190 MiB); mimalloc
+  pushes the committed heap past its 256 MiB start, dlmalloc does not. The
+  break wanders for dlmalloc (136-190 MiB) because it also measures how far
+  world generation had got at the 10 s mark; the committed heap is the steadier
+  number.
+- One earlier five-run batch of the mimalloc build did not finish within a
+  560 s timeout and printed nothing (its output was lost to pipe buffering).
+  Two later batches ran 6 of 6 runs to completion. The stall was not
+  reproduced and its cause is unknown; it is mentioned because it happened on
+  the mimalloc build.
+
+**Decision: rejected.** The rule was to switch only if both size and startup
+improve. Size got worse and startup did not improve beyond the noise, so
+`WASM_MALLOC` stays empty. `bench_startup.py --compare` applies that rule and
+prints the verdict; CI runs the trial as a separate, non-gating, non-deployed
+artifact (the "Relink with mimalloc" steps at the end of the `release` job in
+`.github/workflows/wasm.yml`, relink only, pushes and manual runs) so the
+answer is re-checked on the pinned SDK. Not measured: frame time, or a world
+big enough to need more than the initial 256 MiB under dlmalloc; this trial
+only asks whether mimalloc is a free win at startup and in size, and it is not.
+
+### Download sizes
+
+`util/wasm/package_demo.py` prints the table below at the end of every
+packaging run (`util/wasm/size_report.py`; `--size-report PATH` writes the
+same numbers as JSON, and CI uploads that as `luanti-wasm-size-<sha>` and in the
+job summary). Brotli is quality 11, the best case for the file: Cloudflare
+Pages compresses on the fly at a lower quality. Measured 2026-11-19, Release,
+default allocator, Emscripten 3.1.61, bytes:
+
+| File | Raw | gzip -9 | Brotli 11 |
+|------|-----|---------|-----------|
+| `luanti.wasm` | 10,641,925 | 3,770,064 | 2,690,745 |
+| `luanti.js` | 467,558 | 104,235 | 88,105 |
+| `core` package | 9,334,893 | 4,367,595 | 3,140,060 |
+| First visit (every shell file + `core`) | 20,545,139 | 8,274,025 | 5,946,116 |
+
+Engine files by themselves: 11.1 MB raw, 2.8 MB as Brotli. These are the bytes
+the budget check in #86 should compare; nothing here fails a build.
+
+**`wasm-opt` on the packaged binary.** The link already runs Binaryen `-O3`
+(see "Which `-O` applies where"). `package_demo.py --wasm-opt-trial` runs it
+again on a *copy* of `luanti.wasm`, with the features of the link's own step,
+and reports the difference without changing the release:
+
+| Second pass | Raw | gzip -9 | Brotli 11 |
+|-------------|-----|---------|-----------|
+| `-O3` | 10,424,460 (-2.0%) | 3,556,444 (-5.7%) | 2,555,416 (-5.0%) |
+| `-Os` | 10,416,475 (-2.1%) | 3,557,014 (-5.7%) | 2,556,615 (-5.0%) |
+
+The re-optimized binary loads, enters a `luanti_web` world and starts as fast
+as the original (three runs, median total 11.4 s against 12-13 s: noise). It
+is **not shipped**, for two reasons that are not about the saving (about 135
+KB on the wire): (1) it has to happen before `build_packages.py` hashes
+`luanti.wasm` into `asset-manifest.json` and stamps the service worker, so it
+belongs in a post-link CMake step; doing it in the packager would deploy a
+binary that none of CI's browser tests ran against; (2) a second pass can
+change inlining, and frame time has not been measured, only startup. Revisit
+with a real-GPU `bench_frame_time.py` run.
 
 ### Thread workarounds
 
@@ -1031,11 +1246,15 @@ generation is not what limits a frame; measure them on a real GPU.
 
 ### Not yet done
 
-Tracked in the originating issue: SIMD second flavour + launcher feature
-detection, `mimalloc` evaluation, Brotli/`wasm-opt` in `package_demo.py`, a
-smaller-heap fallback build with `WebAssembly.Memory` probing, re-enabling
-`enable_post_processing` (see "Render thread"), and dynamic resolution
-scaling / perf overlay.
+Done since: the launcher SIMD check, the heap ceiling probe (as a memory
+supplied to the one binary, not a second build), the `mimalloc` trial
+(rejected) and the size log with a `wasm-opt` trial.
+
+Still open: a SIMD second flavour (only if SIMD becomes the shipped build),
+shipping the second `wasm-opt` pass from a post-link step once its frame time
+is measured, the probe on a real phone (iOS Safari in particular), the
+mimalloc trial on the pinned 6.0.3 SDK, re-enabling `enable_post_processing`
+(see "Render thread"), and dynamic resolution scaling / perf overlay.
 
 ---
 
