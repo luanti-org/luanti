@@ -104,7 +104,7 @@ clock slaved to the song. The details are in
   concert moves `sway`, `pogo`, `clap` and `headbang`.
 
 All seven mixes share this one map. A new song only needs its pair in
-`mods/lw_amps/songs/` (not `sounds/`: see Cost), a `register_song` line with the length measured from
+`client/web/media/songs/` (not `sounds/`, and not in the game: see Cost), a `register_song` line with the length measured from
 the files, and a routine naming it in `songs`. It can reuse the same cast.
 
 ## Map stages
@@ -171,7 +171,7 @@ hand, before any song is added or with one.
 
 A `sounds/` folder is part of the media list. Every client downloads that
 list and checks its hashes before the world loads, which is why the "Around"
-pairs moved out of it into `songs/` (see Cost). `cabaret/` is not a media folder. Instead,
+pairs moved out of it, and later out of the game altogether (see Cost). `cabaret/` is not a media folder. Instead,
 `lw_amps` sends each cabaret pair with `core.dynamic_add_media`
 (`to_player`, not ephemeral, `client_cache = false`), once per visitor, when
 that visitor first comes within earshot of the cabaret's cabs. Until a
@@ -182,27 +182,30 @@ with the song and the band.
 That keeps the songs out of the engine's join-time media. In the web build
 the cabaret's files are still inside the `luanti_web` package (everything
 under `games/luanti_web` except the Around songs), so committed pairs grow it
-by their size. Keep cabaret pairs few and small, or give a large set its own
-`background` package in `util/wasm/packages.json` and register its songs with
-`lazy_media = true`, as the Around songs do. `mods/lw_amps/cabaret/README.md` has the details.
+by their size. Keep cabaret pairs few and small, or make a large set runtime
+media (`client/web/media/`, a `media` entry in `util/wasm/packages.json`) and
+register its songs with `lazy_media = true` and `web_media`, as the Around songs do. `mods/lw_amps/cabaret/README.md` has the details.
 
 ## Cost
 
-* **Not on the default path.** The songs live in `mods/lw_amps/songs/`, which
-  is not a media folder, so the server does not hash them at start-up and a
-  client joining the showcase is not sent or told about them. Before this,
+* **Not on the default path.** The songs are not in the game at all (they are
+  runtime media in `client/web/media/songs/`; the web build writes a pair into
+  `mods/lw_amps/songs/`, which is not a media folder, when a listener needs
+  it), so the server does not hash them at start-up and a client joining the
+  showcase is not sent or told about them. Before this,
   everything under `sounds/` (about 26 MiB) was hashed and announced on every
   start. `lw_amps` sends a pair with `core.dynamic_add_media` (`to_player`,
   `client_cache = false`) only when that song is about to play for a listener
   in range — in the pack, only on the concert arena — and starts their two
   sources on the next sweep, once the client has the files, at
   `elapsed % length` like any late arrival.
-* **Download:** the 14 files are about 26 MiB, but no longer part of what a
-  visitor waits for. The web build ships them as two `background` packages
-  that the launcher streams after the showcase world is running (the default
-  mix first). The songs are registered with `lazy_media = true`, so a stage
-  that is punched before its files have arrived stays quiet and starts, in
-  time, on a later sweep. See the content budget in `wasm_porting.md`.
+* **Download:** the 14 files are about 26 MiB, but no part of what a visitor
+  waits for, and nobody downloads one until a listener comes into range of a
+  stage that plays it: then the page fetches that song's pair (about 3.5 MiB,
+  one download at a time) and the mod sends it on. The songs are registered
+  with `lazy_media = true` and `web_media`, so a stage punched before its
+  files have arrived stays quiet and starts, in time, on a later sweep; a
+  missing file leaves it silent. See "Runtime media" in `wasm_porting.md`.
 * **Audio:** one song at a time, and two streamed sources per listener in
   range.
 * **Entities:** eight dancers. The director already holds that to ten pose

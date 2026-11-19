@@ -831,6 +831,50 @@ int ModApiUtil::l_clear_web_video_texture(lua_State *L)
 	return 1;
 }
 
+// web_media_request("songs/around_happy_hard")
+//
+// Asks the page to fetch a set of media files (client/web/runtime_media.js)
+// and write them into the virtual filesystem, at the directory the build's
+// asset manifest names for that id. Returns a state string and never blocks:
+//   "ready"        the files are there; read them from their usual path
+//   "loading"      being downloaded; ask again later
+//   "busy"         a different set is downloading (one at a time); ask again
+//   "missing"      this build does not ship it
+//   "failed"       network or integrity failure; asking again retries later
+//   "invalid"      not a media id
+//   "unavailable"  no page helper
+// Defined only in the WebAssembly client, so a mod feature-detects it with
+// `if core.web_media_request then` and otherwise reads the files from disk.
+int ModApiUtil::l_web_media_request(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	const std::string id = luaL_checkstring(L, 1);
+	const char *state = "unavailable";
+	switch (porting::emscripten_web_media_request(id)) {
+	case porting::WebMediaState::Ready: state = "ready"; break;
+	case porting::WebMediaState::Loading: state = "loading"; break;
+	case porting::WebMediaState::Busy: state = "busy"; break;
+	case porting::WebMediaState::Missing: state = "missing"; break;
+	case porting::WebMediaState::Failed: state = "failed"; break;
+	case porting::WebMediaState::Invalid: state = "invalid"; break;
+	case porting::WebMediaState::Unavailable: break;
+	}
+	lua_pushstring(L, state);
+	return 1;
+}
+
+// web_media_release(id)
+//
+// Removes a fetched set's files again once the engine has read them (after
+// the core.dynamic_add_media callback). Returns true if there was anything.
+int ModApiUtil::l_web_media_release(lua_State *L)
+{
+	NO_MAP_LOCK_REQUIRED;
+	const std::string id = luaL_checkstring(L, 1);
+	lua_pushboolean(L, porting::emscripten_web_media_release(id));
+	return 1;
+}
+
 #endif // __EMSCRIPTEN__
 
 void ModApiUtil::Initialize(lua_State *L, int top)
@@ -894,6 +938,8 @@ void ModApiUtil::Initialize(lua_State *L, int top)
 	API_FCT(clear_web_video);
 	API_FCT(set_web_video_texture);
 	API_FCT(clear_web_video_texture);
+	API_FCT(web_media_request);
+	API_FCT(web_media_release);
 #endif
 
 	LuaSettings::create(L, g_settings, g_settings_path);

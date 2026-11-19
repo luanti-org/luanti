@@ -162,3 +162,6 @@ node_modules/
 
 # Browser smoke-test screenshots dropped at the repo root
 /*.png
+
+# lw_amps songs are runtime media (client/web/media/songs); a native install may copy them here
+/games/luanti_web/mods/lw_amps/songs/*.ogg

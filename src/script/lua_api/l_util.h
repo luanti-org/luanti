@@ -148,6 +148,10 @@ private:
 
 	// clear_web_video_texture() -- browser client only
 	static int l_clear_web_video_texture(lua_State *L);
+
+	// web_media_request(id), web_media_release(id) -- browser client only
+	static int l_web_media_request(lua_State *L);
+	static int l_web_media_release(lua_State *L);
 #endif
 
 public:

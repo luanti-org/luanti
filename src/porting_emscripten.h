@@ -43,6 +43,23 @@ bool emscripten_show_video_overlay(const std::string &clip,
 		const std::string &title, bool loop, bool muted);
 void emscripten_hide_video_overlay();
 
+// Runtime media (client/web/runtime_media.js): files a mod asks for by id
+// ("songs/around_happy_hard"), fetched by the page and written into the
+// virtual filesystem at the directory named by asset-manifest.json -- never
+// one the mod picks. The request is asynchronous: ask again until Ready.
+enum class WebMediaState : std::uint8_t {
+	Unavailable, // no page helper (an embedder replaced the shell, or not WASM)
+	Ready,       // the files are in the virtual filesystem
+	Loading,     // being downloaded
+	Busy,        // another set is downloading; only one at a time
+	Missing,     // this build does not ship it, or the server has no such file
+	Failed,      // network or integrity failure (retried after a few seconds)
+	Invalid,     // not a media id
+};
+WebMediaState emscripten_web_media_request(const std::string &id);
+// Give the files back once the engine has taken the bytes. True if any were.
+bool emscripten_web_media_release(const std::string &id);
+
 // Theater Tier C spike (GH issue #29): the browser decodes a clip and hands
 // back RGBA frames, which get uploaded onto a named engine texture instead of
 // an HTML overlay. Deliberately capped to a single small quad while this is a
@@ -122,6 +139,19 @@ inline bool emscripten_show_video_overlay(const std::string &,
 
 inline void emscripten_hide_video_overlay()
 {
+}
+
+enum class WebMediaState : std::uint8_t { Unavailable, Ready, Loading, Busy,
+	Missing, Failed, Invalid };
+
+inline WebMediaState emscripten_web_media_request(const std::string &)
+{
+	return WebMediaState::Unavailable;
+}
+
+inline bool emscripten_web_media_release(const std::string &)
+{
+	return false;
 }
 
 constexpr int VIDEO_TEXTURE_SPIKE_MAX_WIDTH = 320;

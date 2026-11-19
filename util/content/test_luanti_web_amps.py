@@ -16,12 +16,22 @@ SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 ROOT = SCRIPT_DIR.parents[1]
 GAME = ROOT / "games/luanti_web"
 AMPS = GAME / "mods/lw_amps"
-SOUNDS = AMPS / "songs"
+# The songs are runtime media: served from client/web/media/songs/ next to the
+# page and fetched when a listener first needs them
+# (client/web/runtime_media.js), not part of the game or of any asset package.
+SOUNDS = ROOT / "client/web/media/songs"
+# What is left in the game's own songs/ folder: the README for the slot (and
+# where a native install puts the files by hand).
+GAME_SONGS = AMPS / "songs"
+sys.path.insert(0, str(ROOT / "util/wasm"))
+import build_packages  # noqa: E402
 
 # The songs are the one large thing in the web pack. The budget in
 # wasm_porting.md was raised for them; this keeps them from growing past it
-# unnoticed.
+# unnoticed. It is a runtime-media cap: no visitor pays it before the menu.
 SONG_BUDGET = 30 * 1024 * 1024
+# The inverse: what the game itself carries of them. A README or two, never a mix.
+GAME_SONGS_BUDGET = 64 * 1024
 
 
 def assert_true(cond: bool, message: str) -> None:
@@ -105,12 +115,52 @@ def test_song_files() -> None:
 	assert_true(not extra, f"unregistered sound files: {sorted(extra)}")
 	assert_true(total <= SONG_BUDGET,
 		f"the songs are {total / 2**20:.1f} MiB; the budget is {SONG_BUDGET / 2**20:.0f} MiB")
-	assert_true((SOUNDS / "README.md").is_file(), "lw_amps/songs has no README")
+	assert_true((SOUNDS / "README.md").is_file(), "client/web/media/songs has no README")
 	# Kept out of the media every client is sent on join (see the top of
 	# lw_amps/init.lua): no song may sit under a media folder of any mod.
 	for folder in ("sounds", "media", "textures", "models"):
 		stray = sorted(p.name for p in (GAME / "mods").glob(f"*/{folder}/**/lw_amps_*.ogg"))
 		assert_true(not stray, f"song files in a {folder}/ folder are sent on join: {stray}")
+
+
+def test_songs_stay_out_of_the_preload() -> None:
+	"""The inverse of the song budget: nothing the game ships is a mix."""
+	assert_true(GAME_SONGS.is_dir() and (GAME_SONGS / "README.md").is_file(),
+		"lw_amps/songs lost its README (the slot where a native install puts the files)")
+	preloaded = [p for p in GAME_SONGS.rglob("*") if p.is_file() and not p.name.startswith(".")]
+	stray = sorted(p.name for p in preloaded if p.suffix != ".md")
+	assert_true(not stray, f"lw_amps/songs ships audio with the game: {stray}")
+	size = sum(p.stat().st_size for p in preloaded)
+	assert_true(size <= GAME_SONGS_BUDGET,
+		f"lw_amps/songs is {size} bytes; the game may carry {GAME_SONGS_BUDGET} of it")
+
+	# Nothing in any asset package either (the file list, not a build).
+	config = build_packages.load_config(ROOT / "util/wasm/packages.json")
+	for name, spec in config["packages"].items():
+		for mount in spec["mounts"]:
+			for destination, _ in build_packages.collect_files(ROOT, mount):
+				assert_true("/lw_amps/songs/" not in destination or destination.endswith(".md"),
+					f"package {name} carries a song file: {destination}")
+
+	# Every song is served as runtime media under the id the mod asks for.
+	media = build_packages.collect_media(ROOT, config)
+	for name in registered_songs():
+		entry = media.get(f"songs/{name}")
+		assert_true(entry is not None, f"{name} is not in the runtime media manifest")
+		assert_true(sorted(f["name"] for f in entry["files"]) ==
+			[f"lw_amps_{name}_l.ogg", f"lw_amps_{name}_r.ogg"],
+			f"{name} is not exactly its left and right file")
+		assert_true(entry["dest"] == "/games/luanti_web/mods/lw_amps/songs",
+			f"{name} would be written to {entry['dest']}, not where lw_amps reads it")
+	songs = {i for i in media if i.startswith("songs/")}
+	assert_true(songs == {f"songs/{n}" for n in registered_songs()},
+		"the runtime media manifest has songs lw_amps does not register")
+	text = (AMPS / "init.lua").read_text(encoding="utf-8")
+	assert_true('web_media = "songs/" .. take[1]' in text,
+		"lw_amps does not ask for its songs as runtime media")
+	total = sum(e["bytes"] for i, e in media.items() if i.startswith("songs/"))
+	assert_true(total <= SONG_BUDGET,
+		f"the songs are {total / 2**20:.1f} MiB of runtime media; the cap is {SONG_BUDGET / 2**20:.0f} MiB")
 
 
 def test_routine_follows_the_songs() -> None:
@@ -129,6 +179,7 @@ def test_routine_follows_the_songs() -> None:
 def main() -> int:
 	test_lua_logic()
 	test_song_files()
+	test_songs_stay_out_of_the_preload()
 	test_routine_follows_the_songs()
 	print("stage amp checks ok")
 	return 0

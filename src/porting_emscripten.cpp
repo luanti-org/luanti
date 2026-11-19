@@ -74,6 +74,24 @@ bool is_safe_clip_name(const std::string &clip)
 	return clip.find("..") == std::string::npos;
 }
 
+// A runtime media id is "<set>/<id>" in lowercase letters, digits and
+// underscores (see util/wasm/build_packages.py). The page checks it again.
+bool is_safe_media_id(const std::string &id)
+{
+	const auto slash = id.find('/');
+	if (slash == std::string::npos || slash == 0 || id.size() - slash - 1 < 1
+			|| id.size() - slash - 1 > 64 || slash > 64)
+		return false;
+	for (std::size_t i = 0; i < id.size(); i++) {
+		const char c = id[i];
+		const bool ok = (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')
+			|| c == '_' || (c == '/' && i == slash);
+		if (!ok)
+			return false;
+	}
+	return true;
+}
+
 // Theater Tier C spike state. The browser main thread decodes frames and
 // writes them straight into these buffers (shared Wasm memory, see
 // emscripten_start_video_texture()); the application worker is the only
@@ -395,6 +413,43 @@ bool emscripten_show_video_overlay(const std::string &clip,
 			"muted": !!$3
 		}) ? 1 : 0;
 	}, clip.c_str(), title.c_str(), loop, muted) != 0;
+}
+
+WebMediaState emscripten_web_media_request(const std::string &id)
+{
+	if (!is_safe_media_id(id)) {
+		errorstream << "Refusing web media request with unusable id: " << id << std::endl;
+		return WebMediaState::Invalid;
+	}
+	// Synchronous hop to the main thread: the page starts (or looks up) the
+	// download and answers at once; the transfer itself is asynchronous.
+	const int code = MAIN_THREAD_EM_ASM_INT({
+		var media = Module["luantiRuntimeMedia"];
+		if (!media || typeof media["requestCode"] !== "function")
+			return 0;
+		return media["requestCode"](UTF8ToString($0));
+	}, id.c_str());
+	switch (code) {
+	case 1: return WebMediaState::Ready;
+	case 2: return WebMediaState::Loading;
+	case 3: return WebMediaState::Busy;
+	case 4: return WebMediaState::Missing;
+	case 5: return WebMediaState::Failed;
+	case 6: return WebMediaState::Invalid;
+	default: return WebMediaState::Unavailable;
+	}
+}
+
+bool emscripten_web_media_release(const std::string &id)
+{
+	if (!is_safe_media_id(id))
+		return false;
+	return MAIN_THREAD_EM_ASM_INT({
+		var media = Module["luantiRuntimeMedia"];
+		if (!media || typeof media["releaseCode"] !== "function")
+			return 0;
+		return media["releaseCode"](UTF8ToString($0));
+	}, id.c_str()) != 0;
 }
 
 void emscripten_hide_video_overlay()

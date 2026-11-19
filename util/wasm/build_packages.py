@@ -30,6 +30,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import struct
 import sys
 
@@ -120,6 +121,11 @@ def sha256_file(path: Path) -> str:
 	return digest.hexdigest()
 
 
+MEDIA_NAME = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$")
+MEDIA_SET = re.compile(r"^[a-z0-9_]+$")
+MEDIA_ID = re.compile(r"^[a-z0-9_]{1,64}$")
+
+
 def load_config(path: Path) -> dict:
 	config = json.loads(path.read_text(encoding="utf-8"))
 	packages = config["packages"]
@@ -127,7 +133,60 @@ def load_config(path: Path) -> dict:
 		for name in entry["packages"] + entry.get("background", []):
 			if name not in packages:
 				raise PackageError(f"game {game} needs unknown package {name}")
+	for name, spec in config.get("media", {}).items():
+		if not MEDIA_SET.fullmatch(name):
+			raise PackageError(f"media set {name!r} needs a name of [a-z0-9_]")
+		for field in ("src", "url", "dest", "group"):
+			if not isinstance(spec.get(field), str) or not spec[field]:
+				raise PackageError(f"media set {name} has no {field}")
+		if re.compile(spec["group"]).groups != 1:
+			raise PackageError(f"media set {name}: group needs exactly one capture group (the id)")
 	return config
+
+
+def collect_media(root: Path, config: dict) -> dict[str, dict]:
+	"""Runtime media: files fetched on demand, not packaged.
+
+	Each `media` entry of packages.json names a source directory (copied next
+	to luanti.html by the build as `url`), the virtual-filesystem directory the
+	page writes the files to, and a regular expression whose one capture group
+	is the id of a set. Everything in a set is fetched together (a song is a
+	pair of mono Oggs), and one id is what a mod asks for:
+	`core.web_media_request("<set>/<id>")` (see client/web/runtime_media.js).
+	"""
+	media: dict[str, dict] = {}
+	for set_name, spec in config.get("media", {}).items():
+		source = root / spec["src"]
+		if not source.is_dir():
+			raise PackageError(f"media source is not a directory: {source}")
+		group = re.compile(spec["group"])
+		dest = "/" + str(spec["dest"]).strip("/")
+		url = str(spec["url"]).strip("/")
+		limit = int(spec.get("maxSetBytes", 0))
+		found: dict[str, list[dict]] = {}
+		for path in sorted(source.iterdir()):
+			if not path.is_file() or _skipped(path.name) or path.suffix == ".md":
+				continue
+			match = group.match(path.name)
+			if not match:
+				raise PackageError(f"{path} does not belong to a {set_name} media set "
+					f"(file names have to match {spec['group']})")
+			identifier = match.group(1)
+			if not MEDIA_ID.fullmatch(identifier) or not MEDIA_NAME.fullmatch(path.name):
+				raise PackageError(f"{path}: unusable media name")
+			found.setdefault(identifier, []).append({
+				"name": path.name,
+				"url": f"{url}/{path.name}",
+				"bytes": path.stat().st_size,
+				"sha256": sha256_file(path),
+			})
+		for identifier, files in sorted(found.items()):
+			total = sum(f["bytes"] for f in files)
+			if limit and total > limit:
+				raise PackageError(f"media {set_name}/{identifier} is {total} bytes; "
+					f"the cap for a {set_name} set is {limit}")
+			media[f"{set_name}/{identifier}"] = {"dest": dest, "bytes": total, "files": files}
+	return media
 
 
 BUILD_ID_PLACEHOLDER = "__LUANTI_BUILD_ID__"
@@ -205,6 +264,7 @@ def build_all(root: Path, config: dict, output: Path, *, shell_dir: Path | None 
 		"buildId": sha256_bytes(identity)[:16],
 		"packages": packages,
 		"games": config["games"],
+		"media": collect_media(root, config),
 		"shell": shell,
 	}
 	text = json.dumps(manifest, indent="\t", sort_keys=True) + "\n"

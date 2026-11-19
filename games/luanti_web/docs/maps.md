@@ -477,8 +477,8 @@ arena and out of its east side (the gate there points north), or with
   so is one started by hand while nobody is there. `/amp` and
   `/routine start lace_waterfall_around` work here as anywhere.
 * **Only here are the song files sent.** They are not game media
-  (`lw_amps/songs/`, not `sounds/`), so the showcase never hashes or announces
-  them; `lw_amps` sends the pair being played to a listener when it starts for
+  (runtime media in `client/web/media/songs/`, not `sounds/`), so the showcase
+  never hashes or announces them; `lw_amps` sends the pair being played to a listener when it starts for
   them. A later lossless or otherwise heavier audio experiment belongs on
   this map only.
 * **The floor** is a 35 × 24 checker of black and magenta wool, edged violet,

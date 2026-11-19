@@ -139,7 +139,31 @@ interface LuantiAssetManifest {
 	buildId: string;
 	packages: Record<string, LuantiAssetPackage>;
 	games: Record<string, { packages: string[]; background?: string[] }>;
+	/** Runtime media sets by `<set>/<id>` (songs), fetched by runtime_media.js. */
+	media?: Record<string, LuantiMediaSet>;
 	shell: Record<string, { bytes: number; sha256: string; verify: boolean }>;
+}
+
+interface LuantiMediaSet {
+	/** Virtual-filesystem directory the files are written to. */
+	dest: string;
+	bytes: number;
+	files: { name: string; url: string; bytes: number; sha256: string }[];
+}
+
+type LuantiMediaState = "ready" | "loading" | "busy" | "missing" | "failed" | "invalid";
+
+/** Runtime media (client/web/runtime_media.js, a --pre-js file). */
+interface LuantiRuntimeMedia {
+	/** Starts the download if none is running; otherwise answers without queueing. */
+	request(id: string): LuantiMediaState;
+	/** `"idle"` for an id nobody asked for. */
+	state(id: string): LuantiMediaState | "idle";
+	/** Delete a ready set's files from the virtual filesystem. */
+	release(id: string): boolean;
+	requestCode(id: string): number;
+	releaseCode(id: string): number;
+	status(): { inFlight: string | null; resident: string[]; sets: Record<string, string> };
 }
 
 /** Streamed asset packages (client/web/packages.js, a --pre-js file). */
@@ -149,7 +173,7 @@ interface LuantiPackages {
 	load(names: string[], onProgress?: (loaded: number, total: number) => void): Promise<unknown>;
 	loadCore(onProgress?: (loaded: number, total: number) => void): Promise<unknown>;
 	loadGame(game: string, onProgress?: (loaded: number, total: number) => void): Promise<unknown>;
-	/** The game's optional packages (songs), one at a time. */
+	/** The game's optional `background` packages, one at a time (none today). */
 	loadBackground(game: string): Promise<unknown>;
 	/** Resolves when the eager `core` packages are mounted. */
 	core: Promise<unknown>;
@@ -251,6 +275,12 @@ interface LuantiModule {
 	luantiResumeAudio?: (reason?: string) => number;
 	/** audio_unlock.js: comma-separated AudioContext states, or "none". */
 	luantiAudioState?: () => string;
+	/** audio_unlock.js: suspend every OpenAL context and hold it there (embedder pause). */
+	luantiSuspendAudio?: (reason?: string) => number;
+	/** audio_unlock.js: release the hold and resume every stopped context. */
+	luantiUnpauseAudio?: (reason?: string) => number;
+	/** runtime_media.js: fetch media sets on demand for mods (core.web_media_request). */
+	luantiRuntimeMedia?: LuantiRuntimeMedia;
 	/** Render overrides read by CIrrDeviceSDL.cpp (`?webgl=`, `?render=`, `?swapsleep=`). */
 	luantiWebGL?: {
 		major?: 1 | 2;

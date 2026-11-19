@@ -14,7 +14,8 @@ import threading
 import unittest
 
 from build_packages import (
-	PackageError, build_all, build_package, load_config, read_index, stamp_service_worker)
+	PackageError, build_all, build_package, collect_media, load_config, read_index,
+	stamp_service_worker)
 import bench_startup
 import memory_import
 import size_report
@@ -24,11 +25,20 @@ from serve import create_server
 REPO = Path(__file__).resolve().parents[2]
 
 
-def make_build(root: Path) -> Path:
+MEDIA_CONFIG = {"songs": {"src": "media", "url": "media/songs", "dest": "/g/songs",
+	"group": "^lw_([a-z0-9_]+)_[lr]\\.ogg$", "maxSetBytes": 100}}
+
+
+def make_build(root: Path, media: bool = False) -> Path:
 	"""A fake generated build: shell files, two asset packages, a manifest."""
 	tree = root / "tree"
 	(tree / "core").mkdir(parents=True)
 	(tree / "game").mkdir()
+	if media:
+		(tree / "media").mkdir()
+		(tree / "media/lw_one_l.ogg").write_bytes(b"OggS left")
+		(tree / "media/lw_one_r.ogg").write_bytes(b"OggS right")
+		(tree / "media/README.md").write_text("not media")
 	(tree / "core/a.txt").write_text("core a")
 	(tree / "game/b.txt").write_text("game b")
 	(tree / "worker.js").write_text('var BUILD_ID = "__LUANTI_BUILD_ID__";\n')
@@ -47,7 +57,14 @@ def make_build(root: Path) -> Path:
 		"verified": ["luanti.wasm"],
 		"serviceWorker": "worker.js",
 	}
+	if media:
+		config["media"] = MEDIA_CONFIG
 	build_all(tree, config, source, shell_dir=source)
+	if media:
+		# What the CMake build does: copy the media directory next to the page.
+		(source / "media/songs").mkdir(parents=True)
+		for path in (tree / "media").glob("*.ogg"):
+			(source / "media/songs" / path.name).write_bytes(path.read_bytes())
 	# The stamped worker replaces the placeholder copy in the fake build.
 	return source
 
@@ -81,6 +98,56 @@ class DemoToolsTest(unittest.TestCase):
 				self.assertTrue(package["url"].startswith("../../assets/"), package["url"])
 				stored_file = destination / "assets" / Path(package["url"]).name
 				self.assertEqual(stored_file.stat().st_size, package["bytes"])
+
+	def test_runtime_media_is_listed_hashed_and_published(self) -> None:
+		with tempfile.TemporaryDirectory() as temporary:
+			root = Path(temporary)
+			source = make_build(root, media=True)
+			built = json.loads((source / "asset-manifest.json").read_text())
+			self.assertEqual(list(built["media"]), ["songs/one"])
+			entry = built["media"]["songs/one"]
+			self.assertEqual(entry["dest"], "/g/songs")
+			self.assertEqual([f["name"] for f in entry["files"]], ["lw_one_l.ogg", "lw_one_r.ogg"])
+			self.assertEqual(entry["bytes"], len(b"OggS left") + len(b"OggS right"))
+			self.assertEqual(entry["files"][0]["url"], "media/songs/lw_one_l.ogg")
+
+			package_demo(source, root / "site", "abc123")
+			release = json.loads((root / "site/releases/abc123/asset-manifest.json").read_text())
+			for item in release["media"]["songs/one"]["files"]:
+				self.assertRegex(item["url"], r"^\.\./\.\./assets/lw_one_[lr]\.[0-9a-f]{12}\.ogg$")
+				published = root / "site/assets" / Path(item["url"]).name
+				self.assertEqual(published.stat().st_size, item["bytes"])
+			stored = json.loads((root / "site/version.json").read_text())
+			self.assertIn(Path(release["media"]["songs/one"]["files"][0]["url"]).name, stored["assets"])
+
+			# A file that changed after the manifest was written is refused.
+			(source / "media/songs/lw_one_l.ogg").write_bytes(b"OggS tampered")
+			with self.assertRaises(ValueError):
+				package_demo(source, root / "site2", "abc123")
+
+	def test_runtime_media_is_checked_when_the_manifest_is_built(self) -> None:
+		with tempfile.TemporaryDirectory() as temporary:
+			root = Path(temporary)
+			make_build(root, media=True)
+			tree = root / "tree"
+			config = {"media": MEDIA_CONFIG}
+			(tree / "media/lw_two_l.ogg").write_bytes(b"x" * 200)
+			with self.assertRaises(PackageError):  # larger than maxSetBytes
+				collect_media(tree, config)
+			(tree / "media/lw_two_l.ogg").unlink()
+			(tree / "media/stray.ogg").write_bytes(b"x")
+			with self.assertRaises(PackageError):  # not part of any set
+				collect_media(tree, config)
+			(tree / "media/stray.ogg").unlink()
+			# The config itself: an id needs exactly one capture group.
+			base = {"schema": 1, "packages": {}, "games": {}}
+			path = root / "packages.json"
+			path.write_text(json.dumps(dict(base, media={"songs": dict(
+				MEDIA_CONFIG["songs"], group="^(a)(b)$")})))
+			with self.assertRaises(PackageError):
+				load_config(path)
+			path.write_text(json.dumps(dict(base, media=MEDIA_CONFIG)))
+			self.assertIn("songs", load_config(path)["media"])
 
 	def test_size_report_counts_the_release_and_the_core_package(self) -> None:
 		with tempfile.TemporaryDirectory() as temporary:
@@ -265,16 +332,20 @@ class DemoToolsTest(unittest.TestCase):
 		offered = set(re.findall(r'<option value="([a-z_]+)"[^>]*>', shell.split('id="luanti-game"')[1]
 			.split("</select>")[0]))
 		self.assertEqual(offered, set(config["games"]), "launcher games vs packages.json")
-		# Songs stay out of the game package and in their own, background ones.
-		luanti_web, _ = build_package(REPO, config["packages"]["luanti_web"])
-		self.assertFalse(any("/lw_amps/songs/" in e["p"] and e["p"].endswith(".ogg")
-			for e in read_index(luanti_web)))
-		songs = set()
-		for name in config["games"]["luanti_web"]["background"]:
-			data, _ = build_package(REPO, config["packages"][name])
-			songs |= {e["p"].rsplit("/", 1)[1] for e in read_index(data)}
-		on_disk = {p.name for p in (REPO / "games/luanti_web/mods/lw_amps/songs").glob("*.ogg")}
-		self.assertEqual(songs, on_disk, "every song is in a background package")
+		# Songs are in no package at all: they are runtime media, fetched when
+		# a listener first needs them (client/web/runtime_media.js).
+		for name, spec in config["packages"].items():
+			data, _ = build_package(REPO, spec)
+			self.assertFalse(any("/lw_amps/songs/" in e["p"] and e["p"].endswith(".ogg")
+				for e in read_index(data)), f"package {name} carries a song")
+		self.assertEqual(config["games"]["luanti_web"].get("background", []), [])
+		media = collect_media(REPO, config)
+		songs = {name.split("/", 1)[1] for name in media if name.startswith("songs/")}
+		on_disk = {p.name.removeprefix("lw_amps_").rsplit("_", 1)[0]
+			for p in (REPO / "client/web/media/songs").glob("*.ogg")}
+		self.assertEqual(songs, on_disk, "every song file is in the runtime media manifest")
+		self.assertEqual({f["name"] for n, m in media.items() if n.startswith("songs/")
+			for f in m["files"]}, {p.name for p in (REPO / "client/web/media/songs").glob("*.ogg")})
 		# core is what every visitor downloads before the first frame.
 		core, _ = build_package(REPO, config["packages"]["core"])
 		self.assertLessEqual(len(core), 12 * 1024 * 1024, "first-visit budget (wasm_porting.md)")

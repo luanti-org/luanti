@@ -542,16 +542,17 @@ target, run by every build) writes each one as a content-addressed
 `assets/<name>.<sha256[:12]>.data` plus `asset-manifest.json`, and
 `client/web/packages.js` downloads, hash-checks and mounts them into MEMFS on
 demand. `core` is eager (the launcher waits for it); a game's package is
-fetched when that game is chosen; a game's `background` packages (the showcase
-songs) are fetched once its world is running.
+fetched when that game is chosen; a game's `background` packages (none today)
+would be fetched once its world is running. Big optional content that only some
+players reach, the showcase songs, is not packaged at all: it is runtime media,
+fetched when a mod asks (see "Runtime media" below).
 
 | Package | Mount point(s) | When it is fetched |
 |---------|----------------|--------------------|
 | `core`: `builtin/`, `textures/`, `fonts/`, `client/shaders/`, `clientmods/` | `/builtin`, `/textures`, `/fonts`, `/client/shaders`, `/clientmods` | first visit, in parallel with compiling `luanti.wasm` |
 | `luanti_web`: `games/luanti_web/` without the songs | `/games/luanti_web` | when "Luanti Web Showcase" is started |
-| `luanti_web_songs_main`, `luanti_web_songs_takes`: `lw_amps/songs/*.ogg` | `/games/luanti_web/mods/lw_amps/songs` | in the background, after that world is running (the default song first) |
 | `flower_island`, `rollercoaster`, `log_ride`, `spire_tunnel`, `devtest` | `/games/<id>` | when that game is started |
-| `client/web/media/` | served at `media/` | copied next to `luanti.html`, fetched at runtime |
+| `client/web/media/` (theater clips, `songs/`, `test/`) | served at `media/` | copied next to `luanti.html`, fetched at runtime; songs only when a listener first needs one |
 
 `devtest` is deliberately not in `core` (it is 1.4 MB and only used for engine
 work). A remote server brings its own content, so joining one fetches no game
@@ -581,7 +582,7 @@ pays before the first frame, and what one game costs when it is chosen.
 | **First visit**: `core` (builtin, fonts, textures, shaders, clientmods) | **≤ 12 MB**, enforced by `test_demo_tools.py` | 9.33 MB (4.39 MB gzipped) |
 | First frame of the default game: `core` + `luanti_web` | follows from the two rows | 10.1 MB, down from the 39.1 MB `luanti.data` it replaced (about 4.7 MB gzipped) |
 | **Per game**: one game's package | small demo games under ~100 KB; `luanti_web` under ~1 MB; `devtest` is the exception at 1.5 MB | `luanti_web` 0.77 MB, `devtest` 1.50 MB, the four demos 14–38 KB each |
-| **Streamed optional content**: the showcase songs | under 30 MiB in total (`test_luanti_web_amps.py`) | 27.5 MB, in two packages that never delay the first frame |
+| **Runtime media**: the showcase songs | under 30 MiB in total, under 6 MiB per set; none of it in the startup download or any package (`test_luanti_web_amps.py`) | 27.5 MB in 7 sets (about 3.5 MiB a pair), fetched one set at a time, only when a listener comes into range |
 | Engine: `luanti.wasm` + `luanti.js` | not budgeted yet (the failing check belongs to #86) | 10,641,925 + 467,558 bytes; 2,690,745 + 88,105 as Brotli 11 ("Download sizes") |
 | Heap | 256 MiB initial; 2 GiB + 64 KiB maximum, or 1 GiB / 512 MiB on a browser that refuses it | `-sINITIAL_MEMORY` / `-sMAXIMUM_MEMORY`, then the probe ("Heap ceiling probe"). The showcase world stays within the initial 256 MiB |
 | Texture size | 16 or 32 px tiles; no single texture over 2048 px | GLES2 limits and atlas pressure |
@@ -589,7 +590,8 @@ pays before the first frame, and what one game costs when it is chosen.
 
 Growing `core` is a deliberate decision: every visitor pays for it. Content
 for one game belongs in that game's package; anything big and optional belongs
-in a `background` package (or runtime media).
+in runtime media (`client/web/media/`, listed in the `media` section of
+`util/wasm/packages.json`) or a `background` package.
 
 Bundle:
 
@@ -637,31 +639,66 @@ Bundle:
   `core.dynamic_add_media` (`client_cache = false`) to listeners of the
   cabaret's cabs only. Also like the organ, anything committed there is
   inside the `luanti_web` package, so it grows that package by its size. Add
-  a few small pairs at most, or give a large set its own `background`
-  package in `util/wasm/packages.json` the way the Around songs have (see
-  that folder's README).
+  a few small pairs at most, or make a large set runtime media the way the
+  Around songs are (see that folder's README).
 * Short, same-origin theater clips dropped into `client/web/media/` and fetched
   at runtime.
 * The Lace Waterfall songs for the stage amps
-  (`games/luanti_web/mods/lw_amps/songs/`). That is seven mixes of "Around",
-  each a pair of mono Vorbis files (27.5 MB in all) — the one deliberate
-  exception to "small". They are no longer part of anything a visitor must
-  download before playing: `util/wasm/packages.json` puts them in two
-  `background` packages (the default mix first, then the six alternate takes)
-  that the launcher fetches one at a time once the showcase world is running.
-  The amps can only place the song on the stage if it is game media, so it is
-  written into the game's `songs/` folder rather than fetched by the engine;
-  `lw_amps` registers these songs with `lazy_media = true`, checks for the
-  files when a listener needs them, stays quiet until they exist and then
-  starts the pair in step with the clock. The files sit in `songs/`, outside
-  every media folder, so the server never hashes them at start-up or announces
-  them on join, and `lw_amps` pushes a pair with `core.dynamic_add_media` only
-  when it plays for a listener (only on the concert arena, in the pack).
+  (`client/web/media/songs/`, "Runtime media" below). That is seven mixes of
+  "Around", each a pair of mono Vorbis files (27.5 MB in all) — the one
+  deliberate exception to "small". They are not in the game, in a package, or
+  in anything a visitor downloads before playing. `lw_amps` registers the songs
+  with `lazy_media = true` and `web_media = "songs/<song>"`; when a listener
+  first comes into range it asks the page for the pair
+  (`core.web_media_request`), stays quiet until it is there, pushes it with
+  `core.dynamic_add_media` (`client_cache = false`, so the client does not keep
+  a second copy under `path_cache`, which on the web is inside the IDBFS-backed
+  `path_user`), gives the files back (`core.web_media_release`) and starts the
+  pair in step with the clock. The files are written into the game's `songs/`
+  folder in the virtual filesystem, outside every media folder, so the server
+  never hashes them at start-up or announces them on join.
   Long sounds are streamed, not decoded whole (`SOUND_DURATION_MAX_SINGLE` is
-  3 s in `src/client/sound/sound_constants.h`). The songs are sent with
-  `client_cache = false`, so the client does not keep a second copy under
-  `path_cache` (which on the web is inside the IDBFS-backed `path_user`).
-  `util/content/test_luanti_web_amps.py` fails past 30 MiB of songs.
+  3 s in `src/client/sound/sound_constants.h`).
+  `util/content/test_luanti_web_amps.py` fails past 30 MiB of songs, and if any
+  song is in the game directory or an asset package.
+
+### Runtime media
+
+`client/web/runtime_media.js` (a `--pre-js`) is the browser half of
+`core.web_media_request(id)` / `core.web_media_release(id)`, which exist only in
+the WebAssembly client (a mod feature-detects them). `asset-manifest.json`'s
+`media` section lists every set by `<set>/<id>` with its destination directory
+in the virtual filesystem and each file's URL, size and SHA-256, generated from
+the `media` entries of `util/wasm/packages.json` by `build_packages.py` (the
+directory is copied next to the page by the build; a release publishes each file
+by content hash under `assets/`). The policy is narrow on purpose:
+
+* a mod names only an id in the manifest; URLs and the destination come from
+  the manifest;
+* **one download at a time**: a request for another id while one is in flight
+  is answered `busy` and not queued, so a listener cannot start a second
+  multi-megabyte transfer; the mod asks again on its next sweep;
+* both files of a set are size- and hash-checked before either is written; a
+  stale HTTP cache entry is retried once uncached;
+* at most two sets stay resident, and the mod releases a set once the engine
+  has taken the bytes;
+* answers are `ready`, `loading`, `busy`, `missing` (not in this build, or HTTP
+  404: logged as `file missing`, the band stays silent, nothing throws),
+  `failed` (retried after 5 s) and `invalid`.
+
+Audio around it (`client/web/audio_unlock.js`, `sound_manager.cpp`): when the
+page becomes visible again every stopped context is resumed (`resumeAll`); when
+it is hidden the browser decides whether to suspend, and nothing keeps audio
+going or decodes ahead. `Module.luantiLauncher.setPaused(true)` suspends the
+contexts and holds them there (gestures do not wake a paused page), and the
+sound thread skips stream stepping while the engine is paused; unpausing
+resumes both. The console has three distinct lines: `Audio: context suspended`
+(and `context resumed`), `Audio: file missing: no sound named …`, and
+`Audio: stream underrun for …` (with the context's state). The sound thread
+steps streams on its own measured time (`OpenALSoundManager::run`), not on the
+frame's `dtime`, so a slow frame does not starve a stream. Check it with
+`util/wasm/test_runtime_media_browser.py`.
+
 * An optional tiny authoring mod (e.g. a clone-stick tool) — not a full
   modpack zoo.
 

@@ -9,6 +9,7 @@
 #include "playing_sound.h"
 
 #include "al_extensions.h"
+#include "al_helpers.h"
 #include "sound_constants.h"
 #include "porting.h"
 #include <cassert>
@@ -171,6 +172,19 @@ bool PlayingSound::stepStream(bool playback_speed_changed)
 			play();
 			warningstream << "PlayingSound::stepStream: Sound queue ran empty for \""
 					<< m_data->m_decode_info.name_for_logging << "\"" << std::endl;
+#ifdef __EMSCRIPTEN__
+			{
+				// Distinct from the line above so a browser session can be
+				// searched for it: the first few, with the AudioContext's
+				// state, which tells a slow decoder from a suspended context.
+				static int underruns = 0;
+				if (underruns++ < 8)
+					actionstream << "Audio: stream underrun for \""
+						<< m_data->m_decode_info.name_for_logging
+						<< "\" (" << underruns << " so far), AudioContext "
+						<< getWebAudioState() << std::endl;
+			}
+#endif
 		}
 	}
 

@@ -23,13 +23,19 @@
 -- which is how the band on stage stays on the beat of the song coming out of
 -- the cabs.
 --
--- The files live in `songs/`, not `sounds/`, on purpose. Everything under a
--- mod's `sounds/` is hashed by the server and announced to every client on
--- join, which for these is about 26 MiB on every start of the showcase, songs
--- or not. From `songs/` they are sent with core.dynamic_add_media, one pair at
--- a time, to a player who is actually in earshot of a song that is playing —
--- in this pack only on the concert arena (lw_maps), so nothing else pays.
--- They use the same `media_dir` path as the cabaret's songs (below).
+-- The files are not in `sounds/`, on purpose. Everything under a mod's
+-- `sounds/` is hashed by the server and announced to every client on join,
+-- which for these is about 26 MiB on every start of the showcase, songs or
+-- not. They are sent with core.dynamic_add_media, one pair at a time, to a
+-- player who is actually in earshot of a song that is playing — in this pack
+-- only on the concert arena (lw_maps), so nothing else pays.
+--
+-- In the web build the Around songs are not even in the game: they are runtime
+-- media (client/web/media/songs/), and the first listener to come into range
+-- asks the page for the pair (core.web_media_request) and waits for it. See
+-- "Songs that are not join-time media" below. A native install puts the files
+-- in this mod's `songs/` folder (see songs/README.md) and nothing is fetched.
+-- The cabaret's songs use the same `media_dir` path (below).
 
 lw_amps = {}
 
@@ -98,6 +104,11 @@ end
 --   client/web/packages.js), so the check moves from registration to the
 --   moment a listener needs the pair: until both files are there that
 --   listener is simply not started, and the sweep tries again every second.
+-- * `web_media`: the id of this song's files as runtime media ("songs/<song>"),
+--   which the WebAssembly build fetches on demand when a listener first needs
+--   them (core.web_media_request, a no-op everywhere else). Only meaningful
+--   with `lazy_media`; where that function does not exist the pair is read
+--   from `media_dir` and a missing pair means a silent stage.
 -- * `playlist`: the stage it belongs to (`lw_amps.playlist`), so a map can say
 --   "play my songs" without naming files that may not have been added yet.
 function lw_amps.register_song(name, def)
@@ -112,6 +123,9 @@ function lw_amps.register_song(name, def)
 		left = "lw_amps_" .. name .. "_l",
 		right = "lw_amps_" .. name .. "_r",
 	}
+	assert(def.web_media == nil or (type(def.web_media) == "string" and
+			def.web_media:match("^[a-z0-9_]+/[a-z0-9_]+$")),
+			"lw_amps.register_song: " .. name .. ": web_media has to look like set/id")
 	if def.media_dir then
 		local dir = MODPATH .. DIR_DELIM .. def.media_dir .. DIR_DELIM
 		def.files = {
@@ -168,8 +182,10 @@ for _, take in ipairs(AROUND) do
 		bpm = 175,
 		-- songs/, not sounds/: see the note at the top of this file.
 		media_dir = "songs",
-		-- The web build downloads these after the world has started.
+		-- The files are not in the game. The web build fetches them when a
+		-- listener first needs them (client/web/media/songs/).
 		lazy_media = true,
+		web_media = "songs/" .. take[1],
 	})
 end
 
@@ -379,7 +395,65 @@ end
 -- listener is simply not started; the sweep below tries again every second
 -- and starts them in time with the song once their client has the pair.
 -- Nobody who never goes near the stage downloads its songs.
+--
+-- In the web build the pair is not on disk either. `web_media` names it for the
+-- page (client/web/runtime_media.js), which downloads both files, checks them
+-- and writes them where `files` points. The page does one download at a time:
+-- while it is busy with another song, or the files are still coming, the
+-- answer is "loading"/"busy" and the listener waits for the next sweep, so a
+-- listener never has a second multi-megabyte transfer going. A song the page
+-- cannot get ("missing", "failed") leaves the stage silent and nothing throws.
+-- Once the engine has taken the bytes the files are given back.
 local pushed = {}  -- player name -> {[song] = "pending" | true}
+local web_waiting = {}  -- song -> {[player] = true}: pushes the files are needed for
+local web_logged = {}  -- song -> the last web media state logged
+local web_gave_up = {}  -- song -> true: the page said "missing"/"invalid"/"unavailable"
+
+local function web_media_for(def)
+	if def.web_media and type(core.web_media_request) == "function" then
+		return def.web_media
+	end
+end
+
+-- One line per change of state, so a silent stage says why.
+local function web_note(def, state)
+	if web_logged[def.name] == state then
+		return
+	end
+	web_logged[def.name] = state
+	local level = (state == "ready" or state == "loading" or state == "busy")
+			and "action" or "warning"
+	core.log(level, ("lw_amps: %s: web media %s"):format(def.name, state))
+end
+
+-- Gives a song's files back once no pending push needs them. Whoever comes
+-- into range later asks again (the browser caches the download).
+local function web_release_if_idle(song)
+	local def = lw_amps.songs[song]
+	local waiting = web_waiting[song]
+	if not def or (waiting and next(waiting) ~= nil) then
+		return
+	end
+	web_waiting[song] = nil
+	-- Asked even when this never saw "ready": the page may have finished
+	-- between two sweeps. It knows whether it holds anything.
+	if def.web_media and type(core.web_media_release) == "function" then
+		web_logged[song] = nil
+		pcall(core.web_media_release, def.web_media)
+	end
+end
+
+local function web_done(song, who)
+	local waiting = web_waiting[song]
+	if waiting then
+		waiting[who] = nil
+	end
+	web_release_if_idle(song)
+end
+
+local function both_files(def)
+	return file_exists(def.files.left) and file_exists(def.files.right)
+end
 
 local function media_ready(def, name)
 	if not def.files then
@@ -398,12 +472,28 @@ local function media_ready(def, name)
 	if mine[def.name] == "pending" then
 		return false
 	end
-	if def.lazy_media and not (file_exists(def.files.left) and file_exists(def.files.right)) then
-		-- Still downloading (web build). Nothing is pending yet, so the next
-		-- sweep looks again; the clock and the dancers run either way.
-		return false
+	if def.lazy_media then
+		-- Not necessarily there yet. In the web build ask the page for it,
+		-- every time: it answers at once, and it is also what starts a fetch
+		-- that was not running. Anywhere else the files were installed by
+		-- hand or not at all, and a stage without them stays quiet. The clock
+		-- and the dancers run either way.
+		local id = web_media_for(def)
+		if id and not web_gave_up[def.name] then
+			local ok, state = pcall(core.web_media_request, id)
+			state = ok and state or "failed"
+			web_note(def, state)
+			if state == "missing" or state == "invalid" or state == "unavailable" then
+				web_gave_up[def.name] = true
+			end
+		end
+		if not both_files(def) then
+			return false
+		end
 	end
 	mine[def.name] = "pending"
+	web_waiting[def.name] = web_waiting[def.name] or {}
+	web_waiting[def.name][name] = true
 	local waiting = 2
 	for _, side in ipairs({"left", "right"}) do
 		-- Not ephemeral, so the same file can go to every listener in turn;
@@ -412,12 +502,16 @@ local function media_ready(def, name)
 			filepath = def.files[side], to_player = name, client_cache = false,
 		}, function(who)
 			waiting = waiting - 1
-			if waiting == 0 and pushed[who] then
-				pushed[who][def.name] = true
+			if waiting == 0 then
+				if pushed[who] then
+					pushed[who][def.name] = true
+				end
+				web_done(def.name, name)
 			end
 		end)
 		if not (ok and accepted) then
 			mine[def.name] = nil
+			web_done(def.name, name)
 			return false
 		end
 	end
@@ -506,6 +600,8 @@ function lw_amps.stop()
 	for listener in pairs(state.listeners) do
 		stop_for(state, listener)
 	end
+	-- A pair fetched for a listener who never got to use it.
+	web_release_if_idle(state.name)
 	notify("stop", state.name, info_for(state))
 	return true, ("Stopped %s."):format(state.def.title)
 end
@@ -576,6 +672,10 @@ core.register_on_leaveplayer(function(player)
 	local name = player:get_player_name()
 	-- Dynamic media goes with the client, so a rejoin is sent it again.
 	pushed[name] = nil
+	-- A push that will never be confirmed no longer holds a song's files.
+	for song in pairs(web_waiting) do
+		web_done(song, name)
+	end
 	if playing then
 		-- The client's sounds went with it; only the handles are left to drop.
 		playing.listeners[name] = nil

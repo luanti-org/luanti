@@ -18,20 +18,6 @@
 				{"src": "games/luanti_web", "dest": "/games/luanti_web", "exclude": ["mods/lw_amps/songs/*.ogg"]}
 			]
 		},
-		"luanti_web_songs_main": {
-			"label": "Showcase songs",
-			"mounts": [
-				{"src": "games/luanti_web/mods/lw_amps/songs", "dest": "/games/luanti_web/mods/lw_amps/songs",
-					"include": ["lw_amps_around_happy_hard_l.ogg", "lw_amps_around_happy_hard_r.ogg"]}
-			]
-		},
-		"luanti_web_songs_takes": {
-			"label": "Showcase song takes",
-			"mounts": [
-				{"src": "games/luanti_web/mods/lw_amps/songs", "dest": "/games/luanti_web/mods/lw_amps/songs",
-					"include": ["lw_amps_around_happy_hard_[1-9]_[lr].ogg"]}
-			]
-		},
 		"flower_island": {
 			"label": "Flower Island",
 			"mounts": [{"src": "games/flower_island", "dest": "/games/flower_island"}]
@@ -54,12 +40,28 @@
 		}
 	},
 	"games": {
-		"luanti_web": {"packages": ["luanti_web"], "background": ["luanti_web_songs_main", "luanti_web_songs_takes"]},
+		"luanti_web": {"packages": ["luanti_web"]},
 		"flower_island": {"packages": ["flower_island"]},
 		"rollercoaster": {"packages": ["rollercoaster"]},
 		"log_ride": {"packages": ["log_ride"]},
 		"spire_tunnel": {"packages": ["spire_tunnel"]},
 		"devtest": {"packages": ["devtest"]}
+	},
+	"media": {
+		"songs": {
+			"src": "client/web/media/songs",
+			"url": "media/songs",
+			"dest": "/games/luanti_web/mods/lw_amps/songs",
+			"group": "^lw_amps_([a-z0-9_]+)_[lr]\\.ogg$",
+			"maxSetBytes": 6291456
+		},
+		"test": {
+			"src": "client/web/media/test",
+			"url": "media/test",
+			"dest": "/games/devtest/mods/web_media_probe/fetched",
+			"group": "^web_media_probe_([a-z0-9_]+)_[lr]\\.ogg$",
+			"maxSetBytes": 65536
+		}
 	},
 	"shell": [
 		"luanti.html", "luanti.js", "luanti.wasm", "launcher.js", "launcher.css",

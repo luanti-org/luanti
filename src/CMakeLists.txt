@@ -905,6 +905,7 @@ if(BUILD_CLIENT)
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/persistence.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/worlds.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/packages.js"
+			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/runtime_media.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/webgl_compat.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/audio_unlock.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/perf.js"
@@ -915,8 +916,8 @@ if(BUILD_CLIENT)
 			# util/wasm/build_packages.py turns them into content-addressed
 			# assets/<name>.<hash>.data files that client/web/packages.js streams
 			# in on demand. Check the content budget in wasm_porting.md before
-			# growing `core`. Runtime media (theater clips) stays in
-			# client/web/media.
+			# growing `core`. Runtime media (theater clips, songs) stays in
+			# client/web/media and is fetched on demand (runtime_media.js).
 		)
 		# Build-type specific profile. See "Appendix: Flag Matrix" in
 		# wasm_porting.md before changing any of these.
@@ -955,6 +956,7 @@ if(BUILD_CLIENT)
 			${CMAKE_SOURCE_DIR}/client/web/persistence.js
 			${CMAKE_SOURCE_DIR}/client/web/worlds.js
 			${CMAKE_SOURCE_DIR}/client/web/packages.js
+			${CMAKE_SOURCE_DIR}/client/web/runtime_media.js
 			${CMAKE_SOURCE_DIR}/client/web/webgl_compat.js
 			${CMAKE_SOURCE_DIR}/client/web/audio_unlock.js
 			${CMAKE_SOURCE_DIR}/client/web/perf.js

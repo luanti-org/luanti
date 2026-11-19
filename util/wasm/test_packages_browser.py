@@ -11,7 +11,7 @@ Packages the generated build exactly as a deployment would
 * choosing a game downloads only that game's package, and the engine starts;
 * after that, with the network switched off, the same game starts from the
   service-worker cache, while a game that was never downloaded fails cleanly;
-* the showcase songs arrive after the world has started, not before.
+* the showcase songs are not downloaded at all until a mod asks for them.
 
 Run after a WASM build:
 
@@ -168,29 +168,29 @@ def run(playwright, args, site: Path, port: int) -> None:
 		page.close()
 		context.set_offline(False)
 
-		# 5. The showcase: songs stream in only after the world is up.
+		# 5. The showcase: the songs are neither in its package nor streamed in
+		# the background. Nobody walks up to the concert arena here, so no song
+		# is requested at all (test_runtime_media_browser.py covers the fetch).
 		page = new_page()
 		page.goto(url, wait_until="domcontentloaded", timeout=120_000)
 		launcher_ready(page)
 		mark = recorder.mark()
+		song_requests: list[str] = []
+		page.on("request", lambda r: song_requests.append(r.url)
+			if "/lw_amps_" in r.url or "/media/songs/" in r.url else None)
 		choose_and_play(page, "luanti_web")
 		page.wait_for_function(
 			"Module.luantiLauncher.getState().phase === 'playing'", timeout=240_000)
-		page.wait_for_function(
-			"Object.keys(Module.luantiLauncher.getState().packages).includes('luanti_web_songs_main')",
-			timeout=120_000)
+		page.wait_for_timeout(5_000)
 		order = [name for name in recorder.requested[mark:]]
-		assert order[0] == "luanti_web", order
-		assert "luanti_web_songs_main" in order and "devtest" not in order, order
-		page.wait_for_function(
-			"Module.luantiLauncher.getState().packages.luanti_web_songs_takes?.state === 'loaded'",
-			timeout=240_000)
+		assert order[:1] == ["luanti_web"] and "devtest" not in order, order
+		assert not any("song" in name for name in order), order
+		assert not song_requests, f"a song was downloaded without anyone asking: {song_requests}"
+		loaded = page.evaluate("Object.keys(Module.luantiLauncher.getState().packages)")
+		assert not any("song" in name for name in loaded), loaded
 		songs = page.evaluate(
 			"FS.analyzePath('/games/luanti_web/mods/lw_amps/songs/lw_amps_around_happy_hard_l.ogg').exists")
-		assert songs, "song file missing from the filesystem"
-		takes = page.evaluate(
-			"FS.analyzePath('/games/luanti_web/mods/lw_amps/songs/lw_amps_around_happy_hard_6_r.ogg').exists")
-		assert takes, "alternate take missing from the filesystem"
+		assert not songs, "a song is in the filesystem before anything asked for it"
 		page.close()
 
 		assert not errors, errors

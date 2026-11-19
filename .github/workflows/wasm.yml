@@ -134,6 +134,12 @@ jobs:
       - name: Streamed asset packages and offline start in Chrome
         run: python3 util/wasm/test_packages_browser.py --browser "$(command -v google-chrome)"
 
+      # The showcase songs are runtime media: nothing is downloaded until a
+      # listener needs it, one download at a time, and the audio context
+      # survives hide/show and pause. wasm_porting.md, "Runtime media".
+      - name: Runtime media (song fetch path) and audio unlock in Chrome
+        run: python3 util/wasm/test_runtime_media_browser.py --browser "$(command -v google-chrome)"
+
       # A browser that refuses the 2 GiB shared-memory ceiling must still
       # reach the launcher (and a world) on the same luanti.wasm, and one that
       # grants nothing must say why. wasm_porting.md, "Heap ceiling probe".

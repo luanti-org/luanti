@@ -139,8 +139,14 @@ world to be playable:
 ```bash
 # Real engine: first visit fetches only core; a game fetches only its own
 # package; with the network off a cached game still starts and an uncached one
-# fails with a clear message; the showcase songs arrive after the world starts.
+# fails with a clear message; the showcase songs are not downloaded at all
+# until a mod asks for them (a few KB fixture pair is fetched by the next test).
 python3 util/wasm/test_packages_browser.py --browser "$(command -v google-chrome)"
+
+# Runtime media (the song fetch path) with a tiny fixture pair: one download at
+# a time, a missing file is logged and silent, the AudioContext is running after
+# the launch click and survives hide/show and pause/unpause.
+python3 util/wasm/test_runtime_media_browser.py --browser "$(command -v google-chrome)"
 
 # No engine needed: the service worker against a fake, versioned site. Includes
 # the stale-luanti.wasm regression (a deploy, an HTTP error, a half-deployed or

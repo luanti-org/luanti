@@ -539,7 +539,35 @@ end
 
 -- The songs are not in sounds/, so the client only has a pair once lw_amps
 -- has sent it. Nobody is started on a file they do not have; the sweep after
--- the client confirms it starts them, in time.
+-- the client confirms it starts them, in time. The Around songs are not in
+-- the game either (client/web/media/songs/): this part is the native path,
+-- where somebody put the files in the mod's songs/ folder by hand.
+local SONG_DIR = MODPATH .. "/songs/"
+
+local function pair_paths(song)
+	return {SONG_DIR .. "lw_amps_" .. song .. "_l.ogg", SONG_DIR .. "lw_amps_" .. song .. "_r.ogg"}
+end
+
+local function write_pair(song)
+	for _, path in ipairs(pair_paths(song)) do
+		local file = assert(io.open(path, "wb"))
+		file:write("OggS")
+		file:close()
+	end
+end
+
+local function remove_pair(song)
+	for _, path in ipairs(pair_paths(song)) do
+		os.remove(path)
+	end
+end
+
+for _, song in ipairs({"around_happy_hard_2", "lazy_test", "web_test", "gone_test"}) do
+	for _, path in ipairs(pair_paths(song)) do
+		assert_true(io.open(path, "rb") == nil, "no stray " .. path)
+	end
+end
+
 local added, confirm = {}, {}
 core.dynamic_add_media = function(options, callback)
 	added[#added + 1] = options
@@ -547,7 +575,16 @@ core.dynamic_add_media = function(options, callback)
 	return true
 end
 lw_amps.set_hear(80)
+
+-- No files and no page to fetch them: a silent stage, and nothing throws.
 local sent_before = #played
+lw_amps.play("around_happy_hard_2")
+step(1.0)
+assert_eq(#added, 0, "nothing is sent for files that are not installed")
+assert_eq(#played, sent_before, "and nothing plays")
+lw_amps.stop()
+
+write_pair("around_happy_hard_2")
 lw_amps.play("around_happy_hard_2")
 local sent = #added
 assert_true(sent > 0 and sent % 2 == 0, "the song's pair is sent to each listener")
@@ -570,15 +607,9 @@ lw_amps.stop()
 lw_amps.play("around_happy_hard_2")
 assert_eq(#added, sent, "a file a client has is not sent again")
 lw_amps.stop()
+remove_pair("around_happy_hard_2")
 
--- The web build streams the Around songs in after the world has started, so a
--- `lazy_media` song registers with no files and waits for them.
-local LAZY_DIR = MODPATH .. "/songs/"
-local lazy_files = {
-	LAZY_DIR .. "lw_amps_lazy_test_l.ogg", LAZY_DIR .. "lw_amps_lazy_test_r.ogg"}
-for _, path in ipairs(lazy_files) do
-	assert_true(io.open(path, "rb") == nil, "no stray " .. path)
-end
+-- A `lazy_media` song registers with no files and waits for them.
 local lazy = lw_amps.register_song("lazy_test", {length = 10, media_dir = "songs",
 	lazy_media = true})
 assert_true(lazy ~= nil, "a lazy song registers before its files exist")
@@ -590,11 +621,7 @@ step(1.0)
 step(1.0)
 assert_eq(#added, lazy_sent, "nothing is sent for files that have not arrived")
 assert_eq(#played, lazy_played, "and nothing plays")
-for _, path in ipairs(lazy_files) do
-	local file = io.open(path, "wb")
-	file:write("OggS")
-	file:close()
-end
+write_pair("lazy_test")
 step(1.0)
 assert_true(#added > lazy_sent, "once the files exist the pair is sent on the next sweep")
 for i = lazy_sent + 1, #confirm do
@@ -603,9 +630,133 @@ end
 step(1.0)
 assert_true(#played > lazy_played, "and the song starts in step with the clock")
 lw_amps.stop()
-for _, path in ipairs(lazy_files) do
-	os.remove(path)
+remove_pair("lazy_test")
+
+--------------------------------------------------------------------------
+-- The web build: the page fetches the pair when a listener first needs it
+--------------------------------------------------------------------------
+
+assert_true(not pcall(lw_amps.register_song, "bad_web", {length = 1, web_media = "../x"}),
+	"a web_media id has to be set/id")
+
+-- A stand-in for the page (client/web/runtime_media.js): one download at a
+-- time, answers at once, writes the files only when it says "ready".
+local page = {state = "loading", requests = {}, released = {}}
+local logs = {}
+local real_log = core.log
+core.log = function(level, message) logs[#logs + 1] = level .. ": " .. message end
+local function page_fetch_done(song)
+	write_pair(song)
+	page.state = "ready"
 end
+core.web_media_request = function(id)
+	page.requests[#page.requests + 1] = id
+	if page.throw then
+		error("the page is gone")
+	end
+	return page.state
+end
+core.web_media_release = function(id)
+	page.released[#page.released + 1] = id
+	remove_pair(id:match("/(.+)$"))
+	return true
+end
+local function count_logs(pattern)
+	local n = 0
+	for _, line in ipairs(logs) do
+		if line:find(pattern) then
+			n = n + 1
+		end
+	end
+	return n
+end
+
+local web = lw_amps.register_song("web_test", {length = 10, media_dir = "songs",
+	lazy_media = true, web_media = "songs/web_test"})
+assert_true(web ~= nil, "a web song registers before its files exist")
+local web_sent, web_played = #added, #played
+lw_amps.play("web_test")
+step(1.0)
+assert_true(#page.requests >= 1, "a listener in range asks the page for the pair")
+assert_eq(page.requests[1], "songs/web_test", "by its id")
+assert_eq(#added, web_sent, "nothing is sent while the page is still fetching")
+assert_eq(count_logs("web media loading"), 1, "loading is logged once, not every sweep")
+step(1.0)
+page.state = "busy"
+step(1.0)
+assert_eq(#added, web_sent, "nothing is sent while the page is busy with another song")
+assert_eq(#played, web_played, "and nothing plays")
+assert_eq(count_logs("web media busy"), 1, "busy is logged")
+page_fetch_done("web_test")
+step(1.0)
+assert_true(#added > web_sent, "once the page has the pair it is sent on the next sweep")
+local requests_at_ready = #page.requests
+step(1.0)
+assert_eq(#page.requests, requests_at_ready, "a pending push does not ask the page again")
+assert_eq(#page.released, 0, "the files stay until the engine has taken them")
+local first, last = web_sent + 1, #confirm
+for i = first, last do
+	confirm[i]()
+end
+assert_eq(#page.released, 1, "the files are given back once the engine has them")
+assert_eq(page.released[1], "songs/web_test", "the same id")
+step(1.0)
+assert_true(#played > web_played, "and the song starts in step with the clock")
+lw_amps.stop()
+assert_eq(#page.released, 2, "stopping a song asks once more, in case the page finished between sweeps")
+
+-- The player leaves before the engine confirms: nobody is left holding it.
+page.state = "loading"
+page.released = {}
+lw_amps.play("web_test")
+step(1.0)
+page_fetch_done("web_test")
+-- The earlier listener's state is gone with them, as it is on a real rejoin.
+for _, player in ipairs(core.get_connected_players()) do
+	for _, fn in ipairs(leaveplayer) do
+		fn(player)
+	end
+end
+lw_amps.stop()
+assert_true(#page.released >= 1, "files nobody is waiting for are released when the song stops")
+
+-- A song the page cannot get leaves the stage silent, and is not asked for
+-- every second.
+local gone = lw_amps.register_song("gone_test", {length = 10, media_dir = "songs",
+	lazy_media = true, web_media = "songs/gone_test"})
+assert_true(gone ~= nil, "registers")
+page.state = "missing"
+page.requests = {}
+logs = {}
+local gone_sent, gone_played = #added, #played
+lw_amps.play("gone_test")
+step(1.0)
+step(1.0)
+step(1.0)
+assert_eq(#added, gone_sent, "a song the page does not have is never sent")
+assert_eq(#played, gone_played, "and the band is silent")
+assert_eq(#page.requests, 1, "a missing song is asked for once")
+assert_eq(count_logs("^warning: lw_amps: gone_test: web media missing"), 1,
+	"and the reason is logged as a warning")
+lw_amps.stop()
+
+-- A page that throws is the same as a failure: silence, then a retry later.
+local failing = lw_amps.register_song("web_fail", {length = 10, media_dir = "songs",
+	lazy_media = true, web_media = "songs/web_fail"})
+assert_true(failing ~= nil, "registers")
+page.throw = true
+page.requests = {}
+lw_amps.play("web_fail")
+step(1.0)
+step(1.0)
+assert_true(#page.requests >= 2, "a failing page is asked again on the next sweep")
+assert_true(count_logs("web media failed") >= 1, "and the failure is logged")
+page.throw = false
+lw_amps.stop()
+
+core.log = real_log
+core.web_media_request = nil
+core.web_media_release = nil
 core.dynamic_add_media = nil
 
 if failures > 0 then

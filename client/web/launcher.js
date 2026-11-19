@@ -161,9 +161,9 @@
 		ui.loading.style.pointerEvents = "";
 	}
 
-	// Optional content (the showcase songs) streams in once the world is up,
-	// so it never delays the first frame. lw_amps registers songs lazily and
-	// stays quiet until the files arrive.
+	// A game's optional `background` packages stream in once the world is up,
+	// so they never delay the first frame. (None today: the showcase songs are
+	// runtime media, fetched when a mod asks; see runtime_media.js.)
 	function startBackgroundContent() {
 		if (backgroundStarted || !currentSession || currentSession.mode !== "local")
 			return;
@@ -230,6 +230,7 @@
 		"setPaused": function(paused) {
 			enginePaused = !!paused;
 			applyPaused();
+			applyAudioPause();
 			return enginePaused;
 		},
 		"isPaused": function() {
@@ -332,6 +333,17 @@
 		var setPaused = Module["_luanti_set_paused"];
 		if (runtimeReady && typeof setPaused === "function")
 			setPaused(enginePaused ? 1 : 0);
+	}
+
+	// The engine skips its audio stream stepping while paused; the page stops
+	// the audio clock to match (audio_unlock.js), and restarts it on unpause.
+	function applyAudioPause() {
+		var fn = Module[enginePaused ? "luantiSuspendAudio" : "luantiUnpauseAudio"];
+		if (typeof fn !== "function")
+			return;
+		try {
+			fn(enginePaused ? "pause" : "unpause");
+		} catch (_) {}
 	}
 
 	Module["onRuntimeInitialized"] = function() {

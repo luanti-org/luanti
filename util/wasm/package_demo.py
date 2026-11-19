@@ -25,6 +25,10 @@ REQUIRED_OUTPUTS = (
 	"manifest.webmanifest", "service-worker.js", "luanti-web.svg",
 )
 ASSET_NAME_PATTERN = re.compile(r"^assets/[A-Za-z0-9_-]+\.[0-9a-f]{12}\.data$")
+# Runtime media (songs) are fetched on demand and verified against the manifest
+# by client/web/runtime_media.js. In the build directory they sit under media/;
+# a release publishes them content-addressed next to the packages.
+MEDIA_SOURCE_PATTERN = re.compile(r"^media/[A-Za-z0-9_-]+/[A-Za-z0-9_][A-Za-z0-9_.-]*\.ogg$")
 VERSION_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 
 
@@ -57,6 +61,16 @@ def package_demo(source: Path, destination: Path, version: str) -> dict[str, obj
 		if asset.stat().st_size != package["bytes"] or digest(asset) != package["sha256"]:
 			raise ValueError(f"asset package {asset.name} does not match asset-manifest.json")
 
+	for identifier, entry in source_manifest.get("media", {}).items():
+		for item in entry["files"]:
+			if not MEDIA_SOURCE_PATTERN.fullmatch(item["url"]):
+				raise ValueError(f"media {identifier} has an unexpected url: {item['url']}")
+			media_file = source / item["url"]
+			if not media_file.is_file():
+				raise FileNotFoundError(f"missing runtime media {media_file}")
+			if media_file.stat().st_size != item["bytes"] or digest(media_file) != item["sha256"]:
+				raise ValueError(f"runtime media {media_file.name} does not match asset-manifest.json")
+
 	# The service worker precaches exactly the manifest's shell, so a file it
 	# lists that the release does not ship would make every install fail.
 	unshipped = [name for name in source_manifest["shell"] if name not in REQUIRED_OUTPUTS]
@@ -81,6 +95,16 @@ def package_demo(source: Path, destination: Path, version: str) -> dict[str, obj
 	for name, package in source_manifest["packages"].items():
 		shutil.copy2(source / package["url"], assets / Path(package["url"]).name)
 		package["url"] = "../../" + package["url"]
+	# Runtime media: the same idea, one file per hash, so a song that did not
+	# change keeps its URL (and its browser cache entry) across releases.
+	media_assets: dict[str, dict[str, object]] = {}
+	for entry in source_manifest.get("media", {}).values():
+		for item in entry["files"]:
+			stem, _, suffix = item["name"].rpartition(".")
+			published = f"{stem}.{item['sha256'][:12]}.{suffix}"
+			shutil.copy2(source / item["url"], assets / published)
+			item["url"] = "../../assets/" + published
+			media_assets[published] = {"bytes": item["bytes"], "sha256": item["sha256"]}
 	manifest_text = json.dumps(source_manifest, indent="\t", sort_keys=True) + "\n"
 	(release / "asset-manifest.json").write_text(manifest_text, encoding="utf-8")
 	files["asset-manifest.json"] = {
@@ -94,7 +118,7 @@ def package_demo(source: Path, destination: Path, version: str) -> dict[str, obj
 		"buildId": source_manifest["buildId"],
 		"files": files,
 		"assets": {Path(p["url"]).name: {"bytes": p["bytes"], "sha256": p["sha256"]}
-			for p in source_manifest["packages"].values()},
+			for p in source_manifest["packages"].values()} | media_assets,
 	}
 	(destination / "version.json").write_text(
 		json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")

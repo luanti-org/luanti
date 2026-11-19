@@ -19,6 +19,15 @@
 // So: retry on every gesture until each context reports "running", and log
 // the state on the way so a silent session can be told apart from a locked
 // one.
+//
+// A context can also stop later: some browsers suspend it when the tab is
+// hidden (Safari reports "interrupted"), and the embedder pause
+// (Module.luantiLauncher.setPaused) suspends it on purpose so the engine's
+// stream stepping, which the engine skips while paused, and the audio clock
+// stand still together. Hiding is left to the browser: nothing here keeps
+// audio going or decodes ahead. When the page is visible again, or unpaused,
+// every stopped context is resumed. (A resume outside a gesture is allowed once
+// the page has had one, which the launcher click was.)
 
 (function() {
 	"use strict";
@@ -29,6 +38,8 @@
 		return;
 
 	var seen = typeof WeakSet === "function" ? new WeakSet() : null;
+	// True between Module.luantiSuspendAudio("pause") and the next unpause.
+	var held = false;
 
 	function contexts() {
 		var out = [];
@@ -51,6 +62,12 @@
 		entry.audioCtx.addEventListener("statechange", function() {
 			console.info("[audio] OpenAL context " + entry.id + ": AudioContext is now " +
 				entry.audioCtx.state);
+			// Emscripten's own once-only gesture listeners resume a suspended
+			// context too. While the embedder holds the pause, put it back.
+			if (held && entry.audioCtx.state === "running") {
+				console.info("[audio] OpenAL context " + entry.id + ": still paused, suspending again");
+				entry.audioCtx.suspend().catch(function() {});
+			}
 		});
 	}
 
@@ -62,7 +79,11 @@
 		for (var i = 0; i < list.length; i++) {
 			var entry = list[i];
 			watch(entry);
-			if (entry.audioCtx.state !== "suspended")
+			// "interrupted" is Safari's word for a context the system took away.
+			if (entry.audioCtx.state !== "suspended" && entry.audioCtx.state !== "interrupted")
+				continue;
+			// Held on purpose by the embedder pause: only unpause resumes it.
+			if (held && reason !== "unpause")
 				continue;
 			suspended++;
 			console.info("[audio] " + reason + ": resuming OpenAL context " + entry.id +
@@ -79,7 +100,34 @@
 		return suspended;
 	}
 
+	// Called by the launcher when the embedder pauses the engine: suspend every
+	// context (a no-op for one that is already stopped) and stop gestures and
+	// visibility changes from waking them until it is unpaused.
+	function suspendAll(reason) {
+		held = true;
+		var list = contexts();
+		for (var i = 0; i < list.length; i++) {
+			watch(list[i]);
+			if (list[i].audioCtx.state !== "running")
+				continue;
+			console.info("[audio] " + reason + ": suspending OpenAL context " + list[i].id);
+			(function(e) {
+				e.audioCtx.suspend().catch(function(err) {
+					console.warn("[audio] OpenAL context " + e.id + " did not suspend: " + err);
+				});
+			})(list[i]);
+		}
+		return list.length;
+	}
+
+	function unhold(reason) {
+		held = false;
+		return resumeAll(reason);
+	}
+
 	Module["luantiResumeAudio"] = resumeAll;
+	Module["luantiSuspendAudio"] = suspendAll;
+	Module["luantiUnpauseAudio"] = unhold;
 	Module["luantiAudioState"] = function() {
 		var list = contexts();
 		if (!list.length)
@@ -98,6 +146,24 @@
 			}, {capture: true, passive: true});
 		})(gestures[g]);
 	}
+
+	// Back in view: wake whatever the browser stopped while the tab was
+	// hidden. Hidden is only logged: the browser decides whether to suspend,
+	// and the engine drops to fps_max_unfocused on its own.
+	document.addEventListener("visibilitychange", function() {
+		if (document.visibilityState === "hidden") {
+			console.info("[audio] page hidden; OpenAL contexts: " + Module["luantiAudioState"]());
+			return;
+		}
+		console.info("[audio] page visible; OpenAL contexts: " + Module["luantiAudioState"]());
+		resumeAll("visibilitychange");
+	});
+	// Restored from the back/forward cache: no visibilitychange precedes it
+	// in every browser.
+	window.addEventListener("pageshow", function(event) {
+		if (event && event.persisted)
+			resumeAll("pageshow");
+	});
 
 	// Report contexts as they appear, without waiting for a gesture.
 	setInterval(function() {

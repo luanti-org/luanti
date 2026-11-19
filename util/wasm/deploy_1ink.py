@@ -117,6 +117,15 @@ def stage_deploy_tree(source: Path) -> Path:
 			if not package_file.is_file():
 				raise FileNotFoundError(f"missing asset package {package_file}")
 			shutil.copy2(package_file, staging / package["url"])
+		# Runtime media (songs) is fetched by the page on demand, from the
+		# URLs in the manifest's "media" section.
+		for entry in manifest.get("media", {}).values():
+			for item in entry["files"]:
+				media_file = source / item["url"]
+				if not media_file.is_file():
+					raise FileNotFoundError(f"missing runtime media {media_file}")
+				(staging / item["url"]).parent.mkdir(parents=True, exist_ok=True)
+				shutil.copy2(media_file, staging / item["url"])
 
 		# UTF-8 launcher as index.html. Do not publish it as 1ink.1ink — that
 		# extension is served as charset=UTF-16 on this host.
