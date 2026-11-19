@@ -14,6 +14,8 @@ from pathlib import Path
 import re
 import shutil
 
+import size_report
+
 
 # Per-release files. The asset packages are not here: they are
 # content-addressed, shared by every release and published under /assets/.
@@ -180,11 +182,34 @@ def main() -> int:
 	parser.add_argument(
 		"--version", required=True,
 		help="immutable build identifier, normally a Git SHA")
+	parser.add_argument(
+		"--size-report", metavar="PATH",
+		help="also write the size report (see size_report.py) here as JSON; CI uploads it")
+	parser.add_argument(
+		"--no-size-report", action="store_true",
+		help="skip the raw/gzip/Brotli size table (Brotli quality 11 takes a while on luanti.wasm)")
+	parser.add_argument(
+		"--wasm-opt-trial", action="store_true",
+		help="re-run wasm-opt on a copy of luanti.wasm and report the difference; "
+		"the release is not changed")
+	parser.add_argument(
+		"--simd", action="store_true",
+		help="the build was linked with WASM_ENABLE_SIMD (tells --wasm-opt-trial)")
 	args = parser.parse_args()
 
-	manifest = package_demo(
-		Path(args.build).resolve(), Path(args.output).resolve(), args.version)
+	destination = Path(args.output).resolve()
+	manifest = package_demo(Path(args.build).resolve(), destination, args.version)
 	print(json.dumps(manifest, indent=2, sort_keys=True))
+	if not args.no_size_report:
+		report = size_report.collect(
+			destination / "releases" / args.version, destination / "assets",
+			trial=args.wasm_opt_trial, simd=args.simd)
+		print("\nDownload sizes (release " + args.version + "):")
+		print(size_report.render(report))
+		if args.size_report:
+			target = Path(args.size_report)
+			target.parent.mkdir(parents=True, exist_ok=True)
+			target.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 	return 0
 
 

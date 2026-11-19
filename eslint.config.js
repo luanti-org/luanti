@@ -4,8 +4,8 @@
 
 // Lint config for the browser-side JavaScript (client/web) and the WASM
 // tooling (util/wasm). The client scripts are classic scripts, not modules:
-// network.js/persistence.js/webgl_compat.js/audio_unlock.js/perf.js/present.js are Emscripten
-// --pre-js files and the rest are loaded with plain <script> tags.
+// startup.js/network.js/persistence.js/webgl_compat.js/audio_unlock.js/perf.js/present.js are
+// Emscripten --pre-js files and the rest are loaded with plain <script> tags.
 
 import js from "@eslint/js";
 import globals from "globals";

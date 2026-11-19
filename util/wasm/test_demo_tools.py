@@ -15,6 +15,9 @@ import unittest
 
 from build_packages import (
 	PackageError, build_all, build_package, load_config, read_index, stamp_service_worker)
+import bench_startup
+import memory_import
+import size_report
 from package_demo import REQUIRED_OUTPUTS, package_demo
 from serve import create_server
 
@@ -78,6 +81,161 @@ class DemoToolsTest(unittest.TestCase):
 				self.assertTrue(package["url"].startswith("../../assets/"), package["url"])
 				stored_file = destination / "assets" / Path(package["url"]).name
 				self.assertEqual(stored_file.stat().st_size, package["bytes"])
+
+	def test_size_report_counts_the_release_and_the_core_package(self) -> None:
+		with tempfile.TemporaryDirectory() as temporary:
+			root = Path(temporary)
+			source = make_build(root)
+			(source / "luanti.wasm").write_bytes(b"\0asm" + b"A" * 50_000)
+			package_demo(source, root / "site", "abc123")
+			report = size_report.collect(root / "site/releases/abc123", root / "site/assets",
+				quality=4)
+			wasm = report["files"]["luanti.wasm"]
+			self.assertEqual(wasm["raw"], 50_004)
+			self.assertLess(wasm["gzip"], wasm["raw"])
+			if size_report.brotli:
+				self.assertLess(wasm["brotli"], wasm["raw"])
+			self.assertEqual(set(report["packages"]), {"core", "game"})
+			self.assertTrue(report["packages"]["core"]["eager"])
+			self.assertFalse(report["packages"]["game"]["eager"])
+			# First visit = every shell file but the manifest, plus core.
+			expected = sum(v["raw"] for k, v in report["files"].items()
+				if k != "asset-manifest.json") + report["packages"]["core"]["raw"]
+			self.assertEqual(report["firstVisit"]["raw"], expected)
+			table = size_report.render(report)
+			self.assertIn("luanti.wasm", table)
+			self.assertIn("package core (core)", table)
+			self.assertIn("first visit", table)
+			json.dumps(report)  # the CI artifact is this, serialised
+
+	def test_size_report_skips_only_large_optional_packages(self) -> None:
+		with tempfile.TemporaryDirectory() as temporary:
+			root = Path(temporary)
+			source = make_build(root)
+			package_demo(source, root / "site", "abc123")
+			limit = size_report.COMPRESS_PACKAGE_LIMIT
+			try:
+				size_report.COMPRESS_PACKAGE_LIMIT = 1
+				report = size_report.collect(root / "site/releases/abc123", root / "site/assets",
+					quality=1)
+			finally:
+				size_report.COMPRESS_PACKAGE_LIMIT = limit
+			self.assertIsNone(report["packages"]["game"]["gzip"])
+			self.assertGreater(report["packages"]["game"]["raw"], 0)
+			# core is what every visitor downloads: measured however large it is,
+			# so the first-visit total stays a real number.
+			self.assertIsNotNone(report["packages"]["core"]["gzip"])
+			self.assertIsNotNone(report["firstVisit"]["gzip"])
+			self.assertIn("n/a", size_report.render(report))
+
+	def test_size_report_without_brotli_has_no_brotli_totals(self) -> None:
+		with tempfile.TemporaryDirectory() as temporary:
+			root = Path(temporary)
+			package_demo(make_build(root), root / "site", "abc123")
+			original = size_report.brotli
+			size_report.brotli = None
+			try:
+				report = size_report.collect(root / "site/releases/abc123", root / "site/assets")
+			finally:
+				size_report.brotli = original
+			# A column with a missing entry has no total rather than a wrong one.
+			self.assertIsNone(report["firstVisit"]["brotli"])
+			self.assertIsNotNone(report["firstVisit"]["gzip"])
+			self.assertIsNone(report["brotliQuality"])
+			self.assertIn("brotli column unavailable", size_report.render(report))
+
+	def test_wasm_opt_trial_reports_a_missing_tool_instead_of_failing(self) -> None:
+		with tempfile.TemporaryDirectory() as temporary:
+			root = Path(temporary)
+			source = make_build(root)
+			package_demo(source, root / "site", "abc123")
+			original = size_report.find_wasm_opt
+			size_report.find_wasm_opt = lambda: None
+			try:
+				report = size_report.collect(root / "site/releases/abc123",
+					root / "site/assets", quality=1, trial=True)
+			finally:
+				size_report.find_wasm_opt = original
+			self.assertIn("not found", report["wasmOpt"]["error"])
+			self.assertIn("wasm-opt trial: wasm-opt not found", size_report.render(report))
+
+	def test_wasm_opt_trial_runs_the_tool_on_a_copy(self) -> None:
+		with tempfile.TemporaryDirectory() as temporary:
+			root = Path(temporary)
+			wasm = root / "luanti.wasm"
+			wasm.write_bytes(b"\0asm" + b"B" * 1000)
+			tool = root / "fake-wasm-opt"
+			# Stands in for Binaryen: writes a smaller module to the -o target.
+			tool.write_text("#!/bin/sh\n"
+				"while [ $# -gt 0 ]; do\n"
+				"  if [ \"$1\" = -o ]; then out=$2; fi\n"
+				"  shift\n"
+				"done\n"
+				"exec python3 -c 'import sys; open(sys.argv[1], \"wb\").write(bytes([0, 97, 115, 109]) + b\"C\" * 400)' \"$out\"\n")
+			tool.chmod(0o755)
+			results = size_report.wasm_opt_trial(wasm, str(tool), ("-O3",), False, 1)
+			self.assertEqual(len(results), 1)
+			self.assertTrue(results[0]["ok"], results)
+			self.assertEqual(results[0]["raw"], 404)
+			self.assertEqual(wasm.stat().st_size, 1004)  # the input is never touched
+			failing = root / "failing-wasm-opt"
+			failing.write_text("#!/bin/sh\necho 'Fatal: error validating input' >&2\nexit 1\n")
+			failing.chmod(0o755)
+			results = size_report.wasm_opt_trial(wasm, str(failing), ("-O3",), False, 1)
+			self.assertFalse(results[0]["ok"])
+			self.assertIn("error validating input", results[0]["error"])
+
+	def test_startup_comparison_adopts_only_on_size_and_startup(self) -> None:
+		def report(label: str, wasm: int, totals: list[float]) -> dict:
+			summary = {name: bench_startup.median_and_spread(totals)
+				for name in bench_startup.METRICS}
+			return {"label": label, "wasmBytes": wasm, "jsBytes": 400_000, "summary": summary}
+
+		base = report("default", 10_000_000, [4000, 4200, 4100])
+		# Smaller and clearly faster (-2 s against a 200 ms spread): adopt.
+		table, adopt = bench_startup.compare(base, report("candidate", 9_000_000, [2000, 2100, 2050]))
+		self.assertTrue(adopt, table)
+		self.assertIn("adopt candidate", table)
+		# Smaller, but the startup change is inside the spread: noise, reject.
+		table, adopt = bench_startup.compare(base, report("candidate", 9_000_000, [4050, 4150, 4000]))
+		self.assertFalse(adopt, table)
+		# Faster, but the binary grew: reject.
+		table, adopt = bench_startup.compare(base, report("candidate", 11_000_000, [2000, 2100, 2050]))
+		self.assertFalse(adopt, table)
+		self.assertIn("reject candidate, keep default", table)
+
+	def test_memory_import_is_read_from_the_binary(self) -> None:
+		def leb(value: int) -> bytes:
+			out = bytearray()
+			while True:
+				byte = value & 0x7F
+				value >>= 7
+				out.append(byte | (0x80 if value else 0))
+				if not value:
+					return bytes(out)
+
+		def name(text: str) -> bytes:
+			return leb(len(text)) + text.encode()
+
+		imports = (
+			name("env") + name("f") + b"\x00" + leb(0)                  # function, type 0
+			+ name("env") + name("g") + b"\x03\x7f\x01"                 # mutable i32 global
+			+ name("a") + name("a") + b"\x02\x03" + leb(4096) + leb(32769)  # shared memory
+		)
+		section = leb(3) + imports
+		module = b"\0asm\x01\0\0\0" + b"\x02" + leb(len(section)) + section
+		self.assertEqual(memory_import.memory_imports(module), [
+			{"module": "a", "name": "a", "min": 4096, "max": 32769, "shared": True,
+				"memory64": False}])
+		# The rule startup.js relies on: provided.max <= declared max and
+		# provided.min >= declared min. 1 GiB and 512 MiB (in pages) fit.
+		declared = memory_import.memory_imports(module)[0]
+		for ceiling in (16384, 8192):
+			self.assertTrue(declared["min"] <= 4096 and ceiling <= declared["max"])
+		with self.assertRaises(memory_import.WasmError):
+			memory_import.memory_imports(b"not wasm at all")
+		# A module that creates its own memory has nothing to report.
+		self.assertEqual(memory_import.memory_imports(b"\0asm\x01\0\0\0"), [])
 
 	def test_package_refuses_a_tampered_asset(self) -> None:
 		with tempfile.TemporaryDirectory() as temporary:

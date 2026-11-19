@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <mutex>
 #include <emscripten.h>
+#include <emscripten/heap.h>
 #include <emscripten/threading.h>
 
 namespace {
@@ -136,6 +137,17 @@ EMSCRIPTEN_KEEPALIVE std::uintptr_t luanti_perf_ring()
 	return reinterpret_cast<std::uintptr_t>(&perf_ring);
 }
 
+// How far the allocator has carved up the heap so far: the sbrk break, in
+// bytes from address 0. dlmalloc takes its memory from sbrk and mimalloc sits
+// on emmalloc, which does too, so this is the number to compare when judging
+// an allocator. The committed WebAssembly.Memory is not: it only grows in
+// steps from the 256 MiB initial size, so it reads the same for any engine
+// that stays below it. Read from client/web/startup.js (heapBreakBytes).
+EMSCRIPTEN_KEEPALIVE std::uintptr_t luanti_heap_break()
+{
+	return *emscripten_get_sbrk_ptr();
+}
+
 // Called by client/web/videotexture.js after it has written a decoded frame
 // into video_frame_buffer[buffer_index]. Runs on the browser main thread's
 // own module instance, touching only shared memory -- same pattern as the
@@ -179,6 +191,8 @@ EMSCRIPTEN_KEEPALIVE double luanti_frame_clock_count()
 EMSCRIPTEN_KEEPALIVE double luanti_frame_clock_last_dtime_ms()
 {
 	return g_frame_clock_last_dtime.load(std::memory_order_relaxed) * 1000.0;
+}
+
 // Engine version for client/web/worlds.js, recorded in exported worlds so an
 // import can warn about a world written by a different engine.
 EMSCRIPTEN_KEEPALIVE const char *luanti_engine_version()

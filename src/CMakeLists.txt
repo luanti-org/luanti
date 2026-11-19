@@ -814,6 +814,41 @@ if(BUILD_CLIENT)
 		# WASM_ENABLE_LTO / WASM_ENABLE_SIMD are applied to every target in
 		# the top-level CMakeLists.txt.
 		set(WASM_MALLOC "" CACHE STRING "Emscripten allocator override: dlmalloc, emmalloc or mimalloc (empty = default)")
+		# The heap the binary is linked for. These two numbers are the only
+		# place they are written: they feed -sINITIAL_MEMORY / -sMAXIMUM_MEMORY
+		# below and the generated Module.luantiBuild that client/web/startup.js
+		# probes against, so the page can never ask for a memory the binary
+		# was not linked to accept.
+		set(WASM_INITIAL_MEMORY 268435456)  # 256 MiB
+		# Just over 2 GiB on purpose: with the default minimum Firefox,
+		# emcc's link.py turns WEBGL_USE_GARBAGE_FREE_APIS off past 2^31
+		# (it is an internal setting; -sWEBGL_USE_GARBAGE_FREE_APIS=0 is
+		# rejected). Those APIs hand WebGL whole-heap views, which on a
+		# growable shared heap throw "ArrayBuffer value must not be
+		# resizable" (see client/web/webgl_compat.js, kept as a backstop
+		# for the large-count paths that still pass heap subarrays).
+		set(WASM_MAXIMUM_MEMORY 2147549184)  # 2 GiB + 64 KiB
+		# A browser that will not reserve that maximum is not a second build:
+		# startup.js creates the shared memory with a smaller maximum and
+		# hands it to this same binary, whose import only requires
+		# maximum <= WASM_MAXIMUM_MEMORY. The memory (and so the glue that
+		# keeps WEBGL_USE_GARBAGE_FREE_APIS off) is identical in every case.
+		if(WASM_ENABLE_SIMD)
+			set(WASM_BUILD_SIMD true)
+		else()
+			set(WASM_BUILD_SIMD false)
+		endif()
+		if(WASM_ENABLE_LTO AND CMAKE_BUILD_TYPE MATCHES "^(Release|MinSizeRel)$")
+			set(WASM_BUILD_LTO true)
+		else()
+			set(WASM_BUILD_LTO false)
+		endif()
+		set(WASM_BUILD_MALLOC "default")
+		if(WASM_MALLOC)
+			set(WASM_BUILD_MALLOC "${WASM_MALLOC}")
+		endif()
+		set(WASM_BUILD_INFO "${CMAKE_CURRENT_BINARY_DIR}/luanti-build-info.js")
+		configure_file("${CMAKE_SOURCE_DIR}/client/web/build-info.js.in" "${WASM_BUILD_INFO}" @ONLY)
 		# Emscripten ports and WebAssembly-specific linker flags
 		target_compile_options(${PROJECT_NAME} PRIVATE
 			-pthread
@@ -841,15 +876,8 @@ if(BUILD_CLIENT)
 			-sPROXY_TO_PTHREAD=1
 			-sOFFSCREEN_FRAMEBUFFER=1
 			-sALLOW_MEMORY_GROWTH=1
-			-sINITIAL_MEMORY=268435456  # 256 MB
-			# Just over 2 GiB on purpose: with the default minimum Firefox,
-			# emcc's link.py turns WEBGL_USE_GARBAGE_FREE_APIS off past 2^31
-			# (it is an internal setting; -sWEBGL_USE_GARBAGE_FREE_APIS=0 is
-			# rejected). Those APIs hand WebGL whole-heap views, which on a
-			# growable shared heap throw "ArrayBuffer value must not be
-			# resizable" (see client/web/webgl_compat.js, kept as a backstop
-			# for the large-count paths that still pass heap subarrays).
-			-sMAXIMUM_MEMORY=2147549184 # 2 GiB + 64 KiB
+			-sINITIAL_MEMORY=${WASM_INITIAL_MEMORY}
+			-sMAXIMUM_MEMORY=${WASM_MAXIMUM_MEMORY}
 			-pthread
 			-sSHARED_MEMORY=1
 			-sFETCH=1
@@ -869,6 +897,10 @@ if(BUILD_CLIENT)
 			# of a detached one.
 			-sEXPORTED_RUNTIME_METHODS=callMain,HEAPU8
 			-lidbfs.js
+			# First, so a browser that cannot run this build stops luanti.js
+			# before packages.js starts downloading or anything is reserved.
+			"SHELL:--pre-js ${WASM_BUILD_INFO}"
+			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/startup.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/network.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/persistence.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/worlds.js"
@@ -917,6 +949,8 @@ if(BUILD_CLIENT)
 		# Emit .html shell so the build is directly servable
 		set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
 		set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS
+			${WASM_BUILD_INFO}
+			${CMAKE_SOURCE_DIR}/client/web/startup.js
 			${CMAKE_SOURCE_DIR}/client/web/network.js
 			${CMAKE_SOURCE_DIR}/client/web/persistence.js
 			${CMAKE_SOURCE_DIR}/client/web/worlds.js

@@ -52,7 +52,9 @@ xvfb-run ./util/test_singleplayer.sh
 # WASM browser tests (Playwright 1.59.0 + Chrome; run after a WASM build)
 python3 util/wasm/test_client_browser.py --browser "$(command -v google-chrome)"
 python3 util/wasm/test_first_playable.py --browser "$(command -v google-chrome)"
-python3 util/wasm/test_demo_tools.py          # packaging/deploy tooling
+python3 util/wasm/test_demo_tools.py          # packaging/deploy tooling, size report, startup compare
+node --test util/wasm/test_startup.mjs        # SIMD + memory-ceiling probe logic
+python3 util/wasm/test_memory_probe_browser.py --browser "$(command -v google-chrome)"  # 2 GiB refused -> still starts
 python3 util/wasm/test_packages_browser.py --browser "$(command -v google-chrome)"        # streamed packages + offline
 python3 util/wasm/test_service_worker_browser.py --browser "$(command -v google-chrome)" # stale-binary regression
 npm ci && npm run proxy:install               # once: lint/typecheck tooling + proxy deps
@@ -111,6 +113,7 @@ client/shaders/         – GLSL shaders (must be valid GLES2/WebGL)
 | `src/network/socket.cpp` | Emscripten `UDPSocket` (loopback + WebSocket proxy) under `#ifdef __EMSCRIPTEN__` |
 | `src/threading/thread.cpp` | No-op `setName()` / `bindToProcessor()` for Emscripten |
 | `client/web/shell.html`, `launcher.js`, `network.js`, `persistence.js` | Page shell, launcher, proxy transport, IDBFS glue |
+| `client/web/startup.js`, `build-info.js.in` | First `--pre-js`: SIMD check and shared-memory ceiling probe (hands the engine its `WebAssembly.Memory`); CMake generates the build-info half |
 | `client/web/theater.js` / `videotexture.js` | Showcase theater: `<video>` overlay (Tier B) / video-to-texture spike (Tier C) |
 | `.github/workflows/wasm.yml` | WASM CI: build, browser smoke, first-playable gate, Cloudflare Pages deploy |
 | `util/wasm/package_demo.py` | Packages a versioned, cache-safe deploy directory |

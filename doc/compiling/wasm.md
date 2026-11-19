@@ -146,8 +146,24 @@ python3 util/wasm/test_packages_browser.py --browser "$(command -v google-chrome
 # the stale-luanti.wasm regression (a deploy, an HTTP error, a half-deployed or
 # corrupt build must never be answered with an old binary or a mix of builds).
 python3 util/wasm/test_service_worker_browser.py --browser "$(command -v google-chrome)"
-python3 util/wasm/test_demo_tools.py    # packager, package format, first-visit budget
+python3 util/wasm/test_demo_tools.py    # packager, package format, first-visit budget, size report
 ```
+
+The startup checks in `client/web/startup.js` (SIMD detection and the
+shared-memory ceiling probe) have a unit test that needs only Node, and a
+browser test against the real engine that makes the browser refuse the 2 GiB
+ceiling and checks that the same `luanti.wasm` still reaches the launcher and a
+world on 1 GiB and on 512 MiB, and that a browser granting nothing gets a
+readable error instead of an engine:
+
+```bash
+node --test util/wasm/test_startup.mjs
+python3 util/wasm/test_memory_probe_browser.py --browser "$(command -v google-chrome)"
+python3 util/wasm/memory_import.py build-wasm/bin/luanti.wasm   # the memory the binary declares
+```
+
+To see the fallback by hand, open `luanti.html?maxmem=512`: the page tries a
+512 MiB ceiling first, and `Module.luantiStartup.memory` says what was granted.
 
 Before publishing a demo, the build must pass the **First Playable Smoke Test**,
 the integration gate for the browser client. Every step has to pass on both
@@ -224,11 +240,38 @@ const c = Module.luantiPerf.cursor(); /* ... */ Module.luantiPerf.summary({since
 
 Baselines are recorded in `wasm_porting.md` ("Frame-time baseline").
 
+## Startup, heap and size
+
+```bash
+python3 util/wasm/bench_startup.py --label default --output startup-default.json
+python3 util/wasm/bench_startup.py --compare startup-default.json startup-candidate.json
+python3 util/wasm/package_demo.py --version "$(git rev-parse HEAD)" --output wasm-demo \
+  --size-report wasm-size/size-report.json --wasm-opt-trial
+```
+
+`bench_startup.py` starts a fresh browser profile per run, waits for Play to be
+enabled, starts a `luanti_web` world, and records the time to each point, the
+committed heap and the allocator's `sbrk` break after a settle period, plus the
+binary sizes and the `Module.luantiBuild` flavour that was actually served.
+`--compare` applies the rule for adopting a build flag: smaller binary **and**
+faster startup beyond the run-to-run spread. Run the baseline twice: the spread
+between two runs of the same build is the noise floor. Pass `--build DIR` to
+benchmark a copy of `build-wasm` (it must contain `bin/`).
+
+`package_demo.py` prints raw, gzip and Brotli (quality 11) bytes for every
+shipped file and package, and with `--wasm-opt-trial` what a second Binaryen
+pass would save on a copy of `luanti.wasm` (the release is never changed).
+Brotli needs `python3 -m pip install brotli`; without it that column says so.
+Results and decisions: `wasm_porting.md` ("Allocator trial", "Download sizes").
+
 ## CI and demo deployment
 
 `.github/workflows/wasm.yml` runs one Release build on relevant pull requests,
 default-branch pushes, and manual dispatches. It installs Emscripten 6.0.3,
 runs the browser smoke, packages the result, and uploads a 14-day artifact.
+It also uploads the size log (`luanti-wasm-size-<sha>`, and in the job summary)
+and, on pushes and manual runs, relinks with mimalloc as a separate
+non-gating trial artifact; the default build is never replaced by it.
 Once stable, make the `wasm / Release build and browser smoke` check required
 in branch protection.
 
@@ -291,8 +334,15 @@ introduced, close old tabs, clear site data, and hard-refresh once.
   tries `offscreen` and falls back to `proxy`. `Module.luantiWebGLInfo.render`
   reports what was created. Details and measurements: `wasm_porting.md`,
   "Render thread".
-- Initial memory is 256 MiB and may grow to 1 GiB. Mobile browsers and
-  memory-constrained devices can still terminate the tab.
+- Initial memory is 256 MiB and may grow to 2 GiB + 64 KiB. A browser that
+  refuses to reserve that ceiling (phones, 32-bit browsers) is not turned
+  away: `client/web/startup.js` retries with 1 GiB and then 512 MiB and gives
+  the same `luanti.wasm` the memory it got (`Module.luantiStartup.memory`
+  says what was granted). `?maxmem=<MiB>` makes that the largest ceiling
+  tried, to reproduce a small device. If nothing can be reserved the launcher
+  says so and the engine is not started. The tab can still be terminated by
+  the operating system on memory-constrained devices. Details and
+  measurements: `wasm_porting.md`, "Heap ceiling probe".
 - An SDL version probe that reports SDL is too old can mask a failed linker
   probe. Inspect `build-wasm/CMakeFiles/CMakeConfigureLog.yaml`; a read-only
   SDK cache is fixed by setting `EM_CACHE` to a writable directory, then
