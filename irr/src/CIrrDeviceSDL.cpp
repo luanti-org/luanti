@@ -2203,6 +2203,12 @@ bool CIrrDeviceSDL::isWindowActive() const
 //! returns if window has focus.
 bool CIrrDeviceSDL::isWindowFocused() const
 {
+#ifdef _IRR_EMSCRIPTEN_PLATFORM_
+	// A hidden tab keeps SDL's input focus flag, but it must run at
+	// fps_max_unfocused like any other background window.
+	if (browserPageHidden())
+		return false;
+#endif
 	return Window && (SDL_GetWindowFlags(Window) & SDL_WINDOW_INPUT_FOCUS) != 0;
 }
 

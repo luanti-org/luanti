@@ -32,6 +32,11 @@ std::atomic<bool> pending_urgent{false};
 std::atomic<bool> sync_error{false};
 std::uint64_t last_ordinary_start_ms = 0;
 
+// Frame clock and pause state, shared with the page through the exports below.
+std::atomic<int> g_engine_paused{0};
+std::atomic<std::uint64_t> g_frame_clock_count{0};
+std::atomic<float> g_frame_clock_last_dtime{0.0f};
+
 const char *reason_name(porting::EmscriptenPersistenceReason reason)
 {
 	switch (reason) {
@@ -149,6 +154,32 @@ EMSCRIPTEN_KEEPALIVE void luanti_video_texture_frame(int buffer_index, int width
 	video_frame_generation.fetch_add(1, std::memory_order_release);
 }
 
+// Frame clock and pause, shared with the page (client/web/launcher.js).
+// Atomics only: the page reads and writes them from the browser main thread
+// while the application worker runs the frame loop, so no call has to be
+// proxied and none can race callMain.
+EMSCRIPTEN_KEEPALIVE void luanti_set_paused(int paused)
+{
+	g_engine_paused.store(paused ? 1 : 0, std::memory_order_release);
+}
+
+EMSCRIPTEN_KEEPALIVE int luanti_is_paused()
+{
+	return g_engine_paused.load(std::memory_order_acquire);
+}
+
+// Measured frames so far (every FpsControl::limit() call).
+EMSCRIPTEN_KEEPALIVE double luanti_frame_clock_count()
+{
+	return static_cast<double>(g_frame_clock_count.load(std::memory_order_acquire));
+}
+
+// The most recent measured dtime, in milliseconds.
+EMSCRIPTEN_KEEPALIVE double luanti_frame_clock_last_dtime_ms()
+{
+	return g_frame_clock_last_dtime.load(std::memory_order_relaxed) * 1000.0;
+}
+
 EMSCRIPTEN_KEEPALIVE void luanti_persistence_sync_completed(double generation)
 {
 	auto completed = static_cast<std::uint64_t>(generation);
@@ -190,6 +221,17 @@ void emscripten_validate_main_loop()
 void emscripten_service_browser_frame()
 {
 	emscripten_service_persistence();
+}
+
+void emscripten_frame_clock_record(float dtime)
+{
+	g_frame_clock_last_dtime.store(dtime, std::memory_order_relaxed);
+	g_frame_clock_count.fetch_add(1, std::memory_order_release);
+}
+
+bool emscripten_engine_paused()
+{
+	return g_engine_paused.load(std::memory_order_acquire) != 0;
 }
 
 void emscripten_report_status(const std::string &message, int percent,

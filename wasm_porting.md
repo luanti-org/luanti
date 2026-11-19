@@ -343,9 +343,17 @@ configured WSS regions, real engine loading status, deep links, sharing,
 fullscreen/pointer-lock affordances, a runtime console, and release-scoped PWA
 caching. See `doc/compiling/wasm-embedding.md` for the supported iframe contract.
 
-Touch-only gameplay and a stable pause/unpause API remain follow-up work. The
-launcher intentionally does not expose provisional setters that would race the
-synchronous application-worker lifecycle.
+Touch-only gameplay remains follow-up work. Pause/unpause is
+`Module.luantiLauncher.setPaused(bool)`: it writes one atomic flag in shared
+memory that `FpsControl::limit()` honours on the application worker, so it
+cannot race the synchronous `callMain` lifecycle (see
+`doc/compiling/wasm-embedding.md`).
+
+The simulation clock is the measured frame time on every loop (game, connect
+and media receive), limited by `fps_max`, or by `fps_max_unfocused` while the
+tab is hidden (`CIrrDeviceSDL::isWindowFocused()` is false then). The first
+measured values are logged as `Frame clock: dtime=… ms`; verify with
+`util/wasm/test_frame_clock.py`.
 
 ### Phase 7: Polish & Optimization
 
