@@ -9,6 +9,7 @@
 #include "porting.h"
 #include "log.h"
 #include "util/numeric.h"
+#include "version.h"
 
 #include <string>
 
@@ -178,6 +179,11 @@ EMSCRIPTEN_KEEPALIVE double luanti_frame_clock_count()
 EMSCRIPTEN_KEEPALIVE double luanti_frame_clock_last_dtime_ms()
 {
 	return g_frame_clock_last_dtime.load(std::memory_order_relaxed) * 1000.0;
+// Engine version for client/web/worlds.js, recorded in exported worlds so an
+// import can warn about a world written by a different engine.
+EMSCRIPTEN_KEEPALIVE const char *luanti_engine_version()
+{
+	return g_version_string;
 }
 
 EMSCRIPTEN_KEEPALIVE void luanti_persistence_sync_completed(double generation)

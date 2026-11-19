@@ -96,6 +96,47 @@ input::placeholder { color: #728172; }
 }
 .play-button:hover:not(:disabled) { background: #b9ea76; transform: translateY(-1px); }
 .play-button:disabled { cursor: wait; opacity: .52; }
+/* World library (launcher.js + worlds.js) */
+.field-label { color: #d7e1d5; font-size: .82rem; font-weight: 700; }
+.world-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin: 1.1rem 0 .45rem; }
+.world-heading-actions { display: flex; gap: 1rem; }
+.world-heading-actions .text-button { margin-top: 0; }
+.world-list { display: grid; gap: .4rem; max-height: 248px; overflow: auto; padding: .1rem; }
+.world-list.is-dropping { outline: 2px dashed var(--leaf); outline-offset: 3px; border-radius: 12px; }
+.world-entry { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; border: 1px solid var(--line); border-radius: 11px; background: rgba(2, 7, 4, .32); }
+.world-entry.is-selected { border-color: rgba(166, 216, 95, .55); background: rgba(166, 216, 95, .08); }
+.world-pick { display: grid; grid-template-columns: auto 64px minmax(0, 1fr); align-items: center; gap: .7rem; margin: 0; padding: .5rem .6rem; cursor: pointer; }
+.world-pick input { width: 1rem; min-height: 0; accent-color: var(--leaf); }
+.world-thumb { width: 64px; height: 36px; display: grid; place-items: center; overflow: hidden; border-radius: 6px; background: linear-gradient(145deg, #2c4a31, #15251a); color: rgba(241,245,237,.35); font-size: .7rem; }
+.world-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.world-text { min-width: 0; display: grid; gap: .15rem; }
+.world-text strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .9rem; }
+.world-text small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: .72rem; font-weight: 500; }
+.world-empty { padding: .8rem; border: 1px dashed var(--line); border-radius: 11px; color: var(--muted); font-size: .8rem; line-height: 1.45; }
+.world-menu { margin-right: .45rem; }
+.world-menu summary { list-style: none; padding: .35rem .55rem; border-radius: 7px; color: var(--muted); cursor: pointer; font-weight: 800; letter-spacing: .1em; }
+.world-menu summary::-webkit-details-marker { display: none; }
+.world-menu summary:hover, .world-menu[open] summary { background: rgba(255,255,255,.07); color: var(--ink); }
+.world-menu-items { position: absolute; z-index: 3; left: 2.4rem; right: 3rem; top: 50%; transform: translateY(-50%); display: flex; justify-content: flex-end; gap: .15rem; padding: .25rem; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: var(--panel-solid); box-shadow: 0 10px 30px rgba(0,0,0,.45); white-space: nowrap; }
+.world-menu-items button { padding: .4rem .45rem; border: 0; border-radius: 7px; background: transparent; color: var(--ink); text-align: left; font-size: .78rem; }
+.world-menu-items button:hover, .world-menu-items button:focus-visible { background: rgba(166,216,95,.1); }
+.world-menu-items .is-danger { color: var(--danger); }
+.dialog { width: min(30rem, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 1.3rem; border: 1px solid var(--line); border-radius: 16px; background: var(--panel-solid); color: var(--ink); box-shadow: 0 32px 90px rgba(0,0,0,.55); }
+.dialog::backdrop { background: rgba(3, 6, 4, .72); }
+.dialog h2 { margin: 0 0 .4rem; font-size: 1.15rem; }
+.dialog p { margin: .5rem 0; color: var(--muted); font-size: .86rem; line-height: 1.5; }
+.dialog dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .35rem 1rem; margin: .8rem 0; font-size: .84rem; }
+.dialog dt { color: var(--muted); }
+.dialog dd { margin: 0; overflow-wrap: anywhere; }
+.dialog ul { margin: .4rem 0; padding-left: 1.2rem; color: #f1d3a0; font-size: .8rem; line-height: 1.45; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: .6rem; margin-top: 1.2rem; }
+.primary-button, .secondary-button { min-height: 42px; padding: 0 1rem; border-radius: 10px; font-weight: 800; }
+.primary-button { border: 0; background: var(--leaf); color: #142016; }
+.primary-button.is-danger { background: #e78a7f; color: #2a0f0b; }
+.primary-button:disabled { opacity: .5; cursor: not-allowed; }
+.secondary-button { border: 1px solid var(--line); background: transparent; color: var(--ink); }
+.check-row { display: flex; align-items: center; gap: .55rem; margin: .8rem 0 0; font-weight: 600; }
+.check-row input { width: 1rem; min-height: 0; accent-color: var(--leaf); }
 .mobile-warning { margin: 1rem 0 0; padding: .75rem; border-radius: 9px; background: rgba(135, 91, 27, .24); color: #f1d3a0; font-size: .78rem; line-height: 1.4; }
 
 .game-shell { position: fixed; inset: 0; overflow: hidden; background: #050806; }
@@ -145,6 +186,8 @@ input::placeholder { color: #728172; }
 	.field-grid { grid-template-columns: 1fr; gap: 0; }
 	.address-grid { grid-template-columns: minmax(0, 1fr) 88px; gap: .7rem; }
 	.launch-card { border-radius: 17px; }
+	.world-menu-items { left: .3rem; right: 2.7rem; gap: 0; }
+	.world-menu-items button { padding: .35rem .3rem; font-size: .72rem; }
 }
 /* Theater Tier B: the browser video overlay (client/web/theater.js).
  * z-index 7 puts it above the resume panel (3) and the persistence toast (6);

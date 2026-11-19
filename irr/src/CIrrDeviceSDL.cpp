@@ -1980,7 +1980,9 @@ void CIrrDeviceSDL::SwapWindow()
 	// first gameplay frame). Do not force opacity here — that hid load
 	// progress and fought prepareCompositor.
 	// This hop is synchronous, so stop making it once the launcher reports
-	// the shell dismissed; it never comes back for the life of the page.
+	// the shell dismissed and needs no more frames (it keeps asking until it
+	// has captured the world thumbnail); it never comes back for the life of
+	// the page.
 	static bool loading_shell_dismissed = false;
 	if (!loading_shell_dismissed) {
 		loading_shell_dismissed = MAIN_THREAD_EM_ASM_INT({
@@ -1988,7 +1990,8 @@ void CIrrDeviceSDL::SwapWindow()
 			if (!launcher || typeof launcher["notifyFramePresented"] !== "function")
 				return 0;
 			launcher["notifyFramePresented"]();
-			return launcher["getState"]()["loadingDismissed"] ? 1 : 0;
+			var state = launcher["getState"]();
+			return state["loadingDismissed"] && !state["frameHookWanted"] ? 1 : 0;
 		});
 	}
 #else
