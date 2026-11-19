@@ -280,6 +280,20 @@ bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args
 	return retval;
 }
 
+#ifdef __EMSCRIPTEN__
+static void apply_world_mode_settings(const std::string &world_path)
+{
+	Settings world_mt;
+	const std::string path = world_path + DIR_DELIM "world.mt";
+	if (!world_mt.readConfigFile(path.c_str()))
+		return;
+	for (const char *name : {"creative_mode", "enable_damage"}) {
+		if (world_mt.exists(name))
+			g_settings->setBool(name, world_mt.getBool(name));
+	}
+}
+#endif
+
 void ClientLauncher::init_args(GameStartData &start_data, const Settings &cmd_args)
 {
 	skip_main_menu = cmd_args.getFlag("go");
@@ -507,6 +521,13 @@ bool ClientLauncher::launch_game(GameErrorData &errordata, GameStartData &start_
 			auto world_game = findWorldSubgame(worldspec.path);
 			if (world_game.isValid())
 				start_data.game_spec = world_game;
+#ifdef __EMSCRIPTEN__
+			// The web launcher starts worlds with --go, bypassing the main
+			// menu that normally copies these per-world choices from world.mt
+			// into the settings (builtin/mainmenu/common.lua).
+			if (skip_main_menu)
+				apply_world_mode_settings(worldspec.path);
+#endif
 		}
 
 		if (!start_data.game_spec.isValid()) {

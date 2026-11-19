@@ -871,6 +871,7 @@ if(BUILD_CLIENT)
 			-lidbfs.js
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/network.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/persistence.js"
+			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/worlds.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/packages.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/webgl_compat.js"
 			"SHELL:--pre-js ${CMAKE_SOURCE_DIR}/client/web/audio_unlock.js"
@@ -918,6 +919,7 @@ if(BUILD_CLIENT)
 		set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS
 			${CMAKE_SOURCE_DIR}/client/web/network.js
 			${CMAKE_SOURCE_DIR}/client/web/persistence.js
+			${CMAKE_SOURCE_DIR}/client/web/worlds.js
 			${CMAKE_SOURCE_DIR}/client/web/packages.js
 			${CMAKE_SOURCE_DIR}/client/web/webgl_compat.js
 			${CMAKE_SOURCE_DIR}/client/web/audio_unlock.js
