@@ -23,6 +23,8 @@ struct PlayerSettings
 	bool pitch_move = false;
 	bool fast_move = false;
 	bool continuous_forward = false;
+	bool continuous_up = false;
+	bool continuous_down = false;
 	bool always_fly_fast = false;
 	bool aux1_descends = false;
 	bool noclip = false;

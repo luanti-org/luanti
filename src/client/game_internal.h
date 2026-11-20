@@ -165,6 +165,9 @@ protected:
 	void toggleCinematic();
 	void toggleBlockBounds();
 	void toggleAutoforward();
+	void toggleAutoup();
+	void toggleAutodown();
+	void disableAutoupdown();
 
 	void toggleMinimap(bool shift_pressed);
 	void toggleFog();
