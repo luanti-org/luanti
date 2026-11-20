@@ -91,12 +91,8 @@ int LuaRotation::l_euler_zxy(lua_State *L)
 	f32 pitch = readParam<f32>(L, 1);
 	f32 yaw = readParam<f32>(L, 2);
 	f32 roll = readParam<f32>(L, 3);
-
-	core::quaternion z, xy;
-	z.set(0, 0, roll);
-	xy.set(pitch, yaw, 0);
-
-	create(L, z * xy);
+	const auto quaternion = core::quaternion::eulerZXY(pitch, yaw, roll);
+	create(L, quaternion);
 	return 1;
 }
 

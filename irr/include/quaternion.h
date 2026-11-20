@@ -30,14 +30,25 @@ public:
 	constexpr quaternion(f32 x, f32 y, f32 z, f32 w) :
 			X(x), Y(y), Z(z), W(w) {}
 
-	//! Constructor which converts Euler angles (radians) to a quaternion
-	quaternion(f32 x, f32 y, f32 z);
+	//! Constructor which converts Euler angles to a quaternion.
+	//! @note Euler angles are in radians, left-handed, X-Y-Z rotation order.
+	quaternion(f32 pitch, f32 yaw, f32 roll);
 
 	//! Constructor which converts Euler angles (radians) to a quaternion
 	quaternion(const vector3df &vec);
 
 	//! Constructor which converts a matrix to a quaternion
 	quaternion(const matrix4 &mat);
+
+	//! Constructor which converts Euler angles to a quaternion.
+	//! @note Euler angles are in radians, left-handed, Z-X-Y rotation order.
+	static quaternion eulerZXY(f32 pitch, f32 yaw, f32 roll)
+	{
+		core::quaternion z, xy;
+		z.set(0, 0, roll);
+		xy.set(pitch, yaw, 0);
+		return z * xy;
+	}
 
 	//! Constructor which maps dir_from to dir_to by rotating
 	//! in the plane spanned by the two vectors, along a shortest path.
