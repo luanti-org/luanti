@@ -49,6 +49,7 @@ struct MeshMakeData
 	float m_ao_gamma_inv = 0.0f;
 	bool m_generate_minimap = false;
 	bool m_smooth_lighting = false;
+	bool m_light_glow = false;
 	bool m_enable_water_reflections = false;
 	bool m_enable_waving_water = false;
 

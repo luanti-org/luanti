@@ -110,6 +110,7 @@ private:
 
 	// TODO: Add callback to update these when g_settings changes, and update all meshes
 	bool m_cache_smooth_lighting;
+	bool m_cache_light_glow;
 	bool m_cache_enable_water_reflections;
 	bool m_cache_enable_waving_water;
 

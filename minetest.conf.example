@@ -847,6 +847,10 @@
 #    type: bool
 # smooth_lighting = true
 
+#    Makes light sources brighten nearby node faces that face them.
+#    type: bool
+# light_glow = false
+
 #    Enables tradeoffs that reduce CPU load or increase rendering performance
 #    at the expense of minor visual glitches that do not impact game playability.
 #    type: bool
