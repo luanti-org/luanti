@@ -585,6 +585,8 @@ private:
 
 	void sendMetadataChanged(const std::unordered_set<v3s16> &positions,
 			float far_d_nodes = 100);
+	void sendMetadataChanged(const RemoteClient *client,
+			const NodeMetadataList &meta_updates_list);
 
 	// Environment and Connection must be locked when called
 	// `cache` may only be very short lived! (invalidation not handled)
@@ -593,6 +595,16 @@ private:
 
 	// Sends blocks to clients (locks env and con on its own)
 	void SendBlocks(float dtime);
+
+	/**
+	 * Sends node changes to undo client-side predicted node changes
+	 *
+	 * \param prediction_success If true, assume that the client has made a
+	 *   correct prediction and send the fixup only if an outdated mapblock
+	 *   is currently "on wire", which can erroneously override the prediction
+	 */
+	void fixupNodePrediction(session_t peer_id, InteractAction action,
+			const PointedThing &pointed, bool prediction_success);
 
 	bool addMediaFile(const std::string &filename, const std::string &filepath,
 			std::string *filedata = nullptr, std::string *digest = nullptr);

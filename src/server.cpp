@@ -2506,7 +2506,6 @@ void Server::sendNodeChangePkt(NetworkPacket &pkt, v3s16 block_pos,
 void Server::sendMetadataChanged(const std::unordered_set<v3s16> &positions, float far_d_nodes)
 {
 	NodeMetadataList meta_updates_list(false);
-	std::ostringstream os(std::ios::binary);
 
 	std::vector<session_t> clients = m_clients.getClientIDs();
 	ClientInterface::AutoLock clientlock(m_clients);
@@ -2540,19 +2539,23 @@ void Server::sendMetadataChanged(const std::unordered_set<v3s16> &positions, flo
 		if (meta_updates_list.size() == 0)
 			continue;
 
-		// Send the meta changes
-		os.str("");
-		meta_updates_list.serialize(os, client->serialization_version, false, true, true);
-		std::string raw = os.str();
-		os.str("");
-		compressZlib(raw, os);
-
-		NetworkPacket pkt(TOCLIENT_NODEMETA_CHANGED, 0, i);
-		pkt.putLongString(os.str());
-		Send(&pkt);
+		sendMetadataChanged(client, meta_updates_list);
 
 		meta_updates_list.clear();
 	}
+}
+
+void Server::sendMetadataChanged(const RemoteClient *client, const NodeMetadataList &meta_updates_list)
+{
+	std::ostringstream os(std::ios::binary);
+	meta_updates_list.serialize(os, client->serialization_version, false, true, true);
+	std::string raw = os.str();
+	os.str("");
+	compressZlib(raw, os);
+
+	NetworkPacket pkt(TOCLIENT_NODEMETA_CHANGED, 0, client->peer_id);
+	pkt.putLongString(os.str());
+	Send(&pkt);
 }
 
 void Server::SendBlockNoLock(session_t peer_id, MapBlock *block, u8 ver,
