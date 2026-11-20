@@ -3,6 +3,8 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "content_cao.h"
+
+#include <irrMath.h>
 #include <IBillboardSceneNode.h>
 #include <ICameraSceneNode.h>
 #include <IMeshManipulator.h>
@@ -110,39 +112,50 @@ void SmoothTranslatorWrapped::translate(f32 dtime)
 		val_diff * moveratio, 360.f);
 }
 
-void SmoothTranslatorWrappedv3f::translate(f32 dtime)
+// TODO the rotation interpolator currently converts back and forth between Euler angles and quaternions.
+// In the future, we might want to use quaternions as the primary internal representation.
+// However, we might need to keep Euler angles around as mods have likely come to expect
+// that get_rotation() returns the particular Euler angle representation they passed in.
+
+static inline core::quaternion quat_from_euler(v3f rot)
 {
-	anim_time_counter = anim_time_counter + dtime;
+	// Also invert to treat right-handed quaternion as left-handed.
+	rot *= -core::DEGTORAD;
+	return core::quaternion::eulerZXY(rot.X, rot.Y, rot.Z);
+}
 
-	v3f val_diff_v3f;
-	val_diff_v3f.X = std::abs(val_target.X - val_old.X);
-	val_diff_v3f.Y = std::abs(val_target.Y - val_old.Y);
-	val_diff_v3f.Z = std::abs(val_target.Z - val_old.Z);
+static inline v3f euler_from_quat(core::quaternion q)
+{
+	// Also invert to convert left-handed Euler angles back to right handed.
+	return -getPitchYawRoll(q.getMatrix());
+}
 
-	if (val_diff_v3f.X > 180.f)
-		val_diff_v3f.X = 360.f - val_diff_v3f.X;
+v3f RotationInterpolator::get() const
+{
+	return euler_from_quat(cur);
+}
 
-	if (val_diff_v3f.Y > 180.f)
-		val_diff_v3f.Y = 360.f - val_diff_v3f.Y;
+void RotationInterpolator::reset(v3f rot)
+{
+	old = cur = target = quat_from_euler(rot);
+}
 
-	if (val_diff_v3f.Z > 180.f)
-		val_diff_v3f.Z = 360.f - val_diff_v3f.Z;
+void RotationInterpolator::update(v3f rot, f32 update_interval)
+{
+	old = cur;
+	target = quat_from_euler(rot);
+	progress = 0;
+	interp_duration = update_interval;
+	if (update_interval == 0)
+		cur = target;
+}
 
-	f32 moveratio = 1.0;
-	if (anim_time > 0.001)
-		moveratio = anim_time_counter / anim_time;
-	f32 move_end = aim_is_end ? 1.0 : 1.5;
-
-	// Move a bit less than should, to avoid oscillation
-	moveratio = std::min(moveratio * 0.8f, move_end);
-	wrappedApproachShortest(val_current.X, val_target.X,
-		val_diff_v3f.X * moveratio, 360.f);
-
-	wrappedApproachShortest(val_current.Y, val_target.Y,
-		val_diff_v3f.Y * moveratio, 360.f);
-
-	wrappedApproachShortest(val_current.Z, val_target.Z,
-		val_diff_v3f.Z * moveratio, 360.f);
+void RotationInterpolator::step(f32 dtime)
+{
+	if (interp_duration == 0)
+		return;
+	progress = std::min(progress + dtime, interp_duration);
+	cur.slerp(old, target, progress / interp_duration);
 }
 
 /*
@@ -329,7 +342,7 @@ void GenericCAO::processInitData(const std::string &data)
 
 	m_rotation = wrapDegrees_0_360_v3f(m_rotation);
 	pos_translator.init(m_position);
-	rot_translator.init(m_rotation);
+	rot_interpolator.reset(m_rotation);
 	updateNodePos();
 }
 
@@ -969,7 +982,7 @@ void GenericCAO::updateNametag()
 	}
 }
 
-void GenericCAO::updateNodePos()
+void GenericCAO::updateNodePos(bool interpolate_rot)
 {
 	if (getParent() != NULL)
 		return;
@@ -983,7 +996,9 @@ void GenericCAO::updateNodePos()
 				intToFloat(camera_offset, BS);
 		getPosRotMatrix().setTranslation(pos);
 		if (node != m_spritenode) { // rotate if not a sprite
-			v3f rot = m_is_local_player ? -m_rotation : -rot_translator.val_current;
+			// player rotations are never interpolated
+			v3f rot = (!interpolate_rot || m_is_local_player)
+					? -m_rotation : -rot_interpolator.get();
 			setPitchYawRoll(getPosRotMatrix(), rot);
 		}
 	}
@@ -997,7 +1012,7 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 		m_position = player->getPosition();
 		pos_translator.val_current = m_position;
 		m_rotation.Y = wrapDegrees_0_360(player->getYaw());
-		rot_translator.val_current = m_rotation;
+		rot_interpolator.reset(m_rotation);
 
 		if (m_is_visible) {
 			m_velocity = v3f(0,0,0);
@@ -1111,7 +1126,7 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 		pos_translator.val_current = m_position;
 		pos_translator.val_target = m_position;
 	} else {
-		rot_translator.translate(dtime);
+		rot_interpolator.step(dtime);
 		v3f lastpos = pos_translator.val_current;
 
 		if(m_prop.physical)
@@ -1190,8 +1205,11 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 		node->setRotation(local_rot);
 	}
 
+	// HACK the yaw is simply overwritten, so there is no control over the composition;
+	// if we later switch rotations to quaternions, the corresponding Euler angles are not unique.
 	if (!getParent() && m_prop.automatic_face_movement_dir &&
 			(fabs(m_velocity.Z) > 0.001f || fabs(m_velocity.X) > 0.001f)) {
+
 		float target_yaw = atan2(m_velocity.Z, m_velocity.X) * 180 / M_PI
 				+ m_prop.automatic_face_movement_dir_offset;
 		float max_rotation_per_sec =
@@ -1204,9 +1222,7 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 			// Negative values of max_rotation_per_sec mean disabled.
 			m_rotation.Y = target_yaw;
 		}
-
-		rot_translator.val_current = m_rotation;
-		updateNodePos();
+		updateNodePos(false);
 	}
 }
 
@@ -1693,9 +1709,9 @@ void GenericCAO::processMessage(const std::string &data)
 			pos_translator.init(m_position);
 		}
 		if (do_interpolate_rotation)
-			rot_translator.update(m_rotation, false, update_interval);
+			rot_interpolator.update(m_rotation, update_interval);
 		else
-			rot_translator.init(m_rotation);
+			rot_interpolator.reset(m_rotation);
 		updateNodePos();
 	} else if (cmd == AO_CMD_SET_TEXTURE_MOD) {
 		std::string mod = deSerializeString16(is);

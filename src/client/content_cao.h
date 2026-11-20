@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
-
 #include <EMaterialTypes.h>
 #include <IDummyTransformationSceneNode.h>
 #include <AnimSpec.h>
@@ -15,8 +13,10 @@
 #include "constants.h"
 #include "itemgroup.h"
 #include "client/tile.h"
+#include "quaternion.h"
 #include <cassert>
 #include <memory>
+#include <optional>
 
 namespace scene {
 	class IMeshSceneNode;
@@ -60,9 +60,25 @@ struct SmoothTranslatorWrapped : SmoothTranslator<f32>
 	void translate(f32 dtime);
 };
 
-struct SmoothTranslatorWrappedv3f : SmoothTranslator<v3f>
+/// Quaternion-based spherical rotation interpolation.
+class RotationInterpolator
 {
-	void translate(f32 dtime);
+	core::quaternion old, cur, target;
+	f32 progress = 0;
+	f32 interp_duration = 0;
+
+public:
+
+	/// @return Euler angles in degrees, right-handed, Z-X-Y rotation order.
+	v3f get() const;
+
+	/// @param rot Euler angles in degrees, right-handed, Z-X-Y rotation order.
+	void reset(v3f rot);
+
+	/// @param rot Euler angles in degrees, right-handed, Z-X-Y rotation order.
+	void update(v3f rot, f32 update_interval = 0);
+
+	void step(f32 dtime);
 };
 
 struct MeshAnimationInfo {
@@ -110,10 +126,11 @@ private:
 	v3f m_position = v3f(0.0f, 10.0f * BS, 0);
 	v3f m_velocity;
 	v3f m_acceleration;
+	/// Rotation as right-handed Z-X-Y Euler angles
 	v3f m_rotation;
 	u16 m_hp = 1;
 	SmoothTranslator<v3f> pos_translator;
-	SmoothTranslatorWrappedv3f rot_translator;
+	RotationInterpolator rot_interpolator;
 
 	// Spritesheet stuff
 	// TODO move into own struct
@@ -285,7 +302,7 @@ public:
 
 	void updateMarker();
 
-	void updateNodePos();
+	void updateNodePos(bool interpolate_rot = true);
 
 	void step(float dtime, ClientEnvironment *env) override;
 

@@ -10572,9 +10572,10 @@ Player properties need to be saved manually.
     -- is within `stepheight` and if the object current max Y in the world
     -- is greater or equal than the node min Y.
 
-    automatic_face_movement_dir = 0.0,
+    automatic_face_movement_dir = false,
     -- Automatically set yaw to movement direction, offset in degrees.
     -- 'false' to disable.
+    -- Do not use this together with set_rotation().
 
     automatic_face_movement_max_rotation_per_sec = -1,
     -- Limit automatic rotation to this value in degrees per second.
