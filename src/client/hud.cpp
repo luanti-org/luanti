@@ -230,79 +230,181 @@ void Hud::drawItem(const ItemStack &item, const core::rect<s32>& rect,
 		client, selected ? IT_ROT_SELECTED : IT_ROT_NONE);
 }
 
-// NOTE: selectitem = 0 -> no selected; selectitem is 1-based
-// mainlist can be NULL, but draw the frame anyway.
-void Hud::drawItems(v2s32 screen_pos, v2s32 screen_offset, s32 itemcount, v2f alignment,
-		s32 inv_offset, InventoryList *mainlist, u16 selectitem, u16 direction,
-		bool is_hotbar, const std::string &background_image)
+void Hud::drawItems(v2s32 pos, s32 inv_size, s32 inv_offset, InventoryList *mainlist,
+		u16 selectitem, u16 direction, bool is_hotbar, u16 hotbar_touchcontrol_offset)
 {
-	s32 height  = m_hotbar_imagesize + m_padding * 2;
-	s32 width   = (itemcount - inv_offset) * (m_hotbar_imagesize + m_padding * 2);
-
-	if (direction == HUD_DIR_TOP_BOTTOM || direction == HUD_DIR_BOTTOM_TOP) {
-		s32 tmp = height;
-		height = width;
-		width = tmp;
-	}
-
-	// Position: screen_pos + screen_offset + alignment
-	v2s32 pos(screen_offset.X * m_scale_factor, screen_offset.Y * m_scale_factor);
-	pos += screen_pos;
-	pos.X += (alignment.X - 1.0f) * (width * 0.5f);
-	pos.Y += (alignment.Y - 1.0f) * (height * 0.5f);
-
-	// Store the effective background image in a member variable, used by drawItem().
-	// An inventory HUD element can override the player's hotbar image with text2.
-	hotbar_image = background_image.empty() ?
-			player->hotbar_image : background_image;
-	use_hotbar_image = !hotbar_image.empty();
-
 	// Store hotbar_selected_image in member variable, used by drawItem()
 	if (hotbar_selected_image != player->hotbar_selected_image) {
 		hotbar_selected_image = player->hotbar_selected_image;
 		use_hotbar_selected_image = !hotbar_selected_image.empty();
 	}
 
-	// draw customized item background
-	if (use_hotbar_image) {
-		core::rect<s32> imgrect2(-m_padding/2, -m_padding/2,
-			width+m_padding/2, height+m_padding/2);
-		core::rect<s32> rect2 = imgrect2 + pos;
-		video::ITexture *texture = tsrc->getTexture(hotbar_image);
-		core::dimension2di imgsize(texture->getOriginalSize());
-		draw2DImageFilterScaled(driver, texture, rect2,
-			core::rect<s32>(core::position2d<s32>(0,0), imgsize),
-			NULL, hbar_colors, true);
-	}
-
 	// Draw items
 	core::rect<s32> imgrect(0, 0, m_hotbar_imagesize, m_hotbar_imagesize);
-	const s32 list_max = std::min(itemcount, (s32) (mainlist ? mainlist->getSize() : 0 ));
+	const s32 list_max = std::min(inv_size, (s32) (mainlist ? mainlist->getSize() : 0));
 	for (s32 i = inv_offset; i < list_max; i++) {
-		s32 fullimglen = m_hotbar_imagesize + m_padding * 2;
 
-		v2s32 steppos;
-		switch (direction) {
-		case HUD_DIR_RIGHT_LEFT:
-			steppos = v2s32(m_padding + (list_max - 1 - i - inv_offset) * fullimglen, m_padding);
-			break;
-		case HUD_DIR_TOP_BOTTOM:
-			steppos = v2s32(m_padding, m_padding + (i - inv_offset) * fullimglen);
-			break;
-		case HUD_DIR_BOTTOM_TOP:
-			steppos = v2s32(m_padding, m_padding + (list_max - 1 - i - inv_offset) * fullimglen);
-			break;
-		default:
-			steppos = v2s32(m_padding + (i - inv_offset) * fullimglen, m_padding);
-			break;
-		}
+		v2s32 steppos = getInventoryPosOffset(direction, i - inv_offset, list_max - 1 - inv_offset);
 
-		core::rect<s32> item_rect = imgrect + pos + steppos;
+		core::rect<s32> item_rect = imgrect + pos + v2s32{m_padding, m_padding} + steppos;
 
 		drawItem(mainlist->getItem(i), item_rect, (i + 1) == selectitem);
 
 		if (is_hotbar && g_touchcontrols)
-			g_touchcontrols->registerHotbarRect(i, item_rect);
+			g_touchcontrols->registerHotbarRect(i + hotbar_touchcontrol_offset, item_rect);
+	}
+}
+
+// Returns the total width, height and pos to draw a HUD inventory
+void Hud::getInventoryDimensions(v2s32 screen_pos, v2s32 screen_offset, s32 inv_length,
+		v2f alignment, u16 direction, v2s32 &pos, v2s32 &dim) const
+{
+	dim.Y = m_hotbar_imagesize + m_padding * 2;
+	dim.X = inv_length * (m_hotbar_imagesize + m_padding * 2);
+
+	if (direction == HUD_DIR_TOP_BOTTOM || direction == HUD_DIR_BOTTOM_TOP) {
+		s32 tmp = dim.Y;
+		dim.Y = dim.X;
+		dim.X = tmp;
+	}
+
+	// Position: screen_pos + screen_offset + alignment
+	pos = screen_pos + screen_offset * m_scale_factor;
+	pos.X += (alignment.X - 1.0f) * (dim.X * 0.5f);
+	pos.Y += (alignment.Y - 1.0f) * (dim.Y * 0.5f);
+}
+
+// Returns an inventory position offset depending on the direction
+// arguments are the number of items before and the remaining number of items
+v2s32 Hud::getInventoryPosOffset(u16 direction, s32 before, s32 remainder) const
+{
+	s32 fullimglen = m_hotbar_imagesize + m_padding * 2;
+
+	switch (direction) {
+	case HUD_DIR_RIGHT_LEFT:
+		return v2s32((remainder - before) * fullimglen, 0);
+		break;
+	case HUD_DIR_TOP_BOTTOM:
+		return v2s32(0, before * fullimglen);
+		break;
+	case HUD_DIR_BOTTOM_TOP:
+		return v2s32(0, (remainder - before) * fullimglen);
+		break;
+	case HUD_DIR_LEFT_RIGHT:
+	default:
+		return v2s32(before * fullimglen, 0);
+		break;
+	}
+}
+
+void Hud::drawInventoryBackground(v2s32 pos, v2s32 dim,
+		const std::string &background_image)
+{
+	// Store the effective background image in a member variable, used by drawItem().
+	// An inventory HUD element can override the player's hotbar image with text2.
+	hotbar_image = background_image.empty() ?
+			player->hotbar_image : background_image;
+	use_hotbar_image = !hotbar_image.empty();
+
+	if (!use_hotbar_image) {
+		return;
+	}
+
+	v2s32 padding{m_padding/2, m_padding/2};
+	core::rect<s32> imgrect2{-padding, dim + padding};
+	core::rect<s32> rect2 = imgrect2 + pos;
+	video::ITexture *texture = tsrc->getTexture(hotbar_image);
+	core::dimension2di imgsize(texture->getOriginalSize());
+	draw2DImageFilterScaled(driver, texture, rect2,
+			core::rect<s32>(core::position2d<s32>(0,0), imgsize),
+			nullptr, hbar_colors, true);
+}
+
+// NOTE: selectitem = 0 -> no selected; selectitem is 1-based
+// mainlist can be NULL, but draw the frame anyway.
+void Hud::drawInventory(v2s32 screen_pos, v2f offset, s32 itemcount, v2f alignment,
+		InventoryList *mainlist, u16 selectitem, u16 direction,
+		const std::string &background_image)
+{
+	v2s32 screen_offset(offset.X, offset.Y);
+	v2s32 dim;
+	v2s32 pos;
+	getInventoryDimensions(screen_pos, screen_offset, itemcount, alignment,
+			direction, pos, dim);
+
+	drawInventoryBackground(pos, dim, background_image);
+	drawItems(pos, itemcount, 0, mainlist, selectitem, direction);
+}
+
+// If max_inv_length == 0 do not clamp size
+void Hud::drawHotbar(v2s32 screen_pos, v2f offset, u16 direction,
+		const v2f &alignment, s32 max_inv_length, s32 inv_offset)
+{
+	auto &sources = player->hotbar_source.getSources();
+	u16 wield_index = player->getWieldIndex() + 1;
+	v2s32 screen_offset(offset.X, offset.Y);
+
+	// All invs next to each other
+	if (inv_offset > player->hotbar_source.getMaxLength())
+		return;
+	max_inv_length = max_inv_length ? max_inv_length :
+			player->hotbar_source.getMaxLength() - inv_offset;
+
+	v2s32 dim;
+	v2s32 pos;
+	getInventoryDimensions(screen_pos, screen_offset, max_inv_length, alignment,
+			direction, pos, dim);
+	drawInventoryBackground(pos, dim);
+
+	// Handle offset
+	std::size_t source_index = 0;
+	u16 length_before = 0;
+	for (s32 i_offset = inv_offset; source_index < sources.size(); source_index++) {
+		const HotbarSource::Source &source = sources[source_index];
+		if (i_offset < source.length) {
+			s32 inv_length = std::min<s32>(source.length - i_offset, max_inv_length);
+
+			drawItems(pos + getInventoryPosOffset(direction, 0, max_inv_length - inv_length),
+					inv_length + source.offset + i_offset,
+					source.offset + i_offset,
+					inventory->getList(source.list),
+					wield_index + source.offset - inv_offset + i_offset,
+					direction, true, 0);
+			length_before = inv_length;
+			source_index++;
+			break;
+		}
+		i_offset -= source.length;
+	}
+
+	for (; source_index < sources.size(); source_index++) {
+		const HotbarSource::Source &source = sources[source_index];
+		s32 inv_length = std::min<s32>(source.length, max_inv_length - length_before);
+		if(inv_length <= 0)
+			break;
+
+		drawItems(pos + getInventoryPosOffset(direction, length_before, max_inv_length - inv_length),
+				inv_length + source.offset,
+				source.offset, inventory->getList(source.list),
+				wield_index - length_before + source.offset - inv_offset,
+				direction, true, length_before);
+		length_before += inv_length;
+	}
+}
+
+void Hud::drawHotbarElement(v2s32 pos, HudElement *e)
+{
+	// Handle splitting caused by hud_hotbar_max_width
+	u16 hotbar_itemcount = player->hotbar_source.getMaxLength();
+	float width = hotbar_itemcount * (m_hotbar_imagesize + m_padding * 2);
+	const v2u32 &window_size = RenderingEngine::getWindowSize();
+	if (width / window_size.X > g_settings->getFloat("hud_hotbar_max_width")) {
+		v2s32 upper_pos = pos - v2s32(0, m_hotbar_imagesize + m_padding);
+		u16 upper_itemcount = hotbar_itemcount / 2;
+		drawHotbar(upper_pos, e->offset, e->dir, e->align, upper_itemcount, 0);
+		drawHotbar(pos, e->offset, e->dir, e->align, 0, upper_itemcount);
+	} else {
+		drawHotbar(pos, e->offset, e->dir, e->align);
 	}
 }
 
@@ -377,6 +479,9 @@ void Hud::drawLuaElements(const v3s16 &camera_offset, bool only_unhidable)
 		return l->z_index < r->z_index;
 	});
 
+	if (g_touchcontrols)
+		g_touchcontrols->resetHotbarRects();
+
 	for (HudElement *e : elems) {
 		if (only_unhidable && e->hideable)
 			continue;
@@ -446,8 +551,7 @@ void Hud::drawLuaElements(const v3s16 &camera_offset, bool only_unhidable)
 				InventoryList *inv = inventory->getList(e->text);
 				if (!inv)
 					warningstream << "HUD: Unknown inventory list. name=" << e->text << std::endl;
-				drawItems(pos, v2s32(e->offset.X, e->offset.Y), e->number, e->align, 0,
-					inv, e->item, e->dir, false, e->text2);
+				drawInventory(pos, e->offset, e->number, e->align, inv, e->item, e->dir, e->text2);
 				break; }
 			case HUD_ELEM_WAYPOINT: {
 				if (!calculateScreenPos(camera_offset, e, &pos))
@@ -579,7 +683,7 @@ void Hud::drawLuaElements(const v3s16 &camera_offset, bool only_unhidable)
 				client->getMinimap()->drawMinimap(rect);
 				break; }
 			case HUD_ELEM_HOTBAR: {
-				drawHotbar(pos, e->offset, e->dir, e->align);
+				drawHotbarElement(pos, e);
 				break; }
 			default:
 				infostream << "Hud::drawLuaElements: ignoring drawform " << e->type
@@ -790,38 +894,6 @@ void Hud::drawStatbar(v2s32 pos, u16 corner, u16 drawdir,
 		}
 	}
 }
-void Hud::drawHotbar(const v2s32 &pos, const v2f &offset, u16 dir, const v2f &align)
-{
-	if (g_touchcontrols)
-		g_touchcontrols->resetHotbarRects();
-
-	InventoryList *mainlist = inventory->getList("main");
-	if (mainlist == NULL) {
-		// Silently ignore this. We may not be initialized completely.
-		return;
-	}
-
-	u16 playeritem = player->getWieldIndex();
-	v2s32 screen_offset(offset.X, offset.Y);
-
-	s32 hotbar_itemcount = player->getMaxHotbarItemcount();
-	s32 width = hotbar_itemcount * (m_hotbar_imagesize + m_padding * 2);
-
-	const v2u32 &window_size = RenderingEngine::getWindowSize();
-	if ((float) width / (float) window_size.X <=
-			g_settings->getFloat("hud_hotbar_max_width")) {
-		drawItems(pos, screen_offset, hotbar_itemcount, align, 0,
-			mainlist, playeritem + 1, dir, true);
-	} else {
-		v2s32 upper_pos = pos - v2s32(0, m_hotbar_imagesize + m_padding);
-
-		drawItems(upper_pos, screen_offset, hotbar_itemcount / 2, align, 0,
-			mainlist, playeritem + 1, dir, true);
-		drawItems(pos, screen_offset, hotbar_itemcount, align,
-			hotbar_itemcount / 2, mainlist, playeritem + 1, dir, true);
-	}
-}
-
 
 void Hud::drawCrosshair()
 {
