@@ -55,9 +55,13 @@ void populateSideBySidePipeline(RenderPipeline *pipeline, Client *client, bool h
 	}
 
 	TextureBuffer *buffer = pipeline->createOwned<TextureBuffer>();
-	buffer->setTexture(TEXTURE_LEFT, virtual_size_scale, "3d_render_left", color_format);
-	buffer->setTexture(TEXTURE_RIGHT, virtual_size_scale, "3d_render_right", color_format);
-	buffer->setTexture(TEXTURE_DEPTH, virtual_size_scale, "3d_depthmap_sidebyside", depth_format);
+	buffer->setTexture(TEXTURE_LEFT,
+		TextureBuffer::TextureDefinition(virtual_size_scale, "3d_render_left", color_format));
+	buffer->setTexture(TEXTURE_RIGHT,
+		TextureBuffer::TextureDefinition(virtual_size_scale, "3d_render_right", color_format));
+	buffer->setTexture(TEXTURE_DEPTH,
+		TextureBuffer::TextureDefinition(virtual_size_scale, "3d_depthmap_sidebyside",
+			depth_format));
 
 	auto step3D = pipeline->own(create3DStage(client, virtual_size_scale));
 
