@@ -780,13 +780,14 @@ listed source images to their specified `<xN>,<yN>` coordinates of the target te
 The background is black and transparent (`#00000000`).
 Since 5.19.0, the note on `TEXMOD_UPSCALE` applies if a base image is present.
 
-Example:
+Example of combining two 16x16 px textures into a 16x32 px texture. The resulting image
+will look different when other texture sizes are used (e.g. provided by texture packs).
 
     [combine:16x32:0,0=default_cobble.png:0,16=default_wood.png
 
 Example with `<sN>` parameters. With 16x16 px textures, the result is the same as in
-the example above. With 32x32 textures, the resulting texture is of size 32x64, where
-its right side consists again of `default_wood.png`.
+the example above. With 32x32 textures, the resulting texture is of size 32x64,
+where its right side consists again of `default_wood.png`.
 
     [combine:16x32:0,0,16=default_cobble.png:0,16,16=default_wood.png
 
