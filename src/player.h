@@ -104,6 +104,8 @@ struct PlayerPhysicsOverride
 	float gravity = 1.f;
 
 	bool sneak = true;
+	// Whether player can use the new move code replications
+	// of the old sneak side-effects: sneak ladders and 2 node sneak jump
 	bool sneak_glitch = false;
 	// "Temporary" option for old move code
 	bool new_move = true;
