@@ -56,7 +56,7 @@ void MeshMakeData::fillSingleNode(MapNode data, MapNode padding)
 
 	m_vmanip.clear();
 	// area around 0,0,0 so that this positon has neighbors
-	const s16 sz = 3;
+	const s16 sz = 1;
 	m_vmanip.addArea({v3s16(-sz), v3s16(sz)});
 
 	u32 count = m_vmanip.m_area.getVolume();
