@@ -8,7 +8,7 @@
 #include "SMaterial.h"
 #include "aabbox3d.h"
 #include "IVertexBuffer.h"
-#include "IIndexBuffer.h"
+#include "IndexBuffer.h"
 #include "EHardwareBufferFlags.h"
 #include "EPrimitiveTypes.h"
 #include <cassert>
@@ -52,10 +52,10 @@ public:
 	virtual scene::IVertexBuffer *getVertexBuffer() = 0;
 
 	/// Get the index buffer
-	virtual const scene::IIndexBuffer *getIndexBuffer() const = 0;
+	virtual const scene::IndexBuffer *getIndexBuffer() const = 0;
 
 	/// Get the index buffer
-	virtual scene::IIndexBuffer *getIndexBuffer() = 0;
+	virtual scene::IndexBuffer *getIndexBuffer() = 0;
 
 	//! Get the axis aligned bounding box of this meshbuffer.
 	/** \return Axis aligned bounding box of this buffer. */
@@ -113,14 +113,14 @@ public:
 	/** \return Index type of this buffer. */
 	inline video::E_INDEX_TYPE getIndexType() const
 	{
-		return getIndexBuffer()->getType();
+		return getIndexBuffer()->getIndexType();
 	}
 
 	//! Get access to indices.
 	/** \return Pointer to indices array. */
 	inline const u16 *getIndices() const
 	{
-		assert(getIndexBuffer()->getType() == video::EIT_16BIT);
+		assert(getIndexBuffer()->getIndexType() == video::EIT_16BIT);
 		return static_cast<const u16*>(getIndexBuffer()->getData());
 	}
 
@@ -128,7 +128,7 @@ public:
 	/** \return Pointer to indices array. */
 	inline u16 *getIndices()
 	{
-		assert(getIndexBuffer()->getType() == video::EIT_16BIT);
+		assert(getIndexBuffer()->getIndexType() == video::EIT_16BIT);
 		return static_cast<u16*>(getIndexBuffer()->getData());
 	}
 

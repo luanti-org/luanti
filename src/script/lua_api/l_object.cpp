@@ -7,7 +7,7 @@
 #include <lauxlib.h>
 #include <lua.h>
 #include "AnimSpec.h"
-#include "irrTypes.h"
+#include "irr_types.h"
 #include "lua_api/l_internal.h"
 #include "lua_api/l_inventory.h"
 #include "lua_api/l_item.h"

@@ -6,7 +6,7 @@
 
 #include <string>
 #include <vector>
-#include "irrlichttypes.h"
+#include <irr_types.h>
 
 class IItemDefManager;
 class NodeDefManager;

@@ -7,7 +7,7 @@
 #ifdef _IRR_COMPILE_WITH_OPENGL_
 
 #include "EDriverFeatures.h"
-#include "irrTypes.h"
+#include "irr_types.h"
 #include "os.h"
 
 #include "COpenGLCommon.h"

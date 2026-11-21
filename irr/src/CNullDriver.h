@@ -5,7 +5,7 @@
 #pragma once
 
 #include "HWBuffer.h"
-#include "IIndexBuffer.h"
+#include "IndexBuffer.h"
 #include "IVertexBuffer.h"
 #include "IVideoDriver.h"
 #include "IFileSystem.h"
@@ -268,7 +268,7 @@ public:
 
 	// Note: this should handle hw buffers
 	virtual void drawBuffers(const scene::IVertexBuffer *vb,
-		const scene::IIndexBuffer *ib, u32 primCount,
+		const scene::IndexBuffer *ib, u32 primCount,
 		scene::E_PRIMITIVE_TYPE pType = scene::EPT_TRIANGLES) override;
 
 	//! Draws the normals of a mesh buffer

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
+#include "irr_types.h"
 #include "address.h"
 
 void sockets_init();

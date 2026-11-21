@@ -5,7 +5,7 @@
 #pragma once
 
 #include <string>
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "hud_element.h" // HudElementStat
 
 struct ParticleParameters;

@@ -6,7 +6,7 @@
 
 #include "sscsm_ievent.h"
 #include "debug.h"
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "sscsm_environment.h"
 
 struct SSCSMEventTearDown : public ISSCSMEvent

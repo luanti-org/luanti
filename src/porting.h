@@ -16,7 +16,7 @@
 #include <csignal>
 #include <string>
 #include "config.h"
-#include "irrlichttypes.h" // u64
+#include <irr_types.h> // u64
 #include "debug.h"
 #include "util/timetaker.h" // TimePrecision
 

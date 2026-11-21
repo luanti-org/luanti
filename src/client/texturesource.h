@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include <SColor.h>
 #include <dimension2d.h>
 #include <string>

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "itemgroup.h"
 #include "util/enum_string.h"
 #include <SColor.h>

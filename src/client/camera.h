@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "inventory.h" // ItemStack
 #include "util/basic_macros.h"
 #include "util/numeric.h"

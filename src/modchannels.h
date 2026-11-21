@@ -10,7 +10,7 @@
 #include <vector>
 #include <memory>
 #include "network/networkprotocol.h"
-#include "irrlichttypes.h"
+#include <irr_types.h>
 
 enum ModChannelState : u8
 {

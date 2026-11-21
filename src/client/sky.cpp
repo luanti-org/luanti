@@ -830,9 +830,8 @@ void Sky::updateStars()
 		m_star_params.count = 0x4000;
 	}
 	auto &vertices = m_stars->Vertices->Data;
-	auto &indices = m_stars->Indices->Data;
+	auto &indices = *m_stars->Indices;
 	vertices.reserve(4 * m_star_params.count);
-	indices.reserve(6 * m_star_params.count);
 
 	u64 star_seed = m_star_params.star_seed == 0 ? m_seed : m_star_params.star_seed;
 	PcgRandom rgen(star_seed);
@@ -855,12 +854,8 @@ void Sky::updateStars()
 		vertices.push_back(video::S3DVertex(p3, {}, {}, {}));
 	}
 	for (u16 i = 0; i < m_star_params.count; i++) {
-		indices.push_back(i * 4 + 0);
-		indices.push_back(i * 4 + 1);
-		indices.push_back(i * 4 + 2);
-		indices.push_back(i * 4 + 2);
-		indices.push_back(i * 4 + 3);
-		indices.push_back(i * 4 + 0);
+		u32 quad_idxs[6] = {0, 1, 2, 2, 3, 0};
+		indices.appendWithOffset(&quad_idxs[0], &quad_idxs[6], i * 4);
 	}
 	m_stars->setHardwareMappingHint(scene::EHM_STATIC);
 }

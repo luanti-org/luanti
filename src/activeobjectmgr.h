@@ -6,7 +6,7 @@
 
 #include <memory>
 #include "util/container.h"
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "util/basic_macros.h"
 
 class TestServerActiveObjectMgr;

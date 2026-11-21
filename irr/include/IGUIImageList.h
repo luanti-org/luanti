@@ -5,7 +5,7 @@
 
 #include "IReferenceCounted.h"
 #include "rect.h"
-#include "irrTypes.h"
+#include "irr_types.h"
 
 namespace gui
 {

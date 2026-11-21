@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
+#include <irr_types.h>
 #include "itemstackmetadata.h"
 #include <istream>
 #include <memory>

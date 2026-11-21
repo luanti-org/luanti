@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "irrlichttypes.h"
+#include "EMaterialTypes.h"
+#include "IDummyTransformationSceneNode.h"
+#include <irr_types.h>
 
 #include <EMaterialTypes.h>
 #include <IDummyTransformationSceneNode.h>
