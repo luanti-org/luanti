@@ -176,7 +176,7 @@ void VoxelManipulator::addArea(const VoxelArea &area)
 	delete[] old_flags;
 }
 
-void VoxelManipulator::copyFrom(MapNode *src, bool is_mono_block, const VoxelArea& src_area,
+void VoxelManipulator::copyFrom(MapNode *src, bool is_mono_block, const VoxelArea &src_area,
 		v3s16 from_pos, v3s16 to_pos, const v3s16 &size)
 {
 	/* The reason for this optimised code is that we're a member function
@@ -206,12 +206,11 @@ void VoxelManipulator::copyFrom(MapNode *src, bool is_mono_block, const VoxelAre
 
 	s32 src_step = src_area.getExtent().X;
 	s32 dest_step = m_area.getExtent().X;
-	s32 dest_mod = m_area.index(to_pos.X, to_pos.Y, to_pos.Z + 1)
-			- m_area.index(to_pos.X, to_pos.Y, to_pos.Z)
-			- dest_step * size.Y;
+	s32 dest_mod =
+		m_area.index(to_pos + v3s16(0, 0, 1)) - m_area.index(to_pos) - dest_step * size.Y;
 
-	s32 i_src = src_area.index(from_pos.X, from_pos.Y, from_pos.Z);
-	s32 i_local = m_area.index(to_pos.X, to_pos.Y, to_pos.Z);
+	s32 i_src = src_area.index(from_pos);
+	s32 i_local = m_area.index(to_pos);
 
 	for (s16 z = 0; z < size.Z; z++) {
 		for (s16 y = 0; y < size.Y; y++) {
@@ -228,14 +227,14 @@ void VoxelManipulator::copyFrom(MapNode *src, bool is_mono_block, const VoxelAre
 	}
 }
 
-void VoxelManipulator::copyTo(MapNode *dst, const VoxelArea& dst_area,
+void VoxelManipulator::copyTo(MapNode *dst, const VoxelArea &dst_area,
 		v3s16 dst_pos, v3s16 from_pos, const v3s16 &size) const
 {
 	for(s16 z=0; z<size.Z; z++)
 	for(s16 y=0; y<size.Y; y++)
 	{
-		s32 i_dst = dst_area.index(dst_pos.X, dst_pos.Y+y, dst_pos.Z+z);
-		s32 i_local = m_area.index(from_pos.X, from_pos.Y+y, from_pos.Z+z);
+		s32 i_dst = dst_area.index(dst_pos + v3s16(0, y, z));
+		s32 i_local = m_area.index(from_pos + v3s16(0, y, z));
 		for (s16 x = 0; x < size.X; x++) {
 			if (m_data[i_local].getContent() != CONTENT_IGNORE)
 				dst[i_dst] = m_data[i_local];
