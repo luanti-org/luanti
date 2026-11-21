@@ -5,6 +5,7 @@
 #pragma once
 
 #include "irrlichttypes_bloated.h"
+#include <IImage.h>
 #include <ISceneNode.h>
 #include <CMeshBuffer.h>
 #include <array>
@@ -17,7 +18,6 @@
 namespace video
 {
 	class IVideoDriver;
-	class IImage;
 }
 
 class IShaderSource;
@@ -213,8 +213,8 @@ private:
 
 	video::ITexture *m_sun_texture = nullptr;
 	video::ITexture *m_moon_texture = nullptr;
-	video::IImage *m_sun_tonemap = nullptr;
-	video::IImage *m_moon_tonemap = nullptr;
+	irr_ptr<video::IImage> m_sun_tonemap;
+	irr_ptr<video::IImage> m_moon_tonemap;
 
 	void updateStars();
 
