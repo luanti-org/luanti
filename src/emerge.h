@@ -163,6 +163,9 @@ public:
 	/// resets the reference
 	void resetMap();
 
+	/// Thread-safe, forwards to the server
+	void setAsyncFatalError(const std::string &error);
+
 	void startThreads();
 	void stopThreads();
 

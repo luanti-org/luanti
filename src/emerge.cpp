@@ -169,6 +169,11 @@ void EmergeManager::resetMap()
 	m_db = nullptr;
 }
 
+void EmergeManager::setAsyncFatalError(const std::string &error)
+{
+	m_server->setAsyncFatalError(error);
+}
+
 void EmergeManager::initMapgens(MapgenParams *params)
 {
 	FATAL_ERROR_IF(!m_mapgens.empty(), "Mapgen already initialized.");
@@ -720,7 +725,6 @@ void *EmergeThread::run()
 			auto &m_db = *m_emerge->m_db;
 			{
 				ScopeProfiler sp(g_profiler, "EmergeThread: load block - async (sum)");
-				MutexAutoLock dblock(m_db.mutex);
 				// Note: this can throw an exception, but there isn't really
 				// a good, safe way to handle it.
 				m_db.loadBlock(pos, databuf);
