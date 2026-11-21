@@ -1063,6 +1063,7 @@ bool ImageSource::generateImagePart(std::string_view part_of_name,
 					it.expected_width = dim.Width;
 				}
 
+				// Low-priority TODO: Consider limiting scale on very large textures
 				scale = std::max<u32>(scale, FX_FACTOR * dim.Width / it.expected_width);
 			}
 

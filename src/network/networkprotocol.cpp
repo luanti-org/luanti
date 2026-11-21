@@ -86,7 +86,7 @@
 		[scheduled bump for 5.18.0]
 	PROTOCOL VERSION 55
 		"[combine:WxH:x1,y1,w1=" 3rd parameter extension
-		<TODO for 5.19.0>
+		[scheduled bump for 5.19.0]
 */
 
 // Note: Also update core.protocol_versions in builtin when bumping
