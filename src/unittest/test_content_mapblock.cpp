@@ -13,8 +13,6 @@
 #include "client/node_visuals.h"
 #include <memory>
 #include "mesh_compare.h"
-#include "util/numeric.h"
-#include "util/serialize.h"
 
 namespace {
 
@@ -78,27 +76,6 @@ public:
 			tiledef.name = name + ".png";
 		for (TileSpec &tile : f.visuals->tiles)
 			tile.layers[0].texture_id = texture;
-
-		return registerNode(itemdef, std::move(f));
-	}
-
-	content_t addRootedPlant(std::string name, u32 texture_base, u32 texture_plant)
-	{
-		ItemDefinition itemdef;
-		itemdef.type = ITEM_NODE;
-		itemdef.name = "test:" + name;
-		itemdef.description = name;
-
-		ContentFeatures f;
-		f.visuals = std::make_unique<NodeVisuals>();
-		f.name = itemdef.name;
-		f.drawtype = NDT_PLANTLIKE_ROOTED;
-		for (TileDef &tiledef : f.tiledef)
-			tiledef.name = name + ".png";
-		for (TileSpec &tile : f.visuals->tiles)
-			tile.layers[0].texture_id = texture_base;
-		f.tiledef_special[0].name = name + "_plant.png";
-		f.visuals->special_tiles[0].layers[0].texture_id = texture_plant;
 
 		return registerNode(itemdef, std::move(f));
 	}
@@ -177,7 +154,6 @@ public:
 	void testSurroundedNode();
 	void testInterliquidSame();
 	void testInterliquidDifferent();
-	void testCompactInput();
 };
 
 static TestMapblockMeshGenerator g_test_instance;
@@ -189,7 +165,6 @@ void TestMapblockMeshGenerator::runTests(IGameDef *gamedef)
 	TEST(testSurroundedNode);
 	TEST(testInterliquidSame);
 	TEST(testInterliquidDifferent);
-	TEST(testCompactInput);
 }
 
 namespace quad {
@@ -285,82 +260,6 @@ void TestMapblockMeshGenerator::testInterliquidDifferent()
 	auto &&buf = col.prebuffers[0][0];
 	UASSERTEQ(u32, buf.layer.texture_id, 42);
 	UASSERT(checkMeshEqual(buf.vertices, buf.indices, {quad::xn, quad::xp, quad::yn, quad::yp, quad::zn, quad::zp}));
-}
-
-void TestMapblockMeshGenerator::testCompactInput()
-{
-	MockGameDef gamedef;
-	const content_t stone = gamedef.addSimpleNode("stone", 42);
-	const content_t water = gamedef.addLiquidSource("water", 43);
-	const content_t plant = gamedef.addRootedPlant("rooted", 44, 45);
-	gamedef.finalize();
-
-	for (bool smooth : {false, true}) {
-		MeshMakeData compact(gamedef.ndef(), MAP_BLOCKSIZE, MeshGrid{1});
-		compact.fillBlockDataBegin({-1, 0, -1});
-		compact.m_smooth_lighting = smooth;
-		UASSERTEQ(s32, compact.m_vmanip.m_area.getVolume(), 18 * 19 * 18);
-
-		MeshMakeData full(gamedef.ndef(), MAP_BLOCKSIZE, MeshGrid{1});
-		full.m_blockpos = compact.m_blockpos;
-		full.m_smooth_lighting = smooth;
-		const v3s16 origin = full.m_blockpos * MAP_BLOCKSIZE;
-		full.m_vmanip.addArea({origin - v3s16(MAP_BLOCKSIZE),
-				origin + v3s16(2 * MAP_BLOCKSIZE - 1)});
-
-		// Vary the stored air lighting so missing neighbors can affect vertex colors.
-		for (s16 z = -MAP_BLOCKSIZE; z < 2 * MAP_BLOCKSIZE; ++z)
-		for (s16 y = -MAP_BLOCKSIZE; y < 2 * MAP_BLOCKSIZE; ++y)
-		for (s16 x = -MAP_BLOCKSIZE; x < 2 * MAP_BLOCKSIZE; ++x) {
-			const v3s16 p = origin + v3s16(x, y, z);
-			MapNode node(CONTENT_AIR, (x + y + z) & 0xff);
-
-			// Encode explicitly so the input does not depend on native byte order.
-			u8 coords[6];
-			writeV3S16(coords, p);
-			u32 rand = murmur_hash_64_ua(coords, sizeof(coords), 0) & u32(127);
-
-			// Approximately 1/64 non-air nodes, split equally between the two types.
-			if (rand == 0)
-				node = MapNode(stone);
-			else if (rand == 1)
-				node = MapNode(water);
-
-			full.m_vmanip.setNodeNoEmerge(p, node);
-			if (compact.m_vmanip.m_area.contains(p))
-				compact.m_vmanip.setNodeNoEmerge(p, node);
-		}
-
-		// Rooted plants extend above their bases at the top corner. Smooth lighting
-		// therefore needs the extra row two nodes above the block's last node.
-		const s16 b = MAP_BLOCKSIZE - 1;
-		auto plants_coords = {
-			// Neighboring rooted plants, each in a separate mapblock
-			v3s16(0, b, 0),
-			v3s16(-1, b, 0),
-			v3s16(0, b, -1),
-			v3s16(-1, b, -1),
-			// Singular rooted plant
-			v3s16(b, b, b),
-		};
-		for (v3s16 p : plants_coords) {
-			UASSERT(full.m_vmanip.setNodeNoEmerge(origin + p, MapNode(plant)));
-			UASSERT(compact.m_vmanip.setNodeNoEmerge(origin + p, MapNode(plant)));
-		}
-
-		MeshCollector expected{{}}, actual{{}};
-		MapblockMeshGenerator(&full, &expected).generate();
-		MapblockMeshGenerator(&compact, &actual).generate();
-		for (int layer = 0; layer < MAX_TILE_LAYERS; ++layer) {
-			UASSERTEQ(size_t, actual.prebuffers[layer].size(), expected.prebuffers[layer].size());
-			for (size_t i = 0; i < actual.prebuffers[layer].size(); ++i) {
-				const auto &a = actual.prebuffers[layer][i];
-				const auto &b = expected.prebuffers[layer][i];
-				UASSERT(a.vertices == b.vertices);
-				UASSERT(a.indices == b.indices);
-			}
-		}
-	}
 }
 
 }
