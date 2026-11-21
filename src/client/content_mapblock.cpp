@@ -1542,7 +1542,12 @@ void MapblockMeshGenerator::drawPlantlikeRootedNode()
 	cur_node.origin += v3f(0, BS, 0);
 	cur_node.p.Y++;
 	if (data->m_smooth_lighting) {
-		getSmoothLightFrame();
+		// Use top light frames and not read light 2 nodes above.
+		for (int k : {0, 1, 4, 5}) { // Bit 2 is set for top corners, see light_dirs
+			cur_node.lframe.lightsDay[k] = cur_node.lframe.lightsDay[k | 2];
+			cur_node.lframe.lightsNight[k] = cur_node.lframe.lightsNight[k | 2];
+			cur_node.lframe.sunlight[k] = cur_node.lframe.sunlight[k | 2];
+		}
 	} else {
 		MapNode ntop = data->m_vmanip.getNodeRefUnsafeCheckFlags(blockpos_nodes + cur_node.p);
 		auto light = LightPair(getInteriorLight(ntop, 0, nodedef));
@@ -2051,12 +2056,11 @@ void MapblockMeshGenerator::generate()
 {
 	ZoneScoped;
 
-	// getNodeRefUnsafeCheckFlags can be used for nodes up to 3 away
+	// Meshgen requires a margin of one,
+	// because it reads neighboring nodes using getNodeRefUnsafeCheckFlags
 	// Also see MeshMakeData::fillBlockDataBegin and MeshMakeData::fillSingleNode
-	// Currently all drawtypes use at most nodes one away except for NDT_PLANTLIKE_ROOTED
-	// which reads nodes at y+2 for getSmoothLightFrame
-	assert(data->m_vmanip.m_area.contains(blockpos_nodes - 3));
-	assert(data->m_vmanip.m_area.contains(blockpos_nodes + v3s16(data->m_side_length + 2)));
+	assert(data->m_vmanip.m_area.contains(blockpos_nodes - 1));
+	assert(data->m_vmanip.m_area.contains(blockpos_nodes + data->m_side_length));
 
 	for (cur_node.p.Z = 0; cur_node.p.Z < data->m_side_length; cur_node.p.Z++)
 	for (cur_node.p.Y = 0; cur_node.p.Y < data->m_side_length; cur_node.p.Y++)
