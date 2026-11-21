@@ -221,6 +221,18 @@ void MapBlock::copyTo(VoxelManipulator &dst)
 			getPosRelative(), data_size);
 }
 
+void MapBlock::copyToClipped(VoxelManipulator &dst)
+{
+	const VoxelArea source(v3s16(0), v3s16(MAP_BLOCKSIZE - 1));
+	const VoxelArea overlap_abs = (source + getPosRelative()).intersect(dst.m_area);
+	if (overlap_abs.hasEmptyExtent())
+		return;
+
+	dst.copyFrom(data, m_is_mono_block, source,
+			overlap_abs.MinEdge - getPosRelative(), overlap_abs.MinEdge,
+			overlap_abs.MaxEdge - overlap_abs.MinEdge + v3s16(1));
+}
+
 void MapBlock::copyFrom(const VoxelManipulator &src)
 {
 	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
