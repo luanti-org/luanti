@@ -759,23 +759,44 @@ Examples:
 
 * Blits a 3x3 grid of crack textures, each at frame 0, on `example.png`
 
-#### `[combine:<w>x<h>:<parts>`
+#### `[combine:<w>x<h>:<x1>,<y1>,<s1>=<texture1>:<x2>,<y2>,<s2>=<texture2>:...`
 
 * `<w>`: width of resulting texture (integer [imagesize])
 * `<h>`: height of resulting texture (integer [imagesize])
-* `<parts>`: Colon-separated (`:`) list of locations `x`, `y` and textures to
-  blit; written in the form `<x>,<y>=<texture>` for each texture. Can be empty.
+* `<xN>`: x position (integer [imagesize])
+* `<yN>`: y position (integer [imagesize])
+* `<sN>` (optional): Expected texture width (integer [imagesize])
+   * If the actual texture width is (e.g. 2 times) larger than `<sN>`, it will
+     cause the resulting texture to be (2 times) larger respectively.
+   * If the actual texture width is smaller, it will be upscaled proportionally
+     to match the width `<sN>`.
+   * `<xN>` and `<yN>` will be scaled internally accordingly.
+   * Supported since version 5.19.0. Old clients will ignore this parameter.
+* `<textureN>`: texture to combine. Can contain texture modifiers, but these must
+     be escaped according to the rules in [Escaping](#Escaping).
 
-`x` and `y` are integers [imageframe].
-A `<texture>` (in `<textures>`) can contain texture modifiers, but these must
-be escaped according to the rules in [Escaping](#Escaping).
+Creates a texture of size `<w>` times `<h>` and blits the listed source textures
+to their specified `<xN>,<yN>` coordinates of the target texture.
+Individual `<sN>` values can cause the dimension of the resulting texture to be
+proportionally enlarged (see specifics above).
+The background is black and transparent (`#00000000`).
+Since 5.19.0, the note on `TEXMOD_UPSCALE` applies if a base image is present.
 
-Creates a texture of size `<w>` times `<h>` and blits the listed files to their
-specified coordinates. The background is black and transparent (`#00000000`).
-
-Example:
+Example of combining two (assumed) 16x16 px textures into a 16x32 px texture.
+Note that if the source texture is not of the assumed size, the resulting texture
 
     [combine:16x32:0,0=default_cobble.png:0,16=default_wood.png
+
+Example with `<sN>` parameters. With 16x16 px textures, the result is the same as in
+the example above. With 32x32 px textures, the resulting texture is of size 32x64 px,
+where its bottom consists again of `default_wood.png`.
+
+    [combine:16x32:0,0,16=default_cobble.png:0,16,16=default_wood.png
+
+Since the sizes all become relative to each other with `<sN>`, the same texture could
+also be expressed as follows. However, the smallest resulting texture will be 1x2 px.
+
+    [combine:1x2:0,0,1=default_cobble.png:0,1,1=default_wood.png
 
 #### `[resize:<w>x<h>`
 
