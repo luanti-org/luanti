@@ -32,6 +32,16 @@ void ActiveObjectMgr::step(
 	g_profiler->avg("ActiveObjectMgr: CAO count [#]", count);
 }
 
+void ActiveObjectMgr::forEach(
+		const std::function<void(ClientActiveObject *)> &f)
+{
+	for (auto &ao_it : m_active_objects.iter()) {
+		if (!ao_it.second)
+			continue;
+		f(ao_it.second.get());
+	}
+}
+
 bool ActiveObjectMgr::registerObject(std::unique_ptr<ClientActiveObject> obj)
 {
 	assert(obj); // Pre-condition

@@ -156,7 +156,7 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 	}
 
 	// If attached, check that our parent is still there. If it isn't, detach.
-	if (m_attachment_parent_id && !getParent()) {
+	if (m_attachment.parent_id && !getParent()) {
 		// This is handled when objects are removed from the map
 		warningstream << "LuaEntitySAO::step() " << m_init_name << " at " << m_last_sent_position << ", id=" << m_id <<
 			" is attached to nonexistent parent. This is a bug." << std::endl;
@@ -281,7 +281,7 @@ std::string LuaEntitySAO::getClientInitializationData(u16 protocol_version)
 		append_message(generateUpdateBoneOverrideCommand(
 			bone_override.first, bone_override.second));
 	}
-	append_message(generateUpdateAttachmentCommand());
+	append_message(generateUpdateAttachmentCommand(protocol_version));
 
 	for (const auto &id : getAttachmentChildIds()) {
 		if (ServerActiveObject *obj = m_env->getActiveObject(id)) {

@@ -12,3 +12,30 @@ void ActiveObjectMessage::appendTo(std::string &data) const
 	data.append(idbuf, sizeof(idbuf));
 	data.append(serializeString16(datastring));
 }
+
+void AttachmentData::serialize(std::ostream &os, u16 protocol_version) const
+{
+	// command
+	writeU8(os, AO_CMD_ATTACH_TO);
+	// parameters
+	writeS16(os, parent_id);
+	os << serializeString16(bone);
+	writeV3F32(os, position);
+	writeV3F32(os, rotation);
+
+	if (protocol_version >= 55) // 5.19.0-dev
+		writeU8(os, flags);
+	else
+		writeU8(os, flags & FORCE_VISIBLE);
+}
+
+void AttachmentData::deSerialize(std::istream &is)
+{
+	parent_id = readS16(is);
+	bone = deSerializeString16(is);
+	position = readV3F32(is);
+	rotation = readV3F32(is);
+
+	// can read if the client version >= 5.4.0-dev
+	flags = canRead(is) ? readU8(is) : false;
+}
