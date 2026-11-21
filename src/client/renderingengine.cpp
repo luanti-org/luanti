@@ -196,6 +196,7 @@ RenderingEngine::RenderingEngine(MyEventReceiver *receiver)
 	params.Fullscreen = fullscreen;
 	params.WindowMaximized = window_maximized;
 	params.WindowResizable = 1; // 1 means always (required for window_maximized)
+	params.WindowHighPixelDensity = g_settings->getBool("window_hidpi");
 	params.Stencilbuffer = false;
 	params.Vsync = vsync;
 	params.EventReceiver = receiver;
