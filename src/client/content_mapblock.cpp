@@ -1543,12 +1543,10 @@ void MapblockMeshGenerator::drawPlantlikeRootedNode()
 	cur_node.p.Y++;
 	if (data->m_smooth_lighting) {
 		// Use top light frames and not read light 2 nodes above.
-		for (int k = 0; k < 8; ++k) {
-			if (k & 2) {
-				cur_node.lframe.lightsDay[k ^ 2] = cur_node.lframe.lightsDay[k];
-				cur_node.lframe.lightsNight[k ^ 2] = cur_node.lframe.lightsNight[k];
-				cur_node.lframe.sunlight[k ^ 2] = cur_node.lframe.sunlight[k];
-			}
+		for (int k : {0, 1, 4, 5}) { // Bit 2 is set for top corners, see light_dirs
+			cur_node.lframe.lightsDay[k] = cur_node.lframe.lightsDay[k | 2];
+			cur_node.lframe.lightsNight[k] = cur_node.lframe.lightsNight[k | 2];
+			cur_node.lframe.sunlight[k] = cur_node.lframe.sunlight[k | 2];
 		}
 	} else {
 		MapNode ntop = data->m_vmanip.getNodeRefUnsafeCheckFlags(blockpos_nodes + cur_node.p);
