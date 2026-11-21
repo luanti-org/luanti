@@ -68,7 +68,7 @@ inline ALenum warn_if_al_error(const char *desc)
  */
 inline v3f swap_handedness(v3f v) noexcept
 {
-	return v3f(-v.X, v.Y, v.Z);
+	return v * v3f(-1, 1, 1);
 }
 
 /**

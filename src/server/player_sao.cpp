@@ -14,7 +14,7 @@
 
 PlayerSAO::PlayerSAO(ServerEnvironment *env_, RemotePlayer *player_, session_t peer_id_,
 		bool is_singleplayer):
-	UnitSAO(env_, v3f(0,0,0)),
+	UnitSAO(env_, v3f()),
 	m_player(player_),
 	m_player_name(player_->getName()),
 	m_peer_id_initial(peer_id_),
@@ -277,23 +277,11 @@ void PlayerSAO::step(float dtime, bool send_recommended)
 	if (m_position_not_sent) {
 		m_position_not_sent = false;
 		float update_interval = m_env->getSendRecommendedInterval();
-		v3f pos;
 		// When attached, the position is only sent to clients where the
 		// parent isn't known
-		if (isAttached())
-			pos = m_last_good_position;
-		else
-			pos = getBasePosition();
+		v3f pos = isAttached() ? m_last_good_position : getBasePosition();
 
-		std::string str = generateUpdatePositionCommand(
-			pos,
-			v3f(0.0f, 0.0f, 0.0f),
-			v3f(0.0f, 0.0f, 0.0f),
-			m_rotation,
-			true,
-			false,
-			update_interval
-		);
+		std::string str = generateUpdatePositionCommand(pos, v3f(), v3f(), m_rotation, true, false, update_interval);
 		// create message and add to list
 		m_messages_out.emplace(getId(), false, str);
 	}

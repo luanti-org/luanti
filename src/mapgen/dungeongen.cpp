@@ -46,17 +46,17 @@ DungeonGen::DungeonGen(const NodeDefManager *ndef,
 		dp.holesize            = v3s16(1, 2, 1);
 		dp.corridor_len_min    = 1;
 		dp.corridor_len_max    = 13;
-		dp.room_size_min       = v3s16(4, 4, 4);
+		dp.room_size_min       = v3s16(4);
 		dp.room_size_max       = v3s16(8, 6, 8);
-		dp.room_size_large_min = v3s16(8, 8, 8);
-		dp.room_size_large_max = v3s16(16, 16, 16);
+		dp.room_size_large_min = v3s16(8);
+		dp.room_size_large_max = v3s16(16);
 		dp.large_room_chance   = 1;
 		dp.num_rooms           = 8;
 		dp.num_dungeons        = 1;
 		dp.notifytype          = GENNOTIFY_DUNGEON;
 
 		dp.np_alt_wall =
-			NoiseParams(-0.4, 1.0, v3f(40.0, 40.0, 40.0), 32474, 6, 1.1, 2.0);
+			NoiseParams(-0.4, 1.0, v3f(40), 32474, 6, 1.1, 2.0);
 	}
 }
 
@@ -102,7 +102,7 @@ void DungeonGen::generate(MMVManip *vm, u32 bseed, v3s16 nmin, v3s16 nmax)
 
 	// Add them
 	for (u32 i = 0; i < dp.num_dungeons; i++)
-		makeDungeon(v3s16(1, 1, 1) * MAP_BLOCKSIZE);
+		makeDungeon(v3s16(MAP_BLOCKSIZE));
 
 	// Optionally convert some structure to alternative structure
 	if (dp.c_alt_wall == CONTENT_IGNORE)
@@ -404,7 +404,7 @@ void DungeonGen::makeCorridor(v3s16 doorplace, v3s16 doordir,
 		// Check segment of minimum size corridor is in voxelmanip
 		if (vm->m_area.contains(p) && vm->m_area.contains(p + v3s16(0, 1, 0))) {
 			if (make_stairs) {
-				makeFill(p + v3s16(-1, -1, -1),
+				makeFill(p - 1,
 					dp.holesize + v3s16(2, 3, 2),
 					VMANIP_FLAG_DUNGEON_UNTOUCHABLE,
 					MapNode(dp.c_wall),
@@ -450,8 +450,8 @@ void DungeonGen::makeCorridor(v3s16 doorplace, v3s16 doordir,
 					}
 				}
 			} else {
-				makeFill(p + v3s16(-1, -1, -1),
-					dp.holesize + v3s16(2, 2, 2),
+				makeFill(p - 1,
+					dp.holesize + 2,
 					VMANIP_FLAG_DUNGEON_UNTOUCHABLE,
 					MapNode(dp.c_wall),
 					0);
@@ -519,7 +519,7 @@ bool DungeonGen::findPlaceForDoor(v3s16 &result_place, v3s16 &result_dir)
 		if (vm->getNodeNoExNoEmerge(p +
 				v3s16(0, 1, 0)).getContent() == dp.c_wall &&
 				vm->getNodeNoExNoEmerge(p +
-				v3s16(0, 0, 0)).getContent() == CONTENT_AIR &&
+				v3s16()).getContent() == CONTENT_AIR &&
 				vm->getNodeNoExNoEmerge(p +
 				v3s16(0, -1, 0)).getContent() == CONTENT_AIR)
 			p += v3s16(0, -1, 0);

@@ -314,5 +314,5 @@ void drawItemStack(
 		ItemRotationKind rotation_kind)
 {
 	drawItemStack(driver, font, item, rect, clip, client, rotation_kind,
-		v3s16(0, 0, 0), v3s16(0, 100, 0));
+		v3s16(), v3s16(0, 100, 0));
 }

@@ -433,7 +433,7 @@ GUIEngine::~GUIEngine()
 /******************************************************************************/
 void GUIEngine::drawClouds(float dtime)
 {
-	g_menuclouds->update(v3f(0, 0, 0), m_rendering_engine->m_menu_clouds_color);
+	g_menuclouds->update(v3f(), m_rendering_engine->m_menu_clouds_color);
 	g_menuclouds->step(dtime * 3);
 	g_menucloudsmgr->drawAll();
 }

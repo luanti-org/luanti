@@ -69,7 +69,7 @@ int LuaVoxelManip::l_initialize(lua_State *L)
 		v3s16 bp1 = getNodeBlockPos(check_v3s16(L, 2));
 		v3s16 bp2 = getNodeBlockPos(check_v3s16(L, 3));
 		sortBoxVerticies(bp1, bp2);
-		area = VoxelArea(bp1 * MAP_BLOCKSIZE, (bp2+1) * MAP_BLOCKSIZE - v3s16(1));
+		area = VoxelArea(bp1 * MAP_BLOCKSIZE, (bp2+1) * MAP_BLOCKSIZE - 1);
 	}
 	assert(!area.hasEmptyExtent());
 

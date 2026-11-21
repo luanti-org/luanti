@@ -423,7 +423,7 @@ struct TestMapBlock: public TestBase
 	{
 		TC parent;
 
-		MapBlock b(&parent, v3s16(1,1,1));
+		MapBlock b(&parent, v3s16(1));
 		v3s16 relpos(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
 
 		UASSERT(b.getPosRelative() == relpos);
@@ -435,7 +435,7 @@ struct TestMapBlock: public TestBase
 		UASSERT(b.getBox().MinEdge.Z == MAP_BLOCKSIZE);
 		UASSERT(b.getBox().MaxEdge.Z == MAP_BLOCKSIZE*2-1);
 
-		UASSERT(b.isValidPosition(v3s16(0,0,0)) == true);
+		UASSERT(b.isValidPosition(v3s16()) == true);
 		UASSERT(b.isValidPosition(v3s16(-1,0,0)) == false);
 		UASSERT(b.isValidPosition(v3s16(-1,-142,-2341)) == false);
 		UASSERT(b.isValidPosition(v3s16(-124,142,2341)) == false);
@@ -446,8 +446,7 @@ struct TestMapBlock: public TestBase
 			TODO: this method should probably be removed
 			if the block size isn't going to be set variable
 		*/
-		/*UASSERT(b.getSizeNodes() == v3s16(MAP_BLOCKSIZE,
-				MAP_BLOCKSIZE, MAP_BLOCKSIZE));*/
+		/*UASSERT(b.getSizeNodes() == v3s16(MAP_BLOCKSIZE));*/
 
 		// Changed flag should be initially set
 		UASSERT(b.getModified() == MOD_STATE_WRITE_NEEDED);
@@ -485,8 +484,8 @@ struct TestMapBlock: public TestBase
 		MapNode n;
 
 		// Positions in the block should still be valid
-		UASSERT(b.isValidPositionParent(v3s16(0,0,0)) == true);
-		UASSERT(b.isValidPositionParent(v3s16(MAP_BLOCKSIZE-1,MAP_BLOCKSIZE-1,MAP_BLOCKSIZE-1)) == true);
+		UASSERT(b.isValidPositionParent(v3s16()) == true);
+		UASSERT(b.isValidPositionParent(v3s16(MAP_BLOCKSIZE-1)) == true);
 		n = b.getNodeParent(v3s16(0,MAP_BLOCKSIZE-1,0));
 		UASSERT(n.getContent() == CONTENT_AIR);
 

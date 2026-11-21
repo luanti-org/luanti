@@ -214,7 +214,7 @@ void Particle::updateVertices(ClientEnvironment *env, video::SColor color)
 	if (m_texture.tex != nullptr)
 		scale = m_texture.tex -> scale.blend(m_time / (m_expiration+0.1f));
 	else
-		scale = v2f(1.f, 1.f);
+		scale = v2f(1);
 
 	if (m_p.animation.type != TAT_NONE) {
 		const v2u32 texsize = m_texture.ref->getSize();
@@ -475,8 +475,8 @@ void ParticleSpawner::spawnParticle(ClientEnvironment *env, float radius,
 		if (m_texpool.size() == 0)
 			return;
 		texture = ClientParticleTexRef(m_texpool[myrand_range(0, m_texpool.size() - 1)]);
-		texpos = v2f(0.0f, 0.0f);
-		texsize = v2f(1.0f, 1.0f);
+		texpos = v2f();
+		texsize = v2f(1);
 		if (texture.tex->animated)
 			pp.animation = texture.tex->animation;
 	}
@@ -855,8 +855,8 @@ void ParticleManager::handleParticleEvent(ClientEvent *event, Client *client,
 				texstore = std::make_unique<ClientParticleTexture>(p.texture, client->tsrc());
 
 				texture = ClientParticleTexRef(*texstore);
-				texpos = v2f(0.0f, 0.0f);
-				texsize = v2f(1.0f, 1.0f);
+				texpos = v2f();
+				texsize = v2f(1);
 			}
 
 			// Allow keeping default random size
@@ -904,7 +904,7 @@ bool ParticleManager::getNodeParticleParams(Client *client, const MapNode &n,
 	p.size = BS * size;
 	if (tile.scale)
 		size /= tile.scale;
-	texsize = v2f(size * 2.0f, size * 2.0f);
+	texsize = v2f(size * 2.0f);
 	texpos.X = (myrand_range(0,64)) / 64.0f - texsize.X;
 	texpos.Y = (myrand_range(0,64)) / 64.0f - texsize.Y;
 

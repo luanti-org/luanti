@@ -902,18 +902,17 @@ void MapgenBasic::generateDungeons(s16 max_stone_y)
 
 	DungeonParams dp;
 
-	dp.np_alt_wall =
-		NoiseParams(-0.4, 1.0, v3f(40.0, 40.0, 40.0), 32474, 6, 1.1, 2.0);
+	dp.np_alt_wall = NoiseParams(-0.4, 1.0, v3f(40), 32474, 6, 1.1, 2.0);
 
 	dp.seed                = seed;
 	dp.only_in_ground      = true;
 	dp.num_dungeons        = num_dungeons;
 	dp.notifytype          = GENNOTIFY_DUNGEON;
 	dp.num_rooms           = ps.range(2, 16);
-	dp.room_size_min       = v3s16(5, 5, 5);
+	dp.room_size_min       = v3s16(5);
 	dp.room_size_max       = v3s16(12, 6, 12);
 	dp.room_size_large_min = v3s16(12, 6, 12);
-	dp.room_size_large_max = v3s16(16, 16, 16);
+	dp.room_size_large_max = v3s16(16);
 	dp.large_room_chance   = (ps.range(1, 4) == 1) ? 8 : 0;
 	dp.diagonal_dirs       = ps.range(1, 8) == 1;
 	// Diagonal corridors must have 'hole' width >=2 to be passable
@@ -923,7 +922,7 @@ void MapgenBasic::generateDungeons(s16 max_stone_y)
 	dp.corridor_len_max    = 13;
 
 	// Get biome at mapchunk midpoint
-	v3s16 chunk_mid = node_min + (node_max - node_min) / v3s16(2, 2, 2);
+	v3s16 chunk_mid = node_min + (node_max - node_min) / 2;
 	Biome *biome = (Biome *)biomegen->getBiomeAtPoint(chunk_mid);
 
 	// Use biome-defined dungeon nodes if defined

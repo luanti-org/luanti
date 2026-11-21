@@ -475,8 +475,8 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 			MYMAX(pos_f->Y, newpos_f.Y),
 			MYMAX(pos_f->Z, newpos_f.Z)
 		);
-		v3s16 min = floatToInt(minpos_f + box_0.MinEdge, BS) - v3s16(1, 1, 1);
-		v3s16 max = floatToInt(maxpos_f + box_0.MaxEdge, BS) + v3s16(1, 1, 1);
+		v3s16 min = floatToInt(minpos_f + box_0.MinEdge, BS) - 1;
+		v3s16 max = floatToInt(maxpos_f + box_0.MaxEdge, BS) + 1;
 
 		bool any_position_valid = add_area_node_boxes(min, max, gamedef, env, cinfo);
 
@@ -485,7 +485,7 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 		// This also intentionally occurs in the case of the object being positioned
 		// solely on loaded CONTENT_IGNORE nodes, no matter where they come from.
 		if (!any_position_valid) {
-			*speed_f = v3f(0, 0, 0);
+			*speed_f = v3f();
 			return result;
 		}
 	}

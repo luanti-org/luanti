@@ -216,7 +216,7 @@ bool Schematic::placeOnVManip(MMVManip *vm, v3s16 p, u32 flags,
 
 	blitToVManip(vm, p, rot, force_place);
 
-	return vm->m_area.contains(VoxelArea(p, p + s - v3s16(1, 1, 1)));
+	return vm->m_area.contains(VoxelArea(p, p + s - 1));
 }
 
 void Schematic::placeOnMap(ServerMap *map, v3s16 p, u32 flags,
@@ -246,7 +246,7 @@ void Schematic::placeOnMap(ServerMap *map, v3s16 p, u32 flags,
 	//// Create VManip for affected area, emerge our area, modify area
 	//// inside VManip, then blit back.
 	v3s16 bp1 = getNodeBlockPos(p);
-	v3s16 bp2 = getNodeBlockPos(p + s - v3s16(1, 1, 1));
+	v3s16 bp2 = getNodeBlockPos(p + s - 1);
 
 	MMVManip vm(map);
 	vm.initialEmerge(bp1, bp2);

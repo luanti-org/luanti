@@ -69,7 +69,7 @@ MapgenV6::MapgenV6(MapgenV6Params *params, EmergeParams *emerge)
 	np_trees       = &params->np_trees;
 	np_apple_trees = &params->np_apple_trees;
 
-	np_dungeons = NoiseParams(0.9, 0.5, v3f(500.0, 500.0, 500.0), 0, 2, 0.8, 2.0);
+	np_dungeons = NoiseParams(0.9, 0.5, v3f(500), 0, 2, 0.8, 2.0);
 
 	//// Create noise objects
 	noise_terrain_base   = new Noise(&params->np_terrain_base,   seed, csize.X, csize.Y);
@@ -160,17 +160,17 @@ MapgenV6::~MapgenV6()
 
 
 MapgenV6Params::MapgenV6Params():
-	np_terrain_base   (-4,   20.0, v3f(250.0, 250.0, 250.0), 82341,  5, 0.6,  2.0),
-	np_terrain_higher (20,   16.0, v3f(500.0, 500.0, 500.0), 85039,  5, 0.6,  2.0),
-	np_steepness      (0.85, 0.5,  v3f(125.0, 125.0, 125.0), -932,   5, 0.7,  2.0),
-	np_height_select  (0,    1.0,  v3f(250.0, 250.0, 250.0), 4213,   5, 0.69, 2.0),
-	np_mud            (4,    2.0,  v3f(200.0, 200.0, 200.0), 91013,  3, 0.55, 2.0),
-	np_beach          (0,    1.0,  v3f(250.0, 250.0, 250.0), 59420,  3, 0.50, 2.0),
-	np_biome          (0,    1.0,  v3f(500.0, 500.0, 500.0), 9130,   3, 0.50, 2.0),
-	np_cave           (6,    6.0,  v3f(250.0, 250.0, 250.0), 34329,  3, 0.50, 2.0),
-	np_humidity       (0.5,  0.5,  v3f(500.0, 500.0, 500.0), 72384,  3, 0.50, 2.0),
-	np_trees          (0,    1.0,  v3f(125.0, 125.0, 125.0), 2,      4, 0.66, 2.0),
-	np_apple_trees    (0,    1.0,  v3f(100.0, 100.0, 100.0), 342902, 3, 0.45, 2.0)
+	np_terrain_base   (-4,   20.0, v3f(250), 82341,  5, 0.6,  2.0),
+	np_terrain_higher (20,   16.0, v3f(500), 85039,  5, 0.6,  2.0),
+	np_steepness      (0.85, 0.5,  v3f(125), -932,   5, 0.7,  2.0),
+	np_height_select  (0,    1.0,  v3f(250), 4213,   5, 0.69, 2.0),
+	np_mud            (4,    2.0,  v3f(200), 91013,  3, 0.55, 2.0),
+	np_beach          (0,    1.0,  v3f(250), 59420,  3, 0.50, 2.0),
+	np_biome          (0,    1.0,  v3f(500), 9130,   3, 0.50, 2.0),
+	np_cave           (6,    6.0,  v3f(250), 34329,  3, 0.50, 2.0),
+	np_humidity       (0.5,  0.5,  v3f(500), 72384,  3, 0.50, 2.0),
+	np_trees          (0,    1.0,  v3f(125), 2,      4, 0.66, 2.0),
+	np_apple_trees    (0,    1.0,  v3f(100), 342902, 3, 0.45, 2.0)
 {
 }
 
@@ -505,13 +505,13 @@ void MapgenV6::makeChunk(BlockMakeData *data)
 
 	// Area of central chunk
 	node_min = blockpos_min * MAP_BLOCKSIZE;
-	node_max = (blockpos_max + v3s16(1, 1, 1)) * MAP_BLOCKSIZE - v3s16(1, 1, 1);
+	node_max = (blockpos_max + 1) * MAP_BLOCKSIZE - 1;
 
 	// Full allocated area
-	full_node_min = (blockpos_min - 1) * MAP_BLOCKSIZE;
-	full_node_max = (blockpos_max + 2) * MAP_BLOCKSIZE - v3s16(1, 1, 1);
+	full_node_min = node_min - MAP_BLOCKSIZE;
+	full_node_max = node_max + MAP_BLOCKSIZE;
 
-	central_area_size = node_max - node_min + v3s16(1, 1, 1);
+	central_area_size = node_max - node_min + 1;
 	assert(central_area_size.X == central_area_size.Z);
 
 	// Create a block-specific seed
@@ -574,7 +574,7 @@ void MapgenV6::makeChunk(BlockMakeData *data)
 			dp.large_room_chance = (ps.range(1, 4) == 1) ? 1 : 0;
 
 			dp.np_alt_wall
-				= NoiseParams(-0.4, 1.0, v3f(40.0, 40.0, 40.0), 32474, 6, 1.1, 2.0);
+				= NoiseParams(-0.4, 1.0, v3f(40), 32474, 6, 1.1, 2.0);
 
 			if ((spflags & MGV6_TEMPLES) &&
 					getBiome(0, v2s16(node_min.X, node_min.Z)) == BT_DESERT) {
@@ -628,9 +628,7 @@ void MapgenV6::makeChunk(BlockMakeData *data)
 
 	// Calculate lighting
 	if (flags & MG_LIGHT)
-		calcLighting(node_min - v3s16(1, 1, 1) * MAP_BLOCKSIZE,
-			node_max + v3s16(1, 0, 1) * MAP_BLOCKSIZE,
-			full_node_min, full_node_max);
+		calcLighting(node_min - MAP_BLOCKSIZE, node_max + v3s16(1, 0, 1) * MAP_BLOCKSIZE, full_node_min, full_node_max);
 
 	this->generating = false;
 }

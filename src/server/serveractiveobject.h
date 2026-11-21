@@ -233,7 +233,7 @@ public:
 		The block from which the object was loaded from, and in which
 		a copy of the static data resides.
 	*/
-	v3s16 m_static_block = v3s16(1337,1337,1337);
+	v3s16 m_static_block = v3s16(1337);
 
 	// Names of players to whom the object is to be sent, not considering parents.
 	using Observers = std::optional<std::unordered_set<std::string>>;

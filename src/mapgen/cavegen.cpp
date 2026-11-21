@@ -12,7 +12,7 @@
 #include "cavegen.h"
 
 // TODO Remove this. Cave liquids are now defined and located using biome definitions
-static NoiseParams nparams_caveliquids(0, 1, v3f(150.0, 150.0, 150.0), 776, 3, 0.6, 2.0);
+static NoiseParams nparams_caveliquids(0, 1, v3f(150), 776, 3, 0.6, 2.0);
 
 
 ////
@@ -326,7 +326,7 @@ void CavesRandomWalk::makeCave(MMVManip *vm, v3s16 nmin, v3s16 nmax,
 	// If defined liquid is "air", disable 'flooded' to avoid placing "air".
 	use_biome_liquid = false;
 	if (flooded && bmgn) {
-		v3s16 midp = node_min + (node_max - node_min) / v3s16(2, 2, 2);
+		v3s16 midp = node_min + (node_max - node_min) / v3s16(2);
 		Biome *biome = (Biome *)bmgn->getBiomeAtPoint(midp);
 		if (biome->c_cave_liquid[0] != CONTENT_IGNORE) {
 			use_biome_liquid = true;
@@ -354,10 +354,10 @@ void CavesRandomWalk::makeCave(MMVManip *vm, v3s16 nmin, v3s16 nmax,
 
 	large_cave_is_flat = (ps->range(0, 1) == 0);
 
-	main_direction = v3f(0, 0, 0);
+	main_direction = v3f();
 
 	// Allowed route area size in nodes
-	ar = node_max - node_min + v3s16(1, 1, 1);
+	ar = node_max - node_min + 1;
 	// Area starting point in nodes
 	of = node_min;
 
@@ -366,8 +366,8 @@ void CavesRandomWalk::makeCave(MMVManip *vm, v3s16 nmin, v3s16 nmax,
 	// 'insure' is needed to avoid many 'out of voxelmanip' cave nodes.
 	const s16 insure = 2;
 	s16 more = MYMAX(MAP_BLOCKSIZE - max_tunnel_diameter / 2 - insure, 1);
-	ar += v3s16(1, 1, 1) * more * 2;
-	of -= v3s16(1, 1, 1) * more;
+	ar += more * 2;
+	of -= more;
 
 	route_y_min = 0;
 	// Allow half a diameter + 7 over stone surface
@@ -669,10 +669,10 @@ void CavesV6::makeCave(MMVManip *vm, v3s16 nmin, v3s16 nmax,
 	}
 	large_cave_is_flat = (ps->range(0, 1) == 0);
 
-	main_direction = v3f(0, 0, 0);
+	main_direction = v3f();
 
 	// Allowed route area size in nodes
-	ar = node_max - node_min + v3s16(1, 1, 1);
+	ar = node_max - node_min + 1;
 	// Area starting point in nodes
 	of = node_min;
 

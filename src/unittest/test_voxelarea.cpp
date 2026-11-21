@@ -112,7 +112,7 @@ void TestVoxelArea::test_extent()
 	UASSERT(v1.getExtent() == v3s32(1191, 995, 1459));
 
 	VoxelArea v2(v3s16(32493, -32507, 32752), v3s16(32508, -32492, 32767));
-	UASSERT(v2.getExtent() == v3s32(16, 16, 16));
+	UASSERT(v2.getExtent() == v3s32(16));
 
 	// side length bigger than S16_MAX
 	VoxelArea v3({-20000, 12, 34}, {20000, 12, 34});
@@ -144,7 +144,7 @@ void TestVoxelArea::test_contains_voxelarea()
 	VoxelArea v1(v3s16(-1337, -9547, -789), v3s16(-147, 750, 669));
 	UASSERTEQ(bool, v1.contains(VoxelArea(v3s16(-200, 10, 10), v3s16(-150, 10, 10))),
 			true);
-	UASSERTEQ(bool, v1.contains(VoxelArea(v3s16(-2550, 10, 10), v3s16(10, 10, 10))),
+	UASSERTEQ(bool, v1.contains(VoxelArea(v3s16(-2550, 10, 10), v3s16(10))),
 			false);
 	UASSERTEQ(bool, v1.contains(VoxelArea(v3s16(-10, 10, 10), v3s16(3500, 10, 10))),
 			false);
@@ -170,8 +170,8 @@ void TestVoxelArea::test_contains_point()
 
 	VoxelArea v2;
 	UASSERTEQ(bool, v2.contains(v3s16(-200, 10, 10)), false);
-	UASSERTEQ(bool, v2.contains(v3s16(0, 0, 0)), false);
-	UASSERTEQ(bool, v2.contains(v3s16(1, 1, 1)), false);
+	UASSERTEQ(bool, v2.contains(v3s16()), false);
+	UASSERTEQ(bool, v2.contains(v3s16(1)), false);
 	UASSERTEQ(bool, v2.contains(v3s16(-1, -1, -1)), false);
 }
 
@@ -184,7 +184,7 @@ void TestVoxelArea::test_contains_i()
 	UASSERTEQ(bool, v1.contains(v1.getVolume() + 1), false);
 	UASSERTEQ(bool, v1.contains(-1), false)
 
-	VoxelArea v2(v3s16(10, 10, 10), v3s16(30, 30, 30));
+	VoxelArea v2(v3s16(10), v3s16(30));
 	UASSERTEQ(bool, v2.contains(10), true);
 	UASSERTEQ(bool, v2.contains(0), true);
 	UASSERTEQ(bool, v2.contains(-1), false);
@@ -202,12 +202,12 @@ void TestVoxelArea::test_equal()
 	UASSERTEQ(bool, v1 == VoxelArea(v3s16(-1337, -9547, -789), v3s16(-147, 750, 669)),
 			true);
 	UASSERTEQ(bool, v1 == VoxelArea(v3s16(-147, 0, 0), v3s16(0, 750, 669)), false);
-	UASSERTEQ(bool, v1 == VoxelArea(v3s16(0, 0, 0), v3s16(0, 0, 0)), false);
+	UASSERTEQ(bool, v1 == VoxelArea(v3s16(), v3s16()), false);
 }
 
 void TestVoxelArea::test_plus()
 {
-	VoxelArea v1(v3s16(-10, -10, -10), v3s16(100, 100, 100));
+	VoxelArea v1(v3s16(-10), v3s16(100));
 	UASSERT(v1 + v3s16(10, 0, 0) ==
 			VoxelArea(v3s16(0, -10, -10), v3s16(110, 100, 100)));
 	UASSERT(v1 + v3s16(10, -10, 0) ==
@@ -218,7 +218,7 @@ void TestVoxelArea::test_plus()
 
 void TestVoxelArea::test_minor()
 {
-	VoxelArea v1(v3s16(-10, -10, -10), v3s16(100, 100, 100));
+	VoxelArea v1(v3s16(-10), v3s16(100));
 	UASSERT(v1 - v3s16(10, 0, 0) ==
 			VoxelArea(v3s16(-20, -10, -10), v3s16(90, 100, 100)));
 	UASSERT(v1 - v3s16(10, -10, 0) ==
@@ -229,17 +229,17 @@ void TestVoxelArea::test_minor()
 
 void TestVoxelArea::test_diff()
 {
-	const VoxelArea v1({-10, -10, -10}, {100, 100, 100});
+	const VoxelArea v1(v3s16(-10), v3s16(100));
 	std::vector<VoxelArea> res;
 
-	v1.diff(VoxelArea({-10, -10, -10}, {99, 100, 100}), res);
+	v1.diff(VoxelArea(v3s16(-10), {99, 100, 100}), res);
 	UASSERTEQ(auto, res.size(), 1U);
-	UASSERT(res[0] == VoxelArea({100, -10, -10}, {100, 100, 100}));
+	UASSERT(res[0] == VoxelArea({100, -10, -10}, v3s16(100)));
 	res.clear();
 
-	v1.diff(VoxelArea({-10, -10, -10}, {100, 50, 80}), res);
+	v1.diff(VoxelArea(v3s16(-10), {100, 50, 80}), res);
 	UASSERTEQ(auto, res.size(), 2U);
-	UASSERT(res[0] == VoxelArea({-10, -10, 81}, {100, 100, 100}));
+	UASSERT(res[0] == VoxelArea({-10, -10, 81}, v3s16(100)));
 	UASSERT(res[1] == VoxelArea({-10, 51, -10}, {100, 100, 80}));
 	res.clear();
 
@@ -253,9 +253,9 @@ void TestVoxelArea::test_diff()
 
 void TestVoxelArea::test_intersect()
 {
-	VoxelArea v1({-10, -10, -10}, {10, 10, 10});
+	VoxelArea v1(v3s16(-10), v3s16(10));
 	VoxelArea v2({1, 2, 3}, {4, 5, 6});
-	VoxelArea v3({11, 11, 11}, {11, 11, 11});
+	VoxelArea v3(v3s16(11), v3s16(11));
 	VoxelArea v4({-11, -2, -10}, {10, 2, 11});
 	UASSERT(v2.intersect(v1) == v2);
 	UASSERT(!v2.intersect(v1).hasEmptyExtent());
