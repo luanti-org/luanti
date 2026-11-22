@@ -1844,7 +1844,7 @@ void GenericCAO::processMessage(const std::string &data)
 		}
 		// Read new values
 		props.position.vector = readV3F32(is);
-		props.rotation.next = core::quaternion(readV3F32(is) * core::DEGTORAD);
+		props.rotation.next = core::quaternion::eulerXYZ(readV3F32(is) * core::DEGTORAD);
 
 		if (!canRead(is)) {
 			// For PROTOCOL_VERSION < 44

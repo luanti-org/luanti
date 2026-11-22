@@ -10,6 +10,7 @@
 #include <cmath>
 #include "client/renderingengine.h"
 #include "client/content_cao.h"
+#include "quaternion.h"
 #include "settings.h"
 #include "wieldmesh.h"
 #include "noise.h"         // easeCurve
@@ -529,11 +530,11 @@ void Camera::update(LocalPlayer* player, f32 frametime, f32 tool_reload_ratio)
 		wield_position.Z += 25 * 0.5;
 
 		// Euler angles are PURE EVIL, so why not use quaternions?
-		core::quaternion quat_begin(wield_rotation * core::DEGTORAD);
-		core::quaternion quat_end(v3f(80, 30, 100) * core::DEGTORAD);
+		const auto quat_begin = core::quaternion::eulerXYZ(wield_rotation * core::DEGTORAD);
+		const auto quat_end = core::quaternion::eulerXYZ(v3f(80, 30, 100) * core::DEGTORAD);
 		core::quaternion quat_slerp;
 		quat_slerp.slerp(quat_begin, quat_end, std::sin(digfrac * M_PI));
-		quat_slerp.toEuler(wield_rotation);
+		quat_slerp.toEulerXYZ(wield_rotation);
 		wield_rotation *= core::RADTODEG;
 	} else {
 		f32 bobfrac = my_modf(m_view_bobbing_anim);

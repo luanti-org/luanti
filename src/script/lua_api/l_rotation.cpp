@@ -71,7 +71,7 @@ int LuaRotation::l_fixed_axis_angle(lua_State *L)
 	f32 angle = readParam<f32>(L, 1);
 	v3f euler_angles;
 	euler_angles.*C = angle;
-	create(L, core::quaternion(euler_angles));
+	create(L, core::quaternion::eulerXYZ(euler_angles));
 	return 1;
 }
 
@@ -80,9 +80,8 @@ int LuaRotation::l_euler_xyz(lua_State *L)
 	f32 pitch = readParam<f32>(L, 1);
 	f32 yaw = readParam<f32>(L, 2);
 	f32 roll = readParam<f32>(L, 3);
-	core::quaternion quaternion;
-	quaternion.set(pitch, yaw, roll);
-	create(L, quaternion);
+	const auto q = core::quaternion::eulerXYZ(pitch, yaw, roll);
+	create(L, q);
 	return 1;
 }
 
@@ -132,7 +131,7 @@ int LuaRotation::l_to_euler_xyz(lua_State *L)
 {
 	const auto &q = check(L, 1);
 	core::vector3df euler;
-	q.toEuler(euler);
+	q.toEulerXYZ(euler);
 	lua_pushnumber(L, euler.X);
 	lua_pushnumber(L, euler.Y);
 	lua_pushnumber(L, euler.Z);

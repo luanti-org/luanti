@@ -67,7 +67,7 @@ public:
 
 	void setRotation(const core::vector3df &rotation) override
 	{
-		Rotation = core::quaternion(rotation * core::DEGTORAD).makeInverse();
+		Rotation = core::quaternion::eulerXYZ(rotation * core::DEGTORAD).makeInverse();
 	}
 
 	core::vector3df getRotation() const override
@@ -75,7 +75,7 @@ public:
 		auto rot = Rotation;
 		rot.makeInverse();
 		core::vector3df euler;
-		rot.toEuler(euler);
+		rot.toEulerXYZ(euler);
 		return euler * core::RADTODEG;
 	}
 

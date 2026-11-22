@@ -20,8 +20,8 @@ core::quaternion UnitSAO::getTotalRotation() const
 	core::matrix4 rot;
 	setPitchYawRoll(rot, -m_rotation);
 	// First rotate by m_rotation, then rotate by the automatic rotate yaw
-	return core::quaternion(v3f(0, -m_rotation_add_yaw * core::DEGTORAD, 0))
-			* core::quaternion(rot.getRotationRadians());
+	return core::quaternion::eulerXYZ(0, -m_rotation_add_yaw * core::DEGTORAD, 0)
+			* core::quaternion::eulerXYZ(rot.getRotationRadians());
 }
 
 ServerActiveObject *UnitSAO::getParent() const
@@ -356,7 +356,7 @@ std::string UnitSAO::generateUpdateBoneOverrideCommand(
 	os << serializeString16(bone);
 	writeV3F32(os, props.position.vector);
 	v3f euler_rot;
-	props.rotation.next.toEuler(euler_rot);
+	props.rotation.next.toEulerXYZ(euler_rot);
 	writeV3F32(os, euler_rot * core::RADTODEG);
 	writeV3F32(os, props.scale.vector);
 	writeF32(os, props.position.interp_duration);
