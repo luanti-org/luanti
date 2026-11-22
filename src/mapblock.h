@@ -281,12 +281,12 @@ public:
 		setNodeNoCheck(p.X, p.Y, p.Z, n);
 	}
 
-	// Copies data to VoxelManipulator to getPosRelative()
+	// Copies data to VoxelManipulator to the corresponding absolute coordinates.
+	// The data outside the VoxelManipulator's area is ignored.
 	void copyTo(VoxelManipulator &dst);
-	// Copy only nodes inside the destination area.
-	void copyToClipped(VoxelManipulator &dst);
 
-	// Copies data from VoxelManipulator to getPosRelative()
+	// Copies data from VoxelManipulator from the corresponding absolute coordinates.
+	// The VoxelManipulator's area should include the whole mapblock.
 	void copyFrom(const VoxelManipulator &src);
 
 	// Update is air flag.

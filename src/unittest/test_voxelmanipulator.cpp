@@ -200,7 +200,7 @@ void TestVoxelManipulator::testClippedCopy(IGameDef *gamedef)
 		const v3s16 offset(x * step + 4, y * step + 4, z * step + 4);
 		VoxelManipulator vm;
 		vm.addArea({origin + offset, origin + offset + v3s16(step - 1)});
-		block.copyToClipped(vm);
+		block.copyTo(vm);
 		for (s16 dz = 0; dz < step; ++dz)
 		for (s16 dy = 0; dy < step; ++dy)
 		for (s16 dx = 0; dx < step; ++dx) {
