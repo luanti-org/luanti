@@ -59,13 +59,20 @@ jobs:
       - name: Install deps
         run: |
           source ./util/ci/common.sh
-          install_linux_deps libluajit-5.1-dev xvfb imagemagick libgl1-mesa-dri
+          install_linux_deps xvfb imagemagick libgl1-mesa-dri
+
+      # Ubuntu 22.04's LuaJIT is older than Luanti accepts, so build a
+      # current one and link it statically (testers don't need to install it)
+      - name: Build LuaJIT
+        run: ./util/ci/build_luajit.sh
 
       - name: Build
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Release -DRUN_IN_PLACE=1 \
             -DBUILD_SERVER=0 -DBUILD_UNITTESTS=0 -DINSTALL_DEVTEST=1 \
-            -DENABLE_LUAJIT=1 -DREQUIRE_LUAJIT=1
+            -DENABLE_LUAJIT=1 -DREQUIRE_LUAJIT=1 \
+            -DLUA_INCLUDE_DIR=$HOME/LuaJIT/src \
+            -DLUA_LIBRARY=$HOME/LuaJIT/src/libluajit.a
           cmake --build build -j$(nproc)
           cmake --build build --target package
           mkdir -p artifact
@@ -78,7 +85,7 @@ jobs:
 
           Run: bin/luanti
           Needs these system libraries (Debian/Ubuntu package names):
-            libsdl2-2.0-0 libluajit-5.1-2 libfreetype6 libopenal1 libvorbisfile3
+            libsdl2-2.0-0 libfreetype6 libopenal1 libvorbisfile3
             libcurl4 libsqlite3-0 libzstd1 libpng16-16 libjpeg-turbo8 libzip4
 
           The bottom-screen window opens automatically. Settings (minetest.conf):
