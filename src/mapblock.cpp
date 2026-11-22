@@ -210,21 +210,24 @@ std::string MapBlock::getModifiedReasonString()
 	return reason;
 }
 
-
 void MapBlock::copyTo(VoxelManipulator &dst)
 {
-	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
-	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
+	const VoxelArea source(v3s16(0), v3s16(MAP_BLOCKSIZE - 1));
+	const VoxelArea overlap_abs = (source + getPosRelative()).intersect(dst.m_area);
+	if (overlap_abs.hasEmptyExtent())
+		return;
 
-	// Copy from data to VoxelManipulator
-	dst.copyFrom(data, m_is_mono_block, data_area, v3s16(0,0,0),
-			getPosRelative(), data_size);
+	dst.copyFrom(data, m_is_mono_block, source,
+			overlap_abs.MinEdge - getPosRelative(), overlap_abs.MinEdge,
+			overlap_abs.MaxEdge - overlap_abs.MinEdge + v3s16(1));
 }
 
 void MapBlock::copyFrom(const VoxelManipulator &src)
 {
 	v3s16 data_size(MAP_BLOCKSIZE, MAP_BLOCKSIZE, MAP_BLOCKSIZE);
 	VoxelArea data_area(v3s16(0,0,0), data_size - v3s16(1,1,1));
+
+	assert(src.m_area.contains(data_area + getPosRelative()));
 
 	expandNodesIfNeeded();
 	// Copy from VoxelManipulator to data

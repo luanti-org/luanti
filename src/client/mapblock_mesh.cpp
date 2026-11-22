@@ -37,27 +37,25 @@ MeshMakeData::MeshMakeData(const NodeDefManager *ndef,
 	assert(m_side_length > 0);
 }
 
-void MeshMakeData::fillBlockDataBegin(const v3s16 &blockpos)
+void MeshMakeData::fillBlockDataBegin(const v3s16 blockpos)
 {
 	m_blockpos = blockpos;
 
-	v3s16 blockpos_nodes = m_blockpos*MAP_BLOCKSIZE;
+	v3s16 blockpos_nodes = m_blockpos * MAP_BLOCKSIZE;
 
 	m_vmanip.clear();
-	// extra 1 block thick layer around the mesh
-	VoxelArea voxel_area(blockpos_nodes - v3s16(1,1,1) * MAP_BLOCKSIZE,
-			blockpos_nodes + v3s16(1,1,1) * (m_side_length + MAP_BLOCKSIZE) - v3s16(1,1,1));
+	// All drawtypes read one neighboring node in each direction. Rooted
+	// plants additionally sample lighting two nodes above their base.
+	VoxelArea voxel_area(blockpos_nodes - v3s16(1),
+			blockpos_nodes + v3s16(m_side_length, m_side_length + 1, m_side_length));
 	m_vmanip.addArea(voxel_area);
 }
 
 void MeshMakeData::fillSingleNode(MapNode data, MapNode padding)
 {
-	m_blockpos = {0, 0, 0};
+	assert(m_side_length == 1);
 
-	m_vmanip.clear();
-	// area around 0,0,0 so that this positon has neighbors
-	const s16 sz = 3;
-	m_vmanip.addArea({v3s16(-sz), v3s16(sz)});
+	fillBlockDataBegin({0, 0, 0});
 
 	u32 count = m_vmanip.m_area.getVolume();
 	for (u32 i = 0; i < count; i++) {
@@ -71,7 +69,7 @@ void MeshMakeData::fillSingleNode(MapNode data, MapNode padding)
 void MeshMakeData::setCrack(int crack_level, v3s16 crack_pos)
 {
 	if (crack_level >= 0)
-		m_crack_pos_relative = crack_pos - m_blockpos*MAP_BLOCKSIZE;
+		m_crack_pos_relative = crack_pos - m_blockpos * MAP_BLOCKSIZE;
 }
 
 /*

@@ -38,7 +38,7 @@ struct MeshMakeData
 	// base pos of meshgen area, in blocks
 	v3s16 m_blockpos = v3s16(-1337,-1337,-1337);
 	// size of meshgen area, in nodes.
-	// vmanip will have at least an extra 1 node onion layer.
+	// vmanip will have an extra 1 node onion layer, plus a second node above for rooted plants.
 	// area is expected to fit into mesh grid cell.
 	u16 m_side_length;
 	// vertex positions will be relative to this grid
@@ -59,7 +59,7 @@ struct MeshMakeData
 	/*
 		Copy block data manually (to allow optimizations by the caller)
 	*/
-	void fillBlockDataBegin(const v3s16 &blockpos);
+	void fillBlockDataBegin(const v3s16 blockpos);
 
 	/*
 		Prepare block data for rendering a single node located at (0,0,0).
