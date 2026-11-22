@@ -103,12 +103,12 @@ struct BoneOverride
 			progress = 1.0f;
 		rot.slerp(rotation.previous, rotation.next, progress);
 		if (!rotation.absolute) {
-			core::quaternion anim_rot(anim_rot_euler * core::DEGTORAD);
+			const auto anim_rot = core::quaternion::eulerXYZ(anim_rot_euler * core::DEGTORAD);
 			rot = rot * anim_rot; // first rotate by anim. bone rot., then rot.
 		}
 
 		v3f rot_euler;
-		rot.toEuler(rot_euler);
+		rot.toEulerXYZ(rot_euler);
 		return rot_euler * core::RADTODEG;
 	}
 

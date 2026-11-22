@@ -66,7 +66,7 @@ SECTION("euler-to-quaternion conversion") {
 	test_euler_angles_rad([](v3f rad) {
 		core::matrix4 rot, rot_quat;
 		rot.setRotationRadians(rad);
-		quaternion q(rad);
+		const auto q = core::quaternion::eulerXYZ(rad);
 		q.getMatrix(rot_quat);
 		// Check equivalence of the rotations via matrices
 		CHECK(matrix_equals(rot, rot_quat));
@@ -77,9 +77,9 @@ SECTION("euler-to-quaternion conversion") {
 // this essentially primarily tests the quaternion to euler conversion
 SECTION("quaternion-euler roundtrip") {
 	test_euler_angles_rad([](v3f rad) {
-		quaternion q(rad);
+		const auto q = core::quaternion::eulerXYZ(rad);
 		v3f rad2;
-		q.toEuler(rad2);
+		q.toEulerXYZ(rad2);
 		CHECK(euler_angles_equiv(rad, rad2));
 	});
 }

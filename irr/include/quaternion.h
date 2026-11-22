@@ -30,23 +30,23 @@ public:
 	constexpr quaternion(f32 x, f32 y, f32 z, f32 w) :
 			X(x), Y(y), Z(z), W(w) {}
 
-	//! Constructor which converts Euler angles to a quaternion.
-	//! @note Euler angles are in radians, left-handed, X-Y-Z rotation order.
-	quaternion(f32 pitch, f32 yaw, f32 roll);
-
-	//! Constructor which converts Euler angles (radians) to a quaternion
-	quaternion(const vector3df &vec);
-
 	//! Constructor which converts a matrix to a quaternion
 	quaternion(const matrix4 &mat);
+
+	//! Constructor which converts Euler angles to a quaternion.
+	//! @note Euler angles are in radians, left-handed, X-Y-Z rotation order.
+	static quaternion eulerXYZ(f32 pitch, f32 yaw, f32 roll);
+
+	// TODO get rid of this, introduce proper EulerAngles struct(s).
+	static quaternion eulerXYZ(vector3df v)
+	{ return eulerXYZ(v.X, v.Y, v.Z); }
 
 	//! Constructor which converts Euler angles to a quaternion.
 	//! @note Euler angles are in radians, left-handed, Z-X-Y rotation order.
 	static quaternion eulerZXY(f32 pitch, f32 yaw, f32 roll)
 	{
-		core::quaternion z, xy;
-		z.set(0, 0, roll);
-		xy.set(pitch, yaw, 0);
+		const auto z = quaternion::eulerXYZ(0, 0, roll);
+		const auto xy = quaternion::eulerXYZ(pitch, yaw, 0);
 		return z * xy;
 	}
 
@@ -120,12 +120,6 @@ public:
 
 	//! Sets new quaternion
 	inline quaternion &set(f32 x, f32 y, f32 z, f32 w);
-
-	//! Sets new quaternion based on Euler angles (radians)
-	inline quaternion &set(f32 x, f32 y, f32 z);
-
-	//! Sets new quaternion based on Euler angles (radians)
-	inline quaternion &set(const core::vector3df &vec);
 
 	//! Sets new quaternion from other quaternion
 	inline quaternion &set(const core::quaternion &quat);
@@ -229,7 +223,7 @@ public:
 
 	//! Output this quaternion to an Euler angle.
 	//! X-Y-Z rotation order, left-handed, radians.
-	void toEuler(vector3df &euler) const;
+	void toEulerXYZ(vector3df &euler) const;
 
 	//! Set quaternion to identity
 	quaternion &makeIdentity();
@@ -242,15 +236,33 @@ public:
 };
 
 // Constructor which converts Euler angles to a quaternion
-inline quaternion::quaternion(f32 x, f32 y, f32 z)
+inline quaternion quaternion::eulerXYZ(f32 pitch, f32 yaw, f32 roll)
 {
-	set(x, y, z);
-}
+	f64 angle;
 
-// Constructor which converts Euler angles to a quaternion
-inline quaternion::quaternion(const vector3df &vec)
-{
-	set(vec.X, vec.Y, vec.Z);
+	angle = pitch * 0.5;
+	const f64 sr = sin(angle);
+	const f64 cr = cos(angle);
+
+	angle = yaw * 0.5;
+	const f64 sp = sin(angle);
+	const f64 cp = cos(angle);
+
+	angle = roll * 0.5;
+	const f64 sy = sin(angle);
+	const f64 cy = cos(angle);
+
+	const f64 cpcy = cp * cy;
+	const f64 spcy = sp * cy;
+	const f64 cpsy = cp * sy;
+	const f64 spsy = sp * sy;
+
+	return quaternion(
+		(f32)(sr * cpcy - cr * spsy),
+		(f32)(cr * spcy + sr * cpsy),
+		(f32)(cr * cpsy - sr * spcy),
+		(f32)(cr * cpcy + sr * spsy)
+	).normalize();
 }
 
 // Constructor which converts a matrix to a quaternion
@@ -544,42 +556,6 @@ inline quaternion &quaternion::set(f32 x, f32 y, f32 z, f32 w)
 	return *this;
 }
 
-// sets new quaternion based on Euler angles
-inline quaternion &quaternion::set(f32 x, f32 y, f32 z)
-{
-	f64 angle;
-
-	angle = x * 0.5;
-	const f64 sr = sin(angle);
-	const f64 cr = cos(angle);
-
-	angle = y * 0.5;
-	const f64 sp = sin(angle);
-	const f64 cp = cos(angle);
-
-	angle = z * 0.5;
-	const f64 sy = sin(angle);
-	const f64 cy = cos(angle);
-
-	const f64 cpcy = cp * cy;
-	const f64 spcy = sp * cy;
-	const f64 cpsy = cp * sy;
-	const f64 spsy = sp * sy;
-
-	X = (f32)(sr * cpcy - cr * spsy);
-	Y = (f32)(cr * spcy + sr * cpsy);
-	Z = (f32)(cr * cpsy - sr * spcy);
-	W = (f32)(cr * cpcy + sr * spsy);
-
-	return normalize();
-}
-
-// sets new quaternion based on Euler angles
-inline quaternion &quaternion::set(const core::vector3df &vec)
-{
-	return set(vec.X, vec.Y, vec.Z);
-}
-
 // sets new quaternion based on other quaternion
 inline quaternion &quaternion::set(const core::quaternion &quat)
 {
@@ -674,7 +650,7 @@ inline void quaternion::toAngleAxis(f32 &angle, core::vector3df &axis) const
 	}
 }
 
-inline void quaternion::toEuler(vector3df &euler) const
+inline void quaternion::toEulerXYZ(vector3df &euler) const
 {
 	const f64 sqw = W * W;
 	const f64 sqx = X * X;
