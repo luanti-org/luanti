@@ -12,6 +12,7 @@
 #include "hud_element.h"
 #include "log_internal.h"
 #include "client/renderingengine.h"
+#include "client/secondaryscreen.h"
 
 static const std::array input_settings = {
 	"keyboard_camera_speed",
@@ -260,10 +261,27 @@ bool MyEventReceiver::OnEvent(const SEvent &event)
 	else if (event.EventType == EET_TOUCH_INPUT_EVENT)
 		last_pointer_type = PointerType::Touch;
 
+	// Dual screen: is the active menu shown on the bottom screen?
+	SecondaryScreen *secondary = RenderingEngine::getSecondaryScreen();
+	const bool menu_on_secondary = secondary && secondary->hostsTopMenu();
+	const bool is_pointer = event.EventType == EET_MOUSE_INPUT_EVENT ||
+			event.EventType == EET_TOUCH_INPUT_EVENT;
+
+	// Clicks/taps on the main window don't belong to a bottom-screen menu
+	// (its coordinates are those of the other window)
+	if (menu_on_secondary && is_pointer)
+		return true;
+
 	bool ret = g_menumgr.runPreprocessEvent(event);
 	if (isMenuActive()) {
 		if (g_touchcontrols)
 			g_touchcontrols->setVisible(false);
+		// Keyboard input for a bottom-screen menu goes to that screen's GUI
+		if (menu_on_secondary && !ret && (event.EventType == EET_KEY_INPUT_EVENT ||
+				event.EventType == EET_STRING_INPUT_EVENT)) {
+			secondary->postToGUI(event);
+			return true;
+		}
 		// Let the menu handle events, if one is active.
 		return ret;
 	}

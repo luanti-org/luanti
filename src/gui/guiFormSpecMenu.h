@@ -194,10 +194,12 @@ public:
 
 	~GUIFormSpecMenu();
 
+	// parent: element to attach the menu to (must belong to guienv);
+	// nullptr means the global `guiroot` of the main window.
 	static void create(GUIFormSpecMenu *&cur_formspec, Client *client,
 		gui::IGUIEnvironment *guienv, IFormSource *fs_src,
 		TextDest *txt_dest, const std::string &formspecPrepend,
-		ISoundManager *sound_manager);
+		ISoundManager *sound_manager, gui::IGUIElement *parent = nullptr);
 
 	void setFormSpec(const std::string &formspec_string,
 			const InventoryLocation &current_inventory_location)

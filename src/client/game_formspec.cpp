@@ -3,6 +3,7 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "game_formspec.h"
+#include "secondaryscreen.h"
 
 #include "gettext.h"
 #include "nodemetadata.h"
@@ -232,6 +233,17 @@ bool GameFormSpec::handleEmptyFormspec(const std::string &formspec, const std::s
 	return false;
 }
 
+std::pair<gui::IGUIEnvironment *, gui::IGUIElement *> GameFormSpec::worldFormspecTarget()
+{
+	// Dual screen: formspecs about the world (inventory, nodes, mods) go to
+	// the bottom screen. Pause/death menus keep using the main window.
+	if (SecondaryScreen *screen = m_rendering_engine->get_secondary_screen()) {
+		gui::IGUIEnvironment *env = screen->getGUIEnvironment();
+		return {env, env->getRootGUIElement()};
+	}
+	return {m_rendering_engine->get_gui_env(), guiroot};
+}
+
 void GameFormSpec::showFormSpec(const std::string &formspec, const std::string &formname)
 {
 	if (handleEmptyFormspec(formspec, formname))
@@ -243,9 +255,10 @@ void GameFormSpec::showFormSpec(const std::string &formspec, const std::string &
 		new TextDestPlayerInventory(m_client, formname);
 
 	// Replace the currently open formspec
-	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
+	auto target = worldFormspecTarget();
+	GUIFormSpecMenu::create(m_formspec, m_client, target.first,
 		fs_src, txt_dst, m_client->getFormspecPrepend(),
-		m_client->getSoundManager());
+		m_client->getSoundManager(), target.second);
 	m_formspec->setName(formname);
 }
 
@@ -258,9 +271,10 @@ void GameFormSpec::showCSMFormSpec(const std::string &formspec, const std::strin
 	LocalScriptingFormspecHandler *txt_dst =
 		new LocalScriptingFormspecHandler(formname, m_client->getScript());
 
-	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
+	auto target = worldFormspecTarget();
+	GUIFormSpecMenu::create(m_formspec, m_client, target.first,
 			fs_src, txt_dst, m_client->getFormspecPrepend(),
-			m_client->getSoundManager());
+			m_client->getSoundManager(), target.second);
 	m_formspec->setName(formname);
 }
 
@@ -302,9 +316,10 @@ void GameFormSpec::showNodeFormspec(const std::string &formspec, const v3s16 &no
 		&m_client->getEnv().getClientMap(), nodepos);
 	TextDest *txt_dst = new TextDestNodeMetadata(nodepos, m_client);
 
-	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
+	auto target = worldFormspecTarget();
+	GUIFormSpecMenu::create(m_formspec, m_client, target.first,
 		fs_src, txt_dst, m_client->getFormspecPrepend(),
-		m_client->getSoundManager());
+		m_client->getSoundManager(), target.second);
 
 	m_formspec->setFormSpec(formspec, inventoryloc);
 }
@@ -345,9 +360,10 @@ void GameFormSpec::showPlayerInventory(const std::string *fs_override)
 
 	TextDest *txt_dst = new TextDestPlayerInventory(m_client);
 
-	GUIFormSpecMenu::create(m_formspec, m_client, m_rendering_engine->get_gui_env(),
+	auto target = worldFormspecTarget();
+	GUIFormSpecMenu::create(m_formspec, m_client, target.first,
 		fs_src.get(), txt_dst, m_client->getFormspecPrepend(),
-		m_client->getSoundManager());
+		m_client->getSoundManager(), target.second);
 
 	m_formspec->setFormSpec(fs_src->getForm(), inventoryloc);
 	fs_src.release(); // owned by GUIFormSpecMenu
@@ -525,8 +541,8 @@ void GameFormSpec::update()
 		}
 	}
 
-	if (isMenuActive())
-		guiroot->bringToFront(m_formspec);
+	if (isMenuActive() && m_formspec->getParent())
+		m_formspec->getParent()->bringToFront(m_formspec);
 }
 
 void GameFormSpec::disableDebugView()

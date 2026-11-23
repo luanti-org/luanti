@@ -207,6 +207,12 @@ public:
 	//! Returns the secondary window, or nullptr if none is open.
 	virtual ISecondaryWindow *getSecondaryWindow() { return nullptr; }
 
+	//! Creates an additional, independent GUI environment that uses this
+	//! device's video driver (e.g. for a secondary window).
+	/** The caller owns it and must drop() it. Events are not delivered to it
+	automatically. */
+	virtual gui::IGUIEnvironment *createGUIEnvironment() { return nullptr; }
+
 	//! Closes the secondary window, if one is open.
 	virtual void destroySecondaryWindow() {}
 

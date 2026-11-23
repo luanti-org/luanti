@@ -633,6 +633,12 @@ public:
 		return false;
 	}
 
+	//! Returns the GUI environment this element belongs to
+	IGUIEnvironment *getEnvironment() const
+	{
+		return Environment;
+	}
+
 	//! Returns the type of the gui element.
 	/** This is needed for the .NET wrapper but will be used
 	later for serializing and deserializing.

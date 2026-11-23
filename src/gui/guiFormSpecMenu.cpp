@@ -148,8 +148,19 @@ GUIFormSpecMenu::~GUIFormSpecMenu()
 
 void GUIFormSpecMenu::create(GUIFormSpecMenu *&cur_formspec, Client *client,
 	gui::IGUIEnvironment *guienv, IFormSource *fs_src,
-	TextDest *txt_dest, const std::string &formspecPrepend, ISoundManager *sound_manager)
+	TextDest *txt_dest, const std::string &formspecPrepend, ISoundManager *sound_manager,
+	gui::IGUIElement *parent)
 {
+	if (!parent)
+		parent = guiroot;
+
+	if (cur_formspec && cur_formspec->getReferenceCount() > 1 &&
+			cur_formspec->getParent() != parent) {
+		// The open menu is on the other screen (dual screen): close it and
+		// open a new one where it was asked for.
+		cur_formspec->quitMenu();
+	}
+
 	if (cur_formspec && cur_formspec->getReferenceCount() == 1) {
 		/*
 			Why reference count == 1? Reason:
@@ -164,7 +175,7 @@ void GUIFormSpecMenu::create(GUIFormSpecMenu *&cur_formspec, Client *client,
 	}
 
 	if (cur_formspec == nullptr) {
-		cur_formspec = new GUIFormSpecMenu(guiroot, -1, &g_menumgr,
+		cur_formspec = new GUIFormSpecMenu(parent, -1, &g_menumgr,
 			client, guienv, client->getTextureSource(), sound_manager, fs_src,
 			txt_dest, formspecPrepend);
 
@@ -3353,7 +3364,7 @@ void GUIFormSpecMenu::regenerateGui(v2u32 screensize)
 	if (mydata.explicit_size) {
 		// compute scaling for specified form size
 		if (m_lock) {
-			v2u32 current_screensize = RenderingEngine::get_video_driver()->getScreenSize();
+			v2u32 current_screensize = Environment->getVideoDriver()->getScreenSize();
 			v2u32 delta = current_screensize - m_lockscreensize;
 
 			if (current_screensize.Y > m_lockscreensize.Y)

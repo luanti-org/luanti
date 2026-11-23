@@ -101,6 +101,8 @@ public:
 	}
 
 	PointerType getLastPointerType() { return last_pointer_type; }
+	// For input that doesn't pass through this receiver (dual screen)
+	void setLastPointerType(PointerType type) { last_pointer_type = type; }
 
 private:
 	void listenForKey(KeyPress keyCode, GameKeyType action)

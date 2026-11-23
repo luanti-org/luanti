@@ -312,6 +312,8 @@ SDL_Gamepad *CIrrDeviceSDL::getRecentGamepad() const
 void CIrrDeviceSDL::resetReceiveTextInputEvents()
 {
 	gui::IGUIElement *elem = GUIEnvironment->getFocus();
+	if (!(elem && elem->acceptsIME()) && Secondary && Secondary->GUIEnv)
+		elem = Secondary->GUIEnv->getFocus(); // e.g. a formspec field on the second screen
 	if (elem && elem->acceptsIME()) {
 		// IBus seems to have an issue where dead keys and compose keys do not
 		// work (specifically, the individual characters in the sequence are
@@ -381,6 +383,12 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters &param) :
 		// highdpi support on Windows
 		SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING, "1");
 #endif // SDL3: Removed hint
+
+		// Dual screen: the click that moves focus to the other window must
+		// still count as a click
+#ifdef SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH
+		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+#endif
 
 		// Luanti has its own code to synthesize mouse events from touch events,
 		// so we prevent SDL from doing it.

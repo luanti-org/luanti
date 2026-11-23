@@ -7,6 +7,11 @@
 #include "IEventReceiver.h"
 #include "SExposedVideoData.h"
 
+namespace gui
+{
+class IGUIEnvironment;
+}
+
 //! A second native window/surface that shares the device's rendering context.
 /** Intended for dual-screen setups: the device's main window shows the 3D
 world, this one shows utility UI.
@@ -42,4 +47,8 @@ public:
 
 	//! Pass this to IVideoDriver::beginScene() to render into this window
 	virtual const video::SExposedVideoData &getVideoData() const = 0;
+
+	//! GUI environment shown in this window, if any. Not owned.
+	//! The device uses it to enable text input when an edit box there has focus.
+	virtual void setGUIEnvironment(gui::IGUIEnvironment *env) = 0;
 };

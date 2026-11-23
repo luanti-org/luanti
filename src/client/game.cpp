@@ -3,6 +3,7 @@
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
 #include "game_internal.h"
+#include "client/secondaryscreen.h"
 
 #include <cmath>
 #include <csignal>
@@ -393,6 +394,10 @@ Game::Game() :
 
 Game::~Game()
 {
+	// The bottom screen must not use the client/HUD once they are deleted
+	if (m_rendering_engine && m_rendering_engine->get_secondary_screen())
+		m_rendering_engine->get_secondary_screen()->setGame(nullptr, nullptr);
+
 	delete client;
 	soundmaker.reset();
 	sound_manager.reset();
@@ -924,9 +929,19 @@ bool Game::createClient(const GameStartData &start_data)
 	return true;
 }
 
+bool Game::inventoryRequestedOnSecondary()
+{
+	SecondaryScreen *screen = m_rendering_engine->get_secondary_screen();
+	return screen && screen->consumeInventoryRequest();
+}
+
 bool Game::shouldShowTouchControls()
 {
 	if (!device->supportsTouchEvents())
+		return false;
+
+	// Dual screen: the top screen is for the game world and physical controls
+	if (m_rendering_engine->get_secondary_screen())
 		return false;
 
 	const std::string &touch_controls = g_settings->get("touch_controls");
@@ -1433,7 +1448,7 @@ void Game::processKeyInput()
 	} else if (wasKeyDown(KeyType::BACKWARD)) {
 		if (g_settings->getBool("continuous_forward"))
 			toggleAutoforward();
-	} else if (wasKeyDown(KeyType::INVENTORY)) {
+	} else if (wasKeyDown(KeyType::INVENTORY) || inventoryRequestedOnSecondary()) {
 		m_game_formspec.showPlayerInventory(nullptr);
 	} else if (input->cancelPressed()) {
 #ifdef __ANDROID__
@@ -1580,6 +1595,13 @@ void Game::processItemSelection(u16 *new_playeritem)
 
 	if (g_touchcontrols) {
 		std::optional<u16> selection = g_touchcontrols->getHotbarSelection();
+		if (selection)
+			*new_playeritem = *selection;
+	}
+
+	// Dual screen: slot tapped on the bottom screen's hotbar
+	if (SecondaryScreen *screen = m_rendering_engine->get_secondary_screen()) {
+		std::optional<u16> selection = screen->consumeHotbarSelection();
 		if (selection)
 			*new_playeritem = *selection;
 	}
@@ -1941,16 +1963,26 @@ void Game::updateCameraDirection(CameraOrientation *cam, float dtime)
 	Since we have our own code to synthesize mouse events from touch events,
 	this results in duplicated input. To avoid that, we don't enable relative
 	mouse mode if we're in touchscreen mode. */
+	// Dual screen: while the bottom window has focus, the mouse is released
+	// so its buttons can be clicked (click the game window to look around again)
+	SecondaryScreen *secondary = m_rendering_engine->get_secondary_screen();
+	const bool secondary_focused = secondary && secondary->isWindowFocused();
 	if (cur_control)
-		cur_control->setRelativeMode(!g_touchcontrols && !isMenuActive());
+		cur_control->setRelativeMode(!g_touchcontrols && !isMenuActive() && !secondary_focused);
+	if (secondary_focused)
+		input->getMouseMovement(); // the mouse is in use on the bottom window
+	else if (m_secondary_was_focused)
+		m_first_loop_after_window_activation = true; // discard the jump back
+	m_secondary_was_focused = secondary_focused;
 
 	if ((device->isWindowActive() && device->isWindowFocused()
 			&& !isMenuActive()) || input->isRandom()) {
 
 		if (cur_control && !input->isRandom()) {
 			// Mac OSX gets upset if this is set every frame
-			if (cur_control->isVisible())
-				cur_control->setVisible(false);
+			// (dual screen: keep the cursor while it's on the bottom window)
+			if (cur_control->isVisible() != secondary_focused)
+				cur_control->setVisible(secondary_focused);
 		}
 
 		if (m_first_loop_after_window_activation && !g_touchcontrols) {

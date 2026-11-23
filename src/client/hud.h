@@ -63,6 +63,14 @@ public:
 	void drawBlockBounds();
 
 	void drawHotbar(const v2s32 &pos, const v2f &offset, u16 direction, const v2f &align);
+
+	// Dual screen: the hotbar is drawn on the bottom screen instead
+	void setHotbarOnSecondary(bool on) { m_hotbar_on_secondary = on; }
+	// Whether the hotbar should be shown (server/mods can hide it)
+	bool isHotbarVisible();
+	// Draws the hotbar centered in `area` of the current render target.
+	// `slots` receives the rectangle of each slot (index = inventory index).
+	void drawHotbarInRect(const core::rect<s32> &area, std::vector<core::rect<s32>> &slots);
 	void resizeHotbar();
 	void drawCrosshair();
 	void drawSelectionMesh();
@@ -124,6 +132,7 @@ private:
 
 	float m_hud_scaling; // cached luanti setting
 	float m_scale_factor;
+	bool m_hotbar_on_secondary = false;
 	v3s16 m_camera_offset;
 	v2u32 m_screensize;
 	v2s32 m_displaycenter;

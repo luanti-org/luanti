@@ -360,6 +360,7 @@ private:
 		void setEventReceiver(IEventReceiver *receiver) override { Receiver = receiver; }
 		IEventReceiver *getEventReceiver() const override { return Receiver; }
 		const video::SExposedVideoData &getVideoData() const override { return Data; }
+		void setGUIEnvironment(gui::IGUIEnvironment *env) override { GUIEnv = env; }
 
 		void updateSizeAndScale();
 		bool post(const SEvent &event) { return Receiver && Receiver->OnEvent(event); }
@@ -368,6 +369,7 @@ private:
 		u32 WindowID;
 		video::SExposedVideoData Data;
 		IEventReceiver *Receiver = nullptr;
+		gui::IGUIEnvironment *GUIEnv = nullptr;
 		f32 ScaleX = 1.0f, ScaleY = 1.0f;
 		s32 MouseX = 0, MouseY = 0;
 		u32 MouseButtonStates = 0;

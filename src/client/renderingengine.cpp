@@ -419,10 +419,14 @@ void RenderingEngine::initialize(Client *client, Hud *hud)
 {
 	const std::string &draw_mode = g_settings->get("3d_mode");
 	core.reset(createRenderingCore(draw_mode, m_device, client, hud));
+	if (m_secondary_screen)
+		m_secondary_screen->setGame(client, hud);
 }
 
 void RenderingEngine::finalize()
 {
+	if (m_secondary_screen)
+		m_secondary_screen->setGame(nullptr, nullptr);
 	core.reset();
 }
 

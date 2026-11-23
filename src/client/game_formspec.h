@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include "irr_v3d.h"
 #include "scripting_pause_menu.h"
 
@@ -13,6 +14,10 @@ class Client;
 class RenderingEngine;
 class InputHandler;
 class GUIFormSpecMenu;
+namespace gui {
+	class IGUIEnvironment;
+	class IGUIElement;
+}
 
 /*
 This object intend to contain the core fromspec functionality.
@@ -63,6 +68,9 @@ private:
 	GUIFormSpecMenu *m_formspec = nullptr;
 
 	bool handleEmptyFormspec(const std::string &formspec, const std::string &formname);
+
+	// GUI environment and parent element for formspecs about the world
+	std::pair<gui::IGUIEnvironment *, gui::IGUIElement *> worldFormspecTarget();
 
 	void deleteFormspec();
 };

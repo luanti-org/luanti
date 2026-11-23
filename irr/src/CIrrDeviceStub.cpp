@@ -109,6 +109,13 @@ CIrrDeviceStub::~CIrrDeviceStub()
 		os::Printer::Logger = 0;
 }
 
+gui::IGUIEnvironment *CIrrDeviceStub::createGUIEnvironment()
+{
+	if (!VideoDriver)
+		return nullptr;
+	return gui::createGUIEnvironment(FileSystem, VideoDriver, Operator);
+}
+
 void CIrrDeviceStub::createGUIAndScene()
 {
 	// create gui environment

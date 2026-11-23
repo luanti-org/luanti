@@ -138,6 +138,19 @@ public:
 
 	SecondaryScreen *get_secondary_screen() { return m_secondary_screen.get(); }
 
+	// nullptr if there is no rendering engine or no secondary screen
+	static SecondaryScreen *getSecondaryScreen()
+	{
+		return s_singleton ? s_singleton->m_secondary_screen.get() : nullptr;
+	}
+
+	// For pointer input that doesn't pass through the main receiver
+	static void setLastPointerType(PointerType type)
+	{
+		if (s_singleton && s_singleton->m_receiver)
+			s_singleton->m_receiver->setLastPointerType(type);
+	}
+
 	void initialize(Client *client, Hud *hud);
 	void finalize();
 

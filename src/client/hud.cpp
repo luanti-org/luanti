@@ -579,7 +579,8 @@ void Hud::drawLuaElements(const v3s16 &camera_offset, bool only_unhidable)
 				client->getMinimap()->drawMinimap(rect);
 				break; }
 			case HUD_ELEM_HOTBAR: {
-				drawHotbar(pos, e->offset, e->dir, e->align);
+				if (!m_hotbar_on_secondary)
+					drawHotbar(pos, e->offset, e->dir, e->align);
 				break; }
 			default:
 				infostream << "Hud::drawLuaElements: ignoring drawform " << e->type
@@ -822,6 +823,70 @@ void Hud::drawHotbar(const v2s32 &pos, const v2f &offset, u16 dir, const v2f &al
 	}
 }
 
+
+bool Hud::isHotbarVisible()
+{
+	if (client->getProtoVersion() < 46)
+		return player->hud_flags & HUD_FLAG_HOTBAR_VISIBLE;
+	return hasElementOfType(HUD_ELEM_HOTBAR);
+}
+
+void Hud::drawHotbarInRect(const core::rect<s32> &area, std::vector<core::rect<s32>> &slots)
+{
+	slots.clear();
+	InventoryList *mainlist = inventory->getList("main");
+	if (!mainlist)
+		return;
+
+	const s32 count = std::min<s32>(player->getMaxHotbarItemcount(), mainlist->getSize());
+	if (count <= 0 || area.getWidth() <= 0 || area.getHeight() <= 0)
+		return;
+
+	// At most 10 slots per row; as large as fits
+	const s32 cols = std::min<s32>(count, 10);
+	const s32 rows = (count + cols - 1) / cols;
+	const s32 cell = std::min(area.getWidth() / cols, area.getHeight() / rows);
+	const s32 padding = std::max(cell / 16, 1);
+	const s32 imagesize = cell - padding * 2;
+	if (imagesize <= 0)
+		return;
+
+	// drawItem() uses these for the selection frame
+	const s32 old_imagesize = m_hotbar_imagesize, old_padding = m_padding;
+	m_hotbar_imagesize = imagesize;
+	m_padding = padding;
+
+	hotbar_image = player->hotbar_image;
+	use_hotbar_image = !hotbar_image.empty();
+	if (hotbar_selected_image != player->hotbar_selected_image) {
+		hotbar_selected_image = player->hotbar_selected_image;
+		use_hotbar_selected_image = !hotbar_selected_image.empty();
+	}
+
+	const v2s32 origin(
+		area.UpperLeftCorner.X + (area.getWidth() - cols * cell) / 2,
+		area.UpperLeftCorner.Y + (area.getHeight() - rows * cell) / 2);
+
+	if (use_hotbar_image) {
+		video::ITexture *texture = tsrc->getTexture(hotbar_image);
+		core::dimension2di imgsize(texture->getOriginalSize());
+		draw2DImageFilterScaled(driver, texture,
+			core::rect<s32>(origin, origin + v2s32(cols * cell, rows * cell)),
+			core::rect<s32>(core::position2d<s32>(0, 0), imgsize),
+			nullptr, hbar_colors, true);
+	}
+
+	const u16 selected = player->getWieldIndex();
+	for (s32 i = 0; i < count; i++) {
+		v2s32 p = origin + v2s32((i % cols) * cell + padding, (i / cols) * cell + padding);
+		core::rect<s32> rect(p, p + v2s32(imagesize, imagesize));
+		slots.push_back(rect);
+		drawItem(mainlist->getItem(i), rect, i == selected);
+	}
+
+	m_hotbar_imagesize = old_imagesize;
+	m_padding = old_padding;
+}
 
 void Hud::drawCrosshair()
 {

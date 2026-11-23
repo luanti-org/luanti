@@ -49,7 +49,8 @@ public:
 			m_stack.back()->setVisible(false);
 
 		m_stack.push_back(menu);
-		guienv->setFocus(m_stack.back());
+		// Menus may live in another GUI environment (dual screen)
+		m_stack.back()->getEnvironment()->setFocus(m_stack.back());
 	}
 
 	/// Note that it may be called multiple times on GUIModalMenu (or GUIFormSpecMenu):
@@ -61,11 +62,16 @@ public:
 		m_stack.remove(menu);
 
 		// Reference count reduction (-1) due to focus loss
+		gui::IGUIEnvironment *env = menu->getEnvironment();
 		if (!m_stack.empty()) {
-			m_stack.back()->setVisible(true);
-			guienv->setFocus(m_stack.back());
+			gui::IGUIElement *top = m_stack.back();
+			top->setVisible(true);
+			top->getEnvironment()->setFocus(top);
+			// The removed menu may live in another environment (dual screen)
+			if (top->getEnvironment() != env)
+				env->removeFocus(menu);
 		} else {
-			guienv->removeFocus(menu);
+			env->removeFocus(menu);
 			if (g_touchcontrols)
 				g_touchcontrols->show();
 		}

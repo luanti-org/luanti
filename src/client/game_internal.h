@@ -154,6 +154,8 @@ protected:
 	void processKeyInput();
 	void processItemSelection(u16 *new_playeritem);
 	bool shouldShowTouchControls();
+	// Dual screen: the Inventory button on the bottom screen was tapped
+	bool inventoryRequestedOnSecondary();
 
 	void dropSelectedItem(bool single_item = false);
 	void openConsole(float scale, const wchar_t *line=NULL);
@@ -380,6 +382,7 @@ private:
 	bool m_invert_hotbar_mouse_wheel;
 
 	bool m_first_loop_after_window_activation = false;
+	bool m_secondary_was_focused = false; // dual screen
 	bool m_camera_offset_changed = false;
 	bool m_game_focused = false;
 

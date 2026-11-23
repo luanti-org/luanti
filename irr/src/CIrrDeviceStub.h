@@ -61,6 +61,8 @@ public:
 	//! returns the gui environment
 	gui::IGUIEnvironment *getGUIEnvironment() override;
 
+	gui::IGUIEnvironment *createGUIEnvironment() override;
+
 	//! returns the scene manager
 	scene::ISceneManager *getSceneManager() override;
 
