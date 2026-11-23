@@ -4,6 +4,7 @@
 // Copyright (C) 2012-2018 RealBadAngel, Maciej Kasatkin
 // Copyright (C) 2015-2018 paramat
 
+#include <optional>
 #include <stack>
 #include "treegen.h"
 #include "irr_v3d.h"
@@ -397,6 +398,17 @@ treegen::error make_ltree(MMVManip &vmanip, v3s16 p0, const TreeDef &tree_defini
 	return SUCCESS;
 }
 
+static std::optional<v3s16> get_placement_node(MMVManip &vmanip, v3f p0)
+{
+	v3s16 p1 = v3s16(myround(p0.X), myround(p0.Y), myround(p0.Z));
+	if (!vmanip.m_area.contains(p1))
+		return std::nullopt;
+	u32 vi = vmanip.m_area.index(p1);
+	if (!is_air_or_ignore(vmanip.m_data[vi].getContent()))
+		return std::nullopt;
+	return p1;
+}
+
 static void tree_trunk_placement(MMVManip &vmanip, v3f p0, const std::vector<v3f> &points, const TreeDef &def)
 {
 	for (auto point : points)
@@ -405,19 +417,16 @@ static void tree_trunk_placement(MMVManip &vmanip, v3f p0, const std::vector<v3f
 
 static void tree_trunk_placement(MMVManip &vmanip, v3f p0, const TreeDef &tree_definition)
 {
-	v3s16 p1 = v3s16(myround(p0.X), myround(p0.Y), myround(p0.Z));
-	if (!vmanip.m_area.contains(p1))
-		return;
-	u32 vi = vmanip.m_area.index(p1);
-	content_t current_node = vmanip.m_data[vi].getContent();
-	if (current_node != CONTENT_AIR && current_node != CONTENT_IGNORE
-			&& current_node != tree_definition.leavesnode.getContent()
-			&& current_node != tree_definition.leaves2node.getContent()
-			&& current_node != tree_definition.fruitnode.getContent())
-		return;
-	vmanip.m_data[vi] = tree_definition.trunknode;
+	if (std::optional<v3s16> p1 = get_placement_node(vmanip, p0)) {
+		u32 vi = vmanip.m_area.index(*p1);
+		content_t current_node = vmanip.m_data[vi].getContent();
+		if (current_node != tree_definition.leavesnode.getContent()
+				&& current_node != tree_definition.leaves2node.getContent()
+				&& current_node != tree_definition.fruitnode.getContent())
+			return;
+		vmanip.m_data[vi] = tree_definition.trunknode;
+	}
 }
-
 
 static void tree_leaves_placement(MMVManip &vmanip, v3f p0, const std::vector<v3f> &points, PseudoRandom ps,
 		const TreeDef &def)
@@ -426,56 +435,42 @@ static void tree_leaves_placement(MMVManip &vmanip, v3f p0, const std::vector<v3
 		tree_leaves_placement(vmanip, p0 + point, ps.next(), def);
 }
 
-void tree_leaves_placement(MMVManip &vmanip, v3f p0, PseudoRandom ps, const TreeDef &tree_definition)
+static MapNode select_leaf_type(PseudoRandom ps, const TreeDef& tree_definition)
 {
-	MapNode leavesnode = tree_definition.leavesnode;
-	if (ps.range(1, 100) > 100 - tree_definition.leaves2_chance)
-		leavesnode = tree_definition.leaves2node;
-	v3s16 p1 = v3s16(myround(p0.X), myround(p0.Y), myround(p0.Z));
-	if (!vmanip.m_area.contains(p1))
-		return;
-	u32 vi = vmanip.m_area.index(p1);
-	if (vmanip.m_data[vi].getContent() != CONTENT_AIR
-			&& vmanip.m_data[vi].getContent() != CONTENT_IGNORE)
-		return;
-	if (tree_definition.fruit_chance > 0) {
-		if (ps.range(1, 100) > 100 - tree_definition.fruit_chance)
-			vmanip.m_data[vmanip.m_area.index(p1)] = tree_definition.fruitnode;
-		else
-			vmanip.m_data[vmanip.m_area.index(p1)] = leavesnode;
-	} else if (ps.range(1, 100) > 20) {
-		vmanip.m_data[vmanip.m_area.index(p1)] = leavesnode;
-	}
+	return ps.range(1, 100) <= 100 - tree_definition.leaves2_chance
+		       ? tree_definition.leavesnode
+		       : tree_definition.leaves2node;
 }
 
+static void tree_leaves_placement(MMVManip &vmanip, v3f p0, PseudoRandom ps,
+		const TreeDef &tree_definition)
+{
+	if (std::optional<v3s16> p1 = get_placement_node(vmanip, p0)) {
+		MapNode leafNode = select_leaf_type(ps, tree_definition);
+		if (tree_definition.fruit_chance > 0) {
+			if (ps.range(1, 100) > 100 - tree_definition.fruit_chance)
+				vmanip.m_data[vmanip.m_area.index(*p1)] = tree_definition.fruitnode;
+			else
+				vmanip.m_data[vmanip.m_area.index(*p1)] = leafNode;
+		} else if (ps.range(1, 100) > 20) {
+			vmanip.m_data[vmanip.m_area.index(*p1)] = leafNode;
+		}
+	}
+}
 
 static void tree_single_leaves_placement(MMVManip &vmanip, v3f p0,
 		PseudoRandom ps, const TreeDef &tree_definition)
 {
-	MapNode leavesnode = tree_definition.leavesnode;
-	if (ps.range(1, 100) > 100 - tree_definition.leaves2_chance)
-		leavesnode = tree_definition.leaves2node;
-	v3s16 p1 = v3s16(myround(p0.X), myround(p0.Y), myround(p0.Z));
-	if (!vmanip.m_area.contains(p1))
-		return;
-	u32 vi = vmanip.m_area.index(p1);
-	if (vmanip.m_data[vi].getContent() != CONTENT_AIR
-			&& vmanip.m_data[vi].getContent() != CONTENT_IGNORE)
-		return;
-	vmanip.m_data[vmanip.m_area.index(p1)] = leavesnode;
+	if (std::optional<v3s16> p1 = get_placement_node(vmanip, p0)) {
+		vmanip.m_data[vmanip.m_area.index(*p1)] = select_leaf_type(ps, tree_definition);
+	}
 }
-
 
 static void tree_fruit_placement(MMVManip &vmanip, v3f p0, const TreeDef &tree_definition)
 {
-	v3s16 p1 = v3s16(myround(p0.X), myround(p0.Y), myround(p0.Z));
-	if (!vmanip.m_area.contains(p1))
-		return;
-	u32 vi = vmanip.m_area.index(p1);
-	if (vmanip.m_data[vi].getContent() != CONTENT_AIR
-			&& vmanip.m_data[vi].getContent() != CONTENT_IGNORE)
-		return;
-	vmanip.m_data[vmanip.m_area.index(p1)] = tree_definition.fruitnode;
+	if (std::optional<v3s16> p1 = get_placement_node(vmanip, p0)) {
+		vmanip.m_data[vmanip.m_area.index(*p1)] = tree_definition.fruitnode;
+	}
 }
 
 static void setRotationAxisRadians(core::matrix4 &M, float angle, v3f axis)
