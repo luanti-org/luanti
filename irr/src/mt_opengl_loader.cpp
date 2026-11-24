@@ -53,6 +53,93 @@ void OpenGLProcedures::LoadAllProcedures(video::IContextManager *cmgr, bool load
 	if (!GetTexParameteriv) GetTexParameteriv = (PFNGLGETTEXPARAMETERIVPROC_MT)cmgr->getProcAddress("glGetTexParameteriv");
 	if (!IsEnabled) IsEnabled = (PFNGLISENABLEDPROC_MT)cmgr->getProcAddress("glIsEnabled");
 	if (!Viewport) Viewport = (PFNGLVIEWPORTPROC_MT)cmgr->getProcAddress("glViewport");
+	if (!DrawArrays) DrawArrays = (PFNGLDRAWARRAYSPROC_MT)cmgr->getProcAddress("glDrawArrays");
+	if (!DrawElements) DrawElements = (PFNGLDRAWELEMENTSPROC_MT)cmgr->getProcAddress("glDrawElements");
+	if (!PolygonOffset) PolygonOffset = (PFNGLPOLYGONOFFSETPROC_MT)cmgr->getProcAddress("glPolygonOffset");
+	if (!CopyTexImage2D) CopyTexImage2D = (PFNGLCOPYTEXIMAGE2DPROC_MT)cmgr->getProcAddress("glCopyTexImage2D");
+	if (!CopyTexSubImage2D) CopyTexSubImage2D = (PFNGLCOPYTEXSUBIMAGE2DPROC_MT)cmgr->getProcAddress("glCopyTexSubImage2D");
+	if (!TexSubImage2D) TexSubImage2D = (PFNGLTEXSUBIMAGE2DPROC_MT)cmgr->getProcAddress("glTexSubImage2D");
+	if (!BindTexture) BindTexture = (PFNGLBINDTEXTUREPROC_MT)cmgr->getProcAddress("glBindTexture");
+	if (!DeleteTextures) DeleteTextures = (PFNGLDELETETEXTURESPROC_MT)cmgr->getProcAddress("glDeleteTextures");
+	if (!GenTextures) GenTextures = (PFNGLGENTEXTURESPROC_MT)cmgr->getProcAddress("glGenTextures");
+	if (!IsTexture) IsTexture = (PFNGLISTEXTUREPROC_MT)cmgr->getProcAddress("glIsTexture");
+	if (!ActiveTexture) ActiveTexture = (PFNGLACTIVETEXTUREPROC_MT)cmgr->getProcAddress("glActiveTexture");
+	if (!SampleCoverage) SampleCoverage = (PFNGLSAMPLECOVERAGEPROC_MT)cmgr->getProcAddress("glSampleCoverage");
+	if (!CompressedTexImage2D) CompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC_MT)cmgr->getProcAddress("glCompressedTexImage2D");
+	if (!CompressedTexSubImage2D) CompressedTexSubImage2D = (PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC_MT)cmgr->getProcAddress("glCompressedTexSubImage2D");
+	if (!BlendFuncSeparate) BlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC_MT)cmgr->getProcAddress("glBlendFuncSeparate");
+	if (!BlendColor) BlendColor = (PFNGLBLENDCOLORPROC_MT)cmgr->getProcAddress("glBlendColor");
+	if (!BlendEquation) BlendEquation = (PFNGLBLENDEQUATIONPROC_MT)cmgr->getProcAddress("glBlendEquation");
+	if (!BindBuffer) BindBuffer = (PFNGLBINDBUFFERPROC_MT)cmgr->getProcAddress("glBindBuffer");
+	if (!DeleteBuffers) DeleteBuffers = (PFNGLDELETEBUFFERSPROC_MT)cmgr->getProcAddress("glDeleteBuffers");
+	if (!GenBuffers) GenBuffers = (PFNGLGENBUFFERSPROC_MT)cmgr->getProcAddress("glGenBuffers");
+	if (!IsBuffer) IsBuffer = (PFNGLISBUFFERPROC_MT)cmgr->getProcAddress("glIsBuffer");
+	if (!BufferData) BufferData = (PFNGLBUFFERDATAPROC_MT)cmgr->getProcAddress("glBufferData");
+	if (!BufferSubData) BufferSubData = (PFNGLBUFFERSUBDATAPROC_MT)cmgr->getProcAddress("glBufferSubData");
+	if (!GetBufferParameteriv) GetBufferParameteriv = (PFNGLGETBUFFERPARAMETERIVPROC_MT)cmgr->getProcAddress("glGetBufferParameteriv");
+	if (!BlendEquationSeparate) BlendEquationSeparate = (PFNGLBLENDEQUATIONSEPARATEPROC_MT)cmgr->getProcAddress("glBlendEquationSeparate");
+	if (!StencilOpSeparate) StencilOpSeparate = (PFNGLSTENCILOPSEPARATEPROC_MT)cmgr->getProcAddress("glStencilOpSeparate");
+	if (!StencilFuncSeparate) StencilFuncSeparate = (PFNGLSTENCILFUNCSEPARATEPROC_MT)cmgr->getProcAddress("glStencilFuncSeparate");
+	if (!StencilMaskSeparate) StencilMaskSeparate = (PFNGLSTENCILMASKSEPARATEPROC_MT)cmgr->getProcAddress("glStencilMaskSeparate");
+	if (!AttachShader) AttachShader = (PFNGLATTACHSHADERPROC_MT)cmgr->getProcAddress("glAttachShader");
+	if (!BindAttribLocation) BindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC_MT)cmgr->getProcAddress("glBindAttribLocation");
+	if (!CompileShader) CompileShader = (PFNGLCOMPILESHADERPROC_MT)cmgr->getProcAddress("glCompileShader");
+	if (!CreateProgram) CreateProgram = (PFNGLCREATEPROGRAMPROC_MT)cmgr->getProcAddress("glCreateProgram");
+	if (!CreateShader) CreateShader = (PFNGLCREATESHADERPROC_MT)cmgr->getProcAddress("glCreateShader");
+	if (!DeleteProgram) DeleteProgram = (PFNGLDELETEPROGRAMPROC_MT)cmgr->getProcAddress("glDeleteProgram");
+	if (!DeleteShader) DeleteShader = (PFNGLDELETESHADERPROC_MT)cmgr->getProcAddress("glDeleteShader");
+	if (!DetachShader) DetachShader = (PFNGLDETACHSHADERPROC_MT)cmgr->getProcAddress("glDetachShader");
+	if (!DisableVertexAttribArray) DisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC_MT)cmgr->getProcAddress("glDisableVertexAttribArray");
+	if (!EnableVertexAttribArray) EnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC_MT)cmgr->getProcAddress("glEnableVertexAttribArray");
+	if (!GetActiveAttrib) GetActiveAttrib = (PFNGLGETACTIVEATTRIBPROC_MT)cmgr->getProcAddress("glGetActiveAttrib");
+	if (!GetActiveUniform) GetActiveUniform = (PFNGLGETACTIVEUNIFORMPROC_MT)cmgr->getProcAddress("glGetActiveUniform");
+	if (!GetAttachedShaders) GetAttachedShaders = (PFNGLGETATTACHEDSHADERSPROC_MT)cmgr->getProcAddress("glGetAttachedShaders");
+	if (!GetAttribLocation) GetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC_MT)cmgr->getProcAddress("glGetAttribLocation");
+	if (!GetProgramiv) GetProgramiv = (PFNGLGETPROGRAMIVPROC_MT)cmgr->getProcAddress("glGetProgramiv");
+	if (!GetProgramInfoLog) GetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC_MT)cmgr->getProcAddress("glGetProgramInfoLog");
+	if (!GetShaderiv) GetShaderiv = (PFNGLGETSHADERIVPROC_MT)cmgr->getProcAddress("glGetShaderiv");
+	if (!GetShaderInfoLog) GetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC_MT)cmgr->getProcAddress("glGetShaderInfoLog");
+	if (!GetShaderSource) GetShaderSource = (PFNGLGETSHADERSOURCEPROC_MT)cmgr->getProcAddress("glGetShaderSource");
+	if (!GetUniformLocation) GetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC_MT)cmgr->getProcAddress("glGetUniformLocation");
+	if (!GetUniformfv) GetUniformfv = (PFNGLGETUNIFORMFVPROC_MT)cmgr->getProcAddress("glGetUniformfv");
+	if (!GetUniformiv) GetUniformiv = (PFNGLGETUNIFORMIVPROC_MT)cmgr->getProcAddress("glGetUniformiv");
+	if (!GetVertexAttribfv) GetVertexAttribfv = (PFNGLGETVERTEXATTRIBFVPROC_MT)cmgr->getProcAddress("glGetVertexAttribfv");
+	if (!GetVertexAttribiv) GetVertexAttribiv = (PFNGLGETVERTEXATTRIBIVPROC_MT)cmgr->getProcAddress("glGetVertexAttribiv");
+	if (!GetVertexAttribPointerv) GetVertexAttribPointerv = (PFNGLGETVERTEXATTRIBPOINTERVPROC_MT)cmgr->getProcAddress("glGetVertexAttribPointerv");
+	if (!IsProgram) IsProgram = (PFNGLISPROGRAMPROC_MT)cmgr->getProcAddress("glIsProgram");
+	if (!IsShader) IsShader = (PFNGLISSHADERPROC_MT)cmgr->getProcAddress("glIsShader");
+	if (!LinkProgram) LinkProgram = (PFNGLLINKPROGRAMPROC_MT)cmgr->getProcAddress("glLinkProgram");
+	if (!ShaderSource) ShaderSource = (PFNGLSHADERSOURCEPROC_MT)cmgr->getProcAddress("glShaderSource");
+	if (!UseProgram) UseProgram = (PFNGLUSEPROGRAMPROC_MT)cmgr->getProcAddress("glUseProgram");
+	if (!Uniform1f) Uniform1f = (PFNGLUNIFORM1FPROC_MT)cmgr->getProcAddress("glUniform1f");
+	if (!Uniform2f) Uniform2f = (PFNGLUNIFORM2FPROC_MT)cmgr->getProcAddress("glUniform2f");
+	if (!Uniform3f) Uniform3f = (PFNGLUNIFORM3FPROC_MT)cmgr->getProcAddress("glUniform3f");
+	if (!Uniform4f) Uniform4f = (PFNGLUNIFORM4FPROC_MT)cmgr->getProcAddress("glUniform4f");
+	if (!Uniform1i) Uniform1i = (PFNGLUNIFORM1IPROC_MT)cmgr->getProcAddress("glUniform1i");
+	if (!Uniform2i) Uniform2i = (PFNGLUNIFORM2IPROC_MT)cmgr->getProcAddress("glUniform2i");
+	if (!Uniform3i) Uniform3i = (PFNGLUNIFORM3IPROC_MT)cmgr->getProcAddress("glUniform3i");
+	if (!Uniform4i) Uniform4i = (PFNGLUNIFORM4IPROC_MT)cmgr->getProcAddress("glUniform4i");
+	if (!Uniform1fv) Uniform1fv = (PFNGLUNIFORM1FVPROC_MT)cmgr->getProcAddress("glUniform1fv");
+	if (!Uniform2fv) Uniform2fv = (PFNGLUNIFORM2FVPROC_MT)cmgr->getProcAddress("glUniform2fv");
+	if (!Uniform3fv) Uniform3fv = (PFNGLUNIFORM3FVPROC_MT)cmgr->getProcAddress("glUniform3fv");
+	if (!Uniform4fv) Uniform4fv = (PFNGLUNIFORM4FVPROC_MT)cmgr->getProcAddress("glUniform4fv");
+	if (!Uniform1iv) Uniform1iv = (PFNGLUNIFORM1IVPROC_MT)cmgr->getProcAddress("glUniform1iv");
+	if (!Uniform2iv) Uniform2iv = (PFNGLUNIFORM2IVPROC_MT)cmgr->getProcAddress("glUniform2iv");
+	if (!Uniform3iv) Uniform3iv = (PFNGLUNIFORM3IVPROC_MT)cmgr->getProcAddress("glUniform3iv");
+	if (!Uniform4iv) Uniform4iv = (PFNGLUNIFORM4IVPROC_MT)cmgr->getProcAddress("glUniform4iv");
+	if (!UniformMatrix2fv) UniformMatrix2fv = (PFNGLUNIFORMMATRIX2FVPROC_MT)cmgr->getProcAddress("glUniformMatrix2fv");
+	if (!UniformMatrix3fv) UniformMatrix3fv = (PFNGLUNIFORMMATRIX3FVPROC_MT)cmgr->getProcAddress("glUniformMatrix3fv");
+	if (!UniformMatrix4fv) UniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC_MT)cmgr->getProcAddress("glUniformMatrix4fv");
+	if (!ValidateProgram) ValidateProgram = (PFNGLVALIDATEPROGRAMPROC_MT)cmgr->getProcAddress("glValidateProgram");
+	if (!VertexAttrib1f) VertexAttrib1f = (PFNGLVERTEXATTRIB1FPROC_MT)cmgr->getProcAddress("glVertexAttrib1f");
+	if (!VertexAttrib1fv) VertexAttrib1fv = (PFNGLVERTEXATTRIB1FVPROC_MT)cmgr->getProcAddress("glVertexAttrib1fv");
+	if (!VertexAttrib2f) VertexAttrib2f = (PFNGLVERTEXATTRIB2FPROC_MT)cmgr->getProcAddress("glVertexAttrib2f");
+	if (!VertexAttrib2fv) VertexAttrib2fv = (PFNGLVERTEXATTRIB2FVPROC_MT)cmgr->getProcAddress("glVertexAttrib2fv");
+	if (!VertexAttrib3f) VertexAttrib3f = (PFNGLVERTEXATTRIB3FPROC_MT)cmgr->getProcAddress("glVertexAttrib3f");
+	if (!VertexAttrib3fv) VertexAttrib3fv = (PFNGLVERTEXATTRIB3FVPROC_MT)cmgr->getProcAddress("glVertexAttrib3fv");
+	if (!VertexAttrib4f) VertexAttrib4f = (PFNGLVERTEXATTRIB4FPROC_MT)cmgr->getProcAddress("glVertexAttrib4f");
+	if (!VertexAttrib4fv) VertexAttrib4fv = (PFNGLVERTEXATTRIB4FVPROC_MT)cmgr->getProcAddress("glVertexAttrib4fv");
+	if (!VertexAttribPointer) VertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC_MT)cmgr->getProcAddress("glVertexAttribPointer");
 
 
 	/* Get GL or GLES version */
@@ -90,18 +177,13 @@ void OpenGLProcedures::LoadAllProcedures(video::IContextManager *cmgr, bool load
 	const bool gl1_0 = CHECK_VER_GL(1,0);
 	const bool gl1_0_3_0 = CHECK_VER(1,0,3,0);
 	const bool gl1_0_3_1 = CHECK_VER(1,0,3,1);
-	const bool gl1_1_2_0 = CHECK_VER(1,1,2,0);
 	const bool gl1_1 = CHECK_VER_GL(1,1);
 	const bool gl1_2_3_0 = CHECK_VER(1,2,3,0);
-	const bool gl1_3_2_0 = CHECK_VER(1,3,2,0);
 	const bool gl1_3_3_0 = CHECK_VER(1,3,3,0);
 	const bool gl1_3 = CHECK_VER_GL(1,3);
-	const bool gl1_4_2_0 = CHECK_VER(1,4,2,0);
 	const bool gl1_4 = CHECK_VER_GL(1,4);
 	const bool gl1_5_3_0 = CHECK_VER(1,5,3,0);
 	const bool gl1_5 = CHECK_VER_GL(1,5);
-	const bool gl1_5_2_0 = CHECK_VER(1,5,2,0);
-	const bool gl2_0_2_0 = CHECK_VER(2,0,2,0);
 	const bool gl2_0_3_0 = CHECK_VER(2,0,3,0);
 	const bool gl2_0 = CHECK_VER_GL(2,0);
 	const bool gl2_1_3_0 = CHECK_VER(2,1,3,0);
@@ -155,16 +237,6 @@ void OpenGLProcedures::LoadAllProcedures(video::IContextManager *cmgr, bool load
 	if (!ReadBuffer && gl1_0_3_0) ReadBuffer = (PFNGLREADBUFFERPROC_MT)cmgr->getProcAddress("glReadBuffer");
 	if (!GetTexLevelParameterfv && gl1_0_3_1) GetTexLevelParameterfv = (PFNGLGETTEXLEVELPARAMETERFVPROC_MT)cmgr->getProcAddress("glGetTexLevelParameterfv");
 	if (!GetTexLevelParameteriv && gl1_0_3_1) GetTexLevelParameteriv = (PFNGLGETTEXLEVELPARAMETERIVPROC_MT)cmgr->getProcAddress("glGetTexLevelParameteriv");
-	if (!DrawArrays && gl1_1_2_0) DrawArrays = (PFNGLDRAWARRAYSPROC_MT)cmgr->getProcAddress("glDrawArrays");
-	if (!DrawElements && gl1_1_2_0) DrawElements = (PFNGLDRAWELEMENTSPROC_MT)cmgr->getProcAddress("glDrawElements");
-	if (!PolygonOffset && gl1_1_2_0) PolygonOffset = (PFNGLPOLYGONOFFSETPROC_MT)cmgr->getProcAddress("glPolygonOffset");
-	if (!CopyTexImage2D && gl1_1_2_0) CopyTexImage2D = (PFNGLCOPYTEXIMAGE2DPROC_MT)cmgr->getProcAddress("glCopyTexImage2D");
-	if (!CopyTexSubImage2D && gl1_1_2_0) CopyTexSubImage2D = (PFNGLCOPYTEXSUBIMAGE2DPROC_MT)cmgr->getProcAddress("glCopyTexSubImage2D");
-	if (!TexSubImage2D && gl1_1_2_0) TexSubImage2D = (PFNGLTEXSUBIMAGE2DPROC_MT)cmgr->getProcAddress("glTexSubImage2D");
-	if (!BindTexture && gl1_1_2_0) BindTexture = (PFNGLBINDTEXTUREPROC_MT)cmgr->getProcAddress("glBindTexture");
-	if (!DeleteTextures && gl1_1_2_0) DeleteTextures = (PFNGLDELETETEXTURESPROC_MT)cmgr->getProcAddress("glDeleteTextures");
-	if (!GenTextures && gl1_1_2_0) GenTextures = (PFNGLGENTEXTURESPROC_MT)cmgr->getProcAddress("glGenTextures");
-	if (!IsTexture && gl1_1_2_0) IsTexture = (PFNGLISTEXTUREPROC_MT)cmgr->getProcAddress("glIsTexture");
 	if (!CopyTexImage1D && gl1_1) CopyTexImage1D = (PFNGLCOPYTEXIMAGE1DPROC_MT)cmgr->getProcAddress("glCopyTexImage1D");
 	if (!CopyTexSubImage1D && gl1_1) CopyTexSubImage1D = (PFNGLCOPYTEXSUBIMAGE1DPROC_MT)cmgr->getProcAddress("glCopyTexSubImage1D");
 	if (!TexSubImage1D && gl1_1) TexSubImage1D = (PFNGLTEXSUBIMAGE1DPROC_MT)cmgr->getProcAddress("glTexSubImage1D");
@@ -172,18 +244,11 @@ void OpenGLProcedures::LoadAllProcedures(video::IContextManager *cmgr, bool load
 	if (!TexImage3D && gl1_2_3_0) TexImage3D = (PFNGLTEXIMAGE3DPROC_MT)cmgr->getProcAddress("glTexImage3D");
 	if (!TexSubImage3D && gl1_2_3_0) TexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC_MT)cmgr->getProcAddress("glTexSubImage3D");
 	if (!CopyTexSubImage3D && gl1_2_3_0) CopyTexSubImage3D = (PFNGLCOPYTEXSUBIMAGE3DPROC_MT)cmgr->getProcAddress("glCopyTexSubImage3D");
-	if (!ActiveTexture && gl1_3_2_0) ActiveTexture = (PFNGLACTIVETEXTUREPROC_MT)cmgr->getProcAddress("glActiveTexture");
-	if (!SampleCoverage && gl1_3_2_0) SampleCoverage = (PFNGLSAMPLECOVERAGEPROC_MT)cmgr->getProcAddress("glSampleCoverage");
-	if (!CompressedTexImage2D && gl1_3_2_0) CompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC_MT)cmgr->getProcAddress("glCompressedTexImage2D");
-	if (!CompressedTexSubImage2D && gl1_3_2_0) CompressedTexSubImage2D = (PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC_MT)cmgr->getProcAddress("glCompressedTexSubImage2D");
 	if (!CompressedTexImage3D && gl1_3_3_0) CompressedTexImage3D = (PFNGLCOMPRESSEDTEXIMAGE3DPROC_MT)cmgr->getProcAddress("glCompressedTexImage3D");
 	if (!CompressedTexSubImage3D && gl1_3_3_0) CompressedTexSubImage3D = (PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC_MT)cmgr->getProcAddress("glCompressedTexSubImage3D");
 	if (!CompressedTexImage1D && gl1_3) CompressedTexImage1D = (PFNGLCOMPRESSEDTEXIMAGE1DPROC_MT)cmgr->getProcAddress("glCompressedTexImage1D");
 	if (!CompressedTexSubImage1D && gl1_3) CompressedTexSubImage1D = (PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC_MT)cmgr->getProcAddress("glCompressedTexSubImage1D");
 	if (!GetCompressedTexImage && gl1_3) GetCompressedTexImage = (PFNGLGETCOMPRESSEDTEXIMAGEPROC_MT)cmgr->getProcAddress("glGetCompressedTexImage");
-	if (!BlendFuncSeparate && gl1_4_2_0) BlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC_MT)cmgr->getProcAddress("glBlendFuncSeparate");
-	if (!BlendColor && gl1_4_2_0) BlendColor = (PFNGLBLENDCOLORPROC_MT)cmgr->getProcAddress("glBlendColor");
-	if (!BlendEquation && gl1_4_2_0) BlendEquation = (PFNGLBLENDEQUATIONPROC_MT)cmgr->getProcAddress("glBlendEquation");
 	if (!MultiDrawArrays && gl1_4) MultiDrawArrays = (PFNGLMULTIDRAWARRAYSPROC_MT)cmgr->getProcAddress("glMultiDrawArrays");
 	if (!MultiDrawElements && gl1_4) MultiDrawElements = (PFNGLMULTIDRAWELEMENTSPROC_MT)cmgr->getProcAddress("glMultiDrawElements");
 	if (!PointParameterf && gl1_4) PointParameterf = (PFNGLPOINTPARAMETERFPROC_MT)cmgr->getProcAddress("glPointParameterf");
@@ -202,76 +267,6 @@ void OpenGLProcedures::LoadAllProcedures(video::IContextManager *cmgr, bool load
 	if (!GetQueryObjectiv && gl1_5) GetQueryObjectiv = (PFNGLGETQUERYOBJECTIVPROC_MT)cmgr->getProcAddress("glGetQueryObjectiv");
 	if (!GetBufferSubData && gl1_5) GetBufferSubData = (PFNGLGETBUFFERSUBDATAPROC_MT)cmgr->getProcAddress("glGetBufferSubData");
 	if (!MapBuffer && gl1_5) MapBuffer = (PFNGLMAPBUFFERPROC_MT)cmgr->getProcAddress("glMapBuffer");
-	if (!BindBuffer && gl1_5_2_0) BindBuffer = (PFNGLBINDBUFFERPROC_MT)cmgr->getProcAddress("glBindBuffer");
-	if (!DeleteBuffers && gl1_5_2_0) DeleteBuffers = (PFNGLDELETEBUFFERSPROC_MT)cmgr->getProcAddress("glDeleteBuffers");
-	if (!GenBuffers && gl1_5_2_0) GenBuffers = (PFNGLGENBUFFERSPROC_MT)cmgr->getProcAddress("glGenBuffers");
-	if (!IsBuffer && gl1_5_2_0) IsBuffer = (PFNGLISBUFFERPROC_MT)cmgr->getProcAddress("glIsBuffer");
-	if (!BufferData && gl1_5_2_0) BufferData = (PFNGLBUFFERDATAPROC_MT)cmgr->getProcAddress("glBufferData");
-	if (!BufferSubData && gl1_5_2_0) BufferSubData = (PFNGLBUFFERSUBDATAPROC_MT)cmgr->getProcAddress("glBufferSubData");
-	if (!GetBufferParameteriv && gl1_5_2_0) GetBufferParameteriv = (PFNGLGETBUFFERPARAMETERIVPROC_MT)cmgr->getProcAddress("glGetBufferParameteriv");
-	if (!BlendEquationSeparate && gl2_0_2_0) BlendEquationSeparate = (PFNGLBLENDEQUATIONSEPARATEPROC_MT)cmgr->getProcAddress("glBlendEquationSeparate");
-	if (!StencilOpSeparate && gl2_0_2_0) StencilOpSeparate = (PFNGLSTENCILOPSEPARATEPROC_MT)cmgr->getProcAddress("glStencilOpSeparate");
-	if (!StencilFuncSeparate && gl2_0_2_0) StencilFuncSeparate = (PFNGLSTENCILFUNCSEPARATEPROC_MT)cmgr->getProcAddress("glStencilFuncSeparate");
-	if (!StencilMaskSeparate && gl2_0_2_0) StencilMaskSeparate = (PFNGLSTENCILMASKSEPARATEPROC_MT)cmgr->getProcAddress("glStencilMaskSeparate");
-	if (!AttachShader && gl2_0_2_0) AttachShader = (PFNGLATTACHSHADERPROC_MT)cmgr->getProcAddress("glAttachShader");
-	if (!BindAttribLocation && gl2_0_2_0) BindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC_MT)cmgr->getProcAddress("glBindAttribLocation");
-	if (!CompileShader && gl2_0_2_0) CompileShader = (PFNGLCOMPILESHADERPROC_MT)cmgr->getProcAddress("glCompileShader");
-	if (!CreateProgram && gl2_0_2_0) CreateProgram = (PFNGLCREATEPROGRAMPROC_MT)cmgr->getProcAddress("glCreateProgram");
-	if (!CreateShader && gl2_0_2_0) CreateShader = (PFNGLCREATESHADERPROC_MT)cmgr->getProcAddress("glCreateShader");
-	if (!DeleteProgram && gl2_0_2_0) DeleteProgram = (PFNGLDELETEPROGRAMPROC_MT)cmgr->getProcAddress("glDeleteProgram");
-	if (!DeleteShader && gl2_0_2_0) DeleteShader = (PFNGLDELETESHADERPROC_MT)cmgr->getProcAddress("glDeleteShader");
-	if (!DetachShader && gl2_0_2_0) DetachShader = (PFNGLDETACHSHADERPROC_MT)cmgr->getProcAddress("glDetachShader");
-	if (!DisableVertexAttribArray && gl2_0_2_0) DisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC_MT)cmgr->getProcAddress("glDisableVertexAttribArray");
-	if (!EnableVertexAttribArray && gl2_0_2_0) EnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC_MT)cmgr->getProcAddress("glEnableVertexAttribArray");
-	if (!GetActiveAttrib && gl2_0_2_0) GetActiveAttrib = (PFNGLGETACTIVEATTRIBPROC_MT)cmgr->getProcAddress("glGetActiveAttrib");
-	if (!GetActiveUniform && gl2_0_2_0) GetActiveUniform = (PFNGLGETACTIVEUNIFORMPROC_MT)cmgr->getProcAddress("glGetActiveUniform");
-	if (!GetAttachedShaders && gl2_0_2_0) GetAttachedShaders = (PFNGLGETATTACHEDSHADERSPROC_MT)cmgr->getProcAddress("glGetAttachedShaders");
-	if (!GetAttribLocation && gl2_0_2_0) GetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC_MT)cmgr->getProcAddress("glGetAttribLocation");
-	if (!GetProgramiv && gl2_0_2_0) GetProgramiv = (PFNGLGETPROGRAMIVPROC_MT)cmgr->getProcAddress("glGetProgramiv");
-	if (!GetProgramInfoLog && gl2_0_2_0) GetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC_MT)cmgr->getProcAddress("glGetProgramInfoLog");
-	if (!GetShaderiv && gl2_0_2_0) GetShaderiv = (PFNGLGETSHADERIVPROC_MT)cmgr->getProcAddress("glGetShaderiv");
-	if (!GetShaderInfoLog && gl2_0_2_0) GetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC_MT)cmgr->getProcAddress("glGetShaderInfoLog");
-	if (!GetShaderSource && gl2_0_2_0) GetShaderSource = (PFNGLGETSHADERSOURCEPROC_MT)cmgr->getProcAddress("glGetShaderSource");
-	if (!GetUniformLocation && gl2_0_2_0) GetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC_MT)cmgr->getProcAddress("glGetUniformLocation");
-	if (!GetUniformfv && gl2_0_2_0) GetUniformfv = (PFNGLGETUNIFORMFVPROC_MT)cmgr->getProcAddress("glGetUniformfv");
-	if (!GetUniformiv && gl2_0_2_0) GetUniformiv = (PFNGLGETUNIFORMIVPROC_MT)cmgr->getProcAddress("glGetUniformiv");
-	if (!GetVertexAttribfv && gl2_0_2_0) GetVertexAttribfv = (PFNGLGETVERTEXATTRIBFVPROC_MT)cmgr->getProcAddress("glGetVertexAttribfv");
-	if (!GetVertexAttribiv && gl2_0_2_0) GetVertexAttribiv = (PFNGLGETVERTEXATTRIBIVPROC_MT)cmgr->getProcAddress("glGetVertexAttribiv");
-	if (!GetVertexAttribPointerv && gl2_0_2_0) GetVertexAttribPointerv = (PFNGLGETVERTEXATTRIBPOINTERVPROC_MT)cmgr->getProcAddress("glGetVertexAttribPointerv");
-	if (!IsProgram && gl2_0_2_0) IsProgram = (PFNGLISPROGRAMPROC_MT)cmgr->getProcAddress("glIsProgram");
-	if (!IsShader && gl2_0_2_0) IsShader = (PFNGLISSHADERPROC_MT)cmgr->getProcAddress("glIsShader");
-	if (!LinkProgram && gl2_0_2_0) LinkProgram = (PFNGLLINKPROGRAMPROC_MT)cmgr->getProcAddress("glLinkProgram");
-	if (!ShaderSource && gl2_0_2_0) ShaderSource = (PFNGLSHADERSOURCEPROC_MT)cmgr->getProcAddress("glShaderSource");
-	if (!UseProgram && gl2_0_2_0) UseProgram = (PFNGLUSEPROGRAMPROC_MT)cmgr->getProcAddress("glUseProgram");
-	if (!Uniform1f && gl2_0_2_0) Uniform1f = (PFNGLUNIFORM1FPROC_MT)cmgr->getProcAddress("glUniform1f");
-	if (!Uniform2f && gl2_0_2_0) Uniform2f = (PFNGLUNIFORM2FPROC_MT)cmgr->getProcAddress("glUniform2f");
-	if (!Uniform3f && gl2_0_2_0) Uniform3f = (PFNGLUNIFORM3FPROC_MT)cmgr->getProcAddress("glUniform3f");
-	if (!Uniform4f && gl2_0_2_0) Uniform4f = (PFNGLUNIFORM4FPROC_MT)cmgr->getProcAddress("glUniform4f");
-	if (!Uniform1i && gl2_0_2_0) Uniform1i = (PFNGLUNIFORM1IPROC_MT)cmgr->getProcAddress("glUniform1i");
-	if (!Uniform2i && gl2_0_2_0) Uniform2i = (PFNGLUNIFORM2IPROC_MT)cmgr->getProcAddress("glUniform2i");
-	if (!Uniform3i && gl2_0_2_0) Uniform3i = (PFNGLUNIFORM3IPROC_MT)cmgr->getProcAddress("glUniform3i");
-	if (!Uniform4i && gl2_0_2_0) Uniform4i = (PFNGLUNIFORM4IPROC_MT)cmgr->getProcAddress("glUniform4i");
-	if (!Uniform1fv && gl2_0_2_0) Uniform1fv = (PFNGLUNIFORM1FVPROC_MT)cmgr->getProcAddress("glUniform1fv");
-	if (!Uniform2fv && gl2_0_2_0) Uniform2fv = (PFNGLUNIFORM2FVPROC_MT)cmgr->getProcAddress("glUniform2fv");
-	if (!Uniform3fv && gl2_0_2_0) Uniform3fv = (PFNGLUNIFORM3FVPROC_MT)cmgr->getProcAddress("glUniform3fv");
-	if (!Uniform4fv && gl2_0_2_0) Uniform4fv = (PFNGLUNIFORM4FVPROC_MT)cmgr->getProcAddress("glUniform4fv");
-	if (!Uniform1iv && gl2_0_2_0) Uniform1iv = (PFNGLUNIFORM1IVPROC_MT)cmgr->getProcAddress("glUniform1iv");
-	if (!Uniform2iv && gl2_0_2_0) Uniform2iv = (PFNGLUNIFORM2IVPROC_MT)cmgr->getProcAddress("glUniform2iv");
-	if (!Uniform3iv && gl2_0_2_0) Uniform3iv = (PFNGLUNIFORM3IVPROC_MT)cmgr->getProcAddress("glUniform3iv");
-	if (!Uniform4iv && gl2_0_2_0) Uniform4iv = (PFNGLUNIFORM4IVPROC_MT)cmgr->getProcAddress("glUniform4iv");
-	if (!UniformMatrix2fv && gl2_0_2_0) UniformMatrix2fv = (PFNGLUNIFORMMATRIX2FVPROC_MT)cmgr->getProcAddress("glUniformMatrix2fv");
-	if (!UniformMatrix3fv && gl2_0_2_0) UniformMatrix3fv = (PFNGLUNIFORMMATRIX3FVPROC_MT)cmgr->getProcAddress("glUniformMatrix3fv");
-	if (!UniformMatrix4fv && gl2_0_2_0) UniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC_MT)cmgr->getProcAddress("glUniformMatrix4fv");
-	if (!ValidateProgram && gl2_0_2_0) ValidateProgram = (PFNGLVALIDATEPROGRAMPROC_MT)cmgr->getProcAddress("glValidateProgram");
-	if (!VertexAttrib1f && gl2_0_2_0) VertexAttrib1f = (PFNGLVERTEXATTRIB1FPROC_MT)cmgr->getProcAddress("glVertexAttrib1f");
-	if (!VertexAttrib1fv && gl2_0_2_0) VertexAttrib1fv = (PFNGLVERTEXATTRIB1FVPROC_MT)cmgr->getProcAddress("glVertexAttrib1fv");
-	if (!VertexAttrib2f && gl2_0_2_0) VertexAttrib2f = (PFNGLVERTEXATTRIB2FPROC_MT)cmgr->getProcAddress("glVertexAttrib2f");
-	if (!VertexAttrib2fv && gl2_0_2_0) VertexAttrib2fv = (PFNGLVERTEXATTRIB2FVPROC_MT)cmgr->getProcAddress("glVertexAttrib2fv");
-	if (!VertexAttrib3f && gl2_0_2_0) VertexAttrib3f = (PFNGLVERTEXATTRIB3FPROC_MT)cmgr->getProcAddress("glVertexAttrib3f");
-	if (!VertexAttrib3fv && gl2_0_2_0) VertexAttrib3fv = (PFNGLVERTEXATTRIB3FVPROC_MT)cmgr->getProcAddress("glVertexAttrib3fv");
-	if (!VertexAttrib4f && gl2_0_2_0) VertexAttrib4f = (PFNGLVERTEXATTRIB4FPROC_MT)cmgr->getProcAddress("glVertexAttrib4f");
-	if (!VertexAttrib4fv && gl2_0_2_0) VertexAttrib4fv = (PFNGLVERTEXATTRIB4FVPROC_MT)cmgr->getProcAddress("glVertexAttrib4fv");
-	if (!VertexAttribPointer && gl2_0_2_0) VertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC_MT)cmgr->getProcAddress("glVertexAttribPointer");
 	if (!DrawBuffers && gl2_0_3_0) DrawBuffers = (PFNGLDRAWBUFFERSPROC_MT)cmgr->getProcAddress("glDrawBuffers");
 	if (!GetVertexAttribdv && gl2_0) GetVertexAttribdv = (PFNGLGETVERTEXATTRIBDVPROC_MT)cmgr->getProcAddress("glGetVertexAttribdv");
 	if (!VertexAttrib1d && gl2_0) VertexAttrib1d = (PFNGLVERTEXATTRIB1DPROC_MT)cmgr->getProcAddress("glVertexAttrib1d");
@@ -1661,10 +1656,6 @@ void OpenGLProcedures::LoadAllProcedures(video::IContextManager *cmgr, bool load
 		if (!ProgramUniform2ui64vARB) ProgramUniform2ui64vARB = (PFNGLPROGRAMUNIFORM2UI64VARBPROC_MT)cmgr->getProcAddress("glProgramUniform2ui64vARB");
 		if (!ProgramUniform3ui64vARB) ProgramUniform3ui64vARB = (PFNGLPROGRAMUNIFORM3UI64VARBPROC_MT)cmgr->getProcAddress("glProgramUniform3ui64vARB");
 		if (!ProgramUniform4ui64vARB) ProgramUniform4ui64vARB = (PFNGLPROGRAMUNIFORM4UI64VARBPROC_MT)cmgr->getProcAddress("glProgramUniform4ui64vARB");
-	}
-	if (CHECK_EXT_GL("GL_ARB_imaging")) {
-		if (!BlendColor) BlendColor = (PFNGLBLENDCOLORPROC_MT)cmgr->getProcAddress("glBlendColor");
-		if (!BlendEquation) BlendEquation = (PFNGLBLENDEQUATIONPROC_MT)cmgr->getProcAddress("glBlendEquation");
 	}
 	if (CHECK_EXT_GL("GL_ARB_indirect_parameters")) {
 		if (!MultiDrawArraysIndirectCount) MultiDrawArraysIndirectCount = (PFNGLMULTIDRAWARRAYSINDIRECTCOUNTPROC_MT)cmgr->getProcAddress("glMultiDrawArraysIndirectCountARB");
@@ -3528,123 +3519,6 @@ void OpenGLProcedures::LoadAllProcedures(video::IContextManager *cmgr, bool load
 		if (!GetClipPlanefOES) GetClipPlanefOES = (PFNGLGETCLIPPLANEFOESPROC_MT)cmgr->getProcAddress("glGetClipPlanefOES");
 		if (!OrthofOES) OrthofOES = (PFNGLORTHOFOESPROC_MT)cmgr->getProcAddress("glOrthofOES");
 	}
-	if (CHECK_EXT_GL("GL_PGI_misc_hints")) {
-		if (!HintPGI) HintPGI = (PFNGLHINTPGIPROC_MT)cmgr->getProcAddress("glHintPGI");
-	}
-	if (CHECK_EXT_GL("GL_SGIS_detail_texture")) {
-		if (!DetailTexFuncSGIS) DetailTexFuncSGIS = (PFNGLDETAILTEXFUNCSGISPROC_MT)cmgr->getProcAddress("glDetailTexFuncSGIS");
-		if (!GetDetailTexFuncSGIS) GetDetailTexFuncSGIS = (PFNGLGETDETAILTEXFUNCSGISPROC_MT)cmgr->getProcAddress("glGetDetailTexFuncSGIS");
-	}
-	if (CHECK_EXT_GL("GL_SGIS_fog_function")) {
-		if (!FogFuncSGIS) FogFuncSGIS = (PFNGLFOGFUNCSGISPROC_MT)cmgr->getProcAddress("glFogFuncSGIS");
-		if (!GetFogFuncSGIS) GetFogFuncSGIS = (PFNGLGETFOGFUNCSGISPROC_MT)cmgr->getProcAddress("glGetFogFuncSGIS");
-	}
-	if (CHECK_EXT_GL("GL_SGIS_pixel_texture")) {
-		if (!PixelTexGenParameteriSGIS) PixelTexGenParameteriSGIS = (PFNGLPIXELTEXGENPARAMETERISGISPROC_MT)cmgr->getProcAddress("glPixelTexGenParameteriSGIS");
-		if (!PixelTexGenParameterivSGIS) PixelTexGenParameterivSGIS = (PFNGLPIXELTEXGENPARAMETERIVSGISPROC_MT)cmgr->getProcAddress("glPixelTexGenParameterivSGIS");
-		if (!PixelTexGenParameterfSGIS) PixelTexGenParameterfSGIS = (PFNGLPIXELTEXGENPARAMETERFSGISPROC_MT)cmgr->getProcAddress("glPixelTexGenParameterfSGIS");
-		if (!PixelTexGenParameterfvSGIS) PixelTexGenParameterfvSGIS = (PFNGLPIXELTEXGENPARAMETERFVSGISPROC_MT)cmgr->getProcAddress("glPixelTexGenParameterfvSGIS");
-		if (!GetPixelTexGenParameterivSGIS) GetPixelTexGenParameterivSGIS = (PFNGLGETPIXELTEXGENPARAMETERIVSGISPROC_MT)cmgr->getProcAddress("glGetPixelTexGenParameterivSGIS");
-		if (!GetPixelTexGenParameterfvSGIS) GetPixelTexGenParameterfvSGIS = (PFNGLGETPIXELTEXGENPARAMETERFVSGISPROC_MT)cmgr->getProcAddress("glGetPixelTexGenParameterfvSGIS");
-	}
-	if (CHECK_EXT_GL("GL_SGIS_point_parameters")) {
-		if (!PointParameterf) PointParameterf = (PFNGLPOINTPARAMETERFPROC_MT)cmgr->getProcAddress("glPointParameterfSGIS");
-		if (!PointParameterfv) PointParameterfv = (PFNGLPOINTPARAMETERFVPROC_MT)cmgr->getProcAddress("glPointParameterfvSGIS");
-	}
-	if (CHECK_EXT_GL("GL_SGIS_sharpen_texture")) {
-		if (!SharpenTexFuncSGIS) SharpenTexFuncSGIS = (PFNGLSHARPENTEXFUNCSGISPROC_MT)cmgr->getProcAddress("glSharpenTexFuncSGIS");
-		if (!GetSharpenTexFuncSGIS) GetSharpenTexFuncSGIS = (PFNGLGETSHARPENTEXFUNCSGISPROC_MT)cmgr->getProcAddress("glGetSharpenTexFuncSGIS");
-	}
-	if (CHECK_EXT_GL("GL_SGIS_texture4D")) {
-		if (!TexImage4DSGIS) TexImage4DSGIS = (PFNGLTEXIMAGE4DSGISPROC_MT)cmgr->getProcAddress("glTexImage4DSGIS");
-		if (!TexSubImage4DSGIS) TexSubImage4DSGIS = (PFNGLTEXSUBIMAGE4DSGISPROC_MT)cmgr->getProcAddress("glTexSubImage4DSGIS");
-	}
-	if (CHECK_EXT_GL("GL_SGIS_texture_color_mask")) {
-		if (!TextureColorMaskSGIS) TextureColorMaskSGIS = (PFNGLTEXTURECOLORMASKSGISPROC_MT)cmgr->getProcAddress("glTextureColorMaskSGIS");
-	}
-	if (CHECK_EXT_GL("GL_SGIS_texture_filter4")) {
-		if (!GetTexFilterFuncSGIS) GetTexFilterFuncSGIS = (PFNGLGETTEXFILTERFUNCSGISPROC_MT)cmgr->getProcAddress("glGetTexFilterFuncSGIS");
-		if (!TexFilterFuncSGIS) TexFilterFuncSGIS = (PFNGLTEXFILTERFUNCSGISPROC_MT)cmgr->getProcAddress("glTexFilterFuncSGIS");
-	}
-	if (CHECK_EXT_GL("GL_SGIX_async")) {
-		if (!AsyncMarkerSGIX) AsyncMarkerSGIX = (PFNGLASYNCMARKERSGIXPROC_MT)cmgr->getProcAddress("glAsyncMarkerSGIX");
-		if (!FinishAsyncSGIX) FinishAsyncSGIX = (PFNGLFINISHASYNCSGIXPROC_MT)cmgr->getProcAddress("glFinishAsyncSGIX");
-		if (!PollAsyncSGIX) PollAsyncSGIX = (PFNGLPOLLASYNCSGIXPROC_MT)cmgr->getProcAddress("glPollAsyncSGIX");
-		if (!GenAsyncMarkersSGIX) GenAsyncMarkersSGIX = (PFNGLGENASYNCMARKERSSGIXPROC_MT)cmgr->getProcAddress("glGenAsyncMarkersSGIX");
-		if (!DeleteAsyncMarkersSGIX) DeleteAsyncMarkersSGIX = (PFNGLDELETEASYNCMARKERSSGIXPROC_MT)cmgr->getProcAddress("glDeleteAsyncMarkersSGIX");
-		if (!IsAsyncMarkerSGIX) IsAsyncMarkerSGIX = (PFNGLISASYNCMARKERSGIXPROC_MT)cmgr->getProcAddress("glIsAsyncMarkerSGIX");
-	}
-	if (CHECK_EXT_GL("GL_SGIX_flush_raster")) {
-		if (!FlushRasterSGIX) FlushRasterSGIX = (PFNGLFLUSHRASTERSGIXPROC_MT)cmgr->getProcAddress("glFlushRasterSGIX");
-	}
-	if (CHECK_EXT_GL("GL_SGIX_fragment_lighting")) {
-		if (!FragmentColorMaterialSGIX) FragmentColorMaterialSGIX = (PFNGLFRAGMENTCOLORMATERIALSGIXPROC_MT)cmgr->getProcAddress("glFragmentColorMaterialSGIX");
-		if (!FragmentLightfSGIX) FragmentLightfSGIX = (PFNGLFRAGMENTLIGHTFSGIXPROC_MT)cmgr->getProcAddress("glFragmentLightfSGIX");
-		if (!FragmentLightfvSGIX) FragmentLightfvSGIX = (PFNGLFRAGMENTLIGHTFVSGIXPROC_MT)cmgr->getProcAddress("glFragmentLightfvSGIX");
-		if (!FragmentLightiSGIX) FragmentLightiSGIX = (PFNGLFRAGMENTLIGHTISGIXPROC_MT)cmgr->getProcAddress("glFragmentLightiSGIX");
-		if (!FragmentLightivSGIX) FragmentLightivSGIX = (PFNGLFRAGMENTLIGHTIVSGIXPROC_MT)cmgr->getProcAddress("glFragmentLightivSGIX");
-		if (!FragmentLightModelfSGIX) FragmentLightModelfSGIX = (PFNGLFRAGMENTLIGHTMODELFSGIXPROC_MT)cmgr->getProcAddress("glFragmentLightModelfSGIX");
-		if (!FragmentLightModelfvSGIX) FragmentLightModelfvSGIX = (PFNGLFRAGMENTLIGHTMODELFVSGIXPROC_MT)cmgr->getProcAddress("glFragmentLightModelfvSGIX");
-		if (!FragmentLightModeliSGIX) FragmentLightModeliSGIX = (PFNGLFRAGMENTLIGHTMODELISGIXPROC_MT)cmgr->getProcAddress("glFragmentLightModeliSGIX");
-		if (!FragmentLightModelivSGIX) FragmentLightModelivSGIX = (PFNGLFRAGMENTLIGHTMODELIVSGIXPROC_MT)cmgr->getProcAddress("glFragmentLightModelivSGIX");
-		if (!FragmentMaterialfSGIX) FragmentMaterialfSGIX = (PFNGLFRAGMENTMATERIALFSGIXPROC_MT)cmgr->getProcAddress("glFragmentMaterialfSGIX");
-		if (!FragmentMaterialfvSGIX) FragmentMaterialfvSGIX = (PFNGLFRAGMENTMATERIALFVSGIXPROC_MT)cmgr->getProcAddress("glFragmentMaterialfvSGIX");
-		if (!FragmentMaterialiSGIX) FragmentMaterialiSGIX = (PFNGLFRAGMENTMATERIALISGIXPROC_MT)cmgr->getProcAddress("glFragmentMaterialiSGIX");
-		if (!FragmentMaterialivSGIX) FragmentMaterialivSGIX = (PFNGLFRAGMENTMATERIALIVSGIXPROC_MT)cmgr->getProcAddress("glFragmentMaterialivSGIX");
-		if (!GetFragmentLightfvSGIX) GetFragmentLightfvSGIX = (PFNGLGETFRAGMENTLIGHTFVSGIXPROC_MT)cmgr->getProcAddress("glGetFragmentLightfvSGIX");
-		if (!GetFragmentLightivSGIX) GetFragmentLightivSGIX = (PFNGLGETFRAGMENTLIGHTIVSGIXPROC_MT)cmgr->getProcAddress("glGetFragmentLightivSGIX");
-		if (!GetFragmentMaterialfvSGIX) GetFragmentMaterialfvSGIX = (PFNGLGETFRAGMENTMATERIALFVSGIXPROC_MT)cmgr->getProcAddress("glGetFragmentMaterialfvSGIX");
-		if (!GetFragmentMaterialivSGIX) GetFragmentMaterialivSGIX = (PFNGLGETFRAGMENTMATERIALIVSGIXPROC_MT)cmgr->getProcAddress("glGetFragmentMaterialivSGIX");
-		if (!LightEnviSGIX) LightEnviSGIX = (PFNGLLIGHTENVISGIXPROC_MT)cmgr->getProcAddress("glLightEnviSGIX");
-	}
-	if (CHECK_EXT_GL("GL_SGIX_framezoom")) {
-		if (!FrameZoomSGIX) FrameZoomSGIX = (PFNGLFRAMEZOOMSGIXPROC_MT)cmgr->getProcAddress("glFrameZoomSGIX");
-	}
-	if (CHECK_EXT_GL("GL_SGIX_igloo_interface")) {
-		if (!IglooInterfaceSGIX) IglooInterfaceSGIX = (PFNGLIGLOOINTERFACESGIXPROC_MT)cmgr->getProcAddress("glIglooInterfaceSGIX");
-	}
-	if (CHECK_EXT_GL("GL_SGIX_instruments")) {
-		if (!GetInstrumentsSGIX) GetInstrumentsSGIX = (PFNGLGETINSTRUMENTSSGIXPROC_MT)cmgr->getProcAddress("glGetInstrumentsSGIX");
-		if (!InstrumentsBufferSGIX) InstrumentsBufferSGIX = (PFNGLINSTRUMENTSBUFFERSGIXPROC_MT)cmgr->getProcAddress("glInstrumentsBufferSGIX");
-		if (!PollInstrumentsSGIX) PollInstrumentsSGIX = (PFNGLPOLLINSTRUMENTSSGIXPROC_MT)cmgr->getProcAddress("glPollInstrumentsSGIX");
-		if (!ReadInstrumentsSGIX) ReadInstrumentsSGIX = (PFNGLREADINSTRUMENTSSGIXPROC_MT)cmgr->getProcAddress("glReadInstrumentsSGIX");
-		if (!StartInstrumentsSGIX) StartInstrumentsSGIX = (PFNGLSTARTINSTRUMENTSSGIXPROC_MT)cmgr->getProcAddress("glStartInstrumentsSGIX");
-		if (!StopInstrumentsSGIX) StopInstrumentsSGIX = (PFNGLSTOPINSTRUMENTSSGIXPROC_MT)cmgr->getProcAddress("glStopInstrumentsSGIX");
-	}
-	if (CHECK_EXT_GL("GL_SGIX_list_priority")) {
-		if (!GetListParameterfvSGIX) GetListParameterfvSGIX = (PFNGLGETLISTPARAMETERFVSGIXPROC_MT)cmgr->getProcAddress("glGetListParameterfvSGIX");
-		if (!GetListParameterivSGIX) GetListParameterivSGIX = (PFNGLGETLISTPARAMETERIVSGIXPROC_MT)cmgr->getProcAddress("glGetListParameterivSGIX");
-		if (!ListParameterfSGIX) ListParameterfSGIX = (PFNGLLISTPARAMETERFSGIXPROC_MT)cmgr->getProcAddress("glListParameterfSGIX");
-		if (!ListParameterfvSGIX) ListParameterfvSGIX = (PFNGLLISTPARAMETERFVSGIXPROC_MT)cmgr->getProcAddress("glListParameterfvSGIX");
-		if (!ListParameteriSGIX) ListParameteriSGIX = (PFNGLLISTPARAMETERISGIXPROC_MT)cmgr->getProcAddress("glListParameteriSGIX");
-		if (!ListParameterivSGIX) ListParameterivSGIX = (PFNGLLISTPARAMETERIVSGIXPROC_MT)cmgr->getProcAddress("glListParameterivSGIX");
-	}
-	if (CHECK_EXT_GL("GL_SGIX_pixel_texture")) {
-		if (!PixelTexGenSGIX) PixelTexGenSGIX = (PFNGLPIXELTEXGENSGIXPROC_MT)cmgr->getProcAddress("glPixelTexGenSGIX");
-	}
-	if (CHECK_EXT_GL("GL_SGIX_polynomial_ffd")) {
-		if (!DeformationMap3dSGIX) DeformationMap3dSGIX = (PFNGLDEFORMATIONMAP3DSGIXPROC_MT)cmgr->getProcAddress("glDeformationMap3dSGIX");
-		if (!DeformationMap3fSGIX) DeformationMap3fSGIX = (PFNGLDEFORMATIONMAP3FSGIXPROC_MT)cmgr->getProcAddress("glDeformationMap3fSGIX");
-		if (!DeformSGIX) DeformSGIX = (PFNGLDEFORMSGIXPROC_MT)cmgr->getProcAddress("glDeformSGIX");
-		if (!LoadIdentityDeformationMapSGIX) LoadIdentityDeformationMapSGIX = (PFNGLLOADIDENTITYDEFORMATIONMAPSGIXPROC_MT)cmgr->getProcAddress("glLoadIdentityDeformationMapSGIX");
-	}
-	if (CHECK_EXT_GL("GL_SGIX_reference_plane")) {
-		if (!ReferencePlaneSGIX) ReferencePlaneSGIX = (PFNGLREFERENCEPLANESGIXPROC_MT)cmgr->getProcAddress("glReferencePlaneSGIX");
-	}
-	if (CHECK_EXT_GL("GL_SGIX_sprite")) {
-		if (!SpriteParameterfSGIX) SpriteParameterfSGIX = (PFNGLSPRITEPARAMETERFSGIXPROC_MT)cmgr->getProcAddress("glSpriteParameterfSGIX");
-		if (!SpriteParameterfvSGIX) SpriteParameterfvSGIX = (PFNGLSPRITEPARAMETERFVSGIXPROC_MT)cmgr->getProcAddress("glSpriteParameterfvSGIX");
-		if (!SpriteParameteriSGIX) SpriteParameteriSGIX = (PFNGLSPRITEPARAMETERISGIXPROC_MT)cmgr->getProcAddress("glSpriteParameteriSGIX");
-		if (!SpriteParameterivSGIX) SpriteParameterivSGIX = (PFNGLSPRITEPARAMETERIVSGIXPROC_MT)cmgr->getProcAddress("glSpriteParameterivSGIX");
-	}
-	if (CHECK_EXT_GL("GL_SGIX_tag_sample_buffer")) {
-		if (!TagSampleBufferSGIX) TagSampleBufferSGIX = (PFNGLTAGSAMPLEBUFFERSGIXPROC_MT)cmgr->getProcAddress("glTagSampleBufferSGIX");
-	}
-	if (CHECK_EXT_GL("GL_SGI_color_table")) {
-		if (!GetColorTableSGI) GetColorTableSGI = (PFNGLGETCOLORTABLESGIPROC_MT)cmgr->getProcAddress("glGetColorTableSGI");
-		if (!GetColorTableParameterfvSGI) GetColorTableParameterfvSGI = (PFNGLGETCOLORTABLEPARAMETERFVSGIPROC_MT)cmgr->getProcAddress("glGetColorTableParameterfvSGI");
-		if (!GetColorTableParameterivSGI) GetColorTableParameterivSGI = (PFNGLGETCOLORTABLEPARAMETERIVSGIPROC_MT)cmgr->getProcAddress("glGetColorTableParameterivSGI");
-	}
 	if (CHECK_EXT_GL("GL_SUNX_constant_data")) {
 		if (!FinishTextureSUNX) FinishTextureSUNX = (PFNGLFINISHTEXTURESUNXPROC_MT)cmgr->getProcAddress("glFinishTextureSUNX");
 	}
@@ -4121,55 +3995,6 @@ void OpenGLProcedures::LoadAllProcedures(video::IContextManager *cmgr, bool load
 	}
 	if (CHECK_EXT_GLES("GL_OVR_multiview_multisampled_render_to_texture")) {
 		if (!FramebufferTextureMultisampleMultiviewOVR) FramebufferTextureMultisampleMultiviewOVR = (PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC_MT)cmgr->getProcAddress("glFramebufferTextureMultisampleMultiviewOVR");
-	}
-	if (CHECK_EXT_GLES("GL_QCOM_alpha_test")) {
-		if (!AlphaFuncQCOM) AlphaFuncQCOM = (PFNGLALPHAFUNCQCOMPROC_MT)cmgr->getProcAddress("glAlphaFuncQCOM");
-	}
-	if (CHECK_EXT_GLES("GL_QCOM_driver_control")) {
-		if (!GetDriverControlsQCOM) GetDriverControlsQCOM = (PFNGLGETDRIVERCONTROLSQCOMPROC_MT)cmgr->getProcAddress("glGetDriverControlsQCOM");
-		if (!GetDriverControlStringQCOM) GetDriverControlStringQCOM = (PFNGLGETDRIVERCONTROLSTRINGQCOMPROC_MT)cmgr->getProcAddress("glGetDriverControlStringQCOM");
-		if (!EnableDriverControlQCOM) EnableDriverControlQCOM = (PFNGLENABLEDRIVERCONTROLQCOMPROC_MT)cmgr->getProcAddress("glEnableDriverControlQCOM");
-		if (!DisableDriverControlQCOM) DisableDriverControlQCOM = (PFNGLDISABLEDRIVERCONTROLQCOMPROC_MT)cmgr->getProcAddress("glDisableDriverControlQCOM");
-	}
-	if (CHECK_EXT_GLES("GL_QCOM_extended_get")) {
-		if (!ExtGetTexturesQCOM) ExtGetTexturesQCOM = (PFNGLEXTGETTEXTURESQCOMPROC_MT)cmgr->getProcAddress("glExtGetTexturesQCOM");
-		if (!ExtGetBuffersQCOM) ExtGetBuffersQCOM = (PFNGLEXTGETBUFFERSQCOMPROC_MT)cmgr->getProcAddress("glExtGetBuffersQCOM");
-		if (!ExtGetRenderbuffersQCOM) ExtGetRenderbuffersQCOM = (PFNGLEXTGETRENDERBUFFERSQCOMPROC_MT)cmgr->getProcAddress("glExtGetRenderbuffersQCOM");
-		if (!ExtGetFramebuffersQCOM) ExtGetFramebuffersQCOM = (PFNGLEXTGETFRAMEBUFFERSQCOMPROC_MT)cmgr->getProcAddress("glExtGetFramebuffersQCOM");
-		if (!ExtGetTexLevelParameterivQCOM) ExtGetTexLevelParameterivQCOM = (PFNGLEXTGETTEXLEVELPARAMETERIVQCOMPROC_MT)cmgr->getProcAddress("glExtGetTexLevelParameterivQCOM");
-		if (!ExtTexObjectStateOverrideiQCOM) ExtTexObjectStateOverrideiQCOM = (PFNGLEXTTEXOBJECTSTATEOVERRIDEIQCOMPROC_MT)cmgr->getProcAddress("glExtTexObjectStateOverrideiQCOM");
-		if (!ExtGetTexSubImageQCOM) ExtGetTexSubImageQCOM = (PFNGLEXTGETTEXSUBIMAGEQCOMPROC_MT)cmgr->getProcAddress("glExtGetTexSubImageQCOM");
-		if (!ExtGetBufferPointervQCOM) ExtGetBufferPointervQCOM = (PFNGLEXTGETBUFFERPOINTERVQCOMPROC_MT)cmgr->getProcAddress("glExtGetBufferPointervQCOM");
-	}
-	if (CHECK_EXT_GLES("GL_QCOM_extended_get2")) {
-		if (!ExtGetShadersQCOM) ExtGetShadersQCOM = (PFNGLEXTGETSHADERSQCOMPROC_MT)cmgr->getProcAddress("glExtGetShadersQCOM");
-		if (!ExtGetProgramsQCOM) ExtGetProgramsQCOM = (PFNGLEXTGETPROGRAMSQCOMPROC_MT)cmgr->getProcAddress("glExtGetProgramsQCOM");
-		if (!ExtIsProgramBinaryQCOM) ExtIsProgramBinaryQCOM = (PFNGLEXTISPROGRAMBINARYQCOMPROC_MT)cmgr->getProcAddress("glExtIsProgramBinaryQCOM");
-		if (!ExtGetProgramBinarySourceQCOM) ExtGetProgramBinarySourceQCOM = (PFNGLEXTGETPROGRAMBINARYSOURCEQCOMPROC_MT)cmgr->getProcAddress("glExtGetProgramBinarySourceQCOM");
-	}
-	if (CHECK_EXT_GLES("GL_QCOM_frame_extrapolation")) {
-		if (!ExtrapolateTex2DQCOM) ExtrapolateTex2DQCOM = (PFNGLEXTRAPOLATETEX2DQCOMPROC_MT)cmgr->getProcAddress("glExtrapolateTex2DQCOM");
-	}
-	if (CHECK_EXT_GLES("GL_QCOM_framebuffer_foveated")) {
-		if (!FramebufferFoveationConfigQCOM) FramebufferFoveationConfigQCOM = (PFNGLFRAMEBUFFERFOVEATIONCONFIGQCOMPROC_MT)cmgr->getProcAddress("glFramebufferFoveationConfigQCOM");
-		if (!FramebufferFoveationParametersQCOM) FramebufferFoveationParametersQCOM = (PFNGLFRAMEBUFFERFOVEATIONPARAMETERSQCOMPROC_MT)cmgr->getProcAddress("glFramebufferFoveationParametersQCOM");
-	}
-	if (CHECK_EXT_GLES("GL_QCOM_motion_estimation")) {
-		if (!TexEstimateMotionQCOM) TexEstimateMotionQCOM = (PFNGLTEXESTIMATEMOTIONQCOMPROC_MT)cmgr->getProcAddress("glTexEstimateMotionQCOM");
-		if (!TexEstimateMotionRegionsQCOM) TexEstimateMotionRegionsQCOM = (PFNGLTEXESTIMATEMOTIONREGIONSQCOMPROC_MT)cmgr->getProcAddress("glTexEstimateMotionRegionsQCOM");
-	}
-	if (CHECK_EXT_GLES("GL_QCOM_shader_framebuffer_fetch_noncoherent")) {
-		if (!FramebufferFetchBarrierQCOM) FramebufferFetchBarrierQCOM = (PFNGLFRAMEBUFFERFETCHBARRIERQCOMPROC_MT)cmgr->getProcAddress("glFramebufferFetchBarrierQCOM");
-	}
-	if (CHECK_EXT_GLES("GL_QCOM_shading_rate")) {
-		if (!ShadingRateQCOM) ShadingRateQCOM = (PFNGLSHADINGRATEQCOMPROC_MT)cmgr->getProcAddress("glShadingRateQCOM");
-	}
-	if (CHECK_EXT_GLES("GL_QCOM_texture_foveated")) {
-		if (!TextureFoveationParametersQCOM) TextureFoveationParametersQCOM = (PFNGLTEXTUREFOVEATIONPARAMETERSQCOMPROC_MT)cmgr->getProcAddress("glTextureFoveationParametersQCOM");
-	}
-	if (CHECK_EXT_GLES("GL_QCOM_tiled_rendering")) {
-		if (!StartTilingQCOM) StartTilingQCOM = (PFNGLSTARTTILINGQCOMPROC_MT)cmgr->getProcAddress("glStartTilingQCOM");
-		if (!EndTilingQCOM) EndTilingQCOM = (PFNGLENDTILINGQCOMPROC_MT)cmgr->getProcAddress("glEndTilingQCOM");
 	}
 
 }

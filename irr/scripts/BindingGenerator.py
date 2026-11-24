@@ -10,7 +10,7 @@ class GLInfo:
 		self.__functions_order: List[str] = []
 		self.__enums_db: Dict[str, dict] = {}
 		self.__enums_order: List[str] = []
-		self.__excluded_extensions = ["GL_ATI_fragment_shader", "GL_AMD_compressed_3DC_texture", "GL_EXT_422_pixels", "GL_EXT_multisample", "GL_SGIS_multisample"]
+		self.__excluded_extensions = ["GL_ATI_fragment_shader", "GL_AMD_compressed_3DC_texture", "GL_EXT_422_pixels", "GL_EXT_multisample", "GL_SGIS_multisample", "GL_SGIS_point_parameters", "GL_SGIS_sharpen_texture", "GL_SGIS_texture4D", "GGL_SGIS_texture_color_mask", "GL_SGIS_texture_filter4", "GL_SGIS_texture_color_mask", "GL_SGIS_texture_filter4", "GL_SGIS_detail_texture", "GL_SGIS_fog_function", "GL_SGIS_pixel_texture", "GL_SGIX_async", "GL_SGIX_flush_raster", "GL_SGIX_fragment_lighting", "GL_SGIX_framezoom", "GL_SGIX_igloo_interface", "GL_SGIX_instruments", "GL_SGIX_list_priority", "GL_SGIX_pixel_texture", "GL_SGIX_polynomial_ffd", "GL_SGIX_reference_plane", "GL_SGIX_sprite", "GL_SGIX_tag_sample_buffer", "GL_SGI_color_table", "GL_PGI_misc_hints", "GL_QCOM_alpha_test", "GL_QCOM_driver_control", "GL_QCOM_extended_get", "GL_QCOM_extended_get2", "GL_QCOM_frame_extrapolation", "GL_QCOM_framebuffer_foveated", "GL_QCOM_motion_estimation", "GL_QCOM_shader_framebuffer_fetch_noncoherent", "GL_QCOM_shading_rate", "GL_QCOM_texture_foveated", "GL_QCOM_tiled_rendering"]
 		self.__ignore_api = ["GL_VERSION_ES_CM_1_0"]
 		self.__unwanted_suffixes = ["_ANGLE", "ANGLE", "_APPLE", "APPLE", "_ARB", "ARB", "_EXT", "EXT", "_KHR", "KHR", "_NV", "NV"]
 		# functions loaded manually in template
@@ -19,7 +19,11 @@ class GLInfo:
 		major, minor = map(int, version.split('.'))
 		return major, minor
 	def __is_basic_function(self, function: dict) -> bool:
-		return function['min_gl_version'] == (1, 0) and function['min_gles_version'] == (2, 0)
+		gl_ver = function['min_gl_version']
+		gles_ver = function['min_gles_version']
+		is_gl_2_or_lower = (gl_ver is not None and gl_ver <= (2, 0))
+		is_gles_2_or_lower = (gles_ver is not None and gles_ver <= (2, 0))
+		return is_gl_2_or_lower and is_gles_2_or_lower
 	def __is_wanted_extension(self, extension_name: str) -> bool:
 		return not any(keyword in extension_name for keyword in self.__excluded_extensions)
 	def __is_wanted_api(self, feature_name: str) -> bool:
