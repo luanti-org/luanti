@@ -59,6 +59,9 @@ jobs:
       # https://github.com/opencontainers/distribution-spec/blob/v1.1.0/spec.md#backwards-compatibility
       sign: false
       sbom: true
+      force-compression: true
+      compression: zstd
+      compression-level: 22
       meta-images: ghcr.io/${{ github.repository }}
       meta-tags: |
         type=ref,event=branch
