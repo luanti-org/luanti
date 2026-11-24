@@ -120,19 +120,16 @@ void MapblockMeshGenerator::getSpecialTile(int index, TileSpec *tile_ret, bool a
 {
 	const ContentFeatures &f = *cur_node.f;
 	*tile_ret = f.visuals->special_tiles[index];
-	TileLayer *top_layer = nullptr;
 
 	for (auto &layernum : tile_ret->layers) {
 		TileLayer *layer = &layernum;
 		if (layer->empty())
 			continue;
-		top_layer = layer;
 		if (!layer->has_color)
 			layer->color = f.visuals->getColor(f, cur_node.n.param2);
+		if (apply_crack)
+			layer->material_flags |= MATERIAL_FLAG_CRACK;
 	}
-
-	if (apply_crack)
-		top_layer->material_flags |= MATERIAL_FLAG_CRACK;
 }
 
 void MapblockMeshGenerator::drawQuad(const TileSpec &tile, v3f *coords, const v3s16 &normal,
