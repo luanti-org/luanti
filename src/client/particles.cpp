@@ -52,6 +52,25 @@ static video::ITexture *extractTexture(const TileDef &def, const TileLayer &laye
 	return nullptr;
 }
 
+// Negative animation lengths mean "repeat N times over the particle's lifetime"
+static void sync_animation_to_lifetime(ParticleParameters &pp)
+{
+	// FIXME: this should be moved into a TileAnimationParams class method
+	if (pp.animation.type == TAT_VERTICAL_FRAMES &&
+			pp.animation.vertical_frames.length < 0) {
+		auto &a = pp.animation.vertical_frames;
+		// we add a tiny extra value to prevent the first frame
+		// from flickering back on just before the particle dies
+		a.length = (pp.expirationtime / -a.length) + 0.1f;
+	} else if (pp.animation.type == TAT_SHEET_2D &&
+			pp.animation.sheet_2d.frame_length < 0) {
+		auto &a = pp.animation.sheet_2d;
+		auto frames = a.frames_w * a.frames_h;
+		auto runtime = (pp.expirationtime / -a.frame_length) + 0.1f;
+		a.frame_length = runtime / frames;
+	}
+}
+
 /*
 	Particle
 */
@@ -158,7 +177,7 @@ void Particle::step(float dtime, ClientEnvironment *env)
 				m_texture.ref->getSize(),
 				NULL, &frame_length_i, NULL);
 		float frame_length = frame_length_i / 1000.0;
-		while (m_animation_time > frame_length) {
+		while (frame_length > 0 && m_animation_time > frame_length) {
 			m_animation_frame++;
 			m_animation_time -= frame_length;
 		}
@@ -485,23 +504,7 @@ void ParticleSpawner::spawnParticle(ClientEnvironment *env, float radius,
 	if (!texture.ref)
 		return;
 
-	// synchronize animation length with particle life if desired
-	if (pp.animation.type != TAT_NONE) {
-		// FIXME: this should be moved into a TileAnimationParams class method
-		if (pp.animation.type == TAT_VERTICAL_FRAMES &&
-			pp.animation.vertical_frames.length < 0) {
-			auto& a = pp.animation.vertical_frames;
-			// we add a tiny extra value to prevent the first frame
-			// from flickering back on just before the particle dies
-			a.length = (pp.expirationtime / -a.length) + 0.1;
-		} else if (pp.animation.type == TAT_SHEET_2D &&
-				   pp.animation.sheet_2d.frame_length < 0) {
-			auto& a = pp.animation.sheet_2d;
-			auto frames = a.frames_w * a.frames_h;
-			auto runtime = (pp.expirationtime / -a.frame_length) + 0.1;
-			pp.animation.sheet_2d.frame_length = frames / runtime;
-		}
-	}
+	sync_animation_to_lifetime(pp);
 
 	// Allow keeping default random size
 	if (p.size.start.max > 0.0f || p.size.end.max > 0.0f)
@@ -862,6 +865,8 @@ void ParticleManager::handleParticleEvent(ClientEvent *event, Client *client,
 			// Allow keeping default random size
 			if (oldsize > 0.0f)
 				p.size = oldsize;
+
+			sync_animation_to_lifetime(p);
 
 			if (texture.ref) {
 				addParticle(std::make_unique<Particle>(
