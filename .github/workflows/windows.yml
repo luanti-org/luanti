@@ -34,7 +34,7 @@ on:
 jobs:
   mingw:
     name: "MinGW cross-compiler (${{ matrix.config.bits }}-bit)"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -66,8 +66,6 @@ jobs:
           unzip -q -d "$dest" artifact/*.zip
           cd "$dest"/luanti-*-win*
           wine bin/luanti.exe --version
-        continue-on-error: ${{ matrix.config.bits == 32 }}
-        # FIXME: ^ this broke with the toolchain update
 
       - name: Build for NSIS
         run: |
