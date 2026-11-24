@@ -15,18 +15,11 @@ public:
 	ActiveObjectType getType() const {
 		return ACTIVEOBJECT_TYPE_TEST;
 	}
-	bool getCollisionBox(aabb3f *toset) const {
-		return false;
-	}
-	bool getSelectionBox(aabb3f *toset) const {
-		return false;
-	}
-	bool collideWithObjects() const {
-		return true;
-	}
-	std::string getGUID() const {
-		return "";
-	}
+	bool getCollisionBox(aabb3f *toset) const { return false; }
+	bool getSelectionBox(aabb3f *toset) const { return false; }
+	u32 getCollisionGroup() const { return 0; }
+	u32 getCollisionMask() const { return 0; }
+	std::string getGUID() const { return ""; }
 };
 
 constexpr float POS_RANGE = 2001;

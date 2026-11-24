@@ -69,6 +69,8 @@ struct ObjectProperties
 	u16 breath_max = 0;
 	s8 glow = 0;
 	PointabilityType pointable = PointabilityType::POINTABLE;
+	StepUpMode step_up_mode = StepUpMode::LEGACY;
+	std::optional<bool> collide_with_players;
 	// In a future protocol these could be a flag field.
 	bool physical = false;
 	bool collideWithObjects = true;
@@ -82,7 +84,6 @@ struct ObjectProperties
 	bool shaded = true;
 	bool show_on_minimap = false;
 	bool nametag_scale_z = false;
-	StepUpMode step_up_mode = StepUpMode::LEGACY;
 
 	ObjectProperties();
 
@@ -91,6 +92,10 @@ struct ObjectProperties
 	bool operator==(const ObjectProperties &other) const;
 	bool operator!=(const ObjectProperties &other) const {
 		return !(*this == other);
+	}
+
+	bool getCollideWithPlayers() const {
+		return collide_with_players.value_or(collideWithObjects);
 	}
 
 	/**

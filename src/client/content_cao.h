@@ -15,6 +15,7 @@
 #include "constants.h"
 #include "itemgroup.h"
 #include "client/tile.h"
+#include "collision.h"
 #include <cassert>
 #include <memory>
 
@@ -183,11 +184,15 @@ public:
 
 	void processInitData(const std::string &data);
 
+	u32 getCollisionGroup() const override {
+		return m_is_player ? COLLISION_BIT_PLAYER : COLLISION_BIT_OBJECT;
+	}
+	u32 getCollisionMask() const override {
+		return (m_prop.getCollideWithPlayers() ? COLLISION_BIT_PLAYER : 0) |
+			(m_prop.collideWithObjects ? COLLISION_BIT_OBJECT : 0);
+	}
 	bool getCollisionBox(aabb3f *toset) const override;
-
-	bool collideWithObjects() const override;
-
-	virtual bool getSelectionBox(aabb3f *toset) const override;
+	bool getSelectionBox(aabb3f *toset) const override;
 
 	const v3f getPosition() const override final;
 

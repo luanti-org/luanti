@@ -4,7 +4,7 @@
 
 #include "util/guid.h"
 #include "serverenvironment.h"
-#include <server/serveractiveobject.h>
+#include "server/serveractiveobject.h"
 #include <string>
 
 class MockServerActiveObject : public ServerActiveObject
@@ -18,9 +18,10 @@ public:
 	}
 
 	virtual ActiveObjectType getType() const { return ACTIVEOBJECT_TYPE_TEST; }
+	virtual u32 getCollisionGroup() const { return 0; }
+	virtual u32 getCollisionMask() const { return 0; }
 	virtual bool getCollisionBox(aabb3f *toset) const { return false; }
 	virtual bool getSelectionBox(aabb3f *toset) const { return false; }
-	virtual bool collideWithObjects() const { return false; }
 	virtual std::string getGUID() const
 	{
 		assert(!m_guid.empty());

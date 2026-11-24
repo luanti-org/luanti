@@ -469,6 +469,10 @@ local selected_objects = {}
 local function get_object_properties_form(obj, playername)
 	if not playername then return "" end
 	local props = obj:get_properties()
+	-- compatibility quirk: this property just disappears if not set
+	if props.collide_with_players == nil then
+		props.collide_with_players = S("<unset>")
+	end
 	local str = ""
 	property_formspec_data[playername] = {}
 	local proplist = {}

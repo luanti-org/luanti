@@ -39,6 +39,7 @@ core.register_entity(":__builtin:falling_node", {
 		physical = true,
 		is_visible = false,
 		collide_with_objects = true,
+		collide_with_players = false,
 		collisionbox = {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},
 	},
 
@@ -257,14 +258,9 @@ core.register_entity(":__builtin:falling_node", {
 		end
 
 		local bcp, bcn
-		local player_collision
 		if moveresult.touching_ground then
 			for _, info in ipairs(moveresult.collisions) do
-				if info.type == "object" then
-					if info.axis == "y" and info.object:is_player() then
-						player_collision = info
-					end
-				elseif info.axis == "y" then
+				if info.type == "node" and info.axis == "y" then
 					bcp = info.node_pos
 					bcn = core.get_node(bcp)
 					break
@@ -273,20 +269,7 @@ core.register_entity(":__builtin:falling_node", {
 		end
 
 		if not bcp then
-			-- We're colliding with something, but not the ground. Irrelevant to us.
-			if player_collision then
-				-- Continue falling through players by moving a little into
-				-- their collision box
-				-- TODO: this hack could be avoided in the future if objects
-				--       could choose who to collide with
-				local vel = self.object:get_velocity()
-				self.object:set_velocity(vector.new(
-					vel.x,
-					player_collision.old_velocity.y,
-					vel.z
-				))
-				self.object:set_pos(self.object:get_pos():offset(0, -0.5, 0))
-			end
+			-- We're colliding with something, but not the ground. Nothing to do.
 			return
 		elseif bcn.name == "ignore" then
 			-- Delete on contact with ignore at world edges
