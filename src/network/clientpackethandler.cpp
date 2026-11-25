@@ -1698,7 +1698,7 @@ void Client::handleCommand_PlayerSpeed(NetworkPacket *pkt)
 void Client::handleCommand_MediaPush(NetworkPacket *pkt)
 {
 	std::string raw_hash, filename, filedata;
-	u32 token;
+	u32 token = 0;
 	bool cached;
 
 	*pkt >> raw_hash >> filename >> cached;
