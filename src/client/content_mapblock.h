@@ -49,6 +49,10 @@ public:
 	MapblockMeshGenerator(MeshMakeData *input, MeshCollector *output);
 	void generate();
 
+	// The input vmainp data must contain extra nodes in every direction,
+	// because generate reads neighboring nodes using getNodeRefUnsafeCheckFlags
+	static constexpr int DATA_MARGIN = 1;
+
 private:
 	MeshMakeData *const data;
 	MeshCollector *const collector;

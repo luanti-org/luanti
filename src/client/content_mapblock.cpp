@@ -2053,11 +2053,9 @@ void MapblockMeshGenerator::generate()
 {
 	ZoneScoped;
 
-	// getNodeRefUnsafeCheckFlags can be used for nodes up to 3 away
-	// Also see MeshMakeData::fillBlockDataBegin and MeshMakeData::fillSingleNode
-	// Currently all drawtypes use at most nodes one away
-	assert(data->m_vmanip.m_area.contains(blockpos_nodes - 3));
-	assert(data->m_vmanip.m_area.contains(blockpos_nodes + v3s16(data->m_side_length + 2)));
+	assert(data->m_vmanip.m_area.contains(blockpos_nodes - DATA_MARGIN));
+	assert(data->m_vmanip.m_area.contains(
+			blockpos_nodes + data->m_side_length - 1 + DATA_MARGIN));
 
 	for (cur_node.p.Z = 0; cur_node.p.Z < data->m_side_length; cur_node.p.Z++)
 	for (cur_node.p.Y = 0; cur_node.p.Y < data->m_side_length; cur_node.p.Y++)

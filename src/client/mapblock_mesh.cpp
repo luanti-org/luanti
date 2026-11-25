@@ -45,8 +45,9 @@ void MeshMakeData::fillBlockDataBegin(const v3s16 &blockpos)
 
 	m_vmanip.clear();
 	// extra 1 block thick layer around the mesh
-	VoxelArea voxel_area(blockpos_nodes - v3s16(1,1,1) * MAP_BLOCKSIZE,
-			blockpos_nodes + v3s16(1,1,1) * (m_side_length + MAP_BLOCKSIZE) - v3s16(1,1,1));
+	static_assert(MAP_BLOCKSIZE >= MapblockMeshGenerator::DATA_MARGIN);
+	VoxelArea voxel_area(blockpos_nodes - MAP_BLOCKSIZE,
+			blockpos_nodes + (m_side_length + MAP_BLOCKSIZE - 1));
 	m_vmanip.addArea(voxel_area);
 }
 
@@ -55,8 +56,8 @@ void MeshMakeData::fillSingleNode(MapNode data, MapNode padding)
 	m_blockpos = {0, 0, 0};
 
 	m_vmanip.clear();
-	// area around 0,0,0 so that this positon has neighbors
-	const s16 sz = 3;
+	// area around 0,0,0 so that this position has neighbors
+	const s16 sz = MapblockMeshGenerator::DATA_MARGIN;
 	m_vmanip.addArea({v3s16(-sz), v3s16(sz)});
 
 	u32 count = m_vmanip.m_area.getVolume();
