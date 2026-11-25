@@ -34,7 +34,7 @@ on:
 jobs:
   mingw:
     name: "MinGW cross-compiler (${{ matrix.config.bits }}-bit)"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
