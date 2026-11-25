@@ -152,7 +152,6 @@ local function build_chatcommands_formspec(name, sel, copy, search)
 	end
 
 	return LIST_FORMSPEC_DESCRIPTION:format(
-			-- TRANSLATORS: @1 is the command to get help for a single command, e.g. "/help <cmd>".
 			F(S("Available commands: (see also: @1)", cmd_prefix .. "help <cmd>")),
 			table.concat(rows, ","), sel or 0,
 			F(description),
