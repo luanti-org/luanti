@@ -1592,10 +1592,8 @@ int ModApiMapgen::l_generate_ores(lua_State *L)
 	mg.vm   = checkObject<LuaVoxelManip>(L, 1)->vm;
 	mg.ndef = emerge->ndef;
 
-	v3s16 pmin = lua_istable(L, 2) ? check_v3s16(L, 2) :
-			mg.vm->m_area.MinEdge + v3s16(1,1,1) * MAP_BLOCKSIZE;
-	v3s16 pmax = lua_istable(L, 3) ? check_v3s16(L, 3) :
-			mg.vm->m_area.MaxEdge - v3s16(1,1,1) * MAP_BLOCKSIZE;
+	v3s16 pmin = lua_istable(L, 2) ? check_v3s16(L, 2) : mg.vm->m_area.MinEdge + MAP_BLOCKSIZE;
+	v3s16 pmax = lua_istable(L, 3) ? check_v3s16(L, 3) : mg.vm->m_area.MaxEdge - MAP_BLOCKSIZE;
 	sortBoxVerticies(pmin, pmax);
 
 	if (!mg.vm->m_area.contains(VoxelArea(pmin, pmax)))

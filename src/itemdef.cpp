@@ -174,7 +174,7 @@ void ItemDefinition::reset()
 	wield_overlay.reset();
 	palette_image.clear();
 	color = video::SColor(0xFFFFFFFF);
-	wield_scale = v3f(1.0f);
+	wield_scale = v3f(1);
 	stack_max = 99;
 	usable = false;
 	liquids_pointable = false;

@@ -229,7 +229,7 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 	// Copy parent position if local player is attached
 	if (getParent()) {
 		setPosition(m_cao->getPosition());
-		m_added_velocity = v3f(0.0f); // ignored
+		m_added_velocity = v3f(); // ignored
 		return;
 	}
 
@@ -245,12 +245,12 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 		setPosition(position);
 
 		touching_ground = false;
-		m_added_velocity = v3f(0.0f); // ignored
+		m_added_velocity = v3f(); // ignored
 		return;
 	}
 
 	m_speed += m_added_velocity;
-	m_added_velocity = v3f(0.0f);
+	m_added_velocity = v3f();
 
 	/*
 		Collision detection
@@ -543,7 +543,7 @@ void LocalPlayer::applyControl(float dtime, Environment *env)
 
 	// Nullify speed and don't run positioning code if the player is attached
 	if (getParent()) {
-		setSpeed(v3f(0.0f));
+		setSpeed(v3f());
 		return;
 	}
 
@@ -835,7 +835,7 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 	if (getParent()) {
 		setPosition(m_cao->getPosition());
 		m_sneak_node_exists = false;
-		m_added_velocity = v3f(0.0f);
+		m_added_velocity = v3f();
 		return;
 	}
 
@@ -851,12 +851,12 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 
 		touching_ground = false;
 		m_sneak_node_exists = false;
-		m_added_velocity = v3f(0.0f);
+		m_added_velocity = v3f();
 		return;
 	}
 
 	m_speed += m_added_velocity;
-	m_added_velocity = v3f(0.0f);
+	m_added_velocity = v3f();
 
 	// Apply gravity (note: this is broken, but kept since this is *old* move code)
 	m_speed.Y -= gravity * dtime;
@@ -898,7 +898,7 @@ void LocalPlayer::old_move(f32 dtime, Environment *env,
 	/*
 		Check if player is in liquid (the stable value)
 	*/
-	pp = floatToInt(position + v3f(0.0f), BS);
+	pp = floatToInt(position, BS);
 	node = map->getNode(pp, &is_valid_position);
 	if (is_valid_position)
 		in_liquid_stable = nodemgr->get(node.getContent()).liquid_move_physics;
@@ -1161,7 +1161,7 @@ float LocalPlayer::getSlipFactor(Environment *env, const v3f &speedH)
 		slippery = itemgroup_get(f.groups, "slippery");
 
 	if (slippery >= 1) {
-		if (speedH == v3f(0.0f))
+		if (speedH == v3f())
 			slippery *= 2;
 
 		return core::clamp(1.0f / (slippery + 1), 0.001f, 1.0f);

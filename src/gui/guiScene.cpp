@@ -24,7 +24,7 @@ GUIScene::GUIScene(gui::IGUIEnvironment *env,
 	m_driver = env->getVideoDriver();
 	m_smgr = smgr->createNewSceneManager(false);
 
-	m_cam = m_smgr->addCameraSceneNode(0, v3f(0.f, 0.f, -100.f), v3f(0.f));
+	m_cam = m_smgr->addCameraSceneNode(0, v3f(0, 0, -100), v3f());
 	m_cam->setFOV(30.f * core::DEGTORAD);
 
 	ShaderFeatures features;
@@ -95,7 +95,7 @@ void GUIScene::draw()
 
 	if (!m_target) {
 		updateCamera(m_smgr->addEmptySceneNode());
-		rotateCamera(v3f(0.f));
+		rotateCamera(v3f());
 		m_cam->bindTargetAndRotation(true);
 	}
 
@@ -222,7 +222,7 @@ void GUIScene::setCameraRotation(v3f rot)
 	core::matrix4 mat;
 	mat.setRotationDegrees(rot);
 
-	m_cam_pos = mat.rotateAndScaleVect(v3f(0.f, 0.f, m_cam_distance));
+	m_cam_pos = mat.rotateAndScaleVect(v3f(0, 0, m_cam_distance));
 
 	m_cam_pos += m_target_pos;
 	m_cam->setPosition(m_cam_pos);

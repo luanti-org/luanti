@@ -45,7 +45,7 @@ static void workOnMetadata(const MBContainer &vec)
 
 		v3s16 pos = block->getPos() * MAP_BLOCKSIZE;
 		if (foo)
-			pos += v3s16(MAP_BLOCKSIZE / 2);
+			pos += MAP_BLOCKSIZE / 2;
 
 		if (pos.getDistanceFrom(v3s16(0)) > 30000)
 			continue;

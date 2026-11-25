@@ -123,7 +123,7 @@ private:
 	video::E_MATERIAL_TYPE m_material_type = video::EMT_INVALID;
 
 	// Movement
-	v3f m_position = v3f(0.0f, 10.0f * BS, 0);
+	v3f m_position = v3f(0, 10 * BS, 0);
 	v3f m_velocity;
 	v3f m_acceleration;
 	/// Rotation as right-handed Z-X-Y Euler angles
@@ -134,7 +134,7 @@ private:
 
 	// Spritesheet stuff
 	// TODO move into own struct
-	v2f m_tx_size = v2f(1,1);
+	v2f m_tx_size = v2f(1);
 	v2s16 m_tx_basepos;
 	bool m_initial_tx_basepos_set = false;
 	bool m_tx_select_horiz_by_yawpitch = false;

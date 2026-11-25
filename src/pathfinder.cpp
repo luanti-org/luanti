@@ -630,7 +630,7 @@ std::vector<v3s16> Pathfinder::getPath(v3s16 source,
 	m_limits.MaxEdge.Y = max_y + searchdistance;
 	m_limits.MaxEdge.Z = max_z + searchdistance;
 
-	v3s16 diff = m_limits.MaxEdge - m_limits.MinEdge + v3s16(1);
+	v3s16 diff = m_limits.MaxEdge - m_limits.MinEdge + 1;
 
 	m_max_index_x = diff.X;
 	m_max_index_y = diff.Y;
@@ -705,7 +705,7 @@ std::vector<v3s16> Pathfinder::getPath(v3s16 source,
 	//calculate node costs
 	switch (algo) {
 		case PA_DIJKSTRA:
-			update_cost_retval = updateAllCosts(StartIndex, v3s16(0, 0, 0), 0, 0);
+			update_cost_retval = updateAllCosts(StartIndex, v3s16(), 0, 0);
 			break;
 		case PA_PLAIN_NP:
 		case PA_PLAIN:

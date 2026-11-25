@@ -159,9 +159,9 @@ bool ClientLauncher::run(const GameParams &game_params, const Settings &cmd_args
 		return false;
 	}
 	g_menuclouds->setHeight(100.0f);
-	g_menuclouds->update(v3f(0, 0, 0), m_rendering_engine->m_menu_clouds_color);
+	g_menuclouds->update(v3f(), m_rendering_engine->m_menu_clouds_color);
 	scene::ICameraSceneNode* camera;
-	camera = g_menucloudsmgr->addCameraSceneNode(NULL, v3f(0, 0, 0), v3f(0, 60, 100));
+	camera = g_menucloudsmgr->addCameraSceneNode(NULL, v3f(), v3f(0, 60, 100));
 	camera->setFarValue(10000);
 
 	/*

@@ -1189,7 +1189,7 @@ void repair_block_light(Map *map, MapBlock *block,
 	// Reset the voxel manipulator.
 	fill_with_sunlight(block, ndef, lights);
 	// Copy sunlight data
-	data.target_block = v3s16(blockpos.X, blockpos.Y - 1, blockpos.Z);
+	data.target_block = blockpos - v3s16(0, 1, 0);
 	for (s16 z = 0; z < MAP_BLOCKSIZE; z++)
 	for (s16 x = 0; x < MAP_BLOCKSIZE; x++) {
 		data.data.emplace_back(v2s16(x, z), lights[z][x]);

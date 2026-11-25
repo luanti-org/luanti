@@ -168,7 +168,7 @@ ClientMap::ClientMap(
 	m_client(client),
 	m_rendering_engine(rendering_engine),
 	m_control(control),
-	m_drawlist(MapBlockComparer(v3s16(0,0,0)))
+	m_drawlist(MapBlockComparer(v3s16()))
 {
 
 	/*
@@ -309,7 +309,7 @@ void ClientMap::getBlocksInViewRange(v3s16 cam_pos_nodes,
 	if (range <= 0.0f)
 		range = m_control.wanted_range;
 
-	v3s16 box_nodes_d = range * v3s16(1, 1, 1);
+	v3s16 box_nodes_d(range);
 	// Define p_nodes_min/max as v3s32 because 'cam_pos_nodes -/+ box_nodes_d'
 	// can exceed the range of v3s16 when a large view range is used near the
 	// world edges.
@@ -967,7 +967,7 @@ static u32 transformBuffersToDrawOrder(
 		for (auto *buf : it2->second.buf) {
 			// material is not part of the cache key, so make sure it still matches
 			buf->getMaterial() = use_mat;
-			draw_order.emplace_back(v3f(0), buf);
+			draw_order.emplace_back(v3f(), buf);
 		}
 		it2->second.age = 0;
 	} else if (!key.empty()) {
@@ -977,7 +977,7 @@ static u32 transformBuffersToDrawOrder(
 		scene::SMeshBuffer *tmp = nullptr;
 		const auto &finish_buf = [&] () {
 			if (tmp) {
-				draw_order.emplace_back(v3f(0), tmp);
+				draw_order.emplace_back(v3f(), tmp);
 				total_vtx = subtract_or_zero(total_vtx, tmp->getVertexCount());
 				total_idx = subtract_or_zero(total_idx, tmp->getIndexCount());
 

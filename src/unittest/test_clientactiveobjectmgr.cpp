@@ -128,8 +128,7 @@ TEST_CASE("test client active object manager")
 void TestClientActiveObjectMgr::testGetActiveSelectableObjects()
 {
 	client::ActiveObjectMgr caomgr;
-	auto obj_u = std::make_unique<TestSelectableClientActiveObject>(
-			aabb3f{v3f{-1, -1, -1}, v3f{1, 1, 1}});
+	auto obj_u = std::make_unique<TestSelectableClientActiveObject>(aabb3f(v3f(-1), v3f(1)));
 	auto obj = obj_u.get();
 	UASSERT(caomgr.registerObject(std::move(obj_u)));
 

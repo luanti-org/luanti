@@ -544,7 +544,7 @@ u32 ParsedText::parseTag(const wchar_t *text, u32 cursor)
 						rangelim(stoi(parts[0]), -180, 180),
 						rangelim(stoi(parts[1]), -180, 180),
 						rangelim(stoi(parts[2]), -180, 180));
-				m_element->rotation = v3s16(0, 0, 0);
+				m_element->rotation = v3s16();
 			}
 		}
 

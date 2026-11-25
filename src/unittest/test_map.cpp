@@ -79,11 +79,11 @@ void TestMap::testForEachNodeInArea(IGameDef *gamedef)
 {
 	v3s16 minp_visit(-10, -10, -10);
 	v3s16 maxp_visit(20, 20, 10);
-	v3s16 dims_visit = maxp_visit - minp_visit + v3s16(1, 1, 1);
+	v3s16 dims_visit = maxp_visit - minp_visit + 1;
 	s32 volume_visit = (s32)dims_visit.X * (s32)dims_visit.Y * (s32)dims_visit.Z;
 
-	v3s16 minp = minp_visit - v3s16(1, 1, 1);
-	v3s16 maxp = maxp_visit + v3s16(1, 1, 1);
+	v3s16 minp = minp_visit - 1;
+	v3s16 maxp = maxp_visit + 1;
 	DummyMap map(gamedef, getNodeBlockPos(minp), getNodeBlockPos(maxp));
 
 	v3s16 p1(0, 10, 5);
@@ -145,9 +145,9 @@ void TestMap::testForEachNodeInArea(IGameDef *gamedef)
 
 void TestMap::testForEachNodeInAreaBlank(IGameDef *gamedef)
 {
-	DummyMap map(gamedef, v3s16(0, 0, 0), v3s16(-1, -1, -1));
+	DummyMap map(gamedef, v3s16(), v3s16(-1));
 
-	v3s16 invalid_p(0, 0, 0);
+	v3s16 invalid_p;
 	bool visited = false;
 	map.forEachNodeInArea(invalid_p, invalid_p, [&](v3s16 p, MapNode n) -> bool {
 		bool is_valid_position = true;
@@ -163,7 +163,7 @@ void TestMap::testForEachNodeInAreaBlank(IGameDef *gamedef)
 void TestMap::testForEachNodeInAreaEmpty(IGameDef *gamedef)
 {
 	DummyMap map(gamedef, v3s16(), v3s16());
-	map.forEachNodeInArea(v3s16(0, 0, 0), v3s16(-1, -1, -1), [&](v3s16 p, MapNode n) -> bool {
+	map.forEachNodeInArea(v3s16(), v3s16(-1), [&](v3s16 p, MapNode n) -> bool {
 		UASSERT(false); // Should be unreachable
 		return true;
 	});

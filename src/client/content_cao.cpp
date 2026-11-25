@@ -694,7 +694,7 @@ void GenericCAO::addToScene(ITextureSource *tsrc, scene::ISceneManager *smgr)
 		m_meshnode->grab();
 		break;
 	} case OBJECTVISUAL_CUBE: {
-		scene::IMesh *mesh = createCubeMesh(v3f(BS,BS,BS));
+		scene::IMesh *mesh = createCubeMesh(v3f(BS));
 		m_meshnode = m_smgr->addMeshSceneNode(mesh, m_matrixnode);
 		m_meshnode->grab();
 		mesh->drop();
@@ -1015,8 +1015,8 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 		rot_interpolator.reset(m_rotation);
 
 		if (m_is_visible) {
-			m_velocity = v3f(0,0,0);
-			m_acceleration = v3f(0,0,0);
+			m_velocity = v3f();
+			m_acceleration = v3f();
 			const PlayerControl &controls = player->getPlayerControl();
 			f32 new_speed = player->local_animation_speed;
 
@@ -1121,8 +1121,8 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 	{
 		// Set these for later
 		m_position = getPosition();
-		m_velocity = v3f(0,0,0);
-		m_acceleration = v3f(0,0,0);
+		m_velocity = v3f();
+		m_acceleration = v3f();
 		pos_translator.val_current = m_position;
 		pos_translator.val_target = m_position;
 	} else {
@@ -1172,7 +1172,7 @@ void GenericCAO::step(float dtime, ClientEnvironment *env)
 				// somehow louder.
 				spec.gain *= 0.6f;
 				// The footstep-sound doesn't travel with the object. => vel=0
-				m_client->sound()->playSoundAt(0, spec, foot_pos, v3f(0.0f));
+				m_client->sound()->playSoundAt(0, spec, foot_pos, v3f());
 			}
 		}
 	}

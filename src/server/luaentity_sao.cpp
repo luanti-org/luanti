@@ -172,8 +172,8 @@ void LuaEntitySAO::step(float dtime, bool send_recommended)
 	// If the object gets detached this comes into effect automatically from the last known origin
 	if (auto *parent = getParent()) {
 		setBasePosition(parent->getBasePosition());
-		m_velocity = v3f(0,0,0);
-		m_acceleration = v3f(0,0,0);
+		m_velocity = v3f();
+		m_acceleration = v3f();
 	} else {
 		if(m_prop.physical){
 			aabb3f box = m_prop.collisionbox;

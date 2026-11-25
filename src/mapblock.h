@@ -199,8 +199,7 @@ public:
 
 	static inline core::aabbox3d<s16> getBox(v3s16 pos_relative)
 	{
-		return core::aabbox3d<s16>(pos_relative,
-				pos_relative + v3s16(MAP_BLOCKSIZE - 1));
+		return core::aabbox3d<s16>(pos_relative, pos_relative + MAP_BLOCKSIZE - 1);
 	}
 
 	////

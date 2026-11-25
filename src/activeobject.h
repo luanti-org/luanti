@@ -114,8 +114,8 @@ struct BoneOverride
 
 	struct ScaleProperty
 	{
-		v3f previous = v3f(1.0f);
-		v3f vector = v3f(1.0f);
+		v3f previous = v3f(1);
+		v3f vector = v3f(1);
 		bool absolute = false;
 		f32 interp_duration = 0.0f;
 	} scale;
@@ -125,7 +125,7 @@ struct BoneOverride
 		if (progress > 1.0f || scale.interp_duration == 0.0f)
 			progress = 1.0f;
 		return scale.vector.getInterpolated(scale.previous, progress)
-				* (scale.absolute ? v3f(1.0f) : anim_scale);
+				* (scale.absolute ? v3f(1) : anim_scale);
 	}
 
 	f32 dtime_passed = 0.0f;
@@ -142,7 +142,7 @@ struct BoneOverride
 		return finishedInterpolation()
 				&& !position.absolute && position.vector == v3f()
 				&& !rotation.absolute && rotation.next == core::quaternion()
-				&& !scale.absolute && scale.vector == v3f(1.0f);
+				&& !scale.absolute && scale.vector == v3f(1);
 	}
 };
 

@@ -282,7 +282,7 @@ SECTION("spatial index") {
 	std::mt19937 gen(0xABCDEF);
 	std::uniform_int_distribution<s32> coordinate(-1000, 1000);
 	const auto random_pos = [&]() {
-		return v3f(coordinate(gen), coordinate(gen), coordinate(gen));
+		return v3f(coordinate(gen));
 	};
 
 	std::uniform_int_distribution<u32> percent(0, 99);

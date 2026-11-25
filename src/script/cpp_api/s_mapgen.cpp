@@ -35,8 +35,7 @@ void ScriptApiMapgen::on_generated(BlockMakeData *bmdata, u32 seed)
 	SCRIPTAPI_PRECHECKHEADER
 
 	v3s16 minp = bmdata->blockpos_min * MAP_BLOCKSIZE;
-	v3s16 maxp = bmdata->blockpos_max * MAP_BLOCKSIZE +
-				 v3s16(1,1,1) * (MAP_BLOCKSIZE - 1);
+	v3s16 maxp = bmdata->blockpos_max * MAP_BLOCKSIZE + MAP_BLOCKSIZE - 1;
 
 	LuaVoxelManip::create(L, bmdata->vmanip, true);
 	const int vmanip = lua_gettop(L);
