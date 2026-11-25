@@ -52,10 +52,10 @@ public:
 		data.m_smooth_lighting = smooth_lighting;
 		data.m_enable_water_reflections = false;
 		data.m_blockpos = {0, 0, 0};
-		// MapblockMeshGenerator needs a margin of at least 3
-		for (s16 x = -3; x <= 3; x++)
-		for (s16 y = -3; y <= 3; y++)
-		for (s16 z = -3; z <= 3; z++)
+		auto m = MapblockMeshGenerator::DATA_MARGIN;
+		for (s16 x = -m; x <= m; x++)
+		for (s16 y = -m; y <= m; y++)
+		for (s16 z = -m; z <= m; z++)
 			data.m_vmanip.setNode({x, y, z}, {CONTENT_AIR, 0, 0});
 		return data;
 	}
