@@ -106,36 +106,6 @@ protected:
 class TextureBuffer : public RenderSource
 {
 public:
-	virtual ~TextureBuffer() override;
-
-	/**
-	 * Configure fixed-size texture for the specific index
-	 *
-	 * @param index index of the texture
-	 * @param size width and height of the texture in pixels
-	 * @param height height of the texture in pixels
-	 * @param name unique name of the texture
-	 * @param format color format
-	 */
-	void setTexture(u8 index, core::dimension2du size, const std::string& name, video::ECOLOR_FORMAT format, bool clear = false, u8 msaa = 0);
-
-	/**
-	 * Configure relative-size texture for the specific index
-	 *
-	 * @param index index of the texture
-	 * @param scale_factor relation of the texture dimensions to the screen dimensions
-	 * @param name unique name of the texture
-	 * @param format color format
-	 */
-	void setTexture(u8 index, v2f scale_factor, const std::string& name, video::ECOLOR_FORMAT format, bool clear = false, u8 msaa = 0);
-
-	virtual u8 getTextureCount() override { return m_textures.size(); }
-	virtual video::ITexture *getTexture(u8 index) override;
-	virtual void reset(PipelineContext &context) override;
-	void swapTextures(u8 texture_a, u8 texture_b);
-private:
-	static const u8 NO_DEPTH_TEXTURE = 255;
-
 	struct TextureDefinition
 	{
 		bool valid { false };
@@ -147,7 +117,49 @@ private:
 		std::string name;
 		video::ECOLOR_FORMAT format;
 		u8 msaa;
+		TextureDefinition() = default;
+
+		/**
+		* Configure fixed-size texture
+		*
+		* @param size width and height of the texture in pixels
+		* @param name unique name of the texture
+		* @param format color format
+		*/
+		TextureDefinition(core::dimension2du size, const std::string &name,
+		    video::ECOLOR_FORMAT format, bool clear = false, u8 msaa = 0) :
+			valid(true), fixed_size(true), dirty(true), clear(clear), size(size), name(name),
+			  format(format), msaa(msaa) {};
+
+		/**
+		* Configure relative-size texture
+		*
+		* @param scale_factor relation of the texture dimensions to the screen dimensions
+		* @param name unique name of the texture
+		* @param format color format
+		*/
+		TextureDefinition(v2f scale_factor, const std::string &name,
+			video::ECOLOR_FORMAT format, bool clear = false, u8 msaa = 0) :
+			valid(true), fixed_size(false), dirty(true), clear(clear),
+			scale_factor(scale_factor), name(name), format(format), msaa(msaa) {};
 	};
+
+	virtual ~TextureBuffer() override;
+
+	/**
+	 * Configure texture for the specific index
+	 *
+	 * @param index index of the texture
+	 * @param definition logical definition of the texture
+	 */
+	void setTexture(u8 index, TextureDefinition definition);
+
+	virtual u8 getTextureCount() override { return m_textures.size(); }
+	virtual video::ITexture *getTexture(u8 index) override;
+	virtual void reset(PipelineContext &context) override;
+	void swapTextures(u8 texture_a, u8 texture_b);
+private:
+	static const u8 NO_DEPTH_TEXTURE = 255;
 
 	/**
 	 * Make sure the texture in the given slot matches the texture definition given the current context.

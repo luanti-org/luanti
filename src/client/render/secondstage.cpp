@@ -159,14 +159,24 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	}
 
 	if (enable_msaa) {
-		buffer->setTexture(TEXTURE_MSAA_COLOR, scale, "3d_render_msaa", color_format, false, antialiasing_scale);
-		buffer->setTexture(TEXTURE_MSAA_DEPTH, scale, "3d_depthmap_msaa", depth_format, false, antialiasing_scale);
+		buffer->setTexture(TEXTURE_MSAA_COLOR,
+			TextureBuffer::TextureDefinition(scale, "3d_render_msaa", color_format, false,
+				antialiasing_scale));
+		buffer->setTexture(TEXTURE_MSAA_DEPTH,
+			TextureBuffer::TextureDefinition(scale, "3d_depthmap_msaa", depth_format, false,
+				antialiasing_scale));
 	}
 
-	buffer->setTexture(TEXTURE_COLOR, scale, "3d_render", color_format);
-	buffer->setTexture(TEXTURE_EXPOSURE_1, core::dimension2du(1,1), "exposure_1", color_format, /*clear:*/ true);
-	buffer->setTexture(TEXTURE_EXPOSURE_2, core::dimension2du(1,1), "exposure_2", color_format, /*clear:*/ true);
-	buffer->setTexture(TEXTURE_DEPTH, scale, "3d_depthmap", depth_format);
+	buffer->setTexture(TEXTURE_COLOR,
+		TextureBuffer::TextureDefinition(scale, "3d_render", color_format));
+	buffer->setTexture(TEXTURE_EXPOSURE_1,
+		TextureBuffer::TextureDefinition(core::dimension2du(1,1), "exposure_1", color_format,
+			/*clear:*/ true));
+	buffer->setTexture(TEXTURE_EXPOSURE_2,
+		TextureBuffer::TextureDefinition(core::dimension2du(1,1), "exposure_2", color_format,
+			/*clear:*/ true));
+	buffer->setTexture(TEXTURE_DEPTH,
+		TextureBuffer::TextureDefinition(scale, "3d_depthmap", depth_format));
 
 	// attach buffer to the previous step
 	if (enable_msaa) {
@@ -198,14 +208,19 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 
 		v2f downscale = scale * 0.5f;
 		for (u8 i = 0; i < MIPMAP_LEVELS; i++) {
-			buffer->setTexture(TEXTURE_SCALE_DOWN + i, downscale, std::string("downsample") + std::to_string(i), bloom_format);
+			buffer->setTexture(TEXTURE_SCALE_DOWN + i,
+				TextureBuffer::TextureDefinition(downscale,
+					std::string("downsample") + std::to_string(i), bloom_format));
 			if (enable_bloom)
-				buffer->setTexture(TEXTURE_SCALE_UP + i, downscale, std::string("upsample") + std::to_string(i), bloom_format);
+				buffer->setTexture(TEXTURE_SCALE_UP + i,
+					TextureBuffer::TextureDefinition(downscale,
+						std::string("upsample") + std::to_string(i), bloom_format));
 			downscale *= 0.5f;
 		}
 
 		if (enable_bloom) {
-			buffer->setTexture(TEXTURE_BLOOM, scale, "bloom", bloom_format);
+			buffer->setTexture(TEXTURE_BLOOM,
+				TextureBuffer::TextureDefinition(scale, "bloom", bloom_format));
 
 			// get bright spots
 			u32 shader_id = client->getShaderSource()->getShaderRaw("extract_bloom");
@@ -236,7 +251,8 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 				source = TEXTURE_SCALE_DOWN;
 				downsample_start = 1;
 			} else {
-				buffer->setTexture(TEXTURE_VOLUME, scale, "volume", bloom_format);
+				buffer->setTexture(TEXTURE_VOLUME,
+					TextureBuffer::TextureDefinition(scale, "volume", bloom_format));
 				volume->setRenderTarget(pipeline->createOwned<TextureBufferOutput>(buffer, TEXTURE_VOLUME));
 				source = TEXTURE_VOLUME;
 			}
@@ -282,7 +298,8 @@ RenderStep *addPostProcessing(RenderPipeline *pipeline, RenderStep *previousStep
 	if (enable_fxaa) {
 		final_stage_source = TEXTURE_FXAA;
 
-		buffer->setTexture(TEXTURE_FXAA, scale, "fxaa", color_format);
+		buffer->setTexture(TEXTURE_FXAA,
+			TextureBuffer::TextureDefinition(scale, "fxaa", color_format));
 		shader_id = client->getShaderSource()->getShaderRaw("fxaa");
 		PostProcessingStep *effect = pipeline->createOwned<PostProcessingStep>(shader_id, std::vector<u8> { TEXTURE_COLOR });
 		pipeline->addStep(effect);
