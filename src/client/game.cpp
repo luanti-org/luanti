@@ -77,6 +77,7 @@ class GameGlobalShaderUniformSetter : public IShaderUniformSetter
 	int m_crack_texture_scale_i = 0;
 	CachedPixelShaderSetting<float> m_crack_texture_scale{"crackTextureScale"};
 	CachedPixelShaderSetting<float, 3> m_day_light{"dayLight"};
+	CachedVertexShaderSetting<float, 3> m_ambient_light{"ambientLight"};
 	CachedPixelShaderSetting<float, 3> m_minimap_yaw{"yawVec"};
 	CachedPixelShaderSetting<float, 3> m_camera_offset_pixel{"cameraOffset"};
 	CachedVertexShaderSetting<float, 3> m_camera_offset_vertex{"cameraOffset"};
@@ -186,6 +187,9 @@ public:
 		}
 
 		const auto &lighting = m_client->getEnv().getLocalPlayer()->getLighting();
+
+		const video::SColorf ambient_light(lighting.ambient_light);
+		m_ambient_light.set(ambient_light, services);
 
 		const AutoExposure &exposure_params = lighting.exposure;
 		std::array<float, 7> exposure_buffer = {
@@ -2587,9 +2591,19 @@ void Game::updateCamera(f32 dtime)
 	camera->step(dtime);
 
 	if (!m_flags.disable_camera_update) {
+		// The camera light color is used for the post effects only,
+		// which don't go through the shaders, so the day/night ratio
+		// is blended in and the ambient light applied here (the wield
+		// item receives both via the object shader).
+		video::SColor camera_light = player->light_color;
+		video::SColorf day_light;
+		get_sunlight_color(&day_light, client->getEnv().getDayNightRatio());
+		final_color_blend(&camera_light, camera_light, day_light);
+		apply_ambient_light(&camera_light,
+			player->getLighting().ambient_light);
 		client->getEnv().getClientMap().updateCamera(camera->getPosition(),
 			camera->getDirection(), camera->getFovMax(), camera->getOffset(),
-			player->light_color);
+			camera_light);
 	}
 }
 
@@ -2902,6 +2916,9 @@ PointedThing Game::updatePointedThing(
 		u32 daynight_ratio = client->getEnv().getDayNightRatio();
 		video::SColor c;
 		final_color_blend(&c, light_level, daynight_ratio);
+		// The selection box follows the ambient light, like the nodes do.
+		apply_ambient_light(&c,
+			client->getEnv().getLocalPlayer()->getLighting().ambient_light);
 
 		// Set mesh final color
 		hud->setSelectionMeshColor(c);

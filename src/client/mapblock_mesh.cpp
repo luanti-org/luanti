@@ -128,9 +128,11 @@ void final_color_blend(video::SColor *result,
 	video::SColorf c(data);
 	f32 n = 1 - c.a;
 
-	f32 r = c.r * (c.a * dayLight.r + n * artificialColor.r) * 2.0f;
-	f32 g = c.g * (c.a * dayLight.g + n * artificialColor.g) * 2.0f;
-	f32 b = c.b * (c.a * dayLight.b + n * artificialColor.b) * 2.0f;
+	f32 l = c.g;
+
+	f32 r = l * (c.a * dayLight.r + n * artificialColor.r) * 2.0f;
+	f32 g = l * (c.a * dayLight.g + n * artificialColor.g) * 2.0f;
+	f32 b = l * (c.a * dayLight.b + n * artificialColor.b) * 2.0f;
 
 	// Emphase blue a bit in darker places
 	// Each entry of this array represents a range of 8 blue levels
@@ -145,6 +147,18 @@ void final_color_blend(video::SColor *result,
 	result->setRed(core::clamp((s32) (r * 255.0f), 0, 255));
 	result->setGreen(core::clamp((s32) (g * 255.0f), 0, 255));
 	result->setBlue(core::clamp((s32) (b * 255.0f), 0, 255));
+}
+
+void apply_ambient_light(video::SColor *result, const video::SColor &ambient_light)
+{
+	// The ambient light is a per-channel light floor ("minimum
+	// illumination"), occluded like the light itself: surfaces get at
+	// least the ambient light, but the light which is already brighter
+	// (and the ambient occlusion baked into it) is left untouched.
+	// This mirrors the implementation in the nodes and objects vertex shaders.
+	result->setRed(std::max(result->getRed(), ambient_light.getRed()));
+	result->setGreen(std::max(result->getGreen(), ambient_light.getGreen()));
+	result->setBlue(std::max(result->getBlue(), ambient_light.getBlue()));
 }
 
 /*
@@ -413,19 +427,6 @@ void PartialMeshBuffer::draw(video::IVideoDriver *driver) const
 
 static void applyColorAndMerge(std::vector<PreMeshBuffer> &prebuffers)
 {
-	// TODO: we should change the meshgen so it already applies the tile color
-	// so that we don't need to this extra step.
-	// However currently the CAO code relies on the ability to erase the vertex
-	// colors (light data) before applying the tile colors.
-
-	for (auto &p : prebuffers) {
-		// bake color into vertices
-		p.applyTileColor();
-		// erase color information for later comparisons
-		p.layer.has_color = false;
-		p.layer.color = 0;
-	}
-
 	std::unordered_map<TileLayer, size_t> seen;
 	for (size_t i = 0; i < prebuffers.size(); i++) {
 		PreMeshBuffer &p = prebuffers[i];
@@ -530,6 +531,7 @@ MapBlockMesh::MapBlockMesh(Client *client, MeshMakeData *data):
 				material.MaterialType = m_shdrsrc->getShaderInfo(
 						p.layer.shader_id).material;
 				p.layer.applyMaterialOptions(material, layer);
+				material.ColorParam = p.layer.color;
 			}
 
 			// Handle crack
@@ -729,7 +731,7 @@ void MapBlockMesh::consolidateTransparentBuffers()
 	m_transparent_buffers_consolidated = true;
 }
 
-video::SColor encode_light(LightPair light, u8 emissive_light)
+video::SColor encode_light(LightPair light, u8 emissive_light, float ao)
 {
 	// Get components
 	u32 day = light.lightDay;
@@ -749,16 +751,23 @@ video::SColor encode_light(LightPair light, u8 emissive_light)
 		b = night / 2;
 	} else {
 		if (day == 0) // can't divide by 0
-			return video::SColor(0);
+			// Keep the ambient occlusion factor: it must darken the
+			// ambient light also in completely dark places.
+			return video::SColor(0, core::round32(ao * 255), 0, 0);
 		r = 255 - 255 * night / day;
 		b = day / 2;
 	}
-	return video::SColor(r, b, b, b);
+	// The green and blue channels carry the light pre-multiplied with
+	// the brightness and the alpha the ratio of sunlight in it. The red
+	// channel carries the ambient occlusion factor of the light, which
+	// is used in the shaders to occlude the ambient light like the
+	// light itself is occluded.
+	return video::SColor(r, core::round32(ao * 255), b, b);
 }
 
-video::SColor encode_light(u16 light, u8 emissive_light)
+video::SColor encode_light(u16 light, u8 emissive_light, float ao)
 {
-	return encode_light(LightPair(light), emissive_light);
+	return encode_light(LightPair(light), emissive_light, ao);
 }
 
 u8 get_solid_sides(MeshMakeData *data)

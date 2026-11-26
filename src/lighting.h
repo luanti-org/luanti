@@ -69,6 +69,10 @@ struct StaticLighting
  */
 struct Lighting
 {
+	/// @brief Color and intensity of the global ambient light.
+	/// It acts as a minimum illumination and is added to the light values
+	/// in the rendering pipeline (see the nodes vertex shader). Alpha is ignored.
+	video::SColor ambient_light {255, 0, 0, 0};
 	AutoExposure exposure;
 	float shadow_intensity {0.0f};
 	float saturation {1.0f};

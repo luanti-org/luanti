@@ -42,6 +42,7 @@ VARYING_ vec3 vNormal;
 // precision must be considered).
 VARYING_ vec3 worldPosition;
 VARYING_ lowp vec4 varColor;
+VARYING_ lowp vec3 varHWColor;
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
 #ifdef USE_ARRAY_TEXTURE
 flat VARYING_ uint varTexLayer;
@@ -385,7 +386,7 @@ void main(void)
 		discard;
 #endif
 
-	vec4 col = vec4(base.rgb * varColor.rgb, 1.0);
+	vec4 col = vec4(base.rgb * varHWColor * varColor.rgb, 1.0);
 	col.rgb *= vIDiff;
 
 #ifdef ENABLE_DYNAMIC_SHADOWS

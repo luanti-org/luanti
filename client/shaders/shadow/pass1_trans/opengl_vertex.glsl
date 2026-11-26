@@ -54,6 +54,8 @@ void main()
 #endif
 
 #ifdef COLORED_SHADOWS
-	varColor = inVertexColor.rgb;
+	// The green channel carries the light brightness, the red channel
+	// the ambient occlusion factor, c.f. encode_light().
+	varColor = vec3(inVertexColor.g);
 #endif
 }

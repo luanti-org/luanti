@@ -1,11 +1,14 @@
 uniform mat4 mWorld;
 uniform vec3 dayLight;
+// Color of the global ambient light (a minimum illumination).
+uniform vec3 ambientLight;
 uniform float animationTimer;
 uniform lowp vec4 materialColor;
 
 VARYING_ vec3 vNormal;
 VARYING_ vec3 worldPosition;
 VARYING_ lowp vec4 varColor;
+VARYING_ lowp vec3 varHWColor;
 CENTROID_ VARYING_ mediump vec2 varTexCoord;
 #ifdef USE_ARRAY_TEXTURE
 flat VARYING_ uint varTexLayer;
@@ -138,24 +141,37 @@ void main(void)
 		: directional_ambient(normalize(vNormal));
 #endif
 
+	// The material color carries the light values here (see
+	// content_cao.cpp / wieldmesh.cpp): its green and blue channels
+	// carry the light pre-multiplied with the brightness, the alpha
+	// the ratio of sunlight in it and the red channel the ambient
+	// occlusion factor (c.f. encode_light()). The vertex color is
+	// a hardware color (e.g. an item color), which is multiplied
+	// with the texture color in the fragment shader.
 	vec4 color = inVertexColor;
-
-	color *= materialColor;
+	vec4 light = materialColor;
+	float ao = light.r;
 
 	// The alpha gives the ratio of sunlight in the incoming light.
-	nightRatio = 1.0 - color.a;
-	color.rgb = color.rgb * (color.a * dayLight.rgb +
+	nightRatio = 1.0 - color.a * light.a;
+	light.rgb = vec3(light.g) * (color.a * light.a * dayLight.rgb +
 		nightRatio * artificialLight.rgb) * 2.0;
-	color.a = 1.0;
 
 	// Emphase blue a bit in darker places
 	// See C++ implementation in mapblock_mesh.cpp final_color_blend()
-	float brightness = (color.r + color.g + color.b) / 3.0;
-	color.b += max(0.0, 0.021 - abs(0.2 * brightness - 0.021) +
+	float brightness = (light.r + light.g + light.b) / 3.0;
+	light.b += max(0.0, 0.021 - abs(0.2 * brightness - 0.021) +
 		0.07 * brightness);
 
-	varColor = clamp(color, 0.0, 1.0);
+	// The ambient light is a per-channel light floor ("minimum
+	// illumination"): it is occluded by the ambient occlusion factor
+	// like the light itself is, so the occlusion stays visible at any
+	// ambient brightness.
+	// See C++ implementation in mapblock_mesh.cpp apply_ambient_light()
+	light.rgb = max(light.rgb, ambientLight.rgb * ao);
 
+	varHWColor = color.rgb;
+	varColor = vec4(clamp(light.rgb, 0.0, 1.0), 1.0);
 
 #ifdef ENABLE_DYNAMIC_SHADOWS
 	if (f_shadow_strength > 0.0) {

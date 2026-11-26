@@ -168,6 +168,11 @@ void TestMapblockMeshGenerator::runTests(IGameDef *gamedef)
 }
 
 namespace quad {
+	// The vertex colors of the generated meshes carry the ambient
+	// occlusion factor in the red channel (c.f. encode_light()), which
+	// the geometry comparisons below ignore (ignoreAoChannel). The
+	// green and blue channels carry the light (black in these tests)
+	// and the alpha the sunlight ratio.
 	constexpr float h = BS / 2.0f;
 	const Quad zp{{{{-h, -h, h}, {0, 0, 1}, 0, {1, 1}}, {{h, -h, h}, {0, 0, 1}, 0, {0, 1}}, {{h, h, h}, {0, 0, 1}, 0, {0, 0}}, {{-h, h, h}, {0, 0, 1}, 0, {1, 0}}}};
 	const Quad yp{{{{-h, h, -h}, {0, 1, 0}, 0, {0, 1}}, {{-h, h, h}, {0, 1, 0}, 0, {0, 0}}, {{h, h, h}, {0, 1, 0}, 0, {1, 0}}, {{h, h, -h}, {0, 1, 0}, 0, {1, 1}}}};
@@ -175,6 +180,15 @@ namespace quad {
 	const Quad zn{{{{-h, -h, -h}, {0, 0, -1}, 0, {0, 1}}, {{-h, h, -h}, {0, 0, -1}, 0, {0, 0}}, {{h, h, -h}, {0, 0, -1}, 0, {1, 0}}, {{h, -h, -h}, {0, 0, -1}, 0, {1, 1}}}};
 	const Quad yn{{{{-h, -h, -h}, {0, -1, 0}, 0, {0, 0}}, {{h, -h, -h}, {0, -1, 0}, 0, {1, 0}}, {{h, -h, h}, {0, -1, 0}, 0, {1, 1}}, {{-h, -h, h}, {0, -1, 0}, 0, {0, 1}}}};
 	const Quad xn{{{{-h, -h, -h}, {-1, 0, 0}, 0, {1, 1}}, {{-h, -h, h}, {-1, 0, 0}, 0, {0, 1}}, {{-h, h, h}, {-1, 0, 0}, 0, {0, 0}}, {{-h, h, -h}, {-1, 0, 0}, 0, {1, 0}}}};
+}
+
+// Masks the ambient occlusion factor (red channel) out of the mesh
+// vertex colors, so that the meshes can be compared to the expected
+// geometry ignoring the occlusion.
+static void ignoreAoChannel(std::vector<video::S3DVertex> &vertices)
+{
+	for (auto &v : vertices)
+		v.Color.setRed(0);
 }
 
 void TestMapblockMeshGenerator::testSimpleNode()
@@ -194,6 +208,16 @@ void TestMapblockMeshGenerator::testSimpleNode()
 
 	auto &&buf = col.prebuffers[0][0];
 	UASSERTEQ(u32, buf.layer.texture_id, 42);
+	// All neighbors are air, so the light is not occluded anywhere: the
+	// red channel carries the maximal ambient occlusion factor, scaled
+	// by the face shading factor like the light is (c.f. applyFacesShading).
+	for (const auto &v : buf.vertices) {
+		float f = v.Normal.Y > 0 ? 1.0f :
+			v.Normal.Y < 0 ? std::sqrt(0.2f) :
+			v.Normal.X != 0 ? std::sqrt(0.45f) : std::sqrt(0.7f);
+		UASSERTEQ(u32, v.Color.getRed(), core::round32(255.0f * f));
+	}
+	ignoreAoChannel(buf.vertices);
 	UASSERT(checkMeshEqual(buf.vertices, buf.indices, {quad::xn, quad::xp, quad::yn, quad::yp, quad::zn, quad::zp}));
 }
 
@@ -216,6 +240,7 @@ void TestMapblockMeshGenerator::testSurroundedNode()
 
 	auto &&buf = col.prebuffers[0][0];
 	UASSERTEQ(u32, buf.layer.texture_id, 42);
+	ignoreAoChannel(buf.vertices);
 	UASSERT(checkMeshEqual(buf.vertices, buf.indices, {quad::xn, quad::yn, quad::yp, quad::zn, quad::zp}));
 }
 
@@ -237,6 +262,7 @@ void TestMapblockMeshGenerator::testInterliquidSame()
 
 	auto &&buf = col.prebuffers[0][0];
 	UASSERTEQ(u32, buf.layer.texture_id, 42);
+	ignoreAoChannel(buf.vertices);
 	UASSERT(checkMeshEqual(buf.vertices, buf.indices, {quad::xn, quad::yn, quad::yp, quad::zn, quad::zp}));
 }
 
@@ -259,6 +285,7 @@ void TestMapblockMeshGenerator::testInterliquidDifferent()
 
 	auto &&buf = col.prebuffers[0][0];
 	UASSERTEQ(u32, buf.layer.texture_id, 42);
+	ignoreAoChannel(buf.vertices);
 	UASSERT(checkMeshEqual(buf.vertices, buf.indices, {quad::xn, quad::xp, quad::yn, quad::yp, quad::zn, quad::zp}));
 }
 

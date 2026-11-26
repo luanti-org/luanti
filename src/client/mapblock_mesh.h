@@ -323,9 +323,10 @@ private:
  * the last 8 bits are night light
  * \param emissive_light amount of light the surface emits,
  * from 0 to LIGHT_SUN.
+ * \param ao ambient occlusion factor of the light, from 0.0 to 1.0.
  */
-video::SColor encode_light(u16 light, u8 emissive_light);
-video::SColor encode_light(LightPair light, u8 emissive_light);
+video::SColor encode_light(u16 light, u8 emissive_light, float ao = 1.0f);
+video::SColor encode_light(LightPair light, u8 emissive_light, float ao = 1.0f);
 
 // Compute light at node
 u16 getInteriorLight(MapNode n, s32 increment, const NodeDefManager *ndef);
@@ -355,6 +356,19 @@ void final_color_blend(video::SColor *result,
  */
 void final_color_blend(video::SColor *result,
 		const video::SColor &data, const video::SColorf &dayLight);
+
+/*!
+ * Applies the ambient light to the given final light color.
+ * The ambient light acts as a per-channel light floor ("minimum
+ * illumination"): completely dark places are lit by exactly the
+ * ambient color, places which are already brighter are unaffected,
+ * and the ambient occlusion baked into the light is preserved.
+ * This mirrors the computation in the vertex shaders.
+ *
+ * \param result final light color to apply the ambient light to
+ * \param ambient_light color of the global ambient light
+ */
+void apply_ambient_light(video::SColor *result, const video::SColor &ambient_light);
 
 // Retrieves the TileSpec of a face of a node
 // Adds MATERIAL_FLAG_CRACK if the node is cracked
