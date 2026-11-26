@@ -155,6 +155,16 @@ void ActiveObjectMgr::getObjectsInArea(const aabb3f &box,
 	});
 }
 
+ServerActiveObject *ActiveObjectMgr::getActiveObjectByGUID(const std::string &guid)
+{
+	for (auto &ao_it : m_active_objects.iter()) {
+		ServerActiveObject *object = ao_it.second.get();
+		if (object && !object->isGone() && object->getGUID() == guid)
+			return object;
+	}
+	return nullptr;
+}
+
 void ActiveObjectMgr::getAddedActiveObjectsAroundPos(
 		v3f player_pos, const std::string &player_name,
 		f32 radius, f32 player_radius,

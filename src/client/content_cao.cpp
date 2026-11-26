@@ -49,8 +49,6 @@
 
 struct ToolCapabilities;
 
-std::unordered_map<u16, ClientActiveObject::Factory> ClientActiveObject::m_types;
-
 template<typename T>
 void SmoothTranslator<T>::init(T current)
 {
