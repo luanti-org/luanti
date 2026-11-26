@@ -847,6 +847,11 @@
 #    type: bool
 # smooth_lighting = true
 
+#    How strongly light sources brighten nearby node faces that face them.
+#    0 to disable.
+#    type: float min: 0 max: 2
+# light_source_radiance = 0.0
+
 #    Enables tradeoffs that reduce CPU load or increase rendering performance
 #    at the expense of minor visual glitches that do not impact game playability.
 #    type: bool

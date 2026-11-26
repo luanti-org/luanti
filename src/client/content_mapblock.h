@@ -43,6 +43,11 @@ struct LightFrame {
 	bool sunlight[8];
 };
 
+struct GlowEmitter {
+	v3s16 p; // relative to blockpos_nodes
+	u8 level;
+};
+
 class MapblockMeshGenerator
 {
 public:
@@ -76,6 +81,25 @@ private:
 	LightInfo blendLight(const v3f &vertex_pos);
 	video::SColor blendLightColor(const v3f &vertex_pos);
 	video::SColor blendLightColor(const v3f &vertex_pos, const v3f &vertex_normal);
+
+// directional glow
+	std::vector<GlowEmitter> block_emitters;
+	std::vector<GlowEmitter> node_emitters;
+	std::vector<u8> emitter_grid; // light level per node, used when there are many emitters
+	s16 emitter_grid_side = 0;
+	bool node_emitters_pending = false;
+	void collectGlowEmitters();
+	void prepareNodeGlow();
+	void collectNodeEmitters();
+	struct GlowSample {
+		v3s16 p;
+		u8 light;
+	};
+	std::vector<GlowSample> glow_samples;
+	void collectGlowSamples(const v3f &local_pos, const v3f &normal);
+	f32 glowVisibility(const GlowEmitter &e);
+	f32 applyShadingAndGlow(video::SColor &color, const v3f &local_pos, const v3f &normal,
+			bool shade = true);
 
 	void useTile(TileSpec *tile_ret, int index = 0, u8 set_flags = 0,
 		u8 reset_flags = 0, bool special = false);
