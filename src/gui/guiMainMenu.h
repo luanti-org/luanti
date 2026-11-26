@@ -5,6 +5,7 @@
 #pragma once
 
 #include "gameparams.h"
+#include "util/secure_string.h"
 #include <string>
 
 struct MainMenuData : GameClientData {
@@ -15,6 +16,7 @@ struct MainMenuData : GameClientData {
 	// Client options
 	std::string port; // TODO combine into GameClientData
 
+	SecureString password;
 	// Whether to reconnect
 	bool do_reconnect = false;
 

@@ -21,6 +21,8 @@
 #include "fontengine.h"
 #include "itemdef.h"
 #include "gameparams.h"
+#include "filesys.h"
+#include "client/clientgamestartdata.h"
 #include "gettext.h"
 #include "gui/guiChatConsole.h"
 #include "texturesource.h"
@@ -420,12 +422,14 @@ Game::~Game()
 bool Game::startup(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
-		GameStartData &start_data,
+		ClientGameStartData &client_start_data,
 		GameErrorData &errordata,
 		ChatBackend *chat_backend)
 {
 
 	// "cache"
+	GameStartData &start_data = client_start_data.start_data;
+
 	m_rendering_engine        = rendering_engine;
 	device                    = m_rendering_engine->get_raw_device();
 	this->kill                = kill;
@@ -458,7 +462,7 @@ bool Game::startup(volatile std::sig_atomic_t *kill,
 	if (!init(start_data))
 		return false;
 
-	if (!createClient(start_data))
+	if (!createClient(client_start_data))
 		return false;
 
 	m_rendering_engine->initialize(client, hud);
@@ -822,7 +826,7 @@ void Game::copyServerClientCache()
 		<< std::endl;
 }
 
-bool Game::createClient(const GameStartData &start_data)
+bool Game::createClient(ClientGameStartData &start_data)
 {
 	std::string *error_message = &(errordata->message);
 
@@ -955,9 +959,10 @@ bool Game::initGui()
 	return true;
 }
 
-bool Game::connectToServer(const GameStartData &start_data,
+bool Game::connectToServer(ClientGameStartData &client_start_data,
 		bool *connect_ok, bool *connection_aborted)
 {
+	GameStartData &start_data = client_start_data.start_data;
 	std::string *error_message = &(errordata->message);
 
 	*connect_ok = false;	// Let's not be overly optimistic
@@ -1012,8 +1017,8 @@ bool Game::connectToServer(const GameStartData &start_data,
 
 
 	try {
-		client = new Client(start_data.name.c_str(),
-				start_data.password,
+		client = new Client(start_data.name,
+				std::move(client_start_data.auth),
 				*draw_control, texture_src, shader_src,
 				itemdef_manager, nodedef_manager, sound_manager.get(), eventmgr,
 				m_rendering_engine,
@@ -3776,7 +3781,7 @@ void Game::readSettings()
 void the_game(volatile std::sig_atomic_t *kill,
 		InputHandler *input,
 		RenderingEngine *rendering_engine,
-		GameStartData &start_data,
+		ClientGameStartData &start_data,
 		GameErrorData &errordata,
 		ChatBackend &chat_backend)
 {
@@ -3812,6 +3817,17 @@ void the_game(volatile std::sig_atomic_t *kill,
 	if (!error_message.empty()) {
 		errorstream << error_message << std::endl;
 		errordata.message = std::move(error_message);
+	}
+
+	// store client auth data if reconnect is requested
+	if (errordata.reconnect_requested) {
+		Client *client = game.getClient();
+		if (client)
+			client->moveClientAuth(start_data.auth);
+		else {
+			errorstream << "Reconnect request with deleted client." << std::endl;
+			errordata.reconnect_requested = false;
+		}
 	}
 
 	game.shutdown();

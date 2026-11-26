@@ -7,6 +7,7 @@
 #include "irrlichttypes.h"
 #include "content/subgames.h"
 #include "log.h" // errorstream
+#include "porting.h"
 
 // Information provided from "main"
 // Start information for server or client
@@ -33,7 +34,7 @@ struct GameClientData
 	{ return mode == GM_HOST_AND_JOIN || mode == GM_SINGLEPLAYER; }
 
 	std::string name;
-	std::string password;
+	//std::string password;
 	std::string address; //< non-empty when joining a server
 
 	enum Mode {
@@ -51,6 +52,10 @@ struct GameClientData
 struct GameStartData : GameParams, GameClientData
 {
 	GameStartData() = default;
+	GameStartData(const GameParams &params) :
+		GameParams(params)
+	{
+	}
 
 	// "world_path" must be kept in sync!
 	WorldSpec world_spec;
