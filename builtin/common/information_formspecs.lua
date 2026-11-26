@@ -104,6 +104,8 @@ local function build_chatcommands_formspec(name, sel, copy, search)
 	local rows = {}
 	rows[1] = "#FFF,0,"..F(S("Command"))..","..F(S("Parameters"))
 
+	local cmd_prefix = INIT == "client" and "." or "/"
+
 	local description = S("For more information, click on "
 		.. "any entry in the list.").. "\n" ..
 		S("Double-click to copy the entry to the chat history.")
@@ -150,7 +152,7 @@ local function build_chatcommands_formspec(name, sel, copy, search)
 	end
 
 	return LIST_FORMSPEC_DESCRIPTION:format(
-			F(S("Available commands: (see also: /help <cmd>)")),
+			F(S("Available commands: (see also: @1)", cmd_prefix .. "help <cmd>")),
 			table.concat(rows, ","), sel or 0,
 			F(description),
 			F(search),
