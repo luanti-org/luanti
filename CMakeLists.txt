@@ -281,6 +281,26 @@ if(CMAKE_GENERATOR STREQUAL "Xcode")
 	set(client_RESOURCES "${CMAKE_SOURCE_DIR}/misc/luanti-icon.icns")
 endif()
 
+# Global check of dependencies
+include(CheckIncludeFiles)
+include(CheckCSourceCompiles)
+
+set(ENDIAN_CHECK_CODE "
+#include <endian.h>
+#include <stdint.h>
+int main() {
+		uint16_t x = be16toh(1);
+		uint16_t y = htobe16(1);
+		uint32_t a = be32toh(1);
+		uint32_t b = htobe32(1);
+		uint64_t c = be64toh(1);
+		uint64_t d = htobe64(1);
+		return x+y+a+b+c+d;
+}
+")
+
+check_c_source_compiles("${ENDIAN_CHECK_CODE}" HAVE_ENDIAN_H)
+
 # Library pack
 find_package(GMP REQUIRED)
 find_package(Json 1.0.0 REQUIRED)
