@@ -27,6 +27,9 @@ struct LightInfo {
 	float light_day;
 	float light_night;
 	float light_boosted;
+	// Ambient occlusion factor of the light (1.0 if there is none),
+	// interpolated in parallel with the light values.
+	float ao;
 
 	LightPair getPair(float sunlight_boost = 0.0f) const
 	{
@@ -40,6 +43,7 @@ struct LightInfo {
 struct LightFrame {
 	f32 lightsDay[8];
 	f32 lightsNight[8];
+	f32 ao[8];
 	bool sunlight[8];
 };
 

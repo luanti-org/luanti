@@ -2071,6 +2071,8 @@ void Server::SendSetLighting(session_t peer_id, const Lighting &lighting)
 		pkt.putRawString(reinterpret_cast<const char*>(s.light_curve), sizeof(s.light_curve));
 	pkt << s.ao_gamma;
 
+	pkt << lighting.ambient_light;
+
 	Send(&pkt);
 }
 

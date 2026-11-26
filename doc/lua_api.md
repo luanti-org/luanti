@@ -10077,6 +10077,21 @@ You **must not** mix names and track numbers to refer to the same animation.
             but keeping original luma and being symmetrical in terms of saturation
             (eg. -1 and 1 is the same saturation and luma, but different hues)
         * This value has no effect on clients who have shaders or post-processing disabled.
+      * `ambient_light` is a ColorSpec that sets the color and brightness of
+        the global ambient light (default: `{r = 0, g = 0, b = 0}`, i.e. disabled).
+        * The ambient light acts as a per-channel light floor, a minimum
+          illumination of the world: completely dark places (e.g. caves)
+          are lit by exactly this color, places which are already brighter
+          are unaffected.
+        * It is occluded like the light of the light sources is: ambient
+          occlusion shading and the shading of the node faces are preserved,
+          also with a full white ambient light.
+        * Setting it to `"#FFFFFF"` makes everything fully lit at all times
+          ("fullbright"), with the shading still applied.
+        * Useful to make dark places like caves or nether-like dimensions
+          not completely dark in the absence of light sources.
+        * Alpha is ignored.
+        * Supported by clients since 5.19.0.
       * `shadows` is a table that controls ambient shadows
         * This has no effect on clients who have the "Dynamic Shadows" effect disabled.
         * `intensity` sets the intensity of the shadows from 0 (no shadows, default) to 1 (blackness)

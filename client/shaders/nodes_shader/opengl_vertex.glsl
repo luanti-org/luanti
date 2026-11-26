@@ -1,6 +1,8 @@
 uniform mat4 mWorld;
 // Color of the light emitted by the sun.
 uniform vec3 dayLight;
+// Color of the global ambient light (a minimum illumination).
+uniform vec3 ambientLight;
 
 // The cameraOffset is the current center of the visible world.
 uniform highp vec3 cameraOffset;
@@ -206,13 +208,13 @@ void main(void)
 
 	// Calculate color.
 	vec4 color = inVertexColor;
-	// Red, green and blue components are pre-multiplied with
-	// the brightness, so now we have to multiply these
-	// colors with the color of the incoming light.
-	// The pre-baked colors are halved to prevent overflow.
-	// The alpha gives the ratio of sunlight in the incoming light.
+	// The green and blue channels carry the light pre-multiplied with
+	// the brightness, the alpha the ratio of sunlight in it and the red
+	// channel the ambient occlusion factor of the light.
+	// The pre-baked light is halved to prevent overflow.
+	float ao = color.r;
 	nightRatio = 1.0 - color.a;
-	color.rgb = color.rgb * (color.a * dayLight.rgb +
+	color.rgb = vec3(color.g) * (color.a * dayLight.rgb +
 		nightRatio * artificialLight.rgb) * 2.0;
 	color.a = 1.0;
 
@@ -221,6 +223,13 @@ void main(void)
 	float brightness = (color.r + color.g + color.b) / 3.0;
 	color.b += max(0.0, 0.021 - abs(0.2 * brightness - 0.021) +
 		0.07 * brightness);
+
+	// The ambient light is a per-channel light floor ("minimum
+	// illumination"): it is occluded by the ambient occlusion factor
+	// like the light itself is, so the occlusion and the face shading
+	// stay visible at any ambient brightness, including fullbright.
+	// See C++ implementation in mapblock_mesh.cpp apply_ambient_light()
+	color.rgb = max(color.rgb, ambientLight.rgb * ao);
 
 	varColor = clamp(color, 0.0, 1.0);
 

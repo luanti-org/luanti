@@ -9,6 +9,7 @@
 #include "collision.h"
 #include "client/content_cao.h"
 #include "client/clientevent.h"
+#include "client/mapblock_mesh.h"
 #include "client/renderingengine.h"
 #include "client/texturesource.h"
 #include "util/numeric.h"
@@ -214,10 +215,15 @@ video::SColor Particle::updateLight(ClientEnvironment *env)
 		light = blend_light(env->getDayNightRatio(), LIGHT_SUN, 0);
 
 	u8 m_light = decode_light(light + m_p.glow);
+	// Particles are rendered without a lighting shader, so the ambient
+	// light is applied here like the shaders do.
+	video::SColor light_color(255, m_light, m_light, m_light);
+	apply_ambient_light(&light_color,
+			env->getLocalPlayer()->getLighting().ambient_light);
 	return video::SColor(255,
-		m_light * m_base_color.getRed() / 255,
-		m_light * m_base_color.getGreen() / 255,
-		m_light * m_base_color.getBlue() / 255);
+		light_color.getRed() * m_base_color.getRed() / 255,
+		light_color.getGreen() * m_base_color.getGreen() / 255,
+		light_color.getBlue() * m_base_color.getBlue() / 255);
 }
 
 void Particle::updateVertices(ClientEnvironment *env, video::SColor color)

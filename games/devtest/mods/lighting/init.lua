@@ -29,6 +29,14 @@ local lighting_sections = {
 			{n = "strength", d = "Strength", min = 0, max = 1},
 		},
 	},
+	{
+		n = "ambient_light", d = "Ambient Light",
+		entries = {
+			{n = "r", d = "Red", min = 0, max = 255},
+			{n = "g", d = "Green", min = 0, max = 255},
+			{n = "b", d = "Blue", min = 0, max = 255},
+		},
+	},
 }
 
 local function dump_lighting(lighting)

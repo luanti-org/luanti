@@ -348,7 +348,15 @@ static LightPair getFaceLight(MapNode n, MapNode n2, const NodeDefManager *ndef)
 	Calculate smooth lighting at the XYZ- corner of p.
 	Both light banks
 */
-static LightPair getSmoothLightCorner(const v3s16 &p,
+struct CornerLight {
+	LightPair light;
+	// Ambient occlusion factor applied to the corner light (1.0 if
+	// there is none). It is passed to the vertex color separately, so
+	// that the ambient light can be occluded like the light is.
+	float ao;
+};
+
+static CornerLight getSmoothLightCorner(const v3s16 &p,
 		const v3s16 &corner, MeshMakeData *data)
 {
 	const NodeDefManager *ndef = data->m_nodedef;
@@ -459,9 +467,15 @@ static LightPair getSmoothLightCorner(const v3s16 &p,
 		if (!skip_ambient_occlusion_night)
 			light_night = rangelim(core::round32(
 					light_night * light_amount), 0, 255);
-	}
 
-	return LightPair((u8)light_day, (u8)light_night);
+		// Corners brightened by a light source are not considered
+		// occluded, like they are for the light itself.
+		if (skip_ambient_occlusion_day || skip_ambient_occlusion_night)
+			light_amount = 1.0f;
+		return CornerLight{LightPair((u8)light_day, (u8)light_night),
+				light_amount};
+	}
+	return CornerLight{LightPair((u8)light_day, (u8)light_night), 1.0f};
 }
 
 // Gets the base lighting values for a node
@@ -470,12 +484,13 @@ void MapblockMeshGenerator::getSmoothLightFrame()
 	for (int k = 0; k < 8; ++k)
 		cur_node.lframe.sunlight[k] = false;
 	for (int k = 0; k < 8; ++k) {
-		LightPair light = getSmoothLightCorner(blockpos_nodes + cur_node.p, light_dirs[k], data);
-		cur_node.lframe.lightsDay[k] = light.lightDay;
-		cur_node.lframe.lightsNight[k] = light.lightNight;
+		CornerLight corner = getSmoothLightCorner(blockpos_nodes + cur_node.p, light_dirs[k], data);
+		cur_node.lframe.lightsDay[k] = corner.light.lightDay;
+		cur_node.lframe.lightsNight[k] = corner.light.lightNight;
+		cur_node.lframe.ao[k] = corner.ao;
 		// If there is direct sunlight and no ambient occlusion at some corner,
 		// mark the vertical edge (top and bottom corners) containing it.
-		if (light.lightDay == 255) {
+		if (corner.light.lightDay == 255) {
 			cur_node.lframe.sunlight[k] = true;
 			cur_node.lframe.sunlight[k ^ 2] = true;
 		}
@@ -495,6 +510,7 @@ LightInfo MapblockMeshGenerator::blendLight(const v3f &vertex_pos)
 	f32 lightDay = 0.0; // daylight
 	f32 lightNight = 0.0;
 	f32 lightBoosted = 0.0; // daylight + direct sunlight, if any
+	f32 ao = 0.0;
 	for (int k = 0; k < 8; ++k) {
 		f32 dx = (k & 4) ? x : 1 - x;
 		f32 dy = (k & 2) ? y : 1 - y;
@@ -504,8 +520,9 @@ LightInfo MapblockMeshGenerator::blendLight(const v3f &vertex_pos)
 		lightDay += dx * dy * dz * cur_node.lframe.lightsDay[k];
 		lightNight += dx * dy * dz * cur_node.lframe.lightsNight[k];
 		lightBoosted += dx * dy * dz * light_boosted;
+		ao += dx * dy * dz * cur_node.lframe.ao[k];
 	}
-	return LightInfo{lightDay, lightNight, lightBoosted};
+	return LightInfo{lightDay, lightNight, lightBoosted, ao};
 }
 
 // Calculates vertex color to be used in mapblock mesh
@@ -513,7 +530,7 @@ LightInfo MapblockMeshGenerator::blendLight(const v3f &vertex_pos)
 video::SColor MapblockMeshGenerator::blendLightColor(const v3f &vertex_pos)
 {
 	LightInfo light = blendLight(vertex_pos);
-	return encode_light(light.getPair(), cur_node.f->light_source);
+	return encode_light(light.getPair(), cur_node.f->light_source, light.ao);
 }
 
 video::SColor MapblockMeshGenerator::blendLightColor(const v3f &vertex_pos,
@@ -521,7 +538,7 @@ video::SColor MapblockMeshGenerator::blendLightColor(const v3f &vertex_pos,
 {
 	LightInfo light = blendLight(vertex_pos);
 	video::SColor color = encode_light(light.getPair(MYMAX(0.0f, vertex_normal.Y)),
-			cur_node.f->light_source);
+			cur_node.f->light_source, light.ao);
 	if (!cur_node.f->light_source)
 		applyFacesShading(color, vertex_normal);
 	return color;
@@ -595,8 +612,9 @@ void MapblockMeshGenerator::drawAutoLightedCuboid(aabb3f box,
 			LightPair final_lights[4];
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
-				final_lights[j] = lights[light_indices[face][j]].getPair(MYMAX(0.0f, vertex.Normal.Y));
-				vertex.Color = encode_light(final_lights[j], cur_node.f->light_source);
+				const LightInfo &light = lights[light_indices[face][j]];
+				final_lights[j] = light.getPair(MYMAX(0.0f, vertex.Normal.Y));
+				vertex.Color = encode_light(final_lights[j], cur_node.f->light_source, light.ao);
 				if (!cur_node.f->light_source)
 					applyFacesShading(vertex.Color, vertex.Normal);
 			}
@@ -704,7 +722,7 @@ void MapblockMeshGenerator::drawSolidNode()
 	box.MinEdge += cur_node.origin;
 	box.MaxEdge += cur_node.origin;
 	if (data->m_smooth_lighting) {
-		LightPair lights[6][4];
+		CornerLight lights[6][4];
 		for (int face = 0; face < 6; ++face) {
 			if (mask & (1 << face))
 				continue;
@@ -729,11 +747,14 @@ void MapblockMeshGenerator::drawSolidNode()
 			const auto &face_lights = lights[face];
 			for (int j = 0; j < 4; j++) {
 				video::S3DVertex &vertex = vertices[j];
-				vertex.Color = encode_light(face_lights[j], cur_node.f->light_source);
+				vertex.Color = encode_light(face_lights[j].light,
+						cur_node.f->light_source, face_lights[j].ao);
 				if (!cur_node.f->light_source)
 					applyFacesShading(vertex.Color, vertex.Normal);
 			}
-			return getSmoothLightingQuadDiagonal(face_lights);
+			LightPair face_pairs[4] = {face_lights[0].light, face_lights[1].light,
+					face_lights[2].light, face_lights[3].light};
+			return getSmoothLightingQuadDiagonal(face_pairs);
 		});
 	} else {
 		drawCuboid(box, tiles, 6, nullptr, mask, [&] (int face, video::S3DVertex vertices[4]) {
