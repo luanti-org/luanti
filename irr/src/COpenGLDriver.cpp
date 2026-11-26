@@ -46,7 +46,7 @@ bool COpenGLDriver::initDriver()
 		return false;
 	ExposedData = ContextManager->getContext();
 	ContextManager->activateContext(ExposedData, false);
-	GL.LoadAllProcedures(ContextManager);
+	GL.LoadAllProcedures(ContextManager, false);
 
 	genericDriverInit();
 
