@@ -825,12 +825,16 @@ void COpenGLDriver::renderArray(const void *indexList, u32 primitiveCount,
 //! draws a vertex primitive list in 2d
 void COpenGLDriver::draw2DVertexPrimitiveList(const void *vertices, u32 vertexCount,
 		const void *indexList, u32 primitiveCount,
-		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType)
+		E_VERTEX_TYPE vType, scene::E_PRIMITIVE_TYPE pType, E_INDEX_TYPE iType,
+		const core::rect<s32> *clipRect)
 {
 	if (!primitiveCount || !vertexCount)
 		return;
 
 	if (!checkPrimitiveCount(primitiveCount))
+		return;
+
+	if (clipRect && !clipRect->isValid())
 		return;
 
 	CNullDriver::draw2DVertexPrimitiveList(vertices, vertexCount, indexList, primitiveCount, vType, pType, iType);
@@ -928,7 +932,22 @@ void COpenGLDriver::draw2DVertexPrimitiveList(const void *vertices, u32 vertexCo
 		break;
 	}
 
+
+	if (clipRect) {
+		const core::dimension2d<u32> &targetSize = getCurrentRenderTargetSize();
+
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(
+			clipRect->UpperLeftCorner.X,
+			targetSize.Height - clipRect->LowerRightCorner.Y,
+			clipRect->getWidth(), clipRect->getHeight()
+		);
+	}
+
 	renderArray(indexList, primitiveCount, pType, iType);
+
+	if (clipRect)
+		glDisable(GL_SCISSOR_TEST);
 
 	if (Feature.MaxTextureUnits > 0) {
 		if ((vType != EVT_STANDARD) || CacheHandler->getTextureCache()[1]) {

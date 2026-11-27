@@ -463,6 +463,7 @@ add_library(IrrlichtMt STATIC
 	CSceneCollisionManager.h
 	CSceneManager.h
 
+	CBatchDraw2D.cpp
 	CBillboardSceneNode.cpp
 	CCameraSceneNode.cpp
 	CDummyTransformationSceneNode.cpp
