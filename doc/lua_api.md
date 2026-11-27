@@ -3100,6 +3100,8 @@ Formspec Version History
   * label[], textarea[] and field[] alignment styles
 * Version 12 (5.18.0)
   * `editable` style
+* Version 13 (5.19.0)
+  * Added notify_open[] element
 
 
 Elements
@@ -3178,6 +3180,23 @@ Elements
   it with the Escape key or similar. Default true.
 * The formspec can still be closed with `*_exit[]` elements and
   `core.close_formspec()`, regardless of this setting.
+
+### `notify_open[<bool>]`
+
+* Only supported in the player inventory formspec (see `set_inventory_formspec`).
+  Default false.
+* When true opening the inventory does not show the formspec right away.
+  Instead `core.register_on_formspec_open` callbacks are run on the server,
+  and the client shows the inventory formspec it receives afterwards.
+* The player sees nothing until the server answers, so opening the
+  inventory takes one network round trip.
+  Pressing the inventory key again while waiting cancels the opening.
+* If the server does not answer within a few seconds, the client shows the
+  formspec it already has.
+* Servers without support for this element are not notified,
+  and the formspec is shown right away.
+* Clients that do not support this element (formspec version < 13) show the
+  formspec right away without notifying the server.
 
 ### `container[<X>,<Y>]`
 
@@ -6583,6 +6602,8 @@ Utilities
       get_all_craft_recipes_fuel = true,
       -- Whether `core.get_all_craft_recipes` may return the `replacements` field (5.17.0)
       get_all_craft_recipes_replacements = true,
+      -- `notify_open[]` formspec element and `core.register_on_formspec_open` (5.19.0)
+      formspec_notify_open = true,
   }
   ```
 
@@ -7049,6 +7070,16 @@ Call these functions only at load time!
           text field. See also: `field_close_on_enter`.
     * Newest functions are called first
     * If function returns `true`, remaining functions are not called
+* `core.register_on_formspec_open(function(player, formname))`
+    * Called when a player opens a formspec that contains `notify_open[true]`,
+      before the client shows it.
+    * Only called while the player's inventory formspec contains `notify_open[true]`.
+      The request comes from the client, so a client can send it at any time,
+      whether or not anything is shown.
+    * `formname`: Always `""` (the player inventory).
+    * To show an up-to-date inventory, call `player:set_inventory_formspec` in the callback.
+      Once this function returns, the client shows the player's inventory formspec.
+    * Return value is ignored.
 * `core.register_on_craft(function(itemstack, player, old_craft_grid, craft_inv))`
     * Called when `player` crafts something
     * `itemstack` is the output

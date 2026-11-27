@@ -226,6 +226,7 @@ public:
 		const StringMap &fields);
 	void sendInventoryFields(const std::string &formname,
 		const StringMap &fields);
+	void sendFormspecOpen(const std::string &formname);
 	void sendInventoryAction(InventoryAction *a);
 	void sendChatMessage(const std::wstring &message);
 	void clearOutChatQueue();

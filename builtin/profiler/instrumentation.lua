@@ -37,6 +37,7 @@ local register_functions = {
 	"register_on_joinplayer",
 	"register_on_leaveplayer",
 	"register_on_player_receive_fields",
+	"register_on_formspec_open",
 	"register_on_cheat",
 	"register_on_craft",
 	"register_craft_predict",

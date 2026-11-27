@@ -124,6 +124,8 @@ public:
 	u16 formspec_version = 0;
 
 	bool inventory_formspec_overridden = false;
+	/// Set whenever the client is sent a new inventory formspec to show.
+	bool inventory_formspec_sent = false;
 
 	/// returns PEER_ID_INEXISTENT when PlayerSAO is either
 	/// not yet present or about to be removed (e.g. leave).

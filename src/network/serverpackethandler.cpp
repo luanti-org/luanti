@@ -1437,6 +1437,34 @@ void Server::handleCommand_InventoryFields(NetworkPacket* pkt)
 	actionstream << ", possible exploitation attempt" << std::endl;
 }
 
+void Server::handleCommand_FormspecOpen(NetworkPacket *pkt)
+{
+	session_t peer_id = pkt->getPeerId();
+	RemotePlayer *player = m_env->getPlayer(peer_id);
+	if (!player)
+		return;
+	PlayerSAO *playersao = player->getPlayerSAO();
+	if (!playersao)
+		return;
+
+	std::string formname;
+	*pkt >> formname;
+
+	// Only the player inventory is supported for now, and only when it asks for it
+	if (!formname.empty() || !player->inventory_formspec_notify_open) {
+		verbosestream << player->getName() << " sent unexpected formspec open for '"
+			<< formname << "'" << std::endl;
+		return;
+	}
+
+	player->inventory_formspec_sent = false;
+	m_script->on_formspecOpen(playersao, formname);
+
+	// The client waits for a formspec, so always reply
+	if (!player->inventory_formspec_sent)
+		SendPlayerInventoryFormspec(peer_id);
+}
+
 void Server::handleCommand_FirstSrp(NetworkPacket* pkt)
 {
 	session_t peer_id = pkt->getPeerId();

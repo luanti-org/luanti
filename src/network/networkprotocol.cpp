@@ -86,6 +86,7 @@
 		[scheduled bump for 5.18.0]
 	PROTOCOL VERSION 55
 		Added "move_camera" flag to TOCLIENT_ACTIVE_OBJECT_MESSAGES
+		Add TOSERVER_FORMSPEC_OPEN
 		[scheduled bump for 5.19.0]
 */
 
@@ -93,4 +94,4 @@
 const u16 LATEST_PROTOCOL_VERSION = 55;
 
 // See also formspec [Version History] in doc/lua_api.md
-const u16 FORMSPEC_API_VERSION = 12;
+const u16 FORMSPEC_API_VERSION = 13;

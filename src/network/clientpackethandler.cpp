@@ -921,8 +921,9 @@ void Client::handleCommand_InventoryFormSpec(NetworkPacket* pkt)
 	assert(player != NULL);
 
 	// Store formspec in LocalPlayer
-	player->inventory_formspec = pkt->readLongString();
+	player->setInventoryFormspec(pkt->readLongString());
 	player->inventory_formspec_override.clear();
+	player->inventory_formspec_updates++;
 }
 
 void Client::handleCommand_DetachedInventory(NetworkPacket* pkt)

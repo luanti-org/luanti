@@ -20,6 +20,12 @@
 #include "gui/guiOpenURL.h"
 #include "gui/guiVolumeChange.h"
 #include "localplayer.h"
+#include "porting.h"
+
+// How long to wait for the server before showing the cached inventory formspec
+static constexpr u64 INVENTORY_OPEN_TIMEOUT_MS = 3000;
+// First protocol version with TOSERVER_FORMSPEC_OPEN
+static constexpr u16 FORMSPEC_OPEN_MIN_PROTO_VERSION = 55;
 
 /*
 	Text input system
@@ -320,9 +326,17 @@ void GameFormSpec::showPlayerInventory(const std::string *fs_override)
 	if (!player || !player->getCAO())
 		return;
 
-	infostream << "Game: Launching inventory" << std::endl;
+	// Pressing the inventory key again cancels the wait, like closing the inventory
+	if (!fs_override && m_inventory_open_pending) {
+		cancelPendingInventory();
+		return;
+	}
 
-	auto fs_src = std::make_unique<PlayerInventoryFormSource>(m_client);
+	// Client-side mods already ran for the key press this replies to
+	bool is_pending_reply = fs_override && m_inventory_open_pending;
+	m_inventory_open_pending = false;
+
+	infostream << "Game: Launching inventory" << std::endl;
 
 	InventoryLocation inventoryloc;
 	inventoryloc.setCurrentPlayer();
@@ -336,8 +350,29 @@ void GameFormSpec::showPlayerInventory(const std::string *fs_override)
 	}
 
 	// If prevented by Client-Side Mods
-	if (m_client->modsLoaded() && m_client->getScript()->on_inventory_open(m_client->getInventory(inventoryloc)))
+	if (!is_pending_reply && m_client->modsLoaded() &&
+			m_client->getScript()->on_inventory_open(m_client->getInventory(inventoryloc)))
 		return;
+
+	// The server replies with an up-to-date formspec, see `updatePendingInventory`
+	if (!fs_override && player->inventory_formspec_notify_open &&
+			m_client->getProtoVersion() >= FORMSPEC_OPEN_MIN_PROTO_VERSION) {
+		m_inventory_open_pending = true;
+		m_inventory_open_request_ms = porting::getTimeMs();
+		m_inventory_open_request_updates = player->inventory_formspec_updates;
+		m_client->sendFormspecOpen("");
+		return;
+	}
+
+	openPlayerInventory();
+}
+
+void GameFormSpec::openPlayerInventory()
+{
+	auto fs_src = std::make_unique<PlayerInventoryFormSource>(m_client);
+
+	InventoryLocation inventoryloc;
+	inventoryloc.setCurrentPlayer();
 
 	// Empty formspec -> do not show.
 	if (fs_src->getForm().empty())
@@ -507,6 +542,9 @@ void GameFormSpec::update()
 	   1. Delete formspec menu reference if menu was removed
 	   2. Else, make sure formspec menu is on top
 	*/
+	if (m_inventory_open_pending)
+		updatePendingInventory();
+
 	if (!m_formspec)
 		return;
 
@@ -527,6 +565,28 @@ void GameFormSpec::update()
 
 	if (isMenuActive())
 		guiroot->bringToFront(m_formspec);
+}
+
+void GameFormSpec::updatePendingInventory()
+{
+	// Another menu took over (pause menu, death screen, other formspec)
+	if (isMenuActive()) {
+		m_inventory_open_pending = false;
+		return;
+	}
+
+	LocalPlayer *player = m_client->getEnv().getLocalPlayer();
+	bool replied = player->inventory_formspec_updates != m_inventory_open_request_updates;
+	bool timed_out = porting::getDeltaMs(m_inventory_open_request_ms,
+			porting::getTimeMs()) >= INVENTORY_OPEN_TIMEOUT_MS;
+	if (!replied && !timed_out)
+		return;
+
+	if (!replied)
+		infostream << "Game: No inventory formspec from server, showing cached one" << std::endl;
+
+	m_inventory_open_pending = false;
+	openPlayerInventory();
 }
 
 void GameFormSpec::disableDebugView()

@@ -12,6 +12,9 @@
 #include <string_view>
 #include <array>
 
+/// Formspec element that makes the client ask the server before showing it
+constexpr std::string_view NOTIFY_OPEN_FORMSPEC_ELEMENT = "notify_open";
+
 #define PLAYERNAME_SIZE 20
 
 #define PLAYERNAME_ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
@@ -214,7 +217,12 @@ public:
 	std::array<v2f, (size_t) LocalPlayerAnimation::COUNT> local_animations;
 	float local_animation_speed;
 
+	/// Set with `setInventoryFormspec` to keep `inventory_formspec_notify_open` in sync
 	std::string inventory_formspec;
+	/// Whether `inventory_formspec` contains `notify_open[true]`
+	bool inventory_formspec_notify_open = false;
+	void setInventoryFormspec(std::string_view formspec);
+
 	std::string formspec_prepend;
 
 	PlayerControl control;

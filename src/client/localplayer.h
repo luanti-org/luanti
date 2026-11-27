@@ -91,6 +91,8 @@ public:
 	std::string hotbar_selected_image = "";
 	/// Temporary player inventory formspec. Empty value = feature inactive.
 	std::string inventory_formspec_override;
+	/// Incremented on every inventory formspec received from the server.
+	u32 inventory_formspec_updates = 0;
 
 	video::SColor light_color = video::SColor(255, 255, 255, 255);
 

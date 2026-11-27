@@ -220,6 +220,18 @@ void ScriptApiPlayer::on_playerReceiveFields(ServerActiveObject *player,
 	runCallbacks(3, RUN_CALLBACKS_MODE_OR_SC);
 }
 
+void ScriptApiPlayer::on_formspecOpen(ServerActiveObject *player,
+		const std::string &formname)
+{
+	SCRIPTAPI_PRECHECKHEADER
+
+	lua_getglobal(L, "core");
+	lua_getfield(L, -1, "registered_on_formspec_opens");
+	objectrefGetOrCreate(L, player);
+	lua_pushlstring(L, formname.c_str(), formname.size());
+	runCallbacks(2, RUN_CALLBACKS_MODE_FIRST);
+}
+
 void ScriptApiPlayer::on_authplayer(const std::string &name, const std::string &ip, bool is_success)
 {
 	SCRIPTAPI_PRECHECKHEADER

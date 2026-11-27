@@ -1784,7 +1784,7 @@ int ObjectRef::l_set_inventory_formspec(lua_State *L)
 	if (player->inventory_formspec_overridden
 			|| formspec != player->inventory_formspec) {
 		player->inventory_formspec_overridden = false;
-		player->inventory_formspec = formspec;
+		player->setInventoryFormspec(formspec);
 		getServer(L)->reportInventoryFormspecModified(player->getName());
 	}
 	return 0;

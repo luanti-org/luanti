@@ -864,6 +864,13 @@ enum ToServerCommand : u16
 			u8[len] field value
 	*/
 
+	TOSERVER_FORMSPEC_OPEN = 0x3d,
+	/*
+		Sent when a formspec with `notify_open[true]` is about to be shown.
+		u16 len
+		u8[len] form name (empty for the player inventory)
+	*/
+
 	TOSERVER_REQUEST_MEDIA = 0x40,
 	/*
 		u16 number of files requested
