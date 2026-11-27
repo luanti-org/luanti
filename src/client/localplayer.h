@@ -174,8 +174,9 @@ private:
 	v3s16 m_standing_node;
 
 	v3s16 m_sneak_node = v3s16(32767, 32767, 32767);
-	// Stores the top bounding box of m_sneak_node
-	aabb3f m_sneak_node_bb_top = aabb3f(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	// Stores the bounding box of m_sneak_node, with its max Y at the support
+	// surface under the player
+	aabb3f m_sneak_node_bbox = aabb3f(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	// Whether the player is allowed to sneak
 	bool m_sneak_node_exists = false;
 	// Whether a "sneak ladder" structure is detected at the players pos

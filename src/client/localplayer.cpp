@@ -14,6 +14,10 @@
 #include "content_cao.h"
 #include "hud_element.h"
 
+// Allow the sneak support to be this much above the player's feet
+// in case of rounding issues
+constexpr f32 SNEAK_NODE_SUPPORT_TOLERANCE = 0.02f * BS;
+
 /*
 	PlayerSettings
 */
@@ -86,7 +90,6 @@ static aabb3f getNodeBoundingBox(const std::vector<aabb3f> &nodeboxes)
 	return b_max;
 }
 
-
 bool LocalPlayer::updateSneakNode(Map *map, const v3f &position,
 	const v3f &sneak_max)
 {
@@ -112,9 +115,9 @@ bool LocalPlayer::updateSneakNode(Map *map, const v3f &position,
 	bool new_sneak_node_exists = m_sneak_node_exists;
 
 	// We want the top of the sneak node to be below the players feet
-	f32 position_y_mod = 0.02f * BS;
+	f32 position_y_mod = SNEAK_NODE_SUPPORT_TOLERANCE;
 	if (m_sneak_node_exists)
-		position_y_mod = m_sneak_node_bb_top.MaxEdge.Y - position_y_mod;
+		position_y_mod = m_sneak_node_bbox.MaxEdge.Y - position_y_mod;
 
 	// Get position of current standing node
 	const v3s16 current_node = floatToInt(position - v3f(0.0f, position_y_mod, 0.0f), BS);
@@ -125,6 +128,21 @@ bool LocalPlayer::updateSneakNode(Map *map, const v3f &position,
 		node = map->getNode(current_node, &is_valid_position);
 		if (!is_valid_position || !nodemgr->get(node).walkable)
 			new_sneak_node_exists = false;
+		else if (!physics_override.sneak_glitch) {
+			// Use highest box on this node that's directly under player,
+			// not just top of node.
+			std::vector<aabb3f> nodeboxes;
+			node.getCollisionBoxes(nodemgr, &nodeboxes);
+			const v3f node_pos = intToFloat(current_node, BS);
+			const auto support_y = getNodeBoxSupportHeight(nodeboxes, m_collisionbox,
+				node_pos, position, SNEAK_NODE_SUPPORT_TOLERANCE);
+			if (support_y) {
+				m_sneak_node_bbox = getNodeBoundingBox(nodeboxes);
+				m_sneak_node_bbox.MaxEdge.Y = *support_y - node_pos.Y;
+				return true;
+			}
+			new_sneak_node_exists = false;
+		}
 	}
 
 	// Keep old sneak node
@@ -147,6 +165,10 @@ bool LocalPlayer::updateSneakNode(Map *map, const v3f &position,
 		{
 			std::vector<aabb3f> nodeboxes;
 			node.getCollisionBoxes(nodemgr, &nodeboxes);
+			if (!physics_override.sneak_glitch &&
+					!getNodeBoxSupportHeight(nodeboxes, m_collisionbox, pf, position,
+							SNEAK_NODE_SUPPORT_TOLERANCE))
+				continue;
 			pf += getNodeBoundingBox(nodeboxes).getCenter();
 		}
 
@@ -190,7 +212,15 @@ bool LocalPlayer::updateSneakNode(Map *map, const v3f &position,
 	node = map->getNode(m_sneak_node);
 	std::vector<aabb3f> nodeboxes;
 	node.getCollisionBoxes(nodemgr, &nodeboxes);
-	m_sneak_node_bb_top = getNodeBoundingBox(nodeboxes);
+	m_sneak_node_bbox = getNodeBoundingBox(nodeboxes);
+	if (!physics_override.sneak_glitch) {
+		const v3f node_pos = intToFloat(m_sneak_node, BS);
+		const auto support_y = getNodeBoxSupportHeight(nodeboxes, m_collisionbox,
+			node_pos, position, SNEAK_NODE_SUPPORT_TOLERANCE);
+		if (!support_y)
+			return false;
+		m_sneak_node_bbox.MaxEdge.Y = *support_y - node_pos.Y;
+	}
 
 	if (physics_override.sneak_glitch) {
 		// Detect sneak ladder:
@@ -395,8 +425,8 @@ void LocalPlayer::move(f32 dtime, Environment *env,
 	*/
 	if (could_sneak && m_sneak_node_exists) {
 		const v3f sn_f = intToFloat(m_sneak_node, BS);
-		const v3f bmin = sn_f + m_sneak_node_bb_top.MinEdge;
-		const v3f bmax = sn_f + m_sneak_node_bb_top.MaxEdge;
+		const v3f bmin = sn_f + m_sneak_node_bbox.MinEdge;
+		const v3f bmax = sn_f + m_sneak_node_bbox.MaxEdge;
 		const v3f old_pos = position;
 		const v3f old_speed = m_speed;
 		f32 y_diff = bmax.Y - position.Y;

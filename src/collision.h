@@ -5,6 +5,7 @@
 #pragma once
 
 #include "irrlichttypes_bloated.h"
+#include <optional>
 #include <vector>
 #include "object_properties.h"
 
@@ -70,6 +71,13 @@ CollisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 bool collision_check_intersection(Environment *env, IGameDef *gamedef,
 		const aabb3f &box_0, const v3f &pos_f, ActiveObject *self = nullptr,
 		bool collide_with_objects = true);
+
+/// Finds appropriate height for player to stand on while sneaking
+/// @returns `null` when none of the provided nodeboxes are directly under player
+///          even allowing for max_support_tolerance
+std::optional<f32> getNodeBoxSupportHeight(const std::vector<aabb3f> &nodeboxes,
+		const aabb3f &player_box, v3f node_pos, v3f player_pos,
+		f32 max_support_tolerance);
 
 // Helper function:
 // Checks for collision of a moving aabbox with a static aabbox

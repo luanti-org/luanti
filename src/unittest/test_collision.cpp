@@ -17,6 +17,7 @@ public:
 	void runTests(IGameDef *gamedef);
 
 	void testAxisAlignedCollision();
+	void testNodeBoxSupportHeight();
 	void testCollisionMoveSimple(IGameDef *gamedef);
 };
 
@@ -25,6 +26,7 @@ static TestCollision g_test_instance;
 void TestCollision::runTests(IGameDef *gamedef)
 {
 	TEST(testAxisAlignedCollision);
+	TEST(testNodeBoxSupportHeight);
 	TEST(testCollisionMoveSimple, gamedef);
 }
 
@@ -203,6 +205,38 @@ void TestCollision::testAxisAlignedCollision()
 }
 
 #define fpos(x,y,z) (BS * v3f(x, y, z))
+
+void TestCollision::testNodeBoxSupportHeight()
+{
+	const std::vector<aabb3f> stair_boxes = {
+		// bottom slab
+		aabb3f(fpos(-0.5f, -0.5f, -0.5f), fpos(0.5f, 0.0f, 0.5f)),
+		// top quarter
+		aabb3f(fpos(-0.5f, 0.0f, 0.0f), fpos(0.5f, 0.5f, 0.5f)),
+	};
+	const aabb3f player_box(fpos(-0.3f, 0.0f, -0.3f),
+		fpos(0.3f, 1.75f, 0.3f));
+
+	// on lower step of stairs
+	const auto lower_step = getNodeBoxSupportHeight(stair_boxes, player_box,
+		v3f(0.0f), fpos(0.0f, 0.0f, -0.5f), BS * 0.02f);
+	UASSERT(lower_step);
+	UASSERTEQ_F(*lower_step, 0.0f);
+
+	const auto lower_step_while_falling = getNodeBoxSupportHeight(stair_boxes,
+		player_box, v3f(0.0f), fpos(0.0f, 0.45f, -0.5f), BS * 0.02f);
+	UASSERT(lower_step_while_falling);
+	UASSERTEQ_F(*lower_step_while_falling, 0.0f);
+
+	// on upper step of stairs
+	const auto upper_step = getNodeBoxSupportHeight(stair_boxes, player_box,
+		v3f(0.0f), fpos(0.0f, 0.5f, 0.25f), BS * 0.02f);
+	UASSERT(upper_step);
+	UASSERTEQ_F(*upper_step, BS * 0.5f);
+
+	UASSERT(!getNodeBoxSupportHeight(stair_boxes, player_box, v3f(0.0f),
+		fpos(2.0f, 0.5f, -0.5f), BS * 0.02f));
+}
 
 void TestCollision::testCollisionMoveSimple(IGameDef *gamedef)
 {

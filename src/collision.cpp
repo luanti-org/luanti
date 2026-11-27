@@ -709,3 +709,30 @@ bool collision_check_intersection(Environment *env, IGameDef *gamedef,
 
 	return false;
 }
+
+std::optional<f32> getNodeBoxSupportHeight(const std::vector<aabb3f> &nodeboxes,
+		const aabb3f &player_box, v3f node_pos, v3f player_pos,
+		f32 max_support_tolerance)
+{
+	const v3f player_min = player_pos + player_box.MinEdge;
+	const v3f player_max = player_pos + player_box.MaxEdge;
+	const f32 max_support_y = player_min.Y + max_support_tolerance;
+	std::optional<f32> support_y;
+
+	for (const aabb3f &box : nodeboxes) {
+		const v3f box_min = node_pos + box.MinEdge;
+		const v3f box_max = node_pos + box.MaxEdge;
+
+		// if top of box is significantly above player's feet, or box is not under player
+		if (box_max.Y > max_support_y ||
+				box_max.X <= player_min.X || box_min.X >= player_max.X ||
+				box_max.Z <= player_min.Z || box_min.Z >= player_max.Z)
+			continue;
+
+		// use highest-found box under player
+		if (!support_y || box_max.Y > *support_y)
+			support_y = box_max.Y;
+	}
+
+	return support_y;
+}
