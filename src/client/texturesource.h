@@ -9,6 +9,7 @@
 #include <dimension2d.h>
 #include <string>
 #include <vector>
+#include "irr_ptr.h"
 
 namespace video
 {
@@ -48,6 +49,12 @@ public:
 	virtual ~ITextureSource() = default;
 
 	using ISimpleTextureSource::getTexture;
+
+	/**
+	 * @brief Returns an image from a texture string, without caching the result.
+	 * Takes ownership of the returned pointer.
+	 */
+	virtual irr_ptr<video::IImage> getImageUncached(const std::string &image)=0;
 
 	/// @brief Generates a texture string into a standard texture
 	/// @return its ID
