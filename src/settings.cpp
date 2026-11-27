@@ -226,9 +226,17 @@ bool Settings::parseConfigLines(std::istream &is, std::string_view location)
 				log_to << " in " << location;
 			log_to << std::endl;
 			break;
-		case SPE_KVPAIR:
+		case SPE_KVPAIR: {
+			auto it = m_settings.find(name);
+			if (it != m_settings.end() && !it->second.is_group && it->second.value != value) {
+				warningstream << "Duplicate setting \"" << name << "\"";
+				if (!location.empty())
+					warningstream << " in " << location;
+				warningstream << ", using latest value" << std::endl;
+			}
 			m_settings[name] = SettingsEntry(std::move(value));
 			break;
+		}
 		case SPE_END:
 			return true;
 		case SPE_GROUP: {
