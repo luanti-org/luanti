@@ -14,6 +14,8 @@
 #include "content_cao.h"
 #include "hud_element.h"
 
+// Allow the sneak support to be this much above the player's feet
+// in case of rounding issues
 constexpr f32 SNEAK_NODE_SUPPORT_TOLERANCE = 0.02f * BS;
 
 /*
