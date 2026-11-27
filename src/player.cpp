@@ -10,6 +10,7 @@
 #include "constants.h"
 #include "gamedef.h"
 #include "client/inputhandler.h"
+#include "util/string.h"
 #include <tuple>
 
 const struct EnumString es_CameraMode[] = {
@@ -74,6 +75,19 @@ Player::Player(const std::string &name, const IItemDefManager *idef):
 
 Player::~Player()
 {
+}
+
+void Player::setInventoryFormspec(std::string_view formspec)
+{
+	inventory_formspec = formspec;
+	inventory_formspec_notify_open = false;
+	for (const auto &element : split(formspec, ']')) {
+		size_t pos = element.find('[');
+		if (pos == std::string::npos)
+			continue;
+		if (trim(element.substr(0, pos)) == NOTIFY_OPEN_FORMSPEC_ELEMENT)
+			inventory_formspec_notify_open = is_yes(element.substr(pos + 1));
+	}
 }
 
 void Player::setWieldIndex(u16 index)

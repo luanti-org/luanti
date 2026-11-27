@@ -26,6 +26,7 @@
 #include "drawItemStack.h"
 #include "gettext.h"
 #include "mainmenumanager.h"
+#include "player.h"
 #include "porting.h"
 #include "settings.h"
 #include "client/client.h"
@@ -3060,6 +3061,11 @@ void GUIFormSpecMenu::parseAllowClose(parserData *data, const std::string &eleme
 	m_allowclose = is_yes(element);
 }
 
+void GUIFormSpecMenu::parseNotifyOpen(parserData *, const std::string &)
+{
+	// Handled by GameFormSpec before the menu is created
+}
+
 void GUIFormSpecMenu::removeAll()
 {
 	// Remove children
@@ -3157,6 +3163,7 @@ const std::unordered_map<std::string, std::function<void(GUIFormSpecMenu*, GUIFo
 		{"set_focus",              &GUIFormSpecMenu::parseSetFocus},
 		{"model",                  &GUIFormSpecMenu::parseModel},
 		{"allow_close",            &GUIFormSpecMenu::parseAllowClose},
+		{std::string(NOTIFY_OPEN_FORMSPEC_ELEMENT), &GUIFormSpecMenu::parseNotifyOpen},
 };
 
 

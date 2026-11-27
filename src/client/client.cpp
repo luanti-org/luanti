@@ -1331,6 +1331,14 @@ void Client::sendInventoryFields(const std::string &formname,
 	Send(&pkt);
 }
 
+void Client::sendFormspecOpen(const std::string &formname)
+{
+	NetworkPacket pkt(TOSERVER_FORMSPEC_OPEN, 0);
+	pkt << formname;
+
+	Send(&pkt);
+}
+
 void Client::sendInventoryAction(InventoryAction *a)
 {
 	std::ostringstream os(std::ios_base::binary);

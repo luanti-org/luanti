@@ -2228,6 +2228,7 @@ void Server::SendPlayerInventoryFormspec(session_t peer_id)
 	pkt.putLongString(player->inventory_formspec);
 
 	Send(&pkt);
+	player->inventory_formspec_sent = true;
 }
 
 void Server::SendPlayerFormspecPrepend(session_t peer_id)
@@ -3602,6 +3603,8 @@ bool Server::showFormspec(const char *playername, const std::string &formspec,
 
 	// To allow re-sending the same inventory formspec.
 	player->inventory_formspec_overridden = formname.empty() && !formspec.empty();
+	if (player->inventory_formspec_overridden)
+		player->inventory_formspec_sent = true;
 
 	SendShowFormspecMessage(player->getPeerId(), formspec, formname);
 	return true;

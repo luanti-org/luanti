@@ -524,6 +524,7 @@ private:
 	void parseSetFocus(parserData *, const std::string &element);
 	void parseModel(parserData *data, const std::string &element);
 	void parseAllowClose(parserData *data, const std::string &element);
+	void parseNotifyOpen(parserData *, const std::string &);
 
 	bool parseMiddleRect(const std::string &value, core::rect<s32> *parsed_rect);
 

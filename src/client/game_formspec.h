@@ -36,6 +36,8 @@ struct GameFormSpec
 	/// If `!fs_override`: Uses `player->inventory_formspec`.
 	/// If ` fs_override`: Uses a temporary formspec until an update is received.
 	void showPlayerInventory(const std::string *fs_override);
+	/// Stops waiting for the server to answer a `notify_open[true]` inventory
+	void cancelPendingInventory() { m_inventory_open_pending = false; }
 	void showDeathFormspecLegacy();
 	// Shows the hardcoded "main" pause menu.
 	void showPauseMenu();
@@ -61,6 +63,15 @@ private:
 	/// FIXME: Layering is already managed by `GUIModalMenu` (`g_menumgr`), hence this
 	/// variable should be removed in long-term.
 	GUIFormSpecMenu *m_formspec = nullptr;
+
+	/// Waiting for the server to answer a `notify_open[true]` inventory
+	bool m_inventory_open_pending = false;
+	u64 m_inventory_open_request_ms = 0;
+	/// `LocalPlayer::inventory_formspec_updates` when the request was sent
+	u32 m_inventory_open_request_updates = 0;
+
+	void openPlayerInventory();
+	void updatePendingInventory();
 
 	bool handleEmptyFormspec(const std::string &formspec, const std::string &formname);
 

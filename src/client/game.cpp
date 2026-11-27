@@ -1603,6 +1603,9 @@ void Game::openConsole(float scale, const wchar_t *line)
 {
 	assert(scale > 0.0f && scale <= 1.0f);
 
+	// The console is not a menu, so the pending check in GameFormSpec misses it
+	m_game_formspec.cancelPendingInventory();
+
 #ifdef __ANDROID__
 	if (!porting::hasPhysicalKeyboardAndroid()) {
 		porting::showTextInputDialog("", "", 2);
