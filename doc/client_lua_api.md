@@ -598,6 +598,17 @@ Call these functions only at load time!
     * Reference to the camera object. See [`Camera`](#camera) class reference for methods.
 * `core.show_formspec(formname, formspec)` : returns true on success
     * Shows a formspec to the player
+* `core.get_window_info()`
+    * Returns the current window information in the same table format as the
+      server-side `core.get_player_window_information(player_name)` API (see `lua_api.md`):
+        * `size`: in-game render target size in pixels, as `{x = ..., y = ...}`.
+        * `max_formspec_size`: estimated maximum formspec size before it is shrunk
+          to fit, as `{x = ..., y = ...}`. Use with `padding[0,0]` for fullscreen formspecs.
+        * `real_gui_scaling`: GUI scaling multiplier, including display density.
+        * `real_hud_scaling`: HUD scaling multiplier, including display density.
+        * `touch_controls`: whether touchscreen controls are enabled.
+    * Values can change when the window is resized, moved between monitors, or
+      the player's settings change.
 * `core.display_chat_message(message)` returns true on success
     * Shows a chat message to the current player.
 
