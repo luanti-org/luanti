@@ -159,23 +159,14 @@ public:
 class LuaSecureRandom : public ModApiBase
 {
 private:
-	static const size_t RAND_BUF_SIZE = 2048;
 	static const luaL_Reg methods[];
 
-	u32 m_rand_idx;
-	char m_rand_buf[RAND_BUF_SIZE];
-
 	// Exported functions
-
-	// garbage collector
-	static int gc_object(lua_State *L);
 
 	// next_bytes(self, count) -> get count many bytes
 	static int l_next_bytes(lua_State *L);
 
 public:
-	bool fillRandBuf();
-
 	// LuaSecureRandom()
 	// Creates an LuaSecureRandom and leaves it on top of stack
 	static int create_object(lua_State *L);

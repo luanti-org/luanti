@@ -289,7 +289,7 @@ inline const char *getPlatformName()
 }
 
 // Securely fills buffer with bytes from system's random source
-[[nodiscard]] bool secure_rand_fill_buf(void *buf, size_t len);
+void secure_rand_fill_buf(void *buf, size_t len);
 
 // Call once near beginning of main function.
 void osSpecificInit();
