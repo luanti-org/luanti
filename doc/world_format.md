@@ -163,6 +163,7 @@ content. The convention is `<modname>.<setting>`.
     readonly_backend = sqlite3    - optionally read-only seed DB (DB file _must_ be located in "readonly" subfolder)
     auth_backend = sqlite3        - which DB backend to use for authentication data
     mod_storage_backend = sqlite3 - which DB backend to use for mod storage
+    rollback_backend = sqlite3    - which DB backend to use for rollback. If unset, defaults to `sqlite3`.
     load_mod_<mod> = false        - whether <mod> is to be loaded in this world
     blocksize = 32                - mapblock size, only written if it's non-standard (16)
 
