@@ -8,7 +8,7 @@
 Install dependencies with homebrew:
 
 ```
-brew install cmake freetype gettext gmp hiredis jpeg-turbo jsoncpp leveldb libogg libpng libvorbis luajit zstd gettext sdl2 openal-soft libzip
+brew install cmake freetype gettext gmp hiredis icu4c jpeg-turbo jsoncpp leveldb libogg libpng libvorbis luajit zstd gettext sdl2 openal-soft libzip
 ```
 
 ## Download
