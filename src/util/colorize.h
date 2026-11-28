@@ -23,11 +23,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #define COLOR_CODE(color) "\x1b(c@" color ")"
 
 #if USE_CURL
-#include <curl/curlver.h>
-// curl_url functions since 7.62.0
-#if LIBCURL_VERSION_NUM >= 0x073e00
 #define HAVE_COLORIZE_URL
-#endif
 #endif
 
 #ifdef HAVE_COLORIZE_URL
