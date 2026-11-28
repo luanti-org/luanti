@@ -12,6 +12,7 @@ class PeerHandler;
 
 namespace con
 {
+struct ChannelNumber;
 
 enum rtt_stat_type : int {
 	MIN_RTT,
@@ -58,7 +59,8 @@ public:
 		return ReceiveTimeoutMs(pkt, 0);
 	}
 
-	virtual void Send(session_t peer_id, u8 channelnum, NetworkPacket *pkt, bool reliable) = 0;
+	virtual void Send(session_t peer_id, ChannelNumber channelnum, NetworkPacket *pkt,
+		bool reliable) = 0;
 
 	virtual session_t GetPeerID() const = 0;
 	virtual Address GetPeerAddress(session_t peer_id) = 0;
