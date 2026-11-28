@@ -13,10 +13,20 @@ namespace sound {
  */
 struct ALExtensions
 {
-	explicit ALExtensions(const ALCdevice *deviceHandle [[maybe_unused]]);
+	explicit ALExtensions(ALCdevice *deviceHandle [[maybe_unused]]);
 
 #ifdef AL_SOFT_direct_channels_remix
 	bool have_ext_AL_SOFT_direct_channels_remix = false;
+#endif
+
+#ifdef ALC_SOFT_reopen_device
+	LPALCREOPENDEVICESOFT alcReopenDeviceSOFT = nullptr;
+#endif
+
+#ifdef ALC_SOFT_system_events
+	LPALCEVENTISSUPPORTEDSOFT alcEventIsSupportedSOFT = nullptr;
+	LPALCEVENTCONTROLSOFT alcEventControlSOFT = nullptr;
+	LPALCEVENTCALLBACKSOFT alcEventCallbackSOFT = nullptr;
 #endif
 };
 

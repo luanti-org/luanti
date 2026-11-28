@@ -316,6 +316,7 @@ OpenALSoundManager::OpenALSoundManager(SoundManagerSingleton *smg,
 		std::unique_ptr<SoundFallbackPathProvider> fallback_path_provider) :
 	Thread("OpenALSoundManager"),
 	m_fallback_path_provider(std::move(fallback_path_provider)),
+	m_singleton(smg),
 	m_device(smg->m_device.get()),
 	m_context(smg->m_context.get()),
 	m_exts(m_device),
@@ -335,6 +336,10 @@ OpenALSoundManager::~OpenALSoundManager()
 
 void OpenALSoundManager::step(f32 dtime)
 {
+#ifdef ALC_SOFT_reopen_device
+	m_singleton->updateDefaultOutput(m_exts.alcReopenDeviceSOFT);
+#endif
+
 	m_time_until_dead_removal -= dtime;
 	if (m_time_until_dead_removal <= 0.0f) {
 		if (!m_sounds_playing.empty()) {

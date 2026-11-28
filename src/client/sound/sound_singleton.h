@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <memory>
 #include "al_helpers.h"
 
@@ -44,6 +45,26 @@ public:
 	bool init();
 
 	~SoundManagerSingleton();
+
+#ifdef ALC_SOFT_reopen_device
+	void updateDefaultOutput(LPALCREOPENDEVICESOFT reopen);
+#endif
+
+private:
+	std::atomic<bool> m_default_device_change_pending{false};
+#ifdef ALC_SOFT_reopen_device
+	// Kept with the shared device across the menu and game audio threads.
+	unsigned m_default_output_attempts_left = 0;
+	u64 m_next_default_output_attempt_ms = 0;
+#endif
+
+#ifdef ALC_SOFT_system_events
+	bool m_system_events_registered = false;
+
+	static void ALC_APIENTRY onSystemEvent(ALCenum eventType, ALCenum deviceType,
+			ALCdevice *device, ALCsizei length, const ALCchar *message,
+			void *userParam) noexcept;
+#endif
 };
 
 } // namespace sound
