@@ -146,7 +146,10 @@ bool PlayingSound::stepStream(bool playback_speed_changed)
 	// +0.1 seconds to accommodate hickups.
 	const f32 playback_until_next_check = (2.0f * STREAM_BIGSTEP_TIME + 0.1f) * pitch;
 	const f32 playback_to_fill_up = std::max(0.0f, playback_until_next_check - playback_left);
-	const int num_bufs_to_enqueue = std::ceil(playback_to_fill_up / MIN_STREAM_BUFFER_LENGTH);
+	int num_bufs_to_enqueue = std::ceil(playback_to_fill_up / MIN_STREAM_BUFFER_LENGTH);
+	// After an underrun, the first new buffer plays immediately and cannot count as reserve.
+	if (num_queued_bufs == 0 && num_bufs_to_enqueue > 0)
+		++num_bufs_to_enqueue;
 
 	// Fill up
 	for (int i = 0; i < num_bufs_to_enqueue; ++i) {

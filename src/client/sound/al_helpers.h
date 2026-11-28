@@ -15,7 +15,7 @@
 #if defined(_WIN32)
 	#include <al.h>
 	#include <alc.h>
-	//#include <alext.h>
+	#include <alext.h>
 #elif defined(__APPLE__)
 	#define OPENAL_DEPRECATED
 	#include <OpenAL/al.h>

@@ -36,6 +36,7 @@ class OpenALSoundManager final : public Thread
 private:
 	std::unique_ptr<SoundFallbackPathProvider> m_fallback_path_provider;
 
+	SoundManagerSingleton *m_singleton;
 	ALCdevice *const m_device;
 	ALCcontext *const m_context;
 
