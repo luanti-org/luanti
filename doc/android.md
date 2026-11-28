@@ -90,9 +90,12 @@ build system, as the Android build will download some source packages.
 
 ## Build
 
+_The following is a summary, the full compilation documentation can be found in the Luanti Documentation article, [Compiling Luanti for Android](https://docs.luanti.org/compiling/android/)._
+
 The new build system Luanti Android is fully functional and is designed to
 speed up and simplify the work, as well as adding the possibility of
 cross-platform build.
+
 You can use `./gradlew assembleRelease` or `./gradlew assembleDebug` from the
 command line or use Android Studio and click the build button.
 
@@ -110,3 +113,5 @@ automatically. You have to create a `local.properties` file and specify
 
   > key.store=<path to your keystore>
   > key.alias=Minetest
+
+* To build on Windows, you might need the external unix dependency [gettext](https://www.gnu.org/software/gettext/) (Also available through [Scoop](https://scoop.sh/), which has been confirmed to work for installing both Gradle and Gettext for this use-case). Additionally, if the `gradlew` command is missing, `gradle` or `gradle wrapper` can be used instead.
