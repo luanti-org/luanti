@@ -11,9 +11,11 @@
 #include "os.h"
 
 #include "Driver.h"
+#include "ShaderCache.h"
 
 #include "COpenGLCoreTexture.h"
 #include "COpenGLCoreCacheHandler.h"
+#include <optional>
 
 namespace video
 {
@@ -102,25 +104,60 @@ void COpenGL3MaterialRenderer::init(s32 &outMaterialTypeNr,
 {
 	outMaterialTypeNr = -1;
 
-	Program = GL.CreateProgram();
+	std::optional<GLuint> cachedProgram;
+	if (Driver->BinaryCacheSupported) {
+		cachedProgram = Driver->getShaderCache().load(
+			vertexShaderProgram ? vertexShaderProgram : "",
+			pixelShaderProgram ? pixelShaderProgram : "");
+	}
 
-	if (!Program)
-		return;
+	if (cachedProgram) {
+		Program = *cachedProgram;
+		os::Printer::log("Successfully loaded shader binary from cache",
+			debugName ? debugName : "unknown", ELL_INFORMATION);
 
-	if (vertexShaderProgram)
-		if (!createShader(GL_VERTEX_SHADER, vertexShaderProgram))
+		if (!setupProgram())
+			return;
+	} else {
+		os::Printer::log("Cache miss", debugName ? debugName : "unknown", ELL_INFORMATION);
+
+		Program = GL.CreateProgram();
+
+		if (!Program)
 			return;
 
-	if (pixelShaderProgram)
-		if (!createShader(GL_FRAGMENT_SHADER, pixelShaderProgram))
+		if (vertexShaderProgram)
+			if (!createShader(GL_VERTEX_SHADER, vertexShaderProgram))
+				return;
+
+		if (pixelShaderProgram)
+			if (!createShader(GL_FRAGMENT_SHADER, pixelShaderProgram))
+				return;
+
+		for (u32 i = 0; i < EVA_COUNT; ++i)
+			GL.BindAttribLocation(Program, i, sBuiltInVertexAttributeNames[i]);
+
+		if (!linkProgram())
 			return;
 
-	for (u32 i = 0; i < EVA_COUNT; ++i)
-		GL.BindAttribLocation(Program, i, sBuiltInVertexAttributeNames[i]);
+		if (!setupProgram())
+			return;
 
-	if (!linkProgram())
-		return;
+		// Try to save to cache if supported
+		if (Driver->BinaryCacheSupported) {
+			bool savedOk = Driver->getShaderCache().save(
+				vertexShaderProgram ? vertexShaderProgram : "",
+				pixelShaderProgram ? pixelShaderProgram : "", Program);
 
+			if (savedOk) {
+				os::Printer::log("Saved compiled shader binary to cache",
+					debugName ? debugName : "unknown", ELL_INFORMATION);
+			} else {
+				os::Printer::log("Failed to save compiled shader binary to cache",
+					debugName ? debugName : "unknown", ELL_WARNING);
+			}
+		}
+	}
 	if (debugName)
 		Driver->irrGlObjectLabel(GL_PROGRAM, Program, debugName);
 
@@ -242,7 +279,14 @@ bool COpenGL3MaterialRenderer::linkProgram()
 
 			return false;
 		}
+	}
 
+	return true;
+}
+
+bool COpenGL3MaterialRenderer::setupProgram()
+{
+	if (Program) {
 		GLuint blockIndex = GL.GetUniformBlockIndex(Program, "JointMatrices");
 		if (GL_INVALID_INDEX != blockIndex) {
 			GL.UniformBlockBinding(Program, blockIndex, 0);
