@@ -128,6 +128,7 @@ local function load()
 			"console_height",
 			"console_alpha",
 			"console_color",
+			"chat_autocomplete_append",
 			{ heading = fgettext_ne("Controls") },
 			"autojump",
 			"safe_dig_and_place",
