@@ -66,6 +66,8 @@ enum ContentParamType2 : u8
 	CPT2_4DIR,
 	// 6 bits of palette index, then 4dir
 	CPT2_COLORED_4DIR,
+	// 4 bits of palette index, then flowingliquid
+	CPT2_COLORED_LIQUID,
 	// Dummy for validity check
 	ContentParamType2_END
 };
