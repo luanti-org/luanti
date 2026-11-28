@@ -28,6 +28,8 @@ public:
 	ActiveBlockModifier() = default;
 	virtual ~ActiveBlockModifier() = default;
 
+	// Optional name of modifier.
+	virtual const std::string &getName() const = 0;
 	// Set of contents to trigger on
 	virtual const std::vector<std::string> &getTriggerContents() const = 0;
 	// Set of required neighbors (trigger doesn't happen if none are found)
