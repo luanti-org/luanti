@@ -1,0 +1,63 @@
+name: emscripten
+
+# build on c/cpp changes or workflow changes
+on:
+  push:
+    paths:
+      - 'lib/**.[ch]'
+      - 'lib/**.cpp'
+      - 'src/**.[ch]'
+      - 'src/**.cpp'
+      - 'irr/**.[ch]'
+      - 'irr/**.cpp'
+      - '**/CMakeLists.txt'
+      - 'cmake/Modules/**'
+      - 'po/**.po'
+      - 'util/ci/build_emscripten.sh'
+      - '.github/workflows/emscripten.yml'
+  pull_request:
+    paths:
+      - 'lib/**.[ch]'
+      - 'lib/**.cpp'
+      - 'src/**.[ch]'
+      - 'src/**.cpp'
+      - 'irr/**.[ch]'
+      - 'irr/**.cpp'
+      - '**/CMakeLists.txt'
+      - 'cmake/Modules/**'
+      - 'po/**.po'
+      - 'util/ci/build_emscripten.sh'
+      - '.github/workflows/emscripten.yml'
+
+jobs:
+  emscripten:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake gettext
+
+      - name: Setup emsdk
+        uses: emscripten-core/setup-emsdk@v16
+        with:
+          # Keep version same in build_emscripten.sh
+          version: 6.0.11
+          actions-cache-folder: build/emsdk-cache
+
+      - name: Build
+        run: |
+          ./util/ci/build_emscripten.sh
+
+      - name: Unittest
+        run: |
+          timeout_secs=60
+          status=0
+          timeout --foreground --kill-after=10 $timeout_secs \
+            "$EMSDK_NODE" --experimental-wasm-jspi bin/luanti.js --run-unittests \
+            || status=$?
+          if [ $status -eq 124 ]; then
+            echo "::error::Unittests hung (did not exit within $timeout_secs seconds)"
+          fi
+          exit $status
